@@ -50,7 +50,12 @@ infix 4 _[_≡_]
 _[_≡_] : ∀ {ℓ} (A : I → Set ℓ) → A i0 → A i1 → Set ℓ
 _[_≡_] = PathP
 
+
 -- Non dependent path type.
+
+Path : ∀ {ℓ} (A : Set ℓ) → A → A → Set ℓ
+Path A a b = PathP (λ _ → A) a b
+
 -- PathP (\ i → A) x y gets printed as x ≡ y when A does not mention i.
 --  _≡_ : ∀ {ℓ} {A : Set ℓ} → A → A → Set ℓ
 --  _≡_ {A = A} = PathP (λ _ → A)
