@@ -1,3 +1,11 @@
+{-
+
+This file documents and export the main primitives of Cubical Agda. It
+also defines some basic derived operations (composition and filling).
+
+It should *not* depend on the Agda standard library.
+
+ -}
 {-# OPTIONS --cubical #-}
 module Cubical.Core where
 
@@ -7,7 +15,7 @@ open import Agda.Primitive.Cubical public renaming
   ; primINeg       to ~_
   -- TODO change to emptySystem in src/full
   ; isOneEmpty     to empty
-  ; primComp to compCCHM
+  ; primComp to compCCHM  -- This should not be used
   ; primHComp to hcomp
   ; primTransp to transp
   ; itIsOne    to 1=1
@@ -99,7 +107,7 @@ private
 -- When calling "comp A φ u a" Agda makes sure that "a" agrees with "u i0" on "φ".
 -- compCCHM : ∀ {l} (A : (i : I) → Set l) (φ : I) (u : ∀ i → Partial (A i) φ) (a : A i0) → A i1
 
--- Note: this is not recommended to use, instead use the CHM primitives:
+-- Note: this is not recommended to use, instead use the CHM primitives!
 
 
 -- * Generalized transport and homogeneous composition [CHM 18].
@@ -111,7 +119,7 @@ private
 -- When calling "hcomp A φ u a" Agda makes sure that "a" agrees with "u i0" on "φ".
 -- hcomp : ∀ {l} (A : Set l) (φ : I) (u : I → Partial A φ) (a : A) → A
 
-
+-- Homogeneous filling
 hfill : ∀ {ℓ} (A : Set ℓ) {φ : I}
           (u : ∀ i → Partial A φ)
           (u0 : A [ φ ↦ u i0 ]) (i : I) → A
@@ -121,7 +129,7 @@ hfill A {φ = φ} u u0 i =
                  ; (i = i0) → ouc u0 })
         (ouc u0)
 
--- comp as in CHM
+-- Heterogeneous composition defined as in CHM
 comp : ∀ {ℓ} (A : I → Set ℓ) {φ : I}
          (u : ∀ i → Partial (A i) φ)
          (u0 : A i0 [ φ ↦ u i0 ]) → A i1
@@ -130,6 +138,7 @@ comp A {φ = φ} u u0 =
         (\ i → \ { (φ = i1) → transp (\ j → A (i ∨ j)) i (u _ 1=1) })
         (transp A i0 (ouc u0))
 
+-- Heterogeneous filling defined using comp
 fill : ∀ {ℓ} (A : I → Set ℓ) {φ : I}
          (u : ∀ i → Partial (A i) φ)
          (u0 : A i0 [ φ ↦ u i0 ]) →
@@ -140,11 +149,10 @@ fill A {φ = φ} u u0 i =
                 ; (i = i0) → ouc u0 })
        (inc {φ = φ ∨ (~ i)} (ouc {φ = φ} u0))
 
+-- Direct definition of transport filler, note that we have to
+-- explicitly tell Agda that the type is constant (like in CHM)
 transpFill : ∀ {ℓ} {A' : Set ℓ} (φ : I)
                (A : (i : I) → Set ℓ [ φ ↦ (\ _ → A') ]) →
                (u0 : ouc (A i0)) →
                PathP (λ i → ouc (A i)) u0 (transp (λ i → ouc (A i)) φ u0)
 transpFill φ A u0 i = transp (\ j → ouc (A (i ∧ j))) (~ i ∨ φ) u0
-
-lemTranspConst : ∀ {ℓ} (A : Set ℓ) (u0 : A) → PathP (λ _ → A) (transp (λ _ → A) i0 u0) u0
-lemTranspConst A u0 i = transp (λ _ → A) i u0
