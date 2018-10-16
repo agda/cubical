@@ -13,15 +13,12 @@ This file proves a variety of basic results about paths:
 
 - Converting PathP to and from a homogeneous path with transp
 
+
 It should *not* depend on the Agda standard library.
 
- -}
+-}
 {-# OPTIONS --cubical #-}
 module Cubical.Prelude where
-
-open import Agda.Primitive public
-  using    ( Level )
-  renaming ( lzero to ℓ-zero ; lsuc  to ℓ-suc ; _⊔_  to ℓ-max )
 
 open import Cubical.Core public
 
@@ -112,6 +109,7 @@ A × B = Σ A (λ _ → B)
 
 infixr 2 _×_
 infixr 4 _,_
+infix 2 Σ-syntax
 
 Σ-syntax : ∀ {ℓ ℓ'} (A : Set ℓ) (B : A → Set ℓ') → Set (ℓ-max ℓ ℓ')
 Σ-syntax = Σ
@@ -139,3 +137,4 @@ module _ {ℓ} {A : I → Set ℓ} {x : A i0} {y : A i1} where
 
   fromPathP : PathP A x y → transp A i0 x ≡ y
   fromPathP p i = transp (λ j → A (i ∨ j)) i (p i)
+

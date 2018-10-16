@@ -3,27 +3,33 @@
 This file documents and export the main primitives of Cubical Agda. It
 also defines some basic derived operations (composition and filling).
 
+
 It should *not* depend on the Agda standard library.
 
- -}
+-}
 {-# OPTIONS --cubical #-}
 module Cubical.Core where
 
-open import Agda.Primitive.Cubical public renaming
-  ( primIMin       to _∧_  -- I → I → I
-  ; primIMax       to _∨_ -- I → I → I
-  ; primINeg       to ~_
-  -- TODO change to emptySystem in src/full
-  ; isOneEmpty     to empty
-  ; primComp to compCCHM  -- This should not be used
-  ; primHComp to hcomp
-  ; primTransp to transp
-  ; itIsOne    to 1=1
-  )
+open import Agda.Primitive.Cubical public
+  renaming ( primIMin       to _∧_  -- I → I → I
+           ; primIMax       to _∨_ -- I → I → I
+           ; primINeg       to ~_
+           -- TODO change to emptySystem in src/full
+           ; isOneEmpty     to empty
+           ; primComp to compCCHM  -- This should not be used
+           ; primHComp to hcomp
+           ; primTransp to transp
+           ; itIsOne    to 1=1 )
+
 open import Agda.Builtin.Cubical.Path public
-open import Agda.Builtin.Cubical.Sub public renaming
-  ( Sub to _[_↦_]
-  ; primSubOut to ouc )
+open import Agda.Builtin.Cubical.Sub public
+  renaming ( Sub to _[_↦_]
+           ; primSubOut to ouc )
+open import Agda.Primitive public
+  using    ( Level )
+  renaming ( lzero to ℓ-zero
+           ; lsuc  to ℓ-suc
+           ; _⊔_   to ℓ-max )
 
 -- This files document the Cubical Agda primitives.
 -- The primitives themselves are bound by the agda files imported above.

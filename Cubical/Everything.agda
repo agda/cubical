@@ -5,3 +5,6 @@ open import Cubical.Core
 
 -- Basic cubical prelude
 open import Cubical.Prelude
+
+-- Definition of equivalences and Glue types
+open import Cubical.Glue
