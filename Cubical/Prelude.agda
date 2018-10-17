@@ -20,6 +20,8 @@ It should *not* depend on the Agda standard library.
 {-# OPTIONS --cubical #-}
 module Cubical.Prelude where
 
+open import Agda.Builtin.Sigma
+
 open import Cubical.Core public
 
 -- Basic theory about paths. These proofs should typically be
@@ -96,19 +98,10 @@ module _ {ℓ ℓ'} {A : Set ℓ} {x : A}
 
 -- Σ-types
 
-record Σ {ℓ ℓ'} (A : Set ℓ) (B : A → Set ℓ') : Set (ℓ-max ℓ ℓ') where
-  constructor _,_
-  field
-    fst : A
-    snd : B fst
-
-open Σ public
-
 _×_ : ∀ {ℓ ℓ'} (A : Set ℓ) (B : Set ℓ') → Set (ℓ-max ℓ ℓ')
 A × B = Σ A (λ _ → B)
 
 infixr 2 _×_
-infixr 4 _,_
 infix 2 Σ-syntax
 
 Σ-syntax : ∀ {ℓ ℓ'} (A : Set ℓ) (B : A → Set ℓ') → Set (ℓ-max ℓ ℓ')
