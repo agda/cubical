@@ -12,8 +12,8 @@ module Cubical.Core where
 
 open import Agda.Primitive.Cubical public
   renaming ( primIMin       to _∧_  -- I → I → I
-           ; primIMax       to _∨_ -- I → I → I
-           ; primINeg       to ~_
+           ; primIMax       to _∨_  -- I → I → I
+           ; primINeg       to ~_   -- I → I
            -- TODO change to emptySystem in src/full
            ; isOneEmpty     to empty
            ; primComp to compCCHM  -- This should not be used
