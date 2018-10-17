@@ -43,7 +43,6 @@ open import Agda.Primitive public
 -- ~_      : I → I
 
 
-
 -- * Dependent path type. (Path over Path)
 
 -- Introduced with lambda abstraction and eliminated with application,
