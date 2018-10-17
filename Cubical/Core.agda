@@ -10,29 +10,27 @@ It should *not* depend on the Agda standard library.
 {-# OPTIONS --cubical #-}
 module Cubical.Core where
 
+open import Agda.Builtin.Cubical.Path public
+open import Agda.Builtin.Cubical.Sub public
+
 open import Agda.Primitive.Cubical public
   renaming ( primIMin       to _∧_  -- I → I → I
            ; primIMax       to _∨_  -- I → I → I
            ; primINeg       to ~_   -- I → I
            -- TODO change to emptySystem in src/full
            ; isOneEmpty     to empty
-           ; primComp to compCCHM  -- This should not be used
-           ; primHComp to hcomp
-           ; primTransp to transp
-           ; itIsOne    to 1=1 )
-
-open import Agda.Builtin.Cubical.Path public
-open import Agda.Builtin.Cubical.Sub public
-  renaming ( Sub to _[_↦_]
-           ; primSubOut to ouc )
+           ; primComp       to compCCHM  -- This should not be used
+           ; primHComp      to hcomp
+           ; primTransp     to transp
+           ; itIsOne        to 1=1 )
 open import Agda.Primitive public
   using    ( Level )
   renaming ( lzero to ℓ-zero
            ; lsuc  to ℓ-suc
            ; _⊔_   to ℓ-max )
 
--- This files document the Cubical Agda primitives.
--- The primitives themselves are bound by the agda files imported above.
+-- This files document the Cubical Agda primitives. The primitives
+-- themselves are bound by the Agda files imported above.
 
 -- * The Interval
 -- I : Setω
@@ -56,7 +54,7 @@ _[_≡_] : ∀ {ℓ} (A : I → Set ℓ) → A i0 → A i1 → Set ℓ
 _[_≡_] = PathP
 
 
--- Non dependent path type.
+-- Non dependent path types
 
 Path : ∀ {ℓ} (A : Set ℓ) → A → A → Set ℓ
 Path A a b = PathP (λ _ → A) a b
@@ -84,58 +82,77 @@ Path A a b = PathP (λ _ → A) a b
 -- Partial : ∀ {l} → Set l → I → Setω
 -- PartialP : ∀ {l} → (φ : I) → Partial (Set l) φ → Setω
 
--- Partial elements are introduced by pattern matching with (r = i0) or (r = i1) constraints, like so:
+-- Partial elements are introduced by pattern matching with (r = i0)
+-- or (r = i1) constraints, like so:
 
 private
   sys : ∀ i → Partial Set₁ (i ∨ ~ i)
   sys i (i = i0) = Set
   sys i (i = i1) = Set → Set
 
--- It also works with pattern matching lambdas. (TODO link pattern matching lambda docs)
+  -- It also works with pattern matching lambdas:
+  --  http://wiki.portal.chalmers.se/agda/pmwiki.php?n=ReferenceManual.PatternMatchingLambdas
   sys' : ∀ i → Partial Set₁ (i ∨ ~ i)
   sys' i = \ { (i = i0) → Set
              ; (i = i1) → Set → Set
              }
 
--- When the cases overlap they must agree.
+  -- When the cases overlap they must agree.
   sys2 : ∀ i j → Partial Set₁ (i ∨ (i ∧ j))
   sys2 i j = \ { (i = i1)          → Set
                ; (i = i1) (j = i1) → Set
                }
 
--- TODO recognize IsOne i0 as empty, then we can get rid of the empty system.
--- sys3 : Partial Set₁ i0
--- sys3 = \ { () }
-
+  -- TODO recognize IsOne i0 as empty, then we can get rid of the
+  -- empty system.
+  -- sys3 : Partial Set₁ i0
+  -- sys3 = \ { () }
 
 
 -- * The empty System
 -- empty : ∀ {a} {A : Partial (Set a) i0} → PartialP i0 A
 
 
+-- * There are cubical subtypes as in CCHM. Note that these are not
+-- fibrant (hence in Setω):
+
+_[_↦_] : ∀ {ℓ} (A : Set ℓ) (φ : I) (u : Partial A φ) → Agda.Primitive.Setω
+A [ φ ↦ u ] = Sub A φ u
+
+-- Any element u : A can be seen as an element of A [ φ ↦ u ] which
+-- agrees with u on φ:
+
+-- inc : ∀ {ℓ} {A : Set ℓ} {φ} (u : A) → A [ φ ↦ (λ _ → u) ]
+
+-- One can also forget that an element agrees with u on φ:
+
+ouc : ∀ {ℓ} {A : Set ℓ} {φ : I} {u : Partial A φ} → A [ φ ↦ u ] → A
+ouc = primSubOut
+
+
 -- * Composition operation according to [CCHM 18].
 -- When calling "comp A φ u a" Agda makes sure that "a" agrees with "u i0" on "φ".
 -- compCCHM : ∀ {l} (A : (i : I) → Set l) (φ : I) (u : ∀ i → Partial (A i) φ) (a : A i0) → A i1
 
--- Note: this is not recommended to use, instead use the CHM primitives!
+-- Note: this is not recommended to use, instead use the CHM
+-- primitives! The reason is that these work with HITs and produce
+-- fewer empty systems.
 
 
 -- * Generalized transport and homogeneous composition [CHM 18].
--- Used to support Higher Inductive Types.
 
 -- When calling "transp A φ a" Agda makes sure that "A" is constant on "φ".
 -- transp : ∀ {l} (A : (i : I) → Set l) (φ : I) (a : A i0) → A i1
 
 -- When calling "hcomp A φ u a" Agda makes sure that "a" agrees with "u i0" on "φ".
--- hcomp : ∀ {l} (A : Set l) (φ : I) (u : I → Partial A φ) (a : A) → A
+-- hcomp : ∀ {l} {A : Set l} {φ : I} (u : I → Partial A φ) (a : A) → A
 
 -- Homogeneous filling
 hfill : ∀ {ℓ} (A : Set ℓ) {φ : I}
           (u : ∀ i → Partial A φ)
           (u0 : A [ φ ↦ u i0 ]) (i : I) → A
 hfill A {φ = φ} u u0 i =
-  hcomp A _
-        (λ j → \ { (φ = i1) → u (i ∧ j) 1=1
+  hcomp (λ j → \ { (φ = i1) → u (i ∧ j) 1=1
                  ; (i = i0) → ouc u0 })
         (ouc u0)
 
@@ -144,8 +161,7 @@ comp : ∀ {ℓ} (A : I → Set ℓ) {φ : I}
          (u : ∀ i → Partial (A i) φ)
          (u0 : A i0 [ φ ↦ u i0 ]) → A i1
 comp A {φ = φ} u u0 =
-  hcomp (A i1) _
-        (\ i → \ { (φ = i1) → transp (\ j → A (i ∨ j)) i (u _ 1=1) })
+  hcomp (\ i → \ { (φ = i1) → transp (\ j → A (i ∨ j)) i (u _ 1=1) })
         (transp A i0 (ouc u0))
 
 -- Heterogeneous filling defined using comp

@@ -45,15 +45,15 @@ equivFun e = fst e
 -- I don't know why this should be a module...
 module GluePrims where
   primitive
-    primGlue    : ∀ {ℓ ℓ'} (A : Set ℓ) (φ : I)
+    primGlue    : ∀ {ℓ ℓ'} (A : Set ℓ) {φ : I}
       → (T : Partial (Set ℓ') φ) → (e : PartialP φ (λ o → T o ≃ A))
       → Set ℓ'
     prim^glue   : ∀ {ℓ ℓ'} {A : Set ℓ} {φ : I}
       → {T : Partial (Set ℓ') φ} → {e : PartialP φ (λ o → T o ≃ A)}
-      → PartialP φ T → A → primGlue A φ T e
+      → PartialP φ T → A → primGlue A T e
     prim^unglue : ∀ {ℓ ℓ'} {A : Set ℓ} {φ : I}
       → {T : Partial (Set ℓ') φ} → {e : PartialP φ (λ o → T o ≃ A)}
-      → primGlue A φ T e → A
+      → primGlue A T e → A
 
 open GluePrims public
   renaming ( primGlue to Glue
@@ -67,8 +67,7 @@ idEquiv A = (λ a → a) , (λ { .equiv-proof y → (y , refl) , \ z → contrSi
 -- The ua constant
 ua : ∀ {ℓ} {A B : Set ℓ} → A ≃ B → A ≡ B
 ua {_} {A} {B} e i =
-  Glue B _
-         (λ {(i = i0) → _ ; (i = i1) → _}) -- Why is this argument needed?
+  Glue B (λ {(i = i0) → _ ; (i = i1) → _}) -- Why is this argument needed?
          (λ {(i = i0) → e ; (i = i1) → idEquiv B})
 
 -- TODO: maybe make at least the formula implicit in Glue?

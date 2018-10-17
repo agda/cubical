@@ -43,8 +43,8 @@ module _ {ℓ} {A : Set ℓ} where
   -- confusion with transp
   compPath : {x y z : A} → x ≡ y → y ≡ z → x ≡ z
   compPath {x = x} p q i =
-    hcomp A _ (λ j → \ { (i = i0) → x
-                       ; (i = i1) → q j }) (p i)
+    hcomp (λ j → \ { (i = i0) → x
+                   ; (i = i1) → q j }) (p i)
 
   infix  3 _≡-qed _∎
   infixr 2 _≡⟨⟩_ _≡⟨_⟩_
@@ -124,8 +124,7 @@ module _ {ℓ} {A : Set ℓ} where
 
 module _ {ℓ} {A : I → Set ℓ} {x : A i0} {y : A i1} where
   toPathP : transp A i0 x ≡ y → PathP A x y
-  toPathP p i = hcomp (A i) _
-                      (λ j → λ { (i = i0) → x ; (i = i1) → p j })
+  toPathP p i = hcomp (λ j → λ { (i = i0) → x ; (i = i1) → p j })
                       (transp (λ j → A (i ∧ j)) (~ i) x)
 
   fromPathP : PathP A x y → transp A i0 x ≡ y
