@@ -1,18 +1,17 @@
 A basic experimental library for Cubical Agda
 =============================================
 
-At the moment (2018-10-16) this requires the hits-transp branch of
-Agda:
+This library compiles with the master branch of Agda:
 
 
 ```
 git clone https://github.com/agda/agda
 cd agda
-git checkout hits-transp
 cabal install
 ```
 
-The type theory is a variation of the "CCHM" cubical type theory of:
+The type theory that it implements is a variation of the cubical type
+theory of:
 
 [Cubical Type Theory: a constructive interpretation of the univalence
 axiom](https://arxiv.org/abs/1611.02108) - Cyril Cohen, Thierry
@@ -27,6 +26,7 @@ in:
 Theory](https://arxiv.org/abs/1802.01170) - Thierry Coquand, Simon
 Huber, Anders Mörtberg
 
+This makes it possible to directly represent higher inductive types.
 
 
 Maintainers
