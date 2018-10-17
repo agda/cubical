@@ -20,7 +20,7 @@ It should *not* depend on the Agda standard library.
 {-# OPTIONS --cubical #-}
 module Cubical.Prelude where
 
-open import Agda.Builtin.Sigma
+open import Agda.Builtin.Sigma public
 
 open import Cubical.Core public
 
