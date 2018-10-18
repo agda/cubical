@@ -148,10 +148,10 @@ ouc = primSubOut
 -- hcomp : ∀ {l} {A : Set l} {φ : I} (u : I → Partial A φ) (a : A) → A
 
 -- Homogeneous filling
-hfill : ∀ {ℓ} (A : Set ℓ) {φ : I}
+hfill : ∀ {ℓ} {A : Set ℓ} {φ : I}
           (u : ∀ i → Partial A φ)
           (u0 : A [ φ ↦ u i0 ]) (i : I) → A
-hfill A {φ = φ} u u0 i =
+hfill {φ = φ} u u0 i =
   hcomp (λ j → \ { (φ = i1) → u (i ∧ j) 1=1
                  ; (i = i0) → ouc u0 })
         (ouc u0)
