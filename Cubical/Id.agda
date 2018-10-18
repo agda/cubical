@@ -2,6 +2,13 @@
 
 This file contains:
 
+- Id, refl and J (with definitional computation rule)
+
+- Basic theory about Id, proved using J
+
+- Lemmas for going back and forth between Path and Id
+
+- Functional extensional for Id
 
 
 It should *not* depend on the Agda standard library.
@@ -120,7 +127,10 @@ module _ {ℓ} {A : Set ℓ} where
   idToPathToId {x} = J (λ b p → Path _ p (pathToId (idToPath p))) (symPath pathToIdRefl)
 
 
--- We get funExt by going back and forth between Path and Id
+-- We get functional extensionality by going back and forth between Path and Id
 funExt : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
          ((x : A) → f x ≡ g x) → f ≡ g
 funExt p = pathToId (λ i x → idToPath (p x) i)
+
+
+-- TODO: univalence
