@@ -7,7 +7,7 @@ open import Cubical.Core public
 -- Basic cubical prelude
 open import Cubical.Prelude public
 
--- Definition of equivalences and Glue types
+-- Definition of equivalences, Glue types and the univalence theorem
 open import Cubical.Glue public
 
 -- Definition of Identity types
