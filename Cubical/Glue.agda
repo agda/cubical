@@ -61,13 +61,13 @@ equivCtrPath e y = e .snd .equiv-proof y .snd
 module GluePrims where
   primitive
     primGlue    : ∀ {ℓ ℓ'} (A : Set ℓ) {φ : I}
-      → (T : Partial (Set ℓ') φ) → (e : PartialP φ (λ o → T o ≃ A))
+      → (T : Partial φ (Set ℓ')) → (e : PartialP φ (λ o → T o ≃ A))
       → Set ℓ'
     prim^glue   : ∀ {ℓ ℓ'} {A : Set ℓ} {φ : I}
-      → {T : Partial (Set ℓ') φ} → {e : PartialP φ (λ o → T o ≃ A)}
+      → {T : Partial φ (Set ℓ')} → {e : PartialP φ (λ o → T o ≃ A)}
       → PartialP φ T → A → primGlue A T e
     prim^unglue : ∀ {ℓ ℓ'} {A : Set ℓ} {φ : I}
-      → {T : Partial (Set ℓ') φ} → {e : PartialP φ (λ o → T o ≃ A)}
+      → {T : Partial φ (Set ℓ')} → {e : PartialP φ (λ o → T o ≃ A)}
       → primGlue A T e → A
 
 open GluePrims public
@@ -92,17 +92,17 @@ ua {_} {A} {B} e i =
 -- Proof of univalence using that unglue is an equivalence:
 
 -- unglue is an equivalence
-unglueIsEquiv : ∀ {ℓ} (A : Set ℓ) (φ : I) (T : Partial (Set ℓ) φ)
+unglueIsEquiv : ∀ {ℓ} (A : Set ℓ) (φ : I) (T : Partial φ (Set ℓ))
   (f : PartialP φ λ o → (T o) ≃ A) → isEquiv {A = Glue A T f} (unglue {φ = φ})
 equiv-proof (unglueIsEquiv A φ T f) = λ (b : A) →
-  let u : I → Partial A φ
+  let u : I → Partial φ A
       u i = λ{ (φ = i1) → equivCtr (f 1=1) b .snd i }
       ctr : fiber (unglue {φ = φ}) b
       ctr = ( glue (λ { (φ = i1) → equivCtr (f 1=1) b .fst }) (hcomp u b)
             , λ j → hfill u (inc b) j)
   in ( ctr
      , λ (v : fiber (unglue {φ = φ}) b) i →
-         let u' : I → Partial A (φ ∨ ~ i ∨ i)
+         let u' : I → Partial (φ ∨ ~ i ∨ i) A
              u' j = λ { (φ = i1) → equivCtrPath (f 1=1) b v i .snd j
                       ; (i = i0) → hfill u (inc b) j
                       ; (i = i1) → v .snd  j }
@@ -112,7 +112,7 @@ equiv-proof (unglueIsEquiv A φ T f) = λ (b : A) →
 -- Any partial family of equivalences can be extended to a total one
 -- from Glue [ φ ↦ (T,f) ] A to A
 unglueEquiv : ∀ {ℓ} (A : Set ℓ) (φ : I)
-                (T : Partial (Set ℓ) φ)
+                (T : Partial φ (Set ℓ))
                 (f : PartialP φ (λ o → (T o) ≃ A)) →
                 (Glue A T f) ≃ A
 unglueEquiv A φ T f = unglue {φ = φ} , unglueIsEquiv A φ T f
@@ -120,7 +120,7 @@ unglueEquiv A φ T f = unglue {φ = φ} , unglueIsEquiv A φ T f
 -- The univalence theorem
 EquivContr : ∀ {ℓ} (A : Set ℓ) → isContr (Σ[ T ∈ Set ℓ ] T ≃ A)
 EquivContr A = ( A , idEquiv A)
-               , λ w i → let T : Partial (Set _) (~ i ∨ i)
+               , λ w i → let T : Partial (~ i ∨ i) (Set _)
                              T = λ { (i = i0) → A ; (i = i1) → w .fst }
                              f : PartialP (~ i ∨ i) (λ x → T x ≃ A)
                              f = λ { (i = i0) → idEquiv A ; (i = i1) → w .snd }

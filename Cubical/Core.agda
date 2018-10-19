@@ -86,19 +86,19 @@ Path A a b = PathP (λ _ → A) a b
 -- or (r = i1) constraints, like so:
 
 private
-  sys : ∀ i → Partial Set₁ (i ∨ ~ i)
+  sys : ∀ i → Partial (i ∨ ~ i) Set₁
   sys i (i = i0) = Set
   sys i (i = i1) = Set → Set
 
   -- It also works with pattern matching lambdas:
   --  http://wiki.portal.chalmers.se/agda/pmwiki.php?n=ReferenceManual.PatternMatchingLambdas
-  sys' : ∀ i → Partial Set₁ (i ∨ ~ i)
+  sys' : ∀ i → Partial (i ∨ ~ i) Set₁
   sys' i = \ { (i = i0) → Set
              ; (i = i1) → Set → Set
              }
 
   -- When the cases overlap they must agree.
-  sys2 : ∀ i j → Partial Set₁ (i ∨ (i ∧ j))
+  sys2 : ∀ i j → Partial (i ∨ (i ∧ j)) Set₁
   sys2 i j = \ { (i = i1)          → Set
                ; (i = i1) (j = i1) → Set
                }
@@ -116,7 +116,7 @@ private
 -- * There are cubical subtypes as in CCHM. Note that these are not
 -- fibrant (hence in Setω):
 
-_[_↦_] : ∀ {ℓ} (A : Set ℓ) (φ : I) (u : Partial A φ) → Agda.Primitive.Setω
+_[_↦_] : ∀ {ℓ} (A : Set ℓ) (φ : I) (u : Partial φ A) → Agda.Primitive.Setω
 A [ φ ↦ u ] = Sub A φ u
 
 -- Any element u : A can be seen as an element of A [ φ ↦ u ] which
@@ -126,7 +126,7 @@ A [ φ ↦ u ] = Sub A φ u
 
 -- One can also forget that an element agrees with u on φ:
 
-ouc : ∀ {ℓ} {A : Set ℓ} {φ : I} {u : Partial A φ} → A [ φ ↦ u ] → A
+ouc : ∀ {ℓ} {A : Set ℓ} {φ : I} {u : Partial φ A} → A [ φ ↦ u ] → A
 ouc = primSubOut
 
 
@@ -149,7 +149,7 @@ ouc = primSubOut
 
 -- Homogeneous filling
 hfill : ∀ {ℓ} {A : Set ℓ} {φ : I}
-          (u : ∀ i → Partial A φ)
+          (u : ∀ i → Partial φ A)
           (u0 : A [ φ ↦ u i0 ]) (i : I) → A
 hfill {φ = φ} u u0 i =
   hcomp (λ j → \ { (φ = i1) → u (i ∧ j) 1=1
@@ -158,7 +158,7 @@ hfill {φ = φ} u u0 i =
 
 -- Heterogeneous composition defined as in CHM
 comp : ∀ {ℓ} (A : I → Set ℓ) {φ : I}
-         (u : ∀ i → Partial (A i) φ)
+         (u : ∀ i → Partial φ (A i))
          (u0 : A i0 [ φ ↦ u i0 ]) → A i1
 comp A {φ = φ} u u0 =
   hcomp (\ i → \ { (φ = i1) → transp (\ j → A (i ∨ j)) i (u _ 1=1) })
@@ -166,7 +166,7 @@ comp A {φ = φ} u u0 =
 
 -- Heterogeneous filling defined using comp
 fill : ∀ {ℓ} (A : I → Set ℓ) {φ : I}
-         (u : ∀ i → Partial (A i) φ)
+         (u : ∀ i → Partial φ (A i))
          (u0 : A i0 [ φ ↦ u i0 ]) →
          PathP A (ouc u0) (comp A u u0)
 fill A {φ = φ} u u0 i =
