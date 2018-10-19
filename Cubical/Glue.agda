@@ -8,10 +8,12 @@ This file contains:
 
 - The identity equivalence and the ua constant
 
+- Proof of univalence using that unglue is an equivalence ([EquivContr])
+
 
 It should *not* depend on the Agda standard library
 
- -}
+-}
 {-# OPTIONS --cubical #-}
 module Cubical.Glue where
 
@@ -23,23 +25,35 @@ fiber {A = A} f y = Σ[ x ∈ A ] y ≡ f x
 isContr : {ℓ : Level} (A : Set ℓ) → Set ℓ
 isContr A = Σ[ x ∈ A ] (∀ y → x ≡ y)
 
-module _ {ℓ ℓ'} (A : Set ℓ) (B : Set ℓ') where
-  contrFibers : (A → B) → Set (ℓ-max ℓ ℓ')
-  contrFibers f = (y : B) → isContr (fiber f y)
-
-  record isEquiv (f : A → B) : Set (ℓ-max ℓ ℓ') where
-    field
-      equiv-proof : contrFibers f
-
-  infix 4 _≃_
-  _≃_ = Σ _ isEquiv
+-- Make this a record so that isEquiv can be proved using
+-- copatterns. This is good because copatterns don't get unfolded
+-- unless a projection is applied so it should be more efficient.
+record isEquiv {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) : Set (ℓ-max ℓ ℓ') where
+  field
+    equiv-proof : (y : B) → isContr (fiber f y)
 
 open isEquiv public
+
+infix 4 _≃_
+
+_≃_ : ∀ {ℓ ℓ'} (A : Set ℓ) (B : Set ℓ') → Set (ℓ-max ℓ ℓ')
+A ≃ B = Σ[ f ∈ (A → B) ] (isEquiv f)
 
 equivFun : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → A → B
 equivFun e = fst e
 
--- TODO: Maybe change the internal definition of equivalence?
+equivIsEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) → isEquiv (equivFun e)
+equivIsEquiv e = snd e
+
+equivCtr : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) (y : B) → fiber (equivFun e) y
+equivCtr e y = e .snd .equiv-proof y .fst
+
+equivCtrPath : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) (y : B) →
+  (v : fiber (equivFun e) y) → Path _ (equivCtr e y) v
+equivCtrPath e y = e .snd .equiv-proof y .snd
+
+-- TODO: Maybe change the internal definition of equivalence to "any
+-- partial element can be extended to a total one"?
 {-# BUILTIN EQUIV _≃_ #-}
 {-# BUILTIN EQUIVFUN  equivFun #-}
 
@@ -74,34 +88,40 @@ ua {_} {A} {B} e i =
        (λ {(i = i0) → _ ; (i = i1) → _})
        (λ {(i = i0) → e ; (i = i1) → idEquiv B})
 
+
 -- Proof of univalence using that unglue is an equivalence:
 
+-- unglue is an equivalence
 unglueIsEquiv : ∀ {ℓ} (A : Set ℓ) (φ : I) (T : Partial (Set ℓ) φ)
-  (f : PartialP φ λ o → (T o) ≃ A) → isEquiv (Glue A T f) A (unglue {φ = φ})
+  (f : PartialP φ λ o → (T o) ≃ A) → isEquiv {A = Glue A T f} (unglue {φ = φ})
 equiv-proof (unglueIsEquiv A φ T f) = λ (b : A) →
-    let u : I → Partial A φ
-        u i = λ{ (φ = i1) → f 1=1 .snd .equiv-proof b .fst .snd i }
-        ctr : fiber (unglue {φ = φ}) b
-        ctr = ( glue (λ{ (φ = i1) → f 1=1 .snd .equiv-proof b .fst .fst }) (hcomp u b)
-              , λ j → hfill u (inc b) j)
-    in ( ctr
-       , λ v i →
+  let u : I → Partial A φ
+      u i = λ{ (φ = i1) → equivCtr (f 1=1) b .snd i }
+      ctr : fiber (unglue {φ = φ}) b
+      ctr = ( glue (λ { (φ = i1) → equivCtr (f 1=1) b .fst }) (hcomp u b)
+            , λ j → hfill u (inc b) j)
+  in ( ctr
+     , λ (v : fiber (unglue {φ = φ}) b) i →
          let u' : I → Partial A (φ ∨ ~ i ∨ i)
-             u' j = λ { (φ = i1) → f 1=1 .snd .equiv-proof b .snd v i .snd j
+             u' j = λ { (φ = i1) → equivCtrPath (f 1=1) b v i .snd j
                       ; (i = i0) → hfill u (inc b) j
                       ; (i = i1) → v .snd  j }
-         in ( glue (λ{ (φ = i1) → f 1=1 .snd .equiv-proof b .snd v i .fst }) (hcomp u' b)
+         in ( glue (λ { (φ = i1) → equivCtrPath (f 1=1) b v i .fst }) (hcomp u' b)
             , λ j → hfill u' (inc b) j))
 
-unglueEquiv : ∀ {ℓ} (A : Set ℓ) (φ : I) (T : Partial (Set ℓ) φ)
+-- Any partial family of equivalences can be extended to a total one
+-- from Glue [ φ ↦ (T,f) ] A to A
+unglueEquiv : ∀ {ℓ} (A : Set ℓ) (φ : I)
+                (T : Partial (Set ℓ) φ)
                 (f : PartialP φ (λ o → (T o) ≃ A)) →
                 (Glue A T f) ≃ A
 unglueEquiv A φ T f = unglue {φ = φ} , unglueIsEquiv A φ T f
 
+-- The univalence theorem
 EquivContr : ∀ {ℓ} (A : Set ℓ) → isContr (Σ[ T ∈ Set ℓ ] T ≃ A)
-EquivContr A = (A , idEquiv A) , (λ w i →
-  let φ = ~ i ∨ i
-      Tf : Partial (Σ[ T ∈ _ ] T ≃ A) φ
-      Tf = λ { (i = i0) → A , idEquiv A ; (i = i1) → w }
-   in ( Glue A {φ = φ} (λ o → fst (Tf o)) (λ o → snd (Tf o))
-      , unglueEquiv A φ (λ o → fst (Tf o)) (λ o → snd (Tf o))))
+EquivContr A = ( A , idEquiv A)
+               , λ w i → let T : Partial (Set _) (~ i ∨ i)
+                             T = λ { (i = i0) → A ; (i = i1) → w .fst }
+                             f : PartialP (~ i ∨ i) (λ x → T x ≃ A)
+                             f = λ { (i = i0) → idEquiv A ; (i = i1) → w .snd }
+                         in ( Glue A T f , unglueEquiv _ _ T f)
