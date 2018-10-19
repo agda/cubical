@@ -40,7 +40,8 @@ open import Cubical.Glue
            ; contrFibers to contrFibersPath
            ; isEquiv to isEquivPath
            ; _≃_ to EquivPath
-           ; equivFun to equivFunPath )
+           ; equivFun to equivFunPath
+           ; EquivContr to EquivContrPath )
 
 
 _≡_ : ∀ {ℓ} {A : Set ℓ} → A → A → Set ℓ
@@ -213,23 +214,20 @@ equivToEquivPath (f , p) =
 -- isEquiv with Path?
 postulate isPropIsEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → (f : A → B) → (h1 h2 : isEquiv A B f) → Path _ h1 h2
 
-equivPathToEquivPath : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → (p : A ≃ B) → Path _ (equivPathToEquiv (equivToEquivPath p)) p
+equivPathToEquivPath : ∀ {ℓ} {A : Set ℓ} {B : Set ℓ} → (p : A ≃ B) → Path _ (equivPathToEquiv (equivToEquivPath p)) p
 equivPathToEquivPath (f , p) =
   λ i → f , isPropIsEquiv f (record { equiv-proof = λ y → helper fiberPathToFiber fiberToFiberPath fiberToFiber (helper2 fiberPathToFiber fiberToFiberPath fiberPathToFiberPath (p .equiv-proof y)) }) p i
 
 
--- For now assume that we have a proof of univalence
-postulate EquivContrPath : ∀ {ℓ ℓ'} (A : Set ℓ) → isContrPath (Σ[ T ∈ Set ℓ' ] (EquivPath T A))
-
-f1 : ∀ {ℓ ℓ'} {A : Set ℓ} → Σ[ T ∈ Set ℓ' ] (EquivPath T A) → Σ[ T ∈ Set ℓ' ] (T ≃ A)
+f1 : ∀ {ℓ} {A : Set ℓ} → Σ[ T ∈ Set ℓ ] (EquivPath T A) → Σ[ T ∈ Set ℓ ] (T ≃ A)
 f1 (x , p) = x , equivPathToEquiv p
 
-f2 : ∀ {ℓ ℓ'} {A : Set ℓ} → Σ[ T ∈ Set ℓ' ] (T ≃ A) → Σ[ T ∈ Set ℓ' ] (EquivPath T A)
+f2 : ∀ {ℓ} {A : Set ℓ} → Σ[ T ∈ Set ℓ ] (T ≃ A) → Σ[ T ∈ Set ℓ ] (EquivPath T A)
 f2 (x , p) = x , equivToEquivPath p
 
 
-f12 : ∀ {ℓ ℓ'} {A : Set ℓ} → (y : Σ[ T ∈ Set ℓ' ] (T ≃ A)) → Path _ (f1 (f2 y)) y
+f12 : ∀ {ℓ} {A : Set ℓ} → (y : Σ[ T ∈ Set ℓ ] (T ≃ A)) → Path _ (f1 (f2 y)) y
 f12 (x , p) = λ i → x , equivPathToEquivPath p i
 
-EquivContr : ∀ {ℓ ℓ'} (A : Set ℓ) → isContr (Σ[ T ∈ Set ℓ' ] (T ≃ A))
-EquivContr {ℓ} {ℓ'} A = helper f1 f2 f12 (EquivContrPath A)
+EquivContr : ∀ {ℓ} (A : Set ℓ) → isContr (Σ[ T ∈ Set ℓ ] (T ≃ A))
+EquivContr A = helper f1 f2 f12 (EquivContrPath A)
