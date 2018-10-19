@@ -70,4 +70,3 @@ ua {_} {A} {B} e i =
   Glue B (λ {(i = i0) → _ ; (i = i1) → _}) -- Why is this argument needed?
          (λ {(i = i0) → e ; (i = i1) → idEquiv B})
 
--- TODO: maybe make at least the formula implicit in Glue?
