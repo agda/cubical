@@ -182,45 +182,62 @@ fiberToFiber (x , p) = λ i → x , idToPathToId p (~ i)
 fiberPathToFiberPath : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B} {y : B} (p : fiberPath f y) → Path _ (fiberToFiberPath (fiberPathToFiber p)) p
 fiberPathToFiberPath (x , p) = λ i → x , pathToIdToPath p (~ i)
 
-isContrPathToIsContr : ∀ {ℓ : Level} {A : Set ℓ} → isContrPath A → isContr A
+isContrPathToIsContr : ∀ {ℓ} {A : Set ℓ} → isContrPath A → isContr A
 isContrPathToIsContr (ctr , p) = (ctr , λ y → pathToId (p y))
+
+isContrToIsContrPath : ∀ {ℓ} {A : Set ℓ} → isContr A → isContrPath A
+isContrToIsContrPath (ctr , p) = (ctr , λ y → idToPath (p y))
 
 
 -- Specialized helper lemma for going back and forth
-helper : ∀ {ℓ : Level} {A B : Set ℓ} (f : A → B) (g : B → A) (h : ∀ y → Path _ (f (g y)) y) → isContrPath A → isContr B
-helper f g h (x , p) = (f x , λ y → pathToId (λ i → hcomp (λ j → λ { (i = i0) → f x ; (i = i1) → h y j }) (f (p (g y) i))))
+helper1 : ∀ {ℓ : Level} {A B : Set ℓ} (f : A → B) (g : B → A) (h : ∀ y → Path _ (f (g y)) y) → isContrPath A → isContr B
+helper1 f g h (x , p) = (f x , λ y → pathToId (λ i → hcomp (λ j → λ { (i = i0) → f x ; (i = i1) → h y j }) (f (p (g y) i))))
 
 helper2 : ∀ {ℓ : Level} {A B : Set ℓ} (f : A → B) (g : B → A) (h : ∀ y → Path _ (g (f y)) y) → isContr B → isContrPath A
 helper2 {A = A} f g h (x , p) = (g x , λ y → idToPath (rem y))
   where
   rem : ∀ (y : A) → g x ≡ y
-  rem y = begin g x     ≡⟨ cong g (p (f y)) ⟩
-                g (f y) ≡⟨ pathToId (h y) ⟩
-                y       ∎
+  rem y =
+    g x     ≡⟨ cong g (p (f y)) ⟩
+    g (f y) ≡⟨ pathToId (h y) ⟩
+    y       ∎
+
+helper12' : ∀ {ℓ} {A B : Set ℓ} (p1 p2 : isContrPath B) → Path (isContrPath B) p1 p2
+helper12' (a0 , p0) (a1 , p1) j = p0 a1 j , λ x i → hcomp (λ k → λ { (i = i0) → p0 a1 j ; (i = i1) → p0 x (j ∨ k) ; (j = i0) → p0 x (i ∧ k) ; (j = i1) → p1 x i }) (p0 (p1 x i) j)
+
+helper12 : ∀ {ℓ} {A : Set ℓ} (p1 p2 : isContr A) → Path (isContr A) (p1 .fst , λ x → pathToId (idToPath (p1 . snd x))) (p2 .fst , λ x → pathToId (idToPath (p2 .snd x)))
+helper12 {A = A} (a0 , p0) (a1 , p1) j = idToPath (p0 a1) j , λ x →
+  let rem : Path A (idToPath (p0 a1) j) x
+      rem i = hcomp (λ k → λ { (i = i0) → idToPath (p0 a1) j ; (i = i1) → idToPath (p0 x) (j ∨ k) ; (j = i0) → idToPath (p0 x) (i ∧ k) ; (j = i1) → idToPath (p1 x) i }) (idToPath (p0 (idToPath (p1 x) i)) j)
+  in pathToId rem
+
+helper12'' : ∀ {ℓ} {A : Set ℓ} (p1 p2 : isContr A) → Path (isContr A) p1 p2 -- (p1 .fst , λ x → p1 .snd x) (p2 .fst , λ x → p2 .snd x)
+helper12'' {ℓ} {A} p1 p2 i = hcomp (λ j → λ { (i = i0) → (p1 .fst) , λ x → idToPathToId (p1 .snd x) (~ j) ; (i = i1) → (p2 .fst) , λ x → idToPathToId (p2 .snd x) (~ j) }) (helper12 {ℓ} {A} p1 p2 i)
 
 -- Go from an Path equivalence to an Id equivalence
 equivPathToEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → EquivPath A B → A ≃ B
 equivPathToEquiv (f , p) =
-  (f , record { equiv-proof = λ y → helper fiberPathToFiber fiberToFiberPath fiberToFiber (p .equiv-proof y) })
+  (f , λ { .equiv-proof y → helper1 fiberPathToFiber fiberToFiberPath fiberToFiber (p .equiv-proof y) })
 
 -- Go from an Path equivalence to an Id equivalence
 equivToEquivPath : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → EquivPath A B
 equivToEquivPath (f , p) =
-  (f , record { equiv-proof = λ y → helper2 fiberPathToFiber fiberToFiberPath fiberPathToFiberPath (p .equiv-proof y) })
+  (f , λ { .equiv-proof y → helper2 fiberPathToFiber fiberToFiberPath fiberPathToFiberPath (p .equiv-proof y) })
 
 
 -- For now we assume that isEquiv is a proposition. I'm not sure what
 -- is the best way to prove this. Maybe transport the proof for
 -- isEquiv with Path?
-postulate isPropIsEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → (f : A → B) → (h1 h2 : isEquiv A B f) → Path _ h1 h2
+isPropIsEquiv : ∀ {ℓ} {A : Set ℓ} {B : Set ℓ} → (f : A → B) → (h1 h2 : isEquiv A B f) → Path _ h1 h2
+isPropIsEquiv {ℓ} {A} {B} f h1 h2 = λ i → record { equiv-proof = λ y → helper12'' {A = fiber f y} (h1 .equiv-proof y) (h2 .equiv-proof y) i }
 
 equivPathToEquivPath : ∀ {ℓ} {A : Set ℓ} {B : Set ℓ} → (p : A ≃ B) → Path _ (equivPathToEquiv (equivToEquivPath p)) p
 equivPathToEquivPath (f , p) =
-  λ i → f , isPropIsEquiv f (record { equiv-proof = λ y → helper fiberPathToFiber fiberToFiberPath fiberToFiber (helper2 fiberPathToFiber fiberToFiberPath fiberPathToFiberPath (p .equiv-proof y)) }) p i
+  λ i → f , isPropIsEquiv f (λ { .equiv-proof y → helper1 fiberPathToFiber fiberToFiberPath fiberToFiber (helper2 fiberPathToFiber fiberToFiberPath fiberPathToFiberPath (p .equiv-proof y)) }) p i
 
 
 f1 : ∀ {ℓ} {A : Set ℓ} → Σ[ T ∈ Set ℓ ] (EquivPath T A) → Σ[ T ∈ Set ℓ ] (T ≃ A)
-f1 (x , p) = x , equivPathToEquiv p
+f1 (x , p) = x , equivPathToEquiv ?
 
 f2 : ∀ {ℓ} {A : Set ℓ} → Σ[ T ∈ Set ℓ ] (T ≃ A) → Σ[ T ∈ Set ℓ ] (EquivPath T A)
 f2 (x , p) = x , equivToEquivPath p
@@ -230,4 +247,4 @@ f12 : ∀ {ℓ} {A : Set ℓ} → (y : Σ[ T ∈ Set ℓ ] (T ≃ A)) → Path _
 f12 (x , p) = λ i → x , equivPathToEquivPath p i
 
 EquivContr : ∀ {ℓ} (A : Set ℓ) → isContr (Σ[ T ∈ Set ℓ ] (T ≃ A))
-EquivContr A = helper f1 f2 f12 (EquivContrPath A)
+EquivContr A = helper1 f1 f2 f12 (EquivContrPath A)

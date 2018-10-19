@@ -63,7 +63,7 @@ open GluePrims public
 
 -- The identity equivalence
 idEquiv : ∀ {ℓ} → (A : Set ℓ) → A ≃ A
-idEquiv A = (λ a → a) , (λ { .equiv-proof y → (y , refl) , \ z → contrSingl (z .snd)  })
+idEquiv A = (λ a → a) , λ { .equiv-proof y → (y , refl) , \ z → contrSingl (z .snd) }
 
 -- The ua constant
 ua : ∀ {ℓ} {A B : Set ℓ} → A ≃ B → A ≡ B
@@ -78,10 +78,7 @@ ua {_} {A} {B} e i =
 
 unglueIsEquiv : ∀ {ℓ} (A : Set ℓ) (φ : I) (T : Partial (Set ℓ) φ)
   (f : PartialP φ λ o → (T o) ≃ A) → isEquiv (Glue A T f) A (unglue {φ = φ})
-unglueIsEquiv A φ T f = λ { .equiv-proof b → rem b }
-  where
-  rem : (b : A) → isContr (fiber (unglue {φ = φ}) b)
-  rem b =
+equiv-proof (unglueIsEquiv A φ T f) = λ (b : A) →
     let u : I → Partial A φ
         u i = λ{ (φ = i1) → f 1=1 .snd .equiv-proof b .fst .snd i }
         ctr : fiber (unglue {φ = φ}) b
