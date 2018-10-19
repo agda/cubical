@@ -11,4 +11,17 @@ open import Cubical.Prelude public
 open import Cubical.Glue public
 
 -- Definition of Identity types
--- open import Cubical.Id public
+open import Cubical.Id public
+  hiding ( _≡_ ; ≡-proof_ ; begin_ ; _≡⟨⟩_ ; _≡⟨_⟩_ ; _≡-qed ; _∎ )
+  renaming ( _≃_         to EquivId
+           ; EquivContr  to EquivContrId
+           ; J           to JId
+           ; cong        to congId
+           ; contrFibers to contrFibersId
+           ; equivFun    to equivFunId
+           ; fiber       to fiberId
+           ; funExt      to funExtId
+           ; isContr     to isContrId
+           ; isEquiv     to isEquivId
+           ; refl        to reflId
+           ; sym         to symId )

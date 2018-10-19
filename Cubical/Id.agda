@@ -43,6 +43,7 @@ open import Cubical.Glue
            ; equivFun to equivFunPath
            ; EquivContr to EquivContrPath )
 
+{- BUILTIN ID Id -}
 
 _≡_ : ∀ {ℓ} {A : Set ℓ} → A → A → Set ℓ
 _≡_ = Id
@@ -237,7 +238,7 @@ equivPathToEquivPath (f , p) =
 
 
 f1 : ∀ {ℓ} {A : Set ℓ} → Σ[ T ∈ Set ℓ ] (EquivPath T A) → Σ[ T ∈ Set ℓ ] (T ≃ A)
-f1 (x , p) = x , equivPathToEquiv ?
+f1 (x , p) = x , equivPathToEquiv p
 
 f2 : ∀ {ℓ} {A : Set ℓ} → Σ[ T ∈ Set ℓ ] (T ≃ A) → Σ[ T ∈ Set ℓ ] (EquivPath T A)
 f2 (x , p) = x , equivToEquivPath p
