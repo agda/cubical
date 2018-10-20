@@ -13,7 +13,8 @@ open import Cubical.PropositionalTruncation public
 -- Definition of equivalences, Glue types and the univalence theorem
 open import Cubical.Glue public
 
--- Definition of Identity types
+-- Definition of Identity types and definitions of J, funExt,
+-- univalence and propositional truncation using Id instead of Path
 open import Cubical.Id public
   hiding ( _≡_ ; ≡-proof_ ; begin_ ; _≡⟨⟩_ ; _≡⟨_⟩_ ; _≡-qed ; _∎ )
   renaming ( _≃_           to EquivId
@@ -22,14 +23,14 @@ open import Cubical.Id public
            ; cong          to congId
            ; equivFun      to equivFunId
            ; equivCtr      to equivCtrId
-           ; fiber         to fiberId
+           ; fiber          to fiberId
            ; funExt        to funExtId
            ; isContr       to isContrId
            ; isProp        to isPropId
            ; isSet         to isSetId
            ; isEquiv       to isEquivId
            ; equivIsEquiv  to equivIsEquivId
-           ; refl          to reflId
+           ; refl           to reflId
            ; sym           to symId
            ; ∥_∥           to propTruncId
            ; ∣_∣           to incId
