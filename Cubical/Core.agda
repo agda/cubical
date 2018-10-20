@@ -103,14 +103,9 @@ private
                ; (i = i1) (j = i1) → Set
                }
 
-  -- TODO recognize IsOne i0 as empty, then we can get rid of the
-  -- empty system.
-  -- sys3 : Partial Set₁ i0
-  -- sys3 = \ { () }
-
-
--- * The empty System
--- empty : ∀ {a} {A : Partial (Set a) i0} → PartialP i0 A
+  -- (i0 = i1) is actually absurd.
+  sys3 : Partial i0 Set₁
+  sys3 = \ { () }
 
 
 -- * There are cubical subtypes as in CCHM. Note that these are not
