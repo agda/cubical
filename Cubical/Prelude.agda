@@ -13,6 +13,8 @@ This file proves a variety of basic results about paths:
 
 - Converting PathP to and from a homogeneous path with transp
 
+- Direct definitions of lower h-levels
+
 
 It should *not* depend on the Agda standard library.
 
@@ -130,3 +132,15 @@ module _ {ℓ} {A : I → Set ℓ} {x : A i0} {y : A i1} where
   fromPathP : PathP A x y → transp A i0 x ≡ y
   fromPathP p i = transp (λ j → A (i ∨ j)) i (p i)
 
+
+-- Direct definitions of lower h-levels
+
+module _ {ℓ} where
+  isContr : Set ℓ → Set ℓ
+  isContr A = Σ[ x ∈ A ] (∀ y → x ≡ y)
+
+  isProp : Set ℓ → Set ℓ
+  isProp A = (x y : A) → x ≡ y
+
+  isSet : Set ℓ → Set ℓ
+  isSet A = (x y : A) → isProp (x ≡ y)

@@ -14,6 +14,8 @@ This file contains:
 
 - The univalence axiom expressed using only Id ([EquivContr])
 
+- Propositional truncation and its elimination principle
+
 
 It should *not* depend on the Agda standard library.
 
@@ -31,21 +33,29 @@ open import Agda.Builtin.Cubical.Id public
 open import Cubical.Core public hiding ( _≡_ )
 open import Cubical.Prelude
   hiding ( _≡_ ; ≡-proof_ ; begin_ ; _≡⟨⟩_ ; _≡⟨_⟩_ ; _≡-qed ; _∎ )
-  renaming ( refl   to reflPath
-           ; J      to JPath
-           ; JRefl  to JPathRefl
-           ; sym    to symPath
-           ; cong   to congPath
-           ; funExt to funExtPath )
+  renaming ( refl    to reflPath
+           ; J       to JPath
+           ; JRefl   to JPathRefl
+           ; sym     to symPath
+           ; cong    to congPath
+           ; funExt  to funExtPath
+           ; isContr to isContrPath
+           ; isProp  to isPropPath
+           ; isSet   to isSetPath )
 open import Cubical.Glue
   renaming ( fiber        to fiberPath
-           ; isContr      to isContrPath
            ; isEquiv      to isEquivPath
            ; _≃_          to EquivPath
            ; equivFun     to equivFunPath
            ; equivIsEquiv to equivIsEquivPath
            ; equivCtr     to equivCtrPath
            ; EquivContr   to EquivContrPath )
+open import Cubical.PropositionalTruncation
+  renaming ( ∥_∥ to propTruncPath
+           ; ∣_∣ to incPath
+           ; squash to squashPath
+           ; recPropTrunc to recPropTruncPath
+           ; elimPropTrunc to elimPropTruncPath )
 
 {- BUILTIN ID Id -}
 
@@ -99,7 +109,7 @@ module _ {ℓ} {A : Set ℓ} where
 
   trans : ∀ {x y z : A} → x ≡ y → y ≡ z → x ≡ z
   trans {x} p = J (λ y _ → x ≡ y) p
-  
+
   infix  3 _≡-qed _∎
   infixr 2 _≡⟨⟩_ _≡⟨_⟩_
   infix  1 ≡-proof_ begin_
@@ -152,8 +162,15 @@ funExt p = pathToId (λ i x → idToPath (p x) i)
 fiber : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → Set (ℓ-max ℓ ℓ')
 fiber {A = A} f y = Σ[ x ∈ A ] y ≡ f x
 
-isContr : {ℓ : Level} (A : Set ℓ) → Set ℓ
-isContr A = Σ[ x ∈ A ] (∀ y → x ≡ y)
+module _ {ℓ} where
+  isContr : Set ℓ → Set ℓ
+  isContr A = Σ[ x ∈ A ] (∀ y → x ≡ y)
+
+  isProp : Set ℓ → Set ℓ
+  isProp A = (x y : A) → x ≡ y
+
+  isSet : Set ℓ → Set ℓ
+  isSet A = (x y : A) → isProp (x ≡ y)
 
 record isEquiv {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) : Set (ℓ-max ℓ ℓ') where
   field
@@ -178,7 +195,7 @@ equivCtr e y = e .snd .equiv-proof y .fst
 
 -- Functions for going between the various definitions. This could
 -- also be achieved by making lines in the universe and transporting
--- back and forth along them. 
+-- back and forth along them.
 
 fiberPathToFiber : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B} {y : B} →
   fiberPath f y → fiber f y
@@ -202,6 +219,11 @@ isContrPathToIsContr (ctr , p) = (ctr , λ y → pathToId (p y))
 isContrToIsContrPath : ∀ {ℓ} {A : Set ℓ} → isContr A → isContrPath A
 isContrToIsContrPath (ctr , p) = (ctr , λ y → idToPath (p y))
 
+isPropPathToIsProp : ∀ {ℓ} {A : Set ℓ} → isPropPath A → isProp A
+isPropPathToIsProp H x y = pathToId (H x y)
+
+isPropToIsPropPath : ∀ {ℓ} {A : Set ℓ} → isProp A → isPropPath A
+isPropToIsPropPath H x y i = idToPath (H x y) i
 
 -- Specialized helper lemmas for going back and forth between
 -- isContrPath and isContr:
@@ -272,3 +294,22 @@ EquivContr A = helper1 f1 f2 f12 (EquivContrPath A)
 
   f12 : ∀ {ℓ} {A : Set ℓ} → (y : Σ[ T ∈ Set ℓ ] (T ≃ A)) → Path _ (f1 (f2 y)) y
   f12 (x , p) = λ i → x , equivToEquiv p i
+
+
+-- Propositional truncation
+
+∥_∥ : ∀ {ℓ} (A : Set ℓ) → Set ℓ
+∥ A ∥ = propTruncPath A
+
+∣_∣ : ∀ {ℓ} {A : Set ℓ} → A → ∥ A ∥
+∣ x ∣ = incPath x
+
+squash : ∀ {ℓ} {A : Set ℓ} → (x y : ∥ A ∥) → x ≡ y
+squash x y = pathToId (squashPath x y)
+
+recPropTrunc : ∀ {ℓ} {A : Set ℓ} {P : Set ℓ} → isProp P → (A → P) → ∥ A ∥ → P
+recPropTrunc Pprop f x = recPropTruncPath (isPropToIsPropPath Pprop) f x
+
+elimPropTrunc : ∀ {ℓ} {A : Set ℓ} {P : ∥ A ∥ → Set ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
+                ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
+elimPropTrunc Pprop f x = elimPropTruncPath (λ a → isPropToIsPropPath (Pprop a)) f x

@@ -2,7 +2,7 @@
 
 This file contains:
 
-- Definitions of fibers, isContr and equivalences
+- Definitions of fibers and equivalences
 
 - Glue types
 
@@ -21,9 +21,6 @@ open import Cubical.Prelude
 
 fiber : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → Set (ℓ-max ℓ ℓ')
 fiber {A = A} f y = Σ[ x ∈ A ] y ≡ f x
-
-isContr : {ℓ : Level} (A : Set ℓ) → Set ℓ
-isContr A = Σ[ x ∈ A ] (∀ y → x ≡ y)
 
 -- Make this a record so that isEquiv can be proved using
 -- copatterns. This is good because copatterns don't get unfolded
