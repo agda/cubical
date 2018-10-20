@@ -30,5 +30,5 @@ propTruncIsProp x y = squash x y
 -- Maybe define this directly by induction as well?
 elimPropTrunc : ∀ {ℓ} {A : Set ℓ} {P : ∥ A ∥ → Set ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
                 ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
-elimPropTrunc {A = A} {P = P} Pprop f a =
+elimPropTrunc {P = P} Pprop f a =
   recPropTrunc (Pprop a) (λ x → transp (λ i → P (squash ∣ x ∣ a i)) i0 (f x)) a
