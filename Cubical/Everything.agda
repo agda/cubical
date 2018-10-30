@@ -16,11 +16,11 @@ open import Cubical.Glue public
 -- Definition of Identity types and definitions of J, funExt,
 -- univalence and propositional truncation using Id instead of Path
 open import Cubical.Id public
-  hiding ( _≡_ ; ≡-proof_ ; begin_ ; _≡⟨⟩_ ; _≡⟨_⟩_ ; _≡-qed ; _∎ )
+  hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ )
   renaming ( _≃_           to EquivId
            ; EquivContr    to EquivContrId
            ; J             to JId
-           ; cong          to congId
+           ; ap            to apId
            ; equivFun      to equivFunId
            ; equivCtr      to equivCtrId
            ; fiber          to fiberId
@@ -31,9 +31,5 @@ open import Cubical.Id public
            ; isEquiv       to isEquivId
            ; equivIsEquiv  to equivIsEquivId
            ; refl           to reflId
-           ; sym           to symId
            ; ∥_∥           to propTruncId
-           ; ∣_∣           to incId
-           ; squash        to squashId
-           ; recPropTrunc  to recPropTruncId
-           ; elimPropTrunc to elimPropTruncId )
+           ; ∣_∣           to incId )
