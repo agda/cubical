@@ -30,8 +30,8 @@ open import Agda.Builtin.Cubical.Id public
            ; primIdPath to pathId  -- ∀ {ℓ} {A : Set ℓ} {x y : A} → Id x y → Path A x y
            )
   hiding ( primIdJ ) -- this should not be used as it is using compCCHM
-open import Cubical.Core public hiding ( _≡_ )
-open import Cubical.Prelude
+open import Cubical.Core public  hiding ( _≡_ )
+open import Cubical.Prelude public
   hiding ( _≡_ ; ≡-proof_ ; begin_ ; _≡⟨⟩_ ; _≡⟨_⟩_ ; _≡-qed ; _∎ )
   renaming ( refl    to reflPath
            ; J       to JPath
@@ -41,7 +41,10 @@ open import Cubical.Prelude
            ; funExt  to funExtPath
            ; isContr to isContrPath
            ; isProp  to isPropPath
-           ; isSet   to isSetPath )
+           ; isSet   to isSetPath
+           ; fst     to pr₁ -- as in the HoTT book
+           ; snd     to pr₂
+           )
 open import Cubical.Glue
   renaming ( fiber        to fiberPath
            ; isEquiv      to isEquivPath
@@ -50,10 +53,8 @@ open import Cubical.Glue
            ; equivIsEquiv to equivIsEquivPath
            ; equivCtr     to equivCtrPath
            ; EquivContr   to EquivContrPath )
-open import Cubical.PropositionalTruncation
-  renaming ( ∥_∥ to propTruncPath
-           ; ∣_∣ to incPath
-           ; squash to squashPath
+open import Cubical.PropositionalTruncation public
+  renaming ( squash to squashPath
            ; recPropTrunc to recPropTruncPath
            ; elimPropTrunc to elimPropTruncPath )
 
@@ -101,33 +102,29 @@ module _ {ℓ ℓ'} {A : Set ℓ} {x : A} (P : ∀ (y : A) → Id x y → Set �
 
 -- Basic theory about Id, proved using J
 module _ {ℓ} {A : Set ℓ} where
-  sym : {x y : A} → x ≡ y → y ≡ x
-  sym {x} p = J (λ z _ → z ≡ x) refl p
 
-  cong : ∀ {ℓ'} {B : Set ℓ'} (f : A → B) → ∀ {x y : A} → x ≡ y → f x ≡ f y
-  cong f {x} = J (λ z _ → f x ≡ f z) refl
+  transport : ∀ {ℓ'} (B : A → Set ℓ') {x y : A}
+           → x ≡ y → B x → B y
+  transport B {x} p b = J (λ y p → B y) b p
 
-  trans : ∀ {x y z : A} → x ≡ y → y ≡ z → x ≡ z
-  trans {x} p = J (λ y _ → x ≡ y) p
+  _⁻¹ : {x y : A} → x ≡ y → y ≡ x
+  _⁻¹ {x} p = J (λ z _ → z ≡ x) refl p
 
-  infix  3 _≡-qed _∎
-  infixr 2 _≡⟨⟩_ _≡⟨_⟩_
-  infix  1 ≡-proof_ begin_
+  ap : ∀ {ℓ'} {B : Set ℓ'} (f : A → B) → ∀ {x y : A} → x ≡ y → f x ≡ f y
+  ap f {x} = J (λ z _ → f x ≡ f z) refl
 
-  ≡-proof_ begin_ : {x y : A} → x ≡ y → x ≡ y
-  ≡-proof x≡y = x≡y
-  begin_ = ≡-proof_
+  _∙_ : ∀ {x y z : A} → x ≡ y → y ≡ z → x ≡ z
+  _∙_ {x} p = J (λ y _ → x ≡ y) p
 
-  _≡⟨⟩_ : (x {y} : A) → x ≡ y → x ≡ y
-  _ ≡⟨⟩ x≡y = x≡y
+  infix  4 _∙_
+  infix  3 _∎
+  infixr 2 _≡⟨_⟩_
 
-  _≡⟨_⟩_ : (x {y z} : A) → x ≡ y → y ≡ z → x ≡ z
-  _ ≡⟨ x≡y ⟩ y≡z = trans x≡y y≡z
+  _≡⟨_⟩_ : (x : A) {y z : A} → x ≡ y → y ≡ z → x ≡ z
+  _ ≡⟨ p ⟩ q = p ∙ q
 
-  _≡-qed _∎ : (x : A) → x ≡ x
-  _ ≡-qed  = refl
-  _∎ = _≡-qed
-
+  _∎ : (x : A) → x ≡ x
+  _∎ _ = refl
 
 -- Convert between Path and Id
 module _ {ℓ} {A : Set ℓ} where
@@ -184,13 +181,13 @@ _≃_ : ∀ {ℓ ℓ'} (A : Set ℓ) (B : Set ℓ') → Set (ℓ-max ℓ ℓ')
 A ≃ B = Σ[ f ∈ (A → B) ] (isEquiv f)
 
 equivFun : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → A → B
-equivFun e = fst e
+equivFun e = pr₁ e
 
 equivIsEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) → isEquiv (equivFun e)
-equivIsEquiv e = snd e
+equivIsEquiv e = pr₂ e
 
 equivCtr : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) (y : B) → fiber (equivFun e) y
-equivCtr e y = e .snd .equiv-proof y .fst
+equivCtr e y = e .pr₂ .equiv-proof y .pr₁
 
 
 -- Functions for going between the various definitions. This could
@@ -241,7 +238,7 @@ helper2 {A = A} f g h (x , p) = (g x , λ y → idToPath (rem y))
   where
   rem : ∀ (y : A) → g x ≡ y
   rem y =
-    g x     ≡⟨ cong g (p (f y)) ⟩
+    g x     ≡⟨ ap g (p (f y)) ⟩
     g (f y) ≡⟨ pathToId (h y) ⟩
     y       ∎
 
@@ -298,18 +295,12 @@ EquivContr A = helper1 f1 f2 f12 (EquivContrPath A)
 
 -- Propositional truncation
 
-∥_∥ : ∀ {ℓ} (A : Set ℓ) → Set ℓ
-∥ A ∥ = propTruncPath A
+∥∥-isProp : ∀ {ℓ} {A : Set ℓ} → (x y : ∥ A ∥) → x ≡ y
+∥∥-isProp x y = pathToId (squashPath x y)
 
-∣_∣ : ∀ {ℓ} {A : Set ℓ} → A → ∥ A ∥
-∣ x ∣ = incPath x
+∥∥-recursion : ∀ {ℓ} {A : Set ℓ} {P : Set ℓ} → isProp P → (A → P) → ∥ A ∥ → P
+∥∥-recursion Pprop f x = recPropTruncPath (isPropToIsPropPath Pprop) f x
 
-squash : ∀ {ℓ} {A : Set ℓ} → (x y : ∥ A ∥) → x ≡ y
-squash x y = pathToId (squashPath x y)
-
-recPropTrunc : ∀ {ℓ} {A : Set ℓ} {P : Set ℓ} → isProp P → (A → P) → ∥ A ∥ → P
-recPropTrunc Pprop f x = recPropTruncPath (isPropToIsPropPath Pprop) f x
-
-elimPropTrunc : ∀ {ℓ} {A : Set ℓ} {P : ∥ A ∥ → Set ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
+∥∥-induction : ∀ {ℓ} {A : Set ℓ} {P : ∥ A ∥ → Set ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
                 ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
-elimPropTrunc Pprop f x = elimPropTruncPath (λ a → isPropToIsPropPath (Pprop a)) f x
+∥∥-induction Pprop f x = elimPropTruncPath (λ a → isPropToIsPropPath (Pprop a)) f x
