@@ -11,6 +11,7 @@ open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 
 open import Cubical.Basics.IsoToEquiv
+open import Cubical.Basics.Int
 
 open import Cubical.HITs.Circle
 
@@ -46,3 +47,9 @@ t2c-c2t (loop _ , loop _) = refl
 
 Torus≡S¹×S¹ : Torus ≡ S¹ × S¹
 Torus≡S¹×S¹ = isoToPath t2c c2t t2c-c2t c2t-t2c
+
+ΩTorus : Set
+ΩTorus = point ≡ point
+
+ΩTorus≡Int×Int : ΩTorus ≡ Int × Int
+ΩTorus≡Int×Int = {!!}
