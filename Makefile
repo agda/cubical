@@ -1,4 +1,4 @@
 check: $(wildcard **/*.agda)
-	agda Cubical/Everything.agda
+	agda Cubical/Core/Everything.agda
 
-clean:; rm -f */*agdai
+clean:; rm -f */*agdai */*/*agdai

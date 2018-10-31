@@ -15,9 +15,9 @@ It should *not* depend on the Agda standard library
 
 -}
 {-# OPTIONS --cubical #-}
-module Cubical.Glue where
+module Cubical.Core.Glue where
 
-open import Cubical.Prelude
+open import Cubical.Core.Prelude
 
 fiber : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → Set (ℓ-max ℓ ℓ')
 fiber {A = A} f y = Σ[ x ∈ A ] y ≡ f x

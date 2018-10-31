@@ -9,9 +9,9 @@ It should *not* depend on the Agda standard library
 
 -}
 {-# OPTIONS --cubical #-}
-module Cubical.PropositionalTruncation where
+module Cubical.Core.PropositionalTruncation where
 
-open import Cubical.Prelude
+open import Cubical.Core.Prelude
 
 -- Propositional truncation as a higher inductive type:
 

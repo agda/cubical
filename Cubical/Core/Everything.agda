@@ -1,21 +1,21 @@
 {-# OPTIONS --cubical #-}
-module Cubical.Everything where
+module Cubical.Core.Everything where
 
 -- Basic primitives (some are from Agda.Primitive)
-open import Cubical.Core public
+open import Cubical.Core.Primitives public
 
 -- Basic cubical prelude
-open import Cubical.Prelude public
-
--- Propositional truncation defined as a higher inductive type
-open import Cubical.PropositionalTruncation public
+open import Cubical.Core.Prelude public
 
 -- Definition of equivalences, Glue types and the univalence theorem
-open import Cubical.Glue public
+open import Cubical.Core.Glue public
+
+-- Propositional truncation defined as a higher inductive type
+open import Cubical.Core.PropositionalTruncation public
 
 -- Definition of Identity types and definitions of J, funExt,
 -- univalence and propositional truncation using Id instead of Path
-open import Cubical.Id public
+open import Cubical.Core.Id public
   hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ )
   renaming ( _≃_           to EquivId
            ; EquivContr    to EquivContrId
@@ -33,3 +33,6 @@ open import Cubical.Id public
            ; refl           to reflId
            ; ∥_∥           to propTruncId
            ; ∣_∣           to incId )
+
+
+open import Cubical.Core.HoTT-UF

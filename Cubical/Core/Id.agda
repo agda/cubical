@@ -21,7 +21,7 @@ It should *not* depend on the Agda standard library.
 
 -}
 {-# OPTIONS --cubical #-}
-module Cubical.Id where
+module Cubical.Core.Id where
 
 open import Agda.Builtin.Cubical.Id public
   renaming ( conid to ⟨_,_⟩
@@ -30,8 +30,8 @@ open import Agda.Builtin.Cubical.Id public
            ; primIdPath to pathId  -- ∀ {ℓ} {A : Set ℓ} {x y : A} → Id x y → Path A x y
            )
   hiding ( primIdJ ) -- this should not be used as it is using compCCHM
-open import Cubical.Core public  hiding ( _≡_ )
-open import Cubical.Prelude public
+open import Cubical.Core.Primitives public  hiding ( _≡_ )
+open import Cubical.Core.Prelude public
   hiding ( _≡_ ; ≡-proof_ ; begin_ ; _≡⟨⟩_ ; _≡⟨_⟩_ ; _≡-qed ; _∎ )
   renaming ( refl    to reflPath
            ; J       to JPath
@@ -45,7 +45,7 @@ open import Cubical.Prelude public
            ; fst     to pr₁ -- as in the HoTT book
            ; snd     to pr₂
            )
-open import Cubical.Glue
+open import Cubical.Core.Glue
   renaming ( fiber        to fiberPath
            ; isEquiv      to isEquivPath
            ; _≃_          to EquivPath
@@ -53,7 +53,7 @@ open import Cubical.Glue
            ; equivIsEquiv to equivIsEquivPath
            ; equivCtr     to equivCtrPath
            ; EquivContr   to EquivContrPath )
-open import Cubical.PropositionalTruncation public
+open import Cubical.Core.PropositionalTruncation public
   renaming ( squash to squashPath
            ; recPropTrunc to recPropTruncPath
            ; elimPropTrunc to elimPropTruncPath )

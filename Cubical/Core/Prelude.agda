@@ -20,11 +20,11 @@ It should *not* depend on the Agda standard library.
 
 -}
 {-# OPTIONS --cubical #-}
-module Cubical.Prelude where
+module Cubical.Core.Prelude where
 
 open import Agda.Builtin.Sigma public
 
-open import Cubical.Core public
+open import Cubical.Core.Primitives public
 
 -- Basic theory about paths. These proofs should typically be
 -- inlined. This module also makes equational reasoning work nicely

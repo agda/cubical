@@ -13,9 +13,9 @@ For the moment, this requires the development version of Agda.
 
 {-# OPTIONS --cubical --exact-split --safe #-}
 
-module Cubical.HoTT-UF where
+module Cubical.Core.HoTT-UF where
 
-open import Cubical.Id public
+open import Cubical.Core.Id public
      using ( _≡_            -- The identity type.
            ; refl           -- Unfortunately, pattern matching on refl is not available.
            ; J              -- Until it is, you have to use the induction principle J.
