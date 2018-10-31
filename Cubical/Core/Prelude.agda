@@ -19,7 +19,7 @@ This file proves a variety of basic results about paths:
 It should *not* depend on the Agda standard library.
 
 -}
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 module Cubical.Core.Prelude where
 
 open import Agda.Builtin.Sigma public

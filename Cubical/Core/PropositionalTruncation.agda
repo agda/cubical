@@ -8,7 +8,7 @@ This file contains:
 It should *not* depend on the Agda standard library
 
 -}
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 module Cubical.Core.PropositionalTruncation where
 
 open import Cubical.Core.Prelude

@@ -7,7 +7,7 @@ also defines some basic derived operations (composition and filling).
 It should *not* depend on the Agda standard library.
 
 -}
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 module Cubical.Core.Primitives where
 
 open import Agda.Builtin.Cubical.Path public
@@ -75,7 +75,7 @@ Path A a b = PathP (λ _ → A) a b
 
 -- * Types of partial elements, and their dependent version.
 
--- "Partial A φ" is a special version of "IsOne φ → A" with a more
+-- "Partial φ A" is a special version of "IsOne φ → A" with a more
 -- extensional judgmental equality.
 -- "PartialP φ A" allows "A" to be defined only on "φ".
 
@@ -137,7 +137,7 @@ ouc = primSubOut
 -- * Generalized transport and homogeneous composition [CHM 18].
 
 -- When calling "transp A φ a" Agda makes sure that "A" is constant on "φ".
--- transp : ∀ {l} (A : (i : I) → Set l) (φ : I) (a : A i0) → A i1
+-- transp : ∀ {l} (A : I → Set l) (φ : I) (a : A i0) → A i1
 
 -- When calling "hcomp A φ u a" Agda makes sure that "a" agrees with "u i0" on "φ".
 -- hcomp : ∀ {l} {A : Set l} {φ : I} (u : I → Partial A φ) (a : A) → A
