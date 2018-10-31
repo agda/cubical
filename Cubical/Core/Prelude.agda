@@ -103,7 +103,7 @@ module _ {ℓ ℓ'} {A : Set ℓ} {x : A}
 _×_ : ∀ {ℓ ℓ'} (A : Set ℓ) (B : Set ℓ') → Set (ℓ-max ℓ ℓ')
 A × B = Σ A (λ _ → B)
 
-infixr 2 _×_
+infixr 5 _×_
 infix 2 Σ-syntax
 
 Σ-syntax : ∀ {ℓ ℓ'} (A : Set ℓ) (B : A → Set ℓ') → Set (ℓ-max ℓ ℓ')
