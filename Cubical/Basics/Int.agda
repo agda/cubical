@@ -1,16 +1,12 @@
 {-# OPTIONS --cubical #-}
 module Cubical.Basics.Int where
 
--- TODO: upstream?
-open import Agda.Builtin.Nat public
-  using (zero; suc; _+_; _*_)
-  renaming (Nat to ℕ)
-
 open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
 open import Cubical.Basics.IsoToEquiv
+open import Cubical.Basics.Nat
 
 data Int : Set where
   pos    : (n : ℕ) → Int
