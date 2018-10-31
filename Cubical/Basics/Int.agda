@@ -1,3 +1,4 @@
+{-# OPTIONS --cubical #-}
 module Cubical.Basics.Int where
 
 -- TODO: upstream?
@@ -21,9 +22,9 @@ sucℤ (negsuc zero)    = pos zero
 sucℤ (negsuc (suc n)) = negsuc n
 
 predℤ : Int → Int
-predℤ (pos zero)      = negsuc zero
-predℤ (pos (suc n))   = pos n
-predℤ (negsuc n)      = negsuc (suc n)
+predℤ (pos zero)    = negsuc zero
+predℤ (pos (suc n)) = pos n
+predℤ (negsuc n)    = negsuc (suc n)
 
 sucPred : ∀ i → sucℤ (predℤ i) ≡ i
 sucPred (pos zero)       = refl
@@ -43,3 +44,14 @@ suc-equiv .snd = isoToEquiv sucℤ predℤ sucPred predSuc
 
 sucPathℤ : Int ≡ Int
 sucPathℤ = ua suc-equiv
+
+
+
+-- These two examples trigger a bug:
+-- An internal error has occurred. Please report this as a bug.
+-- Location of the error: src/full/Agda/TypeChecking/Primitive.hs:933
+one : Int
+one = transp (λ i → sucPathℤ i) i0 (pos 0)
+
+minusone : Int
+minusone = transp (λ i → sucPathℤ (~ i)) i0 (pos 0)
