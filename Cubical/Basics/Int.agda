@@ -43,9 +43,6 @@ sucPathℤ = ua suc-equiv
 
 
 
--- These two examples trigger a bug:
--- An internal error has occurred. Please report this as a bug.
--- Location of the error: src/full/Agda/TypeChecking/Primitive.hs:933
 one : Int
 one = transp (λ i → sucPathℤ i) i0 (pos 0)
 

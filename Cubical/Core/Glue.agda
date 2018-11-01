@@ -39,6 +39,13 @@ A ≃ B = Σ[ f ∈ (A → B) ] (isEquiv f)
 equivFun : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → A → B
 equivFun e = fst e
 
+equivProof : ∀ {la lt} (T : Set la) (A : Set lt) → (w : T ≃ A) → (a : A)
+            → ∀ ψ → (Partial ψ (fiber (w .fst) a)) → fiber (w .fst) a
+equivProof A B w a ψ fb = contr' {A = fiber (w .fst) a} (w .snd .equiv-proof a) ψ fb
+  where
+    contr' : ∀ {ℓ} {A : Set ℓ} → isContr A → (φ : I) → (u : Partial φ A) → A
+    contr' {A = A} (c , p) φ u = hcomp (λ i o → p (u o) i) c
+
 equivIsEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) → isEquiv (equivFun e)
 equivIsEquiv e = snd e
 
@@ -53,8 +60,9 @@ equivCtrPath e y = e .snd .equiv-proof y .snd
 -- partial element can be extended to a total one"?
 {-# BUILTIN EQUIV _≃_ #-}
 {-# BUILTIN EQUIVFUN  equivFun #-}
+{-# BUILTIN EQUIVPROOF equivProof #-}
 
--- I don't know why this should be a module...
+-- This is a module so we can easily rename the primitives.
 module GluePrims where
   primitive
     primGlue    : ∀ {ℓ ℓ'} (A : Set ℓ) {φ : I}
@@ -66,6 +74,9 @@ module GluePrims where
     prim^unglue : ∀ {ℓ ℓ'} {A : Set ℓ} {φ : I}
       → {T : Partial φ (Set ℓ')} → {e : PartialP φ (λ o → T o ≃ A)}
       → primGlue A T e → A
+
+    -- Needed for transp in Glue.
+    primFaceForall : (I → I) → I
 
 open GluePrims public
   renaming ( primGlue to Glue
