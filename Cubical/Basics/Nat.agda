@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --no-exact-split #-}
 module Cubical.Basics.Nat where
 
 open import Agda.Builtin.Nat public

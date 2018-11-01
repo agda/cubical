@@ -114,6 +114,8 @@ private
 _[_↦_] : ∀ {ℓ} (A : Set ℓ) (φ : I) (u : Partial φ A) → Agda.Primitive.Setω
 A [ φ ↦ u ] = Sub A φ u
 
+infix 4 _[_↦_]
+
 -- Any element u : A can be seen as an element of A [ φ ↦ u ] which
 -- agrees with u on φ:
 
