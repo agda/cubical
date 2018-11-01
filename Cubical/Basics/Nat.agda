@@ -1,9 +1,21 @@
 {-# OPTIONS --cubical --no-exact-split #-}
 module Cubical.Basics.Nat where
 
+open import Cubical.Core.Primitives
+open import Cubical.Core.Prelude
+
+open import Cubical.Basics.Empty
+
 open import Agda.Builtin.Nat public
   using (zero; suc; _+_; _*_)
   renaming (Nat to ℕ)
+
+caseNat : ∀{l} → {A : Set l} → (a0 aS : A) → ℕ → A
+caseNat a0 aS zero = a0
+caseNat a0 aS (suc n) = aS
+
+znots : {n : ℕ} → ¬ (zero ≡ suc n)
+znots eq = subst {B = caseNat ℕ ⊥} eq zero
 
 doubleℕ : ℕ → ℕ
 doubleℕ zero = zero

@@ -6,6 +6,8 @@ open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
 open import Cubical.Basics.Nat
+open import Cubical.Basics.Empty
+open import Cubical.Basics.IsoToEquiv
 
 -- Positive binary numbers
 data Pos : Set where
@@ -40,15 +42,11 @@ sucPosSuc pos1   = refl
 sucPosSuc (x0 p) = refl
 sucPosSuc (x1 p) = λ i → doubleℕ (sucPosSuc p i)
 
-
--- zeronPosToN : (p : Pos) → ¬ (zero ≡ posToN p)
--- zeronPosToN p = posInd (λ prf → znots zero prf) hs p where
---   hs : (p : Pos) → ¬ (zero ≡ posToN p) → zero ≡ posToN (sucPos p) → ⊥
---   hs p neq ieq = ⊥-elim (znots (posToN p) (trans ieq (sucPosSuc p)))
-
--- ntoPos' : ℕ → Pos
--- ntoPos' zero = pos1
--- ntoPos' (suc n) = sucPos (ntoPos' n)
+zeronPosToN : (p : Pos) → ¬ (zero ≡ posToℕ p)
+zeronPosToN p = posInd (λ prf → znots prf) hs p
+  where
+  hs : (p : Pos) → ¬ (zero ≡ posToℕ p) → zero ≡ posToℕ (sucPos p) → ⊥
+  hs p neq ieq = ⊥-elim (znots (compPath ieq (sucPosSuc p)))
 
 ntoPos : ℕ → Pos
 ntoPos zero    = pos1
@@ -56,27 +54,28 @@ ntoPos (suc zero) = pos1
 ntoPos (suc (suc n)) = sucPos (ntoPos (suc n))
 
 
--- posToNK : ∀ n → posToN (ntoPos (suc n)) ≡ suc n
--- posToNK zero = λ x → 1
--- posToNK (suc n) = trans (sucPosSuc (ntoPos' n)) ih where
---   ih = cong suc (posToNK n)
+ntoPosSuc : ∀ n → ¬ (zero ≡ n) → ntoPos (suc n) ≡ sucPos (ntoPos n)
+ntoPosSuc zero neq    = ⊥-elim (neq refl)
+ntoPosSuc (suc n) neq = refl
 
--- ntoPosSuc : ∀ n → ¬ (zero ≡ n) → ntoPos (suc n) ≡ sucPos (ntoPos n)
--- ntoPosSuc zero neq = ⊥-elim (neq refl)
--- ntoPosSuc (suc n) neq = refl
+ntoPosK : (p : Pos) → ntoPos (posToℕ p) ≡ p
+ntoPosK p = posInd refl hs p
+  where
+  hs : (p : Pos) → ntoPos (posToℕ p) ≡ p → ntoPos (posToℕ (sucPos p)) ≡ sucPos p
+  hs p hp =
+    ntoPos (posToℕ (sucPos p)) ≡⟨ cong ntoPos (sucPosSuc p) ⟩
+    ntoPos (suc (posToℕ p))    ≡⟨ ntoPosSuc (posToℕ p) (zeronPosToN p) ⟩
+    sucPos (ntoPos (posToℕ p)) ≡⟨ cong sucPos hp ⟩
+    sucPos p ∎ 
 
--- ntoPosK : (p : Pos) → ntoPos (posToN p) ≡ p
--- ntoPosK p = posInd refl hs p where
---   hs : (p : Pos) → ntoPos (posToN p) ≡ p → ntoPos (posToN (sucPos p)) ≡ sucPos p
---   hs p hp = trans (trans h1 h2) h3 where
---     h1 = cong ntoPos (sucPosSuc p)
---     h2 = ntoPosSuc (posToN p) (zeronPosToN p)
---     h3 = cong sucPos hp
+posToNK : ∀ n → posToℕ (ntoPos (suc n)) ≡ suc n
+posToNK zero = refl
+posToNK (suc n) =
+  posToℕ (sucPos (ntoPos (suc n))) ≡⟨ sucPosSuc (ntoPos (suc n)) ⟩
+  suc (posToℕ (ntoPos (suc n))) ≡⟨ cong suc (posToNK n) ⟩
+  suc (suc n) ∎
 
--- posToNinj : injective posToN
--- posToNinj {a0} {a1} eq = λ i → primComp (λ _ → Pos) _ (λ { j (i = i0) → ntoPosK a0 j
---                                                         ; j (i = i1) → ntoPosK a1 j }) (ntoPos (eq i))
-
+-- Binary numbers
 data Binℕ : Set where
   binℕ0   : Binℕ
   binℕpos : Pos → Binℕ
@@ -89,26 +88,27 @@ binNtoN : Binℕ → ℕ
 binNtoN binℕ0       = zero
 binNtoN (binℕpos x) = posToℕ x
 
--- ntoBinNK : (n : ℕ) → binNtoN (ntoBinN n) ≡ n
--- ntoBinNK zero = refl
--- ntoBinNK (suc n) = posToNK n
+ntoBinNK : (n : ℕ) → binNtoN (ntoBinN n) ≡ n
+ntoBinNK zero          = refl
+ntoBinNK (suc zero)    = refl
+ntoBinNK (suc (suc n)) =
+    posToℕ (sucPos (ntoPos (suc n))) ≡⟨ sucPosSuc (ntoPos (suc n)) ⟩
+    suc (posToℕ (ntoPos (suc n)))    ≡⟨ cong suc (ntoBinNK (suc n)) ⟩
+    suc (suc n)       ∎
 
+binNtoNK : ∀ b → ntoBinN (binNtoN b) ≡ b
+binNtoNK binℕ0 = refl
+binNtoNK (binℕpos p) = posInd refl (λ p _ → rem p) p
+  where
+  rem : (p : Pos) → ntoBinN (posToℕ (sucPos p)) ≡ binℕpos (sucPos p)
+  rem p =
+    ntoBinN (posToℕ (sucPos p)) ≡⟨ cong ntoBinN (sucPosSuc p) ⟩
+    binℕpos (ntoPos (suc (posToℕ p))) ≡⟨ cong binℕpos (compPath (ntoPosSuc (posToℕ p) (zeronPosToN p))
+                                                        (cong sucPos (ntoPosK p))) ⟩
+    binℕpos (sucPos p) ∎
 
--- lem1 : ∀ p → ntoBinN (posToN p) ≡ binNpos p
--- lem1 p = posInd refl (λ p _ → rem p) p where
---   rem : (p : Pos) → ntoBinN (posToN (sucPos p)) ≡ binNpos (sucPos p)
---   rem p = trans rem1 rem2 where
---     rem1 = cong ntoBinN (sucPosSuc p)
---     rem2 : binNpos (ntoPos (suc (posToN p))) ≡ binNpos (sucPos p)
---     rem2 = λ i → binNpos (trans (ntoPosSuc (posToN p) (zeronPosToN p)) (cong sucPos (ntoPosK p)) i)
-
-
--- binNtoNK : ∀ b → ntoBinN (binNtoN b) ≡ b
--- binNtoNK binN0 = refl
--- binNtoNK (binNpos x) = lem1 x
-
--- eqBinNN : BinN ≡ ℕ
--- eqBinNN = isoToPath binNtoN ntoBinN ntoBinNK binNtoNK
+eqBinNN : Binℕ ≡ ℕ
+eqBinNN = isoToPath binNtoN ntoBinN ntoBinNK binNtoNK
 
 doubleBinℕ : Binℕ → Binℕ
 doubleBinℕ binℕ0 = binℕ0
