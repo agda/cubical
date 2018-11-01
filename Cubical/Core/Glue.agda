@@ -133,3 +133,58 @@ EquivContr A = ( A , idEquiv A)
                              f : PartialP (~ i ∨ i) (λ x → T x ≃ A)
                              f = λ { (i = i0) → idEquiv A ; (i = i1) → w .snd }
                          in ( Glue A T f , unglueEquiv _ _ T f)
+
+module _ {ℓ : I → Level} (P : (i : I) → Set (ℓ i)) where
+  private
+    E : (i : I) → Set (ℓ i)
+    E  = λ i → P i
+    ~E : (i : I) → Set (ℓ (~ i))
+    ~E = λ i → P (~ i)
+
+    A = P i0
+    B = P i1
+
+    f : A → B
+    f x = comp E {i0} (\ _ ()) (inc x)
+
+    g : B → A
+    g y = comp ~E {i0} (\ _ ()) (inc y)
+
+    u : ∀ i → A → E i
+    u i x = fill E (λ _ → empty) (inc x) i
+
+    v : ∀ i → B → E i
+    v i y = fill ~E (λ _ → empty) (inc y) (~ i)
+
+    fiberPath : (y : B) → (xβ0 xβ1 : fiber f y) → xβ0 ≡ xβ1
+    fiberPath y (x0 , β0) (x1 , β1) k = ω , λ j → δ j where
+      module _ (j : I) where
+        private
+          sys : A → ∀ i → PartialP (~ j ∨ j) (λ _ → E (~ i))
+          sys x i = λ {(j = i0) → v (~ i) y ; (j = i1) → u (~ i) x}
+        ω0 = comp ~E (sys x0) (inc (β0 j))
+        ω1 = comp ~E (sys x1) (inc (β1 j))
+        θ0 = fill ~E (sys x0) (inc (β0 j))
+        θ1 = fill ~E (sys x1) (inc (β1 j))
+      sys = λ {j (k = i0) → ω0 j ; j (k = i1) → ω1 j}
+      ω = comp (λ _ → A) sys (inc (g y))
+      θ = fill (λ _ → A) sys (inc (g y))
+      δ = λ (j : I) → comp E -- ((~ j ∨ j) ∨ (~ k ∨ k))
+            (λ i → λ { (j = i0) → v i y ; (k = i0) → θ0 j (~ i)
+                     ; (j = i1) → u i ω ; (k = i1) → θ1 j (~ i) }) (inc (θ j))
+
+    γ : (y : B) → y ≡ f (g y)
+    γ y j = comp E (λ i → λ { (j = i0) → v i y
+                            ; (j = i1) → u i (g y) }) (inc (g y))
+
+  pathToisEquiv : isEquiv f
+  pathToisEquiv .equiv-proof y .fst .fst = g y
+  pathToisEquiv .equiv-proof y .fst .snd = γ y
+  pathToisEquiv .equiv-proof y .snd = fiberPath y _
+
+  pathToEquiv : A ≃ B
+  pathToEquiv .fst = f
+  pathToEquiv .snd = pathToisEquiv
+
+
+{-# BUILTIN PATHTOEQUIV pathToEquiv #-}

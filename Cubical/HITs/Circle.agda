@@ -1,4 +1,4 @@
-{- 
+{-
 
 Definition of the circle as a HIT
 
@@ -6,7 +6,7 @@ Definition of the circle as a HIT
 {-# OPTIONS --cubical #-}
 
 -- TODO: remove this!
-{-# OPTIONS --allow-unsolved-metas #-} 
+{-# OPTIONS --allow-unsolved-metas #-}
 module Cubical.HITs.Circle where
 
 open import Cubical.Core.Primitives
@@ -14,6 +14,7 @@ open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
 open import Cubical.Basics.Int
+open import Cubical.Basics.Nat
 open import Cubical.Basics.IsoToEquiv
 
 data S¹ : Set where
@@ -82,7 +83,7 @@ five = suc (suc (suc (suc (suc zero))))
 -- Hmm, these are not refl?
 
 test-winding-pos : winding (intLoop (pos five)) ≡ pos five
-test-winding-pos = {!refl!}
+test-winding-pos = refl
 
 test-winding-neg : winding (intLoop (negsuc five)) ≡ negsuc five
-test-winding-neg = {!!}
+test-winding-neg = refl
