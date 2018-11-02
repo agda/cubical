@@ -121,7 +121,9 @@ decodeEncode x p =
 ΩS¹≡Int = isoToPath winding (decode base) windingIntLoop (decodeEncode base)
 
 -- Some tests
-module tests where
+module _ where
+ private
+  five : ℕ
   five = suc (suc (suc (suc (suc zero))))
 
   test-winding-pos : winding (intLoop (pos five)) ≡ pos five
@@ -129,4 +131,3 @@ module tests where
 
   test-winding-neg : winding (intLoop (negsuc five)) ≡ negsuc five
   test-winding-neg = refl
-

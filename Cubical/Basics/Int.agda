@@ -42,7 +42,8 @@ sucPathℤ : Int ≡ Int
 sucPathℤ = ua suc-equiv
 
 -- Some tests
-module tests where
+module _ where
+ private
   one : Int
   one = transp (λ i → sucPathℤ i) i0 (pos 0)
 
