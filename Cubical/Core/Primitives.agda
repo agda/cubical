@@ -154,7 +154,7 @@ hfill {φ = φ} u u0 i =
         (ouc u0)
 
 -- Heterogeneous composition defined as in CHM
-comp : ∀ {ℓ} (A : I → Set ℓ) {φ : I}
+comp : ∀ {ℓ : I → Level} (A : ∀ i → Set (ℓ i)) {φ : I}
          (u : ∀ i → Partial φ (A i))
          (u0 : A i0 [ φ ↦ u i0 ]) → A i1
 comp A {φ = φ} u u0 =
@@ -162,10 +162,10 @@ comp A {φ = φ} u u0 =
         (transp A i0 (ouc u0))
 
 -- Heterogeneous filling defined using comp
-fill : ∀ {ℓ} (A : I → Set ℓ) {φ : I}
+fill : ∀ {ℓ : I → Level} (A : ∀ i → Set (ℓ i)) {φ : I}
          (u : ∀ i → Partial φ (A i))
          (u0 : A i0 [ φ ↦ u i0 ]) →
-         PathP A (ouc u0) (comp A u u0)
+         ∀ i →  A i
 fill A {φ = φ} u u0 i =
   comp (λ j → A (i ∧ j))
        (λ j → \ { (φ = i1) → u (i ∧ j) 1=1

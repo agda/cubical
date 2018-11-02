@@ -1,12 +1,9 @@
-{- 
+{-
 
 Definition of the circle as a HIT
 
 -}
 {-# OPTIONS --cubical #-}
-
--- TODO: remove this!
-{-# OPTIONS --allow-unsolved-metas #-} 
 module Cubical.HITs.Circle where
 
 open import Cubical.Core.Primitives
@@ -14,6 +11,7 @@ open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
 open import Cubical.Basics.Int
+open import Cubical.Basics.Nat
 open import Cubical.Basics.IsoToEquiv
 
 data S¹ : Set where
@@ -39,11 +37,59 @@ intLoop (pos (suc n))    = compPath (intLoop (pos n)) loop
 intLoop (negsuc zero)    = sym loop
 intLoop (negsuc (suc n)) = compPath (intLoop (negsuc n)) (sym loop)
 
+-- Why is this not proved with refl?
+hcompIntEmpty : (n : Int) → hcomp (λ _ → empty) n ≡ n
+hcompIntEmpty n i = hfill (λ _ → empty) (inc n) (~ i)
+
+-- This proof is far too complicated because of hcomp with emptys systems in Int!
 windingIntLoop : (n : Int) → winding (intLoop n) ≡ n
 windingIntLoop (pos zero) = refl
-windingIntLoop (pos (suc n)) = {!!} -- Why doesn't this solve the goal: λ i → sucℤ (windingIntLoop (pos n) i)
-windingIntLoop (negsuc zero) = {!!} -- C-c C-r triggers internal error!
-windingIntLoop (negsuc (suc n)) = {!!}
+windingIntLoop (pos (suc n)) =
+  -- The following should solve the goal: λ i → sucℤ (windingIntLoop (pos n) i)
+  winding (intLoop (pos (suc n)))
+  ≡⟨ refl ⟩
+  hcomp {A = Int} (λ i → empty)
+        (hcomp {A = Int} (λ i → empty)
+        (hcomp {A = Int} (λ i → empty)
+        (sucℤ (hcomp {A = Int} (λ i → empty) (winding (intLoop (pos n)))))))
+  ≡⟨ hcompIntEmpty _ ⟩
+  hcomp {A = Int} (λ i → empty)
+        (hcomp {A = Int} (λ i → empty)
+        (sucℤ (hcomp {A = Int} (λ i → empty) (winding (intLoop (pos n))))))
+  ≡⟨ hcompIntEmpty _ ⟩
+  hcomp {A = Int} (λ i → empty)
+        (sucℤ (hcomp {A = Int} (λ i → empty) (winding (intLoop (pos n)))))
+  ≡⟨ hcompIntEmpty _ ⟩
+  sucℤ (hcomp {A = Int} (λ i → empty) (winding (intLoop (pos n))))
+  ≡⟨ cong sucℤ (hcompIntEmpty _) ⟩
+  sucℤ (winding (intLoop (pos n)))
+  ≡⟨ cong sucℤ (windingIntLoop (pos n)) ⟩
+  pos (suc n) ∎
+windingIntLoop (negsuc zero) = refl
+windingIntLoop (negsuc (suc n)) =
+  winding (intLoop (negsuc (suc n))) ≡⟨ refl ⟩
+  hcomp (λ i → empty)
+        (hcomp (λ i → empty)
+        (predℤ
+        (hcomp (λ i → empty)
+        (hcomp (λ i → empty)
+        (winding (intLoop (negsuc n)))))))
+  ≡⟨ hcompIntEmpty _ ⟩
+  hcomp (λ i → empty)
+        (predℤ (hcomp (λ i → empty)
+               (hcomp (λ i → empty)
+               (winding (intLoop (negsuc n))))))
+  ≡⟨ hcompIntEmpty _ ⟩  
+  predℤ (hcomp (λ i → empty)
+        (hcomp (λ i → empty)
+        (winding (intLoop (negsuc n)))))
+  ≡⟨ cong predℤ (hcompIntEmpty _) ⟩  
+  predℤ (hcomp (λ i → empty)
+        (winding (intLoop (negsuc n))))
+  ≡⟨ cong predℤ (hcompIntEmpty _) ⟩  
+  predℤ (winding (intLoop (negsuc n)))
+  ≡⟨ cong predℤ (windingIntLoop (negsuc n)) ⟩
+  negsuc (suc n) ∎
 
 decodeSquare : (n : Int) → PathP (λ i → base ≡ loop i) (intLoop (predℤ n)) (intLoop n)
 decodeSquare (pos zero) i j    = loop (i ∨ ~ j)
@@ -74,15 +120,13 @@ decodeEncode x p =
 ΩS¹≡Int : ΩS¹ ≡ Int
 ΩS¹≡Int = isoToPath winding (decode base) windingIntLoop (decodeEncode base)
 
-
 -- Some tests
+module tests where
+  five = suc (suc (suc (suc (suc zero))))
 
-five = suc (suc (suc (suc (suc zero))))
+  test-winding-pos : winding (intLoop (pos five)) ≡ pos five
+  test-winding-pos = refl
 
--- Hmm, these are not refl?
+  test-winding-neg : winding (intLoop (negsuc five)) ≡ negsuc five
+  test-winding-neg = refl
 
-test-winding-pos : winding (intLoop (pos five)) ≡ pos five
-test-winding-pos = {!refl!}
-
-test-winding-neg : winding (intLoop (negsuc five)) ≡ negsuc five
-test-winding-neg = {!!}
