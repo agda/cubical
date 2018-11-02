@@ -27,5 +27,11 @@ notEquiv = not , notIsEquiv
 notEq : Bool ≡ Bool
 notEq = ua notEquiv
 
-nfalse : Bool
-nfalse = transp (λ i → notEq i) i0 true
+module tests where
+  -- This computes to false as expected
+  nfalse : Bool
+  nfalse = transp (λ i → notEq i) i0 true
+  
+  -- Sanity check
+  nfalsepath : nfalse ≡ false
+  nfalsepath = refl

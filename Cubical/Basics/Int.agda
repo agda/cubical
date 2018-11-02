@@ -41,10 +41,17 @@ suc-equiv .snd = isoToEquiv sucℤ predℤ sucPred predSuc
 sucPathℤ : Int ≡ Int
 sucPathℤ = ua suc-equiv
 
+-- Some tests
+module tests where
+  one : Int
+  one = transp (λ i → sucPathℤ i) i0 (pos 0)
 
+  onepath : one ≡ pos 1
+  onepath = refl
 
-one : Int
-one = transp (λ i → sucPathℤ i) i0 (pos 0)
+  minusone : Int
+  minusone = transp (λ i → sucPathℤ (~ i)) i0 (pos 0)
 
-minusone : Int
-minusone = transp (λ i → sucPathℤ (~ i)) i0 (pos 0)
+  minusonepath : minusone ≡ negsuc 0
+  minusonepath = refl
+  
