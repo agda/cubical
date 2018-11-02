@@ -36,7 +36,7 @@ predSuc (negsuc (suc n)) = refl
 
 suc-equiv : Int ≃ Int
 suc-equiv .fst = sucℤ
-suc-equiv .snd = isoToEquiv sucℤ predℤ sucPred predSuc
+suc-equiv .snd = isoToIsEquiv sucℤ predℤ sucPred predSuc
 
 sucPathℤ : Int ≡ Int
 sucPathℤ = ua suc-equiv

@@ -48,10 +48,13 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A)
       lemIso i .fst = p i
       lemIso i .snd = λ j → sq1 i j
 
-  isoToEquiv : isEquiv f
-  isoToEquiv .equiv-proof y .fst .fst = g y
-  isoToEquiv .equiv-proof y .fst .snd i = s y (~ i)
-  isoToEquiv .equiv-proof y .snd z = lemIso y (g y) (fst z) (λ i → s y (~ i)) (snd z)
+  isoToIsEquiv : isEquiv f
+  isoToIsEquiv .equiv-proof y .fst .fst = g y
+  isoToIsEquiv .equiv-proof y .fst .snd i = s y (~ i)
+  isoToIsEquiv .equiv-proof y .snd z = lemIso y (g y) (fst z) (λ i → s y (~ i)) (snd z)
+
+  isoToEquiv : A ≃ B
+  isoToEquiv = _ , isoToIsEquiv
 
 module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (w : A ≃ B) where
   invEq : (y : B) → A
@@ -65,10 +68,10 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (w : A ≃ B) where
 
 isoToPath : ∀ {ℓ} {A B : Set ℓ} (f : A → B) (g : B → A)
   (s : (y : B) → f (g y) ≡ y) (t : (x : A) → g (f x) ≡ x) → A ≡ B
-isoToPath f g s t = ua (_ , isoToEquiv f g s t)
+isoToPath f g s t = ua (isoToEquiv f g s t)
 
 invEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → B ≃ A
-invEquiv f = invEq f , isoToEquiv (invEq f) (fst f) (secEq f) (retEq f)
+invEquiv f = isoToEquiv (invEq f) (fst f) (secEq f) (retEq f)
 
 -- module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'}  where
 --   invEquivInvol : (f : A ≃ B) → invEquiv (invEquiv f) ≡ f
