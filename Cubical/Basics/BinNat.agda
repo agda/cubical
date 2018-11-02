@@ -193,3 +193,56 @@ DoubleBinN' = dC Binℕ doubleBinN' (ntoBinN n1024)
 
 -- goal : propDouble DoubleN
 -- goal = propDoubleImpl propBin
+
+
+-- Different encoding inspired by:
+-- https://github.com/RedPRL/redtt/blob/master/library/cool/nats.red
+
+
+data binnat : Set where
+  zero     : binnat            -- 0
+  consOdd  : binnat → binnat   -- 2^n + 1
+  consEven : binnat → binnat   -- 2^{n+1}
+
+binnat→ℕ : binnat → ℕ
+binnat→ℕ zero         = 0
+binnat→ℕ (consOdd n)  = suc (doubleℕ (binnat→ℕ n))
+binnat→ℕ (consEven n) = suc (suc (doubleℕ (binnat→ℕ n)))
+
+suc-binnat : binnat → binnat
+suc-binnat zero = consOdd zero
+suc-binnat (consOdd n) = consEven n
+suc-binnat (consEven n) = consOdd (suc-binnat n)
+
+ℕ→binnat : ℕ → binnat
+ℕ→binnat zero = zero
+ℕ→binnat (suc n) = suc-binnat (ℕ→binnat n) 
+
+binnat→ℕ-suc : (n : binnat) → binnat→ℕ (suc-binnat n) ≡ suc (binnat→ℕ n)
+binnat→ℕ-suc zero = refl
+binnat→ℕ-suc (consOdd n) = refl
+binnat→ℕ-suc (consEven n) = λ i → suc (doubleℕ (binnat→ℕ-suc n i))
+
+ℕ→binnat→ℕ : (n : ℕ) → binnat→ℕ (ℕ→binnat n) ≡ n
+ℕ→binnat→ℕ zero = refl
+ℕ→binnat→ℕ (suc n) = compPath (binnat→ℕ-suc (ℕ→binnat n)) (cong suc (ℕ→binnat→ℕ n))
+
+suc-ℕ→binnat-double : (n : ℕ) → suc-binnat (ℕ→binnat (doubleℕ n)) ≡ consOdd (ℕ→binnat n)
+suc-ℕ→binnat-double zero = refl
+suc-ℕ→binnat-double (suc n) = λ i → suc-binnat (suc-binnat (suc-ℕ→binnat-double n i))
+
+binnat→ℕ→binnat : (n : binnat) → ℕ→binnat (binnat→ℕ n) ≡ n
+binnat→ℕ→binnat zero = refl
+binnat→ℕ→binnat (consOdd n) =
+  compPath (suc-ℕ→binnat-double (binnat→ℕ n))
+           (cong consOdd (binnat→ℕ→binnat n))
+binnat→ℕ→binnat (consEven n) =
+  compPath (λ i → suc-binnat (suc-ℕ→binnat-double (binnat→ℕ n) i))
+           (cong consEven (binnat→ℕ→binnat n))
+
+-- TODO: isoToEquiv should really give an equiv
+ℕ≃binnat : ℕ ≃ binnat
+ℕ≃binnat = _ , isoToEquiv ℕ→binnat binnat→ℕ binnat→ℕ→binnat ℕ→binnat→ℕ
+
+ℕ≡binnat : ℕ ≡ binnat
+ℕ≡binnat = isoToPath ℕ→binnat binnat→ℕ binnat→ℕ→binnat ℕ→binnat→ℕ
