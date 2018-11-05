@@ -9,6 +9,7 @@ open import Cubical.Basics.Bool
 open import Cubical.Basics.IsoToEquiv
 
 open import Cubical.HITs.Circle
+open import Cubical.HITs.S2
 
 data Susp (A : Set) : Set where
   north : Susp A
@@ -47,3 +48,22 @@ S¹≃SuspBool = isoToEquiv S¹→SuspBool SuspBool→S¹ SuspBool→S¹→SuspB
 
 S¹≡SuspBool : S¹ ≡ SuspBool
 S¹≡SuspBool = isoToPath S¹→SuspBool SuspBool→S¹ SuspBool→S¹→SuspBool S¹→SuspBool→S¹
+
+
+-- Now the sphere
+
+SuspS¹ : Set
+SuspS¹ = Susp S¹
+
+-- SuspS¹→S² : SuspS¹ → S²
+-- SuspS¹→S² north = base
+-- SuspS¹→S² south = base
+-- SuspS¹→S² (merid a i) = {!!}
+
+S²→SuspS¹ : S² → SuspS¹
+S²→SuspS¹ base = north
+S²→SuspS¹ (surf i j) = hcomp (λ k → λ { (i = i0) → north
+                                      ; (i = i1) → merid base (~ k)
+                                      ; (j = i0) → merid base (~ k ∧ i)
+                                      ; (j = i1) → merid base (~ k ∧ i) })
+                             (merid (loop j) i)
