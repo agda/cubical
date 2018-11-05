@@ -40,10 +40,7 @@ SuspBool→S¹→SuspBool (merid true i)  = λ j → merid true (i ∧ j)
 S¹→SuspBool→S¹ : (x : S¹) → SuspBool→S¹ (S¹→SuspBool x) ≡ x
 S¹→SuspBool→S¹ base     = refl
 S¹→SuspBool→S¹ (loop i) = λ j →
-  -- If transp in S¹ would be the identity function then we could do an hfill here...
-  fill (λ _ → S¹) (λ k → \ { (i = i0) → base
-                           ; (i = i1) → base })
-                  (inc (loop i)) (~ j)
+  hfill (λ k → \ { (i = i0) → base; (i = i1) → base }) (inc (loop i)) (~ j)
 
 S¹≃SuspBool : S¹ ≃ SuspBool
 S¹≃SuspBool = isoToEquiv S¹→SuspBool SuspBool→S¹ SuspBool→S¹→SuspBool S¹→SuspBool→S¹

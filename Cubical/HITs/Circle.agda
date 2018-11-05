@@ -18,15 +18,15 @@ data S¹ : Set where
   base : S¹
   loop : base ≡ base
 
--- This should be refl!
+-- This should be refl
 transpS¹ : ∀ (φ : I) (u0 : S¹) → transp (λ _ → S¹) φ u0 ≡ u0
-transpS¹ φ u0 i = transpFill {A' = S¹} φ (λ _ → inc S¹) u0 (~ i)
+transpS¹ φ u0 = refl -- transpFill {A' = S¹} φ (λ _ → inc S¹) u0 (~ i)
 
 -- This should be trivial
 compS1 : ∀ (φ : I) (u : ∀ i → Partial φ S¹) (u0 : S¹ [ φ ↦ u i0 ]) →
   comp (λ _ → S¹) u u0 ≡ hcomp u (ouc u0)
-compS1 φ u u0 i = hcomp (λ j → λ { (φ = i1) → transpS¹ j (u (j ∨ i0) 1=1) i })
-                        (transpS¹ i0 (ouc u0) i)
+compS1 φ u u0 = refl -- hcomp (λ j → λ { (φ = i1) → transpS¹ j (u (j ∨ i0) 1=1) i })
+                     --    (transpS¹ i0 (ouc u0) i)
 
 helix : S¹ → Set
 helix base     = Int
