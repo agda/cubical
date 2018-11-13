@@ -1,9 +1,9 @@
 {-
 
-Definition of the circle as a HIT
+Definition of the circle as a HIT with a proof that Ω(S¹) ≡ ℤ
 
 -}
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --rewriting #-}
 module Cubical.HITs.Circle where
 
 open import Cubical.Core.Primitives
@@ -18,15 +18,14 @@ data S¹ : Set where
   base : S¹
   loop : base ≡ base
 
--- This should be refl
-transpS¹ : ∀ (φ : I) (u0 : S¹) → transp (λ _ → S¹) φ u0 ≡ u0
-transpS¹ φ u0 = refl -- transpFill {A' = S¹} φ (λ _ → inc S¹) u0 (~ i)
+-- Check that transp is the identity function for S¹
+module _ where
+  transpS¹ : ∀ (φ : I) (u0 : S¹) → transp (λ _ → S¹) φ u0 ≡ u0
+  transpS¹ φ u0 = refl
 
--- This should be trivial
-compS1 : ∀ (φ : I) (u : ∀ i → Partial φ S¹) (u0 : S¹ [ φ ↦ u i0 ]) →
-  comp (λ _ → S¹) u u0 ≡ hcomp u (ouc u0)
-compS1 φ u u0 = refl -- hcomp (λ j → λ { (φ = i1) → transpS¹ j (u (j ∨ i0) 1=1) i })
-                     --    (transpS¹ i0 (ouc u0) i)
+  compS1 : ∀ (φ : I) (u : ∀ i → Partial φ S¹) (u0 : S¹ [ φ ↦ u i0 ]) →
+    comp (λ _ → S¹) u u0 ≡ hcomp u (ouc u0)
+  compS1 φ u u0 = refl
 
 helix : S¹ → Set
 helix base     = Int
@@ -47,59 +46,12 @@ intLoop (pos (suc n))    = compPath (intLoop (pos n)) loop
 intLoop (negsuc zero)    = sym loop
 intLoop (negsuc (suc n)) = compPath (intLoop (negsuc n)) (sym loop)
 
--- Why is this not proved with refl?
-hcompIntEmpty : (n : Int) → hcomp (λ _ → empty) n ≡ n
-hcompIntEmpty n i = hfill (λ _ → empty) (inc n) (~ i)
-
--- This proof is far too complicated because of hcomp with emptys systems in Int!
+-- This proof currently relies on rewriting hcomp with empty systems in Int to the base
 windingIntLoop : (n : Int) → winding (intLoop n) ≡ n
-windingIntLoop (pos zero) = refl
-windingIntLoop (pos (suc n)) =
-  -- The following should solve the goal: λ i → sucℤ (windingIntLoop (pos n) i)
-  winding (intLoop (pos (suc n)))
-  ≡⟨ refl ⟩
-  hcomp {A = Int} (λ i → empty)
-        (hcomp {A = Int} (λ i → empty)
-        (hcomp {A = Int} (λ i → empty)
-        (sucℤ (hcomp {A = Int} (λ i → empty) (winding (intLoop (pos n)))))))
-  ≡⟨ hcompIntEmpty _ ⟩
-  hcomp {A = Int} (λ i → empty)
-        (hcomp {A = Int} (λ i → empty)
-        (sucℤ (hcomp {A = Int} (λ i → empty) (winding (intLoop (pos n))))))
-  ≡⟨ hcompIntEmpty _ ⟩
-  hcomp {A = Int} (λ i → empty)
-        (sucℤ (hcomp {A = Int} (λ i → empty) (winding (intLoop (pos n)))))
-  ≡⟨ hcompIntEmpty _ ⟩
-  sucℤ (hcomp {A = Int} (λ i → empty) (winding (intLoop (pos n))))
-  ≡⟨ cong sucℤ (hcompIntEmpty _) ⟩
-  sucℤ (winding (intLoop (pos n)))
-  ≡⟨ cong sucℤ (windingIntLoop (pos n)) ⟩
-  pos (suc n) ∎
-windingIntLoop (negsuc zero) = refl
-windingIntLoop (negsuc (suc n)) =
-  winding (intLoop (negsuc (suc n))) ≡⟨ refl ⟩
-  hcomp (λ i → empty)
-        (hcomp (λ i → empty)
-        (predℤ
-        (hcomp (λ i → empty)
-        (hcomp (λ i → empty)
-        (winding (intLoop (negsuc n)))))))
-  ≡⟨ hcompIntEmpty _ ⟩
-  hcomp (λ i → empty)
-        (predℤ (hcomp (λ i → empty)
-               (hcomp (λ i → empty)
-               (winding (intLoop (negsuc n))))))
-  ≡⟨ hcompIntEmpty _ ⟩  
-  predℤ (hcomp (λ i → empty)
-        (hcomp (λ i → empty)
-        (winding (intLoop (negsuc n)))))
-  ≡⟨ cong predℤ (hcompIntEmpty _) ⟩  
-  predℤ (hcomp (λ i → empty)
-        (winding (intLoop (negsuc n))))
-  ≡⟨ cong predℤ (hcompIntEmpty _) ⟩  
-  predℤ (winding (intLoop (negsuc n)))
-  ≡⟨ cong predℤ (windingIntLoop (negsuc n)) ⟩
-  negsuc (suc n) ∎
+windingIntLoop (pos zero)       = refl
+windingIntLoop (pos (suc n))    =  λ i → sucℤ (windingIntLoop (pos n) i)
+windingIntLoop (negsuc zero)    = refl
+windingIntLoop (negsuc (suc n)) = λ i → predℤ (windingIntLoop (negsuc n) i)
 
 decodeSquare : (n : Int) → PathP (λ i → base ≡ loop i) (intLoop (predℤ n)) (intLoop n)
 decodeSquare (pos zero) i j    = loop (i ∨ ~ j)
