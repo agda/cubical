@@ -49,7 +49,7 @@ intLoop (negsuc (suc n)) = compPath (intLoop (negsuc n)) (sym loop)
 -- This proof currently relies on rewriting hcomp with empty systems in Int to the base
 windingIntLoop : (n : Int) → winding (intLoop n) ≡ n
 windingIntLoop (pos zero)       = refl
-windingIntLoop (pos (suc n))    =  λ i → sucℤ (windingIntLoop (pos n) i)
+windingIntLoop (pos (suc n))    = λ i → sucℤ (windingIntLoop (pos n) i)
 windingIntLoop (negsuc zero)    = refl
 windingIntLoop (negsuc (suc n)) = λ i → predℤ (windingIntLoop (negsuc n) i)
 
@@ -64,20 +64,18 @@ decodeSquare (negsuc n) i j = hcomp (λ k → λ { (i = i1) → intLoop (negsuc 
                                     (intLoop (negsuc n) j)
 
 decode : (x : S¹) → helix x → base ≡ x
-decode base = intLoop
+decode base         = intLoop
 decode (loop i) y j =
   let n : Int
       n = unglue {φ = i ∨ ~ i} y
-  in hcomp (λ k → λ { (j = i0) → base
-                    ; (j = i1) → loop i
-                    ; (i = i0) → intLoop (predSuc y k) j
-                    ; (i = i1) → intLoop y j})
-           (decodeSquare n i j )
+  in hcomp (λ k → λ { (i = i0) → intLoop (predSuc y k) j
+                    ; (i = i1) → intLoop y j
+                    ; (j = i0) → base
+                    ; (j = i1) → loop i })
+           (decodeSquare n i j)
 
 decodeEncode : (x : S¹) (p : base ≡ x) → decode x (encode x p) ≡ p
-decodeEncode x p =
-  transp (λ i → decode (p i) (encode (p i) (λ j → p (i ∧ j))) ≡
-                (λ j → p (i ∧ j))) i0 refl
+decodeEncode x p = J (λ y q → decode y (encode y q) ≡ q) (λ x → refl) p
 
 ΩS¹≡Int : ΩS¹ ≡ Int
 ΩS¹≡Int = isoToPath winding (decode base) windingIntLoop (decodeEncode base)

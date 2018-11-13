@@ -25,8 +25,8 @@ data Torus : Set where
 t2c : Torus → S¹ × S¹
 t2c point        = ( base , base )
 t2c (line1 i)    = ( loop i , base )
-t2c (line2 j)    = ( base , loop j)
-t2c (square i j) = ( loop i , loop j)
+t2c (line2 j)    = ( base , loop j )
+t2c (square i j) = ( loop i , loop j )
 
 c2t : S¹ × S¹ → Torus
 c2t (base   , base)   = point
@@ -59,7 +59,6 @@ lemPathAnd t u = isoToPath (λ tu → (λ i → tu i .fst) , λ i → tu i .snd)
                            (λ tu i → tu .fst i , tu .snd i)
                            (λ y → refl) (λ x → refl)
 
--- TODO: upstream
 funDep : ∀ {ℓ} {A B : Set ℓ} (p : A ≡ B) (u0 : A) (u1 : B) →
   (Path A u0 (transp (\ i → p (~ i)) i0 u1)) ≡ (Path B (transp (\ i → p i) i0 u0) u1)
 funDep p u0 u1 i = Path (p i) (transp (λ j → p (i ∧ j)) (~ i) u0) (transp (λ j → p (i ∨ ~ j)) i u1)
