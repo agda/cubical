@@ -106,4 +106,4 @@ discreteInt (negsuc n) (negsuc m) with discreteℕ n m
 ... | inr p = inr (λ x → p (injNegsuc x))
 
 isSetInt : isSet Int
-isSetInt = discrete→isSet Int discreteInt
+isSetInt = discrete→isSet discreteInt

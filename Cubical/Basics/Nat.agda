@@ -11,20 +11,30 @@ open import Agda.Builtin.Nat public
   using (zero; suc; _+_; _*_)
   renaming (Nat to ℕ)
 
+pred : ℕ → ℕ
+pred zero    = 0
+pred (suc n) = n
+
 caseNat : ∀{l} → {A : Set l} → (a0 aS : A) → ℕ → A
-caseNat a0 aS zero = a0
+caseNat a0 aS 0       = a0
 caseNat a0 aS (suc n) = aS
 
-znots : {n : ℕ} → ¬ (zero ≡ suc n)
-znots eq = subst (caseNat ℕ ⊥) eq zero
+znots : {n : ℕ} → ¬ (0 ≡ suc n)
+znots eq = subst (caseNat ℕ ⊥) eq 0
+
+snotz : {n : ℕ} → ¬ (suc n ≡ 0)
+snotz eq = subst (caseNat ⊥ ℕ) eq 0
+
+injSuc : {m n : ℕ} → suc m ≡ suc n → m ≡ n
+injSuc p = cong pred p
 
 doubleℕ : ℕ → ℕ
-doubleℕ zero = zero
+doubleℕ 0 = 0
 doubleℕ (suc x) = suc (suc (doubleℕ x))
 
 -- doublesℕ n m = 2^n * m
 doublesℕ : ℕ → ℕ → ℕ
-doublesℕ zero m = m
+doublesℕ 0 m = m
 doublesℕ (suc n) m = doublesℕ n (doubleℕ m)
 
 -- 1024 = 2^8 * 2^2 = 2^10
@@ -37,4 +47,12 @@ iter zero f z    = z
 iter (suc n) f z = f (iter n f z)
 
 discreteℕ : discrete ℕ
-discreteℕ = {!!}
+discreteℕ zero zero = inl refl
+discreteℕ zero (suc n) = inr znots
+discreteℕ (suc m) zero = inr snotz
+discreteℕ (suc m) (suc n) with discreteℕ m n
+... | inl p = inl (cong suc p)
+... | inr p = inr (λ x → p (injSuc x))
+
+isSetℕ : isSet ℕ
+isSetℕ = discrete→isSet discreteℕ
