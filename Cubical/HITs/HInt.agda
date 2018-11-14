@@ -28,6 +28,21 @@ data ℤ : Set where
                            (sucpred (suc n))
                            (λ i → suc (predsuc n i))
 
+
+-- This definition amounts to saying that suc is an equivalence. Can
+-- we set it up so that the coherence is exactly what we need?
+-- isEquivSuc : isEquiv suc
+-- isEquivSuc .equiv-proof y =
+--  let ctr : fiber suc y
+--      ctr = (pred y , sym (sucpred y))
+--      prf : (f : fiber suc y) → ctr ≡ f
+--      prf f i = compPath (cong pred (f .snd)) (predsuc (f .fst)) i
+--              , {!!}
+--  in ctr , prf
+
+
+-- This is equivalent to Int
+
 ℤ→Int : ℤ → Int
 ℤ→Int zero = pos 0
 ℤ→Int (suc n) = sucInt (ℤ→Int n)
@@ -42,43 +57,61 @@ data ℤ : Set where
 
 negsucℕ→ℤ : ℕ → ℤ
 negsucℕ→ℤ zero = pred zero
-negsucℕ→ℤ (suc n) = pred (ℕ→ℤ n)
+negsucℕ→ℤ (suc n) = pred (negsucℕ→ℤ n)
 
 Int→ℤ : Int → ℤ
 Int→ℤ (pos n) = ℕ→ℤ n
 Int→ℤ (negsuc n) = negsucℕ→ℤ n
 
-foo1 : ∀ n → Int→ℤ (ℤ→Int n) ≡ n
-foo1 n = {!!}
+lem1 : ∀ n → Int→ℤ (sucInt n) ≡ suc (Int→ℤ n)
+lem1 (pos n) = refl
+lem1 (negsuc zero) = sym (sucpred zero)
+lem1 (negsuc (suc n)) = sym (sucpred (negsucℕ→ℤ n))
 
-foo2 : ∀ n → ℤ→Int (Int→ℤ n) ≡ n
-foo2 (pos n) = {!!}
-foo2 (negsuc n) = {!!}
+lem2 : ∀ n → Int→ℤ (predInt n) ≡ pred (Int→ℤ n)
+lem2 (pos zero) = refl
+lem2 (pos (suc n)) = sym (predsuc (ℕ→ℤ n))
+lem2 (negsuc n) = refl
+
+ℤ→Int→ℤ : ∀ n → Int→ℤ (ℤ→Int n) ≡ n
+ℤ→Int→ℤ zero = refl
+ℤ→Int→ℤ (suc n) = compPath (lem1 (ℤ→Int n)) (cong suc (ℤ→Int→ℤ n))
+ℤ→Int→ℤ (pred n) = compPath (lem2 (ℤ→Int n)) (cong pred (ℤ→Int→ℤ n))
+ℤ→Int→ℤ (sucpred n i) = {!!}
+ℤ→Int→ℤ (predsuc n i) = {!!}
+ℤ→Int→ℤ (coh n i j) = {!!}
+
+Int→ℤ→Int : ∀ n → ℤ→Int (Int→ℤ n) ≡ n
+Int→ℤ→Int (pos zero) = refl
+Int→ℤ→Int (pos (suc n)) = cong sucInt (Int→ℤ→Int (pos n))
+Int→ℤ→Int (negsuc zero) = refl
+Int→ℤ→Int (negsuc (suc n)) = cong predInt (Int→ℤ→Int (negsuc n))
+
+Int≡ℤ : Int ≡ ℤ
+Int≡ℤ = isoToPath Int→ℤ ℤ→Int ℤ→Int→ℤ Int→ℤ→Int
+
+isSetℤ : isSet ℤ
+isSetℤ = subst isSet Int≡ℤ isSetInt 
+
+
+-- We should now be able to define a predecessor that computes nicely
 
 predℤ : ℤ → ℤ
 predℤ zero = pred zero
 predℤ (suc n) = n
 predℤ (pred n) = pred (pred n)
-predℤ (sucpred zero i) = pred zero
-predℤ (sucpred (suc n) i) = predsuc n i
-predℤ (sucpred (pred n) i) = pred (pred n)
-predℤ (sucpred (sucpred n j) i) = {!!}
-predℤ (sucpred (predsuc n j) i) = {!!}
-predℤ (sucpred (coh n j k) i) = {!!}
+predℤ (sucpred n i) = {!!}
 predℤ (predsuc n j) = {!!}
-predℤ (coh n k l) = {!!}
+predℤ (coh n k l) = isSetℤ {!n!} n {!!} {!!} k l
 
 predSucℤ : ∀ n → predℤ (suc n) ≡ n
 predSucℤ n = refl
 
--- This definition amounts to saying that suc is an equivalence. Can
--- we set it up so that the coherence is exactly what we need?
--- isEquivSuc : isEquiv suc
--- isEquivSuc .equiv-proof y =
---  let ctr : fiber suc y
---      ctr = (pred y , sym (sucpred y))
---      prf : (f : fiber suc y) → ctr ≡ f
---      prf f i = compPath (cong pred (f .snd)) (predsuc (f .fst)) i
---              , {!!}
---  in ctr , prf
+sucPredℤ : ∀ (n : ℤ) → suc (predℤ n) ≡ n
+sucPredℤ zero = sucpred zero
+sucPredℤ (suc n) = refl
+sucPredℤ (pred n) = sucpred (pred n)
+sucPredℤ (sucpred n i) = {!!}
+sucPredℤ (predsuc n i) = {!!}
+sucPredℤ (coh n i j) = {!!}
 
