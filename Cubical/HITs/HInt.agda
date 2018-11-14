@@ -16,6 +16,7 @@ open import Cubical.Core.Glue
 open import Cubical.Basics.IsoToEquiv
 open import Cubical.Basics.Int
 open import Cubical.Basics.Nat
+open import Cubical.Basics.Hedberg
 
 data ℤ : Set where
   zero : ℤ
@@ -73,11 +74,22 @@ lem2 (pos zero) = refl
 lem2 (pos (suc n)) = sym (predsuc (ℕ→ℤ n))
 lem2 (negsuc n) = refl
 
-ℤ→Int→ℤ : ∀ n → Int→ℤ (ℤ→Int n) ≡ n
+lem3 : ∀ (n : Int) (i : I) → Path ℤ (Int→ℤ (sucPred n i)) (sucpred (Int→ℤ n) i)
+lem3 (pos n) = {!!}
+lem3 (negsuc n) = {!!}
+
+lem3' : ∀ (n : ℤ) → PathP (λ i → Path ℤ (Int→ℤ (ℤ→Int (sucpred n i))) (sucpred n i)) {!suc (pred n)!} (λ i → {!!})
+lem3' = {!!}
+
+ℤ→Int→ℤ : ∀ (n : ℤ) → Path ℤ (Int→ℤ (ℤ→Int n)) n
 ℤ→Int→ℤ zero = refl
 ℤ→Int→ℤ (suc n) = compPath (lem1 (ℤ→Int n)) (cong suc (ℤ→Int→ℤ n))
 ℤ→Int→ℤ (pred n) = compPath (lem2 (ℤ→Int n)) (cong pred (ℤ→Int→ℤ n))
-ℤ→Int→ℤ (sucpred n i) = {!!}
+ℤ→Int→ℤ (sucpred n i) = λ j → {!!}
+  -- let goal = {! compPath (lem3 (ℤ→Int n) i) (cong sucpred (ℤ→Int→ℤ n) i)!}
+  --     square : PathP {!!} {!!} {!!}
+  --     square = {!!}
+  -- in square
 ℤ→Int→ℤ (predsuc n i) = {!!}
 ℤ→Int→ℤ (coh n i j) = {!!}
 
@@ -86,6 +98,34 @@ Int→ℤ→Int (pos zero) = refl
 Int→ℤ→Int (pos (suc n)) = cong sucInt (Int→ℤ→Int (pos n))
 Int→ℤ→Int (negsuc zero) = refl
 Int→ℤ→Int (negsuc (suc n)) = cong predInt (Int→ℤ→Int (negsuc n))
+
+foo : ∀ (a b : ℤ) → ℤ→Int a ≡ ℤ→Int b → a ≡ b
+foo a b h = {!!}
+-- subst T h refl
+--   where
+--   T : Int → Set
+--   T (pos x)    = a ≡ x
+--   T (negsuc _) = ⊥
+
+
+discreteℤ : discrete ℤ
+discreteℤ x y with discreteInt (ℤ→Int x) (ℤ→Int y)
+... | inl p = inl (foo _ _ p)
+... | inr p = inr (λ q → p (cong ℤ→Int q))
+
+
+-- discreteInt (pos n) (pos m) with discreteℕ n m
+-- ... | inl p = inl (cong pos p)
+-- ... | inr p = inr (λ x → p (injPos x))
+-- discreteInt (pos n) (negsuc m) = inr (posNotnegsuc n m)
+-- discreteInt (negsuc n) (pos m) = inr (negsucNotpos n m)
+-- discreteInt (negsuc n) (negsuc m) with discreteℕ n m
+-- ... | inl p = inl (cong negsuc p)
+-- ... | inr p = inr (λ x → p (injNegsuc x))
+
+-- isSetInt : isSet Int
+-- isSetInt = discrete→isSet discreteInt
+
 
 Int≡ℤ : Int ≡ ℤ
 Int≡ℤ = isoToPath Int→ℤ ℤ→Int ℤ→Int→ℤ Int→ℤ→Int
