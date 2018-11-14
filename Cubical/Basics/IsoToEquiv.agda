@@ -50,8 +50,8 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A)
 
   isoToIsEquiv : isEquiv f
   isoToIsEquiv .equiv-proof y .fst .fst = g y
-  isoToIsEquiv .equiv-proof y .fst .snd i = s y (~ i)
-  isoToIsEquiv .equiv-proof y .snd z = lemIso y (g y) (fst z) (λ i → s y (~ i)) (snd z)
+  isoToIsEquiv .equiv-proof y .fst .snd = sym (s y)
+  isoToIsEquiv .equiv-proof y .snd z = lemIso y (g y) (fst z) (sym (s y)) (snd z)
 
   isoToEquiv : A ≃ B
   isoToEquiv = _ , isoToIsEquiv

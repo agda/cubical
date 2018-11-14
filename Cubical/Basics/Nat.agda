@@ -11,9 +11,9 @@ open import Agda.Builtin.Nat public
   using (zero; suc; _+_; _*_)
   renaming (Nat to ℕ)
 
-pred : ℕ → ℕ
-pred zero    = 0
-pred (suc n) = n
+predℕ : ℕ → ℕ
+predℕ zero    = 0
+predℕ (suc n) = n
 
 caseNat : ∀{l} → {A : Set l} → (a0 aS : A) → ℕ → A
 caseNat a0 aS 0       = a0
@@ -26,7 +26,7 @@ snotz : {n : ℕ} → ¬ (suc n ≡ 0)
 snotz eq = subst (caseNat ⊥ ℕ) eq 0
 
 injSuc : {m n : ℕ} → suc m ≡ suc n → m ≡ n
-injSuc p = cong pred p
+injSuc p = cong predℕ p
 
 doubleℕ : ℕ → ℕ
 doubleℕ 0 = 0

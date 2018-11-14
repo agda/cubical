@@ -29,7 +29,7 @@ module _ where
 
 helix : S¹ → Set
 helix base     = Int
-helix (loop i) = sucPathℤ i
+helix (loop i) = sucPathInt i
 
 ΩS¹ : Set
 ΩS¹ = base ≡ base
@@ -49,11 +49,11 @@ intLoop (negsuc (suc n)) = compPath (intLoop (negsuc n)) (sym loop)
 -- This proof currently relies on rewriting hcomp with empty systems in Int to the base
 windingIntLoop : (n : Int) → winding (intLoop n) ≡ n
 windingIntLoop (pos zero)       = refl
-windingIntLoop (pos (suc n))    = λ i → sucℤ (windingIntLoop (pos n) i)
+windingIntLoop (pos (suc n))    = λ i → sucInt (windingIntLoop (pos n) i)
 windingIntLoop (negsuc zero)    = refl
-windingIntLoop (negsuc (suc n)) = λ i → predℤ (windingIntLoop (negsuc n) i)
+windingIntLoop (negsuc (suc n)) = λ i → predInt (windingIntLoop (negsuc n) i)
 
-decodeSquare : (n : Int) → PathP (λ i → base ≡ loop i) (intLoop (predℤ n)) (intLoop n)
+decodeSquare : (n : Int) → PathP (λ i → base ≡ loop i) (intLoop (predInt n)) (intLoop n)
 decodeSquare (pos zero) i j    = loop (i ∨ ~ j)
 decodeSquare (pos (suc n)) i j = hfill (λ k → λ { (j = i0) → base
                                                 ; (j = i1) → loop k } )

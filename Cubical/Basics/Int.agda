@@ -14,50 +14,61 @@ data Int : Set where
   pos    : (n : ℕ) → Int
   negsuc : (n : ℕ) → Int
 
-sucℤ : Int → Int
-sucℤ (pos n)          = pos (suc n)
-sucℤ (negsuc zero)    = pos zero
-sucℤ (negsuc (suc n)) = negsuc n
+sucInt : Int → Int
+sucInt (pos n)          = pos (suc n)
+sucInt (negsuc zero)    = pos zero
+sucInt (negsuc (suc n)) = negsuc n
 
-predℤ : Int → Int
-predℤ (pos zero)    = negsuc zero
-predℤ (pos (suc n)) = pos n
-predℤ (negsuc n)    = negsuc (suc n)
+predInt : Int → Int
+predInt (pos zero)    = negsuc zero
+predInt (pos (suc n)) = pos n
+predInt (negsuc n)    = negsuc (suc n)
 
-sucPred : ∀ i → sucℤ (predℤ i) ≡ i
+sucPred : ∀ i → sucInt (predInt i) ≡ i
 sucPred (pos zero)       = refl
 sucPred (pos (suc n))    = refl
 sucPred (negsuc zero)    = refl
 sucPred (negsuc (suc n)) = refl
 
-predSuc : ∀ i → predℤ (sucℤ i) ≡ i
+predSuc : ∀ i → predInt (sucInt i) ≡ i
 predSuc (pos zero)       = refl
 predSuc (pos (suc n))    = refl
 predSuc (negsuc zero)    = refl
 predSuc (negsuc (suc n)) = refl
 
 suc-equiv : Int ≃ Int
-suc-equiv .fst = sucℤ
-suc-equiv .snd = isoToIsEquiv sucℤ predℤ sucPred predSuc
+suc-equiv .fst = sucInt
+suc-equiv .snd = isoToIsEquiv sucInt predInt sucPred predSuc
 
-sucPathℤ : Int ≡ Int
-sucPathℤ = ua suc-equiv
+sucPathInt : Int ≡ Int
+sucPathInt = ua suc-equiv      
+
+-- TODO: rename!
+-- TODO: can we change this so that it's the proof suc-equiv?
+coherence : (n : Int) → Path (Path Int (sucInt (predInt (sucInt n))) (sucInt n))
+                             (sucPred (sucInt n))
+                             (cong sucInt (predSuc n))
+coherence (pos zero) = refl
+coherence (pos (suc n)) = refl
+coherence (negsuc zero) = refl
+coherence (negsuc (suc zero)) = refl
+coherence (negsuc (suc (suc n))) = refl
 
 -- Some tests
 module _ where
  private
   one : Int
-  one = transp (λ i → sucPathℤ i) i0 (pos 0)
+  one = transp (λ i → sucPathInt i) i0 (pos 0)
 
   onepath : one ≡ pos 1
   onepath = refl
 
   minusone : Int
-  minusone = transp (λ i → sucPathℤ (~ i)) i0 (pos 0)
+  minusone = transp (λ i → sucPathInt (~ i)) i0 (pos 0)
 
   minusonepath : minusone ≡ negsuc 0
   minusonepath = refl
-  
+
 
 -- The following should be removed once we have ghcomp and no empty systems!
 {-# BUILTIN REWRITE _≡_ #-}
