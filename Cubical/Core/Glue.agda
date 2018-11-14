@@ -20,7 +20,18 @@ module Cubical.Core.Glue where
 open import Cubical.Core.Prelude
 
 fiber : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → Set (ℓ-max ℓ ℓ')
-fiber {A = A} f y = Σ[ x ∈ A ] y ≡ f x
+fiber {A = A} f y = Σ[ x ∈ A ] f x ≡ y
+
+
+private
+  internalFiber : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → Set (ℓ-max ℓ ℓ')
+  internalFiber {A = A} f y = Σ[ x ∈ A ] y ≡ f x
+
+  toInternalFiber : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → fiber f y → internalFiber f y
+  toInternalFiber f y (x , p) = (x , sym p)
+
+  toInternalFiberContr : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → isContr (fiber f y) → isContr (internalFiber f y)
+  toInternalFiberContr f y (c , p) = toInternalFiber f y c , \ fb → cong (toInternalFiber f y) (p (fb .fst , sym (fb .snd)))
 
 -- Make this a record so that isEquiv can be proved using
 -- copatterns. This is good because copatterns don't get unfolded
@@ -40,8 +51,8 @@ equivFun : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → A → B
 equivFun e = fst e
 
 equivProof : ∀ {la lt} (T : Set la) (A : Set lt) → (w : T ≃ A) → (a : A)
-            → ∀ ψ → (Partial ψ (fiber (w .fst) a)) → fiber (w .fst) a
-equivProof A B w a ψ fb = contr' {A = fiber (w .fst) a} (w .snd .equiv-proof a) ψ fb
+            → ∀ ψ → (Partial ψ (internalFiber (w .fst) a)) → internalFiber (w .fst) a
+equivProof A B w a ψ fb = contr' {A = internalFiber (w .fst) a} (toInternalFiberContr (w .fst) a (w .snd .equiv-proof a)) ψ fb
   where
     contr' : ∀ {ℓ} {A : Set ℓ} → isContr A → (φ : I) → (u : Partial φ A) → A
     contr' {A = A} (c , p) φ u = hcomp (λ i o → p (u o) i) c
