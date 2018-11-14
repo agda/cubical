@@ -1,12 +1,14 @@
 A basic experimental library for Cubical Agda
 =============================================
 
-This library compiles with the master branch of Agda:
+This library compiles with the master branch of Agda. To install it in
+a sandbox do:
 
 
 ```
 git clone https://github.com/agda/agda
 cd agda
+cabal sandbox init
 cabal install
 ```
 
@@ -27,6 +29,15 @@ Theory](https://arxiv.org/abs/1802.01170) - Thierry Coquand, Simon
 Huber, Anders Mörtberg
 
 This makes it possible to directly represent higher inductive types.
+
+The library is divided into:
+
+* Cubical/Core: minimal core library to get Cubical Agda up and running.
+
+* Cubical/Basics: basic theory (natural numbers, integers, basic
+  results about equivalences...). This folder does not contain any HITs.
+
+* Cubical/HITs: various higher inductive types and results about them.
 
 
 Maintainers
