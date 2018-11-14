@@ -80,6 +80,15 @@ decodeEncode x p = J (λ y q → decode y (encode y q) ≡ q) (λ x → refl) p
 ΩS¹≡Int : ΩS¹ ≡ Int
 ΩS¹≡Int = isoToPath winding (decode base) windingIntLoop (decodeEncode base)
 
+isSetΩS¹ : isSet ΩS¹
+isSetΩS¹ p q r s j i =
+  hcomp (λ k → λ { (i = i0) → decodeEncode base p k
+                 ; (i = i1) → decodeEncode base q k
+                 ; (j = i0) → decodeEncode base (r i) k
+                 ; (j = i1) → decodeEncode base (s i) k })
+        (decode base (isSetInt (winding p) (winding q) (cong winding r) (cong winding s) j i))
+
+
 -- Some tests
 module _ where
  private

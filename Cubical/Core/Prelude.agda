@@ -69,7 +69,7 @@ module _ {ℓ} {A : Set ℓ} where
 
 -- Subst and functional extensionality
 
-module _ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} where
+module _ {ℓ ℓ'} {A : Set ℓ} (B : A → Set ℓ') where
   subst : {a b : A} (p : a ≡ b) → B a → B b
   subst p pa = transp (λ i → B (p i)) i0 pa
 

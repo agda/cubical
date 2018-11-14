@@ -14,7 +14,7 @@ pt A = A .snd
 data Smash (A B : ptType) : Set where
   basel : Smash A B
   baser : Smash A B
-  proj : (x : A .fst) → (y : B .fst) → Smash A B
+  proj  : (x : A .fst) → (y : B .fst) → Smash A B
   gluel : (a : A .fst) → proj a (pt B) ≡ basel
   gluer : (b : B .fst) → proj (pt A) b ≡ baser
 

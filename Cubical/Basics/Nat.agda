@@ -5,6 +5,7 @@ open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 
 open import Cubical.Basics.Empty
+open import Cubical.Basics.Hedberg
 
 open import Agda.Builtin.Nat public
   using (zero; suc; _+_; _*_)
@@ -15,7 +16,7 @@ caseNat a0 aS zero = a0
 caseNat a0 aS (suc n) = aS
 
 znots : {n : ℕ} → ¬ (zero ≡ suc n)
-znots eq = subst {B = caseNat ℕ ⊥} eq zero
+znots eq = subst (caseNat ℕ ⊥) eq zero
 
 doubleℕ : ℕ → ℕ
 doubleℕ zero = zero
@@ -34,3 +35,6 @@ n1024 = doublesℕ 8 4
 iter : {A : Set} → ℕ → (A → A) → A → A
 iter zero f z    = z
 iter (suc n) f z = f (iter n f z)
+
+discreteℕ : discrete ℕ
+discreteℕ = {!!}
