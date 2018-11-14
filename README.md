@@ -1,8 +1,8 @@
-A basic experimental library for Cubical Agda
-=============================================
+An experimental library for Cubical Agda
+========================================
 
-This library compiles with the master branch of Agda. To install it in
-a sandbox do:
+This library compiles with the master branch of Agda. To install Agda in
+a cabal sandbox do:
 
 
 ```
@@ -32,12 +32,12 @@ This makes it possible to directly represent higher inductive types.
 
 The library is divided into:
 
-* Cubical/Core: minimal core library to get Cubical Agda up and running.
+* **Cubical/Core**: minimal core library to get Cubical Agda up and running.
 
-* Cubical/Basics: basic theory (natural numbers, integers, basic
+* **Cubical/Basics**: basic theory (natural numbers, integers, basic
   results about equivalences...). This folder does not contain any HITs.
 
-* Cubical/HITs: various higher inductive types and results about them.
+* **Cubical/HITs**: various higher inductive types and results about them.
 
 
 Maintainers
