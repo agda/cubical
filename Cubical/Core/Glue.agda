@@ -30,6 +30,9 @@ private
   toInternalFiber : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → fiber f y → internalFiber f y
   toInternalFiber f y (x , p) = (x , sym p)
 
+  fromInternalFiber : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B} {y : B} → internalFiber f y → fiber f y
+  fromInternalFiber (x , p) = (x , sym p)
+
   toInternalFiberContr : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → isContr (fiber f y) → isContr (internalFiber f y)
   toInternalFiberContr f y (c , p) = toInternalFiber f y c , \ fb → cong (toInternalFiber f y) (p (fb .fst , sym (fb .snd)))
 
@@ -96,7 +99,7 @@ open GluePrims public
 
 -- The identity equivalence
 idIsEquiv : ∀ {ℓ} → (A : Set ℓ) → isEquiv (λ (a : A) → a)
-equiv-proof (idIsEquiv A) y = (y , refl) , λ z → contrSingl (z .snd)
+equiv-proof (idIsEquiv A) y = (y , refl) , λ z i → z .snd (~ i) , λ j → z .snd (~ i ∨ j)
 
 idEquiv : ∀ {ℓ} → (A : Set ℓ) → A ≃ A
 idEquiv A = (λ a → a) , idIsEquiv A
@@ -118,18 +121,18 @@ unglueIsEquiv : ∀ {ℓ} (A : Set ℓ) (φ : I) (T : Partial φ (Set ℓ))
   (f : PartialP φ λ o → (T o) ≃ A) → isEquiv {A = Glue A T f} (unglue {φ = φ})
 equiv-proof (unglueIsEquiv A φ T f) = λ (b : A) →
   let u : I → Partial φ A
-      u i = λ{ (φ = i1) → equivCtr (f 1=1) b .snd i }
+      u i = λ{ (φ = i1) → equivCtr (f 1=1) b .snd (~ i) }
       ctr : fiber (unglue {φ = φ}) b
-      ctr = ( glue (λ { (φ = i1) → equivCtr (f 1=1) b .fst }) (hcomp u b)
-            , λ j → hfill u (inc b) j)
+      ctr = (glue (λ { (φ = i1) → equivCtr (f 1=1) b .fst }) (hcomp u b)
+            , λ j → hfill u (inc b) (~ j))
   in ( ctr
      , λ (v : fiber (unglue {φ = φ}) b) i →
          let u' : I → Partial (φ ∨ ~ i ∨ i) A
-             u' j = λ { (φ = i1) → equivCtrPath (f 1=1) b v i .snd j
+             u' j = λ { (φ = i1) → equivCtrPath (f 1=1) b v i .snd (~ j)
                       ; (i = i0) → hfill u (inc b) j
-                      ; (i = i1) → v .snd  j }
+                      ; (i = i1) → v .snd (~ j) }
          in ( glue (λ { (φ = i1) → equivCtrPath (f 1=1) b v i .fst }) (hcomp u' b)
-            , λ j → hfill u' (inc b) j))
+            , λ j → hfill u' (inc b) (~ j)))
 
 -- Any partial family of equivalences can be extended to a total one
 -- from Glue [ φ ↦ (T,f) ] A to A
@@ -171,16 +174,16 @@ module _ {ℓ : I → Level} (P : (i : I) → Set (ℓ i)) where
     v i y = transp (λ j → ~E ( ~ i ∧ j)) i y
 
     fiberPath : (y : B) → (xβ0 xβ1 : fiber f y) → xβ0 ≡ xβ1
-    fiberPath y (x0 , β0) (x1 , β1) k = ω , λ j → δ j where
+    fiberPath y (x0 , β0) (x1 , β1) k = ω , λ j → δ (~ j) where
       module _ (j : I) where
         private
           sys : A → ∀ i → PartialP (~ j ∨ j) (λ _ → E (~ i))
           sys x i (j = i0) = v (~ i) y
           sys x i (j = i1) = u (~ i) x
-        ω0 = comp ~E (sys x0) (inc (β0 j))
-        ω1 = comp ~E (sys x1) (inc (β1 j))
-        θ0 = fill ~E (sys x0) (inc (β0 j))
-        θ1 = fill ~E (sys x1) (inc (β1 j))
+        ω0 = comp ~E (sys x0) (inc (β0 (~ j)))
+        ω1 = comp ~E (sys x1) (inc (β1 (~ j)))
+        θ0 = fill ~E (sys x0) (inc (β0 (~ j)))
+        θ1 = fill ~E (sys x1) (inc (β1 (~ j)))
       sys = λ {j (k = i0) → ω0 j ; j (k = i1) → ω1 j}
       ω = hcomp sys (g y)
       θ = hfill sys (inc (g y))
@@ -195,7 +198,7 @@ module _ {ℓ : I → Level} (P : (i : I) → Set (ℓ i)) where
 
   pathToisEquiv : isEquiv f
   pathToisEquiv .equiv-proof y .fst .fst = g y
-  pathToisEquiv .equiv-proof y .fst .snd = γ y
+  pathToisEquiv .equiv-proof y .fst .snd = sym (γ y)
   pathToisEquiv .equiv-proof y .snd = fiberPath y _
 
   pathToEquiv : A ≃ B
