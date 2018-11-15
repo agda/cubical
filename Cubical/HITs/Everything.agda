@@ -5,3 +5,4 @@ open import Cubical.HITs.Circle public
 open import Cubical.HITs.Torus public
 open import Cubical.HITs.Susp public
 open import Cubical.HITs.S2 public
+open import Cubical.HITs.Interval public
