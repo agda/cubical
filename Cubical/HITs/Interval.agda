@@ -22,7 +22,7 @@ intervalElim x y p zero    = x
 intervalElim x y p one     = y
 intervalElim x y p (seg i) = p i
 
--- Note that this is not definitional
+-- Note that this is not definitional (it is not proved by refl)
 intervalEta : ∀ {A : Set} (f : Interval → A) → intervalElim (f zero) (f one) (λ i → f (seg i)) ≡ f
 intervalEta f i zero    = f zero
 intervalEta f i one     = f one
