@@ -1,14 +1,38 @@
 {-
 
-Proof that any isomorphism is an equivalence.
+Theory about equivalences (definitions are in Core/Glue.agda)
+
+- isEquiv is a proposition
+- any isomorphism is an equivalence
 
 -}
 {-# OPTIONS --cubical #-}
-module Cubical.Basics.IsoToEquiv where
+module Cubical.Basics.Equiv where
 
 open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
+
+open import Cubical.Basics.NTypes
+
+-- Proof using isPropIsContr. This is slow and the direct proof below is better
+isPropIsEquiv' : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → isProp (isEquiv f)
+equiv-proof (isPropIsEquiv' f u0 u1 i) y =
+  isPropIsContr (u0 .equiv-proof y) (u1 .equiv-proof y) i
+
+-- Direct proof that computes quite ok (can be optimized further if
+-- necessary, see:
+-- https://github.com/mortberg/cubicaltt/blob/pi4s3_dimclosures/examples/brunerie2.ctt#L562
+isPropIsEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → isProp (isEquiv f)
+equiv-proof (isPropIsEquiv f p q i) y =
+  let p2 = p .equiv-proof y .snd
+      q2 = q .equiv-proof y .snd
+  in p2 (q .equiv-proof y .fst) i
+   , λ w j → hcomp (λ k → λ { (i = i0) → p2 w j
+                            ; (i = i1) → q2 w (j ∨ ~ k)
+                            ; (j = i0) → p2 (q2 w (~ k)) i
+                            ; (j = i1) → w })
+                   (p2 w (i ∨ j))
 
 module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A)
          (s : (y : B) → f (g y) ≡ y) (t : (x : A) → g (f x) ≡ x) where

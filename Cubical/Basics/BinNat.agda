@@ -7,7 +7,7 @@ open import Cubical.Core.Glue
 
 open import Cubical.Basics.Nat
 open import Cubical.Basics.Empty
-open import Cubical.Basics.IsoToEquiv
+open import Cubical.Basics.Equiv
 
 -- Positive binary numbers
 data Pos : Set where

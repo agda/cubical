@@ -4,7 +4,7 @@ Definition of the circle as a HIT with a proof that Ω(S¹) ≡ ℤ
 
 -}
 {-# OPTIONS --cubical --rewriting #-}
-module Cubical.HITs.Circle where
+module Cubical.HITs.S1 where
 
 open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
@@ -12,7 +12,7 @@ open import Cubical.Core.Glue
 
 open import Cubical.Basics.Int
 open import Cubical.Basics.Nat
-open import Cubical.Basics.IsoToEquiv
+open import Cubical.Basics.Equiv
 
 data S¹ : Set where
   base : S¹
@@ -100,3 +100,29 @@ module _ where
 
   test-winding-neg : winding (intLoop (negsuc five)) ≡ negsuc five
   test-winding-neg = refl
+
+
+-- rot, used in the Hopf fibration
+
+rotLoop : (a : S¹) → a ≡ a
+rotLoop base       = loop
+rotLoop (loop i) j =
+  hcomp (λ k → λ { (i = i0) → loop (j ∨ ~ k)
+                 ; (i = i1) → loop (j ∧ k)
+                 ; (j = i0) → loop (i ∨ ~ k)
+                 ; (j = i1) → loop (i ∧ k) }) base
+
+rot : S¹ → S¹ → S¹
+rot base x     = x
+rot (loop i) x = rotLoop x i
+
+isPropFamS¹ : ∀ {ℓ} (P : S¹ → Set ℓ) (pP : (x : S¹) → isProp (P x)) (b0 : P base) →
+              PathP (λ i → P (loop i)) b0 b0
+isPropFamS¹ P pP b0 i = pP (loop i) (transp (λ j → P (loop (i ∧ j))) (~ i) b0)
+                                    (transp (λ j → P (loop (i ∨ ~ j))) i b0) i
+
+rotIsEquiv : (a : S¹) → isEquiv (rot a)
+rotIsEquiv base = idIsEquiv S¹
+rotIsEquiv (loop i) = isPropFamS¹ (λ x → isEquiv (rot x))
+                                  (λ x → isPropIsEquiv (rot x))
+                                  (idIsEquiv _) i

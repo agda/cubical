@@ -84,8 +84,11 @@ open GluePrims public
            ; prim^unglue to unglue)
 
 -- The identity equivalence
+idIsEquiv : ∀ {ℓ} → (A : Set ℓ) → isEquiv (λ (a : A) → a)
+equiv-proof (idIsEquiv A) y = (y , refl) , λ z → contrSingl (z .snd)
+
 idEquiv : ∀ {ℓ} → (A : Set ℓ) → A ≃ A
-idEquiv A = (λ a → a) , λ { .equiv-proof y → (y , refl) , \ z → contrSingl (z .snd) }
+idEquiv A = (λ a → a) , idIsEquiv A
 
 -- The ua constant
 ua : ∀ {ℓ} {A B : Set ℓ} → A ≃ B → A ≡ B

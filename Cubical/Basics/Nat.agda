@@ -5,7 +5,7 @@ open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 
 open import Cubical.Basics.Empty
-open import Cubical.Basics.Hedberg
+open import Cubical.Basics.NTypes
 
 open import Agda.Builtin.Nat public
   using (zero; suc; _+_; _*_)

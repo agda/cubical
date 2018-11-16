@@ -6,9 +6,9 @@ open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
 open import Cubical.Basics.Bool
-open import Cubical.Basics.IsoToEquiv
+open import Cubical.Basics.Equiv
 
-open import Cubical.HITs.Circle
+open import Cubical.HITs.S1
 open import Cubical.HITs.S2
 
 data Susp (A : Set) : Set where

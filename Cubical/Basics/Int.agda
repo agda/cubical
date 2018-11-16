@@ -6,9 +6,9 @@ open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
 open import Cubical.Basics.Empty
-open import Cubical.Basics.IsoToEquiv
+open import Cubical.Basics.Equiv
 open import Cubical.Basics.Nat
-open import Cubical.Basics.Hedberg
+open import Cubical.Basics.NTypes
 
 data Int : Set where
   pos    : (n : ℕ) → Int

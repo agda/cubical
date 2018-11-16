@@ -1,5 +1,14 @@
+{-
+
+Basic theory about NTypes:
+
+- basic properties of isContr, isProp and isSet (definitions are in Core/Prelude)
+
+- Hedberg's theorem: any type with decidable equality is a set
+
+-}
 {-# OPTIONS --cubical #-}
-module Cubical.Basics.Hedberg where
+module Cubical.Basics.NTypes where
 
 open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
@@ -7,6 +16,30 @@ open import Cubical.Core.Glue
 
 open import Cubical.Basics.Empty
 
+isProp→IsSet : ∀ {ℓ} {A : Set ℓ} → isProp A → isSet A
+isProp→IsSet h a b p q j i =
+  hcomp (λ k → λ { (i = i0) → h a a k
+                 ; (i = i1) → h a b k
+                 ; (j = i0) → h a (p i) k
+                 ; (j = i1) → h a (q i) k }) a 
+
+isPropIsContr : ∀ {ℓ} {A : Set ℓ} → isProp (isContr A)
+isPropIsContr z0 z1 j =
+  ( z0 .snd (z1 .fst) j
+  , λ x i → hcomp (λ k → λ { (i = i0) → z0 .snd (z1 .fst) j
+                           ; (i = i1) → z0 .snd x (j ∨ k)
+                           ; (j = i0) → z0 .snd x (i ∧ k)
+                           ; (j = i1) → z1 .snd x i })
+                  (z0 .snd (z1 .snd x i) j))
+
+isPropIsProp : ∀ {ℓ} {A : Set ℓ} → isProp (isProp A)
+isPropIsProp f g i a b = isProp→IsSet f a b (f a b) (g a b) i
+
+isPropIsSet : ∀ {ℓ} {A : Set ℓ} → isProp (isSet A)
+isPropIsSet f g i a b = isPropIsProp (f a b) (g a b) i
+
+
+-- Proof of Hedberg's theorem:
 -- TODO: upstream
 data _⊎_ {ℓ ℓ'} (P : Set ℓ) (Q : Set ℓ') : Set (ℓ-max ℓ ℓ') where
   inl : P → P ⊎ Q
