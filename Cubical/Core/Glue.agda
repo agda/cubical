@@ -142,7 +142,16 @@ unglueEquiv : ∀ {ℓ} (A : Set ℓ) (φ : I)
                 (Glue A T f) ≃ A
 unglueEquiv A φ T f = unglue {φ = φ} , unglueIsEquiv A φ T f
 
--- The univalence theorem
+
+-- The following is a formulation of univalence proposed by Martín Escardó:
+-- https://groups.google.com/forum/#!msg/homotopytypetheory/HfCB_b-PNEU/Ibb48LvUMeUJ
+-- See also Theorem 5.8.4 of the HoTT Book.
+--
+-- The reason we have this formulation in the core library and not the
+-- standard one is that this one is more direct to prove using that
+-- unglue is an equivalence. The standard formulation can (soon) be
+-- found in Cubical/Basics/Univalence.
+--
 EquivContr : ∀ {ℓ} (A : Set ℓ) → isContr (Σ[ T ∈ Set ℓ ] T ≃ A)
 EquivContr A = ( A , idEquiv A)
                , λ w i → let T : Partial (~ i ∨ i) (Set _)
