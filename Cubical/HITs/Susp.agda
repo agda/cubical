@@ -11,7 +11,7 @@ open import Cubical.Basics.Equiv
 open import Cubical.HITs.S1
 open import Cubical.HITs.S2
 
-data Susp (A : Set) : Set where
+data Susp {ℓ} (A : Set ℓ) : Set ℓ where
   north : Susp A
   south : Susp A
   merid : (a : A) → north ≡ south
