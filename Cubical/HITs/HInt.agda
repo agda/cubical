@@ -29,20 +29,7 @@ data ℤ : Set where
                            (sucpred (suc n))
                            (λ i → suc (predsuc n i))
 
-
--- This definition amounts to saying that suc is an equivalence. Can
--- we set it up so that the coherence is exactly what we need?
--- isEquivSuc : isEquiv suc
--- isEquivSuc .equiv-proof y =
---  let ctr : fiber suc y
---      ctr = (pred y , sym (sucpred y))
---      prf : (f : fiber suc y) → ctr ≡ f
---      prf f i = compPath (cong pred (f .snd)) (predsuc (f .fst)) i
---              , {!!}
---  in ctr , prf
-
-
--- This is equivalent to Int
+-- This is equivalent to Int:
 
 ℤ→Int : ℤ → Int
 ℤ→Int zero = pos 0
@@ -74,22 +61,11 @@ lem2 (pos zero) = refl
 lem2 (pos (suc n)) = sym (predsuc (ℕ→ℤ n))
 lem2 (negsuc n) = refl
 
-lem3 : ∀ (n : Int) (i : I) → Path ℤ (Int→ℤ (sucPred n i)) (sucpred (Int→ℤ n) i)
-lem3 (pos n) = {!!}
-lem3 (negsuc n) = {!!}
-
-lem3' : ∀ (n : ℤ) → PathP (λ i → Path ℤ (Int→ℤ (ℤ→Int (sucpred n i))) (sucpred n i)) {!suc (pred n)!} (λ i → {!!})
-lem3' = {!!}
-
 ℤ→Int→ℤ : ∀ (n : ℤ) → Path ℤ (Int→ℤ (ℤ→Int n)) n
 ℤ→Int→ℤ zero = refl
 ℤ→Int→ℤ (suc n) = compPath (lem1 (ℤ→Int n)) (cong suc (ℤ→Int→ℤ n))
 ℤ→Int→ℤ (pred n) = compPath (lem2 (ℤ→Int n)) (cong pred (ℤ→Int→ℤ n))
-ℤ→Int→ℤ (sucpred n i) = λ j → {!!}
-  -- let goal = {! compPath (lem3 (ℤ→Int n) i) (cong sucpred (ℤ→Int→ℤ n) i)!}
-  --     square : PathP {!!} {!!} {!!}
-  --     square = {!!}
-  -- in square
+ℤ→Int→ℤ (sucpred n i) = {!!}
 ℤ→Int→ℤ (predsuc n i) = {!!}
 ℤ→Int→ℤ (coh n i j) = {!!}
 
@@ -99,19 +75,32 @@ Int→ℤ→Int (pos (suc n)) = cong sucInt (Int→ℤ→Int (pos n))
 Int→ℤ→Int (negsuc zero) = refl
 Int→ℤ→Int (negsuc (suc n)) = cong predInt (Int→ℤ→Int (negsuc n))
 
-foo : ∀ (a b : ℤ) → ℤ→Int a ≡ ℤ→Int b → a ≡ b
-foo a b h = {!!}
--- subst T h refl
---   where
---   T : Int → Set
---   T (pos x)    = a ≡ x
---   T (negsuc _) = ⊥
+Int≡ℤ : Int ≡ ℤ
+Int≡ℤ = isoToPath Int→ℤ ℤ→Int ℤ→Int→ℤ Int→ℤ→Int
+
+isSetℤ : isSet ℤ
+isSetℤ = subst isSet Int≡ℤ isSetInt 
 
 
-discreteℤ : discrete ℤ
-discreteℤ x y with discreteInt (ℤ→Int x) (ℤ→Int y)
-... | inl p = inl (foo _ _ p)
-... | inr p = inr (λ q → p (cong ℤ→Int q))
+
+
+
+
+-- random stuff below:
+
+-- foo : ∀ (a b : ℤ) → ℤ→Int a ≡ ℤ→Int b → a ≡ b
+-- foo a b h = {!!}
+-- -- subst T h refl
+-- --   where
+-- --   T : Int → Set
+-- --   T (pos x)    = a ≡ x
+-- --   T (negsuc _) = ⊥
+
+
+-- discreteℤ : discrete ℤ
+-- discreteℤ x y with discreteInt (ℤ→Int x) (ℤ→Int y)
+-- ... | inl p = inl (foo _ _ p)
+-- ... | inr p = inr (λ q → p (cong ℤ→Int q))
 
 
 -- discreteInt (pos n) (pos m) with discreteℕ n m
@@ -127,31 +116,36 @@ discreteℤ x y with discreteInt (ℤ→Int x) (ℤ→Int y)
 -- isSetInt = discrete→isSet discreteInt
 
 
-Int≡ℤ : Int ≡ ℤ
-Int≡ℤ = isoToPath Int→ℤ ℤ→Int ℤ→Int→ℤ Int→ℤ→Int
-
-isSetℤ : isSet ℤ
-isSetℤ = subst isSet Int≡ℤ isSetInt 
-
 
 -- We should now be able to define a predecessor that computes nicely
 
-predℤ : ℤ → ℤ
-predℤ zero = pred zero
-predℤ (suc n) = n
-predℤ (pred n) = pred (pred n)
-predℤ (sucpred n i) = {!!}
-predℤ (predsuc n j) = {!!}
-predℤ (coh n k l) = isSetℤ {!n!} n {!!} {!!} k l
+-- predℤ : ℤ → ℤ
+-- predℤ zero = pred zero
+-- predℤ (suc n) = n
+-- predℤ (pred n) = pred (pred n)
+-- predℤ (sucpred n i) = {!!}
+-- predℤ (predsuc n j) = {!!}
+-- predℤ (coh n k l) = isSetℤ {!n!} n {!!} {!!} k l
 
-predSucℤ : ∀ n → predℤ (suc n) ≡ n
-predSucℤ n = refl
+-- predSucℤ : ∀ n → predℤ (suc n) ≡ n
+-- predSucℤ n = refl
 
-sucPredℤ : ∀ (n : ℤ) → suc (predℤ n) ≡ n
-sucPredℤ zero = sucpred zero
-sucPredℤ (suc n) = refl
-sucPredℤ (pred n) = sucpred (pred n)
-sucPredℤ (sucpred n i) = {!!}
-sucPredℤ (predsuc n i) = {!!}
-sucPredℤ (coh n i j) = {!!}
+-- sucPredℤ : ∀ (n : ℤ) → suc (predℤ n) ≡ n
+-- sucPredℤ zero = sucpred zero
+-- sucPredℤ (suc n) = refl
+-- sucPredℤ (pred n) = sucpred (pred n)
+-- sucPredℤ (sucpred n i) = {!!}
+-- sucPredℤ (predsuc n i) = {!!}
+-- sucPredℤ (coh n i j) = {!!}
 
+
+-- This definition amounts to saying that suc is an equivalence. Can
+-- we set it up so that the coherence is exactly what we need?
+-- isEquivSuc : isEquiv suc
+-- isEquivSuc .equiv-proof y =
+--  let ctr : fiber suc y
+--      ctr = (pred y , sym (sucpred y))
+--      prf : (f : fiber suc y) → ctr ≡ f
+--      prf f i = compPath (cong pred (f .snd)) (predsuc (f .fst)) i
+--              , {!!}
+--  in ctr , prf
