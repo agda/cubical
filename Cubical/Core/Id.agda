@@ -157,7 +157,7 @@ funExt p = pathToId (λ i x → idToPath (p x) i)
 -- Equivalences expressed using Id
 
 fiber : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → Set (ℓ-max ℓ ℓ')
-fiber {A = A} f y = Σ[ x ∈ A ] y ≡ f x
+fiber {A = A} f y = Σ[ x ∈ A ] f x ≡ y
 
 module _ {ℓ} where
   isContr : Set ℓ → Set ℓ
