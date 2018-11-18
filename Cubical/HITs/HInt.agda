@@ -13,10 +13,9 @@ open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
-open import Cubical.Basics.IsoToEquiv
+open import Cubical.Basics.Equiv
 open import Cubical.Basics.Int
 open import Cubical.Basics.Nat
-open import Cubical.Basics.Hedberg
 
 data ℤ : Set where
   zero : ℤ

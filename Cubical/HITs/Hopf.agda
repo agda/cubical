@@ -9,15 +9,13 @@ open import Cubical.HITs.S1
 open import Cubical.HITs.S2
 open import Cubical.HITs.Susp
 
--- TODO: package up Glue?
 -- Hopf fibration using S²
 HopfS² : S² → Set
 HopfS² base = S¹
-HopfS² (surf i j) = Glue S¹ (λ _ → S¹)
-                            (λ { (i = i0) → _ , idIsEquiv S¹
-                               ; (i = i1) → _ , idIsEquiv S¹
-                               ; (j = i0) → _ , rotIsEquiv (loop i)
-                               ; (j = i1) → _ , idIsEquiv S¹ } )
+HopfS² (surf i j) = Glue S¹ (λ { (i = i0) → _ , _ , idIsEquiv S¹
+                               ; (i = i1) → _ , _ , idIsEquiv S¹
+                               ; (j = i0) → _ , _ , rotIsEquiv (loop i)
+                               ; (j = i1) → _ , _ , idIsEquiv S¹ } )
 
 -- Hopf fibration using suspension of S¹
 HopfSuspS¹ : SuspS¹ → Set
