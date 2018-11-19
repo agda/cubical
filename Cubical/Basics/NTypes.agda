@@ -16,8 +16,14 @@ open import Cubical.Core.Glue
 
 open import Cubical.Basics.Empty
 
-isProp→IsSet : ∀ {ℓ} {A : Set ℓ} → isProp A → isSet A
-isProp→IsSet h a b p q j i =
+isContr→isProp : ∀ {ℓ} {A : Set ℓ} → isContr A → isProp A
+isContr→isProp h a b i =
+  hcomp (λ j → λ { (i = i0) → h .snd a j
+                 ; (i = i1) → h .snd b j })
+        (h .fst)
+
+isProp→isSet : ∀ {ℓ} {A : Set ℓ} → isProp A → isSet A
+isProp→isSet h a b p q j i =
   hcomp (λ k → λ { (i = i0) → h a a k
                  ; (i = i1) → h a b k
                  ; (j = i0) → h a (p i) k
@@ -33,7 +39,7 @@ isPropIsContr z0 z1 j =
                   (z0 .snd (z1 .snd x i) j))
 
 isPropIsProp : ∀ {ℓ} {A : Set ℓ} → isProp (isProp A)
-isPropIsProp f g i a b = isProp→IsSet f a b (f a b) (g a b) i
+isPropIsProp f g i a b = isProp→isSet f a b (f a b) (g a b) i
 
 isPropIsSet : ∀ {ℓ} {A : Set ℓ} → isProp (isSet A)
 isPropIsSet f g i a b = isPropIsProp (f a b) (g a b) i

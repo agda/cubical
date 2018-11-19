@@ -2,8 +2,9 @@
 
 Theory about equivalences (definitions are in Core/Glue.agda)
 
-- isEquiv is a proposition
-- any isomorphism is an equivalence
+- isEquiv is a proposition ([isPropIsEquiv])
+- Any isomorphism is an equivalence ([isoToEquiv])
+- Equivalence induction ([EquivJ])
 
 -}
 {-# OPTIONS --cubical #-}
@@ -101,3 +102,20 @@ invEquiv f = isoToEquiv (invEq f) (fst f) (secEq f) (retEq f)
 --   invEquivInvol : (f : A ≃ B) → invEquiv (invEquiv f) ≡ f
 --   invEquivInvol f i .fst = fst f
 --   invEquivInvol f i .snd = propIsEquiv (fst f) (snd (invEquiv (invEquiv f))) (snd f) i
+
+
+contrSinglEquiv : ∀ {ℓ} {A B : Set ℓ} (e : A ≃ B) → (B , idEquiv B) ≡ (A , e)
+contrSinglEquiv {A = A} {B = B} e =
+  isContr→isProp (EquivContr B) (B , idEquiv B) (A , e)
+
+-- Equivalence induction
+EquivJ : ∀ {ℓ ℓ′} (P : (A B : Set ℓ) → (e : B ≃ A) → Set ℓ′)
+         → (r : (A : Set ℓ) → P A A (idEquiv A))
+         → (A B : Set ℓ) → (e : B ≃ A) → P A B e
+EquivJ P r A B e = subst (λ x → P A (x .fst) (x .snd)) (contrSinglEquiv e) (r A)
+
+-- Eliminate equivalences by just looking at the underlying function
+elimEquivFun : ∀ {ℓ} (B : Set ℓ) (P : (A : Set ℓ) → (A → B) → Set ℓ)
+             → (r : P B (λ x → x))
+             → (A : Set ℓ) → (e : A ≃ B) → P A (e .fst)
+elimEquivFun B P r a e = subst (λ x → P (x .fst) (x .snd .fst)) (contrSinglEquiv e) r
