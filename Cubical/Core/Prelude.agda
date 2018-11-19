@@ -15,6 +15,7 @@ This file proves a variety of basic results about paths:
 
 - Direct definitions of lower h-levels
 
+- Export natural numbers
 
 It should *not* depend on the Agda standard library.
 
@@ -144,3 +145,7 @@ module _ {ℓ} where
 
   isSet : Set ℓ → Set ℓ
   isSet A = (x y : A) → isProp (x ≡ y)
+
+open import Agda.Builtin.Nat public
+  using (zero; suc; _+_; _*_)
+  renaming (Nat to ℕ)

@@ -10,9 +10,7 @@ Theory about equivalences (definitions are in Core/Glue.agda)
 {-# OPTIONS --cubical #-}
 module Cubical.Basics.Equiv where
 
-open import Cubical.Core.Primitives
-open import Cubical.Core.Prelude
-open import Cubical.Core.Glue
+open import Cubical.Core.Everything
 
 open import Cubical.Basics.NTypes
 

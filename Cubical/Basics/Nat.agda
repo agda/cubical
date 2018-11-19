@@ -7,10 +7,6 @@ open import Cubical.Core.Prelude
 open import Cubical.Basics.Empty
 open import Cubical.Basics.NTypes
 
-open import Agda.Builtin.Nat public
-  using (zero; suc; _+_; _*_)
-  renaming (Nat to ℕ)
-
 predℕ : ℕ → ℕ
 predℕ zero    = 0
 predℕ (suc n) = n

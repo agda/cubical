@@ -15,7 +15,7 @@ open import Cubical.Core.PropositionalTruncation public
 
 -- Definition of Identity types and definitions of J, funExt,
 -- univalence and propositional truncation using Id instead of Path
-open import Cubical.Core.Id public
+open import Cubical.Core.Id
   hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ )
   renaming ( _≃_           to EquivId
            ; EquivContr    to EquivContrId
@@ -32,7 +32,10 @@ open import Cubical.Core.Id public
            ; equivIsEquiv  to equivIsEquivId
            ; refl           to reflId
            ; ∥_∥           to propTruncId
-           ; ∣_∣           to incId )
+           ; ∣_∣           to incId
+           ; isPropIsContr to isPropIsContrId
+           ; isPropIsEquiv to isPropIsEquivId
+           )
 
 
 open import Cubical.Core.HoTT-UF

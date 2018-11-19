@@ -10,17 +10,21 @@ Basic theory about NTypes:
 {-# OPTIONS --cubical #-}
 module Cubical.Basics.NTypes where
 
-open import Cubical.Core.Primitives
-open import Cubical.Core.Prelude
-open import Cubical.Core.Glue
+open import Cubical.Core.Everything
 
 open import Cubical.Basics.Empty
 
+isOfHLevel : ∀ {ℓ} → ℕ → Set ℓ → Set ℓ
+isOfHLevel zero A = isContr A
+isOfHLevel (suc n) A = (x y : A) → isOfHLevel n (x ≡ y)
+
+HLevel : ∀ {ℓ} → ℕ → Set _
+HLevel {ℓ} n = Σ[ A ∈ Set ℓ ] (isOfHLevel n A)
+
 isContr→isProp : ∀ {ℓ} {A : Set ℓ} → isContr A → isProp A
-isContr→isProp h a b i =
-  hcomp (λ j → λ { (i = i0) → h .snd a j
-                 ; (i = i1) → h .snd b j })
-        (h .fst)
+isContr→isProp (x , p) a b i =
+  hcomp (λ j → λ { (i = i0) → p a j
+                 ; (i = i1) → p b j }) x
 
 isProp→isSet : ∀ {ℓ} {A : Set ℓ} → isProp A → isSet A
 isProp→isSet h a b p q j i =
@@ -28,6 +32,13 @@ isProp→isSet h a b p q j i =
                  ; (i = i1) → h a b k
                  ; (j = i0) → h a (p i) k
                  ; (j = i1) → h a (q i) k }) a 
+
+inhProp→isContr : ∀ {ℓ} {A : Set ℓ} → A → isProp A → isContr A
+inhProp→isContr x h = x , h x
+
+-- TODO: prove other direction
+isPropIsOfHLevel1 : ∀ {ℓ} {A : Set ℓ} → isProp A → isOfHLevel 1 A
+isPropIsOfHLevel1 h x y = inhProp→isContr (h x y) (isProp→isSet h x y)
 
 isPropIsContr : ∀ {ℓ} {A : Set ℓ} → isProp (isContr A)
 isPropIsContr z0 z1 j =
@@ -43,6 +54,27 @@ isPropIsProp f g i a b = isProp→isSet f a b (f a b) (g a b) i
 
 isPropIsSet : ∀ {ℓ} {A : Set ℓ} → isProp (isSet A)
 isPropIsSet f g i a b = isPropIsProp (f a b) (g a b) i
+
+-- A retract of a contractible type is contractible
+retractIsContr : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A)
+                 (h : (x : A) → g (f x) ≡ x) (v : isContr B) → isContr A
+retractIsContr f g h (b , p) = (g b , λ x → compPath (cong g (p (f x))) (h x))
+
+isContrSigma : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} →
+               isContr A → ((x : A) → isContr (B x)) →
+               isContr (Σ[ x ∈ A ] B x)
+isContrSigma {A = A} {B = B} (a , p) q =
+  let h : (x : A) (y : B x) → (q x) .fst ≡ y
+      h x y = (q x) .snd y
+  in (( a , q a .fst)
+     , ( λ x i → p (x .fst) i
+       , h (p (x .fst) i) (transp (λ j → B (p (x .fst) (i ∨ ~ j))) i (x .snd)) i))
+
+isContrPath : ∀ {ℓ} {A : Set ℓ} → isContr A → (x y : A) → isContr (x ≡ y)
+isContrPath cA = isPropIsOfHLevel1 (isContr→isProp cA)
+
+
+
 
 
 -- Proof of Hedberg's theorem:
