@@ -8,4 +8,5 @@ open import Cubical.Basics.Equiv public
 open import Cubical.Basics.Int public
 open import Cubical.Basics.Nat public
 open import Cubical.Basics.NTypes public
+open import Cubical.Basics.Univalence public
 open import Cubical.Basics.Unit public

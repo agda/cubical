@@ -205,13 +205,13 @@ module _ {ℓ : I → Level} (P : (i : I) → Set (ℓ i)) where
     γ y j = comp E (λ i → λ { (j = i0) → v i y
                             ; (j = i1) → u i (g y) }) (inc (g y))
 
-  pathToisEquiv : isEquiv f
-  pathToisEquiv .equiv-proof y .fst .fst = g y
-  pathToisEquiv .equiv-proof y .fst .snd = sym (γ y)
-  pathToisEquiv .equiv-proof y .snd = fiberPath y _
+  lineToisEquiv : isEquiv f
+  lineToisEquiv .equiv-proof y .fst .fst = g y
+  lineToisEquiv .equiv-proof y .fst .snd = sym (γ y)
+  lineToisEquiv .equiv-proof y .snd = fiberPath y _
 
-  pathToEquiv : A ≃ B
-  pathToEquiv .fst = f
-  pathToEquiv .snd = pathToisEquiv
+  lineToEquiv : A ≃ B
+  lineToEquiv .fst = f
+  lineToEquiv .snd = lineToisEquiv
 
-{-# BUILTIN PATHTOEQUIV pathToEquiv #-}
+{-# BUILTIN PATHTOEQUIV lineToEquiv #-}
