@@ -33,6 +33,9 @@ equiv-proof (isPropIsEquiv f p q i) y =
                             ; (j = i1) → w })
                    (p2 w (i ∨ j))
 
+equivEq : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (e f : A ≃ B) → (h : e .fst ≡ f .fst) → e ≡ f
+equivEq e f h = λ i → (h i) , isProp→PathP isPropIsEquiv h (e .snd) (f .snd) i
+
 module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A)
          (s : (y : B) → f (g y) ≡ y) (t : (x : A) → g (f x) ≡ x) where
 
@@ -117,3 +120,40 @@ elimEquivFun : ∀ {ℓ} (B : Set ℓ) (P : (A : Set ℓ) → (A → B) → Set 
              → (r : P B (λ x → x))
              → (A : Set ℓ) → (e : A ≃ B) → P A (e .fst)
 elimEquivFun B P r a e = subst (λ x → P (x .fst) (x .snd .fst)) (contrSinglEquiv e) r
+
+
+-- TODO: move to a new file and clean!
+idtoeqv : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B
+idtoeqv {ℓ} {A = A} p = pathToEquiv {ℓ = λ _ → ℓ} (λ i → p i)
+
+[idtoeqv]refl=id : ∀ {ℓ} {A : Set ℓ} → idtoeqv refl ≡ idEquiv A
+[idtoeqv]refl=id {A = A} = equivEq _ _ (λ i x → transp (λ j → A) i x)
+
+module UAEquiv {ℓ : Level} 
+  -- To derive univalence it's sufficient to provide the following three
+  -- maps, regardless of the implementation.
+    (ua : ∀ {A B : Set ℓ} → A ≃ B → A ≡ B)
+    (uaid=id : ∀ {A : Set ℓ} → ua (idEquiv A) ≡ refl)
+    (uaβ : ∀ {A B : Set ℓ} → (e : A ≃ B) (a : A) → transp (λ i → ua e i) i0 a ≡ e .fst a) where
+
+  lemma' : {A B : Set ℓ} (e : A ≃ B) → idtoeqv (ua e) .fst ≡ e .fst
+  lemma' {A} e = λ i x → uaβ e x i
+  
+  [ua∘idtoeqv]refl≡refl : {A : Set ℓ} → ua (idtoeqv {A = A} refl) ≡ refl
+  [ua∘idtoeqv]refl≡refl {A = A} = compPath (cong ua [idtoeqv]refl=id) uaid=id
+
+  univEquiv : {A B : Set ℓ} → isEquiv {A = A ≡ B} {B = A ≃ B} idtoeqv
+  univEquiv {A} {B} = 
+     isoToIsEquiv idtoeqv (ua {A = A} {B = B})
+                            (λ y → equivEq _ _ (lemma' y))
+               (J (λ y p → ua (idtoeqv p) ≡ p) [ua∘idtoeqv]refl≡refl)
+
+uaid=id : ∀ {ℓ} {A : Set ℓ} → (ua (idEquiv A)) ≡ (λ i → A)
+uaid=id {A = A} = λ j → λ i → Glue A {φ = (~ i ∨ i) ∨ j} (λ _ → A , idEquiv A .fst , idEquiv A .snd)
+
+uaβ : ∀ {ℓ} {A B : Set ℓ} → (e : A ≃ B) (a : A) → transp (λ i → ua e i) i0 a ≡ e .fst a
+uaβ e a = {!!}
+
+univalence : ∀ {ℓ} {A B : Set ℓ} → (A ≡ B) ≃ (A ≃ B)
+univalence .fst = idtoeqv
+univalence .snd = UAEquiv.univEquiv ua uaid=id uaβ

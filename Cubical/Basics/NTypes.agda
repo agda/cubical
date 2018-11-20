@@ -73,8 +73,25 @@ isContrSigma {A = A} {B = B} (a , p) q =
 isContrPath : ∀ {ℓ} {A : Set ℓ} → isContr A → (x y : A) → isContr (x ≡ y)
 isContrPath cA = isPropIsOfHLevel1 (isContr→isProp cA)
 
+lemProp : ∀ {ℓ} {A : Set ℓ} → (A → isProp A) → isProp A
+lemProp h = λ a → h a a
 
+module _ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} where
+  -- Π preserves propositionality in the following sense:
+  propPi : (h : (x : A) → isProp (B x)) → isProp ((x : A) → B x)
+  propPi h f0 f1 i x = h x (f0 x) (f1 x) i
 
+  isProp→PathP : ((x : A) → isProp (B x)) → {a0 a1 : A}
+                 (p : a0 ≡ a1) (b0 : B a0) (b1 : B a1) → PathP (λ i → B (p i)) b0 b1
+  isProp→PathP P p b0 b1 i = P (p i) (transp (λ j → B (p (i ∧ j))) (~ i) b0)
+                                     (transp (λ j → B (p (i ∨ ~ j))) i b1) i
+
+  subtypeEquality : ((x : A) → isProp (B x)) → (u v : Σ[ a ∈ A ] B a)
+                    (p : u .fst ≡ v .fst) → u ≡ v
+  subtypeEquality pB u v p i = (p i) , isProp→PathP pB p (u .snd) (v .snd) i
+
+  isPropSigma : isProp A → ((x : A) → isProp (B x)) → isProp (Σ[ x ∈ A ] B x)
+  isPropSigma pA pB t u = subtypeEquality pB t u (pA (t .fst) (u .fst))
 
 
 -- Proof of Hedberg's theorem:
