@@ -55,3 +55,17 @@ univEquiv A B =
 
 univalence : ∀ {ℓ} {A B : Set ℓ} → (A ≡ B) ≃ (A ≃ B)
 univalence = ( pathToEquiv , univEquiv _ _ )
+
+module test {ℓ} 
+--            (au : (A B : Set ℓ) → A ≡ B → A ≃ B)
+  where
+  au' : (A B : Set ℓ) → A ≡ B → A ≃ B
+  au' A  B e = J (λ (X : Set ℓ) (f : A ≡ X) → A ≃ X) (idEquiv A) e
+
+  auid' : {A B : Set ℓ} → au' _ _ refl ≡ idEquiv A
+  auid' {A} = JRefl (λ (X : Set ℓ) (f : A ≡ X) → A ≃ X) (idEquiv A)
+  
+  univ : {A B : Set ℓ} → isEquiv (au' A B)
+  univ {A} {B} = isoToIsEquiv {A = A ≡ B} {B = A ≃ B} (au' A B) ua
+     (EquivJ (λ _ _ e → au' _ _ (ua e) ≡ e) (λ X → compPath (cong (au' X X) uaIdEquiv) (auid' {B = B})) _ _)
+     (J (λ X p → ua (au' _ _ p) ≡ p) (compPath (cong ua (auid' {B = B})) uaIdEquiv)) 
