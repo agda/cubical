@@ -154,3 +154,22 @@ uaβ e a = {!!}
 univalence : ∀ {ℓ} {A B : Set ℓ} → (A ≡ B) ≃ (A ≃ B)
 univalence .fst = idtoeqv
 univalence .snd = UAEquiv.univEquiv ua uaid=id uaβ
+
+
+-- We can also do it without uaβ!
+-- TODO: Check if this relies on the definition of idtoeqv!
+module UAEquivWithoutUAβ {ℓ : Level} 
+    (ua : ∀ {A B : Set ℓ} → A ≃ B → A ≡ B)
+    (uaid=id : ∀ {A : Set ℓ} → ua (idEquiv A) ≡ refl)
+    where
+  [ua∘idtoeqv]refl≡refl : {A : Set ℓ} → ua (idtoeqv {A = A} refl) ≡ refl
+  [ua∘idtoeqv]refl≡refl {A = A} = compPath (cong ua [idtoeqv]refl=id) uaid=id
+
+  idtoeqvuaid=id : ∀ (A : Set ℓ) → idtoeqv (ua (idEquiv A)) ≡ idEquiv A
+  idtoeqvuaid=id A = compPath (cong idtoeqv uaid=id) (equivEq _ _ (λ i x → transp (λ _ → A) i x))
+  
+  univEquiv : {A B : Set ℓ} → isEquiv {A = A ≡ B} {B = A ≃ B} idtoeqv
+  univEquiv {A} {B} = 
+     isoToIsEquiv idtoeqv ua
+                  (EquivJ (λ A B e → idtoeqv (ua e) ≡ e) (λ A → idtoeqvuaid=id A) B A)
+                  (J (λ y p → ua (idtoeqv p) ≡ p) [ua∘idtoeqv]refl≡refl)
