@@ -151,8 +151,8 @@ unglueEquiv A φ f = unglue {φ = φ} , unglueIsEquiv A φ f
 --
 -- The reason we have this formulation in the core library and not the
 -- standard one is that this one is more direct to prove using that
--- unglue is an equivalence. The standard formulation can (soon) be
--- found in Cubical/Basics/Univalence.
+-- unglue is an equivalence. The standard formulation can be found in
+-- Cubical/Basics/Univalence.
 --
 EquivContr : ∀ {ℓ} (A : Set ℓ) → isContr (Σ[ T ∈ Set ℓ ] T ≃ A)
 EquivContr {ℓ} A = ( A , idEquiv A)
