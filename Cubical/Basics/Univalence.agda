@@ -1,10 +1,10 @@
 {-
 
-Theory about equivalences (definitions are in Core/Glue.agda)
+Proof of the standard formulation of the univalence theorem and
+various consequences of univalence
 
-- isEquiv is a proposition ([isPropIsEquiv])
-- Any isomorphism is an equivalence ([isoToEquiv])
 - Equivalence induction ([EquivJ])
+- Univalence theorem ([univalence])
 
 -}
 {-# OPTIONS --cubical #-}
@@ -55,6 +55,8 @@ univEquiv A B =
 
 univalence : ∀ {ℓ} {A B : Set ℓ} → (A ≡ B) ≃ (A ≃ B)
 univalence = ( pathToEquiv , univEquiv _ _ )
+
+
 
 
 
