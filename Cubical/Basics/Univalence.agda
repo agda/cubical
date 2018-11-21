@@ -66,3 +66,16 @@ univalenceStatement = Univalence.thm eqweqmap eqweqmapid
 
 univalenceUAH : ∀ {ℓ} {A B : Set ℓ} → (A ≡ B) ≃ (A ≃ B)
 univalenceUAH = ( _ , univalenceStatement )
+
+record Lift {i j} (A : Set i) : Set (ℓ-max i j) where
+  instance constructor lift
+  field
+    lower : A
+
+open Lift public
+
+LiftEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} → A ≃ Lift {i = ℓ} {j = ℓ'} A
+LiftEquiv = isoToEquiv lift lower (λ _ → refl) (λ _ → refl)
+
+univalencePath : ∀ {ℓ} {A B : Set ℓ} → (A ≡ B) ≡ Lift (A ≃ B)
+univalencePath = ua (compEquiv univalence LiftEquiv)

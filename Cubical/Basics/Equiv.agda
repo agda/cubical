@@ -7,7 +7,7 @@ Theory about equivalences (definitions are in Core/Glue.agda)
 - Equivalence induction ([EquivJ])
 
 -}
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --allow-unsolved-metas #-}
 module Cubical.Basics.Equiv where
 
 open import Cubical.Core.Everything
@@ -98,6 +98,10 @@ isoToPath f g s t = ua (isoToEquiv f g s t)
 
 invEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → B ≃ A
 invEquiv f = isoToEquiv (invEq f) (fst f) (secEq f) (retEq f)
+
+compEquiv : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} {C : Set ℓ''} →
+            A ≃ B → B ≃ C → A ≃ C
+compEquiv (e , p) (f , q) = (λ x → f (e x)) , {!!}
 
 -- module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'}  where
 --   invEquivInvol : (f : A ≃ B) → invEquiv (invEquiv f) ≡ f
