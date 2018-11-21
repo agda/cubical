@@ -35,37 +35,34 @@ elimEquivFun B P r a e = subst (λ x → P (x .fst) (x .snd .fst)) (contrSinglEq
 uaIdEquiv : ∀ {ℓ} {A : Set ℓ} → ua (idEquiv A) ≡ refl
 uaIdEquiv {A = A} i j = Glue A {φ = i ∨ ~ j ∨ j} (λ _ → A , idEquiv A)
 
+-- Assuming that we have an inverse to ua we can easily prove univalence
+module Univalence (au : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B)
+                  (auid : ∀ {ℓ} {A B : Set ℓ} → au refl ≡ idEquiv A) where
+  thm : ∀ {ℓ} {A B : Set ℓ} → isEquiv au
+  thm {A = A} {B = B} =
+    isoToIsEquiv {B = A ≃ B} au ua
+      (EquivJ (λ _ _ e → au (ua e) ≡ e) (λ X → compPath (cong au uaIdEquiv) (auid {B = B})) _ _)
+      (J (λ X p → ua (au p) ≡ p) (compPath (cong ua (auid {B = B})) uaIdEquiv))
+
 pathToEquiv : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B
 pathToEquiv p = lineToEquiv (λ i → p i)
 
 pathToEquivRefl : ∀ {ℓ} {A : Set ℓ} → pathToEquiv refl ≡ idEquiv A
-pathToEquivRefl {A = A} = equivEq _ _ (λ i x → transp (λ j → A) i x)
+pathToEquivRefl {A = A} = equivEq _ _ (λ i x → transp (λ _ → A) i x)
 
-uaPathToEquivRefl : ∀ {ℓ} {A : Set ℓ} → ua (pathToEquiv {A = A} refl) ≡ refl
-uaPathToEquivRefl = compPath (cong ua pathToEquivRefl) uaIdEquiv
-
-pathToEquivUAIdEquiv : ∀ {ℓ} (A : Set ℓ) → pathToEquiv (ua (idEquiv A)) ≡ idEquiv A
-pathToEquivUAIdEquiv A = compPath (cong pathToEquiv uaIdEquiv) (equivEq _ _ (λ i x → transp (λ _ → A) i x))
-  
-univEquiv : ∀ {ℓ} (A B : Set ℓ) → isEquiv pathToEquiv
-univEquiv A B =
-  isoToIsEquiv pathToEquiv ua
-               (EquivJ (λ _ _ e → pathToEquiv (ua e) ≡ e) pathToEquivUAIdEquiv B A)
-               (J (λ _ p → ua (pathToEquiv p) ≡ p) uaPathToEquivRefl)
-
+-- Univalence
 univalence : ∀ {ℓ} {A B : Set ℓ} → (A ≡ B) ≃ (A ≃ B)
-univalence = ( pathToEquiv , univEquiv _ _ )
+univalence = ( pathToEquiv , Univalence.thm pathToEquiv pathToEquivRefl  )
 
-module test {ℓ} 
---            (au : (A B : Set ℓ) → A ≡ B → A ≃ B)
-  where
-  au' : (A B : Set ℓ) → A ≡ B → A ≃ B
-  au' A  B e = J (λ (X : Set ℓ) (f : A ≡ X) → A ≃ X) (idEquiv A) e
+-- The original map from UniMath/Foundations
+eqweqmap : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B
+eqweqmap {A = A} e = J (λ X _ → A ≃ X) (idEquiv A) e
 
-  auid' : {A B : Set ℓ} → au' _ _ refl ≡ idEquiv A
-  auid' {A} = JRefl (λ (X : Set ℓ) (f : A ≡ X) → A ≃ X) (idEquiv A)
-  
-  univ : {A B : Set ℓ} → isEquiv (au' A B)
-  univ {A} {B} = isoToIsEquiv {A = A ≡ B} {B = A ≃ B} (au' A B) ua
-     (EquivJ (λ _ _ e → au' _ _ (ua e) ≡ e) (λ X → compPath (cong (au' X X) uaIdEquiv) (auid' {B = B})) _ _)
-     (J (λ X p → ua (au' _ _ p) ≡ p) (compPath (cong ua (auid' {B = B})) uaIdEquiv)) 
+eqweqmapid : ∀ {ℓ} {A : Set ℓ} → eqweqmap refl ≡ idEquiv A
+eqweqmapid {A = A} = JRefl (λ X _ → A ≃ X) (idEquiv A)
+
+univalenceStatement : ∀ {ℓ} {A B : Set ℓ} → isEquiv (eqweqmap {ℓ} {A} {B})
+univalenceStatement = Univalence.thm eqweqmap eqweqmapid
+
+univalenceUAH : ∀ {ℓ} {A B : Set ℓ} → (A ≡ B) ≃ (A ≃ B)
+univalenceUAH = ( _ , univalenceStatement )
