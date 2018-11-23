@@ -7,7 +7,7 @@ Theory about equivalences (definitions are in Core/Glue.agda)
 - Equivalence induction ([EquivJ])
 
 -}
-{-# OPTIONS --cubical --allow-unsolved-metas #-}
+{-# OPTIONS --cubical #-}
 module Cubical.Basics.Equiv where
 
 open import Cubical.Core.Everything
@@ -83,7 +83,7 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A)
   isoToEquiv = _ , isoToIsEquiv
 
 module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (w : A ≃ B) where
-  invEq : (y : B) → A
+  invEq : B → A
   invEq y = fst (fst (snd w .equiv-proof y))
 
   secEq : (x : A) → invEq (fst w x) ≡ x
@@ -101,7 +101,10 @@ invEquiv f = isoToEquiv (invEq f) (fst f) (secEq f) (retEq f)
 
 compEquiv : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} {C : Set ℓ''} →
             A ≃ B → B ≃ C → A ≃ C
-compEquiv (e , p) (f , q) = (λ x → f (e x)) , {!!}
+compEquiv f g = isoToEquiv (λ x → g .fst (f .fst x))
+                           (λ x → invEq f (invEq g x))
+                           (λ y → compPath (cong (g .fst) (retEq f (invEq g y))) (retEq g y))
+                           (λ y → compPath (cong (invEq f) (secEq g (f .fst y))) (secEq f y))
 
 -- module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'}  where
 --   invEquivInvol : (f : A ≃ B) → invEquiv (invEquiv f) ≡ f

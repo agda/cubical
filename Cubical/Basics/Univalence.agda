@@ -67,6 +67,7 @@ univalenceStatement = Univalence.thm eqweqmap eqweqmapid
 univalenceUAH : ∀ {ℓ} {A B : Set ℓ} → (A ≡ B) ≃ (A ≃ B)
 univalenceUAH = ( _ , univalenceStatement )
 
+-- TODO: upstream
 record Lift {i j} (A : Set i) : Set (ℓ-max i j) where
   instance constructor lift
   field
