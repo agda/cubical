@@ -67,11 +67,6 @@ module M (p : Ω³ S²pt .fst) where
     problem : pos 0 ≡ pos 0
     problem i = transp (λ j → helix (innerpath i j)) i0 (pos 0)
 
-    -- This term contains a ton of hcomp U:
-    -- problempath : Path (helix (primTransp (\ k → Hopf (x k i0 k)) i0 base1))
-    --                      (helix (primTransp (\ k → Hopf (x k i1 k)) i0 base1))
-    -- problempath j = helix (primTransp (\ k → Hopf (x k j k)) i0 base1)
-
 test = M.problem test0To4
 
 -- C-c C-n test generates:
