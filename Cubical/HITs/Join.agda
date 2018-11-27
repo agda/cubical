@@ -9,6 +9,8 @@ open import Cubical.Basics.Equiv
 open import Cubical.HITs.S1
 open import Cubical.HITs.S3
 
+-- redtt version : https://github.com/RedPRL/redtt/blob/master/library/cool/s3-to-join.red
+
 data join {ℓ ℓ'} (A : Set ℓ) (B : Set ℓ') : Set (ℓ-max ℓ ℓ') where
   inl : A → join A B
   inr : B → join A B
