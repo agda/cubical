@@ -60,14 +60,11 @@ f4 p i j k = α (p i j k)
 test0To4 : Ω³ S²pt .fst
 test0To4 = f4 test0To3
 
-module M (p : Ω³ S²pt .fst) where
-    innerpath : ∀ i j → HopfS² (p i j i1)
-    innerpath i j = transp (λ k → HopfS² (p i j k)) i0 base
+innerpath : ∀ i j → HopfS² (test0To4 i j i1)
+innerpath i j = transp (λ k → HopfS² (test0To4 i j k)) i0 base
 
-    problem : pos 0 ≡ pos 0
-    problem i = transp (λ j → helix (innerpath i j)) i0 (pos 0)
-
-test = M.problem test0To4
+problem : pos 0 ≡ pos 0
+problem i = transp (λ j → helix (innerpath i j)) i0 (pos 0)
 
 -- C-c C-n test generates:
 -- An internal error has occurred. Please report this as a bug.
