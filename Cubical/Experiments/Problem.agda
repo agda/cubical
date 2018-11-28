@@ -63,12 +63,9 @@ test0To4 = f4 test0To3
 innerpath : ∀ i j → HopfS² (test0To4 i j i1)
 innerpath i j = transp (λ k → HopfS² (test0To4 i j k)) i0 base
 
+-- C-c C-n problem uses a lot of memory
 problem : pos 0 ≡ pos 0
 problem i = transp (λ j → helix (innerpath i j)) i0 (pos 0)
-
--- C-c C-n problem generates:
--- An internal error has occurred. Please report this as a bug.
--- Location of the error: src/full/Agda/TypeChecking/Substitute.hs:72
 
 
 -- Lots of tests: (thanks Evan!)
