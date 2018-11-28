@@ -86,7 +86,7 @@ test2 : Int
 test2 = winding2 (λ i j → hcomp (λ _ → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) (surf i j))
 
 test3 : Int
-test3 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) (surf i j))
+test3 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) base)
 
 test4 : Int
 test4 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) base)
