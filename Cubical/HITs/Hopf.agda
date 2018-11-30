@@ -17,6 +17,14 @@ HopfS² (surf i j) = Glue S¹ (λ { (i = i0) → _ , idEquiv S¹
                                ; (j = i0) → _ , idEquiv S¹
                                ; (j = i1) → _ , _ , rotIsEquiv (loop i) } )
 
+-- Hopf fibration using more direct definition of the rot equivalence
+HopfS²' : S² → Set
+HopfS²' base = S¹
+HopfS²' (surf i j) = Glue S¹ (λ { (i = i0) → _ , rotLoopEquiv i0
+                                ; (i = i1) → _ , rotLoopEquiv i0
+                                ; (j = i0) → _ , rotLoopEquiv i0
+                                ; (j = i1) → _ , rotLoopEquiv i } )
+
 -- Hopf fibration using suspension of S¹
 HopfSuspS¹ : SuspS¹ → Set
 HopfSuspS¹ north = S¹

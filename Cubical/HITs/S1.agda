@@ -126,3 +126,23 @@ rotIsEquiv base = idIsEquiv S¹
 rotIsEquiv (loop i) = isPropFamS¹ (λ x → isEquiv (rot x))
                                   (λ x → isPropIsEquiv (rot x))
                                   (idIsEquiv _) i
+
+-- more direct definition of the rot (loop i) equivalence
+
+rotLoopInv : (a : S¹) → PathP (λ i → rotLoop (rotLoop a (~ i)) i ≡ a) refl refl
+rotLoopInv a i j =
+  hcomp
+    (λ k → λ {
+      (i = i0) → a;
+      (i = i1) → rotLoop a (j ∧ ~ k);
+      (j = i0) → rotLoop (rotLoop a (~ i)) i;
+      (j = i1) → rotLoop a (i ∧ ~ k)} )
+    (rotLoop (rotLoop a ((~ i) ∨ j)) i)
+
+rotLoopEquiv : (i : I) → S¹ ≃ S¹
+rotLoopEquiv i =
+  isoToEquiv
+    (λ a → rotLoop a i)
+    (λ a → rotLoop a (~ i))
+    (λ a → rotLoopInv a i)
+    (λ a → rotLoopInv a (~ i))
