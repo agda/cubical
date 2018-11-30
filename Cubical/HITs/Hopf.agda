@@ -17,14 +17,13 @@ HopfS² (surf i j) = Glue S¹ (λ { (i = i0) → _ , idEquiv S¹
                                ; (j = i0) → _ , idEquiv S¹
                                ; (j = i1) → _ , _ , rotIsEquiv (loop i) } )
 
--- Alternative version of Hopf inspired from redtt. It seems to
--- compute slower than the one above.
+-- Hopf fibration using more direct definition of the rot equivalence
 HopfS²' : S² → Set
 HopfS²' base = S¹
-HopfS²' (surf i j) = hcomp (λ k → λ { (i = i0) → ua (idEquiv S¹) k
-                                    ; (j = i0) → ua (idEquiv S¹) k
-                                    ; (i = i1) → ua (_ , (rotIsEquiv (loop j))) k
-                                    ; (j = i1) → ua (idEquiv S¹) k }) S¹
+HopfS²' (surf i j) = Glue S¹ (λ { (i = i0) → _ , rotLoopEquiv i0
+                                ; (i = i1) → _ , rotLoopEquiv i0
+                                ; (j = i0) → _ , rotLoopEquiv i0
+                                ; (j = i1) → _ , rotLoopEquiv i } )
 
 -- Hopf fibration using suspension of S¹
 HopfSuspS¹ : SuspS¹ → Set
