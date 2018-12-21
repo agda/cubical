@@ -23,7 +23,7 @@ open import Agda.Builtin.Cubical.Glue public
         ; equivFun      -- ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → A → B
 
         ; equivProof    -- ∀ {la lt} (T : Set la) (A : Set lt) → (w : T ≃ A) → (a : A)
-                           → ∀ ψ → (Partial ψ (fiber (equivFun w) a)) → fiber (equivFun w) a
+                        -- → ∀ ψ → (Partial ψ (fiber (equivFun w) a)) → fiber (equivFun w) a
 
         ; primGlue      -- ∀ {ℓ ℓ'} (A : Set ℓ) {φ : I}
                         -- → (T : Partial φ (Set ℓ')) → (e : PartialP φ (λ o → T o ≃ A))
