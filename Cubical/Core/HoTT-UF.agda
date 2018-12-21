@@ -46,7 +46,7 @@ open import Cubical.Core.Id public
            ; EquivContr     -- A formulation of univalence.
 
            ; ∥_∥             -- Propositional truncation.
-           ; ∣_∣            -- Map into the propositional truncation.
+           ; ∣_∣             -- Map into the propositional truncation.
            ; ∥∥-isProp       -- A truncated type is a proposition.
            ; ∥∥-recursion    -- Non-dependent elimination.
            ; ∥∥-induction    -- Dependent elimination.

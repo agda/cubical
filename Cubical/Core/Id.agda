@@ -16,9 +16,6 @@ This file contains:
 
 - Propositional truncation and its elimination principle
 
-
-It should *not* depend on the Agda standard library.
-
 -}
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Core.Id where

@@ -17,8 +17,6 @@ This file proves a variety of basic results about paths:
 
 - Export natural numbers
 
-It should *not* depend on the Agda standard library.
-
 -}
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Core.Prelude where
@@ -28,11 +26,11 @@ open import Agda.Builtin.Sigma public
 open import Cubical.Core.Primitives public
 
 -- Basic theory about paths. These proofs should typically be
--- inlined. This module also makes equational reasoning work nicely
--- with (non-dependent) paths.
+-- inlined. This module also makes equational reasoning work with
+-- (non-dependent) paths.
 module _ {ℓ} {A : Set ℓ} where
   refl : {x : A} → x ≡ x
-  refl {x = x} = λ _ → x
+  refl {x} = λ _ → x
 
   sym : {x y : A} → x ≡ y → y ≡ x
   sym p = λ i → p (~ i)
@@ -75,10 +73,10 @@ module _ {ℓ ℓ'} {A : Set ℓ} (B : A → Set ℓ') where
   subst p pa = transp (λ i → B (p i)) i0 pa
 
   substRefl : {a : A} (pa : B a) → subst refl pa ≡ pa
-  substRefl {a = a} pa i = transp (λ _ → B a) i pa
+  substRefl {a} pa i = transp (λ _ → B a) i pa
 
   funExt : {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
-  funExt p = λ i x → p x i
+  funExt p i x = p x i
 
 
 -- Transporting in a constant family is the identity function (up to a
@@ -127,7 +125,8 @@ module _ {ℓ} {A : Set ℓ} where
 
 module _ {ℓ} {A : I → Set ℓ} {x : A i0} {y : A i1} where
   toPathP : transp A i0 x ≡ y → PathP A x y
-  toPathP p i = hcomp (λ j → λ { (i = i0) → x ; (i = i1) → p j })
+  toPathP p i = hcomp (λ j → λ { (i = i0) → x
+                               ; (i = i1) → p j })
                       (transp (λ j → A (i ∧ j)) (~ i) x)
 
   fromPathP : PathP A x y → transp A i0 x ≡ y
