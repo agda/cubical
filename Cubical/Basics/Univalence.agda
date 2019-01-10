@@ -5,6 +5,7 @@ various consequences of univalence
 
 - Equivalence induction ([EquivJ])
 - Univalence theorem ([univalence])
+- The computation rule for ua ([uaβ])
 
 -}
 {-# OPTIONS --cubical #-}
@@ -80,3 +81,33 @@ LiftEquiv = isoToEquiv lift lower (λ _ → refl) (λ _ → refl)
 
 univalencePath : ∀ {ℓ} {A B : Set ℓ} → (A ≡ B) ≡ Lift (A ≃ B)
 univalencePath = ua (compEquiv univalence LiftEquiv)
+
+
+-- The computation rule for ua (could be proved a bit more compactly)
+uaβ : ∀ {ℓ} {A B : Set ℓ} (e : A ≃ B) (x : A) → transp (λ i → ua e i) i0 x ≡ e .fst x
+uaβ {B = B} e x =
+  transp (λ i → ua e i) i0 x
+    ≡⟨ refl ⟩
+  hcomp (λ _ → empty)
+        (transp (λ _ → B) i0
+                (hcomp (λ _ → empty)
+                       (transp (λ _ → B) i0 (e .fst x))))
+    ≡⟨ (λ j → hfill (λ _ → empty)
+                    (inc (transp (λ _ → B) i0
+                                 (hcomp (λ _ → empty)
+                                        (transp (λ _ → B) i0 (e .fst x)))))
+                    (~ j)) ⟩
+  transp (λ _ → B) i0
+         (hcomp (λ _ → empty)
+                (transp (λ _ → B) i0 (e .fst x)))
+    ≡⟨ (λ j → transp (λ _ → B) j
+                     (hcomp (λ _ → empty)
+                            (transp (λ i → B) i0 (e .fst x)))) ⟩
+  hcomp (λ _ → empty)
+        (transp (λ _ → B) i0 (e .fst x))
+    ≡⟨ (λ j → hfill (λ _ → empty)
+                    (inc (transp (λ _ → B) i0 (e .fst x)))
+                    (~ j))⟩
+  transp (λ _ → B) i0 (e .fst x)
+    ≡⟨ (λ j → transp (λ _ → B) j (e .fst x)) ⟩
+  e .fst x ∎
