@@ -13,6 +13,7 @@ module Cubical.Basics.NTypes where
 open import Cubical.Core.Everything
 
 open import Cubical.Basics.Empty
+open import Cubical.Basics.Function
 
 isOfHLevel : ∀ {ℓ} → ℕ → Set ℓ → Set ℓ
 isOfHLevel zero A = isContr A
@@ -93,6 +94,15 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} where
   isPropSigma : isProp A → ((x : A) → isProp (B x)) → isProp (Σ[ x ∈ A ] B x)
   isPropSigma pA pB t u = subtypeEquality pB t u (pA (t .fst) (u .fst))
 
+hLevelPi
+  : ∀{ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} n
+  → ((x : A) → isOfHLevel n (B x))
+  → isOfHLevel n ((x : A) → B x)
+hLevelPi 0 h = (λ x → fst (h x)) , λ f i y → snd (h y) (f y) i
+hLevelPi (suc n) h f g = subst (isOfHLevel n) funExtPath sub-lemma
+  where
+  sub-lemma : isOfHLevel n (∀ x → f x ≡ g x)
+  sub-lemma = hLevelPi n λ x → h x (f x) (g x)
 
 -- Proof of Hedberg's theorem:
 -- TODO: upstream
