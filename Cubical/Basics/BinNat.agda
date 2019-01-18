@@ -6,8 +6,150 @@ open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
 open import Cubical.Basics.Nat
+open import Cubical.Basics.Bool
 open import Cubical.Basics.Empty
 open import Cubical.Basics.Equiv
+
+-- Encoding of binary natural numbers inspired by:
+-- https://github.com/RedPRL/redtt/blob/master/library/cool/nats.red
+
+data binnat : Set where
+  zero     : binnat            -- 0
+  consOdd  : binnat → binnat   -- 2^n + 1
+  consEven : binnat → binnat   -- 2^{n+1}
+
+binnat→ℕ : binnat → ℕ
+binnat→ℕ zero         = 0
+binnat→ℕ (consOdd n)  = suc (doubleℕ (binnat→ℕ n))
+binnat→ℕ (consEven n) = suc (suc (doubleℕ (binnat→ℕ n)))
+
+suc-binnat : binnat → binnat
+suc-binnat zero         = consOdd zero
+suc-binnat (consOdd n)  = consEven n
+suc-binnat (consEven n) = consOdd (suc-binnat n)
+
+ℕ→binnat : ℕ → binnat
+ℕ→binnat zero    = zero
+ℕ→binnat (suc n) = suc-binnat (ℕ→binnat n)
+
+binnat→ℕ-suc : (n : binnat) → binnat→ℕ (suc-binnat n) ≡ suc (binnat→ℕ n)
+binnat→ℕ-suc zero         = refl
+binnat→ℕ-suc (consOdd n)  = refl
+binnat→ℕ-suc (consEven n) = λ i → suc (doubleℕ (binnat→ℕ-suc n i))
+
+ℕ→binnat→ℕ : (n : ℕ) → binnat→ℕ (ℕ→binnat n) ≡ n
+ℕ→binnat→ℕ zero    = refl
+ℕ→binnat→ℕ (suc n) = compPath (binnat→ℕ-suc (ℕ→binnat n)) (cong suc (ℕ→binnat→ℕ n))
+
+suc-ℕ→binnat-double : (n : ℕ) → suc-binnat (ℕ→binnat (doubleℕ n)) ≡ consOdd (ℕ→binnat n)
+suc-ℕ→binnat-double zero    = refl
+suc-ℕ→binnat-double (suc n) = λ i → suc-binnat (suc-binnat (suc-ℕ→binnat-double n i))
+
+binnat→ℕ→binnat : (n : binnat) → ℕ→binnat (binnat→ℕ n) ≡ n
+binnat→ℕ→binnat zero        = refl
+binnat→ℕ→binnat (consOdd n) =
+  compPath (suc-ℕ→binnat-double (binnat→ℕ n))
+           (cong consOdd (binnat→ℕ→binnat n))
+binnat→ℕ→binnat (consEven n) =
+  compPath (λ i → suc-binnat (suc-ℕ→binnat-double (binnat→ℕ n) i))
+           (cong consEven (binnat→ℕ→binnat n))
+
+ℕ≃binnat : ℕ ≃ binnat
+ℕ≃binnat = isoToEquiv ℕ→binnat binnat→ℕ binnat→ℕ→binnat ℕ→binnat→ℕ
+
+ℕ≡binnat : ℕ ≡ binnat
+ℕ≡binnat = ua ℕ≃binnat
+
+-- We can transport addition on ℕ to binnat
+_+binnat_ : binnat → binnat → binnat
+_+binnat_ = transp (λ i → ℕ≡binnat i → ℕ≡binnat i → ℕ≡binnat i) i0 _+_
+
+-- TODO: prove   _+binnat_ ≡ _+_
+
+-- Test: 4 + 1 = 5
+_ : consEven (consOdd zero) +binnat consOdd zero ≡ consOdd (consEven zero)
+_ = refl
+
+
+oddbinnat : binnat → Bool
+oddbinnat zero         = false
+oddbinnat (consOdd _)  = true
+oddbinnat (consEven _) = false
+
+oddℕ : ℕ → Bool
+oddℕ = transp (λ i → ℕ≡binnat (~ i) → Bool) i0 oddbinnat
+
+module _ where
+  -- Define what it means to be an interface for naturals
+  record impl (A : Set) : Set where
+    field
+      z : A
+      s : A → A
+
+  implℕ : impl ℕ
+  implℕ = record { z = zero
+                 ; s = suc }
+                 
+  implbinnat : impl binnat
+  implbinnat = record { z = zero
+                      ; s = suc-binnat }
+  
+  -- implℕ≡implbinnat : implℕ ≡ implbinnat
+  -- implℕ≡implbinnat i = record { A = ℕ≡binnat i
+  --                             ; z = transp (λ j → ℕ≡binnat (i ∨ ~ j)) i zero
+  --                             ; s = {!!} }
+  
+  implℕ≡implbinnat : PathP (λ i → impl (ℕ≡binnat i)) implℕ implbinnat
+  implℕ≡implbinnat i = record { z = transp (λ j → ℕ≡binnat (i ∨ ~ j)) i zero
+                              -- This glue trick is very neat!
+                              ; s = λ x → glue (λ { (i = i0) → suc x
+                                                  ; (i = i1) → suc-binnat x })
+                                               (suc-binnat (unglue {φ = i ∨ ~ i} x)) }
+
+{-
+
+def oddq/n≈bn (i : ð) : (n≈bn i) → bool =
+  coe 1 i oddq in λ i → (n≈bn i) → bool
+
+def oddq/nat : nat → bool = oddq/n≈bnoddq/n≈bnddq/n≈bn 0
+
+-- We can also transport proofs *about* these functions.
+
+def oddq/suc : (n : binnat) → path bool (oddq n) (not (oddq (suc/binnat n))) =
+  λ * → refl
+
+def oddq/nat/suc : (n : nat) → path bool (oddq/nat n) (not (oddq/nat (suc n))) =
+  coe 1 0 oddq/suc
+  in λ i → (n : n≈bn i) →
+    path bool (oddq/n≈bn i n) (not (oddq/n≈bn i (impl/n≈bn i .snd.snd n)))
+
+def oddq/nat/direct : nat → bool =
+  elim [
+  | zero → ff
+  | suc (_ → ih) → not ih
+  ]
+
+/- MORTAL
+def oddq/n≈bn : (n : nat) → path bool (oddq/nat n) (oddq/nat/direct n) =
+  let pf : (n : nat) → path _ (suc/binnat (nat→binnat n)) (nat→binnat (suc n)) =
+    λ * → refl
+  in
+  elim [
+  | zero → refl
+  | suc (n → ih) → λ i → not (trans bool (λ i → oddq (pf n i)) ih i)
+  ]
+-/
+-}
+
+
+
+------------------------------------------------------------------------------
+
+-- Alternative version inspired by an old cubicaltt formalization:
+-- https://github.com/mortberg/cubicaltt/blob/master/examples/binnat.ctt
+
+-- This encoding is a lot harder to work with than the one above.
+
 
 -- Positive binary numbers
 data Pos : Set where
@@ -195,54 +337,3 @@ DoubleBinN' = dC Binℕ doubleBinN' (ntoBinN n1024)
 
 -- goal : propDouble DoubleN
 -- goal = propDoubleImpl propBin
-
-
-
--- Different encoding inspired by:
--- https://github.com/RedPRL/redtt/blob/master/library/cool/nats.red
-data binnat : Set where
-  zero     : binnat            -- 0
-  consOdd  : binnat → binnat   -- 2^n + 1
-  consEven : binnat → binnat   -- 2^{n+1}
-
-binnat→ℕ : binnat → ℕ
-binnat→ℕ zero         = 0
-binnat→ℕ (consOdd n)  = suc (doubleℕ (binnat→ℕ n))
-binnat→ℕ (consEven n) = suc (suc (doubleℕ (binnat→ℕ n)))
-
-suc-binnat : binnat → binnat
-suc-binnat zero         = consOdd zero
-suc-binnat (consOdd n)  = consEven n
-suc-binnat (consEven n) = consOdd (suc-binnat n)
-
-ℕ→binnat : ℕ → binnat
-ℕ→binnat zero    = zero
-ℕ→binnat (suc n) = suc-binnat (ℕ→binnat n)
-
-binnat→ℕ-suc : (n : binnat) → binnat→ℕ (suc-binnat n) ≡ suc (binnat→ℕ n)
-binnat→ℕ-suc zero         = refl
-binnat→ℕ-suc (consOdd n)  = refl
-binnat→ℕ-suc (consEven n) = λ i → suc (doubleℕ (binnat→ℕ-suc n i))
-
-ℕ→binnat→ℕ : (n : ℕ) → binnat→ℕ (ℕ→binnat n) ≡ n
-ℕ→binnat→ℕ zero    = refl
-ℕ→binnat→ℕ (suc n) = compPath (binnat→ℕ-suc (ℕ→binnat n)) (cong suc (ℕ→binnat→ℕ n))
-
-suc-ℕ→binnat-double : (n : ℕ) → suc-binnat (ℕ→binnat (doubleℕ n)) ≡ consOdd (ℕ→binnat n)
-suc-ℕ→binnat-double zero    = refl
-suc-ℕ→binnat-double (suc n) = λ i → suc-binnat (suc-binnat (suc-ℕ→binnat-double n i))
-
-binnat→ℕ→binnat : (n : binnat) → ℕ→binnat (binnat→ℕ n) ≡ n
-binnat→ℕ→binnat zero        = refl
-binnat→ℕ→binnat (consOdd n) =
-  compPath (suc-ℕ→binnat-double (binnat→ℕ n))
-           (cong consOdd (binnat→ℕ→binnat n))
-binnat→ℕ→binnat (consEven n) =
-  compPath (λ i → suc-binnat (suc-ℕ→binnat-double (binnat→ℕ n) i))
-           (cong consEven (binnat→ℕ→binnat n))
-
-ℕ≃binnat : ℕ ≃ binnat
-ℕ≃binnat = isoToEquiv ℕ→binnat binnat→ℕ binnat→ℕ→binnat ℕ→binnat→ℕ
-
-ℕ≡binnat : ℕ ≡ binnat
-ℕ≡binnat = isoToPath ℕ→binnat binnat→ℕ binnat→ℕ→binnat ℕ→binnat→ℕ
