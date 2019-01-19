@@ -274,41 +274,46 @@ record Double : Set (ℓ-suc ℓ-zero) where
     elt : carrier
 open Double
 
-DoubleN : Double
-DoubleN = dC ℕ doubleℕ n1024
+private
+  -- 1024 = 2^8 * 2^2 = 2^10
+  n1024 : ℕ
+  n1024 = doublesℕ 8 4
 
-bin1024 : Binℕ
-bin1024 = binℕpos (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 pos1))))))))))
+  DoubleN : Double
+  DoubleN = dC ℕ doubleℕ n1024
 
-DoubleBinN : Double
-DoubleBinN = dC Binℕ doubleBinℕ bin1024
+  bin1024 : Binℕ
+  bin1024 = binℕpos (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 pos1))))))))))
+
+  DoubleBinN : Double
+  DoubleBinN = dC Binℕ doubleBinℕ bin1024
 
 -- Compute: 2^n * x
 doubles : ∀ D → (n : ℕ) → carrier D → carrier D
 doubles D n x = iter n (double D) x
 
--- 2^20 * e = 2^5 * (2^15 * e)
+private
+  -- 2^20 * e = 2^5 * (2^15 * e)
 
-propDouble : Double → Set
-propDouble D = doubles D 20 (elt D) ≡ doubles D 5 (doubles D 15 (elt D))
+  propDouble : Double → Set
+  propDouble D = doubles D 20 (elt D) ≡ doubles D 5 (doubles D 15 (elt D))
 
--- The property we want to prove that takes long to typecheck:
--- 2^10 * 1024 = 2^5 * (2^5 * 1024)
---
--- propN : propDouble DoubleN
--- propN = refl
+  -- The property we want to prove that takes long to typecheck:
+  -- 2^10 * 1024 = 2^5 * (2^5 * 1024)
+  --
+  -- propN : propDouble DoubleN
+  -- propN = refl
 
+  -- With binary numbers it is instant
+  propBin : propDouble DoubleBinN
+  propBin = refl
 
--- With binary numbers it is instant
-propBin : propDouble DoubleBinN
-propBin = refl
+  -- Define intermediate structure:
+  doubleBinN' : Binℕ → Binℕ
+  doubleBinN' b = ntoBinN (doubleℕ (binNtoN b))
 
--- Define intermediate structure:
-doubleBinN' : Binℕ → Binℕ
-doubleBinN' b = ntoBinN (doubleℕ (binNtoN b))
-
-DoubleBinN' : Double
-DoubleBinN' = dC Binℕ doubleBinN' (ntoBinN n1024)
+  DoubleBinN' : Double
+  DoubleBinN' = dC Binℕ doubleBinN' (ntoBinN n1024)
 
 -- eqDouble1 : DoubleN ≡ DoubleBinN'
 -- eqDouble1 = elimIsoInv (λ f g → DoubleN ≡ (dC _ (λ x → f (doubleN (g x))) (f n1024))) refl ntoBinN binNtoN binNtoNK ntoBinNK

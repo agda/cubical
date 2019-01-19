@@ -55,8 +55,7 @@ coherence (negsuc (suc zero)) = refl
 coherence (negsuc (suc (suc n))) = refl
 
 -- Some tests
-module _ where
- private
+private
   one : Int
   one = transp (λ i → sucPathInt i) i0 (pos 0)
 
