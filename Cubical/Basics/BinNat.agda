@@ -264,21 +264,15 @@ doublesBinℕ (suc n) b = doublesBinℕ n (doubleBinℕ b)
 
 
 -- Doubling structure
--- TODO: this could be a record?
-data Double : Set (ℓ-suc ℓ-zero) where
-  dC : (A : Set)           -- carrier
-      → (double : A -> A) -- doubling function computing 2 * x
-      → (elt : A)         -- element to double
-      → Double
-
-carrier : Double -> Set
-carrier (dC c _ _) = c
-
-double : (D : Double) -> (carrier D -> carrier D)
-double (dC _ op _) = op
-
-elt : (D : Double) -> carrier D
-elt (dC _ _ e) = e
+record Double : Set (ℓ-suc ℓ-zero) where
+  constructor dC
+  field
+    carrier : Set
+    -- doubling function computing 2 * x
+    double : carrier -> carrier
+    -- element to double
+    elt : carrier
+open Double
 
 DoubleN : Double
 DoubleN = dC ℕ doubleℕ n1024
