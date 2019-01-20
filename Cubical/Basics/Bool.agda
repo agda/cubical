@@ -27,8 +27,7 @@ notEquiv = not , notIsEquiv
 notEq : Bool ≡ Bool
 notEq = ua notEquiv
 
-module _ where
- private
+private
   -- This computes to false as expected
   nfalse : Bool
   nfalse = transp (λ i → notEq i) i0 true

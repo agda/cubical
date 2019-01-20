@@ -33,9 +33,10 @@ doublesℕ : ℕ → ℕ → ℕ
 doublesℕ 0 m = m
 doublesℕ (suc n) m = doublesℕ n (doubleℕ m)
 
--- 1024 = 2^8 * 2^2 = 2^10
-n1024 : ℕ
-n1024 = doublesℕ 8 4
+private
+  -- 1024 = 2^8 * 2^2 = 2^10
+  n1024 : ℕ
+  n1024 = doublesℕ 8 4
 
 -- iterate
 iter : {A : Set} → ℕ → (A → A) → A → A
