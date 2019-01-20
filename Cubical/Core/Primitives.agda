@@ -146,26 +146,35 @@ private
     ℓ′ : I → Level
 
 -- Homogeneous filling
-hfill : ∀ {A : Set ℓ} {φ : I} (u : ∀ i → Partial φ A)
-          (u0 : A [ φ ↦ u i0 ]) (i : I) → A
+hfill : {A : Set ℓ}
+        {φ : I}
+        (u : ∀ i → Partial φ A)
+        (u0 : A [ φ ↦ u i0 ])
+        -----------------------
+        (i : I) → A
 hfill {φ = φ} u u0 i =
   hcomp (λ j → λ { (φ = i1) → u (i ∧ j) 1=1
                  ; (i = i0) → ouc u0 })
         (ouc u0)
 
 -- Heterogeneous composition defined as in CHM
-comp : ∀ (A : ∀ i → Set (ℓ′ i)) {φ : I}
-         (u : ∀ i → Partial φ (A i))
-         (u0 : A i0 [ φ ↦ u i0 ]) → A i1
+comp : (A : ∀ i → Set (ℓ′ i))
+       {φ : I}
+       (u : ∀ i → Partial φ (A i))
+       (u0 : A i0 [ φ ↦ u i0 ])
+     → ---------------------------
+       A i1
 comp A {φ = φ} u u0 =
   hcomp (λ i → λ { (φ = i1) → transp (λ j → A (i ∨ j)) i (u _ 1=1) })
         (transp A i0 (ouc u0))
 
 -- Heterogeneous filling defined using comp
-fill : ∀ (A : ∀ i → Set (ℓ′ i)) {φ : I}
-         (u : ∀ i → Partial φ (A i))
-         (u0 : A i0 [ φ ↦ u i0 ]) →
-         ∀ i →  A i
+fill : (A : ∀ i → Set (ℓ′ i))
+       {φ : I}
+       (u : ∀ i → Partial φ (A i))
+       (u0 : A i0 [ φ ↦ u i0 ])
+       ---------------------------
+       (i : I) → A i
 fill A {φ = φ} u u0 i =
   comp (λ j → A (i ∧ j))
        (λ j → λ { (φ = i1) → u (i ∧ j) 1=1
@@ -174,8 +183,10 @@ fill A {φ = φ} u u0 i =
 
 -- Direct definition of transport filler, note that we have to
 -- explicitly tell Agda that the type is constant (like in CHM)
-transpFill : ∀ {A : Set ℓ} (φ : I)
-               (A : (i : I) → Set ℓ [ φ ↦ (λ _ → A) ]) →
-               (u0 : ouc (A i0)) →
-               PathP (λ i → ouc (A i)) u0 (transp (λ i → ouc (A i)) φ u0)
+transpFill : {A : Set ℓ}
+             (φ : I)
+             (A : (i : I) → Set ℓ [ φ ↦ (λ _ → A) ])
+             (u0 : ouc (A i0))
+           → --------------------------------------
+             PathP (λ i → ouc (A i)) u0 (transp (λ i → ouc (A i)) φ u0)
 transpFill φ A u0 i = transp (λ j → ouc (A (i ∧ j))) (~ i ∨ φ) u0

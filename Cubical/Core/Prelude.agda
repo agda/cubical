@@ -53,42 +53,31 @@ compPath {x = x} p q i =
   hcomp (λ j → \ { (i = i0) → x
                  ; (i = i1) → q j }) (p i)
 
-infix  3 _≡-qed _∎
-infixr 2 _≡⟨⟩_ _≡⟨_⟩_
-infix  1 ≡-proof_ begin_
-
-≡-proof_ begin_ : x ≡ y → x ≡ y
-≡-proof x≡y = x≡y
-begin_ = ≡-proof_
-
-_≡⟨⟩_ : (x : A) → x ≡ y → x ≡ y
-_ ≡⟨⟩ x≡y = x≡y
+infix  3 _∎
+infixr 2 _≡⟨_⟩_
 
 _≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → x ≡ z
 _ ≡⟨ x≡y ⟩ y≡z = compPath x≡y y≡z
 
-_≡-qed _∎ : (x : A) → x ≡ x
-_ ≡-qed  = refl
-_∎ = _≡-qed
+_∎ : (x : A) → x ≡ x
+_ ∎ = refl
 
 -- Subst and functional extensionality
 
-module _ (B : A → Set ℓ') where
+-- We want B to be explicit in subst
+subst : (B : A → Set ℓ') (p : x ≡ y) → B x → B y
+subst B p pa = transp (λ i → B (p i)) i0 pa
 
-  subst : (p : x ≡ y) → B x → B y
-  subst p pa = transp (λ i → B (p i)) i0 pa
-
-  substRefl : (px : B x) → subst refl px ≡ px
-  substRefl {x = x} px i = transp (λ _ → B x) i px
+substRefl : (B : A → Set ℓ') (px : B x) → subst B refl px ≡ px
+substRefl {x = x} B px i = transp (λ _ → B x) i px
 
 funExt : {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
 funExt p i x = p x i
 
 -- Transporting in a constant family is the identity function (up to a
 -- path). If we would have regularity this would be definitional.
-transpRefl : (A : Set ℓ) (u0 : A) →
-             PathP (λ _ → A) (transp (λ _ → A) i0 u0) u0
-transpRefl A u0 i = transp (λ _ → A) i u0
+transpRefl : (x : A) → transp (λ _ → A) i0 x ≡ x
+transpRefl {A = A} x i = transp (λ _ → A) i x
 
 
 -- J for paths and its computation rule

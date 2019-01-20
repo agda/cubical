@@ -36,7 +36,7 @@ open import Agda.Builtin.Cubical.Id public
   hiding ( primIdJ ) -- this should not be used as it is using compCCHM
 open import Cubical.Core.Primitives public  hiding ( _≡_ )
 open import Cubical.Core.Prelude public
-  hiding ( _≡_ ; ≡-proof_ ; begin_ ; _≡⟨⟩_ ; _≡⟨_⟩_ ; _≡-qed ; _∎ )
+  hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ )
   renaming ( refl    to reflPath
            ; J       to JPath
            ; JRefl   to JPathRefl
@@ -63,14 +63,13 @@ open import Cubical.Core.PropositionalTruncation public
            ; elimPropTrunc to elimPropTruncPath )
 
 {- BUILTIN ID Id -}
+_≡_ : ∀ {ℓ} {A : Set ℓ} → A → A → Set ℓ
+_≡_ = Id
 
 private
   variable
     ℓ ℓ' : Level
     A : Set ℓ
-
-_≡_ : ∀ {A : Set ℓ} → A → A → Set ℓ
-_≡_ = Id
 
 -- Version of the constructor for Id where the y is also
 -- explicit. This is sometimes useful when it is needed for
@@ -119,7 +118,7 @@ _≡⟨_⟩_ : (x : A) {y z : A} → x ≡ y → y ≡ z → x ≡ z
 _ ≡⟨ p ⟩ q = p ∙ q
 
 _∎ : (x : A) → x ≡ x
-_∎ _ = refl
+_ ∎ = refl
 
 -- Convert between Path and Id
 pathToId : ∀ {x y : A} → Path _ x y → Id x y

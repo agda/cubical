@@ -3,7 +3,7 @@ module Cubical.Basics.UnivalenceId where
 
 open import Cubical.Core.Primitives public  hiding ( _≡_ )
 open import Cubical.Core.Prelude public
-  hiding ( _≡_ ; ≡-proof_ ; begin_ ; _≡⟨⟩_ ; _≡⟨_⟩_ ; _≡-qed ; _∎ )
+  hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ )
 open import Cubical.Core.Glue
   renaming ( fiber        to fiberPath
            ; isEquiv      to isEquivPath
