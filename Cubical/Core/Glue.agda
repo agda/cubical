@@ -45,44 +45,48 @@ open import Agda.Builtin.Cubical.Glue public
 
 open isEquiv public
 
-fiber : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → Set (ℓ-max ℓ ℓ')
+private
+  variable
+    ℓ ℓ' : Level
+
+fiber : ∀ {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → Set (ℓ-max ℓ ℓ')
 fiber {A = A} f y = Σ[ x ∈ A ] f x ≡ y
 
-equivIsEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) → isEquiv (equivFun e)
+equivIsEquiv : ∀ {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) → isEquiv (equivFun e)
 equivIsEquiv e = snd e
 
-equivCtr : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) (y : B) → fiber (equivFun e) y
+equivCtr : ∀ {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) (y : B) → fiber (equivFun e) y
 equivCtr e y = e .snd .equiv-proof y .fst
 
-equivCtrPath : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) (y : B) →
+equivCtrPath : ∀ {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) (y : B) →
   (v : fiber (equivFun e) y) → Path _ (equivCtr e y) v
 equivCtrPath e y = e .snd .equiv-proof y .snd
 
 
 -- We uncurry Glue to make it a bit more pleasant to use
-Glue : ∀ {ℓ ℓ'} (A : Set ℓ) {φ : I}
+Glue : ∀ (A : Set ℓ) {φ : I}
        → (Te : Partial φ (Σ[ T ∈ Set ℓ' ] T ≃ A))
        → Set ℓ'
 Glue A Te = primGlue A (λ x → Te x .fst) (λ x → Te x .snd)
 
 
 -- The identity equivalence
-idIsEquiv : ∀ {ℓ} → (A : Set ℓ) → isEquiv (λ (a : A) → a)
+idIsEquiv : ∀ (A : Set ℓ) → isEquiv (λ (a : A) → a)
 equiv-proof (idIsEquiv A) y = (y , refl) , λ z i → z .snd (~ i) , λ j → z .snd (~ i ∨ j)
 
-idEquiv : ∀ {ℓ} → (A : Set ℓ) → A ≃ A
+idEquiv : ∀ (A : Set ℓ) → A ≃ A
 idEquiv A = (λ a → a) , idIsEquiv A
 
 -- The ua constant
-ua : ∀ {ℓ} {A B : Set ℓ} → A ≃ B → A ≡ B
-ua {_} {A} {B} e i =
+ua : ∀ {A B : Set ℓ} → A ≃ B → A ≡ B
+ua {A = A} {B = B} e i =
   Glue B (λ { (i = i0) → (A , e)
             ; (i = i1) → (B , idEquiv B) })
 
 -- Proof of univalence using that unglue is an equivalence:
 
 -- unglue is an equivalence
-unglueIsEquiv : ∀ {ℓ} (A : Set ℓ) (φ : I)
+unglueIsEquiv : ∀ (A : Set ℓ) (φ : I)
                 (f : PartialP φ (λ o → Σ[ T ∈ Set ℓ ] T ≃ A)) →
                 isEquiv {A = Glue A f} (unglue {φ = φ})
 equiv-proof (unglueIsEquiv A φ f) = λ (b : A) →
@@ -102,7 +106,7 @@ equiv-proof (unglueIsEquiv A φ f) = λ (b : A) →
 
 -- Any partial family of equivalences can be extended to a total one
 -- from Glue [ φ ↦ (T,f) ] A to A
-unglueEquiv : ∀ {ℓ} (A : Set ℓ) (φ : I)
+unglueEquiv : ∀ (A : Set ℓ) (φ : I)
               (f : PartialP φ (λ o → Σ[ T ∈ Set ℓ ] T ≃ A)) →
               (Glue A f) ≃ A
 unglueEquiv A φ f = ( unglue {φ = φ} , unglueIsEquiv A φ f )
@@ -117,8 +121,8 @@ unglueEquiv A φ f = ( unglue {φ = φ} , unglueIsEquiv A φ f )
 -- unglue is an equivalence. The standard formulation can be found in
 -- Cubical/Basics/Univalence.
 --
-EquivContr : ∀ {ℓ} (A : Set ℓ) → isContr (Σ[ T ∈ Set ℓ ] T ≃ A)
-EquivContr {ℓ} A =
+EquivContr : ∀ (A : Set ℓ) → isContr (Σ[ T ∈ Set ℓ ] T ≃ A)
+EquivContr {ℓ = ℓ} A =
   ( ( A , idEquiv A)
   , λ w i → let f : PartialP (~ i ∨ i) (λ x → Σ[ T ∈ Set ℓ ] T ≃ A)
                 f = λ { (i = i0) → A , idEquiv A ; (i = i1) → w }

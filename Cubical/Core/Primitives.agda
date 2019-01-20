@@ -140,9 +140,13 @@ ouc = primSubOut
 -- When calling "hcomp A φ u a" Agda makes sure that "a" agrees with "u i0" on "φ".
 -- hcomp : ∀ {ℓ} {A : Set ℓ} {φ : I} (u : I → Partial A φ) (a : A) → A
 
+private
+  variable
+    ℓ  : Level
+    ℓ′ : I → Level
+
 -- Homogeneous filling
-hfill : ∀ {ℓ} {A : Set ℓ} {φ : I}
-          (u : ∀ i → Partial φ A)
+hfill : ∀ {A : Set ℓ} {φ : I} (u : ∀ i → Partial φ A)
           (u0 : A [ φ ↦ u i0 ]) (i : I) → A
 hfill {φ = φ} u u0 i =
   hcomp (λ j → λ { (φ = i1) → u (i ∧ j) 1=1
@@ -150,7 +154,7 @@ hfill {φ = φ} u u0 i =
         (ouc u0)
 
 -- Heterogeneous composition defined as in CHM
-comp : ∀ {ℓ : I → Level} (A : ∀ i → Set (ℓ i)) {φ : I}
+comp : ∀ (A : ∀ i → Set (ℓ′ i)) {φ : I}
          (u : ∀ i → Partial φ (A i))
          (u0 : A i0 [ φ ↦ u i0 ]) → A i1
 comp A {φ = φ} u u0 =
@@ -158,7 +162,7 @@ comp A {φ = φ} u u0 =
         (transp A i0 (ouc u0))
 
 -- Heterogeneous filling defined using comp
-fill : ∀ {ℓ : I → Level} (A : ∀ i → Set (ℓ i)) {φ : I}
+fill : ∀ (A : ∀ i → Set (ℓ′ i)) {φ : I}
          (u : ∀ i → Partial φ (A i))
          (u0 : A i0 [ φ ↦ u i0 ]) →
          ∀ i →  A i
@@ -170,8 +174,8 @@ fill A {φ = φ} u u0 i =
 
 -- Direct definition of transport filler, note that we have to
 -- explicitly tell Agda that the type is constant (like in CHM)
-transpFill : ∀ {ℓ} {A' : Set ℓ} (φ : I)
-               (A : (i : I) → Set ℓ [ φ ↦ (λ _ → A') ]) →
+transpFill : ∀ {A : Set ℓ} (φ : I)
+               (A : (i : I) → Set ℓ [ φ ↦ (λ _ → A) ]) →
                (u0 : ouc (A i0)) →
                PathP (λ i → ouc (A i)) u0 (transp (λ i → ouc (A i)) φ u0)
 transpFill φ A u0 i = transp (λ j → ouc (A (i ∧ j))) (~ i ∨ φ) u0
