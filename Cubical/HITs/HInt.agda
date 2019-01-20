@@ -24,7 +24,7 @@ data ℤ : Set where
   sucpred : (n : ℤ) → suc (pred n) ≡ n
   predsuc : (n : ℤ) → pred (suc n) ≡ n
   -- Coherence: could also be written "sucpred (suc n) ≡ cong (suc (predsuc n))"
-  coh     : (n : ℤ) → Path (Path ℤ (suc (pred (suc n))) (suc n))
+  coh     : (n : ℤ) → Path (suc (pred (suc n)) ≡ suc n)
                            (sucpred (suc n))
                            (λ i → suc (predsuc n i))
 
@@ -60,7 +60,7 @@ lem2 (pos zero) = refl
 lem2 (pos (suc n)) = sym (predsuc (ℕ→ℤ n))
 lem2 (negsuc n) = refl
 
-ℤ→Int→ℤ : ∀ (n : ℤ) → Path ℤ (Int→ℤ (ℤ→Int n)) n
+ℤ→Int→ℤ : ∀ (n : ℤ) → Int→ℤ (ℤ→Int n) ≡ n
 ℤ→Int→ℤ zero = refl
 ℤ→Int→ℤ (suc n) = compPath (lem1 (ℤ→Int n)) (cong suc (ℤ→Int→ℤ n))
 ℤ→Int→ℤ (pred n) = compPath (lem2 (ℤ→Int n)) (cong pred (ℤ→Int→ℤ n))
@@ -124,7 +124,7 @@ isSetℤ = subst isSet Int≡ℤ isSetInt
 -- predℤ (pred n) = pred (pred n)
 -- predℤ (sucpred n i) = {!!}
 -- predℤ (predsuc n j) = {!!}
--- predℤ (coh n k l) = isSetℤ {!n!} n {!!} {!!} k l
+-- predℤ (coh n k l) = isSetℤ (pred (suc n)) n (predsuc n) (predsuc n) k l
 
 -- predSucℤ : ∀ n → predℤ (suc n) ≡ n
 -- predSucℤ n = refl
