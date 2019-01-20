@@ -17,6 +17,7 @@ excludedModules = map toAgdaFilePath
   [ "Cubical.HITs.HInt"
   , "Cubical.HITs.HitInt"
   , "Cubical.HITs.Everything"
+  , "Cubical.HITs.SmashProduct"
   , "Cubical.Basics.Everything"
   ] where
 

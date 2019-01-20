@@ -4,4 +4,4 @@
 -- All library modules, along with short descriptions
 ------------------------------------------------------------------------
 
--{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --safe #-}
