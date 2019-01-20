@@ -68,7 +68,6 @@ private
   variable
     ℓ ℓ' : Level
     A : Set ℓ
-    x y z : A
 
 _≡_ : ∀ {A : Set ℓ} → A → A → Set ℓ
 _≡_ = Id
@@ -76,18 +75,18 @@ _≡_ = Id
 -- Version of the constructor for Id where the y is also
 -- explicit. This is sometimes useful when it is needed for
 -- typechecking (see JId below).
-conId : ∀ φ (y : A [ φ ↦ (λ _ → x) ])
+conId : ∀ {x : A} φ (y : A [ φ ↦ (λ _ → x) ])
           (w : (Path _ x (ouc y)) [ φ ↦ (λ { (φ = i1) → λ _ → x}) ]) →
           x ≡ ouc y
 conId φ _ w = ⟨ φ , ouc w ⟩
 
 -- Reflexivity
-refl : x ≡ x
+refl : ∀ {x : A} → x ≡ x
 refl {x = x} = ⟨ i1 , (λ _ → x) ⟩
 
 
 -- Definition of J for Id
-module _ (P : ∀ (y : A) → Id x y → Set ℓ') (d : P x refl) where
+module _ {x : A} (P : ∀ (y : A) → Id x y → Set ℓ') (d : P x refl) where
   J : ∀ {y : A} (w : x ≡ y) → P y w
   J {y = y} = elimId P (λ φ y w → comp (λ i → P _ (conId (φ ∨ ~ i) (inc (ouc w i))
                                                                    (inc (λ j → ouc w (i ∧ j)))))
@@ -103,7 +102,7 @@ transport : ∀ (B : A → Set ℓ') {x y : A}
            → x ≡ y → B x → B y
 transport B {x} p b = J (λ y p → B y) b p
 
-_⁻¹ : x ≡ y → y ≡ x
+_⁻¹ : {x y : A} → x ≡ y → y ≡ x
 _⁻¹ {x = x} p = J (λ z _ → z ≡ x) refl p
 
 ap : ∀ {B : Set ℓ'} (f : A → B) → ∀ {x y : A} → x ≡ y → f x ≡ f y
@@ -123,23 +122,23 @@ _∎ : (x : A) → x ≡ x
 _∎ _ = refl
 
 -- Convert between Path and Id
-pathToId : Path _ x y → Id x y
+pathToId : ∀ {x y : A} → Path _ x y → Id x y
 pathToId {x = x} = JPath (λ y _ → Id x y) refl
 
-pathToIdRefl : Path _ (pathToId (λ _ → x)) refl
+pathToIdRefl : ∀ {x : A} → Path _ (pathToId (λ _ → x)) refl
 pathToIdRefl {x = x} = JPathRefl (λ y _ → Id x y) refl
 
-idToPath : Id x y → Path _ x y
+idToPath : ∀ {x y : A} → Id x y → Path _ x y
 idToPath {x = x} = J (λ y _ → Path _ x y) (λ _ → x)
 
-idToPathRefl : Path _ (idToPath {x = x} refl) reflPath
+idToPathRefl : ∀ {x : A} → Path _ (idToPath {x = x} refl) reflPath
 idToPathRefl {x = x} _ _ = x
 
-pathToIdToPath : ∀ (p : Path _ x y) → Path _ (idToPath (pathToId p)) p
+pathToIdToPath : ∀ {x y : A} → (p : Path _ x y) → Path _ (idToPath (pathToId p)) p
 pathToIdToPath {x = x} = JPath (λ y p → Path _ (idToPath (pathToId p)) p)
                                (λ i → idToPath (pathToIdRefl i))
 
-idToPathToId : ∀ (p : Id x y) → Path _ (pathToId (idToPath p)) p
+idToPathToId : ∀ {x y : A} → (p : Id x y) → Path _ (pathToId (idToPath p)) p
 idToPathToId {x = x} = J (λ b p → Path _ (pathToId (idToPath p)) p) pathToIdRefl
 
 

@@ -144,12 +144,10 @@ private
   variable
     ℓ  : Level
     ℓ′ : I → Level
-    A′ : Set ℓ
-    φ : I
 
 -- Homogeneous filling
-hfill : ∀ (u : ∀ i → Partial φ A′)
-          (u0 : A′ [ φ ↦ u i0 ]) (i : I) → A′
+hfill : ∀ {A : Set ℓ} {φ : I} (u : ∀ i → Partial φ A)
+          (u0 : A [ φ ↦ u i0 ]) (i : I) → A
 hfill {φ = φ} u u0 i =
   hcomp (λ j → λ { (φ = i1) → u (i ∧ j) 1=1
                  ; (i = i0) → ouc u0 })
@@ -176,8 +174,8 @@ fill A {φ = φ} u u0 i =
 
 -- Direct definition of transport filler, note that we have to
 -- explicitly tell Agda that the type is constant (like in CHM)
-transpFill : ∀ (φ : I)
-               (A : (i : I) → Set ℓ [ φ ↦ (λ _ → A′) ]) →
+transpFill : ∀ {A : Set ℓ} (φ : I)
+               (A : (i : I) → Set ℓ [ φ ↦ (λ _ → A) ]) →
                (u0 : ouc (A i0)) →
                PathP (λ i → ouc (A i)) u0 (transp (λ i → ouc (A i)) φ u0)
 transpFill φ A u0 i = transp (λ j → ouc (A (i ∧ j))) (~ i ∨ φ) u0

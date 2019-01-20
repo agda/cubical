@@ -48,19 +48,17 @@ open isEquiv public
 private
   variable
     ℓ ℓ' : Level
-    A : Set ℓ
-    B : Set ℓ'
 
 fiber : ∀ {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → Set (ℓ-max ℓ ℓ')
 fiber {A = A} f y = Σ[ x ∈ A ] f x ≡ y
 
-equivIsEquiv : ∀ (e : A ≃ B) → isEquiv (equivFun e)
+equivIsEquiv : ∀ {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) → isEquiv (equivFun e)
 equivIsEquiv e = snd e
 
-equivCtr : ∀ (e : A ≃ B) (y : B) → fiber (equivFun e) y
+equivCtr : ∀ {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) (y : B) → fiber (equivFun e) y
 equivCtr e y = e .snd .equiv-proof y .fst
 
-equivCtrPath : ∀ (e : A ≃ B) (y : B) →
+equivCtrPath : ∀ {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) (y : B) →
   (v : fiber (equivFun e) y) → Path _ (equivCtr e y) v
 equivCtrPath e y = e .snd .equiv-proof y .snd
 
