@@ -5,9 +5,20 @@ idea due to Paolo Capriotti):
 
 http://www.cs.nott.ac.uk/~psztxa/talks/bonn18.pdf
 
+Disclaimer: this definition is very hard to work with and I have not
+been able to prove that it is equivalent to nat + nat or that it is a
+set.
+
+For a variation that relies on a different notion of equivalence
+(without any 2-cell) and which seems easier to work with see:
+
+https://github.com/RedPRL/redtt/blob/master/library/cool/biinv-int.red
+
+It might be interesting to port that example one day. 
+
 -}
 {-# OPTIONS --cubical #-}
-module Cubical.HITs.HInt where
+module Cubical.Experiments.HInt where
 
 open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
@@ -60,6 +71,7 @@ lem2 (pos zero) = refl
 lem2 (pos (suc n)) = sym (predsuc (ℕ→ℤ n))
 lem2 (negsuc n) = refl
 
+-- I don't see how to fill these holes, especially the last one
 ℤ→Int→ℤ : ∀ (n : ℤ) → Int→ℤ (ℤ→Int n) ≡ n
 ℤ→Int→ℤ zero = refl
 ℤ→Int→ℤ (suc n) = compPath (lem1 (ℤ→Int n)) (cong suc (ℤ→Int→ℤ n))
@@ -79,72 +91,3 @@ Int≡ℤ = isoToPath Int→ℤ ℤ→Int ℤ→Int→ℤ Int→ℤ→Int
 
 isSetℤ : isSet ℤ
 isSetℤ = subst isSet Int≡ℤ isSetInt 
-
-
-
-
-
-
--- random stuff below:
-
--- foo : ∀ (a b : ℤ) → ℤ→Int a ≡ ℤ→Int b → a ≡ b
--- foo a b h = {!!}
--- -- subst T h refl
--- --   where
--- --   T : Int → Set
--- --   T (pos x)    = a ≡ x
--- --   T (negsuc _) = ⊥
-
-
--- discreteℤ : discrete ℤ
--- discreteℤ x y with discreteInt (ℤ→Int x) (ℤ→Int y)
--- ... | inl p = inl (foo _ _ p)
--- ... | inr p = inr (λ q → p (cong ℤ→Int q))
-
-
--- discreteInt (pos n) (pos m) with discreteℕ n m
--- ... | inl p = inl (cong pos p)
--- ... | inr p = inr (λ x → p (injPos x))
--- discreteInt (pos n) (negsuc m) = inr (posNotnegsuc n m)
--- discreteInt (negsuc n) (pos m) = inr (negsucNotpos n m)
--- discreteInt (negsuc n) (negsuc m) with discreteℕ n m
--- ... | inl p = inl (cong negsuc p)
--- ... | inr p = inr (λ x → p (injNegsuc x))
-
--- isSetInt : isSet Int
--- isSetInt = discrete→isSet discreteInt
-
-
-
--- We should now be able to define a predecessor that computes nicely
-
--- predℤ : ℤ → ℤ
--- predℤ zero = pred zero
--- predℤ (suc n) = n
--- predℤ (pred n) = pred (pred n)
--- predℤ (sucpred n i) = {!!}
--- predℤ (predsuc n j) = {!!}
--- predℤ (coh n k l) = isSetℤ (pred (suc n)) n (predsuc n) (predsuc n) k l
-
--- predSucℤ : ∀ n → predℤ (suc n) ≡ n
--- predSucℤ n = refl
-
--- sucPredℤ : ∀ (n : ℤ) → suc (predℤ n) ≡ n
--- sucPredℤ zero = sucpred zero
--- sucPredℤ (suc n) = refl
--- sucPredℤ (pred n) = sucpred (pred n)
--- sucPredℤ (sucpred n i) = {!!}
--- sucPredℤ (predsuc n i) = {!!}
--- sucPredℤ (coh n i j) = {!!}
-
-
--- This definition amounts to saying that suc is an equivalence. Can
--- we set it up so that the coherence is exactly what we need?
--- isEquivSuc : isEquiv suc
--- isEquivSuc .equiv-proof y =
---  let ctr : fiber suc y
---      ctr = (pred y , sym (sucpred y))
---      prf : (f : fiber suc y) → ctr ≡ f
---      prf f i = compPath (cong pred (f .snd)) (predsuc (f .fst)) i
---              , {!!}
---  in ctr , prf
