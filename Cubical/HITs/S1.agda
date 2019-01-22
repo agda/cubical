@@ -3,7 +3,7 @@
 Definition of the circle as a HIT with a proof that Ω(S¹) ≡ ℤ
 
 -}
-{-# OPTIONS --cubical --rewriting #-}
+{-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.S1 where
 
 open import Cubical.Core.Primitives
@@ -46,13 +46,6 @@ intLoop (pos (suc n))    = compPath (intLoop (pos n)) loop
 intLoop (negsuc zero)    = sym loop
 intLoop (negsuc (suc n)) = compPath (intLoop (negsuc n)) (sym loop)
 
--- This proof currently relies on rewriting hcomp with empty systems in Int to the base
-windingIntLoop : (n : Int) → winding (intLoop n) ≡ n
-windingIntLoop (pos zero)       = refl
-windingIntLoop (pos (suc n))    = λ i → sucInt (windingIntLoop (pos n) i)
-windingIntLoop (negsuc zero)    = refl
-windingIntLoop (negsuc (suc n)) = λ i → predInt (windingIntLoop (negsuc n) i)
-
 decodeSquare : (n : Int) → PathP (λ i → base ≡ loop i) (intLoop (predInt n)) (intLoop n)
 decodeSquare (pos zero) i j    = loop (i ∨ ~ j)
 decodeSquare (pos (suc n)) i j = hfill (λ k → λ { (j = i0) → base
@@ -76,9 +69,6 @@ decode (loop i) y j =
 
 decodeEncode : (x : S¹) (p : base ≡ x) → decode x (encode x p) ≡ p
 decodeEncode x p = J (λ y q → decode y (encode y q) ≡ q) (λ x → refl) p
-
-ΩS¹≡Int : ΩS¹ ≡ Int
-ΩS¹≡Int = isoToPath winding (decode base) windingIntLoop (decodeEncode base)
 
 isSetΩS¹ : isSet ΩS¹
 isSetΩS¹ p q r s j i =
