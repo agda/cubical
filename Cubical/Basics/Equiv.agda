@@ -7,7 +7,7 @@ Theory about equivalences (definitions are in Core/Glue.agda)
 - Equivalence induction ([EquivJ])
 
 -}
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 module Cubical.Basics.Equiv where
 
 open import Cubical.Core.Everything

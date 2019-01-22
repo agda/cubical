@@ -8,7 +8,7 @@ various consequences of univalence
 - The computation rule for ua ([uaβ])
 
 -}
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 module Cubical.Basics.Univalence where
 
 open import Cubical.Core.Everything

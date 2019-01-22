@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --rewriting #-}
+{-# OPTIONS --cubical --safe #-}
 module Cubical.Basics.Int where
 
 open import Cubical.Core.Primitives
@@ -67,15 +67,6 @@ private
 
   minusonepath : minusone ≡ negsuc 0
   minusonepath = refl
-
-
--- The following should be removed once we have ghcomp and no empty systems!
-{-# BUILTIN REWRITE _≡_ #-}
-
-hcompIntEmpty : (n : Int) → hcomp (λ _ → empty) n ≡ n
-hcompIntEmpty n i = hfill (λ _ → empty) (inc n) (~ i)
-
-{-# REWRITE hcompIntEmpty #-}
 
 injPos : ∀ {a b : ℕ} → pos a ≡ pos b → a ≡ b
 injPos {a} h = subst T h refl

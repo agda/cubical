@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-exact-split #-}
+{-# OPTIONS --cubical --no-exact-split --safe #-}
 module Cubical.Basics.BinNat where
 
 open import Cubical.Core.Primitives

@@ -7,7 +7,7 @@ Basic theory about NTypes:
 - Hedberg's theorem: any type with decidable equality is a set
 
 -}
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 module Cubical.Basics.NTypes where
 
 open import Cubical.Core.Everything
