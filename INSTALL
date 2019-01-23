@@ -80,9 +80,11 @@ works in emacs run
 and then type C-c C-l. This should now load the file and you can start
 developing your own cubical files.
 
-You can also register cubical as a library to depend on it in your own Agda developments:
+You can also register cubical as a library to depend on it in your own
+Agda developments:
 
 https://agda.readthedocs.io/en/latest/tools/package-system.html
+
 
 stack install instructions
 ==========================
@@ -138,3 +140,8 @@ works in emacs run
 
 and then type C-c C-l. This should now load the file and you can start
 developing your own cubical files.
+
+You can also register cubical as a library to depend on it in your own
+Agda developments:
+
+https://agda.readthedocs.io/en/latest/tools/package-system.html
