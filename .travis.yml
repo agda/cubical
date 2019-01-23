@@ -38,12 +38,13 @@ install:
   - cabal install --only-dependencies --dry -v > $HOME/installplan.txt
   - sed -i -e '1,/^Resolving /d' $HOME/installplan.txt; cat $HOME/installplan.txt
   - touch $HOME/.cabsnap/installplan.txt
-  - mkdir -p $HOME/.cabsnap/ghc $HOME/.cabsnap/lib $HOME/.cabsnap/share $HOME/.cabsnap/bin
+  - mkdir -p $HOME/.cabsnap/ghc $HOME/.cabsnap/lib $HOME/.cabsnap/share $HOME/.cabsnap/bin $HOME/.cabsnap/dist
   - if diff -u $HOME/.cabsnap/installplan.txt $HOME/installplan.txt;
     then
       echo "cabal build-cache HIT";
       rm -rfv .ghc;
       cp -a $HOME/.cabsnap/ghc $HOME/.ghc;
+      cp -a $HOME/.cabsnap/dist ./dist;
       cp -a $HOME/.cabsnap/lib $HOME/.cabsnap/share $HOME/.cabsnap/bin $HOME/.cabal/;
     else
       echo "cabal build-cache MISS";
@@ -51,12 +52,13 @@ install:
       mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin;
     fi
   - cabal install
-  - cd -
   # snapshot package-db on cache miss
   - echo "snapshotting package-db to build-cache";
     mkdir $HOME/.cabsnap;
     cp -a $HOME/.ghc $HOME/.cabsnap/ghc;
+    cp -a ./dist $HOME/.cabsnap/dist;
     cp -a $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin $HOME/installplan.txt $HOME/.cabsnap/;
+  - cd -
 
 script:
   - make
