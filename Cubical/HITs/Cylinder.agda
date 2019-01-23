@@ -1,10 +1,10 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 
 module Cubical.HITs.Cylinder where
 
 open import Cubical.Core.Everything
 
-import Cubical.Basics.Everything as Basics
+import Cubical.Basics.EverythingSafe as Basics
 open Basics hiding (inl; inr)
 
 open import Cubical.HITs.Interval
