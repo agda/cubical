@@ -4,8 +4,6 @@ branches:
   - master
   - travis
 
-sudo: enabled
-
 dist: trusty
 
 cache:
