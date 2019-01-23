@@ -1,6 +1,8 @@
 An experimental library for Cubical Agda
 ========================================
 
+[![Build Status](https://travis-ci.org/agda/cubical.svg?branch=master)](https://travis-ci.org/agda/cubical)
+
 This library compiles with the master branch of the development
 version of Agda. For detailed install instructions see the INSTALL
 file.
