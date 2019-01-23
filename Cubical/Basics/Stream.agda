@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --guardedness #-}
+{-# OPTIONS --cubical --safe --guardedness #-}
 
 module Cubical.Basics.Stream where
 
