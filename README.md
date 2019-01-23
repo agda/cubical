@@ -1,19 +1,13 @@
 An experimental library for Cubical Agda
 ========================================
 
-This library compiles with the master branch of Agda. To install Agda in
-a cabal sandbox do:
+This library compiles with the master branch of the development
+version of Agda. For detailed install instructions see the INSTALL
+file.
 
 
-```
-git clone https://github.com/agda/agda
-cd agda
-cabal sandbox init
-cabal install
-```
-
-The type theory that it implements is a variation of the cubical type
-theory of:
+The type theory that Cubical Agda implements is a variation of the
+cubical type theory of:
 
 [Cubical Type Theory: a constructive interpretation of the univalence
 axiom](https://arxiv.org/abs/1611.02108) - Cyril Cohen, Thierry
@@ -26,9 +20,10 @@ in:
 
 [On Higher Inductive Types in Cubical Type
 Theory](https://arxiv.org/abs/1802.01170) - Thierry Coquand, Simon
-Huber, Anders Mörtberg
+Huber, Anders Mörtberg.
 
 This makes it possible to directly represent higher inductive types.
+
 
 The library is divided into:
 
@@ -38,6 +33,10 @@ The library is divided into:
   results about equivalences...). This folder does not contain any HITs.
 
 * **Cubical/HITs**: various higher inductive types and results about them.
+
+
+For an introduction to Cubical Agda and this library see this
+[blog post](https://homotopytypetheory.org/2018/12/06/cubical-agda/).
 
 
 Maintainers
