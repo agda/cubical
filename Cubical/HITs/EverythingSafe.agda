@@ -1,6 +1,7 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.EverythingSafe where
 
+open import Cubical.HITs.Cylinder public
 open import Cubical.HITs.Hopf public
 open import Cubical.HITs.Interval public
 open import Cubical.HITs.Join public
