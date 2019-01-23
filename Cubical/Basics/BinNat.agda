@@ -80,7 +80,7 @@ oddℕ : ℕ → Bool
 oddℕ = transp (λ i → ℕ≡binnat (~ i) → Bool) i0 oddbinnat
 
 module _ where
-  -- Define what it means to be an interface for naturals
+  -- Define what it means to be an interface for natural numbers
   record impl (A : Set) : Set where
     field
       z : A
@@ -89,16 +89,11 @@ module _ where
   implℕ : impl ℕ
   implℕ = record { z = zero
                  ; s = suc }
-                 
+
   implbinnat : impl binnat
   implbinnat = record { z = zero
                       ; s = suc-binnat }
-  
-  -- implℕ≡implbinnat : implℕ ≡ implbinnat
-  -- implℕ≡implbinnat i = record { A = ℕ≡binnat i
-  --                             ; z = transp (λ j → ℕ≡binnat (i ∨ ~ j)) i zero
-  --                             ; s = {!!} }
-  
+
   implℕ≡implbinnat : PathP (λ i → impl (ℕ≡binnat i)) implℕ implbinnat
   implℕ≡implbinnat i = record { z = transp (λ j → ℕ≡binnat (i ∨ ~ j)) i zero
                               -- This glue trick is very neat!
@@ -106,41 +101,23 @@ module _ where
                                                   ; (i = i1) → suc-binnat x })
                                                (suc-binnat (unglue {φ = i ∨ ~ i} x)) }
 
-{-
+  oddSuc : (n : binnat) → oddbinnat n ≡ not (oddbinnat (suc-binnat n))
+  oddSuc zero         = refl
+  oddSuc (consOdd _)  = refl
+  oddSuc (consEven _) = refl
 
-def oddq/n≈bn (i : ð) : (n≈bn i) → bool =
-  coe 1 i oddq in λ i → (n≈bn i) → bool
+  -- TODO: upstream somewhere? It's a bit useless, bit maybe intructive...
+  transpNeg : ∀ {ℓ} (A : I → Set ℓ) (φ : I) (a : A i1) → A i0
+  transpNeg A φ a = transp (λ i → A (~ i)) i0 a
 
-def oddq/nat : nat → bool = oddq/n≈bnoddq/n≈bnddq/n≈bn 0
+  -- TODO: clean, maybe define "transpNegFill"
+  oddℕSuc : (n : ℕ) → oddℕ n ≡ not (oddℕ (suc n))
+  oddℕSuc =
+    let eq : (i : I) → ℕ≡binnat i → Bool
+        eq i = transp (λ j → ℕ≡binnat (i ∨ ~ j) → Bool) i oddbinnat
+    in transp (λ i → (n : ℕ≡binnat (~ i)) → eq (~ i) n ≡ not (eq (~ i) (implℕ≡implbinnat (~ i) .impl.s n) )) i0 oddSuc
 
--- We can also transport proofs *about* these functions.
-
-def oddq/suc : (n : binnat) → path bool (oddq n) (not (oddq (suc/binnat n))) =
-  λ * → refl
-
-def oddq/nat/suc : (n : nat) → path bool (oddq/nat n) (not (oddq/nat (suc n))) =
-  coe 1 0 oddq/suc
-  in λ i → (n : n≈bn i) →
-    path bool (oddq/n≈bn i n) (not (oddq/n≈bn i (impl/n≈bn i .snd.snd n)))
-
-def oddq/nat/direct : nat → bool =
-  elim [
-  | zero → ff
-  | suc (_ → ih) → not ih
-  ]
-
-/- MORTAL
-def oddq/n≈bn : (n : nat) → path bool (oddq/nat n) (oddq/nat/direct n) =
-  let pf : (n : nat) → path _ (suc/binnat (nat→binnat n)) (nat→binnat (suc n)) =
-    λ * → refl
-  in
-  elim [
-  | zero → refl
-  | suc (n → ih) → λ i → not (trans bool (λ i → oddq (pf n i)) ih i)
-  ]
--/
--}
-
+  -- TODO: do the doubling experiment
 
 
 ------------------------------------------------------------------------------
