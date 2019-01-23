@@ -76,7 +76,7 @@ module Equality≅Bisimulation where
 
 
   misibTransp : ∀ {A : Set} {x y : Stream A} (p : x ≡ y) → cast p ≡ misib p
-  misibTransp {x = x} p = J (\ _ p → cast p ≡ misib p) (compPath (transpRefl _ refl≈) (sym misib-refl)) p
+  misibTransp {x = x} p = J (\ _ p → cast p ≡ misib p) (compPath (transpRefl refl≈) (sym misib-refl)) p
 
 
 
