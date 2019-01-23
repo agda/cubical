@@ -15,6 +15,7 @@ open import Cubical.Basics.Equiv
 open import Cubical.Basics.Int
 
 open import Cubical.HITs.S1
+open import Cubical.HITs.S1.Rewrite
 
 data Torus : Set where
   point : Torus

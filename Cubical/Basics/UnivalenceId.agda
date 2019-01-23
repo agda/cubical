@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 module Cubical.Basics.UnivalenceId where
 
 open import Cubical.Core.Primitives public  hiding ( _≡_ )

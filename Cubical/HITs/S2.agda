@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.S2 where
 
 open import Cubical.Core.Primitives
