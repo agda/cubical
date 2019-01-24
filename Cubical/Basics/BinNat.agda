@@ -9,6 +9,7 @@ open import Cubical.Basics.Nat
 open import Cubical.Basics.Bool
 open import Cubical.Basics.Empty
 open import Cubical.Basics.Equiv
+open import Cubical.Basics.Univalence
 
 -- Encoding of binary natural numbers inspired by:
 -- https://github.com/RedPRL/redtt/blob/master/library/cool/nats.red
@@ -118,6 +119,28 @@ module _ where
     in transp (λ i → (n : ℕ≡binnat (~ i)) → eq (~ i) n ≡ not (eq (~ i) (implℕ≡implbinnat (~ i) .impl.s n) )) i0 oddSuc
 
   -- TODO: do the doubling experiment
+
+-- Doubling structure
+record Double : Set (ℓ-suc ℓ-zero) where
+  constructor dC
+  field
+    carrier : Set
+    -- doubling function computing 2 * x
+    double : carrier -> carrier
+    -- element to double
+    elt : carrier
+open Double
+
+-- 1024 = 2^8 * 2^2 = 2^10
+n1024 : ℕ
+n1024 = doublesℕ 8 4
+
+Doubleℕ : Double
+Doubleℕ = dC ℕ doubleℕ n1024
+
+binnat1024 : binnat
+binnat1024 = consEven (consOdd (consOdd (consOdd (consOdd (consOdd (consOdd (consOdd (consOdd (consOdd zero)))))))))
+
 
 
 ------------------------------------------------------------------------------
@@ -239,26 +262,7 @@ doublesBinℕ : ℕ → Binℕ → Binℕ
 doublesBinℕ zero b = b
 doublesBinℕ (suc n) b = doublesBinℕ n (doubleBinℕ b)
 
-
--- Doubling structure
-record Double : Set (ℓ-suc ℓ-zero) where
-  constructor dC
-  field
-    carrier : Set
-    -- doubling function computing 2 * x
-    double : carrier -> carrier
-    -- element to double
-    elt : carrier
-open Double
-
 private
-  -- 1024 = 2^8 * 2^2 = 2^10
-  n1024 : ℕ
-  n1024 = doublesℕ 8 4
-
-  DoubleN : Double
-  DoubleN = dC ℕ doubleℕ n1024
-
   bin1024 : Binℕ
   bin1024 = binℕpos (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 pos1))))))))))
 
@@ -268,6 +272,53 @@ private
 -- Compute: 2^n * x
 doubles : ∀ D → (n : ℕ) → carrier D → carrier D
 doubles D n x = iter n (double D) x
+
+-- TODO: upstream
+idfun : ∀ {ℓ} → (A : Set ℓ) → A → A
+idfun _ x = x
+
+module _ {ℓa ℓb : Level} {A : Set ℓa} {B : Set ℓb} where
+  section : (f : A → B) → (g : B → A) → Set ℓb
+  section f g = ∀ b → f (g b) ≡ b
+
+  -- NB: `g` is the retraction!
+  retract : (f : A → B) → (g : B → A) → Set ℓa
+  retract f g = ∀ a → g (f a) ≡ a
+  
+substInv : ∀ {ℓ ℓ'} {A : Set ℓ} (P : A → Set ℓ') {a x : A} (p : a ≡ x) → P x → P a
+substInv P p px = subst P (sym p) px
+
+elimEquiv : ∀ {ℓ ℓ'} → {B : Set ℓ} (P : {A : Set ℓ} → (A → B) → Set ℓ') → (d : P (idfun B))
+          → {A : Set ℓ} → (e : A ≃ B) → P (e .fst)
+elimEquiv {ℓ} {ℓ'} {B} P d {A} e = rem
+  where
+    T : (Σ (Set ℓ) (λ X → X ≃ B)) → Set ℓ'
+    T x = P (x .snd .fst)
+    rem1 : (B , idEquiv B) ≡ (A , e)
+    rem1 = contrSinglEquiv e
+    rem : P (e .fst)
+    rem = subst T rem1 d
+
+con : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → isEquiv f → A ≃ B
+con f p = f , p
+
+
+elimIso : ∀{ℓ ℓ'} → {B : Set ℓ} → (Q : {A : Set ℓ} → (A → B) → (B → A) → Set ℓ') → (h : Q (idfun B) (idfun B))
+          → {A : Set ℓ} → (f : A → B) → (g : B → A) → section f g → retract f g → Q f g
+elimIso {ℓ} {ℓ'} {B} Q h {A} f g sfg rfg = rem1 f g sfg rfg where
+  P : {A : Set ℓ} → (f : A -> B) → Set (ℓ-max ℓ' ℓ)
+  P {A} f = (g : B -> A) -> section f g -> retract f g -> Q f g
+
+  rem : P (idfun B)
+  rem g sfg rfg = substInv (Q (idfun B)) (λ i → λ b → (sfg b) i) h
+
+  rem1 : {A : Set ℓ} → (f : A -> B) → P f
+  rem1 f g sfg rfg = 
+    elimEquiv P rem (con f (isoToIsEquiv f g sfg rfg)) g sfg rfg
+
+elimIsoInv : ∀{ℓ ℓ'} → {A : Set ℓ} → (Q : {B : Set ℓ} → (A → B) → (B → A) → Set ℓ') → (h : Q (idfun A) (idfun A))
+               → {B : Set ℓ} → (f : A → B) → (g : B → A) → section f g → retract f g → Q f g
+elimIsoInv {A = A} Q h {B} f g sfg rfg = elimIso (λ f g → Q g f) h g f rfg sfg
 
 private
   -- 2^20 * e = 2^5 * (2^15 * e)
@@ -292,24 +343,36 @@ private
   DoubleBinN' : Double
   DoubleBinN' = dC Binℕ doubleBinN' (ntoBinN n1024)
 
--- eqDouble1 : DoubleN ≡ DoubleBinN'
--- eqDouble1 = elimIsoInv (λ f g → DoubleN ≡ (dC _ (λ x → f (doubleN (g x))) (f n1024))) refl ntoBinN binNtoN binNtoNK ntoBinNK
+  EquivInvFun : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A ≃ B) → B → A
+  EquivInvFun f b = f .snd .equiv-proof b .fst .fst
 
--- eqDouble2 : DoubleBinN' ≡ DoubleBinN
--- eqDouble2 = cong F rem where
---   F : (BinN → BinN) → Double
---   F d = dC _ d (ntoBinN n1024)
---   rem : doubleBinN' ≡ doubleBinN
---   rem = funExt rem1 where
---     rem1 : ∀ n → (doubleBinN' n) ≡ (doubleBinN n)
---     rem1 binN0 i = binN0
---     rem1 (binNpos x) = lem1 (x0 x)
+  eqDouble1 : Doubleℕ ≡ DoubleBinN'
+  eqDouble1 = elimIsoInv (λ f g → Doubleℕ ≡ (dC _ (λ x → f (doubleℕ (g x))) (f n1024))) refl ntoBinN binNtoN binNtoNK ntoBinNK
 
--- eqDouble : DoubleN ≡ DoubleBinN
--- eqDouble = trans eqDouble1 eqDouble2
+  lem1 : ∀ p → ntoBinN (posToℕ p) ≡ binℕpos p
+  lem1 p = posInd refl (λ p _ → rem p) p where
+    rem : (p : Pos) → ntoBinN (posToℕ (sucPos p)) ≡ binℕpos (sucPos p)
+    rem p = compPath rem1 rem2 where
+      rem1 = cong ntoBinN (sucPosSuc p)
+      rem2 : binℕpos (ntoPos (suc (posToℕ p))) ≡ binℕpos (sucPos p)
+      rem2 = λ i → binℕpos (compPath (ntoPosSuc (posToℕ p) (zeronPosToN p)) (cong sucPos (ntoPosK p)) i)
 
--- propDoubleImpl : propDouble DoubleBinN → propDouble DoubleN
--- propDoubleImpl x = subst {P = propDouble} (sym eqDouble) x
+  eqDouble2 : DoubleBinN' ≡ DoubleBinN
+  eqDouble2 = cong F rem where
+    F : (Binℕ → Binℕ) → Double
+    F d = dC _ d (ntoBinN n1024)
+    rem : doubleBinN' ≡ doubleBinℕ
+    rem = funExt rem1
+      where
+      rem1 : ∀ n → (doubleBinN' n) ≡ (doubleBinℕ n)
+      rem1 binℕ0 = refl
+      rem1 (binℕpos x) = lem1 (x0 x)
 
--- goal : propDouble DoubleN
--- goal = propDoubleImpl propBin
+  eqDouble : Doubleℕ ≡ DoubleBinN
+  eqDouble = compPath eqDouble1 eqDouble2
+  
+  propDoubleImpl : propDouble DoubleBinN → propDouble Doubleℕ
+  propDoubleImpl x = subst propDouble (sym eqDouble) x
+  
+  goal : propDouble Doubleℕ
+  goal = propDoubleImpl propBin

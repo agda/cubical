@@ -4,7 +4,6 @@ Theory about equivalences (definitions are in Core/Glue.agda)
 
 - isEquiv is a proposition ([isPropIsEquiv])
 - Any isomorphism is an equivalence ([isoToEquiv])
-- Equivalence induction ([EquivJ])
 
 -}
 {-# OPTIONS --cubical --safe #-}
