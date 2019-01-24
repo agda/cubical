@@ -370,7 +370,26 @@ private
 
   eqDouble : Doubleℕ ≡ DoubleBinN
   eqDouble = compPath eqDouble1 eqDouble2
-  
+
+
+  ℕ≡Binℕ : ℕ ≡ Binℕ
+  ℕ≡Binℕ = isoToPath ntoBinN binNtoN binNtoNK ntoBinNK
+
+
+  test : Doubleℕ ≡ DoubleBinN
+  test i =
+    dC (ℕ≡Binℕ i)
+       (λ x → {!unglue x!})
+       (transp (λ j → ℕ≡Binℕ (i ∨ ~ j)) i bin1024) 
+
+  -- implℕ≡implbinnat : PathP (λ i → impl (ℕ≡binnat i)) implℕ implbinnat
+  -- implℕ≡implbinnat i = record { z = transp (λ j → ℕ≡binnat (i ∨ ~ j)) i zero
+  --                             -- This glue trick is very neat!
+  --                             ; s = λ x → glue (λ { (i = i0) → suc x
+  --                                                 ; (i = i1) → suc-binnat x })
+  --                                              (suc-binnat (unglue {φ = i ∨ ~ i} x)) }
+
+
   propDoubleImpl : propDouble DoubleBinN → propDouble Doubleℕ
   propDoubleImpl x = subst propDouble (sym eqDouble) x
   
