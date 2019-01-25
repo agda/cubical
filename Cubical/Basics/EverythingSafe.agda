@@ -3,6 +3,7 @@ module Cubical.Basics.EverythingSafe where
 
 open import Cubical.Basics.BinNat public
 open import Cubical.Basics.Bool public
+open import Cubical.Basics.CartesianKanOps public
 open import Cubical.Basics.Empty public
 open import Cubical.Basics.Equiv public
 open import Cubical.Basics.Int public
