@@ -35,18 +35,7 @@ coe1→i1 : ∀ {ℓ} (A : I → Set ℓ) (a : A i1) → coe1→i A i1 a ≡ a
 coe1→i1 A a = refl
 
 
--- squeeze
-coei→0 : ∀ {ℓ} (A : I → Set ℓ) (i : I) → A i → A i0
-coei→0 A i a = transp (λ j → A (i ∧ ~ j)) (~ i) a
-
-coei0→0 : ∀ {ℓ} (A : I → Set ℓ) (a : A i0) → coei→0 A i0 a ≡ a
-coei0→0 A a = refl
-
-coei1→0 : ∀ {ℓ} (A : I → Set ℓ) (a : A i1) → coei→0 A i1 a ≡ coe1→0 A a
-coei1→0 A a = refl
-
-
--- squeezeNeg
+-- "squeeze"
 coei→1 : ∀ {ℓ} (A : I → Set ℓ) (i : I) → A i → A i1
 coei→1 A i a = transp (λ j → A (i ∨ j)) i a
 
@@ -57,17 +46,38 @@ coei1→1 : ∀ {ℓ} (A : I → Set ℓ) (a : A i1) → coei→1 A i1 a ≡ a
 coei1→1 A a = refl
 
 
+-- "squeezeNeg"
+coei→0 : ∀ {ℓ} (A : I → Set ℓ) (i : I) → A i → A i0
+coei→0 A i a = transp (λ j → A (i ∧ ~ j)) (~ i) a
+
+coei0→0 : ∀ {ℓ} (A : I → Set ℓ) (a : A i0) → coei→0 A i0 a ≡ a
+coei0→0 A a = refl
+
+coei1→0 : ∀ {ℓ} (A : I → Set ℓ) (a : A i1) → coei→0 A i1 a ≡ coe1→0 A a
+coei1→0 A a = refl
+
+
 -- "super coe"... Without boolean algebra structure it doesn't seem
 -- possible to define. The problem is that interpolation is not
 -- working properly as we don't have the boolean equations.
 coei→j : ∀ {ℓ} (A : I → Set ℓ) (i j : I) → A i → A j
 coei→j A i j a = transp (λ k → A ((i ∧ ~ k) ∨ (j ∧ k))) (~ i ∧ ~ j) a
 
+-- We only get the two equations for i0:
+
 coei→i0 : ∀ {ℓ} (A : I → Set ℓ) (i : I) (a : A i) → coei→j A i i0 a ≡ coei→0 A i a
 coei→i0 A i a = refl
 
--- This is not true:
+coei0→i : ∀ {ℓ} (A : I → Set ℓ) (i : I) (a : A i0) → coei→j A i0 i a ≡ coe0→i A i a
+coei0→i A i a = refl
+
+-- For i1 we don't get the equations definitionally:
+
 -- coei→i1 : ∀ {ℓ} (A : I → Set ℓ) (i : I) (a : A i) → coei→j A i i1 a ≡ coei→1 A i a
 -- coei→i1 A i a = {!!}
+
+-- coei1→i : ∀ {ℓ} (A : I → Set ℓ) (i : I) (a : A i1) → coei→j A i1 i a ≡ coe1→i A i a
+-- coei1→i A i a = {!!}
+
 
 
