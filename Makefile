@@ -3,4 +3,4 @@ check: $(wildcard **/*.agda)
 	agda Cubical/Basics/Everything.agda
 	agda Cubical/HITs/Everything.agda
 
-clean:; rm -f */*agdai */*/*agdai
+clean:; rm -f */*agdai */*/*agdai */*/*/*agdai
