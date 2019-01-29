@@ -1,8 +1,9 @@
 -- This file defines two representations of binary numbers. We prove
 -- that they are equivalent to unary numbers and univalence is then
 -- used to transport both programs and properties between the
--- representations.
-
+-- representations. This is an example of how having computational
+-- univalence can be useful for practical programming.
+--
 {-# OPTIONS --cubical --no-exact-split --safe #-}
 module Cubical.Basics.BinNat where
 
@@ -104,7 +105,7 @@ Binℕ→ℕ (binℕpos x) = Pos→ℕ x
 ℕ→Binℕ→ℕ (suc (suc n)) =
     Pos→ℕ (sucPos (ℕ→Pos (suc n))) ≡⟨ Pos→ℕsucPos (ℕ→Pos (suc n)) ⟩
     suc (Pos→ℕ (ℕ→Pos (suc n)))    ≡⟨ cong suc (ℕ→Binℕ→ℕ (suc n)) ⟩
-    suc (suc n)       ∎
+    suc (suc n) ∎
 
 Binℕ→ℕ→Binℕ : (n : Binℕ) → ℕ→Binℕ (Binℕ→ℕ n) ≡ n
 Binℕ→ℕ→Binℕ binℕ0 = refl
@@ -121,7 +122,7 @@ Binℕ≃ℕ : Binℕ ≃ ℕ
 Binℕ≃ℕ = isoToEquiv Binℕ→ℕ ℕ→Binℕ ℕ→Binℕ→ℕ Binℕ→ℕ→Binℕ
 
 -- Use univalence (in fact only "ua") to get an equality from the
--- equivalence
+-- above equivalence
 Binℕ≡ℕ : Binℕ ≡ ℕ
 Binℕ≡ℕ = ua Binℕ≃ℕ
 
@@ -138,8 +139,9 @@ _+Binℕ_ : Binℕ → Binℕ → Binℕ
 _+Binℕ_ = transp (λ i → Binℕ≡ℕ (~ i) → Binℕ≡ℕ (~ i) → Binℕ≡ℕ (~ i)) i0 _+_
 
 -- Test: 4 + 1 = 5
-_ : binℕpos (x0 (x0 pos1)) +Binℕ binℕpos pos1 ≡ binℕpos (x1 (x0 pos1))
-_ = refl
+private
+  _ : binℕpos (x0 (x0 pos1)) +Binℕ binℕpos pos1 ≡ binℕpos (x1 (x0 pos1))
+  _ = refl
 
 -- It is easy to test if binary numbers are odd
 oddBinℕ : Binℕ → Bool
@@ -148,138 +150,174 @@ oddBinℕ (binℕpos pos1)   = true
 oddBinℕ (binℕpos (x0 _)) = false
 oddBinℕ (binℕpos (x1 _)) = true
 
+-- And prove the following property (without induction)
 oddBinℕSuc : (n : Binℕ) → oddBinℕ n ≡ not (oddBinℕ (sucBinℕ n))
 oddBinℕSuc binℕ0            = refl
 oddBinℕSuc (binℕpos pos1)   = refl
 oddBinℕSuc (binℕpos (x0 x)) = refl
 oddBinℕSuc (binℕpos (x1 x)) = refl
 
--- We can transport the odd test to ℕ
+-- It is also easy to define and prove the property for binary
+-- numbers, however the definition is inductive
+private
+  oddn : ℕ → Bool
+  oddn zero    = true
+  oddn (suc x) = not (oddn x)
+
+  oddnSuc : (n : ℕ) → oddn n ≡ not (oddn (suc n))
+  oddnSuc zero    = refl
+  oddnSuc (suc n) = cong not (oddnSuc n)
+
+
+-- So what we can do instead is to transport the odd test from Binℕ to
+-- ℕ along the equality
 oddℕ : ℕ → Bool
 oddℕ = transp (λ i → Binℕ≡ℕ i → Bool) i0 oddBinℕ
 
--- We can also transport properties
-module _ where
-  -- Define what it means to be an interface for natural numbers
-  record impl (A : Set) : Set where
+-- We can then also transport the property
+private
+  -- We first need to define what it means to be an interface for
+  -- natural numbers
+  record NatImpl (A : Set) : Set where
     field
       z : A
       s : A → A
-  open impl
+  open NatImpl
 
-  implℕ : impl ℕ
-  implℕ = record { z = zero ; s = suc }
+  NatImplℕ : NatImpl ℕ
+  NatImplℕ = record { z = zero ; s = suc }
 
-  implBinℕ : impl Binℕ
-  implBinℕ = record { z = binℕ0 ; s = sucBinℕ }
+  NatImplBinℕ : NatImpl Binℕ
+  NatImplBinℕ = record { z = binℕ0 ; s = sucBinℕ }
 
-  -- Use the equality between binary and unary numbers we can get an
-  -- equality between the two implementations of the nat interface
-  implℕ≡implBinℕ : PathP (λ i → impl (Binℕ≡ℕ (~ i))) implℕ implBinℕ
-  implℕ≡implBinℕ i = record { z = transp (λ j → Binℕ≡ℕ (~ i ∨ ~ j)) (~ i) zero
-                            ; s = λ x → glue (λ { (i = i0) → suc x
-                                                ; (i = i1) → sucBinℕ x })
-                                             -- We need to do some end-point correction here
-                                             (hcomp (λ j → λ { (i = i0) → suc x
-                                                             ; (i = i1) → Binℕ→ℕsuc x j })
-                                                    (suc (unglue {φ = i ∨ ~ i} x))) }
+  -- Using the equality between binary and unary numbers we can get an
+  -- equality between the two implementations of the NatImpl interface
+  NatImplℕ≡NatImplBinℕ : PathP (λ i → NatImpl (Binℕ≡ℕ (~ i))) NatImplℕ NatImplBinℕ
+  z (NatImplℕ≡NatImplBinℕ i) = transp (λ j → Binℕ≡ℕ (~ i ∨ ~ j)) (~ i) zero
+  s (NatImplℕ≡NatImplBinℕ i) =
+     λ x → glue (λ { (i = i0) → suc x
+                   ; (i = i1) → sucBinℕ x })
+                -- We need to do use and hcomp to do and endpoint
+                -- correction as "suc (unglue x)" connects "suc x"
+                -- with "suc (Binℕ→ℕ x)" along i (which makes sense as
+                -- x varies from ℕ to Binℕ along i), but we need
+                -- something from "suc x" to "Binℕ→ℕ (sucBinℕ x)" for
+                -- the glue to be well-formed
+                (hcomp (λ j → λ { (i = i0) → suc x
+                                ; (i = i1) → Binℕ→ℕsuc x j })
+                       (suc (unglue {φ = i ∨ ~ i} x)))
 
-  -- Using the equality between the two implementations we can then
+  -- Using the equality between the two NatImplementations we can then
   -- transport oddBinℕSuc to unary numbers
   oddℕSuc : (n : ℕ) → oddℕ n ≡ not (oddℕ (suc n))
   oddℕSuc =
-    let eq : (i : I) → Binℕ≡ℕ i → Bool
+    let -- Transport oddBinℕ from 0 to i
+        -- When i=0 this is oddBinℕ
+        -- When i=1 this is "transp (λ j → Binℕ≡ℕ j → Bool) i0 oddBinℕ" (i.e. oddℕ)
+        eq : (i : I) → Binℕ≡ℕ i → Bool
         eq i = transp (λ j → Binℕ≡ℕ (i ∧ j) → Bool) (~ i) oddBinℕ
-    in transp (λ i → (n : Binℕ≡ℕ i) → eq i n ≡ not (eq i (implℕ≡implBinℕ (~ i) .s n) )) i0 oddBinℕSuc
-
+    in -- Then transport oddBinℕSuc from 0 to 1 in a suitable equality type
+       -- When i=0 this is "(n : Binℕ) → oddBinℕ n ≡ not (oddBinℕ (sucBinℕ n))"
+       -- When i=1 this is "(n : ℕ) → oddℕ n ≡ not (oddℕ (suc n))"
+       transp (λ i → (n : Binℕ≡ℕ i)
+                   → eq i n ≡ not (eq i (NatImplℕ≡NatImplBinℕ (~ i) .s n)))
+              i0 oddBinℕSuc
 
 
 -- Doubling experiment: we define a notion of "doubling structure" and
 -- transport a proof that is proved directly using refl for binary
 -- numbers to unary numbers. This is an example of program/data
--- refinement; we can use univalence to prove properties about
+-- refinement: we can use univalence to prove properties about
 -- inefficient data-structures using efficient ones.
-
--- Doubling structure
-record Double {ℓ} (A : Set ℓ) : Set (ℓ-suc ℓ) where
-  constructor dC
-  field
-    -- doubling function computing 2 * x
-    double : A → A
-    -- element to double
-    elt : A
-open Double
-
--- Compute: 2^n * x
-doubles : ∀ {ℓ} {A : Set ℓ} (D : Double A) → ℕ → A → A
-doubles D n x = iter n (double D) x
-
-doubleBinℕ : Binℕ → Binℕ
-doubleBinℕ binℕ0       = binℕ0
-doubleBinℕ (binℕpos x) = binℕpos (x0 x)
-
-Doubleℕ : Double ℕ
-Doubleℕ = dC doubleℕ n1024
-  where
-  -- 1024 = 2^8 * 2^2 = 2^10
-  n1024 : ℕ
-  n1024 = doublesℕ 8 4
-
-DoubleBinℕ : Double Binℕ
-DoubleBinℕ = dC doubleBinℕ bin1024
-  where
-  -- 1024 = 10000000000 = 2^10
-  bin1024 : Binℕ
-  bin1024 = binℕpos (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 pos1))))))))))
-
--- As these don't commute strictly we have to prove it separately and
--- insert it in the proof of DoubleBinℕ≡Doubleℕ below
-Binℕ→ℕdouble : (x : Binℕ) → doubleℕ (Binℕ→ℕ x) ≡ Binℕ→ℕ (doubleBinℕ x)
-Binℕ→ℕdouble binℕ0       = refl
-Binℕ→ℕdouble (binℕpos x) = refl
-
--- We use the equality between Binℕ and ℕ to get an equality of
--- doubling structures
-DoubleBinℕ≡Doubleℕ : PathP (λ i → Double (Binℕ≡ℕ i)) DoubleBinℕ Doubleℕ
-DoubleBinℕ≡Doubleℕ i =
-  dC (λ x → glue (λ { (i = i0) → doubleBinℕ x
-                    ; (i = i1) → doubleℕ x })
-                 (hcomp (λ j → λ { (i = i0) → Binℕ→ℕdouble x j
-                                 ; (i = i1) → doubleℕ x })
-                        (doubleℕ (unglue {φ = i ∨ ~ i} x))))
-     (transp (λ j → Binℕ≡ℕ (i ∨ ~ j)) i (Doubleℕ .elt))
-
--- We can now use transport to prove a property that is too slow to
--- check with unary numbers
 private
-  -- 2^20 * e = 2^5 * (2^15 * e)
-  propDouble : ∀ {ℓ} {A : Set ℓ} → Double A → Set ℓ
-  propDouble D = doubles D 20 (elt D) ≡ doubles D 5 (doubles D 15 (elt D))
+  -- Doubling structure
+  record Double {ℓ} (A : Set ℓ) : Set (ℓ-suc ℓ) where
+    field
+      -- doubling function computing 2 * x
+      double : A → A
+      -- element to double
+      elt : A
+  open Double
 
-  -- The property we want to prove that takes long to typecheck for ℕ:
-  -- 2^10 * 1024 = 2^5 * (2^5 * 1024)
-  --
+  -- Compute: 2^n * x
+  doubles : ∀ {ℓ} {A : Set ℓ} (D : Double A) → ℕ → A → A
+  doubles D n x = iter n (double D) x
+
+  Doubleℕ : Double ℕ
+  double Doubleℕ = doubleℕ
+  elt Doubleℕ    = n1024
+    where
+    -- 1024 = 2^8 * 2^2 = 2^10
+    n1024 : ℕ
+    n1024 = doublesℕ 8 4
+
+  -- The doubling operation on binary numbers is O(1), while for unary
+  -- numbers it is O(n). What is of course even more problematic is
+  -- that we cannot handle very big unary natural numbers, but with
+  -- binary there is no problem to represent very big numbers
+  doubleBinℕ : Binℕ → Binℕ
+  doubleBinℕ binℕ0       = binℕ0
+  doubleBinℕ (binℕpos x) = binℕpos (x0 x)
+
+  DoubleBinℕ : Double Binℕ
+  double DoubleBinℕ = doubleBinℕ
+  elt DoubleBinℕ    = bin1024
+    where
+    -- 1024 = 2^10 = 10000000000₂
+    bin1024 : Binℕ
+    bin1024 = binℕpos (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 pos1))))))))))
+
+  -- As these function don't commute strictly we have to prove it
+  -- separately and insert it in the proof of DoubleBinℕ≡Doubleℕ below
+  -- (just like we had to in NatImplℕ≡NatImplBinℕ
+  Binℕ→ℕdouble : (x : Binℕ) → doubleℕ (Binℕ→ℕ x) ≡ Binℕ→ℕ (doubleBinℕ x)
+  Binℕ→ℕdouble binℕ0       = refl
+  Binℕ→ℕdouble (binℕpos x) = refl
+
+  -- We use the equality between Binℕ and ℕ to get an equality of
+  -- doubling structures
+  DoubleBinℕ≡Doubleℕ : PathP (λ i → Double (Binℕ≡ℕ i)) DoubleBinℕ Doubleℕ
+  double (DoubleBinℕ≡Doubleℕ i) =
+    λ x → glue (λ { (i = i0) → doubleBinℕ x
+                  ; (i = i1) → doubleℕ x })
+               (hcomp (λ j → λ { (i = i0) → Binℕ→ℕdouble x j
+                               ; (i = i1) → doubleℕ x })
+                      (doubleℕ (unglue {φ = i ∨ ~ i} x)))
+  elt (DoubleBinℕ≡Doubleℕ i) = transp (λ j → Binℕ≡ℕ (i ∨ ~ j)) i (Doubleℕ .elt)
+
+  -- We can now use transport to prove a property that is too slow to
+  -- check with unary numbers. We define the property we want to check
+  -- as a record so that Agda does not try to unfold it eagerly.
+  record propDouble {ℓ} {A : Set ℓ} (D : Double A) : Set ℓ where
+    field
+    -- 2^20 * e = 2^5 * (2^15 * e)
+      proof : doubles D 20 (elt D) ≡ doubles D 5 (doubles D 15 (elt D))
+  open propDouble
+
+  -- The property we want to prove takes too long to typecheck for ℕ:
   -- propDoubleℕ : propDouble Doubleℕ
   -- propDoubleℕ = refl
 
   -- With binary numbers it is instant
   propDoubleBinℕ : propDouble DoubleBinℕ
-  propDoubleBinℕ = refl
+  proof propDoubleBinℕ = refl
 
-  -- Why is this not typechecking fast?
-  -- It seems like Agda is eagerly unfolding "propDouble Doubleℕ" ?
-  -- propDoubleℕ : propDouble Doubleℕ
-  -- propDoubleℕ = transp (λ i → propDouble (DoubleBinℕ≡Doubleℕ i)) i0 propDoubleBinℕ
-
-
+  -- By transporting the proof along the equivalence we then get it
+  -- for unary numbers
+  propDoubleℕ : propDouble Doubleℕ
+  propDoubleℕ = transp (λ i → propDouble (DoubleBinℕ≡Doubleℕ i)) i0 propDoubleBinℕ
 
 
 
 
 --------------------------------------------------------------------------------
 --
--- Encoding of binary natural numbers inspired by:
+-- Alternative encoding of binary natural numbers inspired by:
 -- https://github.com/RedPRL/redtt/blob/master/library/cool/nats.red
+--
+-- This representation makes the equivalence with ℕ a bit easier to
+-- prove, but the doubling example wouldn't work as nicely as we
+-- cannot define it as an O(1) operation
 
 data binnat : Set where
   zero     : binnat            -- 0
@@ -346,28 +384,32 @@ oddbinnat (consEven _) = false
 oddℕ' : ℕ → Bool
 oddℕ' = transp (λ i → ℕ≡binnat (~ i) → Bool) i0 oddbinnat
 
--- The impl example for this representation of binary numbers
+-- The NatImpl example for this representation of binary numbers
 module _ where
-  implbinnat : impl binnat
-  implbinnat = record { z = zero
-                      ; s = suc-binnat }
+  open NatImpl
 
-  implℕ≡implbinnat : PathP (λ i → impl (ℕ≡binnat i)) implℕ implbinnat
-  implℕ≡implbinnat i = record { z = transp (λ j → ℕ≡binnat (i ∨ ~ j)) i zero
-                              -- This glue trick is very neat!
-                              ; s = λ x → glue (λ { (i = i0) → suc x
-                                                  ; (i = i1) → suc-binnat x })
-                                               (suc-binnat (unglue {φ = i ∨ ~ i} x))
-                                               }
+  NatImplbinnat : NatImpl binnat
+  z NatImplbinnat = zero
+  s NatImplbinnat = suc-binnat
+
+  -- Note that the s case is a bit simpler as no end-point correction
+  -- is necessary (things commute strictly)
+  NatImplℕ≡NatImplbinnat : PathP (λ i → NatImpl (ℕ≡binnat i)) NatImplℕ NatImplbinnat
+  z (NatImplℕ≡NatImplbinnat i) = transp (λ j → ℕ≡binnat (i ∨ ~ j)) i zero
+  s (NatImplℕ≡NatImplbinnat i) =
+    λ x → glue (λ { (i = i0) → suc x
+                  ; (i = i1) → suc-binnat x })
+               (suc-binnat (unglue {φ = i ∨ ~ i} x))
 
   oddSuc : (n : binnat) → oddbinnat n ≡ not (oddbinnat (suc-binnat n))
   oddSuc zero         = refl
   oddSuc (consOdd _)  = refl
   oddSuc (consEven _) = refl
 
-  -- TODO: clean, maybe define "transpNegFill"
   oddℕSuc' : (n : ℕ) → oddℕ' n ≡ not (oddℕ' (suc n))
   oddℕSuc' =
     let eq : (i : I) → ℕ≡binnat (~ i) → Bool
         eq i = transp (λ j → ℕ≡binnat (~ i ∨ ~ j) → Bool) (~ i) oddbinnat
-    in transp (λ i → (n : ℕ≡binnat (~ i)) → eq i n ≡ not (eq i (implℕ≡implbinnat (~ i) .impl.s n) )) i0 oddSuc
+    in transp (λ i → (n : ℕ≡binnat (~ i))
+                   → eq i n ≡ not (eq i (NatImplℕ≡NatImplbinnat (~ i) .NatImpl.s n)))
+              i0 oddSuc
