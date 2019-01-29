@@ -269,7 +269,7 @@ private
   -- Why is this not typechecking fast?
   -- It seems like Agda is eagerly unfolding "propDouble Doubleℕ" ?
   -- propDoubleℕ : propDouble Doubleℕ
-  -- propDoubleℕ = transp (λ i → propDouble (DoubleBinℕ≡Doubleℕ i)) propDoubleBinℕ
+  -- propDoubleℕ = transp (λ i → propDouble (DoubleBinℕ≡Doubleℕ i)) i0 propDoubleBinℕ
 
 
 
