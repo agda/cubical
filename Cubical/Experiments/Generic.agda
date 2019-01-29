@@ -3,16 +3,11 @@ module Cubical.Experiments.Generic where
 
 open import Agda.Builtin.String
 open import Agda.Builtin.List
-open import Agda.Builtin.Float
 
-open import Cubical.Core.Primitives
-open import Cubical.Core.Prelude
-open import Cubical.Core.Glue
+open import Cubical.Core.Everything
 
-open import Cubical.Basics.Empty
 open import Cubical.Basics.Equiv
 open import Cubical.Basics.Nat
-open import Cubical.Basics.NTypes
 open import Cubical.Basics.Int
 open import Cubical.Basics.Equiv
 open import Cubical.Basics.Univalence
@@ -158,11 +153,10 @@ genCom =
 incSalary : Company Int → Company Int
 incSalary c = transp (λ i → Company (sucPathInt i)) i0 c
 
--- Increase everyone's salary with 1
 genCom1 : Company Int
 genCom1 = incSalary genCom
 
--- This works and gives us:
+-- "C-c C-n genCom1" works and gives us:
 -- C (D (transp (λ i → String) i0 "Research")
 --      (E (P "Andreas" "Gothenburg") (S (pos 3001)))
 --   (PU (E (P "Anders" "Pittsburgh") (S (pos 2501))) ∷
@@ -173,7 +167,23 @@ genCom1 = incSalary genCom
 
 
 -- The following definition of addition is very cool! We directly get
--- that it's an equivalence.
+-- that it's an equivalence. I will upstream it later.
+
+-- First define transport and prove that it is an equivalence
+
+transport : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A → B
+transport p a = transp (λ i → p i) i0 a
+
+isEquivTransportRefl : ∀ {ℓ} (A : Set ℓ) → isEquiv (transport {ℓ} {A} {A} refl)
+isEquivTransportRefl {ℓ} A = isoToIsEquiv (transport refl) (transport refl) rem rem
+  where
+  rem : (x : A) → transport refl (transport refl x) ≡ x
+  rem x = compPath (cong (transport refl) (λ i → transp (λ _ → A) i x))
+                   (λ i → transp (λ _ → A) i x)
+  
+isEquivTransport : ∀ {ℓ} {A B : Set ℓ} (p : A ≡ B) → isEquiv (transport p)
+isEquivTransport {A = A} = J (λ y x → isEquiv (transport x)) (isEquivTransportRefl A)
+
 
 -- Compose sucPathInt with itself n times. Transporting along this
 -- will be addition, transporting with it backwards will be
@@ -186,24 +196,30 @@ subEq : ℕ → Int ≡ Int
 subEq n i = addEq n (~ i)
 
 addInt : Int → Int → Int
-addInt m (pos n) = transp (λ i → addEq n i) i0 m
-addInt m (negsuc n) = transp (λ i → subEq (suc n) i) i0 m
+addInt m (pos n) = transport (addEq n) m
+addInt m (negsuc n) = transport (subEq (suc n)) m
 
 subInt : Int → Int → Int
 subInt m (pos zero) = m
 subInt m (pos (suc n)) = addInt m (negsuc n)
 subInt m (negsuc n) = addInt m (pos (suc n))
 
+-- We directly get that addition by a fixed number is an equivalence
+-- without having to do any induction!
+isEquivAddInt : (m : Int) → isEquiv (λ (n : Int) → addInt n m)
+isEquivAddInt (pos n) = isEquivTransport (addEq n)
+isEquivAddInt (negsuc n) = isEquivTransport (subEq (suc n))
 
--- Let's increase everyone's salary more!
+
+-- Let's use this to increase everyone's salary more!
 
 incSalaryℕ : ℕ → Company Int → Company Int
 incSalaryℕ n c = transp (λ i → Company (addEq n i)) i0 c
 
--- This is quite slow
+-- TODO: this is quite slow
 genCom2 : Company Int
 genCom2 = incSalaryℕ 2 genCom
 
--- This is very slow
+-- TODO: this is very slow
 genCom10 : Company Int
 genCom10 = incSalaryℕ 10 genCom
