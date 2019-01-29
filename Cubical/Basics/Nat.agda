@@ -39,7 +39,7 @@ private
   n1024 = doublesℕ 8 4
 
 -- iterate
-iter : {A : Set} → ℕ → (A → A) → A → A
+iter : ∀ {ℓ} {A : Set ℓ} → ℕ → (A → A) → A → A
 iter zero f z    = z
 iter (suc n) f z = f (iter n f z)
 
