@@ -4,7 +4,6 @@ Theory about equivalences (definitions are in Core/Glue.agda)
 
 - isEquiv is a proposition ([isPropIsEquiv])
 - Any isomorphism is an equivalence ([isoToEquiv])
-- Equivalence induction ([EquivJ])
 
 -}
 {-# OPTIONS --cubical --safe #-}
@@ -36,8 +35,18 @@ equiv-proof (isPropIsEquiv f p q i) y =
 equivEq : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (e f : A ≃ B) → (h : e .fst ≡ f .fst) → e ≡ f
 equivEq e f h = λ i → (h i) , isProp→PathP isPropIsEquiv h (e .snd) (f .snd) i
 
+-- Section and retract
+module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} where
+  section : (f : A → B) → (g : B → A) → Set ℓ'
+  section f g = ∀ b → f (g b) ≡ b
+
+  -- NB: `g` is the retraction!
+  retract : (f : A → B) → (g : B → A) → Set ℓ
+  retract f g = ∀ a → g (f a) ≡ a
+
+-- Any iso is an equivalence
 module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A)
-         (s : (y : B) → f (g y) ≡ y) (t : (x : A) → g (f x) ≡ x) where
+         (s : section f g) (t : retract f g) where
 
   private
     module _ (y : B) (x0 x1 : A) (p0 : f x0 ≡ y) (p1 : f x1 ≡ y) where
@@ -86,14 +95,14 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (w : A ≃ B) where
   invEq : B → A
   invEq y = fst (fst (snd w .equiv-proof y))
 
-  secEq : (x : A) → invEq (fst w x) ≡ x
+  secEq : section invEq (w .fst)
   secEq x = λ i → fst (snd (snd w .equiv-proof (fst w x)) (x , (λ j → fst w x)) i)
 
-  retEq : (y : B) → fst w (invEq y) ≡ y
+  retEq : retract invEq (w .fst)
   retEq y = λ i → snd (fst (snd w .equiv-proof y)) i
 
 isoToPath : ∀ {ℓ} {A B : Set ℓ} (f : A → B) (g : B → A)
-  (s : (y : B) → f (g y) ≡ y) (t : (x : A) → g (f x) ≡ x) → A ≡ B
+              (s : section f g) (t : retract f g) → A ≡ B
 isoToPath f g s t = ua (isoToEquiv f g s t)
 
 invEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → B ≃ A

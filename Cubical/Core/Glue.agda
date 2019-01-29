@@ -69,13 +69,15 @@ Glue : ∀ (A : Set ℓ) {φ : I}
        → Set ℓ'
 Glue A Te = primGlue A (λ x → Te x .fst) (λ x → Te x .snd)
 
-
 -- The identity equivalence
-idIsEquiv : ∀ (A : Set ℓ) → isEquiv (λ (a : A) → a)
+idfun : ∀ {ℓ} → (A : Set ℓ) → A → A
+idfun _ x = x
+
+idIsEquiv : ∀ (A : Set ℓ) → isEquiv (idfun A)
 equiv-proof (idIsEquiv A) y = (y , refl) , λ z i → z .snd (~ i) , λ j → z .snd (~ i ∨ j)
 
 idEquiv : ∀ (A : Set ℓ) → A ≃ A
-idEquiv A = (λ a → a) , idIsEquiv A
+idEquiv A = idfun A , idIsEquiv A
 
 -- The ua constant
 ua : ∀ {A B : Set ℓ} → A ≃ B → A ≡ B
