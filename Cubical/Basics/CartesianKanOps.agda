@@ -82,3 +82,38 @@ coei1→i A i a = refl
 -- only non-definitional equation
 coei→i : ∀ {ℓ} (A : I → Set ℓ) (i : I) (a : A i) → coei→j A i i a ≡ a
 coei→i A i = coe0→i (λ i → (a : A i) → coei→j A i i a ≡ a) i (λ _ → refl)
+
+-- We can reconstruct fill from hfill, coei→j, and the path coei→i ≡ id.
+-- The definition does not rely on the computational content of coei→i.
+
+-- * Note: the definition of fill' below DOES use fill, but only under the constraint φ ∨ ~i, where it will
+-- reduce either to the cap or the tube. We only have to do this because of technical limitations of cubical
+-- Agda; where we write
+--
+--   λ j _ → coei→i A i (fill A u u0 i) j
+--
+-- what we really want to write is
+--
+--   "λ {φ → coei→i A i (u i); (i = i0) → coei→i A i (ouc u0)}"
+--
+-- but this is (apparently?) not possible.
+
+fill' : ∀ {ℓ} (A : I → Set ℓ)
+       {φ : I}
+       (u : ∀ i → Partial φ (A i))
+       (u0 : A i0 [ φ ↦ u i0 ])
+       ---------------------------
+       (i : I) → A i [ φ ↦ u i ]
+fill' A {φ = φ} u u0 i =
+  inc (hcomp {φ = φ ∨ ~ i} (λ j _ → coei→i A i (fill A u u0 i) j) t) --* inessential use of fill here
+  where
+  t : A i
+  t = hfill {φ = φ} (λ j v → coei→j A j i (u j v)) (inc (coe0→i A i (ouc u0))) i
+
+fill'-cap :  ∀ {ℓ} (A : I → Set ℓ)
+             {φ : I}
+             (u : ∀ i → Partial φ (A i))
+             (u0 : A i0 [ φ ↦ u i0 ])
+             ---------------------------
+             → ouc (fill' A u u0 i0) ≡ ouc (u0)
+fill'-cap A u u0 = refl
