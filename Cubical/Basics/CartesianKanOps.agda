@@ -84,7 +84,7 @@ coei→i : ∀ {ℓ} (A : I → Set ℓ) (i : I) (a : A i) → coei→j A i i a 
 coei→i A i = coe0→i (λ i → (a : A i) → coei→j A i i a ≡ a) i (λ _ → refl)
 
 -- We can reconstruct fill from hfill, coei→j, and the path coei→i ≡ id.
--- The definition does not rely on the computational content of coei→i.
+-- The definition does not rely on the computational content of the coei→i path.
 
 -- * Note: the definition of fill' below DOES use fill, but only under the constraint φ ∨ ~i, where it will
 -- reduce either to the cap or the tube. We only have to do this because of technical limitations of cubical
@@ -94,7 +94,7 @@ coei→i A i = coe0→i (λ i → (a : A i) → coei→j A i i a ≡ a) i (λ _ 
 --
 -- what we really want to write is
 --
---   "λ {φ → coei→i A i (u i); (i = i0) → coei→i A i (ouc u0)}"
+--   "λ j → λ {φ → coei→i A i (u i); (i = i0) → coei→i A i (ouc u0)}"
 --
 -- but this is (apparently?) not possible.
 
