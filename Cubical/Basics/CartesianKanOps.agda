@@ -80,4 +80,19 @@ coei0→i A i a = refl
 -- coei1→i A i a = {!!}
 
 
+-- We can also get the equations for i1, but then not for i0
 
+coei→j' : ∀ {ℓ} (A : I → Set ℓ) (i j : I) → A i → A j
+coei→j' A i j a = transp (λ k → A ((i ∧ j) ∨ (j ∧ k) ∨ (~ k ∧ i))) (i ∧ j) a 
+
+coei→i1' : ∀ {ℓ} (A : I → Set ℓ) (i : I) (a : A i) → coei→j' A i i1 a ≡ coei→1 A i a
+coei→i1' A i a = refl
+
+coei1→i' : ∀ {ℓ} (A : I → Set ℓ) (i : I) (a : A i1) → coei→j' A i1 i a ≡ coe1→i A i a
+coei1→i' A i a = refl
+
+-- coei→i0' : ∀ {ℓ} (A : I → Set ℓ) (i : I) (a : A i) → coei→j' A i i0 a ≡ coei→0 A i a
+-- coei→i0' A i a = {!!}
+
+-- coei0→i' : ∀ {ℓ} (A : I → Set ℓ) (i : I) (a : A i0) → coei→j' A i0 i a ≡ coe0→i A i a
+-- coei0→i' A i a = {!!}
