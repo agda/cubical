@@ -17,7 +17,7 @@ variable
 
 swap : {A : Set ℓ} {B : Set ℓ'} → A × B → B × A
 swap (x , y) = (y , x)
-  
+
 swapInv : {A : Set ℓ} {B : Set ℓ'} → (xy : A × B) → swap (swap xy) ≡ xy
 swapInv xy = refl
 
@@ -48,6 +48,23 @@ test1refl = refl
 
 -- TODO: Why is the normalization producing such complicated output?
 
+-- Answer: transp and hcomp are implemented negatively for record
+-- types, so that's the normal form, normalization doesn't eta expand.
+
+-- You can get a better normal form like this:
+
+expand : ∀ {A : Set ℓ} {B : Set ℓ'} → A × B → A × B
+expand (x , y) = x , y
+
+map : ∀ {A : Set ℓ} {B : Set ℓ'} → (A → B) → List A → List B
+map f [] = []
+map f (x ∷ xs) = f x ∷ map f xs
+
+
+test1-5 : List (ℕ × ℕ)
+test1-5 = map expand test1
+
+
 
 ------------------------------------------------------------------------------
 --
@@ -64,9 +81,9 @@ db : Database
 db = (4  , "John"  , (30 ,  5) , 1956)
    ∷ (8  , "Hugo"  , (29 , 12) , 1978)
    ∷ (15 , "James" , (1  ,  7) , 1968)
-   ∷ (16 , "Sayid" , (2  , 10) , 1967)   
+   ∷ (16 , "Sayid" , (2  , 10) , 1967)
    ∷ (23 , "Jack"  , (3  , 12) , 1969)
-   ∷ (42 , "Sun"   , (20 ,  3) , 1980)   
+   ∷ (42 , "Sun"   , (20 ,  3) , 1980)
    ∷ []
 
 convert : Database → Database
@@ -81,12 +98,13 @@ want : Database
 want = (4  , "John"  , (5  , 30) , 1956)
      ∷ (8  , "Hugo"  , (12 , 29) , 1978)
      ∷ (15 , "James" , (7  ,  1) , 1968)
-     ∷ (16 , "Sayid" , (10 ,  2) , 1967)   
+     ∷ (16 , "Sayid" , (10 ,  2) , 1967)
      ∷ (23 , "Jack"  , (12 ,  3) , 1969)
-     ∷ (42 , "Sun"   , (3  , 20) , 1980)   
+     ∷ (42 , "Sun"   , (3  , 20) , 1980)
      ∷ []
 
 -- TODO: This is not proved by refl... Why??
+-- Answer: I never implemented transp for String! Should be quick.
 -- test2 : eu ≡ want
 -- test2 = {!!}
 
@@ -180,7 +198,7 @@ isEquivTransportRefl {ℓ} A = isoToIsEquiv (transport refl) (transport refl) re
   rem : (x : A) → transport refl (transport refl x) ≡ x
   rem x = compPath (cong (transport refl) (λ i → transp (λ _ → A) i x))
                    (λ i → transp (λ _ → A) i x)
-  
+
 isEquivTransport : ∀ {ℓ} {A B : Set ℓ} (p : A ≡ B) → isEquiv (transport p)
 isEquivTransport {A = A} = J (λ y x → isEquiv (transport x)) (isEquivTransportRefl A)
 
