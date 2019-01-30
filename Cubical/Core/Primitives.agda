@@ -63,7 +63,7 @@ Path A a b = PathP (λ _ → A) a b
 -- * @IsOne r@ represents the constraint "r = i1".
 -- Often we will use "φ" for elements of I, when we intend to use them
 -- with IsOne (or Partial[P]).
--- IsOne : I → Set
+-- IsOne : I → Setω
 
 -- i1 is indeed equal to i1.
 -- 1=1 : IsOne i1
