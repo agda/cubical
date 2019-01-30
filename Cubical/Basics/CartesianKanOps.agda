@@ -81,8 +81,4 @@ coei1→i A i a = refl
 
 -- only non-definitional equation
 coei→i : ∀ {ℓ} (A : I → Set ℓ) (i : I) (a : A i) → coei→j A i i a ≡ a
-coei→i A i =
-  transpFill {A = (a : A i0) → a ≡ a} i0
-    (λ i → inc ((a : A i) → coei→j A i i a ≡ a))
-    (λ _ → refl)
-    i
+coei→i A i = coe0→i (λ i → (a : A i) → coei→j A i i a ≡ a) i (λ _ → refl)
