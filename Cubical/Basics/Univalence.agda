@@ -90,35 +90,13 @@ univalencePath : ∀ {ℓ} {A B : Set ℓ} → (A ≡ B) ≡ Lift (A ≃ B)
 univalencePath = ua (compEquiv univalence LiftEquiv)
 
 
--- The computation rule for ua (could be proved a bit more compactly)
+-- The computation rule for ua
 uaβ : ∀ {ℓ} {A B : Set ℓ} (e : A ≃ B) (x : A) → transp (λ i → ua e i) i0 x ≡ e .fst x
-uaβ {B = B} e x =
-  transp (λ i → ua e i) i0 x
-    ≡⟨ refl ⟩
-  hcomp (λ _ → empty)
-        (transp (λ _ → B) i0
-                (hcomp (λ _ → empty)
-                       (transp (λ _ → B) i0 (e .fst x))))
-    ≡⟨ (λ j → hfill (λ _ → empty)
-                    (inc (transp (λ _ → B) i0
-                                 (hcomp (λ _ → empty)
-                                        (transp (λ _ → B) i0 (e .fst x)))))
-                    (~ j)) ⟩
-  transp (λ _ → B) i0
-         (hcomp (λ _ → empty)
-                (transp (λ _ → B) i0 (e .fst x)))
-    ≡⟨ (λ j → transp (λ _ → B) j
-                     (hcomp (λ _ → empty)
-                            (transp (λ i → B) i0 (e .fst x)))) ⟩
-  hcomp (λ _ → empty)
-        (transp (λ _ → B) i0 (e .fst x))
-    ≡⟨ (λ j → hfill (λ _ → empty)
-                    (inc (transp (λ _ → B) i0 (e .fst x)))
-                    (~ j))⟩
-  transp (λ _ → B) i0 (e .fst x)
-    ≡⟨ (λ j → transp (λ _ → B) j (e .fst x)) ⟩
-  e .fst x ∎
-
+uaβ {B = B} e x i =
+  (hcomp (λ j → λ { (i = i1) → e .fst x })
+    (transp (λ _ → B) i
+      (hcomp (λ j → λ { (i = i1) → e .fst x})
+        (transp (λ _ → B) i (e .fst x)))))
 
 -- Alternative version of EquivJ that only requires a predicate on
 -- functions
@@ -140,4 +118,3 @@ elimIso {ℓ} {ℓ'} {B} Q h {A} f g sfg rfg = rem1 f g sfg rfg
 
   rem1 : {A : Set ℓ} → (f : A → B) → P f
   rem1 f g sfg rfg = elimEquiv P rem (f , isoToIsEquiv f g sfg rfg) g sfg rfg
-
