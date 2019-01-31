@@ -5,7 +5,7 @@ This file proves a variety of basic results about paths:
 - refl, sym, cong and composition of paths. This is used to set up
   equational reasoning.
 
-- Subst and functional extensionality
+- Transport, subst and functional extensionality
 
 - J and its computation rule (up to a path)
 
@@ -33,7 +33,6 @@ private
   variable
     ℓ ℓ' : Level
     A : Set ℓ
-    B : A → Set ℓ'
     x y z : A
 
 refl : x ≡ x
@@ -42,7 +41,7 @@ refl {x = x} = λ _ → x
 sym : x ≡ y → y ≡ x
 sym p = λ i → p (~ i)
 
-cong : ∀ (f : (a : A) → B a) (p : x ≡ y)
+cong : ∀ {B : A → Set ℓ'} (f : (a : A) → B a) (p : x ≡ y)
        → PathP (λ i → B (p i)) (f x) (f y)
 cong f p = λ i → f (p i)
 
@@ -62,32 +61,36 @@ _ ≡⟨ x≡y ⟩ y≡z = compPath x≡y y≡z
 _∎ : (x : A) → x ≡ x
 _ ∎ = refl
 
--- Subst and functional extensionality
+-- Transport, subst and functional extensionality
 
--- We want B to be explicit in subst
-subst : (B : A → Set ℓ') (p : x ≡ y) → B x → B y
-subst B p pa = transp (λ i → B (p i)) i0 pa
-
-substRefl : (B : A → Set ℓ') (px : B x) → subst B refl px ≡ px
-substRefl {x = x} B px i = transp (λ _ → B x) i px
-
-funExt : {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
-funExt p i x = p x i
+-- transport is a special case of transp
+transport : {A B : Set ℓ} → A ≡ B → A → B
+transport p a = transp (λ i → p i) i0 a
 
 -- Transporting in a constant family is the identity function (up to a
 -- path). If we would have regularity this would be definitional.
-transpRefl : (x : A) → transp (λ _ → A) i0 x ≡ x
-transpRefl {A = A} x i = transp (λ _ → A) i x
+transportRefl : (x : A) → transport refl x ≡ x
+transportRefl {A = A} x i = transp (λ _ → A) i x
+
+-- We want B to be explicit in subst
+subst : (B : A → Set ℓ') (p : x ≡ y) → B x → B y
+subst B p pa = transport (λ i → B (p i)) pa
+
+substRefl : {B : A → Set ℓ'} (px : B x) → subst B refl px ≡ px
+substRefl px = transportRefl px
+
+funExt : {B : A → Set ℓ'} {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
+funExt p i x = p x i
 
 
 -- J for paths and its computation rule
 
 module _ (P : ∀ y → x ≡ y → Set ℓ') (d : P x refl) where
   J : (p : x ≡ y) → P y p
-  J p = transp (λ i → P (p i) (λ j → p (i ∧ j))) i0 d
+  J p = transport (λ i → P (p i) (λ j → p (i ∧ j))) d
 
   JRefl : J refl ≡ d
-  JRefl i = transp (λ _ → P x refl) i d
+  JRefl = transportRefl d
 
 -- Σ-types
 

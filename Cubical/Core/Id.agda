@@ -37,17 +37,18 @@ open import Agda.Builtin.Cubical.Id public
 open import Cubical.Core.Primitives public  hiding ( _≡_ )
 open import Cubical.Core.Prelude public
   hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ )
-  renaming ( refl    to reflPath
-           ; J       to JPath
-           ; JRefl   to JPathRefl
-           ; sym     to symPath
-           ; cong    to congPath
-           ; funExt  to funExtPath
-           ; isContr to isContrPath
-           ; isProp  to isPropPath
-           ; isSet   to isSetPath
-           ; fst     to pr₁ -- as in the HoTT book
-           ; snd     to pr₂
+  renaming ( refl      to reflPath
+           ; transport to transportPath
+           ; J         to JPath
+           ; JRefl     to JPathRefl
+           ; sym       to symPath
+           ; cong      to congPath
+           ; funExt    to funExtPath
+           ; isContr   to isContrPath
+           ; isProp    to isPropPath
+           ; isSet     to isSetPath
+           ; fst       to pr₁ -- as in the HoTT book
+           ; snd       to pr₂
            )
 open import Cubical.Core.Glue
   renaming ( fiber        to fiberPath

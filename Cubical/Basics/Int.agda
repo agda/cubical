@@ -57,13 +57,13 @@ coherence (negsuc (suc (suc n))) = refl
 -- Some tests
 private
   one : Int
-  one = transp (λ i → sucPathInt i) i0 (pos 0)
+  one = transport (λ i → sucPathInt i) (pos 0)
 
   onepath : one ≡ pos 1
   onepath = refl
 
   minusone : Int
-  minusone = transp (λ i → sucPathInt (~ i)) i0 (pos 0)
+  minusone = transport (λ i → sucPathInt (~ i)) (pos 0)
 
   minusonepath : minusone ≡ negsuc 0
   minusonepath = refl

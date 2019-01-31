@@ -35,7 +35,7 @@ helix (loop i) = sucPathInt i
 ΩS¹ = base ≡ base
 
 encode : ∀ x → base ≡ x → helix x
-encode x p = transp (λ i → helix (p i)) i0 (pos zero)
+encode x p = subst helix p (pos zero)
 
 winding : ΩS¹ → Int
 winding = encode base

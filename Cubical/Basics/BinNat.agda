@@ -136,7 +136,7 @@ Binℕ→ℕsuc (binℕpos x) = sym (Pos→ℕsucPos x)
 
 -- We can transport addition on ℕ to Binℕ
 _+Binℕ_ : Binℕ → Binℕ → Binℕ
-_+Binℕ_ = transp (λ i → Binℕ≡ℕ (~ i) → Binℕ≡ℕ (~ i) → Binℕ≡ℕ (~ i)) i0 _+_
+_+Binℕ_ = transport (λ i → Binℕ≡ℕ (~ i) → Binℕ≡ℕ (~ i) → Binℕ≡ℕ (~ i)) _+_
 
 -- Test: 4 + 1 = 5
 private
@@ -172,7 +172,7 @@ private
 -- So what we can do instead is to transport the odd test from Binℕ to
 -- ℕ along the equality
 oddℕ : ℕ → Bool
-oddℕ = transp (λ i → Binℕ≡ℕ i → Bool) i0 oddBinℕ
+oddℕ = transport (λ i → Binℕ≡ℕ i → Bool) oddBinℕ
 
 -- We can then also transport the property
 private
@@ -219,9 +219,9 @@ private
     in -- Then transport oddBinℕSuc from 0 to 1 in a suitable equality type
        -- When i=0 this is "(n : Binℕ) → oddBinℕ n ≡ not (oddBinℕ (sucBinℕ n))"
        -- When i=1 this is "(n : ℕ) → oddℕ n ≡ not (oddℕ (suc n))"
-       transp (λ i → (n : Binℕ≡ℕ i)
-                   → eq i n ≡ not (eq i (NatImplℕ≡NatImplBinℕ (~ i) .s n)))
-              i0 oddBinℕSuc
+       transport
+         (λ i → (n : Binℕ≡ℕ i) → eq i n ≡ not (eq i (NatImplℕ≡NatImplBinℕ (~ i) .s n)))
+         oddBinℕSuc
 
 
 -- Doubling experiment: we define a notion of "doubling structure" and
@@ -305,7 +305,7 @@ private
   -- By transporting the proof along the equivalence we then get it
   -- for unary numbers
   propDoubleℕ : propDouble Doubleℕ
-  propDoubleℕ = transp (λ i → propDouble (DoubleBinℕ≡Doubleℕ i)) i0 propDoubleBinℕ
+  propDoubleℕ = transport (λ i → propDouble (DoubleBinℕ≡Doubleℕ i)) propDoubleBinℕ
 
 
 
@@ -368,7 +368,7 @@ binnat→ℕ→binnat (consEven n) =
 
 -- We can transport addition on ℕ to binnat
 _+binnat_ : binnat → binnat → binnat
-_+binnat_ = transp (λ i → ℕ≡binnat i → ℕ≡binnat i → ℕ≡binnat i) i0 _+_
+_+binnat_ = transport (λ i → ℕ≡binnat i → ℕ≡binnat i → ℕ≡binnat i) _+_
 
 -- TODO: prove   _+binnat_ ≡ _+_
 
@@ -382,7 +382,7 @@ oddbinnat (consOdd _)  = true
 oddbinnat (consEven _) = false
 
 oddℕ' : ℕ → Bool
-oddℕ' = transp (λ i → ℕ≡binnat (~ i) → Bool) i0 oddbinnat
+oddℕ' = transport (λ i → ℕ≡binnat (~ i) → Bool) oddbinnat
 
 -- The NatImpl example for this representation of binary numbers
 module _ where
@@ -410,6 +410,6 @@ module _ where
   oddℕSuc' =
     let eq : (i : I) → ℕ≡binnat (~ i) → Bool
         eq i = transp (λ j → ℕ≡binnat (~ i ∨ ~ j) → Bool) (~ i) oddbinnat
-    in transp (λ i → (n : ℕ≡binnat (~ i))
-                   → eq i n ≡ not (eq i (NatImplℕ≡NatImplbinnat (~ i) .NatImpl.s n)))
-              i0 oddSuc
+    in transport
+         (λ i → (n : ℕ≡binnat (~ i)) → eq i n ≡ not (eq i (NatImplℕ≡NatImplbinnat (~ i) .NatImpl.s n)))
+         oddSuc

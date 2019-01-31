@@ -61,7 +61,7 @@ lemPathAnd t u = isoToPath (λ tu → (λ i → tu i .fst) , λ i → tu i .snd)
                            (λ y → refl) (λ x → refl)
 
 funDep : ∀ {ℓ} {A B : Set ℓ} (p : A ≡ B) (u0 : A) (u1 : B) →
-  (Path A u0 (transp (\ i → p (~ i)) i0 u1)) ≡ (Path B (transp (\ i → p i) i0 u0) u1)
+  (Path A u0 (transport (λ i → p (~ i)) u1)) ≡ (Path B (transport p u0) u1)
 funDep p u0 u1 i = Path (p i) (transp (λ j → p (i ∧ j)) (~ i) u0) (transp (λ j → p (i ∨ ~ j)) i u1)
 
 -- Can this proof be simplified?
