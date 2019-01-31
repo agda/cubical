@@ -1,10 +1,10 @@
 An experimental library for Cubical Agda
 ========================================
 
-[![Build Status](https://travis-ci.org/agda/cubical.svg?branch=master)](https://travis-ci.org/agda/cubical)
-
 This library compiles with the master branch of the development
-version of Agda. For detailed install instructions see the INSTALL
+version of [Agda](https://github.com/agda/agda/). For detailed install
+instructions see the
+[INSTALL](https://github.com/agda/cubical/blob/master/INSTALL.md)
 file.
 
 
@@ -47,3 +47,5 @@ Maintainers
 * [Anders Mörtberg](http://www.cs.cmu.edu/~amoertbe/)
 
 * [Andrea Vezzosi](http://www.cse.chalmers.se/~vezzosi/)
+
+[![Build Status](https://travis-ci.org/agda/cubical.svg?branch=master)](https://travis-ci.org/agda/cubical)
