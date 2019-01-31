@@ -7,6 +7,15 @@ open import Cubical.Core.Prelude
 open import Cubical.Basics.Empty
 open import Cubical.Basics.NTypes
 
++-suc : ∀ m n → m + suc n ≡ suc (m + n)
++-suc zero    n = refl
++-suc (suc m) n = cong suc (+-suc m n)
+
+-- Addition is associative
++-assoc : ∀ m n o → m + (n + o) ≡ (m + n) + o
++-assoc zero _ _    = refl
++-assoc (suc m) n o = cong suc (+-assoc m n o)
+
 predℕ : ℕ → ℕ
 predℕ zero    = 0
 predℕ (suc n) = n
