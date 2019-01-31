@@ -32,53 +32,69 @@ use a sandbox (that installs agda locally in a folder and not globally
 on your system). To download and compile the development version Agda
 in a cabal sandbox do the following:
 
+```
 > git clone https://github.com/agda/agda
 > cd agda
 > cabal sandbox init
 > cabal update
 > make
+```
 
 This should put the agda and agda-mode executables in the folder
-agda/.cabal-sandbox/bin.
+`agda/.cabal-sandbox/bin`.
 
 In order to be able to access these on your system you need to add
-them to your $PATH environment variable. On a typical Linux/Mac
+them to your `$PATH` environment variable. On a typical Linux/Mac
 installation this can be done by adding
 
-PATH=/path/to/agda/.cabal-sandbox/bin:$PATH
+```
+export PATH=/path/to/agda/.cabal-sandbox/bin:$PATH
+```
 
-in your ~/.bashrc or ~/.bash_profile. Here path/to/agda is the
+in your `~/.bashrc` or `~/.bash_profile`. Here `path/to/agda` is the
 absolute path to where you cloned the agda repository. In order for
 this change to take effect you then have to run
 
+```
 > source ~/.bashrc
+```
 
 or
 
+```
 > source ~/.bash_profile
+```
 
 or restart the terminal. You should now be able to run:
 
+```
 > agda --version
+```
 
 to see that agda has been properly installed and is available in your
-$PATH. You then also want to setup the agda-mode for emacs:
+`$PATH`. You then also want to setup the agda-mode for emacs:
 
+```
 > agda-mode setup
+```
 
 Once this works go to a suitable directory and run
 
+```
 > git clone https://github.com/agda/cubical
 > cd cubical
 > make
+```
 
 This should compile all of the agda/cubical files. To test that it
 works in emacs run
 
+```
 > emacs Cubical/Core/Primitives.agda
+```
 
-and then type C-c C-l. This should now load the file and you can start
-developing your own cubical files.
+and then type `C-c C-l`. This should now load the file and you can
+start developing your own cubical files.
 
 You can also register cubical as a library to depend on it in your own
 Agda developments:
@@ -91,55 +107,71 @@ stack install instructions
 
 In order to install Agda using stack do the following:
 
+```
 > git clone https://github.com/agda/agda
 > cd agda
 > cp stack-"version".yaml stack.yaml
 > stack setup
 > stack build
+```
 
 Where "version" is a suitable version of ghc (for example 8.6.3). This
 should put the agda and agda-mode executables in the folder
-agda/.stack-work/install/.../.../.../bin.
+`agda/.stack-work/install/.../.../.../bin`.
 
-where ... are system and setup dependent. In order to be able to
-access these on your system you need to add them to your $PATH
+where `...` are system and setup dependent. In order to be able to
+access these on your system you need to add them to your `$PATH`
 environment variable. On a typical Linux/Mac installation this can be
 done by adding
 
+```
 PATH=/path/to/agda/.stack-work/install/.../.../.../bin:$PATH
+```
 
-in your ~/.bashrc or ~/.bash_profile. Here path/to/agda is the
+in your `~/.bashrc` or `~/.bash_profile`. Here `path/to/agda` is the
 absolute path to where you cloned the agda repository. In order for
 this change to take effect you then have to run
 
+```
 > source ~/.bashrc
+```
 
 or
 
+```
 > source ~/.bash_profile
+```
 
 or restart the terminal. You should now be able to run:
 
+```
 > agda --version
+```
 
 to see that agda has been properly installed and is available in your
-$PATH. You then also want to setup the agda-mode for emacs:
+`$PATH`. You then also want to setup the agda-mode for emacs:
 
+```
 > agda-mode setup
+```
 
 Once this works go to a suitable directory and run
 
+```
 > git clone https://github.com/agda/cubical
 > cd cubical
 > make
+```
 
 This should compile all of the agda/cubical files. To test that it
 works in emacs run
 
+```
 > emacs Cubical/Core/Primitives.agda
+```
 
-and then type C-c C-l. This should now load the file and you can start
-developing your own cubical files.
+and then type `C-c C-l`. This should now load the file and you can
+start developing your own cubical files.
 
 You can also register cubical as a library to depend on it in your own
 Agda developments:
