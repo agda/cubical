@@ -150,21 +150,27 @@ oddBinℕ (binℕpos pos1)   = true
 oddBinℕ (binℕpos (x0 _)) = false
 oddBinℕ (binℕpos (x1 _)) = true
 
--- And prove the following property (without induction)
-oddBinℕSuc : (n : Binℕ) → oddBinℕ n ≡ not (oddBinℕ (sucBinℕ n))
-oddBinℕSuc binℕ0            = refl
-oddBinℕSuc (binℕpos pos1)   = refl
-oddBinℕSuc (binℕpos (x0 x)) = refl
-oddBinℕSuc (binℕpos (x1 x)) = refl
+evenBinℕ : Binℕ → Bool
+evenBinℕ n = oddBinℕ (sucBinℕ n)
 
--- It is also easy to define and prove the property for binary
--- numbers, however the definition is inductive
+-- And prove the following property (without induction)
+oddBinℕnotEvenBinℕ : (n : Binℕ) → oddBinℕ n ≡ not (evenBinℕ n)
+oddBinℕnotEvenBinℕ binℕ0            = refl
+oddBinℕnotEvenBinℕ (binℕpos pos1)   = refl
+oddBinℕnotEvenBinℕ (binℕpos (x0 x)) = refl
+oddBinℕnotEvenBinℕ (binℕpos (x1 x)) = refl
+
+-- It is also easy to define and prove the property for unary numbers,
+-- however the definition uses recursion and the proof induction
 private
   oddn : ℕ → Bool
   oddn zero    = true
   oddn (suc x) = not (oddn x)
 
-  oddnSuc : (n : ℕ) → oddn n ≡ not (oddn (suc n))
+  evenn : ℕ → Bool
+  evenn n = not (oddn n)
+
+  oddnSuc : (n : ℕ) → oddn n ≡ not (evenn n)
   oddnSuc zero    = refl
   oddnSuc (suc n) = cong not (oddnSuc n)
 
@@ -174,54 +180,83 @@ private
 oddℕ : ℕ → Bool
 oddℕ = transport (λ i → Binℕ≡ℕ i → Bool) oddBinℕ
 
+evenℕ : ℕ → Bool
+evenℕ = transport (λ i → Binℕ≡ℕ i → Bool) evenBinℕ
+
 -- We can then also transport the property
-private
-  -- We first need to define what it means to be an interface for
-  -- natural numbers
-  record NatImpl (A : Set) : Set where
-    field
-      z : A
-      s : A → A
-  open NatImpl
+oddℕnotEvenℕ : (n : ℕ) → oddℕ n ≡ not (evenℕ n)
+oddℕnotEvenℕ =
+  let -- We first build a path from oddBinℕ to oddℕ. When i=1 this is
+      -- "transp (λ j → Binℕ≡ℕ j → Bool) i0 oddBinℕ" (i.e. oddℕ)
+      oddp : PathP (λ i → Binℕ≡ℕ i → Bool) oddBinℕ oddℕ
+      oddp i = transp (λ j → Binℕ≡ℕ (i ∧ j) → Bool) (~ i) oddBinℕ
+      
+      -- We then build a path from evenBinℕ to evenℕ
+      evenp : PathP (λ i → Binℕ≡ℕ i → Bool) evenBinℕ evenℕ
+      evenp i = transp (λ j → Binℕ≡ℕ (i ∧ j) → Bool) (~ i) evenBinℕ
+  in -- Then transport oddBinℕnotEvenBinℕ in a suitable equality type
+     -- When i=0 this is "(n : Binℕ) → oddBinℕ n ≡ not (evenBinℕ n)"
+     -- When i=1 this is "(n : ℕ) → oddℕ n ≡ not (evenℕ n)"
+     transport (λ i → (n : Binℕ≡ℕ i) → oddp i n ≡ not (evenp i n)) oddBinℕnotEvenBinℕ
 
-  NatImplℕ : NatImpl ℕ
-  NatImplℕ = record { z = zero ; s = suc }
 
-  NatImplBinℕ : NatImpl Binℕ
-  NatImplBinℕ = record { z = binℕ0 ; s = sucBinℕ }
+-- We can do the same for natural numbers:
 
-  -- Using the equality between binary and unary numbers we can get an
-  -- equality between the two implementations of the NatImpl interface
-  NatImplℕ≡NatImplBinℕ : PathP (λ i → NatImpl (Binℕ≡ℕ (~ i))) NatImplℕ NatImplBinℕ
-  z (NatImplℕ≡NatImplBinℕ i) = transp (λ j → Binℕ≡ℕ (~ i ∨ ~ j)) (~ i) zero
-  s (NatImplℕ≡NatImplBinℕ i) =
-     λ x → glue (λ { (i = i0) → suc x
-                   ; (i = i1) → sucBinℕ x })
-                -- We need to do use and hcomp to do and endpoint
-                -- correction as "suc (unglue x)" connects "suc x"
-                -- with "suc (Binℕ→ℕ x)" along i (which makes sense as
-                -- x varies from ℕ to Binℕ along i), but we need
-                -- something from "suc x" to "Binℕ→ℕ (sucBinℕ x)" for
-                -- the glue to be well-formed
-                (hcomp (λ j → λ { (i = i0) → suc x
-                                ; (i = i1) → Binℕ→ℕsuc x j })
-                       (suc (unglue (i ∨ ~ i) x)))
+-- First construct the path
+addp : PathP (λ i → Binℕ≡ℕ (~ i) → Binℕ≡ℕ (~ i) → Binℕ≡ℕ (~ i)) _+_ _+Binℕ_
+addp i = transp (λ j → Binℕ≡ℕ (~ i ∨ ~ j) → Binℕ≡ℕ (~ i ∨ ~ j) → Binℕ≡ℕ (~ i ∨ ~ j)) (~ i) _+_
 
-  -- Using the equality between the two NatImplementations we can then
-  -- transport oddBinℕSuc to unary numbers
-  oddℕSuc : (n : ℕ) → oddℕ n ≡ not (oddℕ (suc n))
-  oddℕSuc =
-    let -- Transport oddBinℕ from 0 to i
-        -- When i=0 this is oddBinℕ
-        -- When i=1 this is "transp (λ j → Binℕ≡ℕ j → Bool) i0 oddBinℕ" (i.e. oddℕ)
-        eq : (i : I) → Binℕ≡ℕ i → Bool
-        eq i = transp (λ j → Binℕ≡ℕ (i ∧ j) → Bool) (~ i) oddBinℕ
-    in -- Then transport oddBinℕSuc from 0 to 1 in a suitable equality type
-       -- When i=0 this is "(n : Binℕ) → oddBinℕ n ≡ not (oddBinℕ (sucBinℕ n))"
-       -- When i=1 this is "(n : ℕ) → oddℕ n ≡ not (oddℕ (suc n))"
-       transport
-         (λ i → (n : Binℕ≡ℕ i) → eq i n ≡ not (eq i (NatImplℕ≡NatImplBinℕ (~ i) .s n)))
-         oddBinℕSuc
+-- Then transport associativity:
++Binℕ-assoc : ∀ m n o → m +Binℕ (n +Binℕ o) ≡ (m +Binℕ n) +Binℕ o
++Binℕ-assoc =
+  transport (λ i → (m n o : Binℕ≡ℕ (~ i))
+                 → addp i m (addp i n o) ≡ addp i (addp i m n) o) +-assoc
+
+
+-- We can also define what it means to be an implementation of natural
+-- numbers and use this to transport properties between different
+-- implementation of natural numbers. This can be seen as a special
+-- case of the structure identity principle: any property that holds
+-- for one structure also holds for an equivalent one.
+
+-- An implementation of natural numbers (i.e. a "natural number
+-- structure") has a zero and successor.
+record NatImpl (A : Set) : Set where
+  field
+    z : A
+    s : A → A
+open NatImpl
+
+NatImplℕ : NatImpl ℕ
+z NatImplℕ = zero
+s NatImplℕ = suc
+
+NatImplBinℕ : NatImpl Binℕ
+z NatImplBinℕ = binℕ0
+s NatImplBinℕ = sucBinℕ
+
+-- Using the equality between binary and unary numbers we can get an
+-- equality between the two implementations of the NatImpl interface
+NatImplℕ≡Binℕ : PathP (λ i → NatImpl (Binℕ≡ℕ (~ i))) NatImplℕ NatImplBinℕ
+z (NatImplℕ≡Binℕ i) = transp (λ j → Binℕ≡ℕ (~ i ∨ ~ j)) (~ i) zero
+s (NatImplℕ≡Binℕ i) =
+  λ x → glue (λ { (i = i0) → suc x
+                ; (i = i1) → sucBinℕ x })
+             -- We need to do use and hcomp to do and endpoint
+             -- correction as "suc (unglue x)" connects "suc x"
+             -- with "suc (Binℕ→ℕ x)" along i (which makes sense as
+             -- x varies from ℕ to Binℕ along i), but we need
+             -- something from "suc x" to "Binℕ→ℕ (sucBinℕ x)" for
+             -- the glue to be well-formed
+             (hcomp (λ j → λ { (i = i0) → suc x
+                             ; (i = i1) → Binℕ→ℕsuc x j })
+                    (suc (unglue (i ∨ ~ i) x)))
+
+-- We then use this to transport +-suc from unary to binary numbers
++Binℕ-suc : ∀ m n → m +Binℕ sucBinℕ n ≡ sucBinℕ (m +Binℕ n)
++Binℕ-suc =
+  transport (λ i → (m n : Binℕ≡ℕ (~ i))
+                 → addp i m (NatImplℕ≡Binℕ i .s n) ≡ NatImplℕ≡Binℕ i .s (addp i m n)) +-suc
 
 
 -- Doubling experiment: we define a notion of "doubling structure" and
@@ -385,9 +420,7 @@ oddℕ' : ℕ → Bool
 oddℕ' = transport (λ i → ℕ≡binnat (~ i) → Bool) oddbinnat
 
 -- The NatImpl example for this representation of binary numbers
-module _ where
-  open NatImpl
-
+private
   NatImplbinnat : NatImpl binnat
   z NatImplbinnat = zero
   s NatImplbinnat = suc-binnat
