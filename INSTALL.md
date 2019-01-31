@@ -125,7 +125,7 @@ environment variable. On a typical Linux/Mac installation this can be
 done by adding
 
 ```
-PATH=/path/to/agda/.stack-work/install/.../.../.../bin:$PATH
+export PATH=/path/to/agda/.stack-work/install/.../.../.../bin:$PATH
 ```
 
 in your `~/.bashrc` or `~/.bash_profile`. Here `path/to/agda` is the
