@@ -9,6 +9,3 @@ open import Cubical.Basics.EverythingSafe public
 
 -- Assumes --guardedness
 open import Cubical.Basics.Stream public
-
--- Uses --rewriting
-open import Cubical.Basics.Int.Rewrite public

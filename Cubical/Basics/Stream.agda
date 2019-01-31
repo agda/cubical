@@ -3,7 +3,7 @@
 module Cubical.Basics.Stream where
 
 open import Cubical.Core.Prelude
-open import Cubical.Basics.Nat
+open import Cubical.Data.Nat
 open import Cubical.Basics.Equiv
 
 

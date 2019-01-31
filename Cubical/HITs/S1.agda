@@ -10,9 +10,10 @@ open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
-open import Cubical.Basics.Int
-open import Cubical.Basics.Nat
 open import Cubical.Basics.Equiv
+
+open import Cubical.Data.Int
+open import Cubical.Data.Nat
 
 data S¹ : Set where
   base : S¹

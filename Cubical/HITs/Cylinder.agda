@@ -7,6 +7,8 @@ open import Cubical.Core.Everything
 import Cubical.Basics.EverythingSafe as Basics
 open Basics hiding (inl; inr)
 
+open import Cubical.Data.EverythingSafe
+
 open import Cubical.HITs.Interval
 
 -- Cylinder A is a cylinder object in the category of cubical types.

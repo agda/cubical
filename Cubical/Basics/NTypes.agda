@@ -12,7 +12,7 @@ module Cubical.Basics.NTypes where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Basics.Empty
+open import Cubical.Data.Empty
 open import Cubical.Basics.Function
 
 isOfHLevel : ∀ {ℓ} → ℕ → Set ℓ → Set ℓ

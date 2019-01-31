@@ -1,11 +1,12 @@
 {-# OPTIONS --cubical --no-exact-split --safe #-}
-module Cubical.Basics.Nat where
+module Cubical.Data.Nat.Nat where
 
 open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 
-open import Cubical.Basics.Empty
 open import Cubical.Basics.NTypes
+
+open import Cubical.Data.Empty
 
 +-suc : ∀ m n → m + suc n ≡ suc (m + n)
 +-suc zero    n = refl

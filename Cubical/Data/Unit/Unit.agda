@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Basics.Unit where
+module Cubical.Data.Unit.Unit where
 
 open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude

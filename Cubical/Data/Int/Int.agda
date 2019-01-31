@@ -1,14 +1,15 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Basics.Int where
+module Cubical.Data.Int.Int where
 
 open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
-open import Cubical.Basics.Empty
 open import Cubical.Basics.Equiv
-open import Cubical.Basics.Nat
 open import Cubical.Basics.NTypes
+
+open import Cubical.Data.Empty
+open import Cubical.Data.Nat
 
 data Int : Set where
   pos    : (n : ℕ) → Int
