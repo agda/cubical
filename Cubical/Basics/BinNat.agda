@@ -205,7 +205,7 @@ private
                 -- the glue to be well-formed
                 (hcomp (λ j → λ { (i = i0) → suc x
                                 ; (i = i1) → Binℕ→ℕsuc x j })
-                       (suc (unglue {φ = i ∨ ~ i} x)))
+                       (suc (unglue (i ∨ ~ i) x)))
 
   -- Using the equality between the two NatImplementations we can then
   -- transport oddBinℕSuc to unary numbers
@@ -282,7 +282,7 @@ private
                   ; (i = i1) → doubleℕ x })
                (hcomp (λ j → λ { (i = i0) → Binℕ→ℕdouble x j
                                ; (i = i1) → doubleℕ x })
-                      (doubleℕ (unglue {φ = i ∨ ~ i} x)))
+                      (doubleℕ (unglue (i ∨ ~ i) x)))
   elt (DoubleBinℕ≡Doubleℕ i) = transp (λ j → Binℕ≡ℕ (i ∨ ~ j)) i (Doubleℕ .elt)
 
   -- We can now use transport to prove a property that is too slow to
@@ -399,7 +399,7 @@ module _ where
   s (NatImplℕ≡NatImplbinnat i) =
     λ x → glue (λ { (i = i0) → suc x
                   ; (i = i1) → suc-binnat x })
-               (suc-binnat (unglue {φ = i ∨ ~ i} x))
+               (suc-binnat (unglue (i ∨ ~ i) x))
 
   oddSuc : (n : binnat) → oddbinnat n ≡ not (oddbinnat (suc-binnat n))
   oddSuc zero         = refl
