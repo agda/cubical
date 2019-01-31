@@ -1,6 +1,7 @@
 check: $(wildcard **/*.agda)
 	agda Cubical/Core/Everything.agda
 	agda Cubical/Basics/Everything.agda
+	agda Cubical/Codata/Everything.agda
 	agda Cubical/Data/Everything.agda
 	agda Cubical/HITs/Everything.agda
 

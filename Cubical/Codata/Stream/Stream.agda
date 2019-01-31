@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --guardedness #-}
 
-module Cubical.Basics.Stream where
+module Cubical.Codata.Stream.Stream where
 
 open import Cubical.Core.Prelude
 open import Cubical.Data.Nat
