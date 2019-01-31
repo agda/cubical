@@ -18,9 +18,9 @@ open import Cubical.Basics.NTypes
 open import Cubical.Basics.Equiv
 
 -- Give detailed type to unglue, mainly for documentation purposes
-unglueua : ∀ {A B : Set} → (e : A ≃ B) → (i : I) (x : ua e i) →
-           B [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → x }) ]
-unglueua e i x = inc (unglue {φ = i ∨ ~ i} x)
+unglueua : ∀ {A B : Set} → (e : A ≃ B) → (i : I) (x : ua e i)
+           → B [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → x }) ]
+unglueua e i x = inc (unglue (i ∨ ~ i) x)
 
 
 contrSinglEquiv : ∀ {ℓ} {A B : Set ℓ} (e : A ≃ B) → (B , idEquiv B) ≡ (A , e)
