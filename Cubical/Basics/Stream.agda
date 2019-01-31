@@ -96,7 +96,7 @@ module Equality≅Bisimulation where
   ≈tail refl≈ = refl≈
 
   cast : ∀ {A : Set} {x y : Stream A} (p : x ≡ y) → x ≈ y
-  cast {A} {x} {y} p = transp (λ i → x ≈ p i) i0 refl≈
+  cast {x = x} p = transport (λ i → x ≈ p i) refl≈
 
   misib-refl : ∀ {A : Set} {x : Stream A} → misib {x = x} refl ≡ refl≈
   ≈head (misib-refl i) = refl
@@ -104,7 +104,7 @@ module Equality≅Bisimulation where
 
 
   misibTransp : ∀ {A : Set} {x y : Stream A} (p : x ≡ y) → cast p ≡ misib p
-  misibTransp {x = x} p = J (\ _ p → cast p ≡ misib p) (compPath (transpRefl refl≈) (sym misib-refl)) p
+  misibTransp p = J (λ _ p → cast p ≡ misib p) (compPath (transportRefl refl≈) (sym misib-refl)) p
 
 
 

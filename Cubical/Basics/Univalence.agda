@@ -89,14 +89,13 @@ LiftEquiv = isoToEquiv lift lower (λ _ → refl) (λ _ → refl)
 univalencePath : ∀ {ℓ} {A B : Set ℓ} → (A ≡ B) ≡ Lift (A ≃ B)
 univalencePath = ua (compEquiv univalence LiftEquiv)
 
-
 -- The computation rule for ua
-uaβ : ∀ {ℓ} {A B : Set ℓ} (e : A ≃ B) (x : A) → transp (λ i → ua e i) i0 x ≡ e .fst x
+uaβ : ∀ {ℓ} {A B : Set ℓ} (e : A ≃ B) (x : A) → transport (ua e) x ≡ e .fst x
 uaβ {B = B} e x i =
-  (hcomp (λ j → λ { (i = i1) → e .fst x })
-    (transp (λ _ → B) i
+  hcomp (λ j → λ { (i = i1) → e .fst x })
+    (transportRefl
       (hcomp (λ j → λ { (i = i1) → e .fst x})
-        (transp (λ _ → B) i (e .fst x)))))
+        (transportRefl (e .fst x) i)) i)
 
 -- Alternative version of EquivJ that only requires a predicate on
 -- functions

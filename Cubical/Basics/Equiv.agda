@@ -4,6 +4,7 @@ Theory about equivalences (definitions are in Core/Glue.agda)
 
 - isEquiv is a proposition ([isPropIsEquiv])
 - Any isomorphism is an equivalence ([isoToEquiv])
+- transport is an equivalence ([transportEquiv])
 
 -}
 {-# OPTIONS --cubical --safe #-}
@@ -51,15 +52,18 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A)
   private
     module _ (y : B) (x0 x1 : A) (p0 : f x0 ≡ y) (p1 : f x1 ≡ y) where
       fill0 : I → I → A
-      fill0 i = hfill (λ k → λ { (i = i1) → t x0 k; (i = i0) → g y })
+      fill0 i = hfill (λ k → λ { (i = i1) → t x0 k
+                               ; (i = i0) → g y })
                       (inc (g (p0 (~ i))))
 
       fill1 : I → I → A
-      fill1 i = hfill (λ k → λ { (i = i1) → t x1 k; (i = i0) → g y })
+      fill1 i = hfill (λ k → λ { (i = i1) → t x1 k
+                               ; (i = i0) → g y })
                       (inc (g (p1 (~ i))))
 
       fill2 : I → I → A
-      fill2 i = hfill (λ k → λ { (i = i1) → fill1 k i1; (i = i0) → fill0 k i1 })
+      fill2 i = hfill (λ k → λ { (i = i1) → fill1 k i1
+                               ; (i = i0) → fill0 k i1 })
                       (inc (g y))
 
       p : x0 ≡ x1
@@ -120,3 +124,15 @@ compEquiv f g = isoToEquiv (λ x → g .fst (f .fst x))
 --   invEquivInvol f i .fst = fst f
 --   invEquivInvol f i .snd = propIsEquiv (fst f) (snd (invEquiv (invEquiv f))) (snd f) i
 
+
+-- Transport is an equivalence
+isEquivTransport : ∀ {ℓ} {A B : Set ℓ} (p : A ≡ B) → isEquiv (transport p)
+isEquivTransport {A = A} =
+  J (λ y x → isEquiv (transport x)) (isoToIsEquiv (transport refl) (transport refl) rem rem)
+    where
+    rem : (x : A) → transport refl (transport refl x) ≡ x
+    rem x = compPath (cong (transport refl) (transportRefl x))
+                     (transportRefl x)
+
+transportEquiv : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B
+transportEquiv p = (transport p , isEquivTransport p)
