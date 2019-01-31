@@ -128,7 +128,6 @@ filli→j A {φ = φ} u i ui j =
 
 -- We can reconstruct fill from hfill, coei→j, and the path coei→i ≡ id.
 -- The definition does not rely on the computational content of the coei→i path.
-
 fill' : ∀ {ℓ} (A : I → Set ℓ)
        {φ : I}
        (u : ∀ i → Partial φ (A i))
