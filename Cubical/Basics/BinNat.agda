@@ -449,8 +449,6 @@ binnat→ℕ→binnat (consEven n) =
 _+binnat_ : binnat → binnat → binnat
 _+binnat_ = transport (λ i → ℕ≡binnat i → ℕ≡binnat i → ℕ≡binnat i) _+_
 
--- TODO: prove   _+binnat_ ≡ _+_
-
 -- Test: 4 + 1 = 5
 _ : consEven (consOdd zero) +binnat consOdd zero ≡ consOdd (consEven zero)
 _ = refl
