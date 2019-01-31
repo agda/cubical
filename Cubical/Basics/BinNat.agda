@@ -1,9 +1,59 @@
--- This file defines two representations of binary numbers. We prove
--- that they are equivalent to unary numbers and univalence is then
--- used to transport both programs and properties between the
--- representations. This is an example of how having computational
--- univalence can be useful for practical programming.
---
+{- Binary natural numbers (Anders Mörtberg, Jan. 2019)
+
+This file defines two representations of binary numbers. We prove that
+they are equivalent to unary numbers and univalence is then used to
+transport both programs and properties between the representations.
+This is an example of how having computational univalence can be
+useful for practical programming.
+
+The first definition is [Binℕ] and the numbers are essentially lists
+of 0/1 with no trailing zeroes (in little-endian format). The main
+definitions and examples are:
+
+- Equivalence between Binℕ and ℕ ([Binℕ≃ℕ]) with an equality obtained
+  using univalence ([Binℕ≡ℕ]).
+
+- Addition on Binℕ defined by transporting addition on ℕ to Binℕ
+  ([_+Binℕ_]) along Binℕ≡ℕ together with a proof that addition on Binℕ
+  is associative obtained by transporting the proof for ℕ ([+Binℕ-assoc]).
+
+- Functions testing whether a binary number is odd or even in O(1)
+  ([oddBinℕ], [evenBinℕ]) and the corresponding functions for ℕ
+  obtained by transport. Proof that odd numbers are not even
+  transported from Binℕ to ℕ ([oddℕnotEvenℕ]).
+
+- An example of the structure identity principle for natural number
+  structures ([NatImpl]). We first prove that Binℕ≡ℕ lifts to natural
+  number structures ([NatImplℕ≡Binℕ]) and we then use this to
+  transport "+-suc : m + suc n ≡ suc (m + n)" from ℕ to Binℕ ([+Binℕ-suc]).
+
+- An example of program/data refinement using the structure identity
+  principle where we transport a property that is infeasible to prove
+  by computation for ℕ ([propDoubleℕ]):
+
+      2^20 * 2^10 = 2^5 * (2^15 * 2^10)
+
+  from the corresponding result on Binℕ which is proved instantly by
+  refl ([propDoubleBinℕ]).
+
+
+These examples are inspired from an old cubicaltt formalization:
+
+https://github.com/mortberg/cubicaltt/blob/master/examples/binnat.ctt
+
+which itself is based on an even older cubical formalization (from 2014):
+
+https://github.com/simhu/cubical/blob/master/examples/binnat.cub
+
+
+
+The second representation is more non-standard and inspired by:
+
+https://github.com/RedPRL/redtt/blob/master/library/cool/nats.red
+
+Only some of the experiments have been done for this representation.
+
+-}
 {-# OPTIONS --cubical --no-exact-split --safe #-}
 module Cubical.Basics.BinNat where
 
@@ -16,11 +66,6 @@ open import Cubical.Basics.Bool
 open import Cubical.Basics.Empty
 open import Cubical.Basics.Equiv
 open import Cubical.Basics.Univalence
-
-------------------------------------------------------------------------------
-
--- Inspired by an old cubicaltt formalization:
--- https://github.com/mortberg/cubicaltt/blob/master/examples/binnat.ctt
 
 -- Positive binary numbers
 data Pos : Set where
@@ -190,7 +235,7 @@ oddℕnotEvenℕ =
       -- "transp (λ j → Binℕ≡ℕ j → Bool) i0 oddBinℕ" (i.e. oddℕ)
       oddp : PathP (λ i → Binℕ≡ℕ i → Bool) oddBinℕ oddℕ
       oddp i = transp (λ j → Binℕ≡ℕ (i ∧ j) → Bool) (~ i) oddBinℕ
-      
+
       -- We then build a path from evenBinℕ to evenℕ
       evenp : PathP (λ i → Binℕ≡ℕ i → Bool) evenBinℕ evenℕ
       evenp i = transp (λ j → Binℕ≡ℕ (i ∧ j) → Bool) (~ i) evenBinℕ
@@ -259,90 +304,89 @@ s (NatImplℕ≡Binℕ i) =
                  → addp i m (NatImplℕ≡Binℕ i .s n) ≡ NatImplℕ≡Binℕ i .s (addp i m n)) +-suc
 
 
+
 -- Doubling experiment: we define a notion of "doubling structure" and
 -- transport a proof that is proved directly using refl for binary
 -- numbers to unary numbers. This is an example of program/data
 -- refinement: we can use univalence to prove properties about
 -- inefficient data-structures using efficient ones.
-private
-  -- Doubling structure
-  record Double {ℓ} (A : Set ℓ) : Set (ℓ-suc ℓ) where
-    field
-      -- doubling function computing 2 * x
-      double : A → A
-      -- element to double
-      elt : A
-  open Double
 
-  -- Compute: 2^n * x
-  doubles : ∀ {ℓ} {A : Set ℓ} (D : Double A) → ℕ → A → A
-  doubles D n x = iter n (double D) x
+-- Doubling structures
+record Double {ℓ} (A : Set ℓ) : Set (ℓ-suc ℓ) where
+  field
+    -- doubling function computing 2 * x
+    double : A → A
+    -- element to double
+    elt : A
+open Double
 
-  Doubleℕ : Double ℕ
-  double Doubleℕ = doubleℕ
-  elt Doubleℕ    = n1024
-    where
-    -- 1024 = 2^8 * 2^2 = 2^10
-    n1024 : ℕ
-    n1024 = doublesℕ 8 4
+-- Compute: 2^n * x
+doubles : ∀ {ℓ} {A : Set ℓ} (D : Double A) → ℕ → A → A
+doubles D n x = iter n (double D) x
 
-  -- The doubling operation on binary numbers is O(1), while for unary
-  -- numbers it is O(n). What is of course even more problematic is
-  -- that we cannot handle very big unary natural numbers, but with
-  -- binary there is no problem to represent very big numbers
-  doubleBinℕ : Binℕ → Binℕ
-  doubleBinℕ binℕ0       = binℕ0
-  doubleBinℕ (binℕpos x) = binℕpos (x0 x)
+Doubleℕ : Double ℕ
+double Doubleℕ = doubleℕ
+elt Doubleℕ    = n1024
+  where
+  -- 1024 = 2^8 * 2^2 = 2^10
+  n1024 : ℕ
+  n1024 = doublesℕ 8 4
 
-  DoubleBinℕ : Double Binℕ
-  double DoubleBinℕ = doubleBinℕ
-  elt DoubleBinℕ    = bin1024
-    where
-    -- 1024 = 2^10 = 10000000000₂
-    bin1024 : Binℕ
-    bin1024 = binℕpos (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 pos1))))))))))
+-- The doubling operation on binary numbers is O(1), while for unary
+-- numbers it is O(n). What is of course even more problematic is that
+-- we cannot handle very big unary natural numbers, but with binary
+-- there is no problem to represent very big numbers
+doubleBinℕ : Binℕ → Binℕ
+doubleBinℕ binℕ0       = binℕ0
+doubleBinℕ (binℕpos x) = binℕpos (x0 x)
 
-  -- As these function don't commute strictly we have to prove it
-  -- separately and insert it in the proof of DoubleBinℕ≡Doubleℕ below
-  -- (just like we had to in NatImplℕ≡NatImplBinℕ
-  Binℕ→ℕdouble : (x : Binℕ) → doubleℕ (Binℕ→ℕ x) ≡ Binℕ→ℕ (doubleBinℕ x)
-  Binℕ→ℕdouble binℕ0       = refl
-  Binℕ→ℕdouble (binℕpos x) = refl
+DoubleBinℕ : Double Binℕ
+double DoubleBinℕ = doubleBinℕ
+elt DoubleBinℕ    = bin1024
+  where
+  -- 1024 = 2^10 = 10000000000₂
+  bin1024 : Binℕ
+  bin1024 = binℕpos (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 (x0 pos1))))))))))
 
-  -- We use the equality between Binℕ and ℕ to get an equality of
-  -- doubling structures
-  DoubleBinℕ≡Doubleℕ : PathP (λ i → Double (Binℕ≡ℕ i)) DoubleBinℕ Doubleℕ
-  double (DoubleBinℕ≡Doubleℕ i) =
-    λ x → glue (λ { (i = i0) → doubleBinℕ x
-                  ; (i = i1) → doubleℕ x })
-               (hcomp (λ j → λ { (i = i0) → Binℕ→ℕdouble x j
-                               ; (i = i1) → doubleℕ x })
-                      (doubleℕ (unglue (i ∨ ~ i) x)))
-  elt (DoubleBinℕ≡Doubleℕ i) = transp (λ j → Binℕ≡ℕ (i ∨ ~ j)) i (Doubleℕ .elt)
+-- As these function don't commute strictly we have to prove it
+-- separately and insert it in the proof of DoubleBinℕ≡Doubleℕ below
+-- (just like we had to in NatImplℕ≡NatImplBinℕ
+Binℕ→ℕdouble : (x : Binℕ) → doubleℕ (Binℕ→ℕ x) ≡ Binℕ→ℕ (doubleBinℕ x)
+Binℕ→ℕdouble binℕ0       = refl
+Binℕ→ℕdouble (binℕpos x) = refl
 
-  -- We can now use transport to prove a property that is too slow to
-  -- check with unary numbers. We define the property we want to check
-  -- as a record so that Agda does not try to unfold it eagerly.
-  record propDouble {ℓ} {A : Set ℓ} (D : Double A) : Set ℓ where
-    field
-    -- 2^20 * e = 2^5 * (2^15 * e)
-      proof : doubles D 20 (elt D) ≡ doubles D 5 (doubles D 15 (elt D))
-  open propDouble
+-- We use the equality between Binℕ and ℕ to get an equality of
+-- doubling structures
+DoubleBinℕ≡Doubleℕ : PathP (λ i → Double (Binℕ≡ℕ i)) DoubleBinℕ Doubleℕ
+double (DoubleBinℕ≡Doubleℕ i) =
+  λ x → glue (λ { (i = i0) → doubleBinℕ x
+                ; (i = i1) → doubleℕ x })
+             (hcomp (λ j → λ { (i = i0) → Binℕ→ℕdouble x j
+                             ; (i = i1) → doubleℕ x })
+                    (doubleℕ (unglue (i ∨ ~ i) x)))
+elt (DoubleBinℕ≡Doubleℕ i) = transp (λ j → Binℕ≡ℕ (i ∨ ~ j)) i (Doubleℕ .elt)
 
-  -- The property we want to prove takes too long to typecheck for ℕ:
-  -- propDoubleℕ : propDouble Doubleℕ
-  -- propDoubleℕ = refl
+-- We can now use transport to prove a property that is too slow to
+-- check with unary numbers. We define the property we want to check
+-- as a record so that Agda does not try to unfold it eagerly.
+record propDouble {ℓ} {A : Set ℓ} (D : Double A) : Set ℓ where
+  field
+  -- 2^20 * e = 2^5 * (2^15 * e)
+    proof : doubles D 20 (elt D) ≡ doubles D 5 (doubles D 15 (elt D))
+open propDouble
 
-  -- With binary numbers it is instant
-  propDoubleBinℕ : propDouble DoubleBinℕ
-  proof propDoubleBinℕ = refl
+-- The property we want to prove takes too long to typecheck for ℕ:
+-- propDoubleℕ : propDouble Doubleℕ
+-- propDoubleℕ = refl
 
-  -- By transporting the proof along the equivalence we then get it
-  -- for unary numbers
-  propDoubleℕ : propDouble Doubleℕ
-  propDoubleℕ = transport (λ i → propDouble (DoubleBinℕ≡Doubleℕ i)) propDoubleBinℕ
+-- With binary numbers it is instant
+propDoubleBinℕ : propDouble DoubleBinℕ
+proof propDoubleBinℕ = refl
 
-
+-- By transporting the proof along the equality we then get it for
+-- unary numbers
+propDoubleℕ : propDouble Doubleℕ
+propDoubleℕ = transport (λ i → propDouble (DoubleBinℕ≡Doubleℕ i)) propDoubleBinℕ
 
 
 --------------------------------------------------------------------------------
