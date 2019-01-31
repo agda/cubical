@@ -75,8 +75,8 @@ Path A a b = PathP (λ _ → A) a b
 -- extensional judgmental equality.
 -- "PartialP φ A" allows "A" to be defined only on "φ".
 
--- Partial : ∀ {ℓ} → Set ℓ → I → Setω
--- PartialP : ∀ {ℓ} → (φ : I) → Partial (Set ℓ) φ → Setω
+-- Partial : ∀ {ℓ} → I → Set ℓ → Setω
+-- PartialP : ∀ {ℓ} → (φ : I) → Partial φ (Set ℓ) → Setω
 
 -- Partial elements are introduced by pattern matching with (r = i0)
 -- or (r = i1) constraints, like so:
