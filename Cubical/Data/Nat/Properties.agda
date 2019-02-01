@@ -8,6 +8,7 @@ open import Cubical.Basics.NTypes
 open import Cubical.Data.Nat.Nat
 
 open import Cubical.Data.Empty
+open import Cubical.Data.Sum
 
 +-suc : ∀ m n → m + suc n ≡ suc (m + n)
 +-suc zero    n = refl

@@ -4,10 +4,10 @@ module Cubical.HITs.Cylinder where
 
 open import Cubical.Core.Everything
 
-import Cubical.Basics.EverythingSafe as Basics
-open Basics hiding (inl; inr)
+open import Cubical.Basics.EverythingSafe
 
-open import Cubical.Data.EverythingSafe
+import Cubical.Data.EverythingSafe as Data
+open Data hiding (inl; inr)
 
 open import Cubical.HITs.Interval
 
@@ -33,17 +33,17 @@ module _ {ℓ} {A : Set ℓ} where
   --
   -- include is the first part of the factorization.
   include : A ⊎ A → Cylinder A
-  include (Basics.inl x) = inl x
-  include (Basics.inr x) = inr x
+  include (Data.inl x) = inl x
+  include (Data.inr x) = inr x
 
   -- The above inclusion is surjective
   includeSurjective : ∀ c → ∥ Σ[ s ∈ A ⊎ A ] include s ≡ c ∥
-  includeSurjective (inl x) = ∣ Basics.inl x , refl ∣
-  includeSurjective (inr x) = ∣ Basics.inr x , refl ∣
+  includeSurjective (inl x) = ∣ Data.inl x , refl ∣
+  includeSurjective (inr x) = ∣ Data.inr x , refl ∣
   includeSurjective (cross x i) =
     squash
-      ∣ Basics.inl x , (λ j → cross x (i ∧ j)) ∣
-      ∣ Basics.inr x , (λ j → cross x (i ∨ ~ j)) ∣
+      ∣ Data.inl x , (λ j → cross x (i ∧ j)) ∣
+      ∣ Data.inr x , (λ j → cross x (i ∨ ~ j)) ∣
       i
 
   elimCyl

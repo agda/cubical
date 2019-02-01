@@ -10,6 +10,7 @@ open import Cubical.Basics.NTypes
 
 open import Cubical.Data.Empty
 open import Cubical.Data.Nat
+open import Cubical.Data.Sum
 
 data Int : Set where
   pos    : (n : ℕ) → Int
