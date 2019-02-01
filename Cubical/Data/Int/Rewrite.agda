@@ -1,8 +1,9 @@
 {-# OPTIONS --cubical --rewriting #-}
-module Cubical.Basics.Int.Rewrite where
+module Cubical.Data.Int.Rewrite where
 
 open import Cubical.Core.Primitives
-open import Cubical.Basics.Int
+
+open import Cubical.Data.Int
 
 -- The following should be removed once we have ghcomp and no empty systems!
 {-# BUILTIN REWRITE _≡_ #-}

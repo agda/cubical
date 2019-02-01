@@ -8,12 +8,15 @@ Basic theory about NTypes:
 
 -}
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Basics.NTypes where
+module Cubical.Foundations.NTypes where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Basics.Empty
-open import Cubical.Basics.Function
+open import Cubical.Foundations.Function
+
+open import Cubical.Data.Nat.Base
+open import Cubical.Data.Empty
+open import Cubical.Data.Sum
 
 isOfHLevel : ∀ {ℓ} → ℕ → Set ℓ → Set ℓ
 isOfHLevel zero A = isContr A
@@ -105,10 +108,6 @@ hLevelPi (suc n) h f g = subst (isOfHLevel n) funExtPath sub-lemma
   sub-lemma = hLevelPi n λ x → h x (f x) (g x)
 
 -- Proof of Hedberg's theorem:
--- TODO: upstream
-data _⊎_ {ℓ ℓ'} (P : Set ℓ) (Q : Set ℓ') : Set (ℓ-max ℓ ℓ') where
-  inl : P → P ⊎ Q
-  inr : Q → P ⊎ Q
 
 stable : ∀ {ℓ} → Set ℓ → Set ℓ
 stable A = ¬ ¬ A → A

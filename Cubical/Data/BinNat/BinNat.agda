@@ -55,17 +55,18 @@ Only some of the experiments have been done for this representation.
 
 -}
 {-# OPTIONS --cubical --no-exact-split --safe #-}
-module Cubical.Basics.BinNat where
+module Cubical.Data.BinNat.BinNat where
 
 open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
-open import Cubical.Basics.Nat
-open import Cubical.Basics.Bool
-open import Cubical.Basics.Empty
-open import Cubical.Basics.Equiv
-open import Cubical.Basics.Univalence
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
+
+open import Cubical.Data.Nat
+open import Cubical.Data.Bool
+open import Cubical.Data.Empty
 
 -- Positive binary numbers
 data Pos : Set where

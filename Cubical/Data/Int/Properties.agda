@@ -1,28 +1,15 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Basics.Int where
+module Cubical.Data.Int.Properties where
 
-open import Cubical.Core.Primitives
-open import Cubical.Core.Prelude
-open import Cubical.Core.Glue
+open import Cubical.Core.Everything
 
-open import Cubical.Basics.Empty
-open import Cubical.Basics.Equiv
-open import Cubical.Basics.Nat
-open import Cubical.Basics.NTypes
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.NTypes
 
-data Int : Set where
-  pos    : (n : ℕ) → Int
-  negsuc : (n : ℕ) → Int
-
-sucInt : Int → Int
-sucInt (pos n)          = pos (suc n)
-sucInt (negsuc zero)    = pos zero
-sucInt (negsuc (suc n)) = negsuc n
-
-predInt : Int → Int
-predInt (pos zero)    = negsuc zero
-predInt (pos (suc n)) = pos n
-predInt (negsuc n)    = negsuc (suc n)
+open import Cubical.Data.Empty
+open import Cubical.Data.Nat
+open import Cubical.Data.Sum
+open import Cubical.Data.Int.Base
 
 sucPred : ∀ i → sucInt (predInt i) ≡ i
 sucPred (pos zero)       = refl
@@ -37,22 +24,21 @@ predSuc (negsuc zero)    = refl
 predSuc (negsuc (suc n)) = refl
 
 suc-equiv : Int ≃ Int
-suc-equiv .fst = sucInt
-suc-equiv .snd = isoToIsEquiv sucInt predInt sucPred predSuc
+suc-equiv = (sucInt , isoToIsEquiv sucInt predInt sucPred predSuc)
 
 sucPathInt : Int ≡ Int
-sucPathInt = ua suc-equiv      
+sucPathInt = ua suc-equiv
 
--- TODO: rename!
--- TODO: can we change this so that it's the proof suc-equiv?
-coherence : (n : Int) → Path (Path Int (sucInt (predInt (sucInt n))) (sucInt n))
-                             (sucPred (sucInt n))
-                             (cong sucInt (predSuc n))
-coherence (pos zero) = refl
-coherence (pos (suc n)) = refl
-coherence (negsuc zero) = refl
-coherence (negsuc (suc zero)) = refl
-coherence (negsuc (suc (suc n))) = refl
+private
+  -- TODO: can we change this so that it's the proof suc-equiv?
+  coherence : (n : Int) → Path (Path Int (sucInt (predInt (sucInt n))) (sucInt n))
+                               (sucPred (sucInt n))
+                               (cong sucInt (predSuc n))
+  coherence (pos zero) = refl
+  coherence (pos (suc n)) = refl
+  coherence (negsuc zero) = refl
+  coherence (negsuc (suc zero)) = refl
+  coherence (negsuc (suc (suc n))) = refl
 
 -- Some tests
 private
@@ -88,7 +74,7 @@ posNotnegsuc a b h = subst T h 0
   T : Int → Set
   T (pos _)    = ℕ
   T (negsuc _) = ⊥
-  
+
 negsucNotpos : ∀ (a b : ℕ) → ¬ (negsuc a ≡ pos b)
 negsucNotpos a b h = subst T h 0
   where

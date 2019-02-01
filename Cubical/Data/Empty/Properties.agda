@@ -1,13 +1,9 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Basics.Empty where
+module Cubical.Data.Empty.Properties where
 
-open import Cubical.Core.Primitives
-open import Cubical.Core.Prelude
+open import Cubical.Core.Everything
 
-data ⊥ : Set where
-
-⊥-elim : ∀ {l} {A : Set l} → ⊥ → A
-⊥-elim ()
+open import Cubical.Data.Empty.Base
 
 isProp⊥ : isProp ⊥
 isProp⊥ x = ⊥-elim x
@@ -17,4 +13,3 @@ isProp⊥ x = ⊥-elim x
 
 isProp¬ : ∀ {l} → (A : Set l) → isProp (¬ A)
 isProp¬ A p q i x = isProp⊥ (p x) (q x) i
-
