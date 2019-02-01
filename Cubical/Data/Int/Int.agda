@@ -5,8 +5,8 @@ open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
-open import Cubical.Basics.Equiv
-open import Cubical.Basics.NTypes
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.NTypes
 
 open import Cubical.Data.Empty
 open import Cubical.Data.Nat

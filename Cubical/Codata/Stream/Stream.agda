@@ -4,8 +4,7 @@ module Cubical.Codata.Stream.Stream where
 
 open import Cubical.Core.Prelude
 open import Cubical.Data.Nat
-open import Cubical.Basics.Equiv
-
+open import Cubical.Foundations.Equiv
 
 record Stream (A : Set) : Set where
   coinductive
@@ -16,53 +15,43 @@ record Stream (A : Set) : Set where
 
 open Stream
 
-
 mapS : ∀ {A B} → (A → B) → Stream A → Stream B
 head (mapS f xs) = f (head xs)
 tail (mapS f xs) = mapS f (tail xs)
-
 
 mapS-id : ∀ {A} {xs : Stream A} → mapS (λ x → x) xs ≡ xs
 head (mapS-id {xs = xs} i) = head xs
 tail (mapS-id {xs = xs} i) = mapS-id {xs = tail xs} i
 
-
 Stream-η : ∀ {A} {xs : Stream A} → xs ≡ (head xs , tail xs)
 head (Stream-η {A} {xs} i) = head xs
 tail (Stream-η {A} {xs} i) = tail xs
-
 
 elimS : ∀ {A} (P : Stream A → Set) (c : ∀ x xs → P (x , xs)) (xs : Stream A) → P xs
 elimS P c xs = transp (λ i → P (Stream-η {xs = xs} (~ i))) i0
                       (c (head xs) (tail xs))
 
-
 even : ∀ {A} → Stream A → Stream A
 head (even a) = head a
 tail (even a) = even (tail (tail a))
-
 
 odd : ∀ {A} → Stream A → Stream A
 head (odd a) = head (tail a)
 tail (odd a) = odd (tail (tail a))
 
-
 odd≡even∘tail : ∀ {A} → (a : Stream A) → odd a ≡ even (tail a)
 head (odd≡even∘tail a i) = head (tail a)
 tail (odd≡even∘tail a i) = odd≡even∘tail (tail (tail a)) i
-
 
 merge : ∀ {A} → Stream A → Stream A → Stream A
 head (merge a _) = head a
 head (tail (merge _ b)) = head b
 tail (tail (merge a b)) = merge (tail a) (tail b)
 
-
 mergeEvenOdd≡id : ∀ {A} → (a : Stream A) → merge (even a) (odd a) ≡ a
 head (mergeEvenOdd≡id a i) = head a
 head (tail (mergeEvenOdd≡id a i)) = head (tail a)
 tail (tail (mergeEvenOdd≡id a i)) = mergeEvenOdd≡id (tail (tail a)) i
-
 
 module Equality≅Bisimulation where
   record _≈_ {A : Set} (x y : Stream A) : Set where

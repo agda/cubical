@@ -10,12 +10,12 @@ various consequences of univalence
 
 -}
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Basics.Univalence where
+module Cubical.Foundations.Univalence where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Basics.NTypes
-open import Cubical.Basics.Equiv
+open import Cubical.Foundations.NTypes
+open import Cubical.Foundations.Equiv
 
 -- Give detailed type to unglue, mainly for documentation purposes
 unglueua : ∀ {A B : Set} → (e : A ≃ B) → (i : I) (x : ua e i)

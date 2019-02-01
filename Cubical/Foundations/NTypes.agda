@@ -8,11 +8,11 @@ Basic theory about NTypes:
 
 -}
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Basics.NTypes where
+module Cubical.Foundations.NTypes where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Basics.Function
+open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat.Nat
 open import Cubical.Data.Empty

@@ -5,7 +5,7 @@ open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
-open import Cubical.Basics.Equiv
+open import Cubical.Foundations.Equiv
 
 -- Obtain the booleans
 open import Agda.Builtin.Bool public

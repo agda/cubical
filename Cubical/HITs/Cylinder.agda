@@ -4,7 +4,7 @@ module Cubical.HITs.Cylinder where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Basics.EverythingSafe
+open import Cubical.Foundations.EverythingSafe
 
 import Cubical.Data.EverythingSafe as Data
 open Data hiding (inl; inr)

@@ -61,8 +61,8 @@ open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
-open import Cubical.Basics.Equiv
-open import Cubical.Basics.Univalence
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Bool

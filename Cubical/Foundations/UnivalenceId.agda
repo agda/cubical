@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Basics.UnivalenceId where
+module Cubical.Foundations.UnivalenceId where
 
 open import Cubical.Core.Primitives public  hiding ( _≡_ )
 open import Cubical.Core.Prelude public
@@ -14,9 +14,9 @@ open import Cubical.Core.Glue
            ; EquivContr   to EquivContrPath )
 open import Cubical.Core.Id
 
-open import Cubical.Basics.Equiv
+open import Cubical.Foundations.Equiv
   renaming ( isPropIsEquiv to isPropIsEquivPath )
-open import Cubical.Basics.Univalence
+open import Cubical.Foundations.Univalence
 
 path≡Id : ∀ {ℓ} {A B : Set ℓ} → Path _ (Path _ A B) (Id A B)
 path≡Id = isoToPath pathToId idToPath idToPathToId pathToIdToPath
