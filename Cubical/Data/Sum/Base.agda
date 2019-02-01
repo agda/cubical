@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Data.Sum.Sum where
+module Cubical.Data.Sum.Base where
 
 open import Cubical.Core.Everything
 

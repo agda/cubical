@@ -1,18 +1,11 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Data.Bool.Bool where
+module Cubical.Data.Bool.Properties where
 
-open import Cubical.Core.Primitives
-open import Cubical.Core.Prelude
-open import Cubical.Core.Glue
+open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Equiv
 
--- Obtain the booleans
-open import Agda.Builtin.Bool public
-
-not : Bool → Bool
-not true = false
-not false = true
+open import Cubical.Data.Bool.Base
 
 notnot : ∀ x → not (not x) ≡ x
 notnot true  = refl
@@ -22,7 +15,7 @@ notIsEquiv : isEquiv not
 notIsEquiv = isoToIsEquiv not not notnot notnot 
 
 notEquiv : Bool ≃ Bool
-notEquiv = not , notIsEquiv
+notEquiv = (not , notIsEquiv)
 
 notEq : Bool ≡ Bool
 notEq = ua notEquiv

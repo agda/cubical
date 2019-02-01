@@ -5,7 +5,7 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.NTypes
 
-open import Cubical.Data.Nat.Nat
+open import Cubical.Data.Nat.Base
 
 open import Cubical.Data.Empty
 open import Cubical.Data.Sum

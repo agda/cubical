@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Data.Prod.Prod where
+module Cubical.Data.Prod.Base where
 
 open import Cubical.Core.Everything
 
