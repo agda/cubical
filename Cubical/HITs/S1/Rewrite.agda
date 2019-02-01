@@ -5,6 +5,7 @@ open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
+open import Cubical.Data.Nat
 open import Cubical.Data.Int
 open import Cubical.Data.Int.Rewrite
 open import Cubical.Basics.Equiv

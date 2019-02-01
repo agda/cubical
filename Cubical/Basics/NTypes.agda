@@ -12,8 +12,10 @@ module Cubical.Basics.NTypes where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Data.Empty
 open import Cubical.Basics.Function
+
+open import Cubical.Data.Nat.Nat
+open import Cubical.Data.Empty
 
 isOfHLevel : ∀ {ℓ} → ℕ → Set ℓ → Set ℓ
 isOfHLevel zero A = isContr A

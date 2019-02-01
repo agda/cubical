@@ -137,7 +137,3 @@ isProp A = (x y : A) → x ≡ y
 
 isSet : Set ℓ → Set ℓ
 isSet A = (x y : A) → isProp (x ≡ y)
-
-open import Agda.Builtin.Nat public
-  using (zero; suc; _+_; _*_)
-  renaming (Nat to ℕ)
