@@ -22,7 +22,7 @@ data Cylinder {ℓ} (A : Set ℓ) : Set ℓ where
 -- Dual to this is the cocylinder or path space object.
 --
 --   https://ncatlab.org/nlab/show/path+space+object
-Cocylinder : ∀{ℓ} → Set ℓ → Set ℓ
+Cocylinder : ∀ {ℓ} → Set ℓ → Set ℓ
 Cocylinder A = Interval → A
 
 module _ {ℓ} {A : Set ℓ} where

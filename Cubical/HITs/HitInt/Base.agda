@@ -1,11 +1,10 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.HitInt.Base where
 
-open import Cubical.Core.Primitives
-open import Cubical.Core.Prelude
-open import Cubical.Core.Glue
+open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Equiv
+
 open import Cubical.Data.Int
 open import Cubical.Data.Nat
 
