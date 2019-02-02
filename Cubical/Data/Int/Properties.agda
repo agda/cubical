@@ -11,6 +11,9 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Sum
 open import Cubical.Data.Int.Base
 
+open import Cubical.Relation.Nullary
+open import Cubical.Relation.Nullary.DecidableEq
+
 sucPred : ∀ i → sucInt (predInt i) ≡ i
 sucPred (pos zero)       = refl
 sucPred (pos (suc n))    = refl
@@ -82,15 +85,15 @@ negsucNotpos a b h = subst T h 0
   T (pos _)    = ⊥
   T (negsuc _) = ℕ
 
-discreteInt : discrete Int
+discreteInt : Discrete Int
 discreteInt (pos n) (pos m) with discreteℕ n m
-... | inl p = inl (cong pos p)
-... | inr p = inr (λ x → p (injPos x))
-discreteInt (pos n) (negsuc m) = inr (posNotnegsuc n m)
-discreteInt (negsuc n) (pos m) = inr (negsucNotpos n m)
+... | yes p = yes (cong pos p)
+... | no p  = no (λ x → p (injPos x))
+discreteInt (pos n) (negsuc m) = no (posNotnegsuc n m)
+discreteInt (negsuc n) (pos m) = no (negsucNotpos n m)
 discreteInt (negsuc n) (negsuc m) with discreteℕ n m
-... | inl p = inl (cong negsuc p)
-... | inr p = inr (λ x → p (injNegsuc x))
+... | yes p = yes (cong negsuc p)
+... | no p  = no (λ x → p (injNegsuc x))
 
 isSetInt : isSet Int
-isSetInt = discrete→isSet discreteInt
+isSetInt = Discrete→isSet discreteInt

@@ -2,9 +2,9 @@
 
 Basic theory about NTypes:
 
-- basic properties of isContr, isProp and isSet (definitions are in Core/Prelude)
+- Basic properties of isContr, isProp and isSet (definitions are in Core/Prelude)
 
-- Hedberg's theorem: any type with decidable equality is a set
+- Hedberg's theorem can be found in Cubical/Relation/Nullary/DecidableEq
 
 -}
 {-# OPTIONS --cubical --safe #-}
@@ -17,6 +17,8 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Empty
 open import Cubical.Data.Sum
+
+open import Cubical.Relation.Nullary
 
 isOfHLevel : ∀ {ℓ} → ℕ → Set ℓ → Set ℓ
 isOfHLevel zero A = isContr A
@@ -78,7 +80,7 @@ isContrPath : ∀ {ℓ} {A : Set ℓ} → isContr A → (x y : A) → isContr (x
 isContrPath cA = isPropIsOfHLevel1 (isContr→isProp cA)
 
 lemProp : ∀ {ℓ} {A : Set ℓ} → (A → isProp A) → isProp A
-lemProp h = λ a → h a a
+lemProp h a = h a a
 
 module _ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} where
   -- Π preserves propositionality in the following sense:
@@ -97,48 +99,11 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} where
   isPropSigma : isProp A → ((x : A) → isProp (B x)) → isProp (Σ[ x ∈ A ] B x)
   isPropSigma pA pB t u = subtypeEquality pB t u (pA (t .fst) (u .fst))
 
-hLevelPi
-  : ∀{ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} n
-  → ((x : A) → isOfHLevel n (B x))
-  → isOfHLevel n ((x : A) → B x)
+hLevelPi : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} n
+         → ((x : A) → isOfHLevel n (B x))
+         → isOfHLevel n ((x : A) → B x)
 hLevelPi 0 h = (λ x → fst (h x)) , λ f i y → snd (h y) (f y) i
 hLevelPi (suc n) h f g = subst (isOfHLevel n) funExtPath sub-lemma
   where
   sub-lemma : isOfHLevel n (∀ x → f x ≡ g x)
   sub-lemma = hLevelPi n λ x → h x (f x) (g x)
-
--- Proof of Hedberg's theorem:
-
-stable : ∀ {ℓ} → Set ℓ → Set ℓ
-stable A = ¬ ¬ A → A
-
-dec : ∀ {ℓ} → Set ℓ → Set ℓ
-dec A = A ⊎ (¬ A)
-
-discrete : ∀ {ℓ} → Set ℓ → Set ℓ
-discrete A = (x y : A) → dec (x ≡ y)
-
-dec→stable : ∀ {ℓ} (A : Set ℓ) → dec A → stable A
-dec→stable A (inl x) = λ _ → x
-dec→stable A (inr x) = λ f → ⊥-elim (f x)
-
-dNot : ∀ {l} → (A : Set l) → (a : A) → ¬ ¬ A
-dNot A a p = p a
-
-lem : ∀ {ℓ} {A : Set ℓ} {a b : A} (f : (x : A) → a ≡ x → a ≡ x) (p : a ≡ b) → PathP (λ i → a ≡ p i) (f a refl) (f b p)
-lem {a = a} f p = J (λ y q → PathP (λ i → a ≡ q i) (f a refl) (f y q)) refl p
-
-stable-path→isSet : ∀ {ℓ} {A : Set ℓ} → (st : ∀ (a b : A) → stable (a ≡ b)) → isSet A
-stable-path→isSet {A = A} st a b p q j i =
-  let f : (x : A) → a ≡ x → a ≡ x
-      f x p = st a x (dNot _ p)
-      fIsConst : (x : A) → (p q : a ≡ x) → f x p ≡ f x q
-      fIsConst = λ x p q i → st a x (isProp¬ _ (dNot _ p) (dNot _ q) i)
-  in hcomp (λ k → λ { (i = i0) → f a refl k
-                    ; (i = i1) → fIsConst b p q j k
-                    ; (j = i0) → lem f p i k
-                    ; (j = i1) → lem f q i k }) a
-  
--- Hedberg's theorem
-discrete→isSet : ∀ {ℓ} {A : Set ℓ} → discrete A → isSet A
-discrete→isSet d = stable-path→isSet (λ x y → dec→stable (x ≡ y) (d x y))
