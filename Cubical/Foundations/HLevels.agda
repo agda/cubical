@@ -1,6 +1,6 @@
 {-
 
-Basic theory about NTypes:
+Basic theory about h-levels/n-types:
 
 - Basic properties of isContr, isProp and isSet (definitions are in Core/Prelude)
 
@@ -8,7 +8,7 @@ Basic theory about NTypes:
 
 -}
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.NTypes where
+module Cubical.Foundations.HLevels where
 
 open import Cubical.Core.Everything
 

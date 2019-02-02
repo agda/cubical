@@ -4,7 +4,7 @@ module Cubical.Data.Int.Properties where
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.NTypes
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Empty
 open import Cubical.Data.Nat

@@ -14,7 +14,7 @@ module Cubical.Foundations.Univalence where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Foundations.NTypes
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 
 -- Give detailed type to unglue, mainly for documentation purposes
