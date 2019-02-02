@@ -51,7 +51,11 @@ The second representation is more non-standard and inspired by:
 
 https://github.com/RedPRL/redtt/blob/master/library/cool/nats.red
 
-Only some of the experiments have been done for this representation.
+Only some of the experiments have been done for this representation,
+but it has the virtue of being a bit simpler to prove equivalent to
+ℕ. The same representation can be found in:
+
+http://www.cs.bham.ac.uk/~mhe/agda-new/BinaryNaturals.html
 
 -}
 {-# OPTIONS --cubical --no-exact-split --safe #-}
