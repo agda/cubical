@@ -7,7 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Empty
-open import Cubical.Data.Nat
+open import Cubical.Data.Nat hiding (_+_ ; +-assoc)
 open import Cubical.Data.Sum
 open import Cubical.Data.Int.Base
 
@@ -31,6 +31,42 @@ suc-equiv = (sucInt , isoToIsEquiv sucInt predInt sucPred predSuc)
 
 sucPathInt : Int ≡ Int
 sucPathInt = ua suc-equiv
+
+-- Compose sucPathInt with itself n times. Transporting along this
+-- will be addition, transporting with it backwards will be
+-- subtraction.
+addEq : ℕ → Int ≡ Int
+addEq zero = refl
+addEq (suc n) = compPath sucPathInt (addEq n)
+
+subEq : ℕ → Int ≡ Int
+subEq n i = addEq n (~ i)
+
+_+_ : Int → Int → Int
+m + pos n    = transport (addEq n) m
+m + negsuc n = transport (subEq (suc n)) m
+
+_-_ : Int → Int → Int
+m - pos zero    = m
+m - pos (suc n) = m + negsuc n
+m - negsuc n    = m + pos (suc n)
+
+-- We directly get that addition by a fixed number is an equivalence
+-- without having to do any induction!
+isEquivAddInt : (m : Int) → isEquiv (λ n → n + m)
+isEquivAddInt (pos n)    = isEquivTransport (addEq n)
+isEquivAddInt (negsuc n) = isEquivTransport (subEq (suc n))
+
+-- TODO: prove properties of + like:
+--
+-- +-comm : ∀ m n → m + n ≡ n + m
+-- +-assoc : ∀ m n o → m + (n + o) ≡ (m + n) + o
+--
+-- Note: This might be a lot easier with the Cubical.Data.Int.Rewrite
+
+
+-- TODO: define multiplication by composing the addition equivalence
+-- with itself.
 
 private
   -- TODO: can we change this so that it's the proof suc-equiv?
