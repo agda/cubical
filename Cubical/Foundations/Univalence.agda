@@ -89,11 +89,11 @@ LiftEquiv = isoToEquiv lift lower (λ _ → refl) (λ _ → refl)
 univalencePath : ∀ {ℓ} {A B : Set ℓ} → (A ≡ B) ≡ Lift (A ≃ B)
 univalencePath = ua (compEquiv univalence LiftEquiv)
 
--- The computation rule for ua (because of "ghcomp" it is very simple
--- compared to cubicaltt:
+-- The computation rule for ua. Because of "ghcomp" it is now very
+-- simple compared to cubicaltt:
 -- https://github.com/mortberg/cubicaltt/blob/master/examples/univalence.ctt#L202
 uaβ : ∀ {ℓ} {A B : Set ℓ} (e : A ≃ B) (x : A) → transport (ua e) x ≡ e .fst x
-uaβ e x = transportRefl ((e .fst x))
+uaβ e x = transportRefl (e .fst x)
 
 -- Alternative version of EquivJ that only requires a predicate on
 -- functions
