@@ -3,7 +3,7 @@ module Cubical.Experiments.Problem where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Basics.Int
+open import Cubical.Data.Int
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.S2
