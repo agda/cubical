@@ -1,7 +1,9 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Everything where
 
-open import Cubical.Foundations.EverythingSafe public
-
---- Modules making assumptions that might be incompatible with other
---  flags or make use of potentially unsafe features.
+open import Cubical.Foundations.CartesianKanOps public
+open import Cubical.Foundations.Equiv public
+open import Cubical.Foundations.Function public
+open import Cubical.Foundations.NTypes public
+open import Cubical.Foundations.Univalence public
+open import Cubical.Foundations.UnivalenceId public
