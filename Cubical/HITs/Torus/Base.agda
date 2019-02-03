@@ -4,7 +4,7 @@ Definition of the torus as a HIT together with a proof that it is
 equivalent to two circles
 
 -}
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.Torus.Base where
 
 open import Cubical.Core.Primitives
@@ -17,7 +17,6 @@ open import Cubical.Data.Int
 open import Cubical.Data.Prod
 
 open import Cubical.HITs.S1
-open import Cubical.HITs.S1.Rewrite
 
 data Torus : Set where
   point : Torus

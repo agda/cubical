@@ -1,10 +1,11 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 module Cubical.Data.Everything where
 
-open import Cubical.Data.EverythingSafe public
-
---- Modules making assumptions that might be incompatible with other
---  flags or make use of potentially unsafe features.
-
--- Uses --rewriting
-open import Cubical.Data.Int.Rewrite public
+open import Cubical.Data.BinNat public
+open import Cubical.Data.Bool public
+open import Cubical.Data.Empty public
+open import Cubical.Data.Int public
+open import Cubical.Data.Nat public
+open import Cubical.Data.Sum public
+open import Cubical.Data.Prod public
+open import Cubical.Data.Unit public

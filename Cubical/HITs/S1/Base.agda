@@ -79,6 +79,17 @@ isSetΩS¹ p q r s j i =
                  ; (j = i1) → decodeEncode base (s i) k })
         (decode base (isSetInt (winding p) (winding q) (cong winding r) (cong winding s) j i))
 
+-- This proof does not rely on rewriting hcomp with empty systems in
+-- Int as ghcomp has been implemented!
+windingIntLoop : (n : Int) → winding (intLoop n) ≡ n
+windingIntLoop (pos zero)       = refl
+windingIntLoop (pos (suc n))    = λ i → sucInt (windingIntLoop (pos n) i)
+windingIntLoop (negsuc zero)    = refl
+windingIntLoop (negsuc (suc n)) = λ i → predInt (windingIntLoop (negsuc n) i)
+
+ΩS¹≡Int : ΩS¹ ≡ Int
+ΩS¹≡Int = isoToPath winding (decode base) windingIntLoop (decodeEncode base)
+
 
 -- Some tests
 module _ where
