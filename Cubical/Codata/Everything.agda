@@ -8,3 +8,5 @@ open import Cubical.Codata.EverythingSafe public
 
 -- Assumes --guardedness
 open import Cubical.Codata.Stream public
+
+open import Cubical.Codata.Conat public
