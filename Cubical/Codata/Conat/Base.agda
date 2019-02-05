@@ -10,4 +10,4 @@ data Pred (A : Set) : Set where
 record Conat : Set where
   coinductive
   constructor conat
-  field pred : Pred Conat
+  field prev : Pred Conat

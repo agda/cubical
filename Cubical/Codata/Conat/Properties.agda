@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --safe --guardedness #-}
 module Cubical.Codata.Conat.Properties where
 
-open import Agda.Builtin.Unit
+open import Cubical.Data.Unit
 
 open import Cubical.Core.Everything
 
@@ -12,13 +12,13 @@ open Conat
 succ : Conat → Conat
 succ a = conat (psuc a)
 
-Unwrap-pred : Pred Conat -> Set
-Unwrap-pred  pzero   = ⊤
-Unwrap-pred (psuc _) = Conat
+Unwrap-prev : Pred Conat -> Set
+Unwrap-prev  pzero   = Unit
+Unwrap-prev (psuc _) = Conat
 
-unwrap-pred : (n : Pred Conat) -> Unwrap-pred n
-unwrap-pred  pzero   = _
-unwrap-pred (psuc x) = x
+unwrap-prev : (n : Pred Conat) -> Unwrap-prev n
+unwrap-prev  pzero   = _
+unwrap-prev (psuc x) = x
 
 private -- tests
   zero = conat pzero
@@ -28,14 +28,14 @@ private -- tests
   succOne≡two : succ one ≡ two
   succOne≡two i = two
 
-  predTwo≡one : unwrap-pred (pred two) ≡ one
+  predTwo≡one : unwrap-prev (prev two) ≡ one
   predTwo≡one i = one
 
 ∞ : Conat
-pred ∞ = psuc ∞
+prev ∞ = psuc ∞
 
 ∞+1≡∞ : succ ∞ ≡ ∞
-pred (∞+1≡∞ _) = psuc ∞
+prev (∞+1≡∞ _) = psuc ∞
 
 ∞+2≡∞ : succ (succ ∞) ≡ ∞
 ∞+2≡∞ = compPath (cong succ ∞+1≡∞) ∞+1≡∞
