@@ -194,10 +194,6 @@ private
   Lpos zero z = refl
   Lpos (suc n) z = cong sucInt (Lpos n z)
 
-  LHS RHS : {A : Set} {x y : A} → (x ≡ y) → A
-  LHS {x = x} _ = x
-  RHS {y = y} _ = y
-
   ind-comm : {A : Set} (_·_ : A → A → A) (f g : ℕ → A) (p q : A → A)
              (fp : {z : A} {n : ℕ} → z · (f (suc n)) ≡ p (z · f n))
              (gq : {z : A} {n : ℕ} → z · (g (suc n)) ≡ q (z · g n))
