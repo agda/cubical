@@ -7,16 +7,15 @@ open import Cubical.Data.Sum
 open import Cubical.Core.Everything
 
 record Conat : Set
-Prev = Unit ⊎ Conat
+Conat′ = Unit ⊎ Conat
 record Conat where
   coinductive
   constructor conat
-  field prev : Prev
+  field force : Conat′
 open Conat public
 
 pattern zero  = inl tt
 pattern suc n = inr n
 
 succ : Conat → Conat
-prev (succ a) = inr a
-
+force (succ a) = inr a
