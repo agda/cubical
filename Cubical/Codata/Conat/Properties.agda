@@ -39,26 +39,33 @@ force (∞+1≡∞ _) = suc ∞
 
 -- TODO: plus for conat, ∞ + ∞ ≡ ∞
 
-mutual
-  record _~_ (x y : Conat) : Set where
-    coinductive
-    field
-      force : force x ~′ force y
+record _~_ (x y : Conat) : Set
+_~′_ : Conat′ → Conat′ → Set
+zero  ~′ zero  = Unit
+suc x ~′ suc y = x ~ y
+-- So impossible proofs are preserved
+x ~′ y = x ≡ y
 
-
-  _~′_ : Conat′ → Conat′ → Set
-  (inl _) ~′ (inl _) = Unit
-  (inr x) ~′ (inr y) = x ~ y
-  _ ~′ _ = ⊥
+record _~_ x y where
+  coinductive
+  field prove : force x ~′ force y
 
 open _~_ public
 
-mutual
-  bisim : ∀ {x y} → x ~ y → x ≡ y
-  force (bisim {x} {y} eq i) = bisim′ (force eq) i
-
+bisim : ∀ {x y} → x ~ y → x ≡ y
+force (bisim eq i) = bisim′ (prove eq) i
+  where
   bisim′ : ∀ {x y} → x ~′ y → x ≡ y
-  bisim′ {zero} {zero} eq = refl
-  bisim′ {zero} {suc x} ()
-  bisim′ {suc x} {zero} ()
+  bisim′ {zero} {zero} tt = refl
+  bisim′ {zero} {suc x} p = p
+  bisim′ {suc x} {zero} p = p
   bisim′ {suc x} {suc y} eq i = suc (bisim eq i)
+
+misib : ∀ {x y} → x ≡ y → x ~ y
+prove (misib x≡y) = misib′ (cong force x≡y)
+  where
+  misib′ : ∀ {x y} → x ≡ y → x ~′ y
+  misib′ {zero} {zero} p = _
+  misib′ {zero} {suc x} p = p
+  misib′ {suc x} {zero} p = p
+  misib′ {suc x} {suc y} p = λ where .prove → misib′ (cong pred′ p)

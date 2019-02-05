@@ -18,4 +18,11 @@ pattern zero  = inl tt
 pattern suc n = inr n
 
 succ : Conat → Conat
-force (succ a) = inr a
+force (succ a) = suc a
+
+succ′ : Conat′ → Conat′
+succ′ n = suc (conat n)
+
+pred′ : Conat′ → Conat′
+pred′  zero   = zero
+pred′ (suc x) = force x
