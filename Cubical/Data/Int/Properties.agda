@@ -154,31 +154,29 @@ predIntAddEq (suc n) z =
   transport (addEq n) (sucInt (predInt z)) ≡⟨ sym (sucIntAddEq n (predInt z)) ⟩
   _ ∎
 
-sucInt+ : ∀ m n → sucInt (m + n) ≡ (sucInt m) + n
-sucInt+ m (pos n) = sucIntAddEq n m
-sucInt+ m (negsuc n) =
-  compPath (sucIntSubEq n (predInt m)) (cong (transport (subEq n)) p)
-  where
-  p : ∀ {x} → sucInt (predInt x) ≡ predInt (sucInt x)
-  p {x} = compPath (sucPred x) (sym (predSuc x))
-
 predInt+ : ∀ m n → predInt (m + n) ≡ (predInt m) + n
 predInt+ m (pos n) = predIntAddEq n m
 predInt+ m (negsuc n) = predIntSubEq n (predInt m)
-
-+sucInt : ∀ m n → sucInt (m + n) ≡  m + (sucInt n)
-+sucInt m (pos n)    = refl
-+sucInt m (negsuc zero) = sucPred m
-+sucInt m (negsuc (suc n)) = compPath (sucIntSubEq n m-2) (cong -n (sucPred _))
-  where
-  m-2 = predInt (predInt m)
-  -n = transport (subEq n)
 
 +predInt : ∀ m n → predInt (m + n) ≡ m + (predInt n)
 +predInt m (pos zero)    = refl
 +predInt m (pos (suc n)) = predSuc _
 +predInt m (negsuc n)    = predIntSubEq n (predInt m)
 
+sucInt+ : ∀ m n → sucInt (m + n) ≡ (sucInt m) + n
+sucInt+ m n =
+  sucInt (m + n)                  ≡⟨ cong sucInt (cong (λ z → z + n) (sym (predSuc m))) ⟩
+  sucInt (predInt (sucInt m) + n) ≡⟨ cong sucInt (sym (predInt+ (sucInt m) n)) ⟩
+  sucInt (predInt (sucInt m + n)) ≡⟨ sucPred _ ⟩
+  sucInt m + n ∎
+
++sucInt : ∀ m n → sucInt (m + n) ≡  m + (sucInt n)
++sucInt m n =
+  sucInt (m + n)                  ≡⟨ cong sucInt (cong (_+_ m) (sym (predSuc n))) ⟩
+  sucInt (m + predInt (sucInt n)) ≡⟨ cong sucInt (sym (+predInt m (sucInt n))) ⟩
+  sucInt (predInt (m + sucInt n)) ≡⟨ sucPred _ ⟩
+  m + sucInt n ∎
+  
 pos0+ : ∀ z → z ≡ pos 0 + z
 pos0+ (pos zero) = refl
 pos0+ (pos (suc n)) = cong sucInt (pos0+ (pos n))
