@@ -21,8 +21,12 @@ succ : Conat → Conat
 force (succ a) = suc a
 
 succ′ : Conat′ → Conat′
-succ′ n = suc (conat n)
+succ′ n = suc λ where .force → n
 
 pred′ : Conat′ → Conat′
 pred′  zero   = zero
 pred′ (suc x) = force x
+
+pred′′ : Conat′ → Conat
+force (pred′′ zero) = zero
+pred′′ (suc x) = x
