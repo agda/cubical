@@ -20,6 +20,9 @@ open import Cubical.Data.Sum
 
 open import Cubical.Relation.Nullary
 
+hProp : {ℓ : Level} → Set (ℓ-suc ℓ)
+hProp {ℓ} = Σ (Set ℓ) isProp
+
 isOfHLevel : ∀ {ℓ} → ℕ → Set ℓ → Set ℓ
 isOfHLevel zero A = isContr A
 isOfHLevel (suc n) A = (x y : A) → isOfHLevel n (x ≡ y)
