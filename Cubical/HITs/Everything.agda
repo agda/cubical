@@ -13,3 +13,5 @@ open import Cubical.HITs.S3 public
 open import Cubical.HITs.Susp public
 open import Cubical.HITs.SmashProduct public
 open import Cubical.HITs.Torus public
+open import Cubical.HITs.SetTruncation public
+open import Cubical.HITs.SetQuotients public
