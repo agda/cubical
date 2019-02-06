@@ -130,122 +130,111 @@ isEquivAddInt (negsuc n) = isEquivTransport (subEq (suc n))
 -- TODO: define multiplication by composing the addition equivalence
 -- with itself.
 
-private
-  +negsuc : ℕ → (Int → Int)
-  +negsuc 0 = predInt
-  +negsuc (suc n) z = predInt (+negsuc n z)
+sucIntAddEq : ∀ n z → sucInt (transport (addEq n) z) ≡ transport (addEq n) (sucInt z)
+sucIntAddEq zero z = refl
+sucIntAddEq (suc n) z = cong sucInt (sucIntAddEq n z)
 
-  L0 : ∀ n z → +negsuc (suc n) z ≡ +negsuc n (predInt z)
-  L0 0 z = refl
-  L0 (suc n) z = cong predInt (L0 n z)
+predIntSubEq : ∀ n z → predInt (transport (subEq n) z) ≡ transport (subEq n) (predInt z)
+predIntSubEq zero z = refl
+predIntSubEq (suc n) z = predIntSubEq n (predInt z)
 
-  Lnegsuc : ∀ n z → z + negsuc n ≡ +negsuc n z
-  Lnegsuc 0 z = refl
-  Lnegsuc (suc n) z = compPath (Lnegsuc n (predInt z)) (sym (L0 n z))
+sucIntSubEq : ∀ n z → sucInt (transport (subEq n) z) ≡ transport (subEq n) (sucInt z)
+sucIntSubEq zero z = refl
+sucIntSubEq (suc n) z = 
+  sucInt (transport (subEq n) (predInt z)) ≡⟨ cong sucInt (sym (predIntSubEq n z)) ⟩
+  sucInt (predInt (transport (subEq n) z)) ≡⟨ sucPred _ ⟩
+  transport (subEq n) z                    ≡⟨ cong (transport (subEq n)) (sym (predSuc _))⟩
+  _ ∎
 
-  L' : ∀ m n → m + (negsuc (suc n)) ≡ predInt (m + negsuc n)
-  L' m n = compPath (Lnegsuc (suc n) m) (cong predInt (sym (Lnegsuc n m)))
+predIntAddEq : ∀ n z → predInt (transport (addEq n) z) ≡ transport (addEq n) (predInt z)
+predIntAddEq zero z = refl
+predIntAddEq (suc n) z =
+  predInt (sucInt (transport (addEq n) z)) ≡⟨ predSuc _ ⟩
+  transport (addEq n) z                    ≡⟨ cong (transport (addEq n)) (sym (sucPred _))⟩
+  transport (addEq n) (sucInt (predInt z)) ≡⟨ sym (sucIntAddEq n (predInt z)) ⟩
+  _ ∎
 
-  L3- : ∀ m n → m + (sucInt (negsuc n)) ≡ sucInt (m + (negsuc n))
-  L3- m 0 = sym (sucPred m)
-  L3- m (suc n) = compPath (sym (sucPred _)) (cong sucInt (sym (L' m n)))
-  
-  Lsuc : ∀ m n → m + (sucInt n) ≡ sucInt (m + n)
-  Lsuc m (pos n)    = refl
-  Lsuc m (negsuc n) = L3- m n
+sucInt+ : ∀ m n → sucInt (m + n) ≡ (sucInt m) + n
+sucInt+ m (pos n) = sucIntAddEq n m
+sucInt+ m (negsuc n) =
+  compPath (sucIntSubEq n (predInt m)) (cong (transport (subEq n)) p)
+  where
+  p : ∀ {x} → sucInt (predInt x) ≡ predInt (sucInt x)
+  p {x} = compPath (sucPred x) (sym (predSuc x))
 
-  Lpred : ∀ m n → m + (predInt n) ≡ predInt (m + n)
-  Lpred m (pos zero)    = refl
-  Lpred m (pos (suc n)) = sym (predSuc _)
-  Lpred m (negsuc n)    = L' m n
+predInt+ : ∀ m n → predInt (m + n) ≡ (predInt m) + n
+predInt+ m (pos n) = predIntAddEq n m
+predInt+ m (negsuc n) = predIntSubEq n (predInt m)
 
-  ind-assoc : {A : Set} (_·_ : A → A → A) (f : ℕ → A)
-        (g : A → A) (p : ∀ a b → a · (g b) ≡ g (a · b))
++sucInt : ∀ m n → sucInt (m + n) ≡  m + (sucInt n)
++sucInt m (pos n)    = refl
++sucInt m (negsuc zero) = sucPred m
++sucInt m (negsuc (suc n)) = compPath (sucIntSubEq n m-2) (cong -n (sucPred _))
+  where
+  m-2 = predInt (predInt m)
+  -n = transport (subEq n)
+
++predInt : ∀ m n → predInt (m + n) ≡ m + (predInt n)
++predInt m (pos zero)    = refl
++predInt m (pos (suc n)) = predSuc _
++predInt m (negsuc n)    = predIntSubEq n (predInt m)
+
+pos0+ : ∀ z → z ≡ pos 0 + z
+pos0+ (pos zero) = refl
+pos0+ (pos (suc n)) = cong sucInt (pos0+ (pos n))
+pos0+ (negsuc zero) = refl
+pos0+ (negsuc (suc n)) = compPath (cong predInt (pos0+ (negsuc n))) (predIntSubEq n (negsuc 0)) 
+
+negsuc0+ : ∀ z → predInt z ≡ negsuc 0 + z
+negsuc0+ (pos zero) = refl
+negsuc0+ (pos (suc n)) = 
+  predInt (pos (suc n))                   ≡⟨ pos0+ (pos n) ⟩
+  transport (addEq n) (pos 0)             ≡⟨ sym (sucIntAddEq n (negsuc 0)) ⟩
+  sucInt (transport (addEq n) (negsuc 0)) ∎
+
+negsuc0+ (negsuc zero) = refl
+negsuc0+ (negsuc (suc n)) = 
+  compPath (cong predInt (negsuc0+ (negsuc n))) (+predInt (negsuc 0) (negsuc n))
+
+ind-comm : {A : Set} (_∙_ : A → A → A) (f : ℕ → A) (g : A → A)
+           (p : ∀ {n} → f (suc n) ≡ g (f n))
+           (g∙ : ∀ a b → g (a ∙ b) ≡ g a ∙ b)
+           (∙g : ∀ a b → g (a ∙ b) ≡ a ∙ g b)
+           (base : ∀ z → z ∙ f 0 ≡ f 0 ∙ z)
+         → ∀ z n → z ∙ f n ≡ f n ∙ z
+ind-comm _∙_ f g p g∙ ∙g base z 0 = base z
+ind-comm _∙_ f g p g∙ ∙g base z (suc n) = 
+  z ∙ f (suc n) ≡⟨ cong (_∙_ z) p ⟩
+  z ∙ g (f n)   ≡⟨ sym ( ∙g z (f n)) ⟩
+  g (z ∙ f n)   ≡⟨ cong g IH ⟩
+  g (f n ∙ z)   ≡⟨ g∙ (f n) z ⟩
+  g (f n) ∙ z   ≡⟨ cong (λ x → x ∙ z) (sym p) ⟩
+  f (suc n) ∙ z ∎
+  where
+  IH = ind-comm _∙_ f g p g∙ ∙g base z n
+
++-comm : ∀ m n → m + n ≡ n + m
++-comm m (pos n) = ind-comm _+_ pos sucInt refl sucInt+ +sucInt pos0+ m n
++-comm m (negsuc n) = ind-comm _+_ negsuc predInt refl predInt+ +predInt negsuc0+ m n
+
+ind-assoc : {A : Set} (_·_ : A → A → A) (f : ℕ → A)
+        (g : A → A) (p : ∀ a b → g (a · b) ≡ a · (g b))
         (q : ∀ {c} → f (suc c) ≡ g (f c))
-        (base : ∀ m n → m · (n · (f 0)) ≡ (m · n) · (f 0))
+        (base : ∀ m n → (m · n) · (f 0) ≡ m · (n · (f 0)))
         (m n : A) (o : ℕ)
       → m · (n · (f o)) ≡ (m · n) · (f o)
-  ind-assoc _·_ f g p q base m n 0 = base m n
-  ind-assoc _·_ f g p q base m n (suc o) = 
+ind-assoc _·_ f g p q base m n 0 = sym (base m n)
+ind-assoc _·_ f g p q base m n (suc o) = 
     m · (n · (f (suc o))) ≡⟨ cong (_·_ m) (cong (_·_ n) q) ⟩
-    m · (n · (g (f o)))   ≡⟨ cong (_·_ m) (p n (f o))⟩
-    m · (g (n · (f o)))   ≡⟨ p m (n · (f o))⟩
-    g (m · (n · (f o)))   ≡⟨ cong g (assoc m n o)⟩
-    g ((m · n) · (f o))   ≡⟨ sym (p (m · n) (f o)) ⟩
+    m · (n · (g (f o)))   ≡⟨ cong (_·_ m) (sym (p n (f o)))⟩
+    m · (g (n · (f o)))   ≡⟨ sym (p m (n · (f o)))⟩
+    g (m · (n · (f o)))   ≡⟨ cong g IH ⟩
+    g ((m · n) · (f o))   ≡⟨ p (m · n) (f o) ⟩
     (m · n) · (g (f o))   ≡⟨ cong (_·_ (m · n)) (sym q)⟩
     (m · n) · (f (suc o)) ∎
     where
-    assoc = ind-assoc _·_ f g p q base
+    IH = ind-assoc _·_ f g p q base m n o
 
 +-assoc : ∀ m n o → m + (n + o) ≡ (m + n) + o
-+-assoc m n (pos o) = ind-assoc _+_ pos sucInt Lsuc refl (λ _ _ → refl) m n o
-+-assoc m n (negsuc o) = ind-assoc _+_ negsuc predInt Lpred refl Lpred m n o
-
-private
-  +pos : ℕ → Int → Int
-  +pos 0 z = z
-  +pos (suc n) z = sucInt (+pos n z)
-
-  L0+ : ∀ n z → +pos (suc n) z ≡ +pos n (sucInt z)
-  L0+ zero z = refl
-  L0+ (suc n) z = cong sucInt (L0+ n z)
-
-  Lpos : ∀ n z → z + pos n ≡ +pos n z
-  Lpos zero z = refl
-  Lpos (suc n) z = cong sucInt (Lpos n z)
-
-  ind-comm : {A : Set} (_·_ : A → A → A) (f g : ℕ → A) (p q : A → A)
-             (fp : {z : A} {n : ℕ} → z · (f (suc n)) ≡ p (z · f n))
-             (gq : {z : A} {n : ℕ} → z · (g (suc n)) ≡ q (z · g n))
-             (qp : {z : A} → q (p z) ≡ p (q z))
-             (base : ∀ {n} → f 0 · g n ≡ g n · f 0)
-             (base' : ∀ {n} → f n · g 0 ≡ g 0 · f n)
-             → ∀ m n → (f m) · (g n) ≡ (g n) · (f m)
-  ind-comm _·_ f g p q fp gq qp base base' 0 n = base
-  ind-comm _·_ f g p q fp gq qp base base' (suc m) 0 = base'
-  ind-comm _·_ f g p q fp gq qp base base' (suc m) (suc n) = 
-    f (suc m) · g (suc n)  ≡⟨ gq ⟩
-    q ( f (suc m) · g n)   ≡⟨ cong q (comm (suc m) n) ⟩
-    q ( g n · f (suc m))   ≡⟨ cong q (fp {n = m})⟩
-    q ( p (g n · f m))     ≡⟨ qp ⟩
-    p ( q (g n · f m))     ≡⟨ cong p (cong q (sym (comm m n))) ⟩
-    p ( q (f m · g n))     ≡⟨ cong p (sym gq) ⟩
-    p ( f m · g (suc n))   ≡⟨ cong p (comm m (suc n)) ⟩
-    p ( g (suc n) · f m)   ≡⟨ sym (fp {n = m} )⟩
-    g (suc n) · f (suc m)  ∎
-    where
-    comm = ind-comm _·_ f g p q fp gq qp base base'
-
-  L++base : ∀ {n} → pos 0 + pos n ≡ pos n
-  L++base {0} = refl
-  L++base {suc n} = cong sucInt (L++base {n})
-
-  L+-base : ∀ {n} → pos 0 + negsuc n ≡ negsuc n + pos 0
-  L+-base {0} = refl
-  L+-base {suc n} = compPath (L' (pos 0) n) (cong predInt (L+-base {n}))
-
-  L-+base : ∀ {n} → negsuc 0 + pos n ≡ pos n + negsuc 0
-  L-+base {zero} = refl
-  L-+base {suc n} = 
-    negsuc 0 + pos (suc n)  ≡⟨ Lpos (suc n) (negsuc 0)⟩
-    +pos (suc n) (negsuc 0) ≡⟨ L0+ n _ ⟩
-    +pos n (pos 0)          ≡⟨ sym (Lpos n (pos 0)) ⟩
-    pos 0 + pos n           ≡⟨ L++base ⟩ 
-    pos (suc n) + negsuc 0 ∎
-    
-  L--base : ∀ {n} → negsuc 0 + negsuc n ≡ negsuc n + negsuc 0
-  L--base {0} = refl
-  L--base {suc n} = compPath (Lpred (negsuc 0) (negsuc n)) (cong predInt (L--base {n}))
-
-+-comm : ∀ m n → m + n ≡ n + m
-+-comm (pos m) (pos n) =
-  ind-comm _+_ pos pos sucInt sucInt refl refl refl L++base (sym L++base) m n
-+-comm (pos m) (negsuc n) =
-  ind-comm _+_ pos negsuc sucInt predInt refl (λ {z n} → L' z n)
-    (λ {z} → compPath (predSuc z) (sym (sucPred z))) L+-base (sym L-+base) m n
-+-comm (negsuc m) (pos n)    =
-  ind-comm _+_ negsuc pos predInt sucInt (λ {z n} → L' z n) refl
-    (λ {z} → compPath (sucPred z) (sym (predSuc z))) L-+base (sym L+-base) m n
-+-comm (negsuc m) (negsuc n) =
-  ind-comm _+_ negsuc negsuc predInt predInt (λ {z n} → L' z n) (λ {z n} → L' z n)
-    refl L--base (sym L--base) m n
++-assoc m n (pos o) = ind-assoc _+_ pos sucInt +sucInt refl (λ _ _ → refl) m n o
++-assoc m n (negsuc o) = ind-assoc _+_ negsuc predInt +predInt refl +predInt m n o
