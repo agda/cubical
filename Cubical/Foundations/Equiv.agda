@@ -12,7 +12,7 @@ module Cubical.Foundations.Equiv where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Foundations.NTypes
+open import Cubical.Foundations.HLevels
 
 -- Proof using isPropIsContr. This is slow and the direct proof below is better
 isPropIsEquiv' : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → isProp (isEquiv f)

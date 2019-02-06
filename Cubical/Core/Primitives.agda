@@ -125,7 +125,7 @@ ouc = primSubOut
 
 -- * Composition operation according to [CCHM 18].
 -- When calling "comp A φ u a" Agda makes sure that "a" agrees with "u i0" on "φ".
--- compCCHM : ∀ {ℓ} (A : (i : I) → Set ℓ) (φ : I) (u : ∀ i → Partial (A i) φ) (a : A i0) → A i1
+-- compCCHM : ∀ {ℓ} (A : (i : I) → Set ℓ) (φ : I) (u : ∀ i → Partial φ (A i)) (a : A i0) → A i1
 
 -- Note: this is not recommended to use, instead use the CHM
 -- primitives! The reason is that these work with HITs and produce
@@ -138,7 +138,7 @@ ouc = primSubOut
 -- transp : ∀ {ℓ} (A : I → Set ℓ) (φ : I) (a : A i0) → A i1
 
 -- When calling "hcomp A φ u a" Agda makes sure that "a" agrees with "u i0" on "φ".
--- hcomp : ∀ {ℓ} {A : Set ℓ} {φ : I} (u : I → Partial A φ) (a : A) → A
+-- hcomp : ∀ {ℓ} {A : Set ℓ} {φ : I} (u : I → Partial φ A) (a : A) → A
 
 private
   variable

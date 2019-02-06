@@ -72,6 +72,8 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Bool
 open import Cubical.Data.Empty
 
+open import Cubical.Relation.Nullary
+
 -- Positive binary numbers
 data Pos : Set where
   pos1 : Pos
