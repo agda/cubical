@@ -225,13 +225,9 @@ m +' pos n    = transport (addEq n) m
 m +' negsuc n = transport (subEq (suc n)) m
 
 private
-  L0 : ∀ n z → z +negsuc (suc n) ≡ predInt z +negsuc n
-  L0 0 z = refl
-  L0 (suc n) z = cong predInt (L0 n z)
-  
   Lnegsuc : ∀ n z → z +' negsuc n ≡ z +negsuc n
   Lnegsuc 0 z = refl
-  Lnegsuc (suc n) z = compPath (Lnegsuc n (predInt z)) (sym (L0 n z))
+  Lnegsuc (suc n) z = compPath (Lnegsuc n (predInt z)) (sym (predInt+negsuc n z))
 
   Lpos : ∀ n z → z +' pos n ≡ z +pos n
   Lpos zero z = refl
