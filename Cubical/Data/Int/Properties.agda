@@ -256,30 +256,31 @@ isEquivAddInt = subst FamilyOfEquiv +'≡+ isEquivAddInt'
   FamilyOfEquiv : (f : Int → Int → Int) → Set
   FamilyOfEquiv f = (m : Int) → isEquiv (λ n → f n m)
 
+minusPlus : ∀ m n → (n - m) + m ≡ n
+minusPlus (pos zero) n = refl
+minusPlus (pos 1) n = sucPred _
+minusPlus (pos (suc (suc m))) n = 
+  sucInt ((n +negsuc (suc m)) +pos (suc m)) ≡⟨ sucInt+pos (suc m) _ ⟩
+  sucInt (n +negsuc (suc m)) +pos (suc m)   ≡⟨ cong (λ z → z +pos (suc m)) (sucPred _) ⟩
+  (n - pos (suc m)) +pos (suc m)            ≡⟨ minusPlus (pos (suc m)) n ⟩
+  n ∎
+minusPlus (negsuc zero) n = predSuc _
+minusPlus (negsuc (suc m)) n = 
+  predInt (sucInt (sucInt (n +pos m)) +negsuc m) ≡⟨ predInt+negsuc m _ ⟩
+  predInt (sucInt (sucInt (n +pos m))) +negsuc m ≡⟨ cong (λ z → z + negsuc m) (predSuc _) ⟩
+  sucInt (n +pos m) +negsuc m                    ≡⟨ minusPlus (negsuc m) n ⟩
+  n ∎
+  
+plusMinus : ∀ m n → (n + m) - m ≡ n
+plusMinus (pos zero) n = refl
+plusMinus (pos (suc m)) n = minusPlus (negsuc m) n
+plusMinus (negsuc zero) n = sucPred _
+plusMinus (negsuc (suc m)) n =
+  sucInt (sucInt (predInt (n +negsuc m) +pos m)) ≡⟨ cong sucInt (sucInt+pos m _) ⟩
+  sucInt (sucInt (predInt (n +negsuc m)) +pos m) ≡⟨ cong sucInt (cong (λ z → z +pos m) (sucPred _)) ⟩
+  sucInt ((n +negsuc m) +pos m)                  ≡⟨ plusMinus (negsuc m) n ⟩
+  n ∎
+
 private
   alternateProof : (m : Int) → isEquiv (λ n → n + m)
-  alternateProof m = isoToIsEquiv (λ n → n + m) (λ n → n - m) (-+m m) (+-m m)
-    where
-    -+m : ∀ m n → (n - m) + m ≡ n
-    -+m (pos zero) n = refl
-    -+m (pos 1) n = sucPred _
-    -+m (pos (suc (suc m))) n = 
-      sucInt ((n +negsuc (suc m)) +pos (suc m)) ≡⟨ sucInt+pos (suc m) _ ⟩
-      sucInt (n +negsuc (suc m)) +pos (suc m)   ≡⟨ cong (λ z → z +pos (suc m)) (sucPred _) ⟩
-      (n - pos (suc m)) +pos (suc m)            ≡⟨ -+m (pos (suc m)) n ⟩
-      n ∎
-    -+m (negsuc zero) n = predSuc _
-    -+m (negsuc (suc m)) n = 
-      predInt (sucInt (sucInt (n +pos m)) +negsuc m) ≡⟨ predInt+negsuc m _ ⟩
-      predInt (sucInt (sucInt (n +pos m))) +negsuc m ≡⟨ cong (λ z → z + negsuc m) (predSuc _) ⟩
-      sucInt (n +pos m) +negsuc m                    ≡⟨ -+m (negsuc m) n ⟩
-      n ∎
-    +-m : ∀ m n → (n + m) - m ≡ n
-    +-m (pos zero) n = refl
-    +-m (pos (suc m)) n = -+m (negsuc m) n
-    +-m (negsuc zero) n = sucPred _
-    +-m (negsuc (suc m)) n =
-      sucInt (sucInt (predInt (n +negsuc m) +pos m)) ≡⟨ cong sucInt (sucInt+pos m _) ⟩
-      sucInt (sucInt (predInt (n +negsuc m)) +pos m) ≡⟨ cong sucInt (cong (λ z → z +pos m) (sucPred _)) ⟩
-      sucInt ((n +negsuc m) +pos m)                  ≡⟨ +-m (negsuc m) n ⟩
-      n ∎
+  alternateProof m = isoToIsEquiv (λ n → n + m) (λ n → n - m) (minusPlus m) (plusMinus m)
