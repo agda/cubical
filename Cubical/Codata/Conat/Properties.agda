@@ -42,7 +42,34 @@ force (∞+1≡∞ _) = suc ∞
 
 -- TODO: plus for conat, ∞ + ∞ ≡ ∞
 
+conat-absurd : ∀ {y : Conat} {ℓ} {Whatever : Set ℓ} → zero ≡ suc y → Whatever
+conat-absurd eq = ⊥-elim (transport (cong diag eq) tt)
+  where
+  diag : Conat′ → Set
+  diag zero = Unit
+  diag (suc _) = ⊥
+
+module EqStable where
+  ≡-stable  : {x y : Conat} → Stable (x ≡ y)
+  ≡′-stable : {x y : Conat′} → Stable (x ≡ y)
+
+  force (≡-stable ¬¬p i) = ≡′-stable (λ ¬p → ¬¬p (λ p → ¬p (cong force p))) i
+  ≡′-stable {zero}  {zero}  ¬¬p′ = refl
+  ≡′-stable {suc x} {suc y} ¬¬p′ =
+     cong′ suc (≡-stable λ ¬p → ¬¬p′ λ p → ¬p (cong pred′′ p))
+  ≡′-stable {zero}  {suc y} ¬¬p′ = ⊥-elim (¬¬p′ conat-absurd)
+  ≡′-stable {suc x} {zero}  ¬¬p′ = ⊥-elim (¬¬p′ λ p → conat-absurd (sym p))
+
+  ≡-unique : {m n : Conat} (p q : m ≡ n) → p ≡ q
+  ≡-unique = Stable≡→isSet (λ _ _ → ≡-stable) _ _
+
+  ≡′-unique : {m n : Conat′} (p q : m ≡ n) → p ≡ q
+  ≡′-unique {m′} {n′} p′ q′ = cong (cong force) (≡-unique {conat m′} {conat n′} p q)
+    where p = λ where i .force → p′ i
+          q = λ where i .force → q′ i
+
 module Bisimulation where
+  open EqStable using (≡-unique)
 
   record _≈_ (x y : Conat) : Set
   data _≈′_ (x y : Conat′) : Set
@@ -61,13 +88,6 @@ module Bisimulation where
 
   open _≈_ public
 
-  zsuc-inv : ∀ {y : Conat} {ℓ} {Whatever : Set ℓ} → zero ≡ suc y → Whatever
-  zsuc-inv eq = ⊥-elim (transport (cong diag eq) tt)
-    where
-    diag : Conat′ → Set
-    diag zero = Unit
-    diag (suc _) = ⊥
-
   bisim : ∀ {x y} → x ≈ y → x ≡ y
   bisim′ : ∀ {x y} → x ≈′ y → x ≡ y
 
@@ -81,8 +101,8 @@ module Bisimulation where
   misib′ : ∀ {x y} → x ≡ y → x ≈′ y
 
   misib′ {zero} {zero} _ = con tt
-  misib′ {zero} {suc x} = zsuc-inv
-  misib′ {suc x} {zero} p = zsuc-inv (sym p)
+  misib′ {zero} {suc x} = conat-absurd
+  misib′ {suc x} {zero} p = conat-absurd (sym p)
   -- misib′ {suc x} {suc y} p = con λ where .prove → misib′ (cong pred′ p)
   misib′ {suc x} {suc y} p = con (misib (cong pred′′ p))
   prove (misib x≡y) = misib′ (cong force x≡y)
@@ -95,24 +115,6 @@ module Bisimulation where
   iso′ {suc x} {zero} (con ())
   iso′ {suc x} {suc y} (con p) = cong con (iso p)
   prove (iso p i) = iso′ (prove p) i
-
-  ≡-stable  : {x y : Conat} → Stable (x ≡ y)
-  ≡′-stable : {x y : Conat′} → Stable (x ≡ y)
-
-  force (≡-stable ¬¬p i) = ≡′-stable (λ ¬p → ¬¬p (λ p → ¬p (cong force p))) i
-  ≡′-stable {zero}  {zero}  ¬¬p′ = refl
-  ≡′-stable {suc x} {suc y} ¬¬p′ =
-     cong′ suc (≡-stable λ ¬p → ¬¬p′ λ p → ¬p (cong pred′′ p))
-  ≡′-stable {zero}  {suc y} ¬¬p′ = ⊥-elim (¬¬p′ zsuc-inv)
-  ≡′-stable {suc x} {zero}  ¬¬p′ = ⊥-elim (¬¬p′ λ p → zsuc-inv (sym p))
-
-  ≡-unique : {m n : Conat} (p q : m ≡ n) → p ≡ q
-  ≡-unique = Stable≡→isSet (λ _ _ → ≡-stable) _ _
-
-  ≡′-unique : {m n : Conat′} (p q : m ≡ n) → p ≡ q
-  ≡′-unique {m′} {n′} p′ q′ = cong (cong force) (≡-unique {conat m′} {conat n′} p q)
-    where p = λ where i .force → p′ i
-          q = λ where i .force → q′ i
 
   osi : ∀ {x y} → (p : x ≡ y) → bisim (misib p) ≡ p
   osi p = ≡-unique _ p
