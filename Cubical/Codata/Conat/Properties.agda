@@ -8,6 +8,8 @@ open import Cubical.Data.Empty
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Equiv
 
+open import Cubical.Relation.Nullary
+open import Cubical.Relation.Nullary.DecidableEq
 open import Cubical.Codata.Conat.Base
 
 Unwrap-prev : Conat′ -> Set
@@ -46,10 +48,10 @@ module Bisimulation where
   record _≈_ (x y : Conat) : Set
   data _≈′_ (x y : Conat′) : Set
   _≈′′_ : Conat′ → Conat′ → Set
-  -- zero  ≈′′ zero  = Unit
+  zero  ≈′′ zero  = Unit
   suc x ≈′′ suc y = x ≈ y
   -- So impossible proofs are preserved
-  x ≈′′ y = x ≡ y
+  x ≈′′ y = ⊥
 
   record _≈_ x y where
     coinductive
@@ -60,45 +62,67 @@ module Bisimulation where
 
   open _≈_ public
 
+  zsuc-inv : ∀ {y : Conat} {ℓ} {Whatever : Set ℓ} → zero ≡ suc y → Whatever
+  zsuc-inv eq = ⊥-elim (transport (cong diag eq) tt)
+    where
+    diag : Conat′ → Set
+    diag zero = Unit
+    diag (suc _) = ⊥
+
   bisim : ∀ {x y} → x ≈ y → x ≡ y
   bisim′ : ∀ {x y} → x ≈′ y → x ≡ y
 
-  bisim′ {zero} {zero}  (con p) = p
-  bisim′ {zero} {suc x} (con p) = p
-  bisim′ {suc x} {zero} (con p) = p
+  bisim′ {zero} {zero} (con tt) = refl
+  bisim′ {zero} {suc x} (con ())
+  bisim′ {suc x} {zero} (con ())
   bisim′ {suc x} {suc y} (con eq) i = suc (bisim eq i)
   force (bisim eq i) = bisim′ (prove eq) i
 
   misib : ∀ {x y} → x ≡ y → x ≈ y
   misib′ : ∀ {x y} → x ≡ y → x ≈′ y
 
-  misib′ {zero} {zero} p = con p
-  misib′ {zero} {suc x} p = con p
-  misib′ {suc x} {zero} p = con p
+  misib′ {zero} {zero} p = con _
+  misib′ {zero} {suc x} p = zsuc-inv p
+  misib′ {suc x} {zero} p = zsuc-inv (sym p)
   -- misib′ {suc x} {suc y} p = con λ where .prove → misib′ (cong pred′ p)
   misib′ {suc x} {suc y} p = con (misib (cong pred′′ p))
   prove (misib x≡y) = misib′ (cong force x≡y)
 
-  iso1 : ∀ {x y} → (p : x ≈ y) → misib (bisim p) ≡ p
-  iso1′ : ∀ {x y} → (p : x ≈′ y) → misib′ (bisim′ p) ≡ p
+  iso : ∀ {x y} → (p : x ≈ y) → misib (bisim p) ≡ p
+  iso′ : ∀ {x y} → (p : x ≈′ y) → misib′ (bisim′ p) ≡ p
 
-  iso1′ {zero} {zero} (con p) i = con p
-  iso1′ {zero} {suc x} (con p) i = con p
-  iso1′ {suc x} {zero} (con p) i = con p
-  iso1′ {suc x} {suc y} p i = p
-  prove (iso1 p i) = iso1′ (prove p) i
+  iso′ {zero} {zero} (con p) = refl
+  iso′ {zero} {suc x} (con ())
+  iso′ {suc x} {zero} (con ())
+  iso′ {suc x} {suc y} (con p) = cong con (iso p)
+  prove (iso p i) = iso′ (prove p) i
 
-  iso2 : ∀ {x y} → (p : x ≡ y) → bisim (misib p) ≡ p
-  iso2′ : ∀ {x y} → (p : x ≡ y) → bisim′ (misib′ p) ≡ p
+  ≡-stable  : {x y : Conat} → Stable (x ≡ y)
+  ≡′-stable : {x y : Conat′} → Stable (x ≡ y)
 
-  iso2′ {zero} {zero} p _ = p
-  iso2′ {zero} {suc x} p _ = p
-  iso2′ {suc x} {zero} p _ = p
-  iso2′ {suc x} {suc y} p i j = suc (iso2 (cong pred′′ p) i j)
-  force (iso2 p i j) = iso2′ (cong force p) i j
+  force (≡-stable ¬¬p i) = ≡′-stable (λ ¬p → ¬¬p (λ p → ¬p (cong force p))) i
+  ≡′-stable {zero}  {zero}  ¬¬p′ = refl
+  ≡′-stable {suc x} {suc y} ¬¬p′ =
+     cong′ suc (≡-stable λ ¬p → ¬¬p′ (λ p → ¬p (cong pred′′ p )))
+  ≡′-stable {zero}  {suc y} ¬¬p′ = ⊥-elim (¬¬p′ zsuc-inv)
+  ≡′-stable {suc x} {zero}  ¬¬p′ = ⊥-elim (¬¬p′ λ p → zsuc-inv(sym p))
+
+  ≡-unique : {m n : Conat} (p q : m ≡ n) → p ≡ q
+  ≡-unique = Stable≡→isSet (λ a b → ≡-stable) _ _
+
+  ≡′-unique : {m n : Conat′} (p q : m ≡ n) → p ≡ q
+  ≡′-unique {m′} {n′} p′ q′ = cong (cong force) (≡-unique {m} {n} p q)
+    where m = λ where   .force → m′
+          n = λ where .force → n′
+          p = λ where i .force → p′ i
+          q = λ where i .force → q′ i
+
+  osi : ∀ {x y} → (p : x ≡ y) → bisim (misib p) ≡ p
+  osi p = ≡-unique _ p
 
   path≃bisim : ∀ {x y} → (x ≡ y) ≃ (x ≈ y)
-  path≃bisim = isoToEquiv misib bisim iso2 iso1
+  path≃bisim = isoToEquiv misib bisim iso osi
 
   path≡bisim : ∀ {x y} → (x ≡ y) ≡ (x ≈ y)
   path≡bisim = ua path≃bisim
+
