@@ -82,7 +82,6 @@ substRefl px = transportRefl px
 funExt : {B : A → Set ℓ'} {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
 funExt p i x = p x i
 
-
 -- J for paths and its computation rule
 
 module _ (P : ∀ y → x ≡ y → Set ℓ') (d : P x refl) where
