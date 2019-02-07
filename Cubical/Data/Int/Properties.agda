@@ -270,12 +270,7 @@ minusPlus (negsuc (suc m)) n =
 plusMinus : ∀ m n → (n + m) - m ≡ n
 plusMinus (pos zero) n = refl
 plusMinus (pos (suc m)) n = minusPlus (negsuc m) n
-plusMinus (negsuc zero) n = sucPred _
-plusMinus (negsuc (suc m)) n =
-  sucInt (sucInt (predInt (n +negsuc m) +pos m)) ≡⟨ cong sucInt (sucInt+pos m _) ⟩
-  sucInt (sucInt (predInt (n +negsuc m)) +pos m) ≡⟨ cong sucInt (cong (λ z → z +pos m) (sucPred _)) ⟩
-  sucInt ((n +negsuc m) +pos m)                  ≡⟨ plusMinus (negsuc m) n ⟩
-  n ∎
+plusMinus (negsuc m) n = minusPlus (pos (suc m)) n
 
 private
   alternateProof : (m : Int) → isEquiv (λ n → n + m)
