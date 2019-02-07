@@ -1,15 +1,19 @@
 {- Conatural number properties (Tesla Ice Zhang et al., Feb. 2019)
 
-This file defines many operations on conatural numbers.
+This file defines operations and properties on conatural numbers:
 
-Coinduction makes infinity definable, and we can easily prove that ∞ + 1 is
-equivalent to ∞ by coinduction.
+- Infinity (∞).
 
-A proof that conatrual is a hSet is included.
+- Proof that ∞ + 1 is equivalent to ∞.
 
-Bisimulation on conatural and a proof that bisimulation is equivalent to
-equivalence (Coinductive Proof Principle) are also included. The standard
-library also defines bisimulation on conatruals:
+- Proof that conatrual is an hSet.
+
+- Bisimulation on conatural
+
+- Proof that bisimulation is equivalent to equivalence (Coinductive Proof
+  Principle).
+
+The standard library also defines bisimulation on conatruals:
 
 https://github.com/agda/agda-stdlib/blob/master/src/Codata/Conat/Bisimilarity.agda
 -}

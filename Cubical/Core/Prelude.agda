@@ -45,6 +45,7 @@ cong : ∀ {B : A → Set ℓ'} (f : (a : A) → B a) (p : x ≡ y)
        → PathP (λ i → B (p i)) (f x) (f y)
 cong f p = λ i → f (p i)
 
+-- Non-dependent version of `cong`, to avoid some unresolved metas
 cong′ : ∀ {B : Set ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
       → Path B (f x) (f y)
 cong′ f p = λ i → f (p i)

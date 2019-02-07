@@ -1,8 +1,11 @@
 {- Conatural numbers (Tesla Ice Zhang, Feb. 2019)
 
-This file defines a coinductive natural number representation which is dual to
-the inductive version (zero | suc Nat → Nat) of natural numbers and some
-trivial operations (succ, pred) and the pattern synonyms on it.
+This file defines:
+
+- A coinductive natural number representation which is dual to
+  the inductive version (zero | suc Nat → Nat) of natural numbers.
+
+- Trivial operations (succ, pred) and the pattern synonyms on conaturals.
 
 While this definition can be seen as a coinductive wrapper of an inductive
 family, another way of definition is to define an inductive family that wraps
