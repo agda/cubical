@@ -6,14 +6,14 @@ This file defines operations and properties on conatural numbers:
 
 - Proof that ∞ + 1 is equivalent to ∞.
 
-- Proof that conatrual is an hSet.
+- Proof that conatural is an hSet.
 
 - Bisimulation on conatural
 
 - Proof that bisimulation is equivalent to equivalence (Coinductive Proof
   Principle).
 
-The standard library also defines bisimulation on conatruals:
+The standard library also defines bisimulation on conaturals:
 
 https://github.com/agda/agda-stdlib/blob/master/src/Codata/Conat/Bisimilarity.agda
 -}
