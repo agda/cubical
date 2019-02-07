@@ -10,12 +10,15 @@ record Conat : Set
 Conat′ = Unit ⊎ Conat
 record Conat where
   coinductive
-  constructor conat
+  constructor conat′
   field force : Conat′
 open Conat public
 
 pattern zero  = inl tt
 pattern suc n = inr n
+
+conat : Conat′ → Conat
+force (conat a) = a
 
 succ : Conat → Conat
 force (succ a) = suc a

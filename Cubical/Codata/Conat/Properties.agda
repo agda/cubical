@@ -21,8 +21,7 @@ unwrap-prev  zero   = _
 unwrap-prev (suc x) = x
 
 private -- tests
-  𝟘 : Conat
-  force 𝟘 = zero
+  𝟘 = conat zero
   one  = succ 𝟘
   two  = succ one
 
@@ -81,8 +80,8 @@ module Bisimulation where
   misib : ∀ {x y} → x ≡ y → x ≈ y
   misib′ : ∀ {x y} → x ≡ y → x ≈′ y
 
-  misib′ {zero} {zero} p = con _
-  misib′ {zero} {suc x} p = zsuc-inv p
+  misib′ {zero} {zero} _ = con tt
+  misib′ {zero} {suc x} = zsuc-inv
   misib′ {suc x} {zero} p = zsuc-inv (sym p)
   -- misib′ {suc x} {suc y} p = con λ where .prove → misib′ (cong pred′ p)
   misib′ {suc x} {suc y} p = con (misib (cong pred′′ p))
@@ -103,18 +102,16 @@ module Bisimulation where
   force (≡-stable ¬¬p i) = ≡′-stable (λ ¬p → ¬¬p (λ p → ¬p (cong force p))) i
   ≡′-stable {zero}  {zero}  ¬¬p′ = refl
   ≡′-stable {suc x} {suc y} ¬¬p′ =
-     cong′ suc (≡-stable λ ¬p → ¬¬p′ (λ p → ¬p (cong pred′′ p )))
+     cong′ suc (≡-stable λ ¬p → ¬¬p′ λ p → ¬p (cong pred′′ p))
   ≡′-stable {zero}  {suc y} ¬¬p′ = ⊥-elim (¬¬p′ zsuc-inv)
-  ≡′-stable {suc x} {zero}  ¬¬p′ = ⊥-elim (¬¬p′ λ p → zsuc-inv(sym p))
+  ≡′-stable {suc x} {zero}  ¬¬p′ = ⊥-elim (¬¬p′ λ p → zsuc-inv (sym p))
 
   ≡-unique : {m n : Conat} (p q : m ≡ n) → p ≡ q
-  ≡-unique = Stable≡→isSet (λ a b → ≡-stable) _ _
+  ≡-unique = Stable≡→isSet (λ _ _ → ≡-stable) _ _
 
   ≡′-unique : {m n : Conat′} (p q : m ≡ n) → p ≡ q
-  ≡′-unique {m′} {n′} p′ q′ = cong (cong force) (≡-unique {m} {n} p q)
-    where m = λ where   .force → m′
-          n = λ where .force → n′
-          p = λ where i .force → p′ i
+  ≡′-unique {m′} {n′} p′ q′ = cong (cong force) (≡-unique {conat m′} {conat n′} p q)
+    where p = λ where i .force → p′ i
           q = λ where i .force → q′ i
 
   osi : ∀ {x y} → (p : x ≡ y) → bisim (misib p) ≡ p
