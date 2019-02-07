@@ -6,7 +6,7 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Everything
 
-import Cubical.Data.EverythingSafe as Data
+import Cubical.Data.Everything as Data
 open Data hiding (inl; inr)
 
 open import Cubical.HITs.Interval
