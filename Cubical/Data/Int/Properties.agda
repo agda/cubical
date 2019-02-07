@@ -254,13 +254,13 @@ isEquivAddInt = subst FamilyOfEquiv +'≡+ isEquivAddInt'
 
 minusPlus : ∀ m n → (n - m) + m ≡ n
 minusPlus (pos zero) n = refl
-minusPlus (pos 1) n = sucPred _
+minusPlus (pos 1) = sucPred
 minusPlus (pos (suc (suc m))) n = 
   sucInt ((n +negsuc (suc m)) +pos (suc m)) ≡⟨ sucInt+pos (suc m) _ ⟩
   sucInt (n +negsuc (suc m)) +pos (suc m)   ≡⟨ cong (λ z → z +pos (suc m)) (sucPred _) ⟩
   (n - pos (suc m)) +pos (suc m)            ≡⟨ minusPlus (pos (suc m)) n ⟩
   n ∎
-minusPlus (negsuc zero) n = predSuc _
+minusPlus (negsuc zero) = predSuc
 minusPlus (negsuc (suc m)) n = 
   predInt (sucInt (sucInt (n +pos m)) +negsuc m) ≡⟨ predInt+negsuc m _ ⟩
   predInt (sucInt (sucInt (n +pos m))) +negsuc m ≡⟨ cong (λ z → z + negsuc m) (predSuc _) ⟩
