@@ -1,3 +1,19 @@
+{- Conatural numbers (Tesla Ice Zhang, Feb. 2019)
+
+This file defines a coinductive natural number representation which is dual to
+the inductive version (zero | suc Nat → Nat) of natural numbers and some
+trivial operations (succ, pred) and the pattern synonyms on it.
+
+While this definition can be seen as a coinductive wrapper of an inductive
+family, another way of definition is to define an inductive family that wraps
+a coinductive thunk of Nat. The standard library uses the second approach:
+
+https://github.com/agda/agda-stdlib/blob/master/src/Codata/Conat.agda
+
+The first approach is chosen to exploit guarded recursion and to avoid the use
+of Sized Types.
+-}
+
 {-# OPTIONS --cubical --safe --guardedness #-}
 module Cubical.Codata.Conat.Base where
 

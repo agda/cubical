@@ -1,3 +1,19 @@
+{- Conatural number properties (Tesla Ice Zhang et al., Feb. 2019)
+
+This file defines many operations on conatural numbers.
+
+Coinduction makes infinity definable, and we can easily prove that ∞ + 1 is
+equivalent to ∞ by coinduction.
+
+A proof that conatrual is a hSet is included.
+
+Bisimulation on conatural and a proof that bisimulation is equivalent to
+equivalence (Coinductive Proof Principle) are also included. The standard
+library also defines bisimulation on conatruals:
+
+https://github.com/agda/agda-stdlib/blob/master/src/Codata/Conat/Bisimilarity.agda
+-}
+
 {-# OPTIONS --cubical --safe --guardedness #-}
 module Cubical.Codata.Conat.Properties where
 
@@ -49,7 +65,7 @@ conat-absurd eq = ⊥-elim (transport (cong diag eq) tt)
   diag zero = Unit
   diag (suc _) = ⊥
 
-module EqStable where
+module IsSet where
   ≡-stable  : {x y : Conat} → Stable (x ≡ y)
   ≡′-stable : {x y : Conat′} → Stable (x ≡ y)
 
@@ -60,16 +76,16 @@ module EqStable where
   ≡′-stable {zero}  {suc y} ¬¬p′ = ⊥-elim (¬¬p′ conat-absurd)
   ≡′-stable {suc x} {zero}  ¬¬p′ = ⊥-elim (¬¬p′ λ p → conat-absurd (sym p))
 
-  ≡-unique : {m n : Conat} (p q : m ≡ n) → p ≡ q
-  ≡-unique = Stable≡→isSet (λ _ _ → ≡-stable) _ _
+  isSetConat : isSet Conat
+  isSetConat _ _ = Stable≡→isSet (λ _ _ → ≡-stable) _ _
 
-  ≡′-unique : {m n : Conat′} (p q : m ≡ n) → p ≡ q
-  ≡′-unique {m′} {n′} p′ q′ = cong (cong force) (≡-unique {conat m′} {conat n′} p q)
+  isSetConat′ : isSet Conat′
+  isSetConat′ m n p′ q′ = cong (cong force) (isSetConat (conat m) (conat n) p q)
     where p = λ where i .force → p′ i
           q = λ where i .force → q′ i
 
 module Bisimulation where
-  open EqStable using (≡-unique)
+  open IsSet using (isSetConat)
 
   record _≈_ (x y : Conat) : Set
   data _≈′_ (x y : Conat′) : Set
@@ -117,7 +133,7 @@ module Bisimulation where
   prove (iso p i) = iso′ (prove p) i
 
   osi : ∀ {x y} → (p : x ≡ y) → bisim (misib p) ≡ p
-  osi p = ≡-unique _ p
+  osi p = isSetConat _ _ _ p
 
   path≃bisim : ∀ {x y} → (x ≡ y) ≃ (x ≈ y)
   path≃bisim = isoToEquiv misib bisim iso osi
