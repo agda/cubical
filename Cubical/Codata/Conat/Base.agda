@@ -8,8 +8,9 @@ This file defines:
 - Trivial operations (succ, pred) and the pattern synonyms on conaturals.
 
 While this definition can be seen as a coinductive wrapper of an inductive
-family, another way of definition is to define an inductive family that wraps
-a coinductive thunk of Nat. The standard library uses the second approach:
+datatype, another way of definition is to define an inductive datatype that
+wraps a coinductive thunk of Nat.
+The standard library uses the second approach:
 
 https://github.com/agda/agda-stdlib/blob/master/src/Codata/Conat.agda
 
