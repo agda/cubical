@@ -101,44 +101,44 @@ discreteInt (negsuc n) (negsuc m) with discreteℕ n m
 isSetInt : isSet Int
 isSetInt = Discrete→isSet discreteInt
 
-+pos : ℕ → Int → Int
-+pos 0 z = z
-+pos (suc n) z = sucInt (+pos n z)
+_+pos_ : Int → ℕ  → Int
+z +pos 0 = z
+z +pos (suc n) = sucInt (z +pos n)
 
-+negsuc : ℕ → (Int → Int)
-+negsuc 0 = predInt
-+negsuc (suc n) z = predInt (+negsuc n z)
+_+negsuc_ : Int → ℕ → Int
+z +negsuc 0 = predInt z
+z +negsuc (suc n) = predInt (z +negsuc n)
 
 _+_ : Int → Int → Int
-m + pos n = +pos n m
-m + negsuc n = +negsuc n m
+m + pos n = m +pos n
+m + negsuc n = m +negsuc n
 
 _-_ : Int → Int → Int
 m - pos zero    = m
 m - pos (suc n) = m + negsuc n
 m - negsuc n    = m + pos (suc n)
 
-sucInt+pos : ∀ n m → sucInt (+pos n m) ≡ +pos n (sucInt m)
+sucInt+pos : ∀ n m → sucInt (m +pos n) ≡ (sucInt m) +pos n
 sucInt+pos zero m = refl
 sucInt+pos (suc n) m = cong sucInt (sucInt+pos n m)
 
-predInt+negsuc : ∀ n m → predInt (+negsuc n m) ≡ +negsuc n (predInt m)
+predInt+negsuc : ∀ n m → predInt (m +negsuc n) ≡ (predInt m) +negsuc n
 predInt+negsuc zero m = refl
 predInt+negsuc (suc n) m = cong predInt (predInt+negsuc n m)
 
-sucInt+negsuc : ∀ n m → sucInt (+negsuc n m) ≡ +negsuc n (sucInt m)
+sucInt+negsuc : ∀ n m → sucInt (m +negsuc n) ≡ (sucInt m) +negsuc n
 sucInt+negsuc zero m = compPath (sucPred _) (sym (predSuc _))
 sucInt+negsuc (suc n) m =      _ ≡⟨ sucPred _ ⟩
-  +negsuc n m                    ≡⟨ cong (+negsuc n) (sym (predSuc m)) ⟩
-  +negsuc n (predInt (sucInt m)) ≡⟨ sym (predInt+negsuc n (sucInt m)) ⟩
-  predInt (+negsuc n (sucInt m)) ∎
+  m +negsuc n                    ≡⟨ cong (λ z → z +negsuc n) (sym (predSuc m)) ⟩
+  (predInt (sucInt m)) +negsuc n ≡⟨ sym (predInt+negsuc n (sucInt m)) ⟩
+  predInt (sucInt m +negsuc n) ∎
 
-predInt+pos : ∀ n m → predInt (+pos n m) ≡ +pos n (predInt m)
+predInt+pos : ∀ n m → predInt (m +pos n) ≡ (predInt m) +pos n
 predInt+pos zero m = refl
 predInt+pos (suc n) m =     _ ≡⟨ predSuc _ ⟩
-  +pos n m                    ≡⟨ cong (+pos n) (sym (sucPred _)) ⟩
-  +pos n (sucInt (predInt m)) ≡⟨ sym (sucInt+pos n (predInt m))⟩
-  _ ∎
+  m +pos n                    ≡⟨ cong (λ m → m +pos n) (sym (sucPred _)) ⟩
+  (sucInt (predInt m)) +pos n ≡⟨ sym (sucInt+pos n (predInt m))⟩
+  (predInt m) +pos (suc n)    ∎
 
 predInt+ : ∀ m n → predInt (m + n) ≡ (predInt m) + n
 predInt+ m (pos n) = predInt+pos n m 
@@ -156,7 +156,7 @@ sucInt+ m (negsuc n) = sucInt+negsuc n m
 +sucInt : ∀ m n → sucInt (m + n) ≡  m + (sucInt n)
 +sucInt m (pos n) = refl
 +sucInt m (negsuc zero) = sucPred _
-+sucInt m (negsuc (suc n)) = compPath (sucPred (+negsuc n m)) (cong (_+_ m) (sym (sucPred (negsuc n))))
++sucInt m (negsuc (suc n)) = compPath (sucPred (m +negsuc n)) (cong (_+_ m) (sym (sucPred (negsuc n))))
 
 pos0+ : ∀ z → z ≡ pos 0 + z
 pos0+ (pos zero) = refl
@@ -213,13 +213,11 @@ ind-assoc _·_ f g p q base m n (suc o) =
 +-assoc m n (pos o) = ind-assoc _+_ pos sucInt +sucInt refl (λ _ _ → refl) m n o
 +-assoc m n (negsuc o) = ind-assoc _+_ negsuc predInt +predInt refl +predInt m n o
 
--- Alternate definition: Compose sucPathInt with itself n times. Transporting along this
--- will be addition, transporting with it backwards will be subtraction.
-
-addEq subEq : ℕ → Int ≡ Int
+addEq : ℕ → Int ≡ Int
 addEq zero = refl
 addEq (suc n) = compPath (addEq n) sucPathInt
 
+subEq : ℕ → Int ≡ Int
 subEq n i = addEq n (~ i)
 
 _+'_ : Int → Int → Int
@@ -227,18 +225,15 @@ m +' pos n    = transport (addEq n) m
 m +' negsuc n = transport (subEq (suc n)) m
 
 private
-  FamilyOfEquiv : (f : Int → Int → Int) → Set
-  FamilyOfEquiv f = (m : Int) → isEquiv (λ n → f n m)
-
-  L0 : ∀ n z → +negsuc (suc n) z ≡ +negsuc n (predInt z)
+  L0 : ∀ n z → z +negsuc (suc n) ≡ predInt z +negsuc n
   L0 0 z = refl
   L0 (suc n) z = cong predInt (L0 n z)
   
-  Lnegsuc : ∀ n z → z +' negsuc n ≡ +negsuc n z
+  Lnegsuc : ∀ n z → z +' negsuc n ≡ z +negsuc n
   Lnegsuc 0 z = refl
   Lnegsuc (suc n) z = compPath (Lnegsuc n (predInt z)) (sym (L0 n z))
 
-  Lpos : ∀ n z → z +' pos n ≡ +pos n z
+  Lpos : ∀ n z → z +' pos n ≡ z +pos n
   Lpos zero z = refl
   Lpos (suc n) z = cong sucInt (Lpos n z)
   
@@ -257,3 +252,34 @@ isEquivAddInt' (negsuc n) = isEquivTransport (subEq (suc n))
 
 isEquivAddInt : (m : Int) → isEquiv (λ n → n + m)
 isEquivAddInt = subst FamilyOfEquiv +'≡+ isEquivAddInt'
+  where
+  FamilyOfEquiv : (f : Int → Int → Int) → Set
+  FamilyOfEquiv f = (m : Int) → isEquiv (λ n → f n m)
+
+private
+  alternateProof : (m : Int) → isEquiv (λ n → n + m)
+  alternateProof m = isoToIsEquiv (λ n → n + m) (λ n → n - m) (-+m m) (+-m m)
+    where
+    -+m : ∀ m n → (n - m) + m ≡ n
+    -+m (pos zero) n = refl
+    -+m (pos 1) n = sucPred _
+    -+m (pos (suc (suc m))) n = 
+      sucInt ((n +negsuc (suc m)) +pos (suc m)) ≡⟨ sucInt+pos (suc m) _ ⟩
+      sucInt (n +negsuc (suc m)) +pos (suc m)   ≡⟨ cong (λ z → z +pos (suc m)) (sucPred _) ⟩
+      (n - pos (suc m)) +pos (suc m)            ≡⟨ -+m (pos (suc m)) n ⟩
+      n ∎
+    -+m (negsuc zero) n = predSuc _
+    -+m (negsuc (suc m)) n = 
+      predInt (sucInt (sucInt (n +pos m)) +negsuc m) ≡⟨ predInt+negsuc m _ ⟩
+      predInt (sucInt (sucInt (n +pos m))) +negsuc m ≡⟨ cong (λ z → z + negsuc m) (predSuc _) ⟩
+      sucInt (n +pos m) +negsuc m                    ≡⟨ -+m (negsuc m) n ⟩
+      n ∎
+    +-m : ∀ m n → (n + m) - m ≡ n
+    +-m (pos zero) n = refl
+    +-m (pos (suc m)) n = -+m (negsuc m) n
+    +-m (negsuc zero) n = sucPred _
+    +-m (negsuc (suc m)) n =
+      sucInt (sucInt (predInt (n +negsuc m) +pos m)) ≡⟨ cong sucInt (sucInt+pos m _) ⟩
+      sucInt (sucInt (predInt (n +negsuc m)) +pos m) ≡⟨ cong sucInt (cong (λ z → z +pos m) (sucPred _)) ⟩
+      sucInt ((n +negsuc m) +pos m)                  ≡⟨ +-m (negsuc m) n ⟩
+      n ∎
