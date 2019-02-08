@@ -50,14 +50,7 @@ predSuc (pos (suc n))    = refl
 predSuc (negsuc zero)    = refl
 predSuc (negsuc (suc n)) = refl
 
-suc-equiv : Int ≃ Int
-suc-equiv = (sucInt , isoToIsEquiv sucInt predInt sucPred predSuc)
-
-sucPathInt : Int ≡ Int
-sucPathInt = ua suc-equiv
-
--- TODO: define multiplication by composing the addition equivalence
--- with itself.
+-- TODO: define multiplication
 
 private
   -- TODO: can we change this so that it's the proof suc-equiv?
@@ -69,20 +62,6 @@ private
   coherence (negsuc zero) = refl
   coherence (negsuc (suc zero)) = refl
   coherence (negsuc (suc (suc n))) = refl
-
--- Some tests
-private
-  one : Int
-  one = transport (λ i → sucPathInt i) (pos 0)
-
-  onepath : one ≡ pos 1
-  onepath = refl
-
-  minusone : Int
-  minusone = transport (λ i → sucPathInt (~ i)) (pos 0)
-
-  minusonepath : minusone ≡ negsuc 0
-  minusonepath = refl
 
 injPos : ∀ {a b : ℕ} → pos a ≡ pos b → a ≡ b
 injPos {a} h = subst T h refl
@@ -242,9 +221,8 @@ ind-assoc _·_ f g p q base m n (suc o) =
 -- Use this to define _+'_ for which is easier to prove
 -- isEquiv (λ n → n +' m) since _+'_ is defined by transport
 
--- recall
--- sucPathInt : Int ≡ Int
--- sucPathInt = ua (sucInt , isoToIsEquiv sucInt predInt sucPred predSuc)
+sucPathInt : Int ≡ Int
+sucPathInt = ua (sucInt , isoToIsEquiv sucInt predInt sucPred predSuc)
 
 addEq : ℕ → Int ≡ Int
 addEq zero = refl
