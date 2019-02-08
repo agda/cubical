@@ -13,6 +13,8 @@ This file defines operations and properties on conatural numbers:
 - Proof that bisimulation is equivalent to equivalence (Coinductive Proof
   Principle).
 
+- Proof that this bisimulation is an hProp
+
 The standard library also defines bisimulation on conaturals:
 
 https://github.com/agda/agda-stdlib/blob/master/src/Codata/Conat/Bisimilarity.agda
@@ -145,3 +147,11 @@ module Bisimulation where
   path≡bisim : ∀ {x y} → (x ≡ y) ≡ (x ≈ y)
   path≡bisim = ua path≃bisim
 
+  isProp≈ : ∀ {x y} → isProp (x ≈ y)
+  prove (isProp≈ p q i) = isProp≈′ (prove p) (prove q) i
+    where
+    isProp≈′ : ∀ {x y} → isProp (x ≈′ y)
+    isProp≈′ {zero} {zero} (con tt) (con tt) = refl
+    isProp≈′ {zero} {suc x} (con ()) (con ())
+    isProp≈′ {suc x} {zero} (con ()) (con ())
+    isProp≈′ {suc x} {suc y} (con p) (con q) = cong con (isProp≈ p q)
