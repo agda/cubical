@@ -137,3 +137,9 @@ isProp A = (x y : A) → x ≡ y
 
 isSet : Set ℓ → Set ℓ
 isSet A = (x y : A) → isProp (x ≡ y)
+
+-- Equivalence on hSets are hProps
+
+isProp[Set≡] : ∀ {A : Set ℓ} → isSet A →
+               ∀ {x y : A} → isProp (x ≡ y)
+isProp[Set≡] p = p _ _

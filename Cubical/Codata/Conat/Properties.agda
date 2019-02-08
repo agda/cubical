@@ -148,10 +148,4 @@ module Bisimulation where
   path≡bisim = ua path≃bisim
 
   isProp≈ : ∀ {x y} → isProp (x ≈ y)
-  prove (isProp≈ p q i) = isProp≈′ (prove p) (prove q) i
-    where
-    isProp≈′ : ∀ {x y} → isProp (x ≈′ y)
-    isProp≈′ {zero} {zero} (con tt) (con tt) = refl
-    isProp≈′ {zero} {suc x} (con ()) (con ())
-    isProp≈′ {suc x} {zero} (con ()) (con ())
-    isProp≈′ {suc x} {suc y} (con p) (con q) = cong con (isProp≈ p q)
+  isProp≈ = subst isProp path≡bisim (isProp[Set≡] isSetConat)
