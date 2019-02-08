@@ -269,8 +269,8 @@ minusPlus (negsuc (suc m)) n =
   
 plusMinus : ∀ m n → (n + m) - m ≡ n
 plusMinus (pos zero) n = refl
-plusMinus (pos (suc m)) n = minusPlus (negsuc m) n
-plusMinus (negsuc m) n = minusPlus (pos (suc m)) n
+plusMinus (pos (suc m)) = minusPlus (negsuc m)
+plusMinus (negsuc m) = minusPlus (pos (suc m))
 
 private
   alternateProof : (m : Int) → isEquiv (λ n → n + m)
