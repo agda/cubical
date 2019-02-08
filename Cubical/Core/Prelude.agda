@@ -45,11 +45,6 @@ cong : ∀ {B : A → Set ℓ'} (f : (a : A) → B a) (p : x ≡ y)
        → PathP (λ i → B (p i)) (f x) (f y)
 cong f p = λ i → f (p i)
 
--- Less polymorphic version of `cong`, to avoid some unresolved metas
-cong′ : ∀ {B : Set ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
-      → Path B (f x) (f y)
-cong′ f = cong f
-
 -- This is called compPath and not trans in order to eliminate
 -- confusion with transp
 compPath : x ≡ y → y ≡ z → x ≡ z
@@ -137,9 +132,3 @@ isProp A = (x y : A) → x ≡ y
 
 isSet : Set ℓ → Set ℓ
 isSet A = (x y : A) → isProp (x ≡ y)
-
--- Equivalence on hSets are hProps
-
-isProp[Set≡] : ∀ {A : Set ℓ} → isSet A →
-               ∀ {x y : A} → isProp (x ≡ y)
-isProp[Set≡] p = p _ _

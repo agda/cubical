@@ -13,7 +13,7 @@ This file defines operations and properties on conatural numbers:
 - Proof that bisimulation is equivalent to equivalence (Coinductive Proof
   Principle).
 
-- Proof that this bisimulation is an hProp
+- Proof that this bisimulation is prop valued
 
 The standard library also defines bisimulation on conaturals:
 
@@ -29,6 +29,7 @@ open import Cubical.Data.Empty
 
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Path
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
@@ -148,4 +149,4 @@ module Bisimulation where
   path≡bisim = ua path≃bisim
 
   isProp≈ : ∀ {x y} → isProp (x ≈ y)
-  isProp≈ = subst isProp path≡bisim (isProp[Set≡] isSetConat)
+  isProp≈ = subst isProp path≡bisim (isSetConat _ _)
