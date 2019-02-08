@@ -213,49 +213,51 @@ ind-assoc _·_ f g p q base m n (suc o) =
 +-assoc m n (pos o) = ind-assoc _+_ pos sucInt +sucInt refl (λ _ _ → refl) m n o
 +-assoc m n (negsuc o) = ind-assoc _+_ negsuc predInt +predInt refl +predInt m n o
 
+-- Compose sucPathInt with itself n times. Transporting along this
+-- will be addition, transporting with it backwards will be subtraction.
+-- Use this to define _+'_ for which is easier to prove
+-- isEquiv (λ n → n +' m) since _+'_ is defined by transport
+
+-- recall
+-- sucPathInt : Int ≡ Int
+-- sucPathInt = ua (sucInt , isoToIsEquiv sucInt predInt sucPred predSuc)
+
 addEq : ℕ → Int ≡ Int
 addEq zero = refl
 addEq (suc n) = compPath (addEq n) sucPathInt
 
+predPathInt : Int ≡ Int
+predPathInt = ua (predInt , isoToIsEquiv predInt sucInt predSuc sucPred)
+
 subEq : ℕ → Int ≡ Int
-subEq n i = addEq n (~ i)
+subEq zero = refl
+subEq (suc n) = compPath (subEq n) predPathInt
 
 _+'_ : Int → Int → Int
 m +' pos n    = transport (addEq n) m
 m +' negsuc n = transport (subEq (suc n)) m
 
-private
-  Lnegsuc : ∀ n z → z +' negsuc n ≡ z +negsuc n
-  Lnegsuc 0 z = refl
-  Lnegsuc (suc n) z = compPath (Lnegsuc n (predInt z)) (sym (predInt+negsuc n z))
-
-  Lpos : ∀ n z → z +' pos n ≡ z +pos n
-  Lpos zero z = refl
-  Lpos (suc n) z = cong sucInt (Lpos n z)
-  
-  Lemma : ∀ m n → m +' n ≡ m + n
-  Lemma m (pos n) = Lpos n m
-  Lemma m (negsuc n) = Lnegsuc n m
-
 +'≡+ : _+'_ ≡ _+_
-+'≡+ i m n = Lemma m n i
++'≡+ i m (pos zero) = m
++'≡+ i m (pos (suc n)) = sucInt (+'≡+ i m (pos n))
++'≡+ i m (negsuc zero) = predInt m
++'≡+ i m (negsuc (suc n)) = predInt (+'≡+ i m (negsuc n)) -- 
+  -- compPath (λ i → (+'≡+ i (predInt m) (negsuc n))) (sym (predInt+negsuc n m)) i
 
--- We directly get that addition by a fixed number is an equivalence
--- without having to do any induction!
 isEquivAddInt' : (m : Int) → isEquiv (λ n → n +' m)
 isEquivAddInt' (pos n)    = isEquivTransport (addEq n)
 isEquivAddInt' (negsuc n) = isEquivTransport (subEq (suc n))
 
 isEquivAddInt : (m : Int) → isEquiv (λ n → n + m)
-isEquivAddInt = subst FamilyOfEquiv +'≡+ isEquivAddInt'
-  where
-  FamilyOfEquiv : (f : Int → Int → Int) → Set
-  FamilyOfEquiv f = (m : Int) → isEquiv (λ n → f n m)
+isEquivAddInt = subst (λ add → (m : Int) → isEquiv (λ n → add n m)) +'≡+ isEquivAddInt'
+
+-- below is an alternate proof of isEquivAddInt for comparison
+-- We also have two useful lemma here.
 
 minusPlus : ∀ m n → (n - m) + m ≡ n
 minusPlus (pos zero) n = refl
 minusPlus (pos 1) = sucPred
-minusPlus (pos (suc (suc m))) n = 
+minusPlus (pos (suc (suc m))) n =
   sucInt ((n +negsuc (suc m)) +pos (suc m)) ≡⟨ sucInt+pos (suc m) _ ⟩
   sucInt (n +negsuc (suc m)) +pos (suc m)   ≡⟨ cong (λ z → z +pos (suc m)) (sucPred _) ⟩
   (n - pos (suc m)) +pos (suc m)            ≡⟨ minusPlus (pos (suc m)) n ⟩
@@ -268,9 +270,7 @@ minusPlus (negsuc (suc m)) n =
   n ∎
   
 plusMinus : ∀ m n → (n + m) - m ≡ n
-plusMinus (pos zero) n = refl
-plusMinus (pos (suc m)) = minusPlus (negsuc m)
-plusMinus (negsuc m) = minusPlus (pos (suc m))
+plusMinus m n = compPath (cong (λ z → z - m) (sym (minusNeg n m))) (minusPlus (neg m) n)
 
 private
   alternateProof : (m : Int) → isEquiv (λ n → n + m)
