@@ -18,6 +18,8 @@ open import Cubical.Core.Prelude
 open import Agda.Builtin.Cubical.Glue public
   using ( isEquiv       -- ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → Set (ℓ ⊔ ℓ')
 
+        ; equiv-proof   -- ∀ (y : B) → isContr (fiber f y)
+
         ; _≃_           -- ∀ {ℓ ℓ'} (A : Set ℓ) (B : Set ℓ') → Set (ℓ ⊔ ℓ')
 
         ; equivFun      -- ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → A → B
@@ -40,8 +42,6 @@ open import Agda.Builtin.Cubical.Glue public
 
            ; pathToEquiv to lineToEquiv  -- ∀ {ℓ : → Level} (P : (i : I) → Set (ℓ i)) → P i0 ≃ P i1
            )
-
-open isEquiv public
 
 private
   variable
