@@ -10,7 +10,7 @@ predSuc : ∀ (i : Int) → predInt (sucInt i) ≡ i
 discreteInt : discrete Int
 isSetInt : isSet Int
 
-addition of Int is defined -- _+_ : Int → Int → Int
+addition of Int is defined _+_ : Int → Int → Int
 
 as well as its commutativity and associativity
 +-comm : ∀ (m n : Int) → m + n ≡ n + m
