@@ -1,4 +1,28 @@
 {-# OPTIONS --cubical --safe #-}
+
+{-
+
+This file defines
+
+sucPred : ∀ (i : Int) → sucInt (predInt i) ≡ i
+predSuc : ∀ (i : Int) → predInt (sucInt i) ≡ i
+
+discreteInt : discrete Int
+isSetInt : isSet Int
+
+addition of Int is defined -- _+_ : Int → Int → Int
+
+as well as its commutativity and associativity
++-comm : ∀ (m n : Int) → m + n ≡ n + m
++-assoc : ∀ (m n o : Int) → m + (n + o) ≡ (m + n) + o
+
+An alternate definition of _+_ is defined via ua, 
+namely _+'_, which helps us to easily prove
+
+isEquivAddInt : (m : Int) → isEquiv (λ n → n + m)
+
+-}
+
 module Cubical.Data.Int.Properties where
 
 open import Cubical.Core.Everything
