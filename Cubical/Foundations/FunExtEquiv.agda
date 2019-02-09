@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe #-}
 
-module Cubical.Foundations.Function where
+module Cubical.Foundations.FunExtEquiv where
 
 open import Cubical.Core.Everything
 
