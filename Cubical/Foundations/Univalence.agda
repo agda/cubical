@@ -15,7 +15,7 @@ module Cubical.Foundations.Univalence where
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 
 -- Give detailed type to unglue, mainly for documentation purposes
 unglueua : ∀ {A B : Set} → (e : A ≃ B) → (i : I) (x : ua e i)
