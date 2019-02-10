@@ -132,3 +132,20 @@ isProp A = (x y : A) → x ≡ y
 
 isSet : Set ℓ → Set ℓ
 isSet A = (x y : A) → isProp (x ≡ y)
+
+isSet' : Set ℓ → Set ℓ
+isSet' A = {x y z w : A} (p : x ≡ y) (q : z ≡ w) (r : x ≡ z) (s : y ≡ w) →
+           PathP (λ i → Path A (r i) (s i)) p q
+
+isSet→isSet' : {A : Set ℓ} → isSet A → isSet' A
+isSet→isSet' {A = A} Aset {x} {y} {z} {w} p q r s =
+  J (λ z (r : x ≡ z) → ∀ {w} (s : y ≡ w) (p : x ≡ y) (q : z ≡ w) → PathP (λ i → r i ≡ s i) p q)
+  (λ {w} (s : y ≡ w) (p : x ≡ y) (q : x ≡ w) →
+    J {!λ (w : A) (s : y ≡ w) → (p : x ≡ y) (q : x ≡ w) → PathP (λ i → x ≡ s i ) p q!}
+      (λ (p q : x ≡ y) → Aset x y p q)
+      s
+  )
+  r s p q
+
+isSet'→isSet : {A : Set ℓ} → isSet' A → isSet A
+isSet'→isSet {A = A} Aset' x y p q = Aset' p q refl refl
