@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --safe --guardedness #-}
 module Cubical.Codata.Stream.Properties where
 
-open import Cubical.Core.Prelude
+open import Cubical.Core.Everything
 
 open import Cubical.Data.Nat
 
@@ -10,6 +10,24 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Codata.Stream.Base
 
 open Stream
+
+mapS : ∀ {A B} → (A → B) → Stream A → Stream B
+head (mapS f xs) = f (head xs)
+tail (mapS f xs) = mapS f (tail xs)
+
+even : ∀ {A} → Stream A → Stream A
+head (even a) = head a
+tail (even a) = even (tail (tail a))
+
+odd : ∀ {A} → Stream A → Stream A
+head (odd a) = head (tail a)
+tail (odd a) = odd (tail (tail a))
+
+merge : ∀ {A} → Stream A → Stream A → Stream A
+head (merge a _) = head a
+head (tail (merge _ b)) = head b
+tail (tail (merge a b)) = merge (tail a) (tail b)
+
 mapS-id : ∀ {A} {xs : Stream A} → mapS (λ x → x) xs ≡ xs
 head (mapS-id {xs = xs} i) = head xs
 tail (mapS-id {xs = xs} i) = mapS-id {xs = tail xs} i
@@ -32,6 +50,14 @@ head (tail (mergeEvenOdd≡id a i)) = head (tail a)
 tail (tail (mergeEvenOdd≡id a i)) = mergeEvenOdd≡id (tail (tail a)) i
 
 module Equality≅Bisimulation where
+
+-- Bisimulation
+  record _≈_ {A : Set} (x y : Stream A) : Set where
+    coinductive
+    field
+      ≈head : head x ≡ head y
+      ≈tail : tail x ≈ tail y
+
   open _≈_
 
   bisim : {A : Set} → {x y : Stream A} → x ≈ y → x ≡ y
@@ -50,6 +76,12 @@ module Equality≅Bisimulation where
   ≈head (iso2 p i) = ≈head p
   ≈tail (iso2 p i) = iso2 (≈tail p) i
 
+  path≃bisim : {A : Set} → {x y : Stream A} → (x ≡ y) ≃ (x ≈ y)
+  path≃bisim = isoToEquiv misib bisim iso2 iso1
+
+  path≡bisim : {A : Set} → {x y : Stream A} → (x ≡ y) ≡ (x ≈ y)
+  path≡bisim = ua path≃bisim
+
   -- misib can be implemented by transport as well.
   refl≈ : {A : Set} {x : Stream A} → x ≈ x
   ≈head refl≈ = refl
@@ -66,6 +98,14 @@ module Equality≅Bisimulation where
   misibTransp p = J (λ _ p → cast p ≡ misib p) (compPath (transportRefl refl≈) (sym misib-refl)) p
 
 module Stream≅Nat→ {A : Set} where
+  lookup : {A : Set} → Stream A → ℕ → A
+  lookup xs zero = head xs
+  lookup xs (suc n) = lookup (tail xs) n
+
+  tabulate : {A : Set} → (ℕ → A) → Stream A
+  head (tabulate f) = f zero
+  tail (tabulate f) = tabulate (λ n → f (suc n))
+
   lookup∘tabulate : (λ (x : _ → A) → lookup (tabulate x)) ≡ (λ x → x)
   lookup∘tabulate i f zero = f zero
   lookup∘tabulate i f (suc n) = lookup∘tabulate i (λ n → f (suc n)) n

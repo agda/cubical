@@ -3,12 +3,15 @@ module Cubical.Data.Nat.Properties where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Foundations.NTypes
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat.Base
 
 open import Cubical.Data.Empty
 open import Cubical.Data.Sum
+
+open import Cubical.Relation.Nullary
+open import Cubical.Relation.Nullary.DecidableEq
 
 +-suc : ∀ m n → m + suc n ≡ suc (m + n)
 +-suc zero    n = refl
@@ -28,13 +31,13 @@ snotz eq = subst (caseNat ⊥ ℕ) eq 0
 injSuc : {m n : ℕ} → suc m ≡ suc n → m ≡ n
 injSuc p = cong predℕ p
 
-discreteℕ : discrete ℕ
-discreteℕ zero zero = inl refl
-discreteℕ zero (suc n) = inr znots
-discreteℕ (suc m) zero = inr snotz
+discreteℕ : Discrete ℕ
+discreteℕ zero zero = yes refl
+discreteℕ zero (suc n) = no znots
+discreteℕ (suc m) zero = no snotz
 discreteℕ (suc m) (suc n) with discreteℕ m n
-... | inl p = inl (cong suc p)
-... | inr p = inr (λ x → p (injSuc x))
+... | yes p = yes (cong suc p)
+... | no p = no (λ x → p (injSuc x))
 
 isSetℕ : isSet ℕ
-isSetℕ = discrete→isSet discreteℕ
+isSetℕ = Discrete→isSet discreteℕ
