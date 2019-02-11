@@ -10,6 +10,8 @@ Theory about equivalences (definitions are in Core/Glue.agda)
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Isomorphism where
 
+open import Agda.Primitive
+
 open import Cubical.Core.Everything
 open import Cubical.Foundations.HLevels
 
@@ -23,10 +25,26 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} where
   retract f g = ∀ a → g (f a) ≡ a
 
 
--- Any iso is an equivalence
-module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A)
-         (s : section f g) (t : retract f g) where
+record isoStruct {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) : Set (ℓ ⊔ ℓ') where
+  field
+    inverse : B → A
+    rightInv : section f inverse
+    leftInv : retract f inverse
 
+Iso : ∀ {ℓ ℓ'} (A : Set ℓ) (B : Set ℓ') → Set (ℓ ⊔ ℓ')
+Iso A B = Σ[ f ∈ (A → B) ] isoStruct f
+
+-- Any iso is an equivalence
+module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (i : Iso A B) where
+-- (f : A → B) (g : B → A)         (s : section f g) (t : retract f g)
+
+  private 
+    f = fst i
+
+  open isoStruct (snd i) renaming ( inverse to g
+                                  ; rightInv to s
+                                  ; leftInv to t)
+                                  
   private
     module _ (y : B) (x0 x1 : A) (p0 : f x0 ≡ y) (p1 : f x1 ≡ y) where
       fill0 : I → I → A
@@ -70,10 +88,7 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A)
   isoToIsEquiv .equiv-proof y .fst .snd = s y
   isoToIsEquiv .equiv-proof y .snd z = lemIso y (g y) (fst z) (s y) (snd z)
 
-  isoToEquiv : A ≃ B
-  isoToEquiv = _ , isoToIsEquiv
 
-isoToPath : ∀ {ℓ} {A B : Set ℓ} (f : A → B) (g : B → A)
-              (s : section f g) (t : retract f g) → A ≡ B
-isoToPath f g s t = ua (isoToEquiv f g s t)
+isoToPath : ∀ {ℓ} {A B : Set ℓ} → (Iso A B) → A ≡ B
+isoToPath f = ua (fst f , isoToIsEquiv f)
 

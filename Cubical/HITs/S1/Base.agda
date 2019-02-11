@@ -88,7 +88,7 @@ windingIntLoop (negsuc zero)    = refl
 windingIntLoop (negsuc (suc n)) = λ i → predInt (windingIntLoop (negsuc n) i)
 
 ΩS¹≡Int : ΩS¹ ≡ Int
-ΩS¹≡Int = isoToPath winding (decode base) windingIntLoop (decodeEncode base)
+ΩS¹≡Int = isoToPath (winding , record { inverse = decode base ; rightInv = windingIntLoop ; leftInv = decodeEncode base})
 
 
 -- Some tests
@@ -144,7 +144,7 @@ rotLoopInv a i j =
 rotLoopEquiv : (i : I) → S¹ ≃ S¹
 rotLoopEquiv i =
   isoToEquiv
-    (λ a → rotLoop a i)
-    (λ a → rotLoop a (~ i))
-    (λ a → rotLoopInv a i)
-    (λ a → rotLoopInv a (~ i))
+    ((λ a → rotLoop a i) ,
+      record { inverse = λ a → rotLoop a (~ i) ; 
+               rightInv = λ a → rotLoopInv a i ;
+               leftInv = λ a → rotLoopInv a (~ i)})

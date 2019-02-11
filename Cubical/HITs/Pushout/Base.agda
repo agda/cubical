@@ -46,9 +46,7 @@ PushoutSusp→Susp→PushoutSusp (inr _) = refl
 PushoutSusp→Susp→PushoutSusp (push _ _) = refl
 
 PushoutSusp≃Susp : ∀ {ℓ} {A : Set ℓ} → PushoutSusp A ≃ Susp A
-PushoutSusp≃Susp = isoToEquiv PushoutSusp→Susp Susp→PushoutSusp
-                              Susp→PushoutSusp→Susp PushoutSusp→Susp→PushoutSusp
+PushoutSusp≃Susp = isoToEquiv (PushoutSusp→Susp , record { inverse = Susp→PushoutSusp ; rightInv = Susp→PushoutSusp→Susp ; leftInv = PushoutSusp→Susp→PushoutSusp })
 
 PushoutSusp≡Susp : ∀ {ℓ} {A : Set ℓ} → PushoutSusp A ≡ Susp A
-PushoutSusp≡Susp = isoToPath PushoutSusp→Susp Susp→PushoutSusp
-                             Susp→PushoutSusp→Susp PushoutSusp→Susp→PushoutSusp
+PushoutSusp≡Susp = isoToPath (PushoutSusp→Susp , record { inverse = Susp→PushoutSusp ; rightInv = Susp→PushoutSusp→Susp ; leftInv = PushoutSusp→Susp→PushoutSusp})

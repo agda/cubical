@@ -38,6 +38,9 @@ equiv-proof (isPropIsEquiv f p q i) y =
 equivEq : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (e f : A ≃ B) → (h : e .fst ≡ f .fst) → e ≡ f
 equivEq e f h = λ i → (h i) , isProp→PathP isPropIsEquiv h (e .snd) (f .snd) i
 
+isoToEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → Iso A B →  A ≃ B
+isoToEquiv i = _ , isoToIsEquiv i
+
 module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (w : A ≃ B) where
   invEq : B → A
   invEq y = fst (fst (snd w .equiv-proof y))
@@ -49,15 +52,17 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (w : A ≃ B) where
   retEq y = λ i → snd (fst (snd w .equiv-proof y)) i
 
 invEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → B ≃ A
-invEquiv f = isoToEquiv (invEq f) (fst f) (secEq f) (retEq f)
+invEquiv f = isoToEquiv ((invEq f) , record { inverse = fst f ; rightInv = secEq f ; leftInv = retEq f })
 
 compEquiv : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} {C : Set ℓ''} →
             A ≃ B → B ≃ C → A ≃ C
-compEquiv f g = isoToEquiv (λ x → g .fst (f .fst x))
-                           (λ x → invEq f (invEq g x))
-                           (λ y → compPath (cong (g .fst) (retEq f (invEq g y))) (retEq g y))
-                           (λ y → compPath (cong (invEq f) (secEq g (f .fst y))) (secEq f y))
-
+compEquiv f g = isoToEquiv
+                  ((λ x → g .fst (f .fst x)) ,
+                   record {
+                     inverse = λ x → invEq f (invEq g x) ;
+                     rightInv = λ y → compPath (cong (g .fst) (retEq f (invEq g y))) (retEq g y) ;
+                     leftInv = λ y → compPath (cong (invEq f) (secEq g (f .fst y))) (secEq f y)
+                   })
 
 -- module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'}  where
 --   invEquivInvol : (f : A ≃ B) → invEquiv (invEquiv f) ≡ f
@@ -67,8 +72,8 @@ compEquiv f g = isoToEquiv (λ x → g .fst (f .fst x))
 
 -- Transport is an equivalence
 isEquivTransport : ∀ {ℓ} {A B : Set ℓ} (p : A ≡ B) → isEquiv (transport p)
-isEquivTransport {A = A} =
-  J (λ y x → isEquiv (transport x)) (isoToIsEquiv (transport refl) (transport refl) rem rem)
+isEquivTransport {A = A} = 
+  J (λ y x → isEquiv (transport x)) (isoToIsEquiv ((transport refl) , (record { inverse = transport refl ; rightInv = rem ; leftInv = rem })))
     where
     rem : (x : A) → transport refl (transport refl x) ≡ x
     rem x = compPath (cong (transport refl) (transportRefl x))
@@ -76,4 +81,3 @@ isEquivTransport {A = A} =
 
 transportEquiv : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B
 transportEquiv p = (transport p , isEquivTransport p)
-

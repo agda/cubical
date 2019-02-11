@@ -222,14 +222,20 @@ ind-assoc _·_ f g p q base m n (suc o) =
 -- isEquiv (λ n → n +' m) since _+'_ is defined by transport
 
 sucPathInt : Int ≡ Int
-sucPathInt = ua (sucInt , isoToIsEquiv sucInt predInt sucPred predSuc)
+sucPathInt = ua (sucInt , isoToIsEquiv (sucInt , record {
+                                                   inverse = predInt ;
+                                                   rightInv = sucPred ;
+                                                   leftInv = predSuc}))
 
 addEq : ℕ → Int ≡ Int
 addEq zero = refl
 addEq (suc n) = compPath (addEq n) sucPathInt
 
 predPathInt : Int ≡ Int
-predPathInt = ua (predInt , isoToIsEquiv predInt sucInt predSuc sucPred)
+predPathInt = ua (predInt , isoToIsEquiv (predInt , record {
+                                                      inverse = sucInt ;
+                                                      rightInv = predSuc ;
+                                                      leftInv = sucPred}))
 
 subEq : ℕ → Int ≡ Int
 subEq zero = refl
@@ -278,4 +284,7 @@ plusMinus (negsuc m) = minusPlus (pos (suc m))
 
 private
   alternateProof : (m : Int) → isEquiv (λ n → n + m)
-  alternateProof m = isoToIsEquiv (λ n → n + m) (λ n → n - m) (minusPlus m) (plusMinus m)
+  alternateProof m = isoToIsEquiv ((λ n → n + m) , record {
+                                                   inverse = λ n → n - m ;
+                                                   rightInv = minusPlus m ;
+                                                   leftInv = plusMinus m})

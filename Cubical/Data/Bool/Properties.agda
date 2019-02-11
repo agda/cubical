@@ -12,7 +12,7 @@ notnot true  = refl
 notnot false = refl
 
 notIsEquiv : isEquiv not
-notIsEquiv = isoToIsEquiv not not notnot notnot 
+notIsEquiv = isoToIsEquiv (not , record { inverse = not ; rightInv = notnot ; leftInv = notnot}) 
 
 notEquiv : Bool ≃ Bool
 notEquiv = (not , notIsEquiv)

@@ -34,7 +34,7 @@ Int→HitInt→Int (pos n) _ = pos n
 Int→HitInt→Int (negsuc n) _ = negsuc n
 
 Int≡HitInt : Int ≡ HitInt
-Int≡HitInt = isoToPath Int→HitInt HitInt→Int HitInt→Int→HitInt Int→HitInt→Int
+Int≡HitInt = isoToPath (Int→HitInt , record { inverse = HitInt→Int ; rightInv = HitInt→Int→HitInt ; leftInv = Int→HitInt→Int})
 
 isSetHitInt : isSet HitInt
 isSetHitInt = subst isSet Int≡HitInt isSetInt
