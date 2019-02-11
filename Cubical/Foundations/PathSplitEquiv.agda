@@ -1,10 +1,9 @@
 {-
 
-Theory about equivalences (definitions are in Core/Glue.agda)
-
-- isEquiv is a proposition ([isPropIsEquiv])
-- Any isomorphism is an equivalence ([isoToEquiv])
-- transport is an equivalence ([transportEquiv])
+Theory about path split equivalences. 
+They are needed to construct localization HITs as in 
+(the "modalities paper")
+https://arxiv.org/abs/1706.07526
 
 -}
 {-# OPTIONS --cubical --safe #-}
@@ -24,9 +23,6 @@ isEquivCong e = EquivJ (λ (B' A' : Set _) (e' : A' ≃ B') →
 congEquiv : ∀ {ℓ} {A B : Set ℓ} {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
 congEquiv e = ((λ (p : _ ≡ _) → cong (e .fst) p) , isEquivCong e)
 
-{-
-  Everything about path split equivalences is from https://arxiv.org/abs/1706.07526
--}
 record isPathSplitEquiv {ℓ} {A B : Set  ℓ} (f : A → B) : Set ℓ where
   field
     s : B → A 
