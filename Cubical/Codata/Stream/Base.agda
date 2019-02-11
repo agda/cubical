@@ -3,8 +3,6 @@ module Cubical.Codata.Stream.Base where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Data.Nat
-
 record Stream (A : Set) : Set where
   coinductive
   constructor _,_

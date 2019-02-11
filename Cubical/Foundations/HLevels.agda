@@ -12,7 +12,7 @@ module Cubical.Foundations.HLevels where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Foundations.Function
+open import Cubical.Foundations.FunExtEquiv
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Empty
