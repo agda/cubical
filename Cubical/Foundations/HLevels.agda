@@ -110,3 +110,13 @@ hLevelPi (suc n) h f g = subst (isOfHLevel n) funExtPath sub-lemma
   where
   sub-lemma : isOfHLevel n (∀ x → f x ≡ g x)
   sub-lemma = hLevelPi n λ x → h x (f x) (g x)
+
+isSet→isSet' : ∀ {ℓ} {A : Set ℓ} → isSet A → isSet' A
+isSet→isSet' {A = A} Aset {x} {y} {z} {w} p q r s =
+  J (λ (z : A) (r : x ≡ z) → ∀ {w : A} (s : y ≡ w) (p : x ≡ y) (q : z ≡ w) → PathP (λ i → Path A (r i) (s i) ) p q) helper r s p q
+  where
+    helper : ∀ {w : A} (s : y ≡ w) (p : x ≡ y) (q : x ≡ w) → PathP (λ i → Path A x (s i)) p q
+    helper {w} s p q = J (λ (w : A) (s : y ≡ w) → ∀ p q → PathP (λ i → Path A x (s i)) p q) (λ p q → Aset x y p q) s p q 
+
+isSet'→isSet : ∀ {ℓ} {A : Set ℓ} → isSet' A → isSet A
+isSet'→isSet {A = A} Aset' x y p q = Aset' p q refl refl
