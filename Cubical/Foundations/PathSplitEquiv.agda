@@ -48,20 +48,21 @@ module _ {ℓ} {A B : Set ℓ} where
                             rightInv = sec ;
                             leftInv = λ (x : A) → (secCong (s (f x)) x).fst (sec (f x))})) .snd
 
-  sectionOfEquiv : {A' B' : Set ℓ} → (f : A' → B') → isEquiv f → B' → A'
-  sectionOfEquiv f record { equiv-proof = all-fibers-contractible } x =
+  sectionOfEquiv' : {A' B' : Set ℓ} → (f : A' → B') → isEquiv f → B' → A'
+  sectionOfEquiv' f record { equiv-proof = all-fibers-contractible } x =
     all-fibers-contractible x .fst .fst
 
-  isSec : {A' B' : Set ℓ} → (f : A' → B') → (pf : isEquiv f) → section f (sectionOfEquiv f pf)
+  isSec : {A' B' : Set ℓ} → (f : A' → B') → (pf : isEquiv f) → section f (sectionOfEquiv' f pf)
   isSec f record { equiv-proof = all-fibers-contractible } x =
     all-fibers-contractible x .fst .snd 
 
+  sectionOfEquiv : {A' B' : Set ℓ} → (f : A' → B') → isEquiv f → Σ (B' → A') (section f)
+  sectionOfEquiv f e = sectionOfEquiv' f e , isSec f e
+  
   fromIsEquiv : (f : A → B) → isEquiv f → isPathSplitEquiv f
-  s (fromIsEquiv f pf) = sectionOfEquiv f pf
+  s (fromIsEquiv f pf) = sectionOfEquiv' f pf
   sec (fromIsEquiv f pf) = isSec f pf
-  secCong (fromIsEquiv f pf) x y = 
-        (sectionOfEquiv {x ≡ y} {f x ≡ f y} cong-f eq-cong
-          , isSec {x ≡ y} {f x ≡ f y} cong-f eq-cong)
+  secCong (fromIsEquiv f pf) x y = sectionOfEquiv cong-f eq-cong
         where
           cong-f : x ≡ y → f x ≡ f y
           cong-f = λ (p : x ≡ y) → cong f p
