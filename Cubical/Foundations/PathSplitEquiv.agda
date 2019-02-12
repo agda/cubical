@@ -76,10 +76,7 @@ secCong idIsPathSplitEquiv = λ x y → (λ p → p) , λ p _ → p
 module _ {ℓ} {A B : Set ℓ} where
   toIsEquiv : (f : A → B) → isPathSplitEquiv f → isEquiv f 
   toIsEquiv f record { s = s ; sec = sec ; secCong = secCong } =
-    (isoToEquiv (f , record {
-                            inverse = s ;
-                            rightInv = sec ;
-                            leftInv = λ x → (secCong (s (f x)) x).fst (sec (f x))})) .snd
+    (isoToEquiv (iso f s sec (λ x → (secCong (s (f x)) x).fst (sec (f x))))) .snd
                           
   sectionOfEquiv' : (f : A → B) → isEquiv f → B → A
   sectionOfEquiv' f record { equiv-proof = all-fibers-contractible } x =
@@ -159,18 +156,14 @@ module _ {ℓ} {A B : Set ℓ} where
   isEquivIsPathSplitToIsEquiv : (f : A → B) → isEquiv (fromIsEquiv f)
   isEquivIsPathSplitToIsEquiv f =
     isoToIsEquiv
-      (fromIsEquiv f , (record {
-                          inverse =  toIsEquiv f;
-                          rightInv = λ b → isPropIsPathSplitEquiv f _ _ ;
-                          leftInv = λ a → isPropIsEquiv f _ _ }))
+      (iso (fromIsEquiv f) (toIsEquiv f) (λ b → isPropIsPathSplitEquiv f _ _) (λ a → isPropIsEquiv f _ _ ))
 
   isEquivPathSplitToEquiv : isEquiv (pathSplitToEquiv {A = A} {B = B})
   isEquivPathSplitToEquiv =
     isoToIsEquiv
-      (pathSplitToEquiv , (record {
-                             inverse = equivToPathSplit ;
-                             rightInv = λ {(f , e) i → (f , isPropIsEquiv f (toIsEquiv f (fromIsEquiv f e)) e i)} ;
-                             leftInv = λ {(f , e) i → (f , isPropIsPathSplitEquiv f (fromIsEquiv f (toIsEquiv f e)) e i)} }))
+      (iso pathSplitToEquiv equivToPathSplit
+        (λ {(f , e) i → (f , isPropIsEquiv f (toIsEquiv f (fromIsEquiv f e)) e i)})
+        (λ {(f , e) i → (f , isPropIsPathSplitEquiv f (fromIsEquiv f (toIsEquiv f e)) e i)}))
 
   equivPathSplitToEquiv : (PathSplitEquiv A B) ≃ (A ≃ B)
   equivPathSplitToEquiv = (pathSplitToEquiv , isEquivPathSplitToEquiv)

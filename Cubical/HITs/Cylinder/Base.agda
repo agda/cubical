@@ -72,7 +72,7 @@ module _ {ℓ} {A : Set ℓ} where
 
   -- The second part of the factorization above.
   CylinderA≃A : Cylinder A ≃ A
-  CylinderA≃A = isoToEquiv (out , record { inverse = inl ; rightInv = out-inl ; leftInv = inl-out})
+  CylinderA≃A = isoToEquiv (iso out inl out-inl inl-out)
 
   -- The cocylinder has a similar equivalence that is part
   -- of factorizing the diagonal mapping.
@@ -93,7 +93,7 @@ module _ {ℓ} {A : Set ℓ} where
 
   A≃CocylinderA : A ≃ Cocylinder A
   A≃CocylinderA =
-    isoToEquiv (inco , record { inverse = outco ; rightInv = CocylinderA→A→CocylinderA ; leftInv = A→CocylinderA→A})
+    isoToEquiv (iso inco outco CocylinderA→A→CocylinderA A→CocylinderA→A)
 
   project : Cocylinder A → A × A
   project c = c zero , c one
@@ -183,7 +183,7 @@ module IntervalEquiv where
 
   CylinderUnit≃Interval : Cylinder Unit ≃ Interval
   CylinderUnit≃Interval =
-    isoToEquiv (CylinderUnit→Interval , record { inverse = Interval→CylinderUnit ; rightInv = Interval→CylinderUnit→Interval ; leftInv = CylinderUnit→Interval→CylinderUnit})
+    isoToEquiv (iso CylinderUnit→Interval Interval→CylinderUnit Interval→CylinderUnit→Interval CylinderUnit→Interval→CylinderUnit)
 
 
   -- More generally, there is an equivalence between the cylinder
@@ -218,10 +218,10 @@ module IntervalEquiv where
     CylinderA≃A×Interval : Cylinder A ≃ Cyl
     CylinderA≃A×Interval =
       isoToEquiv
-        (CylinderA→A×Interval , record {
-                                       inverse = A×Interval→CylinderA ;
-                                       rightInv = A×Interval→CylinderA→A×Interval ;
-                                       leftInv = CylinderA→A×Interval→CylinderA})
+        (iso CylinderA→A×Interval  
+             A×Interval→CylinderA
+             A×Interval→CylinderA→A×Interval
+             CylinderA→A×Interval→CylinderA)
 
 -- The cylinder is also the pushout of the identity on A with itself.
 module Push {ℓ} {A : Set ℓ} where
@@ -257,8 +257,8 @@ module Push {ℓ} {A : Set ℓ} where
   Pushout≃Cylinder : Push ≃ Cyl
   Pushout≃Cylinder =
     isoToEquiv
-      (Pushout→Cylinder , record {
-                                 inverse = Cylinder→Pushout ;
-                                 rightInv = Cylinder→Pushout→Cylinder ;
-                                 leftInv = Pushout→Cylinder→Pushout})
+      (iso Pushout→Cylinder  
+           Cylinder→Pushout
+           Cylinder→Pushout→Cylinder
+           Pushout→Cylinder→Pushout)
 

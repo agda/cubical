@@ -46,10 +46,10 @@ S¹→SuspBool→S¹ (loop i) = λ j →
   hfill (λ k → \ { (i = i0) → base; (i = i1) → base }) (inc (loop i)) (~ j)
 
 S¹≃SuspBool : S¹ ≃ SuspBool
-S¹≃SuspBool = isoToEquiv (S¹→SuspBool , record { inverse = SuspBool→S¹ ; rightInv = SuspBool→S¹→SuspBool ; leftInv = S¹→SuspBool→S¹ })
+S¹≃SuspBool = isoToEquiv (iso S¹→SuspBool SuspBool→S¹ SuspBool→S¹→SuspBool S¹→SuspBool→S¹)
 
 S¹≡SuspBool : S¹ ≡ SuspBool
-S¹≡SuspBool = isoToPath (S¹→SuspBool , record { inverse = SuspBool→S¹ ; rightInv = SuspBool→S¹→SuspBool ; leftInv = S¹→SuspBool→S¹})
+S¹≡SuspBool = isoToPath (iso S¹→SuspBool SuspBool→S¹ SuspBool→S¹→SuspBool S¹→SuspBool→S¹)
 
 -- Now the sphere
 
@@ -84,7 +84,7 @@ SuspS¹→S²→SuspS¹ (merid base j) k = merid base (k ∧ j)
 SuspS¹→S²→SuspS¹ (merid (loop j) i) k = meridian-contraction i j (~ k)
 
 S²≡SuspS¹ : S² ≡ SuspS¹
-S²≡SuspS¹ = isoToPath (S²→SuspS¹ , record { inverse = SuspS¹→S² ; rightInv = SuspS¹→S²→SuspS¹ ; leftInv = S²→SuspS¹→S²})
+S²≡SuspS¹ = isoToPath (iso S²→SuspS¹ SuspS¹→S² SuspS¹→S²→SuspS¹ S²→SuspS¹→S²)
 
 -- And the 3-sphere
 
@@ -121,4 +121,4 @@ SuspS²→S³→SuspS² (merid base j) l = merid base (l ∧ j)
 SuspS²→S³→SuspS² (merid (surf j k) i) l = meridian-contraction-2 i j k (~ l)
 
 S³≡SuspS² : S³ ≡ SuspS²
-S³≡SuspS² = isoToPath (S³→SuspS² , record { inverse = SuspS²→S³ ; rightInv = SuspS²→S³→SuspS² ; leftInv = S³→SuspS²→S³})
+S³≡SuspS² = isoToPath (iso S³→SuspS² SuspS²→S³ SuspS²→S³→SuspS² S³→SuspS²→S³)

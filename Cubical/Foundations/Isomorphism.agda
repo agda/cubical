@@ -10,8 +10,6 @@ Theory about isomorphisms
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Isomorphism where
 
-open import Agda.Primitive
-
 open import Cubical.Core.Everything
 open import Cubical.Foundations.HLevels
 
@@ -23,27 +21,21 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} where
   -- NB: `g` is the retraction!
   retract : (f : A → B) → (g : B → A) → Set ℓ
   retract f g = ∀ a → g (f a) ≡ a
-
-
-record isoStruct {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) : Set (ℓ ⊔ ℓ') where
+  
+record Iso {ℓ ℓ'} (A : Set ℓ) (B : Set ℓ') : Set (ℓ-max ℓ ℓ') where
+  constructor iso
   field
-    inverse : B → A
-    rightInv : section f inverse
-    leftInv : retract f inverse
-
-Iso : ∀ {ℓ ℓ'} (A : Set ℓ) (B : Set ℓ') → Set (ℓ ⊔ ℓ')
-Iso A B = Σ[ f ∈ (A → B) ] isoStruct f
+    fun : A → B
+    inv : B → A
+    rightInv : section fun inv
+    leftInv : retract fun inv
 
 -- Any iso is an equivalence
 module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (i : Iso A B) where
--- (f : A → B) (g : B → A)         (s : section f g) (t : retract f g)
-
-  private 
-    f = fst i
-
-  open isoStruct (snd i) renaming ( inverse to g
-                                  ; rightInv to s
-                                  ; leftInv to t)
+  open Iso i renaming ( fun to f
+                      ; inv to g
+                      ; rightInv to s
+                      ; leftInv to t)
                                   
   private
     module _ (y : B) (x0 x1 : A) (p0 : f x0 ≡ y) (p1 : f x1 ≡ y) where
@@ -90,5 +82,5 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (i : Iso A B) where
 
 
 isoToPath : ∀ {ℓ} {A B : Set ℓ} → (Iso A B) → A ≡ B
-isoToPath f = ua (fst f , isoToIsEquiv f)
+isoToPath f = ua (Iso.fun f , isoToIsEquiv f)
 

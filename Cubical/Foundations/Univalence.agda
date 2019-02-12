@@ -50,11 +50,9 @@ module Univalence (au : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B)
   thm : ∀ {ℓ} {A B : Set ℓ} → isEquiv au
   thm {A = A} {B = B} =
     isoToIsEquiv {B = A ≃ B}
-      (au , record {
-              inverse = ua ;
-              rightInv = (EquivJ (λ _ _ e → au (ua e) ≡ e) (λ X → compPath (cong au uaIdEquiv) (auid {B = B})) _ _) ;
-              leftInv = (J (λ X p → ua (au p) ≡ p) (compPath (cong ua (auid {B = B})) uaIdEquiv))
-            })
+      (iso au ua
+        (EquivJ (λ _ _ e → au (ua e) ≡ e) (λ X → compPath (cong au uaIdEquiv) (auid {B = B})) _ _) 
+        (J (λ X p → ua (au p) ≡ p) (compPath (cong ua (auid {B = B})) uaIdEquiv)))
 
 pathToEquiv : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B
 pathToEquiv p = lineToEquiv (λ i → p i)
@@ -88,7 +86,7 @@ record Lift {i j} (A : Set i) : Set (ℓ-max i j) where
 open Lift public
 
 LiftEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} → A ≃ Lift {i = ℓ} {j = ℓ'} A
-LiftEquiv = isoToEquiv (lift , record { inverse  = lower ; rightInv = (λ _ → refl) ; leftInv = (λ _ → refl)})
+LiftEquiv = isoToEquiv (iso lift lower (λ _ → refl) (λ _ → refl))
 
 univalencePath : ∀ {ℓ} {A B : Set ℓ} → (A ≡ B) ≡ Lift (A ≃ B)
 univalencePath = ua (compEquiv univalence LiftEquiv)
@@ -118,4 +116,4 @@ elimIso {ℓ} {ℓ'} {B} Q h {A} f g sfg rfg = rem1 f g sfg rfg
   rem g sfg rfg = subst (Q (idfun B)) (λ i b → (sfg b) (~ i)) h
 
   rem1 : {A : Set ℓ} → (f : A → B) → P f
-  rem1 f g sfg rfg = elimEquiv P rem (f , isoToIsEquiv (f , record { inverse = g ; rightInv = sfg ; leftInv = rfg})) g sfg rfg
+  rem1 f g sfg rfg = elimEquiv P rem (f , isoToIsEquiv (iso f g sfg rfg)) g sfg rfg

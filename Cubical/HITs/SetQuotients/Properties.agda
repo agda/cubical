@@ -69,7 +69,7 @@ elimSetQuotients Bset f feq (squash/ x y p q i j) =
 
 setQuotUniversal : {B : Set ℓ} (Bset : isSet B) →
                    (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → fst (R a b) → f a ≡ f b))
-setQuotUniversal Bset = isoToEquiv (intro , record { inverse = elim ; rightInv = elimRightInv ; leftInv = elimLeftInv})
+setQuotUniversal Bset = isoToEquiv (iso intro elim elimRightInv elimLeftInv)
   where
   intro = λ g →  (λ a → g [ a ]) , λ a b r i → g (eq/ a b r i)
   elim = λ h → elimSetQuotients (λ x → Bset) (fst h) (snd h)
