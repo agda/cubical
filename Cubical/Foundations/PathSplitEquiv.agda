@@ -5,8 +5,15 @@ They are convenient to construct localization HITs as in
 (the "modalities paper")
 https://arxiv.org/abs/1706.07526
 
-The module starts with a couple of general facts about equivalences,
-that are not in 'Equiv.agda' because they need Univalence.agda (which imports Equiv.agda).
+- there are construction from and to equivalences ([pathSplitToEquiv] , [equivToPathSplit])
+- the structure of a path split equivalence is actually a proposition ([isPropIsPathSplitEquiv])
+
+The module starts with a couple of general facts about equivalences:
+
+- if f is an equivalence then (cong f) is an equivalence ([equivCong])
+- if f is an equivalence then pre- and postcomposition with f are equivalences ([preCompEquiv], [postCompEquiv])
+
+(those are not in 'Equiv.agda' because they need Univalence.agda (which imports Equiv.agda))
 -}
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.PathSplitEquiv where
@@ -150,18 +157,20 @@ isPropIsPathSplitEquiv {_} {A} {B} f
 
 module _ {ℓ} {A B : Set ℓ} where
   isEquivIsPathSplitToIsEquiv : (f : A → B) → isEquiv (fromIsEquiv f)
-  isEquivIsPathSplitToIsEquiv f = isoToIsEquiv
-                                  (fromIsEquiv f , (record {
-                                                      inverse =  toIsEquiv f;
-                                                      rightInv = λ b → isPropIsPathSplitEquiv f _ _ ;
-                                                      leftInv = λ a → isPropIsEquiv f _ _ }))
+  isEquivIsPathSplitToIsEquiv f =
+    isoToIsEquiv
+      (fromIsEquiv f , (record {
+                          inverse =  toIsEquiv f;
+                          rightInv = λ b → isPropIsPathSplitEquiv f _ _ ;
+                          leftInv = λ a → isPropIsEquiv f _ _ }))
 
   isEquivPathSplitToEquiv : isEquiv (pathSplitToEquiv {A = A} {B = B})
-  isEquivPathSplitToEquiv = isoToIsEquiv
-                            (pathSplitToEquiv , (record {
-                                                   inverse = equivToPathSplit ;
-                                                   rightInv = λ {(f , e) i → (f , isPropIsEquiv f (toIsEquiv f (fromIsEquiv f e)) e i)} ;
-                                                   leftInv = λ {(f , e) i → (f , isPropIsPathSplitEquiv f (fromIsEquiv f (toIsEquiv f e)) e i)} }))
+  isEquivPathSplitToEquiv =
+    isoToIsEquiv
+      (pathSplitToEquiv , (record {
+                             inverse = equivToPathSplit ;
+                             rightInv = λ {(f , e) i → (f , isPropIsEquiv f (toIsEquiv f (fromIsEquiv f e)) e i)} ;
+                             leftInv = λ {(f , e) i → (f , isPropIsPathSplitEquiv f (fromIsEquiv f (toIsEquiv f e)) e i)} }))
 
   equivPathSplitToEquiv : (PathSplitEquiv A B) ≃ (A ≃ B)
   equivPathSplitToEquiv = (pathSplitToEquiv , isEquivPathSplitToEquiv)
