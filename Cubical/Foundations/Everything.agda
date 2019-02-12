@@ -2,6 +2,7 @@
 module Cubical.Foundations.Everything where
 
 open import Cubical.Foundations.CartesianKanOps public
+open import Cubical.Foundations.Function public
 open import Cubical.Foundations.Equiv public
 open import Cubical.Foundations.PathSplitEquiv public
 open import Cubical.Foundations.FunExtEquiv public

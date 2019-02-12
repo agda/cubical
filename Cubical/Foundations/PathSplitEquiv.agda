@@ -5,6 +5,8 @@ They are convenient to construct localization HITs as in
 (the "modalities paper")
 https://arxiv.org/abs/1706.07526
 
+The module starts with a couple of general facts about equivalences,
+that are not in 'Equiv.agda' because they need Univalence.agda (which imports Equiv.agda).
 -}
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.PathSplitEquiv where
@@ -13,6 +15,7 @@ open import Agda.Primitive
 
 open import Cubical.Core.Everything
 
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 
@@ -22,21 +25,19 @@ isEquivCong e = EquivJ (λ (B' A' : Set _) (e' : A' ≃ B') →
                          (x' y' : A') → isEquiv (λ (p : x' ≡ y') → cong (fst e') p))
                        (λ _ x' y' → idIsEquiv (x' ≡ y')) _ _ e _ _
 
-
-
 congEquiv : ∀ {ℓ} {A B : Set ℓ} {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
 congEquiv e = ((λ (p : _ ≡ _) → cong (fst e) p) , isEquivCong e)
 
 isEquivPreComp : ∀ {ℓ ℓ′} {A B : Set ℓ} {C : Set ℓ′} (e : A ≃ B)
-  → isEquiv (λ (φ : B → C) → (λ (x : A) → φ (e .fst x)))
+  → isEquiv (λ (φ : B → C) → φ ∘ e .fst)
 isEquivPreComp {A = A} {C = C} e = EquivJ
-                  (λ (B A : Set _) (e' : A ≃ B) → isEquiv (λ (φ : B → C) → (λ (x : A) → φ (e' .fst x))))
+                  (λ (B A : Set _) (e' : A ≃ B) → isEquiv (λ (φ : B → C) → φ ∘ e' .fst))
                   (λ A → idIsEquiv (A → C)) _ _ e
 
 isEquivPostComp : ∀ {ℓ ℓ′} {A B : Set ℓ} {C : Set ℓ′} (e : A ≃ B)
-  → isEquiv (λ (φ : C → A) → (λ (x : C) → e .fst (φ x)))
+  → isEquiv (λ (φ : C → A) → e .fst ∘ φ)
 isEquivPostComp {A = A} {C = C} e = EquivJ
-                  (λ (B A : Set _) (e' : A ≃ B) →  isEquiv (λ (φ : C → A) → (λ (x : C) → e' .fst (φ x))))
+                  (λ (B A : Set _) (e' : A ≃ B) →  isEquiv (λ (φ : C → A) → e' .fst ∘ φ))
                   (λ A → idIsEquiv (C → A)) _ _ e
 
 preCompEquiv : ∀ {ℓ ℓ′} {A B : Set ℓ} {C : Set ℓ′} (e : A ≃ B)
@@ -46,6 +47,8 @@ preCompEquiv e = (λ φ x → φ (fst e x)) , isEquivPreComp e
 postCompEquiv : ∀ {ℓ ℓ′} {A B : Set ℓ} {C : Set ℓ′} (e : A ≃ B)
              → (C → A) ≃ (C → B)
 postCompEquiv e = (λ φ x → fst e (φ x)) , isEquivPostComp e
+
+
 
 record isPathSplitEquiv {ℓ ℓ'} {A : Set  ℓ} {B : Set ℓ'} (f : A → B) : Set (ℓ ⊔ ℓ') where
   field
@@ -102,20 +105,63 @@ module _ {ℓ} {A B : Set ℓ} where
   fst (equivToPathSplit (f , _)) = f
   snd (equivToPathSplit (_ , e)) = fromIsEquiv _ e
 
-{- 
-  PathSplitEquiv is a proposition
--}
-module _ {ℓ} {A B : Set ℓ} (f : A → B) where
-{-
-  equivHasUniqueSection :
-    isEquiv f → isContr (Σ (B → A) (section f))
-  equivHasUniqueSection eq = {!helper!}
+  equivHasUniqueSection : (f : A → B) 
+    → isEquiv f → isContr (Σ (B → A) (section f))
+  equivHasUniqueSection f eq = helper'
     where
       idB = λ (x : B) → x
-      helper : isContr (fiber (λ (φ : B → A) → (λ x → f (φ x))) idB)
-      helper = (equiv-proof (snd (postCompEquiv (f , eq)))) idB
-      
-  isPropIsPathSplitEquiv : 
-     isProp (isPathSplitEquiv f)
-  isPropIsPathSplitEquiv f = {!!}
+      abstract
+        helper : isContr (fiber (λ (φ : B → A) → f ∘ φ) idB)
+        helper = (equiv-proof (snd (postCompEquiv (f , eq)))) idB
+      helper' : isContr (Σ[ φ ∈ (B → A) ] ((x : B) → f (φ x) ≡ x))
+      fst helper' = (φ , λ x i → η i x)
+        where φ = fst (fst helper)
+              η : f ∘ φ ≡ idB
+              η = snd (fst helper)
+      (snd helper') y i = (fst (η i) , λ b j → snd (η i) j b)
+        where η = (snd helper) (fst y , λ i b → snd y b i)
+
+{- 
+  PathSplitEquiv is a proposition and the type
+  of path split equivs is equivalent to the type of equivalences
 -}
+isPropIsPathSplitEquiv : ∀ {ℓ} {A B : Set ℓ} (f : A → B) 
+     → isProp (isPathSplitEquiv f)
+isPropIsPathSplitEquiv {_} {A} {B} f
+  record { s = φ ; sec = sec-φ ; secCong = secCong-φ }
+  record { s = ψ ; sec = sec-ψ ; secCong = secCong-ψ } i
+  =
+  record {
+    s = fst (sectionsAreEqual i) ;
+    sec = snd (sectionsAreEqual i) ;
+    secCong = λ x y → congSectionsAreEqual x y (secCong-φ x y) (secCong-ψ x y) i
+  }
+  where
+    φ' = record { s = φ ; sec = sec-φ ; secCong = secCong-φ }
+    ψ' = record { s = ψ ; sec = sec-ψ ; secCong = secCong-ψ }
+    sectionsAreEqual : (φ , sec-φ) ≡ (ψ , sec-ψ)
+    sectionsAreEqual = compPath (sym (contraction (φ , sec-φ))) (contraction  (ψ , sec-ψ))  
+      where contraction = snd (equivHasUniqueSection f (toIsEquiv f φ'))
+    congSectionsAreEqual : (x y : A) (l u : Σ (f(x) ≡ f(y) → x ≡ y) (section (cong f))) → l ≡ u
+    congSectionsAreEqual x y l u = compPath (sym (contraction l)) (contraction u)
+      where contraction = snd (equivHasUniqueSection
+                                 (λ (p : x ≡ y) → cong f p)
+                                 (isEquivCong (pathSplitToEquiv (f , φ'))))
+
+module _ {ℓ} {A B : Set ℓ} where
+  isEquivIsPathSplitToIsEquiv : (f : A → B) → isEquiv (fromIsEquiv f)
+  isEquivIsPathSplitToIsEquiv f = isoToIsEquiv
+                                  (fromIsEquiv f , (record {
+                                                      inverse =  toIsEquiv f;
+                                                      rightInv = λ b → isPropIsPathSplitEquiv f _ _ ;
+                                                      leftInv = λ a → isPropIsEquiv f _ _ }))
+
+  isEquivPathSplitToEquiv : isEquiv (pathSplitToEquiv {A = A} {B = B})
+  isEquivPathSplitToEquiv = isoToIsEquiv
+                            (pathSplitToEquiv , (record {
+                                                   inverse = equivToPathSplit ;
+                                                   rightInv = λ {(f , e) i → (f , isPropIsEquiv f (toIsEquiv f (fromIsEquiv f e)) e i)} ;
+                                                   leftInv = λ {(f , e) i → (f , isPropIsPathSplitEquiv f (fromIsEquiv f (toIsEquiv f e)) e i)} }))
+
+  equivPathSplitToEquiv : (PathSplitEquiv A B) ≃ (A ≃ B)
+  equivPathSplitToEquiv = (pathSplitToEquiv , isEquivPathSplitToEquiv)
