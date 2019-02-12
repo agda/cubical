@@ -14,7 +14,7 @@ open import Cubical.Core.Glue
 open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Int
-open import Cubical.Data.Prod
+open import Cubical.Data.Prod hiding (_×_) renaming (_×Σ_ to _×_)
 
 open import Cubical.HITs.S1
 
