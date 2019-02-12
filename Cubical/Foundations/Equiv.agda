@@ -6,6 +6,11 @@ Theory about equivalences (definitions are in Core/Glue.agda)
 - Any isomorphism is an equivalence ([isoToEquiv])
 - transport is an equivalence ([transportEquiv])
 
+There are more statements about equivalences in PathSplitEquiv.agda:
+
+- if f is an equivalence then (cong f) is an equivalence 
+- if f is an equivalence then precomposition with f is an equivalence
+- if f is an equivalence then postcomposition with f is an equivalence
 -}
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Equiv where
@@ -81,3 +86,4 @@ isEquivTransport {A = A} =
 
 transportEquiv : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B
 transportEquiv p = (transport p , isEquivTransport p)
+
