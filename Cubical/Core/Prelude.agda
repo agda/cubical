@@ -52,6 +52,12 @@ compPath {x = x} p q i =
   hcomp (λ j → \ { (i = i0) → x
                  ; (i = i1) → q j }) (p i)
 
+compPathDep : {B : A → Set ℓ'} {bx : B x} {by : B y} {bz : B z} →
+              Σ (x ≡ y) λ p → (PathP (λ i → B (p i)) bx by) →
+              Σ (y ≡ z) λ q → (PathP (λ i → B (q i)) by bz) →
+              Σ (x ≡ z) λ r →  (PathP (λ i → B (r i)) bx bz)
+compPathDep ( p , bp ) (q , bq ) = ?
+
 infix  3 _∎
 infixr 2 _≡⟨_⟩_
 
