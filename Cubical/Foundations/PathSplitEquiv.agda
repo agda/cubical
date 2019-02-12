@@ -18,8 +18,6 @@ The module starts with a couple of general facts about equivalences:
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.PathSplitEquiv where
 
-open import Agda.Primitive
-
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Function
@@ -57,13 +55,13 @@ postCompEquiv e = (λ φ x → fst e (φ x)) , isEquivPostComp e
 
 
 
-record isPathSplitEquiv {ℓ ℓ'} {A : Set  ℓ} {B : Set ℓ'} (f : A → B) : Set (ℓ ⊔ ℓ') where
+record isPathSplitEquiv {ℓ ℓ'} {A : Set  ℓ} {B : Set ℓ'} (f : A → B) : Set (ℓ-max ℓ ℓ') where
   field
     s : B → A 
     sec : section f s
     secCong : (x y : A) → Σ[ s' ∈ (f(x) ≡ f(y) → x ≡ y) ] section (cong f) s'
 
-PathSplitEquiv : ∀ {ℓ ℓ'} (A : Set  ℓ) (B : Set ℓ') → Set (ℓ ⊔ ℓ')
+PathSplitEquiv : ∀ {ℓ ℓ'} (A : Set  ℓ) (B : Set ℓ') → Set (ℓ-max ℓ ℓ')
 PathSplitEquiv A B = Σ[ f ∈ (A → B) ] isPathSplitEquiv f
 
 open isPathSplitEquiv 
