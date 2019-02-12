@@ -107,10 +107,14 @@ module _ {ℓ} {A B : Set ℓ} where
 -}
 module _ {ℓ} {A B : Set ℓ} (f : A → B) where
 {-
-  equivHasUniqueSections :
+  equivHasUniqueSection :
     isEquiv f → isContr (Σ (B → A) (section f))
-  equivHasUniqueSections eq = equiv-proof (snd (postCompEquiv (f , eq))) (λ (x : B) → x)
-  
+  equivHasUniqueSection eq = {!helper!}
+    where
+      idB = λ (x : B) → x
+      helper : isContr (fiber (λ (φ : B → A) → (λ x → f (φ x))) idB)
+      helper = (equiv-proof (snd (postCompEquiv (f , eq)))) idB
+      
   isPropIsPathSplitEquiv : 
      isProp (isPathSplitEquiv f)
   isPropIsPathSplitEquiv f = {!!}
