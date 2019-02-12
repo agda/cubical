@@ -37,7 +37,7 @@ us = (4  , "John"  , (30 ,  5) , 1956)
    ∷ []
 
 convert : Database → Database
-convert d = transp (λ i → There (swapEq ℕ ℕ i)) i0 d
+convert d = transport (λ i → There (swapEq ℕ ℕ i)) d
 
 -- Swap the dates of the American database to get the European format
 eu : Database
@@ -105,7 +105,7 @@ genCom =
 
 -- Increase the salary for everyone by 1
 incSalary : Company Int → Company Int
-incSalary c = transp (λ i → Company (sucPathInt i)) i0 c
+incSalary c = transport (λ i → Company (sucPathInt i)) c
 
 genCom1 : Company Int
 genCom1 = incSalary genCom
@@ -113,7 +113,7 @@ genCom1 = incSalary genCom
 
 -- Increase the salary more
 incSalaryℕ : ℕ → Company Int → Company Int
-incSalaryℕ n c = transp (λ i → Company (addEq n i)) i0 c
+incSalaryℕ n c = transport (λ i → Company (addEq n i)) c
 
 genCom2 : Company Int
 genCom2 = incSalaryℕ 2 genCom
