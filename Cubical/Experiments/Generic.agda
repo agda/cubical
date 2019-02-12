@@ -6,20 +6,27 @@ open import Agda.Builtin.List
 
 open import Cubical.Core.Everything
 
-open import Cubical.Basics.Equiv
-open import Cubical.Basics.Nat
-open import Cubical.Basics.Int
-open import Cubical.Basics.Equiv
-open import Cubical.Basics.Univalence
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
+
+open import Cubical.Data.Nat
+open import Cubical.Data.Int
+-- open import Cubical.Data.Prod
 
 variable
   ℓ ℓ' : Level
+
+data _×_ {ℓ ℓ'} (A : Set ℓ) (B : Set ℓ') : Set (ℓ-max ℓ ℓ') where
+  _,_ : A → B → A × B
+
+infixr 5 _×_
 
 swap : {A : Set ℓ} {B : Set ℓ'} → A × B → B × A
 swap (x , y) = (y , x)
 
 swapInv : {A : Set ℓ} {B : Set ℓ'} → (xy : A × B) → swap (swap xy) ≡ xy
-swapInv xy = refl
+swapInv (_ , _) = refl
 
 isEquivSwap : (A : Set ℓ) (B : Set ℓ') → isEquiv (λ (xy : A × B) → swap xy)
 isEquivSwap A B = isoToIsEquiv swap swap swapInv swapInv
@@ -30,19 +37,11 @@ swapEquiv A B = (swap , isEquivSwap A B)
 swapEq : (A : Set ℓ) (B : Set ℓ') → A × B ≡ B × A
 swapEq A B = ua (swapEquiv A B)
 
-
 -- First simple test:
 
 test1 : List (ℕ × ℕ)
 test1 = transp (λ i → List (swapEq ℕ ℕ i)) i0 ((1 , 2) ∷ [])
 
--- TODO: Running "C-c C-n test1" gives:
---
--- transp (λ i → Σ ℕ (λ _ → ℕ)) i0
---   (hcomp (λ i → empty)
---          (transp (λ i → Σ ℕ (λ _ → ℕ)) i0 (2 , 1)) ∷ []
-
--- This works:
 test1refl : test1 ≡ ((2 , 1) ∷ [])
 test1refl = refl
 
@@ -54,12 +53,11 @@ test1refl = refl
 -- You can get a better normal form like this:
 
 expand : ∀ {A : Set ℓ} {B : Set ℓ'} → A × B → A × B
-expand (x , y) = x , y
+expand (x , y) = (x , y)
 
 map : ∀ {A : Set ℓ} {B : Set ℓ'} → (A → B) → List A → List B
 map f [] = []
 map f (x ∷ xs) = f x ∷ map f xs
-
 
 test1-5 : List (ℕ × ℕ)
 test1-5 = map expand test1
@@ -92,10 +90,9 @@ convert d = transp (λ i → There (swapEq ℕ ℕ i)) i0 d
 eu : Database
 eu = convert db
 
--- TODO: Running "C-c C-n eu" produces some very complicated output
-
-want : Database
-want = (4  , "John"  , (5  , 30) , 1956)
+eu_normal : Database
+eu_normal =
+       (4  , "John"  , (5  , 30) , 1956)
      ∷ (8  , "Hugo"  , (12 , 29) , 1978)
      ∷ (15 , "James" , (7  ,  1) , 1968)
      ∷ (16 , "Sayid" , (10 ,  2) , 1967)
@@ -103,14 +100,8 @@ want = (4  , "John"  , (5  , 30) , 1956)
      ∷ (42 , "Sun"   , (3  , 20) , 1980)
      ∷ []
 
--- TODO: This is not proved by refl... Why??
--- Answer: I never implemented transp for String! Should be quick.
--- test2 : eu ≡ want
--- test2 = {!!}
-
--- TODO: This is also not proved by refl:
--- test2 : db ≡ convert (convert db)
--- test2 = {!!}
+test2 : eu ≡ eu_normal
+test2 = refl
 
 
 ------------------------------------------------------------------------------
@@ -174,16 +165,6 @@ incSalary c = transp (λ i → Company (sucPathInt i)) i0 c
 genCom1 : Company Int
 genCom1 = incSalary genCom
 
--- "C-c C-n genCom1" works and gives us:
--- C (D (transp (λ i → String) i0 "Research")
---      (E (P "Andreas" "Gothenburg") (S (pos 3001)))
---   (PU (E (P "Anders" "Pittsburgh") (S (pos 2501))) ∷
---    PU (E (P "Andrea" "Copenhagen") (S (pos 2001))) ∷ [])
---   ∷ [])
-
--- TODO: why is transport for String not removed?
-
-
 -- The following definition of addition is very cool! We directly get
 -- that it's an equivalence. I will upstream it later.
 
@@ -228,16 +209,13 @@ isEquivAddInt : (m : Int) → isEquiv (λ (n : Int) → addInt n m)
 isEquivAddInt (pos n) = isEquivTransport (addEq n)
 isEquivAddInt (negsuc n) = isEquivTransport (subEq (suc n))
 
-
 -- Let's use this to increase everyone's salary more!
 
 incSalaryℕ : ℕ → Company Int → Company Int
 incSalaryℕ n c = transp (λ i → Company (addEq n i)) i0 c
 
--- TODO: this is quite slow
 genCom2 : Company Int
 genCom2 = incSalaryℕ 2 genCom
 
--- TODO: this is very slow
 genCom10 : Company Int
 genCom10 = incSalaryℕ 10 genCom
