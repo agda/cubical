@@ -1,10 +1,10 @@
 {-
 
-Theory about equivalences (definitions are in Core/Glue.agda)
+Theory about isomorphisms
 
-- isEquiv is a proposition ([isPropIsEquiv])
+- Definitions of [section] and [retract]
+- Definition of isomorphisms ([Iso])
 - Any isomorphism is an equivalence ([isoToEquiv])
-- transport is an equivalence ([transportEquiv])
 
 -}
 {-# OPTIONS --cubical --safe #-}
