@@ -25,7 +25,7 @@ swapInv : {A : Set ℓ} {B : Set ℓ'} → (xy : A × B) → swap (swap xy) ≡ 
 swapInv (_ , _) = refl
 
 isEquivSwap : (A : Set ℓ) (B : Set ℓ') → isEquiv (λ (xy : A × B) → swap xy)
-isEquivSwap A B = isoToIsEquiv swap swap swapInv swapInv
+isEquivSwap A B = isoToIsEquiv (iso swap swap swapInv swapInv)
 
 swapEquiv : (A : Set ℓ) (B : Set ℓ') → A × B ≃ B × A
 swapEquiv A B = (swap , isEquivSwap A B)
