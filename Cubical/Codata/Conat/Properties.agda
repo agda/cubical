@@ -130,20 +130,20 @@ module Bisimulation where
   misib′ {suc x} {suc y} p = con (misib (cong pred′′ p))
   prove (misib x≡y) = misib′ (cong force x≡y)
 
-  iso : ∀ {x y} → (p : x ≈ y) → misib (bisim p) ≡ p
+  iso″ : ∀ {x y} → (p : x ≈ y) → misib (bisim p) ≡ p
   iso′ : ∀ {x y} → (p : x ≈′ y) → misib′ (bisim′ p) ≡ p
 
   iso′ {zero} {zero} (con p) = refl
   iso′ {zero} {suc x} (con ())
   iso′ {suc x} {zero} (con ())
-  iso′ {suc x} {suc y} (con p) = cong con (iso p)
-  prove (iso p i) = iso′ (prove p) i
+  iso′ {suc x} {suc y} (con p) = cong con (iso″ p)
+  prove (iso″ p i) = iso′ (prove p) i
 
   osi : ∀ {x y} → (p : x ≡ y) → bisim (misib p) ≡ p
   osi p = isSetConat _ _ _ p
 
   path≃bisim : ∀ {x y} → (x ≡ y) ≃ (x ≈ y)
-  path≃bisim = isoToEquiv misib bisim iso osi
+  path≃bisim = isoToEquiv (iso misib bisim iso″ osi)
 
   path≡bisim : ∀ {x y} → (x ≡ y) ≡ (x ≈ y)
   path≡bisim = ua path≃bisim

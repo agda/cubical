@@ -44,7 +44,7 @@ elimSetTrunc {A = A} {B = B} Bset g (squash₀ x y p q i j) =
     (cong (elimSetTrunc Bset g) p) (cong (elimSetTrunc Bset g) q) i j
 
 setTruncUniversal : {B : Set ℓ} → (isSet B) → (∥ A ∥₀ → B) ≃ (A → B)
-setTruncUniversal Bset = isoToEquiv intro elim leftInv rightInv
+setTruncUniversal Bset = isoToEquiv (iso intro elim leftInv rightInv)
   where
   intro = (λ h a → h ∣ a ∣₀)
   elim = elimSetTrunc (λ x → Bset)

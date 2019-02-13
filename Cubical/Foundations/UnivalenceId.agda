@@ -19,7 +19,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 
 path≡Id : ∀ {ℓ} {A B : Set ℓ} → Path _ (Path _ A B) (Id A B)
-path≡Id = isoToPath pathToId idToPath idToPathToId pathToIdToPath
+path≡Id = isoToPath (iso pathToId idToPath idToPathToId pathToIdToPath )
 
 equivPathToEquivPath : ∀ {ℓ} {A : Set ℓ} {B : Set ℓ} → (p : EquivPath A B) →
                        Path _ (equivToEquivPath (equivPathToEquiv p)) p
@@ -29,7 +29,7 @@ equivPathToEquivPath (f , p) i =
             (helper1 fiberPathToFiber fiberToFiberPath fiberToFiber (p .equiv-proof y)) }) p i )
 
 equivPath≡Equiv : ∀ {ℓ} {A B : Set ℓ} → Path _ (EquivPath A B) (A ≃ B)
-equivPath≡Equiv {ℓ} = isoToPath (equivPathToEquiv {ℓ}) equivToEquivPath equivToEquiv equivPathToEquivPath
+equivPath≡Equiv {ℓ} = isoToPath (iso (equivPathToEquiv {ℓ}) equivToEquivPath equivToEquiv equivPathToEquivPath)
 
 univalenceId : ∀ {ℓ} {A B : Set ℓ} → (A ≡ B) ≃ (A ≃ B)
 univalenceId {ℓ} {A = A} {B = B} = equivPathToEquiv rem

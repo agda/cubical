@@ -77,7 +77,7 @@ module Equality≅Bisimulation where
   ≈tail (iso2 p i) = iso2 (≈tail p) i
 
   path≃bisim : {A : Set} → {x y : Stream A} → (x ≡ y) ≃ (x ≈ y)
-  path≃bisim = isoToEquiv misib bisim iso2 iso1
+  path≃bisim = isoToEquiv (iso misib bisim iso2 iso1)
 
   path≡bisim : {A : Set} → {x y : Stream A} → (x ≡ y) ≡ (x ≈ y)
   path≡bisim = ua path≃bisim
@@ -115,5 +115,4 @@ module Stream≅Nat→ {A : Set} where
   tail (tabulate∘lookup i xs) = tabulate∘lookup i (tail xs)
 
   Stream≡Nat→ : Stream A ≡ (ℕ → A)
-  Stream≡Nat→ = isoToPath lookup tabulate
-    (λ f i → lookup∘tabulate i f) (λ xs i → tabulate∘lookup i xs)
+  Stream≡Nat→ = isoToPath (iso lookup tabulate (λ f i → lookup∘tabulate i f) (λ xs i → tabulate∘lookup i xs))
