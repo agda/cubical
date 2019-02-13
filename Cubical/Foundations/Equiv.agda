@@ -75,8 +75,8 @@ compEquiv f g = isoToEquiv
 
 -- Transport is an equivalence
 isEquivTransport : ∀ {ℓ} {A B : Set ℓ} (p : A ≡ B) → isEquiv (transport p)
-isEquivTransport {A = A} = 
-  J (λ y x → isEquiv (transport x)) (isoToIsEquiv (iso (transport refl) (transport refl) (rem) (rem)))
+isEquivTransport {A = A} =
+  J (λ y x → isEquiv (transport x)) (isoToIsEquiv (iso (transport refl) (transport refl) rem rem))
     where
     rem : (x : A) → transport refl (transport refl x) ≡ x
     rem x = compPath (cong (transport refl) (transportRefl x))
@@ -84,4 +84,3 @@ isEquivTransport {A = A} =
 
 transportEquiv : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B
 transportEquiv p = (transport p , isEquivTransport p)
-
