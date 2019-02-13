@@ -88,7 +88,7 @@ windingIntLoop (negsuc zero)    = refl
 windingIntLoop (negsuc (suc n)) = λ i → predInt (windingIntLoop (negsuc n) i)
 
 ΩS¹≡Int : ΩS¹ ≡ Int
-ΩS¹≡Int = isoToPath (iso winding (decode base ) (windingIntLoop ) (decodeEncode base))
+ΩS¹≡Int = isoToPath (iso winding (decode base) windingIntLoop (decodeEncode base))
 
 
 -- Some tests
@@ -103,7 +103,6 @@ module _ where
   test-winding-neg : winding (intLoop (negsuc five)) ≡ negsuc five
   test-winding-neg = refl
 
-
 -- rot, used in the Hopf fibration
 
 rotLoop : (a : S¹) → a ≡ a
@@ -112,7 +111,7 @@ rotLoop (loop i) j =
   hcomp (λ k → λ { (i = i0) → loop (j ∨ ~ k)
                  ; (i = i1) → loop (j ∧ k)
                  ; (j = i0) → loop (i ∨ ~ k)
-                 ; (j = i1) → loop (i ∧ k) }) base
+                 ; (j = i1) → loop (i ∧ k)}) base
 
 rot : S¹ → S¹ → S¹
 rot base x     = x
@@ -138,13 +137,13 @@ rotLoopInv a i j =
       (i = i0) → a;
       (i = i1) → rotLoop a (j ∧ ~ k);
       (j = i0) → rotLoop (rotLoop a (~ i)) i;
-      (j = i1) → rotLoop a (i ∧ ~ k)} )
-    (rotLoop (rotLoop a ((~ i) ∨ j)) i)
+      (j = i1) → rotLoop a (i ∧ ~ k)})
+    (rotLoop (rotLoop a (~ i ∨ j)) i)
 
 rotLoopEquiv : (i : I) → S¹ ≃ S¹
 rotLoopEquiv i =
   isoToEquiv
     (iso (λ a → rotLoop a i)
-         (λ a → rotLoop a (~ i) ) 
-         (λ a → rotLoopInv a i )
+         (λ a → rotLoop a (~ i))
+         (λ a → rotLoopInv a i)
          (λ a → rotLoopInv a (~ i)))
