@@ -218,7 +218,7 @@ module IntervalEquiv where
     CylinderA≃A×Interval : Cylinder A ≃ Cyl
     CylinderA≃A×Interval =
       isoToEquiv
-        (iso CylinderA→A×Interval  
+        (iso CylinderA→A×Interval
              A×Interval→CylinderA
              A×Interval→CylinderA→A×Interval
              CylinderA→A×Interval→CylinderA)
@@ -257,7 +257,7 @@ module Push {ℓ} {A : Set ℓ} where
   Pushout≃Cylinder : Push ≃ Cyl
   Pushout≃Cylinder =
     isoToEquiv
-      (iso Pushout→Cylinder  
+      (iso Pushout→Cylinder
            Cylinder→Pushout
            Cylinder→Pushout→Cylinder
            Pushout→Cylinder→Pushout)
