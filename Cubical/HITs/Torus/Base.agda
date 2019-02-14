@@ -14,7 +14,7 @@ open import Cubical.Core.Glue
 open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Int
-open import Cubical.Data.Prod
+open import Cubical.Data.Prod hiding (_×_) renaming (_×Σ_ to _×_)
 
 open import Cubical.HITs.S1
 
@@ -49,7 +49,7 @@ t2c-c2t (loop _ , base)   = refl
 t2c-c2t (loop _ , loop _) = refl
 
 Torus≡S¹×S¹ : Torus ≡ S¹ × S¹
-Torus≡S¹×S¹ = isoToPath t2c c2t t2c-c2t c2t-t2c
+Torus≡S¹×S¹ = isoToPath (iso t2c c2t t2c-c2t c2t-t2c)
 
 ΩTorus : Set
 ΩTorus = point ≡ point
@@ -57,9 +57,10 @@ Torus≡S¹×S¹ = isoToPath t2c c2t t2c-c2t c2t-t2c
 -- TODO: upstream
 lemPathAnd : ∀ {ℓ} {A B : Set ℓ} (t u : A × B) →
   Path _ (t ≡ u) ((t .fst ≡ u .fst) × ((t .snd) ≡ (u .snd)))
-lemPathAnd t u = isoToPath (λ tu → (λ i → tu i .fst) , λ i → tu i .snd)
-                           (λ tu i → tu .fst i , tu .snd i)
-                           (λ y → refl) (λ x → refl)
+lemPathAnd t u = isoToPath (iso (λ tu → (λ i → tu i .fst) , λ i → tu i .snd) 
+                                 (λ tu i → tu .fst i , tu .snd i)
+                                 (λ y → refl)
+                                 (λ x → refl))
 
 funDep : ∀ {ℓ} {A B : Set ℓ} (p : A ≡ B) (u0 : A) (u1 : B) →
   (Path A u0 (transport (λ i → p (~ i)) u1)) ≡ (Path B (transport p u0) u1)

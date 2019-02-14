@@ -5,5 +5,6 @@ check: $(wildcard **/*.agda)
 	agda Cubical/Data/Everything.agda
 	agda Cubical/HITs/Everything.agda
 	agda Cubical/Relation/Everything.agda
+	agda Cubical/Experiments/Everything.agda
 
 clean:; rm -f */*agdai */*/*agdai */*/*/*agdai
