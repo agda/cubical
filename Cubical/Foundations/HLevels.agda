@@ -109,7 +109,16 @@ hLevelPi 0 h = (λ x → fst (h x)) , λ f i y → snd (h y) (f y) i
 hLevelPi {B = B} 1 h f g i x = (h x) (f x) (g x) i
 hLevelPi (suc (suc n)) h f g = subst (isOfHLevel (suc n)) funExtPath (hLevelPi (suc n) λ x → h x (f x) (g x))
 
-hlevelsuc : (n : ℕ) (A : Set) → isOfHLevel n A → isOfHLevel (suc n) A
+private
+  variable
+    ℓ : Level
+
+hlevelsuc : (n : ℕ) (A : Set ℓ) → isOfHLevel n A → isOfHLevel (suc n) A
 hlevelsuc 0 A = isContr→isProp
 hlevelsuc 1 A = isProp→isSet
 hlevelsuc (suc (suc n)) A h a b =  hlevelsuc (suc n) (a ≡ b) (h a b)
+
+isPropOfHLevel : (n : ℕ) (A : Set ℓ) → isProp (isOfHLevel n A)
+isPropOfHLevel 0 A = isPropIsContr
+isPropOfHLevel 1 A = isPropIsProp
+isPropOfHLevel (suc (suc n)) A f g i a b = isPropOfHLevel (suc n) (a ≡ b) (f a b) (g a b) i
