@@ -58,9 +58,6 @@ isPropIsContr z0 z1 j =
 isPropIsProp : ∀ {ℓ} {A : Set ℓ} → isProp (isProp A)
 isPropIsProp f g i a b = isProp→isSet f a b (f a b) (g a b) i
 
-isPropIsSet : ∀ {ℓ} {A : Set ℓ} → isProp (isSet A)
-isPropIsSet f g i a b = isPropIsProp (f a b) (g a b) i
-
 -- A retract of a contractible type is contractible
 retractIsContr : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A)
                  (h : (x : A) → g (f x) ≡ x) (v : isContr B) → isContr A
@@ -122,3 +119,6 @@ isPropOfHLevel : (n : ℕ) (A : Set ℓ) → isProp (isOfHLevel n A)
 isPropOfHLevel 0 A = isPropIsContr
 isPropOfHLevel 1 A = isPropIsProp
 isPropOfHLevel (suc (suc n)) A f g i a b = isPropOfHLevel (suc n) (a ≡ b) (f a b) (g a b) i
+
+isPropIsSet : ∀ {ℓ} {A : Set ℓ} → isProp (isSet A)
+isPropIsSet {A = A} = isPropOfHLevel 2 A
