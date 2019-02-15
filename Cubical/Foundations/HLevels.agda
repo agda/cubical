@@ -24,7 +24,8 @@ hProp : {ℓ : Level} → Set (ℓ-suc ℓ)
 hProp {ℓ} = Σ (Set ℓ) isProp
 
 isOfHLevel : ∀ {ℓ} → ℕ → Set ℓ → Set ℓ
-isOfHLevel zero A = isContr A
+isOfHLevel 0 A = isContr A
+isOfHLevel 1 A = isProp A
 isOfHLevel (suc n) A = (x y : A) → isOfHLevel n (x ≡ y)
 
 HLevel : ∀ {ℓ} → ℕ → Set _
@@ -44,10 +45,6 @@ isProp→isSet h a b p q j i =
 
 inhProp→isContr : ∀ {ℓ} {A : Set ℓ} → A → isProp A → isContr A
 inhProp→isContr x h = x , h x
-
--- TODO: prove other direction
-isPropIsOfHLevel1 : ∀ {ℓ} {A : Set ℓ} → isProp A → isOfHLevel 1 A
-isPropIsOfHLevel1 h x y = inhProp→isContr (h x y) (isProp→isSet h x y)
 
 isPropIsContr : ∀ {ℓ} {A : Set ℓ} → isProp (isContr A)
 isPropIsContr z0 z1 j =
@@ -80,7 +77,10 @@ isContrSigma {A = A} {B = B} (a , p) q =
        , h (p (x .fst) i) (transp (λ j → B (p (x .fst) (i ∨ ~ j))) i (x .snd)) i))
 
 isContrPath : ∀ {ℓ} {A : Set ℓ} → isContr A → (x y : A) → isContr (x ≡ y)
-isContrPath cA = isPropIsOfHLevel1 (isContr→isProp cA)
+isContrPath cA x y = inhProp→isContr (pA x y) (sA x y)
+  where
+  pA = isContr→isProp cA
+  sA = isProp→isSet pA
 
 lemProp : ∀ {ℓ} {A : Set ℓ} → (A → isProp A) → isProp A
 lemProp h a = h a a
@@ -106,7 +106,10 @@ hLevelPi : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} n
          → ((x : A) → isOfHLevel n (B x))
          → isOfHLevel n ((x : A) → B x)
 hLevelPi 0 h = (λ x → fst (h x)) , λ f i y → snd (h y) (f y) i
-hLevelPi (suc n) h f g = subst (isOfHLevel n) funExtPath sub-lemma
-  where
-  sub-lemma : isOfHLevel n (∀ x → f x ≡ g x)
-  sub-lemma = hLevelPi n λ x → h x (f x) (g x)
+hLevelPi {B = B} 1 h f g i x = (h x) (f x) (g x) i
+hLevelPi (suc (suc n)) h f g = subst (isOfHLevel (suc n)) funExtPath (hLevelPi (suc n) λ x → h x (f x) (g x))
+
+hlevelsuc : (n : ℕ) (A : Set) → isOfHLevel n A → isOfHLevel (suc n) A
+hlevelsuc 0 A = isContr→isProp
+hlevelsuc 1 A = isProp→isSet
+hlevelsuc (suc (suc n)) A h a b =  hlevelsuc (suc n) (a ≡ b) (h a b)
