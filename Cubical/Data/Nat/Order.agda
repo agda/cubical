@@ -2,6 +2,8 @@
 module Cubical.Data.Nat.Order where
 
 open import Cubical.Core.Everything
+open import Cubical.Foundations.HLevels
+
 open import Cubical.Data.Prod
 
 open import Cubical.Data.Nat.Base
@@ -23,6 +25,17 @@ data Trichotomy (m n : ℕ) : Set where
 private
   variable
     k l m n : ℕ
+
+private
+  witness-prop : ∀ j → isProp (j + m ≡ n)
+  witness-prop {m} {n} j = isSetℕ (j + m) n
+
+m≤n-isProp : isProp (m ≤ n)
+m≤n-isProp {m} {n} (k , p) (l , q)
+  = subtypeEquality witness-prop (k , p) (l , q) lemma
+  where
+  lemma : k ≡ l
+  lemma = inj-+m (compPath p (sym q))
 
 zero-≤ : 0 ≤ n
 zero-≤ {n} = n , +-zero n

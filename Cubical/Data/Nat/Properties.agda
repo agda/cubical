@@ -33,7 +33,7 @@ open import Cubical.Relation.Nullary.DecidableEq
 
 private
   variable
-    m n : ℕ
+    l m n : ℕ
 
 znots : ¬ (0 ≡ suc n)
 znots eq = subst (caseNat ℕ ⊥) eq 0
@@ -43,6 +43,13 @@ snotz eq = subst (caseNat ⊥ ℕ) eq 0
 
 injSuc : suc m ≡ suc n → m ≡ n
 injSuc p = cong predℕ p
+
+inj-m+ : m + l ≡ m + n → l ≡ n
+inj-m+ {zero} p = p
+inj-m+ {suc m} p = inj-m+ (injSuc p)
+
+inj-+m : l + m ≡ n + m → l ≡ n
+inj-+m {l} {m} {n} p = inj-m+ (compPath (+-comm m l) (compPath p (+-comm n m)))
 
 m+n≡n→m≡0 : m + n ≡ n → m ≡ 0
 m+n≡n→m≡0 {n = zero} = compPath (sym (+-zero _))
