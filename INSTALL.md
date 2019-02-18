@@ -22,6 +22,84 @@ Agda see:
 
 https://agda.readthedocs.io/
 
+cabal v2-install instructions
+=============================
+
+cabal `v2-build` is a new operating mode, which makes projects
+not interfere with each other. To download and compile the development
+version Agda with a `v2-build`, you need to download recent
+version of [`cabal-install`](https://www.haskell.org/cabal/download.html).
+Then, execute following:
+
+```
+> cabal v2-update
+> git clone https://github.com/agda/agda
+> cd agda
+> touch doc/user-manual.pdf
+> cabal v2-install agda agda-mode
+```
+
+This should put the agda and agda-mode executables in the folder
+`~/.cabal/bin` (the location can be configured with `--symlink-bindir` flag).
+
+In order to be able to access these on your system you need to add
+them to your `$PATH` environment variable. On a typical Linux/Mac
+installation this can be done by adding
+
+```
+export PATH=$HOME/.cabal/bin:$PATH
+```
+
+in your `~/.bashrc` or `~/.bash_profile`. Here `path/to/agda` is the
+absolute path to where you cloned the agda repository. In order for
+this change to take effect you then have to run
+
+```
+> source ~/.bashrc
+```
+
+or
+
+```
+> source ~/.bash_profile
+```
+
+or restart the terminal. You should now be able to run:
+
+```
+> agda --version
+```
+
+to see that agda has been properly installed and is available in your
+`$PATH`. You then also want to setup the agda-mode for emacs:
+
+```
+> agda-mode setup
+```
+
+Once this works go to a suitable directory and run
+
+```
+> git clone https://github.com/agda/cubical
+> cd cubical
+> make
+```
+
+This should compile all of the agda/cubical files. To test that it
+works in emacs run
+
+```
+> emacs Cubical/Core/Primitives.agda
+```
+
+and then type `C-c C-l`. This should now load the file and you can
+start developing your own cubical files.
+
+You can also register cubical as a library to depend on it in your own
+Agda developments:
+
+https://agda.readthedocs.io/en/latest/tools/package-system.html
+
 
 cabal sandbox install instructions
 ==================================
