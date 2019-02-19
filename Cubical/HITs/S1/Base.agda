@@ -12,8 +12,9 @@ open import Cubical.Core.Glue
 
 open import Cubical.Foundations.Equiv
 
-open import Cubical.Data.Int
 open import Cubical.Data.Nat
+  hiding (_+_ ; +-assoc)
+open import Cubical.Data.Int
 
 data S¹ : Set where
   base : S¹
@@ -89,6 +90,123 @@ windingIntLoop (negsuc (suc n)) = λ i → predInt (windingIntLoop (negsuc n) i)
 
 ΩS¹≡Int : ΩS¹ ≡ Int
 ΩS¹≡Int = isoToPath (iso winding (decode base) windingIntLoop (decodeEncode base))
+
+-- Group homomorphism
+
+intLoop-hom : (a : Int) → (b : Int) → compPath (intLoop a) (intLoop b) ≡ intLoop (a + b)
+intLoop-hom = {!!}
+
+winding-hom : (a : ΩS¹) → (b : ΩS¹) → winding (compPath a b) ≡ (winding a) + (winding b)
+winding-hom a b i =
+  hcomp (λ t → λ { (i = i0) → winding (compPath (decodeEncode base a t)
+                                                (decodeEncode base b t))
+                 ; (i = i1) → windingIntLoop ((winding a) + (winding b)) t })
+        (winding (intLoop-hom (winding a) (winding b) i))
+
+-- Based homotopy group
+
+basedΩS¹ : (x : S¹) → Set
+basedΩS¹ x = x ≡ x
+
+-- Proof that the homotopy group is actually independent on the basepoint
+
+ΩS¹→basedΩS¹-filler : I → (i : I) → ΩS¹ → I → S¹
+ΩS¹→basedΩS¹-filler l i x j =
+  hfill (λ t → λ { (j = i0) → loop (i ∧ t)
+                 ; (j = i1) → loop (i ∧ t) })
+        (inc (x j)) l
+
+ΩS¹→basedΩS¹ : (i : I) → ΩS¹ → basedΩS¹ (loop i)
+ΩS¹→basedΩS¹ i x j = ΩS¹→basedΩS¹-filler i1 i x j
+
+basedΩS¹→ΩS¹-filler : I → (i : I) → basedΩS¹ (loop i) → I → S¹
+basedΩS¹→ΩS¹-filler l i x j =
+  hfill (λ t → λ { (j = i0) → loop (i ∧ (~ t))
+                 ; (j = i1) → loop (i ∧ (~ t)) })
+        (inc (x j)) l
+
+basedΩS¹→ΩS¹ : (i : I) → basedΩS¹ (loop i) → ΩS¹
+basedΩS¹→ΩS¹ i x j = basedΩS¹→ΩS¹-filler i1 i x j
+
+basedΩS¹→ΩS¹→basedΩS¹ : (i : I) → (x : basedΩS¹ (loop i))
+                        → ΩS¹→basedΩS¹ i (basedΩS¹→ΩS¹ i x) ≡ x
+basedΩS¹→ΩS¹→basedΩS¹ i x j k =
+  hcomp (λ t → λ { (j = i1) → basedΩS¹→ΩS¹-filler (~ t) i x k
+                 ; (j = i0) → ΩS¹→basedΩS¹ i (basedΩS¹→ΩS¹ i x) k
+                 ; (k = i0) → loop (i ∧ (t ∨ (~ j)))
+                 ; (k = i1) → loop (i ∧ (t ∨ (~ j))) })
+        (ΩS¹→basedΩS¹-filler (~ j) i (basedΩS¹→ΩS¹ i x) k)
+
+ΩS¹→basedΩS¹→ΩS¹ : (i : I) → (x : ΩS¹)
+                        → basedΩS¹→ΩS¹ i (ΩS¹→basedΩS¹ i x) ≡ x
+ΩS¹→basedΩS¹→ΩS¹ i x j k =
+  hcomp (λ t → λ { (j = i1) → ΩS¹→basedΩS¹-filler (~ t) i x k
+                 ; (j = i0) → basedΩS¹→ΩS¹ i (ΩS¹→basedΩS¹ i x) k
+                 ; (k = i0) → loop (i ∧ ((~ t) ∧ j))
+                 ; (k = i1) → loop (i ∧ ((~ t) ∧ j)) })
+        (basedΩS¹→ΩS¹-filler (~ j) i (ΩS¹→basedΩS¹ i x) k)
+
+basedΩS¹→ΩS¹-isequiv : (i : I) → isEquiv (basedΩS¹→ΩS¹ i)
+basedΩS¹→ΩS¹-isequiv i = isoToIsEquiv (iso (basedΩS¹→ΩS¹ i) (ΩS¹→basedΩS¹ i)
+                 (ΩS¹→basedΩS¹→ΩS¹ i) (basedΩS¹→ΩS¹→basedΩS¹ i))
+
+unfold : (x : ΩS¹) → basedΩS¹→ΩS¹ i1 x ≡ compPath (compPath (intLoop (pos (suc zero))) x) (intLoop (negsuc zero))
+unfold = {!!}
+
+_⋆_ : {ℓ : Level} → {A : Set ℓ} → {x y z : A} → (x ≡ y) → (y ≡ z) → (x ≡ z)
+x≡y ⋆ y≡z = compPath x≡y y≡z
+
+infixl 30 _⋆_
+
+loop-conjugation : basedΩS¹→ΩS¹ i1 ≡ λ x → x
+loop-conjugation i x =
+    ((sym (decodeEncode base (basedΩS¹→ΩS¹ i1 x)))
+     ⋆ (λ t → intLoop (winding (unfold x t)))
+     ⋆ (λ t → intLoop (winding-hom (compPath (intLoop (pos (suc zero))) x)
+                                   (intLoop (negsuc zero)) t))
+     ⋆ (λ t → intLoop ((winding-hom (intLoop (pos (suc zero))) x t)
+                       + (windingIntLoop (negsuc zero) t)))
+     ⋆ (λ t → intLoop (((windingIntLoop (pos (suc zero)) t) + (winding x)) + (negsuc zero)))
+     ⋆ (λ t → intLoop ((+-comm (pos (suc zero)) (winding x) t) + (negsuc zero)))
+     ⋆ (λ t → intLoop (+-assoc (winding x) (pos (suc zero)) (negsuc zero) (~ t)))
+     ⋆ (decodeEncode base x)) i
+
+toast : basedΩS¹→ΩS¹ i0 ≡ λ x → x
+toast i x j =
+  hfill (λ t → λ { (j = i0) → base
+                 ; (j = i1) → base })
+        (inc (x j)) (~ i)
+
+basechange : (x : S¹) → basedΩS¹ x → ΩS¹
+basechange base y = y
+basechange (loop i) y =
+  hcomp (λ t → λ { (i = i0) → toast t y
+                 ; (i = i1) → loop-conjugation t y })
+        (basedΩS¹→ΩS¹ i y)
+
+basedΩS¹→ΩS¹≡basechange : (i : I) → basedΩS¹→ΩS¹ i ≡ basechange (loop i)
+basedΩS¹→ΩS¹≡basechange i j y =
+  hfill (λ t → λ { (i = i0) → toast t y
+                 ; (i = i1) → loop-conjugation t y })
+        (inc (basedΩS¹→ΩS¹ i y)) j
+
+basechange-isequiv-aux : (i : I) → isEquiv (basechange (loop i))
+basechange-isequiv-aux i =
+  transp (λ j → isEquiv (basedΩS¹→ΩS¹≡basechange i j)) i0 (basedΩS¹→ΩS¹-isequiv i)
+
+basechange-isequiv : (x : S¹) → isEquiv (basechange x)
+basechange-isequiv base = basechange-isequiv-aux i0
+basechange-isequiv (loop i) =
+  hcomp (λ t → λ { (i = i0) → basechange-isequiv-aux i0
+                 ; (i = i1) → isPropIsEquiv (basechange base) (basechange-isequiv-aux i1)
+                                            (basechange-isequiv-aux i0) t })
+        (basechange-isequiv-aux i)
+
+basedΩS¹≡ΩS¹ : (x : S¹) → basedΩS¹ x ≡ ΩS¹
+basedΩS¹≡ΩS¹ x = ua (basechange x , basechange-isequiv x)
+
+basedΩS¹≡Int : (x : S¹) → basedΩS¹ x ≡ Int
+basedΩS¹≡Int x = compPath (basedΩS¹≡ΩS¹ x) ΩS¹≡Int
 
 
 -- Some tests
