@@ -40,7 +40,7 @@ open import Agda.Builtin.Cubical.Glue public
                                          -- → {e : PartialP φ (λ o → T o ≃ A)}
                                          -- → PartialP φ T → A → primGlue A T e
 
-           ; pathToEquiv to lineToEquiv  -- ∀ {ℓ : → Level} (P : (i : I) → Set (ℓ i)) → P i0 ≃ P i1
+           ; pathToEquiv to lineToEquiv  -- ∀ {ℓ : I → Level} (P : (i : I) → Set (ℓ i)) → P i0 ≃ P i1
            )
 
 private
