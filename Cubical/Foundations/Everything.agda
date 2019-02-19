@@ -1,6 +1,7 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Everything where
 
+open import Cubical.Foundations.Groupoid public
 open import Cubical.Foundations.CartesianKanOps public
 open import Cubical.Foundations.Function public
 open import Cubical.Foundations.Equiv public

@@ -10,6 +10,7 @@ open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
+open import Cubical.Foundations.Groupoid
 open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Nat
@@ -91,87 +92,7 @@ windingIntLoop (negsuc (suc n)) = λ i → predInt (windingIntLoop (negsuc n) i)
 ΩS¹≡Int : ΩS¹ ≡ Int
 ΩS¹≡Int = isoToPath (iso winding (decode base) windingIntLoop (decodeEncode base))
 
--- some groupoid lemma : p ⋆ q ⋆ r = id ⋆ (id ⋆ p ⋆ q) ⋆ r
-
-_⋆_ : {ℓ : Level} → {A : Set ℓ} → {x y z : A} → (x ≡ y) → (y ≡ z) → (x ≡ z)
-x≡y ⋆ y≡z = compPath x≡y y≡z
-
-infixl 30 _⋆_
-
-doubleCompPath-filler : {ℓ : Level} {A : Set ℓ} {w x y z : A} → w ≡ x → x ≡ y → y ≡ z →
-                        I → I → A
-doubleCompPath-filler p q r i =
-  hfill (λ t → λ { (i = i0) → p (~ t)
-                 ; (i = i1) → r t })
-        (inc (q i))
-
-doubleCompPath : {ℓ : Level} {A : Set ℓ} {w x y z : A} → w ≡ x → x ≡ y → y ≡ z → w ≡ z
-doubleCompPath p q r i = doubleCompPath-filler p q r i i1
-
-_⋆⋆_⋆⋆_ : {ℓ : Level} {A : Set ℓ} {w x y z : A} → w ≡ x → x ≡ y → y ≡ z → w ≡ z
-p ⋆⋆ q ⋆⋆ r = doubleCompPath p q r
-
-rhombus-filler : {ℓ : Level} {A : Set ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → I → I → A
-rhombus-filler p q i j =
-  hcomp (λ t → λ { (i = i0) → p (~ t ∨ j)
-                 ; (i = i1) → q (t ∧ j)
-                 ; (j = i0) → p (~ t ∨ i)
-                 ; (j = i1) → q (t ∧ i) })
-        (p i1)
-
-leftright : {ℓ : Level} {A : Set ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) →
-            (refl ⋆⋆ p ⋆⋆ q) ≡ (p ⋆⋆ q ⋆⋆ refl)
-leftright p q i j =
-  hcomp (λ t → λ { (j = i0) → p (i ∧ (~ t))
-                 ; (j = i1) → q (t ∨ i) })
-        (rhombus-filler p q i j)
-
-split-leftright : {ℓ : Level} {A : Set ℓ} {w x y z : A} (p : w ≡ x) (q : x ≡ y) (r : y ≡ z) →
-                  (p ⋆⋆ q ⋆⋆ r) ≡ (refl ⋆⋆ (p ⋆⋆ q ⋆⋆ refl) ⋆⋆ r)
-split-leftright p q r i j =
-  hcomp (λ t → λ { (j = i0) → p (~ i ∧ ~ t)
-                 ; (j = i1) → r t })
-        (doubleCompPath-filler p q refl j i)
-
-split-leftright' : {ℓ : Level} {A : Set ℓ} {w x y z : A} (p : w ≡ x) (q : x ≡ y) (r : y ≡ z) →
-                  (p ⋆⋆ q ⋆⋆ r) ≡ (p ⋆⋆ (refl ⋆⋆ q ⋆⋆ r) ⋆⋆ refl)
-split-leftright' p q r i j =
-  hcomp (λ t → λ { (j = i0) → p (~ t)
-                 ; (j = i1) → r (i ∨ t) })
-        (doubleCompPath-filler refl q r j i)
-
-doubleCompPath-elim : {ℓ : Level} {A : Set ℓ} {w x y z : A} (p : w ≡ x) (q : x ≡ y)
-                      (r : y ≡ z) → (p ⋆⋆ q ⋆⋆ r) ≡ (p ⋆ q) ⋆ r
-doubleCompPath-elim p q r = (split-leftright p q r) ⋆ (λ i → (leftright p q (~ i)) ⋆ r)
-
-doubleCompPath-elim' : {ℓ : Level} {A : Set ℓ} {w x y z : A} (p : w ≡ x) (q : x ≡ y)
-                       (r : y ≡ z) → (p ⋆⋆ q ⋆⋆ r) ≡ p ⋆ (q ⋆ r)
-doubleCompPath-elim' p q r = (split-leftright' p q r) ⋆ (sym (leftright p (q ⋆ r)))
-
-compPath-assoc : {ℓ : Level} {A : Set ℓ} {w x y z : A} (p : w ≡ x) (q : x ≡ y) (r : y ≡ z) →
-                 (p ⋆ q) ⋆ r ≡ p ⋆ (q ⋆ r)
-compPath-assoc p q r = (sym (doubleCompPath-elim p q r)) ⋆ (doubleCompPath-elim' p q r)
-
--- another groupoid lemma : id ⋆ p ⋆ id = p
-
-compPath-refl-r : {ℓ : Level} {A : Set ℓ} {x y : A} (p : x ≡ y) → p ⋆ refl ≡ p
-compPath-refl-r p i j =
-  hfill (λ t → λ { (j = i0) → p i0 ; (j = i1) → p i1 }) (inc (p j)) (~ i)
-
-compPath-refl-l : {ℓ : Level} {A : Set ℓ} {x y : A} (p : x ≡ y) → refl ⋆ p ≡ p
-compPath-refl-l p = (leftright refl p) ⋆ (compPath-refl-r p)
-
-compPath-inv-r : {ℓ : Level} {A : Set ℓ} {x y : A} (p : x ≡ y) → p ⋆ (sym p) ≡ refl
-compPath-inv-r p i j =
-  hcomp (λ t → λ { (i = i1) → p i0
-                 ; (j = i0) → p i0
-                 ; (j = i1) → p (~ i ∧ ~ t) })
-        (p (~ i ∧ j))
-
-compPath-inv-l : {ℓ : Level} {A : Set ℓ} {x y : A} (p : x ≡ y) → (sym p) ⋆ p ≡ refl
-compPath-inv-l p = compPath-inv-r (sym p)
-
--- Group homomorphism
+-- intLoop and winding are group homomorphisms
 
 intLoop-sucInt : (z : Int) → intLoop (sucInt z) ≡ (intLoop z) ⋆ loop
 intLoop-sucInt (pos n)          = refl
@@ -203,8 +124,7 @@ intLoop-hom a (negsuc (suc n)) =
 
 winding-hom : (a : ΩS¹) → (b : ΩS¹) → winding (a ⋆ b) ≡ (winding a) + (winding b)
 winding-hom a b i =
-  hcomp (λ t → λ { (i = i0) → winding (compPath (decodeEncode base a t)
-                                                (decodeEncode base b t))
+  hcomp (λ t → λ { (i = i0) → winding ((decodeEncode base a t) ⋆ (decodeEncode base b t))
                  ; (i = i1) → windingIntLoop ((winding a) + (winding b)) t })
         (winding (intLoop-hom (winding a) (winding b) i))
 
@@ -214,6 +134,8 @@ basedΩS¹ : (x : S¹) → Set
 basedΩS¹ x = x ≡ x
 
 -- Proof that the homotopy group is actually independent on the basepoint
+-- first, give a quasi-inverse to the basechange basedΩS¹→ΩS¹ for any loop i
+-- (which does *not* match at endpoints)
 
 ΩS¹→basedΩS¹-filler : I → (i : I) → ΩS¹ → I → S¹
 ΩS¹→basedΩS¹-filler l i x j =
@@ -251,14 +173,18 @@ basedΩS¹→ΩS¹→basedΩS¹ i x j k =
                  ; (k = i1) → loop (i ∧ ((~ t) ∧ j)) })
         (basedΩS¹→ΩS¹-filler (~ j) i (ΩS¹→basedΩS¹ i x) k)
 
+-- from the existence of our quasi-inverse, we deduce that the basechange is an equivalence
+-- for all loop i
+
 basedΩS¹→ΩS¹-isequiv : (i : I) → isEquiv (basedΩS¹→ΩS¹ i)
 basedΩS¹→ΩS¹-isequiv i = isoToIsEquiv (iso (basedΩS¹→ΩS¹ i) (ΩS¹→basedΩS¹ i)
                  (ΩS¹→basedΩS¹→ΩS¹ i) (basedΩS¹→ΩS¹→basedΩS¹ i))
 
 
--- now
+-- now extend the basechange so that both ends match
+-- (and therefore we get a basechange for any x : S¹)
 
-unfold : (x : ΩS¹) → basedΩS¹→ΩS¹ i1 x ≡ compPath (compPath (intLoop (pos (suc zero))) x) (intLoop (negsuc zero))
+unfold : (x : ΩS¹) → basedΩS¹→ΩS¹ i1 x ≡ ((intLoop (pos (suc zero))) ⋆ x) ⋆ (intLoop (negsuc zero))
 unfold x = compPath (doubleCompPath-elim loop x (sym loop))
                     (λ i → compPath (compPath (compPath-refl-l loop (~ i)) x) (sym loop))
 
@@ -288,15 +214,22 @@ basechange (loop i) y =
                  ; (i = i1) → loop-conjugation t y })
         (basedΩS¹→ΩS¹ i y)
 
+-- for any loop i, the old basechange is equal to the new one
+
 basedΩS¹→ΩS¹≡basechange : (i : I) → basedΩS¹→ΩS¹ i ≡ basechange (loop i)
 basedΩS¹→ΩS¹≡basechange i j y =
   hfill (λ t → λ { (i = i0) → refl-conjugation t y
                  ; (i = i1) → loop-conjugation t y })
         (inc (basedΩS¹→ΩS¹ i y)) j
 
+-- so for any loop i, the extended basechange is an equivalence
+
 basechange-isequiv-aux : (i : I) → isEquiv (basechange (loop i))
 basechange-isequiv-aux i =
   transp (λ j → isEquiv (basedΩS¹→ΩS¹≡basechange i j)) i0 (basedΩS¹→ΩS¹-isequiv i)
+
+
+-- as being an equivalence is contractible, basechange is an equivalence for all x : S¹
 
 basechange-isequiv : (x : S¹) → isEquiv (basechange x)
 basechange-isequiv base = basechange-isequiv-aux i0
@@ -325,6 +258,12 @@ module _ where
   test-winding-neg : winding (intLoop (negsuc five)) ≡ negsuc five
   test-winding-neg = refl
 
+-- the inverse when S¹ is seen as a group
+
+flip : S¹ → S¹
+flip base = base
+flip (loop i) = loop (~ i)
+
 -- rot, used in the Hopf fibration
 
 rotLoop : (a : S¹) → a ≡ a
@@ -338,6 +277,13 @@ rotLoop (loop i) j =
 rot : S¹ → S¹ → S¹
 rot base x     = x
 rot (loop i) x = rotLoop x i
+
+-- rot i j = filler-rot i j i1
+filler-rot : I → I → I → S¹
+filler-rot i j = hfill (λ k → λ { (i = i0) → loop (j ∨ ~ k)
+                   ; (i = i1) → loop (j ∧ k)
+                   ; (j = i0) → loop (i ∨ ~ k)
+                   ; (j = i1) → loop (i ∧ k) }) (inc base)
 
 isPropFamS¹ : ∀ {ℓ} (P : S¹ → Set ℓ) (pP : (x : S¹) → isProp (P x)) (b0 : P base) →
               PathP (λ i → P (loop i)) b0 b0
@@ -369,3 +315,66 @@ rotLoopEquiv i =
          (λ a → rotLoop a (~ i))
          (λ a → rotLoopInv a i)
          (λ a → rotLoopInv a (~ i)))
+
+-- some cancellation laws, used in the Hopf fibration
+
+rotInv : I → I → I → I → S¹
+rotInv j k i =
+  hfill (λ l → λ {
+      (k = i0) → rot (loop (i ∧ ~ l)) (loop j) ;
+      (k = i1) → loop j ;
+      (i = i0) → rot (rot (loop k) (loop j)) (loop (~ k)) ;
+      (i = i1) → rot (loop (~ k ∧ ~ l)) (loop j) })
+    (inc (rot (rot (loop (k ∨ i)) (loop j)) (loop (~ k))))
+
+rotFlip : I → I → I → S¹
+rotFlip i j k =
+   hcomp (λ l → λ { (k = i0) → flip (filler-rot (~ i) (~ j) l)
+                  ; (k = i1) → loop (j ∧ l)
+                  ; (i = i0) → filler-rot k j l
+                  ; (i = i1) → loop (j ∧ l)
+                  ; (j = i0) → loop (i ∨ k ∨ (~ l))
+                  ; (j = i1) → loop ((i ∨ k) ∧ l) })
+          (base)
+
+rotInvFlip : I → I → I → I → S¹
+rotInvFlip j k i =
+  hfill (λ l → λ {
+      (k = i0) → rotFlip i j l ;
+      (k = i1) → loop j ;
+      (i = i0) → rot (loop j) (loop (k ∨ l)) ;
+      (i = i1) → rot (flip (rot (loop (~ j)) (loop k))) (loop k) })
+    (inc (rot (flip (rot (loop (~ j)) (loop (k ∨ (~ i))))) (loop k)))
+
+rotInvFlip' : I → I → I → I → S¹
+rotInvFlip' j k i =
+  hfill (λ l → λ {
+      (k = i0) → rotFlip i j l ;
+      (k = i1) → loop j ;
+      (i = i0) → rot (loop (k ∨ l)) (loop j) ;
+      (i = i1) → rot (loop k) (flip (rot (loop (~ j)) (loop k))) })
+    (inc (rot (loop k) (flip (rot (loop (~ j)) (loop (k ∨ (~ i)))))))
+
+rotInv-1 : (a : S¹) → (b : S¹) → rot (rot b a) (flip b) ≡ a
+rotInv-1 base base i = base
+rotInv-1 base (loop k) i = rotInv i0 k i i1
+rotInv-1 (loop j) base i = loop j
+rotInv-1 (loop j) (loop k) i = rotInv j k i i1
+
+rotInv-2 : (a : S¹) → (b : S¹) → rot (rot (flip b) a) b ≡ a
+rotInv-2 base base i = base
+rotInv-2 base (loop k) i = rotInv i0 (~ k) i i1
+rotInv-2 (loop j) base i = loop j
+rotInv-2 (loop j) (loop k) i = rotInv j (~ k) i i1
+
+rotInv-3 : (a : S¹) → (b : S¹) → rot b (flip (rot (flip a) b)) ≡ a
+rotInv-3 base base i = base
+rotInv-3 base (loop k) i = rotInvFlip' i0 k (~ i) i1
+rotInv-3 (loop j) base i = loop j
+rotInv-3 (loop j) (loop k) i = rotInvFlip' j k (~ i) i1
+
+rotInv-4 : (a : S¹) → (b : S¹) → rot (flip (rot b (flip a))) b ≡ a
+rotInv-4 base base i = base
+rotInv-4 base (loop k) i = rotInvFlip i0 k (~ i) i1
+rotInv-4 (loop j) base i = loop j
+rotInv-4 (loop j) (loop k) i = rotInvFlip j k (~ i) i1
