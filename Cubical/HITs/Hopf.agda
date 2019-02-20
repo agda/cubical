@@ -74,26 +74,32 @@ Join→Hopf (push y x j) =
 fibInt : S¹ → S¹ → Set
 fibInt _ _ = Int
 
-constant-loop-0 : (F : S¹ → Int) → (j : I) → (x : I) → F base ≡ F (loop x)
-constant-loop-0 F j x =
-  hfill (λ t → λ { (x = i0) → λ _ → F base
-                 ; (x = i1) → isSetInt (F base) (F base) (λ j → F (loop j)) refl t })
-        (inc (λ i → F (loop (x ∧ i)))) j
+-- TODO: this should be moved to a more general place, like HLevel.agda
+mapToSet : (A B : Set) (p : isSet B) → isSet (A → B)
+mapToSet A B p a b x y i j z = p (a z) (b z) (λ i → x i z) (λ i → y i z) i j
 
-constant-loop : (F : S¹ → S¹ → Int) → (x : S¹) → (y : S¹) → F base base ≡ F x y
-constant-loop F base base = λ _ → F base base
-constant-loop F (loop x) base = constant-loop-0 (λ x → F x base) i1 x
-constant-loop F base (loop y) = constant-loop-0 (F base) i1 y
-constant-loop F (loop x) (loop y) =
-  hcomp (λ t → λ { (x = i0) → constant-loop-0 (F base) t y
-                 ; (x = i1) → isSetInt (F base base) (F base (loop y))
-                                       (λ j → F (loop j) (loop (y ∧ j)))
-                                       (constant-loop-0 (F base) i1 y) t
-                 ; (y = i0) → constant-loop-0 (λ x → F x base) t x
-                 ; (y = i1) → isSetInt (F base base) (F (loop x) base)
-                                       (λ j → F (loop (x ∧ j)) (loop j))
-                                       (constant-loop-0 (λ x → F x base) i1 x) t })
-        (λ i → F (loop (x ∧ i)) (loop (y ∧ i)))
+S¹→Set : (A : Set) (p : isSet A) (F : S¹ → A) (x : S¹) → F base ≡ F x
+S¹→Set A p F base = refl {x = F base}
+S¹→Set A p F (loop i) = f' i
+  where
+  f : PathP (λ i → F base ≡ F (loop i)) refl (cong F loop)
+  f i = λ j → F (loop (i ∧ j))
+  L : cong F loop ≡ refl
+  L = p (F base) (F base) (f i1) refl
+  f' : PathP (λ i → F base ≡ F (loop i)) (refl {x = F base}) (refl {x = F base})
+  f' = transport (λ i → PathP (λ j → F base ≡ F (loop j)) refl (L i)) f
+
+constant-loop : (F : S¹ → S¹ → Int) → (x y : S¹) → F base base ≡ F x y
+constant-loop F x y = compPath L0 L1
+  where
+  p : isSet (S¹ → Int)
+  p = mapToSet S¹ Int isSetInt
+  L : F base ≡ F x
+  L = S¹→Set (S¹ → Int) p F x
+  L0 : F base base ≡ F x base
+  L0 i = L i base
+  L1 : F x base ≡ F x y
+  L1 = S¹→Set Int isSetInt (F x) y
 
 discretefib : (F : S¹ → S¹ → Set) → Set
 discretefib F = (a : (x : S¹) → (y : S¹) → F x y) →
