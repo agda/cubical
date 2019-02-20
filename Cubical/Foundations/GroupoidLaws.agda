@@ -4,7 +4,7 @@ Proof of some groupoid laws for equality
 
 -}
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.Groupoid where
+module Cubical.Foundations.GroupoidLaws where
 
 open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude

@@ -10,7 +10,7 @@ open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
-open import Cubical.Foundations.Groupoid
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Nat
