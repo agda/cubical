@@ -14,7 +14,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Nat
-  hiding (_+_ ; +-assoc)
+  hiding (_+_ ; _*_ ; +-assoc)
 open import Cubical.Data.Int
 
 data S¹ : Set where
@@ -260,9 +260,9 @@ module _ where
 
 -- the inverse when S¹ is seen as a group
 
-flip : S¹ → S¹
-flip base = base
-flip (loop i) = loop (~ i)
+inv : S¹ → S¹
+inv base = base
+inv (loop i) = loop (~ i)
 
 -- rot, used in the Hopf fibration
 
@@ -277,6 +277,12 @@ rotLoop (loop i) j =
 rot : S¹ → S¹ → S¹
 rot base x     = x
 rot (loop i) x = rotLoop x i
+
+_*_ : S¹ → S¹ → S¹
+a * b = rot a b
+
+infixl 30 _*_
+
 
 -- rot i j = filler-rot i j i1
 filler-rot : I → I → I → S¹
@@ -318,63 +324,60 @@ rotLoopEquiv i =
 
 -- some cancellation laws, used in the Hopf fibration
 
-rotInv : I → I → I → I → S¹
-rotInv j k i =
-  hfill (λ l → λ {
-      (k = i0) → rot (loop (i ∧ ~ l)) (loop j) ;
-      (k = i1) → loop j ;
-      (i = i0) → rot (rot (loop k) (loop j)) (loop (~ k)) ;
-      (i = i1) → rot (loop (~ k ∧ ~ l)) (loop j) })
-    (inc (rot (rot (loop (k ∨ i)) (loop j)) (loop (~ k))))
+rotInv-aux-1 : I → I → I → I → S¹
+rotInv-aux-1 j k i =
+  hfill (λ l → λ { (k = i0) → (loop (i ∧ ~ l)) * loop j
+                 ; (k = i1) → loop j
+                 ; (i = i0) → (loop k * loop j) * loop (~ k)
+                 ; (i = i1) → loop (~ k ∧ ~ l) * loop j })
+        (inc ((loop (k ∨ i) * loop j) * loop (~ k)))
 
-rotFlip : I → I → I → S¹
-rotFlip i j k =
-   hcomp (λ l → λ { (k = i0) → flip (filler-rot (~ i) (~ j) l)
+rotInv-aux-2 : I → I → I → S¹
+rotInv-aux-2 i j k =
+   hcomp (λ l → λ { (k = i0) → inv (filler-rot (~ i) (~ j) l)
                   ; (k = i1) → loop (j ∧ l)
                   ; (i = i0) → filler-rot k j l
                   ; (i = i1) → loop (j ∧ l)
                   ; (j = i0) → loop (i ∨ k ∨ (~ l))
                   ; (j = i1) → loop ((i ∨ k) ∧ l) })
-          (base)
+         (base)
 
-rotInvFlip : I → I → I → I → S¹
-rotInvFlip j k i =
-  hfill (λ l → λ {
-      (k = i0) → rotFlip i j l ;
-      (k = i1) → loop j ;
-      (i = i0) → rot (loop j) (loop (k ∨ l)) ;
-      (i = i1) → rot (flip (rot (loop (~ j)) (loop k))) (loop k) })
-    (inc (rot (flip (rot (loop (~ j)) (loop (k ∨ (~ i))))) (loop k)))
+rotInv-aux-3 : I → I → I → I → S¹
+rotInv-aux-3 j k i =
+  hfill (λ l → λ { (k = i0) → rotInv-aux-2 i j l
+                 ; (k = i1) → loop j
+                 ; (i = i0) → loop (k ∨ l) * loop j
+                 ; (i = i1) → loop k * (inv (loop (~ j) * loop k)) })
+        (inc (loop k * (inv (loop (~ j) * loop (k ∨ ~ i)))))
 
-rotInvFlip' : I → I → I → I → S¹
-rotInvFlip' j k i =
-  hfill (λ l → λ {
-      (k = i0) → rotFlip i j l ;
-      (k = i1) → loop j ;
-      (i = i0) → rot (loop (k ∨ l)) (loop j) ;
-      (i = i1) → rot (loop k) (flip (rot (loop (~ j)) (loop k))) })
-    (inc (rot (loop k) (flip (rot (loop (~ j)) (loop (k ∨ (~ i)))))))
+rotInv-aux-4 : I → I → I → I → S¹
+rotInv-aux-4 j k i =
+  hfill (λ l → λ { (k = i0) → rotInv-aux-2 i j l
+                 ; (k = i1) → loop j
+                 ; (i = i0) → loop j * loop (k ∨ l)
+                 ; (i = i1) → (inv (loop (~ j) * loop k)) * loop k })
+        (inc ((inv (loop (~ j) * loop (k ∨ ~ i))) * loop k))
 
-rotInv-1 : (a : S¹) → (b : S¹) → rot (rot b a) (flip b) ≡ a
+rotInv-1 : (a : S¹) → (b : S¹) → b * a * inv b ≡ a
 rotInv-1 base base i = base
-rotInv-1 base (loop k) i = rotInv i0 k i i1
+rotInv-1 base (loop k) i = rotInv-aux-1 i0 k i i1
 rotInv-1 (loop j) base i = loop j
-rotInv-1 (loop j) (loop k) i = rotInv j k i i1
+rotInv-1 (loop j) (loop k) i = rotInv-aux-1 j k i i1
 
-rotInv-2 : (a : S¹) → (b : S¹) → rot (rot (flip b) a) b ≡ a
+rotInv-2 : (a : S¹) → (b : S¹) → inv b * a * b ≡ a
 rotInv-2 base base i = base
-rotInv-2 base (loop k) i = rotInv i0 (~ k) i i1
+rotInv-2 base (loop k) i = rotInv-aux-1 i0 (~ k) i i1
 rotInv-2 (loop j) base i = loop j
-rotInv-2 (loop j) (loop k) i = rotInv j (~ k) i i1
+rotInv-2 (loop j) (loop k) i = rotInv-aux-1 j (~ k) i i1
 
-rotInv-3 : (a : S¹) → (b : S¹) → rot b (flip (rot (flip a) b)) ≡ a
+rotInv-3 : (a : S¹) → (b : S¹) → b * (inv (inv a * b)) ≡ a
 rotInv-3 base base i = base
-rotInv-3 base (loop k) i = rotInvFlip' i0 k (~ i) i1
+rotInv-3 base (loop k) i = rotInv-aux-3 i0 k (~ i) i1
 rotInv-3 (loop j) base i = loop j
-rotInv-3 (loop j) (loop k) i = rotInvFlip' j k (~ i) i1
+rotInv-3 (loop j) (loop k) i = rotInv-aux-3 j k (~ i) i1
 
-rotInv-4 : (a : S¹) → (b : S¹) → rot (flip (rot b (flip a))) b ≡ a
+rotInv-4 : (a : S¹) → (b : S¹) → inv (b * inv a) * b ≡ a
 rotInv-4 base base i = base
-rotInv-4 base (loop k) i = rotInvFlip i0 k (~ i) i1
+rotInv-4 base (loop k) i = rotInv-aux-4 i0 k (~ i) i1
 rotInv-4 (loop j) base i = loop j
-rotInv-4 (loop j) (loop k) i = rotInvFlip j k (~ i) i1
+rotInv-4 (loop j) (loop k) i = rotInv-aux-4 j k (~ i) i1
