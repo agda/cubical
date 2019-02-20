@@ -15,20 +15,8 @@ open import Cubical.HITs.S2
 open import Cubical.HITs.S3
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Join
-
-data Interval : Set where
-  I0 : Interval
-  I1 : Interval
-  seg : I0 ≡ I1
-
-PseudoHopf : Set
-PseudoHopf = (S¹ × Interval) × S¹
-
-PseudoHopf-π1 : PseudoHopf → S¹
-PseudoHopf-π1 ((y , _) , _) = y
-
-PseudoHopf-π2 : PseudoHopf → S¹
-PseudoHopf-π2 (_ , x) = x
+open import Cubical.HITs.Interval
+  renaming ( zero to I0 ; one to I1 )
 
 Border : (x : S¹) → (j : I) → Partial (j ∨ (~ j)) (Σ Set (λ T → T ≃ S¹))
 Border x j (j = i0) = S¹ , rot x , rotIsEquiv x
@@ -215,6 +203,19 @@ Join→Hopf→Join (inr x) i = inr x
 Join→Hopf→Join (push y x j) i = filler-3-1 i j y x
 
 -- Second homotopy
+
+-- This HIT is the total space of the Hopf fibration but the ends of SuspS¹ have not been
+-- glued together yet — which makes it into a cylinder.
+-- This allows to write compositions that do not properly match at the endpoints
+
+PseudoHopf : Set
+PseudoHopf = (S¹ × Interval) × S¹
+
+PseudoHopf-π1 : PseudoHopf → S¹
+PseudoHopf-π1 ((y , _) , _) = y
+
+PseudoHopf-π2 : PseudoHopf → S¹
+PseudoHopf-π2 (_ , x) = x
 
 -- the definition of assocFiller-4 used to be very clean :
 
