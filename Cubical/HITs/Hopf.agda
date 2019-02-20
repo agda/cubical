@@ -18,15 +18,9 @@ open import Cubical.HITs.Join
 open import Cubical.HITs.Interval
   renaming ( zero to I0 ; one to I1 )
 
-Border : (x : S¹) → (j : I) → Partial (j ∨ (~ j)) (Σ Set (λ T → T ≃ S¹))
+Border : (x : S¹) → (j : I) → Partial (j ∨ ~ j) (Σ Set (λ T → T ≃ S¹))
 Border x j (j = i0) = S¹ , rot x , rotIsEquiv x
 Border x j (j = i1) = S¹ , idEquiv S¹
-
-Border1 : (x : S¹) → (j : I) → Partial (j ∨ (~ j)) Set
-Border1 x j y = Border x j y .fst
-
-Border2 : (x : S¹) → (j : I) → PartialP (j ∨ (~ j)) (λ y → Border1 x j y ≃ S¹)
-Border2 x j y = Border x j y .snd
 
 HopfSuspS¹ : SuspS¹ → Set
 HopfSuspS¹ north = S¹
@@ -38,7 +32,7 @@ TotalSpace : Set
 TotalSpace = Σ SuspS¹ HopfSuspS¹
 
 unglueb : (x : S¹) → (j : I) → Glue S¹ (Border x j) → S¹
-unglueb x j y = unglue {_} _ {Border1 x j} {Border2 x j} y
+unglueb x j y = unglue (j ∨ ~ j) y
 
 -- Forward direction
 filler-1 : I → (j : I) → (y : S¹) → Glue S¹ (Border y j) → join S¹ S¹
@@ -57,9 +51,7 @@ Join→Hopf (inl x) = (north , x)
 Join→Hopf (inr x) = (south , x)
 Join→Hopf (push y x j) =
   (merid (rot (flip y) x) j
-  , glue {_} {_} {_} {_} {Border1 (rot (flip y) x) j} {Border2 (rot (flip y) x) j}
-         (λ { (j = i0) → y ; (j = i1) → x })
-         (rotInv-2 x y j))
+  , glue (λ { (j = i0) → y ; (j = i1) → x }) (rotInv-2 x y j))
 
 -- Now for the homotopies, we will need to fill squares indexed by x y : S¹ with value in S¹
 -- Some will be extremeley tough, but happen to be easy when x = y = base
@@ -102,10 +94,10 @@ constant-loop F x y = compPath L0 L1
   L1 = S¹→Set Int isSetInt (F x) y
 
 discretefib : (F : S¹ → S¹ → Set) → Set
-discretefib F = (a : (x : S¹) → (y : S¹) → F x y) →
-        (b : (x : S¹) → (y : S¹) → F x y) →
+discretefib F = (a : (x y : S¹) → F x y) →
+        (b : (x y : S¹) → F x y) →
         (a base base ≡ b base base) →
-        (x : S¹) → (y : S¹) → a x y ≡ b x y
+        (x y : S¹) → a x y ≡ b x y
 
 discretefib-fibInt : discretefib fibInt
 discretefib-fibInt a b h x y i =
@@ -117,8 +109,8 @@ discretefib-fibInt a b h x y i =
 
 -- the definition of assocFiller-3 used to be very clean :
 
--- assocFiller-3 : I → I → S¹ → S¹ → S¹
--- assocFiller-3 i j x y =
+-- assocFiller-3-old : S¹ → S¹ → I → I → S¹
+-- assocFiller-3-old x y j i =
 --   hfill (λ t → λ { (i = i0) → rotInv-1 y (rot (flip y) x) t
 --                  ; (i = i1) → rotInv-3 y x t })
 --         (inc (rot (rotInv-2 x y i) (flip (rot (flip y) x)))) j
@@ -168,6 +160,8 @@ assocFiller-3 (loop x) (loop y) j i =
                  ; (y = i1) → assocFiller-3-0 i t x })
         (inc (rot (rotInv-2 (loop x) (loop y) i) (flip (rot (loop (~ y)) (loop x))))) j
 
+-- TODO : use cubical extension types as in RedTT
+
 assoc-3 : (x : S¹) → (y : S¹) → basedΩS¹ y
 assoc-3 x y i = assocFiller-3 x y i1 i
 
@@ -188,16 +182,11 @@ assocSquare-3 i j x y = hcomp (λ t → λ { (i = i0) → assocFiller-3 x y j i0
                                        ; (j = i1) → assocConst-3 x y t i })
                             (assocFiller-3 x y j i)
 
-filler-3-0 : I → I → S¹ → S¹ → join S¹ S¹
-filler-3-0 i j y x =
-  filler-1 i j (rot (flip y) x)
-           (glue {_} {_} {_} {_} {Border1 (rot (flip y) x) j} {Border2 (rot (flip y) x) j}
-                 (λ { (j = i0) → y ; (j = i1) → x })
-                 (rotInv-2 x y j))
-
-filler-3-1 : I → I → S¹ → S¹ → join S¹ S¹
-filler-3-1 i j y x =
-  hcomp (λ t → λ { (i = i0) → filler-3-0 t j y x
+filler-3 : I → I → S¹ → S¹ → join S¹ S¹
+filler-3 i j y x =
+  hcomp (λ t → λ { (i = i0) → filler-1 t j (rot (flip y) x)
+                                           (glue (λ { (j = i0) → y ; (j = i1) → x })
+                                                 (rotInv-2 x y j))
                  ; (i = i1) → push (rotInv-3 y x t) x j
                  ; (j = i0) → inl (assocSquare-3 i t x y)
                  ; (j = i1) → inr x })
@@ -206,7 +195,7 @@ filler-3-1 i j y x =
 Join→Hopf→Join : ∀ x → Hopf→Join (Join→Hopf x) ≡ x
 Join→Hopf→Join (inl x) i = inl x
 Join→Hopf→Join (inr x) i = inr x
-Join→Hopf→Join (push y x j) i = filler-3-1 i j y x
+Join→Hopf→Join (push y x j) i = filler-3 i j y x
 
 -- Second homotopy
 
@@ -329,19 +318,12 @@ filler-4-2 : I → (j : I) → (y : S¹) → Glue S¹ (Border y j) → TotalSpac
 filler-4-2 i j y x =
   hcomp (λ t → λ { (i = i0) → Join→Hopf (filler-1 t j y x)
                  ; (i = i1) → (merid (PseudoHopf-π1 (filler-4-0 t j y x)) j
-                              , glue {_} {_} {_} {_}
-                                     {Border1 (PseudoHopf-π1 (filler-4-0 t j y x)) j}
-                                     {Border2 (PseudoHopf-π1 (filler-4-0 t j y x)) j}
-                                     (λ { (j = i0) → rotInv-1 x y t
-                                        ; (j = i1) → x })
+                              , glue (λ { (j = i0) → rotInv-1 x y t ; (j = i1) → x })
                                      (PseudoHopf-π2 (filler-4-0 t j y x)))
                  ; (j = i0) → (north , rotInv-1 x y t)
                  ; (j = i1) → (south , x) })
         (merid (rot (flip (rot (unglueb y j x) (flip y))) (unglueb y j x)) j
-        , glue {_} {_} {_} {_}
-               {Border1 (rot (flip (rot (unglueb y j x) (flip y))) (unglueb y j x)) j}
-               {Border2 (rot (flip (rot (unglueb y j x) (flip y))) (unglueb y j x)) j}
-               (λ { (j = i0) → rot (rot y x) (flip y) ; (j = i1) → x })
+        , glue (λ { (j = i0) → rot (rot y x) (flip y) ; (j = i1) → x })
                (rotInv-2 (unglueb y j x) (rot (unglueb y j x) (flip y)) j) )
 
 filler-4-3 : I → (j : I) → (y : S¹) → Glue S¹ (Border y j) → PseudoHopf
@@ -367,18 +349,12 @@ filler-4-5 : I → (j : I) → (y : S¹) → Glue S¹ (Border y j) → TotalSpac
 filler-4-5 i j y x =
   hcomp (λ t → λ { (i = i0) → filler-4-2 (~ t) j y x
                  ; (i = i1) → (merid (PseudoHopf-π1 (filler-4-4 t j y x)) j
-                              , glue {_} {_} {_} {_}
-                                     {Border1 (PseudoHopf-π1 (filler-4-4 t j y x)) j}
-                                     {Border2 (PseudoHopf-π1 (filler-4-4 t j y x)) j}
-                                     (λ { (j = i0) → x ; (j = i1) → x })
+                              , glue (λ { (j = i0) → x ; (j = i1) → x })
                                      (PseudoHopf-π2 (filler-4-4 t j y x)))
                  ; (j = i0) → (north , x)
                  ; (j = i1) → (south , x) })
         (merid (PseudoHopf-π1 (filler-4-3 i j y x)) j
-        , glue {_} {_} {_} {_}
-               {Border1 (PseudoHopf-π1 (filler-4-3 i j y x)) j}
-               {Border2 (PseudoHopf-π1 (filler-4-3 i j y x)) j}
-               (λ { (j = i0) → x ; (j = i1) → x })
+        , glue (λ { (j = i0) → x ; (j = i1) → x })
                (PseudoHopf-π2 (filler-4-3 i j y x)))
 
 Hopf→Join→Hopf : ∀ x → Join→Hopf (Hopf→Join x) ≡ x
