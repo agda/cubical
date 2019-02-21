@@ -22,10 +22,20 @@ Border : (x : S¹) → (j : I) → Partial (j ∨ ~ j) (Σ Set (λ T → T ≃ S
 Border x j (j = i0) = S¹ , rot x , rotIsEquiv x
 Border x j (j = i1) = S¹ , idEquiv S¹
 
+-- Hopf fibration using SuspS¹
 HopfSuspS¹ : SuspS¹ → Set
 HopfSuspS¹ north = S¹
 HopfSuspS¹ south = S¹
 HopfSuspS¹ (merid x j) = Glue S¹ (Border x j)
+
+-- Hopf fibration using S²
+-- TODO : prove that it is equivalent to HopfSuspS¹
+HopfS² : S² → Set
+HopfS² base = S¹
+HopfS² (surf i j) = Glue S¹ (λ { (i = i0) → _ , idEquiv S¹
+                               ; (i = i1) → _ , idEquiv S¹
+                               ; (j = i0) → _ , idEquiv S¹
+                               ; (j = i1) → _ , _ , rotIsEquiv (loop i) } )
 
 -- Total space of the fibration
 TotalSpace : Set
