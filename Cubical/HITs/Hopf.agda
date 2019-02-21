@@ -47,8 +47,8 @@ HopfS²' (surf i j) = Glue S¹ (λ { (i = i0) → _ , rotLoopEquiv i0
                                 ; (j = i1) → _ , rotLoopEquiv i } )
 
 -- Total space of the fibration
-TotalSpace : Set
-TotalSpace = Σ SuspS¹ HopfSuspS¹
+TotalHopf : Set
+TotalHopf = Σ SuspS¹ HopfSuspS¹
 
 -- Forward direction
 filler-1 : I → (j : I) → (y : S¹) → Glue S¹ (Border y j) → join S¹ S¹
@@ -56,16 +56,16 @@ filler-1 i j y x = hfill (λ t → λ { (j = i0) → inl (rotInv-1 x y t)
                                   ; (j = i1) → inr x })
                          (inc (push ((unglue (j ∨ ~ j) x) * inv y) (unglue (j ∨ ~ j) x) j)) i
 
-Hopf→Join : TotalSpace → join S¹ S¹
-Hopf→Join (north , x) = inl x
-Hopf→Join (south , x) = inr x
-Hopf→Join (merid y j , x) = filler-1 i1 j y x
+TotalHopf→JoinS¹S¹ : TotalHopf → join S¹ S¹
+TotalHopf→JoinS¹S¹ (north , x) = inl x
+TotalHopf→JoinS¹S¹ (south , x) = inr x
+TotalHopf→JoinS¹S¹ (merid y j , x) = filler-1 i1 j y x
 
 -- Backward direction
-Join→Hopf : join S¹ S¹ → TotalSpace
-Join→Hopf (inl x) = (north , x)
-Join→Hopf (inr x) = (south , x)
-Join→Hopf (push y x j) =
+JoinS¹S¹→TotalHopf : join S¹ S¹ → TotalHopf
+JoinS¹S¹→TotalHopf (inl x) = (north , x)
+JoinS¹S¹→TotalHopf (inr x) = (south , x)
+JoinS¹S¹→TotalHopf (push y x j) =
   (merid (inv y * x) j
   , glue (λ { (j = i0) → y ; (j = i1) → x }) (rotInv-2 x y j))
 
@@ -152,7 +152,7 @@ assocFiller-3 (loop x) base j i = assocFiller-3-aux x i0 j i
 assocFiller-3 base (loop y) j i = assocFiller-3-aux i0 y j i
 assocFiller-3 (loop x) (loop y) j i = assocFiller-3-aux x y j i
 
-assoc-3 : (x : S¹) → (y : S¹) → basedΩS¹ y
+assoc-3 : (_ y : S¹) → basedΩS¹ y
 assoc-3 x y i = assocFiller-3 x y i1 i
 
 fibInt≡fibAssoc-3 : fibInt ≡ (λ _ y → basedΩS¹ y)
@@ -162,7 +162,7 @@ discretefib-fibAssoc-3 : discretefib (λ _ y → basedΩS¹ y)
 discretefib-fibAssoc-3 =
   transp (λ i → discretefib (fibInt≡fibAssoc-3 i)) i0 discretefib-fibInt
 
-assocConst-3 : (x : S¹) → (y : S¹) → assoc-3 x y ≡ refl
+assocConst-3 : (x y : S¹) → assoc-3 x y ≡ refl
 assocConst-3 x y = discretefib-fibAssoc-3 assoc-3 (λ _ _ → refl) refl x y
 
 assocSquare-3 : I → I → S¹ → S¹ → S¹
@@ -182,10 +182,10 @@ filler-3 i j y x =
                  ; (j = i1) → inr x })
         (push ((rotInv-2 x y (i ∨ j)) * (inv (inv y * x))) (rotInv-2 x y (i ∨ j)) j)
 
-Join→Hopf→Join : ∀ x → Hopf→Join (Join→Hopf x) ≡ x
-Join→Hopf→Join (inl x) i = inl x
-Join→Hopf→Join (inr x) i = inr x
-Join→Hopf→Join (push y x j) i = filler-3 i j y x
+JoinS¹S¹→TotalHopf→JoinS¹S¹ : ∀ x → TotalHopf→JoinS¹S¹ (JoinS¹S¹→TotalHopf x) ≡ x
+JoinS¹S¹→TotalHopf→JoinS¹S¹ (inl x) i = inl x
+JoinS¹S¹→TotalHopf→JoinS¹S¹ (inr x) i = inr x
+JoinS¹S¹→TotalHopf→JoinS¹S¹ (push y x j) i = filler-3 i j y x
 
 -- Second homotopy
 
@@ -216,13 +216,13 @@ assocFiller-4-aux x y j i =
 
 -- See assocFiller-3-endpoint
 -- TODO : use cubical extension types when available to remove assocFiller-4-endpoint
-assocFiller-4-endpoint : (x : S¹) → (y : S¹) → basedΩS¹ (((inv (y * x * inv y)) * (y * x)) * x)
+assocFiller-4-endpoint : (x y : S¹) → basedΩS¹ (((inv (y * x * inv y)) * (y * x)) * x)
 assocFiller-4-endpoint base base i = base
 assocFiller-4-endpoint (loop x) base i = assocFiller-4-aux x i0 i1 i
 assocFiller-4-endpoint base (loop y) i = assocFiller-4-aux i0 y i1 i
 assocFiller-4-endpoint (loop x) (loop y) i = assocFiller-4-aux x y i1 i
 
-assocFiller-4 : (x : S¹) → (y : S¹) →
+assocFiller-4 : (x y : S¹) →
                 PathP (λ j → ((inv (y * x * inv y)) * (y * x)) * (rotInv-1 x y j) ≡ (rotInv-4 y (y * x) (~ j)) * x)
                       (λ i → (rotInv-2 (y * x) (y * x * inv y) i))
                       (assocFiller-4-endpoint x y)
@@ -231,7 +231,7 @@ assocFiller-4 (loop x) base j i = assocFiller-4-aux x i0 j i
 assocFiller-4 base (loop y) j i = assocFiller-4-aux i0 y j i
 assocFiller-4 (loop x) (loop y) j i = assocFiller-4-aux x y j i
 
-assoc-4 : (x : S¹) → (y : S¹) → basedΩS¹ (((inv (y * x * inv y)) * (y * x)) * x)
+assoc-4 : (x y : S¹) → basedΩS¹ (((inv (y * x * inv y)) * (y * x)) * x)
 assoc-4 x y i = assocFiller-4 x y i1 i
 
 fibInt≡fibAssoc-4 : fibInt ≡ (λ x y → basedΩS¹ (((inv (y * x * inv y)) * (y * x)) * x))
@@ -241,7 +241,7 @@ discretefib-fibAssoc-4 : discretefib (λ x y → basedΩS¹ (((inv (y * x * inv 
 discretefib-fibAssoc-4 =
   transp (λ i → discretefib (fibInt≡fibAssoc-4 i)) i0 discretefib-fibInt
 
-assocConst-4 : (x : S¹) → (y : S¹) → assoc-4 x y ≡ refl
+assocConst-4 : (x y : S¹) → assoc-4 x y ≡ refl
 assocConst-4 x y = discretefib-fibAssoc-4 assoc-4 (λ _ _ → refl) refl x y
 
 assocSquare-4 : I → I → S¹ → S¹ → S¹
@@ -252,7 +252,7 @@ assocSquare-4 i j x y =
                  ; (j = i1) → assocConst-4 x y t i })
         (assocFiller-4 x y j i)
 
-filler-4-0 : I → (j : I) → (y : S¹) → Glue S¹ (Border y j) → PseudoHopf
+filler-4-0 : (_ j : I) → (y : S¹) → Glue S¹ (Border y j) → PseudoHopf
 filler-4-0 i j y x =
   let x' = unglue (j ∨ ~ j) x in
   hfill (λ t → λ { (j = i0) → ((inv (y * x * inv y) * (y * x) , I0)
@@ -260,7 +260,7 @@ filler-4-0 i j y x =
                  ; (j = i1) → ((inv (x * inv y) * x , I1) , x) })
         (inc ((inv (x' * inv y) * x' , seg j) , rotInv-2 x' (x' * inv y) j)) i
 
-filler-4-1 : I → (j : I) → (y : S¹) → Glue S¹ (Border y j) → PseudoHopf
+filler-4-1 : (_ j : I) → (y : S¹) → Glue S¹ (Border y j) → PseudoHopf
 filler-4-1 i j y x =
   let x' = unglue (j ∨ ~ j) x in
   hfill (λ t → λ { (j = i0) → ((inv (y * x * inv y) * (y * x) , I0)
@@ -268,10 +268,10 @@ filler-4-1 i j y x =
                  ; (j = i1) → ((inv (x * inv y) * x , I1) , x) })
         (inc ((inv (x' * inv y) * x' , seg j) , unglue (j ∨ ~ j) x)) i
 
-filler-4-2 : I → (j : I) → (y : S¹) → Glue S¹ (Border y j) → TotalSpace
+filler-4-2 : (_ j : I) → (y : S¹) → Glue S¹ (Border y j) → TotalHopf
 filler-4-2 i j y x =
   let x' = unglue (j ∨ ~ j) x in
-  hcomp (λ t → λ { (i = i0) → Join→Hopf (filler-1 t j y x)
+  hcomp (λ t → λ { (i = i0) → JoinS¹S¹→TotalHopf (filler-1 t j y x)
                  ; (i = i1) → (merid (PseudoHopf-π1 (filler-4-0 t j y x)) j
                               , glue (λ { (j = i0) → rotInv-1 x y t ; (j = i1) → x })
                                      (PseudoHopf-π2 (filler-4-0 t j y x)))
@@ -280,7 +280,7 @@ filler-4-2 i j y x =
         (merid (inv (x' * inv y) * x') j
         , glue (λ { (j = i0) → y * x * inv y ; (j = i1) → x }) (rotInv-2 x' (x' * inv y) j))
 
-filler-4-3 : I → (j : I) → (y : S¹) → Glue S¹ (Border y j) → PseudoHopf
+filler-4-3 : (_ j : I) → (y : S¹) → Glue S¹ (Border y j) → PseudoHopf
 filler-4-3 i j y x =
   let x' = unglue (j ∨ ~ j) x in
   hcomp (λ t → λ { (i = i0) → filler-4-0 t j y x
@@ -289,7 +289,7 @@ filler-4-3 i j y x =
                  ; (j = i1) → ((inv (x * inv y) * x , I1) , x) })
         ((inv (x' * inv y) * x' , seg j) , rotInv-2 x' (x' * inv y) (i ∨ j))
 
-filler-4-4 : I → (j : I) → (y : S¹) → Glue S¹ (Border y j) → PseudoHopf
+filler-4-4 : (_ j : I) → (y : S¹) → Glue S¹ (Border y j) → PseudoHopf
 filler-4-4 i j y x =
   let x' = unglue (j ∨ ~ j) x in
   hcomp (λ t → λ { (i = i0) → filler-4-1 t j y x
@@ -299,7 +299,7 @@ filler-4-4 i j y x =
                  ; (j = i1) → ((rotInv-4 y x i , I1) , x) })
         ((rotInv-4 y x' i , seg j) , x')
 
-filler-4-5 : I → (j : I) → (y : S¹) → Glue S¹ (Border y j) → TotalSpace
+filler-4-5 : (_ j : I) → (y : S¹) → Glue S¹ (Border y j) → TotalHopf
 filler-4-5 i j y x =
   hcomp (λ t → λ { (i = i0) → filler-4-2 (~ t) j y x
                  ; (i = i1) → (merid (PseudoHopf-π1 (filler-4-4 t j y x)) j
@@ -310,14 +310,17 @@ filler-4-5 i j y x =
         (merid (PseudoHopf-π1 (filler-4-3 i j y x)) j
         , glue (λ { (j = i0) → x ; (j = i1) → x }) (PseudoHopf-π2 (filler-4-3 i j y x)))
 
-Hopf→Join→Hopf : ∀ x → Join→Hopf (Hopf→Join x) ≡ x
-Hopf→Join→Hopf (north , x) i = (north , x)
-Hopf→Join→Hopf (south , x) i = (south , x)
-Hopf→Join→Hopf (merid y j , x) i = filler-4-5 i j y x
+TotalHopf→JoinS¹S¹→TotalHopf : ∀ x → JoinS¹S¹→TotalHopf (TotalHopf→JoinS¹S¹ x) ≡ x
+TotalHopf→JoinS¹S¹→TotalHopf (north , x) i = (north , x)
+TotalHopf→JoinS¹S¹→TotalHopf (south , x) i = (south , x)
+TotalHopf→JoinS¹S¹→TotalHopf (merid y j , x) i = filler-4-5 i j y x
 
 
-Join≡Hopf : join S¹ S¹ ≡ TotalSpace
-Join≡Hopf = isoToPath (iso Join→Hopf Hopf→Join Hopf→Join→Hopf Join→Hopf→Join)
+JoinS¹S¹≡TotalHopf : join S¹ S¹ ≡ TotalHopf
+JoinS¹S¹≡TotalHopf = isoToPath (iso JoinS¹S¹→TotalHopf
+                                    TotalHopf→JoinS¹S¹
+                                    TotalHopf→JoinS¹S¹→TotalHopf
+                                    JoinS¹S¹→TotalHopf→JoinS¹S¹)
 
-S³≡Hopf : S³ ≡ TotalSpace
-S³≡Hopf = compPath S³≡joinS¹S¹ Join≡Hopf
+S³≡TotalHopf : S³ ≡ TotalHopf
+S³≡TotalHopf = compPath S³≡joinS¹S¹ JoinS¹S¹≡TotalHopf
