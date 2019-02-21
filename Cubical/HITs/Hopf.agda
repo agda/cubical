@@ -37,6 +37,15 @@ HopfS² (surf i j) = Glue S¹ (λ { (i = i0) → _ , idEquiv S¹
                                ; (j = i0) → _ , idEquiv S¹
                                ; (j = i1) → _ , _ , rotIsEquiv (loop i) } )
 
+-- Hopf fibration using more direct definition of the rot equivalence
+-- TODO : prove that it is equivalent to HopfSuspS¹
+HopfS²' : S² → Set
+HopfS²' base = S¹
+HopfS²' (surf i j) = Glue S¹ (λ { (i = i0) → _ , rotLoopEquiv i0
+                                ; (i = i1) → _ , rotLoopEquiv i0
+                                ; (j = i0) → _ , rotLoopEquiv i0
+                                ; (j = i1) → _ , rotLoopEquiv i } )
+
 -- Total space of the fibration
 TotalSpace : Set
 TotalSpace = Σ SuspS¹ HopfSuspS¹
