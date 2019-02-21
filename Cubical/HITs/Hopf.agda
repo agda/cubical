@@ -104,61 +104,34 @@ discretefib-fibInt a b h x y i =
 
 -- first homotopy
 
--- the definition of assocFiller-3 used to be very clean :
-
-assocFiller-3-old : S¹ → S¹ → I → I → S¹
-assocFiller-3-old x y j i =
-  hfill (λ t → λ { (i = i0) → rotInv-1 y (inv y * x) t
-                 ; (i = i1) → rotInv-3 y x t })
-        (inc ((rotInv-2 x y i) * inv (inv y * x))) j
-
--- but I need it to be definitionnally equal to base when x = y = base,
--- and not having to destruct x and y. So it became this mess :(
--- TODO : simplify it with cubical extension types, when available
-
-assocFiller-3-0 : I → I → I → S¹
-assocFiller-3-0 i j x =
-  hfill (λ t → λ { (i = i0) → rotInv-1 base (loop x) t
-                 ; (i = i1) → rotInv-3 base (loop x) t
-                 ; (x = i0) → base
-                 ; (x = i1) → base })
-        (inc (loop x * inv (loop x))) j
-
-assocFiller-3-1 : I → I → I → S¹
-assocFiller-3-1 i j y =
-  hfill (λ t → λ { (i = i0) → rotInv-1 (loop y) (loop (~ y)) t
-                 ; (i = i1) → loop y
-                 ; (y = i0) → base
-                 ; (y = i1) → base })
-        (inc ((rotInv-2 base (loop y) i) * loop y)) j
-
-assocFiller-3-2 : (x : S¹) → (y : S¹) → y ≡ y
-assocFiller-3-2 base base i = base
-assocFiller-3-2 (loop x) base i = assocFiller-3-0 i i1 x
-assocFiller-3-2 base (loop y) i = assocFiller-3-1 i i1 y
-assocFiller-3-2 (loop x) (loop y) i =
-  hcomp (λ t → λ { (i = i0) → rotInv-1 (loop y) (loop (~ y) * loop x) t
-                 ; (i = i1) → rotInv-3 (loop y) (loop x) t
-                 ; (x = i0) → assocFiller-3-1 i t y
-                 ; (x = i1) → assocFiller-3-1 i t y
-                 ; (y = i0) → assocFiller-3-0 i t x
-                 ; (y = i1) → assocFiller-3-0 i t x })
-        ((rotInv-2 (loop x) (loop y) i) * (inv (loop (~ y) * loop x)))
-
-assocFiller-3 : (x : S¹) → (y : S¹) → PathP (λ j → rotInv-1 y (inv y * x) j ≡ rotInv-3 y x j) (λ i → ((rotInv-2 x y i) * (inv (inv y * x)))) (assocFiller-3-2 x y)
-assocFiller-3 base base j i = base
-assocFiller-3 (loop x) base j i = assocFiller-3-0 i j x
-assocFiller-3 base (loop y) j i = assocFiller-3-1 i j y
-assocFiller-3 (loop x) (loop y) j i =
+assocFiller-3-aux : I → I → I → I → S¹
+assocFiller-3-aux x y j i =
   hfill (λ t → λ { (i = i0) → rotInv-1 (loop y) (loop (~ y) * loop x) t
                  ; (i = i1) → rotInv-3 (loop y) (loop x) t
-                 ; (x = i0) → assocFiller-3-1 i t y
-                 ; (x = i1) → assocFiller-3-1 i t y
-                 ; (y = i0) → assocFiller-3-0 i t x
-                 ; (y = i1) → assocFiller-3-0 i t x })
+                 ; (x = i0) (y = i0) → base
+                 ; (x = i0) (y = i1) → base
+                 ; (x = i1) (y = i0) → base
+                 ; (x = i1) (y = i1) → base })
         (inc ((rotInv-2 (loop x) (loop y) i) * (inv (loop (~ y) * loop x)))) j
 
--- TODO : use cubical extension types as in RedTT
+-- assocFiller-3-endpoint is used only in the type of the next function, to specify the
+-- second endpoint.
+-- However, I only need the first endpoint, but I cannot specify only one of them as is.
+-- TODO : use cubical extension types when available to remove assocFiller-3-endpoint
+assocFiller-3-endpoint : (x : S¹) → (y : S¹) → y ≡ y
+assocFiller-3-endpoint base base i = base
+assocFiller-3-endpoint (loop x) base i = assocFiller-3-aux x i0 i1 i
+assocFiller-3-endpoint base (loop y) i = assocFiller-3-aux i0 y i1 i
+assocFiller-3-endpoint (loop x) (loop y) i = assocFiller-3-aux x y i1 i
+
+assocFiller-3 : (x : S¹) → (y : S¹) →
+                PathP (λ j → rotInv-1 y (inv y * x) j ≡ rotInv-3 y x j)
+                      (λ i → ((rotInv-2 x y i) * (inv (inv y * x))))
+                      (assocFiller-3-endpoint x y)
+assocFiller-3 base base j i = base
+assocFiller-3 (loop x) base j i = assocFiller-3-aux x i0 j i
+assocFiller-3 base (loop y) j i = assocFiller-3-aux i0 y j i
+assocFiller-3 (loop x) (loop y) j i = assocFiller-3-aux x y j i
 
 assoc-3 : (x : S¹) → (y : S¹) → basedΩS¹ y
 assoc-3 x y i = assocFiller-3 x y i1 i
@@ -211,65 +184,33 @@ PseudoHopf-π1 ((y , _) , _) = y
 PseudoHopf-π2 : PseudoHopf → S¹
 PseudoHopf-π2 (_ , x) = x
 
--- the definition of assocFiller-4 used to be very clean :
-
-assocFiller-4-old : S¹ → S¹ → I → I → S¹
-assocFiller-4-old x y j i =
-  hfill (λ t → λ { (i = i0) → inv (y * x * inv y) * (y * x) * (rotInv-1 x y t)
-                 ; (i = i1) → (rotInv-4 y (y * x) (~ t)) * x })
-        (inc (rotInv-2 (y * x) (y * x * inv y) i)) j
-
--- but I need it to be definitionnally equal to base when x = y = base,
--- and not having to destruct x and y. So it became this mess :(
--- TODO : simplify with cubical extension types when available
-
-assocFiller-4-0 : I → I → I → S¹
-assocFiller-4-0 i j x =
-  hfill (λ t → λ { (i = i0) → (loop (~ x) * loop x) * (rotInv-1 (loop x) base t)
-                 ; (i = i1) → (rotInv-4 base (loop x) (~ t)) * loop x
-                 ; (x = i0) → base
-                 ; (x = i1) → base })
-        (inc (rotInv-2 (loop x) (loop x) i)) j
-
-assocFiller-4-1 : I → I → I → S¹
-assocFiller-4-1 i j y =
-  hfill (λ t → λ { (i = i0) → ((inv (loop y * loop (~ y))) * loop y)
-                              * (rotInv-1 base (loop y) t)
-                 ; (i = i1) → rotInv-4 (loop y) (loop y) (~ t)
-                 ; (y = i0) → base
-                 ; (y = i1) → base })
-        (inc (rotInv-2 (loop y) (loop y * loop (~ y)) i)) j
-
-assocFiller-4-2 : (x : S¹) → (y : S¹) → basedΩS¹ (((inv (y * x * inv y)) * (y * x)) * x)
-assocFiller-4-2 base base i = base
-assocFiller-4-2 (loop x) base i = assocFiller-4-0 i i1 x
-assocFiller-4-2 base (loop y) i = assocFiller-4-1 i i1 y
-assocFiller-4-2 (loop x) (loop y) i =
-  hcomp (λ t → λ { (i = i0) → ((inv (loop y * loop x * loop (~ y))) * (loop y * loop x))
+assocFiller-4-aux : I → I → I → I → S¹
+assocFiller-4-aux x y j i =
+  hfill (λ t → λ { (i = i0) → ((inv (loop y * loop x * loop (~ y))) * (loop y * loop x))
                               * (rotInv-1 (loop x) (loop y) t)
                  ; (i = i1) → (rotInv-4 (loop y) (loop y * loop x) (~ t)) * loop x
-                 ; (x = i0) → assocFiller-4-1 i t y
-                 ; (x = i1) → assocFiller-4-1 i t y
-                 ; (y = i0) → assocFiller-4-0 i t x
-                 ; (y = i1) → assocFiller-4-0 i t x })
-        (rotInv-2 (loop y * loop x) (loop y * loop x * loop (~ y)) i)
+                 ; (x = i0) (y = i0) → base
+                 ; (x = i0) (y = i1) → base
+                 ; (x = i1) (y = i0) → base
+                 ; (x = i1) (y = i1) → base })
+        (inc (rotInv-2 (loop y * loop x) (loop y * loop x * loop (~ y)) i)) j
+
+-- See assocFiller-3-endpoint
+-- TODO : use cubical extension types when available to remove assocFiller-4-endpoint
+assocFiller-4-endpoint : (x : S¹) → (y : S¹) → basedΩS¹ (((inv (y * x * inv y)) * (y * x)) * x)
+assocFiller-4-endpoint base base i = base
+assocFiller-4-endpoint (loop x) base i = assocFiller-4-aux x i0 i1 i
+assocFiller-4-endpoint base (loop y) i = assocFiller-4-aux i0 y i1 i
+assocFiller-4-endpoint (loop x) (loop y) i = assocFiller-4-aux x y i1 i
 
 assocFiller-4 : (x : S¹) → (y : S¹) →
                 PathP (λ j → ((inv (y * x * inv y)) * (y * x)) * (rotInv-1 x y j) ≡ (rotInv-4 y (y * x) (~ j)) * x)
                       (λ i → (rotInv-2 (y * x) (y * x * inv y) i))
-                      (assocFiller-4-2 x y)
+                      (assocFiller-4-endpoint x y)
 assocFiller-4 base base j i = base
-assocFiller-4 (loop x) base j i = assocFiller-4-0 i j x
-assocFiller-4 base (loop y) j i = assocFiller-4-1 i j y
-assocFiller-4 (loop x) (loop y) j i =
-  hfill (λ t → λ { (i = i0) → ((inv (loop y * loop x * loop (~ y))) * (loop y * loop x))
-                              * (rotInv-1 (loop x) (loop y) t)
-                 ; (i = i1) → (rotInv-4 (loop y) (loop y * loop x) (~ t)) * loop x
-                 ; (x = i0) → assocFiller-4-1 i t y
-                 ; (x = i1) → assocFiller-4-1 i t y
-                 ; (y = i0) → assocFiller-4-0 i t x
-                 ; (y = i1) → assocFiller-4-0 i t x })
-        (inc (rotInv-2 (loop y * loop x) (loop y * loop x * loop (~ y)) i)) j
+assocFiller-4 (loop x) base j i = assocFiller-4-aux x i0 j i
+assocFiller-4 base (loop y) j i = assocFiller-4-aux i0 y j i
+assocFiller-4 (loop x) (loop y) j i = assocFiller-4-aux x y j i
 
 assoc-4 : (x : S¹) → (y : S¹) → basedΩS¹ (((inv (y * x * inv y)) * (y * x)) * x)
 assoc-4 x y i = assocFiller-4 x y i1 i
