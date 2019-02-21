@@ -14,7 +14,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Nat
-  hiding (_+_ ; _*_ ; +-assoc)
+  hiding (_+_ ; _*_ ; +-assoc ; +-comm)
 open import Cubical.Data.Int
 
 data S¹ : Set where
