@@ -47,10 +47,15 @@ cong f p = λ i → f (p i)
 
 -- This is called compPath and not trans in order to eliminate
 -- confusion with transp
-compPath : x ≡ y → y ≡ z → x ≡ z
-compPath {x = x} p q i =
-  hcomp (λ j → \ { (i = i0) → x
-                 ; (i = i1) → q j }) (p i)
+
+compPath-filler : ∀ {x y z : A} → x ≡ y → y ≡ z → I → I → A
+compPath-filler {x = x} p q j i =
+  hfill (λ j → λ { (i = i0) → x
+                  ; (i = i1) → q j }) (inc (p i)) j
+
+compPath : ∀ {x y z : A} → x ≡ y → y ≡ z → x ≡ z
+compPath {x = x} p q j =
+  (compPath-filler p q) i1 j
 
 infix  3 _∎
 infixr 2 _≡⟨_⟩_
