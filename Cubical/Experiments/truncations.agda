@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module truncations where
+module Cubical.Experiments.truncations where
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Core.Prelude
