@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Experiments.truncations where
+module truncations where
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Core.Prelude
@@ -60,12 +60,12 @@ setTruncElim A B bS f = proof
     C = tIsSet x y p q
     M1 : {x y : sA} (p : x ≡ y) → B x → B y → Set
     M1 p a b = PathP (λ i → B (p i)) a b
-    M2 : {x y : sA} {p q : x ≡ y} (r : p ≡ q) (a : B x) (b : B y)
+    M2 : {x y : sA} {p q : x ≡ y} (r : p ≡ q) {a : B x} {b : B y}
        → (M1 p a b) → (M1 q a b) → Set
-    M2 r a b c d = PathP (λ i → M1 (r i) a b) c d
+    M2 r {a = a} {b = b} c d = PathP (λ i → M1 (r i) a b) c d
     B' : {x y : sA} {p q : x ≡ y} (r : p ≡ q) → Set
     B' {x} {y} {p} {q} r = (a : B x) (b : B y) (c : M1 p a b) (d : M1 q a b)
-                           → M2 r a b c d
+                           → M2 r c d
     L0 = bS x -- : B' (λ i j → C i0 i0) 
     B0 B1 : I → Set
     B0 k = B' (λ i j → C i0 (j ∧ k))
@@ -91,17 +91,17 @@ groupoidTruncElim A B bG f = proof
     C = tIsGroupoid x y p q r s
     M1 : {x y : gA} (p : x ≡ y) → B x → B y → Set
     M1 p a b = PathP (λ i → B (p i)) a b
-    M2 : {x y : gA} {p q : x ≡ y} (r : p ≡ q) (a : B x) (b : B y)
+    M2 : {x y : gA} {p q : x ≡ y} (r : p ≡ q) {a : B x} {b : B y}
        → (M1 p a b) → (M1 q a b) → Set
-    M2 r a b c d = PathP (λ i → M1 (r i) a b) c d
+    M2 r {a = a} {b = b} c d = PathP (λ i → M1 (r i) a b) c d
     M3 : {x y : gA} {p q : x ≡ y} {r s : p ≡ q} (u : r ≡ s)
-         (a : B x) (b : B y) (c : M1 p a b) (d : M1 q a b)
-         → (M2 r a b c d) → (M2 s a b c d) → Set
-    M3 u a b c d e f = PathP (λ i → M2 (u i) a b c d) e f
+         {a : B x} {b : B y} {c : M1 p a b} {d : M1 q a b}
+         → (M2 r c d) → (M2 s c d) → Set
+    M3 u {c = c} {d = d} e f = PathP (λ i → M2 (u i) c d) e f
     B' : {x y : gA} {p q : x ≡ y} {r s : p ≡ q} → (r ≡ s) → Set
     B' {x} {y} {p} {q} {r} {s} u =
       (a : B x) (b : B y) (c : M1 p a b) (d : M1 q a b)
-      (e : M2 r a b c d) (f : M2 s a b c d) → M3 u a b c d e f
+      (e : M2 r c d) (f : M2 s c d) → M3 u e f
     L0 = bG x -- : B' (λ i j k → C i0 i0 i0)
     B0 B1 B2 : I → Set
     B0 i = B' (λ j0 j1 j2 → C i0 i0 (i ∧ j2))
@@ -131,24 +131,24 @@ g2TruncElim A B bG f = proof
     C = g2IsTwoGroupoid x y p q r s u v
     M1 : {x y : gA} (p : x ≡ y) → B x → B y → Set
     M1 p a b = PathP (λ i → B (p i)) a b
-    M2 : {x y : gA} {p q : x ≡ y} (r : p ≡ q) (a : B x) (b : B y)
+    M2 : {x y : gA} {p q : x ≡ y} (r : p ≡ q) {a : B x} {b : B y}
        → (M1 p a b) → (M1 q a b) → Set
-    M2 r a b c d = PathP (λ i → M1 (r i) a b) c d
+    M2 r {a = a} {b = b} c d = PathP (λ i → M1 (r i) a b) c d
     M3 : {x y : gA} {p q : x ≡ y} {r s : p ≡ q} (u : r ≡ s)
-         (a : B x) (b : B y) (c : M1 p a b) (d : M1 q a b)
-         → (M2 r a b c d) → (M2 s a b c d) → Set
-    M3 u a b c d e f = PathP (λ i → M2 (u i) a b c d) e f
+         {a : B x} {b : B y} {c : M1 p a b} {d : M1 q a b}
+         → (M2 r c d) → (M2 s c d) → Set
+    M3 u {c = c} {d = d} e f = PathP (λ i → M2 (u i) c d) e f
     M4 : {x y : gA} {p q : x ≡ y} {r s : p ≡ q} {u v : r ≡ s} (w : u ≡ v)
-         (a : B x) (b : B y) (c : M1 p a b) (d : M1 q a b)
-         (e : M2 r a b c d) (f : M2 s a b c d)
-         → (M3 u a b c d e f) → (M3 v a b c d e f) → Set
-    M4 w a b c d e f g h = PathP (λ i → M3 (w i) a b c d e f) g h
+         {a : B x} {b : B y} {c : M1 p a b} {d : M1 q a b}
+         {e : M2 r c d} {f : M2 s c d}
+         → (M3 u e f) → (M3 v e f) → Set
+    M4 w {e = e} {f = f} g h = PathP (λ i → M3 (w i) e f) g h
     B' : {x y : gA} {p q : x ≡ y} {r s : p ≡ q} {u v : r ≡ s} → (u ≡ v) → Set
     B' {x} {y} {p} {q} {r} {s} {u} {v} w =
-      (a : B x) (b : B y) (c : M1 p a b) (d : M1 q a b)
-      (e : M2 r a b c d) (f : M2 s a b c d)
-      (g : M3 u a b c d e f) (h : M3 v a b c d e f)
-      → M4 w a b c d e f g h
+       (a : B x) (b : B y) (c : M1 p a b) (d : M1 q a b)
+       (e : M2 r c d) (f : M2 s c d)
+       (g : M3 u e f) (h : M3 v e f)
+       → M4 w g h
     L0 = bG x -- : B' (λ i j k l → C i0 i0 i0 i0)
     B0 B1 B2 B3 : I → Set
     B0 i = B' (λ j0 j1 j2 j3 → C i0 i0 i0 (i ∧ j3))
