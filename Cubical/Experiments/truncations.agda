@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module truncations where
+module Cubical.Experiments.truncations where
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Core.Prelude
@@ -14,6 +14,9 @@ isGroupoid = isOfHLevel 3
 
 isTwoGroupoid : Set → Set
 isTwoGroupoid = isOfHLevel 4
+
+transport' : (p : I → Set) → (p i0) → (p i1)
+transport' p a = transp (λ i → p i) i0 a
 
 data propTrunc (A : Set) : Set where
   pinc : A → propTrunc A
@@ -35,7 +38,6 @@ propTruncElim A B bP f = proof
     B' : {x y : pA} → (p : x ≡ y) → Set
     B' {x} {y} p = (a : B x) → (b : B y) → PathP (λ i → B (p i)) a b 
     B0 : B' (λ j → C i0) ≡ B' (λ j → C j)
-      -- it's B' (λ _ → x) ≡ B' C but we don't write it that way
     B0 i = B' (λ j → C (i ∧ j))
     L1 : B' C
     L1 = transport B0 L0
@@ -64,15 +66,16 @@ setTruncElim A B bS f = proof
        → (M1 p a b) → (M1 q a b) → Set
     M2 r {a = a} {b = b} c d = PathP (λ i → M1 (r i) a b) c d
     B' : {x y : sA} {p q : x ≡ y} (r : p ≡ q) → Set
-    B' {x} {y} {p} {q} r = (a : B x) (b : B y) (c : M1 p a b) (d : M1 q a b)
+    B' {x} {y} {p} {q} r = {a : B x} {b : B y} (c : M1 p a b) (d : M1 q a b)
                            → M2 r c d
-    L0 = bS x -- : B' (λ i j → C i0 i0) 
+    L0 : B' (λ i j → x)
+    L0 c d = bS x _ _ c d 
     B0 B1 : I → Set
     B0 k = B' (λ i j → C i0 (j ∧ k))
     B1 k = B' (λ i j → C (i ∧ k) j)
-    L1 = transport (λ i → B0 i) L0
-    L2 = transport (λ i → B1 i) L1 -- : B' C
-    L = L2 (proof x) (proof y) (λ i → proof (p i)) (λ i → proof (q i))
+    L1 = transp B0 i0 L0
+    L2 = transp B1 i0 L1
+    L = L2 (λ i → proof (p i)) (λ i → proof (q i))
 
 data groupoidTrunc (A : Set) : Set where
   tinc : A → groupoidTrunc A
@@ -100,19 +103,18 @@ groupoidTruncElim A B bG f = proof
     M3 u {c = c} {d = d} e f = PathP (λ i → M2 (u i) c d) e f
     B' : {x y : gA} {p q : x ≡ y} {r s : p ≡ q} → (r ≡ s) → Set
     B' {x} {y} {p} {q} {r} {s} u =
-      (a : B x) (b : B y) (c : M1 p a b) (d : M1 q a b)
+      {a : B x} {b : B y} {c : M1 p a b} {d : M1 q a b}
       (e : M2 r c d) (f : M2 s c d) → M3 u e f
-    L0 = bG x -- : B' (λ i j k → C i0 i0 i0)
+    L0 : B' (λ i j k → x)
+    L0 e f = bG x _ _ _ _ e f
     B0 B1 B2 : I → Set
     B0 i = B' (λ j0 j1 j2 → C i0 i0 (i ∧ j2))
     B1 i = B' (λ j0 j1 j2 → C i0 (i ∧ j1) j2)
     B2 i = B' (λ j0 j1 j2 → C (i ∧ j0) j1 j2)
-    L1 = transport (λ i → B0 i) L0
-    L2 = transport (λ i → B1 i) L1
-    L3 = transport (λ i → B2 i) L2 -- : B' C
-    L = L3 (proof x) (proof y)
-           (λ i → proof (p i)) (λ i → proof (q i))
-           (λ i j → proof (r i j)) (λ i j → proof (s i j))
+    L1 = transp B0 i0 L0
+    L2 = transp B1 i0 L1
+    L3 = transp B2 i0 L2
+    L = L3 (λ i j → proof (r i j)) (λ i j → proof (s i j))
 
 data g2Trunc (A : Set) : Set where
   g2inc : A → g2Trunc A
@@ -128,7 +130,7 @@ g2TruncElim A B bG f = proof
   proof (g2IsTwoGroupoid x y p q r s u v i j k l) = L i j k l
     where
     gA = g2Trunc A
-    C = g2IsTwoGroupoid x y p q r s u v
+    C = g2IsTwoGroupoid x y p q r s u v 
     M1 : {x y : gA} (p : x ≡ y) → B x → B y → Set
     M1 p a b = PathP (λ i → B (p i)) a b
     M2 : {x y : gA} {p q : x ≡ y} (r : p ≡ q) {a : B x} {b : B y}
@@ -145,21 +147,19 @@ g2TruncElim A B bG f = proof
     M4 w {e = e} {f = f} g h = PathP (λ i → M3 (w i) e f) g h
     B' : {x y : gA} {p q : x ≡ y} {r s : p ≡ q} {u v : r ≡ s} → (u ≡ v) → Set
     B' {x} {y} {p} {q} {r} {s} {u} {v} w =
-       (a : B x) (b : B y) (c : M1 p a b) (d : M1 q a b)
-       (e : M2 r c d) (f : M2 s c d)
+       {a : B x} {b : B y} {c : M1 p a b} {d : M1 q a b}
+       {e : M2 r c d} {f : M2 s c d}
        (g : M3 u e f) (h : M3 v e f)
        → M4 w g h
-    L0 = bG x -- : B' (λ i j k l → C i0 i0 i0 i0)
+    L0 : B' (λ i j k l → x)
+    L0 g h = bG x _ _ _ _ _ _ g h
     B0 B1 B2 B3 : I → Set
     B0 i = B' (λ j0 j1 j2 j3 → C i0 i0 i0 (i ∧ j3))
     B1 i = B' (λ j0 j1 j2 j3 → C i0 i0 (i ∧ j2) j3)
     B2 i = B' (λ j0 j1 j2 j3 → C i0 (i ∧ j1) j2 j3)
     B3 i = B' (λ j0 j1 j2 j3 → C (i ∧ j0) j1 j2 j3)
-    L1 = transport (λ i → B0 i) L0
-    L2 = transport (λ i → B1 i) L1
-    L3 = transport (λ i → B2 i) L2
-    L4 = transport (λ i → B3 i) L3 -- : B' C
-    L = L4 (proof x) (proof y)
-           (λ i → proof (p i)) (λ i → proof (q i))
-           (λ i j → proof (r i j)) (λ i j → proof (s i j))
-           (λ i j k → proof (u i j k)) (λ i j k → proof (v i j k))
+    L1 = transp B0 i0 L0 -- We use `transp` because B0 is of type I → Set instead of A0 ≡ A1
+    L2 = transp B1 i0 L1 -- writing `transport B0 L0` Agda will complain,  
+    L3 = transp B2 i0 L2 -- it only accept `transport (λ i → B0 i) L0` 
+    L4 = transp B3 i0 L3 
+    L = L4 (λ i j k → proof (u i j k)) (λ i j k → proof (v i j k))
