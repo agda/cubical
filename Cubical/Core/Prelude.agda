@@ -54,8 +54,7 @@ compPath-filler {x = x} p q j i =
                   ; (i = i1) → q j }) (inc (p i)) j
 
 compPath : ∀ {x y z : A} → x ≡ y → y ≡ z → x ≡ z
-compPath {x = x} p q j =
-  (compPath-filler p q) i1 j
+compPath p q j = compPath-filler p q i1 j
 
 infix  3 _∎
 infixr 2 _≡⟨_⟩_
