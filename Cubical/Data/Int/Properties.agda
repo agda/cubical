@@ -31,7 +31,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Empty
-open import Cubical.Data.Nat hiding (_+_ ; +-assoc)
+open import Cubical.Data.Nat hiding (_+_ ; +-assoc ; +-comm)
 open import Cubical.Data.Sum
 open import Cubical.Data.Int.Base
 
