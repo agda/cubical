@@ -23,8 +23,12 @@ module Helpers where
 
   compPathP : {ℓ ℓ' : _} {X : Set ℓ} (F : X → Set ℓ') {A B C : X} (P : A ≡ B) (Q : B ≡ C) (R : A ≡ C) → compPath P Q ≡ R
               → ∀ {x y z} → (\ i → F (P i)) [ x ≡ y ] → (\ i → F (Q i)) [ y ≡ z ] → (\ i → F (R i)) [ x ≡ z ]
-  compPathP F {A = A} P Q = J' _ \ {x} p q i → comp (\ j → F (hfill (λ j → \ { (i = i0) → A
-                 ; (i = i1) → Q j }) (inc (P i)) j)) (λ j → \ { (i = i0) → x; (i = i1) → q j }) (inc (p i))
+  compPathP F {A = A} P Q = J' _ \ {x} p q i →
+     comp (\ j → F (hfill (λ j → \ { (i = i0) → A ; (i = i1) → Q j })
+                          (inc (P i))
+                          j))
+          (λ j → \ { (i = i0) → x; (i = i1) → q j })
+          (inc (p i))
 
 open Helpers
 
@@ -60,6 +64,9 @@ module _ {X : Set} {C : IxCont X} where
   unfold α x a .tails y p = unfold α y (α x a .snd y p)
 
 
+  -- We generalize the type to avoid upsetting --guardedness by
+  -- transporting after the corecursive call.
+  -- Recognizing hcomp/transp as guardedness-preserving could be a better solution.
   unfold-η' : ∀ {A} (α : ∀ x → A x → F A x) → (h : ∀ x → A x → M C x)
                      → (∀ (x : X) (a : A x) → out x (h x a) ≡ mapF h x (α x a))
                      → ∀ (x : X) (a : A x) m → h x a ≡ m → m ≡ unfold α x a
