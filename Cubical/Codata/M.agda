@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --postfix-projections #-}
+{-# OPTIONS --cubical --safe --guardedness #-}
 module Cubical.Codata.M where
 
 open import Cubical.Core.Prelude
