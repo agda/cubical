@@ -27,7 +27,7 @@ cabal v2-install instructions
 
 cabal `v2-build` is a new operating mode, which makes projects
 not interfere with each other. To download and compile the development
-version Agda with a `v2-build`, you need to download recent
+version Agda with a `v2-build`, you need to download recent (2.4 or later)
 version of [`cabal-install`](https://www.haskell.org/cabal/download.html).
 Then, execute following:
 
