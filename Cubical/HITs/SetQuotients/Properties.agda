@@ -22,7 +22,7 @@ private
   variable
     ℓ : Level
     A : Set ℓ
-    R : A → A → hProp
+    R : A → A → Set ℓ
 
 elimEq/ : {B : A / R → Set ℓ} →
           ((x : A / R ) → isProp (B x)) →
@@ -54,10 +54,10 @@ elimSetQuotientsProp Bprop f (eq/ a b r i) = elimEq/ Bprop (eq/ a b r) (f a) (f 
 
 
 elimSetQuotients : {B : A / R → Set ℓ} →
-                   (Bset : (x : A / R) → isSet (B x)) → 
+                   (Bset : (x : A / R) → isSet (B x)) →
                    (f : (a : A) → (B [ a ])) →
-                   (feq : (a b : A) (r : fst (R a b)) →
-                          PathP (λ i → B (eq/ a b r i)) (f a) (f b)) → 
+                   (feq : (a b : A) (r : R a b) →
+                          PathP (λ i → B (eq/ a b r i)) (f a) (f b)) →
                    (x : A / R) → B x
 elimSetQuotients Bset f feq [ a ] = f a
 elimSetQuotients Bset f feq (eq/ a b r i) = feq a b r i
@@ -68,7 +68,7 @@ elimSetQuotients Bset f feq (squash/ x y p q i j) =
       g = elimSetQuotients Bset f feq
 
 setQuotUniversal : {B : Set ℓ} (Bset : isSet B) →
-                   (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → fst (R a b) → f a ≡ f b))
+                   (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
 setQuotUniversal Bset = isoToEquiv (iso intro elim elimRightInv elimLeftInv)
   where
   intro = λ g →  (λ a → g [ a ]) , λ a b r i → g (eq/ a b r i)
