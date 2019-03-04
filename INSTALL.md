@@ -10,10 +10,11 @@ This file contains detailed instruction for how to install this on
 Linux and Mac. Windows users might be able to use Cygwin to mimic
 these instructions, but this hasn't been tested.
 
-There are two main ways of installing the development version of Agda:
+There are three main ways of installing the development version of Agda:
 
-1. Using cabal: https://www.haskell.org/cabal/
-2. Using stack: https://docs.haskellstack.org/
+1. Using cabal `v2-build`: https://www.haskell.org/cabal/
+2. Using cabal *sandboxes*: https://www.haskell.org/cabal/
+3. Using stack: https://docs.haskellstack.org/
 
 We recommend whichever approach that works for you. This INSTALL file
 contains some detailed instructions for installing Agda using either
