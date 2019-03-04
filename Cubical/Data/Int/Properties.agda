@@ -16,7 +16,7 @@ as well as its commutativity and associativity
 +-comm : ∀ (m n : Int) → m + n ≡ n + m
 +-assoc : ∀ (m n o : Int) → m + (n + o) ≡ (m + n) + o
 
-An alternate definition of _+_ is defined via ua, 
+An alternate definition of _+_ is defined via ua,
 namely _+'_, which helps us to easily prove
 
 isEquivAddInt : (m : Int) → isEquiv (λ n → n + m)
@@ -28,6 +28,7 @@ module Cubical.Data.Int.Properties where
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Empty
@@ -144,8 +145,8 @@ predInt+pos (suc n) m =     _ ≡⟨ predSuc _ ⟩
   (predInt m) +pos (suc n)    ∎
 
 predInt+ : ∀ m n → predInt (m + n) ≡ (predInt m) + n
-predInt+ m (pos n) = predInt+pos n m 
-predInt+ m (negsuc n) = predInt+negsuc n m 
+predInt+ m (pos n) = predInt+pos n m
+predInt+ m (negsuc n) = predInt+negsuc n m
 
 +predInt : ∀ m n → predInt (m + n) ≡ m + (predInt n)
 +predInt m (pos zero) = refl
@@ -180,7 +181,7 @@ ind-comm : {A : Set} (_∙_ : A → A → A) (f : ℕ → A) (g : A → A)
            (base : ∀ z → z ∙ f 0 ≡ f 0 ∙ z)
          → ∀ z n → z ∙ f n ≡ f n ∙ z
 ind-comm _∙_ f g p g∙ ∙g base z 0 = base z
-ind-comm _∙_ f g p g∙ ∙g base z (suc n) = 
+ind-comm _∙_ f g p g∙ ∙g base z (suc n) =
   z ∙ f (suc n) ≡⟨ cong (_∙_ z) p ⟩
   z ∙ g (f n)   ≡⟨ sym ( ∙g z (f n)) ⟩
   g (z ∙ f n)   ≡⟨ cong g IH ⟩
@@ -197,7 +198,7 @@ ind-assoc : {A : Set} (_·_ : A → A → A) (f : ℕ → A)
         (m n : A) (o : ℕ)
       → m · (n · (f o)) ≡ (m · n) · (f o)
 ind-assoc _·_ f g p q base m n 0 = sym (base m n)
-ind-assoc _·_ f g p q base m n (suc o) = 
+ind-assoc _·_ f g p q base m n (suc o) =
     m · (n · (f (suc o))) ≡⟨ cong (_·_ m) (cong (_·_ n) q) ⟩
     m · (n · (g (f o)))   ≡⟨ cong (_·_ m) (sym (p n (f o)))⟩
     m · (g (n · (f o)))   ≡⟨ sym (p m (n · (f o)))⟩
@@ -243,7 +244,7 @@ m +' negsuc n = transport (subEq (suc n)) m
 +'≡+ i m (pos zero) = m
 +'≡+ i m (pos (suc n)) = sucInt (+'≡+ i m (pos n))
 +'≡+ i m (negsuc zero) = predInt m
-+'≡+ i m (negsuc (suc n)) = predInt (+'≡+ i m (negsuc n)) -- 
++'≡+ i m (negsuc (suc n)) = predInt (+'≡+ i m (negsuc n)) --
   -- compPath (λ i → (+'≡+ i (predInt m) (negsuc n))) (sym (predInt+negsuc n m)) i
 
 isEquivAddInt' : (m : Int) → isEquiv (λ n → n +' m)
@@ -265,7 +266,7 @@ minusPlus (pos (suc (suc m))) n =
   (n - pos (suc m)) +pos (suc m)            ≡⟨ minusPlus (pos (suc m)) n ⟩
   n ∎
 minusPlus (negsuc zero) = predSuc
-minusPlus (negsuc (suc m)) n = 
+minusPlus (negsuc (suc m)) n =
   predInt (sucInt (sucInt (n +pos m)) +negsuc m) ≡⟨ predInt+negsuc m _ ⟩
   predInt (sucInt (sucInt (n +pos m))) +negsuc m ≡⟨ cong (λ z → z + negsuc m) (predSuc _) ⟩
   sucInt (n +pos m) +negsuc m                    ≡⟨ minusPlus (negsuc m) n ⟩
@@ -278,7 +279,7 @@ plusMinus (negsuc m) = minusPlus (pos (suc m))
 
 private
   alternateProof : (m : Int) → isEquiv (λ n → n + m)
-  alternateProof m = isoToIsEquiv (iso (λ n → n + m)  
+  alternateProof m = isoToIsEquiv (iso (λ n → n + m)
                                        (λ n → n - m)
                                        (minusPlus m)
                                        (plusMinus m))
