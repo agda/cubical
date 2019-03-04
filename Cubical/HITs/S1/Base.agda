@@ -93,24 +93,24 @@ windingIntLoop (negsuc (suc n)) = λ i → predInt (windingIntLoop (negsuc n) i)
 ΩS¹≡Int = isoToPath (iso winding (decode base) windingIntLoop (decodeEncode base))
 
 -- intLoop and winding are group homomorphisms
+private
+  intLoop-sucInt : (z : Int) → intLoop (sucInt z) ≡ (intLoop z) · loop
+  intLoop-sucInt (pos n)          = refl
+  intLoop-sucInt (negsuc zero)    = sym (compPath-inv-l loop)
+  intLoop-sucInt (negsuc (suc n)) =
+    (sym (compPath-refl-r (intLoop (negsuc n))))
+    · (λ i → intLoop (negsuc n) · (compPath-inv-l loop (~ i)))
+    · (sym (compPath-assoc (intLoop (negsuc n)) (sym loop) loop))
 
-intLoop-sucInt : (z : Int) → intLoop (sucInt z) ≡ (intLoop z) · loop
-intLoop-sucInt (pos n)          = refl
-intLoop-sucInt (negsuc zero)    = sym (compPath-inv-l loop)
-intLoop-sucInt (negsuc (suc n)) =
-  (sym (compPath-refl-r (intLoop (negsuc n))))
-  · (λ i → intLoop (negsuc n) · (compPath-inv-l loop (~ i)))
-  · (sym (compPath-assoc (intLoop (negsuc n)) (sym loop) loop))
+  intLoop-predInt : (z : Int) → intLoop (predInt z) ≡ (intLoop z) · (sym loop)
+  intLoop-predInt (pos zero)    = sym (compPath-refl-l (sym loop))
+  intLoop-predInt (pos (suc n)) =
+    (sym (compPath-refl-r (intLoop (pos n))))
+    · (λ i → intLoop (pos n) · (compPath-inv-r loop (~ i)))
+    · (sym (compPath-assoc (intLoop (pos n)) loop (sym loop)))
+  intLoop-predInt (negsuc n)    = refl
 
-intLoop-predInt : (z : Int) → intLoop (predInt z) ≡ (intLoop z) · (sym loop)
-intLoop-predInt (pos zero)    = sym (compPath-refl-l (sym loop))
-intLoop-predInt (pos (suc n)) =
-  (sym (compPath-refl-r (intLoop (pos n))))
-  · (λ i → intLoop (pos n) · (compPath-inv-r loop (~ i)))
-  · (sym (compPath-assoc (intLoop (pos n)) loop (sym loop)))
-intLoop-predInt (negsuc n)    = refl
-
-intLoop-hom : (a : Int) → (b : Int) → (intLoop a) · (intLoop b) ≡ intLoop (a + b)
+intLoop-hom : (a b : Int) → (intLoop a) · (intLoop b) ≡ intLoop (a + b)
 intLoop-hom a (pos zero)       = compPath-refl-r (intLoop a)
 intLoop-hom a (pos (suc n))    =
   (sym (compPath-assoc (intLoop a) (intLoop (pos n)) loop))
@@ -122,7 +122,7 @@ intLoop-hom a (negsuc (suc n)) =
   · (λ i → (intLoop-hom a (negsuc n) i) · (sym loop))
   · (sym (intLoop-predInt (a + negsuc n)))
 
-winding-hom : (a : ΩS¹) → (b : ΩS¹) → winding (a · b) ≡ (winding a) + (winding b)
+winding-hom : (a b : ΩS¹) → winding (a · b) ≡ (winding a) + (winding b)
 winding-hom a b i =
   hcomp (λ t → λ { (i = i0) → winding ((decodeEncode base a t) · (decodeEncode base b t))
                  ; (i = i1) → windingIntLoop ((winding a) + (winding b)) t })
@@ -136,21 +136,21 @@ basedΩS¹ x = x ≡ x
 -- Proof that the homotopy group is actually independent on the basepoint
 -- first, give a quasi-inverse to the basechange basedΩS¹→ΩS¹ for any loop i
 -- (which does *not* match at endpoints)
+private
+  ΩS¹→basedΩS¹-filler : I → I → ΩS¹ → I → S¹
+  ΩS¹→basedΩS¹-filler l i x j =
+    hfill (λ t → λ { (j = i0) → loop (i ∧ t)
+                   ; (j = i1) → loop (i ∧ t) })
+          (inc (x j)) l
 
-ΩS¹→basedΩS¹-filler : I → (i : I) → ΩS¹ → I → S¹
-ΩS¹→basedΩS¹-filler l i x j =
-  hfill (λ t → λ { (j = i0) → loop (i ∧ t)
-                 ; (j = i1) → loop (i ∧ t) })
-        (inc (x j)) l
+  basedΩS¹→ΩS¹-filler : (_ i : I) → basedΩS¹ (loop i) → I → S¹
+  basedΩS¹→ΩS¹-filler l i x j =
+    hfill (λ t → λ { (j = i0) → loop (i ∧ (~ t))
+                   ; (j = i1) → loop (i ∧ (~ t)) })
+          (inc (x j)) l
 
 ΩS¹→basedΩS¹ : (i : I) → ΩS¹ → basedΩS¹ (loop i)
 ΩS¹→basedΩS¹ i x j = ΩS¹→basedΩS¹-filler i1 i x j
-
-basedΩS¹→ΩS¹-filler : I → (i : I) → basedΩS¹ (loop i) → I → S¹
-basedΩS¹→ΩS¹-filler l i x j =
-  hfill (λ t → λ { (j = i0) → loop (i ∧ (~ t))
-                 ; (j = i1) → loop (i ∧ (~ t)) })
-        (inc (x j)) l
 
 basedΩS¹→ΩS¹ : (i : I) → basedΩS¹ (loop i) → ΩS¹
 basedΩS¹→ΩS¹ i x j = basedΩS¹→ΩS¹-filler i1 i x j
@@ -184,66 +184,63 @@ basedΩS¹→ΩS¹-isequiv i = isoToIsEquiv (iso (basedΩS¹→ΩS¹ i) (ΩS¹�
 -- now extend the basechange so that both ends match
 -- (and therefore we get a basechange for any x : S¹)
 
-unfold : (x : ΩS¹) → basedΩS¹→ΩS¹ i1 x ≡ ((intLoop (pos (suc zero))) · x) · (intLoop (negsuc zero))
-unfold x = compPath (doubleCompPath-elim loop x (sym loop))
-                    (λ i → compPath (compPath (compPath-refl-l loop (~ i)) x) (sym loop))
-
-loop-conjugation : basedΩS¹→ΩS¹ i1 ≡ λ x → x
-loop-conjugation i x =
+private
+  loop-conjugation : basedΩS¹→ΩS¹ i1 ≡ λ x → x
+  loop-conjugation i x =
+    let p = (doubleCompPath-elim loop x (sym loop))
+            · (λ i → compPath (compPath (compPath-refl-l loop (~ i)) x) (sym loop))
+    in
     ((sym (decodeEncode base (basedΩS¹→ΩS¹ i1 x)))
-     · (λ t → intLoop (winding (unfold x t)))
-     · (λ t → intLoop (winding-hom (compPath (intLoop (pos (suc zero))) x)
-                                   (intLoop (negsuc zero)) t))
-     · (λ t → intLoop ((winding-hom (intLoop (pos (suc zero))) x t)
-                       + (windingIntLoop (negsuc zero) t)))
-     · (λ t → intLoop (((windingIntLoop (pos (suc zero)) t) + (winding x)) + (negsuc zero)))
-     · (λ t → intLoop ((+-comm (pos (suc zero)) (winding x) t) + (negsuc zero)))
-     · (λ t → intLoop (+-assoc (winding x) (pos (suc zero)) (negsuc zero) (~ t)))
-     · (decodeEncode base x)) i
+    · (λ t → intLoop (winding (p t)))
+    · (λ t → intLoop (winding-hom (compPath (intLoop (pos (suc zero))) x)
+                                  (intLoop (negsuc zero)) t))
+    · (λ t → intLoop ((winding-hom (intLoop (pos (suc zero))) x t)
+                      + (windingIntLoop (negsuc zero) t)))
+    · (λ t → intLoop (((windingIntLoop (pos (suc zero)) t) + (winding x)) + (negsuc zero)))
+    · (λ t → intLoop ((+-comm (pos (suc zero)) (winding x) t) + (negsuc zero)))
+    · (λ t → intLoop (+-assoc (winding x) (pos (suc zero)) (negsuc zero) (~ t)))
+    · (decodeEncode base x)) i
 
-refl-conjugation : basedΩS¹→ΩS¹ i0 ≡ λ x → x
-refl-conjugation i x j =
-  hfill (λ t → λ { (j = i0) → base
-                 ; (j = i1) → base })
-        (inc (x j)) (~ i)
+  refl-conjugation : basedΩS¹→ΩS¹ i0 ≡ λ x → x
+  refl-conjugation i x j =
+    hfill (λ t → λ { (j = i0) → base
+                   ; (j = i1) → base })
+          (inc (x j)) (~ i)
 
-basechange : (x : S¹) → basedΩS¹ x → ΩS¹
-basechange base y = y
-basechange (loop i) y =
-  hcomp (λ t → λ { (i = i0) → refl-conjugation t y
-                 ; (i = i1) → loop-conjugation t y })
-        (basedΩS¹→ΩS¹ i y)
+  basechange : (x : S¹) → basedΩS¹ x → ΩS¹
+  basechange base y = y
+  basechange (loop i) y =
+    hcomp (λ t → λ { (i = i0) → refl-conjugation t y
+                   ; (i = i1) → loop-conjugation t y })
+          (basedΩS¹→ΩS¹ i y)
 
--- for any loop i, the old basechange is equal to the new one
+  -- for any loop i, the old basechange is equal to the new one
+  basedΩS¹→ΩS¹≡basechange : (i : I) → basedΩS¹→ΩS¹ i ≡ basechange (loop i)
+  basedΩS¹→ΩS¹≡basechange i j y =
+    hfill (λ t → λ { (i = i0) → refl-conjugation t y
+                   ; (i = i1) → loop-conjugation t y })
+          (inc (basedΩS¹→ΩS¹ i y)) j
 
-basedΩS¹→ΩS¹≡basechange : (i : I) → basedΩS¹→ΩS¹ i ≡ basechange (loop i)
-basedΩS¹→ΩS¹≡basechange i j y =
-  hfill (λ t → λ { (i = i0) → refl-conjugation t y
-                 ; (i = i1) → loop-conjugation t y })
-        (inc (basedΩS¹→ΩS¹ i y)) j
-
--- so for any loop i, the extended basechange is an equivalence
-
-basechange-isequiv-aux : (i : I) → isEquiv (basechange (loop i))
-basechange-isequiv-aux i =
-  transp (λ j → isEquiv (basedΩS¹→ΩS¹≡basechange i j)) i0 (basedΩS¹→ΩS¹-isequiv i)
+  -- so for any loop i, the extended basechange is an equivalence
+  basechange-isequiv-aux : (i : I) → isEquiv (basechange (loop i))
+  basechange-isequiv-aux i =
+    transport (λ j → isEquiv (basedΩS¹→ΩS¹≡basechange i j)) (basedΩS¹→ΩS¹-isequiv i)
 
 
--- as being an equivalence is contractible, basechange is an equivalence for all x : S¹
+  -- as being an equivalence is contractible, basechange is an equivalence for all x : S¹
+  basechange-isequiv : (x : S¹) → isEquiv (basechange x)
+  basechange-isequiv base = basechange-isequiv-aux i0
+  basechange-isequiv (loop i) =
+    hcomp (λ t → λ { (i = i0) → basechange-isequiv-aux i0
+                   ; (i = i1) → isPropIsEquiv (basechange base) (basechange-isequiv-aux i1)
+                                              (basechange-isequiv-aux i0) t })
+          (basechange-isequiv-aux i)
 
-basechange-isequiv : (x : S¹) → isEquiv (basechange x)
-basechange-isequiv base = basechange-isequiv-aux i0
-basechange-isequiv (loop i) =
-  hcomp (λ t → λ { (i = i0) → basechange-isequiv-aux i0
-                 ; (i = i1) → isPropIsEquiv (basechange base) (basechange-isequiv-aux i1)
-                                            (basechange-isequiv-aux i0) t })
-        (basechange-isequiv-aux i)
-
-basedΩS¹≡ΩS¹ : (x : S¹) → basedΩS¹ x ≡ ΩS¹
-basedΩS¹≡ΩS¹ x = ua (basechange x , basechange-isequiv x)
+  basedΩS¹≡ΩS¹ : (x : S¹) → basedΩS¹ x ≡ ΩS¹
+  basedΩS¹≡ΩS¹ x = ua (basechange x , basechange-isequiv x)
 
 basedΩS¹≡Int : (x : S¹) → basedΩS¹ x ≡ Int
-basedΩS¹≡Int x = compPath (basedΩS¹≡ΩS¹ x) ΩS¹≡Int
+basedΩS¹≡Int x = (basedΩS¹≡ΩS¹ x) · ΩS¹≡Int
 
 
 -- Some tests
@@ -323,60 +320,60 @@ rotLoopEquiv i =
          (λ a → rotLoopInv a (~ i)))
 
 -- some cancellation laws, used in the Hopf fibration
+private
+  rotInv-aux-1 : I → I → I → I → S¹
+  rotInv-aux-1 j k i =
+    hfill (λ l → λ { (k = i0) → (loop (i ∧ ~ l)) * loop j
+                   ; (k = i1) → loop j
+                   ; (i = i0) → (loop k * loop j) * loop (~ k)
+                   ; (i = i1) → loop (~ k ∧ ~ l) * loop j })
+          (inc ((loop (k ∨ i) * loop j) * loop (~ k)))
 
-rotInv-aux-1 : I → I → I → I → S¹
-rotInv-aux-1 j k i =
-  hfill (λ l → λ { (k = i0) → (loop (i ∧ ~ l)) * loop j
-                 ; (k = i1) → loop j
-                 ; (i = i0) → (loop k * loop j) * loop (~ k)
-                 ; (i = i1) → loop (~ k ∧ ~ l) * loop j })
-        (inc ((loop (k ∨ i) * loop j) * loop (~ k)))
+  rotInv-aux-2 : I → I → I → S¹
+  rotInv-aux-2 i j k =
+     hcomp (λ l → λ { (k = i0) → inv (filler-rot (~ i) (~ j) l)
+                    ; (k = i1) → loop (j ∧ l)
+                    ; (i = i0) → filler-rot k j l
+                    ; (i = i1) → loop (j ∧ l)
+                    ; (j = i0) → loop (i ∨ k ∨ (~ l))
+                    ; (j = i1) → loop ((i ∨ k) ∧ l) })
+           (base)
 
-rotInv-aux-2 : I → I → I → S¹
-rotInv-aux-2 i j k =
-   hcomp (λ l → λ { (k = i0) → inv (filler-rot (~ i) (~ j) l)
-                  ; (k = i1) → loop (j ∧ l)
-                  ; (i = i0) → filler-rot k j l
-                  ; (i = i1) → loop (j ∧ l)
-                  ; (j = i0) → loop (i ∨ k ∨ (~ l))
-                  ; (j = i1) → loop ((i ∨ k) ∧ l) })
-         (base)
+  rotInv-aux-3 : I → I → I → I → S¹
+  rotInv-aux-3 j k i =
+    hfill (λ l → λ { (k = i0) → rotInv-aux-2 i j l
+                   ; (k = i1) → loop j
+                   ; (i = i0) → loop (k ∨ l) * loop j
+                   ; (i = i1) → loop k * (inv (loop (~ j) * loop k)) })
+          (inc (loop k * (inv (loop (~ j) * loop (k ∨ ~ i)))))
 
-rotInv-aux-3 : I → I → I → I → S¹
-rotInv-aux-3 j k i =
-  hfill (λ l → λ { (k = i0) → rotInv-aux-2 i j l
-                 ; (k = i1) → loop j
-                 ; (i = i0) → loop (k ∨ l) * loop j
-                 ; (i = i1) → loop k * (inv (loop (~ j) * loop k)) })
-        (inc (loop k * (inv (loop (~ j) * loop (k ∨ ~ i)))))
+  rotInv-aux-4 : I → I → I → I → S¹
+  rotInv-aux-4 j k i =
+    hfill (λ l → λ { (k = i0) → rotInv-aux-2 i j l
+                   ; (k = i1) → loop j
+                   ; (i = i0) → loop j * loop (k ∨ l)
+                   ; (i = i1) → (inv (loop (~ j) * loop k)) * loop k })
+          (inc ((inv (loop (~ j) * loop (k ∨ ~ i))) * loop k))
 
-rotInv-aux-4 : I → I → I → I → S¹
-rotInv-aux-4 j k i =
-  hfill (λ l → λ { (k = i0) → rotInv-aux-2 i j l
-                 ; (k = i1) → loop j
-                 ; (i = i0) → loop j * loop (k ∨ l)
-                 ; (i = i1) → (inv (loop (~ j) * loop k)) * loop k })
-        (inc ((inv (loop (~ j) * loop (k ∨ ~ i))) * loop k))
-
-rotInv-1 : (a : S¹) → (b : S¹) → b * a * inv b ≡ a
+rotInv-1 : (a b : S¹) → b * a * inv b ≡ a
 rotInv-1 base base i = base
 rotInv-1 base (loop k) i = rotInv-aux-1 i0 k i i1
 rotInv-1 (loop j) base i = loop j
 rotInv-1 (loop j) (loop k) i = rotInv-aux-1 j k i i1
 
-rotInv-2 : (a : S¹) → (b : S¹) → inv b * a * b ≡ a
+rotInv-2 : (a b : S¹) → inv b * a * b ≡ a
 rotInv-2 base base i = base
 rotInv-2 base (loop k) i = rotInv-aux-1 i0 (~ k) i i1
 rotInv-2 (loop j) base i = loop j
 rotInv-2 (loop j) (loop k) i = rotInv-aux-1 j (~ k) i i1
 
-rotInv-3 : (a : S¹) → (b : S¹) → b * (inv (inv a * b)) ≡ a
+rotInv-3 : (a b : S¹) → b * (inv (inv a * b)) ≡ a
 rotInv-3 base base i = base
 rotInv-3 base (loop k) i = rotInv-aux-3 i0 k (~ i) i1
 rotInv-3 (loop j) base i = loop j
 rotInv-3 (loop j) (loop k) i = rotInv-aux-3 j k (~ i) i1
 
-rotInv-4 : (a : S¹) → (b : S¹) → inv (b * inv a) * b ≡ a
+rotInv-4 : (a b : S¹) → inv (b * inv a) * b ≡ a
 rotInv-4 base base i = base
 rotInv-4 base (loop k) i = rotInv-aux-4 i0 k (~ i) i1
 rotInv-4 (loop j) base i = loop j
