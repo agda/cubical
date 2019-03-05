@@ -45,9 +45,17 @@ isProp→isSet h a b p q j i =
 inhProp→isContr : ∀ {ℓ} {A : Set ℓ} → A → isProp A → isContr A
 inhProp→isContr x h = x , h x
 
--- TODO: prove other direction
-isPropIsOfHLevel1 : ∀ {ℓ} {A : Set ℓ} → isProp A → isOfHLevel 1 A
-isPropIsOfHLevel1 h x y = inhProp→isContr (h x y) (isProp→isSet h x y)
+isProp→IsOfHLevel1 : ∀ {ℓ} {A : Set ℓ} → isProp A → isOfHLevel 1 A
+isProp→IsOfHLevel1 h x y = inhProp→isContr (h x y) (isProp→isSet h x y)
+
+isOfHLevel1→isProp : ∀ {ℓ} {A : Set ℓ} → isOfHLevel 1 A → isProp A
+isOfHLevel1→isProp h x y = fst (h x y)
+
+isSet→isOfHLevel2 : ∀ {ℓ} {A : Set ℓ} → isSet A → isOfHLevel 2 A
+isSet→isOfHLevel2 h x y = isProp→IsOfHLevel1 (h x y)
+
+isOfHLevel2→isSet : ∀ {ℓ} {A : Set ℓ} → isOfHLevel 2 A → isSet A
+isOfHLevel2→isSet h x y = isOfHLevel1→isProp (h x y)
 
 isPropIsContr : ∀ {ℓ} {A : Set ℓ} → isProp (isContr A)
 isPropIsContr z0 z1 j =
@@ -80,7 +88,7 @@ isContrSigma {A = A} {B = B} (a , p) q =
        , h (p (x .fst) i) (transp (λ j → B (p (x .fst) (i ∨ ~ j))) i (x .snd)) i))
 
 isContrPath : ∀ {ℓ} {A : Set ℓ} → isContr A → (x y : A) → isContr (x ≡ y)
-isContrPath cA = isPropIsOfHLevel1 (isContr→isProp cA)
+isContrPath cA = isProp→IsOfHLevel1 (isContr→isProp cA)
 
 lemProp : ∀ {ℓ} {A : Set ℓ} → (A → isProp A) → isProp A
 lemProp h a = h a a
@@ -110,6 +118,12 @@ hLevelPi (suc n) h f g = subst (isOfHLevel n) funExtPath sub-lemma
   where
   sub-lemma : isOfHLevel n (∀ x → f x ≡ g x)
   sub-lemma = hLevelPi n λ x → h x (f x) (g x)
+
+isSetPi : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'}
+  → ((x : A) → isSet (B x))
+  → isSet ((x : A) → B x)
+isSetPi Bset = isOfHLevel2→isSet (hLevelPi 2 (λ a → isSet→isOfHLevel2 (Bset a)))
+
 
 isSet→isSet' : ∀ {ℓ} {A : Set ℓ} → isSet A → isSet' A
 isSet→isSet' {A = A} Aset {x} {y} {z} {w} p q r s =

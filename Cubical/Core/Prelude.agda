@@ -45,18 +45,72 @@ cong : ∀ {B : A → Set ℓ'} (f : (a : A) → B a) (p : x ≡ y)
        → PathP (λ i → B (p i)) (f x) (f y)
 cong f p = λ i → f (p i)
 
+compPath-sides : ∀{ℓ} {A : Set ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → (i j : I) → Partial (~ i ∨ i) A
+compPath-sides {x = x} p q i j = \ { (i = i0) → x
+                                   ; (i = i1) → q j }
+
+compPath-bot : ∀{ℓ} {A : Set ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → (i : I) → A
+compPath-bot p q i = p i
+
 -- This is called compPath and not trans in order to eliminate
 -- confusion with transp
 compPath : x ≡ y → y ≡ z → x ≡ z
 compPath {x = x} p q i =
-  hcomp (λ j → \ { (i = i0) → x
-                 ; (i = i1) → q j }) (p i)
+  hcomp (compPath-sides p q i) (compPath-bot p q i)
 
-compPathDep : {B : A → Set ℓ'} {bx : B x} {by : B y} {bz : B z} →
-              Σ (x ≡ y) λ p → (PathP (λ i → B (p i)) bx by) →
-              Σ (y ≡ z) λ q → (PathP (λ i → B (q i)) by bz) →
-              Σ (x ≡ z) λ r →  (PathP (λ i → B (r i)) bx bz)
-compPathDep ( p , bp ) (q , bq ) = ?
+compPath'-sides : ∀{ℓ} {A : Set ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → (i j : I) → Partial (~ i ∨ i) A
+compPath'-sides {z = z} p q i j = \ { (i = i0) → p (~ j)
+                                   ; (i = i1) → z }
+
+compPath'-bot : ∀{ℓ} {A : Set ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → (i : I) → A
+compPath'-bot p q i = q i
+
+compPath' : ∀ {x y z : A} → x ≡ y → y ≡ z → x ≡ z
+compPath' {z = z} p q i = hcomp (compPath'-sides p q i) (compPath'-bot p q i)
+
+compPath≡compPath' : ∀ {x y z : A} (p : x ≡ y) (q : y ≡ z) → compPath p q ≡ compPath' p q
+compPath≡compPath' {A = A} {x = x} {y = y} {z = z} p q i j = hcomp (λ k → \ { (i = i0) → hfill (compPath-sides p q j) (inc (compPath-bot p q j)) k
+                                             ; (i = i1) → hfill (compPath'-sides p q j) (inc (compPath'-bot p q j)) k
+                                             ; (j = i0) → p (i ∧ (~ k))
+                                             ; (j = i1) → q (i ∨ k) }) (helper i j)
+  where
+    helper : PathP (λ i → p i ≡ q i) p q
+    helper i j = hcomp (λ k → \ { (i = i0) → p (~ k ∨ j)
+                                ; (i = i1) → q (k ∧ j)
+                                ; (j = i0) → p (i ∨ (~ k))
+                                ; (j = i1) → q (i ∧ k) })
+                       y
+
+
+rInv : (p : x ≡ y) → compPath p (sym p) ≡ refl
+rInv {x = x} p i j = hcomp (λ k → \ { (i = i0) → hfill (compPath-sides p (sym p) j)
+                                                 (inc (compPath-bot p (sym p) j)) k
+                              ; (i = i1) → p (j ∧ (~ k))
+                              ; (j = i0) → x
+                              ; (j = i1) → p (~ k) })
+                     (p j)
+
+rUnit : (p : x ≡ y) → compPath p refl ≡ p
+rUnit {x = x} {y = y} p i j =
+  hcomp (λ k → \ { (i = i0) → hfill (compPath-sides p refl j)
+                               (inc (compPath-bot p refl j)) k
+                 ; (i = i1) → p j
+                 ; (j = i0) → x
+                 ; (j = i1) → y }) (p j)
+
+compPath-assoc' : {w : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) → compPath (compPath p q) r ≡ compPath p (compPath' q r)
+compPath-assoc' {x = x} p q r i j = hcomp (λ k → \ { (i = i0) → hfill (compPath-sides (compPath p q) r j)
+                                                                      (inc (compPath-bot (compPath p q) r j)) k
+                                                   ; (i = i1) → hfill (compPath-sides p (compPath' q r) j)
+                                                                      (inc (compPath-bot p (compPath' q r) j)) k
+                                                   ; (j = i0) → x
+                                                   ; (j = i1) → hfill (compPath'-sides q r k)
+                                                                       (inc (compPath'-bot q r k)) i })
+                                          (hfill (compPath-sides p q j)
+                                                 (inc (compPath-bot p q j)) (~ i))
+
+compPath-assoc : {w : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) → compPath (compPath p q) r ≡ compPath p (compPath q r)
+compPath-assoc p q r = compPath (compPath-assoc' p q r) (cong (compPath p) (sym (compPath≡compPath' q r)))
 
 infix  3 _∎
 infixr 2 _≡⟨_⟩_
@@ -105,6 +159,9 @@ infix 2 Σ-syntax
 
 syntax Σ-syntax A (λ x → B) = Σ[ x ∈ A ] B
 
+infixl 30 _×_
+_×_ : (A : Set ℓ) (B : Set ℓ') → Set (ℓ-max ℓ ℓ')
+A × B = Σ[ x ∈ A ] B
 
 -- Contractibility of singletons
 

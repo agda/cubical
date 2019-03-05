@@ -9,55 +9,47 @@ open import Cubical.Data.Nat.Base
 
 open import Cubical.Data.Empty
 open import Cubical.Data.Sum
-open import Cubical.Data.Prod.Base
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
 
-+-zero : ∀ m → m + 0 ≡ m
-+-zero zero = refl
-+-zero (suc m) = cong suc (+-zero m)
-
 +-suc : ∀ m n → m + suc n ≡ suc (m + n)
 +-suc zero    n = refl
 +-suc (suc m) n = cong suc (+-suc m n)
-
-+-comm : ∀ m n → m + n ≡ n + m
-+-comm m zero = +-zero m
-+-comm m (suc n) = compPath (+-suc m n) (cong suc (+-comm m n))
 
 -- Addition is associative
 +-assoc : ∀ m n o → m + (n + o) ≡ (m + n) + o
 +-assoc zero _ _    = refl
 +-assoc (suc m) n o = cong suc (+-assoc m n o)
 
-private
-  variable
-    l m n : ℕ
++0 : ∀ m → m + zero ≡ m
++0 zero = refl
++0 (suc m) = cong suc (+0 m)
 
-znots : ¬ (0 ≡ suc n)
++suc : ∀ m n → m + (suc n) ≡ suc (m + n)
++suc zero n = refl
++suc (suc m) n = cong suc (+suc m n)
+
+-- Addition is symmetric
++-sym : ∀ m n → m + n ≡ n + m
++-sym m zero = +0 m
++-sym m (suc n) = compPath (+suc m n) (cong suc (+-sym m n))
+
+znots : {n : ℕ} → ¬ (0 ≡ suc n)
 znots eq = subst (caseNat ℕ ⊥) eq 0
 
-snotz : ¬ (suc n ≡ 0)
+snotz : {n : ℕ} → ¬ (suc n ≡ 0)
 snotz eq = subst (caseNat ⊥ ℕ) eq 0
 
-injSuc : suc m ≡ suc n → m ≡ n
+injSuc : {m n : ℕ} → suc m ≡ suc n → m ≡ n
 injSuc p = cong predℕ p
 
-inj-m+ : m + l ≡ m + n → l ≡ n
-inj-m+ {zero} p = p
-inj-m+ {suc m} p = inj-m+ (injSuc p)
++-inj : ∀ {m} {n} l → l + m ≡ l + n → m ≡ n
++-inj zero p = p
++-inj (suc l) p = +-inj l (injSuc p)
 
-inj-+m : l + m ≡ n + m → l ≡ n
-inj-+m {l} {m} {n} p = inj-m+ (compPath (+-comm m l) (compPath p (+-comm n m)))
-
-m+n≡n→m≡0 : m + n ≡ n → m ≡ 0
-m+n≡n→m≡0 {n = zero} = compPath (sym (+-zero _))
-m+n≡n→m≡0 {n = suc n} p = m+n≡n→m≡0 (injSuc (compPath (sym (+-suc _ n)) p))
-
-m+n≡0→m≡0×n≡0 : m + n ≡ 0 → (m ≡ 0) × (n ≡ 0)
-m+n≡0→m≡0×n≡0 {zero} = refl ,_
-m+n≡0→m≡0×n≡0 {suc m} p = ⊥-elim (snotz p)
++-cong : ∀ {a b c d} → a ≡ b → c ≡ d → a + c ≡ b + d
++-cong {a} {b} {c} {d} p q = subst (λ x → a + c ≡ x + d) p (subst (λ x → a + c ≡ a + x) q refl)
 
 discreteℕ : Discrete ℕ
 discreteℕ zero zero = yes refl
