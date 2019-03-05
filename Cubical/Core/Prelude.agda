@@ -45,22 +45,23 @@ cong : ∀ {B : A → Set ℓ'} (f : (a : A) → B a) (p : x ≡ y)
        → PathP (λ i → B (p i)) (f x) (f y)
 cong f p = λ i → f (p i)
 
--- This is called compPath and not trans in order to eliminate
--- confusion with transp
+-- The filler of homogeneous path composition (_ ∙ _)
+-- we have compPath-filler p q = PathP (λ i → x ≡ q i) p (p ∙ q)
 
 compPath-filler : ∀ {x y z : A} → x ≡ y → y ≡ z → I → I → A
 compPath-filler {x = x} p q j i =
   hfill (λ j → λ { (i = i0) → x
                   ; (i = i1) → q j }) (inc (p i)) j
 
-compPath : ∀ {x y z : A} → x ≡ y → y ≡ z → x ≡ z
-compPath p q j = compPath-filler p q i1 j
+_∙_ :  {x y z : A} → (x ≡ y) → (y ≡ z) → (x ≡ z)
+(p ∙ q) j = compPath-filler p q i1 j
 
+infixr 30 _∙_
 infix  3 _∎
 infixr 2 _≡⟨_⟩_
 
 _≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → x ≡ z
-_ ≡⟨ x≡y ⟩ y≡z = compPath x≡y y≡z
+_ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
 
 _∎ : (x : A) → x ≡ x
 _ ∎ = refl

@@ -42,6 +42,7 @@ open import Cubical.Core.Prelude public
            ; J         to JPath
            ; JRefl     to JPathRefl
            ; sym       to symPath
+           ; _∙_       to compPath
            ; cong      to congPath
            ; funExt    to funExtPath
            ; isContr   to isContrPath
@@ -53,7 +54,7 @@ open import Cubical.Core.Prelude public
 open import Cubical.Core.Glue
   renaming ( fiber        to fiberPath
            ; isEquiv      to isEquivPath
-           ; _≃_          to EquivPath
+           ; _≃_         to EquivPath
            ; equivFun     to equivFunPath
            ; equivIsEquiv to equivIsEquivPath
            ; equivCtr     to equivCtrPath

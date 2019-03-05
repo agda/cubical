@@ -35,16 +35,16 @@ m≤n-isProp {m} {n} (k , p) (l , q)
   = subtypeEquality witness-prop (k , p) (l , q) lemma
   where
   lemma : k ≡ l
-  lemma = inj-+m (compPath p (sym q))
+  lemma = inj-+m (p ∙ (sym q))
 
 zero-≤ : 0 ≤ n
 zero-≤ {n} = n , +-zero n
 
 suc-≤-suc : m ≤ n → suc m ≤ suc n
-suc-≤-suc (k , p) = k , compPath (+-suc k _) (cong suc p)
+suc-≤-suc (k , p) = k , (+-suc k _) ∙ (cong suc p)
 
 pred-≤-pred : suc m ≤ suc n → m ≤ n
-pred-≤-pred (k , p) = k , injSuc (compPath (sym (+-suc k _)) p)
+pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
 
 ≤-refl : m ≤ m
 ≤-refl = 0 , refl
@@ -53,25 +53,25 @@ pred-≤-pred (k , p) = k , injSuc (compPath (sym (+-suc k _)) p)
 ≤-suc (k , p) = suc k , cong suc p
 
 ≤-trans : k ≤ m → m ≤ n → k ≤ n
-≤-trans {k} {m} {n} (i , p) (j , q) = i + j , compPath l2 (compPath l1 q)
+≤-trans {k} {m} {n} (i , p) (j , q) = i + j , l2 ∙ (l1 ∙ q)
   where
   l1 : j + i + k ≡ j + m
-  l1 = compPath (sym (+-assoc j i k)) (cong (j +_) p)
+  l1 = (sym (+-assoc j i k)) ∙ (cong (j +_) p)
   l2 : i + j + k ≡ j + i + k
   l2 = cong (_+ k) (+-comm i j)
 
 ≤-antisym : m ≤ n → n ≤ m → m ≡ n
-≤-antisym {m} (i , p) (j , q) = compPath (cong (_+ m) l3) p
+≤-antisym {m} (i , p) (j , q) = (cong (_+ m) l3) ∙ p
   where
   l1 : j + i + m ≡ m
-  l1 = compPath (sym (+-assoc j i m)) (compPath (cong (j +_) p) q)
+  l1 = (sym (+-assoc j i m)) ∙ ((cong (j +_) p) ∙ q)
   l2 : j + i ≡ 0
   l2 = m+n≡n→m≡0 l1
   l3 : 0 ≡ i
   l3 = sym (proj₂ (m+n≡0→m≡0×n≡0 l2))
 
 ¬-<-zero : ¬ m < 0
-¬-<-zero (k , p) = snotz (compPath (sym (+-suc k _)) p)
+¬-<-zero (k , p) = snotz ((sym (+-suc k _)) ∙ p)
 
 Trichotomy-suc : Trichotomy m n → Trichotomy (suc m) (suc n)
 Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)

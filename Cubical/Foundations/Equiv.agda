@@ -63,10 +63,22 @@ compEquiv : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} {C : Set ℓ''} �
 compEquiv f g = isoToEquiv
                   (iso (λ x → g .fst (f .fst x)) 
                        (λ x → invEq f (invEq g x))
-                       (λ y → compPath (cong (g .fst) (retEq f (invEq g y))) (retEq g y))
-                       (λ y → compPath (cong (invEq f) (secEq g (f .fst y))) (secEq f y)))
+                       (λ y → (cong (g .fst) (retEq f (invEq g y))) ∙ (retEq g y))
+                       (λ y → (cong (invEq f) (secEq g (f .fst y))) ∙ (secEq f y)))
 
 -- module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'}  where
 --   invEquivInvol : (f : A ≃ B) → invEquiv (invEquiv f) ≡ f
 --   invEquivInvol f i .fst = fst f
 --   invEquivInvol f i .snd = propIsEquiv (fst f) (snd (invEquiv (invEquiv f))) (snd f) i
+
+
+-- Transport is an equivalence
+isEquivTransport : ∀ {ℓ} {A B : Set ℓ} (p : A ≡ B) → isEquiv (transport p)
+isEquivTransport {A = A} =
+  J (λ y x → isEquiv (transport x)) (isoToIsEquiv (iso (transport refl) (transport refl) rem rem))
+    where
+    rem : (x : A) → transport refl (transport refl x) ≡ x
+    rem x = (cong (transport refl) (transportRefl x)) ∙ (transportRefl x)
+
+transportEquiv : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B
+transportEquiv p = (transport p , isEquivTransport p)

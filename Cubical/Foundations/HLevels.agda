@@ -61,7 +61,7 @@ isPropIsProp f g i a b = isProp→isSet f a b (f a b) (g a b) i
 -- A retract of a contractible type is contractible
 retractIsContr : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A)
                  (h : (x : A) → g (f x) ≡ x) (v : isContr B) → isContr A
-retractIsContr f g h (b , p) = (g b , λ x → compPath (cong g (p (f x))) (h x))
+retractIsContr f g h (b , p) = (g b , λ x → (cong g (p (f x))) ∙ (h x))
 
 isContrSigma : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} →
                isContr A → ((x : A) → isContr (B x)) →
