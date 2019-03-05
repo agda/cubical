@@ -83,12 +83,12 @@ fibInt : S¹ → S¹ → Set
 fibInt _ _ = Int
 
 -- TODO: this should be moved to a more general place, like HLevel.agda
-mapToSet : (A B : Set) (p : isSet B) → isSet (A → B)
-mapToSet A B p a b x y i j z = p (a z) (b z) (λ i → x i z) (λ i → y i z) i j
+mapToHSet : (A B : Set) (p : isSet B) → isSet (A → B)
+mapToHSet A B p a b x y i j z = p (a z) (b z) (λ i → x i z) (λ i → y i z) i j
 
-S¹→Set : (A : Set) (p : isSet A) (F : S¹ → A) (x : S¹) → F base ≡ F x
-S¹→Set A p F base = refl {x = F base}
-S¹→Set A p F (loop i) = f' i
+S¹→HSet : (A : Set) (p : isSet A) (F : S¹ → A) (x : S¹) → F base ≡ F x
+S¹→HSet A p F base = refl {x = F base}
+S¹→HSet A p F (loop i) = f' i
   where
   f : PathP (λ i → F base ≡ F (loop i)) refl (cong F loop)
   f i = λ j → F (loop (i ∧ j))
@@ -101,13 +101,13 @@ constant-loop : (F : S¹ → S¹ → Int) → (x y : S¹) → F base base ≡ F 
 constant-loop F x y = compPath L0 L1
   where
   p : isSet (S¹ → Int)
-  p = mapToSet S¹ Int isSetInt
+  p = mapToHSet S¹ Int isSetInt
   L : F base ≡ F x
-  L = S¹→Set (S¹ → Int) p F x
+  L = S¹→HSet (S¹ → Int) p F x
   L0 : F base base ≡ F x base
   L0 i = L i base
   L1 : F x base ≡ F x y
-  L1 = S¹→Set Int isSetInt (F x) y
+  L1 = S¹→HSet Int isSetInt (F x) y
 
 discretefib : (F : S¹ → S¹ → Set) → Set
 discretefib F = (a : (x y : S¹) → F x y) →
