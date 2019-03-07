@@ -5,6 +5,7 @@ open import Cubical.Core.Primitives
 open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Int
@@ -82,10 +83,6 @@ JoinS¹S¹→TotalHopf (push y x j) =
 fibInt : S¹ → S¹ → Set
 fibInt _ _ = Int
 
--- TODO: this should be moved to a more general place, like HLevel.agda
-mapToHSet : (A B : Set) (p : isSet B) → isSet (A → B)
-mapToHSet A B p a b x y i j z = p (a z) (b z) (λ i → x i z) (λ i → y i z) i j
-
 S¹→HSet : (A : Set) (p : isSet A) (F : S¹ → A) (x : S¹) → F base ≡ F x
 S¹→HSet A p F base = refl {x = F base}
 S¹→HSet A p F (loop i) = f' i
@@ -101,7 +98,7 @@ constant-loop : (F : S¹ → S¹ → Int) → (x y : S¹) → F base base ≡ F 
 constant-loop F x y = compPath L0 L1
   where
   p : isSet (S¹ → Int)
-  p = mapToHSet S¹ Int isSetInt
+  p = hLevelPi 2 (λ _ → isSetInt)
   L : F base ≡ F x
   L = S¹→HSet (S¹ → Int) p F x
   L0 : F base base ≡ F x base
