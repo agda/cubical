@@ -51,7 +51,7 @@ module Univalence (au : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B)
   thm {A = A} {B = B} =
     isoToIsEquiv {B = A ≃ B}
       (iso au ua
-        (EquivJ (λ _ _ e → au (ua e) ≡ e) (λ X → compPath (cong au uaIdEquiv) (auid {B = B})) _ _) 
+        (EquivJ (λ _ _ e → au (ua e) ≡ e) (λ X → compPath (cong au uaIdEquiv) (auid {B = B})) _ _)
         (J (λ X p → ua (au p) ≡ p) (compPath (cong ua (auid {B = B})) uaIdEquiv)))
 
 pathToEquiv : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B

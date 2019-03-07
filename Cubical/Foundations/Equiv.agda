@@ -4,11 +4,10 @@ Theory about equivalences (definitions are in Core/Glue.agda)
 
 - isEquiv is a proposition ([isPropIsEquiv])
 - Any isomorphism is an equivalence ([isoToEquiv])
-- transport is an equivalence ([transportEquiv])
 
 There are more statements about equivalences in PathSplitEquiv.agda:
 
-- if f is an equivalence then (cong f) is an equivalence 
+- if f is an equivalence then (cong f) is an equivalence
 - if f is an equivalence then precomposition with f is an equivalence
 - if f is an equivalence then postcomposition with f is an equivalence
 -}
@@ -71,16 +70,3 @@ compEquiv f g = isoToEquiv
 --   invEquivInvol : (f : A ≃ B) → invEquiv (invEquiv f) ≡ f
 --   invEquivInvol f i .fst = fst f
 --   invEquivInvol f i .snd = propIsEquiv (fst f) (snd (invEquiv (invEquiv f))) (snd f) i
-
-
--- Transport is an equivalence
-isEquivTransport : ∀ {ℓ} {A B : Set ℓ} (p : A ≡ B) → isEquiv (transport p)
-isEquivTransport {A = A} =
-  J (λ y x → isEquiv (transport x)) (isoToIsEquiv (iso (transport refl) (transport refl) rem rem))
-    where
-    rem : (x : A) → transport refl (transport refl x) ≡ x
-    rem x = compPath (cong (transport refl) (transportRefl x))
-                     (transportRefl x)
-
-transportEquiv : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B
-transportEquiv p = (transport p , isEquivTransport p)
