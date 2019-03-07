@@ -41,12 +41,16 @@ refl {x = x} = λ _ → x
 sym : x ≡ y → y ≡ x
 sym p = λ i → p (~ i)
 
+symP : {A : I → Set ℓ} → {x : A i0} → {y : A i1} →
+  (p : PathP A x y) → (PathP (λ j → (sym (λ i → A i)) j) y x)
+symP {A} {x} {y} p j = p (~ j) 
+
 cong : ∀ {B : A → Set ℓ'} (f : (a : A) → B a) (p : x ≡ y)
        → PathP (λ i → B (p i)) (f x) (f y)
 cong f p = λ i → f (p i)
 
--- The filler of homogeneous path composition (_ ∙ _)
--- we have compPath-filler p q = PathP (λ i → x ≡ q i) p (p ∙ q)
+-- The filler of homogeneous path composition:
+-- compPath-filler p q = PathP (λ i → x ≡ q i) p (p ∙ q)
 
 compPath-filler : ∀ {x y z : A} → x ≡ y → y ≡ z → I → I → A
 compPath-filler {x = x} p q j i =
@@ -55,6 +59,20 @@ compPath-filler {x = x} p q j i =
 
 _∙_ :  {x y z : A} → (x ≡ y) → (y ≡ z) → (x ≡ z)
 (p ∙ q) j = compPath-filler p q i1 j
+
+-- The filler of heterogeneous path composition:
+-- compPathP-filler p q = PathP (λ i → PathP (λ j → (compPath-filler (λ i → A i) B i j)) x (q i)) p (compPathP p q)
+
+compPathP-filler : {A : I → Set ℓ} → {x : A i0} → {y : A i1} → {B_i1 : Set ℓ} {B : (A i1) ≡ B_i1} → {z : B i1} →
+  (p : PathP A x y) → (q : PathP (λ i → B i) y z) → ∀ (i j : I) → compPath-filler (λ i → A i) B j i
+compPathP-filler {A = A} {x} {y} {B_i1} {B} {z} p q i =
+  fill (λ j → compPath-filler (λ i → A i) B j i)
+       (λ j → (λ { (i = i0) → x ;
+                    (i = i1) → q j })) (inc (p i))
+
+compPathP : {A : I → Set ℓ} → {x : A i0} → {y : A i1} → {B_i1 : Set ℓ} {B : (A i1) ≡ B_i1} → {z : B i1} →
+  (p : PathP A x y) → (q : PathP (λ i → B i) y z) → (PathP (λ j → ((λ i → A i) ∙ B) j) x z)
+compPathP {A = A} {x} {y} {B_i1} {B} {z} p q j = compPathP-filler p q j i1
 
 infixr 30 _∙_
 infix  3 _∎
