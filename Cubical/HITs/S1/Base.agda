@@ -45,9 +45,9 @@ winding = encode base
 
 intLoop : Int → ΩS¹
 intLoop (pos zero)       = refl
-intLoop (pos (suc n))    = compPath (intLoop (pos n)) loop
+intLoop (pos (suc n))    = (intLoop (pos n)) ∙ loop
 intLoop (negsuc zero)    = sym loop
-intLoop (negsuc (suc n)) = compPath (intLoop (negsuc n)) (sym loop)
+intLoop (negsuc (suc n)) = (intLoop (negsuc n)) ∙ (sym loop)
 
 decodeSquare : (n : Int) → PathP (λ i → base ≡ loop i) (intLoop (predInt n)) (intLoop n)
 decodeSquare (pos zero) i j    = loop (i ∨ ~ j)

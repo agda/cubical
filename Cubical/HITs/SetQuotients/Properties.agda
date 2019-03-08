@@ -80,5 +80,5 @@ setQuotUniversal Bset = isoToEquiv (iso intro elim elimRightInv elimLeftInv)
   elimLeftInv : ∀ g → elim (intro g) ≡ g
   elimLeftInv = λ g → funExt (λ x → elimPropTrunc {P = λ sur → elim (intro g) x ≡ g x}
     (λ sur → Bset (elim (intro g) x) (g x))
-    (λ sur → compPath (cong (elim (intro g)) (sym (snd sur))) (cong g (snd sur))) ([]surjective x)
+    (λ sur → cong (elim (intro g)) (sym (snd sur)) ∙ (cong g (snd sur))) ([]surjective x)
     )
