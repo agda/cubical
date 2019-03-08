@@ -29,7 +29,7 @@ SuspBool→S¹ (merid true i)  = base
 
 S¹→SuspBool : S¹ → SuspBool
 S¹→SuspBool base     = north
-S¹→SuspBool (loop i) = compPath (merid false) (sym (merid true)) i
+S¹→SuspBool (loop i) = (merid false ∙ (sym (merid true))) i
 
 SuspBool→S¹→SuspBool : (x : SuspBool) → Path _ (S¹→SuspBool (SuspBool→S¹ x)) x
 SuspBool→S¹→SuspBool north = refl

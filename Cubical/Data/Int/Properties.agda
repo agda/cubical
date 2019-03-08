@@ -131,7 +131,7 @@ predInt+negsuc zero m = refl
 predInt+negsuc (suc n) m = cong predInt (predInt+negsuc n m)
 
 sucInt+negsuc : ∀ n m → sucInt (m +negsuc n) ≡ (sucInt m) +negsuc n
-sucInt+negsuc zero m = compPath (sucPred _) (sym (predSuc _))
+sucInt+negsuc zero m = (sucPred _) ∙ (sym (predSuc _))
 sucInt+negsuc (suc n) m =      _ ≡⟨ sucPred _ ⟩
   m +negsuc n                    ≡⟨ cong (λ z → z +negsuc n) (sym (predSuc m)) ⟩
   (predInt (sucInt m)) +negsuc n ≡⟨ sym (predInt+negsuc n (sucInt m)) ⟩
@@ -150,7 +150,7 @@ predInt+ m (negsuc n) = predInt+negsuc n m
 
 +predInt : ∀ m n → predInt (m + n) ≡ m + (predInt n)
 +predInt m (pos zero) = refl
-+predInt m (pos (suc n)) = compPath (predSuc (m + pos n)) (cong (_+_ m) (sym (predSuc (pos n))))
++predInt m (pos (suc n)) = (predSuc (m + pos n)) ∙ (cong (_+_ m) (sym (predSuc (pos n))))
 +predInt m (negsuc n) = refl
 
 sucInt+ : ∀ m n → sucInt (m + n) ≡ (sucInt m) + n
@@ -160,7 +160,7 @@ sucInt+ m (negsuc n) = sucInt+negsuc n m
 +sucInt : ∀ m n → sucInt (m + n) ≡  m + (sucInt n)
 +sucInt m (pos n) = refl
 +sucInt m (negsuc zero) = sucPred _
-+sucInt m (negsuc (suc n)) = compPath (sucPred (m +negsuc n)) (cong (_+_ m) (sym (sucPred (negsuc n))))
++sucInt m (negsuc (suc n)) = (sucPred (m +negsuc n)) ∙ (cong (_+_ m) (sym (sucPred (negsuc n))))
 
 pos0+ : ∀ z → z ≡ pos 0 + z
 pos0+ (pos zero) = refl
@@ -170,7 +170,7 @@ pos0+ (negsuc (suc n)) = cong predInt (pos0+ (negsuc n))
 
 negsuc0+ : ∀ z → predInt z ≡ negsuc 0 + z
 negsuc0+ (pos zero) = refl
-negsuc0+ (pos (suc n)) = compPath (sym (sucPred (pos n))) (cong sucInt (negsuc0+ _))
+negsuc0+ (pos (suc n)) = (sym (sucPred (pos n))) ∙ (cong sucInt (negsuc0+ _))
 negsuc0+ (negsuc zero) = refl
 negsuc0+ (negsuc (suc n)) = cong predInt (negsuc0+ (negsuc n))
 
@@ -227,14 +227,14 @@ sucPathInt = ua (sucInt , isoToIsEquiv (iso sucInt predInt sucPred predSuc))
 
 addEq : ℕ → Int ≡ Int
 addEq zero = refl
-addEq (suc n) = compPath (addEq n) sucPathInt
+addEq (suc n) = (addEq n) ∙ sucPathInt
 
 predPathInt : Int ≡ Int
 predPathInt = ua (predInt , isoToIsEquiv (iso predInt sucInt predSuc sucPred))
 
 subEq : ℕ → Int ≡ Int
 subEq zero = refl
-subEq (suc n) = compPath (subEq n) predPathInt
+subEq (suc n) = (subEq n) ∙ predPathInt
 
 _+'_ : Int → Int → Int
 m +' pos n    = transport (addEq n) m

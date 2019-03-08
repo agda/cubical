@@ -38,7 +38,7 @@ joinpt = (join S¹ S¹ , inl base)
 α : join S¹ S¹ → S²
 α (inl _) = base
 α (inr _) = base
-α (push x y i) = compPath (merid y) (merid x) i
+α (push x y i) = (merid y ∙ merid x) i
   where
   merid : S¹ → Path S² base base
   merid base = refl
