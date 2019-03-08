@@ -95,7 +95,7 @@ S¹→HSet A p F (loop i) = f' i
   f' = transport (λ i → PathP (λ j → F base ≡ F (loop j)) refl (L i)) f
 
 constant-loop : (F : S¹ → S¹ → Int) → (x y : S¹) → F base base ≡ F x y
-constant-loop F x y = compPath L0 L1
+constant-loop F x y = L0 ∙ L1
   where
   p : isSet (S¹ → Int)
   p = hLevelPi 2 (λ _ → isSetInt)
@@ -320,4 +320,4 @@ JoinS¹S¹≡TotalHopf = isoToPath (iso JoinS¹S¹→TotalHopf
                                     JoinS¹S¹→TotalHopf→JoinS¹S¹)
 
 S³≡TotalHopf : S³ ≡ TotalHopf
-S³≡TotalHopf = compPath S³≡joinS¹S¹ JoinS¹S¹≡TotalHopf
+S³≡TotalHopf = S³≡joinS¹S¹ ∙ JoinS¹S¹≡TotalHopf

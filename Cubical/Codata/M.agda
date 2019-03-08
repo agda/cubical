@@ -21,9 +21,9 @@ module Helpers where
   transp-over-1 : (A : I → Set) (i j : I) → A i → A j
   transp-over-1 A i k p = transp (\ j → A ((j ∨ i) ∧ (~ j ∨ k))) (i ∧ k) p
 
-  compPathP : {ℓ ℓ' : _} {X : Set ℓ} (F : X → Set ℓ') {A B C : X} (P : A ≡ B) (Q : B ≡ C) (R : A ≡ C) → compPath P Q ≡ R
+  compPathD : {ℓ ℓ' : _} {X : Set ℓ} (F : X → Set ℓ') {A B C : X} (P : A ≡ B) (Q : B ≡ C) (R : A ≡ C) → P ∙ Q ≡ R
               → ∀ {x y z} → (\ i → F (P i)) [ x ≡ y ] → (\ i → F (Q i)) [ y ≡ z ] → (\ i → F (R i)) [ x ≡ z ]
-  compPathP F {A = A} P Q = J' _ \ {x} p q i →
+  compPathD F {A = A} P Q = J' _ \ {x} p q i →
      comp (\ j → F (hfill (λ j → \ { (i = i0) → A ; (i = i1) → Q j })
                           (inc (P i))
                           j))
@@ -70,14 +70,14 @@ module _ {X : Set} {C : IxCont X} where
   unfold-η' : ∀ {A} (α : ∀ x → A x → F A x) → (h : ∀ x → A x → M C x)
                      → (∀ (x : X) (a : A x) → out x (h x a) ≡ mapF h x (α x a))
                      → ∀ (x : X) (a : A x) m → h x a ≡ m → m ≡ unfold α x a
-  unfold-η' α h eq x a m eq' = let heq = compPath (cong head (sym eq')) (cong fst (eq x a))
+  unfold-η' α h eq x a m eq' = let heq = cong head (sym eq') ∙ cong fst (eq x a)
                                in \ where
                                     i .head → heq i
                                     i .tails y p →
                                      let  p0 = (transp-over-1 (\ k → C .snd x (heq k) y) i i1 p)
                                           p1 = (transp-over (\ k → C .snd x (heq k) y) i i0 p)
                                           pe = lem-transp i _ (\ k → C .snd x (heq k) y) p
-                                          tl = compPathP (λ p → C .snd x p y → M C y)
+                                          tl = compPathD (λ p → C .snd x p y → M C y)
                                                          (cong head (sym eq')) (cong fst (eq x a)) heq
                                                          refl
                                                          (cong (\ f → f .tails y) (sym eq'))

@@ -77,14 +77,14 @@ sucPathℤ  = isoToPath (iso sucℤ predℤ sucPredℤ predSucℤ)
 -- is an equivalence
 addEqℤ : ℕ → ℤ ≡ ℤ
 addEqℤ zero    = refl
-addEqℤ (suc n) = compPath (addEqℤ n) sucPathℤ
+addEqℤ (suc n) = addEqℤ n ∙ sucPathℤ
 
 predPathℤ : ℤ ≡ ℤ
 predPathℤ = isoToPath (iso predℤ sucℤ predSucℤ sucPredℤ)
 
 subEqℤ : ℕ → ℤ ≡ ℤ
 subEqℤ zero    = refl
-subEqℤ (suc n) = compPath (subEqℤ n) predPathℤ
+subEqℤ (suc n) = subEqℤ n ∙ predPathℤ
 
 addℤ : ℤ → ℤ → ℤ
 addℤ m (pos n)    = transport (addEqℤ n) m

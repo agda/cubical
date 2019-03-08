@@ -71,14 +71,3 @@ compEquiv f g = isoToEquiv
 --   invEquivInvol f i .fst = fst f
 --   invEquivInvol f i .snd = propIsEquiv (fst f) (snd (invEquiv (invEquiv f))) (snd f) i
 
-
--- Transport is an equivalence
-isEquivTransport : ∀ {ℓ} {A B : Set ℓ} (p : A ≡ B) → isEquiv (transport p)
-isEquivTransport {A = A} =
-  J (λ y x → isEquiv (transport x)) (isoToIsEquiv (iso (transport refl) (transport refl) rem rem))
-    where
-    rem : (x : A) → transport refl (transport refl x) ≡ x
-    rem x = (cong (transport refl) (transportRefl x)) ∙ (transportRefl x)
-
-transportEquiv : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B
-transportEquiv p = (transport p , isEquivTransport p)

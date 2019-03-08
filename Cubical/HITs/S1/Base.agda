@@ -94,37 +94,37 @@ windingIntLoop (negsuc (suc n)) = λ i → predInt (windingIntLoop (negsuc n) i)
 
 -- intLoop and winding are group homomorphisms
 private
-  intLoop-sucInt : (z : Int) → intLoop (sucInt z) ≡ (intLoop z) · loop
+  intLoop-sucInt : (z : Int) → intLoop (sucInt z) ≡ (intLoop z) ∙ loop
   intLoop-sucInt (pos n)          = refl
-  intLoop-sucInt (negsuc zero)    = sym (compPath-inv-l loop)
+  intLoop-sucInt (negsuc zero)    = sym (lCancel loop)
   intLoop-sucInt (negsuc (suc n)) =
-    (sym (compPath-refl-r (intLoop (negsuc n))))
-    · (λ i → intLoop (negsuc n) · (compPath-inv-l loop (~ i)))
-    · (sym (compPath-assoc (intLoop (negsuc n)) (sym loop) loop))
+    (rUnit (intLoop (negsuc n)))
+    ∙ (λ i → intLoop (negsuc n) ∙ (lCancel loop (~ i)))
+    ∙ (assoc (intLoop (negsuc n)) (sym loop) loop)
 
-  intLoop-predInt : (z : Int) → intLoop (predInt z) ≡ (intLoop z) · (sym loop)
-  intLoop-predInt (pos zero)    = sym (compPath-refl-l (sym loop))
+  intLoop-predInt : (z : Int) → intLoop (predInt z) ≡ (intLoop z) ∙ (sym loop)
+  intLoop-predInt (pos zero)    = lUnit (sym loop)
   intLoop-predInt (pos (suc n)) =
-    (sym (compPath-refl-r (intLoop (pos n))))
-    · (λ i → intLoop (pos n) · (compPath-inv-r loop (~ i)))
-    · (sym (compPath-assoc (intLoop (pos n)) loop (sym loop)))
+    (rUnit (intLoop (pos n)))
+    ∙ (λ i → intLoop (pos n) ∙ (rCancel loop (~ i)))
+    ∙ (assoc (intLoop (pos n)) loop (sym loop))
   intLoop-predInt (negsuc n)    = refl
 
-intLoop-hom : (a b : Int) → (intLoop a) · (intLoop b) ≡ intLoop (a + b)
-intLoop-hom a (pos zero)       = compPath-refl-r (intLoop a)
+intLoop-hom : (a b : Int) → (intLoop a) ∙ (intLoop b) ≡ intLoop (a + b)
+intLoop-hom a (pos zero)       = sym (rUnit (intLoop a))
 intLoop-hom a (pos (suc n))    =
-  (sym (compPath-assoc (intLoop a) (intLoop (pos n)) loop))
-  · (λ i → (intLoop-hom a (pos n) i) · loop)
-  · (sym (intLoop-sucInt (a + pos n)))
+  (assoc (intLoop a) (intLoop (pos n)) loop)
+  ∙ (λ i → (intLoop-hom a (pos n) i) ∙ loop)
+  ∙ (sym (intLoop-sucInt (a + pos n)))
 intLoop-hom a (negsuc zero)    = sym (intLoop-predInt a)
 intLoop-hom a (negsuc (suc n)) =
-  (sym (compPath-assoc (intLoop a) (intLoop (negsuc n)) (sym loop)))
-  · (λ i → (intLoop-hom a (negsuc n) i) · (sym loop))
-  · (sym (intLoop-predInt (a + negsuc n)))
+  (assoc (intLoop a) (intLoop (negsuc n)) (sym loop))
+  ∙ (λ i → (intLoop-hom a (negsuc n) i) ∙ (sym loop))
+  ∙ (sym (intLoop-predInt (a + negsuc n)))
 
-winding-hom : (a b : ΩS¹) → winding (a · b) ≡ (winding a) + (winding b)
+winding-hom : (a b : ΩS¹) → winding (a ∙ b) ≡ (winding a) + (winding b)
 winding-hom a b i =
-  hcomp (λ t → λ { (i = i0) → winding ((decodeEncode base a t) · (decodeEncode base b t))
+  hcomp (λ t → λ { (i = i0) → winding ((decodeEncode base a t) ∙ (decodeEncode base b t))
                  ; (i = i1) → windingIntLoop ((winding a) + (winding b)) t })
         (winding (intLoop-hom (winding a) (winding b) i))
 
@@ -188,18 +188,18 @@ private
   loop-conjugation : basedΩS¹→ΩS¹ i1 ≡ λ x → x
   loop-conjugation i x =
     let p = (doubleCompPath-elim loop x (sym loop))
-            · (λ i → compPath (compPath (compPath-refl-l loop (~ i)) x) (sym loop))
+            ∙ (λ i → (lUnit loop i ∙ x) ∙ sym loop)
     in
     ((sym (decodeEncode base (basedΩS¹→ΩS¹ i1 x)))
-    · (λ t → intLoop (winding (p t)))
-    · (λ t → intLoop (winding-hom (compPath (intLoop (pos (suc zero))) x)
+    ∙ (λ t → intLoop (winding (p t)))
+    ∙ (λ t → intLoop (winding-hom (intLoop (pos (suc zero)) ∙ x)
                                   (intLoop (negsuc zero)) t))
-    · (λ t → intLoop ((winding-hom (intLoop (pos (suc zero))) x t)
+    ∙ (λ t → intLoop ((winding-hom (intLoop (pos (suc zero))) x t)
                       + (windingIntLoop (negsuc zero) t)))
-    · (λ t → intLoop (((windingIntLoop (pos (suc zero)) t) + (winding x)) + (negsuc zero)))
-    · (λ t → intLoop ((+-comm (pos (suc zero)) (winding x) t) + (negsuc zero)))
-    · (λ t → intLoop (+-assoc (winding x) (pos (suc zero)) (negsuc zero) (~ t)))
-    · (decodeEncode base x)) i
+    ∙ (λ t → intLoop (((windingIntLoop (pos (suc zero)) t) + (winding x)) + (negsuc zero)))
+    ∙ (λ t → intLoop ((+-comm (pos (suc zero)) (winding x) t) + (negsuc zero)))
+    ∙ (λ t → intLoop (+-assoc (winding x) (pos (suc zero)) (negsuc zero) (~ t)))
+    ∙ (decodeEncode base x)) i
 
   refl-conjugation : basedΩS¹→ΩS¹ i0 ≡ λ x → x
   refl-conjugation i x j =
@@ -240,7 +240,7 @@ private
   basedΩS¹≡ΩS¹ x = ua (basechange x , basechange-isequiv x)
 
 basedΩS¹≡Int : (x : S¹) → basedΩS¹ x ≡ Int
-basedΩS¹≡Int x = (basedΩS¹≡ΩS¹ x) · ΩS¹≡Int
+basedΩS¹≡Int x = (basedΩS¹≡ΩS¹ x) ∙ ΩS¹≡Int
 
 
 -- Some tests
