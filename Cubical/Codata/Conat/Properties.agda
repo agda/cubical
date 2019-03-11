@@ -61,7 +61,7 @@ force ∞ = suc ∞
 force (∞+1≡∞ _) = suc ∞
 
 ∞+2≡∞ : succ (succ ∞) ≡ ∞
-∞+2≡∞ = compPath (cong succ ∞+1≡∞) ∞+1≡∞
+∞+2≡∞ = (cong succ ∞+1≡∞) ∙ ∞+1≡∞
 
 -- TODO: plus for conat, ∞ + ∞ ≡ ∞
 

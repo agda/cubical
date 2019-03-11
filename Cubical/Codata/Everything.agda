@@ -10,3 +10,5 @@ open import Cubical.Codata.EverythingSafe public
 open import Cubical.Codata.Stream public
 
 open import Cubical.Codata.Conat public
+
+open import Cubical.Codata.M public

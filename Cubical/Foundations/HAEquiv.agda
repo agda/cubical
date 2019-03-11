@@ -24,27 +24,25 @@ private
     A : Set ℓ
     B : Set ℓ'
 
-homotopyNatural' : {f g : A → B} (H : ∀ a → f a ≡ g a) {x y : A} (p : x ≡ y) → compPath (H x) (cong g p) ≡ compPath' (cong f p) (H y)
+homotopyNatural' : {f g : A → B} (H : ∀ a → f a ≡ g a) {x y : A} (p : x ≡ y) → (H x) ∙ (cong g p) ≡ (cong f p) □ (H y)
 homotopyNatural' {f = f} {g = g} H {x} {y} p i j =
-  hcomp (λ k → \ { (i = i0) → hfill (compPath-sides (H x) (cong g p) j)
-                                    (inc (compPath-bot (H x) (cong g p) j)) k
-                 ; (i = i1) → hfill (compPath'-sides (cong f p) (H y) j)
-                                    (inc (compPath'-bot (cong f p) (H y) j)) k
+  hcomp (λ k → \ { (i = i0) → compPath-filler (H x) (cong g p) k j
+                 ; (i = i1) → compPath'-filler (cong f p) (H y) k j
                  ; (j = i0) → cong f p (i ∧ (~ k))
                  ; (j = i1) → cong g p (i ∨ k) })
         (H (p i) j)
 
-homotopyNatural : {f g : A → B} (H : ∀ a → f a ≡ g a) {x y : A} (p : x ≡ y) → compPath (H x) (cong g p) ≡ compPath (cong f p) (H y)
-homotopyNatural H p = compPath (homotopyNatural' H p) (sym (compPath≡compPath' _ _))
+homotopyNatural : {f g : A → B} (H : ∀ a → f a ≡ g a) {x y : A} (p : x ≡ y) → (H x) ∙ (cong g p) ≡ (cong f p) ∙ (H y)
+homotopyNatural H p = (homotopyNatural' H p) ∙ (□≡∙ _ _)
 
 Hfa≡fHa : ∀ {ℓ} {A : Set ℓ} (f : A → A) (H : ∀ a → f a ≡ a) → ∀ a → H (f a) ≡ cong f (H a)
-Hfa≡fHa {A = A} f H a = H (f a) ≡⟨ sym (rUnit (H (f a))) ⟩
-                        compPath (H (f a)) refl ≡⟨ cong (compPath (H (f a))) (sym (rInv (H a))) ⟩
-                        compPath (H (f a)) (compPath (H a) (sym (H a))) ≡⟨ sym (compPath-assoc _ _ _ )⟩
-                        compPath (compPath (H (f a)) (H a)) (sym (H a)) ≡⟨ cong (λ x → compPath x (sym (H a))) (homotopyNatural H (H a)) ⟩
-                        compPath (compPath (cong f (H a)) (H a)) (sym (H a)) ≡⟨ compPath-assoc _ _ _ ⟩
-                        compPath (cong f (H a)) (compPath (H a) (sym (H a))) ≡⟨ cong (compPath (cong f (H a))) (rInv _) ⟩
-                        compPath (cong f (H a)) refl ≡⟨ rUnit _ ⟩
+Hfa≡fHa {A = A} f H a = H (f a) ≡⟨ sym (∙-rUnit (H (f a))) ⟩
+                        (H (f a)) ∙ refl ≡⟨ cong (_∙_ (H (f a))) (sym (∙-rInv (H a))) ⟩
+                        (H (f a)) ∙ ((H a) ∙ (sym (H a))) ≡⟨ sym (∙-assoc _ _ _ )⟩
+                        ((H (f a)) ∙ (H a)) ∙ (sym (H a)) ≡⟨ cong (λ x →  x ∙ (sym (H a))) (homotopyNatural H (H a)) ⟩
+                        ( (cong f (H a)) ∙ (H a)) ∙ (sym (H a)) ≡⟨ ∙-assoc _ _ _ ⟩
+                        (cong f (H a)) ∙ ((H a) ∙ (sym (H a))) ≡⟨ cong (_∙_ (cong f (H a))) (∙-rInv _) ⟩
+                        (cong f (H a)) ∙ refl ≡⟨ ∙-rUnit _ ⟩
                         cong f (H a) ∎
 
 iso→HAEquiv : Iso A B → HAEquiv A B

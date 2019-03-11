@@ -25,6 +25,10 @@ open import Agda.Builtin.Sigma public
 
 open import Cubical.Core.Primitives public
 
+infixr 30 _∙_
+infix  3 _∎
+infixr 2 _≡⟨_⟩_
+
 -- Basic theory about paths. These proofs should typically be
 -- inlined. This module also makes equational reasoning work with
 -- (non-dependent) paths.
@@ -39,87 +43,92 @@ refl : x ≡ x
 refl {x = x} = λ _ → x
 
 sym : x ≡ y → y ≡ x
-sym p = λ i → p (~ i)
+sym p i = p (~ i)
 
-cong : ∀ {B : A → Set ℓ'} (f : (a : A) → B a) (p : x ≡ y)
-       → PathP (λ i → B (p i)) (f x) (f y)
+symP : {A : I → Set ℓ} → {x : A i0} → {y : A i1} →
+       (p : PathP A x y) → PathP (λ i → A (~ i)) y x
+symP p j = p (~ j) 
+
+cong : ∀ {B : A → Set ℓ'} (f : (a : A) → B a) (p : x ≡ y) →
+       PathP (λ i → B (p i)) (f x) (f y)
 cong f p = λ i → f (p i)
 
-compPath-sides : ∀{ℓ} {A : Set ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → (i j : I) → Partial (~ i ∨ i) A
-compPath-sides {x = x} p q i j = \ { (i = i0) → x
-                                   ; (i = i1) → q j }
+-- The filler of homogeneous path composition:
+-- compPath-filler p q = PathP (λ i → x ≡ q i) p (p ∙ q)
 
-compPath-bot : ∀{ℓ} {A : Set ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → (i : I) → A
-compPath-bot p q i = p i
+compPath-filler : ∀ {x y z : A} → x ≡ y → y ≡ z → I → I → A
+compPath-filler {x = x} p q j i =
+  hfill (λ j → λ { (i = i0) → x
+                  ; (i = i1) → q j }) (inc (p i)) j
 
--- This is called compPath and not trans in order to eliminate
--- confusion with transp
-compPath : x ≡ y → y ≡ z → x ≡ z
-compPath {x = x} p q i =
-  hcomp (compPath-sides p q i) (compPath-bot p q i)
+_∙_ :  {x y z : A} → x ≡ y → y ≡ z → x ≡ z
+(p ∙ q) j = compPath-filler p q i1 j
 
-compPath'-sides : ∀{ℓ} {A : Set ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → (i j : I) → Partial (~ i ∨ i) A
-compPath'-sides {z = z} p q i j = \ { (i = i0) → p (~ j)
-                                   ; (i = i1) → z }
+-- The filler of heterogeneous path composition:
+-- compPathP-filler p q = PathP (λ i → PathP (λ j → (compPath-filler (λ i → A i) B i j)) x (q i)) p (compPathP p q)
 
-compPath'-bot : ∀{ℓ} {A : Set ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → (i : I) → A
-compPath'-bot p q i = q i
+compPathP-filler : {A : I → Set ℓ} → {x : A i0} → {y : A i1} → {B_i1 : Set ℓ} {B : A i1 ≡ B_i1} → {z : B i1} →
+  (p : PathP A x y) → (q : PathP (λ i → B i) y z) → ∀ (i j : I) → compPath-filler (λ i → A i) B j i
+compPathP-filler {A = A} {x = x} {B = B} p q i =
+  fill (λ j → compPath-filler (λ i → A i) B j i)
+       (λ j → λ { (i = i0) → x ;
+                   (i = i1) → q j }) (inc (p i))
 
-compPath' : ∀ {x y z : A} → x ≡ y → y ≡ z → x ≡ z
-compPath' {z = z} p q i = hcomp (compPath'-sides p q i) (compPath'-bot p q i)
+compPathP : {A : I → Set ℓ} → {x : A i0} → {y : A i1} → {B_i1 : Set ℓ} {B : (A i1) ≡ B_i1} → {z : B i1} →
+  (p : PathP A x y) → (q : PathP (λ i → B i) y z) → PathP (λ j → ((λ i → A i) ∙ B) j) x z
+compPathP p q j = compPathP-filler p q j i1
 
-compPath≡compPath' : ∀ {x y z : A} (p : x ≡ y) (q : y ≡ z) → compPath p q ≡ compPath' p q
-compPath≡compPath' {A = A} {x = x} {y = y} {z = z} p q i j = hcomp (λ k → \ { (i = i0) → hfill (compPath-sides p q j) (inc (compPath-bot p q j)) k
-                                             ; (i = i1) → hfill (compPath'-sides p q j) (inc (compPath'-bot p q j)) k
-                                             ; (j = i0) → p (i ∧ (~ k))
-                                             ; (j = i1) → q (i ∨ k) }) (helper i j)
-  where
-    helper : PathP (λ i → p i ≡ q i) p q
-    helper i j = hcomp (λ k → \ { (i = i0) → p (~ k ∨ j)
-                                ; (i = i1) → q (k ∧ j)
-                                ; (j = i0) → p (i ∨ (~ k))
-                                ; (j = i1) → q (i ∧ k) })
-                       y
-
-
-rInv : (p : x ≡ y) → compPath p (sym p) ≡ refl
-rInv {x = x} p i j = hcomp (λ k → \ { (i = i0) → hfill (compPath-sides p (sym p) j)
-                                                 (inc (compPath-bot p (sym p) j)) k
+∙-rInv : (p : x ≡ y) → p ∙ (sym p) ≡ refl
+∙-rInv {x = x} p i j = hcomp (λ k → \ { (i = i0) → compPath-filler p (sym p) k j
                               ; (i = i1) → p (j ∧ (~ k))
                               ; (j = i0) → x
                               ; (j = i1) → p (~ k) })
                      (p j)
 
-rUnit : (p : x ≡ y) → compPath p refl ≡ p
-rUnit {x = x} {y = y} p i j =
-  hcomp (λ k → \ { (i = i0) → hfill (compPath-sides p refl j)
-                               (inc (compPath-bot p refl j)) k
+∙-rUnit : (p : x ≡ y) → p ∙ refl ≡ p
+∙-rUnit {x = x} {y = y} p i j =
+  hcomp (λ k → \ { (i = i0) → compPath-filler p refl k j
                  ; (i = i1) → p j
                  ; (j = i0) → x
                  ; (j = i1) → y }) (p j)
 
-compPath-assoc' : {w : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) → compPath (compPath p q) r ≡ compPath p (compPath' q r)
-compPath-assoc' {x = x} p q r i j = hcomp (λ k → \ { (i = i0) → hfill (compPath-sides (compPath p q) r j)
-                                                                      (inc (compPath-bot (compPath p q) r j)) k
-                                                   ; (i = i1) → hfill (compPath-sides p (compPath' q r) j)
-                                                                      (inc (compPath-bot p (compPath' q r) j)) k
-                                                   ; (j = i0) → x
-                                                   ; (j = i1) → hfill (compPath'-sides q r k)
-                                                                       (inc (compPath'-bot q r k)) i })
-                                          (hfill (compPath-sides p q j)
-                                                 (inc (compPath-bot p q j)) (~ i))
-
-compPath-assoc : {w : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) → compPath (compPath p q) r ≡ compPath p (compPath q r)
-compPath-assoc p q r = compPath (compPath-assoc' p q r) (cong (compPath p) (sym (compPath≡compPath' q r)))
-
-infix  3 _∎
-infixr 2 _≡⟨_⟩_
-
 _≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → x ≡ z
-_ ≡⟨ x≡y ⟩ y≡z = compPath x≡y y≡z
+_ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
 
 _∎ : (x : A) → x ≡ x
 _ ∎ = refl
+
+-- another definition of composition, useful for some proofs
+compPath'-filler : ∀ {x y z : A} → x ≡ y → y ≡ z → I → I → A
+compPath'-filler {z = z} p q j i =
+  hfill (λ j → λ { (i = i0) → p (~ j)
+                 ; (i = i1) → z }) (inc (q i)) j
+
+_□_ : {x y z : A} → x ≡ y → y ≡ z → x ≡ z
+(p □ q) j = compPath'-filler p q i1 j
+
+□≡∙ : ∀ {x y z : A} (p : x ≡ y) (q : y ≡ z) → p □ q ≡ p ∙ q 
+□≡∙ {A = A} {x = x} {y = y} {z = z} p q i j = hcomp (λ k → \ { (i = i0) → compPath'-filler p q k j
+                                             ; (i = i1) → compPath-filler p q k j
+                                             ; (j = i0) → p ( ~ i ∧ ~ k)
+                                             ; (j = i1) → q (k ∨ ~ i) }) (helper i j)
+  where
+    helper : PathP (λ i → p (~ i) ≡ q (~ i)) q p
+    helper i j = hcomp (λ k → \ { (i = i0) → q (k ∧ j)
+                                ; (i = i1) → p (~ k ∨ j)
+                                ; (j = i0) → p (~ i ∨ ~ k)
+                                ; (j = i1) → q (~ i ∧ k) })
+                       y
+
+∙-assoc' : {w : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) → (p ∙ q) ∙ r ≡ p ∙ (q □ r)
+∙-assoc' {x = x} p q r i j = hcomp (λ k → \ { (i = i0) → compPath-filler (p ∙ q) r k j
+                                            ; (i = i1) → compPath-filler p (q □ r) k j
+                                            ; (j = i0) → x
+                                            ; (j = i1) → compPath'-filler q r i k})
+                                   (compPath-filler p q (~ i) j)
+
+∙-assoc : {w : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) → (p ∙ q) ∙ r ≡ p ∙ (q ∙ r)
+∙-assoc p q r = (∙-assoc' p q r) ∙ (cong (_∙_ p) (□≡∙ q r))
 
 -- Transport, subst and functional extensionality
 
@@ -158,10 +167,6 @@ infix 2 Σ-syntax
 Σ-syntax = Σ
 
 syntax Σ-syntax A (λ x → B) = Σ[ x ∈ A ] B
-
-infixl 30 _×_
-_×_ : (A : Set ℓ) (B : Set ℓ') → Set (ℓ-max ℓ ℓ')
-A × B = Σ[ x ∈ A ] B
 
 -- Contractibility of singletons
 

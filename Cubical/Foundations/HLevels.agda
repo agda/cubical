@@ -24,7 +24,7 @@ hProp : {ℓ : Level} → Set (ℓ-suc ℓ)
 hProp {ℓ} = Σ (Set ℓ) isProp
 
 isOfHLevel : ∀ {ℓ} → ℕ → Set ℓ → Set ℓ
-isOfHLevel zero A = isContr A
+isOfHLevel 0 A = isContr A
 isOfHLevel (suc n) A = (x y : A) → isOfHLevel n (x ≡ y)
 
 HLevel : ∀ {ℓ} → ℕ → Set _
@@ -69,13 +69,10 @@ isPropIsContr z0 z1 j =
 isPropIsProp : ∀ {ℓ} {A : Set ℓ} → isProp (isProp A)
 isPropIsProp f g i a b = isProp→isSet f a b (f a b) (g a b) i
 
-isPropIsSet : ∀ {ℓ} {A : Set ℓ} → isProp (isSet A)
-isPropIsSet f g i a b = isPropIsProp (f a b) (g a b) i
-
 -- A retract of a contractible type is contractible
 retractIsContr : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A)
                  (h : (x : A) → g (f x) ≡ x) (v : isContr B) → isContr A
-retractIsContr f g h (b , p) = (g b , λ x → compPath (cong g (p (f x))) (h x))
+retractIsContr f g h (b , p) = (g b , λ x → (cong g (p (f x))) ∙ (h x))
 
 isContrSigma : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} →
                isContr A → ((x : A) → isContr (B x)) →
@@ -134,3 +131,19 @@ isSet→isSet' {A = A} Aset {x} {y} {z} {w} p q r s =
 
 isSet'→isSet : ∀ {ℓ} {A : Set ℓ} → isSet' A → isSet A
 isSet'→isSet {A = A} Aset' x y p q = Aset' p q refl refl
+
+private
+  variable
+    ℓ : Level
+
+hLevelSuc : {n : ℕ} {A : Set ℓ} → isOfHLevel n A → isOfHLevel (suc n) A
+hLevelSuc {n = 0} {A} h = isProp→IsOfHLevel1 (isContr→isProp h)
+hLevelSuc { n = suc n} {A} h a b =  hLevelSuc (h a b)
+
+hLevelLift : ∀ {ℓ} {A : Set ℓ} {n : ℕ} (m : ℕ) (hA : isOfHLevel n A) → isOfHLevel (m + n) A
+hLevelLift zero hA = hA
+hLevelLift {n = n} (suc m) hA = hLevelSuc (hLevelLift m hA)
+
+isPropOfHLevel : (n : ℕ) (A : Set ℓ) → isProp (isOfHLevel n A)
+isPropOfHLevel 0 A = isPropIsContr
+isPropOfHLevel (suc n) A f g i a b = isPropOfHLevel n (a ≡ b) (f a b) (g a b) i
