@@ -9,3 +9,4 @@ open import Cubical.Data.Int public renaming (_+_ to _+Int_ ; +-assoc to +Int-as
 open import Cubical.Data.Sum public
 open import Cubical.Data.Prod public
 open import Cubical.Data.Unit public
+open import Cubical.Data.Sigma public

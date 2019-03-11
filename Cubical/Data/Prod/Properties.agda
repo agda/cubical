@@ -4,8 +4,10 @@ module Cubical.Data.Prod.Properties where
 open import Cubical.Core.Everything
 
 open import Cubical.Data.Prod.Base
+open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 
 private
   variable
@@ -45,3 +47,18 @@ private
 
   testrefl : test ≡ (2 , 1)
   testrefl = refl
+
+-- equivalence between the sigma-based definition and the inductive one
+A×B≡A×ΣB : {ℓ ℓ' : Level} {A : Set ℓ} {B : Set ℓ'} → A × B ≡ A ×Σ B
+A×B≡A×ΣB = isoToPath (iso (λ { (a , b) → (a , b)})
+                          (λ { (a , b) → (a , b)})
+                          (λ _ → refl)
+                          (λ { (a , b) → refl }))
+
+-- truncation for products
+hLevelProd : {ℓ ℓ' : Level} {A : Set ℓ} {B : Set ℓ'} →
+                  (n : ℕ) → isOfHLevel n A → isOfHLevel n B → isOfHLevel n (A × B)
+hLevelProd {_} {_} {A} {B} n h1 h2 =
+  let h : isOfHLevel n (A ×Σ B)
+      h = hLevelSigma n h1 (λ _ → h2)
+  in transport (λ i → isOfHLevel n (A×B≡A×ΣB {_} {_} {A} {B} (~ i))) h
