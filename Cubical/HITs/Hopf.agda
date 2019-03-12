@@ -55,7 +55,7 @@ TotalHopf = Σ SuspS¹ HopfSuspS¹
 filler-1 : I → (j : I) → (y : S¹) → Glue S¹ (Border y j) → join S¹ S¹
 filler-1 i j y x = hfill (λ t → λ { (j = i0) → inl (rotInv-1 x y t)
                                   ; (j = i1) → inr x })
-                         (inc (push ((unglue (j ∨ ~ j) x) * inv y) (unglue (j ∨ ~ j) x) j)) i
+                         (inS (push ((unglue (j ∨ ~ j) x) * inv y) (unglue (j ∨ ~ j) x) j)) i
 
 TotalHopf→JoinS¹S¹ : TotalHopf → join S¹ S¹
 TotalHopf→JoinS¹S¹ (north , x) = inl x
@@ -128,7 +128,7 @@ assocFiller-3-aux x y j i =
                  ; (x = i0) (y = i1) → base
                  ; (x = i1) (y = i0) → base
                  ; (x = i1) (y = i1) → base })
-        (inc ((rotInv-2 (loop x) (loop y) i) * (inv (loop (~ y) * loop x)))) j
+        (inS ((rotInv-2 (loop x) (loop y) i) * (inv (loop (~ y) * loop x)))) j
 
 -- assocFiller-3-endpoint is used only in the type of the next function, to specify the
 -- second endpoint.
@@ -209,7 +209,7 @@ assocFiller-4-aux x y j i =
                  ; (x = i0) (y = i1) → base
                  ; (x = i1) (y = i0) → base
                  ; (x = i1) (y = i1) → base })
-        (inc (rotInv-2 (loop y * loop x) (loop y * loop x * loop (~ y)) i)) j
+        (inS (rotInv-2 (loop y * loop x) (loop y * loop x * loop (~ y)) i)) j
 
 -- See assocFiller-3-endpoint
 -- TODO : use cubical extension types when available to remove assocFiller-4-endpoint
@@ -255,7 +255,7 @@ filler-4-0 i j y x =
   hfill (λ t → λ { (j = i0) → ((inv (y * x * inv y) * (y * x) , I0)
                               , inv (y * x * inv y) * (y * x) * (rotInv-1 x y t))
                  ; (j = i1) → ((inv (x * inv y) * x , I1) , x) })
-        (inc ((inv (x' * inv y) * x' , seg j) , rotInv-2 x' (x' * inv y) j)) i
+        (inS ((inv (x' * inv y) * x' , seg j) , rotInv-2 x' (x' * inv y) j)) i
 
 filler-4-1 : (_ j : I) → (y : S¹) → Glue S¹ (Border y j) → PseudoHopf
 filler-4-1 i j y x =
@@ -263,7 +263,7 @@ filler-4-1 i j y x =
   hfill (λ t → λ { (j = i0) → ((inv (y * x * inv y) * (y * x) , I0)
                               , (rotInv-4 y (y * x) (~ t)) * x)
                  ; (j = i1) → ((inv (x * inv y) * x , I1) , x) })
-        (inc ((inv (x' * inv y) * x' , seg j) , unglue (j ∨ ~ j) x)) i
+        (inS ((inv (x' * inv y) * x' , seg j) , unglue (j ∨ ~ j) x)) i
 
 filler-4-2 : (_ j : I) → (y : S¹) → Glue S¹ (Border y j) → TotalHopf
 filler-4-2 i j y x =

@@ -25,7 +25,7 @@ infix 40 _⁻¹
 
 symInvo : (p : x ≡ y) → p ≡ p ⁻¹ ⁻¹
 symInvo p = refl
-  
+
 rUnit : (p : x ≡ y) → p ≡ p ∙ refl
 rUnit p j i = compPath-filler p refl j i
 
@@ -39,13 +39,13 @@ lUnit-filler {x = x} p j k i =
                   ; (i = i1) → p (~ k ∨ j )
                   ; (k = i0) → p i
                -- ; (k = i1) → compPath-filler refl p j i
-                  }) (inc (p (~ k ∧ i ))) j
+                  }) (inS (p (~ k ∧ i ))) j
 
 lUnit : (p : x ≡ y) → p ≡ refl ∙ p
 lUnit p j i = lUnit-filler p i1 j i
 
 symRefl : refl {x = x} ≡ refl ⁻¹
-symRefl i = refl 
+symRefl i = refl
 
 compPathRefl : refl {x = x} ≡ refl ∙ refl
 compPathRefl = rUnit refl
@@ -60,7 +60,7 @@ rCancel-filler {x = x} p k j i =
                   ; (i = i1) → p (~ k ∧ ~ j)
                -- ; (j = i0) → compPath-filler p (p ⁻¹) k i
                   ; (j = i1) → x
-                  }) (inc (p (i ∧ ~ j))) k
+                  }) (inS (p (i ∧ ~ j))) k
 
 rCancel : (p : x ≡ y) → p ∙ p ⁻¹ ≡ refl
 rCancel {x = x} p j i = rCancel-filler p i1 j i
@@ -79,7 +79,7 @@ lCancel p = rCancel (p ⁻¹)
                   ; (i = i1) → α k i1
                   ; (j = i0) → α k i
                   ; (j = i1) → β k i
-                  }) (inc (α i0 i)) k
+                  }) (inS (α i0 i)) k
 
 3outof4 : (α : I → I → A) → (p : α i1 i0 ≡ α i1 i1) →
   (β : PathP (λ j → Path A (α j i0) (α j i1)) (λ i → α i0 i) p) → (λ i → α i1 i) ≡ p
@@ -95,7 +95,7 @@ preassoc-filler {x = x} p q r k j i =
                   ; (i = i1) → compPath-filler q r k j
                   ; (j = i0) → p i
                -- ; (j = i1) → compPath-filler (p ∙ q) r k i
-                  }) (inc (compPath-filler p q j i)) k
+                  }) (inS (compPath-filler p q j i)) k
 
 preassoc : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) →
   PathP (λ j → Path A x ((q ∙ r) j)) p ((p ∙ q) ∙ r)
@@ -113,7 +113,7 @@ symInvoP p = refl
 
 rUnitP : {A : I → Set ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x y) →
   PathP (λ j → PathP (λ i → rUnit (λ i → A i) j i) x y) p (compPathP p refl)
-rUnitP p j i = compPathP-filler p refl i j 
+rUnitP p j i = compPathP-filler p refl i j
 
 lUnitP : {A : I → Set ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x y) →
   PathP (λ j → PathP (λ i → lUnit (λ i → A i) j i) x y) p (compPathP refl p)
@@ -122,7 +122,7 @@ lUnitP {A = A} {x = x} p k i =
        (λ j → λ { (i = i0) → x
                  ; (i = i1) → p (~ k ∨ j )
                  ; (k = i0) → p i
-                 }) (inc (p (~ k ∧ i )))
+                 }) (inS (p (~ k ∧ i )))
 
 
 rCancelP : {A : I → Set ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x y) →
@@ -132,7 +132,7 @@ rCancelP {A = A} {x = x} p j i =
        (λ k → λ { (i = i0) → x
                  ; (i = i1) → p (~ k ∧ ~ j)
                  ; (j = i1) → x
-                 }) (inc (p (i ∧ ~ j)))
+                 }) (inS (p (i ∧ ~ j)))
 
 lCancelP : {A : I → Set ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x y) →
    PathP (λ j → PathP (λ i → lCancel (λ i → A i) j i) y y) (compPathP (symP p) p) refl
@@ -150,7 +150,7 @@ lCancelP p = rCancelP (symP p)
                  ; (i = i1) → α k i1
                  ; (j = i0) → α k i
                  ; (j = i1) → β k i
-                 }) (inc (α i0 i))
+                 }) (inS (α i0 i))
 
 preassocP : {A : I → Set ℓ} {x : A i0} {y : A i1} {B_i1 : Set ℓ} {B : (A i1) ≡ B_i1} {z : B i1}
   {C_i1 : Set ℓ} {C : (B i1) ≡ C_i1} {w : C i1} (p : PathP A x y) (q : PathP (λ i → B i) y z) (r : PathP (λ i → C i) z w) →
@@ -161,7 +161,7 @@ preassocP {A = A} {x = x} {B = B} {C = C} p q r j i =
                  ; (i = i1) → compPathP-filler q r j k
                  ; (j = i0) → p i
               -- ; (j = i1) → compPathP-filler (compPathP p q) r i k
-                 }) (inc (compPathP-filler p q i j))
+                 }) (inS (compPathP-filler p q i j))
 
 assocP : {A : I → Set ℓ} {x : A i0} {y : A i1} {B_i1 : Set ℓ} {B : (A i1) ≡ B_i1} {z : B i1}
   {C_i1 : Set ℓ} {C : (B i1) ≡ C_i1} {w : C i1} (p : PathP A x y) (q : PathP (λ i → B i) y z) (r : PathP (λ i → C i) z w) →
@@ -181,7 +181,7 @@ doubleCompPath-filler : {ℓ : Level} {A : Set ℓ} {w x y z : A} → w ≡ x �
 doubleCompPath-filler p q r i =
   hfill (λ t → λ { (i = i0) → p (~ t)
                  ; (i = i1) → r t })
-        (inc (q i))
+        (inS (q i))
 
 doubleCompPath : {ℓ : Level} {A : Set ℓ} {w x y z : A} → w ≡ x → x ≡ y → y ≡ z → w ≡ z
 doubleCompPath p q r i = doubleCompPath-filler p q r i i1
