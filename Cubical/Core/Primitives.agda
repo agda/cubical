@@ -9,7 +9,9 @@ module Cubical.Core.Primitives where
 
 open import Agda.Builtin.Cubical.Path public
 open import Agda.Builtin.Cubical.Sub public
-
+  renaming ( inc to inS
+           ; primSubOut to outS
+           )
 open import Agda.Primitive.Cubical public
   renaming ( primIMin       to _∧_  -- I → I → I
            ; primIMax       to _∨_  -- I → I → I
@@ -115,12 +117,11 @@ infix 4 _[_↦_]
 -- Any element u : A can be seen as an element of A [ φ ↦ u ] which
 -- agrees with u on φ:
 
--- inc : ∀ {ℓ} {A : Set ℓ} {φ} (u : A) → A [ φ ↦ (λ _ → u) ]
+-- inS : ∀ {ℓ} {A : Set ℓ} {φ} (u : A) → A [ φ ↦ (λ _ → u) ]
 
 -- One can also forget that an element agrees with u on φ:
 
-ouc : ∀ {ℓ} {A : Set ℓ} {φ : I} {u : Partial φ A} → A [ φ ↦ u ] → A
-ouc = primSubOut
+-- outS : ∀ {ℓ} {A : Set ℓ} {φ : I} {u : Partial φ A} → A [ φ ↦ u ] → A
 
 
 -- * Composition operation according to [CCHM 18].
@@ -154,8 +155,8 @@ hfill : {A : Set ℓ}
         (i : I) → A
 hfill {φ = φ} u u0 i =
   hcomp (λ j → λ { (φ = i1) → u (i ∧ j) 1=1
-                 ; (i = i0) → ouc u0 })
-        (ouc u0)
+                 ; (i = i0) → outS u0 })
+        (outS u0)
 
 -- Heterogeneous composition defined as in CHM
 comp : (A : ∀ i → Set (ℓ′ i))
@@ -166,7 +167,7 @@ comp : (A : ∀ i → Set (ℓ′ i))
        A i1
 comp A {φ = φ} u u0 =
   hcomp (λ i → λ { (φ = i1) → transp (λ j → A (i ∨ j)) i (u _ 1=1) })
-        (transp A i0 (ouc u0))
+        (transp A i0 (outS u0))
 
 -- Heterogeneous filling defined using comp
 fill : (A : ∀ i → Set (ℓ′ i))
@@ -178,15 +179,16 @@ fill : (A : ∀ i → Set (ℓ′ i))
 fill A {φ = φ} u u0 i =
   comp (λ j → A (i ∧ j))
        (λ j → λ { (φ = i1) → u (i ∧ j) 1=1
-                ; (i = i0) → ouc u0 })
-       (inc {φ = φ ∨ (~ i)} (ouc {φ = φ} u0))
+                ; (i = i0) → outS u0 })
+       (inS {φ = φ ∨ (~ i)} (outS {φ = φ} u0))
+
 
 -- Direct definition of transport filler, note that we have to
 -- explicitly tell Agda that the type is constant (like in CHM)
 transpFill : {A : Set ℓ}
              (φ : I)
              (A : (i : I) → Set ℓ [ φ ↦ (λ _ → A) ])
-             (u0 : ouc (A i0))
+             (u0 : outS (A i0))
            → --------------------------------------
-             PathP (λ i → ouc (A i)) u0 (transp (λ i → ouc (A i)) φ u0)
-transpFill φ A u0 i = transp (λ j → ouc (A (i ∧ j))) (~ i ∨ φ) u0
+             PathP (λ i → outS (A i)) u0 (transp (λ i → outS (A i)) φ u0)
+transpFill φ A u0 i = transp (λ j → outS (A (i ∧ j))) (~ i ∨ φ) u0

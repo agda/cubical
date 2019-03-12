@@ -25,10 +25,10 @@ module Helpers where
               → ∀ {x y z} → (\ i → F (P i)) [ x ≡ y ] → (\ i → F (Q i)) [ y ≡ z ] → (\ i → F (R i)) [ x ≡ z ]
   compPathD F {A = A} P Q = J' _ \ {x} p q i →
      comp (\ j → F (hfill (λ j → \ { (i = i0) → A ; (i = i1) → Q j })
-                          (inc (P i))
+                          (inS (P i))
                           j))
           (λ j → \ { (i = i0) → x; (i = i1) → q j })
-          (inc (p i))
+          (inS (p i))
 
 open Helpers
 

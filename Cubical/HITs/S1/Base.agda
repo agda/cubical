@@ -27,7 +27,7 @@ module _ where
   transpS¹ φ u0 = refl
 
   compS1 : ∀ (φ : I) (u : ∀ i → Partial φ S¹) (u0 : S¹ [ φ ↦ u i0 ]) →
-    comp (λ _ → S¹) u u0 ≡ hcomp u (ouc u0)
+    comp (λ _ → S¹) u u0 ≡ hcomp u (outS u0)
   compS1 φ u u0 = refl
 
 helix : S¹ → Set
@@ -53,7 +53,7 @@ decodeSquare : (n : Int) → PathP (λ i → base ≡ loop i) (intLoop (predInt 
 decodeSquare (pos zero) i j    = loop (i ∨ ~ j)
 decodeSquare (pos (suc n)) i j = hfill (λ k → λ { (j = i0) → base
                                                 ; (j = i1) → loop k } )
-                                       (inc (intLoop (pos n) j)) i
+                                       (inS (intLoop (pos n) j)) i
 decodeSquare (negsuc n) i j = hcomp (λ k → λ { (i = i1) → intLoop (negsuc n) j
                                              ; (j = i0) → base
                                              ; (j = i1) → loop (i ∨ ~ k) })
@@ -141,13 +141,13 @@ private
   ΩS¹→basedΩS¹-filler l i x j =
     hfill (λ t → λ { (j = i0) → loop (i ∧ t)
                    ; (j = i1) → loop (i ∧ t) })
-          (inc (x j)) l
+          (inS (x j)) l
 
   basedΩS¹→ΩS¹-filler : (_ i : I) → basedΩS¹ (loop i) → I → S¹
   basedΩS¹→ΩS¹-filler l i x j =
     hfill (λ t → λ { (j = i0) → loop (i ∧ (~ t))
                    ; (j = i1) → loop (i ∧ (~ t)) })
-          (inc (x j)) l
+          (inS (x j)) l
 
 ΩS¹→basedΩS¹ : (i : I) → ΩS¹ → basedΩS¹ (loop i)
 ΩS¹→basedΩS¹ i x j = ΩS¹→basedΩS¹-filler i1 i x j
@@ -205,7 +205,7 @@ private
   refl-conjugation i x j =
     hfill (λ t → λ { (j = i0) → base
                    ; (j = i1) → base })
-          (inc (x j)) (~ i)
+          (inS (x j)) (~ i)
 
   basechange : (x : S¹) → basedΩS¹ x → ΩS¹
   basechange base y = y
@@ -219,7 +219,7 @@ private
   basedΩS¹→ΩS¹≡basechange i j y =
     hfill (λ t → λ { (i = i0) → refl-conjugation t y
                    ; (i = i1) → loop-conjugation t y })
-          (inc (basedΩS¹→ΩS¹ i y)) j
+          (inS (basedΩS¹→ΩS¹ i y)) j
 
   -- so for any loop i, the extended basechange is an equivalence
   basechange-isequiv-aux : (i : I) → isEquiv (basechange (loop i))
@@ -286,7 +286,7 @@ filler-rot : I → I → I → S¹
 filler-rot i j = hfill (λ k → λ { (i = i0) → loop (j ∨ ~ k)
                    ; (i = i1) → loop (j ∧ k)
                    ; (j = i0) → loop (i ∨ ~ k)
-                   ; (j = i1) → loop (i ∧ k) }) (inc base)
+                   ; (j = i1) → loop (i ∧ k) }) (inS base)
 
 isPropFamS¹ : ∀ {ℓ} (P : S¹ → Set ℓ) (pP : (x : S¹) → isProp (P x)) (b0 : P base) →
               PathP (λ i → P (loop i)) b0 b0
@@ -327,7 +327,7 @@ private
                    ; (k = i1) → loop j
                    ; (i = i0) → (loop k * loop j) * loop (~ k)
                    ; (i = i1) → loop (~ k ∧ ~ l) * loop j })
-          (inc ((loop (k ∨ i) * loop j) * loop (~ k)))
+          (inS ((loop (k ∨ i) * loop j) * loop (~ k)))
 
   rotInv-aux-2 : I → I → I → S¹
   rotInv-aux-2 i j k =
@@ -345,7 +345,7 @@ private
                    ; (k = i1) → loop j
                    ; (i = i0) → loop (k ∨ l) * loop j
                    ; (i = i1) → loop k * (inv (loop (~ j) * loop k)) })
-          (inc (loop k * (inv (loop (~ j) * loop (k ∨ ~ i)))))
+          (inS (loop k * (inv (loop (~ j) * loop (k ∨ ~ i)))))
 
   rotInv-aux-4 : I → I → I → I → S¹
   rotInv-aux-4 j k i =
@@ -353,7 +353,7 @@ private
                    ; (k = i1) → loop j
                    ; (i = i0) → loop j * loop (k ∨ l)
                    ; (i = i1) → (inv (loop (~ j) * loop k)) * loop k })
-          (inc ((inv (loop (~ j) * loop (k ∨ ~ i))) * loop k))
+          (inS ((inv (loop (~ j) * loop (k ∨ ~ i))) * loop k))
 
 rotInv-1 : (a b : S¹) → b * a * inv b ≡ a
 rotInv-1 base base i = base
