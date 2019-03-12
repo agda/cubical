@@ -208,3 +208,17 @@ hProp≡HLevel1 {ℓ} = isoToPath (iso intro elim intro-elim elim-intro)
 
 isSetHProp : isSet (hProp {ℓ = ℓ})
 isSetHProp = subst (λ X → isOfHLevel 2 X) (sym hProp≡HLevel1) (hLevelHLevelSuc 0)
+
+
+isContrPartial→isContr : ∀ {ℓ} {A : Set ℓ}
+                       → (extend : ∀ φ → Partial φ A → A)
+                       → (∀ u → u ≡ (extend i1 λ { _ → u}))
+                       → isContr A
+isContrPartial→isContr {A = A} extend law
+  = x , λ y → law x ∙ (λ i → Aux.v y i) ∙ sym (law y)
+    where x = extend i0 empty
+          module Aux (y : A) (i : I) where
+            φ = ~ i ∨ i
+            u : Partial φ A
+            u = λ { (i = i0) → x ; (i = i1) → y }
+            v = extend φ u
