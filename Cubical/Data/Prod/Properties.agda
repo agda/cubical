@@ -7,8 +7,9 @@ open import Cubical.Data.Prod.Base
 
 open import Cubical.Foundations.Equiv
 
-variable
-  ℓ ℓ' : Level
+private
+  variable
+    ℓ ℓ' : Level
 
 proj₁ : {A : Set ℓ} {B : Set ℓ'} → A × B → A
 proj₁ (x , _) = x
