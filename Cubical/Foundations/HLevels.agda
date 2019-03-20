@@ -30,7 +30,6 @@ hProp {ℓ} = Σ (Set ℓ) isProp
 
 isOfHLevel : ℕ → Set ℓ → Set ℓ
 isOfHLevel 0 A = isContr A
-isOfHLevel 1 A = isProp A
 isOfHLevel (suc n) A = (x y : A) → isOfHLevel n (x ≡ y)
 
 HLevel : ℕ → Set (ℓ-suc ℓ)
@@ -50,6 +49,18 @@ isProp→isSet h a b p q j i =
 
 inhProp→isContr : A → isProp A → isContr A
 inhProp→isContr x h = x , h x
+
+isProp→IsOfHLevel1 : ∀ {ℓ} {A : Set ℓ} → isProp A → isOfHLevel 1 A
+isProp→IsOfHLevel1 h x y = inhProp→isContr (h x y) (isProp→isSet h x y)
+
+isOfHLevel1→isProp : ∀ {ℓ} {A : Set ℓ} → isOfHLevel 1 A → isProp A
+isOfHLevel1→isProp h x y = fst (h x y)
+
+isSet→isOfHLevel2 : ∀ {ℓ} {A : Set ℓ} → isSet A → isOfHLevel 2 A
+isSet→isOfHLevel2 h x y = isProp→IsOfHLevel1 (h x y)
+
+isOfHLevel2→isSet : ∀ {ℓ} {A : Set ℓ} → isOfHLevel 2 A → isSet A
+isOfHLevel2→isSet h x y = isOfHLevel1→isProp (h x y)
 
 isPropIsContr : isProp (isContr A)
 isPropIsContr z0 z1 j =
@@ -86,11 +97,8 @@ isContrSigma {A = A} {B = B} (a , p) q =
      , ( λ x i → p (x .fst) i
        , h (p (x .fst) i) (transp (λ j → B (p (x .fst) (i ∨ ~ j))) i (x .snd)) i))
 
-isContrPath : isContr A → (x y : A) → isContr (x ≡ y)
-isContrPath cA x y = inhProp→isContr (pA x y) (sA x y)
-  where
-  pA = isContr→isProp cA
-  sA = isProp→isSet pA
+isContrPath : ∀ {ℓ} {A : Set ℓ} → isContr A → (x y : A) → isContr (x ≡ y)
+isContrPath cA = isProp→IsOfHLevel1 (isContr→isProp cA)
 
 lemProp : (A → isProp A) → isProp A
 lemProp h a = h a a
@@ -124,10 +132,32 @@ hLevelPi {B = B} 1 h f g i x = (h x) (f x) (g x) i
 hLevelPi (suc (suc n)) h f g =
   subst (isOfHLevel (suc n)) funExtPath (hLevelPi (suc n) λ x → h x (f x) (g x))
 
-hlevelsuc : (n : ℕ) (A : Set ℓ) → isOfHLevel n A → isOfHLevel (suc n) A
-hlevelsuc 0 A = isContr→isProp
-hlevelsuc 1 A = isProp→isSet
-hlevelsuc (suc (suc n)) A h a b =  hlevelsuc (suc n) (a ≡ b) (h a b)
+isSetPi : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'}
+  → ((x : A) → isSet (B x))
+  → isSet ((x : A) → B x)
+isSetPi Bset = isOfHLevel2→isSet (hLevelPi 2 (λ a → isSet→isOfHLevel2 (Bset a)))
+
+isSet→isSet' : ∀ {ℓ} {A : Set ℓ} → isSet A → isSet' A
+isSet→isSet' {A = A} Aset {x} {y} {z} {w} p q r s =
+  J (λ (z : A) (r : x ≡ z) → ∀ {w : A} (s : y ≡ w) (p : x ≡ y) (q : z ≡ w) → PathP (λ i → Path A (r i) (s i) ) p q) helper r s p q
+  where
+    helper : ∀ {w : A} (s : y ≡ w) (p : x ≡ y) (q : x ≡ w) → PathP (λ i → Path A x (s i)) p q
+    helper {w} s p q = J (λ (w : A) (s : y ≡ w) → ∀ p q → PathP (λ i → Path A x (s i)) p q) (λ p q → Aset x y p q) s p q 
+
+isSet'→isSet : ∀ {ℓ} {A : Set ℓ} → isSet' A → isSet A
+isSet'→isSet {A = A} Aset' x y p q = Aset' p q refl refl
+
+private
+  variable
+    ℓ : Level
+
+hLevelSuc : {n : ℕ} {A : Set ℓ} → isOfHLevel n A → isOfHLevel (suc n) A
+hLevelSuc {n = 0} {A} h = isProp→IsOfHLevel1 (isContr→isProp h)
+hLevelSuc { n = suc n} {A} h a b =  hLevelSuc (h a b)
+
+hLevelLift : ∀ {ℓ} {A : Set ℓ} {n : ℕ} (m : ℕ) (hA : isOfHLevel n A) → isOfHLevel (m + n) A
+hLevelLift zero hA = hA
+hLevelLift {n = n} (suc m) hA = hLevelSuc (hLevelLift m hA)
 
 isPropOfHLevel : (n : ℕ) (A : Set ℓ) → isProp (isOfHLevel n A)
 isPropOfHLevel 0 A = isPropIsContr
@@ -137,4 +167,3 @@ isPropOfHLevel (suc (suc n)) A f g i a b =
 
 isPropIsSet : ∀ {ℓ} {A : Set ℓ} → isProp (isSet A)
 isPropIsSet {A = A} = isPropOfHLevel 2 A
-

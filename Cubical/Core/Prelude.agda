@@ -78,11 +78,57 @@ compPathP : {A : I → Set ℓ} → {x : A i0} → {y : A i1} → {B_i1 : Set �
   (p : PathP A x y) → (q : PathP (λ i → B i) y z) → PathP (λ j → ((λ i → A i) ∙ B) j) x z
 compPathP p q j = compPathP-filler p q j i1
 
+∙-rInv : (p : x ≡ y) → p ∙ (sym p) ≡ refl
+∙-rInv {x = x} p i j = hcomp (λ k → \ { (i = i0) → compPath-filler p (sym p) k j
+                              ; (i = i1) → p (j ∧ (~ k))
+                              ; (j = i0) → x
+                              ; (j = i1) → p (~ k) })
+                     (p j)
+
+∙-rUnit : (p : x ≡ y) → p ∙ refl ≡ p
+∙-rUnit {x = x} {y = y} p i j =
+  hcomp (λ k → \ { (i = i0) → compPath-filler p refl k j
+                 ; (i = i1) → p j
+                 ; (j = i0) → x
+                 ; (j = i1) → y }) (p j)
+
 _≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → x ≡ z
 _ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
 
 _∎ : (x : A) → x ≡ x
 _ ∎ = refl
+
+-- another definition of composition, useful for some proofs
+compPath'-filler : ∀ {x y z : A} → x ≡ y → y ≡ z → I → I → A
+compPath'-filler {z = z} p q j i =
+  hfill (λ j → λ { (i = i0) → p (~ j)
+                 ; (i = i1) → z }) (inS (q i)) j
+
+_□_ : {x y z : A} → x ≡ y → y ≡ z → x ≡ z
+(p □ q) j = compPath'-filler p q i1 j
+
+□≡∙ : ∀ {x y z : A} (p : x ≡ y) (q : y ≡ z) → p □ q ≡ p ∙ q 
+□≡∙ {A = A} {x = x} {y = y} {z = z} p q i j = hcomp (λ k → \ { (i = i0) → compPath'-filler p q k j
+                                             ; (i = i1) → compPath-filler p q k j
+                                             ; (j = i0) → p ( ~ i ∧ ~ k)
+                                             ; (j = i1) → q (k ∨ ~ i) }) (helper i j)
+  where
+    helper : PathP (λ i → p (~ i) ≡ q (~ i)) q p
+    helper i j = hcomp (λ k → \ { (i = i0) → q (k ∧ j)
+                                ; (i = i1) → p (~ k ∨ j)
+                                ; (j = i0) → p (~ i ∨ ~ k)
+                                ; (j = i1) → q (~ i ∧ k) })
+                       y
+
+∙-assoc' : {w : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) → (p ∙ q) ∙ r ≡ p ∙ (q □ r)
+∙-assoc' {x = x} p q r i j = hcomp (λ k → \ { (i = i0) → compPath-filler (p ∙ q) r k j
+                                            ; (i = i1) → compPath-filler p (q □ r) k j
+                                            ; (j = i0) → x
+                                            ; (j = i1) → compPath'-filler q r i k})
+                                   (compPath-filler p q (~ i) j)
+
+∙-assoc : {w : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) → (p ∙ q) ∙ r ≡ p ∙ (q ∙ r)
+∙-assoc p q r = (∙-assoc' p q r) ∙ (cong (_∙_ p) (□≡∙ q r))
 
 -- Transport, subst and functional extensionality
 
@@ -122,7 +168,6 @@ infix 2 Σ-syntax
 
 syntax Σ-syntax A (λ x → B) = Σ[ x ∈ A ] B
 
-
 -- Contractibility of singletons
 
 singl : {A : Set ℓ} (a : A) → Set ℓ
@@ -154,3 +199,7 @@ isProp A = (x y : A) → x ≡ y
 
 isSet : Set ℓ → Set ℓ
 isSet A = (x y : A) → isProp (x ≡ y)
+
+isSet' : Set ℓ → Set ℓ
+isSet' A = {x y z w : A} (p : x ≡ y) (q : z ≡ w) (r : x ≡ z) (s : y ≡ w) →
+           PathP (λ i → Path A (r i) (s i)) p q

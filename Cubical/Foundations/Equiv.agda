@@ -42,8 +42,24 @@ equiv-proof (isPropIsEquiv f p q i) y =
 equivEq : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (e f : A ≃ B) → (h : e .fst ≡ f .fst) → e ≡ f
 equivEq e f h = λ i → (h i) , isProp→PathP isPropIsEquiv h (e .snd) (f .snd) i
 
+
 isoToEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → Iso A B →  A ≃ B
 isoToEquiv i = _ , isoToIsEquiv i
+
+equivToIso : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → Iso A B
+equivToIso {A = A} {B = B} e = iso f g f-g g-f
+  where
+    f : A → B
+    f = fst e
+
+    g : B → A
+    g b = e .snd .equiv-proof b .fst .fst
+
+    f-g : ∀ b → f (g b) ≡ b
+    f-g b = e .snd .equiv-proof b .fst .snd
+
+    g-f : ∀ a → g (f a) ≡ a
+    g-f a = cong fst (e .snd .equiv-proof (f a) .snd (a , refl))
 
 module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (w : A ≃ B) where
   invEq : B → A
@@ -71,3 +87,13 @@ compEquiv f g = isoToEquiv
 --   invEquivInvol f i .fst = fst f
 --   invEquivInvol f i .snd = propIsEquiv (fst f) (snd (invEquiv (invEquiv f))) (snd f) i
 
+-- Transport is an equivalence
+isEquivTransport : ∀ {ℓ} {A B : Set ℓ} (p : A ≡ B) → isEquiv (transport p)
+isEquivTransport {A = A} =
+  J (λ y x → isEquiv (transport x)) (isoToIsEquiv (iso (transport refl) (transport refl) rem rem))
+    where
+    rem : (x : A) → transport refl (transport refl x) ≡ x
+    rem x = (cong (transport refl) (transportRefl x)) ∙ (transportRefl x)
+
+transportEquiv : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B
+transportEquiv p = (transport p , isEquivTransport p)
