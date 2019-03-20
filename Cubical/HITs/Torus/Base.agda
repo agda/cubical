@@ -12,6 +12,7 @@ open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Int
 open import Cubical.Data.Prod hiding (_×_) renaming (_×Σ_ to _×_)

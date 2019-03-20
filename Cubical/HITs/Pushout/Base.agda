@@ -6,6 +6,7 @@ open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Unit
 
