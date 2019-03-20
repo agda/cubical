@@ -44,7 +44,7 @@ private
     fill (λ i → B (fst (p i)))
          (λ t → λ { (i = i0) → coe0→i (λ j → B (fst (p j))) t (snd a)
                   ; (i = i1) → snd (p t) })
-         (inc (snd a))
+         (inS (snd a))
 
   pathSigma-π2 : (a b : Σ A B) → (p : a ≡ b) →
     transport (λ i → B (pathSigma-π1 a b p i)) (snd a) ≡ snd b
@@ -60,7 +60,7 @@ private
   filler-comp {_} {_} {_} {B} a b (p , q) i =
     hfill (λ t → λ { (i = i0) → a
                    ; (i = i1) → (p i1 , q t) })
-          (inc (p i , coe0→i (λ j → B (p j)) i (snd a)))
+          (inS (p i , coe0→i (λ j → B (p j)) i (snd a)))
 
 sigmaPath→pathSigma : (a b : Σ A B) → a Σ≡ b → (a ≡ b)
 sigmaPath→pathSigma a b x i = filler-comp a b x i i1
@@ -81,7 +81,7 @@ private
                   ; (j = i1) → snd (sigmaPath→pathSigma a b p t)
                   ; (i = i0) → snd (filler-comp a b p t j)
                   ; (i = i1) → filler-π2 a b (sigmaPath→pathSigma a b p) j t })
-         (inc (snd a))
+         (inS (snd a))
 
 pathSigma→sigmaPath→pathSigma : (a b : Σ A B) →
   ∀ x → pathSigma→sigmaPath a b (sigmaPath→pathSigma a b x) ≡ x
