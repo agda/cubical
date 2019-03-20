@@ -23,7 +23,7 @@ open import Cubical.Core.Everything
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
-
+open import Cubical.Foundations.Isomorphism
 
 isEquivCong : ∀ {ℓ} {A B : Set ℓ} {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → (cong (fst e) p))
 isEquivCong e = EquivJ (λ (B' A' : Set _) (e' : A' ≃ B') →

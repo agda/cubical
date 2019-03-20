@@ -13,3 +13,4 @@ open import Cubical.Foundations.Transport public
 open import Cubical.Foundations.Univalence public
 open import Cubical.Foundations.UnivalenceId public
 open import Cubical.Foundations.GroupoidLaws public
+open import Cubical.Foundations.Isomorphism public

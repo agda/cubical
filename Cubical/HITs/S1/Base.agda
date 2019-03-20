@@ -12,6 +12,7 @@ open import Cubical.Core.Glue
 
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat
   hiding (_+_ ; _*_ ; +-assoc ; +-comm)

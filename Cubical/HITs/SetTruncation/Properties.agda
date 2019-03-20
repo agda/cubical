@@ -13,6 +13,7 @@ open import Cubical.HITs.SetTruncation.Base
 open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 
