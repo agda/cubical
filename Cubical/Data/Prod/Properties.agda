@@ -58,7 +58,7 @@ A×B≡A×ΣB = isoToPath (iso (λ { (a , b) → (a , b)})
 -- truncation for products
 hLevelProd : {ℓ ℓ' : Level} {A : Set ℓ} {B : Set ℓ'} →
                   (n : ℕ) → isOfHLevel n A → isOfHLevel n B → isOfHLevel n (A × B)
-hLevelProd {_} {_} {A} {B} n h1 h2 =
+hLevelProd {A = A} {B = B} n h1 h2 =
   let h : isOfHLevel n (A ×Σ B)
-      h = hLevelSigma n h1 (λ _ → h2)
-  in transport (λ i → isOfHLevel n (A×B≡A×ΣB {_} {_} {A} {B} (~ i))) h
+      h = isOfHLevelΣ n h1 (λ _ → h2)
+  in transport (λ i → isOfHLevel n (A×B≡A×ΣB {A = A} {B = B} (~ i))) h
