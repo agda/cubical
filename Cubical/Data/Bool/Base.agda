@@ -9,6 +9,10 @@ open import Cubical.Relation.Nullary.DecidableEq
 -- Obtain the booleans
 open import Agda.Builtin.Bool public
 
+
+infixr 6 _and_
+infixr 5 _or_
+
 not : Bool → Bool
 not true = false
 not false = true
