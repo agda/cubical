@@ -30,6 +30,7 @@ open import Cubical.Data.Empty
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq

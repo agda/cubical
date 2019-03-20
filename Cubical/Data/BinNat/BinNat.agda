@@ -67,6 +67,7 @@ open import Cubical.Core.Glue
 
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Bool

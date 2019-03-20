@@ -10,6 +10,7 @@ There are more statements about equivalences in PathSplitEquiv.agda:
 - if f is an equivalence then (cong f) is an equivalence
 - if f is an equivalence then precomposition with f is an equivalence
 - if f is an equivalence then postcomposition with f is an equivalence
+
 -}
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Equiv where
@@ -17,8 +18,9 @@ module Cubical.Foundations.Equiv where
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism public
+open import Cubical.Foundations.Isomorphism
 
+open import Cubical.Data.Nat
 
 -- Proof using isPropIsContr. This is slow and the direct proof below is better
 isPropIsEquiv' : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → isProp (isEquiv f)
@@ -86,3 +88,6 @@ compEquiv f g = isoToEquiv
 --   invEquivInvol : (f : A ≃ B) → invEquiv (invEquiv f) ≡ f
 --   invEquivInvol f i .fst = fst f
 --   invEquivInvol f i .snd = propIsEquiv (fst f) (snd (invEquiv (invEquiv f))) (snd f) i
+
+PropEquiv→Equiv : ∀ {ℓ} {A B : Set ℓ} (Aprop : isProp A) (Bprop : isProp B) (f : A → B) (g : B → A) → (A ≃ B)
+PropEquiv→Equiv Aprop Bprop f g = isoToEquiv (iso f g (λ b → Bprop (f (g b)) b) λ a → Aprop (g (f a)) a)

@@ -156,3 +156,4 @@ isPropIsOfHLevel (suc (suc n)) A f g i a b =
 
 isPropIsSet : ∀ {ℓ} {A : Set ℓ} → isProp (isSet A)
 isPropIsSet {A = A} = isPropIsOfHLevel 2 A
+
