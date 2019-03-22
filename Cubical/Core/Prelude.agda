@@ -35,7 +35,7 @@ infixr 2 _≡⟨_⟩_
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
     A : Set ℓ
     x y z : A
 
@@ -51,7 +51,14 @@ symP p j = p (~ j)
 
 cong : ∀ {B : A → Set ℓ'} (f : (a : A) → B a) (p : x ≡ y) →
        PathP (λ i → B (p i)) (f x) (f y)
-cong f p = λ i → f (p i)
+cong f p i = f (p i)
+
+cong₂ : ∀ {B : A → Set ℓ'}{C : (a : A) → (b : B a) → Set ℓ''} →
+        (f : (a : A) → (b : B a) → C a b) →
+        (p : x ≡ y) →
+        {u : B x} {v : B y} (q : PathP (λ i → B (p i)) u v) →
+        PathP (λ i → C (p i) (q i)) (f x u) (f y v)
+cong₂ f p q i = f (p i) (q i)
 
 -- The filler of homogeneous path composition:
 -- compPath-filler p q = PathP (λ i → x ≡ q i) p (p ∙ q)
