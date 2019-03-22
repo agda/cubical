@@ -10,3 +10,4 @@ open import Cubical.Data.Sum public
 open import Cubical.Data.Prod public
 open import Cubical.Data.Unit public
 open import Cubical.Data.Sigma public
+open import Cubical.Data.DiffInt public
