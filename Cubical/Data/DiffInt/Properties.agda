@@ -14,16 +14,16 @@ open import Cubical.Data.Prod
 open BinaryRelation
 
 relIsEquiv : isEquivRel rel
-relIsEquiv = EquivRel relIsRefl relIsSym relIsTrans
+relIsEquiv = EquivRel {A = ℕ ×Σ ℕ} relIsRefl relIsSym relIsTrans
   where
     relIsRefl : isRefl rel
-    relIsRefl {a = (a0 , a1)} = refl
+    relIsRefl (a0 , a1) = refl
 
     relIsSym : isSym rel
-    relIsSym {a = (a0 , a1)} {b = (b0 , b1)} p = sym p
+    relIsSym (a0 , a1) (b0 , b1) p = sym p
 
     relIsTrans : isTrans rel
-    relIsTrans {a = (a0 , a1)} {b = (b0 , b1 )} {c = (c0 , c1)} p0 p1 =
+    relIsTrans (a0 , a1) (b0 , b1) (c0 , c1) p0 p1 =
       inj-m+ {m = (b0 + b1)} ((b0 + b1) + (a0 + c1) ≡⟨ +-assoc (b0 + b1) a0 c1  ⟩
             ((b0 + b1) + a0) + c1 ≡⟨ cong (λ x → x + a0 + c1) (+-comm b0 b1)⟩
             ((b1 + b0) + a0) + c1 ≡⟨ cong (λ x → x + c1) (+-comm (b1 + b0) a0) ⟩

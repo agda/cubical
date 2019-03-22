@@ -94,13 +94,13 @@ setQuotUniversal Bset = isoToEquiv (iso intro elim elimRightInv elimLeftInv)
 open BinaryRelation
 
 effective : (Rprop : isPropValued R) (Requiv : isEquivRel R) (a b : A) → [ a ] ≡ [ b ] → R a b
-effective {A = A} {R = R} Rprop (EquivRel R/refl R/sym R/trans) a b p = transport aa≡ab R/refl
+effective {A = A} {R = R} Rprop (EquivRel R/refl R/sym R/trans) a b p = transport aa≡ab (R/refl _)
   where
     helper : A / R → hProp
     helper = elimSetQuotients (λ _ → isSetHProp) (λ c → (R a c , Rprop a c))
                               (λ c d cd → ΣProp≡ (λ _ → isPropIsProp)
                                                  (ua (PropEquiv→Equiv (Rprop a c) (Rprop a d)
-                                                                      (λ ac → R/trans ac cd) (λ ad → R/trans ad (R/sym cd)))))
+                                                                      (λ ac → R/trans _ _ _ ac cd) (λ ad → R/trans _ _ _ ad (R/sym _ _ cd)))))
 
     aa≡ab : R a a ≡ R a b
     aa≡ab i = fst (helper (p i))
@@ -137,7 +137,7 @@ discreteSetQuotients {A = A} {R = R} Adis Rprop Req Rdec =
           PathP (λ i → Dec ([ a₀ ] ≡ eq/ a b r i)) (dis a) (dis b)
         dis-eq a b ab = J (λ b ab → ∀ k → PathP (λ i → Dec ([ a₀ ] ≡ ab i)) (dis a) k)
                           (λ k → isPropDec (squash/ _ _) _  _) (eq/ a b ab) (dis b)
-        
+
     discreteSetQuotients'-eq : (a b : A) (r : R a b) →
       PathP (λ i → (y : A / R) → Dec (eq/ a b r i ≡ y))
             (discreteSetQuotients' a) (discreteSetQuotients' b)
