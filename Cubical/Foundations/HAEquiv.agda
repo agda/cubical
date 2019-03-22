@@ -56,9 +56,9 @@ Hfa≡fHa : ∀ {ℓ} {A : Set ℓ} (f : A → A) (H : ∀ a → f a ≡ a) → 
 Hfa≡fHa {A = A} f H a =
   H (f a)                          ≡⟨ rUnit (H (f a)) ⟩
   H (f a) ∙ refl                   ≡⟨ cong (_∙_ (H (f a))) (sym (rCancel (H a))) ⟩
-  H (f a) ∙ H a ∙ sym (H a)        ≡⟨ sym (∙-assoc _ _ _ )⟩
+  H (f a) ∙ H a ∙ sym (H a)        ≡⟨ assoc _ _ _ ⟩
   (H (f a) ∙ H a) ∙ sym (H a)      ≡⟨ cong (λ x →  x ∙ (sym (H a))) (homotopyNatural H (H a)) ⟩
-  (cong f (H a) ∙ H a) ∙ sym (H a) ≡⟨ ∙-assoc _ _ _ ⟩
+  (cong f (H a) ∙ H a) ∙ sym (H a) ≡⟨ sym (assoc _ _ _) ⟩
   cong f (H a) ∙ H a ∙ sym (H a)   ≡⟨ cong (_∙_ (cong f (H a))) (rCancel _) ⟩
   cong f (H a) ∙ refl              ≡⟨ sym (rUnit _) ⟩
   cong f (H a) ∎

@@ -232,6 +232,6 @@ doubleCompPath-elim' p q r = (split-leftright' p q r) ∙ (sym (leftright p (q �
 
 -- deducing associativity for compPath
 
-∙-assoc : {ℓ : Level} {A : Set ℓ} {w x y z : A} (p : w ≡ x) (q : x ≡ y) (r : y ≡ z) →
-                 (p ∙ q) ∙ r ≡ p ∙ (q ∙ r)
-∙-assoc p q r = (sym (doubleCompPath-elim p q r)) ∙ (doubleCompPath-elim' p q r)
+-- assoc : {ℓ : Level} {A : Set ℓ} {w x y z : A} (p : w ≡ x) (q : x ≡ y) (r : y ≡ z) →
+--                 (p ∙ q) ∙ r ≡ p ∙ (q ∙ r)
+-- assoc p q r = (sym (doubleCompPath-elim p q r)) ∙ (doubleCompPath-elim' p q r)
