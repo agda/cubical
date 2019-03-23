@@ -35,7 +35,7 @@ infixr 2 _≡⟨_⟩_
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
     A : Set ℓ
     x y z : A
 
@@ -51,7 +51,14 @@ symP p j = p (~ j)
 
 cong : ∀ {B : A → Set ℓ'} (f : (a : A) → B a) (p : x ≡ y) →
        PathP (λ i → B (p i)) (f x) (f y)
-cong f p = λ i → f (p i)
+cong f p i = f (p i)
+
+cong₂ : ∀ {B : A → Set ℓ'}{C : (a : A) → (b : B a) → Set ℓ''} →
+        (f : (a : A) → (b : B a) → C a b) →
+        (p : x ≡ y) →
+        {u : B x} {v : B y} (q : PathP (λ i → B (p i)) u v) →
+        PathP (λ i → C (p i) (q i)) (f x u) (f y v)
+cong₂ f p q i = f (p i) (q i)
 
 -- The filler of homogeneous path composition:
 -- compPath-filler p q = PathP (λ i → x ≡ q i) p (p ∙ q)
@@ -77,20 +84,6 @@ compPathP-filler {A = A} {x = x} {B = B} p q i =
 compPathP : {A : I → Set ℓ} → {x : A i0} → {y : A i1} → {B_i1 : Set ℓ} {B : (A i1) ≡ B_i1} → {z : B i1} →
   (p : PathP A x y) → (q : PathP (λ i → B i) y z) → PathP (λ j → ((λ i → A i) ∙ B) j) x z
 compPathP p q j = compPathP-filler p q j i1
-
-∙-rInv : (p : x ≡ y) → p ∙ (sym p) ≡ refl
-∙-rInv {x = x} p i j = hcomp (λ k → \ { (i = i0) → compPath-filler p (sym p) k j
-                              ; (i = i1) → p (j ∧ (~ k))
-                              ; (j = i0) → x
-                              ; (j = i1) → p (~ k) })
-                     (p j)
-
-∙-rUnit : (p : x ≡ y) → p ∙ refl ≡ p
-∙-rUnit {x = x} {y = y} p i j =
-  hcomp (λ k → \ { (i = i0) → compPath-filler p refl k j
-                 ; (i = i1) → p j
-                 ; (j = i0) → x
-                 ; (j = i1) → y }) (p j)
 
 _≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → x ≡ z
 _ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
@@ -119,16 +112,6 @@ _□_ : {x y z : A} → x ≡ y → y ≡ z → x ≡ z
                                 ; (j = i0) → p (~ i ∨ ~ k)
                                 ; (j = i1) → q (~ i ∧ k) })
                        y
-
-∙-assoc' : {w : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) → (p ∙ q) ∙ r ≡ p ∙ (q □ r)
-∙-assoc' {x = x} p q r i j = hcomp (λ k → \ { (i = i0) → compPath-filler (p ∙ q) r k j
-                                            ; (i = i1) → compPath-filler p (q □ r) k j
-                                            ; (j = i0) → x
-                                            ; (j = i1) → compPath'-filler q r i k})
-                                   (compPath-filler p q (~ i) j)
-
-∙-assoc : {w : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) → (p ∙ q) ∙ r ≡ p ∙ (q ∙ r)
-∙-assoc p q r = (∙-assoc' p q r) ∙ (cong (_∙_ p) (□≡∙ q r))
 
 -- Transport, subst and functional extensionality
 

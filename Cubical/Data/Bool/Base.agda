@@ -38,3 +38,7 @@ false ≟ false = yes refl
 false ≟ true  = no λ p → subst (caseBool ⊥ Bool) p true
 true  ≟ false = no λ p → subst (caseBool Bool ⊥) p true
 true  ≟ true  = yes refl
+
+Dec→Bool : ∀ {ℓ} {A} → Dec A → Bool
+Dec→Bool (yes p) = true
+Dec→Bool (no ¬p) = false

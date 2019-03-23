@@ -16,6 +16,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
@@ -53,13 +54,13 @@ homotopyNatural H p = homotopyNatural' H p ∙ □≡∙ _ _
 -- TODO: Move somewhere?
 Hfa≡fHa : ∀ {ℓ} {A : Set ℓ} (f : A → A) (H : ∀ a → f a ≡ a) → ∀ a → H (f a) ≡ cong f (H a)
 Hfa≡fHa {A = A} f H a =
-  H (f a)                          ≡⟨ sym (∙-rUnit (H (f a))) ⟩
-  H (f a) ∙ refl                   ≡⟨ cong (_∙_ (H (f a))) (sym (∙-rInv (H a))) ⟩
-  H (f a) ∙ H a ∙ sym (H a)        ≡⟨ sym (∙-assoc _ _ _ )⟩
+  H (f a)                          ≡⟨ rUnit (H (f a)) ⟩
+  H (f a) ∙ refl                   ≡⟨ cong (_∙_ (H (f a))) (sym (rCancel (H a))) ⟩
+  H (f a) ∙ H a ∙ sym (H a)        ≡⟨ assoc _ _ _ ⟩
   (H (f a) ∙ H a) ∙ sym (H a)      ≡⟨ cong (λ x →  x ∙ (sym (H a))) (homotopyNatural H (H a)) ⟩
-  (cong f (H a) ∙ H a) ∙ sym (H a) ≡⟨ ∙-assoc _ _ _ ⟩
-  cong f (H a) ∙ H a ∙ sym (H a)   ≡⟨ cong (_∙_ (cong f (H a))) (∙-rInv _) ⟩
-  cong f (H a) ∙ refl              ≡⟨ ∙-rUnit _ ⟩
+  (cong f (H a) ∙ H a) ∙ sym (H a) ≡⟨ sym (assoc _ _ _) ⟩
+  cong f (H a) ∙ H a ∙ sym (H a)   ≡⟨ cong (_∙_ (cong f (H a))) (rCancel _) ⟩
+  cong f (H a) ∙ refl              ≡⟨ sym (rUnit _) ⟩
   cong f (H a) ∎
 
 iso→HAEquiv : Iso A B → HAEquiv A B
