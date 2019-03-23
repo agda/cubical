@@ -10,6 +10,7 @@ open import Cubical.Core.Glue
 open import Cubical.Data.Sigma
 open import Cubical.HITs.SetQuotients
 open import Cubical.Data.Prod
+open import Cubical.Data.Bool
 
 open BinaryRelation
 
@@ -42,3 +43,10 @@ relIsProp a b x y = isSetℕ _ _ _ _
 
 discreteℤ : Discrete ℤ
 discreteℤ = discreteSetQuotients (discreteΣ discreteℕ λ _ → discreteℕ) relIsProp relIsEquiv (λ _ _ → discreteℕ _ _)
+
+private
+  _ : Dec→Bool (discreteℤ [ (3 , 5) ] [ (4 , 6) ]) ≡ true
+  _ = refl
+
+  _ : Dec→Bool (discreteℤ [ (3 , 5) ] [ (4 , 7) ]) ≡ false
+  _ = refl
