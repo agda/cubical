@@ -13,17 +13,20 @@ module Cubical.Foundations.HLevels where
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.FunExtEquiv
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Empty
 open import Cubical.Data.Sum
+open import Cubical.Data.Unit
 
 open import Cubical.Relation.Nullary
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A : Set ℓ
+    B : A → Set ℓ'
 
 hProp : Set (ℓ-suc ℓ)
 hProp {ℓ} = Σ (Set ℓ) isProp
@@ -63,6 +66,10 @@ isPropIsContr z0 z1 j =
 isPropIsProp : isProp (isProp A)
 isPropIsProp f g i a b = isProp→isSet f a b (f a b) (g a b) i
 
+isPropIsPiContrPath : isProp (∀ (x y : A) → isContr (x ≡ y))
+isPropIsPiContrPath p q =
+  funExt λ x → funExt λ y → isPropIsContr (p x y) (q x y)
+
 -- A retract of a contractible type is contractible
 retractIsContr
   : ∀{B : Set ℓ}
@@ -70,10 +77,6 @@ retractIsContr
   → (h : (x : A) → g (f x) ≡ x)
   → (v : isContr B) → isContr A
 retractIsContr f g h (b , p) = (g b , λ x → (cong g (p (f x))) ∙ (h x))
-
-private
-  variable
-    B : A → Set ℓ
 
 isContrSigma
   : isContr A
@@ -95,6 +98,17 @@ isContrPath cA x y = inhProp→isContr (pA x y) (sA x y)
 lemProp : (A → isProp A) → isProp A
 lemProp h a = h a a
 
+-- The type isProp is equivalent to that its path space is contractible.
+isProp≡PathIsContr : isProp A ≡ (∀ (x y : A) → isContr (x ≡ y))
+isProp≡PathIsContr = isoToPath (iso isProp→PathIsContr PathIsContr→isProp
+  (λ _ → isPropIsPiContrPath _ _) (λ _ → isPropIsProp _ _))
+  where
+    isProp→PathIsContr : isProp A → (∀ (x y : A) → isContr (x ≡ y))
+    isProp→PathIsContr Aprop x y = isContrPath (inhProp→isContr x Aprop) x y
+
+    PathIsContr→isProp : (∀ (x y : A) → isContr (x ≡ y)) → isProp A
+    PathIsContr→isProp cA x y = cA x y .fst
+    
 -- Π preserves propositionality in the following sense:
 propPi : (h : (x : A) → isProp (B x)) → isProp ((x : A) → B x)
 propPi h f0 f1 i x = h x (f0 x) (f1 x) i
@@ -103,17 +117,17 @@ isProp→PathP
   : ((x : A) → isProp (B x)) → {a0 a1 : A}
   → (p : a0 ≡ a1) (b0 : B a0) (b1 : B a1)
   → PathP (λ i → B (p i)) b0 b1
-isProp→PathP {B = B} P p b0 b1 i =
-  P (p i) (transp (λ j → B (p (i ∧ j))) (~ i) b0)
-          (transp (λ j → B (p (i ∨ ~ j))) i b1) i
+isProp→PathP {B = B} P p b0 b1 =
+  toPathP {A = λ i → B (p i)} {b0} {b1} (P _ _ _)
 
 subtypeEquality
-  : ((x : A) → isProp (B x)) → (u v : Σ[ a ∈ A ] B a)
+  : ((x : A) → isProp (B x)) → {u v : Σ[ a ∈ A ] B a}
   → (p : u .fst ≡ v .fst) → u ≡ v
-subtypeEquality pB u v p i = (p i) , isProp→PathP pB p (u .snd) (v .snd) i
+subtypeEquality {B = B} pB {u} {v} p i =
+  p i , isProp→PathP pB p (u .snd) (v .snd) i
 
 isPropSigma : isProp A → ((x : A) → isProp (B x)) → isProp (Σ[ x ∈ A ] B x)
-isPropSigma pA pB t u = subtypeEquality pB t u (pA (t .fst) (u .fst))
+isPropSigma pA pB t u = subtypeEquality pB (pA (t .fst) (u .fst))
 
 hLevelPi
   : ∀ n
@@ -154,6 +168,5 @@ isPropIsOfHLevel 1 A = isPropIsProp
 isPropIsOfHLevel (suc (suc n)) A f g i a b =
   isPropIsOfHLevel (suc n) (a ≡ b) (f a b) (g a b) i
 
-isPropIsSet : ∀ {ℓ} {A : Set ℓ} → isProp (isSet A)
+isPropIsSet : isProp (isSet A)
 isPropIsSet {A = A} = isPropIsOfHLevel 2 A
-

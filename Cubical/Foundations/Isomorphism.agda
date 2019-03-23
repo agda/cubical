@@ -11,7 +11,7 @@ Theory about isomorphisms
 module Cubical.Foundations.Isomorphism where
 
 open import Cubical.Core.Everything
-open import Cubical.Foundations.HLevels
+--open import Cubical.Foundations.HLevels
 
 -- Section and retract
 module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} where
