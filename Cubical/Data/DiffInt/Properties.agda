@@ -42,9 +42,3 @@ relIsProp a b x y = isSetℕ _ _ _ _
 
 discreteℤ : Discrete ℤ
 discreteℤ = discreteSetQuotients (discreteΣ discreteℕ λ _ → discreteℕ) relIsProp relIsEquiv (λ _ _ → discreteℕ _ _)
-
-a : ℤ
-a = [ (2 , 4) ]
-
-b : ℤ
-b = [ (3 , 3) ]
