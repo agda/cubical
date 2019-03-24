@@ -47,11 +47,12 @@ private
     elim-intro : ∀ eq → elim (intro eq) ≡ eq
     elim-intro eq = refl
 
--- TODO: give direct proof not using Σ≡
 ΣProp≡ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'}
          {x y : Σ A B}  → (∀ a → isProp (B a)) →
          fst x ≡ fst y → x ≡ y
-ΣProp≡ {B = B} {x = x} {y = y} Bprop eq = fst Σ≡ (eq , J (λ b eq → ∀ k → PathP (λ i → B (eq i)) (snd x) k) (λ k → Bprop (fst x) _ _) eq (snd y))
+ΣProp≡ {B = B} {x = x} {y = y} Bprop eq i =
+  eq i , toPathP {A = λ i → B (eq i)} {snd x} {snd y} (Bprop _ _ _) i
+
 
 -- TODO: should be moved
 HLevel≡ : ∀ {ℓ} {n} {A B : Set ℓ} {hA : isOfHLevel n A} {hB : isOfHLevel n B} →
