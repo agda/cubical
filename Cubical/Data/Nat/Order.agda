@@ -96,8 +96,39 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
 ¬-<-zero : ¬ m < 0
 ¬-<-zero (k , p) = snotz ((sym (+-suc k _)) ∙ p)
 
+¬m<m : ¬ m < m
+¬m<m {m} = ¬-<-zero ∘ ≤-+k-cancel {k = m}
+
 ¬m+n<m : ¬ m + n < m
 ¬m+n<m {m} {n} = ¬-<-zero ∘ <-k+-cancel ∘ subst (m + n <_) (sym (+-zero m))
+
+<-weaken : m < n → m ≤ n
+<-weaken (k , p) = suc k , sym (+-suc k _) ∙ p
+
+≤<-trans : l ≤ m → m < n → l < n
+≤<-trans {l} {m} {n} (i , p) (j , q) = (j + i) , reason
+  where
+  reason : j + i + suc l ≡ n
+  reason = j + i + suc l ≡⟨ sym (+-assoc j i (suc l)) ⟩
+           j + (i + suc l) ≡⟨ cong (j +_) (+-suc i l) ⟩
+           j + (suc (i + l)) ≡⟨ cong (_+_ j ∘ suc) p ⟩
+           j + suc m ≡⟨ q ⟩
+           n ∎
+
+<≤-trans : l < m → m ≤ n → l < n
+<≤-trans {l} {m} {n} (i , p) (j , q) = j + i , reason
+  where
+  reason : j + i + suc l ≡ n
+  reason = j + i + suc l ≡⟨ sym (+-assoc j i (suc l)) ⟩
+           j + (i + suc l) ≡⟨ cong (j +_) p ⟩
+           j + m ≡⟨ q ⟩
+           n ∎
+
+<-trans : l < m → m < n → l < n
+<-trans p = ≤<-trans (<-weaken p)
+
+<-asym : m < n → ¬ n ≤ m
+<-asym m<n = ¬m<m ∘ <≤-trans m<n
 
 Trichotomy-suc : Trichotomy m n → Trichotomy (suc m) (suc n)
 Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)

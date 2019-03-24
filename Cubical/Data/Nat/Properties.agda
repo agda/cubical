@@ -69,3 +69,34 @@ discreteℕ (suc m) (suc n) with discreteℕ m n
 
 isSetℕ : isSet ℕ
 isSetℕ = Discrete→isSet discreteℕ
+
+0≡m*0 : ∀ m → 0 ≡ m * 0
+0≡m*0 zero = refl
+0≡m*0 (suc m) = 0≡m*0 m
+
+*-suc : ∀ m n → m * suc n ≡ m + m * n
+*-suc zero n = refl
+*-suc (suc m) n
+  = cong suc
+  ( n + m * suc n ≡⟨ cong (n +_) (*-suc m n) ⟩
+    n + (m + m * n) ≡⟨ +-assoc n m (m * n) ⟩
+    (n + m) + m * n ≡⟨ cong (_+ m * n) (+-comm n m) ⟩
+    (m + n) + m * n ≡⟨ sym (+-assoc m n (m * n)) ⟩
+    m + (n + m * n) ∎
+  )
+
+*-comm : ∀ m n → m * n ≡ n * m
+*-comm zero n = 0≡m*0 n
+*-comm (suc m) n = cong (n +_) (*-comm m n) ∙ sym (*-suc n m)
+
+0≡n*sm→0≡n : 0 ≡ n * suc m → 0 ≡ n
+0≡n*sm→0≡n {n = zero} p = refl
+0≡n*sm→0≡n {n = suc n} p = ⊥-elim (znots p)
+
+inj-*sm : l * suc m ≡ n * suc m → l ≡ n
+inj-*sm {zero} {m} {n} p = 0≡n*sm→0≡n p
+inj-*sm {l} {m} {zero} p = sym (0≡n*sm→0≡n (sym p))
+inj-*sm {suc l} {m} {suc n} p = cong suc (inj-*sm (inj-m+ {m = suc m} p))
+
+inj-sm* : suc m * l ≡ suc m * n → l ≡ n
+inj-sm* {m} {l} {n} p = inj-*sm (*-comm l (suc m) ∙ p ∙ *-comm (suc m) n)
