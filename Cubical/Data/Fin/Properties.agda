@@ -5,10 +5,8 @@ module Cubical.Data.Fin.Properties where
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Embedding
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Logic using (pequivToPath)
 
 open import Cubical.Data.Fin.Base
 open import Cubical.Data.Nat
@@ -19,8 +17,9 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Induction.WellFounded
 
-_×_ : Set → Set → Set
-A × B = Σ A λ _ → B
+private
+  _×_ : Set → Set → Set
+  A × B = Σ A λ _ → B
 
 Fin0-isProp : isProp (Fin 0)
 Fin0-isProp = ⊥-elim ∘ ¬Fin0
@@ -44,93 +43,108 @@ private
     ; (gt (m , p)) → inr (suc m , sym p ∙ +-suc m k ∙ +-comm (suc m) k)
     }
 
+  dichotomy+≡ : ∀ k m n → (p : n ≡ k + m) → dichotomy k n ≡ inr (m , p)
+  dichotomy+≡ k m n p
+    = case dichotomy k n return (λ d → d ≡ inr (m , p)) of λ
+    { (inl n<k) → ⊥-elim (<-asym n<k (m , +-comm m k ∙ sym p))
+    ; (inr (m' , q))
+    → cong inr (subtypeEquality
+        (λ x → isSetℕ n (k + x)) (m' , q) (m , p) (inj-m+ {m = k} (sym q ∙ p)))
+    }
+
 expand : ∀{k} → (Fin k × ℕ) → ℕ
 expand {k} (f , o) = o * k + toℕ f
 
 Reduction : ℕ → ℕ → Set
 Reduction k n = Σ[ tup ∈ Fin k × ℕ ] expand tup ≡ n
 
-Reduction+k : (k n : ℕ) → Reduction k n → Reduction k (k + n)
-Reduction+k k n ((f , o) , p)
-  = (f , suc o) , sym (+-assoc k (o * k) (toℕ f)) ∙ cong (k +_) p
+Reduction+k : (k m n : ℕ) → k + m ≡ n → Reduction k m → Reduction k n
+Reduction+k k m n q ((f , o) , p)
+  = (f , suc o) , sym (+-assoc k (o * k) (toℕ f)) ∙ cong (k +_) p ∙ q
 
-Reduction-k : (k n : ℕ) → Reduction k (k + n) → Reduction k n
-Reduction-k k n (((m , m<k) , zero) , p) = ⊥-elim (<-asym m<k k≤m)
+Reduction-k : (k m n : ℕ) → k + m ≡ n → Reduction k n → Reduction k m
+Reduction-k k m n q (((r , r<k) , zero) , p) = ⊥-elim (<-asym r<k k≤r)
   where
-  k≤m : k ≤ m
-  k≤m = n , +-comm n k ∙ sym p
-Reduction-k k n ((f , suc o) , p) = ((f , o) , inj-m+ (+-assoc k (o * k) (toℕ f) ∙ p))
+  k≤r : k ≤ r
+  k≤r = m , +-comm m k ∙ q ∙ sym p
+Reduction-k k m n q ((f , suc o) , p)
+  = ((f , o) , inj-m+ (+-assoc k (o * k) (toℕ f) ∙ p ∙ sym q))
 
-private
-  expand-lemma
-    : ∀ {k} (f1 f2 : Fin k) o1 o2
-    → expand (f1 , suc o1) ≡ expand (f2 , suc o2)
-    → expand (f1 , o1) ≡ expand (f2 , o2)
-  expand-lemma {k} f1 f2 o1 o2 p
-    = inj-m+ {m = k} (+-assoc k _ _ ∙ p ∙ sym (+-assoc k _ _))
-
-  injExpand
-    : ∀ {k}
-    → {t1 t2 : Fin k × ℕ}
-    → expand t1 ≡ expand t2
-    → t1 ≡ t2
-  injExpand {zero} {f , _} _ = ⊥-elim (¬Fin0 f)
-  injExpand {k} {f1 , zero} {f2 , zero} p = cong (_, zero) (toℕ-injective p)
-  injExpand {k} {(n , n<k) , zero} {f2 , suc o2} p = ⊥-elim (<-asym n<k k≤n)
-    where
-    k≤n : k ≤ n
-    k≤n = o2 * k + toℕ f2
-        , +-comm (o2 * k + toℕ f2) k ∙ +-assoc k (o2 * k) (toℕ f2) ∙ sym p
-  injExpand {k} {f1 , suc o1} {(n , n<k) , zero} p = ⊥-elim (<-asym n<k k≤n)
-    where
-    k≤n : k ≤ n
-    k≤n = o1 * k + toℕ f1
-        , +-comm (o1 * k + toℕ f1) k ∙ +-assoc k (o1 * k) (toℕ f1) ∙ p
-  injExpand {k} {f1 , suc o1} {f2 , suc o2}
-    = cong psuc ∘ injExpand {k} {f1 , o1} {f2 , o2} ∘ expand-lemma f1 f2 o1 o2
-    where
-    psuc : Fin k × ℕ → Fin k × ℕ
-    psuc (f , o) = f , suc o
-
-  embExpand
-    : ∀ k → isEmbedding (expand {k})
-  embExpand zero = ⊥-elim ∘ ¬Fin0 ∘ fst
-  embExpand (suc k)
-    = injEmbedding (isOfHLevelΣ 2 isSetFin λ _ → isSetℕ) isSetℕ injExpand
-
-isPropReduction : ∀{k n} → isProp (Reduction k n)
-isPropReduction {k} {n} = isEmbedding→isPropFiber (embExpand k) n
-
-Reduction≡ : ∀{k n} → Reduction k n ≡ Reduction k (k + n)
-Reduction≡ {k} {n}
-  = pequivToPath
-      {Reduction k n , isPropReduction}
-      {Reduction k (k + n) , isPropReduction}
-      (Reduction+k k n)
-      (Reduction-k k n)
-
-Reduction⇒ : ∀{k m n} → k + m ≡ n → Reduction k m ≡ Reduction k n
-Reduction⇒ {k} p = Reduction≡ ∙ (λ i → Reduction k (p i))
-
-reduce : ∀ k₀ n → Reduction (suc k₀) n
-reduce k₀ n = induction step n
+Reduction+k-k
+  : (k m n : ℕ)
+  → (q : k + m ≡ n)
+  → (R : Reduction k n)
+  → Reduction+k k m n q (Reduction-k k m n q R) ≡ R
+Reduction+k-k k m n q (((r , r<k) , zero) , p) = ⊥-elim (<-asym r<k k≤r)
   where
-  k : ℕ
-  k = suc k₀
+  k≤r : k ≤ r
+  k≤r = m , +-comm m k ∙ q ∙ sym p
+Reduction+k-k k m n q ((f , suc o) , p)
+  = subtypeEquality (λ tup → isSetℕ (expand tup) n) _ _ refl
 
+Reduction-k+k
+  : (k m n : ℕ)
+  → (q : k + m ≡ n)
+  → (R : Reduction k m)
+  → Reduction-k k m n q (Reduction+k k m n q R) ≡ R
+Reduction-k+k k m n q ((f , o) , p)
+  = subtypeEquality (λ tup → isSetℕ (expand tup) m) _ _ refl
+
+Reduction≡ : ∀ k m n (q : k + m ≡ n) → Reduction k m ≡ Reduction k n
+Reduction≡ k m n q
+  = isoToPath (iso (Reduction+k k m n q) (Reduction-k k m n q)
+                   (Reduction+k-k k m n q) (Reduction-k+k k m n q))
+
+module _ (k₀ : ℕ) where
   open WFI (<-wellfounded)
-  Goal : ∀{A : Set} → ℕ → A → Set
-  Goal r _ = Reduction k r
 
-  lemma : ∀{x y z} → x ≡ suc z + y → y < x
-  lemma {y = y} {z} p = z , +-suc z y ∙ sym p
+  private
+    k : ℕ
+    k = suc k₀
 
-  step : (n : ℕ) → (∀ m → m < n → Reduction k m) → Reduction k n
-  step n rec
-    = case dichotomy k n return Goal n of λ
-    { (inl l) → ((n , l) , 0) , refl
-    ; (inr (m , p)) → transport (Reduction⇒ (sym p)) (rec m (lemma p))
-    }
+    Goal : ∀{A : Set} → ℕ → A → Set
+    Goal r _ = Reduction k r
 
-isContrReduction : ∀{k n} → isContr (Reduction (suc k) n)
-isContrReduction {k} {n} = inhProp→isContr (reduce k n) isPropReduction
+    lemma₁ : ∀{x y z} → x ≡ suc z + y → y < x
+    lemma₁ {y = y} {z} p = z , +-suc z y ∙ sym p
+
+    subStep
+      : (n : ℕ)
+      → (∀ m → m < n → Reduction k m)
+      → (n < k) ⊎ (Σ[ m ∈ ℕ ] n ≡ k + m)
+      → Reduction k n
+    subStep n rec (inl l) = ((n , l) , 0) , refl
+    subStep n rec (inr (m , p))
+      = transport (Reduction≡ k m n (sym p)) (rec m (lemma₁ p))
+
+    step : (n : ℕ) → (∀ m → m < n → Reduction k m) → Reduction k n
+    step n rec = subStep n rec (dichotomy k n)
+
+  reduce : ∀ n → Reduction (suc k₀) n
+  reduce = induction step
+
+  private
+    lemma₂ : ∀ n → step n (λ m _ → reduce m) ≡ reduce n
+    lemma₂ = sym ∘ induction-compute step
+
+    lemma₃
+      : ∀ m n
+      → (p : k + m ≡ n)
+      → (rec : ∀ m → m < n → Reduction k m)
+      →  transport (Reduction≡ k m n p) (rec m (lemma₁ (sym p))) ≡ step n rec
+    lemma₃ m n p rec = (sym ∘ cong (subStep n rec)) (dichotomy+≡ k m n (sym p))
+
+    lemma₄
+      : ∀ m n
+      → (p : k + m ≡ n)
+      → transport (Reduction≡ k m n p) (reduce m) ≡ reduce n
+    lemma₄ m n p
+      = lemma₃ m n p (λ m _ → reduce m) ∙ lemma₂ n
+
+  reduce≡
+    : ∀ m n (p : k + m ≡ n)
+    → PathP (λ i → Reduction≡ k m n p i) (reduce m) (reduce n)
+  reduce≡ m n p = toPathP (lemma₄ m n p)
+
+-- isContrReduction : ∀{k n} → isContr (Reduction (suc k) n)
+-- isContrReduction {k} {n} = inhProp→isContr (reduce k n) isPropReduction
