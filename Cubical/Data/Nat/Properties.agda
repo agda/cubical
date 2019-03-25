@@ -3,8 +3,6 @@ module Cubical.Data.Nat.Properties where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Foundations.HLevels
-
 open import Cubical.Data.Nat.Base
 
 open import Cubical.Data.Empty

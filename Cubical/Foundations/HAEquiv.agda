@@ -15,11 +15,9 @@ open import Cubical.Core.Everything
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Nat
-open import Cubical.Data.Sigma
 
 record isHAEquiv {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) : Set (ℓ-max ℓ ℓ') where
   field
@@ -138,43 +136,3 @@ congEquiv {A = A} {B} {x} {y} e = isoToEquiv (iso intro elim intro-elim elim-int
                      ; (j = i0) → secEq e x (i ∨ k)
                      ; (j = i1) → secEq e y (i ∨ k) })
             (secEq e (p j) i)
-
--- TODO: all of these should be moved
-
-hLevelRespectEquiv : ∀ {ℓ ℓ'} → {A : Set ℓ}  {B : Set ℓ'} → (n : ℕ) → A ≃ B → isOfHLevel n A → isOfHLevel n B
-hLevelRespectEquiv 0 eq hA =
-  ( fst eq (fst hA)
-  , λ b → cong (fst eq) (snd hA (eq .snd .equiv-proof b .fst .fst)) ∙ eq .snd .equiv-proof b .fst .snd)
-hLevelRespectEquiv 1 eq hA x y i =
-  hcomp (λ j → λ { (i = i0) → retEq eq x j ; (i = i1) → retEq eq y j })
-        (cong (eq .fst) (hA (invEquiv eq .fst x) (invEquiv eq .fst y)) i)
-hLevelRespectEquiv {A = A} {B = B} (suc (suc n)) eq hA x y =
-  hLevelRespectEquiv (suc n) (invEquiv (congEquiv (invEquiv eq))) (hA _ _)
-  
-hLevel≡ : ∀ {ℓ} n → {A B : Set ℓ} (hA : isOfHLevel n A) (hB : isOfHLevel n B) →
-  isOfHLevel n (A ≡ B)
-hLevel≡ n hA hB = hLevelRespectEquiv n (invEquiv univalence) (hLevel≃ n hA hB)
-
-hLevelHLevel1 : ∀ {ℓ} → isProp (HLevel {ℓ = ℓ} 0)
-hLevelHLevel1 x y = ΣProp≡ (λ A → isPropIsContr) (hLevel≡ 0 (x .snd) (y .snd) .fst)
-
-hLevelHLevelSuc : ∀ {ℓ} n → isOfHLevel (suc (suc n)) (HLevel {ℓ = ℓ} (suc n))
-hLevelHLevelSuc n x y = subst (λ e → isOfHLevel (suc n) e) (ua HLevel≡) (hLevel≡ (suc n) (snd x) (snd y))
-
-hProp≃HLevel1 : ∀ {ℓ} → hProp {ℓ} ≃ HLevel {ℓ} 1
-hProp≃HLevel1 {ℓ} = isoToEquiv (iso intro elim intro-elim elim-intro)
-  where
-    intro : hProp {ℓ} → HLevel {ℓ} 1
-    intro h = fst h , snd h
-
-    elim : HLevel 1 → hProp
-    elim h = (fst h) , (snd h)
-
-    intro-elim : ∀ h → intro (elim h) ≡ h
-    intro-elim h = ΣProp≡ (λ _ → isPropIsOfHLevel 1 _) refl
-
-    elim-intro : ∀ h → elim (intro h) ≡ h
-    elim-intro h = ΣProp≡ (λ _ → isPropIsProp) refl
-
-isSetHProp : ∀ {ℓ} → isSet (hProp {ℓ = ℓ})
-isSetHProp = subst (λ X → isOfHLevel 2 X) (ua (invEquiv hProp≃HLevel1)) (hLevelHLevelSuc 0)

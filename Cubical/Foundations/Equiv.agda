@@ -17,12 +17,12 @@ module Cubical.Foundations.Equiv where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat
 
 -- Proof using isPropIsContr. This is slow and the direct proof below is better
+
 isPropIsEquiv' : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → isProp (isEquiv f)
 equiv-proof (isPropIsEquiv' f u0 u1 i) y =
   isPropIsContr (u0 .equiv-proof y) (u1 .equiv-proof y) i
@@ -30,6 +30,7 @@ equiv-proof (isPropIsEquiv' f u0 u1 i) y =
 -- Direct proof that computes quite ok (can be optimized further if
 -- necessary, see:
 -- https://github.com/mortberg/cubicaltt/blob/pi4s3_dimclosures/examples/brunerie2.ctt#L562
+
 isPropIsEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → isProp (isEquiv f)
 equiv-proof (isPropIsEquiv f p q i) y =
   let p2 = p .equiv-proof y .snd
@@ -43,7 +44,6 @@ equiv-proof (isPropIsEquiv f p q i) y =
 
 equivEq : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (e f : A ≃ B) → (h : e .fst ≡ f .fst) → e ≡ f
 equivEq e f h = λ i → (h i) , isProp→PathP isPropIsEquiv h (e .snd) (f .snd) i
-
 
 isoToEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → Iso A B →  A ≃ B
 isoToEquiv i = _ , isoToIsEquiv i
