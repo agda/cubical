@@ -36,16 +36,13 @@ inr x = ∣ D.inr x ∣
                                })
 
 Ω≡ : ∀ {a b : Ω} → a .fst ≡ b .fst → a ≡ b
-Ω≡ p = D.ΣProp≡ (\ _ → isPropIsProp) p
-
+Ω≡ p = ΣProp≡ (\ _ → isPropIsProp) p
 
 pequivToIso : ∀ {a b : Ω} → (a .fst → b .fst) → (b .fst → a .fst) → Iso (a .fst) (b .fst)
 pequivToIso {a} {b} f g = iso f g (λ b₁ → b .snd (f (g b₁)) b₁) λ a₁ → a .snd (g (f a₁)) a₁
 
 pequivToPath : ∀ {a b : Ω} → (a .fst → b .fst) → (b .fst → a .fst) → (a .fst) ≡ (b .fst)
 pequivToPath {a} {b} f g = isoToPath (pequivToIso {a} {b} f g)
-
-
 
 ⊔-assoc : ∀ a b c → a ⊔ (b ⊔ c) ≡ (a ⊔ b) ⊔ c
 ⊔-assoc a b c = Ω≡ (pequivToPath {a ⊔ (b ⊔ c)} {(a ⊔ b) ⊔ c} assoc1 assoc2)
@@ -67,7 +64,6 @@ pequivToPath {a} {b} f g = isoToPath (pequivToIso {a} {b} f g)
 
 ⊔-idem : ∀ a → a ⊔ a ≡ a
 ⊔-idem a = Ω≡ (pequivToPath {a ⊔ a} {a} (⊔-elim {a} {a} (\ _ → a) (\ x → x) (\ x → x)) inl)
-
 
 ⊔-comm : ∀ a b → a ⊔ b ≡ b ⊔ a
 ⊔-comm a b = Ω≡ (pequivToPath {a ⊔ b} {b ⊔ a} (⊔-elim {a} {b} (\ _ → (b ⊔ a)) inr inl) (⊔-elim {b} {a} (\ _ → (a ⊔ b)) inr inl))
