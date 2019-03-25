@@ -24,9 +24,9 @@ open import Cubical.Relation.Nullary
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ : Level
     A : Set ℓ
-    B : A → Set ℓ'
+    B : A → Set ℓ
 
 hProp : Set (ℓ-suc ℓ)
 hProp {ℓ} = Σ (Set ℓ) isProp
@@ -72,7 +72,7 @@ isPropIsPiContrPath p q =
 
 -- A retract of a contractible type is contractible
 retractIsContr
-  : ∀{B : Set ℓ}
+  : ∀ {B : Set ℓ}
   → (f : A → B) (g : B → A)
   → (h : (x : A) → g (f x) ≡ x)
   → (v : isContr B) → isContr A
@@ -89,7 +89,7 @@ isContrSigma {A = A} {B = B} (a , p) q =
      , ( λ x i → p (x .fst) i
        , h (p (x .fst) i) (transp (λ j → B (p (x .fst) (i ∨ ~ j))) i (x .snd)) i))
 
-isContrPath : ∀ {ℓ} {A : Set ℓ} → isContr A → (x y : A) → isContr (x ≡ y)
+isContrPath : isContr A → (x y : A) → isContr (x ≡ y)
 isContrPath cA x y = inhProp→isContr (pA x y) (sA x y)
   where
   pA = isContr→isProp cA
@@ -138,19 +138,17 @@ hLevelPi {B = B} 1 h f g i x = (h x) (f x) (g x) i
 hLevelPi (suc (suc n)) h f g =
   subst (isOfHLevel (suc n)) funExtPath (hLevelPi (suc n) λ x → h x (f x) (g x))
 
-isSetPi : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'}
-  → ((x : A) → isSet (B x))
-  → isSet ((x : A) → B x)
+isSetPi : ((x : A) → isSet (B x)) → isSet ((x : A) → B x)
 isSetPi Bset = hLevelPi 2 (λ a → Bset a)
 
-isSet→isSet' : ∀ {ℓ} {A : Set ℓ} → isSet A → isSet' A
+isSet→isSet' : isSet A → isSet' A
 isSet→isSet' {A = A} Aset {x} {y} {z} {w} p q r s =
   J (λ (z : A) (r : x ≡ z) → ∀ {w : A} (s : y ≡ w) (p : x ≡ y) (q : z ≡ w) → PathP (λ i → Path A (r i) (s i) ) p q) helper r s p q
   where
     helper : ∀ {w : A} (s : y ≡ w) (p : x ≡ y) (q : x ≡ w) → PathP (λ i → Path A x (s i)) p q
     helper {w} s p q = J (λ (w : A) (s : y ≡ w) → ∀ p q → PathP (λ i → Path A x (s i)) p q) (λ p q → Aset x y p q) s p q 
 
-isSet'→isSet : ∀ {ℓ} {A : Set ℓ} → isSet' A → isSet A
+isSet'→isSet : isSet' A → isSet A
 isSet'→isSet {A = A} Aset' x y p q = Aset' p q refl refl
 
 hLevelSuc : (n : ℕ) (A : Set ℓ) → isOfHLevel n A → isOfHLevel (suc n) A
@@ -158,7 +156,7 @@ hLevelSuc 0 A = isContr→isProp
 hLevelSuc 1 A = isProp→isSet
 hLevelSuc (suc (suc n)) A h a b = hLevelSuc (suc n) (a ≡ b) (h a b)
 
-hLevelLift : ∀ {ℓ} {A : Set ℓ} {n : ℕ} (m : ℕ) (hA : isOfHLevel n A) → isOfHLevel (m + n) A
+hLevelLift : {n : ℕ} (m : ℕ) (hA : isOfHLevel n A) → isOfHLevel (m + n) A
 hLevelLift zero hA = hA
 hLevelLift {A = A} (suc m) hA = hLevelSuc _ A (hLevelLift m hA)
 
