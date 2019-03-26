@@ -88,6 +88,12 @@ compPathP p q j = compPathP-filler p q j i1
 _≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → x ≡ z
 _ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
 
+
+≡⟨⟩-syntax : (x : A) → x ≡ y → y ≡ z → x ≡ z
+≡⟨⟩-syntax = _≡⟨_⟩_
+infixr 2 ≡⟨⟩-syntax
+syntax ≡⟨⟩-syntax x (λ i → B) y = x ≡[ i ]⟨ B ⟩ y
+
 _∎ : (x : A) → x ≡ x
 _ ∎ = refl
 
