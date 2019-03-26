@@ -12,6 +12,10 @@ open import Cubical.HITs.S3
 open import Cubical.HITs.Join
 open import Cubical.HITs.Hopf
 open import Cubical.HITs.SetTruncation
+open import Cubical.HITs.GroupoidTruncation
+open import Cubical.HITs.2GroupoidTruncation
+
+-- This code is adapted from examples/brunerie3.ctt on the pi4s3_nobug branch of cubicaltt
 
 ptType : Set₁
 ptType = Σ[ A ∈ Set ] A
@@ -24,6 +28,13 @@ ptBool = (Bool , true)
 ptS¹ = (S¹ , base)
 ptS² = (S² , base)
 ptS³ = (S³ , base)
+
+pt∥_∥₁ pt∥_∥₂ : ptType → ptType
+pt∥ A , a ∥₁ = ∥ A ∥₁ , ∣ a ∣₁
+pt∥ A , a ∥₂ = ∥ A ∥₂ , ∣ a ∣₂
+
+ptjoin : ptType → Set → ptType
+ptjoin (A , a) B = join A B , inl a
 
 Ω Ω² Ω³ : ptType → ptType
 Ω (A , a) = (Path A a a) , refl
@@ -39,8 +50,11 @@ mapΩ²refl f p i j = f (p i j)
 mapΩ³refl : {A : ptType} {B : Set} (f : A .fst → B) → Ω³ A .fst → Ω³ (B , f (pt A)) .fst
 mapΩ³refl f p i j k = f (p i j k)
 
-ptjoin : ptType → Set → ptType
-ptjoin (A , a) B = join A B , inl a
+PROP SET GROUPOID TWOGROUPOID : ∀ ℓ → Set (ℓ-suc ℓ)
+PROP ℓ = Σ (Set ℓ) isProp
+SET ℓ = Σ (Set ℓ) isSet
+GROUPOID ℓ = Σ (Set ℓ) isGroupoid
+TWOGROUPOID ℓ = Σ (Set ℓ) is2Groupoid
 
 meridS² : S¹ → Path S² base base
 meridS² base _ = base
@@ -61,18 +75,6 @@ connectionBoth {a = a} p i j =
       ; (j = i1) → p (i ∧ k)
       })
     a
-
-isGroupoid : ∀ {ℓ} → Set ℓ → Set ℓ
-isGroupoid A = ∀ a b → isSet (Path A a b)
-
-isTwoGroupoid : ∀ {ℓ} → Set ℓ → Set ℓ
-isTwoGroupoid A = ∀ a b → isGroupoid (Path A a b)
-
-PROP SET GROUPOID TWOGROUPOID : ∀ ℓ → Set (ℓ-suc ℓ)
-PROP ℓ = Σ (Set ℓ) isProp
-SET ℓ = Σ (Set ℓ) isSet
-GROUPOID ℓ = Σ (Set ℓ) isGroupoid
-TWOGROUPOID ℓ = Σ (Set ℓ) isTwoGroupoid
 
 data PostTotalHopf : Set where
   base : S¹ → PostTotalHopf
@@ -137,50 +139,6 @@ fibContrΩ³Hopf p i j k =
 h : Ω³ ptS² .fst → Ω³ (ptjoin ptS¹ S¹) .fst
 h p i j k = tee (p i j k) (fibContrΩ³Hopf p i j k)
 
-Trunc₀Rec : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (sB : isSet B) → (A → B) → (∥ A ∥₀ → B)
-Trunc₀Rec sB f ∣ x ∣₀ = f x
-Trunc₀Rec sB f (squash₀ x y p q i j) =
-  sB _ _
-    (λ m → Trunc₀Rec sB f (p m))
-    (λ m → Trunc₀Rec sB f (q m))
-    i j
-
-data ∥_∥₁ {ℓ} (A : Set ℓ) : Set ℓ where
-  ∣_∣₁ : A → ∥ A ∥₁
-  squash₁ : ∀ {x y : ∥ A ∥₁} {p q : x ≡ y} (r s : p ≡ q) → r ≡ s
-
-pt∥_∥₁ : ptType → ptType
-pt∥ A , a ∥₁ = ∥ A ∥₁ , ∣ a ∣₁
-
-Trunc₁Rec : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (gB : isGroupoid B) → (A → B) → (∥ A ∥₁ → B)
-Trunc₁Rec gB f ∣ x ∣₁ = f x
-Trunc₁Rec gB f (squash₁ r s i j k) =
-  gB _ _ _ _
-    (λ m n → Trunc₁Rec gB f (r m n))
-    (λ m n → Trunc₁Rec gB f (s m n))
-    i j k
-
-Trunc₁Groupoid : {A : Set} → isGroupoid ∥ A ∥₁
-Trunc₁Groupoid _ _ _ _ = squash₁
-
-data ∥_∥₂ {ℓ} (A : Set ℓ) : Set ℓ where
-  ∣_∣₂ : A → ∥ A ∥₂
-  squash₂ : ∀ {x y : ∥ A ∥₂} {p q : x ≡ y} {r s : p ≡ q} (t u : r ≡ s) → t ≡ u
-
-pt∥_∥₂ : ptType → ptType
-pt∥ A , a ∥₂ = ∥ A ∥₂ , ∣ a ∣₂
-
-Trunc₂Rec : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (gB : isTwoGroupoid B) → (A → B) → (∥ A ∥₂ → B)
-Trunc₂Rec gB f ∣ x ∣₂ = f x
-Trunc₂Rec gB f (squash₂ t u i j k l) =
-  gB _ _ _ _ _ _
-    (λ m n o → Trunc₂Rec gB f (t m n o))
-    (λ m n o → Trunc₂Rec gB f (u m n o))
-    i j k l
-
-Trunc₂TwoGroupoid : {A : Set} → isTwoGroupoid ∥ A ∥₂
-Trunc₂TwoGroupoid _ _ _ _ _ _ = squash₂
-
 multTwoAux : (x : S²) → Path (Path ∥ S² ∥₂ ∣ x ∣₂ ∣ x ∣₂) refl refl
 multTwoAux base i j = ∣ surf i j ∣₂
 multTwoAux (surf k l) i j =
@@ -193,7 +151,7 @@ multTwoAux (surf k l) i j =
       ; (k = i0) → ∣ surf i j ∣₂
       ; (k = i1) → ∣ surf i j ∣₂
       ; (l = i0) → ∣ surf i j ∣₂
-      ; (l = i1) → squash₂ (λ k i j → step₁ k i j) refl m k i j
+      ; (l = i1) → squash₂ _ _ _ _ _ _ (λ k i j → step₁ k i j) refl m k i j
       })
     (step₁ k i j)
     
@@ -214,8 +172,8 @@ multTwoAux (surf k l) i j =
 
 multTwoTildeAux : (t : ∥ S² ∥₂) → Path (Path ∥ S² ∥₂ t t) refl refl
 multTwoTildeAux ∣ x ∣₂ = multTwoAux x
-multTwoTildeAux (squash₂ t u k l m n) i j =
-  squash₂
+multTwoTildeAux (squash₂ _ _ _ _ _ _ t u k l m n) i j =
+  squash₂ _ _ _ _ _ _
     (λ k l m → multTwoTildeAux (t k l m) i j)
     (λ k l m → multTwoTildeAux (u k l m) i j)
     k l m n
@@ -256,14 +214,14 @@ tHopf³ (surf i j k) =
 π₃S³ p i j = transp (λ k → tHopf³ (p j k i)) i0 ∣ base ∣₂
 
 postulate
-  isTwoGroupoidGROUPOID : ∀ {ℓ} → isTwoGroupoid (GROUPOID ℓ)
+  is2GroupoidGROUPOID : ∀ {ℓ} → is2Groupoid (GROUPOID ℓ)
   isGroupoidSET : ∀ {ℓ} → isGroupoid (SET ℓ)
 
 codeS² : S² → GROUPOID _
-codeS² s = ∥ HopfS² s ∥₁ , Trunc₁Groupoid
+codeS² s = ∥ HopfS² s ∥₁ , squash₁
 
 codeTruncS² : ∥ S² ∥₂ → GROUPOID _
-codeTruncS² = Trunc₂Rec isTwoGroupoidGROUPOID codeS²
+codeTruncS² = rec2GroupoidTrunc is2GroupoidGROUPOID codeS²
 
 encodeTruncS² : Ω pt∥ ptS² ∥₂ .fst → ∥ S¹ ∥₁
 encodeTruncS² p = transp (λ i → codeTruncS² (p i) .fst) i0 ∣ base ∣₁
@@ -272,7 +230,7 @@ codeS¹ : S¹ → SET _
 codeS¹ s = ∥ helix s ∥₀ , squash₀
 
 codeTruncS¹ : ∥ S¹ ∥₁ → SET _
-codeTruncS¹ = Trunc₁Rec isGroupoidSET codeS¹
+codeTruncS¹ = recGroupoidTrunc isGroupoidSET codeS¹
 
 encodeTruncS¹ : Ω pt∥ ptS¹ ∥₁ .fst → ∥ Int ∥₀
 encodeTruncS¹ p = transp (λ i → codeTruncS¹ (p i) .fst) i0 ∣ pos zero ∣₀
@@ -302,4 +260,8 @@ g9 : Ω pt∥ ptS¹ ∥₁ .fst → ∥ Int ∥₀
 g9 = encodeTruncS¹
 
 g10 : ∥ Int ∥₀ → Int
-g10 = Trunc₀Rec isSetInt (idfun Int)
+g10 = elimSetTrunc (λ _ → isSetInt) (idfun Int)
+
+-- don't run me
+brunerie : Int
+brunerie = g10 (g9 (g8 (f7 (f6 (f5 (f4 (f3 (λ i j k → surf i j k))))))))

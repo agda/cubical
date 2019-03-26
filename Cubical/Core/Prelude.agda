@@ -186,3 +186,10 @@ isSet A = (x y : A) → isProp (x ≡ y)
 isSet' : Set ℓ → Set ℓ
 isSet' A = {x y z w : A} (p : x ≡ y) (q : z ≡ w) (r : x ≡ z) (s : y ≡ w) →
            PathP (λ i → Path A (r i) (s i)) p q
+
+isGroupoid : Set ℓ → Set ℓ
+isGroupoid A = ∀ a b → isSet (Path A a b)
+
+is2Groupoid : Set ℓ → Set ℓ
+is2Groupoid A = ∀ a b → isGroupoid (Path A a b)
+
