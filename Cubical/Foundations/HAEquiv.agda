@@ -35,32 +35,6 @@ private
     A : Set ℓ
     B : Set ℓ'
 
--- TODO: Move somewhere?
-homotopyNatural : {f g : A → B} (H : ∀ a → f a ≡ g a) {x y : A} (p : x ≡ y) →
-                  H x ∙ cong g p ≡ cong f p ∙ H y
-homotopyNatural H p = homotopyNatural' H p ∙ □≡∙ _ _
-  where
-  homotopyNatural' : {f g : A → B} (H : ∀ a → f a ≡ g a) {x y : A} (p : x ≡ y) →
-                     H x ∙ cong g p ≡ cong f p □ H y
-  homotopyNatural' {f = f} {g = g} H {x} {y} p i j =
-    hcomp (λ k → λ { (i = i0) → compPath-filler (H x) (cong g p) k j
-                   ; (i = i1) → compPath'-filler (cong f p) (H y) k j
-                   ; (j = i0) → cong f p (i ∧ (~ k))
-                   ; (j = i1) → cong g p (i ∨ k) })
-          (H (p i) j)
-
--- TODO: Move somewhere?
-Hfa≡fHa : ∀ {ℓ} {A : Set ℓ} (f : A → A) (H : ∀ a → f a ≡ a) → ∀ a → H (f a) ≡ cong f (H a)
-Hfa≡fHa {A = A} f H a =
-  H (f a)                          ≡⟨ rUnit (H (f a)) ⟩
-  H (f a) ∙ refl                   ≡⟨ cong (_∙_ (H (f a))) (sym (rCancel (H a))) ⟩
-  H (f a) ∙ H a ∙ sym (H a)        ≡⟨ assoc _ _ _ ⟩
-  (H (f a) ∙ H a) ∙ sym (H a)      ≡⟨ cong (λ x →  x ∙ (sym (H a))) (homotopyNatural H (H a)) ⟩
-  (cong f (H a) ∙ H a) ∙ sym (H a) ≡⟨ sym (assoc _ _ _) ⟩
-  cong f (H a) ∙ H a ∙ sym (H a)   ≡⟨ cong (_∙_ (cong f (H a))) (rCancel _) ⟩
-  cong f (H a) ∙ refl              ≡⟨ sym (rUnit _) ⟩
-  cong f (H a) ∎
-
 iso→HAEquiv : Iso A B → HAEquiv A B
 iso→HAEquiv {A = A} {B = B} (iso f g ε η) = f , (record { g = g ; sec = η ; ret = ret ; com = com })
   where
