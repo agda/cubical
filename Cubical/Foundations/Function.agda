@@ -5,6 +5,7 @@
 module Cubical.Foundations.Function where
 
 open import Cubical.Core.Everything
+open import Cubical.Core.Glue public using (idfun)
 
 infixr 9 _∘_
 
@@ -17,14 +18,10 @@ g ∘ f = λ x → g (f x)
           → (h ∘ g) ∘ f ≡ h ∘ (g ∘ f)
 ∘-assoc h g f i x = h (g (f x))
 
-
-id : ∀ {ℓ} {A : Set ℓ} → A → A
-id = λ x → x
-
-∘-idˡ : ∀ {ℓ ℓ′} {A : Set ℓ} {B : A → Set ℓ′} (f : (a : A) → B a) → f ∘ id ≡ f
+∘-idˡ : ∀ {ℓ ℓ′} {A : Set ℓ} {B : A → Set ℓ′} (f : (a : A) → B a) → f ∘ idfun A ≡ f
 ∘-idˡ f i x = f x
 
-∘-idʳ : ∀ {ℓ ℓ′} {A : Set ℓ} {B : A → Set ℓ′} (f : (a : A) → B a) → id ∘ f ≡ f
+∘-idʳ : ∀ {ℓ ℓ′} {A : Set ℓ} {B : A → Set ℓ′} (f : (a : A) → B a) → (λ {a} → idfun (B a)) ∘ f ≡ f
 ∘-idʳ f i x = f x
 
 
