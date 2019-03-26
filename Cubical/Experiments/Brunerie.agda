@@ -154,7 +154,7 @@ multTwoAux (surf k l) i j =
       ; (l = i1) → squash₂ _ _ _ _ _ _ (λ k i j → step₁ k i j) refl m k i j
       })
     (step₁ k i j)
-    
+
   where
   step₁ : I → I → I → ∥ S² ∥₂
   step₁ k i j =
@@ -265,3 +265,51 @@ g10 = elimSetTrunc (λ _ → isSetInt) (idfun Int)
 -- don't run me
 brunerie : Int
 brunerie = g10 (g9 (g8 (f7 (f6 (f5 (f4 (f3 (λ i j k → surf i j k))))))))
+
+-- simpler tests
+
+test63 : ℕ → Int
+test63 n = g10 (g9 (g8 (f7 (63n n))))
+  where
+  63n : ℕ → Ω³ ptS³ .fst
+  63n zero i j k = base
+  63n (suc n) = f6 (f3 (63n n))
+
+foo : Ω³ ptS² .fst
+foo i j k =
+  hcomp
+    (λ l → λ
+      { (i = i0) → surf l l
+      ; (i = i1) → surf l l
+      ; (j = i0) → surf l l
+      ; (j = i1) → surf l l
+      ; (k = i0) → surf l l
+      ; (k = i1) → surf l l
+      })
+    base
+
+sorghum : Ω³ ptS² .fst
+sorghum i j k =
+  hcomp
+    (λ l → λ
+      { (i = i0) → surf j l
+      ; (i = i1) → surf k (~ l)
+      ; (j = i0) → surf k (i ∧ ~ l)
+      ; (j = i1) → surf k (i ∧ ~ l)
+      ; (k = i0) → surf j (i ∨ l)
+      ; (k = i1) → surf j (i ∨ l)
+      })
+    (hcomp
+      (λ l → λ
+        { (i = i0) → base
+        ; (i = i1) → surf j l
+        ; (j = i0) → surf k i
+        ; (j = i1) → surf k i
+        ; (k = i0) → surf j (i ∧ l)
+        ; (k = i1) → surf j (i ∧ l)
+        })
+      (surf k i))
+
+
+goo : Ω³ ptS² .fst → Int
+goo x = g10 (g9 (g8 (f7 (f6 (f5 x)))))
