@@ -14,16 +14,16 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.FunExtEquiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.HAEquiv
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.HAEquiv      using (congEquiv)
+open import Cubical.Foundations.Equiv        using (isoToEquiv; isPropIsEquiv; retEq; invEquiv)
+open import Cubical.Foundations.Univalence   using (univalence)
 
-open import Cubical.Data.Sigma
-open import Cubical.Data.Nat
+open import Cubical.Data.Sigma  using (ΣPathP; sigmaPath→pathSigma; pathSigma≡sigmaPath; _Σ≡T_)
+open import Cubical.Data.Nat    using (ℕ; zero; suc; _+_; +-comm)
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A : Set ℓ
     B : A → Set ℓ
     n : ℕ
@@ -47,7 +47,7 @@ isPropIsProp f g i a b = isProp→isSet f a b (f a b) (g a b) i
 
 -- A retract of a contractible type is contractible
 retractIsContr
-  : ∀{B : Set ℓ}
+  : ∀ {B : Set ℓ}
   → (f : A → B) (g : B → A)
   → (h : (x : A) → g (f x) ≡ x)
   → (v : isContr B) → isContr A
@@ -69,9 +69,6 @@ isContrPath cA x y = inhProp→isContr (pA x y) (sA x y)
   where
   pA = isContr→isProp cA
   sA = isProp→isSet pA
-
-lemProp : (A → isProp A) → isProp A
-lemProp h a = h a a
 
 -- Π preserves propositionality in the following sense:
 propPi : (h : (x : A) → isProp (B x)) → isProp ((x : A) → B x)
@@ -169,11 +166,12 @@ hLevel≃ zero {A = A} {B = B} hA hB = A≃B , contr
 
   contr : (y : A ≃ B) → A≃B ≡ y
   contr y = ΣProp≡ isPropIsEquiv (funExt (λ a → snd hB (fst y a)))
+  
 hLevel≃ (suc n) hA hB =
   isOfHLevelΣ (suc n) (hLevelPi (suc n) (λ _ → hB))
               (λ a → subst (λ n → isOfHLevel n (isEquiv a)) (+-comm n 1) (hLevelLift n (isPropIsEquiv a)))
 
-hLevelRespectEquiv : ∀ {ℓ ℓ'} → {A : Set ℓ}  {B : Set ℓ'} → (n : ℕ) → A ≃ B → isOfHLevel n A → isOfHLevel n B
+hLevelRespectEquiv : {A : Set ℓ} {B : Set ℓ'} → (n : ℕ) → A ≃ B → isOfHLevel n A → isOfHLevel n B
 hLevelRespectEquiv 0 eq hA =
   ( fst eq (fst hA)
   , λ b → cong (fst eq) (snd hA (eq .snd .equiv-proof b .fst .fst)) ∙ eq .snd .equiv-proof b .fst .snd)
@@ -183,18 +181,18 @@ hLevelRespectEquiv 1 eq hA x y i =
 hLevelRespectEquiv {A = A} {B = B} (suc (suc n)) eq hA x y =
   hLevelRespectEquiv (suc n) (invEquiv (congEquiv (invEquiv eq))) (hA _ _)
   
-hLevel≡ : ∀ {ℓ} n → {A B : Set ℓ} (hA : isOfHLevel n A) (hB : isOfHLevel n B) →
+hLevel≡ : ∀ n → {A B : Set ℓ} (hA : isOfHLevel n A) (hB : isOfHLevel n B) →
   isOfHLevel n (A ≡ B)
 hLevel≡ n hA hB = hLevelRespectEquiv n (invEquiv univalence) (hLevel≃ n hA hB)
 
-hLevelHLevel1 : ∀ {ℓ} → isProp (HLevel {ℓ = ℓ} 0)
+hLevelHLevel1 : isProp (HLevel {ℓ = ℓ} 0)
 hLevelHLevel1 x y = ΣProp≡ (λ _ → isPropIsContr) ((hLevel≡ 0 (x .snd) (y .snd) .fst))
 
-hLevelHLevelSuc : ∀ {ℓ} n → isOfHLevel (suc (suc n)) (HLevel {ℓ = ℓ} (suc n))
+hLevelHLevelSuc : ∀ n → isOfHLevel (suc (suc n)) (HLevel {ℓ = ℓ} (suc n))
 hLevelHLevelSuc n x y = subst (λ e → isOfHLevel (suc n) e) HLevel≡ (hLevel≡ (suc n) (snd x) (snd y)) 
 
-hProp≃HLevel1 : ∀ {ℓ} → hProp {ℓ} ≃ HLevel {ℓ} 1
-hProp≃HLevel1 {ℓ} = isoToEquiv (iso intro elim intro-elim elim-intro)
+hProp≡HLevel1 : hProp {ℓ} ≡ HLevel {ℓ} 1
+hProp≡HLevel1 {ℓ} = isoToPath (iso intro elim intro-elim elim-intro)
   where
     intro : hProp {ℓ} → HLevel {ℓ} 1
     intro h = fst h , snd h
@@ -208,5 +206,5 @@ hProp≃HLevel1 {ℓ} = isoToEquiv (iso intro elim intro-elim elim-intro)
     elim-intro : ∀ h → elim (intro h) ≡ h
     elim-intro h = ΣProp≡ (λ _ → isPropIsProp) refl
 
-isSetHProp : ∀ {ℓ} → isSet (hProp {ℓ = ℓ})
-isSetHProp = subst (λ X → isOfHLevel 2 X) (ua (invEquiv hProp≃HLevel1)) (hLevelHLevelSuc 0)
+isSetHProp : isSet (hProp {ℓ = ℓ})
+isSetHProp = subst (λ X → isOfHLevel 2 X) (sym hProp≡HLevel1) (hLevelHLevelSuc 0)
