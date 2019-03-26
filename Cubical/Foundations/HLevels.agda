@@ -17,14 +17,9 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HAEquiv
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
-open import Cubical.Data.Empty
-open import Cubical.Data.Sum
-
-open import Cubical.Relation.Nullary
 
 private
   variable
@@ -43,8 +38,6 @@ isOfHLevel (suc n) A = (x y : A) → isOfHLevel n (x ≡ y)
 
 HLevel : ℕ → Set (ℓ-suc ℓ)
 HLevel {ℓ} n = Σ[ A ∈ Set ℓ ] (isOfHLevel n A)
-
-
 
 inhProp→isContr : A → isProp A → isContr A
 inhProp→isContr x h = x , h x
@@ -148,16 +141,14 @@ HLevel≡ {n = n} {A = A} {B = B} {hA} {hB} =
       J (λ B e →
            ∀ k → (x y : PathP (λ i → isOfHLevel n (e i)) hA k) → x ≡ y)
         (λ k → isProp→isSet (isPropIsOfHLevel n _) _ _) e hB) refl)
-     where
-       ΣPathP : Σ (A ≡ B) (λ a≡ → PathP (λ i → isOfHLevel n (a≡ i)) hA hB) → (A , hA) ≡ (B , hB)
-       ΣPathP eq = λ i → (fst eq i) , (snd eq i)
 
     elim-intro : ∀ x → elim (intro x) ≡ x
     elim-intro eq = refl
 
 -- H-level for Σ-types
 
-isOfHLevelΣ : ∀ n → isOfHLevel n A → ((x : A) → isOfHLevel n (B x)) → isOfHLevel n (Σ A B)
+isOfHLevelΣ : ∀ n → isOfHLevel n A → ((x : A) → isOfHLevel n (B x))
+  → isOfHLevel n (Σ A B)
 isOfHLevelΣ zero h1 h2 =
   let center = (fst h1 , fst (h2 (fst h1))) in
   let p : ∀ x → center ≡ x

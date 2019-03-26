@@ -3,7 +3,6 @@
 Basic properties about Σ-types
 
 - Characterization of equality in Σ-types using transport ([pathSigma≡sigmaPath])
-- HLevel of Σ-types ([isOfHLevelΣ])
 
 -}
 {-# OPTIONS --cubical --safe #-}
@@ -27,13 +26,18 @@ private
     A : Set ℓ
     B : (a : A) → Set ℓ
 
+
+ΣPathP : ∀ {x y}
+  → Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y))
+  → x ≡ y
+ΣPathP eq = λ i → (fst eq i) , (snd eq i)
+
 Σ≡ : {x y : Σ A B}  →
      Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y)) ≃
      (x ≡ y)
 Σ≡ {A = A} {B = B} {x} {y} = isoToEquiv (iso intro elim intro-elim elim-intro)
   where
-    intro : Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y)) → x ≡ y
-    intro eq = λ i → (fst eq i) , (snd eq i)
+    intro = ΣPathP
 
     elim : x ≡ y → Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y ))
     elim eq = (λ i → fst (eq i)) , λ i → snd (eq i)
