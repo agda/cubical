@@ -36,7 +36,7 @@ open import Agda.Builtin.Cubical.Id public
   hiding ( primIdJ ) -- this should not be used as it is using compCCHM
 open import Cubical.Core.Primitives public  hiding ( _≡_ )
 open import Cubical.Core.Prelude public
-  hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ )
+  hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ ; isPropIsContr)
   renaming ( refl      to reflPath
            ; transport to transportPath
            ; J         to JPath
@@ -250,7 +250,6 @@ isPropIsContr (a0 , p0) (a1 , p1) j =
                                                 ; (j = i0) → idToPath (p0 x) (i ∧ k)
                                                 ; (j = i1) → idToPath (p1 x) i })
                                        (idToPath (p0 (idToPath (p1 x) i)) j))))
-
 
 -- We now prove that isEquiv is a proposition
 isPropIsEquiv : ∀ {A : Set ℓ} {B : Set ℓ} → {f : A → B} → (h1 h2 : isEquiv f) → Path _ h1 h2
