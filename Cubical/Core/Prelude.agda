@@ -35,7 +35,7 @@ infixr 2 _≡⟨_⟩_
 
 private
   variable
-    ℓ ℓ' ℓ'' : Level
+    ℓ ℓ' : Level
     A : Set ℓ
     B : A → Set ℓ
     x y z : A
@@ -54,7 +54,7 @@ cong : ∀ (f : (a : A) → B a) (p : x ≡ y) →
        PathP (λ i → B (p i)) (f x) (f y)
 cong f p i = f (p i)
 
-cong₂ : ∀ {C : (a : A) → (b : B a) → Set ℓ''} →
+cong₂ : ∀ {C : (a : A) → (b : B a) → Set ℓ} →
         (f : (a : A) → (b : B a) → C a b) →
         (p : x ≡ y) →
         {u : B x} {v : B y} (q : PathP (λ i → B (p i)) u v) →
@@ -160,7 +160,7 @@ syntax Σ-syntax A (λ x → B) = Σ[ x ∈ A ] B
 
 -- Contractibility of singletons
 
-singl : {A : Set ℓ} (a : A) → Set ℓ
+singl : (a : A) → Set _
 singl {A = A} a = Σ[ x ∈ A ] (a ≡ x)
 
 contrSingl : (p : x ≡ y) → Path (singl x) (x , refl) (y , p)

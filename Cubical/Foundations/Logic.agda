@@ -1,69 +1,260 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Logic where
 
-import Cubical.Data.Everything as D
+import Cubical.Data.Everything as D 
 open import Cubical.Core.Everything
-open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels using (hProp; ΣProp≡; isPropIsProp; propPi; isSetHProp)
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function
 
-Ω = Σ Set isProp
+infixr 7 _⊔_
+infixr 7 _⊔′_
+infixr 7 _⊓_
+infixr 7 _⊓′_
+infixr 5 _⇒_
+infixr 4 _⇔_
 
-[_] : Ω → Set
-[ P ] = P .fst
+--------------------------------------------------------------------------------
+-- The type hProp of mere propositions 
+-- the definition hProp is given in Foundations.HLevels
+-- hProp {ℓ} = Σ (Set ℓ) isProp
 
-⊥ : Ω
+private
+  variable
+    ℓ ℓ' ℓ'' : Level
+    P Q R : hProp {ℓ}
+    A B C : Set ℓ
+    
+[_] : hProp → Set ℓ
+[_] = fst
+
+infix 30 _≡ₘ_
+infix 30 ∥_∥ₚ
+
+∥_∥ₚ : Set ℓ → hProp
+∥ A ∥ₚ = ∥ A ∥ , propTruncIsProp
+
+_≡ₘ_ : (x y : A) → hProp
+x ≡ₘ y = ∥ x ≡ y ∥ₚ
+
+hProp≡ : [ P ] ≡ [ Q ] → P ≡ Q
+hProp≡ p = ΣProp≡ (\ _ → isPropIsProp) p
+
+--------------------------------------------------------------------------------
+-- Logical implication of mere propositions
+
+_⇒_ : (A : hProp {ℓ}) → (B : hProp {ℓ'}) → hProp
+A ⇒ B = ([ A ] → [ B ]) , propPi λ _ → B .snd
+
+⇔toPath : [ P ⇒ Q ] → [ Q ⇒ P ] → P ≡ Q
+⇔toPath {P = P} {Q = Q} P⇒Q Q⇒P = hProp≡ (isoToPath
+  (iso P⇒Q Q⇒P (λ b → Q .snd (P⇒Q (Q⇒P b)) b) λ a → P .snd (Q⇒P (P⇒Q a)) a))
+
+--------------------------------------------------------------------------------
+-- Mixfix notations for proving logical equivalence
+
+⇒∶_⇐∶_ : [ P ⇒ Q ] → [ Q ⇒ P ] → P ≡ Q
+⇒∶_⇐∶_ = ⇔toPath
+infix 2 ⇒∶_⇐∶_
+
+⇐∶_⇒∶_ : [ Q ⇒ P ] → [ P ⇒ Q ] → P ≡ Q
+⇐∶ g ⇒∶ f  = ⇔toPath f g 
+infix 2 ⇐∶_⇒∶_
+
+--------------------------------------------------------------------------------
+-- False and True
+
+⊥ : hProp
 ⊥ = D.⊥ , D.isProp⊥
 
-⊤ : Ω
-⊤ = D.Unit , λ x y i → D.tt
+⊤ : hProp
+⊤ = D.Unit , D.isPropUnit
 
-_⊔′_ : Set → Set → Set
+--------------------------------------------------------------------------------
+-- Disjunction of mere propositions
+
+_⊔′_ : Set ℓ → Set ℓ' → Set _
 A ⊔′ B = ∥ A D.⊎ B ∥
 
-_⊔_ : Ω → Ω → Ω
-A ⊔ B = (∥ [ A ] D.⊎ [ B ] ∥) , propTruncIsProp
+_⊔_ : hProp {ℓ} → hProp {ℓ'} → hProp
+P ⊔ Q = [ P ] ⊔′ [ Q ] , propTruncIsProp
 
-inl : ∀ {A B} → A → A ⊔′ B
+inl : A → A ⊔′ B
 inl x = ∣ D.inl x ∣
 
-inr : ∀ {A B} → B → A ⊔′ B
+inr : B → A ⊔′ B
 inr x = ∣ D.inr x ∣
 
-⊔-elim : ∀ {A B} (C : [ A ⊔ B ] → Ω) → (∀ a → [ C (inl a) ]) → (∀ b → [ C (inr b) ]) → (∀ x → [ C x ])
-⊔-elim C f g = (elimPropTrunc (\ x → C _ .snd)
-                             \ { (D.inl x) → f x
-                               ; (D.inr x) → g x
-                               })
+⊔-elim : (P : hProp {ℓ}) (Q : hProp {ℓ'}) (R : [ P ⊔ Q ] → hProp {ℓ''})
+  → (∀ x → [ R (inl x) ]) → (∀ y → [ R (inr y) ]) → (∀ z → [ R z ])
+⊔-elim P Q R P⇒R Q⇒R = elimPropTrunc (\ _ → R _ .snd) (D.elim-⊎ P⇒R Q⇒R)
 
-Ω≡ : ∀ {a b : Ω} → a .fst ≡ b .fst → a ≡ b
-Ω≡ p = ΣProp≡ (\ _ → isPropIsProp) p
+--------------------------------------------------------------------------------
+-- Conjunction of mere propositions
+_⊓′_ : Set ℓ → Set ℓ' → Set _
+A ⊓′ B = A D.× B
 
-pequivToIso : ∀ {a b : Ω} → (a .fst → b .fst) → (b .fst → a .fst) → Iso (a .fst) (b .fst)
-pequivToIso {a} {b} f g = iso f g (λ b₁ → b .snd (f (g b₁)) b₁) λ a₁ → a .snd (g (f a₁)) a₁
+_⊓_ : hProp {ℓ} → hProp {ℓ'} → hProp
+A ⊓ B = [ A ] ⊓′ [ B ] , D.hLevelProd 1 (A .snd) (B .snd)
 
-pequivToPath : ∀ {a b : Ω} → (a .fst → b .fst) → (b .fst → a .fst) → (a .fst) ≡ (b .fst)
-pequivToPath {a} {b} f g = isoToPath (pequivToIso {a} {b} f g)
+⊓-intro : (P : hProp {ℓ}) (Q : [ P ] → hProp {ℓ'}) (R : [ P ] → hProp {ℓ''})
+       → (∀ a → [ Q a ]) → (∀ a → [ R a ]) → (∀ (a : [ P ]) → [ Q a ⊓ R a ] )
+⊓-intro A B C f g a = f a D., g a
+--------------------------------------------------------------------------------
+-- Pseudo-complement of mere propositions
+¬_ : hProp {ℓ} → hProp
+¬ A = ([ A ] → D.⊥) , propPi λ _ → D.isProp⊥
 
-⊔-assoc : ∀ a b c → a ⊔ (b ⊔ c) ≡ (a ⊔ b) ⊔ c
-⊔-assoc a b c = Ω≡ (pequivToPath {a ⊔ (b ⊔ c)} {(a ⊔ b) ⊔ c} assoc1 assoc2)
- where
-   module _ {a b c : Set} where
-    assoc1 : a ⊔′ (b ⊔′ c) → (a ⊔′ b) ⊔′ c
+--------------------------------------------------------------------------------
+-- Logical bi-implication of mere propositions
+
+_⇔_ : hProp {ℓ} → hProp → hProp
+A ⇔ B = (A ≡ B) , isSetHProp A B
+
+--------------------------------------------------------------------------------
+-- Universal Quantifier
+
+infix 2 ∀-syntax
+
+∀-syntax : (A → hProp {ℓ}) → hProp 
+∀-syntax {A = A} P = (∀ x → [ P x ]) , propPi (snd ∘ P)
+
+syntax ∀-syntax {A = A} (λ a → P) = ∀[ a ∶ A ] P
+
+--------------------------------------------------------------------------------
+-- Existential Quantifier
+
+infix 2 ∃-syntax
+
+∃-syntax : (A → hProp {ℓ}) → hProp
+∃-syntax {A = A} P = ∥ Σ A (fst ∘ P) ∥ₚ
+
+syntax ∃-syntax {A = A} (λ x → P) = ∃[ x ∶ A ] P
+
+--------------------------------------------------------------------------------
+-- (hProp, ⊔, ⊥) is a bounded ⊔-semilattice
+
+⊔-assoc : (P : hProp {ℓ}) (Q : hProp {ℓ'}) (R : hProp {ℓ''})
+  → P ⊔ (Q ⊔ R) ≡ (P ⊔ Q) ⊔ R
+⊔-assoc a b c = ⇔toPath assoc1 assoc2
+  where
+    assoc1 : A ⊔′ (B ⊔′ C) → (A ⊔′ B) ⊔′ C
     assoc1 ∣ D.inl a ∣ = ∣ D.inl ∣ D.inl a ∣ ∣
     assoc1 ∣ D.inr ∣ D.inl b ∣ ∣ = ∣ D.inl ∣ D.inr b ∣ ∣
     assoc1 ∣ D.inr ∣ D.inr c ∣ ∣ = ∣ D.inr c ∣
     assoc1 ∣ D.inr (squash x y i) ∣ = propTruncIsProp (assoc1 ∣ D.inr x ∣) (assoc1 ∣ D.inr y ∣) i
     assoc1 (squash x y i)           = propTruncIsProp (assoc1 x) (assoc1 y) i
 
-    assoc2 : (a ⊔′ b) ⊔′ c → a ⊔′ (b ⊔′ c)
+    assoc2 : (A ⊔′ B) ⊔′ C → A ⊔′ (B ⊔′ C)
     assoc2 ∣ D.inr a ∣ = ∣ D.inr ∣ D.inr a ∣ ∣
     assoc2 ∣ D.inl ∣ D.inr b ∣ ∣ = ∣ D.inr ∣ D.inl b ∣ ∣
     assoc2 ∣ D.inl ∣ D.inl c ∣ ∣ = ∣ D.inl c ∣
     assoc2 ∣ D.inl (squash x y i) ∣ = propTruncIsProp (assoc2 ∣ D.inl x ∣) (assoc2 ∣ D.inl y ∣) i
     assoc2 (squash x y i)           = propTruncIsProp (assoc2 x) (assoc2 y) i
 
-⊔-idem : ∀ a → a ⊔ a ≡ a
-⊔-idem a = Ω≡ (pequivToPath {a ⊔ a} {a} (⊔-elim {a} {a} (\ _ → a) (\ x → x) (\ x → x)) inl)
+⊔-idem : (P : hProp {ℓ}) → P ⊔ P ≡ P
+⊔-idem P =
+  ⇒∶ (⊔-elim P P (\ _ → P) (\ x → x) (\ x → x))
+  ⇐∶ inl
 
-⊔-comm : ∀ a b → a ⊔ b ≡ b ⊔ a
-⊔-comm a b = Ω≡ (pequivToPath {a ⊔ b} {b ⊔ a} (⊔-elim {a} {b} (\ _ → (b ⊔ a)) inr inl) (⊔-elim {b} {a} (\ _ → (a ⊔ b)) inr inl))
+⊔-comm : (P : hProp {ℓ}) (Q : hProp {ℓ'}) → P ⊔ Q ≡ Q ⊔ P
+⊔-comm a b =
+  ⇒∶ (⊔-elim a b (\ _ → (b ⊔ a)) inr inl)
+  ⇐∶ (⊔-elim b a (\ _ → (a ⊔ b)) inr inl)
+
+⊔-identityˡ : (P : hProp {ℓ}) → ⊥ ⊔ P ≡ P
+⊔-identityˡ a =
+  ⇒∶ (⊔-elim ⊥ a (λ _ → a) (λ ()) (idfun _))
+  ⇐∶ inr
+
+⊔-identityʳ : (P : hProp {ℓ}) → P ⊔ ⊥ ≡ P
+⊔-identityʳ a = ⇔toPath (⊔-elim a ⊥ (λ _ → a) (λ x → x) λ ()) inl
+  
+--------------------------------------------------------------------------------
+-- (hProp, ⊓, ⊤) is a bounded ⊓-lattice
+
+⊓-assoc : (P : hProp {ℓ}) (Q : hProp {ℓ'}) (R : hProp {ℓ''})
+  → P ⊓ Q ⊓ R ≡ (P ⊓ Q) ⊓ R
+⊓-assoc a b c =
+  ⇒∶ (λ {(x D., (y D., z)) →  (x D., y) D., z}) 
+  ⇐∶ (λ {((x D., y) D., z) → x D., (y D., z) })
+
+⊓-comm : (P : hProp {ℓ}) (Q : hProp {ℓ'}) → P ⊓ Q ≡ Q ⊓ P
+⊓-comm a b = ⇔toPath D.swap D.swap
+
+⊓-idem : (P : hProp {ℓ}) → P ⊓ P ≡ P
+⊓-idem a = ⇔toPath D.proj₁ (λ a → a D., a)
+
+⊓-identityˡ : (P : hProp {ℓ}) → ⊤ ⊓ P ≡ P
+⊓-identityˡ a = ⇔toPath D.proj₂ λ a → D.tt D., a
+
+⊓-identityʳ : (P : hProp {ℓ}) → P ⊓ ⊤ ≡ P
+⊓-identityʳ a = ⇔toPath D.proj₁ λ a → a D., D.tt
+
+--------------------------------------------------------------------------------
+-- ?
+
+⇒-eval : (P : hProp {ℓ}) (Q : hProp {ℓ'}) → P ⊓ (P ⇒ Q) ≡ P ⊓ Q
+⇒-eval P Q =
+  ⇒∶ (λ { (x D., f) →  (x D., f x)})
+  ⇐∶ λ { (x D., y) → x D., λ _ → y }
+
+--------------------------------------------------------------------------------
+-- Distributive laws
+
+⇒-dist-⊓ : (P : hProp {ℓ}) (Q : hProp {ℓ'})(R : hProp {ℓ''})
+  → P ⇒ (Q ⊓ R) ≡ (P ⇒ Q) ⊓ (P ⇒ R)
+⇒-dist-⊓ P Q R =
+  ⇒∶ (λ f → (D.proj₁ ∘ f) D., (D.proj₂ ∘ f))
+  ⇐∶ (λ { (f D., g) x → f x D., g x})
+
+⊓-dist-⊔ : (P : hProp {ℓ}) (Q : hProp {ℓ'})(R : hProp {ℓ''})
+  → P ⊓ (Q ⊔ R) ≡ (P ⊓ Q) ⊔ (P ⊓ R)
+⊓-dist-⊔ P Q R =
+  ⇒∶ (λ { (x D., a) → ⊔-elim Q R (λ _ → (P ⊓ Q) ⊔ (P ⊓ R))
+        (λ y → ∣ D.inl (x D., y) ∣ )
+        (λ z → ∣ D.inr (x D., z) ∣ ) a })
+        
+  ⇐∶ ⊔-elim (P ⊓ Q) (P ⊓ R) (λ _ → P ⊓ Q ⊔ R)
+       (λ y → D.proj₁ y D., inl (D.proj₂ y))
+       (λ z → D.proj₁ z D., inr (D.proj₂ z)) 
+
+⊔-dist-⊓ : (P : hProp {ℓ}) (Q : hProp {ℓ'})(R : hProp {ℓ''})
+  → P ⊔ (Q ⊓ R) ≡ (P ⊔ Q) ⊓ (P ⊔ R)
+⊔-dist-⊓ P Q R =
+  ⇒∶ ⊔-elim P (Q ⊓ R) (λ _ → (P ⊔ Q) ⊓ (P ⊔ R) )
+    (D.intro-× inl inl) (D.map-× inr inr)
+    
+  ⇐∶ (λ { (x D., y) → ⊔-elim P R (λ _ → P ⊔ Q ⊓ R) inl
+      (λ z → ⊔-elim P Q (λ _ → P ⊔ Q ⊓ R) inl (λ y → inr (y D., z)) x) y })
+
+--------------------------------------------------------------------------------
+-- Syntax experiments 
+
+--------------------------------------------------------------------------------
+-- Natural deduction style
+
+case-syntax : (P : hProp {ℓ}) (Q : hProp {ℓ'}) (R : [ P ⊔ Q ] → hProp {ℓ''})
+  → (∀ x → [ R (inl x) ]) → (∀ y → [ R (inr y) ]) → (∀ z → [ R z ])
+case-syntax = ⊔-elim
+
+syntax case-syntax P Q (λ _ → R) P⇒R Q⇒R = case P ∶ P⇒R case Q ∶ Q⇒R ⊢ R ⊔∎
+infix 2 case-syntax
+
+⊔-dist-⊓′ : (P Q R : hProp {ℓ}) → P ⊔ (Q ⊓ R) ≡ (P ⊔ Q) ⊓ (P ⊔ R)
+⊔-dist-⊓′ P Q R =
+  ⇒∶ case P     ∶ D.intro-× inl inl
+     case Q ⊓ R ∶ D.map-× inr inr
+     --------------------------------
+     ⊢ (P ⊔ Q) ⊓ (P ⊔ R) ⊔∎
+      
+  ⇐∶ λ { (x D., y) →
+     (case P ∶ inl
+      case R ∶ (λ z →
+       (case P ∶ inl
+        case Q ∶ (λ y → inr (y D., z))
+        ------------------------------
+        ⊢ P ⊔ Q ⊓ R ⊔∎) x)
+     ------------------------------
+     ⊢ P ⊔ Q ⊓ R ⊔∎ y)}
+
