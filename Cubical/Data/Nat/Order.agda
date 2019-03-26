@@ -40,7 +40,7 @@ private
 
 m≤n-isProp : isProp (m ≤ n)
 m≤n-isProp {m} {n} (k , p) (l , q)
-  = subtypeEquality witness-prop (k , p) (l , q) lemma
+  = ΣProp≡ witness-prop lemma
   where
   lemma : k ≡ l
   lemma = inj-+m (p ∙ (sym q))

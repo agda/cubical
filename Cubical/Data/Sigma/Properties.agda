@@ -3,7 +3,6 @@
 Basic properties about Σ-types
 
 - Characterization of equality in Σ-types using transport ([pathSigma≡sigmaPath])
-- HLevel of Σ-types ([isOfHLevelΣ])
 
 -}
 {-# OPTIONS --cubical --safe #-}
@@ -15,7 +14,6 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.CartesianKanOps
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
@@ -24,19 +22,22 @@ open import Cubical.Data.Nat
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ : Level
     A : Set ℓ
-    B : (a : A) → Set ℓ'
+    B : (a : A) → Set ℓ
 
 
-Σ≡ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'}
-     {x y : Σ A B}  →
+ΣPathP : ∀ {x y}
+  → Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y))
+  → x ≡ y
+ΣPathP eq = λ i → (fst eq i) , (snd eq i)
+
+Σ≡ : {x y : Σ A B}  →
      Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y)) ≃
      (x ≡ y)
 Σ≡ {A = A} {B = B} {x} {y} = isoToEquiv (iso intro elim intro-elim elim-intro)
   where
-    intro : Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y)) → x ≡ y
-    intro eq = λ i → (fst eq i) , (snd eq i)
+    intro = ΣPathP
 
     elim : x ≡ y → Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y ))
     elim eq = (λ i → fst (eq i)) , λ i → snd (eq i)
@@ -46,35 +47,6 @@ private
 
     elim-intro : ∀ eq → elim (intro eq) ≡ eq
     elim-intro eq = refl
-
--- TODO: give direct proof not using Σ≡
-ΣProp≡ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'}
-         {x y : Σ A B}  → (∀ a → isProp (B a)) →
-         fst x ≡ fst y → x ≡ y
-ΣProp≡ {B = B} {x = x} {y = y} Bprop eq = fst Σ≡ (eq , J (λ b eq → ∀ k → PathP (λ i → B (eq i)) (snd x) k) (λ k → Bprop (fst x) _ _) eq (snd y))
-
--- TODO: should be moved
-HLevel≡ : ∀ {ℓ} {n} {A B : Set ℓ} {hA : isOfHLevel n A} {hB : isOfHLevel n B} →
-          (A ≡ B) ≃ ((A , hA) ≡ (B , hB))
-HLevel≡ {n = n} {A = A} {B = B} {hA} {hB} =
- isoToEquiv (iso intro elim intro-elim elim-intro)
-  where
-    intro : A ≡ B → (A , hA) ≡ (B , hB)
-    intro eq = ΣProp≡ (λ A → isPropIsOfHLevel n _) eq
-
-    elim : (A , hA) ≡ (B , hB) → A ≡ B
-    elim = cong fst
-
-    intro-elim : ∀ x → intro (elim x) ≡ x
-    intro-elim eq = cong (fst Σ≡) (ΣProp≡ (λ e →
-      J (λ B e →
-           ∀ k → (x y : PathP (λ i → isOfHLevel n (e i)) hA k) → x ≡ y)
-        (λ k → isProp→isSet (isPropIsOfHLevel n _) _ _) e hB) refl)
-
-    elim-intro : ∀ x → elim (intro x) ≡ x
-    elim-intro eq = refl
-
-
 
 -- Alternative version for path in Σ-types, as in the HoTT book
 
@@ -160,22 +132,6 @@ pathSigma≡sigmaPath a b =
                  (pathSigma→sigmaPath→pathSigma {a = a})
                  sigmaPath→pathSigma→sigmaPath)
 
-
--- H-level for Σ-types
-
-isOfHLevelΣ : ∀ n → isOfHLevel n A → ((x : A) → isOfHLevel n (B x)) → isOfHLevel n (Σ A B)
-isOfHLevelΣ zero h1 h2 =
-  let center = (fst h1 , fst (h2 (fst h1))) in
-  let p : ∀ x → center ≡ x
-      p = λ x → sym (sigmaPath→pathSigma _ _ (sym (snd h1 (fst x)) , sym (snd (h2 (fst h1)) _)))
-  in (center , p)
-isOfHLevelΣ 1 h1 h2 x y = sigmaPath→pathSigma x y ((h1 _ _) , (h2 _ _ _))
-isOfHLevelΣ {B = B} (suc (suc n)) h1 h2 x y =
-  let h3 : isOfHLevel (suc n) (x Σ≡T y)
-      h3 = isOfHLevelΣ (suc n) (h1 (fst x) (fst y)) λ p → h2 (p i1)
-                       (subst B p (snd x)) (snd y)
-  in transport (λ i → isOfHLevel (suc n) (pathSigma≡sigmaPath x y (~ i))) h3
-
 discreteΣ : Discrete A → ((a : A) → Discrete (B a)) → Discrete (Σ A B)
 discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
   where
@@ -187,16 +143,3 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
         ... | (yes q) = yes (transport (ua Σ≡) (refl , q))
         ... | (no ¬q) = no (λ r → ¬q (subst (λ X → PathP (λ i → B (X i)) b0 b1) (Discrete→isSet Adis a0 a0 (cong fst r) refl) (cong snd r)))
     discreteΣ' (no ¬p) = no (λ r → ¬p (cong fst r))
-
--- TODO: could be moved
-hLevel≃ : ∀ {ℓ} n → {A B : Set ℓ} (hA : isOfHLevel n A) (hB : isOfHLevel n B) → isOfHLevel n (A ≃ B)
-hLevel≃ zero {A = A} {B = B} hA hB = A≃B , contr
-  where
-  A≃B : A ≃ B
-  A≃B = isoToEquiv (iso (λ _ → fst hB) (λ _ → fst hA) (snd hB ) (snd hA))
-
-  contr : (y : A ≃ B) → A≃B ≡ y
-  contr y = ΣProp≡ isPropIsEquiv (funExt (λ a → snd hB (fst y a)))
-hLevel≃ (suc n) hA hB =
-  isOfHLevelΣ (suc n) (hLevelPi (suc n) (λ _ → hB))
-              (λ a → subst (λ n → isOfHLevel n (isEquiv a)) (+-comm n 1) (hLevelLift n (isPropIsEquiv a)))
