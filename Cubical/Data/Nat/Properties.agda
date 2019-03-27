@@ -3,8 +3,6 @@ module Cubical.Data.Nat.Properties where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Foundations.HLevels
-
 open import Cubical.Data.Nat.Base
 
 open import Cubical.Data.Empty
@@ -24,7 +22,7 @@ open import Cubical.Relation.Nullary.DecidableEq
 
 +-comm : ∀ m n → m + n ≡ n + m
 +-comm m zero = +-zero m
-+-comm m (suc n) = compPath (+-suc m n) (cong suc (+-comm m n))
++-comm m (suc n) = (+-suc m n) ∙ (cong suc (+-comm m n))
 
 -- Addition is associative
 +-assoc : ∀ m n o → m + (n + o) ≡ (m + n) + o
@@ -49,11 +47,11 @@ inj-m+ {zero} p = p
 inj-m+ {suc m} p = inj-m+ (injSuc p)
 
 inj-+m : l + m ≡ n + m → l ≡ n
-inj-+m {l} {m} {n} p = inj-m+ (compPath (+-comm m l) (compPath p (+-comm n m)))
+inj-+m {l} {m} {n} p = inj-m+ ((+-comm m l) ∙ (p ∙ (+-comm n m)))
 
 m+n≡n→m≡0 : m + n ≡ n → m ≡ 0
-m+n≡n→m≡0 {n = zero} = compPath (sym (+-zero _))
-m+n≡n→m≡0 {n = suc n} p = m+n≡n→m≡0 (injSuc (compPath (sym (+-suc _ n)) p))
+m+n≡n→m≡0 {n = zero} = λ p → (sym (+-zero _)) ∙ p
+m+n≡n→m≡0 {n = suc n} p = m+n≡n→m≡0 (injSuc ((sym (+-suc _ n)) ∙ p))
 
 m+n≡0→m≡0×n≡0 : m + n ≡ 0 → (m ≡ 0) × (n ≡ 0)
 m+n≡0→m≡0×n≡0 {zero} = refl ,_

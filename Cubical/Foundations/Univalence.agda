@@ -14,14 +14,13 @@ module Cubical.Foundations.Univalence where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 
 -- Give detailed type to unglue, mainly for documentation purposes
 unglueua : ∀ {A B : Set} → (e : A ≃ B) → (i : I) (x : ua e i)
            → B [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → x }) ]
-unglueua e i x = inc (unglue (i ∨ ~ i) x)
+unglueua e i x = inS (unglue (i ∨ ~ i) x)
 
 
 contrSinglEquiv : ∀ {ℓ} {A B : Set ℓ} (e : A ≃ B) → (B , idEquiv B) ≡ (A , e)
@@ -51,8 +50,8 @@ module Univalence (au : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B)
   thm {A = A} {B = B} =
     isoToIsEquiv {B = A ≃ B}
       (iso au ua
-        (EquivJ (λ _ _ e → au (ua e) ≡ e) (λ X → compPath (cong au uaIdEquiv) (auid {B = B})) _ _) 
-        (J (λ X p → ua (au p) ≡ p) (compPath (cong ua (auid {B = B})) uaIdEquiv)))
+        (EquivJ (λ _ _ e → au (ua e) ≡ e) (λ X → (cong au uaIdEquiv) ∙ (auid {B = B})) _ _)
+        (J (λ X p → ua (au p) ≡ p) ((cong ua (auid {B = B})) ∙ uaIdEquiv)))
 
 pathToEquiv : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B
 pathToEquiv p = lineToEquiv (λ i → p i)

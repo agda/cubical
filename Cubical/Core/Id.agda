@@ -29,19 +29,20 @@ open import Agda.Builtin.Cubical.Id public
            ; primIdElim to elimId  -- ∀ {ℓ ℓ'} {A : Set ℓ} {x : A}
                                    -- (P : ∀ (y : A) → x ≡ y → Set ℓ')
                                    -- (h : ∀ (φ : I) (y : A [ φ ↦ (λ _ → x) ])
-                                   --        (w : (Path _ x (ouc y)) [ φ ↦ (λ { (φ = i1) → λ _ → x}) ] ) →
-                                   --        P (ouc y) ⟨ φ , ouc w ⟩) →
+                                   --        (w : (Path _ x (outS y)) [ φ ↦ (λ { (φ = i1) → λ _ → x}) ] ) →
+                                   --        P (outS y) ⟨ φ , outS w ⟩) →
                                    -- {y : A} (w' : x ≡ y) → P y w'
            )
   hiding ( primIdJ ) -- this should not be used as it is using compCCHM
 open import Cubical.Core.Primitives public  hiding ( _≡_ )
 open import Cubical.Core.Prelude public
-  hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ )
+  hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ ; isPropIsContr)
   renaming ( refl      to reflPath
            ; transport to transportPath
            ; J         to JPath
            ; JRefl     to JPathRefl
            ; sym       to symPath
+           ; _∙_       to compPath
            ; cong      to congPath
            ; funExt    to funExtPath
            ; isContr   to isContrPath
@@ -53,7 +54,7 @@ open import Cubical.Core.Prelude public
 open import Cubical.Core.Glue
   renaming ( fiber        to fiberPath
            ; isEquiv      to isEquivPath
-           ; _≃_          to EquivPath
+           ; _≃_         to EquivPath
            ; equivFun     to equivFunPath
            ; equivIsEquiv to equivIsEquivPath
            ; equivCtr     to equivCtrPath
@@ -76,9 +77,9 @@ private
 -- explicit. This is sometimes useful when it is needed for
 -- typechecking (see JId below).
 conId : ∀ {x : A} φ (y : A [ φ ↦ (λ _ → x) ])
-          (w : (Path _ x (ouc y)) [ φ ↦ (λ { (φ = i1) → λ _ → x}) ]) →
-          x ≡ ouc y
-conId φ _ w = ⟨ φ , ouc w ⟩
+          (w : (Path _ x (outS y)) [ φ ↦ (λ { (φ = i1) → λ _ → x}) ]) →
+          x ≡ outS y
+conId φ _ w = ⟨ φ , outS w ⟩
 
 -- Reflexivity
 refl : ∀ {x : A} → x ≡ x
@@ -88,9 +89,9 @@ refl {x = x} = ⟨ i1 , (λ _ → x) ⟩
 -- Definition of J for Id
 module _ {x : A} (P : ∀ (y : A) → Id x y → Set ℓ') (d : P x refl) where
   J : ∀ {y : A} (w : x ≡ y) → P y w
-  J {y = y} = elimId P (λ φ y w → comp (λ i → P _ (conId (φ ∨ ~ i) (inc (ouc w i))
-                                                                   (inc (λ j → ouc w (i ∧ j)))))
-                                       (λ i → λ { (φ = i1) → d}) (inc d)) {y = y}
+  J {y = y} = elimId P (λ φ y w → comp (λ i → P _ (conId (φ ∨ ~ i) (inS (outS w i))
+                                                                   (inS (λ j → outS w (i ∧ j)))))
+                                       (λ i → λ { (φ = i1) → d}) (inS d)) {y = y}
 
   -- Check that J of refl is the identity function
   Jdefeq : Path _ (J refl) d
@@ -249,7 +250,6 @@ isPropIsContr (a0 , p0) (a1 , p1) j =
                                                 ; (j = i0) → idToPath (p0 x) (i ∧ k)
                                                 ; (j = i1) → idToPath (p1 x) i })
                                        (idToPath (p0 (idToPath (p1 x) i)) j))))
-
 
 -- We now prove that isEquiv is a proposition
 isPropIsEquiv : ∀ {A : Set ℓ} {B : Set ℓ} → {f : A → B} → (h1 h2 : isEquiv f) → Path _ h1 h2

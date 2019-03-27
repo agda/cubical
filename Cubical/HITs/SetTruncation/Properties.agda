@@ -13,6 +13,7 @@ open import Cubical.HITs.SetTruncation.Base
 open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 
@@ -55,3 +56,17 @@ setTruncUniversal Bset = isoToEquiv (iso intro elim leftInv rightInv)
   rightInv : ∀ h → elim (intro h) ≡ h
   rightInv h i x = elimSetTrunc (λ x → isProp→isSet (Bset (elim (intro h) x) (h x)))
                                 (λ a → refl) x i
+
+elimSetTrunc2 : {B : ∥ A ∥₀ → ∥ A ∥₀ → Set ℓ}
+                (Bset : ((x y : ∥ A ∥₀) → isSet (B x y)))
+                (g : (a b : A) → B ∣ a ∣₀ ∣ b ∣₀)
+                (x y : ∥ A ∥₀) → B x y
+elimSetTrunc2 Bset g = elimSetTrunc (λ _ → hLevelPi 2 (λ _ → Bset _ _)) (λ a →
+                       elimSetTrunc (λ _ → Bset _ _) (λ b → g a b))
+
+elimSetTrunc3 : {B : (x y z : ∥ A ∥₀) → Set ℓ}
+                (Bset : ((x y z : ∥ A ∥₀) → isSet (B x y z)))
+                (g : (a b c : A) → B ∣ a ∣₀ ∣ b ∣₀ ∣ c ∣₀)
+                (x y z : ∥ A ∥₀) → B x y z
+elimSetTrunc3 Bset g = elimSetTrunc2 (λ _ _ → hLevelPi 2 λ _ → Bset _ _ _) (λ a b →
+                       elimSetTrunc (λ _ → Bset _ _ _) (λ c → g a b c))

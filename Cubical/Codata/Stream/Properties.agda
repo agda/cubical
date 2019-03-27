@@ -6,6 +6,7 @@ open import Cubical.Core.Everything
 open import Cubical.Data.Nat
 
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Codata.Stream.Base
 
@@ -95,7 +96,7 @@ module Equality≅Bisimulation where
   ≈tail (misib-refl i) = misib-refl i
 
   misibTransp : ∀ {A : Set} {x y : Stream A} (p : x ≡ y) → cast p ≡ misib p
-  misibTransp p = J (λ _ p → cast p ≡ misib p) (compPath (transportRefl refl≈) (sym misib-refl)) p
+  misibTransp p = J (λ _ p → cast p ≡ misib p) ((transportRefl refl≈) ∙ (sym misib-refl)) p
 
 module Stream≅Nat→ {A : Set} where
   lookup : {A : Set} → Stream A → ℕ → A

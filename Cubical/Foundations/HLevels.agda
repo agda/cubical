@@ -13,65 +13,50 @@ module Cubical.Foundations.HLevels where
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.FunExtEquiv
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.HAEquiv      using (congEquiv)
+open import Cubical.Foundations.Equiv        using (isoToEquiv; isPropIsEquiv; retEq; invEquiv)
+open import Cubical.Foundations.Univalence   using (univalence)
 
-open import Cubical.Data.Nat.Base
-open import Cubical.Data.Empty
-open import Cubical.Data.Sum
+open import Cubical.Data.Sigma  using (ΣPathP; sigmaPath→pathSigma; pathSigma≡sigmaPath; _Σ≡T_)
+open import Cubical.Data.Nat    using (ℕ; zero; suc; _+_; +-comm)
 
-open import Cubical.Relation.Nullary
+private
+  variable
+    ℓ ℓ' : Level
+    A : Set ℓ
+    B : A → Set ℓ
+    n : ℕ
 
-hProp : {ℓ : Level} → Set (ℓ-suc ℓ)
+hProp : Set (ℓ-suc ℓ)
 hProp {ℓ} = Σ (Set ℓ) isProp
 
-isOfHLevel : ∀ {ℓ} → ℕ → Set ℓ → Set ℓ
-isOfHLevel zero A = isContr A
+isOfHLevel : ℕ → Set ℓ → Set ℓ
+isOfHLevel 0 A = isContr A
+isOfHLevel 1 A = isProp A
 isOfHLevel (suc n) A = (x y : A) → isOfHLevel n (x ≡ y)
 
-HLevel : ∀ {ℓ} → ℕ → Set _
+HLevel : ℕ → Set (ℓ-suc ℓ)
 HLevel {ℓ} n = Σ[ A ∈ Set ℓ ] (isOfHLevel n A)
 
-isContr→isProp : ∀ {ℓ} {A : Set ℓ} → isContr A → isProp A
-isContr→isProp (x , p) a b i =
-  hcomp (λ j → λ { (i = i0) → p a j
-                 ; (i = i1) → p b j }) x
-
-isProp→isSet : ∀ {ℓ} {A : Set ℓ} → isProp A → isSet A
-isProp→isSet h a b p q j i =
-  hcomp (λ k → λ { (i = i0) → h a a k
-                 ; (i = i1) → h a b k
-                 ; (j = i0) → h a (p i) k
-                 ; (j = i1) → h a (q i) k }) a 
-
-inhProp→isContr : ∀ {ℓ} {A : Set ℓ} → A → isProp A → isContr A
+inhProp→isContr : A → isProp A → isContr A
 inhProp→isContr x h = x , h x
 
--- TODO: prove other direction
-isPropIsOfHLevel1 : ∀ {ℓ} {A : Set ℓ} → isProp A → isOfHLevel 1 A
-isPropIsOfHLevel1 h x y = inhProp→isContr (h x y) (isProp→isSet h x y)
-
-isPropIsContr : ∀ {ℓ} {A : Set ℓ} → isProp (isContr A)
-isPropIsContr z0 z1 j =
-  ( z0 .snd (z1 .fst) j
-  , λ x i → hcomp (λ k → λ { (i = i0) → z0 .snd (z1 .fst) j
-                           ; (i = i1) → z0 .snd x (j ∨ k)
-                           ; (j = i0) → z0 .snd x (i ∧ k)
-                           ; (j = i1) → z1 .snd x i })
-                  (z0 .snd (z1 .snd x i) j))
-
-isPropIsProp : ∀ {ℓ} {A : Set ℓ} → isProp (isProp A)
+isPropIsProp : isProp (isProp A)
 isPropIsProp f g i a b = isProp→isSet f a b (f a b) (g a b) i
 
-isPropIsSet : ∀ {ℓ} {A : Set ℓ} → isProp (isSet A)
-isPropIsSet f g i a b = isPropIsProp (f a b) (g a b) i
-
 -- A retract of a contractible type is contractible
-retractIsContr : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A)
-                 (h : (x : A) → g (f x) ≡ x) (v : isContr B) → isContr A
-retractIsContr f g h (b , p) = (g b , λ x → compPath (cong g (p (f x))) (h x))
+retractIsContr
+  : ∀ {B : Set ℓ}
+  → (f : A → B) (g : B → A)
+  → (h : (x : A) → g (f x) ≡ x)
+  → (v : isContr B) → isContr A
+retractIsContr f g h (b , p) = (g b , λ x → (cong g (p (f x))) ∙ (h x))
 
-isContrSigma : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} →
-               isContr A → ((x : A) → isContr (B x)) →
-               isContr (Σ[ x ∈ A ] B x)
+isContrSigma
+  : isContr A
+  → ((x : A) → isContr (B x))
+  → isContr (Σ[ x ∈ A ] B x)
 isContrSigma {A = A} {B = B} (a , p) q =
   let h : (x : A) (y : B x) → (q x) .fst ≡ y
       h x y = (q x) .snd y
@@ -79,34 +64,147 @@ isContrSigma {A = A} {B = B} (a , p) q =
      , ( λ x i → p (x .fst) i
        , h (p (x .fst) i) (transp (λ j → B (p (x .fst) (i ∨ ~ j))) i (x .snd)) i))
 
-isContrPath : ∀ {ℓ} {A : Set ℓ} → isContr A → (x y : A) → isContr (x ≡ y)
-isContrPath cA = isPropIsOfHLevel1 (isContr→isProp cA)
-
-lemProp : ∀ {ℓ} {A : Set ℓ} → (A → isProp A) → isProp A
-lemProp h a = h a a
-
-module _ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} where
-  -- Π preserves propositionality in the following sense:
-  propPi : (h : (x : A) → isProp (B x)) → isProp ((x : A) → B x)
-  propPi h f0 f1 i x = h x (f0 x) (f1 x) i
-
-  isProp→PathP : ((x : A) → isProp (B x)) → {a0 a1 : A}
-                 (p : a0 ≡ a1) (b0 : B a0) (b1 : B a1) → PathP (λ i → B (p i)) b0 b1
-  isProp→PathP P p b0 b1 i = P (p i) (transp (λ j → B (p (i ∧ j))) (~ i) b0)
-                                     (transp (λ j → B (p (i ∨ ~ j))) i b1) i
-
-  subtypeEquality : ((x : A) → isProp (B x)) → (u v : Σ[ a ∈ A ] B a)
-                    (p : u .fst ≡ v .fst) → u ≡ v
-  subtypeEquality pB u v p i = (p i) , isProp→PathP pB p (u .snd) (v .snd) i
-
-  isPropSigma : isProp A → ((x : A) → isProp (B x)) → isProp (Σ[ x ∈ A ] B x)
-  isPropSigma pA pB t u = subtypeEquality pB t u (pA (t .fst) (u .fst))
-
-hLevelPi : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} n
-         → ((x : A) → isOfHLevel n (B x))
-         → isOfHLevel n ((x : A) → B x)
-hLevelPi 0 h = (λ x → fst (h x)) , λ f i y → snd (h y) (f y) i
-hLevelPi (suc n) h f g = subst (isOfHLevel n) funExtPath sub-lemma
+isContrPath : isContr A → (x y : A) → isContr (x ≡ y)
+isContrPath cA x y = inhProp→isContr (pA x y) (sA x y)
   where
-  sub-lemma : isOfHLevel n (∀ x → f x ≡ g x)
-  sub-lemma = hLevelPi n λ x → h x (f x) (g x)
+  pA = isContr→isProp cA
+  sA = isProp→isSet pA
+
+-- Π preserves propositionality in the following sense:
+propPi : (h : (x : A) → isProp (B x)) → isProp ((x : A) → B x)
+propPi h f0 f1 i x = h x (f0 x) (f1 x) i
+
+ΣProp≡
+  : ((x : A) → isProp (B x)) → {u v : Σ[ a ∈ A ] B a}
+  → (p : u .fst ≡ v .fst) → u ≡ v
+ΣProp≡ pB {u} {v} p i = (p i) , isProp→PathP pB p (u .snd) (v .snd) i
+
+isPropSigma : isProp A → ((x : A) → isProp (B x)) → isProp (Σ[ x ∈ A ] B x)
+isPropSigma pA pB t u = ΣProp≡ pB (pA (t .fst) (u .fst))
+
+hLevelPi
+  : ∀ n
+  → ((x : A) → isOfHLevel n (B x))
+  → isOfHLevel n ((x : A) → B x)
+hLevelPi 0 h = (λ x → fst (h x)) , λ f i y → snd (h y) (f y) i
+hLevelPi {B = B} 1 h f g i x = (h x) (f x) (g x) i
+hLevelPi (suc (suc n)) h f g =
+  subst (isOfHLevel (suc n)) funExtPath (hLevelPi (suc n) λ x → h x (f x) (g x))
+
+isSetPi : ((x : A) → isSet (B x)) → isSet ((x : A) → B x)
+isSetPi Bset = hLevelPi 2 (λ a → Bset a)
+
+isSet→isSet' : isSet A → isSet' A
+isSet→isSet' {A = A} Aset {x} {y} {z} {w} p q r s =
+  J (λ (z : A) (r : x ≡ z) → ∀ {w : A} (s : y ≡ w) (p : x ≡ y) (q : z ≡ w) → PathP (λ i → Path A (r i) (s i) ) p q) helper r s p q
+  where
+    helper : ∀ {w : A} (s : y ≡ w) (p : x ≡ y) (q : x ≡ w) → PathP (λ i → Path A x (s i)) p q
+    helper {w} s p q = J (λ (w : A) (s : y ≡ w) → ∀ p q → PathP (λ i → Path A x (s i)) p q) (λ p q → Aset x y p q) s p q 
+
+isSet'→isSet : isSet' A → isSet A
+isSet'→isSet {A = A} Aset' x y p q = Aset' p q refl refl
+
+hLevelSuc : (n : ℕ) (A : Set ℓ) → isOfHLevel n A → isOfHLevel (suc n) A
+hLevelSuc 0 A = isContr→isProp
+hLevelSuc 1 A = isProp→isSet
+hLevelSuc (suc (suc n)) A h a b = hLevelSuc (suc n) (a ≡ b) (h a b)
+
+hLevelLift : (m : ℕ) (hA : isOfHLevel n A) → isOfHLevel (m + n) A
+hLevelLift zero hA = hA
+hLevelLift {A = A} (suc m) hA = hLevelSuc _ A (hLevelLift m hA)
+
+isPropIsOfHLevel : (n : ℕ) (A : Set ℓ) → isProp (isOfHLevel n A)
+isPropIsOfHLevel 0 A = isPropIsContr
+isPropIsOfHLevel 1 A = isPropIsProp
+isPropIsOfHLevel (suc (suc n)) A f g i a b =
+  isPropIsOfHLevel (suc n) (a ≡ b) (f a b) (g a b) i
+
+isPropIsSet : isProp (isSet A)
+isPropIsSet {A = A} = isPropIsOfHLevel 2 A
+
+HLevel≡ : ∀ {A B : Set ℓ} {hA : isOfHLevel n A} {hB : isOfHLevel n B} →
+          (A ≡ B) ≡ ((A , hA) ≡ (B , hB))
+HLevel≡ {n = n} {A = A} {B = B} {hA} {hB} =
+ isoToPath (iso intro elim intro-elim elim-intro)
+  where
+    intro : A ≡ B → (A , hA) ≡ (B , hB)
+    intro eq = ΣProp≡ (λ A → isPropIsOfHLevel n _) eq
+
+    elim : (A , hA) ≡ (B , hB) → A ≡ B
+    elim = cong fst
+    
+    intro-elim : ∀ x → intro (elim x) ≡ x
+    intro-elim eq = cong ΣPathP (ΣProp≡ (λ e →
+      J (λ B e →
+           ∀ k → (x y : PathP (λ i → isOfHLevel n (e i)) hA k) → x ≡ y)
+        (λ k → isProp→isSet (isPropIsOfHLevel n _) _ _) e hB) refl)
+
+    elim-intro : ∀ x → elim (intro x) ≡ x
+    elim-intro eq = refl
+
+-- H-level for Σ-types
+
+isOfHLevelΣ : ∀ n → isOfHLevel n A → ((x : A) → isOfHLevel n (B x))
+  → isOfHLevel n (Σ A B)
+isOfHLevelΣ zero h1 h2 =
+  let center = (fst h1 , fst (h2 (fst h1))) in
+  let p : ∀ x → center ≡ x
+      p = λ x → sym (sigmaPath→pathSigma _ _ (sym (snd h1 (fst x)) , sym (snd (h2 (fst h1)) _)))
+  in (center , p)
+isOfHLevelΣ 1 h1 h2 x y = sigmaPath→pathSigma x y ((h1 _ _) , (h2 _ _ _))
+isOfHLevelΣ {B = B} (suc (suc n)) h1 h2 x y =
+  let h3 : isOfHLevel (suc n) (x Σ≡T y)
+      h3 = isOfHLevelΣ (suc n) (h1 (fst x) (fst y)) λ p → h2 (p i1)
+                       (subst B p (snd x)) (snd y)
+  in transport (λ i → isOfHLevel (suc n) (pathSigma≡sigmaPath x y (~ i))) h3
+  
+hLevel≃ : ∀ n → {A B : Set ℓ} (hA : isOfHLevel n A) (hB : isOfHLevel n B) → isOfHLevel n (A ≃ B)
+hLevel≃ zero {A = A} {B = B} hA hB = A≃B , contr
+  where
+  A≃B : A ≃ B
+  A≃B = isoToEquiv (iso (λ _ → fst hB) (λ _ → fst hA) (snd hB ) (snd hA))
+
+  contr : (y : A ≃ B) → A≃B ≡ y
+  contr y = ΣProp≡ isPropIsEquiv (funExt (λ a → snd hB (fst y a)))
+  
+hLevel≃ (suc n) hA hB =
+  isOfHLevelΣ (suc n) (hLevelPi (suc n) (λ _ → hB))
+              (λ a → subst (λ n → isOfHLevel n (isEquiv a)) (+-comm n 1) (hLevelLift n (isPropIsEquiv a)))
+
+hLevelRespectEquiv : {A : Set ℓ} {B : Set ℓ'} → (n : ℕ) → A ≃ B → isOfHLevel n A → isOfHLevel n B
+hLevelRespectEquiv 0 eq hA =
+  ( fst eq (fst hA)
+  , λ b → cong (fst eq) (snd hA (eq .snd .equiv-proof b .fst .fst)) ∙ eq .snd .equiv-proof b .fst .snd)
+hLevelRespectEquiv 1 eq hA x y i =
+  hcomp (λ j → λ { (i = i0) → retEq eq x j ; (i = i1) → retEq eq y j })
+        (cong (eq .fst) (hA (invEquiv eq .fst x) (invEquiv eq .fst y)) i)
+hLevelRespectEquiv {A = A} {B = B} (suc (suc n)) eq hA x y =
+  hLevelRespectEquiv (suc n) (invEquiv (congEquiv (invEquiv eq))) (hA _ _)
+  
+hLevel≡ : ∀ n → {A B : Set ℓ} (hA : isOfHLevel n A) (hB : isOfHLevel n B) →
+  isOfHLevel n (A ≡ B)
+hLevel≡ n hA hB = hLevelRespectEquiv n (invEquiv univalence) (hLevel≃ n hA hB)
+
+hLevelHLevel1 : isProp (HLevel {ℓ = ℓ} 0)
+hLevelHLevel1 x y = ΣProp≡ (λ _ → isPropIsContr) ((hLevel≡ 0 (x .snd) (y .snd) .fst))
+
+hLevelHLevelSuc : ∀ n → isOfHLevel (suc (suc n)) (HLevel {ℓ = ℓ} (suc n))
+hLevelHLevelSuc n x y = subst (λ e → isOfHLevel (suc n) e) HLevel≡ (hLevel≡ (suc n) (snd x) (snd y)) 
+
+hProp≡HLevel1 : hProp {ℓ} ≡ HLevel {ℓ} 1
+hProp≡HLevel1 {ℓ} = isoToPath (iso intro elim intro-elim elim-intro)
+  where
+    intro : hProp {ℓ} → HLevel {ℓ} 1
+    intro h = fst h , snd h
+
+    elim : HLevel 1 → hProp
+    elim h = (fst h) , (snd h)
+
+    intro-elim : ∀ h → intro (elim h) ≡ h
+    intro-elim h = ΣProp≡ (λ _ → isPropIsOfHLevel 1 _) refl
+
+    elim-intro : ∀ h → elim (intro h) ≡ h
+    elim-intro h = ΣProp≡ (λ _ → isPropIsProp) refl
+
+isSetHProp : isSet (hProp {ℓ = ℓ})
+isSetHProp = subst (λ X → isOfHLevel 2 X) (sym hProp≡HLevel1) (hLevelHLevelSuc 0)

@@ -17,6 +17,7 @@ open import Cubical.Core.Id
 open import Cubical.Foundations.Equiv
   renaming ( isPropIsEquiv to isPropIsEquivPath )
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Isomorphism
 
 path≡Id : ∀ {ℓ} {A B : Set ℓ} → Path _ (Path _ A B) (Id A B)
 path≡Id = isoToPath (iso pathToId idToPath idToPathToId pathToIdToPath )

@@ -99,15 +99,15 @@ equiv-proof (unglueIsEquiv A φ f) = λ (b : A) →
       u i = λ{ (φ = i1) → equivCtr (f 1=1 .snd) b .snd (~ i) }
       ctr : fiber (unglue φ) b
       ctr = ( glue (λ { (φ = i1) → equivCtr (f 1=1 .snd) b .fst }) (hcomp u b)
-            , λ j → hfill u (inc b) (~ j))
+            , λ j → hfill u (inS b) (~ j))
   in ( ctr
      , λ (v : fiber (unglue φ) b) i →
          let u' : I → Partial (φ ∨ ~ i ∨ i) A
              u' j = λ { (φ = i1) → equivCtrPath (f 1=1 .snd) b v i .snd (~ j)
-                      ; (i = i0) → hfill u (inc b) j
+                      ; (i = i0) → hfill u (inS b) j
                       ; (i = i1) → v .snd (~ j) }
          in ( glue (λ { (φ = i1) → equivCtrPath (f 1=1 .snd) b v i .fst }) (hcomp u' b)
-            , λ j → hfill u' (inc b) (~ j)))
+            , λ j → hfill u' (inS b) (~ j)))
 
 -- Any partial family of equivalences can be extended to a total one
 -- from Glue [ φ ↦ (T,f) ] A to A

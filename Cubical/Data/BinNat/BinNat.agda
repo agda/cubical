@@ -67,6 +67,7 @@ open import Cubical.Core.Glue
 
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Bool
@@ -110,7 +111,7 @@ zero≠Pos→ℕ : (p : Pos) → ¬ (zero ≡ Pos→ℕ p)
 zero≠Pos→ℕ p = posInd (λ prf → znots prf) hs p
   where
   hs : (p : Pos) → ¬ (zero ≡ Pos→ℕ p) → zero ≡ Pos→ℕ (sucPos p) → ⊥
-  hs p neq ieq = ⊥-elim (znots (compPath ieq (Pos→ℕsucPos p)))
+  hs p neq ieq = ⊥-elim (znots (ieq ∙ (Pos→ℕsucPos p)))
 
 ℕ→Pos : ℕ → Pos
 ℕ→Pos zero          = pos1
@@ -166,7 +167,7 @@ Binℕ→ℕ→Binℕ (binℕpos p) = posInd refl (λ p _ → rem p) p
   rem : (p : Pos) → ℕ→Binℕ (Pos→ℕ (sucPos p)) ≡ binℕpos (sucPos p)
   rem p =
     ℕ→Binℕ (Pos→ℕ (sucPos p))       ≡⟨ cong ℕ→Binℕ (Pos→ℕsucPos p) ⟩
-    binℕpos (ℕ→Pos (suc (Pos→ℕ p))) ≡⟨ cong binℕpos (compPath (ℕ→PosSuc (Pos→ℕ p) (zero≠Pos→ℕ p))
+    binℕpos (ℕ→Pos (suc (Pos→ℕ p))) ≡⟨ cong binℕpos ((ℕ→PosSuc (Pos→ℕ p) (zero≠Pos→ℕ p)) ∙ 
                                                               (cong sucPos (Pos→ℕ→Pos p))) ⟩
     binℕpos (sucPos p) ∎
 
@@ -431,7 +432,7 @@ binnat→ℕ-suc (consEven n) = λ i → suc (doubleℕ (binnat→ℕ-suc n i))
 
 ℕ→binnat→ℕ : (n : ℕ) → binnat→ℕ (ℕ→binnat n) ≡ n
 ℕ→binnat→ℕ zero    = refl
-ℕ→binnat→ℕ (suc n) = compPath (binnat→ℕ-suc (ℕ→binnat n)) (cong suc (ℕ→binnat→ℕ n))
+ℕ→binnat→ℕ (suc n) = (binnat→ℕ-suc (ℕ→binnat n)) ∙ (cong suc (ℕ→binnat→ℕ n))
 
 suc-ℕ→binnat-double : (n : ℕ) → suc-binnat (ℕ→binnat (doubleℕ n)) ≡ consOdd (ℕ→binnat n)
 suc-ℕ→binnat-double zero    = refl
@@ -440,11 +441,9 @@ suc-ℕ→binnat-double (suc n) = λ i → suc-binnat (suc-binnat (suc-ℕ→bin
 binnat→ℕ→binnat : (n : binnat) → ℕ→binnat (binnat→ℕ n) ≡ n
 binnat→ℕ→binnat zero        = refl
 binnat→ℕ→binnat (consOdd n) =
-  compPath (suc-ℕ→binnat-double (binnat→ℕ n))
-           (cong consOdd (binnat→ℕ→binnat n))
+           (suc-ℕ→binnat-double (binnat→ℕ n)) ∙ (cong consOdd (binnat→ℕ→binnat n))
 binnat→ℕ→binnat (consEven n) =
-  compPath (λ i → suc-binnat (suc-ℕ→binnat-double (binnat→ℕ n) i))
-           (cong consEven (binnat→ℕ→binnat n))
+           (λ i → suc-binnat (suc-ℕ→binnat-double (binnat→ℕ n) i)) ∙ (cong consEven (binnat→ℕ→binnat n))
 
 ℕ≃binnat : ℕ ≃ binnat
 ℕ≃binnat = isoToEquiv (iso ℕ→binnat binnat→ℕ binnat→ℕ→binnat ℕ→binnat→ℕ)

@@ -6,6 +6,8 @@ open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
+
 open import Cubical.HITs.S1
 open import Cubical.HITs.S3
 
@@ -21,7 +23,7 @@ facek01 i j k = hfill (λ l → λ { (j = i0) → push base base (~ l ∧ ~ k)
                                ; (j = i1) → push base base (~ l ∧ ~ k)
                                ; (k = i0) → push (loop j) base (~ l)
                                ; (k = i1) → inl base })
-                      (inc (push base base (~ k))) i
+                      (inS (push base base (~ k))) i
 
 border-contraction : I → I → I → I → join S¹ S¹
 border-contraction i j k m =
@@ -31,7 +33,7 @@ border-contraction i j k m =
                  ; (j = i1) → push base (loop k) (i ∧ ~ l)
                  ; (k = i0) → facek01 (~ i) j l
                  ; (k = i1) → facek01 (~ i) j l })
-        (inc (push (loop j) (loop k) i)) m
+        (inS (push (loop j) (loop k) i)) m
 
 S³→joinS¹S¹ : S³ → join S¹ S¹
 S³→joinS¹S¹ base = inl base
@@ -52,7 +54,7 @@ connection i j k l =
                  ; (j = i1) → base
                  ; (i = i0) → base
                  ; (i = i1) → base })
-        (inc base) l
+        (inS base) l
 
 S³→joinS¹S¹→S³ : ∀ x → joinS¹S¹→S³ (S³→joinS¹S¹ x) ≡ x
 S³→joinS¹S¹→S³ base l = base
