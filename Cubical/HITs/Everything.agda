@@ -6,6 +6,7 @@ open import Cubical.HITs.HitInt public
 open import Cubical.HITs.Hopf public
 open import Cubical.HITs.Interval public
 open import Cubical.HITs.Join public
+open import Cubical.HITs.ListedFiniteSet public
 open import Cubical.HITs.Pushout public
 open import Cubical.HITs.S1 public
 open import Cubical.HITs.S2 public
