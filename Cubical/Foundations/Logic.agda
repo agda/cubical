@@ -58,8 +58,8 @@ A ⇒ B = ([ A ] → [ B ]) , propPi λ _ → B .snd
   (iso P⇒Q Q⇒P (λ b → Q .snd (P⇒Q (Q⇒P b)) b) λ a → P .snd (Q⇒P (P⇒Q a)) a))
 
 --------------------------------------------------------------------------------
--- Mixfix notations for ⇔-toPath 
--- see ⊔-identityˡ and ⊔-identityʳ for the difference 
+-- Mixfix notations for ⇔-toPath
+-- see ⊔-identityˡ and ⊔-identityʳ for the difference
 
 ⇒∶_⇐∶_ : [ P ⇒ Q ] → [ Q ⇒ P ] → P ≡ Q
 ⇒∶_⇐∶_ = ⇔toPath
