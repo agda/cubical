@@ -72,12 +72,12 @@ or-comm true y =
 or-assoc     : ∀ x y z → x or (y or z) ≡ (x or y) or z
 or-assoc false y z =
   false or (y or z)   ≡⟨ or-identityˡ _ ⟩
-  y or z              ≡⟨ cong (_or z) (sym (or-identityˡ _)) ⟩
+  y or z              ≡[ i ]⟨ or-identityˡ y (~ i) or z ⟩
   ((false or y) or z) ∎ 
 or-assoc true y z  =
  true or (y or z)  ≡⟨ zeroˡ _ ⟩
   true             ≡⟨ sym (zeroˡ _) ⟩
-  true or z        ≡⟨ cong (_or z) (sym (zeroˡ _)) ⟩
+  true or z        ≡[ i ]⟨ zeroˡ y (~ i) or z ⟩
   (true or y) or z ∎
   
 or-idem      : ∀ x → x or x ≡ x
