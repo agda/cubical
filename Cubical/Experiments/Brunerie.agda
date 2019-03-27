@@ -272,7 +272,7 @@ test63 : ℕ → Int
 test63 n = g10 (g9 (g8 (f7 (63n n))))
   where
   63n : ℕ → Ω³ ptS³ .fst
-  63n zero i j k = base
+  63n zero i j k = surf i j k
   63n (suc n) = f6 (f3 (63n n))
 
 foo : Ω³ ptS² .fst
