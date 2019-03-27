@@ -13,7 +13,7 @@ open import Cubical.HITs.S2 public
 open import Cubical.HITs.S3 public
 open import Cubical.HITs.Rational public
 open import Cubical.HITs.Susp public
-open import Cubical.HITs.SmashProduct public
+open import Cubical.HITs.SmashProduct public renaming (comm to Smash-comm)
 open import Cubical.HITs.Torus public
 open import Cubical.HITs.SetTruncation public
 open import Cubical.HITs.GroupoidTruncation public
