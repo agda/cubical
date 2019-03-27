@@ -14,7 +14,7 @@ open import Cubical.Foundations.Function
 private
   variable
     ℓ ℓ' : Level
-    
+
 data _×_ (A : Set ℓ) (B : Set ℓ') : Set (ℓ-max ℓ ℓ') where
   _,_ : A → B → A × B
 
@@ -35,11 +35,11 @@ infixr 5 _×Σ_
 private
   variable
     A    : Set ℓ
-    B C  : A → Set ℓ 
+    B C  : A → Set ℓ
 
 intro-× : (∀ a → B a) → (∀ a → C a) → ∀ a → B a × C a
 intro-× f g a = f a , g a
-    
+
 map-× : {B : Set ℓ} {D : B → Set ℓ'}
    → (∀ a → C a) → (∀ b → D b) → (x : A × B) → C (proj₁ x) × D (proj₂ x)
 map-× f g = intro-× (f ∘ proj₁) (g ∘ proj₂)

@@ -107,7 +107,7 @@ compPath'-filler {z = z} p q j i =
 _□_ : x ≡ y → y ≡ z → x ≡ z
 (p □ q) j = compPath'-filler p q i1 j
 
-□≡∙ : (p : x ≡ y) (q : y ≡ z) → p □ q ≡ p ∙ q 
+□≡∙ : (p : x ≡ y) (q : y ≡ z) → p □ q ≡ p ∙ q
 □≡∙ {x = x} {y = y} {z = z} p q i j = hcomp (λ k → \ { (i = i0) → compPath'-filler p q k j
                                              ; (i = i1) → compPath-filler p q k j
                                              ; (j = i0) → p ( ~ i ∧ ~ k)
@@ -226,4 +226,4 @@ isProp→isSet h a b p q j i =
   hcomp (λ k → λ { (i = i0) → h a a k
                  ; (i = i1) → h a b k
                  ; (j = i0) → h a (p i) k
-                 ; (j = i1) → h a (q i) k }) a 
+                 ; (j = i1) → h a (q i) k }) a

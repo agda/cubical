@@ -13,7 +13,7 @@ open import Cubical.Foundations.Isomorphism
 private
   variable
     ℓ ℓ' : Level
-    A B  : Set ℓ 
+    A B  : Set ℓ
 
 -- Swapping is an equivalence
 

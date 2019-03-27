@@ -38,7 +38,7 @@ elimEq/ : (Bprop : (x : A / R ) → isProp (B x))
           {x y : A / R}
           (eq : x ≡ y)
           (bx : B x)
-          (by : B y) → 
+          (by : B y) →
           PathP (λ i → B (eq i)) bx by
 elimEq/ {B = B} Bprop {x = x} =
   J (λ y eq → ∀ bx by → PathP (λ i → B (eq i)) bx by) (λ bx by → Bprop x bx by)

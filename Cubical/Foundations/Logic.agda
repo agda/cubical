@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Logic where
 
-import Cubical.Data.Everything as D 
+import Cubical.Data.Everything as D
 open import Cubical.Core.Everything
 open import Cubical.Foundations.HLevels using (hProp; ΣProp≡; isPropIsProp; propPi; isSetHProp)
 open import Cubical.Foundations.Isomorphism
@@ -15,7 +15,7 @@ infixr 5 _⇒_
 infixr 4 _⇔_
 
 --------------------------------------------------------------------------------
--- The type hProp of mere propositions 
+-- The type hProp of mere propositions
 -- the definition hProp is given in Foundations.HLevels
 -- hProp {ℓ} = Σ (Set ℓ) isProp
 
@@ -24,7 +24,7 @@ private
     ℓ ℓ' ℓ'' : Level
     P Q R : hProp {ℓ}
     A B C : Set ℓ
-    
+
 [_] : hProp → Set ℓ
 [_] = fst
 
@@ -58,7 +58,7 @@ A ⇒ B = ([ A ] → [ B ]) , propPi λ _ → B .snd
 infix 2 ⇒∶_⇐∶_
 
 ⇐∶_⇒∶_ : [ Q ⇒ P ] → [ P ⇒ Q ] → P ≡ Q
-⇐∶ g ⇒∶ f  = ⇔toPath f g 
+⇐∶ g ⇒∶ f  = ⇔toPath f g
 infix 2 ⇐∶_⇒∶_
 
 --------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ A ⇔ B = (A ≡ B) , isSetHProp A B
 
 infix 2 ∀-syntax
 
-∀-syntax : (A → hProp {ℓ}) → hProp 
+∀-syntax : (A → hProp {ℓ}) → hProp
 ∀-syntax {A = A} P = (∀ x → [ P x ]) , propPi (snd ∘ P)
 
 syntax ∀-syntax {A = A} (λ a → P) = ∀[ a ∶ A ] P
@@ -169,14 +169,14 @@ syntax ∃-syntax {A = A} (λ x → P) = ∃[ x ∶ A ] P
 
 ⊔-identityʳ : (P : hProp {ℓ}) → P ⊔ ⊥ ≡ P
 ⊔-identityʳ a = ⇔toPath (⊔-elim a ⊥ (λ _ → a) (λ x → x) λ ()) inl
-  
+
 --------------------------------------------------------------------------------
 -- (hProp, ⊓, ⊤) is a bounded ⊓-lattice
 
 ⊓-assoc : (P : hProp {ℓ}) (Q : hProp {ℓ'}) (R : hProp {ℓ''})
   → P ⊓ Q ⊓ R ≡ (P ⊓ Q) ⊓ R
 ⊓-assoc a b c =
-  ⇒∶ (λ {(x D., (y D., z)) →  (x D., y) D., z}) 
+  ⇒∶ (λ {(x D., (y D., z)) →  (x D., y) D., z})
   ⇐∶ (λ {((x D., y) D., z) → x D., (y D., z) })
 
 ⊓-comm : (P : hProp {ℓ}) (Q : hProp {ℓ'}) → P ⊓ Q ≡ Q ⊓ P
@@ -214,22 +214,22 @@ syntax ∃-syntax {A = A} (λ x → P) = ∃[ x ∶ A ] P
   ⇒∶ (λ { (x D., a) → ⊔-elim Q R (λ _ → (P ⊓ Q) ⊔ (P ⊓ R))
         (λ y → ∣ D.inl (x D., y) ∣ )
         (λ z → ∣ D.inr (x D., z) ∣ ) a })
-        
+
   ⇐∶ ⊔-elim (P ⊓ Q) (P ⊓ R) (λ _ → P ⊓ Q ⊔ R)
        (λ y → D.proj₁ y D., inl (D.proj₂ y))
-       (λ z → D.proj₁ z D., inr (D.proj₂ z)) 
+       (λ z → D.proj₁ z D., inr (D.proj₂ z))
 
 ⊔-dist-⊓ : (P : hProp {ℓ}) (Q : hProp {ℓ'})(R : hProp {ℓ''})
   → P ⊔ (Q ⊓ R) ≡ (P ⊔ Q) ⊓ (P ⊔ R)
 ⊔-dist-⊓ P Q R =
   ⇒∶ ⊔-elim P (Q ⊓ R) (λ _ → (P ⊔ Q) ⊓ (P ⊔ R) )
     (D.intro-× inl inl) (D.map-× inr inr)
-    
+
   ⇐∶ (λ { (x D., y) → ⊔-elim P R (λ _ → P ⊔ Q ⊓ R) inl
       (λ z → ⊔-elim P Q (λ _ → P ⊔ Q ⊓ R) inl (λ y → inr (y D., z)) x) y })
 
 --------------------------------------------------------------------------------
--- Syntax experiments 
+-- Syntax experiments
 
 --------------------------------------------------------------------------------
 -- Natural deduction style
@@ -247,7 +247,7 @@ infix 2 case-syntax
      case Q ⊓ R ∶ D.map-× inr inr
      --------------------------------
      ⊢ (P ⊔ Q) ⊓ (P ⊔ R) ⊔∎
-      
+
   ⇐∶ λ { (x D., y) →
      (case P ∶ inl
       case R ∶ (λ z →

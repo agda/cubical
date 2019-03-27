@@ -7,7 +7,7 @@ private
   variable
     ℓ ℓ' : Level
     A B C D : Set ℓ
-    
+
 data _⊎_ (A : Set ℓ)(B : Set ℓ') : Set (ℓ-max ℓ ℓ') where
   inl : A → A ⊎ B
   inr : B → A ⊎ B

@@ -84,7 +84,7 @@ invEquiv f = isoToEquiv (iso (invEq f) (fst f) (secEq f) (retEq f))
 
 compEquiv : A ≃ B → B ≃ C → A ≃ C
 compEquiv f g = isoToEquiv
-                  (iso (λ x → g .fst (f .fst x)) 
+                  (iso (λ x → g .fst (f .fst x))
                        (λ x → invEq f (invEq g x))
                        (λ y → (cong (g .fst) (retEq f (invEq g y))) ∙ (retEq g y))
                        (λ y → (cong (invEq f) (secEq g (f .fst y))) ∙ (secEq f y)))
