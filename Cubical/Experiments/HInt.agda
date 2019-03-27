@@ -14,7 +14,7 @@ For a variation that relies on a different notion of equivalence
 
 https://github.com/RedPRL/redtt/blob/master/library/cool/biinv-int.red
 
-It might be interesting to port that example one day. 
+It might be interesting to port that example one day.
 
 -}
 {-# OPTIONS --cubical #-}
@@ -90,4 +90,4 @@ Int≡ℤ : Int ≡ ℤ
 Int≡ℤ = isoToPath Int→ℤ ℤ→Int ℤ→Int→ℤ Int→ℤ→Int
 
 isSetℤ : isSet ℤ
-isSetℤ = subst isSet Int≡ℤ isSetInt 
+isSetℤ = subst isSet Int≡ℤ isSetInt

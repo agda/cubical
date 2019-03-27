@@ -17,7 +17,7 @@ notnot true  = refl
 notnot false = refl
 
 notIsEquiv : isEquiv not
-notIsEquiv = isoToIsEquiv (iso not not notnot notnot) 
+notIsEquiv = isoToIsEquiv (iso not not notnot notnot)
 
 notEquiv : Bool ≃ Bool
 notEquiv = (not , notIsEquiv)
@@ -29,7 +29,7 @@ private
   -- This computes to false as expected
   nfalse : Bool
   nfalse = transp (λ i → notEq i) i0 true
-  
+
   -- Sanity check
   nfalsepath : nfalse ≡ false
   nfalsepath = refl
@@ -68,18 +68,18 @@ or-comm true y =
   true or y ≡⟨ zeroˡ y ⟩
   true      ≡⟨ sym (zeroʳ y) ⟩
   y or true ∎
-  
+
 or-assoc     : ∀ x y z → x or (y or z) ≡ (x or y) or z
 or-assoc false y z =
   false or (y or z)   ≡⟨ or-identityˡ _ ⟩
   y or z              ≡[ i ]⟨ or-identityˡ y (~ i) or z ⟩
-  ((false or y) or z) ∎ 
+  ((false or y) or z) ∎
 or-assoc true y z  =
  true or (y or z)  ≡⟨ zeroˡ _ ⟩
   true             ≡⟨ sym (zeroˡ _) ⟩
   true or z        ≡[ i ]⟨ zeroˡ y (~ i) or z ⟩
   (true or y) or z ∎
-  
+
 or-idem      : ∀ x → x or x ≡ x
 or-idem false = refl
 or-idem true  = refl
