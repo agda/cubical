@@ -54,21 +54,6 @@ equivEq e f h = λ i → (h i) , isProp→PathP isPropIsEquiv h (e .snd) (f .snd
 isoToEquiv : Iso A B →  A ≃ B
 isoToEquiv i = _ , isoToIsEquiv i
 
-equivToIso : A ≃ B → Iso A B
-equivToIso {A = A} {B = B} e = iso f g f-g g-f
-  where
-    f : A → B
-    f = fst e
-
-    g : B → A
-    g b = e .snd .equiv-proof b .fst .fst
-
-    f-g : ∀ b → f (g b) ≡ b
-    f-g b = e .snd .equiv-proof b .fst .snd
-
-    g-f : ∀ a → g (f a) ≡ a
-    g-f a = cong fst (e .snd .equiv-proof (f a) .snd (a , refl))
-
 module _ (w : A ≃ B) where
   invEq : B → A
   invEq y = fst (fst (snd w .equiv-proof y))
@@ -79,6 +64,9 @@ module _ (w : A ≃ B) where
   retEq : retract invEq (w .fst)
   retEq y = λ i → snd (fst (snd w .equiv-proof y)) i
 
+equivToIso : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → Iso A B
+equivToIso {A = A} {B = B} e = iso (e .fst) (invEq e ) (retEq e) (secEq e)
+
 invEquiv : A ≃ B → B ≃ A
 invEquiv f = isoToEquiv (iso (invEq f) (fst f) (secEq f) (retEq f))
 
@@ -88,6 +76,10 @@ compEquiv f g = isoToEquiv
                        (λ x → invEq f (invEq g x))
                        (λ y → (cong (g .fst) (retEq f (invEq g y))) ∙ (retEq g y))
                        (λ y → (cong (invEq f) (secEq g (f .fst y))) ∙ (secEq f y)))
+
+compIso : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} {C : Set ℓ''} →
+            Iso A B → Iso B C → Iso A C
+compIso i j = equivToIso (compEquiv (isoToEquiv i) (isoToEquiv j))
 
 -- module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'}  where
 --   invEquivInvol : (f : A ≃ B) → invEquiv (invEquiv f) ≡ f

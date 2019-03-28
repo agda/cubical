@@ -11,3 +11,4 @@ open import Cubical.Data.Prod public
 open import Cubical.Data.Unit public
 open import Cubical.Data.Sigma public
 open import Cubical.Data.DiffInt public
+open import Cubical.Data.Group public hiding (_≃_)
