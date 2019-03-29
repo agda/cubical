@@ -5,6 +5,7 @@ module Cubical.Foundations.Embedding where
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
@@ -19,6 +20,10 @@ private
 
 isEmbedding : (A → B) → Set _
 isEmbedding f = ∀ w x → isEquiv {A = w ≡ x} (cong f)
+
+isEmbeddingIsProp : isProp (isEmbedding f)
+isEmbeddingIsProp {f = f}
+  = propPi λ w → propPi λ x → isPropIsEquiv (cong f)
 
 injEmbedding
   : {f : A → B}
