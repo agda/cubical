@@ -20,3 +20,4 @@ elim-⊎ _ g (inr y) = g y
 map-⊎ : (A → C) → (B → D) → A ⊎ B → C ⊎ D
 map-⊎ f _ (inl x) = inl (f x)
 map-⊎ _ g (inr y) = inr (g y)
+
