@@ -26,21 +26,21 @@ data LFSet (A : Set) : Set where
 -- Doing some proofs with equational reasoning adds an extra "_∙ refl"
 -- at the end.
 -- We might want to avoid it, or come up with a more clever equational reasoning.
-_∈_ : A → LFSet A → Ω
+_∈_ : A → LFSet A → hProp
 z ∈ []                  = ⊥
-z ∈ (y ∷ xs)            = (z ≡m y) ⊔ (z ∈ xs)
+z ∈ (y ∷ xs)            = (z ≡ₘ y) ⊔ (z ∈ xs)
 z ∈ dup x xs i          = proof i
   where
     -- proof : z ∈ (x ∷ x ∷ xs) ≡ z ∈ (x ∷ xs)
-    proof = z ≡m x  ⊔ (z ≡m x ⊔ z ∈ xs) ≡⟨ ⊔-assoc (z ≡m x) (z ≡m x) (z ∈ xs) ⟩
-            (z ≡m x ⊔ z ≡m x) ⊔ z ∈ xs  ≡⟨ cong (_⊔ (z ∈ xs)) (⊔-idem (z ≡m x)) ⟩
-            z ≡m x            ⊔ z ∈ xs  ∎
+    proof = z ≡ₘ x  ⊔ (z ≡ₘ x ⊔ z ∈ xs) ≡⟨ ⊔-assoc (z ≡ₘ x) (z ≡ₘ x) (z ∈ xs) ⟩
+            (z ≡ₘ x ⊔ z ≡ₘ x) ⊔ z ∈ xs  ≡⟨ cong (_⊔ (z ∈ xs)) (⊔-idem (z ≡ₘ x)) ⟩
+            z ≡ₘ x            ⊔ z ∈ xs  ∎
 z ∈ comm x y xs i       = proof i
   where
     -- proof : z ∈ (x ∷ y ∷ xs) ≡ z ∈ (y ∷ x ∷ xs)
-    proof = z ≡m x  ⊔ (z ≡m y ⊔ z ∈ xs) ≡⟨ ⊔-assoc (z ≡m x) (z ≡m y) (z ∈ xs) ⟩
-            (z ≡m x ⊔ z ≡m y) ⊔ z ∈ xs  ≡⟨ cong (_⊔ (z ∈ xs)) (⊔-comm (z ≡m x) (z ≡m y)) ⟩
-            (z ≡m y ⊔ z ≡m x) ⊔ z ∈ xs  ≡⟨ sym (⊔-assoc (z ≡m y) (z ≡m x) (z ∈ xs)) ⟩
-            z ≡m y  ⊔ (z ≡m x ⊔ z ∈ xs) ∎
+    proof = z ≡ₘ x  ⊔ (z ≡ₘ y ⊔ z ∈ xs) ≡⟨ ⊔-assoc (z ≡ₘ x) (z ≡ₘ y) (z ∈ xs) ⟩
+            (z ≡ₘ x ⊔ z ≡ₘ y) ⊔ z ∈ xs  ≡⟨ cong (_⊔ (z ∈ xs)) (⊔-comm (z ≡ₘ x) (z ≡ₘ y)) ⟩
+            (z ≡ₘ y ⊔ z ≡ₘ x) ⊔ z ∈ xs  ≡⟨ sym (⊔-assoc (z ≡ₘ y) (z ≡ₘ x) (z ∈ xs)) ⟩
+            z ≡ₘ y  ⊔ (z ≡ₘ x ⊔ z ∈ xs) ∎
 
 x ∈ trunc xs ys p q i j = isSetHProp (x ∈ xs) (x ∈ ys) (cong (x ∈_) p) (cong (x ∈_) q) i j
