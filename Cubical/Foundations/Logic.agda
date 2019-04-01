@@ -13,6 +13,8 @@ open import Cubical.Foundations.HLevels  using (hProp; ΣProp≡; isPropIsProp; 
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 
+open import Cubical.Relation.Nullary hiding (¬_)
+
 infix 8 ¬_
 infixr 7 _⊔_
 infixr 7 _⊔′_
@@ -143,6 +145,12 @@ infix 2 ∃-syntax
 ∃-syntax {A = A} P = ∥ Σ A (fst ∘ P) ∥ₚ
 
 syntax ∃-syntax {A = A} (λ x → P) = ∃[ x ∶ A ] P
+
+--------------------------------------------------------------------------------
+-- Decidable mere proposition
+
+Decₚ : (P : hProp {ℓ}) → hProp {ℓ}
+Decₚ P = Dec [ P ] , isPropDec (snd P)
 
 --------------------------------------------------------------------------------
 -- Negation commutes with truncation
