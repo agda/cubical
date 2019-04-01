@@ -51,6 +51,9 @@ x ≡ₘ y = ∥ x ≡ y ∥ₚ
 hProp≡ : [ P ] ≡ [ Q ] → P ≡ Q
 hProp≡ p = ΣProp≡ (\ _ → isPropIsProp) p
 
+substₘ : {x y : A} (B : A → hProp {ℓ}) → 
+      [ x ≡ₘ y ] → [ B x ] → [ B y ]
+substₘ {x = x} {y = y} B = elimPropTrunc (λ _ → propPi λ _ → B y .snd) (subst (fst ∘ B))
 --------------------------------------------------------------------------------
 -- Logical implication of mere propositions
 
@@ -61,6 +64,12 @@ A ⇒ B = ([ A ] → [ B ]) , propPi λ _ → B .snd
 ⇔toPath : [ P ⇒ Q ] → [ Q ⇒ P ] → P ≡ Q
 ⇔toPath {P = P} {Q = Q} P⇒Q Q⇒P = hProp≡ (isoToPath
   (iso P⇒Q Q⇒P (λ b → Q .snd (P⇒Q (Q⇒P b)) b) λ a → P .snd (Q⇒P (P⇒Q a)) a))
+
+pathTo⇒ : P ≡ Q → [ P ⇒ Q ]
+pathTo⇒ p x = subst fst  p x
+
+pathTo⇐ : P ≡ Q → [ Q ⇒ P ]
+pathTo⇐ p x = subst fst (sym p) x
 
 --------------------------------------------------------------------------------
 -- Mixfix notations for ⇔-toPath
