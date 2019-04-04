@@ -25,9 +25,7 @@ path≡Id = isoToPath (iso pathToId idToPath idToPathToId pathToIdToPath )
 equivPathToEquivPath : ∀ {ℓ} {A : Set ℓ} {B : Set ℓ} → (p : EquivPath A B) →
                        Path _ (equivToEquivPath (equivPathToEquiv p)) p
 equivPathToEquivPath (f , p) i =
-  ( f , isPropIsEquivPath f (λ { .equiv-proof y →
-          helper2 fiberPathToFiber fiberToFiberPath fiberPathToFiberPath
-            (helper1 fiberPathToFiber fiberToFiberPath fiberToFiber (p .equiv-proof y)) }) p i )
+  ( f , isPropIsEquivPath f (equivToEquivPath (equivPathToEquiv (f , p)) .snd) p i )
 
 equivPath≡Equiv : ∀ {ℓ} {A B : Set ℓ} → Path _ (EquivPath A B) (A ≃ B)
 equivPath≡Equiv {ℓ} = isoToPath (iso (equivPathToEquiv {ℓ}) equivToEquivPath equivToEquiv equivPathToEquivPath)
