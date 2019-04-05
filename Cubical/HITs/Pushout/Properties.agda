@@ -106,101 +106,101 @@ module 3x3 (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
   A○□ : Set
   A○□ = Pushout f1□ f3□
 
-  aux1 : A□0 → A○□
-  aux1 (inl x) = inl (inl x)
-  aux1 (inr x) = inr (inl x)
-  aux1 (push a i) = push (inl a) i
+  forward-l : A□0 → A○□
+  forward-l (inl x) = inl (inl x)
+  forward-l (inr x) = inr (inl x)
+  forward-l (push a i) = push (inl a) i
 
-  aux2 : A□4 → A○□
-  aux2 (inl x) = inl (inr x)
-  aux2 (inr x) = inr (inr x)
-  aux2 (push a i) = push (inr a) i
+  forward-r : A□4 → A○□
+  forward-r (inl x) = inl (inr x)
+  forward-r (inr x) = inr (inr x)
+  forward-r (push a i) = push (inr a) i
 
-  filler1 : A22 → I → I → I → A○□
-  filler1 a i j = hfill (λ t → λ { (i = i0) → inl (doubleCompPath-filler (λ k → inl (H11 a (~ k))) (push (f12 a)) (λ k → inr (H13 a k)) j (~ t))
+  forward-filler : A22 → I → I → I → A○□
+  forward-filler a i j = hfill (λ t → λ { (i = i0) → inl (doubleCompPath-filler (λ k → inl (H11 a (~ k))) (push (f12 a)) (λ k → inr (H13 a k)) j (~ t))
                                  ; (i = i1) → inr (doubleCompPath-filler (λ k → inl (H31 a (~ k))) (push (f32 a)) (λ k → inr (H33 a k)) j (~ t))
-                                 ; (j = i0) → aux1 (doubleCompPath-filler (λ k → inl (H11 a k)) (push (f21 a)) (λ k → inr (H31 a (~ k))) i t)
-                                 ; (j = i1) → aux2 (doubleCompPath-filler (λ k → inl (H13 a k)) (push (f23 a)) (λ k → inr (H33 a (~ k))) i t) })
+                                 ; (j = i0) → forward-l (doubleCompPath-filler (λ k → inl (H11 a k)) (push (f21 a)) (λ k → inr (H31 a (~ k))) i t)
+                                 ; (j = i1) → forward-r (doubleCompPath-filler (λ k → inl (H13 a k)) (push (f23 a)) (λ k → inr (H33 a (~ k))) i t) })
                         (inS (push (push a j) i))
 
   A□○→A○□ : A□○ → A○□
-  A□○→A○□ (inl x) = aux1 x
-  A□○→A○□ (inr x) = aux2 x
+  A□○→A○□ (inl x) = forward-l x
+  A□○→A○□ (inr x) = forward-r x
   A□○→A○□ (push (inl x) i) = inl (push x i)
   A□○→A○□ (push (inr x) i) = inr (push x i)
-  A□○→A○□ (push (push a i) j) = filler1 a i j i1
+  A□○→A○□ (push (push a i) j) = forward-filler a i j i1
 
-  aux3 : A0□ → A□○
-  aux3 (inl x) = inl (inl x)
-  aux3 (inr x) = inr (inl x)
-  aux3 (push a i) = push (inl a) i
+  backward-l : A0□ → A□○
+  backward-l (inl x) = inl (inl x)
+  backward-l (inr x) = inr (inl x)
+  backward-l (push a i) = push (inl a) i
 
-  aux4 : A4□ → A□○
-  aux4 (inl x) = inl (inr x)
-  aux4 (inr x) = inr (inr x)
-  aux4 (push a i) = push (inr a) i
+  backward-r : A4□ → A□○
+  backward-r (inl x) = inl (inr x)
+  backward-r (inr x) = inr (inr x)
+  backward-r (push a i) = push (inr a) i
 
-  filler2 : A22 → I → I → I → A□○
-  filler2 a i j = hfill (λ t → λ { (i = i0) → inl (doubleCompPath-filler (λ k → inl (H11 a k)) (push (f21 a)) (λ k → inr (H31 a (~ k))) j (~ t))
+  backward-filler : A22 → I → I → I → A□○
+  backward-filler a i j = hfill (λ t → λ { (i = i0) → inl (doubleCompPath-filler (λ k → inl (H11 a k)) (push (f21 a)) (λ k → inr (H31 a (~ k))) j (~ t))
                                  ; (i = i1) → inr (doubleCompPath-filler (λ k → inl (H13 a k)) (push (f23 a)) (λ k → inr (H33 a (~ k))) j (~ t))
-                                 ; (j = i0) → aux3 (doubleCompPath-filler (λ k → inl (H11 a (~ k))) (push (f12 a)) (λ k → inr (H13 a k)) i t)
-                                 ; (j = i1) → aux4 (doubleCompPath-filler (λ k → inl (H31 a (~ k))) (push (f32 a)) (λ k → inr (H33 a k)) i t) })
+                                 ; (j = i0) → backward-l (doubleCompPath-filler (λ k → inl (H11 a (~ k))) (push (f12 a)) (λ k → inr (H13 a k)) i t)
+                                 ; (j = i1) → backward-r (doubleCompPath-filler (λ k → inl (H31 a (~ k))) (push (f32 a)) (λ k → inr (H33 a k)) i t) })
                         (inS (push (push a j) i))
 
   A○□→A□○ : A○□ → A□○
-  A○□→A□○ (inl x) = aux3 x
-  A○□→A□○ (inr x) = aux4 x
+  A○□→A□○ (inl x) = backward-l x
+  A○□→A□○ (inr x) = backward-r x
   A○□→A□○ (push (inl x) i) = inl (push x i)
   A○□→A□○ (push (inr x) i) = inr (push x i)
-  A○□→A□○ (push (push a i) j) = filler2 a i j i1
+  A○□→A□○ (push (push a i) j) = backward-filler a i j i1
 
-  aux5 : ∀ x → A□○→A○□ (aux3 x) ≡ inl x
-  aux5 (inl x) = refl
-  aux5 (inr x) = refl
-  aux5 (push a i) = refl
+  homotopy1-l : ∀ x → A□○→A○□ (backward-l x) ≡ inl x
+  homotopy1-l (inl x) = refl
+  homotopy1-l (inr x) = refl
+  homotopy1-l (push a i) = refl
 
-  aux6 : ∀ x → A□○→A○□ (aux4 x) ≡ inr x
-  aux6 (inl x) = refl
-  aux6 (inr x) = refl
-  aux6 (push a i) = refl
+  homotopy1-r : ∀ x → A□○→A○□ (backward-r x) ≡ inr x
+  homotopy1-r (inl x) = refl
+  homotopy1-r (inr x) = refl
+  homotopy1-r (push a i) = refl
 
   A○□→A□○→A○□ : ∀ x → A□○→A○□ (A○□→A□○ x) ≡ x
-  A○□→A□○→A○□ (inl x) = aux5 x
-  A○□→A□○→A○□ (inr x) = aux6 x
+  A○□→A□○→A○□ (inl x) = homotopy1-l x
+  A○□→A□○→A○□ (inr x) = homotopy1-r x
   A○□→A□○→A○□ (push (inl x) i) k = push (inl x) i
   A○□→A□○→A○□ (push (inr x) i) k = push (inr x) i
   A○□→A□○→A○□ (push (push a i) j) k =
-    hcomp (λ t → λ { (i = i0) → aux1 (doubleCompPath-filler (λ k → inl (H11 a k)) (push (f21 a)) (λ k → inr (H31 a (~ k))) j (~ t))
-                   ; (i = i1) → aux2 (doubleCompPath-filler (λ k → inl (H13 a k)) (push (f23 a)) (λ k → inr (H33 a (~ k))) j (~ t))
-                   ; (j = i0) → aux5 (doubleCompPath-filler (λ k → inl (H11 a (~ k))) (push (f12 a)) (λ k → inr (H13 a k)) i t) k
-                   ; (j = i1) → aux6 (doubleCompPath-filler (λ k → inl (H31 a (~ k))) (push (f32 a)) (λ k → inr (H33 a k)) i t) k
-                   ; (k = i0) → A□○→A○□ (filler2 a i j t)
-                   ; (k = i1) → filler1 a j i (~ t) })
-          (filler1 a j i i1)
+    hcomp (λ t → λ { (i = i0) → forward-l (doubleCompPath-filler (λ k → inl (H11 a k)) (push (f21 a)) (λ k → inr (H31 a (~ k))) j (~ t))
+                   ; (i = i1) → forward-r (doubleCompPath-filler (λ k → inl (H13 a k)) (push (f23 a)) (λ k → inr (H33 a (~ k))) j (~ t))
+                   ; (j = i0) → homotopy1-l (doubleCompPath-filler (λ k → inl (H11 a (~ k))) (push (f12 a)) (λ k → inr (H13 a k)) i t) k
+                   ; (j = i1) → homotopy1-r (doubleCompPath-filler (λ k → inl (H31 a (~ k))) (push (f32 a)) (λ k → inr (H33 a k)) i t) k
+                   ; (k = i0) → A□○→A○□ (backward-filler a i j t)
+                   ; (k = i1) → forward-filler a j i (~ t) })
+          (forward-filler a j i i1)
 
-  aux7 : ∀ x → A○□→A□○ (aux1 x) ≡ inl x
-  aux7 (inl x) = refl
-  aux7 (inr x) = refl
-  aux7 (push a i) = refl
+  homotopy2-l : ∀ x → A○□→A□○ (forward-l x) ≡ inl x
+  homotopy2-l (inl x) = refl
+  homotopy2-l (inr x) = refl
+  homotopy2-l (push a i) = refl
 
-  aux8 : ∀ x → A○□→A□○ (aux2 x) ≡ inr x
-  aux8 (inl x) = refl
-  aux8 (inr x) = refl
-  aux8 (push a i) = refl
+  homotopy2-r : ∀ x → A○□→A□○ (forward-r x) ≡ inr x
+  homotopy2-r (inl x) = refl
+  homotopy2-r (inr x) = refl
+  homotopy2-r (push a i) = refl
 
   A□○→A○□→A□○ : ∀ x → A○□→A□○ (A□○→A○□ x) ≡ x
-  A□○→A○□→A□○ (inl x) = aux7 x
-  A□○→A○□→A□○ (inr x) = aux8 x
+  A□○→A○□→A□○ (inl x) = homotopy2-l x
+  A□○→A○□→A□○ (inr x) = homotopy2-r x
   A□○→A○□→A□○ (push (inl x) i) k = push (inl x) i
   A□○→A○□→A□○ (push (inr x) i) k = push (inr x) i
   A□○→A○□→A□○ (push (push a i) j) k =
-    hcomp (λ t → λ { (i = i0) → aux3 (doubleCompPath-filler (λ k → inl (H11 a (~ k))) (push (f12 a)) (λ k → inr (H13 a k)) j (~ t))
-                   ; (i = i1) → aux4 (doubleCompPath-filler (λ k → inl (H31 a (~ k))) (push (f32 a)) (λ k → inr (H33 a k)) j (~ t))
-                   ; (j = i0) → aux7 (doubleCompPath-filler (λ k → inl (H11 a k)) (push (f21 a)) (λ k → inr (H31 a (~ k))) i t) k
-                   ; (j = i1) → aux8 (doubleCompPath-filler (λ k → inl (H13 a k)) (push (f23 a)) (λ k → inr (H33 a (~ k))) i t) k
-                   ; (k = i0) → A○□→A□○ (filler1 a i j t)
-                   ; (k = i1) → filler2 a j i (~ t) })
-          (filler2 a j i i1)
+    hcomp (λ t → λ { (i = i0) → backward-l (doubleCompPath-filler (λ k → inl (H11 a (~ k))) (push (f12 a)) (λ k → inr (H13 a k)) j (~ t))
+                   ; (i = i1) → backward-r (doubleCompPath-filler (λ k → inl (H31 a (~ k))) (push (f32 a)) (λ k → inr (H33 a k)) j (~ t))
+                   ; (j = i0) → homotopy2-l (doubleCompPath-filler (λ k → inl (H11 a k)) (push (f21 a)) (λ k → inr (H31 a (~ k))) i t) k
+                   ; (j = i1) → homotopy2-r (doubleCompPath-filler (λ k → inl (H13 a k)) (push (f23 a)) (λ k → inr (H33 a (~ k))) i t) k
+                   ; (k = i0) → A○□→A□○ (forward-filler a i j t)
+                   ; (k = i1) → backward-filler a j i (~ t) })
+          (backward-filler a j i i1)
 
   
 
