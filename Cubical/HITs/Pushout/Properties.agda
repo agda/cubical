@@ -116,42 +116,19 @@ module 3x3 (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
   aux2 (inr x) = inr (inr x)
   aux2 (push a i) = push (inr a) i
 
+  filler1 : A22 → I → I → I → A×⋅
+  filler1 a i j = hfill (λ t → λ { (i = i0) → inl (doubleCompPath-filler (λ k → inl (H11 a (~ k))) (push (f12 a)) (λ k → inr (H13 a k)) j (~ t))
+                                 ; (i = i1) → inr (doubleCompPath-filler (λ k → inl (H31 a (~ k))) (push (f32 a)) (λ k → inr (H33 a k)) j (~ t))
+                                 ; (j = i0) → aux1 (doubleCompPath-filler (λ k → inl (H11 a k)) (push (f21 a)) (λ k → inr (H31 a (~ k))) i t)
+                                 ; (j = i1) → aux2 (doubleCompPath-filler (λ k → inl (H13 a k)) (push (f23 a)) (λ k → inr (H33 a (~ k))) i t) })
+                        (inS (push (push a j) i))
+
   A⋅×→A×⋅ : A⋅× → A×⋅
   A⋅×→A×⋅ (inl x) = aux1 x
   A⋅×→A×⋅ (inr x) = aux2 x
   A⋅×→A×⋅ (push (inl x) i) = inl (push x i)
   A⋅×→A×⋅ (push (inr x) i) = inr (push x i)
-  A⋅×→A×⋅ (push (push a i) j) = 
-    hcomp (λ t → λ { (i = i0) → inl (doubleCompPath-filler (λ k → inl (H11 a (~ k))) (push (f12 a)) (λ k → inr (H13 a k)) j (~ t))
-                   ; (i = i1) → inr (doubleCompPath-filler (λ k → inl (H31 a (~ k))) (push (f32 a)) (λ k → inr (H33 a k)) j (~ t))
-                   ; (j = i0) → aux1 (doubleCompPath-filler (λ k → inl (H11 a k)) (push (f21 a)) (λ k → inr (H31 a (~ k))) i t)
-                   ; (j = i1) → aux2 (doubleCompPath-filler (λ k → inl (H13 a k)) (push (f23 a)) (λ k → inr (H33 a (~ k))) i t) })
-          (push (push a j) i)
-
--- on the LHS, boundary is
-
--- i = i0 → push (inl (f12 a)) j
--- i = i1 → push (inr (f32 a)) j
--- j = i0 → inl (f⋅1 (push a i))
---          = inl (((λ k → inl (H11 a k)) ∙∙ push (f21 a) ∙∙ (λ k → inr (H31 a (~ k)))) i)
--- j = i1 → inr (f⋅3 (push a i))
---          = inr (((λ k → inl (H13 a k)) ∙∙ push (f23 a) ∙∙ (λ k → inr (H33 a (~ k)))) i)
-
--- which gets sent to
-
--- i = i0 → inl (push (f12 a) j)
--- i = i1 → inr (push (f32 a) j)
--- j = i0 → aux1 ((λ k → inl (H11 a k)) ∙∙ push (f21 a) ∙∙ (λ k → inr (H31 a (~ k)))) i
--- j = i1 → aux2 ((λ k → inl (H13 a k)) ∙∙ push (f23 a) ∙∙ (λ k → inr (H33 a (~ k)))) i
-
--- and now we suggest
-
--- i = i0 → inl (f1⋅ (push a j))
---          = inl (((λ k → inl (H11 (~ k))) ∙∙ push (f12 a) ∙∙ (λ k → inr (H13 a k))) j)
--- i = i1 → inr (f3⋅ (push a j))
---          = inr (((λ k → inl (H31 a (~ k))) ∙∙ push (f32 a) ∙∙ (λ k → inr (H33 a k))) j)
--- j = i0 → push (inl (f21 a)) i
--- j = i1 → push (inr (f23 a)) i
+  A⋅×→A×⋅ (push (push a i) j) = filler1 a i j i1
 
   aux3 : A0⋅ → A⋅×
   aux3 (inl x) = inl (inl x)
@@ -163,17 +140,70 @@ module 3x3 (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
   aux4 (inr x) = inr (inr x)
   aux4 (push a i) = push (inr a) i
 
+  filler2 : A22 → I → I → I → A⋅×
+  filler2 a i j = hfill (λ t → λ { (i = i0) → inl (doubleCompPath-filler (λ k → inl (H11 a k)) (push (f21 a)) (λ k → inr (H31 a (~ k))) j (~ t))
+                                 ; (i = i1) → inr (doubleCompPath-filler (λ k → inl (H13 a k)) (push (f23 a)) (λ k → inr (H33 a (~ k))) j (~ t))
+                                 ; (j = i0) → aux3 (doubleCompPath-filler (λ k → inl (H11 a (~ k))) (push (f12 a)) (λ k → inr (H13 a k)) i t)
+                                 ; (j = i1) → aux4 (doubleCompPath-filler (λ k → inl (H31 a (~ k))) (push (f32 a)) (λ k → inr (H33 a k)) i t) })
+                        (inS (push (push a j) i))
+
   A×⋅→A⋅× : A×⋅ → A⋅×
   A×⋅→A⋅× (inl x) = aux3 x
   A×⋅→A⋅× (inr x) = aux4 x
   A×⋅→A⋅× (push (inl x) i) = inl (push x i)
   A×⋅→A⋅× (push (inr x) i) = inr (push x i)
-  A×⋅→A⋅× (push (push a i) j) = 
-    hcomp (λ t → λ { (i = i0) → inl (doubleCompPath-filler (λ k → inl (H11 a k)) (push (f21 a)) (λ k → inr (H31 a (~ k))) j (~ t))
-                   ; (i = i1) → inr (doubleCompPath-filler (λ k → inl (H13 a k)) (push (f23 a)) (λ k → inr (H33 a (~ k))) j (~ t))
-                   ; (j = i0) → aux3 (doubleCompPath-filler (λ k → inl (H11 a (~ k))) (push (f12 a)) (λ k → inr (H13 a k)) i t)
-                   ; (j = i1) → aux4 (doubleCompPath-filler (λ k → inl (H31 a (~ k))) (push (f32 a)) (λ k → inr (H33 a k)) i t) })
-          (push (push a j) i)
+  A×⋅→A⋅× (push (push a i) j) = filler2 a i j i1
+
+  aux5 : ∀ x → A⋅×→A×⋅ (aux3 x) ≡ inl x
+  aux5 (inl x) = refl
+  aux5 (inr x) = refl
+  aux5 (push a i) = refl
+
+  aux6 : ∀ x → A⋅×→A×⋅ (aux4 x) ≡ inr x
+  aux6 (inl x) = refl
+  aux6 (inr x) = refl
+  aux6 (push a i) = refl
+
+  A×⋅→A⋅×→A×⋅ : ∀ x → A⋅×→A×⋅ (A×⋅→A⋅× x) ≡ x
+  A×⋅→A⋅×→A×⋅ (inl x) = aux5 x
+  A×⋅→A⋅×→A×⋅ (inr x) = aux6 x
+  A×⋅→A⋅×→A×⋅ (push (inl x) i) k = push (inl x) i
+  A×⋅→A⋅×→A×⋅ (push (inr x) i) k = push (inr x) i
+  A×⋅→A⋅×→A×⋅ (push (push a i) j) k =
+    hcomp (λ t → λ { (i = i0) → aux1 (doubleCompPath-filler (λ k → inl (H11 a k)) (push (f21 a)) (λ k → inr (H31 a (~ k))) j (~ t))
+                   ; (i = i1) → aux2 (doubleCompPath-filler (λ k → inl (H13 a k)) (push (f23 a)) (λ k → inr (H33 a (~ k))) j (~ t))
+                   ; (j = i0) → aux5 (doubleCompPath-filler (λ k → inl (H11 a (~ k))) (push (f12 a)) (λ k → inr (H13 a k)) i t) k
+                   ; (j = i1) → aux6 (doubleCompPath-filler (λ k → inl (H31 a (~ k))) (push (f32 a)) (λ k → inr (H33 a k)) i t) k
+                   ; (k = i0) → A⋅×→A×⋅ (filler2 a i j t)
+                   ; (k = i1) → filler1 a j i (~ t) })
+          (filler1 a j i i1)
+
+  aux7 : ∀ x → A×⋅→A⋅× (aux1 x) ≡ inl x
+  aux7 (inl x) = refl
+  aux7 (inr x) = refl
+  aux7 (push a i) = refl
+
+  aux8 : ∀ x → A×⋅→A⋅× (aux2 x) ≡ inr x
+  aux8 (inl x) = refl
+  aux8 (inr x) = refl
+  aux8 (push a i) = refl
+
+  A⋅×→A×⋅→A⋅× : ∀ x → A×⋅→A⋅× (A⋅×→A×⋅ x) ≡ x
+  A⋅×→A×⋅→A⋅× (inl x) = aux7 x
+  A⋅×→A×⋅→A⋅× (inr x) = aux8 x
+  A⋅×→A×⋅→A⋅× (push (inl x) i) k = push (inl x) i
+  A⋅×→A×⋅→A⋅× (push (inr x) i) k = push (inr x) i
+  A⋅×→A×⋅→A⋅× (push (push a i) j) k =
+    hcomp (λ t → λ { (i = i0) → aux3 (doubleCompPath-filler (λ k → inl (H11 a (~ k))) (push (f12 a)) (λ k → inr (H13 a k)) j (~ t))
+                   ; (i = i1) → aux4 (doubleCompPath-filler (λ k → inl (H31 a (~ k))) (push (f32 a)) (λ k → inr (H33 a k)) j (~ t))
+                   ; (j = i0) → aux7 (doubleCompPath-filler (λ k → inl (H11 a k)) (push (f21 a)) (λ k → inr (H31 a (~ k))) i t) k
+                   ; (j = i1) → aux8 (doubleCompPath-filler (λ k → inl (H13 a k)) (push (f23 a)) (λ k → inr (H33 a (~ k))) i t) k
+                   ; (k = i0) → A×⋅→A⋅× (filler1 a i j t)
+                   ; (k = i1) → filler2 a j i (~ t) })
+          (filler2 a j i i1)
+
+  
 
   3x3 : A⋅× ≡ A×⋅
-  3x3 = {!!}
+  3x3 = isoToPath (iso A⋅×→A×⋅ A×⋅→A⋅× A×⋅→A⋅×→A×⋅ A⋅×→A×⋅→A⋅×)
+
