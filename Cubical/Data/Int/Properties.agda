@@ -54,17 +54,6 @@ predSuc (negsuc (suc n)) = refl
 
 -- TODO: define multiplication
 
-private
-  -- TODO: can we change this so that it's the proof suc-equiv?
-  coherence : (n : Int) → Path (Path Int (sucInt (predInt (sucInt n))) (sucInt n))
-                               (sucPred (sucInt n))
-                               (cong sucInt (predSuc n))
-  coherence (pos zero) = refl
-  coherence (pos (suc n)) = refl
-  coherence (negsuc zero) = refl
-  coherence (negsuc (suc zero)) = refl
-  coherence (negsuc (suc (suc n))) = refl
-
 injPos : ∀ {a b : ℕ} → pos a ≡ pos b → a ≡ b
 injPos {a} h = subst T h refl
   where
