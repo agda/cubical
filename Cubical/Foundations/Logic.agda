@@ -1,4 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
+
 module Cubical.Foundations.Logic where
 
 import Cubical.Data.Empty as D
@@ -9,16 +10,30 @@ import Cubical.Data.Unit  as D
 open import Cubical.Core.Prelude
 open import Cubical.Core.PropositionalTruncation
 
-open import Cubical.Foundations.HLevels     using (hProp; ΣProp≡; isPropIsProp; propPi; isSetHProp) public
+open import Cubical.Foundations.HLevels  using (hProp; ΣProp≡; isPropIsProp; propPi) public
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 
-infixr 7 _⊔_
-infixr 7 _⊔′_
-infixr 7 _⊓_
-infixr 7 _⊓′_
-infixr 5 _⇒_
+open import Cubical.Relation.Nullary hiding (¬_)
+
+infix 10 ¬_
+infixr 8 _⊔_
+infixr 8 _⊔′_
+infixr 8 _⊓_
+infixr 8 _⊓′_
+infixr 6 _⇒_
 infixr 4 _⇔_
+infix 30 _≡ₚ_
+infix 30 _≢ₚ_
+
+infix 2 ∃[]-syntax
+infix 2 ∃[∶]-syntax
+
+infix 2 ∀[∶]-syntax
+infix 2 ∀[]-syntax
+
+infix 2 ⇒∶_⇐∶_
+infix 2 ⇐∶_⇒∶_
 
 --------------------------------------------------------------------------------
 -- The type hProp of mere propositions
@@ -34,14 +49,11 @@ private
 [_] : hProp → Set ℓ
 [_] = fst
 
-infix 30 _≡ₘ_
-infix 30 ∥_∥ₚ
-
 ∥_∥ₚ : Set ℓ → hProp
 ∥ A ∥ₚ = ∥ A ∥ , propTruncIsProp
 
-_≡ₘ_ : (x y : A) → hProp
-x ≡ₘ y = ∥ x ≡ y ∥ₚ
+_≡ₚ_ : (x y : A) → hProp
+x ≡ₚ y = ∥ x ≡ y ∥ₚ
 
 hProp≡ : [ P ] ≡ [ Q ] → P ≡ Q
 hProp≡ p = ΣProp≡ (\ _ → isPropIsProp) p
@@ -52,10 +64,18 @@ hProp≡ p = ΣProp≡ (\ _ → isPropIsProp) p
 _⇒_ : (A : hProp {ℓ}) → (B : hProp {ℓ'}) → hProp
 A ⇒ B = ([ A ] → [ B ]) , propPi λ _ → B .snd
 
-
 ⇔toPath : [ P ⇒ Q ] → [ Q ⇒ P ] → P ≡ Q
 ⇔toPath {P = P} {Q = Q} P⇒Q Q⇒P = hProp≡ (isoToPath
   (iso P⇒Q Q⇒P (λ b → Q .snd (P⇒Q (Q⇒P b)) b) λ a → P .snd (Q⇒P (P⇒Q a)) a))
+
+pathTo⇒ : P ≡ Q → [ P ⇒ Q ]
+pathTo⇒ p x = subst fst  p x
+
+pathTo⇐ : P ≡ Q → [ Q ⇒ P ]
+pathTo⇐ p x = subst fst (sym p) x
+
+substₚ : {x y : A} (B : A → hProp {ℓ}) → [ x ≡ₚ y ⇒ B x ⇒ B y ]
+substₚ {x = x} {y = y} B = elimPropTrunc (λ _ → propPi λ _ → B y .snd) (subst (fst ∘ B))
 
 --------------------------------------------------------------------------------
 -- Mixfix notations for ⇔-toPath
@@ -63,12 +83,9 @@ A ⇒ B = ([ A ] → [ B ]) , propPi λ _ → B .snd
 
 ⇒∶_⇐∶_ : [ P ⇒ Q ] → [ Q ⇒ P ] → P ≡ Q
 ⇒∶_⇐∶_ = ⇔toPath
-infix 2 ⇒∶_⇐∶_
 
 ⇐∶_⇒∶_ : [ Q ⇒ P ] → [ P ⇒ Q ] → P ≡ Q
 ⇐∶ g ⇒∶ f  = ⇔toPath f g
-infix 2 ⇐∶_⇒∶_
-
 --------------------------------------------------------------------------------
 -- False and True
 
@@ -77,6 +94,15 @@ infix 2 ⇐∶_⇒∶_
 
 ⊤ : hProp
 ⊤ = D.Unit , (λ _ _ _ → D.tt)
+
+--------------------------------------------------------------------------------
+-- Pseudo-complement of mere propositions
+
+¬_ : hProp {ℓ} → hProp
+¬ A = ([ A ] → D.⊥) , propPi λ _ → D.isProp⊥
+
+_≢ₚ_ : (x y : A) → hProp
+x ≢ₚ y = ¬ x ≡ₚ y
 
 --------------------------------------------------------------------------------
 -- Disjunction of mere propositions
@@ -108,36 +134,51 @@ A ⊓ B = [ A ] ⊓′ [ B ] , D.hLevelProd 1 (A .snd) (B .snd)
 ⊓-intro : (P : hProp {ℓ}) (Q : [ P ] → hProp {ℓ'}) (R : [ P ] → hProp {ℓ''})
        → (∀ a → [ Q a ]) → (∀ a → [ R a ]) → (∀ (a : [ P ]) → [ Q a ⊓ R a ] )
 ⊓-intro _ _ _ = D.intro-×
---------------------------------------------------------------------------------
--- Pseudo-complement of mere propositions
-¬_ : hProp {ℓ} → hProp
-¬ A = ([ A ] → D.⊥) , propPi λ _ → D.isProp⊥
 
 --------------------------------------------------------------------------------
 -- Logical bi-implication of mere propositions
 
-_⇔_ : hProp {ℓ} → hProp → hProp
-A ⇔ B = (A ≡ B) , isSetHProp A B
+_⇔_ : hProp {ℓ} → hProp {ℓ'} → hProp
+A ⇔ B = (A ⇒ B) ⊓ (B ⇒ A)
 
 --------------------------------------------------------------------------------
 -- Universal Quantifier
 
-infix 2 ∀-syntax
 
-∀-syntax : (A → hProp {ℓ}) → hProp
-∀-syntax {A = A} P = (∀ x → [ P x ]) , propPi (snd ∘ P)
+∀[∶]-syntax : (A → hProp {ℓ}) → hProp
+∀[∶]-syntax {A = A} P = (∀ x → [ P x ]) , propPi (snd ∘ P)
 
-syntax ∀-syntax {A = A} (λ a → P) = ∀[ a ∶ A ] P
+∀[]-syntax : (A → hProp {ℓ}) → hProp
+∀[]-syntax {A = A} P = (∀ x → [ P x ]) , propPi (snd ∘ P)
 
+syntax ∀[∶]-syntax {A = A} (λ a → P) = ∀[ a ∶ A ] P
+syntax ∀[]-syntax (λ a → P)          = ∀[ a ] P
 --------------------------------------------------------------------------------
 -- Existential Quantifier
 
-infix 2 ∃-syntax
 
-∃-syntax : (A → hProp {ℓ}) → hProp
-∃-syntax {A = A} P = ∥ Σ A (fst ∘ P) ∥ₚ
+∃[]-syntax : (A → hProp {ℓ}) → hProp
+∃[]-syntax {A = A} P = ∥ Σ A (fst ∘ P) ∥ₚ
 
-syntax ∃-syntax {A = A} (λ x → P) = ∃[ x ∶ A ] P
+∃[∶]-syntax : (A → hProp {ℓ}) → hProp
+∃[∶]-syntax {A = A} P = ∥ Σ A (fst ∘ P) ∥ₚ
+
+syntax ∃[]-syntax {A = A} (λ x → P) = ∃[ x ∶ A ] P
+syntax ∃[∶]-syntax (λ x → P) = ∃[ x ] P
+--------------------------------------------------------------------------------
+-- Decidable mere proposition
+
+Decₚ : (P : hProp {ℓ}) → hProp {ℓ}
+Decₚ P = Dec [ P ] , isPropDec (snd P)
+
+--------------------------------------------------------------------------------
+-- Negation commutes with truncation
+
+∥¬A∥≡¬∥A∥ : (A : Set ℓ) → ∥ (A → D.⊥) ∥ₚ ≡ (¬ ∥ A ∥ₚ)
+∥¬A∥≡¬∥A∥ _ =
+  ⇒∶ (λ ¬A A → elimPropTrunc (λ _ → D.isProp⊥)
+    (elimPropTrunc (λ _ → propPi λ _ → D.isProp⊥) (λ ¬p p → ¬p p) ¬A) A)
+  ⇐∶ λ ¬p → ∣ (λ p → ¬p ∣ p ∣) ∣
 
 --------------------------------------------------------------------------------
 -- (hProp, ⊔, ⊥) is a bounded ⊔-semilattice
@@ -225,3 +266,9 @@ syntax ∃-syntax {A = A} (λ x → P) = ∃[ x ∶ A ] P
 
   ⇐∶ (λ { (x D., y) → ⊔-elim P R (λ _ → P ⊔ Q ⊓ R) inl
       (λ z → ⊔-elim P Q (λ _ → P ⊔ Q ⊓ R) inl (λ y → inr (y D., z)) x) y })
+
+⊓-∀-distrib :  (P : A → hProp {ℓ}) (Q : A → hProp {ℓ'})
+  → (∀[ a ∶ A ] P a) ⊓ (∀[ a ∶ A ] Q a) ≡ (∀[ a ∶ A ] (P a ⊓ Q a))
+⊓-∀-distrib P Q =
+  ⇒∶ (λ {(p D., q) a → p a D., q a})
+  ⇐∶ λ pq → (D.proj₁ ∘ pq ) D., (D.proj₂ ∘ pq)
