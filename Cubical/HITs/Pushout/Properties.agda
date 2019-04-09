@@ -49,28 +49,29 @@ Then the lemma states there is an equivalence A□○ ≃ A○□.
 
 -}
 
-module 3x3 (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
+module 3x3-span
+  (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
 
-           (f10 : A20 → A00)
-           (f12 : A22 → A02)
-           (f14 : A24 → A04)
+  (f10 : A20 → A00)
+  (f12 : A22 → A02)
+  (f14 : A24 → A04)
 
-           (f30 : A20 → A40)
-           (f32 : A22 → A42)
-           (f34 : A24 → A44)
+  (f30 : A20 → A40)
+  (f32 : A22 → A42)
+  (f34 : A24 → A44)
 
-           (f01 : A02 → A00)
-           (f21 : A22 → A20)
-           (f41 : A42 → A40)
+  (f01 : A02 → A00)
+  (f21 : A22 → A20)
+  (f41 : A42 → A40)
 
-           (f03 : A02 → A04)
-           (f23 : A22 → A24)
-           (f43 : A42 → A44)
+  (f03 : A02 → A04)
+  (f23 : A22 → A24)
+  (f43 : A42 → A44)
 
-           (H11 : ∀ x → f01 (f12 x) ≡ f10 (f21 x))
-           (H13 : ∀ x → f03 (f12 x) ≡ f14 (f23 x))
-           (H31 : ∀ x → f41 (f32 x) ≡ f30 (f21 x))
-           (H33 : ∀ x → f43 (f32 x) ≡ f34 (f23 x))
+  (H11 : ∀ x → f01 (f12 x) ≡ f10 (f21 x))
+  (H13 : ∀ x → f03 (f12 x) ≡ f14 (f23 x))
+  (H31 : ∀ x → f41 (f32 x) ≡ f30 (f21 x))
+  (H33 : ∀ x → f43 (f32 x) ≡ f34 (f23 x))
   where
 
   -- pushouts of the lines
@@ -235,3 +236,7 @@ module 3x3 (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
   Pushout3x3 : A□○ ≡ A○□
   Pushout3x3 = isoToPath (iso A□○→A○□ A○□→A□○ A○□→A□○→A○□ A□○→A○□→A□○)
 
+Pushout3x3 : ∀ A00 A02 A04 A20 A22 A24 A40 A42 A44 f10 f12 f14 f30 f32 f34 f01 f21 f41 f03 f23 f43 H11 H13 H31 H33 →
+  3x3-span.A□○ A00 A02 A04 A20 A22 A24 A40 A42 A44 f10 f12 f14 f30 f32 f34 f01 f21 f41 f03 f23 f43 H11 H13 H31 H33
+  ≡ 3x3-span.A○□ A00 A02 A04 A20 A22 A24 A40 A42 A44 f10 f12 f14 f30 f32 f34 f01 f21 f41 f03 f23 f43 H11 H13 H31 H33
+Pushout3x3 = 3x3-span.Pushout3x3
