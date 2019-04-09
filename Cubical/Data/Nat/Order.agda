@@ -168,3 +168,66 @@ private
 <-wellfounded : WellFounded _<_
 <-wellfounded zero = acc λ _ → ⊥-elim ∘ ¬-<-zero
 <-wellfounded (suc n) = acc-suc (<-wellfounded n)
+
+module _
+    (b₀ : ℕ)
+    (P : ℕ → Set)
+    (base : ∀ n → n < suc b₀ → P n)
+    (step : ∀ n → P n → P (suc b₀ + n))
+  where
+  open WFI (<-wellfounded)
+
+  private
+    dichotomy : ∀ b n → (n < b) ⊎ (Σ[ m ∈ ℕ ] n ≡ b + m)
+    dichotomy b n
+      = case n ≟ b return (λ _ → (n < b) ⊎ (Σ[ m ∈ ℕ ] n ≡ b + m)) of λ
+      { (lt o) → inl o
+      ; (eq p) → inr (0 , p ∙ sym (+-zero b))
+      ; (gt (m , p)) → inr (suc m , sym p ∙ +-suc m b ∙ +-comm (suc m) b)
+      }
+
+    dichotomy<≡ : ∀ b n → (n<b : n < b) → dichotomy b n ≡ inl n<b
+    dichotomy<≡ b n n<b
+      = case dichotomy b n return (λ d → d ≡ inl n<b) of λ
+      { (inl x) → cong inl (m≤n-isProp x n<b)
+      ; (inr (m , p)) → ⊥-elim (<-asym n<b (m , sym (p ∙ +-comm b m)))
+      }
+
+    dichotomy+≡ : ∀ b m n → (p : n ≡ b + m) → dichotomy b n ≡ inr (m , p)
+    dichotomy+≡ b m n p
+      = case dichotomy b n return (λ d → d ≡ inr (m , p)) of λ
+      { (inl n<b) → ⊥-elim (<-asym n<b (m , +-comm m b ∙ sym p))
+      ; (inr (m' , q))
+      → cong inr (subtypeEquality
+          (λ x → isSetℕ n (b + x)) (m' , q) (m , p) (inj-m+ {m = b} (sym q ∙ p)))
+      }
+
+    b = suc b₀
+
+    lemma₁ : ∀{x y z} → x ≡ suc z + y → y < x
+    lemma₁ {y = y} {z} p = z , +-suc z y ∙ sym p
+
+    subStep : (n : ℕ) → (∀ m → m < n → P m) → (n < b) ⊎ (Σ[ m ∈ ℕ ] n ≡ b + m) → P n
+    subStep n _   (inl l) = base n l
+    subStep n rec (inr (m , p))
+      = transport (cong P (sym p)) (step m (rec m (lemma₁ p)))
+
+    wfStep : (n : ℕ) → (∀ m → m < n → P m) → P n
+    wfStep n rec = subStep n rec (dichotomy b n)
+
+    wfStepLemma₀ : ∀ n (n<b : n < b) rec → wfStep n rec ≡ base n n<b
+    wfStepLemma₀ n n<b rec = cong (subStep n rec) (dichotomy<≡ b n n<b)
+
+    wfStepLemma₁ : ∀ n rec → wfStep (b + n) rec ≡ step n (rec n (lemma₁ refl))
+    wfStepLemma₁ n rec
+      = cong (subStep (b + n) rec) (dichotomy+≡ b n (b + n) refl)
+      ∙ transportRefl _
+
+  +induction : ∀ n → P n
+  +induction = induction wfStep
+
+  +inductionBase : ∀ n → (l : n < b) → +induction n ≡ base n l
+  +inductionBase n l = induction-compute wfStep n ∙ wfStepLemma₀ n l _
+
+  +inductionStep : ∀ n → +induction (b + n) ≡ step n (+induction n)
+  +inductionStep n = induction-compute wfStep (b + n) ∙ wfStepLemma₁ n _
