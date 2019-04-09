@@ -51,6 +51,16 @@ zero-≤ {n} = n , +-zero n
 suc-≤-suc : m ≤ n → suc m ≤ suc n
 suc-≤-suc (k , p) = k , (+-suc k _) ∙ (cong suc p)
 
+≤-+k : m ≤ n → m + k ≤ n + k
+≤-+k {m} {k = k} (i , p)
+  = i , +-assoc i m k ∙ cong (_+ k) p
+
+≤-k+ : m ≤ n → k + m ≤ k + n
+≤-k+ {m} {n} {k}
+  = subst (_≤ k + n) (+-comm m k)
+  ∘ subst (m + k ≤_) (+-comm n k)
+  ∘ ≤-+k
+
 pred-≤-pred : suc m ≤ suc n → m ≤ n
 pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
 
