@@ -1,3 +1,12 @@
+{-
+
+This file contains:
+
+- 3×3 lemma for pushouts
+  Written by: Loïc Pujet, April 2019
+
+-}
+
 {-# OPTIONS --cubical --safe #-}
 
 module Cubical.HITs.Pushout.Properties where
@@ -15,9 +24,11 @@ open import Cubical.Data.Unit
 
 open import Cubical.HITs.Pushout.Base
 
--- 3×3 lemma for pushouts
-
 {-
+
+  3×3 lemma for pushouts
+
+Let Aᵢⱼ denote a type, fᵢⱼ a map and Hᵢⱼ a homotopy. Given a diagram of the following shape:
  
 A00 ←—f01—— A02 ——f03—→ A04
  ↑           ↑           ↑
@@ -29,9 +40,17 @@ f30   H31   f32   H33   f34
  ↓           ↓           ↓
 A40 ←—f41—— A42 ——f43—→ A44
 
+one can build its colimit from pushouts in two ways:
+- either build pushouts A□0, A□2, A□4 of the lines and then build the pushout A□○ of the resulting
+  diagram A□0 ←—f□1—— A□2 ——f□3—→ A□4 ;
+- or build pushouts of the columns and build the pushout A○□ of the resulting diagram A0□ ← A2□ → A4□.
+
+Then the lemma states there is an equivalence A□○ ≃ A○□.
+
 -}
 
 module 3x3 (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
+
            (f10 : A20 → A00)
            (f12 : A22 → A02)
            (f14 : A24 → A04)
@@ -54,6 +73,7 @@ module 3x3 (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
            (H33 : ∀ x → f43 (f32 x) ≡ f34 (f23 x))
   where
 
+  -- pushouts of the lines
   A□0 : Set
   A□0 = Pushout f10 f30
 
@@ -63,6 +83,7 @@ module 3x3 (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
   A□4 : Set
   A□4 = Pushout f14 f34
 
+  -- maps between pushouts
   f□1 : A□2 → A□0
   f□1 (inl x) = inl (f01 x)
   f□1 (inr x) = inr (f41 x)
@@ -76,10 +97,12 @@ module 3x3 (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
   f□3 (push a j) = ((λ i → inl (H13 a i))
                    ∙∙ push (f23 a)
                    ∙∙ (λ i → inr (H33 a (~ i)))) j
-  
+
+  -- total pushout
   A□○ : Set
   A□○ = Pushout f□1 f□3
 
+  -- pushouts of the columns
   A0□ : Set
   A0□ = Pushout f01 f03
 
@@ -89,6 +112,7 @@ module 3x3 (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
   A4□ : Set
   A4□ = Pushout f41 f43
 
+  -- maps between pushouts
   f1□ : A2□ → A0□
   f1□ (inl x) = inl (f10 x)
   f1□ (inr x) = inr (f14 x)
@@ -103,9 +127,11 @@ module 3x3 (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
                    ∙∙ push (f32 a)
                    ∙∙ (λ i → inr (H33 a i))) j
 
+  -- total pushout
   A○□ : Set
   A○□ = Pushout f1□ f3□
 
+  -- forward map of the equivalence A□○ ≃ A○□
   forward-l : A□0 → A○□
   forward-l (inl x) = inl (inl x)
   forward-l (inr x) = inr (inl x)
@@ -130,6 +156,7 @@ module 3x3 (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
   A□○→A○□ (push (inr x) i) = inr (push x i)
   A□○→A○□ (push (push a i) j) = forward-filler a i j i1
 
+  -- backward map
   backward-l : A0□ → A□○
   backward-l (inl x) = inl (inl x)
   backward-l (inr x) = inr (inl x)
@@ -154,6 +181,7 @@ module 3x3 (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
   A○□→A□○ (push (inr x) i) = inr (push x i)
   A○□→A□○ (push (push a i) j) = backward-filler a i j i1
 
+  -- first homotopy
   homotopy1-l : ∀ x → A□○→A○□ (backward-l x) ≡ inl x
   homotopy1-l (inl x) = refl
   homotopy1-l (inr x) = refl
@@ -178,6 +206,7 @@ module 3x3 (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
                    ; (k = i1) → forward-filler a j i (~ t) })
           (forward-filler a j i i1)
 
+  -- second homotopy
   homotopy2-l : ∀ x → A○□→A□○ (forward-l x) ≡ inl x
   homotopy2-l (inl x) = refl
   homotopy2-l (inr x) = refl
@@ -202,8 +231,7 @@ module 3x3 (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
                    ; (k = i1) → backward-filler a j i (~ t) })
           (backward-filler a j i i1)
 
-  
-
-  3x3 : A□○ ≡ A○□
-  3x3 = isoToPath (iso A□○→A○□ A○□→A□○ A○□→A□○→A○□ A□○→A○□→A□○)
+  -- equivalence
+  Pushout3x3 : A□○ ≡ A○□
+  Pushout3x3 = isoToPath (iso A□○→A○□ A○□→A□○ A○□→A□○→A○□ A□○→A○□→A□○)
 
