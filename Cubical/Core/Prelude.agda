@@ -227,22 +227,3 @@ isProp→isSet h a b p q j i =
                  ; (i = i1) → h a b k
                  ; (j = i0) → h a (p i) k
                  ; (j = i1) → h a (q i) k }) a
-
-isProp→isPropPathP : (∀ a → isProp (B a))
-                   → (m : x ≡ y) (g : B x) (h : B y)
-                   → isProp (PathP (λ i → B (m i)) g h)
-isProp→isPropPathP {B = B} {x = x} isPropB m = J P d m where
-  P : ∀ σc → x ≡ σc → _
-  P _ m = ∀ g h → isProp (PathP (λ i → B (m i)) g h)
-  d : P x refl
-  d = isProp→isSet (isPropB x)
-
-isProp→isContrPathP : (∀ a → isProp (B a))
-                    → (m : x ≡ y) (g : B x) (h : B y)
-                    → isContr (PathP (λ i → B (m i)) g h)
-isProp→isContrPathP isPropB m g h = (inhabitant , contractible) where
-  inhabitant = isProp→PathP isPropB m g h
-  contractible = isProp→isPropPathP isPropB m g h inhabitant
-
-isProp→isContr≡ : isProp A → (x y : A) → isContr (x ≡ y)
-isProp→isContr≡ isPropA x y = isPropA x y , λ p → isProp→isSet isPropA x y _ _
