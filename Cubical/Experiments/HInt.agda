@@ -21,9 +21,9 @@ It might be interesting to port that example one day.
 module Cubical.Experiments.HInt where
 
 open import Cubical.Core.Primitives
-open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Int
