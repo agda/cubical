@@ -5,12 +5,9 @@ open import Cubical.Core.Primitives public  hiding ( _≡_ )
 open import Cubical.Core.Prelude public
   hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ )
 open import Cubical.Core.Glue
-  renaming ( fiber        to fiberPath
-           ; isEquiv      to isEquivPath
+  renaming ( isEquiv      to isEquivPath
            ; _≃_          to EquivPath
-           ; equivFun     to equivFunPath
-           ; equivIsEquiv to equivIsEquivPath
-           ; equivCtr     to equivCtrPath )
+           ; equivFun     to equivFunPath )
 open import Cubical.Core.Id
 
 open import Cubical.Foundations.Id

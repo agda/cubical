@@ -5,7 +5,6 @@
 module Cubical.Foundations.Function where
 
 open import Cubical.Core.Everything
-open import Cubical.Core.Glue public using (idfun)
 
 infixr 9 _∘_
 

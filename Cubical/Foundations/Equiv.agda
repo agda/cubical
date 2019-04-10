@@ -27,6 +27,27 @@ private
     ℓ ℓ'  : Level
     A B C : Set ℓ
 
+fiber : ∀ {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → Set (ℓ-max ℓ ℓ')
+fiber {A = A} f y = Σ[ x ∈ A ] f x ≡ y
+
+equivIsEquiv : ∀ {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) → isEquiv (equivFun e)
+equivIsEquiv e = snd e
+
+equivCtr : ∀ {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) (y : B) → fiber (equivFun e) y
+equivCtr e y = e .snd .equiv-proof y .fst
+
+equivCtrPath : ∀ {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) (y : B) →
+  (v : fiber (equivFun e) y) → Path _ (equivCtr e y) v
+equivCtrPath e y = e .snd .equiv-proof y .snd
+
+-- The identity equivalence
+idIsEquiv : ∀ (A : Set ℓ) → isEquiv (idfun A)
+equiv-proof (idIsEquiv A) y =
+  ((y , refl) , λ z i → z .snd (~ i) , λ j → z .snd (~ i ∨ j))
+
+idEquiv : ∀ (A : Set ℓ) → A ≃ A
+idEquiv A = (idfun A , idIsEquiv A)
+
 -- Proof using isPropIsContr. This is slow and the direct proof below is better
 
 isPropIsEquiv' : (f : A → B) → isProp (isEquiv f)

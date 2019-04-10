@@ -21,8 +21,6 @@ This file proves a variety of basic results about paths:
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Core.Prelude where
 
-open import Agda.Builtin.Sigma public
-
 open import Cubical.Core.Primitives public
 
 infixr 30 _∙_
@@ -149,14 +147,6 @@ module _ (P : ∀ y → x ≡ y → Set ℓ') (d : P x refl) where
 
   JRefl : J refl ≡ d
   JRefl = transportRefl d
-
--- Σ-types
-infix 2 Σ-syntax
-
-Σ-syntax : (A : Set ℓ) (B : A → Set ℓ') → Set (ℓ-max ℓ ℓ')
-Σ-syntax = Σ
-
-syntax Σ-syntax A (λ x → B) = Σ[ x ∈ A ] B
 
 -- Contractibility of singletons
 

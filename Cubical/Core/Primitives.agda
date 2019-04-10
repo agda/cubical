@@ -26,6 +26,7 @@ open import Agda.Primitive public
   renaming ( lzero to ℓ-zero
            ; lsuc  to ℓ-suc
            ; _⊔_   to ℓ-max )
+open import Agda.Builtin.Sigma public
 
 -- This file document the Cubical Agda primitives. The primitives
 -- themselves are bound by the Agda files imported above.
@@ -192,3 +193,13 @@ transpFill : {A : Set ℓ}
            → --------------------------------------
              PathP (λ i → outS (A i)) u0 (transp (λ i → outS (A i)) φ u0)
 transpFill φ A u0 i = transp (λ j → outS (A (i ∧ j))) (~ i ∨ φ) u0
+
+
+-- Σ-types
+infix 2 Σ-syntax
+
+Σ-syntax : ∀ {ℓ ℓ'} (A : Set ℓ) (B : A → Set ℓ') → Set (ℓ-max ℓ ℓ')
+Σ-syntax = Σ
+
+syntax Σ-syntax A (λ x → B) = Σ[ x ∈ A ] B
+
