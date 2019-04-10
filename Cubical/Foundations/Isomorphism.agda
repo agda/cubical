@@ -12,6 +12,10 @@ module Cubical.Foundations.Isomorphism where
 
 open import Cubical.Core.Everything
 
+private
+  variable
+    ℓ : Level
+
 -- Section and retract
 module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} where
   section : (f : A → B) → (g : B → A) → Set ℓ'
@@ -79,8 +83,11 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (i : Iso A B) where
   isoToIsEquiv .equiv-proof y .fst .snd = s y
   isoToIsEquiv .equiv-proof y .snd z = lemIso y (g y) (fst z) (s y) (snd z)
 
+
 isoToPath : ∀ {ℓ} {A B : Set ℓ} → (Iso A B) → A ≡ B
 isoToPath {A = A} {B = B} f i =
   Glue B (λ { (i = i0) → (A , (Iso.fun f , isoToIsEquiv f))
-            ; (i = i1) → (B , idEquiv B) })
-
+            ; (i = i1) → (B , (λ x → x) ,
+                              record { equiv-proof = λ y → (y , refl)
+                                                          , λ z i → z .snd (~ i)
+                                                                  , λ j → z .snd (~ i ∨ j)})})
