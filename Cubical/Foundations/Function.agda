@@ -6,6 +6,10 @@ module Cubical.Foundations.Function where
 
 open import Cubical.Core.Everything
 
+-- The identity function
+idfun : ∀ {ℓ} → (A : Set ℓ) → A → A
+idfun _ x = x
+
 infixr 9 _∘_
 
 _∘_ : ∀ {ℓ ℓ′ ℓ″} {A : Set ℓ} {B : A → Set ℓ′} {C : (a : A) → B a → Set ℓ″}
