@@ -11,6 +11,7 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.SetQuotients
 open import Cubical.Data.Prod
 open import Cubical.Data.Bool
+open import Cubical.Foundations.Univalence
 
 open BinaryRelation
 

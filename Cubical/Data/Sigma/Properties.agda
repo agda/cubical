@@ -14,6 +14,7 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.CartesianKanOps
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
