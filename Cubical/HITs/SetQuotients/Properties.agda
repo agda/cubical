@@ -23,6 +23,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 
+open import Cubical.HITs.PropositionalTruncation
 open import Cubical.HITs.SetTruncation
 
 -- Set quotients

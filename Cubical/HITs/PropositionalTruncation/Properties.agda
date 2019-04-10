@@ -2,22 +2,15 @@
 
 This file contains:
 
-- Definition of propositional truncation and its eliminator
-
-
-It should *not* depend on the Agda standard library
+- Eliminator for propositional truncation
 
 -}
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Core.PropositionalTruncation where
+module Cubical.HITs.PropositionalTruncation.Properties where
 
 open import Cubical.Core.Prelude
 
--- Propositional truncation as a higher inductive type:
-
-data ∥_∥ {ℓ} (A : Set ℓ) : Set ℓ where
-  ∣_∣ : A → ∥ A ∥
-  squash : ∀ (x y : ∥ A ∥) → x ≡ y
+open import Cubical.HITs.PropositionalTruncation.Base
 
 private
   variable
