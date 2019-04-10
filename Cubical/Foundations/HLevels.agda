@@ -26,6 +26,7 @@ private
     ℓ ℓ' : Level
     A : Set ℓ
     B : A → Set ℓ
+    x y : A
     n : ℕ
 
 hProp : Set (ℓ-suc ℓ)
@@ -64,11 +65,26 @@ isContrSigma {A = A} {B = B} (a , p) q =
      , ( λ x i → p (x .fst) i
        , h (p (x .fst) i) (transp (λ j → B (p (x .fst) (i ∨ ~ j))) i (x .snd)) i))
 
+isProp→isPropPathP : (∀ a → isProp (B a))
+                   → (m : x ≡ y) (g : B x) (h : B y)
+                   → isProp (PathP (λ i → B (m i)) g h)
+isProp→isPropPathP {B = B} {x = x} isPropB m = J P d m where
+  P : ∀ σc → x ≡ σc → _
+  P _ m = ∀ g h → isProp (PathP (λ i → B (m i)) g h)
+  d : P x refl
+  d = isProp→isSet (isPropB x)
+
+isProp→isContrPathP : (∀ a → isProp (B a))
+                    → (m : x ≡ y) (g : B x) (h : B y)
+                    → isContr (PathP (λ i → B (m i)) g h)
+isProp→isContrPathP isPropB m g h =
+  inhProp→isContr (isProp→PathP isPropB m g h) (isProp→isPropPathP isPropB m g h)
+
+isProp→isContr≡ : isProp A → (x y : A) → isContr (x ≡ y)
+isProp→isContr≡ isPropA x y = inhProp→isContr (isPropA x y) (isProp→isSet isPropA x y)
+
 isContrPath : isContr A → (x y : A) → isContr (x ≡ y)
-isContrPath cA x y = inhProp→isContr (pA x y) (sA x y)
-  where
-  pA = isContr→isProp cA
-  sA = isProp→isSet pA
+isContrPath cA = isProp→isContr≡ (isContr→isProp cA)
 
 -- Π preserves propositionality in the following sense:
 propPi : (h : (x : A) → isProp (B x)) → isProp ((x : A) → B x)
@@ -215,10 +231,10 @@ isContrPartial→isContr : ∀ {ℓ} {A : Set ℓ}
                        → (∀ u → u ≡ (extend i1 λ { _ → u}))
                        → isContr A
 isContrPartial→isContr {A = A} extend law
-  = x , λ y → law x ∙ (λ i → Aux.v y i) ∙ sym (law y)
-    where x = extend i0 empty
+  = ex , λ y → law ex ∙ (λ i → Aux.v y i) ∙ sym (law y)
+    where ex = extend i0 empty
           module Aux (y : A) (i : I) where
             φ = ~ i ∨ i
             u : Partial φ A
-            u = λ { (i = i0) → x ; (i = i1) → y }
+            u = λ { (i = i0) → ex ; (i = i1) → y }
             v = extend φ u
