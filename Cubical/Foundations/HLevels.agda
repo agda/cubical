@@ -231,10 +231,10 @@ isContrPartial→isContr : ∀ {ℓ} {A : Set ℓ}
                        → (∀ u → u ≡ (extend i1 λ { _ → u}))
                        → isContr A
 isContrPartial→isContr {A = A} extend law
-  = x , λ y → law x ∙ (λ i → Aux.v y i) ∙ sym (law y)
-    where x = extend i0 empty
+  = ex , λ y → law ex ∙ (λ i → Aux.v y i) ∙ sym (law y)
+    where ex = extend i0 empty
           module Aux (y : A) (i : I) where
             φ = ~ i ∨ i
             u : Partial φ A
-            u = λ { (i = i0) → x ; (i = i1) → y }
+            u = λ { (i = i0) → ex ; (i = i1) → y }
             v = extend φ u
