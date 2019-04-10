@@ -8,7 +8,7 @@ This file contains:
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.2GroupoidTruncation.Base where
 
-open import Cubical.Core.Prelude
+open import Cubical.Foundations.Prelude
 
 -- 2-groupoid truncation as a higher inductive type:
 

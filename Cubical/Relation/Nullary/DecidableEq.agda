@@ -3,6 +3,8 @@ module Cubical.Relation.Nullary.DecidableEq where
 
 open import Cubical.Core.Everything
 
+open import Cubical.Foundations.Prelude
+
 open import Cubical.Data.Empty
 
 open import Cubical.Relation.Nullary

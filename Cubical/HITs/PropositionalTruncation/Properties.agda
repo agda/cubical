@@ -8,7 +8,7 @@ This file contains:
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.PropositionalTruncation.Properties where
 
-open import Cubical.Core.Prelude
+open import Cubical.Foundations.Prelude
 
 open import Cubical.HITs.PropositionalTruncation.Base
 

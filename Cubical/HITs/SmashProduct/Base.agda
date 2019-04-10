@@ -2,8 +2,9 @@
 module Cubical.HITs.SmashProduct.Base where
 
 open import Cubical.Core.Primitives
-open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
+
+open import Cubical.Foundations.Prelude
 
 -- This should be upstreamed to Basics when we develop some theory
 -- about pointed types

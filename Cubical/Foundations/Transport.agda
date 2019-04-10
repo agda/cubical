@@ -9,6 +9,7 @@ module Cubical.Foundations.Transport where
 
 open import Cubical.Core.Everything
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 
 transport⁻ : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → B → A

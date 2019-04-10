@@ -8,7 +8,8 @@ for homogeneous and heterogeneous paths
 module Cubical.Foundations.GroupoidLaws where
 
 open import Cubical.Core.Primitives
-open import Cubical.Core.Prelude
+
+open import Cubical.Foundations.Prelude
 
 private
   variable

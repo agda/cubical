@@ -3,6 +3,8 @@ module Cubical.Foundations.Path where
 
 open import Cubical.Core.Everything
 
+open import Cubical.Foundations.Prelude
+
 private
   variable
     ℓ ℓ' : Level

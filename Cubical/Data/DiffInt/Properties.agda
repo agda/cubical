@@ -1,17 +1,21 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Data.DiffInt.Properties where
 
-open import Cubical.Relation.Binary.Base
-open import Cubical.Relation.Nullary
-open import Cubical.Data.DiffInt.Base
-open import Cubical.Core.Prelude
-open import Cubical.Data.Nat
+open import Cubical.Core.Primitives
 open import Cubical.Core.Glue
+
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Univalence
+
+open import Cubical.Data.DiffInt.Base
+open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
-open import Cubical.HITs.SetQuotients
 open import Cubical.Data.Prod
 open import Cubical.Data.Bool
-open import Cubical.Foundations.Univalence
+
+open import Cubical.Relation.Binary.Base
+open import Cubical.Relation.Nullary
+open import Cubical.HITs.SetQuotients
 
 open BinaryRelation
 

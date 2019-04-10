@@ -2,14 +2,14 @@
 module Cubical.Foundations.UnivalenceId where
 
 open import Cubical.Core.Primitives public  hiding ( _≡_ )
-open import Cubical.Core.Prelude public
-  hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ )
 open import Cubical.Core.Glue
   renaming ( isEquiv      to isEquivPath
            ; _≃_          to EquivPath
            ; equivFun     to equivFunPath )
 open import Cubical.Core.Id
 
+open import Cubical.Foundations.Prelude public
+  hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ )
 open import Cubical.Foundations.Id
 open import Cubical.Foundations.Equiv
   renaming ( isPropIsEquiv to isPropIsEquivPath )

@@ -2,13 +2,15 @@
 
 module Cubical.Data.Group.Base where
 
-open import Cubical.Core.Prelude hiding (comp)
-open import Cubical.Data.Sigma
-import Cubical.Foundations.Isomorphism as I
+open import Cubical.Core.Primitives hiding (comp)
 import Cubical.Core.Glue as G
+
+import Cubical.Foundations.Isomorphism as I
 import Cubical.Foundations.Equiv as E
 import Cubical.Foundations.HAEquiv as HAE
+open import Cubical.Data.Sigma
 
+open import Cubical.Foundations.Prelude hiding (comp)
 
 record isGroup {ℓ} (A : Set ℓ) : Set ℓ where
   constructor group-struct

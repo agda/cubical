@@ -8,7 +8,7 @@ This file contains:
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.PropositionalTruncation.Base where
 
-open import Cubical.Core.Prelude
+open import Cubical.Core.Primitives
 
 -- Propositional truncation as a higher inductive type:
 
