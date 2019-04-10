@@ -14,6 +14,7 @@ open import Cubical.Core.Glue
            ; EquivContr   to EquivContrPath )
 open import Cubical.Core.Id
 
+open import Cubical.Foundations.Id
 open import Cubical.Foundations.Equiv
   renaming ( isPropIsEquiv to isPropIsEquivPath )
 open import Cubical.Foundations.Univalence
