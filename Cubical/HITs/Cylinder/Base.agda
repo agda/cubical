@@ -6,6 +6,8 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Everything
 
+open import Cubical.HITs.PropositionalTruncation
+
 import Cubical.Data.Everything as Data
 open Data hiding (inl; inr)
 
