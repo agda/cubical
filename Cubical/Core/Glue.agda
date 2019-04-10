@@ -128,7 +128,14 @@ unglueEquiv A φ f = ( unglue φ , unglueIsEquiv A φ f )
 --
 EquivContr : ∀ (A : Set ℓ) → isContr (Σ[ T ∈ Set ℓ ] T ≃ A)
 EquivContr {ℓ = ℓ} A =
-  ( ( A , idEquiv A)
-  , λ w i → let f : PartialP (~ i ∨ i) (λ x → Σ[ T ∈ Set ℓ ] T ≃ A)
-                f = λ { (i = i0) → A , idEquiv A ; (i = i1) → w }
-            in ( Glue A f , unglueEquiv _ _ f) )
+  ( (A , idEquiv A)
+  , idEquiv≡ )
+ where
+  idEquiv≡ : (y : Σ (Set ℓ) (λ T → T ≃ A)) → (A , idEquiv A) ≡ y
+  idEquiv≡ w = \ { i .fst                   → Glue A (f i)
+                 ; i .snd .fst              → unglueEquiv _ _ (f i) .fst
+                 ; i .snd .snd .equiv-proof → unglueEquiv _ _ (f i) .snd .equiv-proof
+                 }
+    where
+      f : ∀ i → PartialP (~ i ∨ i) (λ x → Σ[ T ∈ Set ℓ ] T ≃ A)
+      f i = λ { (i = i0) → A , idEquiv A ; (i = i1) → w }

@@ -13,23 +13,18 @@ open import Cubical.Foundations.Isomorphism
 private
   variable
     ℓ ℓ' : Level
-
-proj₁ : {A : Set ℓ} {B : Set ℓ'} → A × B → A
-proj₁ (x , _) = x
-
-proj₂ : {A : Set ℓ} {B : Set ℓ'} → A × B → B
-proj₂ (_ , x) = x
+    A B  : Set ℓ
 
 -- Swapping is an equivalence
 
-swap : {A : Set ℓ} {B : Set ℓ'} → A × B → B × A
+swap : A × B → B × A
 swap (x , y) = (y , x)
 
-swapInv : {A : Set ℓ} {B : Set ℓ'} → (xy : A × B) → swap (swap xy) ≡ xy
-swapInv (_ , _) = refl
+swap-invol : (xy : A × B) → swap (swap xy) ≡ xy
+swap-invol (_ , _) = refl
 
 isEquivSwap : (A : Set ℓ) (B : Set ℓ') → isEquiv (λ (xy : A × B) → swap xy)
-isEquivSwap A B = isoToIsEquiv (iso swap swap swapInv swapInv)
+isEquivSwap A B = isoToIsEquiv (iso swap swap swap-invol swap-invol)
 
 swapEquiv : (A : Set ℓ) (B : Set ℓ') → A × B ≃ B × A
 swapEquiv A B = (swap , isEquivSwap A B)
@@ -50,15 +45,14 @@ private
   testrefl = refl
 
 -- equivalence between the sigma-based definition and the inductive one
-A×B≡A×ΣB : {ℓ ℓ' : Level} {A : Set ℓ} {B : Set ℓ'} → A × B ≡ A ×Σ B
+A×B≡A×ΣB : A × B ≡ A ×Σ B
 A×B≡A×ΣB = isoToPath (iso (λ { (a , b) → (a , b)})
                           (λ { (a , b) → (a , b)})
                           (λ _ → refl)
                           (λ { (a , b) → refl }))
 
 -- truncation for products
-hLevelProd : {ℓ ℓ' : Level} {A : Set ℓ} {B : Set ℓ'} →
-                  (n : ℕ) → isOfHLevel n A → isOfHLevel n B → isOfHLevel n (A × B)
+hLevelProd : (n : ℕ) → isOfHLevel n A → isOfHLevel n B → isOfHLevel n (A × B)
 hLevelProd {A = A} {B = B} n h1 h2 =
   let h : isOfHLevel n (A ×Σ B)
       h = isOfHLevelΣ n h1 (λ _ → h2)

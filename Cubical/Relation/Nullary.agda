@@ -9,7 +9,7 @@ private
   variable
     ℓ  : Level
     A  : Set ℓ
-    
+
 -- Negation
 infix 3 ¬_
 

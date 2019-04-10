@@ -167,7 +167,7 @@ Binℕ→ℕ→Binℕ (binℕpos p) = posInd refl (λ p _ → rem p) p
   rem : (p : Pos) → ℕ→Binℕ (Pos→ℕ (sucPos p)) ≡ binℕpos (sucPos p)
   rem p =
     ℕ→Binℕ (Pos→ℕ (sucPos p))       ≡⟨ cong ℕ→Binℕ (Pos→ℕsucPos p) ⟩
-    binℕpos (ℕ→Pos (suc (Pos→ℕ p))) ≡⟨ cong binℕpos ((ℕ→PosSuc (Pos→ℕ p) (zero≠Pos→ℕ p)) ∙ 
+    binℕpos (ℕ→Pos (suc (Pos→ℕ p))) ≡⟨ cong binℕpos ((ℕ→PosSuc (Pos→ℕ p) (zero≠Pos→ℕ p)) ∙
                                                               (cong sucPos (Pos→ℕ→Pos p))) ⟩
     binℕpos (sucPos p) ∎
 
