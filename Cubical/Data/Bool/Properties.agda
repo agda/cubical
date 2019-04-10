@@ -5,6 +5,7 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Bool.Base
 open import Cubical.Data.Empty

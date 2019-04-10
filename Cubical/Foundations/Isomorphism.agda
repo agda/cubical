@@ -79,6 +79,8 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (i : Iso A B) where
   isoToIsEquiv .equiv-proof y .fst .snd = s y
   isoToIsEquiv .equiv-proof y .snd z = lemIso y (g y) (fst z) (s y) (snd z)
 
-
 isoToPath : ∀ {ℓ} {A B : Set ℓ} → (Iso A B) → A ≡ B
-isoToPath f = ua (Iso.fun f , isoToIsEquiv f)
+isoToPath {A = A} {B = B} f i =
+  Glue B (λ { (i = i0) → (A , (Iso.fun f , isoToIsEquiv f))
+            ; (i = i1) → (B , idEquiv B) })
+
