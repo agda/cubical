@@ -13,7 +13,7 @@ For the moment, this requires the development version of Agda.
 
 {-# OPTIONS --cubical --exact-split --safe #-}
 
-module Cubical.Core.HoTT-UF where
+module Cubical.Foundations.HoTT-UF where
 
 open import Cubical.Core.Id public
      using ( _≡_            -- The identity type.

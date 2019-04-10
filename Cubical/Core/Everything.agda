@@ -36,6 +36,3 @@ open import Cubical.Core.Id
            ; isPropIsContr to isPropIsContrId
            ; isPropIsEquiv to isPropIsEquivId
            )
-
-
-open import Cubical.Core.HoTT-UF
