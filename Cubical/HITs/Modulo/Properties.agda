@@ -15,6 +15,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.HITs.Modulo.Base
+open import Cubical.HITs.Modulo.FinEquiv public
 
 private
   variable
@@ -67,5 +68,8 @@ steps≡ m n = λ i j → compPath-filler (steps m n) (ztep (expand n _ m)) i j
 stepOver : ∀ m n o → expand o k m ≡ n → embed {k = k} m ≡ embed n
 stepOver m n o p = steps m o ∙ cong embed p
 
+isSetModulo : isSet (Modulo k)
+isSetModulo {0} = isSetModulo0
+isSetModulo {suc k} = subst isSet (sym Modulo≡Fin) isSetFin
 
 
