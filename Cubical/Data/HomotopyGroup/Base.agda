@@ -1,12 +1,13 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Data.HomotopyGroup.Base where
 
-open import Cubical.Core.Prelude
+open import Cubical.Core.Primitives
 open import Cubical.Data.Nat
 open import Cubical.HITs.SetTruncation
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Group.Base
 import Cubical.Foundations.GroupoidLaws as GL
+open import Cubical.Foundations.Prelude
 
 Pointed : ∀ {ℓ} → Set (ℓ-suc ℓ)
 Pointed {ℓ} = Σ[ A ∈ Set ℓ ] A

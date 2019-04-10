@@ -2,6 +2,8 @@
 module Cubical.Data.Prod.Base where
 
 open import Cubical.Core.Everything
+
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
 -- If × is defined using Σ then transp/hcomp will be compute

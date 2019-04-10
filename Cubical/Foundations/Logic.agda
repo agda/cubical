@@ -7,7 +7,7 @@ import Cubical.Data.Prod  as D
 import Cubical.Data.Sum   as D
 import Cubical.Data.Unit  as D
 
-open import Cubical.Core.Prelude
+open import Cubical.Foundations.Prelude
 
 open import Cubical.HITs.PropositionalTruncation
 

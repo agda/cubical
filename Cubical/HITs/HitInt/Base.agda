@@ -4,6 +4,7 @@ module Cubical.HITs.HitInt.Base where
 
 open import Cubical.Core.Everything
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
@@ -29,9 +30,6 @@ indℤ : ∀ {l} (P : ℤ → Set l)
 indℤ P pos' neg' eq (pos n) = pos' n
 indℤ P pos' neg' eq (neg n) = neg' n
 indℤ P pos' neg' eq (posneg i) = eq i
-
-
-
 
 Int→ℤ : Int → ℤ
 Int→ℤ (pos n) = pos n

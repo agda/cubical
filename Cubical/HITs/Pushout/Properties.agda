@@ -12,9 +12,9 @@ This file contains:
 module Cubical.HITs.Pushout.Properties where
 
 open import Cubical.Core.Primitives
-open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
@@ -29,7 +29,7 @@ open import Cubical.HITs.Pushout.Base
   3×3 lemma for pushouts
 
 Let Aᵢⱼ denote a type, fᵢⱼ a map and Hᵢⱼ a homotopy. Given a diagram of the following shape:
- 
+
 A00 ←—f01—— A02 ——f03—→ A04
  ↑           ↑           ↑
 f10   H11   f12   H13   f14
@@ -91,7 +91,7 @@ module 3x3-span
   f□1 (push a j) = ((λ i → inl (H11 a i))
                    ∙∙ push (f21 a)
                    ∙∙ (λ i → inr (H31 a (~ i)))) j
-                   
+
   f□3 : A□2 → A□4
   f□3 (inl x) = inl (f03 x)
   f□3 (inr x) = inr (f43 x)

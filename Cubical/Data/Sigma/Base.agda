@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Data.Sigma.Base where
 
-open import Cubical.Core.Prelude
+open import Cubical.Core.Primitives
 
--- Σ-types are defined in Core/Prelude as they are needed for Glue types.
+-- Σ-types are defined in Core/Primitives as they are needed for Glue types.

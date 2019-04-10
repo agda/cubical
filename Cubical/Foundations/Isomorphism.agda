@@ -12,6 +12,8 @@ module Cubical.Foundations.Isomorphism where
 
 open import Cubical.Core.Everything
 
+open import Cubical.Foundations.Prelude
+
 private
   variable
     ℓ : Level

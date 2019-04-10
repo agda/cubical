@@ -8,7 +8,7 @@ This file contains:
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.SetTruncation.Base where
 
-open import Cubical.Core.Prelude
+open import Cubical.Core.Primitives
 
 -- set truncation as a higher inductive type:
 

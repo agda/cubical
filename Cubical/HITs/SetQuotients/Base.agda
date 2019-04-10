@@ -8,7 +8,7 @@ This file contains:
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.SetQuotients.Base where
 
-open import Cubical.Core.Prelude
+open import Cubical.Core.Primitives
 
 -- Set quotients as a higher inductive type:
 data _/_ {ℓ ℓ'} (A : Set ℓ) (R : A → A → Set ℓ') : Set (ℓ-max ℓ ℓ') where

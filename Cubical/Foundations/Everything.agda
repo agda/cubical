@@ -1,6 +1,9 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Everything where
 
+-- Basic cubical prelude
+open import Cubical.Foundations.Prelude public
+
 -- Definition of Identity types and definitions of J, funExt,
 -- univalence and propositional truncation using Id instead of Path
 open import Cubical.Foundations.Id

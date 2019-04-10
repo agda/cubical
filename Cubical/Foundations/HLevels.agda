@@ -12,6 +12,7 @@ module Cubical.Foundations.HLevels where
 
 open import Cubical.Core.Everything
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.FunExtEquiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HAEquiv      using (congEquiv)

@@ -19,7 +19,7 @@ This file proves a variety of basic results about paths:
 
 -}
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Core.Prelude where
+module Cubical.Foundations.Prelude where
 
 open import Cubical.Core.Primitives public
 

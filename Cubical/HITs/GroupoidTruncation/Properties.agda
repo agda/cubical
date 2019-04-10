@@ -8,7 +8,7 @@ This file contains:
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.GroupoidTruncation.Properties where
 
-open import Cubical.Core.Prelude
+open import Cubical.Foundations.Prelude
 open import Cubical.HITs.GroupoidTruncation.Base
 
 recGroupoidTrunc : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (gB : isGroupoid B) → (A → B) → (∥ A ∥₁ → B)

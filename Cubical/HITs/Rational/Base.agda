@@ -3,6 +3,7 @@ module Cubical.HITs.Rational.Base where
 
 open import Cubical.Relation.Nullary
 open import Cubical.Core.Everything
+open import Cubical.Foundations.Prelude
 open import Cubical.HITs.HitInt
 open import Cubical.Data.Nat
 open import Cubical.Data.Empty
