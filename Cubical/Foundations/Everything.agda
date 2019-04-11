@@ -18,7 +18,7 @@ open import Cubical.Foundations.Id
            ; funExt        to funExtId
            ; isContr       to isContrId
            ; isProp        to isPropId
-           ; isType         to isTypeId
+           ; isSet         to isSetId
            ; isEquiv       to isEquivId
            ; equivIsEquiv  to equivIsEquivId
            ; refl           to reflId

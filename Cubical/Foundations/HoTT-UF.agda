@@ -41,7 +41,7 @@ open import Cubical.Foundations.Id public
 
            ; isProp         -- The usual notions of proposition, contractible type, set.
            ; isContr
-           ; isType
+           ; isSet
 
            ; isEquiv        -- A map with contractible fibers
                             -- (Voevodsky's version of the notion).
