@@ -6,7 +6,7 @@ This file defines operations and properties on conatural numbers:
 
 - Proof that ∞ + 1 is equivalent to ∞.
 
-- Proof that conatural is an hType.
+- Proof that conatural is an hSet.
 
 - Bisimulation on conatural
 
