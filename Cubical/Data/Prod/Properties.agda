@@ -15,7 +15,7 @@ open import Cubical.Foundations.Univalence
 private
   variable
     ℓ ℓ' : Level
-    A B  : Set ℓ
+    A B  : Type ℓ
 
 -- Swapping is an equivalence
 
@@ -25,13 +25,13 @@ swap (x , y) = (y , x)
 swap-invol : (xy : A × B) → swap (swap xy) ≡ xy
 swap-invol (_ , _) = refl
 
-isEquivSwap : (A : Set ℓ) (B : Set ℓ') → isEquiv (λ (xy : A × B) → swap xy)
+isEquivSwap : (A : Type ℓ) (B : Type ℓ') → isEquiv (λ (xy : A × B) → swap xy)
 isEquivSwap A B = isoToIsEquiv (iso swap swap swap-invol swap-invol)
 
-swapEquiv : (A : Set ℓ) (B : Set ℓ') → A × B ≃ B × A
+swapEquiv : (A : Type ℓ) (B : Type ℓ') → A × B ≃ B × A
 swapEquiv A B = (swap , isEquivSwap A B)
 
-swapEq : (A : Set ℓ) (B : Set ℓ') → A × B ≡ B × A
+swapEq : (A : Type ℓ) (B : Type ℓ') → A × B ≡ B × A
 swapEq A B = ua (swapEquiv A B)
 
 private

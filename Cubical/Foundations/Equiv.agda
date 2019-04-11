@@ -27,27 +27,27 @@ open import Cubical.Data.Nat
 private
   variable
     ℓ ℓ'  : Level
-    A B C : Set ℓ
+    A B C : Type ℓ
 
-fiber : ∀ {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → Set (ℓ-max ℓ ℓ')
+fiber : ∀ {A : Type ℓ} {B : Type ℓ'} (f : A → B) (y : B) → Type (ℓ-max ℓ ℓ')
 fiber {A = A} f y = Σ[ x ∈ A ] f x ≡ y
 
-equivIsEquiv : ∀ {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) → isEquiv (equivFun e)
+equivIsEquiv : ∀ {A : Type ℓ} {B : Type ℓ'} (e : A ≃ B) → isEquiv (equivFun e)
 equivIsEquiv e = snd e
 
-equivCtr : ∀ {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) (y : B) → fiber (equivFun e) y
+equivCtr : ∀ {A : Type ℓ} {B : Type ℓ'} (e : A ≃ B) (y : B) → fiber (equivFun e) y
 equivCtr e y = e .snd .equiv-proof y .fst
 
-equivCtrPath : ∀ {A : Set ℓ} {B : Set ℓ'} (e : A ≃ B) (y : B) →
+equivCtrPath : ∀ {A : Type ℓ} {B : Type ℓ'} (e : A ≃ B) (y : B) →
   (v : fiber (equivFun e) y) → Path _ (equivCtr e y) v
 equivCtrPath e y = e .snd .equiv-proof y .snd
 
 -- The identity equivalence
-idIsEquiv : ∀ (A : Set ℓ) → isEquiv (idfun A)
+idIsEquiv : ∀ (A : Type ℓ) → isEquiv (idfun A)
 equiv-proof (idIsEquiv A) y =
   ((y , refl) , λ z i → z .snd (~ i) , λ j → z .snd (~ i ∨ j))
 
-idEquiv : ∀ (A : Set ℓ) → A ≃ A
+idEquiv : ∀ (A : Type ℓ) → A ≃ A
 idEquiv A = (idfun A , idIsEquiv A)
 
 -- Proof using isPropIsContr. This is slow and the direct proof below is better
@@ -87,7 +87,7 @@ module _ (w : A ≃ B) where
   retEq : retract invEq (w .fst)
   retEq y = λ i → snd (fst (snd w .equiv-proof y)) i
 
-equivToIso : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → Iso A B
+equivToIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → A ≃ B → Iso A B
 equivToIso {A = A} {B = B} e = iso (e .fst) (invEq e ) (retEq e) (secEq e)
 
 invEquiv : A ≃ B → B ≃ A
@@ -100,11 +100,11 @@ compEquiv f g = isoToEquiv
                        (λ y → (cong (g .fst) (retEq f (invEq g y))) ∙ (retEq g y))
                        (λ y → (cong (invEq f) (secEq g (f .fst y))) ∙ (secEq f y)))
 
-compIso : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} {C : Set ℓ''} →
+compIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} →
             Iso A B → Iso B C → Iso A C
 compIso i j = equivToIso (compEquiv (isoToEquiv i) (isoToEquiv j))
 
--- module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'}  where
+-- module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}  where
 --   invEquivInvol : (f : A ≃ B) → invEquiv (invEquiv f) ≡ f
 --   invEquivInvol f i .fst = fst f
 --   invEquivInvol f i .snd = propIsEquiv (fst f) (snd (invEquiv (invEquiv f))) (snd f) i
@@ -125,7 +125,7 @@ homotopyNatural H p = homotopyNatural' H p ∙ □≡∙ _ _
                    ; (j = i1) → cong g p (i ∨ k) })
           (H (p i) j)
 
-Hfa≡fHa : ∀ {A : Set ℓ} (f : A → A) → (H : ∀ a → f a ≡ a) → ∀ a → H (f a) ≡ cong f (H a)
+Hfa≡fHa : ∀ {A : Type ℓ} (f : A → A) → (H : ∀ a → f a ≡ a) → ∀ a → H (f a) ≡ cong f (H a)
 Hfa≡fHa {A = A} f H a =
   H (f a)                          ≡⟨ rUnit (H (f a)) ⟩
   H (f a) ∙ refl                   ≡⟨ cong (_∙_ (H (f a))) (sym (rCancel (H a))) ⟩

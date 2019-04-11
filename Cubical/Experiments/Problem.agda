@@ -14,8 +14,8 @@ open import Cubical.HITs.S3
 open import Cubical.HITs.Join
 open import Cubical.HITs.Hopf
 
-ptType : Set _
-ptType = Σ Set \ A → A
+ptType : Type _
+ptType = Σ Type₀ \ A → A
 
 pt : (A : ptType) → A .fst
 pt A = A .snd

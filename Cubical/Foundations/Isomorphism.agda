@@ -19,15 +19,15 @@ private
     ℓ : Level
 
 -- Section and retract
-module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} where
-  section : (f : A → B) → (g : B → A) → Set ℓ'
+module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
+  section : (f : A → B) → (g : B → A) → Type ℓ'
   section f g = ∀ b → f (g b) ≡ b
 
   -- NB: `g` is the retraction!
-  retract : (f : A → B) → (g : B → A) → Set ℓ
+  retract : (f : A → B) → (g : B → A) → Type ℓ
   retract f g = ∀ a → g (f a) ≡ a
 
-record Iso {ℓ ℓ'} (A : Set ℓ) (B : Set ℓ') : Set (ℓ-max ℓ ℓ') where
+record Iso {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ ℓ') where
   constructor iso
   field
     fun : A → B
@@ -36,7 +36,7 @@ record Iso {ℓ ℓ'} (A : Set ℓ) (B : Set ℓ') : Set (ℓ-max ℓ ℓ') wher
     leftInv : retract fun inv
 
 -- Any iso is an equivalence
-module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (i : Iso A B) where
+module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (i : Iso A B) where
   open Iso i renaming ( fun to f
                       ; inv to g
                       ; rightInv to s
@@ -86,7 +86,7 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (i : Iso A B) where
   isoToIsEquiv .equiv-proof y .snd z = lemIso y (g y) (fst z) (s y) (snd z)
 
 
-isoToPath : ∀ {ℓ} {A B : Set ℓ} → (Iso A B) → A ≡ B
+isoToPath : ∀ {ℓ} {A B : Type ℓ} → (Iso A B) → A ≡ B
 isoToPath {A = A} {B = B} f i =
   Glue B (λ { (i = i0) → (A , (Iso.fun f , isoToIsEquiv f))
             ; (i = i1) → (B , (λ x → x) ,

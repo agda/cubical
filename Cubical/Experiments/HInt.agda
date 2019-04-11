@@ -26,7 +26,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Int
 open import Cubical.Data.Nat
 
-data ℤ : Set where
+data ℤ : Type where
   zero : ℤ
   suc  : ℤ → ℤ
   pred : ℤ → ℤ
@@ -95,5 +95,5 @@ Int→ℤ→Int (negsuc (suc n)) = cong predInt (Int→ℤ→Int (negsuc n))
 Int≡ℤ : Int ≡ ℤ
 Int≡ℤ = isoToPath (iso Int→ℤ ℤ→Int ℤ→Int→ℤ Int→ℤ→Int)
 
-isSetℤ : isSet ℤ
-isSetℤ = subst isSet Int≡ℤ isSetInt
+isTypeℤ : isType ℤ
+isTypeℤ = subst isType Int≡ℤ isTypeInt

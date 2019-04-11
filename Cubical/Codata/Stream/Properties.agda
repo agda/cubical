@@ -39,7 +39,7 @@ Stream-η : ∀ {A} {xs : Stream A} → xs ≡ (head xs , tail xs)
 head (Stream-η {A} {xs} i) = head xs
 tail (Stream-η {A} {xs} i) = tail xs
 
-elimS : ∀ {A} (P : Stream A → Set) (c : ∀ x xs → P (x , xs)) (xs : Stream A) → P xs
+elimS : ∀ {A} (P : Stream A → Type₀) (c : ∀ x xs → P (x , xs)) (xs : Stream A) → P xs
 elimS P c xs = transp (λ i → P (Stream-η {xs = xs} (~ i))) i0
                       (c (head xs) (tail xs))
 
@@ -55,7 +55,7 @@ tail (tail (mergeEvenOdd≡id a i)) = mergeEvenOdd≡id (tail (tail a)) i
 module Equality≅Bisimulation where
 
 -- Bisimulation
-  record _≈_ {A : Set} (x y : Stream A) : Set where
+  record _≈_ {A : Type₀} (x y : Stream A) : Type₀ where
     coinductive
     field
       ≈head : head x ≡ head y
@@ -63,49 +63,49 @@ module Equality≅Bisimulation where
 
   open _≈_
 
-  bisim : {A : Set} → {x y : Stream A} → x ≈ y → x ≡ y
+  bisim : {A : Type₀} → {x y : Stream A} → x ≈ y → x ≡ y
   head (bisim x≈y i) = ≈head x≈y i
   tail (bisim x≈y i) = bisim (≈tail x≈y) i
 
-  misib : {A : Set} → {x y : Stream A} → x ≡ y → x ≈ y
+  misib : {A : Type₀} → {x y : Stream A} → x ≡ y → x ≈ y
   ≈head (misib p) = λ i → head (p i)
   ≈tail (misib p) = misib (λ i → tail (p i))
 
-  iso1 : {A : Set} → {x y : Stream A} → (p : x ≡ y) → bisim (misib p) ≡ p
+  iso1 : {A : Type₀} → {x y : Stream A} → (p : x ≡ y) → bisim (misib p) ≡ p
   head (iso1 p i j) = head (p j)
   tail (iso1 p i j) = iso1 (λ i → tail (p i)) i j
 
-  iso2 : {A : Set} → {x y : Stream A} → (p : x ≈ y) → misib (bisim p) ≡ p
+  iso2 : {A : Type₀} → {x y : Stream A} → (p : x ≈ y) → misib (bisim p) ≡ p
   ≈head (iso2 p i) = ≈head p
   ≈tail (iso2 p i) = iso2 (≈tail p) i
 
-  path≃bisim : {A : Set} → {x y : Stream A} → (x ≡ y) ≃ (x ≈ y)
+  path≃bisim : {A : Type₀} → {x y : Stream A} → (x ≡ y) ≃ (x ≈ y)
   path≃bisim = isoToEquiv (iso misib bisim iso2 iso1)
 
-  path≡bisim : {A : Set} → {x y : Stream A} → (x ≡ y) ≡ (x ≈ y)
+  path≡bisim : {A : Type₀} → {x y : Stream A} → (x ≡ y) ≡ (x ≈ y)
   path≡bisim = ua path≃bisim
 
   -- misib can be implemented by transport as well.
-  refl≈ : {A : Set} {x : Stream A} → x ≈ x
+  refl≈ : {A : Type₀} {x : Stream A} → x ≈ x
   ≈head refl≈ = refl
   ≈tail refl≈ = refl≈
 
-  cast : ∀ {A : Set} {x y : Stream A} (p : x ≡ y) → x ≈ y
+  cast : ∀ {A : Type₀} {x y : Stream A} (p : x ≡ y) → x ≈ y
   cast {x = x} p = transport (λ i → x ≈ p i) refl≈
 
-  misib-refl : ∀ {A : Set} {x : Stream A} → misib {x = x} refl ≡ refl≈
+  misib-refl : ∀ {A : Type₀} {x : Stream A} → misib {x = x} refl ≡ refl≈
   ≈head (misib-refl i) = refl
   ≈tail (misib-refl i) = misib-refl i
 
-  misibTransp : ∀ {A : Set} {x y : Stream A} (p : x ≡ y) → cast p ≡ misib p
+  misibTransp : ∀ {A : Type₀} {x y : Stream A} (p : x ≡ y) → cast p ≡ misib p
   misibTransp p = J (λ _ p → cast p ≡ misib p) ((transportRefl refl≈) ∙ (sym misib-refl)) p
 
-module Stream≅Nat→ {A : Set} where
-  lookup : {A : Set} → Stream A → ℕ → A
+module Stream≅Nat→ {A : Type₀} where
+  lookup : {A : Type₀} → Stream A → ℕ → A
   lookup xs zero = head xs
   lookup xs (suc n) = lookup (tail xs) n
 
-  tabulate : {A : Set} → (ℕ → A) → Stream A
+  tabulate : {A : Type₀} → (ℕ → A) → Stream A
   head (tabulate f) = f zero
   tail (tabulate f) = tabulate (λ n → f (suc n))
 

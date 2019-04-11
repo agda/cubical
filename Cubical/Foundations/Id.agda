@@ -32,7 +32,7 @@ open import Cubical.Foundations.Prelude public
            ; funExt    to funExtPath
            ; isContr   to isContrPath
            ; isProp    to isPropPath
-           ; isSet     to isSetPath
+           ; isType     to isTypePath
            ; fst       to pr₁ -- as in the HoTT book
            ; snd       to pr₂
            )
@@ -58,7 +58,7 @@ open import Cubical.Core.Id public
 private
   variable
     ℓ ℓ' : Level
-    A : Set ℓ
+    A : Type ℓ
 
 -- Version of the constructor for Id where the y is also
 -- explicit. This is sometimes useful when it is needed for
@@ -74,7 +74,7 @@ refl {x = x} = ⟨ i1 , (λ _ → x) ⟩
 
 
 -- Definition of J for Id
-module _ {x : A} (P : ∀ (y : A) → Id x y → Set ℓ') (d : P x refl) where
+module _ {x : A} (P : ∀ (y : A) → Id x y → Type ℓ') (d : P x refl) where
   J : ∀ {y : A} (w : x ≡ y) → P y w
   J {y = y} = elimId P (λ φ y w → comp (λ i → P _ (conId (φ ∨ ~ i) (inS (outS w i))
                                                                    (inS (λ j → outS w (i ∧ j)))))
@@ -86,14 +86,14 @@ module _ {x : A} (P : ∀ (y : A) → Id x y → Set ℓ') (d : P x refl) where
 
 
 -- Basic theory about Id, proved using J
-transport : ∀ (B : A → Set ℓ') {x y : A}
+transport : ∀ (B : A → Type ℓ') {x y : A}
            → x ≡ y → B x → B y
 transport B {x} p b = J (λ y p → B y) b p
 
 _⁻¹ : {x y : A} → x ≡ y → y ≡ x
 _⁻¹ {x = x} p = J (λ z _ → z ≡ x) refl p
 
-ap : ∀ {B : Set ℓ'} (f : A → B) → ∀ {x y : A} → x ≡ y → f x ≡ f y
+ap : ∀ {B : Type ℓ'} (f : A → B) → ∀ {x y : A} → x ≡ y → f x ≡ f y
 ap f {x} = J (λ z _ → f x ≡ f z) refl
 
 _∙_ : ∀ {x y z : A} → x ≡ y → y ≡ z → x ≡ z
@@ -131,26 +131,26 @@ idToPathToId {x = x} = J (λ b p → Path _ (pathToId (idToPath p)) p) pathToIdR
 
 
 -- We get function extensionality by going back and forth between Path and Id
-funExt : ∀ {B : A → Set ℓ'} {f g : (x : A) → B x} →
+funExt : ∀ {B : A → Type ℓ'} {f g : (x : A) → B x} →
          ((x : A) → f x ≡ g x) → f ≡ g
 funExt p = pathToId (λ i x → idToPath (p x) i)
 
 
 -- Equivalences expressed using Id
 
-fiber : ∀ {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → Set (ℓ-max ℓ ℓ')
+fiber : ∀ {A : Type ℓ} {B : Type ℓ'} (f : A → B) (y : B) → Type (ℓ-max ℓ ℓ')
 fiber {A = A} f y = Σ[ x ∈ A ] f x ≡ y
 
-isContr : Set ℓ → Set ℓ
+isContr : Type ℓ → Type ℓ
 isContr A = Σ[ x ∈ A ] (∀ y → x ≡ y)
 
-isProp : Set ℓ → Set ℓ
+isProp : Type ℓ → Type ℓ
 isProp A = (x y : A) → x ≡ y
 
-isSet : Set ℓ → Set ℓ
-isSet A = (x y : A) → isProp (x ≡ y)
+isType : Type ℓ → Type ℓ
+isType A = (x y : A) → isProp (x ≡ y)
 
-record isEquiv {A : Set ℓ} {B : Set ℓ'} (f : A → B) : Set (ℓ-max ℓ ℓ') where
+record isEquiv {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type (ℓ-max ℓ ℓ') where
   field
     equiv-proof : (y : B) → isContr (fiber f y)
 
@@ -158,16 +158,16 @@ open isEquiv public
 
 infix 4 _≃_
 
-_≃_ : ∀ (A : Set ℓ) (B : Set ℓ') → Set (ℓ-max ℓ ℓ')
+_≃_ : ∀ (A : Type ℓ) (B : Type ℓ') → Type (ℓ-max ℓ ℓ')
 A ≃ B = Σ[ f ∈ (A → B) ] (isEquiv f)
 
-equivFun : ∀ {B : Set ℓ'} → A ≃ B → A → B
+equivFun : ∀ {B : Type ℓ'} → A ≃ B → A → B
 equivFun e = pr₁ e
 
-equivIsEquiv : ∀ {B : Set ℓ'} (e : A ≃ B) → isEquiv (equivFun e)
+equivIsEquiv : ∀ {B : Type ℓ'} (e : A ≃ B) → isEquiv (equivFun e)
 equivIsEquiv e = pr₂ e
 
-equivCtr : ∀ {B : Set ℓ'} (e : A ≃ B) (y : B) → fiber (equivFun e) y
+equivCtr : ∀ {B : Type ℓ'} (e : A ≃ B) (y : B) → fiber (equivFun e) y
 equivCtr e y = e .pr₂ .equiv-proof y .pr₁
 
 
@@ -175,19 +175,19 @@ equivCtr e y = e .pr₂ .equiv-proof y .pr₁
 -- also be achieved by making lines in the universe and transporting
 -- back and forth along them.
 
-fiberPathToFiber : ∀ {B : Set ℓ'} {f : A → B} {y : B} →
+fiberPathToFiber : ∀ {B : Type ℓ'} {f : A → B} {y : B} →
   fiberPath f y → fiber f y
 fiberPathToFiber (x , p) = (x , pathToId p)
 
-fiberToFiberPath : ∀ {B : Set ℓ'} {f : A → B} {y : B} →
+fiberToFiberPath : ∀ {B : Type ℓ'} {f : A → B} {y : B} →
   fiber f y → fiberPath f y
 fiberToFiberPath (x , p) = (x , idToPath p)
 
-fiberToFiber : ∀ {B : Set ℓ'} {f : A → B} {y : B}
+fiberToFiber : ∀ {B : Type ℓ'} {f : A → B} {y : B}
   (p : fiber f y) → Path _ (fiberPathToFiber (fiberToFiberPath p)) p
 fiberToFiber (x , p) = λ i → x , idToPathToId p i
 
-fiberPathToFiberPath : ∀ {B : Set ℓ'} {f : A → B} {y : B}
+fiberPathToFiberPath : ∀ {B : Type ℓ'} {f : A → B} {y : B}
   (p : fiberPath f y) → Path _ (fiberToFiberPath (fiberPathToFiber p)) p
 fiberPathToFiberPath (x , p) = λ i → x , pathToIdToPath p i
 
@@ -206,14 +206,14 @@ isPropToIsPropPath H x y i = idToPath (H x y) i
 -- Specialized helper lemmas for going back and forth between
 -- isContrPath and isContr:
 
-helper1 : ∀ {A B : Set ℓ} (f : A → B) (g : B → A)
+helper1 : ∀ {A B : Type ℓ} (f : A → B) (g : B → A)
             (h : ∀ y → Path _ (f (g y)) y) → isContrPath A → isContr B
 helper1 f g h (x , p) =
   (f x , λ y → pathToId (λ i → hcomp (λ j → λ { (i = i0) → f x
                                               ; (i = i1) → h y j })
                                      (f (p (g y) i))))
 
-helper2 : ∀ {A B : Set ℓ} (f : A → B) (g : B → A)
+helper2 : ∀ {A B : Type ℓ} (f : A → B) (g : B → A)
             (h : ∀ y → Path _ (g (f y)) y) → isContr B → isContrPath A
 helper2 {A = A} f g h (x , p) = (g x , λ y → idToPath (rem y))
   where
@@ -239,37 +239,37 @@ isPropIsContr (a0 , p0) (a1 , p1) j =
                                        (idToPath (p0 (idToPath (p1 x) i)) j))))
 
 -- We now prove that isEquiv is a proposition
-isPropIsEquiv : ∀ {A : Set ℓ} {B : Set ℓ} → {f : A → B} → (h1 h2 : isEquiv f) → Path _ h1 h2
+isPropIsEquiv : ∀ {A : Type ℓ} {B : Type ℓ} → {f : A → B} → (h1 h2 : isEquiv f) → Path _ h1 h2
 equiv-proof (isPropIsEquiv {f = f} h1 h2 i) y =
   isPropIsContr {A = fiber f y} (h1 .equiv-proof y) (h2 .equiv-proof y) i
 
 -- Go from a Path equivalence to an Id equivalence
-equivPathToEquiv : ∀ {A : Set ℓ} {B : Set ℓ'} → EquivPath A B → A ≃ B
+equivPathToEquiv : ∀ {A : Type ℓ} {B : Type ℓ'} → EquivPath A B → A ≃ B
 equivPathToEquiv (f , p) =
   (f , λ { .equiv-proof y → helper1 fiberPathToFiber fiberToFiberPath fiberToFiber (p .equiv-proof y) })
 
 -- Go from an Id equivalence to a Path equivalence
-equivToEquivPath : ∀ {A : Set ℓ} {B : Set ℓ'} → A ≃ B → EquivPath A B
+equivToEquivPath : ∀ {A : Type ℓ} {B : Type ℓ'} → A ≃ B → EquivPath A B
 equivToEquivPath (f , p) =
   (f , λ { .equiv-proof y → helper2 fiberPathToFiber fiberToFiberPath fiberPathToFiberPath (p .equiv-proof y) })
 
-equivToEquiv : ∀ {A : Set ℓ} {B : Set ℓ} → (p : A ≃ B) → Path _ (equivPathToEquiv (equivToEquivPath p)) p
+equivToEquiv : ∀ {A : Type ℓ} {B : Type ℓ} → (p : A ≃ B) → Path _ (equivPathToEquiv (equivToEquivPath p)) p
 equivToEquiv (f , p) i =
   (f , isPropIsEquiv (λ { .equiv-proof y → helper1 fiberPathToFiber fiberToFiberPath fiberToFiber
                                              (helper2 fiberPathToFiber fiberToFiberPath fiberPathToFiberPath (p .equiv-proof y)) }) p i)
 
 
 -- We can finally prove univalence with Id everywhere from the one for Path
-EquivContr : ∀ (A : Set ℓ) → isContr (Σ[ T ∈ Set ℓ ] (T ≃ A))
+EquivContr : ∀ (A : Type ℓ) → isContr (Σ[ T ∈ Type ℓ ] (T ≃ A))
 EquivContr A = helper1 f1 f2 f12 (EquivContrPath A)
   where
-  f1 : ∀ {ℓ} {A : Set ℓ} → Σ[ T ∈ Set ℓ ] (EquivPath T A) → Σ[ T ∈ Set ℓ ] (T ≃ A)
+  f1 : ∀ {ℓ} {A : Type ℓ} → Σ[ T ∈ Type ℓ ] (EquivPath T A) → Σ[ T ∈ Type ℓ ] (T ≃ A)
   f1 (x , p) = x , equivPathToEquiv p
 
-  f2 : ∀ {ℓ} {A : Set ℓ} → Σ[ T ∈ Set ℓ ] (T ≃ A) → Σ[ T ∈ Set ℓ ] (EquivPath T A)
+  f2 : ∀ {ℓ} {A : Type ℓ} → Σ[ T ∈ Type ℓ ] (T ≃ A) → Σ[ T ∈ Type ℓ ] (EquivPath T A)
   f2 (x , p) = x , equivToEquivPath p
 
-  f12 : ∀ {ℓ} {A : Set ℓ} → (y : Σ[ T ∈ Set ℓ ] (T ≃ A)) → Path _ (f1 (f2 y)) y
+  f12 : ∀ {ℓ} {A : Type ℓ} → (y : Σ[ T ∈ Type ℓ ] (T ≃ A)) → Path _ (f1 (f2 y)) y
   f12 (x , p) = λ i → x , equivToEquiv p i
 
 
@@ -278,9 +278,9 @@ EquivContr A = helper1 f1 f2 f12 (EquivContrPath A)
 ∥∥-isProp : ∀ (x y : ∥ A ∥) → x ≡ y
 ∥∥-isProp x y = pathToId (squashPath x y)
 
-∥∥-recursion : ∀ {A : Set ℓ} {P : Set ℓ} → isProp P → (A → P) → ∥ A ∥ → P
+∥∥-recursion : ∀ {A : Type ℓ} {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥ → P
 ∥∥-recursion Pprop f x = recPropTruncPath (isPropToIsPropPath Pprop) f x
 
-∥∥-induction : ∀ {A : Set ℓ} {P : ∥ A ∥ → Set ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
+∥∥-induction : ∀ {A : Type ℓ} {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
                 ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
 ∥∥-induction Pprop f x = elimPropTruncPath (λ a → isPropToIsPropPath (Pprop a)) f x
