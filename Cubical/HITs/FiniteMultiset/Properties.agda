@@ -44,14 +44,14 @@ comm-++ = FMSetElimProp.f (propPi (λ _ → trunc _ _))
                  ∙ cong (_++ xs) (cons-++ x ys)
                  ∙ sym (assoc-++ ys [ x ] xs))
 
-module FMSetUniversal {ℓ} {M : Type ℓ} (MType : isSet M)
+module FMSetUniversal {ℓ} {M : Type ℓ} (MSet : isSet M)
   (e : M) (_⊗_ : M → M → M)
   (comm-⊗ : ∀ x y → x ⊗ y ≡ y ⊗ x) (assoc-⊗ : ∀ x y z → x ⊗ (y ⊗ z) ≡ (x ⊗ y) ⊗ z)
   (unit-⊗ : ∀ x → e ⊗ x ≡ x)
   (f : A → M) where
 
   f-extend : FMSet A → M
-  f-extend = FMSetRec.f MType e (λ x m → f x ⊗ m)
+  f-extend = FMSetRec.f MSet e (λ x m → f x ⊗ m)
          (λ x y m → comm-⊗ (f x) (f y ⊗ m) ∙ sym (assoc-⊗ (f y) m (f x)) ∙ cong (f y ⊗_) (comm-⊗ m (f x)))
 
   f-extend-nil : f-extend [] ≡ e
@@ -64,7 +64,7 @@ module FMSetUniversal {ℓ} {M : Type ℓ} (MType : isSet M)
   f-extend-sing x = comm-⊗ (f x) e ∙ unit-⊗ (f x)
 
   f-extend-++ : ∀ xs ys → f-extend (xs ++ ys) ≡ f-extend xs ⊗ f-extend ys
-  f-extend-++ = FMSetElimProp.f (propPi λ _ → MType _ _)
+  f-extend-++ = FMSetElimProp.f (propPi λ _ → MSet _ _)
     (λ ys → sym (unit-⊗ (f-extend ys)))
     (λ x {xs} p ys → cong (f x ⊗_) (p ys) ∙ assoc-⊗ (f x) (f-extend xs) (f-extend ys))
 
@@ -72,6 +72,6 @@ module FMSetUniversal {ℓ} {M : Type ℓ} (MType : isSet M)
            (h-++ : ∀ xs ys → h (xs ++ ys) ≡ h xs ⊗ h ys) where
 
     f-extend-unique : h ≡ f-extend
-    f-extend-unique = funExt (FMSetElimProp.f (MType _ _)
+    f-extend-unique = funExt (FMSetElimProp.f (MSet _ _)
                               h-nil
                               (λ x {xs} p → (h-++ [ x ] xs) ∙ cong (_⊗ h xs) (h-sing x) ∙ cong (f x ⊗_) p))
