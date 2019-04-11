@@ -54,7 +54,7 @@ mapΩ³refl f p i j k = f (p i j k)
 
 PROP SET GROUPOID TWOGROUPOID : ∀ ℓ → Type (ℓ-suc ℓ)
 PROP ℓ = Σ (Type ℓ) isProp
-SET ℓ = Σ (Type ℓ) isType
+SET ℓ = Σ (Type ℓ) isSet
 GROUPOID ℓ = Σ (Type ℓ) isGroupoid
 TWOGROUPOID ℓ = Σ (Type ℓ) is2Groupoid
 
@@ -131,7 +131,7 @@ fibContrΩ³Hopf p i j k =
       ; (j = i1) → base
       ; (k = i0) → base
       ; (k = i1) →
-        isTypeΩS¹ refl refl
+        isSetΩS¹ refl refl
           (λ i j → transp (λ n → HopfS² (p i j n)) (i ∨ ~ i ∨ j ∨ ~ j) base)
           (λ _ _ → base)
           m i j
@@ -262,7 +262,7 @@ g9 : Ω pt∥ ptS¹ ∥₁ .fst → ∥ Int ∥₀
 g9 = encodeTruncS¹
 
 g10 : ∥ Int ∥₀ → Int
-g10 = elimTypeTrunc (λ _ → isTypeInt) (idfun Int)
+g10 = elimTypeTrunc (λ _ → isSetInt) (idfun Int)
 
 -- don't run me
 brunerie : Int
