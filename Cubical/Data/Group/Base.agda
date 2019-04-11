@@ -26,7 +26,7 @@ record Group {ℓ} : Type (ℓ-suc ℓ) where
   constructor group
   field
     type : Type ℓ
-    setStruc : isType type
+    setStruc : isSet type
     groupStruc : isGroup type
 
 isMorph : ∀ {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) → (f : (Group.type G → Group.type H)) → Type (ℓ-max ℓ ℓ')

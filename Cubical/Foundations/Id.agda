@@ -32,7 +32,7 @@ open import Cubical.Foundations.Prelude public
            ; funExt    to funExtPath
            ; isContr   to isContrPath
            ; isProp    to isPropPath
-           ; isType     to isTypePath
+           ; isSet     to isSetPath
            ; fst       to pr₁ -- as in the HoTT book
            ; snd       to pr₂
            )

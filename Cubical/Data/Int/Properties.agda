@@ -94,8 +94,8 @@ discreteInt (negsuc n) (negsuc m) with discreteℕ n m
 ... | yes p = yes (cong negsuc p)
 ... | no p  = no (λ x → p (injNegsuc x))
 
-isTypeInt : isType Int
-isTypeInt = Discrete→isType discreteInt
+isSetInt : isSet Int
+isSetInt = Discrete→isSet discreteInt
 
 _+pos_ : Int → ℕ  → Int
 z +pos 0 = z

@@ -66,8 +66,8 @@ discreteℕ (suc m) (suc n) with discreteℕ m n
 ... | yes p = yes (cong suc p)
 ... | no p = no (λ x → p (injSuc x))
 
-isTypeℕ : isType ℕ
-isTypeℕ = Discrete→isType discreteℕ
+isSetℕ : isSet ℕ
+isSetℕ = Discrete→isSet discreteℕ
 
 0≡m*0 : ∀ m → 0 ≡ m * 0
 0≡m*0 zero = refl

@@ -177,15 +177,15 @@ isContr A = Σ[ x ∈ A ] (∀ y → x ≡ y)
 isProp : Type ℓ → Type ℓ
 isProp A = (x y : A) → x ≡ y
 
-isType : Type ℓ → Type ℓ
-isType A = (x y : A) → isProp (x ≡ y)
+isSet : Type ℓ → Type ℓ
+isSet A = (x y : A) → isProp (x ≡ y)
 
-isType' : Type ℓ → Type ℓ
-isType' A = {x y z w : A} (p : x ≡ y) (q : z ≡ w) (r : x ≡ z) (s : y ≡ w) →
+isSet' : Type ℓ → Type ℓ
+isSet' A = {x y z w : A} (p : x ≡ y) (q : z ≡ w) (r : x ≡ z) (s : y ≡ w) →
            PathP (λ i → Path A (r i) (s i)) p q
 
 isGroupoid : Type ℓ → Type ℓ
-isGroupoid A = ∀ a b → isType (Path A a b)
+isGroupoid A = ∀ a b → isSet (Path A a b)
 
 is2Groupoid : Type ℓ → Type ℓ
 is2Groupoid A = ∀ a b → isGroupoid (Path A a b)
@@ -211,8 +211,8 @@ isContr→isProp (x , p) a b i =
   hcomp (λ j → λ { (i = i0) → p a j
                  ; (i = i1) → p b j }) x
 
-isProp→isType : isProp A → isType A
-isProp→isType h a b p q j i =
+isProp→isSet : isProp A → isSet A
+isProp→isSet h a b p q j i =
   hcomp (λ k → λ { (i = i0) → h a a k
                  ; (i = i1) → h a b k
                  ; (j = i0) → h a (p i) k

@@ -74,13 +74,13 @@ decode (loop i) y j =
 decodeEncode : (x : S¹) (p : base ≡ x) → decode x (encode x p) ≡ p
 decodeEncode x p = J (λ y q → decode y (encode y q) ≡ q) (λ x → refl) p
 
-isTypeΩS¹ : isType ΩS¹
-isTypeΩS¹ p q r s j i =
+isSetΩS¹ : isSet ΩS¹
+isSetΩS¹ p q r s j i =
   hcomp (λ k → λ { (i = i0) → decodeEncode base p k
                  ; (i = i1) → decodeEncode base q k
                  ; (j = i0) → decodeEncode base (r i) k
                  ; (j = i1) → decodeEncode base (s i) k })
-        (decode base (isTypeInt (winding p) (winding q) (cong winding r) (cong winding s) j i))
+        (decode base (isSetInt (winding p) (winding q) (cong winding r) (cong winding s) j i))
 
 -- This proof does not rely on rewriting hcomp with empty systems in
 -- Int as ghcomp has been implemented!
