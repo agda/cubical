@@ -8,7 +8,7 @@ sucPred : ∀ (i : Int) → sucInt (predInt i) ≡ i
 predSuc : ∀ (i : Int) → predInt (sucInt i) ≡ i
 
 discreteInt : discrete Int
-isSetInt : isSet Int
+isTypeInt : isType Int
 
 addition of Int is defined _+_ : Int → Int → Int
 
@@ -59,28 +59,28 @@ predSuc (negsuc (suc n)) = refl
 injPos : ∀ {a b : ℕ} → pos a ≡ pos b → a ≡ b
 injPos {a} h = subst T h refl
   where
-  T : Int → Set
+  T : Int → Type₀
   T (pos x)    = a ≡ x
   T (negsuc _) = ⊥
 
 injNegsuc : ∀ {a b : ℕ} → negsuc a ≡ negsuc b → a ≡ b
 injNegsuc {a} h = subst T h refl
   where
-  T : Int → Set
+  T : Int → Type₀
   T (pos _) = ⊥
   T (negsuc x) = a ≡ x
 
 posNotnegsuc : ∀ (a b : ℕ) → ¬ (pos a ≡ negsuc b)
 posNotnegsuc a b h = subst T h 0
   where
-  T : Int → Set
+  T : Int → Type₀
   T (pos _)    = ℕ
   T (negsuc _) = ⊥
 
 negsucNotpos : ∀ (a b : ℕ) → ¬ (negsuc a ≡ pos b)
 negsucNotpos a b h = subst T h 0
   where
-  T : Int → Set
+  T : Int → Type₀
   T (pos _)    = ⊥
   T (negsuc _) = ℕ
 
@@ -94,8 +94,8 @@ discreteInt (negsuc n) (negsuc m) with discreteℕ n m
 ... | yes p = yes (cong negsuc p)
 ... | no p  = no (λ x → p (injNegsuc x))
 
-isSetInt : isSet Int
-isSetInt = Discrete→isSet discreteInt
+isTypeInt : isType Int
+isTypeInt = Discrete→isType discreteInt
 
 _+pos_ : Int → ℕ  → Int
 z +pos 0 = z
@@ -166,7 +166,7 @@ negsuc0+ (pos (suc n)) = (sym (sucPred (pos n))) ∙ (cong sucInt (negsuc0+ _))
 negsuc0+ (negsuc zero) = refl
 negsuc0+ (negsuc (suc n)) = cong predInt (negsuc0+ (negsuc n))
 
-ind-comm : {A : Set} (_∙_ : A → A → A) (f : ℕ → A) (g : A → A)
+ind-comm : {A : Type₀} (_∙_ : A → A → A) (f : ℕ → A) (g : A → A)
            (p : ∀ {n} → f (suc n) ≡ g (f n))
            (g∙ : ∀ a b → g (a ∙ b) ≡ g a ∙ b)
            (∙g : ∀ a b → g (a ∙ b) ≡ a ∙ g b)
@@ -183,7 +183,7 @@ ind-comm _∙_ f g p g∙ ∙g base z (suc n) =
   where
   IH = ind-comm _∙_ f g p g∙ ∙g base z n
 
-ind-assoc : {A : Set} (_·_ : A → A → A) (f : ℕ → A)
+ind-assoc : {A : Type₀} (_·_ : A → A → A) (f : ℕ → A)
         (g : A → A) (p : ∀ a b → g (a · b) ≡ a · (g b))
         (q : ∀ {c} → f (suc c) ≡ g (f c))
         (base : ∀ m n → (m · n) · (f 0) ≡ m · (n · (f 0)))

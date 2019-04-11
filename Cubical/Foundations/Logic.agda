@@ -39,18 +39,18 @@ infix 2 ⇐∶_⇒∶_
 --------------------------------------------------------------------------------
 -- The type hProp of mere propositions
 -- the definition hProp is given in Foundations.HLevels
--- hProp {ℓ} = Σ (Set ℓ) isProp
+-- hProp {ℓ} = Σ (Type ℓ) isProp
 
 private
   variable
     ℓ ℓ' ℓ'' : Level
     P Q R : hProp {ℓ}
-    A B C : Set ℓ
+    A B C : Type ℓ
 
-[_] : hProp → Set ℓ
+[_] : hProp → Type ℓ
 [_] = fst
 
-∥_∥ₚ : Set ℓ → hProp
+∥_∥ₚ : Type ℓ → hProp
 ∥ A ∥ₚ = ∥ A ∥ , propTruncIsProp
 
 _≡ₚ_ : (x y : A) → hProp
@@ -108,7 +108,7 @@ x ≢ₚ y = ¬ x ≡ₚ y
 --------------------------------------------------------------------------------
 -- Disjunction of mere propositions
 
-_⊔′_ : Set ℓ → Set ℓ' → Set _
+_⊔′_ : Type ℓ → Type ℓ' → Type _
 A ⊔′ B = ∥ A D.⊎ B ∥
 
 _⊔_ : hProp {ℓ} → hProp {ℓ'} → hProp
@@ -126,7 +126,7 @@ inr x = ∣ D.inr x ∣
 
 --------------------------------------------------------------------------------
 -- Conjunction of mere propositions
-_⊓′_ : Set ℓ → Set ℓ' → Set _
+_⊓′_ : Type ℓ → Type ℓ' → Type _
 A ⊓′ B = A D.× B
 
 _⊓_ : hProp {ℓ} → hProp {ℓ'} → hProp
@@ -175,7 +175,7 @@ Decₚ P = Dec [ P ] , isPropDec (snd P)
 --------------------------------------------------------------------------------
 -- Negation commutes with truncation
 
-∥¬A∥≡¬∥A∥ : (A : Set ℓ) → ∥ (A → D.⊥) ∥ₚ ≡ (¬ ∥ A ∥ₚ)
+∥¬A∥≡¬∥A∥ : (A : Type ℓ) → ∥ (A → D.⊥) ∥ₚ ≡ (¬ ∥ A ∥ₚ)
 ∥¬A∥≡¬∥A∥ _ =
   ⇒∶ (λ ¬A A → elimPropTrunc (λ _ → D.isProp⊥)
     (elimPropTrunc (λ _ → propPi λ _ → D.isProp⊥) (λ ¬p p → ¬p p) ¬A) A)

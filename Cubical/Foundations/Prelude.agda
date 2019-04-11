@@ -34,8 +34,8 @@ infixr 2 _≡⟨_⟩_
 private
   variable
     ℓ ℓ' : Level
-    A : Set ℓ
-    B : A → Set ℓ
+    A : Type ℓ
+    B : A → Type ℓ
     x y z : A
 
 refl : x ≡ x
@@ -44,7 +44,7 @@ refl {x = x} = λ _ → x
 sym : x ≡ y → y ≡ x
 sym p i = p (~ i)
 
-symP : {A : I → Set ℓ} → {x : A i0} → {y : A i1} →
+symP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} →
        (p : PathP A x y) → PathP (λ i → A (~ i)) y x
 symP p j = p (~ j)
 
@@ -52,7 +52,7 @@ cong : ∀ (f : (a : A) → B a) (p : x ≡ y) →
        PathP (λ i → B (p i)) (f x) (f y)
 cong f p i = f (p i)
 
-cong₂ : ∀ {C : (a : A) → (b : B a) → Set ℓ} →
+cong₂ : ∀ {C : (a : A) → (b : B a) → Type ℓ} →
         (f : (a : A) → (b : B a) → C a b) →
         (p : x ≡ y) →
         {u : B x} {v : B y} (q : PathP (λ i → B (p i)) u v) →
@@ -73,14 +73,14 @@ _∙_ : x ≡ y → y ≡ z → x ≡ z
 -- The filler of heterogeneous path composition:
 -- compPathP-filler p q = PathP (λ i → PathP (λ j → (compPath-filler (λ i → A i) B i j)) x (q i)) p (compPathP p q)
 
-compPathP-filler : {A : I → Set ℓ} → {x : A i0} → {y : A i1} → {B_i1 : Set ℓ} {B : A i1 ≡ B_i1} → {z : B i1} →
+compPathP-filler : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → {B_i1 : Type ℓ} {B : A i1 ≡ B_i1} → {z : B i1} →
   (p : PathP A x y) → (q : PathP (λ i → B i) y z) → ∀ (i j : I) → compPath-filler (λ i → A i) B j i
 compPathP-filler {A = A} {x = x} {B = B} p q i =
   fill (λ j → compPath-filler (λ i → A i) B j i)
        (λ j → λ { (i = i0) → x ;
                    (i = i1) → q j }) (inS (p i))
 
-compPathP : {A : I → Set ℓ} → {x : A i0} → {y : A i1} → {B_i1 : Set ℓ} {B : (A i1) ≡ B_i1} → {z : B i1} →
+compPathP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → {B_i1 : Type ℓ} {B : (A i1) ≡ B_i1} → {z : B i1} →
   (p : PathP A x y) → (q : PathP (λ i → B i) y z) → PathP (λ j → ((λ i → A i) ∙ B) j) x z
 compPathP p q j = compPathP-filler p q j i1
 
@@ -121,7 +121,7 @@ _□_ : x ≡ y → y ≡ z → x ≡ z
 -- Transport, subst and functional extensionality
 
 -- transport is a special case of transp
-transport : {A B : Set ℓ} → A ≡ B → A → B
+transport : {A B : Type ℓ} → A ≡ B → A → B
 transport p a = transp (λ i → p i) i0 a
 
 -- Transporting in a constant family is the identity function (up to a
@@ -130,7 +130,7 @@ transportRefl : (x : A) → transport refl x ≡ x
 transportRefl {A = A} x i = transp (λ _ → A) i x
 
 -- We want B to be explicit in subst
-subst : (B : A → Set ℓ') (p : x ≡ y) → B x → B y
+subst : (B : A → Type ℓ') (p : x ≡ y) → B x → B y
 subst B p pa = transport (λ i → B (p i)) pa
 
 substRefl : (px : B x) → subst B refl px ≡ px
@@ -141,7 +141,7 @@ funExt p i x = p x i
 
 -- J for paths and its computation rule
 
-module _ (P : ∀ y → x ≡ y → Set ℓ') (d : P x refl) where
+module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
   J : (p : x ≡ y) → P y p
   J p = transport (λ i → P (p i) (λ j → p (i ∧ j))) d
 
@@ -150,7 +150,7 @@ module _ (P : ∀ y → x ≡ y → Set ℓ') (d : P x refl) where
 
 -- Contractibility of singletons
 
-singl : (a : A) → Set _
+singl : (a : A) → Type _
 singl {A = A} a = Σ[ x ∈ A ] (a ≡ x)
 
 contrSingl : (p : x ≡ y) → Path (singl x) (x , refl) (y , p)
@@ -159,7 +159,7 @@ contrSingl p i = (p i , λ j → p (i ∧ j))
 
 -- Converting to and from a PathP
 
-module _ {A : I → Set ℓ} {x : A i0} {y : A i1} where
+module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
   toPathP : transp A i0 x ≡ y → PathP A x y
   toPathP p i = hcomp (λ j → λ { (i = i0) → x
                                ; (i = i1) → p j })
@@ -171,23 +171,23 @@ module _ {A : I → Set ℓ} {x : A i0} {y : A i1} where
 
 -- Direct definitions of lower h-levels
 
-isContr : Set ℓ → Set ℓ
+isContr : Type ℓ → Type ℓ
 isContr A = Σ[ x ∈ A ] (∀ y → x ≡ y)
 
-isProp : Set ℓ → Set ℓ
+isProp : Type ℓ → Type ℓ
 isProp A = (x y : A) → x ≡ y
 
-isSet : Set ℓ → Set ℓ
-isSet A = (x y : A) → isProp (x ≡ y)
+isType : Type ℓ → Type ℓ
+isType A = (x y : A) → isProp (x ≡ y)
 
-isSet' : Set ℓ → Set ℓ
-isSet' A = {x y z w : A} (p : x ≡ y) (q : z ≡ w) (r : x ≡ z) (s : y ≡ w) →
+isType' : Type ℓ → Type ℓ
+isType' A = {x y z w : A} (p : x ≡ y) (q : z ≡ w) (r : x ≡ z) (s : y ≡ w) →
            PathP (λ i → Path A (r i) (s i)) p q
 
-isGroupoid : Set ℓ → Set ℓ
-isGroupoid A = ∀ a b → isSet (Path A a b)
+isGroupoid : Type ℓ → Type ℓ
+isGroupoid A = ∀ a b → isType (Path A a b)
 
-is2Groupoid : Set ℓ → Set ℓ
+is2Groupoid : Type ℓ → Type ℓ
 is2Groupoid A = ∀ a b → isGroupoid (Path A a b)
 
 -- Essential consequences of isProp and isContr
@@ -211,8 +211,8 @@ isContr→isProp (x , p) a b i =
   hcomp (λ j → λ { (i = i0) → p a j
                  ; (i = i1) → p b j }) x
 
-isProp→isSet : isProp A → isSet A
-isProp→isSet h a b p q j i =
+isProp→isType : isProp A → isType A
+isProp→isType h a b p q j i =
   hcomp (λ k → λ { (i = i0) → h a a k
                  ; (i = i1) → h a b k
                  ; (j = i0) → h a (p i) k

@@ -5,13 +5,13 @@ open import Cubical.Foundations.Prelude
 
 -- This should be upstreamed to Basics when we develop some theory
 -- about pointed types
-ptType : Set₁
-ptType = Σ[ A ∈ Set ] A
+ptType : Type₁
+ptType = Σ[ A ∈ Type₀ ] A
 
 pt : ∀ (A : ptType) → A .fst
 pt A = A .snd
 
-data Smash (A B : ptType) : Set where
+data Smash (A B : ptType) : Type₀ where
   basel : Smash A B
   baser : Smash A B
   proj  : (x : A .fst) → (y : B .fst) → Smash A B

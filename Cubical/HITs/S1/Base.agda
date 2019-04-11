@@ -18,7 +18,7 @@ open import Cubical.Data.Nat
   hiding (_+_ ; _*_ ; +-assoc ; +-comm)
 open import Cubical.Data.Int
 
-data S¹ : Set where
+data S¹ : Type₀ where
   base : S¹
   loop : base ≡ base
 
@@ -31,11 +31,11 @@ module _ where
     comp (λ _ → S¹) u u0 ≡ hcomp u (outS u0)
   compS1 φ u u0 = refl
 
-helix : S¹ → Set
+helix : S¹ → Type₀
 helix base     = Int
 helix (loop i) = sucPathInt i
 
-ΩS¹ : Set
+ΩS¹ : Type₀
 ΩS¹ = base ≡ base
 
 encode : ∀ x → base ≡ x → helix x
@@ -74,13 +74,13 @@ decode (loop i) y j =
 decodeEncode : (x : S¹) (p : base ≡ x) → decode x (encode x p) ≡ p
 decodeEncode x p = J (λ y q → decode y (encode y q) ≡ q) (λ x → refl) p
 
-isSetΩS¹ : isSet ΩS¹
-isSetΩS¹ p q r s j i =
+isTypeΩS¹ : isType ΩS¹
+isTypeΩS¹ p q r s j i =
   hcomp (λ k → λ { (i = i0) → decodeEncode base p k
                  ; (i = i1) → decodeEncode base q k
                  ; (j = i0) → decodeEncode base (r i) k
                  ; (j = i1) → decodeEncode base (s i) k })
-        (decode base (isSetInt (winding p) (winding q) (cong winding r) (cong winding s) j i))
+        (decode base (isTypeInt (winding p) (winding q) (cong winding r) (cong winding s) j i))
 
 -- This proof does not rely on rewriting hcomp with empty systems in
 -- Int as ghcomp has been implemented!
@@ -131,7 +131,7 @@ winding-hom a b i =
 
 -- Based homotopy group
 
-basedΩS¹ : (x : S¹) → Set
+basedΩS¹ : (x : S¹) → Type₀
 basedΩS¹ x = x ≡ x
 
 -- Proof that the homotopy group is actually independent on the basepoint
@@ -289,7 +289,7 @@ filler-rot i j = hfill (λ k → λ { (i = i0) → loop (j ∨ ~ k)
                    ; (j = i0) → loop (i ∨ ~ k)
                    ; (j = i1) → loop (i ∧ k) }) (inS base)
 
-isPropFamS¹ : ∀ {ℓ} (P : S¹ → Set ℓ) (pP : (x : S¹) → isProp (P x)) (b0 : P base) →
+isPropFamS¹ : ∀ {ℓ} (P : S¹ → Type ℓ) (pP : (x : S¹) → isProp (P x)) (b0 : P base) →
               PathP (λ i → P (loop i)) b0 b0
 isPropFamS¹ P pP b0 i = pP (loop i) (transp (λ j → P (loop (i ∧ j))) (~ i) b0)
                                     (transp (λ j → P (loop (i ∨ ~ j))) i b0) i

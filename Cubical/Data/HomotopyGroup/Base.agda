@@ -10,8 +10,8 @@ open import Cubical.Data.Group.Base
 
 open import Cubical.HITs.SetTruncation
 
-Pointed : ∀ {ℓ} → Set (ℓ-suc ℓ)
-Pointed {ℓ} = Σ[ A ∈ Set ℓ ] A
+Pointed : ∀ {ℓ} → Type (ℓ-suc ℓ)
+Pointed {ℓ} = Σ[ A ∈ Type ℓ ] A
 
 Ω : ∀ {ℓ} → Pointed {ℓ} → Pointed {ℓ}
 Ω (A , a ) = ( (a ≡ a) , refl)
@@ -26,7 +26,7 @@ Pointed {ℓ} = Σ[ A ∈ Set ℓ ] A
     n' : ℕ
     n' = suc n
 
-    A : Set ℓ
+    A : Type ℓ
     A = (Ω^ n') p .fst
 
     g : isGroup ∥ A ∥₀
@@ -36,27 +36,27 @@ Pointed {ℓ} = Σ[ A ∈ Set ℓ ] A
         e = ∣ (Ω^ n') p .snd ∣₀
 
         _⁻¹ : ∥ A ∥₀ → ∥ A ∥₀
-        _⁻¹ = elimSetTrunc {B = λ _ → ∥ A ∥₀} (λ x → squash₀) λ a → ∣  sym a ∣₀
+        _⁻¹ = elimTypeTrunc {B = λ _ → ∥ A ∥₀} (λ x → squash₀) λ a → ∣  sym a ∣₀
 
         _⊙_ : ∥ A ∥₀ → ∥ A ∥₀ → ∥ A ∥₀
-        _⊙_ = elimSetTrunc2 (λ _ _ → squash₀) λ a₀ a₁ → ∣ a₀ ∙ a₁ ∣₀
+        _⊙_ = elimTypeTrunc2 (λ _ _ → squash₀) λ a₀ a₁ → ∣ a₀ ∙ a₁ ∣₀
 
         lUnit : (a : ∥ A ∥₀) → (e ⊙ a) ≡ a
-        lUnit = elimSetTrunc (λ _ → isProp→isSet (squash₀ _ _))
+        lUnit = elimTypeTrunc (λ _ → isProp→isType (squash₀ _ _))
                 (λ a → cong ∣_∣₀ (sym (GL.lUnit a) ))
 
         rUnit : (a : ∥ A ∥₀) → a ⊙ e ≡ a
-        rUnit = elimSetTrunc (λ _ → isProp→isSet (squash₀ _ _))
+        rUnit = elimTypeTrunc (λ _ → isProp→isType (squash₀ _ _))
                 (λ a → cong ∣_∣₀ (sym (GL.rUnit a) ))
 
         assoc : (a b c : ∥ A ∥₀) → ((a ⊙ b) ⊙ c) ≡ (a ⊙ (b ⊙ c))
-        assoc = elimSetTrunc3 (λ _ _ _ → isProp→isSet (squash₀ _ _))
+        assoc = elimTypeTrunc3 (λ _ _ _ → isProp→isType (squash₀ _ _))
                 (λ a b c → cong ∣_∣₀ (sym (GL.assoc _ _ _)))
 
         lCancel : (a : ∥ A ∥₀) → ((a ⁻¹) ⊙ a) ≡ e
-        lCancel = elimSetTrunc (λ _ → isProp→isSet (squash₀ _ _))
+        lCancel = elimTypeTrunc (λ _ → isProp→isType (squash₀ _ _))
                   λ a → cong ∣_∣₀ (GL.lCancel _)
 
         rCancel : (a : ∥ A ∥₀) → (a ⊙ (a ⁻¹)) ≡ e
-        rCancel = elimSetTrunc (λ _ → isProp→isSet (squash₀ _ _))
+        rCancel = elimTypeTrunc (λ _ → isProp→isType (squash₀ _ _))
                   λ a → cong ∣_∣₀ (GL.rCancel _)

@@ -26,53 +26,53 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
 
-isEquivCong : ∀ {ℓ} {A B : Set ℓ} {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → (cong (fst e) p))
-isEquivCong e = EquivJ (λ (B' A' : Set _) (e' : A' ≃ B') →
+isEquivCong : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → (cong (fst e) p))
+isEquivCong e = EquivJ (λ (B' A' : Type _) (e' : A' ≃ B') →
                          (x' y' : A') → isEquiv (λ (p : x' ≡ y') → cong (fst e') p))
                        (λ _ x' y' → idIsEquiv (x' ≡ y')) _ _ e _ _
 
-congEquiv : ∀ {ℓ} {A B : Set ℓ} {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
+congEquiv : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
 congEquiv e = ((λ (p : _ ≡ _) → cong (fst e) p) , isEquivCong e)
 
-isEquivPreComp : ∀ {ℓ ℓ′} {A B : Set ℓ} {C : Set ℓ′} (e : A ≃ B)
+isEquivPreComp : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
   → isEquiv (λ (φ : B → C) → φ ∘ e .fst)
 isEquivPreComp {A = A} {C = C} e = EquivJ
-                  (λ (B A : Set _) (e' : A ≃ B) → isEquiv (λ (φ : B → C) → φ ∘ e' .fst))
+                  (λ (B A : Type _) (e' : A ≃ B) → isEquiv (λ (φ : B → C) → φ ∘ e' .fst))
                   (λ A → idIsEquiv (A → C)) _ _ e
 
-isEquivPostComp : ∀ {ℓ ℓ′} {A B : Set ℓ} {C : Set ℓ′} (e : A ≃ B)
+isEquivPostComp : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
   → isEquiv (λ (φ : C → A) → e .fst ∘ φ)
 isEquivPostComp {A = A} {C = C} e = EquivJ
-                  (λ (B A : Set _) (e' : A ≃ B) →  isEquiv (λ (φ : C → A) → e' .fst ∘ φ))
+                  (λ (B A : Type _) (e' : A ≃ B) →  isEquiv (λ (φ : C → A) → e' .fst ∘ φ))
                   (λ A → idIsEquiv (C → A)) _ _ e
 
-preCompEquiv : ∀ {ℓ ℓ′} {A B : Set ℓ} {C : Set ℓ′} (e : A ≃ B)
+preCompEquiv : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
              → (B → C) ≃ (A → C)
 preCompEquiv e = (λ φ x → φ (fst e x)) , isEquivPreComp e
 
-postCompEquiv : ∀ {ℓ ℓ′} {A B : Set ℓ} {C : Set ℓ′} (e : A ≃ B)
+postCompEquiv : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
              → (C → A) ≃ (C → B)
 postCompEquiv e = (λ φ x → fst e (φ x)) , isEquivPostComp e
 
 
 
-record isPathSplitEquiv {ℓ ℓ'} {A : Set  ℓ} {B : Set ℓ'} (f : A → B) : Set (ℓ-max ℓ ℓ') where
+record isPathSplitEquiv {ℓ ℓ'} {A : Type  ℓ} {B : Type ℓ'} (f : A → B) : Type (ℓ-max ℓ ℓ') where
   field
     s : B → A
     sec : section f s
     secCong : (x y : A) → Σ[ s' ∈ (f(x) ≡ f(y) → x ≡ y) ] section (cong f) s'
 
-PathSplitEquiv : ∀ {ℓ ℓ'} (A : Set  ℓ) (B : Set ℓ') → Set (ℓ-max ℓ ℓ')
+PathSplitEquiv : ∀ {ℓ ℓ'} (A : Type  ℓ) (B : Type ℓ') → Type (ℓ-max ℓ ℓ')
 PathSplitEquiv A B = Σ[ f ∈ (A → B) ] isPathSplitEquiv f
 
 open isPathSplitEquiv
 
-idIsPathSplitEquiv : ∀ {ℓ} {A : Set ℓ} → isPathSplitEquiv (λ (x : A) → x)
+idIsPathSplitEquiv : ∀ {ℓ} {A : Type ℓ} → isPathSplitEquiv (λ (x : A) → x)
 s idIsPathSplitEquiv x = x
 sec idIsPathSplitEquiv x = refl
 secCong idIsPathSplitEquiv = λ x y → (λ p → p) , λ p _ → p
 
-module _ {ℓ} {A B : Set ℓ} where
+module _ {ℓ} {A B : Type ℓ} where
   toIsEquiv : (f : A → B) → isPathSplitEquiv f → isEquiv f
   toIsEquiv f record { s = s ; sec = sec ; secCong = secCong } =
     (isoToEquiv (iso f s sec (λ x → (secCong (s (f x)) x).fst (sec (f x))))) .snd
@@ -88,7 +88,7 @@ module _ {ℓ} {A B : Set ℓ} where
   sectionOfEquiv : (f : A → B) → isEquiv f → Σ (B → A) (section f)
   sectionOfEquiv f e = sectionOfEquiv' f e , isSec f e
 
-module _ {ℓ} {A B : Set ℓ} where
+module _ {ℓ} {A B : Type ℓ} where
   abstract
     fromIsEquiv : (f : A → B) → isEquiv f → isPathSplitEquiv f
     s (fromIsEquiv f pf) = sectionOfEquiv' f pf
@@ -128,7 +128,7 @@ module _ {ℓ} {A B : Set ℓ} where
   PathSplitEquiv is a proposition and the type
   of path split equivs is equivalent to the type of equivalences
 -}
-isPropIsPathSplitEquiv : ∀ {ℓ} {A B : Set ℓ} (f : A → B)
+isPropIsPathSplitEquiv : ∀ {ℓ} {A B : Type ℓ} (f : A → B)
      → isProp (isPathSplitEquiv f)
 isPropIsPathSplitEquiv {_} {A} {B} f
   record { s = φ ; sec = sec-φ ; secCong = secCong-φ }
@@ -151,7 +151,7 @@ isPropIsPathSplitEquiv {_} {A} {B} f
                                  (λ (p : x ≡ y) → cong f p)
                                  (isEquivCong (pathSplitToEquiv (f , φ'))))
 
-module _ {ℓ} {A B : Set ℓ} where
+module _ {ℓ} {A B : Type ℓ} where
   isEquivIsPathSplitToIsEquiv : (f : A → B) → isEquiv (fromIsEquiv f)
   isEquivIsPathSplitToIsEquiv f =
     isoToIsEquiv

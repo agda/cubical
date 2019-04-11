@@ -5,23 +5,23 @@ open import Cubical.Foundations.Prelude
 
 -- TODO move
 module Helpers where
-  module _ {ℓ ℓ'} {A : Set ℓ} {x : A} (P : ∀ y → x ≡ y → Set ℓ') (d : P x refl) where
+  module _ {ℓ ℓ'} {A : Type ℓ} {x : A} (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
     -- A version with y as an explicit argument can be used to make Agda
     -- infer the family P.
     J' : ∀ y (p : x ≡ y) → P y p
     J' y p = J P d p
 
-  lem-transp : {A : Set} (i : I) → (B : Set) (P : A ≡ B) → (p : P i) → PathP (\ j → P j) (transp (\ k → P (~ k ∧ i)) (~ i) p)
+  lem-transp : ∀ {ℓ} {A : Type ℓ} (i : I) → (B : Type ℓ) (P : A ≡ B) → (p : P i) → PathP (\ j → P j) (transp (\ k → P (~ k ∧ i)) (~ i) p)
                                                                                          (transp (\ k → P (k ∨ i)) i p)
-  lem-transp {A} i = J' _ (\ p j → transp (\ _ → A) ((~ j ∧ ~ i) ∨ (j ∧ i)) p )
+  lem-transp {A = A} i = J' _ (\ p j → transp (\ _ → A) ((~ j ∧ ~ i) ∨ (j ∧ i)) p )
 
-  transp-over : (A : I → Set) (i j : I) → A i → A j
+  transp-over : ∀ {ℓ} (A : I → Type ℓ) (i j : I) → A i → A j
   transp-over A i k p = transp (\ j → A ((~ j ∧ i) ∨ (j ∧ k))) (~ i ∧ ~ k) p
 
-  transp-over-1 : (A : I → Set) (i j : I) → A i → A j
+  transp-over-1 : ∀ {ℓ} (A : I → Type ℓ) (i j : I) → A i → A j
   transp-over-1 A i k p = transp (\ j → A ((j ∨ i) ∧ (~ j ∨ k))) (i ∧ k) p
 
-  compPathD : {ℓ ℓ' : _} {X : Set ℓ} (F : X → Set ℓ') {A B C : X} (P : A ≡ B) (Q : B ≡ C)
+  compPathD : {ℓ ℓ' : _} {X : Type ℓ} (F : X → Type ℓ') {A B C : X} (P : A ≡ B) (Q : B ≡ C)
               → ∀ {x y z} → (\ i → F (P i)) [ x ≡ y ] → (\ i → F (Q i)) [ y ≡ z ] → (\ i → F ((P ∙ Q) i)) [ x ≡ z ]
   compPathD F {A = A} P Q {x} p q i =
      comp (\ j → F (hfill (λ j → \ { (i = i0) → A ; (i = i1) → Q j })
@@ -32,15 +32,15 @@ module Helpers where
 
 open Helpers
 
-IxCont : Set → Set₁
-IxCont X = Σ (X → Set) \ S → ∀ x → S x → X → Set
+IxCont : Type₀ → Type₁
+IxCont X = Σ (X → Type₀) \ S → ∀ x → S x → X → Type₀
 
 
-⟦_⟧ : ∀ {X : Set} → IxCont X → (X → Set) → (X → Set)
+⟦_⟧ : ∀ {X : Type₀} → IxCont X → (X → Type₀) → (X → Type₀)
 ⟦ (S , P) ⟧ X x = Σ (S x) \ s → ∀ y → P x s y → X y
 
 
-record M {X : Set} (C : IxCont X) (x : X) : Set where
+record M {X : Type₀} (C : IxCont X) (x : X) : Type₀ where
   coinductive
   field
     head : C .fst x
@@ -48,7 +48,7 @@ record M {X : Set} (C : IxCont X) (x : X) : Set where
 
 open M public
 
-module _ {X : Set} {C : IxCont X} where
+module _ {X : Type₀} {C : IxCont X} where
 
   private
     F = ⟦ C ⟧

@@ -7,18 +7,18 @@ open import Cubical.Foundations.Everything
 
 private
   variable
-    A : Set
+    A : Type₀
 
 infixr 20 _∷_
 infix 30 _∈_
 
 
-data LFSet (A : Set) : Set where
-  []    : LFSet A
-  _∷_   : (x : A) → (xs : LFSet A) → LFSet A
+data LFType (A : Type₀) : Type₀ where
+  []    : LFType A
+  _∷_   : (x : A) → (xs : LFType A) → LFType A
   dup   : ∀ x xs   → x ∷ x ∷ xs ≡ x ∷ xs
   comm  : ∀ x y xs → x ∷ y ∷ xs ≡ y ∷ x ∷ xs
-  trunc : isSet (LFSet A)
+  trunc : isType (LFType A)
 
 
 -- Membership.
@@ -26,7 +26,7 @@ data LFSet (A : Set) : Set where
 -- Doing some proofs with equational reasoning adds an extra "_∙ refl"
 -- at the end.
 -- We might want to avoid it, or come up with a more clever equational reasoning.
-_∈_ : A → LFSet A → hProp
+_∈_ : A → LFType A → hProp
 z ∈ []                  = ⊥
 z ∈ (y ∷ xs)            = (z ≡ₚ y) ⊔ (z ∈ xs)
 z ∈ dup x xs i          = proof i
@@ -43,4 +43,4 @@ z ∈ comm x y xs i       = proof i
             (z ≡ₚ y ⊔ z ≡ₚ x) ⊔ z ∈ xs  ≡⟨ sym (⊔-assoc (z ≡ₚ y) (z ≡ₚ x) (z ∈ xs)) ⟩
             z ≡ₚ y  ⊔ (z ≡ₚ x ⊔ z ∈ xs) ∎
 
-x ∈ trunc xs ys p q i j = isSetHProp (x ∈ xs) (x ∈ ys) (cong (x ∈_) p) (cong (x ∈_) q) i j
+x ∈ trunc xs ys p q i j = isTypeHProp (x ∈ xs) (x ∈ ys) (cong (x ∈_) p) (cong (x ∈_) q) i j

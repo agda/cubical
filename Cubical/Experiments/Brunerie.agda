@@ -19,8 +19,8 @@ open import Cubical.HITs.2GroupoidTruncation
 
 -- This code is adapted from examples/brunerie3.ctt on the pi4s3_nobug branch of cubicaltt
 
-ptType : Set₁
-ptType = Σ[ A ∈ Set ] A
+ptType : Type₁
+ptType = Σ[ A ∈ Type₀ ] A
 
 pt : ∀ (A : ptType) → A .fst
 pt A = A .snd
@@ -35,7 +35,7 @@ pt∥_∥₁ pt∥_∥₂ : ptType → ptType
 pt∥ A , a ∥₁ = ∥ A ∥₁ , ∣ a ∣₁
 pt∥ A , a ∥₂ = ∥ A ∥₂ , ∣ a ∣₂
 
-ptjoin : ptType → Set → ptType
+ptjoin : ptType → Type₀ → ptType
 ptjoin (A , a) B = join A B , inl a
 
 Ω Ω² Ω³ : ptType → ptType
@@ -43,20 +43,20 @@ ptjoin (A , a) B = join A B , inl a
 Ω² A = Ω (Ω A)
 Ω³ A = Ω (Ω² A)
 
-mapΩrefl : {A : ptType} {B : Set} (f : A .fst → B) → Ω A .fst → Ω (B , f (pt A)) .fst
+mapΩrefl : {A : ptType} {B : Type₀} (f : A .fst → B) → Ω A .fst → Ω (B , f (pt A)) .fst
 mapΩrefl f p i = f (p i)
 
-mapΩ²refl : {A : ptType} {B : Set} (f : A .fst → B) → Ω² A .fst → Ω² (B , f (pt A)) .fst
+mapΩ²refl : {A : ptType} {B : Type₀} (f : A .fst → B) → Ω² A .fst → Ω² (B , f (pt A)) .fst
 mapΩ²refl f p i j = f (p i j)
 
-mapΩ³refl : {A : ptType} {B : Set} (f : A .fst → B) → Ω³ A .fst → Ω³ (B , f (pt A)) .fst
+mapΩ³refl : {A : ptType} {B : Type₀} (f : A .fst → B) → Ω³ A .fst → Ω³ (B , f (pt A)) .fst
 mapΩ³refl f p i j k = f (p i j k)
 
-PROP SET GROUPOID TWOGROUPOID : ∀ ℓ → Set (ℓ-suc ℓ)
-PROP ℓ = Σ (Set ℓ) isProp
-SET ℓ = Σ (Set ℓ) isSet
-GROUPOID ℓ = Σ (Set ℓ) isGroupoid
-TWOGROUPOID ℓ = Σ (Set ℓ) is2Groupoid
+PROP SET GROUPOID TWOGROUPOID : ∀ ℓ → Type (ℓ-suc ℓ)
+PROP ℓ = Σ (Type ℓ) isProp
+SET ℓ = Σ (Type ℓ) isType
+GROUPOID ℓ = Σ (Type ℓ) isGroupoid
+TWOGROUPOID ℓ = Σ (Type ℓ) is2Groupoid
 
 meridS² : S¹ → Path S² base base
 meridS² base _ = base
@@ -67,7 +67,7 @@ alpha (inl x) = base
 alpha (inr y) = base
 alpha (push x y i) = (meridS² y ∙ meridS² x) i
 
-connectionBoth : {A : Set} {a : A} (p : Path A a a) → PathP (λ i → Path A (p i) (p i)) p p
+connectionBoth : {A : Type₀} {a : A} (p : Path A a a) → PathP (λ i → Path A (p i) (p i)) p p
 connectionBoth {a = a} p i j =
   hcomp
     (λ k → λ
@@ -78,7 +78,7 @@ connectionBoth {a = a} p i j =
       })
     a
 
-data PostTotalHopf : Set where
+data PostTotalHopf : Type₀ where
   base : S¹ → PostTotalHopf
   loop : (x : S¹) → PathP (λ i → Path PostTotalHopf (base x) (base (rotLoop x (~ i)))) refl refl
 
@@ -109,16 +109,16 @@ tee34 (loop x i j) =
 tee : (x : S²) → HopfS² x → join S¹ S¹
 tee x y = tee34 (tee12 x y)
 
-fibΩ : {B : ptType} (P : B .fst → Set) → P (pt B) → Ω B .fst → Set
+fibΩ : {B : ptType} (P : B .fst → Type₀) → P (pt B) → Ω B .fst → Type₀
 fibΩ P f p = PathP (λ i → P (p i)) f f
 
-fibΩ² : {B : ptType} (P : B .fst → Set) → P (pt B) → Ω² B .fst → Set
+fibΩ² : {B : ptType} (P : B .fst → Type₀) → P (pt B) → Ω² B .fst → Type₀
 fibΩ² P f = fibΩ (fibΩ P f) refl
 
-fibΩ³ : {B : ptType} (P : B .fst → Set) → P (pt B) → Ω³ B .fst → Set
+fibΩ³ : {B : ptType} (P : B .fst → Type₀) → P (pt B) → Ω³ B .fst → Type₀
 fibΩ³ P f = fibΩ² (fibΩ P f) refl
 
-Ω³Hopf : Ω³ ptS² .fst → Set
+Ω³Hopf : Ω³ ptS² .fst → Type₀
 Ω³Hopf = fibΩ³ HopfS² base
 
 fibContrΩ³Hopf : ∀ p → Ω³Hopf p
@@ -131,7 +131,7 @@ fibContrΩ³Hopf p i j k =
       ; (j = i1) → base
       ; (k = i0) → base
       ; (k = i1) →
-        isSetΩS¹ refl refl
+        isTypeΩS¹ refl refl
           (λ i j → transp (λ n → HopfS² (p i j n)) (i ∨ ~ i ∨ j ∨ ~ j) base)
           (λ _ _ → base)
           m i j
@@ -200,7 +200,7 @@ multTwoEquivAux i j =
   f : I → I → ∥ S² ∥₂ → ∥ S² ∥₂
   f i j t = multTwoTildeAux t i j
 
-tHopf³ : S³ → Set
+tHopf³ : S³ → Type₀
 tHopf³ base = ∥ S² ∥₂
 tHopf³ (surf i j k) =
   Glue ∥ S² ∥₂
@@ -262,7 +262,7 @@ g9 : Ω pt∥ ptS¹ ∥₁ .fst → ∥ Int ∥₀
 g9 = encodeTruncS¹
 
 g10 : ∥ Int ∥₀ → Int
-g10 = elimSetTrunc (λ _ → isSetInt) (idfun Int)
+g10 = elimTypeTrunc (λ _ → isTypeInt) (idfun Int)
 
 -- don't run me
 brunerie : Int
