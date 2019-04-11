@@ -2,22 +2,20 @@
 
 module Cubical.Data.Group.Base where
 
-open import Cubical.Core.Primitives hiding (comp)
 import Cubical.Core.Glue as G
+
+open import Cubical.Foundations.Prelude hiding ( comp )
 
 import Cubical.Foundations.Isomorphism as I
 import Cubical.Foundations.Equiv as E
 import Cubical.Foundations.HAEquiv as HAE
-open import Cubical.Data.Sigma
-
-open import Cubical.Foundations.Prelude hiding (comp)
 
 record isGroup {ℓ} (A : Set ℓ) : Set ℓ where
   constructor group-struct
   field
     id  : A
     inv  : A → A
-    comp   : A → A → A
+    comp  : A → A → A
     lUnit : ∀ a → comp id a ≡ a
     rUnit : ∀ a → comp a id ≡ a
     assoc  : ∀ a b c → comp (comp a b) c ≡ comp a (comp b c)

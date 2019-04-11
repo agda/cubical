@@ -1,7 +1,6 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.UnivalenceId where
 
-open import Cubical.Core.Primitives public  hiding ( _≡_ )
 open import Cubical.Core.Glue
   renaming ( isEquiv      to isEquivPath
            ; _≃_          to EquivPath

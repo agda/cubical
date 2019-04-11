@@ -20,8 +20,6 @@ This file contains:
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Id where
 
-open import Cubical.Core.Primitives public  hiding ( _≡_ )
-
 open import Cubical.Foundations.Prelude public
   hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ ; isPropIsContr)
   renaming ( refl      to reflPath

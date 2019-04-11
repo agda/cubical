@@ -2,14 +2,16 @@
 module Cubical.Data.Bool.Base where
 
 open import Cubical.Core.Everything
+
 open import Cubical.Foundations.Prelude
+
 open import Cubical.Data.Empty
+
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
 
 -- Obtain the booleans
 open import Agda.Builtin.Bool public
-
 
 infixr 6 _and_
 infixr 5 _or_

@@ -14,7 +14,7 @@ various consequences of univalence
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Univalence where
 
-open import Cubical.Core.Everything
+open import Cubical.Core.Glue
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function

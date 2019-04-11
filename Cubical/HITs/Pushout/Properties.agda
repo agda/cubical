@@ -11,7 +11,6 @@ This file contains:
 
 module Cubical.HITs.Pushout.Properties where
 
-open import Cubical.Core.Primitives
 open import Cubical.Core.Glue
 
 open import Cubical.Foundations.Prelude
