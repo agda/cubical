@@ -48,8 +48,8 @@ record Iso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ �
 record Iso' {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
   constructor iso'
   field
-    isoType : I.Iso (Group.type G) (Group.type H)
-    isoTypeMorph : isMorph G H (I.Iso.fun isoType)
+    isoSet : I.Iso (Group.type G) (Group.type H)
+    isoSetMorph : isMorph G H (I.Iso.fun isoSet)
 
 _≃_ : ∀ {ℓ ℓ'} (A : Group {ℓ}) (B : Group {ℓ'}) → Type (ℓ-max ℓ ℓ')
 A ≃ B = Σ (morph A B) \ f → (G.isEquiv (f .fst))
@@ -66,22 +66,22 @@ Iso'→Iso {G = group G Gset Ggroup} {H = group H Hset Hgroup} i = iso (fun , fu
     open Iso'
 
     fun : G → H
-    fun = I.Iso.fun (isoType i)
+    fun = I.Iso.fun (isoSet i)
 
     inv : H → G
-    inv = I.Iso.inv (isoType i)
+    inv = I.Iso.inv (isoSet i)
 
     rightInv : I.section fun inv
-    rightInv = I.Iso.rightInv (isoType i)
+    rightInv = I.Iso.rightInv (isoSet i)
 
     leftInv : I.retract fun inv
-    leftInv = I.Iso.leftInv (isoType i)
+    leftInv = I.Iso.leftInv (isoSet i)
 
     e' : G G.≃ H
     e' = E.isoToEquiv (I.iso fun inv rightInv leftInv)
 
     funMorph : isMorph G_ H_ fun
-    funMorph = isoTypeMorph i
+    funMorph = isoSetMorph i
 
     _∘_ : H → H → H
     _∘_ = isGroup.comp Hgroup
