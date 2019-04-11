@@ -9,9 +9,9 @@ open import Cubical.HITs.ListedFiniteSet.Base
 
 private
   variable
-    A : Set
+    A : Type₀
 
-_++_ : ∀ (xs ys : LFSet A) → LFSet A
+_++_ : ∀ (xs ys : LFType A) → LFType A
 []                  ++ ys = ys
 (x ∷ xs)            ++ ys = x ∷ (xs ++ ys)
 ---------------------------------------------
@@ -27,7 +27,7 @@ trunc xs zs p q i j ++ ys
   = trunc (xs ++ ys) (zs ++ ys) (cong (_++ ys) p) (cong (_++ ys) q) i j
 
 
-assoc-++ : ∀ (xs : LFSet A) ys zs → xs ++ (ys ++ zs) ≡ (xs ++ ys) ++ zs
+assoc-++ : ∀ (xs : LFType A) ys zs → xs ++ (ys ++ zs) ≡ (xs ++ ys) ++ zs
 assoc-++ []       ys zs = refl
 assoc-++ (x ∷ xs) ys zs
   = cong (x ∷_) (assoc-++ xs ys zs)

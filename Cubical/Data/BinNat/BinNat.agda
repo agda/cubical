@@ -75,7 +75,7 @@ open import Cubical.Data.Empty
 open import Cubical.Relation.Nullary
 
 -- Positive binary numbers
-data Pos : Set where
+data Pos : Type₀ where
   pos1 : Pos
   x0   : Pos → Pos
   x1   : Pos → Pos
@@ -90,7 +90,7 @@ Pos→ℕ pos1    = suc zero
 Pos→ℕ (x0 ps) = doubleℕ (Pos→ℕ ps)
 Pos→ℕ (x1 ps) = suc (doubleℕ (Pos→ℕ ps))
 
-posInd : {P : Pos → Set} → P pos1 → ((p : Pos) → P p → P (sucPos p)) → (p : Pos) → P p
+posInd : {P : Pos → Type₀} → P pos1 → ((p : Pos) → P p → P (sucPos p)) → (p : Pos) → P p
 posInd {P} h1 hs ps = f ps
   where
   H : (p : Pos) → P (x0 p) → P (x0 (sucPos p))
@@ -139,7 +139,7 @@ Pos→ℕ→Pos p = posInd refl hs p
   suc (suc n) ∎
 
 -- Binary numbers
-data Binℕ : Set where
+data Binℕ : Type₀ where
   binℕ0   : Binℕ
   binℕpos : Pos → Binℕ
 
@@ -273,7 +273,7 @@ addp i = transp (λ j → Binℕ≡ℕ (~ i ∨ ~ j) → Binℕ≡ℕ (~ i ∨ ~
 
 -- An implementation of natural numbers (i.e. a "natural number
 -- structure") has a zero and successor.
-record NatImpl (A : Set) : Set where
+record NatImpl (A : Type₀) : Type₀ where
   field
     z : A
     s : A → A
@@ -319,7 +319,7 @@ s (NatImplℕ≡Binℕ i) =
 -- inefficient data-structures using efficient ones.
 
 -- Doubling structures
-record Double {ℓ} (A : Set ℓ) : Set (ℓ-suc ℓ) where
+record Double {ℓ} (A : Type ℓ) : Type (ℓ-suc ℓ) where
   field
     -- doubling function computing 2 * x
     double : A → A
@@ -328,7 +328,7 @@ record Double {ℓ} (A : Set ℓ) : Set (ℓ-suc ℓ) where
 open Double
 
 -- Compute: 2^n * x
-doubles : ∀ {ℓ} {A : Set ℓ} (D : Double A) → ℕ → A → A
+doubles : ∀ {ℓ} {A : Type ℓ} (D : Double A) → ℕ → A → A
 doubles D n x = iter n (double D) x
 
 Doubleℕ : Double ℕ
@@ -376,7 +376,7 @@ elt (DoubleBinℕ≡Doubleℕ i) = transp (λ j → Binℕ≡ℕ (i ∨ ~ j)) i 
 -- We can now use transport to prove a property that is too slow to
 -- check with unary numbers. We define the property we want to check
 -- as a record so that Agda does not try to unfold it eagerly.
-record propDouble {ℓ} {A : Set ℓ} (D : Double A) : Set ℓ where
+record propDouble {ℓ} {A : Type ℓ} (D : Double A) : Type ℓ where
   field
   -- 2^20 * e = 2^5 * (2^15 * e)
     proof : doubles D 20 (elt D) ≡ doubles D 5 (doubles D 15 (elt D))
@@ -405,7 +405,7 @@ propDoubleℕ = transport (λ i → propDouble (DoubleBinℕ≡Doubleℕ i)) pro
 -- prove, but the doubling example wouldn't work as nicely as we
 -- cannot define it as an O(1) operation
 
-data binnat : Set where
+data binnat : Type₀ where
   zero     : binnat            -- 0
   consOdd  : binnat → binnat   -- 2^n + 1
   consEven : binnat → binnat   -- 2^{n+1}

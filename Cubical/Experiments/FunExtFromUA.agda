@@ -9,32 +9,32 @@ open import Cubical.Foundations.Everything
 
 variable
  ℓ ℓ' : Level
-_∼_ : {X : Set ℓ} {A : X → Set ℓ'} → (f g : (x : X) → A x) → Set (ℓ-max ℓ ℓ')
+_∼_ : {X : Type ℓ} {A : X → Type ℓ'} → (f g : (x : X) → A x) → Type (ℓ-max ℓ ℓ')
 f ∼ g = ∀ x → f x ≡ g x
 
-funext : ∀ ℓ ℓ' → Set (ℓ-suc(ℓ-max ℓ ℓ'))
-funext ℓ ℓ' = {X : Set ℓ} {Y : Set ℓ'} {f g : X → Y} → f ∼ g → f ≡ g
+funext : ∀ ℓ ℓ' → Type (ℓ-suc(ℓ-max ℓ ℓ'))
+funext ℓ ℓ' = {X : Type ℓ} {Y : Type ℓ'} {f g : X → Y} → f ∼ g → f ≡ g
 
 
-elimEquivFun' : ∀ {ℓ} (P : (A B : Set ℓ) → (A → B) → Set ℓ)
-              → (r : (B : Set ℓ) → P B B (λ x → x))
-              → (A B : Set ℓ) → (e : A ≃ B) → P A B (e .fst)
+elimEquivFun' : ∀ {ℓ} (P : (A B : Type ℓ) → (A → B) → Type ℓ)
+              → (r : (B : Type ℓ) → P B B (λ x → x))
+              → (A B : Type ℓ) → (e : A ≃ B) → P A B (e .fst)
 elimEquivFun' P r A B = elimEquivFun B (λ A → P A B) (r B) A
 
-pre-comp-is-equiv : (X Y : Set ℓ) (f : X → Y) (Z : Set ℓ)
+pre-comp-is-equiv : (X Y : Type ℓ) (f : X → Y) (Z : Type ℓ)
                   → isEquiv f
                   → isEquiv (λ (g : Y → Z) → g ∘ f)
 pre-comp-is-equiv {ℓ} X Y f Z e = elimEquivFun' P r X Y (f , e)
  where
-  P : (X Y : Set ℓ) → (X → Y) → Set ℓ
+  P : (X Y : Type ℓ) → (X → Y) → Type ℓ
   P X Y f = isEquiv (λ (g : Y → Z) → g ∘ f)
-  r : (B : Set ℓ) → P B B (λ x → x)
+  r : (B : Type ℓ) → P B B (λ x → x)
   r B = idIsEquiv (B → Z)
 
-leftCancellable : {X : Set ℓ} {Y : Set ℓ'} → (X → Y) → Set (ℓ-max ℓ ℓ')
+leftCancellable : {X : Type ℓ} {Y : Type ℓ'} → (X → Y) → Type (ℓ-max ℓ ℓ')
 leftCancellable f = ∀ {x x'} → f x ≡ f x' → x ≡ x'
 
-equivLC : {X : Set ℓ} {Y : Set ℓ'} (f : X → Y) → isEquiv f → leftCancellable f
+equivLC : {X : Type ℓ} {Y : Type ℓ'} (f : X → Y) → isEquiv f → leftCancellable f
 equivLC f e {x} {x'} p i = hcomp (λ j → \ {(i = i0) → secEq (f , e) x j ;
                                            (i = i1) → secEq (f , e) x' j})
                                  (invEq (f , e) (p i))
@@ -89,7 +89,7 @@ univalence-gives-funext {ℓ'} {ℓ} {X} {Y} {f₀} {f₁} = γ
 
 private
 
-  data ℕ : Set where
+  data ℕ : Type₀ where
    zero : ℕ
    succ : ℕ → ℕ
 

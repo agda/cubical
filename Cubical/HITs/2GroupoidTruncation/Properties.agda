@@ -11,7 +11,7 @@ module Cubical.HITs.2GroupoidTruncation.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.HITs.2GroupoidTruncation.Base
 
-rec2GroupoidTrunc : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (gB : is2Groupoid B) → (A → B) → (∥ A ∥₂ → B)
+rec2GroupoidTrunc : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (gB : is2Groupoid B) → (A → B) → (∥ A ∥₂ → B)
 rec2GroupoidTrunc gB f ∣ x ∣₂ = f x
 rec2GroupoidTrunc gB f (squash₂ _ _ _ _ _ _ t u i j k l) =
   gB _ _ _ _ _ _
@@ -19,7 +19,7 @@ rec2GroupoidTrunc gB f (squash₂ _ _ _ _ _ _ t u i j k l) =
     (λ m n o → rec2GroupoidTrunc gB f (u m n o))
     i j k l
 
-g2TruncFib : ∀ {ℓ ℓ'} {A : Set ℓ} (P : A → Set ℓ')
+g2TruncFib : ∀ {ℓ ℓ'} {A : Type ℓ} (P : A → Type ℓ')
              {a b : A} (sPb : is2Groupoid (P b))
              {p q : a ≡ b} {r s : p ≡ q} {u v : r ≡ s} (w : u ≡ v) {a1 : P a} {b1 : P b}
              {p1 : PathP (λ i → P (p i)) a1 b1}
@@ -63,7 +63,7 @@ g2TruncFib {A} P {a} {b} sPb {p} {q} {r} {s} {u} {v} w
                              })
                     (inS a1) l
 
-g2TruncElim : ∀ {ℓ ℓ'} (A : Set ℓ) (B : ∥ A ∥₂ → Set ℓ')
+g2TruncElim : ∀ {ℓ ℓ'} (A : Type ℓ) (B : ∥ A ∥₂ → Type ℓ')
                     (bG : (x : ∥ A ∥₂) → is2Groupoid (B x))
                     (f : (x : A) → B ∣ x ∣₂) (x : ∥ A ∥₂) → B x
 g2TruncElim A B bG f ∣ x ∣₂ = f x

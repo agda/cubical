@@ -10,26 +10,26 @@ open import Cubical.Data.Empty
 private
   variable
     ℓ  : Level
-    A  : Set ℓ
+    A  : Type ℓ
 
 -- Negation
 infix 3 ¬_
 
-¬_ : Set ℓ → Set ℓ
+¬_ : Type ℓ → Type ℓ
 ¬ A = A → ⊥
 
-isProp¬ : (A : Set ℓ) → isProp (¬ A)
+isProp¬ : (A : Type ℓ) → isProp (¬ A)
 isProp¬ A p q i x = isProp⊥ (p x) (q x) i
 
 -- Decidable types (inspired by standard library)
-data Dec (P : Set ℓ) : Set ℓ where
+data Dec (P : Type ℓ) : Type ℓ where
   yes : ( p :   P) → Dec P
   no  : (¬p : ¬ P) → Dec P
 
-Stable : Set ℓ → Set ℓ
+Stable : Type ℓ → Type ℓ
 Stable A = ¬ ¬ A → A
 
-Discrete : Set ℓ → Set ℓ
+Discrete : Type ℓ → Type ℓ
 Discrete A = (x y : A) → Dec (x ≡ y)
 
 Stable¬ : Stable (¬ A)

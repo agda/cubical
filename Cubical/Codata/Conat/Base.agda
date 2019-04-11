@@ -26,7 +26,7 @@ open import Cubical.Data.Sum
 
 open import Cubical.Core.Everything
 
-record Conat : Set
+record Conat : Type₀
 Conat′ = Unit ⊎ Conat
 record Conat where
   coinductive

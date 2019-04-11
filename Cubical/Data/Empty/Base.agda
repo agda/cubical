@@ -3,8 +3,8 @@ module Cubical.Data.Empty.Base where
 
 open import Cubical.Core.Everything
 
-data ⊥ : Set where
+data ⊥ : Type₀ where
 
-⊥-elim : ∀ {l} {A : Set l} → ⊥ → A
+⊥-elim : ∀ {ℓ} {A : Type ℓ} → ⊥ → A
 ⊥-elim ()
 

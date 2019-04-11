@@ -20,21 +20,21 @@ open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Nat
 
-record isHAEquiv {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) : Set (ℓ-max ℓ ℓ') where
+record isHAEquiv {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type (ℓ-max ℓ ℓ') where
   field
     g : B → A
     sec : ∀ a → g (f a) ≡ a
     ret : ∀ b → f (g b) ≡ b
     com : ∀ a → cong f (sec a) ≡ ret (f a)
 
-HAEquiv : ∀ {ℓ ℓ'} (A : Set ℓ) (B : Set ℓ') → Set (ℓ-max ℓ ℓ')
+HAEquiv : ∀ {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') → Type (ℓ-max ℓ ℓ')
 HAEquiv A B = Σ (A → B) λ f → isHAEquiv f
 
 private
   variable
     ℓ ℓ' : Level
-    A : Set ℓ
-    B : Set ℓ'
+    A : Type ℓ
+    B : Type ℓ'
 
 iso→HAEquiv : Iso A B → HAEquiv A B
 iso→HAEquiv {A = A} {B = B} (iso f g ε η) = f , (record { g = g ; sec = η ; ret = ret ; com = com })
@@ -59,7 +59,7 @@ iso→HAEquiv {A = A} {B = B} (iso f g ε η) = f , (record { g = g ; sec = η ;
 equiv→HAEquiv : A ≃ B → HAEquiv A B
 equiv→HAEquiv e = iso→HAEquiv (equivToIso e)
 
-congEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
+congEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
 congEquiv {A = A} {B} {x} {y} e = isoToEquiv (iso intro elim intro-elim elim-intro)
   where
     e' : HAEquiv A B

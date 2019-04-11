@@ -12,17 +12,17 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Int
 open import Cubical.Data.Nat
 
-data ℤ : Set where
+data ℤ : Type₀ where
   pos    : (n : ℕ) → ℤ
   neg    : (n : ℕ) → ℤ
   posneg : pos 0 ≡ neg 0
 
-recℤ : ∀ {l} {A : Set l} → (pos' neg' : ℕ → A) → pos' 0 ≡ neg' 0 → ℤ → A
+recℤ : ∀ {l} {A : Type l} → (pos' neg' : ℕ → A) → pos' 0 ≡ neg' 0 → ℤ → A
 recℤ pos' neg' eq (pos m)    = pos' m
 recℤ pos' neg' eq (neg m)    = neg' m
 recℤ pos' neg' eq (posneg i) = eq i
 
-indℤ : ∀ {l} (P : ℤ → Set l)
+indℤ : ∀ {l} (P : ℤ → Type l)
        → (pos' : ∀ n → P (pos n))
        → (neg' : ∀ n → P (neg n))
        → (λ i → P (posneg i)) [ pos' 0 ≡ neg' 0 ]
@@ -54,8 +54,8 @@ Int→ℤ→Int (negsuc n) _ = negsuc n
 Int≡ℤ : Int ≡ ℤ
 Int≡ℤ = isoToPath (iso Int→ℤ ℤ→Int ℤ→Int→ℤ Int→ℤ→Int)
 
-isSetℤ : isSet ℤ
-isSetℤ = subst isSet Int≡ℤ isSetInt
+isTypeℤ : isType ℤ
+isTypeℤ = subst isType Int≡ℤ isTypeInt
 
 sucℤ : ℤ → ℤ
 sucℤ (pos n)       = pos (suc n)
@@ -125,7 +125,7 @@ isEquiv+ℤ = subst (λ _+_ → (m : ℤ) → isEquiv (λ n → n + m)) addℤ�
 
 
 
-data Sign : Set where
+data Sign : Type₀ where
   pos neg : Sign
 
 sign : ℤ → Sign

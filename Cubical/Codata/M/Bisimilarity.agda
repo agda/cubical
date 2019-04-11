@@ -8,7 +8,7 @@ open import Cubical.Foundations.Everything
 open Helpers using (J')
 
 -- Bisimilarity as a coinductive record type.
-record _≈_ {X : Set} {C : IxCont X} {x : X} (a b : M C x) : Set where
+record _≈_ {X : Type₀} {C : IxCont X} {x : X} (a b : M C x) : Type₀ where
   coinductive
   constructor _,_
   field
@@ -21,7 +21,7 @@ open _≈_ public
 
 
 
-module _ {X : Set} {C : IxCont X} where
+module _ {X : Type₀} {C : IxCont X} where
 
   -- Here we show that `a ≡ b` and `a ≈ b` are equivalent.
   --
@@ -44,11 +44,11 @@ module _ {X : Set} {C : IxCont X} where
   -- The domain is the HoTT singleton type, so contractible, while the
   -- codomain is shown to be contractible by `contr-T` below.
 
-  T : ∀ {x} → M C x → Set _
+  T : ∀ {x} → M C x → Type _
   T a = Σ (M C _) \ b → a ≈ b
 
   private
-    lemma : ∀ {A} (B : Set) (P : A ≡ B) (pa : P i0) (pb : P i1) (peq : PathP (\ i → P i) pa pb)
+    lemma : ∀ {A} (B : Type₀) (P : A ≡ B) (pa : P i0) (pb : P i1) (peq : PathP (\ i → P i) pa pb)
           → PathP (\ i → PathP (\ j → P j) (transp (\ k → P (~ k ∧ i)) (~ i) (peq i)) pb)
                   peq
                   (\ j → transp (\ k → P (~ k ∨ j)) j pb)
@@ -108,7 +108,7 @@ module _ {X : Set} {C : IxCont X} where
   contr-T-φ-snd x a u i .tails≈ y pa pb peq = let
     eqh = u 1=1 .snd .head≈
     r = contr-T-φ-snd y (a .tails y pa) (\ o → u o .fst .tails y pb , u 1=1 .snd .tails≈ y pa pb peq)
-    F : I → Set _
+    F : I → Type _
     F k = a .tails y pa
         ≈ contr-T-fst y
             (a .tails y (transp (λ j → C .snd x (eqh (k ∧ ~ j)) y) (~ k) (peq k)))

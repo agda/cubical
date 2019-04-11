@@ -6,7 +6,7 @@ This file defines operations and properties on conatural numbers:
 
 - Proof that ∞ + 1 is equivalent to ∞.
 
-- Proof that conatural is an hSet.
+- Proof that conatural is an hType.
 
 - Bisimulation on conatural
 
@@ -39,7 +39,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
 open import Cubical.Codata.Conat.Base
 
-Unwrap-prev : Conat′ -> Set
+Unwrap-prev : Conat′ → Type₀
 Unwrap-prev  zero   = Unit
 Unwrap-prev (suc _) = Conat
 
@@ -69,14 +69,14 @@ force (∞+1≡∞ _) = suc ∞
 
 -- TODO: plus for conat, ∞ + ∞ ≡ ∞
 
-conat-absurd : ∀ {y : Conat} {ℓ} {Whatever : Set ℓ} → zero ≡ suc y → Whatever
+conat-absurd : ∀ {y : Conat} {ℓ} {Whatever : Type ℓ} → zero ≡ suc y → Whatever
 conat-absurd eq = ⊥-elim (transport (cong diag eq) tt)
   where
-  diag : Conat′ → Set
+  diag : Conat′ → Type₀
   diag zero = Unit
   diag (suc _) = ⊥
 
-module IsSet where
+module IsType where
   ≡-stable  : {x y : Conat} → Stable (x ≡ y)
   ≡′-stable : {x y : Conat′} → Stable (x ≡ y)
 
@@ -87,20 +87,20 @@ module IsSet where
   ≡′-stable {zero}  {suc y} ¬¬p′ = ⊥-elim (¬¬p′ conat-absurd)
   ≡′-stable {suc x} {zero}  ¬¬p′ = ⊥-elim (¬¬p′ λ p → conat-absurd (sym p))
 
-  isSetConat : isSet Conat
-  isSetConat _ _ = Stable≡→isSet (λ _ _ → ≡-stable) _ _
+  isTypeConat : isType Conat
+  isTypeConat _ _ = Stable≡→isType (λ _ _ → ≡-stable) _ _
 
-  isSetConat′ : isSet Conat′
-  isSetConat′ m n p′ q′ = cong (cong force) (isSetConat (conat m) (conat n) p q)
+  isTypeConat′ : isType Conat′
+  isTypeConat′ m n p′ q′ = cong (cong force) (isTypeConat (conat m) (conat n) p q)
     where p = λ where i .force → p′ i
           q = λ where i .force → q′ i
 
 module Bisimulation where
-  open IsSet using (isSetConat)
+  open IsType using (isTypeConat)
 
-  record _≈_ (x y : Conat) : Set
-  data _≈′_ (x y : Conat′) : Set
-  _≈′′_ : Conat′ → Conat′ → Set
+  record _≈_ (x y : Conat) : Type₀
+  data _≈′_ (x y : Conat′) : Type₀
+  _≈′′_ : Conat′ → Conat′ → Type₀
   zero  ≈′′ zero  = Unit
   suc x ≈′′ suc y = x ≈ y
   -- So impossible proofs are preserved
@@ -144,7 +144,7 @@ module Bisimulation where
   prove (iso″ p i) = iso′ (prove p) i
 
   osi : ∀ {x y} → (p : x ≡ y) → bisim (misib p) ≡ p
-  osi p = isSetConat _ _ _ p
+  osi p = isTypeConat _ _ _ p
 
   path≃bisim : ∀ {x y} → (x ≡ y) ≃ (x ≈ y)
   path≃bisim = isoToEquiv (iso misib bisim iso″ osi)
@@ -153,4 +153,4 @@ module Bisimulation where
   path≡bisim = ua path≃bisim
 
   isProp≈ : ∀ {x y} → isProp (x ≈ y)
-  isProp≈ = subst isProp path≡bisim (isSetConat _ _)
+  isProp≈ = subst isProp path≡bisim (isTypeConat _ _)

@@ -25,8 +25,8 @@ open import Cubical.Data.Nat
 private
   variable
     ℓ : Level
-    A : Set ℓ
-    B : (a : A) → Set ℓ
+    A : Type ℓ
+    B : (a : A) → Type ℓ
 
 
 ΣPathP : ∀ {x y}
@@ -52,11 +52,11 @@ private
 
 -- Alternative version for path in Σ-types, as in the HoTT book
 
-sigmaPathTransport : (a b : Σ A B) → Set _
+sigmaPathTransport : (a b : Σ A B) → Type _
 sigmaPathTransport {B = B} a b =
   Σ (fst a ≡ fst b) (λ p → transport (λ i → B (p i)) (snd a) ≡ snd b)
 
-_Σ≡T_ : (a b : Σ A B) → Set _
+_Σ≡T_ : (a b : Σ A B) → Type _
 a Σ≡T b = sigmaPathTransport a b
 
 -- now we prove that the alternative path space a Σ≡ b is equal to the usual path space a ≡ b
@@ -143,5 +143,5 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
         discreteΣ'' : (b1 : B a0) → Dec ((a0 , b0) ≡ (a0 , b1))
         discreteΣ'' b1 with Bdis a0 b0 b1
         ... | (yes q) = yes (transport (ua Σ≡) (refl , q))
-        ... | (no ¬q) = no (λ r → ¬q (subst (λ X → PathP (λ i → B (X i)) b0 b1) (Discrete→isSet Adis a0 a0 (cong fst r) refl) (cong snd r)))
+        ... | (no ¬q) = no (λ r → ¬q (subst (λ X → PathP (λ i → B (X i)) b0 b1) (Discrete→isType Adis a0 a0 (cong fst r) refl) (cong snd r)))
     discreteΣ' (no ¬p) = no (λ r → ¬p (cong fst r))

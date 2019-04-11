@@ -20,10 +20,10 @@ open import Cubical.Foundations.HLevels
 private
   variable
     ℓ : Level
-    A : Set ℓ
+    A : Type ℓ
 
-elimSquash₀ : {B : A → Set ℓ} →
-              (Bset : (x : A ) → isSet (B x)) →
+elimSquash₀ : {B : A → Type ℓ} →
+              (Bset : (x : A ) → isType (B x)) →
               {x y : A } {p q : x ≡ y} (sq : p ≡ q) → ∀ bx by bp bq →
               PathP (λ i → PathP (λ j → B (sq i j)) bx by) bp bq
 elimSquash₀ {A = A} {B = B} Bset {p = p} =
@@ -35,38 +35,38 @@ elimSquash₀ {A = A} {B = B} Bset {p = p} =
       (bp bp' : PathP (λ i → B (p i)) bx by) → bp ≡ bp') (Bset x)
 
 -- lemma 6.9.1 in HoTT book
-elimSetTrunc : {B : ∥ A ∥₀ → Set ℓ} →
-               (Bset : (x : ∥ A ∥₀) → isSet (B x)) →
+elimTypeTrunc : {B : ∥ A ∥₀ → Type ℓ} →
+               (Bset : (x : ∥ A ∥₀) → isType (B x)) →
                (g : (a : A) → B (∣ a ∣₀)) →
                (x : ∥ A ∥₀) → B x
-elimSetTrunc Bset g ∣ a ∣₀ = g a
-elimSetTrunc {A = A} {B = B} Bset g (squash₀ x y p q i j) =
-  elimSquash₀ Bset (squash₀ x y p q) (elimSetTrunc Bset g x) (elimSetTrunc Bset g y)
-    (cong (elimSetTrunc Bset g) p) (cong (elimSetTrunc Bset g) q) i j
+elimTypeTrunc Bset g ∣ a ∣₀ = g a
+elimTypeTrunc {A = A} {B = B} Bset g (squash₀ x y p q i j) =
+  elimSquash₀ Bset (squash₀ x y p q) (elimTypeTrunc Bset g x) (elimTypeTrunc Bset g y)
+    (cong (elimTypeTrunc Bset g) p) (cong (elimTypeTrunc Bset g) q) i j
 
-setTruncUniversal : {B : Set ℓ} → (isSet B) → (∥ A ∥₀ → B) ≃ (A → B)
+setTruncUniversal : {B : Type ℓ} → (isType B) → (∥ A ∥₀ → B) ≃ (A → B)
 setTruncUniversal Bset = isoToEquiv (iso intro elim leftInv rightInv)
   where
   intro = (λ h a → h ∣ a ∣₀)
-  elim = elimSetTrunc (λ x → Bset)
+  elim = elimTypeTrunc (λ x → Bset)
 
   leftInv : ∀ g → intro (elim g) ≡ g
   leftInv g = refl
 
   rightInv : ∀ h → elim (intro h) ≡ h
-  rightInv h i x = elimSetTrunc (λ x → isProp→isSet (Bset (elim (intro h) x) (h x)))
+  rightInv h i x = elimTypeTrunc (λ x → isProp→isType (Bset (elim (intro h) x) (h x)))
                                 (λ a → refl) x i
 
-elimSetTrunc2 : {B : ∥ A ∥₀ → ∥ A ∥₀ → Set ℓ}
-                (Bset : ((x y : ∥ A ∥₀) → isSet (B x y)))
+elimTypeTrunc2 : {B : ∥ A ∥₀ → ∥ A ∥₀ → Type ℓ}
+                (Bset : ((x y : ∥ A ∥₀) → isType (B x y)))
                 (g : (a b : A) → B ∣ a ∣₀ ∣ b ∣₀)
                 (x y : ∥ A ∥₀) → B x y
-elimSetTrunc2 Bset g = elimSetTrunc (λ _ → hLevelPi 2 (λ _ → Bset _ _)) (λ a →
-                       elimSetTrunc (λ _ → Bset _ _) (λ b → g a b))
+elimTypeTrunc2 Bset g = elimTypeTrunc (λ _ → hLevelPi 2 (λ _ → Bset _ _)) (λ a →
+                       elimTypeTrunc (λ _ → Bset _ _) (λ b → g a b))
 
-elimSetTrunc3 : {B : (x y z : ∥ A ∥₀) → Set ℓ}
-                (Bset : ((x y z : ∥ A ∥₀) → isSet (B x y z)))
+elimTypeTrunc3 : {B : (x y z : ∥ A ∥₀) → Type ℓ}
+                (Bset : ((x y z : ∥ A ∥₀) → isType (B x y z)))
                 (g : (a b c : A) → B ∣ a ∣₀ ∣ b ∣₀ ∣ c ∣₀)
                 (x y z : ∥ A ∥₀) → B x y z
-elimSetTrunc3 Bset g = elimSetTrunc2 (λ _ _ → hLevelPi 2 λ _ → Bset _ _ _) (λ a b →
-                       elimSetTrunc (λ _ → Bset _ _ _) (λ c → g a b c))
+elimTypeTrunc3 Bset g = elimTypeTrunc2 (λ _ _ → hLevelPi 2 λ _ → Bset _ _ _) (λ a b →
+                       elimTypeTrunc (λ _ → Bset _ _ _) (λ c → g a b c))
