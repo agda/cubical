@@ -83,9 +83,9 @@ JoinS¹S¹→TotalHopf (push y x j) =
 fibInt : S¹ → S¹ → Type₀
 fibInt _ _ = Int
 
-S¹→HType : (A : Type₀) (p : isType A) (F : S¹ → A) (x : S¹) → F base ≡ F x
-S¹→HType A p F base = refl {x = F base}
-S¹→HType A p F (loop i) = f' i
+S¹→HSet : (A : Type₀) (p : isType A) (F : S¹ → A) (x : S¹) → F base ≡ F x
+S¹→HSet A p F base = refl {x = F base}
+S¹→HSet A p F (loop i) = f' i
   where
   f : PathP (λ i → F base ≡ F (loop i)) refl (cong F loop)
   f i = λ j → F (loop (i ∧ j))
@@ -100,11 +100,11 @@ constant-loop F x y = L0 ∙ L1
   p : isType (S¹ → Int)
   p = hLevelPi 2 (λ _ → isTypeInt)
   L : F base ≡ F x
-  L = S¹→HType (S¹ → Int) p F x
+  L = S¹→HSet (S¹ → Int) p F x
   L0 : F base base ≡ F x base
   L0 i = L i base
   L1 : F x base ≡ F x y
-  L1 = S¹→HType Int isTypeInt (F x) y
+  L1 = S¹→HSet Int isTypeInt (F x) y
 
 discretefib : (F : S¹ → S¹ → Type₀) → Type₀
 discretefib F = (a : (x y : S¹) → F x y) →
