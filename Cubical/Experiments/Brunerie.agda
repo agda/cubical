@@ -262,7 +262,7 @@ g9 : Ω pt∥ ptS¹ ∥₁ .fst → ∥ Int ∥₀
 g9 = encodeTruncS¹
 
 g10 : ∥ Int ∥₀ → Int
-g10 = elimTypeTrunc (λ _ → isSetInt) (idfun Int)
+g10 = elimSetTrunc (λ _ → isSetInt) (idfun Int)
 
 -- don't run me
 brunerie : Int
