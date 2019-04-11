@@ -54,8 +54,8 @@ Int→ℤ→Int (negsuc n) _ = negsuc n
 Int≡ℤ : Int ≡ ℤ
 Int≡ℤ = isoToPath (iso Int→ℤ ℤ→Int ℤ→Int→ℤ Int→ℤ→Int)
 
-isTypeℤ : isType ℤ
-isTypeℤ = subst isType Int≡ℤ isTypeInt
+isSetℤ : isSet ℤ
+isSetℤ = subst isSet Int≡ℤ isSetInt
 
 sucℤ : ℤ → ℤ
 sucℤ (pos n)       = pos (suc n)

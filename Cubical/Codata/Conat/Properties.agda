@@ -76,7 +76,7 @@ conat-absurd eq = ⊥-elim (transport (cong diag eq) tt)
   diag zero = Unit
   diag (suc _) = ⊥
 
-module IsType where
+module IsSet where
   ≡-stable  : {x y : Conat} → Stable (x ≡ y)
   ≡′-stable : {x y : Conat′} → Stable (x ≡ y)
 
@@ -87,16 +87,16 @@ module IsType where
   ≡′-stable {zero}  {suc y} ¬¬p′ = ⊥-elim (¬¬p′ conat-absurd)
   ≡′-stable {suc x} {zero}  ¬¬p′ = ⊥-elim (¬¬p′ λ p → conat-absurd (sym p))
 
-  isTypeConat : isType Conat
-  isTypeConat _ _ = Stable≡→isType (λ _ _ → ≡-stable) _ _
+  isSetConat : isSet Conat
+  isSetConat _ _ = Stable≡→isSet (λ _ _ → ≡-stable) _ _
 
-  isTypeConat′ : isType Conat′
-  isTypeConat′ m n p′ q′ = cong (cong force) (isTypeConat (conat m) (conat n) p q)
+  isSetConat′ : isSet Conat′
+  isSetConat′ m n p′ q′ = cong (cong force) (isSetConat (conat m) (conat n) p q)
     where p = λ where i .force → p′ i
           q = λ where i .force → q′ i
 
 module Bisimulation where
-  open IsType using (isTypeConat)
+  open IsSet using (isSetConat)
 
   record _≈_ (x y : Conat) : Type₀
   data _≈′_ (x y : Conat′) : Type₀
@@ -144,7 +144,7 @@ module Bisimulation where
   prove (iso″ p i) = iso′ (prove p) i
 
   osi : ∀ {x y} → (p : x ≡ y) → bisim (misib p) ≡ p
-  osi p = isTypeConat _ _ _ p
+  osi p = isSetConat _ _ _ p
 
   path≃bisim : ∀ {x y} → (x ≡ y) ≃ (x ≈ y)
   path≃bisim = isoToEquiv (iso misib bisim iso″ osi)
@@ -153,4 +153,4 @@ module Bisimulation where
   path≡bisim = ua path≃bisim
 
   isProp≈ : ∀ {x y} → isProp (x ≈ y)
-  isProp≈ = subst isProp path≡bisim (isTypeConat _ _)
+  isProp≈ = subst isProp path≡bisim (isSetConat _ _)

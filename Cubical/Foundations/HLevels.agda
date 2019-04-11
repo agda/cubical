@@ -45,7 +45,7 @@ inhProp→isContr : A → isProp A → isContr A
 inhProp→isContr x h = x , h x
 
 isPropIsProp : isProp (isProp A)
-isPropIsProp f g i a b = isProp→isType f a b (f a b) (g a b) i
+isPropIsProp f g i a b = isProp→isSet f a b (f a b) (g a b) i
 
 -- A retract of a contractible type is contractible
 retractIsContr
@@ -73,7 +73,7 @@ isProp→isPropPathP {B = B} {x = x} isPropB m = J P d m where
   P : ∀ σc → x ≡ σc → _
   P _ m = ∀ g h → isProp (PathP (λ i → B (m i)) g h)
   d : P x refl
-  d = isProp→isType (isPropB x)
+  d = isProp→isSet (isPropB x)
 
 isProp→isContrPathP : (∀ a → isProp (B a))
                     → (m : x ≡ y) (g : B x) (h : B y)
@@ -82,7 +82,7 @@ isProp→isContrPathP isPropB m g h =
   inhProp→isContr (isProp→PathP isPropB m g h) (isProp→isPropPathP isPropB m g h)
 
 isProp→isContr≡ : isProp A → (x y : A) → isContr (x ≡ y)
-isProp→isContr≡ isPropA x y = inhProp→isContr (isPropA x y) (isProp→isType isPropA x y)
+isProp→isContr≡ isPropA x y = inhProp→isContr (isPropA x y) (isProp→isSet isPropA x y)
 
 isContrPath : isContr A → (x y : A) → isContr (x ≡ y)
 isContrPath cA = isProp→isContr≡ (isContr→isProp cA)
@@ -108,22 +108,22 @@ hLevelPi {B = B} 1 h f g i x = (h x) (f x) (g x) i
 hLevelPi (suc (suc n)) h f g =
   subst (isOfHLevel (suc n)) funExtPath (hLevelPi (suc n) λ x → h x (f x) (g x))
 
-isTypePi : ((x : A) → isType (B x)) → isType ((x : A) → B x)
-isTypePi Bset = hLevelPi 2 (λ a → Bset a)
+isSetPi : ((x : A) → isSet (B x)) → isSet ((x : A) → B x)
+isSetPi Bset = hLevelPi 2 (λ a → Bset a)
 
-isType→isType' : isType A → isType' A
-isType→isType' {A = A} Aset {x} {y} {z} {w} p q r s =
+isSet→isSet' : isSet A → isSet' A
+isSet→isSet' {A = A} Aset {x} {y} {z} {w} p q r s =
   J (λ (z : A) (r : x ≡ z) → ∀ {w : A} (s : y ≡ w) (p : x ≡ y) (q : z ≡ w) → PathP (λ i → Path A (r i) (s i) ) p q) helper r s p q
   where
     helper : ∀ {w : A} (s : y ≡ w) (p : x ≡ y) (q : x ≡ w) → PathP (λ i → Path A x (s i)) p q
     helper {w} s p q = J (λ (w : A) (s : y ≡ w) → ∀ p q → PathP (λ i → Path A x (s i)) p q) (λ p q → Aset x y p q) s p q
 
-isType'→isType : isType' A → isType A
-isType'→isType {A = A} Aset' x y p q = Aset' p q refl refl
+isSet'→isSet : isSet' A → isSet A
+isSet'→isSet {A = A} Aset' x y p q = Aset' p q refl refl
 
 hLevelSuc : (n : ℕ) (A : Type ℓ) → isOfHLevel n A → isOfHLevel (suc n) A
 hLevelSuc 0 A = isContr→isProp
-hLevelSuc 1 A = isProp→isType
+hLevelSuc 1 A = isProp→isSet
 hLevelSuc (suc (suc n)) A h a b = hLevelSuc (suc n) (a ≡ b) (h a b)
 
 hLevelLift : (m : ℕ) (hA : isOfHLevel n A) → isOfHLevel (m + n) A
@@ -136,7 +136,7 @@ isPropIsOfHLevel 1 A = isPropIsProp
 isPropIsOfHLevel (suc (suc n)) A f g i a b =
   isPropIsOfHLevel (suc n) (a ≡ b) (f a b) (g a b) i
 
-isPropIsType : isProp (isType A)
+isPropIsType : isProp (isSet A)
 isPropIsType {A = A} = isPropIsOfHLevel 2 A
 
 HLevel≡ : ∀ {A B : Type ℓ} {hA : isOfHLevel n A} {hB : isOfHLevel n B} →
@@ -154,7 +154,7 @@ HLevel≡ {n = n} {A = A} {B = B} {hA} {hB} =
     intro-elim eq = cong ΣPathP (ΣProp≡ (λ e →
       J (λ B e →
            ∀ k → (x y : PathP (λ i → isOfHLevel n (e i)) hA k) → x ≡ y)
-        (λ k → isProp→isType (isPropIsOfHLevel n _) _ _) e hB) refl)
+        (λ k → isProp→isSet (isPropIsOfHLevel n _) _ _) e hB) refl)
 
     elim-intro : ∀ x → elim (intro x) ≡ x
     elim-intro eq = refl
@@ -223,8 +223,8 @@ hProp≡HLevel1 {ℓ} = isoToPath (iso intro elim intro-elim elim-intro)
     elim-intro : ∀ h → elim (intro h) ≡ h
     elim-intro h = ΣProp≡ (λ _ → isPropIsProp) refl
 
-isTypeHProp : isType (hProp {ℓ = ℓ})
-isTypeHProp = subst (λ X → isOfHLevel 2 X) (sym hProp≡HLevel1) (hLevelHLevelSuc 0)
+isSetHProp : isSet (hProp {ℓ = ℓ})
+isSetHProp = subst (λ X → isOfHLevel 2 X) (sym hProp≡HLevel1) (hLevelHLevelSuc 0)
 
 
 isContrPartial→isContr : ∀ {ℓ} {A : Type ℓ}

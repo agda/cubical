@@ -15,8 +15,8 @@ Dec→Stable : ∀ {ℓ} (A : Type ℓ) → Dec A → Stable A
 Dec→Stable A (yes x) = λ _ → x
 Dec→Stable A (no x) = λ f → ⊥-elim (f x)
 
-Stable≡→isType : ∀ {ℓ} {A : Type ℓ} → (st : ∀ (a b : A) → Stable (a ≡ b)) → isType A
-Stable≡→isType {A = A} st a b p q j i =
+Stable≡→isSet : ∀ {ℓ} {A : Type ℓ} → (st : ∀ (a b : A) → Stable (a ≡ b)) → isSet A
+Stable≡→isSet {A = A} st a b p q j i =
   let f : (x : A) → a ≡ x → a ≡ x
       f x p = st a x (λ h → h p)
       fIsConst : (x : A) → (p q : a ≡ x) → f x p ≡ f x q
@@ -29,5 +29,5 @@ Stable≡→isType {A = A} st a b p q j i =
                     ; (j = i1) → rem q i k }) a
 
 -- Hedberg's theorem
-Discrete→isType : ∀ {ℓ} {A : Type ℓ} → Discrete A → isType A
-Discrete→isType d = Stable≡→isType (λ x y → Dec→Stable (x ≡ y) (d x y))
+Discrete→isSet : ∀ {ℓ} {A : Type ℓ} → Discrete A → isSet A
+Discrete→isSet d = Stable≡→isSet (λ x y → Dec→Stable (x ≡ y) (d x y))
