@@ -8,7 +8,7 @@ sucPred : ∀ (i : Int) → sucInt (predInt i) ≡ i
 predSuc : ∀ (i : Int) → predInt (sucInt i) ≡ i
 
 discreteInt : discrete Int
-isTypeInt : isType Int
+isSetInt : isSet Int
 
 addition of Int is defined _+_ : Int → Int → Int
 

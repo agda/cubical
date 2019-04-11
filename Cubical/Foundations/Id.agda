@@ -147,8 +147,8 @@ isContr A = Σ[ x ∈ A ] (∀ y → x ≡ y)
 isProp : Type ℓ → Type ℓ
 isProp A = (x y : A) → x ≡ y
 
-isType : Type ℓ → Type ℓ
-isType A = (x y : A) → isProp (x ≡ y)
+isSet : Type ℓ → Type ℓ
+isSet A = (x y : A) → isProp (x ≡ y)
 
 record isEquiv {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type (ℓ-max ℓ ℓ') where
   field

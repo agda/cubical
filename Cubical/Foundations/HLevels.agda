@@ -2,7 +2,7 @@
 
 Basic theory about h-levels/n-types:
 
-- Basic properties of isContr, isProp and isType (definitions are in Core/Prelude)
+- Basic properties of isContr, isProp and isSet (definitions are in Prelude)
 
 - Hedberg's theorem can be found in Cubical/Relation/Nullary/DecidableEq
 
@@ -136,8 +136,8 @@ isPropIsOfHLevel 1 A = isPropIsProp
 isPropIsOfHLevel (suc (suc n)) A f g i a b =
   isPropIsOfHLevel (suc n) (a ≡ b) (f a b) (g a b) i
 
-isPropIsType : isProp (isSet A)
-isPropIsType {A = A} = isPropIsOfHLevel 2 A
+isPropIsSet : isProp (isSet A)
+isPropIsSet {A = A} = isPropIsOfHLevel 2 A
 
 HLevel≡ : ∀ {A B : Type ℓ} {hA : isOfHLevel n A} {hB : isOfHLevel n B} →
           (A ≡ B) ≡ ((A , hA) ≡ (B , hB))
