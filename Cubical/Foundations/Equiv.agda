@@ -15,7 +15,7 @@ There are more statements about equivalences in PathSplitEquiv.agda:
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Equiv where
 
-open import Cubical.Core.Everything
+open import Cubical.Core.Glue
 
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude

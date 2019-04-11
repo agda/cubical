@@ -7,7 +7,6 @@ equivalent to two circles
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.Torus.Base where
 
-open import Cubical.Core.Primitives
 open import Cubical.Core.Glue
 
 open import Cubical.Foundations.Prelude
