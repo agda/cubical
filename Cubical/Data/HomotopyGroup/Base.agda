@@ -36,27 +36,27 @@ Pointed {ℓ} = Σ[ A ∈ Type ℓ ] A
         e = ∣ (Ω^ n') p .snd ∣₀
 
         _⁻¹ : ∥ A ∥₀ → ∥ A ∥₀
-        _⁻¹ = elimTypeTrunc {B = λ _ → ∥ A ∥₀} (λ x → squash₀) λ a → ∣  sym a ∣₀
+        _⁻¹ = elimSetTrunc {B = λ _ → ∥ A ∥₀} (λ x → squash₀) λ a → ∣  sym a ∣₀
 
         _⊙_ : ∥ A ∥₀ → ∥ A ∥₀ → ∥ A ∥₀
-        _⊙_ = elimTypeTrunc2 (λ _ _ → squash₀) λ a₀ a₁ → ∣ a₀ ∙ a₁ ∣₀
+        _⊙_ = elimSetTrunc2 (λ _ _ → squash₀) λ a₀ a₁ → ∣ a₀ ∙ a₁ ∣₀
 
         lUnit : (a : ∥ A ∥₀) → (e ⊙ a) ≡ a
-        lUnit = elimTypeTrunc (λ _ → isProp→isSet (squash₀ _ _))
+        lUnit = elimSetTrunc (λ _ → isProp→isSet (squash₀ _ _))
                 (λ a → cong ∣_∣₀ (sym (GL.lUnit a) ))
 
         rUnit : (a : ∥ A ∥₀) → a ⊙ e ≡ a
-        rUnit = elimTypeTrunc (λ _ → isProp→isSet (squash₀ _ _))
+        rUnit = elimSetTrunc (λ _ → isProp→isSet (squash₀ _ _))
                 (λ a → cong ∣_∣₀ (sym (GL.rUnit a) ))
 
         assoc : (a b c : ∥ A ∥₀) → ((a ⊙ b) ⊙ c) ≡ (a ⊙ (b ⊙ c))
-        assoc = elimTypeTrunc3 (λ _ _ _ → isProp→isSet (squash₀ _ _))
+        assoc = elimSetTrunc3 (λ _ _ _ → isProp→isSet (squash₀ _ _))
                 (λ a b c → cong ∣_∣₀ (sym (GL.assoc _ _ _)))
 
         lCancel : (a : ∥ A ∥₀) → ((a ⁻¹) ⊙ a) ≡ e
-        lCancel = elimTypeTrunc (λ _ → isProp→isSet (squash₀ _ _))
+        lCancel = elimSetTrunc (λ _ → isProp→isSet (squash₀ _ _))
                   λ a → cong ∣_∣₀ (GL.lCancel _)
 
         rCancel : (a : ∥ A ∥₀) → (a ⊙ (a ⁻¹)) ≡ e
-        rCancel = elimTypeTrunc (λ _ → isProp→isSet (squash₀ _ _))
+        rCancel = elimSetTrunc (λ _ → isProp→isSet (squash₀ _ _))
                   λ a → cong ∣_∣₀ (GL.rCancel _)
