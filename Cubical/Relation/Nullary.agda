@@ -3,13 +3,15 @@ module Cubical.Relation.Nullary where
 
 open import Cubical.Core.Everything
 
+open import Cubical.Foundations.Prelude
+
 open import Cubical.Data.Empty
 
 private
   variable
     ℓ  : Level
     A  : Set ℓ
-    
+
 -- Negation
 infix 3 ¬_
 

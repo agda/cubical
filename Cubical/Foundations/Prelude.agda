@@ -19,9 +19,7 @@ This file proves a variety of basic results about paths:
 
 -}
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Core.Prelude where
-
-open import Agda.Builtin.Sigma public
+module Cubical.Foundations.Prelude where
 
 open import Cubical.Core.Primitives public
 
@@ -35,8 +33,9 @@ infixr 2 _≡⟨_⟩_
 
 private
   variable
-    ℓ ℓ' ℓ'' : Level
+    ℓ ℓ' : Level
     A : Set ℓ
+    B : A → Set ℓ
     x y z : A
 
 refl : x ≡ x
@@ -49,11 +48,11 @@ symP : {A : I → Set ℓ} → {x : A i0} → {y : A i1} →
        (p : PathP A x y) → PathP (λ i → A (~ i)) y x
 symP p j = p (~ j)
 
-cong : ∀ {B : A → Set ℓ'} (f : (a : A) → B a) (p : x ≡ y) →
+cong : ∀ (f : (a : A) → B a) (p : x ≡ y) →
        PathP (λ i → B (p i)) (f x) (f y)
 cong f p i = f (p i)
 
-cong₂ : ∀ {B : A → Set ℓ'}{C : (a : A) → (b : B a) → Set ℓ''} →
+cong₂ : ∀ {C : (a : A) → (b : B a) → Set ℓ} →
         (f : (a : A) → (b : B a) → C a b) →
         (p : x ≡ y) →
         {u : B x} {v : B y} (q : PathP (λ i → B (p i)) u v) →
@@ -68,7 +67,7 @@ compPath-filler {x = x} p q j i =
   hfill (λ j → λ { (i = i0) → x
                   ; (i = i1) → q j }) (inS (p i)) j
 
-_∙_ :  {x y z : A} → x ≡ y → y ≡ z → x ≡ z
+_∙_ : x ≡ y → y ≡ z → x ≡ z
 (p ∙ q) j = compPath-filler p q i1 j
 
 -- The filler of heterogeneous path composition:
@@ -88,6 +87,12 @@ compPathP p q j = compPathP-filler p q j i1
 _≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → x ≡ z
 _ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
 
+
+≡⟨⟩-syntax : (x : A) → x ≡ y → y ≡ z → x ≡ z
+≡⟨⟩-syntax = _≡⟨_⟩_
+infixr 2 ≡⟨⟩-syntax
+syntax ≡⟨⟩-syntax x (λ i → B) y = x ≡[ i ]⟨ B ⟩ y
+
 _∎ : (x : A) → x ≡ x
 _ ∎ = refl
 
@@ -97,11 +102,11 @@ compPath'-filler {z = z} p q j i =
   hfill (λ j → λ { (i = i0) → p (~ j)
                  ; (i = i1) → z }) (inS (q i)) j
 
-_□_ : {x y z : A} → x ≡ y → y ≡ z → x ≡ z
+_□_ : x ≡ y → y ≡ z → x ≡ z
 (p □ q) j = compPath'-filler p q i1 j
 
-□≡∙ : ∀ {x y z : A} (p : x ≡ y) (q : y ≡ z) → p □ q ≡ p ∙ q 
-□≡∙ {A = A} {x = x} {y = y} {z = z} p q i j = hcomp (λ k → \ { (i = i0) → compPath'-filler p q k j
+□≡∙ : (p : x ≡ y) (q : y ≡ z) → p □ q ≡ p ∙ q
+□≡∙ {x = x} {y = y} {z = z} p q i j = hcomp (λ k → \ { (i = i0) → compPath'-filler p q k j
                                              ; (i = i1) → compPath-filler p q k j
                                              ; (j = i0) → p ( ~ i ∧ ~ k)
                                              ; (j = i1) → q (k ∨ ~ i) }) (helper i j)
@@ -128,10 +133,10 @@ transportRefl {A = A} x i = transp (λ _ → A) i x
 subst : (B : A → Set ℓ') (p : x ≡ y) → B x → B y
 subst B p pa = transport (λ i → B (p i)) pa
 
-substRefl : {B : A → Set ℓ'} (px : B x) → subst B refl px ≡ px
+substRefl : (px : B x) → subst B refl px ≡ px
 substRefl px = transportRefl px
 
-funExt : {B : A → Set ℓ'} {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
+funExt : {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
 funExt p i x = p x i
 
 -- J for paths and its computation rule
@@ -143,17 +148,9 @@ module _ (P : ∀ y → x ≡ y → Set ℓ') (d : P x refl) where
   JRefl : J refl ≡ d
   JRefl = transportRefl d
 
--- Σ-types
-infix 2 Σ-syntax
-
-Σ-syntax : (A : Set ℓ) (B : A → Set ℓ') → Set (ℓ-max ℓ ℓ')
-Σ-syntax = Σ
-
-syntax Σ-syntax A (λ x → B) = Σ[ x ∈ A ] B
-
 -- Contractibility of singletons
 
-singl : {A : Set ℓ} (a : A) → Set ℓ
+singl : (a : A) → Set _
 singl {A = A} a = Σ[ x ∈ A ] (a ≡ x)
 
 contrSingl : (p : x ≡ y) → Path (singl x) (x , refl) (y , p)
@@ -186,3 +183,37 @@ isSet A = (x y : A) → isProp (x ≡ y)
 isSet' : Set ℓ → Set ℓ
 isSet' A = {x y z w : A} (p : x ≡ y) (q : z ≡ w) (r : x ≡ z) (s : y ≡ w) →
            PathP (λ i → Path A (r i) (s i)) p q
+
+isGroupoid : Set ℓ → Set ℓ
+isGroupoid A = ∀ a b → isSet (Path A a b)
+
+is2Groupoid : Set ℓ → Set ℓ
+is2Groupoid A = ∀ a b → isGroupoid (Path A a b)
+
+-- Essential consequences of isProp and isContr
+isProp→PathP
+  : ((x : A) → isProp (B x)) → {a0 a1 : A}
+  → (p : a0 ≡ a1) (b0 : B a0) (b1 : B a1)
+  → PathP (λ i → B (p i)) b0 b1
+isProp→PathP {B = B} P p b0 b1 = toPathP {A = λ i → B (p i)} {b0} {b1} (P _ _ _)
+
+isPropIsContr : isProp (isContr A)
+isPropIsContr z0 z1 j =
+  ( z0 .snd (z1 .fst) j
+  , λ x i → hcomp (λ k → λ { (i = i0) → z0 .snd (z1 .fst) j
+                           ; (i = i1) → z0 .snd x (j ∨ k)
+                           ; (j = i0) → z0 .snd x (i ∧ k)
+                           ; (j = i1) → z1 .snd x i })
+                  (z0 .snd (z1 .snd x i) j))
+
+isContr→isProp : isContr A → isProp A
+isContr→isProp (x , p) a b i =
+  hcomp (λ j → λ { (i = i0) → p a j
+                 ; (i = i1) → p b j }) x
+
+isProp→isSet : isProp A → isSet A
+isProp→isSet h a b p q j i =
+  hcomp (λ k → λ { (i = i0) → h a a k
+                 ; (i = i1) → h a b k
+                 ; (j = i0) → h a (p i) k
+                 ; (j = i1) → h a (q i) k }) a

@@ -1,16 +1,19 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Data.DiffInt.Properties where
 
-open import Cubical.Relation.Binary.Base
-open import Cubical.Relation.Nullary
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Univalence
+
 open import Cubical.Data.DiffInt.Base
-open import Cubical.Core.Prelude
 open import Cubical.Data.Nat
-open import Cubical.Core.Glue
 open import Cubical.Data.Sigma
-open import Cubical.HITs.SetQuotients
 open import Cubical.Data.Prod
 open import Cubical.Data.Bool
+
+open import Cubical.Relation.Binary.Base
+open import Cubical.Relation.Nullary
+
+open import Cubical.HITs.SetQuotients
 
 open BinaryRelation
 
@@ -26,15 +29,15 @@ relIsEquiv = EquivRel {A = ℕ ×Σ ℕ} relIsRefl relIsSym relIsTrans
     relIsTrans : isTrans rel
     relIsTrans (a0 , a1) (b0 , b1) (c0 , c1) p0 p1 =
       inj-m+ {m = (b0 + b1)} ((b0 + b1) + (a0 + c1) ≡⟨ +-assoc (b0 + b1) a0 c1  ⟩
-            ((b0 + b1) + a0) + c1 ≡⟨ cong (λ x → x + a0 + c1) (+-comm b0 b1)⟩
-            ((b1 + b0) + a0) + c1 ≡⟨ cong (λ x → x + c1) (+-comm (b1 + b0) a0) ⟩
-            (a0 + (b1 + b0)) + c1 ≡⟨ cong (λ x → x + c1) (+-assoc a0 b1 b0) ⟩
+            ((b0 + b1) + a0) + c1 ≡[ i ]⟨ +-comm b0 b1 i + a0   + c1 ⟩
+            ((b1 + b0) + a0) + c1 ≡[ i ]⟨ +-comm (b1 + b0) a0 i + c1 ⟩
+            (a0 + (b1 + b0)) + c1 ≡[ i ]⟨ +-assoc a0 b1 b0 i    + c1 ⟩
             (a0 + b1) + b0 + c1 ≡⟨ sym (+-assoc (a0 + b1) b0 c1) ⟩
             (a0 + b1) + (b0 + c1) ≡⟨ cong (λ p → p . fst + p .snd) (transport (ua Σ≡) (p0 , p1))⟩
             (b0 + a1) + (c0 + b1) ≡⟨ sym (+-assoc b0 a1 (c0 + b1))⟩
-            b0 + (a1 + (c0 + b1)) ≡⟨ cong (λ x → b0 + (a1 + x)) (+-comm c0 b1)⟩
-            b0 + (a1 + (b1 + c0)) ≡⟨ cong (λ x → b0 + x) (+-comm a1 (b1 + c0)) ⟩
-            b0 + ((b1 + c0) + a1) ≡⟨ cong (λ x → b0 + x) (sym (+-assoc b1 c0 a1))⟩
+            b0 + (a1 + (c0 + b1)) ≡[ i ]⟨ b0 + (a1 + +-comm c0 b1 i) ⟩
+            b0 + (a1 + (b1 + c0)) ≡[ i ]⟨ b0 + +-comm a1 (b1 + c0) i ⟩
+            b0 + ((b1 + c0) + a1) ≡[ i ]⟨ b0 + +-assoc b1 c0 a1 (~ i) ⟩
             b0 + (b1 + (c0 + a1)) ≡⟨ +-assoc b0 b1 (c0 + a1)⟩
             (b0 + b1) + (c0 + a1) ∎ )
 

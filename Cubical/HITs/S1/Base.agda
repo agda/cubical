@@ -6,13 +6,13 @@ Definition of the circle as a HIT with a proof that Ω(S¹) ≡ ℤ
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.S1.Base where
 
-open import Cubical.Core.Primitives
-open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Nat
   hiding (_+_ ; _*_ ; +-assoc ; +-comm)

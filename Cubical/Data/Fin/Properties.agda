@@ -8,6 +8,7 @@ open import Cubical.Foundations.Embedding
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Fin.Base
@@ -97,14 +98,14 @@ Reduction+k-k
   → Reduction+k k n (Reduction-k k n R) ≡ R
 Reduction+k-k k n (((r , r<k) , zero) , p) = ⊥-elim (<-asym r<k (lemma₀ p refl))
 Reduction+k-k k n ((f , suc o) , p)
-  = subtypeEquality (λ tup → isSetℕ (expand× tup) (k + n)) _ _ refl
+  = ΣProp≡ (λ tup → isSetℕ (expand× tup) (k + n)) refl
 
 Reduction-k+k
   : (k n : ℕ)
   → (R : Reduction k n)
   → Reduction-k k n (Reduction+k k n R) ≡ R
 Reduction-k+k k n ((f , o) , p)
-  = subtypeEquality (λ tup → isSetℕ (expand× tup) n) _ _ refl
+  = ΣProp≡ (λ tup → isSetℕ (expand× tup) n) refl
 
 private
   Reduction≃ : ∀ k n → Reduction k n ≃ Reduction k (k + n)

@@ -3,7 +3,8 @@ module Cubical.Relation.Binary.Base where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Foundations.HLevels 
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
 
 open import Cubical.HITs.SetQuotients.Base
 

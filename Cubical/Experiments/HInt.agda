@@ -14,19 +14,17 @@ For a variation that relies on a different notion of equivalence
 
 https://github.com/RedPRL/redtt/blob/master/library/cool/biinv-int.red
 
-It might be interesting to port that example one day. 
+It might be interesting to port that example one day.
 
 -}
 {-# OPTIONS --cubical #-}
 module Cubical.Experiments.HInt where
 
-open import Cubical.Core.Primitives
-open import Cubical.Core.Prelude
-open import Cubical.Core.Glue
-
-open import Cubical.Basics.Equiv
-open import Cubical.Basics.Int
-open import Cubical.Basics.Nat
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Data.Int
+open import Cubical.Data.Nat
 
 data ℤ : Set where
   zero : ℤ
@@ -40,6 +38,14 @@ data ℤ : Set where
                            (λ i → suc (predsuc n i))
 
 -- This is equivalent to Int:
+coherence : (n : Int) → Path (Path Int (sucInt (predInt (sucInt n))) (sucInt n))
+                             (sucPred (sucInt n))
+                             (cong sucInt (predSuc n))
+coherence (pos zero) = refl
+coherence (pos (suc n)) = refl
+coherence (negsuc zero) = refl
+coherence (negsuc (suc zero)) = refl
+coherence (negsuc (suc (suc n))) = refl
 
 ℤ→Int : ℤ → Int
 ℤ→Int zero = pos 0
@@ -74,8 +80,8 @@ lem2 (negsuc n) = refl
 -- I don't see how to fill these holes, especially the last one
 ℤ→Int→ℤ : ∀ (n : ℤ) → Int→ℤ (ℤ→Int n) ≡ n
 ℤ→Int→ℤ zero = refl
-ℤ→Int→ℤ (suc n) = compPath (lem1 (ℤ→Int n)) (cong suc (ℤ→Int→ℤ n))
-ℤ→Int→ℤ (pred n) = compPath (lem2 (ℤ→Int n)) (cong pred (ℤ→Int→ℤ n))
+ℤ→Int→ℤ (suc n) = (lem1 (ℤ→Int n)) ∙ (cong suc (ℤ→Int→ℤ n))
+ℤ→Int→ℤ (pred n) = (lem2 (ℤ→Int n)) ∙ (cong pred (ℤ→Int→ℤ n))
 ℤ→Int→ℤ (sucpred n i) = {!!}
 ℤ→Int→ℤ (predsuc n i) = {!!}
 ℤ→Int→ℤ (coh n i j) = {!!}
@@ -87,7 +93,7 @@ Int→ℤ→Int (negsuc zero) = refl
 Int→ℤ→Int (negsuc (suc n)) = cong predInt (Int→ℤ→Int (negsuc n))
 
 Int≡ℤ : Int ≡ ℤ
-Int≡ℤ = isoToPath Int→ℤ ℤ→Int ℤ→Int→ℤ Int→ℤ→Int
+Int≡ℤ = isoToPath (iso Int→ℤ ℤ→Int ℤ→Int→ℤ Int→ℤ→Int)
 
 isSetℤ : isSet ℤ
-isSetℤ = subst isSet Int≡ℤ isSetInt 
+isSetℤ = subst isSet Int≡ℤ isSetInt

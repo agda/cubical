@@ -2,11 +2,10 @@
 
 module Cubical.HITs.Modulo.Base where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Empty
 open import Cubical.Data.Fin

@@ -2,8 +2,6 @@
 
 module Cubical.HITs.Modulo.Properties where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Fin
@@ -12,6 +10,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
 
 open import Cubical.HITs.Modulo.Base

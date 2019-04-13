@@ -11,6 +11,7 @@ open import Cubical.HITs.SetQuotients.Base
 
 open import Cubical.Core.Everything
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
@@ -23,6 +24,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 
+open import Cubical.HITs.PropositionalTruncation
 open import Cubical.HITs.SetTruncation
 
 -- Set quotients
@@ -38,7 +40,7 @@ elimEq/ : (Bprop : (x : A / R ) → isProp (B x))
           {x y : A / R}
           (eq : x ≡ y)
           (bx : B x)
-          (by : B y) → 
+          (by : B y) →
           PathP (λ i → B (eq i)) bx by
 elimEq/ {B = B} Bprop {x = x} =
   J (λ y eq → ∀ bx by → PathP (λ i → B (eq i)) bx by) (λ bx by → Bprop x bx by)

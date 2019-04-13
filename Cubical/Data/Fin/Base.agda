@@ -2,8 +2,7 @@
 
 module Cubical.Data.Fin.Base where
 
-open import Cubical.Core.Everything
-
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
@@ -32,7 +31,7 @@ toℕ : Fin k → ℕ
 toℕ = fst
 
 toℕ-injective : ∀{fj fk : Fin k} → toℕ fj ≡ toℕ fk → fj ≡ fk
-toℕ-injective {fj = fj} {fk} = subtypeEquality (λ _ → m≤n-isProp) fj fk
+toℕ-injective {fj = fj} {fk} = ΣProp≡ (λ _ → m≤n-isProp)
 
 fsplit
   : ∀(fj : Fin (suc k))

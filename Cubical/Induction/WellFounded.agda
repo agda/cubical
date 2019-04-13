@@ -2,7 +2,7 @@
 
 module Cubical.Induction.WellFounded where
 
-open import Cubical.Core.Everything
+open import Cubical.Foundations.Everything
 
 Rel : ∀{ℓ} → Set ℓ → ∀ ℓ' → Set _
 Rel A ℓ = A → A → Set ℓ

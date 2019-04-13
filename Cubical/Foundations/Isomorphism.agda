@@ -11,7 +11,12 @@ Theory about isomorphisms
 module Cubical.Foundations.Isomorphism where
 
 open import Cubical.Core.Everything
-open import Cubical.Foundations.HLevels
+
+open import Cubical.Foundations.Prelude
+
+private
+  variable
+    ℓ : Level
 
 -- Section and retract
 module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} where
@@ -82,4 +87,9 @@ module _ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (i : Iso A B) where
 
 
 isoToPath : ∀ {ℓ} {A B : Set ℓ} → (Iso A B) → A ≡ B
-isoToPath f = ua (Iso.fun f , isoToIsEquiv f)
+isoToPath {A = A} {B = B} f i =
+  Glue B (λ { (i = i0) → (A , (Iso.fun f , isoToIsEquiv f))
+            ; (i = i1) → (B , (λ x → x) ,
+                              record { equiv-proof = λ y → (y , refl)
+                                                          , λ z i → z .snd (~ i)
+                                                                  , λ j → z .snd (~ i ∨ j)})})

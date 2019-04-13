@@ -1,10 +1,9 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.Susp.Base where
 
-open import Cubical.Core.Primitives
-open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 

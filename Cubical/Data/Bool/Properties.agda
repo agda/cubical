@@ -3,8 +3,10 @@ module Cubical.Data.Bool.Properties where
 
 open import Cubical.Core.Everything
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Bool.Base
 open import Cubical.Data.Empty
@@ -17,7 +19,7 @@ notnot true  = refl
 notnot false = refl
 
 notIsEquiv : isEquiv not
-notIsEquiv = isoToIsEquiv (iso not not notnot notnot) 
+notIsEquiv = isoToIsEquiv (iso not not notnot notnot)
 
 notEquiv : Bool ≃ Bool
 notEquiv = (not , notIsEquiv)
@@ -29,7 +31,7 @@ private
   -- This computes to false as expected
   nfalse : Bool
   nfalse = transp (λ i → notEq i) i0 true
-  
+
   -- Sanity check
   nfalsepath : nfalse ≡ false
   nfalsepath = refl
@@ -68,18 +70,18 @@ or-comm true y =
   true or y ≡⟨ zeroˡ y ⟩
   true      ≡⟨ sym (zeroʳ y) ⟩
   y or true ∎
-  
+
 or-assoc     : ∀ x y z → x or (y or z) ≡ (x or y) or z
 or-assoc false y z =
   false or (y or z)   ≡⟨ or-identityˡ _ ⟩
-  y or z              ≡⟨ cong (_or z) (sym (or-identityˡ _)) ⟩
-  ((false or y) or z) ∎ 
+  y or z              ≡[ i ]⟨ or-identityˡ y (~ i) or z ⟩
+  ((false or y) or z) ∎
 or-assoc true y z  =
  true or (y or z)  ≡⟨ zeroˡ _ ⟩
   true             ≡⟨ sym (zeroˡ _) ⟩
-  true or z        ≡⟨ cong (_or z) (sym (zeroˡ _)) ⟩
+  true or z        ≡[ i ]⟨ zeroˡ y (~ i) or z ⟩
   (true or y) or z ∎
-  
+
 or-idem      : ∀ x → x or x ≡ x
 or-idem false = refl
 or-idem true  = refl

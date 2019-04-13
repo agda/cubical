@@ -26,19 +26,10 @@ Huber, Anders Mörtberg.
 
 This makes it possible to directly represent higher inductive types.
 
-
-The library is divided into:
-
-* **Cubical/Core**: minimal core library to get Cubical Agda up and running.
-
-* **Cubical/Basics**: basic theory (natural numbers, integers, basic
-  results about equivalences...). This folder does not contain any HITs.
-
-* **Cubical/HITs**: various higher inductive types and results about them.
-
-
 For an introduction to Cubical Agda and this library see this
-[blog post](https://homotopytypetheory.org/2018/12/06/cubical-agda/).
+[blog post](https://homotopytypetheory.org/2018/12/06/cubical-agda/). Note
+that many files and results have moved compared to state of the
+library described in the blog post.
 
 
 Maintainers

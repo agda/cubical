@@ -4,6 +4,7 @@ module Cubical.Foundations.Embedding where
 
 open import Cubical.Core.Everything
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels

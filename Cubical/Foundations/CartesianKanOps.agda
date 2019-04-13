@@ -4,6 +4,8 @@ module Cubical.Foundations.CartesianKanOps where
 
 open import Cubical.Core.Everything
 
+open import Cubical.Foundations.Prelude
+
 coe0→1 : ∀ {ℓ} (A : I → Set ℓ) → A i0 → A i1
 coe0→1 A a = transp A i0 a
 

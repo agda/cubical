@@ -7,10 +7,9 @@ equivalent to two circles
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.Torus.Base where
 
-open import Cubical.Core.Primitives
-open import Cubical.Core.Prelude
 open import Cubical.Core.Glue
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 
@@ -58,7 +57,7 @@ Torus≡S¹×S¹ = isoToPath (iso t2c c2t t2c-c2t c2t-t2c)
 -- TODO: upstream
 lemPathAnd : ∀ {ℓ} {A B : Set ℓ} (t u : A × B) →
   Path _ (t ≡ u) ((t .fst ≡ u .fst) × ((t .snd) ≡ (u .snd)))
-lemPathAnd t u = isoToPath (iso (λ tu → (λ i → tu i .fst) , λ i → tu i .snd) 
+lemPathAnd t u = isoToPath (iso (λ tu → (λ i → tu i .fst) , λ i → tu i .snd)
                                  (λ tu i → tu .fst i , tu .snd i)
                                  (λ y → refl)
                                  (λ x → refl))

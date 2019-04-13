@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --safe --guardedness #-}
 module Cubical.Codata.M where
 
-open import Cubical.Core.Prelude
+open import Cubical.Foundations.Prelude
 
 -- TODO move
 module Helpers where
@@ -21,9 +21,9 @@ module Helpers where
   transp-over-1 : (A : I → Set) (i j : I) → A i → A j
   transp-over-1 A i k p = transp (\ j → A ((j ∨ i) ∧ (~ j ∨ k))) (i ∧ k) p
 
-  compPathD : {ℓ ℓ' : _} {X : Set ℓ} (F : X → Set ℓ') {A B C : X} (P : A ≡ B) (Q : B ≡ C) (R : A ≡ C) → P ∙ Q ≡ R
-              → ∀ {x y z} → (\ i → F (P i)) [ x ≡ y ] → (\ i → F (Q i)) [ y ≡ z ] → (\ i → F (R i)) [ x ≡ z ]
-  compPathD F {A = A} P Q = J' _ \ {x} p q i →
+  compPathD : {ℓ ℓ' : _} {X : Set ℓ} (F : X → Set ℓ') {A B C : X} (P : A ≡ B) (Q : B ≡ C)
+              → ∀ {x y z} → (\ i → F (P i)) [ x ≡ y ] → (\ i → F (Q i)) [ y ≡ z ] → (\ i → F ((P ∙ Q) i)) [ x ≡ z ]
+  compPathD F {A = A} P Q {x} p q i =
      comp (\ j → F (hfill (λ j → \ { (i = i0) → A ; (i = i1) → Q j })
                           (inS (P i))
                           j))
@@ -78,8 +78,7 @@ module _ {X : Set} {C : IxCont X} where
                                           p1 = (transp-over (\ k → C .snd x (heq k) y) i i0 p)
                                           pe = lem-transp i _ (\ k → C .snd x (heq k) y) p
                                           tl = compPathD (λ p → C .snd x p y → M C y)
-                                                         (cong head (sym eq')) (cong fst (eq x a)) heq
-                                                         refl
+                                                         (cong head (sym eq')) (cong fst (eq x a))
                                                          (cong (\ f → f .tails y) (sym eq'))
                                                          (cong (\ f → f .snd   y) (eq x a))
                                      in unfold-η' α h eq y (α x a .snd y p0)

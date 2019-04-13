@@ -27,10 +27,12 @@ module Cubical.Data.Int.Properties where
 
 open import Cubical.Core.Everything
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Empty
 open import Cubical.Data.Nat hiding (_+_ ; +-assoc ; +-comm)
@@ -53,17 +55,6 @@ predSuc (negsuc zero)    = refl
 predSuc (negsuc (suc n)) = refl
 
 -- TODO: define multiplication
-
-private
-  -- TODO: can we change this so that it's the proof suc-equiv?
-  coherence : (n : Int) → Path (Path Int (sucInt (predInt (sucInt n))) (sucInt n))
-                               (sucPred (sucInt n))
-                               (cong sucInt (predSuc n))
-  coherence (pos zero) = refl
-  coherence (pos (suc n)) = refl
-  coherence (negsuc zero) = refl
-  coherence (negsuc (suc zero)) = refl
-  coherence (negsuc (suc (suc n))) = refl
 
 injPos : ∀ {a b : ℕ} → pos a ≡ pos b → a ≡ b
 injPos {a} h = subst T h refl
@@ -134,14 +125,14 @@ predInt+negsuc (suc n) m = cong predInt (predInt+negsuc n m)
 sucInt+negsuc : ∀ n m → sucInt (m +negsuc n) ≡ (sucInt m) +negsuc n
 sucInt+negsuc zero m = (sucPred _) ∙ (sym (predSuc _))
 sucInt+negsuc (suc n) m =      _ ≡⟨ sucPred _ ⟩
-  m +negsuc n                    ≡⟨ cong (λ z → z +negsuc n) (sym (predSuc m)) ⟩
+  m +negsuc n                    ≡[ i ]⟨ predSuc m (~ i) +negsuc n ⟩
   (predInt (sucInt m)) +negsuc n ≡⟨ sym (predInt+negsuc n (sucInt m)) ⟩
   predInt (sucInt m +negsuc n) ∎
 
 predInt+pos : ∀ n m → predInt (m +pos n) ≡ (predInt m) +pos n
 predInt+pos zero m = refl
 predInt+pos (suc n) m =     _ ≡⟨ predSuc _ ⟩
-  m +pos n                    ≡⟨ cong (λ m → m +pos n) (sym (sucPred _)) ⟩
+  m +pos n                    ≡[ i ]⟨ sucPred m (~ i) + pos n ⟩
   (sucInt (predInt m)) +pos n ≡⟨ sym (sucInt+pos n (predInt m))⟩
   (predInt m) +pos (suc n)    ∎
 
@@ -183,11 +174,11 @@ ind-comm : {A : Set} (_∙_ : A → A → A) (f : ℕ → A) (g : A → A)
          → ∀ z n → z ∙ f n ≡ f n ∙ z
 ind-comm _∙_ f g p g∙ ∙g base z 0 = base z
 ind-comm _∙_ f g p g∙ ∙g base z (suc n) =
-  z ∙ f (suc n) ≡⟨ cong (_∙_ z) p ⟩
+  z ∙ f (suc n) ≡[ i ]⟨ z ∙ p {n} i ⟩
   z ∙ g (f n)   ≡⟨ sym ( ∙g z (f n)) ⟩
   g (z ∙ f n)   ≡⟨ cong g IH ⟩
   g (f n ∙ z)   ≡⟨ g∙ (f n) z ⟩
-  g (f n) ∙ z   ≡⟨ cong (λ x → x ∙ z) (sym p) ⟩
+  g (f n) ∙ z   ≡[ i ]⟨ p {n} (~ i) ∙ z ⟩
   f (suc n) ∙ z ∎
   where
   IH = ind-comm _∙_ f g p g∙ ∙g base z n
@@ -200,12 +191,12 @@ ind-assoc : {A : Set} (_·_ : A → A → A) (f : ℕ → A)
       → m · (n · (f o)) ≡ (m · n) · (f o)
 ind-assoc _·_ f g p q base m n 0 = sym (base m n)
 ind-assoc _·_ f g p q base m n (suc o) =
-    m · (n · (f (suc o))) ≡⟨ cong (_·_ m) (cong (_·_ n) q) ⟩
-    m · (n · (g (f o)))   ≡⟨ cong (_·_ m) (sym (p n (f o)))⟩
+    m · (n · (f (suc o))) ≡[ i ]⟨ m · (n · q {o} i) ⟩
+    m · (n · (g (f o)))   ≡[ i ]⟨ m · (p n (f o) (~ i)) ⟩
     m · (g (n · (f o)))   ≡⟨ sym (p m (n · (f o)))⟩
     g (m · (n · (f o)))   ≡⟨ cong g IH ⟩
     g ((m · n) · (f o))   ≡⟨ p (m · n) (f o) ⟩
-    (m · n) · (g (f o))   ≡⟨ cong (_·_ (m · n)) (sym q)⟩
+    (m · n) · (g (f o))   ≡[ i ]⟨ (m · n) · q {o} (~ i) ⟩
     (m · n) · (f (suc o)) ∎
     where
     IH = ind-assoc _·_ f g p q base m n o
@@ -263,13 +254,13 @@ minusPlus (pos zero) n = refl
 minusPlus (pos 1) = sucPred
 minusPlus (pos (suc (suc m))) n =
   sucInt ((n +negsuc (suc m)) +pos (suc m)) ≡⟨ sucInt+pos (suc m) _ ⟩
-  sucInt (n +negsuc (suc m)) +pos (suc m)   ≡⟨ cong (λ z → z +pos (suc m)) (sucPred _) ⟩
+  sucInt (n +negsuc (suc m)) +pos (suc m)   ≡[ i ]⟨ sucPred (n +negsuc m) i +pos (suc m) ⟩
   (n - pos (suc m)) +pos (suc m)            ≡⟨ minusPlus (pos (suc m)) n ⟩
   n ∎
 minusPlus (negsuc zero) = predSuc
 minusPlus (negsuc (suc m)) n =
   predInt (sucInt (sucInt (n +pos m)) +negsuc m) ≡⟨ predInt+negsuc m _ ⟩
-  predInt (sucInt (sucInt (n +pos m))) +negsuc m ≡⟨ cong (λ z → z + negsuc m) (predSuc _) ⟩
+  predInt (sucInt (sucInt (n +pos m))) +negsuc m ≡[ i ]⟨ predSuc (sucInt (n +pos m)) i +negsuc m ⟩
   sucInt (n +pos m) +negsuc m                    ≡⟨ minusPlus (negsuc m) n ⟩
   n ∎
 

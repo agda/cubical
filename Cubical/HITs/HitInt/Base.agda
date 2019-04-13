@@ -4,6 +4,7 @@ module Cubical.HITs.HitInt.Base where
 
 open import Cubical.Core.Everything
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
@@ -12,9 +13,23 @@ open import Cubical.Data.Int
 open import Cubical.Data.Nat
 
 data ℤ : Set where
-  pos : (n : ℕ) → ℤ
-  neg : (n : ℕ) → ℤ
+  pos    : (n : ℕ) → ℤ
+  neg    : (n : ℕ) → ℤ
   posneg : pos 0 ≡ neg 0
+
+recℤ : ∀ {l} {A : Set l} → (pos' neg' : ℕ → A) → pos' 0 ≡ neg' 0 → ℤ → A
+recℤ pos' neg' eq (pos m)    = pos' m
+recℤ pos' neg' eq (neg m)    = neg' m
+recℤ pos' neg' eq (posneg i) = eq i
+
+indℤ : ∀ {l} (P : ℤ → Set l)
+       → (pos' : ∀ n → P (pos n))
+       → (neg' : ∀ n → P (neg n))
+       → (λ i → P (posneg i)) [ pos' 0 ≡ neg' 0 ]
+       → ∀ z → P z
+indℤ P pos' neg' eq (pos n) = pos' n
+indℤ P pos' neg' eq (neg n) = neg' n
+indℤ P pos' neg' eq (posneg i) = eq i
 
 Int→ℤ : Int → ℤ
 Int→ℤ (pos n) = pos n
@@ -106,3 +121,60 @@ addℤ≡+ℤ _  m (posneg _)    = m
 
 isEquiv+ℤ : (m : ℤ) → isEquiv (λ n → n +ℤ m)
 isEquiv+ℤ = subst (λ _+_ → (m : ℤ) → isEquiv (λ n → n + m)) addℤ≡+ℤ isEquivAddℤ
+
+
+
+
+data Sign : Set where
+  pos neg : Sign
+
+sign : ℤ → Sign
+sign (pos n)       = pos
+sign (neg 0)       = pos
+sign (neg (suc n)) = neg
+sign (posneg i)    = pos
+
+abs : ℤ → ℕ
+abs (pos n) = n
+abs (neg n) = n
+abs (posneg i) = 0
+
+signed : Sign → ℕ → ℤ
+signed Sign.pos n = pos n
+signed Sign.neg n = neg n
+
+signed-inv : ∀ z → signed (sign z) (abs z) ≡ z
+signed-inv (pos n)       = refl
+signed-inv (neg zero)    = posneg
+signed-inv (neg (suc n)) = refl
+signed-inv (posneg i)    = \ j → posneg (i ∧ j)
+{-
+
+ The square for   signed-inv (posneg i)
+
+
+              posneg i
+       --------------------->
+       ^                     ^
+       |                     |
+ pos 0 |                     | posneg j
+       |                     |
+       |                     |
+       |                     |
+       ---------------------->
+         = pos 0
+         = signed Sign.pos 0
+         signed (sign (posneg i))
+                (abs (posneg i))
+-}
+
+
+-- * Multiplication
+
+_*S_ : Sign → Sign → Sign
+pos *S neg = neg
+neg *S pos = neg
+_   *S _   = pos
+
+_*ℤ_ : ℤ → ℤ → ℤ
+m *ℤ n = signed (sign m *S sign n) (abs m * abs n)
