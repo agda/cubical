@@ -13,6 +13,13 @@ open import Cubical.Data.Sum
 
 open import Cubical.Relation.Nullary
 
+-- Finite types.
+--
+-- Currently it is most convenient to define these as a subtype of the
+-- natural numbers, because indexed inductive definitions don't behave
+-- well with cubical Agda. This definition also has some more general
+-- attractive properties, of course, such as easy conversion back to
+-- ℕ.
 Fin : ℕ → Set
 Fin n = Σ[ k ∈ ℕ ] k < n
 
@@ -24,24 +31,31 @@ private
 fzero : Fin (suc k)
 fzero = (0 , suc-≤-suc zero-≤)
 
+-- It is easy, using this representation, to take the successor of a
+-- number as a number in the next largest finite type.
 fsuc : Fin k → Fin (suc k)
 fsuc (k , l) = (suc k , suc-≤-suc l)
 
+-- Conversion back to ℕ is trivial...
 toℕ : Fin k → ℕ
 toℕ = fst
 
+-- ... and injective.
 toℕ-injective : ∀{fj fk : Fin k} → toℕ fj ≡ toℕ fk → fj ≡ fk
 toℕ-injective {fj = fj} {fk} = ΣProp≡ (λ _ → m≤n-isProp)
 
+-- A case analysis helper for induction.
 fsplit
   : ∀(fj : Fin (suc k))
   → (fzero ≡ fj) ⊎ (Σ[ fk ∈ Fin k ] fsuc fk ≡ fj)
 fsplit (0 , k<sn) = inl (toℕ-injective refl)
 fsplit (suc k , k<sn) = inr ((k , pred-≤-pred k<sn) , toℕ-injective refl)
 
+-- Fin 0 is empty
 ¬Fin0 : ¬ Fin 0
 ¬Fin0 (k , k<0) = ¬-<-zero k<0
 
+-- The full inductive family eliminator for finite types.
 finduction
   : ∀(P : ∀{k} → Fin k → Set ℓ)
   → (∀{k} → P {suc k} fzero)

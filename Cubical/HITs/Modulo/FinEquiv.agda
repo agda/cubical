@@ -12,6 +12,9 @@ open import Cubical.Data.Nat.Order
 
 open import Cubical.HITs.Modulo.Base
 
+-- For positive `k`, every `Modulo k` can be reduced to its
+-- residue modulo `k`, given by a value of type `Fin k`. This
+-- forms an equivalence between `Fin k` and `Modulo k`.
 module Reduction {k₀ : ℕ} where
   private
     k = suc k₀

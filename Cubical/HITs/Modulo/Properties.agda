@@ -21,6 +21,8 @@ private
     ℓ : Level
     k : ℕ
 
+-- `Modulo 0` is easily shown equivalent to `ℕ`, because we don't need
+-- to account for the path constructor at all.
 Modulo0≡ℕ : Modulo 0 ≡ ℕ
 Modulo0≡ℕ = isoToPath lemma
  where
@@ -34,6 +36,7 @@ Modulo0≡ℕ = isoToPath lemma
 isSetModulo0 : isSet (Modulo 0)
 isSetModulo0 = subst isSet (sym Modulo0≡ℕ) isSetℕ
 
+-- `Modulo 1` is contractible just like `Fin 1`
 isContrModulo1 : isContr (Modulo 1)
 isContrModulo1
   = value , λ
@@ -53,6 +56,8 @@ isContrModulo1
   universal-path n i j
     = compPath-filler (universal n) (step n) i j
 
+-- `expand o k m` is congruent to `m` modulo `k`, so there is a path
+-- between their image in `Modulo k`.
 steps : ∀ m o → embed {k = k} m ≡ embed (expand o k m)
 steps m zero = refl
 steps {k} m (suc o) = steps m o ∙ ztep (expand o k m)
@@ -67,6 +72,8 @@ steps≡ m n = λ i j → compPath-filler (steps m n) (ztep (expand n _ m)) i j
 stepOver : ∀ m n o → expand o k m ≡ n → embed {k = k} m ≡ embed n
 stepOver m n o p = steps m o ∙ cong embed p
 
+-- `Modulo k` is a set for all `k`, because we can transport the
+-- evidence from either `ℕ` or `Fin k`.
 isSetModulo : isSet (Modulo k)
 isSetModulo {0} = isSetModulo0
 isSetModulo {suc k} = subst isSet (sym Modulo≡Fin) isSetFin

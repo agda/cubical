@@ -19,6 +19,13 @@ private
     w x : A
     y z : B
 
+-- Embeddings are generalizations of injections. The usual
+-- definition of injection as:
+--
+--    f x ≡ f y → x ≡ y
+--
+-- is not well-behaved with higher h-levels, while embeddings
+-- are.
 isEmbedding : (A → B) → Set _
 isEmbedding f = ∀ w x → isEquiv {A = w ≡ x} (cong f)
 
@@ -26,6 +33,11 @@ isEmbeddingIsProp : isProp (isEmbedding f)
 isEmbeddingIsProp {f = f}
   = propPi λ w → propPi λ x → isPropIsEquiv (cong f)
 
+-- If A and B are h-sets, then injective functions between
+-- them are embeddings.
+--
+-- Note: It doesn't appear to be possible to omit either of
+-- the `isSet` hypotheses.
 injEmbedding
   : {f : A → B}
   → isSet A → isSet B
@@ -61,6 +73,8 @@ private
           i1
       }
 
+-- If `f` is an embedding, then the fibers of `f` are propositions,
+-- which is what we would expect from an injective function on sets.
 isEmbedding→isPropFiber : isEmbedding f → ∀ y → isProp (fiber f y)
 isEmbedding→isPropFiber iE y (x , p)
   = subst (λ f → isProp f) (lemma₀ p) (isContr→isProp (lemma₁ iE x)) (x , p)
