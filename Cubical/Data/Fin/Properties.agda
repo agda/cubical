@@ -91,7 +91,7 @@ extract = fst ∘ fst
 -- There is at most one canonical finite value congruent to each
 -- natural.
 isPropResidue : ∀ k n → isProp (Residue k n)
-isPropResidue k = isEmbedding→isPropFiber (expand×Emb k)
+isPropResidue k = isEmbedding→hasPropFibers (expand×Emb k)
 
 -- A value of a finite type is its own residue.
 Fin→Residue : ∀{k} → (f : Fin k) → Residue k (toℕ f)

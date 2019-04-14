@@ -73,29 +73,54 @@ private
           i1
       }
 
--- If `f` is an embedding, then the fibers of `f` are propositions,
--- which is what we would expect from an injective function on sets.
-isEmbedding→isPropFiber : isEmbedding f → ∀ y → isProp (fiber f y)
-isEmbedding→isPropFiber iE y (x , p)
+-- If `f` is an embedding, we'd expect the fibers of `f` to be
+-- propositions, like an injective function.
+hasPropFibers : (A → B) → Set _
+hasPropFibers f = ∀ y → isProp (fiber f y)
+
+hasPropFibersIsProp : isProp (hasPropFibers f)
+hasPropFibersIsProp = propPi (λ _ → isPropIsProp)
+
+isEmbedding→hasPropFibers : isEmbedding f → hasPropFibers f
+isEmbedding→hasPropFibers iE y (x , p)
   = subst (λ f → isProp f) (lemma₀ p) (isContr→isProp (lemma₁ iE x)) (x , p)
 
 private
-  lemma₂
-    : (p : f w ≡ f x)
-    → (∀ f₁ f₂ → PathP (λ i → fiber f (p i)) f₁ f₂)
+  fibCong→PathP
+    : {f : A → B}
+    → (p : f w ≡ f x)
+    → (fi : fiber (cong f) p)
+    → PathP (λ i → fiber f (p i)) (w , refl) (x , refl)
+  fibCong→PathP p (q , r) i = q i , λ j → r j i
+
+  PathP→fibCong
+    : {f : A → B}
+    → (p : f w ≡ f x)
+    → (pp : PathP (λ i → fiber f (p i)) (w , refl) (x , refl))
     → fiber (cong f) p
-  lemma₂ {f = f} {w} {x} p aP = invert , inverse
-    where
-    fw : fiber f (f w)
-    fw = (w , refl)
+  PathP→fibCong p pp = (λ i → fst (pp i)) , (λ j i → snd (pp i) j)
 
-    fx : fiber f (f x)
-    fx = (x , refl)
+PathP≡fibCong
+  : {f : A → B}
+  → (p : f w ≡ f x)
+  → PathP (λ i → fiber f (p i)) (w , refl) (x , refl) ≡ fiber (cong f) p
+PathP≡fibCong p
+  = isoToPath (iso (PathP→fibCong p) (fibCong→PathP p) (λ _ → refl) (λ _ → refl))
 
-    fp = aP fw fx
+hasPropFibers→isEmbedding : hasPropFibers f → isEmbedding f
+hasPropFibers→isEmbedding {f = f} iP w x .equiv-proof p
+  = subst isContr (PathP≡fibCong p) (isProp→isContrPathP iP p fw fx)
+  where
+  fw : fiber f (f w)
+  fw = (w , refl)
 
-    invert : w ≡ x
-    invert i = fst (fp i)
+  fx : fiber f (f x)
+  fx = (x , refl)
 
-    inverse : cong f invert ≡ p
-    inverse j i = snd (fp i) j
+isEmbedding≡hasPropFibers : isEmbedding f ≡ hasPropFibers f
+isEmbedding≡hasPropFibers
+  = isoToPath
+      (iso isEmbedding→hasPropFibers
+           hasPropFibers→isEmbedding
+           (λ _ → hasPropFibersIsProp _ _)
+           (λ _ → isEmbeddingIsProp _ _))
