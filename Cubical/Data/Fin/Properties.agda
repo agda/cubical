@@ -80,93 +80,92 @@ private
   expand×Emb (suc k)
     = injEmbedding (isOfHLevelΣ 2 isSetFin (λ _ → isSetℕ)) isSetℕ (expand×Inj k)
 
--- A Reduction is a family of types representing evidence that a
+-- A Residue is a family of types representing evidence that a
 -- natural is congruent to a value of a finite type.
-Reduction : ℕ → ℕ → Set
-Reduction k n = Σ[ tup ∈ Fin k × ℕ ] expand× tup ≡ n
+Residue : ℕ → ℕ → Set
+Residue k n = Σ[ tup ∈ Fin k × ℕ ] expand× tup ≡ n
 
-extract : ∀{k n} → Reduction k n → Fin k
+extract : ∀{k n} → Residue k n → Fin k
 extract = fst ∘ fst
 
 -- There is at most one canonical finite value congruent to each
 -- natural.
-isPropReduction : ∀ k n → isProp (Reduction k n)
-isPropReduction k = isEmbedding→isPropFiber (expand×Emb k)
+isPropResidue : ∀ k n → isProp (Residue k n)
+isPropResidue k = isEmbedding→isPropFiber (expand×Emb k)
 
--- The extraction of a value of a finite type reduces to itself.
-Fin→Reduction : ∀{k} → (f : Fin k) → Reduction k (toℕ f)
-Fin→Reduction f = (f , 0) , refl
+-- A value of a finite type is its own residue.
+Fin→Residue : ∀{k} → (f : Fin k) → Residue k (toℕ f)
+Fin→Residue f = (f , 0) , refl
 
 -- Fibers of numbers that differ by k are equivalent in a more obvious
 -- way than via the fact that they are propositions.
-Reduction+k : (k n : ℕ) → Reduction k n → Reduction k (k + n)
-Reduction+k k n ((f , o) , p) = (f , suc o) , cong (k +_) p
+Residue+k : (k n : ℕ) → Residue k n → Residue k (k + n)
+Residue+k k n ((f , o) , p) = (f , suc o) , cong (k +_) p
 
-Reduction-k : (k n : ℕ) → Reduction k (k + n) → Reduction k n
-Reduction-k k n (((r , r<k) , zero) , p) = ⊥-elim (<-asym r<k (lemma₀ p refl))
-Reduction-k k n ((f , suc o) , p) = ((f , o) , inj-m+ p)
+Residue-k : (k n : ℕ) → Residue k (k + n) → Residue k n
+Residue-k k n (((r , r<k) , zero) , p) = ⊥-elim (<-asym r<k (lemma₀ p refl))
+Residue-k k n ((f , suc o) , p) = ((f , o) , inj-m+ p)
 
-Reduction+k-k
+Residue+k-k
   : (k n : ℕ)
-  → (R : Reduction k (k + n))
-  → Reduction+k k n (Reduction-k k n R) ≡ R
-Reduction+k-k k n (((r , r<k) , zero) , p) = ⊥-elim (<-asym r<k (lemma₀ p refl))
-Reduction+k-k k n ((f , suc o) , p)
+  → (R : Residue k (k + n))
+  → Residue+k k n (Residue-k k n R) ≡ R
+Residue+k-k k n (((r , r<k) , zero) , p) = ⊥-elim (<-asym r<k (lemma₀ p refl))
+Residue+k-k k n ((f , suc o) , p)
   = ΣProp≡ (λ tup → isSetℕ (expand× tup) (k + n)) refl
 
-Reduction-k+k
+Residue-k+k
   : (k n : ℕ)
-  → (R : Reduction k n)
-  → Reduction-k k n (Reduction+k k n R) ≡ R
-Reduction-k+k k n ((f , o) , p)
+  → (R : Residue k n)
+  → Residue-k k n (Residue+k k n R) ≡ R
+Residue-k+k k n ((f , o) , p)
   = ΣProp≡ (λ tup → isSetℕ (expand× tup) n) refl
 
 private
-  Reduction≃ : ∀ k n → Reduction k n ≃ Reduction k (k + n)
-  Reduction≃ k n
-    = Reduction+k k n
-    , isoToIsEquiv (iso (Reduction+k k n) (Reduction-k k n)
-                        (Reduction+k-k k n) (Reduction-k+k k n))
+  Residue≃ : ∀ k n → Residue k n ≃ Residue k (k + n)
+  Residue≃ k n
+    = Residue+k k n
+    , isoToIsEquiv (iso (Residue+k k n) (Residue-k k n)
+                        (Residue+k-k k n) (Residue-k+k k n))
 
-Reduction≡ : ∀ k n → Reduction k n ≡ Reduction k (k + n)
-Reduction≡ k n = ua (Reduction≃ k n)
+Residue≡ : ∀ k n → Residue k n ≡ Residue k (k + n)
+Residue≡ k n = ua (Residue≃ k n)
 
--- For positive k, there is a value of Fin k that is congruent to
--- n for all n.
+-- For positive `k`, all `n` have a canonical residue mod `k`.
 module Reduce (k₀ : ℕ) where
   k : ℕ
   k = suc k₀
 
-  base : ∀ n (n<k : n < k) → Reduction k n
-  base n n<k = Fin→Reduction (n , n<k)
+  base : ∀ n (n<k : n < k) → Residue k n
+  base n n<k = Fin→Residue (n , n<k)
 
-  step : ∀ n → Reduction k n → Reduction k (k + n)
-  step n = transport (Reduction≡ k n)
+  step : ∀ n → Residue k n → Residue k (k + n)
+  step n = transport (Residue≡ k n)
 
-  reduce : ∀ n → Reduction k n
-  reduce = +induction k₀ (Reduction k) base step
+  reduce : ∀ n → Residue k n
+  reduce = +induction k₀ (Residue k) base step
 
   reduce≡
-    : ∀ n → transport (Reduction≡ k n) (reduce n) ≡ reduce (k + n)
+    : ∀ n → transport (Residue≡ k n) (reduce n) ≡ reduce (k + n)
   reduce≡ n
     = sym (+inductionStep k₀ _ base step n)
 
   reduceP
-    : ∀ n → PathP (λ i → Reduction≡ k n i) (reduce n) (reduce (k + n))
+    : ∀ n → PathP (λ i → Residue≡ k n i) (reduce n) (reduce (k + n))
   reduceP n = toPathP (reduce≡ n)
 
 open Reduce using (reduce; reduce≡) public
 
 private
   lemma₅
-    : ∀ k n (R : Reduction k n)
-    →  extract R ≡ extract (transport (Reduction≡ k n) R)
-  lemma₅ k n = sym ∘ cong extract ∘ uaβ (Reduction≃ k n)
+    : ∀ k n (R : Residue k n)
+    →  extract R ≡ extract (transport (Residue≡ k n) R)
+  lemma₅ k n = sym ∘ cong extract ∘ uaβ (Residue≃ k n)
 
--- The reduction of n modulo k is the same as the reduction of k + n.
+-- The residue of n modulo k is the same as the residue of k + n.
 extract≡ : ∀ k n → extract (reduce k n) ≡ extract (reduce k (suc k + n))
 extract≡ k n
   = lemma₅ (suc k) n (reduce k n) ∙ cong extract (Reduce.reduce≡ k n)
 
-isContrReduction : ∀{k n} → isContr (Reduction (suc k) n)
-isContrReduction {k} {n} = inhProp→isContr (reduce k n) (isPropReduction (suc k) n)
+isContrResidue : ∀{k n} → isContr (Residue (suc k) n)
+isContrResidue {k} {n} = inhProp→isContr (reduce k n) (isPropResidue (suc k) n)
