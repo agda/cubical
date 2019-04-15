@@ -36,8 +36,8 @@ private
   nfalsepath : nfalse ≡ false
   nfalsepath = refl
 
-BoolIsType : isType Bool
-BoolIsType = Discrete→isType _≟_
+BoolIsSet : isSet Bool
+BoolIsSet = Discrete→isSet _≟_
 
 true≢false : ¬ true ≡ false
 true≢false p = subst (caseBool Bool ⊥) p true
