@@ -19,13 +19,14 @@ open import Cubical.Relation.Nullary
 
 infix 4 _≤_ _<_
 
-_≤_ : ℕ → ℕ → Type₀
+_≤_ : ℕ → ℕ → Type
 m ≤ n = Σ[ k ∈ ℕ ] k + m ≡ n
 
-_<_ : ℕ → ℕ → Type₀
+_<_ : ℕ → ℕ → Type
 m < n = suc m ≤ n
 
-data Trichotomy (m n : ℕ) : Type₀ where
+data Trichotomy (m n : ℕ) : Type where
+
   lt : m < n → Trichotomy m n
   eq : m ≡ n → Trichotomy m n
   gt : n < m → Trichotomy m n
@@ -36,7 +37,7 @@ private
 
 private
   witness-prop : ∀ j → isProp (j + m ≡ n)
-  witness-prop {m} {n} j = isSetℕ (j + m) n
+  witness-prop {m} {n} j = isTypeℕ (j + m) n
 
 m≤n-isProp : isProp (m ≤ n)
 m≤n-isProp {m} {n} (k , p) (l , q)
