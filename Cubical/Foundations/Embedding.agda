@@ -14,7 +14,7 @@ open import Cubical.Foundations.Isomorphism
 private
   variable
     ℓ : Level
-    A B : Set ℓ
+    A B : Type ℓ
     f : A → B
     w x : A
     y z : B
@@ -26,7 +26,7 @@ private
 --
 -- is not well-behaved with higher h-levels, while embeddings
 -- are.
-isEmbedding : (A → B) → Set _
+isEmbedding : (A → B) → Type _
 isEmbedding f = ∀ w x → isEquiv {A = w ≡ x} (cong f)
 
 isEmbeddingIsProp : isProp (isEmbedding f)
@@ -75,7 +75,7 @@ private
 
 -- If `f` is an embedding, we'd expect the fibers of `f` to be
 -- propositions, like an injective function.
-hasPropFibers : (A → B) → Set _
+hasPropFibers : (A → B) → Type _
 hasPropFibers f = ∀ y → isProp (fiber f y)
 
 hasPropFibersIsProp : isProp (hasPropFibers f)

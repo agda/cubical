@@ -14,7 +14,7 @@ open import Cubical.Data.Unit renaming (Unit to ⊤)
 
 open import Cubical.Relation.Nullary
 
-NonZero : ℕ → Set
+NonZero : ℕ → Type₀
 NonZero 0 = ⊥
 NonZero _ = ⊤
 
@@ -38,7 +38,7 @@ private
 -- constructor is somewhat easier to work with than truncation.
 --
 -- Note also that unlike `Fin 0`, `Modulo 0` is equivalent to the naturals.
-data Modulo (k : ℕ) : Set where
+data Modulo (k : ℕ) : Type₀ where
   embed : (n : ℕ) → Modulo k
   pre-step : NonZero k → (n : ℕ) → embed n ≡ embed (k + n)
 
@@ -53,7 +53,7 @@ ztep {suc k} n = step n
 
 -- The standard eliminator for `Modulo`.
 elim
-  : (P : ∀ k → Modulo k → Set ℓ)
+  : (P : ∀ k → Modulo k → Type ℓ)
   → (e : ∀ k n → P k (embed n))
   → (st : ∀ k n → PathP (λ i → P (suc k) (step n i)) (e (suc k) n) (e (suc k) (suc k + n)))
   → (m : Modulo k) → P k m
