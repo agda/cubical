@@ -5,7 +5,7 @@ open import Cubical.Core.Everything
 
 open import Cubical.Data.Nat
 
-data Int : Set where
+data Int : Type₀ where
   pos    : (n : ℕ) → Int
   negsuc : (n : ℕ) → Int
 

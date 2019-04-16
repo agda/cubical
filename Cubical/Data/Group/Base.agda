@@ -10,7 +10,7 @@ import Cubical.Foundations.Isomorphism as I
 import Cubical.Foundations.Equiv as E
 import Cubical.Foundations.HAEquiv as HAE
 
-record isGroup {ℓ} (A : Set ℓ) : Set ℓ where
+record isGroup {ℓ} (A : Type ℓ) : Type ℓ where
   constructor group-struct
   field
     id  : A
@@ -22,22 +22,22 @@ record isGroup {ℓ} (A : Set ℓ) : Set ℓ where
     lCancel  : ∀ a → comp (inv a) a ≡ id
     rCalcel : ∀ a → comp a (inv a) ≡ id
 
-record Group {ℓ} : Set (ℓ-suc ℓ) where
+record Group {ℓ} : Type (ℓ-suc ℓ) where
   constructor group
   field
-    type : Set ℓ
+    type : Type ℓ
     setStruc : isSet type
     groupStruc : isGroup type
 
-isMorph : ∀ {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) → (f : (Group.type G → Group.type H)) → Set (ℓ-max ℓ ℓ')
+isMorph : ∀ {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) → (f : (Group.type G → Group.type H)) → Type (ℓ-max ℓ ℓ')
 isMorph (group G Gset (group-struct _ _ _⊙_ _ _ _ _ _))
         (group H Hset (group-struct _ _ _∘_ _ _ _ _ _)) f
         = (g0 g1 : G) → f (g0 ⊙ g1) ≡ (f g0) ∘ (f g1)
 
-morph : ∀ {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) → Set (ℓ-max ℓ ℓ')
+morph : ∀ {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) → Type (ℓ-max ℓ ℓ')
 morph G H = Σ (Group.type G →  Group.type H) (isMorph G H)
 
-record Iso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Set (ℓ-max ℓ ℓ') where
+record Iso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
   constructor iso
   field
     fun : morph G H
@@ -45,13 +45,13 @@ record Iso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Set (ℓ-max ℓ �
     rightInv : I.section (fun .fst) (inv .fst)
     leftInv : I.retract (fun .fst) (inv .fst)
 
-record Iso' {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Set (ℓ-max ℓ ℓ') where
+record Iso' {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
   constructor iso'
   field
     isoSet : I.Iso (Group.type G) (Group.type H)
     isoSetMorph : isMorph G H (I.Iso.fun isoSet)
 
-_≃_ : ∀ {ℓ ℓ'} (A : Group {ℓ}) (B : Group {ℓ'}) → Set (ℓ-max ℓ ℓ')
+_≃_ : ∀ {ℓ ℓ'} (A : Group {ℓ}) (B : Group {ℓ'}) → Type (ℓ-max ℓ ℓ')
 A ≃ B = Σ (morph A B) \ f → (G.isEquiv (f .fst))
 
 Iso'→Iso : ∀ {ℓ ℓ'} {G : Group {ℓ}} {H : Group {ℓ'}} → Iso' G  H → Iso G H

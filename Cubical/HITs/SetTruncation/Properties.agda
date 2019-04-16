@@ -20,9 +20,9 @@ open import Cubical.Foundations.HLevels
 private
   variable
     ℓ : Level
-    A : Set ℓ
+    A : Type ℓ
 
-elimSquash₀ : {B : A → Set ℓ} →
+elimSquash₀ : {B : A → Type ℓ} →
               (Bset : (x : A ) → isSet (B x)) →
               {x y : A } {p q : x ≡ y} (sq : p ≡ q) → ∀ bx by bp bq →
               PathP (λ i → PathP (λ j → B (sq i j)) bx by) bp bq
@@ -35,7 +35,7 @@ elimSquash₀ {A = A} {B = B} Bset {p = p} =
       (bp bp' : PathP (λ i → B (p i)) bx by) → bp ≡ bp') (Bset x)
 
 -- lemma 6.9.1 in HoTT book
-elimSetTrunc : {B : ∥ A ∥₀ → Set ℓ} →
+elimSetTrunc : {B : ∥ A ∥₀ → Type ℓ} →
                (Bset : (x : ∥ A ∥₀) → isSet (B x)) →
                (g : (a : A) → B (∣ a ∣₀)) →
                (x : ∥ A ∥₀) → B x
@@ -44,7 +44,7 @@ elimSetTrunc {A = A} {B = B} Bset g (squash₀ x y p q i j) =
   elimSquash₀ Bset (squash₀ x y p q) (elimSetTrunc Bset g x) (elimSetTrunc Bset g y)
     (cong (elimSetTrunc Bset g) p) (cong (elimSetTrunc Bset g) q) i j
 
-setTruncUniversal : {B : Set ℓ} → (isSet B) → (∥ A ∥₀ → B) ≃ (A → B)
+setTruncUniversal : {B : Type ℓ} → (isSet B) → (∥ A ∥₀ → B) ≃ (A → B)
 setTruncUniversal Bset = isoToEquiv (iso intro elim leftInv rightInv)
   where
   intro = (λ h a → h ∣ a ∣₀)
@@ -57,14 +57,14 @@ setTruncUniversal Bset = isoToEquiv (iso intro elim leftInv rightInv)
   rightInv h i x = elimSetTrunc (λ x → isProp→isSet (Bset (elim (intro h) x) (h x)))
                                 (λ a → refl) x i
 
-elimSetTrunc2 : {B : ∥ A ∥₀ → ∥ A ∥₀ → Set ℓ}
+elimSetTrunc2 : {B : ∥ A ∥₀ → ∥ A ∥₀ → Type ℓ}
                 (Bset : ((x y : ∥ A ∥₀) → isSet (B x y)))
                 (g : (a b : A) → B ∣ a ∣₀ ∣ b ∣₀)
                 (x y : ∥ A ∥₀) → B x y
 elimSetTrunc2 Bset g = elimSetTrunc (λ _ → hLevelPi 2 (λ _ → Bset _ _)) (λ a →
                        elimSetTrunc (λ _ → Bset _ _) (λ b → g a b))
 
-elimSetTrunc3 : {B : (x y z : ∥ A ∥₀) → Set ℓ}
+elimSetTrunc3 : {B : (x y z : ∥ A ∥₀) → Type ℓ}
                 (Bset : ((x y z : ∥ A ∥₀) → isSet (B x y z)))
                 (g : (a b c : A) → B ∣ a ∣₀ ∣ b ∣₀ ∣ c ∣₀)
                 (x y z : ∥ A ∥₀) → B x y z

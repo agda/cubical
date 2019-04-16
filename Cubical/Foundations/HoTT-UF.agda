@@ -15,6 +15,7 @@ For the moment, this requires the development version of Agda.
 
 module Cubical.Foundations.HoTT-UF where
 
+open import Cubical.Core.Primitives hiding ( _≡_ )
 open import Cubical.Core.Id public
 
 open import Cubical.Foundations.Id public
@@ -62,7 +63,7 @@ Here is an illustration of how function extensionality computes.
 
 private
 
-  data ℕ : Set where
+  data ℕ : Type₀ where
    zero : ℕ
    succ : ℕ → ℕ
 

@@ -32,7 +32,7 @@ false and true  = false
 true  and false = false
 true  and true  = true
 
-caseBool : ∀ {ℓ} → {A : Set ℓ} → (a0 aS : A) → Bool → A
+caseBool : ∀ {ℓ} → {A : Type ℓ} → (a0 aS : A) → Bool → A
 caseBool att aff true  = att
 caseBool att aff false = aff
 
@@ -42,6 +42,6 @@ false ≟ true  = no λ p → subst (caseBool ⊥ Bool) p true
 true  ≟ false = no λ p → subst (caseBool Bool ⊥) p true
 true  ≟ true  = yes refl
 
-Dec→Bool : ∀ {ℓ} {A : Set ℓ} → Dec A → Bool
+Dec→Bool : ∀ {ℓ} {A : Type ℓ} → Dec A → Bool
 Dec→Bool (yes p) = true
 Dec→Bool (no ¬p) = false

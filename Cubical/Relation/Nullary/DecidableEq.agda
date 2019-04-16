@@ -11,11 +11,11 @@ open import Cubical.Relation.Nullary
 
 -- Proof of Hedberg's theorem: a type with decidable equality is an h-set
 
-Dec→Stable : ∀ {ℓ} (A : Set ℓ) → Dec A → Stable A
+Dec→Stable : ∀ {ℓ} (A : Type ℓ) → Dec A → Stable A
 Dec→Stable A (yes x) = λ _ → x
 Dec→Stable A (no x) = λ f → ⊥-elim (f x)
 
-Stable≡→isSet : ∀ {ℓ} {A : Set ℓ} → (st : ∀ (a b : A) → Stable (a ≡ b)) → isSet A
+Stable≡→isSet : ∀ {ℓ} {A : Type ℓ} → (st : ∀ (a b : A) → Stable (a ≡ b)) → isSet A
 Stable≡→isSet {A = A} st a b p q j i =
   let f : (x : A) → a ≡ x → a ≡ x
       f x p = st a x (λ h → h p)
@@ -29,5 +29,5 @@ Stable≡→isSet {A = A} st a b p q j i =
                     ; (j = i1) → rem q i k }) a
 
 -- Hedberg's theorem
-Discrete→isSet : ∀ {ℓ} {A : Set ℓ} → Discrete A → isSet A
+Discrete→isSet : ∀ {ℓ} {A : Type ℓ} → Discrete A → isSet A
 Discrete→isSet d = Stable≡→isSet (λ x y → Dec→Stable (x ≡ y) (d x y))

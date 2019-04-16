@@ -49,7 +49,7 @@ Then the lemma states there is an equivalence A□○ ≃ A○□.
 -}
 
 module 3x3-span
-  (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Set)
+  (A00 A02 A04 A20 A22 A24 A40 A42 A44 : Type₀)
 
   (f10 : A20 → A00)
   (f12 : A22 → A02)
@@ -74,13 +74,13 @@ module 3x3-span
   where
 
   -- pushouts of the lines
-  A□0 : Set
+  A□0 : Type₀
   A□0 = Pushout f10 f30
 
-  A□2 : Set
+  A□2 : Type₀
   A□2 = Pushout f12 f32
 
-  A□4 : Set
+  A□4 : Type₀
   A□4 = Pushout f14 f34
 
   -- maps between pushouts
@@ -99,17 +99,17 @@ module 3x3-span
                    ∙∙ (λ i → inr (H33 a (~ i)))) j
 
   -- total pushout
-  A□○ : Set
+  A□○ : Type₀
   A□○ = Pushout f□1 f□3
 
   -- pushouts of the columns
-  A0□ : Set
+  A0□ : Type₀
   A0□ = Pushout f01 f03
 
-  A2□ : Set
+  A2□ : Type₀
   A2□ = Pushout f21 f23
 
-  A4□ : Set
+  A4□ : Type₀
   A4□ = Pushout f41 f43
 
   -- maps between pushouts
@@ -128,7 +128,7 @@ module 3x3-span
                    ∙∙ (λ i → inr (H33 a i))) j
 
   -- total pushout
-  A○□ : Set
+  A○□ : Type₀
   A○□ = Pushout f1□ f3□
 
   -- forward map of the equivalence A□○ ≃ A○□

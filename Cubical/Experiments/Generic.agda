@@ -22,10 +22,10 @@ open import Cubical.Data.Prod
 -- Dan Licata's example from slide 47 of:
 -- http://dlicata.web.wesleyan.edu/pubs/l13jobtalk/l13jobtalk.pdf
 
-There : Set → Set
+There : Type₀ → Type₀
 There X = List (ℕ × String × (X × ℕ))
 
-Database : Set
+Database : Type₀
 Database = There (ℕ × ℕ)
 
 us : Database
@@ -56,34 +56,34 @@ _ = refl
 -- Scrap Your Boilerplate: A Practical Design Pattern for Generic Programming
 -- Ralf Lämmel & Simon Peyton Jones, TLDI'03
 
-Address : Set
+Address : Type₀
 Address = String
 
-Name : Set
+Name : Type₀
 Name = String
 
-data Person : Set where
+data Person : Type₀ where
   P : Name → Address → Person
 
-data Salary (A : Set) : Set where
+data Salary (A : Type₀) : Type₀ where
   S : A → Salary A
 
-data Employee (A : Set) : Set where
+data Employee (A : Type₀) : Type₀ where
   E : Person → Salary A → Employee A
 
-Manager : Set → Set
+Manager : Type₀ → Type₀
 Manager A = Employee A
 
 -- First test of "mutual"
 mutual
-  data Dept (A : Set) : Set where
+  data Dept (A : Type₀) : Type₀ where
     D : Name → Manager A → List (SubUnit A) → Dept A
 
-  data SubUnit (A : Set) : Set where
+  data SubUnit (A : Type₀) : Type₀ where
     PU : Employee A → SubUnit A
     DU : Dept A → SubUnit A
 
-data Company (A : Set) : Set where
+data Company (A : Type₀) : Type₀ where
   C : List (Dept A) → Company A
 
 

@@ -1,14 +1,14 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.FiniteMultiset.Properties where
 
-open import Cubical.Core.Everything
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
 open import Cubical.HITs.FiniteMultiset.Base
 
 private
   variable
-    A : Set
+    A : Type₀
 
 infixr 30 _++_
 
@@ -44,7 +44,7 @@ comm-++ = FMSetElimProp.f (propPi (λ _ → trunc _ _))
                  ∙ cong (_++ xs) (cons-++ x ys)
                  ∙ sym (assoc-++ ys [ x ] xs))
 
-module FMSetUniversal {ℓ} {M : Set ℓ} (MSet : isSet M)
+module FMSetUniversal {ℓ} {M : Type ℓ} (MSet : isSet M)
   (e : M) (_⊗_ : M → M → M)
   (comm-⊗ : ∀ x y → x ⊗ y ≡ y ⊗ x) (assoc-⊗ : ∀ x y z → x ⊗ (y ⊗ z) ≡ (x ⊗ y) ⊗ z)
   (unit-⊗ : ∀ x → e ⊗ x ≡ x)

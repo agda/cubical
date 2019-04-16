@@ -5,7 +5,7 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Everything
 
-module _ {a p q} {A : Set a} (P : A → Set p) (Q : A → Set q)
+module _ {a p q} {A : Type a} (P : A → Type p) (Q : A → Type q)
          (f : ∀ x → P x → Q x)
          where
   private
@@ -33,7 +33,7 @@ module _ {a p q} {A : Set a} (P : A → Set p) (Q : A → Set q)
                                                     ([tf] .equiv-proof (x , y))
 
 
-module _ {ℓ : Level} {U : Set ℓ} {ℓr} (_~_ : U → U → Set ℓr)
+module _ {ℓ : Level} {U : Type ℓ} {ℓr} (_~_ : U → U → Type ℓr)
          (idTo~ : ∀ {A B} → A ≡ B → A ~ B)
          (c : ∀ A → isContr (Σ U \ X → A ~ X))
        where

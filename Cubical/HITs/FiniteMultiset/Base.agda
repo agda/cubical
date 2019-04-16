@@ -1,16 +1,16 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.FiniteMultiset.Base where
 
-open import Cubical.Core.Everything
+open import Cubical.Foundations.Prelude
 open import Cubical.HITs.SetTruncation
 
 private
   variable
-    A : Set
+    A : Type₀
 
 infixr 20 _∷_
 
-data FMSet (A : Set) : Set where
+data FMSet (A : Type₀) : Type₀ where
   []    : FMSet A
   _∷_   : (x : A) → (xs : FMSet A) → FMSet A
   comm  : ∀ x y xs → x ∷ y ∷ xs ≡ y ∷ x ∷ xs
@@ -18,7 +18,7 @@ data FMSet (A : Set) : Set where
 
 pattern [_] x = x ∷ []
 
-module FMSetElim {ℓ} {B : FMSet A → Set ℓ}
+module FMSetElim {ℓ} {B : FMSet A → Type ℓ}
   ([]* : B []) (_∷*_ : (x : A) {xs : FMSet A} → B xs → B (x ∷ xs))
   (comm* : (x y : A) {xs : FMSet A} (b : B xs)
          → PathP (λ i → B (comm x y xs i)) (x ∷* (y ∷* b)) (y ∷* (x ∷* b)))
@@ -31,7 +31,7 @@ module FMSetElim {ℓ} {B : FMSet A → Set ℓ}
   f (trunc xs zs p q i j) =
     elimSquash₀ trunc* (trunc xs zs p q) (f xs) (f zs) (cong f p) (cong f q) i j
 
-module FMSetElimProp {ℓ} {B : FMSet A → Set ℓ} (BProp : {xs : FMSet A} → isProp (B xs))
+module FMSetElimProp {ℓ} {B : FMSet A → Type ℓ} (BProp : {xs : FMSet A} → isProp (B xs))
   ([]* : B []) (_∷*_ : (x : A) {xs : FMSet A} → B xs → B (x ∷ xs)) where
 
   f : (xs : FMSet A) → B xs
@@ -40,9 +40,9 @@ module FMSetElimProp {ℓ} {B : FMSet A → Set ℓ} (BProp : {xs : FMSet A} →
           toPathP (BProp (transp (λ i → B (comm x y xs i)) i0 (x ∷* (y ∷* b))) (y ∷* (x ∷* b))))
         (λ xs → isProp→isSet BProp)
 
-module FMSetRec {ℓ} {B : Set ℓ} (BSet : isSet B)
+module FMSetRec {ℓ} {B : Type ℓ} (BType : isSet B)
   ([]* : B) (_∷*_ : A → B → B)
   (comm* : (x y : A) (b : B) → x ∷* (y ∷* b) ≡ y ∷* (x ∷* b)) where
 
   f : FMSet A → B
-  f = FMSetElim.f []* (λ x b → x ∷* b) (λ x y b → comm* x y b) (λ _ → BSet)
+  f = FMSetElim.f []* (λ x b → x ∷* b) (λ x y b → comm* x y b) (λ _ → BType)
