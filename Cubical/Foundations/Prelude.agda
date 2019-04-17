@@ -73,6 +73,16 @@ _∙_ : x ≡ y → y ≡ z → x ≡ z
 -- The filler of heterogeneous path composition:
 -- compPathP-filler p q = PathP (λ i → PathP (λ j → (compPath-filler (λ i → A i) B i j)) x (q i)) p (compPathP p q)
 
+compPathP' : {A : I → Set ℓ} → {x : A i0} → {y : A i1} → {B_i1 : Set ℓ} {B : A i1 ≡ B_i1} → {z : B i1} →
+  (p : PathP A x y) → (q : PathP (λ i → B i) y z)
+  → (F : ∀ i j → Set ℓ [ ~ i ∨ i ∨ ~ j ↦ (\ { (i = i0) → A i0; (i = i1) → B j; (j = i0) → A i }) ])
+  → ∀ (i : I) → outS (F i i1)
+compPathP' {A = A} {x = x} {B = B} p q F i =
+  comp (λ j → outS (F i j))
+       (λ j → λ { (i = i0) → x ;
+                   (i = i1) → q j }) (inS (p i))
+
+
 compPathP-filler : {A : I → Set ℓ} → {x : A i0} → {y : A i1} → {B_i1 : Set ℓ} {B : A i1 ≡ B_i1} → {z : B i1} →
   (p : PathP A x y) → (q : PathP (λ i → B i) y z) → ∀ (i j : I) → compPath-filler (λ i → A i) B j i
 compPathP-filler {A = A} {x = x} {B = B} p q i =
