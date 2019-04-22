@@ -39,37 +39,23 @@ toPathP-isEquiv A {x} {y}
                                                    ; (h = i1) → p i })
                                 (inS (p (i ∧ h)))))
                     k' })
-    \ q → (\ h i → outS (transp-hcomp i {A' = A i1} (\ j → inS (A (i ∨ j))) ((λ { j (i = i0) → x ; j (i = i1) → q j })) (inS ((transp (λ j → A (i ∧ j)) (~ i) x)))) h) ∙ (\ h i → outS (hcomp-cong ((λ { j (i = i0) → transp A i0 x ; j (i = i1) → q j })) (inS ((transp (λ i₁ → A (i ∨ i₁)) i (transp (λ j → A (i ∧ j)) (~ i) x)))) (((λ { j (i = i0) → transp A i0 x ; j (i = i1) → q j }))) (inS (transp A i0 x))
-      (\ { j (i = i0) → refl; j (i = i1) → refl })
-      (let r = compPathP' (transpFill {A = A i0} (~ i)  (λ j → inS (A (i ∧ j))) x)
-                         (transpFill {A = A i1} i (\ j → inS (A (i ∨ j))) ((transp (λ j → A (i ∧ j)) (~ i) x))) \ k h → inS (A ((i ∨ h) ∧ k))  in
-                           {!!})
-      ) h) ∙ sym (lUnit q) )
-
-
-
-
--- (\ h i → hcomp (λ { j (i = i0) → transp A i0 x ; j (i = i1) → q j })
---         {!!})
-
--- let r = transp (\ j → A (j ∧ (i ∨ h))) (~ i ∧ ~ h) x in q i0
-
-
---    (transp (λ i₁ → A (i ∨ i₁)) i (transp (λ j → A (i ∧ j)) (~ i) x))
-
-
-
--- transp A i0 x                                                           transp A i0 x
-
-
-
-
-
-
---    transp  A i0 x
-{-
-(λ i →
-   transp (λ j → A (i ∨ j)) i
-   (hcomp (λ { j (i = i0) → x ; j (i = i1) → q j })
-    (transp (λ j → A (i ∧ j)) (~ i) x)))
--}
+    \ q → (\ h i → outS (transp-hcomp i {A' = A i1} (\ j → inS (A (i ∨ j)))
+                                        ((λ { j (i = i0) → x ; j (i = i1) → q j }))
+                                        (inS ((transp (λ j → A (i ∧ j)) (~ i) x)))) h)
+    ∙ (\ h i → outS (hcomp-unique {A = A i1} ((λ { j (i = i0) → transp A i0 x ; j (i = i1) → q j }))
+                                  (inS ((transp (λ i₁ → A (i ∨ i₁)) i (transp (λ j → A (i ∧ j)) (~ i) x))))
+       \ h → inS (comp (\ z → hcomp (\ w → \ { (i = i1) → A i1
+                                             ; (i = i0) → A (h ∨ (w ∧ z))
+                                             ; (h = i0) → A (i ∨ (w ∧ z))
+                                             ; (h = i1) → A i1
+                                             ; (z = i0) → A ( (i ∨ h) )
+                                             ; (z = i1) → A ((i ∨ h) ∨ w) })
+                                             ( (A (i ∨ h)) ))
+                 (\ z → \ { (i = i0) → transp (λ j → A ((z ∨ h) ∧ j)) (~ z ∧ ~ h) x
+                          ; (i = i1) → q (z ∧ h)
+                          ; (h = i1) → compPath-filler refl q z i
+                          ; (h = i0) → transp (\ j → A (i ∨ (z ∧ j))) (i ∨ ~ z) (transp (\ j → A (i ∧ j)) (~ i) x)
+                          })
+                          (inS (transp (\ j → A ((i ∨ h) ∧ j)) (~ (i ∨ h)) x)))
+      )
+      h) ∙ sym (lUnit q) )
