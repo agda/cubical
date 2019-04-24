@@ -17,7 +17,7 @@ open import Agda.Primitive.Cubical public
            ; primIMax       to _∨_  -- I → I → I
            ; primINeg       to ~_   -- I → I
            ; isOneEmpty     to empty
-           ; primComp       to compCCHM  -- This should not be used
+           ; primComp       to comp
            ; primHComp      to hcomp
            ; primTransp     to transp
            ; itIsOne        to 1=1 )
@@ -169,16 +169,18 @@ hfill {φ = φ} u u0 i =
                  ; (i = i0) → outS u0 })
         (outS u0)
 
--- Heterogeneous composition defined as in CHM
-comp : (A : ∀ i → Type (ℓ′ i))
-       {φ : I}
-       (u : ∀ i → Partial φ (A i))
-       (u0 : A i0 [ φ ↦ u i0 ])
-     → ---------------------------
-       A i1
-comp A {φ = φ} u u0 =
-  hcomp (λ i → λ { (φ = i1) → transp (λ j → A (i ∨ j)) i (u _ 1=1) })
-        (transp A i0 (outS u0))
+-- Heterogeneous composition can defined as in CHM, however we use the
+-- builtin one as it doesn't require u0 to be a cubical subtype. This
+-- reduces the number of inS's a lot.
+-- comp : (A : ∀ i → Type (ℓ′ i))
+--        {φ : I}
+--        (u : ∀ i → Partial φ (A i))
+--        (u0 : A i0 [ φ ↦ u i0 ])
+--      → ---------------------------
+--        A i1
+-- comp A {φ = φ} u u0 =
+--   hcomp (λ i → λ { (φ = i1) → transp (λ j → A (i ∨ j)) i (u _ 1=1) })
+--         (transp A i0 (outS u0))
 
 -- Heterogeneous filling defined using comp
 fill : (A : ∀ i → Type (ℓ′ i))
@@ -189,21 +191,10 @@ fill : (A : ∀ i → Type (ℓ′ i))
        (i : I) → A i
 fill A {φ = φ} u u0 i =
   comp (λ j → A (i ∧ j))
+       _
        (λ j → λ { (φ = i1) → u (i ∧ j) 1=1
                 ; (i = i0) → outS u0 })
-       (inS {φ = φ ∨ (~ i)} (outS {φ = φ} u0))
-
-
--- Direct definition of transport filler, note that we have to
--- explicitly tell Agda that the type is constant (like in CHM)
-transpFill : {A : Type ℓ}
-             (φ : I)
-             (A : (i : I) → Type ℓ [ φ ↦ (λ _ → A) ])
-             (u0 : outS (A i0))
-           → --------------------------------------
-             PathP (λ i → outS (A i)) u0 (transp (λ i → outS (A i)) φ u0)
-transpFill φ A u0 i = transp (λ j → outS (A (i ∧ j))) (~ i ∨ φ) u0
-
+       (outS u0) -- u0 -- (inS {φ = φ ∨ (~ i)} (outS {φ = φ} u0))
 
 -- Σ-types
 infix 2 Σ-syntax

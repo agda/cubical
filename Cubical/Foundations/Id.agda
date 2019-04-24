@@ -78,7 +78,8 @@ module _ {x : A} (P : ∀ (y : A) → Id x y → Type ℓ') (d : P x refl) where
   J : ∀ {y : A} (w : x ≡ y) → P y w
   J {y = y} = elimId P (λ φ y w → comp (λ i → P _ (conId (φ ∨ ~ i) (inS (outS w i))
                                                                    (inS (λ j → outS w (i ∧ j)))))
-                                       (λ i → λ { (φ = i1) → d}) (inS d)) {y = y}
+                                       _
+                                       (λ i → λ { (φ = i1) → d}) d) {y = y}
 
   -- Check that J of refl is the identity function
   Jdefeq : Path _ (J refl) d

@@ -94,10 +94,10 @@ fill1→i : ∀ {ℓ} (A : ∀ i → Type ℓ)
        ---------------------------
        (i : I) → A i
 fill1→i A {φ = φ} u u1 i =
-  comp (λ j → A (i ∨ ~ j))
+  comp (λ j → A (i ∨ ~ j)) _
        (λ j → λ { (φ = i1) → u (i ∨ ~ j) 1=1
                 ; (i = i1) → outS u1 })
-       (inS {φ = φ ∨ i} (outS {φ = φ} u1))
+       (outS u1)
 
 filli→0 : ∀ {ℓ} (A : ∀ i → Type ℓ)
        {φ : I}
@@ -107,10 +107,10 @@ filli→0 : ∀ {ℓ} (A : ∀ i → Type ℓ)
        ---------------------------
        → A i0
 filli→0 A {φ = φ} u i ui =
-  comp (λ j → A (i ∧ ~ j))
+  comp (λ j → A (i ∧ ~ j)) _
        (λ j → λ { (φ = i1) → u (i ∧ ~ j) 1=1
                 ; (i = i0) → outS ui })
-       (inS {φ = φ ∨ ~ i} (outS {φ = φ} ui))
+       (outS ui)
 
 filli→j : ∀ {ℓ} (A : ∀ i → Type ℓ)
        {φ : I}
