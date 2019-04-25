@@ -37,3 +37,18 @@ case x of f = f x
 
 case_return_of_ : ∀ {ℓ ℓ'} {A : Type ℓ} (x : A) (B : A → Type ℓ') → (∀ x → B x) → B x
 case x return P of f = f x
+
+module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
+  -- Notions of 'coherently constant' functions for low dimensions.
+  -- These are the properties of functions necessary to e.g. eliminate
+  -- from the propositional truncation.
+
+  -- 2-Constant functions are coherently constant if B is a set.
+  2-Constant : (A → B) → Type _
+  2-Constant f = ∀ x y → f x ≡ f y
+
+  -- 3-Constant functions are coherently constant if B is a groupoid.
+  3-Constant : (A → B) → Type _
+  3-Constant f
+    = Σ[ kf ∈ 2-Constant f ] ∀ x y z
+    → PathP (λ i → f x ≡ kf y z i) (kf x y) (kf x z)
