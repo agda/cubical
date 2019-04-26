@@ -13,8 +13,11 @@ module Cubical.Foundations.HLevels where
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.FunExtEquiv
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HAEquiv      using (congEquiv)
 open import Cubical.Foundations.Equiv        using (isoToEquiv; isPropIsEquiv; retEq; invEquiv)
 open import Cubical.Foundations.Univalence   using (univalence)
@@ -111,15 +114,27 @@ hLevelPi (suc (suc n)) h f g =
 isSetPi : ((x : A) → isSet (B x)) → isSet ((x : A) → B x)
 isSetPi Bset = hLevelPi 2 (λ a → Bset a)
 
+squeezeSq≡
+  : ∀{w x y z : A}
+  → (p : w ≡ y) (q : w ≡ x) (r : y ≡ z) (s : x ≡ z)
+  → (q ≡ p ∙∙ r ∙∙ sym s) ≡ (Square p q r s)
+squeezeSq≡ p q r s k
+  = Square
+      (λ j → p (j ∧ k))
+      q
+      (λ j → doubleCompPath-filler p r (sym s) j (~ k))
+      (λ j → s (j ∧ k))
+
 isSet→isSet' : isSet A → isSet' A
-isSet→isSet' {A = A} Aset {x} {y} {z} {w} p q r s =
-  J (λ (z : A) (r : x ≡ z) → ∀ {w : A} (s : y ≡ w) (p : x ≡ y) (q : z ≡ w) → PathP (λ i → Path A (r i) (s i) ) p q) helper r s p q
-  where
-    helper : ∀ {w : A} (s : y ≡ w) (p : x ≡ y) (q : x ≡ w) → PathP (λ i → Path A x (s i)) p q
-    helper {w} s p q = J (λ (w : A) (s : y ≡ w) → ∀ p q → PathP (λ i → Path A x (s i)) p q) (λ p q → Aset x y p q) s p q
+isSet→isSet' {A = A} Aset {x} {y} {z} {w} p q r s
+  = transport (squeezeSq≡ r p q s) (Aset _ _ p (r ∙∙ q ∙∙ sym s))
 
 isSet'→isSet : isSet' A → isSet A
 isSet'→isSet {A = A} Aset' x y p q = Aset' p q refl refl
+
+isGroupoid₂→isGroupoid : isGroupoid₂ A → isGroupoid A
+isGroupoid₂→isGroupoid Agpd' w x p q r s
+  = Agpd' {q = p} {r = q} {q' = p} {r' = q} refl refl refl refl r s
 
 hLevelSuc : (n : ℕ) (A : Type ℓ) → isOfHLevel n A → isOfHLevel (suc n) A
 hLevelSuc 0 A = isContr→isProp
