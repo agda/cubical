@@ -38,6 +38,12 @@ case x of f = f x
 case_return_of_ : ∀ {ℓ ℓ'} {A : Type ℓ} (x : A) (B : A → Type ℓ') → (∀ x → B x) → B x
 case x return P of f = f x
 
+uncurry
+  : ∀{ℓ ℓ′ ℓ″} {A : Type ℓ} {B : A → Type ℓ′} {C : (a : A) → B a → Type ℓ″}
+  → ((x : A) → (y : B x) → C x y)
+  → (p : Σ A B) → C (fst p) (snd p)
+uncurry f (x , y) = f x y
+
 module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
   -- Notions of 'coherently constant' functions for low dimensions.
   -- These are the properties of functions necessary to e.g. eliminate
