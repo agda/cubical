@@ -100,3 +100,94 @@ open SetElim public using (recPropTrunc→Set; trunc→Set≃)
 
 RecHProp : (P : A → hProp {ℓ}) (kP : ∀ x y → P x ≡ P y) → ∥ A ∥ → hProp {ℓ}
 RecHProp P kP = recPropTrunc→Set isSetHProp P kP
+
+module GpdElim
+  (f : A → B)
+  (Bgpd₂ : isGroupoid₂ B)
+  (kf : 2-Constant f)
+  (coh₁ : ∀ x y z → Square refl (kf x y) (kf x z) (kf y z))
+  where
+
+  coh₂ : ∀ x y z → Square (kf x y) (kf x z) (kf y z) refl
+  coh₂ x y z i j
+    = hcomp (λ k → λ
+        { (j = i0) → kf x y i
+        ; (i = i0) → kf x z (j ∧ k)
+        ; (j = i1) → kf x z (i ∨ k)
+        ; (i = i1) → kf y z j
+        })
+        (coh₁ x y z j i)
+
+  recPropTrunc→Gpd : ∥ A ∥ → B
+  pathHelper : (t u : ∥ A ∥) → recPropTrunc→Gpd t ≡ recPropTrunc→Gpd u
+  triHelper₁
+    : (t u v : ∥ A ∥)
+    → Square refl (pathHelper t u) (pathHelper t v) (pathHelper u v)
+  triHelper₂
+    : (t u v : ∥ A ∥)
+    → Square (pathHelper t u) (pathHelper t v) (pathHelper u v) refl
+
+  recPropTrunc→Gpd ∣ x ∣ = f x
+  recPropTrunc→Gpd (squash t u i) = pathHelper t u i
+
+  pathHelper ∣ x ∣ ∣ y ∣ = kf x y
+  pathHelper (squash t u j) v = triHelper₂ t u v j
+  pathHelper ∣ x ∣ (squash u v j) = triHelper₁ ∣ x ∣ u v j
+
+  triHelper₁ ∣ x ∣ ∣ y ∣ ∣ z ∣ = coh₁ x y z
+  triHelper₁ (squash s t i) u v
+    = Bgpd₂
+        (λ i → refl)
+        (triHelper₂ s t u)
+        (triHelper₂ s t v)
+        (λ i → pathHelper u v)
+        (triHelper₁ s u v)
+        (triHelper₁ t u v) i
+  triHelper₁ ∣ x ∣ (squash t u i) v
+    = Bgpd₂
+        (λ i → refl)
+        (triHelper₁ ∣ x ∣ t u)
+        (λ i → pathHelper ∣ x ∣ v)
+        (triHelper₂ t u v)
+        (triHelper₁ ∣ x ∣ t v)
+        (triHelper₁ ∣ x ∣ u v)
+        i
+  triHelper₁ ∣ x ∣ ∣ y ∣ (squash u v i)
+    = Bgpd₂
+        (λ i → refl)
+        (λ i → kf x y)
+        (triHelper₁ ∣ x ∣ u v)
+        (triHelper₁ ∣ y ∣ u v)
+        (triHelper₁ ∣ x ∣ ∣ y ∣ u)
+        (triHelper₁ ∣ x ∣ ∣ y ∣ v)
+        i
+
+  triHelper₂ ∣ x ∣ ∣ y ∣ ∣ z ∣ = coh₂ x y z
+  triHelper₂ (squash s t i) u v
+    = Bgpd₂
+        (triHelper₂ s t u)
+        (triHelper₂ s t v)
+        (λ i → pathHelper u v)
+        (λ i → refl)
+        (triHelper₂ s u v)
+        (triHelper₂ t u v)
+        i
+  triHelper₂ ∣ x ∣ (squash t u i) v
+    = Bgpd₂
+        (triHelper₁ ∣ x ∣ t u)
+        (λ i → pathHelper ∣ x ∣ v)
+        (triHelper₂ t u v)
+        (λ i → refl)
+        (triHelper₂ ∣ x ∣ t v)
+        (triHelper₂ ∣ x ∣ u v)
+        i
+  triHelper₂ ∣ x ∣ ∣ y ∣ (squash u v i)
+    = Bgpd₂
+        (λ i → kf x y)
+        (triHelper₁ ∣ x ∣ u v)
+        (triHelper₁ ∣ y ∣ u v)
+        (λ i → refl)
+        (triHelper₂ ∣ x ∣ ∣ y ∣ u)
+        (triHelper₂ ∣ x ∣ ∣ y ∣ v)
+        i
+
