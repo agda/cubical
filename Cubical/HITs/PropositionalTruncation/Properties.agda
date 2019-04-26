@@ -98,5 +98,5 @@ module SetElim (Bset : isSet B) where
 
 open SetElim public using (recPropTrunc→Set; trunc→Set≃)
 
-RecHProp : (P : A → hProp ℓ) (kP : ∀ x y → P x ≡ P y) → ∥ A ∥ → hProp ℓ
+RecHProp : (P : A → hProp {ℓ}) (kP : ∀ x y → P x ≡ P y) → ∥ A ∥ → hProp {ℓ}
 RecHProp P kP = recPropTrunc→Set isSetHProp P kP
