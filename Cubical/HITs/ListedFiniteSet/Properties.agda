@@ -9,7 +9,7 @@ open import Cubical.HITs.ListedFiniteSet.Base
 
 private
   variable
-    A : Set
+    A : Type₀
 
 _++_ : ∀ (xs ys : LFSet A) → LFSet A
 []                  ++ ys = ys

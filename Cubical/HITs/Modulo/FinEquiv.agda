@@ -22,7 +22,7 @@ module Reduction {k₀ : ℕ} where
   fembed : Fin k → Modulo k
   fembed = embed ∘ toℕ
 
-  ResiduePath : ℕ → Set
+  ResiduePath : ℕ → Type₀
   ResiduePath n =  Σ[ f ∈ Fin k ] fembed f ≡ embed n
 
   rbase : ∀ n (n<k : n < k) → ResiduePath n

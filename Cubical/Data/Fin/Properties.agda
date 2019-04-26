@@ -23,7 +23,7 @@ open import Cubical.Induction.WellFounded
 private
   -- Σ is more convenient than the inductive ×, but I don't
   -- want to have to write λ_→ all over.
-  _×_ : Set → Set → Set
+  _×_ : Type₀ → Type₀ → Type₀
   A × B = Σ A λ _ → B
 
 -- Fin 0 is empty, and thus a proposition.
@@ -82,7 +82,7 @@ private
 
 -- A Residue is a family of types representing evidence that a
 -- natural is congruent to a value of a finite type.
-Residue : ℕ → ℕ → Set
+Residue : ℕ → ℕ → Type₀
 Residue k n = Σ[ tup ∈ Fin k × ℕ ] expand× tup ≡ n
 
 extract : ∀{k n} → Residue k n → Fin k

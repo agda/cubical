@@ -13,12 +13,12 @@ open import Cubical.HITs.S1
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3
 
-data Susp {ℓ} (A : Set ℓ) : Set ℓ where
+data Susp {ℓ} (A : Type ℓ) : Type ℓ where
   north : Susp A
   south : Susp A
   merid : (a : A) → north ≡ south
 
-SuspBool : Set
+SuspBool : Type₀
 SuspBool = Susp Bool
 
 SuspBool→S¹ : SuspBool → S¹
@@ -53,7 +53,7 @@ S¹≡SuspBool = isoToPath (iso S¹→SuspBool SuspBool→S¹ SuspBool→S¹→S
 
 -- Now the sphere
 
-SuspS¹ : Set
+SuspS¹ : Type₀
 SuspS¹ = Susp S¹
 
 SuspS¹→S² : SuspS¹ → S²
@@ -88,7 +88,7 @@ S²≡SuspS¹ = isoToPath (iso S²→SuspS¹ SuspS¹→S² SuspS¹→S²→SuspS
 
 -- And the 3-sphere
 
-SuspS² : Set
+SuspS² : Type₀
 SuspS² = Susp S²
 
 SuspS²→S³ : SuspS² → S³

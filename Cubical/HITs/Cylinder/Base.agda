@@ -16,7 +16,7 @@ open import Cubical.HITs.Interval
 -- Cylinder A is a cylinder object in the category of cubical types.
 --
 --   https://ncatlab.org/nlab/show/cylinder+object
-data Cylinder {ℓ} (A : Set ℓ) : Set ℓ where
+data Cylinder {ℓ} (A : Type ℓ) : Type ℓ where
   inl : A → Cylinder A
   inr : A → Cylinder A
   cross : ∀ x → inl x ≡ inr x
@@ -24,10 +24,10 @@ data Cylinder {ℓ} (A : Set ℓ) : Set ℓ where
 -- Dual to this is the cocylinder or path space object.
 --
 --   https://ncatlab.org/nlab/show/path+space+object
-Cocylinder : ∀ {ℓ} → Set ℓ → Set ℓ
+Cocylinder : ∀ {ℓ} → Type ℓ → Type ℓ
 Cocylinder A = Interval → A
 
-module _ {ℓ} {A : Set ℓ} where
+module _ {ℓ} {A : Type ℓ} where
   -- The cylinder is part of a factorization of the obvious mapping
   -- of type A ⊎ A → A into a pair of mappings:
   --
@@ -49,7 +49,7 @@ module _ {ℓ} {A : Set ℓ} where
       i
 
   elimCyl
-    : ∀{ℓ'} {B : Cylinder A → Set ℓ'}
+    : ∀{ℓ'} {B : Cylinder A → Type ℓ'}
     → (f : (x : A) → B (inl x))
     → (g : (x : A) → B (inr x))
     → (p : ∀ x → PathP (λ i → B (cross x i)) (f x) (g x))
@@ -113,9 +113,9 @@ module Functorial where
   private
     variable
       ℓa ℓb ℓc : Level
-      A : Set ℓa
-      B : Set ℓb
-      C : Set ℓc
+      A : Type ℓa
+      B : Type ℓb
+      C : Type ℓc
 
   mapCylinder : (A → B) → Cylinder A → Cylinder B
   mapCylinder f (inl x) = inl (f x)
@@ -190,9 +190,9 @@ module IntervalEquiv where
 
   -- More generally, there is an equivalence between the cylinder
   -- over any type A and the product of A and the interval.
-  module _ {ℓ} {A : Set ℓ} where
+  module _ {ℓ} {A : Type ℓ} where
     private
-      Cyl : Set ℓ
+      Cyl : Type ℓ
       Cyl = A × Interval
 
     CylinderA→A×Interval : Cylinder A → Cyl
@@ -226,14 +226,14 @@ module IntervalEquiv where
              CylinderA→A×Interval→CylinderA)
 
 -- The cylinder is also the pushout of the identity on A with itself.
-module Push {ℓ} {A : Set ℓ} where
+module Push {ℓ} {A : Type ℓ} where
   open import Cubical.HITs.Pushout
 
   private
-    Push : Set ℓ
+    Push : Type ℓ
     Push = Pushout (λ(x : A) → x) (λ x → x)
 
-    Cyl : Set ℓ
+    Cyl : Type ℓ
     Cyl = Cylinder A
 
   Cylinder→Pushout : Cyl → Push

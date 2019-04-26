@@ -10,10 +10,10 @@ open import Cubical.Foundations.Isomorphism
 private
   variable
     ℓ ℓ' : Level
-    A : Set ℓ
+    A : Type ℓ
 
 -- Less polymorphic version of `cong`, to avoid some unresolved metas
-cong′ : ∀ {B : Set ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
+cong′ : ∀ {B : Type ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
       → Path B (f x) (f y)
 cong′ f = cong f
 

@@ -20,7 +20,7 @@ open import Cubical.Relation.Nullary
 -- well with cubical Agda. This definition also has some more general
 -- attractive properties, of course, such as easy conversion back to
 -- ℕ.
-Fin : ℕ → Set
+Fin : ℕ → Type₀
 Fin n = Σ[ k ∈ ℕ ] k < n
 
 private
@@ -57,7 +57,7 @@ fsplit (suc k , k<sn) = inr ((k , pred-≤-pred k<sn) , toℕ-injective refl)
 
 -- The full inductive family eliminator for finite types.
 finduction
-  : ∀(P : ∀{k} → Fin k → Set ℓ)
+  : ∀(P : ∀{k} → Fin k → Type ℓ)
   → (∀{k} → P {suc k} fzero)
   → (∀{k} {fn : Fin k} → P fn → P (fsuc fn))
   → {k : ℕ} → (fn : Fin k) → P fn

@@ -19,13 +19,13 @@ open import Cubical.Relation.Nullary
 
 infix 4 _≤_ _<_
 
-_≤_ : ℕ → ℕ → Set
+_≤_ : ℕ → ℕ → Type₀
 m ≤ n = Σ[ k ∈ ℕ ] k + m ≡ n
 
-_<_ : ℕ → ℕ → Set
+_<_ : ℕ → ℕ → Type₀
 m < n = suc m ≤ n
 
-data Trichotomy (m n : ℕ) : Set where
+data Trichotomy (m n : ℕ) : Type₀ where
   lt : m < n → Trichotomy m n
   eq : m ≡ n → Trichotomy m n
   gt : n < m → Trichotomy m n
@@ -171,7 +171,7 @@ private
 
 module _
     (b₀ : ℕ)
-    (P : ℕ → Set)
+    (P : ℕ → Type₀)
     (base : ∀ n → n < suc b₀ → P n)
     (step : ∀ n → P n → P (suc b₀ + n))
   where

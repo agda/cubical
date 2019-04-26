@@ -19,19 +19,19 @@ open import Cubical.HITs.Join
 open import Cubical.HITs.Interval
   renaming ( zero to I0 ; one to I1 )
 
-Border : (x : S¹) → (j : I) → Partial (j ∨ ~ j) (Σ Set (λ T → T ≃ S¹))
+Border : (x : S¹) → (j : I) → Partial (j ∨ ~ j) (Σ Type₀ (λ T → T ≃ S¹))
 Border x j (j = i0) = S¹ , rot x , rotIsEquiv x
 Border x j (j = i1) = S¹ , idEquiv S¹
 
 -- Hopf fibration using SuspS¹
-HopfSuspS¹ : SuspS¹ → Set
+HopfSuspS¹ : SuspS¹ → Type₀
 HopfSuspS¹ north = S¹
 HopfSuspS¹ south = S¹
 HopfSuspS¹ (merid x j) = Glue S¹ (Border x j)
 
 -- Hopf fibration using S²
 -- TODO : prove that it is equivalent to HopfSuspS¹
-HopfS² : S² → Set
+HopfS² : S² → Type₀
 HopfS² base = S¹
 HopfS² (surf i j) = Glue S¹ (λ { (i = i0) → _ , idEquiv S¹
                                ; (i = i1) → _ , idEquiv S¹
@@ -40,7 +40,7 @@ HopfS² (surf i j) = Glue S¹ (λ { (i = i0) → _ , idEquiv S¹
 
 -- Hopf fibration using more direct definition of the rot equivalence
 -- TODO : prove that it is equivalent to HopfSuspS¹
-HopfS²' : S² → Set
+HopfS²' : S² → Type₀
 HopfS²' base = S¹
 HopfS²' (surf i j) = Glue S¹ (λ { (i = i0) → _ , rotLoopEquiv i0
                                 ; (i = i1) → _ , rotLoopEquiv i0
@@ -48,7 +48,7 @@ HopfS²' (surf i j) = Glue S¹ (λ { (i = i0) → _ , rotLoopEquiv i0
                                 ; (j = i1) → _ , rotLoopEquiv i } )
 
 -- Total space of the fibration
-TotalHopf : Set
+TotalHopf : Type₀
 TotalHopf = Σ SuspS¹ HopfSuspS¹
 
 -- Forward direction
@@ -80,10 +80,10 @@ JoinS¹S¹→TotalHopf (push y x j) =
 
 -- this should be generalized to a constant fibration over a connected space with
 -- discrete fiber
-fibInt : S¹ → S¹ → Set
+fibInt : S¹ → S¹ → Type₀
 fibInt _ _ = Int
 
-S¹→HSet : (A : Set) (p : isSet A) (F : S¹ → A) (x : S¹) → F base ≡ F x
+S¹→HSet : (A : Type₀) (p : isSet A) (F : S¹ → A) (x : S¹) → F base ≡ F x
 S¹→HSet A p F base = refl {x = F base}
 S¹→HSet A p F (loop i) = f' i
   where
@@ -106,7 +106,7 @@ constant-loop F x y = L0 ∙ L1
   L1 : F x base ≡ F x y
   L1 = S¹→HSet Int isSetInt (F x) y
 
-discretefib : (F : S¹ → S¹ → Set) → Set
+discretefib : (F : S¹ → S¹ → Type₀) → Type₀
 discretefib F = (a : (x y : S¹) → F x y) →
         (b : (x y : S¹) → F x y) →
         (a base base ≡ b base base) →
@@ -191,7 +191,7 @@ JoinS¹S¹→TotalHopf→JoinS¹S¹ (push y x j) i = filler-3 i j y x
 -- This allows to write compositions that do not properly match at the endpoints. However,
 -- I suspect it is unnecessary. TODO : do without PseudoHopf
 
-PseudoHopf : Set
+PseudoHopf : Type₀
 PseudoHopf = (S¹ × Interval) × S¹
 
 PseudoHopf-π1 : PseudoHopf → S¹

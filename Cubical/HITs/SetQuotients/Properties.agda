@@ -27,14 +27,14 @@ open import Cubical.Relation.Binary.Base
 open import Cubical.HITs.PropositionalTruncation
 open import Cubical.HITs.SetTruncation
 
--- Set quotients
+-- Type quotients
 
 private
   variable
     ℓ ℓ' ℓ'' : Level
-    A : Set ℓ
-    R : A → A → Set ℓ'
-    B : A / R → Set ℓ''
+    A : Type ℓ
+    R : A → A → Type ℓ'
+    B : A / R → Type ℓ''
 
 elimEq/ : (Bprop : (x : A / R ) → isProp (B x))
           {x y : A / R}
@@ -62,7 +62,7 @@ elimSetQuotientsProp Bprop f (eq/ a b r i) = elimEq/ Bprop (eq/ a b r) (f a) (f 
 []surjective : (x : A / R) → ∥ Σ[ a ∈ A ] [ a ] ≡ x ∥
 []surjective = elimSetQuotientsProp (λ x → squash) (λ a → ∣ a , refl ∣)
 
-elimSetQuotients : {B : A / R → Set ℓ} →
+elimSetQuotients : {B : A / R → Type ℓ} →
                    (Bset : (x : A / R) → isSet (B x)) →
                    (f : (a : A) → (B [ a ])) →
                    (feq : (a b : A) (r : R a b) →
@@ -77,7 +77,7 @@ elimSetQuotients Bset f feq (squash/ x y p q i j) =
       g = elimSetQuotients Bset f feq
 
 
-setQuotUniversal : {B : Set ℓ} (Bset : isSet B) →
+setQuotUniversal : {B : Type ℓ} (Bset : isSet B) →
                    (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
 setQuotUniversal Bset = isoToEquiv (iso intro elim elimRightInv elimLeftInv)
   where

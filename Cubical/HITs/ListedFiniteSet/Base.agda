@@ -7,13 +7,13 @@ open import Cubical.Foundations.Everything
 
 private
   variable
-    A : Set
+    A : Type₀
 
 infixr 20 _∷_
 infix 30 _∈_
 
 
-data LFSet (A : Set) : Set where
+data LFSet (A : Type₀) : Type₀ where
   []    : LFSet A
   _∷_   : (x : A) → (xs : LFSet A) → LFSet A
   dup   : ∀ x xs   → x ∷ x ∷ xs ≡ x ∷ xs

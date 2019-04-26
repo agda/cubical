@@ -39,7 +39,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
 open import Cubical.Codata.Conat.Base
 
-Unwrap-prev : Conat′ -> Set
+Unwrap-prev : Conat′ → Type₀
 Unwrap-prev  zero   = Unit
 Unwrap-prev (suc _) = Conat
 
@@ -69,10 +69,10 @@ force (∞+1≡∞ _) = suc ∞
 
 -- TODO: plus for conat, ∞ + ∞ ≡ ∞
 
-conat-absurd : ∀ {y : Conat} {ℓ} {Whatever : Set ℓ} → zero ≡ suc y → Whatever
+conat-absurd : ∀ {y : Conat} {ℓ} {Whatever : Type ℓ} → zero ≡ suc y → Whatever
 conat-absurd eq = ⊥-elim (transport (cong diag eq) tt)
   where
-  diag : Conat′ → Set
+  diag : Conat′ → Type₀
   diag zero = Unit
   diag (suc _) = ⊥
 
@@ -98,9 +98,9 @@ module IsSet where
 module Bisimulation where
   open IsSet using (isSetConat)
 
-  record _≈_ (x y : Conat) : Set
-  data _≈′_ (x y : Conat′) : Set
-  _≈′′_ : Conat′ → Conat′ → Set
+  record _≈_ (x y : Conat) : Type₀
+  data _≈′_ (x y : Conat′) : Type₀
+  _≈′′_ : Conat′ → Conat′ → Type₀
   zero  ≈′′ zero  = Unit
   suc x ≈′′ suc y = x ≈ y
   -- So impossible proofs are preserved

@@ -26,7 +26,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Int
 open import Cubical.Data.Nat
 
-data ℤ : Set where
+data ℤ : Type₀ where
   zero : ℤ
   suc  : ℤ → ℤ
   pred : ℤ → ℤ
