@@ -132,6 +132,70 @@ isSet→isSet' {A = A} Aset {x} {y} {z} {w} p q r s
 isSet'→isSet : isSet' A → isSet A
 isSet'→isSet {A = A} Aset' x y p q = Aset' p q refl refl
 
+squeezeFace≡
+  : ∀{w x y z w' x' y' z' : A}
+  → {p : w ≡ y} {q : w ≡ x} {r : y ≡ z} {s : x ≡ z}
+  → {p' : w' ≡ y'} {q' : w' ≡ x'} {r' : y' ≡ z'} {s' : x' ≡ z'}
+  → {a : w ≡ w'} {b : x ≡ x'} {c : y ≡ y'} {d : z ≡ z'}
+  → (ps : Square a p p' c) (qs : Square a q q' b)
+  → (rs : Square c r r' d) (ss : Square b s s' d)
+  → Square p q r s ≡ Square p' q' r' s'
+squeezeFace≡ ps qs rs ss k = Square (ps k) (qs k) (rs k) (ss k)
+
+squeezeCu≡
+  : ∀{w x y z w' x' y' z' : A}
+  → {p : w ≡ y} {q : w ≡ x} {r : y ≡ z} {s : x ≡ z}
+  → {p' : w' ≡ y'} {q' : w' ≡ x'} {r' : y' ≡ z'} {s' : x' ≡ z'}
+  → {a : w ≡ w'} {b : x ≡ x'} {c : y ≡ y'} {d : z ≡ z'}
+  → (ps : Square a p p' c) (qs : Square a q q' b)
+  → (rs : Square c r r' d) (ss : Square b s s' d)
+  → (f0 : Square p q r s) (f1 : Square p' q' r' s')
+  → (f0 ≡ transport⁻ (squeezeFace≡ ps qs rs ss) f1) ≡ Cube ps qs rs ss f0 f1
+squeezeCu≡ ps qs rs ss f0 f1 τ
+  = Cube
+      (λ j → ps (j ∧ τ))
+      (λ j → qs (j ∧ τ))
+      (λ j → rs (j ∧ τ))
+      (λ j → ss (j ∧ τ))
+      f0
+      (toPathP {A = F} (transportTransport⁻ (squeezeFace≡ ps qs rs ss) f1) τ)
+  where
+  F : I → Set _
+  F k = Square (ps k) (qs k) (rs k) (ss k)
+
+transposeSq
+  : ∀{w x y z : A} {p : w ≡ y} {q : w ≡ x} {r : y ≡ z} {s : x ≡ z}
+  → Square p q r s
+  → Square q p s r
+transposeSq sq i j = sq j i
+
+transposeCu
+  : ∀{w x y z w' x' y' z' : A}
+  → {p : w ≡ y} {q : w ≡ x} {r : y ≡ z} {s : x ≡ z}
+  → {p' : w' ≡ y'} {q' : w' ≡ x'} {r' : y' ≡ z'} {s' : x' ≡ z'}
+  → {a : w ≡ w'} {b : x ≡ x'} {c : y ≡ y'} {d : z ≡ z'}
+  → {ps : Square a p p' c} {qs : Square a q q' b}
+  → {rs : Square c r r' d} {ss : Square b s s' d}
+  → {f0 : Square p q r s} {f1 : Square p' q' r' s'}
+  → Cube (transposeSq ps) f0 f1 (transposeSq ss) qs rs
+  → Cube ps qs rs ss f0 f1
+transposeCu cu i j k = cu j i k
+
+isGroupoid→isGroupoid₁ : isGroupoid A → isGroupoid₁ A
+isGroupoid→isGroupoid₁ Agpd {p = p} {p'} {s = s} {s'} pp qp rp sp f0 f1
+  = transposeCu (transport (squeezeCu≡ ppr f0 f1 spr qp rp) (Agpd _ _ _ _ _ _))
+  where
+  ppr : Square p refl refl p'
+  ppr i j = pp j i
+  spr : Square s refl refl s'
+  spr i j = sp j i
+  Rot : Set _
+  Rot = Cube ppr f0 f1 spr qp rp
+
+isGroupoid₁→isGroupoid₂ : isGroupoid₁ A → isGroupoid₂ A
+isGroupoid₁→isGroupoid₂ Agpd₁ ps qs rs ss f0 f1
+  = transport (squeezeCu≡ ps qs rs ss f0 f1) (Agpd₁ _ _ _ _ _ _)
+
 isGroupoid₂→isGroupoid : isGroupoid₂ A → isGroupoid A
 isGroupoid₂→isGroupoid Agpd' w x p q r s
   = Agpd' {q = p} {r = q} {q' = p} {r' = q} refl refl refl refl r s

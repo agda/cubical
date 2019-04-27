@@ -102,11 +102,18 @@ RecHProp : (P : A → hProp {ℓ}) (kP : ∀ x y → P x ≡ P y) → ∥ A ∥ 
 RecHProp P kP = recPropTrunc→Set isSetHProp P kP
 
 module GpdElim
+  (Bgpd : isGroupoid B)
   (f : A → B)
-  (Bgpd₂ : isGroupoid₂ B)
-  (kf : 2-Constant f)
-  (coh₁ : ∀ x y z → Square refl (kf x y) (kf x z) (kf y z))
+  (3kf : 3-Constant f)
   where
+  kf : 2-Constant f
+  kf = fst 3kf
+
+  coh₁ : ∀ x y z → Square refl (kf x y) (kf x z) (kf y z)
+  coh₁ = snd 3kf
+
+  Bgpd₂ : isGroupoid₂ B
+  Bgpd₂ = isGroupoid₁→isGroupoid₂ (isGroupoid→isGroupoid₁ Bgpd)
 
   coh₂ : ∀ x y z → Square (kf x y) (kf x z) (kf y z) refl
   coh₂ x y z i j
@@ -191,3 +198,7 @@ module GpdElim
         (triHelper₂ ∣ x ∣ ∣ y ∣ v)
         i
 
+open GpdElim using (recPropTrunc→Gpd) public
+
+RecHSet : (P : A → HLevel {ℓ} 2) → 3-Constant P → ∥ A ∥ → HLevel {ℓ} 2
+RecHSet P 3kP = recPropTrunc→Gpd (hLevelHLevelSuc 1) P 3kP
