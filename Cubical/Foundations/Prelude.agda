@@ -17,6 +17,8 @@ This file proves a variety of basic results about paths:
 
 - Export natural numbers
 
+- Export universe lifting
+
 -}
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Prelude where
@@ -217,3 +219,12 @@ isProp→isSet h a b p q j i =
                  ; (i = i1) → h a b k
                  ; (j = i0) → h a (p i) k
                  ; (j = i1) → h a (q i) k }) a
+
+-- Universe lifting
+
+record Lift {i j} (A : Type i) : Type (ℓ-max i j) where
+  instance constructor lift
+  field
+    lower : A
+
+open Lift public
