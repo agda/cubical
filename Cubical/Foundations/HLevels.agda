@@ -276,3 +276,6 @@ isContrPartial→isContr {A = A} extend law
             u : Partial φ A
             u = λ { (i = i0) → ex ; (i = i1) → y }
             v = extend φ u
+
+isOfHLevelLift : ∀ {ℓ ℓ'} (n : ℕ) {A : Type ℓ} → isOfHLevel n A → isOfHLevel n (Lift {j = ℓ'} A)
+isOfHLevelLift n = retractIsOfHLevel n lower lift λ _ → refl
