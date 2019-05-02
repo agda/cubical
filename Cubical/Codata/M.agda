@@ -26,9 +26,9 @@ module Helpers where
   compPathD F {A = A} P Q {x} p q i =
      comp (\ j → F (hfill (λ j → \ { (i = i0) → A ; (i = i1) → Q j })
                           (inS (P i))
-                          j))
+                          j)) _
           (λ j → \ { (i = i0) → x; (i = i1) → q j })
-          (inS (p i))
+          (p i)
 
 open Helpers
 
