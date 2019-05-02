@@ -36,12 +36,12 @@ toPathP-isEquiv A {x} {y} = isoToIsEquiv (iso toPathP fromPathP to-from from-to)
                                                       ; (i = i1) → A (h ∨ (w ∧ z))
                                                       ; (h = i0) → A (i ∧ (w ∧ z))
                                                       ; (h = i1) → A i})
-                                                   ((A (i ∧ h)))))
+                                                   ((A (i ∧ h))))) _
                                           (\ z → \ { (i = i0) → x
                                                    ; (i = i1) → transp (\ j → A (h ∨ (z ∧ j))) (h ∨ ~ z) (p h)
                                                    ; (h = i0) → transp (λ j → A ((i ∧ z) ∧ j)) (~ (i ∧ z)) x
                                                    ; (h = i1) → p i })
-                                (inS (p (i ∧ h)))
+                                (p (i ∧ h))
    from-to : ∀ (q : transp A i0 x ≡ y) → fromPathP (toPathP {A = A} q) ≡ q
    from-to q = (\ h i → outS (transp-hcomp i {A' = A i1} (\ j → inS (A (i ∨ j)))
                                            ((λ { j (i = i0) → x ; j (i = i1) → q j }))
@@ -60,10 +60,10 @@ toPathP-isEquiv A {x} {y} = isoToIsEquiv (iso toPathP fromPathP to-from from-to)
                                               ; (h = i1) → A i1
                                               ; (z = i0) → A (i ∨ h)
                                               ; (z = i1) → A ((i ∨ h) ∨ w) })
-                                             (A (i ∨ h)))
+                                             (A (i ∨ h))) _
                  (\ z → \ { (i = i0) → transp (λ j → A ((z ∨ h) ∧ j)) (~ z ∧ ~ h) x
                           ; (i = i1) → q (z ∧ h)
                           ; (h = i1) → compPath-filler refl q z i
                           ; (h = i0) → transp (\ j → A (i ∨ (z ∧ j))) (i ∨ ~ z) (transp (\ j → A (i ∧ j)) (~ i) x)
                           })
-                          (inS (transp (\ j → A ((i ∨ h) ∧ j)) (~ (i ∨ h)) x))
+                          (transp (\ j → A ((i ∨ h) ∧ j)) (~ (i ∨ h)) x)
