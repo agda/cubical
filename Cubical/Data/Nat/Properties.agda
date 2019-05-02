@@ -7,7 +7,6 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Empty
-open import Cubical.Data.Sum
 open import Cubical.Data.Prod.Base
 
 open import Cubical.Relation.Nullary
