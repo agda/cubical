@@ -43,7 +43,7 @@ g2TruncFib {A} P {a} {b} sPb {p} {q} {r} {s} {u} {v} w
           (Lb i j k l)
   where
   L : Path (Path (b1 ≡ b1) refl refl) refl refl
-  L i j k = comp (λ l → P (w i j k l)) _
+  L i j k = comp (λ l → P (w i j k l))
                  (λ l → λ { (i = i0) → u1 j k l
                           ; (i = i1) → v1 j k l
                           ; (j = i0) → r1 k l

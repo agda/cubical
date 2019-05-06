@@ -38,7 +38,7 @@ groupoidTruncFib P {a} {b} sPb u {a1} {b1} {p1} {q1} r1 s1 i j k =
         (Lb i j k)
   where
   L : (i j : I) → P b
-  L i j = comp (λ k → P (u i j k)) _
+  L i j = comp (λ k → P (u i j k))
                (λ k → λ { (i = i0) → r1 j k
                         ; (i = i1) → s1 j k
                         ; (j = i0) → p1 k
