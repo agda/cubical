@@ -135,3 +135,16 @@ Hfa≡fHa {A = A} f H a =
   cong f (H a) ∙ H a ∙ sym (H a)   ≡⟨ cong (_∙_ (cong f (H a))) (rCancel _) ⟩
   cong f (H a) ∙ refl              ≡⟨ sym (rUnit _) ⟩
   cong f (H a) ∎
+
+equivPi
+  : ∀{F : A → Set ℓ} {G : A → Set ℓ'}
+  → ((x : A) → F x ≃ G x) → (((x : A) → F x) ≃ ((x : A) → G x))
+equivPi k .fst f x = k x .fst (f x)
+equivPi k .snd .equiv-proof f
+  .fst .fst x = equivCtr (k x) (f x) .fst
+equivPi k .snd .equiv-proof f
+  .fst .snd i x = equivCtr (k x) (f x) .snd i
+equivPi k .snd .equiv-proof f
+  .snd (g , p) i .fst x = equivCtrPath (k x) (f x) (g x , λ j → p j x) i .fst
+equivPi k .snd .equiv-proof f
+  .snd (g , p) i .snd j x = equivCtrPath (k x) (f x) (g x , λ k → p k x) i .snd j
