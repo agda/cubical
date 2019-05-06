@@ -103,7 +103,7 @@ private
   homotopy-π2 : (a b : Σ A B) → (p : a Σ≡T b) → (i : I) →
              (transport (λ j → B (fst (filler-comp a b p j i))) (snd a) ≡ snd b)
   homotopy-π2 {B = B} a b p i j =
-    comp (λ t → B (fst (filler-comp a b p t (i ∨ j)))) _
+    comp (λ t → B (fst (filler-comp a b p t (i ∨ j))))
          (λ t → λ { (j = i0) → coe0→i (λ t → B (fst (filler-comp a b p t i)))
                                       t (snd a)
                   ; (j = i1) → snd (sigmaPath→pathSigma a b p t)

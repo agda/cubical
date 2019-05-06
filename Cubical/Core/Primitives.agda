@@ -191,10 +191,9 @@ fill : (A : ∀ i → Type (ℓ′ i))
        (i : I) → A i
 fill A {φ = φ} u u0 i =
   comp (λ j → A (i ∧ j))
-       _
        (λ j → λ { (φ = i1) → u (i ∧ j) 1=1
                 ; (i = i0) → outS u0 })
-       (outS u0) -- u0 -- (inS {φ = φ ∨ (~ i)} (outS {φ = φ} u0))
+       (outS u0)
 
 -- Σ-types
 infix 2 Σ-syntax

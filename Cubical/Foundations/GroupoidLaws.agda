@@ -118,22 +118,19 @@ lUnitP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x y
   PathP (λ j → PathP (λ i → lUnit (λ i → A i) j i) x y) p (compPathP refl p)
 lUnitP {A = A} {x = x} p k i =
   comp (λ j → lUnit-filler (λ i → A i) j k i)
-       _
        (λ j → λ { (i = i0) → x
-                 ; (i = i1) → p (~ k ∨ j )
-                 ; (k = i0) → p i
-                 }) (p (~ k ∧ i ))
-
+                ; (i = i1) → p (~ k ∨ j )
+                ; (k = i0) → p i
+                }) (p (~ k ∧ i ))
 
 rCancelP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x y) →
    PathP (λ j → PathP (λ i → rCancel (λ i → A i) j i) x x) (compPathP p (symP p)) refl
 rCancelP {A = A} {x = x} p j i =
   comp (λ k → rCancel-filler (λ i → A i) k j i)
-       _
        (λ k → λ { (i = i0) → x
-                 ; (i = i1) → p (~ k ∧ ~ j)
-                 ; (j = i1) → x
-                 }) (p (i ∧ ~ j))
+                ; (i = i1) → p (~ k ∧ ~ j)
+                ; (j = i1) → x
+                }) (p (i ∧ ~ j))
 
 lCancelP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x y) →
    PathP (λ j → PathP (λ i → lCancel (λ i → A i) j i) y y) (compPathP (symP p) p) refl
@@ -147,23 +144,22 @@ lCancelP p = rCancelP (symP p)
   PathP (λ j → PathP (λ i → 3outof4 (λ j i → A i j) P B j i) (α i1 i0) (α i1 i1)) (λ i → α i1 i) p
 3outof4P {A = A} {P} {B} α p β j i =
   comp (λ k → 3outof4-filler (λ j i → A i j) P B k j i)
-       _
        (λ k → λ { (i = i0) → α k i0
-                 ; (i = i1) → α k i1
-                 ; (j = i0) → α k i
-                 ; (j = i1) → β k i
-                 }) (α i0 i)
+                ; (i = i1) → α k i1
+                ; (j = i0) → α k i
+                ; (j = i1) → β k i
+                }) (α i0 i)
 
 preassocP : {A : I → Type ℓ} {x : A i0} {y : A i1} {B_i1 : Type ℓ} {B : (A i1) ≡ B_i1} {z : B i1}
   {C_i1 : Type ℓ} {C : (B i1) ≡ C_i1} {w : C i1} (p : PathP A x y) (q : PathP (λ i → B i) y z) (r : PathP (λ i → C i) z w) →
   PathP (λ j → PathP (λ i → preassoc (λ i → A i) B C j i) x ((compPathP q r) j)) p (compPathP (compPathP p q) r)
 preassocP {A = A} {x = x} {B = B} {C = C} p q r j i =
-  comp (λ k → preassoc-filler (λ i → A i) B C k j i) _
+  comp (λ k → preassoc-filler (λ i → A i) B C k j i)
        (λ k → λ { (i = i0) → x
-                 ; (i = i1) → compPathP-filler q r j k
-                 ; (j = i0) → p i
-              -- ; (j = i1) → compPathP-filler (compPathP p q) r i k
-                 }) (compPathP-filler p q i j)
+                ; (i = i1) → compPathP-filler q r j k
+                ; (j = i0) → p i
+             -- ; (j = i1) → compPathP-filler (compPathP p q) r i k
+                }) (compPathP-filler p q i j)
 
 assocP : {A : I → Type ℓ} {x : A i0} {y : A i1} {B_i1 : Type ℓ} {B : (A i1) ≡ B_i1} {z : B i1}
   {C_i1 : Type ℓ} {C : (B i1) ≡ C_i1} {w : C i1} (p : PathP A x y) (q : PathP (λ i → B i) y z) (r : PathP (λ i → C i) z w) →
