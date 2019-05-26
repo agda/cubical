@@ -43,7 +43,7 @@ groupoidTruncFib P {a} {b} sPb u {a1} {b1} {p1} {q1} r1 s1 i j k =
                         ; (i = i1) → s1 j k
                         ; (j = i0) → p1 k
                         ; (j = i1) → q1 k })
-               (inS a1)
+               a1
   Lb : PathP (λ i → PathP (λ j → PathP (λ k → P (u i j k)) a1 (L i j)) p1 q1) r1 s1
   Lb i j k = fill (λ k → P (u i j k))
                   (λ k → λ { (i = i0) → r1 j k

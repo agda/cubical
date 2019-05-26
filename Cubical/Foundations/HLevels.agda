@@ -58,6 +58,43 @@ retractIsContr
   → (v : isContr B) → isContr A
 retractIsContr f g h (b , p) = (g b , λ x → (cong g (p (f x))) ∙ (h x))
 
+retractIsProp
+  : {B : Type ℓ}
+  (f : A → B) (g : B → A)
+  (h : (x : A) → g (f x) ≡ x)
+  → isProp B → isProp A
+retractIsProp f g h p x y i =
+  hcomp
+    (λ j → λ
+      { (i = i0) → h x j
+      ; (i = i1) → h y j})
+    (g (p (f x) (f y) i))
+
+retractIsOfHLevel
+  : (n : ℕ) {B : Type ℓ}
+  (f : A → B) (g : B → A)
+  (h : (x : A) → g (f x) ≡ x)
+  → isOfHLevel n B → isOfHLevel n A
+retractIsOfHLevel 0 = retractIsContr
+retractIsOfHLevel 1 = retractIsProp
+retractIsOfHLevel (suc (suc n)) f g h ofLevel x y =
+  retractIsOfHLevel (suc n)
+    (cong f)
+    (λ q i →
+      hcomp
+        (λ j → λ
+          { (i = i0) → h x j
+          ; (i = i1) → h y j})
+        (g (q i)))
+    (λ p k i →
+      hcomp
+        (λ j → λ
+          { (i = i0) → h x (j ∨ k)
+          ; (i = i1) → h y (j ∨ k)
+          ; (k = i1) → p i})
+        (h (p i) k))
+    (ofLevel (f x) (f y))
+
 isContrSigma
   : isContr A
   → ((x : A) → isContr (B x))
@@ -284,3 +321,6 @@ isContrPartial→isContr {A = A} extend law
             u : Partial φ A
             u = λ { (i = i0) → ex ; (i = i1) → y }
             v = extend φ u
+
+isOfHLevelLift : ∀ {ℓ ℓ'} (n : ℕ) {A : Type ℓ} → isOfHLevel n A → isOfHLevel n (Lift {j = ℓ'} A)
+isOfHLevelLift n = retractIsOfHLevel n lower lift λ _ → refl

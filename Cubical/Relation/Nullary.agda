@@ -42,11 +42,11 @@ fromYes _ (yes a) = a
 fromYes a (no _) = a
 
 discreteDec : (Adis : Discrete A) → Discrete (Dec A)
-discreteDec Adis (yes p) (yes p') = lift (Adis p p') -- TODO: monad would simply stuff
+discreteDec Adis (yes p) (yes p') = decideYes (Adis p p') -- TODO: monad would simply stuff
   where
-    lift : Dec (p ≡ p') → Dec (yes p ≡ yes p')
-    lift (yes eq) = yes (cong yes eq)
-    lift (no ¬eq) = no λ eq → ¬eq (cong (fromYes p) eq)
+    decideYes : Dec (p ≡ p') → Dec (yes p ≡ yes p')
+    decideYes (yes eq) = yes (cong yes eq)
+    decideYes (no ¬eq) = no λ eq → ¬eq (cong (fromYes p) eq)
 discreteDec Adis (yes p) (no ¬p) = ⊥-elim (¬p p)
 discreteDec Adis (no ¬p) (yes p) = ⊥-elim (¬p p)
 discreteDec {A = A} Adis (no ¬p) (no ¬p') = yes (cong no (isProp¬ A ¬p ¬p'))

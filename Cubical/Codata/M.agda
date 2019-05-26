@@ -28,7 +28,7 @@ module Helpers where
                           (inS (P i))
                           j))
           (λ j → \ { (i = i0) → x; (i = i1) → q j })
-          (inS (p i))
+          (p i)
 
 open Helpers
 

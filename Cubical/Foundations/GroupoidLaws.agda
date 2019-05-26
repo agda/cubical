@@ -119,19 +119,18 @@ lUnitP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x y
 lUnitP {A = A} {x = x} p k i =
   comp (λ j → lUnit-filler (λ i → A i) j k i)
        (λ j → λ { (i = i0) → x
-                 ; (i = i1) → p (~ k ∨ j )
-                 ; (k = i0) → p i
-                 }) (inS (p (~ k ∧ i )))
-
+                ; (i = i1) → p (~ k ∨ j )
+                ; (k = i0) → p i
+                }) (p (~ k ∧ i ))
 
 rCancelP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x y) →
    PathP (λ j → PathP (λ i → rCancel (λ i → A i) j i) x x) (compPathP p (symP p)) refl
 rCancelP {A = A} {x = x} p j i =
   comp (λ k → rCancel-filler (λ i → A i) k j i)
        (λ k → λ { (i = i0) → x
-                 ; (i = i1) → p (~ k ∧ ~ j)
-                 ; (j = i1) → x
-                 }) (inS (p (i ∧ ~ j)))
+                ; (i = i1) → p (~ k ∧ ~ j)
+                ; (j = i1) → x
+                }) (p (i ∧ ~ j))
 
 lCancelP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x y) →
    PathP (λ j → PathP (λ i → lCancel (λ i → A i) j i) y y) (compPathP (symP p) p) refl
@@ -146,10 +145,10 @@ lCancelP p = rCancelP (symP p)
 3outof4P {A = A} {P} {B} α p β j i =
   comp (λ k → 3outof4-filler (λ j i → A i j) P B k j i)
        (λ k → λ { (i = i0) → α k i0
-                 ; (i = i1) → α k i1
-                 ; (j = i0) → α k i
-                 ; (j = i1) → β k i
-                 }) (inS (α i0 i))
+                ; (i = i1) → α k i1
+                ; (j = i0) → α k i
+                ; (j = i1) → β k i
+                }) (α i0 i)
 
 preassocP : {A : I → Type ℓ} {x : A i0} {y : A i1} {B_i1 : Type ℓ} {B : (A i1) ≡ B_i1} {z : B i1}
   {C_i1 : Type ℓ} {C : (B i1) ≡ C_i1} {w : C i1} (p : PathP A x y) (q : PathP (λ i → B i) y z) (r : PathP (λ i → C i) z w) →
@@ -157,10 +156,10 @@ preassocP : {A : I → Type ℓ} {x : A i0} {y : A i1} {B_i1 : Type ℓ} {B : (A
 preassocP {A = A} {x = x} {B = B} {C = C} p q r j i =
   comp (λ k → preassoc-filler (λ i → A i) B C k j i)
        (λ k → λ { (i = i0) → x
-                 ; (i = i1) → compPathP-filler q r j k
-                 ; (j = i0) → p i
-              -- ; (j = i1) → compPathP-filler (compPathP p q) r i k
-                 }) (inS (compPathP-filler p q i j))
+                ; (i = i1) → compPathP-filler q r j k
+                ; (j = i0) → p i
+             -- ; (j = i1) → compPathP-filler (compPathP p q) r i k
+                }) (compPathP-filler p q i j)
 
 assocP : {A : I → Type ℓ} {x : A i0} {y : A i1} {B_i1 : Type ℓ} {B : (A i1) ≡ B_i1} {z : B i1}
   {C_i1 : Type ℓ} {C : (B i1) ≡ C_i1} {w : C i1} (p : PathP A x y) (q : PathP (λ i → B i) y z) (r : PathP (λ i → C i) z w) →
@@ -234,6 +233,42 @@ doubleCompPath-elim' p q r = (split-leftright' p q r) ∙ (sym (leftright p (q �
 -- assoc : {ℓ : Level} {A : Type ℓ} {w x y z : A} (p : w ≡ x) (q : x ≡ y) (r : y ≡ z) →
 --                 (p ∙ q) ∙ r ≡ p ∙ (q ∙ r)
 -- assoc p q r = (sym (doubleCompPath-elim p q r)) ∙ (doubleCompPath-elim' p q r)
+
+hcomp-unique : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
+               (h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
+               → (hcomp u (outS u0) ≡ outS (h2 i1)) [ φ ↦ (\ { (φ = i1) → (\ i → u i1 1=1)}) ]
+hcomp-unique {φ = φ} u u0 h2 = inS (\ i → hcomp (\ k → \ { (φ = i1) → u k 1=1
+                                                            ; (i = i1) → outS (h2 k) })
+                                                   (outS u0))
+
+
+lid-unique : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
+               (h1 h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
+               → (outS (h1 i1) ≡ outS (h2 i1)) [ φ ↦ (\ { (φ = i1) → (\ i → u i1 1=1)}) ]
+lid-unique {φ = φ} u u0 h1 h2 = inS (\ i → hcomp (\ k → \ { (φ = i1) → u k 1=1
+                                                            ; (i = i0) → outS (h1 k)
+                                                            ; (i = i1) → outS (h2 k) })
+                                                   (outS u0))
+
+
+transp-hcomp : ∀ {ℓ} (φ : I) {A' : Set ℓ}
+                     (A : (i : I) → Set ℓ [ φ ↦ (λ _ → A') ]) (let B = \ (i : I) → outS (A i))
+                 → ∀ {ψ} (u : I → Partial ψ (B i0)) → (u0 : B i0 [ ψ ↦ u i0 ]) →
+                 (transp B φ (hcomp u (outS u0)) ≡ hcomp (\ i o → transp B φ (u i o)) (transp B φ (outS u0)))
+                   [ ψ ↦ (\ { (ψ = i1) → (\ i → transp B φ (u i1 1=1))}) ]
+transp-hcomp φ A u u0 = inS (sym (outS (hcomp-unique
+               ((\ i o → transp B φ (u i o))) (inS (transp B φ (outS u0)))
+                 \ i → inS (transp B φ (hfill u u0 i)))))
+  where
+    B = \ (i : I) → outS (A i)
+
+
+hcomp-cong : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
+                                    (u' : I → Partial φ A) → (u0' : A [ φ ↦ u' i0 ]) →
+
+             (ueq : ∀ i → PartialP φ (\ o → u i o ≡ u' i o)) → (outS u0 ≡ outS u0') [ φ ↦ (\ { (φ = i1) → ueq i0 1=1}) ]
+             → (hcomp u (outS u0) ≡ hcomp u' (outS u0')) [ φ ↦ (\ { (φ = i1) → ueq i1 1=1 }) ]
+hcomp-cong u u0 u' u0' ueq 0eq = inS (\ j → hcomp (\ i o → ueq i o j) (outS 0eq j))
 
 squeezeSq≡
   : ∀{w x y z : A}

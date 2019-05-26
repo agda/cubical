@@ -140,17 +140,6 @@ univalenceStatement = Univalence.thm eqweqmap eqweqmapid
 univalenceUAH : {A B : Type ℓ} → (A ≡ B) ≃ (A ≃ B)
 univalenceUAH = ( _ , univalenceStatement )
 
--- TODO: upstream
-record Lift {i j} (A : Type i) : Type (ℓ-max i j) where
-  instance constructor lift
-  field
-    lower : A
-
-open Lift public
-
-LiftEquiv : {A : Type ℓ} → A ≃ Lift {i = ℓ} {j = ℓ'} A
-LiftEquiv = isoToEquiv (iso lift lower (λ _ → refl) (λ _ → refl))
-
 univalencePath : {A B : Type ℓ} → (A ≡ B) ≡ Lift (A ≃ B)
 univalencePath = ua (compEquiv univalence LiftEquiv)
 

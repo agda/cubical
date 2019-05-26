@@ -51,7 +51,7 @@ g2TruncFib {A} P {a} {b} sPb {p} {q} {r} {s} {u} {v} w
                           ; (k = i0) → p1 l
                           ; (k = i1) → q1 l
                           })
-                 (inS a1)
+                 a1
   Lb : PathP (λ i → PathP (λ j → PathP (λ k → PathP (λ l → P (w i j k l)) a1 (L i j k)) p1 q1) r1 s1) u1 v1
   Lb i j k l = fill (λ l → P (w i j k l))
                     (λ l → λ { (i = i0) → u1 j k l

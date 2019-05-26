@@ -109,7 +109,7 @@ private
                   ; (j = i1) → snd (sigmaPath→pathSigma a b p t)
                   ; (i = i0) → snd (filler-comp a b p t j)
                   ; (i = i1) → filler-π2 (sigmaPath→pathSigma a b p) j t })
-         (inS (snd a))
+         (snd a)
 
 pathSigma→sigmaPath→pathSigma : {a b : Σ A B} →
   ∀ (x : a Σ≡T b) → pathSigma→sigmaPath _ _ (sigmaPath→pathSigma a b x) ≡ x

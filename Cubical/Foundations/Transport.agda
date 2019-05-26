@@ -12,6 +12,16 @@ open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 
+-- Direct definition of transport filler, note that we have to
+-- explicitly tell Agda that the type is constant (like in CHM)
+transpFill : ∀ {ℓ} {A : Type ℓ}
+             (φ : I)
+             (A : (i : I) → Type ℓ [ φ ↦ (λ _ → A) ])
+             (u0 : outS (A i0))
+           → --------------------------------------
+             PathP (λ i → outS (A i)) u0 (transp (λ i → outS (A i)) φ u0)
+transpFill φ A u0 i = transp (λ j → outS (A (i ∧ j))) (~ i ∨ φ) u0
+
 transport⁻ : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → B → A
 transport⁻ p = transport (λ i → p (~ i))
 

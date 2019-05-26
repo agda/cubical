@@ -104,6 +104,9 @@ compIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} �
             Iso A B → Iso B C → Iso A C
 compIso i j = equivToIso (compEquiv (isoToEquiv i) (isoToEquiv j))
 
+LiftEquiv : {A : Type ℓ} → A ≃ Lift {i = ℓ} {j = ℓ'} A
+LiftEquiv = isoToEquiv (iso lift lower (λ _ → refl) (λ _ → refl))
+
 -- module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}  where
 --   invEquivInvol : (f : A ≃ B) → invEquiv (invEquiv f) ≡ f
 --   invEquivInvol f i .fst = fst f
