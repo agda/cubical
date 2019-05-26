@@ -161,8 +161,8 @@ RecHProp : (P : A → hProp {ℓ}) (kP : ∀ x y → P x ≡ P y) → ∥ A ∥ 
 RecHProp P kP = recPropTrunc→Set isSetHProp P kP
 
 module GpdElim (Bgpd : isGroupoid B) where
-  Bgpd₂ : isGroupoid₂ B
-  Bgpd₂ = isGroupoid₁→isGroupoid₂ (isGroupoid→isGroupoid₁ Bgpd)
+  Bgpd' : isGroupoid' B
+  Bgpd' = isGroupoid→isGroupoid' Bgpd
 
   module _ (f : A → B) (3kf : 3-Constant f) where
     open 3-Constant 3kf
@@ -185,7 +185,7 @@ module GpdElim (Bgpd : isGroupoid B) where
 
     triHelper₁ ∣ x ∣ ∣ y ∣ ∣ z ∣ = coh₁ x y z
     triHelper₁ (squash s t i) u v
-      = Bgpd₂
+      = Bgpd'
           (λ i → refl)
           (triHelper₂ s t u)
           (triHelper₂ s t v)
@@ -193,7 +193,7 @@ module GpdElim (Bgpd : isGroupoid B) where
           (triHelper₁ s u v)
           (triHelper₁ t u v) i
     triHelper₁ ∣ x ∣ (squash t u i) v
-      = Bgpd₂
+      = Bgpd'
           (λ i → refl)
           (triHelper₁ ∣ x ∣ t u)
           (λ i → pathHelper ∣ x ∣ v)
@@ -202,7 +202,7 @@ module GpdElim (Bgpd : isGroupoid B) where
           (triHelper₁ ∣ x ∣ u v)
           i
     triHelper₁ ∣ x ∣ ∣ y ∣ (squash u v i)
-      = Bgpd₂
+      = Bgpd'
           (λ i → refl)
           (λ i → link x y)
           (triHelper₁ ∣ x ∣ u v)
@@ -213,7 +213,7 @@ module GpdElim (Bgpd : isGroupoid B) where
 
     triHelper₂ ∣ x ∣ ∣ y ∣ ∣ z ∣ = coh₂ x y z
     triHelper₂ (squash s t i) u v
-      = Bgpd₂
+      = Bgpd'
           (triHelper₂ s t u)
           (triHelper₂ s t v)
           (λ i → pathHelper u v)
@@ -222,7 +222,7 @@ module GpdElim (Bgpd : isGroupoid B) where
           (triHelper₂ t u v)
           i
     triHelper₂ ∣ x ∣ (squash t u i) v
-      = Bgpd₂
+      = Bgpd'
           (triHelper₁ ∣ x ∣ t u)
           (λ i → pathHelper ∣ x ∣ v)
           (triHelper₂ t u v)
@@ -231,7 +231,7 @@ module GpdElim (Bgpd : isGroupoid B) where
           (triHelper₂ ∣ x ∣ u v)
           i
     triHelper₂ ∣ x ∣ ∣ y ∣ (squash u v i)
-      = Bgpd₂
+      = Bgpd'
           (λ i → link x y)
           (triHelper₁ ∣ x ∣ u v)
           (triHelper₁ ∣ y ∣ u v)
@@ -256,7 +256,7 @@ module GpdElim (Bgpd : isGroupoid B) where
     retr f i t .snd .link x y j
       = f (squash (squash ∣ x ∣ ∣ y ∣ j) t i) .snd .link x y j
     retr f i t .snd .coh₁ x y z
-      = Bgpd₂
+      = Bgpd'
           (λ _ → refl)
           (λ k j → f (cb i0 j k) .snd .link x y j)
           (λ k j → f (cb i1 j k) .snd .link x z j)
@@ -284,7 +284,7 @@ module GpdElim (Bgpd : isGroupoid B) where
     e-eval a₀ (g , 3kg) i .fst x = 3kg .link a₀ x i
     e-eval a₀ (g , 3kg) i .snd .link x y = λ j → 3kg .coh₁ a₀ x y j i
     e-eval a₀ (g , 3kg) i .snd .coh₁ x y z
-      = Bgpd₂
+      = Bgpd'
           (λ _ → refl)
           (λ k j → 3kg .coh₁ a₀ x y j k)
           (λ k j → 3kg .coh₁ a₀ x z j k)

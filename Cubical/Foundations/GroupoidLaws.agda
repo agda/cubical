@@ -234,3 +234,14 @@ doubleCompPath-elim' p q r = (split-leftright' p q r) ∙ (sym (leftright p (q �
 -- assoc : {ℓ : Level} {A : Type ℓ} {w x y z : A} (p : w ≡ x) (q : x ≡ y) (r : y ≡ z) →
 --                 (p ∙ q) ∙ r ≡ p ∙ (q ∙ r)
 -- assoc p q r = (sym (doubleCompPath-elim p q r)) ∙ (doubleCompPath-elim' p q r)
+
+squeezeSq≡
+  : ∀{w x y z : A}
+  → (p : w ≡ y) (q : w ≡ x) (r : y ≡ z) (s : x ≡ z)
+  → (q ≡ p ∙∙ r ∙∙ sym s) ≡ (Square p q r s)
+squeezeSq≡ p q r s k
+  = Square
+      (λ j → p (j ∧ k))
+      q
+      (λ j → doubleCompPath-filler p r (sym s) j (~ k))
+      (λ j → s (j ∧ k))
