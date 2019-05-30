@@ -20,6 +20,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.GroupoidLaws
 
 private
   variable
@@ -29,6 +30,9 @@ private
 ua : ∀ {A B : Type ℓ} → A ≃ B → A ≡ B
 ua {A = A} {B = B} e i = Glue B (λ { (i = i0) → (A , e)
                                    ; (i = i1) → (B , idEquiv B) })
+
+uaIdEquiv : {A : Type ℓ} → ua (idEquiv A) ≡ refl
+uaIdEquiv {A = A} i j = Glue A {φ = i ∨ ~ j ∨ j} (λ _ → A , idEquiv A)
 
 -- Give detailed type to unglue, mainly for documentation purposes
 unglueua : ∀ {A B : Type ℓ} → (e : A ≃ B) → (i : I) (x : ua e i)
@@ -103,10 +107,6 @@ elimEquivFun : (B : Type ℓ) (P : (A : Type ℓ) → (A → B) → Type ℓ')
              → (A : Type ℓ) → (e : A ≃ B) → P A (e .fst)
 elimEquivFun B P r a e = subst (λ x → P (x .fst) (x .snd .fst)) (contrSinglEquiv e) r
 
--- ua is defined in Cubical/Core/Glue
-uaIdEquiv : {A : Type ℓ} → ua (idEquiv A) ≡ refl
-uaIdEquiv {A = A} i j = Glue A {φ = i ∨ ~ j ∨ j} (λ _ → A , idEquiv A)
-
 -- Assuming that we have an inverse to ua we can easily prove univalence
 module Univalence (au : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B)
                   (auid : ∀ {ℓ} {A B : Type ℓ} → au refl ≡ idEquiv A) where
@@ -169,3 +169,16 @@ elimIso {ℓ} {ℓ'} {B} Q h {A} f g sfg rfg = rem1 f g sfg rfg
 
   rem1 : {A : Type ℓ} → (f : A → B) → P f
   rem1 f g sfg rfg = elimEquiv P rem (f , isoToIsEquiv (iso f g sfg rfg)) g sfg rfg
+
+
+uaInvEquiv : ∀ {A B : Type ℓ} → (e : A ≃ B) → ua (invEquiv e) ≡ sym (ua e)
+uaInvEquiv e = EquivJ (λ _ _ e → ua (invEquiv e) ≡ sym (ua e)) rem _ _ e
+  where
+  rem : (A : Type ℓ) → ua (invEquiv (idEquiv A)) ≡ sym (ua (idEquiv A))
+  rem A = cong ua (invEquivIdEquiv A)
+
+uaCompEquiv : ∀ {A B C : Type ℓ} → (e : A ≃ B) (f : B ≃ C) → ua (compEquiv e f) ≡ ua e ∙ ua f
+uaCompEquiv {C = C} = EquivJ (λ A B e → (f : A ≃ C) → ua (compEquiv e f) ≡ ua e ∙ ua f) rem _ _
+  where
+  rem : (A : Type _) (f : A ≃ C) → ua (compEquiv (idEquiv A) f) ≡ ua (idEquiv A) ∙ ua f
+  rem _ f = cong ua (compEquivIdEquiv f) ∙ sym (cong (λ x → x ∙ ua f) uaIdEquiv ∙ sym (lUnit (ua f)))
