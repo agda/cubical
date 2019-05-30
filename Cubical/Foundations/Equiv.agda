@@ -93,12 +93,18 @@ equivToIso {A = A} {B = B} e = iso (e .fst) (invEq e ) (retEq e) (secEq e)
 invEquiv : A ≃ B → B ≃ A
 invEquiv f = isoToEquiv (iso (invEq f) (fst f) (secEq f) (retEq f))
 
+invEquivIdEquiv : (A : Type ℓ) → invEquiv (idEquiv A) ≡ idEquiv A
+invEquivIdEquiv _ = equivEq _ _ refl
+
 compEquiv : A ≃ B → B ≃ C → A ≃ C
 compEquiv f g = isoToEquiv
                   (iso (λ x → g .fst (f .fst x))
                        (λ x → invEq f (invEq g x))
                        (λ y → (cong (g .fst) (retEq f (invEq g y))) ∙ (retEq g y))
                        (λ y → (cong (invEq f) (secEq g (f .fst y))) ∙ (secEq f y)))
+
+compEquivIdEquiv : {A B : Type ℓ} (e : A ≃ B) → compEquiv (idEquiv A) e ≡ e
+compEquivIdEquiv e = equivEq _ _ refl
 
 compIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} →
             Iso A B → Iso B C → Iso A C
