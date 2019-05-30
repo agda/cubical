@@ -182,12 +182,43 @@ isProp A = (x y : A) → x ≡ y
 isSet : Type ℓ → Type ℓ
 isSet A = (x y : A) → isProp (x ≡ y)
 
+Square
+  : ∀{w x y z : A}
+  → (p : w ≡ y) (q : w ≡ x) (r : y ≡ z) (s : x ≡ z)
+  → Set _
+Square p q r s = PathP (λ i → p i ≡ s i) q r
+
 isSet' : Type ℓ → Type ℓ
-isSet' A = {x y z w : A} (p : x ≡ y) (q : z ≡ w) (r : x ≡ z) (s : y ≡ w) →
-           PathP (λ i → Path A (r i) (s i)) p q
+isSet' A
+  = {x y z w : A}
+  → (p : x ≡ y) (q : z ≡ w) (r : x ≡ z) (s : y ≡ w)
+  → Square r p q s
 
 isGroupoid : Type ℓ → Type ℓ
 isGroupoid A = ∀ a b → isSet (Path A a b)
+
+Cube
+  : ∀{w x y z w' x' y' z' : A}
+  → {p : w ≡ y} {q : w ≡ x} {r : y ≡ z} {s : x ≡ z}
+  → {p' : w' ≡ y'} {q' : w' ≡ x'} {r' : y' ≡ z'} {s' : x' ≡ z'}
+  → {a : w ≡ w'} {b : x ≡ x'} {c : y ≡ y'} {d : z ≡ z'}
+  → (ps : Square a p p' c) (qs : Square a q q' b)
+  → (rs : Square c r r' d) (ss : Square b s s' d)
+  → (f0 : Square p q r s) (f1 : Square p' q' r' s')
+  → Set _
+Cube ps qs rs ss f0 f1
+  = PathP (λ k → Square (ps k) (qs k) (rs k) (ss k)) f0 f1
+
+isGroupoid' : Set ℓ → Set ℓ
+isGroupoid' A
+  = ∀{w x y z w' x' y' z' : A}
+  → {p : w ≡ y} {q : w ≡ x} {r : y ≡ z} {s : x ≡ z}
+  → {p' : w' ≡ y'} {q' : w' ≡ x'} {r' : y' ≡ z'} {s' : x' ≡ z'}
+  → {a : w ≡ w'} {b : x ≡ x'} {c : y ≡ y'} {d : z ≡ z'}
+  → (fp : Square a p p' c) → (fq : Square a q q' b)
+  → (fr : Square c r r' d) → (fs : Square b s s' d)
+  → (f0 : Square p q r s) → (f1 : Square p' q' r' s')
+  → Cube fp fq fr fs f0 f1
 
 is2Groupoid : Type ℓ → Type ℓ
 is2Groupoid A = ∀ a b → isGroupoid (Path A a b)
