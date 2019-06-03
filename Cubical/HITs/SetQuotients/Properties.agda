@@ -51,8 +51,8 @@ elimSetQuotientsProp : ((x : A / R ) → isProp (B x)) →
                        (x : A / R) → B x
 elimSetQuotientsProp Bprop f [ x ] = f x
 elimSetQuotientsProp Bprop f (squash/ x y p q i j) =
-  elimSquash₀ (λ x → isProp→isSet (Bprop x)) (squash/ x y p q)
-              (g x) (g y) (cong g p) (cong g q) i j
+  isOfHLevel→isOfHLevelDep {n = 2} (λ x → isProp→isSet (Bprop x))
+              (g x) (g y) (cong g p) (cong g q) (squash/ x y p q) i j
     where
     g = elimSetQuotientsProp Bprop f
 elimSetQuotientsProp Bprop f (eq/ a b r i) = elimEq/ Bprop (eq/ a b r) (f a) (f b) i
@@ -71,8 +71,8 @@ elimSetQuotients : {B : A / R → Type ℓ} →
 elimSetQuotients Bset f feq [ a ] = f a
 elimSetQuotients Bset f feq (eq/ a b r i) = feq a b r i
 elimSetQuotients Bset f feq (squash/ x y p q i j) =
-  elimSquash₀ Bset (squash/ x y p q)
-              (g x) (g y) (cong g p) (cong g q) i j
+  isOfHLevel→isOfHLevelDep {n = 2} Bset
+              (g x) (g y) (cong g p) (cong g q) (squash/ x y p q) i j
     where
       g = elimSetQuotients Bset f feq
 

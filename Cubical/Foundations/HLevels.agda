@@ -39,7 +39,25 @@ hProp {ℓ} = Σ (Type ℓ) isProp
 isOfHLevel : ℕ → Type ℓ → Type ℓ
 isOfHLevel 0 A = isContr A
 isOfHLevel 1 A = isProp A
-isOfHLevel (suc n) A = (x y : A) → isOfHLevel n (x ≡ y)
+isOfHLevel (suc (suc n)) A = (x y : A) → isOfHLevel (suc n) (x ≡ y)
+
+isOfHLevelDep : ℕ → {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
+isOfHLevelDep 0 {A = A} B = {a : A} → B a
+isOfHLevelDep 1 {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) (p : a0 ≡ a1)  → PathP (λ i → B (p i)) b0 b1
+isOfHLevelDep (suc (suc  n)) {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) → isOfHLevelDep (suc n) {A = a0 ≡ a1} (λ p → PathP (λ i → B (p i)) b0 b1)
+
+isOfHLevel→isOfHLevelDep : {n : ℕ} → {A : Type ℓ} {B : A → Type ℓ'} (h : (a : A) → isOfHLevel n (B a)) → isOfHLevelDep n {A = A} B
+isOfHLevel→isOfHLevelDep {n = 0} {A = A} {B} h {a} = h a .fst
+isOfHLevel→isOfHLevelDep {n = 1} {A = A} {B} h = λ b0 b1 p → isProp→PathP h p b0 b1
+isOfHLevel→isOfHLevelDep {n = suc (suc n)} {A = A} {B} h {a0} {a1} b0 b1 =
+  isOfHLevel→isOfHLevelDep {n = suc n}
+    {B = λ p → PathP (λ i → B (p i)) b0 b1} λ p → helper a1 p b1
+    where
+      helper : (a1 : A) (p : a0 ≡ a1) (b1 : B a1) →
+        isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1)
+      helper a1 p b1 = J
+                         (λ a1 p → ∀ b1 → isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1))
+                         (λ _ → h _ _ _) p b1
 
 HLevel : ℕ → Type (ℓ-suc ℓ)
 HLevel {ℓ} n = Σ[ A ∈ Type ℓ ] (isOfHLevel n A)

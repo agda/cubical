@@ -3,6 +3,7 @@ module Cubical.HITs.FiniteMultiset.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.HITs.SetTruncation
+open import Cubical.Foundations.HLevels
 
 private
   variable
@@ -29,7 +30,7 @@ module FMSetElim {ℓ} {B : FMSet A → Type ℓ}
   f (x ∷ xs) = x ∷* f xs
   f (comm x y xs i) = comm* x y (f xs) i
   f (trunc xs zs p q i j) =
-    elimSquash₀ trunc* (trunc xs zs p q) (f xs) (f zs) (cong f p) (cong f q) i j
+    isOfHLevel→isOfHLevelDep {n = 2} trunc*  (f xs) (f zs) (cong f p) (cong f q) (trunc xs zs p q) i j
 
 module FMSetElimProp {ℓ} {B : FMSet A → Type ℓ} (BProp : {xs : FMSet A} → isProp (B xs))
   ([]* : B []) (_∷*_ : (x : A) {xs : FMSet A} → B xs → B (x ∷ xs)) where
