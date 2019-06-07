@@ -43,14 +43,12 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
 
 sucPred : ∀ i → sucInt (predInt i) ≡ i
-sucPred (pos zero)       = refl
-sucPred (pos (suc n))    = refl
-sucPred (negsuc zero)    = refl
-sucPred (negsuc (suc n)) = refl
+sucPred (pos zero)    = refl
+sucPred (pos (suc n)) = refl
+sucPred (negsuc n)    = refl
 
 predSuc : ∀ i → predInt (sucInt i) ≡ i
-predSuc (pos zero)       = refl
-predSuc (pos (suc n))    = refl
+predSuc (pos n)          = refl
 predSuc (negsuc zero)    = refl
 predSuc (negsuc (suc n)) = refl
 

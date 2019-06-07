@@ -5,7 +5,7 @@ Theory about equivalences (definitions are in Core/Glue.agda)
 - isEquiv is a proposition ([isPropIsEquiv])
 - Any isomorphism is an equivalence ([isoToEquiv])
 
-There are more statements about equivalences in PathSplitEquiv.agda:
+There are more statements about equivalences in Equiv/Properties.agda:
 
 - if f is an equivalence then (cong f) is an equivalence
 - if f is an equivalence then precomposition with f is an equivalence
