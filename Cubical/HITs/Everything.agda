@@ -1,10 +1,12 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.Everything where
 
+open import Cubical.HITs.BiInvInt public hiding ( pred ; suc-pred ; pred-suc ) 
 open import Cubical.HITs.Cylinder public
 open import Cubical.HITs.HitInt public
 open import Cubical.HITs.Hopf public
 open import Cubical.HITs.Interval public
+open import Cubical.HITs.IsoInt public
 open import Cubical.HITs.Join public
 open import Cubical.HITs.ListedFiniteSet public
 open import Cubical.HITs.Pushout public

@@ -1,9 +1,10 @@
 {-
 
-Theory about Bi-Invertible Equivalences
+Some theory about Bi-Invertible Equivalences
 
 - BiInvEquiv to Iso
 - BiInvEquiv to Equiv
+- BiInvEquiv to HAEquiv
 - Iso to BiInvEquiv
 
 -}
@@ -13,7 +14,10 @@ module Cubical.Foundations.BiInvEquiv where
 open import Cubical.Core.Glue
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HAEquiv
 
 
 record BiInvEquiv {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ ℓ') where
@@ -25,40 +29,47 @@ record BiInvEquiv {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ 
     invl : B → A
     invl-leftInv : retract fun invl
 
-
-  invr-filler : ∀ z {w} (p : invl z ≡ w) → I → I → A
-  invr-filler z p j i = hfill (λ j → λ { (i = i0) → invl-leftInv (invr z) j
-                                       ; (i = i1) → p j })
-                              (inS (invl (invr-rightInv z i))) j
-
-  invr≡invl : ∀ z → invr z ≡ invl z
-  invr≡invl z i = invr-filler z refl i1 i
+  invr≡invl : ∀ b → invr b ≡ invl b
+  invr≡invl b =            invr b   ≡⟨ sym (invl-leftInv (invr b)) ⟩
+                invl (fun (invr b)) ≡⟨ cong invl (invr-rightInv b) ⟩
+                invl b              ∎
 
   invr-leftInv : retract fun invr
-  invr-leftInv z i = invr-filler (fun z) (invl-leftInv z) i1 i
+  invr-leftInv a = invr≡invl (fun a) □ (invl-leftInv a)
 
+  invr≡invl-leftInv : ∀ a → PathP (λ j → invr≡invl (fun a) j ≡ a) (invr-leftInv a) (invl-leftInv a)
+  invr≡invl-leftInv a j i = compPath'-filler (invr≡invl (fun a)) (invl-leftInv a) (~ j) i
 
   invl-rightInv : section fun invl
-  invl-rightInv = subst (section fun) (funExt invr≡invl) invr-rightInv
+  invl-rightInv a = sym (cong fun (invr≡invl a)) □ (invr-rightInv a)
 
-  -- (what's the relationship between this proof and invl-rightInv?)
-  invl-rightInv' : section fun invl
-  invl-rightInv' z i = hcomp (λ j → λ { (i = i0) → fun (invl (invr-rightInv z j))
-                                      ; (i = i1) → invr-rightInv z j })
-                             (fun (invl-leftInv (invr z) i))
+  invr≡invl-rightInv : ∀ a → PathP (λ j → fun (invr≡invl a j) ≡ a) (invr-rightInv a) (invl-rightInv a)
+  invr≡invl-rightInv a j i = compPath'-filler (sym (cong fun (invr≡invl a))) (invr-rightInv a) j i
 
 
 module _ {ℓ} {A B : Type ℓ} (e : BiInvEquiv A B) where
   open BiInvEquiv e
 
-  biInvEquiv→Iso : Iso A B
-  Iso.fun biInvEquiv→Iso      = fun
-  Iso.inv biInvEquiv→Iso      = invr
-  Iso.rightInv biInvEquiv→Iso = invr-rightInv
-  Iso.leftInv biInvEquiv→Iso  = invr-leftInv
+  biInvEquiv→Iso-right : Iso A B
+  Iso.fun biInvEquiv→Iso-right      = fun
+  Iso.inv biInvEquiv→Iso-right      = invr
+  Iso.rightInv biInvEquiv→Iso-right = invr-rightInv
+  Iso.leftInv biInvEquiv→Iso-right  = invr-leftInv
 
-  biInvEquiv→Equiv : A ≃ B
-  biInvEquiv→Equiv = fun , isoToIsEquiv biInvEquiv→Iso
+  biInvEquiv→Iso-left : Iso A B
+  Iso.fun biInvEquiv→Iso-left      = fun
+  Iso.inv biInvEquiv→Iso-left      = invl
+  Iso.rightInv biInvEquiv→Iso-left = invl-rightInv
+  Iso.leftInv biInvEquiv→Iso-left  = invl-leftInv
+
+  biInvEquiv→Equiv-right biInvEquiv→Equiv-left : A ≃ B
+  biInvEquiv→Equiv-right = fun , isoToIsEquiv biInvEquiv→Iso-right
+  biInvEquiv→Equiv-left  = fun , isoToIsEquiv biInvEquiv→Iso-left
+
+  -- since Iso.rightInv ends up getting modified during iso→HAEquiv, in some sense biInvEquiv→Iso-left
+  --  is the most natural choice for forming a HAEquiv from a BiInvEquiv
+  biInvEquiv→HAEquiv : HAEquiv A B
+  biInvEquiv→HAEquiv = iso→HAEquiv biInvEquiv→Iso-left
 
 
 module _ {ℓ} {A B : Type ℓ} (i : Iso A B) where

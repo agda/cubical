@@ -1,15 +1,38 @@
+{-
+
+Definition of the integers as a HIT ported from the redtt library:
+
+  https://github.com/RedPRL/redtt/blob/master/library/cool/biinv-int.red
+
+For the naive, but incorrect, way to define the integers as a HIT, see HITs.IsoInt
+
+This file contains:
+- definition of BiInvInt
+- proof that Int ≡ BiInvInt
+- [discreteBiInvInt] and [isSetBiInvInt]
+- versions of the point construtors of BiInvInt which satisfy the path constructors judgmentally
+
+-}
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.BiInvInt.Base where
+
+open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Data.Nat
 open import Cubical.Data.Int
 
+open import Cubical.Foundations.GroupoidLaws
+
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.BiInvEquiv
+open import Cubical.Foundations.HAEquiv
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
 
+open import Cubical.Relation.Nullary
 
--- Adapted from: https://github.com/RedPRL/redtt/blob/master/library/cool/biinv-int.red
 
 data BiInvInt : Type₀ where
   zero : BiInvInt
@@ -21,23 +44,196 @@ data BiInvInt : Type₀ where
   predl : BiInvInt -> BiInvInt
   predl-suc : ∀ z -> predl (suc z) ≡ z
 
-suc-biiequiv : BiInvEquiv BiInvInt BiInvInt
-suc-biiequiv = record { fun = suc ; invr = predr ; invr-rightInv = suc-predr
-                                  ; invl = predl ; invl-leftInv  = predl-suc }
+
+suc-biinvequiv : BiInvEquiv BiInvInt BiInvInt
+suc-biinvequiv = record { fun = suc ; invr = predr ; invr-rightInv = suc-predr
+                                    ; invl = predl ; invl-leftInv  = predl-suc }
 
 predr-suc : ∀ z -> predr (suc z) ≡ z
-predr-suc = BiInvEquiv.invr-leftInv suc-biiequiv
+predr-suc = BiInvEquiv.invr-leftInv suc-biinvequiv
+
+-- since we want to use suc-adj and pred-adj (defined below) later on, we will need the
+--  definition of suc-predl taken from HAEquiv instead of from BiInvEquiv
+
+suc-haequiv : HAEquiv BiInvInt BiInvInt
+suc-haequiv = biInvEquiv→HAEquiv suc-biinvequiv
 
 suc-predl : ∀ z -> suc (predl z) ≡ z
-suc-predl = BiInvEquiv.invl-rightInv suc-biiequiv
+suc-predl = isHAEquiv.ret (snd suc-haequiv)
 
--- predr and predl are indistinguishable!
-predr≡predl : ∀ z -> predr z ≡ predl z
-predr≡predl = BiInvEquiv.invr≡invl suc-biiequiv
+-- predr and predl (as well as suc-predr and suc-predl - up to a path) are indistinguishable,
+--  so we can safely define 'pred' to just be predl
 
--- we arbitrarily define 'pred' to be predr
+predl≡predr : ∀ z -> predl z ≡ predr z
+predl≡predr z i = cong fst (isContr→isProp (isContr-section (biInvEquiv→Equiv-left suc-biinvequiv))
+                                           (predl , suc-predl) (predr , suc-predr)) i z
+
+suc-predl≡predr : ∀ z -> PathP (λ j → suc (predl≡predr z j) ≡ z) (suc-predl z) (suc-predr z)
+suc-predl≡predr z i = cong snd (isContr→isProp (isContr-section (biInvEquiv→Equiv-left suc-biinvequiv))
+                                               (predl , suc-predl) (predr , suc-predr)) i z
+
 pred : BiInvInt -> BiInvInt
-pred = predr
+pred = predl
+
+suc-pred = suc-predl
+pred-suc = predl-suc
+
+-- these paths from HAEquiv will be useful later
+suc-adj  : ∀ z → (λ i → suc (pred-suc z i)) ≡ suc-pred (suc z)
+pred-adj : ∀ z → (λ i → pred (suc-pred z i)) ≡ pred-suc (pred z)
+suc-adj  z = isHAEquiv.com (snd suc-haequiv) z
+pred-adj z = isHAEquiv.com-op (snd suc-haequiv) z
+
+
+
+-- Int ≡ BiInvInt
+
+fwd : Int -> BiInvInt
+fwd (pos zero)       = zero
+fwd (pos (suc n))    = suc (fwd (pos n))
+fwd (negsuc zero)    = pred zero
+fwd (negsuc (suc n)) = pred (fwd (negsuc n))
+
+bwd : BiInvInt -> Int
+bwd zero            = pos zero
+bwd (suc z)         = sucInt (bwd z)
+bwd (predr z)       = predInt (bwd z)
+bwd (suc-predr z i) = sucPred (bwd z) i
+bwd (predl z)       = predInt (bwd z)
+bwd (predl-suc z i) = predSuc (bwd z) i
+
+bwd-fwd : ∀ (x : Int) -> bwd (fwd x) ≡ x
+bwd-fwd (pos zero)       = refl
+bwd-fwd (pos (suc n))    = cong sucInt (bwd-fwd (pos n))
+bwd-fwd (negsuc zero)    = refl
+bwd-fwd (negsuc (suc n)) = cong predInt (bwd-fwd (negsuc n))
+
+private
+
+  fwd-sucInt : ∀ (x : Int) → fwd (sucInt x) ≡ suc (fwd x)
+  fwd-sucInt (pos n)          = refl
+  fwd-sucInt (negsuc zero)    = sym (suc-pred (fwd (pos zero)))
+  fwd-sucInt (negsuc (suc n)) = sym (suc-pred (fwd (negsuc n)))
+
+  fwd-predInt : ∀ (x : Int) → fwd (predInt x) ≡ pred (fwd x)
+  fwd-predInt (pos zero)    = refl
+  fwd-predInt (pos (suc n)) = sym (predl-suc (fwd (pos n)))
+  fwd-predInt (negsuc n)    = refl
+
+
+  sym-filler : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y)
+                → Square′ {- (i = i0) -} (sym p)
+                          {- (i = i1) -} refl
+                          {- (j = i0) -} refl
+                          {- (j = i1) -} p
+  sym-filler {y = y} p i j = hcomp (λ k → λ { (i = i0) → p ((~ j) ∨ (~ k))
+                                            ; (i = i1) → y
+                                            ; (j = i0) → y
+                                            ; (j = i1) → p (i ∨ (~ k)) }) y
+
+  fwd-sucPred : ∀ (x : Int)
+                → Square′ {- (i = i0) -} (fwd-sucInt (predInt x) ∙ (λ i → suc (fwd-predInt x i)))
+                          {- (i = i1) -} (λ _ → fwd x)
+                          {- (j = i0) -} (λ i → fwd (sucPred x i))
+                          {- (j = i1) -} (suc-pred (fwd x))
+
+
+  fwd-sucPred (pos zero) i j
+    = hcomp (λ k → λ { (i = i0) → rUnit (sym (suc-pred (fwd (pos zero)))) k j
+                                  -- because fwd-sucInt (predInt (pos zero)) ≡ sym (suc-pred (fwd (pos zero)))
+                     ; (i = i1) → fwd (pos zero)
+                     ; (j = i0) → fwd (pos zero)
+                     ; (j = i1) → suc-pred (fwd (pos zero)) i
+                     })
+            (sym-filler (suc-pred (fwd (pos zero))) i j)
+
+  fwd-sucPred (pos (suc n)) i j
+    = hcomp (λ k → λ { (i = i0) → lUnit (λ i → suc (sym (predl-suc (fwd (pos n))) i)) k j
+                                  -- because fwd-predInt (pos (suc n)) ≡ sym (predl-suc (fwd (pos n)))
+                     ; (i = i1) → suc (fwd (pos n))
+                     ; (j = i0) → suc (fwd (pos n))
+                     ; (j = i1) → suc-adj (fwd (pos n)) k i
+                     })
+            (suc (sym-filler (pred-suc (fwd (pos n))) i j))
+
+  fwd-sucPred (negsuc n) i j
+    = hcomp (λ k → λ { (i = i0) → rUnit (sym (suc-pred (fwd (negsuc n)))) k j
+                                  -- because fwd-sucInt (predInt (negsuc n)) ≡ sym (suc-pred (fwd (negsuc n)))
+                     ; (i = i1) → fwd (negsuc n)
+                     ; (j = i0) → fwd (negsuc n)
+                     ; (j = i1) → suc-pred (fwd (negsuc n)) i
+                     })
+            (sym-filler (suc-pred (fwd (negsuc n))) i j)
+
+
+  fwd-predSuc : ∀ (x : Int)
+                → Square′ {- (i = i0) -} (fwd-predInt (sucInt x) ∙ (λ i → pred (fwd-sucInt x i)))
+                          {- (i = i1) -} (λ _ → fwd x)
+                          {- (j = i0) -} (λ i → fwd (predSuc x i))
+                          {- (j = i1) -} (pred-suc (fwd x))
+
+  fwd-predSuc (pos n) i j
+    = hcomp (λ k → λ { (i = i0) → rUnit (sym (pred-suc (fwd (pos n)))) k j
+                                  -- because fwd-predInt (sucInt (pos n)) ≡ sym (pred-suc (fwd (pos n)))
+                     ; (i = i1) → fwd (pos n)
+                     ; (j = i0) → fwd (pos n)
+                     ; (j = i1) → pred-suc (fwd (pos n)) i
+                     })
+            (sym-filler (pred-suc (fwd (pos n))) i j)
+
+  fwd-predSuc (negsuc zero) i j
+    = hcomp (λ k → λ { (i = i0) → lUnit (λ i → pred (sym (suc-pred (fwd (pos zero))) i)) k j
+                                  -- because fwd-sucInt (negsuc zero) ≡ sym (suc-pred (fwd (pos zero)))
+                     ; (i = i1) → fwd (negsuc zero)
+                     ; (j = i0) → fwd (negsuc zero)
+                     ; (j = i1) → pred-adj (fwd (pos zero)) k i
+                     })
+            (pred (sym-filler (suc-pred (fwd (pos zero))) i j))
+
+  fwd-predSuc (negsuc (suc n)) i j
+    = hcomp (λ k → λ { (i = i0) → lUnit (λ i → pred (sym (suc-pred (fwd (negsuc n))) i)) k j
+                                  -- because fwd-sucInt (negsuc (suc n)) ≡ sym (suc-pred (fwd (negsuc n)))
+                     ; (i = i1) → fwd (negsuc (suc n))
+                     ; (j = i0) → fwd (negsuc (suc n))
+                     ; (j = i1) → pred-adj (fwd (negsuc n)) k i
+                     })
+            (pred (sym-filler (suc-pred (fwd (negsuc n))) i j))
+
+
+fwd-bwd : ∀ (z : BiInvInt) -> fwd (bwd z) ≡ z
+fwd-bwd zero      = refl
+fwd-bwd (suc z)   = fwd-sucInt  (bwd z) ∙ (λ i → suc (fwd-bwd z i))
+fwd-bwd (predr z) = fwd-predInt (bwd z) ∙ (λ i → predl≡predr (fwd-bwd z i) i)
+fwd-bwd (predl z) = fwd-predInt (bwd z) ∙ (λ i → pred (fwd-bwd z i))
+fwd-bwd (suc-predr z i) j
+  = hcomp (λ k → λ { (i = i0) → (fwd-sucInt (predInt (bwd z))
+                                 ∙ (λ i → suc (compPath-filler (fwd-predInt (bwd z))
+                                                               (λ i' → predl≡predr (fwd-bwd z i') i')
+                                                               k i))) j
+                   ; (i = i1) → fwd-bwd z (j ∧ k)
+                   ; (j = i0) → fwd (sucPred (bwd z) i)
+                   ; (j = i1) → suc-predl≡predr (fwd-bwd z k) k i })
+          (fwd-sucPred (bwd z) i j)
+fwd-bwd (predl-suc z i) j
+  = hcomp (λ k → λ { (i = i0) → (fwd-predInt (sucInt (bwd z))
+                                 ∙ (λ i → pred (compPath-filler (fwd-sucInt (bwd z))
+                                                                (λ i' → suc (fwd-bwd z i'))
+                                                                k i))) j
+                   ; (i = i1) → fwd-bwd z (j ∧ k)
+                   ; (j = i0) → fwd (predSuc (bwd z) i)
+                   ; (j = i1) → pred-suc (fwd-bwd z k) i })
+          (fwd-predSuc (bwd z) i j)
+
+
+Int≡BiInvInt : Int ≡ BiInvInt
+Int≡BiInvInt = isoToPath (iso fwd bwd fwd-bwd bwd-fwd)
+
+discreteBiInvInt : Discrete BiInvInt
+discreteBiInvInt = subst Discrete Int≡BiInvInt discreteInt
+
+isSetBiInvInt : isSet BiInvInt
+isSetBiInvInt = subst isSet Int≡BiInvInt isSetInt
+
 
 
 -- suc' is equal to suc (suc≡suc') but cancels pred *exactly* (see suc'-pred)
@@ -61,8 +257,9 @@ suc'ᵖ (predl-suc z i) = let filler : I → I → BiInvInt
                                                (inS (suc (predl-suc z i))) j
                          in filler i1 i , λ j → filler j i
 
-suc'-pred : ∀ z → suc' (pred z) ≡ z
-suc'-pred z = refl
+private
+  suc'-pred : ∀ z → suc' (pred z) ≡ z
+  suc'-pred z = refl
 
 
 -- pred' is equal to pred (pred≡pred') but cancels suc *exactly* (see pred'-suc)
@@ -105,62 +302,10 @@ predl'ᵖ (predl-suc z i) = let filler : I → I → BiInvInt
                                                  (inS (predl (predl-suc z i))) j
                            in filler i1 i , λ j → filler j i
 
-predr'-suc : ∀ z → predr' (suc z) ≡ z
-predr'-suc z = refl
+private
+  predr'-suc : ∀ z → predr' (suc z) ≡ z
+  predr'-suc z = refl
 
-predl'-suc : ∀ z → predl' (suc z) ≡ z
-predl'-suc z = refl
+  predl'-suc : ∀ z → predl' (suc z) ≡ z
+  predl'-suc z = refl
 
-
--- 'normalizes' a BiInvInt, should be equal to the identity
-
-norm : BiInvInt -> BiInvInt
-norm zero = zero
-norm (suc z) = suc' (norm z)
-norm (predr z) = predr' (norm z)
-norm (suc-predr z i) = let p : suc (predr (norm z)) ≡ suc' (predr' (norm z))
-                           p = cong suc (predr≡predr' (norm z)) ∙ suc≡suc' (predr' (norm z))
-                        in (sym p ∙ suc-predr (norm z)) i
-norm (predl z) = predl' (norm z)
-norm (predl-suc z i) = let p : predl (suc (norm z)) ≡ predl' (suc' (norm z))
-                           p = cong predl (suc≡suc' (norm z)) ∙ predl≡predl' (suc' (norm z))
-                        in (sym p ∙ predl-suc (norm z)) i
-
--- norm≡id : ∀ z → z ≡ norm z
--- norm≡id zero = refl
--- norm≡id (suc z) = suc≡suc' z ∙ cong suc' (norm≡id z)
--- norm≡id (predr z) = predr≡predr' z ∙ cong predr' (norm≡id z)
--- norm≡id (suc-predr z i) = {!!}
--- norm≡id (predl z) = predl≡predl' z ∙ cong predl' (norm≡id z)
--- norm≡id (predl-suc z i) = {!!}
-
-
--- Int ≡ BiInvInt
-
-fwd : Int -> BiInvInt
-fwd (pos zero) = zero
-fwd (pos (suc n)) = suc (fwd (pos n))
-fwd (negsuc zero) = pred zero
-fwd (negsuc (suc n)) = pred (fwd (negsuc n))
-
-bwd : BiInvInt -> Int
-bwd zero = pos zero
-bwd (suc x) = sucInt (bwd x)
-bwd (predr x) = predInt (bwd x)
-bwd (suc-predr x i) = sucPred (bwd x) i
-bwd (predl x) = predInt (bwd x)
-bwd (predl-suc x i) = predSuc (bwd x) i
-
-bwd-fwd : ∀ (x : Int) -> bwd (fwd x) ≡ x
-bwd-fwd (pos zero) = refl
-bwd-fwd (pos (suc n)) = cong sucInt (bwd-fwd (pos n))
-bwd-fwd (negsuc zero) = refl
-bwd-fwd (negsuc (suc n)) = cong predInt (bwd-fwd (negsuc n))
-
--- fwd-bwd : ∀ (x : BiInvInt) -> fwd (bwd x) ≡ x
--- fwd-bwd zero = refl
--- fwd-bwd (suc x) = {!!}
--- fwd-bwd (predr x) = {!!}
--- fwd-bwd (suc-predr x i) = {!!}
--- fwd-bwd (predl x) = {!!}
--- fwd-bwd (predl-suc x i) = {!!}
