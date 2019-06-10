@@ -30,7 +30,7 @@ module MaybePath {ℓ} {A : Type ℓ} where
 
   encodeRefl : ∀ c → encode c c refl ≡ reflCode c
   encodeRefl c = JRefl (λ c' _ → Cover c c') (reflCode c)
-  
+
   decode : ∀ c c' → Cover c c' → c ≡ c'
   decode nothing  nothing  _ = refl
   decode (just _) (just _) p = cong just p
@@ -74,7 +74,7 @@ fromJust-def a nothing = a
 fromJust-def _ (just a) = a
 
 just-inj : (x y : A) → just x ≡ just y → x ≡ y
-just-inj x _ eq = cong (fromJust-def x) eq 
+just-inj x _ eq = cong (fromJust-def x) eq
 
 ¬nothing≡just : ∀ {x : A} → ¬ (nothing ≡ just x)
 ¬nothing≡just {A = A} {x = x} p = lower (subst (caseMaybe (Maybe A) (Lift ⊥)) p (just x))
