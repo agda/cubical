@@ -36,11 +36,20 @@ open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Empty
 open import Cubical.Data.Nat hiding (_+_ ; +-assoc ; +-comm)
+open import Cubical.Data.Bool
 open import Cubical.Data.Sum
 open import Cubical.Data.Int.Base
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
+
+abs : Int → ℕ
+abs (pos n) = n
+abs (negsuc n) = suc n
+
+sgn : Int → Bool
+sgn (pos n) = true
+sgn (negsuc n) = false
 
 sucPred : ∀ i → sucInt (predInt i) ≡ i
 sucPred (pos zero)    = refl

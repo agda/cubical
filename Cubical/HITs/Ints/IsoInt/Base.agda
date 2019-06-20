@@ -7,7 +7,7 @@ This file mainly contains a proof that IsoInt ≢ Int, and ends with a
 
 -}
 {-# OPTIONS --cubical --safe #-}
-module Cubical.HITs.IsoInt.Base where
+module Cubical.HITs.Ints.IsoInt.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -81,8 +81,8 @@ private
 
   -- Note: this same proof strategy fails for BiInvInt!
 
-  open import Cubical.HITs.BiInvInt hiding (zero; suc; pred; suc-pred; pred-suc)
-  import Cubical.HITs.BiInvInt as BiI
+  open import Cubical.HITs.Ints.BiInvInt hiding (zero; suc; pred; suc-pred; pred-suc)
+  import Cubical.HITs.Ints.BiInvInt as BiI
 
   p₁ p₂ : Path BiInvInt (BiI.suc (BiI.pred (BiI.suc BiI.zero))) (BiI.suc BiI.zero)
   p₁ i = BiI.suc-pred (BiI.suc BiI.zero) i
