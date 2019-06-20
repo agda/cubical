@@ -121,79 +121,79 @@ fwd-predInt (negsuc n)    = refl
 
 private
   sym-filler : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y)
-                → Square′ {- (i = i0) -} (sym p)
-                          {- (i = i1) -} refl
-                          {- (j = i0) -} refl
-                          {- (j = i1) -} p
-  sym-filler {y = y} p i j = hcomp (λ k → λ { (i = i0) → p ((~ j) ∨ (~ k))
+                → Square {- (j = i0) -} refl
+                         {- (i = i0) -} (sym p)
+                         {- (i = i1) -} refl
+                         {- (j = i1) -} p
+  sym-filler {y = y} p i j = hcomp (λ k → λ { (j = i0) → y
+                                            ; (i = i0) → p ((~ j) ∨ (~ k))
                                             ; (i = i1) → y
-                                            ; (j = i0) → y
                                             ; (j = i1) → p (i ∨ (~ k)) }) y
 
 fwd-sucPred : ∀ (x : Int)
-              → Square′ {- (i = i0) -} (fwd-sucInt (predInt x) ∙ (λ i → suc (fwd-predInt x i)))
-                        {- (i = i1) -} (λ _ → fwd x)
-                        {- (j = i0) -} (λ i → fwd (sucPred x i))
-                        {- (j = i1) -} (suc-pred (fwd x))
+              → Square {- (j = i0) -} (λ i → fwd (sucPred x i))
+                       {- (i = i0) -} (fwd-sucInt (predInt x) ∙ (λ i → suc (fwd-predInt x i)))
+                       {- (i = i1) -} (λ _ → fwd x)
+                       {- (j = i1) -} (suc-pred (fwd x))
 
 
 fwd-sucPred (pos zero) i j
-  = hcomp (λ k → λ { (i = i0) → rUnit (sym (suc-pred (fwd (pos zero)))) k j
+  = hcomp (λ k → λ { (j = i0) → fwd (pos zero)
+                   ; (i = i0) → rUnit (sym (suc-pred (fwd (pos zero)))) k j
                                 -- because fwd-sucInt (predInt (pos zero)) ≡ sym (suc-pred (fwd (pos zero)))
                    ; (i = i1) → fwd (pos zero)
-                   ; (j = i0) → fwd (pos zero)
                    ; (j = i1) → suc-pred (fwd (pos zero)) i
                    })
           (sym-filler (suc-pred (fwd (pos zero))) i j)
 
 fwd-sucPred (pos (suc n)) i j
-  = hcomp (λ k → λ { (i = i0) → lUnit (λ i → suc (sym (predl-suc (fwd (pos n))) i)) k j
+  = hcomp (λ k → λ { (j = i0) → suc (fwd (pos n))
+                   ; (i = i0) → lUnit (λ i → suc (sym (predl-suc (fwd (pos n))) i)) k j
                                 -- because fwd-predInt (pos (suc n)) ≡ sym (predl-suc (fwd (pos n)))
                    ; (i = i1) → suc (fwd (pos n))
-                   ; (j = i0) → suc (fwd (pos n))
                    ; (j = i1) → suc-adj (fwd (pos n)) k i
                    })
           (suc (sym-filler (pred-suc (fwd (pos n))) i j))
 
 fwd-sucPred (negsuc n) i j
-  = hcomp (λ k → λ { (i = i0) → rUnit (sym (suc-pred (fwd (negsuc n)))) k j
+  = hcomp (λ k → λ { (j = i0) → fwd (negsuc n)
+                   ; (i = i0) → rUnit (sym (suc-pred (fwd (negsuc n)))) k j
                                 -- because fwd-sucInt (predInt (negsuc n)) ≡ sym (suc-pred (fwd (negsuc n)))
                    ; (i = i1) → fwd (negsuc n)
-                   ; (j = i0) → fwd (negsuc n)
                    ; (j = i1) → suc-pred (fwd (negsuc n)) i
                    })
           (sym-filler (suc-pred (fwd (negsuc n))) i j)
 
 
 fwd-predSuc : ∀ (x : Int)
-              → Square′ {- (i = i0) -} (fwd-predInt (sucInt x) ∙ (λ i → pred (fwd-sucInt x i)))
-                        {- (i = i1) -} (λ _ → fwd x)
-                        {- (j = i0) -} (λ i → fwd (predSuc x i))
-                        {- (j = i1) -} (pred-suc (fwd x))
+              → Square {- (j = i0) -} (λ i → fwd (predSuc x i))
+                       {- (i = i0) -} (fwd-predInt (sucInt x) ∙ (λ i → pred (fwd-sucInt x i)))
+                       {- (i = i1) -} (λ _ → fwd x)
+                       {- (j = i1) -} (pred-suc (fwd x))
 
 fwd-predSuc (pos n) i j
-  = hcomp (λ k → λ { (i = i0) → rUnit (sym (pred-suc (fwd (pos n)))) k j
+  = hcomp (λ k → λ { (j = i0) → fwd (pos n)
+                   ; (i = i0) → rUnit (sym (pred-suc (fwd (pos n)))) k j
                                 -- because fwd-predInt (sucInt (pos n)) ≡ sym (pred-suc (fwd (pos n)))
                    ; (i = i1) → fwd (pos n)
-                   ; (j = i0) → fwd (pos n)
                    ; (j = i1) → pred-suc (fwd (pos n)) i
                    })
           (sym-filler (pred-suc (fwd (pos n))) i j)
 
 fwd-predSuc (negsuc zero) i j
-  = hcomp (λ k → λ { (i = i0) → lUnit (λ i → pred (sym (suc-pred (fwd (pos zero))) i)) k j
+  = hcomp (λ k → λ { (j = i0) → fwd (negsuc zero)
+                   ; (i = i0) → lUnit (λ i → pred (sym (suc-pred (fwd (pos zero))) i)) k j
                                 -- because fwd-sucInt (negsuc zero) ≡ sym (suc-pred (fwd (pos zero)))
                    ; (i = i1) → fwd (negsuc zero)
-                   ; (j = i0) → fwd (negsuc zero)
                    ; (j = i1) → pred-adj (fwd (pos zero)) k i
                    })
           (pred (sym-filler (suc-pred (fwd (pos zero))) i j))
 
 fwd-predSuc (negsuc (suc n)) i j
-  = hcomp (λ k → λ { (i = i0) → lUnit (λ i → pred (sym (suc-pred (fwd (negsuc n))) i)) k j
+  = hcomp (λ k → λ { (j = i0) → fwd (negsuc (suc n))
+                   ; (i = i0) → lUnit (λ i → pred (sym (suc-pred (fwd (negsuc n))) i)) k j
                                 -- because fwd-sucInt (negsuc (suc n)) ≡ sym (suc-pred (fwd (negsuc n)))
                    ; (i = i1) → fwd (negsuc (suc n))
-                   ; (j = i0) → fwd (negsuc (suc n))
                    ; (j = i1) → pred-adj (fwd (negsuc n)) k i
                    })
           (pred (sym-filler (suc-pred (fwd (negsuc n))) i j))
@@ -205,21 +205,21 @@ fwd-bwd (suc z)   = fwd-sucInt  (bwd z) ∙ (λ i → suc (fwd-bwd z i))
 fwd-bwd (predr z) = fwd-predInt (bwd z) ∙ (λ i → predl≡predr (fwd-bwd z i) i)
 fwd-bwd (predl z) = fwd-predInt (bwd z) ∙ (λ i → pred (fwd-bwd z i))
 fwd-bwd (suc-predr z i) j
-  = hcomp (λ k → λ { (i = i0) → (fwd-sucInt (predInt (bwd z))
+  = hcomp (λ k → λ { (j = i0) → fwd (sucPred (bwd z) i)
+                   ; (i = i0) → (fwd-sucInt (predInt (bwd z))
                                  ∙ (λ i → suc (compPath-filler (fwd-predInt (bwd z))
                                                                (λ i' → predl≡predr (fwd-bwd z i') i')
                                                                k i))) j
                    ; (i = i1) → fwd-bwd z (j ∧ k)
-                   ; (j = i0) → fwd (sucPred (bwd z) i)
                    ; (j = i1) → suc-predl≡predr (fwd-bwd z k) k i })
           (fwd-sucPred (bwd z) i j)
 fwd-bwd (predl-suc z i) j
-  = hcomp (λ k → λ { (i = i0) → (fwd-predInt (sucInt (bwd z))
+  = hcomp (λ k → λ { (j = i0) → fwd (predSuc (bwd z) i)
+                   ; (i = i0) → (fwd-predInt (sucInt (bwd z))
                                  ∙ (λ i → pred (compPath-filler (fwd-sucInt (bwd z))
                                                                 (λ i' → suc (fwd-bwd z i'))
                                                                 k i))) j
                    ; (i = i1) → fwd-bwd z (j ∧ k)
-                   ; (j = i0) → fwd (predSuc (bwd z) i)
                    ; (j = i1) → pred-suc (fwd-bwd z k) i })
           (fwd-predSuc (bwd z) i j)
 

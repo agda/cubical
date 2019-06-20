@@ -30,20 +30,20 @@ record isHAEquiv {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type 
   -- from redtt's ha-equiv/symm
   com-op : ∀ b → cong g (ret b) ≡ sec (g b)
   com-op b j i = hcomp (λ k → λ { (i = i0) → sec (g b) (j ∧ (~ k))
-                                ; (i = i1) → g b
                                 ; (j = i0) → g (ret b i)
-                                ; (j = i1) → sec (g b) (i ∨ (~ k)) })
+                                ; (j = i1) → sec (g b) (i ∨ (~ k))
+                                ; (i = i1) → g b })
                        (cap1 j i)
     
-    where cap0 : Square′ {- (j = i0) -} (λ i → f (g (ret b i)))
-                         {- (j = i1) -} (λ i → ret b i)
-                         {- (i = i0) -} (λ j → f (sec (g b) j))
-                         {- (i = i1) -} (λ j → ret b j)
+    where cap0 : Square {- (i = i0) -} (λ j → f (sec (g b) j))
+                        {- (j = i0) -} (λ i → f (g (ret b i)))
+                        {- (j = i1) -} (λ i → ret b i)
+                        {- (i = i1) -} (λ j → ret b j)
 
           cap0 j i = hcomp (λ k → λ { (i = i0) → com (g b) (~ k) j
-                                    ; (i = i1) → ret b j
                                     ; (j = i0) → f (g (ret b i))
-                                    ; (j = i1) → ret b i })
+                                    ; (j = i1) → ret b i
+                                    ; (i = i1) → ret b j })
                            (ret (ret b i) j)
 
           filler : I → I → A
@@ -51,15 +51,15 @@ record isHAEquiv {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type 
                                       ; (i = i1) → g b })
                              (inS (sec (g b) i)) j
 
-          cap1 : Square′ {- (j = i0) -} (λ i → g (ret b i))
-                         {- (j = i1) -} (λ i → g b)
-                         {- (i = i0) -} (λ j → sec (g b) j)
-                         {- (i = i1) -} (λ j → g b)
+          cap1 : Square {- (i = i0) -} (λ j → sec (g b) j)
+                        {- (j = i0) -} (λ i → g (ret b i))
+                        {- (j = i1) -} (λ i → g b)
+                        {- (i = i1) -} (λ j → g b)
 
           cap1 j i = hcomp (λ k → λ { (i = i0) → sec (sec (g b) j) k
-                                    ; (i = i1) → filler j k
                                     ; (j = i0) → sec (g (ret b i)) k
-                                    ; (j = i1) → filler i k })
+                                    ; (j = i1) → filler i k
+                                    ; (i = i1) → filler j k })
                            (g (cap0 j i))
 
 

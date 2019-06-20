@@ -188,13 +188,6 @@ Square
   → Set _
 Square p q r s = PathP (λ i → p i ≡ s i) q r
 
--- a version of Square with the arguments in a more familar order
-Square′
-  : ∀ {ℓ} {A : Set ℓ} {w x y z : A}
-  → (face-i0 : w ≡ x) (face-i1 : y ≡ z) (face-j0 : w ≡ y) (face-j1 : x ≡ z)
-  → Set _
-Square′ f-i0 f-i1 f-j0 f-j1 = PathP (λ i → f-j0 i ≡ f-j1 i) f-i0 f-i1
-
 isSet' : Type ℓ → Type ℓ
 isSet' A
   = {x y z w : A}
