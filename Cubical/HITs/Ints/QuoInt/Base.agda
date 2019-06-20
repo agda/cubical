@@ -9,7 +9,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 
-open import Cubical.Data.Int
+open import Cubical.Data.Int hiding (abs; sgn)
 open import Cubical.Data.Nat
 
 data ℤ : Type₀ where
