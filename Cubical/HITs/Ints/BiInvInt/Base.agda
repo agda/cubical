@@ -10,7 +10,7 @@ This file contains:
 - definition of BiInvInt
 - proof that Int ≡ BiInvInt
 - [discreteBiInvInt] and [isSetBiInvInt]
-- versions of the point construtors of BiInvInt which satisfy the path constructors judgmentally
+- versions of the point constructors of BiInvInt which satisfy the path constructors judgmentally
 
 -}
 {-# OPTIONS --cubical --safe #-}
