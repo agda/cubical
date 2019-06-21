@@ -32,7 +32,9 @@ open import Cubical.Foundations.GroupoidLaws public
 open import Cubical.Foundations.CartesianKanOps public
 open import Cubical.Foundations.Function public
 open import Cubical.Foundations.Equiv public
+open import Cubical.Foundations.Equiv.Properties public
 open import Cubical.Foundations.PathSplitEquiv public
+open import Cubical.Foundations.BiInvEquiv public
 open import Cubical.Foundations.FunExtEquiv public
 open import Cubical.Foundations.HLevels public
 open import Cubical.Foundations.Path public

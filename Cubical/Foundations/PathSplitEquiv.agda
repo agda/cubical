@@ -26,35 +26,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
 
-isEquivCong : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → (cong (fst e) p))
-isEquivCong e = EquivJ (λ (B' A' : Type _) (e' : A' ≃ B') →
-                         (x' y' : A') → isEquiv (λ (p : x' ≡ y') → cong (fst e') p))
-                       (λ _ x' y' → idIsEquiv (x' ≡ y')) _ _ e _ _
-
-congEquiv : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
-congEquiv e = ((λ (p : _ ≡ _) → cong (fst e) p) , isEquivCong e)
-
-isEquivPreComp : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
-  → isEquiv (λ (φ : B → C) → φ ∘ e .fst)
-isEquivPreComp {A = A} {C = C} e = EquivJ
-                  (λ (B A : Type _) (e' : A ≃ B) → isEquiv (λ (φ : B → C) → φ ∘ e' .fst))
-                  (λ A → idIsEquiv (A → C)) _ _ e
-
-isEquivPostComp : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
-  → isEquiv (λ (φ : C → A) → e .fst ∘ φ)
-isEquivPostComp {A = A} {C = C} e = EquivJ
-                  (λ (B A : Type _) (e' : A ≃ B) →  isEquiv (λ (φ : C → A) → e' .fst ∘ φ))
-                  (λ A → idIsEquiv (C → A)) _ _ e
-
-preCompEquiv : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
-             → (B → C) ≃ (A → C)
-preCompEquiv e = (λ φ x → φ (fst e x)) , isEquivPreComp e
-
-postCompEquiv : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
-             → (C → A) ≃ (C → B)
-postCompEquiv e = (λ φ x → fst e (φ x)) , isEquivPostComp e
-
-
+open import Cubical.Foundations.Equiv.Properties
 
 record isPathSplitEquiv {ℓ ℓ'} {A : Type  ℓ} {B : Type ℓ'} (f : A → B) : Type (ℓ-max ℓ ℓ') where
   field
