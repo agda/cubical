@@ -50,6 +50,10 @@ install:
     fi
   - cabal install
   - cd -
+  # installing fix-agda-whitespace
+  - cd agda/src/fix-agda-whitespace
+  - cabal install fix-agda-whitespace.cabal
+  - cd -
   # snapshot package-db on cache miss
   - echo "snapshotting package-db to build-cache";
     mkdir $HOME/.cabsnap;
@@ -57,4 +61,5 @@ install:
     cp -a $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin $HOME/installplan.txt $HOME/.cabsnap/;
 
 script:
+  - make check-whitespace
   - make

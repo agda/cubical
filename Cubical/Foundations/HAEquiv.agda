@@ -34,7 +34,7 @@ record isHAEquiv {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type 
                                 ; (j = i1) → sec (g b) (i ∨ (~ k))
                                 ; (i = i1) → g b })
                        (cap1 j i)
-    
+
     where cap0 : Square {- (i = i0) -} (λ j → f (sec (g b) j))
                         {- (j = i0) -} (λ i → f (g (ret b i)))
                         {- (j = i1) -} (λ i → ret b i)
