@@ -82,7 +82,7 @@ n+′∞≡∞′ zero = refl
 n+′∞≡∞′ (suc n) = λ i → suc (n+∞≡∞ n i)
 
 ∞+∞≡∞ : ∞ + ∞ ≡ ∞
-∞+∞≡∞ = n+∞≡∞ ∞
+force (∞+∞≡∞ i) = suc (∞+∞≡∞ i)
 
 conat-absurd : ∀ {y : Conat} {ℓ} {Whatever : Type ℓ} → zero ≡ suc y → Whatever
 conat-absurd eq = ⊥-elim (transport (cong diag eq) tt)
