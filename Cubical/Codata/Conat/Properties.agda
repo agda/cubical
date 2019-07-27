@@ -49,14 +49,14 @@ unwrap-prev (suc x) = x
 
 private -- tests
   𝟘 = conat zero
-  one  = succ 𝟘
-  two  = succ one
+  𝟙  = succ 𝟘
+  𝟚  = succ 𝟙
 
-  succOne≡two : succ one ≡ two
-  succOne≡two i = two
+  succ𝟙≡𝟚 : succ 𝟙 ≡ 𝟚
+  succ𝟙≡𝟚 i = 𝟚
 
-  predTwo≡one : unwrap-prev (force two) ≡ one
-  predTwo≡one i = one
+  pred𝟚≡𝟙 : unwrap-prev (force 𝟚) ≡ 𝟙
+  pred𝟚≡𝟙 i = 𝟙
 
 ∞ : Conat
 force ∞ = suc ∞
@@ -67,7 +67,22 @@ force (∞+1≡∞ _) = suc ∞
 ∞+2≡∞ : succ (succ ∞) ≡ ∞
 ∞+2≡∞ = (cong succ ∞+1≡∞) ∙ ∞+1≡∞
 
--- TODO: plus for conat, ∞ + ∞ ≡ ∞
+_+_ : Conat → Conat → Conat
+_+′_ : Conat′ → Conat → Conat′
+
+force (x + y) = force x +′ y
+zero +′ y = force y
+suc x +′ y = suc (x + y)
+
+n+∞≡∞ : ∀ n → n + ∞ ≡ ∞
+n+′∞≡∞′ : ∀ n → n +′ ∞ ≡ suc ∞
+
+force (n+∞≡∞ n i) = n+′∞≡∞′ (force n) i
+n+′∞≡∞′ zero = refl
+n+′∞≡∞′ (suc n) = λ i → suc (n+∞≡∞ n i)
+
+∞+∞≡∞ : ∞ + ∞ ≡ ∞
+∞+∞≡∞ = n+∞≡∞ ∞
 
 conat-absurd : ∀ {y : Conat} {ℓ} {Whatever : Type ℓ} → zero ≡ suc y → Whatever
 conat-absurd eq = ⊥-elim (transport (cong diag eq) tt)
