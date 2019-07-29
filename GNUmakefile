@@ -2,7 +2,7 @@ AGDA_EXEC=agda
 RTS_OPTIONS=+RTS -H3G -RTS
 AGDA=$(AGDA_EXEC) $(RTS_OPTIONS)
 
-test: fix-whitespace check
+test: check-whitespace check
 
 fix-whitespace: 
 	cabal exec -- fix-agda-whitespace

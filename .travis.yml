@@ -62,5 +62,4 @@ install:
     cp -a $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin $HOME/installplan.txt $HOME/.cabsnap/;
 
 script:
-  - make check-whitespace
   - make
