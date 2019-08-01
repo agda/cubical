@@ -23,7 +23,7 @@ open import Cubical.Relation.Nullary
 data IsoInt : Type₀ where
   zero : IsoInt
   suc : IsoInt -> IsoInt
-  
+
   -- suc is an isomorphism:
   pred : IsoInt -> IsoInt
   suc-pred : ∀ z -> suc (pred z) ≡ z
@@ -54,7 +54,7 @@ module NonTrivial where
   toS¹ (pred x)       = toS¹ x
   toS¹ (suc-pred x i) = refl {x = toS¹ x} i
   toS¹ (pred-suc x i) = rotLoop (toS¹ x) i
-  
+
   p₁≡refl : cong toS¹ p₁ ≡ refl
   p₁≡refl = refl
 
@@ -62,7 +62,7 @@ module NonTrivial where
   p₂≡loop = refl
 
   -- this is enough to show that p₁ and p₂ cannot be equal
-  p₁≢p₂ : ¬ (p₁ ≡ p₂)  
+  p₁≢p₂ : ¬ (p₁ ≡ p₂)
   p₁≢p₂ eq = znots 0≡1
     where -- using winding numbers, p₁ ≡ p₂ implies 0 ≡ 1
           0≡1 : 0 ≡ 1

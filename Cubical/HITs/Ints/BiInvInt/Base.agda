@@ -37,7 +37,7 @@ open import Cubical.Relation.Nullary
 data BiInvInt : Type₀ where
   zero : BiInvInt
   suc : BiInvInt -> BiInvInt
-  
+
   -- suc is a bi-invertible equivalence:
   predr : BiInvInt -> BiInvInt
   suc-predr : ∀ z -> suc (predr z) ≡ z
