@@ -2,14 +2,21 @@ AGDA_EXEC=agda
 RTS_OPTIONS=+RTS -H3G -RTS
 AGDA=$(AGDA_EXEC) $(RTS_OPTIONS)
 
+.PHONY : all
+all : check
+
+.PHONY : test
 test: check-whitespace check
 
-fix-whitespace: 
+.PHONY : fix-whitespace
+fix-whitespace:
 	cabal exec -- fix-agda-whitespace
 
+.PHONY : check-whitespace
 check-whitespace:
 	cabal exec -- fix-agda-whitespace --check
 
+.PHONY : check
 check: $(wildcard **/*.agda)
 	$(AGDA) Cubical/Core/Everything.agda
 	$(AGDA) Cubical/Foundations/Everything.agda
@@ -19,5 +26,6 @@ check: $(wildcard **/*.agda)
 	$(AGDA) Cubical/Relation/Everything.agda
 	$(AGDA) Cubical/Experiments/Everything.agda
 
+.PHONY : clean
 clean :
 	find . -type f -name '*.agdai' -delete
