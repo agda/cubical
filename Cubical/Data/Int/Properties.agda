@@ -104,6 +104,11 @@ discreteInt (negsuc n) (negsuc m) with discreteℕ n m
 isSetInt : isSet Int
 isSetInt = Discrete→isSet discreteInt
 
+_ℕ-_ : ℕ → ℕ → Int
+a ℕ- 0 = pos a
+0 ℕ- suc b = negsuc b
+suc a ℕ- suc b = a ℕ- b
+
 _+pos_ : Int → ℕ  → Int
 z +pos 0 = z
 z +pos (suc n) = sucInt (z +pos n)

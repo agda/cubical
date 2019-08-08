@@ -8,6 +8,7 @@ open import Cubical.HITs.Ints.BiInvInt public hiding ( pred ; suc-pred ; pred-su
 open import Cubical.HITs.Ints.HAEquivInt public hiding ( suc-haequiv )
 open import Cubical.HITs.Ints.IsoInt public
 open import Cubical.HITs.Ints.QuoInt public
+open import Cubical.HITs.Ints.DeltaInt public hiding ( pred ; succ ; zero )
 open import Cubical.HITs.Join public
 open import Cubical.HITs.ListedFiniteSet public
 open import Cubical.HITs.Pushout public
