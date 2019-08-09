@@ -1,4 +1,27 @@
 {-# OPTIONS --cubical --safe #-}
+
+{-
+
+This file defines DiffInt (Cubical.HITs.DiffInt) as HIT.
+
+and some basic operations, and the zero value:
+
+succ : DeltaInt → DeltaInt
+pred : DeltaInt → DeltaInt
+zero : {a : ℕ} → DeltaInt
+
+and conversion function for ℕ and Int:
+
+fromℕ : ℕ → DeltaInt
+fromInt : Int → DeltaInt
+toInt : DeltaInt → Int
+
+and a generalized version of cancel:
+
+cancelN : ∀ a b n → a ⊖ b ≡ (n + a) ⊖ n + b
+
+-}
+
 module Cubical.HITs.Ints.DeltaInt.Base where
 
 open import Cubical.Foundations.Prelude

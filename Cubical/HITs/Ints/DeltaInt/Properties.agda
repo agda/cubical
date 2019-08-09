@@ -1,4 +1,14 @@
 {-# OPTIONS --cubical --safe #-}
+
+{-
+
+This file defines
+
+succPred : ∀ n → succ (pred n) ≡ n
+predSucc : ∀ n → pred (succ n) ≡ n
+
+-}
+
 module Cubical.HITs.Ints.DeltaInt.Properties where
 
 open import Cubical.Foundations.Everything
@@ -6,12 +16,25 @@ open import Cubical.Data.Nat hiding (zero)
 open import Cubical.Data.Int hiding (abs; sgn; _+_)
 open import Cubical.HITs.Ints.DeltaInt.Base
 
-{-
-If you wish to prove this, we wish you good luck.
-
 deltaIntSec : ∀ b → toInt (fromInt b) ≡ b
 deltaIntSec (pos n) = refl
 deltaIntSec (negsuc n) = refl
+
+cancelDiamond : ∀ a b i → cancel a b i ≡ cancel (suc a) (suc b) i
+cancelDiamond a b i j = hcomp (λ k → λ
+  { (i = i0) → cancel a b j
+  ; (i = i1) → cancel (suc a) (suc b) j
+  ; (j = i0) → cancel a b i
+  ; (j = i1) → cancel (suc a) (suc b) i
+  }) (hcomp (λ k → λ
+    { (i = i0) → cancel a b j
+    ; (i = i1) → cancel (suc a) (suc b) (j ∧ k)
+    ; (j = i0) → cancel a b i
+    ; (j = i1) → cancel (suc a) (suc b) (i ∧ k)
+    }) (cancel a b (i ∨ j)))
+
+{-
+If you wish to prove this, we wish you good luck.
 
 deltaIntRet : ∀ a → fromInt (toInt a) ≡ a
 deltaIntRet (x ⊖ 0) = refl
@@ -35,17 +58,7 @@ DeltaInt≡Int = isoToPath (iso toInt fromInt deltaIntSec deltaIntRet)
 succPred : ∀ n → succ (pred n) ≡ n
 succPred (x ⊖ y) i = cancel x y (~ i)
 -- cancel (suc a) (suc b) i ≡ cancel a b i
-succPred (cancel a b i) j = hcomp (λ k → λ
-  { (i = i0) → cancel a b (~ j)
-  ; (j = i0) → cancel (suc a) (suc b) i
-  ; (i = i1) → cancel (suc a) (suc b) (~ j)
-  ; (j = i1) → cancel a b i
-  }) (hcomp (λ k → λ
-    { (i = i0) → cancel a b (~ j)
-    ; (i = i1) → cancel (suc a) (suc b) (~ j ∧ k)
-    ; (j = i0) → cancel (suc a) (suc b) (i ∧ k)
-    ; (j = i1) → cancel a b i
-    }) (cancel a b (i ∨ ~ j)))
+succPred (cancel a b i) = sym (cancelDiamond a b i)
 
 predSucc : ∀ n → pred (succ n) ≡ n
 predSucc (x ⊖ y) = succPred (x ⊖ y)
