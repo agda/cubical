@@ -48,7 +48,7 @@ install:
       rm -rf $HOME/.cabsnap;
       mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin;
     fi
-  - cabal install
+  - make install
   - cd -
   # installing fix-agda-whitespace
   - cd agda/src/fix-agda-whitespace
