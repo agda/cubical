@@ -29,15 +29,10 @@ deltaIntSec (negsuc n) = refl
 cancelDiamond : ∀ a b i → cancel a b i ≡ cancel (suc a) (suc b) i
 cancelDiamond a b i j = hcomp (λ k → λ
   { (i = i0) → cancel a b j
-  ; (i = i1) → cancel (suc a) (suc b) j
+  ; (i = i1) → cancel (suc a) (suc b) (j ∧ k)
   ; (j = i0) → cancel a b i
-  ; (j = i1) → cancel (suc a) (suc b) i
-  }) (hcomp (λ k → λ
-    { (i = i0) → cancel a b j
-    ; (i = i1) → cancel (suc a) (suc b) (j ∧ k)
-    ; (j = i0) → cancel a b i
-    ; (j = i1) → cancel (suc a) (suc b) (i ∧ k)
-    }) (cancel a b (i ∨ j)))
+  ; (j = i1) → cancel (suc a) (suc b) (i ∧ k)
+  }) (cancel a b (i ∨ j))
 
 cancelTriangle : ∀ a b i → a ⊖ b ≡ cancel a b i
 cancelTriangle a b i j = hcomp (λ k → λ
