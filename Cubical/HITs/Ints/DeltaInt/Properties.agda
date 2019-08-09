@@ -31,3 +31,23 @@ deltaIntRet (cancel (suc a) (suc b) i) = deltaIntRet (cancel a b i) ∙ cancelHe
 DeltaInt≡Int : DeltaInt ≡ Int
 DeltaInt≡Int = isoToPath (iso toInt fromInt deltaIntSec deltaIntRet)
 -}
+
+succPred : ∀ n → succ (pred n) ≡ n
+succPred (x ⊖ y) i = cancel x y (~ i)
+-- cancel (suc a) (suc b) i ≡ cancel a b i
+succPred (cancel a b i) j = hcomp (λ k → λ
+  { (i = i0) → cancel a b (~ j)
+  ; (j = i0) → cancel (suc a) (suc b) i
+  ; (i = i1) → cancel (suc a) (suc b) (~ j)
+  ; (j = i1) → cancel a b i
+  }) (hcomp (λ k → λ
+    { (i = i0) → cancel a b (~ j)
+    ; (i = i1) → cancel (suc a) (suc b) (~ j ∧ k)
+    ; (j = i0) → cancel (suc a) (suc b) (i ∧ k)
+    ; (j = i1) → cancel a b i
+    }) (cancel a b (i ∨ ~ j)))
+
+predSucc : ∀ n → pred (succ n) ≡ n
+predSucc (x ⊖ y) = succPred (x ⊖ y)
+predSucc (cancel a b i) = succPred (cancel a b i)
+
