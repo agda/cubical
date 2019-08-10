@@ -8,6 +8,10 @@ deltaIntSec : ∀ b → toInt (fromInt b) ≡ b
 succPred : ∀ n → succ (pred n) ≡ n
 predSucc : ∀ n → pred (succ n) ≡ n
 
+and proved DeltaInt ≡ DeltaInt by the above functions
+
+succPredEq : DeltaInt ≡ DeltaInt
+
 along with some interval-relevant lemmas
 
 cancelDiamond  : ∀ a b i → cancel a b i ≡ cancel (suc a) (suc b) i
@@ -67,3 +71,5 @@ predSucc : ∀ n → pred (succ n) ≡ n
 predSucc (x ⊖ y) = succPred (x ⊖ y)
 predSucc (cancel a b i) = succPred (cancel a b i)
 
+succPredEq : DeltaInt ≡ DeltaInt
+succPredEq = isoToPath (iso succ pred succPred predSucc)
