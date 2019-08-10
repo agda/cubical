@@ -25,7 +25,7 @@ open import Cubical.Data.Prod
 
 -- HITs:
 
--- Integers as ℕ + ℕ where "+ 0 = - 0".
+-- Integers as ℕ + ℕ where "inl 0 = inr 0".
 
 data ℤ : Set where
   pos : ℕ → ℤ
@@ -44,7 +44,7 @@ predℤ (pos (suc n)) = pos n
 predℤ (neg n)       = neg (suc n)
 predℤ (posneg _)    = neg 1
 
-sucPredℤ : ∀ n → Path ℤ (sucℤ (predℤ n)) n -- sucℤ (predℤ n) ≡ n
+sucPredℤ : ∀ n → sucℤ (predℤ n) ≡ n
 sucPredℤ (pos zero)    = sym posneg
 sucPredℤ (pos (suc _)) = refl
 sucPredℤ (neg _)       = refl
