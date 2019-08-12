@@ -17,6 +17,27 @@ open import Cubical.Data.Prod
 open import Cubical.Data.Graph.Base
 
 
+-- Some small graphs of common shape
+
+⇒⇐ : Graph ℓ-zero ℓ-zero
+Obj ⇒⇐ = Fin 3
+Hom ⇒⇐ fzero               (fsuc fzero) = ⊤
+Hom ⇒⇐ (fsuc (fsuc fzero)) (fsuc fzero) = ⊤
+Hom ⇒⇐ _ _ = ⊥
+
+⇐⇒ : Graph ℓ-zero ℓ-zero
+Obj ⇐⇒ = Fin 3
+Hom ⇐⇒ (fsuc fzero) fzero               = ⊤
+Hom ⇐⇒ (fsuc fzero) (fsuc (fsuc fzero)) = ⊤
+Hom ⇐⇒ _ _ = ⊥
+
+-- paralell pair graph 
+⇉ : Graph ℓ-zero ℓ-zero
+Obj ⇉ = Fin 2
+Hom ⇉ fzero (fsuc fzero) = Fin 2
+Hom ⇉ _ _ = ⊥
+
+
 -- The graph ω = 0 → 1 → 2 → ···
 
 data Adj : ℕ → ℕ → Type₀ where
@@ -46,6 +67,43 @@ record ωDiag ℓ : Type (ℓ-suc ℓ) where
   asDiag $ n = ωObj n
   _<$>_ asDiag {m} {n} f with areAdj m n
   asDiag <$> tt | yes (adj m) = ωHom m
+
+
+-- The finite connected subgraphs of ω: 𝟘,𝟙,𝟚,𝟛,...
+
+data AdjFin : ∀ {k} → Fin k → Fin k → Type₀ where
+  adj : ∀ {k} (n : Fin k) → AdjFin (finj n) (fsuc n)
+
+adj-fsuc : ∀ {k} {m n : Fin k} → AdjFin (fsuc m) (fsuc n) → AdjFin m n
+adj-fsuc {suc k} {.(finj n)} {fsuc n} (adj .(fsuc n)) = adj n
+
+areAdjFin : ∀ {k} (m n : Fin k) → Dec (AdjFin m n)
+areAdjFin {suc k}       fzero fzero           = no λ ()
+areAdjFin {suc (suc k)} fzero (fsuc fzero)    = yes (adj fzero)
+areAdjFin {suc (suc k)} fzero (fsuc (fsuc n)) = no λ ()
+areAdjFin {suc k}       (fsuc m) fzero        = no λ ()
+areAdjFin {suc k}       (fsuc m) (fsuc n)     = mapDec (λ { (adj m) → adj (fsuc m) })
+                                                       (λ { ¬a a → ¬a (adj-fsuc a) })
+                                                       (areAdjFin {k} m n)
+
+[_]Gr : ℕ → Graph ℓ-zero ℓ-zero
+Obj [ k ]Gr = Fin k
+Hom [ k ]Gr m n with areAdjFin m n
+... | yes _ = ⊤ -- if n ≡ (suc m)
+... | no  _ = ⊥ -- otherwise
+
+𝟘Gr 𝟙Gr 𝟚Gr 𝟛Gr : Graph ℓ-zero ℓ-zero
+𝟘Gr = [ 0 ]Gr; 𝟙Gr = [ 1 ]Gr; 𝟚Gr = [ 2 ]Gr; 𝟛Gr = [ 3 ]Gr
+
+record [_]Diag ℓ (k : ℕ) : Type (ℓ-suc ℓ) where
+  field
+    []Obj : Fin (suc k) → Type ℓ
+    []Hom : ∀ (n : Fin k) → []Obj (finj n) → []Obj (fsuc n)
+
+  asDiag : Diag ℓ [ suc k ]Gr
+  asDiag $ n = []Obj n
+  _<$>_ asDiag {m} {n} f with areAdjFin m n
+  _<$>_ asDiag {.(finj n)} {fsuc n} f | yes (adj .n) = []Hom n
 
 
 -- Disjoint union of graphs
