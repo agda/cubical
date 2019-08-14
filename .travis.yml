@@ -61,7 +61,7 @@ install:
     mkdir $HOME/.cabsnap;
     cp -a $HOME/.ghc $HOME/.cabsnap/ghc;
     cp -a $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin $HOME/installplan.txt $HOME/.cabsnap/;
-  - cd $HOME/cubical
+  - cd $TRAVIS_BUILD_DIR
 
 script:
   - make test
