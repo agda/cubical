@@ -2,7 +2,7 @@
 
 {-
 
-This file defines DiffInt (Cubical.HITs.DiffInt) as HIT.
+This file defines DiffInt (Cubical.Data.DiffInt) as HIT.
 
 and some basic operations, and the zero value:
 
