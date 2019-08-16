@@ -20,7 +20,7 @@ record isGroup {ℓ} (A : Type ℓ) : Type ℓ where
     rUnit : ∀ a → comp a id ≡ a
     assoc  : ∀ a b c → comp (comp a b) c ≡ comp a (comp b c)
     lCancel  : ∀ a → comp (inv a) a ≡ id
-    rCalcel : ∀ a → comp a (inv a) ≡ id
+    rCancel : ∀ a → comp a (inv a) ≡ id
 
 record Group {ℓ} : Type (ℓ-suc ℓ) where
   constructor group
