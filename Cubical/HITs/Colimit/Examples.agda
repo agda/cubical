@@ -74,5 +74,4 @@ module _ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {f : A
 
   colim≃Pushout : colim (PushoutDiag f g) ≃ Pushout f g
   colim≃Pushout = uniqColimit colimIsColimit isColimPushout
-  
-  
+

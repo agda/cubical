@@ -31,7 +31,7 @@ Hom ⇐⇒ (fsuc fzero) fzero               = ⊤
 Hom ⇐⇒ (fsuc fzero) (fsuc (fsuc fzero)) = ⊤
 Hom ⇐⇒ _ _ = ⊥
 
--- paralell pair graph 
+-- paralell pair graph
 ⇉ : Graph ℓ-zero ℓ-zero
 Obj ⇉ = Fin 2
 Hom ⇉ fzero (fsuc fzero) = Fin 2

@@ -30,7 +30,7 @@ record GraphHom (G  : Graph ℓv  ℓe ) (G' : Graph ℓv' ℓe')
   field
     _$_ : Obj G → Obj G'
     _<$>_ : ∀ {x y : Obj G} → Hom G x y → Hom G' (_$_ x) (_$_ y)
-  
+
 open GraphHom public
 
 GraphGr : ∀ ℓv ℓe → Graph _ _
