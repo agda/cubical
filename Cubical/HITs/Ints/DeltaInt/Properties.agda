@@ -58,6 +58,7 @@ DeltaInt≡Int = isoToPath (iso toInt fromInt deltaIntSec deltaIntRet)
 
 succPred : ∀ n → succ (pred n) ≡ n
 succPred (x ⊖ y) i = cancel x y (~ i)
+-- cancel (suc a) (suc b) i ≡ cancel a b i
 succPred (cancel a b i) = sym (cancelDiamond a b i)
 
 predSucc : ∀ n → pred (succ n) ≡ n
