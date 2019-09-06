@@ -17,6 +17,15 @@ along with some interval-relevant lemmas
 cancelDiamond  : ∀ a b i → cancel a b i ≡ cancel (suc a) (suc b) i
 cancelTriangle : ∀ a b i → a ⊖ b ≡ cancel a b i
 
+we also have DeltaInt ≡ Int proof
+
+DeltaInt≡Int : DeltaInt ≡ Int
+
+and we transported some proofs from Int to DeltaInt
+
+discreteDeltaInt : Discrete DeltaInt
+isSetDeltaInt : isSet DeltaInt
+
 -}
 
 module Cubical.HITs.Ints.DeltaInt.Properties where
@@ -25,6 +34,7 @@ open import Cubical.Foundations.Everything
 open import Cubical.Data.Nat hiding (zero)
 open import Cubical.Data.Int hiding (abs; sgn; _+_)
 open import Cubical.HITs.Ints.DeltaInt.Base
+open import Cubical.Relation.Nullary using (Discrete)
 
 deltaIntSec : ∀ b → toInt (fromInt b) ≡ b
 deltaIntSec (pos n) = refl
@@ -56,6 +66,12 @@ deltaIntRet (cancel (suc a) (suc b) i) = deltaIntRet (cancel a b i) ∙ cancelDi
 DeltaInt≡Int : DeltaInt ≡ Int
 DeltaInt≡Int = isoToPath (iso toInt fromInt deltaIntSec deltaIntRet)
 
+discreteDeltaInt : Discrete DeltaInt
+discreteDeltaInt = subst Discrete (sym DeltaInt≡Int) discreteInt
+
+isSetDeltaInt : isSet DeltaInt
+isSetDeltaInt = subst isSet (sym DeltaInt≡Int) isSetInt
+
 succPred : ∀ n → succ (pred n) ≡ n
 succPred (x ⊖ y) i = cancel x y (~ i)
 -- cancel (suc a) (suc b) i ≡ cancel a b i
@@ -67,3 +83,4 @@ predSucc (cancel a b i) = succPred (cancel a b i)
 
 succPredEq : DeltaInt ≡ DeltaInt
 succPredEq = isoToPath (iso succ pred succPred predSucc)
+
