@@ -21,6 +21,8 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HAEquiv
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Prod.Base
 open import Cubical.Data.Unit
@@ -53,131 +55,50 @@ record 3-span-equiv (s1 : 3-span) (s2 : 3-span) : Type₀ where
      H3 : ∀ x → 3-span.f3 s2 (e2 .fst x) ≡ e4 .fst (3-span.f3 s1 x)
 
 {-
-  Proof that the pushouts of equivalent diagrams are equal
+  Proof that homotopy equivalent spans are in fact equal
 -}
-
-spanEquivToPath : {s1 : 3-span} → {s2 : 3-span} → (e : 3-span-equiv s1 s2)
-                  → spanPushout s1 ≡ spanPushout s2
-spanEquivToPath {s1} {s2} e = p1≡p2
+spanEquivToPath : {s1 : 3-span} → {s2 : 3-span} → (e : 3-span-equiv s1 s2) → s1 ≡ s2
+spanEquivToPath {s1} {s2} e = spanPath
   where
     open 3-span-equiv e
-    open isHAEquiv
     open 3-span
 
-    -- we use half-adjoint equivalences because we will need the higher coherences
-    -- built inside the equivalences
-    hae0 : isHAEquiv (fst e0)
-    hae0 = snd (equiv→HAEquiv e0)
+    path0 : A0 s1 ≡ A0 s2
+    path0 = ua e0
 
-    hae2 : isHAEquiv (fst e2)
-    hae2 = snd (equiv→HAEquiv e2)
+    path2 : A2 s1 ≡ A2 s2
+    path2 = ua e2
 
-    hae4 : isHAEquiv (fst e4)
-    hae4 = snd (equiv→HAEquiv e4)
+    path4 : A4 s1 ≡ A4 s2
+    path4 = ua e4
 
-    -- construct a pushout map from a homotopy coherent equivalence
-    filler1 : A2 s1 → I → I → spanPushout s2
-    filler1 a = doubleCompPath-filler (λ j → inl (H1 a (~ j)))
-                                      (push (e2 .fst a))
-                                      (λ j → inr (H3 a j))
+    spanPath1 : I → 3-span
+    spanPath1 i = record { A0 = path0 i ; A2 = path2 i ; A4 = path4 i ;
+                           f1 = λ x → (transp (λ j → path0 (i ∧ j)) (~ i) (f1 s1 (transp (λ j → path2 (~ j ∧ i)) (~ i) x))) ;
+                           f3 = λ x → (transp (λ j → path4 (i ∧ j)) (~ i) (f3 s1 (transp (λ j → path2 (~ j ∧ i)) (~ i) x))) }
 
-    p1→p2 : spanPushout s1 → spanPushout s2
-    p1→p2 (inl x) = inl (e0 .fst x)
-    p1→p2 (inr x) = inr (e4 .fst x)
-    p1→p2 (push a i) = filler1 a i i1
+    spanPath2 : I → 3-span
+    spanPath2 i = record { A0 = A0 s2 ; A2 = A2 s2 ; A4 = A4 s2 ; f1 = f1Path i ; f3 = f3Path i }
+      where
+        f1Path : I → A2 s2 → A0 s2
+        f1Path i x = ((uaβ e0 (f1 s1 (transport (λ j → path2 (~ j)) x)))
+                     ∙ (H1 (transport (λ j → path2 (~ j)) x)) ⁻¹
+                     ∙ (λ j → f1 s2 (uaβ e2 (transport (λ j → path2 (~ j)) x) (~ j)))
+                     ∙ (λ j → f1 s2 (transportTransport⁻ path2 x j))) i
 
-    -- construct a homotopy coherent inverse
-    filler2 : A2 s2 → I → I → spanPushout s1
-    filler2 a = doubleCompPath-filler (λ j → inl (sec hae0 (f1 s1 (g hae2 a)) j))
-                                      (push (g hae2 a))
-                                      (λ j → inr (sec hae4 (f3 s1 (g hae2 a)) (~ j)))
+        f3Path : I → A2 s2 → A4 s2
+        f3Path i x = ((uaβ e4 (f3 s1 (transport (λ j → path2 (~ j)) x)))
+                     ∙ (H3 (transport (λ j → path2 (~ j)) x)) ⁻¹
+                     ∙ (λ j → f3 s2 (uaβ e2 (transport (λ j → path2 (~ j)) x) (~ j)))
+                     ∙ (λ j → f3 s2 (transportTransport⁻ path2 x j))) i
 
-    filler3 : A2 s2 → I → I → spanPushout s1
-    filler3 a = doubleCompPath-filler (λ j → inl (g hae0 (H1 (g hae2 a) j)))
-                                      (λ i → filler2 a i i1)
-                                      (λ j → inr (g hae4 (H3 (g hae2 a) (~ j))))
+    spanPath : s1 ≡ s2
+    spanPath = (λ i → spanPath1 i) ∙ (λ i → spanPath2 i)
 
-    filler4 : A2 s2 → I → I → spanPushout s1
-    filler4 a = doubleCompPath-filler ((λ j → inl (g hae0 (f1 s2 (ret hae2 a (~ j))))))
-                                      (λ i → filler3 a i i1)
-                                      (λ j → inr (g hae4 (f3 s2 (ret hae2 a j))))
-
-    p2→p1 : spanPushout s2 → spanPushout s1
-    p2→p1 (inl x) = inl (g hae0 x)
-    p2→p1 (inr x) = inr (g hae4 x)
-    p2→p1 (push a i) = filler4 a i i1
-
-    -- construct a homotopy coherent retraction
-    sq1 : (x : A2 s2) → I → I → spanPushout s2
-    sq1 x i j = hcomp (λ k → λ { (i = i0) → inl (ret hae0 ((f1 s2 (e2 .fst (g hae2 x)))) j)
-                               ; (i = i1) → inl (com hae0 (f1 s1 (g hae2 x)) (~ k) j)
-                               ; (j = i0) → inl (e0 .fst (g hae0 (H1 (g hae2 x) i)))
-                               ; (j = i1) → inl (H1 (g hae2 x) i) })
-                      (inl (ret hae0 (H1 (g hae2 x) i) j))
-
-    sq2 : (x : A2 s2) → I → I → spanPushout s2
-    sq2 x i j = hcomp (λ k → λ { (i = i0) → inr (ret hae4 ((f3 s2 (e2 .fst (g hae2 x)))) j)
-                               ; (i = i1) → inr (com hae4 (f3 s1 (g hae2 x)) (~ k) j)
-                               ; (j = i0) → inr (e4 .fst (g hae4 (H3 (g hae2 x) i)))
-                               ; (j = i1) → inr (H3 (g hae2 x) i) })
-                      (inr (ret hae4 (H3 (g hae2 x) i) j))
-
-    sq3 : (x : A2 s2) → I → I → spanPushout s2
-    sq3 x i j = hcomp (λ k → λ { (i = i0) → sq1 x (~ k) j
-                               ; (i = i1) → sq2 x (~ k) j
-                               ; (j = i0) → p1→p2 (filler3 x i k)
-                               ; (j = i1) → filler1 (g hae2 x) i (~ k) })
-                      (p1→p2 (filler2 x i (~ j)))
-
-    sq4 : (x : A2 s2) → I → I → spanPushout s2
-    sq4 x i j = hcomp (λ k → λ { (i = i0) → inl (ret hae0 (f1 s2 (ret hae2 x k)) j)
-                               ; (i = i1) → inr (ret hae4 (f3 s2 (ret hae2 x k)) j)
-                               ; (j = i0) → p1→p2 (filler4 x i k)
-                               ; (j = i1) → push (ret hae2 x k) i })
-                      (sq3 x i j)
-
-    p2→p1→p2 : ∀ x → p1→p2 (p2→p1 x) ≡ x
-    p2→p1→p2 (inl x) i = inl (ret hae0 x i)
-    p2→p1→p2 (inr x) i = inr (ret hae4 x i)
-    p2→p1→p2 (push a j) i = sq4 a j i
-
-    -- construct a homotopy coherent section
-    sq5 : (x : A2 s1) → I → I → spanPushout s1
-    sq5 x i j = hcomp (λ k → λ { (i = i0) → inl (g hae0 (f1 s2 (com hae2 x k j)))
-                               ; (i = i1) → inl (g hae0 (e0 .fst (f1 s1 (sec hae2 x j))))
-                               ; (j = i0) → inl (g hae0 (H1 (g hae2 (e2 .fst x)) i))
-                               ; (j = i1) → inl (g hae0 (H1 x i)) })
-                      (inl (g hae0 (H1 (sec hae2 x j) i)))
-
-    sq6 : (x : A2 s1) → I → I → spanPushout s1
-    sq6 x i j = hcomp (λ k → λ { (i = i0) → inr (g hae4 (f3 s2 (com hae2 x k j)))
-                               ; (i = i1) → inr (g hae4 (e4 .fst (f3 s1 (sec hae2 x j))))
-                               ; (j = i0) → inr (g hae4 (H3 (g hae2 (e2 .fst x)) i))
-                               ; (j = i1) → inr (g hae4 (H3 x i)) })
-                      (inr (g hae4 (H3 (sec hae2 x j) i)))
-
-    sq7 : (x : A2 s1) → I → I → spanPushout s1
-    sq7 x i j = hcomp (λ k → λ { (i = i0) → sq5 x k (~ j)
-                               ; (i = i1) → sq6 x k (~ j)
-                               ; (j = i0) → p2→p1 (filler1 x i k)
-                               ; (j = i1) → filler3 (e2 .fst x) i (~ k) })
-                      (filler4 (e2 .fst x) i (~ j))
-
-    sq8 : (x : A2 s1) → I → I → spanPushout s1
-    sq8 x i j = hcomp (λ k → λ { (i = i0) → inl (sec hae0 (f1 s1 (sec hae2 x k)) j)
-                               ; (i = i1) → inr (sec hae4 (f3 s1 (sec hae2 x k)) j)
-                               ; (j = i0) → sq7 x i (~ k)
-                               ; (j = i1) → push (sec hae2 x k) i })
-                      (filler2 (e2 .fst x) i (~ j))
-
-    p1→p2→p1 : ∀ x → p2→p1 (p1→p2 x) ≡ x
-    p1→p2→p1 (inl x) i = inl (sec hae0 x i)
-    p1→p2→p1 (inr x) i = inr (sec hae4 x i)
-    p1→p2→p1 (push a j) i = sq8 a j i
-
-    -- deduce equality of the pushouts
-    p1≡p2 : spanPushout s1 ≡ spanPushout s2
-    p1≡p2 = isoToPath (iso p1→p2 p2→p1 p2→p1→p2 p1→p2→p1)
+-- as a corollary, they have the same pushout
+spanEquivToPushoutPath : {s1 : 3-span} → {s2 : 3-span} → (e : 3-span-equiv s1 s2)
+                         → spanPushout s1 ≡ spanPushout s2
+spanEquivToPushoutPath {s1} {s2} e = cong spanPushout (spanEquivToPath e)
 
 {-
 

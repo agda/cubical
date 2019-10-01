@@ -33,39 +33,39 @@ private
 
 
 -- Alternative definition of the join using a pushout
-joinAlt : (A : Type ℓ) → (B : Type ℓ') → Type (ℓ-max ℓ ℓ')
-joinAlt A B = Pushout {_} {_} {_} {A × B} {A} {B} proj₁ proj₂
+joinPushout : (A : Type ℓ) → (B : Type ℓ') → Type (ℓ-max ℓ ℓ')
+joinPushout A B = Pushout {_} {_} {_} {A × B} {A} {B} proj₁ proj₂
 
 -- Proof that it is equal
-joinAlt-iso-join : (A : Type ℓ) → (B : Type ℓ') → Iso (joinAlt A B) (join A B)
-joinAlt-iso-join A B = iso (joinAlt→join A B) (join→joinAlt A B) (join→joinAlt→join A B) (joinAlt→join→joinAlt A B)
+joinPushout-iso-join : (A : Type ℓ) → (B : Type ℓ') → Iso (joinPushout A B) (join A B)
+joinPushout-iso-join A B = iso joinPushout→join join→joinPushout join→joinPushout→join joinPushout→join→joinPushout
   where
-    joinAlt→join : (A : Type ℓ) → (B : Type ℓ') → joinAlt A B → join A B
-    joinAlt→join A B (inl x) = inl x
-    joinAlt→join A B (inr x) = inr x
-    joinAlt→join A B (push y i) = push (proj₁ y) (proj₂ y) i
+    joinPushout→join : joinPushout A B → join A B
+    joinPushout→join (inl x) = inl x
+    joinPushout→join (inr x) = inr x
+    joinPushout→join (push y i) = push (proj₁ y) (proj₂ y) i
 
-    join→joinAlt : (A : Type ℓ) → (B : Type ℓ') → join A B → joinAlt A B
-    join→joinAlt A B (inl x) = inl x
-    join→joinAlt A B (inr x) = inr x
-    join→joinAlt A B (push a b i) = push (a , b) i
+    join→joinPushout : join A B → joinPushout A B
+    join→joinPushout (inl x) = inl x
+    join→joinPushout (inr x) = inr x
+    join→joinPushout (push a b i) = push (a , b) i
 
-    joinAlt→join→joinAlt : (A : Type ℓ) → (B : Type ℓ') → ∀ x → join→joinAlt A B (joinAlt→join A B x) ≡ x
-    joinAlt→join→joinAlt A B (inl x) = refl
-    joinAlt→join→joinAlt A B (inr x) = refl
-    joinAlt→join→joinAlt A B (push (a , b) j) = refl
+    joinPushout→join→joinPushout : ∀ x → join→joinPushout (joinPushout→join x) ≡ x
+    joinPushout→join→joinPushout (inl x) = refl
+    joinPushout→join→joinPushout (inr x) = refl
+    joinPushout→join→joinPushout (push (a , b) j) = refl
 
-    join→joinAlt→join : (A : Type ℓ) → (B : Type ℓ') → ∀ x → joinAlt→join A B (join→joinAlt A B x) ≡ x
-    join→joinAlt→join A B (inl x) = refl
-    join→joinAlt→join A B (inr x) = refl
-    join→joinAlt→join A B (push a b j) = refl
+    join→joinPushout→join : ∀ x → joinPushout→join (join→joinPushout x) ≡ x
+    join→joinPushout→join (inl x) = refl
+    join→joinPushout→join (inr x) = refl
+    join→joinPushout→join (push a b j) = refl
 
 -- We will need both the equivalence and path version
-joinAlt≃join : (A : Type ℓ) → (B : Type ℓ') → joinAlt A B ≃ join A B
-joinAlt≃join A B = isoToEquiv (joinAlt-iso-join A B)
+joinPushout≃join : (A : Type ℓ) → (B : Type ℓ') → joinPushout A B ≃ join A B
+joinPushout≃join A B = isoToEquiv (joinPushout-iso-join A B)
 
-joinAlt≡join : (A : Type ℓ) → (B : Type ℓ') → joinAlt A B ≡ join A B
-joinAlt≡join A B = isoToPath (joinAlt-iso-join A B)
+joinPushout≡join : (A : Type ℓ) → (B : Type ℓ') → joinPushout A B ≡ join A B
+joinPushout≡join A B = isoToPath (joinPushout-iso-join A B)
 
 
 {-
@@ -73,11 +73,11 @@ joinAlt≡join A B = isoToPath (joinAlt-iso-join A B)
 -}
 join-assoc : (A : Type₀) → (B : Type₀) → (C : Type₀)
              → join (join A B) C ≡ join A (join B C)
-join-assoc A B C = (joinAlt≡join (join A B) C) ⁻¹
-                   ∙ (spanEquivToPath sp3≃sp4) ⁻¹
+join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
+                   ∙ (spanEquivToPushoutPath sp3≃sp4) ⁻¹
                    ∙ (3x3-span.3x3-lemma span) ⁻¹
-                   ∙ (spanEquivToPath sp1≃sp2)
-                   ∙ (joinAlt≡join A (join B C))
+                   ∙ (spanEquivToPushoutPath sp1≃sp2)
+                   ∙ (joinPushout≡join A (join B C))
   where
     -- the meat of the proof is handled by the 3x3 lemma applied to this diagram
     span : 3x3-span
@@ -132,7 +132,7 @@ join-assoc A B C = (joinAlt≡join (join A B) C) ⁻¹
     sp1≃sp2 = record {
       e0 = A□0≃A;
       e2 = A□2≃A×join;
-      e4 = joinAlt≃join B C;
+      e4 = joinPushout≃join B C;
       H1 = H1;
       H3 = H2 }
       where
@@ -186,10 +186,10 @@ join-assoc A B C = (joinAlt≡join (join A B) C) ⁻¹
         H1 (inr (a , c)) = refl
         H1 (push (a , (b , c)) i) j = A□0→A (doubleCompPath-filler refl (λ i → push (a , c) i) refl i j)
 
-        H2 : (x : 3x3-span.A□2 span) → proj₂ (A□2→A×join x) ≡ fst (joinAlt≃join _ _) (3x3-span.f□3 span x)
+        H2 : (x : 3x3-span.A□2 span) → proj₂ (A□2→A×join x) ≡ fst (joinPushout≃join _ _) (3x3-span.f□3 span x)
         H2 (inl (a , b)) = refl
         H2 (inr (a , c)) = refl
-        H2 (push (a , (b , c)) i) j = fst (joinAlt≃join _ _) (doubleCompPath-filler refl (λ i → push (b , c) i) refl i j)
+        H2 (push (a , (b , c)) i) j = fst (joinPushout≃join _ _) (doubleCompPath-filler refl (λ i → push (b , c) i) refl i j)
 
     -- the second span appearing in 3x3 lemma
     sp3 : 3-span
@@ -212,7 +212,7 @@ join-assoc A B C = (joinAlt≡join (join A B) C) ⁻¹
     -- proof that they are in fact equivalent
     sp3≃sp4 : 3-span-equiv sp3 sp4
     sp3≃sp4 = record {
-      e0 = joinAlt≃join A B;
+      e0 = joinPushout≃join A B;
       e2 = A2□≃join×C;
       e4 = A4□≃C;
       H1 = H4;
@@ -268,7 +268,7 @@ join-assoc A B C = (joinAlt≡join (join A B) C) ⁻¹
         H3 (inr (b , c)) = refl
         H3 (push (a , (b , c)) i) j = A4□→C (doubleCompPath-filler refl (λ i → push (a , c) i) refl i j)
 
-        H4 : (x : 3x3-span.A2□ span) → proj₁ (A2□→join×C x) ≡ fst (joinAlt≃join _ _) (3x3-span.f1□ span x)
+        H4 : (x : 3x3-span.A2□ span) → proj₁ (A2□→join×C x) ≡ fst (joinPushout≃join _ _) (3x3-span.f1□ span x)
         H4 (inl (a , c)) = refl
         H4 (inr (b , c)) = refl
-        H4 (push (a , (b , c)) i) j = fst (joinAlt≃join _ _) (doubleCompPath-filler refl (λ i → push (a , b) i) refl i j)
+        H4 (push (a , (b , c)) i) j = fst (joinPushout≃join _ _) (doubleCompPath-filler refl (λ i → push (a , b) i) refl i j)
