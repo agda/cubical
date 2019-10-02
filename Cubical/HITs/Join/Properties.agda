@@ -28,13 +28,11 @@ open import Cubical.HITs.Pushout
 
 private
   variable
-    ℓ : Level
-    ℓ' : Level
-
+    ℓ ℓ' : Level
 
 -- Alternative definition of the join using a pushout
 joinPushout : (A : Type ℓ) → (B : Type ℓ') → Type (ℓ-max ℓ ℓ')
-joinPushout A B = Pushout {_} {_} {_} {A × B} {A} {B} proj₁ proj₂
+joinPushout A B = Pushout {A = A × B} proj₁ proj₂
 
 -- Proof that it is equal
 joinPushout-iso-join : (A : Type ℓ) → (B : Type ℓ') → Iso (joinPushout A B) (join A B)
@@ -71,8 +69,7 @@ joinPushout≡join A B = isoToPath (joinPushout-iso-join A B)
 {-
   Proof of associativity of the join
 -}
-join-assoc : (A : Type₀) → (B : Type₀) → (C : Type₀)
-             → join (join A B) C ≡ join A (join B C)
+join-assoc : (A B C : Type₀) → join (join A B) C ≡ join A (join B C)
 join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
                    ∙ (spanEquivToPushoutPath sp3≃sp4) ⁻¹
                    ∙ (3x3-span.3x3-lemma span) ⁻¹

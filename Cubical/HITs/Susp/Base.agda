@@ -43,7 +43,9 @@ SuspBool→S¹→SuspBool (merid true i)  = λ j → merid true (i ∧ j)
 S¹→SuspBool→S¹ : (x : S¹) → SuspBool→S¹ (S¹→SuspBool x) ≡ x
 S¹→SuspBool→S¹ base     = refl
 S¹→SuspBool→S¹ (loop i) = λ j →
-  hfill (λ k → \ { (i = i0) → base; (i = i1) → base }) (inS (loop i)) (~ j)
+  hfill (λ k → λ { (i = i0) → base
+                 ; (i = i1) → base })
+        (inS (loop i)) (~ j)
 
 S¹≃SuspBool : S¹ ≃ SuspBool
 S¹≃SuspBool = isoToEquiv (iso S¹→SuspBool SuspBool→S¹ SuspBool→S¹→SuspBool S¹→SuspBool→S¹)
@@ -60,14 +62,14 @@ SuspS¹→S² : SuspS¹ → S²
 SuspS¹→S² north = base
 SuspS¹→S² south = base
 SuspS¹→S² (merid base i) = base
-SuspS¹→S² (merid (loop j) i) = (surf i j)
+SuspS¹→S² (merid (loop j) i) = surf i j
 
 meridian-contraction : I → I → I → SuspS¹
 meridian-contraction i j l = hfill (λ k → λ { (i = i0) → north
-                              ; (i = i1) → merid base (~ k)
-                              ; (j = i0) → merid base (~ k ∧ i)
-                              ; (j = i1) → merid base (~ k ∧ i) })
-                     (inS (merid (loop j) i)) l
+                                            ; (i = i1) → merid base (~ k)
+                                            ; (j = i0) → merid base (~ k ∧ i)
+                                            ; (j = i1) → merid base (~ k ∧ i) })
+                                   (inS (merid (loop j) i)) l
 
 S²→SuspS¹ : S² → SuspS¹
 S²→SuspS¹ base = north
@@ -104,7 +106,7 @@ meridian-contraction-2 i j k l = hfill (λ m → λ { (i = i0) → north
                                                 ; (j = i1) → merid base (~ m ∧ i)
                                                 ; (k = i0) → merid base (~ m ∧ i)
                                                 ; (k = i1) → merid base (~ m ∧ i) })
-                                     (inS (merid (surf j k) i)) l
+                                       (inS (merid (surf j k) i)) l
 
 S³→SuspS² : S³ → SuspS²
 S³→SuspS² base = north

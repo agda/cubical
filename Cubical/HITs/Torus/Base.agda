@@ -13,6 +13,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 
+open import Cubical.Data.Nat
 open import Cubical.Data.Int
 open import Cubical.Data.Prod hiding (_×_) renaming (_×Σ_ to _×_)
 
@@ -84,3 +85,16 @@ funDep p u0 u1 i = Path (p i) (transp (λ j → p (i ∧ j)) (~ i) u0) (transp (
   ΩS¹ × ΩS¹
     ≡⟨ (λ i → ΩS¹≡Int i × ΩS¹≡Int i) ⟩
   Int × Int ∎
+
+-- Computing the winding numbers on the torus
+windingTorus : ΩTorus → Int × Int
+windingTorus l = ( winding (λ i → t2c (l i) .fst)
+                 , winding (λ i → t2c (l i) .snd))
+
+module _ where
+ private
+  test1 : windingTorus (line1 ∙ line2) ≡ (pos 1 , pos 1)
+  test1 = refl
+
+  test2 : windingTorus (line1 ∙ line2 ∙ sym line1 ∙ sym line1) ≡ (negsuc 0 , pos 1)
+  test2 = refl
