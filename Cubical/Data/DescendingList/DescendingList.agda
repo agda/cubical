@@ -39,7 +39,7 @@ module Cubical.Data.DescendingList.DescendingList
 
 ------------------------------------------------------------------------
 -- Descending lists
--- 
+--
 -- Defined simultaneously with the relation "x ≥ the HEAD of u"
 
 mutual
@@ -55,7 +55,7 @@ mutual
 
 [_] : A → DL
 [ x ] = cons x [] ≥ᴴ[]
- 
+
 toList : DL → List A
 toList [] = []
 toList (cons x u _) = x ∷ toList u
