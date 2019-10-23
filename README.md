@@ -1,6 +1,8 @@
 An experimental library for Cubical Agda
 ========================================
 
+[![Gitter](https://badges.gitter.im/agda/cubical.svg)](https://gitter.im/agda/cubical?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 This library compiles with the master branch of the development
 version of [Agda](https://github.com/agda/agda/). For detailed install
 instructions see the
