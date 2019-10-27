@@ -9,7 +9,7 @@ private
   variable
     A : Type₀
 
-infixr 20 _∷_
+infixr 5 _∷_
 
 data FMSet (A : Type₀) : Type₀ where
   []    : FMSet A
