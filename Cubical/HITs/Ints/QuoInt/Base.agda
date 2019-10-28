@@ -12,17 +12,20 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Int hiding (abs; sgn)
 open import Cubical.Data.Nat
 
+variable
+  l : Level
+
 data ℤ : Type₀ where
   pos    : (n : ℕ) → ℤ
   neg    : (n : ℕ) → ℤ
   posneg : pos 0 ≡ neg 0
 
-recℤ : ∀ {l} {A : Type l} → (pos' neg' : ℕ → A) → pos' 0 ≡ neg' 0 → ℤ → A
+recℤ : ∀ {A : Type l} → (pos' neg' : ℕ → A) → pos' 0 ≡ neg' 0 → ℤ → A
 recℤ pos' neg' eq (pos m)    = pos' m
 recℤ pos' neg' eq (neg m)    = neg' m
 recℤ pos' neg' eq (posneg i) = eq i
 
-indℤ : ∀ {l} (P : ℤ → Type l)
+indℤ : ∀ (P : ℤ → Type l)
        → (pos' : ∀ n → P (pos n))
        → (neg' : ∀ n → P (neg n))
        → (λ i → P (posneg i)) [ pos' 0 ≡ neg' 0 ]
@@ -121,9 +124,6 @@ addℤ≡+ℤ _  m (posneg _)    = m
 
 isEquiv+ℤ : (m : ℤ) → isEquiv (λ n → n +ℤ m)
 isEquiv+ℤ = subst (λ _+_ → (m : ℤ) → isEquiv (λ n → n + m)) addℤ≡+ℤ isEquivAddℤ
-
-
-
 
 data Sign : Type₀ where
   pos neg : Sign
