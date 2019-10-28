@@ -3,14 +3,12 @@ module Cubical.HITs.Ints.QuoInt.Properties where
 
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.HITs.Ints.QuoInt.Base
-  renaming (_+ℤ_ to _+_; ℤ to Z)
+  renaming (_+ℤ_ to _+_)
 open import Cubical.Data.Nat
-  renaming ( +-comm to :+:-comm
-           ; +-zero to :+:-zero
-           ; _+_ to _:+:_
-           )
+  hiding (+-comm; +-zero; _+_)
 
 +-pos-0 : ∀ a → pos 0 + a ≡ a
 +-pos-0 (pos zero) = refl
@@ -31,10 +29,10 @@ open import Cubical.Data.Nat
 +-pos-suc (pos (suc n)) b = cong sucℤ (+-pos-suc (pos n) b)
 +-pos-suc (neg zero) b = refl
 +-pos-suc (posneg i) b = refl
-+-pos-suc (neg (suc n)) b = simpleHcomp
-  (sym (sucPredℤ (pos b + neg n)))
-  (sym (predSucℤ (pos b + neg n)))
-  (cong predℤ (+-pos-suc (neg n) b))
++-pos-suc (neg (suc n)) b =
+  sucPredℤ (pos b + neg n) ∙∙
+  sym (predSucℤ (pos b + neg n)) ∙∙
+  cong predℤ (+-pos-suc (neg n) b)
   -- the following hcomp does not termination-check:
   -- hcomp (λ j → λ
   --  { (i = i0) → sucPredℤ (pos b + neg n) (~ j)
@@ -46,12 +44,12 @@ open import Cubical.Data.Nat
 +-neg-pred (neg zero) b = refl
 +-neg-pred (neg (suc n)) b = cong predℤ (+-neg-pred (neg n) b)
 +-neg-pred (posneg i) b = refl
-+-neg-pred (pos (suc n)) b = simpleHcomp
-  (sym (predSucℤ (neg b + pos n)))
-  (sym (sucPredℤ (neg b + pos n)))
-  (cong sucℤ (+-neg-pred (pos n) b))
++-neg-pred (pos (suc n)) b =
+  predSucℤ (neg b + pos n) ∙∙
+  sym (sucPredℤ (neg b + pos n)) ∙∙
+  cong sucℤ (+-neg-pred (pos n) b)
 
-+-comm : (a b : Z) → a + b ≡ b + a
++-comm : ∀ a b → a + b ≡ b + a
 +-comm a (pos zero) = sym (+-pos-0 a)
 +-comm a (neg zero) = sym (+-neg-0 a)
 +-comm a (pos (suc b)) = cong sucℤ (+-comm a (pos b)) ∙ +-pos-suc a b

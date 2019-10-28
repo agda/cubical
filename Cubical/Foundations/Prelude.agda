@@ -61,15 +61,6 @@ cong₂ : ∀ {C : (a : A) → (b : B a) → Type ℓ} →
         PathP (λ i → C (p i) (q i)) (f x u) (f y v)
 cong₂ f p q i = f (p i) (q i)
 
--- The simplest, one-dimensional hcomp
--- sometimes needed to overcome a termination error
-
-simpleHcomp : ∀ {w x y z : A} → w ≡ z → w ≡ x → x ≡ y → z ≡ y
-simpleHcomp p q r i = hcomp (λ j → λ
-  { (i = i0) → p j
-  ; (i = i1) → r j
-  }) (q i)
-
 -- The filler of homogeneous path composition:
 -- compPath-filler p q = PathP (λ i → x ≡ q i) p (p ∙ q)
 
