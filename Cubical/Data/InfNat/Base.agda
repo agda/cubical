@@ -20,10 +20,17 @@ caseInfNat : ∀ {ℓ} → {A : Type ℓ} → (aF aI : A) → ℕ+∞ → A
 caseInfNat aF aI (fin n) = aF
 caseInfNat aF aI ∞       = aI
 
-infixl 6 _+_ _ℕ+_
-_ℕ+_ : ℕ → ℕ+∞ → ℕ+∞
-_ℕ+_ n = ℕ.iter n suc
-
+infixl 6 _+_
 _+_ : ℕ+∞ → ℕ+∞ → ℕ+∞
-∞     + m = ∞
-fin n + m = n ℕ+ m
+∞     + m     = ∞
+fin n + ∞     = ∞
+fin n + fin m = fin (n ℕ.+ m)
+
+infixl 7 _*_
+_*_ : ℕ+∞ → ℕ+∞ → ℕ+∞
+fin m         * fin n         = fin (m ℕ.* n)
+∞             * fin ℕ.zero    = zero
+fin ℕ.zero    * ∞             = zero
+∞             * ∞             = ∞
+∞             * fin (ℕ.suc _) = ∞
+fin (ℕ.suc _) * ∞             = ∞
