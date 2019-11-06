@@ -259,6 +259,16 @@ inv : S¹ → S¹
 inv base = base
 inv (loop i) = loop (~ i)
 
+invInvolutive : section inv inv
+invInvolutive base = refl
+invInvolutive (loop i) = refl
+
+invS¹Equiv : S¹ ≃ S¹
+invS¹Equiv = isoToEquiv (iso inv inv invInvolutive invInvolutive)
+
+invS¹Path : S¹ ≡ S¹
+invS¹Path = ua invS¹Equiv
+
 -- rot, used in the Hopf fibration
 
 rotLoop : (a : S¹) → a ≡ a
