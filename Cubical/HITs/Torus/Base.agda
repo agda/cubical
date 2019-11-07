@@ -52,8 +52,17 @@ t2c-c2t (loop _ , loop _) = refl
 Torus≡S¹×S¹ : Torus ≡ S¹ × S¹
 Torus≡S¹×S¹ = isoToPath (iso t2c c2t t2c-c2t c2t-t2c)
 
+point-path : PathP (λ i → Torus≡S¹×S¹ i) point (base , base)
+point-path i =
+  (glue (λ {
+   (i = i0) → point;
+   (i = i1) → (base , base) }) (base , base))
+
+Loop : {A : Type₀} (p : A) → Type₀
+Loop p = p ≡ p
+
 ΩTorus : Type₀
-ΩTorus = point ≡ point
+ΩTorus = Loop point
 
 -- TODO: upstream
 lemPathAnd : ∀ {ℓ} {A B : Type ℓ} (t u : A × B) →
@@ -63,24 +72,11 @@ lemPathAnd t u = isoToPath (iso (λ tu → (λ i → tu i .fst) , λ i → tu i 
                                  (λ y → refl)
                                  (λ x → refl))
 
-funDep : ∀ {ℓ} {A B : Type ℓ} (p : A ≡ B) (u0 : A) (u1 : B) →
-  (Path A u0 (transport (λ i → p (~ i)) u1)) ≡ (Path B (transport p u0) u1)
-funDep p u0 u1 i = Path (p i) (transp (λ j → p (i ∧ j)) (~ i) u0) (transp (λ j → p (i ∨ ~ j)) i u1)
-
--- Can this proof be simplified?
 ΩTorus≡Int×Int : ΩTorus ≡ Int × Int
 ΩTorus≡Int×Int =
   ΩTorus
-    ≡⟨ (λ i → Path Torus point (transp (\ j → Torus≡S¹×S¹ (~ j ∧ i)) (~ i)
-                                       (glue (λ { (i = i0) → point
-                                                ; (i = i1) → (base , base) }) (base , base)))) ⟩
-  Path Torus point (transp (\ i → Torus≡S¹×S¹ (~ i)) i0 (base , base))
-    ≡⟨ funDep (λ i → Torus≡S¹×S¹ i) point (base , base) ⟩
-  Path (S¹ × S¹) (transp (\ i → Torus≡S¹×S¹ i) i0 point) (base , base)
-    ≡⟨ (λ i → Path _ (transp (λ j → Torus≡S¹×S¹ (j ∨ i))  i
-                             (glue (λ { (i = i0) → point
-                                      ; (i = i1) → (base , base) }) (base , base))) (base , base)) ⟩
-  Path (S¹ × S¹) (base , base) (base , base)
+    ≡⟨ (λ i → Loop (point-path i)) ⟩
+  Loop (base , base)
     ≡⟨ lemPathAnd (base , base) (base , base) ⟩
   ΩS¹ × ΩS¹
     ≡⟨ (λ i → ΩS¹≡Int i × ΩS¹≡Int i) ⟩
