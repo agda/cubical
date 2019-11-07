@@ -13,7 +13,12 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
+open import Cubical.Data.Nat
+open import Cubical.Data.Int public renaming (_+_ to _+Int_ ; +-assoc to +Int-assoc; +-comm to +Int-comm)
+open import Cubical.Data.Prod
+open import Cubical.Data.Sigma
 open import Cubical.HITs.S1
 open import Cubical.HITs.PropositionalTruncation
 
@@ -104,3 +109,27 @@ isGroupoidKleinBottle =
           (isPropIsOfHLevel 3 (invS¹Loop s))
           (λ p → subst (λ s → isGroupoid (invS¹Loop s)) p isGroupoidS¹)
           (isConnectedS¹ s)))
+
+-- Transport across the following is too slow :(
+
+ΩKlein≡Int² : Path KleinBottle point point ≡ Int × Int
+ΩKlein≡Int² =
+  Path KleinBottle point point
+    ≡⟨ (λ i → basePath i ≡ basePath i) ⟩
+  Path (Σ S¹ invS¹Loop) (base , base) (base , base)
+    ≡⟨ sym (ua Σ≡) ⟩
+  Σ ΩS¹ (λ p → PathP (λ j → invS¹Loop (p j)) base base)
+    ≡⟨ (λ i → Σ ΩS¹ (λ p → PathP (λ j → invS¹Loop (p (j ∨ i))) (twistBaseLoop (p i)) base)) ⟩
+  Σ ΩS¹ (λ _ → ΩS¹)
+    ≡⟨ sym A×B≡A×ΣB ⟩
+  ΩS¹ × ΩS¹
+    ≡⟨ (λ i → ΩS¹≡Int i × ΩS¹≡Int i) ⟩
+  Int × Int ∎
+  where
+  basePath : PathP (λ i → ua kleinBottle≃Σ i) point (base , base)
+  basePath i = glue (λ {(i = i0) → point; (i = i1) → base , base}) (base , base)
+
+  twistBaseLoop : (s : S¹) → invS¹Loop s
+  twistBaseLoop base = base
+  twistBaseLoop (loop i) = twist base i
+
