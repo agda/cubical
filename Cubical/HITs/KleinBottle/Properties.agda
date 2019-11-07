@@ -24,20 +24,24 @@ open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.HITs.KleinBottle.Base
 
-invS¹Loop : S¹ → Set
-invS¹Loop base = S¹
-invS¹Loop (loop i) = invS¹Path i
-
-twist : (s : S¹) → PathP (λ i → invS¹Path i) s (inv s)
-twist s i = glue (λ {(i = i0) → s; (i = i1) → inv s}) (inv s)
-
 loop1 : S¹ → KleinBottle
 loop1 base = point
 loop1 (loop i) = line1 i
 
+invS¹Loop : S¹ → Set
+invS¹Loop base = S¹
+invS¹Loop (loop i) = invS¹Path i
+
 loop1Inv : (s : S¹) → loop1 (inv s) ≡ loop1 s
 loop1Inv base = line2
 loop1Inv (loop i) = square i
+
+twist : (s : S¹) → PathP (λ i → invS¹Path i) s (inv s)
+twist s i = glue (λ {(i = i0) → s; (i = i1) → inv s}) (inv s)
+
+twistBaseLoop : (s : S¹) → invS¹Loop s
+twistBaseLoop base = base
+twistBaseLoop (loop i) = twist base i
 
 kleinBottle≃Σ : KleinBottle ≃ Σ S¹ invS¹Loop
 kleinBottle≃Σ = isoToEquiv (iso fro to froTo toFro)
@@ -129,7 +133,31 @@ isGroupoidKleinBottle =
   basePath : PathP (λ i → ua kleinBottle≃Σ i) point (base , base)
   basePath i = glue (λ {(i = i0) → point; (i = i1) → base , base}) (base , base)
 
-  twistBaseLoop : (s : S¹) → invS¹Loop s
-  twistBaseLoop base = base
-  twistBaseLoop (loop i) = twist base i
+-- We can at least define the winding function directly and get results on small examples
 
+windingKlein : Path KleinBottle point point → Int × Int
+windingKlein p = (z₀ , z₁)
+  where
+  step₀ : Path (Σ S¹ invS¹Loop) (base , base) (base , base)
+  step₀ = (λ i → kleinBottle≃Σ .fst (p i))
+
+  z₀ : Int
+  z₀ = winding (λ i → kleinBottle≃Σ .fst (p i) .fst)
+
+  z₁ : Int
+  z₁ = winding
+    (transport
+      (λ i → PathP (λ j → invS¹Loop (step₀ (j ∨ i) .fst)) (twistBaseLoop (step₀ i .fst)) base)
+      (cong snd step₀))
+
+_ : windingKlein line1 ≡ (pos 0 , pos 1)
+_ = refl
+
+_ : windingKlein line2 ≡ (negsuc 0 , pos 0)
+_ = refl
+
+_ : windingKlein (line1 ∙ line2) ≡ (negsuc 0 , negsuc 0)
+_ = refl
+
+_ : windingKlein (line1 ∙ line2 ∙ line1) ≡ (negsuc 0 , pos 0)
+_ = refl
