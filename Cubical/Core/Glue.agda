@@ -57,6 +57,11 @@ unglue φ = prim^unglue {φ = φ}
 
 -- People unfamiliar with [Glue], [glue] and [uglue] can find the types below more
 -- informative as they demonstrate the computational behavior.
+--
+-- Full inference rules can be found in Section 6 of CCHM:
+-- https://arxiv.org/pdf/1611.02108.pdf
+-- Cubical Type Theory: a constructive interpretation of the univalence axiom
+-- Cyril Cohen, Thierry Coquand, Simon Huber, Anders Mörtberg
 private
 
   Glue-S : (A : Type ℓ) {φ : I}
