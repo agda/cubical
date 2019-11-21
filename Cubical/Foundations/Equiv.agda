@@ -106,7 +106,7 @@ compEquiv f g = isoToEquiv
 compEquivIdEquiv : {A B : Type ℓ} (e : A ≃ B) → compEquiv (idEquiv A) e ≡ e
 compEquivIdEquiv e = equivEq _ _ refl
 
-compIso : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} {C : Set ℓ''}
+compIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
           → Iso A B → Iso B C → Iso A C
 compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) = iso (fun₁ ∘ fun) (inv ∘ inv₁)
         (λ b → cong fun₁ (rightInv (inv₁ b)) ∙ (rightInv₁ b))
