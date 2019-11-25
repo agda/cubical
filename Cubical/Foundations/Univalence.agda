@@ -149,6 +149,9 @@ univalencePath = ua (compEquiv univalence LiftEquiv)
 uaβ : {A B : Type ℓ} (e : A ≃ B) (x : A) → transport (ua e) x ≡ e .fst x
 uaβ e x = transportRefl (e .fst x)
 
+uaη : ∀ {A B : Type ℓ} → (P : A ≡ B) → ua (pathToEquiv P) ≡ P
+uaη = J (λ _ q → ua (pathToEquiv q) ≡ q) (cong ua pathToEquivRefl ∙ uaIdEquiv)
+
 -- Alternative version of EquivJ that only requires a predicate on
 -- functions
 elimEquiv : {B : Type ℓ} (P : {A : Type ℓ} → (A → B) → Type ℓ') →
