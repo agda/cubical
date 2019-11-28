@@ -79,41 +79,41 @@ open import Cubical.Relation.Nullary
 data Binℕ : Type₀
 data Pos : Type₀ where
   x0   : Pos → Pos
-  x1-gen   : Binℕ → Pos
+  x1   : Binℕ → Pos
 
 -- Binary natural numbers
 data Binℕ where
   binℕ0   : Binℕ
   binℕpos : Pos → Binℕ
 
-pattern pos1 = x1-gen binℕ0
-pattern x1 n = x1-gen (binℕpos n)
+pattern pos1 = x1 binℕ0
+pattern x1-pos n = x1 (binℕpos n)
 
 sucPos : Pos → Pos
 sucPos pos1    = x0 pos1
-sucPos (x0 ps) = x1 ps
-sucPos (x1 ps) = x0 (sucPos ps)
+sucPos (x0 ps) = x1-pos ps
+sucPos (x1-pos ps) = x0 (sucPos ps)
 
 Pos→ℕ : Pos → ℕ
 Pos→ℕ pos1    = suc zero
 Pos→ℕ (x0 ps) = doubleℕ (Pos→ℕ ps)
-Pos→ℕ (x1 ps) = suc (doubleℕ (Pos→ℕ ps))
+Pos→ℕ (x1-pos ps) = suc (doubleℕ (Pos→ℕ ps))
 
 posInd : {P : Pos → Type₀} → P pos1 → ((p : Pos) → P p → P (sucPos p)) → (p : Pos) → P p
 posInd {P} h1 hs ps = f ps
   where
   H : (p : Pos) → P (x0 p) → P (x0 (sucPos p))
-  H p hx0p = hs (x1 p) (hs (x0 p) hx0p)
+  H p hx0p = hs (x1-pos p) (hs (x0 p) hx0p)
 
   f : (ps : Pos) → P ps
   f pos1    = h1
   f (x0 ps) = posInd (hs pos1 h1) H ps
-  f (x1 ps) = hs (x0 ps) (posInd (hs pos1 h1) H ps)
+  f (x1-pos ps) = hs (x0 ps) (posInd (hs pos1 h1) H ps)
 
 Pos→ℕsucPos : (p : Pos) → Pos→ℕ (sucPos p) ≡ suc (Pos→ℕ p)
 Pos→ℕsucPos pos1   = refl
 Pos→ℕsucPos (x0 p) = refl
-Pos→ℕsucPos (x1 p) = λ i → doubleℕ (Pos→ℕsucPos p i)
+Pos→ℕsucPos (x1-pos p) = λ i → doubleℕ (Pos→ℕsucPos p i)
 
 zero≠Pos→ℕ : (p : Pos) → ¬ (zero ≡ Pos→ℕ p)
 zero≠Pos→ℕ p = posInd (λ prf → znots prf) hs p
@@ -196,7 +196,7 @@ _+Binℕ_ = transport (λ i → Binℕ≡ℕ (~ i) → Binℕ≡ℕ (~ i) → Bi
 
 -- Test: 4 + 1 = 5
 private
-  _ : binℕpos (x0 (x0 pos1)) +Binℕ binℕpos pos1 ≡ binℕpos (x1 (x0 pos1))
+  _ : binℕpos (x0 (x0 pos1)) +Binℕ binℕpos pos1 ≡ binℕpos (x1-pos (x0 pos1))
   _ = refl
 
 -- It is easy to test if binary numbers are odd
@@ -204,7 +204,7 @@ oddBinℕ : Binℕ → Bool
 oddBinℕ binℕ0            = false
 oddBinℕ (binℕpos pos1)   = true
 oddBinℕ (binℕpos (x0 _)) = false
-oddBinℕ (binℕpos (x1 _)) = true
+oddBinℕ (binℕpos (x1-pos _)) = true
 
 evenBinℕ : Binℕ → Bool
 evenBinℕ n = oddBinℕ (sucBinℕ n)
@@ -214,7 +214,7 @@ oddBinℕnotEvenBinℕ : (n : Binℕ) → oddBinℕ n ≡ not (evenBinℕ n)
 oddBinℕnotEvenBinℕ binℕ0            = refl
 oddBinℕnotEvenBinℕ (binℕpos pos1)   = refl
 oddBinℕnotEvenBinℕ (binℕpos (x0 x)) = refl
-oddBinℕnotEvenBinℕ (binℕpos (x1 x)) = refl
+oddBinℕnotEvenBinℕ (binℕpos (x1-pos x)) = refl
 
 -- It is also easy to define and prove the property for unary numbers,
 -- however the definition uses recursion and the proof induction
