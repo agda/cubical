@@ -157,7 +157,7 @@ elimPropTrunc→Set {A = A} {P = P} Pset f kf t
   gk : 2-Constant g
   gk x y i = transp (λ j → P (squash (squash ∣ x ∣ ∣ y ∣ i) t j)) i0 (kf x y i)
 
-RecHProp : (P : A → hProp {ℓ}) (kP : ∀ x y → P x ≡ P y) → ∥ A ∥ → hProp {ℓ}
+RecHProp : (P : A → hProp ℓ) (kP : ∀ x y → P x ≡ P y) → ∥ A ∥ → hProp ℓ
 RecHProp P kP = recPropTrunc→Set isSetHProp P kP
 
 module GpdElim (Bgpd : isGroupoid B) where
@@ -304,5 +304,5 @@ module GpdElim (Bgpd : isGroupoid B) where
 
 open GpdElim using (recPropTrunc→Gpd; trunc→Gpd≃) public
 
-RecHSet : (P : A → HLevel {ℓ} 2) → 3-Constant P → ∥ A ∥ → HLevel {ℓ} 2
+RecHSet : (P : A → HLevel ℓ 2) → 3-Constant P → ∥ A ∥ → HLevel ℓ 2
 RecHSet P 3kP = recPropTrunc→Gpd (hLevelHLevelSuc 1) P 3kP

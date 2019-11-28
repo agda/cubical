@@ -98,7 +98,7 @@ open BinaryRelation
 effective : (Rprop : isPropValued R) (Requiv : isEquivRel R) (a b : A) → [ a ] ≡ [ b ] → R a b
 effective {A = A} {R = R} Rprop (EquivRel R/refl R/sym R/trans) a b p = transport aa≡ab (R/refl _)
   where
-    helper : A / R → hProp
+    helper : A / R → hProp _
     helper = elimSetQuotients (λ _ → isSetHProp) (λ c → (R a c , Rprop a c))
                               (λ c d cd → ΣProp≡ (λ _ → isPropIsProp)
                                                  (ua (PropEquiv→Equiv (Rprop a c) (Rprop a d)
