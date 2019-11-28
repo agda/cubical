@@ -74,11 +74,20 @@ open import Cubical.Data.Empty
 
 open import Cubical.Relation.Nullary
 
+
 -- Positive binary numbers
+data Binℕ : Type₀
 data Pos : Type₀ where
-  pos1 : Pos
   x0   : Pos → Pos
-  x1   : Pos → Pos
+  x1-gen   : Binℕ → Pos
+
+-- Binary natural numbers
+data Binℕ where
+  binℕ0   : Binℕ
+  binℕpos : Pos → Binℕ
+
+pattern pos1 = x1-gen binℕ0
+pattern x1 n = x1-gen (binℕpos n)
 
 sucPos : Pos → Pos
 sucPos pos1    = x0 pos1
@@ -137,11 +146,6 @@ Pos→ℕ→Pos p = posInd refl hs p
   Pos→ℕ (sucPos (ℕ→Pos (suc n))) ≡⟨ Pos→ℕsucPos (ℕ→Pos (suc n)) ⟩
   suc (Pos→ℕ (ℕ→Pos (suc n)))    ≡⟨ cong suc (ℕ→Pos→ℕ n) ⟩
   suc (suc n) ∎
-
--- Binary numbers
-data Binℕ : Type₀ where
-  binℕ0   : Binℕ
-  binℕpos : Pos → Binℕ
 
 ℕ→Binℕ : ℕ → Binℕ
 ℕ→Binℕ zero    = binℕ0
