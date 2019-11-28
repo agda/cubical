@@ -45,7 +45,7 @@ open import Cubical.Foundations.Equiv
   renaming ( fiber        to fiberPath
            ; equivIsEquiv to equivIsEquivPath
            ; equivCtr     to equivCtrPath )
-  hiding   ( isPropIsEquiv )
+  hiding   ( isPropIsEquiv; equivCtrPath )
 
 open import Cubical.Foundations.Univalence
   renaming ( EquivContr   to EquivContrPath )
