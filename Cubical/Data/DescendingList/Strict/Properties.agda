@@ -4,7 +4,7 @@ open import Cubical.Core.Everything
 open import Cubical.Foundations.Everything
 open import Agda.Primitive using (lzero)
 
-module Cubical.Data.DescendingList.Strict-Properties
+module Cubical.Data.DescendingList.Strict.Properties
  (A : Type₀)
  (_>_ : A → A → Type₀)
  where
