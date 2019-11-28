@@ -217,5 +217,8 @@ module IsoToLFSet
   sort∘unsort : ∀ x → sort (unsort x) ≡ x
   sort∘unsort x = unsort-inj (sort (unsort x)) x (unsort∘sort (unsort x))
 
+  SDL-LFSet-iso : Iso SDL (LFSet A)
+  SDL-LFSet-iso = (iso unsort sort unsort∘sort sort∘unsort)
+ 
   SDL≡LFSet : SDL ≡ LFSet A
-  SDL≡LFSet = ua (isoToEquiv (iso unsort sort unsort∘sort sort∘unsort))
+  SDL≡LFSet = ua (isoToEquiv SDL-LFSet-iso)
