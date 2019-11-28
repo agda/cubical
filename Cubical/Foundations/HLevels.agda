@@ -33,8 +33,8 @@ private
     x y : A
     n : ℕ
 
-hProp : Type (ℓ-suc ℓ)
-hProp {ℓ} = Σ (Type ℓ) isProp
+hProp : ∀ ℓ → Type (ℓ-suc ℓ)
+hProp ℓ = Σ (Type ℓ) isProp
 
 isOfHLevel : ℕ → Type ℓ → Type ℓ
 isOfHLevel 0 A = isContr A
@@ -59,8 +59,8 @@ isOfHLevel→isOfHLevelDep {n = suc (suc n)} {A = A} {B} h {a0} {a1} b0 b1 =
                          (λ a1 p → ∀ b1 → isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1))
                          (λ _ → h _ _ _) p b1
 
-HLevel : ℕ → Type (ℓ-suc ℓ)
-HLevel {ℓ} n = Σ[ A ∈ Type ℓ ] (isOfHLevel n A)
+HLevel : ∀ ℓ → ℕ → Type (ℓ-suc ℓ)
+HLevel ℓ n = Σ[ A ∈ Type ℓ ] (isOfHLevel n A)
 
 inhProp→isContr : A → isProp A → isContr A
 inhProp→isContr x h = x , h x
@@ -302,19 +302,19 @@ hLevel≡ : ∀ n → {A B : Type ℓ} (hA : isOfHLevel n A) (hB : isOfHLevel n 
   isOfHLevel n (A ≡ B)
 hLevel≡ n hA hB = hLevelRespectEquiv n (invEquiv univalence) (hLevel≃ n hA hB)
 
-hLevelHLevel1 : isProp (HLevel {ℓ = ℓ} 0)
+hLevelHLevel1 : isProp (HLevel ℓ 0)
 hLevelHLevel1 x y = ΣProp≡ (λ _ → isPropIsContr) ((hLevel≡ 0 (x .snd) (y .snd) .fst))
 
-hLevelHLevelSuc : ∀ n → isOfHLevel (suc (suc n)) (HLevel {ℓ = ℓ} (suc n))
+hLevelHLevelSuc : ∀ n → isOfHLevel (suc (suc n)) (HLevel ℓ (suc n))
 hLevelHLevelSuc n x y = subst (λ e → isOfHLevel (suc n) e) HLevel≡ (hLevel≡ (suc n) (snd x) (snd y))
 
-hProp≡HLevel1 : hProp {ℓ} ≡ HLevel {ℓ} 1
+hProp≡HLevel1 : hProp ℓ ≡ HLevel ℓ 1
 hProp≡HLevel1 {ℓ} = isoToPath (iso intro elim intro-elim elim-intro)
   where
-    intro : hProp {ℓ} → HLevel {ℓ} 1
+    intro : hProp ℓ → HLevel ℓ 1
     intro h = fst h , snd h
 
-    elim : HLevel 1 → hProp
+    elim : HLevel ℓ 1 → hProp ℓ
     elim h = (fst h) , (snd h)
 
     intro-elim : ∀ h → intro (elim h) ≡ h
@@ -323,7 +323,7 @@ hProp≡HLevel1 {ℓ} = isoToPath (iso intro elim intro-elim elim-intro)
     elim-intro : ∀ h → elim (intro h) ≡ h
     elim-intro h = ΣProp≡ (λ _ → isPropIsProp) refl
 
-isSetHProp : isSet (hProp {ℓ = ℓ})
+isSetHProp : isSet (hProp ℓ)
 isSetHProp = subst (λ X → isOfHLevel 2 X) (sym hProp≡HLevel1) (hLevelHLevelSuc 0)
 
 

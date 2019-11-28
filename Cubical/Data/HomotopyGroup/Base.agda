@@ -10,17 +10,17 @@ open import Cubical.Data.Group.Base
 
 open import Cubical.HITs.SetTruncation
 
-Pointed : ∀ {ℓ} → Type (ℓ-suc ℓ)
-Pointed {ℓ} = Σ[ A ∈ Type ℓ ] A
+Pointed : ∀ ℓ → Type (ℓ-suc ℓ)
+Pointed ℓ = Σ[ A ∈ Type ℓ ] A
 
-Ω : ∀ {ℓ} → Pointed {ℓ} → Pointed {ℓ}
+Ω : ∀ {ℓ} → Pointed ℓ → Pointed ℓ
 Ω (A , a ) = ( (a ≡ a) , refl)
 
-Ω^_ : ∀ {ℓ} → ℕ → Pointed {ℓ} → Pointed {ℓ}
+Ω^_ : ∀ {ℓ} → ℕ → Pointed ℓ → Pointed ℓ
 (Ω^ 0) p = p
 (Ω^ (suc n)) p = Ω ((Ω^ n) p)
 
-π^_ : ∀ {ℓ} → ℕ → Pointed {ℓ} → Group {ℓ}
+π^_ : ∀ {ℓ} → ℕ → Pointed ℓ → Group ℓ
 π^_ {ℓ} n p = group ∥ A ∥₀  squash₀ g
   where
     n' : ℕ

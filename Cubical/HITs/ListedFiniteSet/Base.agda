@@ -26,7 +26,7 @@ data LFSet (A : Type₀) : Type₀ where
 -- Doing some proofs with equational reasoning adds an extra "_∙ refl"
 -- at the end.
 -- We might want to avoid it, or come up with a more clever equational reasoning.
-_∈_ : A → LFSet A → hProp
+_∈_ : A → LFSet A → hProp _
 z ∈ []                  = ⊥
 z ∈ (y ∷ xs)            = (z ≡ₚ y) ⊔ (z ∈ xs)
 z ∈ dup x xs i          = proof i
