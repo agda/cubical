@@ -47,13 +47,13 @@ module IsoToLFSet
   -- This computes just as well as a direct inductive definition,
   -- and additionally lets us use the extra `comm` and `dup` paths to prove
   -- things about membership.
-  _∈ˡ_ : A → SDL → hProp
+  _∈ˡ_ : A → SDL → hProp lzero
   a ∈ˡ l = a ∈ʰ unsort l
 
-  Memˡ : SDL → A → hProp
+  Memˡ : SDL → A → hProp lzero
   Memˡ l a = a ∈ˡ l
 
-  Memʰ : LFSet A → A → hProp
+  Memʰ : LFSet A → A → hProp lzero
   Memʰ l a = a ∈ʰ l
 
   >ᴴ-trans : ∀ x y zs → x > y → y >ᴴ zs → x >ᴴ zs
@@ -112,7 +112,7 @@ module IsoToLFSet
   abstract
     -- for some reason, making [exclude] non-abstract makes
     -- typechecking noticeably slower
-    exclude : A → (A → hProp {lzero}) → (A → hProp {lzero})
+    exclude : A → (A → hProp lzero) → (A → hProp lzero)
     exclude x h a = ¬ a ≡ₚ x ⊓ h a
 
     >-excluded : ∀ x xs → x >ᴴ xs → exclude x (Memʰ (x ∷ unsort xs)) ≡ Memˡ xs
