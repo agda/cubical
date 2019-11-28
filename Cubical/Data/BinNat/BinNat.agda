@@ -74,30 +74,45 @@ open import Cubical.Data.Empty
 
 open import Cubical.Relation.Nullary
 
-
--- Positive binary numbers
 data Binℕ : Type₀
-data Pos : Type₀ where
-  x0   : Pos → Pos
-  x1   : Binℕ → Pos
+data Pos : Type₀
 
 -- Binary natural numbers
 data Binℕ where
   binℕ0   : Binℕ
   binℕpos : Pos → Binℕ
 
+-- Positive binary numbers
+data Pos where
+  x0   : Pos → Pos
+  x1   : Binℕ → Pos
+
 pattern pos1 = x1 binℕ0
 pattern x1-pos n = x1 (binℕpos n)
 
+-- Note on notation:
+-- We use "⇒" for functions that are equivalences (and therefore
+-- they don't preserve the numerical value where the ranges don't
+-- match, as with Binℕ⇒Pos).
+--
+-- We use "→" for the opposite situation (numerical value is preserved,
+-- but the function is not necessarily an equivalence)
+Binℕ⇒Pos : Binℕ → Pos
 sucPos : Pos → Pos
-sucPos pos1    = x0 pos1
+Binℕ⇒Pos binℕ0 = pos1
+Binℕ⇒Pos (binℕpos n) = sucPos n
 sucPos (x0 ps) = x1-pos ps
-sucPos (x1-pos ps) = x0 (sucPos ps)
+sucPos (x1 ps) = x0 (Binℕ⇒Pos ps)
 
+Binℕ→ℕ : Binℕ → ℕ
+Pos⇒ℕ : Pos → ℕ
 Pos→ℕ : Pos → ℕ
-Pos→ℕ pos1    = suc zero
-Pos→ℕ (x0 ps) = doubleℕ (Pos→ℕ ps)
-Pos→ℕ (x1-pos ps) = suc (doubleℕ (Pos→ℕ ps))
+Binℕ→ℕ binℕ0       = zero
+Binℕ→ℕ (binℕpos x) = Pos→ℕ x
+Pos→ℕ ps = suc (Pos⇒ℕ ps)
+
+Pos⇒ℕ (x0 ps) = suc (doubleℕ (Pos⇒ℕ ps))
+Pos⇒ℕ (x1 ps) = doubleℕ (Binℕ→ℕ ps)
 
 posInd : {P : Pos → Type₀} → P pos1 → ((p : Pos) → P p → P (sucPos p)) → (p : Pos) → P p
 posInd {P} h1 hs ps = f ps
@@ -110,69 +125,52 @@ posInd {P} h1 hs ps = f ps
   f (x0 ps) = posInd (hs pos1 h1) H ps
   f (x1-pos ps) = hs (x0 ps) (posInd (hs pos1 h1) H ps)
 
-Pos→ℕsucPos : (p : Pos) → Pos→ℕ (sucPos p) ≡ suc (Pos→ℕ p)
-Pos→ℕsucPos pos1   = refl
-Pos→ℕsucPos (x0 p) = refl
-Pos→ℕsucPos (x1-pos p) = λ i → doubleℕ (Pos→ℕsucPos p i)
+Binℕ⇒Pos⇒ℕ : (p : Binℕ) → Pos⇒ℕ (Binℕ⇒Pos p) ≡ Binℕ→ℕ p
+Binℕ⇒Pos⇒ℕ binℕ0 = refl
+Binℕ⇒Pos⇒ℕ (binℕpos (x0 p)) = refl
+Binℕ⇒Pos⇒ℕ (binℕpos (x1 x)) = λ i → suc (doubleℕ (Binℕ⇒Pos⇒ℕ x i))
 
-zero≠Pos→ℕ : (p : Pos) → ¬ (zero ≡ Pos→ℕ p)
-zero≠Pos→ℕ p = posInd (λ prf → znots prf) hs p
-  where
-  hs : (p : Pos) → ¬ (zero ≡ Pos→ℕ p) → zero ≡ Pos→ℕ (sucPos p) → ⊥
-  hs p neq ieq = ⊥-elim (znots (ieq ∙ (Pos→ℕsucPos p)))
+Pos⇒ℕsucPos : (p : Pos) → Pos⇒ℕ (sucPos p) ≡ suc (Pos⇒ℕ p)
+Pos⇒ℕsucPos p = Binℕ⇒Pos⇒ℕ (binℕpos p)
+
+Pos→ℕsucPos : (p : Pos) → Pos→ℕ (sucPos p) ≡ suc (Pos→ℕ p)
+Pos→ℕsucPos p = cong suc (Binℕ⇒Pos⇒ℕ (binℕpos p))
+
+ℕ⇒Pos : ℕ → Pos
+ℕ⇒Pos zero    = pos1
+ℕ⇒Pos (suc n) = sucPos (ℕ⇒Pos n)
 
 ℕ→Pos : ℕ → Pos
-ℕ→Pos zero          = pos1
-ℕ→Pos (suc zero)    = pos1
-ℕ→Pos (suc (suc n)) = sucPos (ℕ→Pos (suc n))
+ℕ→Pos zero = pos1
+ℕ→Pos (suc n) = ℕ⇒Pos n
 
-ℕ→PosSuc : ∀ n → ¬ (zero ≡ n) → ℕ→Pos (suc n) ≡ sucPos (ℕ→Pos n)
-ℕ→PosSuc zero neq    = ⊥-elim (neq refl)
-ℕ→PosSuc (suc n) neq = refl
-
-Pos→ℕ→Pos : (p : Pos) → ℕ→Pos (Pos→ℕ p) ≡ p
-Pos→ℕ→Pos p = posInd refl hs p
+Pos⇒ℕ⇒Pos : (p : Pos) → ℕ⇒Pos (Pos⇒ℕ p) ≡ p
+Pos⇒ℕ⇒Pos p = posInd refl hs p
   where
-  hs : (p : Pos) → ℕ→Pos (Pos→ℕ p) ≡ p → ℕ→Pos (Pos→ℕ (sucPos p)) ≡ sucPos p
+  hs : (p : Pos) → ℕ⇒Pos (Pos⇒ℕ p) ≡ p → ℕ⇒Pos (Pos⇒ℕ (sucPos p)) ≡ sucPos p
   hs p hp =
-    ℕ→Pos (Pos→ℕ (sucPos p)) ≡⟨ cong ℕ→Pos (Pos→ℕsucPos p) ⟩
-    ℕ→Pos (suc (Pos→ℕ p))    ≡⟨ ℕ→PosSuc (Pos→ℕ p) (zero≠Pos→ℕ p) ⟩
-    sucPos (ℕ→Pos (Pos→ℕ p)) ≡⟨ cong sucPos hp ⟩
+    ℕ⇒Pos (Pos⇒ℕ (sucPos p)) ≡⟨ cong ℕ⇒Pos (Pos⇒ℕsucPos p) ⟩
+    sucPos (ℕ⇒Pos (Pos⇒ℕ p)) ≡⟨ cong sucPos hp ⟩
     sucPos p ∎
 
-ℕ→Pos→ℕ : (n : ℕ) → Pos→ℕ (ℕ→Pos (suc n)) ≡ suc n
-ℕ→Pos→ℕ zero    = refl
-ℕ→Pos→ℕ (suc n) =
-  Pos→ℕ (sucPos (ℕ→Pos (suc n))) ≡⟨ Pos→ℕsucPos (ℕ→Pos (suc n)) ⟩
-  suc (Pos→ℕ (ℕ→Pos (suc n)))    ≡⟨ cong suc (ℕ→Pos→ℕ n) ⟩
-  suc (suc n) ∎
+ℕ⇒Pos⇒ℕ : (n : ℕ) → Pos⇒ℕ (ℕ⇒Pos n) ≡ n
+ℕ⇒Pos⇒ℕ zero = refl
+ℕ⇒Pos⇒ℕ (suc n) =
+  Pos⇒ℕ (ℕ⇒Pos (suc n)) ≡⟨ Pos⇒ℕsucPos (ℕ⇒Pos n) ⟩
+  suc (Pos⇒ℕ (ℕ⇒Pos n)) ≡⟨ cong suc (ℕ⇒Pos⇒ℕ n) ⟩
+  suc n ∎ 
 
 ℕ→Binℕ : ℕ → Binℕ
 ℕ→Binℕ zero    = binℕ0
-ℕ→Binℕ (suc n) = binℕpos (ℕ→Pos (suc n))
-
-Binℕ→ℕ : Binℕ → ℕ
-Binℕ→ℕ binℕ0       = zero
-Binℕ→ℕ (binℕpos x) = Pos→ℕ x
+ℕ→Binℕ (suc n) = binℕpos (ℕ⇒Pos n)
 
 ℕ→Binℕ→ℕ : (n : ℕ) → Binℕ→ℕ (ℕ→Binℕ n) ≡ n
-ℕ→Binℕ→ℕ zero          = refl
-ℕ→Binℕ→ℕ (suc zero)    = refl
-ℕ→Binℕ→ℕ (suc (suc n)) =
-    Pos→ℕ (sucPos (ℕ→Pos (suc n))) ≡⟨ Pos→ℕsucPos (ℕ→Pos (suc n)) ⟩
-    suc (Pos→ℕ (ℕ→Pos (suc n)))    ≡⟨ cong suc (ℕ→Binℕ→ℕ (suc n)) ⟩
-    suc (suc n) ∎
+ℕ→Binℕ→ℕ zero = refl
+ℕ→Binℕ→ℕ (suc n) = cong suc (ℕ⇒Pos⇒ℕ n)
 
 Binℕ→ℕ→Binℕ : (n : Binℕ) → ℕ→Binℕ (Binℕ→ℕ n) ≡ n
 Binℕ→ℕ→Binℕ binℕ0 = refl
-Binℕ→ℕ→Binℕ (binℕpos p) = posInd refl (λ p _ → rem p) p
-  where
-  rem : (p : Pos) → ℕ→Binℕ (Pos→ℕ (sucPos p)) ≡ binℕpos (sucPos p)
-  rem p =
-    ℕ→Binℕ (Pos→ℕ (sucPos p))       ≡⟨ cong ℕ→Binℕ (Pos→ℕsucPos p) ⟩
-    binℕpos (ℕ→Pos (suc (Pos→ℕ p))) ≡⟨ cong binℕpos ((ℕ→PosSuc (Pos→ℕ p) (zero≠Pos→ℕ p)) ∙
-                                                              (cong sucPos (Pos→ℕ→Pos p))) ⟩
-    binℕpos (sucPos p) ∎
+Binℕ→ℕ→Binℕ (binℕpos p) = cong binℕpos (Pos⇒ℕ⇒Pos p)
 
 Binℕ≃ℕ : Binℕ ≃ ℕ
 Binℕ≃ℕ = isoToEquiv (iso Binℕ→ℕ ℕ→Binℕ ℕ→Binℕ→ℕ Binℕ→ℕ→Binℕ)
@@ -183,8 +181,7 @@ Binℕ≡ℕ : Binℕ ≡ ℕ
 Binℕ≡ℕ = ua Binℕ≃ℕ
 
 sucBinℕ : Binℕ → Binℕ
-sucBinℕ binℕ0       = binℕpos pos1
-sucBinℕ (binℕpos x) = binℕpos (sucPos x)
+sucBinℕ x = binℕpos (Binℕ⇒Pos x)
 
 Binℕ→ℕsuc : (x : Binℕ) → suc (Binℕ→ℕ x) ≡ Binℕ→ℕ (sucBinℕ x)
 Binℕ→ℕsuc binℕ0       = refl
@@ -202,9 +199,8 @@ private
 -- It is easy to test if binary numbers are odd
 oddBinℕ : Binℕ → Bool
 oddBinℕ binℕ0            = false
-oddBinℕ (binℕpos pos1)   = true
 oddBinℕ (binℕpos (x0 _)) = false
-oddBinℕ (binℕpos (x1-pos _)) = true
+oddBinℕ (binℕpos (x1 _)) = true
 
 evenBinℕ : Binℕ → Bool
 evenBinℕ n = oddBinℕ (sucBinℕ n)
@@ -212,9 +208,8 @@ evenBinℕ n = oddBinℕ (sucBinℕ n)
 -- And prove the following property (without induction)
 oddBinℕnotEvenBinℕ : (n : Binℕ) → oddBinℕ n ≡ not (evenBinℕ n)
 oddBinℕnotEvenBinℕ binℕ0            = refl
-oddBinℕnotEvenBinℕ (binℕpos pos1)   = refl
 oddBinℕnotEvenBinℕ (binℕpos (x0 x)) = refl
-oddBinℕnotEvenBinℕ (binℕpos (x1-pos x)) = refl
+oddBinℕnotEvenBinℕ (binℕpos (x1 x)) = refl
 
 -- It is also easy to define and prove the property for unary numbers,
 -- however the definition uses recursion and the proof induction
@@ -411,8 +406,8 @@ propDoubleℕ = transport (λ i → propDouble (DoubleBinℕ≡Doubleℕ i)) pro
 
 data binnat : Type₀ where
   zero     : binnat            -- 0
-  consOdd  : binnat → binnat   -- 2^n + 1
-  consEven : binnat → binnat   -- 2^{n+1}
+  consOdd  : binnat → binnat   -- 2*n + 1
+  consEven : binnat → binnat   -- 2*{n+1}
 
 binnat→ℕ : binnat → ℕ
 binnat→ℕ zero         = 0
