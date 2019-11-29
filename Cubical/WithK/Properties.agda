@@ -15,6 +15,7 @@ The above proofs are based on two incompatible flags of Agda.
 module Cubical.WithK.Properties where
 
 open import Cubical.WithK.Base
+open import Cubical.Data.Equality
 open import Cubical.Data.Bool
 open import Cubical.Data.Empty
 

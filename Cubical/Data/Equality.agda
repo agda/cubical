@@ -15,7 +15,7 @@ These definitions and lemmas are proved without Axiom K.
 
 {-# OPTIONS --cubical --safe #-}
 
-module Cubical.WithK.WithoutK where
+module Cubical.Data.Equality where
 
 open import Cubical.Foundations.Prelude
   renaming ( _≡_ to _≡c_ ; refl to reflc )
@@ -24,7 +24,8 @@ open import Agda.Builtin.Equality
   renaming ( _≡_ to _≡p_ ; refl to reflp )
   public
 
-variable
+private
+ variable
   ℓ : Level
   A : Set ℓ
   x y z : A

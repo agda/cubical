@@ -14,8 +14,15 @@ The above proofs are based on two incompatible flags of Agda.
 
 module Cubical.WithK.Base where
 
-open import Cubical.WithK.WithoutK public
+open import Cubical.Data.Equality
 open import Cubical.Foundations.Isomorphism
+
+
+private
+ variable
+  ℓ : Level
+  A : Set ℓ
+  x y : A
 
 uip : (prf : x ≡p x) → prf ≡c reflp
 uip reflp i = reflp
