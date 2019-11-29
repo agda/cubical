@@ -146,7 +146,7 @@ module IsoToLFSet
            (λ i → exclude (x≡y i) (e i))
          ⟩ exclude y (Memʰ (y ∷ unsort ys)) ≡⟨
            (>-excluded y ys y>ys)
-         ⟩ Memˡ ys ∎ 
+         ⟩ Memˡ ys ∎
 
   Memˡ-inj : ∀ l₁ l₂ → Memˡ l₁ ≡ Memˡ l₂ → l₁ ≡ l₂
   Memˡ-inj [] [] eq = refl
@@ -160,13 +160,13 @@ module IsoToLFSet
        (transport (λ i → [ e i x ]) (inl ∣ refl ∣)) where
 
     xxs = cons x xs x>xs
-    
+
     x∉ys : [ ¬ x ∈ˡ ys ]
     x∉ys x∈ys = ⊥-elim (>-irreflexive y>y) where
         y>x : y > x
         y>x = (>-all y ys y>ys x x∈ys)
 
-        y∈xxs : [ y ∈ˡ (cons x xs x>xs) ] 
+        y∈xxs : [ y ∈ˡ (cons x xs x>xs) ]
         y∈xxs = (transport (λ i → [ e (~ i) y ]) (inl ∣ refl ∣))
 
         y>y : y > y
@@ -219,6 +219,6 @@ module IsoToLFSet
 
   SDL-LFSet-iso : Iso SDL (LFSet A)
   SDL-LFSet-iso = (iso unsort sort unsort∘sort sort∘unsort)
- 
+
   SDL≡LFSet : SDL ≡ LFSet A
   SDL≡LFSet = ua (isoToEquiv SDL-LFSet-iso)
