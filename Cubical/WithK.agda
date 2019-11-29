@@ -1,23 +1,35 @@
 {- Cubical Agda with K
 
-This file proves:
+This file demonstrates the incompatibility of the --cubical
+and --with-K flags, relying on the well-known incosistency of K with
+univalence.
 
-false-true : false ≡c true
-absurd : (X : Set) → X
-inconsistency : ⊥
-
-The above proofs are based on two incompatible flags of Agda.
+The --safe flag can be used to prevent accidentally mixing such
+incompatible flags.
 
 -}
 
 {-# OPTIONS --cubical --with-K #-}
 
-module Cubical.WithK.Properties where
+module Cubical.WithK where
 
-open import Cubical.WithK.Base
 open import Cubical.Data.Equality
 open import Cubical.Data.Bool
 open import Cubical.Data.Empty
+
+
+private
+ variable
+  ℓ : Level
+  A : Set ℓ
+  x y : A
+
+uip : (prf : x ≡p x) → prf ≡c reflp
+uip reflp i = reflp
+
+transport-uip : (prf : A ≡p A) → transport (ptoc prf) x ≡c x
+transport-uip {x = x} prf =
+  cong (λ m → transport (ptoc m) x) (uip prf) ∙ transportRefl x
 
 transport-not : transport (ptoc (ctop notEq)) true ≡c false
 transport-not = cong (λ a → transport a true) (ptoc-ctop notEq)
@@ -34,4 +46,3 @@ absurd X = transport (cong sel false-true) true
 
 inconsistency : ⊥
 inconsistency = absurd ⊥
-

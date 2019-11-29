@@ -1,18 +1,13 @@
-{- Cubical Agda with K
+{-
 
-This file defines:
+This module converts between the path equality
+and the inductively define equality types.
 
-ptoc : x ≡p y → x ≡c y
-ctop : x ≡c y → x ≡p y
+- _≡c_ stands for "c"ubical equality.
+- _≡p_ stands for "p"ropositional equality.
 
-and proves:
-
-ptoc-ctop : (p : x ≡c y) → ptoc (ctop p) ≡c p
-
-These definitions and lemmas are proved without Axiom K.
-
+TODO: reconsider naming scheme.
 -}
-
 {-# OPTIONS --cubical --safe #-}
 
 module Cubical.Data.Equality where
@@ -23,6 +18,8 @@ open import Cubical.Foundations.Prelude
 open import Agda.Builtin.Equality
   renaming ( _≡_ to _≡p_ ; refl to reflp )
   public
+
+open import Cubical.Foundations.Isomorphism
 
 private
  variable
@@ -40,3 +37,14 @@ ptoc-ctop : (p : x ≡c y) → ptoc (ctop p) ≡c p
 ptoc-ctop p =
   J (λ _ h → ptoc (ctop h) ≡c h) (cong ptoc (transportRefl reflp)) p
 
+ctop-ptoc : (p : x ≡p y) → ctop (ptoc p) ≡c p
+ctop-ptoc {x = x} reflp = transportRefl reflp
+
+p≅c : {x y : A} → Iso (x ≡c y) (x ≡p y)
+p≅c = iso ctop ptoc ctop-ptoc ptoc-ctop
+
+p-c : {x y : A} → (x ≡c y) ≡c (x ≡p y)
+p-c = isoToPath p≅c
+
+p=c : {x y : A} → (x ≡c y) ≡p (x ≡p y)
+p=c = ctop p-c
