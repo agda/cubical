@@ -158,7 +158,7 @@ Pos⇒ℕ⇒Pos p = posInd refl hs p
 ℕ⇒Pos⇒ℕ (suc n) =
   Pos⇒ℕ (ℕ⇒Pos (suc n)) ≡⟨ Pos⇒ℕsucPos (ℕ⇒Pos n) ⟩
   suc (Pos⇒ℕ (ℕ⇒Pos n)) ≡⟨ cong suc (ℕ⇒Pos⇒ℕ n) ⟩
-  suc n ∎ 
+  suc n ∎
 
 ℕ→Binℕ : ℕ → Binℕ
 ℕ→Binℕ zero    = binℕ0
