@@ -11,6 +11,7 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 
 -- Direct definition of transport filler, note that we have to
 -- explicitly tell Agda that the type is constant (like in CHM)
@@ -42,3 +43,6 @@ isEquivTransport {A = A} {B = B} p =
 
 transportEquiv : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B
 transportEquiv p = (transport p , isEquivTransport p)
+
+pathToIso : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → Iso A B
+pathToIso x = iso (transport x) (transport⁻ x ) ( transportTransport⁻ x) (transport⁻Transport x)
