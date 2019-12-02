@@ -20,24 +20,24 @@ record isGroup {ℓ} (A : Type ℓ) : Type ℓ where
     rUnit : ∀ a → comp a id ≡ a
     assoc  : ∀ a b c → comp (comp a b) c ≡ comp a (comp b c)
     lCancel  : ∀ a → comp (inv a) a ≡ id
-    rCalcel : ∀ a → comp a (inv a) ≡ id
+    rCancel : ∀ a → comp a (inv a) ≡ id
 
-record Group {ℓ} : Type (ℓ-suc ℓ) where
+record Group ℓ : Type (ℓ-suc ℓ) where
   constructor group
   field
     type : Type ℓ
     setStruc : isSet type
     groupStruc : isGroup type
 
-isMorph : ∀ {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) → (f : (Group.type G → Group.type H)) → Type (ℓ-max ℓ ℓ')
+isMorph : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (f : (Group.type G → Group.type H)) → Type (ℓ-max ℓ ℓ')
 isMorph (group G Gset (group-struct _ _ _⊙_ _ _ _ _ _))
         (group H Hset (group-struct _ _ _∘_ _ _ _ _ _)) f
         = (g0 g1 : G) → f (g0 ⊙ g1) ≡ (f g0) ∘ (f g1)
 
-morph : ∀ {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) → Type (ℓ-max ℓ ℓ')
+morph : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → Type (ℓ-max ℓ ℓ')
 morph G H = Σ (Group.type G →  Group.type H) (isMorph G H)
 
-record Iso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
+record Iso {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') : Type (ℓ-max ℓ ℓ') where
   constructor iso
   field
     fun : morph G H
@@ -45,22 +45,22 @@ record Iso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ �
     rightInv : I.section (fun .fst) (inv .fst)
     leftInv : I.retract (fun .fst) (inv .fst)
 
-record Iso' {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
+record Iso' {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') : Type (ℓ-max ℓ ℓ') where
   constructor iso'
   field
     isoSet : I.Iso (Group.type G) (Group.type H)
     isoSetMorph : isMorph G H (I.Iso.fun isoSet)
 
-_≃_ : ∀ {ℓ ℓ'} (A : Group {ℓ}) (B : Group {ℓ'}) → Type (ℓ-max ℓ ℓ')
+_≃_ : ∀ {ℓ ℓ'} (A : Group ℓ) (B : Group ℓ') → Type (ℓ-max ℓ ℓ')
 A ≃ B = Σ (morph A B) \ f → (G.isEquiv (f .fst))
 
-Iso'→Iso : ∀ {ℓ ℓ'} {G : Group {ℓ}} {H : Group {ℓ'}} → Iso' G  H → Iso G H
+Iso'→Iso : ∀ {ℓ ℓ'} {G : Group ℓ} {H : Group ℓ'} → Iso' G  H → Iso G H
 Iso'→Iso {G = group G Gset Ggroup} {H = group H Hset Hgroup} i = iso (fun , funMorph) (inv , invMorph) rightInv leftInv
   where
-    G_ : Group
+    G_ : Group _
     G_ = (group G Gset Ggroup)
 
-    H_ : Group
+    H_ : Group _
     H_ = (group H Hset Hgroup)
 
     open Iso'
@@ -98,7 +98,7 @@ Iso'→Iso {G = group G Gset Ggroup} {H = group H Hset Hgroup} i = iso (fun , fu
            fun ((inv h0) ⊙ (inv h1)) ∎ )
 
 
-Equiv→Iso' : ∀ {ℓ ℓ'} {G : Group {ℓ}} {H : Group {ℓ'}} → G ≃ H → Iso' G H
+Equiv→Iso' : ∀ {ℓ ℓ'} {G : Group ℓ} {H : Group ℓ'} → G ≃ H → Iso' G H
 Equiv→Iso' {G = group G Gset Ggroup}
            {H = group H Hset Hgroup}
            e = iso' i' (e .fst .snd)
@@ -109,7 +109,7 @@ Equiv→Iso' {G = group G Gset Ggroup}
     i' : I.Iso G H
     i' = E.equivToIso e'
 
-compMorph : ∀ {ℓ} {F G H : Group {ℓ}} (I : morph F G) (J : morph G H) → morph F H
+compMorph : ∀ {ℓ} {F G H : Group ℓ} (I : morph F G) (J : morph G H) → morph F H
 compMorph {ℓ} {group F Fset (group-struct _ _ _⊙_ _ _ _ _ _)}
               {group G Gset (group-struct _ _ _∙_ _ _ _ _ _)}
               {group H Hset (group-struct _ _ _∘_ _ _ _ _ _)}
@@ -123,7 +123,7 @@ compMorph {ℓ} {group F Fset (group-struct _ _ _⊙_ _ _ _ _ _)}
                 j (i g0 ∙ i g1) ≡⟨ jc _ _ ⟩
                 j (i g0) ∘ j (i g1) ∎
 
-compIso : ∀ {ℓ} {F G H : Group {ℓ}} (I : Iso F G) (J : Iso G H) → Iso F H
+compIso : ∀ {ℓ} {F G H : Group ℓ} (I : Iso F G) (J : Iso G H) → Iso F H
 compIso {ℓ} {F} {G} {H}
         (iso F→G G→F fg gf) (iso G→H H→G gh hg ) = iso F→H H→F sec ret
   where

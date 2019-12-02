@@ -42,10 +42,10 @@ open import Cubical.Core.Glue
            ; equivFun     to equivFunPath )
 
 open import Cubical.Foundations.Equiv
-  renaming ( fiber        to fiberPath
-           ; equivIsEquiv to equivIsEquivPath
-           ; equivCtr     to equivCtrPath )
-  hiding   ( isPropIsEquiv )
+  renaming ( fiber        to fiberPath )
+  hiding   ( isPropIsEquiv
+           ; equivCtr
+           ; equivIsEquiv )
 
 open import Cubical.Foundations.Univalence
   renaming ( EquivContr   to EquivContrPath )

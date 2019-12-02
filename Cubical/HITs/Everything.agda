@@ -27,4 +27,5 @@ open import Cubical.HITs.2GroupoidTruncation public
 open import Cubical.HITs.SetQuotients public
 open import Cubical.HITs.FiniteMultiset public hiding ( _++_ ; [_] ; assoc-++ )
 open import Cubical.HITs.Colimit
+open import Cubical.HITs.InfNat public
 open import Cubical.HITs.KleinBottle
