@@ -18,12 +18,12 @@ cong′ : ∀ {B : Type ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
       → Path B (f x) (f y)
 cong′ f = cong f
 
-PathP≡Path : ∀ {ℓ} (P : I → Type ℓ) (p : P i0) (q : P i1) →
-             PathP P p q ≡ Path (P i1) (transp P i0 p) q
+PathP≡Path : ∀ (P : I → Type ℓ) (p : P i0) (q : P i1) →
+             PathP P p q ≡ Path (P i1) (transport (λ i → P i) p) q
 PathP≡Path P p q i = PathP (λ j → P (i ∨ j)) (transp (λ j → P (i ∧ j)) (~ i) p) q
 
-PathP≃Path : ∀ {ℓ} (P : I → Type ℓ) (p : P i0) (q : P i1) →
-             PathP P p q ≃ Path (P i1) (transp P i0 p) q
+PathP≃Path : ∀ (P : I → Type ℓ) (p : P i0) (q : P i1) →
+             PathP P p q ≃ Path (P i1) (transport (λ i → P i) p) q
 PathP≃Path P p q = transportEquiv (PathP≡Path P p q)
 
 -- Alternative more unfolded proof
