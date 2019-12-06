@@ -49,6 +49,6 @@ pathToIso x = iso (transport x) (transport⁻ x ) ( transportTransport⁻ x) (tr
 
 isSet-subst : ∀ {ℓ ℓ′} {A : Type ℓ} {B : A → Type ℓ′}
                 → (isSet-A : isSet A)
-                → ∀ {a}
-                → ∀ p → ∀ x → subst {x = a} B p x ≡ x
-isSet-subst {B = B} isSet-A p x = subst (λ p′ → subst B p′ x ≡ x) ((isSet-A) _ _ refl p) (substRefl {B = B} x)
+                → ∀ {a : A}
+                → ∀ (p : a ≡ a) → ∀ (x : B a) → subst {x = a} B p x ≡ x
+isSet-subst {B = B} isSet-A p x = subst (λ p′ → subst B p′ x ≡ x) (isSet-A _ _ refl p) (substRefl {B = B} x)
