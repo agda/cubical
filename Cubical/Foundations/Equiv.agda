@@ -22,8 +22,6 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 
-open import Cubical.Data.Nat
-
 private
   variable
     ℓ ℓ'  : Level
