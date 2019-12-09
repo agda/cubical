@@ -28,3 +28,10 @@ doublesℕ (suc n) m = doublesℕ n (doubleℕ m)
 iter : ∀ {ℓ} {A : Type ℓ} → ℕ → (A → A) → A → A
 iter zero f z    = z
 iter (suc n) f z = f (iter n f z)
+
+ℕ-induction : ∀ {ℓ} {A : ℕ → Type ℓ}
+            → A 0
+            → ((n : ℕ) → A n → A (suc n))
+            → (n : ℕ) → A n
+ℕ-induction a₀ _ zero = a₀
+ℕ-induction a₀ f (suc n) = f n ((ℕ-induction a₀ f n))
