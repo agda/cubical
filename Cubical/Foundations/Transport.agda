@@ -50,3 +50,28 @@ isSet-subst : ∀ {ℓ ℓ′} {A : Type ℓ} {B : A → Type ℓ′}
                 → ∀ {a : A}
                 → (p : a ≡ a) → (x : B a) → subst B p x ≡ x
 isSet-subst {B = B} isSet-A p x = subst (λ p′ → subst B p′ x ≡ x) (isSet-A _ _ refl p) (substRefl {B = B} x)
+
+-- substituting along a composite path is equivalent to substituting twice
+substComposite-□ : ∀ {ℓ ℓ′} {A : Type ℓ} → (B : A → Type ℓ′)
+                     → {x y z : A} (p : x ≡ y) (q : y ≡ z) (u : B x)
+                     → subst B (p □ q) u ≡ subst B q (subst B p u)
+substComposite-□ B p q Bx = sym (substRefl {B = B} _) ∙ helper where
+  compSq : I → I → _
+  compSq = compPath'-filler p q
+  helper : subst B refl (subst B (p □ q) Bx) ≡ subst B q (subst B p Bx)
+  helper i = subst B (λ k → compSq (~ i ∧ ~ k) (~ i ∨ k)) (subst B (λ k → compSq (~ i ∨ ~ k) (~ i ∧ k)) Bx)
+
+-- substitution commutes with morphisms in slices
+substCommSlice : ∀ {ℓ ℓ′} {A : Type ℓ}
+                   → (B C : A → Type ℓ′)
+                   → (F : ∀ i → B i → C i)
+                   → {x y : A} (p : x ≡ y) (u : B x)
+                   → subst C p (F x u) ≡ F y (subst B p u)
+substCommSlice B C F p Bx i = comp pathC (λ k → λ where
+      (i = i0) → toPathP {A = pathC} (λ _ → subst C p (F _ Bx)) k
+      (i = i1) → F (p k) (toPathP {A = pathB} (λ _ → subst B p Bx) k)
+    ) (F _ Bx) where
+  pathC : I → Type _
+  pathC i = cong C p i
+  pathB : I → Type _
+  pathB i = cong B p i

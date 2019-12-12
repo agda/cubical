@@ -1,4 +1,18 @@
 {-# OPTIONS --cubical --no-exact-split --safe #-}
+
+{-
+
+This file shows that the property of the natural numbers being a homotopy-initial algebra of
+the functor (1 + _) is equivalent to fulfilling a closely related inductive elimination principle.
+
+Proofing the latter is trivial, since the typechecker does the work for us.
+
+For details see the paper [Homotopy-initial algebras in type theory](https://arxiv.org/abs/1504.05531)
+by Steve Awodey, Nicola Gambino and Kristina Sojakova.
+
+-}
+
+
 module Cubical.Data.Nat.Algebra where
 
 open import Cubical.Core.Everything
@@ -9,8 +23,13 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
   hiding (section)
+open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Nat.Base
+
+private
+  variable
+    ℓ ℓ' : Level
 
 record NatAlgebra ℓ : Set (ℓ-suc ℓ) where
   field
@@ -18,21 +37,21 @@ record NatAlgebra ℓ : Set (ℓ-suc ℓ) where
     alg-zero : Carrier
     alg-suc  : Carrier → Carrier
 
-record NatMorphism {ℓ ℓ'} (A : NatAlgebra ℓ) (B : NatAlgebra ℓ') : Set (ℓ-max ℓ ℓ') where
+record NatMorphism (A : NatAlgebra ℓ) (B : NatAlgebra ℓ') : Set (ℓ-max ℓ ℓ') where
   open NatAlgebra
   field
     morph     : A .Carrier → B .Carrier
     comm-zero : morph (A .alg-zero) ≡ B .alg-zero
     comm-suc  : morph ∘ A .alg-suc ≡ B .alg-suc ∘ morph
 
-record NatFiber {ℓ'} (N : NatAlgebra ℓ') ℓ : Set (ℓ-max ℓ' (ℓ-suc ℓ)) where
+record NatFiber (N : NatAlgebra ℓ') ℓ : Set (ℓ-max ℓ' (ℓ-suc ℓ)) where
   open NatAlgebra N
   field
     Fiber    : Carrier → Set ℓ
     fib-zero : Fiber alg-zero
     fib-suc  : ∀ {n} → Fiber n → Fiber (alg-suc n)
 
-record NatSection {ℓ' ℓ}{N : NatAlgebra ℓ'} (F : NatFiber N ℓ) : Set (ℓ-max ℓ' ℓ) where
+record NatSection {N : NatAlgebra ℓ'} (F : NatFiber N ℓ) : Set (ℓ-max ℓ' ℓ) where
   open NatAlgebra N
   open NatFiber F
   field
@@ -40,13 +59,13 @@ record NatSection {ℓ' ℓ}{N : NatAlgebra ℓ'} (F : NatFiber N ℓ) : Set (�
     sec-comm-zero : section alg-zero ≡ fib-zero
     sec-comm-suc  : ∀ n → section (alg-suc n) ≡ fib-suc (section n)
 
-isNatHInitial  : ∀ {ℓ'} → NatAlgebra ℓ' → (ℓ : Level) → Set _
+isNatHInitial  : NatAlgebra ℓ' → (ℓ : Level) → Set (ℓ-max ℓ' (ℓ-suc ℓ))
 isNatHInitial N ℓ = (M : NatAlgebra ℓ) → isContr (NatMorphism N M)
 
-isNatInductive : ∀ {ℓ'} → NatAlgebra ℓ' → (ℓ : Level) → Set _
+isNatInductive : NatAlgebra ℓ' → (ℓ : Level) → Set (ℓ-max ℓ' (ℓ-suc ℓ))
 isNatInductive N ℓ = (S : NatFiber N ℓ) → NatSection S
 
-module AlgebraPropositionality {ℓ ℓ'} {N : NatAlgebra ℓ'} where
+module AlgebraPropositionality {N : NatAlgebra ℓ'} where
   open NatAlgebra N
   isPropIsNatHInitial : isProp (isNatHInitial N ℓ)
   isPropIsNatHInitial = propPi (λ _ → isPropIsContr)
@@ -67,7 +86,7 @@ module AlgebraPropositionality {ℓ ℓ'} {N : NatAlgebra ℓ'} where
 
     squeezeSquare : ∀{a}{A : Set a}{w x y z : A} (p : w ≡ x) {q : x ≡ y} (r : z ≡ y)
                   → (P : w ≡ z) → (sq : P ≡ p ∙∙ q ∙∙ sym r) → I → I → A
-    squeezeSquare p {q} r P sq i j = transport (squeezeSq≡ p P q r) sq i j
+    squeezeSquare p {q} r P sq i j = transport (squeezeSq≡ P q p r) sq i j
 
     S≡T : S ≡ T
     section (S≡T i) n = α n i
@@ -77,7 +96,7 @@ module AlgebraPropositionality {ℓ ℓ'} {N : NatAlgebra ℓ'} where
   isPropIsNatInductive : isProp (isNatInductive N ℓ)
   isPropIsNatInductive a b i F = SectionProp.S≡T a (a F) (b F) i
 
-module AlgebraHInd→HInit {ℓ' ℓ} {N : NatAlgebra ℓ'} (ind : isNatInductive N ℓ) (M : NatAlgebra ℓ) where
+module AlgebraHInd→HInit {N : NatAlgebra ℓ'} (ind : isNatInductive N ℓ) (M : NatAlgebra ℓ) where
   open NatAlgebra
   open NatFiber
 
@@ -97,38 +116,15 @@ module AlgebraHInd→HInit {ℓ' ℓ} {N : NatAlgebra ℓ'} (ind : isNatInductiv
   isContrMorph = subst isContr Morph≡Section (inhProp→isContr (ind ConstFiberM) (AlgebraPropositionality.SectionProp.S≡T ind))
 
 module Helper {a b} {A : Set a} (B : A → Set b) where
-  _!_ : ∀ {x y} → x ≡ y → B x → B y
+  _!_ : {x y : A} → x ≡ y → B x → B y
   _!_ = subst B
-
-  -- substituting commutes with maps in slices
-  module SubstProperties (f : A → A) (F : ∀ i → B i → B (f i)) {n m : A} {p : n ≡ m} {u : B n} where
-    pathA : I → Type b
-    pathA i = cong (B ∘ f) p i
-    pathB : I → Type b
-    pathB i = cong B p i
-
-    substDepends : (cong f p ! F n u) ≡ F m (p ! u)
-    substDepends i = comp pathA (λ k → λ where
-        (i = i0) → toPathP {A = pathA} (λ _ → cong f p ! F n u) k
-        (i = i1) → F (p k) (toPathP {A = pathB} (λ _ → p ! u) k)
-      ) (F n u)
-
-  -- transporting along a composite is the same as transporting twice
-  module CompProperties {x y z : A} (p : x ≡ y) (q : y ≡ z) where
-    compSq : I → I → A
-    compSq = compPath'-filler p q
-    precomposite : ∀ {Bx} → refl ! ((p □ q) ! Bx) ≡ q ! (p ! Bx)
-    precomposite {Bx} i = (λ k → compSq (~ i ∧ ~ k) (~ i ∨ k)) ! ((λ k → compSq (~ i ∨ ~ k) (~ i ∧ k)) ! Bx)
-
-    composite : ∀ {Bx} → (p □ q) ! Bx ≡ q ! (p ! Bx)
-    composite = sym (substRefl {B = B} _) ∙ precomposite
 
 open NatAlgebra
 open NatFiber
 open NatSection
 open NatMorphism
 
-module AlgebraHInit→Ind {ℓ'} (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (ℓ-max ℓ' ℓ)) (F : NatFiber N (ℓ-max ℓ' ℓ)) where
+module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (ℓ-max ℓ' ℓ)) (F : NatFiber N (ℓ-max ℓ' ℓ)) where
 
   ΣAlgebra : NatAlgebra (ℓ-max ℓ' ℓ)
   Carrier ΣAlgebra = Σ (N .Carrier) (F .Fiber)
@@ -178,7 +174,7 @@ module AlgebraHInit→Ind {ℓ'} (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitia
       (j = i0) → ζ (~ k)
       (j = i1) → N .alg-zero
     ) (N .alg-zero)
-  P-suc : ∀ n → P (N .alg-suc n) ≡ Q-suc n
+  P-suc : (n : N .Carrier) → P (N .alg-suc n) ≡ Q-suc n
   P-suc n i j = hcomp (λ k → λ where
       (i = i0) → lower (f∘μ≡id j .comm-suc (~ k) n)
       (i = i1) → compPath'-filler (σ n) (cong (N .alg-suc) (P n)) k j
@@ -199,15 +195,15 @@ module AlgebraHInit→Ind {ℓ'} (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitia
     P (N .alg-suc n) ! α-h (N .alg-suc n)
       ≡[ i ]⟨ P-suc n i ! α-h _ ⟩
     Q-suc n ! α-h (N .alg-suc n)
-      ≡⟨ CompProperties.composite (σ n) _ ⟩
+      ≡⟨ substComposite-□ (F .Fiber) (σ n) (cong (N .alg-suc) (P n)) _ ⟩
     cong (N .alg-suc) (P n) ! (σ n ! α-h (N .alg-suc n))
       ≡[ i ]⟨ cong (N .alg-suc) (P n) ! fromPathP (σ-h n) i ⟩
     cong (N .alg-suc) (P n) ! (F .fib-suc (α-h n))
-      ≡⟨ SubstProperties.substDepends (N .alg-suc) (λ _ → F .fib-suc) ⟩
+      ≡⟨ substCommSlice (F .Fiber) (F .Fiber ∘ N .alg-suc) (λ _ → F .fib-suc) (P n) (α-h n) ⟩
     F .fib-suc (P n ! α-h n)
       ∎
 
-isNatInductive≡isNatHInitial : ∀ {ℓ'} {N : NatAlgebra ℓ'} ℓ
+isNatInductive≡isNatHInitial : {N : NatAlgebra ℓ'} (ℓ : Level)
                              → isNatInductive N (ℓ-max ℓ' ℓ) ≡ isNatHInitial N (ℓ-max ℓ' ℓ)
 isNatInductive≡isNatHInitial {ℓ'} {N} ℓ =
   isoToPath (equivToIso (PropEquiv→Equiv isPropIsNatInductive isPropIsNatHInitial ind→init init→ind)) where
@@ -216,7 +212,8 @@ isNatInductive≡isNatHInitial {ℓ'} {N} ℓ =
   open AlgebraHInit→Ind N ℓ renaming (Fsection to init→ind)
   open AlgebraHInd→HInit renaming (isContrMorph to ind→init)
 
-isNatHInitial→algebraPath : ∀ {ℓ} {N M : NatAlgebra ℓ} (hinitN : isNatHInitial N ℓ) (hinitM : isNatHInitial M ℓ)
+isNatHInitial→algebraPath : {N M : NatAlgebra ℓ}
+                          → (hinitN : isNatHInitial N ℓ) (hinitM : isNatHInitial M ℓ)
                           → N ≡ M
 isNatHInitial→algebraPath {N = N} {M} hinitN hinitM = N≡M where
   open Σ (hinitN M) renaming (fst to N→M)
@@ -264,7 +261,7 @@ Carrier NatAlgebraℕ = ℕ
 alg-zero NatAlgebraℕ = zero
 alg-suc NatAlgebraℕ = suc
 
-isNatInductiveℕ : ∀ {ℓ} → isNatInductive NatAlgebraℕ ℓ
+isNatInductiveℕ : isNatInductive NatAlgebraℕ ℓ
 section (isNatInductiveℕ F) = nat-sec where
   nat-sec : ∀ n → F .Fiber n
   nat-sec zero = F .fib-zero
@@ -272,5 +269,5 @@ section (isNatInductiveℕ F) = nat-sec where
 sec-comm-zero (isNatInductiveℕ F) = refl
 sec-comm-suc (isNatInductiveℕ F) n = refl
 
-isNatHInitialℕ : ∀ {ℓ} → isNatHInitial NatAlgebraℕ ℓ
+isNatHInitialℕ : isNatHInitial NatAlgebraℕ ℓ
 isNatHInitialℕ = transport (isNatInductive≡isNatHInitial _) isNatInductiveℕ
