@@ -269,3 +269,57 @@ join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
         H4 (inl (a , c)) = refl
         H4 (inr (b , c)) = refl
         H4 (push (a , (b , c)) i) j = fst (joinPushout≃join _ _) (doubleCompPath-filler refl (λ i → push (a , b) i) refl i j)
+
+{-
+  More direct proof of an associativity-related property. Combined with
+  commutativity, this implies that the join is associative.
+-}
+joinSwitch : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+  → join (join A B) C ≃ join (join C B) A
+joinSwitch = isoToEquiv (iso map map invol invol)
+  where
+  map : ∀ {ℓ ℓ' ℓ''}  {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+    → join (join A B) C → join (join C B) A
+  map (inl (inl a)) = inr a
+  map (inl (inr b)) = inl (inr b)
+  map (inl (push a b i)) = push (inr b) a (~ i)
+  map (inr c) = inl (inl c)
+  map (push (inl a) c j) = push (inl c) a (~ j)
+  map (push (inr b) c j) = inl (push c b (~ j))
+  map (push (push a b i) c j) =
+    hcomp
+      (λ k → λ
+        { (i = i0) → push (inl c) a (~ j ∨ ~ k)
+        ; (i = i1) → inl (push c b (~ j))
+        ; (j = i0) → push (inr b) a (~ i)
+        ; (j = i1) → push (inl c) a (~ i ∧ ~ k)
+        })
+      (push (push c b (~ j)) a (~ i))
+
+  invol : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+    (u : join (join A B) C) → map (map u) ≡ u
+  invol (inl (inl a)) = refl
+  invol (inl (inr b)) = refl
+  invol (inl (push a b i)) = refl
+  invol (inr c) = refl
+  invol (push (inl a) c j) = refl
+  invol (push (inr b) c j) = refl
+  invol {A = A} {B} {C} (push (push a b i) c j) l =
+    comp
+      (λ _ → join (join A B) C)
+      (λ k → λ
+        { (i = i0) → push (inl a) c (j ∧ (k ∨ l))
+        ; (i = i1) → push (inr b) c j
+        ; (j = i0) → inl (push a b i)
+        ; (j = i1) → push (inl a) c (i ∨ (k ∨ l))
+        ; (l = i1) → push (push a b i) c j
+        })
+      (hcomp
+        (λ k → λ
+          { (i = i0) → push (inl a) c (j ∧ (~ k ∨ l))
+          ; (i = i1) → push (inr b) c j
+          ; (j = i0) → inl (push a b i)
+          ; (j = i1) → push (inl a) c (i ∨ (~ k ∨ l))
+          ; (l = i1) → push (push a b i) c j
+          })
+        (push (push a b i) c j))
