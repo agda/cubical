@@ -270,13 +270,14 @@ hcomp-cong : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 :
              → (hcomp u (outS u0) ≡ hcomp u' (outS u0')) [ φ ↦ (\ { (φ = i1) → ueq i1 1=1 }) ]
 hcomp-cong u u0 u' u0' ueq 0eq = inS (\ j → hcomp (\ i o → ueq i o j) (outS 0eq j))
 
-squeezeSq≡
-  : ∀{w x y z : A}
-  → (p : w ≡ y) (q : w ≡ x) (r : y ≡ z) (s : x ≡ z)
-  → (q ≡ p ∙∙ r ∙∙ sym s) ≡ (Square p q r s)
-squeezeSq≡ p q r s k
+squeezeSq≡ :
+  {a₀₀ a₀₁ : A} (a₀₋ : a₀₀ ≡ a₀₁)
+  {a₁₀ a₁₁ : A} (a₁₋ : a₁₀ ≡ a₁₁)
+  (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
+  → (a₀₋ ≡ a₋₀ ∙∙ a₁₋ ∙∙ sym a₋₁) ≡ (Square a₀₋ a₁₋ a₋₀ a₋₁)
+squeezeSq≡ a₀₋ a₁₋ a₋₀ a₋₁ k
   = Square
-      (λ j → p (j ∧ k))
-      q
-      (λ j → doubleCompPath-filler p r (sym s) j (~ k))
-      (λ j → s (j ∧ k))
+      a₀₋
+      (λ j → doubleCompPath-filler a₋₀ a₁₋ (sym a₋₁) j (~ k))
+      (λ j → a₋₀ (j ∧ k))
+      (λ j → a₋₁ (j ∧ k))

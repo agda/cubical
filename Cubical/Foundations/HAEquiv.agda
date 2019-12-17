@@ -35,9 +35,9 @@ record isHAEquiv {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type 
                                 ; (i = i1) → g b })
                        (cap1 j i)
 
-    where cap0 : Square {- (i = i0) -} (λ j → f (sec (g b) j))
-                        {- (j = i0) -} (λ i → f (g (ret b i)))
+    where cap0 : Square {- (j = i0) -} (λ i → f (g (ret b i)))
                         {- (j = i1) -} (λ i → ret b i)
+                        {- (i = i0) -} (λ j → f (sec (g b) j))
                         {- (i = i1) -} (λ j → ret b j)
 
           cap0 j i = hcomp (λ k → λ { (i = i0) → com (g b) (~ k) j
@@ -51,9 +51,9 @@ record isHAEquiv {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type 
                                       ; (i = i1) → g b })
                              (inS (sec (g b) i)) j
 
-          cap1 : Square {- (i = i0) -} (λ j → sec (g b) j)
-                        {- (j = i0) -} (λ i → g (ret b i))
+          cap1 : Square {- (j = i0) -} (λ i → g (ret b i))
                         {- (j = i1) -} (λ i → g b)
+                        {- (i = i0) -} (λ j → sec (g b) j)
                         {- (i = i1) -} (λ j → g b)
 
           cap1 j i = hcomp (λ k → λ { (i = i0) → sec (sec (g b) j) k

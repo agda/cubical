@@ -17,6 +17,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.FunExtEquiv
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HAEquiv      using (congEquiv)
 open import Cubical.Foundations.Equiv        using (isoToEquiv; isPropIsEquiv; retEq; invEquiv)
@@ -170,56 +171,29 @@ isSetPi : ((x : A) → isSet (B x)) → isSet ((x : A) → B x)
 isSetPi Bset = hLevelPi 2 (λ a → Bset a)
 
 isSet→isSet' : isSet A → isSet' A
-isSet→isSet' {A = A} Aset {x} {y} {z} {w} p q r s
-  = transport (squeezeSq≡ r p q s) (Aset _ _ p (r ∙∙ q ∙∙ sym s))
+isSet→isSet' {A = A} Aset a₀₋ a₁₋ a₋₀ a₋₁ =
+  transport⁻ (PathP≡Path (λ i → a₋₀ i ≡ a₋₁ i) a₀₋ a₁₋) (Aset _ _ _ _)
 
 isSet'→isSet : isSet' A → isSet A
 isSet'→isSet {A = A} Aset' x y p q = Aset' p q refl refl
 
-squeezeCu≡
-  : ∀{w x y z w' x' y' z' : A}
-  → {p : w ≡ y} {q : w ≡ x} {r : y ≡ z} {s : x ≡ z}
-  → {p' : w' ≡ y'} {q' : w' ≡ x'} {r' : y' ≡ z'} {s' : x' ≡ z'}
-  → {a : w ≡ w'} {b : x ≡ x'} {c : y ≡ y'} {d : z ≡ z'}
-  → (ps : Square a p p' c) (qs : Square a q q' b)
-  → (rs : Square c r r' d) (ss : Square b s s' d)
-  → (f0 : Square p q r s) (f1 : Square p' q' r' s')
-  → (f0 ≡ transport⁻ (λ k → Square (ps k) (qs k) (rs k) (ss k)) f1)
-  ≡ Cube ps qs rs ss f0 f1
-squeezeCu≡ ps qs rs ss f0 f1 τ
-  = Cube
-      (λ j → ps (j ∧ τ))
-      (λ j → qs (j ∧ τ))
-      (λ j → rs (j ∧ τ))
-      (λ j → ss (j ∧ τ))
-      f0
-      (toPathP {A = λ k → Square (ps k) (qs k) (rs k) (ss k)}
-         (transportTransport⁻ (λ k → Square (ps k) (qs k) (rs k) (ss k)) f1) τ)
-
-isGroupoid→isGroupoid' : isGroupoid A → isGroupoid' A
-isGroupoid→isGroupoid' Agpd ps qs rs ss f0 f1
-  = transport
-      ( squeezeCu≡ (λ _ → refl) f0 f1' (λ _ → refl) (λ _ → f0 i0) (λ _ → f1' i1)
-      ∙ transpose≡
-      ∙ squeezeCu≡ ps qs rs ss f0 f1
-      ) (Agpd (ps i0 i0) (ss i0 i0) (f0 i0) (f1' i0) refl rs')
+isGroupoid→isGroupoid' : {A : Type ℓ} → isGroupoid A → isGroupoid' A
+isGroupoid→isGroupoid' {A = A} Agpd a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ =
+  transport⁻ (PathP≡Path (λ i → Square (a₋₀₋ i) (a₋₁₋ i) (a₋₋₀ i) (a₋₋₁ i)) a₀₋₋ a₁₋₋)
+    (isGroupoid→isPropSquare _ _ _ _ _ _)
   where
-  Sq = λ k → Square (ps k) (qs k) (rs k) (ss k)
-  f1' = transport⁻ Sq f1
-  rs' = transport⁻ (λ k → Square refl (f0 k) (f1' k) refl) (λ _ → f1' i1)
-  transpose≡
-    : Cube (λ i _ → ps i0 i) f0 f1' (λ i _ → ss i0 i) refl refl
-    ≡ Cube refl refl refl refl f0 f1'
-  transpose≡
-    = ua ((λ cu i j → cu j i)
-    , λ where
-        .equiv-proof cu
-          → ((λ i j → cu j i) , refl)
-          , (λ{ (cu' , p) → λ k → (λ j i → p (~ k) i j) , λ τ → p (~ k ∨ τ) }))
+  isGroupoid→isPropSquare :
+    {a₀₀ a₀₁ : A} (a₀₋ : a₀₀ ≡ a₀₁)
+    {a₁₀ a₁₁ : A} (a₁₋ : a₁₀ ≡ a₁₁)
+    (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
+    → isProp (Square a₀₋ a₁₋ a₋₀ a₋₁)
+  isGroupoid→isPropSquare a₀₋ a₁₋ a₋₀ a₋₁ =
+    transport⁻
+      (cong isProp (PathP≡Path (λ i → a₋₀ i ≡ a₋₁ i) a₀₋ a₁₋))
+      (Agpd _ _ _ _)
 
 isGroupoid'→isGroupoid : isGroupoid' A → isGroupoid A
-isGroupoid'→isGroupoid Agpd' w x p q r s
-  = Agpd' {q = p} {r = q} {q' = p} {r' = q} refl refl refl refl r s
+isGroupoid'→isGroupoid Agpd' x y p q r s = Agpd' r s refl refl refl refl
 
 hLevelSuc : (n : ℕ) (A : Type ℓ) → isOfHLevel n A → isOfHLevel (suc n) A
 hLevelSuc 0 A = isContr→isProp

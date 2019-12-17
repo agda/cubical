@@ -63,9 +63,9 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
   record 3-Constant (f : A → B) : Type (ℓ-max ℓ ℓ') where
     field
       link : 2-Constant f
-      coh₁ : ∀ x y z → Square refl (link x y) (link x z) (link y z)
+      coh₁ : ∀ x y z → Square (link x y) (link x z) refl (link y z)
 
-    coh₂ : ∀ x y z → Square (link x y) (link x z) (link y z) refl
+    coh₂ : ∀ x y z → Square (link x z) (link y z) (link x y) refl
     coh₂ x y z i j
       = hcomp (λ k → λ
               { (j = i0) → link x y i
@@ -85,7 +85,7 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
               })
           (coh₁ x x x (~ i) j)
 
-    downleft : ∀ x y → Square refl (link x y) refl (link y x)
+    downleft : ∀ x y → Square (link x y) refl refl (link y x)
     downleft x y i j
       = hcomp (λ k → λ
               { (i = i0) → link x y j
