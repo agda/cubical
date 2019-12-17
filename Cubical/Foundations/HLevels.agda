@@ -10,16 +10,14 @@ Basic theory about h-levels/n-types:
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.HLevels where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.FunExtEquiv
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HAEquiv      using (congEquiv)
-open import Cubical.Foundations.Equiv        using (isoToEquiv; isPropIsEquiv; retEq; invEquiv)
 open import Cubical.Foundations.Univalence   using (ua; univalence)
 
 open import Cubical.Data.Sigma  using (ΣPathP; sigmaPath→pathSigma; pathSigma≡sigmaPath; _Σ≡T_)
