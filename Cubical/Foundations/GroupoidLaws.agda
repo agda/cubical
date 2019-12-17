@@ -100,6 +100,8 @@ preassoc : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) →
   PathP (λ j → Path A x ((q ∙ r) j)) p ((p ∙ q) ∙ r)
 preassoc {x = x} p q r j i = preassoc-filler p q r i1 j i
 
+-- deducing associativity for compPath
+
 assoc : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) →
   p ∙ q ∙ r ≡ (p ∙ q) ∙ r
 assoc p q r = 3outof4 (compPath-filler p (q ∙ r)) ((p ∙ q) ∙ r) (preassoc p q r)
@@ -227,12 +229,6 @@ doubleCompPath-elim p q r = (split-leftright p q r) ∙ (λ i → (leftright p q
 doubleCompPath-elim' : {ℓ : Level} {A : Type ℓ} {w x y z : A} (p : w ≡ x) (q : x ≡ y)
                        (r : y ≡ z) → (p ∙∙ q ∙∙ r) ≡ p ∙ (q ∙ r)
 doubleCompPath-elim' p q r = (split-leftright' p q r) ∙ (sym (leftright p (q ∙ r)))
-
--- deducing associativity for compPath
-
--- assoc : {ℓ : Level} {A : Type ℓ} {w x y z : A} (p : w ≡ x) (q : x ≡ y) (r : y ≡ z) →
---                 (p ∙ q) ∙ r ≡ p ∙ (q ∙ r)
--- assoc p q r = (sym (doubleCompPath-elim p q r)) ∙ (doubleCompPath-elim' p q r)
 
 hcomp-unique : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
                (h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
