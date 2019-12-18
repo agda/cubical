@@ -49,7 +49,7 @@ install:
       rm -rf $HOME/.cabsnap;
       mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin;
     fi
-  - cabal install
+  - travis_wait 30 cabal install
   - cd -
   # installing fix-agda-whitespace
   - cd agda/src/fix-agda-whitespace
@@ -64,4 +64,4 @@ install:
   - cd $TRAVIS_BUILD_DIR
 
 script:
-  - travis_wait 30 make test
+  - make test
