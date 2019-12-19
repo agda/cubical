@@ -69,7 +69,7 @@ isOfHLevelDep (suc (suc  n)) {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) →
 isOfHLevel→isOfHLevelDep : (n : ℕ)
   → {A : Type ℓ} {B : A → Type ℓ'} (h : (a : A) → isOfHLevel n (B a)) → isOfHLevelDep n {A = A} B
 isOfHLevel→isOfHLevelDep 0 h {a} =
-  (h a .fst , λ b' p → {!isProp→PathP (λ x → isContr→isProp (h x)) p (h a .fst) b'!})
+  (h a .fst , λ b' p → isProp→PathP (λ x → isContr→isProp (h x)) p (h a .fst) b')
 isOfHLevel→isOfHLevelDep 1 h = λ b0 b1 p → isProp→PathP h p b0 b1
 isOfHLevel→isOfHLevelDep (suc (suc n)) {A = A} {B} h {a0} {a1} b0 b1 =
   isOfHLevel→isOfHLevelDep (suc n) (λ p → helper a1 p b1)
