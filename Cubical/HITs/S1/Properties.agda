@@ -1,8 +1,6 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.S1.Properties where
 
-open import Cubical.Core.Glue
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv

@@ -7,11 +7,10 @@ equivalent to two circles
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.Torus.Base where
 
-open import Cubical.Core.Glue
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Int

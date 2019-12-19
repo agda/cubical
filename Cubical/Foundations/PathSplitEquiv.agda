@@ -18,8 +18,6 @@ The module starts with a couple of general facts about equivalences:
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.PathSplitEquiv where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv

@@ -2,8 +2,6 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Experiments.Problem where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Int
