@@ -240,16 +240,10 @@ is2Groupoid : Type ℓ → Type ℓ
 is2Groupoid A = ∀ a b → isGroupoid (Path A a b)
 
 -- Essential consequences of isProp and isContr
-isProp→PathP
-  : ((x : A) → isProp (B x)) → {a0 a1 : A}
-  → (p : a0 ≡ a1) (b0 : B a0) (b1 : B a1)
-  → PathP (λ i → B (p i)) b0 b1
-isProp→PathP P p b0 b1 = toPathP (P _ _ _)
-
-isProp-PathP-I : ∀ {B : I → Type ℓ} → ((i : I) → isProp (B i))
+isProp→PathP : ∀ {B : I → Type ℓ} → ((i : I) → isProp (B i))
                → (b0 : B i0) (b1 : B i1)
                → PathP (λ i → B i) b0 b1
-isProp-PathP-I hB b0 b1 = toPathP (hB _ _ _)
+isProp→PathP hB b0 b1 = toPathP (hB _ _ _)
 
 isPropIsContr : isProp (isContr A)
 isPropIsContr z0 z1 j =

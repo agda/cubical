@@ -69,8 +69,8 @@ isOfHLevelDep (suc (suc  n)) {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) →
 isOfHLevel→isOfHLevelDep : (n : ℕ)
   → {A : Type ℓ} {B : A → Type ℓ'} (h : (a : A) → isOfHLevel n (B a)) → isOfHLevelDep n {A = A} B
 isOfHLevel→isOfHLevelDep 0 h {a} =
-  (h a .fst , λ b' p → isProp→PathP (λ x → isContr→isProp (h x)) p (h a .fst) b')
-isOfHLevel→isOfHLevelDep 1 h = λ b0 b1 p → isProp→PathP h p b0 b1
+  (h a .fst , λ b' p → isProp→PathP (λ i → isContr→isProp (h (p i))) (h a .fst) b')
+isOfHLevel→isOfHLevelDep 1 h = λ b0 b1 p → isProp→PathP (λ i → h (p i)) b0 b1
 isOfHLevel→isOfHLevelDep (suc (suc n)) {A = A} {B} h {a0} {a1} b0 b1 =
   isOfHLevel→isOfHLevelDep (suc n) (λ p → helper a1 p b1)
   where
@@ -158,20 +158,18 @@ hLevelRespectEquiv n eq = retractIsOfHLevel n (invEq eq) (eq .fst) (retEq eq)
 
 -- hlevel of path and dependent path types
 
-isProp→isPropPathP : (∀ a → isProp (B a))
-                   → (m : x ≡ y) (g : B x) (h : B y)
-                   → isProp (PathP (λ i → B (m i)) g h)
-isProp→isPropPathP {B = B} {x = x} isPropB m = J P d m where
-  P : ∀ σc → x ≡ σc → _
-  P _ m = ∀ g h → isProp (PathP (λ i → B (m i)) g h)
-  d : P x refl
-  d = isProp→isSet (isPropB x)
+isProp→isPropPathP : {A : I → Type ℓ} (isPropA : ∀ i → isProp (A i))
+                    (g : A i0) (h : A i1)
+                   → isProp (PathP A g h)
+isProp→isPropPathP {A = A} isPropA g h =
+  transport⁻ (λ i → isProp (PathP≡Path A g h i)) (isProp→isSet (isPropA i1) _ _)
 
-isProp→isContrPathP : (∀ a → isProp (B a))
-                    → (m : x ≡ y) (g : B x) (h : B y)
-                    → isContr (PathP (λ i → B (m i)) g h)
-isProp→isContrPathP isPropB m g h =
-  inhProp→isContr (isProp→PathP isPropB m g h) (isProp→isPropPathP isPropB m g h)
+isProp→isContrPathP : {A : I → Type ℓ} (isPropA : ∀ i → isProp (A i))
+                    (g : A i0) (h : A i1)
+                   → isContr (PathP A g h)
+isProp→isContrPathP isPropA g h =
+  inhProp→isContr (isProp→PathP isPropA g h) (isProp→isPropPathP isPropA g h)
+  -- inhProp→isContr (isProp→PathP (λ i → isPropB (m i)) g h) (isProp→isPropPathP isPropB m g h)
 
 isProp→isContr≡ : isProp A → (x y : A) → isContr (x ≡ y)
 isProp→isContr≡ isPropA x y = inhProp→isContr (isPropA x y) (isProp→isSet isPropA x y)
@@ -195,7 +193,7 @@ isContrSigma {A = A} {B = B} (a , p) q =
 ΣProp≡
   : ((x : A) → isProp (B x)) → {u v : Σ[ a ∈ A ] B a}
   → (p : u .fst ≡ v .fst) → u ≡ v
-ΣProp≡ pB {u} {v} p i = (p i) , isProp→PathP pB p (u .snd) (v .snd) i
+ΣProp≡ pB {u} {v} p i = (p i) , isProp→PathP (λ i → pB (p i)) (u .snd) (v .snd) i
 
 isPropSigma : isProp A → ((x : A) → isProp (B x)) → isProp (Σ[ x ∈ A ] B x)
 isPropSigma pA pB t u = ΣProp≡ pB (pA (t .fst) (u .fst))

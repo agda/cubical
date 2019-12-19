@@ -73,7 +73,7 @@ equiv-proof (isPropIsEquiv f p q i) y =
                    (p2 w (i ∨ j))
 
 equivEq : (e f : A ≃ B) → (h : e .fst ≡ f .fst) → e ≡ f
-equivEq e f h = λ i → (h i) , isProp→PathP isPropIsEquiv h (e .snd) (f .snd) i
+equivEq e f h = λ i → (h i) , isProp→PathP (λ i → isPropIsEquiv (h i)) (e .snd) (f .snd) i
 
 isoToEquiv : Iso A B →  A ≃ B
 isoToEquiv i = _ , isoToIsEquiv i
