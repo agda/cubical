@@ -6,10 +6,7 @@ module Cubical.Experiments.Generic where
 open import Agda.Builtin.String
 open import Agda.Builtin.List
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 

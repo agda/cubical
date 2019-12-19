@@ -2,8 +2,6 @@
 
 module Cubical.Data.Group.Base where
 
-import Cubical.Core.Glue as G
-
 open import Cubical.Foundations.Prelude hiding ( comp )
 
 import Cubical.Foundations.Isomorphism as I
@@ -52,7 +50,7 @@ record Iso' {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') : Type (ℓ-max ℓ ℓ'
     isoSetMorph : isMorph G H (I.Iso.fun isoSet)
 
 _≃_ : ∀ {ℓ ℓ'} (A : Group ℓ) (B : Group ℓ') → Type (ℓ-max ℓ ℓ')
-A ≃ B = Σ (morph A B) \ f → (G.isEquiv (f .fst))
+A ≃ B = Σ (morph A B) \ f → (E.isEquiv (f .fst))
 
 Iso'→Iso : ∀ {ℓ ℓ'} {G : Group ℓ} {H : Group ℓ'} → Iso' G  H → Iso G H
 Iso'→Iso {G = group G Gset Ggroup} {H = group H Hset Hgroup} i = iso (fun , funMorph) (inv , invMorph) rightInv leftInv
@@ -77,7 +75,7 @@ Iso'→Iso {G = group G Gset Ggroup} {H = group H Hset Hgroup} i = iso (fun , fu
     leftInv : I.retract fun inv
     leftInv = I.Iso.leftInv (isoSet i)
 
-    e' : G G.≃ H
+    e' : G E.≃ H
     e' = E.isoToEquiv (I.iso fun inv rightInv leftInv)
 
     funMorph : isMorph G_ H_ fun
@@ -103,7 +101,7 @@ Equiv→Iso' {G = group G Gset Ggroup}
            {H = group H Hset Hgroup}
            e = iso' i' (e .fst .snd)
   where
-    e' : G G.≃ H
+    e' : G E.≃ H
     e' = (e .fst .fst) , (e .snd)
 
     i' : I.Iso G H

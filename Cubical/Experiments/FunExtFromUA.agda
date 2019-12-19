@@ -4,7 +4,6 @@
 
 module Cubical.Experiments.FunExtFromUA where
 
-open import Cubical.Core.Everything
 open import Cubical.Foundations.Everything
 
 variable

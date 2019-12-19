@@ -2,8 +2,6 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.CartesianKanOps where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 
 coe0→1 : ∀ {ℓ} (A : I → Type ℓ) → A i0 → A i1

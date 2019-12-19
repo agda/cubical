@@ -4,8 +4,6 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Function where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 
 -- The identity function

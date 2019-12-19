@@ -1,17 +1,14 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.UnivalenceId where
 
-open import Cubical.Core.Glue
-  renaming ( isEquiv      to isEquivPath
-           ; _≃_          to EquivPath
-           ; equivFun     to equivFunPath )
-open import Cubical.Core.Id
-
 open import Cubical.Foundations.Prelude public
   hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ )
 open import Cubical.Foundations.Id
 open import Cubical.Foundations.Equiv
-  renaming ( isPropIsEquiv to isPropIsEquivPath )
+  renaming ( isEquiv      to isEquivPath
+           ; _≃_          to EquivPath
+           ; equivFun     to equivFunPath
+           ; isPropIsEquiv to isPropIsEquivPath )
 open import Cubical.Foundations.Univalence
   renaming ( EquivContr   to EquivContrPath )
 open import Cubical.Foundations.Isomorphism
