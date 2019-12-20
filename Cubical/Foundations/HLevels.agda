@@ -143,6 +143,10 @@ isProp→isContr≡ isPropA x y = inhProp→isContr (isPropA x y) (isProp→isSe
 isContrPath : isContr A → (x y : A) → isContr (x ≡ y)
 isContrPath cA = isProp→isContr≡ (isContr→isProp cA)
 
+hLevelPath : (n : ℕ) → isOfHLevel (suc n) A → (x y : A) → isOfHLevel n (x ≡ y)
+hLevelPath zero h = isProp→isContr≡ h
+hLevelPath (suc n) h = h
+
 -- Π preserves propositionality in the following sense:
 propPi : (h : (x : A) → isProp (B x)) → isProp ((x : A) → B x)
 propPi h f0 f1 i x = h x (f0 x) (f1 x) i
