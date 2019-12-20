@@ -78,4 +78,3 @@ isSetModulo : isSet (Modulo k)
 isSetModulo {0} = isSetModulo0
 isSetModulo {suc k} = subst isSet (sym Modulo≡Fin) isSetFin
 
-

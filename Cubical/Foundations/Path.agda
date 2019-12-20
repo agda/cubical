@@ -1,11 +1,11 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Path where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Transport
 
 private
   variable
@@ -17,9 +17,16 @@ cong′ : ∀ {B : Type ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
       → Path B (f x) (f y)
 cong′ f = cong f
 
+PathP≡Path : ∀ (P : I → Type ℓ) (p : P i0) (q : P i1) →
+             PathP P p q ≡ Path (P i1) (transport (λ i → P i) p) q
+PathP≡Path P p q i = PathP (λ j → P (i ∨ j)) (transp (λ j → P (i ∧ j)) (~ i) p) q
 
+PathP≃Path : ∀ (P : I → Type ℓ) (p : P i0) (q : P i1) →
+             PathP P p q ≃ Path (P i1) (transport (λ i → P i) p) q
+PathP≃Path P p q = transportEquiv (PathP≡Path P p q)
 
-toPathP-isEquiv : ∀ (A : I → Set ℓ){x y} → isEquiv (toPathP {A = A} {x} {y})
+-- Alternative more unfolded proof
+toPathP-isEquiv : ∀ (A : I → Set ℓ) {x y} → isEquiv (toPathP {A = A} {x} {y})
 toPathP-isEquiv A {x} {y} = isoToIsEquiv (iso toPathP fromPathP to-from from-to)
  where
    to-from : ∀ (p : PathP A x y) → toPathP (fromPathP p) ≡ p
@@ -67,3 +74,10 @@ toPathP-isEquiv A {x} {y} = isoToIsEquiv (iso toPathP fromPathP to-from from-to)
                           ; (h = i0) → transp (\ j → A (i ∨ (z ∧ j))) (i ∨ ~ z) (transp (\ j → A (i ∧ j)) (~ i) x)
                           })
                           (transp (\ j → A ((i ∨ h) ∧ j)) (~ (i ∨ h)) x)
+
+-- Variation of isProp→isSet for PathP
+isProp→isSet-PathP : ∀ {ℓ} {B : I → Type ℓ} → ((i : I) → isProp (B i))
+                   → (b0 : B i0) (b1 : B i1)
+                   → isProp (PathP (λ i → B i) b0 b1)
+isProp→isSet-PathP {B = B} hB b0 b1 =
+  transport (λ i → isProp (PathP≡Path B b0 b1 (~ i))) (isProp→isSet (hB i1) _ _)

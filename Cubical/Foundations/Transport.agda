@@ -7,10 +7,9 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Transport where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 
 -- Direct definition of transport filler, note that we have to
 -- explicitly tell Agda that the type is constant (like in CHM)
@@ -42,3 +41,12 @@ isEquivTransport {A = A} {B = B} p =
 
 transportEquiv : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B
 transportEquiv p = (transport p , isEquivTransport p)
+
+pathToIso : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → Iso A B
+pathToIso x = iso (transport x) (transport⁻ x ) ( transportTransport⁻ x) (transport⁻Transport x)
+
+isSet-subst : ∀ {ℓ ℓ′} {A : Type ℓ} {B : A → Type ℓ′}
+                → (isSet-A : isSet A)
+                → ∀ {a : A}
+                → (p : a ≡ a) → (x : B a) → subst B p x ≡ x
+isSet-subst {B = B} isSet-A p x = subst (λ p′ → subst B p′ x ≡ x) (isSet-A _ _ refl p) (substRefl {B = B} x)

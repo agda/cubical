@@ -8,11 +8,11 @@ private
     ℓ : Level
     A B : Type ℓ
 
-data Maybe {ℓ} (A : Type ℓ) : Type ℓ where
+data Maybe (A : Type ℓ) : Type ℓ where
   nothing : Maybe A
   just    : A → Maybe A
 
-caseMaybe : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (n j : B) → Maybe A → B
+caseMaybe : (n j : B) → Maybe A → B
 caseMaybe n _ nothing  = n
 caseMaybe _ j (just _) = j
 

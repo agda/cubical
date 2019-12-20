@@ -54,3 +54,32 @@ Glue A Te = primGlue A (λ x → Te x .fst) (λ x → Te x .snd)
 unglue : {A : Type ℓ} (φ : I) {T : Partial φ (Type ℓ')}
          {e : PartialP φ (λ o → T o ≃ A)} → primGlue A T e → A
 unglue φ = prim^unglue {φ = φ}
+
+-- People unfamiliar with [Glue], [glue] and [uglue] can find the types below more
+-- informative as they demonstrate the computational behavior.
+--
+-- Full inference rules can be found in Section 6 of CCHM:
+-- https://arxiv.org/pdf/1611.02108.pdf
+-- Cubical Type Theory: a constructive interpretation of the univalence axiom
+-- Cyril Cohen, Thierry Coquand, Simon Huber, Anders Mörtberg
+private
+
+  Glue-S : (A : Type ℓ) {φ : I}
+         → (Te : Partial φ (Σ[ T ∈ Type ℓ' ] T ≃ A))
+         → Sub (Type ℓ') φ (λ { (φ = i1) → Te 1=1 .fst })
+  Glue-S A Te = inS (Glue A Te)
+
+  glue-S :
+   ∀ {A : Type ℓ} {φ : I}
+   → {T : Partial φ (Type ℓ')} {e : PartialP φ (λ o → T o ≃ A)}
+   → (t : PartialP φ T)
+   → Sub A φ (λ { (φ = i1) → e 1=1 .fst (t 1=1) })
+   → Sub (primGlue A T e) φ (λ { (φ = i1) → t 1=1 })
+  glue-S t s = inS (glue t (outS s))
+
+  unglue-S :
+    ∀ {A : Type ℓ} (φ : I)
+    {T : Partial φ (Type ℓ')} {e : PartialP φ (λ o → T o ≃ A)}
+    → (x : primGlue A T e)
+    → Sub A φ (λ { (φ = i1) → e 1=1 .fst x })
+  unglue-S φ x = inS (prim^unglue {φ = φ} x)

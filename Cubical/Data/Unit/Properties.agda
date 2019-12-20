@@ -18,4 +18,4 @@ isContrUnit = tt , λ {tt → refl}
 isOfHLevelUnit : (n : ℕ) → isOfHLevel n Unit
 isOfHLevelUnit 0       = isContrUnit
 isOfHLevelUnit 1       = isPropUnit
-isOfHLevelUnit (suc n) = hLevelSuc n Unit (isOfHLevelUnit n) 
+isOfHLevelUnit (suc n) = hLevelSuc n Unit (isOfHLevelUnit n)

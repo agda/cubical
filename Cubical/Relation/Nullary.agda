@@ -1,8 +1,6 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Relation.Nullary where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Empty
@@ -56,3 +54,7 @@ isPropDec Aprop (yes a) (yes a') = cong yes (Aprop a a')
 isPropDec Aprop (yes a) (no ¬a) = ⊥-elim (¬a a)
 isPropDec Aprop (no ¬a) (yes a) = ⊥-elim (¬a a)
 isPropDec {A = A} Aprop (no ¬a) (no ¬a') = cong no (isProp¬ A ¬a ¬a')
+
+mapDec : ∀ {B : Type ℓ} → (A → B) → (¬ A → ¬ B) → Dec A → Dec B
+mapDec f _ (yes p) = yes (f p)
+mapDec _ f (no ¬p) = no (f ¬p)

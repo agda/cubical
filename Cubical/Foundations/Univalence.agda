@@ -3,6 +3,7 @@
 Proof of the standard formulation of the univalence theorem and
 various consequences of univalence
 
+- Re-exports Glue types from Cubical.Core.Glue
 - The ua constant and its computation rule (up to a path)
 - Proof of univalence using that unglue is an equivalence ([EquivContr])
 - Equivalence induction ([EquivJ], [elimEquiv])
@@ -14,13 +15,14 @@ various consequences of univalence
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Univalence where
 
-open import Cubical.Core.Glue
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.GroupoidLaws
+
+open import Cubical.Core.Glue public
+  using ( Glue ; glue ; unglue ; lineToEquiv )
 
 private
   variable

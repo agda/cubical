@@ -34,18 +34,16 @@ open import Cubical.Foundations.Prelude public
            ; isProp    to isPropPath
            ; isSet     to isSetPath
            ; fst       to pr₁ -- as in the HoTT book
-           ; snd       to pr₂
-           )
-open import Cubical.Core.Glue
-  renaming ( isEquiv      to isEquivPath
-           ; _≃_         to EquivPath
-           ; equivFun     to equivFunPath )
+           ; snd       to pr₂ )
 
 open import Cubical.Foundations.Equiv
   renaming ( fiber        to fiberPath
-           ; equivIsEquiv to equivIsEquivPath
-           ; equivCtr     to equivCtrPath )
-  hiding   ( isPropIsEquiv )
+           ; isEquiv   to isEquivPath
+           ; _≃_       to EquivPath
+           ; equivFun  to equivFunPath )
+  hiding   ( isPropIsEquiv
+           ; equivCtr
+           ; equivIsEquiv )
 
 open import Cubical.Foundations.Univalence
   renaming ( EquivContr   to EquivContrPath )

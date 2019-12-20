@@ -9,6 +9,7 @@ open import Cubical.Data.Empty
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod
 open import Cubical.Data.Unit
+open import Cubical.Relation.Nullary
 
 open import Cubical.Data.List.Base
 
@@ -91,3 +92,41 @@ isOfHLevelList n ofLevel xs ys =
     (ListPath.decode xs ys)
     (ListPath.decodeEncode xs ys)
     (ListPath.isOfHLevelCover n ofLevel xs ys)
+
+private
+  variable
+    ℓ : Level
+    A : Type ℓ
+
+  caseList : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (n c : B) → List A → B
+  caseList n _ []      = n
+  caseList _ c (_ ∷ _) = c
+
+  safe-head : A → List A → A
+  safe-head x []      = x
+  safe-head _ (x ∷ _) = x
+
+  safe-tail : List A → List A
+  safe-tail []       = []
+  safe-tail (_ ∷ xs) = xs
+
+cons-inj₁ : ∀ {x y : A} {xs ys} → x ∷ xs ≡ y ∷ ys → x ≡ y
+cons-inj₁ {x = x} p = cong (safe-head x) p
+
+cons-inj₂ : ∀ {x y : A} {xs ys} → x ∷ xs ≡ y ∷ ys → xs ≡ ys
+cons-inj₂ = cong safe-tail
+
+¬cons≡nil : ∀ {x : A} {xs} → ¬ (x ∷ xs ≡ [])
+¬cons≡nil {A = A} p = lower (subst (caseList (Lift ⊥) (List A)) p [])
+
+¬nil≡cons : ∀ {x : A} {xs} → ¬ ([] ≡ x ∷ xs)
+¬nil≡cons {A = A} p = lower (subst (caseList (List A) (Lift ⊥)) p [])
+
+discreteList : Discrete A → Discrete (List A)
+discreteList eqA []       []       = yes refl
+discreteList eqA []       (y ∷ ys) = no ¬nil≡cons
+discreteList eqA (x ∷ xs) []       = no ¬cons≡nil
+discreteList eqA (x ∷ xs) (y ∷ ys) with eqA x y | discreteList eqA xs ys
+... | yes p | yes q = yes (λ i → p i ∷ q i)
+... | yes _ | no ¬q = no (λ p → ¬q (cons-inj₂ p))
+... | no ¬p | _     = no (λ q → ¬p (cons-inj₁ q))

@@ -1,11 +1,13 @@
 {-
 
-Theory about equivalences (definitions are in Core/Glue.agda)
+Theory about equivalences
+
+Definitions are in Core/Glue.agda but re-exported by this module
 
 - isEquiv is a proposition ([isPropIsEquiv])
 - Any isomorphism is an equivalence ([isoToEquiv])
 
-There are more statements about equivalences in PathSplitEquiv.agda:
+There are more statements about equivalences in Equiv/Properties.agda:
 
 - if f is an equivalence then (cong f) is an equivalence
 - if f is an equivalence then precomposition with f is an equivalence
@@ -15,14 +17,13 @@ There are more statements about equivalences in PathSplitEquiv.agda:
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Equiv where
 
-open import Cubical.Core.Glue
-
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 
-open import Cubical.Data.Nat
+open import Cubical.Core.Glue public
+  using ( isEquiv ; equiv-proof ; _≃_ ; equivFun ; equivProof )
 
 private
   variable
@@ -106,9 +107,11 @@ compEquiv f g = isoToEquiv
 compEquivIdEquiv : {A B : Type ℓ} (e : A ≃ B) → compEquiv (idEquiv A) e ≡ e
 compEquivIdEquiv e = equivEq _ _ refl
 
-compIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} →
-            Iso A B → Iso B C → Iso A C
-compIso i j = equivToIso (compEquiv (isoToEquiv i) (isoToEquiv j))
+compIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+          → Iso A B → Iso B C → Iso A C
+compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) = iso (fun₁ ∘ fun) (inv ∘ inv₁)
+        (λ b → cong fun₁ (rightInv (inv₁ b)) ∙ (rightInv₁ b))
+        (λ a → cong inv (leftInv₁ (fun a) ) ∙ leftInv a )
 
 LiftEquiv : {A : Type ℓ} → A ≃ Lift {i = ℓ} {j = ℓ'} A
 LiftEquiv = isoToEquiv (iso lift lower (λ _ → refl) (λ _ → refl))

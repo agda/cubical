@@ -6,8 +6,6 @@ Definition of the circle as a HIT with a proof that Ω(S¹) ≡ ℤ
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.S1.Base where
 
-open import Cubical.Core.Glue
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
@@ -46,9 +44,9 @@ winding = encode base
 
 intLoop : Int → ΩS¹
 intLoop (pos zero)       = refl
-intLoop (pos (suc n))    = (intLoop (pos n)) ∙ loop
+intLoop (pos (suc n))    = intLoop (pos n) ∙ loop
 intLoop (negsuc zero)    = sym loop
-intLoop (negsuc (suc n)) = (intLoop (negsuc n)) ∙ (sym loop)
+intLoop (negsuc (suc n)) = intLoop (negsuc n) ∙ sym loop
 
 decodeSquare : (n : Int) → PathP (λ i → base ≡ loop i) (intLoop (predInt n)) (intLoop n)
 decodeSquare (pos zero) i j    = loop (i ∨ ~ j)
@@ -72,7 +70,7 @@ decode (loop i) y j =
            (decodeSquare n i j)
 
 decodeEncode : (x : S¹) (p : base ≡ x) → decode x (encode x p) ≡ p
-decodeEncode x p = J (λ y q → decode y (encode y q) ≡ q) (λ x → refl) p
+decodeEncode x p = J (λ y q → decode y (encode y q) ≡ q) (λ _ → refl) p
 
 isSetΩS¹ : isSet ΩS¹
 isSetΩS¹ p q r s j i =
@@ -86,47 +84,47 @@ isSetΩS¹ p q r s j i =
 -- Int as ghcomp has been implemented!
 windingIntLoop : (n : Int) → winding (intLoop n) ≡ n
 windingIntLoop (pos zero)       = refl
-windingIntLoop (pos (suc n))    = λ i → sucInt (windingIntLoop (pos n) i)
+windingIntLoop (pos (suc n))    = cong sucInt (windingIntLoop (pos n))
 windingIntLoop (negsuc zero)    = refl
-windingIntLoop (negsuc (suc n)) = λ i → predInt (windingIntLoop (negsuc n) i)
+windingIntLoop (negsuc (suc n)) = cong predInt (windingIntLoop (negsuc n))
 
 ΩS¹≡Int : ΩS¹ ≡ Int
-ΩS¹≡Int = isoToPath (iso winding (decode base) windingIntLoop (decodeEncode base))
+ΩS¹≡Int = isoToPath (iso winding intLoop windingIntLoop (decodeEncode base))
 
 -- intLoop and winding are group homomorphisms
 private
-  intLoop-sucInt : (z : Int) → intLoop (sucInt z) ≡ (intLoop z) ∙ loop
+  intLoop-sucInt : (z : Int) → intLoop (sucInt z) ≡ intLoop z ∙ loop
   intLoop-sucInt (pos n)          = refl
   intLoop-sucInt (negsuc zero)    = sym (lCancel loop)
   intLoop-sucInt (negsuc (suc n)) =
-    (rUnit (intLoop (negsuc n)))
-    ∙ (λ i → intLoop (negsuc n) ∙ (lCancel loop (~ i)))
-    ∙ (assoc (intLoop (negsuc n)) (sym loop) loop)
+      rUnit (intLoop (negsuc n))
+    ∙ (λ i → intLoop (negsuc n) ∙ lCancel loop (~ i))
+    ∙ assoc (intLoop (negsuc n)) (sym loop) loop
 
-  intLoop-predInt : (z : Int) → intLoop (predInt z) ≡ (intLoop z) ∙ (sym loop)
+  intLoop-predInt : (z : Int) → intLoop (predInt z) ≡ intLoop z ∙ sym loop
   intLoop-predInt (pos zero)    = lUnit (sym loop)
   intLoop-predInt (pos (suc n)) =
-    (rUnit (intLoop (pos n)))
+      rUnit (intLoop (pos n))
     ∙ (λ i → intLoop (pos n) ∙ (rCancel loop (~ i)))
-    ∙ (assoc (intLoop (pos n)) loop (sym loop))
+    ∙ assoc (intLoop (pos n)) loop (sym loop)
   intLoop-predInt (negsuc n)    = refl
 
 intLoop-hom : (a b : Int) → (intLoop a) ∙ (intLoop b) ≡ intLoop (a + b)
 intLoop-hom a (pos zero)       = sym (rUnit (intLoop a))
 intLoop-hom a (pos (suc n))    =
-  (assoc (intLoop a) (intLoop (pos n)) loop)
+    assoc (intLoop a) (intLoop (pos n)) loop
   ∙ (λ i → (intLoop-hom a (pos n) i) ∙ loop)
-  ∙ (sym (intLoop-sucInt (a + pos n)))
+  ∙ sym (intLoop-sucInt (a + pos n))
 intLoop-hom a (negsuc zero)    = sym (intLoop-predInt a)
 intLoop-hom a (negsuc (suc n)) =
-  (assoc (intLoop a) (intLoop (negsuc n)) (sym loop))
+    assoc (intLoop a) (intLoop (negsuc n)) (sym loop)
   ∙ (λ i → (intLoop-hom a (negsuc n) i) ∙ (sym loop))
-  ∙ (sym (intLoop-predInt (a + negsuc n)))
+  ∙ sym (intLoop-predInt (a + negsuc n))
 
 winding-hom : (a b : ΩS¹) → winding (a ∙ b) ≡ (winding a) + (winding b)
 winding-hom a b i =
-  hcomp (λ t → λ { (i = i0) → winding ((decodeEncode base a t) ∙ (decodeEncode base b t))
-                 ; (i = i1) → windingIntLoop ((winding a) + (winding b)) t })
+  hcomp (λ t → λ { (i = i0) → winding (decodeEncode base a t ∙ decodeEncode base b t)
+                 ; (i = i1) → windingIntLoop (winding a + winding b) t })
         (winding (intLoop-hom (winding a) (winding b) i))
 
 -- Based homotopy group
@@ -247,13 +245,10 @@ basedΩS¹≡Int x = (basedΩS¹≡ΩS¹ x) ∙ ΩS¹≡Int
 -- Some tests
 module _ where
  private
-  five : ℕ
-  five = suc (suc (suc (suc (suc zero))))
-
-  test-winding-pos : winding (intLoop (pos five)) ≡ pos five
+  test-winding-pos : winding (intLoop (pos 5)) ≡ pos 5
   test-winding-pos = refl
 
-  test-winding-neg : winding (intLoop (negsuc five)) ≡ negsuc five
+  test-winding-neg : winding (intLoop (negsuc 5)) ≡ negsuc 5
   test-winding-neg = refl
 
 -- the inverse when S¹ is seen as a group
@@ -261,6 +256,16 @@ module _ where
 inv : S¹ → S¹
 inv base = base
 inv (loop i) = loop (~ i)
+
+invInvolutive : section inv inv
+invInvolutive base = refl
+invInvolutive (loop i) = refl
+
+invS¹Equiv : S¹ ≃ S¹
+invS¹Equiv = isoToEquiv (iso inv inv invInvolutive invInvolutive)
+
+invS¹Path : S¹ ≡ S¹
+invS¹Path = ua invS¹Equiv
 
 -- rot, used in the Hopf fibration
 

@@ -36,21 +36,28 @@ open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Empty
 open import Cubical.Data.Nat hiding (_+_ ; +-assoc ; +-comm)
+open import Cubical.Data.Bool
 open import Cubical.Data.Sum
 open import Cubical.Data.Int.Base
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
 
+abs : Int → ℕ
+abs (pos n) = n
+abs (negsuc n) = suc n
+
+sgn : Int → Bool
+sgn (pos n) = true
+sgn (negsuc n) = false
+
 sucPred : ∀ i → sucInt (predInt i) ≡ i
-sucPred (pos zero)       = refl
-sucPred (pos (suc n))    = refl
-sucPred (negsuc zero)    = refl
-sucPred (negsuc (suc n)) = refl
+sucPred (pos zero)    = refl
+sucPred (pos (suc n)) = refl
+sucPred (negsuc n)    = refl
 
 predSuc : ∀ i → predInt (sucInt i) ≡ i
-predSuc (pos zero)       = refl
-predSuc (pos (suc n))    = refl
+predSuc (pos n)          = refl
 predSuc (negsuc zero)    = refl
 predSuc (negsuc (suc n)) = refl
 
@@ -96,6 +103,11 @@ discreteInt (negsuc n) (negsuc m) with discreteℕ n m
 
 isSetInt : isSet Int
 isSetInt = Discrete→isSet discreteInt
+
+_ℕ-_ : ℕ → ℕ → Int
+a ℕ- 0 = pos a
+0 ℕ- suc b = negsuc b
+suc a ℕ- suc b = a ℕ- b
 
 _+pos_ : Int → ℕ  → Int
 z +pos 0 = z
