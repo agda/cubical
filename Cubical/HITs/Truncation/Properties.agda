@@ -11,9 +11,11 @@ open import Cubical.Foundations.HLevels
 open import Cubical.HITs.Sn
 open import Cubical.Data.Empty
 open import Cubical.HITs.Susp
+
 open import Cubical.HITs.PropositionalTruncation renaming (∥_∥ to ∥_∥₋₁)
 open import Cubical.HITs.SetTruncation
 open import Cubical.HITs.GroupoidTruncation
+open import Cubical.HITs.2GroupoidTruncation
 
 private
   variable
@@ -163,11 +165,20 @@ setTrunc≃Trunc0 =
       (ind (λ _ → hLevelSuc 1 _ (hLevelPath 1 (isOfHLevel∥∥ (suc neg1)) _ _)) (λ _ → refl))
       (elimSetTrunc (λ _ → hLevelSuc 1 _ (hLevelPath 1 squash₀ _ _)) (λ _ → refl)))
 
-groupoidTrunc≃Trunc1 : ∥ A ∥₁ ≃ ∥ A ∥ (suc (suc neg1))
+groupoidTrunc≃Trunc1 : ∥ A ∥₁ ≃ ∥ A ∥ (ℕ→ℕ₋₁ 1)
 groupoidTrunc≃Trunc1 =
   isoToEquiv
     (iso
-      (groupoidTruncElim _ _ (λ _ → isOfHLevel∥∥ (suc (suc neg1))) ∣_∣)
+      (groupoidTruncElim _ _ (λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₁ 1)) ∣_∣)
       (ind (λ _ → squash₁) ∣_∣₁)
-      (ind (λ _ → hLevelSuc 2 _ (hLevelPath 2 (isOfHLevel∥∥ (suc (suc neg1))) _ _)) (λ _ → refl))
+      (ind (λ _ → hLevelSuc 2 _ (hLevelPath 2 (isOfHLevel∥∥ (ℕ→ℕ₋₁ 1)) _ _)) (λ _ → refl))
       (groupoidTruncElim _ _ (λ _ → hLevelSuc 2 _ (hLevelPath 2 squash₁ _ _)) (λ _ → refl)))
+
+2groupoidTrunc≃Trunc2 : ∥ A ∥₂ ≃ ∥ A ∥ (ℕ→ℕ₋₁ 2)
+2groupoidTrunc≃Trunc2 =
+  isoToEquiv
+    (iso
+      (g2TruncElim _ _ (λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₁ 2)) ∣_∣)
+      (ind (λ _ → squash₂) ∣_∣₂)
+      (ind (λ _ → hLevelSuc 3 _ (hLevelPath 3 (isOfHLevel∥∥ (ℕ→ℕ₋₁ 2)) _ _)) (λ _ → refl))
+      (g2TruncElim _ _ (λ _ → hLevelSuc 3 _ (hLevelPath 3 squash₂ _ _)) (λ _ → refl)))
