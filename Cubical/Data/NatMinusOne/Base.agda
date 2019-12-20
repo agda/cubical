@@ -13,9 +13,12 @@ _+₋₁_ : ℕ → ℕ₋₁ → ℕ₋₁
 suc m +₋₁ n = suc (m +₋₁ n)
 
 ℕ→ℕ₋₁ : ℕ → ℕ₋₁
-ℕ→ℕ₋₁ n = n +₋₁ suc neg1
+ℕ→ℕ₋₁ n = suc (n +₋₁ neg1)
 
 1+_ : ℕ₋₁ → ℕ
 1+ neg1 = zero
 1+ suc n = suc (1+ n)
 
+-1+_ : ℕ → ℕ₋₁
+-1+ zero = neg1
+-1+ suc n = suc (-1+ n)
