@@ -6,6 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Bool
+open import Cubical.Data.Empty
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.S2
@@ -15,6 +16,15 @@ data Susp {ℓ} (A : Type ℓ) : Type ℓ where
   north : Susp A
   south : Susp A
   merid : (a : A) → north ≡ south
+
+Bool≃Susp⊥ : Bool ≃ Susp ⊥
+Bool≃Susp⊥ =
+  isoToEquiv
+    (iso
+      (λ {true → north; false → south})
+      (λ {north → true; south → false})
+      (λ {north → refl; south → refl})
+      (λ {true → refl; false → refl}))
 
 SuspBool : Type₀
 SuspBool = Susp Bool
