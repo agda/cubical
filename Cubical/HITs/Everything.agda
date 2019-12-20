@@ -16,6 +16,7 @@ open import Cubical.HITs.Modulo public
 open import Cubical.HITs.S1 public
 open import Cubical.HITs.S2 public
 open import Cubical.HITs.S3 public
+open import Cubical.HITs.Sn public
 open import Cubical.HITs.Rational public
 open import Cubical.HITs.Susp public
 open import Cubical.HITs.SmashProduct public renaming (comm to Smash-comm)
