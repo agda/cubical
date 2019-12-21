@@ -28,5 +28,8 @@ dunceMap≡id i (loop j) = eq i j
   where eq : loop ⁻¹ ∙∙ loop ∙∙ loop ≡ loop
         eq = sym (decodeEncode base (loop ⁻¹ ∙∙ loop ∙∙ loop)) ∙ sym (lUnit loop)
 
+isContr-DunceCone : isContr DunceCone
+isContr-DunceCone = subst isContr (cong Cone (sym dunceMap≡id)) isContr-Disk
+
 isContr-Dunce : isContr Dunce
-isContr-Dunce = subst isContr (cong Cone (sym dunceMap≡id)) isContr-Disk
+isContr-Dunce = subst isContr DunceCone≡Dunce isContr-DunceCone
