@@ -8,6 +8,6 @@ open import Cubical.HITs.Sn
 
 data  ∥_∥_ {ℓ} (A : Type ℓ) (n : ℕ₋₁) : Type ℓ where
   ∣_∣ : A  → ∥ A ∥ n
-  top : (f : S (1+ n) → ∥ A ∥ n) → ∥ A ∥ n
-  rays : (f : S (1+ n) → ∥ A ∥ n) (x : S (1+ n)) → top f ≡ f x
+  hub : (f : S (1+ n) → ∥ A ∥ n) → ∥ A ∥ n
+  spoke : (f : S (1+ n) → ∥ A ∥ n) (x : S (1+ n)) → hub f ≡ f x
 
