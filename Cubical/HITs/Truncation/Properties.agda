@@ -29,7 +29,7 @@ isSphereFilled : ℕ → Type ℓ → Type ℓ
 isSphereFilled n A = (f : S n → A) → sphereFill n f
 
 isSphereFilled∥∥ : {n : ℕ₋₁} → isSphereFilled (1+ n) (∥ A ∥ n)
-isSphereFilled∥∥ f = (top f) , (rays f)
+isSphereFilled∥∥ f = (hub f) , (spoke f)
 
 isSphereFilled→isOfHLevel : (n : ℕ) → isSphereFilled n A → isOfHLevel (1 + n) A
 isSphereFilled→isOfHLevel {A = A} 0 h x y = sym (snd (h f) north) ∙ snd (h f) south
@@ -107,11 +107,11 @@ ind : {n : ℕ₋₁}
       (x : ∥ A ∥ n) →
       B x
 ind hB g (∣ a ∣ ) = g a
-ind {B = B} hB g (top f) =
-  isOfHLevel→isSphereFilled _ (hB (top f)) (λ x → subst B (sym (rays f x)) (ind hB g (f x)) ) .fst
-ind {B = B} hB g (rays f x i) =
-  toPathP {A = λ i → B (rays f x (~ i))}
-    (sym (isOfHLevel→isSphereFilled _ (hB (top f)) (λ x → subst B (sym (rays f x)) (ind hB g (f x))) .snd x))
+ind {B = B} hB g (hub f) =
+  isOfHLevel→isSphereFilled _ (hB (hub f)) (λ x → subst B (sym (spoke f x)) (ind hB g (f x)) ) .fst
+ind {B = B} hB g (spoke f x i) =
+  toPathP {A = λ i → B (spoke f x (~ i))}
+    (sym (isOfHLevel→isSphereFilled _ (hB (hub f)) (λ x → subst B (sym (spoke f x)) (ind hB g (f x))) .snd x))
     (~ i)
 
 ind2 : {n : ℕ₋₁}
