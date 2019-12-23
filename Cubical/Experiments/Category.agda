@@ -4,9 +4,12 @@ module Cubical.Experiments.Category where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.HITs.PropositionalTruncation
 
 record Precategory ℓ : Type (ℓ-suc ℓ) where
+  no-eta-equality
   field
     ob : Type ℓ
     hom : ob → ob → Type ℓ
@@ -19,6 +22,7 @@ record Precategory ℓ : Type (ℓ-suc ℓ) where
 open Precategory
 
 record is-category {ℓ} (𝒞 : Precategory ℓ) : Type ℓ where
+  no-eta-equality
   field
     hom-set : ∀ {x y} → isSet (𝒞 .hom x y)
 
@@ -26,6 +30,7 @@ open is-category
 
 module _ {ℓ𝒞 ℓ𝒟} where
   record Functor (𝒞 : Precategory ℓ𝒞) (𝒟 : Precategory ℓ𝒟) : Type (ℓ-max ℓ𝒞 ℓ𝒟) where
+    no-eta-equality
     open Precategory
 
     field
@@ -156,6 +161,10 @@ module _ (ℓ : Level) where
   liftExt : ∀ {ℓ'} {A : Type ℓ} {a b : Lift {ℓ} {ℓ'} A} → (lower a ≡ lower b) → a ≡ b
   liftExt x i = lift (x i)
 
+  pairExt : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y : Σ A B} (α : x .fst ≡ y .fst) (β : PathP (λ i → B (α i)) (x .snd) (y .snd)) → x ≡ y
+  pairExt α β i .fst = α i
+  pairExt α β i .snd = β i
+
   module YonedaEmbedding (𝒞 : Precategory ℓ) ⦃ 𝒞-cat : is-category 𝒞 ⦄ where
     open Functor
     open NatTrans
@@ -174,23 +183,38 @@ module _ (ℓ : Level) where
     YO .F-idn = build-nat-trans-path _ _ λ i _ → lift λ f → 𝒞 .seq-ρ f i
     YO .F-seq f g = build-nat-trans-path _ _ λ i _ → lift λ h → sym (𝒞 .seq-α h f g) i
 
-    un-yo : ∀ {x y} → NatTrans (yo x) (yo y) → 𝒞 .hom x y
-    un-yo α = α .N-ob _ .lower (𝒞 .idn _)
+
+    module _ {x} (F : Functor (𝒞 ^op) SET) where
+      yo-yo-yo : NatTrans (yo x) F → F .F-ob x .fst
+      yo-yo-yo α = α .N-ob _ .lower (𝒞 .idn _)
+
+      no-no-no : F .F-ob x .fst → NatTrans (yo x) F
+      no-no-no a .N-ob y .lower f = F .F-hom f .lower a
+      no-no-no a .N-hom {y} {z} f = liftExt (funExt λ g i → F .F-seq g f i .lower a)
+
+    module YonedaLemma {x} (F : Functor (𝒞 ^op) SET) where
+
+      yo-iso : Iso (NatTrans (yo x) F) (F .F-ob x .fst)
+      yo-iso .Iso.fun = yo-yo-yo F
+      yo-iso .Iso.inv = no-no-no F
+      yo-iso .Iso.rightInv b i = F .F-idn i .lower b
+      yo-iso .Iso.leftInv a = build-nat-trans-path _ _ (funExt λ _ → liftExt (funExt rem))
+        where
+          rem : ∀ {z} (x₁ : 𝒞 .hom z x) → F .F-hom x₁ .lower (yo-yo-yo _ a) ≡ lower (a .N-ob z) x₁
+          rem g =
+            F .F-hom g .lower (yo-yo-yo _ a)
+              ≡⟨ sym (λ i → (a .N-hom g) i .lower (𝒞 .idn x)) ⟩
+            a .N-hom g i0 .lower (𝒞 .idn x)
+              ≡[ i ]⟨ a .N-ob _ .lower (𝒞 .seq-ρ g i) ⟩
+            lower (a .N-ob _) g
+              ∎
+
 
     YO-full : is-full YO
-    YO-full x y F[f] = ∣ un-yo F[f] , build-nat-trans-path _ _ (funExt λ _ → liftExt (funExt rem)) ∣
-      where
-        rem : {z : 𝒞 .ob} (g : 𝒞 .hom z x) → 𝒞 .seq g (un-yo F[f]) ≡ lower (F[f] .N-ob z) g
-        rem g =
-          𝒞 .seq g (F[f] .N-ob x .lower (𝒞 .idn x))
-            ≡⟨ sym (λ i → (F[f] .N-hom g) i .lower (𝒞 .idn x)) ⟩
-          F[f] .N-hom g i0 .lower (𝒞 .idn x)
-            ≡[ i ]⟨ F[f] .N-ob _ .lower (𝒞 .seq-ρ g i) ⟩
-          lower (F[f] .N-ob _) g
-            ∎
+    YO-full x y F[f] = ∣ yo-yo-yo _ F[f] , YonedaLemma.yo-iso {x} (yo y) .Iso.leftInv F[f] ∣
 
     YO-faithful : is-faithful YO
     YO-faithful x y f g p i =
       hcomp
         (λ j → λ{ (i = i0) → 𝒞 .seq-λ f j; (i = i1) → 𝒞 .seq-λ g j})
-        (un-yo (p i))
+        (yo-yo-yo _ (p i))
