@@ -32,9 +32,16 @@ module _ {ℓ𝒞 ℓ𝒟 : Level} {𝒞 : Precategory ℓ𝒞} {𝒟 : Precateg
     open Precategory
     open Functor
 
+    N-ob-ty : Type _
+    N-ob-ty = (x : 𝒞 .ob) → 𝒟 .hom (F .F-ob x) (G .F-ob x)
+
+    N-hom-ty : N-ob-ty → Type _
+    N-hom-ty N-ob = {x y : 𝒞 .ob} (f : 𝒞 .hom x y) → 𝒟 .seq (F .F-hom f) (N-ob y) ≡ 𝒟 .seq (N-ob x) (G .F-hom f)
+
     field
-      N-ob : (x : 𝒞 .ob) → 𝒟 .hom (F .F-ob x) (G .F-ob x)
-      N-hom : {x y : 𝒞 .ob} (f : 𝒞 .hom x y) → 𝒟 .seq (F .F-hom f) (N-ob y) ≡ 𝒟 .seq (N-ob x) (G .F-hom f)
+      N-ob : N-ob-ty
+      N-hom : N-hom-ty N-ob
+
 
   open Precategory
   open Functor
@@ -51,6 +58,15 @@ module _ {ℓ𝒞 ℓ𝒟 : Level} {𝒞 : Precategory ℓ𝒞} {𝒟 : Precateg
        ∎
 
   module _ (𝒟/hom/set : ∀ {x y} → isSet (𝒟 .hom x y)) where
+    module _ {F G : Functor 𝒞 𝒟} {α β : NatTrans F G} where
+      build-nat-trans-path : α .N-ob ≡ β .N-ob → α ≡ β
+      build-nat-trans-path p i .N-ob = p i
+      build-nat-trans-path p i .N-hom f = rem i
+        where
+          rem : PathP (λ i → 𝒟 .seq (F .F-hom f) (p i _) ≡ 𝒟 .seq (p i _) (G .F-hom f)) (α .N-hom f) (β .N-hom f)
+          rem = toPathP (𝒟/hom/set _ _ _ _)
+
+
     seq-trans : {F G H : Functor 𝒞 𝒟} (α : NatTrans F G) (β : NatTrans G H) → NatTrans F H
     seq-trans α β .N-ob x = 𝒟 .seq (α .N-ob x) (β .N-ob x)
     seq-trans {F} {G} {H} α β .N-hom f =
@@ -73,21 +89,9 @@ module _ {ℓ𝒞 ℓ𝒟 : Level} {𝒞 : Precategory ℓ𝒞} {𝒟 : Precateg
     FTR .hom = NatTrans
     FTR .idn = id-trans
     FTR .seq = seq-trans
-    FTR .seq-λ α i .N-ob x = 𝒟 .seq-λ (α .N-ob x) i
-    FTR .seq-λ {F} {G} α i .N-hom f = rem i
-      where
-        rem : PathP (λ i → 𝒟 .seq (F .F-hom f) (𝒟 .seq-λ (α .N-ob _) i) ≡ 𝒟 .seq (𝒟 .seq-λ (α .N-ob _) i) (G .F-hom f)) (seq-trans (id-trans _) α .N-hom _) (α .N-hom _)
-        rem = toPathP (𝒟/hom/set _ _ _ _)
-    FTR .seq-ρ α i .N-ob x = 𝒟 .seq-ρ (α .N-ob x) i
-    FTR .seq-ρ {F} {G} α i .N-hom f = rem i
-      where
-        rem : PathP (λ i → 𝒟 .seq (F .F-hom f) (𝒟 .seq-ρ (α .N-ob _) i) ≡ 𝒟 .seq (𝒟 .seq-ρ (α .N-ob _) i) (G .F-hom f)) (seq-trans α (id-trans _) .N-hom _) (α .N-hom _)
-        rem = toPathP (𝒟/hom/set _ _ _ _)
-    FTR .seq-α α β γ i .N-ob x = 𝒟 .seq-α (α .N-ob x) (β .N-ob x) (γ .N-ob x) i
-    FTR .seq-α {F} {G} {H} {I} α β γ i .N-hom f = rem i
-      where
-        rem : PathP (λ i → 𝒟 .seq (F .F-hom f) (𝒟 .seq-α (α .N-ob _) (β .N-ob _) (γ .N-ob _) i) ≡ 𝒟 .seq (𝒟 .seq-α (α .N-ob _) (β .N-ob _) (γ .N-ob _) i) (F-hom I f)) (seq-trans (seq-trans α β) γ .N-hom _) (seq-trans α (seq-trans β γ) .N-hom _)
-        rem = toPathP (𝒟/hom/set _ _ _ _)
+    FTR .seq-λ α = build-nat-trans-path λ i x → 𝒟 .seq-λ (α .N-ob x) i
+    FTR .seq-ρ α = build-nat-trans-path λ i x → 𝒟 .seq-ρ (α .N-ob x) i
+    FTR .seq-α α β γ = build-nat-trans-path λ i x → 𝒟 .seq-α (α .N-ob x) (β .N-ob x) (γ .N-ob x) i
 
 module _ (ℓ : Level) where
   open Precategory
