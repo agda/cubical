@@ -4,6 +4,7 @@ module Cubical.Experiments.Category where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.HITs.PropositionalTruncation
 
 record Precategory ℓ : Type (ℓ-suc ℓ) where
   field
@@ -32,6 +33,9 @@ module _ {ℓ𝒞 ℓ𝒟} where
       F-hom : {x y : 𝒞 .ob} → 𝒞 .hom x y → 𝒟 .hom (F-ob x) (F-ob y)
       F-idn : {x : 𝒞 .ob} → F-hom (𝒞 .idn x) ≡ 𝒟 .idn (F-ob x)
       F-seq : {x y z : 𝒞 .ob} (f : 𝒞 .hom x y) (g : 𝒞 .hom y z) → F-hom (𝒞 .seq f g) ≡ 𝒟 .seq (F-hom f) (F-hom g)
+
+    is-full = (x y : _) (F[f] : 𝒟 .hom (F-ob x) (F-ob y)) → ∥ Σ (𝒞 .hom x y) (λ f → F-hom f ≡ F[f]) ∥
+    is-faithful = (x y : _) (f g : 𝒞 .hom x y) → F-hom f ≡ F-hom g → f ≡ g
 
 
 module _ {ℓ𝒞 ℓ𝒟 : Level} {𝒞 : Precategory ℓ𝒞} {𝒟 : Precategory ℓ𝒟} where
@@ -149,6 +153,9 @@ module _ (ℓ : Level) where
   PSH : Precategory ℓ → Precategory (ℓ-suc ℓ)
   PSH 𝒞 = FTR (𝒞 ^op) SET
 
+  liftExt : ∀ {ℓ'} {A : Type ℓ} {a b : Lift {ℓ} {ℓ'} A} → (lower a ≡ lower b) → a ≡ b
+  liftExt x i = lift (x i)
+
   module YonedaEmbedding (𝒞 : Precategory ℓ) ⦃ 𝒞-cat : is-category 𝒞 ⦄ where
     open Functor
     open NatTrans
@@ -166,3 +173,24 @@ module _ (ℓ : Level) where
     YO .F-hom f .N-hom g i .lower h = 𝒞 .seq-α g h f i
     YO .F-idn = build-nat-trans-path _ _ λ i _ → lift λ f → 𝒞 .seq-ρ f i
     YO .F-seq f g = build-nat-trans-path _ _ λ i _ → lift λ h → sym (𝒞 .seq-α h f g) i
+
+    un-yo : ∀ {x y} → NatTrans (yo x) (yo y) → 𝒞 .hom x y
+    un-yo α = α .N-ob _ .lower (𝒞 .idn _)
+
+    YO-full : is-full YO
+    YO-full x y F[f] = ∣ un-yo F[f] , build-nat-trans-path _ _ (funExt λ _ → liftExt (funExt rem)) ∣
+      where
+        rem : {z : 𝒞 .ob} (g : 𝒞 .hom z x) → 𝒞 .seq g (un-yo F[f]) ≡ lower (F[f] .N-ob z) g
+        rem g =
+          𝒞 .seq g (F[f] .N-ob x .lower (𝒞 .idn x))
+            ≡⟨ sym (λ i → (F[f] .N-hom g) i .lower (𝒞 .idn x)) ⟩
+          F[f] .N-hom g i0 .lower (𝒞 .idn x)
+            ≡[ i ]⟨ F[f] .N-ob _ .lower (𝒞 .seq-ρ g i) ⟩
+          lower (F[f] .N-ob _) g
+            ∎
+
+    YO-faithful : is-faithful YO
+    YO-faithful x y f g p i =
+      hcomp
+        (λ j → λ{ (i = i0) → 𝒞 .seq-λ f j; (i = i1) → 𝒞 .seq-λ g j})
+        (un-yo (p i))
