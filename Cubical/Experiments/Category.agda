@@ -72,7 +72,7 @@ module _ {ℓ𝒞 ℓ𝒟 : Level} {𝒞 : Precategory ℓ𝒞} {𝒟 : Precateg
   FTR .hom = NatTrans
   FTR .idn = id-trans
   FTR .seq = seq-trans
-  FTR .seq-λ f = {!!}
+  FTR .seq-λ f = {!!} -- LOL
   FTR .seq-ρ = {!!}
   FTR .seq-α = {!!}
 
