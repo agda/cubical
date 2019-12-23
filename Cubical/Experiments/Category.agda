@@ -190,7 +190,7 @@ module _ (ℓ : Level) where
 
       no-no-no : F .F-ob x .fst → NatTrans (yo x) F
       no-no-no a .N-ob y .lower f = F .F-hom f .lower a
-      no-no-no a .N-hom {y} {z} f = liftExt (funExt λ g i → F .F-seq g f i .lower a)
+      no-no-no a .N-hom f = liftExt (funExt λ g i → F .F-seq g f i .lower a)
 
     module YonedaLemma {x} (F : Functor (𝒞 ^op) SET) where
 
