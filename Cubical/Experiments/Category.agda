@@ -165,4 +165,4 @@ module _ (ℓ : Level) where
     YO .F-hom f .N-ob z .lower g = 𝒞 .seq g f
     YO .F-hom f .N-hom g i .lower h = 𝒞 .seq-α g h f i
     YO .F-idn = build-nat-trans-path _ _ λ i _ → lift λ f → 𝒞 .seq-ρ f i
-    YO .F-seq f g = build-nat-trans-path _ _ (λ i _ → lift λ h → sym (𝒞 .seq-α h f g) i)
+    YO .F-seq f g = build-nat-trans-path _ _ λ i _ → lift λ h → sym (𝒞 .seq-α h f g) i
