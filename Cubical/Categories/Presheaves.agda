@@ -4,6 +4,7 @@ module Cubical.Categories.Presheaves where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Categories.Category
@@ -46,26 +47,27 @@ module Yoneda (𝒞 : Precategory ℓ) ⦃ 𝒞-cat : isCategory 𝒞 ⦄ where
     no-no-no a .N-ob y .lower f = F .F-hom f .lower a
     no-no-no a .N-hom f = liftExt (funExt λ g i → F .F-seq g f i .lower a)
 
-  module YonedaLemma {x} (F : Functor (𝒞 ^op) (SET ℓ)) where
-
     yo-iso : Iso (NatTrans (yo x) F) (F .F-ob x .fst)
-    yo-iso .Iso.fun = yo-yo-yo F
-    yo-iso .Iso.inv = no-no-no F
+    yo-iso .Iso.fun = yo-yo-yo
+    yo-iso .Iso.inv = no-no-no
     yo-iso .Iso.rightInv b i = F .F-idn i .lower b
     yo-iso .Iso.leftInv a = make-nat-trans-path (funExt λ _ → liftExt (funExt rem))
       where
-        rem : ∀ {z} (x₁ : 𝒞 .hom z x) → F .F-hom x₁ .lower (yo-yo-yo _ a) ≡ lower (a .N-ob z) x₁
+        rem : ∀ {z} (x₁ : 𝒞 .hom z x) → F .F-hom x₁ .lower (yo-yo-yo a) ≡ lower (a .N-ob z) x₁
         rem g =
-          F .F-hom g .lower (yo-yo-yo _ a)
+          F .F-hom g .lower (yo-yo-yo a)
             ≡[ i ]⟨ a .N-hom g (~ i) .lower (𝒞 .idn x) ⟩
           a .N-hom g i0 .lower (𝒞 .idn x)
             ≡[ i ]⟨ a .N-ob _ .lower (𝒞 .seq-ρ g i) ⟩
           lower (a .N-ob _) g
             ∎
 
+    yo-equiv : NatTrans (yo x) F ≃ F .F-ob x .fst
+    yo-equiv = isoToEquiv yo-iso
+
 
   YO-full : is-full YO
-  YO-full x y F[f] = ∣ yo-yo-yo _ F[f] , YonedaLemma.yo-iso {x} (yo y) .Iso.leftInv F[f] ∣
+  YO-full x y F[f] = ∣ yo-yo-yo _ F[f] , yo-iso {x} (yo y) .Iso.leftInv F[f] ∣
 
   YO-faithful : is-faithful YO
   YO-faithful x y f g p i =
