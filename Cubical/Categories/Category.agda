@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
-module Cubical.CategoryTheory.Category where
+module Cubical.Categories.Category where
 
 open import Cubical.Foundations.Prelude
 

@@ -1,10 +1,10 @@
 {-# OPTIONS --cubical #-}
 
-module Cubical.CategoryTheory.Functor where
+module Cubical.Categories.Functor where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.HITs.PropositionalTruncation
-open import Cubical.CategoryTheory.Category
+open import Cubical.Categories.Category
 
 private
   variable

@@ -1,10 +1,10 @@
 {-# OPTIONS --cubical #-}
 
-module Cubical.CategoryTheory.NaturalTransformation where
+module Cubical.Categories.NaturalTransformation where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.CategoryTheory.Category
-open import Cubical.CategoryTheory.Functor
+open import Cubical.Categories.Category
+open import Cubical.Categories.Functor
 
 private
   variable

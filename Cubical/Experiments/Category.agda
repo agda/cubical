@@ -2,9 +2,9 @@
 
 module Cubical.Experiments.Category where
 
-open import Cubical.CategoryTheory.Category
-open import Cubical.CategoryTheory.Functor
-open import Cubical.CategoryTheory.NaturalTransformation
+open import Cubical.Categories.Category
+open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -17,7 +17,6 @@ open import Cubical.HITs.PropositionalTruncation
 
 
 module _ (ℓ : Level) where
-
   TYPE : Precategory (ℓ-suc ℓ)
   TYPE .ob = Type ℓ
   TYPE .hom A B = Lift (A → B)
