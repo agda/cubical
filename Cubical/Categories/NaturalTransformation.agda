@@ -69,11 +69,11 @@ module _ (𝒞 : Precategory ℓ𝒞) (𝒟 : Precategory ℓ𝒟) ⦃ _ : isCat
   open NatTrans
   open Functor
 
-  FTR : Precategory (ℓ-max ℓ𝒞 ℓ𝒟)
-  FTR .ob = Functor 𝒞 𝒟
-  FTR .hom = NatTrans
-  FTR .idn = id-trans
-  FTR .seq = seq-trans
-  FTR .seq-λ α = make-nat-trans-path λ i x → 𝒟 .seq-λ (α .N-ob x) i
-  FTR .seq-ρ α = make-nat-trans-path λ i x → 𝒟 .seq-ρ (α .N-ob x) i
-  FTR .seq-α α β γ = make-nat-trans-path λ i x → 𝒟 .seq-α (α .N-ob x) (β .N-ob x) (γ .N-ob x) i
+  FUNCTOR : Precategory (ℓ-max ℓ𝒞 ℓ𝒟)
+  FUNCTOR .ob = Functor 𝒞 𝒟
+  FUNCTOR .hom = NatTrans
+  FUNCTOR .idn = id-trans
+  FUNCTOR .seq = seq-trans
+  FUNCTOR .seq-λ α = make-nat-trans-path λ i x → 𝒟 .seq-λ (α .N-ob x) i
+  FUNCTOR .seq-ρ α = make-nat-trans-path λ i x → 𝒟 .seq-ρ (α .N-ob x) i
+  FUNCTOR .seq-α α β γ = make-nat-trans-path λ i x → 𝒟 .seq-α (α .N-ob x) (β .N-ob x) (γ .N-ob x) i
