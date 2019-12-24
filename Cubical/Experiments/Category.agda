@@ -48,15 +48,9 @@ module _ {ℓ𝒞 ℓ𝒟 : Level} {𝒞 : Precategory ℓ𝒞} {𝒟 : Precateg
     open Precategory
     open Functor
 
-    N-ob-ty : Type _
-    N-ob-ty = (x : 𝒞 .ob) → 𝒟 .hom (F .F-ob x) (G .F-ob x)
-
-    N-hom-ty : N-ob-ty → Type _
-    N-hom-ty N-ob = {x y : 𝒞 .ob} (f : 𝒞 .hom x y) → 𝒟 .seq (F .F-hom f) (N-ob y) ≡ 𝒟 .seq (N-ob x) (G .F-hom f)
-
     field
-      N-ob : N-ob-ty
-      N-hom : N-hom-ty N-ob
+      N-ob : (x : 𝒞 .ob) → 𝒟 .hom (F .F-ob x) (G .F-ob x)
+      N-hom : {x y : 𝒞 .ob} (f : 𝒞 .hom x y) → 𝒟 .seq (F .F-hom f) (N-ob y) ≡ 𝒟 .seq (N-ob x) (G .F-hom f)
 
 
   open Precategory
@@ -181,7 +175,7 @@ module _ (ℓ : Level) where
     YO .F-hom f .N-ob z .lower g = 𝒞 .seq g f
     YO .F-hom f .N-hom g i .lower h = 𝒞 .seq-α g h f i
     YO .F-idn = build-nat-trans-path _ _ λ i _ → lift λ f → 𝒞 .seq-ρ f i
-    YO .F-seq f g = build-nat-trans-path _ _ λ i _ → lift λ h → sym (𝒞 .seq-α h f g) i
+    YO .F-seq f g = build-nat-trans-path _ _ λ i _ → lift λ h → 𝒞 .seq-α h f g (~ i)
 
 
     module _ {x} (F : Functor (𝒞 ^op) SET) where
@@ -203,7 +197,7 @@ module _ (ℓ : Level) where
           rem : ∀ {z} (x₁ : 𝒞 .hom z x) → F .F-hom x₁ .lower (yo-yo-yo _ a) ≡ lower (a .N-ob z) x₁
           rem g =
             F .F-hom g .lower (yo-yo-yo _ a)
-              ≡⟨ sym (λ i → (a .N-hom g) i .lower (𝒞 .idn x)) ⟩
+              ≡[ i ]⟨ a .N-hom g (~ i) .lower (𝒞 .idn x) ⟩
             a .N-hom g i0 .lower (𝒞 .idn x)
               ≡[ i ]⟨ a .N-ob _ .lower (𝒞 .seq-ρ g i) ⟩
             lower (a .N-ob _) g
