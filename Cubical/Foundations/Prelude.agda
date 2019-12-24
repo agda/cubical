@@ -274,3 +274,7 @@ record Lift {i j} (A : Type i) : Type (ℓ-max i j) where
     lower : A
 
 open Lift public
+
+
+liftExt : ∀ {A : Type ℓ} {a b : Lift {ℓ} {ℓ'} A} → (lower a ≡ lower b) → a ≡ b
+liftExt x i = lift (x i)

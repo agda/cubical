@@ -15,18 +15,8 @@ open import Cubical.HITs.PropositionalTruncation
 
 
 module _ (ℓ : Level) where
-
-
-
   PSH : Precategory ℓ → Precategory (ℓ-suc ℓ)
   PSH 𝒞 = FTR (𝒞 ^op) (SET ℓ)
-
-  liftExt : ∀ {ℓ'} {A : Type ℓ} {a b : Lift {ℓ} {ℓ'} A} → (lower a ≡ lower b) → a ≡ b
-  liftExt x i = lift (x i)
-
-  pairExt : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y : Σ A B} (α : x .fst ≡ y .fst) (β : PathP (λ i → B (α i)) (x .snd) (y .snd)) → x ≡ y
-  pairExt α β i .fst = α i
-  pairExt α β i .snd = β i
 
   module YonedaEmbedding (𝒞 : Precategory ℓ) ⦃ 𝒞-cat : isCategory 𝒞 ⦄ where
     open Functor
