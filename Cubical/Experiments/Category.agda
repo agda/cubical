@@ -2,45 +2,14 @@
 
 module Cubical.Experiments.Category where
 
+open import Cubical.CategoryTheory.Category
+open import Cubical.CategoryTheory.Functor
+
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.HITs.PropositionalTruncation
-
-record Precategory ℓ : Type (ℓ-suc ℓ) where
-  no-eta-equality
-  field
-    ob : Type ℓ
-    hom : ob → ob → Type ℓ
-    idn : ∀ x → hom x x
-    seq : ∀ {x y z} (f : hom x y) (g : hom y z) → hom x z
-    seq-λ : ∀ {x y : ob} (f : hom x y) → seq (idn x) f ≡ f
-    seq-ρ : ∀ {x y} (f : hom x y) → seq f (idn y) ≡ f
-    seq-α : ∀ {u v w x} (f : hom u v) (g : hom v w) (h : hom w x) → seq (seq f g) h ≡ seq f (seq g h)
-
-open Precategory
-
-record is-category {ℓ} (𝒞 : Precategory ℓ) : Type ℓ where
-  no-eta-equality
-  field
-    hom-set : ∀ {x y} → isSet (𝒞 .hom x y)
-
-open is-category
-
-module _ {ℓ𝒞 ℓ𝒟} where
-  record Functor (𝒞 : Precategory ℓ𝒞) (𝒟 : Precategory ℓ𝒟) : Type (ℓ-max ℓ𝒞 ℓ𝒟) where
-    no-eta-equality
-    open Precategory
-
-    field
-      F-ob : 𝒞 .ob → 𝒟 .ob
-      F-hom : {x y : 𝒞 .ob} → 𝒞 .hom x y → 𝒟 .hom (F-ob x) (F-ob y)
-      F-idn : {x : 𝒞 .ob} → F-hom (𝒞 .idn x) ≡ 𝒟 .idn (F-ob x)
-      F-seq : {x y z : 𝒞 .ob} (f : 𝒞 .hom x y) (g : 𝒞 .hom y z) → F-hom (𝒞 .seq f g) ≡ 𝒟 .seq (F-hom f) (F-hom g)
-
-    is-full = (x y : _) (F[f] : 𝒟 .hom (F-ob x) (F-ob y)) → ∥ Σ (𝒞 .hom x y) (λ f → F-hom f ≡ F[f]) ∥
-    is-faithful = (x y : _) (f g : 𝒞 .hom x y) → F-hom f ≡ F-hom g → f ≡ g
 
 
 module _ {ℓ𝒞 ℓ𝒟 : Level} {𝒞 : Precategory ℓ𝒞} {𝒟 : Precategory ℓ𝒟} where
@@ -85,7 +54,7 @@ module _ {ℓ𝒞 ℓ𝒟 : Level} {𝒞 : Precategory ℓ𝒞} {𝒟 : Precateg
       ∎
 
 
-module _ {ℓ𝒞 ℓ𝒟} (𝒞 : Precategory ℓ𝒞) (𝒟 : Precategory ℓ𝒟) ⦃ 𝒟-category : is-category 𝒟 ⦄ where
+module _ {ℓ𝒞 ℓ𝒟} (𝒞 : Precategory ℓ𝒞) (𝒟 : Precategory ℓ𝒟) ⦃ 𝒟-category : isCategory 𝒟 ⦄ where
   open Precategory
   open Functor
   open NatTrans
@@ -96,7 +65,7 @@ module _ {ℓ𝒞 ℓ𝒟} (𝒞 : Precategory ℓ𝒞) (𝒟 : Precategory ℓ�
     build-nat-trans-path p i .N-hom f = rem i
       where
         rem : PathP (λ i → 𝒟 .seq (F .F-hom f) (p i _) ≡ 𝒟 .seq (p i _) (G .F-hom f)) (α .N-hom f) (β .N-hom f)
-        rem = toPathP (𝒟-category .hom-set _ _ _ _)
+        rem = toPathP (𝒟-category .homIsSet _ _ _ _)
 
 
   FTR : Precategory (ℓ-max ℓ𝒞 ℓ𝒟)
@@ -109,14 +78,6 @@ module _ {ℓ𝒞 ℓ𝒟} (𝒞 : Precategory ℓ𝒞) (𝒟 : Precategory ℓ�
   FTR .seq-α α β γ = build-nat-trans-path λ i x → 𝒟 .seq-α (α .N-ob x) (β .N-ob x) (γ .N-ob x) i
 
 
-_^op : ∀ {ℓ} → Precategory ℓ → Precategory ℓ
-(𝒞 ^op) .ob = 𝒞 .ob
-(𝒞 ^op) .hom x y = 𝒞 .hom y x
-(𝒞 ^op) .idn = 𝒞 .idn
-(𝒞 ^op) .seq f g = 𝒞 .seq g f
-(𝒞 ^op) .seq-λ = 𝒞 .seq-ρ
-(𝒞 ^op) .seq-ρ = 𝒞 .seq-λ
-(𝒞 ^op) .seq-α f g h = sym (𝒞 .seq-α _ _ _)
 
 module _ (ℓ : Level) where
 
@@ -145,8 +106,8 @@ module _ (ℓ : Level) where
   isSetLift = isOfHLevelLift 2
 
   instance
-    SET-category : is-category SET
-    SET-category .hom-set {_} {B , B/set} = isSetLift (isSetExpIdeal B/set)
+    SET-category : isCategory SET
+    SET-category .homIsSet {_} {B , B/set} = isSetLift (isSetExpIdeal B/set)
 
 
   PSH : Precategory ℓ → Precategory (ℓ-suc ℓ)
@@ -159,13 +120,13 @@ module _ (ℓ : Level) where
   pairExt α β i .fst = α i
   pairExt α β i .snd = β i
 
-  module YonedaEmbedding (𝒞 : Precategory ℓ) ⦃ 𝒞-cat : is-category 𝒞 ⦄ where
+  module YonedaEmbedding (𝒞 : Precategory ℓ) ⦃ 𝒞-cat : isCategory 𝒞 ⦄ where
     open Functor
     open NatTrans
 
     yo : 𝒞 .ob → Functor (𝒞 ^op) SET
     yo x .F-ob y .fst = 𝒞 .hom y x
-    yo x .F-ob y .snd = 𝒞-cat .hom-set
+    yo x .F-ob y .snd = 𝒞-cat .homIsSet
     yo x .F-hom f .lower g = 𝒞 .seq f g
     yo x .F-idn i .lower f = 𝒞 .seq-λ f i
     yo x .F-seq f g i .lower h = 𝒞 .seq-α g f h i
