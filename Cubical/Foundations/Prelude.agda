@@ -182,58 +182,68 @@ isProp A = (x y : A) → x ≡ y
 isSet : Type ℓ → Type ℓ
 isSet A = (x y : A) → isProp (x ≡ y)
 
-Square
-  : ∀{w x y z : A}
-  → (p : w ≡ y) (q : w ≡ x) (r : y ≡ z) (s : x ≡ z)
-  → Set _
-Square p q r s = PathP (λ i → p i ≡ s i) q r
+Square :
+  {a₀₀ a₀₁ : A} (a₀₋ : a₀₀ ≡ a₀₁)
+  {a₁₀ a₁₁ : A} (a₁₋ : a₁₀ ≡ a₁₁)
+  (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
+  → Type _
+Square a₀₋ a₁₋ a₋₀ a₋₁ = PathP (λ i → a₋₀ i ≡ a₋₁ i) a₀₋ a₁₋
 
 isSet' : Type ℓ → Type ℓ
-isSet' A
-  = {x y z w : A}
-  → (p : x ≡ y) (q : z ≡ w) (r : x ≡ z) (s : y ≡ w)
-  → Square r p q s
+isSet' A =
+  {a₀₀ a₀₁ : A} (a₀₋ : a₀₀ ≡ a₀₁)
+  {a₁₀ a₁₁ : A} (a₁₋ : a₁₀ ≡ a₁₁)
+  (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
+  → Square a₀₋ a₁₋ a₋₀ a₋₁
 
 isGroupoid : Type ℓ → Type ℓ
 isGroupoid A = ∀ a b → isSet (Path A a b)
 
-Cube
-  : ∀{w x y z w' x' y' z' : A}
-  → {p : w ≡ y} {q : w ≡ x} {r : y ≡ z} {s : x ≡ z}
-  → {p' : w' ≡ y'} {q' : w' ≡ x'} {r' : y' ≡ z'} {s' : x' ≡ z'}
-  → {a : w ≡ w'} {b : x ≡ x'} {c : y ≡ y'} {d : z ≡ z'}
-  → (ps : Square a p p' c) (qs : Square a q q' b)
-  → (rs : Square c r r' d) (ss : Square b s s' d)
-  → (f0 : Square p q r s) (f1 : Square p' q' r' s')
-  → Set _
-Cube ps qs rs ss f0 f1
-  = PathP (λ k → Square (ps k) (qs k) (rs k) (ss k)) f0 f1
+Cube :
+  {a₀₀₀ a₀₀₁ : A} {a₀₀₋ : a₀₀₀ ≡ a₀₀₁}
+  {a₀₁₀ a₀₁₁ : A} {a₀₁₋ : a₀₁₀ ≡ a₀₁₁}
+  {a₀₋₀ : a₀₀₀ ≡ a₀₁₀} {a₀₋₁ : a₀₀₁ ≡ a₀₁₁}
+  (a₀₋₋ : Square a₀₀₋ a₀₁₋ a₀₋₀ a₀₋₁)
+  {a₁₀₀ a₁₀₁ : A} {a₁₀₋ : a₁₀₀ ≡ a₁₀₁}
+  {a₁₁₀ a₁₁₁ : A} {a₁₁₋ : a₁₁₀ ≡ a₁₁₁}
+  {a₁₋₀ : a₁₀₀ ≡ a₁₁₀} {a₁₋₁ : a₁₀₁ ≡ a₁₁₁}
+  (a₁₋₋ : Square a₁₀₋ a₁₁₋ a₁₋₀ a₁₋₁)
+  {a₋₀₀ : a₀₀₀ ≡ a₁₀₀} {a₋₀₁ : a₀₀₁ ≡ a₁₀₁}
+  (a₋₀₋ : Square a₀₀₋ a₁₀₋ a₋₀₀ a₋₀₁)
+  {a₋₁₀ : a₀₁₀ ≡ a₁₁₀} {a₋₁₁ : a₀₁₁ ≡ a₁₁₁}
+  (a₋₁₋ : Square a₀₁₋ a₁₁₋ a₋₁₀ a₋₁₁)
+  (a₋₋₀ : Square a₀₋₀ a₁₋₀ a₋₀₀ a₋₁₀)
+  (a₋₋₁ : Square a₀₋₁ a₁₋₁ a₋₀₁ a₋₁₁)
+  → Type _
+Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ =
+  PathP (λ i → Square (a₋₀₋ i) (a₋₁₋ i) (a₋₋₀ i) (a₋₋₁ i)) a₀₋₋ a₁₋₋
 
 isGroupoid' : Set ℓ → Set ℓ
-isGroupoid' A
-  = ∀{w x y z w' x' y' z' : A}
-  → {p : w ≡ y} {q : w ≡ x} {r : y ≡ z} {s : x ≡ z}
-  → {p' : w' ≡ y'} {q' : w' ≡ x'} {r' : y' ≡ z'} {s' : x' ≡ z'}
-  → {a : w ≡ w'} {b : x ≡ x'} {c : y ≡ y'} {d : z ≡ z'}
-  → (fp : Square a p p' c) → (fq : Square a q q' b)
-  → (fr : Square c r r' d) → (fs : Square b s s' d)
-  → (f0 : Square p q r s) → (f1 : Square p' q' r' s')
-  → Cube fp fq fr fs f0 f1
+isGroupoid' A =
+  {a₀₀₀ a₀₀₁ : A} {a₀₀₋ : a₀₀₀ ≡ a₀₀₁}
+  {a₀₁₀ a₀₁₁ : A} {a₀₁₋ : a₀₁₀ ≡ a₀₁₁}
+  {a₀₋₀ : a₀₀₀ ≡ a₀₁₀} {a₀₋₁ : a₀₀₁ ≡ a₀₁₁}
+  (a₀₋₋ : Square a₀₀₋ a₀₁₋ a₀₋₀ a₀₋₁)
+  {a₁₀₀ a₁₀₁ : A} {a₁₀₋ : a₁₀₀ ≡ a₁₀₁}
+  {a₁₁₀ a₁₁₁ : A} {a₁₁₋ : a₁₁₀ ≡ a₁₁₁}
+  {a₁₋₀ : a₁₀₀ ≡ a₁₁₀} {a₁₋₁ : a₁₀₁ ≡ a₁₁₁}
+  (a₁₋₋ : Square a₁₀₋ a₁₁₋ a₁₋₀ a₁₋₁)
+  {a₋₀₀ : a₀₀₀ ≡ a₁₀₀} {a₋₀₁ : a₀₀₁ ≡ a₁₀₁}
+  (a₋₀₋ : Square a₀₀₋ a₁₀₋ a₋₀₀ a₋₀₁)
+  {a₋₁₀ : a₀₁₀ ≡ a₁₁₀} {a₋₁₁ : a₀₁₁ ≡ a₁₁₁}
+  (a₋₁₋ : Square a₀₁₋ a₁₁₋ a₋₁₀ a₋₁₁)
+  (a₋₋₀ : Square a₀₋₀ a₁₋₀ a₋₀₀ a₋₁₀)
+  (a₋₋₁ : Square a₀₋₁ a₁₋₁ a₋₀₁ a₋₁₁)
+  → Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁
 
 is2Groupoid : Type ℓ → Type ℓ
 is2Groupoid A = ∀ a b → isGroupoid (Path A a b)
 
 -- Essential consequences of isProp and isContr
-isProp→PathP
-  : ((x : A) → isProp (B x)) → {a0 a1 : A}
-  → (p : a0 ≡ a1) (b0 : B a0) (b1 : B a1)
-  → PathP (λ i → B (p i)) b0 b1
-isProp→PathP P p b0 b1 = toPathP (P _ _ _)
-
-isProp-PathP-I : ∀ {B : I → Type ℓ} → ((i : I) → isProp (B i))
+isProp→PathP : ∀ {B : I → Type ℓ} → ((i : I) → isProp (B i))
                → (b0 : B i0) (b1 : B i1)
                → PathP (λ i → B i) b0 b1
-isProp-PathP-I hB b0 b1 = toPathP (hB _ _ _)
+isProp→PathP hB b0 b1 = toPathP (hB _ _ _)
 
 isPropIsContr : isProp (isContr A)
 isPropIsContr z0 z1 j =
