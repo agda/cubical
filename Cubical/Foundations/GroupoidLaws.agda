@@ -100,6 +100,8 @@ preassoc : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) →
   PathP (λ j → Path A x ((q ∙ r) j)) p ((p ∙ q) ∙ r)
 preassoc {x = x} p q r j i = preassoc-filler p q r i1 j i
 
+-- deducing associativity for compPath
+
 assoc : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) →
   p ∙ q ∙ r ≡ (p ∙ q) ∙ r
 assoc p q r = 3outof4 (compPath-filler p (q ∙ r)) ((p ∙ q) ∙ r) (preassoc p q r)
@@ -228,12 +230,6 @@ doubleCompPath-elim' : {ℓ : Level} {A : Type ℓ} {w x y z : A} (p : w ≡ x) 
                        (r : y ≡ z) → (p ∙∙ q ∙∙ r) ≡ p ∙ (q ∙ r)
 doubleCompPath-elim' p q r = (split-leftright' p q r) ∙ (sym (leftright p (q ∙ r)))
 
--- deducing associativity for compPath
-
--- assoc : {ℓ : Level} {A : Type ℓ} {w x y z : A} (p : w ≡ x) (q : x ≡ y) (r : y ≡ z) →
---                 (p ∙ q) ∙ r ≡ p ∙ (q ∙ r)
--- assoc p q r = (sym (doubleCompPath-elim p q r)) ∙ (doubleCompPath-elim' p q r)
-
 hcomp-unique : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
                (h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
                → (hcomp u (outS u0) ≡ outS (h2 i1)) [ φ ↦ (\ { (φ = i1) → (\ i → u i1 1=1)}) ]
@@ -270,13 +266,14 @@ hcomp-cong : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 :
              → (hcomp u (outS u0) ≡ hcomp u' (outS u0')) [ φ ↦ (\ { (φ = i1) → ueq i1 1=1 }) ]
 hcomp-cong u u0 u' u0' ueq 0eq = inS (\ j → hcomp (\ i o → ueq i o j) (outS 0eq j))
 
-squeezeSq≡
-  : ∀{w x y z : A}
-  → (p : w ≡ y) (q : w ≡ x) (r : y ≡ z) (s : x ≡ z)
-  → (q ≡ p ∙∙ r ∙∙ sym s) ≡ (Square p q r s)
-squeezeSq≡ p q r s k
+squeezeSq≡ :
+  {a₀₀ a₀₁ : A} (a₀₋ : a₀₀ ≡ a₀₁)
+  {a₁₀ a₁₁ : A} (a₁₋ : a₁₀ ≡ a₁₁)
+  (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
+  → (a₀₋ ≡ a₋₀ ∙∙ a₁₋ ∙∙ sym a₋₁) ≡ (Square a₀₋ a₁₋ a₋₀ a₋₁)
+squeezeSq≡ a₀₋ a₁₋ a₋₀ a₋₁ k
   = Square
-      (λ j → p (j ∧ k))
-      q
-      (λ j → doubleCompPath-filler p r (sym s) j (~ k))
-      (λ j → s (j ∧ k))
+      a₀₋
+      (λ j → doubleCompPath-filler a₋₀ a₁₋ (sym a₋₁) j (~ k))
+      (λ j → a₋₀ (j ∧ k))
+      (λ j → a₋₁ (j ∧ k))
