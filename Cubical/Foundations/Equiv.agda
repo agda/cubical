@@ -75,9 +75,6 @@ equiv-proof (isPropIsEquiv f p q i) y =
 equivEq : (e f : A ≃ B) → (h : e .fst ≡ f .fst) → e ≡ f
 equivEq e f h = λ i → (h i) , isProp→PathP (λ i → isPropIsEquiv (h i)) (e .snd) (f .snd) i
 
-isoToEquiv : Iso A B →  A ≃ B
-isoToEquiv i = _ , isoToIsEquiv i
-
 module _ (w : A ≃ B) where
   invEq : B → A
   invEq y = fst (fst (snd w .equiv-proof y))
@@ -107,12 +104,6 @@ compEquiv f g = isoToEquiv
 compEquivIdEquiv : {A B : Type ℓ} (e : A ≃ B) → compEquiv (idEquiv A) e ≡ e
 compEquivIdEquiv e = equivEq _ _ refl
 
-compIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
-          → Iso A B → Iso B C → Iso A C
-compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) = iso (fun₁ ∘ fun) (inv ∘ inv₁)
-        (λ b → cong fun₁ (rightInv (inv₁ b)) ∙ (rightInv₁ b))
-        (λ a → cong inv (leftInv₁ (fun a) ) ∙ leftInv a )
-
 LiftEquiv : {A : Type ℓ} → A ≃ Lift {i = ℓ} {j = ℓ'} A
 LiftEquiv = isoToEquiv (iso lift lower (λ _ → refl) (λ _ → refl))
 
@@ -120,6 +111,9 @@ LiftEquiv = isoToEquiv (iso lift lower (λ _ → refl) (λ _ → refl))
 --   invEquivInvol : (f : A ≃ B) → invEquiv (invEquiv f) ≡ f
 --   invEquivInvol f i .fst = fst f
 --   invEquivInvol f i .snd = propIsEquiv (fst f) (snd (invEquiv (invEquiv f))) (snd f) i
+
+Contr→Equiv : isContr A → isContr B → A ≃ B
+Contr→Equiv Actr Bctr = isoToEquiv (iso (λ _ → fst Bctr) (λ _ → fst Actr) (snd Bctr) (snd Actr))
 
 PropEquiv→Equiv : (Aprop : isProp A) (Bprop : isProp B) (f : A → B) (g : B → A) → (A ≃ B)
 PropEquiv→Equiv Aprop Bprop f g = isoToEquiv (iso f g (λ b → Bprop (f (g b)) b) λ a → Aprop (g (f a)) a)

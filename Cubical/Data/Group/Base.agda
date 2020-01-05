@@ -76,7 +76,7 @@ Iso'→Iso {G = group G Gset Ggroup} {H = group H Hset Hgroup} i = iso (fun , fu
     leftInv = I.Iso.leftInv (isoSet i)
 
     e' : G E.≃ H
-    e' = E.isoToEquiv (I.iso fun inv rightInv leftInv)
+    e' = I.isoToEquiv (I.iso fun inv rightInv leftInv)
 
     funMorph : isMorph G_ H_ fun
     funMorph = isoSetMorph i
