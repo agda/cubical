@@ -147,7 +147,7 @@ idemTrunc {A = A} n hA = isoToEquiv (iso f g f-g g-f)
   g-f : ∀ x → g (f x) ≡ x
   g-f = ind (λ _ → hLevelSuc (1+ n) _ (hLevelPath (1+ n) (isOfHLevel∥∥ n) _ _)) (λ _ → refl)
 
-propTrunc≃Trunc-1 : ∥ A ∥₋₁ ≃ ∥ A ∥ neg1
+propTrunc≃Trunc-1 : ∥ A ∥₋₁ ≃ ∥ A ∥ -1
 propTrunc≃Trunc-1 =
   isoToEquiv
     (iso
@@ -156,7 +156,7 @@ propTrunc≃Trunc-1 =
       (ind (λ _ → hLevelSuc 0 _ (hLevelPath 0 (isOfHLevel∥∥ neg1) _ _)) (λ _ → refl))
       (elimPropTrunc (λ _ → hLevelSuc 0 _ (hLevelPath 0 propTruncIsProp _ _)) (λ _ → refl)))
 
-setTrunc≃Trunc0 : ∥ A ∥₀ ≃ ∥ A ∥ (suc neg1)
+setTrunc≃Trunc0 : ∥ A ∥₀ ≃ ∥ A ∥ 0
 setTrunc≃Trunc0 =
   isoToEquiv
     (iso
@@ -165,7 +165,7 @@ setTrunc≃Trunc0 =
       (ind (λ _ → hLevelSuc 1 _ (hLevelPath 1 (isOfHLevel∥∥ (suc neg1)) _ _)) (λ _ → refl))
       (elimSetTrunc (λ _ → hLevelSuc 1 _ (hLevelPath 1 squash₀ _ _)) (λ _ → refl)))
 
-groupoidTrunc≃Trunc1 : ∥ A ∥₁ ≃ ∥ A ∥ (ℕ→ℕ₋₁ 1)
+groupoidTrunc≃Trunc1 : ∥ A ∥₁ ≃ ∥ A ∥ 1
 groupoidTrunc≃Trunc1 =
   isoToEquiv
     (iso
@@ -174,7 +174,7 @@ groupoidTrunc≃Trunc1 =
       (ind (λ _ → hLevelSuc 2 _ (hLevelPath 2 (isOfHLevel∥∥ (ℕ→ℕ₋₁ 1)) _ _)) (λ _ → refl))
       (groupoidTruncElim _ _ (λ _ → hLevelSuc 2 _ (hLevelPath 2 squash₁ _ _)) (λ _ → refl)))
 
-2groupoidTrunc≃Trunc2 : ∥ A ∥₂ ≃ ∥ A ∥ (ℕ→ℕ₋₁ 2)
+2groupoidTrunc≃Trunc2 : ∥ A ∥₂ ≃ ∥ A ∥ 2
 2groupoidTrunc≃Trunc2 =
   isoToEquiv
     (iso
