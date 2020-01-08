@@ -4,7 +4,9 @@ module Cubical.Data.Maybe.Properties where
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Embedding
 open import Cubical.Data.Empty
 open import Cubical.Data.Unit
 open import Cubical.Data.Nat
@@ -44,6 +46,15 @@ module MaybePath {ℓ} {A : Type ℓ} where
     J (λ c' p → decode c c' (encode c c' p) ≡ p)
       (cong (decode c c) (encodeRefl c) ∙ decodeRefl c)
 
+  encodeDecode : ∀ c c' → (d : Cover c c') → encode c c' (decode c c' d) ≡ d
+  encodeDecode nothing nothing _ = refl
+  encodeDecode (just a) (just a') =
+    J (λ a' p → encode (just a) (just a') (cong just p) ≡ p) (encodeRefl (just a))
+
+  Cover≃Path : ∀ c c' → Cover c c' ≃ (c ≡ c')
+  Cover≃Path c c' = isoToEquiv
+    (iso (decode c c') (encode c c') (decodeEncode c c') (encodeDecode c c'))
+
   isOfHLevelCover : (n : ℕ)
     → isOfHLevel (suc (suc n)) A
     → ∀ c c' → isOfHLevel (suc n) (Cover c c')
@@ -75,6 +86,9 @@ fromJust-def _ (just a) = a
 
 just-inj : (x y : A) → just x ≡ just y → x ≡ y
 just-inj x _ eq = cong (fromJust-def x) eq
+
+isEmbedding-just : isEmbedding (just {A = A})
+isEmbedding-just  w z = MaybePath.Cover≃Path (just w) (just z) .snd
 
 ¬nothing≡just : ∀ {x : A} → ¬ (nothing ≡ just x)
 ¬nothing≡just {A = A} {x = x} p = lower (subst (caseMaybe (Maybe A) (Lift ⊥)) p (just x))
