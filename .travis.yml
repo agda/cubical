@@ -58,7 +58,7 @@ install:
   - yes | rm -R agda/
   # snapshot package-db on cache miss
   - echo "snapshotting package-db to build-cache";
-    mkdir $HOME/.cabsnap;
+    mkdir -p $HOME/.cabsnap;
     cp -a $HOME/.ghc $HOME/.cabsnap/ghc;
     cp -a $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin $HOME/installplan.txt $HOME/.cabsnap/;
   - cd $TRAVIS_BUILD_DIR
