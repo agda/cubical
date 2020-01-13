@@ -4,7 +4,7 @@ branches:
   - master
   - travis
 
-dist: trusty
+dist: xenial
 
 cache:
   directories:
@@ -12,13 +12,13 @@ cache:
 
 matrix:
   include:
-    - env: TEST=MAIN GHC_VER=8.0.2 BUILD=CABAL CABAL_VER=1.24
+    - env: TEST=MAIN GHC_VER=8.4.4 BUILD=CABAL CABAL_VER=2.2
       addons:
         apt:
           packages:
             - alex-3.1.7
-            - cabal-install-1.24
-            - ghc-8.0.2
+            - cabal-install-2.2
+            - ghc-8.4.4
             - happy-1.19.5
           sources:
             - hvr-ghc
