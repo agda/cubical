@@ -4,14 +4,12 @@ module Cubical.Data.HomotopyGroup.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 import Cubical.Foundations.GroupoidLaws as GL
+open import Cubical.Foundations.Pointed
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Group.Base
 
 open import Cubical.HITs.SetTruncation
-
-Pointed : ∀ ℓ → Type (ℓ-suc ℓ)
-Pointed ℓ = Σ[ A ∈ Type ℓ ] A
 
 Ω : ∀ {ℓ} → Pointed ℓ → Pointed ℓ
 Ω (A , a ) = ( (a ≡ a) , refl)
@@ -27,13 +25,13 @@ Pointed ℓ = Σ[ A ∈ Type ℓ ] A
     n' = suc n
 
     A : Type ℓ
-    A = (Ω^ n') p .fst
+    A = typ ((Ω^ n') p)
 
     g : isGroup ∥ A ∥₀
     g = group-struct e _⁻¹ _⊙_ lUnit rUnit assoc lCancel rCancel
       where
         e : ∥ A ∥₀
-        e = ∣ (Ω^ n') p .snd ∣₀
+        e = ∣ pt ((Ω^ n') p) ∣₀
 
         _⁻¹ : ∥ A ∥₀ → ∥ A ∥₀
         _⁻¹ = elimSetTrunc {B = λ _ → ∥ A ∥₀} (λ x → squash₀) λ a → ∣  sym a ∣₀

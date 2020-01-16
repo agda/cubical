@@ -39,6 +39,7 @@ open import Cubical.Foundations.BiInvEquiv public
 open import Cubical.Foundations.FunExtEquiv public
 open import Cubical.Foundations.HLevels public
 open import Cubical.Foundations.Path public
+open import Cubical.Foundations.Pointed public
 open import Cubical.Foundations.Transport public
 open import Cubical.Foundations.Univalence public
 open import Cubical.Foundations.UnivalenceId public
