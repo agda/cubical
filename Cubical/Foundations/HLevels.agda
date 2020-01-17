@@ -250,6 +250,11 @@ hLevelSuc 0 A = isContr→isProp
 hLevelSuc 1 A = isProp→isSet
 hLevelSuc (suc (suc n)) A h a b = hLevelSuc (suc n) (a ≡ b) (h a b)
 
+hLevelPath : (n : ℕ) → isOfHLevel n A → (x y : A) → isOfHLevel n (x ≡ y)
+hLevelPath 0 h x y = isContrPath h x y
+hLevelPath 1 h x y = hLevelSuc zero _ (isProp→isContr≡ h x y)
+hLevelPath (suc (suc n)) h x y = hLevelSuc (suc n) _ (h x y)
+
 hLevelLift : (m : ℕ) (hA : isOfHLevel n A) → isOfHLevel (m + n) A
 hLevelLift zero hA = hA
 hLevelLift {A = A} (suc m) hA = hLevelSuc _ A (hLevelLift m hA)
