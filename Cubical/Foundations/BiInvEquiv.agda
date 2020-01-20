@@ -11,8 +11,6 @@ Some theory about Bi-Invertible Equivalences
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.BiInvEquiv where
 
-open import Cubical.Core.Glue
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism

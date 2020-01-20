@@ -3,6 +3,7 @@
 Proof of the standard formulation of the univalence theorem and
 various consequences of univalence
 
+- Re-exports Glue types from Cubical.Core.Glue
 - The ua constant and its computation rule (up to a path)
 - Proof of univalence using that unglue is an equivalence ([EquivContr])
 - Equivalence induction ([EquivJ], [elimEquiv])
@@ -14,13 +15,14 @@ various consequences of univalence
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Univalence where
 
-open import Cubical.Core.Glue
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.GroupoidLaws
+
+open import Cubical.Core.Glue public
+  using ( Glue ; glue ; unglue ; lineToEquiv )
 
 private
   variable
@@ -148,6 +150,9 @@ univalencePath = ua (compEquiv univalence LiftEquiv)
 -- https://github.com/mortberg/cubicaltt/blob/master/examples/univalence.ctt#L202
 uaβ : {A B : Type ℓ} (e : A ≃ B) (x : A) → transport (ua e) x ≡ e .fst x
 uaβ e x = transportRefl (e .fst x)
+
+uaη : ∀ {A B : Type ℓ} → (P : A ≡ B) → ua (pathToEquiv P) ≡ P
+uaη = J (λ _ q → ua (pathToEquiv q) ≡ q) (cong ua pathToEquivRefl ∙ uaIdEquiv)
 
 -- Alternative version of EquivJ that only requires a predicate on
 -- functions

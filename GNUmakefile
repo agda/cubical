@@ -17,7 +17,7 @@ check-whitespace:
 	cabal exec -- fix-agda-whitespace --check
 
 .PHONY : check
-check: $(wildcard **/*.agda)
+check: $(wildcard Cubical/**/*.agda)
 	$(AGDA) Cubical/Core/Everything.agda
 	$(AGDA) Cubical/Foundations/Everything.agda
 	$(AGDA) Cubical/Codata/Everything.agda
@@ -25,6 +25,10 @@ check: $(wildcard **/*.agda)
 	$(AGDA) Cubical/HITs/Everything.agda
 	$(AGDA) Cubical/Relation/Everything.agda
 	$(AGDA) Cubical/Experiments/Everything.agda
+
+.PHONY: listings
+listings: $(wildcard Cubical/**/*.agda)
+	$(AGDA) -i. -isrc --html Cubical/README.agda -v0
 
 .PHONY : clean
 clean :

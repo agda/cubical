@@ -18,4 +18,4 @@ isInjectiveTransport {p = p} {q} α i =
     (invEq univalence ((λ a → α i a) , t i))
   where
   t : PathP (λ i → isEquiv (λ a → α i a)) (pathToEquiv p .snd) (pathToEquiv q .snd)
-  t = isProp→isContrPathP isPropIsEquiv (λ i a → α i a) _ _ .fst
+  t = isProp→isContrPathP (λ i → isPropIsEquiv (λ a → α i a)) _ _ .fst

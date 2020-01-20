@@ -14,8 +14,6 @@ This file contains:
 
 module Cubical.HITs.Join.Properties where
 
-open import Cubical.Core.Glue
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
@@ -269,3 +267,153 @@ join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
         H4 (inl (a , c)) = refl
         H4 (inr (b , c)) = refl
         H4 (push (a , (b , c)) i) j = fst (joinPushout≃join _ _) (doubleCompPath-filler refl (λ i → push (a , b) i) refl i j)
+
+{-
+  Direct proof of an associativity-related property. Combined with
+  commutativity, this implies that the join is associative.
+-}
+joinSwitch : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+  → join (join A B) C ≃ join (join C B) A
+joinSwitch = isoToEquiv (iso map map invol invol)
+  where
+  map : ∀ {ℓ ℓ' ℓ''}  {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+    → join (join A B) C → join (join C B) A
+  map (inl (inl a)) = inr a
+  map (inl (inr b)) = inl (inr b)
+  map (inl (push a b i)) = push (inr b) a (~ i)
+  map (inr c) = inl (inl c)
+  map (push (inl a) c j) = push (inl c) a (~ j)
+  map (push (inr b) c j) = inl (push c b (~ j))
+  map (push (push a b i) c j) =
+    hcomp
+      (λ k → λ
+        { (i = i0) → push (inl c) a (~ j ∨ ~ k)
+        ; (i = i1) → inl (push c b (~ j))
+        ; (j = i0) → push (inr b) a (~ i)
+        ; (j = i1) → push (inl c) a (~ i ∧ ~ k)
+        })
+      (push (push c b (~ j)) a (~ i))
+
+  invol : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+    (u : join (join A B) C) → map (map u) ≡ u
+  invol (inl (inl a)) = refl
+  invol (inl (inr b)) = refl
+  invol (inl (push a b i)) = refl
+  invol (inr c) = refl
+  invol (push (inl a) c j) = refl
+  invol (push (inr b) c j) = refl
+  invol {A = A} {B} {C} (push (push a b i) c j) l =
+    comp
+      (λ _ → join (join A B) C)
+      (λ k → λ
+        { (i = i0) → push (inl a) c (j ∧ (k ∨ l))
+        ; (i = i1) → push (inr b) c j
+        ; (j = i0) → inl (push a b i)
+        ; (j = i1) → push (inl a) c (i ∨ (k ∨ l))
+        ; (l = i1) → push (push a b i) c j
+        })
+      (hcomp
+        (λ k → λ
+          { (i = i0) → push (inl a) c (j ∧ (~ k ∨ l))
+          ; (i = i1) → push (inr b) c j
+          ; (j = i0) → inl (push a b i)
+          ; (j = i1) → push (inl a) c (i ∨ (~ k ∨ l))
+          ; (l = i1) → push (push a b i) c j
+          })
+        (push (push a b i) c j))
+
+{-
+  Direct proof of associativity.
+-}
+joinAssocDirect : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+  → join (join A B) C ≃ join A (join B C)
+joinAssocDirect {A = A} {B} {C} =
+  isoToEquiv (iso forward back forwardBack backForward)
+  where
+  forward : join (join A B) C → join A (join B C)
+  forward (inl (inl a)) = inl a
+  forward (inl (inr b)) = inr (inl b)
+  forward (inl (push a b i)) = push a (inl b) i
+  forward (inr c) = inr (inr c)
+  forward (push (inl a) c j) = push a (inr c) j
+  forward (push (inr b) c j) = inr (push b c j)
+  forward (push (push a b i) c j) =
+    hcomp
+      (λ k → λ
+        { (i = i0) → push a (inr c) (j ∧ k)
+        ; (i = i1) → inr (push b c j)
+        ; (j = i0) → push a (inl b) i
+        ; (j = i1) → push a (inr c) (i ∨ k)
+        })
+      (push a (push b c j) i)
+
+  back : join A (join B C) → join (join A B) C
+  back (inl a) = inl (inl a)
+  back (inr (inl b)) = inl (inr b)
+  back (inr (inr c)) = inr c
+  back (inr (push b c j)) = push (inr b) c j
+  back (push a (inl b) i) = inl (push a b i)
+  back (push a (inr c) i) = push (inl a) c i
+  back (push a (push b c j) i) =
+    hcomp
+      (λ k → λ
+        { (i = i0) → push (inl a) c (j ∧ ~ k)
+        ; (i = i1) → push (inr b) c j
+        ; (j = i0) → inl (push a b i)
+        ; (j = i1) → push (inl a) c (i ∨ ~ k)
+        })
+      (push (push a b i) c j)
+
+  forwardBack : ∀ u → forward (back u) ≡ u
+  forwardBack (inl a) = refl
+  forwardBack (inr (inl b)) = refl
+  forwardBack (inr (inr c)) = refl
+  forwardBack (inr (push b c j)) = refl
+  forwardBack (push a (inl b) i) = refl
+  forwardBack (push a (inr c) i) = refl
+  forwardBack (push a (push b c j) i) l =
+    comp
+      (λ _ → join A (join B C))
+      (λ k → λ
+        { (i = i0) → push a (inr c) (j ∧ (~ k ∧ ~ l))
+        ; (i = i1) → inr (push b c j)
+        ; (j = i0) → push a (inl b) i
+        ; (j = i1) → push a (inr c) (i ∨ (~ k ∧ ~ l))
+        ; (l = i1) → push a (push b c j) i
+        })
+      (hcomp
+        (λ k → λ
+          { (i = i0) → push a (inr c) (j ∧ (k ∧ ~ l))
+          ; (i = i1) → inr (push b c j)
+          ; (j = i0) → push a (inl b) i
+          ; (j = i1) → push a (inr c) (i ∨ (k ∧ ~ l))
+          ; (l = i1) → push a (push b c j) i
+          })
+        (push a (push b c j) i))
+
+  backForward : ∀ u → back (forward u) ≡ u
+  backForward (inl (inl a)) = refl
+  backForward (inl (inr b)) = refl
+  backForward (inl (push a b i)) = refl
+  backForward (inr c) = refl
+  backForward (push (inl a) c j) = refl
+  backForward (push (inr b) c j) = refl
+  backForward (push (push a b i) c j) l =
+    comp
+      (λ _ → join (join A B) C)
+      (λ k → λ
+        { (i = i0) → push (inl a) c (j ∧ (k ∨ l))
+        ; (i = i1) → push (inr b) c j
+        ; (j = i0) → inl (push a b i)
+        ; (j = i1) → push (inl a) c (i ∨ (k ∨ l))
+        ; (l = i1) → push (push a b i) c j
+        })
+      (hcomp
+        (λ k → λ
+          { (i = i0) → push (inl a) c (j ∧ (~ k ∨ l))
+          ; (i = i1) → push (inr b) c j
+          ; (j = i0) → inl (push a b i)
+          ; (j = i1) → push (inl a) c (i ∨ (~ k ∨ l))
+          ; (l = i1) → push (push a b i) c j
+          })
+        (push (push a b i) c j))

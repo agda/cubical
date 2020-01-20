@@ -2,8 +2,6 @@
 
 module Cubical.Foundations.Embedding where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
@@ -109,7 +107,7 @@ PathP≡fibCong p
 
 hasPropFibers→isEmbedding : hasPropFibers f → isEmbedding f
 hasPropFibers→isEmbedding {f = f} iP w x .equiv-proof p
-  = subst isContr (PathP≡fibCong p) (isProp→isContrPathP iP p fw fx)
+  = subst isContr (PathP≡fibCong p) (isProp→isContrPathP (λ i → iP (p i)) fw fx)
   where
   fw : fiber f (f w)
   fw = (w , refl)

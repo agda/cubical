@@ -61,7 +61,7 @@ module LFSetElim {ℓ}
   f (dup x xs i) = dup* x (f xs) i
   f (comm x y xs i) = comm* x y (f xs) i
   f (trunc x y p q i j) =
-    isOfHLevel→isOfHLevelDep {n = 2} trunc*
+    isOfHLevel→isOfHLevelDep 2 trunc*
       (f x) (f y)
       (λ i → f (p i)) (λ i → f (q i))
       (trunc x y p q) i j
@@ -87,6 +87,6 @@ module LFPropElim {ℓ}
   f : ∀ x → B x
   f = LFSetElim.f _
     []* _∷*_
-    (λ _ _ _ → isOfHLevel→isOfHLevelDep {n = 1} trunc* _ _ _)
-    (λ _ _ → isOfHLevel→isOfHLevelDep {n = 1} trunc* _ _ _)
+    (λ _ _ _ → isOfHLevel→isOfHLevelDep 1 trunc* _ _ _)
+    (λ _ _ → isOfHLevel→isOfHLevelDep 1 trunc* _ _ _)
     λ xs → isProp→isSet (trunc* xs)

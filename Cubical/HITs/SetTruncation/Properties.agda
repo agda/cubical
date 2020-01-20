@@ -8,8 +8,6 @@ This file contains:
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.SetTruncation.Properties where
 
-open import Cubical.Core.Glue
-
 open import Cubical.HITs.SetTruncation.Base
 
 open import Cubical.Foundations.Prelude
@@ -29,7 +27,7 @@ elimSetTrunc : {B : ∥ A ∥₀ → Type ℓ} →
                (x : ∥ A ∥₀) → B x
 elimSetTrunc Bset g ∣ a ∣₀ = g a
 elimSetTrunc {A = A} {B = B} Bset g (squash₀ x y p q i j) =
-  isOfHLevel→isOfHLevelDep {n = 2} Bset  (elimSetTrunc Bset g x) (elimSetTrunc Bset g y)
+  isOfHLevel→isOfHLevelDep 2 Bset  (elimSetTrunc Bset g x) (elimSetTrunc Bset g y)
     (cong (elimSetTrunc Bset g) p) (cong (elimSetTrunc Bset g) q) (squash₀ x y p q) i j
 
 setTruncUniversal : {B : Type ℓ} → (isSet B) → (∥ A ∥₀ → B) ≃ (A → B)

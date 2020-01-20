@@ -121,9 +121,9 @@ fwd-predInt (negsuc n)    = refl
 
 private
   sym-filler : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y)
-                → Square {- (j = i0) -} refl
-                         {- (i = i0) -} (sym p)
+                → Square {- (i = i0) -} (sym p)
                          {- (i = i1) -} refl
+                         {- (j = i0) -} refl
                          {- (j = i1) -} p
   sym-filler {y = y} p i j = hcomp (λ k → λ { (j = i0) → y
                                             ; (i = i0) → p ((~ j) ∨ (~ k))
@@ -131,9 +131,9 @@ private
                                             ; (j = i1) → p (i ∨ (~ k)) }) y
 
 fwd-sucPred : ∀ (x : Int)
-              → Square {- (j = i0) -} (λ i → fwd (sucPred x i))
-                       {- (i = i0) -} (fwd-sucInt (predInt x) ∙ (λ i → suc (fwd-predInt x i)))
+              → Square {- (i = i0) -} (fwd-sucInt (predInt x) ∙ (λ i → suc (fwd-predInt x i)))
                        {- (i = i1) -} (λ _ → fwd x)
+                       {- (j = i0) -} (λ i → fwd (sucPred x i))
                        {- (j = i1) -} (suc-pred (fwd x))
 
 
@@ -166,9 +166,9 @@ fwd-sucPred (negsuc n) i j
 
 
 fwd-predSuc : ∀ (x : Int)
-              → Square {- (j = i0) -} (λ i → fwd (predSuc x i))
-                       {- (i = i0) -} (fwd-predInt (sucInt x) ∙ (λ i → pred (fwd-sucInt x i)))
+              → Square {- (i = i0) -} (fwd-predInt (sucInt x) ∙ (λ i → pred (fwd-sucInt x i)))
                        {- (i = i1) -} (λ _ → fwd x)
+                       {- (j = i0) -} (λ i → fwd (predSuc x i))
                        {- (j = i1) -} (pred-suc (fwd x))
 
 fwd-predSuc (pos n) i j

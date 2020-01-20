@@ -1,6 +1,8 @@
 {-
 
-Theory about equivalences (definitions are in Core/Glue.agda)
+Theory about equivalences
+
+Definitions are in Core/Glue.agda but re-exported by this module
 
 - isEquiv is a proposition ([isPropIsEquiv])
 - Any isomorphism is an equivalence ([isoToEquiv])
@@ -15,12 +17,13 @@ There are more statements about equivalences in Equiv/Properties.agda:
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Equiv where
 
-open import Cubical.Core.Glue
-
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
+
+open import Cubical.Core.Glue public
+  using ( isEquiv ; equiv-proof ; _≃_ ; equivFun ; equivProof )
 
 private
   variable
@@ -70,7 +73,7 @@ equiv-proof (isPropIsEquiv f p q i) y =
                    (p2 w (i ∨ j))
 
 equivEq : (e f : A ≃ B) → (h : e .fst ≡ f .fst) → e ≡ f
-equivEq e f h = λ i → (h i) , isProp→PathP isPropIsEquiv h (e .snd) (f .snd) i
+equivEq e f h = λ i → (h i) , isProp→PathP (λ i → isPropIsEquiv (h i)) (e .snd) (f .snd) i
 
 isoToEquiv : Iso A B →  A ≃ B
 isoToEquiv i = _ , isoToIsEquiv i
