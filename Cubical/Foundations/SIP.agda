@@ -18,8 +18,10 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.FunExtEquiv
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HAEquiv
+open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
+open import Cubical.Data.Prod.Properties
 
 
 private
@@ -38,13 +40,8 @@ infixr  0 _≃⟨_⟩_
 infix   1 _■
 
 
--- -- these two lemmas can actually be found in the proof of Univalence.thm but are not stated as explicit results.
--- -- we repeat them here explicitly because we will use them a lot.
-
--- ua-pathToEquiv : ∀ {ℓ} (A B : Type ℓ) (p : A ≡ B) → ua (pathToEquiv p) ≡ p
--- ua-pathToEquiv A B p = J (λ b p → ua (pathToEquiv p) ≡ p)
---                       ((cong ua (pathToEquivRefl {A = A})) ∙ uaIdEquiv) p
-
+-- these two lemmas can actually be found in the proof of Univalence.thm but are not stated as explicit results.
+-- we repeat them here explicitly because we will use them a lot.
 -- For technical reasons we prove ua-pathToEquiv temporarily here and then
 -- reprove it again using the particular proof constructed by
 -- iso→HAEquiv. The reason is that we want to later be able to extract
@@ -489,23 +486,42 @@ module _ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : A → Type ℓ'} {C : (x : A) → 
 
 
 -- Now we're getting serious: Monoids
-monoid-structure : Type ℓ → Type ℓ
-monoid-structure X = X × (X → X → X)
+raw-monoid-structure : Type ℓ → Type ℓ
+raw-monoid-structure X = X × (X → X → X)
 
-monoid-axioms : (X : Type ℓ) → monoid-structure X → Type ℓ
+
+raw-monoid-iso : (M N : Σ (Type ℓ) raw-monoid-structure) → (M .fst) ≃ (N .fst) → Type ℓ
+raw-monoid-iso (M , e , _·_) (N , d , _∗_) f = (equivFun f e ≡ d)
+                        × ((x y : M) → equivFun f (x · y) ≡ (equivFun f x) ∗ (equivFun f y))
+
+-- If we ignore the axioms we get something like a "raw" monoid, which essentially is the join of a pointed type and an ∞-magma
+raw-monoid-is-SNS' : SNS' {ℓ = ℓ} raw-monoid-structure raw-monoid-iso
+raw-monoid-is-SNS' = join-SNS' pointed-structure pointed-iso pointed-is-SNS' ∞-magma-structure ∞-magma-iso ∞-magma-is-SNS'
+
+-- Now define monoids
+monoid-axioms : (X : Type ℓ) → raw-monoid-structure X → Type ℓ
 monoid-axioms X (e , _·_ ) = isSet X
                           × ((x y z : X) → (x · (y · z)) ≡ ((x · y) · z))
                           × ((x : X) → (x · e) ≡ x)
                           × ((x : X) → (e · x) ≡ x)
 
+
+monoid-structure : Type ℓ → Type ℓ
+monoid-structure = (add-to-structure (raw-monoid-structure) monoid-axioms)
+
 monoid-iso : (M N : Σ (Type ℓ) monoid-structure) → (M .fst) ≃ (N .fst) → Type ℓ
-monoid-iso (M , e , _·_) (N , d , _∗_) f = (equivFun f e ≡ d)
-                        × ((x y : M) → equivFun f (x · y) ≡ (equivFun f x) ∗ (equivFun f y))
+monoid-iso = (add-to-iso raw-monoid-structure raw-monoid-iso monoid-axioms)
 
--- If we ignore the axioms we something like a "raw" monoid, which essentially is the join of a pointed type and an ∞-magma
-Raw-Monoid-SNS' : SNS' {ℓ = ℓ} monoid-structure monoid-iso
-Raw-Monoid-SNS' = join-SNS' pointed-structure pointed-iso pointed-is-SNS' ∞-magma-structure ∞-magma-iso ∞-magma-is-SNS'
+-- We have to show that the monoid axioms are indeed Propositions
+monoid-axioms-are-Props : (X : Type ℓ) (s : raw-monoid-structure X) → isProp (monoid-axioms X s)
+monoid-axioms-are-Props X (e , _·_) s = β s
+   where
+   α = s .fst
+   β =      isOfHLevelΣ 1 isPropIsSet
+      λ _ → isOfHLevelΣ 1 (hLevelPi 1 (λ x → hLevelPi 1 λ y → hLevelPi 1 λ z → α (x · (y · z)) ((x · y) · z)))
+      λ _ → isOfHLevelΣ 1 (hLevelPi 1 λ x → α (x · e) x)
+      λ _ →                hLevelPi 1 λ x → α (e · x) x
 
-Monoid : Type (ℓ-suc ℓ)
-Monoid {ℓ = ℓ} = Σ (Type ℓ) (λ X → Σ (monoid-structure X) (λ s → monoid-axioms X s))
--- TODO: show that the monoid axioms are propositions...
+
+monoid-is-SNS' : SNS' {ℓ = ℓ} monoid-structure monoid-iso
+monoid-is-SNS' = add-axioms-SNS' raw-monoid-structure raw-monoid-iso monoid-axioms monoid-axioms-are-Props raw-monoid-is-SNS'
