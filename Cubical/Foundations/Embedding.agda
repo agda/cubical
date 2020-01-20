@@ -122,3 +122,9 @@ isEmbedding≡hasPropFibers
            hasPropFibers→isEmbedding
            (λ _ → hasPropFibersIsProp _ _)
            (λ _ → isEmbeddingIsProp _ _))
+
+isEquiv→hasPropFibers : isEquiv f → hasPropFibers f
+isEquiv→hasPropFibers e b = isContr→isProp (equiv-proof e b)
+
+isEquiv→isEmbedding : isEquiv f → isEmbedding f
+isEquiv→isEmbedding e = hasPropFibers→isEmbedding (isEquiv→hasPropFibers e)
