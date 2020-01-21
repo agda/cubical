@@ -28,9 +28,8 @@ open import Cubical.Foundations.Equiv.Properties
 
 record isPathSplitEquiv {ℓ ℓ'} {A : Type  ℓ} {B : Type ℓ'} (f : A → B) : Type (ℓ-max ℓ ℓ') where
   field
-    s : B → A
-    sec : section f s
-    secCong : (x y : A) → Σ[ s' ∈ (f(x) ≡ f(y) → x ≡ y) ] section (cong f) s'
+    sec : hasSection f
+    secCong : (x y : A) → hasSection (λ (p : x ≡ y) → cong f p)
 
 PathSplitEquiv : ∀ {ℓ ℓ'} (A : Type  ℓ) (B : Type ℓ') → Type (ℓ-max ℓ ℓ')
 PathSplitEquiv A B = Σ[ f ∈ (A → B) ] isPathSplitEquiv f
@@ -38,14 +37,13 @@ PathSplitEquiv A B = Σ[ f ∈ (A → B) ] isPathSplitEquiv f
 open isPathSplitEquiv
 
 idIsPathSplitEquiv : ∀ {ℓ} {A : Type ℓ} → isPathSplitEquiv (λ (x : A) → x)
-s idIsPathSplitEquiv x = x
-sec idIsPathSplitEquiv x = refl
+sec idIsPathSplitEquiv = (λ x → x) , (λ x → refl)
 secCong idIsPathSplitEquiv = λ x y → (λ p → p) , λ p _ → p
 
-module _ {ℓ} {A B : Type ℓ} where
+module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
   toIsEquiv : (f : A → B) → isPathSplitEquiv f → isEquiv f
-  toIsEquiv f record { s = s ; sec = sec ; secCong = secCong } =
-    (isoToEquiv (iso f s sec (λ x → (secCong (s (f x)) x).fst (sec (f x))))) .snd
+  toIsEquiv f record { sec = sec ; secCong = secCong } =
+    (isoToEquiv (iso f (fst sec) (snd sec) (λ x → (secCong (fst sec (f x)) x).fst (snd sec (f x))))) .snd
 
   sectionOfEquiv' : (f : A → B) → isEquiv f → B → A
   sectionOfEquiv' f record { equiv-proof = all-fibers-contractible } x =
@@ -55,14 +53,13 @@ module _ {ℓ} {A B : Type ℓ} where
   isSec f record { equiv-proof = all-fibers-contractible } x =
     all-fibers-contractible x .fst .snd
 
-  sectionOfEquiv : (f : A → B) → isEquiv f → Σ (B → A) (section f)
+  sectionOfEquiv : (f : A → B) → isEquiv f → hasSection f
   sectionOfEquiv f e = sectionOfEquiv' f e , isSec f e
 
 module _ {ℓ} {A B : Type ℓ} where
   abstract
     fromIsEquiv : (f : A → B) → isEquiv f → isPathSplitEquiv f
-    s (fromIsEquiv f pf) = sectionOfEquiv' f pf
-    sec (fromIsEquiv f pf) = isSec f pf
+    sec (fromIsEquiv f pf) = sectionOfEquiv' f pf , isSec f pf
     secCong (fromIsEquiv f pf) x y = sectionOfEquiv cong-f eq-cong
             where
             cong-f : x ≡ y → f x ≡ f y
@@ -101,21 +98,20 @@ module _ {ℓ} {A B : Type ℓ} where
 isPropIsPathSplitEquiv : ∀ {ℓ} {A B : Type ℓ} (f : A → B)
      → isProp (isPathSplitEquiv f)
 isPropIsPathSplitEquiv {_} {A} {B} f
-  record { s = φ ; sec = sec-φ ; secCong = secCong-φ }
-  record { s = ψ ; sec = sec-ψ ; secCong = secCong-ψ } i
+  record { sec = sec-φ ; secCong = secCong-φ }
+  record { sec = sec-ψ ; secCong = secCong-ψ } i
   =
   record {
-    s = fst (sectionsAreEqual i) ;
-    sec = snd (sectionsAreEqual i) ;
+    sec = sectionsAreEqual i ;
     secCong = λ x y → congSectionsAreEqual x y (secCong-φ x y) (secCong-ψ x y) i
   }
   where
-    φ' = record { s = φ ; sec = sec-φ ; secCong = secCong-φ }
-    ψ' = record { s = ψ ; sec = sec-ψ ; secCong = secCong-ψ }
-    sectionsAreEqual : (φ , sec-φ) ≡ (ψ , sec-ψ)
-    sectionsAreEqual = (sym (contraction (φ , sec-φ))) ∙ (contraction  (ψ , sec-ψ))
+    φ' = record { sec = sec-φ ; secCong = secCong-φ }
+    ψ' = record { sec = sec-ψ ; secCong = secCong-ψ }
+    sectionsAreEqual : sec-φ ≡ sec-ψ
+    sectionsAreEqual = (sym (contraction sec-φ)) ∙ (contraction  sec-ψ)
       where contraction = snd (equivHasUniqueSection f (toIsEquiv f φ'))
-    congSectionsAreEqual : (x y : A) (l u : Σ (f(x) ≡ f(y) → x ≡ y) (section (cong f))) → l ≡ u
+    congSectionsAreEqual : (x y : A) (l u : hasSection (λ (p : x ≡ y) → cong f p)) → l ≡ u
     congSectionsAreEqual x y l u = (sym (contraction l)) ∙ (contraction u)
       where contraction = snd (equivHasUniqueSection
                                  (λ (p : x ≡ y) → cong f p)
@@ -136,3 +132,12 @@ module _ {ℓ} {A B : Type ℓ} where
 
   equivPathSplitToEquiv : (PathSplitEquiv A B) ≃ (A ≃ B)
   equivPathSplitToEquiv = (pathSplitToEquiv , isEquivPathSplitToEquiv)
+
+
+secCongDep : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : A → Type ℓ'} {C : A → Type ℓ''}
+             → (f : ∀ a → B a → C a) {a a' : A} (q : a ≡ a')
+             → (∀ a (x y : B a) → hasSection (λ (p : x ≡ y) → cong (f a) p))
+             → (∀ (x : B a) (y : B a') → hasSection (λ (p : PathP (λ i → B (q i)) x y) → cong₂ f q p))
+secCongDep {B = B} f {a} p secCong
+  = J (λ a' q → (x : B a) (y : B a') → hasSection (λ (p : PathP (λ i → B (q i)) x y) → cong₂ f q p))
+      (secCong a) p

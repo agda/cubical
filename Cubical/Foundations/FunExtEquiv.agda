@@ -9,9 +9,6 @@ open import Cubical.Foundations.Univalence
 -- Function extensionality is an equivalence.
 module _ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {f g : (x : A) → B x} where
   private
-    appl : f ≡ g → ∀ x → f x ≡ g x
-    appl eq x i = eq i x
-
     fib : (p : f ≡ g) → fiber (funExt {B = B}) p
     fib p = (appl p , refl)
 

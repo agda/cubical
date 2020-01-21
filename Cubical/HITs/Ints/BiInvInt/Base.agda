@@ -65,11 +65,11 @@ suc-predl = isHAEquiv.ret (snd suc-haequiv)
 --  so we can safely define 'pred' to just be predl
 
 predl≡predr : ∀ z -> predl z ≡ predr z
-predl≡predr z i = cong fst (isContr→isProp (isContr-section (biInvEquiv→Equiv-left suc-biinvequiv))
+predl≡predr z i = cong fst (isContr→isProp (isContr-hasSection (biInvEquiv→Equiv-left suc-biinvequiv))
                                            (predl , suc-predl) (predr , suc-predr)) i z
 
 suc-predl≡predr : ∀ z -> PathP (λ j → suc (predl≡predr z j) ≡ z) (suc-predl z) (suc-predr z)
-suc-predl≡predr z i = cong snd (isContr→isProp (isContr-section (biInvEquiv→Equiv-left suc-biinvequiv))
+suc-predl≡predr z i = cong snd (isContr→isProp (isContr-hasSection (biInvEquiv→Equiv-left suc-biinvequiv))
                                                (predl , suc-predl) (predr , suc-predr)) i z
 
 pred : BiInvInt -> BiInvInt
