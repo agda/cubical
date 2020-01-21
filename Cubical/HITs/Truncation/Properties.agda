@@ -15,6 +15,10 @@ open import Cubical.HITs.Sn
 open import Cubical.Data.Empty
 open import Cubical.HITs.Susp
 
+open import Cubical.HITs.Nullification
+open import Cubical.Foundations.PathSplitEquiv
+open isPathSplitEquiv
+
 open import Cubical.HITs.PropositionalTruncation renaming (∥_∥ to ∥_∥₋₁)
 open import Cubical.HITs.SetTruncation
 open import Cubical.HITs.GroupoidTruncation
@@ -35,14 +39,14 @@ isSphereFilled∥∥ : {n : ℕ₋₂} → isSphereFilled (1+ n) (∥ A ∥ n)
 isSphereFilled∥∥ {n = neg2}  f = hub f , ⊥-elimDep
 isSphereFilled∥∥ {n = suc _} f = hub f , spoke f
 
-isSphereFilled→isOfHLevel : {n : ℕ₋₂} → isSphereFilled (1+ suc n) A → isOfHLevel (2+ suc n) A
-isSphereFilled→isOfHLevel {A = A} {neg2} h x y = sym (snd (h f) north) ∙ snd (h f) south
+isSphereFilled→isOfHLevelSuc : {n : ℕ₋₂} → isSphereFilled (1+ suc n) A → isOfHLevel (2+ suc n) A
+isSphereFilled→isOfHLevelSuc {A = A} {neg2} h x y = sym (snd (h f) north) ∙ snd (h f) south
   where
     f : Susp ⊥ → A
     f north = x
     f south = y
     f (merid () i)
-isSphereFilled→isOfHLevel {A = A} {suc n} h x y = isSphereFilled→isOfHLevel (helper h x y)
+isSphereFilled→isOfHLevelSuc {A = A} {suc n} h x y = isSphereFilled→isOfHLevelSuc (helper h x y)
   where
     helper : {n : ℕ₋₂} → isSphereFilled (suc (1+ suc n)) A → (x y : A) → isSphereFilled (1+ suc n) (x ≡ y)
     helper {n = n} h x y f = l , r
@@ -102,9 +106,20 @@ isOfHLevel→isSphereFilled {A = A} {suc (suc n)} h = helper λ x y → isOfHLev
                                         ; (j = i0) → f north
                                         ; (j = i1) → f (merid x i) }) (f (merid x (i ∧ j)))
 
+-- isNull (S n) A ≃ (isSphereFilled n A) × (∀ (x y : A) → isSphereFilled n (x ≡ y))
+
+isOfHLevel→isSnNull : {n : ℕ₋₂} → isOfHLevel (2+ n) A → isNull (S (1+ n)) A
+fst (sec (isOfHLevel→isSnNull h)) f     = fst (isOfHLevel→isSphereFilled h f)
+snd (sec (isOfHLevel→isSnNull h)) f i s = snd (isOfHLevel→isSphereFilled h f) s i
+fst (secCong (isOfHLevel→isSnNull h) x y) p       = fst (isOfHLevel→isSphereFilled (hLevelPath _ h x y) (appl p))
+snd (secCong (isOfHLevel→isSnNull h) x y) p i j s = snd (isOfHLevel→isSphereFilled (hLevelPath _ h x y) (appl p)) s i j
+
+isSnNull→isOfHLevel : {n : ℕ₋₂} → isNull (S (1+ n)) A → isOfHLevel (2+ n) A
+isSnNull→isOfHLevel {n = neg2}  nA = fst (sec nA) ⊥-elim , λ y → fst (secCong nA _ y) (funExt ⊥-elimDep)
+isSnNull→isOfHLevel {n = suc n} nA = isSphereFilled→isOfHLevelSuc (λ f → fst (sec nA) f , λ s i → snd (sec nA) f i s)
+
 isOfHLevel∥∥ : (n : ℕ₋₂) → isOfHLevel (2+ n) (∥ A ∥ n)
-isOfHLevel∥∥ neg2 = hub ⊥-elim , λ x → cong hub (snd isContr⊥→A _) ∙ (spoke (const x) tt)
-isOfHLevel∥∥ (suc n) = isSphereFilled→isOfHLevel isSphereFilled∥∥
+isOfHLevel∥∥ n = isSnNull→isOfHLevel isNull-Null
 
 ind : {n : ℕ₋₂}
       {B : ∥ A ∥ n → Type ℓ'}
@@ -112,18 +127,7 @@ ind : {n : ℕ₋₂}
       (g : (a : A) → B (∣ a ∣))
       (x : ∥ A ∥ n) →
       B x
-ind hB g (∣ a ∣ ) = g a
-ind {n = neg2} {B = B} hB g (hub f) = fst (hB (hub f))
-ind {n = neg2} {B = B} hB g (spoke f x i) =
-  toPathP {A = λ i → B (spoke f x (~ i))}
-    (sym (snd (hB (hub (apS∙ f))) (subst B (sym (spoke f x)) (ind hB g (f x)))))
-    (~ i)
-ind {n = suc n} {B = B} hB g (hub f) =
-  isOfHLevel→isSphereFilled (hB (hub f)) (λ x → subst B (sym (spoke f x)) (ind hB g (f x)) ) .fst
-ind {n = suc n} {B = B} hB g (spoke f x i) =
-  toPathP {A = λ i → B (spoke f x (~ i))}
-    (sym (isOfHLevel→isSphereFilled (hB (hub f)) (λ x → subst B (sym (spoke f x)) (ind hB g (f x))) .snd x))
-    (~ i)
+ind hB = ind-Null (λ x → isOfHLevel→isSnNull (hB x))
 
 ind2 : {n : ℕ₋₂}
        {B : ∥ A ∥ n → ∥ A ∥ n → Type ℓ'}
