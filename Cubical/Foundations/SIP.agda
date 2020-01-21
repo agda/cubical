@@ -338,14 +338,14 @@ add-⋆-lemma S axioms axioms-are-Props {Y = Y} {s = s} {t = t} {a = a} {b = b} 
        φ r i = (r i) .fst
 
        ψ : (equivFun (S ⋆ f) s ≡ t) → (equivFun ((add-to-structure S axioms) ⋆ f) (s , a) ≡ (t , b))
-       ψ p i = p i , isProp-PathP-I (λ j → axioms-are-Props Y (p j)) (equivFun ((add-to-structure S axioms) ⋆ f) (s , a) .snd) b i
+       ψ p i = p i , isProp→PathP (λ j → axioms-are-Props Y (p j)) (equivFun ((add-to-structure S axioms) ⋆ f) (s , a) .snd) b i
 
        η : section φ ψ
        η p = refl
 
        ε : retract φ ψ
        ε r i j = r j .fst , isProp→isSet-PathP (λ k → axioms-are-Props Y (r k .fst)) _ _
-                  (λ k → isProp-PathP-I (λ j → axioms-are-Props Y (r j .fst)) (equivFun ((add-to-structure S axioms) ⋆ f) (s , a) .snd) b k)
+                  (λ k → isProp→PathP (λ j → axioms-are-Props Y (r j .fst)) (equivFun ((add-to-structure S axioms) ⋆ f) (s , a) .snd) b k)
                   (λ k → (r k) .snd) i j
 
 
