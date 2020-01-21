@@ -114,7 +114,7 @@ S ⋆ f = pathToEquiv (cong S (ua f))
 PathP-⋆-lemma : (S : Type ℓ → Type ℓ') (A B : Σ[ X ∈ (Type ℓ) ] (S X)) (f : (A .fst) ≃ (B .fst))
     → (PathP (λ i →  ua (S ⋆ f) i) (A .snd) (B .snd)) ≡ (PathP (λ i → S ((ua f) i)) (A .snd) (B .snd))
 PathP-⋆-lemma S A B f i = PathP (λ j → (⋆-char S (A .fst) (B .fst) f) i j) (A .snd) (B .snd)
-     
+
 
 
 
@@ -160,7 +160,7 @@ SNS→SNS' {ℓ = ℓ} {ℓ' = ℓ'} {ℓ'' = ℓ''} S ι θ A B f = (EquivJ P C
 
    C : (X : Type ℓ) → (s t : S X) → ((equivFun (S ⋆ (idEquiv X))) t ≡ s) ≃ (ι (X , t) (X , s) (idEquiv X))
    C X s t = subst (λ u →  (u ≡ s) ≃ (ι (X , t) (X , s) (idEquiv X)))
-                   (sym ( cong (λ f → (equivFun f) t) (⋆-idEquiv S X))) (θ t s) 
+                   (sym ( cong (λ f → (equivFun f) t) (⋆-idEquiv S X))) (θ t s)
 
 
 
@@ -181,7 +181,7 @@ SNS''→SNS''' : (S : Type ℓ → Type ℓ')
              → SNS''' S ι
 SNS''→SNS''' S ι h A B f =   PathP (λ i → S (ua f i)) (A .snd) (B .snd)
                           ≃⟨ PathP≃Path (λ i → S (ua f i)) (A .snd) (B .snd) ⟩
-                             h A B f 
+                             h A B f
 
 SNS'''→SNS'' : (S : Type ℓ → Type ℓ')
              → (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → ((A .fst) ≃ (B .fst)) → Type ℓ'')
@@ -336,18 +336,18 @@ add-⋆-lemma S axioms axioms-are-Props {Y = Y} {s = s} {t = t} {a = a} {b = b} 
       where
        φ : (equivFun ((add-to-structure S axioms) ⋆ f) (s , a) ≡ (t , b)) → (equivFun (S ⋆ f) s ≡ t)
        φ r i = (r i) .fst
-       
+
        ψ : (equivFun (S ⋆ f) s ≡ t) → (equivFun ((add-to-structure S axioms) ⋆ f) (s , a) ≡ (t , b))
        ψ p i = p i , isProp-PathP-I (λ j → axioms-are-Props Y (p j)) (equivFun ((add-to-structure S axioms) ⋆ f) (s , a) .snd) b i
-       
+
        η : section φ ψ
        η p = refl
-       
+
        ε : retract φ ψ
        ε r i j = r j .fst , isProp→isSet-PathP (λ k → axioms-are-Props Y (r k .fst)) _ _
                   (λ k → isProp-PathP-I (λ j → axioms-are-Props Y (r j .fst)) (equivFun ((add-to-structure S axioms) ⋆ f) (s , a) .snd) b k)
                   (λ k → (r k) .snd) i j
- 
+
 
 add-axioms-SNS' : (S : Type ℓ → Type ℓ')
                   (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → ((A .fst) ≃ (B .fst)) → Type ℓ'')
@@ -370,13 +370,13 @@ technical-×-lemma {A = A} {B = B} {C = C} {D = D} f g = isoToEquiv (iso φ ψ �
  where
   φ : (A × B) → (C × D)
   φ (a , b) = equivFun f a , equivFun g b
-  
+
   ψ : (C × D) → (A × B)
   ψ (c , d) = equivFun (invEquiv f) c , equivFun (invEquiv g) d
 
   η : section φ ψ
   η (c , d) i = retEq f c i , retEq g d i
-  
+
   ε : retract φ ψ
   ε (a , b) i = secEq f a i , secEq g b i
 
@@ -401,13 +401,13 @@ join-⋆-lemma S₁ S₂ {Y = Y} {s₁ = s₁} {s₂ = s₂} {t₁ = t₁} {t₂
    where
     φ : (equivFun ((join-structure S₁ S₂) ⋆ f) (s₁ , s₂) ≡ (t₁ , t₂)) → (equivFun (S₁ ⋆ f) s₁ ≡ t₁) × (equivFun (S₂ ⋆ f) s₂ ≡ t₂)
     φ p = (λ i → (p i) .fst) , (λ i → (p i) .snd)
-    
+
     ψ : (equivFun (S₁ ⋆ f) s₁ ≡ t₁) × (equivFun (S₂ ⋆ f) s₂ ≡ t₂) → (equivFun ((join-structure S₁ S₂) ⋆ f) (s₁ , s₂) ≡ (t₁ , t₂))
     ψ (p , q) i = (p i) , (q i)
-    
+
     η : section φ ψ
     η (p , q) = refl
-    
+
     ε : retract φ ψ
     ε p = refl
 
@@ -419,7 +419,7 @@ join-SNS' : (S₁ : Type ℓ₁ → Type ℓ₂)
             (θ₂ : SNS' S₂ ι₂)
            → SNS' (join-structure S₁ S₂) (join-iso ι₁ ι₂)
 join-SNS' S₁ ι₁ θ₁ S₂ ι₂ θ₂ (X , s₁ , s₂) (Y , t₁ , t₂) f =
- 
+
   equivFun ((join-structure S₁ S₂) ⋆ f) (s₁ , s₂) ≡ (t₁ , t₂) ≃⟨ join-⋆-lemma S₁ S₂ f ⟩
   (equivFun (S₁ ⋆ f) s₁ ≡ t₁) × (equivFun (S₂ ⋆ f) s₂ ≡ t₂)   ≃⟨ technical-×-lemma (θ₁ (X , s₁) (Y , t₁) f) (θ₂ (X , s₂) (Y , t₂) f)  ⟩
   (join-iso ι₁ ι₂) (X , s₁ , s₂) (Y , t₁ , t₂) f              ■
@@ -479,7 +479,7 @@ module _ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : A → Type ℓ'} {C : (x : A) → 
 
 ∞-magma-is-SNS' : SNS' {ℓ = ℓ} ∞-magma-structure ∞-magma-iso
 ∞-magma-is-SNS' (X , _·_) (Y , _∗_) f = SNS→SNS' ∞-magma-structure ∞-magma-iso C (X , _·_) (Y , _∗_) f
- where 
+ where
   C : {X : Type ℓ} (_·_ _∗_ : X → X → X) → (_·_ ≡ _∗_) ≃ ((x x' : X) → (x · x') ≡ (x ∗ x'))
   C _·_ _∗_ = invEquiv funExtBinEquiv
 
