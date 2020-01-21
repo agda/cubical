@@ -2,7 +2,7 @@
 This is a rather literal translation of Martin Hötzel-Escardó's structure identity principle into cubical Agda. See
 https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html#sns
 
-All the needed preliminary results from the lecture notes are stated and proven in this file. 
+All the needed preliminary results from the lecture notes are stated and proven in this file.
 It would be interesting to compare the proves with the one in Cubical.Foundations.SIP
 -}
 
@@ -97,7 +97,7 @@ NatΣ τ (x , a) = (x , τ x a)
    η = isHAEquiv.ret isHAEquivf
    τ :  (x : X) → cong f (ε x) ≡ η (f x)
    τ = isHAEquiv.com isHAEquivf
-   
+
    φ : (Σ X (A ∘ f)) → (Σ Y A)
    φ (x , a) = (f x , a)
 
@@ -109,12 +109,12 @@ NatΣ τ (x , a) = (x , τ x a)
                                     (η y ,  transportTransport⁻ (λ i → A (η y i)) a)
      -- last term proves transp (λ i → A (η y i)) i0 (transp (λ i → A (η y (~ i))) i0 a) ≡ a
 
-   ψφ : (z : (Σ X (A ∘ f))) → ψ (φ z) ≡ z 
+   ψφ : (z : (Σ X (A ∘ f))) → ψ (φ z) ≡ z
    ψφ (x , a) = sigmaPath→pathSigma (ψ (φ (x , a))) (x , a) (ε x , q)
      where
       b : A (f (g (f x)))
       b = (transp (λ i → A (η (f x) (~ i))) i0 a)
-    
+
       q : transp (λ i → A (f (ε x i))) i0 (transp (λ i → A (η (f x) (~ i))) i0 a) ≡ a
       q =  transp (λ i → A (f (ε x i))) i0 b  ≡⟨ S ⟩
            transp (λ i → A (η (f x) i)) i0 b  ≡⟨ transportTransport⁻ (λ i → A (η (f x) i)) a ⟩
@@ -152,7 +152,7 @@ NatΣ τ (x , a) = (x , τ x a)
 Σ-assoc-≃ X A P = isoToEquiv (Σ-assoc-Iso X A P)
 
 
- 
+
 
 -- A structure is a type-family S : Type ℓ → Type ℓ', i.e. for X : Type ℓ and s : S X, the pair (X , s)
 -- means that X is equipped with a S-structure, which is witnessed by s.
@@ -214,7 +214,7 @@ ua-lemma : (A B : Type ℓ) (e : A ≃ B) → (pathToEquiv (ua e)) ≡ e
 ua-lemma A B e = EquivJ (λ b a f →  (pathToEquiv (ua f)) ≡ f)
                        (λ x → subst (λ r → pathToEquiv r ≡ idEquiv x) (sym uaIdEquiv) pathToEquivRefl)
                         B A e
-             
+
 
 homEq→Id : (S : Type ℓ → Type ℓ')
           → (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → ((A .fst) ≃ (B .fst)) → Type ℓ'')
@@ -226,7 +226,7 @@ homEq→Id S ι θ A B (f , φ) = ΣPathP (p , q)
 
          ψ : ι A B (pathToEquiv p)
          ψ = subst (λ g → ι A B g) (sym (ua-lemma (A .fst) (B. fst) f)) φ
-         
+
          q : PathP (λ i → S (p i)) (A .snd) (B .snd)
          q = equivFun (invEquiv (hom-lemma-dep S ι θ A B p)) ψ
 
@@ -236,7 +236,7 @@ SIP : (S : Type ℓ → Type ℓ')
      → (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → ((A .fst) ≃ (B .fst)) → Type ℓ'')
      → (θ : SNS S ι)
      → (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → ((A ≡ B) ≃ (A ≃[ ι ] B))
-SIP S ι θ A B = 
+SIP S ι θ A B =
             (A ≡ B)                                                                 ≃⟨ i ⟩
             (Σ[ p ∈ (A .fst) ≡ (B. fst) ] PathP (λ i → S (p i)) (A .snd) (B .snd))  ≃⟨ ii ⟩
             (Σ[ p ∈ (A .fst) ≡ (B. fst) ] (ι A B (pathToEquiv p)))                  ≃⟨ iii ⟩
@@ -267,4 +267,3 @@ pointed-is-sns s t = idEquiv (s ≡ t)
 pointed-type-sip : (X Y : Type ℓ) (x : X) (y : Y)
                   → (Σ[ f ∈ X ≃ Y ] (f .fst) x ≡ y) ≃ ((X , x) ≡ (Y , y))
 pointed-type-sip X Y x y = invEquiv (SIP pointed-structure pointed-ι pointed-is-sns (X , x) (Y , y))
- 
