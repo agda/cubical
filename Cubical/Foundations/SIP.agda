@@ -488,6 +488,8 @@ monoid-axioms X (e , _·_ ) = isSet X
 monoid-structure : Type ℓ → Type ℓ
 monoid-structure = add-to-structure (raw-monoid-structure) monoid-axioms
 
+-- TODO: it might be nicer to formulate the SIP lemmas so that they're
+-- easier to use for things that are not "completely packaged"
 Monoids : Type (ℓ-suc ℓ)
 Monoids = Σ (Type _) monoid-structure
 
