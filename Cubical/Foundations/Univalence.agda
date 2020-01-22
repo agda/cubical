@@ -52,6 +52,11 @@ ua-gluePath : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
               → PathP (λ i → ua e i) x y
 ua-gluePath e {x} {y} p i = glue (λ { (i = i0) → x ; (i = i1) → y }) (p i)
 
+ua-gluePath : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
+              → e .fst x ≡ y
+              → PathP (λ i → ua e i) x y
+ua-gluePath e {x} {y} p i = glue (λ { (i = i0) → x ; (i = i1) → y }) (p i)
+
 -- Proof of univalence using that unglue is an equivalence:
 
 -- unglue is an equivalence

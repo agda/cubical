@@ -7,18 +7,19 @@ open import Cubical.Foundations.PathSplitEquiv
 open isPathSplitEquiv
 
 isNull : ∀ {ℓ ℓ'} (S : Type ℓ) (A : Type ℓ') → Type (ℓ-max ℓ ℓ')
-isNull S A = isPathSplitEquiv (const {A = A} {B = S}) -- isEquiv (const : A → (S → A))
+isNull S A = isPathSplitEquiv (const {A = A} {B = S})
 
 data Null {ℓ ℓ'} (S : Type ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ') where
   ∣_∣ : A → Null S A
-  -- const : Null S A → (S → Null S A) is a path-split equivalence
-  ext   : (f : S → Null S A) → Null S A
-  isExt : (f : S → Null S A) (s : S) → ext f ≡ f s
-  ≡ext   : ∀ {x y} (p : S → x ≡ y) → x ≡ y
-  ≡isExt : ∀ {x y} (p : S → x ≡ y) (s : S) → ≡ext p ≡ p s
+  -- the image of every map (S → Null S A) is contractible in Null S A
+  hub   : (f : S → Null S A) → Null S A
+  spoke : (f : S → Null S A) (s : S) → hub f ≡ f s
+  -- the image of every map (S → x ≡ y) for x y : A is contractible in x ≡ y
+  ≡hub   : ∀ {x y} (p : S → x ≡ y) → x ≡ y
+  ≡spoke : ∀ {x y} (p : S → x ≡ y) (s : S) → ≡hub p ≡ p s
 
 isNull-Null : ∀ {ℓ ℓ'} {S : Type ℓ} {A : Type ℓ'} → isNull S (Null S A)
-fst (sec isNull-Null) f     = ext   f
-snd (sec isNull-Null) f i s = isExt f s i
-fst (secCong isNull-Null x y) p i     = ≡ext   (appl p) i
-snd (secCong isNull-Null x y) p i j s = ≡isExt (appl p) s i j
+fst (sec isNull-Null) f     = hub   f
+snd (sec isNull-Null) f i s = spoke f s i
+fst (secCong isNull-Null x y) p i     = ≡hub   (appl p) i
+snd (secCong isNull-Null x y) p i j s = ≡spoke (appl p) s i j

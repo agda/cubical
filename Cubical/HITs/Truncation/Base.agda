@@ -9,8 +9,3 @@ open import Cubical.HITs.Sn
 
 ∥_∥_ : ∀ {ℓ} → Type ℓ → ℕ₋₂ → Type ℓ
 ∥ A ∥ n = Null (S (1+ n)) A
-
-pattern hub f = ext f
-pattern spoke f s i = isExt f s i
-pattern ≡hub p = ≡ext p
-pattern ≡spoke p s i = ≡isExt p s i

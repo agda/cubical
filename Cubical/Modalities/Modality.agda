@@ -132,33 +132,33 @@ record Modality ℓ : Type (ℓ-suc ℓ) where
 
   {- sigma types of a modal dependent type with modal base are modal -}
 
-  abstract
-    Σ-isModal : {A : Type ℓ} (B : A → Type ℓ)
-      → isModal A → ((a : A) → isModal (B a))
-      → isModal (Σ A B)
-    Σ-isModal {A} B A-modal B-modal =
-      retractIsModal {◯ (Σ A B)} {Σ A B} ◯-isModal η-inv η r
+  -- abstract
+  Σ-isModal : {A : Type ℓ} (B : A → Type ℓ)
+    → isModal A → ((a : A) → isModal (B a))
+    → isModal (Σ A B)
+  Σ-isModal {A} B A-modal B-modal =
+    retractIsModal {◯ (Σ A B)} {Σ A B} ◯-isModal η-inv η r
 
-      where h : ◯ (Σ A B) → A
-            h = ◯-rec A-modal fst
+    where h : ◯ (Σ A B) → A
+          h = ◯-rec A-modal fst
 
-            h-β : (x : Σ A B) → h (η x) ≡ fst x
-            h-β = ◯-rec-β A-modal fst
+          h-β : (x : Σ A B) → h (η x) ≡ fst x
+          h-β = ◯-rec-β A-modal fst
 
-            f : (j : I) → (x : Σ A B) → B (h-β x j)
-            f j x = transp (λ i → B (h-β x ((~ i) ∨ j))) j (snd x)
+          f : (j : I) → (x : Σ A B) → B (h-β x j)
+          f j x = transp (λ i → B (h-β x ((~ i) ∨ j))) j (snd x)
 
-            k : (y : ◯ (Σ A B)) → B (h y)
-            k = ◯-elim (B-modal ∘ h) (f i0)
+          k : (y : ◯ (Σ A B)) → B (h y)
+          k = ◯-elim (B-modal ∘ h) (f i0)
 
-            η-inv : ◯ (Σ A B) → Σ A B
-            η-inv y = h y , k y
+          η-inv : ◯ (Σ A B) → Σ A B
+          η-inv y = h y , k y
 
-            p : (x : Σ A B) → k (η x) ≡ f i0 x
-            p = ◯-elim-β (B-modal ∘ h) (f i0)
+          p : (x : Σ A B) → k (η x) ≡ f i0 x
+          p = ◯-elim-β (B-modal ∘ h) (f i0)
 
-            almost : (x : Σ A B) → (h (η x) , f i0 x) ≡ x
-            almost x i = h-β x i , f i x
+          almost : (x : Σ A B) → (h (η x) , f i0 x) ≡ x
+          almost x i = h-β x i , f i x
 
-            r : (x : Σ A B) → η-inv (η x) ≡ x
-            r x = (λ i → h (η x) , p x i) ∙ (almost x)
+          r : (x : Σ A B) → η-inv (η x) ≡ x
+          r x = (λ i → h (η x) , p x i) ∙ (almost x)

@@ -1,23 +1,23 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.Truncation.Properties where
 
-open import Cubical.HITs.Truncation.Base
-open import Cubical.Data.Nat
-open import Cubical.Data.NatMinusOne using (ℕ₋₁; neg1; suc; ℕ→ℕ₋₁)
-import Cubical.Data.NatMinusOne as ℕ₋₁
-open import Cubical.Data.NatMinusTwo
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
-open import Cubical.HITs.Sn
-open import Cubical.Data.Empty
-open import Cubical.HITs.Susp
-
-open import Cubical.HITs.Nullification
 open import Cubical.Foundations.PathSplitEquiv
 open isPathSplitEquiv
+open import Cubical.Data.Empty
+open import Cubical.Data.Nat
+open import Cubical.Data.NatMinusOne using (ℕ₋₁; neg1; suc; ℕ→ℕ₋₁)
+import Cubical.Data.NatMinusOne as ℕ₋₁
+open import Cubical.Data.NatMinusTwo
+open import Cubical.HITs.Sn
+open import Cubical.HITs.Susp
+open import Cubical.HITs.Nullification
+
+open import Cubical.HITs.Truncation.Base
 
 open import Cubical.HITs.PropositionalTruncation renaming (∥_∥ to ∥_∥₋₁)
 open import Cubical.HITs.SetTruncation
@@ -119,7 +119,9 @@ isSnNull→isOfHLevel {n = neg2}  nA = fst (sec nA) ⊥-elim , λ y → fst (sec
 isSnNull→isOfHLevel {n = suc n} nA = isSphereFilled→isOfHLevelSuc (λ f → fst (sec nA) f , λ s i → snd (sec nA) f i s)
 
 isOfHLevel∥∥ : (n : ℕ₋₂) → isOfHLevel (2+ n) (∥ A ∥ n)
-isOfHLevel∥∥ n = isSnNull→isOfHLevel isNull-Null
+isOfHLevel∥∥ neg2    = hub ⊥-elim , λ _ → ≡hub ⊥-elim
+isOfHLevel∥∥ (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilled∥∥
+-- isOfHLevel∥∥ n = isSnNull→isOfHLevel isNull-Null
 
 ind : {n : ℕ₋₂}
       {B : ∥ A ∥ n → Type ℓ'}
