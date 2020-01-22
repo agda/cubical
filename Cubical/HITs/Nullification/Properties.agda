@@ -44,7 +44,7 @@ module _ {ℓ ℓ' ℓ''} {S : Type ℓ} {A : Type ℓ'} {B : Null S A → Type 
     = toPathP⁻ (λ i → B (spoke f s i))
                (appl ( snd (sec (nB (hub f)))
                            (λ s → transport (λ i → B (spoke f s (~ i))) (ind nB g (f s))) ) s) i
-  
+
   ind nB g (≡hub {x} {y} p i)
     = hcomp (λ k → λ { (i = i0) → transportRefl (ind nB g x) k
                      ; (i = i1) → transportRefl (ind nB g y) k })
@@ -56,14 +56,14 @@ module _ {ℓ ℓ' ℓ''} {S : Type ℓ} {A : Type ℓ'} {B : Null S A → Type 
                      ; (i = i1) → toPathP⁻-sq (ind nB g y) k j
                      ; (j = i1) → ind nB g (p s i) })
             (q₂ j i)
-    
+
     where q₁ : Path (PathP (λ i → B (≡hub p i)) (transport refl (ind nB g x)) (transport refl (ind nB g y)))
                     (fst (secCongDep' nB (≡hub p) (transport refl (ind nB g x)) (transport refl (ind nB g y)))
                          (λ i s → transport (λ j → B (≡spoke p s (~ j) i)) (ind nB g (p s i))))
                     (λ i → transport (λ j → B (≡spoke p s (~ j) i)) (ind nB g (p s i)))
           q₁ j i = snd (secCongDep' nB (≡hub p) (transport refl (ind nB g x)) (transport refl (ind nB g y)))
                        (λ i s → transport (λ j → B (≡spoke p s (~ j) i)) (ind nB g (p s i))) j i s
-          
+
           q₂ : PathP (λ j → PathP (λ i → B (≡spoke p s j i)) (toPathP⁻ (λ _ → B x) (λ _ → transport refl (ind nB g x)) j)
                                                              (toPathP⁻ (λ _ → B y) (λ _ → transport refl (ind nB g y)) j))
                      (fst (secCongDep' nB (≡hub p) (transport refl (ind nB g x)) (transport refl (ind nB g y)))
@@ -73,19 +73,22 @@ module _ {ℓ ℓ' ℓ''} {S : Type ℓ} {A : Type ℓ'} {B : Null S A → Type 
 
 -- nullification is a modality
 
-NullModality : ∀ ℓ (S : Type ℓ) → Modality ℓ
-isModal       (NullModality ℓ S) = isNull S
-isModalIsProp (NullModality ℓ S) = isPropIsPathSplitEquiv _
-◯             (NullModality ℓ S) = Null S
-◯-isModal     (NullModality ℓ S) = isNull-Null
-η             (NullModality ℓ S) = ∣_∣
-◯-elim        (NullModality ℓ S) = ind
-◯-elim-β      (NullModality ℓ S) = λ _ _ _ → refl
-◯-=-isModal   (NullModality ℓ S) x y = fromIsEquiv _ e
+NullModality : ∀ {ℓ} (S : Type ℓ) → Modality ℓ
+isModal       (NullModality S) = isNull S
+isModalIsProp (NullModality S) = isPropIsPathSplitEquiv _
+◯             (NullModality S) = Null S
+◯-isModal     (NullModality S) = isNull-Null
+η             (NullModality S) = ∣_∣
+◯-elim        (NullModality S) = ind
+◯-elim-β      (NullModality S) = λ _ _ _ → refl
+◯-=-isModal   (NullModality S) x y = fromIsEquiv _ e
   where e : isEquiv (λ (p : x ≡ y) → const {B = S} p)
         e = transport (λ i → isEquiv {B = funExtPath {A = S} {f = const x} {g = const y} (~ i)}
                                      (λ p → ua-gluePath funExtEquiv {x = const p} {y = cong const p} refl (~ i)))
                       (isEquivCong (_ , toIsEquiv _ isNull-Null))
+
+idemNull : ∀ {ℓ} (S A : Type ℓ) → isNull S A → A ≃ Null S A
+idemNull S A nA = ∣_∣ , isModalToIsEquiv (NullModality S) nA
 
 -- nullification is localization at a map (S → 1)
 
@@ -118,7 +121,7 @@ module Null-iso-Localize {ℓ ℓ'} (S : Type ℓ) (A : Type ℓ') where
   from-to (spoke f s i) k = spoke (λ s → from-to (f s) k) s i
   from-to (≡hub {x} {y} p i) k = ≡hub {x = from-to x k} {from-to y k} (λ s j → from-to (p s j) k) i
   from-to (≡spoke {x} {y} p s i j) k = ≡spoke {x = from-to x k} {from-to y k} (λ s j → from-to (p s j) k) s i j
-  
+
   isom : Iso (Null S A) (Localize {A = Unit} (λ _ → const {B = S} tt) A)
   isom = iso to from to-from from-to
 
