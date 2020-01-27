@@ -8,6 +8,9 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.PathSplitEquiv
 open isPathSplitEquiv
+open import Cubical.Modalities.Everything
+open Modality
+
 open import Cubical.Data.Empty
 open import Cubical.Data.Nat
 open import Cubical.Data.NatMinusOne using (ℕ₋₁; neg1; suc; ℕ→ℕ₋₁)
@@ -123,13 +126,15 @@ isOfHLevel∥∥ neg2    = hub ⊥-elim , λ _ → ≡hub ⊥-elim
 isOfHLevel∥∥ (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilled∥∥
 -- isOfHLevel∥∥ n = isSnNull→isOfHLevel isNull-Null
 
+-- ∥_∥ n is a modality
+
 ind : {n : ℕ₋₂}
       {B : ∥ A ∥ n → Type ℓ'}
       (hB : (x : ∥ A ∥ n) → isOfHLevel (2+ n) (B x))
       (g : (a : A) → B (∣ a ∣))
       (x : ∥ A ∥ n) →
       B x
-ind hB = ind-Null (λ x → isOfHLevel→isSnNull (hB x))
+ind hB = Null-ind (λ x → isOfHLevel→isSnNull (hB x))
 
 ind2 : {n : ℕ₋₂}
        {B : ∥ A ∥ n → ∥ A ∥ n → Type ℓ'}
@@ -149,20 +154,20 @@ ind3 : {n : ℕ₋₂}
 ind3 {n = n} hB g = ind2 (λ _ _ → hLevelPi (2+ n) (hB _ _)) λ a b →
                     ind (λ _ → hB _ _ _) (λ c → g a b c)
 
-idemTrunc : (n : ℕ₋₂) → isOfHLevel (2+ n) A → (∥ A ∥ n) ≃ A
-idemTrunc {A = A} n hA = isoToEquiv (iso f g f-g g-f)
-  where
-  f : ∥ A ∥ n → A
-  f = ind (λ _ → hA) λ a → a
+TruncModality : ∀ {ℓ} (n : ℕ₋₂) → Modality ℓ
+isModal       (TruncModality n) = isOfHLevel (2+ n)
+isModalIsProp (TruncModality n) = isPropIsOfHLevel (2+ n) _
+◯             (TruncModality n) = ∥_∥ n
+◯-isModal     (TruncModality n) = isOfHLevel∥∥ n
+η             (TruncModality n) = ∣_∣
+◯-elim        (TruncModality n) = ind
+◯-elim-β      (TruncModality n) = λ _ _ _ → refl
+◯-=-isModal   (TruncModality n) = hLevelPath (2+ n) (isOfHLevel∥∥ n)
 
-  g : A → ∥ A ∥ n
-  g = ∣_∣
+idemTrunc : (n : ℕ₋₂) → isOfHLevel (2+ n) A → A ≃ (∥ A ∥ n)
+idemTrunc n hA = ∣_∣ , isModalToIsEquiv (TruncModality n) hA
 
-  f-g : ∀ x → f (g x) ≡ x
-  f-g x = refl
-
-  g-f : ∀ x → g (f x) ≡ x
-  g-f = ind (λ _ → hLevelPath (2+ n) (isOfHLevel∥∥ n) _ _) (λ _ → refl)
+-- equivalences to prop/set/groupoid truncations
 
 propTrunc≃Trunc-1 : ∥ A ∥₋₁ ≃ ∥ A ∥ -1
 propTrunc≃Trunc-1 =
