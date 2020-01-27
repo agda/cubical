@@ -111,19 +111,30 @@ elimEquivFun B P r a e = subst (λ x → P (x .fst) (x .snd .fst)) (contrSinglEq
 
 -- Assuming that we have an inverse to ua we can easily prove univalence
 module Univalence (au : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B)
-                  (auid : ∀ {ℓ} {A B : Type ℓ} → au refl ≡ idEquiv A) where
+                  (aurefl : ∀ {ℓ} {A B : Type ℓ} → au refl ≡ idEquiv A) where
+
+  ua-au : {A B : Type ℓ} (p : A ≡ B) → ua (au p) ≡ p
+  ua-au {B = B} p = J (λ b p → ua (au p) ≡ p) (cong ua (aurefl {B = B}) ∙ uaIdEquiv) p
+
+  au-ua : {A B : Type ℓ} (e : A ≃ B) → au (ua e) ≡ e
+  au-ua {B = B} e = EquivJ (λ b a f → au (ua f) ≡ f)
+                       (λ x → subst (λ r → au r ≡ idEquiv x) (sym uaIdEquiv) (aurefl {B = B}))
+                        _ _ e
+
   thm : ∀ {ℓ} {A B : Type ℓ} → isEquiv au
-  thm {A = A} {B = B} =
-    isoToIsEquiv {B = A ≃ B}
-      (iso au ua
-        (EquivJ (λ _ _ e → au (ua e) ≡ e) (λ X → (cong au uaIdEquiv) ∙ (auid {B = B})) _ _)
-        (J (λ X p → ua (au p) ≡ p) ((cong ua (auid {B = B})) ∙ uaIdEquiv)))
+  thm {A = A} {B = B} = isoToIsEquiv {B = A ≃ B} (iso au ua au-ua ua-au)
 
 pathToEquiv : {A B : Type ℓ} → A ≡ B → A ≃ B
 pathToEquiv p = lineToEquiv (λ i → p i)
 
 pathToEquivRefl : {A : Type ℓ} → pathToEquiv refl ≡ idEquiv A
 pathToEquivRefl {A = A} = equivEq _ _ (λ i x → transp (λ _ → A) i x)
+
+pathToEquiv-ua : {A B : Type ℓ} (e : A ≃ B) → pathToEquiv (ua e) ≡ e
+pathToEquiv-ua = Univalence.au-ua pathToEquiv pathToEquivRefl
+
+ua-pathToEquiv : {A B : Type ℓ} (p : A ≡ B) → ua (pathToEquiv p) ≡ p
+ua-pathToEquiv = Univalence.ua-au pathToEquiv pathToEquivRefl
 
 -- Univalence
 univalence : {A B : Type ℓ} → (A ≡ B) ≃ (A ≃ B)

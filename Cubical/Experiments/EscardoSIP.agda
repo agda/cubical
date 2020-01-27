@@ -24,16 +24,6 @@ private
 
 -- We prove several useful equalities and equivalences between Σ-types all the proofs are taken from
 -- Martin Hötzel-Escardó's lecture notes.
--- We begin by introducing some helpful notation.
-
-_≃⟨_⟩_ : (X : Type ℓ) {Y : Type ℓ'} {Z : Type ℓ''} → (X ≃ Y) → (Y ≃ Z) → (X ≃ Z)
-_ ≃⟨ f ⟩ g = compEquiv f g
-
-_■ : (X : Type ℓ) → (X ≃ X)
-_■ = idEquiv
-
-infixr  0 _≃⟨_⟩_
-infix   1 _■
 
 -- The next result is just a reformulation of pathSigma≡sigmaPath from Sigma.Properties.
 
