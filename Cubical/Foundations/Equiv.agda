@@ -27,7 +27,7 @@ open import Cubical.Core.Glue public
 
 private
   variable
-    ℓ ℓ'  : Level
+    ℓ ℓ' ℓ''  : Level
     A B C : Type ℓ
 
 fiber : ∀ {A : Type ℓ} {B : Type ℓ'} (f : A → B) (y : B) → Type (ℓ-max ℓ ℓ')
@@ -160,3 +160,13 @@ equivPi k .snd .equiv-proof f
   .snd (g , p) i .fst x = equivCtrPath (k x) (f x) (g x , λ j → p j x) i .fst
 equivPi k .snd .equiv-proof f
   .snd (g , p) i .snd j x = equivCtrPath (k x) (f x) (g x , λ k → p k x) i .snd j
+
+-- Some helpful notation:
+_≃⟨_⟩_ : (X : Type ℓ) → (X ≃ B) → (B ≃ C) → (X ≃ C)
+_ ≃⟨ f ⟩ g = compEquiv f g
+
+_■ : (X : Type ℓ) → (X ≃ X)
+_■ = idEquiv
+
+infixr  0 _≃⟨_⟩_
+infix   1 _■

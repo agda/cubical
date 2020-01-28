@@ -124,7 +124,7 @@ This should put the agda and agda-mode executables in the folder
 
 In order to be able to access these on your system you need to add
 them to your `$PATH` environment variable. On a typical Linux/Mac
-installation this can be done by adding
+installation (using Bash or Zsh as the shell) this can be done by adding
 
 ```
 export PATH=/path/to/agda/.cabal-sandbox/bin:$PATH
@@ -189,9 +189,7 @@ In order to install Agda using stack do the following:
 ```
 > git clone https://github.com/agda/agda
 > cd agda
-> cp stack-"version".yaml stack.yaml
-> stack setup
-> stack build
+> stack build --stack-yaml stack-"version".yaml
 ```
 
 Where "version" is a suitable version of ghc (for example 8.6.3). This

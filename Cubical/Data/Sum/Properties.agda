@@ -4,6 +4,9 @@ module Cubical.Data.Sum.Properties where
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Embedding
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Empty
 open import Cubical.Data.Nat
 
@@ -43,6 +46,16 @@ module SumPath {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
     J (λ c' p → decode c c' (encode c c' p) ≡ p)
       (cong (decode c c) (encodeRefl c) ∙ decodeRefl c)
 
+  encodeDecode : ∀ c c' → (d : Cover c c') → encode c c' (decode c c' d) ≡ d
+  encodeDecode (inl a) (inl _) (lift d) =
+    J (λ a' p → encode (inl a) (inl a') (cong inl p) ≡ lift p) (encodeRefl (inl a)) d
+  encodeDecode (inr a) (inr _) (lift d) =
+    J (λ a' p → encode (inr a) (inr a') (cong inr p) ≡ lift p) (encodeRefl (inr a)) d
+
+  Cover≃Path : ∀ c c' → Cover c c' ≃ (c ≡ c')
+  Cover≃Path c c' =
+    isoToEquiv (iso (decode c c') (encode c c') (decodeEncode c c') (encodeDecode c c'))
+
   isOfHLevelCover : (n : ℕ)
     → isOfHLevel (suc (suc n)) A
     → isOfHLevel (suc (suc n)) B
@@ -57,6 +70,12 @@ module SumPath {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
       (subst (λ m → isOfHLevel m ⊥) (+-comm n 1)
         (hLevelLift n isProp⊥))
   isOfHLevelCover n p q (inr b) (inr b') = isOfHLevelLift (suc n) (q b b')
+
+isEmbedding-inl : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isEmbedding (inl {A = A} {B = B})
+isEmbedding-inl w z = snd (compEquiv LiftEquiv (SumPath.Cover≃Path (inl w) (inl z)))
+
+isEmbedding-inr : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isEmbedding (inr {A = A} {B = B})
+isEmbedding-inr w z = snd (compEquiv LiftEquiv (SumPath.Cover≃Path (inr w) (inr z)))
 
 isOfHLevelSum : ∀ {ℓ ℓ'} (n : ℕ) {A : Type ℓ} {B : Type ℓ'}
   → isOfHLevel (suc (suc n)) A
