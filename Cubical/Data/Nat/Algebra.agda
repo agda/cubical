@@ -115,10 +115,6 @@ module AlgebraHInd→HInit {N : NatAlgebra ℓ'} (ind : isNatInductive N ℓ) (M
   isContrMorph : isContr (NatMorphism N M)
   isContrMorph = subst isContr Morph≡Section (inhProp→isContr (ind ConstFiberM) (AlgebraPropositionality.SectionProp.S≡T ind))
 
-module Helper {a b} {A : Set a} (B : A → Set b) where
-  _!_ : {x y : A} → x ≡ y → B x → B y
-  _!_ = subst B
-
 open NatAlgebra
 open NatFiber
 open NatSection
@@ -159,7 +155,8 @@ module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (�
   f∘μ≡id : f∘μ ≡ liftMorph
   f∘μ≡id = isContr→isProp (hinit LiftN) _ _
 
-  open Helper (F .Fiber)
+  _!_ : ∀ {x y} → x ≡ y → F .Fiber x → F .Fiber y
+  _!_ = subst (F .Fiber)
 
   P : ∀ n → α n ≡ n
   P n i = lower (f∘μ≡id i .morph n)
@@ -174,7 +171,7 @@ module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (�
       (j = i0) → ζ (~ k)
       (j = i1) → N .alg-zero
     ) (N .alg-zero)
-  P-suc : (n : N .Carrier) → P (N .alg-suc n) ≡ Q-suc n
+  P-suc : ∀ n → P (N .alg-suc n) ≡ Q-suc n
   P-suc n i j = hcomp (λ k → λ where
       (i = i0) → lower (f∘μ≡id j .comm-suc (~ k) n)
       (i = i1) → compPath'-filler (σ n) (cong (N .alg-suc) (P n)) k j
