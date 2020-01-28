@@ -31,27 +31,27 @@ private
   variable
     ℓ ℓ' : Level
 
-record NatAlgebra ℓ : Set (ℓ-suc ℓ) where
+record NatAlgebra ℓ : Type (ℓ-suc ℓ) where
   field
-    Carrier  : Set ℓ
+    Carrier  : Type ℓ
     alg-zero : Carrier
     alg-suc  : Carrier → Carrier
 
-record NatMorphism (A : NatAlgebra ℓ) (B : NatAlgebra ℓ') : Set (ℓ-max ℓ ℓ') where
+record NatMorphism (A : NatAlgebra ℓ) (B : NatAlgebra ℓ') : Type (ℓ-max ℓ ℓ') where
   open NatAlgebra
   field
     morph     : A .Carrier → B .Carrier
     comm-zero : morph (A .alg-zero) ≡ B .alg-zero
     comm-suc  : morph ∘ A .alg-suc ≡ B .alg-suc ∘ morph
 
-record NatFiber (N : NatAlgebra ℓ') ℓ : Set (ℓ-max ℓ' (ℓ-suc ℓ)) where
+record NatFiber (N : NatAlgebra ℓ') ℓ : Type (ℓ-max ℓ' (ℓ-suc ℓ)) where
   open NatAlgebra N
   field
-    Fiber    : Carrier → Set ℓ
+    Fiber    : Carrier → Type ℓ
     fib-zero : Fiber alg-zero
     fib-suc  : ∀ {n} → Fiber n → Fiber (alg-suc n)
 
-record NatSection {N : NatAlgebra ℓ'} (F : NatFiber N ℓ) : Set (ℓ-max ℓ' ℓ) where
+record NatSection {N : NatAlgebra ℓ'} (F : NatFiber N ℓ) : Type (ℓ-max ℓ' ℓ) where
   open NatAlgebra N
   open NatFiber F
   field
@@ -59,10 +59,10 @@ record NatSection {N : NatAlgebra ℓ'} (F : NatFiber N ℓ) : Set (ℓ-max ℓ'
     sec-comm-zero : section alg-zero ≡ fib-zero
     sec-comm-suc  : ∀ n → section (alg-suc n) ≡ fib-suc (section n)
 
-isNatHInitial  : NatAlgebra ℓ' → (ℓ : Level) → Set (ℓ-max ℓ' (ℓ-suc ℓ))
+isNatHInitial  : NatAlgebra ℓ' → (ℓ : Level) → Type (ℓ-max ℓ' (ℓ-suc ℓ))
 isNatHInitial N ℓ = (M : NatAlgebra ℓ) → isContr (NatMorphism N M)
 
-isNatInductive : NatAlgebra ℓ' → (ℓ : Level) → Set (ℓ-max ℓ' (ℓ-suc ℓ))
+isNatInductive : NatAlgebra ℓ' → (ℓ : Level) → Type (ℓ-max ℓ' (ℓ-suc ℓ))
 isNatInductive N ℓ = (S : NatFiber N ℓ) → NatSection S
 
 module AlgebraPropositionality {N : NatAlgebra ℓ'} where
@@ -84,7 +84,7 @@ module AlgebraPropositionality {N : NatAlgebra ℓ'} where
     open NatSection (ind ConnectingFiber)
       renaming (section to α ; sec-comm-zero to ζ ; sec-comm-suc to σ)
 
-    squeezeSquare : ∀{a}{A : Set a}{w x y z : A} (p : w ≡ x) {q : x ≡ y} (r : z ≡ y)
+    squeezeSquare : ∀{a}{A : Type a}{w x y z : A} (p : w ≡ x) {q : x ≡ y} (r : z ≡ y)
                   → (P : w ≡ z) → (sq : P ≡ p ∙∙ q ∙∙ sym r) → I → I → A
     squeezeSquare p {q} r P sq i j = transport (squeezeSq≡ P q p r) sq i j
 
