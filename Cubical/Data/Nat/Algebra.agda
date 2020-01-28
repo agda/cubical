@@ -101,7 +101,7 @@ module AlgebraHInd→HInit {N : NatAlgebra ℓ'} (ind : isNatInductive N ℓ) (M
   open NatFiber
 
   ConstFiberM : NatFiber N ℓ
-  Fiber ConstFiberM n = M .Carrier
+  Fiber ConstFiberM _ = M .Carrier
   fib-zero ConstFiberM = M .alg-zero
   fib-suc ConstFiberM = M .alg-suc
 
@@ -127,11 +127,22 @@ module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (�
   alg-zero ΣAlgebra = N .alg-zero , F .fib-zero
   alg-suc ΣAlgebra (n , fn) = N .alg-suc n , F .fib-suc fn
 
+  -- the fact that we have to lift the Carrier obstructs readability a bit
+  -- this is the same algebra as N, but lifted into the correct universe
   LiftN : NatAlgebra (ℓ-max ℓ' ℓ)
   Carrier LiftN = Lift {_} {ℓ} (N .Carrier)
   alg-zero LiftN = lift (N .alg-zero)
   alg-suc LiftN = lift ∘ N .alg-suc ∘ lower
 
+  _!_ : ∀ {x y} → x ≡ y → F .Fiber x → F .Fiber y
+  _!_ = subst (F .Fiber)
+
+  -- from homotopy initiality of N we get
+  -- 1) an algebra morphism μ from N → Σ N F together with proofs of commutativity with the algebras
+  -- 2) projecting out the first component after μ, called α, will turn out to be the identity function
+  -- 3) witnesses that μ respects the definitions given in ΣAlgebra
+  --   a) at zero the witnesses are ζ and ζ-h
+  --   b) at suc the witnesses are σ and σ-h
   open NatMorphism (hinit ΣAlgebra .fst) renaming (morph to μ ; comm-zero to μ-zc ; comm-suc to μ-sc)
   module _ n where open Σ (μ n) public renaming (fst to α ; snd to α-h)
   -- module _ i where open Σ (μ-zc i) public renaming (fst to ζ ; snd to ζ-h)
@@ -145,35 +156,41 @@ module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (�
   σ-h : ∀ n → PathP (λ i → F .Fiber (σ n i)) (α-h (N .alg-suc n)) (F .fib-suc (α-h n))
   σ-h n i = μ-sc i n .snd
 
+  -- liftMorph would be the identity morphism if it weren't for size issues
   liftMorph : NatMorphism N LiftN
   liftMorph = record { morph = lift ; comm-zero = refl ; comm-suc = refl }
-  f∘μ : NatMorphism N LiftN
-  morph f∘μ = lift ∘ α
-  comm-zero f∘μ i = lift (ζ i)
-  comm-suc f∘μ i n = lift (σ n i)
+  -- instead of abstractly defining morphism composition and a projection algebra morphism
+  -- from Σ N F → N, define the composite directly. comm-zero and comm-suc thus are
+  -- defined without path composition
+  fst∘μ : NatMorphism N LiftN
+  morph fst∘μ = lift ∘ α
+  comm-zero fst∘μ i = lift (ζ i)
+  comm-suc fst∘μ i n = lift (σ n i)
 
-  f∘μ≡id : f∘μ ≡ liftMorph
-  f∘μ≡id = isContr→isProp (hinit LiftN) _ _
+  fst∘μ≡id : fst∘μ ≡ liftMorph
+  fst∘μ≡id = isContr→isProp (hinit LiftN) _ _
 
-  _!_ : ∀ {x y} → x ≡ y → F .Fiber x → F .Fiber y
-  _!_ = subst (F .Fiber)
-
+  -- we get a proof that the index is preserved uniformly
   P : ∀ n → α n ≡ n
-  P n i = lower (f∘μ≡id i .morph n)
-  -- Q-zero = ζ
+  P n i = lower (fst∘μ≡id i .morph n)
+
+  -- we also have proofs that α cancels after the algebra of N
+  Q-zero : α (N .alg-zero) ≡ N .alg-zero
+  Q-zero = ζ
   Q-suc : ∀ n → α (N .alg-suc n) ≡ N .alg-suc n
   Q-suc n = σ n □ cong (N .alg-suc) (P n)
 
-  P-zero : P (N .alg-zero) ≡ ζ
+  -- but P and Q are the same up to homotopy
+  P-zero : P (N .alg-zero) ≡ Q-zero
   P-zero i j = hcomp (λ k → λ where
-      (i = i0) → lower (f∘μ≡id j .comm-zero (~ k))
+      (i = i0) → lower (fst∘μ≡id j .comm-zero (~ k))
       (i = i1) → ζ (j ∨ ~ k)
       (j = i0) → ζ (~ k)
       (j = i1) → N .alg-zero
     ) (N .alg-zero)
   P-suc : ∀ n → P (N .alg-suc n) ≡ Q-suc n
   P-suc n i j = hcomp (λ k → λ where
-      (i = i0) → lower (f∘μ≡id j .comm-suc (~ k) n)
+      (i = i0) → lower (fst∘μ≡id j .comm-suc (~ k) n)
       (i = i1) → compPath'-filler (σ n) (cong (N .alg-suc) (P n)) k j
       (j = i0) → σ n (~ k)
       (j = i1) → N .alg-suc n
@@ -184,7 +201,7 @@ module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (�
   sec-comm-zero Fsection =
     P (N .alg-zero) ! α-h (N .alg-zero)
       ≡[ i ]⟨ P-zero i ! α-h _ ⟩
-    ζ ! α-h (N .alg-zero)
+    Q-zero ! α-h (N .alg-zero)
       ≡⟨ fromPathP ζ-h ⟩
     F .fib-zero
       ∎
@@ -209,6 +226,9 @@ isNatInductive≡isNatHInitial {ℓ'} {N} ℓ =
   open AlgebraHInit→Ind N ℓ renaming (Fsection to init→ind)
   open AlgebraHInd→HInit renaming (isContrMorph to ind→init)
 
+-- given two homotopy initial algebras there is a path between the algebras
+-- this implies moreover that the carrier types are isomorphic
+-- according to 5.16 in the paper this could be strengthened to isContr (N ≡ M)
 isNatHInitial→algebraPath : {N M : NatAlgebra ℓ}
                           → (hinitN : isNatHInitial N ℓ) (hinitM : isNatHInitial M ℓ)
                           → N ≡ M
@@ -233,12 +253,12 @@ isNatHInitial→algebraPath {N = N} {M} hinitN hinitM = N≡M where
   mnm≡idm : M→N→M ≡ idM
   mnm≡idm = isContr→isProp (hinitM M) _ _
 
-  carrierEq : N .Carrier ≡ M .Carrier
-  carrierEq = isoToPath (iso (N→M .morph) (M→N .morph) (λ x i → mnm≡idm i .morph x) (λ x i → nmn≡idn i .morph x))
-  zeroEq : PathP (λ i → carrierEq i) (N .alg-zero) (M .alg-zero)
-  zeroEq = toPathP λ i → transportRefl (N→M .comm-zero i) i
-  sucEq : PathP (λ i → carrierEq i → carrierEq i) (N .alg-suc) (M .alg-suc)
-  sucEq = toPathP (
+  carrier≡ : N .Carrier ≡ M .Carrier
+  carrier≡ = isoToPath (iso (N→M .morph) (M→N .morph) (λ x i → mnm≡idm i .morph x) (λ x i → nmn≡idn i .morph x))
+  zero≡ : PathP (λ i → carrier≡ i) (N .alg-zero) (M .alg-zero)
+  zero≡ = toPathP λ i → transportRefl (N→M .comm-zero i) i
+  suc≡ : PathP (λ i → carrier≡ i → carrier≡ i) (N .alg-suc) (M .alg-suc)
+  suc≡ = toPathP (
         transport refl ∘ N→M .morph ∘ N .alg-suc ∘ M→N .morph ∘ transport refl
           ≡[ i ]⟨ transportReflF i ∘ N→M .morph ∘ N .alg-suc ∘ M→N .morph ∘ transportReflF i ⟩
         N→M .morph ∘ N .alg-suc ∘ M→N .morph
@@ -251,8 +271,11 @@ isNatHInitial→algebraPath {N = N} {M} hinitN hinitM = N≡M where
      transportReflF = funExt transportRefl
 
   N≡M : N ≡ M
-  N≡M i = record { Carrier = carrierEq i ; alg-zero = zeroEq i ; alg-suc = sucEq i }
+  Carrier (N≡M i) = carrier≡ i
+  alg-zero (N≡M i) = zero≡ i
+  alg-suc (N≡M i) = suc≡ i
 
+-- the payoff, it is straight forward to define the algebra and show inductiveness of ℕ
 NatAlgebraℕ : NatAlgebra ℓ-zero
 Carrier NatAlgebraℕ = ℕ
 alg-zero NatAlgebraℕ = zero
