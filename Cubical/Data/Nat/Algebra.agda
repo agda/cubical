@@ -106,9 +106,11 @@ module AlgebraHInd→HInit {N : NatAlgebra ℓ'} (ind : isNatInductive N ℓ) (M
   fib-suc ConstFiberM = M .alg-suc
 
   morph→section : NatMorphism N M → NatSection ConstFiberM
-  morph→section x = record { section = morph ; sec-comm-zero = comm-zero ; sec-comm-suc = λ i n → comm-suc n i } where open NatMorphism x
+  morph→section x = record { section = morph ; sec-comm-zero = comm-zero ; sec-comm-suc = λ i n → comm-suc n i }
+    where open NatMorphism x
   section→morph : NatSection ConstFiberM → NatMorphism N M
-  section→morph x = record { morph = section ; comm-zero = sec-comm-zero ; comm-suc = λ n i → sec-comm-suc i n } where open NatSection x
+  section→morph x = record { morph = section ; comm-zero = sec-comm-zero ; comm-suc = λ n i → sec-comm-suc i n }
+    where open NatSection x
   Morph≡Section : NatSection ConstFiberM ≡ NatMorphism N M
   Morph≡Section = isoToPath (iso section→morph morph→section (λ _ → refl) (λ _ → refl))
 

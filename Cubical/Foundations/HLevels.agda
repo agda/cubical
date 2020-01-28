@@ -21,8 +21,8 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HAEquiv      using (congEquiv)
 open import Cubical.Foundations.Univalence   using (ua; univalence)
 
-open import Cubical.Data.Sigma  using (ΣPathP; sigmaPath→pathSigma; pathSigma≡sigmaPath; _Σ≡T_)
-open import Cubical.Data.Nat    using (ℕ; zero; suc; _+_; +-comm)
+open import Cubical.Data.Sigma    using (ΣPathP; sigmaPath→pathSigma; pathSigma≡sigmaPath; _Σ≡T_)
+open import Cubical.Data.Nat.Base using (ℕ; zero; suc; _+_)
 
 private
   variable
@@ -31,6 +31,20 @@ private
     B : A → Type ℓ
     x y : A
     n : ℕ
+
+-- uses an inlined version of +-comm to avoid cyclic imports from using Cubical.Data.Nat.Properties
+private
+  +-zero : ∀ m → m + 0 ≡ m
+  +-zero zero = refl
+  +-zero (suc m) = cong suc (+-zero m)
+
+  +-suc : ∀ m n → m + suc n ≡ suc (m + n)
+  +-suc zero    n = refl
+  +-suc (suc m) n = cong suc (+-suc m n)
+
+  +-comm : ∀ m n → m + n ≡ n + m
+  +-comm m zero = +-zero m
+  +-comm m (suc n) = (+-suc m n) ∙ (cong suc (+-comm m n))
 
 hProp : ∀ ℓ → Type (ℓ-suc ℓ)
 hProp ℓ = Σ (Type ℓ) isProp
