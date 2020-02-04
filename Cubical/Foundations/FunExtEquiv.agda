@@ -10,13 +10,13 @@ open import Cubical.Foundations.Univalence
 module _ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {f g : (x : A) → B x} where
   private
     fib : (p : f ≡ g) → fiber (funExt {B = B}) p
-    fib p = (appl p , refl)
+    fib p = (funExt⁻ p , refl)
 
     funExt-fiber-isContr
       : (p : f ≡ g)
       → (fi : fiber (funExt {B = B}) p)
       → fib p ≡ fi
-    funExt-fiber-isContr p (h , eq) i = (appl (eq (~ i)) , λ j → eq (~ i ∨ j))
+    funExt-fiber-isContr p (h , eq) i = (funExt⁻ (eq (~ i)) , λ j → eq (~ i ∨ j))
 
   funExt-isEquiv : isEquiv (funExt {B = B})
   equiv-proof funExt-isEquiv p = (fib p , funExt-fiber-isContr p)

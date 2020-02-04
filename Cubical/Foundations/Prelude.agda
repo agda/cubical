@@ -142,8 +142,8 @@ funExt : {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
 funExt p i x = p x i
 
 -- the inverse to funExt (see Foundations.FunExtEquiv)
-appl : ∀ {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
-appl eq x i = eq i x
+funExt⁻ : ∀ {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
+funExt⁻ eq x i = eq i x
 
 -- J for paths and its computation rule
 

@@ -7,6 +7,8 @@ open import Cubical.Data.Empty public
 open import Cubical.Data.Equality public
 open import Cubical.Data.Fin public
 open import Cubical.Data.Nat public
+open import Cubical.Data.NatMinusOne hiding (1+_; -1+_) public
+open import Cubical.Data.NatMinusTwo public
 open import Cubical.Data.Int public renaming (_+_ to _+Int_ ; +-assoc to +Int-assoc; +-comm to +Int-comm)
 open import Cubical.Data.Sum public
 open import Cubical.Data.Prod public

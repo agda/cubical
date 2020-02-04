@@ -22,5 +22,5 @@ module _ {ℓα ℓs ℓt} {A : Type ℓα} {S : A → Type ℓs} {T : A → Typ
   isLocal-Localize : ∀ (F : ∀ α → S α → T α) {ℓ} (X : Type ℓ) → isLocal F (Localize F X)
   fst (sec (isLocal-Localize F X α)) f t   = ext   α f t
   snd (sec (isLocal-Localize F X α)) f i s = isExt α f s i
-  fst (secCong (isLocal-Localize F X α) g h) p i t   = ≡ext   α g h (appl p) t i
-  snd (secCong (isLocal-Localize F X α) g h) p i j t = ≡isExt α g h (appl p) t i j
+  fst (secCong (isLocal-Localize F X α) g h) p i t   = ≡ext   α g h (funExt⁻ p) t i
+  snd (secCong (isLocal-Localize F X α) g h) p i j t = ≡isExt α g h (funExt⁻ p) t i j

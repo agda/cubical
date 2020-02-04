@@ -21,5 +21,5 @@ data Null {ℓ ℓ'} (S : Type ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ') wh
 isNull-Null : ∀ {ℓ ℓ'} {S : Type ℓ} {A : Type ℓ'} → isNull S (Null S A)
 fst (sec isNull-Null) f     = hub   f
 snd (sec isNull-Null) f i s = spoke f s i
-fst (secCong isNull-Null x y) p i     = ≡hub   (appl p) i
-snd (secCong isNull-Null x y) p i j s = ≡spoke (appl p) s i j
+fst (secCong isNull-Null x y) p i     = ≡hub   (funExt⁻ p) i
+snd (secCong isNull-Null x y) p i j s = ≡spoke (funExt⁻ p) s i j

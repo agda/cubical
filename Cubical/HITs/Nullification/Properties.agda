@@ -42,8 +42,8 @@ module _ {ℓ ℓ' ℓ''} {S : Type ℓ} {A : Type ℓ'} {B : Null S A → Type 
 
   ind nB g (spoke f s i)
     = toPathP⁻ (λ i → B (spoke f s i))
-               (appl ( snd (sec (nB (hub f)))
-                           (λ s → transport (λ i → B (spoke f s (~ i))) (ind nB g (f s))) ) s) i
+               (funExt⁻ ( snd (sec (nB (hub f)))
+                              (λ s → transport (λ i → B (spoke f s (~ i))) (ind nB g (f s))) ) s) i
 
   ind nB g (≡hub {x} {y} p i)
     = hcomp (λ k → λ { (i = i0) → transportRefl (ind nB g x) k
