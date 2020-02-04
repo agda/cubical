@@ -16,7 +16,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.GroupoidLaws
 
-open import Cubical.Data.Nat
+open import Cubical.Data.Nat.Base
 
 record isHAEquiv {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type (ℓ-max ℓ ℓ') where
   field

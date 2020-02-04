@@ -20,7 +20,7 @@ open import Cubical.Foundations.CartesianKanOps
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
 
-open import Cubical.Data.Nat
+open import Cubical.Data.Nat.Base
 
 private
   variable
