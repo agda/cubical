@@ -99,7 +99,3 @@ isProp→isSet-PathP : ∀ {ℓ} {B : I → Type ℓ} → ((i : I) → isProp (B
                    → isProp (PathP (λ i → B i) b0 b1)
 isProp→isSet-PathP {B = B} hB b0 b1 =
   transport (λ i → isProp (PathP≡Path B b0 b1 (~ i))) (isProp→isSet (hB i1) _ _)
-
--- Lemma 3.11.8 in the HoTT book
-isContrPathAt : ∀ {ℓ} {A : Type ℓ} (x : A) → isContr (Σ[ y ∈ A ] x ≡ y)
-isContrPathAt x = (x , refl) , (λ { (y , p) i → (p i , λ j → p (i ∧ j)) })

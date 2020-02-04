@@ -3,9 +3,11 @@ module Cubical.Foundations.Pointed.Base where
 
 open import Cubical.Foundations.Prelude
 
-record Pointed ℓ : Type (ℓ-suc ℓ) where
-  constructor _,_
-  field
-    typ : Type ℓ
-    pt  : typ
-open Pointed public
+Pointed : (ℓ : Level) → Type (ℓ-suc ℓ)
+Pointed ℓ = Σ[ A ∈ Type ℓ ] A
+
+typ : ∀ {ℓ} (A∙ : Pointed ℓ) → Type ℓ
+typ = fst
+
+pt : ∀ {ℓ} (A∙ : Pointed ℓ) → typ A∙
+pt = snd
