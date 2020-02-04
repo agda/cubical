@@ -230,6 +230,21 @@ doubleCompPath-elim' : {ℓ : Level} {A : Type ℓ} {w x y z : A} (p : w ≡ x) 
                        (r : y ≡ z) → (p ∙∙ q ∙∙ r) ≡ p ∙ (q ∙ r)
 doubleCompPath-elim' p q r = (split-leftright' p q r) ∙ (sym (leftright p (q ∙ r)))
 
+
+cong-∙ : ∀ {B : Type ℓ} (f : A → B) (p : x ≡ y) (q : y ≡ z)
+         → cong f (p ∙ q) ≡ (cong f p) ∙ (cong f q)
+cong-∙ f p q j i = hcomp (λ k → λ { (j = i0) → f (compPath-filler p q k i)
+                                  ; (i = i0) → f (p i0)
+                                  ; (i = i1) → f (q k) })
+                         (f (p i))
+
+cong-∙∙ : ∀ {B : Type ℓ} (f : A → B) (p : w ≡ x) (q : x ≡ y) (r : y ≡ z)
+          → cong f (p ∙∙ q ∙∙ r) ≡ (cong f p) ∙∙ (cong f q) ∙∙ (cong f r)
+cong-∙∙ f p q r j i = hcomp (λ k → λ { (j = i0) → f (doubleCompPath-filler p q r i k)
+                                     ; (i = i0) → f (p (~ k))
+                                     ; (i = i1) → f (r k) })
+                            (f (q i))
+
 hcomp-unique : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
                (h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
                → (hcomp u (outS u0) ≡ outS (h2 i1)) [ φ ↦ (\ { (φ = i1) → (\ i → u i1 1=1)}) ]
@@ -265,15 +280,3 @@ hcomp-cong : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 :
              (ueq : ∀ i → PartialP φ (\ o → u i o ≡ u' i o)) → (outS u0 ≡ outS u0') [ φ ↦ (\ { (φ = i1) → ueq i0 1=1}) ]
              → (hcomp u (outS u0) ≡ hcomp u' (outS u0')) [ φ ↦ (\ { (φ = i1) → ueq i1 1=1 }) ]
 hcomp-cong u u0 u' u0' ueq 0eq = inS (\ j → hcomp (\ i o → ueq i o j) (outS 0eq j))
-
-squeezeSq≡ :
-  {a₀₀ a₀₁ : A} (a₀₋ : a₀₀ ≡ a₀₁)
-  {a₁₀ a₁₁ : A} (a₁₋ : a₁₀ ≡ a₁₁)
-  (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
-  → (a₀₋ ≡ a₋₀ ∙∙ a₁₋ ∙∙ sym a₋₁) ≡ (Square a₀₋ a₁₋ a₋₀ a₋₁)
-squeezeSq≡ a₀₋ a₁₋ a₋₀ a₋₁ k
-  = Square
-      a₀₋
-      (λ j → doubleCompPath-filler a₋₀ a₁₋ (sym a₋₁) j (~ k))
-      (λ j → a₋₀ (j ∧ k))
-      (λ j → a₋₁ (j ∧ k))

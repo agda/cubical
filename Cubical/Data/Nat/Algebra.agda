@@ -21,6 +21,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
   hiding (section)
 open import Cubical.Foundations.Transport
@@ -86,7 +87,7 @@ module AlgebraPropositionality {N : NatAlgebra ℓ'} where
 
     squeezeSquare : ∀{a}{A : Type a}{w x y z : A} (p : w ≡ x) {q : x ≡ y} (r : z ≡ y)
                   → (P : w ≡ z) → (sq : P ≡ p ∙∙ q ∙∙ sym r) → I → I → A
-    squeezeSquare p {q} r P sq i j = transport (squeezeSq≡ P q p r) sq i j
+    squeezeSquare p {q} r P sq i j = transport (sym (PathP≡doubleCompPathʳ p P q r)) sq i j
 
     S≡T : S ≡ T
     section (S≡T i) n = α n i
