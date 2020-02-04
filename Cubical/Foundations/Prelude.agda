@@ -269,7 +269,7 @@ isProp→isSet h a b p q j i =
 -- Universe lifting
 
 record Lift {i j} (A : Type i) : Type (ℓ-max i j) where
-  instance constructor lift
+  constructor lift
   field
     lower : A
 
