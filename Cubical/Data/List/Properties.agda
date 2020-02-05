@@ -122,6 +122,24 @@ cons-inj₂ = cong safe-tail
 ¬nil≡cons : ∀ {x : A} {xs} → ¬ ([] ≡ x ∷ xs)
 ¬nil≡cons {A = A} p = lower (subst (caseList (List A) (Lift ⊥)) p [])
 
+¬snoc≡nil : ∀ {x : A} {xs} → ¬ (xs ∷ʳ x ≡ [])
+¬snoc≡nil {xs = []} contra = ¬cons≡nil contra
+¬snoc≡nil {xs = x ∷ xs} contra = ¬cons≡nil contra
+
+¬nil≡snoc : ∀ {x : A} {xs} → ¬ ([] ≡ xs ∷ʳ x)
+¬nil≡snoc contra = ¬snoc≡nil (sym contra)
+
+cons≡rev-snoc : (x : A) → (xs : List A) → x ∷ rev xs ≡ rev (xs ∷ʳ x)
+cons≡rev-snoc _ [] = refl
+cons≡rev-snoc x (y ∷ ys) = λ i → cons≡rev-snoc x ys i ++ y ∷ []
+
+nil≡nil-isContr : isContr (Path (List A) [] [])
+nil≡nil-isContr = refl , ListPath.decodeEncode [] []
+
+list≡nil-isProp : {xs : List A} → isProp (xs ≡ [])
+list≡nil-isProp {xs = []} = hLevelSuc 0 _ nil≡nil-isContr
+list≡nil-isProp {xs = x ∷ xs} = λ p _ → ⊥-elim (¬cons≡nil p)
+
 discreteList : Discrete A → Discrete (List A)
 discreteList eqA []       []       = yes refl
 discreteList eqA []       (y ∷ ys) = no ¬nil≡cons
