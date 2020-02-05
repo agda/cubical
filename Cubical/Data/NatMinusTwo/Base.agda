@@ -32,6 +32,8 @@ data ℕ₋₂ : Set where
 ℕ→ℕ₋₂ : ℕ → ℕ₋₂
 ℕ→ℕ₋₂ n = ℕ₋₁→ℕ₋₂ (ℕ→ℕ₋₁ n)
 
+-- Natural number and negative integer literals for ℕ₋₂
+
 instance
   fromNatℕ₋₂ : HasFromNat ℕ₋₂
   fromNatℕ₋₂ = record { Constraint = λ _ → Unit ; fromNat = λ n → ℕ→ℕ₋₂ n }

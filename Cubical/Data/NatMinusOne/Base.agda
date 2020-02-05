@@ -24,6 +24,8 @@ _+₋₁_ : ℕ → ℕ₋₁ → ℕ₋₁
 0 +₋₁ n = n
 suc m +₋₁ n = suc (m +₋₁ n)
 
+-- Natural number and negative integer literals for ℕ₋₁
+
 instance
   fromNatℕ₋₁ : HasFromNat ℕ₋₁
   fromNatℕ₋₁ = record { Constraint = λ _ → Unit ; fromNat = λ n → ℕ→ℕ₋₁ n }

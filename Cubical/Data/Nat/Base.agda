@@ -7,12 +7,15 @@ open import Agda.Builtin.Nat public
   using (zero; suc; _+_; _*_)
   renaming (Nat to ℕ)
 
+-- Allows for (constrained) natural number and negative integer
+--  literals for any type (e.g. ℕ, ℕ₋₁, ℕ₋₂, Int)
 open import Agda.Builtin.FromNat public
   renaming (Number to HasFromNat)
 open import Agda.Builtin.FromNeg public
   renaming (Negative to HasFromNeg)
 open import Cubical.Data.Unit.Base public
 
+-- Natural number literals for ℕ
 instance
   fromNatℕ : HasFromNat ℕ
   fromNatℕ = record { Constraint = λ _ → Unit ; fromNat = λ n → n }
