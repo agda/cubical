@@ -41,6 +41,11 @@ ua-unglue : ∀ {A B : Type ℓ} → (e : A ≃ B) → (i : I) (x : ua e i)
             → B [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → x }) ]
 ua-unglue e i x = inS (unglue (i ∨ ~ i) x)
 
+ua-ungluePath : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
+                → PathP (λ i → ua e i) x y
+                → e .fst x ≡ y
+ua-ungluePath e p i = unglue (i ∨ ~ i) (p i)
+
 -- Give detailed type to glue
 ua-glue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A) (y : B)
           → B [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → y }) ]
