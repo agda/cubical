@@ -75,6 +75,24 @@ toPathP-isEquiv A {x} {y} = isoToIsEquiv (iso toPathP fromPathP to-from from-to)
                           })
                           (transp (\ j → A ((i ∨ h) ∧ j)) (~ (i ∨ h)) x)
 
+compPathl-cancel : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : x ≡ z) → p ∙ (sym p ∙ q) ≡ q
+compPathl-cancel p q = p ∙ (sym p ∙ q) ≡⟨ assoc p (sym p) q ⟩
+                       (p ∙ sym p) ∙ q ≡⟨ cong (_∙ q) (rCancel p) ⟩
+                              refl ∙ q ≡⟨ sym (lUnit q) ⟩
+                                     q ∎
+
+compPathr-cancel : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : z ≡ y) (q : x ≡ y) → (q ∙ sym p) ∙ p ≡ q
+compPathr-cancel p q = (q ∙ sym p) ∙ p ≡⟨ sym (assoc q (sym p) p) ⟩
+                       q ∙ (sym p ∙ p) ≡⟨ cong (q ∙_) (lCancel p) ⟩
+                              q ∙ refl ≡⟨ sym (rUnit q) ⟩
+                                     q ∎
+
+compPathl-isEquiv : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) → isEquiv (λ (q : y ≡ z) → p ∙ q)
+compPathl-isEquiv p = isoToIsEquiv (iso (p ∙_) (sym p ∙_) (compPathl-cancel p) (compPathl-cancel (sym p)))
+
+compPathr-isEquiv : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : y ≡ z) → isEquiv (λ (q : x ≡ y) → q ∙ p)
+compPathr-isEquiv p = isoToIsEquiv (iso (_∙ p) (_∙ sym p) (compPathr-cancel p) (compPathr-cancel (sym p)))
+
 -- Variation of isProp→isSet for PathP
 isProp→isSet-PathP : ∀ {ℓ} {B : I → Type ℓ} → ((i : I) → isProp (B i))
                    → (b0 : B i0) (b1 : B i1)

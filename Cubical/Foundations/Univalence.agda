@@ -37,9 +37,20 @@ uaIdEquiv : {A : Type ℓ} → ua (idEquiv A) ≡ refl
 uaIdEquiv {A = A} i j = Glue A {φ = i ∨ ~ j ∨ j} (λ _ → A , idEquiv A)
 
 -- Give detailed type to unglue, mainly for documentation purposes
-unglueua : ∀ {A B : Type ℓ} → (e : A ≃ B) → (i : I) (x : ua e i)
-           → B [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → x }) ]
-unglueua e i x = inS (unglue (i ∨ ~ i) x)
+ua-unglue : ∀ {A B : Type ℓ} → (e : A ≃ B) → (i : I) (x : ua e i)
+            → B [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → x }) ]
+ua-unglue e i x = inS (unglue (i ∨ ~ i) x)
+
+-- Give detailed type to glue
+ua-glue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A) (y : B)
+          → B [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → y }) ]
+          → (ua e i) [ _ ↦ (λ { (i = i0) → x ; (i = i1) → y }) ]
+ua-glue e i x y s = inS (glue (λ { (i = i0) → x ; (i = i1) → y }) (outS s))
+
+ua-gluePath : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
+              → e .fst x ≡ y
+              → PathP (λ i → ua e i) x y
+ua-gluePath e {x} {y} p i = glue (λ { (i = i0) → x ; (i = i1) → y }) (p i)
 
 -- Proof of univalence using that unglue is an equivalence:
 
