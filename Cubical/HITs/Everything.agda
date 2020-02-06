@@ -29,7 +29,9 @@ open import Cubical.HITs.FiniteMultiset public hiding ( _++_ ; [_] ; assoc-++ )
 open import Cubical.HITs.Sn public
 open import Cubical.HITs.Truncation public
 open import Cubical.HITs.Colimit
+open import Cubical.HITs.MappingCones
 open import Cubical.HITs.InfNat public
 open import Cubical.HITs.KleinBottle
+open import Cubical.HITs.DunceCap
 open import Cubical.HITs.Localization public
 open import Cubical.HITs.Nullification public

@@ -13,6 +13,7 @@ module Cubical.Foundations.Isomorphism where
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 
 private
   variable
@@ -86,6 +87,9 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (i : Iso A B) where
   isoToIsEquiv .equiv-proof y .snd z = lemIso y (g y) (fst z) (s y) (snd z)
 
 
+isoToEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso A B → A ≃ B
+isoToEquiv i = _ , isoToIsEquiv i
+
 isoToPath : ∀ {ℓ} {A B : Type ℓ} → (Iso A B) → A ≡ B
 isoToPath {A = A} {B = B} f i =
   Glue B (λ { (i = i0) → (A , (Iso.fun f , isoToIsEquiv f))
@@ -93,3 +97,9 @@ isoToPath {A = A} {B = B} f i =
                               record { equiv-proof = λ y → (y , refl)
                                                           , λ z i → z .snd (~ i)
                                                                   , λ j → z .snd (~ i ∨ j)})})
+
+compIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+          → Iso A B → Iso B C → Iso A C
+compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) = iso (fun₁ ∘ fun) (inv ∘ inv₁)
+        (λ b → cong fun₁ (rightInv (inv₁ b)) ∙ (rightInv₁ b))
+        (λ a → cong inv (leftInv₁ (fun a) ) ∙ leftInv a )
