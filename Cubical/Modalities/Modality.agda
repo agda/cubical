@@ -58,15 +58,14 @@ record Modality ℓ : Type (ℓ-suc ℓ) where
   ◯-preservesEquiv : {A B : Type ℓ} (f : A → B) → isEquiv f → isEquiv (◯-map f)
   ◯-preservesEquiv f f-ise = isoToIsEquiv (iso _ (◯-map inv) to-from from-to) where
     open Iso (equivToIso (f , f-ise))
-    abstract
-      to-from : ∀ ◯b → ◯-map f (◯-map inv ◯b) ≡ ◯b
-      to-from = ◯-elim
-        (λ ◯b → ◯-=-isModal (◯-map f (◯-map inv ◯b)) ◯b)
-        (λ b → cong (◯-map f) (◯-map-β inv b) ∙ ◯-map-β f (inv b) ∙ cong η (rightInv b))
-      from-to : ∀ ◯a → ◯-map inv (◯-map f ◯a) ≡ ◯a
-      from-to = ◯-elim
-          (λ ◯a → ◯-=-isModal (◯-map inv (◯-map f ◯a)) ◯a)
-          (λ a → cong (◯-map inv) (◯-map-β f a) ∙ ◯-map-β inv (f a) ∙ cong η (leftInv a))
+    to-from : ∀ ◯b → ◯-map f (◯-map inv ◯b) ≡ ◯b
+    to-from = ◯-elim
+      (λ ◯b → ◯-=-isModal (◯-map f (◯-map inv ◯b)) ◯b)
+      (λ b → cong (◯-map f) (◯-map-β inv b) ∙ ◯-map-β f (inv b) ∙ cong η (rightInv b))
+    from-to : ∀ ◯a → ◯-map inv (◯-map f ◯a) ≡ ◯a
+    from-to = ◯-elim
+        (λ ◯a → ◯-=-isModal (◯-map inv (◯-map f ◯a)) ◯a)
+        (λ a → cong (◯-map inv) (◯-map-β f a) ∙ ◯-map-β inv (f a) ∙ cong η (leftInv a))
 
 
   ◯-equiv : {A B : Type ℓ} → A ≃ B → ◯ A ≃ ◯ B
@@ -86,79 +85,75 @@ record Modality ℓ : Type (ℓ-suc ℓ) where
        where η-inv : ◯ A → A
              η-inv = ◯-rec w (idfun A)
 
-             abstract
-               inv-r : (a : A) → η-inv (η a) ≡ a
-               inv-r = ◯-rec-β w (idfun A)
+             inv-r : (a : A) → η-inv (η a) ≡ a
+             inv-r = ◯-rec-β w (idfun A)
 
-               inv-l : (a : ◯ A) → η (η-inv a) ≡ a
-               inv-l = ◯-elim (λ a₀ → ◯-=-isModal _ _)
-                              (λ a₀ → cong η (inv-r a₀))
+             inv-l : (a : ◯ A) → η (η-inv a) ≡ a
+             inv-l = ◯-elim (λ a₀ → ◯-=-isModal _ _)
+                            (λ a₀ → cong η (inv-r a₀))
 
 
-  abstract
-    isEquivToIsModal : {A : Type ℓ} → isEquiv (η {A}) → isModal A
-    isEquivToIsModal {A} eq = equivPreservesIsModal (invEquiv (η , eq)) ◯-isModal
+  isEquivToIsModal : {A : Type ℓ} → isEquiv (η {A}) → isModal A
+  isEquivToIsModal {A} eq = equivPreservesIsModal (invEquiv (η , eq)) ◯-isModal
 
-    retractIsModal : {A B : Type ℓ} (w : isModal A)
-        (f : A → B) (g : B → A) (r : (b : B) → f (g b) ≡ b) →
-        isModal B
-    retractIsModal {A} {B} w f g r =
-      isEquivToIsModal
-        (isoToIsEquiv (iso η η-inv inv-l inv-r))
-      where η-inv : ◯ B → B
-            η-inv = f ∘ (◯-rec w g)
+  retractIsModal : {A B : Type ℓ} (w : isModal A)
+      (f : A → B) (g : B → A) (r : (b : B) → f (g b) ≡ b) →
+      isModal B
+  retractIsModal {A} {B} w f g r =
+    isEquivToIsModal
+      (isoToIsEquiv (iso η η-inv inv-l inv-r))
+    where η-inv : ◯ B → B
+          η-inv = f ∘ (◯-rec w g)
 
-            inv-r : (b : B) → η-inv (η b) ≡ b
-            inv-r b = cong f (◯-rec-β w g b) ∙ r b
+          inv-r : (b : B) → η-inv (η b) ≡ b
+          inv-r b = cong f (◯-rec-β w g b) ∙ r b
 
-            inv-l : (b : ◯ B) → η (η-inv b) ≡ b
-            inv-l = ◯-elim (λ b → ◯-=-isModal _ _) (λ b → cong η (inv-r b))
+          inv-l : (b : ◯ B) → η (η-inv b) ≡ b
+          inv-l = ◯-elim (λ b → ◯-=-isModal _ _) (λ b → cong η (inv-r b))
 
   {- function types with modal codomain are modal -}
 
-  abstract
-    Π-isModal : {A : Type ℓ} {B : A → Type ℓ}
-              (w : (a : A) → isModal (B a)) → isModal ((x : A) → B x)
-    Π-isModal {A} {B} w = retractIsModal {◯ _} {(x : A) → B x} ◯-isModal η-inv η r
+  Π-isModal : {A : Type ℓ} {B : A → Type ℓ}
+            (w : (a : A) → isModal (B a)) → isModal ((x : A) → B x)
+  Π-isModal {A} {B} w = retractIsModal {◯ _} {(x : A) → B x} ◯-isModal η-inv η r
 
-        where η-inv : ◯ ((x : A) → B x) → (x : A) → B x
-              η-inv φ' a = ◯-rec (w a) (λ φ → φ a) φ'
+      where η-inv : ◯ ((x : A) → B x) → (x : A) → B x
+            η-inv φ' a = ◯-rec (w a) (λ φ → φ a) φ'
 
-              r : (φ : (x : A) →  B x) → η-inv (η φ) ≡ φ
-              r φ = funExt (λ a → ◯-rec-β (w a) (λ φ₀ → φ₀ a) φ)
+            r : (φ : (x : A) →  B x) → η-inv (η φ) ≡ φ
+            r φ = funExt (λ a → ◯-rec-β (w a) (λ φ₀ → φ₀ a) φ)
 
-    →-isModal : {A B : Type ℓ} → isModal B → isModal (A → B)
-    →-isModal w = Π-isModal (λ _ → w)
+  →-isModal : {A B : Type ℓ} → isModal B → isModal (A → B)
+  →-isModal w = Π-isModal (λ _ → w)
 
   {- sigma types of a modal dependent type with modal base are modal -}
 
-  abstract
-    Σ-isModal : {A : Type ℓ} (B : A → Type ℓ)
-      → isModal A → ((a : A) → isModal (B a))
-      → isModal (Σ A B)
-    Σ-isModal {A} B A-modal B-modal =
-      retractIsModal {◯ (Σ A B)} {Σ A B} ◯-isModal η-inv η r
+  Σ-isModal : {A : Type ℓ} (B : A → Type ℓ)
+    → isModal A → ((a : A) → isModal (B a))
+    → isModal (Σ A B)
+  Σ-isModal {A} B A-modal B-modal =
+    retractIsModal {◯ (Σ A B)} {Σ A B} ◯-isModal η-inv η r
 
-      where h : ◯ (Σ A B) → A
-            h = ◯-rec A-modal fst
+    where h : ◯ (Σ A B) → A
+          h = ◯-rec A-modal fst
 
-            h-β : (x : Σ A B) → h (η x) ≡ fst x
-            h-β = ◯-rec-β A-modal fst
+          h-β : (x : Σ A B) → h (η x) ≡ fst x
+          h-β = ◯-rec-β A-modal fst
 
-            f : (j : I) → (x : Σ A B) → B (h-β x j)
-            f j x = transp (λ i → B (h-β x ((~ i) ∨ j))) j (snd x)
+          f : (j : I) → (x : Σ A B) → B (h-β x j)
+          f j x = transp (λ i → B (h-β x ((~ i) ∨ j))) j (snd x)
 
-            k : (y : ◯ (Σ A B)) → B (h y)
-            k = ◯-elim (B-modal ∘ h) (f i0)
+          k : (y : ◯ (Σ A B)) → B (h y)
+          k = ◯-elim (B-modal ∘ h) (f i0)
 
-            η-inv : ◯ (Σ A B) → Σ A B
-            η-inv y = h y , k y
+          η-inv : ◯ (Σ A B) → Σ A B
+          η-inv y = h y , k y
 
-            p : (x : Σ A B) → k (η x) ≡ f i0 x
-            p = ◯-elim-β (B-modal ∘ h) (f i0)
+          p : (x : Σ A B) → k (η x) ≡ f i0 x
+          p = ◯-elim-β (B-modal ∘ h) (f i0)
 
-            almost : (x : Σ A B) → (h (η x) , f i0 x) ≡ x
-            almost x i = h-β x i , f i x
+          almost : (x : Σ A B) → (h (η x) , f i0 x) ≡ x
+          almost x i = h-β x i , f i x
 
-            r : (x : Σ A B) → η-inv (η x) ≡ x
-            r x = (λ i → h (η x) , p x i) ∙ (almost x)
+          r : (x : Σ A B) → η-inv (η x) ≡ x
+          r x = (λ i → h (η x) , p x i) ∙ (almost x)

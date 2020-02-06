@@ -191,10 +191,6 @@ isProp→isContr≡ isPropA x y = inhProp→isContr (isPropA x y) (isProp→isSe
 isContrPath : isContr A → (x y : A) → isContr (x ≡ y)
 isContrPath cA = isProp→isContr≡ (isContr→isProp cA)
 
-hLevelPath : (n : ℕ) → isOfHLevel (suc n) A → (x y : A) → isOfHLevel n (x ≡ y)
-hLevelPath zero h = isProp→isContr≡ h
-hLevelPath (suc n) h = h
-
 -- h-level of Σ-types
 
 isContrSigma
@@ -249,6 +245,11 @@ hLevelSuc : (n : ℕ) (A : Type ℓ) → isOfHLevel n A → isOfHLevel (suc n) A
 hLevelSuc 0 A = isContr→isProp
 hLevelSuc 1 A = isProp→isSet
 hLevelSuc (suc (suc n)) A h a b = hLevelSuc (suc n) (a ≡ b) (h a b)
+
+hLevelPath : (n : ℕ) → isOfHLevel n A → (x y : A) → isOfHLevel n (x ≡ y)
+hLevelPath 0 h x y = isContrPath h x y
+hLevelPath 1 h x y = hLevelSuc zero _ (isProp→isContr≡ h x y)
+hLevelPath (suc (suc n)) h x y = hLevelSuc (suc n) _ (h x y)
 
 hLevelLift : (m : ℕ) (hA : isOfHLevel n A) → isOfHLevel (m + n) A
 hLevelLift zero hA = hA

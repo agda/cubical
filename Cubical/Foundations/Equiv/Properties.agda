@@ -53,23 +53,29 @@ postCompEquiv : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B
 postCompEquiv e = (λ φ x → fst e (φ x)) , isEquivPostComp e
 
 
-isContr-section : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B) → isContr (Σ[ g ∈ (B → A) ] section (fst e) g)
-fst (isContr-section e) = invEq e , retEq e
-snd (isContr-section e) (f , ε) i = (λ b → fst (p b i)) , (λ b → snd (p b i))
+hasSection : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → Type _
+hasSection {A = A} {B} f = Σ[ g ∈ (B → A) ] section f g
+
+hasRetract : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → Type _
+hasRetract {A = A} {B} f = Σ[ g ∈ (B → A) ] retract f g
+
+isContr-hasSection : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B) → isContr (hasSection (fst e))
+fst (isContr-hasSection e) = invEq e , retEq e
+snd (isContr-hasSection e) (f , ε) i = (λ b → fst (p b i)) , (λ b → snd (p b i))
   where p : ∀ b → (invEq e b , retEq e b) ≡ (f b , ε b)
         p b = snd (equiv-proof (snd e) b) (f b , ε b)
 
 -- there is a (much slower) alternate proof that also works for retract
 
-isContr-section' : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B) → isContr (Σ[ g ∈ (B → A) ] section (fst e) g)
-isContr-section' {_} {A} {B} e = transport (λ i → isContr (Σ[ g ∈ (B → A) ] eq g i))
-                                           (equiv-proof (isEquivPostComp e) (idfun _))
+isContr-hasSection' : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B) → isContr (hasSection (fst e))
+isContr-hasSection' {_} {A} {B} e = transport (λ i → isContr (Σ[ g ∈ (B → A) ] eq g i))
+                                              (equiv-proof (isEquivPostComp e) (idfun _))
   where eq : ∀ (g : B → A) → ((fst e) ∘ g ≡ idfun _) ≡ (section (fst e) g)
         eq g = sym (funExtPath {f = (fst e) ∘ g} {g = idfun _})
 
-isContr-retract : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B) → isContr (Σ[ g ∈ (B → A) ] retract (fst e) g)
-isContr-retract {_} {A} {B} e = transport (λ i → isContr (Σ[ g ∈ (B → A) ] eq g i))
-                                           (equiv-proof (isEquivPreComp e) (idfun _))
+isContr-hasRetract : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B) → isContr (hasRetract (fst e))
+isContr-hasRetract {_} {A} {B} e = transport (λ i → isContr (Σ[ g ∈ (B → A) ] eq g i))
+                                              (equiv-proof (isEquivPreComp e) (idfun _))
   where eq : ∀ (g : B → A) → (g ∘ (fst e) ≡ idfun _) ≡ (retract (fst e) g)
         eq g = sym (funExtPath {f = g ∘ (fst e)} {g = idfun _})
 
