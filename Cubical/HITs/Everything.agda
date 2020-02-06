@@ -31,3 +31,5 @@ open import Cubical.HITs.Truncation public
 open import Cubical.HITs.Colimit
 open import Cubical.HITs.InfNat public
 open import Cubical.HITs.KleinBottle
+open import Cubical.HITs.Localization public
+open import Cubical.HITs.Nullification public

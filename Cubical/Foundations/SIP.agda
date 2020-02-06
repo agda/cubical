@@ -428,17 +428,17 @@ funExtBin : {A : Type ℓ} {B : A → Type ℓ'} {C : (x : A) → B x → Type �
 funExtBin p i x y = p x y i
 module _ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : A → Type ℓ'} {C : (x : A) → B x → Type ℓ''} {f g : (x : A) → (y : B x) → C x y} where
   private
-    appl : f ≡ g → ∀ x y → f x y ≡ g x y
-    appl eq x y i = eq i x y
+    appl₂ : f ≡ g → ∀ x y → f x y ≡ g x y
+    appl₂ eq x y i = eq i x y
 
     fib : (p : f ≡ g) → fiber funExtBin p
-    fib p = (appl p , refl)
+    fib p = (appl₂ p , refl)
 
     funExtBin-fiber-isContr
       : (p : f ≡ g)
       → (fi : fiber funExtBin p)
       → fib p ≡ fi
-    funExtBin-fiber-isContr p (h , eq) i = (appl (eq (~ i)) , λ j → eq (~ i ∨ j))
+    funExtBin-fiber-isContr p (h , eq) i = (appl₂ (eq (~ i)) , λ j → eq (~ i ∨ j))
 
   funExtBin-isEquiv : isEquiv funExtBin
   equiv-proof funExtBin-isEquiv p = (fib p , funExtBin-fiber-isContr p)
