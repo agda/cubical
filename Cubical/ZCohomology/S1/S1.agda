@@ -35,7 +35,11 @@ coHom0-S1 : (coHom neg2 S¹) ≡ Int
 coHom0-S1 = (λ i → ∥ helpLemma i ∥₀ )  ∙  sym (setId isSetInt)
   where
   helpLemma : (S¹ → Int) ≡ Int
-  helpLemma = isoToPath (iso fun funinv (λ b → refl) λ f → funExt (λ x → rinvLemma f x)) where
+  helpLemma = isoToPath (iso fun
+                             funinv
+                             (λ b → refl)
+                             λ f → funExt (λ x → rinvLemma f x))
+    where
     fun : (S¹ → Int) → Int
     fun f = f base
 
@@ -43,10 +47,14 @@ coHom0-S1 = (λ i → ∥ helpLemma i ∥₀ )  ∙  sym (setId isSetInt)
     funinv a base = a
     funinv a (loop i) = refl {x = a} i
 
-    rinvLemma : ( f : (S¹ → Int)) → (x : S¹) → funinv (fun f) x ≡ f x
+    rinvLemma : ( f : (S¹ → Int)) →
+                (x : S¹) →
+                funinv (fun f) x ≡ f x
     rinvLemma f  base = refl
     rinvLemma f  (loop i) = sym (helper f i)   where
-      helper : (f : (S¹ → Int))  → (i : I) → (f (loop i) ≡ f base)
+      helper : (f : (S¹ → Int))  →
+               (i : I) →
+               (f (loop i) ≡ f base)
       helper f i =  (λ l → ((isSetInt (f base) (f base) (λ k → (f (loop k))) refl) l) i)
 
 -------------------------
