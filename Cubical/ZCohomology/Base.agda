@@ -46,6 +46,6 @@ coHomK-ptd neg2 = coHomK neg2 , (pos 0)
 coHomK-ptd (suc n) = (coHomK (suc n) , ∣ north ∣)
 
 {- Reduced cohomology -}
-coHomRed : ∀ {ℓ} → (n : ℕ₋₂) → (A : Pointed ℓ) → Type ℓ
+coHomRed : (n : ℕ₋₂) → (A : Pointed ℓ) → Type ℓ
 coHomRed neg2 A = ∥  (A →* (coHomK-ptd neg2)) ∥₀
 coHomRed (suc n) A = ∥  (A →* (coHomK-ptd (suc n))) ∥₀

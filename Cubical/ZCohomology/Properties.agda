@@ -28,11 +28,17 @@ private
 
 
 {- Equivalence between cohomology and the reduced version -}
-coHom↔coHomRed : ∀ {ℓ} → (n : ℕ₋₂) → (A : Set ℓ) → (coHom n A) ≡ (coHomRed n ((A ⊎ Unit , inr (tt))))
+coHom↔coHomRed : (n : ℕ₋₂) →
+                 (A : Set ℓ) →
+                 (coHom n A) ≡ (coHomRed n ((A ⊎ Unit , inr (tt))))
 coHom↔coHomRed neg2 A i = ∥ helplemma {C = (Int , pos 0)} i ∥₀
   module coHom↔coHomRed where
   helplemma : {C : Pointed ℓ} → ( (A → (typ C)) ≡  ((((A ⊎ Unit) , inr (tt)) →* C)))
-  helplemma {C = C} = isoToPath (iso map1 map2 (λ b → linvPf b) (λ a  → refl)) where
+  helplemma {C = C} = isoToPath (iso map1
+                                     map2
+                                     (λ b → linvPf b)
+                                     (λ _  → refl))
+    where
     map1 : (A → typ C) → ((((A ⊎ Unit) , inr (tt)) →* C))
     map1 f = map1' , refl module helpmap where
       map1' : A ⊎ Unit → fst C
@@ -41,8 +47,10 @@ coHom↔coHomRed neg2 A i = ∥ helplemma {C = (Int , pos 0)} i ∥₀
 
     map2 : ((((A ⊎ Unit) , inr (tt)) →* C)) → (A → typ C)
     map2 (g , pf) x = g (inl x)
+    
     linvPf : (b :((((A ⊎ Unit) , inr (tt)) →* C))) →  map1 (map2 b) ≡ b
-    linvPf (f , snd) i = (λ x → helper x i)  , λ j → snd ((~ i) ∨ j) where
+    linvPf (f , snd) i = (λ x → helper x i)  , λ j → snd ((~ i) ∨ j)
+      where
       helper : (x : A ⊎ Unit) → ((helpmap.map1') (map2 (f , snd)) x) ≡ f x 
       helper (inl x) = refl
       helper (inr tt) = sym snd
@@ -68,10 +76,10 @@ invPathCancel {a = a} {b = b} p = J {x = a} (λ y p → p ∙ (sym p) ≡ refl )
                      (λ x → ∣ x ∣)
                      ((merid north) ∙ (sym (merid south))) )
   where                   
-  looper : ∀ {ℓ}{A : Type ℓ}{a : A} -- defining loopⁿ
-          (n : Int) →
-          (a ≡ a) →
-          (a ≡ a) 
+  looper : {a : A} -- defining loopⁿ
+           (n : Int) →
+           (a ≡ a) →
+           (a ≡ a) 
   looper {A = A} {a = a} (pos zero) p = refl
   looper {A = A} {a = a} (pos (suc n)) p = (looper (pos n) p) ∙ p
   looper {A = A} {a = a} (negsuc zero) p = sym p
