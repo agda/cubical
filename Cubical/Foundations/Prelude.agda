@@ -131,6 +131,7 @@ transport p a = transp (λ i → p i) i0 a
 transportRefl : (x : A) → transport refl x ≡ x
 transportRefl {A = A} x i = transp (λ _ → A) i x
 
+
 -- We want B to be explicit in subst
 subst : (B : A → Type ℓ') (p : x ≡ y) → B x → B y
 subst B p pa = transport (λ i → B (p i)) pa

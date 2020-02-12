@@ -56,3 +56,23 @@ elimSetTrunc3 : {B : (x y z : ∥ A ∥₀) → Type ℓ}
                 (x y z : ∥ A ∥₀) → B x y z
 elimSetTrunc3 Bset g = elimSetTrunc2 (λ _ _ → hLevelPi 2 λ _ → Bset _ _ _) (λ a b →
                        elimSetTrunc (λ _ → Bset _ _ _) (λ c → g a b c))
+
+
+setTruncIsSet : isSet ∥ A ∥₀
+setTruncIsSet a b p q = squash₀ a b p q
+
+setId : isSet A → A ≡ ∥ A ∥₀
+setId {A = A} isset = isoToPath (iso (λ x → ∣ x ∣₀)
+                                     (elimSetTrunc {A = A}
+                                                  (λ _ → isset)
+                                                  (λ x → x))
+                                     (λ a → idLemma a)
+                                     (λ _ → refl))
+  where
+  idLemma : ∀ (b : ∥ A ∥₀) → ∣ elimSetTrunc (λ x → isset) (λ x → x) b ∣₀ ≡ b
+  idLemma b = elimSetTrunc {B = (λ x → ∣ elimSetTrunc (λ _ → isset) (λ x → x) x ∣₀ ≡ x)}
+                          (λ x → (hLevelSuc 2 ∥ A ∥₀ (setTruncIsSet {A = A}))
+                                 ∣ elimSetTrunc (λ _ → isset) (λ x₁ → x₁) x ∣₀
+                                 x)
+                          (λ _ → refl)
+                          b
