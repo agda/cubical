@@ -15,7 +15,7 @@ open import Cubical.Data.Prod
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation 
 open import Cubical.HITs.Nullification
-open import Cubical.Data.Int hiding (_+_)
+open import Cubical.Data.Int
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.Pushout
@@ -51,7 +51,7 @@ coHom0-S1 = (λ i → ∥ helpLemma i ∥₀ )  ∙  sym (setId isSetInt)
 
 -------------------------
 
-
+{- TODO : give Hᵏ(S¹) for all k -}
 
 
 

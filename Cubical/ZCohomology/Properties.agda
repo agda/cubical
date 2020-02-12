@@ -13,7 +13,7 @@ open import Cubical.Data.NatMinusTwo.Base renaming (-1+_ to -1+₋₂_ ; 1+_ to 
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation 
 open import Cubical.HITs.Nullification
-open import Cubical.Data.Int hiding (_+_)
+open import Cubical.Data.Int
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation
 
@@ -27,12 +27,10 @@ private
 
 
 
-
-
 {- Equivalence between cohomology and the reduced version -}
 coHom↔coHomRed : ∀ {ℓ} → (n : ℕ₋₂) → (A : Set ℓ) → (coHom n A) ≡ (coHomRed n ((A ⊎ Unit , inr (tt))))
 coHom↔coHomRed neg2 A i = ∥ helplemma {C = (Int , pos 0)} i ∥₀
-  module ClaireCaron where
+  module coHom↔coHomRed where
   helplemma : {C : Pointed ℓ} → ( (A → (typ C)) ≡  ((((A ⊎ Unit) , inr (tt)) →* C)))
   helplemma {C = C} = isoToPath (iso map1 map2 (λ b → linvPf b) (λ a  → refl)) where
     map1 : (A → typ C) → ((((A ⊎ Unit) , inr (tt)) →* C))
@@ -49,12 +47,12 @@ coHom↔coHomRed neg2 A i = ∥ helplemma {C = (Int , pos 0)} i ∥₀
       helper (inl x) = refl
       helper (inr tt) = sym snd
       
-coHom↔coHomRed (suc n) A i = ∥ ClaireCaron.helplemma A i {C = ((K (suc n)) , ∣ north ∣)} i ∥₀
+coHom↔coHomRed (suc n) A i = ∥ coHom↔coHomRed.helplemma A i {C = ((coHomK (suc n)) , ∣ north ∣)} i ∥₀
 
 
 
 
-{- Unfinished proof that Kₙ ≡ Ω Kₙ₊₁  -}
+{- TODO: Prove Kₙ ≡ Ω Kₙ₊₁  -}
 
 invPathCancel : {a b : A} → (p : a ≡ b) → p ∙ (sym p) ≡ refl
 invPathCancel {a = a} {b = b} p = J {x = a} (λ y p → p ∙ (sym p) ≡ refl ) (sym (lUnit refl)) p
@@ -65,18 +63,21 @@ invPathCancel {a = a} {b = b} p = J {x = a} (λ y p → p ∙ (sym p) ≡ refl )
 φ* : (A : Pointed ℓ) → A →* Ω ((Susp (typ A)) , north)
 φ* A = (φ (pt A)) , invPathCancel (merid (pt A))
 
-σ : (n : ℕ₋₂) → (typ (K-ptd n)) → (typ (Ω (K-ptd (suc n))))
+σ : (n : ℕ₋₂) → (typ (coHomK-ptd n)) → (typ (Ω (coHomK-ptd (suc n))))
 σ neg2 k = looper k  ( cong {B = λ _ → (∥ S₊ 1 ∥ ℕ→ℕ₋₂ 1)}
                      (λ x → ∣ x ∣)
                      ((merid north) ∙ (sym (merid south))) )
   where                   
-  looper : ∀ {ℓ} → {A : Type ℓ} → {a : A} → (n : Int) → (a ≡ a) → (a ≡ a) -- defining loopⁿ
+  looper : ∀ {ℓ}{A : Type ℓ}{a : A} -- defining loopⁿ
+          (n : Int) →
+          (a ≡ a) →
+          (a ≡ a) 
   looper {A = A} {a = a} (pos zero) p = refl
   looper {A = A} {a = a} (pos (suc n)) p = (looper (pos n) p) ∙ p
   looper {A = A} {a = a} (negsuc zero) p = sym p
   looper {A = A} {a = a} (negsuc (suc n)) p = (sym p) ∙ (looper (negsuc n) p)
 σ (suc n) x = rec {n = suc (suc (suc n))}
-                  {B = (typ (Ω (K-ptd  (suc (suc n)))))}
+                  {B = (typ (Ω (coHomK-ptd  (suc (suc n)))))}
                   (isOfHLevel∥∥ {A = S₊ (2+ suc (suc n))} (suc (suc (suc (suc n)))) ∣ north ∣ ∣ north ∣)
                   (λ y → cong {B = λ _ → Null (S (1+₋₂ (suc (suc (suc (suc n)))))) (S₊ (2+ (suc (suc n))))}
                               (λ z → ∣ z ∣)
