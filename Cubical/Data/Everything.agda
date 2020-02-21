@@ -21,3 +21,4 @@ open import Cubical.Data.HomotopyGroup public
 open import Cubical.Data.List public
 open import Cubical.Data.Graph public
 open import Cubical.Data.InfNat public renaming (_*_ to _*ℕ+∞_; _+_ to _+ℕ+∞_; suc to ∞suc; zero to ∞zero)
+open import Cubical.Data.Queue public
