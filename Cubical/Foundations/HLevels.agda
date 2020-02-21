@@ -251,6 +251,44 @@ hLevelPath 0 h x y = isContrPath h x y
 hLevelPath 1 h x y = hLevelSuc zero _ (isProp→isContr≡ h x y)
 hLevelPath (suc (suc n)) h x y = hLevelSuc (suc n) _ (h x y)
 
+-- dependent version
+hLevelPathP : ∀ {ℓ} (A : I → Type ℓ) (n : ℕ)
+ → isOfHLevel n (A i0)
+ → (a₀ : A i0) (a₁ : A i1)
+ → isOfHLevel n (PathP A a₀ a₁)
+hLevelPathP A n levelA a₀ a₁ =
+  subst
+    (isOfHLevel n)
+    (λ j → PathP (λ i → A (j ∧ i)) a₀ (transp (λ i → A (j ∨ ~ i)) j a₁))
+    (hLevelPath n levelA a₀ (transp (λ i → A (i0 ∨ ~ i)) i0 a₁))
+
+
+
+-- In fact, something stronger can be said about the h-levels of (dependent) path types
+-- The lemmas are taken from
+-- https://github.com/ecavallo/cubical/blob/queue/Cubical/Experiments/Queue.agda
+isOfHLevelPath : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
+  → isOfHLevel (suc n) A
+  → {a₀ a₁ : A}
+  → isOfHLevel n (a₀ ≡ a₁)
+isOfHLevelPath zero levelA {a₀} {a₁} =
+  (levelA a₀ a₁ , isProp→isSet levelA a₀ a₁ (levelA a₀ a₁))
+isOfHLevelPath (suc n) levelA {a₀} {a₁} =
+  levelA a₀ a₁
+
+isOfHLevelPathP : ∀ {ℓ} (A : I → Type ℓ) (n : ℕ)
+ → isOfHLevel (suc n) (A i0)
+ → (a₀ : A i0) (a₁ : A i1)
+ → isOfHLevel n (PathP A a₀ a₁)
+isOfHLevelPathP A n levelA a₀ a₁ =
+  subst
+    (isOfHLevel n)
+    (λ j → PathP (λ i → A (j ∧ i)) a₀ (transp (λ i → A (j ∨ ~ i)) j a₁))
+    (isOfHLevelPath n levelA)
+
+
+
+
 hLevelLift : (m : ℕ) (hA : isOfHLevel n A) → isOfHLevel (m + n) A
 hLevelLift zero hA = hA
 hLevelLift {A = A} (suc m) hA = hLevelSuc _ A (hLevelLift m hA)
