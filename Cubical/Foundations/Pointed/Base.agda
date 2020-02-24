@@ -6,6 +6,8 @@ open import Cubical.Foundations.Prelude
 Pointed : (ℓ : Level) → Type (ℓ-suc ℓ)
 Pointed ℓ = Σ[ A ∈ Type ℓ ] A
 
+Pointed₀ = Pointed ℓ-zero
+
 typ : ∀ {ℓ} (A∙ : Pointed ℓ) → Type ℓ
 typ = fst
 
