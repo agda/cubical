@@ -46,8 +46,11 @@ private
   +-comm m zero = +-zero m
   +-comm m (suc n) = (+-suc m n) ∙ (cong suc (+-comm m n))
 
-hProp : ∀ ℓ → Type (ℓ-suc ℓ)
+hProp hSet hGroupoid h2Groupoid : ∀ ℓ → Type (ℓ-suc ℓ)
 hProp ℓ = Σ (Type ℓ) isProp
+hSet ℓ = Σ (Type ℓ) isSet
+hGroupoid ℓ = Σ (Type ℓ) isGroupoid
+h2Groupoid ℓ = Σ (Type ℓ) is2Groupoid
 
 isOfHLevel : ℕ → Type ℓ → Type ℓ
 isOfHLevel 0 A = isContr A
