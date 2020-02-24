@@ -22,4 +22,3 @@ open import Cubical.HITs.Sn
 
 ∥_∥_ : ∀ {ℓ} → Type ℓ → ℕ₋₂ → Type ℓ
 ∥ A ∥ n = Null (S (1+ n)) A
-

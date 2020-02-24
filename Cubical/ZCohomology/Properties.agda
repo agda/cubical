@@ -5,11 +5,17 @@ module Cubical.ZCohomology.Properties where
 open import Cubical.ZCohomology.Base
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Data.NatMinusTwo.Base renaming (-1+_ to -1+₋₂_ ; 1+_ to 1+₋₂_)
+open import Cubical.Data.NatMinusOne.Base
+open import Cubical.Data.Empty
+open import Cubical.Data.Sigma
+open import Cubical.Data.Prod.Base
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation 
 open import Cubical.HITs.Nullification
@@ -20,21 +26,21 @@ open import Cubical.HITs.Truncation
 open import Cubical.HITs.Pushout
 open import Cubical.Data.Sum.Base
 open import Cubical.Data.HomotopyGroup
+open import Cubical.Data.Bool
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A : Type ℓ
+    B : Type ℓ'
 
-
-
-{- Equivalence between cohomology and the reduced version -}
-coHom↔coHomRed : (n : ℕ₋₂) →
+{- Equivalence between cohomology of A and reduced cohomology of (A + 1) -}
+coHomRed+1Equiv : (n : ℕ) →
                  (A : Set ℓ) →
                  (coHom n A) ≡ (coHomRed n ((A ⊎ Unit , inr (tt))))
-coHom↔coHomRed neg2 A i = ∥ helplemma {C = (Int , pos 0)} i ∥₀
-  module coHom↔coHomRed where
-  helplemma : {C : Pointed ℓ} → ( (A → (typ C)) ≡  ((((A ⊎ Unit) , inr (tt)) →* C)))
-  helplemma {C = C} = isoToPath (iso map1
+coHomRed+1Equiv zero A i = ∥ helpLemma {C = (Int , pos 0)} i ∥₀
+  module coHomRed+1 where
+  helpLemma : {C : Pointed ℓ} → ( (A → (typ C)) ≡  ((((A ⊎ Unit) , inr (tt)) →* C)))
+  helpLemma {C = C} = isoToPath (iso map1
                                      map2
                                      (λ b → linvPf b)
                                      (λ _  → refl))
@@ -55,43 +61,4 @@ coHom↔coHomRed neg2 A i = ∥ helplemma {C = (Int , pos 0)} i ∥₀
       helper (inl x) = refl
       helper (inr tt) = sym snd
       
-coHom↔coHomRed (suc n) A i = ∥ coHom↔coHomRed.helplemma A i {C = ((coHomK (suc n)) , ∣ north ∣)} i ∥₀
-
-
-
-
-{- TODO: Prove Kₙ ≡ Ω Kₙ₊₁  -}
-
-invPathCancel : {a b : A} → (p : a ≡ b) → p ∙ (sym p) ≡ refl
-invPathCancel {a = a} {b = b} p = J {x = a} (λ y p → p ∙ (sym p) ≡ refl ) (sym (lUnit refl)) p
-
-φ : (a : A) → A → (north {A = A} ≡ north {A = A})
-φ x = (λ a → ((merid  a) ∙ sym ((merid x))))
-
-φ* : (A : Pointed ℓ) → A →* Ω ((Susp (typ A)) , north)
-φ* A = (φ (pt A)) , invPathCancel (merid (pt A))
-
-σ : (n : ℕ₋₂) → (typ (coHomK-ptd n)) → (typ (Ω (coHomK-ptd (suc n))))
-σ neg2 k = looper k  ( cong {B = λ _ → (∥ S₊ 1 ∥ ℕ→ℕ₋₂ 1)}
-                     (λ x → ∣ x ∣)
-                     ((merid north) ∙ (sym (merid south))) )
-  where                   
-  looper : {a : A} -- defining loopⁿ
-           (n : Int) →
-           (a ≡ a) →
-           (a ≡ a) 
-  looper {A = A} {a = a} (pos zero) p = refl
-  looper {A = A} {a = a} (pos (suc n)) p = (looper (pos n) p) ∙ p
-  looper {A = A} {a = a} (negsuc zero) p = sym p
-  looper {A = A} {a = a} (negsuc (suc n)) p = (sym p) ∙ (looper (negsuc n) p)
-σ (suc n) x = rec {n = suc (suc (suc n))}
-                  {B = (typ (Ω (coHomK-ptd  (suc (suc n)))))}
-                  (isOfHLevel∥∥ {A = S₊ (2+ suc (suc n))} (suc (suc (suc (suc n)))) ∣ north ∣ ∣ north ∣)
-                  (λ y → cong {B = λ _ → Null (S (1+₋₂ (suc (suc (suc (suc n)))))) (S₊ (2+ (suc (suc n))))}
-                              (λ z → ∣ z ∣)
-                              (φ north y))
-                  x 
-
-
-
-
+coHomRed+1Equiv (suc n) A i = ∥ coHomRed+1.helpLemma A i {C = ((coHomK (suc n)) , ∣ north ∣)} i ∥₀

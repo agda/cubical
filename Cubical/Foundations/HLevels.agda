@@ -246,16 +246,6 @@ hLevelSuc 0 A = isContr→isProp
 hLevelSuc 1 A = isProp→isSet
 hLevelSuc (suc (suc n)) A h a b = hLevelSuc (suc n) (a ≡ b) (h a b)
 
-hLevelAdd : (n : ℕ) (m : ℕ) (A : Type ℓ) → isOfHLevel n A → isOfHLevel (n + m) A
-hLevelAdd n zero A h = transport (λ i → isOfHLevel (helper n i) A) h where
-  helper : (n : ℕ) → n ≡ n + zero
-  helper zero = refl
-  helper (suc n) = cong (λ x → (suc x)) (helper n)
-hLevelAdd n (suc m) A h = transport (λ i → (isOfHLevel (helper n m i) A )) (hLevelSuc (n + m) A (hLevelAdd n m A h)) where
-  helper : (n m : ℕ) → (suc (n + m)) ≡ (n + (suc m))
-  helper zero m = refl
-  helper (suc n) m = cong (λ x → (suc x)) (helper n m)
-
 hLevelPath : (n : ℕ) → isOfHLevel n A → (x y : A) → isOfHLevel n (x ≡ y)
 hLevelPath 0 h x y = isContrPath h x y
 hLevelPath 1 h x y = hLevelSuc zero _ (isProp→isContr≡ h x y)

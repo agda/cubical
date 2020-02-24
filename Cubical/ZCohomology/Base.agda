@@ -5,7 +5,7 @@ module Cubical.ZCohomology.Base where
 open import Cubical.Data.Int.Base
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.NatMinusTwo.Base
-open import Cubical.Data.Sigma.Base
+open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.Pointed.Base
 
@@ -20,32 +20,26 @@ private
     ℓ : Level
     A : Type ℓ
 
-{-
-Definition of cohomology with cocefficients in the integers. For now, this definition uses ℕ₋₂, for instance defining H⁰ as
-coHom neg2, H¹ as coHom (suc neg2), and so on. This has so far been easier to work with than a definition relying on ℕ→ℕ₋₂.
--}
-
 
 --- Cohomology ---
 
 {- Types Kₙ from Brunerie 2016 -}
-coHomK : (n : ℕ₋₂) → Type₀
-coHomK neg2 = Int
-coHomK (suc n) = ∥ S₊ (2+ suc n) ∥  (suc (suc (suc n)))
+coHomK : (n : ℕ) → Type₀
+coHomK zero = Int
+coHomK (suc n) = ∥ S₊ (suc n) ∥  (suc (ℕ→ℕ₋₂ n))
 
 {- Cohomology -}
-coHom : (n : ℕ₋₂) → Type ℓ → Type ℓ
+coHom : (n : ℕ) → Type ℓ → Type ℓ
 coHom n A = ∥ (A → coHomK n) ∥₀
 
 
 --- Reduced cohomology ---
 
 {- Pointed version of Kₙ  -}
-coHomK-ptd : (n : ℕ₋₂) → Pointed (ℓ-zero)
-coHomK-ptd neg2 = coHomK neg2 , (pos 0)
+coHomK-ptd : (n : ℕ) → Pointed (ℓ-zero)
+coHomK-ptd zero = coHomK zero , (pos 0)
 coHomK-ptd (suc n) = (coHomK (suc n) , ∣ north ∣)
 
 {- Reduced cohomology -}
-coHomRed : (n : ℕ₋₂) → (A : Pointed ℓ) → Type ℓ
-coHomRed neg2 A = ∥  (A →* (coHomK-ptd neg2)) ∥₀
-coHomRed (suc n) A = ∥  (A →* (coHomK-ptd (suc n))) ∥₀
+coHomRed : (n : ℕ) → (A : Pointed ℓ) → Type ℓ
+coHomRed n A = ∥  (A →* (coHomK-ptd n)) ∥₀

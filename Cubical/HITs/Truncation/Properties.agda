@@ -125,7 +125,6 @@ isOfHLevel∥∥ : (n : ℕ₋₂) → isOfHLevel (2+ n) (∥ A ∥ n)
 isOfHLevel∥∥ neg2    = hub ⊥-elim , λ _ → ≡hub ⊥-elim
 isOfHLevel∥∥ (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilled∥∥
 
-
   
 -- isOfHLevel∥∥ n = isSnNull→isOfHLevel isNull-Null
 
@@ -244,7 +243,8 @@ private
         hLevelP {n = n} {B = B} = ind2 {A = B}
                                        {n =  (suc n)}
                                        {B = λ x y → isOfHLevel (2+ (suc n)) (P x y)}
-                                       (λ x y → hLevelAdd 1 (2+ n) (isOfHLevel (2+ suc n) (P x y)) (isPropIsOfHLevel (2+ suc n) (P x y)) )
+                                       (λ x y →  transport (λ i → isOfHLevel (+-comm (2+ n) 1 i)
+                                                           (isOfHLevel (2+ suc n) (P x y))) (hLevelLift (2+ n) (isPropIsOfHLevel (2+ suc n) (P x y))) )
                                        λ a b  → ( hLevelSuc (2+ n) (P ∣ a ∣ ∣ b ∣) )
                                        (isOfHLevel∥∥ {A = a ≡ b} n)
 
@@ -378,13 +378,8 @@ private
         IsoFinal : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} (x y : ∥ B ∥ (suc n)) → Iso (x ≡ y) (P x y)
         IsoFinal x y = iso (encode-fun x y ) (decode-fun x y) (P-linv x y) (P-rinv x y)
 
-IsoIdTrunc : {a b : A} (n : ℕ₋₂) → Iso (_≡_ {A = ∥ A ∥ (suc n)} ∣ a ∣ ∣ b ∣) (∥ a ≡ b ∥ n)
-IsoIdTrunc {a = a} {b = b} n = IsoFinal {n = n} ∣ a ∣ ∣ b ∣
+PathIdTrunc : {a b : A} (n : ℕ₋₂) → (_≡_ {A = ∥ A ∥ (suc n)} ∣ a ∣ ∣ b ∣) ≡ (∥ a ≡ b ∥ n)
+PathIdTrunc {a = a} {b = b} n = isoToPath (IsoFinal {n = n} ∣ a ∣ ∣ b ∣)
 
-IsoΩ : {a : A} (n : ℕ₋₂) → Iso (_≡_ {A = ∥ A ∥ (suc n)} ∣ a ∣ ∣ a ∣) (∥ a ≡ a ∥ n)
-IsoΩ {a = a} n = IsoIdTrunc {a = a} {b = a} n
-
-
-
-
-
+PathΩ : {a : A} (n : ℕ₋₂) → (_≡_ {A = ∥ A ∥ (suc n)} ∣ a ∣ ∣ a ∣) ≡ (∥ a ≡ a ∥ n)
+PathΩ {a = a} n = PathIdTrunc {a = a} {b = a} n
