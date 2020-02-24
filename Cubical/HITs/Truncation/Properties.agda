@@ -125,7 +125,6 @@ isOfHLevel∥∥ : (n : ℕ₋₂) → isOfHLevel (2+ n) (∥ A ∥ n)
 isOfHLevel∥∥ neg2    = hub ⊥-elim , λ _ → ≡hub ⊥-elim
 isOfHLevel∥∥ (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilled∥∥
 
-  
 -- isOfHLevel∥∥ n = isSnNull→isOfHLevel isNull-Null
 
 -- ∥_∥ n is a modality
