@@ -9,7 +9,7 @@ open import Cubical.Foundations.Prelude
 
 S : ℕ₋₁ → Type₀
 S neg1 = ⊥
-S (suc n) = Susp (S n)
+S (ℕ→ℕ₋₁ n) = Susp (S (-1+ n))
 
 S₊ : ℕ → Type₀
 S₊ n = S (ℕ→ℕ₋₁ n)
