@@ -15,7 +15,7 @@ open import Cubical.Data.Empty
 open import Cubical.Data.Nat
 open import Cubical.Data.NatMinusOne  using (ℕ₋₁; neg1; suc; ℕ→ℕ₋₁) renaming (-1+_ to -1+₋₁_ ; 1+_ to 1+₋₁_)
 import Cubical.Data.NatMinusOne as ℕ₋₁
-open import Cubical.Data.NatMinusTwo 
+open import Cubical.Data.NatMinusTwo
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Nullification
@@ -125,13 +125,13 @@ isOfHLevel∥∥ : (n : ℕ₋₂) → isOfHLevel (2+ n) (∥ A ∥ n)
 isOfHLevel∥∥ neg2    = hub ⊥-elim , λ _ → ≡hub ⊥-elim
 isOfHLevel∥∥ (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilled∥∥
 
-  
+
 -- isOfHLevel∥∥ n = isSnNull→isOfHLevel isNull-Null
 
 -- ∥_∥ n is a modality
 
 rec : {n : ℕ₋₂}
-      {B : Type ℓ'} → 
+      {B : Type ℓ'} →
       (isOfHLevel (2+ n) B) →
       (g : (a : A) → B) →
       (∥ A ∥ n → B)
@@ -221,13 +221,13 @@ groupoidTrunc≃Trunc1 =
 
 ---- ∥ Ω A ∥ ₙ ≡ Ω ∥ A ∥ₙ₊₁  ----
 
-  
+
   {- Proofs of Theorem 7.3.12. and Corollary 7.3.13. in the HoTT book  -}
 
 private
         {- We define the fibration P to show a more general result  -}
         P :  ∀ {ℓ} {B : Type ℓ}{n : ℕ₋₂} → ∥ B ∥  (suc n) → ∥ B ∥  (suc n) → Type ℓ
-        P x y = fst (P₁ x y) 
+        P x y = fst (P₁ x y)
 
           where
           P₁ : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} → ∥ B ∥  (suc n) → ∥ B ∥  (suc n) → (HLevel  ℓ (2+ n))
@@ -287,13 +287,13 @@ private
 
         {- encode function from x ≡ y to P x y -}
         encode-fun : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} (x y : ∥ B ∥ (suc n)) →
-                    _≡_ {A = ∥ B ∥ (suc n)} x y → 
-                    P x y 
+                    _≡_ {A = ∥ B ∥ (suc n)} x y →
+                    P x y
         encode-fun x y p = transport (λ i → P x (p i )) (r x)
 
         {- We need the following two lemmas on the functions behaviour for refl -}
         dec-refl : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} (x : ∥ B ∥ (suc n)) →
-                         decode-fun x x (r x) ≡ refl {x = x} 
+                         decode-fun x x (r x) ≡ refl {x = x}
         dec-refl {B = B} {n = neg2} x = ind {A = B} {n = suc neg2}
                                             {B = λ x → decode-fun x x (r x) ≡ refl {x = x} }
                                             (λ x → (hLevelSuc (2+ (suc neg2)) (x ≡ x)
@@ -310,7 +310,7 @@ private
                                                     (decode-fun x x (r x)) refl))
                                            λ c → refl
 
-        
+
         enc-refl : ∀ {ℓ} {B : Type ℓ}
                    {n : ℕ₋₂}
                    (x : ∥ B ∥ (suc n)) →

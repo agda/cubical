@@ -6,7 +6,7 @@ open import Cubical.ZCohomology.Properties
 open import Cubical.HITs.S1
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
-open import Cubical.HITs.SetTruncation 
+open import Cubical.HITs.SetTruncation
 open import Cubical.HITs.Nullification
 open import Cubical.Data.Int
 open import Cubical.Data.Nat

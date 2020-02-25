@@ -61,7 +61,7 @@ elimSetTrunc3 Bset g = elimSetTrunc2 (λ _ _ → hLevelPi 2 λ _ → Bset _ _ _)
 setTruncIsSet : isSet ∥ A ∥₀
 setTruncIsSet a b p q = squash₀ a b p q
 
-setId : isSet A → ∥ A ∥₀ ≡ A  
+setId : isSet A → ∥ A ∥₀ ≡ A
 setId {A = A} isset = isoToPath (iso (elimSetTrunc {A = A}
                                                   (λ _ → isset)
                                                   (λ x → x))
