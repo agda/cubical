@@ -16,5 +16,5 @@ pt = snd
 _→*_ : ∀{ℓ ℓ'} → (A : Pointed ℓ) (B : Pointed ℓ') → Type (ℓ-max ℓ ℓ')
 _→*_ A B = Σ (typ A → typ B) λ f → f (pt A) ≡ pt B
 
-_→*_/_  : ∀{ℓ ℓ'} → (A : Pointed ℓ) (B : Pointed ℓ') → (A →* B) → Pointed (ℓ-max ℓ ℓ')
-A →* B / f = (A →* B) , f
+_→*_*  : ∀{ℓ ℓ'} → (A : Pointed ℓ) (B : Pointed ℓ') → Pointed (ℓ-max ℓ ℓ')
+A →* B *  = (A →* B) , (λ x → pt B) , refl
