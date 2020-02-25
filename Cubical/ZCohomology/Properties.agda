@@ -16,7 +16,7 @@ open import Cubical.Data.Empty
 open import Cubical.Data.Sigma
 open import Cubical.Data.Prod.Base
 open import Cubical.HITs.Susp
-open import Cubical.HITs.SetTruncation 
+open import Cubical.HITs.SetTruncation
 open import Cubical.HITs.Nullification
 open import Cubical.Data.Int
 open import Cubical.Data.Nat
@@ -52,12 +52,12 @@ coHomRed+1Equiv zero A i = ∥ helpLemma {C = (Int , pos 0)} i ∥₀
 
     map2 : ((((A ⊎ Unit) , inr (tt)) →* C)) → (A → typ C)
     map2 (g , pf) x = g (inl x)
-    
+
     linvPf : (b :((((A ⊎ Unit) , inr (tt)) →* C))) →  map1 (map2 b) ≡ b
     linvPf (f , snd) i = (λ x → helper x i)  , λ j → snd ((~ i) ∨ j)
       where
-      helper : (x : A ⊎ Unit) → ((helpmap.map1') (map2 (f , snd)) x) ≡ f x 
+      helper : (x : A ⊎ Unit) → ((helpmap.map1') (map2 (f , snd)) x) ≡ f x
       helper (inl x) = refl
       helper (inr tt) = sym snd
-      
+
 coHomRed+1Equiv (suc n) A i = ∥ coHomRed+1.helpLemma A i {C = ((coHomK (suc n)) , ∣ north ∣)} i ∥₀
