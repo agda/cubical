@@ -64,11 +64,11 @@ module SumPath {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
   isOfHLevelCover n p q (inl a) (inr b') =
     isOfHLevelLift (suc n)
     (subst (λ m → isOfHLevel m ⊥) (+-comm n 1)
-      (hLevelLift n isProp⊥))
+      (isOfHLevelPlus n isProp⊥))
   isOfHLevelCover n p q (inr b) (inl a') =
     isOfHLevelLift (suc n)
       (subst (λ m → isOfHLevel m ⊥) (+-comm n 1)
-        (hLevelLift n isProp⊥))
+        (isOfHLevelPlus n isProp⊥))
   isOfHLevelCover n p q (inr b) (inr b') = isOfHLevelLift (suc n) (q b b')
 
 isEmbedding-inl : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isEmbedding (inl {A = A} {B = B})
@@ -82,7 +82,7 @@ isOfHLevelSum : ∀ {ℓ ℓ'} (n : ℕ) {A : Type ℓ} {B : Type ℓ'}
   → isOfHLevel (suc (suc n)) B
   → isOfHLevel (suc (suc n)) (A ⊎ B)
 isOfHLevelSum n lA lB c c' =
-  retractIsOfHLevel (suc n)
+  isOfHLevelRetract (suc n)
     (SumPath.encode c c')
     (SumPath.decode c c')
     (SumPath.decodeEncode c c')

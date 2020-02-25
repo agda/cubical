@@ -64,16 +64,16 @@ module MaybePath {ℓ} {A : Type ℓ} where
     → ∀ c c' → isOfHLevel (suc n) (Cover c c')
   isOfHLevelCover n p nothing  nothing   = isOfHLevelLift (suc n) (isOfHLevelUnit (suc n))
   isOfHLevelCover n p nothing  (just a') = isOfHLevelLift (suc n)
-    (subst (λ m → isOfHLevel m ⊥) (+-comm n 1) (hLevelLift n isProp⊥))
+    (subst (λ m → isOfHLevel m ⊥) (+-comm n 1) (isOfHLevelPlus n isProp⊥))
   isOfHLevelCover n p (just a) nothing   = isOfHLevelLift (suc n)
-    (subst (λ m → isOfHLevel m ⊥) (+-comm n 1) (hLevelLift n isProp⊥))
+    (subst (λ m → isOfHLevel m ⊥) (+-comm n 1) (isOfHLevelPlus n isProp⊥))
   isOfHLevelCover n p (just a) (just a') = p a a'
 
 isOfHLevelMaybe : ∀ {ℓ} (n : ℕ) {A : Type ℓ}
   → isOfHLevel (suc (suc n)) A
   → isOfHLevel (suc (suc n)) (Maybe A)
 isOfHLevelMaybe n lA c c' =
-  retractIsOfHLevel (suc n)
+  isOfHLevelRetract (suc n)
     (MaybePath.encode c c')
     (MaybePath.decode c c')
     (MaybePath.decodeEncode c c')
