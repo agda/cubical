@@ -1,7 +1,6 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.ZCohomology.Properties where
 
-
 open import Cubical.ZCohomology.Base
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
