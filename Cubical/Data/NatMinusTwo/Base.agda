@@ -3,7 +3,6 @@ module Cubical.Data.NatMinusTwo.Base where
 
 open import Cubical.Core.Primitives
 open import Cubical.Data.Nat
-open import Cubical.Data.Bool
 open import Cubical.Data.Empty
 
 import Cubical.Data.NatMinusOne as ℕ₋₁
@@ -32,22 +31,6 @@ data ℕ₋₂ : Set where
 
 ℕ→ℕ₋₂ : ℕ → ℕ₋₂
 ℕ→ℕ₋₂ n = ℕ₋₁→ℕ₋₂ (ℕ→ℕ₋₁ n)
-
-_<₋₂_ : ℕ₋₂ → ℕ₋₂ → Bool
-neg2 <₋₂ m = true
-suc n <₋₂ neg2 = false
-suc n <₋₂ suc m = n <₋₂ m
-
-_+₋₂_ : ℕ₋₂ → ℕ₋₂ → ℕ₋₂
-neg2 +₋₂ m = m
-suc n +₋₂ neg2 = suc n
-suc n +₋₂ suc m = suc (suc ( n +₋₂ m ))
-
-_-₋₂_ : ℕ₋₂ → ℕ₋₂ → ℕ₋₂
-neg2 -₋₂ m = neg2
-suc n -₋₂ neg2 = suc n
-suc n -₋₂ suc m = n -₋₂ m
-
 
 -- Natural number and negative integer literals for ℕ₋₂
 

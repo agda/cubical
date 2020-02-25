@@ -125,7 +125,6 @@ isOfHLevel∥∥ : (n : ℕ₋₂) → isOfHLevel (2+ n) (∥ A ∥ n)
 isOfHLevel∥∥ neg2    = hub ⊥-elim , λ _ → ≡hub ⊥-elim
 isOfHLevel∥∥ (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilled∥∥
 
-
 -- isOfHLevel∥∥ n = isSnNull→isOfHLevel isNull-Null
 
 -- ∥_∥ n is a modality
@@ -153,9 +152,6 @@ ind2 : {n : ℕ₋₂}
        B x y
 ind2 {n = n} hB g = ind (λ _ → hLevelPi (2+ n) (λ _ → hB _ _)) λ a →
                     ind (λ _ → hB _ _) (λ b → g a b)
-
-
-
 
 ind3 : {n : ℕ₋₂}
        {B : (x y z : ∥ A ∥ n) → Type ℓ'}
@@ -217,10 +213,7 @@ groupoidTrunc≃Trunc1 =
       (ind (λ _ → hLevelPath 4 (isOfHLevel∥∥ 2) _ _) (λ _ → refl))
       (g2TruncElim _ _ (λ _ → hLevelPath 4 squash₂ _ _) (λ _ → refl)))
 
-
-
 ---- ∥ Ω A ∥ ₙ ≡ Ω ∥ A ∥ₙ₊₁  ----
-
 
   {- Proofs of Theorem 7.3.12. and Corollary 7.3.13. in the HoTT book  -}
 
@@ -278,7 +271,6 @@ private
                                                    (isOfHLevel∥∥ {A = B} (suc (suc n)) ∣ u ∣  ∣ v ∣)
                                                    (λ p → cong (λ z → ∣ z ∣) p)
 
-
         {- auxilliary function r used to define encode -}
         r :  ∀ {ℓ} {B : Type ℓ} {m : ℕ₋₂} (u : ∥ B ∥ (suc m)) → P u u
         r {m = m}  = ind {B = (λ u → P u u)}
@@ -310,14 +302,11 @@ private
                                                     (decode-fun x x (r x)) refl))
                                            λ c → refl
 
-
         enc-refl : ∀ {ℓ} {B : Type ℓ}
                    {n : ℕ₋₂}
                    (x : ∥ B ∥ (suc n)) →
                    encode-fun x x (refl {x = x}) ≡ r x
         enc-refl x j = transp (λ i → P x (refl {x = x} i)) j (r x)
-
-
 
         {- decode-fun is a right-inverse -}
         P-rinv : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} (u v : ∥ B ∥  (suc n)) →
@@ -340,8 +329,6 @@ private
                                                                    λ z → hLevelSuc (2+ suc n) (P x y)
                                                                                    (hLevelP {n = n} x y) (encode-fun x y (decode-fun x y z)) z)
                                                  helper u v
-
-
           where
           helper : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂}
                    (a b : B)
