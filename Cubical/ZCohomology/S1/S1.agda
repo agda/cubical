@@ -17,7 +17,6 @@ private
     ℓ : Level
     A : Type ℓ
 
-
 ----  H⁰(S¹) ----
 
 coHom0-S1 : (coHom zero S¹) ≡ Int
