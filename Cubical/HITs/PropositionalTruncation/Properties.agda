@@ -40,6 +40,15 @@ elimPropTrunc {A = A} {P = P} Pprop f (squash x y i) =
     PpropOver : {a b : ∥ A ∥} → (sq : a ≡ b) → ∀ x y → PathP (λ i → P (sq i)) x y
     PpropOver {a} = J (λ b (sq : a ≡ b) → ∀ x y → PathP (λ i → P (sq i)) x y) (Pprop a)
 
+
+propId : isProp A → ∥ A ∥ ≡ A
+propId {A = A} hA = isoToPath (iso (recPropTrunc hA (idfun A)) (λ x → ∣ x ∣) (λ _ → refl) rinv)
+ where
+   rinv : ∀ (x : ∥ A ∥) → ∣ recPropTrunc hA (idfun A) x ∣ ≡ x
+   rinv x = elimPropTrunc {P = λ x → ∣ recPropTrunc hA (idfun A) x ∣ ≡ x}
+                         (λ _ → isProp→isSet propTruncIsProp _ _)
+                         (λ _ → refl) x
+
 -- We could also define the eliminator using the recursor
 elimPropTrunc' : ∀ {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
                  ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
