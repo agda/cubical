@@ -5,9 +5,6 @@ open import Cubical.Core.Primitives
 open import Cubical.Data.Nat
 open import Cubical.Data.Empty
 
-import Cubical.Data.NatMinusOne as ℕ₋₁
-open import Cubical.Data.NatMinusOne using (ℕ₋₁; ℕ→ℕ₋₁)
-
 record ℕ₋₂ : Type₀ where
   constructor -2+_
   field
@@ -16,24 +13,13 @@ record ℕ₋₂ : Type₀ where
 pattern neg2 = -2+ zero
 pattern neg1 = -2+ (suc zero)
 pattern ℕ→ℕ₋₂ n = -2+ (suc (suc n))
-pattern -1+ℕ_ n = -2+ (suc n)
+pattern -1+_ n = -2+ (suc n)
 
 2+_ : ℕ₋₂ → ℕ
 2+ (-2+ n) = n
 
 suc₋₂ : ℕ₋₂ → ℕ₋₂
 suc₋₂ (-2+ n) = -2+ (suc n)
-
--- Conversions to/from ℕ₋₁
-
--1+_ : ℕ₋₁ → ℕ₋₂
--1+ (ℕ₋₁.-1+ n) = -2+ n
-
-1+_ : ℕ₋₂ → ℕ₋₁
-1+ (-2+ n) = ℕ₋₁.-1+ n
-
-ℕ₋₁→ℕ₋₂ : ℕ₋₁ → ℕ₋₂
-ℕ₋₁→ℕ₋₂ (ℕ₋₁.-1+ n) = -1+ℕ n
 
 -- Natural number and negative integer literals for ℕ₋₂
 

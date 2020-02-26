@@ -26,7 +26,7 @@ private
 {- Types Kₙ from Brunerie 2016 -}
 coHomK : (n : ℕ) → Type₀
 coHomK zero = Int
-coHomK (suc n) = ∥ S₊ (suc n) ∥  (suc (ℕ→ℕ₋₂ n))
+coHomK (suc n) = ∥ S₊ (suc n) ∥  (ℕ→ℕ₋₂ (suc n))
 
 {- Cohomology -}
 coHom : (n : ℕ) → Type ℓ → Type ℓ
