@@ -63,10 +63,8 @@ module MaybePath {ℓ} {A : Type ℓ} where
     → isOfHLevel (suc (suc n)) A
     → ∀ c c' → isOfHLevel (suc n) (Cover c c')
   isOfHLevelCover n p nothing  nothing   = isOfHLevelLift (suc n) (isOfHLevelUnit (suc n))
-  isOfHLevelCover n p nothing  (just a') = isOfHLevelLift (suc n)
-    (subst (λ m → isOfHLevel m ⊥) (+-comm n 1) (isOfHLevelPlus n isProp⊥))
-  isOfHLevelCover n p (just a) nothing   = isOfHLevelLift (suc n)
-    (subst (λ m → isOfHLevel m ⊥) (+-comm n 1) (isOfHLevelPlus n isProp⊥))
+  isOfHLevelCover n p nothing  (just a') = isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥)
+  isOfHLevelCover n p (just a) nothing   = isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥)
   isOfHLevelCover n p (just a) (just a') = p a a'
 
 isOfHLevelMaybe : ∀ {ℓ} (n : ℕ) {A : Type ℓ}

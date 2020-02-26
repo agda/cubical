@@ -22,7 +22,7 @@ open import Cubical.Foundations.HAEquiv      using (congEquiv)
 open import Cubical.Foundations.Univalence   using (ua; univalence)
 
 open import Cubical.Data.Sigma using (ΣPathP; sigmaPath→pathSigma; pathSigma≡sigmaPath; _Σ≡T_)
-open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-comm)
+open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)
 
 private
   variable
@@ -56,6 +56,12 @@ isOfHLevelSuc (suc (suc n)) h a b = isOfHLevelSuc (suc n) (h a b)
 isOfHLevelPlus : (m : ℕ) → isOfHLevel n A → isOfHLevel (m + n) A
 isOfHLevelPlus zero hA = hA
 isOfHLevelPlus (suc m) hA = isOfHLevelSuc _ (isOfHLevelPlus m hA)
+
+isContr→isOfHLevel : (n : ℕ) → isContr A → isOfHLevel n A
+isContr→isOfHLevel {A = A} n cA = subst (λ m → isOfHLevel m A) (+-zero n) (isOfHLevelPlus n cA)
+
+isProp→isOfHLevelSuc : (n : ℕ) → isProp A → isOfHLevel (suc n) A
+isProp→isOfHLevelSuc {A = A} n pA = subst (λ m → isOfHLevel m A) (+-comm n 1) (isOfHLevelPlus n pA)
 
 -- hlevel of path and dependent path types
 

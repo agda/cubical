@@ -62,13 +62,9 @@ module SumPath {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
     → ∀ c c' → isOfHLevel (suc n) (Cover c c')
   isOfHLevelCover n p q (inl a) (inl a') = isOfHLevelLift (suc n) (p a a')
   isOfHLevelCover n p q (inl a) (inr b') =
-    isOfHLevelLift (suc n)
-    (subst (λ m → isOfHLevel m ⊥) (+-comm n 1)
-      (isOfHLevelPlus n isProp⊥))
+    isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥)
   isOfHLevelCover n p q (inr b) (inl a') =
-    isOfHLevelLift (suc n)
-      (subst (λ m → isOfHLevel m ⊥) (+-comm n 1)
-        (isOfHLevelPlus n isProp⊥))
+    isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥)
   isOfHLevelCover n p q (inr b) (inr b') = isOfHLevelLift (suc n) (q b b')
 
 isEmbedding-inl : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isEmbedding (inl {A = A} {B = B})

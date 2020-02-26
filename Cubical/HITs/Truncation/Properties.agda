@@ -236,8 +236,7 @@ private
         hLevelP {n = n} {B = B} = ind2 {A = B}
                                        {n =  (suc n)}
                                        {B = λ x y → isOfHLevel (2+ (suc n)) (P x y)}
-                                       (λ x y →  transport (λ i → isOfHLevel (+-comm (2+ n) 1 i)
-                                                           (isOfHLevel (2+ suc n) (P x y))) (isOfHLevelPlus (2+ n) (isPropIsOfHLevel (2+ suc n))) )
+                                       (λ x y → isProp→isOfHLevelSuc (2+ n) (isPropIsOfHLevel (2+ suc n)) )
                                        λ a b  → ( isOfHLevelSuc (2+ n) )
                                        (isOfHLevel∥∥ {A = a ≡ b} n)
 

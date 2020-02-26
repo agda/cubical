@@ -70,17 +70,11 @@ module ListPath {ℓ} {A : Type ℓ} where
   isOfHLevelCover : (n : ℕ) (p : isOfHLevel (suc (suc n)) A)
     (xs ys : List A) → isOfHLevel (suc n) (Cover xs ys)
   isOfHLevelCover n p [] [] =
-    isOfHLevelLift (suc n)
-      (subst (λ m → isOfHLevel m Unit) (+-comm n 1)
-        (isOfHLevelPlus n isPropUnit))
+    isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isPropUnit)
   isOfHLevelCover n p [] (y ∷ ys) =
-    isOfHLevelLift (suc n)
-      (subst (λ m → isOfHLevel m ⊥) (+-comm n 1)
-        (isOfHLevelPlus n isProp⊥))
+    isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥)
   isOfHLevelCover n p (x ∷ xs) [] =
-    isOfHLevelLift (suc n)
-      (subst (λ m → isOfHLevel m ⊥) (+-comm n 1)
-        (isOfHLevelPlus n isProp⊥))
+    isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥)
   isOfHLevelCover n p (x ∷ xs) (y ∷ ys) =
     hLevelProd (suc n) (p x y) (isOfHLevelCover n p xs ys)
 
