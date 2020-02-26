@@ -28,6 +28,7 @@ check: $(wildcard Cubical/**/*.agda)
 	$(AGDA) Cubical/Modalities/Everything.agda
 	$(AGDA) Cubical/WithK.agda
 	$(AGDA) Cubical/Experiments/Everything.agda
+	$(AGDA) Cubical/ZCohomology/Everything.agda
 
 .PHONY: listings
 listings: $(wildcard Cubical/**/*.agda)
