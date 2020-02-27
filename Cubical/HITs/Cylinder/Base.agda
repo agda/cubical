@@ -8,7 +8,7 @@ open import Cubical.Foundations.Everything
 
 open import Cubical.HITs.PropositionalTruncation
 
-open import Cubical.Data.Prod
+open import Cubical.Data.Prod using (_×_; _,_)
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum as Sum using (_⊎_; inl; inr)
 
@@ -118,22 +118,22 @@ module Functorial where
       B : Type ℓb
       C : Type ℓc
 
-  mapCylinder : (A → B) → Cylinder A → Cylinder B
-  mapCylinder f (inl x) = inl (f x)
-  mapCylinder f (inr x) = inr (f x)
-  mapCylinder f (cross x i) = cross (f x) i
+  map : (A → B) → Cylinder A → Cylinder B
+  map f (inl x) = inl (f x)
+  map f (inr x) = inr (f x)
+  map f (cross x i) = cross (f x) i
 
-  mapCylinderId : mapCylinder (λ(x : A) → x) ≡ (λ x → x)
-  mapCylinderId i (inl x) = inl x
-  mapCylinderId i (inr x) = inr x
-  mapCylinderId i (cross x j) = cross x j
+  mapId : map (λ(x : A) → x) ≡ (λ x → x)
+  mapId i (inl x) = inl x
+  mapId i (inr x) = inr x
+  mapId i (cross x j) = cross x j
 
-  mapCylinder∘
+  map∘
     : (f : A → B) → (g : B → C)
-    → mapCylinder (λ x → g (f x)) ≡ (λ x → mapCylinder g (mapCylinder f x))
-  mapCylinder∘ f g i (inl x) = inl (g (f x))
-  mapCylinder∘ f g i (inr x) = inr (g (f x))
-  mapCylinder∘ f g i (cross x j) = cross (g (f x)) j
+    → map (λ x → g (f x)) ≡ (λ x → map g (map f x))
+  map∘ f g i (inl x) = inl (g (f x))
+  map∘ f g i (inr x) = inr (g (f x))
+  map∘ f g i (cross x j) = cross (g (f x)) j
 
   -- There is an adjunction between the cylinder and coyclinder
   -- functors.
