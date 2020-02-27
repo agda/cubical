@@ -18,7 +18,7 @@ import Cubical.Data.NatMinusOne as ℕ₋₁
 open import Cubical.Data.NatMinusTwo
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Nullification
+open import Cubical.HITs.Nullification as Null hiding (rec; elim)
 
 open import Cubical.HITs.Truncation.Base
 
@@ -134,7 +134,7 @@ rec : {n : ℕ₋₂}
       (isOfHLevel (2+ n) B) →
       (g : (a : A) → B) →
       (∥ A ∥ n → B)
-rec {B = B} h = Null-ind {B = λ _ → B} λ x → isOfHLevel→isSnNull h
+rec {B = B} h = Null.elim {B = λ _ → B} λ x → isOfHLevel→isSnNull h
 
 elim : {n : ℕ₋₂}
   {B : ∥ A ∥ n → Type ℓ'}
@@ -142,7 +142,7 @@ elim : {n : ℕ₋₂}
   (g : (a : A) → B (∣ a ∣))
   (x : ∥ A ∥ n) →
   B x
-elim hB = Null-ind (λ x → isOfHLevel→isSnNull (hB x))
+elim hB = Null.elim (λ x → isOfHLevel→isSnNull (hB x))
 
 elim2 : {n : ℕ₋₂}
   {B : ∥ A ∥ n → ∥ A ∥ n → Type ℓ'}
