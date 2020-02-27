@@ -2,17 +2,18 @@
 module Cubical.Foundations.Pointed.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+
+open import Cubical.Foundations.Structure.Base
+open import Cubical.Foundations.Structure.Base using (typ) public
 
 Pointed : (ℓ : Level) → Type (ℓ-suc ℓ)
-Pointed ℓ = Σ[ A ∈ Type ℓ ] A
-
-Pointed₀ = Pointed ℓ-zero
-
-typ : ∀ {ℓ} (A∙ : Pointed ℓ) → Type ℓ
-typ = fst
+Pointed ℓ = TypeWithStr ℓ (λ x → x)
 
 pt : ∀ {ℓ} (A∙ : Pointed ℓ) → typ A∙
-pt = snd
+pt = str
+
+Pointed₀ = Pointed ℓ-zero
 
 {- Pointed functions -}
 _→*_ : ∀{ℓ ℓ'} → (A : Pointed ℓ) (B : Pointed ℓ') → Type (ℓ-max ℓ ℓ')
