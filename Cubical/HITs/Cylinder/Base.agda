@@ -49,15 +49,15 @@ module _ {ℓ} {A : Type ℓ} where
       ∣ inr x , (λ j → cross x (i ∨ ~ j)) ∣
       i
 
-  elimCyl
+  elim
     : ∀{ℓ'} {B : Cylinder A → Type ℓ'}
     → (f : (x : A) → B (inl x))
     → (g : (x : A) → B (inr x))
     → (p : ∀ x → PathP (λ i → B (cross x i)) (f x) (g x))
     → (c : Cylinder A) → B c
-  elimCyl f _ _ (inl x) = f x
-  elimCyl _ g _ (inr x) = g x
-  elimCyl _ _ p (cross x i) = p x i
+  elim f _ _ (inl x) = f x
+  elim _ g _ (inr x) = g x
+  elim _ _ p (cross x i) = p x i
 
   private
     out : Cylinder A → A
