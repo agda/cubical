@@ -1,37 +1,37 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.Everything where
 
-open import Cubical.HITs.Cylinder public
-open import Cubical.HITs.Hopf public
-open import Cubical.HITs.Interval public
-open import Cubical.HITs.Ints.BiInvInt public hiding ( pred ; suc-pred ; pred-suc )
-open import Cubical.HITs.Ints.DeltaInt public hiding ( pred ; succ ; zero )
-open import Cubical.HITs.Ints.HAEquivInt public hiding ( suc-haequiv )
-open import Cubical.HITs.Ints.IsoInt public
-open import Cubical.HITs.Ints.QuoInt public
-open import Cubical.HITs.Join public
-open import Cubical.HITs.ListedFiniteSet public
-open import Cubical.HITs.Pushout public
-open import Cubical.HITs.Modulo public
-open import Cubical.HITs.S1 public
-open import Cubical.HITs.S2 public
-open import Cubical.HITs.S3 public
-open import Cubical.HITs.Rational public
-open import Cubical.HITs.Susp public
-open import Cubical.HITs.SmashProduct public renaming (comm to Smash-comm)
-open import Cubical.HITs.Torus public
-open import Cubical.HITs.PropositionalTruncation public
-open import Cubical.HITs.SetTruncation public
-open import Cubical.HITs.GroupoidTruncation public
-open import Cubical.HITs.2GroupoidTruncation public
-open import Cubical.HITs.SetQuotients public
-open import Cubical.HITs.FiniteMultiset public hiding ( _++_ ; [_] ; assoc-++ )
-open import Cubical.HITs.Sn public
-open import Cubical.HITs.Truncation public
-open import Cubical.HITs.Colimit
-open import Cubical.HITs.MappingCones
-open import Cubical.HITs.InfNat public
-open import Cubical.HITs.KleinBottle
-open import Cubical.HITs.DunceCap
-open import Cubical.HITs.Localization public
-open import Cubical.HITs.Nullification public
+import Cubical.HITs.Cylinder
+import Cubical.HITs.Hopf
+import Cubical.HITs.Interval
+import Cubical.HITs.Ints.BiInvInt
+import Cubical.HITs.Ints.DeltaInt
+import Cubical.HITs.Ints.HAEquivInt
+import Cubical.HITs.Ints.IsoInt
+import Cubical.HITs.Ints.QuoInt
+import Cubical.HITs.Join
+import Cubical.HITs.ListedFiniteSet
+import Cubical.HITs.Pushout
+import Cubical.HITs.Modulo
+import Cubical.HITs.S1
+import Cubical.HITs.S2
+import Cubical.HITs.S3
+import Cubical.HITs.Rational
+import Cubical.HITs.Susp
+import Cubical.HITs.SmashProduct
+import Cubical.HITs.Torus
+import Cubical.HITs.PropositionalTruncation
+import Cubical.HITs.SetTruncation
+import Cubical.HITs.GroupoidTruncation
+import Cubical.HITs.2GroupoidTruncation
+import Cubical.HITs.SetQuotients
+import Cubical.HITs.FiniteMultiset
+import Cubical.HITs.Sn
+import Cubical.HITs.Truncation
+import Cubical.HITs.Colimit
+import Cubical.HITs.MappingCones
+import Cubical.HITs.InfNat
+import Cubical.HITs.KleinBottle
+import Cubical.HITs.DunceCap
+import Cubical.HITs.Localization
+import Cubical.HITs.Nullification
