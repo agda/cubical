@@ -8,7 +8,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Empty as Empty using (⊥)
-open import Cubical.Data.Nat
+open import Cubical.Data.Nat using (ℕ; zero; suc; _+_)
 open import Cubical.Data.Unit renaming (Unit to ⊤)
 
 open import Cubical.Relation.Nullary

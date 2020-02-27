@@ -18,7 +18,6 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.HAEquiv
 open import Cubical.Foundations.Univalence
 
-open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Nullary
