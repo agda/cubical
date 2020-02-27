@@ -22,7 +22,7 @@ open import Cubical.HITs.Nullification
 
 open import Cubical.HITs.Truncation.Base
 
-open import Cubical.HITs.PropositionalTruncation renaming (∥_∥ to ∥_∥₋₁)
+import Cubical.HITs.PropositionalTruncation as T₋₁
 open import Cubical.HITs.SetTruncation
 open import Cubical.HITs.GroupoidTruncation
 open import Cubical.HITs.2GroupoidTruncation
@@ -177,14 +177,14 @@ idemTrunc n hA = ∣_∣ , isModalToIsEquiv (TruncModality n) hA
 
 -- equivalences to prop/set/groupoid truncations
 
-propTrunc≃Trunc-1 : ∥ A ∥₋₁ ≃ ∥ A ∥ -1
+propTrunc≃Trunc-1 : T₋₁.∥ A ∥ ≃ ∥ A ∥ -1
 propTrunc≃Trunc-1 =
   isoToEquiv
     (iso
-      (elimPropTrunc (λ _ → isOfHLevel∥∥ -1) ∣_∣)
-      (ind (λ _ → propTruncIsProp) ∣_∣)
+      (T₋₁.elim (λ _ → isOfHLevel∥∥ -1) ∣_∣)
+      (ind (λ _ → T₋₁.propTruncIsProp) T₋₁.∣_∣)
       (ind (λ _ → hLevelPath 1 (isOfHLevel∥∥ -1) _ _) (λ _ → refl))
-      (elimPropTrunc (λ _ → hLevelPath 1 squash _ _) (λ _ → refl)))
+      (T₋₁.elim (λ _ → hLevelPath 1 T₋₁.squash _ _) (λ _ → refl)))
 
 setTrunc≃Trunc0 : ∥ A ∥₀ ≃ ∥ A ∥ 0
 setTrunc≃Trunc0 =

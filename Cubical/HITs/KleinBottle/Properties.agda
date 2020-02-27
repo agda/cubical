@@ -20,7 +20,7 @@ open import Cubical.Data.Int public renaming (_+_ to _+Int_ ; +-assoc to +Int-as
 open import Cubical.Data.Prod
 open import Cubical.Data.Sigma
 open import Cubical.HITs.S1
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
 open import Cubical.HITs.KleinBottle.Base
 
@@ -109,7 +109,7 @@ isGroupoidKleinBottle =
   transport (λ i → isGroupoid (ua kleinBottle≃Σ (~ i)))
     (isOfHLevelΣ 3 isGroupoidS¹
       (λ s →
-        recPropTrunc
+        PropTrunc.rec
           (isPropIsOfHLevel 3 (invS¹Loop s))
           (λ p → subst (λ s → isGroupoid (invS¹Loop s)) p isGroupoidS¹)
           (isConnectedS¹ s)))

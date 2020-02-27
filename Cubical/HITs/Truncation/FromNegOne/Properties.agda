@@ -12,7 +12,7 @@ open import Cubical.HITs.Sn
 open import Cubical.Data.Empty
 open import Cubical.HITs.Susp
 
-open import Cubical.HITs.PropositionalTruncation renaming (∥_∥ to ∥_∥₋₁)
+open import Cubical.HITs.PropositionalTruncation as PropTrunc renaming (∥_∥ to ∥_∥₋₁)
 open import Cubical.HITs.SetTruncation
 open import Cubical.HITs.GroupoidTruncation
 open import Cubical.HITs.2GroupoidTruncation
@@ -147,10 +147,10 @@ propTrunc≃Trunc-1 : ∥ A ∥₋₁ ≃ ∥ A ∥ -1
 propTrunc≃Trunc-1 =
   isoToEquiv
     (iso
-      (elimPropTrunc (λ _ → isOfHLevel∥∥ -1) ∣_∣)
+      (PropTrunc.elim (λ _ → isOfHLevel∥∥ -1) ∣_∣)
       (ind (λ _ → propTruncIsProp) ∣_∣)
       (ind (λ _ → hLevelPath 1 (isOfHLevel∥∥ -1) _ _) (λ _ → refl))
-      (elimPropTrunc (λ _ → hLevelPath 1 squash _ _) (λ _ → refl)))
+      (PropTrunc.elim (λ _ → hLevelPath 1 squash _ _) (λ _ → refl)))
 
 setTrunc≃Trunc0 : ∥ A ∥₀ ≃ ∥ A ∥ 0
 setTrunc≃Trunc0 =

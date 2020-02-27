@@ -9,7 +9,7 @@ open import Cubical.Data.Unit
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
 open import Cubical.Foundations.HLevels using (hProp; ΣProp≡; isPropIsProp; propPi) public
 open import Cubical.Foundations.Isomorphism
@@ -76,7 +76,7 @@ pathTo⇐ : P ≡ Q → [ Q ⇒ P ]
 pathTo⇐ p x = subst fst (sym p) x
 
 substₚ : {x y : A} (B : A → hProp ℓ) → [ x ≡ₚ y ⇒ B x ⇒ B y ]
-substₚ {x = x} {y = y} B = elimPropTrunc (λ _ → propPi λ _ → B y .snd) (subst (fst ∘ B))
+substₚ {x = x} {y = y} B = PropTrunc.elim (λ _ → propPi λ _ → B y .snd) (subst (fst ∘ B))
 
 --------------------------------------------------------------------------------
 -- Mixfix notations for ⇔-toPath
@@ -122,7 +122,7 @@ inr x = ∣ Sum.inr x ∣
 
 ⊔-elim : (P : hProp ℓ) (Q : hProp ℓ') (R : [ P ⊔ Q ] → hProp ℓ'')
   → (∀ x → [ R (inl x) ]) → (∀ y → [ R (inr y) ]) → (∀ z → [ R z ])
-⊔-elim _ _ R P⇒R Q⇒R = elimPropTrunc (snd ∘ R) (Sum.elim P⇒R Q⇒R)
+⊔-elim _ _ R P⇒R Q⇒R = PropTrunc.elim (snd ∘ R) (Sum.elim P⇒R Q⇒R)
 
 --------------------------------------------------------------------------------
 -- Conjunction of mere propositions
@@ -177,8 +177,8 @@ Decₚ P = Dec [ P ] , isPropDec (snd P)
 
 ∥¬A∥≡¬∥A∥ : (A : Type ℓ) → ∥ (A → Empty.⊥) ∥ₚ ≡ (¬ ∥ A ∥ₚ)
 ∥¬A∥≡¬∥A∥ _ =
-  ⇒∶ (λ ¬A A → elimPropTrunc (λ _ → Empty.isProp⊥)
-    (elimPropTrunc (λ _ → propPi λ _ → Empty.isProp⊥) (λ ¬p p → ¬p p) ¬A) A)
+  ⇒∶ (λ ¬A A → PropTrunc.elim (λ _ → Empty.isProp⊥)
+    (PropTrunc.elim (λ _ → propPi λ _ → Empty.isProp⊥) (λ ¬p p → ¬p p) ¬A) A)
   ⇐∶ λ ¬p → ∣ (λ p → ¬p ∣ p ∣) ∣
 
 --------------------------------------------------------------------------------

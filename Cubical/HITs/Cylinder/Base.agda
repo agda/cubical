@@ -6,7 +6,7 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Everything
 
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation using (∥_∥; ∣_∣; squash)
 
 open import Cubical.Data.Prod using (_×_; _,_)
 open import Cubical.Data.Unit

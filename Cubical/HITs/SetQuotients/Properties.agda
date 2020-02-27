@@ -23,7 +23,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
 open import Cubical.HITs.SetTruncation
 
 -- Type quotients
@@ -87,7 +87,7 @@ setQuotUniversal Bset = isoToEquiv (iso intro elim elimRightInv elimLeftInv)
   elimRightInv h = refl
 
   elimLeftInv : ∀ g → elim (intro g) ≡ g
-  elimLeftInv = λ g → funExt (λ x → elimPropTrunc {P = λ sur → elim (intro g) x ≡ g x}
+  elimLeftInv = λ g → funExt (λ x → PropTrunc.elim {P = λ sur → elim (intro g) x ≡ g x}
     (λ sur → Bset (elim (intro g) x) (g x))
     (λ sur → cong (elim (intro g)) (sym (snd sur)) ∙ (cong g (snd sur))) ([]surjective x)
     )

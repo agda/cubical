@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Embedding
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
 private
   variable
@@ -34,7 +34,7 @@ isEquiv→isEmbedding×isSurjection e = isEquiv→isEmbedding e , isEquiv→isSu
 
 isEmbedding×isSurjection→isEquiv : isEmbedding f × isSurjection f → isEquiv f
 equiv-proof (isEmbedding×isSurjection→isEquiv {f = f} (emb , sur)) b =
-  inhProp→isContr (recPropTrunc fib' (λ x → x) fib) fib'
+  inhProp→isContr (PropTrunc.rec fib' (λ x → x) fib) fib'
   where
   hpf : hasPropFibers f
   hpf = isEmbedding→hasPropFibers emb
