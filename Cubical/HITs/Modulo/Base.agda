@@ -7,7 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as Empty using (⊥)
 open import Cubical.Data.Fin
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit renaming (Unit to ⊤)

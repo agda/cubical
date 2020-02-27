@@ -6,7 +6,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
 
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Prod
 open import Cubical.Data.Sum
 
@@ -166,7 +166,7 @@ private
     }
 
 <-wellfounded : WellFounded _<_
-<-wellfounded zero = acc λ _ → ⊥-elim ∘ ¬-<-zero
+<-wellfounded zero = acc λ _ → Empty.rec ∘ ¬-<-zero
 <-wellfounded (suc n) = acc-suc (<-wellfounded n)
 
 module _
@@ -190,13 +190,13 @@ module _
     dichotomy<≡ b n n<b
       = case dichotomy b n return (λ d → d ≡ inl n<b) of λ
       { (inl x) → cong inl (m≤n-isProp x n<b)
-      ; (inr (m , p)) → ⊥-elim (<-asym n<b (m , sym (p ∙ +-comm b m)))
+      ; (inr (m , p)) → Empty.rec (<-asym n<b (m , sym (p ∙ +-comm b m)))
       }
 
     dichotomy+≡ : ∀ b m n → (p : n ≡ b + m) → dichotomy b n ≡ inr (m , p)
     dichotomy+≡ b m n p
       = case dichotomy b n return (λ d → d ≡ inr (m , p)) of λ
-      { (inl n<b) → ⊥-elim (<-asym n<b (m , +-comm m b ∙ sym p))
+      { (inl n<b) → Empty.rec (<-asym n<b (m , +-comm m b ∙ sym p))
       ; (inr (m' , q))
       → cong inr (ΣProp≡ (λ x → isSetℕ n (b + x)) (inj-m+ {m = b} (sym q ∙ p)))
       }

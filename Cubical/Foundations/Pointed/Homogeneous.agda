@@ -15,7 +15,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Path
 open import Cubical.Data.Prod
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as Empty
 open import Cubical.Relation.Nullary
 
 open import Cubical.Foundations.Pointed.Base
@@ -52,7 +52,7 @@ module HomogeneousDiscrete {ℓ} {A∙ : Pointed ℓ} (dA : Discrete (typ A∙))
   switch-ptA∙ : switch (pt A∙) ≡ y
   switch-ptA∙ with dA (pt A∙) (pt A∙)
   ...         | yes _ = refl
-  ...         | no ¬p = ⊥-elim (¬p refl)
+  ...         | no ¬p = Empty.rec (¬p refl)
 
   switch-idp : ∀ x → switch (switch x) ≡ x
   switch-idp x with dA x (pt A∙)
@@ -60,17 +60,17 @@ module HomogeneousDiscrete {ℓ} {A∙ : Pointed ℓ} (dA : Discrete (typ A∙))
   switch-idp x | yes p | yes q = q ∙ sym p
   switch-idp x | yes p | no  _ with dA y y
   switch-idp x | yes p | no  _ | yes _ = sym p
-  switch-idp x | yes p | no  _ | no ¬p = ⊥-elim (¬p refl)
+  switch-idp x | yes p | no  _ | no ¬p = Empty.rec (¬p refl)
   switch-idp x | no ¬p with dA x y
   switch-idp x | no ¬p | yes p with dA y (pt A∙)
-  switch-idp x | no ¬p | yes p | yes q = ⊥-elim (¬p (p ∙ q))
+  switch-idp x | no ¬p | yes p | yes q = Empty.rec (¬p (p ∙ q))
   switch-idp x | no ¬p | yes p | no  _ with dA (pt A∙) (pt A∙)
   switch-idp x | no ¬p | yes p | no  _ | yes _ = sym p
-  switch-idp x | no ¬p | yes p | no  _ | no ¬q = ⊥-elim (¬q refl)
+  switch-idp x | no ¬p | yes p | no  _ | no ¬q = Empty.rec (¬q refl)
   switch-idp x | no ¬p | no ¬q with dA x (pt A∙)
-  switch-idp x | no ¬p | no ¬q | yes p = ⊥-elim (¬p p)
+  switch-idp x | no ¬p | no ¬q | yes p = Empty.rec (¬p p)
   switch-idp x | no ¬p | no ¬q | no  _ with dA x y
-  switch-idp x | no ¬p | no ¬q | no  _ | yes q = ⊥-elim (¬q q)
+  switch-idp x | no ¬p | no ¬q | no  _ | yes q = Empty.rec (¬q q)
   switch-idp x | no ¬p | no ¬q | no  _ | no  _ = refl
 
   switch-eqv : typ A∙ ≃ typ A∙

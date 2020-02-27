@@ -14,7 +14,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Data.Fin.Base
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
@@ -28,14 +28,14 @@ private
 
 -- Fin 0 is empty, and thus a proposition.
 isPropFin0 : isProp (Fin 0)
-isPropFin0 = ⊥-elim ∘ ¬Fin0
+isPropFin0 = Empty.rec ∘ ¬Fin0
 
 -- Fin 1 has only one value.
 isContrFin1 : isContr (Fin 1)
 isContrFin1
   = fzero , λ
   { (zero , _) → toℕ-injective refl
-  ; (suc k , sk<1) → ⊥-elim (¬-<-zero (pred-≤-pred sk<1))
+  ; (suc k , sk<1) → Empty.rec (¬-<-zero (pred-≤-pred sk<1))
   }
 
 -- Regardless of k, Fin k is a set.
@@ -67,16 +67,16 @@ private
   expand×Inj k {f1 , zero} {f2 , zero} p i
     = toℕ-injective {fj = f1} {f2} p i , zero
   expand×Inj k {f1 , suc o1} {(r , r<sk) , zero} p
-    = ⊥-elim (<-asym r<sk (lemma₀ refl p))
+    = Empty.rec (<-asym r<sk (lemma₀ refl p))
   expand×Inj k {(r , r<sk) , zero} {f2 , suc o2} p
-    = ⊥-elim (<-asym r<sk (lemma₀ refl (sym p)))
+    = Empty.rec (<-asym r<sk (lemma₀ refl (sym p)))
   expand×Inj k {f1 , suc o1} {f2 , suc o2}
     = cong (λ { (f , o) → (f , suc o) })
     ∘ expand×Inj k {f1 , o1} {f2 , o2}
     ∘ inj-m+ {suc k}
 
   expand×Emb : ∀ k → isEmbedding (expand× {k})
-  expand×Emb 0 = ⊥-elim ∘ ¬Fin0 ∘ fst
+  expand×Emb 0 = Empty.rec ∘ ¬Fin0 ∘ fst
   expand×Emb (suc k)
     = injEmbedding (isOfHLevelΣ 2 isSetFin (λ _ → isSetℕ)) isSetℕ (expand×Inj k)
 
@@ -103,14 +103,14 @@ Residue+k : (k n : ℕ) → Residue k n → Residue k (k + n)
 Residue+k k n ((f , o) , p) = (f , suc o) , cong (k +_) p
 
 Residue-k : (k n : ℕ) → Residue k (k + n) → Residue k n
-Residue-k k n (((r , r<k) , zero) , p) = ⊥-elim (<-asym r<k (lemma₀ p refl))
+Residue-k k n (((r , r<k) , zero) , p) = Empty.rec (<-asym r<k (lemma₀ p refl))
 Residue-k k n ((f , suc o) , p) = ((f , o) , inj-m+ p)
 
 Residue+k-k
   : (k n : ℕ)
   → (R : Residue k (k + n))
   → Residue+k k n (Residue-k k n R) ≡ R
-Residue+k-k k n (((r , r<k) , zero) , p) = ⊥-elim (<-asym r<k (lemma₀ p refl))
+Residue+k-k k n (((r , r<k) , zero) , p) = Empty.rec (<-asym r<k (lemma₀ p refl))
 Residue+k-k k n ((f , suc o) , p)
   = ΣProp≡ (λ tup → isSetℕ (expand× tup) (k + n)) refl
 

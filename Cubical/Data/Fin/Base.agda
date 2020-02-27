@@ -6,7 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sum
@@ -61,7 +61,7 @@ finduction
   → (∀{k} → P {suc k} fzero)
   → (∀{k} {fn : Fin k} → P fn → P (fsuc fn))
   → {k : ℕ} → (fn : Fin k) → P fn
-finduction P fz fs {zero} = ⊥-elim ∘ ¬Fin0
+finduction P fz fs {zero} = Empty.rec ∘ ¬Fin0
 finduction P fz fs {suc k} fj
   = case fsplit fj return (λ _ → P fj) of λ
   { (inl p) → subst P p fz
