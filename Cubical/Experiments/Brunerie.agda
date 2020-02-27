@@ -12,7 +12,7 @@ open import Cubical.HITs.S3
 open import Cubical.HITs.Join
 open import Cubical.HITs.Hopf
 open import Cubical.HITs.SetTruncation as SetTrunc
-open import Cubical.HITs.GroupoidTruncation
+open import Cubical.HITs.GroupoidTruncation as GroupoidTrunc
 open import Cubical.HITs.2GroupoidTruncation
 
 -- This code is adapted from examples/brunerie3.ctt on the pi4s3_nobug branch of cubicaltt
@@ -213,7 +213,7 @@ codeS¹ : S¹ → hSet _
 codeS¹ s = ∥ helix s ∥₀ , squash₀
 
 codeTruncS¹ : ∥ S¹ ∥₁ → hSet _
-codeTruncS¹ = recGroupoidTrunc (hLevelHLevel 2) codeS¹
+codeTruncS¹ = GroupoidTrunc.rec (hLevelHLevel 2) codeS¹
 
 encodeTruncS¹ : Ω ∥ S¹∙ ∥₁∙ .fst → ∥ Int ∥₀
 encodeTruncS¹ p = transp (λ i → codeTruncS¹ (p i) .fst) i0 ∣ pos zero ∣₀
