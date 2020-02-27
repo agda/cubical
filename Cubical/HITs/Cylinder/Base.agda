@@ -8,8 +8,9 @@ open import Cubical.Foundations.Everything
 
 open import Cubical.HITs.PropositionalTruncation
 
-import Cubical.Data.Everything as Data
-open Data hiding (inl; inr)
+open import Cubical.Data.Prod
+open import Cubical.Data.Unit
+open import Cubical.Data.Sum
 
 open import Cubical.HITs.Interval
 
@@ -35,17 +36,17 @@ module _ {ℓ} {A : Type ℓ} where
   --
   -- include is the first part of the factorization.
   include : A ⊎ A → Cylinder A
-  include (Data.inl x) = inl x
-  include (Data.inr x) = inr x
+  include (inl x) = inl x
+  include (inr x) = inr x
 
   -- The above inclusion is surjective
   includeSurjective : ∀ c → ∥ Σ[ s ∈ A ⊎ A ] include s ≡ c ∥
-  includeSurjective (inl x) = ∣ Data.inl x , refl ∣
-  includeSurjective (inr x) = ∣ Data.inr x , refl ∣
+  includeSurjective (inl x) = ∣ inl x , refl ∣
+  includeSurjective (inr x) = ∣ inr x , refl ∣
   includeSurjective (cross x i) =
     squash
-      ∣ Data.inl x , (λ j → cross x (i ∧ j)) ∣
-      ∣ Data.inr x , (λ j → cross x (i ∨ ~ j)) ∣
+      ∣ inl x , (λ j → cross x (i ∧ j)) ∣
+      ∣ inr x , (λ j → cross x (i ∨ ~ j)) ∣
       i
 
   elimCyl
