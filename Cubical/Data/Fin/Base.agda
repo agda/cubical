@@ -9,7 +9,7 @@ open import Cubical.Foundations.HLevels
 import Cubical.Data.Empty as Empty
 open import Cubical.Data.Nat using (ℕ; zero; suc)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum as Sum using (_⊎_; inl; inr)
 
 open import Cubical.Relation.Nullary
 

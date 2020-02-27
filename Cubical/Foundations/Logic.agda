@@ -2,10 +2,10 @@
 
 module Cubical.Foundations.Logic where
 
-import Cubical.Data.Empty as D
-import Cubical.Data.Prod  as D
-import Cubical.Data.Sum   as D
-import Cubical.Data.Unit  as D
+import Cubical.Data.Empty    as D
+import Cubical.Data.Prod     as D
+open import Cubical.Data.Sum as Sum using (_⊎_)
+import Cubical.Data.Unit     as D
 
 open import Cubical.Foundations.Prelude
 
@@ -109,20 +109,20 @@ x ≢ₚ y = ¬ x ≡ₚ y
 -- Disjunction of mere propositions
 
 _⊔′_ : Type ℓ → Type ℓ' → Type _
-A ⊔′ B = ∥ A D.⊎ B ∥
+A ⊔′ B = ∥ A ⊎ B ∥
 
 _⊔_ : hProp ℓ → hProp ℓ' → hProp _
-P ⊔ Q = ∥ [ P ] D.⊎ [ Q ] ∥ₚ
+P ⊔ Q = ∥ [ P ] ⊎ [ Q ] ∥ₚ
 
 inl : A → A ⊔′ B
-inl x = ∣ D.inl x ∣
+inl x = ∣ Sum.inl x ∣
 
 inr : B → A ⊔′ B
-inr x = ∣ D.inr x ∣
+inr x = ∣ Sum.inr x ∣
 
 ⊔-elim : (P : hProp ℓ) (Q : hProp ℓ') (R : [ P ⊔ Q ] → hProp ℓ'')
   → (∀ x → [ R (inl x) ]) → (∀ y → [ R (inr y) ]) → (∀ z → [ R z ])
-⊔-elim _ _ R P⇒R Q⇒R = elimPropTrunc (snd ∘ R) (D.elim-⊎ P⇒R Q⇒R)
+⊔-elim _ _ R P⇒R Q⇒R = elimPropTrunc (snd ∘ R) (Sum.elim P⇒R Q⇒R)
 
 --------------------------------------------------------------------------------
 -- Conjunction of mere propositions
@@ -194,11 +194,11 @@ Decₚ P = Dec [ P ] , isPropDec (snd P)
   ⇐∶ assoc2
   where
     assoc2 : (A ⊔′ B) ⊔′ C → A ⊔′ (B ⊔′ C)
-    assoc2 ∣ D.inr a ∣ = ∣ D.inr ∣ D.inr a ∣ ∣
-    assoc2 ∣ D.inl ∣ D.inr b ∣ ∣ = ∣ D.inr ∣ D.inl b ∣ ∣
-    assoc2 ∣ D.inl ∣ D.inl c ∣ ∣ = ∣ D.inl c ∣
-    assoc2 ∣ D.inl (squash x y i) ∣ = propTruncIsProp (assoc2 ∣ D.inl x ∣) (assoc2 ∣ D.inl y ∣) i
-    assoc2 (squash x y i)           = propTruncIsProp (assoc2 x) (assoc2 y) i
+    assoc2 ∣ Sum.inr a ∣              = ∣ Sum.inr ∣ Sum.inr a ∣ ∣
+    assoc2 ∣ Sum.inl ∣ Sum.inr b ∣ ∣  = ∣ Sum.inr ∣ Sum.inl b ∣ ∣
+    assoc2 ∣ Sum.inl ∣ Sum.inl c ∣ ∣  = ∣ Sum.inl c ∣
+    assoc2 ∣ Sum.inl (squash x y i) ∣ = propTruncIsProp (assoc2 ∣ Sum.inl x ∣) (assoc2 ∣ Sum.inl y ∣) i
+    assoc2 (squash x y i)             = propTruncIsProp (assoc2 x) (assoc2 y) i
 
 ⊔-idem : (P : hProp ℓ) → P ⊔ P ≡ P
 ⊔-idem P =
@@ -252,8 +252,8 @@ Decₚ P = Dec [ P ] , isPropDec (snd P)
   → P ⊓ (Q ⊔ R) ≡ (P ⊓ Q) ⊔ (P ⊓ R)
 ⊓-⊔-distribˡ P Q R =
   ⇒∶ (λ { (x D., a) → ⊔-elim Q R (λ _ → (P ⊓ Q) ⊔ (P ⊓ R))
-        (λ y → ∣ D.inl (x D., y) ∣ )
-        (λ z → ∣ D.inr (x D., z) ∣ ) a })
+        (λ y → ∣ Sum.inl (x D., y) ∣ )
+        (λ z → ∣ Sum.inr (x D., z) ∣ ) a })
 
   ⇐∶ ⊔-elim (P ⊓ Q) (P ⊓ R) (λ _ → P ⊓ Q ⊔ R)
        (λ y → D.proj₁ y D., inl (D.proj₂ y))

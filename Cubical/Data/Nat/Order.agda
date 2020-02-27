@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Prod
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum as Sum
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Nat.Properties
@@ -154,7 +154,7 @@ suc m ≟ suc n = Trichotomy-suc (m ≟ n)
 <-split : m < suc n → (m < n) ⊎ (m ≡ n)
 <-split {n = zero} = inr ∘ proj₂ ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred
 <-split {zero} {suc n} = λ _ → inl (suc-≤-suc zero-≤)
-<-split {suc m} {suc n} = map-⊎ suc-≤-suc (cong suc) ∘ <-split ∘ pred-≤-pred
+<-split {suc m} {suc n} = Sum.map suc-≤-suc (cong suc) ∘ <-split ∘ pred-≤-pred
 
 private
   acc-suc : Acc _<_ n → Acc _<_ (suc n)

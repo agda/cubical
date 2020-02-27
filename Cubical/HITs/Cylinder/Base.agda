@@ -10,7 +10,7 @@ open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Data.Prod
 open import Cubical.Data.Unit
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum as Sum using (_⊎_; inl; inr)
 
 open import Cubical.HITs.Interval
 
