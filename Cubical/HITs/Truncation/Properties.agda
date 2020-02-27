@@ -23,7 +23,7 @@ open import Cubical.HITs.Nullification
 open import Cubical.HITs.Truncation.Base
 
 import Cubical.HITs.PropositionalTruncation as T₋₁
-open import Cubical.HITs.SetTruncation
+import Cubical.HITs.SetTruncation as T₀
 open import Cubical.HITs.GroupoidTruncation
 open import Cubical.HITs.2GroupoidTruncation
 
@@ -186,14 +186,14 @@ propTrunc≃Trunc-1 =
       (ind (λ _ → hLevelPath 1 (isOfHLevel∥∥ -1) _ _) (λ _ → refl))
       (T₋₁.elim (λ _ → hLevelPath 1 T₋₁.squash _ _) (λ _ → refl)))
 
-setTrunc≃Trunc0 : ∥ A ∥₀ ≃ ∥ A ∥ 0
+setTrunc≃Trunc0 : T₀.∥ A ∥₀ ≃ ∥ A ∥ 0
 setTrunc≃Trunc0 =
   isoToEquiv
     (iso
-      (elimSetTrunc (λ _ → isOfHLevel∥∥ 0) ∣_∣)
-      (ind (λ _ → squash₀) ∣_∣₀)
+      (T₀.elim (λ _ → isOfHLevel∥∥ 0) ∣_∣)
+      (ind (λ _ → T₀.setTruncIsSet) T₀.∣_∣₀)
       (ind (λ _ → hLevelPath 2 (isOfHLevel∥∥ 0) _ _) (λ _ → refl))
-      (elimSetTrunc (λ _ → hLevelPath 2 squash₀ _ _) (λ _ → refl)))
+      (T₀.elim (λ _ → hLevelPath 2 T₀.squash₀ _ _) (λ _ → refl)))
 
 groupoidTrunc≃Trunc1 : ∥ A ∥₁ ≃ ∥ A ∥ 1
 groupoidTrunc≃Trunc1 =

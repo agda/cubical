@@ -78,18 +78,18 @@ elimSetQuotients Bset f feq (squash/ x y p q i j) =
 
 setQuotUniversal : {B : Type ℓ} (Bset : isSet B) →
                    (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
-setQuotUniversal Bset = isoToEquiv (iso intro elim elimRightInv elimLeftInv)
+setQuotUniversal Bset = isoToEquiv (iso intro out outRightInv outLeftInv)
   where
   intro = λ g →  (λ a → g [ a ]) , λ a b r i → g (eq/ a b r i)
-  elim = λ h → elimSetQuotients (λ x → Bset) (fst h) (snd h)
+  out = λ h → elimSetQuotients (λ x → Bset) (fst h) (snd h)
 
-  elimRightInv : ∀ h → intro (elim h) ≡ h
-  elimRightInv h = refl
+  outRightInv : ∀ h → intro (out h) ≡ h
+  outRightInv h = refl
 
-  elimLeftInv : ∀ g → elim (intro g) ≡ g
-  elimLeftInv = λ g → funExt (λ x → PropTrunc.elim {P = λ sur → elim (intro g) x ≡ g x}
-    (λ sur → Bset (elim (intro g) x) (g x))
-    (λ sur → cong (elim (intro g)) (sym (snd sur)) ∙ (cong g (snd sur))) ([]surjective x)
+  outLeftInv : ∀ g → out (intro g) ≡ g
+  outLeftInv = λ g → funExt (λ x → PropTrunc.elim {P = λ sur → out (intro g) x ≡ g x}
+    (λ sur → Bset (out (intro g) x) (g x))
+    (λ sur → cong (out (intro g)) (sym (snd sur)) ∙ (cong g (snd sur))) ([]surjective x)
     )
 
 open BinaryRelation
@@ -107,19 +107,19 @@ effective {A = A} {R = R} Rprop (EquivRel R/refl R/sym R/trans) a b p = transpor
     aa≡ab i = fst (helper (p i))
 
 isEquivRel→isEffective : isPropValued R → isEquivRel R → isEffective R
-isEquivRel→isEffective {R = R} Rprop Req a b = isoToEquiv (iso intro elim intro-elim elim-intro)
+isEquivRel→isEffective {R = R} Rprop Req a b = isoToEquiv (iso intro out intro-out out-intro)
   where
     intro : [ a ] ≡ [ b ] → R a b
     intro = effective Rprop Req a b
 
-    elim : R a b → [ a ] ≡ [ b ]
-    elim = eq/ a b
+    out : R a b → [ a ] ≡ [ b ]
+    out = eq/ a b
 
-    intro-elim : ∀ x → intro (elim x) ≡ x
-    intro-elim ab = Rprop a b _ _
+    intro-out : ∀ x → intro (out x) ≡ x
+    intro-out ab = Rprop a b _ _
 
-    elim-intro : ∀ x → elim (intro x) ≡ x
-    elim-intro eq = squash/ _ _ _ _
+    out-intro : ∀ x → out (intro x) ≡ x
+    out-intro eq = squash/ _ _ _ _
 
 discreteSetQuotients : Discrete A → isPropValued R → isEquivRel R → (∀ a₀ a₁ → Dec (R a₀ a₁)) → Discrete (A / R)
 discreteSetQuotients {A = A} {R = R} Adis Rprop Req Rdec =

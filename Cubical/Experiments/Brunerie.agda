@@ -11,7 +11,7 @@ open import Cubical.HITs.S2
 open import Cubical.HITs.S3
 open import Cubical.HITs.Join
 open import Cubical.HITs.Hopf
-open import Cubical.HITs.SetTruncation
+open import Cubical.HITs.SetTruncation as SetTrunc
 open import Cubical.HITs.GroupoidTruncation
 open import Cubical.HITs.2GroupoidTruncation
 
@@ -243,7 +243,7 @@ g9 : Ω ∥ S¹∙ ∥₁∙ .fst → ∥ Int ∥₀
 g9 = encodeTruncS¹
 
 g10 : ∥ Int ∥₀ → Int
-g10 = elimSetTrunc (λ _ → isSetInt) (idfun Int)
+g10 = SetTrunc.elim (λ _ → isSetInt) (idfun Int)
 
 -- don't run me
 brunerie : Int

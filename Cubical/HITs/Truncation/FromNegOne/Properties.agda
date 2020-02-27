@@ -12,8 +12,8 @@ open import Cubical.HITs.Sn
 open import Cubical.Data.Empty
 open import Cubical.HITs.Susp
 
-open import Cubical.HITs.PropositionalTruncation as PropTrunc renaming (∥_∥ to ∥_∥₋₁)
-open import Cubical.HITs.SetTruncation
+import Cubical.HITs.PropositionalTruncation as T₋₁
+import Cubical.HITs.SetTruncation as T₀
 open import Cubical.HITs.GroupoidTruncation
 open import Cubical.HITs.2GroupoidTruncation
 
@@ -143,23 +143,23 @@ idemTrunc {A = A} n hA = isoToEquiv (iso f g f-g g-f)
   g-f : ∀ x → g (f x) ≡ x
   g-f = ind (λ _ → hLevelPath (1 + 1+ n) (isOfHLevel∥∥ n) _ _) (λ _ → refl)
 
-propTrunc≃Trunc-1 : ∥ A ∥₋₁ ≃ ∥ A ∥ -1
+propTrunc≃Trunc-1 : T₋₁.∥ A ∥ ≃ ∥ A ∥ -1
 propTrunc≃Trunc-1 =
   isoToEquiv
     (iso
-      (PropTrunc.elim (λ _ → isOfHLevel∥∥ -1) ∣_∣)
-      (ind (λ _ → propTruncIsProp) ∣_∣)
+      (T₋₁.elim (λ _ → isOfHLevel∥∥ -1) ∣_∣)
+      (ind (λ _ → T₋₁.propTruncIsProp) T₋₁.∣_∣)
       (ind (λ _ → hLevelPath 1 (isOfHLevel∥∥ -1) _ _) (λ _ → refl))
-      (PropTrunc.elim (λ _ → hLevelPath 1 squash _ _) (λ _ → refl)))
+      (T₋₁.elim (λ _ → hLevelPath 1 T₋₁.squash _ _) (λ _ → refl)))
 
-setTrunc≃Trunc0 : ∥ A ∥₀ ≃ ∥ A ∥ 0
+setTrunc≃Trunc0 : T₀.∥ A ∥₀ ≃ ∥ A ∥ 0
 setTrunc≃Trunc0 =
   isoToEquiv
     (iso
-      (elimSetTrunc (λ _ → isOfHLevel∥∥ 0) ∣_∣)
-      (ind (λ _ → squash₀) ∣_∣₀)
+      (T₀.elim (λ _ → isOfHLevel∥∥ 0) ∣_∣)
+      (ind (λ _ → T₀.setTruncIsSet) T₀.∣_∣₀)
       (ind (λ _ → hLevelPath 2 (isOfHLevel∥∥ 0) _ _) (λ _ → refl))
-      (elimSetTrunc (λ _ → hLevelPath 2 squash₀ _ _) (λ _ → refl)))
+      (T₀.elim (λ _ → hLevelPath 2 T₀.squash₀ _ _) (λ _ → refl)))
 
 groupoidTrunc≃Trunc1 : ∥ A ∥₁ ≃ ∥ A ∥ 1
 groupoidTrunc≃Trunc1 =
