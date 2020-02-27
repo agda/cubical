@@ -45,7 +45,7 @@ z ∈ comm x y xs i       = proof i
 
 x ∈ trunc xs ys p q i j = isSetHProp (x ∈ xs) (x ∈ ys) (cong (x ∈_) p) (cong (x ∈_) q) i j
 
-module LFSetElim {ℓ}
+module Elim {ℓ}
   (B : LFSet A → Type ℓ)
   ([]* : B [])
   (_∷*_ : (x : A) {xs : LFSet A} → B xs → B (x ∷ xs))
@@ -66,7 +66,7 @@ module LFSetElim {ℓ}
       (λ i → f (p i)) (λ i → f (q i))
       (trunc x y p q) i j
 
-module LFSetRec {ℓ} {B : Type ℓ}
+module Rec {ℓ} {B : Type ℓ}
   ([]* : B)
   (_∷*_ : (x : A) → B → B)
   (comm* : (x y : A) (xs : B) → (x ∷* (y ∷* xs)) ≡ (y ∷* (x ∷* xs)))
@@ -74,18 +74,18 @@ module LFSetRec {ℓ} {B : Type ℓ}
   (trunc* : isSet B) where
 
   f : LFSet A → B
-  f = LFSetElim.f _
+  f = Elim.f _
     []* (λ x xs → x ∷* xs)
     (λ x y b → comm* x y b) (λ x b → dup* x b)
     λ _ → trunc*
 
-module LFPropElim {ℓ}
+module PropElim {ℓ}
   (B : LFSet A → Type ℓ)
   ([]* : B []) (_∷*_ : (x : A) {xs : LFSet A} → B xs → B (x ∷ xs))
   (trunc* : (xs : LFSet A) → isProp (B xs)) where
 
   f : ∀ x → B x
-  f = LFSetElim.f _
+  f = Elim.f _
     []* _∷*_
     (λ _ _ _ → isOfHLevel→isOfHLevelDep 1 trunc* _ _ _)
     (λ _ _ → isOfHLevel→isOfHLevelDep 1 trunc* _ _ _)
