@@ -25,9 +25,7 @@ elim : ∀ {ℓ ℓ'} {A : Type ℓ} {B : ∥ A ∥₁ → Type ℓ'}
   (f : (x : A) → B ∣ x ∣₁) (x : ∥ A ∥₁) → B x
 elim bG f (∣ x ∣₁) = f x
 elim bG f (squash₁ x y p q r s i j k) =
-  isOfHLevel→isOfHLevelDep 3 bG
-    (elim bG f x) (elim bG f y)
-    (cong (elim bG f) p) (cong (elim bG f) q)
+  isOfHLevel→isOfHLevelDep 3 bG _ _ _ _
     (λ j k → elim bG f (r j k)) (λ j k → elim bG f (s j k))
     (squash₁ x y p q r s)
     i j k

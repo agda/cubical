@@ -25,7 +25,7 @@ open import Cubical.HITs.Truncation.Base
 import Cubical.HITs.PropositionalTruncation as T₋₁
 import Cubical.HITs.SetTruncation as T₀
 import Cubical.HITs.GroupoidTruncation as T₁
-open import Cubical.HITs.2GroupoidTruncation
+import Cubical.HITs.2GroupoidTruncation as T₂
 
 private
   variable
@@ -204,14 +204,14 @@ groupoidTrunc≃Trunc1 =
       (ind (λ _ → hLevelPath 3 (isOfHLevel∥∥ 1) _ _) (λ _ → refl))
       (T₁.elim (λ _ → hLevelPath 3 T₁.squash₁ _ _) (λ _ → refl)))
 
-2groupoidTrunc≃Trunc2 : ∥ A ∥₂ ≃ ∥ A ∥ 2
-2groupoidTrunc≃Trunc2 =
+2GroupoidTrunc≃Trunc2 : T₂.∥ A ∥₂ ≃ ∥ A ∥ 2
+2GroupoidTrunc≃Trunc2 =
   isoToEquiv
     (iso
-      (g2TruncElim _ _ (λ _ → isOfHLevel∥∥ 2) ∣_∣)
-      (ind (λ _ → squash₂) ∣_∣₂)
+      (T₂.elim (λ _ → isOfHLevel∥∥ 2) ∣_∣)
+      (ind (λ _ → T₂.squash₂) T₂.∣_∣₂)
       (ind (λ _ → hLevelPath 4 (isOfHLevel∥∥ 2) _ _) (λ _ → refl))
-      (g2TruncElim _ _ (λ _ → hLevelPath 4 squash₂ _ _) (λ _ → refl)))
+      (T₂.elim (λ _ → hLevelPath 4 T₂.squash₂ _ _) (λ _ → refl)))
 
 ---- ∥ Ω A ∥ ₙ ≡ Ω ∥ A ∥ₙ₊₁  ----
 
