@@ -27,12 +27,12 @@ private
   A × B = Σ A λ _ → B
 
 -- Fin 0 is empty, and thus a proposition.
-Fin0-isProp : isProp (Fin 0)
-Fin0-isProp = ⊥-elim ∘ ¬Fin0
+isPropFin0 : isProp (Fin 0)
+isPropFin0 = ⊥-elim ∘ ¬Fin0
 
 -- Fin 1 has only one value.
-Fin1-isContr : isContr (Fin 1)
-Fin1-isContr
+isContrFin1 : isContr (Fin 1)
+isContrFin1
   = fzero , λ
   { (zero , _) → toℕ-injective refl
   ; (suc k , sk<1) → ⊥-elim (¬-<-zero (pred-≤-pred sk<1))
