@@ -231,7 +231,7 @@ private
   {- We will need P to be of hLevel n + 3  -}
   hLevelP : ∀{ℓ} {n : ℕ₋₂} {B : Type ℓ} (a b : ∥ B ∥ (suc n)) → isOfHLevel (2+ (suc n)) (P a b )
   hLevelP {n = n} =
-    elim2 
+    elim2
       (λ x y → transport (λ i → isOfHLevel (+-comm (2+ n) 1 i)
       (isOfHLevel (2+ suc n) (P x y))) (hLevelLift (2+ n) (isPropIsOfHLevel (2+ suc n) (P x y))) )
       (λ a b → hLevelSuc (2+ n) (P ∣ a ∣ ∣ b ∣) (isOfHLevel∥∥ n))
