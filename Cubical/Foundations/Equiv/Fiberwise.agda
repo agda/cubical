@@ -29,7 +29,7 @@ module _ {a p q} {A : Type a} (P : A → Type p) (Q : A → Type q)
   -- half of Thm 4.7.7 (fiberwise equivalences)
   fiberEquiv : ([tf] : isEquiv total)
                → ∀ x → isEquiv (f x)
-  fiberEquiv [tf] x .equiv-proof y = retractIsContr (fibers-total .Iso.inv) (fibers-total .Iso.fun) (fibers-total .Iso.rightInv)
+  fiberEquiv [tf] x .equiv-proof y = isContrRetract (fibers-total .Iso.inv) (fibers-total .Iso.fun) (fibers-total .Iso.rightInv)
                                                     ([tf] .equiv-proof (x , y))
 
 
@@ -42,7 +42,7 @@ module _ {ℓ : Level} {U : Type ℓ} {ℓr} (_~_ : U → U → Type ℓr)
   isContrToUniv {A} {B}
     = fiberEquiv (λ z → A ≡ z) (λ z → A ~ z) (\ B → idTo~ {A} {B})
                  (λ { .equiv-proof y
-                    → isContrSigma ((_ , refl) , (\ z → contrSingl (z .snd)))
-                                   \ a → isContrPath (c A) _ _
+                    → isContrΣ ((_ , refl) , (\ z → contrSingl (z .snd)))
+                                   \ a → isContr→isContrPath (c A) _ _
                     })
                  B

@@ -315,4 +315,4 @@ module GpdElim (Bgpd : isGroupoid B) where
 open GpdElim using (recPropTrunc→Gpd; trunc→Gpd≃) public
 
 RecHSet : (P : A → HLevel ℓ 2) → 3-Constant P → ∥ A ∥ → HLevel ℓ 2
-RecHSet P 3kP = recPropTrunc→Gpd (hLevelHLevel 2) P 3kP
+RecHSet P 3kP = recPropTrunc→Gpd (isOfHLevelHLevel 2) P 3kP

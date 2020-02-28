@@ -204,7 +204,7 @@ codeS² : S² → hGroupoid _
 codeS² s = ∥ HopfS² s ∥₁ , squash₁
 
 codeTruncS² : ∥ S² ∥₂ → hGroupoid _
-codeTruncS² = rec2GroupoidTrunc (hLevelHLevel 3) codeS²
+codeTruncS² = rec2GroupoidTrunc (isOfHLevelHLevel 3) codeS²
 
 encodeTruncS² : Ω ∥ S²∙ ∥₂∙ .fst → ∥ S¹ ∥₁
 encodeTruncS² p = transp (λ i → codeTruncS² (p i) .fst) i0 ∣ base ∣₁
@@ -213,7 +213,7 @@ codeS¹ : S¹ → hSet _
 codeS¹ s = ∥ helix s ∥₀ , squash₀
 
 codeTruncS¹ : ∥ S¹ ∥₁ → hSet _
-codeTruncS¹ = recGroupoidTrunc (hLevelHLevel 2) codeS¹
+codeTruncS¹ = recGroupoidTrunc (isOfHLevelHLevel 2) codeS¹
 
 encodeTruncS¹ : Ω ∥ S¹∙ ∥₁∙ .fst → ∥ Int ∥₀
 encodeTruncS¹ p = transp (λ i → codeTruncS¹ (p i) .fst) i0 ∣ pos zero ∣₀

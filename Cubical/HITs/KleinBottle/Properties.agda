@@ -110,7 +110,7 @@ isGroupoidKleinBottle =
     (isOfHLevelΣ 3 isGroupoidS¹
       (λ s →
         recPropTrunc
-          (isPropIsOfHLevel 3 (invS¹Loop s))
+          (isPropIsOfHLevel 3)
           (λ p → subst (λ s → isGroupoid (invS¹Loop s)) p isGroupoidS¹)
           (isConnectedS¹ s)))
 
