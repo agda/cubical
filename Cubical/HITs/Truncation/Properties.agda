@@ -125,13 +125,12 @@ isOfHLevel∥∥ : (n : ℕ₋₂) → isOfHLevel (2+ n) (∥ A ∥ n)
 isOfHLevel∥∥ neg2    = hub ⊥-elim , λ _ → ≡hub ⊥-elim
 isOfHLevel∥∥ (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilled∥∥
 
-  
 -- isOfHLevel∥∥ n = isSnNull→isOfHLevel isNull-Null
 
 -- ∥_∥ n is a modality
 
 rec : {n : ℕ₋₂}
-      {B : Type ℓ'} → 
+      {B : Type ℓ'} →
       (isOfHLevel (2+ n) B) →
       (g : (a : A) → B) →
       (∥ A ∥ n → B)
@@ -217,17 +216,14 @@ groupoidTrunc≃Trunc1 =
       (ind (λ _ → hLevelPath 4 (isOfHLevel∥∥ 2) _ _) (λ _ → refl))
       (g2TruncElim _ _ (λ _ → hLevelPath 4 squash₂ _ _) (λ _ → refl)))
 
-
-
 ---- ∥ Ω A ∥ ₙ ≡ Ω ∥ A ∥ₙ₊₁  ----
 
-  
   {- Proofs of Theorem 7.3.12. and Corollary 7.3.13. in the HoTT book  -}
 
 private
         {- We define the fibration P to show a more general result  -}
         P :  ∀ {ℓ} {B : Type ℓ}{n : ℕ₋₂} → ∥ B ∥  (suc n) → ∥ B ∥  (suc n) → Type ℓ
-        P x y = fst (P₁ x y) 
+        P x y = fst (P₁ x y)
 
           where
           P₁ : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} → ∥ B ∥  (suc n) → ∥ B ∥  (suc n) → (HLevel  ℓ (2+ n))
@@ -278,7 +274,6 @@ private
                                                    (isOfHLevel∥∥ {A = B} (suc (suc n)) ∣ u ∣  ∣ v ∣)
                                                    (λ p → cong (λ z → ∣ z ∣) p)
 
-
         {- auxilliary function r used to define encode -}
         r :  ∀ {ℓ} {B : Type ℓ} {m : ℕ₋₂} (u : ∥ B ∥ (suc m)) → P u u
         r {m = m}  = ind {B = (λ u → P u u)}
@@ -287,13 +282,13 @@ private
 
         {- encode function from x ≡ y to P x y -}
         encode-fun : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} (x y : ∥ B ∥ (suc n)) →
-                    _≡_ {A = ∥ B ∥ (suc n)} x y → 
-                    P x y 
+                    _≡_ {A = ∥ B ∥ (suc n)} x y →
+                    P x y
         encode-fun x y p = transport (λ i → P x (p i )) (r x)
 
         {- We need the following two lemmas on the functions behaviour for refl -}
         dec-refl : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} (x : ∥ B ∥ (suc n)) →
-                         decode-fun x x (r x) ≡ refl {x = x} 
+                         decode-fun x x (r x) ≡ refl {x = x}
         dec-refl {B = B} {n = neg2} x = ind {A = B} {n = suc neg2}
                                             {B = λ x → decode-fun x x (r x) ≡ refl {x = x} }
                                             (λ x → (hLevelSuc (2+ (suc neg2)) (x ≡ x)
@@ -310,14 +305,11 @@ private
                                                     (decode-fun x x (r x)) refl))
                                            λ c → refl
 
-        
         enc-refl : ∀ {ℓ} {B : Type ℓ}
                    {n : ℕ₋₂}
                    (x : ∥ B ∥ (suc n)) →
                    encode-fun x x (refl {x = x}) ≡ r x
         enc-refl x j = transp (λ i → P x (refl {x = x} i)) j (r x)
-
-
 
         {- decode-fun is a right-inverse -}
         P-rinv : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} (u v : ∥ B ∥  (suc n)) →
@@ -340,8 +332,6 @@ private
                                                                    λ z → hLevelSuc (2+ suc n) (P x y)
                                                                                    (hLevelP {n = n} x y) (encode-fun x y (decode-fun x y z)) z)
                                                  helper u v
-
-
           where
           helper : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂}
                    (a b : B)
