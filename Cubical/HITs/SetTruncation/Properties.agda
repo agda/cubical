@@ -48,7 +48,7 @@ elim2 : {B : ∥ A ∥₀ → ∥ A ∥₀ → Type ℓ}
   (g : (a b : A) → B ∣ a ∣₀ ∣ b ∣₀)
   (x y : ∥ A ∥₀) → B x y
 elim2 Bset g =
-  elim (λ _ → hLevelPi 2 (λ _ → Bset _ _))
+  elim (λ _ → isOfHLevelPi 2 (λ _ → Bset _ _))
     (λ a → elim (λ _ → Bset _ _) (λ b → g a b))
 
 elim3 : {B : (x y z : ∥ A ∥₀) → Type ℓ}
@@ -56,7 +56,7 @@ elim3 : {B : (x y z : ∥ A ∥₀) → Type ℓ}
   (g : (a b c : A) → B ∣ a ∣₀ ∣ b ∣₀ ∣ c ∣₀)
   (x y z : ∥ A ∥₀) → B x y z
 elim3 Bset g =
-  elim2 (λ _ _ → hLevelPi 2 λ _ → Bset _ _ _)
+  elim2 (λ _ _ → isOfHLevelPi 2 λ _ → Bset _ _ _)
     (λ a b → elim (λ _ → Bset _ _ _) (λ c → g a b c))
 
 setTruncIsSet : isSet ∥ A ∥₀
@@ -69,6 +69,6 @@ setId {A = A} isset =
   idLemma : ∀ (b : ∥ A ∥₀) → ∣ elim (λ x → isset) (λ x → x) b ∣₀ ≡ b
   idLemma b =
     elim {B = (λ x → ∣ elim (λ _ → isset) (λ x → x) x ∣₀ ≡ x)}
-      (λ x → hLevelSuc 2 ∥ A ∥₀ (setTruncIsSet {A = A}) ∣ elim (λ _ → isset) (λ x₁ → x₁) x ∣₀ x)
+      (λ x → isOfHLevelSuc 2 (setTruncIsSet {A = A}) ∣ elim (λ _ → isset) (λ x₁ → x₁) x ∣₀ x)
       (λ _ → refl)
       b

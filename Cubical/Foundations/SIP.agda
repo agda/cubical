@@ -502,9 +502,9 @@ monoid-axioms-are-Props X (e , _·_) s = β s
    where
    α = s .fst
    β =      isOfHLevelΣ 1 isPropIsSet
-      λ _ → isOfHLevelΣ 1 (hLevelPi 1 (λ x → hLevelPi 1 λ y → hLevelPi 1 λ z → α (x · (y · z)) ((x · y) · z)))
-      λ _ → isOfHLevelΣ 1 (hLevelPi 1 λ x → α (x · e) x)
-      λ _ →                hLevelPi 1 λ x → α (e · x) x
+      λ _ → isOfHLevelΣ 1 (isOfHLevelPi 1 (λ x → isOfHLevelPi 1 λ y → isOfHLevelPi 1 λ z → α (x · (y · z)) ((x · y) · z)))
+      λ _ → isOfHLevelΣ 1 (isOfHLevelPi 1 λ x → α (x · e) x)
+      λ _ →                isOfHLevelPi 1 λ x → α (e · x) x
 
 monoid-is-SNS' : SNS' {ℓ = ℓ} monoid-structure monoid-iso
 monoid-is-SNS' = add-axioms-SNS' raw-monoid-structure raw-monoid-iso

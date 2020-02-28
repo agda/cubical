@@ -12,8 +12,6 @@ open import Cubical.Data.Prod.Base
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
 
-open import Cubical.Data.Nat.Algebra public
-
 +-zero : ∀ m → m + 0 ≡ m
 +-zero zero = refl
 +-zero (suc m) = cong suc (+-zero m)

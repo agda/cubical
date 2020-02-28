@@ -7,6 +7,7 @@ import Cubical.Data.Empty
 import Cubical.Data.Equality
 import Cubical.Data.Fin
 import Cubical.Data.Nat
+import Cubical.Data.Nat.Algebra
 import Cubical.Data.NatMinusOne
 import Cubical.Data.NatMinusTwo
 import Cubical.Data.Int
@@ -14,7 +15,6 @@ import Cubical.Data.Sum
 import Cubical.Data.Prod
 import Cubical.Data.Unit
 import Cubical.Data.Sigma
-import Cubical.Data.Universe
 import Cubical.Data.DiffInt
 import Cubical.Data.Group
 import Cubical.Data.HomotopyGroup
