@@ -11,10 +11,10 @@ open isPathSplitEquiv
 open import Cubical.Modalities.Everything
 open Modality
 
-open import Cubical.Data.Empty as Empty using (⊥)
+open import Cubical.Data.Empty as ⊥ using (⊥)
 open import Cubical.Data.Nat hiding (elim)
-open import Cubical.Data.NatMinusOne using (ℕ₋₁; neg1; suc; ℕ→ℕ₋₁) renaming (-1+_ to -1+₋₁_ ; 1+_ to 1+₋₁_)
-import Cubical.Data.NatMinusOne as ℕ₋₁
+open import Cubical.Data.NatMinusOne as ℕ₋₁
+  using (ℕ₋₁; neg1; suc; ℕ→ℕ₋₁) renaming (-1+_ to -1+₋₁_ ; 1+_ to 1+₋₁_)
 open import Cubical.Data.NatMinusTwo
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
@@ -39,7 +39,7 @@ isSphereFilled : ℕ₋₁ → Type ℓ → Type ℓ
 isSphereFilled n A = (f : S n → A) → sphereFill n f
 
 isSphereFilled∥∥ : {n : ℕ₋₂} → isSphereFilled (1+ n) (∥ A ∥ n)
-isSphereFilled∥∥ {n = neg2}  f = hub f , Empty.elim
+isSphereFilled∥∥ {n = neg2}  f = hub f , ⊥.elim
 isSphereFilled∥∥ {n = suc _} f = hub f , spoke f
 
 isSphereFilled→isOfHLevelSuc : {n : ℕ₋₂} → isSphereFilled (1+ suc n) A → isOfHLevel (2+ suc n) A
@@ -118,11 +118,11 @@ fst (secCong (isOfHLevel→isSnNull h) x y) p       = fst (isOfHLevel→isSphere
 snd (secCong (isOfHLevel→isSnNull h) x y) p i j s = snd (isOfHLevel→isSphereFilled (isOfHLevelPath _ h x y) (funExt⁻ p)) s i j
 
 isSnNull→isOfHLevel : {n : ℕ₋₂} → isNull (S (1+ n)) A → isOfHLevel (2+ n) A
-isSnNull→isOfHLevel {n = neg2}  nA = fst (sec nA) Empty.rec , λ y → fst (secCong nA _ y) (funExt Empty.elim)
+isSnNull→isOfHLevel {n = neg2}  nA = fst (sec nA) ⊥.rec , λ y → fst (secCong nA _ y) (funExt ⊥.elim)
 isSnNull→isOfHLevel {n = suc n} nA = isSphereFilled→isOfHLevelSuc (λ f → fst (sec nA) f , λ s i → snd (sec nA) f i s)
 
 isOfHLevel∥∥ : (n : ℕ₋₂) → isOfHLevel (2+ n) (∥ A ∥ n)
-isOfHLevel∥∥ neg2    = hub Empty.rec , λ _ → ≡hub Empty.rec
+isOfHLevel∥∥ neg2    = hub ⊥.rec , λ _ → ≡hub ⊥.rec
 isOfHLevel∥∥ (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilled∥∥
 
 -- isOfHLevel∥∥ n = isSnNull→isOfHLevel isNull-Null

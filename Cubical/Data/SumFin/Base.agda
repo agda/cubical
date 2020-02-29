@@ -3,7 +3,7 @@ module Cubical.Data.SumFin.Base where
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Data.Empty as Empty
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit using (tt) renaming (Unit to ⊤) public
 open import Cubical.Data.Sum using (_⊎_; inl; inr) public
 
@@ -31,8 +31,8 @@ toℕ {suc k} (inr x)  = suc (toℕ {k} x)
 
 toℕ-injective : {m n : Fin k} → toℕ m ≡ toℕ n → m ≡ n
 toℕ-injective {suc k} {fzero}  {fzero}  _ = refl
-toℕ-injective {suc k} {fzero}  {fsuc x} p = Empty.rec (znots p)
-toℕ-injective {suc k} {fsuc m} {fzero}  p = Empty.rec (snotz p)
+toℕ-injective {suc k} {fzero}  {fsuc x} p = ⊥.rec (znots p)
+toℕ-injective {suc k} {fsuc m} {fzero}  p = ⊥.rec (snotz p)
 toℕ-injective {suc k} {fsuc m} {fsuc x} p = cong fsuc (toℕ-injective (injSuc p))
 
 -- Thus, Fin k is discrete

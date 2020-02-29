@@ -6,9 +6,9 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
 
-open import Cubical.Data.Empty as Empty
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Prod
-open import Cubical.Data.Sum as Sum
+open import Cubical.Data.Sum as ⊎
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Nat.Properties
@@ -154,7 +154,7 @@ suc m ≟ suc n = Trichotomy-suc (m ≟ n)
 <-split : m < suc n → (m < n) ⊎ (m ≡ n)
 <-split {n = zero} = inr ∘ proj₂ ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred
 <-split {zero} {suc n} = λ _ → inl (suc-≤-suc zero-≤)
-<-split {suc m} {suc n} = Sum.map suc-≤-suc (cong suc) ∘ <-split ∘ pred-≤-pred
+<-split {suc m} {suc n} = ⊎.map suc-≤-suc (cong suc) ∘ <-split ∘ pred-≤-pred
 
 private
   acc-suc : Acc _<_ n → Acc _<_ (suc n)
@@ -166,7 +166,7 @@ private
     }
 
 <-wellfounded : WellFounded _<_
-<-wellfounded zero = acc λ _ → Empty.rec ∘ ¬-<-zero
+<-wellfounded zero = acc λ _ → ⊥.rec ∘ ¬-<-zero
 <-wellfounded (suc n) = acc-suc (<-wellfounded n)
 
 module _
@@ -190,13 +190,13 @@ module _
     dichotomy<≡ b n n<b
       = case dichotomy b n return (λ d → d ≡ inl n<b) of λ
       { (inl x) → cong inl (m≤n-isProp x n<b)
-      ; (inr (m , p)) → Empty.rec (<-asym n<b (m , sym (p ∙ +-comm b m)))
+      ; (inr (m , p)) → ⊥.rec (<-asym n<b (m , sym (p ∙ +-comm b m)))
       }
 
     dichotomy+≡ : ∀ b m n → (p : n ≡ b + m) → dichotomy b n ≡ inr (m , p)
     dichotomy+≡ b m n p
       = case dichotomy b n return (λ d → d ≡ inr (m , p)) of λ
-      { (inl n<b) → Empty.rec (<-asym n<b (m , +-comm m b ∙ sym p))
+      { (inl n<b) → ⊥.rec (<-asym n<b (m , +-comm m b ∙ sym p))
       ; (inr (m' , q))
       → cong inr (ΣProp≡ (λ x → isSetℕ n (b + x)) (inj-m+ {m = b} (sym q ∙ p)))
       }

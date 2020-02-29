@@ -5,7 +5,7 @@ open import Agda.Builtin.List
 open import Cubical.Core.Everything
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Empty as Empty
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod
 open import Cubical.Data.Unit
@@ -132,7 +132,7 @@ nil≡nil-isContr = refl , ListPath.decodeEncode [] []
 
 list≡nil-isProp : {xs : List A} → isProp (xs ≡ [])
 list≡nil-isProp {xs = []} = isOfHLevelSuc 0 nil≡nil-isContr
-list≡nil-isProp {xs = x ∷ xs} = λ p _ → Empty.rec (¬cons≡nil p)
+list≡nil-isProp {xs = x ∷ xs} = λ p _ → ⊥.rec (¬cons≡nil p)
 
 discreteList : Discrete A → Discrete (List A)
 discreteList eqA []       []       = yes refl

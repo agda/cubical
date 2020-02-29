@@ -6,10 +6,10 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
-import Cubical.Data.Empty as Empty
+import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat using (ℕ; zero; suc)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Sum as Sum using (_⊎_; inl; inr)
+open import Cubical.Data.Sum using (_⊎_; inl; inr)
 
 open import Cubical.Relation.Nullary
 
@@ -61,7 +61,7 @@ elim
   → (∀{k} → P {suc k} fzero)
   → (∀{k} {fn : Fin k} → P fn → P (fsuc fn))
   → {k : ℕ} → (fn : Fin k) → P fn
-elim P fz fs {zero} = Empty.rec ∘ ¬Fin0
+elim P fz fs {zero} = ⊥.rec ∘ ¬Fin0
 elim P fz fs {suc k} fj
   = case fsplit fj return (λ _ → P fj) of λ
   { (inl p) → subst P p fz
