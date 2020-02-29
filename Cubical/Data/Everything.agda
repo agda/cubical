@@ -8,6 +8,7 @@ import Cubical.Data.Equality
 import Cubical.Data.Fin
 import Cubical.Data.Nat
 import Cubical.Data.Nat.Algebra
+import Cubical.Data.Nat.Order
 import Cubical.Data.NatMinusOne
 import Cubical.Data.NatMinusTwo
 import Cubical.Data.Int
