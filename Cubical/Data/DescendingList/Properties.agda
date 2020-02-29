@@ -14,14 +14,14 @@
 
 open import Cubical.Foundations.Everything
 
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
 open import Cubical.Data.List using (List ; [] ; _∷_)
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
 
-open import Cubical.HITs.FiniteMultiset hiding ([_])
+open import Cubical.HITs.FiniteMultiset as FMSet hiding ([_])
 
 
 module Cubical.Data.DescendingList.Properties
@@ -175,7 +175,7 @@ module IsoToFMSet
  insert-swap x y [] | yes x≥y | no  y≱x = cons≡ refl (cons≡ refl refl)
  insert-swap x y [] | no  x≱y with ≥dec y x
  insert-swap x y [] | no  x≱y | yes y≥x = cons≡ refl (cons≡ refl refl)
- insert-swap x y [] | no  x≱y | no  y≱x = ⊥-elim (x≱y (≰→≥ y≱x))
+ insert-swap x y [] | no  x≱y | no  y≱x = ⊥.rec (x≱y (≰→≥ y≱x))
  insert-swap x y (cons z u z≥u) with ≥dec y z
  insert-swap x y (cons z u z≥u) | yes y≥z with ≥dec x y
  insert-swap x y (cons z u z≥u) | yes y≥z | yes x≥y with ≥dec x z
@@ -183,28 +183,28 @@ module IsoToFMSet
  insert-swap x y (cons z u z≥u) | yes y≥z | yes x≥y | yes x≥z | yes y≥x = cons≡ (≤≥→≡ x≥y y≥x) (cons≡ (≤≥→≡ y≥x x≥y) refl)
  insert-swap x y (cons z u z≥u) | yes y≥z | yes x≥y | yes x≥z | no  y≱x with ≥dec y z
  insert-swap x y (cons z u z≥u) | yes y≥z | yes x≥y | yes x≥z | no  y≱x | yes y≥z' = cons≡ refl (cons≡ refl refl)
- insert-swap x y (cons z u z≥u) | yes y≥z | yes x≥y | yes x≥z | no  y≱x | no  y≱z  = ⊥-elim (y≱z y≥z)
- insert-swap x y (cons z u z≥u) | yes y≥z | yes x≥y | no  x≱z = ⊥-elim (x≱z (≥trans x≥y y≥z))
+ insert-swap x y (cons z u z≥u) | yes y≥z | yes x≥y | yes x≥z | no  y≱x | no  y≱z  = ⊥.rec (y≱z y≥z)
+ insert-swap x y (cons z u z≥u) | yes y≥z | yes x≥y | no  x≱z = ⊥.rec (x≱z (≥trans x≥y y≥z))
  insert-swap x y (cons z u z≥u) | yes y≥z | no  x≱y with ≥dec x z
  insert-swap x y (cons z u z≥u) | yes y≥z | no  x≱y | yes x≥z with ≥dec y x
  insert-swap x y (cons z u z≥u) | yes y≥z | no  x≱y | yes x≥z | yes y≥x = cons≡ refl (cons≡ refl refl)
- insert-swap x y (cons z u z≥u) | yes y≥z | no  x≱y | yes x≥z | no  y≱x = ⊥-elim (x≱y (≰→≥ y≱x))
+ insert-swap x y (cons z u z≥u) | yes y≥z | no  x≱y | yes x≥z | no  y≱x = ⊥.rec (x≱y (≰→≥ y≱x))
  insert-swap x y (cons z u z≥u) | yes y≥z | no  x≱y | no  x≱z with ≥dec y z
  insert-swap x y (cons z u z≥u) | yes y≥z | no  x≱y | no  x≱z | yes y≥z' = cons≡ refl (cons≡ refl refl)
- insert-swap x y (cons z u z≥u) | yes y≥z | no  x≱y | no  x≱z | no  y≱z  = ⊥-elim (y≱z y≥z)
+ insert-swap x y (cons z u z≥u) | yes y≥z | no  x≱y | no  x≱z | no  y≱z  = ⊥.rec (y≱z y≥z)
  insert-swap x y (cons z u z≥u) | no  y≱z with ≥dec x z
  insert-swap x y (cons z u z≥u) | no  y≱z | yes x≥z with ≥dec y x
- insert-swap x y (cons z u z≥u) | no  y≱z | yes x≥z | yes y≥x = ⊥-elim (y≱z (≥trans y≥x x≥z))
+ insert-swap x y (cons z u z≥u) | no  y≱z | yes x≥z | yes y≥x = ⊥.rec (y≱z (≥trans y≥x x≥z))
  insert-swap x y (cons z u z≥u) | no  y≱z | yes x≥z | no  y≱x with ≥dec y z
- insert-swap x y (cons z u z≥u) | no  y≱z | yes x≥z | no  y≱x | yes y≥z  = ⊥-elim (y≱z y≥z)
+ insert-swap x y (cons z u z≥u) | no  y≱z | yes x≥z | no  y≱x | yes y≥z  = ⊥.rec (y≱z y≥z)
  insert-swap x y (cons z u z≥u) | no  y≱z | yes x≥z | no  y≱x | no  y≱z' = cons≡ refl (cons≡ refl refl)
  insert-swap x y (cons z u z≥u) | no  y≱z | no  x≱z with ≥dec y z
- insert-swap x y (cons z u z≥u) | no  y≱z | no  x≱z | yes y≥z  = ⊥-elim (y≱z y≥z)
+ insert-swap x y (cons z u z≥u) | no  y≱z | no  x≱z | yes y≥z  = ⊥.rec (y≱z y≥z)
  insert-swap x y (cons z u z≥u) | no  y≱z | no  x≱z | no  y≱z' = cons≡ refl (insert-swap x y u)
 
  -- Insertion sort
  toDL : FMSet A → DL
- toDL = FMSetRec.f isSetDL [] insert insert-swap
+ toDL = FMSet.Rec.f isSetDL [] insert insert-swap
  {-
  toDL []                  = []
  toDL (x ∷ u)             = insert x (toDL u)
@@ -217,7 +217,7 @@ module IsoToFMSet
  insert-cons x [] _ = cons≡ refl refl
  insert-cons x (cons y u _) _ with ≥dec x y
  insert-cons x (cons y u _) _            | yes x≥y = cons≡ refl refl
- insert-cons x (cons y u _) (≥ᴴcons x≥y) | no  x≱y = ⊥-elim (x≱y x≥y)
+ insert-cons x (cons y u _) (≥ᴴcons x≥y) | no  x≱y = ⊥.rec (x≱y x≥y)
 
  toDL∘toFMSet≡id : (u : DL) → toDL (toFMSet u) ≡ u
  toDL∘toFMSet≡id [] = refl
@@ -234,9 +234,9 @@ module IsoToFMSet
  insert-∷ x (cons y u _) | no  x≱y = cong (λ z → y ∷ z) (insert-∷ x u) ∙ comm y x (toFMSet u)
 
  toFMSet∘toDL≡id : (u : FMSet A) → toFMSet (toDL u) ≡ u
- toFMSet∘toDL≡id = FMSetElimProp.f (trunc _ _)
-                                   refl
-                                   (λ x {u} p → insert-∷ x (toDL u) ∙ cong (λ z → x ∷ z) p)
+ toFMSet∘toDL≡id = FMSet.ElimProp.f (trunc _ _)
+                                    refl
+                                    (λ x {u} p → insert-∷ x (toDL u) ∙ cong (λ z → x ∷ z) p)
 
  FMSet≡DL : FMSet A ≡ DL
  FMSet≡DL = isoToPath (iso toDL toFMSet toDL∘toFMSet≡id toFMSet∘toDL≡id)
