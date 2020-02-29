@@ -12,38 +12,24 @@ open import Cubical.Data.Int
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation
 
-private
-  variable
-    ℓ : Level
-    A : Type ℓ
+----  H⁰(S¹) = ℤ  ----
 
-----  H⁰(S¹) ----
-
-coHom0-S1 : (coHom zero S¹) ≡ Int
-coHom0-S1 = (λ i → ∥ helpLemma i ∥₀ )  ∙  (setId isSetInt)
+coHom0-S1 : coHom zero S¹ ≡ Int
+coHom0-S1 = (λ i → ∥ helpLemma i ∥₀ ) ∙ setId isSetInt
   where
   helpLemma : (S¹ → Int) ≡ Int
-  helpLemma = isoToPath (iso fun
-                             funinv
-                             (λ b → refl)
-                             λ f → funExt (λ x → rinvLemma f x))
+  helpLemma = isoToPath (iso fun funinv (λ _ → refl) (λ f → funExt (rinvLemma f)))
     where
     fun : (S¹ → Int) → Int
     fun f = f base
 
     funinv : Int → (S¹ → Int)
     funinv a base = a
-    funinv a (loop i) = refl {x = a} i
+    funinv a (loop i) = a
 
-    rinvLemma : ( f : (S¹ → Int)) →
-                (x : S¹) →
-                funinv (fun f) x ≡ f x
+    rinvLemma : (f : S¹ → Int) → (x : S¹) → funinv (fun f) x ≡ f x
     rinvLemma f  base = refl
-    rinvLemma f  (loop i) = sym (helper f i)   where
-      helper : (f : (S¹ → Int))  →
-               (i : I) →
-               (f (loop i) ≡ f base)
-      helper f i =  (λ l → ((isSetInt (f base) (f base) (λ k → (f (loop k))) refl) l) i)
+    rinvLemma f  (loop i) j = isSetInt (f base) (f base) (λ k → f (loop k)) refl (~ j) i
 
 -------------------------
 

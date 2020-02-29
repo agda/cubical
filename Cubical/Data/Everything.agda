@@ -7,6 +7,7 @@ open import Cubical.Data.Empty public
 open import Cubical.Data.Equality public
 open import Cubical.Data.Fin public
 open import Cubical.Data.Nat public
+open import Cubical.Data.Nat.Algebra public
 open import Cubical.Data.NatMinusOne hiding (neg1; -1+_; 1+_; -1+Path) public
 open import Cubical.Data.NatMinusTwo public
 open import Cubical.Data.NatPlusOne hiding (1+_; 2+_; -1+_) public
@@ -15,7 +16,6 @@ open import Cubical.Data.Sum public
 open import Cubical.Data.Prod public
 open import Cubical.Data.Unit public
 open import Cubical.Data.Sigma public
-open import Cubical.Data.Universe public
 open import Cubical.Data.DiffInt public
 open import Cubical.Data.Group public hiding (_≃_)
 open import Cubical.Data.HomotopyGroup public
