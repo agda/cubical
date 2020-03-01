@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.Structure.Pointed where
+module Cubical.Structures.Pointed where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -7,14 +7,14 @@ open import Cubical.Foundations.Transport
 
 open import Cubical.Foundations.Pointed
 
-open import Cubical.Foundations.Structure.Base
-open import Cubical.Foundations.Structure.SNS renaming (SNS₂ to SNS)
+open import Cubical.Foundations.SIP renaming (SNS₂ to SNS)
 
 private
   variable
     ℓ : Level
 
--- Pointed types with SNS'
+-- Pointed types with SNS
+
 pointed-structure : Type ℓ → Type ℓ
 pointed-structure X = X
 

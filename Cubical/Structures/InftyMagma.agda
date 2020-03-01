@@ -1,17 +1,16 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.Structure.InftyMagma where
+module Cubical.Structures.InftyMagma where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 
-open import Cubical.Foundations.Structure.Base
-open import Cubical.Foundations.Structure.SNS renaming (SNS₂ to SNS)
+open import Cubical.Foundations.SIP renaming (SNS₂ to SNS)
 
 private
   variable
     ℓ ℓ' ℓ'' : Level
 
--- ∞-Magmas with SNS'
+-- ∞-Magmas with SNS
 
 -- We need function extensionality for binary functions.
 -- TODO: upstream

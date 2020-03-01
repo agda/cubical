@@ -1,17 +1,15 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.Structure.Monoid where
+module Cubical.Structures.Monoid where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
 
-open import Cubical.Foundations.Structure.Base
-open import Cubical.Foundations.Structure.SNS renaming (SNS₂ to SNS)
-open import Cubical.Foundations.Structure.SIP
-open import Cubical.Foundations.Structure.AddToStructure
-open import Cubical.Foundations.Structure.Pointed
-open import Cubical.Foundations.Structure.InftyMagma
+open import Cubical.Foundations.SIP renaming (SNS₂ to SNS)
+
+open import Cubical.Structures.Pointed
+open import Cubical.Structures.InftyMagma
 
 private
   variable
