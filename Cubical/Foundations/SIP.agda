@@ -1,6 +1,6 @@
 {-
 
-In this directory we apply the cubical machinery to Martin Hötzel-Escardó's
+In this file we apply the cubical machinery to Martin Hötzel-Escardó's
 structure identity principle:
 
 https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html#sns
@@ -10,17 +10,23 @@ https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html#s
 module Cubical.Foundations.SIP where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.Properties renaming (cong≃ to _⋆_)
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.HAEquiv
 open import Cubical.Foundations.Univalence renaming (ua-pathToEquiv to ua-pathToEquiv')
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties renaming (cong≃ to _⋆_)
+open import Cubical.Foundations.HAEquiv
 open import Cubical.Data.Sigma
 open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
 
 open import Cubical.Foundations.Structure public
+
+private
+  variable
+    ℓ ℓ' ℓ'' ℓ''' : Level
+    ℓ₁ ℓ₂ ℓ₃ ℓ₄ ℓ₅ : Level
+    S : Type ℓ → Type ℓ'
 
 -- For technical reasons we reprove ua-pathToEquiv using the
 -- particular proof constructed by iso→HAEquiv. The reason is that we
@@ -28,20 +34,14 @@ open import Cubical.Foundations.Structure public
 --
 --   eq : ua-au (ua e) ≡ cong ua (au-ua e)
 --
-uaHAEquiv : ∀ {ℓ} (A B : Type ℓ) → HAEquiv (A ≃ B) (A ≡ B)
+uaHAEquiv : (A B : Type ℓ) → HAEquiv (A ≃ B) (A ≡ B)
 uaHAEquiv A B = iso→HAEquiv (iso ua pathToEquiv ua-pathToEquiv' pathToEquiv-ua)
 open isHAEquiv
 
 -- We now extract the particular proof constructed from iso→HAEquiv
 -- for reasons explained above.
-ua-pathToEquiv : ∀ {ℓ} {A B : Type ℓ} (e : A ≡ B) → ua (pathToEquiv e) ≡ e
+ua-pathToEquiv : {A B : Type ℓ} (e : A ≡ B) → ua (pathToEquiv e) ≡ e
 ua-pathToEquiv e = uaHAEquiv _ _ .snd .ret e
-
-private
-  variable
-    ℓ ℓ' ℓ'' ℓ''' : Level
-    ℓ₁ ℓ₂ ℓ₃ ℓ₄ ℓ₅ : Level
-    S : Type ℓ → Type ℓ'
 
 
 -- Note that for any equivalence (f , e) : X ≃ Y the type  ι (X , s) (Y , t) (f , e) need not to be

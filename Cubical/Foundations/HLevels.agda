@@ -12,6 +12,7 @@ module Cubical.Foundations.HLevels where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.FunExtEquiv
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
@@ -38,7 +39,7 @@ isOfHLevel 1 A = isProp A
 isOfHLevel (suc (suc n)) A = (x y : A) → isOfHLevel (suc n) (x ≡ y)
 
 HLevel : ∀ ℓ → ℕ → Type (ℓ-suc ℓ)
-HLevel ℓ n = Σ[ A ∈ Type ℓ ] (isOfHLevel n A)
+HLevel ℓ n = TypeWithStr ℓ (isOfHLevel n)
 
 hProp hSet hGroupoid h2Groupoid : ∀ ℓ → Type (ℓ-suc ℓ)
 hProp      ℓ = HLevel ℓ 1

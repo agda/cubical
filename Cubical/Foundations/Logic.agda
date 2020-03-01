@@ -39,7 +39,7 @@ infix 2 ⇐∶_⇒∶_
 --------------------------------------------------------------------------------
 -- The type hProp of mere propositions
 -- the definition hProp is given in Foundations.HLevels
--- hProp {ℓ} = Σ (Type ℓ) isProp
+-- hProp ℓ = Σ (Type ℓ) isProp
 
 private
   variable
