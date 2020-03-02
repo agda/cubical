@@ -1,13 +1,11 @@
 {-# OPTIONS --cubical #-}
 module Cubical.Experiments.Brunerie where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Everything
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
 open import Cubical.Data.Int
+open import Cubical.Data.HomotopyGroup
 open import Cubical.HITs.S1
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3
@@ -19,44 +17,31 @@ open import Cubical.HITs.2GroupoidTruncation
 
 -- This code is adapted from examples/brunerie3.ctt on the pi4s3_nobug branch of cubicaltt
 
-ptType : Type₁
-ptType = Σ[ A ∈ Type₀ ] A
+Bool∙ S¹∙ S²∙ S³∙ : Pointed₀
+Bool∙ = (Bool , true)
+S¹∙ = (S¹ , base)
+S²∙ = (S² , base)
+S³∙ = (S³ , base)
 
-pt : ∀ (A : ptType) → A .fst
-pt A = A .snd
+∥_∥₁∙ ∥_∥₂∙ : Pointed₀ → Pointed₀
+∥ A , a ∥₁∙ = ∥ A ∥₁ , ∣ a ∣₁
+∥ A , a ∥₂∙ = ∥ A ∥₂ , ∣ a ∣₂
 
-ptBool ptS¹ ptS² ptS³ : ptType
-ptBool = (Bool , true)
-ptS¹ = (S¹ , base)
-ptS² = (S² , base)
-ptS³ = (S³ , base)
+join∙ : Pointed₀ → Type₀ → Pointed₀
+join∙ (A , a) B = join A B , inl a
 
-pt∥_∥₁ pt∥_∥₂ : ptType → ptType
-pt∥ A , a ∥₁ = ∥ A ∥₁ , ∣ a ∣₁
-pt∥ A , a ∥₂ = ∥ A ∥₂ , ∣ a ∣₂
+Ω² Ω³ : Pointed₀ → Pointed₀
+Ω² = Ω^ 2
+Ω³ = Ω^ 3
 
-ptjoin : ptType → Type₀ → ptType
-ptjoin (A , a) B = join A B , inl a
-
-Ω Ω² Ω³ : ptType → ptType
-Ω (A , a) = (Path A a a) , refl
-Ω² A = Ω (Ω A)
-Ω³ A = Ω (Ω² A)
-
-mapΩrefl : {A : ptType} {B : Type₀} (f : A .fst → B) → Ω A .fst → Ω (B , f (pt A)) .fst
+mapΩrefl : {A : Pointed₀} {B : Type₀} (f : A .fst → B) → Ω A .fst → Ω (B , f (pt A)) .fst
 mapΩrefl f p i = f (p i)
 
-mapΩ²refl : {A : ptType} {B : Type₀} (f : A .fst → B) → Ω² A .fst → Ω² (B , f (pt A)) .fst
+mapΩ²refl : {A : Pointed₀} {B : Type₀} (f : A .fst → B) → Ω² A .fst → Ω² (B , f (pt A)) .fst
 mapΩ²refl f p i j = f (p i j)
 
-mapΩ³refl : {A : ptType} {B : Type₀} (f : A .fst → B) → Ω³ A .fst → Ω³ (B , f (pt A)) .fst
+mapΩ³refl : {A : Pointed₀} {B : Type₀} (f : A .fst → B) → Ω³ A .fst → Ω³ (B , f (pt A)) .fst
 mapΩ³refl f p i j k = f (p i j k)
-
-PROP SET GROUPOID TWOGROUPOID : ∀ ℓ → Type (ℓ-suc ℓ)
-PROP ℓ = Σ (Type ℓ) isProp
-SET ℓ = Σ (Type ℓ) isSet
-GROUPOID ℓ = Σ (Type ℓ) isGroupoid
-TWOGROUPOID ℓ = Σ (Type ℓ) is2Groupoid
 
 meridS² : S¹ → Path S² base base
 meridS² base _ = base
@@ -109,16 +94,16 @@ tee34 (loop x i j) =
 tee : (x : S²) → HopfS² x → join S¹ S¹
 tee x y = tee34 (tee12 x y)
 
-fibΩ : {B : ptType} (P : B .fst → Type₀) → P (pt B) → Ω B .fst → Type₀
+fibΩ : {B : Pointed₀} (P : B .fst → Type₀) → P (pt B) → Ω B .fst → Type₀
 fibΩ P f p = PathP (λ i → P (p i)) f f
 
-fibΩ² : {B : ptType} (P : B .fst → Type₀) → P (pt B) → Ω² B .fst → Type₀
+fibΩ² : {B : Pointed₀} (P : B .fst → Type₀) → P (pt B) → Ω² B .fst → Type₀
 fibΩ² P f = fibΩ (fibΩ P f) refl
 
-fibΩ³ : {B : ptType} (P : B .fst → Type₀) → P (pt B) → Ω³ B .fst → Type₀
+fibΩ³ : {B : Pointed₀} (P : B .fst → Type₀) → P (pt B) → Ω³ B .fst → Type₀
 fibΩ³ P f = fibΩ² (fibΩ P f) refl
 
-Ω³Hopf : Ω³ ptS² .fst → Type₀
+Ω³Hopf : Ω³ S²∙ .fst → Type₀
 Ω³Hopf = fibΩ³ HopfS² base
 
 fibContrΩ³Hopf : ∀ p → Ω³Hopf p
@@ -138,7 +123,7 @@ fibContrΩ³Hopf p i j k =
       })
     (transp (λ n → HopfS² (p i j (k ∧ n))) (i ∨ ~ i ∨ j ∨ ~ j ∨ ~ k) base)
 
-h : Ω³ ptS² .fst → Ω³ (ptjoin ptS¹ S¹) .fst
+h : Ω³ S²∙ .fst → Ω³ (join∙ S¹∙ S¹) .fst
 h p i j k = tee (p i j k) (fibContrΩ³Hopf p i j k)
 
 multTwoAux : (x : S²) → Path (Path ∥ S² ∥₂ ∣ x ∣₂ ∣ x ∣₂) refl refl
@@ -212,53 +197,49 @@ tHopf³ (surf i j k) =
        ; (k = i1) → (∥ S² ∥₂ , idEquiv _)
        })
 
-π₃S³ : Ω³ ptS³ .fst → Ω² pt∥ ptS² ∥₂ .fst
+π₃S³ : Ω³ S³∙ .fst → Ω² ∥ S²∙ ∥₂∙ .fst
 π₃S³ p i j = transp (λ k → tHopf³ (p j k i)) i0 ∣ base ∣₂
 
-postulate
-  is2GroupoidGROUPOID : ∀ {ℓ} → is2Groupoid (GROUPOID ℓ)
-  isGroupoidSET : ∀ {ℓ} → isGroupoid (SET ℓ)
-
-codeS² : S² → GROUPOID _
+codeS² : S² → hGroupoid _
 codeS² s = ∥ HopfS² s ∥₁ , squash₁
 
-codeTruncS² : ∥ S² ∥₂ → GROUPOID _
-codeTruncS² = rec2GroupoidTrunc is2GroupoidGROUPOID codeS²
+codeTruncS² : ∥ S² ∥₂ → hGroupoid _
+codeTruncS² = rec2GroupoidTrunc (isOfHLevelHLevel 3) codeS²
 
-encodeTruncS² : Ω pt∥ ptS² ∥₂ .fst → ∥ S¹ ∥₁
+encodeTruncS² : Ω ∥ S²∙ ∥₂∙ .fst → ∥ S¹ ∥₁
 encodeTruncS² p = transp (λ i → codeTruncS² (p i) .fst) i0 ∣ base ∣₁
 
-codeS¹ : S¹ → SET _
+codeS¹ : S¹ → hSet _
 codeS¹ s = ∥ helix s ∥₀ , squash₀
 
-codeTruncS¹ : ∥ S¹ ∥₁ → SET _
-codeTruncS¹ = recGroupoidTrunc isGroupoidSET codeS¹
+codeTruncS¹ : ∥ S¹ ∥₁ → hSet _
+codeTruncS¹ = recGroupoidTrunc (isOfHLevelHLevel 2) codeS¹
 
-encodeTruncS¹ : Ω pt∥ ptS¹ ∥₁ .fst → ∥ Int ∥₀
+encodeTruncS¹ : Ω ∥ S¹∙ ∥₁∙ .fst → ∥ Int ∥₀
 encodeTruncS¹ p = transp (λ i → codeTruncS¹ (p i) .fst) i0 ∣ pos zero ∣₀
 
 
 -- THE BIG GAME
 
-f3 : Ω³ ptS³ .fst → Ω³ (ptjoin ptS¹ S¹) .fst
+f3 : Ω³ S³∙ .fst → Ω³ (join∙ S¹∙ S¹) .fst
 f3 = mapΩ³refl S³→joinS¹S¹
 
-f4 : Ω³ (ptjoin ptS¹ S¹) .fst → Ω³ ptS² .fst
+f4 : Ω³ (join∙ S¹∙ S¹) .fst → Ω³ S²∙ .fst
 f4 = mapΩ³refl alpha
 
-f5 : Ω³ ptS² .fst → Ω³ (ptjoin ptS¹ S¹) .fst
+f5 : Ω³ S²∙ .fst → Ω³ (join∙ S¹∙ S¹) .fst
 f5 = h
 
-f6 : Ω³ (ptjoin ptS¹ S¹) .fst → Ω³ ptS³ .fst
+f6 : Ω³ (join∙ S¹∙ S¹) .fst → Ω³ S³∙ .fst
 f6 = mapΩ³refl joinS¹S¹→S³
 
-f7 : Ω³ ptS³ .fst → Ω² pt∥ ptS² ∥₂ .fst
+f7 : Ω³ S³∙ .fst → Ω² ∥ S²∙ ∥₂∙ .fst
 f7 = π₃S³
 
-g8 : Ω² pt∥ ptS² ∥₂ .fst → Ω pt∥ ptS¹ ∥₁ .fst
+g8 : Ω² ∥ S²∙ ∥₂∙ .fst → Ω ∥ S¹∙ ∥₁∙ .fst
 g8 = mapΩrefl encodeTruncS²
 
-g9 : Ω pt∥ ptS¹ ∥₁ .fst → ∥ Int ∥₀
+g9 : Ω ∥ S¹∙ ∥₁∙ .fst → ∥ Int ∥₀
 g9 = encodeTruncS¹
 
 g10 : ∥ Int ∥₀ → Int
@@ -273,11 +254,11 @@ brunerie = g10 (g9 (g8 (f7 (f6 (f5 (f4 (f3 (λ i j k → surf i j k))))))))
 test63 : ℕ → Int
 test63 n = g10 (g9 (g8 (f7 (63n n))))
   where
-  63n : ℕ → Ω³ ptS³ .fst
+  63n : ℕ → Ω³ S³∙ .fst
   63n zero i j k = surf i j k
   63n (suc n) = f6 (f3 (63n n))
 
-foo : Ω³ ptS² .fst
+foo : Ω³ S²∙ .fst
 foo i j k =
   hcomp
     (λ l → λ
@@ -290,7 +271,7 @@ foo i j k =
       })
     base
 
-sorghum : Ω³ ptS² .fst
+sorghum : Ω³ S²∙ .fst
 sorghum i j k =
   hcomp
     (λ l → λ
@@ -312,6 +293,5 @@ sorghum i j k =
         })
       (surf k i))
 
-
-goo : Ω³ ptS² .fst → Int
+goo : Ω³ S²∙ .fst → Int
 goo x = g10 (g9 (g8 (f7 (f6 (f5 x)))))

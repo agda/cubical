@@ -24,7 +24,11 @@ check: $(wildcard Cubical/**/*.agda)
 	$(AGDA) Cubical/Data/Everything.agda
 	$(AGDA) Cubical/HITs/Everything.agda
 	$(AGDA) Cubical/Relation/Everything.agda
+	$(AGDA) Cubical/Induction/Everything.agda
+	$(AGDA) Cubical/Modalities/Everything.agda
+	$(AGDA) Cubical/WithK.agda
 	$(AGDA) Cubical/Experiments/Everything.agda
+	$(AGDA) Cubical/ZCohomology/Everything.agda
 
 .PHONY: listings
 listings: $(wildcard Cubical/**/*.agda)

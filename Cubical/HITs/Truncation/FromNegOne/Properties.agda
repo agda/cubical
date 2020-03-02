@@ -116,7 +116,7 @@ ind2 : {n : ℕ₋₁}
        (g : (a b : A) → B ∣ a ∣ ∣ b ∣)
        (x y : ∥ A ∥ n) →
        B x y
-ind2 {n = n} hB g = ind (λ _ → hLevelPi (1 + 1+ n) (λ _ → hB _ _)) λ a →
+ind2 {n = n} hB g = ind (λ _ → isOfHLevelPi (1 + 1+ n) (λ _ → hB _ _)) λ a →
                     ind (λ _ → hB _ _) (λ b → g a b)
 
 ind3 : {n : ℕ₋₁}
@@ -125,7 +125,7 @@ ind3 : {n : ℕ₋₁}
        (g : (a b c : A) → B (∣ a ∣) ∣ b ∣ ∣ c ∣)
        (x y z : ∥ A ∥ n) →
        B x y z
-ind3 {n = n} hB g = ind2 (λ _ _ → hLevelPi (1 + 1+ n) (hB _ _)) λ a b →
+ind3 {n = n} hB g = ind2 (λ _ _ → isOfHLevelPi (1 + 1+ n) (hB _ _)) λ a b →
                     ind (λ _ → hB _ _ _) (λ c → g a b c)
 
 idemTrunc : (n : ℕ₋₁) → isOfHLevel (1 + 1+ n) A → (∥ A ∥ n) ≃ A
@@ -141,7 +141,7 @@ idemTrunc {A = A} n hA = isoToEquiv (iso f g f-g g-f)
   f-g a = refl
 
   g-f : ∀ x → g (f x) ≡ x
-  g-f = ind (λ _ → hLevelPath (1 + 1+ n) (isOfHLevel∥∥ n) _ _) (λ _ → refl)
+  g-f = ind (λ _ → isOfHLevelPath (1 + 1+ n) (isOfHLevel∥∥ n) _ _) (λ _ → refl)
 
 propTrunc≃Trunc-1 : ∥ A ∥₋₁ ≃ ∥ A ∥ -1
 propTrunc≃Trunc-1 =
@@ -149,8 +149,8 @@ propTrunc≃Trunc-1 =
     (iso
       (elimPropTrunc (λ _ → isOfHLevel∥∥ -1) ∣_∣)
       (ind (λ _ → propTruncIsProp) ∣_∣)
-      (ind (λ _ → hLevelPath 1 (isOfHLevel∥∥ -1) _ _) (λ _ → refl))
-      (elimPropTrunc (λ _ → hLevelPath 1 squash _ _) (λ _ → refl)))
+      (ind (λ _ → isOfHLevelPath 1 (isOfHLevel∥∥ -1) _ _) (λ _ → refl))
+      (elimPropTrunc (λ _ → isOfHLevelPath 1 squash _ _) (λ _ → refl)))
 
 setTrunc≃Trunc0 : ∥ A ∥₀ ≃ ∥ A ∥ 0
 setTrunc≃Trunc0 =
@@ -158,8 +158,8 @@ setTrunc≃Trunc0 =
     (iso
       (elimSetTrunc (λ _ → isOfHLevel∥∥ 0) ∣_∣)
       (ind (λ _ → squash₀) ∣_∣₀)
-      (ind (λ _ → hLevelPath 2 (isOfHLevel∥∥ 0) _ _) (λ _ → refl))
-      (elimSetTrunc (λ _ → hLevelPath 2 squash₀ _ _) (λ _ → refl)))
+      (ind (λ _ → isOfHLevelPath 2 (isOfHLevel∥∥ 0) _ _) (λ _ → refl))
+      (elimSetTrunc (λ _ → isOfHLevelPath 2 squash₀ _ _) (λ _ → refl)))
 
 groupoidTrunc≃Trunc1 : ∥ A ∥₁ ≃ ∥ A ∥ 1
 groupoidTrunc≃Trunc1 =
@@ -167,8 +167,8 @@ groupoidTrunc≃Trunc1 =
     (iso
       (groupoidTruncElim _ _ (λ _ → isOfHLevel∥∥ 1) ∣_∣)
       (ind (λ _ → squash₁) ∣_∣₁)
-      (ind (λ _ → hLevelPath 3 (isOfHLevel∥∥ 1) _ _) (λ _ → refl))
-      (groupoidTruncElim _ _ (λ _ → hLevelPath 3 squash₁ _ _) (λ _ → refl)))
+      (ind (λ _ → isOfHLevelPath 3 (isOfHLevel∥∥ 1) _ _) (λ _ → refl))
+      (groupoidTruncElim _ _ (λ _ → isOfHLevelPath 3 squash₁ _ _) (λ _ → refl)))
 
 2groupoidTrunc≃Trunc2 : ∥ A ∥₂ ≃ ∥ A ∥ 2
 2groupoidTrunc≃Trunc2 =
@@ -176,5 +176,5 @@ groupoidTrunc≃Trunc1 =
     (iso
       (g2TruncElim _ _ (λ _ → isOfHLevel∥∥ 2) ∣_∣)
       (ind (λ _ → squash₂) ∣_∣₂)
-      (ind (λ _ → hLevelPath 4 (isOfHLevel∥∥ 2) _ _) (λ _ → refl))
-      (g2TruncElim _ _ (λ _ → hLevelPath 4 squash₂ _ _) (λ _ → refl)))
+      (ind (λ _ → isOfHLevelPath 4 (isOfHLevel∥∥ 2) _ _) (λ _ → refl))
+      (g2TruncElim _ _ (λ _ → isOfHLevelPath 4 squash₂ _ _) (λ _ → refl)))
