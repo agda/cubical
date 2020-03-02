@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.ZCohomology.Properties where
+module Cubical.ZCohomology.PropertiesTrash where
 
 
 open import Cubical.ZCohomology.Base
@@ -19,8 +19,9 @@ open import Cubical.Data.Prod.Base
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation 
 open import Cubical.HITs.Nullification
-open import Cubical.Data.Int
+open import Cubical.Data.Int hiding (_+_ ; _-_)
 open import Cubical.Data.Nat
+open import Cubical.Data.Unit
 open import Cubical.HITs.Truncation
 
 open import Cubical.HITs.Pushout
@@ -33,44 +34,59 @@ private
     A : Type ℓ
     B : Type ℓ'
 
+is-_-Truncated : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+                 (n : ℕ₋₂) → (f : A → B) → Type (ℓ-max ℓ ℓ')
+is-_-Truncated {A = A} {B = B} n f = (b : B) → isOfHLevel (2+ n) (fiber f b)
 
-{- Equivalence between cohomology and the reduced version -}
-coHom↔coHomRed : (n : ℕ₋₂) →
-                 (A : Set ℓ) →
-                 (coHom n A) ≡ (coHomRed n ((A ⊎ Unit , inr (tt))))
-coHom↔coHomRed neg2 A i = ∥ helplemma {C = (Int , pos 0)} i ∥₀
-  module coHom↔coHomRed where
-  helplemma : {C : Pointed ℓ} → ( (A → (typ C)) ≡  ((((A ⊎ Unit) , inr (tt)) →* C)))
-  helplemma {C = C} = isoToPath (iso map1
-                                     map2
-                                     (λ b → linvPf b)
-                                     (λ _  → refl))
-    where
-    map1 : (A → typ C) → ((((A ⊎ Unit) , inr (tt)) →* C))
-    map1 f = map1' , refl module helpmap where
-      map1' : A ⊎ Unit → fst C
-      map1' (inl x) = f x
-      map1' (inr x) = pt C
+_-_ : ℕ → ℕ → ℕ
+zero - m = zero
+suc n - zero = suc n
+suc n - suc m = n - m
 
-    map2 : ((((A ⊎ Unit) , inr (tt)) →* C)) → (A → typ C)
-    map2 (g , pf) x = g (inl x)
-    
-    linvPf : (b :((((A ⊎ Unit) , inr (tt)) →* C))) →  map1 (map2 b) ≡ b
-    linvPf (f , snd) i = (λ x → helper x i)  , λ j → snd ((~ i) ∨ j)
-      where
-      helper : (x : A ⊎ Unit) → ((helpmap.map1') (map2 (f , snd)) x) ≡ f x 
-      helper (inl x) = refl
-      helper (inr tt) = sym snd
-      
-coHom↔coHomRed (suc n) A i = ∥ coHom↔coHomRed.helplemma A i {C = ((coHomK (suc n)) , ∣ north ∣)} i ∥₀
+canceller : ∀ {ℓ} {A : Type ℓ} {a b c : A} → (p q : a ≡ b) (r : b ≡ c) → p ∙ r ≡ q ∙ r → p ≡ q
+canceller {ℓ} {A} {a} {b} {c} p q r id = (rUnit p ∙ (λ j → (p ∙ (rCancel r (~ j)))) ∙ assoc p r (sym r)) ∙ (cong (λ x → x ∙ (sym r)) id) ∙ sym (assoc q r (sym r)) ∙ (λ j → q ∙ (rCancel r j)) ∙ sym (rUnit q)
+
+switcher : ∀ {ℓ} {A : Type ℓ} {a b c : A} → (p : a ≡ b) (q r : a ≡ c) → p ∙ (sym p) ≡ q ∙ (sym r) → r ≡ q
+switcher {ℓ} {A} {a} {b} {c} p q r id = (lUnit r) ∙ ((λ j → ((rCancel p (~ j))) ∙ r)) ∙ (cong (λ x → x ∙ r) id) ∙ sym (assoc q (sym r) r) ∙  (λ j → q ∙ (lCancel r j)) ∙ sym (rUnit q)
 
 
+Lemma296b : ∀{ℓ ℓ' ℓ''} {X : Type ℓ} {x y : X} {A : X → Type ℓ'} {B : X → Type ℓ''}
+           (p : x ≡ y)
+           (f : (A x) → (B x))
+           (g : (A y) → (B y)) →
+           (transport (λ i → (A (p i)) → (B (p i))) f ≡ g) ≡ ((a : A y) → transport (λ i → B (p (~ i) )) (g a) ≡ f (transport (λ i → A (p (~ i))) a))
+Lemma296b {ℓ = ℓ} {X = X} {x = x} {y = y} {A = A} {B = B} = J {ℓ} {X} {x} (λ y p → (f : (A x) → (B x)) (g : (A y) → (B y)) →
+                                                                     (transport (λ i → (A (p i)) → (B (p i))) f ≡ g) ≡
+                                                                          ((a : A y) → transport (λ i → B (p (~ i))) (g a) ≡ f (transport (λ i → A (p (~ i))) a)))
+                                                                     λ f g → transport (λ i → helper1 f g (~ i)) (helper2 f g)
+  where
+  helper1 : (f : (A x) → (B x)) (g : (A x) → (B x)) →
+            ((transport (λ i → A (refl {x = x} i) → B (refl {x = x} i)) f ≡ g) ≡ ((a : A x) → transport (λ i → B (refl {x = x} (~ i))) (g a) ≡ f (transport (λ i → A (refl {x = x} (~ i))) a)))
+           ≡ ((f ≡ g) ≡ ((a : A x) → g a ≡ f a))
+  helper1 f g i = ((transportRefl f i ≡ g) ≡ ((a : A x) → transportRefl (g a) i ≡ f (transportRefl a i)))
 
-{- Test -}
-SigmaEqHelper : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (b : B) (p1 p2 : Σ A (λ a → (f a) ≡ b)) → (fst p1 ≡ fst p2) → p1 ≡ p2
-SigmaEqHelper  {ℓ = ℓ} {ℓ' = ℓ'} {A = A} {B = B} f b p1 p2 path = J {ℓ'} {B} {f (fst p1)} (λ b pf → ( (pair2 : Σ A (λ a → (f a) ≡ b)) → (fst p1) ≡ (fst pair2) → ((fst p1 , pf) ≡ pair2)  ) ) (λ pr id → ΣPathP (id , {!transport (λ i → f (id i) ≡ ((snd pr) i))!})) {y = b} (snd p1) (p2) path {- J {ℓ} {A} {fst p1} {ℓ-max ℓ ℓ'} (λ y pf → ( (s : (f y ≡ b)) → (p1 ≡ (y , s)) ))
-                                                                  (λ s → ΣPathP (refl , {!J {ℓ'} {B} {x = (f (fst p1))} {ℓ'} (λ c → )!}))
-                                                                  {fst p2} path (snd p2) -}
+  helper2 : (f : (A x) → (B x)) (g : (A x) → (B x)) → ((f ≡ g) ≡ ((a : A x) → g a ≡ f a))
+  helper2 f g =  isoToPath (iso (λ p a → sym (funExt⁻ p a)) (λ p → sym (funExt p) ) (λ x → refl) λ x → refl)
+
+Lemma296 : ∀{ℓ ℓ' ℓ''} {X : Type ℓ} {x y : X} {A : X → Type ℓ'} {B : X → Type ℓ''}
+           (p : x ≡ y)
+           (f : (A x) → (B x))
+           (g : (A y) → (B y)) →
+           (transport (λ i → (A (p i)) → (B (p i))) f ≡ g) ≡ ((a : A x) → transport (λ i → B (p i)) (f a) ≡ g (transport (λ i → A (p i)) a))
+Lemma296 {ℓ = ℓ} {X = X} {x = x} {y = y} {A = A} {B = B} = J {ℓ} {X} {x}
+                                                            (λ y p → (f : (A x) → (B x)) (g : (A y) → (B y)) →
+                                                                     (transport (λ i → (A (p i)) → (B (p i))) f ≡ g) ≡
+                                                                          ((a : A x) → transport (λ i → B (p i)) (f a) ≡ g (transport (λ i → A (p i)) a)))
+                                                            (λ f g → transport (λ i → reflTransport f g (~ i)) (reflCase f g))
+  where
+  reflTransport : (f g : A x → B x) → ((transport (λ i → A (refl {x = x} i) → B (refl {x = x} i)) f ≡ g) ≡ ((a : A x) → transport (λ i → B (refl {x = x} i)) (f a) ≡ g (transport (λ i → A (refl {x = x} i)) a))) ≡ ((f ≡ g) ≡ ((a : A x) → f a ≡ g a))
+  reflTransport f g j = (transportRefl f j ≡ g) ≡ ((a : A x) → transportRefl (f a) j ≡ g (transportRefl a j))
+
+  reflCase : (f g : A x → B x) → ((f ≡ g) ≡ ((a : A x) → f a ≡ g a))
+  reflCase f g = isoToPath (iso (λ p → funExt⁻ p) (λ p → funExt p) (λ x → refl) λ x → refl) 
+
+
+
 
 
 {- TODO: Prove Kₙ ≡ Ω Kₙ₊₁  -}
@@ -83,61 +99,7 @@ invPathCancel2 {a = a} {b = b} p = J {x = a} (λ y p → (sym p) ∙ p ≡ refl 
 cancelReflMid : ∀ {ℓ} {A : Type ℓ} {a b : A} (p : a ≡ b) (q : b ≡ a) → p ∙ refl ∙ q ≡ p ∙ q
 cancelReflMid {ℓ = ℓ}{A = A} {a = a} {b = b} p q = J {ℓ} {A} {a} {ℓ} (λ b p → ((q : b ≡ a) →  p ∙ refl ∙ q ≡ p ∙ q)) (λ r → sym (lUnit (refl  ∙ r ))) {b} p q
 
-φ' : (a : A) → A → typ (Ω (Susp A , north ))
-φ' x = (λ a → ((merid  a) ∙ sym ((merid x))))
 
-φ'' : (b : Susp A) → b ≡ south → A →  north ≡ b
-φ'' b p a = (merid a) ∙ (sym p)
-
---φ''' : (a : A) (b : Susp A) → A →  north ≡ b
---φ''' (a : A) b p  = (merid a) ∙ (sym p) 
-
-
-
-
-looper : {a : A} -- defining loopⁿ
-           (n : Int) →
-           (a ≡ a) →
-           (a ≡ a) 
-looper {A = A} {a = a} (pos zero) p = refl
-looper {A = A} {a = a} (pos (suc n)) p = (looper (pos n) p) ∙ p
-looper {A = A} {a = a} (negsuc zero) p = sym p
-looper {A = A} {a = a} (negsuc (suc n)) p = (sym p) ∙ (looper (negsuc n) p)
-
-
-
-φ : (a : A) → A → (north {A = A} ≡ north {A = A})
-φ x = (λ a → ((merid  a) ∙ sym ((merid x))))
-
-φ* : (A : Pointed ℓ) → A →* Ω ((Susp (typ A)) , north)
-φ* A = (φ (pt A)) , invPathCancel (merid (pt A))
-
-σ : (n : ℕ₋₂) → (typ (coHomK-ptd n)) → (typ (Ω (coHomK-ptd (suc n))))
-σ neg2 k = looper k  ( cong {B = λ _ → (∥ S₊ 1 ∥ ℕ→ℕ₋₂ 1)}
-                     (λ x → ∣ x ∣)
-                     ((merid north) ∙ (sym (merid south))) )
-σ (suc n) x = rec {n = suc (suc (suc n))}
-                  {B = (typ (Ω (coHomK-ptd  (suc (suc n)))))}
-                  (isOfHLevel∥∥ {A = S₊ (2+ suc (suc n))} (suc (suc (suc (suc n)))) ∣ north ∣ ∣ north ∣)
-                  (λ y → cong {B = λ _ → Null (S (1+₋₂ (suc (suc (suc (suc n)))))) (S₊ (2+ (suc (suc n))))}
-                              (λ z → ∣ z ∣)
-                              (φ north y))
-                  x 
-
-testing : (n : ℕ) → (a : typ (Ω (S₊ (suc n) , north))) → isContr (∥ (Σ (S₊ n) λ k → (φ' {A = (S₊ n)} north  k ) ≡ a) ∥ (ℕ→ℕ₋₂ n) )
-testing zero a = {!!}
-testing (suc zero) a = {!!}
-testing (suc (suc n)) a = ∣ {!!} , {!a!} ∣ , λ y → {!!}
-
-
--- φ : (a : A) → A → (north {A = A} ≡ north {A = A})
--- φ x = (λ a → ((merid  a) ∙ sym ((merid x))))
-
-isConnectedT : (n : ℕ₋₂) (A : Type ℓ) → Type ℓ
-isConnectedT n A = isContr (∥ A ∥ n)
-
-isConnectedF : ∀{ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ₋₂)  → (A → B) → Type ((ℓ-max ℓ ℓ'))
-isConnectedF {A = A}   {B = B} n f = ((b : B) → isContr (∥ fiber f b  ∥ n))
 
 inducedFun : ∀{ℓ''} {k : ℕ₋₂}
              (f : A → B) →
@@ -145,57 +107,247 @@ inducedFun : ∀{ℓ''} {k : ℕ₋₂}
              (((b : B) → fst (P b)) → (a : A) → fst (P (f a)) )
 inducedFun  f P  = λ g a → g (f a)
 
-Lemma861 : ∀{ℓ''} (n k : ℕ₋₂) →
-             Σ ℕ₋₂ (λ num → (suc (suc n)) +₋₂ num ≡ (suc (suc k)) ) →
-             (f : A → B) →
-             (isConnectedF (suc (suc n)) f) →
-             (P : (B → HLevel ℓ'' (2+ (suc (suc k))))) →
-             isConnectedF (((suc (suc n)) -₋₂ (suc (suc k))) -₋₂ (suc (suc neg2))) (inducedFun {k = (suc (suc k))}  f P)
-Lemma861 n k (neg2 , pf) f conf P b = {!fiber!}
-Lemma861 {A = A} {B = B} n k (suc j , pf) f conf P g =  {!!} where
-  helper : (l : (x : A) → (fst (P (f x)) )) →
-           (fiber (inducedFun {k = (suc (suc k))} f P) l) ≡ Σ ((b : B) → (fst (P b))) λ g → (a : A) → (g (f a)) ≡ (l a)
-  helper l = isoToPath (iso (fun) finv (λ b → refl) λ b → refl) where
-    fun : (fiber (inducedFun {k = (suc (suc k))} f P) l) → Σ ((b : B) → (fst (P b))) λ g → (a : A) → (g (f a)) ≡ (l a)
-    fun (fs , sn) = fs , λ a  → cong (λ x → x a) sn
+Lemma757i→ii : ∀ {ℓ} (f : A → B) (n : ℕ₋₂) →
+                is- n -Connected f →
+                (P : B → HLevel ℓ (2+ n)) →
+                isEquiv (inducedFun f P)
+Lemma757i→ii f n isCon P = {!!}
 
-    finv : (Σ ((b : B) → (fst (P b))) λ g → (a : A) → (g (f a)) ≡ (l a)) →  (fiber (inducedFun {k = (suc (suc k))} f P) l)
-    finv (fs , sn) = fs , (funExt sn)
+Lemma757i→iii : ∀ {ℓ} (f : A → B) (n : ℕ₋₂) →
+                is- n -Connected f →
+                (P : B → HLevel ℓ (2+ n)) →
+                hasSection (inducedFun f P)
+Lemma757i→iii f n isCon P = {!!} , (λ b  → {!!})
 
-  helper'3 : (l : (x : A) → (fst (P (f x)) ))
-            (gp hq  : Σ ((b : B) → (fst (P b))) λ g → (a : A) → (g (f a)) ≡ (l a)) →
-            (gp ≡ hq)
-              ≡ Σ ((x : B) → (((fst gp) x) ≡ ((fst hq) x))) ( λ r → ((λ x → (r (f x))) ≡ λ (x : A) → (snd gp x) ∙ sym (snd hq x) ))
-  helper'3 l gp hq = isoToPath (iso fun finv (λ b i → ({!!})) {!!}) where
-    fun : (gp ≡ hq) → Σ ((x : B) → (((fst gp) x) ≡ ((fst hq) x))) ( λ r → ((λ x → (r (f x))) ≡ λ (x : A) → (snd gp x) ∙ sym (snd hq x) ))
-    fun path = (λ x i → fst (path i) x ) , funExt λ x → pathFinal {x} where
-      pathHelper : {x : A} →  PathP (λ i → fst gp (f x) ≡ fst (path i) (f x)) refl (snd gp x ∙ sym (snd hq x))
-      pathHelper {x = x} i = hcomp (λ j → λ{ (i = i0) → rCancel (snd gp x) j ; (i = i1) → (snd gp x ∙ sym (snd hq x))  } ) (snd gp x ∙ sym (snd (path i) x))
+Lemma861* : ∀{ℓ} (n k : ℕ₋₂) (f : A → B) →
+           (n ≡ neg2 → ⊥) → (k ≡ neg2 → ⊥) →
+           (n ≡ (suc neg2) → ⊥) → (k ≡ (suc neg2) → ⊥) →
+           (is- n -Connected f) →
+           (P : B → HLevel ℓ (2+ k)) →
+           Σ ℕ₋₂ (λ a → (a +₋₂ n ≡ k) × ((a ≡ neg2 → ⊥) × (a ≡ (suc neg2) → ⊥)))  →
+           is- ((k -₋₂ n) -₋₂ (suc (suc (suc (suc neg2))))) -Truncated (inducedFun {k = k } f P)
+Lemma861* n neg2 f n2 k2 n1 k1 isCon P pair = ⊥-elim (k2 refl)
+Lemma861* n (suc neg2) f n2 k2 n1 k1 isCon P pair = ⊥-elim (k1 refl)
+Lemma861* neg2 (suc (suc k)) f n2 k2 n1 k1 isCon P pair = ⊥-elim (n2 refl)
+Lemma861* (suc neg2) (suc (suc k)) f n2 k2 n1 k1 isCon P pair = ⊥-elim (n1 refl)
+Lemma861* (suc (suc n)) (suc (suc k)) f n2 k2 n1 k1 isCon P (neg2 , (x , (x₁ , x₂))) = ⊥-elim (x₁ refl)
+Lemma861* (suc (suc n)) (suc (suc k)) f n2 k2 n1 k1 isCon P (suc neg2 , (x , (x₁ , x₂))) = ⊥-elim (x₂ refl)
+Lemma861* (suc (suc n)) (suc (suc k)) f n2 k2 n1 k1 isCon P (suc (suc neg2) , (pf , (x₁ , x₂))) = {!pf!}
+Lemma861* (suc (suc n)) (suc (suc k)) f n2 k2 n1 k1 isCon P (suc (suc (suc dif)) , (pf , (x₁ , x₂))) = {!isCon!}
 
-      pathHelper2 : {x : A} → PathP (λ i → fst gp (f x) ≡ fst (path (~ i)) (f x)) (λ i → fst (path i) (f x)) refl
-      pathHelper2 {x = x} i = λ i₁ → fst (path (i₁ ∧ (~ i))) (f x)
 
-      pathFinal : {x : A} → (λ i → fst (path i) (f x)) ≡ snd gp x ∙ sym (snd hq x)
-      pathFinal {x = x} = transport (λ i → PathP (λ j₁ → (lCancel (λ i → fst gp (f x) ≡ fst (path i) (f x))) i j₁)
-                                                         (λ i → fst (path i) (f x))
-                                                         (snd gp x ∙ sym (snd hq x)))
-                                    (compPathP pathHelper2 pathHelper)
+Lemma861 : ∀{ℓ} (n k : ℕ) (f : A → B) →
+           (is- (ℕ→ℕ₋₂ n) -Connected f) →
+           (P : B → HLevel ℓ (suc (suc k))) →
+           Σ ℕ (λ a → a + n ≡ k)  →
+           is- (ℕ→ℕ₋₂ ((k - n) - 2)) -Truncated (inducedFun f P)
+Lemma861 {A = A} {B = B} n k f isCon P (dif , pf) = {!!} where
 
-    finv : Σ ((x : B) → (((fst gp) x) ≡ ((fst hq) x))) ( λ r → ((λ x → (r (f x))) ≡ λ (x : A) → (snd gp x) ∙ sym (snd hq x) )) → (gp ≡ hq)
-    finv (fs , sn) = ΣPathP {x = gp} {y = hq} (funExt (λ b → fs b) , {! !})  -- (λ b → (fs b) i) , λ a →  hcomp (λ k → λ{(i = i0) → (snd gp a) ; (i = i1) → {!!}}) (transp (λ j → fs (f a) (i ∧ j) ≡ l a) (~ i) ((snd gp) a))
+  helper1 : (l : (a : A) → fst (P (f a))) (a b : Σ ((b : B) → fst (P b)) λ g → (a : A) → g (f a) ≡ l a ) → (a ≡ b) ≡ Σ (fst a ≡ fst b) λ r → PathP (λ i → (x : A) → (r i) (f x) ≡ l x) (snd a) (snd b)
+  helper1 l a b = sym (ua (Σ≡ )) 
+
+  helper2 : (l : (a : A) → fst (P (f a))) (a b : Σ ((b : B) → fst (P b)) λ g → (a : A) → g (f a) ≡ l a ) → (Σ (fst a ≡ fst b) λ r → PathP (λ i → (x : A) → (r i) (f x) ≡ l x) (snd a) (snd b)) ≡ Σ ((x : B) → (fst a) x ≡ (fst b) x) λ r → PathP (λ i → (x : A) → r (f x) i ≡ l x) (snd a) (snd b)
+  helper2 l (g , p) (h , q) = isoToPath (iso lrFun  rlFun (λ b → refl) λ b → refl) where
+    lrFun : (Σ (g ≡ h) λ r → PathP (λ i → (x : A) → (r i) (f x) ≡ l x) p q) → Σ ((x : B) → g x ≡ h x) λ r → PathP (λ i → (x : A) → r (f x) i ≡ l x) p q
+    lrFun (a , b) = funExt⁻ a , b
+    rlFun : (Σ ((x : B) → g x ≡ h x) λ r → PathP (λ i → (x : A) → r (f x) i ≡ l x) p q) → (Σ (g ≡ h) λ r → PathP (λ i → (x : A) → (r i) (f x) ≡ l x) p q)
+    rlFun (a , b) = (funExt a) , b
+  abstract
+    helper3 : (l : (a : A) → fst (P (f a))) (a b : Σ ((b : B) → fst (P b)) λ g → (a : A) → g (f a) ≡ l a ) → (r : (x : B) → (fst a) x ≡ (fst b) x) → (PathP (λ i → (x : A) → r (f x) i ≡ l x) (snd a) (snd b)) ≡ ((x : A) → r (f x) ≡ ((snd a) x) ∙ sym ((snd b) x) )
+    helper3 l (g , p) (h , q) r j = hcomp (λ k → λ{ (j = i0) → (PathP (λ i → (x : A) → r (f x) (i ∧  i1) ≡ l x) p λ x → (sym (lUnit (q x)) k ))
+                                                ; (j = i1) → throwAbout k})
+                                        ((PathP (λ i → (x : A) → r (f x) (i ∧  ~ j) ≡ l x) p λ x → (λ i → r (f x) (~ j ∨ i)) ∙ (q x)))
       where
-      potTerm : {a : A} → PathP (λ i → (a : A) → funExt (λ b → fs b) i (f a) ≡ l a) (snd gp) (snd hq)
-      potTerm {a = a} j = λ a → hcomp {!(transp (λ i → funExt (λ b → fs b) (i) (f a) ≡ l a) i0 ((snd gp a))) !} (transp (λ i → funExt (λ b → fs b) (i ∧ j) (f a) ≡ l a) i0 ((snd gp a))) 
-       
-      helper2 : {a : A} → (fs (f a)) ∙ (snd hq a)  ≡ snd gp a
-      helper2 {a = a} = (cong (λ x → x ∙ (snd hq a)) (cong (λ x → x a) sn)) ∙ sym (assoc (snd gp a) (sym (snd hq a))  (snd hq a)) ∙ (λ j → (snd gp a) ∙ (lCancel (snd hq a)) j) ∙ sym (rUnit (snd gp a))
+        postulate
+          throwAbout : (p ≡ λ x → r (f x) ∙ q x) ≡ ((x : A) → (((r (f x))) ≡ (p x) ∙ (sym (q x))))
+      {- Very heavy proof  
+      throwAbout : (p ≡ λ x → r (f x) ∙ q x) ≡ ((x : A) → (((r (f x))) ≡ (p x) ∙ (sym (q x)))) 
+      throwAbout = isoToPath (iso (λ g x → transport (λ i → throwAboutHelper (p x) (r (f x)) (sym (q x)) i ) (funExt⁻ g x) )
+                                (λ g → funExt λ x → transport (λ i → throwAboutHelper (p x) (r (f x)) (sym (q x)) (~ i) ) (g x))
+                                (λ b → funExt λ x → (λ j → transport (λ i → throwAboutHelper (p x) (r (f x)) (λ i₁ → q x (~ i₁)) (i ∨ j)) (transport (λ i₁ → throwAboutHelper (p x) (r (f x)) (λ i₂ → q x (~ i₂)) ((~ i₁) ∨ ( j))) (b x))) ∙ λ j → transportRefl (transportRefl (b x) j) j  )
+                                λ b → (λ j → funExt (λ x → transport (λ i → throwAboutHelper (p x) (r (f x)) (λ i₁ → q x (~ i₁)) (~ i ∧ (~ j)))
+                                                                     (transport (λ i → throwAboutHelper (p x) (r (f x)) (λ i₁ → q x (~ i₁)) (i ∧ (~ j)))
+                                                                                (λ i → b i x))))
+                                             ∙ (λ j → funExt (λ x → transportRefl ((transportRefl (λ i → b i x)) j) j  ) )) where
+
+
+        throwAboutHelper : ∀{ℓ} {A : Type ℓ} {a b c : A} →  (p : a ≡ b) (q : a ≡ c) (r : b ≡ c) → (p ≡ q ∙ (sym r) ) ≡ (q ≡ p ∙ r)
+        throwAboutHelper {ℓ} {A} {a} {b} {c}  = J {ℓ} {A} {a} (λ b p → (q : a ≡ c) (r : b ≡ c) → (p ≡ q ∙ (sym r) ) ≡ (q ≡ p ∙ r))
+                                              (J {ℓ} {A} {a} (λ c q → (r : a ≡ c) → (refl ≡ q ∙ (sym r) ) ≡ (q ≡ refl ∙ r) )
+                                                 λ r → (λ i → refl ≡ lUnit (sym r) (~ i)) ∙ isoToPath (iso (λ id → cong (λ x → sym x) id) (λ id → cong (λ x → sym x) id ) (λ b → refl) λ b → refl)  ∙ λ i → (refl ≡ lUnit r i) )
+      -}
+
+    helper4 : (l : (a : A) → fst (P (f a))) (a b : Σ ((b : B) → fst (P b)) λ g → (a : A) → g (f a) ≡ l a ) → (r : (x : B) → (fst a) x ≡ (fst b) x) → ((x : A) → r (f x) ≡ ((snd a) x) ∙ sym ((snd b) x) ) ≡  ((λ (x : A) → r (f x)) ≡ (λ (x : A) → ((snd a) x) ∙ sym ((snd b) x)))
+    helper4 l (h , q) (g , p) r = isoToPath (iso (λ p → funExt p) (λ p → funExt⁻ p) (λ b → refl) λ b → refl)
+
+
+    FINAL : (l : (a : A) → fst (P (f a))) (a b : Σ ((b : B) → fst (P b)) λ g → (a : A) → g (f a) ≡ l a ) → (a ≡ b) ≡ Σ ((x : B) → (fst a) x ≡ (fst b) x) (λ r → ((λ (x : A) → r (f x)) ≡ (λ (x : A) → ((snd a) x) ∙ sym ((snd b) x))))
+    FINAL l (g , p) (h , q)  = helper1 _ _ _  ∙ helper2 _ _ _ ∙ (λ j → Σ ((x : B) → g x ≡ h x) (λ r → helper3 l (g , p) (h , q) r j)) ∙ λ j → Σ ((x : B) → g x ≡ h x) (λ r → helper4 l (g , p) (h , q) r j)
+
+    
       
+{-
+Lemma862 : (A : Pointed ℓ) (B : Pointed ℓ') (n m : ℕ₋₂) →
+           (is- (suc (suc n)) -ConnectedType (typ A)) →
+           (is- (suc (suc m)) -ConnectedType (typ B)) →
+           (P : (typ A) → (typ B) → HLevel (ℓ-max ℓ ℓ') (2+ ((suc (suc n)) +₋₂ (suc (suc m))))) →
+           (f : ((a : (typ A)) → fst (P a (pt B)))) →
+           (g : ((b : (typ B)) → fst (P (pt A) b))) →
+           (p : f (pt A) ≡ g (pt B)) →
+           Σ ((a : typ A) → (b : typ B) → fst (P a b)) λ h → Σ (((a : typ A) → h a (pt B) ≡ f a) × ((b : typ B) → h (pt A) b ≡ g b) ) λ pair → p ≡ sym ((proj₁ pair) (pt A) ) ∙ (proj₂ pair) (pt B)
+Lemma862 {ℓ = ℓ} {ℓ' = ℓ'} (A , a₀) (B , b₀) n m conA conB P f g p = (λ a b → {!!}) , ({!!} , {!!}) where
+  Q : A → Type (ℓ-max ℓ ℓ')
+  Q a = Σ ((b : B) → fst (P a b )) λ k → f a ≡ k (b₀)
+
+  a₀-map : Unit → A
+  a₀-map x = a₀
+
+  conOfa₀-map : is- (suc n) -Connected a₀-map
+  conOfa₀-map = {!!}
+
+  b₀-map : Unit → B
+  b₀-map x = b₀
+
+  conOfb₀-map : is- (suc n) -Connected b₀-map
+  conOfb₀-map = {!!}
+
+  conOfQ : (a : A) → isOfHLevel (2+ (suc n)) (Q a)
+  conOfQ = {!!}
+
+  typesQ : (a : A) → Σ ((a : A) → Q a) λ ℓ → ℓ a₀ ≡ (g , p)
+  typesQ a  = (fst (Lemma757i→iii a₀-map (suc n) conOfa₀-map (λ a → (Q a , conOfQ a ))) (λ x → (g , p))) ,
+              cong (λ f → f tt) (snd (Lemma757i→iii a₀-map (suc n) conOfa₀-map (λ a → (Q a , conOfQ a ))) (λ x → (g , p)))
+
+  QisFib : (a : A) → Q a ≡ fiber ( λ x → inducedFun {A = Unit} {B = B} b₀-map (P a) x tt) (f a)
+  QisFib a = {!!}
+
+  Ok : (a : A) → is- (suc n) -ConnectedType (fiber ( λ x → inducedFun {A = Unit} {B = B} b₀-map (P a) x tt) (f a))
+  Ok a = {!!}
+
+σ : A → {a : A} → typ (Ω ((Susp A) , north))
+σ x {a} = merid x ∙ sym (merid a)
+
+
+code : ∀{ℓ} {A : Type ℓ} {a : A} (n : ℕ₋₂) → is- (suc (suc n)) -ConnectedType A → (y : Susp A) → (north ≡ y → Type ℓ)
+code {A = A} {a = a} n iscon north p = (∥ fiber (λ y → σ y {a}) p ∥ ((suc (suc n)) +₋₂ (suc (suc n))))
+code {ℓ} {A = A} {a = a} n iscon south q = ∥ fiber merid q ∥ ((suc (suc n)) +₋₂ (suc (suc n)))
+code {ℓ} {A = A} {a = a} n iscon (merid c i) = pathToConstruct i where
+  pathToConstruct : PathP (λ i → north ≡ merid c i → Type ℓ) (code {a = a} n iscon north) (code {a = a} n iscon south)
+  pathToConstruct = toPathP (transport (λ i → transpId (~ i)) λ q → sym (ua ((RlFun q) , (RlFunEquiv q))))
+    where
+
+    transpId : (transport (λ i₁ → north ≡ merid c i₁ → Type ℓ) (code {a = a} n iscon north) ≡ code {a = a} n iscon south) ≡
+                ((q : north ≡ south) → (code {a = a} n iscon south q) ≡ (code {a = a} n iscon north (q ∙ sym (merid c))))
+    transpId = (transport (λ i₁ → north ≡ merid c i₁ → Type ℓ) (code {a = a} n iscon north) ≡ code {a = a} n iscon south)
+                             ≡⟨ Lemma296b {A = λ x → north ≡ x} {B = λ _ → Type ℓ} (merid c) (code {a = a} n iscon north) (code {a = a} n iscon south) ⟩
+                          ((q : north ≡ south) → code {a = a} n iscon south q ≡ code {a = a} n iscon north (transport (λ i →  north ≡ (merid c (~ i))) q))
+                             ≡⟨ (λ i → ((q : north ≡ south) → code {a = a} n iscon south q ≡ code {a = a} n iscon north (helper q (sym (merid c)) i))) ⟩
+                          ((q : north ≡ south) → (code {a = a} n iscon south q) ≡ (code {a = a} n iscon north (q ∙ sym (merid c)))) ∎
+                          
+      where
+      helper : ∀{ℓ} {A : Type ℓ} {a b c : A} (q : a ≡ b) (p : b ≡ c) →
+                    (transport (λ i →  a ≡ (p i)) q) ≡ (q ∙ p)
+      helper {ℓ = ℓ} {A = A} {a = a} {b = b} {c = c} q = J {ℓ} {A} {b}
+                                                          (λ c p → (transport (λ i →  a ≡ (p i)) q) ≡ (q ∙ p))
+                                                          (transportRefl q ∙ rUnit q)
+
+    
+
+    RlFun : {c : A} (q : north ≡ south) → code {a = a} n iscon north (q ∙ sym (merid c)) → code {a = a} n iscon south q
+    RlFun {c = c} q x  = (funHelper a) x
+      where
+        funHelper :  (a : A) → (∥ Σ A (λ x₁ → merid x₁ ∙ (λ i₁ → merid a (~ i₁)) ≡ q ∙ sym (merid c)) ∥ (suc (suc n) +₋₂ suc (suc n))) → ∥ Σ A (λ x → merid x ≡ q) ∥ ((suc (suc n) +₋₂ suc (suc n)))
+        funHelper a = ind (λ x → isOfHLevel∥∥ _) λ r → sufMap (fst r) (snd r)
+          where
+
+          sufMap : (x₂ : A) → (merid x₂  ∙ sym (merid a)) ≡ (q ∙ sym (merid c)) → ∥ Σ A (λ x → merid x ≡ q) ∥ ((suc (suc n) +₋₂ suc (suc n))) 
+          sufMap x₂  = fst (Lemma862 (A , a) (A , a) n n iscon iscon (λ x₂ c → (((merid x₂  ∙ sym (merid a)) ≡ (q ∙ sym (merid c)) → ∥ Σ A (λ x → merid x ≡ q) ∥ ((suc (suc n) +₋₂ suc (suc n))) ) , isOfHLevelPi (2+ ((suc (suc n) +₋₂ suc (suc n)))) λ _ → isOfHLevel∥∥ _)) firstFun secondFun  (funExt (λ x → λ j → ∣ (refl j) , (maybe (merid a) q (canceller (merid a) q (sym (merid a)) x ) x j) ∣  ))) x₂ c
+            where
+
+            
+
+            firstFun : (a₁ : A) → merid a₁ ∙ (λ i₁ → merid a (~ i₁)) ≡ q ∙ (λ i₁ → merid (pt (A , a)) (~ i₁)) → ∥ Σ A (λ x₁ → merid x₁ ≡ q) ∥ (suc (suc n) +₋₂ suc (suc n))
+            firstFun x r = ∣ x , canceller (merid x) q (sym (merid a)) r ∣
+        
+          {-J {ℓ} {A} {b} (λ d r → ((p ∙ r) ≡ (q ∙ r)) ≡ (p ≡ q)) λ i → sym (rUnit p) i ≡ sym (rUnit q) i-}
+            secondFun : (b : typ (A , a)) → merid (pt (A , a)) ∙ (λ i₁ → merid a (~ i₁)) ≡ q ∙ (λ i₁ → merid b (~ i₁)) → ∥ Σ A (λ x₁ → merid x₁ ≡ q) ∥ (suc (suc n) +₋₂ suc (suc n))
+            secondFun b s = ∣ b , switcher (merid a) q (merid b) s ∣
+
+      {- need eckmann hilton -}
+
+
+            maybe : ∀ {ℓ} {A : Type ℓ} {a b : A} → (p q : a ≡ b) → (p ≡ q) → (P : p ∙ (sym p) ≡ q ∙ (sym p)) → canceller p q (sym p) P ≡ switcher p q p P
+            maybe {ℓ} {A} {a} {b} p q = J {ℓ} {a ≡ b} {p} (λ q _ → (P : p ∙ (sym p) ≡ q ∙ (sym p)) → canceller p q (sym p) P ≡ switcher p q p P) (J {ℓ} {A} {a} (λ b p → (P : p ∙ (sym p) ≡ p ∙ (sym p)) → canceller p p (sym p) P ≡ switcher p p p P) (λ P → {!refl!}) p)
+
+
+    canceller2 : ∀ {ℓ} {A : Type ℓ} {a b c : A} → (p q : a ≡ b) (r : b ≡ c) → p ∙ r ≡ q ∙ r → p ≡ q
+    canceller2 {ℓ} {A} {a} {b} {c} p q r id = (rUnit p ∙ (λ j → (p ∙ (rCancel r (~ j)))) ∙ assoc p r (sym r)) ∙ (cong (λ x → x ∙ (sym r)) id) ∙ sym (assoc q r (sym r)) ∙ (λ j → q ∙ (rCancel r j)) ∙ sym (rUnit q)
+
+    RlFunEquiv : {c : A} → (q : north ≡ south) → isEquiv (RlFun {c = c} q)
+    RlFunEquiv {c = c} q = fst (Lemma757i→iii {A = Unit} {B = A} (λ x → a) ((suc (suc n))) (λ b → {!fst iscon!} , {!!}) (λ a → ((isEquiv (RlFun {c = a} q)) , {!!} ))) (λ t → baseCase) c where
+        baseCase : isEquiv (RlFun {c = a} q)
+        baseCase = snd (isoToEquiv (iso (RlFun {c = a} q) (ind (λ _ → isOfHLevel∥∥ _) λ a → {!!}) {!!} {!!}))
+
+        claim : RlFun {c = a} q ≡ ind (λ _ → isOfHLevel∥∥ _) λ b → ∣ (fst b) , canceller2 _ _ _ (snd b)  ∣
+        claim = {!!} --cannot say before I have prev lemmas
+        
+        isCona₀ : is- (suc (suc n)) -Connected (λ (x₁ : Unit) → a)
+        isCona₀ = λ b → {!!} , {!!}
+
+
+Lemma8610 : ∀{ℓ ℓ' ℓ''} {A : Type ℓ} {a1 a2 : A} {B : A → Type ℓ'} (C : (a : A) → (B a → Type ℓ'')) (p : a1 ≡ a2) (b : B a2) → transport (λ i → {!uncurry C ?!}) {!!} ≡ {!(ua ?)!}
+Lemma8610 = {!!}
+
+Thm864 : (n : ℕ₋₂) (a : A) (iscon : is- (suc (suc n)) -ConnectedType A) {y : Susp A} → (p : north ≡ y) → isContr (code {a = a} n iscon y p)
+Thm864 {ℓ} {A} n a iscon =  J {ℓ} {Susp A} {north} (λ y p → (isContr (code {a = a} n iscon y p))) (∣ a , (rCancel _) ∣ , (λ y → {!refl!}))  where
+  center : {!!}
+  center = {!!}
+
+Freudenthal : (n : ℕ₋₂ ) (A : Pointed ℓ) → is- (suc (suc n)) -ConnectedType (typ A) → ∥ typ A ∥ (((suc (suc n) +₋₂ suc (suc n))) ) ≡ ∥ typ (Ω (Susp (typ A) , north)) ∥ (((suc (suc n) +₋₂ suc (suc n))) )
+Freudenthal n A isCon = ua ({!!} , {!Lemma757i→ii ? ? ? ?!})
+
+
+
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{- J {ℓ} {A} {a} (λ b p → ((q : a ≡ b) (P : p ∙ (sym p) ≡ q ∙ (sym p)) → canceller p q (sym p) P ≡ switcher p q p P)) λ q id → (λ i → canceller refl q ((sym symRefl ) (~ i)) id) ∙ {!!} ∙ λ j → switcher refl q (symRefl (~ j)) id where
+      test : {q : a ≡ a} {id : refl ∙ (λ i₁ → refl (~ i₁)) ≡ q ∙ (λ i₁ → refl {x = a} (~ i₁))} → canceller refl q refl id ≡ (sym (rCancel refl)) ∙ (cong (λ x → x ∙ refl) ((lUnit refl) ∙ id)) ∙ (sym (assoc q refl refl)) ∙ (λ j → q ∙ (rCancel refl j)) ∙ (sym (rUnit q))
+      test {q = q} {id = id} i = {!(sym (rCancel refl)) ∙ (cong (λ x → x ∙ (symRefl (~ i))) ((lUnit refl) ∙ id)) ∙ (sym (assoc q refl (symRefl (~ i)))) ∙ (λ j → q ∙ (rCancel refl j)) ∙ (sym (rUnit q))!} -}
+
+{-
+
+  RlFun : (q : north ≡ south) → (∥ ((fiber (λ y → σ y) (q ∙ sym (merid c))) ≡  (Σ A (λ x₁ → merid x₁ ∙ (λ i₁ → merid a (~ i₁)) ≡ q ∙ sym (merid c)))) ∥ ((suc n) +₋₂ suc (suc n))) → (∥ (fiber merid q)  ≡  (Σ A (λ x₁ → merid x₁ ≡ q)) ∥ ((suc n) +₋₂ suc (suc n)))
+  RlFun q x = ind (λ x → isOfHLevel∥∥ _) ({!cong funHelper!}) x where
+    funHelper : (a : A) → merid a ∙ (sym (merid c)) ≡ q ∙ (sym (merid c)) → ∥ Σ A (λ x → merid x ≡ q) ∥ ((suc (suc n) +₋₂ suc (suc n)))
+    funHelper a = {!!}
+
+  LrFun : ((q : north ≡ south) → (code {a = a} n iscon south q) → (code {a = a} n iscon north (q ∙ sym (merid c))))
+  LrFun = {!!}
+
+-}
 
     -- fst gp (f x) ≡ fst hq (f x)
     -- fst gp (f x) ≡ fst gp (f x)
 
 
-
+{-
 
   helper2 : (l : (x : A) → (fst (P (f x)) ))
             (gp hq  : Σ ((b : B) → (fst (P b))) λ g → (a : A) → (g (f a)) ≡ (l a)) →
@@ -227,7 +379,74 @@ Lemma861 {A = A} {B = B} n k (suc j , pf) f conf P g =  {!!} where
       (λ a≡ → PathP (λ i → (a : A) → a≡ i (f a) ≡ l a) (snd gp) (snd hq))
   helper3 l gp hq = sym (ua (Σ≡ {A = ((a : B) → fst (P a))} {B = (λ x → (a : A) → x (f a) ≡ l a)} {x = gp} {y = hq}))
 
+
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
+{-
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ------------------
@@ -658,3 +877,62 @@ inv1 {A = A} {B = B}(suc n) {f = f} g j = {! -- transp (λ i → (snd (rlFun3* n
                                                                 {!(cong (fst (rlFun3* n)) (funExt ( (λ x → (funExt⁻ (cong (λ x → (fst (lrFun3* n {f}) x )) g) x))))) !}
      maybe j = {!fst (rlFun3* n) (λ x → snd (lrFun3* n {f}) i1 x)!}
 -}
+-}
+
+
+
+
+
+
+
+
+
+{-
+Lemma861 : ∀{ℓ''} (n k : ℕ₋₂) →
+             Σ ℕ₋₂ (λ num → (suc (suc n)) +₋₂ num ≡ (suc (suc k)) ) →
+             (f : A → B) →
+             (is- (suc (suc n)) -Connected f) →
+             (P : (B → HLevel ℓ'' (2+ (suc (suc k))))) →
+             is- (((suc (suc n)) -₋₂ (suc (suc k))) -₋₂ (suc (suc neg2))) -Connected (inducedFun {k = (suc (suc k))}  f P)
+Lemma861 n k (neg2 , pf) f conf P b = {!!}
+  where
+  helper : (((suc (suc n)) -₋₂ (suc (suc k))) -₋₂ (suc (suc neg2))) ≡ neg2
+  helper = {!!}
+Lemma861 {A = A} {B = B} n k (suc j , pf) f conf P g =  {!!} where
+  helper : (l : (x : A) → (fst (P (f x)) )) →
+           (fiber (inducedFun {k = (suc (suc k))} f P) l) ≡ Σ ((b : B) → (fst (P b))) λ g → (a : A) → (g (f a)) ≡ (l a)
+  helper l = isoToPath (iso (fun) finv (λ b → refl) λ b → refl) where
+    fun : (fiber (inducedFun {k = (suc (suc k))} f P) l) → Σ ((b : B) → (fst (P b))) λ g → (a : A) → (g (f a)) ≡ (l a)
+    fun (fs , sn) = fs , λ a  → cong (λ x → x a) sn
+
+    finv : (Σ ((b : B) → (fst (P b))) λ g → (a : A) → (g (f a)) ≡ (l a)) →  (fiber (inducedFun {k = (suc (suc k))} f P) l)
+    finv (fs , sn) = fs , (funExt sn)
+
+  helper'3 : (l : (x : A) → (fst (P (f x)) ))
+            (gp hq  : Σ ((b : B) → (fst (P b))) λ g → (a : A) → (g (f a)) ≡ (l a)) →
+            (gp ≡ hq)
+              ≡ Σ ((x : B) → (((fst gp) x) ≡ ((fst hq) x))) ( λ r → ((λ x → (r (f x))) ≡ λ (x : A) → (snd gp x) ∙ sym (snd hq x) ))
+  helper'3 l gp hq = isoToPath (iso fun finv (λ b i → ({!!})) {!!}) where
+    fun : (gp ≡ hq) → Σ ((x : B) → (((fst gp) x) ≡ ((fst hq) x))) ( λ r → ((λ x → (r (f x))) ≡ λ (x : A) → (snd gp x) ∙ sym (snd hq x) ))
+    fun path = (λ x i → fst (path i) x ) , funExt λ x → pathFinal {x} where
+      pathHelper : {x : A} →  PathP (λ i → fst gp (f x) ≡ fst (path i) (f x)) refl (snd gp x ∙ sym (snd hq x))
+      pathHelper {x = x} i = hcomp (λ j → λ{ (i = i0) → rCancel (snd gp x) j ; (i = i1) → (snd gp x ∙ sym (snd hq x))  } ) (snd gp x ∙ sym (snd (path i) x))
+
+      pathHelper2 : {x : A} → PathP (λ i → fst gp (f x) ≡ fst (path (~ i)) (f x)) (λ i → fst (path i) (f x)) refl
+      pathHelper2 {x = x} i = λ i₁ → fst (path (i₁ ∧ (~ i))) (f x)
+
+      pathFinal : {x : A} → (λ i → fst (path i) (f x)) ≡ snd gp x ∙ sym (snd hq x)
+      pathFinal {x = x} = transport (λ i → PathP (λ j₁ → (lCancel (λ i → fst gp (f x) ≡ fst (path i) (f x))) i j₁)
+                                                         (λ i → fst (path i) (f x))
+                                                         (snd gp x ∙ sym (snd hq x)))
+                                    (compPathP pathHelper2 pathHelper)
+
+
+    finv : Σ ((x : B) → (((fst gp) x) ≡ ((fst hq) x))) ( λ r → ((λ x → (r (f x))) ≡ λ (x : A) → (snd gp x) ∙ sym (snd hq x) )) → (gp ≡ hq)
+    finv (fs , sn) = ΣPathP {x = gp} {y = hq} (funExt (λ b → fs b) , {! !})  -- (λ b → (fs b) i) , λ a →  hcomp (λ k → λ{(i = i0) → (snd gp a) ; (i = i1) → {!!}}) (transp (λ j → fs (f a) (i ∧ j) ≡ l a) (~ i) ((snd gp) a))
+      where
+      potTerm : {a : A} → PathP (λ i → (a : A) → funExt (λ b → fs b) i (f a) ≡ l a) (snd gp) (snd hq)
+      potTerm {a = a} j = λ a → hcomp {!(transp (λ i → funExt (λ b → fs b) (i) (f a) ≡ l a) i0 ((snd gp a))) !} (transp (λ i → funExt (λ b → fs b) (i ∧ j) (f a) ≡ l a) i0 ((snd gp a))) 
+       
+      helper2 : {a : A} → (fs (f a)) ∙ (snd hq a)  ≡ snd gp a
+      helper2 {a = a} = (cong (λ x → x ∙ (snd hq a)) (cong (λ x → x a) sn)) ∙ sym (assoc (snd gp a) (sym (snd hq a))  (snd hq a)) ∙ (λ j → (snd gp a) ∙ (lCancel (snd hq a)) j) ∙ sym (rUnit (snd gp a)) -}
