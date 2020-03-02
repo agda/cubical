@@ -2,8 +2,11 @@
 module Cubical.Data.Queue.Base where
 
 open import Cubical.Foundations.Everything
-open import Cubical.Foundations.SIP
 open import Cubical.Foundations.HLevels
+
+open import Cubical.Foundations.SIP
+open import Cubical.Structures.Pointed
+open import Cubical.Structures.InftyMagma using (funExtBinEquiv)
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty
@@ -38,7 +41,7 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  left-action-iso : (L M : Left-Action) → L .fst ≃ M .fst → Type ℓ
  left-action-iso (X , l) (Y , m) e = ∀ a x → e .fst (l a x) ≡ m a (e .fst x)
 
- Left-Action-is-SNS : SNS {ℓ = ℓ} left-action-structure left-action-iso
+ Left-Action-is-SNS : SNS₁ {ℓ = ℓ} left-action-structure left-action-iso
  Left-Action-is-SNS l m = invEquiv funExtBinEquiv
 
 
@@ -75,7 +78,7 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  pop-iso : (P Q : Pop) → P .fst ≃ Q .fst → Type ℓ
  pop-iso (X , p) (Y , q) e = ∀ x → pop-map-forward (e .fst) (p x) ≡ q (e .fst x)
 
- Pop-is-SNS : SNS {ℓ = ℓ} pop-structure pop-iso
+ Pop-is-SNS : SNS₁ {ℓ = ℓ} pop-structure pop-iso
  Pop-is-SNS {X = X} p q = invEquiv
                          (subst (λ f → (∀ x → f (p x) ≡ q x) ≃ (p ≡ q)) pop-map-lemma funExtEquiv)
 
@@ -96,13 +99,13 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
 
 
 
- Queue-is-SNS' : SNS' {ℓ = ℓ} queue-structure queue-iso
- Queue-is-SNS' = join-SNS' pointed-structure pointed-iso pointed-is-SNS'
-              (λ X → (left-action-structure X) × (pop-structure X))
-              (λ B C e →  (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
-                        × (∀ q → pop-map-forward (e .fst) (B .snd .snd q) ≡ C .snd .snd (e .fst q)))
-                (join-SNS' left-action-structure left-action-iso (SNS→SNS' Left-Action-is-SNS)
-                           pop-structure         pop-iso         (SNS→SNS' Pop-is-SNS)        )
+ Queue-is-SNS : SNS₂ {ℓ = ℓ} queue-structure queue-iso
+ Queue-is-SNS = join-SNS pointed-structure pointed-iso pointed-is-SNS
+             (λ X → (left-action-structure X) × (pop-structure X))
+             (λ B C e →  (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
+                       × (∀ q → pop-map-forward (e .fst) (B .snd .snd q) ≡ C .snd .snd (e .fst q)))
+               (join-SNS left-action-structure left-action-iso (SNS₁→SNS₂ _ _ Left-Action-is-SNS)
+                         pop-structure         pop-iso         (SNS₁→SNS₂ _ _ Pop-is-SNS)        )
 
 
 
@@ -269,5 +272,5 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
 
  -- And we get the desired Path
  Path-1List-2List : 1List ≡ 2List
- Path-1List-2List = SIP queue-structure queue-iso (SNS''→SNS''' Queue-is-SNS') 1List 2List .fst
+ Path-1List-2List = SIP queue-structure queue-iso (SNS₂→SNS₄ Queue-is-SNS) 1List 2List .fst
                    (quotEquiv , quotEquiv-is-queue-iso)
