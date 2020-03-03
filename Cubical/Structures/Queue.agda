@@ -3,7 +3,7 @@ module Cubical.Structures.Queue where
 
 open import Cubical.Foundations.Everything
 
-open import Cubical.Foundations.SIP
+open import Cubical.Foundations.SIP renaming (SNS₂ to SNS)
 open import Cubical.Structures.Pointed
 open import Cubical.Structures.InftyMagma using (funExtBinEquiv)
 
@@ -35,8 +35,8 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  left-action-iso : StrIso left-action-structure ℓ
  left-action-iso (X , l) (Y , m) e = ∀ a x → e .fst (l a x) ≡ m a (e .fst x)
 
- Left-Action-is-SNS : SNS₁ {ℓ = ℓ} left-action-structure left-action-iso
- Left-Action-is-SNS l m = invEquiv funExtBinEquiv
+ Left-Action-is-SNS : SNS {ℓ = ℓ} left-action-structure left-action-iso
+ Left-Action-is-SNS = SNS₁→SNS₂ _ _ (λ _ _ → invEquiv funExtBinEquiv)
 
 
  -- Now for the pop-map as a structure
@@ -72,9 +72,9 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  pop-iso : StrIso pop-structure ℓ
  pop-iso (X , p) (Y , q) e = ∀ x → pop-map-forward (e .fst) (p x) ≡ q (e .fst x)
 
- Pop-is-SNS : SNS₁ {ℓ = ℓ} pop-structure pop-iso
- Pop-is-SNS {X = X} p q = invEquiv
-                         (subst (λ f → (∀ x → f (p x) ≡ q x) ≃ (p ≡ q)) pop-map-lemma funExtEquiv)
+ Pop-is-SNS : SNS {ℓ = ℓ} pop-structure pop-iso
+ Pop-is-SNS = SNS₁→SNS₂ _ _ (λ p q →
+               invEquiv (subst (λ f → (∀ x → f (p x) ≡ q x) ≃ (p ≡ q)) pop-map-lemma funExtEquiv) )
 
 
 
@@ -93,13 +93,13 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
 
 
 
- Queue-is-SNS : SNS₂ {ℓ = ℓ} queue-structure queue-iso
+ Queue-is-SNS : SNS {ℓ = ℓ} queue-structure queue-iso
  Queue-is-SNS = join-SNS pointed-structure pointed-iso pointed-is-SNS
              (λ X → (left-action-structure X) × (pop-structure X))
              (λ B C e →  (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
                        × (∀ q → pop-map-forward (e .fst) (B .snd .snd q) ≡ C .snd .snd (e .fst q)))
-               (join-SNS left-action-structure left-action-iso (SNS₁→SNS₂ _ _ Left-Action-is-SNS)
-                         pop-structure         pop-iso         (SNS₁→SNS₂ _ _ Pop-is-SNS)        )
+               (join-SNS left-action-structure left-action-iso Left-Action-is-SNS
+                         pop-structure         pop-iso         Pop-is-SNS        )
 
 
 
