@@ -29,7 +29,7 @@ record Modality ℓ : Type (ℓ-suc ℓ) where
     ◯-=-isModal : {A : Type ℓ} (x y : ◯ A) → isModal (x ≡ y)
 
   ◯-Types : Type (ℓ-suc ℓ)
-  ◯-Types = Σ[ A ∈ Type ℓ ] isModal A
+  ◯-Types = TypeWithStr ℓ isModal
 
   {- elimination rules -}
 
