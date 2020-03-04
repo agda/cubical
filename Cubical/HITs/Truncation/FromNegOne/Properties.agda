@@ -2,8 +2,8 @@
 module Cubical.HITs.Truncation.FromNegOne.Properties where
 
 open import Cubical.HITs.Truncation.FromNegOne.Base
-open import Cubical.Data.Nat
-open import Cubical.Data.NatMinusOne
+open import Cubical.Data.Nat hiding (suc)
+open import Cubical.Data.NatMinusOne renaming (suc₋₁ to suc)
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
@@ -34,7 +34,7 @@ isSphereFilled→isOfHLevel {A = A} neg1 h x y = sym (snd (h f) north) ∙ snd (
     f north = x
     f south = y
     f (merid () i)
-isSphereFilled→isOfHLevel {A = A} (suc n) h x y = isSphereFilled→isOfHLevel n (helper h x y)
+isSphereFilled→isOfHLevel {A = A} (ℕ→ℕ₋₁ n) h x y = isSphereFilled→isOfHLevel (-1+ n) (helper h x y)
   where
     helper : {n : ℕ₋₁} → isSphereFilled (suc n) A → (x y : A) → isSphereFilled n (x ≡ y)
     helper {n = n} h x y f = l , r
@@ -71,7 +71,7 @@ isSphereFilled→isOfHLevel {A = A} (suc n) h x y = isSphereFilled→isOfHLevel 
 
 isOfHLevel→isSphereFilled : (n : ℕ₋₁) → isOfHLevel (1 + 1+ n) A → isSphereFilled (suc n) A
 isOfHLevel→isSphereFilled neg1 h f = (f north) , (λ _ → h _ _)
-isOfHLevel→isSphereFilled {A = A} (suc n) h = helper λ x y → isOfHLevel→isSphereFilled n (h x y)
+isOfHLevel→isSphereFilled {A = A} (ℕ→ℕ₋₁ n) h = helper λ x y → isOfHLevel→isSphereFilled (-1+ n) (h x y)
   where
     helper : {n : ℕ₋₁} → ((x y : A) → isSphereFilled n (x ≡ y)) → isSphereFilled (suc n) A
     helper {n = n} h f = l , r

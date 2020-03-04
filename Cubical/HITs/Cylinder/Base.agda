@@ -9,7 +9,7 @@ open import Cubical.Foundations.Everything
 open import Cubical.HITs.PropositionalTruncation
 
 import Cubical.Data.Everything as Data
-open Data hiding (inl; inr)
+open Data hiding (one; inl; inr)
 
 open import Cubical.HITs.Interval
 
