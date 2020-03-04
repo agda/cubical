@@ -3,7 +3,7 @@ module Cubical.Relation.Nullary where
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as ⊥
 
 private
   variable
@@ -45,14 +45,14 @@ discreteDec Adis (yes p) (yes p') = decideYes (Adis p p') -- TODO: monad would s
     decideYes : Dec (p ≡ p') → Dec (yes p ≡ yes p')
     decideYes (yes eq) = yes (cong yes eq)
     decideYes (no ¬eq) = no λ eq → ¬eq (cong (fromYes p) eq)
-discreteDec Adis (yes p) (no ¬p) = ⊥-elim (¬p p)
-discreteDec Adis (no ¬p) (yes p) = ⊥-elim (¬p p)
+discreteDec Adis (yes p) (no ¬p) = ⊥.rec (¬p p)
+discreteDec Adis (no ¬p) (yes p) = ⊥.rec (¬p p)
 discreteDec {A = A} Adis (no ¬p) (no ¬p') = yes (cong no (isProp¬ A ¬p ¬p'))
 
 isPropDec : (Aprop : isProp A) → isProp (Dec A)
 isPropDec Aprop (yes a) (yes a') = cong yes (Aprop a a')
-isPropDec Aprop (yes a) (no ¬a) = ⊥-elim (¬a a)
-isPropDec Aprop (no ¬a) (yes a) = ⊥-elim (¬a a)
+isPropDec Aprop (yes a) (no ¬a) = ⊥.rec (¬a a)
+isPropDec Aprop (no ¬a) (yes a) = ⊥.rec (¬a a)
 isPropDec {A = A} Aprop (no ¬a) (no ¬a') = cong no (isProp¬ A ¬a ¬a')
 
 mapDec : ∀ {B : Type ℓ} → (A → B) → (¬ A → ¬ B) → Dec A → Dec B

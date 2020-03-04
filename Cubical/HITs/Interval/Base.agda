@@ -26,14 +26,14 @@ funExtInterval A B f g p = λ i x → hmtpy x (seg i)
   hmtpy x one     = g x
   hmtpy x (seg i) = p x i
 
-intervalElim : (A : Interval → Type₀) (x : A zero) (y : A one)
+elim : (A : Interval → Type₀) (x : A zero) (y : A one)
                (p : PathP (λ i → A (seg i)) x y) → (x : Interval) → A x
-intervalElim A x y p zero    = x
-intervalElim A x y p one     = y
-intervalElim A x y p (seg i) = p i
+elim A x y p zero    = x
+elim A x y p one     = y
+elim A x y p (seg i) = p i
 
 -- Note that this is not definitional (it is not proved by refl)
-intervalEta : ∀ {A : Type₀} (f : Interval → A) → intervalElim _ (f zero) (f one) (λ i → f (seg i)) ≡ f
+intervalEta : ∀ {A : Type₀} (f : Interval → A) → elim _ (f zero) (f one) (λ i → f (seg i)) ≡ f
 intervalEta f i zero    = f zero
 intervalEta f i one     = f one
 intervalEta f i (seg j) = f (seg j)

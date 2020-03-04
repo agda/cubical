@@ -2,16 +2,16 @@
 
 module Cubical.Foundations.Logic where
 
-import Cubical.Data.Empty as D
-import Cubical.Data.Prod  as D
-import Cubical.Data.Sum   as D
-import Cubical.Data.Unit  as D
+import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Prod as × using (_×_; _,_; proj₁; proj₂)
+open import Cubical.Data.Sum as ⊎ using (_⊎_)
+open import Cubical.Data.Unit
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
-open import Cubical.Foundations.HLevels  using (hProp; ΣProp≡; isPropPi) public
+open import Cubical.Foundations.HLevels using (hProp; ΣProp≡; isPropPi) public
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 
@@ -76,7 +76,7 @@ pathTo⇐ : P ≡ Q → [ Q ⇒ P ]
 pathTo⇐ p x = subst fst (sym p) x
 
 substₚ : {x y : A} (B : A → hProp ℓ) → [ x ≡ₚ y ⇒ B x ⇒ B y ]
-substₚ {x = x} {y = y} B = elimPropTrunc (λ _ → isPropPi λ _ → B y .snd) (subst (fst ∘ B))
+substₚ {x = x} {y = y} B = PropTrunc.elim (λ _ → isPropPi λ _ → B y .snd) (subst (fst ∘ B))
 
 --------------------------------------------------------------------------------
 -- Mixfix notations for ⇔-toPath
@@ -91,16 +91,16 @@ substₚ {x = x} {y = y} B = elimPropTrunc (λ _ → isPropPi λ _ → B y .snd)
 -- False and True
 
 ⊥ : hProp _
-⊥ = D.⊥ , λ ()
+⊥ = ⊥.⊥ , λ ()
 
 ⊤ : hProp _
-⊤ = D.Unit , (λ _ _ _ → D.tt)
+⊤ = Unit , (λ _ _ _ → tt)
 
 --------------------------------------------------------------------------------
 -- Pseudo-complement of mere propositions
 
 ¬_ : hProp ℓ → hProp _
-¬ A = ([ A ] → D.⊥) , isPropPi λ _ → D.isProp⊥
+¬ A = ([ A ] → ⊥.⊥) , isPropPi λ _ → ⊥.isProp⊥
 
 _≢ₚ_ : (x y : A) → hProp _
 x ≢ₚ y = ¬ x ≡ₚ y
@@ -109,32 +109,32 @@ x ≢ₚ y = ¬ x ≡ₚ y
 -- Disjunction of mere propositions
 
 _⊔′_ : Type ℓ → Type ℓ' → Type _
-A ⊔′ B = ∥ A D.⊎ B ∥
+A ⊔′ B = ∥ A ⊎ B ∥
 
 _⊔_ : hProp ℓ → hProp ℓ' → hProp _
-P ⊔ Q = ∥ [ P ] D.⊎ [ Q ] ∥ₚ
+P ⊔ Q = ∥ [ P ] ⊎ [ Q ] ∥ₚ
 
 inl : A → A ⊔′ B
-inl x = ∣ D.inl x ∣
+inl x = ∣ ⊎.inl x ∣
 
 inr : B → A ⊔′ B
-inr x = ∣ D.inr x ∣
+inr x = ∣ ⊎.inr x ∣
 
 ⊔-elim : (P : hProp ℓ) (Q : hProp ℓ') (R : [ P ⊔ Q ] → hProp ℓ'')
   → (∀ x → [ R (inl x) ]) → (∀ y → [ R (inr y) ]) → (∀ z → [ R z ])
-⊔-elim _ _ R P⇒R Q⇒R = elimPropTrunc (snd ∘ R) (D.elim-⊎ P⇒R Q⇒R)
+⊔-elim _ _ R P⇒R Q⇒R = PropTrunc.elim (snd ∘ R) (⊎.elim P⇒R Q⇒R)
 
 --------------------------------------------------------------------------------
 -- Conjunction of mere propositions
 _⊓′_ : Type ℓ → Type ℓ' → Type _
-A ⊓′ B = A D.× B
+A ⊓′ B = A × B
 
 _⊓_ : hProp ℓ → hProp ℓ' → hProp _
-A ⊓ B = [ A ] ⊓′ [ B ] , D.hLevelProd 1 (A .snd) (B .snd)
+A ⊓ B = [ A ] ⊓′ [ B ] , ×.hLevelProd 1 (A .snd) (B .snd)
 
 ⊓-intro : (P : hProp ℓ) (Q : [ P ] → hProp ℓ') (R : [ P ] → hProp ℓ'')
        → (∀ a → [ Q a ]) → (∀ a → [ R a ]) → (∀ (a : [ P ]) → [ Q a ⊓ R a ] )
-⊓-intro _ _ _ = D.intro-×
+⊓-intro _ _ _ = ×.intro
 
 --------------------------------------------------------------------------------
 -- Logical bi-implication of mere propositions
@@ -175,10 +175,10 @@ Decₚ P = Dec [ P ] , isPropDec (snd P)
 --------------------------------------------------------------------------------
 -- Negation commutes with truncation
 
-∥¬A∥≡¬∥A∥ : (A : Type ℓ) → ∥ (A → D.⊥) ∥ₚ ≡ (¬ ∥ A ∥ₚ)
+∥¬A∥≡¬∥A∥ : (A : Type ℓ) → ∥ (A → ⊥.⊥) ∥ₚ ≡ (¬ ∥ A ∥ₚ)
 ∥¬A∥≡¬∥A∥ _ =
-  ⇒∶ (λ ¬A A → elimPropTrunc (λ _ → D.isProp⊥)
-    (elimPropTrunc (λ _ → isPropPi λ _ → D.isProp⊥) (λ ¬p p → ¬p p) ¬A) A)
+  ⇒∶ (λ ¬A A → PropTrunc.elim (λ _ → ⊥.isProp⊥)
+    (PropTrunc.elim (λ _ → isPropPi λ _ → ⊥.isProp⊥) (λ ¬p p → ¬p p) ¬A) A)
   ⇐∶ λ ¬p → ∣ (λ p → ¬p ∣ p ∣) ∣
 
 --------------------------------------------------------------------------------
@@ -194,11 +194,11 @@ Decₚ P = Dec [ P ] , isPropDec (snd P)
   ⇐∶ assoc2
   where
     assoc2 : (A ⊔′ B) ⊔′ C → A ⊔′ (B ⊔′ C)
-    assoc2 ∣ D.inr a ∣ = ∣ D.inr ∣ D.inr a ∣ ∣
-    assoc2 ∣ D.inl ∣ D.inr b ∣ ∣ = ∣ D.inr ∣ D.inl b ∣ ∣
-    assoc2 ∣ D.inl ∣ D.inl c ∣ ∣ = ∣ D.inl c ∣
-    assoc2 ∣ D.inl (squash x y i) ∣ = propTruncIsProp (assoc2 ∣ D.inl x ∣) (assoc2 ∣ D.inl y ∣) i
-    assoc2 (squash x y i)           = propTruncIsProp (assoc2 x) (assoc2 y) i
+    assoc2 ∣ ⊎.inr a ∣              = ∣ ⊎.inr ∣ ⊎.inr a ∣ ∣
+    assoc2 ∣ ⊎.inl ∣ ⊎.inr b ∣ ∣  = ∣ ⊎.inr ∣ ⊎.inl b ∣ ∣
+    assoc2 ∣ ⊎.inl ∣ ⊎.inl c ∣ ∣  = ∣ ⊎.inl c ∣
+    assoc2 ∣ ⊎.inl (squash x y i) ∣ = propTruncIsProp (assoc2 ∣ ⊎.inl x ∣) (assoc2 ∣ ⊎.inl y ∣) i
+    assoc2 (squash x y i)             = propTruncIsProp (assoc2 x) (assoc2 y) i
 
 ⊔-idem : (P : hProp ℓ) → P ⊔ P ≡ P
 ⊔-idem P =
@@ -224,20 +224,20 @@ Decₚ P = Dec [ P ] , isPropDec (snd P)
 ⊓-assoc : (P : hProp ℓ) (Q : hProp ℓ') (R : hProp ℓ'')
   → P ⊓ Q ⊓ R ≡ (P ⊓ Q) ⊓ R
 ⊓-assoc _ _ _ =
-  ⇒∶ (λ {(x D., (y D., z)) →  (x D., y) D., z})
-  ⇐∶ (λ {((x D., y) D., z) → x D., (y D., z) })
+  ⇒∶ (λ {(x , (y , z)) →  (x , y) , z})
+  ⇐∶ (λ {((x , y) , z) → x , (y , z) })
 
 ⊓-comm : (P : hProp ℓ) (Q : hProp ℓ') → P ⊓ Q ≡ Q ⊓ P
-⊓-comm _ _ = ⇔toPath D.swap D.swap
+⊓-comm _ _ = ⇔toPath ×.swap ×.swap
 
 ⊓-idem : (P : hProp ℓ) → P ⊓ P ≡ P
-⊓-idem _ = ⇔toPath D.proj₁ (λ x → x D., x)
+⊓-idem _ = ⇔toPath proj₁ (λ x → x , x)
 
 ⊓-identityˡ : (P : hProp ℓ) → ⊤ ⊓ P ≡ P
-⊓-identityˡ _ = ⇔toPath D.proj₂ λ x → D.tt D., x
+⊓-identityˡ _ = ⇔toPath proj₂ λ x → tt , x
 
 ⊓-identityʳ : (P : hProp ℓ) → P ⊓ ⊤ ≡ P
-⊓-identityʳ _ = ⇔toPath D.proj₁ λ x → x D., D.tt
+⊓-identityʳ _ = ⇔toPath proj₁ λ x → x , tt
 
 --------------------------------------------------------------------------------
 -- Distributive laws
@@ -245,31 +245,31 @@ Decₚ P = Dec [ P ] , isPropDec (snd P)
 ⇒-⊓-distrib : (P : hProp ℓ) (Q : hProp ℓ')(R : hProp ℓ'')
   → P ⇒ (Q ⊓ R) ≡ (P ⇒ Q) ⊓ (P ⇒ R)
 ⇒-⊓-distrib _ _ _ =
-  ⇒∶ (λ f → (D.proj₁ ∘ f) D., (D.proj₂ ∘ f))
-  ⇐∶ (λ { (f D., g) x → f x D., g x})
+  ⇒∶ (λ f → (proj₁ ∘ f) , (proj₂ ∘ f))
+  ⇐∶ (λ { (f , g) x → f x , g x})
 
 ⊓-⊔-distribˡ : (P : hProp ℓ) (Q : hProp ℓ')(R : hProp ℓ'')
   → P ⊓ (Q ⊔ R) ≡ (P ⊓ Q) ⊔ (P ⊓ R)
 ⊓-⊔-distribˡ P Q R =
-  ⇒∶ (λ { (x D., a) → ⊔-elim Q R (λ _ → (P ⊓ Q) ⊔ (P ⊓ R))
-        (λ y → ∣ D.inl (x D., y) ∣ )
-        (λ z → ∣ D.inr (x D., z) ∣ ) a })
+  ⇒∶ (λ { (x , a) → ⊔-elim Q R (λ _ → (P ⊓ Q) ⊔ (P ⊓ R))
+        (λ y → ∣ ⊎.inl (x , y) ∣ )
+        (λ z → ∣ ⊎.inr (x , z) ∣ ) a })
 
   ⇐∶ ⊔-elim (P ⊓ Q) (P ⊓ R) (λ _ → P ⊓ Q ⊔ R)
-       (λ y → D.proj₁ y D., inl (D.proj₂ y))
-       (λ z → D.proj₁ z D., inr (D.proj₂ z))
+       (λ y → proj₁ y , inl (proj₂ y))
+       (λ z → proj₁ z , inr (proj₂ z))
 
 ⊔-⊓-distribˡ : (P : hProp ℓ) (Q : hProp ℓ')(R : hProp ℓ'')
   → P ⊔ (Q ⊓ R) ≡ (P ⊔ Q) ⊓ (P ⊔ R)
 ⊔-⊓-distribˡ P Q R =
   ⇒∶ ⊔-elim P (Q ⊓ R) (λ _ → (P ⊔ Q) ⊓ (P ⊔ R) )
-    (D.intro-× inl inl) (D.map-× inr inr)
+    (×.intro inl inl) (×.map inr inr)
 
-  ⇐∶ (λ { (x D., y) → ⊔-elim P R (λ _ → P ⊔ Q ⊓ R) inl
-      (λ z → ⊔-elim P Q (λ _ → P ⊔ Q ⊓ R) inl (λ y → inr (y D., z)) x) y })
+  ⇐∶ (λ { (x , y) → ⊔-elim P R (λ _ → P ⊔ Q ⊓ R) inl
+      (λ z → ⊔-elim P Q (λ _ → P ⊔ Q ⊓ R) inl (λ y → inr (y , z)) x) y })
 
 ⊓-∀-distrib :  (P : A → hProp ℓ) (Q : A → hProp ℓ')
   → (∀[ a ∶ A ] P a) ⊓ (∀[ a ∶ A ] Q a) ≡ (∀[ a ∶ A ] (P a ⊓ Q a))
 ⊓-∀-distrib P Q =
-  ⇒∶ (λ {(p D., q) a → p a D., q a})
-  ⇐∶ λ pq → (D.proj₁ ∘ pq ) D., (D.proj₂ ∘ pq)
+  ⇒∶ (λ {(p , q) a → p a , q a})
+  ⇐∶ λ pq → (proj₁ ∘ pq ) , (proj₂ ∘ pq)

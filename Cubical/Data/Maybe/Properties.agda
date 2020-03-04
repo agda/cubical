@@ -7,7 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Embedding
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
 open import Cubical.Data.Nat
 open import Cubical.Relation.Nullary
@@ -100,7 +100,7 @@ isEmbedding-just  w z = MaybePath.Cover≃Path (just w) (just z) .snd
 
 isProp-x≡nothing : (x : Maybe A) → isProp (x ≡ nothing)
 isProp-x≡nothing nothing x w = subst isProp (MaybePath.Cover≡Path nothing nothing) (isOfHLevelLift 1 isPropUnit) x w
-isProp-x≡nothing (just _) p _ = ⊥-elim (¬just≡nothing p)
+isProp-x≡nothing (just _) p _ = ⊥.rec (¬just≡nothing p)
 
 isContr-nothing≡nothing : isContr (nothing {A = A} ≡ nothing)
 isContr-nothing≡nothing = inhProp→isContr refl (isProp-x≡nothing _)

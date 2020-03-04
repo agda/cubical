@@ -6,10 +6,10 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
-open import Cubical.Data.Empty
-open import Cubical.Data.Nat
+import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Nat using (ℕ; zero; suc)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum using (_⊎_; inl; inr)
 
 open import Cubical.Relation.Nullary
 
@@ -56,15 +56,15 @@ fsplit (suc k , k<sn) = inr ((k , pred-≤-pred k<sn) , toℕ-injective refl)
 ¬Fin0 (k , k<0) = ¬-<-zero k<0
 
 -- The full inductive family eliminator for finite types.
-finduction
+elim
   : ∀(P : ∀{k} → Fin k → Type ℓ)
   → (∀{k} → P {suc k} fzero)
   → (∀{k} {fn : Fin k} → P fn → P (fsuc fn))
   → {k : ℕ} → (fn : Fin k) → P fn
-finduction P fz fs {zero} = ⊥-elim ∘ ¬Fin0
-finduction P fz fs {suc k} fj
+elim P fz fs {zero} = ⊥.rec ∘ ¬Fin0
+elim P fz fs {suc k} fj
   = case fsplit fj return (λ _ → P fj) of λ
   { (inl p) → subst P p fz
-  ; (inr (fk , p)) → subst P p (fs (finduction P fz fs fk))
+  ; (inr (fk , p)) → subst P p (fs (elim P fz fs fk))
   }
 

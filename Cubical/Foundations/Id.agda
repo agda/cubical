@@ -49,8 +49,8 @@ open import Cubical.Foundations.Univalence
   renaming ( EquivContr   to EquivContrPath )
 open import Cubical.HITs.PropositionalTruncation public
   renaming ( squash to squashPath
-           ; recPropTrunc to recPropTruncPath
-           ; elimPropTrunc to elimPropTruncPath )
+           ; rec to recPropTruncPath
+           ; elim to elimPropTruncPath )
 open import Cubical.Core.Id public
 
 private

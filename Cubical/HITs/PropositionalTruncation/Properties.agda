@@ -23,37 +23,32 @@ private
     ℓ : Level
     A B : Type ℓ
 
-recPropTrunc : ∀ {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥ → P
-recPropTrunc Pprop f ∣ x ∣          = f x
-recPropTrunc Pprop f (squash x y i) =
-  Pprop (recPropTrunc Pprop f x) (recPropTrunc Pprop f y) i
+rec : ∀ {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥ → P
+rec Pprop f ∣ x ∣ = f x
+rec Pprop f (squash x y i) = Pprop (rec Pprop f x) (rec Pprop f y) i
 
 propTruncIsProp : isProp ∥ A ∥
 propTruncIsProp x y = squash x y
 
-elimPropTrunc : ∀ {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
-                ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
-elimPropTrunc                 Pprop f ∣ x ∣          = f x
-elimPropTrunc {A = A} {P = P} Pprop f (squash x y i) =
-  PpropOver (squash x y) (elimPropTrunc Pprop f x) (elimPropTrunc Pprop f y) i
-    where
-    PpropOver : {a b : ∥ A ∥} → (sq : a ≡ b) → ∀ x y → PathP (λ i → P (sq i)) x y
-    PpropOver {a} = J (λ b (sq : a ≡ b) → ∀ x y → PathP (λ i → P (sq i)) x y) (Pprop a)
-
+elim : ∀ {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a))
+  → ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
+elim Pprop f ∣ x ∣ = f x
+elim {A = A} {P = P} Pprop f (squash x y i) =
+  isOfHLevel→isOfHLevelDep 1 Pprop (elim Pprop f x) (elim Pprop f y) (squash x y) i
 
 propId : isProp A → ∥ A ∥ ≡ A
-propId {A = A} hA = isoToPath (iso (recPropTrunc hA (idfun A)) (λ x → ∣ x ∣) (λ _ → refl) rinv)
+propId {A = A} hA = isoToPath (iso (rec hA (idfun A)) (λ x → ∣ x ∣) (λ _ → refl) rinv)
  where
-   rinv : ∀ (x : ∥ A ∥) → ∣ recPropTrunc hA (idfun A) x ∣ ≡ x
-   rinv x = elimPropTrunc {P = λ x → ∣ recPropTrunc hA (idfun A) x ∣ ≡ x}
+   rinv : ∀ (x : ∥ A ∥) → ∣ rec hA (idfun A) x ∣ ≡ x
+   rinv x = elim {P = λ x → ∣ rec hA (idfun A) x ∣ ≡ x}
                          (λ _ → isProp→isSet propTruncIsProp _ _)
                          (λ _ → refl) x
 
 -- We could also define the eliminator using the recursor
-elimPropTrunc' : ∀ {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
+elim' : ∀ {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
                  ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
-elimPropTrunc' {P = P} Pprop f a =
-  recPropTrunc (Pprop a) (λ x → transp (λ i → P (squash ∣ x ∣ a i)) i0 (f x)) a
+elim' {P = P} Pprop f a =
+  rec (Pprop a) (λ x → transp (λ i → P (squash ∣ x ∣ a i)) i0 (f x)) a
 
 -- The propositional truncation can be eliminated into non-propositional
 -- types as long as the function used in the eliminator is 'coherently
@@ -64,13 +59,13 @@ module SetElim (Bset : isSet B) where
   Bset' : isSet' B
   Bset' = isSet→isSet' Bset
 
-  recPropTrunc→Set : (f : A → B) (kf : 2-Constant f) → ∥ A ∥ → B
+  rec→Set : (f : A → B) (kf : 2-Constant f) → ∥ A ∥ → B
   helper
     : (f : A → B) (kf : 2-Constant f) → (t u : ∥ A ∥)
-    → recPropTrunc→Set f kf t ≡ recPropTrunc→Set f kf u
+    → rec→Set f kf t ≡ rec→Set f kf u
 
-  recPropTrunc→Set f kf ∣ x ∣ = f x
-  recPropTrunc→Set f kf (squash t u i) = helper f kf t u i
+  rec→Set f kf ∣ x ∣ = f x
+  rec→Set f kf (squash t u i) = helper f kf t u i
 
   helper f kf ∣ x ∣ ∣ y ∣ = kf x y
   helper f kf (squash t u i) v
@@ -89,22 +84,22 @@ module SetElim (Bset : isSet B) where
 
   setRecLemma
     : (f : ∥ A ∥ → B)
-    → recPropTrunc→Set (f ∘ ∣_∣) (kcomp f) ≡ f
+    → rec→Set (f ∘ ∣_∣) (kcomp f) ≡ f
   setRecLemma f i t
-    = elimPropTrunc {P = λ t → recPropTrunc→Set (f ∘ ∣_∣) (kcomp f) t ≡ f t}
+    = elim {P = λ t → rec→Set (f ∘ ∣_∣) (kcomp f) t ≡ f t}
         (λ t → Bset _ _) (λ x → refl) t i
 
   mkKmap : (∥ A ∥ → B) → Σ (A → B) 2-Constant
   mkKmap f = f ∘ ∣_∣ , kcomp f
 
   fib : (g : Σ (A → B) 2-Constant) → fiber mkKmap g
-  fib (g , kg) = recPropTrunc→Set g kg , refl
+  fib (g , kg) = rec→Set g kg , refl
 
   eqv : (g : Σ (A → B) 2-Constant)
       → ∀ fi → fib g ≡ fi
   eqv g (f , p) =
     ΣProp≡ (λ f → isOfHLevelΣ 2 Fset Kset _ _)
-      (cong (uncurry recPropTrunc→Set) (sym p) ∙ setRecLemma f)
+      (cong (uncurry rec→Set) (sym p) ∙ setRecLemma f)
 
   trunc→Set≃ : (∥ A ∥ → B) ≃ (Σ (A → B) 2-Constant)
   trunc→Set≃ .fst = mkKmap
@@ -127,7 +122,7 @@ module SetElim (Bset : isSet B) where
   e-isEquiv a₀ = isoToIsEquiv (iso e (eval a₀) (e-eval a₀) λ _ → refl)
 
   preEquiv₁ : ∥ A ∥ → B ≃ Σ (A → B) 2-Constant
-  preEquiv₁ t = e , recPropTrunc (isPropIsEquiv e) e-isEquiv t
+  preEquiv₁ t = e , rec (isPropIsEquiv e) e-isEquiv t
 
   preEquiv₂ : (∥ A ∥ → Σ (A → B) 2-Constant) ≃ Σ (A → B) 2-Constant
   preEquiv₂ = isoToEquiv (iso to const (λ _ → refl) retr)
@@ -149,16 +144,16 @@ module SetElim (Bset : isSet B) where
   trunc→Set≃₂ : (∥ A ∥ → B) ≃ Σ (A → B) 2-Constant
   trunc→Set≃₂ = compEquiv (equivPi preEquiv₁) preEquiv₂
 
-open SetElim public using (recPropTrunc→Set; trunc→Set≃)
+open SetElim public using (rec→Set; trunc→Set≃)
 
-elimPropTrunc→Set
+elim→Set
   : {P : ∥ A ∥ → Set ℓ}
   → (∀ t → isSet (P t))
   → (f : (x : A) → P ∣ x ∣)
   → (kf : ∀ x y → PathP (λ i → P (squash ∣ x ∣ ∣ y ∣ i)) (f x) (f y))
   → (t : ∥ A ∥) → P t
-elimPropTrunc→Set {A = A} {P = P} Pset f kf t
-  = recPropTrunc→Set (Pset t) g gk t
+elim→Set {A = A} {P = P} Pset f kf t
+  = rec→Set (Pset t) g gk t
   where
   g : A → P t
   g x = transp (λ i → P (squash ∣ x ∣ t i)) i0 (f x)
@@ -167,7 +162,7 @@ elimPropTrunc→Set {A = A} {P = P} Pset f kf t
   gk x y i = transp (λ j → P (squash (squash ∣ x ∣ ∣ y ∣ i) t j)) i0 (kf x y i)
 
 RecHProp : (P : A → hProp ℓ) (kP : ∀ x y → P x ≡ P y) → ∥ A ∥ → hProp ℓ
-RecHProp P kP = recPropTrunc→Set isSetHProp P kP
+RecHProp P kP = rec→Set isSetHProp P kP
 
 module GpdElim (Bgpd : isGroupoid B) where
   Bgpd' : isGroupoid' B
@@ -176,8 +171,8 @@ module GpdElim (Bgpd : isGroupoid B) where
   module _ (f : A → B) (3kf : 3-Constant f) where
     open 3-Constant 3kf
 
-    recPropTrunc→Gpd : ∥ A ∥ → B
-    pathHelper : (t u : ∥ A ∥) → recPropTrunc→Gpd t ≡ recPropTrunc→Gpd u
+    rec→Gpd : ∥ A ∥ → B
+    pathHelper : (t u : ∥ A ∥) → rec→Gpd t ≡ rec→Gpd u
     triHelper₁
       : (t u v : ∥ A ∥)
       → Square (pathHelper t u) (pathHelper t v) refl (pathHelper u v)
@@ -185,8 +180,8 @@ module GpdElim (Bgpd : isGroupoid B) where
       : (t u v : ∥ A ∥)
       → Square (pathHelper t v) (pathHelper u v) (pathHelper t u) refl
 
-    recPropTrunc→Gpd ∣ x ∣ = f x
-    recPropTrunc→Gpd (squash t u i) = pathHelper t u i
+    rec→Gpd ∣ x ∣ = f x
+    rec→Gpd (squash t u i) = pathHelper t u i
 
     pathHelper ∣ x ∣ ∣ y ∣ = link x y
     pathHelper (squash t u j) v = triHelper₂ t u v j
@@ -307,12 +302,12 @@ module GpdElim (Bgpd : isGroupoid B) where
   e-isEquiv a₀ = isoToIsEquiv (iso e (eval a₀) (e-eval a₀) λ _ → refl)
 
   preEquiv₂ : ∥ A ∥ → B ≃ Σ (A → B) 3-Constant
-  preEquiv₂ t = e , recPropTrunc (isPropIsEquiv e) e-isEquiv t
+  preEquiv₂ t = e , rec (isPropIsEquiv e) e-isEquiv t
 
   trunc→Gpd≃ : (∥ A ∥ → B) ≃ Σ (A → B) 3-Constant
   trunc→Gpd≃ = compEquiv (equivPi preEquiv₂) preEquiv₁
 
-open GpdElim using (recPropTrunc→Gpd; trunc→Gpd≃) public
+open GpdElim using (rec→Gpd; trunc→Gpd≃) public
 
 RecHSet : (P : A → HLevel ℓ 2) → 3-Constant P → ∥ A ∥ → HLevel ℓ 2
-RecHSet P 3kP = recPropTrunc→Gpd (isOfHLevelHLevel 2) P 3kP
+RecHSet P 3kP = rec→Gpd (isOfHLevelHLevel 2) P 3kP

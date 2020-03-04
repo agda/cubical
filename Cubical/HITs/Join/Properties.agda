@@ -274,17 +274,17 @@ join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
 -}
 joinSwitch : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
   → join (join A B) C ≃ join (join C B) A
-joinSwitch = isoToEquiv (iso map map invol invol)
+joinSwitch = isoToEquiv (iso switch switch invol invol)
   where
-  map : ∀ {ℓ ℓ' ℓ''}  {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+  switch : ∀ {ℓ ℓ' ℓ''}  {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
     → join (join A B) C → join (join C B) A
-  map (inl (inl a)) = inr a
-  map (inl (inr b)) = inl (inr b)
-  map (inl (push a b i)) = push (inr b) a (~ i)
-  map (inr c) = inl (inl c)
-  map (push (inl a) c j) = push (inl c) a (~ j)
-  map (push (inr b) c j) = inl (push c b (~ j))
-  map (push (push a b i) c j) =
+  switch (inl (inl a)) = inr a
+  switch (inl (inr b)) = inl (inr b)
+  switch (inl (push a b i)) = push (inr b) a (~ i)
+  switch (inr c) = inl (inl c)
+  switch (push (inl a) c j) = push (inl c) a (~ j)
+  switch (push (inr b) c j) = inl (push c b (~ j))
+  switch (push (push a b i) c j) =
     hcomp
       (λ k → λ
         { (i = i0) → push (inl c) a (~ j ∨ ~ k)
@@ -295,7 +295,7 @@ joinSwitch = isoToEquiv (iso map map invol invol)
       (push (push c b (~ j)) a (~ i))
 
   invol : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
-    (u : join (join A B) C) → map (map u) ≡ u
+    (u : join (join A B) C) → switch (switch u) ≡ u
   invol (inl (inl a)) = refl
   invol (inl (inr b)) = refl
   invol (inl (push a b i)) = refl

@@ -18,14 +18,13 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.HAEquiv
 open import Cubical.Foundations.Univalence
 
-open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 
-open import Cubical.HITs.PropositionalTruncation
-open import Cubical.HITs.SetTruncation
+open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
+open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₀; ∣_∣₀; squash₀)
 
 -- Type quotients
 
@@ -46,51 +45,51 @@ elimEq/ {B = B} Bprop {x = x} =
   J (λ y eq → ∀ bx by → PathP (λ i → B (eq i)) bx by) (λ bx by → Bprop x bx by)
 
 
-elimSetQuotientsProp : ((x : A / R ) → isProp (B x)) →
+elimProp : ((x : A / R ) → isProp (B x)) →
                        (f : (a : A) → B ( [ a ])) →
                        (x : A / R) → B x
-elimSetQuotientsProp Bprop f [ x ] = f x
-elimSetQuotientsProp Bprop f (squash/ x y p q i j) =
+elimProp Bprop f [ x ] = f x
+elimProp Bprop f (squash/ x y p q i j) =
   isOfHLevel→isOfHLevelDep 2 (λ x → isProp→isSet (Bprop x))
-              (g x) (g y) (cong g p) (cong g q) (squash/ x y p q) i j
+    (g x) (g y) (cong g p) (cong g q) (squash/ x y p q) i j
     where
-    g = elimSetQuotientsProp Bprop f
-elimSetQuotientsProp Bprop f (eq/ a b r i) = elimEq/ Bprop (eq/ a b r) (f a) (f b) i
+    g = elimProp Bprop f
+elimProp Bprop f (eq/ a b r i) = elimEq/ Bprop (eq/ a b r) (f a) (f b) i
 
 -- lemma 6.10.2 in hott book
 -- TODO: defined truncated Sigma as ∃
 []surjective : (x : A / R) → ∥ Σ[ a ∈ A ] [ a ] ≡ x ∥
-[]surjective = elimSetQuotientsProp (λ x → squash) (λ a → ∣ a , refl ∣)
+[]surjective = elimProp (λ x → squash) (λ a → ∣ a , refl ∣)
 
-elimSetQuotients : {B : A / R → Type ℓ} →
+elim : {B : A / R → Type ℓ} →
                    (Bset : (x : A / R) → isSet (B x)) →
                    (f : (a : A) → (B [ a ])) →
                    (feq : (a b : A) (r : R a b) →
                           PathP (λ i → B (eq/ a b r i)) (f a) (f b)) →
                    (x : A / R) → B x
-elimSetQuotients Bset f feq [ a ] = f a
-elimSetQuotients Bset f feq (eq/ a b r i) = feq a b r i
-elimSetQuotients Bset f feq (squash/ x y p q i j) =
+elim Bset f feq [ a ] = f a
+elim Bset f feq (eq/ a b r i) = feq a b r i
+elim Bset f feq (squash/ x y p q i j) =
   isOfHLevel→isOfHLevelDep 2 Bset
               (g x) (g y) (cong g p) (cong g q) (squash/ x y p q) i j
     where
-      g = elimSetQuotients Bset f feq
+      g = elim Bset f feq
 
 
 setQuotUniversal : {B : Type ℓ} (Bset : isSet B) →
                    (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
-setQuotUniversal Bset = isoToEquiv (iso intro elim elimRightInv elimLeftInv)
+setQuotUniversal Bset = isoToEquiv (iso intro out outRightInv outLeftInv)
   where
   intro = λ g →  (λ a → g [ a ]) , λ a b r i → g (eq/ a b r i)
-  elim = λ h → elimSetQuotients (λ x → Bset) (fst h) (snd h)
+  out = λ h → elim (λ x → Bset) (fst h) (snd h)
 
-  elimRightInv : ∀ h → intro (elim h) ≡ h
-  elimRightInv h = refl
+  outRightInv : ∀ h → intro (out h) ≡ h
+  outRightInv h = refl
 
-  elimLeftInv : ∀ g → elim (intro g) ≡ g
-  elimLeftInv = λ g → funExt (λ x → elimPropTrunc {P = λ sur → elim (intro g) x ≡ g x}
-    (λ sur → Bset (elim (intro g) x) (g x))
-    (λ sur → cong (elim (intro g)) (sym (snd sur)) ∙ (cong g (snd sur))) ([]surjective x)
+  outLeftInv : ∀ g → out (intro g) ≡ g
+  outLeftInv = λ g → funExt (λ x → PropTrunc.elim {P = λ sur → out (intro g) x ≡ g x}
+    (λ sur → Bset (out (intro g) x) (g x))
+    (λ sur → cong (out (intro g)) (sym (snd sur)) ∙ (cong g (snd sur))) ([]surjective x)
     )
 
 open BinaryRelation
@@ -99,7 +98,7 @@ effective : (Rprop : isPropValued R) (Requiv : isEquivRel R) (a b : A) → [ a ]
 effective {A = A} {R = R} Rprop (EquivRel R/refl R/sym R/trans) a b p = transport aa≡ab (R/refl _)
   where
     helper : A / R → hProp _
-    helper = elimSetQuotients (λ _ → isSetHProp) (λ c → (R a c , Rprop a c))
+    helper = elim (λ _ → isSetHProp) (λ c → (R a c , Rprop a c))
                               (λ c d cd → ΣProp≡ (λ _ → isPropIsProp)
                                                  (ua (PropEquiv→Equiv (Rprop a c) (Rprop a d)
                                                                       (λ ac → R/trans _ _ _ ac cd) (λ ad → R/trans _ _ _ ad (R/sym _ _ cd)))))
@@ -108,27 +107,27 @@ effective {A = A} {R = R} Rprop (EquivRel R/refl R/sym R/trans) a b p = transpor
     aa≡ab i = fst (helper (p i))
 
 isEquivRel→isEffective : isPropValued R → isEquivRel R → isEffective R
-isEquivRel→isEffective {R = R} Rprop Req a b = isoToEquiv (iso intro elim intro-elim elim-intro)
+isEquivRel→isEffective {R = R} Rprop Req a b = isoToEquiv (iso intro out intro-out out-intro)
   where
     intro : [ a ] ≡ [ b ] → R a b
     intro = effective Rprop Req a b
 
-    elim : R a b → [ a ] ≡ [ b ]
-    elim = eq/ a b
+    out : R a b → [ a ] ≡ [ b ]
+    out = eq/ a b
 
-    intro-elim : ∀ x → intro (elim x) ≡ x
-    intro-elim ab = Rprop a b _ _
+    intro-out : ∀ x → intro (out x) ≡ x
+    intro-out ab = Rprop a b _ _
 
-    elim-intro : ∀ x → elim (intro x) ≡ x
-    elim-intro eq = squash/ _ _ _ _
+    out-intro : ∀ x → out (intro x) ≡ x
+    out-intro eq = squash/ _ _ _ _
 
 discreteSetQuotients : Discrete A → isPropValued R → isEquivRel R → (∀ a₀ a₁ → Dec (R a₀ a₁)) → Discrete (A / R)
 discreteSetQuotients {A = A} {R = R} Adis Rprop Req Rdec =
- elimSetQuotients ((λ a₀ → isSetPi (λ a₁ → isProp→isSet (isPropDec (squash/ a₀ a₁)))))
-                  discreteSetQuotients' discreteSetQuotients'-eq
+  elim (λ a₀ → isSetPi (λ a₁ → isProp→isSet (isPropDec (squash/ a₀ a₁))))
+    discreteSetQuotients' discreteSetQuotients'-eq
   where
     discreteSetQuotients' : (a : A) (y : A / R) → Dec ([ a ] ≡ y)
-    discreteSetQuotients' a₀ = elimSetQuotients ((λ a₁ → isProp→isSet (isPropDec (squash/ [ a₀ ] a₁)))) dis dis-eq
+    discreteSetQuotients' a₀ = elim ((λ a₁ → isProp→isSet (isPropDec (squash/ [ a₀ ] a₁)))) dis dis-eq
       where
         dis : (a₁ : A) → Dec ([ a₀ ] ≡ [ a₁ ])
         dis a₁ with Rdec a₀ a₁

@@ -10,7 +10,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Int hiding (neg; abs; sgn)
-open import Cubical.Data.Nat
+open import Cubical.Data.Nat hiding (elim)
 
 variable
   l : Level
@@ -20,19 +20,19 @@ data ℤ : Type₀ where
   neg    : (n : ℕ) → ℤ
   posneg : pos 0 ≡ neg 0
 
-recℤ : ∀ {A : Type l} → (pos' neg' : ℕ → A) → pos' 0 ≡ neg' 0 → ℤ → A
-recℤ pos' neg' eq (pos m)    = pos' m
-recℤ pos' neg' eq (neg m)    = neg' m
-recℤ pos' neg' eq (posneg i) = eq i
+rec : ∀ {A : Type l} → (pos' neg' : ℕ → A) → pos' 0 ≡ neg' 0 → ℤ → A
+rec pos' neg' eq (pos m)    = pos' m
+rec pos' neg' eq (neg m)    = neg' m
+rec pos' neg' eq (posneg i) = eq i
 
-indℤ : ∀ (P : ℤ → Type l)
+elim : ∀ (P : ℤ → Type l)
        → (pos' : ∀ n → P (pos n))
        → (neg' : ∀ n → P (neg n))
        → (λ i → P (posneg i)) [ pos' 0 ≡ neg' 0 ]
        → ∀ z → P z
-indℤ P pos' neg' eq (pos n) = pos' n
-indℤ P pos' neg' eq (neg n) = neg' n
-indℤ P pos' neg' eq (posneg i) = eq i
+elim P pos' neg' eq (pos n) = pos' n
+elim P pos' neg' eq (neg n) = neg' n
+elim P pos' neg' eq (posneg i) = eq i
 
 Int→ℤ : Int → ℤ
 Int→ℤ (pos n) = pos n

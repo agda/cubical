@@ -9,7 +9,7 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Data.Nat
 open import Cubical.Data.Group.Base
 
-open import Cubical.HITs.SetTruncation
+open import Cubical.HITs.SetTruncation as SetTrunc
 
 Ω : ∀ {ℓ} → Pointed ℓ → Pointed ℓ
 Ω (A , a ) = ( (a ≡ a) , refl)
@@ -34,27 +34,27 @@ open import Cubical.HITs.SetTruncation
         e = ∣ pt ((Ω^ n') p) ∣₀
 
         _⁻¹ : ∥ A ∥₀ → ∥ A ∥₀
-        _⁻¹ = elimSetTrunc {B = λ _ → ∥ A ∥₀} (λ x → squash₀) λ a → ∣  sym a ∣₀
+        _⁻¹ = SetTrunc.elim {B = λ _ → ∥ A ∥₀} (λ x → squash₀) λ a → ∣  sym a ∣₀
 
         _⊙_ : ∥ A ∥₀ → ∥ A ∥₀ → ∥ A ∥₀
-        _⊙_ = elimSetTrunc2 (λ _ _ → squash₀) λ a₀ a₁ → ∣ a₀ ∙ a₁ ∣₀
+        _⊙_ = SetTrunc.elim2 (λ _ _ → squash₀) λ a₀ a₁ → ∣ a₀ ∙ a₁ ∣₀
 
         lUnit : (a : ∥ A ∥₀) → (e ⊙ a) ≡ a
-        lUnit = elimSetTrunc (λ _ → isProp→isSet (squash₀ _ _))
+        lUnit = SetTrunc.elim (λ _ → isProp→isSet (squash₀ _ _))
                 (λ a → cong ∣_∣₀ (sym (GL.lUnit a) ))
 
         rUnit : (a : ∥ A ∥₀) → a ⊙ e ≡ a
-        rUnit = elimSetTrunc (λ _ → isProp→isSet (squash₀ _ _))
+        rUnit = SetTrunc.elim (λ _ → isProp→isSet (squash₀ _ _))
                 (λ a → cong ∣_∣₀ (sym (GL.rUnit a) ))
 
         assoc : (a b c : ∥ A ∥₀) → ((a ⊙ b) ⊙ c) ≡ (a ⊙ (b ⊙ c))
-        assoc = elimSetTrunc3 (λ _ _ _ → isProp→isSet (squash₀ _ _))
+        assoc = SetTrunc.elim3 (λ _ _ _ → isProp→isSet (squash₀ _ _))
                 (λ a b c → cong ∣_∣₀ (sym (GL.assoc _ _ _)))
 
         lCancel : (a : ∥ A ∥₀) → ((a ⁻¹) ⊙ a) ≡ e
-        lCancel = elimSetTrunc (λ _ → isProp→isSet (squash₀ _ _))
+        lCancel = SetTrunc.elim (λ _ → isProp→isSet (squash₀ _ _))
                   λ a → cong ∣_∣₀ (GL.lCancel _)
 
         rCancel : (a : ∥ A ∥₀) → (a ⊙ (a ⁻¹)) ≡ e
-        rCancel = elimSetTrunc (λ _ → isProp→isSet (squash₀ _ _))
+        rCancel = SetTrunc.elim (λ _ → isProp→isSet (squash₀ _ _))
                   λ a → cong ∣_∣₀ (GL.rCancel _)

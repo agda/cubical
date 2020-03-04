@@ -5,7 +5,7 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as ⊥
 
 open import Cubical.Relation.Nullary
 
@@ -13,7 +13,7 @@ open import Cubical.Relation.Nullary
 
 Dec→Stable : ∀ {ℓ} (A : Type ℓ) → Dec A → Stable A
 Dec→Stable A (yes x) = λ _ → x
-Dec→Stable A (no x) = λ f → ⊥-elim (f x)
+Dec→Stable A (no x) = λ f → ⊥.elim (f x)
 
 Stable≡→isSet : ∀ {ℓ} {A : Type ℓ} → (st : ∀ (a b : A) → Stable (a ≡ b)) → isSet A
 Stable≡→isSet {A = A} st a b p q j i =

@@ -6,12 +6,12 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Everything
 
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.Data.Prod using (_×_; _,_)
+open import Cubical.Data.Unit
+open import Cubical.Data.Sum using (_⊎_; inl; inr)
 
-import Cubical.Data.Everything as Data
-open Data hiding (one; inl; inr)
-
-open import Cubical.HITs.Interval
+open import Cubical.HITs.PropositionalTruncation using (∥_∥; ∣_∣; squash)
+open import Cubical.HITs.Interval using (Interval; zero; one; seg)
 
 -- Cylinder A is a cylinder object in the category of cubical types.
 --
@@ -35,28 +35,28 @@ module _ {ℓ} {A : Type ℓ} where
   --
   -- include is the first part of the factorization.
   include : A ⊎ A → Cylinder A
-  include (Data.inl x) = inl x
-  include (Data.inr x) = inr x
+  include (inl x) = inl x
+  include (inr x) = inr x
 
   -- The above inclusion is surjective
   includeSurjective : ∀ c → ∥ Σ[ s ∈ A ⊎ A ] include s ≡ c ∥
-  includeSurjective (inl x) = ∣ Data.inl x , refl ∣
-  includeSurjective (inr x) = ∣ Data.inr x , refl ∣
+  includeSurjective (inl x) = ∣ inl x , refl ∣
+  includeSurjective (inr x) = ∣ inr x , refl ∣
   includeSurjective (cross x i) =
     squash
-      ∣ Data.inl x , (λ j → cross x (i ∧ j)) ∣
-      ∣ Data.inr x , (λ j → cross x (i ∨ ~ j)) ∣
+      ∣ inl x , (λ j → cross x (i ∧ j)) ∣
+      ∣ inr x , (λ j → cross x (i ∨ ~ j)) ∣
       i
 
-  elimCyl
+  elim
     : ∀{ℓ'} {B : Cylinder A → Type ℓ'}
     → (f : (x : A) → B (inl x))
     → (g : (x : A) → B (inr x))
     → (p : ∀ x → PathP (λ i → B (cross x i)) (f x) (g x))
     → (c : Cylinder A) → B c
-  elimCyl f _ _ (inl x) = f x
-  elimCyl _ g _ (inr x) = g x
-  elimCyl _ _ p (cross x i) = p x i
+  elim f _ _ (inl x) = f x
+  elim _ g _ (inr x) = g x
+  elim _ _ p (cross x i) = p x i
 
   private
     out : Cylinder A → A
@@ -117,22 +117,22 @@ module Functorial where
       B : Type ℓb
       C : Type ℓc
 
-  mapCylinder : (A → B) → Cylinder A → Cylinder B
-  mapCylinder f (inl x) = inl (f x)
-  mapCylinder f (inr x) = inr (f x)
-  mapCylinder f (cross x i) = cross (f x) i
+  map : (A → B) → Cylinder A → Cylinder B
+  map f (inl x) = inl (f x)
+  map f (inr x) = inr (f x)
+  map f (cross x i) = cross (f x) i
 
-  mapCylinderId : mapCylinder (λ(x : A) → x) ≡ (λ x → x)
-  mapCylinderId i (inl x) = inl x
-  mapCylinderId i (inr x) = inr x
-  mapCylinderId i (cross x j) = cross x j
+  mapId : map (λ(x : A) → x) ≡ (λ x → x)
+  mapId i (inl x) = inl x
+  mapId i (inr x) = inr x
+  mapId i (cross x j) = cross x j
 
-  mapCylinder∘
+  map∘
     : (f : A → B) → (g : B → C)
-    → mapCylinder (λ x → g (f x)) ≡ (λ x → mapCylinder g (mapCylinder f x))
-  mapCylinder∘ f g i (inl x) = inl (g (f x))
-  mapCylinder∘ f g i (inr x) = inr (g (f x))
-  mapCylinder∘ f g i (cross x j) = cross (g (f x)) j
+    → map (λ x → g (f x)) ≡ (λ x → map g (map f x))
+  map∘ f g i (inl x) = inl (g (f x))
+  map∘ f g i (inr x) = inr (g (f x))
+  map∘ f g i (cross x j) = cross (g (f x)) j
 
   -- There is an adjunction between the cylinder and coyclinder
   -- functors.

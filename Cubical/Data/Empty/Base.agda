@@ -5,8 +5,8 @@ open import Cubical.Core.Everything
 
 data ⊥ : Type₀ where
 
-⊥-elim : ∀ {ℓ} {A : Type ℓ} → ⊥ → A
-⊥-elim ()
+rec : ∀ {ℓ} {A : Type ℓ} → ⊥ → A
+rec ()
 
-⊥-elimDep : ∀ {ℓ} {A : ⊥ → Type ℓ} → (x : ⊥) → A x
-⊥-elimDep ()
+elim : ∀ {ℓ} {A : ⊥ → Type ℓ} → (x : ⊥) → A x
+elim ()
