@@ -57,9 +57,9 @@ module _ {A : Type ℓ} {B : Type ℓ'} (f : A → B) where
     LiftA→Total-fiber→LiftA)
 
   -- HoTT Lemma 4.8.2
-  A≃Total : Lift A ≃ Total-fiber
+  A≃Total : A ≃ Total-fiber
   A≃Total = isoToEquiv (iso
-    LiftA→Total-fiber
-    Total-fiber→LiftA
-    Total-fiber→LiftA→Total-fiber
-    LiftA→Total-fiber→LiftA)
+    A→Total-fiber
+    Total-fiber→A
+    Total-fiber→A→Total-fiber
+    (λ _ → refl))
