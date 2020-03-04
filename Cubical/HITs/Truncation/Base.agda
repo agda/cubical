@@ -2,7 +2,6 @@
 module Cubical.HITs.Truncation.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.NatMinusOne using (ℕ₋₁; neg1; suc)
 open import Cubical.Data.NatMinusTwo
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Sn
@@ -18,7 +17,7 @@ open import Cubical.HITs.Sn
 --   spoke : (f : S (1+ n) → ∥ A ∥ n) (s : S) → hub f ≡ f s
 --   -- two additional constructors needed to ensure that ∥ A ∥ -2 is contractible
 --   ≡hub   : ∀ {x y} (p : S (1+ n) → x ≡ y) → x ≡ y
---   ≡spoke : ∀ {x y} (p : S (1+ n) → x ≡ y) (s : S) → ≡hub p ≡ p s
+--   ≡spoke : ∀ {x y} (p : S (1+ n) → x ≡ y) (s : S (1+ n)) → ≡hub p ≡ p s
 
 ∥_∥_ : ∀ {ℓ} → Type ℓ → ℕ₋₂ → Type ℓ
 ∥ A ∥ n = Null (S (1+ n)) A

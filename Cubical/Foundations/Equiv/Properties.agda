@@ -23,6 +23,11 @@ open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Foundations.FunExtEquiv
 
+private
+  variable
+    ℓ ℓ′ : Level
+    A B : Type ℓ
+
 
 isEquivCong : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → (cong (fst e) p))
 isEquivCong e = EquivJ (λ (B' A' : Type _) (e' : A' ≃ B') →
@@ -79,3 +84,14 @@ isContr-hasRetract {_} {A} {B} e = transport (λ i → isContr (Σ[ g ∈ (B →
   where eq : ∀ (g : B → A) → (g ∘ (fst e) ≡ idfun _) ≡ (retract (fst e) g)
         eq g = sym (funExtPath {f = g ∘ (fst e)} {g = idfun _})
 
+
+cong≃ : (F : Type ℓ → Type ℓ′) → (A ≃ B) → F A ≃ F B
+cong≃ F e = pathToEquiv (cong F (ua e))
+
+cong≃-char : (F : Type ℓ → Type ℓ′) {A B : Type ℓ} (e : A ≃ B) → ua (cong≃ F e) ≡ cong F (ua e)
+cong≃-char F e = ua-pathToEquiv (cong F (ua e))
+
+cong≃-idEquiv : (F : Type ℓ → Type ℓ′) (A : Type ℓ) → cong≃ F (idEquiv A) ≡ idEquiv (F A)
+cong≃-idEquiv F A = cong≃ F (idEquiv A) ≡⟨ cong (λ p → pathToEquiv (cong F p)) uaIdEquiv  ⟩
+                    pathToEquiv refl    ≡⟨ pathToEquivRefl ⟩
+                    idEquiv (F A)       ∎

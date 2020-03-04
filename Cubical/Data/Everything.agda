@@ -11,6 +11,7 @@ import Cubical.Data.Nat.Algebra
 import Cubical.Data.Nat.Order
 import Cubical.Data.NatMinusOne
 import Cubical.Data.NatMinusTwo
+import Cubical.Data.NatPlusOne
 import Cubical.Data.Int
 import Cubical.Data.Sum
 import Cubical.Data.Prod
@@ -22,3 +23,4 @@ import Cubical.Data.HomotopyGroup
 import Cubical.Data.List
 import Cubical.Data.Graph
 import Cubical.Data.InfNat
+import Cubical.Data.Queue

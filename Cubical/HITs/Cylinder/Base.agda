@@ -6,11 +6,11 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Everything
 
-open import Cubical.HITs.PropositionalTruncation using (∥_∥; ∣_∣; squash)
-
 open import Cubical.Data.Prod using (_×_; _,_)
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum using (_⊎_; inl; inr)
+
+open import Cubical.HITs.PropositionalTruncation using (∥_∥; ∣_∣; squash)
 open import Cubical.HITs.Interval using (Interval; zero; one; seg)
 
 -- Cylinder A is a cylinder object in the category of cubical types.
