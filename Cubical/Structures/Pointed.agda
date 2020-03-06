@@ -4,6 +4,8 @@ module Cubical.Structures.Pointed where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Path
 
 open import Cubical.Foundations.Pointed
 
@@ -22,4 +24,5 @@ pointed-iso : StrIso pointed-structure ℓ
 pointed-iso A B f = equivFun f (pt A) ≡ pt B
 
 pointed-is-SNS : SNS {ℓ} pointed-structure pointed-iso
-pointed-is-SNS A B f = transportEquiv (λ i → transportRefl (equivFun f (pt A)) i ≡ pt B)
+pointed-is-SNS A B f = transportEquiv (  (λ j → PathP≡Path (λ i → ua f i) (pt A) (pt B) j)
+                                       ∙ (λ j → transportRefl (equivFun f (pt A)) j ≡ pt B))
