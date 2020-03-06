@@ -61,4 +61,4 @@ monoid-is-SNS = add-axioms-SNS raw-monoid-structure raw-monoid-iso
                                monoid-axioms monoid-axioms-are-Props raw-monoid-is-SNS
 
 MonoidPath : (M N : Monoids {ℓ}) → (M ≃[ monoid-iso ] N) ≃ (M ≡ N)
-MonoidPath M N = SIP monoid-structure monoid-iso (SNS₂→SNS₄ monoid-is-SNS) M N
+MonoidPath M N = SIP monoid-structure monoid-iso monoid-is-SNS M N
