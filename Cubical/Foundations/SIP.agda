@@ -84,8 +84,8 @@ SNS₁→SNS₂ S ι θ A B e = EquivJ P C (typ B) (typ A) e (str B) (str A)
    C X s t = PathP (λ i → S (ua (idEquiv X) i)) t s ≃⟨ ψ ⟩ θ t s
     where
      ψ = transportEquiv λ j → PathP (λ i → S (uaIdEquiv {A = X} j i)) t s
-           
-   
+
+
 
 
 
@@ -243,13 +243,13 @@ add-ax-lemma S axioms axioms-are-Props {Y = Y} {s = s} {t = t} {a = a} {b = b} f
 
 
 
-add-axioms-SNS₂ : (S : Type ℓ → Type ℓ')
+add-axioms-SNS : (S : Type ℓ → Type ℓ')
                     (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → A .fst ≃ B .fst → Type ℓ'')
                     (axioms : (X : Type ℓ) → (S X) → Type ℓ''')
                     (axioms-are-Props : (X : Type ℓ) (s : S X) → isProp (axioms X s))
                     (θ : SNS₂ S ι)
                    → SNS₂ (add-to-structure S axioms) (add-to-iso S ι axioms)
-add-axioms-SNS₂ S ι axioms axioms-are-Props θ (X , (s , a)) (Y , (t , b)) f =
+add-axioms-SNS S ι axioms axioms-are-Props θ (X , (s , a)) (Y , (t , b)) f =
 
                PathP (λ i → (add-to-structure S axioms) (ua f i)) (s , a) (t , b) ≃⟨ add-ax-lemma S axioms axioms-are-Props f ⟩
                PathP (λ i → S (ua f i)) s t                                       ≃⟨ θ (X , s) (Y , t) f ⟩
@@ -308,7 +308,7 @@ join-lemma S₁ S₂ {Y = Y} {s₁ = s₁} {s₂ = s₂} {t₁ = t₁} {t₂ = t
     φ p = (λ i → p i .fst) , (λ i → p i .snd)
 
     ψ : (PathP (λ i → S₁ (ua e i)) s₁ t₁) × (PathP (λ i → S₂ (ua e i)) s₂ t₂) →
-         PathP (λ i → (join-structure S₁ S₂) (ua e i)) (s₁ , s₂) (t₁ , t₂) 
+         PathP (λ i → (join-structure S₁ S₂) (ua e i)) (s₁ , s₂) (t₁ , t₂)
     ψ (p , q) i = (p i) , (q i)
 
     η : section φ ψ
@@ -338,12 +338,9 @@ join-SNS : (S₁ : Type ℓ₁ → Type ℓ₂) (ι₁ : StrIso S₁ ℓ₃) (θ
            (S₂ : Type ℓ₁ → Type ℓ₄) (ι₂ : StrIso S₂ ℓ₅) (θ₂ : SNS₂ S₂ ι₂)
          → SNS₂ (join-structure S₁ S₂) (join-iso ι₁ ι₂)
 join-SNS S₁ ι₁ θ₁ S₂ ι₂ θ₂ (X , s₁ , s₂) (Y , t₁ , t₂) e =
-     PathP (λ i → (join-structure S₁ S₂) (ua e i)) (s₁ , s₂) (t₁ , t₂) 
+
+     PathP (λ i → (join-structure S₁ S₂) (ua e i)) (s₁ , s₂) (t₁ , t₂)
   ≃⟨ join-lemma S₁ S₂ e ⟩
-    (PathP (λ i → S₁ (ua e i)) s₁ t₁) × (PathP (λ i → S₂ (ua e i)) s₂ t₂) 
+    (PathP (λ i → S₁ (ua e i)) s₁ t₁) × (PathP (λ i → S₂ (ua e i)) s₂ t₂)
   ≃⟨ technical-×-lemma (θ₁ (X , s₁) (Y , t₁) e) (θ₂ (X , s₂) (Y , t₂) e)  ⟩
      join-iso ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) e ■
-
-
-
-
