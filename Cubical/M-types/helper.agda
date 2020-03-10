@@ -1,5 +1,4 @@
-
-{-# OPTIONS --cubical --guardedness --allow-unsolved-metas #-} --safe
+{-# OPTIONS --cubical --guardedness #-} --safe
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv using (_≃_)
@@ -8,12 +7,13 @@ open import Cubical.Foundations.Function using (_∘_)
 open import Cubical.Data.Unit
 open import Cubical.Data.Prod
 open import Cubical.Data.Nat as ℕ using (ℕ ; suc ; _+_ )
+open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.Transport
-
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
 
 module Cubical.M-types.helper where
 
@@ -71,5 +71,44 @@ postulate
 ≡-rel-b-inj : ∀ {ℓ} {A B C : Set ℓ} (a : A -> B) (b : B -> A) -> a ∘ b ≡ idfun B -> b ∘ a ≡ idfun A -> ∀ {f g : C -> B} -> (b ∘ f ≡ b ∘ g) ≡ (f ≡ g)
 ≡-rel-b-inj a b left right = ua (isoToEquiv (iso (≡-rel-a-monomorphism b a right left) (extent-l b) (≡-rel-inj-iso-0 b a right left) (≡-rel-inj-iso-1 b a right left)))
 
+------------------
+-- Σ properties --
+------------------
 
+postulate -- TODO
+  Σ-ap-iso₁ : ∀ {i j} {X X' : Set i} {Y : X' → Set j}
+            → (isom : X ≡ X')
+            → Σ X (Y ∘ transport isom) ≡ Σ X' Y
 
+Σ-ap-iso₂ : ∀ {i j} {X : Set i}
+          → {Y : X → Set j}{Y' : X → Set j}
+          → ((x : X) → Y x ≡ Y' x)
+          → Σ X Y ≡ Σ X Y'
+Σ-ap-iso₂ {X = X} {Y} {Y'} isom =
+  isoToPath (iso (λ { (x , y) → x , transport (isom x) y})
+                      (λ { (x , y') → x , transport (sym (isom x)) y'})
+                      (λ { (x , y) →  ΣPathP (refl , transportTransport⁻ (isom x) y)})
+                      (λ { (x , y') → ΣPathP (refl , transport⁻Transport (isom x) y')}))
+
+Σ-split-iso : ∀ {ℓ} {A : Set ℓ} {B : A → Set ℓ} {a a' : A} {b : B a} {b' : B a'} → (Σ (a ≡ a') (λ q → PathP (λ i → B (q i)) b b')) ≡ ((a , b) ≡ (a' , b'))
+Σ-split-iso = ua Σ≡
+
+Σ-ap-iso : ∀ {i j} {X X' : Set i}
+           {Y : X → Set j} {Y' : X' → Set j}
+         → (isom : X ≡ X')
+         → ((x : X) → Y x ≡ Y' (transport isom x))
+         → Σ X Y ≡ Σ X' Y'
+Σ-ap-iso {X = X} {X'} {Y} {Y'} isom isom' = 
+  (Σ-ap-iso₂ isom') □ Σ-ap-iso₁ isom
+
+------------------
+-- Π properties --
+------------------
+
+postulate
+  Π-ap-iso : ∀ {i j} {X X' : Set i}
+               {Y : X → Set j}{Y' : X' → Set j}
+             → (isom : X ≡ X')
+             → ((x' : X') → Y (transport (sym isom) x') ≡ Y' x')
+             → ((x : X) → Y x)
+             ≡ ((x' : X') → Y' x')

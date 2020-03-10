@@ -16,3 +16,13 @@ open import Cubical.Codata.M public
 
 -- Also uses {-# TERMINATING #-}.
 open import Cubical.Codata.M.Bisimilarity public
+
+open import Cubical.M-types.helper public
+open import Cubical.M-types.M public
+open import Cubical.M-types.Coalg public
+
+open import Cubical.M-types.itree public
+open import Cubical.M-types.bisim-examples public
+
+open import Cubical.M-types.stream public
+open import Cubical.M-types.bisim-stream public

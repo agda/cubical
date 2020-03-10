@@ -74,24 +74,11 @@ mutual
 delay≈-refl : ∀ {R} {x} -> delay≈ {R} x x
 delay≈-refl {R = R} {x = x} = delay≈-in-out (case out-fun x return (λ x₁ → delay≈ (in-fun x₁) (in-fun x₁)) of delay≈-refl-helper)
 
--- delay≈-trans : ∀ {R} {x y z} -> delay≈ {R} x y -> delay≈ {R} y z -> delay≈ {R} x z
--- delay≈-trans {x = x} {y = y} {z = z} p q =
---   delay≈-in-out-L (case out-fun x return (λ x₁ → delay≈ (in-fun x₁) z) of λ { (inr r , b) ->
---   delay≈-in-out-R (case out-fun z return (λ z₁ → delay≈ (in-fun (inr r , b)) (in-fun z₁)) of λ { (inr s , b') →
---     case p of λ { EqNow → {!!} }
---   } ) } )
-
 postulate
-  delay≈-trans : ∀ {R} {x y z} -> delay≈ {R} x y -> delay≈ {R} y z -> delay≈ {R} x z
-  delay≈-sym : ∀ {R} {x y} -> delay≈ {R} x y -> delay≈ {R} y x
-  
-delay≈-equality-relation : ∀ {R} -> equality-relation (delay≈ {R = R})
-delay≈-equality-relation = record { eq-refl = delay≈-refl ; eq-sym = delay≈-sym ; eq-trans = delay≈-trans }
+  delay-bisimulation-helper : ∀ {R} (x : Σ (M (delay-S R)) (λ a → Σ (M (delay-S R)) (delay≈ a))) → fst (snd x) ≡ fst x
 
 delay-bisimulation : ∀ {R : Set} -> bisimulation (delay-S R) M-coalg (delay≈ {R})
-αᵣ (delay-bisimulation) = λ { (a₁ , a₂ , p ) → fst (out-fun a₁) , λ b → snd (out-fun a₁) b , snd (out-fun a₁) b , delay≈-refl }
-rel₁ (delay-bisimulation) = funExt λ x → refl
-rel₂ (delay-bisimulation {R = R}) = funExt λ x → λ i → out-fun (equality-relation-projection delay≈-equality-relation x (~ i))
+delay-bisimulation {R} = bisimulation-property (delay-S R) (delay≈) (delay≈-refl) delay-bisimulation-helper
 
 delay≈≡≡ : ∀ {A} -> delay≈ {A} ≡ _≡_
 delay≈≡≡ = coinduction-is-equality delay≈ delay-bisimulation delay≈-refl
