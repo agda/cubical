@@ -25,14 +25,14 @@ extent-r : ∀ {ℓ} {A B C : Set ℓ} {a b : A -> B} (f : C -> A) -> a ≡ b ->
 extent-r = λ f x i → x i ∘ f
 
 identity-f-r : ∀ {ℓ} {A B : Set ℓ} {k : A -> A} -> k ≡ idfun A -> ∀ (f : B -> A) -> k ∘ f ≡ f
-identity-f-r {A = A} {k = k} p f = extent-r {a = k} {b = idfun A} f p 
+identity-f-r {A = A} {k = k} p f = extent-r {a = k} {b = idfun A} f p
 
 -- Left
 extent-l : ∀ {ℓ} {A B C : Set ℓ} {a b : A -> B} (f : B -> C) -> a ≡ b -> f ∘ a ≡ f ∘ b
 extent-l = λ f x i → f ∘ x i
 
 identity-f-l : ∀ {ℓ} {A B : Set ℓ} {k : A -> A} -> k ≡ idfun A -> ∀ (f : A -> B) -> f ∘ k ≡ f
-identity-f-l {A = A} {k = k} p f = extent-l {a = k} {b = idfun A} f p 
+identity-f-l {A = A} {k = k} p f = extent-l {a = k} {b = idfun A} f p
 
 -- General
 
@@ -98,7 +98,7 @@ postulate -- TODO
          → (isom : X ≡ X')
          → ((x : X) → Y x ≡ Y' (transport isom x))
          → Σ X Y ≡ Σ X' Y'
-Σ-ap-iso {X = X} {X'} {Y} {Y'} isom isom' = 
+Σ-ap-iso {X = X} {X'} {Y} {Y'} isom isom' =
   (Σ-ap-iso₂ isom') □ Σ-ap-iso₁ isom
 
 ------------------

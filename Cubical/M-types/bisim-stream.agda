@@ -56,7 +56,7 @@ stream-bisimulation {A} = bisimulation-property (stream-S A) stream≈ stream≈
 
 stream-bisim : ∀ {A} -> ∀ {x y : stream A} -> stream≈ x y -> x ≡ y
 stream-bisim {A} {x} {y} = coinduction stream≈ stream-bisimulation
-  
+
 stream-misib : ∀ {A} {x y} -> x ≡ y -> stream≈ {A} x y
 stream-misib = coinduction⁻ stream≈ stream-bisimulation stream≈-refl
 
