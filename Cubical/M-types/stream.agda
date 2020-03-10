@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --guardedness #-} --safe
 
-open import Cubical.M-types.M
+open import Cubical.M-types.M-type
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
@@ -22,7 +22,7 @@ stream-S : ∀ A -> Container
 stream-S A = (A , (λ _ → Unit))
 
 stream : ∀ (A : Set₀) -> Set₀
-stream A = M (stream-S A)
+stream A = M-type (stream-S A)
 
 cons : ∀ {A} -> A -> stream A -> stream A
 cons x xs = in-fun (x , λ { tt -> xs } )

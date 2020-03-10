@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --guardedness #-} --safe
 
 open import Cubical.M-types.itree
-open import Cubical.M-types.M
+open import Cubical.M-types.M-type
 open import Cubical.M-types.Coalg
 open import Cubical.M-types.stream
 

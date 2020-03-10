@@ -16,7 +16,7 @@ open import Cubical.Foundations.Function
 
 open import Cubical.M-types.helper
 
-module Cubical.M-types.M where
+module Cubical.M-types.M-type where
 
 -------------------------------------
 -- Container and Container Functor --
@@ -104,8 +104,8 @@ sequence : ∀ {ℓ} -> Container {ℓ} -> Chain {ℓ}
 X (sequence {ℓ} S) n = W {ℓ} S n
 π (sequence {ℓ} S) {n} = πₙ {ℓ} S {n}
 
-M : ∀ {ℓ} -> Container {ℓ} → Set ℓ
-M = L ∘ sequence
+M-type : ∀ {ℓ} -> Container {ℓ} → Set ℓ
+M-type = L ∘ sequence
 
 PX,Pπ : ∀ {ℓ} (S : Container {ℓ}) -> Chain
 PX,Pπ {ℓ} S =
@@ -117,16 +117,16 @@ postulate -- TODO
     (Σ (∀ (n : ℕ) -> Σ A (λ a -> B a -> X n)) (λ w -> (n : ℕ) -> p (w (suc n)) (w n))) ≡
     (Σ ((n : ℕ) → A) λ a → Σ ((n : ℕ) → B (a n) → X n) λ u → (n : ℕ) -> p (a (suc n) , u (suc n)) (a n , u n))
 
-  todo-rules : ∀ {ℓ} (S : Container {ℓ}) -> (Σ ((n : ℕ) → S .fst) λ a → Σ ((n : ℕ) → S .snd (a n) → X (sequence S) n) λ u → (n : ℕ) -> P₁ {S = S} (π (sequence S) {n = n}) (a (suc n) , u (suc n)) ≡ (a n , u n)) ≡ P₀ {S = S} (M S)
+  todo-rules : ∀ {ℓ} (S : Container {ℓ}) -> (Σ ((n : ℕ) → S .fst) λ a → Σ ((n : ℕ) → S .snd (a n) → X (sequence S) n) λ u → (n : ℕ) -> P₁ {S = S} (π (sequence S) {n = n}) (a (suc n) , u (suc n)) ≡ (a n , u n)) ≡ P₀ {S = S} (M-type S)
   -- equality of pairs, lemma 11, (Universal property of L)
 
 -- Lemma 13
-α-iso : ∀ {ℓ} {S : Container {ℓ}} -> L (PX,Pπ S) ≡ P₀ {S = S} (M S) -- L^P ≡ PL
+α-iso : ∀ {ℓ} {S : Container {ℓ}} -> L (PX,Pπ S) ≡ P₀ {S = S} (M-type S) -- L^P ≡ PL
 α-iso {S = S} = λ i ->
   compPath-filler
     {x = L (PX,Pπ S)}
     {y = (Σ ((n : ℕ) → S .fst) λ a → Σ ((n : ℕ) → S .snd (a n) → X (sequence S) n) λ u → (n : ℕ) -> P₁ (π (sequence S) {n}) (a (suc n) , u (suc n)) ≡ (a n , u n))}
-    {z = P₀ {S = S} (M S)}
+    {z = P₀ {S = S} (M-type S)}
       (swap-Σ-∀ (X (sequence S)) (S .fst) (S .snd) λ {n} a b → (P₁ (π (sequence S) {n = n})) a ≡ b)
       (todo-rules S)
       i i
@@ -136,36 +136,36 @@ postulate -- TODO
 -----------------------------------------------------
 
 -- P commutes with limits
-shift : ∀ {ℓ} {S : Container {ℓ}} -> P₀ (M S) ≡ M S
+shift : ∀ {ℓ} {S : Container {ℓ}} -> P₀ (M-type S) ≡ M-type S
 shift {S = S} = λ i ->
   compPath-filler
-    {x = P₀ (M S)}
+    {x = P₀ (M-type S)}
     {y = L (PX,Pπ S)}
-    {z = M S}
+    {z = M-type S}
       (sym α-iso)                   -- lemma 13
       (L-unique {X,π = sequence S}) -- lemma 12
       i i
 
 -- Transporting along shift
 
-in-fun : ∀ {ℓ} {S : Container {ℓ}} -> P₀ (M S) -> M S
+in-fun : ∀ {ℓ} {S : Container {ℓ}} -> P₀ (M-type S) -> M-type S
 in-fun {S = S} = transport (shift {S = S})
 
-out-fun : ∀ {ℓ} {S : Container {ℓ}} -> M S -> P₀ (M S)
+out-fun : ∀ {ℓ} {S : Container {ℓ}} -> M-type S -> P₀ (M-type S)
 out-fun {S = S} = transport (sym (shift {S = S}))
 
 -- in-fun and out-fun are inverse
 
-out-inverse-in : ∀ {ℓ} {S : Container {ℓ}} -> (out-fun ∘ in-fun {S = S}) ≡ idfun (P₀ (M S))
+out-inverse-in : ∀ {ℓ} {S : Container {ℓ}} -> (out-fun ∘ in-fun {S = S}) ≡ idfun (P₀ (M-type S))
 out-inverse-in i a = transport⁻Transport shift a i
 
-in-inverse-out : ∀ {ℓ} {S : Container {ℓ}} -> (in-fun ∘ out-fun {S = S}) ≡ idfun (M S)
+in-inverse-out : ∀ {ℓ} {S : Container {ℓ}} -> (in-fun ∘ out-fun {S = S}) ≡ idfun (M-type S)
 in-inverse-out = λ i a → transportTransport⁻ shift a i
 
 -- constructor properties
 
-in-inj : ∀ {ℓ} {S : Container {ℓ}} {Z : Set ℓ} -> ∀ {f g : Z → P₀ (M S)} -> (in-fun ∘ f ≡ in-fun ∘ g) ≡ (f ≡ g)
+in-inj : ∀ {ℓ} {S : Container {ℓ}} {Z : Set ℓ} -> ∀ {f g : Z → P₀ (M-type S)} -> (in-fun ∘ f ≡ in-fun ∘ g) ≡ (f ≡ g)
 in-inj = ≡-rel-a-inj in-fun out-fun in-inverse-out out-inverse-in
 
-out-inj : ∀ {ℓ} {S : Container {ℓ}} {Z : Set ℓ} -> ∀ {f g : Z → M S} -> (out-fun ∘ f ≡ out-fun ∘ g) ≡ (f ≡ g)
+out-inj : ∀ {ℓ} {S : Container {ℓ}} {Z : Set ℓ} -> ∀ {f g : Z → M-type S} -> (out-fun ∘ f ≡ out-fun ∘ g) ≡ (f ≡ g)
 out-inj = ≡-rel-b-inj in-fun out-fun in-inverse-out out-inverse-in
