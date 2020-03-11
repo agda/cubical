@@ -11,7 +11,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
 
-open import Cubical.Data.Fin.Base
+open import Cubical.Data.Fin.Base as Fin
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty as Empty
@@ -19,6 +19,11 @@ open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
 open import Cubical.Induction.WellFounded
+
+private
+ variable
+   a b ℓ : Level
+   A : Type a
 
 private
   -- Σ is more convenient than the inductive ×, but I don't
@@ -41,6 +46,36 @@ isContrFin1
 -- Regardless of k, Fin k is a set.
 isSetFin : ∀{k} → isSet (Fin k)
 isSetFin {k} = isOfHLevelΣ 2 isSetℕ (λ _ → isProp→isSet m≤n-isProp)
+
+private
+  subst-app : (B : A → Type b) (f : (x : A) → B x) {x y : A} (x≡y : x ≡ y) →
+              subst B x≡y (f x) ≡ f y
+  subst-app B f {x = x} =
+    J (λ y e → subst B e (f x) ≡ f y) (substRefl {B = B} (f x))
+
+-- Computation rules for the eliminator.
+module _ (P : ∀ {k} → Fin k → Type ℓ)
+         (fz : ∀ {k} → P {suc k} fzero)
+         (fs : ∀ {k} {fn : Fin k} → P fn → P (fsuc fn))
+         {k : ℕ} where
+  elim-fzero : Fin.elim P fz fs {k = suc k} fzero ≡ fz
+  elim-fzero =
+    subst P (toℕ-injective _) fz ≡⟨ cong (λ p → subst P p fz) (isSetFin _ _ _ _) ⟩
+    subst P refl fz              ≡⟨ substRefl {B = P} fz ⟩
+    fz                           ∎
+
+  elim-fsuc : (fk : Fin k) → Fin.elim P fz fs (fsuc fk) ≡ fs (Fin.elim P fz fs fk)
+  elim-fsuc fk =
+    subst P (toℕ-injective (λ _ → toℕ (fsuc fk′))) (fs (Fin.elim P fz fs fk′))
+      ≡⟨ cong (λ p → subst P p (fs (Fin.elim P fz fs fk′)) ) (isSetFin _ _ _ _) ⟩
+    subst P (cong fsuc fk′≡fk) (fs (Fin.elim P fz fs fk′))
+      ≡⟨ subst-app _ (λ fj → fs (Fin.elim P fz fs fj)) fk′≡fk ⟩
+    fs (Fin.elim P fz fs fk)
+      ∎
+    where
+    fk′ = fst fk , pred-≤-pred (snd (fsuc fk))
+    fk′≡fk : fk′ ≡ fk
+    fk′≡fk = toℕ-injective refl
 
 -- Helper function for the reduction procedure below.
 --
