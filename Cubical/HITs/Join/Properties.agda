@@ -39,7 +39,7 @@ joinPushout-iso-join A B = iso joinPushout→join join→joinPushout join→join
     joinPushout→join : joinPushout A B → join A B
     joinPushout→join (inl x) = inl x
     joinPushout→join (inr x) = inr x
-    joinPushout→join (push y i) = push (proj₁ y) (proj₂ y) i
+    joinPushout→join (push x i) = push (proj₁ x) (proj₂ x) i
 
     join→joinPushout : join A B → joinPushout A B
     join→joinPushout (inl x) = inl x
