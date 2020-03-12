@@ -47,8 +47,8 @@ ua-pathToEquiv e = uaHAEquiv _ _ .snd .ret e
 -- a proposition. Indeed this type should correspond to the ways s and t can be identified
 -- as S-structures. This we call a standard notion of structure or SNS.
 -- We will use a different definition, but the two definitions are interchangeable.
-SNS₁ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
-SNS₁ {ℓ₁} S ι = ∀ {X : Type ℓ₁} (s t : S X) → ((s ≡ t) ≃ ι (X , s) (X , t) (idEquiv X))
+SNS-≡ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
+SNS-≡ {ℓ₁} S ι = ∀ {X : Type ℓ₁} (s t : S X) → ((s ≡ t) ≃ ι (X , s) (X , t) (idEquiv X))
 
 
 -- We introduce the notation for structure preserving equivalences a bit differently,
@@ -58,23 +58,23 @@ A ≃[ ι ] B = Σ[ f ∈ (typ A ≃ typ B) ] (ι A B f)
 
 
 
--- The following PathP version of SNS₁ is a bit easier to
+-- The following PathP version of SNS-≡ is a bit easier to
 -- work with for the proof of the SIP
-SNS₂ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
-SNS₂ {ℓ₁} S ι = (A B : TypeWithStr ℓ₁ S) (e : typ A ≃ typ B)
+SNS-PathP : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
+SNS-PathP {ℓ₁} S ι = (A B : TypeWithStr ℓ₁ S) (e : typ A ≃ typ B)
              → (PathP (λ i → S (ua e i)) (str A) (str B)) ≃ (ι A B e)
 
 -- A quick sanity-check that our definition is interchangeable with
--- Escardó's. The direction SNS₁→SNS₂ corresponds more or less to a
+-- Escardó's. The direction SNS-≡→SNS-PathP corresponds more or less to a
 -- dependent EquivJ formulation of Escardó's homomorphism-lemma.
-SNS₂→SNS₁ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → SNS₂ S ι → SNS₁ S ι
-SNS₂→SNS₁ S ι θ {X = X} s t =  s ≡ t ≃⟨ φ ⟩ θ (X , s) (X , t) (idEquiv X)
+SNS-PathP→SNS-≡ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → SNS-PathP S ι → SNS-≡ S ι
+SNS-PathP→SNS-≡ S ι θ {X = X} s t =  s ≡ t ≃⟨ φ ⟩ θ (X , s) (X , t) (idEquiv X)
   where
    φ = transportEquiv λ j → PathP (λ i → S (uaIdEquiv {A = X} (~ j) i)) s t
 
 
-SNS₁→SNS₂ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → SNS₁ S ι → SNS₂ S ι
-SNS₁→SNS₂ S ι θ A B e = EquivJ P C (typ B) (typ A) e (str B) (str A)
+SNS-≡→SNS-PathP : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → SNS-≡ S ι → SNS-PathP S ι
+SNS-≡→SNS-PathP S ι θ A B e = EquivJ P C (typ B) (typ A) e (str B) (str A)
   where
    P : (X Y : Type _) → Y ≃ X → Type _
    P X Y e' = (s : S X) (t : S Y) → PathP (λ i → S (ua e' i)) t s ≃ ι (Y , t) (X , s) e'
@@ -93,9 +93,9 @@ SNS₁→SNS₂ S ι θ A B e = EquivJ P C (typ B) (typ A) e (str B) (str A)
 -- We can now directly define a function
 --    sip : A ≃[ ι ] B → A ≡ B
 -- together with is inverse.
--- Here, these functions use SNS₂ and are expressed using a Σ-type instead as it is a bit
+-- Here, these functions use SNS-PathP and are expressed using a Σ-type instead as it is a bit
 -- easier to work with
-sip : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS₂ S ι)
+sip : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
     → (A B : TypeWithStr ℓ₁ S)
     → A ≃[ ι ] B
     → Σ (typ A ≡ typ B) (λ p → PathP (λ i → S (p i)) (str A) (str B))
@@ -109,7 +109,7 @@ private
         PathP (λ i → S (e i)) (A .snd) (B .snd)
   lem S A B e i = PathP (λ j → S (ua-pathToEquiv e i j)) (A .snd) (B .snd)
 
-sip⁻ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS₂ S ι)
+sip⁻ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
      → (A B : TypeWithStr ℓ₁ S)
      → Σ (typ A ≡ typ B) (λ p → PathP (λ i → S (p i)) (str A) (str B))
      → A ≃[ ι ] B
@@ -120,7 +120,7 @@ sip⁻ S ι θ A B (e , r) = pathToEquiv e , θ A B (pathToEquiv e) .fst q
 
 
 -- we can rather directly show that sip and sip⁻ are mutually inverse:
-sip-sip⁻ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS₂ S ι)
+sip-sip⁻ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
          → (A B : TypeWithStr ℓ₁ S)
          → (r : Σ (typ A ≡ typ B) (λ p → PathP (λ i → S (p i)) (str A) (str B)))
          → sip S ι θ A B (sip⁻ S ι θ A B r) ≡ r
@@ -140,7 +140,7 @@ sip-sip⁻ S ι θ A B (p , q) =
 
 
 -- The trickier direction:
-sip⁻-sip : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS₂ S ι)
+sip⁻-sip : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
          → (A B : TypeWithStr ℓ₁ S)
          → (r : A ≃[ ι ] B)
          → sip⁻ S ι θ A B (sip S ι θ A B r) ≡ r
@@ -192,7 +192,7 @@ sip⁻-sip S ι θ A B (e , p) =
 
 
 -- Finally package everything up to get the cubical SIP
-SIP : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS₂ S ι)
+SIP : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
     → (A B : TypeWithStr ℓ₁ S)
     → A ≃[ ι ] B ≃ (A ≡ B)
 SIP S ι θ A B = (A ≃[ ι ] B ) ≃⟨ eq ⟩ Σ≡
@@ -245,8 +245,8 @@ add-axioms-SNS : (S : Type ℓ₁ → Type ℓ₂)
                     (ι : (A B : Σ[ X ∈ (Type ℓ₁) ] (S X)) → A .fst ≃ B .fst → Type ℓ₃)
                     (axioms : (X : Type ℓ₁) → (S X) → Type ℓ₄)
                     (axioms-are-Props : (X : Type ℓ₁) (s : S X) → isProp (axioms X s))
-                    (θ : SNS₂ S ι)
-                   → SNS₂ (add-to-structure S axioms) (add-to-iso S ι axioms)
+                    (θ : SNS-PathP S ι)
+                   → SNS-PathP (add-to-structure S axioms) (add-to-iso S ι axioms)
 add-axioms-SNS S ι axioms axioms-are-Props θ (X , (s , a)) (Y , (t , b)) f =
 
                PathP (λ i → (add-to-structure S axioms) (ua f i)) (s , a) (t , b) ≃⟨ add-ax-lemma S axioms axioms-are-Props f ⟩
@@ -319,9 +319,9 @@ join-lemma S₁ S₂ {Y = Y} {s₁ = s₁} {s₂ = s₂} {t₁ = t₁} {t₂ = t
 
 
 
-join-SNS : (S₁ : Type ℓ₁ → Type ℓ₂) (ι₁ : StrIso S₁ ℓ₃) (θ₁ : SNS₂ S₁ ι₁)
-           (S₂ : Type ℓ₁ → Type ℓ₄) (ι₂ : StrIso S₂ ℓ₅) (θ₂ : SNS₂ S₂ ι₂)
-         → SNS₂ (join-structure S₁ S₂) (join-iso ι₁ ι₂)
+join-SNS : (S₁ : Type ℓ₁ → Type ℓ₂) (ι₁ : StrIso S₁ ℓ₃) (θ₁ : SNS-PathP S₁ ι₁)
+           (S₂ : Type ℓ₁ → Type ℓ₄) (ι₂ : StrIso S₂ ℓ₅) (θ₂ : SNS-PathP S₂ ι₂)
+         → SNS-PathP (join-structure S₁ S₂) (join-iso ι₁ ι₂)
 join-SNS S₁ ι₁ θ₁ S₂ ι₂ θ₂ (X , s₁ , s₂) (Y , t₁ , t₂) e =
 
      PathP (λ i → (join-structure S₁ S₂) (ua e i)) (s₁ , s₂) (t₁ , t₂)

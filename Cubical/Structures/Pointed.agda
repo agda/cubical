@@ -9,7 +9,7 @@ open import Cubical.Foundations.Path
 
 open import Cubical.Foundations.Pointed
 
-open import Cubical.Foundations.SIP renaming (SNS₂ to SNS)
+open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 private
   variable
