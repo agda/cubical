@@ -10,8 +10,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Data.NatMinusTwo.Base renaming (-1+_ to -1+₋₂_ ; 1+_ to 1+₋₂_)
-open import Cubical.Data.NatMinusOne.Base
+open import Cubical.Data.NatMinusTwo.Base
 open import Cubical.Data.Empty
 open import Cubical.Data.Sigma
 open import Cubical.Data.Prod.Base

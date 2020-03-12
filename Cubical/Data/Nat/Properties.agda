@@ -6,7 +6,7 @@ open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat.Base
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Prod.Base
 
 open import Cubical.Relation.Nullary
@@ -55,7 +55,7 @@ m+n≡n→m≡0 {n = suc n} p = m+n≡n→m≡0 (injSuc ((sym (+-suc _ n)) ∙ p
 
 m+n≡0→m≡0×n≡0 : m + n ≡ 0 → (m ≡ 0) × (n ≡ 0)
 m+n≡0→m≡0×n≡0 {zero} = refl ,_
-m+n≡0→m≡0×n≡0 {suc m} p = ⊥-elim (snotz p)
+m+n≡0→m≡0×n≡0 {suc m} p = ⊥.rec (snotz p)
 
 discreteℕ : Discrete ℕ
 discreteℕ zero zero = yes refl
@@ -89,7 +89,7 @@ isSetℕ = Discrete→isSet discreteℕ
 
 0≡n*sm→0≡n : 0 ≡ n * suc m → 0 ≡ n
 0≡n*sm→0≡n {n = zero} p = refl
-0≡n*sm→0≡n {n = suc n} p = ⊥-elim (znots p)
+0≡n*sm→0≡n {n = suc n} p = ⊥.rec (znots p)
 
 inj-*sm : l * suc m ≡ n * suc m → l ≡ n
 inj-*sm {zero} {m} {n} p = 0≡n*sm→0≡n p

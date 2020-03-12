@@ -39,9 +39,9 @@ private
     A    : Type ℓ
     B C  : A → Type ℓ
 
-intro-× : (∀ a → B a) → (∀ a → C a) → ∀ a → B a × C a
-intro-× f g a = f a , g a
+intro : (∀ a → B a) → (∀ a → C a) → ∀ a → B a × C a
+intro f g a = f a , g a
 
-map-× : {B : Type ℓ} {D : B → Type ℓ'}
+map : {B : Type ℓ} {D : B → Type ℓ'}
    → (∀ a → C a) → (∀ b → D b) → (x : A × B) → C (proj₁ x) × D (proj₂ x)
-map-× f g = intro-× (f ∘ proj₁) (g ∘ proj₂)
+map f g = intro (f ∘ proj₁) (g ∘ proj₂)

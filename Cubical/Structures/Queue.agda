@@ -9,7 +9,7 @@ open import Cubical.Structures.InftyMagma using (funExtBinEquiv)
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
-open import Cubical.Data.Prod.Base hiding (_×_ ; map-×) renaming (_×Σ_ to _×_)
+open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
 
 
 -- Developing Queues as a standard notion of structure, see

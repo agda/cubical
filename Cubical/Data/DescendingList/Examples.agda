@@ -15,7 +15,7 @@ module Cubical.Data.DescendingList.Examples where
 
 open import Cubical.Foundations.Everything
 
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
 
 open import Cubical.Relation.Nullary
@@ -55,7 +55,7 @@ m ≥ n = n ≤ m
 
 ≰→≥ : {x y : ℕ} → ¬ (x ≥ y) → y ≥ x
 ≰→≥ {zero} {y} f = z≤n
-≰→≥ {suc x} {zero} f = ⊥-elim (f z≤n)
+≰→≥ {suc x} {zero} f = ⊥.rec (f z≤n)
 ≰→≥ {suc x} {suc y} f = s≤s (≰→≥ λ g → f (s≤s g))
 
 ≥trans : {x y z : ℕ} → x ≥ y → y ≥ z → x ≥ z

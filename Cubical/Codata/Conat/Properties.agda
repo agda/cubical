@@ -25,7 +25,7 @@ module Cubical.Codata.Conat.Properties where
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as ⊥
 
 open import Cubical.Core.Everything
 
@@ -85,7 +85,7 @@ n+′∞≡∞′ (suc n) = λ i → suc (n+∞≡∞ n i)
 force (∞+∞≡∞ i) = suc (∞+∞≡∞ i)
 
 conat-absurd : ∀ {y : Conat} {ℓ} {Whatever : Type ℓ} → zero ≡ suc y → Whatever
-conat-absurd eq = ⊥-elim (transport (cong diag eq) tt)
+conat-absurd eq = ⊥.rec (transport (cong diag eq) tt)
   where
   diag : Conat′ → Type₀
   diag zero = Unit
@@ -99,8 +99,8 @@ module IsSet where
   ≡′-stable {zero}  {zero}  ¬¬p′ = refl
   ≡′-stable {suc x} {suc y} ¬¬p′ =
      cong′ suc (≡-stable λ ¬p → ¬¬p′ λ p → ¬p (cong pred′′ p))
-  ≡′-stable {zero}  {suc y} ¬¬p′ = ⊥-elim (¬¬p′ conat-absurd)
-  ≡′-stable {suc x} {zero}  ¬¬p′ = ⊥-elim (¬¬p′ λ p → conat-absurd (sym p))
+  ≡′-stable {zero}  {suc y} ¬¬p′ = ⊥.rec (¬¬p′ conat-absurd)
+  ≡′-stable {suc x} {zero}  ¬¬p′ = ⊥.rec (¬¬p′ λ p → conat-absurd (sym p))
 
   isSetConat : isSet Conat
   isSetConat _ _ = Stable≡→isSet (λ _ _ → ≡-stable) _ _
