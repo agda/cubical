@@ -24,9 +24,8 @@ open import Cubical.Foundations.Structure public
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ''' : Level
     ℓ₁ ℓ₂ ℓ₃ ℓ₄ ℓ₅ : Level
-    S : Type ℓ → Type ℓ'
+    S : Type ℓ₁ → Type ℓ₂
 
 -- For technical reasons we reprove ua-pathToEquiv using the
 -- particular proof constructed by iso→HAEquiv. The reason is that we
@@ -34,13 +33,13 @@ private
 --
 --   eq : ua-au (ua e) ≡ cong ua (au-ua e)
 --
-uaHAEquiv : (A B : Type ℓ) → HAEquiv (A ≃ B) (A ≡ B)
+uaHAEquiv : (A B : Type ℓ₁) → HAEquiv (A ≃ B) (A ≡ B)
 uaHAEquiv A B = iso→HAEquiv (iso ua pathToEquiv ua-pathToEquiv' pathToEquiv-ua)
 open isHAEquiv
 
 -- We now extract the particular proof constructed from iso→HAEquiv
 -- for reasons explained above.
-ua-pathToEquiv : {A B : Type ℓ} (e : A ≡ B) → ua (pathToEquiv e) ≡ e
+ua-pathToEquiv : {A B : Type ℓ₁} (e : A ≡ B) → ua (pathToEquiv e) ≡ e
 ua-pathToEquiv e = uaHAEquiv _ _ .snd .ret e
 
 
@@ -48,33 +47,33 @@ ua-pathToEquiv e = uaHAEquiv _ _ .snd .ret e
 -- a proposition. Indeed this type should correspond to the ways s and t can be identified
 -- as S-structures. This we call a standard notion of structure or SNS.
 -- We will use a different definition, but the two definitions are interchangeable.
-SNS₁ : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') → Type (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ') ℓ'')
-SNS₁ {ℓ} S ι = ∀ {X : Type ℓ} (s t : S X) → ((s ≡ t) ≃ ι (X , s) (X , t) (idEquiv X))
+SNS₁ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
+SNS₁ {ℓ₁} S ι = ∀ {X : Type ℓ₁} (s t : S X) → ((s ≡ t) ≃ ι (X , s) (X , t) (idEquiv X))
 
 
 -- We introduce the notation for structure preserving equivalences a bit differently,
 -- but this definition doesn't actually change from Escardó's notes.
-_≃[_]_ : (A : TypeWithStr ℓ S) (ι : StrIso S ℓ') (B : TypeWithStr ℓ S) → Type (ℓ-max ℓ ℓ')
+_≃[_]_ : (A : TypeWithStr ℓ₁ S) (ι : StrIso S ℓ₂) (B : TypeWithStr ℓ₁ S) → Type (ℓ-max ℓ₁ ℓ₂)
 A ≃[ ι ] B = Σ[ f ∈ (typ A ≃ typ B) ] (ι A B f)
 
 
 
 -- The following PathP version of SNS₁ is a bit easier to
 -- work with for the proof of the SIP
-SNS₂ : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') → Type (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ') ℓ'')
-SNS₂ {ℓ} S ι = (A B : TypeWithStr ℓ S) (e : typ A ≃ typ B)
+SNS₂ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
+SNS₂ {ℓ₁} S ι = (A B : TypeWithStr ℓ₁ S) (e : typ A ≃ typ B)
              → (PathP (λ i → S (ua e i)) (str A) (str B)) ≃ (ι A B e)
 
 -- A quick sanity-check that our definition is interchangeable with
 -- Escardó's. The direction SNS₁→SNS₂ corresponds more or less to a
 -- dependent EquivJ formulation of Escardó's homomorphism-lemma.
-SNS₂→SNS₁ : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') → SNS₂ S ι → SNS₁ S ι
+SNS₂→SNS₁ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → SNS₂ S ι → SNS₁ S ι
 SNS₂→SNS₁ S ι θ {X = X} s t =  s ≡ t ≃⟨ φ ⟩ θ (X , s) (X , t) (idEquiv X)
   where
    φ = transportEquiv λ j → PathP (λ i → S (uaIdEquiv {A = X} (~ j) i)) s t
 
 
-SNS₁→SNS₂ : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') → SNS₁ S ι → SNS₂ S ι
+SNS₁→SNS₂ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → SNS₁ S ι → SNS₂ S ι
 SNS₁→SNS₂ S ι θ A B e = EquivJ P C (typ B) (typ A) e (str B) (str A)
   where
    P : (X Y : Type _) → Y ≃ X → Type _
@@ -96,8 +95,8 @@ SNS₁→SNS₂ S ι θ A B e = EquivJ P C (typ B) (typ A) e (str B) (str A)
 -- together with is inverse.
 -- Here, these functions use SNS₂ and are expressed using a Σ-type instead as it is a bit
 -- easier to work with
-sip : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') (θ : SNS₂ S ι)
-    → (A B : TypeWithStr ℓ S)
+sip : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS₂ S ι)
+    → (A B : TypeWithStr ℓ₁ S)
     → A ≃[ ι ] B
     → Σ (typ A ≡ typ B) (λ p → PathP (λ i → S (p i)) (str A) (str B))
 sip S ι θ A B (e , p) = ua e , invEq (θ A B e) p
@@ -105,13 +104,13 @@ sip S ι θ A B (e , p) = ua e , invEq (θ A B e) p
 -- The inverse to sip using the following little lemma
 
 private
-  lem : (S : Type ℓ → Type ℓ') (A B : TypeWithStr ℓ S) (e : typ A ≡ typ B)
+  lem : (S : Type ℓ₁ → Type ℓ₂) (A B : TypeWithStr ℓ₁ S) (e : typ A ≡ typ B)
       → PathP (λ i → S (ua (pathToEquiv e) i)) (A .snd) (B .snd) ≡
         PathP (λ i → S (e i)) (A .snd) (B .snd)
   lem S A B e i = PathP (λ j → S (ua-pathToEquiv e i j)) (A .snd) (B .snd)
 
-sip⁻ : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') (θ : SNS₂ S ι)
-     → (A B : TypeWithStr ℓ S)
+sip⁻ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS₂ S ι)
+     → (A B : TypeWithStr ℓ₁ S)
      → Σ (typ A ≡ typ B) (λ p → PathP (λ i → S (p i)) (str A) (str B))
      → A ≃[ ι ] B
 sip⁻ S ι θ A B (e , r) = pathToEquiv e , θ A B (pathToEquiv e) .fst q
@@ -121,8 +120,8 @@ sip⁻ S ι θ A B (e , r) = pathToEquiv e , θ A B (pathToEquiv e) .fst q
 
 
 -- we can rather directly show that sip and sip⁻ are mutually inverse:
-sip-sip⁻ : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') (θ : SNS₂ S ι)
-         → (A B : TypeWithStr ℓ S)
+sip-sip⁻ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS₂ S ι)
+         → (A B : TypeWithStr ℓ₁ S)
          → (r : Σ (typ A ≡ typ B) (λ p → PathP (λ i → S (p i)) (str A) (str B)))
          → sip S ι θ A B (sip⁻ S ι θ A B r) ≡ r
 sip-sip⁻ S ι θ A B (p , q) =
@@ -141,8 +140,8 @@ sip-sip⁻ S ι θ A B (p , q) =
 
 
 -- The trickier direction:
-sip⁻-sip : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') (θ : SNS₂ S ι)
-         → (A B : TypeWithStr ℓ S)
+sip⁻-sip : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS₂ S ι)
+         → (A B : TypeWithStr ℓ₁ S)
          → (r : A ≃[ ι ] B)
          → sip⁻ S ι θ A B (sip S ι θ A B r) ≡ r
 sip⁻-sip S ι θ A B (e , p) =
@@ -193,8 +192,8 @@ sip⁻-sip S ι θ A B (e , p) =
 
 
 -- Finally package everything up to get the cubical SIP
-SIP : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') (θ : SNS₂ S ι)
-    → (A B : TypeWithStr ℓ S)
+SIP : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS₂ S ι)
+    → (A B : TypeWithStr ℓ₁ S)
     → A ≃[ ι ] B ≃ (A ≡ B)
 SIP S ι θ A B = (A ≃[ ι ] B ) ≃⟨ eq ⟩ Σ≡
   where
@@ -204,25 +203,24 @@ SIP S ι θ A B = (A ≃[ ι ] B ) ≃⟨ eq ⟩ Σ≡
 
 
 -- Now, we want to add axioms (i.e. propositions) to our Structure S that don't affect the ι.
--- For this and the remainder of this file we will work with SNS₂
 -- We use a lemma due to Zesen Qian, which can now be found in Foundations.Prelude:
 -- https://github.com/riaqn/cubical/blob/hgroup/Cubical/Data/Group/Properties.agda#L83
 
-add-to-structure : (S : Type ℓ → Type ℓ')
-                   (axioms : (X : Type ℓ) → (S X) → Type ℓ''')
-                 → Type ℓ → Type (ℓ-max ℓ' ℓ''')
+add-to-structure : (S : Type ℓ₁ → Type ℓ₂)
+                   (axioms : (X : Type ℓ₁) → (S X) → Type ℓ₄)
+                 → Type ℓ₁ → Type (ℓ-max ℓ₂ ℓ₄)
 add-to-structure S axioms X = Σ[ s ∈ S X ] (axioms X s)
 
-add-to-iso : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'')
-             (axioms : (X : Type ℓ) → (S X) → Type ℓ''')
-           → StrIso (add-to-structure S axioms) ℓ''
+add-to-iso : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃)
+             (axioms : (X : Type ℓ₁) → (S X) → Type ℓ₄)
+           → StrIso (add-to-structure S axioms) ℓ₃
 add-to-iso S ι axioms (X , (s , a)) (Y , (t , b)) f = ι (X , s) (Y , t) f
 
 
-add-ax-lemma :  (S : Type ℓ → Type ℓ')
-              (axioms : (X : Type ℓ) → (S X) → Type ℓ''')
-              (axioms-are-Props : (X : Type ℓ) (s : S X) → isProp (axioms X s))
-              {X Y : Type ℓ} {s : S X} {t : S Y} {a : axioms X s} {b : axioms Y t}
+add-ax-lemma :  (S : Type ℓ₁ → Type ℓ₂)
+              (axioms : (X : Type ℓ₁) → (S X) → Type ℓ₄)
+              (axioms-are-Props : (X : Type ℓ₁) (s : S X) → isProp (axioms X s))
+              {X Y : Type ℓ₁} {s : S X} {t : S Y} {a : axioms X s} {b : axioms Y t}
               (f : X ≃ Y)
             → PathP (λ i → (add-to-structure S axioms) (ua f i)) (s , a) (t , b) ≃ PathP (λ i → S (ua f i)) s t
 add-ax-lemma S axioms axioms-are-Props {Y = Y} {s = s} {t = t} {a = a} {b = b} f = isoToEquiv (iso φ ψ η ε)
@@ -243,10 +241,10 @@ add-ax-lemma S axioms axioms-are-Props {Y = Y} {s = s} {t = t} {a = a} {b = b} f
 
 
 
-add-axioms-SNS : (S : Type ℓ → Type ℓ')
-                    (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → A .fst ≃ B .fst → Type ℓ'')
-                    (axioms : (X : Type ℓ) → (S X) → Type ℓ''')
-                    (axioms-are-Props : (X : Type ℓ) (s : S X) → isProp (axioms X s))
+add-axioms-SNS : (S : Type ℓ₁ → Type ℓ₂)
+                    (ι : (A B : Σ[ X ∈ (Type ℓ₁) ] (S X)) → A .fst ≃ B .fst → Type ℓ₃)
+                    (axioms : (X : Type ℓ₁) → (S X) → Type ℓ₄)
+                    (axioms-are-Props : (X : Type ℓ₁) (s : S X) → isProp (axioms X s))
                     (θ : SNS₂ S ι)
                    → SNS₂ (add-to-structure S axioms) (add-to-iso S ι axioms)
 add-axioms-SNS S ι axioms axioms-are-Props θ (X , (s , a)) (Y , (t , b)) f =
@@ -296,7 +294,7 @@ join-iso : {S₁ : Type ℓ₁ → Type ℓ₂} (ι₁ : StrIso S₁ ℓ₃)
 join-iso ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) f = (ι₁ (X , s₁) (Y , t₁) f) × (ι₂ (X , s₂) (Y , t₂) f)
 
 
--- We do the same with SNS₂
+
 join-lemma :  (S₁ : Type ℓ₁ → Type ℓ₂) (S₂ : Type ℓ₁ → Type ℓ₄)
               {X Y : Type ℓ₁} {s₁ : S₁ X} {s₂ : S₂ X} {t₁ : S₁ Y} {t₂ : S₂ Y} (e : X ≃ Y)
             → PathP (λ i → (join-structure S₁ S₂) (ua e i)) (s₁ , s₂) (t₁ , t₂) ≃
@@ -318,19 +316,6 @@ join-lemma S₁ S₂ {Y = Y} {s₁ = s₁} {s₂ = s₂} {t₁ = t₁} {t₂ = t
     ε p = refl
 
 
-
--- join-lemma' :  (S₁ : Type ℓ₁ → Type ℓ₂) (S₂ : Type ℓ₁ → Type ℓ₄)
---               {X Y : Type ℓ₁} {s₁ : S₁ X} {s₂ : S₂ X} {t₁ : S₁ Y} {t₂ : S₂ Y} (e : X ≃ Y)
---             → PathP (λ i → (join-structure S₁ S₂) (ua e i)) (s₁ , s₂) (t₁ , t₂) ≃
---              (PathP (λ i → S₁ (ua e i)) s₁ t₁) × (PathP (λ i → S₂ (ua e i)) s₂ t₂)
--- join-lemma' S₁ S₂ {Y = Y} {s₁ = s₁} {s₂ = s₂} {t₁ = t₁} {t₂ = t₂} e = φ , isEquivφ
---  where
---   φ = (λ p → (λ i → p i .fst) , (λ i → p i .snd))
-
---   isEquivφ : isEquiv φ
---   isEquivφ .equiv-proof r .fst .fst = (λ i → r .fst i , r .snd i)
---   isEquivφ .equiv-proof r .fst .snd = refl
---   isEquivφ .equiv-proof r .snd y =  {!!} --subst (λ u → fst (isEquivφ .equiv-proof u) ≡ y) (y .snd) refl
 
 
 
