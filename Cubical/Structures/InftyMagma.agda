@@ -50,5 +50,5 @@ module _ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : A → Type ℓ'} {C : (x : A) → 
 ∞-magma-is-SNS : SNS {ℓ} ∞-magma-structure ∞-magma-iso
 ∞-magma-is-SNS (X , _·_) (Y , _∗_) f = SNS-≡→SNS-PathP ∞-magma-structure ∞-magma-iso C (X , _·_) (Y , _∗_) f
  where
-  C : {X : Type ℓ} (_·_ _∗_ : X → X → X) → (_·_ ≡ _∗_) ≃ ((x x' : X) → (x · x') ≡ (x ∗ x'))
-  C _·_ _∗_ = invEquiv funExtBinEquiv
+  C : {X : Type ℓ} (_·_ _∗_ : X → X → X) → ((x x' : X) → (x · x') ≡ (x ∗ x')) ≃  (_·_ ≡ _∗_)
+  C _·_ _∗_ = funExtBinEquiv
