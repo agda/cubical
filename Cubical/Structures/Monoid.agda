@@ -6,7 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
 
-open import Cubical.Foundations.SIP renaming (SNS₂ to SNS)
+open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 open import Cubical.Structures.Pointed
 open import Cubical.Structures.InftyMagma
@@ -61,4 +61,4 @@ monoid-is-SNS = add-axioms-SNS raw-monoid-structure raw-monoid-iso
                                monoid-axioms monoid-axioms-are-Props raw-monoid-is-SNS
 
 MonoidPath : (M N : Monoids {ℓ}) → (M ≃[ monoid-iso ] N) ≃ (M ≡ N)
-MonoidPath M N = SIP monoid-structure monoid-iso (SNS₂→SNS₄ monoid-is-SNS) M N
+MonoidPath M N = SIP monoid-structure monoid-iso monoid-is-SNS M N

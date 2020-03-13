@@ -4,7 +4,7 @@ module Cubical.Structures.InftyMagma where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 
-open import Cubical.Foundations.SIP renaming (SNS₂ to SNS)
+open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 private
   variable
@@ -48,7 +48,7 @@ module _ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : A → Type ℓ'} {C : (x : A) → 
 ∞-magma-iso (X , _·_) (Y , _∗_) f = (x x' : X) → equivFun f (x · x') ≡ (equivFun f x) ∗ (equivFun f x')
 
 ∞-magma-is-SNS : SNS {ℓ} ∞-magma-structure ∞-magma-iso
-∞-magma-is-SNS (X , _·_) (Y , _∗_) f = SNS₁→SNS₂ ∞-magma-structure ∞-magma-iso C (X , _·_) (Y , _∗_) f
+∞-magma-is-SNS (X , _·_) (Y , _∗_) f = SNS-≡→SNS-PathP ∞-magma-structure ∞-magma-iso C (X , _·_) (Y , _∗_) f
  where
-  C : {X : Type ℓ} (_·_ _∗_ : X → X → X) → (_·_ ≡ _∗_) ≃ ((x x' : X) → (x · x') ≡ (x ∗ x'))
-  C _·_ _∗_ = invEquiv funExtBinEquiv
+  C : {X : Type ℓ} (_·_ _∗_ : X → X → X) → ((x x' : X) → (x · x') ≡ (x ∗ x')) ≃  (_·_ ≡ _∗_)
+  C _·_ _∗_ = funExtBinEquiv
