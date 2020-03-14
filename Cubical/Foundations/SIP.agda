@@ -89,64 +89,64 @@ SNS-≡→SNS-PathP {S = S} ι θ {A = A} {B = B} e = EquivJ P C (typ B) (typ A)
      ψ = transportEquiv λ j → PathP (λ i → S (uaIdEquiv {A = X} (~ j) i)) t s
 
 
-
-
-
-
-
--- We can now directly define a function
+-- We can now directly define an invertible function
+--
 --    sip : A ≃[ ι ] B → A ≡ B
--- together with is inverse.
--- Here, these functions use SNS-PathP and are expressed using a Σ-type instead as it is a bit
--- easier to work with
+--
 sip : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
-    → (A B : TypeWithStr ℓ₁ S)
-    → A ≃[ ι ] B
-    → Σ (typ A ≡ typ B) (λ p → PathP (λ i → S (p i)) (str A) (str B))
-sip S ι θ A B (e , p) = ua e , (θ e) .fst p
+      (A B : TypeWithStr ℓ₁ S) → A ≃[ ι ] B → A ≡ B
+sip S ι θ A B (e , p) i = ua e i , (θ e) .fst p i
 
--- The inverse to sip using the following little lemma
-
+-- The inverse to sip uses the following little lemma
 private
   lem : (S : Type ℓ₁ → Type ℓ₂) (A B : TypeWithStr ℓ₁ S) (e : typ A ≡ typ B)
       → PathP (λ i → S (ua (pathToEquiv e) i)) (A .snd) (B .snd) ≡
         PathP (λ i → S (e i)) (A .snd) (B .snd)
   lem S A B e i = PathP (λ j → S (ua-pathToEquiv e i j)) (A .snd) (B .snd)
 
+-- The inverse
 sip⁻ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
-     → (A B : TypeWithStr ℓ₁ S)
-     → Σ (typ A ≡ typ B) (λ p → PathP (λ i → S (p i)) (str A) (str B))
-     → A ≃[ ι ] B
-sip⁻ S ι θ A B (e , r) = pathToEquiv e , invEq (θ (pathToEquiv e)) q
+       (A B : TypeWithStr ℓ₁ S) → A ≡ B → A ≃[ ι ] B
+sip⁻ S ι θ A B r = pathToEquiv p , invEq (θ (pathToEquiv p)) q
   where
-  q : PathP (λ i → S (ua (pathToEquiv e) i)) (A .snd) (B .snd)
-  q = transport (λ i → lem S A B e (~ i)) r
+  p : typ A ≡ typ B
+  p = cong fst r
+  q : PathP (λ i → S (ua (pathToEquiv p) i)) (A .snd) (B .snd)
+  q = transport⁻ (lem S A B p) (cong snd r)
 
-
--- we can rather directly show that sip and sip⁻ are mutually inverse:
+-- We can rather directly show that sip and sip⁻ are mutually inverse:
 sip-sip⁻ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
-         → (A B : TypeWithStr ℓ₁ S)
-         → (r : Σ (typ A ≡ typ B) (λ p → PathP (λ i → S (p i)) (str A) (str B)))
+           (A B : TypeWithStr ℓ₁ S) (r : A ≡ B)
          → sip S ι θ A B (sip⁻ S ι θ A B r) ≡ r
-sip-sip⁻ S ι θ A B (p , q) =
-    sip S ι θ A B (sip⁻ S ι θ A B (p , q))
-  ≡⟨ refl ⟩
-    ua (pathToEquiv p) , (θ (pathToEquiv p)) .fst (invEq (θ (pathToEquiv p)) (transport (λ i → lem S A B p (~ i)) q))
-  ≡⟨ (λ i → ua (pathToEquiv p) , retEq (θ (pathToEquiv p)) (transport (λ i → lem S A B p (~ i)) q) i) ⟩
-    ua (pathToEquiv p) , transport (λ i → lem S A B p (~ i)) q
-  ≡⟨ (λ i → ua-pathToEquiv p i ,
-            transp (λ k → PathP (λ j → S (ua-pathToEquiv p (i ∧ k) j)) (str A) (str B))
-                   (~ i)
-                   (transport (λ i → lem S A B p (~ i)) q)) ⟩
-    p , transport (λ i → lem S A B p i) (transport (λ i → lem S A B p (~ i)) q)
-  ≡⟨ (λ i → p , transportTransport⁻ (lem S A B p) q i) ⟩
-    p , q ∎
+sip-sip⁻ S ι θ A B r =
+  let p : typ A ≡ typ B
+      p = cong fst r
+      q : PathP (λ i → S (p i)) (str A) (str B)
+      q = cong snd r
+  in sip S ι θ A B (sip⁻ S ι θ A B r)
+   ≡⟨ refl ⟩
+     (λ i → ( ua (pathToEquiv p) i)
+            , θ (pathToEquiv p) .fst
+                (invEq (θ (pathToEquiv p))
+                       (transport⁻ (lem S A B p) q)) i)
+   ≡⟨ (λ i j → ( ua (pathToEquiv p) j
+               , retEq (θ (pathToEquiv p))
+                       (transport⁻ (lem S A B p) q) i j)) ⟩
+     (λ i → ( ua (pathToEquiv p) i
+            , transport⁻ (lem S A B p) q i))
+   ≡⟨ (λ i j → ( ua-pathToEquiv p i j
+               , transp (λ k → PathP (λ j → S (ua-pathToEquiv p (i ∧ k) j)) (str A) (str B))
+                        (~ i) (transport⁻ (lem S A B p) q) j)) ⟩
+     (λ i → ( p i
+            , transport (λ i → lem S A B p i) (transport⁻ (lem S A B p) q) i))
+   ≡⟨ (λ i j → ( p j
+               , transportTransport⁻ (lem S A B p) q i j)) ⟩
+     r ∎
 
 
 -- The trickier direction:
 sip⁻-sip : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
-         → (A B : TypeWithStr ℓ₁ S)
-         → (r : A ≃[ ι ] B)
+           (A B : TypeWithStr ℓ₁ S) (r : A ≃[ ι ] B)
          → sip⁻ S ι θ A B (sip S ι θ A B r) ≡ r
 sip⁻-sip S ι θ A B (e , p) =
     sip⁻ S ι θ A B (sip S ι θ A B (e , p))
@@ -175,8 +175,7 @@ sip⁻-sip S ι θ A B (e , p) =
   pth : PathP (λ j → PathP (λ k → S (ua-pathToEquiv (ua e) j k)) (str A) (str B))
               (f⁺ p') (f⁻ (f⁺ p'))
   pth i = transp (λ k → PathP (λ j → S (ua-pathToEquiv (ua e) (i ∧ k) j)) (str A) (str B))
-                 (~ i)
-                 (f⁺ p')
+                 (~ i) (f⁺ p')
 
   -- So we build an equality that we want to cast the types with
   casteq : PathP (λ j → PathP (λ k → S (ua-pathToEquiv (ua e) j k)) (str A) (str B))
@@ -196,14 +195,11 @@ sip⁻-sip S ι θ A B (e , p) =
 
 
 -- Finally package everything up to get the cubical SIP
-SIP : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
-    → (A B : TypeWithStr ℓ₁ S)
+SIP : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃)
+      (θ : SNS-PathP S ι) (A B : TypeWithStr ℓ₁ S)
     → A ≃[ ι ] B ≃ (A ≡ B)
-SIP S ι θ A B = (A ≃[ ι ] B ) ≃⟨ eq ⟩ Σ≡
-  where
-  eq : A ≃[ ι ] B ≃ Σ (A .fst ≡ B .fst) (λ p → PathP (λ i → S (p i)) (A .snd) (B .snd))
-  eq = isoToEquiv (iso (sip S ι θ A B) (sip⁻ S ι θ A B)
-                       (sip-sip⁻ S ι θ A B) (sip⁻-sip S ι θ A B))
+SIP S ι θ A B = isoToEquiv (iso (sip S ι θ A B) (sip⁻ S ι θ A B)
+                               (sip-sip⁻ S ι θ A B) (sip⁻-sip S ι θ A B))
 
 
 -- Now, we want to add axioms (i.e. propositions) to our Structure S that don't affect the ι.
@@ -331,3 +327,4 @@ join-SNS S₁ ι₁ θ₁ S₂ ι₂ θ₂ {A = (X , s₁ , s₂)} {B = (Y , t�
     (PathP (λ i → S₁ (ua e i)) s₁ t₁) × (PathP (λ i → S₂ (ua e i)) s₂ t₂)
   ≃⟨ join-lemma S₁ S₂ e ⟩
      PathP (λ i → join-structure S₁ S₂ (ua e i)) (s₁ , s₂) (t₁ , t₂) ■
+
