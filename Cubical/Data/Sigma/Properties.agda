@@ -30,17 +30,17 @@ private
 ΣPathP : ∀ {x y}
   → Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y))
   → x ≡ y
-ΣPathP eq = λ i → (fst eq i) , (snd eq i)
+ΣPathP eq i = fst eq i , snd eq i
 
 Σ≡ : {x y : Σ A B}  →
-     Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y)) ≃
+     Σ (fst x ≡ fst y) (λ p → PathP (λ i → B (p i)) (snd x) (snd y)) ≃
      (x ≡ y)
 Σ≡ {A = A} {B = B} {x} {y} = isoToEquiv (iso intro elim intro-elim elim-intro)
   where
     intro = ΣPathP
 
     elim : x ≡ y → Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y ))
-    elim eq = (λ i → fst (eq i)) , λ i → snd (eq i)
+    elim eq = (λ i → fst (eq i)) , (λ i → snd (eq i))
 
     intro-elim : ∀ eq → intro (elim eq) ≡ eq
     intro-elim eq = refl
