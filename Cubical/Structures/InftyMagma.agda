@@ -24,5 +24,4 @@ private
   (x x' : X) → equivFun f (x · x') ≡ equivFun f x ∗ equivFun f x'
 
 ∞-magma-is-SNS : SNS {ℓ} ∞-magma-structure ∞-magma-iso
-∞-magma-is-SNS (X , _·_) (Y , _∗_) f =
-  SNS-≡→SNS-PathP _ ∞-magma-iso (λ _ _ → funExt₂Equiv) _ _ f
+∞-magma-is-SNS f = SNS-≡→SNS-PathP ∞-magma-iso (λ _ _ → funExt₂Equiv) f

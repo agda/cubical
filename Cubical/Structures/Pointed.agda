@@ -24,5 +24,6 @@ pointed-iso : StrIso pointed-structure ℓ
 pointed-iso A B f = equivFun f (pt A) ≡ pt B
 
 pointed-is-SNS : SNS {ℓ} pointed-structure pointed-iso
-pointed-is-SNS A B f = transportEquiv (  (λ j → transportRefl (equivFun f (pt A)) (~ j) ≡ pt B)
-                                       ∙ (λ j → PathP≡Path (λ i → ua f i) (pt A) (pt B) (~ j))  )
+pointed-is-SNS {A = A} {B = B} f =
+  transportEquiv ( (λ j → transportRefl (equivFun f (pt A)) (~ j) ≡ pt B)
+                 ∙ sym (PathP≡Path (λ i → ua f i) (pt A) (pt B)))
