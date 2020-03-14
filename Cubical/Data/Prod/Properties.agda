@@ -54,8 +54,8 @@ A×B≡A×ΣB = isoToPath (iso (λ { (a , b) → (a , b)})
                           (λ { (a , b) → refl }))
 
 -- truncation for products
-hLevelProd : (n : ℕ) → isOfHLevel n A → isOfHLevel n B → isOfHLevel n (A × B)
-hLevelProd {A = A} {B = B} n h1 h2 =
+isOfHLevelProd : (n : ℕ) → isOfHLevel n A → isOfHLevel n B → isOfHLevel n (A × B)
+isOfHLevelProd {A = A} {B = B} n h1 h2 =
   let h : isOfHLevel n (A ×Σ B)
       h = isOfHLevelΣ n h1 (λ _ → h2)
   in transport (λ i → isOfHLevel n (A×B≡A×ΣB {A = A} {B = B} (~ i))) h
