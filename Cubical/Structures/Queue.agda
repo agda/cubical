@@ -1,12 +1,11 @@
 {-# OPTIONS --cubical --no-exact-split --safe #-}
 module Cubical.Structures.Queue where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.FunExtEquiv
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 open import Cubical.Structures.Pointed
