@@ -1,11 +1,14 @@
 {-# OPTIONS --cubical --no-exact-split --safe #-}
 module Cubical.Structures.Queue where
 
-open import Cubical.Foundations.Everything
-
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.FunExtEquiv
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+
 open import Cubical.Structures.Pointed
-open import Cubical.Structures.InftyMagma using (funExtBinEquiv)
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
@@ -36,7 +39,7 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  left-action-iso (X , l) (Y , m) e = ∀ a x → e .fst (l a x) ≡ m a (e .fst x)
 
  Left-Action-is-SNS : SNS {ℓ} left-action-structure left-action-iso
- Left-Action-is-SNS = SNS-≡→SNS-PathP _ _ (λ _ _ → funExtBinEquiv)
+ Left-Action-is-SNS = SNS-≡→SNS-PathP left-action-iso ((λ _ _ → funExt₂Equiv))
 
 
  -- Now for the pop-map as a structure
@@ -73,7 +76,7 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  pop-iso (X , p) (Y , q) e = ∀ x → pop-map-forward (e .fst) (p x) ≡ q (e .fst x)
 
  Pop-is-SNS : SNS {ℓ} pop-structure pop-iso
- Pop-is-SNS = SNS-≡→SNS-PathP _ _ (λ p q → (subst (λ f → (∀ x → f (p x) ≡ q x) ≃ (p ≡ q)) pop-map-lemma funExtEquiv) )
+ Pop-is-SNS = SNS-≡→SNS-PathP pop-iso (λ p q → (subst (λ f → (∀ x → f (p x) ≡ q x) ≃ (p ≡ q)) pop-map-lemma funExtEquiv))
 
 
 

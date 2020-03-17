@@ -17,7 +17,6 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties renaming (cong≃ to _⋆_)
 open import Cubical.Foundations.HAEquiv
-open import Cubical.Data.Sigma
 open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
 
 open import Cubical.Foundations.Structure public
@@ -27,20 +26,21 @@ private
     ℓ₁ ℓ₂ ℓ₃ ℓ₄ ℓ₅ : Level
     S : Type ℓ₁ → Type ℓ₂
 
--- For technical reasons we reprove ua-pathToEquiv using the
--- particular proof constructed by iso→HAEquiv. The reason is that we
--- want to later be able to extract
---
---   eq : ua-au (ua e) ≡ cong ua (au-ua e)
---
-uaHAEquiv : (A B : Type ℓ₁) → HAEquiv (A ≃ B) (A ≡ B)
-uaHAEquiv A B = iso→HAEquiv (iso ua pathToEquiv ua-pathToEquiv' pathToEquiv-ua)
-open isHAEquiv
+  -- For technical reasons we reprove ua-pathToEquiv using the
+  -- particular proof constructed by iso→HAEquiv. The reason is that we
+  -- want to later be able to extract
+  --
+  --   eq : ua-au (ua e) ≡ cong ua (au-ua e)
+  --
+  uaHAEquiv : (A B : Type ℓ₁) → HAEquiv (A ≃ B) (A ≡ B)
+  uaHAEquiv A B = iso→HAEquiv (iso ua pathToEquiv ua-pathToEquiv' pathToEquiv-ua)
 
--- We now extract the particular proof constructed from iso→HAEquiv
--- for reasons explained above.
-ua-pathToEquiv : {A B : Type ℓ₁} (e : A ≡ B) → ua (pathToEquiv e) ≡ e
-ua-pathToEquiv e = uaHAEquiv _ _ .snd .ret e
+  open isHAEquiv
+
+  -- We now extract the particular proof constructed from iso→HAEquiv
+  -- for reasons explained above.
+  ua-pathToEquiv : {A B : Type ℓ₁} (e : A ≡ B) → ua (pathToEquiv e) ≡ e
+  ua-pathToEquiv e = uaHAEquiv _ _ .snd .ret e
 
 
 -- Note that for any equivalence (f , e) : X ≃ Y the type  ι (X , s) (Y , t) (f , e) need not to be
@@ -48,119 +48,120 @@ ua-pathToEquiv e = uaHAEquiv _ _ .snd .ret e
 -- as S-structures. This we call a standard notion of structure or SNS.
 -- We will use a different definition, but the two definitions are interchangeable.
 SNS-≡ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
-SNS-≡ {ℓ₁} S ι = ∀ {X : Type ℓ₁} (s t : S X) → (ι (X , s) (X , t) (idEquiv X) ≃ (s ≡ t))
+SNS-≡ {ℓ₁} S ι = ∀ {X : Type ℓ₁} (s t : S X) → ι (X , s) (X , t) (idEquiv X) ≃ (s ≡ t)
 
 
--- We introduce the notation for structure preserving equivalences a bit differently,
--- but this definition doesn't actually change from Escardó's notes.
+-- We introduce the notation for structure preserving equivalences a
+-- bit differently, but this definition doesn't actually change from
+-- Escardó's notes.
 _≃[_]_ : (A : TypeWithStr ℓ₁ S) (ι : StrIso S ℓ₂) (B : TypeWithStr ℓ₁ S) → Type (ℓ-max ℓ₁ ℓ₂)
-A ≃[ ι ] B = Σ[ f ∈ (typ A ≃ typ B) ] (ι A B f)
+A ≃[ ι ] B = Σ[ e ∈ typ A ≃ typ B ] (ι A B e)
 
 
 
--- The following PathP version of SNS-≡ is a bit easier to
--- work with for the proof of the SIP
+-- The following PathP version of SNS-≡ is a bit easier to work with
+-- for the proof of the SIP
 SNS-PathP : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
-SNS-PathP {ℓ₁} S ι = (A B : TypeWithStr ℓ₁ S) (e : typ A ≃ typ B)
-             → (ι A B e) ≃ (PathP (λ i → S (ua e i)) (str A) (str B))
+SNS-PathP {ℓ₁} S ι = {A B : TypeWithStr ℓ₁ S} (e : typ A ≃ typ B)
+                  → ι A B e ≃ PathP (λ i → S (ua e i)) (str A) (str B)
 
 -- A quick sanity-check that our definition is interchangeable with
--- Escardó's. The direction SNS-≡→SNS-PathP corresponds more or less to a
--- dependent EquivJ formulation of Escardó's homomorphism-lemma.
+-- Escardó's. The direction SNS-≡→SNS-PathP corresponds more or less
+-- to a dependent EquivJ formulation of Escardó's homomorphism-lemma.
 SNS-PathP→SNS-≡ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → SNS-PathP S ι → SNS-≡ S ι
-SNS-PathP→SNS-≡ S ι θ {X = X} s t = ι (X , s) (X , t) (idEquiv X)           ≃⟨ θ (X , s) (X , t) (idEquiv X) ⟩
-                                    PathP (λ i → S (ua (idEquiv X) i)) s t  ≃⟨ φ ⟩
-                                    s ≡ t                                   ■
+SNS-PathP→SNS-≡ S ι θ {X = X} s t = ι (X , s) (X , t) (idEquiv X)           ≃⟨ θ (idEquiv X) ⟩
+                                   PathP (λ i → S (ua (idEquiv X) i)) s t  ≃⟨ φ ⟩
+                                   s ≡ t                                   ■
   where
-   φ = transportEquiv λ j → PathP (λ i → S (uaIdEquiv {A = X} j i)) s t
+   φ = transportEquiv (λ j → PathP (λ i → S (uaIdEquiv {A = X} j i)) s t)
 
 
-SNS-≡→SNS-PathP : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → SNS-≡ S ι → SNS-PathP S ι
-SNS-≡→SNS-PathP S ι θ A B e = EquivJ P C (typ B) (typ A) e (str B) (str A)
+SNS-≡→SNS-PathP : (ι : StrIso S ℓ₃) → SNS-≡ S ι → SNS-PathP S ι
+SNS-≡→SNS-PathP {S = S} ι θ {A = A} {B = B} e = EquivJ P C (typ B) (typ A) e (str B) (str A)
   where
    P : (X Y : Type _) → Y ≃ X → Type _
-   P X Y e' = (s : S X) (t : S Y) →  ι (Y , t) (X , s) e' ≃ PathP (λ i → S (ua e' i)) t s
+   P X Y e' = (s : S X) (t : S Y) → ι (Y , t) (X , s) e' ≃ PathP (λ i → S (ua e' i)) t s
 
-   C : (X : Type _) → (s t : S X) →  ι (X , t) (X , s) (idEquiv X) ≃ PathP (λ i → S (ua (idEquiv X) i)) t s
-   C X s t =  ι (X , t) (X , s) (idEquiv X)           ≃⟨ θ t s ⟩
-              t ≡ s                                   ≃⟨ ψ ⟩
-              PathP (λ i → S (ua (idEquiv X) i)) t s  ■
+   C : (X : Type _) → (s t : S X) → ι (X , t) (X , s) (idEquiv X) ≃ PathP (λ i → S (ua (idEquiv X) i)) t s
+   C X s t = ι (X , t) (X , s) (idEquiv X)           ≃⟨ θ t s ⟩
+             t ≡ s                                   ≃⟨ ψ ⟩
+             PathP (λ i → S (ua (idEquiv X) i)) t s  ■
     where
      ψ = transportEquiv λ j → PathP (λ i → S (uaIdEquiv {A = X} (~ j) i)) t s
 
 
-
-
-
-
-
--- We can now directly define a function
+-- We can now directly define an invertible function
+--
 --    sip : A ≃[ ι ] B → A ≡ B
--- together with is inverse.
--- Here, these functions use SNS-PathP and are expressed using a Σ-type instead as it is a bit
--- easier to work with
+--
 sip : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
-    → (A B : TypeWithStr ℓ₁ S)
-    → A ≃[ ι ] B
-    → Σ (typ A ≡ typ B) (λ p → PathP (λ i → S (p i)) (str A) (str B))
-sip S ι θ A B (e , p) = ua e , (θ A B e) .fst p
+      (A B : TypeWithStr ℓ₁ S) → A ≃[ ι ] B → A ≡ B
+sip S ι θ A B (e , p) i = ua e i , θ e .fst p i
 
--- The inverse to sip using the following little lemma
-
+-- The inverse to sip uses the following little lemma
 private
   lem : (S : Type ℓ₁ → Type ℓ₂) (A B : TypeWithStr ℓ₁ S) (e : typ A ≡ typ B)
       → PathP (λ i → S (ua (pathToEquiv e) i)) (A .snd) (B .snd) ≡
         PathP (λ i → S (e i)) (A .snd) (B .snd)
   lem S A B e i = PathP (λ j → S (ua-pathToEquiv e i j)) (A .snd) (B .snd)
 
+-- The inverse
 sip⁻ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
-     → (A B : TypeWithStr ℓ₁ S)
-     → Σ (typ A ≡ typ B) (λ p → PathP (λ i → S (p i)) (str A) (str B))
-     → A ≃[ ι ] B
-sip⁻ S ι θ A B (e , r) = pathToEquiv e , invEq (θ A B (pathToEquiv e)) q
+       (A B : TypeWithStr ℓ₁ S) → A ≡ B → A ≃[ ι ] B
+sip⁻ S ι θ A B r = pathToEquiv p , invEq (θ (pathToEquiv p)) q
   where
-  q : PathP (λ i → S (ua (pathToEquiv e) i)) (A .snd) (B .snd)
-  q = transport (λ i → lem S A B e (~ i)) r
+  p : typ A ≡ typ B
+  p = cong fst r
+  q : PathP (λ i → S (ua (pathToEquiv p) i)) (A .snd) (B .snd)
+  q = transport⁻ (lem S A B p) (cong snd r)
 
-
--- we can rather directly show that sip and sip⁻ are mutually inverse:
+-- We can rather directly show that sip and sip⁻ are mutually inverse:
 sip-sip⁻ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
-         → (A B : TypeWithStr ℓ₁ S)
-         → (r : Σ (typ A ≡ typ B) (λ p → PathP (λ i → S (p i)) (str A) (str B)))
+           (A B : TypeWithStr ℓ₁ S) (r : A ≡ B)
          → sip S ι θ A B (sip⁻ S ι θ A B r) ≡ r
-sip-sip⁻ S ι θ A B (p , q) =
-    sip S ι θ A B (sip⁻ S ι θ A B (p , q))
-  ≡⟨ refl ⟩
-    ua (pathToEquiv p) , (θ A B (pathToEquiv p)) .fst (invEq (θ A B (pathToEquiv p)) (transport (λ i → lem S A B p (~ i)) q))
-  ≡⟨ (λ i → ua (pathToEquiv p) , retEq (θ A B (pathToEquiv p)) (transport (λ i → lem S A B p (~ i)) q) i) ⟩
-    ua (pathToEquiv p) , transport (λ i → lem S A B p (~ i)) q
-  ≡⟨ (λ i → ua-pathToEquiv p i ,
-            transp (λ k → PathP (λ j → S (ua-pathToEquiv p (i ∧ k) j)) (str A) (str B))
-                   (~ i)
-                   (transport (λ i → lem S A B p (~ i)) q)) ⟩
-    p , transport (λ i → lem S A B p i) (transport (λ i → lem S A B p (~ i)) q)
-  ≡⟨ (λ i → p , transportTransport⁻ (lem S A B p) q i) ⟩
-    p , q ∎
+sip-sip⁻ S ι θ A B r =
+  let p : typ A ≡ typ B
+      p = cong fst r
+      q : PathP (λ i → S (p i)) (str A) (str B)
+      q = cong snd r
+  in sip S ι θ A B (sip⁻ S ι θ A B r)
+   ≡⟨ refl ⟩
+     (λ i → ( ua (pathToEquiv p) i)
+            , θ (pathToEquiv p) .fst
+                (invEq (θ (pathToEquiv p))
+                       (transport⁻ (lem S A B p) q)) i)
+   ≡⟨ (λ i j → ( ua (pathToEquiv p) j
+               , retEq (θ (pathToEquiv p))
+                       (transport⁻ (lem S A B p) q) i j)) ⟩
+     (λ i → ( ua (pathToEquiv p) i
+            , transport⁻ (lem S A B p) q i))
+   ≡⟨ (λ i j → ( ua-pathToEquiv p i j
+               , transp (λ k → PathP (λ j → S (ua-pathToEquiv p (i ∧ k) j)) (str A) (str B))
+                        (~ i) (transport⁻ (lem S A B p) q) j)) ⟩
+     (λ i → ( p i
+            , transport (λ i → lem S A B p i) (transport⁻ (lem S A B p) q) i))
+   ≡⟨ (λ i j → ( p j
+               , transportTransport⁻ (lem S A B p) q i j)) ⟩
+     r ∎
 
 
 -- The trickier direction:
 sip⁻-sip : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
-         → (A B : TypeWithStr ℓ₁ S)
-         → (r : A ≃[ ι ] B)
+           (A B : TypeWithStr ℓ₁ S) (r : A ≃[ ι ] B)
          → sip⁻ S ι θ A B (sip S ι θ A B r) ≡ r
 sip⁻-sip S ι θ A B (e , p) =
     sip⁻ S ι θ A B (sip S ι θ A B (e , p))
   ≡⟨ refl ⟩
-    pathToEquiv (ua e) , invEq (θ A B (pathToEquiv (ua e))) (f⁺ p')
-  ≡⟨ (λ i → pathToEquiv-ua e i , invEq (θ A B (pathToEquiv-ua e i)) (pth' i)) ⟩
-    e , invEq (θ A B e) (f⁻ (f⁺ p'))
-  ≡⟨ (λ i → e , invEq (θ A B e) (transportTransport⁻ (lem S A B (ua e)) p' i)) ⟩
-    e , invEq (θ A B e) ((θ A B e) .fst p)
-  ≡⟨ (λ i → e , (secEq (θ A B e) p i)) ⟩
+    pathToEquiv (ua e) , invEq (θ (pathToEquiv (ua e))) (f⁺ p')
+  ≡⟨ (λ i → pathToEquiv-ua e i , invEq (θ (pathToEquiv-ua e i)) (pth' i)) ⟩
+    e , invEq (θ e) (f⁻ (f⁺ p'))
+  ≡⟨ (λ i → e , invEq (θ e) (transportTransport⁻ (lem S A B (ua e)) p' i)) ⟩
+    e , invEq (θ e) (θ e .fst p)
+  ≡⟨ (λ i → e , (secEq (θ e) p i)) ⟩
     e , p ∎
   where
   p' : PathP (λ i → S (ua e i)) (str A) (str B)
-  p' = (θ A B e) .fst p
+  p' = θ e .fst p
 
   f⁺ : PathP (λ i → S (ua e i)) (str A) (str B)
      → PathP (λ i → S (ua (pathToEquiv (ua e)) i)) (str A) (str B)
@@ -175,8 +176,7 @@ sip⁻-sip S ι θ A B (e , p) =
   pth : PathP (λ j → PathP (λ k → S (ua-pathToEquiv (ua e) j k)) (str A) (str B))
               (f⁺ p') (f⁻ (f⁺ p'))
   pth i = transp (λ k → PathP (λ j → S (ua-pathToEquiv (ua e) (i ∧ k) j)) (str A) (str B))
-                 (~ i)
-                 (f⁺ p')
+                 (~ i) (f⁺ p')
 
   -- So we build an equality that we want to cast the types with
   casteq : PathP (λ j → PathP (λ k → S (ua-pathToEquiv (ua e) j k)) (str A) (str B))
@@ -196,14 +196,11 @@ sip⁻-sip S ι θ A B (e , p) =
 
 
 -- Finally package everything up to get the cubical SIP
-SIP : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
-    → (A B : TypeWithStr ℓ₁ S)
+SIP : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃)
+      (θ : SNS-PathP S ι) (A B : TypeWithStr ℓ₁ S)
     → A ≃[ ι ] B ≃ (A ≡ B)
-SIP S ι θ A B = (A ≃[ ι ] B ) ≃⟨ eq ⟩ Σ≡
-  where
-  eq : A ≃[ ι ] B ≃ Σ (A .fst ≡ B .fst) (λ p → PathP (λ i → S (p i)) (A .snd) (B .snd))
-  eq = isoToEquiv (iso (sip S ι θ A B) (sip⁻ S ι θ A B)
-                       (sip-sip⁻ S ι θ A B) (sip⁻-sip S ι θ A B))
+SIP S ι θ A B = isoToEquiv (iso (sip S ι θ A B) (sip⁻ S ι θ A B)
+                               (sip-sip⁻ S ι θ A B) (sip⁻-sip S ι θ A B))
 
 
 -- Now, we want to add axioms (i.e. propositions) to our Structure S that don't affect the ι.
@@ -211,28 +208,29 @@ SIP S ι θ A B = (A ≃[ ι ] B ) ≃⟨ eq ⟩ Σ≡
 -- https://github.com/riaqn/cubical/blob/hgroup/Cubical/Data/Group/Properties.agda#L83
 
 add-to-structure : (S : Type ℓ₁ → Type ℓ₂)
-                   (axioms : (X : Type ℓ₁) → (S X) → Type ℓ₄)
+                   (axioms : (X : Type ℓ₁) → S X → Type ℓ₄)
                  → Type ℓ₁ → Type (ℓ-max ℓ₂ ℓ₄)
 add-to-structure S axioms X = Σ[ s ∈ S X ] (axioms X s)
 
 add-to-iso : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃)
-             (axioms : (X : Type ℓ₁) → (S X) → Type ℓ₄)
+             (axioms : (X : Type ℓ₁) → S X → Type ℓ₄)
            → StrIso (add-to-structure S axioms) ℓ₃
 add-to-iso S ι axioms (X , (s , a)) (Y , (t , b)) f = ι (X , s) (Y , t) f
 
 
-add-ax-lemma :  (S : Type ℓ₁ → Type ℓ₂)
-              (axioms : (X : Type ℓ₁) → (S X) → Type ℓ₄)
-              (axioms-are-Props : (X : Type ℓ₁) (s : S X) → isProp (axioms X s))
-              {X Y : Type ℓ₁} {s : S X} {t : S Y} {a : axioms X s} {b : axioms Y t}
-              (f : X ≃ Y)
-            → PathP (λ i → S (ua f i)) s t ≃ PathP (λ i → (add-to-structure S axioms) (ua f i)) (s , a) (t , b)
-add-ax-lemma S axioms axioms-are-Props {Y = Y} {s = s} {t = t} {a = a} {b = b} f = isoToEquiv (iso φ ψ η ε)
+add-ax-lemma : (S : Type ℓ₁ → Type ℓ₂)
+               (axioms : (X : Type ℓ₁) → S X → Type ℓ₄)
+               (axioms-are-Props : (X : Type ℓ₁) (s : S X) → isProp (axioms X s))
+               {X Y : Type ℓ₁} {s : S X} {t : S Y} {a : axioms X s} {b : axioms Y t}
+               (f : X ≃ Y)
+             → PathP (λ i → S (ua f i)) s t ≃
+               PathP (λ i → add-to-structure S axioms (ua f i)) (s , a) (t , b)
+add-ax-lemma S axioms axioms-are-Props {s = s} {t = t} {a = a} {b = b} f = isoToEquiv (iso φ ψ η ε)
       where
-       φ : PathP (λ i → S (ua f i)) s t → PathP (λ i → (add-to-structure S axioms) (ua f i)) (s , a) (t , b)
+       φ : PathP (λ i → S (ua f i)) s t → PathP (λ i → add-to-structure S axioms (ua f i)) (s , a) (t , b)
        φ p i = p i , isProp→PathP (λ i → axioms-are-Props (ua f i) (p i)) a b i
 
-       ψ : PathP (λ i → (add-to-structure S axioms) (ua f i)) (s , a) (t , b) → PathP (λ i → S (ua f i)) s t
+       ψ : PathP (λ i → add-to-structure S axioms (ua f i)) (s , a) (t , b) → PathP (λ i → S (ua f i)) s t
        ψ r i = r i .fst
 
        η : section φ ψ
@@ -244,23 +242,16 @@ add-ax-lemma S axioms axioms-are-Props {Y = Y} {s = s} {t = t} {a = a} {b = b} f
        ε p = refl
 
 
-
 add-axioms-SNS : (S : Type ℓ₁ → Type ℓ₂)
-                    (ι : (A B : Σ[ X ∈ (Type ℓ₁) ] (S X)) → A .fst ≃ B .fst → Type ℓ₃)
-                    (axioms : (X : Type ℓ₁) → (S X) → Type ℓ₄)
-                    (axioms-are-Props : (X : Type ℓ₁) (s : S X) → isProp (axioms X s))
-                    (θ : SNS-PathP S ι)
-                   → SNS-PathP (add-to-structure S axioms) (add-to-iso S ι axioms)
-add-axioms-SNS S ι axioms axioms-are-Props θ (X , (s , a)) (Y , (t , b)) f =
-               add-to-iso S ι axioms (X , (s , a)) (Y , (t , b)) f                 ≃⟨ θ (X , s) (Y , t) f ⟩
-               PathP (λ i → S (ua f i)) s t                                        ≃⟨ add-ax-lemma S axioms axioms-are-Props f ⟩
-               PathP (λ i → (add-to-structure S axioms) (ua f i)) (s , a) (t , b)  ■
-
-
-
-
-
-
+                 (ι : (A B : Σ[ X ∈ (Type ℓ₁) ] (S X)) → A .fst ≃ B .fst → Type ℓ₃)
+                 (axioms : (X : Type ℓ₁) → S X → Type ℓ₄)
+                 (axioms-are-Props : (X : Type ℓ₁) (s : S X) → isProp (axioms X s))
+                 (θ : SNS-PathP S ι)
+               → SNS-PathP (add-to-structure S axioms) (add-to-iso S ι axioms)
+add-axioms-SNS S ι axioms axioms-are-Props θ {X , s , a} {Y , t , b} f =
+  add-to-iso S ι axioms (X , s , a) (Y , t , b) f                      ≃⟨ θ f ⟩
+  PathP (λ i → S (ua f i)) s t                                        ≃⟨ add-ax-lemma S axioms axioms-are-Props f ⟩
+  PathP (λ i → (add-to-structure S axioms) (ua f i)) (s , a) (t , b)  ■
 
 
 
@@ -268,28 +259,10 @@ add-axioms-SNS S ι axioms axioms-are-Props θ (X , (s , a)) (Y , (t , b)) f =
 -- axioms this will allow us to prove that a lot of mathematical
 -- structures are a standard notion of structure
 
-private
-  technical-×-lemma : {A : Type ℓ₁} {B : Type ℓ₂} {C : Type ℓ₃} {D : Type ℓ₄}
-                    → A ≃ C → B ≃ D → A × B ≃ C × D
-  technical-×-lemma {A = A} {B = B} {C = C} {D = D} f g = isoToEquiv (iso φ ψ η ε)
-   where
-    φ : (A × B) → (C × D)
-    φ (a , b) = equivFun f a , equivFun g b
-
-    ψ : (C × D) → (A × B)
-    ψ (c , d) = equivFun (invEquiv f) c , equivFun (invEquiv g) d
-
-    η : section φ ψ
-    η (c , d) i = retEq f c i , retEq g d i
-
-    ε : retract φ ψ
-    ε (a , b) i = secEq f a i , secEq g b i
-
-
-
 join-structure : (S₁ : Type ℓ₁ → Type ℓ₂) (S₂ : Type ℓ₁ → Type ℓ₄)
-                → Type ℓ₁ → Type (ℓ-max ℓ₂ ℓ₄)
+               → Type ℓ₁ → Type (ℓ-max ℓ₂ ℓ₄)
 join-structure S₁ S₂ X = S₁ X × S₂ X
+
 
 join-iso : {S₁ : Type ℓ₁ → Type ℓ₂} (ι₁ : StrIso S₁ ℓ₃)
            {S₂ : Type ℓ₁ → Type ℓ₄} (ι₂ : StrIso S₂ ℓ₅)
@@ -297,37 +270,21 @@ join-iso : {S₁ : Type ℓ₁ → Type ℓ₂} (ι₁ : StrIso S₁ ℓ₃)
 join-iso ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) f = (ι₁ (X , s₁) (Y , t₁) f) × (ι₂ (X , s₂) (Y , t₂) f)
 
 
-
-join-lemma :  (S₁ : Type ℓ₁ → Type ℓ₂) (S₂ : Type ℓ₁ → Type ℓ₄)
-              {X Y : Type ℓ₁} {s₁ : S₁ X} {s₂ : S₂ X} {t₁ : S₁ Y} {t₂ : S₂ Y} (e : X ≃ Y)
-            → (PathP (λ i → S₁ (ua e i)) s₁ t₁) × (PathP (λ i → S₂ (ua e i)) s₂ t₂) ≃
-               PathP (λ i → (join-structure S₁ S₂) (ua e i)) (s₁ , s₂) (t₁ , t₂)
-join-lemma S₁ S₂ {Y = Y} {s₁ = s₁} {s₂ = s₂} {t₁ = t₁} {t₂ = t₂} e = isoToEquiv (iso φ ψ η ε)
-   where
-    φ : (PathP (λ i → S₁ (ua e i)) s₁ t₁) × (PathP (λ i → S₂ (ua e i)) s₂ t₂) →
-         PathP (λ i → (join-structure S₁ S₂) (ua e i)) (s₁ , s₂) (t₁ , t₂)
-    φ (p , q) i = (p i) , (q i)
-
-    ψ :  PathP (λ i → (join-structure S₁ S₂) (ua e i)) (s₁ , s₂) (t₁ , t₂) →
-        (PathP (λ i → S₁ (ua e i)) s₁ t₁) × (PathP (λ i → S₂ (ua e i)) s₂ t₂)
-    ψ p = (λ i → p i .fst) , (λ i → p i .snd)
-
-    η : section φ ψ
-    η p = refl
-
-    ε : retract φ ψ
-    ε (p , q) = refl
-
-
-
-
-
 join-SNS : (S₁ : Type ℓ₁ → Type ℓ₂) (ι₁ : StrIso S₁ ℓ₃) (θ₁ : SNS-PathP S₁ ι₁)
            (S₂ : Type ℓ₁ → Type ℓ₄) (ι₂ : StrIso S₂ ℓ₅) (θ₂ : SNS-PathP S₂ ι₂)
          → SNS-PathP (join-structure S₁ S₂) (join-iso ι₁ ι₂)
-join-SNS S₁ ι₁ θ₁ S₂ ι₂ θ₂ (X , s₁ , s₂) (Y , t₁ , t₂) e =
-     join-iso ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) e
-  ≃⟨ technical-×-lemma (θ₁ (X , s₁) (Y , t₁) e) (θ₂ (X , s₂) (Y , t₂) e)  ⟩
-    (PathP (λ i → S₁ (ua e i)) s₁ t₁) × (PathP (λ i → S₂ (ua e i)) s₂ t₂)
-  ≃⟨ join-lemma S₁ S₂ e ⟩
-     PathP (λ i → (join-structure S₁ S₂) (ua e i)) (s₁ , s₂) (t₁ , t₂) ■
+join-SNS S₁ ι₁ θ₁ S₂ ι₂ θ₂ {X , s₁ , s₂} {Y , t₁ , t₂} e = isoToEquiv (iso φ ψ η ε)
+   where
+    φ : join-iso ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) e
+      → PathP (λ i → join-structure S₁ S₂ (ua e i)) (s₁ , s₂) (t₁ , t₂)
+    φ (p , q) i = (θ₁ e .fst p i) , (θ₂ e .fst q i)
+
+    ψ : PathP (λ i → join-structure S₁ S₂ (ua e i)) (s₁ , s₂) (t₁ , t₂)
+      → join-iso ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) e
+    ψ p = invEq (θ₁ e) (λ i → p i .fst) , invEq (θ₂ e) (λ i → p i .snd)
+
+    η : section φ ψ
+    η p i j = retEq (θ₁ e) (λ k → p k .fst) i j , retEq (θ₂ e) (λ k → p k .snd) i j
+
+    ε : retract φ ψ
+    ε (p , q) i = secEq (θ₁ e) p i , secEq (θ₂ e) q i

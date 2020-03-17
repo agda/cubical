@@ -15,7 +15,8 @@ open import Cubical.Foundations.Univalence
 private
   variable
     ℓ ℓ' : Level
-    A B  : Type ℓ
+    A : Type ℓ
+    B : Type ℓ'
 
 -- Swapping is an equivalence
 
@@ -54,8 +55,25 @@ A×B≡A×ΣB = isoToPath (iso (λ { (a , b) → (a , b)})
                           (λ { (a , b) → refl }))
 
 -- truncation for products
-hLevelProd : (n : ℕ) → isOfHLevel n A → isOfHLevel n B → isOfHLevel n (A × B)
-hLevelProd {A = A} {B = B} n h1 h2 =
+isOfHLevelProd : (n : ℕ) → isOfHLevel n A → isOfHLevel n B → isOfHLevel n (A × B)
+isOfHLevelProd {A = A} {B = B} n h1 h2 =
   let h : isOfHLevel n (A ×Σ B)
       h = isOfHLevelΣ n h1 (λ _ → h2)
   in transport (λ i → isOfHLevel n (A×B≡A×ΣB {A = A} {B = B} (~ i))) h
+
+
+×-≃ : ∀ {ℓ₁ ℓ₂ ℓ₃ ℓ₄} {A : Type ℓ₁} {B : Type ℓ₂} {C : Type ℓ₃} {D : Type ℓ₄}
+    → A ≃ C → B ≃ D → A × B ≃ C × D
+×-≃ {A = A} {B = B} {C = C} {D = D} f g = isoToEquiv (iso φ ψ η ε)
+   where
+    φ : A × B → C × D
+    φ (a , b) = equivFun f a , equivFun g b
+
+    ψ : C × D → A × B
+    ψ (c , d) = equivFun (invEquiv f) c , equivFun (invEquiv g) d
+
+    η : section φ ψ
+    η (c , d) i = retEq f c i , retEq g d i
+
+    ε : retract φ ψ
+    ε (a , b) i = secEq f a i , secEq g b i
