@@ -213,9 +213,8 @@ postulate -- something with lemma 11
 -----------------------------------------------------
   
 -- TODO: Slow computations..
-postulate
-  shift : ∀ {ℓ} {S : Container {ℓ}} -> P₀ {S = S} (M S) ≡ M S
--- shift {S = S@(A , B)} = (sym α-iso) □ (L-unique {S = S}) -- lemma 13 & lemma 12
+shift : ∀ {ℓ} {S : Container {ℓ}} -> P₀ {S = S} (M S) ≡ M S
+shift {S = S@(A , B)} = (sym α-iso) □ (L-unique {S = S}) -- lemma 13 & lemma 12
 
 -- Transporting along shift
 
