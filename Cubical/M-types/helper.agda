@@ -15,6 +15,9 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Path
+
 module Cubical.M-types.helper where
 
 identity-x : ∀ {ℓ} {A B : Set ℓ} (k : A -> A) -> k ≡ idfun A -> ∀ (x : A) -> k x ≡ x
@@ -47,6 +50,8 @@ identity-f-l {A = A} {k = k} p f = extent-l {a = k} {b = idfun A} f p
       i i
 
 postulate
+  -- TODO: look into isInjectiveTransport 
+
   ≡-rel-inj-iso-0 : ∀ {ℓ} {A B C : Set ℓ}
     (a : A -> B)
     (b : B -> A) ->
@@ -71,42 +76,110 @@ postulate
 ≡-rel-b-inj : ∀ {ℓ} {A B C : Set ℓ} (a : A -> B) (b : B -> A) -> a ∘ b ≡ idfun B -> b ∘ a ≡ idfun A -> ∀ {f g : C -> B} -> (b ∘ f ≡ b ∘ g) ≡ (f ≡ g)
 ≡-rel-b-inj a b left right = ua (isoToEquiv (iso (≡-rel-a-monomorphism b a right left) (extent-l b) (≡-rel-inj-iso-0 b a right left) (≡-rel-inj-iso-1 b a right left)))
 
+-------------------------
+-- Unit / × properties --
+-------------------------
+
+diagonal-unit : Unit ≡ Unit × Unit
+diagonal-unit = isoToPath (iso (λ _ → tt , tt) (λ _ → tt) (λ {(tt , tt) i → tt , tt}) λ a i → tt)
+
 ------------------
 -- Σ properties --
 ------------------
 
-postulate -- TODO
-  Σ-ap-iso₁ : ∀ {i j} {X X' : Set i} {Y : X' → Set j}
-            → (isom : X ≡ X')
-            → Σ X (Y ∘ transport isom) ≡ Σ X' Y
-
-Σ-ap-iso₂ : ∀ {i j} {X : Set i}
-          → {Y : X → Set j}{Y' : X → Set j}
-          → ((x : X) → Y x ≡ Y' x)
-          → Σ X Y ≡ Σ X Y'
-Σ-ap-iso₂ {X = X} {Y} {Y'} isom =
-  isoToPath (iso (λ { (x , y) → x , transport (isom x) y})
-                      (λ { (x , y') → x , transport (sym (isom x)) y'})
-                      (λ { (x , y) →  ΣPathP (refl , transportTransport⁻ (isom x) y)})
-                      (λ { (x , y') → ΣPathP (refl , transport⁻Transport (isom x) y')}))
-
 Σ-split-iso : ∀ {ℓ} {A : Set ℓ} {B : A → Set ℓ} {a a' : A} {b : B a} {b' : B a'} → (Σ (a ≡ a') (λ q → PathP (λ i → B (q i)) b b')) ≡ ((a , b) ≡ (a' , b'))
 Σ-split-iso = ua Σ≡
 
-Σ-ap-iso : ∀ {i j} {X X' : Set i}
-           {Y : X → Set j} {Y' : X' → Set j}
+subst-hom : ∀ {i j} {X : Set i}(P : X → Set j){x y z : X}
+          → (p : x ≡ y)(q : y ≡ z)(u : P x)
+          → subst P q (subst P p u) ≡ subst P (p □ q) u
+subst-hom {X = X} P {x = x} {y = y} {z = z} p q u = sym (substComposite-□ P p q u)
+
+Σ-ap-iso₂ : ∀ {i j} {X : Set i}
+          → {Y Y' : X → Set j}
+          → ((x : X) → Y x ≡ Y' x)
+          → Σ X Y ≡ Σ X Y'
+Σ-ap-iso₂ {X = X} {Y} {Y'} isom = 
+  isoToPath (iso (λ { (x , y) → x , transport (isom x) y})
+                 (λ { (x , y') → x , transport (sym (isom x)) y'})
+                 (λ { (x , y) →  ΣPathP (refl , transportTransport⁻ (isom x) y)})
+                 (λ { (x , y') → ΣPathP (refl , transport⁻Transport (isom x) y')}))
+
+sym-refl : ∀ {ℓ} {X Y : Set ℓ} {f : X → Y} {g : Y → X} → (a : (∀ b → f (g b) ≡ b)) → ∀ b → (sym (a b) □ (a b)) ≡ λ _ → b
+sym-refl a b =
+  (sym (a b) □ (a b))
+    ≡⟨ □≡∙ (sym (a b)) (a b) ⟩
+  sym (a b) ∙ (a b)
+    ≡⟨ lUnit (sym (a b) ∙ (a b)) ⟩
+  refl ∙ sym (a b) ∙ (a b)
+    ≡⟨ assoc refl (sym (a b)) (a b) ⟩
+  (refl ∙ sym (a b)) ∙ (a b)
+    ≡⟨ compPathr-cancel (a b) refl ⟩
+  refl ∎
+
+Σ-ap-iso₁ : ∀ {i} {X X' : Set i} {Y : X' → Set i}
+          → (isom : X ≡ X')
+          → Σ X (Y ∘ transport isom) ≡ Σ X' Y
+Σ-ap-iso₁ {i} {X = X} {X'} {Y} isom =
+  let f = transport isom in
+  let g = transport⁻ isom in
+  let K = transportTransport⁻ isom in
+  let H = transport⁻Transport isom in
+    isoToPath (iso (λ x → f (x .fst) , (x .snd))
+                   (λ x → (g (x .fst)) , subst Y (sym (K (x .fst))) (x .snd))
+                   (λ {(x , y) →
+                     ΣPathP
+                       {B = Y}
+                       {x = f (g x) , subst Y (sym (K x)) y}
+                       {y = x , y}
+                         (K x ,
+                         transport (sym (PathP≡Path (λ j → cong Y (K x) j) (subst Y (sym (K x)) y) y))
+                         (subst Y (K x) (subst Y (sym (K x)) y)
+                           ≡⟨ sym (substComposite-□ Y (sym (K x)) (K x) y) ⟩
+                         subst Y ((sym (K x)) □ (K x)) y
+                           ≡⟨ (cong (λ a → subst Y a y) (sym-refl {f = f} {g = g} K x)) ⟩
+                         subst Y refl y
+                           ≡⟨ substRefl {B = Y} y ⟩
+                         y ∎))})
+                   (λ {(x , y) →
+                     ΣPathP
+                       {B = Y ∘ transport isom}
+                       {x = g (f x) , subst Y (sym (K (f x))) y}
+                       {y = x , y}
+                       (H x ,
+                       transport (sym (PathP≡Path (λ j → Y (f (H x j))) (subst Y (sym (K (f x))) y) y))
+                       (subst Y (cong f (H x)) (subst Y (sym (K (f x))) y)
+                         ≡⟨ sym (substComposite-□ Y (sym (K (f x))) (λ j → f (H x j)) y) ⟩
+                       subst Y (sym (K (f x)) □ (cong f (H x))) y
+                         ≡⟨ cong (λ a → subst Y (sym (K (f x)) □ a) y) (lem x) ⟩
+                       subst Y (sym (K (f x)) □ K (f x)) y
+                         ≡⟨ cong (λ a → subst Y a y) (sym-refl {f = f} {g = g} K (f x)) ⟩
+                       subst Y (refl) y
+                         ≡⟨ substRefl {B = Y} y ⟩
+                       y ∎))}))
+    where
+      postulate
+        lem :  -- Vogt lemma
+          let f = transport isom in
+          let g = transport⁻ isom in
+          let K = transportTransport⁻ isom in
+          let H = transport⁻Transport isom in
+            ∀ x → (cong f (H x)) ≡ K (f x)
+
+Σ-ap-iso : ∀ {i} {X X' : Set i}
+           {Y : X → Set i} {Y' : X' → Set i}
          → (isom : X ≡ X')
          → ((x : X) → Y x ≡ Y' (transport isom x))
          → Σ X Y ≡ Σ X' Y'
-Σ-ap-iso {X = X} {X'} {Y} {Y'} isom isom' =
+Σ-ap-iso {X = X} {X'} {Y} {Y'} isom isom' = 
   (Σ-ap-iso₂ isom') □ Σ-ap-iso₁ isom
 
 ------------------
--- Π properties --
+-- ∏ properties --
 ------------------
 
 postulate
-  Π-ap-iso : ∀ {i j} {X X' : Set i}
+  ∏-ap-iso : ∀ {i j} {X X' : Set i}
                {Y : X → Set j}{Y' : X' → Set j}
              → (isom : X ≡ X')
              → ((x' : X') → Y (transport (sym isom) x') ≡ Y' x')
