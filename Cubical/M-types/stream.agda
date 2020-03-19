@@ -54,7 +54,7 @@ Container-product-streams A B =
     ≡⟨ refl ⟩
   (A × B , λ x → Unit × Unit )
     ≡⟨ (λ i → (A × B) , λ _ → sym diagonal-unit i) ⟩
-  (A × B , λ x → Unit ) 
+  (A × B , λ x → Unit )
     ≡⟨ refl ⟩
   stream-S (A × B) ∎
 
@@ -89,10 +89,9 @@ cons-2-inv x (suc n) = cons-2-inv (tl x) n
 
 zip-2 : ∀ {A B} → stream A × stream B → stream (A × B)
 zip-2 (x , y) = cons-2 λ n → cons-2-inv x n , cons-2-inv y n
-  
+
 zeros : stream ℕ
 zeros = cons-2 λ _ → 0
 
 postulate
   hd-of-cons-2 : ∀ {A} (f : ℕ → A) → hd (cons-2 f) ≡ f 0
-

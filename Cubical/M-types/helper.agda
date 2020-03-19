@@ -50,7 +50,7 @@ identity-f-l {A = A} {k = k} p f = extent-l {a = k} {b = idfun A} f p
       i i
 
 postulate
-  -- TODO: look into isInjectiveTransport 
+  -- TODO: look into isInjectiveTransport
 
   ≡-rel-inj-iso-0 : ∀ {ℓ} {A B C : Set ℓ}
     (a : A -> B)
@@ -99,7 +99,7 @@ subst-hom {X = X} P {x = x} {y = y} {z = z} p q u = sym (substComposite-□ P p 
           → {Y Y' : X → Set j}
           → ((x : X) → Y x ≡ Y' x)
           → Σ X Y ≡ Σ X Y'
-Σ-ap-iso₂ {X = X} {Y} {Y'} isom = 
+Σ-ap-iso₂ {X = X} {Y} {Y'} isom =
   isoToPath (iso (λ { (x , y) → x , transport (isom x) y})
                  (λ { (x , y') → x , transport (sym (isom x)) y'})
                  (λ { (x , y) →  ΣPathP (refl , transportTransport⁻ (isom x) y)})
@@ -171,7 +171,7 @@ sym-refl a b =
          → (isom : X ≡ X')
          → ((x : X) → Y x ≡ Y' (transport isom x))
          → Σ X Y ≡ Σ X' Y'
-Σ-ap-iso {X = X} {X'} {Y} {Y'} isom isom' = 
+Σ-ap-iso {X = X} {X'} {Y} {Y'} isom isom' =
   (Σ-ap-iso₂ isom') □ Σ-ap-iso₁ isom
 
 ------------------

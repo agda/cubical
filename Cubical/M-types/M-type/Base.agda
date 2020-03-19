@@ -146,7 +146,7 @@ lemma11-helper {ℓ} {S = S} χ =
 
 postulate
   lemma11 : ∀ {ℓ} {S : Container {ℓ}} -> M S ≡ X (sequence S) 0
-  
+
 α-iso-step-1-4 : ∀ {ℓ} {S : Container {ℓ}}
     -> let (A , B) = S in
     L (PX,Pπ S)
@@ -193,25 +193,25 @@ postulate -- something with lemma 11
                             (λ x → (λ n → x) , λ n i → x)
                             (λ b → refl)
                             (λ x → helper-todo-2 A x ))
-  in 
+  in
     Σ-ap-iso temp (helper-todo-3 A B)
 
 -- postulate
 α-iso-step-6 : ∀ {ℓ} {S : Container {ℓ}}
     -> let (A , B) = S in
     Σ A (λ a → Σ ((n : ℕ) → B a → X (sequence S) n) λ u → (n : ℕ) → π (sequence S) ∘ (u (suc n)) ≡ u n)
-    ≡ Σ A (λ a → B a → M S)  
+    ≡ Σ A (λ a → B a → M S)
 α-iso-step-6 {S = S@(A , B)} = Σ-ap-iso₂ (λ a i → lemma10 (B a , (λ x → a , (λ x₁ → x₁))) (~ i))
 
 -- Lemma 13
 α-iso : ∀ {ℓ} {S : Container {ℓ}} -> L (PX,Pπ S) ≡ P₀ {S = S} (M S) -- L^P ≡ PL
 α-iso {S = S@(A , B)} =
-  α-iso-step-1-4 □ (α-iso-step-5 □ α-iso-step-6) 
+  α-iso-step-1-4 □ (α-iso-step-5 □ α-iso-step-6)
 
 -----------------------------------------------------
 -- Shifting the limit of a chain is an equivalence --
 -----------------------------------------------------
-  
+
 -- TODO: Slow computations..
 shift : ∀ {ℓ} {S : Container {ℓ}} -> P₀ {S = S} (M S) ≡ M S
 shift {S = S@(A , B)} = (sym α-iso) □ (L-unique {S = S}) -- lemma 13 & lemma 12

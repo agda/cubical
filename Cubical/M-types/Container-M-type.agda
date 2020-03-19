@@ -56,16 +56,16 @@ P-product-inv :
   ∀ {ℓ} {A C : Set ℓ} {B : A -> Set ℓ} {D : C -> Set ℓ}
   -> ((n : ℕ) -> W (Container-product (A , B) (C , D)) n)
   ------------------------
-  -> ((n : ℕ) -> W (A , B) n) × ((n : ℕ) -> W (C , D) n)  
+  -> ((n : ℕ) -> W (A , B) n) × ((n : ℕ) -> W (C , D) n)
 P-product-inv {B = B} {D = D} x = (P-product-inv₁ {D = D} x) , (P-product-inv₂ {B = B} x)
 
 Product-split : ∀ {ℓ} {A B : Set ℓ} {x : A × B} -> ((proj₁ x , proj₂ x) ≡ x)
 Product-split {x = a , b} = refl
 
-Σ-prod-fun₁ : 
+Σ-prod-fun₁ :
     ∀ {ℓ} {A C : Set ℓ} {B : A -> Set ℓ} {D : C -> Set ℓ}
     → (n : ℕ)
-    → (x : A × C) 
+    → (x : A × C)
     → (B (proj₁ x) → W (A , B) n) × (D (proj₂ x) → W (C , D) n)
     → ((B (proj₁ x) × D (proj₂ x) → W (A , B) n × W (C , D) n))
 Σ-prod-fun₁ _ _ = (λ {(bf , df) (b , d) → bf b , df d})
@@ -74,7 +74,7 @@ postulate
   Σ-prod-fun₂ :
     ∀ {ℓ} {A C : Set ℓ} {B : A -> Set ℓ} {D : C -> Set ℓ}
     → (n : ℕ)
-    → (x : A × C) 
+    → (x : A × C)
     → ((B (proj₁ x) × D (proj₂ x) → W (A , B) n × W (C , D) n))
     → (B (proj₁ x) → W (A , B) n) × (D (proj₂ x) → W (C , D) n)
 
@@ -91,9 +91,9 @@ postulate
 Σ-prod-fun :
   ∀ {ℓ} {A C : Set ℓ} {B : A -> Set ℓ} {D : C -> Set ℓ}
   → (n : ℕ)
-  → (x : A × C) 
+  → (x : A × C)
   → (B (proj₁ x) → W (A , B) n) × (D (proj₂ x) → W (C , D) n)
-  ≡ (B (proj₁ x) × D (proj₂ x) → W (A , B) n × W (C , D) n)  
+  ≡ (B (proj₁ x) × D (proj₂ x) → W (A , B) n × W (C , D) n)
 Σ-prod-fun {B = B} {D} n (a , c) =
   isoToPath (iso (Σ-prod-fun₁ n (a , c))
                  (Σ-prod-fun₂ n (a , c))
@@ -111,7 +111,7 @@ P-equality-helper {ℓ} {A = A} {C} {B} {D} n =
                    (λ x → (proj₁ (x .fst) , proj₁ (x .snd)) , ((proj₂ (x .fst)) , (proj₂ (x .snd))))
                    (λ { ((a , c) , b , d) → refl })
                    (λ { ((a , c) , b , d) → refl }))
-  
+
 P-equality :
     ∀ {ℓ} {A C : Set ℓ} {B : A -> Set ℓ} {D : C -> Set ℓ}
     -> (n : ℕ)
@@ -183,4 +183,3 @@ M-product-equality S T = isoToPath (iso (M-product S T) (M-product-inv S T) (M-p
 ---------------------------
 -- Function into M-types --
 ---------------------------
-
