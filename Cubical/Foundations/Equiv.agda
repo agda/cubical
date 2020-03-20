@@ -142,6 +142,9 @@ Hfa≡fHa {A = A} f H a =
   cong f (H a) ∙ refl              ≡⟨ sym (rUnit _) ⟩
   cong f (H a) ∎
 
+invEq≡→equivFun≡ : ∀ (e : A ≃ B) {x y} → invEq e x ≡ y → equivFun e y ≡ x
+invEq≡→equivFun≡ e {x} p = cong (equivFun e) (sym p) ∙ retEq e x
+
 equivPi
   : ∀{F : A → Set ℓ} {G : A → Set ℓ'}
   → ((x : A) → F x ≃ G x) → (((x : A) → F x) ≃ ((x : A) → G x))

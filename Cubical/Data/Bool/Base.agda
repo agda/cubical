@@ -6,6 +6,7 @@ open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Empty
+open import Cubical.Data.Sum
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
@@ -32,6 +33,11 @@ false and true  = false
 true  and false = false
 true  and true  = true
 
+-- xor / mod-2 addition
+_⊕_ : Bool → Bool → Bool
+false ⊕ x = x
+true  ⊕ x = not x
+
 caseBool : ∀ {ℓ} → {A : Type ℓ} → (a0 aS : A) → Bool → A
 caseBool att aff true  = att
 caseBool att aff false = aff
@@ -45,3 +51,7 @@ true  ≟ true  = yes refl
 Dec→Bool : ∀ {ℓ} {A : Type ℓ} → Dec A → Bool
 Dec→Bool (yes p) = true
 Dec→Bool (no ¬p) = false
+
+dichotomyBool : (x : Bool) → (x ≡ true) ⊎ (x ≡ false)
+dichotomyBool true  = inl refl
+dichotomyBool false = inr refl

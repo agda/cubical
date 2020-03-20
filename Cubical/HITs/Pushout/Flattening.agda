@@ -1,3 +1,12 @@
+{-
+
+   The flattening lemma for pushouts (Lemma 8.5.3 in the HoTT book) proved in a cubical style.
+
+   The proof in the HoTT book (the core lying in Lemma 6.12.2, the flattening lemma for coequalizers)
+    consists mostly of long strings of equalities about transport. This proof follows almost
+    entirely from definitional equalities involving glue/unglue.
+
+-}
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.Pushout.Flattening where
 
@@ -27,52 +36,54 @@ module FlatteningLemma {ℓa ℓb ℓc} {A : Type ℓa} {B : Type ℓb} {C : Typ
 
   module FlattenIso where
 
-    fwd : Σ (Pushout f g) E → Pushout Σf Σg
-    fwd (inl b , x) = inl (b , x)
-    fwd (inr c , x) = inr (c , x)
-    fwd (push a i , x) = hcomp (λ j → λ { (i = i0) → push (a , x) (~ j)
+    fwd : Pushout Σf Σg → Σ (Pushout f g) E
+    fwd (inl (b , x)) = (inl b , x)
+    fwd (inr (c , x)) = (inr c , x)
+    fwd (push (a , x) i) = (push a i , ua-gluePt (e a) i x)
+
+    bwd : Σ (Pushout f g) E → Pushout Σf Σg
+    bwd (inl b , x) = inl (b , x)
+    bwd (inr c , x) = inr (c , x)
+    bwd (push a i , x) = hcomp (λ j → λ { (i = i0) → push (a , x) (~ j)
                                         ; (i = i1) → inr (g a , x) })
-                               (inr (g a , unglue (i ∨ ~ i) x))
-
-    bwd : Pushout Σf Σg → Σ (Pushout f g) E
-    bwd (inl (b , x)) = (inl b , x)
-    bwd (inr (c , x)) = (inr c , x)
-    bwd (push (a , x) i) = (push a i , ua-gluePath (e a) {x = x} refl i)
-
-    -- this case follows trivially due to the definitional equalities below
-    fwd-bwd : ∀ x → fwd (bwd x) ≡ x
-    fwd-bwd (inl (b , x)) = refl
-    fwd-bwd (inr (c , x)) = refl
-    fwd-bwd (push (a , x) i) j =
-      hcomp (λ k → λ { (i = i0) → push (a , x) (~ k)       -- ua-gluePath (e a) {x = x} refl i0 := x
-                     ; (i = i1) → inr (g a , (e a) .fst x) -- ua-gluePath (e a) {x = x} refl i1 := (e a) .fst x
-                     ; (j = i1) → push (a , x) (i ∨ ~ k) })
-            (inr (g a , (e a) .fst x)) -- unglue (i ∨ ~ i) (ua-gluePath (e a) {x = x} refl i) := (e a) .fst x
-
-    sq : ∀ a → SquareP (λ i j → ua (e a) i → ua (e a) (i ∨ ~ j))
-          {- i = i0 -} (λ j x → glue (λ { ((~ j) = i0) → x ; ((~ j) = i1) → (e a) .fst x }) ((e a) .fst x))
-          {- i = i1 -} (λ j x → x)
-          {- j = i0 -} (λ i x → unglue (i ∨ ~ i) x)
-          {- j = i1 -} (λ i x → x)
-    sq a i j x = glue {φ = (i ∨ ~ j) ∨ ~ (i ∨ ~ j)}
-                      (λ { ((i ∨ ~ j) = i0) → x
-                         ;     ((~ j) = i1) → unglue (i ∨ ~ i) x
-                         ;         (i = i1) → x })
-                      (unglue (i ∨ ~ i) x)
+                               (inr (g a , ua-unglue (e a) i x))
 
     bwd-fwd : ∀ x → bwd (fwd x) ≡ x
-    bwd-fwd (inl b , x) = refl
-    bwd-fwd (inr c , x) = refl
-    bwd-fwd (push a i , x) j =
-      hcomp (λ k → λ { (i = i0) → transp (λ _ → Σ (Pushout f g) E) (k ∨ j)
-                                         (push a (~ (k ∨ j)) , ua-gluePath (e a) {x = x} refl (~ (k ∨ j)))
-                     ; (i = i1) → transp (λ _ → Σ (Pushout f g) E) (k ∨ j)
-                                         (inr (g a) , x)
-                     ; (j = i1) → push a i , x })
-            (transp (λ _ → Σ (Pushout f g) E) j (push a (i ∨ ~ j) , sq a i j x))
+    bwd-fwd (inl (b , x)) = refl
+    bwd-fwd (inr (c , x)) = refl
+    bwd-fwd (push (a , x) i) j =
+      hcomp (λ k → λ { (i = i0) → push (a , ua-gluePt (e a) i0 x) (~ k)
+                     ; (i = i1) → inr (g a , ua-gluePt (e a) i1 x)
+                     ; (j = i1) → push (a , x) (i ∨ ~ k) })
+            (inr (g a , ua-unglue (e a) i (ua-gluePt (e a) i x)))
+      -- Note: the (j = i1) case typechecks because of the definitional equalities:
+      --  ua-gluePt e i0 x ≡ x, ua-gluePt e i1 x ≡ e .fst x,
+      --  ua-unglue e i (ua-gluePt e i x) ≡ e .fst x
+
+    sq : ∀ a → SquareP (λ i k → ua (e a) i → ua (e a) (i ∨ k))
+          {- i = i0 -} (λ k x → glue (λ { (k = i0) → x ; (k = i1) → (e a) .fst x }) ((e a) .fst x))
+          {- i = i1 -} (λ k x → x)
+          {- k = i0 -} (λ i x → x {- ≡ glue (λ { (i = i0) → x ; (i = i1) → x }) (unglue (i ∨ ~ i) x) -})
+          {- k = i1 -} (λ i x → unglue (i ∨ ~ i) x)
+    sq a i k x = glue {φ = (i ∨ k) ∨ ~ (i ∨ k)}
+                      (λ { (i ∨ k = i0) → x
+                         ;     (k = i1) → unglue (i ∨ ~ i) x
+                         ;     (i = i1) → x })
+                      (unglue (i ∨ ~ i) x)
+
+    fwd-bwd : ∀ x → fwd (bwd x) ≡ x
+    fwd-bwd (inl b , x) = refl
+    fwd-bwd (inr c , x) = refl
+    fwd-bwd (push a i , x) j =
+      -- `fwd` (or any function) takes hcomps to comps on a constant family, so we must use a comp here
+      comp (λ _ → Σ (Pushout f g) E)
+           (λ k → λ { (i = i0) → push a (~ k) , ua-gluePt (e a) (~ k) x
+                    ; (i = i1) → inr (g a) , x
+                    ; (j = i1) → push a (i ∨ ~ k) , sq a i (~ k) x })
+            (inr (g a) , ua-unglue (e a) i x)
 
     isom : Iso (Σ (Pushout f g) E) (Pushout Σf Σg)
-    isom = iso fwd bwd fwd-bwd bwd-fwd
+    isom = iso bwd fwd bwd-fwd fwd-bwd
 
   flatten : Σ (Pushout f g) E ≃ Pushout Σf Σg
   flatten = isoToEquiv FlattenIso.isom

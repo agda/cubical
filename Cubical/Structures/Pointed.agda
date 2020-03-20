@@ -27,3 +27,10 @@ pointed-is-SNS : SNS {ℓ} pointed-structure pointed-iso
 pointed-is-SNS {A = A} {B = B} f =
   transportEquiv ( (λ j → transportRefl (equivFun f (pt A)) (~ j) ≡ pt B)
                  ∙ sym (PathP≡Path (λ i → ua f i) (pt A) (pt B)))
+
+
+pointed-SIP : (A B : Pointed ℓ) → A ≃[ pointed-iso ] B ≃ (A ≡ B)
+pointed-SIP = SIP pointed-structure pointed-iso (SNS₂→SNS₄ pointed-is-SNS)
+
+pointed-sip : (A B : Pointed ℓ) → A ≃[ pointed-iso ] B → (A ≡ B)
+pointed-sip A B = equivFun (pointed-SIP A B) -- ua e i , ua-gluePath e p i

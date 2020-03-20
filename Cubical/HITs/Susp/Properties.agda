@@ -3,6 +3,7 @@ module Cubical.HITs.Susp.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Bool
 open import Cubical.HITs.Join
@@ -33,6 +34,9 @@ Iso.leftInv (Susp-iso-joinBool {A = A}) (merid a i) j
                    ; (i = i1) → transp (λ _ → Susp A) (k ∨ j) (merid a k)
                    ; (j = i1) → merid a (i ∧ k) })
           (transp (λ _ → Susp A) j north)
+
+Susp≃joinBool : ∀ {ℓ} {A : Type ℓ} → Susp A ≃ join A Bool
+Susp≃joinBool = isoToEquiv Susp-iso-joinBool
 
 Susp≡joinBool : ∀ {ℓ} {A : Type ℓ} → Susp A ≡ join A Bool
 Susp≡joinBool = isoToPath Susp-iso-joinBool

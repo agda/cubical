@@ -36,26 +36,67 @@ ua {A = A} {B = B} e i = Glue B (λ { (i = i0) → (A , e)
 uaIdEquiv : {A : Type ℓ} → ua (idEquiv A) ≡ refl
 uaIdEquiv {A = A} i j = Glue A {φ = i ∨ ~ j ∨ j} (λ _ → A , idEquiv A)
 
--- Give detailed type to unglue, mainly for documentation purposes
-ua-unglue : ∀ {A B : Type ℓ} → (e : A ≃ B) → (i : I) (x : ua e i)
-            → B [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → x }) ]
-ua-unglue e i x = inS (unglue (i ∨ ~ i) x)
+-- the unglue and glue constructors specialized to the case of ua
+
+ua-unglue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : ua e i)
+            → B -- [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → x }) ]
+ua-unglue e i x = unglue (i ∨ ~ i) x
+
+ua-glue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A) (y : B)
+          → B [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → y }) ]
+          → ua e i -- [ _ ↦ (λ { (i = i0) → x ; (i = i1) → y }) ]
+ua-glue e i x y s = glue {φ = i ∨ ~ i} (λ { (i = i0) → x ; (i = i1) → y }) (outS s)
+
+-- sometimes more useful are versions of these constructors with the (i : I) factored in
 
 ua-ungluePath : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
                 → PathP (λ i → ua e i) x y
                 → e .fst x ≡ y
-ua-ungluePath e p i = unglue (i ∨ ~ i) (p i)
-
--- Give detailed type to glue
-ua-glue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A) (y : B)
-          → B [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → y }) ]
-          → (ua e i) [ _ ↦ (λ { (i = i0) → x ; (i = i1) → y }) ]
-ua-glue e i x y s = inS (glue (λ { (i = i0) → x ; (i = i1) → y }) (outS s))
+ua-ungluePath e p i = ua-unglue e i (p i)
 
 ua-gluePath : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
               → e .fst x ≡ y
               → PathP (λ i → ua e i) x y
-ua-gluePath e {x} {y} p i = glue (λ { (i = i0) → x ; (i = i1) → y }) (p i)
+ua-gluePath e {x} {y} p i = ua-glue e i x y (inS (p i))
+
+-- ua-ungluePath and ua-gluePath are definitional inverses
+ua-ungluePath-Equiv : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
+                      → (PathP (λ i → ua e i) x y) ≃ (e .fst x ≡ y)
+ua-ungluePath-Equiv e = isoToEquiv (iso (ua-ungluePath e) (ua-gluePath e) (λ _ → refl) (λ _ → refl))
+
+-- a version of ua-glue with a single endpoint, idential to `ua-gluePath e {x} refl i`
+ua-gluePt : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A)
+            → ua e i -- [ _ ↦ (λ { (i = i0) → x ; (i = i1) → e .fst x }) ]
+ua-gluePt e i x = ua-glue e i x (e .fst x) (inS (e .fst x))
+
+-- ua-glue is a definitional right inverse to ua-unglue - note that the types of these functions
+--  are not strong enough to prove that it is also a left inverse (this can be done below)
+ua-unglue-glue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A) (y : B) (s : B [ _ ↦ _ ])
+                 → ua-unglue e i (ua-glue e i x y s) ≡ outS s
+ua-unglue-glue _ _ _ _ _ = refl
+
+-- for documentation purposes, ua-unglue and ua-glue wrapped in cubical subtypes
+
+ua-unglueS : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A) (y : B)
+             → ua e i [ _ ↦ (λ { (i = i0) → x        ; (i = i1) → y }) ]
+             → B      [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → y }) ]
+ua-unglueS e i x y s = inS (ua-unglue e i (outS s))
+
+ua-glueS : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A) (y : B)
+           → B      [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → y }) ]
+           → ua e i [ _ ↦ (λ { (i = i0) → x        ; (i = i1) → y }) ]
+ua-glueS e i x y s = inS (ua-glue e i x y s)
+
+ua-unglueS-glueS : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A) (y : B)
+                     (s : B [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → y }) ])
+                   → outS (ua-unglueS e i x y (ua-glueS e i x y s)) ≡ outS s
+ua-unglueS-glueS _ _ _ _ _ = refl
+
+ua-glueS-unglueS : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A) (y : B)
+                     (s : ua e i [ _ ↦ (λ { (i = i0) → x ; (i = i1) → y }) ])
+                   → outS (ua-glueS e i x y (ua-unglueS e i x y s)) ≡ outS s
+ua-glueS-unglueS _ _ _ _ _ = refl
+
 
 -- Proof of univalence using that unglue is an equivalence:
 
@@ -118,6 +159,11 @@ EquivJ : (P : (A B : Type ℓ) → (e : B ≃ A) → Type ℓ')
        → (r : (A : Type ℓ) → P A A (idEquiv A))
        → (A B : Type ℓ) → (e : B ≃ A) → P A B e
 EquivJ P r A B e = subst (λ x → P A (x .fst) (x .snd)) (contrSinglEquiv e) (r A)
+
+-- Based equivalence induction
+EquivJ' : {A B : Type ℓ} (P : (B : Type ℓ) → (e : B ≃ A) → Type ℓ')
+        → (r : P A (idEquiv A)) → (e : B ≃ A) → P B e
+EquivJ' P r e = subst (λ x → P (x .fst) (x .snd)) (contrSinglEquiv e) r
 
 -- Eliminate equivalences by just looking at the underlying function
 elimEquivFun : (B : Type ℓ) (P : (A : Type ℓ) → (A → B) → Type ℓ')
