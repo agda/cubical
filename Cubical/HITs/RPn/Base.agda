@@ -276,6 +276,18 @@ TotalCov≃Sn (ℕ→ℕ₋₁ n) =
           Susp (Total (cov⁻¹ (-1+ n)))      ≃⟨ cong≃ Susp (TotalCov≃Sn (-1+ n)) ⟩
           S (ℕ→ℕ₋₁ n)                      ■
 
+-- the usual covering map S n → RP n, with fibers exactly cov⁻¹
+
+cov : (n : ℕ₋₁) → S n → RP n
+cov n = pr (cov⁻¹ n) ∘ invEq (TotalCov≃Sn n)
+
+fibcov≡cov⁻¹ : ∀ n (x : RP n) → fiber (cov n) x ≡ cov⁻¹ n x .fst
+fibcov≡cov⁻¹ n x =
+  fiber (cov n)        x ≡[ i ]⟨ fiber {A = ua e i} (pr (cov⁻¹ n) ∘ ua-unglue e i) x ⟩
+  fiber (pr (cov⁻¹ n)) x ≡⟨ ua (fibPrEquiv (cov⁻¹ n) x) ⟩
+  cov⁻¹ n x .fst         ∎
+  where e = invEquiv (TotalCov≃Sn n)
+
 
 --------------------------------------------------------------------------------
 
