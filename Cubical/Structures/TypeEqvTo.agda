@@ -7,7 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Data.Prod hiding (_×_) renaming (_×Σ_ to _×_)
 
-open import Cubical.Foundations.SIP renaming (SNS₂ to SNS)
+open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 open import Cubical.Foundations.Pointed
 open import Cubical.Structures.Pointed
 
@@ -29,13 +29,13 @@ module _ (X : Type ℓ') where
   PointedEqvTo-iso : StrIso PointedEqvTo-structure ℓ''
   PointedEqvTo-iso = add-to-iso pointed-structure pointed-iso (λ Y _ → ∥ Y ≃ X ∥)
 
-  PointedEqvTo-SNS : SNS {ℓ} PointedEqvTo-structure PointedEqvTo-iso
-  PointedEqvTo-SNS = add-axioms-SNS pointed-structure pointed-iso (λ Y _ → ∥ Y ≃ X ∥)
-                                    (λ _ _ → squash)
-                                    pointed-is-SNS
+  PointedEqvTo-is-SNS : SNS {ℓ} PointedEqvTo-structure PointedEqvTo-iso
+  PointedEqvTo-is-SNS = add-axioms-SNS pointed-structure pointed-iso (λ Y _ → ∥ Y ≃ X ∥)
+                                       (λ _ _ → squash)
+                                       pointed-is-SNS
 
   PointedEqvTo-SIP : (A B : PointedEqvTo ℓ X) → A ≃[ PointedEqvTo-iso ] B ≃ (A ≡ B)
-  PointedEqvTo-SIP = SIP PointedEqvTo-structure PointedEqvTo-iso (SNS₂→SNS₄ PointedEqvTo-SNS)
+  PointedEqvTo-SIP = SIP PointedEqvTo-structure PointedEqvTo-iso PointedEqvTo-is-SNS
 
   PointedEqvTo-sip : (A B : PointedEqvTo ℓ X) → A ≃[ PointedEqvTo-iso ] B → (A ≡ B)
   PointedEqvTo-sip A B = equivFun (PointedEqvTo-SIP A B)

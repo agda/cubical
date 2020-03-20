@@ -18,9 +18,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Bundle
 
-open import Cubical.Foundations.SIP renaming (SNS₂ to SNS)
-open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.SIP
 open import Cubical.Structures.Pointed
 open import Cubical.Structures.TypeEqvTo
 
