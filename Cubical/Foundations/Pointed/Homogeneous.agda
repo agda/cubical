@@ -20,6 +20,7 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.Foundations.Pointed.Base
 open import Cubical.Foundations.Pointed.Properties
+open import Cubical.Structures.Pointed
 
 isHomogeneous : ∀ {ℓ} → Pointed ℓ → Type (ℓ-suc ℓ)
 isHomogeneous {ℓ} (A , x) = ∀ y → Path (Pointed ℓ) (A , x) (A , y)
@@ -34,8 +35,8 @@ isHomogeneousProd : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'}
 isHomogeneousProd hA hB (a , b) i = (typ (hA a i)) × (typ (hB b i)) , (pt (hA a i) , pt (hB b i))
 
 isHomogeneousPath : ∀ {ℓ} (A : Type ℓ) {x y : A} (p : x ≡ y) → isHomogeneous ((x ≡ y) , p)
-isHomogeneousPath A {x} {y} p q i
-  = ua eqv i , ua-gluePath eqv (compPathr-cancel p q) i
+isHomogeneousPath A {x} {y} p q
+  = pointed-sip ((x ≡ y) , p) ((x ≡ y) , q) (eqv , compPathr-cancel p q)
   where eqv : (x ≡ y) ≃ (x ≡ y)
         eqv = ((q ∙ sym p) ∙_) , compPathl-isEquiv (q ∙ sym p)
 
@@ -77,6 +78,6 @@ module HomogeneousDiscrete {ℓ} {A∙ : Pointed ℓ} (dA : Discrete (typ A∙))
   switch-eqv = isoToEquiv (iso switch switch switch-idp switch-idp)
 
 isHomogeneousDiscrete : ∀ {ℓ} {A∙ : Pointed ℓ} (dA : Discrete (typ A∙)) → isHomogeneous A∙
-isHomogeneousDiscrete {ℓ} {A∙} dA y i
-  = ua switch-eqv i , ua-gluePath switch-eqv switch-ptA∙ i
+isHomogeneousDiscrete {ℓ} {A∙} dA y
+  = pointed-sip (typ A∙ , pt A∙) (typ A∙ , y) (switch-eqv , switch-ptA∙)
   where open HomogeneousDiscrete {ℓ} {A∙} dA y

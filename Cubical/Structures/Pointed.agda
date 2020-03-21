@@ -7,7 +7,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Path
 
-open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Pointed.Base
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
