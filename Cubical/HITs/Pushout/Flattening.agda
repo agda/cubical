@@ -57,19 +57,21 @@ module FlatteningLemma {ℓa ℓb ℓc} {A : Type ℓa} {B : Type ℓb} {C : Typ
                      ; (j = i1) → push (a , x) (i ∨ ~ k) })
             (inr (g a , ua-unglue (e a) i (ua-gluePt (e a) i x)))
       -- Note: the (j = i1) case typechecks because of the definitional equalities:
-      --  ua-gluePt e i0 x ≡ x, ua-gluePt e i1 x ≡ e .fst x,
-      --  ua-unglue e i (ua-gluePt e i x) ≡ e .fst x
+      --  ua-gluePt e i0 x ≡ x , ua-gluePt e i1 x ≡ e .fst x,
+      --  ua-unglue-glue : ua-unglue e i (ua-gluePt e i x) ≡ e .fst x
 
-    sq : ∀ a → SquareP (λ i k → ua (e a) i → ua (e a) (i ∨ k))
-          {- i = i0 -} (λ k x → glue (λ { (k = i0) → x ; (k = i1) → (e a) .fst x }) ((e a) .fst x))
-          {- i = i1 -} (λ k x → x)
-          {- k = i0 -} (λ i x → x {- ≡ glue (λ { (i = i0) → x ; (i = i1) → x }) (unglue (i ∨ ~ i) x) -})
-          {- k = i1 -} (λ i x → unglue (i ∨ ~ i) x)
-    sq a i k x = glue {φ = (i ∨ k) ∨ ~ (i ∨ k)}
-                      (λ { (i ∨ k = i0) → x
-                         ;     (k = i1) → unglue (i ∨ ~ i) x
-                         ;     (i = i1) → x })
-                      (unglue (i ∨ ~ i) x)
+    -- essentially: ua-glue e (i ∨ ~ k) ∘ ua-unglue e i
+    sq : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B)
+         → SquareP (λ i k → ua e i → ua e (i ∨ ~ k))
+      {- i = i0 -} (λ k x → ua-gluePt e (~ k) x)
+      {- i = i1 -} (λ k x → x)
+      {- k = i0 -} (λ i x → ua-unglue e i x)
+      {- k = i1 -} (λ i x → x)
+    sq e i k x = ua-glue e (i ∨ ~ k) (λ { ((i ∨ ~ k) = i0) → x })
+                                     (inS (ua-unglue e i x))
+      -- Note: this typechecks because of the definitional equalities:
+      --  ua-unglue e i0 x ≡ e .fst x, ua-glue e i1 _ (inS y) ≡ y, ua-unglue e i1 x ≡ x,
+      --  ua-glue-unglue : ua-glue e i (λ { (i = i0) → x }) (inS (ua-unglue e i x)) ≡ x
 
     fwd-bwd : ∀ x → fwd (bwd x) ≡ x
     fwd-bwd (inl b , x) = refl
@@ -79,7 +81,7 @@ module FlatteningLemma {ℓa ℓb ℓc} {A : Type ℓa} {B : Type ℓb} {C : Typ
       comp (λ _ → Σ (Pushout f g) E)
            (λ k → λ { (i = i0) → push a (~ k) , ua-gluePt (e a) (~ k) x
                     ; (i = i1) → inr (g a) , x
-                    ; (j = i1) → push a (i ∨ ~ k) , sq a i (~ k) x })
+                    ; (j = i1) → push a (i ∨ ~ k) , sq (e a) i k x })
             (inr (g a) , ua-unglue (e a) i x)
 
     isom : Iso (Σ (Pushout f g) E) (Pushout Σf Σg)
