@@ -24,6 +24,7 @@ open import Cubical.Foundations.Univalence   using (ua; univalence)
 
 open import Cubical.Data.Sigma using (ΣPathP; sigmaPath→pathSigma; pathSigma≡sigmaPath; _Σ≡T_)
 open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)
+open import Cubical.Data.NatMinusTwo
 
 private
   variable
@@ -37,6 +38,11 @@ isOfHLevel : ℕ → Type ℓ → Type ℓ
 isOfHLevel 0 A = isContr A
 isOfHLevel 1 A = isProp A
 isOfHLevel (suc (suc n)) A = (x y : A) → isOfHLevel (suc n) (x ≡ y)
+
+-- a re-indexing of `isOfHLevel` which is consistent with standard notation,
+--  in the HoTT book this is `is-n-type(X)`
+isTrunc : ℕ₋₂ → Type ℓ → Type ℓ
+isTrunc n = isOfHLevel (2+ n)
 
 HLevel : ∀ ℓ → ℕ → Type (ℓ-suc ℓ)
 HLevel ℓ n = TypeWithStr ℓ (isOfHLevel n)
