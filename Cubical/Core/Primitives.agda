@@ -24,8 +24,10 @@ open import Agda.Primitive.Cubical public
 
 -- These two are to make sure all the primitives are loaded and ready
 -- to compute hcomp/transp for the universe.
-import Agda.Builtin.Cubical.HCompU
 import Agda.Builtin.Cubical.Glue
+-- HCompU is already imported from Glue, and older Agda versions do
+-- not have it. So we comment it out for now.
+-- import Agda.Builtin.Cubical.HCompU
 
 open import Agda.Primitive public
   using    ( Level )
