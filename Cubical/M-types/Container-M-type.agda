@@ -164,10 +164,10 @@ postulate
     -> πₙ (C , D) (proj₂ (x (suc n)))
     ≡ proj₂(x n)
 
-M-product : ∀ {ℓ} S T -> M {ℓ = ℓ} S × M T -> M (Container-product S T)
+M-product : ∀ {ℓ} S T -> M-type {ℓ = ℓ} S × M-type T -> M-type (Container-product S T)
 M-product S T (x , y) = (λ n → transport (P-equality n) (x .fst n , y .fst n)) , π-equality {B = S .snd} {D = T .snd} (λ n -> transport (P-equality n) (x .fst n , y .fst n))
 
-M-product-inv : ∀ {ℓ} S T -> M (Container-product S T) -> M {ℓ = ℓ} S × M T
+M-product-inv : ∀ {ℓ} S T -> M-type (Container-product S T) -> M-type {ℓ = ℓ} S × M-type T
 M-product-inv S T (x , y) = ((λ n → proj₁ (transport (sym (P-equality {B = S .snd} {D = T .snd} n)) (x n))) ,
                                 π-equality-2₁ {B = S .snd} {D = T .snd} (λ n → transport (λ i → P-equality {B = S .snd} {D = T .snd} n (~ i)) (x n))) ,
                              (λ n → proj₂ (transport (sym (P-equality {B = S .snd} {D = T .snd} n)) (x n))) ,
@@ -177,7 +177,7 @@ postulate
   M-product-iso₁ : ∀ {ℓ} (S T : Container {ℓ}) b -> M-product S T (M-product-inv S T b) ≡ b
   M-product-iso₂ : ∀ {ℓ} (S T : Container {ℓ}) a -> M-product-inv S T (M-product S T a) ≡ a
 
-M-product-equality : ∀ {ℓ} S T -> M {ℓ = ℓ} S × M T ≡ M (Container-product S T)
+M-product-equality : ∀ {ℓ} S T -> M-type {ℓ = ℓ} S × M-type T ≡ M-type (Container-product S T)
 M-product-equality S T = isoToPath (iso (M-product S T) (M-product-inv S T) (M-product-iso₁ S T) (M-product-iso₂ S T))
 
 ---------------------------

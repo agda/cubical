@@ -30,7 +30,7 @@ stream-S : ∀ A -> Container
 stream-S A = (A , (λ _ → Unit))
 
 stream : ∀ (A : Set₀) -> Set₀
-stream A = M (stream-S A)
+stream A = M-type (stream-S A)
 
 cons : ∀ {A} -> A -> stream A -> stream A
 cons x xs = in-fun (x , λ { tt -> xs } )
@@ -45,7 +45,7 @@ tl {A} S = out-fun S .snd tt
 -- -- Stream using M-types --
 -- --------------------------
 
-stream-pair-M : ∀ A B → stream A × stream B ≡ M (Container-product (stream-S A) (stream-S B))
+stream-pair-M : ∀ A B → stream A × stream B ≡ M-type (Container-product (stream-S A) (stream-S B))
 stream-pair-M A B = M-product-equality (stream-S A) (stream-S B)
 
 Container-product-streams : ∀ A B → Container-product (stream-S A) (stream-S B) ≡ stream-S (A × B)
@@ -59,7 +59,7 @@ Container-product-streams A B =
   stream-S (A × B) ∎
 
 stream-pair : ∀ A B → stream A × stream B ≡ stream (A × B)
-stream-pair A B = stream-pair-M A B □ λ i → M (Container-product-streams A B i)
+stream-pair A B = stream-pair-M A B □ λ i → M-type (Container-product-streams A B i)
 
 zip : ∀ {A B} → stream A × stream B → stream (A × B)
 zip {A} {B} = transport (stream-pair A B)

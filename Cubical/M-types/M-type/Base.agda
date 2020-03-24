@@ -55,13 +55,13 @@ PX,Pπ {ℓ} S =
 -- Lemma 10 --
 --------------
 
-projection : ∀ {ℓ} {S : Container {ℓ}} n -> M S -> X (sequence S) n
+projection : ∀ {ℓ} {S : Container {ℓ}} n -> M-type S -> X (sequence S) n
 projection n (x , q) = x n
 
 β : ∀ {ℓ} {S : Container {ℓ}} -> (n : ℕ) → ∀ x → π (sequence S) {n = n} (projection (suc n) x) ≡ projection n x
 β n (x , q) = q n
 
-lemma10 : ∀ {ℓ} {S : Container {ℓ}} (C,γ : Coalg₀ {S = S}) -> (C,γ .fst -> M S) ≡ Cone C,γ
+lemma10 : ∀ {ℓ} {S : Container {ℓ}} (C,γ : Coalg₀ {S = S}) -> (C,γ .fst -> M-type S) ≡ Cone C,γ
 lemma10 {S = S} C,γ@(C , γ) =
   isoToPath (iso (λ {f → (λ n z → projection n (f z)) , λ n i a → β n (f a) i})
                  (λ {(u , q) z → (λ n → u n z) , (λ n i → q n i z)})
@@ -94,9 +94,9 @@ contr-⊤-iso hX = isoToPath (iso (λ _ → lift tt)
 lemma11-helper : ∀ {ℓ} {S : Container {ℓ}} -> (χ : (x₀ : X (sequence S) 0)
               → isContr ( Σ ((n : ℕ) → X (sequence S) n) λ x
               → (x₀ ≡ x 0)
-              × (∀ n → π (sequence S) (x (suc n)) ≡ x n) ) )  → M S ≡ X (sequence S) 0
+              × (∀ n → π (sequence S) (x (suc n)) ≡ x n) ) )  → M-type S ≡ X (sequence S) 0
 lemma11-helper {ℓ} {S = S} χ =
-  M S
+  M-type S
     ≡⟨ sym (Σ-ap-iso₂ λ x → ∏-ap-iso refl λ n → refl) ⟩ -- sym not needed
   Σ ((n : ℕ) → X (sequence S) n) (λ x → (n : ℕ) → π (sequence S) (x (suc n)) ≡ x n)
     ≡⟨ sym (Σ-ap-iso₂ λ x → isoToPath (iso (λ x₁ → x₁ .snd) (λ x₁ → lift tt , x₁) (λ b → refl) λ a → refl)) ⟩
@@ -119,7 +119,7 @@ lemma11-helper {ℓ} {S = S} χ =
   X (sequence S) 0 ∎
 
 postulate
-  lemma11 : ∀ {ℓ} {S : Container {ℓ}} -> M S ≡ X (sequence S) 0
+  lemma11 : ∀ {ℓ} {S : Container {ℓ}} -> M-type S ≡ X (sequence S) 0
 
 α-iso-step-1-4 : ∀ {ℓ} {S : Container {ℓ}}
     -> let (A , B) = S in
@@ -157,7 +157,7 @@ postulate
 sym-α-iso-step-6 : ∀ {ℓ} {S : Container {ℓ}}
     -> let (A , B) = S in
     Iso
-      (Σ A (λ a → B a → M S))
+      (Σ A (λ a → B a → M-type S))
       (Σ A (λ a → Σ ((n : ℕ) → B a → X (sequence S) n) λ u → (n : ℕ) → π (sequence S) ∘ (u (suc n)) ≡ u n))
 fst (fun (sym-α-iso-step-6 {S = S@(A , B)}) (x , y')) = x
 snd (fun (sym-α-iso-step-6 {S = S@(A , B)}) (x , y')) = transport (sym ((λ (a : A) → sym (lemma10 (B a , (λ x → a , (λ x₁ → x₁))))) x)) y'
@@ -172,11 +172,11 @@ leftInv (sym-α-iso-step-6 {S = S@(A , B)}) (x , y) = ΣPathP (refl {x = x} , tr
 α-iso-step-6 : ∀ {ℓ} {S : Container {ℓ}}
     -> let (A , B) = S in
     Σ A (λ a → Σ ((n : ℕ) → B a → X (sequence S) n) λ u → (n : ℕ) → π (sequence S) ∘ (u (suc n)) ≡ u n)
-    ≡ Σ A (λ a → B a → M S)
+    ≡ Σ A (λ a → B a → M-type S)
 α-iso-step-6 {S = S@(A , B)} = Σ-ap-iso₂ (λ a i → lemma10 (B a , (λ x → a , (λ x₁ → x₁))) (~ i))
 
 -- Lemma 13
-α-iso : ∀ {ℓ} {S : Container {ℓ}} -> L (PX,Pπ S) ≡ P₀ {S = S} (M S) -- L^P ≡ PL
+α-iso : ∀ {ℓ} {S : Container {ℓ}} -> L (PX,Pπ S) ≡ P₀ {S = S} (M-type S) -- L^P ≡ PL
 α-iso {S = S@(A , B)} =
   α-iso-step-1-4 □ (α-iso-step-5 □ α-iso-step-6)
 
@@ -199,15 +199,15 @@ snd (rightInv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (b , c) i) 0 = refl
 snd (rightInv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (b , c) i) (suc n) = c (suc n)
 leftInv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso a = ΣPathP (refl , refl)
 
-shift : ∀ {ℓ} {S : Container {ℓ}} -> P₀ {S = S} (M S) ≡ M S
+shift : ∀ {ℓ} {S : Container {ℓ}} -> P₀ {S = S} (M-type S) ≡ M-type S
 shift {S = S@(A , B)} = isoToPath (compIso (sym-α-iso-step-6) (compIso (sym-α-iso-step-5-Iso {S = S}) (comp-α-iso-step-1-4-Iso-Sym-L-unique-iso {S = S}))) -- lemma 13 & lemma 12
 
 -- Transporting along shift
 
-in-fun : ∀ {ℓ} {S : Container {ℓ}} -> P₀ (M S) -> M S
+in-fun : ∀ {ℓ} {S : Container {ℓ}} -> P₀ (M-type S) -> M-type S
 in-fun {S = S} = transport (shift {S = S})
 
-out-fun : ∀ {ℓ} {S : Container {ℓ}} -> M S -> P₀ (M S)
+out-fun : ∀ {ℓ} {S : Container {ℓ}} -> M-type S -> P₀ (M-type S)
 out-fun {S = S} = transport (sym (shift {S = S}))
 
 ----------------------------------------
@@ -218,12 +218,12 @@ lift-to-M : ∀ {ℓ} {A : Set ℓ} {S : Container {ℓ}}
   → (x : (n : ℕ) -> A → X (sequence S) n)
   → ((n : ℕ) → (a : A) →  π (sequence S) (x (suc n) a) ≡ x n a)
   ---------------
-  → (A → M S)
+  → (A → M-type S)
 lift-to-M x p a = (λ n → x n a) , λ n i → p n a i
 
 lift-direct-M : ∀ {ℓ} {S : Container {ℓ}}
   → (x : (n : ℕ) → X (sequence S) n)
   → ((n : ℕ) →  π (sequence S) (x (suc n)) ≡ x n)
   ---------------
-  → M S
+  → M-type S
 lift-direct-M x p = x , p

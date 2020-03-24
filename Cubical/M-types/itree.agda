@@ -21,7 +21,7 @@ delay-S : (R : Set₀) -> Container
 delay-S R = (Unit ⊎ R) , λ { (inr _) -> ⊥ ; (inl tt) -> Unit }
 
 delay : (R : Set₀) -> Set₀
-delay R = M (delay-S R)
+delay R = M-type (delay-S R)
 
 delay-ret : {R : Set} -> R -> delay R
 delay-ret r = in-fun (inr r , λ ())
@@ -37,7 +37,7 @@ tree-S : (E : Set₀ -> Set₁) (R : Set₀) -> Container {ℓ-suc ℓ-zero}
 tree-S E R = (R ⊎ Σ Set (λ A -> E A)) , (λ { (inl _) -> ⊥₁ ; (inr (A , e)) -> Lift A } )
 
 tree : (E : Set₀ -> Set₁) (R : Set₀) -> Set₁
-tree E R = M (tree-S E R)
+tree E R = M-type (tree-S E R)
 
 tree-ret : ∀ {E} {R}  -> R -> tree E R
 tree-ret {E} {R} r = in-fun (inl r , λ ())
@@ -51,7 +51,7 @@ itree-S : ∀ (E : Set₀ -> Set₁) (R : Set₀) -> Container {ℓ-suc ℓ-zero
 itree-S E R = ((Unit ⊎ R) ⊎ Σ Set E) , (λ { (inl (inl _)) -> Lift Unit ; (inl (inr _)) -> ⊥₁ ; (inr (A , e)) -> Lift A } )
 
 itree :  ∀ (E : Set₀ -> Set₁) (R : Set₀) -> Set₁
-itree E R = M (itree-S E R)
+itree E R = M-type (itree-S E R)
 
 ret' : ∀ {E} {R}  -> R -> P₀ {S = itree-S E R} (itree E R)
 ret' {E} {R} r = inl (inr r) , λ ()

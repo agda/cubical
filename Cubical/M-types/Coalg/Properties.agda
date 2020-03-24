@@ -32,13 +32,13 @@ Ps : ∀ {ℓ} -> (S : Container {ℓ}) -> (C,γ : Coalg₀ {S = S}) -> Containe
 Ps S T = T .fst , λ x → P₀ {S = S}  (T .fst)
 
 Ms : ∀ {ℓ} -> (S : Container {ℓ}) -> Container {ℓ}
-Ms S = M S , λ x → P₀ {S = S}  (M S)
+Ms S = M-type S , λ x → P₀ {S = S}  (M-type S)
 
 M-coalg : ∀ {ℓ} {S : Container {ℓ}} -> Coalg₀ {S = S}
-M-coalg {S = S} = (M S) , out-fun
+M-coalg {S = S} = (M-type S) , out-fun
 
 PM-coalg : ∀ {ℓ} {S : Container {ℓ}} -> Coalg₀ {S = S}
-PM-coalg {S = S} = (P₀ (M S)) , P₁ out-fun
+PM-coalg {S = S} = (P₀ (M-type S)) , P₁ out-fun
 
 Final : ∀ {ℓ} {S : Container {ℓ}} -> Set (ℓ-suc ℓ)
 Final {S = S} = Σ (Coalg₀ {S = S}) λ X,ρ → ∀ (C,γ : Coalg₀ {S = S}) -> isContr (_⇒_ {S = S} (C,γ) (X,ρ))
@@ -47,7 +47,7 @@ Final {S = S} = Σ (Coalg₀ {S = S}) λ X,ρ → ∀ (C,γ : Coalg₀ {S = S}) 
 -- Bisimilarity of Coalgebra --
 -------------------------------
 
-record _≈_ {ℓ} {S : Container {ℓ}} (a b : M S) : Set (ℓ-suc ℓ) where
+record _≈_ {ℓ} {S : Container {ℓ}} (a b : M-type S) : Set (ℓ-suc ℓ) where
   coinductive
   field
     head≈ : out-fun a .fst ≡ out-fun b .fst
@@ -95,18 +95,18 @@ unfold-function : ∀ {ℓ} {S : Container {ℓ}} -> (X,ρ : Final {S = S}) -> (
 unfold-function X,ρ C,γ y = (unfold X,ρ C,γ) .fst y
 
 U : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} -> Set ℓ
-U {S = S} {C,γ = C,γ} = Σ (C,γ .fst -> M S) λ f → out-fun ∘ f ≡ P₁ f ∘ C,γ .snd
+U {S = S} {C,γ = C,γ} = Σ (C,γ .fst -> M-type S) λ f → out-fun ∘ f ≡ P₁ f ∘ C,γ .snd
 
 U-to-Unit : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} -> U {C,γ = C,γ} -> Lift {ℓ-zero} {ℓ} Unit
 U-to-Unit _ = lift tt
 
-FunctionToProjection : ∀ {ℓ} {S : Container {ℓ}} (C,γ : Coalg₀) -> Cone C,γ -> C,γ .fst -> M S
+FunctionToProjection : ∀ {ℓ} {S : Container {ℓ}} (C,γ : Coalg₀) -> Cone C,γ -> C,γ .fst -> M-type S
 FunctionToProjection {S = S} C,γ c = transp (λ i → sym (lemma10 C,γ) i) i0 c
 
 step : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} {Y : Set ℓ} (f : C,γ .fst -> Y) → C,γ .fst → P₀ Y
 step {C,γ = C,γ} {Y = Y} f = P₁ f  ∘ C,γ .snd
 
-Ψ : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} (f : C,γ .fst -> M S) -> C,γ .fst -> M S
+Ψ : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} (f : C,γ .fst -> M-type S) -> C,γ .fst -> M-type S
 Ψ {C,γ = C,γ} f = in-fun ∘ step {C,γ = C,γ} f
 
 ϕ₀ : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} (u : (n : ℕ) → C,γ .fst → X (sequence S) n) -> (n : ℕ) -> C,γ .fst -> W S n
@@ -153,13 +153,13 @@ postulate
 U-is-Unit : ∀ {ℓ} {S : Container {ℓ}} (C,γ : Coalg₀ {S = S}) -> (C,γ ⇒ M-coalg) ≡ Lift Unit
 U-is-Unit {ℓ = ℓ} {S = S} C,γ@(C , γ) =
   let e = FunctionToProjection C,γ in
-  let 𝓛 = M S in
+  let 𝓛 = M-type S in
   U {C,γ = C,γ}
     ≡⟨ refl ⟩
   Σ (C → 𝓛) (λ f → out-fun ∘ f ≡ step {C,γ = C,γ} f)
     ≡⟨ (λ i → Σ (C → 𝓛) (λ f → in-inj {f = out-fun ∘ f} {g = step {C,γ = C,γ} f} (~ i))) ⟩
   Σ (C → 𝓛) (λ f → in-fun ∘ out-fun ∘ f ≡ in-fun ∘ step {C,γ = C,γ} f)
-    ≡⟨ (λ i → Σ (C,γ .fst → M S) (λ f → identity-f-r {k = in-fun ∘ out-fun {S = S}} in-inverse-out f i ≡ in-fun ∘ step {C,γ = C,γ} f)) ⟩
+    ≡⟨ (λ i → Σ (C,γ .fst → M-type S) (λ f → identity-f-r {k = in-fun ∘ out-fun {S = S}} in-inverse-out f i ≡ in-fun ∘ step {C,γ = C,γ} f)) ⟩
   Σ (C -> 𝓛) (λ f → f ≡ in-fun ∘ step {C,γ = C,γ} f)
     ≡⟨ refl ⟩
   Σ (C → 𝓛) (λ f → f ≡ Ψ {C,γ = C,γ} f)
@@ -202,7 +202,7 @@ final-property S R sim = final-coalg-property-2 {S = S} (R⁻-coalg sim) (M-fina
 final-property-2 : ∀ {ℓ} (S : Container {ℓ}) R -> (sim : bisimulation S M-coalg R) -> π₁ sim ≡ π₂  sim
 final-property-2 S R sim = λ i -> final-property S R sim i .fst
 
-bisimulation-property : ∀ {ℓ} (S : Container {ℓ}) (R : M S -> M S -> Set ℓ) -> (∀ {x} -> R x x) -> ((x : Σ (M S) (λ a → Σ (M S) (R a))) -> fst (snd x) ≡ fst x) -> bisimulation S M-coalg R
+bisimulation-property : ∀ {ℓ} (S : Container {ℓ}) (R : M-type S -> M-type S -> Set ℓ) -> (∀ {x} -> R x x) -> ((x : Σ (M-type S) (λ a → Σ (M-type S) (R a))) -> fst (snd x) ≡ fst x) -> bisimulation S M-coalg R
 αᵣ (bisimulation-property S R R-refl _) = λ { ( a , b ) → fst (out-fun a) , λ x → (snd (out-fun a) x) , ((snd (out-fun a) x) , R-refl) }
 rel₁ (bisimulation-property S R _ _) = funExt λ x → refl
 rel₂ (bisimulation-property S R _ R-eq) = funExt λ x i → out-fun {S = S} (R-eq x i)
@@ -212,10 +212,10 @@ rel₂ (bisimulation-property S R _ R-eq) = funExt λ x i → out-fun {S = S} (R
 -------------------------------------------------------------
 
 -- coinduction proof by: m ≡ π₁(m,m',r) ≡ π₂(m,m',r) ≡ m'
-coinduction : ∀ {ℓ} {S : Container {ℓ}} R -> (sim : bisimulation S M-coalg R) -> ∀ {m m' : M S} -> R m m' -> m ≡ m'
+coinduction : ∀ {ℓ} {S : Container {ℓ}} R -> (sim : bisimulation S M-coalg R) -> ∀ {m m' : M-type S} -> R m m' -> m ≡ m'
 coinduction {S = S} R sim {m} {m'} r = λ i -> funExt⁻ (final-property-2 S R sim) (m , (m' , r)) i
 
-coinduction⁻ : ∀ {ℓ} {S : Container {ℓ}} R -> (sim : bisimulation S M-coalg R) -> (∀ {x} -> R x x) ->  ∀ {m m' : M S} -> m ≡ m' -> R m m'
+coinduction⁻ : ∀ {ℓ} {S : Container {ℓ}} R -> (sim : bisimulation S M-coalg R) -> (∀ {x} -> R x x) ->  ∀ {m m' : M-type S} -> m ≡ m' -> R m m'
 coinduction⁻ {S = S} R sim k {m} {m'} r = transp (λ i -> R m (r i)) i0 k
 
 postulate

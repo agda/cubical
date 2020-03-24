@@ -76,5 +76,5 @@ open Chain public
 -- M-type is limit of a sequence --
 -----------------------------------
 
-M : ∀ {ℓ} -> Container {ℓ} → Set ℓ
-M = L ∘ sequence
+M-type : ∀ {ℓ} -> Container {ℓ} → Set ℓ
+M-type = L ∘ sequence
