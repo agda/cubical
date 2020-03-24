@@ -99,7 +99,7 @@ subst-hom {X = X} P {x = x} {y = y} {z = z} p q u = sym (substComposite-□ P p 
           → {Y Y' : X → Set j}
           → ((x : X) → Y x ≡ Y' x)
           → Σ X Y ≡ Σ X Y'
-Σ-ap-iso₂ {X = X} {Y} {Y'} isom =
+Σ-ap-iso₂ isom =
   isoToPath (iso (λ { (x , y) → x , transport (isom x) y})
                  (λ { (x , y') → x , transport (sym (isom x)) y'})
                  (λ { (x , y) →  ΣPathP (refl , transportTransport⁻ (isom x) y)})

@@ -27,14 +27,24 @@ module Cubical.M-types.M-type.Base where
 -- Limit of a Chain is Unique --
 --------------------------------
 
+open Iso
+
+L-unique-iso : ∀ {ℓ} -> {S : Container {ℓ}} -> Iso (L (shift-chain (sequence S))) (L (sequence S))
+fst (fun L-unique-iso (a , b)) 0 = lift tt
+fst (fun L-unique-iso (a , b)) (suc n) = a n
+snd (fun L-unique-iso (a , b)) 0 = refl {x = lift tt}
+snd (fun L-unique-iso (a , b)) (suc n) = b n
+fst (inv L-unique-iso x) = x .fst ∘ suc
+snd (inv L-unique-iso x) = x .snd ∘ suc
+fst (rightInv L-unique-iso (b , c) i) 0 = lift tt
+fst (rightInv L-unique-iso (b , c) i) (suc n) = refl i
+snd (rightInv L-unique-iso (b , c) i) 0 = refl
+snd (rightInv L-unique-iso (b , c) i) (suc n) = c (suc n)
+leftInv L-unique-iso = (λ a → ΣPathP (refl , refl))
+
 -- Lemma 12
 L-unique : ∀ {ℓ} -> {S : Container {ℓ}} -> L (shift-chain (sequence S)) ≡ L (sequence S)
-L-unique {ℓ} {S = S} =
-  isoToPath (
-    iso (λ x → (λ {0 → lift tt ; (suc n) -> x .fst n}) , (λ { 0 → refl {x = lift tt} ; (suc n) → x .snd n }))
-        (λ x → x .fst ∘ suc , x .snd ∘ suc)
-        (λ {(b , c) → ΣPathP (funExt (λ { 0 → refl ; (suc n) → refl }) , λ {i 0 → refl ; i (suc n) → c (suc n)})})
-        (λ a → ΣPathP (refl , refl)))
+L-unique {ℓ} {S = S} = isoToPath (L-unique-iso)
 
 PX,Pπ : ∀ {ℓ} (S : Container {ℓ}) -> Chain
 PX,Pπ {ℓ} S =
@@ -127,22 +137,43 @@ postulate
     (λ a → refl))
 
 postulate
-  α-iso-step-5 : ∀ {ℓ} {S : Container {ℓ}}
+  sym-α-iso-step-5-Iso : ∀ {ℓ} {S : Container {ℓ}}
     -> let (A , B) = S in
-    (Σ (Σ ((n : ℕ) → A) (λ a → (n : ℕ) → a (suc n) ≡ a n)) λ a →
-      Σ ((n : ℕ) → B (a .fst n) → X (sequence S) n) λ u →
-        (n : ℕ) → PathP (λ x → B (a .snd n x) → X (sequence S) n) (π (sequence S) ∘ u (suc n)) (u n))
-    ≡ Σ A (λ a → Σ ((n : ℕ) → B a → X (sequence S) n) λ u → (n : ℕ) → π (sequence S) ∘ (u (suc n)) ≡ u n)
-  
+    Iso
+      (Σ A (λ a → Σ ((n : ℕ) → B a → X (sequence S) n) λ u → (n : ℕ) → π (sequence S) ∘ (u (suc n)) ≡ u n))
+      (Σ (Σ ((n : ℕ) → A) (λ a → (n : ℕ) → a (suc n) ≡ a n)) λ a →
+        Σ ((n : ℕ) → B (a .fst n) → X (sequence S) n) λ u →
+          (n : ℕ) → PathP (λ x → B (a .snd n x) → X (sequence S) n) (π (sequence S) ∘ u (suc n)) (u n))
+
+α-iso-step-5 : ∀ {ℓ} {S : Container {ℓ}}
+  -> let (A , B) = S in
+  (Σ (Σ ((n : ℕ) → A) (λ a → (n : ℕ) → a (suc n) ≡ a n)) λ a →
+     Σ ((n : ℕ) → B (a .fst n) → X (sequence S) n) λ u →
+       (n : ℕ) → PathP (λ x → B (a .snd n x) → X (sequence S) n) (π (sequence S) ∘ u (suc n)) (u n))
+  ≡ Σ A (λ a → Σ ((n : ℕ) → B a → X (sequence S) n) λ u → (n : ℕ) → π (sequence S) ∘ (u (suc n)) ≡ u n)
+α-iso-step-5 = isoToPath (iso (inv sym-α-iso-step-5-Iso) (fun sym-α-iso-step-5-Iso) (leftInv sym-α-iso-step-5-Iso) (rightInv sym-α-iso-step-5-Iso))
+
+
+sym-α-iso-step-6 : ∀ {ℓ} {S : Container {ℓ}}
+    -> let (A , B) = S in
+    Iso
+      (Σ A (λ a → B a → M S))
+      (Σ A (λ a → Σ ((n : ℕ) → B a → X (sequence S) n) λ u → (n : ℕ) → π (sequence S) ∘ (u (suc n)) ≡ u n))
+fst (fun (sym-α-iso-step-6 {S = S@(A , B)}) (x , y')) = x
+snd (fun (sym-α-iso-step-6 {S = S@(A , B)}) (x , y')) = transport (sym ((λ (a : A) → sym (lemma10 (B a , (λ x → a , (λ x₁ → x₁))))) x)) y'
+
+fst (inv (sym-α-iso-step-6 {S = S@(A , B)}) (x , y)) = x
+snd (inv (sym-α-iso-step-6 {S = S@(A , B)}) (x , y)) = transport ((λ (a : A) → sym (lemma10 (B a , (λ x → a , (λ x₁ → x₁))))) x) y
+
+rightInv (sym-α-iso-step-6 {S = S@(A , B)}) (x , y') = ΣPathP (refl {x = x} , transport⁻Transport ((λ (a : A) → sym (lemma10 (B a , (λ x → a , (λ x₁ → x₁))))) x) y')
+
+leftInv (sym-α-iso-step-6 {S = S@(A , B)}) (x , y) = ΣPathP (refl {x = x} , transportTransport⁻ ((λ (a : A) → sym (lemma10 (B a , (λ x → a , (λ x₁ → x₁))))) x) y)
+
 α-iso-step-6 : ∀ {ℓ} {S : Container {ℓ}}
     -> let (A , B) = S in
     Σ A (λ a → Σ ((n : ℕ) → B a → X (sequence S) n) λ u → (n : ℕ) → π (sequence S) ∘ (u (suc n)) ≡ u n)
     ≡ Σ A (λ a → B a → M S)
 α-iso-step-6 {S = S@(A , B)} = Σ-ap-iso₂ (λ a i → lemma10 (B a , (λ x → a , (λ x₁ → x₁))) (~ i))
-
--- TODO: Slow computations..
-postulate
-  α-iso' : ∀ {ℓ} {S : Container {ℓ}} -> L (PX,Pπ S) ≡ P₀ {S = S} (M S) -- L^P ≡ PL
 
 -- Lemma 13
 α-iso : ∀ {ℓ} {S : Container {ℓ}} -> L (PX,Pπ S) ≡ P₀ {S = S} (M S) -- L^P ≡ PL
@@ -153,9 +184,23 @@ postulate
 -- Shifting the limit of a chain is an equivalence --
 -----------------------------------------------------
 
-abstract
-  shift : ∀ {ℓ} {S : Container {ℓ}} -> P₀ {S = S} (M S) ≡ M S
-  shift {S = S@(A , B)} = (sym α-iso) □ (L-unique {S = S}) -- lemma 13 & lemma 12
+comp-α-iso-step-1-4-Iso-Sym-L-unique-iso : ∀ {ℓ} {S : Container {ℓ}} -> let (A , B) = S in Iso (Σ (Σ ((n : ℕ) → A) (λ a → (n : ℕ) → a (suc n) ≡ a n)) λ a → Σ ((n : ℕ) → B (a .fst n) → X (sequence S) n) λ u → (n : ℕ) → PathP (λ x → B (a .snd n x) → X (sequence S) n) (π (sequence S) ∘ u (suc n)) (u n))  (L (sequence S))
+fst (fun comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (a , b)) 0 = lift tt
+fst (fun comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (a , b)) (suc n) = (a .fst n) , (b .fst n)
+snd (fun comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (a , b)) 0 = refl {x = lift tt}
+snd (fun comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (a , b)) (suc n) i = a .snd n i , b .snd n i
+fst (fst (inv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso x)) n = (x .fst) (suc n) .fst
+snd (fst (inv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso x)) n i = (x .snd) (suc n) i .fst
+fst (snd (inv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso x)) n = (x .fst) (suc n) .snd
+snd (snd (inv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso x)) n i = (x .snd) (suc n) i .snd
+fst (rightInv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (b , c) i) 0 = lift tt
+fst (rightInv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (b , c) i) (suc n) = refl i
+snd (rightInv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (b , c) i) 0 = refl
+snd (rightInv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (b , c) i) (suc n) = c (suc n)
+leftInv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso a = ΣPathP (refl , refl)
+
+shift : ∀ {ℓ} {S : Container {ℓ}} -> P₀ {S = S} (M S) ≡ M S
+shift {S = S@(A , B)} = isoToPath (compIso (sym-α-iso-step-6) (compIso (sym-α-iso-step-5-Iso {S = S}) (comp-α-iso-step-1-4-Iso-Sym-L-unique-iso {S = S}))) -- lemma 13 & lemma 12
 
 -- Transporting along shift
 
