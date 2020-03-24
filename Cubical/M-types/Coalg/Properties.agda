@@ -47,14 +47,6 @@ Final {S = S} = Σ (Coalg₀ {S = S}) λ X,ρ → ∀ (C,γ : Coalg₀ {S = S}) 
 -- Bisimilarity of Coalgebra --
 -------------------------------
 
-record _≈_ {ℓ} {S : Container {ℓ}} (a b : M-type S) : Set (ℓ-suc ℓ) where
-  coinductive
-  field
-    head≈ : out-fun a .fst ≡ out-fun b .fst
-    tails≈ : ∀ (pa : S .snd (out-fun a .fst)) (pb : S .snd (out-fun b .fst)) -> out-fun {S = S} a .snd pa ≈ out-fun {S = S} b .snd pb
-
-open _≈_ public
-
 -- Strong bisimulation ?
 record bisimulation {ℓ} (S : Container {ℓ}) (C,γ : Coalg₀ {S = S}) (R : C,γ .fst -> C,γ .fst -> Set ℓ) : Set (ℓ-suc ℓ) where
   coinductive
@@ -88,11 +80,11 @@ open bisimulation public
 -- Properties of Bisimulations and (Final) Coalgebras --
 --------------------------------------------------------
 
-unfold : ∀ {ℓ} {S : Container {ℓ}} -> (X,ρ : Final {S = S}) -> (C,γ : Coalg₀ {S = S}) -> (_⇒_ {S = S} (C,γ) (X,ρ .fst))  -- unique function into final coalg
-unfold X,ρ C,γ = X,ρ .snd C,γ .fst
+coalg-unfold : ∀ {ℓ} {S : Container {ℓ}} -> (X,ρ : Final {S = S}) -> (C,γ : Coalg₀ {S = S}) -> (_⇒_ {S = S} (C,γ) (X,ρ .fst))  -- unique function into final coalg
+coalg-unfold X,ρ C,γ = X,ρ .snd C,γ .fst
 
-unfold-function : ∀ {ℓ} {S : Container {ℓ}} -> (X,ρ : Final {S = S}) -> (C,γ : Coalg₀ {S = S}) -> (C,γ .fst) -> (X,ρ .fst .fst)  -- unique function into final coalg
-unfold-function X,ρ C,γ y = (unfold X,ρ C,γ) .fst y
+coalg-unfold-function : ∀ {ℓ} {S : Container {ℓ}} -> (X,ρ : Final {S = S}) -> (C,γ : Coalg₀ {S = S}) -> (C,γ .fst) -> (X,ρ .fst .fst)  -- unique function into final coalg
+coalg-unfold-function X,ρ C,γ y = (coalg-unfold X,ρ C,γ) .fst y
 
 U : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} -> Set ℓ
 U {S = S} {C,γ = C,γ} = Σ (C,γ .fst -> M-type S) λ f → out-fun ∘ f ≡ P₁ f ∘ C,γ .snd
