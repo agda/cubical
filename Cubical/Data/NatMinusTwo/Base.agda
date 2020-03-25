@@ -3,7 +3,6 @@ module Cubical.Data.NatMinusTwo.Base where
 
 open import Cubical.Core.Primitives
 open import Cubical.Data.Nat
-open import Cubical.Data.Bool
 open import Cubical.Data.Empty
 
 record ℕ₋₂ : Type₀ where
