@@ -39,7 +39,6 @@ setTruncUniversal Bset = isoToEquiv (iso intro out leftInv rightInv)
   leftInv : ∀ g → intro (out g) ≡ g
   leftInv g = refl
 
-
   rightInv : ∀ h → out (intro h) ≡ h
   rightInv h i x =
     elim (λ x → isProp→isSet (Bset (out (intro h) x) (h x))) (λ a → refl) x i
