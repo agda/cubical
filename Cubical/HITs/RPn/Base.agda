@@ -2,8 +2,8 @@
 
    A defintion of the real projective spaces following:
 
-    U. Buchholtz, E. Rijke, The real projective spaces in homotopy type theory.
-     (2017) https://arxiv.org/abs/1704.05770
+   [BR17] U. Buchholtz, E. Rijke, The real projective spaces in homotopy type theory.
+           (2017) https://arxiv.org/abs/1704.05770
 
 -}
 {-# OPTIONS --cubical --safe #-}
@@ -44,6 +44,8 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
+-- Definition II.1 in [BR17], see also Cubical.Foundations.Bundle
+
 2-EltType₀    = TypeEqvTo    ℓ-zero Bool -- Σ[ X ∈ Type₀ ] ∥ X ≃ Bool ∥
 2-EltPointed₀ = PointedEqvTo ℓ-zero Bool -- Σ[ X ∈ Type₀ ] X × ∥ X ≃ Bool ∥
 
@@ -51,8 +53,13 @@ Bool* : 2-EltType₀
 Bool* = Bool , ∣ idEquiv _ ∣
 
 
--- Our first goal is to lift `_⊕_ : Bool → Bool ≃ Bool` to a function `_⊕_ : A → A ≃ Bool`
+-- Our first goal is to 'lift' `_⊕_ : Bool → Bool ≃ Bool` to a function `_⊕_ : A → A ≃ Bool`
 --  for any 2-element type (A, ∣e∣).
+
+-- `isContr-BoolPointedIso` and `isContr-2-EltPointed-iso` are contained in the proof
+--  of Lemma II.2 in [BR17], though we prove `isContr-BoolPointedIso` more directly
+--  with ⊕ -- [BR17] proves it for just the x = false case and uses notEquiv to get
+--  the x = true case.
 
 -- (λ y → x ⊕ y) is the unqiue pointed isomorphism (Bool , false) ≃ (Bool , x)
 isContr-BoolPointedIso : ∀ x → isContr ((Bool , false) ≃[ pointed-iso ] (Bool , x))
@@ -77,8 +84,9 @@ isContr-2-EltPointed-iso (X , x , ∣e∣)
                            (isContr-BoolPointedIso (e .fst x))
                            (sym (pointed-sip _ _ (e , refl))))
                   ∣e∣
-
--- This unique isomorphism must be _⊕_ 'lifted' to X
+                  
+-- This unique isomorphism must be _⊕_ 'lifted' to X. This idea is alluded to at the end of the
+--  proof of Theorem III.4 in [BR17], where the authors reference needing ⊕-comm.
 module ⊕* (X : 2-EltType₀) where
 
   _⊕*_ : typ X → typ X → Bool
@@ -93,7 +101,7 @@ module ⊕* (X : 2-EltType₀) where
   Equivʳ y = (y ⊕*_) , isEquivʳ y
 
   -- any mere proposition that holds for (Bool, _⊕_) holds for (typ X, _⊕*_)
-  -- this ammounts to just carefully unfolding the PropTrunc.elim and J in isContr-2-EltPointed-iso
+  -- this amounts to just carefully unfolding the PropTrunc.elim and J in isContr-2-EltPointed-iso
   elim : ∀ {ℓ'} (P : (A : Type₀) (_⊕'_ : A → A → Bool) → Type ℓ') (propP : ∀ A _⊕'_ → isProp (P A _⊕'_))
          → P Bool _⊕_ → P (typ X) _⊕*_
   elim {ℓ'} P propP r = PropTrunc.elim {P = λ ∣e∣ → P (typ X) (R₁ ∣e∣)} (λ _ → propP _ _)
@@ -119,7 +127,8 @@ module ⊕* (X : 2-EltType₀) where
   Equivˡ : typ X → typ X ≃ Bool
   Equivˡ y = (_⊕* y) , isEquivˡ y
 
--- the obvious consequence of isContr-2-EltPointed-iso, though it is not needed here
+-- Lemma II.2 in [BR17], though we do not use it here
+-- Note: Lemma II.3 is `pointed-sip`, used in `PointedEqvTo-sip`
 isContr-2-EltPointed : isContr (2-EltPointed₀)
 fst isContr-2-EltPointed = (Bool , false , ∣ idEquiv Bool ∣)
 snd isContr-2-EltPointed A∙ = PointedEqvTo-sip Bool _ A∙ (fst (isContr-2-EltPointed-iso A∙))
@@ -127,8 +136,8 @@ snd isContr-2-EltPointed A∙ = PointedEqvTo-sip Bool _ A∙ (fst (isContr-2-Elt
 
 --------------------------------------------------------------------------------
 
--- Now we mutually define RP n and its double cover, and show that the total
---  space of this double cover is S n.
+-- Now we mutually define RP n and its double cover (Definition III.1 in [BR17]),
+--  and show that the total space of this double cover is S n (Theorem III.4).
 
 RP  : ℕ₋₁ → Type₀
 cov⁻¹ : (n : ℕ₋₁) → RP n → 2-EltType₀ -- (see Cubical.Foundations.Bundle)
@@ -291,7 +300,7 @@ fibcov≡cov⁻¹ n x =
 
 --------------------------------------------------------------------------------
 
--- Finally, we state the trivial equivalences for RP 0 and RP 1
+-- Finally, we state the trivial equivalences for RP 0 and RP 1 (Example III.3 in [BR17])
 
 RP0≃Unit : RP 0 ≃ Unit
 RP0≃Unit = isoToEquiv (iso (λ _ → tt) (λ _ → inr tt) (λ _ → refl) (λ { (inr tt) → refl }))
