@@ -84,7 +84,7 @@ isContr-2-EltPointed-iso (X , x , ∣e∣)
                            (isContr-BoolPointedIso (e .fst x))
                            (sym (pointed-sip _ _ (e , refl))))
                   ∣e∣
-                  
+
 -- This unique isomorphism must be _⊕_ 'lifted' to X. This idea is alluded to at the end of the
 --  proof of Theorem III.4 in [BR17], where the authors reference needing ⊕-comm.
 module ⊕* (X : 2-EltType₀) where
