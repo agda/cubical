@@ -101,11 +101,11 @@ module Equality≅Bisimulation where
   misibTransp p = J (λ _ p → cast p ≡ misib p) ((transportRefl refl≈) ∙ (sym misib-refl)) p
 
 module Stream≅Nat→ {A : Type₀} where
-  lookup : {A : Type₀} → Stream A → ℕ → A
+  lookup : Stream A → ℕ → A
   lookup xs zero = head xs
   lookup xs (suc n) = lookup (tail xs) n
 
-  tabulate : {A : Type₀} → (ℕ → A) → Stream A
+  tabulate : (ℕ → A) → Stream A
   head (tabulate f) = f zero
   tail (tabulate f) = tabulate (λ n → f (suc n))
 

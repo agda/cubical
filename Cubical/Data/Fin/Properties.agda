@@ -11,14 +11,19 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
 
-open import Cubical.Data.Fin.Base
+open import Cubical.Data.Fin.Base as Fin
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
 open import Cubical.Induction.WellFounded
+
+private
+ variable
+   a b ℓ : Level
+   A : Type a
 
 private
   -- Σ is more convenient than the inductive ×, but I don't
@@ -27,20 +32,50 @@ private
   A × B = Σ A λ _ → B
 
 -- Fin 0 is empty, and thus a proposition.
-Fin0-isProp : isProp (Fin 0)
-Fin0-isProp = ⊥-elim ∘ ¬Fin0
+isPropFin0 : isProp (Fin 0)
+isPropFin0 = Empty.rec ∘ ¬Fin0
 
 -- Fin 1 has only one value.
-Fin1-isContr : isContr (Fin 1)
-Fin1-isContr
+isContrFin1 : isContr (Fin 1)
+isContrFin1
   = fzero , λ
   { (zero , _) → toℕ-injective refl
-  ; (suc k , sk<1) → ⊥-elim (¬-<-zero (pred-≤-pred sk<1))
+  ; (suc k , sk<1) → Empty.rec (¬-<-zero (pred-≤-pred sk<1))
   }
 
 -- Regardless of k, Fin k is a set.
 isSetFin : ∀{k} → isSet (Fin k)
 isSetFin {k} = isOfHLevelΣ 2 isSetℕ (λ _ → isProp→isSet m≤n-isProp)
+
+private
+  subst-app : (B : A → Type b) (f : (x : A) → B x) {x y : A} (x≡y : x ≡ y) →
+              subst B x≡y (f x) ≡ f y
+  subst-app B f {x = x} =
+    J (λ y e → subst B e (f x) ≡ f y) (substRefl {B = B} (f x))
+
+-- Computation rules for the eliminator.
+module _ (P : ∀ {k} → Fin k → Type ℓ)
+         (fz : ∀ {k} → P {suc k} fzero)
+         (fs : ∀ {k} {fn : Fin k} → P fn → P (fsuc fn))
+         {k : ℕ} where
+  elim-fzero : Fin.elim P fz fs {k = suc k} fzero ≡ fz
+  elim-fzero =
+    subst P (toℕ-injective _) fz ≡⟨ cong (λ p → subst P p fz) (isSetFin _ _ _ _) ⟩
+    subst P refl fz              ≡⟨ substRefl {B = P} fz ⟩
+    fz                           ∎
+
+  elim-fsuc : (fk : Fin k) → Fin.elim P fz fs (fsuc fk) ≡ fs (Fin.elim P fz fs fk)
+  elim-fsuc fk =
+    subst P (toℕ-injective (λ _ → toℕ (fsuc fk′))) (fs (Fin.elim P fz fs fk′))
+      ≡⟨ cong (λ p → subst P p (fs (Fin.elim P fz fs fk′)) ) (isSetFin _ _ _ _) ⟩
+    subst P (cong fsuc fk′≡fk) (fs (Fin.elim P fz fs fk′))
+      ≡⟨ subst-app _ (λ fj → fs (Fin.elim P fz fs fj)) fk′≡fk ⟩
+    fs (Fin.elim P fz fs fk)
+      ∎
+    where
+    fk′ = fst fk , pred-≤-pred (snd (fsuc fk))
+    fk′≡fk : fk′ ≡ fk
+    fk′≡fk = toℕ-injective refl
 
 -- Helper function for the reduction procedure below.
 --
@@ -67,16 +102,16 @@ private
   expand×Inj k {f1 , zero} {f2 , zero} p i
     = toℕ-injective {fj = f1} {f2} p i , zero
   expand×Inj k {f1 , suc o1} {(r , r<sk) , zero} p
-    = ⊥-elim (<-asym r<sk (lemma₀ refl p))
+    = Empty.rec (<-asym r<sk (lemma₀ refl p))
   expand×Inj k {(r , r<sk) , zero} {f2 , suc o2} p
-    = ⊥-elim (<-asym r<sk (lemma₀ refl (sym p)))
+    = Empty.rec (<-asym r<sk (lemma₀ refl (sym p)))
   expand×Inj k {f1 , suc o1} {f2 , suc o2}
     = cong (λ { (f , o) → (f , suc o) })
     ∘ expand×Inj k {f1 , o1} {f2 , o2}
     ∘ inj-m+ {suc k}
 
   expand×Emb : ∀ k → isEmbedding (expand× {k})
-  expand×Emb 0 = ⊥-elim ∘ ¬Fin0 ∘ fst
+  expand×Emb 0 = Empty.rec ∘ ¬Fin0 ∘ fst
   expand×Emb (suc k)
     = injEmbedding (isOfHLevelΣ 2 isSetFin (λ _ → isSetℕ)) isSetℕ (expand×Inj k)
 
@@ -103,14 +138,14 @@ Residue+k : (k n : ℕ) → Residue k n → Residue k (k + n)
 Residue+k k n ((f , o) , p) = (f , suc o) , cong (k +_) p
 
 Residue-k : (k n : ℕ) → Residue k (k + n) → Residue k n
-Residue-k k n (((r , r<k) , zero) , p) = ⊥-elim (<-asym r<k (lemma₀ p refl))
+Residue-k k n (((r , r<k) , zero) , p) = Empty.rec (<-asym r<k (lemma₀ p refl))
 Residue-k k n ((f , suc o) , p) = ((f , o) , inj-m+ p)
 
 Residue+k-k
   : (k n : ℕ)
   → (R : Residue k (k + n))
   → Residue+k k n (Residue-k k n R) ≡ R
-Residue+k-k k n (((r , r<k) , zero) , p) = ⊥-elim (<-asym r<k (lemma₀ p refl))
+Residue+k-k k n (((r , r<k) , zero) , p) = Empty.rec (<-asym r<k (lemma₀ p refl))
 Residue+k-k k n ((f , suc o) , p)
   = ΣProp≡ (λ tup → isSetℕ (expand× tup) (k + n)) refl
 

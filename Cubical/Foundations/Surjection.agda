@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Embedding
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
 private
   variable
@@ -24,7 +24,7 @@ section→isSurjection : {g : B → A} → section f g → isSurjection f
 section→isSurjection {g = g} s b = ∣ g b , s b ∣
 
 isSurjectionIsProp : isProp (isSurjection f)
-isSurjectionIsProp = propPi λ _ → squash
+isSurjectionIsProp = isPropPi λ _ → squash
 
 isEquiv→isSurjection : isEquiv f → isSurjection f
 isEquiv→isSurjection e b = ∣ fst (equiv-proof e b) ∣
@@ -34,7 +34,7 @@ isEquiv→isEmbedding×isSurjection e = isEquiv→isEmbedding e , isEquiv→isSu
 
 isEmbedding×isSurjection→isEquiv : isEmbedding f × isSurjection f → isEquiv f
 equiv-proof (isEmbedding×isSurjection→isEquiv {f = f} (emb , sur)) b =
-  inhProp→isContr (recPropTrunc fib' (λ x → x) fib) fib'
+  inhProp→isContr (PropTrunc.rec fib' (λ x → x) fib) fib'
   where
   hpf : hasPropFibers f
   hpf = isEmbedding→hasPropFibers emb
@@ -49,5 +49,5 @@ isEquiv≃isEmbedding×isSurjection : isEquiv f ≃ isEmbedding f × isSurjectio
 isEquiv≃isEmbedding×isSurjection = isoToEquiv (iso
   isEquiv→isEmbedding×isSurjection
   isEmbedding×isSurjection→isEquiv
-  (λ _ → hLevelProd 1 isEmbeddingIsProp isSurjectionIsProp _ _)
+  (λ _ → isOfHLevelProd 1 isEmbeddingIsProp isSurjectionIsProp _ _)
   (λ _ → isPropIsEquiv _ _ _))

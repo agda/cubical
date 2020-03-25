@@ -5,7 +5,7 @@ open import Agda.Builtin.List
 open import Cubical.Core.Everything
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod
 open import Cubical.Data.Unit
@@ -70,24 +70,18 @@ module ListPath {ℓ} {A : Type ℓ} where
   isOfHLevelCover : (n : ℕ) (p : isOfHLevel (suc (suc n)) A)
     (xs ys : List A) → isOfHLevel (suc n) (Cover xs ys)
   isOfHLevelCover n p [] [] =
-    isOfHLevelLift (suc n)
-      (subst (λ m → isOfHLevel m Unit) (+-comm n 1)
-        (hLevelLift n isPropUnit))
+    isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isPropUnit)
   isOfHLevelCover n p [] (y ∷ ys) =
-    isOfHLevelLift (suc n)
-      (subst (λ m → isOfHLevel m ⊥) (+-comm n 1)
-        (hLevelLift n isProp⊥))
+    isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥)
   isOfHLevelCover n p (x ∷ xs) [] =
-    isOfHLevelLift (suc n)
-      (subst (λ m → isOfHLevel m ⊥) (+-comm n 1)
-        (hLevelLift n isProp⊥))
+    isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥)
   isOfHLevelCover n p (x ∷ xs) (y ∷ ys) =
-    hLevelProd (suc n) (p x y) (isOfHLevelCover n p xs ys)
+    isOfHLevelProd (suc n) (p x y) (isOfHLevelCover n p xs ys)
 
 isOfHLevelList : ∀ {ℓ} (n : ℕ) {A : Type ℓ}
   → isOfHLevel (suc (suc n)) A → isOfHLevel (suc (suc n)) (List A)
 isOfHLevelList n ofLevel xs ys =
-  retractIsOfHLevel (suc n)
+  isOfHLevelRetract (suc n)
     (ListPath.encode xs ys)
     (ListPath.decode xs ys)
     (ListPath.decodeEncode xs ys)
@@ -137,8 +131,8 @@ nil≡nil-isContr : isContr (Path (List A) [] [])
 nil≡nil-isContr = refl , ListPath.decodeEncode [] []
 
 list≡nil-isProp : {xs : List A} → isProp (xs ≡ [])
-list≡nil-isProp {xs = []} = hLevelSuc 0 _ nil≡nil-isContr
-list≡nil-isProp {xs = x ∷ xs} = λ p _ → ⊥-elim (¬cons≡nil p)
+list≡nil-isProp {xs = []} = isOfHLevelSuc 0 nil≡nil-isContr
+list≡nil-isProp {xs = x ∷ xs} = λ p _ → ⊥.rec (¬cons≡nil p)
 
 discreteList : Discrete A → Discrete (List A)
 discreteList eqA []       []       = yes refl

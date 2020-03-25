@@ -62,7 +62,7 @@ module _ {ℓ ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} {X : Type 
                   --                                  (≡ isContr (CoconeMor (X , C) (Y , D)))
 
   isPropIsUniversalAt : ∀ ℓq (C : Cocone ℓ F X) → isProp (isUniversalAt ℓq C)
-  isPropIsUniversalAt ℓq C = propPi (λ Y → isPropIsEquiv (postcomp C))
+  isPropIsUniversalAt ℓq C = isPropPi (λ Y → isPropIsEquiv (postcomp C))
 
   isUniversal : Cocone ℓ F X → Typeω
   isUniversal C = ∀ ℓq → isUniversalAt ℓq C
@@ -117,18 +117,18 @@ module _ {ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} where
   leg colimCone = colim-leg
   com colimCone = colim-com
 
-  colim-rec : ∀ {ℓ} {X : Type ℓ} → Cocone ℓ F X → (colim F → X)
-  colim-rec C (colim-leg j A)   = leg C j A
-  colim-rec C (colim-com f i A) = com C f i A
+  rec : ∀ {ℓ} {X : Type ℓ} → Cocone ℓ F X → (colim F → X)
+  rec C (colim-leg j A)   = leg C j A
+  rec C (colim-com f i A) = com C f i A
 
   colimIsColimit : isColimit F (colim F)
   cone colimIsColimit = colimCone
   univ colimIsColimit ℓq Y
     = isoToIsEquiv record { fun = postcomp colimCone
-                          ; inv = colim-rec
+                          ; inv = rec
                           ; rightInv = λ C → refl
                           ; leftInv  = λ h → funExt (eq h) }
-    where eq : ∀ h (x : colim _) → colim-rec (postcomp colimCone h) x ≡ h x
+    where eq : ∀ h (x : colim _) → rec (postcomp colimCone h) x ≡ h x
           eq h (colim-leg j A)   = refl
           eq h (colim-com f i A) = refl
 

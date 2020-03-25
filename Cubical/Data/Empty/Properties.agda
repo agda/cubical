@@ -8,8 +8,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Empty.Base
 
 isProp⊥ : isProp ⊥
-isProp⊥ x = ⊥-elim x
+isProp⊥ ()
 
 isContr⊥→A : ∀ {ℓ} {A : Type ℓ} → isContr (⊥ → A)
-fst isContr⊥→A = ⊥-elim
+fst isContr⊥→A ()
 snd isContr⊥→A f i ()

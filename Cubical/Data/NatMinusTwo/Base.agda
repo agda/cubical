@@ -6,56 +6,35 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Bool
 open import Cubical.Data.Empty
 
-import Cubical.Data.NatMinusOne as ℕ₋₁
-open import Cubical.Data.NatMinusOne using (ℕ₋₁; neg1; suc; ℕ→ℕ₋₁)
+record ℕ₋₂ : Type₀ where
+  constructor -2+_
+  field
+    n : ℕ
 
-data ℕ₋₂ : Set where
-  neg2 : ℕ₋₂
-  suc  : (n : ℕ₋₂) → ℕ₋₂
-
-1+_ : ℕ₋₂ → ℕ₋₁
-1+ neg2 = neg1
-1+ suc n = suc (1+ n)
-
--1+_ : ℕ₋₁ → ℕ₋₂
--1+ neg1 = neg2
--1+ suc n = suc (-1+ n)
-
-ℕ₋₁→ℕ₋₂ : ℕ₋₁ → ℕ₋₂
-ℕ₋₁→ℕ₋₂ n = suc (-1+ n)
+pattern neg2 = -2+ zero
+pattern neg1 = -2+ (suc zero)
+pattern ℕ→ℕ₋₂ n = -2+ (suc (suc n))
+pattern -1+_ n = -2+ (suc n)
 
 2+_ : ℕ₋₂ → ℕ
-2+ n = ℕ₋₁.1+ (1+ n)
+2+ (-2+ n) = n
 
--2+_ : ℕ → ℕ₋₂
--2+ n = -1+ (ℕ₋₁.-1+ n)
+pred₋₂ : ℕ₋₂ → ℕ₋₂
+pred₋₂ neg2 = neg2
+pred₋₂ neg1 = neg2
+pred₋₂ (ℕ→ℕ₋₂ zero) = neg1
+pred₋₂ (ℕ→ℕ₋₂ (suc n)) = (ℕ→ℕ₋₂ n)
 
-ℕ→ℕ₋₂ : ℕ → ℕ₋₂
-ℕ→ℕ₋₂ n = ℕ₋₁→ℕ₋₂ (ℕ→ℕ₋₁ n)
-
-_<₋₂_ : ℕ₋₂ → ℕ₋₂ → Bool
-neg2 <₋₂ m = true
-suc n <₋₂ neg2 = false
-suc n <₋₂ suc m = n <₋₂ m
-
-_+₋₂_ : ℕ₋₂ → ℕ₋₂ → ℕ₋₂
-neg2 +₋₂ m = m
-suc n +₋₂ neg2 = suc n
-suc n +₋₂ suc m = suc (suc ( n +₋₂ m ))
-
-_-₋₂_ : ℕ₋₂ → ℕ₋₂ → ℕ₋₂
-neg2 -₋₂ m = neg2
-suc n -₋₂ neg2 = suc n
-suc n -₋₂ suc m = n -₋₂ m
-
+suc₋₂ : ℕ₋₂ → ℕ₋₂
+suc₋₂ (-2+ n) = -2+ (suc n)
 
 -- Natural number and negative integer literals for ℕ₋₂
 
 instance
   fromNatℕ₋₂ : HasFromNat ℕ₋₂
-  fromNatℕ₋₂ = record { Constraint = λ _ → Unit ; fromNat = λ n → ℕ→ℕ₋₂ n }
+  fromNatℕ₋₂ = record { Constraint = λ _ → Unit ; fromNat = ℕ→ℕ₋₂ }
 
 instance
   fromNegℕ₋₂ : HasFromNeg ℕ₋₂
   fromNegℕ₋₂ = record { Constraint = λ { (suc (suc (suc _))) → ⊥ ; _ → Unit }
-                      ; fromNeg = λ { zero → suc (suc neg2) ; (suc zero) → suc neg2 ; _ → neg2 } }
+                       ; fromNeg = λ { zero → 0 ; (suc zero) → neg1 ; _ → neg2 } }

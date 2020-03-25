@@ -9,7 +9,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.HITs.S1.Base
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
 isConnectedS¹ : (s : S¹) → ∥ base ≡ s ∥
 isConnectedS¹ base = ∣ refl ∣
@@ -18,10 +18,10 @@ isConnectedS¹ (loop i) =
 
 isGroupoidS¹ : isGroupoid S¹
 isGroupoidS¹ s t =
-  recPropTrunc isPropIsSet
+  PropTrunc.rec isPropIsSet
     (λ p →
       subst (λ s → isSet (s ≡ t)) p
-        (recPropTrunc isPropIsSet
+        (PropTrunc.rec isPropIsSet
           (λ q → subst (λ t → isSet (base ≡ t)) q isSetΩS¹)
           (isConnectedS¹ t)))
     (isConnectedS¹ s)

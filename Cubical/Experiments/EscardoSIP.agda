@@ -18,8 +18,9 @@ open import Cubical.Data.Sigma.Properties
 
 
 private
- variable
-  ℓ ℓ' ℓ'' : Level
+  variable
+    ℓ ℓ' ℓ'' : Level
+    S : Type ℓ → Type ℓ'
 
 
 -- We prove several useful equalities and equivalences between Σ-types all the proofs are taken from
@@ -106,12 +107,12 @@ NatΣ τ (x , a) = (x , τ x a)
       b = (transp (λ i → A (η (f x) (~ i))) i0 a)
 
       q : transp (λ i → A (f (ε x i))) i0 (transp (λ i → A (η (f x) (~ i))) i0 a) ≡ a
-      q =  transp (λ i → A (f (ε x i))) i0 b  ≡⟨ S ⟩
+      q =  transp (λ i → A (f (ε x i))) i0 b  ≡⟨ i ⟩
            transp (λ i → A (η (f x) i)) i0 b  ≡⟨ transportTransport⁻ (λ i → A (η (f x) i)) a ⟩
            a                                  ∎
        where
-        S : (transp (λ i → A (f (ε x i))) i0 b)  ≡ (transp (λ i → A (η (f x) i)) i0 b)
-        S = subst (λ p → (transp (λ i → A (f (ε x i))) i0 b)  ≡ (transp (λ i → A (p i)) i0 b))
+        i : (transp (λ i → A (f (ε x i))) i0 b)  ≡ (transp (λ i → A (η (f x) i)) i0 b)
+        i = subst (λ p → (transp (λ i → A (f (ε x i))) i0 b)  ≡ (transp (λ i → A (p i)) i0 b))
                  (τ x) refl
 
 
@@ -155,48 +156,37 @@ NatΣ τ (x , a) = (x , τ x a)
 -- as S-structures. This we call a standard notion of structure.
 
 
-SNS : (S : Type ℓ → Type ℓ')
-     → ((A B : Σ[ X ∈ (Type ℓ) ] (S X)) → ((A .fst) ≃ (B .fst)) → Type ℓ'')
-     → Type (ℓ-max (ℓ-max(ℓ-suc ℓ) ℓ') ℓ'')
+SNS : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') → Type (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ') ℓ'')
 SNS  {ℓ = ℓ} S ι = ∀ {X : (Type ℓ)} (s t : S X) → ((s ≡ t) ≃ ι (X , s) (X , t) (idEquiv X))
 
 
 -- Escardo's ρ can actually be  defined from this:
-ρ :  {S : Type ℓ → Type ℓ'}
-    → {ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → ((A .fst) ≃ (B .fst)) → Type ℓ''}
-    → (SNS S ι)
-    → (A : Σ[ X ∈ (Type ℓ) ] (S X)) → (ι A A (idEquiv (A .fst)))
-ρ θ A = equivFun (θ (A .snd) (A .snd)) refl
+ρ :  {ι : StrIso S ℓ''} (θ : SNS S ι) (A : TypeWithStr ℓ S) → (ι A A (idEquiv (typ A)))
+ρ θ A = equivFun (θ (str A) (str A)) refl
 
 -- We introduce the notation a bit differently:
-_≃[_]_ : {S : Type ℓ → Type ℓ'} → (Σ[ X ∈ (Type ℓ) ] (S X))
-                           → (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → ((A .fst) ≃ (B .fst)) → Type ℓ'')
-                           → (Σ[ X ∈ (Type ℓ) ] (S X))
-                           → (Type (ℓ-max ℓ ℓ''))
-A ≃[ ι ] B = Σ[ f ∈ ((A .fst) ≃ (B. fst)) ] (ι A B f)
+_≃[_]_ : (A : TypeWithStr ℓ S) (ι : StrIso S ℓ'') (B : TypeWithStr ℓ S) → (Type (ℓ-max ℓ ℓ''))
+A ≃[ ι ] B = Σ[ f ∈ ((typ A) ≃ (typ B)) ] (ι A B f)
 
 
 
-Id→homEq : (S : Type ℓ → Type ℓ')
-          → (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → ((A .fst) ≃ (B .fst)) → Type ℓ'')
-          → (ρ : (A : Σ[ X ∈ (Type ℓ) ] (S X)) → ι A A (idEquiv (A .fst)))
-          → (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → A ≡ B → (A ≃[ ι ] B)
-Id→homEq S ι ρ A B p = J (λ y x → A ≃[ ι ] y) (idEquiv (A .fst) , ρ A) p
+Id→homEq : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'')
+          → (ρ : (A : TypeWithStr ℓ S) → ι A A (idEquiv (typ A)))
+          → (A B : TypeWithStr ℓ S) → A ≡ B → (A ≃[ ι ] B)
+Id→homEq S ι ρ A B p = J (λ y x → A ≃[ ι ] y) (idEquiv (typ A) , ρ A) p
 
 
 -- Use a PathP version of Escardó's homomorphism-lemma
-hom-lemma-dep : (S : Type ℓ → Type ℓ')
-               → (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → ((A .fst) ≃ (B .fst)) → Type ℓ'')
-               → (θ : SNS S ι)
-               → (A B : Σ[ X ∈ (Type ℓ) ] (S X))
-               → (p : (A .fst) ≡ (B. fst))
-               → (PathP (λ i → S (p i)) (A .snd) (B .snd)) ≃ (ι A B (pathToEquiv p))
-hom-lemma-dep S ι θ A B p = (J P (λ s → γ s) p) (B .snd)
+hom-lemma-dep : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') (θ : SNS S ι)
+               → (A B : TypeWithStr ℓ S)
+               → (p : (typ A) ≡ (typ B))
+               → (PathP (λ i → S (p i)) (str A) (str B)) ≃ (ι A B (pathToEquiv p))
+hom-lemma-dep S ι θ A B p = (J P (λ s → γ s) p) (str B)
      where
-      P = (λ y x → (s : S y) → PathP (λ i → S (x i)) (A .snd) s ≃ ι A (y , s) (pathToEquiv x))
+      P = (λ y x → (s : S y) → PathP (λ i → S (x i)) (str A) s ≃ ι A (y , s) (pathToEquiv x))
 
-      γ : (s : S (A .fst)) → ((A .snd) ≡ s) ≃ ι A ((A .fst) , s) (pathToEquiv refl)
-      γ s = subst (λ f → ((A .snd) ≡ s) ≃ ι A ((A .fst) , s) f)  (sym pathToEquivRefl) (θ (A. snd) s)
+      γ : (s : S (typ A)) → ((str A) ≡ s) ≃ ι A ((typ A) , s) (pathToEquiv refl)
+      γ s = subst (λ f → ((str A) ≡ s) ≃ ι A ((typ A) , s) f)  (sym pathToEquivRefl) (θ (str A) s)
 
 
 -- Define the inverse of Id→homEq directly.
@@ -206,30 +196,26 @@ ua-lemma A B e = EquivJ (λ b a f →  (pathToEquiv (ua f)) ≡ f)
                         B A e
 
 
-homEq→Id : (S : Type ℓ → Type ℓ')
-          → (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → ((A .fst) ≃ (B .fst)) → Type ℓ'')
-          → (θ : SNS S ι)
-          → (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → (A ≃[ ι ] B) → A ≡ B
+homEq→Id : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') (θ : SNS S ι)
+          → (A B : TypeWithStr ℓ S) → (A ≃[ ι ] B) → A ≡ B
 homEq→Id S ι θ A B (f , φ) = ΣPathP (p , q)
         where
          p = ua f
 
          ψ : ι A B (pathToEquiv p)
-         ψ = subst (λ g → ι A B g) (sym (ua-lemma (A .fst) (B. fst) f)) φ
+         ψ = subst (λ g → ι A B g) (sym (ua-lemma (typ A) (typ B) f)) φ
 
-         q : PathP (λ i → S (p i)) (A .snd) (B .snd)
+         q : PathP (λ i → S (p i)) (str A) (str B)
          q = equivFun (invEquiv (hom-lemma-dep S ι θ A B p)) ψ
 
 
 -- Proof of the SIP:
-SIP : (S : Type ℓ → Type ℓ')
-     → (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → ((A .fst) ≃ (B .fst)) → Type ℓ'')
-     → (θ : SNS S ι)
-     → (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → ((A ≡ B) ≃ (A ≃[ ι ] B))
+SIP : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') (θ : SNS S ι)
+     → (A B : TypeWithStr ℓ S) → ((A ≡ B) ≃ (A ≃[ ι ] B))
 SIP S ι θ A B =
-            (A ≡ B)                                                                 ≃⟨ i ⟩
-            (Σ[ p ∈ (A .fst) ≡ (B. fst) ] PathP (λ i → S (p i)) (A .snd) (B .snd))  ≃⟨ ii ⟩
-            (Σ[ p ∈ (A .fst) ≡ (B. fst) ] (ι A B (pathToEquiv p)))                  ≃⟨ iii ⟩
+            (A ≡ B)                                                             ≃⟨ i ⟩
+            (Σ[ p ∈ (typ A) ≡ (typ B) ] PathP (λ i → S (p i)) (str A) (str B))  ≃⟨ ii ⟩
+            (Σ[ p ∈ (typ A) ≡ (typ B) ] (ι A B (pathToEquiv p)))                ≃⟨ iii ⟩
             (A ≃[ ι ] B)                                                            ■
     where
      i = invEquiv Σ≡

@@ -11,9 +11,9 @@ open import Cubical.HITs.S2
 open import Cubical.HITs.S3
 open import Cubical.HITs.Join
 open import Cubical.HITs.Hopf
-open import Cubical.HITs.SetTruncation
-open import Cubical.HITs.GroupoidTruncation
-open import Cubical.HITs.2GroupoidTruncation
+open import Cubical.HITs.SetTruncation as SetTrunc
+open import Cubical.HITs.GroupoidTruncation as GroupoidTrunc
+open import Cubical.HITs.2GroupoidTruncation as 2GroupoidTrunc
 
 -- This code is adapted from examples/brunerie3.ctt on the pi4s3_nobug branch of cubicaltt
 
@@ -204,7 +204,7 @@ codeS² : S² → hGroupoid _
 codeS² s = ∥ HopfS² s ∥₁ , squash₁
 
 codeTruncS² : ∥ S² ∥₂ → hGroupoid _
-codeTruncS² = rec2GroupoidTrunc (hLevelHLevel 3) codeS²
+codeTruncS² = 2GroupoidTrunc.rec (isOfHLevelHLevel 3) codeS²
 
 encodeTruncS² : Ω ∥ S²∙ ∥₂∙ .fst → ∥ S¹ ∥₁
 encodeTruncS² p = transp (λ i → codeTruncS² (p i) .fst) i0 ∣ base ∣₁
@@ -213,7 +213,7 @@ codeS¹ : S¹ → hSet _
 codeS¹ s = ∥ helix s ∥₀ , squash₀
 
 codeTruncS¹ : ∥ S¹ ∥₁ → hSet _
-codeTruncS¹ = recGroupoidTrunc (hLevelHLevel 2) codeS¹
+codeTruncS¹ = GroupoidTrunc.rec (isOfHLevelHLevel 2) codeS¹
 
 encodeTruncS¹ : Ω ∥ S¹∙ ∥₁∙ .fst → ∥ Int ∥₀
 encodeTruncS¹ p = transp (λ i → codeTruncS¹ (p i) .fst) i0 ∣ pos zero ∣₀
@@ -243,7 +243,7 @@ g9 : Ω ∥ S¹∙ ∥₁∙ .fst → ∥ Int ∥₀
 g9 = encodeTruncS¹
 
 g10 : ∥ Int ∥₀ → Int
-g10 = elimSetTrunc (λ _ → isSetInt) (idfun Int)
+g10 = SetTrunc.elim (λ _ → isSetInt) (idfun Int)
 
 -- don't run me
 brunerie : Int

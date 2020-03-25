@@ -23,22 +23,22 @@ unitl-++ : ∀ (xs : FMSet A) → [] ++ xs ≡ xs
 unitl-++ xs = refl
 
 unitr-++ : ∀ (xs : FMSet A) → xs ++ [] ≡ xs
-unitr-++ = FMSetElimProp.f (trunc _ _)
+unitr-++ = ElimProp.f (trunc _ _)
   refl
   (λ x p → cong (_∷_ x) p)
 
 assoc-++ : ∀ (xs ys zs : FMSet A) → xs ++ (ys ++ zs) ≡ (xs ++ ys) ++ zs
-assoc-++ = FMSetElimProp.f (propPi (λ _ → propPi (λ _ → trunc _ _)))
+assoc-++ = ElimProp.f (isPropPi (λ _ → isPropPi (λ _ → trunc _ _)))
   (λ ys zs → refl)
   (λ x p ys zs → cong (_∷_ x) (p ys zs))
 
 cons-++ : ∀ (x : A) (xs : FMSet A) → x ∷ xs ≡ xs ++ [ x ]
-cons-++ x = FMSetElimProp.f (trunc _ _)
+cons-++ x = ElimProp.f (trunc _ _)
   refl
   (λ y {xs} p → comm x y xs ∙ cong (_∷_ y) p)
 
 comm-++ : ∀ (xs ys : FMSet A) → xs ++ ys ≡ ys ++ xs
-comm-++ = FMSetElimProp.f (propPi (λ _ → trunc _ _))
+comm-++ = ElimProp.f (isPropPi (λ _ → trunc _ _))
   (λ ys → sym (unitr-++ ys))
   (λ x {xs} p ys → cong (x ∷_) (p ys)
                  ∙ cong (_++ xs) (cons-++ x ys)
@@ -51,7 +51,7 @@ module FMSetUniversal {ℓ} {M : Type ℓ} (MSet : isSet M)
   (f : A → M) where
 
   f-extend : FMSet A → M
-  f-extend = FMSetRec.f MSet e (λ x m → f x ⊗ m)
+  f-extend = Rec.f MSet e (λ x m → f x ⊗ m)
          (λ x y m → comm-⊗ (f x) (f y ⊗ m) ∙ sym (assoc-⊗ (f y) m (f x)) ∙ cong (f y ⊗_) (comm-⊗ m (f x)))
 
   f-extend-nil : f-extend [] ≡ e
@@ -64,7 +64,7 @@ module FMSetUniversal {ℓ} {M : Type ℓ} (MSet : isSet M)
   f-extend-sing x = comm-⊗ (f x) e ∙ unit-⊗ (f x)
 
   f-extend-++ : ∀ xs ys → f-extend (xs ++ ys) ≡ f-extend xs ⊗ f-extend ys
-  f-extend-++ = FMSetElimProp.f (propPi λ _ → MSet _ _)
+  f-extend-++ = ElimProp.f (isPropPi λ _ → MSet _ _)
     (λ ys → sym (unit-⊗ (f-extend ys)))
     (λ x {xs} p ys → cong (f x ⊗_) (p ys) ∙ assoc-⊗ (f x) (f-extend xs) (f-extend ys))
 
@@ -72,6 +72,6 @@ module FMSetUniversal {ℓ} {M : Type ℓ} (MSet : isSet M)
            (h-++ : ∀ xs ys → h (xs ++ ys) ≡ h xs ⊗ h ys) where
 
     f-extend-unique : h ≡ f-extend
-    f-extend-unique = funExt (FMSetElimProp.f (MSet _ _)
+    f-extend-unique = funExt (ElimProp.f (MSet _ _)
                               h-nil
                               (λ x {xs} p → (h-++ [ x ] xs) ∙ cong (_⊗ h xs) (h-sing x) ∙ cong (f x ⊗_) p))

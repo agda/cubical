@@ -21,6 +21,14 @@ open import Agda.Primitive.Cubical public
            ; primHComp      to hcomp
            ; primTransp     to transp
            ; itIsOne        to 1=1 )
+
+-- These two are to make sure all the primitives are loaded and ready
+-- to compute hcomp/transp for the universe.
+import Agda.Builtin.Cubical.Glue
+-- HCompU is already imported from Glue, and older Agda versions do
+-- not have it. So we comment it out for now.
+-- import Agda.Builtin.Cubical.HCompU
+
 open import Agda.Primitive public
   using    ( Level )
   renaming ( lzero to ℓ-zero
@@ -202,4 +210,3 @@ infix 2 Σ-syntax
 Σ-syntax = Σ
 
 syntax Σ-syntax A (λ x → B) = Σ[ x ∈ A ] B
-
