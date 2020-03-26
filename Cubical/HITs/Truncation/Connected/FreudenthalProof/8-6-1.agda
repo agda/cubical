@@ -30,10 +30,6 @@ private
     B : Type ℓ'
 
 private
-  0* : ℕ₋₂
-  0* = ℕ→ℕ₋₂ 0
-
-private
   Lemma861-fibId : ∀{ℓ} (n : ℕ₋₂) (k : ℕ) (f : A → B) →
                    (is- n -Connected f) →
                    (P : B → HLevel ℓ (((suc k) + (2+ n))))
