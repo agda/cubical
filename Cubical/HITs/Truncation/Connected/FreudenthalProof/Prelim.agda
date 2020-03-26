@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.HITs.Truncation.Connected.FreudenthalProof.Prelim where
 
-open import Cubical.HITs.Truncation.Connected.Base 
+open import Cubical.HITs.Truncation.Connected.Base
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
@@ -33,7 +33,7 @@ congComp2  {A = A}{a = a} {b = b} {c = c} f p q = J (λ b p → (c : A) (q : b �
                                                       (λ c → J (λ c q → (λ i → f a) ∙ (λ i → f (q i)) ≡ (λ i → f ((refl ∙ q) i)))
                                                                  ((λ j → rUnit (refl {x = f a}) (~ j)) ∙
                                                                  λ j i → f ((lUnit (refl {x = a}) j) i)))
-                                                      p c q 
+                                                      p c q
 
 congComp3 : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {a b c d : A} (f : A → B) (p : a ≡ b) (q : b ≡ c) (r : c ≡ d) →
            (cong f p ∙ cong f q) ∙ cong f r ≡ cong f (p ∙ q ∙ r)
@@ -76,15 +76,15 @@ canceller : ∀ {ℓ} {A : Type ℓ} {a b c : A} → (r : b ≡ c) (p q : a ≡ 
 canceller {ℓ} {A} {a} {b} {c} = J {ℓ} {A} {b} (λ c r → ((p q : a ≡ b) → p ∙ r ≡ q ∙ r → p ≡ q)) λ p q id → (rUnit p) ∙ id ∙ sym (rUnit q)
 
 cancellerReflCase : ∀ {ℓ} {A : Type ℓ} {a b : A} → (p q : a ≡ b) → canceller refl p q ≡ λ id → (rUnit p) ∙ id ∙ sym (rUnit q)
-cancellerReflCase {a = a} {b = b} p q = cong (λ x → x p q) (JRefl (λ c r → ((p q : a ≡ b) → p ∙ r ≡ q ∙ r → p ≡ q)) λ p q id → (rUnit p) ∙ id ∙ sym (rUnit q)) 
+cancellerReflCase {a = a} {b = b} p q = cong (λ x → x p q) (JRefl (λ c r → ((p q : a ≡ b) → p ∙ r ≡ q ∙ r → p ≡ q)) λ p q id → (rUnit p) ∙ id ∙ sym (rUnit q))
 
 cancellerInv : ∀ {ℓ} {A : Type ℓ} {a b c : A} → (r : b ≡ c) (p q : a ≡ b) → (p ≡ q) → p ∙ r ≡ q ∙ r
 cancellerInv {a = a} {b = b} = J (λ c r → (p q : a ≡ b) → (p ≡ q) → p ∙ r ≡ q ∙ r) λ p q id → sym (rUnit p) ∙ id ∙ rUnit q
 
 cancellerInvReflCase : ∀ {ℓ} {A : Type ℓ} {a b : A} → (p q : a ≡ b) → cancellerInv refl p q ≡ λ id → sym (rUnit p) ∙ id ∙ rUnit q
-cancellerInvReflCase {a = a} {b = b} p q = cong (λ x → x p q) (JRefl (λ c r → (p q : a ≡ b) → (p ≡ q) → p ∙ r ≡ q ∙ r) λ p q id → sym (rUnit p) ∙ id ∙ rUnit q) 
+cancellerInvReflCase {a = a} {b = b} p q = cong (λ x → x p q) (JRefl (λ c r → (p q : a ≡ b) → (p ≡ q) → p ∙ r ≡ q ∙ r) λ p q id → sym (rUnit p) ∙ id ∙ rUnit q)
 
-cancellerSection :  ∀ {ℓ} {A : Type ℓ} {a b c : A} → (r : b ≡ c) (p q : a ≡ b) → section (canceller r p q) (cancellerInv r p q) 
+cancellerSection :  ∀ {ℓ} {A : Type ℓ} {a b c : A} → (r : b ≡ c) (p q : a ≡ b) → section (canceller r p q) (cancellerInv r p q)
 cancellerSection {a = a} {b = b} {c = c} = J (λ c r → (p q : a ≡ b) → section (canceller r p q) (cancellerInv r p q) ) λ p q → transport (λ i → section (cancellerReflCase p q (~ i)) (cancellerInvReflCase p q (~ i))) (λ b → assoc (rUnit p) ((λ i → rUnit p (~ i)) ∙ b ∙ rUnit q) (λ i → rUnit q (~ i)) ∙
                           (λ i → ((assoc (rUnit p) (sym (rUnit p)) (b ∙ rUnit q)) i) ∙ (λ i → rUnit q (~ i))) ∙
                           (λ i → ((rCancel (rUnit p) i) ∙ (b ∙ rUnit q)) ∙ (sym (rUnit q))) ∙
@@ -93,7 +93,7 @@ cancellerSection {a = a} {b = b} {c = c} = J (λ c r → (p q : a ≡ b) → sec
                           (λ i → b ∙ (rCancel (rUnit q) i)) ∙
                           sym (rUnit b))
 
-cancellerRetract :  ∀ {ℓ} {A : Type ℓ} {a b c : A} → (r : b ≡ c) (p q : a ≡ b) → retract (canceller r p q) (cancellerInv r p q) 
+cancellerRetract :  ∀ {ℓ} {A : Type ℓ} {a b c : A} → (r : b ≡ c) (p q : a ≡ b) → retract (canceller r p q) (cancellerInv r p q)
 cancellerRetract {a = a} {b = b} {c = c} = J (λ c r → (p q : a ≡ b) → retract (canceller r p q) (cancellerInv r p q) ) λ p q → transport (λ i → retract (cancellerReflCase p q (~ i)) (cancellerInvReflCase p q (~ i))) λ b → assoc (sym (rUnit p)) ((λ i → rUnit p (i)) ∙ b ∙ (sym (rUnit q))) (rUnit q) ∙
                           (λ i → ((assoc (sym (rUnit p)) (rUnit p) (b ∙ sym (rUnit q))) i) ∙ (rUnit q)) ∙
                           (λ i → ((lCancel (rUnit p) i) ∙ (b ∙ sym (rUnit q))) ∙ ((rUnit q))) ∙
@@ -101,7 +101,7 @@ cancellerRetract {a = a} {b = b} {c = c} = J (λ c r → (p q : a ≡ b) → ret
                           (sym (assoc b (sym (rUnit q)) (rUnit q))) ∙
                           (λ i → b ∙ (rCancel (sym (rUnit q)) i)) ∙
                           sym (rUnit b)
-  
+
 
 cancellerIsEquiv : ∀ {ℓ} {A : Type ℓ} {a b c : A} → (r : b ≡ c) (p q : a ≡ b) → isEquiv (canceller r p q)
 cancellerIsEquiv {ℓ} {A} {a} {b} {c} = J {ℓ} {A} {b} (λ c r → ((p q : a ≡ b) → isEquiv (canceller r p q))) λ p q → transport (λ i → isEquiv (cancellerHelp p q (~ i))) (helper p q)
@@ -180,7 +180,7 @@ assocJRefl {x = x} = (cong (λ x → x refl refl) (JRefl (λ y p → (q : y ≡ 
 
 
 transpFunct : ∀ {ℓ ℓ'} {A : Type ℓ} {x y z : A} {B : A → Type ℓ'} (p : x ≡ y) (q : y ≡ z) (u : B x) →
-              transport (λ i → B (q i)) (transport (λ i → B (p i)) u) ≡ transport (λ i → B ((p ∙ q) i)) u 
+              transport (λ i → B (q i)) (transport (λ i → B (p i)) u) ≡ transport (λ i → B ((p ∙ q) i)) u
 transpFunct {A = A} {x = x} {y = y} {z = z} {B = B} p =
                     J (λ y p → (z : A) (q : y ≡ z) (u : B x) →
                                transport (λ i → B (q i)) (transport (λ i → B (p i)) u) ≡ transport (λ i → B ((p ∙ q) i)) u)
@@ -204,7 +204,7 @@ transpFunctRefl {A = A} {x = x} {B = B} u =
                          ∙ cong (λ x → x u) (JRefl (λ z q → (u : B x) →
                                                             transport (λ i → B (q i)) (transport (λ i → B (refl {x = x} i)) u) ≡ transport (λ i → B ((refl ∙ q) i)) u)
                                                    (λ u → transportRefl ((transport (λ i → B x) u)) ∙
-                                                          λ j → transport (λ i → B ((lUnit ((λ _ → x)) j) i)) u)) 
+                                                          λ j → transport (λ i → B ((lUnit ((λ _ → x)) j) i)) u))
 
 cancelReflMid : ∀ {ℓ} {A : Type ℓ} {a b : A} (p : a ≡ b) (q : b ≡ a) → p ∙ refl ∙ q ≡ p ∙ q
 cancelReflMid {ℓ = ℓ}{A = A} {a = a} {b = b} p q = J {ℓ} {A} {a} {ℓ} (λ b p → ((q : b ≡ a) →  p ∙ refl ∙ q ≡ p ∙ q)) (λ r → sym (lUnit (refl  ∙ r ))) {b} p q
@@ -234,7 +234,7 @@ abstract
                   p f g
   Lemma296-funRefl : ∀ {ℓ ℓ' ℓ''} {X : Type ℓ} {x : X} {A : X → Type ℓ'} {B : X → Type ℓ''}
                      (f : (A x) → (B x))
-                     (g : (A x) → (B x)) → 
+                     (g : (A x) → (B x)) →
                      Lemma296-fun {A = A} {B = B} (refl {x = x}) f g
                    ≡ λ h → transportRefl f ∙ funExt λ z → sym (transportRefl (f z))  ∙
                                              (h z) ∙
@@ -283,7 +283,7 @@ toPathCancel {A = A} {x = x} {y = y} z = cong (λ x → fst x) (equiv-proof (toP
 transportLemma : {a b : A} {B : (z : A) → Type ℓ'} (p : a ≡ b) (x : B a) (y : B b) → transport (λ i → B (p i)) x ≡ y → transport (λ i → B (p (~ i))) y ≡ x
 transportLemma {a = a} {B = B} x y = J (λ b p → (x : B a) (y : B b) → transport (λ i → B (p i)) x ≡ y → transport (λ i → B (p (~ i))) y ≡ x)
                                        (λ x y id → transportRefl y ∙  (sym id) ∙ transportRefl x)
-                                        x y 
+                                        x y
 transportLemmaRefl : {a : A} {B : (z : A) → Type ℓ'} → (x y : B a) →  transportLemma {B = B} (λ _ → a) ≡ λ x y id → transportRefl y ∙  (sym id) ∙ transportRefl x
 transportLemmaRefl {ℓ} {A = A} {a = a} {B = B} x y = JRefl {ℓ} {A} {a} (λ b p → (x y : B a) → transport (λ i → B a) x ≡ y → transport (λ i → B a) y ≡ x)
                                        (λ x y id → transportRefl y ∙  (sym id) ∙ transportRefl x)
