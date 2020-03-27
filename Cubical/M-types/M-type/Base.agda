@@ -244,5 +244,3 @@ lift-direct-M : ∀ {ℓ} {S : Container {ℓ}}
   ---------------
   → M-type S
 lift-direct-M x p = x , p
-
-
