@@ -13,4 +13,5 @@ equiv-proof (idIsEquiv A) y =
   ((y , refl) , λ z i → z .snd (~ i) , λ j → z .snd (~ i ∨ j))
 
 idEquiv : ∀ {ℓ} (A : Type ℓ) → A ≃ A
-idEquiv A = record {fst = idfun A; snd = idIsEquiv A }
+idEquiv A .fst = idfun A
+idEquiv A .snd = idIsEquiv A
