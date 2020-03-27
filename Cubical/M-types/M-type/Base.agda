@@ -121,9 +121,9 @@ lemma11-helper-Iso {ℓ} {S = S} χ =
   Σ (singl (x 0)) λ _ → (n : ℕ) →
    π (sequence S) (x (suc n)) ≡ x n)
     Iso⟨ iso (λ { (x , (z , p) , q) → z , x , p , q })
-             (λ { (lift tt , x , p , q) → x , ((lift tt) , p) , q })
+             (λ { (lift tt , x , p , q) → x , (lift tt , p) , q })
              (λ { (lift tt , x , p , q) → refl })
-             (λ { (x , (lift tt , p) , q) → refl {x = x , (((lift tt) , p) , q)} }) ⟩
+             (λ { (x , (lift tt , p) , q) i → x , (lift tt , p) , q }) ⟩
   Σ (X (sequence S) 0) (λ z →
   Σ ((n : ℕ) → X (sequence S) n) λ x →
   Σ (z ≡ x 0) λ _ → (n : ℕ) →
