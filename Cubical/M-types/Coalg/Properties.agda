@@ -89,11 +89,10 @@ coalg-unfold-function X,ρ C,γ y = (coalg-unfold X,ρ C,γ) .fst y
 U : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} -> Set ℓ
 U {S = S} {C,γ = C,γ} = Σ (C,γ .fst -> M-type S) λ f → out-fun ∘ f ≡ P₁ f ∘ C,γ .snd
 
-U-to-Unit : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} -> U {C,γ = C,γ} -> Lift {ℓ-zero} {ℓ} Unit
-U-to-Unit _ = lift tt
+open Iso
 
 FunctionToProjection : ∀ {ℓ} {S : Container {ℓ}} (C,γ : Coalg₀) -> Cone C,γ -> C,γ .fst -> M-type S
-FunctionToProjection {S = S} C,γ c = transp (λ i → sym (lemma10 C,γ) i) i0 c
+FunctionToProjection {S = S} C,γ = inv (lemma10-Iso {C,γ = C,γ})
 
 step : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} {Y : Set ℓ} (f : C,γ .fst -> Y) → C,γ .fst → P₀ Y
 step {C,γ = C,γ} {Y = Y} f = P₁ f  ∘ C,γ .snd
@@ -116,13 +115,14 @@ step {C,γ = C,γ} {Y = Y} f = P₁ f  ∘ C,γ .snd
 Φ {S = S} {C,γ = C,γ} (u , g) = ϕ₀ {C,γ = C,γ} u , ϕ₁ {S = S} {C,γ = C,γ} u g
 
 postulate
-  commutivity : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} -> let e = FunctionToProjection C,γ in Ψ {C,γ = C,γ} ∘ e ≡ e ∘ Φ {C,γ = C,γ}
+  commutivity : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}}
+    → let e = FunctionToProjection C,γ in
+    Ψ {C,γ = C,γ} ∘ e ≡ e ∘ Φ {C,γ = C,γ}
 
-postulate
-  e-inj : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} x y -> (FunctionToProjection C,γ x ≡ FunctionToProjection C,γ y) ≡ (x ≡ y)
-
-×-left-unit : ∀ {i} {X : Set i} → (Σ (Lift {ℓ-zero} {i} Unit) (λ _ -> X)) ≡ X
-×-left-unit = isoToPath (iso (λ {(lift tt , x) → x}) (λ x → lift tt , x) (λ _ → refl) λ { (lift tt , a) → refl })
+e-inj : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} {x y}
+  → (FunctionToProjection C,γ x ≡ FunctionToProjection C,γ y)
+  ≡ (x ≡ y)
+e-inj {C,γ = C,γ} = ≡-rel-b-inj-x (lemma10-Iso {C,γ = C,γ})
 
 u0 : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} -> Cone₀ {C,γ = C,γ}
 u0 {C,γ = C,γ} = λ { 0 _ → lift tt ; (suc n) -> step {C,γ = C,γ} (u0 {C,γ = C,γ} n) }
@@ -141,42 +141,50 @@ missing-0 {S = S} = isoToPath (iso (λ _ → u0 , (funExt p0)) (λ x → lift tt
 postulate
   missing-2 : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} -> ((x : Lift Unit) → Lift {ℓ-zero} {ℓ} Unit ≡ (Σ (Cone₁ {C,γ = C,γ} ((transport (missing-0 {C,γ = C,γ}) x) .fst)) (λ q → PathP (λ i → Cone₁ {C,γ = C,γ} ((transport (missing-0 {C,γ = C,γ}) x) .snd i)) q (ϕ₁ {C,γ = C,γ} ((transport (missing-0 {C,γ = C,γ}) x) .fst) q))))
 
--- lim-coalg-iso
-U-is-Unit : ∀ {ℓ} {S : Container {ℓ}} (C,γ : Coalg₀ {S = S}) -> (C,γ ⇒ M-coalg) ≡ Lift Unit
-U-is-Unit {ℓ = ℓ} {S = S} C,γ@(C , γ) =
+U-is-Unit-Iso :
+  ∀ {ℓ} {S : Container {ℓ}} (C,γ : Coalg₀ {S = S})
+  ------------------------------------
+  → Iso (C,γ ⇒ M-coalg) (Lift Unit)
+U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
   let e = FunctionToProjection C,γ in
   let 𝓛 = M-type S in
   U {C,γ = C,γ}
-    ≡⟨ refl ⟩
+    Iso⟨ refl-iso ⟩
   Σ (C → 𝓛) (λ f → out-fun ∘ f ≡ step {C,γ = C,γ} f)
-    ≡⟨ (λ i → Σ (C → 𝓛) (λ f → in-inj {f = out-fun ∘ f} {g = step {C,γ = C,γ} f} (~ i))) ⟩
+    Iso⟨ Σ-ap-iso₂ (λ f → sym-iso (pathToIso in-inj)) ⟩
   Σ (C → 𝓛) (λ f → in-fun ∘ out-fun ∘ f ≡ in-fun ∘ step {C,γ = C,γ} f)
-    ≡⟨ (λ i → Σ (C,γ .fst → M-type S) (λ f → identity-f-r {k = in-fun ∘ out-fun {S = S}} in-inverse-out f i ≡ in-fun ∘ step {C,γ = C,γ} f)) ⟩
+    Iso⟨ Σ-ap-iso₂ (λ f → pathToIso λ i → identity-f-r {k = in-fun ∘ out-fun {S = S}} in-inverse-out f i ≡ in-fun ∘ step {C,γ = C,γ} f) ⟩
   Σ (C -> 𝓛) (λ f → f ≡ in-fun ∘ step {C,γ = C,γ} f)
-    ≡⟨ refl ⟩
+    Iso⟨ refl-iso ⟩
   Σ (C → 𝓛) (λ f → f ≡ Ψ {C,γ = C,γ} f)
-    ≡⟨ sym (Σ-ap-iso (sym (lemma10 C,γ)) (λ _ → refl)) ⟩
+    Iso⟨ sym-iso (Σ-ap-iso (sym-iso (lemma10-Iso {C,γ = C,γ})) (λ _ → refl-iso)) ⟩
   Σ (Cone C,γ) (λ c → e c ≡ Ψ {C,γ = C,γ} (e c))
-    ≡⟨ (λ i → Σ (Cone C,γ) (λ c → e c ≡ funExt⁻ (commutivity {C,γ = C,γ}) c i)) ⟩
+    Iso⟨ Σ-ap-iso₂ (λ c → pathToIso λ i → e c ≡ funExt⁻ (commutivity {C,γ = C,γ}) c i) ⟩
   Σ (Cone C,γ) (λ c → e c ≡ e (Φ {C,γ = C,γ} c))
-    ≡⟨ (λ i → Σ (Cone C,γ) (λ c → e-inj {C,γ = C,γ} c (Φ {C,γ = C,γ} c) i)) ⟩
+    Iso⟨ Σ-ap-iso₂ (λ c → pathToIso (e-inj {C,γ = C,γ})) ⟩
   Σ (Cone C,γ) (λ c → c ≡ Φ {C,γ = C,γ} c)
-    ≡⟨ refl ⟩
+    Iso⟨ refl-iso ⟩
   Σ (Cone C,γ) (λ { (u , q) → (u , q) ≡ (ϕ₀ {C,γ = C,γ} u , ϕ₁ {C,γ = C,γ} u q)})
-    ≡⟨ (λ i → Σ (Cone C,γ) λ {(u , q) → sym (Σ-split-iso {a = u} {a' = ϕ₀ {C,γ = C,γ} u} {b = q} {b' = ϕ₁ {C,γ = C,γ} u q}) i}) ⟩
+    Iso⟨ (Σ-ap-iso₂ λ {(u , q) → sym-iso (Σ-split-iso {a = u} {a' = ϕ₀ {C,γ = C,γ} u} {b = q} {b' = ϕ₁ {C,γ = C,γ} u q})}) ⟩
   Σ (Cone C,γ) (λ { (u , q) → Σ (u ≡ ϕ₀ {C,γ = C,γ} u) λ p → PathP (λ i → Cone₁ {C,γ = C,γ} (p i)) q (ϕ₁ {C,γ = C,γ} u q) })
-    ≡⟨ isoToPath (iso (λ {((u , p) , q , r) → (u , q) , p , r}) (λ {((u , q) , p , r) → (u , p) , (q , r)}) (λ _ → refl) λ _ → refl) ⟩
+    Iso⟨ (iso (λ {((u , p) , q , r) → (u , q) , p , r}) (λ {((u , q) , p , r) → (u , p) , (q , r)}) (λ _ → refl) λ _ → refl) ⟩
   Σ (Σ (Cone₀ {C,γ = C,γ}) (λ u → u ≡ ϕ₀ {C,γ = C,γ} u)) (λ { (u , p) → Σ (Cone₁ {C,γ = C,γ} u) λ q → PathP (λ i → Cone₁ {C,γ = C,γ} (p i)) q (ϕ₁ u q)})
-    ≡⟨ sym (Σ-ap-iso missing-0 missing-2) ⟩
+    Iso⟨ sym-iso (Σ-ap-iso (pathToIso missing-0) λ x → pathToIso (missing-2 x)) ⟩
   Σ (Lift {ℓ-zero} {ℓ} Unit) (λ { (lift tt) → Lift {ℓ-zero} {ℓ} Unit })
-    ≡⟨ isoToPath (iso (λ x → lift tt) (λ _ → lift tt , lift tt) (λ b i → lift tt) (λ a i → lift tt , lift tt)) ⟩
-  Lift {ℓ-zero} {ℓ} Unit ∎
+    Iso⟨ (iso (λ x → lift tt) (λ _ → lift tt , lift tt) (λ b i → lift tt) (λ a i → lift tt , lift tt)) ⟩
+  Lift {ℓ-zero} {ℓ} Unit ∎Iso
+
+-- -- lim-coalg-iso
+U-is-Unit : ∀ {ℓ} {S : Container {ℓ}} (C,γ : Coalg₀ {S = S}) -> (C,γ ⇒ M-coalg) ≡ Lift Unit
+U-is-Unit {ℓ = ℓ} {S = S} C,γ@(C , γ) = isoToPath (U-is-Unit-Iso C,γ)
 
 contr-is-ext : ∀ {ℓ} {A B : Set ℓ} -> A ≡ B -> isContr A ≡ isContr B
 contr-is-ext p = λ i -> isContr (p i)
 
 U-contr : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} -> ∀ (x : U {C,γ = C,γ}) -> isContr (U {C,γ = C,γ})
-U-contr {ℓ} {C,γ = C,γ} x = transp (λ i -> (sym (contr-is-ext {A = U {C,γ = C,γ}} (U-is-Unit C,γ))) i) i0 (lift tt , λ { (lift tt) -> refl })
+U-contr {ℓ} {C,γ = C,γ} x =
+  transport (sym (contr-is-ext {A = U {C,γ = C,γ}} (U-is-Unit C,γ)))
+            (lift tt , λ { (lift tt) -> refl })
 
 ----------------------------------------------------
 -- Finality properties for bisimulation relations --
@@ -208,7 +216,7 @@ coinduction : ∀ {ℓ} {S : Container {ℓ}} R -> (sim : bisimulation S M-coalg
 coinduction {S = S} R sim {m} {m'} r = λ i -> funExt⁻ (final-property-2 S R sim) (m , (m' , r)) i
 
 coinduction⁻ : ∀ {ℓ} {S : Container {ℓ}} R -> (sim : bisimulation S M-coalg R) -> (∀ {x} -> R x x) ->  ∀ {m m' : M-type S} -> m ≡ m' -> R m m'
-coinduction⁻ {S = S} R sim k {m} {m'} r = transp (λ i -> R m (r i)) i0 k
+coinduction⁻ {S = S} R sim k {m} {m'} r = transport (cong (R m) r) k
 
 postulate
   coinduction-iso1 : ∀ {ℓ} {S : Container {ℓ}} R -> (sim : bisimulation S M-coalg R) -> (R-refl : ∀ {x} -> R x x) ->
@@ -222,13 +230,11 @@ coinduction-is-equality : ∀ {ℓ} {S : Container {ℓ}} R ->
   (R-refl : ∀ {x} -> R x x) ->
   R ≡ _≡_
 coinduction-is-equality R sim R-refl i m m' =
-  ua (isoToEquiv (
-    iso
-      (coinduction R sim {m} {m'})
-      (coinduction⁻ R sim R-refl)
-      (coinduction-iso1 R sim R-refl)
-      (coinduction-iso2 R sim R-refl)
-    )) i
+  ua (isoToEquiv (iso
+    (coinduction R sim {m} {m'})
+    (coinduction⁻ R sim R-refl)
+    (coinduction-iso1 R sim R-refl)
+    (coinduction-iso2 R sim R-refl))) i
 
 ----------------
 -- CoFixpoint --

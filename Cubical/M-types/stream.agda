@@ -53,7 +53,7 @@ Container-product-streams A B =
   Container-product (stream-S A) (stream-S B)
     ≡⟨ refl ⟩
   (A × B , λ x → Unit × Unit )
-    ≡⟨ (λ i → (A × B) , λ _ → sym diagonal-unit i) ⟩
+    ≡⟨ ΣPathP (refl , funExt λ _ → sym diagonal-unit) ⟩
   (A × B , λ x → Unit )
     ≡⟨ refl ⟩
   stream-S (A × B) ∎
