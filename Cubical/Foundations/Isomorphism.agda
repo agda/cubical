@@ -14,6 +14,7 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv.Base
 
 private
   variable
@@ -88,18 +89,19 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (i : Iso A B) where
 
 
 isoToEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso A B → A ≃ B
-isoToEquiv i = _ , isoToIsEquiv i
+isoToEquiv i .fst = _
+isoToEquiv i .snd = isoToIsEquiv i
 
 isoToPath : ∀ {ℓ} {A B : Type ℓ} → (Iso A B) → A ≡ B
 isoToPath {A = A} {B = B} f i =
-  Glue B (λ { (i = i0) → (A , (Iso.fun f , isoToIsEquiv f))
-            ; (i = i1) → (B , (λ x → x) ,
-                              record { equiv-proof = λ y → (y , refl)
-                                                          , λ z i → z .snd (~ i)
-                                                                  , λ j → z .snd (~ i ∨ j)})})
+  Glue B (λ { (i = i0) → (A , isoToEquiv f)
+            ; (i = i1) → (B , idEquiv B) })
 
 compIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
           → Iso A B → Iso B C → Iso A C
-compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) = iso (fun₁ ∘ fun) (inv ∘ inv₁)
-        (λ b → cong fun₁ (rightInv (inv₁ b)) ∙ (rightInv₁ b))
-        (λ a → cong inv (leftInv₁ (fun a) ) ∙ leftInv a )
+compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) .Iso.fun = fun₁ ∘ fun
+compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) .Iso.inv = inv ∘ inv₁
+compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) .Iso.rightInv b
+  = cong fun₁ (rightInv (inv₁ b)) ∙ (rightInv₁ b)
+compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) .Iso.leftInv a
+  = cong inv (leftInv₁ (fun a) ) ∙ leftInv a
