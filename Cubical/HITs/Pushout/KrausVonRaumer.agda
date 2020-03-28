@@ -10,6 +10,7 @@ https://arxiv.org/abs/1901.06022
 module Cubical.HITs.Pushout.KrausVonRaumer where
 
 open import Cubical.Foundations.Everything
+open import Cubical.Data.Sigma
 open import Cubical.HITs.Pushout.Base
 
 private
@@ -116,3 +117,31 @@ module ElimR {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type �
        (λ α → PathP (λ i → Q (g a) (α i)) (e a q .fst (elimL (f a) q)) (e a q .fst (elimL (f a) q)))
        (interpolateCompPath q (push a) ⁻¹)
        refl)
+
+-- Example application: pushouts preserve embeddings
+
+isEmbeddingInr : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+  {f : A → B} (g : A → C)
+  → isEmbedding f → isEmbedding (inr {f = f} {g = g})
+isEmbeddingInr {f = f} g fEmb c₀ c₁ =
+  isoToIsEquiv (iso _ (fst ∘ bwd c₁) (snd ∘ bwd c₁) bwdAp)
+  where
+  Q : ∀ c → inr c₀ ≡ inr c → Type _
+  Q _ q = fiber (cong inr) q
+
+  P : ∀ b → inr c₀ ≡ inl b → Type _
+  P b p = Σ[ u ∈ fiber f b ] Q _ (p ∙ cong inl (u .snd ⁻¹) ∙ push (u .fst))
+
+  module Bwd = ElimR P Q
+    (refl , refl)
+    (λ a p →
+      subst
+        (P (f a) p  ≃_)
+        (cong (λ w → fiber (cong inr) (p ∙ w)) (lUnit (push a) ⁻¹))
+        (Σ-contractFst (inhProp→isContr (a , refl) (isEmbedding→hasPropFibers fEmb (f a)))))
+
+  bwd : ∀ c → (t : inr c₀ ≡ inr c) → fiber (cong inr) t
+  bwd = Bwd.elimR
+
+  bwdAp : ∀ {c} → (r : c₀ ≡ c) → bwd c (cong inr r) .fst ≡ r
+  bwdAp = J (λ c r → bwd c (cong inr r) .fst ≡ r) (cong fst Bwd.refl-β)

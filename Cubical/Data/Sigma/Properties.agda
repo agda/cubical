@@ -15,6 +15,7 @@ open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.CartesianKanOps
 open import Cubical.Relation.Nullary
@@ -143,3 +144,17 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
         ... | (yes q) = yes (transport (ua Σ≡) (refl , q))
         ... | (no ¬q) = no (λ r → ¬q (subst (λ X → PathP (λ i → B (X i)) b0 b1) (Discrete→isSet Adis a0 a0 (cong fst r) refl) (cong snd r)))
     discreteΣ' (no ¬p) = no (λ r → ¬p (cong fst r))
+
+Σ-contractFst : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} (c : isContr A)
+  → Σ A B ≃ B (c .fst)
+Σ-contractFst {B = B} c =
+  isoToEquiv
+    (iso
+      (λ {(a , b) → subst B (sym (c .snd a)) b})
+      (c .fst ,_)
+      (λ b →
+        cong (λ p → subst B p b) (isProp→isSet (isContr→isProp c) _ _ _ _)
+        ∙ transportRefl _)
+      (λ {(a , b) →
+        sigmaPath→pathSigma _ _ (c .snd a , transportTransport⁻ (cong B (c .snd a)) _)}))
+
