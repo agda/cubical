@@ -120,13 +120,9 @@ PropEquiv→Equiv Aprop Bprop f g = isoToEquiv (iso f g (λ b → Bprop (f (g b)
 
 homotopyNatural : {f g : A → B} (H : ∀ a → f a ≡ g a) {x y : A} (p : x ≡ y) →
                   H x ∙ cong g p ≡ cong f p ∙ H y
-homotopyNatural H p = homotopyNatural' H p ∙ □≡∙ _ _
-  where
-  homotopyNatural' : {f g : A → B} (H : ∀ a → f a ≡ g a) {x y : A} (p : x ≡ y) →
-                     H x ∙ cong g p ≡ cong f p □ H y
-  homotopyNatural' {f = f} {g = g} H {x} {y} p i j =
+homotopyNatural {f = f} {g = g} H {x} {y} p i j =
     hcomp (λ k → λ { (i = i0) → compPath-filler (H x) (cong g p) k j
-                   ; (i = i1) → compPath'-filler (cong f p) (H y) k j
+                   ; (i = i1) → compPath-filler' (cong f p) (H y) k j
                    ; (j = i0) → cong f p (i ∧ (~ k))
                    ; (j = i1) → cong g p (i ∨ k) })
           (H (p i) j)

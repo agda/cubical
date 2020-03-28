@@ -33,16 +33,16 @@ record BiInvEquiv {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ 
                 invl b              ∎
 
   invr-leftInv : retract fun invr
-  invr-leftInv a = invr≡invl (fun a) □ (invl-leftInv a)
+  invr-leftInv a = invr≡invl (fun a) ∙ (invl-leftInv a)
 
   invr≡invl-leftInv : ∀ a → PathP (λ j → invr≡invl (fun a) j ≡ a) (invr-leftInv a) (invl-leftInv a)
-  invr≡invl-leftInv a j i = compPath'-filler (invr≡invl (fun a)) (invl-leftInv a) (~ j) i
+  invr≡invl-leftInv a j i = compPath-filler' (invr≡invl (fun a)) (invl-leftInv a) (~ j) i
 
   invl-rightInv : section fun invl
-  invl-rightInv a = sym (cong fun (invr≡invl a)) □ (invr-rightInv a)
+  invl-rightInv a = sym (cong fun (invr≡invl a)) ∙ (invr-rightInv a)
 
   invr≡invl-rightInv : ∀ a → PathP (λ j → fun (invr≡invl a j) ≡ a) (invr-rightInv a) (invl-rightInv a)
-  invr≡invl-rightInv a j i = compPath'-filler (sym (cong fun (invr≡invl a))) (invr-rightInv a) j i
+  invr≡invl-rightInv a j i = compPath-filler' (sym (cong fun (invr≡invl a))) (invr-rightInv a) j i
 
 
 module _ {ℓ} {A B : Type ℓ} (e : BiInvEquiv A B) where
