@@ -43,8 +43,8 @@ private
 
 module ElimL {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
   {f : A → B} {g : A → C} {b₀ : B}
-  {P : ∀ b → Path (Pushout f g) (inl b₀) (inl b) → Type ℓ'''}
-  {Q : ∀ c → Path (Pushout f g) (inl b₀) (inr c) → Type ℓ'''}
+  (P : ∀ b → Path (Pushout f g) (inl b₀) (inl b) → Type ℓ''')
+  (Q : ∀ c → Path (Pushout f g) (inl b₀) (inr c) → Type ℓ''')
   (r : P b₀ refl)
   (e : (a : A) (q : inl b₀ ≡ inl (f a)) → P (f a) q ≃ Q (g a) (q ∙ push a))
   where
@@ -81,8 +81,8 @@ module ElimL {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type �
 
 module ElimR {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
   {f : A → B} {g : A → C} {c₀ : C}
-  {P : ∀ b → Path (Pushout f g) (inr c₀) (inl b) → Type ℓ'''}
-  {Q : ∀ c → Path (Pushout f g) (inr c₀) (inr c) → Type ℓ'''}
+  (P : ∀ b → Path (Pushout f g) (inr c₀) (inl b) → Type ℓ''')
+  (Q : ∀ c → Path (Pushout f g) (inr c₀) (inr c) → Type ℓ''')
   (r : Q c₀ refl)
   (e : (a : A) (q : inr c₀ ≡ inl (f a)) → P (f a) q ≃ Q (g a) (q ∙ push a))
   where
