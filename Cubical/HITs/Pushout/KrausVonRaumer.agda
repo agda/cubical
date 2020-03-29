@@ -124,7 +124,7 @@ isEmbeddingInr : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type �
   {f : A → B} (g : A → C)
   → isEmbedding f → isEmbedding (inr {f = f} {g = g})
 isEmbeddingInr {f = f} g fEmb c₀ c₁ =
-  isoToIsEquiv (iso _ (fst ∘ bwd c₁) (snd ∘ bwd c₁) bwdAp)
+  isoToIsEquiv (iso _ (fst ∘ bwd c₁) (snd ∘ bwd c₁) bwdCong)
   where
   Q : ∀ c → inr c₀ ≡ inr c → Type _
   Q _ q = fiber (cong inr) q
@@ -143,5 +143,5 @@ isEmbeddingInr {f = f} g fEmb c₀ c₁ =
   bwd : ∀ c → (t : inr c₀ ≡ inr c) → fiber (cong inr) t
   bwd = Bwd.elimR
 
-  bwdAp : ∀ {c} → (r : c₀ ≡ c) → bwd c (cong inr r) .fst ≡ r
-  bwdAp = J (λ c r → bwd c (cong inr r) .fst ≡ r) (cong fst Bwd.refl-β)
+  bwdCong : ∀ {c} → (r : c₀ ≡ c) → bwd c (cong inr r) .fst ≡ r
+  bwdCong = J (λ c r → bwd c (cong inr r) .fst ≡ r) (cong fst Bwd.refl-β)
