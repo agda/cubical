@@ -28,4 +28,5 @@ open import Cubical.Data.Nat.Literals public
 
 instance
   fromNatℕ₊₁ : HasFromNat ℕ₊₁
-  fromNatℕ₊₁ = record { Constraint = λ { zero → ⊥ ; _ → Unit } ; fromNat = λ { (suc n) → 1+ n } }
+  fromNatℕ₊₁ = record { Constraint = λ { zero → ⊥ ; _ → Unit }
+                      ; fromNat = λ { (suc n) → 1+ n } }

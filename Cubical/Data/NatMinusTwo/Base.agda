@@ -32,4 +32,4 @@ instance
 instance
   fromNegℕ₋₂ : HasFromNeg ℕ₋₂
   fromNegℕ₋₂ = record { Constraint = λ { (suc (suc (suc _))) → ⊥ ; _ → Unit }
-                       ; fromNeg = λ { zero → 0 ; (suc zero) → neg1 ; _ → neg2 } }
+                       ; fromNeg = λ { zero → 0 ; (suc zero) → neg1 ; (suc (suc zero)) → neg2 } }
