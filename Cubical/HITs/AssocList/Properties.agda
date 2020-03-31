@@ -3,6 +3,7 @@ module Cubical.HITs.AssocList.Properties where
 
 open import Cubical.HITs.AssocList.Base as AL
 open import Cubical.Foundations.Everything
+open import Cubical.Foundations.SIP
 open import Cubical.HITs.FiniteMultiset as FMS
 open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-assoc; isSetℕ)
 open import Cubical.Structures.MultiSet
@@ -145,17 +146,38 @@ module _(discA : Discrete A) where
 
 
 -- We want to show that Al-with-str ≅ FMS-with-str as multiset-structures
--- For this we again use an auxillary function
-
-
 module _(discA : Discrete A) where
  FMS→AL-isIso : multi-set-iso A (Discrete→isSet discA) (FMS-with-str discA) (AL-with-str discA) FMSet≃AssocList
- FMS→AL-isIso = refl , (λ a xs → refl) , φ 
+ FMS→AL-isIso = refl , (λ a xs → refl) , φ
   where
   φ : ∀ a xs → FMSmember discA a xs ≡ ALmember discA a (FMS→AL xs)
   φ a = FMS.ElimProp.f (isSetℕ _ _) refl ψ
    where
+   χ :  (x : A) (xs ys : ℕ) (p : Dec (a ≡ x))
+      → xs ≡ ys
+      → FMSmember-∷*-aux a x p xs ≡ ALmember-⟨,⟩∷*-aux a x p 1 ys
+   χ x xs ys (yes p) q = cong suc q
+   χ x xs ys (no ¬p) q = q
+
    ψ :  (x : A) {xs : FMSet A}
-      → FMSmember discA a xs ≡ ALmember discA a (FMS→AL xs) 
+      → FMSmember discA a xs ≡ ALmember discA a (FMS→AL xs)
       → FMSmember discA a (x ∷ xs) ≡ ALmember discA a (FMS→AL (x ∷ xs))
-   ψ x {xs} p = {!multi-∷-id x 1 xs!}
+   ψ x {xs} p = subst B α θ
+    where
+    B = λ ys → FMSmember discA a (x ∷ xs) ≡ ALmember discA a ys
+
+    α : ⟨ x , 1 ⟩∷ FMS→AL xs ≡ FMS→AL (x ∷ xs)
+    α = sym (multi-∷-id x 1 xs)
+
+    θ : FMSmember discA a (x ∷ xs) ≡ ALmember discA a (⟨ x , 1 ⟩∷ (FMS→AL xs))
+    θ = χ x (FMSmember discA a xs) (ALmember discA a (FMS→AL xs)) (discA a x) p
+
+
+
+ FMS-with-str≡AL-with-str : FMS-with-str discA ≡ AL-with-str discA
+ FMS-with-str≡AL-with-str = SIP (multi-set-structure A (Discrete→isSet discA))
+                                (multi-set-iso A (Discrete→isSet discA))
+                                (Multi-Set-is-SNS A (Discrete→isSet discA))
+                                (FMS-with-str discA)
+                                (AL-with-str discA)
+                                .fst (FMSet≃AssocList , FMS→AL-isIso)
