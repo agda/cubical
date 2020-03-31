@@ -75,6 +75,9 @@ FMS→AL∘AL→FMS≡id = AL.ElimProp.f (AL.trunc _ _) refl (λ x n {xs} p → 
 AssocList≃FMSet : AssocList A ≃ FMSet A
 AssocList≃FMSet = isoToEquiv (iso AL→FMS FMS→AL AL→FMS∘FMS→AL≡id FMS→AL∘AL→FMS≡id)
 
+FMSet≃AssocList : FMSet A ≃ AssocList A
+FMSet≃AssocList = isoToEquiv (iso FMS→AL AL→FMS FMS→AL∘AL→FMS≡id AL→FMS∘FMS→AL≡id)
+
 
 AssocList≡FMSet : AssocList A ≡ FMSet A
 AssocList≡FMSet = ua AssocList≃FMSet
@@ -83,15 +86,6 @@ AssocList≡FMSet = ua AssocList≃FMSet
 
 
 -- We want to define a multiset structure on AssocList A, we use the recursor to define the membership-function
--- module Rec {ℓ} {B : Type ℓ} (BType : isSet B)
---        (⟨⟩* : B) (⟨_,_⟩∷*_ : (x : A) (n : ℕ) → B → B)
---        (per* :  (x y : A) (b : B) → (⟨ x , 1 ⟩∷* ⟨ y , 1 ⟩∷* b) ≡ (⟨ y , 1 ⟩∷* ⟨ x , 1 ⟩∷* b))
---        (agg* :  (x : A) (m n : ℕ) (b : B) → (⟨ x , m ⟩∷* ⟨ x , n ⟩∷* b) ≡ (⟨ x , m + n ⟩∷* b))
---        (del* :  (x : A) (b : B) → (⟨ x , 0 ⟩∷* b) ≡ b) where
-
---  f : AssocList A → B
---  f = Elim.f ⟨⟩* (λ x n b → ⟨ x , n ⟩∷* b) (λ x y b → per* x y b) (λ x m n b → agg* x m n b) (λ x b → del* x b) (λ _ → BType)
-
 ALmember-⟨,⟩∷*-aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ → ℕ
 ALmember-⟨,⟩∷*-aux a x (yes a≡x) n xs = n + xs
 ALmember-⟨,⟩∷*-aux a x (no  a≢x) n xs = xs
@@ -120,7 +114,7 @@ ALmember-del*-aux a x xs (no  a≢x) = refl
 
 
 
-module _(A : Type₀) (discA : Discrete A) where
+module _(discA : Discrete A) where
  ALmember-⟨,⟩∷* : A → A → ℕ → ℕ → ℕ
  ALmember-⟨,⟩∷* a x n xs = ALmember-⟨,⟩∷*-aux a x (discA a x) n xs
 
@@ -143,3 +137,25 @@ module _(A : Type₀) (discA : Discrete A) where
 
  ALmember : A → AssocList A → ℕ
  ALmember a = AL.Rec.f isSetℕ 0 (ALmember-⟨,⟩∷* a) (ALmember-per* a) (ALmember-agg* a) (ALmember-del* a)
+
+
+
+ AL-with-str : Multi-Set A (Discrete→isSet discA)
+ AL-with-str = (AssocList A , ⟨⟩ , ⟨_, 1 ⟩∷_ , ALmember)
+
+
+-- We want to show that Al-with-str ≅ FMS-with-str as multiset-structures
+-- For this we again use an auxillary function
+
+
+module _(discA : Discrete A) where
+ FMS→AL-isIso : multi-set-iso A (Discrete→isSet discA) (FMS-with-str discA) (AL-with-str discA) FMSet≃AssocList
+ FMS→AL-isIso = refl , (λ a xs → refl) , φ 
+  where
+  φ : ∀ a xs → FMSmember discA a xs ≡ ALmember discA a (FMS→AL xs)
+  φ a = FMS.ElimProp.f (isSetℕ _ _) refl ψ
+   where
+   ψ :  (x : A) {xs : FMSet A}
+      → FMSmember discA a xs ≡ ALmember discA a (FMS→AL xs) 
+      → FMSmember discA a (x ∷ xs) ≡ ALmember discA a (FMS→AL (x ∷ xs))
+   ψ x {xs} p = {!multi-∷-id x 1 xs!}

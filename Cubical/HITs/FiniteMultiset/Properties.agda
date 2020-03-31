@@ -6,6 +6,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Nat
 open import Cubical.Relation.Nullary
 open import Cubical.HITs.FiniteMultiset.Base
+open import Cubical.Structures.MultiSet
+open import Cubical.Relation.Nullary.DecidableEq
 
 private
   variable
@@ -98,7 +100,7 @@ FMSmember-comm*-aux a x y n (no  a≢x) (no  a≢y) = refl
 
 
 -- If A has decidable equality we can define the member-function:
-module _(A : Type₀) (discA : Discrete A) where
+module _(discA : Discrete A) where
  FMSmember-∷* : A → A → ℕ → ℕ
  FMSmember-∷* a x n = FMSmember-∷*-aux a x (discA a x) n
 
@@ -109,3 +111,7 @@ module _(A : Type₀) (discA : Discrete A) where
 
  FMSmember : A → FMSet A → ℕ
  FMSmember a = Rec.f isSetℕ 0 (FMSmember-∷* a) (FMSmember-comm* a)
+
+
+ FMS-with-str : Multi-Set A (Discrete→isSet discA)
+ FMS-with-str = (FMSet A , [] , _∷_ , FMSmember)
