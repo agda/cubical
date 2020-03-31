@@ -163,6 +163,9 @@ elim3 {n = n} hB g =
   elim2 (λ _ _ → isOfHLevelPi (2+ n) (hB _ _))
     (λ a b → elim (λ _ → hB _ _ _) (λ c → g a b c))
 
+∥_∥-fun : ∀ {ℓ'} {B : Type ℓ'} (f : A → B) (n : ℕ₋₂) → ∥ A ∥ n → ∥ B ∥ n
+∥ f ∥-fun n = elim (λ _ → isOfHLevel∥∥ n) λ a → ∣ f a ∣
+
 TruncModality : ∀ {ℓ} (n : ℕ₋₂) → Modality ℓ
 isModal       (TruncModality n) = isOfHLevel (2+ n)
 isModalIsProp (TruncModality n) = isPropIsOfHLevel (2+ n)
@@ -175,6 +178,28 @@ isModalIsProp (TruncModality n) = isPropIsOfHLevel (2+ n)
 
 idemTrunc : (n : ℕ₋₂) → isOfHLevel (2+ n) A → A ≃ (∥ A ∥ n)
 idemTrunc n hA = ∣_∣ , isModalToIsEquiv (TruncModality n) hA
+
+
+-- universal property
+
+module univTrunc where
+  fun : ∀ {ℓ} (n : ℕ₋₂) {B : HLevel ℓ (2+ n)} → (∥ A ∥ n → (fst B)) → (A → (fst B))
+  fun n {B , lev} = λ g a → g ∣ a ∣
+
+  inv : ∀ {ℓ} (n : ℕ₋₂) {B : HLevel ℓ (2+ n)} → (A → (fst B)) → (∥ A ∥ n → (fst B))
+  inv n {B , lev} = elim (λ _ → lev)
+
+  sect : ∀ {ℓ} (n : ℕ₋₂) {B : HLevel ℓ (2+ n)} → section {A = (∥ A ∥ n → (fst B))} {B = (A → (fst B))} (fun n {B}) (inv n {B})
+  sect n {B , lev} b = refl
+
+  retr : ∀ {ℓ} (n : ℕ₋₂) {B : HLevel ℓ (2+ n)} → retract {A = (∥ A ∥ n → (fst B))} {B = (A → (fst B))} (fun n {B}) (inv n {B})
+  retr neg2 {B , lev} b = funExt λ x → sym ((snd lev) (elim (λ _ → lev) (λ a → b ∣ a ∣) x)) ∙ (snd lev) (b x)
+  retr (-1+ n) {B , lev} b = funExt (elim (λ x → (isOfHLevelSuc (2+ (-1+ n) ) lev) ((elim (λ _ → lev) (λ a → b ∣ a ∣) x)) (b x)) λ a → refl)
+
+  univTrunc : ∀ {ℓ} (n : ℕ₋₂) {B : HLevel ℓ (2+ n)} → (∥ A ∥ n → (fst B)) ≃ (A → (fst B))
+  univTrunc n {B} = isoToEquiv (iso (fun n {B}) (inv n {B}) (sect n {B}) (retr n {B}))
+
+
 
 -- equivalences to prop/set/groupoid truncations
 
