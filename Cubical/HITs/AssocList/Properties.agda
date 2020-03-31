@@ -4,7 +4,10 @@ module Cubical.HITs.AssocList.Properties where
 open import Cubical.HITs.AssocList.Base as AL
 open import Cubical.Foundations.Everything
 open import Cubical.HITs.FiniteMultiset as FMS
-open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_)
+open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-assoc; isSetℕ)
+open import Cubical.Structures.MultiSet
+open import Cubical.Relation.Nullary
+open import Cubical.Relation.Nullary.DecidableEq
 
 private
   variable
@@ -75,3 +78,68 @@ AssocList≃FMSet = isoToEquiv (iso AL→FMS FMS→AL AL→FMS∘FMS→AL≡id F
 
 AssocList≡FMSet : AssocList A ≡ FMSet A
 AssocList≡FMSet = ua AssocList≃FMSet
+
+
+
+
+-- We want to define a multiset structure on AssocList A, we use the recursor to define the membership-function
+-- module Rec {ℓ} {B : Type ℓ} (BType : isSet B)
+--        (⟨⟩* : B) (⟨_,_⟩∷*_ : (x : A) (n : ℕ) → B → B)
+--        (per* :  (x y : A) (b : B) → (⟨ x , 1 ⟩∷* ⟨ y , 1 ⟩∷* b) ≡ (⟨ y , 1 ⟩∷* ⟨ x , 1 ⟩∷* b))
+--        (agg* :  (x : A) (m n : ℕ) (b : B) → (⟨ x , m ⟩∷* ⟨ x , n ⟩∷* b) ≡ (⟨ x , m + n ⟩∷* b))
+--        (del* :  (x : A) (b : B) → (⟨ x , 0 ⟩∷* b) ≡ b) where
+
+--  f : AssocList A → B
+--  f = Elim.f ⟨⟩* (λ x n b → ⟨ x , n ⟩∷* b) (λ x y b → per* x y b) (λ x m n b → agg* x m n b) (λ x b → del* x b) (λ _ → BType)
+
+ALmember-⟨,⟩∷*-aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ → ℕ
+ALmember-⟨,⟩∷*-aux a x (yes a≡x) n xs = n + xs
+ALmember-⟨,⟩∷*-aux a x (no  a≢x) n xs = xs
+
+
+ALmember-per*-aux :  (a x y : A) (xs : ℕ) (p : Dec (a ≡ x)) (q : Dec (a ≡ y))
+                   →  ALmember-⟨,⟩∷*-aux a x p 1 (ALmember-⟨,⟩∷*-aux a y q 1 xs)
+                    ≡ ALmember-⟨,⟩∷*-aux a y q 1 (ALmember-⟨,⟩∷*-aux a x p 1 xs)
+ALmember-per*-aux a x y xs (yes a≡x) (yes a≡y) = refl
+ALmember-per*-aux a x y xs (yes a≡x) (no  a≢y) = refl
+ALmember-per*-aux a x y xs (no  a≢x) (yes a≡y) = refl
+ALmember-per*-aux a x y xs (no  a≢x) (no  a≢y) = refl
+
+
+ALmember-agg*-aux :  (a x : A) (m n xs : ℕ) (p : Dec (a ≡ x))
+                   →  ALmember-⟨,⟩∷*-aux a x p m (ALmember-⟨,⟩∷*-aux a x p n xs)
+                    ≡ ALmember-⟨,⟩∷*-aux a x p (m + n) xs
+ALmember-agg*-aux a x m n xs (yes x≡a) = +-assoc m n xs
+ALmember-agg*-aux a x m n xs (no  x≢a) = refl
+
+
+ALmember-del*-aux :  (a x : A) (xs : ℕ) (p : Dec (a ≡ x))
+                   →  ALmember-⟨,⟩∷*-aux a x p 0 xs ≡ xs
+ALmember-del*-aux a x xs (yes a≡x) = refl
+ALmember-del*-aux a x xs (no  a≢x) = refl
+
+
+
+module _(A : Type₀) (discA : Discrete A) where
+ ALmember-⟨,⟩∷* : A → A → ℕ → ℕ → ℕ
+ ALmember-⟨,⟩∷* a x n xs = ALmember-⟨,⟩∷*-aux a x (discA a x) n xs
+
+
+ ALmember-per* :  (a x y : A) (xs : ℕ)
+                →  ALmember-⟨,⟩∷* a x 1 (ALmember-⟨,⟩∷* a y 1 xs)
+                 ≡ ALmember-⟨,⟩∷* a y 1 (ALmember-⟨,⟩∷* a x 1 xs)
+ ALmember-per* a x y xs = ALmember-per*-aux a x y xs (discA a x) (discA a y)
+
+
+ ALmember-agg* :  (a x : A) (m n xs : ℕ)
+                →  ALmember-⟨,⟩∷* a x m (ALmember-⟨,⟩∷* a x n xs)
+                 ≡ ALmember-⟨,⟩∷* a x (m + n) xs
+ ALmember-agg* a x m n xs = ALmember-agg*-aux a x m n xs (discA a x)
+
+
+ ALmember-del* :  (a x : A) (xs : ℕ) → ALmember-⟨,⟩∷* a x 0 xs ≡ xs
+ ALmember-del* a x xs = ALmember-del*-aux a x xs (discA a x)
+
+
+ ALmember : A → AssocList A → ℕ
+ ALmember a = AL.Rec.f isSetℕ 0 (ALmember-⟨,⟩∷* a) (ALmember-per* a) (ALmember-agg* a) (ALmember-del* a)
