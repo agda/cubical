@@ -191,9 +191,9 @@ hom-lemma-dep S ι θ A B p = (J P (λ s → γ s) p) (str B)
 
 -- Define the inverse of Id→homEq directly.
 ua-lemma : (A B : Type ℓ) (e : A ≃ B) → (pathToEquiv (ua e)) ≡ e
-ua-lemma A B e = EquivJ (λ b a f →  (pathToEquiv (ua f)) ≡ f)
-                       (λ x → subst (λ r → pathToEquiv r ≡ idEquiv x) (sym uaIdEquiv) pathToEquivRefl)
-                        B A e
+ua-lemma A B e = EquivJ (λ A f → (pathToEquiv (ua f)) ≡ f)
+                        (subst (λ r → pathToEquiv r ≡ idEquiv B) (sym uaIdEquiv) pathToEquivRefl)
+                        e
 
 
 homEq→Id : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') (θ : SNS S ι)
