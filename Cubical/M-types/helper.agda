@@ -21,6 +21,8 @@ open import Cubical.Foundations.FunExtEquiv
 
 module Cubical.M-types.helper where
 
+module helper where
+
 refl-fun : ∀ {ℓ} {A : Set ℓ} (x : A) → x ≡ x
 refl-fun x = refl {x = x}
 
@@ -173,11 +175,8 @@ open import Cubical.Foundations.Equiv.Properties
 -- Unit / × properties --
 -------------------------
 
-diagonal-lift-unit : ∀ {ℓ} → Lift {ℓ-zero} {ℓ} Unit ≡ Lift {ℓ-zero} {ℓ} Unit × Lift {ℓ-zero} {ℓ} Unit
-diagonal-lift-unit = isoToPath (iso (λ x → (lift tt) , (lift tt)) (λ x → lift tt) (λ {(lift tt , lift tt) i → (lift tt) , (lift tt)}) λ {(lift tt) i → lift tt})
-
-diagonal-unit : Unit ≡ Unit × Unit
-diagonal-unit = isoToPath (iso (λ x → tt , tt) (λ x →  tt) (λ {(tt , tt) i → tt , tt}) λ {tt i →  tt})
+diagonal-unit : ∀ {ℓ} → Lift {ℓ-zero} {ℓ} Unit ≡ Lift {ℓ-zero} {ℓ} Unit × Lift {ℓ-zero} {ℓ} Unit
+diagonal-unit = isoToPath (iso (λ x → (lift tt) , (lift tt)) (λ x → lift tt) (λ {(lift tt , lift tt) i → (lift tt) , (lift tt)}) λ {(lift tt) i → lift tt})
 
 ------------------
 -- Σ properties --
@@ -256,7 +255,7 @@ leftInv (Σ-ap-iso₁ {i} {X = X} {X'} {Y} isom@(iso f g K H)) (x , y) = ΣPathP
             y ∎))
   where
     postulate
-      lem : cong f (H x) ≡ K (f x)  -- Vogt lemma -- law of excluded middle
+      lem : cong f (H x) ≡ K (f x)  -- Vogt lemma -- law of excluded middle -- Hfa≡fHa (equiv)
 
 Σ-ap₁ : ∀ {i} {X X' : Set i} {Y : X' → Set i}
           → (isom : X ≡ X')
@@ -279,6 +278,15 @@ leftInv (Σ-ap-iso₁ {i} {X = X} {X'} {Y} isom@(iso f g K H)) (x , y) = ΣPathP
   → (Σ X Y)
   ≡ (Σ X' Y')
 Σ-ap  {X = X} {X'} {Y} {Y'} isom isom' = isoToPath (Σ-ap-iso (pathToIso isom) (pathToIso ∘ isom'))
+
+Σ-ap' :
+  ∀ {ℓ} {X X' : Set ℓ} {Y : X → Set ℓ} {Y' : X' → Set ℓ}
+  → (isom : X ≡ X')
+  → (PathP (λ i → isom i → Set _) Y Y')
+  ----------
+  → (Σ X Y)
+  ≡ (Σ X' Y')
+Σ-ap'  {ℓ} {X = X} {X'} {Y} {Y'} isom isom' = cong₂ (λ (a : Set ℓ) (b : a → Set ℓ) → Σ a λ x → b x) isom isom'
 
 ------------------
 -- ∏ properties --
