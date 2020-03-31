@@ -8,9 +8,9 @@ open import Cubical.Categories.Category
 
 private
   variable
-    ℓ𝒞 ℓ𝒟 : Level
+    ℓ𝒞 ℓ𝒞' ℓ𝒟 ℓ𝒟' : Level
 
-record Functor (𝒞 : Precategory ℓ𝒞) (𝒟 : Precategory ℓ𝒟) : Type (ℓ-max ℓ𝒞 ℓ𝒟) where
+record Functor (𝒞 : Precategory ℓ𝒞 ℓ𝒞') (𝒟 : Precategory ℓ𝒟 ℓ𝒟') : Type (ℓ-max (ℓ-max ℓ𝒞 ℓ𝒞') (ℓ-max ℓ𝒟 ℓ𝒟')) where
   no-eta-equality
   open Precategory
 
