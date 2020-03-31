@@ -7,11 +7,11 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Categories.Category
 
 module _ ℓ where
-  SET : Precategory (ℓ-suc ℓ)
+  SET : Precategory (ℓ-suc ℓ) ℓ
   SET .ob = Σ (Type ℓ) isSet
-  SET .hom (A , _) (B , _) = Lift (A → B)
-  SET .idn _ .lower x = x
-  SET .seq (lift f) (lift g) .lower x = g (f x)
+  SET .hom (A , _) (B , _) = A → B
+  SET .idn _  = λ x → x
+  SET .seq f g = λ x → g (f x)
   SET .seq-λ f = refl
   SET .seq-ρ f = refl
   SET .seq-α f g h = refl
@@ -25,4 +25,4 @@ module _ {ℓ} where
 
   instance
     SET-category : isCategory (SET ℓ)
-    SET-category .homIsSet {_} {B , B/set} = isSetLift (isSetExpIdeal B/set)
+    SET-category .homIsSet {_} {B , B/set} = isSetExpIdeal B/set

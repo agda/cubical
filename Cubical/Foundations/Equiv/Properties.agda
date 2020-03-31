@@ -30,24 +30,24 @@ private
 
 
 isEquivCong : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → (cong (fst e) p))
-isEquivCong e = EquivJ (λ (B' A' : Type _) (e' : A' ≃ B') →
-                         (x' y' : A') → isEquiv (λ (p : x' ≡ y') → cong (fst e') p))
-                       (λ _ x' y' → idIsEquiv (x' ≡ y')) _ _ e _ _
+isEquivCong {B = B} e = EquivJ (λ (A' : Type _) (e' : A' ≃ B) →
+                               (x' y' : A') → isEquiv (λ (p : x' ≡ y') → cong (fst e') p))
+                               (λ x' y' → idIsEquiv (x' ≡ y')) e _ _
 
 congEquiv : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
 congEquiv e = ((λ (p : _ ≡ _) → cong (fst e) p) , isEquivCong e)
 
 isEquivPreComp : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
   → isEquiv (λ (φ : B → C) → φ ∘ e .fst)
-isEquivPreComp {A = A} {C = C} e = EquivJ
-                  (λ (B A : Type _) (e' : A ≃ B) → isEquiv (λ (φ : B → C) → φ ∘ e' .fst))
-                  (λ A → idIsEquiv (A → C)) _ _ e
+isEquivPreComp {A = A} {B} {C} e = EquivJ
+                  (λ (A : Type _) (e' : A ≃ B) → isEquiv (λ (φ : B → C) → φ ∘ e' .fst))
+                  (idIsEquiv (B → C)) e
 
 isEquivPostComp : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
   → isEquiv (λ (φ : C → A) → e .fst ∘ φ)
-isEquivPostComp {A = A} {C = C} e = EquivJ
-                  (λ (B A : Type _) (e' : A ≃ B) →  isEquiv (λ (φ : C → A) → e' .fst ∘ φ))
-                  (λ A → idIsEquiv (C → A)) _ _ e
+isEquivPostComp {A = A} {B} {C} e = EquivJ
+                  (λ (A : Type _) (e' : A ≃ B) →  isEquiv (λ (φ : C → A) → e' .fst ∘ φ))
+                  (idIsEquiv (C → B)) e
 
 preCompEquiv : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
              → (B → C) ≃ (A → C)
