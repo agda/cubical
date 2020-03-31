@@ -23,7 +23,6 @@ record isCategory {ℓ ℓ'} (𝒞 : Precategory ℓ ℓ') : Type (ℓ-max ℓ �
 
 open isCategory public
 
-
 _^op : ∀ {ℓ ℓ'} → Precategory ℓ ℓ' → Precategory ℓ ℓ'
 (𝒞 ^op) .ob = 𝒞 .ob
 (𝒞 ^op) .hom x y = 𝒞 .hom y x
