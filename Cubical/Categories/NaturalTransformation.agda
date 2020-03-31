@@ -8,10 +8,10 @@ open import Cubical.Categories.Functor
 
 private
   variable
-    ℓ𝒞 ℓ𝒟 : Level
+    ℓ𝒞 ℓ𝒞' ℓ𝒟 ℓ𝒟' : Level
 
-module _ {𝒞 : Precategory ℓ𝒞} {𝒟 : Precategory ℓ𝒟} where
-  record NatTrans (F G : Functor 𝒞 𝒟) : Type (ℓ-max ℓ𝒞 ℓ𝒟) where
+module _ {𝒞 : Precategory ℓ𝒞 ℓ𝒞'} {𝒟 : Precategory ℓ𝒟 ℓ𝒟'} where
+  record NatTrans (F G : Functor 𝒞 𝒟) : Type (ℓ-max (ℓ-max ℓ𝒞 ℓ𝒞') (ℓ-max ℓ𝒟 ℓ𝒟')) where
     open Precategory
     open Functor
 
@@ -64,12 +64,12 @@ module _ {𝒞 : Precategory ℓ𝒞} {𝒟 : Precategory ℓ𝒟} where
         rem = toPathP (𝒟-category .homIsSet _ _ _ _)
 
 
-module _ (𝒞 : Precategory ℓ𝒞) (𝒟 : Precategory ℓ𝒟) ⦃ _ : isCategory 𝒟 ⦄ where
+module _ (𝒞 : Precategory ℓ𝒞 ℓ𝒞') (𝒟 : Precategory ℓ𝒟 ℓ𝒟') ⦃ _ : isCategory 𝒟 ⦄ where
   open Precategory
   open NatTrans
   open Functor
 
-  FUNCTOR : Precategory (ℓ-max ℓ𝒞 ℓ𝒟)
+  FUNCTOR : Precategory (ℓ-max (ℓ-max ℓ𝒞 ℓ𝒞') (ℓ-max ℓ𝒟 ℓ𝒟')) (ℓ-max (ℓ-max ℓ𝒞 ℓ𝒞') (ℓ-max ℓ𝒟 ℓ𝒟'))
   FUNCTOR .ob = Functor 𝒞 𝒟
   FUNCTOR .hom = NatTrans
   FUNCTOR .idn = id-trans

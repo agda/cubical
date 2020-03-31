@@ -4,11 +4,11 @@ module Cubical.Categories.Category where
 
 open import Cubical.Foundations.Prelude
 
-record Precategory ℓ : Type (ℓ-suc ℓ) where
+record Precategory ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   no-eta-equality
   field
     ob : Type ℓ
-    hom : ob → ob → Type ℓ
+    hom : ob → ob → Type ℓ'
     idn : ∀ x → hom x x
     seq : ∀ {x y z} (f : hom x y) (g : hom y z) → hom x z
     seq-λ : ∀ {x y : ob} (f : hom x y) → seq (idn x) f ≡ f
@@ -17,14 +17,14 @@ record Precategory ℓ : Type (ℓ-suc ℓ) where
 
 open Precategory public
 
-record isCategory {ℓ} (𝒞 : Precategory ℓ) : Type ℓ where
+record isCategory {ℓ ℓ'} (𝒞 : Precategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   field
     homIsSet : ∀ {x y} → isSet (𝒞 .hom x y)
 
 open isCategory public
 
 
-_^op : ∀ {ℓ} → Precategory ℓ → Precategory ℓ
+_^op : ∀ {ℓ ℓ'} → Precategory ℓ ℓ' → Precategory ℓ ℓ'
 (𝒞 ^op) .ob = 𝒞 .ob
 (𝒞 ^op) .hom x y = 𝒞 .hom y x
 (𝒞 ^op) .idn = 𝒞 .idn
