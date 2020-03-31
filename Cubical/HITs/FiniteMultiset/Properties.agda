@@ -3,7 +3,8 @@ module Cubical.HITs.FiniteMultiset.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-
+open import Cubical.Data.Nat
+open import Cubical.Relation.Nullary
 open import Cubical.HITs.FiniteMultiset.Base
 
 private
@@ -75,3 +76,36 @@ module FMSetUniversal {ℓ} {M : Type ℓ} (MSet : isSet M)
     f-extend-unique = funExt (ElimProp.f (MSet _ _)
                               h-nil
                               (λ x {xs} p → (h-++ [ x ] xs) ∙ cong (_⊗ h xs) (h-sing x) ∙ cong (f x ⊗_) p))
+
+
+
+-- We want to construct a multiset-structure on FMSet A, the empty set and insertion are given by the constructors,
+-- for the membership part we use the recursor
+
+-- Is there a way around the auxillary functions with the with-syntax?
+FMSmember-∷*-aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ
+FMSmember-∷*-aux a x (yes a≡x) n = suc n
+FMSmember-∷*-aux a x (no  a≢x) n = n
+
+
+FMSmember-comm*-aux :  (a x y : A) (n : ℕ) (p : Dec (a ≡ x)) (q : Dec (a ≡ y))
+                     →  FMSmember-∷*-aux a x p (FMSmember-∷*-aux a y q n)
+                      ≡ FMSmember-∷*-aux a y q (FMSmember-∷*-aux a x p n)
+FMSmember-comm*-aux a x y n (yes a≡x) (yes a≡y) = refl
+FMSmember-comm*-aux a x y n (yes a≡x) (no  a≢y) = refl
+FMSmember-comm*-aux a x y n (no  a≢x) (yes a≡y) = refl
+FMSmember-comm*-aux a x y n (no  a≢x) (no  a≢y) = refl
+
+
+-- If A has decidable equality we can define the member-function:
+module _(A : Type₀) (discA : Discrete A) where
+ FMSmember-∷* : A → A → ℕ → ℕ
+ FMSmember-∷* a x n = FMSmember-∷*-aux a x (discA a x) n
+
+ FMSmember-comm* :  (a x y : A) (n : ℕ)
+                  →  FMSmember-∷* a x (FMSmember-∷* a y n)
+                   ≡ FMSmember-∷* a y (FMSmember-∷* a x n)
+ FMSmember-comm* a x y n = FMSmember-comm*-aux a x y n (discA a x) (discA a y)
+
+ FMSmember : A → FMSet A → ℕ
+ FMSmember a = Rec.f isSetℕ 0 (FMSmember-∷* a) (FMSmember-comm* a)
