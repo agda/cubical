@@ -327,8 +327,14 @@ private
   IsoFinal : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} (x y : ∥ B ∥ (suc₋₂ n)) → Iso (x ≡ y) (P x y)
   IsoFinal x y = iso (encode-fun x y ) (decode-fun x y) (P-linv x y) (P-rinv x y)
 
+  IsoFinal2 : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} (x y : ∥ B ∥ (suc₋₂ n)) → Iso (P x y) (x ≡ y)
+  IsoFinal2 x y = iso (decode-fun x y) (encode-fun x y ) (P-rinv x y) (P-linv x y)
+
 PathIdTrunc : {a b : A} (n : ℕ₋₂) → (_≡_ {A = ∥ A ∥ (suc₋₂ n)} ∣ a ∣ ∣ b ∣) ≡ (∥ a ≡ b ∥ n)
-PathIdTrunc {a = a} {b = b} n = isoToPath (IsoFinal {n = n} ∣ a ∣ ∣ b ∣)
+PathIdTrunc {a = a} {b = b} n = isoToPath (IsoFinal ∣ a ∣ ∣ b ∣)
 
 PathΩ : {a : A} (n : ℕ₋₂) → (_≡_ {A = ∥ A ∥ (suc₋₂ n)} ∣ a ∣ ∣ a ∣) ≡ (∥ a ≡ a ∥ n)
 PathΩ {a = a} n = PathIdTrunc {a = a} {b = a} n
+
+truncEquivΩ : {a : A} (n : ℕ₋₂) → (∥ a ≡ a ∥ n) ≃ (_≡_ {A = ∥ A ∥ (suc₋₂ n)} ∣ a ∣ ∣ a ∣)
+truncEquivΩ {a = a} n = isoToEquiv (IsoFinal2 ∣ a ∣ ∣ a ∣)
