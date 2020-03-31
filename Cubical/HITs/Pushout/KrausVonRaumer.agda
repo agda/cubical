@@ -74,7 +74,7 @@ module ElimL {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type �
     → elimR (g a) (q ∙ push a) ≡ e a q .fst (elimL (f a) q)
   push-β a q =
     J-∙ Codes r q (push a)
-    ∙ PathP→Path
+    ∙ fromPathP
       (subst
        (λ α → PathP (λ i → Q (g a) (α i)) (e a q .fst (elimL (f a) q)) (e a q .fst (elimL (f a) q)))
        (interpolateCompPath q (push a) ⁻¹)
@@ -112,7 +112,7 @@ module ElimR {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type �
     → elimR (g a) (q ∙ push a) ≡ e a q .fst (elimL (f a) q)
   push-β a q =
     J-∙ Codes r q (push a)
-    ∙ PathP→Path
+    ∙ fromPathP
       (subst
        (λ α → PathP (λ i → Q (g a) (α i)) (e a q .fst (elimL (f a) q)) (e a q .fst (elimL (f a) q)))
        (interpolateCompPath q (push a) ⁻¹)

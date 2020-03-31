@@ -17,10 +17,6 @@ cong′ : ∀ {B : Type ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
       → Path B (f x) (f y)
 cong′ f = cong f
 
-PathP→Path : ∀ {ℓ} {A B : Type ℓ} {C : A ≡ B} {a : A} {b : B}
-  → PathP (λ i → C i) a b → transport C a ≡ b
-PathP→Path {C = C} p i = transp (λ j → C (i ∨ j)) i (p i)
-
 PathP≡Path : ∀ (P : I → Type ℓ) (p : P i0) (q : P i1) →
              PathP P p q ≡ Path (P i1) (transport (λ i → P i) p) q
 PathP≡Path P p q i = PathP (λ j → P (i ∨ j)) (transp (λ j → P (i ∧ j)) (~ i) p) q
