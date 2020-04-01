@@ -14,17 +14,6 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.Pushout.Base
 
 private
-  flippedHomotopyIsInverse : ∀ {ℓ} {A : Type ℓ} {f : A → A} (p : ∀ a → f a ≡ a)
-    (a : A) → Path (f a ≡ f a) (λ i → p (p a (~ i)) i) refl
-  flippedHomotopyIsInverse {f = f} p a j i =
-    hcomp
-      (λ k → λ {
-        (i = i0) → f a;
-        (i = i1) → p a (j ∧ ~ k);
-        (j = i0) → p (p a (~ i)) i;
-        (j = i1) → p a (i ∧ ~ k)})
-      (p (p a (~ i ∨ j)) i)
-
   interpolate : ∀ {ℓ} {A : Type ℓ} {x y z : A} (q : y ≡ z)
     → PathP (λ i → x ≡ q i → x ≡ z) (_∙ q) (idfun _)
   interpolate q i p j =
@@ -40,7 +29,7 @@ private
    → (λ i → interpolate q i (λ j → compPath-filler p q i j)) ≡ refl
   interpolateCompPath p =
     J (λ z q → (λ i → interpolate q i (λ j → compPath-filler p q i j)) ≡ refl)
-      (flippedHomotopyIsInverse (λ p i j → compPath-filler p refl (~ i) j) p)
+      (homotopySymInv (λ p i j → compPath-filler p refl (~ i) j) p)
 
 module ElimL {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
   {f : A → B} {g : A → C} {b₀ : B}
