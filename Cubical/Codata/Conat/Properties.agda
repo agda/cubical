@@ -36,7 +36,6 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 open import Cubical.Codata.Conat.Base
 
 Unwrap-prev : Conat′ → Type₀
