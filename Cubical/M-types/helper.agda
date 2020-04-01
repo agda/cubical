@@ -175,8 +175,11 @@ open import Cubical.Foundations.Equiv.Properties
 -- Unit / × properties --
 -------------------------
 
-diagonal-unit : ∀ {ℓ} → Lift {ℓ-zero} {ℓ} Unit ≡ Lift {ℓ-zero} {ℓ} Unit × Lift {ℓ-zero} {ℓ} Unit
-diagonal-unit = isoToPath (iso (λ x → (lift tt) , (lift tt)) (λ x → lift tt) (λ {(lift tt , lift tt) i → (lift tt) , (lift tt)}) λ {(lift tt) i → lift tt})
+diagonal-unit-lift : ∀ {ℓ} → Lift {ℓ-zero} {ℓ} Unit ≡ Lift {ℓ-zero} {ℓ} Unit × Lift {ℓ-zero} {ℓ} Unit
+diagonal-unit-lift = isoToPath (iso (λ x → (lift tt) , (lift tt)) (λ x → lift tt) (λ {(lift tt , lift tt) i → (lift tt) , (lift tt)}) λ {(lift tt) i → lift tt})
+
+diagonal-unit : Unit ≡ Unit × Unit
+diagonal-unit = isoToPath (iso (λ _ → tt , tt) (λ _ → tt) (λ {(tt , tt) → refl}) refl-fun)
 
 ------------------
 -- Σ properties --
