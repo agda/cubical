@@ -22,8 +22,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 
-open import Cubical.Core.Glue public
-  using ( isEquiv ; equiv-proof ; _≃_ ; equivFun ; equivProof )
+open import Cubical.Foundations.Equiv.Base public
 
 private
   variable
@@ -43,13 +42,6 @@ equivCtrPath : ∀ {A : Type ℓ} {B : Type ℓ'} (e : A ≃ B) (y : B) →
   (v : fiber (equivFun e) y) → Path _ (equivCtr e y) v
 equivCtrPath e y = e .snd .equiv-proof y .snd
 
--- The identity equivalence
-idIsEquiv : ∀ (A : Type ℓ) → isEquiv (idfun A)
-equiv-proof (idIsEquiv A) y =
-  ((y , refl) , λ z i → z .snd (~ i) , λ j → z .snd (~ i ∨ j))
-
-idEquiv : ∀ (A : Type ℓ) → A ≃ A
-idEquiv A = (idfun A , idIsEquiv A)
 
 -- Proof using isPropIsContr. This is slow and the direct proof below is better
 

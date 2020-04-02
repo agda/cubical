@@ -154,6 +154,14 @@ module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
   JRefl : J refl ≡ d
   JRefl = transportRefl d
 
+  J-∙ : (p : x ≡ y) (q : y ≡ z)
+    → J (p ∙ q) ≡ transport (λ i → P (q i) (λ j → compPath-filler p q i j)) (J p)
+  J-∙ p q k =
+    transp
+      (λ i → P (q (i ∨ ~ k))
+      (λ j → compPath-filler p q (i ∨ ~ k) j)) (~ k)
+      (J (λ j → compPath-filler p q (~ k) j))
+
 -- Contractibility of singletons
 
 singl : (a : A) → Type _

@@ -105,7 +105,7 @@ module ⊕* (X : 2-EltType₀) where
   elim : ∀ {ℓ'} (P : (A : Type₀) (_⊕'_ : A → A → Bool) → Type ℓ') (propP : ∀ A _⊕'_ → isProp (P A _⊕'_))
          → P Bool _⊕_ → P (typ X) _⊕*_
   elim {ℓ'} P propP r = PropTrunc.elim {P = λ ∣e∣ → P (typ X) (R₁ ∣e∣)} (λ _ → propP _ _)
-                                       (λ e → EquivJ' (λ A e → P A (R₂ A e)) r e)
+                                       (λ e → EquivJ (λ A e → P A (R₂ A e)) r e)
                                        (snd X)
     where R₁ : ∥ fst X ≃ Bool ∥ → typ X → typ X → Bool
           R₁ ∣e∣ y = invEq (fst (fst (isContr-2-EltPointed-iso (fst X , y , ∣e∣))))

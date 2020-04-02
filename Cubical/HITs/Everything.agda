@@ -36,3 +36,4 @@ import Cubical.HITs.KleinBottle
 import Cubical.HITs.DunceCap
 import Cubical.HITs.Localization
 import Cubical.HITs.Nullification
+import Cubical.HITs.AssocList
