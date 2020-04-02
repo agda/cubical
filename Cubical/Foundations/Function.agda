@@ -159,5 +159,4 @@ module _ {ℓ} {A : Type ℓ} where
         ≡⟨ J (λ _ p → p ∙∙ refl ∙∙ (sym p ∙ q) ≡ q) (λ i → lUnit (lUnit q (~ i)) (~ i)) (sym (noose x y)) ⟩
       q ∎
     t : PathP (λ i → cong f s i ≡ s i) p q
-    t = coe1→0 (λ k → PathP (λ i → cong f s (i ∨ k) ≡ s (i ∨ k)) (λ j → doubleCompPath-filler (sym (cong f s)) p s j k) q) t'
-
+    t = coe1→0 (λ k → PathP (λ i → cong f s (i ∨ k) ≡ s (i ∨ k)) (doubleCompPath-filler (sym (cong f s)) p s k) q) t'

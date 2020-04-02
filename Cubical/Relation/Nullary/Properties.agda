@@ -14,6 +14,38 @@ private
     ℓ : Level
     A : Type ℓ
 
+isProp¬ : (A : Type ℓ) → isProp (¬ A)
+isProp¬ A p q i x = isProp⊥ (p x) (q x) i
+
+Stable¬ : Stable (¬ A)
+Stable¬ ¬¬¬a a = ¬¬¬a ¬¬a
+  where
+  ¬¬a = λ ¬a → ¬a a
+
+fromYes : A → Dec A → A
+fromYes _ (yes a) = a
+fromYes a (no _) = a
+
+discreteDec : (Adis : Discrete A) → Discrete (Dec A)
+discreteDec Adis (yes p) (yes p') = decideYes (Adis p p') -- TODO: monad would simply stuff
+  where
+    decideYes : Dec (p ≡ p') → Dec (yes p ≡ yes p')
+    decideYes (yes eq) = yes (cong yes eq)
+    decideYes (no ¬eq) = no λ eq → ¬eq (cong (fromYes p) eq)
+discreteDec Adis (yes p) (no ¬p) = ⊥.rec (¬p p)
+discreteDec Adis (no ¬p) (yes p) = ⊥.rec (¬p p)
+discreteDec {A = A} Adis (no ¬p) (no ¬p') = yes (cong no (isProp¬ A ¬p ¬p'))
+
+isPropDec : (Aprop : isProp A) → isProp (Dec A)
+isPropDec Aprop (yes a) (yes a') = cong yes (Aprop a a')
+isPropDec Aprop (yes a) (no ¬a) = ⊥.rec (¬a a)
+isPropDec Aprop (no ¬a) (yes a) = ⊥.rec (¬a a)
+isPropDec {A = A} Aprop (no ¬a) (no ¬a') = cong no (isProp¬ A ¬a ¬a')
+
+mapDec : ∀ {B : Type ℓ} → (A → B) → (¬ A → ¬ B) → Dec A → Dec B
+mapDec f _ (yes p) = yes (f p)
+mapDec _ f (no ¬p) = no (f ¬p)
+
 -- we have the following implications
 -- X ── ∣_∣ ─→ ∥ X ∥
 -- ∥ X ∥ ── populatedBy ─→ Populated X
@@ -86,7 +118,7 @@ isSet→HStable≡ setA x y = extract where
   extract ∣ p ∣ = p
   extract (squash p q i) = setA x y (extract p) (extract q) i
 
--- by the above we give two more sufficient conditions to inhibit isSet A
+-- by the above two more sufficient conditions to inhibit isSet A are given
 PStable≡→isSet : PStable≡ A → isSet A
 PStable≡→isSet st = HStable≡→isSet (λ x y → PStable→HStable (st x y))
 

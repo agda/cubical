@@ -255,6 +255,9 @@ module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
 isContr : Type ℓ → Type ℓ
 isContr A = Σ[ x ∈ A ] (∀ y → x ≡ y)
 
+isContrSingl : (a : A) → isContr (singl a)
+isContrSingl a = (a , refl) , λ p → contrSingl (p .snd)
+
 isProp : Type ℓ → Type ℓ
 isProp A = (x y : A) → x ≡ y
 

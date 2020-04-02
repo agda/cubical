@@ -13,13 +13,13 @@ private
     A : Type ℓ
 
 isPropPopulated : isProp (Populated A)
-isPropPopulated = isPropPi λ x → 2-Constant→isPropFixpoint (x .fst) (x .snd)
+isPropPopulated = isPropΠ λ x → 2-Constant→isPropFixpoint (x .fst) (x .snd)
 
 isPropHStable≡ : isProp (HStable≡ A)
 isPropHStable≡ f g i x y a = HStable≡→isSet f x y (f x y a) (g x y a) i
 
 isPropCollapsible≡ : isProp (Collapsible≡ A)
-isPropCollapsible≡ {A = A} f g = (isPropPi λ x → isPropPi λ y → isPropCollapsiblePointwise) f g where
+isPropCollapsible≡ {A = A} f g = (isPropΠ λ x → isPropΠ λ y → isPropCollapsiblePointwise) f g where
   sA : isSet A
   sA = Collapsible≡→isSet f
   gA : isGroupoid A
