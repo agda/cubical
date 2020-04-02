@@ -282,7 +282,7 @@ TotalCov≃Sn (ℕ→ℕ₋₁ n) =
 
     iii : join (Total (cov⁻¹ (-1+ n))) Bool ≃ S (ℕ→ℕ₋₁ n)
     iii = join (Total (cov⁻¹ (-1+ n))) Bool ≃⟨ invEquiv Susp≃joinBool ⟩
-          Susp (Total (cov⁻¹ (-1+ n)))      ≃⟨ cong≃ Susp (TotalCov≃Sn (-1+ n)) ⟩
+          Susp (Total (cov⁻¹ (-1+ n)))      ≃⟨ congSuspEquiv (TotalCov≃Sn (-1+ n)) ⟩
           S (ℕ→ℕ₋₁ n)                      ■
 
 -- the usual covering map S n → RP n, with fibers exactly cov⁻¹
