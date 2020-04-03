@@ -126,9 +126,6 @@ isOfHLevelTrunc zero    = hub ⊥.rec , λ _ → ≡hub ⊥.rec
 isOfHLevelTrunc (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilledTrunc
 -- isOfHLevelTrunc n = isSnNull→isOfHLevel isNull-Null
 
-isTrunc∥∥ : (n : ℕ₋₂) → isTrunc n (∥ A ∥ n)
-isTrunc∥∥ n = isOfHLevelTrunc (2+ n)
-
 -- hLevelTrunc n is a modality
 
 rec : {n : ℕ}
@@ -228,14 +225,14 @@ private
     where
     P₁ : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} → ∥ B ∥  (suc₋₂ n) → ∥ B ∥  (suc₋₂ n) → (HLevel  ℓ (2+ n))
     P₁ {ℓ} {n = n}  x y =
-      elim2 (λ _ _  → isOfHLevelHLevel (2+ n)) (λ a b → ∥ a ≡ b ∥  n , isTrunc∥∥ n) x y
+      elim2 (λ _ _  → isOfHLevelHLevel (2+ n)) (λ a b → ∥ a ≡ b ∥  n , isOfHLevelTrunc (2+ n)) x y
 
   {- We will need P to be of hLevel n + 3  -}
   hLevelP : ∀{ℓ} {n : ℕ₋₂} {B : Type ℓ} (a b : ∥ B ∥ (suc₋₂ n)) → isOfHLevel (2+ (suc₋₂ n)) (P a b )
   hLevelP {n = n} =
     elim2
       (λ x y → isProp→isOfHLevelSuc (2+ n) (isPropIsOfHLevel (2+ suc₋₂ n)) )
-      (λ a b → isOfHLevelSuc (2+ n) (isTrunc∥∥ n))
+      (λ a b → isOfHLevelSuc (2+ n) (isOfHLevelTrunc (2+ n)))
 
   {- decode function from P x y to x ≡ y -}
   decode-fun :  ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} (x y : ∥ B ∥ (suc₋₂ n)) → P x y → x ≡ y
@@ -243,20 +240,20 @@ private
     elim2
       (λ u v → isOfHLevelPi
         (2+ suc₋₂ n)
-        (λ _ → isOfHLevelSuc (2+ suc₋₂ n) (isTrunc∥∥ (suc₋₂ n)) u v))
+        (λ _ → isOfHLevelSuc (2+ suc₋₂ n) (isOfHLevelTrunc (2+ suc₋₂ n)) u v))
       decode*
       where
       decode* :  ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂}(u v : B)
         → (P {n = n} ∣ u ∣ ∣ v ∣) → _≡_ {A = ∥ B ∥ (suc₋₂ n)} ∣ u ∣ ∣ v ∣
       decode* {B = B} {n = neg2} u v =
         rec
-          ( isTrunc∥∥ (suc₋₂ neg2) ∣ u ∣ ∣ v ∣
+          ( isOfHLevelTrunc (suc zero) ∣ u ∣ ∣ v ∣
           , λ _ →
-            isOfHLevelSuc (suc zero) (isTrunc∥∥ (suc₋₂ neg2)) _ _ _ _
+            isOfHLevelSuc (suc zero) (isOfHLevelTrunc (suc zero)) _ _ _ _
           )
           (λ p → cong (λ z → ∣ z ∣) p)
       decode* {n = ℕ₋₂.-1+ n} u v =
-        rec (isTrunc∥∥ (ℕ₋₂.-1+ (suc n)) ∣ u ∣ ∣ v ∣) (λ p → cong (λ z → ∣ z ∣) p)
+        rec (isOfHLevelTrunc (suc (suc n)) ∣ u ∣ ∣ v ∣) (λ p → cong (λ z → ∣ z ∣) p)
 
   {- auxilliary function r used to define encode -}
   r :  ∀ {ℓ} {B : Type ℓ} {m : ℕ₋₂} (u : ∥ B ∥ (suc₋₂ m)) → P u u
@@ -273,7 +270,7 @@ private
     elim
       (λ x →
         isOfHLevelSuc (suc zero)
-          (isOfHLevelSuc (suc zero) (isTrunc∥∥ (suc₋₂ neg2)) x x)
+          (isOfHLevelSuc (suc zero) (isOfHLevelTrunc (suc zero)) x x)
           _ _)
       (λ a → refl)
   dec-refl {n = ℕ₋₂.-1+ n} =
@@ -281,7 +278,7 @@ private
       (λ x →
         isOfHLevelSuc (suc n)
          (isOfHLevelSuc (suc n)
-            (isTrunc∥∥ (ℕ₋₂.-1+ suc n) x x)
+            (isOfHLevelTrunc (suc (suc n)) x x)
             (decode-fun x x (r x)) refl))
       (λ c → refl)
 
@@ -310,11 +307,11 @@ private
     helper {n = neg2} a b =
       elim
         (λ x →
-          ( sym (isTrunc∥∥ neg2 .snd (encode-fun ∣ a ∣ ∣ b ∣ (decode-fun ∣ a ∣ ∣ b ∣ x)))
-            ∙ (isTrunc∥∥ neg2 .snd x)
+          ( sym (isOfHLevelTrunc zero .snd (encode-fun ∣ a ∣ ∣ b ∣ (decode-fun ∣ a ∣ ∣ b ∣ x)))
+            ∙ (isOfHLevelTrunc zero .snd x)
           , λ y →
             isOfHLevelSuc (suc zero)
-              (isOfHLevelSuc zero (isTrunc∥∥ {A = a ≡ b} neg2))
+              (isOfHLevelSuc zero (isOfHLevelTrunc {A = a ≡ b} zero))
               _ _ _ _
           ))
         (J

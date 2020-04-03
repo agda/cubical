@@ -24,6 +24,6 @@ open import Cubical.HITs.Sn
 hLevelTrunc : ∀ {ℓ} → ℕ → Type ℓ → Type ℓ
 hLevelTrunc n A = Null (S (-1+ n)) A
 
--- a re-indexing of `hLevelTrunc` which is consistent with standard notation
+-- a re-indexing of `hLevelTrunc` which is consistent with the HoTT book
 ∥_∥_ : ∀ {ℓ} → Type ℓ → ℕ₋₂ → Type ℓ
 ∥ A ∥ n = hLevelTrunc (2+ n) A -- ≡ Null (S (1+ n)) A
