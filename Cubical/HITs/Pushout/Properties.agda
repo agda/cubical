@@ -37,6 +37,9 @@ record 3-span : Type₁ where
     f1 : A2 → A0
     f3 : A2 → A4
 
+3span : {A0 A2 A4 : Type₀} → (A2 → A0) → (A2 → A4) → 3-span
+3span f1 f3 = record { f1 = f1 ; f3 = f3 }
+
 spanPushout : (s : 3-span) → Type₀
 spanPushout s = Pushout (3-span.f1 s) (3-span.f3 s)
 

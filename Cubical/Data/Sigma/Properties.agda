@@ -20,12 +20,14 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.CartesianKanOps
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
+open import Cubical.Data.Unit.Base
 
 private
   variable
     ℓ : Level
     A : Type ℓ
-    B : (a : A) → Type ℓ
+    B B' : (a : A) → Type ℓ
+    C : (a : A) (b : B a) → Type ℓ
 
 
 ΣPathP : ∀ {x y}
@@ -158,3 +160,18 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
       (λ {(a , b) →
         sigmaPath→pathSigma _ _ (c .snd a , transportTransport⁻ (cong B (c .snd a)) _)}))
 
+-- a special case of the above
+ΣUnit : ∀ {ℓ} (A : Unit → Type ℓ) → Σ Unit A ≃ A tt
+ΣUnit A = isoToEquiv (iso snd (λ { x → (tt , x) }) (λ _ → refl) (λ _ → refl))
+
+assocΣ : (Σ[ (a , b) ∈ Σ A B ] C a b) ≃ (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
+assocΣ = isoToEquiv (iso (λ { ((x , y) , z) → (x , (y , z)) })
+                         (λ { (x , (y , z)) → ((x , y) , z) })
+                         (λ _ → refl) (λ _ → refl))
+
+congΣEquiv : (∀ a → B a ≃ B' a) → Σ A B ≃ Σ A B'
+congΣEquiv h =
+  isoToEquiv (iso (λ { (x , y)   → (x , equivFun (h x) y) })
+                  (λ { (x , y)   → (x , invEq    (h x) y) })
+                  (λ { (x , y) i → (x , retEq    (h x) y i) })
+                  (λ { (x , y) i → (x , secEq    (h x) y i) }))

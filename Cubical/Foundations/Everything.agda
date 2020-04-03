@@ -48,6 +48,7 @@ open import Cubical.Foundations.GroupoidLaws public
 open import Cubical.Foundations.Isomorphism public
 open import Cubical.Foundations.Surjection public
 open import Cubical.Foundations.TotalFiber public
+open import Cubical.Foundations.Bundle public
 open import Cubical.Foundations.Logic
 open import Cubical.Foundations.SIP
 open import Cubical.Foundations.HoTT-UF

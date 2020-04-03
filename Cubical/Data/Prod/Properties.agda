@@ -48,11 +48,17 @@ private
   testrefl = refl
 
 -- equivalence between the sigma-based definition and the inductive one
-A×B≡A×ΣB : A × B ≡ A ×Σ B
-A×B≡A×ΣB = isoToPath (iso (λ { (a , b) → (a , b)})
+A×B≃A×ΣB : A × B ≃ A ×Σ B
+A×B≃A×ΣB = isoToEquiv (iso (λ { (a , b) → (a , b)})
                           (λ { (a , b) → (a , b)})
                           (λ _ → refl)
                           (λ { (a , b) → refl }))
+
+A×B≡A×ΣB : A × B ≡ A ×Σ B
+A×B≡A×ΣB = ua A×B≃A×ΣB
+
+swapΣEquiv : (A : Type ℓ) (B : Type ℓ') → A ×Σ B ≃ B ×Σ A
+swapΣEquiv A B = compEquiv (compEquiv (invEquiv A×B≃A×ΣB) (swapEquiv A B)) A×B≃A×ΣB
 
 -- truncation for products
 isOfHLevelProd : (n : ℕ) → isOfHLevel n A → isOfHLevel n B → isOfHLevel n (A × B)

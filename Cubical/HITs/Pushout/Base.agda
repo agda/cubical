@@ -7,7 +7,7 @@ open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Unit
 
-open import Cubical.HITs.Susp
+open import Cubical.HITs.Susp.Base
 
 data Pushout {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
              (f : A → B) (g : A → C) : Type (ℓ-max ℓ (ℓ-max ℓ' ℓ'')) where

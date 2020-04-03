@@ -27,6 +27,7 @@ import Cubical.HITs.2GroupoidTruncation
 import Cubical.HITs.SetQuotients
 import Cubical.HITs.FiniteMultiset
 import Cubical.HITs.Sn
+import Cubical.HITs.RPn
 import Cubical.HITs.Truncation
 import Cubical.HITs.Colimit
 import Cubical.HITs.MappingCones
