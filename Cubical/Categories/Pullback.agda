@@ -1,7 +1,7 @@
 {-
   This file contains cospans, cones, pullbacks and maps of cones in precategories.
 -}
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 
 module Cubical.Categories.Pullback where
 
