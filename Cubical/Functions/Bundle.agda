@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.Bundle where
+module Cubical.Functions.Bundle where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism

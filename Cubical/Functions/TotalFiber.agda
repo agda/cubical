@@ -1,13 +1,13 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.TotalFiber where
+module Cubical.Functions.TotalFiber where
 
 open import Cubical.Core.Everything
 open import Cubical.Data.Prod
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Surjection
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Functions.Surjection
 open import Cubical.HITs.PropositionalTruncation
 
 private

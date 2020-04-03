@@ -10,6 +10,7 @@ https://arxiv.org/abs/1901.06022
 module Cubical.HITs.Pushout.KrausVonRaumer where
 
 open import Cubical.Foundations.Everything
+open import Cubical.Functions.Embedding
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Pushout.Base
 

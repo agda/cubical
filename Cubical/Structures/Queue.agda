@@ -4,7 +4,7 @@ module Cubical.Structures.Queue where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.FunExtEquiv
+open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 

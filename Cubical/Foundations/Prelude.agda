@@ -197,7 +197,7 @@ substRefl px = transportRefl px
 funExt : {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
 funExt p i x = p x i
 
--- the inverse to funExt (see Foundations.FunExtEquiv)
+-- the inverse to funExt (see Functions.FunExtEquiv)
 funExt⁻ : ∀ {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
 funExt⁻ eq x i = eq i x
 

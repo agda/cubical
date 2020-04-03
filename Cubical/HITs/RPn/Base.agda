@@ -16,7 +16,7 @@ open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Bundle
+open import Cubical.Functions.Bundle
 
 open import Cubical.Foundations.SIP
 open import Cubical.Structures.Pointed
@@ -44,7 +44,7 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
--- Definition II.1 in [BR17], see also Cubical.Foundations.Bundle
+-- Definition II.1 in [BR17], see also Cubical.Functions.Bundle
 
 2-EltType₀    = TypeEqvTo    ℓ-zero Bool -- Σ[ X ∈ Type₀ ] ∥ X ≃ Bool ∥
 2-EltPointed₀ = PointedEqvTo ℓ-zero Bool -- Σ[ X ∈ Type₀ ] X × ∥ X ≃ Bool ∥
@@ -140,7 +140,7 @@ snd isContr-2-EltPointed A∙ = PointedEqvTo-sip Bool _ A∙ (fst (isContr-2-Elt
 --  and show that the total space of this double cover is S n (Theorem III.4).
 
 RP  : ℕ₋₁ → Type₀
-cov⁻¹ : (n : ℕ₋₁) → RP n → 2-EltType₀ -- (see Cubical.Foundations.Bundle)
+cov⁻¹ : (n : ℕ₋₁) → RP n → 2-EltType₀ -- (see Cubical.Functions.Bundle)
 
 RP neg1 = ⊥
 RP (ℕ→ℕ₋₁ n) = Pushout (pr (cov⁻¹ (-1+ n))) (λ _ → tt)
