@@ -1,6 +1,6 @@
 {-
 
-An simpler definition of truncation from n ≥ -1
+An simpler definition of truncation ∥ A ∥ n from n ≥ -1
 
 -}
 {-# OPTIONS --cubical --safe #-}
