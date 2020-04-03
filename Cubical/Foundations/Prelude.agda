@@ -64,12 +64,12 @@ cong₂ f p q i = f (p i) (q i)
 {- The most natural notion of homogenous path composition
     in a cubical setting is double composition:
 
-     x ∙ ∙ ∙ > w
-     |         ^
-   p |         | r        ^
-     V         |        j |
-     y — — — > z          ∙ — >
-          q                 i
+       x ∙ ∙ ∙ > w
+       ^         ^
+   p⁻¹ |         | r        ^
+       |         |        j |
+       y — — — > z          ∙ — >
+            q                 i
 
    `p ∙∙ q ∙∙ r` gives the line at the top,
    `doubleCompPath-filler p q r` gives the whole square
