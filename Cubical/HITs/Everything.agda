@@ -9,9 +9,11 @@ import Cubical.HITs.Ints.DeltaInt
 import Cubical.HITs.Ints.HAEquivInt
 import Cubical.HITs.Ints.IsoInt
 import Cubical.HITs.Ints.QuoInt
+import Cubical.HITs.Ints.QuoInt.Properties
 import Cubical.HITs.Join
 import Cubical.HITs.ListedFiniteSet
 import Cubical.HITs.Pushout
+import Cubical.HITs.Pushout.Flattening
 import Cubical.HITs.Modulo
 import Cubical.HITs.S1
 import Cubical.HITs.S2

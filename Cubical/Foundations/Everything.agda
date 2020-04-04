@@ -34,8 +34,10 @@ open import Cubical.Foundations.Function public
 open import Cubical.Foundations.Embedding public
 open import Cubical.Foundations.Equiv public
 open import Cubical.Foundations.Equiv.Properties public
+open import Cubical.Foundations.Equiv.Fiberwise
 open import Cubical.Foundations.PathSplitEquiv public
 open import Cubical.Foundations.BiInvEquiv public
+open import Cubical.Foundations.HAEquiv
 open import Cubical.Foundations.FunExtEquiv public
 open import Cubical.Foundations.HLevels public
 open import Cubical.Foundations.Path public
@@ -44,6 +46,7 @@ open import Cubical.Foundations.Structure public
 open import Cubical.Foundations.Transport public
 open import Cubical.Foundations.Univalence public
 open import Cubical.Foundations.UnivalenceId public
+open import Cubical.Foundations.Univalence.Universe
 open import Cubical.Foundations.GroupoidLaws public
 open import Cubical.Foundations.Isomorphism public
 open import Cubical.Foundations.Surjection public

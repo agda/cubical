@@ -9,6 +9,7 @@ import Cubical.Data.Fin
 import Cubical.Data.Nat
 import Cubical.Data.Nat.Algebra
 import Cubical.Data.Nat.Order
+import Cubical.Data.Nat.Literals
 import Cubical.Data.NatMinusOne
 import Cubical.Data.NatMinusTwo
 import Cubical.Data.NatPlusOne
@@ -24,3 +25,6 @@ import Cubical.Data.List
 import Cubical.Data.Graph
 import Cubical.Data.InfNat
 import Cubical.Data.Queue
+import Cubical.Data.DescendingList
+import Cubical.Data.SumFin
+import Cubical.Data.Maybe

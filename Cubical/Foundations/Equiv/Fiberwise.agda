@@ -1,9 +1,12 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe #-}
 module Cubical.Foundations.Equiv.Fiberwise where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.HLevels
 
 module _ {a p q} {A : Type a} (P : A → Type p) (Q : A → Type q)
          (f : ∀ x → P x → Q x)
