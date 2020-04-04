@@ -59,6 +59,7 @@ install:
       echo "cabal build-cache MISS";
       rm -rf $HOME/.cabsnap;
       mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin;
+      travis_wait 30 cabal install --only-dependencies;
     fi
   # only installing agda if we have to
   - touch $HOME/oldHEAD.txt
@@ -67,8 +68,7 @@ install:
     then
       echo "agda up to date";
     else
-      echo "**** cached agda behind remote - re-installing... ****";
-      travis_wait 30 cabal install --only-dependencies;
+      echo "**** cached build of agda is out of date, re-installing... ****";
       travis_wait 30 cabal install;
     fi
   - cd -
@@ -82,6 +82,7 @@ install:
     cp -a $HOME/.ghc $HOME/.cabsnap/ghc;
     cp -a $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin $HOME/installplan.txt $HOME/.cabsnap/;
   # snapshop agda dir on cache miss
+  - [ -d "$HOME/.cabsnap/agda" ] && rm -rf $HOME/.cabsnap/agda;
   - cp -a $HOME/agda $HOME/.cabsnap/agda;
   - yes | rm -R agda/
   - cd $TRAVIS_BUILD_DIR
