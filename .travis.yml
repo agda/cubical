@@ -58,6 +58,7 @@ install:
       mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin;
     fi
   # only install agda if we have to
+  - touch oldHEAD.txt
   - git rev-parse HEAD; cat oldHEAD.txt
   - if [ agda ] && [ "$(git rev-parse HEAD)" == "$(cat oldHEAD.txt)" ];
     then
