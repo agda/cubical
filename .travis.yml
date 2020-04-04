@@ -9,11 +9,7 @@ dist: xenial
 cache:
   directories:
     - $HOME/.cabsnap
-    - $HOME/.cabal/packages
-    - $HOME/.cabal/store
-    - $HOME/.cabal/bin
     - $HOME/agda
-    - $HOME/agdaHEAD
 
 matrix:
   include:
@@ -36,12 +32,11 @@ install:
   - cabal update
   - sed -i 's/^jobs:/-- jobs:/' $HOME/.cabal/config
   # get master Agda
-  - touch $HOME/agdaHEAD.txt
   - if [ -d "./agda/src" ];
     then
       cd agda;
-      git fetch origin master --depth 1;
-      git rev-parse HEAD > $HOME/agdaHEAD.txt;
+      git rev-parse HEAD > oldHEAD.txt;
+      git pull origin master --depth 1;
     else
       git clone https://github.com/agda/agda --depth 1;
       cd agda;
@@ -63,12 +58,11 @@ install:
       mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin;
     fi
   # only install agda if we have to
-  - git rev-parse HEAD; cat $HOME/agdaHEAD.txt
-  - if [ agda ] && [ "$(git rev-parse HEAD)" == "$(cat $HOME/agdaHEAD.txt)" ];
+  - git rev-parse HEAD; cat oldHEAD.txt
+  - if [ agda ] && [ "$(git rev-parse HEAD)" == "$(cat oldHEAD.txt)" ];
     then
       echo "skipping cabal install";
     else
-      git rev-parse HEAD > $HOME/agdaHEAD.txt;
       echo "starting cabal install";
       travis_wait 30 cabal install --only-dependencies;
       travis_wait 30 cabal install;
