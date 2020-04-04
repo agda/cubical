@@ -37,7 +37,8 @@ install:
       cp -a $HOME/.cabsnap/agda $HOME/agda;
       cd agda;
       git rev-parse HEAD > $HOME/oldHEAD.txt;
-      git pull origin master --depth 1;
+      git fetch origin master --depth=1;
+      git reset --hard origin/master;
     else
       echo "agda dir cache MISS";
       git clone https://github.com/agda/agda --depth 1;
