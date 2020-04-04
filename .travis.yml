@@ -77,13 +77,13 @@ install:
   - cd agda/src/fix-agda-whitespace
   - cabal install fix-agda-whitespace.cabal
   - cd -
-  - yes | rm -R agda/
   # snapshot package-db on cache miss
   - echo "snapshotting package-db to build-cache";
     mkdir -p $HOME/.cabsnap;
     cp -a $HOME/.ghc $HOME/.cabsnap/ghc;
     cp -a $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin $HOME/installplan.txt $HOME/.cabsnap/;
-    cp -a $HOME/agda $HOME/.cabsnap/agda;
+  - cp -a $HOME/agda $HOME/.cabsnap/agda;
+  - yes | rm -R agda/
   - cd $TRAVIS_BUILD_DIR
 
 script:
