@@ -9,6 +9,10 @@ dist: xenial
 cache:
   directories:
     - $HOME/.cabsnap
+    - $HOME/.cabal/packages
+    - $HOME/.cabal/store
+    - $HOME/.cabal/bin
+    - $HOME/agda
 
 matrix:
   include:
@@ -31,7 +35,12 @@ install:
   - cabal update
   - sed -i 's/^jobs:/-- jobs:/' $HOME/.cabal/config
   # get master Agda
-  - git clone https://github.com/agda/agda --depth=1
+  - if [ -d "./agda" ];
+    then
+      git clone https://github.com/agda/agda --depth=1;
+    else
+      git fetch origin master;
+    fi
   - cd agda
   # checking whether .ghc is still valid
   - cabal install --only-dependencies --dry -v > $HOME/installplan.txt
@@ -49,8 +58,14 @@ install:
       rm -rf $HOME/.cabsnap;
       mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin;
     fi
-  - travis_wait 30 cabal install --only-dependencies
-  - travis_wait 30 cabal install
+  # only install agda if we have to
+  - if [ $(git rev-parse HEAD) == $(git rev-parse master@{origin}) ];
+    then
+      echo "skipping cabal install";
+    else
+      travis_wait 30 cabal install --only-dependencies;
+      travis_wait 30 cabal install;
+    fi
   - cd -
   # installing fix-agda-whitespace
   - cd agda/src/fix-agda-whitespace
