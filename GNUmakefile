@@ -6,7 +6,7 @@ AGDA=$(AGDA_EXEC) $(RTS_OPTIONS)
 all : check
 
 .PHONY : test
-test: check-whitespace check
+test: check-whitespace check-everythings check
 
 .PHONY : fix-whitespace
 fix-whitespace:
@@ -16,8 +16,16 @@ fix-whitespace:
 check-whitespace:
 	cabal exec -- fix-agda-whitespace --check
 
+.PHONY : check-everythings
+check-everythings:
+	runhaskell ./GenEverythings.hs check Experiments
+
+.PHONY : gen-everythings
+gen-everythings:
+	runhaskell ./GenEverythings.hs gen Core Foundations Codata Experiments
+
 .PHONY : check
-check: $(wildcard Cubical/**/*.agda)
+check:
 	$(AGDA) Cubical/Core/Everything.agda
 	$(AGDA) Cubical/Foundations/Everything.agda
 	$(AGDA) Cubical/Codata/Everything.agda
@@ -33,7 +41,7 @@ check: $(wildcard Cubical/**/*.agda)
 	$(AGDA) Cubical/Categories/Everything.agda
 
 .PHONY: listings
-listings: $(wildcard Cubical/**/*.agda)
+listings:
 	$(AGDA) -i. -isrc --html Cubical/README.agda -v0
 
 .PHONY : clean
