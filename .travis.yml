@@ -35,13 +35,14 @@ install:
   - cabal update
   - sed -i 's/^jobs:/-- jobs:/' $HOME/.cabal/config
   # get master Agda
-  - if [ -d "./agda" ];
+  - if [ -d "agda/src" ];
     then
       git clone https://github.com/agda/agda --depth=1;
+      cd agda;
     else
+      cd agda;
       git fetch origin master;
     fi
-  - cd agda
   # checking whether .ghc is still valid
   - cabal install --only-dependencies --dry -v > $HOME/installplan.txt
   - sed -i -e '1,/^Resolving /d' $HOME/installplan.txt; cat $HOME/installplan.txt
@@ -59,6 +60,7 @@ install:
       mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin;
     fi
   # only install agda if we have to
+  - if [ agda ]; then echo "has agda"; else echo "no agda"; fi
   - if [ agda ] && [ $(git rev-parse master) == $(git rev-parse origin/master) ];
     then
       echo "skipping cabal install";
