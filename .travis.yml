@@ -62,15 +62,14 @@ install:
       rm -rf $HOME/.cabsnap;
       mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin;
     fi
-  # TODO: delete these lines once travis is working
-  - git rev-parse HEAD
-  - cat $HOME/agdaHEAD.txt
   # only install agda if we have to
+  - git rev-parse HEAD; cat $HOME/agdaHEAD.txt
   - if [ agda ] && [ "$(git rev-parse HEAD)" == "$(cat $HOME/agdaHEAD.txt)" ];
     then
       echo "skipping cabal install";
     else
       git rev-parse HEAD > $HOME/agdaHEAD.txt;
+      echo "starting cabal install";
       travis_wait 30 cabal install --only-dependencies;
       travis_wait 30 cabal install;
     fi
