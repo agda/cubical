@@ -30,16 +30,16 @@ install:
   - cd
   - cabal update
   - sed -i 's/^jobs:/-- jobs:/' $HOME/.cabal/config
-  # getting the latest agda
+  # checking whether agda dir is cached and fetching the latest
   - if [ -d "$HOME/.cabsnap/agda" ];
     then
-      echo "agda git cache HIT";
+      echo "agda dir cache HIT";
       cp -a $HOME/.cabsnap/agda $HOME/agda;
       cd agda;
       git rev-parse HEAD > $HOME/oldHEAD.txt;
       git pull origin master --depth 1;
     else
-      echo "agda git cache MISS";
+      echo "agda dir cache MISS";
       git clone https://github.com/agda/agda --depth 1;
       cd agda;
     fi
@@ -59,16 +59,14 @@ install:
       rm -rf $HOME/.cabsnap;
       mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin;
     fi
-  # only install agda if we have to
+  # only installing agda if we have to
   - touch $HOME/oldHEAD.txt
-  - git rev-parse HEAD; cat $HOME/oldHEAD.txt
+  - git rev-parse HEAD; cat $HOME/oldHEAD.txt # for logging purposes
   - if [ agda ] && [ "$(git rev-parse HEAD)" == "$(cat $HOME/oldHEAD.txt)" ];
     then
-      echo "agda build-cache HIT";
-      echo "skipping cabal install";
+      echo "agda up to date";
     else
-      echo "agda build-cache MISS";
-      echo "running cabal install";
+      echo "**** cached agda behind remote - re-installing... ****";
       travis_wait 30 cabal install --only-dependencies;
       travis_wait 30 cabal install;
     fi
@@ -77,11 +75,12 @@ install:
   - cd agda/src/fix-agda-whitespace
   - cabal install fix-agda-whitespace.cabal
   - cd -
-  # snapshot package-db and agda dir
+  # snapshot package-db on cache miss
   - echo "snapshotting package-db to build-cache";
     mkdir -p $HOME/.cabsnap;
     cp -a $HOME/.ghc $HOME/.cabsnap/ghc;
     cp -a $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin $HOME/installplan.txt $HOME/.cabsnap/;
+  # snapshop agda dir on cache miss
   - cp -a $HOME/agda $HOME/.cabsnap/agda;
   - yes | rm -R agda/
   - cd $TRAVIS_BUILD_DIR
