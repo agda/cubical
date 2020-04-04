@@ -30,17 +30,17 @@ install:
   - cd
   - cabal update
   - sed -i 's/^jobs:/-- jobs:/' $HOME/.cabal/config
-  # checking whether agda dir is cached and fetching the latest
+  # checking whether agda is cached and fetching the latest
   - if [ -d "$HOME/.cabsnap/agda" ];
     then
-      echo "agda dir cache HIT";
+      echo "agda cache HIT";
       cp -a $HOME/.cabsnap/agda $HOME/agda;
       cd agda;
       git rev-parse HEAD > $HOME/oldHEAD.txt;
       git fetch origin master --depth=1;
       git reset --hard origin/master;
     else
-      echo "agda dir cache MISS";
+      echo "agda cache MISS";
       git clone https://github.com/agda/agda --depth 1;
       cd agda;
     fi
@@ -81,9 +81,9 @@ install:
     mkdir -p $HOME/.cabsnap;
     cp -a $HOME/.ghc $HOME/.cabsnap/ghc;
     cp -a $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin $HOME/installplan.txt $HOME/.cabsnap/;
-  # snapshop agda dir on cache miss
-  - [ -d "$HOME/.cabsnap/agda" ] && rm -rf $HOME/.cabsnap/agda;
-  - cp -a $HOME/agda $HOME/.cabsnap/agda;
+  # snapshop agda on cache miss
+  - if [ -d "$HOME/.cabsnap/agda" ]; then rm -rf $HOME/.cabsnap/agda; fi
+  - cp -a $HOME/agda $HOME/.cabsnap/agda
   - yes | rm -R agda/
   - cd $TRAVIS_BUILD_DIR
 
