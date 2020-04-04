@@ -59,7 +59,6 @@ install:
       echo "cabal build-cache MISS";
       rm -rf $HOME/.cabsnap;
       mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin;
-      travis_wait 30 cabal install --only-dependencies;
     fi
   # only installing agda if we have to
   - touch $HOME/oldHEAD.txt
@@ -69,6 +68,7 @@ install:
       echo "agda up to date";
     else
       echo "**** cached build of agda is out of date, re-installing... ****";
+      travis_wait 30 cabal install --only-dependencies;
       travis_wait 30 cabal install;
     fi
   - cd -
