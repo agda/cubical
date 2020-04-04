@@ -36,12 +36,12 @@ install:
   - cabal update
   - sed -i 's/^jobs:/-- jobs:/' $HOME/.cabal/config
   # get master Agda
-  - touch ./agdaHEAD
+  - touch $HOME/agdaHEAD.txt
   - if [ -d "./agda/src" ];
     then
       cd agda;
       git fetch origin master --depth 1;
-      git rev-parse HEAD > agdaHEAD;
+      git rev-parse HEAD > $HOME/agdaHEAD.txt
     else
       git clone https://github.com/agda/agda --depth 1;
       cd agda;
@@ -63,15 +63,14 @@ install:
       mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin;
     fi
   # TODO: delete these lines once travis is working
-  - if [ agda ]; then echo "has agda"; else echo "no agda"; fi
   - git rev-parse HEAD
-  - cat agdaHEAD
+  - cat $HOME/agdaHEAD.txt
   # only install agda if we have to
-  - if [ agda ] && [ $(git rev-parse HEAD) == $(cat $HOME/agdaHEAD) ];
+  - if [ agda ] && [ $(git rev-parse HEAD) == $(cat $HOME/agdaHEAD.txt) ];
     then
       echo "skipping cabal install";
     else
-      git rev-parse HEAD > agdaHEAD;
+      git rev-parse HEAD > $HOME/agdaHEAD.txt;
       travis_wait 30 cabal install --only-dependencies;
       travis_wait 30 cabal install;
     fi
