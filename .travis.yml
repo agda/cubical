@@ -66,7 +66,7 @@ install:
   - git rev-parse HEAD
   - cat $HOME/agdaHEAD.txt
   # only install agda if we have to
-  - if [ agda ] && [ $(git rev-parse HEAD) == $(cat $HOME/agdaHEAD.txt) ];
+  - if [ agda ] && [ "$(git rev-parse HEAD)" == "$(cat $HOME/agdaHEAD.txt)" ];
     then
       echo "skipping cabal install";
     else
