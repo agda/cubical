@@ -41,7 +41,7 @@ install:
     then
       cd agda;
       git fetch origin master --depth 1;
-      git rev-parse HEAD > $HOME/agdaHEAD.txt
+      git rev-parse HEAD > $HOME/agdaHEAD.txt;
     else
       git clone https://github.com/agda/agda --depth 1;
       cd agda;
