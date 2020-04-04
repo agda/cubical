@@ -59,7 +59,7 @@ install:
       mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin;
     fi
   # only install agda if we have to
-  - if [ $(git rev-parse HEAD) == $(git rev-parse master@{origin}) ];
+  - if [ $(git rev-parse HEAD) == $(git rev-parse origin/master) ];
     then
       echo "skipping cabal install";
     else
