@@ -43,18 +43,23 @@ getImported fp = do
         f ("import":x:_) = Just x
         f _ = Nothing
 
-
+-- Given a path to a directory $fp and a path to an agda file $fileToCheck.agda,
+--  returns the list of all files in* $fp not imported in $fileToCheck.agda
+-- * recursively
 getMissingFiles :: SplitFilePath -> Maybe SplitFilePath -> IO [SplitFilePath]
 getMissingFiles fp fpToCheck = do
   (sub_dirs, sub_files) <- getSubDirsFiles fp
-  -- recursively get all files in $fp/X not imported in $fp/X.agda
+  -- recursively get all files in $fp/X not imported in $fp/X.agda (if it exists)
   missing_files <- concat <$> forM sub_dirs (\sub_dir ->
-                     getMissingFiles (addToFP fp sub_dir)
-                                     (fmap (addToFP fp) (find (== sub_dir) sub_files)))
-  -- all files imported in $fpToCheck.agda are no longer missing
+    getMissingFiles (addToFP fp sub_dir)
+                    (addToFP fp <$> (find (== sub_dir) sub_files)))
+  -- return all of these files, plus all agda files in the current directory,
+  --  except for those which are imported in $fpToCheck.agda (if it exists) or
+  --  which are $fpToCheck.agda itself
   imported <- maybe (pure []) getImported fpToCheck
   pure $ ((addToFP fp <$> sub_files) ++ missing_files)
-         \\ (imported ++ maybeToList fpToCheck)
+         \\ (maybeToList fpToCheck ++ imported)
+
 
 checkEverythings :: [String] -> IO ()
 checkEverythings excluded_dirs = do
@@ -73,7 +78,7 @@ genEverything fp = do
   let ls = ["{-# OPTIONS --cubical --safe #-}",
             "module " ++ showFP '.' (addToFP fp "Everything") ++ " where", []]
            ++ sort (fmap (\file -> "import " ++ showFP '.' file)
-                          (delete (addToFP fp "Everything") files))
+                         (delete (addToFP fp "Everything") files))
   writeFile ("./" ++ showFP '/' (addToFP fp "Everything") ++ ".agda") (unlines ls)
 
 genEverythings :: [String] -> IO ()
