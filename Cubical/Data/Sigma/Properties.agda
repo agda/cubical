@@ -13,6 +13,7 @@ open import Cubical.Data.Sigma.Base
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
@@ -175,3 +176,8 @@ congΣEquiv h =
                   (λ { (x , y)   → (x , invEq    (h x) y) })
                   (λ { (x , y) i → (x , retEq    (h x) y i) })
                   (λ { (x , y) i → (x , secEq    (h x) y i) }))
+
+PiΣ : ((a : A) → Σ[ b ∈ B a ] C a b) ≃ (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
+PiΣ = isoToEquiv (iso (λ f → fst ∘ f , snd ∘ f)
+                      (λ (f , g) → (λ x → f x , g x))
+                      (λ _ → refl) (λ _ → refl))
