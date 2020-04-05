@@ -34,7 +34,7 @@ module _ {ℓ ℓ′} {A : Type ℓ} {B : Type ℓ′} (f : A → B) where
   ◯-map-β x = ◯-rec-β idemp _ x
 
 
-module ModalUnit {ℓ} (A : Type ℓ) (A-mod : isModal A) where
+module IsModalToUnitIsEquiv {ℓ} (A : Type ℓ) (A-mod : isModal A) where
   inv : ◯ A → A
   inv = ◯-rec A-mod λ x → x
 
@@ -53,8 +53,12 @@ module ModalUnit {ℓ} (A : Type ℓ) (A-mod : isModal A) where
   η-is-equiv : isEquiv (η-at A)
   η-is-equiv = isoToIsEquiv η-iso
 
+unit-is-equiv-to-is-modal : ∀ {ℓ} {A : Type ℓ} → isEquiv (η-at A) → isModal A
+unit-is-equiv-to-is-modal p = transport (cong isModal (sym (ua (η , p)))) idemp
+
+
 module LiftFam {ℓ ℓ′} {A : Type ℓ} (B : A → Type ℓ′) where
-  module M = ModalUnit (Type◯ ℓ′) ◯-lex
+  module M = IsModalToUnitIsEquiv (Type◯ ℓ′) ◯-lex
 
   ◯-lift-fam : ◯ A → Type◯ ℓ′
   ◯-lift-fam = M.inv ∘ ◯-map (λ a → ◯ (B a) , idemp)
