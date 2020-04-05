@@ -15,18 +15,22 @@ module Cubical.Modalities.Lex
   (◯-lex : ∀ {ℓ} → isModal (Type◯ ℓ))
   where
 
-η-at : ∀ {ℓ} (A : Type ℓ) → A → ◯ A
+
+private
+  variable
+     ℓ ℓ′ : Level
+
+η-at : (A : Type ℓ) → A → ◯ A
 η-at _ = η
 
-
-module _ {ℓ ℓ′} {A : Type ℓ} {B : Type ℓ′} (B-mod : isModal B) (f : A → B) where
+module _ {A : Type ℓ} {B : Type ℓ′} (B-mod : isModal B) (f : A → B) where
   ◯-rec : ◯ A → B
   ◯-rec = ◯-ind (λ _ → B-mod) f
 
   ◯-rec-β : (x : A) → ◯-rec (η x) ≡ f x
   ◯-rec-β = ◯-ind-β (λ _ → B-mod) f
 
-module _ {ℓ ℓ′} {A : Type ℓ} {B : Type ℓ′} (f : A → B) where
+module _ {A : Type ℓ} {B : Type ℓ′} (f : A → B) where
   ◯-map : ◯ A → ◯ B
   ◯-map = ◯-rec idemp λ x → η (f x)
 
@@ -34,7 +38,7 @@ module _ {ℓ ℓ′} {A : Type ℓ} {B : Type ℓ′} (f : A → B) where
   ◯-map-β x = ◯-rec-β idemp _ x
 
 
-module IsModalToUnitIsEquiv {ℓ} (A : Type ℓ) (A-mod : isModal A) where
+module IsModalToUnitIsEquiv (A : Type ℓ) (A-mod : isModal A) where
   inv : ◯ A → A
   inv = ◯-rec A-mod λ x → x
 
@@ -53,11 +57,11 @@ module IsModalToUnitIsEquiv {ℓ} (A : Type ℓ) (A-mod : isModal A) where
   η-is-equiv : isEquiv (η-at A)
   η-is-equiv = isoToIsEquiv η-iso
 
-unit-is-equiv-to-is-modal : ∀ {ℓ} {A : Type ℓ} → isEquiv (η-at A) → isModal A
+unit-is-equiv-to-is-modal : {A : Type ℓ} → isEquiv (η-at A) → isModal A
 unit-is-equiv-to-is-modal p = transport (cong isModal (sym (ua (η , p)))) idemp
 
 retract-is-modal
-  : ∀ {ℓ ℓ′} {A : Type ℓ} {B : Type ℓ′}
+  : {A : Type ℓ} {B : Type ℓ′}
   → (A-mod : isModal A) (f : A → B) (g : B → A) (r : retract g f)
   → isModal B
 retract-is-modal {A = A} {B = B} A-mod f g r =
@@ -72,31 +76,38 @@ retract-is-modal {A = A} {B = B} A-mod f g r =
     η-section : section η η-inv
     η-section = ◯-ind (λ _ → ≡-modal idemp) (cong η ∘ η-retract)
 
+abstract
+   foo : Type ℓ → Type ℓ
+   foo A = A
 
-module LiftFam {ℓ ℓ′} {A : Type ℓ} (B : A → Type ℓ′) where
+abstract
+  test : ∀ (A : Type ℓ) → foo A ≡ A
+  test A = refl
+
+module LiftFam {A : Type ℓ} (B : A → Type ℓ′) where
   module M = IsModalToUnitIsEquiv (Type◯ ℓ′) ◯-lex
 
-  ◯-lift-fam : ◯ A → Type◯ ℓ′
-  ◯-lift-fam = M.inv ∘ ◯-map (λ a → ◯ (B a) , idemp)
+  abstract
+    ◯-lift-fam : ◯ A → Type◯ ℓ′
+    ◯-lift-fam = M.inv ∘ ◯-map (λ a → ◯ (B a) , idemp)
 
-  ⟨◯⟩ : ◯ A → Type ℓ′
-  ⟨◯⟩ [a] = ◯-lift-fam [a] .fst
+    ⟨◯⟩ : ◯ A → Type ℓ′
+    ⟨◯⟩ [a] = ◯-lift-fam [a] .fst
 
-  ⟨◯⟩-modal : isModalFam ⟨◯⟩
-  ⟨◯⟩-modal [a] = ◯-lift-fam [a] .snd
+    ⟨◯⟩-modal : isModalFam ⟨◯⟩
+    ⟨◯⟩-modal [a] = ◯-lift-fam [a] .snd
 
-  ⟨◯⟩-compute : (x : A) → ⟨◯⟩ (η x) ≡ ◯ (B x)
-  ⟨◯⟩-compute x =
-    ⟨◯⟩ (η x)
-      ≡[ i ]⟨ M.inv (◯-map-β (λ a → ◯ (B a) , idemp) x i) .fst ⟩
-    M.inv (η (◯ (B x) , idemp)) .fst
-      ≡[ i ]⟨ M.η-retract (◯ (B x) , idemp) i .fst ⟩
-    ◯ (B x) ∎
+    ⟨◯⟩-compute : (x : A) → ⟨◯⟩ (η x) ≡ ◯ (B x)
+    ⟨◯⟩-compute x =
+      ⟨◯⟩ (η x)
+        ≡[ i ]⟨ M.inv (◯-map-β (λ a → ◯ (B a) , idemp) x i) .fst ⟩
+      M.inv (η (◯ (B x) , idemp)) .fst
+        ≡[ i ]⟨ M.η-retract (◯ (B x) , idemp) i .fst ⟩
+      ◯ (B x) ∎
 
 open LiftFam using (⟨◯⟩; ⟨◯⟩-modal; ⟨◯⟩-compute)
 
-
-module _ {ℓ ℓ′} {A : Type ℓ} {B : A → Type ℓ′} where
+module _ {A : Type ℓ} {B : A → Type ℓ′} where
   abstract
     Π-modal : isModalFam B → isModal ((x : A) → B x)
     Π-modal B-mod = retract-is-modal idemp η-inv η retr
@@ -135,10 +146,14 @@ module _ {ℓ ℓ′} {A : Type ℓ} {B : A → Type ℓ′} where
         retr x = (λ i → h (η x) , p x i) ∙ (almost x)
 
 
-abstract-along : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : A → Type ℓ′} (p : A ≡ B) → ((x : B) → C (transport (sym p) x)) → ((x : A) → C x)
+abstract-along : {A B : Type ℓ} {C : A → Type ℓ′} (p : A ≡ B) → ((x : B) → C (transport (sym p) x)) → ((x : A) → C x)
 abstract-along {C = C} p f = transport (λ i → (x : p (~ i)) → C (transp (λ j → p (~ i ∧ ~ j)) i x)) f
 
-module Σ-commute {ℓ ℓ′} {A : Type ℓ} (B : A → Type ℓ′) where
+
+cong-fun : {A : Type ℓ} {B : A → Type ℓ′} {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
+cong-fun α x i = α i x
+
+module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
 
   ◯Σ = ◯ (Σ A B)
   Σ◯ = Σ (◯ A) (⟨◯⟩ B)
@@ -163,22 +178,18 @@ module Σ-commute {ℓ ℓ′} {A : Type ℓ} (B : A → Type ℓ′) where
   unpush-sg : Σ◯ → ◯Σ
   unpush-sg (x , y) = unpush-sg-split x y
 
+
   unpush-sg-compute : ∀ x y → unpush-sg (η x , transport (sym (⟨◯⟩-compute B x)) (η y)) ≡ η (x , y)
   unpush-sg-compute x y =
     unpush-sg (η x , transport (sym (⟨◯⟩-compute B x)) (η y))
-      ≡[ i ]⟨ unpush-sg-split-compute x i (transport (sym (⟨◯⟩-compute B x)) (η y)) ⟩
-    transport refl (◯-map _ (transport (⟨◯⟩-compute B x) (transport (sym (⟨◯⟩-compute B x)) (η y))))
+      ≡⟨ cong-fun (◯-ind-β _ _ _) _ ⟩
+    transport refl (◯-map (x ,_) (transport (⟨◯⟩-compute B x) (transport (sym (⟨◯⟩-compute B x)) (η y))))
       ≡⟨ transportRefl _ ⟩
     ◯-map _ (transport (⟨◯⟩-compute B x) (transport (sym (⟨◯⟩-compute B x)) (η y)))
       ≡⟨ cong (◯-map _) (transport⁻Transport (sym (⟨◯⟩-compute B x)) _) ⟩
     ◯-map _ (η y)
       ≡⟨ ◯-map-β _ _ ⟩
     η (x , y) ∎
-
-    where
-      unpush-sg-split-compute : (x : A) → unpush-sg-split (η x) ≡ abstract-along (⟨◯⟩-compute B x) (◯-map (x ,_))
-      unpush-sg-split-compute = ◯-ind-β _ _
-
 
   push-unpush-compute : (x : A) (y : B x) → push-sg (unpush-sg (η x , transport (sym (⟨◯⟩-compute B x)) (η y))) ≡ (η x , transport (sym (⟨◯⟩-compute B x)) (η y))
   push-unpush-compute x y =
@@ -212,6 +223,6 @@ module Σ-commute {ℓ ℓ′} {A : Type ℓ} (B : A → Type ℓ′) where
   push-sg-is-equiv = isoToIsEquiv (iso push-sg unpush-sg is-retract is-section)
 
 
-module FormalDiskBundle {ℓ} {A : Type ℓ} where
+module FormalDiskBundle {A : Type ℓ} where
   𝔻 : A → Type ℓ
   𝔻 a = Σ A (λ x → η a ≡ η x)
