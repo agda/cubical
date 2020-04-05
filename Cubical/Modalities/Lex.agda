@@ -109,8 +109,6 @@ module LexModality
       abstract-along {C = λ _ → ◯Σ} (⟨◯⟩-compute B x)
       (◯-map (x ,_))
 
-    unpush-sg-split-compute : (x : A) → unpush-sg-split (η x) ≡ abstract-along (⟨◯⟩-compute B x) (◯-map (λ y → x , y))
-    unpush-sg-split-compute = ◯-ind-β _ _
 
     unpush-sg : Σ◯ → ◯Σ
     unpush-sg (x , y) = unpush-sg-split x y
@@ -126,6 +124,11 @@ module LexModality
       ◯-map _ (η y)
         ≡⟨ ◯-map-β _ _ ⟩
       η (x , y) ∎
+
+      where
+        unpush-sg-split-compute : (x : A) → unpush-sg-split (η x) ≡ abstract-along (⟨◯⟩-compute B x) (◯-map (x ,_))
+        unpush-sg-split-compute = ◯-ind-β _ _
+
 
 
     push-unpush-compute : (x : A) (y : B x) → push-sg (unpush-sg (η x , transport (sym (⟨◯⟩-compute B x)) (η y))) ≡ (η x , transport (sym (⟨◯⟩-compute B x)) (η y))
@@ -147,14 +150,14 @@ module LexModality
     is-section : section unpush-sg push-sg
     is-section = ◯-ind (λ _ → ≡-modal idemp) unpush-push-compute
 
-    is-retract-split : (x : ◯ A) (y : ⟨◯⟩ B x) → push-sg (unpush-sg (x , y)) ≡ (x , y)
-    is-retract-split =
-      ◯-ind (λ _ → Π-modal λ _ → ≡-modal Σ◯-modal) λ x →
-      abstract-along (⟨◯⟩-compute B x) λ y →
-      ◯-ind (λ _ → ≡-modal Σ◯-modal) (push-unpush-compute x) y
-
     is-retract : retract unpush-sg push-sg
     is-retract (x , y) = is-retract-split x y
+      where
+        is-retract-split : (x : ◯ A) (y : ⟨◯⟩ B x) → push-sg (unpush-sg (x , y)) ≡ (x , y)
+        is-retract-split =
+          ◯-ind (λ _ → Π-modal λ _ → ≡-modal Σ◯-modal) λ x →
+          abstract-along (⟨◯⟩-compute B x) λ y →
+          ◯-ind (λ _ → ≡-modal Σ◯-modal) (push-unpush-compute x) y
 
     push-sg-is-equiv : isEquiv push-sg
     push-sg-is-equiv = isoToIsEquiv (iso push-sg unpush-sg is-retract is-section)
