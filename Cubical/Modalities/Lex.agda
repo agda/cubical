@@ -56,6 +56,22 @@ module IsModalToUnitIsEquiv {ℓ} (A : Type ℓ) (A-mod : isModal A) where
 unit-is-equiv-to-is-modal : ∀ {ℓ} {A : Type ℓ} → isEquiv (η-at A) → isModal A
 unit-is-equiv-to-is-modal p = transport (cong isModal (sym (ua (η , p)))) idemp
 
+retract-is-modal
+  : ∀ {ℓ ℓ′} {A : Type ℓ} {B : Type ℓ′}
+  → (A-mod : isModal A) (f : A → B) (g : B → A) (r : retract g f)
+  → isModal B
+retract-is-modal {A = A} {B = B} A-mod f g r =
+  unit-is-equiv-to-is-modal (isoToIsEquiv (iso η η-inv η-section η-retract))
+  where
+    η-inv : ◯ B → B
+    η-inv = f ∘ ◯-rec A-mod g
+
+    η-retract : retract η η-inv
+    η-retract b = cong f (◯-rec-β A-mod g b) ∙ r b
+
+    η-section : section η η-inv
+    η-section = ◯-ind (λ _ → ≡-modal idemp) (cong η ∘ η-retract)
+
 
 module LiftFam {ℓ ℓ′} {A : Type ℓ} (B : A → Type ℓ′) where
   module M = IsModalToUnitIsEquiv (Type◯ ℓ′) ◯-lex
