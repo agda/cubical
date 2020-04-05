@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --postfix-projections #-}
+{-# OPTIONS --cubical --safe --postfix-projections #-}
 
 open import Cubical.Foundations.Everything
 
@@ -96,12 +96,44 @@ module LiftFam {ℓ ℓ′} {A : Type ℓ} (B : A → Type ℓ′) where
 open LiftFam using (⟨◯⟩; ⟨◯⟩-modal; ⟨◯⟩-compute)
 
 
-
--- TODO
 module _ {ℓ ℓ′} {A : Type ℓ} {B : A → Type ℓ′} where
-  postulate
-    Σ-modal : isModal A → isModalFam B → isModal (Σ A B)
-    Π-modal : isModalFam B → isModal ((x : A) → B x)
+  Π-modal : isModalFam B → isModal ((x : A) → B x)
+  Π-modal B-mod = retract-is-modal idemp η-inv η retr
+    where
+      η-inv : ◯ ((x : A) → B x) → (x : A) → B x
+      η-inv [f] x = ◯-rec (B-mod x) (λ f → f x) [f]
+
+      retr : retract η η-inv
+      retr f = funExt (λ x → ◯-rec-β (B-mod x) _ f)
+
+  Σ-modal : isModal A → isModalFam B → isModal (Σ A B)
+  Σ-modal A-mod B-mod = retract-is-modal idemp η-inv η retr
+    where
+      h : ◯ (Σ A B) → A
+      h = ◯-rec A-mod fst
+
+      h-β : (x : Σ A B) → h (η x) ≡ fst x
+      h-β = ◯-rec-β A-mod fst
+
+      f : (j : I) → (x : Σ A B) → B (h-β x j)
+      f j x = transp (λ i → B (h-β x ((~ i) ∨ j))) j (snd x)
+
+      k : (y : ◯ (Σ A B)) → B (h y)
+      k = ◯-ind (B-mod ∘ h) (f i0)
+
+      η-inv : ◯ (Σ A B) → Σ A B
+      η-inv y = h y , k y
+
+      p : (x : Σ A B) → k (η x) ≡ f i0 x
+      p = ◯-ind-β (B-mod ∘ h) (f i0)
+
+      almost : (x : Σ A B) → (h (η x) , f i0 x) ≡ x
+      almost x i = h-β x i , f i x
+
+      retr : (x : Σ A B) → η-inv (η x) ≡ x
+      retr x = (λ i → h (η x) , p x i) ∙ (almost x)
+
+
 
 abstract-along : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : A → Type ℓ′} (p : A ≡ B) → ((x : B) → C (transport (sym p) x)) → ((x : A) → C x)
 abstract-along {C = C} p f = transport (λ i → (x : p (~ i)) → C (transp (λ j → p (~ i ∧ ~ j)) i x)) f
