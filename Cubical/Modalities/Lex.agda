@@ -106,9 +106,9 @@ module LiftFam {A : Type ℓ} (B : A → Type ℓ′) where
     ⟨◯⟩-compute : (x : A) → ⟨◯⟩ (η x) ≡ ◯ (B x)
     ⟨◯⟩-compute x =
       ⟨◯⟩ (η x)
-        ≡[ i ]⟨ M.inv (◯-map-β (λ a → ◯ (B a) , idemp) x i) .fst ⟩
+        ≡⟨ cong (fst ∘ M.inv) (◯-map-β _ _) ⟩
       M.inv (η (◯ (B x) , idemp)) .fst
-        ≡[ i ]⟨ M.η-retract (◯ (B x) , idemp) i .fst ⟩
+        ≡⟨ cong fst (M.η-retract _) ⟩
       ◯ (B x) ∎
 
 open LiftFam using (⟨◯⟩; ⟨◯⟩-modal; ⟨◯⟩-compute)
@@ -121,6 +121,8 @@ abstract-along {C = C} p f = coe1→0 (λ i → (x : p i) → C (coei→0 (λ j 
 cong-fun : {A : Type ℓ} {B : A → Type ℓ′} {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
 cong-fun α x i = α i x
 
+pair-ext : {A : Type ℓ} {B : A → Type ℓ′} {p q : Σ A B} (α : p .fst ≡ q .fst) (β : PathP (λ i → B (α i)) (p .snd) (q .snd)) → p ≡ q
+pair-ext α β i = α i , β i
 
 module _ {A : Type ℓ} {B : A → Type ℓ′} where
   abstract
@@ -142,23 +144,19 @@ module _ {A : Type ℓ} {B : A → Type ℓ′} where
         h-β : (x : Σ A B) → h (η x) ≡ fst x
         h-β = ◯-rec-β A-mod fst
 
-        f : (i : I) → (x : Σ A B) → B (h-β x i)
+        f : (i : I) (x : Σ A B) → B (h-β x i)
         f i x = coe1→i (λ j → B (h-β x j)) i (snd x)
 
-        k : (y : ◯ (Σ A B)) → B (h y)
-        k = ◯-ind (B-mod ∘ h) (f i0)
-
         η-inv : ◯ (Σ A B) → Σ A B
-        η-inv y = h y , k y
+        η-inv y = h y , ◯-ind (B-mod ∘ h) (f i0) y
 
-        p : (x : Σ A B) → k (η x) ≡ f i0 x
-        p = ◯-ind-β (B-mod ∘ h) (f i0)
-
-        almost : (x : Σ A B) → (h (η x) , f i0 x) ≡ x
-        almost x i = h-β x i , f i x
-
-        retr : (x : Σ A B) → η-inv (η x) ≡ x
-        retr x = (λ i → h (η x) , p x i) ∙ (almost x)
+        retr : (p : Σ A B) → η-inv (η p) ≡ p
+        retr p =
+          η-inv (η p)
+            ≡⟨ pair-ext refl (◯-ind-β _ _ _) ⟩
+          h (η p) , f i0 p
+            ≡⟨ pair-ext (h-β _) (λ i → f i p) ⟩
+          p ∎
 
 
 module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
