@@ -85,17 +85,6 @@ module LexModality
       Σ-modal : isModal A → isModalFam B → isModal (Σ A B)
       Π-modal : isModalFam B → isModal ((x : A) → B x)
 
-
-  module _ {ℓ} {A B : Type ℓ} where
-    rw_by_ : (x : A) → A ≡ B → B
-    rw x by α = transport α x
-
-    rw←_by_ : (x : A) → B ≡ A → B
-    rw← x by α = transport (sym α) x
-
-    rw-roundtrip : (x : A) (p : A ≡ B) → transport (sym p) (transport p x) ≡ x
-    rw-roundtrip x p = transport⁻Transport p x
-
   abstract-along : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : A → Type ℓ′} (p : A ≡ B) → ((x : B) → C (transport (sym p) x)) → ((x : A) → C x)
   abstract-along {C = C} p f = transport (λ i → (x : p (~ i)) → C (transp (λ j → p (~ i ∧ ~ j)) i x)) f
 
@@ -139,9 +128,9 @@ module LexModality
       η p ∎
 
 
-    push-unpush-compute : (x : A) (y : B x) → push-sg (unpush-sg (η x , rw← η y by ⟨◯⟩-compute B x)) ≡ (η x , rw← η y by ⟨◯⟩-compute B x)
+    push-unpush-compute : (x : A) (y : B x) → push-sg (unpush-sg (η x , transport (sym (⟨◯⟩-compute B x)) (η y))) ≡ (η x , transport (sym (⟨◯⟩-compute B x)) (η y))
     push-unpush-compute x y =
-      push-sg (unpush-sg (η x , rw← η y by ⟨◯⟩-compute B x))
+      push-sg (unpush-sg (η x , transport (sym (⟨◯⟩-compute B x)) (η y)))
         ≡⟨ cong push-sg (unpush-sg-compute _) ⟩
       push-sg (η (x , y))
         ≡⟨ ◯-ind-β (λ x₁ → Σ◯-modal) push-sg-η (x , y) ⟩
@@ -151,7 +140,7 @@ module LexModality
     unpush-push-compute p =
       unpush-sg (push-sg (η p))
         ≡⟨ cong unpush-sg (◯-ind-β (λ _ → Σ◯-modal) push-sg-η p) ⟩
-      unpush-sg (η (p .fst) , (rw← η (p .snd) by ⟨◯⟩-compute B (p .fst)))
+      unpush-sg (η (p .fst) , transport (sym (⟨◯⟩-compute B (p .fst))) (η (p .snd)))
         ≡⟨ unpush-sg-compute p ⟩
       η p ∎
 
