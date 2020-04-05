@@ -111,8 +111,19 @@ module LiftFam {A : Type ℓ} (B : A → Type ℓ′) where
         ≡⟨ cong fst (M.η-retract _) ⟩
       ◯ (B x) ∎
 
+
+
 open LiftFam using (⟨◯⟩; ⟨◯⟩-modal; ⟨◯⟩-compute)
 
+module _ {A : Type ℓ} {B : A → Type ℓ′} where
+  ⟨◯⟩←◯ : ∀ {a} → ◯ (B a) → ⟨◯⟩ B (η a)
+  ⟨◯⟩←◯ = transport (sym (⟨◯⟩-compute B _))
+
+  ⟨η⟩ : ∀ {a} → B a → ⟨◯⟩ B (η a)
+  ⟨η⟩ = ⟨◯⟩←◯ ∘ η
+
+  ⟨◯⟩→◯ : ∀ {a} → ⟨◯⟩ B (η a) → ◯ (B a)
+  ⟨◯⟩→◯ = transport (⟨◯⟩-compute B _)
 
 
 abstract-along : {A B : Type ℓ} {C : A → Type ℓ′} (p : A ≡ B) → ((x : B) → C (coe1→0 (λ i → p i) x)) → ((x : A) → C x)
@@ -133,7 +144,7 @@ module _ {A : Type ℓ} {B : A → Type ℓ′} where
         η-inv [f] x = ◯-rec (B-mod x) (λ f → f x) [f]
 
         retr : retract η η-inv
-        retr f = funExt (λ x → ◯-rec-β (B-mod x) _ f)
+        retr f = funExt λ x → ◯-rec-β (B-mod x) _ f
 
     Σ-modal : isModal A → isModalFam B → isModal (Σ A B)
     Σ-modal A-mod B-mod = retract-is-modal idemp η-inv η retr
@@ -168,7 +179,7 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
 
   push-sg-η : Σ A B → Σ◯
   push-sg-η (a , b) .fst = η a
-  push-sg-η (a , b) .snd = transport (sym (⟨◯⟩-compute B a)) (η b)
+  push-sg-η (a , b) .snd = ⟨η⟩ b
 
   push-sg : ◯Σ → Σ◯
   push-sg = ◯-rec Σ◯-modal push-sg-η
@@ -179,36 +190,34 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
     abstract-along (⟨◯⟩-compute B x)
     (◯-map (x ,_))
 
-
   unpush-sg : Σ◯ → ◯Σ
   unpush-sg (x , y) = unpush-sg-split x y
 
-
-  unpush-sg-compute : ∀ x y → unpush-sg (η x , transport (sym (⟨◯⟩-compute B x)) (η y)) ≡ η (x , y)
+  unpush-sg-compute : ∀ x y → unpush-sg (η x , ⟨η⟩ y) ≡ η (x , y)
   unpush-sg-compute x y =
-    unpush-sg (η x , transport (sym (⟨◯⟩-compute B x)) (η y))
+    unpush-sg (η x , ⟨η⟩ y)
       ≡⟨ cong-fun (◯-ind-β _ _ _) _ ⟩
-    transport refl (◯-map (x ,_) (transport (⟨◯⟩-compute B x) (transport (sym (⟨◯⟩-compute B x)) (η y))))
+    transport refl (◯-map (x ,_) (⟨◯⟩→◯ (⟨η⟩ {B = B} y)))
       ≡⟨ transportRefl _ ⟩
-    ◯-map _ (transport (⟨◯⟩-compute B x) (transport (sym (⟨◯⟩-compute B x)) (η y)))
+    ◯-map _ (⟨◯⟩→◯ (⟨η⟩ y))
       ≡⟨ cong (◯-map _) (transport⁻Transport (sym (⟨◯⟩-compute B x)) _) ⟩
     ◯-map _ (η y)
       ≡⟨ ◯-map-β _ _ ⟩
     η (x , y) ∎
 
-  push-unpush-compute : (x : A) (y : B x) → push-sg (unpush-sg (η x , transport (sym (⟨◯⟩-compute B x)) (η y))) ≡ (η x , transport (sym (⟨◯⟩-compute B x)) (η y))
+  push-unpush-compute : (x : A) (y : B x) → push-sg (unpush-sg (η x , ⟨η⟩ y)) ≡ (η x , ⟨η⟩ y)
   push-unpush-compute x y =
-    push-sg (unpush-sg (η x , transport (sym (⟨◯⟩-compute B x)) (η y)))
+    push-sg (unpush-sg (η x , ⟨η⟩ y))
       ≡⟨ cong push-sg (unpush-sg-compute _ _) ⟩
     push-sg (η (x , y))
-      ≡⟨ ◯-rec-β Σ◯-modal push-sg-η (x , y) ⟩
+      ≡⟨ ◯-rec-β _ _ _ ⟩
     push-sg-η (x , y) ∎
 
   unpush-push-compute : (p : Σ A B) → unpush-sg (push-sg (η p)) ≡ η p
   unpush-push-compute p =
     unpush-sg (push-sg (η p))
       ≡⟨ cong unpush-sg (◯-rec-β Σ◯-modal push-sg-η p) ⟩
-    unpush-sg (η (p .fst) , transport (sym (⟨◯⟩-compute B (p .fst))) (η (p .snd)))
+    unpush-sg (η (p .fst) , ⟨η⟩ (p .snd))
       ≡⟨ unpush-sg-compute _ _ ⟩
     η p ∎
 
@@ -221,8 +230,11 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
       is-retract-split : (x : ◯ A) (y : ⟨◯⟩ B x) → push-sg (unpush-sg (x , y)) ≡ (x , y)
       is-retract-split =
         ◯-ind (λ _ → Π-modal λ _ → ≡-modal Σ◯-modal) λ x →
-        abstract-along (⟨◯⟩-compute B x) λ y →
-        ◯-ind (λ _ → ≡-modal Σ◯-modal) (push-unpush-compute x) y
+        abstract-along
+          (⟨◯⟩-compute B x)
+          (◯-ind
+           (λ _ → ≡-modal Σ◯-modal)
+           (push-unpush-compute x))
 
   push-sg-is-equiv : isEquiv push-sg
   push-sg-is-equiv = isoToIsEquiv (iso push-sg unpush-sg is-retract is-section)
