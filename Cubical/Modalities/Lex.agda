@@ -104,7 +104,7 @@ module Σ-commute {ℓ ℓ′} {A : Type ℓ} {B : A → Type ℓ′} where
   unpush-sg-split : (x : ◯ A) (y : ⟨◯⟩ B x) → ◯Σ
   unpush-sg-split =
     ◯-ind (λ _ → Π-modal λ _ → idemp) λ x →
-    abstract-along {C = λ _ → ◯Σ} (⟨◯⟩-compute B x)
+    abstract-along (⟨◯⟩-compute B x)
     (◯-map (x ,_))
 
 
