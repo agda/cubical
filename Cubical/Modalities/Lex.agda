@@ -76,6 +76,7 @@ module LexModality
     ◯ (B x) ∎
 
 
+  -- TODO
   module _ {ℓ ℓ′} {A : Type ℓ} {B : A → Type ℓ′} where
     postulate
       Σ-modal : isModal A → isModalFam B → isModal (Σ A B)
