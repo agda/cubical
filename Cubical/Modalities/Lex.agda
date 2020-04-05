@@ -60,21 +60,22 @@ module IsModalToUnitIsEquiv (A : Type ℓ) (A-mod : isModal A) where
 unit-is-equiv-to-is-modal : {A : Type ℓ} → isEquiv (η-at A) → isModal A
 unit-is-equiv-to-is-modal p = transport (cong isModal (sym (ua (η , p)))) idemp
 
-retract-is-modal
-  : {A : Type ℓ} {B : Type ℓ′}
-  → (A-mod : isModal A) (f : A → B) (g : B → A) (r : retract g f)
-  → isModal B
-retract-is-modal {A = A} {B = B} A-mod f g r =
-  unit-is-equiv-to-is-modal (isoToIsEquiv (iso η η-inv η-section η-retract))
-  where
-    η-inv : ◯ B → B
-    η-inv = f ∘ ◯-rec A-mod g
+abstract
+  retract-is-modal
+    : {A : Type ℓ} {B : Type ℓ′}
+    → (A-mod : isModal A) (f : A → B) (g : B → A) (r : retract g f)
+    → isModal B
+  retract-is-modal {A = A} {B = B} A-mod f g r =
+    unit-is-equiv-to-is-modal (isoToIsEquiv (iso η η-inv η-section η-retract))
+    where
+      η-inv : ◯ B → B
+      η-inv = f ∘ ◯-rec A-mod g
 
-    η-retract : retract η η-inv
-    η-retract b = cong f (◯-rec-β A-mod g b) ∙ r b
+      η-retract : retract η η-inv
+      η-retract b = cong f (◯-rec-β A-mod g b) ∙ r b
 
-    η-section : section η η-inv
-    η-section = ◯-ind (λ _ → ≡-modal idemp) (cong η ∘ η-retract)
+      η-section : section η η-inv
+      η-section = ◯-ind (λ _ → ≡-modal idemp) (cong η ∘ η-retract)
 
 
 module LiftFam {A : Type ℓ} (B : A → Type ℓ′) where
@@ -141,7 +142,6 @@ module _ {A : Type ℓ} {B : A → Type ℓ′} where
 
 abstract-along : {A B : Type ℓ} {C : A → Type ℓ′} (p : A ≡ B) → ((x : B) → C (transport (sym p) x)) → ((x : A) → C x)
 abstract-along {C = C} p f = transport (λ i → (x : p (~ i)) → C (transp (λ j → p (~ i ∧ ~ j)) i x)) f
-
 
 cong-fun : {A : Type ℓ} {B : A → Type ℓ′} {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
 cong-fun α x i = α i x
