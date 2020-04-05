@@ -76,13 +76,6 @@ retract-is-modal {A = A} {B = B} A-mod f g r =
     η-section : section η η-inv
     η-section = ◯-ind (λ _ → ≡-modal idemp) (cong η ∘ η-retract)
 
-abstract
-   foo : Type ℓ → Type ℓ
-   foo A = A
-
-abstract
-  test : ∀ (A : Type ℓ) → foo A ≡ A
-  test A = refl
 
 module LiftFam {A : Type ℓ} (B : A → Type ℓ′) where
   module M = IsModalToUnitIsEquiv (Type◯ ℓ′) ◯-lex
