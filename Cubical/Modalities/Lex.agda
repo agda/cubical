@@ -24,44 +24,55 @@ private
 η-at : (A : Type ℓ) → A → ◯ A
 η-at _ = η
 
-module _ {A : Type ℓ} {B : Type ℓ′} (B-mod : isModal B) (f : A → B) where
-  ◯-rec : ◯ A → B
-  ◯-rec = ◯-ind (λ _ → B-mod) f
+module _ where
+  private
+    variable
+      A : Type ℓ
+      B : Type ℓ′
 
-  ◯-rec-β : (x : A) → ◯-rec (η x) ≡ f x
-  ◯-rec-β = ◯-ind-β (λ _ → B-mod) f
 
-module _ {A : Type ℓ} {B : Type ℓ′} (f : A → B) where
-  ◯-map : ◯ A → ◯ B
-  ◯-map = ◯-rec idemp λ x → η (f x)
+  module _ (B-mod : isModal B) (f : A → B) where
+    abstract
+      ◯-rec : ◯ A → B
+      ◯-rec = ◯-ind (λ _ → B-mod) f
 
-  ◯-map-β : (x : A) → ◯-map (η x) ≡ η (f x)
-  ◯-map-β x = ◯-rec-β idemp _ x
+      ◯-rec-β : (x : A) → ◯-rec (η x) ≡ f x
+      ◯-rec-β = ◯-ind-β (λ _ → B-mod) f
+
+  module _ (f : A → B) where
+    abstract
+      ◯-map : ◯ A → ◯ B
+      ◯-map = ◯-rec idemp λ x → η (f x)
+
+      ◯-map-β : (x : A) → ◯-map (η x) ≡ η (f x)
+      ◯-map-β x = ◯-rec-β idemp _ x
+
 
 
 module IsModalToUnitIsEquiv (A : Type ℓ) (A-mod : isModal A) where
-  inv : ◯ A → A
-  inv = ◯-rec A-mod λ x → x
+  abstract
+    inv : ◯ A → A
+    inv = ◯-rec A-mod λ x → x
 
-  η-retract : retract η inv
-  η-retract = ◯-rec-β _ _
+    η-retract : retract η inv
+    η-retract = ◯-rec-β _ _
 
-  η-section : section η inv
-  η-section = ◯-ind (λ _ → ≡-modal idemp) λ x i → η (η-retract x i)
+    η-section : section η inv
+    η-section = ◯-ind (λ _ → ≡-modal idemp) λ x i → η (η-retract x i)
 
-  η-iso : Iso A (◯ A)
-  Iso.fun η-iso = η
-  Iso.inv η-iso = inv
-  Iso.rightInv η-iso = η-section
-  Iso.leftInv η-iso = η-retract
+    η-iso : Iso A (◯ A)
+    Iso.fun η-iso = η
+    Iso.inv η-iso = inv
+    Iso.rightInv η-iso = η-section
+    Iso.leftInv η-iso = η-retract
 
-  η-is-equiv : isEquiv (η-at A)
-  η-is-equiv = isoToIsEquiv η-iso
-
-unit-is-equiv-to-is-modal : {A : Type ℓ} → isEquiv (η-at A) → isModal A
-unit-is-equiv-to-is-modal p = transport (cong isModal (sym (ua (η , p)))) idemp
+    η-is-equiv : isEquiv (η-at A)
+    η-is-equiv = isoToIsEquiv η-iso
 
 abstract
+  unit-is-equiv-to-is-modal : {A : Type ℓ} → isEquiv (η-at A) → isModal A
+  unit-is-equiv-to-is-modal p = transport (cong isModal (sym (ua (η , p)))) idemp
+
   retract-is-modal
     : {A : Type ℓ} {B : Type ℓ′}
     → (A-mod : isModal A) (f : A → B) (g : B → A) (r : retract g f)
@@ -102,6 +113,15 @@ module LiftFam {A : Type ℓ} (B : A → Type ℓ′) where
 
 open LiftFam using (⟨◯⟩; ⟨◯⟩-modal; ⟨◯⟩-compute)
 
+
+
+abstract-along : {A B : Type ℓ} {C : A → Type ℓ′} (p : A ≡ B) → ((x : B) → C (coe1→0 (λ i → p i) x)) → ((x : A) → C x)
+abstract-along {C = C} p f = coe1→0 (λ i → (x : p i) → C (coei→0 (λ j → p j) i x)) f
+
+cong-fun : {A : Type ℓ} {B : A → Type ℓ′} {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
+cong-fun α x i = α i x
+
+
 module _ {A : Type ℓ} {B : A → Type ℓ′} where
   abstract
     Π-modal : isModalFam B → isModal ((x : A) → B x)
@@ -141,14 +161,7 @@ module _ {A : Type ℓ} {B : A → Type ℓ′} where
         retr x = (λ i → h (η x) , p x i) ∙ (almost x)
 
 
-abstract-along : {A B : Type ℓ} {C : A → Type ℓ′} (p : A ≡ B) → ((x : B) → C (coe1→0 (λ i → p i) x)) → ((x : A) → C x)
-abstract-along {C = C} p f = coe1→0 (λ i → (x : p i) → C (coei→0 (λ j → p j) i x)) f
-
-cong-fun : {A : Type ℓ} {B : A → Type ℓ′} {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
-cong-fun α x i = α i x
-
 module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
-
   ◯Σ = ◯ (Σ A B)
   Σ◯ = Σ (◯ A) (⟨◯⟩ B)
 
@@ -190,13 +203,13 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
     push-sg (unpush-sg (η x , transport (sym (⟨◯⟩-compute B x)) (η y)))
       ≡⟨ cong push-sg (unpush-sg-compute _ _) ⟩
     push-sg (η (x , y))
-      ≡⟨ ◯-ind-β (λ _ → Σ◯-modal) push-sg-η (x , y) ⟩
+      ≡⟨ ◯-rec-β Σ◯-modal push-sg-η (x , y) ⟩
     push-sg-η (x , y) ∎
 
   unpush-push-compute : (p : Σ A B) → unpush-sg (push-sg (η p)) ≡ η p
   unpush-push-compute p =
     unpush-sg (push-sg (η p))
-      ≡⟨ cong unpush-sg (◯-ind-β (λ _ → Σ◯-modal) push-sg-η p) ⟩
+      ≡⟨ cong unpush-sg (◯-rec-β Σ◯-modal push-sg-η p) ⟩
     unpush-sg (η (p .fst) , transport (sym (⟨◯⟩-compute B (p .fst))) (η (p .snd)))
       ≡⟨ unpush-sg-compute _ _ ⟩
     η p ∎
