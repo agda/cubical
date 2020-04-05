@@ -105,9 +105,9 @@ module LexModality
 
     unpush-sg-split : (x : ◯ A) (y : ⟨◯⟩ B x) → ◯Σ
     unpush-sg-split =
-      ◯-ind (λ _ → Π-modal (λ _ → idemp)) λ x →
+      ◯-ind (λ _ → Π-modal λ _ → idemp) λ x →
       abstract-along {C = λ _ → ◯Σ} (⟨◯⟩-compute B x)
-      (◯-map λ y → x , y)
+      (◯-map (x ,_))
 
     unpush-sg-split-compute : (x : A) → unpush-sg-split (η x) ≡ abstract-along (⟨◯⟩-compute B x) (◯-map (λ y → x , y))
     unpush-sg-split-compute = ◯-ind-β _ _
@@ -115,25 +115,25 @@ module LexModality
     unpush-sg : Σ◯ → ◯Σ
     unpush-sg (x , y) = unpush-sg-split x y
 
-    unpush-sg-compute : ∀ p → unpush-sg (η (p .fst) , transport (sym (⟨◯⟩-compute B (p .fst))) (η (p .snd))) ≡ η p
-    unpush-sg-compute p =
-      unpush-sg (η (p .fst) , transport (sym (⟨◯⟩-compute B (p .fst))) (η (p .snd)))
-        ≡[ i ]⟨ unpush-sg-split-compute (p .fst) i (transport (sym (⟨◯⟩-compute B (p .fst))) (η (p .snd))) ⟩
-      transport refl (◯-map _ (transport (⟨◯⟩-compute B (p .fst)) (transport (sym (⟨◯⟩-compute B (p .fst))) (η (p .snd)))))
+    unpush-sg-compute : ∀ x y → unpush-sg (η x , transport (sym (⟨◯⟩-compute B x)) (η y)) ≡ η (x , y)
+    unpush-sg-compute x y =
+      unpush-sg (η x , transport (sym (⟨◯⟩-compute B x)) (η y))
+        ≡[ i ]⟨ unpush-sg-split-compute x i (transport (sym (⟨◯⟩-compute B x)) (η y)) ⟩
+      transport refl (◯-map _ (transport (⟨◯⟩-compute B x) (transport (sym (⟨◯⟩-compute B x)) (η y))))
         ≡⟨ transportRefl _ ⟩
-      ◯-map _ (transport (⟨◯⟩-compute B (p .fst)) (transport (sym (⟨◯⟩-compute B (p .fst))) (η (p .snd))))
-        ≡⟨ cong (◯-map _) (transport⁻Transport (sym (⟨◯⟩-compute B (p .fst))) _) ⟩
-      ◯-map _ (η (p .snd))
+      ◯-map _ (transport (⟨◯⟩-compute B x) (transport (sym (⟨◯⟩-compute B x)) (η y)))
+        ≡⟨ cong (◯-map _) (transport⁻Transport (sym (⟨◯⟩-compute B x)) _) ⟩
+      ◯-map _ (η y)
         ≡⟨ ◯-map-β _ _ ⟩
-      η p ∎
+      η (x , y) ∎
 
 
     push-unpush-compute : (x : A) (y : B x) → push-sg (unpush-sg (η x , transport (sym (⟨◯⟩-compute B x)) (η y))) ≡ (η x , transport (sym (⟨◯⟩-compute B x)) (η y))
     push-unpush-compute x y =
       push-sg (unpush-sg (η x , transport (sym (⟨◯⟩-compute B x)) (η y)))
-        ≡⟨ cong push-sg (unpush-sg-compute _) ⟩
+        ≡⟨ cong push-sg (unpush-sg-compute _ _) ⟩
       push-sg (η (x , y))
-        ≡⟨ ◯-ind-β (λ x₁ → Σ◯-modal) push-sg-η (x , y) ⟩
+        ≡⟨ ◯-ind-β (λ _ → Σ◯-modal) push-sg-η (x , y) ⟩
       push-sg-η (x , y) ∎
 
     unpush-push-compute : (p : Σ A B) → unpush-sg (push-sg (η p)) ≡ η p
@@ -141,7 +141,7 @@ module LexModality
       unpush-sg (push-sg (η p))
         ≡⟨ cong unpush-sg (◯-ind-β (λ _ → Σ◯-modal) push-sg-η p) ⟩
       unpush-sg (η (p .fst) , transport (sym (⟨◯⟩-compute B (p .fst))) (η (p .snd)))
-        ≡⟨ unpush-sg-compute p ⟩
+        ≡⟨ unpush-sg-compute _ _ ⟩
       η p ∎
 
     is-section : section unpush-sg push-sg
