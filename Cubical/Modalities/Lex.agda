@@ -1,6 +1,7 @@
 {-# OPTIONS --cubical --safe --postfix-projections #-}
 
 open import Cubical.Foundations.Everything
+open import Cubical.Foundations.CartesianKanOps
 
 module Cubical.Modalities.Lex
   (◯ : ∀ {ℓ} → Type ℓ → Type ℓ)
@@ -121,8 +122,8 @@ module _ {A : Type ℓ} {B : A → Type ℓ′} where
         h-β : (x : Σ A B) → h (η x) ≡ fst x
         h-β = ◯-rec-β A-mod fst
 
-        f : (j : I) → (x : Σ A B) → B (h-β x j)
-        f j x = transp (λ i → B (h-β x ((~ i) ∨ j))) j (snd x)
+        f : (i : I) → (x : Σ A B) → B (h-β x i)
+        f i x = coe1→i (λ j → B (h-β x j)) i (snd x)
 
         k : (y : ◯ (Σ A B)) → B (h y)
         k = ◯-ind (B-mod ∘ h) (f i0)
@@ -140,8 +141,8 @@ module _ {A : Type ℓ} {B : A → Type ℓ′} where
         retr x = (λ i → h (η x) , p x i) ∙ (almost x)
 
 
-abstract-along : {A B : Type ℓ} {C : A → Type ℓ′} (p : A ≡ B) → ((x : B) → C (transport (sym p) x)) → ((x : A) → C x)
-abstract-along {C = C} p f = transport (λ i → (x : p (~ i)) → C (transp (λ j → p (~ i ∧ ~ j)) i x)) f
+abstract-along : {A B : Type ℓ} {C : A → Type ℓ′} (p : A ≡ B) → ((x : B) → C (coe1→0 (λ i → p i) x)) → ((x : A) → C x)
+abstract-along {C = C} p f = coe1→0 (λ i → (x : p i) → C (coei→0 (λ j → p j) i x)) f
 
 cong-fun : {A : Type ℓ} {B : A → Type ℓ′} {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
 cong-fun α x i = α i x
