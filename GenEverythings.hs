@@ -72,6 +72,16 @@ checkEverythings excluded_dirs = do
           forM_ missing_files (putStrLn . (" " ++) . showFP '.')
           exitFailure
 
+checkREADME :: IO ()
+checkREADME = do
+  (sub_dirs, _) <- getSubDirsFiles ["Cubical"]
+  imported <- getImported ["README","Cubical"]
+  let missing_files = fmap (\dir -> ["Everything",dir,"Cubical"]) sub_dirs \\ imported
+  if null missing_files then pure ()
+  else do putStrLn "Found some Everything.agda's which are not imported in README.agda:"
+          forM_ missing_files (putStrLn . (" " ++) . showFP '.')
+          exitFailure
+
 genEverything :: SplitFilePath -> IO ()
 genEverything fp = do
   files <- getMissingFiles fp Nothing
@@ -94,5 +104,6 @@ main = do
   case args of
     "check":exs -> checkEverythings exs
     "gen"  :exs -> genEverythings   exs
+    ["checkREADME"] -> checkREADME
     ["genOne",dir] -> genEverything (addToFP ["Cubical"] dir)
     _ -> putStrLn "error: run with arguments (check | gen) [list of exclued files]"

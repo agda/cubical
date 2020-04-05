@@ -24,8 +24,12 @@ check-everythings:
 gen-everythings:
 	runhaskell ./GenEverythings.hs gen Core Foundations Codata Experiments
 
+.PHONY : check-README
+check-README:
+	runhaskell ./GenEverythings.hs checkREADME
+
 .PHONY : check
-check:
+check: $(wildcard Cubical/**/*.agda)
 	$(AGDA) Cubical/Core/Everything.agda
 	$(AGDA) Cubical/Foundations/Everything.agda
 	$(AGDA) Cubical/Codata/Everything.agda
@@ -41,7 +45,7 @@ check:
 	$(AGDA) Cubical/Categories/Everything.agda
 
 .PHONY: listings
-listings:
+listings: $(wildcard Cubical/**/*.agda)
 	$(AGDA) -i. -isrc --html Cubical/README.agda -v0
 
 .PHONY : clean
