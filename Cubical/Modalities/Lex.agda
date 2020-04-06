@@ -31,7 +31,7 @@ module _ where
       B : Type ℓ′
 
 
-  module _ (B-mod : isModal B) (f : A → B) where
+  module ◯-rec (B-mod : isModal B) (f : A → B) where
     abstract
       ◯-rec : ◯ A → B
       ◯-rec = ◯-ind (λ _ → B-mod) f
@@ -39,7 +39,9 @@ module _ where
       ◯-rec-β : (x : A) → ◯-rec (η x) ≡ f x
       ◯-rec-β = ◯-ind-β (λ _ → B-mod) f
 
-  module _ (f : A → B) where
+  open ◯-rec
+
+  module ◯-map (f : A → B) where
     abstract
       ◯-map : ◯ A → ◯ B
       ◯-map = ◯-rec idemp λ x → η (f x)
@@ -48,6 +50,8 @@ module _ where
       ◯-map-β x = ◯-rec-β idemp _ x
 
 
+open ◯-rec
+open ◯-map
 
 module IsModalToUnitIsEquiv (A : Type ℓ) (A-mod : isModal A) where
   abstract
@@ -115,15 +119,19 @@ module LiftFam {A : Type ℓ} (B : A → Type ℓ′) where
 
 open LiftFam using (⟨◯⟩; ⟨◯⟩-modal; ⟨◯⟩-compute)
 
-module _ {A : Type ℓ} {B : A → Type ℓ′} where
+module LiftFamExtra {A : Type ℓ} {B : A → Type ℓ′} where
   ⟨◯⟩←◯ : ∀ {a} → ◯ (B a) → ⟨◯⟩ B (η a)
   ⟨◯⟩←◯ = transport (sym (⟨◯⟩-compute B _))
+
+  ⟨◯⟩→◯ : ∀ {a} → ⟨◯⟩ B (η a) → ◯ (B a)
+  ⟨◯⟩→◯ = transport (⟨◯⟩-compute B _)
 
   ⟨η⟩ : ∀ {a} → B a → ⟨◯⟩ B (η a)
   ⟨η⟩ = ⟨◯⟩←◯ ∘ η
 
-  ⟨◯⟩→◯ : ∀ {a} → ⟨◯⟩ B (η a) → ◯ (B a)
-  ⟨◯⟩→◯ = transport (⟨◯⟩-compute B _)
+  abstract
+    ⟨◯⟩→◯-section : ∀ {a} → section (⟨◯⟩→◯ {a}) ⟨◯⟩←◯
+    ⟨◯⟩→◯-section = transport⁻Transport (sym (⟨◯⟩-compute  _ _))
 
 
 abstract-along : {A B : Type ℓ} {C : A → Type ℓ′} (p : A ≡ B) → ((x : B) → C (coe1→0 (λ i → p i) x)) → ((x : A) → C x)
@@ -170,8 +178,7 @@ module _ {A : Type ℓ} {B : A → Type ℓ′} where
           p ∎
 
 
-data test : Set where
-  t0 t1 : test
+open LiftFamExtra
 
 module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
   ◯Σ = ◯ (Σ A B)
@@ -193,12 +200,9 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
       fun = ◯-rec Σ◯-modal η-Σ◯
 
       compute : fun ∘ η ≡ η-Σ◯
-      compute = funExt (◯-ind-β _ _)
+      compute = funExt (◯-rec-β _ _)
 
   module Unpush where
-    body : (x : A) (y : B x) → ◯Σ
-    body x y = η (x , y)
-
     abstract
       fun/split : (x : ◯ A) (y : ⟨◯⟩ B x) → ◯Σ
       fun/split =
@@ -217,7 +221,7 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
         transport refl (◯-map _ _)
           ≡⟨ transportRefl _ ⟩
         ◯-map _ (⟨◯⟩→◯ (⟨η⟩ _))
-          ≡⟨ cong (◯-map _) (transport⁻Transport (sym (⟨◯⟩-compute B _)) _) ⟩
+          ≡⟨ cong (◯-map _) (⟨◯⟩→◯-section _) ⟩
         ◯-map _ (η _)
           ≡⟨ ◯-map-β _ _ ⟩
         η p ∎
@@ -252,7 +256,7 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
           (⟨◯⟩-compute B x)
           (◯-ind
            (λ _ → ≡-modal Σ◯-modal)
-           λ y i → push-unpush-compute i (x , y))
+           (λ y i → push-unpush-compute i (x , y)))
 
   push-sg-is-equiv : isEquiv Push.fun
   push-sg-is-equiv = isoToIsEquiv (iso Push.fun Unpush.fun is-retract is-section)
