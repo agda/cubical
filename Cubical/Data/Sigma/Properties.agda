@@ -165,10 +165,10 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
 ΣUnit : ∀ {ℓ} (A : Unit → Type ℓ) → Σ Unit A ≃ A tt
 ΣUnit A = isoToEquiv (iso snd (λ { x → (tt , x) }) (λ _ → refl) (λ _ → refl))
 
--- assocΣ : (Σ[ (a , b) ∈ Σ A B ] C a b) ≃ (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
--- assocΣ = isoToEquiv (iso (λ { ((x , y) , z) → (x , (y , z)) })
---                          (λ { (x , (y , z)) → ((x , y) , z) })
---                          (λ _ → refl) (λ _ → refl))
+assocΣ : (Σ[ (a , b) ∈ Σ A B ] C a b) ≃ (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
+assocΣ = isoToEquiv (iso (λ { ((x , y) , z) → (x , (y , z)) })
+                         (λ { (x , (y , z)) → ((x , y) , z) })
+                         (λ _ → refl) (λ _ → refl))
 
 congΣEquiv : (∀ a → B a ≃ B' a) → Σ A B ≃ Σ A B'
 congΣEquiv h =
@@ -177,7 +177,7 @@ congΣEquiv h =
                   (λ { (x , y) i → (x , retEq    (h x) y i) })
                   (λ { (x , y) i → (x , secEq    (h x) y i) }))
 
--- PiΣ : ((a : A) → Σ[ b ∈ B a ] C a b) ≃ (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
--- PiΣ = isoToEquiv (iso (λ f → fst ∘ f , snd ∘ f)
---                       (λ (f , g) → (λ x → f x , g x))
---                       (λ _ → refl) (λ _ → refl))
+PiΣ : ((a : A) → Σ[ b ∈ B a ] C a b) ≃ (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
+PiΣ = isoToEquiv (iso (λ f → fst ∘ f , snd ∘ f)
+                      (λ (f , g) → (λ x → f x , g x))
+                      (λ _ → refl) (λ _ → refl))
