@@ -268,6 +268,12 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
   push-sg-is-equiv = isoToIsEquiv (iso Push.fun Unpush.fun is-retract is-section)
 
 
+
+isConnected : Type ℓ → Type ℓ
+isConnected A = isContr (◯ A)
+
+
+
 module FormalDiskBundle {A : Type ℓ} where
   𝔻 : A → Type ℓ
   𝔻 a = Σ A (λ x → η a ≡ η x)
