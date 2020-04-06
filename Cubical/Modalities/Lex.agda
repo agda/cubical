@@ -134,17 +134,28 @@ module LiftFamExtra {A : Type ℓ} {B : A → Type ℓ′} where
     ⟨◯⟩→◯-section = transport⁻Transport (sym (⟨◯⟩-compute  _ _))
 
 
-cong-fun : {A : Type ℓ} {B : A → Type ℓ′} {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
-cong-fun α x i = α i x
+module Combinators where
+  private
+    variable
+      ℓ′′ : Level
+      A A′ : Type ℓ
+      B : A → Type ℓ′
+      C : Σ A B → Type ℓ′′
 
-pair-ext : {A : Type ℓ} {B : A → Type ℓ′} {p q : Σ A B} (α : p .fst ≡ q .fst) (β : PathP (λ i → B (α i)) (p .snd) (q .snd)) → p ≡ q
-pair-ext α β i = α i , β i
+  cong-fun : {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
+  cong-fun α x i = α i x
 
-λ⟨,⟩_ : ∀ {ℓ′′} {A : Type ℓ} {B : A → Type ℓ′} {C : Σ A B → Type ℓ′′} → ((x : A) (y : B x) → C (x , y)) → (p : Σ A B) → C p
-λ⟨,⟩_ f (x , y) = f x y
+  pair-ext : {p q : Σ A B} (α : p .fst ≡ q .fst) (β : PathP (λ i → B (α i)) (p .snd) (q .snd)) → p ≡ q
+  pair-ext α β i = α i , β i
 
-λ/coe⟨_⟩_ : {A B : Type ℓ} {C : A → Type ℓ′} (p : A ≡ B) → ((x : B) → C (coe1→0 (λ i → p i) x)) → ((x : A) → C x)
-λ/coe⟨_⟩_ {C = C} p f = coe1→0 (λ i → (x : p i) → C (coei→0 (λ j → p j) i x)) f
+  λ⟨,⟩_ : ((x : A) (y : B x) → C (x , y)) → (p : Σ A B) → C p
+  λ⟨,⟩_ f (x , y) = f x y
+
+  λ/coe⟨_⟩_ : (p : A ≡ A′) → ((x : A′) → B (coe1→0 (λ i → p i) x)) → ((x : A) → B x)
+  λ/coe⟨_⟩_ {B = B} p f = coe1→0 (λ i → (x : p i) → B (coei→0 (λ j → p j) i x)) f
+
+open Combinators
+
 
 module _ {A : Type ℓ} {B : A → Type ℓ′} where
   abstract
