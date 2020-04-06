@@ -170,74 +170,92 @@ module _ {A : Type ℓ} {B : A → Type ℓ′} where
           p ∎
 
 
+data test : Set where
+  t0 t1 : test
+
 module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
   ◯Σ = ◯ (Σ A B)
-  Σ◯ = Σ (◯ A) (⟨◯⟩ B)
 
-  Σ◯-modal : isModal Σ◯
-  Σ◯-modal = Σ-modal idemp (⟨◯⟩-modal _)
+  module Σ◯ where
+    Σ◯ = Σ (◯ A) (⟨◯⟩ B)
+    abstract
+      Σ◯-modal : isModal Σ◯
+      Σ◯-modal = Σ-modal idemp (⟨◯⟩-modal _)
 
-  push-sg-η : Σ A B → Σ◯
-  push-sg-η (a , b) .fst = η a
-  push-sg-η (a , b) .snd = ⟨η⟩ b
+  open Σ◯
 
-  push-sg : ◯Σ → Σ◯
-  push-sg = ◯-rec Σ◯-modal push-sg-η
+  η-Σ◯ : Σ A B → Σ◯
+  η-Σ◯ (x , y) = η x , ⟨η⟩ y
 
-  unpush-sg-split : (x : ◯ A) (y : ⟨◯⟩ B x) → ◯Σ
-  unpush-sg-split =
-    ◯-ind (λ _ → Π-modal λ _ → idemp) λ x →
-    abstract-along (⟨◯⟩-compute B x)
-    (◯-map (x ,_))
+  module Push where
+    abstract
+      fun : ◯Σ → Σ◯
+      fun = ◯-rec Σ◯-modal η-Σ◯
 
-  unpush-sg : Σ◯ → ◯Σ
-  unpush-sg (x , y) = unpush-sg-split x y
+      compute : fun ∘ η ≡ η-Σ◯
+      compute = funExt (◯-ind-β _ _)
 
-  unpush-sg-compute : ∀ x y → unpush-sg (η x , ⟨η⟩ y) ≡ η (x , y)
-  unpush-sg-compute x y =
-    unpush-sg (η x , ⟨η⟩ y)
-      ≡⟨ cong-fun (◯-ind-β _ _ _) _ ⟩
-    transport refl (◯-map (x ,_) (⟨◯⟩→◯ (⟨η⟩ {B = B} y)))
-      ≡⟨ transportRefl _ ⟩
-    ◯-map _ (⟨◯⟩→◯ (⟨η⟩ y))
-      ≡⟨ cong (◯-map _) (transport⁻Transport (sym (⟨◯⟩-compute B x)) _) ⟩
-    ◯-map _ (η y)
-      ≡⟨ ◯-map-β _ _ ⟩
-    η (x , y) ∎
+  module Unpush where
+    body : (x : A) (y : B x) → ◯Σ
+    body x y = η (x , y)
 
-  push-unpush-compute : (x : A) (y : B x) → push-sg (unpush-sg (η x , ⟨η⟩ y)) ≡ (η x , ⟨η⟩ y)
-  push-unpush-compute x y =
-    push-sg (unpush-sg (η x , ⟨η⟩ y))
-      ≡⟨ cong push-sg (unpush-sg-compute _ _) ⟩
-    push-sg (η (x , y))
-      ≡⟨ ◯-rec-β _ _ _ ⟩
-    push-sg-η (x , y) ∎
+    abstract
+      fun/split : (x : ◯ A) (y : ⟨◯⟩ B x) → ◯Σ
+      fun/split =
+        ◯-ind (λ _ → Π-modal λ _ → idemp) λ x →
+        abstract-along (⟨◯⟩-compute B x)
+        (◯-map (x ,_))
 
-  unpush-push-compute : (p : Σ A B) → unpush-sg (push-sg (η p)) ≡ η p
-  unpush-push-compute p =
-    unpush-sg (push-sg (η p))
-      ≡⟨ cong unpush-sg (◯-rec-β Σ◯-modal push-sg-η p) ⟩
-    unpush-sg (η (p .fst) , ⟨η⟩ (p .snd))
-      ≡⟨ unpush-sg-compute _ _ ⟩
-    η p ∎
+      fun : Σ◯ → ◯Σ
+      fun (x , y) = fun/split x y
 
-  is-section : section unpush-sg push-sg
-  is-section = ◯-ind (λ _ → ≡-modal idemp) unpush-push-compute
+      compute : fun ∘ η-Σ◯ ≡ η
+      compute =
+        funExt λ p →
+        fun (η-Σ◯ p)
+          ≡⟨ cong-fun (◯-ind-β _ _ _) _ ⟩
+        transport refl (◯-map _ _)
+          ≡⟨ transportRefl _ ⟩
+        ◯-map _ (⟨◯⟩→◯ (⟨η⟩ _))
+          ≡⟨ cong (◯-map _) (transport⁻Transport (sym (⟨◯⟩-compute B _)) _) ⟩
+        ◯-map _ (η _)
+          ≡⟨ ◯-map-β _ _ ⟩
+        η p ∎
 
-  is-retract : retract unpush-sg push-sg
+
+  push-unpush-compute : Push.fun ∘ Unpush.fun ∘ η-Σ◯ ≡ η-Σ◯
+  push-unpush-compute =
+    Push.fun ∘ Unpush.fun ∘ η-Σ◯
+      ≡⟨ cong (Push.fun ∘_) Unpush.compute ⟩
+    Push.fun ∘ η
+      ≡⟨ Push.compute ⟩
+    η-Σ◯ ∎
+
+  unpush-push-compute : Unpush.fun ∘ Push.fun ∘ η ≡ η
+  unpush-push-compute =
+    Unpush.fun ∘ Push.fun ∘ η
+      ≡⟨ cong (Unpush.fun ∘_) Push.compute ⟩
+    Unpush.fun ∘ η-Σ◯
+      ≡⟨ Unpush.compute ⟩
+    η ∎
+
+  is-section : section Unpush.fun Push.fun
+  is-section = ◯-ind (λ x → ≡-modal idemp) λ x i → unpush-push-compute i x
+
+  is-retract : retract Unpush.fun Push.fun
   is-retract (x , y) = is-retract-split x y
     where
-      is-retract-split : (x : ◯ A) (y : ⟨◯⟩ B x) → push-sg (unpush-sg (x , y)) ≡ (x , y)
+      is-retract-split : (x : ◯ A) (y : ⟨◯⟩ B x) → Push.fun (Unpush.fun (x , y)) ≡ (x , y)
       is-retract-split =
         ◯-ind (λ _ → Π-modal λ _ → ≡-modal Σ◯-modal) λ x →
         abstract-along
           (⟨◯⟩-compute B x)
           (◯-ind
            (λ _ → ≡-modal Σ◯-modal)
-           (push-unpush-compute x))
+           λ y i → push-unpush-compute i (x , y))
 
-  push-sg-is-equiv : isEquiv push-sg
-  push-sg-is-equiv = isoToIsEquiv (iso push-sg unpush-sg is-retract is-section)
+  push-sg-is-equiv : isEquiv Push.fun
+  push-sg-is-equiv = isoToIsEquiv (iso Push.fun Unpush.fun is-retract is-section)
 
 
 module FormalDiskBundle {A : Type ℓ} where
