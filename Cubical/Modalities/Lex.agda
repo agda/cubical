@@ -134,9 +134,6 @@ module LiftFamExtra {A : Type ℓ} {B : A → Type ℓ′} where
     ⟨◯⟩→◯-section = transport⁻Transport (sym (⟨◯⟩-compute  _ _))
 
 
-abstract-along : {A B : Type ℓ} {C : A → Type ℓ′} (p : A ≡ B) → ((x : B) → C (coe1→0 (λ i → p i) x)) → ((x : A) → C x)
-abstract-along {C = C} p f = coe1→0 (λ i → (x : p i) → C (coei→0 (λ j → p j) i x)) f
-
 cong-fun : {A : Type ℓ} {B : A → Type ℓ′} {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
 cong-fun α x i = α i x
 
@@ -145,6 +142,9 @@ pair-ext α β i = α i , β i
 
 λ⟨,⟩_ : ∀ {ℓ′′} {A : Type ℓ} {B : A → Type ℓ′} {C : Σ A B → Type ℓ′′} → ((x : A) (y : B x) → C (x , y)) → (p : Σ A B) → C p
 λ⟨,⟩_ f (x , y) = f x y
+
+λ/coe⟨_⟩_ : {A B : Type ℓ} {C : A → Type ℓ′} (p : A ≡ B) → ((x : B) → C (coe1→0 (λ i → p i) x)) → ((x : A) → C x)
+λ/coe⟨_⟩_ {C = C} p f = coe1→0 (λ i → (x : p i) → C (coei→0 (λ j → p j) i x)) f
 
 module _ {A : Type ℓ} {B : A → Type ℓ′} where
   abstract
@@ -210,8 +210,7 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
       fun : Σ◯ → ◯Σ
       fun =
         λ⟨,⟩ ◯-ind (λ _ → Π-modal λ _ → idemp) λ x →
-        abstract-along (⟨◯⟩-compute B x)
-        (◯-map (x ,_))
+        λ/coe⟨ ⟨◯⟩-compute B x ⟩ (◯-map (x ,_))
 
       compute : fun ∘ η-Σ◯ ≡ η
       compute =
@@ -249,8 +248,7 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
   is-retract : retract Unpush.fun Push.fun
   is-retract =
     λ⟨,⟩ ◯-ind (λ _ → Π-modal λ _ → ≡-modal Σ◯-modal) λ x →
-    abstract-along
-     (⟨◯⟩-compute B x)
+    λ/coe⟨ ⟨◯⟩-compute B x ⟩
      (◯-ind
       (λ _ → ≡-modal Σ◯-modal)
       (λ y i → push-unpush-compute i (x , y)))
