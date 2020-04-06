@@ -59,7 +59,7 @@ Container-product-streams A B =
   stream-S (A × B) ∎
 
 stream-pair : ∀ A B → stream A × stream B ≡ stream (A × B)
-stream-pair A B = stream-pair-M A B □ λ i → M-type (Container-product-streams A B i)
+stream-pair A B = stream-pair-M A B ∙ λ i → M-type (Container-product-streams A B i)
 
 zip : ∀ {A B} → stream A × stream B → stream (A × B)
 zip {A} {B} = transport (stream-pair A B)
