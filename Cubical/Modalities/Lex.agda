@@ -143,6 +143,9 @@ cong-fun α x i = α i x
 pair-ext : {A : Type ℓ} {B : A → Type ℓ′} {p q : Σ A B} (α : p .fst ≡ q .fst) (β : PathP (λ i → B (α i)) (p .snd) (q .snd)) → p ≡ q
 pair-ext α β i = α i , β i
 
+λ⟨,⟩_ : ∀ {ℓ′′} {A : Type ℓ} {B : A → Type ℓ′} {C : Σ A B → Type ℓ′′} → ((x : A) (y : B x) → C (x , y)) → (p : Σ A B) → C p
+λ⟨,⟩_ f (x , y) = f x y
+
 module _ {A : Type ℓ} {B : A → Type ℓ′} where
   abstract
     Π-modal : isModalFam B → isModal ((x : A) → B x)
@@ -204,14 +207,11 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
 
   module Unpush where
     abstract
-      fun/split : (x : ◯ A) (y : ⟨◯⟩ B x) → ◯Σ
-      fun/split =
-        ◯-ind (λ _ → Π-modal λ _ → idemp) λ x →
+      fun : Σ◯ → ◯Σ
+      fun =
+        λ⟨,⟩ ◯-ind (λ _ → Π-modal λ _ → idemp) λ x →
         abstract-along (⟨◯⟩-compute B x)
         (◯-map (x ,_))
-
-      fun : Σ◯ → ◯Σ
-      fun (x , y) = fun/split x y
 
       compute : fun ∘ η-Σ◯ ≡ η
       compute =
@@ -247,16 +247,13 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
   is-section = ◯-ind (λ x → ≡-modal idemp) λ x i → unpush-push-compute i x
 
   is-retract : retract Unpush.fun Push.fun
-  is-retract (x , y) = is-retract-split x y
-    where
-      is-retract-split : (x : ◯ A) (y : ⟨◯⟩ B x) → Push.fun (Unpush.fun (x , y)) ≡ (x , y)
-      is-retract-split =
-        ◯-ind (λ _ → Π-modal λ _ → ≡-modal Σ◯-modal) λ x →
-        abstract-along
-          (⟨◯⟩-compute B x)
-          (◯-ind
-           (λ _ → ≡-modal Σ◯-modal)
-           (λ y i → push-unpush-compute i (x , y)))
+  is-retract =
+    λ⟨,⟩ ◯-ind (λ _ → Π-modal λ _ → ≡-modal Σ◯-modal) λ x →
+    abstract-along
+     (⟨◯⟩-compute B x)
+     (◯-ind
+      (λ _ → ≡-modal Σ◯-modal)
+      (λ y i → push-unpush-compute i (x , y)))
 
   push-sg-is-equiv : isEquiv Push.fun
   push-sg-is-equiv = isoToIsEquiv (iso Push.fun Unpush.fun is-retract is-section)
