@@ -23,6 +23,8 @@ suc₋₂ (-2+ n) = -2+ (suc n)
 
 -- Natural number and negative integer literals for ℕ₋₂
 
+open import Cubical.Data.Nat.Literals public
+
 instance
   fromNatℕ₋₂ : HasFromNat ℕ₋₂
   fromNatℕ₋₂ = record { Constraint = λ _ → Unit ; fromNat = ℕ→ℕ₋₂ }
@@ -30,4 +32,4 @@ instance
 instance
   fromNegℕ₋₂ : HasFromNeg ℕ₋₂
   fromNegℕ₋₂ = record { Constraint = λ { (suc (suc (suc _))) → ⊥ ; _ → Unit }
-                       ; fromNeg = λ { zero → 0 ; (suc zero) → neg1 ; _ → neg2 } }
+                       ; fromNeg = λ { zero → 0 ; (suc zero) → neg1 ; (suc (suc zero)) → neg2 } }

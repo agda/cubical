@@ -45,6 +45,10 @@ true≢false p = subst (caseBool Bool ⊥) p true
 false≢true : ¬ false ≡ true
 false≢true p = subst (caseBool ⊥ Bool) p true
 
+not≢const : ∀ x → ¬ not x ≡ x
+not≢const false = true≢false
+not≢const true  = false≢true
+
 zeroˡ : ∀ x → true or x ≡ true
 zeroˡ false = refl
 zeroˡ true  = refl
@@ -85,3 +89,16 @@ or-assoc true y z  =
 or-idem      : ∀ x → x or x ≡ x
 or-idem false = refl
 or-idem true  = refl
+
+⊕-comm : ∀ x y → x ⊕ y ≡ y ⊕ x
+⊕-comm false false = refl
+⊕-comm false true  = refl
+⊕-comm true  false = refl
+⊕-comm true  true  = refl
+
+⊕-invol : ∀ x y → x ⊕ (x ⊕ y) ≡ y
+⊕-invol false x = refl
+⊕-invol true  x = notnot x
+
+isEquiv-⊕ : ∀ x → isEquiv (x ⊕_)
+isEquiv-⊕ x = isoToIsEquiv (iso _ (x ⊕_) (⊕-invol x) (⊕-invol x))

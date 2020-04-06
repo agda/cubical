@@ -13,34 +13,38 @@ open import Cubical.Data.Sigma.Base
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.CartesianKanOps
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
+open import Cubical.Data.Unit.Base
 
 private
   variable
     ℓ : Level
     A : Type ℓ
-    B : (a : A) → Type ℓ
+    B B' : (a : A) → Type ℓ
+    C : (a : A) (b : B a) → Type ℓ
 
 
 ΣPathP : ∀ {x y}
   → Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y))
   → x ≡ y
-ΣPathP eq = λ i → (fst eq i) , (snd eq i)
+ΣPathP eq i = fst eq i , snd eq i
 
 Σ≡ : {x y : Σ A B}  →
-     Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y)) ≃
+     Σ (fst x ≡ fst y) (λ p → PathP (λ i → B (p i)) (snd x) (snd y)) ≃
      (x ≡ y)
 Σ≡ {A = A} {B = B} {x} {y} = isoToEquiv (iso intro elim intro-elim elim-intro)
   where
     intro = ΣPathP
 
     elim : x ≡ y → Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y ))
-    elim eq = (λ i → fst (eq i)) , λ i → snd (eq i)
+    elim eq = (λ i → fst (eq i)) , (λ i → snd (eq i))
 
     intro-elim : ∀ eq → intro (elim eq) ≡ eq
     intro-elim eq = refl
@@ -143,3 +147,37 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
         ... | (yes q) = yes (transport (ua Σ≡) (refl , q))
         ... | (no ¬q) = no (λ r → ¬q (subst (λ X → PathP (λ i → B (X i)) b0 b1) (Discrete→isSet Adis a0 a0 (cong fst r) refl) (cong snd r)))
     discreteΣ' (no ¬p) = no (λ r → ¬p (cong fst r))
+
+Σ-contractFst : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} (c : isContr A)
+  → Σ A B ≃ B (c .fst)
+Σ-contractFst {B = B} c =
+  isoToEquiv
+    (iso
+      (λ {(a , b) → subst B (sym (c .snd a)) b})
+      (c .fst ,_)
+      (λ b →
+        cong (λ p → subst B p b) (isProp→isSet (isContr→isProp c) _ _ _ _)
+        ∙ transportRefl _)
+      (λ {(a , b) →
+        sigmaPath→pathSigma _ _ (c .snd a , transportTransport⁻ (cong B (c .snd a)) _)}))
+
+-- a special case of the above
+ΣUnit : ∀ {ℓ} (A : Unit → Type ℓ) → Σ Unit A ≃ A tt
+ΣUnit A = isoToEquiv (iso snd (λ { x → (tt , x) }) (λ _ → refl) (λ _ → refl))
+
+assocΣ : (Σ[ (a , b) ∈ Σ A B ] C a b) ≃ (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
+assocΣ = isoToEquiv (iso (λ { ((x , y) , z) → (x , (y , z)) })
+                         (λ { (x , (y , z)) → ((x , y) , z) })
+                         (λ _ → refl) (λ _ → refl))
+
+congΣEquiv : (∀ a → B a ≃ B' a) → Σ A B ≃ Σ A B'
+congΣEquiv h =
+  isoToEquiv (iso (λ { (x , y)   → (x , equivFun (h x) y) })
+                  (λ { (x , y)   → (x , invEq    (h x) y) })
+                  (λ { (x , y) i → (x , retEq    (h x) y i) })
+                  (λ { (x , y) i → (x , secEq    (h x) y i) }))
+
+PiΣ : ((a : A) → Σ[ b ∈ B a ] C a b) ≃ (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
+PiΣ = isoToEquiv (iso (λ f → fst ∘ f , snd ∘ f)
+                      (λ (f , g) → (λ x → f x , g x))
+                      (λ _ → refl) (λ _ → refl))

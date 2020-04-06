@@ -130,7 +130,7 @@ _⊓′_ : Type ℓ → Type ℓ' → Type _
 A ⊓′ B = A × B
 
 _⊓_ : hProp ℓ → hProp ℓ' → hProp _
-A ⊓ B = [ A ] ⊓′ [ B ] , ×.hLevelProd 1 (A .snd) (B .snd)
+A ⊓ B = [ A ] ⊓′ [ B ] , ×.isOfHLevelProd 1 (A .snd) (B .snd)
 
 ⊓-intro : (P : hProp ℓ) (Q : [ P ] → hProp ℓ') (R : [ P ] → hProp ℓ'')
        → (∀ a → [ Q a ]) → (∀ a → [ R a ]) → (∀ (a : [ P ]) → [ Q a ⊓ R a ] )

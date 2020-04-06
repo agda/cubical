@@ -36,26 +36,73 @@ ua {A = A} {B = B} e i = Glue B (λ { (i = i0) → (A , e)
 uaIdEquiv : {A : Type ℓ} → ua (idEquiv A) ≡ refl
 uaIdEquiv {A = A} i j = Glue A {φ = i ∨ ~ j ∨ j} (λ _ → A , idEquiv A)
 
--- Give detailed type to unglue, mainly for documentation purposes
-ua-unglue : ∀ {A B : Type ℓ} → (e : A ≃ B) → (i : I) (x : ua e i)
-            → B [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → x }) ]
-ua-unglue e i x = inS (unglue (i ∨ ~ i) x)
+-- the unglue and glue primitives specialized to the case of ua
+
+ua-unglue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : ua e i)
+            → B {- [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → x }) ] -}
+ua-unglue e i x = unglue (i ∨ ~ i) x
+
+ua-glue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : Partial (~ i) A)
+            (y : B [ _ ↦ (λ { (i = i0) → e .fst (x 1=1) }) ])
+          → ua e i {- [ _ ↦ (λ { (i = i0) → x 1=1 ; (i = i1) → outS y }) ] -}
+ua-glue e i x y = glue {φ = i ∨ ~ i} (λ { (i = i0) → x 1=1 ; (i = i1) → outS y }) (outS y)
+
+-- sometimes more useful are versions of these functions with the (i : I) factored in
 
 ua-ungluePath : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
                 → PathP (λ i → ua e i) x y
                 → e .fst x ≡ y
-ua-ungluePath e p i = unglue (i ∨ ~ i) (p i)
-
--- Give detailed type to glue
-ua-glue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A) (y : B)
-          → B [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → y }) ]
-          → (ua e i) [ _ ↦ (λ { (i = i0) → x ; (i = i1) → y }) ]
-ua-glue e i x y s = inS (glue (λ { (i = i0) → x ; (i = i1) → y }) (outS s))
+ua-ungluePath e p i = ua-unglue e i (p i)
 
 ua-gluePath : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
               → e .fst x ≡ y
               → PathP (λ i → ua e i) x y
-ua-gluePath e {x} {y} p i = glue (λ { (i = i0) → x ; (i = i1) → y }) (p i)
+ua-gluePath e {x} p i = ua-glue e i (λ { (i = i0) → x }) (inS (p i))
+
+-- ua-ungluePath and ua-gluePath are definitional inverses
+ua-ungluePath-Equiv : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
+                      → (PathP (λ i → ua e i) x y) ≃ (e .fst x ≡ y)
+ua-ungluePath-Equiv e = isoToEquiv (iso (ua-ungluePath e) (ua-gluePath e) (λ _ → refl) (λ _ → refl))
+
+-- ua-unglue and ua-glue are also definitional inverses, in a way
+-- strengthening the types of ua-unglue and ua-glue gives a nicer formulation of this, see below
+
+ua-unglue-glue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : Partial (~ i) A) (y : B [ _ ↦ _ ])
+                 → ua-unglue e i (ua-glue e i x y) ≡ outS y
+ua-unglue-glue _ _ _ _ = refl
+
+ua-glue-unglue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : ua e i)
+                 → ua-glue e i (λ { (i = i0) → x }) (inS (ua-unglue e i x)) ≡ x
+ua-glue-unglue _ _ _ = refl
+
+-- mainly for documentation purposes, ua-unglue and ua-glue wrapped in cubical subtypes
+
+ua-unglueS : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A) (y : B)
+             → ua e i [ _ ↦ (λ { (i = i0) → x        ; (i = i1) → y }) ]
+             → B      [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → y }) ]
+ua-unglueS e i x y s = inS (ua-unglue e i (outS s))
+
+ua-glueS : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A) (y : B)
+           → B      [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → y }) ]
+           → ua e i [ _ ↦ (λ { (i = i0) → x        ; (i = i1) → y }) ]
+ua-glueS e i x y s = inS (ua-glue e i (λ { (i = i0) → x }) (inS (outS s)))
+
+ua-unglueS-glueS : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A) (y : B)
+                     (s : B [ _ ↦ (λ { (i = i0) → e .fst x ; (i = i1) → y }) ])
+                   → outS (ua-unglueS e i x y (ua-glueS e i x y s)) ≡ outS s
+ua-unglueS-glueS _ _ _ _ _ = refl
+
+ua-glueS-unglueS : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A) (y : B)
+                     (s : ua e i [ _ ↦ (λ { (i = i0) → x ; (i = i1) → y }) ])
+                   → outS (ua-glueS e i x y (ua-unglueS e i x y s)) ≡ outS s
+ua-glueS-unglueS _ _ _ _ _ = refl
+
+
+-- a version of ua-glue with a single endpoint, identical to `ua-gluePath e {x} refl i`
+ua-gluePt : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : A)
+            → ua e i {- [ _ ↦ (λ { (i = i0) → x ; (i = i1) → e .fst x }) ] -}
+ua-gluePt e i x = ua-glue e i (λ { (i = i0) → x }) (inS (e .fst x))
+
 
 -- Proof of univalence using that unglue is an equivalence:
 
@@ -114,28 +161,21 @@ contrSinglEquiv {A = A} {B = B} e =
   isContr→isProp (EquivContr B) (B , idEquiv B) (A , e)
 
 -- Equivalence induction
-EquivJ : (P : (A B : Type ℓ) → (e : B ≃ A) → Type ℓ')
-       → (r : (A : Type ℓ) → P A A (idEquiv A))
-       → (A B : Type ℓ) → (e : B ≃ A) → P A B e
-EquivJ P r A B e = subst (λ x → P A (x .fst) (x .snd)) (contrSinglEquiv e) (r A)
-
--- Eliminate equivalences by just looking at the underlying function
-elimEquivFun : (B : Type ℓ) (P : (A : Type ℓ) → (A → B) → Type ℓ')
-             → (r : P B (λ x → x))
-             → (A : Type ℓ) → (e : A ≃ B) → P A (e .fst)
-elimEquivFun B P r a e = subst (λ x → P (x .fst) (x .snd .fst)) (contrSinglEquiv e) r
+EquivJ : {A B : Type ℓ} (P : (A : Type ℓ) → (e : A ≃ B) → Type ℓ')
+       → (r : P B (idEquiv B)) → (e : A ≃ B) → P A e
+EquivJ P r e = subst (λ x → P (x .fst) (x .snd)) (contrSinglEquiv e) r
 
 -- Assuming that we have an inverse to ua we can easily prove univalence
 module Univalence (au : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B)
                   (aurefl : ∀ {ℓ} {A B : Type ℓ} → au refl ≡ idEquiv A) where
 
   ua-au : {A B : Type ℓ} (p : A ≡ B) → ua (au p) ≡ p
-  ua-au {B = B} p = J (λ b p → ua (au p) ≡ p) (cong ua (aurefl {B = B}) ∙ uaIdEquiv) p
+  ua-au {B = B} = J (λ _ p → ua (au p) ≡ p)
+                    (cong ua (aurefl {B = B}) ∙ uaIdEquiv)
 
   au-ua : {A B : Type ℓ} (e : A ≃ B) → au (ua e) ≡ e
-  au-ua {B = B} e = EquivJ (λ b a f → au (ua f) ≡ f)
-                       (λ x → subst (λ r → au r ≡ idEquiv x) (sym uaIdEquiv) (aurefl {B = B}))
-                        _ _ e
+  au-ua {B = B} = EquivJ (λ _ f → au (ua f) ≡ f)
+                         (subst (λ r → au r ≡ idEquiv _) (sym uaIdEquiv) (aurefl {B = B}))
 
   thm : ∀ {ℓ} {A B : Type ℓ} → isEquiv au
   thm {A = A} {B = B} = isoToIsEquiv {B = A ≃ B} (iso au ua au-ua ua-au)
@@ -181,11 +221,10 @@ uaβ e x = transportRefl (e .fst x)
 uaη : ∀ {A B : Type ℓ} → (P : A ≡ B) → ua (pathToEquiv P) ≡ P
 uaη = J (λ _ q → ua (pathToEquiv q) ≡ q) (cong ua pathToEquivRefl ∙ uaIdEquiv)
 
--- Alternative version of EquivJ that only requires a predicate on
--- functions
-elimEquiv : {B : Type ℓ} (P : {A : Type ℓ} → (A → B) → Type ℓ') →
-            (d : P (idfun B)) → {A : Type ℓ} → (e : A ≃ B) → P (e .fst)
-elimEquiv P d e = subst (λ x → P (x .snd .fst)) (contrSinglEquiv e) d
+-- Alternative version of EquivJ that only requires a predicate on functions
+elimEquivFun : {A B : Type ℓ} (P : (A : Type ℓ) → (A → B) → Type ℓ')
+             → (r : P B (idfun B)) → (e : A ≃ B) → P A (e .fst)
+elimEquivFun P r e = subst (λ x → P (x .fst) (x .snd .fst)) (contrSinglEquiv e) r
 
 -- Isomorphism induction
 elimIso : {B : Type ℓ} → (Q : {A : Type ℓ} → (A → B) → (B → A) → Type ℓ') →
@@ -193,24 +232,22 @@ elimIso : {B : Type ℓ} → (Q : {A : Type ℓ} → (A → B) → (B → A) →
           (f : A → B) → (g : B → A) → section f g → retract f g → Q f g
 elimIso {ℓ} {ℓ'} {B} Q h {A} f g sfg rfg = rem1 f g sfg rfg
   where
-  P : {A : Type ℓ} → (f : A → B) → Type (ℓ-max ℓ' ℓ)
-  P {A} f = (g : B → A) → section f g → retract f g → Q f g
+  P : (A : Type ℓ) → (f : A → B) → Type (ℓ-max ℓ' ℓ)
+  P A f = (g : B → A) → section f g → retract f g → Q f g
 
-  rem : P (idfun B)
+  rem : P B (idfun B)
   rem g sfg rfg = subst (Q (idfun B)) (λ i b → (sfg b) (~ i)) h
 
-  rem1 : {A : Type ℓ} → (f : A → B) → P f
-  rem1 f g sfg rfg = elimEquiv P rem (f , isoToIsEquiv (iso f g sfg rfg)) g sfg rfg
+  rem1 : {A : Type ℓ} → (f : A → B) → P A f
+  rem1 f g sfg rfg = elimEquivFun P rem (f , isoToIsEquiv (iso f g sfg rfg)) g sfg rfg
 
 
 uaInvEquiv : ∀ {A B : Type ℓ} → (e : A ≃ B) → ua (invEquiv e) ≡ sym (ua e)
-uaInvEquiv e = EquivJ (λ _ _ e → ua (invEquiv e) ≡ sym (ua e)) rem _ _ e
-  where
-  rem : (A : Type ℓ) → ua (invEquiv (idEquiv A)) ≡ sym (ua (idEquiv A))
-  rem A = cong ua (invEquivIdEquiv A)
+uaInvEquiv {B = B} = EquivJ (λ _ e → ua (invEquiv e) ≡ sym (ua e))
+                            (cong ua (invEquivIdEquiv B))
 
 uaCompEquiv : ∀ {A B C : Type ℓ} → (e : A ≃ B) (f : B ≃ C) → ua (compEquiv e f) ≡ ua e ∙ ua f
-uaCompEquiv {C = C} = EquivJ (λ A B e → (f : A ≃ C) → ua (compEquiv e f) ≡ ua e ∙ ua f) rem _ _
-  where
-  rem : (A : Type _) (f : A ≃ C) → ua (compEquiv (idEquiv A) f) ≡ ua (idEquiv A) ∙ ua f
-  rem _ f = cong ua (compEquivIdEquiv f) ∙ sym (cong (λ x → x ∙ ua f) uaIdEquiv ∙ sym (lUnit (ua f)))
+uaCompEquiv {B = B} {C} = EquivJ (λ _ e → (f : B ≃ C) → ua (compEquiv e f) ≡ ua e ∙ ua f)
+                                 (λ f → cong ua (compEquivIdEquiv f)
+                                        ∙ sym (cong (λ x → x ∙ ua f) uaIdEquiv
+                                        ∙ sym (lUnit (ua f))))

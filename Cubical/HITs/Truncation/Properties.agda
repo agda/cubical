@@ -13,19 +13,19 @@ open Modality
 
 open import Cubical.Data.Empty as ⊥ using (⊥)
 open import Cubical.Data.Nat hiding (elim)
-open import Cubical.Data.NatMinusOne as ℕ₋₁
-  using (ℕ₋₁; ℕ→ℕ₋₁; suc₋₁)
-open import Cubical.Data.NatMinusTwo
+open import Cubical.Data.NatMinusOne as ℕ₋₁ hiding (1+_)
+open import Cubical.Data.NatMinusTwo as ℕ₋₂ hiding (-1+_)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Nullification as Null hiding (rec; elim)
 
 open import Cubical.HITs.Truncation.Base
 
-import Cubical.HITs.PropositionalTruncation as T₋₁
-import Cubical.HITs.SetTruncation as T₀
-import Cubical.HITs.GroupoidTruncation as T₁
-import Cubical.HITs.2GroupoidTruncation as T₂
+open import Cubical.HITs.PropositionalTruncation as PropTrunc
+  renaming (∥_∥ to ∥_∥₋₁; ∣_∣ to ∣_∣₋₁; squash to squash₋₁) using ()
+open import Cubical.HITs.SetTruncation       as SetTrunc  using (∥_∥₀; ∣_∣₀; squash₀)
+open import Cubical.HITs.GroupoidTruncation  as GpdTrunc  using (∥_∥₁; ∣_∣₁; squash₁)
+open import Cubical.HITs.2GroupoidTruncation as 2GpdTrunc using (∥_∥₂; ∣_∣₂; squash₂)
 
 private
   variable
@@ -38,9 +38,9 @@ sphereFill {A = A} n f = Σ[ top ∈ A ] ((x : S n) → top ≡ f x)
 isSphereFilled : ℕ₋₁ → Type ℓ → Type ℓ
 isSphereFilled n A = (f : S n → A) → sphereFill n f
 
-isSphereFilled∥∥ : {n : ℕ₋₂} → isSphereFilled (1+ n) (∥ A ∥ n)
-isSphereFilled∥∥ {n = neg2}  f = hub f , ⊥.elim
-isSphereFilled∥∥ {n = -1+ n} f = hub f , spoke f
+isSphereFilledTrunc : {n : ℕ} → isSphereFilled (-1+ n) (hLevelTrunc n A)
+isSphereFilledTrunc {n = zero}  f = hub f , ⊥.elim
+isSphereFilledTrunc {n = suc n} f = hub f , spoke f
 
 isSphereFilled→isOfHLevelSuc : {n : ℕ} → isSphereFilled (ℕ→ℕ₋₁ n) A → isOfHLevel (suc n) A
 isSphereFilled→isOfHLevelSuc {A = A} {zero} h x y = sym (snd (h f) north) ∙ snd (h f) south
@@ -84,24 +84,24 @@ isSphereFilled→isOfHLevelSuc {A = A} {suc n} h x y = isSphereFilled→isOfHLev
                          })
                   (p ((~ i) ∧ (~ j)))
 
-isOfHLevel→isSphereFilled : {n : ℕ₋₂} → isOfHLevel (2+ n) A → isSphereFilled (1+ n) A
-isOfHLevel→isSphereFilled {A = A} {neg2} h f = fst h , λ _ → snd h _
-isOfHLevel→isSphereFilled {A = A} {neg1} h f = f north , λ _ → h _ _
-isOfHLevel→isSphereFilled {A = A} {ℕ→ℕ₋₂ n} h = helper λ x y → isOfHLevel→isSphereFilled (h x y)
+isOfHLevel→isSphereFilled : {n : ℕ} → isOfHLevel n A → isSphereFilled (-1+ n) A
+isOfHLevel→isSphereFilled {A = A} {zero} h f = fst h , λ _ → snd h _
+isOfHLevel→isSphereFilled {A = A} {suc zero} h f = f north , λ _ → h _ _
+isOfHLevel→isSphereFilled {A = A} {suc (suc n)} h = helper λ x y → isOfHLevel→isSphereFilled (h x y)
   where
-    helper : {n : ℕ₋₂} → ((x y : A) → isSphereFilled (1+ n) (x ≡ y)) → isSphereFilled (suc₋₁ (1+ n)) A
+    helper : {n : ℕ} → ((x y : A) → isSphereFilled (-1+ n) (x ≡ y)) → isSphereFilled (suc₋₁ (-1+ n)) A
     helper {n = n} h f = l , r
       where
       l : A
       l = f north
 
-      f' : S (1+ n) → f north ≡ f south
+      f' : S (-1+ n) → f north ≡ f south
       f' x i = f (merid x i)
 
-      h' : sphereFill (1+ n) f'
+      h' : sphereFill (-1+ n) f'
       h' = h (f north) (f south) f'
 
-      r : (x : S (suc₋₁ (1+ n))) → l ≡ f x
+      r : (x : S (suc₋₁ (-1+ n))) → l ≡ f x
       r north = refl
       r south = h' .fst
       r (merid x i) j = hcomp (λ k → λ { (i = i0) → f north
@@ -111,108 +111,108 @@ isOfHLevel→isSphereFilled {A = A} {ℕ→ℕ₋₂ n} h = helper λ x y → is
 
 -- isNull (S n) A ≃ (isSphereFilled n A) × (∀ (x y : A) → isSphereFilled n (x ≡ y))
 
-isOfHLevel→isSnNull : {n : ℕ₋₂} → isOfHLevel (2+ n) A → isNull (S (1+ n)) A
+isOfHLevel→isSnNull : {n : ℕ} → isOfHLevel n A → isNull (S (-1+ n)) A
 fst (sec (isOfHLevel→isSnNull h)) f     = fst (isOfHLevel→isSphereFilled h f)
 snd (sec (isOfHLevel→isSnNull h)) f i s = snd (isOfHLevel→isSphereFilled h f) s i
-fst (secCong (isOfHLevel→isSnNull h) x y) p       = fst (isOfHLevel→isSphereFilled (isOfHLevelPath _ h x y) (funExt⁻ p))
+fst (secCong (isOfHLevel→isSnNull h) x y) p = fst (isOfHLevel→isSphereFilled (isOfHLevelPath _ h x y) (funExt⁻ p))
 snd (secCong (isOfHLevel→isSnNull h) x y) p i j s = snd (isOfHLevel→isSphereFilled (isOfHLevelPath _ h x y) (funExt⁻ p)) s i j
 
-isSnNull→isOfHLevel : {n : ℕ₋₂} → isNull (S (1+ n)) A → isOfHLevel (2+ n) A
-isSnNull→isOfHLevel {n = neg2}  nA = fst (sec nA) ⊥.rec , λ y → fst (secCong nA _ y) (funExt ⊥.elim)
-isSnNull→isOfHLevel {n = -1+ n} nA = isSphereFilled→isOfHLevelSuc (λ f → fst (sec nA) f , λ s i → snd (sec nA) f i s)
+isSnNull→isOfHLevel : {n : ℕ} → isNull (S (-1+ n)) A → isOfHLevel n A
+isSnNull→isOfHLevel {n = zero}  nA = fst (sec nA) ⊥.rec , λ y → fst (secCong nA _ y) (funExt ⊥.elim)
+isSnNull→isOfHLevel {n = suc n} nA = isSphereFilled→isOfHLevelSuc (λ f → fst (sec nA) f , λ s i → snd (sec nA) f i s)
 
-isOfHLevel∥∥ : (n : ℕ₋₂) → isOfHLevel (2+ n) (∥ A ∥ n)
-isOfHLevel∥∥ neg2    = hub ⊥.rec , λ _ → ≡hub ⊥.rec
-isOfHLevel∥∥ (-1+ n) = isSphereFilled→isOfHLevelSuc isSphereFilled∥∥
--- isOfHLevel∥∥ n = isSnNull→isOfHLevel isNull-Null
+isOfHLevelTrunc : (n : ℕ) → isOfHLevel n (hLevelTrunc n A)
+isOfHLevelTrunc zero    = hub ⊥.rec , λ _ → ≡hub ⊥.rec
+isOfHLevelTrunc (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilledTrunc
+-- isOfHLevelTrunc n = isSnNull→isOfHLevel isNull-Null
 
--- ∥_∥ n is a modality
+-- hLevelTrunc n is a modality
 
-rec : {n : ℕ₋₂}
+rec : {n : ℕ}
       {B : Type ℓ'} →
-      (isOfHLevel (2+ n) B) →
+      (isOfHLevel n B) →
       (g : (a : A) → B) →
-      (∥ A ∥ n → B)
+      (hLevelTrunc n A → B)
 rec {B = B} h = Null.elim {B = λ _ → B} λ x → isOfHLevel→isSnNull h
 
-elim : {n : ℕ₋₂}
-  {B : ∥ A ∥ n → Type ℓ'}
-  (hB : (x : ∥ A ∥ n) → isOfHLevel (2+ n) (B x))
+elim : {n : ℕ}
+  {B : hLevelTrunc n A → Type ℓ'}
+  (hB : (x : hLevelTrunc n A) → isOfHLevel n (B x))
   (g : (a : A) → B (∣ a ∣))
-  (x : ∥ A ∥ n) →
+  (x : hLevelTrunc n A) →
   B x
 elim hB = Null.elim (λ x → isOfHLevel→isSnNull (hB x))
 
-elim2 : {n : ℕ₋₂}
-  {B : ∥ A ∥ n → ∥ A ∥ n → Type ℓ'}
-  (hB : ((x y : ∥ A ∥ n) → isOfHLevel (2+ n) (B x y)))
+elim2 : {n : ℕ}
+  {B : hLevelTrunc n A → hLevelTrunc n A → Type ℓ'}
+  (hB : ((x y : hLevelTrunc n A) → isOfHLevel n (B x y)))
   (g : (a b : A) → B ∣ a ∣ ∣ b ∣)
-  (x y : ∥ A ∥ n) →
+  (x y : hLevelTrunc n A) →
   B x y
 elim2 {n = n} hB g =
-  elim (λ _ → isOfHLevelPi (2+ n) (λ _ → hB _ _))
+  elim (λ _ → isOfHLevelPi n (λ _ → hB _ _))
     (λ a → elim (λ _ → hB _ _) (λ b → g a b))
 
-elim3 : {n : ℕ₋₂}
-  {B : (x y z : ∥ A ∥ n) → Type ℓ'}
-  (hB : ((x y z : ∥ A ∥ n) → isOfHLevel (2+ n) (B x y z)))
+elim3 : {n : ℕ}
+  {B : (x y z : hLevelTrunc n A) → Type ℓ'}
+  (hB : ((x y z : hLevelTrunc n A) → isOfHLevel n (B x y z)))
   (g : (a b c : A) → B (∣ a ∣) ∣ b ∣ ∣ c ∣)
-  (x y z : ∥ A ∥ n) →
+  (x y z : hLevelTrunc n A) →
   B x y z
 elim3 {n = n} hB g =
-  elim2 (λ _ _ → isOfHLevelPi (2+ n) (hB _ _))
+  elim2 (λ _ _ → isOfHLevelPi n (hB _ _))
     (λ a b → elim (λ _ → hB _ _ _) (λ c → g a b c))
 
-TruncModality : ∀ {ℓ} (n : ℕ₋₂) → Modality ℓ
-isModal       (TruncModality n) = isOfHLevel (2+ n)
-isModalIsProp (TruncModality n) = isPropIsOfHLevel (2+ n)
-◯             (TruncModality n) = ∥_∥ n
-◯-isModal     (TruncModality n) = isOfHLevel∥∥ n
-η             (TruncModality n) = ∣_∣
-◯-elim        (TruncModality n) = elim
-◯-elim-β      (TruncModality n) = λ _ _ _ → refl
-◯-=-isModal   (TruncModality n) = isOfHLevelPath (2+ n) (isOfHLevel∥∥ n)
+HLevelTruncModality : ∀ {ℓ} (n : ℕ) → Modality ℓ
+isModal       (HLevelTruncModality n) = isOfHLevel n
+isModalIsProp (HLevelTruncModality n) = isPropIsOfHLevel n
+◯             (HLevelTruncModality n) = hLevelTrunc n
+◯-isModal     (HLevelTruncModality n) = isOfHLevelTrunc n
+η             (HLevelTruncModality n) = ∣_∣
+◯-elim        (HLevelTruncModality n) = elim
+◯-elim-β      (HLevelTruncModality n) = λ _ _ _ → refl
+◯-=-isModal   (HLevelTruncModality n) = isOfHLevelPath n (isOfHLevelTrunc n)
 
-idemTrunc : (n : ℕ₋₂) → isOfHLevel (2+ n) A → A ≃ (∥ A ∥ n)
-idemTrunc n hA = ∣_∣ , isModalToIsEquiv (TruncModality n) hA
+idemTrunc : (n : ℕ) → isOfHLevel n A → A ≃ (hLevelTrunc n A)
+idemTrunc n hA = ∣_∣ , isModalToIsEquiv (HLevelTruncModality n) hA
 
 -- equivalences to prop/set/groupoid truncations
 
-propTrunc≃Trunc-1 : T₋₁.∥ A ∥ ≃ ∥ A ∥ -1
+propTrunc≃Trunc-1 : ∥ A ∥₋₁ ≃ ∥ A ∥ -1
 propTrunc≃Trunc-1 =
   isoToEquiv
     (iso
-      (T₋₁.elim (λ _ → isOfHLevel∥∥ -1) ∣_∣)
-      (elim (λ _ → T₋₁.squash) T₋₁.∣_∣)
-      (elim (λ _ → isOfHLevelPath 1 (isOfHLevel∥∥ -1) _ _) (λ _ → refl))
-      (T₋₁.elim (λ _ → isOfHLevelPath 1 T₋₁.squash _ _) (λ _ → refl)))
+      (PropTrunc.elim (λ _ → isOfHLevelTrunc 1) ∣_∣)
+      (elim (λ _ → squash₋₁) ∣_∣₋₁)
+      (elim (λ _ → isOfHLevelPath 1 (isOfHLevelTrunc 1) _ _) (λ _ → refl))
+      (PropTrunc.elim (λ _ → isOfHLevelPath 1 squash₋₁ _ _) (λ _ → refl)))
 
-setTrunc≃Trunc0 : T₀.∥ A ∥₀ ≃ ∥ A ∥ 0
+setTrunc≃Trunc0 : ∥ A ∥₀ ≃ ∥ A ∥ 0
 setTrunc≃Trunc0 =
   isoToEquiv
     (iso
-      (T₀.elim (λ _ → isOfHLevel∥∥ 0) ∣_∣)
-      (elim (λ _ → T₀.squash₀) T₀.∣_∣₀)
-      (elim (λ _ → isOfHLevelPath 2 (isOfHLevel∥∥ 0) _ _) (λ _ → refl))
-      (T₀.elim (λ _ → isOfHLevelPath 2 T₀.squash₀ _ _) (λ _ → refl)))
+      (SetTrunc.elim (λ _ → isOfHLevelTrunc 2) ∣_∣)
+      (elim (λ _ → squash₀) ∣_∣₀)
+      (elim (λ _ → isOfHLevelPath 2 (isOfHLevelTrunc 2) _ _) (λ _ → refl))
+      (SetTrunc.elim (λ _ → isOfHLevelPath 2 squash₀ _ _) (λ _ → refl)))
 
-groupoidTrunc≃Trunc1 : T₁.∥ A ∥₁ ≃ ∥ A ∥ 1
+groupoidTrunc≃Trunc1 : ∥ A ∥₁ ≃ ∥ A ∥ 1
 groupoidTrunc≃Trunc1 =
   isoToEquiv
     (iso
-      (T₁.elim (λ _ → isOfHLevel∥∥ 1) ∣_∣)
-      (elim (λ _ → T₁.squash₁) T₁.∣_∣₁)
-      (elim (λ _ → isOfHLevelPath 3 (isOfHLevel∥∥ 1) _ _) (λ _ → refl))
-      (T₁.elim (λ _ → isOfHLevelPath 3 T₁.squash₁ _ _) (λ _ → refl)))
+      (GpdTrunc.elim (λ _ → isOfHLevelTrunc 3) ∣_∣)
+      (elim (λ _ → squash₁) ∣_∣₁)
+      (elim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) (λ _ → refl))
+      (GpdTrunc.elim (λ _ → isOfHLevelPath 3 squash₁ _ _) (λ _ → refl)))
 
-2GroupoidTrunc≃Trunc2 : T₂.∥ A ∥₂ ≃ ∥ A ∥ 2
+2GroupoidTrunc≃Trunc2 : ∥ A ∥₂ ≃ ∥ A ∥ 2
 2GroupoidTrunc≃Trunc2 =
   isoToEquiv
     (iso
-      (T₂.elim (λ _ → isOfHLevel∥∥ 2) ∣_∣)
-      (elim (λ _ → T₂.squash₂) T₂.∣_∣₂)
-      (elim (λ _ → isOfHLevelPath 4 (isOfHLevel∥∥ 2) _ _) (λ _ → refl))
-      (T₂.elim (λ _ → isOfHLevelPath 4 T₂.squash₂ _ _) (λ _ → refl)))
+      (2GpdTrunc.elim (λ _ → isOfHLevelTrunc 4) ∣_∣)
+      (elim (λ _ → squash₂) ∣_∣₂)
+      (elim (λ _ → isOfHLevelPath 4 (isOfHLevelTrunc 4) _ _) (λ _ → refl))
+      (2GpdTrunc.elim (λ _ → isOfHLevelPath 4 squash₂ _ _) (λ _ → refl)))
 
 ---- ∥ Ω A ∥ ₙ ≡ Ω ∥ A ∥ₙ₊₁  ----
 
@@ -225,14 +225,14 @@ private
     where
     P₁ : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} → ∥ B ∥  (suc₋₂ n) → ∥ B ∥  (suc₋₂ n) → (HLevel  ℓ (2+ n))
     P₁ {ℓ} {n = n}  x y =
-      elim2 (λ _ _  → isOfHLevelHLevel (2+ n)) (λ a b → ∥ a ≡ b ∥  n , isOfHLevel∥∥ n) x y
+      elim2 (λ _ _  → isOfHLevelHLevel (2+ n)) (λ a b → ∥ a ≡ b ∥  n , isOfHLevelTrunc (2+ n)) x y
 
   {- We will need P to be of hLevel n + 3  -}
   hLevelP : ∀{ℓ} {n : ℕ₋₂} {B : Type ℓ} (a b : ∥ B ∥ (suc₋₂ n)) → isOfHLevel (2+ (suc₋₂ n)) (P a b )
   hLevelP {n = n} =
     elim2
       (λ x y → isProp→isOfHLevelSuc (2+ n) (isPropIsOfHLevel (2+ suc₋₂ n)) )
-      (λ a b → isOfHLevelSuc (2+ n) (isOfHLevel∥∥ n))
+      (λ a b → isOfHLevelSuc (2+ n) (isOfHLevelTrunc (2+ n)))
 
   {- decode function from P x y to x ≡ y -}
   decode-fun :  ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} (x y : ∥ B ∥ (suc₋₂ n)) → P x y → x ≡ y
@@ -240,20 +240,20 @@ private
     elim2
       (λ u v → isOfHLevelPi
         (2+ suc₋₂ n)
-        (λ _ → isOfHLevelSuc (2+ suc₋₂ n) (isOfHLevel∥∥ (suc₋₂ n)) u v))
+        (λ _ → isOfHLevelSuc (2+ suc₋₂ n) (isOfHLevelTrunc (2+ suc₋₂ n)) u v))
       decode*
       where
       decode* :  ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂}(u v : B)
         → (P {n = n} ∣ u ∣ ∣ v ∣) → _≡_ {A = ∥ B ∥ (suc₋₂ n)} ∣ u ∣ ∣ v ∣
       decode* {B = B} {n = neg2} u v =
         rec
-          ( isOfHLevel∥∥ (suc₋₂ neg2) ∣ u ∣ ∣ v ∣
+          ( isOfHLevelTrunc (suc zero) ∣ u ∣ ∣ v ∣
           , λ _ →
-            isOfHLevelSuc (suc zero) (isOfHLevel∥∥ (suc₋₂ neg2)) _ _ _ _
+            isOfHLevelSuc (suc zero) (isOfHLevelTrunc (suc zero)) _ _ _ _
           )
           (λ p → cong (λ z → ∣ z ∣) p)
-      decode* {n = -1+ n} u v =
-        rec (isOfHLevel∥∥ (-1+ (suc n)) ∣ u ∣ ∣ v ∣) (λ p → cong (λ z → ∣ z ∣) p)
+      decode* {n = ℕ₋₂.-1+ n} u v =
+        rec (isOfHLevelTrunc (suc (suc n)) ∣ u ∣ ∣ v ∣) (λ p → cong (λ z → ∣ z ∣) p)
 
   {- auxilliary function r used to define encode -}
   r :  ∀ {ℓ} {B : Type ℓ} {m : ℕ₋₂} (u : ∥ B ∥ (suc₋₂ m)) → P u u
@@ -270,15 +270,15 @@ private
     elim
       (λ x →
         isOfHLevelSuc (suc zero)
-          (isOfHLevelSuc (suc zero) (isOfHLevel∥∥ (suc₋₂ neg2)) x x)
+          (isOfHLevelSuc (suc zero) (isOfHLevelTrunc (suc zero)) x x)
           _ _)
       (λ a → refl)
-  dec-refl {n = -1+ n} =
+  dec-refl {n = ℕ₋₂.-1+ n} =
     elim
       (λ x →
         isOfHLevelSuc (suc n)
          (isOfHLevelSuc (suc n)
-            (isOfHLevel∥∥ (-1+ suc n) x x)
+            (isOfHLevelTrunc (suc (suc n)) x x)
             (decode-fun x x (r x)) refl))
       (λ c → refl)
 
@@ -307,20 +307,20 @@ private
     helper {n = neg2} a b =
       elim
         (λ x →
-          ( sym (isOfHLevel∥∥ neg2 .snd (encode-fun ∣ a ∣ ∣ b ∣ (decode-fun ∣ a ∣ ∣ b ∣ x)))
-            ∙ (isOfHLevel∥∥ neg2 .snd x)
+          ( sym (isOfHLevelTrunc zero .snd (encode-fun ∣ a ∣ ∣ b ∣ (decode-fun ∣ a ∣ ∣ b ∣ x)))
+            ∙ (isOfHLevelTrunc zero .snd x)
           , λ y →
             isOfHLevelSuc (suc zero)
-              (isOfHLevelSuc zero (isOfHLevel∥∥ {A = a ≡ b} neg2))
+              (isOfHLevelSuc zero (isOfHLevelTrunc {A = a ≡ b} zero))
               _ _ _ _
           ))
         (J
           (λ y p → encode-fun ∣ a ∣ ∣ y ∣ ((decode-fun ∣ a ∣ ∣ y ∣) ∣ p ∣) ≡ ∣ p ∣)
           (enc-refl ∣ a ∣))
-    helper {n = -1+ n} a b =
+    helper {n = ℕ₋₂.-1+ n} a b =
       elim
-        (λ x → hLevelP {n = -1+ n} ∣ a ∣ ∣ b ∣ _ _)
-        (J (λ y p → encode-fun {n = -1+ n} ∣ a ∣ ∣ y ∣ ((decode-fun ∣ a ∣ ∣ y ∣) ∣ p ∣) ≡ ∣ p ∣)
+        (λ x → hLevelP {n = ℕ₋₂.-1+ n} ∣ a ∣ ∣ b ∣ _ _)
+        (J (λ y p → encode-fun {n = ℕ₋₂.-1+ n} ∣ a ∣ ∣ y ∣ ((decode-fun ∣ a ∣ ∣ y ∣) ∣ p ∣) ≡ ∣ p ∣)
            (enc-refl ∣ a ∣))
 
   {- The final Iso established -}

@@ -15,20 +15,15 @@ funext : ∀ ℓ ℓ' → Type (ℓ-suc(ℓ-max ℓ ℓ'))
 funext ℓ ℓ' = {X : Type ℓ} {Y : Type ℓ'} {f g : X → Y} → f ∼ g → f ≡ g
 
 
-elimEquivFun' : ∀ {ℓ} (P : (A B : Type ℓ) → (A → B) → Type ℓ)
-              → (r : (B : Type ℓ) → P B B (λ x → x))
-              → (A B : Type ℓ) → (e : A ≃ B) → P A B (e .fst)
-elimEquivFun' P r A B = elimEquivFun B (λ A → P A B) (r B) A
-
 pre-comp-is-equiv : (X Y : Type ℓ) (f : X → Y) (Z : Type ℓ)
                   → isEquiv f
                   → isEquiv (λ (g : Y → Z) → g ∘ f)
-pre-comp-is-equiv {ℓ} X Y f Z e = elimEquivFun' P r X Y (f , e)
+pre-comp-is-equiv {ℓ} X Y f Z e = elimEquivFun P r (f , e)
  where
-  P : (X Y : Type ℓ) → (X → Y) → Type ℓ
-  P X Y f = isEquiv (λ (g : Y → Z) → g ∘ f)
-  r : (B : Type ℓ) → P B B (λ x → x)
-  r B = idIsEquiv (B → Z)
+  P : (X : Type ℓ) → (X → Y) → Type ℓ
+  P X f = isEquiv (λ (g : Y → Z) → g ∘ f)
+  r : P Y (λ x → x)
+  r = idIsEquiv (Y → Z)
 
 leftCancellable : {X : Type ℓ} {Y : Type ℓ'} → (X → Y) → Type (ℓ-max ℓ ℓ')
 leftCancellable f = ∀ {x x'} → f x ≡ f x' → x ≡ x'

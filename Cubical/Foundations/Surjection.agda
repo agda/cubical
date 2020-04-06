@@ -49,5 +49,5 @@ isEquiv≃isEmbedding×isSurjection : isEquiv f ≃ isEmbedding f × isSurjectio
 isEquiv≃isEmbedding×isSurjection = isoToEquiv (iso
   isEquiv→isEmbedding×isSurjection
   isEmbedding×isSurjection→isEquiv
-  (λ _ → hLevelProd 1 isEmbeddingIsProp isSurjectionIsProp _ _)
+  (λ _ → isOfHLevelProd 1 isEmbeddingIsProp isSurjectionIsProp _ _)
   (λ _ → isPropIsEquiv _ _ _))
