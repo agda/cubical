@@ -192,9 +192,9 @@ module _ {A : Type ℓ} {B : A → Type ℓ′} where
           p ∎
 
 
-open LiftFamExtra
-
 module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
+  open LiftFamExtra
+
   ◯Σ = ◯ (Σ A B)
 
   module Σ◯ where
@@ -221,7 +221,7 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
       fun : Σ◯ → ◯Σ
       fun =
         λ⟨,⟩ ◯-ind (λ _ → Π-modal λ _ → idemp) λ x →
-        λ/coe⟨ ⟨◯⟩-compute B x ⟩ (◯-map (x ,_))
+        λ/coe⟨ ⟨◯⟩-compute B x ⟩ ◯-map (x ,_)
 
       compute : fun ∘ η-Σ◯ ≡ η
       compute =
@@ -260,9 +260,9 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
   is-retract =
     λ⟨,⟩ ◯-ind (λ _ → Π-modal λ _ → ≡-modal Σ◯-modal) λ x →
     λ/coe⟨ ⟨◯⟩-compute B x ⟩
-     (◯-ind
+     ◯-ind
       (λ _ → ≡-modal Σ◯-modal)
-      (λ y i → push-unpush-compute i (x , y)))
+      (λ y i → push-unpush-compute i (x , y))
 
   push-sg-is-equiv : isEquiv Push.fun
   push-sg-is-equiv = isoToIsEquiv (iso Push.fun Unpush.fun is-retract is-section)
