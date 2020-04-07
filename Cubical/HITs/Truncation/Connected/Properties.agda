@@ -14,12 +14,14 @@ open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Univalence
 open import Cubical.Data.NatMinusTwo.Base
 open import Cubical.Data.Prod.Base
 open import Cubical.HITs.Susp
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation.Base
-open import Cubical.HITs.Truncation.Properties
+open import Cubical.HITs.Truncation.Properties renaming (elim to trElim)
+open import Cubical.HITs.Nullification
 
 open import Cubical.Data.HomotopyGroup
 
@@ -28,6 +30,13 @@ private
     ℓ ℓ' : Level
     A : Type ℓ
     B : Type ℓ'
+
+isConnectedSubtr : (n m : ℕ) (f : A → B) → is- (-2+ (n + m)) -Connected f → is- (-2+ n) -Connected f
+isConnectedSubtr n m f iscon b = transport (λ i → isContr (ua (truncOfTruncEq {A = fiber f b} n m) (~ i) ))
+                                           (∣ iscon b .fst ∣ ,
+                                             trElim (λ x → isOfHLevelPath n (isOfHLevel∥∥ (-2+ n)) _ _)
+                                                    λ a → cong ∣_∣ (iscon b .snd a))
+--
 
 {-
 The "induction principle" for n-connected functions from the HoTT book (see Lemma 7.5.7):
@@ -58,9 +67,18 @@ module elim (f : A → B) (n : ℕ₋₂) where
 trivFunCon : ∀{ℓ} {A : Type ℓ} {a : A} → (n : ℕ₋₂) → (is- (suc₋₂ n) -ConnectedType A) → is- n -Connected (λ (x : Unit) → a)
 trivFunCon = Lemma7-5-11
 
+trivFunCon← : ∀{ℓ} {A : Type ℓ} {a : A} → (n : ℕ₋₂) → is- n -Connected (λ (x : Unit) → a) → (is- (suc₋₂ n) -ConnectedType A)
+trivFunCon← = Lemma7-5-11←
+
 {- n-connected functions induce equivalences between n-truncations -}
 conEquiv : (n : ℕ₋₂) (f : A → B) → (is- n -Connected f) → ∥ A ∥ n ≃ ∥ B ∥ n
 conEquiv = Lemma7-5-14
+
+conEquiv2 : (n m : ℕ) (f : A → B) → (is- (-2+ (n + m)) -Connected f) → ∥ A ∥ (-2+ n) ≃ ∥ B ∥ (-2+ n)
+conEquiv2 n m f iscon = conEquiv (-2+ n) f (isConnectedSubtr n m f iscon)
+
+conEquiv3 : (n m : ℕ) (f : A → B) → Σ[ x ∈ ℕ ] n + x ≡ m →  (is- (-2+ m) -Connected f) → ∥ A ∥ (-2+ n) ≃ ∥ B ∥ (-2+ n)
+conEquiv3 n m f (x , pf) iscon  = conEquiv (-2+ n) f (isConnectedSubtr n x f (transport (λ i → is- (-2+ pf (~ i)) -Connected f) iscon)) -- 
 
 {- Wedge connectivity lemma (Lemma 8.6.2 in the HoTT book) -}
 WedgeConn : (A : Pointed ℓ) (B : Pointed ℓ') (n m : ℕ) →
@@ -80,12 +98,17 @@ WedgeConn = Lemma8-6-2
 FthalFun : A → A → typ (Ω ((Susp A) , north))
 FthalFun a x = merid x ∙ sym (merid a)
 
-FthalFun-2nConnected : (n : ℕ) (a : A)
-                       (iscon : is- (ℕ→ℕ₋₂ n) -ConnectedType A) →
-                       is- ℕ→ℕ₋₂ (n + n) -Connected (FthalFun a)
-FthalFun-2nConnected n a iscon = Thm8-6-4 n a iscon
+abstract
+  FthalFun-2nConnected : (n : ℕ) (a : A)
+                         (iscon : is- (ℕ→ℕ₋₂ n) -ConnectedType A) →
+                         is- ℕ→ℕ₋₂ (n + n) -Connected (FthalFun a)
+  FthalFun-2nConnected n a iscon = Thm8-6-4 n a iscon
 
-Freudenthal : (n : ℕ) (A : Pointed ℓ) →
-              is- (ℕ→ℕ₋₂ n) -ConnectedType (typ A) →
-              ∥ typ A ∥ (ℕ→ℕ₋₂ (n + n)) ≃ ∥ typ (Ω (Susp (typ A) , north)) ∥ ((ℕ→ℕ₋₂ (n + n)))
-Freudenthal n A iscon = conEquiv _ (FthalFun (pt A)) (FthalFun-2nConnected n (pt A) iscon)
+  Freudenthal : (n : ℕ) (A : Pointed ℓ) →
+                is- (ℕ→ℕ₋₂ n) -ConnectedType (typ A) →
+                ∥ typ A ∥ (ℕ→ℕ₋₂ (n + n)) ≃ ∥ typ (Ω (Susp (typ A) , north)) ∥ ((ℕ→ℕ₋₂ (n + n)))
+  Freudenthal n A iscon = conEquiv _ (FthalFun (pt A)) (FthalFun-2nConnected n (pt A) iscon)
+
+
+------------------------------
+

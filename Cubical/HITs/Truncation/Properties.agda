@@ -124,6 +124,7 @@ isSnNull→isOfHLevel {n = -1+ n} nA = isSphereFilled→isOfHLevelSuc (λ f → 
 isOfHLevel∥∥ : (n : ℕ₋₂) → isOfHLevel (2+ n) (∥ A ∥ n)
 isOfHLevel∥∥ neg2    = hub ⊥.rec , λ _ → ≡hub ⊥.rec
 isOfHLevel∥∥ (-1+ n) = isSphereFilled→isOfHLevelSuc isSphereFilled∥∥
+
 -- isOfHLevel∥∥ n = isSnNull→isOfHLevel isNull-Null
 
 -- ∥_∥ n is a modality
@@ -363,3 +364,27 @@ PathΩ {a = a} n = PathIdTrunc {a = a} {b = a} n
 
 truncEquivΩ : {a : A} (n : ℕ₋₂) → (∥ a ≡ a ∥ n) ≃ (_≡_ {A = ∥ A ∥ (suc₋₂ n)} ∣ a ∣ ∣ a ∣)
 truncEquivΩ {a = a} n = isoToEquiv (IsoFinal2 ∣ a ∣ ∣ a ∣)
+
+--------------------------
+
+
+truncOfTruncEq : (n m : ℕ) → ∥ A ∥ (-2+ n) ≃ ∥ ∥ A ∥ (-2+ (n + m)) ∥ (-2+ n)
+truncOfTruncEq {A = A} n m = isoToEquiv (iso fun funInv sect retr)
+  where
+  fun : ∥ A ∥ (-2+ n) → ∥ ∥ A ∥ (-2+ (n + m)) ∥ (-2+ n)
+  fun = elim (λ _ → isOfHLevel∥∥ (-2+ n)) λ a → ∣ ∣ a ∣ ∣
+  funInv : ∥ ∥ A ∥ (-2+ (n + m)) ∥ (-2+ n) → ∥ A ∥ (-2+ n)
+  funInv = elim (λ _ → isOfHLevel∥∥ (-2+ n))
+                (elim (λ _ → transport (λ i → isOfHLevel (+-comm n m (~ i)) (∥ A ∥ (-2+ n)))
+                                        (isOfHLevelPlus m (isOfHLevel∥∥ (-2+ n))))
+                      λ a → ∣ a ∣)
+
+  sect : section fun funInv
+  sect = elim (λ x → isOfHLevelPath n (isOfHLevel∥∥ (-2+ n)) _ _ )
+                  (elim (λ x → isOfHLevelPath (n + m) (transport (λ i → isOfHLevel (+-comm n m (~ i))
+                                                                                     (∥ ∥ A ∥ (-2+ (n + m)) ∥ (-2+ n)))
+                                                                  (isOfHLevelPlus m (isOfHLevel∥∥ (-2+ n)))) _ _ )
+                        λ a → refl)
+
+  retr : retract fun funInv
+  retr = elim (λ x → isOfHLevelPath n (isOfHLevel∥∥ (-2+ n)) _ _) λ a → refl

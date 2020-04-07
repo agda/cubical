@@ -5,6 +5,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.NatMinusTwo.Base
 open import Cubical.Data.Unit
@@ -21,12 +22,17 @@ is- n -ConnectedType A = isContr (∥ A ∥ n)
 is-_-ConnectedType2 : ∀ {ℓ} (n : ℕ₋₂) (A : Type ℓ) → Type ℓ
 is- n -ConnectedType2 A = is- n -Connected (λ (x : A) → tt)
 
+private
+  conTypEqHelper : ∀ {ℓ} (A : Type ℓ) (n : ℕ₋₂) (b : Unit) → A ≡ fiber (λ (x : A) → b) b
+  conTypEqHelper A n tt = isoToPath (iso (λ x → x , refl) (λ x → fst x) (λ b i → (refl {x = fst b} i) , ((isOfHLevelSuc 1 (isPropUnit) tt tt (snd b) refl) i)) λ a → refl)
+
 {- The first def implies the second -}
 conTyp→conTyp2 : ∀ {ℓ} (n : ℕ₋₂) (A : Type ℓ) → is- n -ConnectedType A → is- n -ConnectedType2 A
-conTyp→conTyp2 n A iscon tt = transport (λ i → isContr (∥ helper i ∥ n)) iscon
-  where
-  helper : A ≡ fiber (λ (x : A) → tt) tt
-  helper = isoToPath (iso (λ x → x , refl) (λ x → fst x) (λ b i → (refl {x = fst b} i) , ((isOfHLevelSuc 1 (isPropUnit) tt tt (snd b) refl) i)) λ a → refl)
+conTyp→conTyp2 n A iscon tt = transport (λ i → isContr (∥ conTypEqHelper A n tt i ∥ n)) iscon
+
+{- The second def implies the first -}
+conTyp2→conTyp : ∀ {ℓ} (n : ℕ₋₂) (A : Type ℓ) → is- n -ConnectedType2 A → is- n -ConnectedType A
+conTyp2→conTyp n A iscon = transport (λ i → isContr (∥ conTypEqHelper A n tt (~ i) ∥ n)) (iscon tt)
 
 {- n-truncated types -}
 is-_-Truncated : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
