@@ -27,26 +27,41 @@ rec : ∀ {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥ → P
 rec Pprop f ∣ x ∣ = f x
 rec Pprop f (squash x y i) = Pprop (rec Pprop f x) (rec Pprop f y) i
 
+elim : ∀ {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a))
+     → ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
+elim Pprop f ∣ x ∣ = f x
+elim Pprop f (squash x y i) =
+  isOfHLevel→isOfHLevelDep 1 Pprop
+    (elim Pprop f x) (elim Pprop f y) (squash x y) i
+
+elim2 : {P : ∥ A ∥ → ∥ A ∥ → Type ℓ}
+        (Bset : ((x y : ∥ A ∥) → isProp (P x y)))
+        (g : (a b : A) → P ∣ a ∣ ∣ b ∣)
+        (x y : ∥ A ∥) → P x y
+elim2 Pprop g = elim (λ _ → isPropPi (λ _ → Pprop _ _))
+                     (λ a → elim (λ _ → Pprop _ _) (g a))
+
+elim3 : {P : ∥ A ∥ → ∥ A ∥ → ∥ A ∥ → Type ℓ}
+        (Bset : ((x y z : ∥ A ∥) → isProp (P x y z)))
+        (g : (a b c : A) → P (∣ a ∣) ∣ b ∣ ∣ c ∣)
+        (x y z : ∥ A ∥) → P x y z
+elim3 Pprop g = elim2 (λ _ _ → isPropPi (λ _ → Pprop _ _ _))
+                      (λ a b → elim (λ _ → Pprop _ _ _) (g a b))
+
 propTruncIsProp : isProp ∥ A ∥
 propTruncIsProp x y = squash x y
 
-elim : ∀ {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a))
-  → ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
-elim Pprop f ∣ x ∣ = f x
-elim {A = A} {P = P} Pprop f (squash x y i) =
-  isOfHLevel→isOfHLevelDep 1 Pprop (elim Pprop f x) (elim Pprop f y) (squash x y) i
-
-propId : isProp A → ∥ A ∥ ≡ A
-propId {A = A} hA = isoToPath (iso (rec hA (idfun A)) (λ x → ∣ x ∣) (λ _ → refl) rinv)
+propTruncId : isProp A → ∥ A ∥ ≡ A
+propTruncId {A = A} hA = isoToPath (iso (rec hA (idfun A)) (λ x → ∣ x ∣) (λ _ → refl) rinv)
  where
-   rinv : ∀ (x : ∥ A ∥) → ∣ rec hA (idfun A) x ∣ ≡ x
-   rinv x = elim {P = λ x → ∣ rec hA (idfun A) x ∣ ≡ x}
-                         (λ _ → isProp→isSet propTruncIsProp _ _)
-                         (λ _ → refl) x
+   rinv : (x : ∥ A ∥) → ∣ rec hA (idfun A) x ∣ ≡ x
+   rinv = elim {P = λ x → ∣ rec hA (idfun A) x ∣ ≡ x}
+               (λ _ → isProp→isSet propTruncIsProp _ _)
+               (λ _ → refl)
 
 -- We could also define the eliminator using the recursor
 elim' : ∀ {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
-                 ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
+          ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
 elim' {P = P} Pprop f a =
   rec (Pprop a) (λ x → transp (λ i → P (squash ∣ x ∣ a i)) i0 (f x)) a
 
@@ -60,9 +75,8 @@ module SetElim (Bset : isSet B) where
   Bset' = isSet→isSet' Bset
 
   rec→Set : (f : A → B) (kf : 2-Constant f) → ∥ A ∥ → B
-  helper
-    : (f : A → B) (kf : 2-Constant f) → (t u : ∥ A ∥)
-    → rec→Set f kf t ≡ rec→Set f kf u
+  helper  : (f : A → B) (kf : 2-Constant f) → (t u : ∥ A ∥)
+          → rec→Set f kf t ≡ rec→Set f kf u
 
   rec→Set f kf ∣ x ∣ = f x
   rec→Set f kf (squash t u i) = helper f kf t u i

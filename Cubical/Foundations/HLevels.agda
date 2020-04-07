@@ -107,6 +107,12 @@ isPropIsOfHLevel (suc (suc n)) f g i a b =
 isPropIsSet : isProp (isSet A)
 isPropIsSet = isPropIsOfHLevel 2
 
+isPropIsGroupoid : isProp (isGroupoid A)
+isPropIsGroupoid = isPropIsOfHLevel 3
+
+isPropIs2Groupoid : isProp (is2Groupoid A)
+isPropIs2Groupoid = isPropIsOfHLevel 4
+
 -- Fillers for cubes from h-level
 
 isSet→isSet' : isSet A → isSet' A
@@ -224,8 +230,18 @@ isOfHLevelΣ {B = B} (suc (suc n)) h1 h2 x y =
                        (subst B p (snd x)) (snd y)
   in transport (λ i → isOfHLevel (suc n) (pathSigma≡sigmaPath x y (~ i))) h3
 
--- h-level of Π-types
+isSetΣ : isSet A → ((x : A) → isSet (B x)) → isSet (Σ[ x ∈ A ] B x)
+isSetΣ = isOfHLevelΣ 2
 
+isGroupoidΣ : isGroupoid A → ((x : A) → isGroupoid (B x)) →
+              isGroupoid (Σ[ x ∈ A ] B x)
+isGroupoidΣ = isOfHLevelΣ 3
+
+is2GroupoidΣ : is2Groupoid A → ((x : A) → is2Groupoid (B x)) →
+               is2Groupoid (Σ[ x ∈ A ] B x)
+is2GroupoidΣ = isOfHLevelΣ 4
+
+-- h-level of Π-types
 isOfHLevelPi
   : ∀ n
   → ((x : A) → isOfHLevel n (B x))
@@ -240,6 +256,12 @@ isPropPi = isOfHLevelPi 1
 
 isSetPi : ((x : A) → isSet (B x)) → isSet ((x : A) → B x)
 isSetPi = isOfHLevelPi 2
+
+isGroupoidPi : ((x : A) → isGroupoid (B x)) → isGroupoid ((x : A) → B x)
+isGroupoidPi = isOfHLevelPi 3
+
+is2GroupoidPi : ((x : A) → is2Groupoid (B x)) → is2Groupoid ((x : A) → B x)
+is2GroupoidPi = isOfHLevelPi 4
 
 isOfHLevelPi⁻ : ∀ {A : Type ℓ} {B : Type ℓ'} n
                 → isOfHLevel n (A → B)
