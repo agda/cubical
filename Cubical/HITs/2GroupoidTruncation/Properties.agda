@@ -50,13 +50,13 @@ elim3 : {B : (x y z : ∥ A ∥₂) → Type ℓ}
 elim3 gB g = elim2 (λ _ _ → is2GroupoidPi (λ _ → gB _ _ _))
                    (λ a b → elim (λ _ → gB _ _ _) (g a b))
 
-groupoidTrunc2Is2Groupoid : is2Groupoid ∥ A ∥₂
-groupoidTrunc2Is2Groupoid a b p q r s = squash₂ a b p q r s
+2GroupoidTruncIs2Groupoid : is2Groupoid ∥ A ∥₂
+2GroupoidTruncIs2Groupoid a b p q r s = squash₂ a b p q r s
 
-groupoidTrunc2Id : is2Groupoid A → ∥ A ∥₂ ≡ A
-groupoidTrunc2Id {A = A} hS = isoToPath (iso (rec hS (idfun A)) (λ x → ∣ x ∣₂)
+2GroupoidTruncId : is2Groupoid A → ∥ A ∥₂ ≡ A
+2GroupoidTruncId {A = A} hS = isoToPath (iso (rec hS (idfun A)) (λ x → ∣ x ∣₂)
                                        (λ _ → refl) rinv)
   where
   rinv : (b : ∥ A ∥₂) → ∣ rec hS (idfun A) b ∣₂ ≡ b
-  rinv = elim (λ x → isOfHLevelSuc 4 groupoidTrunc2Is2Groupoid ∣ rec hS _ x ∣₂ x)
+  rinv = elim (λ x → isOfHLevelSuc 4 2GroupoidTruncIs2Groupoid ∣ rec hS _ x ∣₂ x)
               (λ _ → refl)
