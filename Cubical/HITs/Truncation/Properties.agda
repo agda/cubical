@@ -266,13 +266,13 @@ private
          (λ _ → refl)
 
   enc-refl : {n : ℕ₋₂} (x : ∥ B ∥ (suc₋₂ n)) → encode-fun x x refl ≡ r x
-  enc-refl x j = transp (λ i → P x x) j (r x)
+  enc-refl x j = transp (λ _ → P x x) j (r x)
 
   {- decode-fun is a right-inverse -}
   P-rinv : {n : ℕ₋₂} (u v : ∥ B ∥  (suc₋₂ n)) (x : Path (∥ B ∥ (suc₋₂ n)) u v)
          → decode-fun u v (encode-fun u v x) ≡ x
   P-rinv u v = J (λ y p → decode-fun u y (encode-fun u y p) ≡ p)
-                 ((λ i → decode-fun u u (enc-refl u i)) ∙ dec-refl u)
+                 (cong (decode-fun u u) (enc-refl u) ∙ dec-refl u)
 
   {- decode-fun is a left-inverse -}
   P-linv : {n : ℕ₋₂} (u v : ∥ B ∥ (suc₋₂ n )) (x : P u v)
