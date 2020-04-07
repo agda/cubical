@@ -63,3 +63,20 @@ monoid-is-SNS = add-axioms-SNS raw-monoid-structure raw-monoid-iso
 
 MonoidPath : (M N : Monoids {ℓ}) → (M ≃[ monoid-iso ] N) ≃ (M ≡ N)
 MonoidPath M N = SIP monoid-structure monoid-iso monoid-is-SNS M N
+
+-- Added for groups
+-- If there exists a inverse of an element it is unique
+
+inv-lemma : (X : Type ℓ) (e : X) (_·_ : X → X → X)
+          → monoid-axioms X (e , _·_)
+          → (x y z : X)
+          → y · x ≡ e
+          → x · z ≡ e
+          → y ≡ z
+inv-lemma X e _·_ (is-set-X , assoc , runit , lunit) x y z left-inverse right-inverse =
+  y           ≡⟨ sym (runit y) ⟩
+  y · e       ≡⟨ cong (y ·_) (sym right-inverse) ⟩
+  y · (x · z) ≡⟨ assoc y x z ⟩
+  (y · x) · z ≡⟨ cong (_· z) left-inverse ⟩
+  e · z       ≡⟨ lunit z ⟩
+  z ∎
