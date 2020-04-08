@@ -26,14 +26,12 @@ unitl-++ : ∀ (xs : FMSet A) → [] ++ xs ≡ xs
 unitl-++ xs = refl
 
 unitr-++ : ∀ (xs : FMSet A) → xs ++ [] ≡ xs
-unitr-++ = ElimProp.f (trunc _ _)
-  refl
-  (λ x p → cong (_∷_ x) p)
+unitr-++ = ElimProp.f (trunc _ _) refl (λ x p → cong (_∷_ x) p)
 
 assoc-++ : ∀ (xs ys zs : FMSet A) → xs ++ (ys ++ zs) ≡ (xs ++ ys) ++ zs
-assoc-++ = ElimProp.f (isPropPi (λ _ → isPropPi (λ _ → trunc _ _)))
-  (λ ys zs → refl)
-  (λ x p ys zs → cong (_∷_ x) (p ys zs))
+assoc-++ = ElimProp.f (isPropΠ2 (λ _ _ → trunc _ _))
+                      (λ ys zs → refl)
+                      (λ x p ys zs → cong (_∷_ x) (p ys zs))
 
 cons-++ : ∀ (x : A) (xs : FMSet A) → x ∷ xs ≡ xs ++ [ x ]
 cons-++ x = ElimProp.f (trunc _ _)
@@ -41,7 +39,7 @@ cons-++ x = ElimProp.f (trunc _ _)
   (λ y {xs} p → comm x y xs ∙ cong (_∷_ y) p)
 
 comm-++ : ∀ (xs ys : FMSet A) → xs ++ ys ≡ ys ++ xs
-comm-++ = ElimProp.f (isPropPi (λ _ → trunc _ _))
+comm-++ = ElimProp.f (isPropΠ (λ _ → trunc _ _))
   (λ ys → sym (unitr-++ ys))
   (λ x {xs} p ys → cong (x ∷_) (p ys)
                  ∙ cong (_++ xs) (cons-++ x ys)
@@ -67,7 +65,7 @@ module FMSetUniversal {ℓ} {M : Type ℓ} (MSet : isSet M)
   f-extend-sing x = comm-⊗ (f x) e ∙ unit-⊗ (f x)
 
   f-extend-++ : ∀ xs ys → f-extend (xs ++ ys) ≡ f-extend xs ⊗ f-extend ys
-  f-extend-++ = ElimProp.f (isPropPi λ _ → MSet _ _)
+  f-extend-++ = ElimProp.f (isPropΠ λ _ → MSet _ _)
     (λ ys → sym (unit-⊗ (f-extend ys)))
     (λ x {xs} p ys → cong (f x ⊗_) (p ys) ∙ assoc-⊗ (f x) (f-extend xs) (f-extend ys))
 

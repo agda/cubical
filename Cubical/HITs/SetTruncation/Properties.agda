@@ -11,64 +11,66 @@ module Cubical.HITs.SetTruncation.Properties where
 open import Cubical.HITs.SetTruncation.Base
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Univalence
 
 private
   variable
     ℓ : Level
     A : Type ℓ
 
+rec : {B : Type ℓ} → isSet B → (A → B) → ∥ A ∥₀ → B
+rec Bset f ∣ x ∣₀ = f x
+rec Bset f (squash₀ x y p q i j) =
+  Bset _ _ (cong (rec Bset f) p) (cong (rec Bset f) q) i j
+
 -- lemma 6.9.1 in HoTT book
-elim : {B : ∥ A ∥₀ → Type ℓ} →
-  (Bset : (x : ∥ A ∥₀) → isSet (B x)) →
-  (g : (a : A) → B (∣ a ∣₀)) →
-  (x : ∥ A ∥₀) → B x
+elim : {B : ∥ A ∥₀ → Type ℓ}
+       (Bset : (x : ∥ A ∥₀) → isSet (B x))
+       (g : (a : A) → B (∣ a ∣₀))
+       (x : ∥ A ∥₀) → B x
 elim Bset g ∣ a ∣₀ = g a
-elim {A = A} {B = B} Bset g (squash₀ x y p q i j) =
+elim Bset g (squash₀ x y p q i j) =
   isOfHLevel→isOfHLevelDep 2 Bset _ _
     (cong (elim Bset g) p) (cong (elim Bset g) q) (squash₀ x y p q) i j
 
-setTruncUniversal : {B : Type ℓ} → (isSet B) → (∥ A ∥₀ → B) ≃ (A → B)
-setTruncUniversal Bset = isoToEquiv (iso intro out leftInv rightInv)
+setTruncUniversal : {B : Type ℓ} → isSet B → (∥ A ∥₀ → B) ≃ (A → B)
+setTruncUniversal {B = B} Bset =
+  isoToEquiv (iso (λ h x → h ∣ x ∣₀) (rec Bset) (λ _ → refl) rinv)
   where
-  intro = (λ h a → h ∣ a ∣₀)
-  out = elim (λ x → Bset)
-
-  leftInv : ∀ g → intro (out g) ≡ g
-  leftInv g = refl
-
-  rightInv : ∀ h → out (intro h) ≡ h
-  rightInv h i x =
-    elim (λ x → isProp→isSet (Bset (out (intro h) x) (h x))) (λ a → refl) x i
+  rinv : (f : ∥ A ∥₀ → B) → rec Bset (λ x → f ∣ x ∣₀) ≡ f
+  rinv f i x =
+    elim (λ x → isProp→isSet (Bset (rec Bset (λ x → f ∣ x ∣₀) x) (f x)))
+         (λ _ → refl) x i
 
 elim2 : {B : ∥ A ∥₀ → ∥ A ∥₀ → Type ℓ}
-  (Bset : ((x y : ∥ A ∥₀) → isSet (B x y)))
-  (g : (a b : A) → B ∣ a ∣₀ ∣ b ∣₀)
-  (x y : ∥ A ∥₀) → B x y
-elim2 Bset g =
-  elim (λ _ → isOfHLevelPi 2 (λ _ → Bset _ _))
-    (λ a → elim (λ _ → Bset _ _) (λ b → g a b))
+        (Bset : ((x y : ∥ A ∥₀) → isSet (B x y)))
+        (g : (a b : A) → B ∣ a ∣₀ ∣ b ∣₀)
+        (x y : ∥ A ∥₀) → B x y
+elim2 Bset g = elim (λ _ → isSetΠ (λ _ → Bset _ _))
+                    (λ a → elim (λ _ → Bset _ _) (g a))
 
 elim3 : {B : (x y z : ∥ A ∥₀) → Type ℓ}
-  (Bset : ((x y z : ∥ A ∥₀) → isSet (B x y z)))
-  (g : (a b c : A) → B ∣ a ∣₀ ∣ b ∣₀ ∣ c ∣₀)
-  (x y z : ∥ A ∥₀) → B x y z
-elim3 Bset g =
-  elim2 (λ _ _ → isOfHLevelPi 2 λ _ → Bset _ _ _)
-    (λ a b → elim (λ _ → Bset _ _ _) (λ c → g a b c))
+        (Bset : ((x y z : ∥ A ∥₀) → isSet (B x y z)))
+        (g : (a b c : A) → B ∣ a ∣₀ ∣ b ∣₀ ∣ c ∣₀)
+        (x y z : ∥ A ∥₀) → B x y z
+elim3 Bset g = elim2 (λ _ _ → isSetΠ (λ _ → Bset _ _ _))
+                     (λ a b → elim (λ _ → Bset _ _ _) (g a b))
 
 setTruncIsSet : isSet ∥ A ∥₀
 setTruncIsSet a b p q = squash₀ a b p q
 
-setId : isSet A → ∥ A ∥₀ ≡ A
-setId {A = A} isset =
-  isoToPath (iso (elim {A = A} (λ _ → isset) (λ x → x)) (λ x → ∣ x ∣₀) (λ b → refl) (λ b → idLemma b))
+setTruncIdempotent≃ : isSet A → ∥ A ∥₀ ≃ A
+setTruncIdempotent≃ {A = A} hA = isoToEquiv f
   where
-  idLemma : ∀ (b : ∥ A ∥₀) → ∣ elim (λ x → isset) (λ x → x) b ∣₀ ≡ b
-  idLemma b =
-    elim {B = (λ x → ∣ elim (λ _ → isset) (λ x → x) x ∣₀ ≡ x)}
-      (λ x → isOfHLevelSuc 2 (setTruncIsSet {A = A}) ∣ elim (λ _ → isset) (λ x₁ → x₁) x ∣₀ x)
-      (λ _ → refl)
-      b
+  f : Iso ∥ A ∥₀ A
+  Iso.fun f = rec hA (idfun A)
+  Iso.inv f x = ∣ x ∣₀
+  Iso.rightInv f _ = refl
+  Iso.leftInv f = elim (λ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ → refl)
+
+setTruncIdempotent : isSet A → ∥ A ∥₀ ≡ A
+setTruncIdempotent hA = ua (setTruncIdempotent≃ hA)
