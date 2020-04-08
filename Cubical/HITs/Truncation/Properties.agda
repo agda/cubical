@@ -159,11 +159,11 @@ isModalIsProp (HLevelTruncModality n) = isPropIsOfHLevel n
 ◯-elim-β      (HLevelTruncModality n) = λ _ _ _ → refl
 ◯-=-isModal   (HLevelTruncModality n) = isOfHLevelPath n (isOfHLevelTrunc n)
 
-idemTrunc : (n : ℕ) → isOfHLevel n A → A ≃ hLevelTrunc n A
-idemTrunc n hA = ∣_∣ , isModalToIsEquiv (HLevelTruncModality n) hA
+truncIdempotent≃ : (n : ℕ) → isOfHLevel n A → A ≃ hLevelTrunc n A
+truncIdempotent≃ n hA = ∣_∣ , isModalToIsEquiv (HLevelTruncModality n) hA
 
-truncId : (n : ℕ) → isOfHLevel n A → hLevelTrunc n A ≡ A
-truncId n hA = ua (invEquiv (idemTrunc n hA))
+truncIdempotent : (n : ℕ) → isOfHLevel n A → hLevelTrunc n A ≡ A
+truncIdempotent n hA = ua (invEquiv (truncIdempotent≃ n hA))
 
 -- equivalences to prop/set/groupoid truncations
 
