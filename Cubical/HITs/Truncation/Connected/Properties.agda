@@ -34,7 +34,7 @@ private
 isConnectedSubtr : (n m : ℕ) (f : A → B) → is- (-2+ (n + m)) -Connected f → is- (-2+ n) -Connected f
 isConnectedSubtr n m f iscon b = transport (λ i → isContr (ua (truncOfTruncEq {A = fiber f b} n m) (~ i) ))
                                            (∣ iscon b .fst ∣ ,
-                                             trElim (λ x → isOfHLevelPath n (isOfHLevel∥∥ (-2+ n)) _ _)
+                                             trElim (λ x → isOfHLevelPath n (isOfHLevelTrunc n) _ _)
                                                     λ a → cong ∣_∣ (iscon b .snd a))
 --
 

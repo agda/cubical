@@ -1337,7 +1337,7 @@ Thm8-6-4 {ℓ} {A} n a iscon {y = y} = J {ℓ} {Susp A} {north} (λ y p → (isC
   where
   mainId : (p : north ≡ north) (d : CODE a n iscon north p) →
            d ≡ c n a iscon north p
-  mainId p = elim (λ x → isOfHLevelSuc (suc (n + n)) (isOfHLevel∥∥ {A = fiber (λ y → σ a y) p} (ℕ→ℕ₋₂ (n + n)) x (c n a iscon north p)))
+  mainId p = elim (λ x → isOfHLevelSuc (suc (n + n)) (isOfHLevelTrunc {A = fiber (λ y → σ a y) p} (2 + (n + n)) x (c n a iscon north p)))
                  base
     where
     base : (x : fiber (λ y → σ a y) p) → ∣ x ∣ ≡ c n a iscon north p

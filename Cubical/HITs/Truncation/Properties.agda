@@ -164,8 +164,8 @@ elim3 {n = n} hB g =
     (λ a b → elim (λ _ → hB _ _ _) (λ c → g a b c))
 
 
--- ∥_∥-fun : ∀ {ℓ'} {B : Type ℓ'} (f : A → B) (n : ℕ₋₂) → ∥ A ∥ n → ∥ B ∥ n
--- ∥ f ∥-fun n = elim (λ _ → isOfHLevel∥∥ n) λ a → ∣ f a ∣
+∥_∥-fun : ∀ {ℓ'} {B : Type ℓ'} (f : A → B) (n : ℕ₋₂) → ∥ A ∥ n → ∥ B ∥ n
+∥ f ∥-fun n = elim (λ _ → isOfHLevelTrunc (2+ n)) λ a → ∣ f a ∣
 
 HLevelTruncModality : ∀ {ℓ} (n : ℕ) → Modality ℓ
 isModal       (HLevelTruncModality n) = isOfHLevel n
@@ -195,7 +195,7 @@ module univTrunc where
 
   retr : ∀ {ℓ} (n : ℕ₋₂) {B : HLevel ℓ (2+ n)} → retract {A = (∥ A ∥ n → (fst B))} {B = (A → (fst B))} (fun n {B}) (inv n {B})
   retr neg2 {B , lev} b = funExt λ x → sym ((snd lev) (elim (λ _ → lev) (λ a → b ∣ a ∣) x)) ∙ (snd lev) (b x)
-  retr (-1+ n) {B , lev} b = funExt (elim (λ x → (isOfHLevelSuc (2+ (-1+ n) ) lev) ((elim (λ _ → lev) (λ a → b ∣ a ∣) x)) (b x)) λ a → refl)
+  retr (-2+ suc n) {B , lev} b = funExt (elim (λ x → (isOfHLevelSuc (2+ (-2+ (suc n)) ) lev) ((elim (λ _ → lev) (λ a → b ∣ a ∣) x)) (b x)) λ a → refl)
 
   univTrunc : ∀ {ℓ} (n : ℕ₋₂) {B : HLevel ℓ (2+ n)} → (∥ A ∥ n → (fst B)) ≃ (A → (fst B))
   univTrunc n {B} = isoToEquiv (iso (fun n {B}) (inv n {B}) (sect n {B}) (retr n {B}))
@@ -372,19 +372,19 @@ truncOfTruncEq : (n m : ℕ) → ∥ A ∥ (-2+ n) ≃ ∥ ∥ A ∥ (-2+ (n + m
 truncOfTruncEq {A = A} n m = isoToEquiv (iso fun funInv sect retr)
   where
   fun : ∥ A ∥ (-2+ n) → ∥ ∥ A ∥ (-2+ (n + m)) ∥ (-2+ n)
-  fun = elim (λ _ → isOfHLevel∥∥ (-2+ n)) λ a → ∣ ∣ a ∣ ∣
+  fun = elim (λ _ → isOfHLevelTrunc n) λ a → ∣ ∣ a ∣ ∣
   funInv : ∥ ∥ A ∥ (-2+ (n + m)) ∥ (-2+ n) → ∥ A ∥ (-2+ n)
-  funInv = elim (λ _ → isOfHLevel∥∥ (-2+ n))
+  funInv = elim (λ _ → isOfHLevelTrunc n)
                 (elim (λ _ → transport (λ i → isOfHLevel (+-comm n m (~ i)) (∥ A ∥ (-2+ n)))
-                                        (isOfHLevelPlus m (isOfHLevel∥∥ (-2+ n))))
+                                        (isOfHLevelPlus m (isOfHLevelTrunc n )))
                       λ a → ∣ a ∣)
 
   sect : section fun funInv
-  sect = elim (λ x → isOfHLevelPath n (isOfHLevel∥∥ (-2+ n)) _ _ )
+  sect = elim (λ x → isOfHLevelPath n (isOfHLevelTrunc n) _ _ )
                   (elim (λ x → isOfHLevelPath (n + m) (transport (λ i → isOfHLevel (+-comm n m (~ i))
                                                                                      (∥ ∥ A ∥ (-2+ (n + m)) ∥ (-2+ n)))
-                                                                  (isOfHLevelPlus m (isOfHLevel∥∥ (-2+ n)))) _ _ )
+                                                                  (isOfHLevelPlus m (isOfHLevelTrunc n))) _ _ )
                         λ a → refl)
 
   retr : retract fun funInv
-  retr = elim (λ x → isOfHLevelPath n (isOfHLevel∥∥ (-2+ n)) _ _) λ a → refl
+  retr = elim (λ x → isOfHLevelPath n (isOfHLevelTrunc n) _ _) λ a → refl

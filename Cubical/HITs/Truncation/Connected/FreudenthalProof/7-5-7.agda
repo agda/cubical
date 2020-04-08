@@ -6,6 +6,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude
+open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.NatMinusTwo.Base
 open import Cubical.HITs.Nullification hiding (elim)
@@ -79,11 +80,11 @@ conInd-iii→i {A = A} {B = B} f n P→hasSection = λ b → (c n P→hasSection
   P n s b = ∥ fiber f b ∥ n
 
   c : (n : ℕ₋₂) → (∀ {ℓ} (P : B → HLevel ℓ (2+ n)) → hasSection (indConFun f P)) → (b : B) → ∥ fiber f b ∥ n
-  c n s = (s λ b → ( ∥ fiber f b ∥ n , isOfHLevel∥∥ _)) .fst λ a → ∣ a , refl ∣
+  c n s = (s λ b → ( ∥ fiber f b ∥ n , isOfHLevelTrunc _)) .fst λ a → ∣ a , refl ∣
 
   fun : (n : ℕ₋₂) → (s : (∀ {ℓ} (P : B → HLevel ℓ (2+ n)) → hasSection (indConFun f P))) → (b : B) (w : (∥ fiber f b ∥ n) ) → w ≡ c n s b
-  fun neg2 s b w = isOfHLevelSuc (2+ neg2) (isOfHLevel∥∥ neg2) w (c neg2 s b)
-  fun (-1+ n) s b = elim (λ x → (isOfHLevelSuc (2+ (-1+ n)) (isOfHLevel∥∥ {A = (fiber f b)} (-1+ n))) x (c (-1+ n) s b) ) (λ a → witness b (fst a) (snd a))
+  fun neg2 s b w = isOfHLevelSuc (2+ neg2) (isOfHLevelTrunc _) w (c neg2 s b)
+  fun (-1+ n) s b = elim (λ x → (isOfHLevelSuc (2+ (-1+ n)) (isOfHLevelTrunc {A = (fiber f b)} (suc n))) x (c (-1+ n) s b) ) (λ a → witness b (fst a) (snd a))
     where
     eqtyp : ((a : A) → ∣ (a , refl {x = f a}) ∣ ≡ c (-1+ n) s (f a)) ≡ ((b : B) (a : A) (p : f (a) ≡ b) → ∣ (a , p) ∣ ≡ c (-1+ n) s b)
     eqtyp = isoToPath (iso
@@ -96,7 +97,7 @@ conInd-iii→i {A = A} {B = B} f n P→hasSection = λ b → (c n P→hasSection
                          λ h → funExt λ a → JRefl (λ b₁ p → ∣ a , p ∣ ≡ c (-1+ n) s b₁) (h a))
 
     c* : ((a : A) → ∣ (a , refl {x = f a}) ∣ ≡ c (-1+ n) s (f a))
-    c* = λ a → sym (cong (λ x → x a) ((s λ b → ( ∥ fiber f b ∥ (-1+ n) , isOfHLevel∥∥ _)) .snd λ a → ∣ a , refl ∣))
+    c* = λ a → sym (cong (λ x → x a) ((s λ b → ( ∥ fiber f b ∥ (-1+ n) , isOfHLevelTrunc _)) .snd λ a → ∣ a , refl ∣))
 
     witness : ((b : B) (a : A) (p : f (a) ≡ b) → ∣ (a , p) ∣ ≡ c (-1+ n) s b)
     witness = transport (λ i → eqtyp i) c*

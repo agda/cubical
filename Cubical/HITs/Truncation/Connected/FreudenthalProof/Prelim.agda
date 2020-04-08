@@ -328,7 +328,7 @@ pairLemmaReflRefl = pairLemmaRefl refl ∙ λ i → pairLemma2Refl i ∙ lUnit r
 substComposite-∙ : ∀ {ℓ ℓ′} {A : Type ℓ} → (B : A → Type ℓ′)
                      → {x y z : A} (p : x ≡ y) (q : y ≡ z) (u : B x)
                      → subst B (p ∙ q) u ≡ subst B q (subst B p u)
-substComposite-∙ {A = A} B p q u = transport (λ i → subst B (□≡∙ p q i) u ≡ subst B q (subst B p u)) (substComposite-□ B p q u)
+substComposite-∙ = substComposite
 
 inv-rUnit : ∀ {ℓ} {A : Type ℓ} (x : A) → (λ i → rUnit (rUnit (λ _ → x) (~ i)) i ) ≡ refl
 inv-rUnit x = transport (λ i → PathP (λ j → (lCancel (λ k → (λ _ → x) ∙ (λ _ → x) ≡ rUnit (λ _ → x) k) i) j)

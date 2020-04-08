@@ -36,28 +36,28 @@ private
 
 {- We first need to show that (a variant of) the canceller function defined in FreudenthalProof.Prelim is an equivalence -}
 abstract
-  isEquivCancel : {a : A} (n : ℕ) (q : north ≡ south) →
+  isEquivCancel : ∀ {ℓ} {A : Type ℓ}{a : A} (n : ℕ) (q : north ≡ south) →
                    isEquiv {A = ∥ fiber (λ y → σ a y)
                            (q ∙ sym (merid a)) ∥ ℕ→ℕ₋₂ (n + n)}
                            {B = ∥ fiber merid q ∥ ℕ→ℕ₋₂ (n + n)}
-                           (elim (λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n)))
+                           (elim (λ _ → isOfHLevelTrunc (2 + (n + n) ))
                                 λ b → ∣ (fst b) , canceller (sym (merid a)) (merid (fst b)) q (snd b) ∣)
   isEquivCancel {a = a} n q = isoToEquiv (iso
-                                        ((elim (λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n))) λ b → ∣ (fst b) , canceller (sym (merid a)) (merid (fst b)) q (snd b) ∣))
-                                        (elim (λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n))) λ s → ∣ (fst s) , cancellerInv (λ i → (merid a) (~ i)) (merid (fst s)) q (snd s) ∣)
-                                        (λ b → elim {B = λ b → ((elim (λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n)))
+                                        ((elim (λ _ → isOfHLevelTrunc (2 + (n + n))) λ b → ∣ (fst b) , canceller (sym (merid a)) (merid (fst b)) q (snd b) ∣))
+                                        (elim (λ _ → isOfHLevelTrunc (2 + (n + n))) λ s → ∣ (fst s) , cancellerInv (λ i → (merid a) (~ i)) (merid (fst s)) q (snd s) ∣)
+                                        (λ b → elim {B = λ b → ((elim (λ _ → isOfHLevelTrunc (2 + (n + n)))
                                                                                         λ b → ∣ (fst b) , canceller (sym (merid a)) (merid (fst b)) q (snd b) ∣))
-                                                              ((elim (λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n)))
+                                                              ((elim (λ _ → isOfHLevelTrunc (2 + (n + n)))
                                                                                         λ s → ∣ (fst s) , cancellerInv (sym (merid a)) (merid (fst s)) q (snd s) ∣) b)
                                                          ≡ b}
-                                                   (λ x →  isOfHLevelSuc (suc (n + n)) (isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n)) _ x))
+                                                   (λ x →  isOfHLevelSuc _ (isOfHLevelTrunc (2 + (n + n)) _ x))
                                                    (λ b i → ∣ fst b , cancellerSection (sym (merid a)) (merid (fst b)) q (snd b) i ∣) b)
-                                         (λ b → elim {B = λ b → ((elim (λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n)))
+                                         (λ b → elim {B = λ b → ((elim (λ _ → isOfHLevelTrunc (2 + (n + n)))
                                                                                         λ b → ∣ (fst b) , cancellerInv (sym (merid a)) (merid (fst b)) q (snd b) ∣))
-                                                                ((elim (λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n)))
+                                                                ((elim (λ _ → isOfHLevelTrunc (2 + (n + n)))
                                                                                         λ s → ∣ (fst s) , canceller (sym (merid a)) (merid (fst s)) q (snd s) ∣) b)
                                                          ≡ b}
-                                                    (λ x → isOfHLevelSuc (suc (n + n)) (isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n)) _ x))
+                                                    (λ x → isOfHLevelSuc (suc (n + n)) (isOfHLevelTrunc (2 + (n + n)) _ x))
                                                     (λ b i → ∣ fst b , cancellerRetract (sym (merid a)) (merid (fst b)) q (snd b) i ∣) b)) .snd
 
 {- CODE will be defined by means of univalence applied to an equivalence
@@ -70,7 +70,7 @@ sufMap : (n : ℕ) (c a x₂ : A)
         ≡ (q ∙ sym (merid c)) → ∥ Σ A (λ x → merid x ≡ q) ∥ (ℕ→ℕ₋₂ (n + n))
 sufMap {A = A} n c a x₂ iscon q = Lemma8-6-2 (A , a) (A , a) n n iscon iscon
                                               (λ x₂ c → ((merid x₂  ∙ sym (merid a)) ≡ (q ∙ sym (merid c)) → ∥ Σ A (λ x → merid x ≡ q) ∥ (ℕ→ℕ₋₂ (n + n))) ,
-                                                         isOfHLevelPi (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n)))
+                                                         isOfHLevelPi (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevelTrunc (2 + (n + n)))
                                               (λ x r → ∣ x , canceller (sym (merid a)) (merid x) q r ∣)
                                               (λ x r → ∣ x , switcher (merid a) q (merid x) r ∣)
                                               (funExt (λ x i → ∣ (refl i) , ((switcherCancellerIdGeneral (merid a) q
@@ -81,7 +81,7 @@ sufMap {A = A} n c a x₂ iscon q = Lemma8-6-2 (A , a) (A , a) n n iscon iscon
 RlFun : (a c : A) (n : ℕ) → (iscon : is- (ℕ→ℕ₋₂ n) -ConnectedType A) → (q : north ≡ south) →
          (∥ fiber (λ y → σ a y) (q ∙ sym (merid c)) ∥ (ℕ→ℕ₋₂ (n + n))) →
          ∥ fiber merid q ∥ (ℕ→ℕ₋₂ (n + n))
-RlFun  a c n iscon  q = elim (λ x → isOfHLevel∥∥ ((ℕ→ℕ₋₂ (n + n))))
+RlFun  a c n iscon  q = elim (λ x → isOfHLevelTrunc ((2 + (n + n))))
                              λ r → sufMap n c a (fst r) iscon q (snd r)
 
 -------------
@@ -96,7 +96,7 @@ RlFunId {A = A} a n iscon q b = cong (λ x → x (snd b))
                                      (proj₁ (((Lemma8-6-2 (A , a) (A , a) n n iscon iscon
                                                           (λ x₂ c → (((merid x₂  ∙ sym (merid a))
                                                                      ≡ (q ∙ sym (merid c)) → ∥ Σ A (λ x → merid x ≡ q) ∥ (ℕ→ℕ₋₂ (n + n)) ) ,
-                                                                     isOfHLevelPi (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n))))
+                                                                     isOfHLevelPi (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevelTrunc (2 + (n + n))))
                                                           (λ x r → ∣ x , canceller (sym (merid a)) (merid x) q r ∣)
                                                           (λ b s → ∣ b , switcher (merid a) q (merid b) s ∣)
                                                           (funExt (λ x → λ j → ∣ (refl j) , (switcherCancellerIdGeneral (merid a) q
@@ -111,17 +111,17 @@ baseCase : (a : A) (n : ℕ)
             (q : north ≡ south) →
             isEquiv (RlFun a a n iscon q)
 baseCase {A = A} a n iscon q = transport (λ i → isEquiv (helper (~ i)))
-                                         (isEquivCancel n q)
+                                         (isEquivCancel n q )
   where
   helper : RlFun a a n iscon q
-         ≡ elim (λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n)))
+         ≡ elim (λ _ → isOfHLevelTrunc (2 + (n + n)))
                λ b → ∣ (fst b) , canceller (sym (merid a)) (merid (fst b)) q (snd b) ∣
   helper = funExt (elim {B = λ y → RlFun a a n iscon q y
-                                ≡ (elim (λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n)))
+                                ≡ (elim (λ _ → isOfHLevelTrunc (2 + (n + n)))
                                        λ b → ∣ (fst b) , canceller (sym (merid a)) (merid (fst b)) q (snd b) ∣) y }
-                  ((λ z y p → (isOfHLevelSuc (suc (n + n)) ((isOfHLevel∥∥ {A = (fiber merid q)} (ℕ→ℕ₋₂ (n + n)))
+                  ((λ z y p → (isOfHLevelSuc (suc (n + n)) ((isOfHLevelTrunc {A = (fiber merid q)} (2 + (n + n)))
                                                             (RlFun a a n iscon q z)
-                                                            ((elim (λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n)))
+                                                            ((elim (λ _ → isOfHLevelTrunc (2 + (n + n)))
                                                                   λ b → ∣ (fst b) , canceller (sym (merid a)) (merid (fst b))
                                                                                               q (snd b) ∣) z) )) y p))
                   (RlFunId a n iscon q))
@@ -211,7 +211,7 @@ sufMapId {A = A} n a x1 iscon = (proj₂ (Lemma8-6-2 (A , a) (A , a) n n iscon i
                                                     (λ x₂ c → ((merid x₂  ∙ sym (merid a))
                                                             ≡ ((merid x1) ∙ sym (merid c)) →
                                                               ∥ Σ A (λ x → merid x ≡ (merid x1)) ∥ (ℕ→ℕ₋₂ (n + n))) ,
-                                                              isOfHLevelPi (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n)))
+                                                              isOfHLevelPi (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevelTrunc (2 +  (n + n)))
                                                     (λ x r → ∣ x , canceller (sym (merid a)) (merid x) (merid x1) r ∣)
                                                     (λ x r → ∣ x , switcher (merid a) (merid x1) (merid x) r ∣)
                                                     (funExt (λ x i → ∣ (refl i) , ((switcherCancellerIdGeneral (merid a) (merid x1)
@@ -224,7 +224,7 @@ sufMapId2 :  (n : ℕ) (a x1 : A)
 sufMapId2 {A = A} n a x1 iscon i = (proj₁ (Lemma8-6-2 (A , a) (A , a) n n iscon iscon
                                                        (λ x₂ c → ((merid x₂  ∙ sym (merid a))
                                                                 ≡ ((merid x1) ∙ sym (merid c)) → ∥ Σ A (λ x → merid x ≡ (merid x1)) ∥ (ℕ→ℕ₋₂ (n + n))) ,
-                                                                 isOfHLevelPi (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (n + n)))
+                                                                 isOfHLevelPi (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevelTrunc (2 + (n + n)))
                                                        (λ x r → ∣ x , canceller (sym (merid a)) (merid x) (merid x1) r ∣)
                                                        (λ x r → ∣ x , switcher (merid a) (merid x1) (merid x) r ∣)
                                                        (funExt (λ x i → ∣ (refl i) , ((switcherCancellerIdGeneral (merid a) (merid x1)

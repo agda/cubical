@@ -7,6 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.NatMinusTwo.Base
+open import Cubical.Data.Nat hiding (elim)
 open import Cubical.HITs.Nullification hiding (elim)
 open import Cubical.HITs.Truncation.Base
 open import Cubical.HITs.Truncation.Properties
@@ -17,26 +18,27 @@ private
     A : Type ℓ
     B : Type ℓ'
 
+
 Lemma7-5-14 : (n : ℕ₋₂) (f : A → B) → (is- n -Connected f) → ∥ A ∥ n ≃ ∥ B ∥ n
-Lemma7-5-14 {A = A} {B = B} neg2 f c = isoToEquiv (iso (λ _ → fst (isOfHLevel∥∥ neg2))
-                                                       (λ _ → fst (isOfHLevel∥∥ neg2))
-                                                       (λ b → snd (isOfHLevel∥∥ neg2) b)
-                                                       (λ b → snd (isOfHLevel∥∥ neg2) b))
+Lemma7-5-14 {A = A} {B = B} neg2 f c = isoToEquiv (iso (λ _ → fst (isOfHLevelTrunc 0))
+                                                       (λ _ → fst (isOfHLevelTrunc 0))
+                                                       (λ b → snd (isOfHLevelTrunc 0) b)
+                                                       (λ b → snd (isOfHLevelTrunc 0) b))
 Lemma7-5-14 {A = A} {B = B} (-1+ n) f c = isoToEquiv (iso
                                           (∥ f ∥-fun (-1+ n))
-                                          (elim (λ _ → isOfHLevel∥∥ (-1+ n)) back)
-                                          (elim (λ x → (isOfHLevelSuc (2+ (-1+ n)) (isOfHLevel∥∥ (-1+ n))) _ _) backSection)
-                                          (elim (λ x → (isOfHLevelSuc (2+ (-1+ n)) (isOfHLevel∥∥ (-1+ n))) _ _) backRetract))
+                                          (elim (λ _ → isOfHLevelTrunc (suc n)) back)
+                                          (elim (λ x → (isOfHLevelSuc (suc n) (isOfHLevelTrunc (suc n))) _ _) backSection)
+                                          (elim (λ x → (isOfHLevelSuc (suc n) (isOfHLevelTrunc (suc n))) _ _) backRetract))
   where
   back :  B → ∥ A ∥ (-1+ n)
   back  y = ∥ fst ∥-fun (-1+ n) (fst (c y))
 
   backSection :  (b : B) → _≡_ {A = ∥ B ∥ (-1+ n)}
-                               (elim (λ _ → isOfHLevel∥∥ (-1+ n)) (λ a → ∣ f a ∣) (elim {n = (-1+ n)}
-                                                                                     {B = λ _ → ∥ A ∥ (-1+ n)} (λ _ → isOfHLevel∥∥ (-1+ n)) back ∣ b ∣))
+                               (elim (λ _ → isOfHLevelTrunc (suc n)) (λ a → ∣ f a ∣) (elim {n = suc n }
+                                                                                     {B = λ _ → ∥ A ∥ (-1+ n)} (λ _ → isOfHLevelTrunc (suc n)) back ∣ b ∣))
                                ∣ b ∣
   backSection b = helper {P = λ p → ∥ f ∥-fun (-1+ n) p ≡ ∣ b ∣}
-                         (λ x → (isOfHLevelSuc (2+ (-1+ n)) (isOfHLevel∥∥ (-1+ n)))
+                         (λ x → (isOfHLevelSuc (suc n) (isOfHLevelTrunc (suc n)))
                            (∥ f ∥-fun (-1+ n) (∥ fst ∥-fun (-1+ n) x)) ∣ b ∣)
                          (λ a p → cong (λ x → ∣ x ∣) p)
                          (fst (c b))

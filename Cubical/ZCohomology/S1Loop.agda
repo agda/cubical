@@ -99,7 +99,7 @@ Pr2310 {A = A} {B = B} {C = C} n f g iscon = elim.3→1 inr n λ P → (λ k →
 
 
 Pr242 : (n : ℕ) → is- (-1+ n) -ConnectedType (S₊ n)   
-Pr242 zero = ∣ north ∣ , (isOfHLevel∥∥ neg1 ∣ north ∣)
+Pr242 zero = ∣ north ∣ , (isOfHLevelTrunc 1 ∣ north ∣)
 Pr242 (suc n) = transport (λ i → is- ℕ→ℕ₋₂ n -ConnectedType (Susp≡Push {A = S₊ n} (~ i)))
                           (trivFunCon← {A = Pushout {A = S₊ n} (λ x → tt) λ x → tt} {a = inr tt } _
                                         (transport (λ i → is- (-1+ n) -Connected (mapsAgree (~ i)))
@@ -148,7 +148,7 @@ looper (negsuc (suc n)) = looper (negsuc n) ∙ sym (ϕ south north)
 {- The map of Kn≃ΩKn+1 is given as follows. -}
 Kn→ΩKn+1 : (n : ℕ) → coHomK n → typ (Ω (coHomK-ptd (suc n)))
 Kn→ΩKn+1 zero x = cong ∣_∣ (looper x)
-Kn→ΩKn+1 (suc n) = trElim (λ x → (isOfHLevel∥∥ (ℕ→ℕ₋₂ (suc (suc n))) ∣ north ∣ ∣ north ∣))
+Kn→ΩKn+1 (suc n) = trElim (λ x → (isOfHLevelTrunc (2 + (suc (suc n))) ∣ north ∣ ∣ north ∣))
                            λ a → cong ∣_∣ ((merid a) ∙ (sym (merid north)))
 
 {-
@@ -305,7 +305,7 @@ isEquivHelper2 : isOfHLevel 3 A → isEquiv {B = ∥ A ∥ 1} ∣_∣
 isEquivHelper2  ofHlevl =
                isoToIsEquiv (iso ∣_∣
                                  (trElim (λ _ → ofHlevl) (λ a → a))
-                                 (trElim {B = λ b → ∣ trElim (λ _ → ofHlevl) (λ a₁ → a₁) b ∣ ≡ b} (λ b → isOfHLevelSuc 3 (isOfHLevel∥∥ 1) ∣ trElim (λ _ → ofHlevl) (λ a₁ → a₁) b ∣ b) λ a → refl)
+                                 (trElim {B = λ b → ∣ trElim (λ _ → ofHlevl) (λ a₁ → a₁) b ∣ ≡ b} (λ b → isOfHLevelSuc 3 (isOfHLevelTrunc 3) ∣ trElim (λ _ → ofHlevl) (λ a₁ → a₁) b ∣ b) λ a → refl)
                                  λ b → refl)
 
 isEquivHelper : {a b : A} → isOfHLevel 3 A → isEquiv {B = _≡_ {A = ∥ A ∥ 1} ∣ a ∣ ∣ b ∣ } (cong ∣_∣)
@@ -316,14 +316,12 @@ d-map : typ (Ω ((Susp S¹) , north)) → S¹
 d-map p = subst HopfSuspS¹ p base
 
 d-mapId : (r : S¹) → d-map (ϕ base r) ≡ r
-d-mapId r = (λ i → subst HopfSuspS¹ (□≡∙ (merid r) (sym (merid base)) (~ i)) base) ∙
-            (substComposite-□ HopfSuspS¹ (merid r) (sym (merid base)) base) ∙
-            test r
+d-mapId r = substComposite HopfSuspS¹ (merid r) (sym (merid base)) base ∙
+            rotLemma r
   where
-  test : (r : S¹) → rot r base ≡ r
-  test base = refl
-  test (loop i) = refl
-
+  rotLemma : (r : S¹) → rot r base ≡ r
+  rotLemma base = refl
+  rotLemma (loop i) = refl
 
 S³≡SuspSuspS¹ : S³ ≡ Susp (Susp S¹)
 S³≡SuspSuspS¹ = S³≡SuspS² ∙ λ i → Susp (S²≡SuspS¹ i)
@@ -354,45 +352,22 @@ is1Connected-dmap (loop j) =
                                    (transport (λ i →  isContr (PathΩ {A = Susp (Susp S¹)} {a = north} (ℕ→ℕ₋₂ 1) i))
                                               (refl , isOfHLevelSuc 1 (isOfHLevelSuc 0 Pr242SpecCase) ∣ north ∣ ∣ north ∣ (λ _ → ∣ north ∣)))))
 
-d-equiv : isEquiv {A = ∥  typ (Ω (Susp S¹ , north)) ∥ (ℕ→ℕ₋₂ 1)} {B = ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (trElim (λ x → isOfHLevel∥∥ 1) λ x → ∣ d-map x ∣ )
+d-equiv : isEquiv {A = ∥  typ (Ω (Susp S¹ , north)) ∥ (ℕ→ℕ₋₂ 1)} {B = ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (trElim (λ x → isOfHLevelTrunc 3) λ x → ∣ d-map x ∣ )
 d-equiv = conEquiv (ℕ→ℕ₋₂ 1) d-map is1Connected-dmap .snd
 
-d-mapId2 : (λ (x : ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)) → (trElim {n = (ℕ→ℕ₋₂ 1)} {B = λ _ → ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (λ x → isOfHLevel∥∥ 1) λ x → ∣ d-map x ∣)
-                                             (trElim (λ _ → isOfHLevel∥∥ 1) (λ a → ∣ ϕ base a ∣) x)) ≡ λ x → x
-d-mapId2 = funExt (trElim (λ x → isOfHLevelSuc 2 (isOfHLevel∥∥ 1 ((trElim {n = (ℕ→ℕ₋₂ 1)} {B = λ _ → ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (λ x → isOfHLevel∥∥ 1) λ x → ∣ d-map x ∣) (trElim (λ _ → isOfHLevel∥∥ 1) (λ a → ∣ ϕ base a ∣) x)) x)) λ a i → ∣ d-mapId a i ∣)
+d-mapId2 : (λ (x : ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)) → (trElim {n = 3} {B = λ _ → ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (λ x → isOfHLevelTrunc 3) λ x → ∣ d-map x ∣)
+                                             (trElim (λ _ → isOfHLevelTrunc 3) (λ a → ∣ ϕ base a ∣) x)) ≡ λ x → x
+d-mapId2 = funExt (trElim (λ x → isOfHLevelSuc 2 (isOfHLevelTrunc 3 ((trElim {n = 3} {B = λ _ → ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (λ x → isOfHLevelTrunc 3) λ x → ∣ d-map x ∣) (trElim (λ _ → isOfHLevelTrunc 3) (λ a → ∣ ϕ base a ∣) x)) x)) λ a i → ∣ d-mapId a i ∣)
 
-isEquiv∣ϕ∣ : isEquiv {A = ∥ S¹ ∥ ℕ→ℕ₋₂ 1} (trElim (λ _ → isOfHLevel∥∥ 1) (λ a → ∣ ϕ base a ∣))
-isEquiv∣ϕ∣ = compToIdEquiv (trElim {n = (ℕ→ℕ₋₂ 1)} {B = λ _ → ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (λ x → isOfHLevel∥∥ 1) λ x → ∣ d-map x ∣)
-                          (trElim (λ _ → isOfHLevel∥∥ 1) (λ a → ∣ ϕ base a ∣))
+isEquiv∣ϕ∣ : isEquiv {A = ∥ S¹ ∥ ℕ→ℕ₋₂ 1} (trElim (λ _ → isOfHLevelTrunc 3) (λ a → ∣ ϕ base a ∣))
+isEquiv∣ϕ∣ = compToIdEquiv (trElim {n = 3} {B = λ _ → ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (λ x → isOfHLevelTrunc 3) λ x → ∣ d-map x ∣)
+                          (trElim (λ _ → isOfHLevelTrunc 3) (λ a → ∣ ϕ base a ∣))
                           d-mapId2
                           d-equiv
 
----
-
-S¹≡S1 : S₊ 1 ≡ S¹
-S¹≡S1 = (λ i → Susp (ua (Bool≃Susp⊥) (~ i))) ∙ sym S¹≡SuspBool
-
-S¹→S1 : S¹ → S₊ 1
-S¹→S1 x = SuspBool→S1 (S¹→SuspBool x)
-
-S1→S¹ : S₊ 1 → S¹
-S1→S¹ x = SuspBool→S¹ (S1→SuspBool x)
-
-S2→S² : S₊ 2 → S²
-S2→S² north = base
-S2→S² south = base
-S2→S² (merid a i) = SuspS¹→S² (merid (SuspBool→S¹ (S1→SuspBool a)) i)
-
-S²→S2 : S² → S₊ 2
-S²→S2 base = north
-S²→S2 (surf i i₁) = {!!}
-
-S2→SuspS¹ : S₊ 2 → Susp S¹
-S2→SuspS¹ x = S²→SuspS¹ (S2→S² x)
-
-S²≡S2 : S₊ 2 ≡ Susp S¹
-S²≡S2 i = Susp (S¹≡S1 i)
-
+---------------------------------
+-- We cheat when n = 1 and use J to prove the following lemmma.  There is an obvious dependent path between ϕ base and ϕ north. Since the first one is an equivalence, so is the other.
+-- 
 funTEST2 : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ} {C : (A : Type ℓ) (a1 : A) → Type ℓ'} (p : A ≡ B) (a : A) (b : B) →
             (transport p a ≡ b) →
             (f : (A : Type ℓ) →
@@ -408,15 +383,16 @@ funTEST2 {ℓ = ℓ}{A = A} {B = B} {C = C} =
                       isEquiv (f B b))
            λ a b trefl f is → transport (λ i → isEquiv (f A ((sym (transportRefl a) ∙ trefl) i))) is
 
+-----------------------------------------------------
 
-final : isEquiv {A = ∥ S₊ 1 ∥ 1} {B = ∥ typ (Ω (S₊ 2 , north)) ∥ 1} (trElim (λ _ → isOfHLevel∥∥ 1) (λ a → ∣ ϕ north a ∣))
-final = funTEST2 {A = S¹} (λ i → S¹≡S1 (~ i)) base north refl (λ A a1 → trElim (λ _ → isOfHLevel∥∥ 1) (λ a → ∣ ϕ a1 a ∣)) isEquiv∣ϕ∣
+final : isEquiv {A = ∥ S₊ 1 ∥ 1} {B = ∥ typ (Ω (S₊ 2 , north)) ∥ 1} (trElim (λ _ → isOfHLevelTrunc 3) (λ a → ∣ ϕ north a ∣))
+final = funTEST2 {A = S¹} (λ i → S¹≡S1 (~ i)) base north refl (λ A a1 → trElim (λ _ → isOfHLevelTrunc 3) (λ a → ∣ ϕ a1 a ∣)) isEquiv∣ϕ∣
 
-Kn→ΩKn+1Sucn : (n : ℕ) → Kn→ΩKn+1 (suc n) ≡ λ x → truncEquivΩ (ℕ→ℕ₋₂ (suc n)) .fst (trElim (λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (suc n))) (λ a → ∣ ϕ north a ∣) x)
+Kn→ΩKn+1Sucn : (n : ℕ) → Kn→ΩKn+1 (suc n) ≡ λ x → truncEquivΩ (ℕ→ℕ₋₂ (suc n)) .fst (trElim (λ _ → isOfHLevelTrunc (3 + n)) (λ a → ∣ ϕ north a ∣) x)
 Kn→ΩKn+1Sucn n = funExt (trElim (λ x → isOfHLevelSuc (suc (suc n))
-                                                       ((isOfHLevel∥∥ (ℕ→ℕ₋₂ (suc (suc n))) ∣ north ∣ ∣ north ∣)
+                                                       ((isOfHLevelTrunc ( 2 + (suc (suc n))) ∣ north ∣ ∣ north ∣)
                                                                      (Kn→ΩKn+1 (suc n) x)
-                                                                     (truncEquivΩ (ℕ→ℕ₋₂ (suc n)) .fst (trElim (λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (suc n))) (λ a → ∣ ϕ north a ∣) x))))
+                                                                     (truncEquivΩ (ℕ→ℕ₋₂ (suc n)) .fst (trElim (λ _ → isOfHLevelTrunc (2 + (suc n))) (λ a → ∣ ϕ north a ∣) x))))
                                  λ a → refl)
 
 
@@ -434,7 +410,7 @@ isEquivKn→ΩKn+1 zero = compEquiv (looper , isEquivLooper) (cong ∣_∣ , isE
            (λ i → transp (λ j → S¹≡SuspBool (~ j ∨ ~ i)) (~ i) (transport (sym (ua S1≃SuspBool)) x) ≡ transp (λ j → S¹≡SuspBool (~ j ∨ ~ i)) (~ i) (transport (sym (ua S1≃SuspBool)) x)) ∙
            basedΩS¹≡Int (transport (sym S¹≡SuspBool) (transport (sym (ua S1≃SuspBool)) x))
 isEquivKn→ΩKn+1 (suc zero) = transport (λ i → isEquiv (Kn→ΩKn+1Sucn zero (~ i)))
-                                        (compEquiv (trElim (λ _ → isOfHLevel∥∥ (ℕ→ℕ₋₂ (suc zero))) (λ a → ∣ ϕ north a ∣) ,
+                                        (compEquiv (trElim (λ _ → isOfHLevelTrunc (2 + (suc zero))) (λ a → ∣ ϕ north a ∣) ,
                                                      final)
                                                    (truncEquivΩ (ℕ→ℕ₋₂ (suc zero))) .snd)
 isEquivKn→ΩKn+1 (suc (suc n)) = transport (λ i → isEquiv (Kn→ΩKn+1Sucn (suc n) (~ i)))
