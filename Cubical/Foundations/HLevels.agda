@@ -27,9 +27,11 @@ open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' ℓ''' : Level
     A : Type ℓ
     B : A → Type ℓ
+    C : (x : A) → B x → Type ℓ''
+    D : (x : A) (y : B x) → C x y → Type ℓ''
     x y : A
     n : ℕ
 
@@ -212,6 +214,9 @@ isContrΣ {A = A} {B = B} (a , p) q =
 isPropΣ : isProp A → ((x : A) → isProp (B x)) → isProp (Σ A B)
 isPropΣ pA pB t u = ΣProp≡ pB (pA (t .fst) (u .fst))
 
+isProp×Σ : {A : Type ℓ} {B : Type ℓ'} → isProp A → isProp B → isProp (Σ A λ _ → B)
+isProp×Σ pA pB = isPropΣ pA λ _ → pB
+
 isOfHLevelΣ : ∀ n → isOfHLevel n A → ((x : A) → isOfHLevel n (B x))
                   → isOfHLevel n (Σ A B)
 isOfHLevelΣ 0 = isContrΣ
@@ -241,6 +246,14 @@ isOfHLevelΠ (suc (suc n)) h f g =
 
 isPropΠ : (h : (x : A) → isProp (B x)) → isProp ((x : A) → B x)
 isPropΠ = isOfHLevelΠ 1
+
+isPropΠ2 : (h : (x : A) (y : B x) → isProp (C x y))
+         → isProp ((x : A) (y : B x) → C x y)
+isPropΠ2 h = isPropΠ λ x → isPropΠ λ y → h x y
+
+isPropΠ3 : (h : (x : A) (y : B x) (z : C x y) → isProp (D x y z))
+         → isProp ((x : A) (y : B x) (z : C x y) → D x y z)
+isPropΠ3 h = isPropΠ λ x → isPropΠ λ y → isPropΠ λ z → h x y z
 
 isSetΠ : ((x : A) → isSet (B x)) → isSet ((x : A) → B x)
 isSetΠ = isOfHLevelΠ 2

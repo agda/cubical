@@ -118,7 +118,7 @@ module ⊕* (X : 2-EltType₀) where
 
   comm : (y z : typ X) → y ⊕* z ≡ z ⊕* y
   comm = elim (λ A _⊕'_ → (x y : A) → x ⊕' y ≡ y ⊕' x)
-              (λ _ _ → isPropΠ (λ _ → isPropΠ (λ _ → isSetBool _ _)))
+              (λ _ _ → isPropΠ2 (λ _ _ → isSetBool _ _))
               ⊕-comm
 
   isEquivˡ : (y : typ X) → isEquiv (_⊕* y)

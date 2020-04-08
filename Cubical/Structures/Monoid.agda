@@ -51,11 +51,9 @@ monoid-axioms-are-Props : (X : Type ℓ) (s : raw-monoid-structure X) → isProp
 monoid-axioms-are-Props X (e , _·_) s = β s
    where
    α = s .fst
-   -- TODO: it would be nice to have versions of this lemmas for higher arities
-   β =     isPropΣ isPropIsSet
-     λ _ → isPropΣ (isPropΠ (λ x → isPropΠ (λ y → isPropΠ (λ z → α (x · (y · z)) ((x · y) · z)))))
-     λ _ → isPropΣ (isPropΠ (λ x → α (x · e) x))
-     λ _ →          isPropΠ (λ x → α (e · x) x)
+   β = isProp×Σ isPropIsSet
+      (isProp×Σ (isPropΠ3 (λ x y z → α (x · (y · z)) ((x · y) · z)))
+      (isProp×Σ (isPropΠ (λ x → α (x · e) x)) (isPropΠ (λ x → α (e · x) x))))
 
 monoid-is-SNS : SNS {ℓ} monoid-structure monoid-iso
 monoid-is-SNS = add-axioms-SNS raw-monoid-structure raw-monoid-iso

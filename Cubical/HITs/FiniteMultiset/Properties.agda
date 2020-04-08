@@ -23,14 +23,12 @@ unitl-++ : ∀ (xs : FMSet A) → [] ++ xs ≡ xs
 unitl-++ xs = refl
 
 unitr-++ : ∀ (xs : FMSet A) → xs ++ [] ≡ xs
-unitr-++ = ElimProp.f (trunc _ _)
-  refl
-  (λ x p → cong (_∷_ x) p)
+unitr-++ = ElimProp.f (trunc _ _) refl (λ x p → cong (_∷_ x) p)
 
 assoc-++ : ∀ (xs ys zs : FMSet A) → xs ++ (ys ++ zs) ≡ (xs ++ ys) ++ zs
-assoc-++ = ElimProp.f (isPropΠ (λ _ → isPropΠ (λ _ → trunc _ _)))
-  (λ ys zs → refl)
-  (λ x p ys zs → cong (_∷_ x) (p ys zs))
+assoc-++ = ElimProp.f (isPropΠ2 (λ _ _ → trunc _ _))
+                      (λ ys zs → refl)
+                      (λ x p ys zs → cong (_∷_ x) (p ys zs))
 
 cons-++ : ∀ (x : A) (xs : FMSet A) → x ∷ xs ≡ xs ++ [ x ]
 cons-++ x = ElimProp.f (trunc _ _)
