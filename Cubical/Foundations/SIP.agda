@@ -77,17 +77,19 @@ SNS-PathP→SNS-≡ S ι θ {X = X} s t = ι (X , s) (X , t) (idEquiv X)        
 
 
 SNS-≡→SNS-PathP : (ι : StrIso S ℓ₃) → SNS-≡ S ι → SNS-PathP S ι
-SNS-≡→SNS-PathP {S = S} ι θ {A = A} {B = B} e = EquivJ P C (typ B) (typ A) e (str B) (str A)
+SNS-≡→SNS-PathP {S = S} ι θ {A = A} {B = B} e = EquivJ P C e (str A) (str B)
   where
-   P : (X Y : Type _) → Y ≃ X → Type _
-   P X Y e' = (s : S X) (t : S Y) → ι (Y , t) (X , s) e' ≃ PathP (λ i → S (ua e' i)) t s
+   Y = typ B
 
-   C : (X : Type _) → (s t : S X) → ι (X , t) (X , s) (idEquiv X) ≃ PathP (λ i → S (ua (idEquiv X) i)) t s
-   C X s t = ι (X , t) (X , s) (idEquiv X)           ≃⟨ θ t s ⟩
-             t ≡ s                                   ≃⟨ ψ ⟩
-             PathP (λ i → S (ua (idEquiv X) i)) t s  ■
+   P : (X : Type _) → X ≃ Y → Type _
+   P X e' = (s : S X) (t : S Y) → ι (X , s) (Y , t) e' ≃ PathP (λ i → S (ua e' i)) s t
+
+   C : (s t : S Y) → ι (Y , s) (Y , t) (idEquiv Y) ≃ PathP (λ i → S (ua (idEquiv Y) i)) s t
+   C s t = ι (Y , s) (Y , t) (idEquiv Y)           ≃⟨ θ s t ⟩
+           s ≡ t                                   ≃⟨ ψ ⟩
+           PathP (λ i → S (ua (idEquiv Y) i)) s t  ■
     where
-     ψ = transportEquiv λ j → PathP (λ i → S (uaIdEquiv {A = X} (~ j) i)) t s
+     ψ = transportEquiv λ j → PathP (λ i → S (uaIdEquiv {A = Y} (~ j) i)) s t
 
 
 -- We can now directly define an invertible function

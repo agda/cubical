@@ -102,3 +102,14 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
               ; (j = i1) → link y x (i ∧ ~ k)
               })
           (downleft x y i j)
+
+homotopySymInv : ∀ {ℓ} {A : Type ℓ} {f : A → A} (p : ∀ a → f a ≡ a)
+  (a : A) → Path (f a ≡ f a) (λ i → p (p a (~ i)) i) refl
+homotopySymInv {f = f} p a j i =
+  hcomp
+    (λ k → λ {
+      (i = i0) → f a;
+      (i = i1) → p a (j ∧ ~ k);
+      (j = i0) → p (p a (~ i)) i;
+      (j = i1) → p a (i ∧ ~ k)})
+    (p (p a (~ i ∨ j)) i)

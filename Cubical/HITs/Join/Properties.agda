@@ -39,7 +39,7 @@ joinPushout-iso-join A B = iso joinPushout→join join→joinPushout join→join
     joinPushout→join : joinPushout A B → join A B
     joinPushout→join (inl x) = inl x
     joinPushout→join (inr x) = inr x
-    joinPushout→join (push y i) = push (proj₁ y) (proj₂ y) i
+    joinPushout→join (push x i) = push (proj₁ x) (proj₂ x) i
 
     join→joinPushout : join A B → joinPushout A B
     join→joinPushout (inl x) = inl x
@@ -179,12 +179,12 @@ join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
         H1 : (x : 3x3-span.A□2 span) → proj₁ (A□2→A×join x) ≡ A□0→A (3x3-span.f□1 span x)
         H1 (inl (a , b)) = refl
         H1 (inr (a , c)) = refl
-        H1 (push (a , (b , c)) i) j = A□0→A (doubleCompPath-filler refl (λ i → push (a , c) i) refl i j)
+        H1 (push (a , (b , c)) i) j = A□0→A (doubleCompPath-filler refl (λ i → push (a , c) i) refl j i)
 
         H2 : (x : 3x3-span.A□2 span) → proj₂ (A□2→A×join x) ≡ fst (joinPushout≃join _ _) (3x3-span.f□3 span x)
         H2 (inl (a , b)) = refl
         H2 (inr (a , c)) = refl
-        H2 (push (a , (b , c)) i) j = fst (joinPushout≃join _ _) (doubleCompPath-filler refl (λ i → push (b , c) i) refl i j)
+        H2 (push (a , (b , c)) i) j = fst (joinPushout≃join _ _) (doubleCompPath-filler refl (λ i → push (b , c) i) refl j i)
 
     -- the second span appearing in 3x3 lemma
     sp3 : 3-span
@@ -261,12 +261,12 @@ join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
         H3 : (x : 3x3-span.A2□ span) → proj₂ (A2□→join×C x) ≡ A4□→C (3x3-span.f3□ span x)
         H3 (inl (a , c)) = refl
         H3 (inr (b , c)) = refl
-        H3 (push (a , (b , c)) i) j = A4□→C (doubleCompPath-filler refl (λ i → push (a , c) i) refl i j)
+        H3 (push (a , (b , c)) i) j = A4□→C (doubleCompPath-filler refl (λ i → push (a , c) i) refl j i)
 
         H4 : (x : 3x3-span.A2□ span) → proj₁ (A2□→join×C x) ≡ fst (joinPushout≃join _ _) (3x3-span.f1□ span x)
         H4 (inl (a , c)) = refl
         H4 (inr (b , c)) = refl
-        H4 (push (a , (b , c)) i) j = fst (joinPushout≃join _ _) (doubleCompPath-filler refl (λ i → push (a , b) i) refl i j)
+        H4 (push (a , (b , c)) i) j = fst (joinPushout≃join _ _) (doubleCompPath-filler refl (λ i → push (a , b) i) refl j i)
 
 {-
   Direct proof of an associativity-related property. Combined with

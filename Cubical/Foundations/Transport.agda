@@ -66,13 +66,13 @@ isSet-subst : ∀ {ℓ ℓ′} {A : Type ℓ} {B : A → Type ℓ′}
 isSet-subst {B = B} isSet-A p x = subst (λ p′ → subst B p′ x ≡ x) (isSet-A _ _ refl p) (substRefl {B = B} x)
 
 -- substituting along a composite path is equivalent to substituting twice
-substComposite-□ : ∀ {ℓ ℓ′} {A : Type ℓ} → (B : A → Type ℓ′)
-                     → {x y z : A} (p : x ≡ y) (q : y ≡ z) (u : B x)
-                     → subst B (p □ q) u ≡ subst B q (subst B p u)
-substComposite-□ B p q Bx = sym (substRefl {B = B} _) ∙ helper where
+substComposite : ∀ {ℓ ℓ′} {A : Type ℓ} → (B : A → Type ℓ′)
+                   → {x y z : A} (p : x ≡ y) (q : y ≡ z) (u : B x)
+                   → subst B (p ∙ q) u ≡ subst B q (subst B p u)
+substComposite B p q Bx = sym (substRefl {B = B} _) ∙ helper where
   compSq : I → I → _
-  compSq = compPath'-filler p q
-  helper : subst B refl (subst B (p □ q) Bx) ≡ subst B q (subst B p Bx)
+  compSq j i = compPath-filler' p q j i
+  helper : subst B refl (subst B (p ∙ q) Bx) ≡ subst B q (subst B p Bx)
   helper i = subst B (λ k → compSq (~ i ∧ ~ k) (~ i ∨ k)) (subst B (λ k → compSq (~ i ∨ ~ k) (~ i ∧ k)) Bx)
 
 -- substitution commutes with morphisms in slices
