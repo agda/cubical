@@ -25,6 +25,8 @@ predInt (negsuc n)    = negsuc (suc n)
 
 -- Natural number and negative integer literals for Int
 
+open import Cubical.Data.Nat.Literals public
+
 instance
   fromNatInt : HasFromNat Int
   fromNatInt = record { Constraint = λ _ → Unit ; fromNat = λ n → pos n }

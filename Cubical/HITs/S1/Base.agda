@@ -9,6 +9,7 @@ module Cubical.HITs.S1.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
@@ -308,14 +309,7 @@ rotIsEquiv (loop i) = isPropFamS¹ (λ x → isEquiv (rot x))
 -- more direct definition of the rot (loop i) equivalence
 
 rotLoopInv : (a : S¹) → PathP (λ i → rotLoop (rotLoop a (~ i)) i ≡ a) refl refl
-rotLoopInv a i j =
-  hcomp
-    (λ k → λ {
-      (i = i0) → a;
-      (i = i1) → rotLoop a (j ∧ ~ k);
-      (j = i0) → rotLoop (rotLoop a (~ i)) i;
-      (j = i1) → rotLoop a (i ∧ ~ k)})
-    (rotLoop (rotLoop a (~ i ∨ j)) i)
+rotLoopInv a i j = homotopySymInv rotLoop a j i
 
 rotLoopEquiv : (i : I) → S¹ ≃ S¹
 rotLoopEquiv i =

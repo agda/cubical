@@ -12,10 +12,11 @@ open import Cubical.HITs.Sn
 open import Cubical.Data.Empty
 open import Cubical.HITs.Susp
 
-import Cubical.HITs.PropositionalTruncation as T₋₁
-import Cubical.HITs.SetTruncation as T₀
-import Cubical.HITs.GroupoidTruncation as T₁
-import Cubical.HITs.2GroupoidTruncation as T₂
+open import Cubical.HITs.PropositionalTruncation as PropTrunc
+  renaming (∥_∥ to ∥_∥₋₁; ∣_∣ to ∣_∣₋₁; squash to squash₋₁) using ()
+open import Cubical.HITs.SetTruncation       as SetTrunc  using (∥_∥₀; ∣_∣₀; squash₀)
+open import Cubical.HITs.GroupoidTruncation  as GpdTrunc  using (∥_∥₁; ∣_∣₁; squash₁)
+open import Cubical.HITs.2GroupoidTruncation as 2GpdTrunc using (∥_∥₂; ∣_∣₂; squash₂)
 
 private
   variable
@@ -143,38 +144,38 @@ idemTrunc {A = A} n hA = isoToEquiv (iso f g f-g g-f)
   g-f : ∀ x → g (f x) ≡ x
   g-f = ind (λ _ → isOfHLevelPath (1 + 1+ n) (isOfHLevel∥∥ n) _ _) (λ _ → refl)
 
-propTrunc≃Trunc-1 : T₋₁.∥ A ∥ ≃ ∥ A ∥ -1
+propTrunc≃Trunc-1 : ∥ A ∥₋₁ ≃ ∥ A ∥ -1
 propTrunc≃Trunc-1 =
   isoToEquiv
     (iso
-      (T₋₁.elim (λ _ → isOfHLevel∥∥ -1) ∣_∣)
-      (ind (λ _ → T₋₁.squash) T₋₁.∣_∣)
+      (PropTrunc.elim (λ _ → isOfHLevel∥∥ -1) ∣_∣)
+      (ind (λ _ → squash₋₁) ∣_∣₋₁)
       (ind (λ _ → isOfHLevelPath 1 (isOfHLevel∥∥ -1) _ _) (λ _ → refl))
-      (T₋₁.elim (λ _ → isOfHLevelPath 1 T₋₁.squash _ _) (λ _ → refl)))
+      (PropTrunc.elim (λ _ → isOfHLevelPath 1 squash₋₁ _ _) (λ _ → refl)))
 
-setTrunc≃Trunc0 : T₀.∥ A ∥₀ ≃ ∥ A ∥ 0
+setTrunc≃Trunc0 : ∥ A ∥₀ ≃ ∥ A ∥ 0
 setTrunc≃Trunc0 =
   isoToEquiv
     (iso
-      (T₀.elim (λ _ → isOfHLevel∥∥ 0) ∣_∣)
-      (ind (λ _ → T₀.squash₀) T₀.∣_∣₀)
+      (SetTrunc.elim (λ _ → isOfHLevel∥∥ 0) ∣_∣)
+      (ind (λ _ → squash₀) ∣_∣₀)
       (ind (λ _ → isOfHLevelPath 2 (isOfHLevel∥∥ 0) _ _) (λ _ → refl))
-      (T₀.elim (λ _ → isOfHLevelPath 2 T₀.squash₀ _ _) (λ _ → refl)))
+      (SetTrunc.elim (λ _ → isOfHLevelPath 2 squash₀ _ _) (λ _ → refl)))
 
-groupoidTrunc≃Trunc1 : T₁.∥ A ∥₁ ≃ ∥ A ∥ 1
+groupoidTrunc≃Trunc1 : ∥ A ∥₁ ≃ ∥ A ∥ 1
 groupoidTrunc≃Trunc1 =
   isoToEquiv
     (iso
-      (T₁.elim (λ _ → isOfHLevel∥∥ 1) ∣_∣)
-      (ind (λ _ → T₁.squash₁) T₁.∣_∣₁)
+      (GpdTrunc.elim (λ _ → isOfHLevel∥∥ 1) ∣_∣)
+      (ind (λ _ → squash₁) ∣_∣₁)
       (ind (λ _ → isOfHLevelPath 3 (isOfHLevel∥∥ 1) _ _) (λ _ → refl))
-      (T₁.elim (λ _ → isOfHLevelPath 3 T₁.squash₁ _ _) (λ _ → refl)))
+      (GpdTrunc.elim (λ _ → isOfHLevelPath 3 squash₁ _ _) (λ _ → refl)))
 
-2GroupoidTrunc≃Trunc2 : T₂.∥ A ∥₂ ≃ ∥ A ∥ 2
+2GroupoidTrunc≃Trunc2 : ∥ A ∥₂ ≃ ∥ A ∥ 2
 2GroupoidTrunc≃Trunc2 =
   isoToEquiv
     (iso
-      (T₂.elim (λ _ → isOfHLevel∥∥ 2) ∣_∣)
-      (ind (λ _ → T₂.squash₂) T₂.∣_∣₂)
+      (2GpdTrunc.elim (λ _ → isOfHLevel∥∥ 2) ∣_∣)
+      (ind (λ _ → squash₂) ∣_∣₂)
       (ind (λ _ → isOfHLevelPath 4 (isOfHLevel∥∥ 2) _ _) (λ _ → refl))
-      (T₂.elim (λ _ → isOfHLevelPath 4 T₂.squash₂ _ _) (λ _ → refl)))
+      (2GpdTrunc.elim (λ _ → isOfHLevelPath 4 squash₂ _ _) (λ _ → refl)))

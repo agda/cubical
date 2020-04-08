@@ -22,8 +22,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 
-open import Cubical.Core.Glue public
-  using ( isEquiv ; equiv-proof ; _≃_ ; equivFun ; equivProof )
+open import Cubical.Foundations.Equiv.Base public
 
 private
   variable
@@ -43,13 +42,6 @@ equivCtrPath : ∀ {A : Type ℓ} {B : Type ℓ'} (e : A ≃ B) (y : B) →
   (v : fiber (equivFun e) y) → Path _ (equivCtr e y) v
 equivCtrPath e y = e .snd .equiv-proof y .snd
 
--- The identity equivalence
-idIsEquiv : ∀ (A : Type ℓ) → isEquiv (idfun A)
-equiv-proof (idIsEquiv A) y =
-  ((y , refl) , λ z i → z .snd (~ i) , λ j → z .snd (~ i ∨ j))
-
-idEquiv : ∀ (A : Type ℓ) → A ≃ A
-idEquiv A = (idfun A , idIsEquiv A)
 
 -- Proof using isPropIsContr. This is slow and the direct proof below is better
 
@@ -120,13 +112,9 @@ PropEquiv→Equiv Aprop Bprop f g = isoToEquiv (iso f g (λ b → Bprop (f (g b)
 
 homotopyNatural : {f g : A → B} (H : ∀ a → f a ≡ g a) {x y : A} (p : x ≡ y) →
                   H x ∙ cong g p ≡ cong f p ∙ H y
-homotopyNatural H p = homotopyNatural' H p ∙ □≡∙ _ _
-  where
-  homotopyNatural' : {f g : A → B} (H : ∀ a → f a ≡ g a) {x y : A} (p : x ≡ y) →
-                     H x ∙ cong g p ≡ cong f p □ H y
-  homotopyNatural' {f = f} {g = g} H {x} {y} p i j =
+homotopyNatural {f = f} {g = g} H {x} {y} p i j =
     hcomp (λ k → λ { (i = i0) → compPath-filler (H x) (cong g p) k j
-                   ; (i = i1) → compPath'-filler (cong f p) (H y) k j
+                   ; (i = i1) → compPath-filler' (cong f p) (H y) k j
                    ; (j = i0) → cong f p (i ∧ (~ k))
                    ; (j = i1) → cong g p (i ∨ k) })
           (H (p i) j)
@@ -141,6 +129,9 @@ Hfa≡fHa {A = A} f H a =
   cong f (H a) ∙ H a ∙ sym (H a)   ≡⟨ cong (_∙_ (cong f (H a))) (rCancel _) ⟩
   cong f (H a) ∙ refl              ≡⟨ sym (rUnit _) ⟩
   cong f (H a) ∎
+
+invEq≡→equivFun≡ : ∀ (e : A ≃ B) {x y} → invEq e x ≡ y → equivFun e y ≡ x
+invEq≡→equivFun≡ e {x} p = cong (equivFun e) (sym p) ∙ retEq e x
 
 equivPi
   : ∀{F : A → Set ℓ} {G : A → Set ℓ'}

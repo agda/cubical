@@ -46,22 +46,32 @@ install:
       cp -a $HOME/.cabsnap/lib $HOME/.cabsnap/share $HOME/.cabsnap/bin $HOME/.cabal/;
     else
       echo "cabal build-cache MISS";
-      rm -rf $HOME/.cabsnap;
+      rm -rf $HOME/.cabsnap/*;
       mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin;
     fi
-  - travis_wait 30 cabal install --only-dependencies
-  - travis_wait 30 cabal install
-  - cd -
+  # only install agda if we have to
+  - touch $HOME/.cabsnap/oldHEAD.txt
+  - git rev-parse HEAD; cat $HOME/.cabsnap/oldHEAD.txt # for logging purposes
+  - if [ agda ] && [ "$(git rev-parse HEAD)" == "$(cat $HOME/.cabsnap/oldHEAD.txt)" ];
+    then
+      echo "agda up to date";
+    else
+      echo "**** cached build of agda is out of date, re-installing (this will take 20-30m) ****";
+      travis_wait 30 cabal install --only-dependencies;
+      travis_wait 30 cabal install;
+    fi
   # installing fix-agda-whitespace
-  - cd agda/src/fix-agda-whitespace
+  - cd src/fix-agda-whitespace
   - cabal install fix-agda-whitespace.cabal
   - cd -
-  - yes | rm -R agda/
   # snapshot package-db on cache miss
   - echo "snapshotting package-db to build-cache";
     mkdir -p $HOME/.cabsnap;
     cp -a $HOME/.ghc $HOME/.cabsnap/ghc;
     cp -a $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin $HOME/installplan.txt $HOME/.cabsnap/;
+    git rev-parse HEAD > $HOME/.cabsnap/oldHEAD.txt;
+  - cd
+  - yes | rm -R agda/
   - cd $TRAVIS_BUILD_DIR
 
 script:

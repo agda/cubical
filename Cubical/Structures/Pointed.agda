@@ -7,7 +7,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Path
 
-open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Pointed.Base
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
@@ -24,6 +24,10 @@ pointed-iso : StrIso pointed-structure ℓ
 pointed-iso A B f = equivFun f (pt A) ≡ pt B
 
 pointed-is-SNS : SNS {ℓ} pointed-structure pointed-iso
-pointed-is-SNS {A = A} {B = B} f =
-  transportEquiv ( (λ j → transportRefl (equivFun f (pt A)) (~ j) ≡ pt B)
-                 ∙ sym (PathP≡Path (λ i → ua f i) (pt A) (pt B)))
+pointed-is-SNS f = invEquiv (ua-ungluePath-Equiv f)
+
+pointed-SIP : (A B : Pointed ℓ) → A ≃[ pointed-iso ] B ≃ (A ≡ B)
+pointed-SIP = SIP pointed-structure pointed-iso pointed-is-SNS
+
+pointed-sip : (A B : Pointed ℓ) → A ≃[ pointed-iso ] B → (A ≡ B)
+pointed-sip A B = equivFun (pointed-SIP A B) -- ≡ λ (e , p) i → ua e i , ua-gluePath e p i
