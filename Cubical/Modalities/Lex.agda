@@ -143,9 +143,6 @@ module Combinators where
       B : A → Type ℓ′
       C : Σ A B → Type ℓ′′
 
-  cong-fun : {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
-  cong-fun α x i = α i x
-
   λ/coe⟨_⟩_ : (p : A ≡ A′) → ((x : A′) → B (coe1→0 (λ i → p i) x)) → ((x : A) → B x)
   λ/coe⟨_⟩_ {B = B} p f = coe1→0 (λ i → (x : p i) → B (coei→0 (λ j → p j) i x)) f
 
@@ -222,7 +219,7 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
       compute =
         funExt λ p →
         fun (η-Σ◯ p)
-          ≡⟨ cong-fun (◯-ind-β _ _ _) _ ⟩
+          ≡⟨ funExt⁻ (◯-ind-β _ _ _) _ ⟩
         transport refl (◯-map _ _)
           ≡⟨ transportRefl _ ⟩
         ◯-map _ (⟨◯⟩→◯ (⟨η⟩ _))
