@@ -69,7 +69,7 @@ isNatInductive N ℓ = (S : NatFiber N ℓ) → NatSection S
 module AlgebraPropositionality {N : NatAlgebra ℓ'} where
   open NatAlgebra N
   isPropIsNatHInitial : isProp (isNatHInitial N ℓ)
-  isPropIsNatHInitial = isPropPi (λ _ → isPropIsContr)
+  isPropIsNatHInitial = isPropΠ (λ _ → isPropIsContr)
 
   -- under the assumption that some shape is nat-inductive, the type of sections over any fiber
   -- is propositional

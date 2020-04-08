@@ -40,14 +40,14 @@ elim2 : {B : ∥ A ∥₂ → ∥ A ∥₂ → Type ℓ}
         (gB : ((x y : ∥ A ∥₂) → is2Groupoid (B x y)))
         (g : (a b : A) → B ∣ a ∣₂ ∣ b ∣₂)
         (x y : ∥ A ∥₂) → B x y
-elim2 gB g = elim (λ _ → is2GroupoidPi (λ _ → gB _ _))
+elim2 gB g = elim (λ _ → is2GroupoidΠ (λ _ → gB _ _))
                   (λ a → elim (λ _ → gB _ _) (g a))
 
 elim3 : {B : (x y z : ∥ A ∥₂) → Type ℓ}
         (gB : ((x y z : ∥ A ∥₂) → is2Groupoid (B x y z)))
         (g : (a b c : A) → B ∣ a ∣₂ ∣ b ∣₂ ∣ c ∣₂)
         (x y z : ∥ A ∥₂) → B x y z
-elim3 gB g = elim2 (λ _ _ → is2GroupoidPi (λ _ → gB _ _ _))
+elim3 gB g = elim2 (λ _ _ → is2GroupoidΠ (λ _ → gB _ _ _))
                    (λ a b → elim (λ _ → gB _ _ _) (g a b))
 
 2GroupoidTruncIs2Groupoid : is2Groupoid ∥ A ∥₂

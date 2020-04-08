@@ -22,7 +22,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HAEquiv      using (congEquiv)
 open import Cubical.Foundations.Univalence   using (ua; univalence)
 
-open import Cubical.Data.Sigma using (ΣPathP; sigmaPath→pathSigma; pathSigma≡sigmaPath; _Σ≡T_)
+open import Cubical.Data.Sigma using (pathSigma≡sigmaPath; _Σ≡T_; ΣProp≡)
 open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)
 
 private
@@ -191,21 +191,13 @@ isOfHLevelRespectEquiv n eq = isOfHLevelRetract n (invEq eq) (eq .fst) (retEq eq
 
 -- h-level of Σ-types
 
-isContrΣ
-  : isContr A
-  → ((x : A) → isContr (B x))
-  → isContr (Σ[ x ∈ A ] B x)
+isContrΣ : isContr A → ((x : A) → isContr (B x)) → isContr (Σ A B)
 isContrΣ {A = A} {B = B} (a , p) q =
   let h : (x : A) (y : B x) → (q x) .fst ≡ y
       h x y = (q x) .snd y
   in (( a , q a .fst)
      , ( λ x i → p (x .fst) i
        , h (p (x .fst) i) (transp (λ j → B (p (x .fst) (i ∨ ~ j))) i (x .snd)) i))
-
-ΣProp≡
-  : ((x : A) → isProp (B x)) → {u v : Σ[ a ∈ A ] B a}
-  → (p : u .fst ≡ v .fst) → u ≡ v
-ΣProp≡ pB {u} {v} p i = (p i) , isProp→PathP (λ i → pB (p i)) (u .snd) (v .snd) i
 
 ΣProp≡-equiv
   : (pB : (x : A) → isProp (B x)) {u v : Σ[ a ∈ A ] B a}
@@ -217,11 +209,11 @@ isContrΣ {A = A} {B = B} (a , p) q =
                                                        (p i .snd) )
                                               refl refl i j
 
-isPropΣ : isProp A → ((x : A) → isProp (B x)) → isProp (Σ[ x ∈ A ] B x)
+isPropΣ : isProp A → ((x : A) → isProp (B x)) → isProp (Σ A B)
 isPropΣ pA pB t u = ΣProp≡ pB (pA (t .fst) (u .fst))
 
 isOfHLevelΣ : ∀ n → isOfHLevel n A → ((x : A) → isOfHLevel n (B x))
-  → isOfHLevel n (Σ A B)
+                  → isOfHLevel n (Σ A B)
 isOfHLevelΣ 0 = isContrΣ
 isOfHLevelΣ 1 = isPropΣ
 isOfHLevelΣ {B = B} (suc (suc n)) h1 h2 x y =
@@ -230,46 +222,41 @@ isOfHLevelΣ {B = B} (suc (suc n)) h1 h2 x y =
                        (subst B p (snd x)) (snd y)
   in transport (λ i → isOfHLevel (suc n) (pathSigma≡sigmaPath x y (~ i))) h3
 
-isSetΣ : isSet A → ((x : A) → isSet (B x)) → isSet (Σ[ x ∈ A ] B x)
+isSetΣ : isSet A → ((x : A) → isSet (B x)) → isSet (Σ A B)
 isSetΣ = isOfHLevelΣ 2
 
-isGroupoidΣ : isGroupoid A → ((x : A) → isGroupoid (B x)) →
-              isGroupoid (Σ[ x ∈ A ] B x)
+isGroupoidΣ : isGroupoid A → ((x : A) → isGroupoid (B x)) → isGroupoid (Σ A B)
 isGroupoidΣ = isOfHLevelΣ 3
 
-is2GroupoidΣ : is2Groupoid A → ((x : A) → is2Groupoid (B x)) →
-               is2Groupoid (Σ[ x ∈ A ] B x)
+is2GroupoidΣ : is2Groupoid A → ((x : A) → is2Groupoid (B x)) → is2Groupoid (Σ A B)
 is2GroupoidΣ = isOfHLevelΣ 4
 
 -- h-level of Π-types
-isOfHLevelPi
-  : ∀ n
-  → ((x : A) → isOfHLevel n (B x))
-  → isOfHLevel n ((x : A) → B x)
-isOfHLevelPi 0 h = (λ x → fst (h x)) , λ f i y → snd (h y) (f y) i
-isOfHLevelPi 1 h f g i x = (h x) (f x) (g x) i
-isOfHLevelPi (suc (suc n)) h f g =
-  subst (isOfHLevel (suc n)) funExtPath (isOfHLevelPi (suc n) λ x → h x (f x) (g x))
+isOfHLevelΠ : ∀ n → ((x : A) → isOfHLevel n (B x))
+                  → isOfHLevel n ((x : A) → B x)
+isOfHLevelΠ 0 h = (λ x → fst (h x)) , λ f i y → snd (h y) (f y) i
+isOfHLevelΠ 1 h f g i x = (h x) (f x) (g x) i
+isOfHLevelΠ (suc (suc n)) h f g =
+  subst (isOfHLevel (suc n)) funExtPath (isOfHLevelΠ (suc n) λ x → h x (f x) (g x))
 
-isPropPi : (h : (x : A) → isProp (B x)) → isProp ((x : A) → B x)
-isPropPi = isOfHLevelPi 1
+isPropΠ : (h : (x : A) → isProp (B x)) → isProp ((x : A) → B x)
+isPropΠ = isOfHLevelΠ 1
 
-isSetPi : ((x : A) → isSet (B x)) → isSet ((x : A) → B x)
-isSetPi = isOfHLevelPi 2
+isSetΠ : ((x : A) → isSet (B x)) → isSet ((x : A) → B x)
+isSetΠ = isOfHLevelΠ 2
 
-isGroupoidPi : ((x : A) → isGroupoid (B x)) → isGroupoid ((x : A) → B x)
-isGroupoidPi = isOfHLevelPi 3
+isGroupoidΠ : ((x : A) → isGroupoid (B x)) → isGroupoid ((x : A) → B x)
+isGroupoidΠ = isOfHLevelΠ 3
 
-is2GroupoidPi : ((x : A) → is2Groupoid (B x)) → is2Groupoid ((x : A) → B x)
-is2GroupoidPi = isOfHLevelPi 4
+is2GroupoidΠ : ((x : A) → is2Groupoid (B x)) → is2Groupoid ((x : A) → B x)
+is2GroupoidΠ = isOfHLevelΠ 4
 
-isOfHLevelPi⁻ : ∀ {A : Type ℓ} {B : Type ℓ'} n
-                → isOfHLevel n (A → B)
-                → (A → isOfHLevel n B)
-isOfHLevelPi⁻ 0 h x = fst h x , λ y → funExt⁻ (snd h (const y)) x
-isOfHLevelPi⁻ 1 h x y z = funExt⁻ (h (const y) (const z)) x
-isOfHLevelPi⁻ (suc (suc n)) h x y z =
-  isOfHLevelPi⁻ (suc n) (subst (isOfHLevel (suc n)) (sym funExtPath) (h (const y) (const z))) x
+isOfHLevelΠ⁻ : ∀ {A : Type ℓ} {B : Type ℓ'} n
+             → isOfHLevel n (A → B) → (A → isOfHLevel n B)
+isOfHLevelΠ⁻ 0 h x = fst h x , λ y → funExt⁻ (snd h (const y)) x
+isOfHLevelΠ⁻ 1 h x y z = funExt⁻ (h (const y) (const z)) x
+isOfHLevelΠ⁻ (suc (suc n)) h x y z =
+  isOfHLevelΠ⁻ (suc n) (subst (isOfHLevel (suc n)) (sym funExtPath) (h (const y) (const z))) x
 
 -- h-level of A ≃ B and A ≡ B
 
@@ -283,7 +270,7 @@ isOfHLevel≃ zero {A = A} {B = B} hA hB = A≃B , contr
   contr y = ΣProp≡ isPropIsEquiv (funExt (λ a → snd hB (fst y a)))
 
 isOfHLevel≃ (suc n) hA hB =
-  isOfHLevelΣ (suc n) (isOfHLevelPi (suc n) (λ _ → hB))
+  isOfHLevelΣ (suc n) (isOfHLevelΠ (suc n) (λ _ → hB))
               (λ a → subst (λ n → isOfHLevel n (isEquiv a)) (+-comm n 1) (isOfHLevelPlus n (isPropIsEquiv a)))
 
 isOfHLevel≡ : ∀ n → {A B : Type ℓ} (hA : isOfHLevel n A) (hB : isOfHLevel n B) →
@@ -293,7 +280,7 @@ isOfHLevel≡ n hA hB = isOfHLevelRespectEquiv n (invEquiv univalence) (isOfHLev
 -- h-level of HLevel
 
 isPropHContr : isProp (HLevel ℓ 0)
-isPropHContr x y = ΣProp≡ (λ _ → isPropIsContr) ((isOfHLevel≡ 0 (x .snd) (y .snd) .fst))
+isPropHContr x y = ΣProp≡ (λ _ → isPropIsContr) (isOfHLevel≡ 0 (x .snd) (y .snd) .fst)
 
 isOfHLevelHLevel : ∀ n → isOfHLevel (suc n) (HLevel ℓ n)
 isOfHLevelHLevel 0 = isPropHContr

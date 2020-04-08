@@ -49,14 +49,14 @@ elim2 : {B : ∥ A ∥₀ → ∥ A ∥₀ → Type ℓ}
         (Bset : ((x y : ∥ A ∥₀) → isSet (B x y)))
         (g : (a b : A) → B ∣ a ∣₀ ∣ b ∣₀)
         (x y : ∥ A ∥₀) → B x y
-elim2 Bset g = elim (λ _ → isSetPi (λ _ → Bset _ _))
+elim2 Bset g = elim (λ _ → isSetΠ (λ _ → Bset _ _))
                     (λ a → elim (λ _ → Bset _ _) (g a))
 
 elim3 : {B : (x y z : ∥ A ∥₀) → Type ℓ}
         (Bset : ((x y z : ∥ A ∥₀) → isSet (B x y z)))
         (g : (a b c : A) → B ∣ a ∣₀ ∣ b ∣₀ ∣ c ∣₀)
         (x y z : ∥ A ∥₀) → B x y z
-elim3 Bset g = elim2 (λ _ _ → isSetPi (λ _ → Bset _ _ _))
+elim3 Bset g = elim2 (λ _ _ → isSetΠ (λ _ → Bset _ _ _))
                      (λ a b → elim (λ _ → Bset _ _ _) (g a b))
 
 setTruncIsSet : isSet ∥ A ∥₀

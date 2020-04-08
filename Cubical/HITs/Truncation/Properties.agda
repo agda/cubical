@@ -136,7 +136,7 @@ elim2 : {n : ℕ}
   (x y : hLevelTrunc n A) →
   B x y
 elim2 {n = n} hB g =
-  elim (λ _ → isOfHLevelPi n (λ _ → hB _ _))
+  elim (λ _ → isOfHLevelΠ n (λ _ → hB _ _))
     (λ a → elim (λ _ → hB _ _) (λ b → g a b))
 
 elim3 : {n : ℕ}
@@ -146,7 +146,7 @@ elim3 : {n : ℕ}
   (x y z : hLevelTrunc n A) →
   B x y z
 elim3 {n = n} hB g =
-  elim2 (λ _ _ → isOfHLevelPi n (hB _ _))
+  elim2 (λ _ _ → isOfHLevelΠ n (hB _ _))
     (λ a b → elim (λ _ → hB _ _ _) (λ c → g a b c))
 
 HLevelTruncModality : ∀ {ℓ} (n : ℕ) → Modality ℓ
@@ -234,7 +234,7 @@ private
   {- decode function from P x y to x ≡ y -}
   decode-fun : {n : ℕ₋₂} (x y : ∥ B ∥ (suc₋₂ n)) → P x y → x ≡ y
   decode-fun {n = n} =
-    elim2 (λ u v → isOfHLevelPi (2+ suc₋₂ n)
+    elim2 (λ u v → isOfHLevelΠ (2+ suc₋₂ n)
                                 (λ _ → isOfHLevelSuc (2+ suc₋₂ n) (isOfHLevelTrunc (2+ suc₋₂ n)) u v))
           decode*
       where
@@ -278,7 +278,7 @@ private
   P-linv : {n : ℕ₋₂} (u v : ∥ B ∥ (suc₋₂ n )) (x : P u v)
          → encode-fun u v (decode-fun u v x) ≡ x
   P-linv {n = n} =
-    elim2 (λ x y → isOfHLevelPi (2+ suc₋₂ n)
+    elim2 (λ x y → isOfHLevelΠ (2+ suc₋₂ n)
                                 (λ z → isOfHLevelSuc (2+ suc₋₂ n) (hLevelP x y) _ _))
           helper
     where

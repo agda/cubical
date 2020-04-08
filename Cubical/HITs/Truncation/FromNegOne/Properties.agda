@@ -117,7 +117,7 @@ ind2 : {n : ℕ₋₁}
        (g : (a b : A) → B ∣ a ∣ ∣ b ∣)
        (x y : ∥ A ∥ n) →
        B x y
-ind2 {n = n} hB g = ind (λ _ → isOfHLevelPi (1 + 1+ n) (λ _ → hB _ _)) λ a →
+ind2 {n = n} hB g = ind (λ _ → isOfHLevelΠ (1 + 1+ n) (λ _ → hB _ _)) λ a →
                     ind (λ _ → hB _ _) (λ b → g a b)
 
 ind3 : {n : ℕ₋₁}
@@ -126,7 +126,7 @@ ind3 : {n : ℕ₋₁}
        (g : (a b c : A) → B (∣ a ∣) ∣ b ∣ ∣ c ∣)
        (x y z : ∥ A ∥ n) →
        B x y z
-ind3 {n = n} hB g = ind2 (λ _ _ → isOfHLevelPi (1 + 1+ n) (hB _ _)) λ a b →
+ind3 {n = n} hB g = ind2 (λ _ _ → isOfHLevelΠ (1 + 1+ n) (hB _ _)) λ a b →
                     ind (λ _ → hB _ _ _) (λ c → g a b c)
 
 idemTrunc : (n : ℕ₋₁) → isOfHLevel (1 + 1+ n) A → (∥ A ∥ n) ≃ A

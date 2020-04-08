@@ -16,6 +16,8 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 
+open import Cubical.Data.Sigma
+
 open import Cubical.HITs.PropositionalTruncation.Base
 
 private
@@ -38,14 +40,14 @@ elim2 : {P : ∥ A ∥ → ∥ A ∥ → Type ℓ}
         (Bset : ((x y : ∥ A ∥) → isProp (P x y)))
         (g : (a b : A) → P ∣ a ∣ ∣ b ∣)
         (x y : ∥ A ∥) → P x y
-elim2 Pprop g = elim (λ _ → isPropPi (λ _ → Pprop _ _))
+elim2 Pprop g = elim (λ _ → isPropΠ (λ _ → Pprop _ _))
                      (λ a → elim (λ _ → Pprop _ _) (g a))
 
 elim3 : {P : ∥ A ∥ → ∥ A ∥ → ∥ A ∥ → Type ℓ}
         (Bset : ((x y z : ∥ A ∥) → isProp (P x y z)))
         (g : (a b c : A) → P (∣ a ∣) ∣ b ∣ ∣ c ∣)
         (x y z : ∥ A ∥) → P x y z
-elim3 Pprop g = elim2 (λ _ _ → isPropPi (λ _ → Pprop _ _ _))
+elim3 Pprop g = elim2 (λ _ _ → isPropΠ (λ _ → Pprop _ _ _))
                       (λ a b → elim (λ _ → Pprop _ _ _) (g a b))
 
 propTruncIsProp : isProp ∥ A ∥
@@ -91,10 +93,10 @@ module SetElim (Bset : isSet B) where
   kcomp f x y = cong f (squash ∣ x ∣ ∣ y ∣)
 
   Fset : isSet (A → B)
-  Fset = isSetPi (const Bset)
+  Fset = isSetΠ (const Bset)
 
   Kset : (f : A → B) → isSet (2-Constant f)
-  Kset f = isSetPi (λ _ → isSetPi (λ _ → isProp→isSet (Bset _ _)))
+  Kset f = isSetΠ (λ _ → isSetΠ (λ _ → isProp→isSet (Bset _ _)))
 
   setRecLemma
     : (f : ∥ A ∥ → B)
