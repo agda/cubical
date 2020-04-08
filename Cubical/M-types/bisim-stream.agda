@@ -59,10 +59,3 @@ stream-bisim {A} {x} {y} = coinduction stream≈ stream-bisimulation
 
 stream-misib : ∀ {A} {x y} -> x ≡ y -> stream≈ {A} x y
 stream-misib = coinduction⁻ stream≈ stream-bisimulation stream≈-refl
-
-postulate
-  iso1 : {A : Type₀} → {x y : stream A} → (p : x ≡ y) → stream-bisim {A = A} (stream-misib {A = A} p) ≡ p
-  iso2 : {A : Type₀} → {x y : stream A} → (p : stream≈ x y) → stream-misib (stream-bisim p) ≡ p
-
-stream≈≡≡ : ∀ {A} -> stream≈ {A} ≡ _≡_
-stream≈≡≡ = coinduction-is-equality stream≈ stream-bisimulation stream≈-refl

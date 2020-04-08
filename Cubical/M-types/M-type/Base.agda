@@ -63,35 +63,9 @@ inv (lemma10-Iso) (u , q) z = (λ n → u n z) , λ n i → q n i z
 rightInv (lemma10-Iso) = refl-fun
 leftInv (lemma10-Iso) = refl-fun
 
-lemma10 : ∀ {ℓ} {S : Container {ℓ}} (C,γ : Coalg₀ {S = S}) -> (C,γ .fst -> M-type S) ≡ Cone C,γ
-lemma10 {S = S} C,γ@(C , γ) = isoToPath (lemma10-Iso {C,γ = C,γ})
-
 ------------------------------------
 -- Shifting M-type is an equality --
 ------------------------------------
-
-swap-Σ-∀-Iso :
-  ∀ {ℓ} (X : ℕ -> Set ℓ)
-    -> (A : Set ℓ)
-    -> (B : A -> Set ℓ)
-    -> (p : {n : ℕ} -> Σ A (λ a -> B a -> X (suc n)) -> Σ A (λ a -> B a -> X n) -> Set ℓ)
-    -----------------------
-    -> Iso (Σ (∀ (n : ℕ) -> Σ A (λ a -> B a -> X n)) (λ w -> (n : ℕ) -> p (w (suc n)) (w n)))
-           (Σ ((n : ℕ) → A) λ a → Σ ((n : ℕ) → B (a n) → X n) λ u → (n : ℕ) -> p (a (suc n) , u (suc n)) (a n , u n))
-fun (swap-Σ-∀-Iso X A B p) = (λ {(x , y) → (λ n → x n .fst) , (λ n → x n .snd) , y})
-inv (swap-Σ-∀-Iso X A B p) = (λ {(x , (y , z)) → (λ n → (x n) , y n) , z})
-rightInv (swap-Σ-∀-Iso X A B p) = refl-fun
-leftInv (swap-Σ-∀-Iso X A B p) = refl-fun
-
-swap-Σ-∀ :
-  ∀ {ℓ} (X : ℕ -> Set ℓ)
-    -> (A : Set ℓ)
-    -> (B : A -> Set ℓ)
-    -> (p : {n : ℕ} -> Σ A (λ a -> B a -> X (suc n)) -> Σ A (λ a -> B a -> X n) -> Set ℓ)
-    -----------------------
-    -> (Σ (∀ (n : ℕ) -> Σ A (λ a -> B a -> X n)) (λ w -> (n : ℕ) -> p (w (suc n)) (w n)))
-    ≡ (Σ ((n : ℕ) → A) λ a → Σ ((n : ℕ) → B (a n) → X n) λ u → (n : ℕ) -> p (a (suc n) , u (suc n)) (a n , u n))
-swap-Σ-∀ X A B p = isoToPath (swap-Σ-∀-Iso X A B p)
 
 limit-collapse : ∀ {ℓ} {S : Container {ℓ}} (X : ℕ → Set ℓ) (l : (n : ℕ) → X n → X (suc n)) → (x₀ : X 0) → ∀ (n : ℕ) → X n
 limit-collapse X l x₀ 0 = x₀
@@ -131,11 +105,6 @@ leftInv (lemma11-Iso {ℓ = ℓ} {S = S} X l) (x , y) i =
 
     χ-prop : (x₀ : X 0) → isProp (Σ ((n : ℕ) → X n) λ x → (x 0 ≡ x₀) × (∀ n → (x (suc n)) ≡ l n (x n)))
     χ-prop x₀ = subst isProp (sym (isoToPath (Z-is-Section x₀))) (χ-prop' x₀)
-
--- Same as leftInv1'
-lemma11-2-Iso : ∀ {ℓ} {S : Container {ℓ}} a p n → a n ≡ fun (lemma11-Iso {S = S} (λ _ → S .fst) (λ _ x₂ → x₂)) (a , p) -- = a 0
-lemma11-2-Iso a p 0 = refl
-lemma11-2-Iso {S = S} a p (suc n) = p n ∙ lemma11-2-Iso {S = S} a p n
 
 α-iso-step-1-4-Iso : ∀ {ℓ} {S : Container {ℓ}}
     -> let (A , B) = S in
@@ -192,23 +161,13 @@ leftInv (α-iso-step-1-4-Iso {S = S@(A , B)}) = refl-fun
   Σ-ap-iso (pathToIso (cong (λ k → (n : ℕ) → k n) (funExt λ n → cong (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 {S = S} (a,p .fst) (a,p .snd) n)))) λ u →
            pathToIso (cong (λ k → (n : ℕ) → k n) (funExt λ n → α-iso-step-5-Iso-helper1 {S = S} (a,p .fst) (a,p .snd) u n)))
 
+
 sym-α-iso-step-6 : ∀ {ℓ} {S : Container {ℓ}}
     -> let (A , B) = S in
     Iso (Σ A (λ a → B a → M-type S))
         (Σ A (λ a → Σ ((n : ℕ) → B a → X (sequence S) n) λ u → (n : ℕ) → π (sequence S) ∘ (u (suc n)) ≡ u n))
-fun (sym-α-iso-step-6 {S = S@(A , B)}) (x , y') = x , transport (lemma10 (B x , λ _ → x , (λ x₁ → x₁))) y'
-inv (sym-α-iso-step-6 {S = S@(A , B)}) (x , y) = x , transport (sym (lemma10 (B x , λ _ → x , (λ x₁ → x₁)))) y
-rightInv (sym-α-iso-step-6 {S = S@(A , B)}) (x , y') = ΣPathP (refl {x = x} , transport⁻Transport (sym (lemma10 (B x , λ _ → x , (λ x₁ → x₁)))) y')
-leftInv (sym-α-iso-step-6 {S = S@(A , B)}) (x , y) = ΣPathP (refl {x = x} , transportTransport⁻ (sym (lemma10 (B x , λ _ → x , (λ x₁ → x₁)))) y)
-
--- Lemma 13
-α-iso : ∀ {ℓ} {S : Container {ℓ}} -> L (PX,Pπ S) ≡ P₀ {S = S} (M-type S) -- L^P ≡ PL
-α-iso {S = S@(A , B)} =
-  isoToPath (compIso (α-iso-step-1-4-Iso) (compIso α-iso-step-5-Iso (sym-iso sym-α-iso-step-6)))
-
------------------------------------------------------
--- Shifting the limit of a chain is an equivalence --
------------------------------------------------------
+sym-α-iso-step-6 {S = S@(A , B)} =
+  Σ-ap-iso₂ λ x → lemma10-Iso {C,γ = B x , λ _ → x , (λ x₁ → x₁)}
 
 comp-α-iso-step-1-4-Iso-Sym-L-unique-iso : ∀ {ℓ} {S : Container {ℓ}} -> let (A , B) = S in Iso (Σ (Σ ((n : ℕ) → A) (λ a → (n : ℕ) → a (suc n) ≡ a n)) λ a → Σ ((n : ℕ) → B (a .fst n) → X (sequence S) n) λ u → (n : ℕ) → PathP (λ x → B (a .snd n x) → X (sequence S) n) (π (sequence S) ∘ u (suc n)) (u n))  (L (sequence S))
 fun comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (a , b) = (λ { 0 → lift tt ; (suc n) → (a .fst n) , (b .fst n)}) , λ { 0 → refl {x = lift tt} ; (suc m) i → a .snd m i , b .snd m i }
@@ -217,7 +176,11 @@ fst (rightInv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (b , c) i) 0 = lift tt
 fst (rightInv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (b , c) i) (suc n) = refl i
 snd (rightInv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (b , c) i) 0 = refl
 snd (rightInv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (b , c) i) (suc n) = c (suc n)
-leftInv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso a = ΣPathP (refl , refl)
+leftInv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (a , b) = refl
+
+-----------------------------------------------------
+-- Shifting the limit of a chain is an equivalence --
+-----------------------------------------------------
 
 shift-iso : ∀ {ℓ} {S : Container {ℓ}} -> Iso (P₀ {S = S} (M-type S)) (M-type S)
 shift-iso {S = S@(A , B)} = (compIso (sym-α-iso-step-6) (compIso (sym-iso (α-iso-step-5-Iso {S = S})) (comp-α-iso-step-1-4-Iso-Sym-L-unique-iso {S = S})))

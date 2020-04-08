@@ -64,23 +64,3 @@ delay≈-in-out-L {x = x} {y = y} = λ p → transp (λ i → delay≈ (funExt�
 
 delay≈-in-out-R : ∀ {R} {x y : delay R} -> delay≈ x (in-fun (out-fun y)) -> delay≈ x y
 delay≈-in-out-R {x = x} {y = y} = λ p → transp (λ i → delay≈ x (funExt⁻ in-inverse-out y i)) i0 p
-
-mutual
-  ∞delay≈-refl-helper : ∀ {R} (x₁ : Σ (delay-S R .fst) (λ x₂ → delay-S R .snd x₂ → M-type (delay-S R))) → ∞delay≈ (in-fun x₁) (in-fun x₁)
-  force (∞delay≈-refl-helper x) = delay≈-refl-helper x
-
-  delay≈-refl-helper : ∀ {R} (x₁ : Σ (delay-S R .fst) (λ x₂ → delay-S R .snd x₂ → M-type (delay-S R))) → delay≈ (in-fun x₁) (in-fun x₁)
-  delay≈-refl-helper (inr r , b) = EqNow
-  delay≈-refl-helper (inl tt , b) = EqLater (∞delay≈-refl-helper (out-fun (b tt)))
-
-delay≈-refl : ∀ {R} {x} -> delay≈ {R} x x
-delay≈-refl {R = R} {x = x} = delay≈-in-out (case out-fun x return (λ x₁ → delay≈ (in-fun x₁) (in-fun x₁)) of delay≈-refl-helper)
-
-postulate
-  delay-bisimulation-helper : ∀ {R} (x : Σ (M-type (delay-S R)) (λ a → Σ (M-type (delay-S R)) (delay≈ a))) → fst (snd x) ≡ fst x
-
-delay-bisimulation : ∀ {R : Set} -> bisimulation (delay-S R) M-coalg (delay≈ {R})
-delay-bisimulation {R} = bisimulation-property (delay-S R) (delay≈) (delay≈-refl) delay-bisimulation-helper
-
-delay≈≡≡ : ∀ {A} -> delay≈ {A} ≡ _≡_
-delay≈≡≡ = coinduction-is-equality delay≈ delay-bisimulation delay≈-refl
