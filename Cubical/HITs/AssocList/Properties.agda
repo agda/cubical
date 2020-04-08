@@ -116,6 +116,10 @@ ALmember-del*-aux a x xs (no  a≢x) = refl
 
 
 module _(discA : Discrete A) where
+ setA = Discrete→isSet discA
+
+
+
  ALmember-⟨,⟩∷* : A → A → ℕ → ℕ → ℕ
  ALmember-⟨,⟩∷* a x n xs = ALmember-⟨,⟩∷*-aux a x (discA a x) n xs
 
@@ -141,16 +145,15 @@ module _(discA : Discrete A) where
 
 
 
- AL-with-str : Multi-Set A (Discrete→isSet discA)
+ AL-with-str : Multi-Set A setA
  AL-with-str = (AssocList A , ⟨⟩ , ⟨_, 1 ⟩∷_ , ALmember)
 
 
 -- We want to show that Al-with-str ≅ FMS-with-str as multiset-structures
-module _(discA : Discrete A) where
- FMS→AL-isIso : multi-set-iso A (Discrete→isSet discA) (FMS-with-str discA) (AL-with-str discA) FMSet≃AssocList
+ FMS→AL-isIso : multi-set-iso A setA (FMS-with-str discA) (AL-with-str) FMSet≃AssocList
  FMS→AL-isIso = refl , (λ a xs → refl) , φ
   where
-  φ : ∀ a xs → FMSmember discA a xs ≡ ALmember discA a (FMS→AL xs)
+  φ : ∀ a xs → FMSmember discA a xs ≡ ALmember a (FMS→AL xs)
   φ a = FMS.ElimProp.f (isSetℕ _ _) refl ψ
    where
    χ :  (x : A) (xs ys : ℕ) (p : Dec (a ≡ x))
@@ -160,24 +163,23 @@ module _(discA : Discrete A) where
    χ x xs ys (no ¬p) q = q
 
    ψ :  (x : A) {xs : FMSet A}
-      → FMSmember discA a xs ≡ ALmember discA a (FMS→AL xs)
-      → FMSmember discA a (x ∷ xs) ≡ ALmember discA a (FMS→AL (x ∷ xs))
+      → FMSmember discA a xs ≡ ALmember a (FMS→AL xs)
+      → FMSmember discA a (x ∷ xs) ≡ ALmember a (FMS→AL (x ∷ xs))
    ψ x {xs} p = subst B α θ
     where
-    B = λ ys → FMSmember discA a (x ∷ xs) ≡ ALmember discA a ys
+    B = λ ys → FMSmember discA a (x ∷ xs) ≡ ALmember a ys
 
     α : ⟨ x , 1 ⟩∷ FMS→AL xs ≡ FMS→AL (x ∷ xs)
     α = sym (multi-∷-id x 1 xs)
 
-    θ : FMSmember discA a (x ∷ xs) ≡ ALmember discA a (⟨ x , 1 ⟩∷ (FMS→AL xs))
-    θ = χ x (FMSmember discA a xs) (ALmember discA a (FMS→AL xs)) (discA a x) p
+    θ : FMSmember discA a (x ∷ xs) ≡ ALmember a (⟨ x , 1 ⟩∷ (FMS→AL xs))
+    θ = χ x (FMSmember discA a xs) (ALmember a (FMS→AL xs)) (discA a x) p
 
 
 
- FMS-with-str≡AL-with-str : FMS-with-str discA ≡ AL-with-str discA
- FMS-with-str≡AL-with-str = SIP (multi-set-structure A (Discrete→isSet discA))
-                                (multi-set-iso A (Discrete→isSet discA))
-                                (Multi-Set-is-SNS A (Discrete→isSet discA))
-                                (FMS-with-str discA)
-                                (AL-with-str discA)
+ FMS-with-str≡AL-with-str : FMS-with-str discA ≡ AL-with-str
+ FMS-with-str≡AL-with-str = SIP (multi-set-structure A setA)
+                                (multi-set-iso A setA)
+                                (Multi-Set-is-SNS A setA)
+                                (FMS-with-str discA) AL-with-str
                                 .fst (FMSet≃AssocList , FMS→AL-isIso)
