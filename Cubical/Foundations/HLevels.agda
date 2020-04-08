@@ -27,11 +27,11 @@ open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ''' : Level
+    ℓ ℓ' : Level
     A : Type ℓ
     B : A → Type ℓ
-    C : (x : A) → B x → Type ℓ''
-    D : (x : A) (y : B x) → C x y → Type ℓ''
+    C : (x : A) → B x → Type ℓ
+    D : (x : A) (y : B x) → C x y → Type ℓ
     x y : A
     n : ℕ
 
