@@ -15,6 +15,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Univalence
 
 private
   variable
@@ -62,10 +63,14 @@ elim3 Bset g = elim2 (λ _ _ → isSetΠ (λ _ → Bset _ _ _))
 setTruncIsSet : isSet ∥ A ∥₀
 setTruncIsSet a b p q = squash₀ a b p q
 
-setTruncId : isSet A → ∥ A ∥₀ ≡ A
-setTruncId {A = A} hS = isoToPath (iso (rec hS (idfun A)) (λ x → ∣ x ∣₀)
-                                       (λ _ → refl) rinv)
+setTruncIdempotent≃ : isSet A → ∥ A ∥₀ ≃ A
+setTruncIdempotent≃ {A = A} hA = isoToEquiv f
   where
-  rinv : (b : ∥ A ∥₀) → ∣ rec hS (idfun A) b ∣₀ ≡ b
-  rinv = elim (λ x → isOfHLevelSuc 2 setTruncIsSet ∣ rec hS _ x ∣₀ x)
-              (λ _ → refl)
+  f : Iso ∥ A ∥₀ A
+  Iso.fun f = rec hA (idfun A)
+  Iso.inv f x = ∣ x ∣₀
+  Iso.rightInv f _ = refl
+  Iso.leftInv f = elim (λ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ → refl)
+
+setTruncIdempotent : isSet A → ∥ A ∥₀ ≡ A
+setTruncIdempotent hA = ua (setTruncIdempotent≃ hA)

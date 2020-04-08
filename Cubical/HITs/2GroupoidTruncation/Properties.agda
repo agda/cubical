@@ -12,6 +12,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
 
 open import Cubical.HITs.2GroupoidTruncation.Base
 
@@ -53,10 +55,14 @@ elim3 gB g = elim2 (λ _ _ → is2GroupoidΠ (λ _ → gB _ _ _))
 2GroupoidTruncIs2Groupoid : is2Groupoid ∥ A ∥₂
 2GroupoidTruncIs2Groupoid a b p q r s = squash₂ a b p q r s
 
-2GroupoidTruncId : is2Groupoid A → ∥ A ∥₂ ≡ A
-2GroupoidTruncId {A = A} hS = isoToPath (iso (rec hS (idfun A)) (λ x → ∣ x ∣₂)
-                                       (λ _ → refl) rinv)
+2GroupoidTruncIdempotent≃ : is2Groupoid A → ∥ A ∥₂ ≃ A
+2GroupoidTruncIdempotent≃ {A = A} hA = isoToEquiv f
   where
-  rinv : (b : ∥ A ∥₂) → ∣ rec hS (idfun A) b ∣₂ ≡ b
-  rinv = elim (λ x → isOfHLevelSuc 4 2GroupoidTruncIs2Groupoid ∣ rec hS _ x ∣₂ x)
-              (λ _ → refl)
+  f : Iso ∥ A ∥₂ A
+  Iso.fun f = rec hA (idfun A)
+  Iso.inv f x = ∣ x ∣₂
+  Iso.rightInv f _ = refl
+  Iso.leftInv f = elim (λ _ → isOfHLevelSuc 4 2GroupoidTruncIs2Groupoid _ _) (λ _ → refl)
+
+2GroupoidTruncIdempotent : is2Groupoid A → ∥ A ∥₂ ≡ A
+2GroupoidTruncIdempotent hA = ua (2GroupoidTruncIdempotent≃ hA)

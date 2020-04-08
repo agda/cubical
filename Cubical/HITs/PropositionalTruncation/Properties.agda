@@ -15,6 +15,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Sigma
 
@@ -53,13 +54,17 @@ elim3 Pprop g = elim2 (λ _ _ → isPropΠ (λ _ → Pprop _ _ _))
 propTruncIsProp : isProp ∥ A ∥
 propTruncIsProp x y = squash x y
 
-propTruncId : isProp A → ∥ A ∥ ≡ A
-propTruncId {A = A} hA = isoToPath (iso (rec hA (idfun A)) (λ x → ∣ x ∣) (λ _ → refl) rinv)
- where
-   rinv : (x : ∥ A ∥) → ∣ rec hA (idfun A) x ∣ ≡ x
-   rinv = elim {P = λ x → ∣ rec hA (idfun A) x ∣ ≡ x}
-               (λ _ → isProp→isSet propTruncIsProp _ _)
-               (λ _ → refl)
+propTruncIdempotent≃ : isProp A → ∥ A ∥ ≃ A
+propTruncIdempotent≃ {A = A} hA = isoToEquiv f
+  where
+  f : Iso ∥ A ∥ A
+  Iso.fun f        = rec hA (idfun A)
+  Iso.inv f x      = ∣ x ∣
+  Iso.rightInv f _ = refl
+  Iso.leftInv f    = elim (λ _ → isProp→isSet propTruncIsProp _ _) (λ _ → refl)
+
+propTruncIdempotent : isProp A → ∥ A ∥ ≡ A
+propTruncIdempotent hA = ua (propTruncIdempotent≃ hA)
 
 -- We could also define the eliminator using the recursor
 elim' : ∀ {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a)) →

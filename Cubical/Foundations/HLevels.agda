@@ -56,6 +56,12 @@ isOfHLevelSuc 0 = isContr→isProp
 isOfHLevelSuc 1 = isProp→isSet
 isOfHLevelSuc (suc (suc n)) h a b = isOfHLevelSuc (suc n) (h a b)
 
+isSet→isGroupoid : isSet A → isGroupoid A
+isSet→isGroupoid = isOfHLevelSuc 2
+
+isGroupoid→is2Groupoid : isGroupoid A → is2Groupoid A
+isGroupoid→is2Groupoid = isOfHLevelSuc 3
+
 isOfHLevelPlus : (m : ℕ) → isOfHLevel n A → isOfHLevel (m + n) A
 isOfHLevelPlus zero hA = hA
 isOfHLevelPlus (suc m) hA = isOfHLevelSuc _ (isOfHLevelPlus m hA)

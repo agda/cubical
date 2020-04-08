@@ -2,9 +2,6 @@
 module Cubical.Experiments.Brunerie where
 
 open import Cubical.Foundations.Everything
-
-
-
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
 open import Cubical.Data.Int
