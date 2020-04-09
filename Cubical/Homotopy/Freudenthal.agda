@@ -17,26 +17,7 @@ open import Cubical.HITs.Truncation as Trunc
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
 
-private
-  -- This alternative definition of rCancel will make the proof smoother
-
-  rCancel-filler' : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) → (i j k : I) → A
-  rCancel-filler' {x = x} {y} p i j k =
-    hfill
-      (λ i → λ
-        { (j = i1) → p (~ i ∧ k)
-        ; (k = i0) → x
-        ; (k = i1) → p (~ i)
-        })
-      (inS (p k))
-      (~ i)
-
-  rCancel' : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) → p ∙ p ⁻¹ ≡ refl
-  rCancel' p j k = rCancel-filler' p i0 j k
-
-module _ {ℓ} (n : ℕ)
-  {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc n)) (typ A))
-  where
+module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc n)) (typ A)) where
 
   σ : typ A → typ (Ω (∙Susp (typ A)))
   σ a = merid a ∙ merid (pt A) ⁻¹

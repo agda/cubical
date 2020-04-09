@@ -64,6 +64,20 @@ rCancel-filler {x = x} p k j i =
 rCancel : (p : x ≡ y) → p ∙ p ⁻¹ ≡ refl
 rCancel {x = x} p j i = rCancel-filler p i1 j i
 
+rCancel-filler' : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) → (i j k : I) → A
+rCancel-filler' {x = x} {y} p i j k =
+  hfill
+    (λ i → λ
+      { (j = i1) → p (~ i ∧ k)
+      ; (k = i0) → x
+      ; (k = i1) → p (~ i)
+      })
+    (inS (p k))
+    (~ i)
+
+rCancel' : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) → p ∙ p ⁻¹ ≡ refl
+rCancel' p j k = rCancel-filler' p i0 j k
+
 lCancel : (p : x ≡ y) → p ⁻¹ ∙ p ≡ refl
 lCancel p = rCancel (p ⁻¹)
 
