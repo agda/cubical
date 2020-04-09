@@ -2,7 +2,8 @@
 module Cubical.Homotopy.Connected where
 
 open import Cubical.Core.Everything
-open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Fibration
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
@@ -14,30 +15,6 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Truncation as Trunc
-
-private
-  -- these belong somewhere else
-
-  flipSquare : ∀ {ℓ} {A : Type ℓ}
-    {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
-    {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
-    {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁}
-    → Square a₀₋ a₁₋ a₋₀ a₋₁
-    → Square a₋₀ a₋₁ a₀₋ a₁₋
-  flipSquare sq i j = sq j i
-
-  flipSquarePath : ∀ {ℓ} {A : Type ℓ}
-    {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
-    {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
-    {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁}
-    → Square a₀₋ a₁₋ a₋₀ a₋₁ ≡ Square a₋₀ a₋₁ a₀₋ a₁₋
-  flipSquarePath = isoToPath (iso flipSquare flipSquare (λ _ → refl) (λ _ → refl))
-
-  fiber≡ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {f : A → B} {b : B} (h h' : fiber f b)
-    → (h ≡ h') ≡ fiber (cong f) (h .snd ∙∙ refl ∙∙ sym (h' .snd))
-  fiber≡ {f = f} h h' =
-    ua Σ≡ ⁻¹ ∙
-    cong (Σ (h .fst ≡ h' .fst)) (funExt λ p → flipSquarePath ∙ PathP≡doubleCompPathʳ _ _ _ _)
 
 isHLevelConnected : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Type ℓ
 isHLevelConnected n A = isContr (hLevelTrunc n A)
