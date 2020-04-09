@@ -166,5 +166,4 @@ module _ (A : Type ℓ) (Aset : isSet A) where
 
  -- And we get the desired Path
  Path-1List-2List : 1List ≡ 2List
- Path-1List-2List = SIP queue-structure queue-iso  Queue-is-SNS 1List 2List .fst
-                   (quotEquiv , quotEquiv-is-queue-iso)
+ Path-1List-2List = sip Queue-is-SNS 1List 2List (quotEquiv , quotEquiv-is-queue-iso)
