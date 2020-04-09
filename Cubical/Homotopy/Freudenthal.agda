@@ -56,8 +56,8 @@ module _ {ℓ} (n : ℕ)
           cong ∣_∣
             (cong (pt A ,_)
               (cong (_∙ r) (rCancel' (rCancel' (merid (pt A)))) ∙ lUnit r ⁻¹)))
-      
-    fwd : (p : north ≡ north) (a : typ A) 
+
+    fwd : (p : north ≡ north) (a : typ A)
       → hLevelTrunc 2n+2 (fiber σ p)
       → hLevelTrunc 2n+2 (fiber (λ x → merid x ∙ merid a ⁻¹) p)
     fwd p a = Trunc.rec (isOfHLevelTrunc 2n+2) (uncurry (WC.extension p a))

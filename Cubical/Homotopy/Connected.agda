@@ -17,7 +17,7 @@ open import Cubical.HITs.Truncation as Trunc
 
 private
   -- these belong somewhere else
-  
+
   flipSquare : ∀ {ℓ} {A : Type ℓ}
     {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
     {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
