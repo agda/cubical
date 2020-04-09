@@ -219,12 +219,19 @@ funExtIso = iso funExt funExt⁻ refl-fun refl-fun
   ≡-rel-a-inj' {A = A} {B} {C} (fun isom) (≡-to-embedding {A = A} {B} {C} isom) {f = f} {g = g}
 
 abstract
-  ≡-rel-a-inj-Iso-helper :
-    ∀ {ℓ} {A B C : Set ℓ} (isom : Iso A B)
-    → ∀ {f g : C -> A}
-    → Iso (∀ x → (fun isom) (f x) ≡ (fun isom) (g x)) (∀ x → f x ≡ g x)
-  ≡-rel-a-inj-Iso-helper {A = A} {B} {C} isom {f = f} {g} =
-    pathToIso (cong (λ a → ∀ x → a x) (funExt λ x → ≡-rel-a-inj-Iso-helper-3 isom {f = f} {g = g} x))
+  pathCongFunExt :
+    ∀ {ℓ} {A : Set ℓ} (a b : (x : A) → Set ℓ)
+    → (∀ x → (a x) ≡ (b x))
+    → Iso (∀ x → a x) (∀ x → b x)
+  pathCongFunExt a b p =
+    pathToIso (cong (λ k → ∀ x → k x) (funExt p))
+
+≡-rel-a-inj-Iso-helper :
+  ∀ {ℓ} {A B C : Set ℓ} (isom : Iso A B)
+  → ∀ {f g : C -> A}
+  → Iso (∀ x → (fun isom) (f x) ≡ (fun isom) (g x)) (∀ x → f x ≡ g x)
+≡-rel-a-inj-Iso-helper {A = A} {B} {C} isom {f = f} {g} =
+  pathCongFunExt (λ x → fun isom (f x) ≡ fun isom (g x)) (λ x → f x ≡ g x) (≡-rel-a-inj-Iso-helper-3 isom {f = f} {g = g})
 
 ≡-rel-a-inj-Iso :
   ∀ {ℓ} {A B C : Set ℓ} (isom : Iso A B)
