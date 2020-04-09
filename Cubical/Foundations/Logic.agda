@@ -8,11 +8,13 @@ open import Cubical.Data.Sum as ⊎ using (_⊎_)
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 
-open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Prelude as FP
+open import Cubical.Foundations.Embedding
+open import Cubical.Foundations.Equiv
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
-open import Cubical.Foundations.HLevels using (hProp; isPropΠ) public
+open import Cubical.Foundations.HLevels using (hProp; isPropΠ; isPropΠ2; isSetΠ; isSetHProp) public
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 
@@ -274,3 +276,55 @@ Decₚ P = Dec [ P ] , isPropDec (snd P)
 ⊓-∀-distrib P Q =
   ⇒∶ (λ {(p , q) a → p a , q a})
   ⇐∶ λ pq → (proj₁ ∘ pq ) , (proj₂ ∘ pq)
+
+--------------------------------------------------------------------------------
+-- Introduce the "powerset" of a type in the style of Escardó's lecture notes:
+-- https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html#propositionalextensionality
+
+ℙ : ∀ {ℓ} → Type ℓ → Type (ℓ-suc ℓ)
+ℙ {ℓ} X = X → hProp ℓ
+
+_∈_ : {X : Type ℓ} → X → ℙ X → Type ℓ
+x ∈ A = [ A x ]
+
+_⊆_ : {X : Type ℓ} → ℙ X → ℙ X → Type ℓ
+A ⊆ B = ∀ x → x ∈ A → x ∈ B
+
+∈-isProp : {X : Type ℓ} (A : ℙ X) (x : X) → isProp (x ∈ A)
+∈-isProp A x = (A x) .snd
+
+⊆-isProp : {X : Type ℓ} (A B : ℙ X) → isProp (A ⊆ B)
+⊆-isProp A B = isPropΠ2 (λ x _ → ∈-isProp B x)
+
+⊆-refl : {X : Type ℓ} (A : ℙ X) → A ⊆ A
+⊆-refl A x = idfun (x ∈ A)
+
+
+⊆-refl-consequence : {X : Type ℓ} (A B : ℙ X)
+                   → A ≡ B → (A ⊆ B) × (B ⊆ A)
+⊆-refl-consequence {X} A B p =  (λ x a → transport (cong (λ C → C x .fst) p) a)
+                              , (λ x b → transport (cong (λ C → C x .fst) (sym p)) b)
+-- subst (λ B → (A ⊆ B)) p (⊆-refl A) , subst (λ A → (B ⊆ A)) (sym p) (⊆-refl B)
+
+
+⊆-extensionality :  {X : Type ℓ} (A B : ℙ X)
+                  → (A ⊆ B) → (B ⊆ A) → A ≡ B
+⊆-extensionality A B φ ψ i x = ⇔toPath {P = (A x)} {Q = (B x)} (φ x) (ψ x) i
+
+
+powersets-are-sets : {X : Type ℓ} → isSet (ℙ X)
+powersets-are-sets {X = X} = isSetΠ (λ _ → isSetHProp)
+
+
+-- We want to show that ℙ X ≃ Σ[A ∈ Type ℓ] (A ↪ X)
+_↪_ : Type ℓ → Type ℓ → Type ℓ
+A ↪ B = Σ[ f ∈ (A → B) ] hasPropFibers f
+
+Embedding→Subset : {X : Type ℓ} → Σ[ A ∈ Type ℓ ] (A ↪ X) → ℙ X
+Embedding→Subset (A , f , isPropFiber) x = fiber f x , isPropFiber x
+
+Subset→Embedding : {X : Type ℓ} → ℙ X → Σ[ A ∈ Type ℓ ] (A ↪ X)
+Subset→Embedding {X = X} A =  (Σ[ x ∈ X ] x ∈ A)
+                            , (λ a → a .fst)
+                            ,  λ x a b → ΣPathP (ΣProp≡ (∈-isProp A) (a .snd ∙ sym (b .snd)) , {!!})
+
