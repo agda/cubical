@@ -7,7 +7,6 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.FunExtEquiv
 
 open import Cubical.Data.Nat
-open import Cubical.Data.List
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
@@ -42,23 +41,23 @@ map f (x ∷ xs) = f x ∷ map f xs
 -- iso for n-ary functions
 nAryFunIso : (n : ℕ) → StrIso (nAryOp n) ℓ
 nAryFunIso n (X , fX) (Y , fY) f =
-  (xs : Vec X n) → equivFun f (fX $ⁿ xs) ≡ (fY $ⁿ map (equivFun f) xs)
+  (xs : Vec X n) → equivFun f (fX $ⁿ xs) ≡ fY $ⁿ map (equivFun f) xs
 
 -- n-ary funext
 nAryFunExt : (n : ℕ) {X : Type ℓ} (fX fY : nAryOp n X)
-           → ((xs : Vec X n) → (fX $ⁿ xs) ≡ (fY $ⁿ map (λ x → x) xs))
+           → ((xs : Vec X n) → fX $ⁿ xs ≡ fY $ⁿ map (λ x → x) xs)
            → fX ≡ fY
 nAryFunExt zero fX fY p i = p [] i
 nAryFunExt (suc n) fX fY p i x = nAryFunExt n (fX x) (fY x) (λ xs → p (x ∷ xs)) i
 
 -- n-ary funext⁻
 nAryFunExt⁻ : (n : ℕ) {X : Type ℓ} (fX fY : nAryOp n X) → fX ≡ fY
-            → ((xs : Vec X n) → (fX $ⁿ xs) ≡ (fY $ⁿ map (λ x → x) xs))
+            → ((xs : Vec X n) → fX $ⁿ xs ≡ fY $ⁿ map (λ x → x) xs)
 nAryFunExt⁻ zero fX fY p [] = p
 nAryFunExt⁻ (suc n) fX fY p (x ∷ xs) = nAryFunExt⁻ n (fX x) (fY x) (λ i → p i x) xs
 
 nAryFunExtEquiv : (n : ℕ) {X : Type ℓ} (fX fY : nAryOp n X)
-                → nAryFunIso n (X , fX) (X , fY) (idEquiv X) ≃ (fX ≡ fY)
+                → ((xs : Vec X n) → fX $ⁿ xs ≡ fY $ⁿ map (λ x → x) xs) ≃ (fX ≡ fY)
 nAryFunExtEquiv n {X} fX fY = isoToEquiv (iso (nAryFunExt n fX fY) (nAryFunExt⁻ n fX fY)
                                               (linv n fX fY) (rinv n fX fY))
   where
