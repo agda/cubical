@@ -38,8 +38,8 @@ isOfHLevel 0 A = isContr A
 isOfHLevel 1 A = isProp A
 isOfHLevel (suc (suc n)) A = (x y : A) → isOfHLevel (suc n) (x ≡ y)
 
-isOfHLevelMap : (n : ℕ) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
-isOfHLevelMap n f = ∀ b → isOfHLevel n (fiber f b)
+isOfHLevelFun : (n : ℕ) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
+isOfHLevelFun n f = ∀ b → isOfHLevel n (fiber f b)
 
 HLevel : ∀ ℓ → ℕ → Type (ℓ-suc ℓ)
 HLevel ℓ n = TypeWithStr ℓ (isOfHLevel n)

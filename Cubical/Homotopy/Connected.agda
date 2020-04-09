@@ -42,12 +42,12 @@ private
 isHLevelConnected : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Type ℓ
 isHLevelConnected n A = isContr (hLevelTrunc n A)
 
-isHLevelConnectedMap : ∀ {ℓ ℓ'} (n : ℕ) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
-isHLevelConnectedMap n f = ∀ b → isHLevelConnected n (fiber f b)
+isHLevelConnectedFun : ∀ {ℓ ℓ'} (n : ℕ) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
+isHLevelConnectedFun n f = ∀ b → isHLevelConnected n (fiber f b)
 
 isEquivPrecomposeConnected : ∀ {ℓ ℓ' ℓ''} (n : ℕ)
   {A : Type ℓ} {B : Type ℓ'} (P : B → HLevel ℓ'' n) (f : A → B)
-  → isHLevelConnectedMap n f
+  → isHLevelConnectedFun n f
   → isEquiv (λ(s : (b : B) → P b .fst) → s ∘ f)
 isEquivPrecomposeConnected n {A} {B} P f fConn =
   isoToIsEquiv
@@ -71,8 +71,8 @@ isEquivPrecomposeConnected n {A} {B} P f fConn =
 
 isOfHLevelPrecomposeConnected : ∀ {ℓ ℓ' ℓ''} (k : ℕ) (n : ℕ)
   {A : Type ℓ} {B : Type ℓ'} (P : B → HLevel ℓ'' (k + n)) (f : A → B)
-  → isHLevelConnectedMap n f
-  → isOfHLevelMap k (λ(s : (b : B) → P b .fst) → s ∘ f)
+  → isHLevelConnectedFun n f
+  → isOfHLevelFun k (λ(s : (b : B) → P b .fst) → s ∘ f)
 isOfHLevelPrecomposeConnected zero n P f fConn =
   isEquivPrecomposeConnected n P f fConn .equiv-proof
 isOfHLevelPrecomposeConnected (suc k) n P f fConn t =
@@ -110,7 +110,7 @@ isHLevelConnectedRetract n f g h =
 
 isHLevelConnectedPoint : ∀ {ℓ} (n : ℕ) {A : Type ℓ}
   → isHLevelConnected (suc n) A
-  → (a : A) → isHLevelConnectedMap n (λ(_ : Unit) → a)
+  → (a : A) → isHLevelConnectedFun n (λ(_ : Unit) → a)
 isHLevelConnectedPoint n connA a₀ a =
   isHLevelConnectedRetract n
     snd (_ ,_) (λ _ → refl)

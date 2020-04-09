@@ -123,9 +123,9 @@ module _ {ℓ} (n : ℕ)
       (uncurry λ a →
         J (λ p r → encode south p ≡ ∣ a , r ∣) (encodeMerid a))
 
-  isConnectedMerid : isHLevelConnectedMap 2n+2 (merid {A = typ A})
+  isConnectedMerid : isHLevelConnectedFun 2n+2 (merid {A = typ A})
   isConnectedMerid p = encode south p , contractCodeSouth p
 
-  isConnectedσ : isHLevelConnectedMap 2n+2 σ
+  isConnectedσ : isHLevelConnectedFun 2n+2 σ
   isConnectedσ =
-    transport (λ i → isHLevelConnectedMap 2n+2 (interpolate (pt A) (~ i))) isConnectedMerid
+    transport (λ i → isHLevelConnectedFun 2n+2 (interpolate (pt A) (~ i))) isConnectedMerid
