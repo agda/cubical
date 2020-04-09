@@ -6,7 +6,7 @@ import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Prod as × using (_×_; _,_; proj₁; proj₂)
 open import Cubical.Data.Sum as ⊎ using (_⊎_)
 open import Cubical.Data.Unit
-open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma hiding (_×_)
 
 open import Cubical.Foundations.Prelude
 
