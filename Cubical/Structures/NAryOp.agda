@@ -12,10 +12,10 @@ open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 private
   variable
-    ℓ ℓ' ℓ'' : Level
+    ℓ ℓ' : Level
 
 nAryOp : ℕ → Type ℓ → Type ℓ
-nAryOp zero X = X
+nAryOp zero X    = X
 nAryOp (suc n) X = X → nAryOp n X
 
 nAryFunStructure : ℕ → Type (ℓ-suc ℓ)
@@ -74,7 +74,7 @@ nAryFunExtEquiv n {X} fX fY = isoToEquiv (iso (nAryFunExt n fX fY) (nAryFunExt�
 
 
 nAry-is-SNS : (n : ℕ) → SNS {ℓ} _ (nAryFunIso n)
-nAry-is-SNS n = SNS-≡→SNS-PathP (nAryFunIso n) (λ fX fY → nAryFunExtEquiv n fX fY)
+nAry-is-SNS n = SNS-≡→SNS-PathP (nAryFunIso n) (nAryFunExtEquiv n)
 
 
 -- Test
