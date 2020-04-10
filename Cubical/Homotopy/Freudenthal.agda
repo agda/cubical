@@ -34,9 +34,9 @@ module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc 
         (λ a r → ∣ a , (rCancel' (merid a) ∙ rCancel' (merid (pt A)) ⁻¹) ∙ r ∣)
         (λ b r → ∣ b , r ∣)
         (funExt λ r →
-          cong ∣_∣
-            (cong (pt A ,_)
-              (cong (_∙ r) (rCancel' (rCancel' (merid (pt A)))) ∙ lUnit r ⁻¹)))
+          cong′ (λ w → ∣ pt A , w ∣)
+            (cong (_∙ r) (rCancel' (rCancel' (merid (pt A))))
+              ∙ lUnit r ⁻¹))
 
     fwd : (p : north ≡ north) (a : typ A)
       → hLevelTrunc 2n+2 (fiber σ p)
