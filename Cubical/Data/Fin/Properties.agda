@@ -17,6 +17,7 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
+open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
 
 open import Cubical.Induction.WellFounded
 
@@ -24,12 +25,6 @@ private
  variable
    a b ℓ : Level
    A : Type a
-
-private
-  -- Σ is more convenient than the inductive ×, but I don't
-  -- want to have to write λ_→ all over.
-  _×_ : Type₀ → Type₀ → Type₀
-  A × B = Σ A λ _ → B
 
 -- Fin 0 is empty, and thus a proposition.
 isPropFin0 : isProp (Fin 0)
@@ -45,7 +40,7 @@ isContrFin1
 
 -- Regardless of k, Fin k is a set.
 isSetFin : ∀{k} → isSet (Fin k)
-isSetFin {k} = isOfHLevelΣ 2 isSetℕ (λ _ → isProp→isSet m≤n-isProp)
+isSetFin {k} = isSetΣ isSetℕ (λ _ → isProp→isSet m≤n-isProp)
 
 private
   subst-app : (B : A → Type b) (f : (x : A) → B x) {x y : A} (x≡y : x ≡ y) →
@@ -113,7 +108,7 @@ private
   expand×Emb : ∀ k → isEmbedding (expand× {k})
   expand×Emb 0 = Empty.rec ∘ ¬Fin0 ∘ fst
   expand×Emb (suc k)
-    = injEmbedding (isOfHLevelΣ 2 isSetFin (λ _ → isSetℕ)) isSetℕ (expand×Inj k)
+    = injEmbedding (isSetΣ isSetFin (λ _ → isSetℕ)) isSetℕ (expand×Inj k)
 
 -- A Residue is a family of types representing evidence that a
 -- natural is congruent to a value of a finite type.

@@ -62,7 +62,7 @@ module _ {ℓ ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} {X : Type 
                   --                                  (≡ isContr (CoconeMor (X , C) (Y , D)))
 
   isPropIsUniversalAt : ∀ ℓq (C : Cocone ℓ F X) → isProp (isUniversalAt ℓq C)
-  isPropIsUniversalAt ℓq C = isPropPi (λ Y → isPropIsEquiv (postcomp C))
+  isPropIsUniversalAt ℓq C = isPropΠ (λ Y → isPropIsEquiv (postcomp C))
 
   isUniversal : Cocone ℓ F X → Typeω
   isUniversal C = ∀ ℓq → isUniversalAt ℓq C

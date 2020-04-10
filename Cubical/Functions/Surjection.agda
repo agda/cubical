@@ -24,7 +24,7 @@ section→isSurjection : {g : B → A} → section f g → isSurjection f
 section→isSurjection {g = g} s b = ∣ g b , s b ∣
 
 isSurjectionIsProp : isProp (isSurjection f)
-isSurjectionIsProp = isPropPi λ _ → squash
+isSurjectionIsProp = isPropΠ λ _ → squash
 
 isEquiv→isSurjection : isEquiv f → isSurjection f
 isEquiv→isSurjection e b = ∣ fst (equiv-proof e b) ∣

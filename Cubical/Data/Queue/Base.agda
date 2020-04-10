@@ -79,7 +79,7 @@ module _ (A : Type ℓ) (Aset : isSet A) where
  pop₂ (trunc q q' α β i j) =
    isOfHLevelSum 0
      (isProp→isSet isPropUnit)
-     (isOfHLevelΣ 2 trunc λ _ → Aset)
+     (isSetΣ trunc λ _ → Aset)
      (pop₂ q) (pop₂ q') (cong pop₂ α) (cong pop₂ β)
     i j
 
