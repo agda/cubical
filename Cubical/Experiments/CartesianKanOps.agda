@@ -1,6 +1,6 @@
 -- This file derives some of the Cartesian Kan operations using transp
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.CartesianKanOps where
+module Cubical.Experiments.CartesianKanOps where
 
 open import Cubical.Foundations.Prelude
 

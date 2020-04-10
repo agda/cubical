@@ -29,7 +29,6 @@ open import Cubical.Foundations.Id
            )
 
 open import Cubical.Foundations.GroupoidLaws public
-open import Cubical.Foundations.CartesianKanOps public
 open import Cubical.Foundations.Function public
 open import Cubical.Foundations.Equiv public
 open import Cubical.Foundations.Equiv.Properties public
@@ -47,4 +46,3 @@ open import Cubical.Foundations.GroupoidLaws public
 open import Cubical.Foundations.Isomorphism public
 open import Cubical.Foundations.Logic
 open import Cubical.Foundations.SIP
-open import Cubical.Foundations.HoTT-UF
