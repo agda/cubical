@@ -324,7 +324,22 @@ Embedding→Subset : {X : Type ℓ} → Σ[ A ∈ Type ℓ ] (A ↪ X) → ℙ X
 Embedding→Subset (A , f , isPropFiber) x = fiber f x , isPropFiber x
 
 Subset→Embedding : {X : Type ℓ} → ℙ X → Σ[ A ∈ Type ℓ ] (A ↪ X)
-Subset→Embedding {X = X} A =  (Σ[ x ∈ X ] x ∈ A)
-                            , (λ a → a .fst)
-                            ,  λ x a b → ΣPathP (ΣProp≡ (∈-isProp A) (a .snd ∙ sym (b .snd)) , {!!})
+Subset→Embedding {X = X} A =  D , f , ψ
+ where
+  D = Σ[ x ∈ X ] x ∈ A
+
+  f : D → X
+  f d = d .fst
+
+  ψ : hasPropFibers f
+  ψ x ((y , y∈A) , y≡x) ((z , z∈A) , z≡x) = ΣPathP (r , q)
+   where
+    p : y ≡ z
+    p = y≡x ∙ sym z≡x
+
+    r : (y , y∈A) ≡ (z , z∈A)
+    r = ΣProp≡ (∈-isProp A) p
+    
+    q : PathP (λ i → p i ≡ x) y≡x z≡x
+    q = {!!}
 
