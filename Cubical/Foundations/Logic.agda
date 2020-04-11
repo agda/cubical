@@ -3,16 +3,15 @@
 module Cubical.Foundations.Logic where
 
 import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Prod as × using (_×_; _,_; proj₁; proj₂)
 open import Cubical.Data.Sum as ⊎ using (_⊎_)
 open import Cubical.Data.Unit
-open import Cubical.Data.Sigma hiding (_×_)
+open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.Prelude
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
-open import Cubical.Foundations.HLevels using (hProp; isPropΠ) public
+open import Cubical.Foundations.HLevels using (hProp; isPropΠ; isOfHLevelΣ) public
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 
@@ -131,11 +130,11 @@ _⊓′_ : Type ℓ → Type ℓ' → Type _
 A ⊓′ B = A × B
 
 _⊓_ : hProp ℓ → hProp ℓ' → hProp _
-A ⊓ B = [ A ] ⊓′ [ B ] , ×.isOfHLevelProd 1 (A .snd) (B .snd)
+A ⊓ B = [ A ] ⊓′ [ B ] , isOfHLevelΣ 1 (A .snd) (\ _ → B .snd)
 
 ⊓-intro : (P : hProp ℓ) (Q : [ P ] → hProp ℓ') (R : [ P ] → hProp ℓ'')
        → (∀ a → [ Q a ]) → (∀ a → [ R a ]) → (∀ (a : [ P ]) → [ Q a ⊓ R a ] )
-⊓-intro _ _ _ = ×.intro
+⊓-intro _ _ _ = \ f g a → f a , g a
 
 --------------------------------------------------------------------------------
 -- Logical bi-implication of mere propositions
@@ -229,16 +228,16 @@ Decₚ P = Dec [ P ] , isPropDec (snd P)
   ⇐∶ (λ {((x , y) , z) → x , (y , z) })
 
 ⊓-comm : (P : hProp ℓ) (Q : hProp ℓ') → P ⊓ Q ≡ Q ⊓ P
-⊓-comm _ _ = ⇔toPath ×.swap ×.swap
+⊓-comm _ _ = ⇔toPath (\ p → p .snd , p .fst) (\ p → p .snd , p .fst)
 
 ⊓-idem : (P : hProp ℓ) → P ⊓ P ≡ P
-⊓-idem _ = ⇔toPath proj₁ (λ x → x , x)
+⊓-idem _ = ⇔toPath fst (λ x → x , x)
 
 ⊓-identityˡ : (P : hProp ℓ) → ⊤ ⊓ P ≡ P
-⊓-identityˡ _ = ⇔toPath proj₂ λ x → tt , x
+⊓-identityˡ _ = ⇔toPath snd λ x → tt , x
 
 ⊓-identityʳ : (P : hProp ℓ) → P ⊓ ⊤ ≡ P
-⊓-identityʳ _ = ⇔toPath proj₁ λ x → x , tt
+⊓-identityʳ _ = ⇔toPath fst λ x → x , tt
 
 --------------------------------------------------------------------------------
 -- Distributive laws
@@ -246,7 +245,7 @@ Decₚ P = Dec [ P ] , isPropDec (snd P)
 ⇒-⊓-distrib : (P : hProp ℓ) (Q : hProp ℓ')(R : hProp ℓ'')
   → P ⇒ (Q ⊓ R) ≡ (P ⇒ Q) ⊓ (P ⇒ R)
 ⇒-⊓-distrib _ _ _ =
-  ⇒∶ (λ f → (proj₁ ∘ f) , (proj₂ ∘ f))
+  ⇒∶ (λ f → (fst ∘ f) , (snd ∘ f))
   ⇐∶ (λ { (f , g) x → f x , g x})
 
 ⊓-⊔-distribˡ : (P : hProp ℓ) (Q : hProp ℓ')(R : hProp ℓ'')
@@ -257,14 +256,14 @@ Decₚ P = Dec [ P ] , isPropDec (snd P)
         (λ z → ∣ ⊎.inr (x , z) ∣ ) a })
 
   ⇐∶ ⊔-elim (P ⊓ Q) (P ⊓ R) (λ _ → P ⊓ Q ⊔ R)
-       (λ y → proj₁ y , inl (proj₂ y))
-       (λ z → proj₁ z , inr (proj₂ z))
+       (λ y → fst y , inl (snd y))
+       (λ z → fst z , inr (snd z))
 
 ⊔-⊓-distribˡ : (P : hProp ℓ) (Q : hProp ℓ')(R : hProp ℓ'')
   → P ⊔ (Q ⊓ R) ≡ (P ⊔ Q) ⊓ (P ⊔ R)
 ⊔-⊓-distribˡ P Q R =
   ⇒∶ ⊔-elim P (Q ⊓ R) (λ _ → (P ⊔ Q) ⊓ (P ⊔ R) )
-    (×.intro inl inl) (×.map inr inr)
+    (\ x → inl x , inl x) (\ p → inr (p .fst) , inr (p .snd))
 
   ⇐∶ (λ { (x , y) → ⊔-elim P R (λ _ → P ⊔ Q ⊓ R) inl
       (λ z → ⊔-elim P Q (λ _ → P ⊔ Q ⊓ R) inl (λ y → inr (y , z)) x) y })
@@ -273,4 +272,4 @@ Decₚ P = Dec [ P ] , isPropDec (snd P)
   → (∀[ a ∶ A ] P a) ⊓ (∀[ a ∶ A ] Q a) ≡ (∀[ a ∶ A ] (P a ⊓ Q a))
 ⊓-∀-distrib P Q =
   ⇒∶ (λ {(p , q) a → p a , q a})
-  ⇐∶ λ pq → (proj₁ ∘ pq ) , (proj₂ ∘ pq)
+  ⇐∶ λ pq → (fst ∘ pq ) , (snd ∘ pq)

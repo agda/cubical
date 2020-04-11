@@ -17,7 +17,6 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
-open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
 
 open import Cubical.Induction.WellFounded
 

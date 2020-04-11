@@ -13,7 +13,6 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Data.NatMinusTwo.Base
 open import Cubical.Data.Empty
 open import Cubical.Data.Sigma
-open import Cubical.Data.Prod.Base
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation
 open import Cubical.HITs.Nullification
