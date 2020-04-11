@@ -13,14 +13,14 @@ module Cubical.Foundations.HLevels where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.FunExtEquiv
+open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.HAEquiv      using (congEquiv)
-open import Cubical.Foundations.Univalence   using (ua; univalence)
+open import Cubical.Foundations.Equiv.HalfAdjoint  using (congEquiv)
+open import Cubical.Foundations.Univalence         using (ua; univalence)
 
 open import Cubical.Data.Sigma using (pathSigma≡sigmaPath; _Σ≡T_; ΣProp≡)
 open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)

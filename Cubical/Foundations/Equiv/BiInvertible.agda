@@ -9,13 +9,13 @@ Some theory about Bi-Invertible Equivalences
 
 -}
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.BiInvEquiv where
+module Cubical.Foundations.Equiv.BiInvertible where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.HAEquiv
+open import Cubical.Foundations.Equiv.HalfAdjoint
 
 
 record BiInvEquiv {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ ℓ') where

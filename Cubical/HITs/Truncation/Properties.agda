@@ -7,7 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.PathSplitEquiv
+open import Cubical.Foundations.Equiv.PathSplit
 open isPathSplitEquiv
 open import Cubical.Modalities.Everything
 open Modality

@@ -1,13 +1,13 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.Surjection where
+module Cubical.Functions.Surjection where
 
 open import Cubical.Core.Everything
 open import Cubical.Data.Prod
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Embedding
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Functions.Embedding
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
 private
