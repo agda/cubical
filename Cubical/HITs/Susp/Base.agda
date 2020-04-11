@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Pointed
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Empty
@@ -17,6 +18,9 @@ data Susp {ℓ} (A : Type ℓ) : Type ℓ where
   north : Susp A
   south : Susp A
   merid : (a : A) → north ≡ south
+
+∙Susp : ∀ {ℓ} (A : Type ℓ) → Pointed ℓ
+∙Susp A = Susp A , north
 
 Bool≃Susp⊥ : Bool ≃ Susp ⊥
 Bool≃Susp⊥ =
