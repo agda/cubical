@@ -9,6 +9,9 @@ import Cubical.Data.Fin
 import Cubical.Data.Nat
 import Cubical.Data.Nat.Algebra
 import Cubical.Data.Nat.Order
+import Cubical.Data.Nat.Divisibility
+import Cubical.Data.Nat.GCD
+import Cubical.Data.Nat.Coprime
 import Cubical.Data.NatMinusOne
 import Cubical.Data.NatMinusTwo
 import Cubical.Data.NatPlusOne

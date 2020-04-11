@@ -30,6 +30,9 @@ private
     B B' : (a : A) → Type ℓ
     C : (a : A) (b : B a) → Type ℓ
 
+mapʳ : (∀ {a} → B a → B' a) → Σ A B → Σ A B'
+mapʳ f (a , b) = (a , f b)
+
 
 ΣPathP : ∀ {x y}
   → Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y))
