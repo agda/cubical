@@ -29,7 +29,7 @@ module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc 
       WedgeConnectivity (suc n) (suc n) A connA A connA
         (λ a b →
           ( (σ b ≡ p → hLevelTrunc 2n+2 (fiber (λ x → merid x ∙ merid a ⁻¹) p))
-          , isOfHLevelPi 2n+2 λ _ → isOfHLevelTrunc 2n+2
+          , isOfHLevelΠ 2n+2 λ _ → isOfHLevelTrunc 2n+2
           ))
         (λ a r → ∣ a , (rCancel' (merid a) ∙ rCancel' (merid (pt A)) ⁻¹) ∙ r ∣)
         (λ b r → ∣ b , r ∣)
@@ -48,7 +48,7 @@ module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc 
       isEquivPrecomposeConnected (suc n)
         (λ a →
           ( (∀ t → isContr (fiber (fwd p a) t))
-          , isProp→isOfHLevelSuc n (isPropPi λ _ → isPropIsContr)
+          , isProp→isOfHLevelSuc n (isPropΠ λ _ → isPropIsContr)
           ))
         (λ _ → pt A)
         (isHLevelConnectedPoint (suc n) connA (pt A))

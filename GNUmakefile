@@ -23,6 +23,7 @@ check: $(wildcard Cubical/**/*.agda)
 	$(AGDA) Cubical/Codata/Everything.agda
 	$(AGDA) Cubical/Data/Everything.agda
 	$(AGDA) Cubical/HITs/Everything.agda
+	$(AGDA) Cubical/Homotopy/Everything.agda
 	$(AGDA) Cubical/Relation/Everything.agda
 	$(AGDA) Cubical/Induction/Everything.agda
 	$(AGDA) Cubical/Modalities/Everything.agda
