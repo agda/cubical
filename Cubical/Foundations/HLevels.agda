@@ -40,6 +40,9 @@ isOfHLevel 0 A = isContr A
 isOfHLevel 1 A = isProp A
 isOfHLevel (suc (suc n)) A = (x y : A) → isOfHLevel (suc n) (x ≡ y)
 
+isOfHLevelFun : (n : ℕ) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
+isOfHLevelFun n f = ∀ b → isOfHLevel n (fiber f b)
+
 HLevel : ∀ ℓ → ℕ → Type (ℓ-suc ℓ)
 HLevel ℓ n = TypeWithStr ℓ (isOfHLevel n)
 
@@ -83,6 +86,10 @@ isContr→isContrPath cA = isProp→isContrPath (isContr→isProp cA)
 isOfHLevelPath' : (n : ℕ) → isOfHLevel (suc n) A → (x y : A) → isOfHLevel n (x ≡ y)
 isOfHLevelPath' 0 = isProp→isContrPath
 isOfHLevelPath' (suc n) h x y = h x y
+
+isOfHLevelPath'⁻ : (n : ℕ) → ((x y : A) → isOfHLevel n (x ≡ y)) → isOfHLevel (suc n) A
+isOfHLevelPath'⁻ zero h x y = h x y .fst
+isOfHLevelPath'⁻ (suc n) h = h
 
 isOfHLevelPath : (n : ℕ) → isOfHLevel n A → (x y : A) → isOfHLevel n (x ≡ y)
 isOfHLevelPath 0 h x y = isContr→isContrPath h x y
