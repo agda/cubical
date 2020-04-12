@@ -27,16 +27,20 @@ _∘∙_ : ∀ {ℓA ℓB ℓC} {A : Pointed ℓA} {B : Pointed ℓB} {C : Point
 (g , g∙) ∘∙ (f , f∙) = (λ x → g (f  x)) , ((cong g f∙) ∙ g∙)
 
 {- pointed identity -}
-∙-id : ∀ {ℓA} (A : Pointed ℓA) → (A →∙ A)
-∙-id A = ((λ x → x) , refl)
+id∙ : ∀ {ℓA} (A : Pointed ℓA) → (A →∙ A)
+id∙ A = ((λ x → x) , refl)
+
+{- constant pointed map -}
+const∙ : ∀ {ℓA ℓB} (A : Pointed ℓA) (B : Pointed ℓB) → (A →∙ B)
+const∙ _ (_ , b) = (λ _ → b) , refl
 
 {- left identity law for pointed maps -}
-∘∙-idˡ : ∀ {ℓA ℓB} {A : Pointed ℓA} {B : Pointed ℓB} (f : A →∙ B) → f ∘∙ ∙-id A ≡ f
-∘∙-idˡ (f , f∙) = ΣPathP ( refl , (lUnit f∙) ⁻¹ )
+∘∙-idˡ : ∀ {ℓA ℓB} {A : Pointed ℓA} {B : Pointed ℓB} (f : A →∙ B) → f ∘∙ id∙ A ≡ f
+∘∙-idˡ (_ , f∙) = ΣPathP ( refl , (lUnit f∙) ⁻¹ )
 
 {- right identity law for pointed maps -}
-∘∙-idʳ : ∀ {ℓA ℓB} {A : Pointed ℓA} {B : Pointed ℓB} (f : A →∙ B) → ∙-id B ∘∙ f ≡ f
-∘∙-idʳ (f , f∙) = ΣPathP ( refl , (rUnit f∙) ⁻¹ )
+∘∙-idʳ : ∀ {ℓA ℓB} {A : Pointed ℓA} {B : Pointed ℓB} (f : A →∙ B) → id∙ B ∘∙ f ≡ f
+∘∙-idʳ (_ , f∙) = ΣPathP ( refl , (rUnit f∙) ⁻¹ )
 
 {- associativity for composition of pointed maps -}
 ∘∙-assoc : ∀ {ℓA ℓB ℓC ℓD} {A : Pointed ℓA} {B : Pointed ℓB} {C : Pointed ℓC} {D : Pointed ℓD}
