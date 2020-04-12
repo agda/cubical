@@ -2,7 +2,7 @@
 
 open import Cubical.Foundations.Everything renaming (uncurry to λ⟨,⟩_)
 open import Cubical.Data.Sigma.Properties
-open import Cubical.Foundations.CartesianKanOps
+open import Cubical.Foundations.Transport
 
 module Cubical.Modalities.Lex
   (◯ : ∀ {ℓ} → Type ℓ → Type ℓ)
@@ -143,8 +143,8 @@ module Combinators where
       B : A → Type ℓ′
       C : Σ A B → Type ℓ′′
 
-  λ/coe⟨_⟩_ : (p : A ≡ A′) → ((x : A′) → B (coe1→0 (λ i → p i) x)) → ((x : A) → B x)
-  λ/coe⟨_⟩_ {B = B} p f = coe1→0 (λ i → (x : p i) → B (coei→0 (λ j → p j) i x)) f
+  λ/coe⟨_⟩_ : (p : A ≡ A′) → ((x : A′) → B (transport⁻ p x)) → ((x : A) → B x)
+  λ/coe⟨_⟩_ {B = B} p f = transport⁻ (λ i → (x : p i) → B (transp (λ j → p (i ∧ ~ j)) (~ i) x)) f
 
 open Combinators
 
@@ -170,7 +170,7 @@ module _ {A : Type ℓ} {B : A → Type ℓ′} where
         h-β = ◯-rec-β A-mod fst
 
         f : (i : I) (x : Σ A B) → B (h-β x i)
-        f i x = coe1→i (λ j → B (h-β x j)) i (snd x)
+        f i x = transport⁻-filler (λ j → B (h-β x j)) (snd x) (~ i)
 
         η-inv : ◯ (Σ A B) → Σ A B
         η-inv y = h y , ◯-ind (B-mod ∘ h) (f i0) y
