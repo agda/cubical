@@ -9,7 +9,7 @@ open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 open import Cubical.Structures.Pointed
-open import Cubical.Structures.InftyMagma
+open import Cubical.Structures.InftyMagma hiding (⟨_⟩)
 
 private
   variable
@@ -43,6 +43,47 @@ monoid-structure = add-to-structure (raw-monoid-structure) monoid-axioms
 Monoids : Type (ℓ-suc ℓ)
 Monoids {ℓ} = TypeWithStr ℓ monoid-structure
 
+-- Monoid extractors
+
+⟨_⟩ : Monoids {ℓ} → Type ℓ
+⟨ G , _ ⟩ = G
+
+monoid-id : (M : Monoids {ℓ}) → ⟨ M ⟩
+monoid-id (_ , (e , _) , _) = e
+
+monoid-operation : (M : Monoids {ℓ}) → ⟨ M ⟩ → ⟨ M ⟩ → ⟨ M ⟩
+monoid-operation (_ , (_ , f) , _) = f
+
+module monoid-syntax where
+  id : (M : Monoids {ℓ}) → ⟨ M ⟩
+  id = monoid-id
+
+  monoid-operation-syntax : (M : Monoids {ℓ}) → ⟨ M ⟩ → ⟨ M ⟩ → ⟨ M ⟩
+  monoid-operation-syntax = monoid-operation
+
+  infixr 20 monoid-operation-syntax
+  syntax monoid-operation-syntax M x y = x ·⟨ M ⟩ y
+
+open monoid-syntax
+
+monoid-is-set : (M : Monoids {ℓ}) → isSet (⟨ M ⟩)
+monoid-is-set (_ , _ , P , _) = P
+
+monoid-assoc : (M : Monoids {ℓ})
+             → (x y z : ⟨ M ⟩) → x ·⟨ M ⟩ (y ·⟨ M ⟩ z) ≡ (x ·⟨ M ⟩ y) ·⟨ M ⟩ z
+monoid-assoc (_ , _ , _ , P , _) = P
+
+monoid-rid : (M : Monoids {ℓ})
+           → (x : ⟨ M ⟩) → x ·⟨ M ⟩ (id M) ≡ x
+monoid-rid (_ , _ , _ , _ , P , _) = P
+
+monoid-lid : (M : Monoids {ℓ})
+           → (x : ⟨ M ⟩) → (id M) ·⟨ M ⟩ x ≡ x
+monoid-lid (_ , _ , _ , _ , _ , P) = P
+
+
+-- Monoid equivalence
+
 monoid-iso : StrIso monoid-structure ℓ
 monoid-iso = add-to-iso raw-monoid-structure raw-monoid-iso monoid-axioms
 
@@ -67,16 +108,15 @@ MonoidPath M N = SIP monoid-structure monoid-iso monoid-is-SNS M N
 -- Added for groups
 -- If there exists a inverse of an element it is unique
 
-inv-lemma : (X : Type ℓ) (e : X) (_·_ : X → X → X)
-          → monoid-axioms X (e , _·_)
-          → (x y z : X)
-          → y · x ≡ e
-          → x · z ≡ e
+inv-lemma : (M : Monoids {ℓ})
+          → (x y z : ⟨ M ⟩)
+          → y ·⟨ M ⟩ x ≡ id M
+          → x ·⟨ M ⟩ z ≡ id M
           → y ≡ z
-inv-lemma X e _·_ (is-set-X , assoc , runit , lunit) x y z left-inverse right-inverse =
-  y           ≡⟨ sym (runit y) ⟩
-  y · e       ≡⟨ cong (y ·_) (sym right-inverse) ⟩
-  y · (x · z) ≡⟨ assoc y x z ⟩
-  (y · x) · z ≡⟨ cong (_· z) left-inverse ⟩
-  e · z       ≡⟨ lunit z ⟩
+inv-lemma M x y z left-inverse right-inverse =
+  y                     ≡⟨ sym (monoid-rid M y) ⟩
+  y ·⟨ M ⟩ id M         ≡⟨ cong (λ - → y ·⟨ M ⟩ -) (sym right-inverse) ⟩
+  y ·⟨ M ⟩ (x ·⟨ M ⟩ z) ≡⟨ monoid-assoc M y x z ⟩
+  (y ·⟨ M ⟩ x) ·⟨ M ⟩ z ≡⟨ cong (λ - → - ·⟨ M ⟩ z) left-inverse ⟩
+  id M ·⟨ M ⟩ z         ≡⟨ monoid-lid M z ⟩
   z ∎
