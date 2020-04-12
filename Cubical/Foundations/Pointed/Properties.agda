@@ -3,13 +3,9 @@ module Cubical.Foundations.Pointed.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed.Base
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Structure
 
-open import Cubical.Data.Prod
-open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 
 Π∙ : ∀ {ℓ ℓ'} (A : Type ℓ) (B∙ : A → Pointed ℓ') → Pointed (ℓ-max ℓ ℓ')

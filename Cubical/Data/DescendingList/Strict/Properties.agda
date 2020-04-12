@@ -116,7 +116,7 @@ module IsoToLFSet
     >-excluded : ∀ x xs → x >ᴴ xs → exclude x (Memʰ (x ∷ unsort xs)) ≡ Memˡ xs
     >-excluded x xs x>xs = funExt (λ a → ⇔toPath (to a) (from a)) where
 
-     import Cubical.Data.Prod  as D
+     import Cubical.Data.Sigma as D
      import Cubical.Data.Sum   as D
 
      from : ∀ a → [ a ∈ˡ xs ] → [ ¬ a ≡ₚ x ⊓ (a ≡ₚ x ⊔ a ∈ˡ xs) ]

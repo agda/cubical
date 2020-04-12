@@ -4,7 +4,7 @@ module Cubical.Structures.Monoid where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
-open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
+open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 

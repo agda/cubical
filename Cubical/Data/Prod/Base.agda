@@ -6,11 +6,16 @@ open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
+-- Here we define an inductive version of the product type, see below
+-- for its uses.
+
+-- See `Cubical.Data.Sigma` for `_×_` defined as a special case of
+-- sigma types, which is the generally preferred one.
+
 -- If × is defined using Σ then transp/hcomp will be compute
 -- "negatively", that is, they won't reduce unless we project out the
--- first of second component. This is not always what we want so the
--- default implementation is done using a datatype which computes
--- positively.
+-- first of second component. This is not always what we want so this
+-- implementation is done using a datatype which computes positively.
 
 
 private
@@ -28,11 +33,6 @@ proj₁ (x , _) = x
 proj₂ : {A : Type ℓ} {B : Type ℓ'} → A × B → B
 proj₂ (_ , x) = x
 
--- We still export the version using Σ
-_×Σ_ : (A : Type ℓ) (B : Type ℓ') → Type (ℓ-max ℓ ℓ')
-A ×Σ B = Σ A (λ _ → B)
-
-infixr 5 _×Σ_
 
 private
   variable
