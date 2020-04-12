@@ -7,7 +7,7 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Prod.Base
+open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq

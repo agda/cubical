@@ -12,7 +12,7 @@ open import Cubical.Structures.Pointed
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
-open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
+open import Cubical.Data.Sigma
 
 
 -- Developing Queues as a standard notion of structure, see

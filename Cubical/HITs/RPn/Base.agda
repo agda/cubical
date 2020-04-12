@@ -30,9 +30,6 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Empty as ⊥ hiding (elim)
 open import Cubical.Data.Sum as ⊎ hiding (elim)
 
-open import Cubical.Data.Prod renaming (_×_ to _×'_; _×Σ_ to _×_; swapΣEquiv to swapEquiv)
-                              hiding (swapEquiv)
-
 open import Cubical.HITs.PropositionalTruncation as PropTrunc hiding (elim)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
@@ -254,22 +251,21 @@ TotalCov≃Sn (ℕ→ℕ₋₁ n) =
 
     This was proved above by ⊕*.isEquivˡ.
 -}
-    u : ∀ {n} → (Σ[ x ∈ Total (cov⁻¹ n) ] typ (cov⁻¹ n (fst x))) ≃ (Total (cov⁻¹ n) ×' Bool)
+    u : ∀ {n} → (Σ[ x ∈ Total (cov⁻¹ n) ] typ (cov⁻¹ n (fst x))) ≃ (Total (cov⁻¹ n) × Bool)
     u {n} = Σ[ x ∈ Total (cov⁻¹ n) ] typ (cov⁻¹ n (fst x))      ≃⟨ assocΣ ⟩
-            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ congΣEquiv (λ x → swapEquiv _ _) ⟩
+            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ congΣEquiv (λ x → swapΣEquiv _ _) ⟩
             Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ congΣEquiv (λ x → congΣEquiv (λ y →
                                                                              ⊕*.Equivˡ (cov⁻¹ n x) y)) ⟩
             Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × Bool              ≃⟨ invEquiv assocΣ ⟩
-            Total (cov⁻¹ n) × Bool                              ≃⟨ invEquiv A×B≃A×ΣB ⟩
-            Total (cov⁻¹ n) ×' Bool                             ■
+            Total (cov⁻¹ n) × Bool                              ■
 
     H : ∀ x → u .fst x ≡ (Σf x , snd (Σg x))
     H x = refl
 
-    nat : 3-span-equiv (3span Σf Σg) (3span {A2 = Total (cov⁻¹ (-1+ n)) ×' Bool} proj₁ proj₂)
+    nat : 3-span-equiv (3span Σf Σg) (3span {A2 = Total (cov⁻¹ (-1+ n)) × Bool} fst snd)
     nat = record { e0 = idEquiv _ ; e2 = u ; e4 = ΣUnit _
-                 ; H1 = λ x → cong proj₁ (H x)
-                 ; H3 = λ x → cong proj₂ (H x) }
+                 ; H1 = λ x → cong fst (H x)
+                 ; H3 = λ x → cong snd (H x) }
 
     ii : Pushout Σf Σg ≃ join (Total (cov⁻¹ (-1+ n))) Bool
     ii = compEquiv (pathToEquiv (spanEquivToPushoutPath nat)) (joinPushout≃join _ _)

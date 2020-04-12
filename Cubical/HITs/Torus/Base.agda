@@ -14,7 +14,7 @@ open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Int
-open import Cubical.Data.Prod hiding (_×_) renaming (_×Σ_ to _×_)
+open import Cubical.Data.Sigma
 
 open import Cubical.HITs.S1
 

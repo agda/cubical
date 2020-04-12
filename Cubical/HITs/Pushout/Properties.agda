@@ -22,7 +22,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
 
-open import Cubical.Data.Prod.Base
+open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.HITs.Pushout.Base

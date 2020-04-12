@@ -4,7 +4,7 @@ module Cubical.Data.Prod.Properties where
 open import Cubical.Core.Everything
 
 open import Cubical.Data.Prod.Base
-open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma renaming (_×_ to _×Σ_)
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -56,9 +56,6 @@ A×B≃A×ΣB = isoToEquiv (iso (λ { (a , b) → (a , b)})
 
 A×B≡A×ΣB : A × B ≡ A ×Σ B
 A×B≡A×ΣB = ua A×B≃A×ΣB
-
-swapΣEquiv : (A : Type ℓ) (B : Type ℓ') → A ×Σ B ≃ B ×Σ A
-swapΣEquiv A B = compEquiv (compEquiv (invEquiv A×B≃A×ΣB) (swapEquiv A B)) A×B≃A×ΣB
 
 -- truncation for products
 isOfHLevelProd : (n : ℕ) → isOfHLevel n A → isOfHLevel n B → isOfHLevel n (A × B)

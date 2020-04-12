@@ -7,7 +7,6 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Data.DiffInt.Base
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
-open import Cubical.Data.Prod
 open import Cubical.Data.Bool
 
 open import Cubical.Relation.Binary.Base
@@ -18,7 +17,7 @@ open import Cubical.HITs.SetQuotients
 open BinaryRelation
 
 relIsEquiv : isEquivRel rel
-relIsEquiv = EquivRel {A = ℕ ×Σ ℕ} relIsRefl relIsSym relIsTrans
+relIsEquiv = EquivRel {A = ℕ × ℕ} relIsRefl relIsSym relIsTrans
   where
     relIsRefl : isRefl rel
     relIsRefl (a0 , a1) = refl
