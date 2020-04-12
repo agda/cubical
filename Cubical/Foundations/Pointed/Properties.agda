@@ -3,7 +3,7 @@ module Cubical.Foundations.Pointed.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed.Base
-open import Cubical.Data.Prod
+open import Cubical.Data.Sigma
 
 Π∙ : ∀ {ℓ ℓ'} (A : Type ℓ) (B∙ : A → Pointed ℓ') → Pointed (ℓ-max ℓ ℓ')
 Π∙ A B∙ = (∀ a → typ (B∙ a)) , (λ a → pt (B∙ a))

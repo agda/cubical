@@ -14,14 +14,14 @@ open import Cubical.Foundations.Id
            ; ap            to apId
            ; equivFun      to equivFunId
            ; equivCtr      to equivCtrId
-           ; fiber          to fiberId
+           ; fiber         to fiberId
            ; funExt        to funExtId
            ; isContr       to isContrId
            ; isProp        to isPropId
            ; isSet         to isSetId
            ; isEquiv       to isEquivId
            ; equivIsEquiv  to equivIsEquivId
-           ; refl           to reflId
+           ; refl          to reflId
            ; ∥_∥           to propTruncId
            ; ∣_∣           to incId
            ; isPropIsContr to isPropIsContrId
@@ -29,29 +29,21 @@ open import Cubical.Foundations.Id
            )
 
 open import Cubical.Foundations.GroupoidLaws public
-open import Cubical.Foundations.CartesianKanOps public
 open import Cubical.Foundations.Function public
-open import Cubical.Foundations.Embedding public
 open import Cubical.Foundations.Equiv public
 open import Cubical.Foundations.Equiv.Properties public
 open import Cubical.Foundations.Equiv.Fiberwise
-open import Cubical.Foundations.PathSplitEquiv public
-open import Cubical.Foundations.BiInvEquiv public
-open import Cubical.Foundations.HAEquiv
-open import Cubical.Foundations.FunExtEquiv public
+open import Cubical.Foundations.Equiv.PathSplit public
+open import Cubical.Foundations.Equiv.BiInvertible public
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels public
 open import Cubical.Foundations.Path public
 open import Cubical.Foundations.Pointed public
 open import Cubical.Foundations.Structure public
 open import Cubical.Foundations.Transport public
 open import Cubical.Foundations.Univalence public
-open import Cubical.Foundations.UnivalenceId public
 open import Cubical.Foundations.Univalence.Universe
 open import Cubical.Foundations.GroupoidLaws public
 open import Cubical.Foundations.Isomorphism public
-open import Cubical.Foundations.Surjection public
-open import Cubical.Foundations.TotalFiber public
-open import Cubical.Foundations.Bundle public
 open import Cubical.Foundations.Logic
 open import Cubical.Foundations.SIP
-open import Cubical.Foundations.HoTT-UF

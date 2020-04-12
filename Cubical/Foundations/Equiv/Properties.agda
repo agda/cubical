@@ -21,7 +21,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
 
-open import Cubical.Foundations.FunExtEquiv
+open import Cubical.Functions.FunExtEquiv
 
 private
   variable

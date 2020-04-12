@@ -6,7 +6,7 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Everything
 
-open import Cubical.Data.Prod using (_×_; _,_)
+open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum using (_⊎_; inl; inr)
 
@@ -263,4 +263,3 @@ module Push {ℓ} {A : Type ℓ} where
            Cylinder→Pushout
            Cylinder→Pushout→Cylinder
            Pushout→Cylinder→Pushout)
-

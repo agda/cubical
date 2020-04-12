@@ -15,7 +15,7 @@ open import Cubical.HITs.Truncation
 ----  H⁰(S¹) = ℤ  ----
 
 coHom0-S1 : coHom zero S¹ ≡ Int
-coHom0-S1 = (λ i → ∥ helpLemma i ∥₀ ) ∙ setId isSetInt
+coHom0-S1 = (λ i → ∥ helpLemma i ∥₀ ) ∙ setTruncIdempotent isSetInt
   where
   helpLemma : (S¹ → Int) ≡ Int
   helpLemma = isoToPath (iso fun funinv (λ _ → refl) (λ f → funExt (rinvLemma f)))

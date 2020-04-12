@@ -7,7 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
-open import Cubical.Data.Prod
+open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Relation.Nullary
 
@@ -76,7 +76,7 @@ module ListPath {ℓ} {A : Type ℓ} where
   isOfHLevelCover n p (x ∷ xs) [] =
     isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥)
   isOfHLevelCover n p (x ∷ xs) (y ∷ ys) =
-    isOfHLevelProd (suc n) (p x y) (isOfHLevelCover n p xs ys)
+    isOfHLevelΣ (suc n) (p x y) (\ _ → isOfHLevelCover n p xs ys)
 
 isOfHLevelList : ∀ {ℓ} (n : ℕ) {A : Type ℓ}
   → isOfHLevel (suc (suc n)) A → isOfHLevel (suc (suc n)) (List A)

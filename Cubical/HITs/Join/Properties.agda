@@ -19,7 +19,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 
-open import Cubical.Data.Prod
+open import Cubical.Data.Sigma renaming (fst to proj₁; snd to proj₂)
 
 open import Cubical.HITs.Join.Base
 open import Cubical.HITs.Pushout

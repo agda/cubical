@@ -3,8 +3,11 @@ module Cubical.HITs.FiniteMultiset.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-
+open import Cubical.Data.Nat
+open import Cubical.Relation.Nullary
 open import Cubical.HITs.FiniteMultiset.Base
+open import Cubical.Structures.MultiSet
+open import Cubical.Relation.Nullary.DecidableEq
 
 private
   variable
@@ -23,14 +26,12 @@ unitl-++ : ∀ (xs : FMSet A) → [] ++ xs ≡ xs
 unitl-++ xs = refl
 
 unitr-++ : ∀ (xs : FMSet A) → xs ++ [] ≡ xs
-unitr-++ = ElimProp.f (trunc _ _)
-  refl
-  (λ x p → cong (_∷_ x) p)
+unitr-++ = ElimProp.f (trunc _ _) refl (λ x p → cong (_∷_ x) p)
 
 assoc-++ : ∀ (xs ys zs : FMSet A) → xs ++ (ys ++ zs) ≡ (xs ++ ys) ++ zs
-assoc-++ = ElimProp.f (isPropPi (λ _ → isPropPi (λ _ → trunc _ _)))
-  (λ ys zs → refl)
-  (λ x p ys zs → cong (_∷_ x) (p ys zs))
+assoc-++ = ElimProp.f (isPropΠ2 (λ _ _ → trunc _ _))
+                      (λ ys zs → refl)
+                      (λ x p ys zs → cong (_∷_ x) (p ys zs))
 
 cons-++ : ∀ (x : A) (xs : FMSet A) → x ∷ xs ≡ xs ++ [ x ]
 cons-++ x = ElimProp.f (trunc _ _)
@@ -38,7 +39,7 @@ cons-++ x = ElimProp.f (trunc _ _)
   (λ y {xs} p → comm x y xs ∙ cong (_∷_ y) p)
 
 comm-++ : ∀ (xs ys : FMSet A) → xs ++ ys ≡ ys ++ xs
-comm-++ = ElimProp.f (isPropPi (λ _ → trunc _ _))
+comm-++ = ElimProp.f (isPropΠ (λ _ → trunc _ _))
   (λ ys → sym (unitr-++ ys))
   (λ x {xs} p ys → cong (x ∷_) (p ys)
                  ∙ cong (_++ xs) (cons-++ x ys)
@@ -64,7 +65,7 @@ module FMSetUniversal {ℓ} {M : Type ℓ} (MSet : isSet M)
   f-extend-sing x = comm-⊗ (f x) e ∙ unit-⊗ (f x)
 
   f-extend-++ : ∀ xs ys → f-extend (xs ++ ys) ≡ f-extend xs ⊗ f-extend ys
-  f-extend-++ = ElimProp.f (isPropPi λ _ → MSet _ _)
+  f-extend-++ = ElimProp.f (isPropΠ λ _ → MSet _ _)
     (λ ys → sym (unit-⊗ (f-extend ys)))
     (λ x {xs} p ys → cong (f x ⊗_) (p ys) ∙ assoc-⊗ (f x) (f-extend xs) (f-extend ys))
 
@@ -75,3 +76,40 @@ module FMSetUniversal {ℓ} {M : Type ℓ} (MSet : isSet M)
     f-extend-unique = funExt (ElimProp.f (MSet _ _)
                               h-nil
                               (λ x {xs} p → (h-++ [ x ] xs) ∙ cong (_⊗ h xs) (h-sing x) ∙ cong (f x ⊗_) p))
+
+
+
+-- We want to construct a multiset-structure on FMSet A, the empty set and insertion are given by the constructors,
+-- for the membership part we use the recursor
+
+-- Is there a way around the auxillary functions with the with-syntax?
+FMSmember-∷*-aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ
+FMSmember-∷*-aux a x (yes a≡x) n = suc n
+FMSmember-∷*-aux a x (no  a≢x) n = n
+
+
+FMSmember-comm*-aux :  (a x y : A) (n : ℕ) (p : Dec (a ≡ x)) (q : Dec (a ≡ y))
+                     →  FMSmember-∷*-aux a x p (FMSmember-∷*-aux a y q n)
+                      ≡ FMSmember-∷*-aux a y q (FMSmember-∷*-aux a x p n)
+FMSmember-comm*-aux a x y n (yes a≡x) (yes a≡y) = refl
+FMSmember-comm*-aux a x y n (yes a≡x) (no  a≢y) = refl
+FMSmember-comm*-aux a x y n (no  a≢x) (yes a≡y) = refl
+FMSmember-comm*-aux a x y n (no  a≢x) (no  a≢y) = refl
+
+
+-- If A has decidable equality we can define the member-function:
+module _(discA : Discrete A) where
+ FMSmember-∷* : A → A → ℕ → ℕ
+ FMSmember-∷* a x n = FMSmember-∷*-aux a x (discA a x) n
+
+ FMSmember-comm* :  (a x y : A) (n : ℕ)
+                  →  FMSmember-∷* a x (FMSmember-∷* a y n)
+                   ≡ FMSmember-∷* a y (FMSmember-∷* a x n)
+ FMSmember-comm* a x y n = FMSmember-comm*-aux a x y n (discA a x) (discA a y)
+
+ FMSmember : A → FMSet A → ℕ
+ FMSmember a = Rec.f isSetℕ 0 (FMSmember-∷* a) (FMSmember-comm* a)
+
+
+ FMS-with-str : Multi-Set A (Discrete→isSet discA)
+ FMS-with-str = (FMSet A , [] , _∷_ , FMSmember)
