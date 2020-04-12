@@ -9,6 +9,8 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Data.Nat
 open import Cubical.Data.Group.Base
 
+open import Cubical.Homotopy.Loopspace
+
 open import Cubical.HITs.SetTruncation as SetTrunc
 
 π^_ : ∀ {ℓ} → ℕ → Pointed ℓ → Group ℓ

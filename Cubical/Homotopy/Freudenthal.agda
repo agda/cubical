@@ -16,6 +16,7 @@ open import Cubical.HITs.Susp
 open import Cubical.HITs.Truncation as Trunc
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
+open import Cubical.Homotopy.Loopspace
 
 module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc n)) (typ A)) where
 

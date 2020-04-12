@@ -22,46 +22,33 @@ _×∙_ : ∀ {ℓ ℓ'} (A∙ : Pointed ℓ) (B∙ : Pointed ℓ') → Pointed 
 A∙ ×∙ B∙ = ((typ A∙) × (typ B∙)) , (pt A∙ , pt B∙)
 
 {- composition of pointed maps -}
-_∘*_ : ∀ {ℓA ℓB ℓC} {A : Pointed ℓA} {B : Pointed ℓB} {C : Pointed ℓC}
-       (g : B →* C) (f : A →* B) → (A →* C)
-(g , g*) ∘* (f , f*) = (λ x → g (f  x)) , ((cong g f*) ∙ g*)
+_∘∙_ : ∀ {ℓA ℓB ℓC} {A : Pointed ℓA} {B : Pointed ℓB} {C : Pointed ℓC}
+       (g : B →∙ C) (f : A →∙ B) → (A →∙ C)
+(g , g∙) ∘∙ (f , f∙) = (λ x → g (f  x)) , ((cong g f∙) ∙ g∙)
 
 {- pointed identity -}
-*-id : ∀ {ℓA} (A : Pointed ℓA) → (A →* A)
-*-id A = ((λ x → x) , refl)
+∙-id : ∀ {ℓA} (A : Pointed ℓA) → (A →∙ A)
+∙-id A = ((λ x → x) , refl)
 
 {- left identity law for pointed maps -}
-∘*-idˡ : ∀ {ℓA ℓB} {A : Pointed ℓA} {B : Pointed ℓB} (f : A →* B) → f ∘* *-id A ≡ f
-∘*-idˡ (f , f*) = ΣPathP ( refl , (lUnit f*) ⁻¹ )
+∘∙-idˡ : ∀ {ℓA ℓB} {A : Pointed ℓA} {B : Pointed ℓB} (f : A →∙ B) → f ∘∙ ∙-id A ≡ f
+∘∙-idˡ (f , f∙) = ΣPathP ( refl , (lUnit f∙) ⁻¹ )
 
 {- right identity law for pointed maps -}
-∘*-idʳ : ∀ {ℓA ℓB} {A : Pointed ℓA} {B : Pointed ℓB} (f : A →* B) → *-id B ∘* f ≡ f
-∘*-idʳ (f , f*) = ΣPathP ( refl , (rUnit f*) ⁻¹ )
+∘∙-idʳ : ∀ {ℓA ℓB} {A : Pointed ℓA} {B : Pointed ℓB} (f : A →∙ B) → ∙-id B ∘∙ f ≡ f
+∘∙-idʳ (f , f∙) = ΣPathP ( refl , (rUnit f∙) ⁻¹ )
 
 {- associativity for composition of pointed maps -}
-∘*-assoc : ∀ {ℓA ℓB ℓC ℓD} {A : Pointed ℓA} {B : Pointed ℓB} {C : Pointed ℓC} {D : Pointed ℓD}
-           (h : C →* D) (g : B →* C) (f : A →* B)
-           → (h ∘* g) ∘* f ≡ h ∘* (g ∘* f)
-∘*-assoc (h , h*) (g , g*) (f , f*) = ΣPathP (refl , q)
+∘∙-assoc : ∀ {ℓA ℓB ℓC ℓD} {A : Pointed ℓA} {B : Pointed ℓB} {C : Pointed ℓC} {D : Pointed ℓD}
+           (h : C →∙ D) (g : B →∙ C) (f : A →∙ B)
+           → (h ∘∙ g) ∘∙ f ≡ h ∘∙ (g ∘∙ f)
+∘∙-assoc (h , h∙) (g , g∙) (f , f∙) = ΣPathP (refl , q)
   where
-    q : (cong (h ∘ g) f*) ∙ (cong h g* ∙ h*) ≡ cong h (cong g f* ∙ g*) ∙ h*
-    q = ( (cong (h ∘ g) f*) ∙ (cong h g* ∙ h*)
+    q : (cong (h ∘ g) f∙) ∙ (cong h g∙ ∙ h∙) ≡ cong h (cong g f∙ ∙ g∙) ∙ h∙
+    q = ( (cong (h ∘ g) f∙) ∙ (cong h g∙ ∙ h∙)
         ≡⟨ refl ⟩
-        (cong h (cong g f*)) ∙ (cong h g* ∙ h*)
-        ≡⟨ assoc (cong h (cong g f*)) (cong h g*) h* ⟩
-        (cong h (cong g f*) ∙ cong h g*) ∙ h*
-        ≡⟨ cong (λ p → p ∙ h*) ((cong-∙ h (cong g f*) g*) ⁻¹) ⟩
-        (cong h (cong g f* ∙ g*) ∙ h*) ∎ )
-
-{- loop space of a pointed type -}
-Ω : {ℓ : Level} → Pointed ℓ → Pointed ℓ
-Ω (_ , a) = ((a ≡ a) , refl)
-
-{- n-fold loop space of a pointed type -}
-Ω^_ : ∀ {ℓ} → ℕ → Pointed ℓ → Pointed ℓ
-(Ω^ 0) p = p
-(Ω^ (suc n)) p = Ω ((Ω^ n) p)
-
-{- loop space map -}
-Ω→ : ∀ {ℓA ℓB} {A : Pointed ℓA} {B : Pointed ℓB} (f : A →* B) → (Ω A →* Ω B)
-Ω→ (f , f*) = (λ p → (sym f* ∙ cong f p) ∙ f*) , cong (λ q → q ∙ f*) (sym (rUnit (sym f*))) ∙ lCancel f*
+        (cong h (cong g f∙)) ∙ (cong h g∙ ∙ h∙)
+        ≡⟨ assoc (cong h (cong g f∙)) (cong h g∙) h∙ ⟩
+        (cong h (cong g f∙) ∙ cong h g∙) ∙ h∙
+        ≡⟨ cong (λ p → p ∙ h∙) ((cong-∙ h (cong g f∙) g∙) ⁻¹) ⟩
+        (cong h (cong g f∙ ∙ g∙) ∙ h∙) ∎ )
