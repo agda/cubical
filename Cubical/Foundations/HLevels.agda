@@ -13,16 +13,16 @@ module Cubical.Foundations.HLevels where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.FunExtEquiv
+open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.HAEquiv      using (congEquiv)
-open import Cubical.Foundations.Univalence   using (ua; univalence)
+open import Cubical.Foundations.Equiv.HalfAdjoint  using (congEquiv)
+open import Cubical.Foundations.Univalence         using (ua; univalence)
 
-open import Cubical.Data.Sigma using (pathSigma≡sigmaPath; _Σ≡T_; ΣProp≡)
+open import Cubical.Data.Sigma using (pathSigma≡sigmaPath; _Σ≡T_; ΣProp≡; _×_)
 open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)
 
 private
@@ -39,6 +39,9 @@ isOfHLevel : ℕ → Type ℓ → Type ℓ
 isOfHLevel 0 A = isContr A
 isOfHLevel 1 A = isProp A
 isOfHLevel (suc (suc n)) A = (x y : A) → isOfHLevel (suc n) (x ≡ y)
+
+isOfHLevelFun : (n : ℕ) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
+isOfHLevelFun n f = ∀ b → isOfHLevel n (fiber f b)
 
 HLevel : ∀ ℓ → ℕ → Type (ℓ-suc ℓ)
 HLevel ℓ n = TypeWithStr ℓ (isOfHLevel n)
@@ -83,6 +86,10 @@ isContr→isContrPath cA = isProp→isContrPath (isContr→isProp cA)
 isOfHLevelPath' : (n : ℕ) → isOfHLevel (suc n) A → (x y : A) → isOfHLevel n (x ≡ y)
 isOfHLevelPath' 0 = isProp→isContrPath
 isOfHLevelPath' (suc n) h x y = h x y
+
+isOfHLevelPath'⁻ : (n : ℕ) → ((x y : A) → isOfHLevel n (x ≡ y)) → isOfHLevel (suc n) A
+isOfHLevelPath'⁻ zero h x y = h x y .fst
+isOfHLevelPath'⁻ (suc n) h = h
 
 isOfHLevelPath : (n : ℕ) → isOfHLevel n A → (x y : A) → isOfHLevel n (x ≡ y)
 isOfHLevelPath 0 h x y = isContr→isContrPath h x y
@@ -239,7 +246,28 @@ isGroupoidΣ = isOfHLevelΣ 3
 is2GroupoidΣ : is2Groupoid A → ((x : A) → is2Groupoid (B x)) → is2Groupoid (Σ A B)
 is2GroupoidΣ = isOfHLevelΣ 4
 
+-- h-level of ×
+
+isProp× : ∀ {A : Type ℓ} {B : Type ℓ'} → isProp A → isProp B → isProp (A × B)
+isProp× pA pB = isPropΣ pA (λ _ → pB)
+
+isOfHLevel× : ∀ {A : Type ℓ} {B : Type ℓ'} n → isOfHLevel n A → isOfHLevel n B
+                                             → isOfHLevel n (A × B)
+isOfHLevel× n hA hB = isOfHLevelΣ n hA (λ _ → hB)
+
+isSet× : ∀ {A : Type ℓ} {B : Type ℓ'} → isSet A → isSet B → isSet (A × B)
+isSet× = isOfHLevel× 2
+
+isGroupoid× : ∀ {A : Type ℓ} {B : Type ℓ'} → isGroupoid A → isGroupoid B
+                                           → isGroupoid (A × B)
+isGroupoid× = isOfHLevel× 3
+
+is2Groupoid× : ∀ {A : Type ℓ} {B : Type ℓ'} → is2Groupoid A → is2Groupoid B
+                                            → is2Groupoid (A × B)
+is2Groupoid× = isOfHLevel× 4
+
 -- h-level of Π-types
+
 isOfHLevelΠ : ∀ n → ((x : A) → isOfHLevel n (B x))
                   → isOfHLevel n ((x : A) → B x)
 isOfHLevelΠ 0 h = (λ x → fst (h x)) , λ f i y → snd (h y) (f y) i

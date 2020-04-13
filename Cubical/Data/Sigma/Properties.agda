@@ -18,7 +18,6 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.CartesianKanOps
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
 open import Cubical.Data.Unit.Base
@@ -82,7 +81,7 @@ private
   filler-π2 : {a b : Σ A B} → (p : a ≡ b) → I → (i : I) → B (fst (p i))
   filler-π2 {B = B} {a = a} p i =
     fill (λ i → B (fst (p i)))
-         (λ t → λ { (i = i0) → coe0→i (λ j → B (fst (p j))) t (snd a)
+         (λ t → λ { (i = i0) → transport-filler (λ j → B (fst (p j))) (snd a) t
                   ; (i = i1) → snd (p t) })
          (inS (snd a))
 
@@ -100,7 +99,7 @@ private
   filler-comp {B = B} a b (p , q) i =
     hfill (λ t → λ { (i = i0) → a
                    ; (i = i1) → (p i1 , q t) })
-          (inS (p i , coe0→i (λ j → B (p j)) i (snd a)))
+          (inS (p i , transport-filler (λ j → B (p j)) (snd a) i))
 
 sigmaPath→pathSigma : (a b : Σ A B) → a Σ≡T b → (a ≡ b)
 sigmaPath→pathSigma a b x i = filler-comp a b x i i1
@@ -116,8 +115,8 @@ private
              (transport (λ j → B (fst (filler-comp a b p j i))) (snd a) ≡ snd b)
   homotopy-π2 {B = B} a b p i j =
     comp (λ t → B (fst (filler-comp a b p t (i ∨ j))))
-         (λ t → λ { (j = i0) → coe0→i (λ t → B (fst (filler-comp a b p t i)))
-                                      t (snd a)
+         (λ t → λ { (j = i0) → transport-filler (λ t → B (fst (filler-comp a b p t i)))
+                                                (snd a) t
                   ; (j = i1) → snd (sigmaPath→pathSigma a b p t)
                   ; (i = i0) → snd (filler-comp a b p t j)
                   ; (i = i1) → filler-π2 (sigmaPath→pathSigma a b p) j t })
@@ -137,7 +136,7 @@ sigmaPath→pathSigma→sigmaPath {B = B} {a = a} {b = b} p i j =
                  ; (i = i0) → filler-comp a b (pathSigma→sigmaPath _ _ p) j t
                  ; (j = i0) → (fst a , snd a)
                  ; (j = i1) → (fst b , filler-π2 p t i1) })
-        (fst (p j) , coe0→i (λ k → B (fst (p k))) j (snd a))
+        (fst (p j) , transport-filler (λ k → B (fst (p k))) (snd a) j)
 
 pathSigma≡sigmaPath : (a b : Σ A B) → (a ≡ b) ≡ (a Σ≡T b)
 pathSigma≡sigmaPath a b =
@@ -191,3 +190,6 @@ PiΣ : ((a : A) → Σ[ b ∈ B a ] C a b) ≃ (Σ[ f ∈ ((a : A) → B a) ] �
 PiΣ = isoToEquiv (iso (λ f → fst ∘ f , snd ∘ f)
                       (λ (f , g) → (λ x → f x , g x))
                       (λ _ → refl) (λ _ → refl))
+
+swapΣEquiv : ∀ {ℓ'} (A : Type ℓ) (B : Type ℓ') → A × B ≃ B × A
+swapΣEquiv A B = isoToEquiv (iso (λ x → x .snd , x .fst) (λ z → z .snd , z .fst) (\ _ → refl) (\ _ → refl))

@@ -11,7 +11,6 @@ open import Cubical.Induction.WellFounded
 
 open import Cubical.Data.Fin
 open import Cubical.Data.Sigma as Σ
-open import Cubical.Data.Prod hiding (_×_) renaming (_×Σ_ to _×_)
 open import Cubical.Data.NatPlusOne
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc

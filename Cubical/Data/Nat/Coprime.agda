@@ -4,10 +4,8 @@ module Cubical.Data.Nat.Coprime where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
-open import Cubical.Data.NatPlusOne.Base
-
-open import Cubical.Data.Prod hiding (_×_) renaming (_×Σ_ to _×_)
-open import Cubical.Data.Sigma.Properties
+open import Cubical.Data.Sigma
+open import Cubical.Data.NatPlusOne
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
