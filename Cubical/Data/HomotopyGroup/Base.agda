@@ -9,14 +9,9 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Data.Nat
 open import Cubical.Data.Group.Base
 
+open import Cubical.Homotopy.Loopspace
+
 open import Cubical.HITs.SetTruncation as SetTrunc
-
-Ω : ∀ {ℓ} → Pointed ℓ → Pointed ℓ
-Ω (A , a ) = ( (a ≡ a) , refl)
-
-Ω^_ : ∀ {ℓ} → ℕ → Pointed ℓ → Pointed ℓ
-(Ω^ 0) p = p
-(Ω^ (suc n)) p = Ω ((Ω^ n) p)
 
 π^_ : ∀ {ℓ} → ℕ → Pointed ℓ → Group ℓ
 π^_ {ℓ} n p = group ∥ A ∥₀  squash₀ g

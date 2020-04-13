@@ -13,7 +13,7 @@ module Cubical.Experiments.EscardoSIP where
 
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Everything
-open import Cubical.Foundations.HAEquiv
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Data.Sigma.Properties
 
 

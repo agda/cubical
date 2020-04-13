@@ -8,7 +8,7 @@ Half adjoint equivalences ([HAEquiv])
 
 -}
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.HAEquiv where
+module Cubical.Foundations.Equiv.HalfAdjoint where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism

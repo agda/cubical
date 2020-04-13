@@ -7,7 +7,7 @@ open import Cubical.Foundations.HLevels
 
 
 open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Prod
+open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as ⊎
 
 open import Cubical.Data.Nat.Base
@@ -86,7 +86,7 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
   l2 : j + i ≡ 0
   l2 = m+n≡n→m≡0 l1
   l3 : 0 ≡ i
-  l3 = sym (proj₂ (m+n≡0→m≡0×n≡0 l2))
+  l3 = sym (snd (m+n≡0→m≡0×n≡0 l2))
 
 ≤-k+-cancel : k + m ≤ k + n → m ≤ n
 ≤-k+-cancel {k} {m} (l , p) = l , inj-m+ (sub k m ∙ p)
@@ -152,7 +152,7 @@ suc m ≟ zero = gt (m , +-comm m 1)
 suc m ≟ suc n = Trichotomy-suc (m ≟ n)
 
 <-split : m < suc n → (m < n) ⊎ (m ≡ n)
-<-split {n = zero} = inr ∘ proj₂ ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred
+<-split {n = zero} = inr ∘ snd ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred
 <-split {zero} {suc n} = λ _ → inl (suc-≤-suc zero-≤)
 <-split {suc m} {suc n} = ⊎.map suc-≤-suc (cong suc) ∘ <-split ∘ pred-≤-pred
 

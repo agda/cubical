@@ -64,6 +64,20 @@ rCancel-filler {x = x} p k j i =
 rCancel : (p : x ≡ y) → p ∙ p ⁻¹ ≡ refl
 rCancel {x = x} p j i = rCancel-filler p i1 j i
 
+rCancel-filler' : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) → (i j k : I) → A
+rCancel-filler' {x = x} {y} p i j k =
+  hfill
+    (λ i → λ
+      { (j = i1) → p (~ i ∧ k)
+      ; (k = i0) → x
+      ; (k = i1) → p (~ i)
+      })
+    (inS (p k))
+    (~ i)
+
+rCancel' : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) → p ∙ p ⁻¹ ≡ refl
+rCancel' p j k = rCancel-filler' p i0 j k
+
 lCancel : (p : x ≡ y) → p ⁻¹ ∙ p ≡ refl
 lCancel p = rCancel (p ⁻¹)
 
@@ -104,7 +118,7 @@ preassoc {x = x} p q r j i = preassoc-filler p q r i1 j i
 
 assoc : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) →
   p ∙ q ∙ r ≡ (p ∙ q) ∙ r
-assoc p q r = 3outof4 (compPath-filler p (q ∙ r)) ((p ∙ q) ∙ r) (preassoc p q r)
+assoc p q r = 3outof4 (λ j i → compPath-filler p (q ∙ r) j i) ((p ∙ q) ∙ r) (preassoc p q r)
 
 -- heterogeneous groupoid laws
 
@@ -114,7 +128,7 @@ symInvoP p = refl
 
 rUnitP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x y) →
   PathP (λ j → PathP (λ i → rUnit (λ i → A i) j i) x y) p (compPathP p refl)
-rUnitP p j i = compPathP-filler p refl i j
+rUnitP p j i = compPathP-filler p refl j i
 
 lUnitP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x y) →
   PathP (λ j → PathP (λ i → lUnit (λ i → A i) j i) x y) p (compPathP refl p)
@@ -158,36 +172,20 @@ preassocP : {A : I → Type ℓ} {x : A i0} {y : A i1} {B_i1 : Type ℓ} {B : (A
 preassocP {A = A} {x = x} {B = B} {C = C} p q r j i =
   comp (λ k → preassoc-filler (λ i → A i) B C k j i)
        (λ k → λ { (i = i0) → x
-                ; (i = i1) → compPathP-filler q r j k
+                ; (i = i1) → compPathP-filler q r k j
                 ; (j = i0) → p i
              -- ; (j = i1) → compPathP-filler (compPathP p q) r i k
-                }) (compPathP-filler p q i j)
+                }) (compPathP-filler p q j i)
 
 assocP : {A : I → Type ℓ} {x : A i0} {y : A i1} {B_i1 : Type ℓ} {B : (A i1) ≡ B_i1} {z : B i1}
   {C_i1 : Type ℓ} {C : (B i1) ≡ C_i1} {w : C i1} (p : PathP A x y) (q : PathP (λ i → B i) y z) (r : PathP (λ i → C i) z w) →
   PathP (λ j → PathP (λ i → assoc (λ i → A i) B C j i) x w) (compPathP p (compPathP q r)) (compPathP (compPathP p q) r)
 assocP p q r =
-  3outof4P (λ i j → compPathP-filler p (compPathP q r) j i) (compPathP (compPathP p q) r) (preassocP p q r)
+  3outof4P (λ j i → compPathP-filler p (compPathP q r) j i) (compPathP (compPathP p q) r) (preassocP p q r)
 
 
 
 -- Loic's code below
-
-
--- simultaneaous composition on both sides of a path
-
-doubleCompPath-filler : {ℓ : Level} {A : Type ℓ} {w x y z : A} → w ≡ x → x ≡ y → y ≡ z →
-                        I → I → A
-doubleCompPath-filler p q r i =
-  hfill (λ t → λ { (i = i0) → p (~ t)
-                 ; (i = i1) → r t })
-        (inS (q i))
-
-doubleCompPath : {ℓ : Level} {A : Type ℓ} {w x y z : A} → w ≡ x → x ≡ y → y ≡ z → w ≡ z
-doubleCompPath p q r i = doubleCompPath-filler p q r i i1
-
-_∙∙_∙∙_ : {ℓ : Level} {A : Type ℓ} {w x y z : A} → w ≡ x → x ≡ y → y ≡ z → w ≡ z
-p ∙∙ q ∙∙ r = doubleCompPath p q r
 
 -- some exchange law for doubleCompPath and refl
 
@@ -210,16 +208,16 @@ leftright p q i j =
 
 split-leftright : {ℓ : Level} {A : Type ℓ} {w x y z : A} (p : w ≡ x) (q : x ≡ y) (r : y ≡ z) →
                   (p ∙∙ q ∙∙ r) ≡ (refl ∙∙ (p ∙∙ q ∙∙ refl) ∙∙ r)
-split-leftright p q r i j =
-  hcomp (λ t → λ { (j = i0) → p (~ i ∧ ~ t)
-                 ; (j = i1) → r t })
+split-leftright p q r j i =
+  hcomp (λ t → λ { (i = i0) → p (~ j ∧ ~ t)
+                 ; (i = i1) → r t })
         (doubleCompPath-filler p q refl j i)
 
 split-leftright' : {ℓ : Level} {A : Type ℓ} {w x y z : A} (p : w ≡ x) (q : x ≡ y) (r : y ≡ z) →
                   (p ∙∙ q ∙∙ r) ≡ (p ∙∙ (refl ∙∙ q ∙∙ r) ∙∙ refl)
-split-leftright' p q r i j =
-  hcomp (λ t → λ { (j = i0) → p (~ t)
-                 ; (j = i1) → r (i ∨ t) })
+split-leftright' p q r j i =
+  hcomp (λ t → λ { (i = i0) → p (~ t)
+                 ; (i = i1) → r (j ∨ t) })
         (doubleCompPath-filler refl q r j i)
 
 doubleCompPath-elim : {ℓ : Level} {A : Type ℓ} {w x y z : A} (p : w ≡ x) (q : x ≡ y)
@@ -240,7 +238,7 @@ cong-∙ f p q j i = hcomp (λ k → λ { (j = i0) → f (compPath-filler p q k 
 
 cong-∙∙ : ∀ {B : Type ℓ} (f : A → B) (p : w ≡ x) (q : x ≡ y) (r : y ≡ z)
           → cong f (p ∙∙ q ∙∙ r) ≡ (cong f p) ∙∙ (cong f q) ∙∙ (cong f r)
-cong-∙∙ f p q r j i = hcomp (λ k → λ { (j = i0) → f (doubleCompPath-filler p q r i k)
+cong-∙∙ f p q r j i = hcomp (λ k → λ { (j = i0) → f (doubleCompPath-filler p q r k i)
                                      ; (i = i0) → f (p (~ k))
                                      ; (i = i1) → f (r k) })
                             (f (q i))

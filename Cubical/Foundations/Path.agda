@@ -82,12 +82,12 @@ PathP≡compPath p q r k = PathP (λ i → p i0 ≡ q (i ∨ k)) (λ j → compP
 PathP≡doubleCompPathˡ : ∀ {A : Type ℓ} {w x y z : A} (p : w ≡ y) (q : w ≡ x) (r : y ≡ z) (s : x ≡ z)
                         → (PathP (λ i → p i ≡ s i) q r) ≡ (p ⁻¹ ∙∙ q ∙∙ s ≡ r)
 PathP≡doubleCompPathˡ p q r s k = PathP (λ i → p (i ∨ k) ≡ s (i ∨ k))
-                                        (λ j → doubleCompPath-filler (p ⁻¹) q s j k) r
+                                        (λ j → doubleCompPath-filler (p ⁻¹) q s k j) r
 
 PathP≡doubleCompPathʳ : ∀ {A : Type ℓ} {w x y z : A} (p : w ≡ y) (q : w ≡ x) (r : y ≡ z) (s : x ≡ z)
                         → (PathP (λ i → p i ≡ s i) q r) ≡ (q ≡ p ∙∙ r ∙∙ s ⁻¹)
 PathP≡doubleCompPathʳ p q r s k  = PathP (λ i → p (i ∧ (~ k)) ≡ s (i ∧ (~ k)))
-                                         q (λ j → doubleCompPath-filler p r (s ⁻¹) j k)
+                                         q (λ j → doubleCompPath-filler p r (s ⁻¹) k j)
 
 compPathl-cancel : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : x ≡ z) → p ∙ (sym p ∙ q) ≡ q
 compPathl-cancel p q = p ∙ (sym p ∙ q) ≡⟨ assoc p (sym p) q ⟩
@@ -113,3 +113,20 @@ isProp→isSet-PathP : ∀ {ℓ} {B : I → Type ℓ} → ((i : I) → isProp (B
                    → isProp (PathP (λ i → B i) b0 b1)
 isProp→isSet-PathP {B = B} hB b0 b1 =
   transport (λ i → isProp (PathP≡Path B b0 b1 (~ i))) (isProp→isSet (hB i1) _ _)
+
+-- Flipping a square along its diagonal
+
+flipSquare : ∀ {ℓ} {A : Type ℓ}
+  {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
+  {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
+  {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁}
+  → Square a₀₋ a₁₋ a₋₀ a₋₁
+  → Square a₋₀ a₋₁ a₀₋ a₁₋
+flipSquare sq i j = sq j i
+
+flipSquarePath : ∀ {ℓ} {A : Type ℓ}
+  {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
+  {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
+  {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁}
+  → Square a₀₋ a₁₋ a₋₀ a₋₁ ≡ Square a₋₀ a₋₁ a₀₋ a₁₋
+flipSquarePath = isoToPath (iso flipSquare flipSquare (λ _ → refl) (λ _ → refl))

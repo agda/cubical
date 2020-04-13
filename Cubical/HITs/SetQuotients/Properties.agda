@@ -15,7 +15,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.HAEquiv
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Sigma
@@ -123,7 +123,7 @@ isEquivRel→isEffective {R = R} Rprop Req a b = isoToEquiv (iso intro out intro
 
 discreteSetQuotients : Discrete A → isPropValued R → isEquivRel R → (∀ a₀ a₁ → Dec (R a₀ a₁)) → Discrete (A / R)
 discreteSetQuotients {A = A} {R = R} Adis Rprop Req Rdec =
-  elim (λ a₀ → isSetPi (λ a₁ → isProp→isSet (isPropDec (squash/ a₀ a₁))))
+  elim (λ a₀ → isSetΠ (λ a₁ → isProp→isSet (isPropDec (squash/ a₀ a₁))))
     discreteSetQuotients' discreteSetQuotients'-eq
   where
     discreteSetQuotients' : (a : A) (y : A / R) → Dec ([ a ] ≡ y)

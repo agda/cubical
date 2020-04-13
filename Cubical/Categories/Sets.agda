@@ -18,7 +18,7 @@ module _ ℓ where
 
 module _ {ℓ} where
   isSetExpIdeal : {A B : Type ℓ} → isSet B → isSet (A → B)
-  isSetExpIdeal B/set = isOfHLevelPi 2 λ _ → B/set
+  isSetExpIdeal B/set = isSetΠ λ _ → B/set
 
   isSetLift : {A : Type ℓ} → isSet A → isSet (Lift {ℓ} {ℓ-suc ℓ} A)
   isSetLift = isOfHLevelLift 2

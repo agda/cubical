@@ -16,7 +16,7 @@ open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Bundle
+open import Cubical.Functions.Bundle
 
 open import Cubical.Foundations.SIP
 open import Cubical.Structures.Pointed
@@ -30,9 +30,6 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Empty as ⊥ hiding (elim)
 open import Cubical.Data.Sum as ⊎ hiding (elim)
 
-open import Cubical.Data.Prod renaming (_×_ to _×'_; _×Σ_ to _×_; swapΣEquiv to swapEquiv)
-                              hiding (swapEquiv)
-
 open import Cubical.HITs.PropositionalTruncation as PropTrunc hiding (elim)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
@@ -44,7 +41,7 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
--- Definition II.1 in [BR17], see also Cubical.Foundations.Bundle
+-- Definition II.1 in [BR17], see also Cubical.Functions.Bundle
 
 2-EltType₀    = TypeEqvTo    ℓ-zero Bool -- Σ[ X ∈ Type₀ ] ∥ X ≃ Bool ∥
 2-EltPointed₀ = PointedEqvTo ℓ-zero Bool -- Σ[ X ∈ Type₀ ] X × ∥ X ≃ Bool ∥
@@ -118,7 +115,7 @@ module ⊕* (X : 2-EltType₀) where
 
   comm : (y z : typ X) → y ⊕* z ≡ z ⊕* y
   comm = elim (λ A _⊕'_ → (x y : A) → x ⊕' y ≡ y ⊕' x)
-              (λ _ _ → isPropPi (λ _ → isPropPi (λ _ → isSetBool _ _)))
+              (λ _ _ → isPropΠ2 (λ _ _ → isSetBool _ _))
               ⊕-comm
 
   isEquivˡ : (y : typ X) → isEquiv (_⊕* y)
@@ -140,7 +137,7 @@ snd isContr-2-EltPointed A∙ = PointedEqvTo-sip Bool _ A∙ (fst (isContr-2-Elt
 --  and show that the total space of this double cover is S n (Theorem III.4).
 
 RP  : ℕ₋₁ → Type₀
-cov⁻¹ : (n : ℕ₋₁) → RP n → 2-EltType₀ -- (see Cubical.Foundations.Bundle)
+cov⁻¹ : (n : ℕ₋₁) → RP n → 2-EltType₀ -- (see Cubical.Functions.Bundle)
 
 RP neg1 = ⊥
 RP (ℕ→ℕ₋₁ n) = Pushout (pr (cov⁻¹ (-1+ n))) (λ _ → tt)
@@ -254,22 +251,21 @@ TotalCov≃Sn (ℕ→ℕ₋₁ n) =
 
     This was proved above by ⊕*.isEquivˡ.
 -}
-    u : ∀ {n} → (Σ[ x ∈ Total (cov⁻¹ n) ] typ (cov⁻¹ n (fst x))) ≃ (Total (cov⁻¹ n) ×' Bool)
+    u : ∀ {n} → (Σ[ x ∈ Total (cov⁻¹ n) ] typ (cov⁻¹ n (fst x))) ≃ (Total (cov⁻¹ n) × Bool)
     u {n} = Σ[ x ∈ Total (cov⁻¹ n) ] typ (cov⁻¹ n (fst x))      ≃⟨ assocΣ ⟩
-            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ congΣEquiv (λ x → swapEquiv _ _) ⟩
+            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ congΣEquiv (λ x → swapΣEquiv _ _) ⟩
             Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ congΣEquiv (λ x → congΣEquiv (λ y →
                                                                              ⊕*.Equivˡ (cov⁻¹ n x) y)) ⟩
             Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × Bool              ≃⟨ invEquiv assocΣ ⟩
-            Total (cov⁻¹ n) × Bool                              ≃⟨ invEquiv A×B≃A×ΣB ⟩
-            Total (cov⁻¹ n) ×' Bool                             ■
+            Total (cov⁻¹ n) × Bool                              ■
 
     H : ∀ x → u .fst x ≡ (Σf x , snd (Σg x))
     H x = refl
 
-    nat : 3-span-equiv (3span Σf Σg) (3span {A2 = Total (cov⁻¹ (-1+ n)) ×' Bool} proj₁ proj₂)
+    nat : 3-span-equiv (3span Σf Σg) (3span {A2 = Total (cov⁻¹ (-1+ n)) × Bool} fst snd)
     nat = record { e0 = idEquiv _ ; e2 = u ; e4 = ΣUnit _
-                 ; H1 = λ x → cong proj₁ (H x)
-                 ; H3 = λ x → cong proj₂ (H x) }
+                 ; H1 = λ x → cong fst (H x)
+                 ; H3 = λ x → cong snd (H x) }
 
     ii : Pushout Σf Σg ≃ join (Total (cov⁻¹ (-1+ n))) Bool
     ii = compEquiv (pathToEquiv (spanEquivToPushoutPath nat)) (joinPushout≃join _ _)

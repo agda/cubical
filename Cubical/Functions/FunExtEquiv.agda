@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.FunExtEquiv where
+module Cubical.Functions.FunExtEquiv where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv

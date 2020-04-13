@@ -69,7 +69,7 @@ isNatInductive N ℓ = (S : NatFiber N ℓ) → NatSection S
 module AlgebraPropositionality {N : NatAlgebra ℓ'} where
   open NatAlgebra N
   isPropIsNatHInitial : isProp (isNatHInitial N ℓ)
-  isPropIsNatHInitial = isPropPi (λ _ → isPropIsContr)
+  isPropIsNatHInitial = isPropΠ (λ _ → isPropIsContr)
 
   -- under the assumption that some shape is nat-inductive, the type of sections over any fiber
   -- is propositional
@@ -181,7 +181,7 @@ module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (�
   Q-zero : α (N .alg-zero) ≡ N .alg-zero
   Q-zero = ζ
   Q-suc : ∀ n → α (N .alg-suc n) ≡ N .alg-suc n
-  Q-suc n = σ n □ cong (N .alg-suc) (P n)
+  Q-suc n = σ n ∙ cong (N .alg-suc) (P n)
 
   -- but P and Q are the same up to homotopy
   P-zero : P (N .alg-zero) ≡ Q-zero
@@ -194,7 +194,7 @@ module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (�
   P-suc : ∀ n → P (N .alg-suc n) ≡ Q-suc n
   P-suc n i j = hcomp (λ k → λ where
       (i = i0) → lower (fst∘μ≡id j .comm-suc (~ k) n)
-      (i = i1) → compPath'-filler (σ n) (cong (N .alg-suc) (P n)) k j
+      (i = i1) → compPath-filler' (σ n) (cong (N .alg-suc) (P n)) k j
       (j = i0) → σ n (~ k)
       (j = i1) → N .alg-suc n
     ) (N .alg-suc (P n j))
@@ -212,7 +212,7 @@ module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (�
     P (N .alg-suc n) ! α-h (N .alg-suc n)
       ≡[ i ]⟨ P-suc n i ! α-h _ ⟩
     Q-suc n ! α-h (N .alg-suc n)
-      ≡⟨ substComposite-□ (F .Fiber) (σ n) (cong (N .alg-suc) (P n)) _ ⟩
+      ≡⟨ substComposite (F .Fiber) (σ n) (cong (N .alg-suc) (P n)) _ ⟩
     cong (N .alg-suc) (P n) ! (σ n ! α-h (N .alg-suc n))
       ≡[ i ]⟨ cong (N .alg-suc) (P n) ! fromPathP (σ-h n) i ⟩
     cong (N .alg-suc) (P n) ! (F .fib-suc (α-h n))
