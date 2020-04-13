@@ -39,10 +39,5 @@ lPrecatWhisker {𝒞 = 𝒞} f _ _ p = cong (𝒞 .seq f) p
 
 -- extend a cone on c by a morphism c'→c using precomposition
 coneMap : {𝒞 : Precategory ℓ ℓ'} {cspn : Cospan 𝒞} {c c' : ob 𝒞} (cn : Cone cspn c) (f : hom 𝒞 c' c) → Cone cspn c'
-coneMap {𝒞 = 𝒞} {cspn = cspn} cn f = cone (𝒞 .seq f p1)  (𝒞 .seq f p2) ((𝒞 .seq-α f p1 s1 ) ∙ (lPrecatWhisker {𝒞 = 𝒞} f (𝒞 .seq p1 s1) (𝒞 .seq p2 s2) sq) ∙ (sym (𝒞 .seq-α f p2 s2)))
-  where
-    p1 = Cone.p₁ cn
-    p2 = Cone.p₂ cn
-    sq = Cone.sq cn
-    s1 = Cospan.s₁ cspn
-    s2 = Cospan.s₂ cspn
+coneMap {𝒞 = 𝒞} {cospan _ _ _ s₁ s₂} (cone p₁ p₂ sq) f =
+  cone (𝒞 .seq f p₁)  (𝒞 .seq f p₂) ((𝒞 .seq-α f p₁ s₁) ∙∙ lPrecatWhisker {𝒞 = 𝒞} f (𝒞 .seq p₁ s₁) (𝒞 .seq p₂ s₂) sq ∙∙ sym (𝒞 .seq-α f p₂ s₂))
