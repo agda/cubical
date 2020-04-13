@@ -31,7 +31,7 @@ isCD : ℕ → ℕ → ℕ → Type₀
 isCD m n d = (d ∣ m) × (d ∣ n)
 
 isPropIsCD : isProp (isCD m n d)
-isPropIsCD = isPropΣ isProp∣ (λ _ → isProp∣)
+isPropIsCD = isProp× isProp∣ isProp∣
 
 symCD : isCD m n d → isCD n m d
 symCD (d∣m , d∣n) = (d∣n , d∣m)
@@ -45,7 +45,7 @@ GCD : ℕ → ℕ → Type₀
 GCD m n = Σ ℕ (isGCD m n)
 
 isPropIsGCD : isProp (isGCD m n d)
-isPropIsGCD = isPropΣ isPropIsCD (λ _ → isPropΠ2 (λ _ _ → isProp∣))
+isPropIsGCD = isProp× isPropIsCD (isPropΠ2 (λ _ _ → isProp∣))
 
 isPropGCD : isProp (GCD m n)
 isPropGCD (d , dCD , gr) (d' , d'CD , gr') =

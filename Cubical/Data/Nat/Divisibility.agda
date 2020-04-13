@@ -21,7 +21,7 @@ private
     l m n : ℕ
 
 _∣_ : ℕ → ℕ → Type₀
-m ∣ n = ∥ Σ[ c ∈ ℕ ] c * m ≡ n ∥
+m ∣ n = ∃[ c ∈ ℕ ] c * m ≡ n
 
 isProp∣ : isProp (m ∣ n)
 isProp∣ = squash

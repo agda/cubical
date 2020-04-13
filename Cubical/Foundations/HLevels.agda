@@ -220,9 +220,6 @@ isContrΣ {A = A} {B = B} (a , p) q =
 isPropΣ : isProp A → ((x : A) → isProp (B x)) → isProp (Σ A B)
 isPropΣ pA pB t u = ΣProp≡ pB (pA (t .fst) (u .fst))
 
-isProp×Σ : {A : Type ℓ} {B : Type ℓ'} → isProp A → isProp B → isProp (Σ A λ _ → B)
-isProp×Σ pA pB = isPropΣ pA λ _ → pB
-
 isOfHLevelΣ : ∀ n → isOfHLevel n A → ((x : A) → isOfHLevel n (B x))
                   → isOfHLevel n (Σ A B)
 isOfHLevelΣ 0 = isContrΣ

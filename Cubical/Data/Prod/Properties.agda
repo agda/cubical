@@ -60,6 +60,9 @@ A×B≡A×ΣB = ua A×B≃A×ΣB
 swapΣEquiv : (A : Type ℓ) (B : Type ℓ') → A ×Σ B ≃ B ×Σ A
 swapΣEquiv A B = compEquiv (compEquiv (invEquiv A×B≃A×ΣB) (swapEquiv A B)) A×B≃A×ΣB
 
+isProp× : {A : Type ℓ} {B : Type ℓ'} → isProp A → isProp B → isProp (Σ A (λ _ → B))
+isProp× pA pB = isPropΣ pA λ _ → pB
+
 -- truncation for products
 isOfHLevelProd : (n : ℕ) → isOfHLevel n A → isOfHLevel n B → isOfHLevel n (A × B)
 isOfHLevelProd {A = A} {B = B} n h1 h2 =

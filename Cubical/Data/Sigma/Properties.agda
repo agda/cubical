@@ -26,12 +26,15 @@ open import Cubical.Data.Unit.Base
 private
   variable
     ℓ : Level
-    A : Type ℓ
+    A A' : Type ℓ
     B B' : (a : A) → Type ℓ
     C : (a : A) (b : B a) → Type ℓ
 
 mapʳ : (∀ {a} → B a → B' a) → Σ A B → Σ A B'
 mapʳ f (a , b) = (a , f b)
+
+mapˡ : {B : Type ℓ} → (f : A → A') → Σ A (λ _ → B) → Σ A' (λ _ → B)
+mapˡ f (a , b) = (f a , b)
 
 
 ΣPathP : ∀ {x y}

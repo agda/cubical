@@ -23,7 +23,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 
-open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
+open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash; ∃; ∃-syntax)
 open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₀; ∣_∣₀; squash₀)
 
 -- Type quotients
@@ -57,8 +57,7 @@ elimProp Bprop f (squash/ x y p q i j) =
 elimProp Bprop f (eq/ a b r i) = elimEq/ Bprop (eq/ a b r) (f a) (f b) i
 
 -- lemma 6.10.2 in hott book
--- TODO: defined truncated Sigma as ∃
-[]surjective : (x : A / R) → ∥ Σ[ a ∈ A ] [ a ] ≡ x ∥
+[]surjective : (x : A / R) → ∃[ a ∈ A ] [ a ] ≡ x
 []surjective = elimProp (λ x → squash) (λ a → ∣ a , refl ∣)
 
 elim : {B : A / R → Type ℓ} →

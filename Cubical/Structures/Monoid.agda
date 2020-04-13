@@ -4,7 +4,7 @@ module Cubical.Structures.Monoid where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
-open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
+open import Cubical.Data.Prod hiding (_×_) renaming (_×Σ_ to _×_)
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
@@ -51,9 +51,9 @@ monoid-axioms-are-Props : (X : Type ℓ) (s : raw-monoid-structure X) → isProp
 monoid-axioms-are-Props X (e , _·_) s = β s
    where
    α = s .fst
-   β = isProp×Σ isPropIsSet
-      (isProp×Σ (isPropΠ3 (λ x y z → α (x · (y · z)) ((x · y) · z)))
-      (isProp×Σ (isPropΠ (λ x → α (x · e) x)) (isPropΠ (λ x → α (e · x) x))))
+   β = isProp× isPropIsSet
+      (isProp× (isPropΠ3 (λ x y z → α (x · (y · z)) ((x · y) · z)))
+      (isProp× (isPropΠ (λ x → α (x · e) x)) (isPropΠ (λ x → α (e · x) x))))
 
 monoid-is-SNS : SNS {ℓ} monoid-structure monoid-iso
 monoid-is-SNS = add-axioms-SNS raw-monoid-structure raw-monoid-iso
