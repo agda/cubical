@@ -2,7 +2,7 @@
 module Cubical.HITs.Ints.HAEquivInt.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HAEquiv
+open import Cubical.Foundations.Equiv.HalfAdjoint
 
 
 data HAEquivInt : Type₀ where

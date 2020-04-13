@@ -2,7 +2,7 @@
 
 open import Cubical.Core.Everything
 
-open import Cubical.Foundations.Embedding
+open import Cubical.Functions.Embedding
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism

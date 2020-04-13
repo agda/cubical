@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 
 open import Cubical.HITs.PropositionalTruncation
-open import Cubical.Data.Prod hiding (_×_) renaming (_×Σ_ to _×_)
+open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 open import Cubical.Foundations.Pointed

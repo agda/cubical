@@ -5,6 +5,7 @@ open import Cubical.Foundations.Everything
 open isPathSplitEquiv
 open import Cubical.Modalities.Everything
 open Modality
+open import Cubical.Functions.FunExtEquiv
 open import Cubical.HITs.Localization renaming (rec to Localize-rec)
 open import Cubical.Data.Unit
 

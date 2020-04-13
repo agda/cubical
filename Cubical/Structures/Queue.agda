@@ -4,7 +4,7 @@ module Cubical.Structures.Queue where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.FunExtEquiv
+open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
@@ -12,7 +12,7 @@ open import Cubical.Structures.Pointed
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
-open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
+open import Cubical.Data.Sigma
 
 
 -- Developing Queues as a standard notion of structure, see

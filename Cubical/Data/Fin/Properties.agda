@@ -4,7 +4,7 @@ module Cubical.Data.Fin.Properties where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Foundations.Embedding
+open import Cubical.Functions.Embedding
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
@@ -17,7 +17,6 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
-open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
 
 open import Cubical.Induction.WellFounded
 

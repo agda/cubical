@@ -4,9 +4,9 @@ module Cubical.Structures.MultiSet where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.FunExtEquiv
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Structures.Pointed
 open import Cubical.Structures.Queue
@@ -14,7 +14,7 @@ open import Cubical.Structures.Queue
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
 open import Cubical.Data.Nat
-open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
+open import Cubical.Data.Sigma
 
 
 module _(A : Type ℓ)

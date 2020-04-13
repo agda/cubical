@@ -7,7 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.PathSplitEquiv
+open import Cubical.Foundations.Equiv.PathSplit
 open isPathSplitEquiv
 open import Cubical.Modalities.Everything
 open Modality
@@ -164,6 +164,16 @@ truncIdempotent≃ n hA = ∣_∣ , isModalToIsEquiv (HLevelTruncModality n) hA
 
 truncIdempotent : (n : ℕ) → isOfHLevel n A → hLevelTrunc n A ≡ A
 truncIdempotent n hA = ua (invEquiv (truncIdempotent≃ n hA))
+
+-- functorial action
+
+map : {n : ℕ} {B : Type ℓ'} (g : A → B)
+  → hLevelTrunc n A → hLevelTrunc n B
+map g = rec (isOfHLevelTrunc _) (λ a → ∣ g a ∣)
+
+mapId : {n : ℕ} → ∀ t → map {n = n} (idfun A) t ≡ t
+mapId {n = n} =
+  elim (λ _ → isOfHLevelPath n (isOfHLevelTrunc n) _ _) (λ _ → refl)
 
 -- equivalences to prop/set/groupoid truncations
 
