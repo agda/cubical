@@ -34,8 +34,8 @@ record Pullback {𝒞 : Precategory ℓ ℓ'} (cspn : Cospan 𝒞) : Type (ℓ-m
     universal : {c' : ob 𝒞} (cn' : Cone cspn c') → isContr (Σ[ f ∈ 𝒞 .hom c' c ] Σ[ q ∈ Cone.p₁ cn' ≡ 𝒞 .seq f (Cone.p₁ cn) ] (Cone.p₂ cn' ≡ 𝒞 .seq f (Cone.p₂ cn)))
 
 -- whisker the parallel morphisms g and g' with f
-lPrecatWhisker : {𝒞 : Precategory ℓ ℓ'} {x y z : 𝒞 .ob} (f : 𝒞 .hom x y) (g g' : 𝒞 .hom y z) (p : g ≡ g') → (𝒞 .seq f g ≡ 𝒞 .seq f g')
-lPrecatWhisker {𝒞 = 𝒞} f g g' p = J (λ h q → 𝒞 .seq f g ≡ 𝒞 .seq f h) refl p
+lPrecatWhisker : {𝒞 : Precategory ℓ ℓ'} {x y z : 𝒞 .ob} (f : 𝒞 .hom x y) (g g' : 𝒞 .hom y z) (p : g ≡ g') → 𝒞 .seq f g ≡ 𝒞 .seq f g'
+lPrecatWhisker {𝒞 = 𝒞} f _ _ p = cong (𝒞 .seq f) p
 
 -- extend a cone on c by a morphism c'→c using precomposition
 coneMap : {𝒞 : Precategory ℓ ℓ'} {cspn : Cospan 𝒞} {c c' : ob 𝒞} (cn : Cone cspn c) (f : hom 𝒞 c' c) → Cone cspn c'
