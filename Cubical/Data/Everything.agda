@@ -24,3 +24,4 @@ import Cubical.Data.List
 import Cubical.Data.Graph
 import Cubical.Data.InfNat
 import Cubical.Data.Queue
+import Cubical.Data.Vec

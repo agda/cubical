@@ -4,7 +4,7 @@ module Cubical.Structures.NAryOp where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.FunExtEquiv
+open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Data.Nat
 
