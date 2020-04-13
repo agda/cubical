@@ -1,6 +1,7 @@
 AGDA_EXEC=agda
 RTS_OPTIONS=+RTS -H3G -RTS
 AGDA=$(AGDA_EXEC) $(RTS_OPTIONS)
+EVERYTHINGS=runhaskell ./Everythings.hs
 
 .PHONY : all
 all : check
@@ -18,15 +19,15 @@ check-whitespace:
 
 .PHONY : check-everythings
 check-everythings:
-	runhaskell ./GenEverythings.hs check Experiments
+	$(EVERYTHINGS) check-except Experiments
 
 .PHONY : gen-everythings
 gen-everythings:
-	runhaskell ./GenEverythings.hs gen Core Foundations Codata Experiments
+	$(EVERYTHINGS) gen-except Core Foundations Codata Experiments
 
 .PHONY : check-README
 check-README:
-	runhaskell ./GenEverythings.hs checkREADME
+	$(EVERYTHINGS) checkREADME
 
 .PHONY : check
 check: $(wildcard Cubical/**/*.agda)

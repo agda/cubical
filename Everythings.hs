@@ -52,7 +52,7 @@ getMissingFiles fp fpToCheck = do
   -- recursively get all files in $fp/X not imported in $fp/X.agda (if it exists)
   missing_files <- concat <$> forM sub_dirs (\sub_dir ->
     getMissingFiles (addToFP fp sub_dir)
-                    (addToFP fp <$> (find (== sub_dir) sub_files)))
+                    (addToFP fp <$> find (== sub_dir) sub_files))
   -- return all of these files, plus all agda files in the current directory,
   --  except for those which are imported in $fpToCheck.agda (if it exists) or
   --  which are $fpToCheck.agda itself
@@ -62,9 +62,7 @@ getMissingFiles fp fpToCheck = do
 
 
 checkEverythings :: [String] -> IO ()
-checkEverythings excluded_dirs = do
-  all_dirs <- filter ('.' `notElem`) <$> getDirectoryContents "./Cubical"
-  let dirs = all_dirs \\ excluded_dirs
+checkEverythings dirs = do
   missing_files <- concat <$> forM dirs (\dir ->
     getMissingFiles [dir,"Cubical"] (Just ["Everything",dir,"Cubical"]))
   if null missing_files then pure ()
@@ -82,28 +80,40 @@ checkREADME = do
           forM_ missing_files (putStrLn . (" " ++) . showFP '.')
           exitFailure
 
-genEverything :: SplitFilePath -> IO ()
-genEverything fp = do
-  files <- getMissingFiles fp Nothing
-  let ls = ["{-# OPTIONS --cubical --safe #-}",
-            "module " ++ showFP '.' (addToFP fp "Everything") ++ " where", []]
-           ++ sort (fmap (\file -> "import " ++ showFP '.' file)
-                         (delete (addToFP fp "Everything") files))
-  writeFile ("./" ++ showFP '/' (addToFP fp "Everything") ++ ".agda") (unlines ls)
-
 genEverythings :: [String] -> IO ()
-genEverythings excluded_dirs = do
-  all_dirs <- filter ('.' `notElem`) <$> getDirectoryContents "./Cubical"
-  forM_ (all_dirs \\ excluded_dirs)
-        (genEverything . addToFP ["Cubical"])
+genEverythings =
+  mapM_ (\dir -> do
+    let fp = addToFP ["Cubical"] dir
+    files <- getMissingFiles fp Nothing
+    let ls = ["{-# OPTIONS --cubical --safe #-}",
+              "module " ++ showFP '.' (addToFP fp "Everything") ++ " where",[]]
+             ++ sort (fmap (\file -> "import " ++ showFP '.' file)
+                           (delete (addToFP fp "Everything") files))
+    writeFile ("./" ++ showFP '/' (addToFP fp "Everything") ++ ".agda")
+              (unlines ls))
 
+
+helpText :: String
+helpText = unlines [
+  "Accepted arguments: ",
+  " check d1 d2 ... dn         checks imports in the Everything files in the",
+  "                            given directories",
+  " check-except d1 d2 ... dn  checks imports in all Everything files except those",
+  "                            in the given directories",
+  " gen d1 d2 ... dn           generates Everything files in the given directories",
+  " gen-except d1 d2 ... dn    generates Everything files in all directories",
+  "                            except in those given",
+  " checkREADME                checks all Everything files are imported in README"]
 
 main :: IO ()
 main = do
+  all_dirs <- filter ('.' `notElem`) <$> getDirectoryContents "./Cubical"
   args <- getArgs
   case args of
-    "check":exs -> checkEverythings exs
-    "gen"  :exs -> genEverythings   exs
+    "check":dirs -> checkEverythings dirs
+    "gen"  :dirs -> genEverythings   dirs
+    "check-except":ex_dirs -> checkEverythings (all_dirs \\ ex_dirs)
+    "gen-except"  :ex_dirs -> genEverythings   (all_dirs \\ ex_dirs)
     ["checkREADME"] -> checkREADME
-    ["genOne",dir] -> genEverything (addToFP ["Cubical"] dir)
-    _ -> putStrLn "error: run with arguments (check | gen) [list of exclued files]"
+    "help":_ -> putStrLn helpText
+    _ -> putStrLn "argument(s) not recognized, try 'help'"
