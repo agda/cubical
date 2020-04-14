@@ -14,14 +14,14 @@ open import Cubical.Foundations.Id
            ; ap            to apId
            ; equivFun      to equivFunId
            ; equivCtr      to equivCtrId
-           ; fiber          to fiberId
+           ; fiber         to fiberId
            ; funExt        to funExtId
            ; isContr       to isContrId
            ; isProp        to isPropId
            ; isSet         to isSetId
            ; isEquiv       to isEquivId
            ; equivIsEquiv  to equivIsEquivId
-           ; refl           to reflId
+           ; refl          to reflId
            ; ∥_∥           to propTruncId
            ; ∣_∣           to incId
            ; isPropIsContr to isPropIsContrId

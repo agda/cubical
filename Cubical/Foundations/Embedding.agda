@@ -28,8 +28,7 @@ isEmbedding : (A → B) → Type _
 isEmbedding f = ∀ w x → isEquiv {A = w ≡ x} (cong f)
 
 isEmbeddingIsProp : isProp (isEmbedding f)
-isEmbeddingIsProp {f = f}
-  = isPropPi λ w → isPropPi λ x → isPropIsEquiv (cong f)
+isEmbeddingIsProp {f = f} = isPropΠ2 λ _ _ → isPropIsEquiv (cong f)
 
 -- If A and B are h-sets, then injective functions between
 -- them are embeddings.
@@ -77,7 +76,7 @@ hasPropFibers : (A → B) → Type _
 hasPropFibers f = ∀ y → isProp (fiber f y)
 
 hasPropFibersIsProp : isProp (hasPropFibers f)
-hasPropFibersIsProp = isPropPi (λ _ → isPropIsProp)
+hasPropFibersIsProp = isPropΠ (λ _ → isPropIsProp)
 
 isEmbedding→hasPropFibers : isEmbedding f → hasPropFibers f
 isEmbedding→hasPropFibers iE y (x , p)

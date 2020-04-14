@@ -52,6 +52,10 @@ private
     elim-intro : ∀ eq → elim (intro eq) ≡ eq
     elim-intro eq = refl
 
+ΣProp≡ : ((x : A) → isProp (B x)) → {u v : Σ A B}
+       → (p : u .fst ≡ v .fst) → u ≡ v
+ΣProp≡ pB {u} {v} p i = (p i) , isProp→PathP (λ i → pB (p i)) (u .snd) (v .snd) i
+
 -- Alternative version for path in Σ-types, as in the HoTT book
 
 sigmaPathTransport : (a b : Σ A B) → Type _

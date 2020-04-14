@@ -6,12 +6,13 @@ import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Prod as × using (_×_; _,_; proj₁; proj₂)
 open import Cubical.Data.Sum as ⊎ using (_⊎_)
 open import Cubical.Data.Unit
+open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.Prelude
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
-open import Cubical.Foundations.HLevels using (hProp; ΣProp≡; isPropPi) public
+open import Cubical.Foundations.HLevels using (hProp; isPropΠ) public
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 
@@ -63,7 +64,7 @@ hProp≡ p = ΣProp≡ (\ _ → isPropIsProp) p
 -- Logical implication of mere propositions
 
 _⇒_ : (A : hProp ℓ) → (B : hProp ℓ') → hProp _
-A ⇒ B = ([ A ] → [ B ]) , isPropPi λ _ → B .snd
+A ⇒ B = ([ A ] → [ B ]) , isPropΠ λ _ → B .snd
 
 ⇔toPath : [ P ⇒ Q ] → [ Q ⇒ P ] → P ≡ Q
 ⇔toPath {P = P} {Q = Q} P⇒Q Q⇒P = hProp≡ (isoToPath
@@ -76,7 +77,7 @@ pathTo⇐ : P ≡ Q → [ Q ⇒ P ]
 pathTo⇐ p x = subst fst (sym p) x
 
 substₚ : {x y : A} (B : A → hProp ℓ) → [ x ≡ₚ y ⇒ B x ⇒ B y ]
-substₚ {x = x} {y = y} B = PropTrunc.elim (λ _ → isPropPi λ _ → B y .snd) (subst (fst ∘ B))
+substₚ {x = x} {y = y} B = PropTrunc.elim (λ _ → isPropΠ λ _ → B y .snd) (subst (fst ∘ B))
 
 --------------------------------------------------------------------------------
 -- Mixfix notations for ⇔-toPath
@@ -100,7 +101,7 @@ substₚ {x = x} {y = y} B = PropTrunc.elim (λ _ → isPropPi λ _ → B y .snd
 -- Pseudo-complement of mere propositions
 
 ¬_ : hProp ℓ → hProp _
-¬ A = ([ A ] → ⊥.⊥) , isPropPi λ _ → ⊥.isProp⊥
+¬ A = ([ A ] → ⊥.⊥) , isPropΠ λ _ → ⊥.isProp⊥
 
 _≢ₚ_ : (x y : A) → hProp _
 x ≢ₚ y = ¬ x ≡ₚ y
@@ -147,10 +148,10 @@ A ⇔ B = (A ⇒ B) ⊓ (B ⇒ A)
 
 
 ∀[∶]-syntax : (A → hProp ℓ) → hProp _
-∀[∶]-syntax {A = A} P = (∀ x → [ P x ]) , isPropPi (snd ∘ P)
+∀[∶]-syntax {A = A} P = (∀ x → [ P x ]) , isPropΠ (snd ∘ P)
 
 ∀[]-syntax : (A → hProp ℓ) → hProp _
-∀[]-syntax {A = A} P = (∀ x → [ P x ]) , isPropPi (snd ∘ P)
+∀[]-syntax {A = A} P = (∀ x → [ P x ]) , isPropΠ (snd ∘ P)
 
 syntax ∀[∶]-syntax {A = A} (λ a → P) = ∀[ a ∶ A ] P
 syntax ∀[]-syntax (λ a → P)          = ∀[ a ] P
@@ -178,7 +179,7 @@ Decₚ P = Dec [ P ] , isPropDec (snd P)
 ∥¬A∥≡¬∥A∥ : (A : Type ℓ) → ∥ (A → ⊥.⊥) ∥ₚ ≡ (¬ ∥ A ∥ₚ)
 ∥¬A∥≡¬∥A∥ _ =
   ⇒∶ (λ ¬A A → PropTrunc.elim (λ _ → ⊥.isProp⊥)
-    (PropTrunc.elim (λ _ → isPropPi λ _ → ⊥.isProp⊥) (λ ¬p p → ¬p p) ¬A) A)
+    (PropTrunc.elim (λ _ → isPropΠ λ _ → ⊥.isProp⊥) (λ ¬p p → ¬p p) ¬A) A)
   ⇐∶ λ ¬p → ∣ (λ p → ¬p ∣ p ∣) ∣
 
 --------------------------------------------------------------------------------
