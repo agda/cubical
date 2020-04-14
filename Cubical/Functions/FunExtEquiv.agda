@@ -1,9 +1,13 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.FunExtEquiv where
+module Cubical.Functions.FunExtEquiv where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
+
+open import Cubical.Data.Vec
+open import Cubical.Data.Nat
 
 private
   variable
@@ -88,4 +92,31 @@ module _ {A : Type ℓ} {B : A → Type ℓ₁} {C : (x : A) → B x → Type �
   funExt₃Path = ua funExt₃Equiv
 
 
--- Puzzle: Can one generalize this to n-ary functions?
+-- n-ary non-dependent funext
+nAryFunExt : (n : ℕ) {X : Type ℓ} {Y : Type ℓ₁} (fX fY : nAryOp n X Y)
+           → ((xs : Vec X n) → fX $ⁿ xs ≡ fY $ⁿ map (λ x → x) xs)
+           → fX ≡ fY
+nAryFunExt zero fX fY p        = p []
+nAryFunExt (suc n) fX fY p i x = nAryFunExt n (fX x) (fY x) (λ xs → p (x ∷ xs)) i
+
+-- n-ary funext⁻
+nAryFunExt⁻ : (n : ℕ) {X : Type ℓ} {Y : Type ℓ₁} (fX fY : nAryOp n X Y) → fX ≡ fY
+            → ((xs : Vec X n) → fX $ⁿ xs ≡ fY $ⁿ map (λ x → x) xs)
+nAryFunExt⁻ zero fX fY p [] = p
+nAryFunExt⁻ (suc n) fX fY p (x ∷ xs) = nAryFunExt⁻ n (fX x) (fY x) (λ i → p i x) xs
+
+nAryFunExtEquiv : (n : ℕ) {X : Type ℓ} {Y : Type ℓ₁} (fX fY : nAryOp n X Y)
+                → ((xs : Vec X n) → fX $ⁿ xs ≡ fY $ⁿ map (λ x → x) xs) ≃ (fX ≡ fY)
+nAryFunExtEquiv n {X} {Y} fX fY = isoToEquiv (iso (nAryFunExt n fX fY) (nAryFunExt⁻ n fX fY)
+                                              (linv n fX fY) (rinv n fX fY))
+  where
+  linv : (n : ℕ) (fX fY : nAryOp n X Y) (p : fX ≡ fY)
+       → nAryFunExt n fX fY (nAryFunExt⁻ n fX fY p) ≡ p
+  linv zero fX fY p          = refl
+  linv (suc n) fX fY p i j x = linv n (fX x) (fY x) (λ k → p k x) i j
+
+  rinv : (n : ℕ) (fX fY : nAryOp n X Y)
+         (p : (xs : Vec X n) → fX $ⁿ xs ≡ fY $ⁿ map (λ x → x) xs)
+       → nAryFunExt⁻ n fX fY (nAryFunExt n fX fY p) ≡ p
+  rinv zero fX fY p i []          = p []
+  rinv (suc n) fX fY p i (x ∷ xs) = rinv n (fX x) (fY x) (λ ys i → p (x ∷ ys) i) i xs

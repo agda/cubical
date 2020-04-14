@@ -41,6 +41,6 @@ Maintainers
 
 * [Anders Mörtberg](http://www.cs.cmu.edu/~amoertbe/)
 
-* [Andrea Vezzosi](http://www.cse.chalmers.se/~vezzosi/)
+* [Andrea Vezzosi](http://saizan.github.io/)
 
 [![Build Status](https://travis-ci.org/agda/cubical.svg?branch=master)](https://travis-ci.org/agda/cubical)

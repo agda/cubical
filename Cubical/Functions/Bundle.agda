@@ -1,10 +1,10 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.Bundle where
+module Cubical.Functions.Bundle where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Fibration
+open import Cubical.Functions.Fibration
 
 open import Cubical.Foundations.Structure
 open import Cubical.Structures.TypeEqvTo

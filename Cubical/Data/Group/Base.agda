@@ -6,7 +6,7 @@ open import Cubical.Foundations.Prelude hiding ( comp )
 
 import Cubical.Foundations.Isomorphism as I
 import Cubical.Foundations.Equiv as E
-import Cubical.Foundations.HAEquiv as HAE
+import Cubical.Foundations.Equiv.HalfAdjoint as HAE
 
 record isGroup {ℓ} (A : Type ℓ) : Type ℓ where
   constructor group-struct

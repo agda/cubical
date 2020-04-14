@@ -3,7 +3,9 @@ module Cubical.HITs.Susp.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Pointed
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Empty
@@ -17,14 +19,17 @@ data Susp {ℓ} (A : Type ℓ) : Type ℓ where
   south : Susp A
   merid : (a : A) → north ≡ south
 
+∙Susp : ∀ {ℓ} (A : Type ℓ) → Pointed ℓ
+∙Susp A = Susp A , north
+
 Bool≃Susp⊥ : Bool ≃ Susp ⊥
 Bool≃Susp⊥ =
   isoToEquiv
     (iso
-      (λ {true → north; false → south})
-      (λ {north → true; south → false})
-      (λ {north → refl; south → refl})
-      (λ {true → refl; false → refl}))
+      (λ {true  → north; false → south})
+      (λ {north → true;  south → false})
+      (λ {north → refl;  south → refl})
+      (λ {true  → refl;  false → refl}))
 
 SuspBool : Type₀
 SuspBool = Susp Bool
@@ -37,29 +42,28 @@ SuspBool→S¹ (merid true i)  = base
 
 S¹→SuspBool : S¹ → SuspBool
 S¹→SuspBool base     = north
-S¹→SuspBool (loop i) = (merid false ∙ (sym (merid true))) i
+S¹→SuspBool (loop i) = (merid false ∙ sym (merid true)) i
 
 SuspBool→S¹→SuspBool : (x : SuspBool) → Path _ (S¹→SuspBool (SuspBool→S¹ x)) x
 SuspBool→S¹→SuspBool north = refl
 SuspBool→S¹→SuspBool south = merid true
-SuspBool→S¹→SuspBool (merid false i) = λ j → hcomp (λ k → (λ { (j = i1) → merid false i
-                                                             ; (i = i0) → north
-                                                             ; (i = i1) → merid true (j ∨ ~ k)}))
-                                                   (merid false i)
-SuspBool→S¹→SuspBool (merid true i)  = λ j → merid true (i ∧ j)
+SuspBool→S¹→SuspBool (merid false i) j = hcomp (λ k → (λ { (j = i1) → merid false i
+                                                         ; (i = i0) → north
+                                                         ; (i = i1) → merid true (j ∨ ~ k)}))
+                                               (merid false i)
+SuspBool→S¹→SuspBool (merid true i) j = merid true (i ∧ j)
 
 S¹→SuspBool→S¹ : (x : S¹) → SuspBool→S¹ (S¹→SuspBool x) ≡ x
-S¹→SuspBool→S¹ base     = refl
-S¹→SuspBool→S¹ (loop i) = λ j →
-  hfill (λ k → λ { (i = i0) → base
-                 ; (i = i1) → base })
-        (inS (loop i)) (~ j)
+S¹→SuspBool→S¹ base       = refl
+S¹→SuspBool→S¹ (loop i) j = hfill (λ k → λ { (i = i0) → base
+                                           ; (i = i1) → base })
+                                  (inS (loop i)) (~ j)
 
 S¹≃SuspBool : S¹ ≃ SuspBool
 S¹≃SuspBool = isoToEquiv (iso S¹→SuspBool SuspBool→S¹ SuspBool→S¹→SuspBool S¹→SuspBool→S¹)
 
 S¹≡SuspBool : S¹ ≡ SuspBool
-S¹≡SuspBool = isoToPath (iso S¹→SuspBool SuspBool→S¹ SuspBool→S¹→SuspBool S¹→SuspBool→S¹)
+S¹≡SuspBool = ua S¹≃SuspBool
 
 -- Now the sphere
 
@@ -93,8 +97,11 @@ SuspS¹→S²→SuspS¹ south k = merid base k
 SuspS¹→S²→SuspS¹ (merid base j) k = merid base (k ∧ j)
 SuspS¹→S²→SuspS¹ (merid (loop j) i) k = meridian-contraction i j (~ k)
 
+S²≃SuspS¹ : S² ≃ SuspS¹
+S²≃SuspS¹ = isoToEquiv (iso S²→SuspS¹ SuspS¹→S² SuspS¹→S²→SuspS¹ S²→SuspS¹→S²)
+
 S²≡SuspS¹ : S² ≡ SuspS¹
-S²≡SuspS¹ = isoToPath (iso S²→SuspS¹ SuspS¹→S² SuspS¹→S²→SuspS¹ S²→SuspS¹→S²)
+S²≡SuspS¹ = ua S²≃SuspS¹
 
 -- And the 3-sphere
 
@@ -130,5 +137,8 @@ SuspS²→S³→SuspS² south l = merid base l
 SuspS²→S³→SuspS² (merid base j) l = merid base (l ∧ j)
 SuspS²→S³→SuspS² (merid (surf j k) i) l = meridian-contraction-2 i j k (~ l)
 
+S³≃SuspS² : S³ ≃ SuspS²
+S³≃SuspS² = isoToEquiv (iso S³→SuspS² SuspS²→S³ SuspS²→S³→SuspS² S³→SuspS²→S³)
+
 S³≡SuspS² : S³ ≡ SuspS²
-S³≡SuspS² = isoToPath (iso S³→SuspS² SuspS²→S³ SuspS²→S³→SuspS² S³→SuspS²→S³)
+S³≡SuspS² = ua S³≃SuspS²

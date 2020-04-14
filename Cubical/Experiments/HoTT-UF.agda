@@ -13,7 +13,7 @@ For the moment, this requires the development version of Agda.
 
 {-# OPTIONS --cubical --exact-split --safe #-}
 
-module Cubical.Foundations.HoTT-UF where
+module Cubical.Experiments.HoTT-UF where
 
 open import Cubical.Core.Primitives hiding ( _≡_ )
 open import Cubical.Core.Id public
