@@ -49,9 +49,10 @@ module _(A : Type ℓ)
 
 
  Multi-Set-is-SNS : SNS {ℓ₁ = ℓ} multi-set-structure multi-set-iso
- Multi-Set-is-SNS = join-SNS pointed-structure pointed-iso pointed-is-SNS
-             (λ X → (left-action-structure X) × (member-structure X))
-             (λ B C e →  (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
-                       × (∀ a x → (B .snd .snd a x) ≡ (C .snd .snd a (e .fst x))))
-               (join-SNS left-action-structure left-action-iso Left-Action-is-SNS
-                         member-structure      member-iso      Member-is-SNS        )
+ Multi-Set-is-SNS =
+   join-SNS pointed-iso pointed-is-SNS
+            {S₂ = λ X → (left-action-structure X) × (member-structure X)}
+            (λ B C e →  (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
+                      × (∀ a x → (B .snd .snd a x) ≡ (C .snd .snd a (e .fst x))))
+            (join-SNS left-action-iso Left-Action-is-SNS member-iso Member-is-SNS)
+
