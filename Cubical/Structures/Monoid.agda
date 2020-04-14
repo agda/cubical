@@ -15,16 +15,15 @@ private
   variable
     ℓ : Level
 
--- Now we're getting serious: Monoids
+-- Monoids
 raw-monoid-structure : Type ℓ → Type ℓ
 raw-monoid-structure X = X × (X → X → X)
 
--- If we ignore the axioms we get something like a "raw" monoid, which
--- essentially is the join of a pointed type and an ∞-magma
+-- If we ignore the axioms we get a "raw" monoid
 raw-monoid-is-SNS : SNS {ℓ} raw-monoid-structure _
 raw-monoid-is-SNS = join-SNS pointed-iso pointed-is-SNS (nAryFunIso 2) (nAryFunSNS 2)
 
--- Now define monoids
+-- Monoid axioms
 monoid-axioms : (X : Type ℓ) → raw-monoid-structure X → Type ℓ
 monoid-axioms X (e , _·_ ) = isSet X
                            × ((x y z : X) → x · (y · z) ≡ (x · y) · z)
