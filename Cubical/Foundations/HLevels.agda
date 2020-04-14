@@ -22,7 +22,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Equiv.HalfAdjoint  using (congEquiv)
 open import Cubical.Foundations.Univalence         using (ua; univalence)
 
-open import Cubical.Data.Sigma using (pathSigma≡sigmaPath; _Σ≡T_; ΣProp≡)
+open import Cubical.Data.Sigma using (pathSigma≡sigmaPath; _Σ≡T_; ΣProp≡; _×_)
 open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)
 
 private
@@ -227,9 +227,6 @@ isContrΣ {A = A} {B = B} (a , p) q =
 isPropΣ : isProp A → ((x : A) → isProp (B x)) → isProp (Σ A B)
 isPropΣ pA pB t u = ΣProp≡ pB (pA (t .fst) (u .fst))
 
-isProp×Σ : {A : Type ℓ} {B : Type ℓ'} → isProp A → isProp B → isProp (Σ A λ _ → B)
-isProp×Σ pA pB = isPropΣ pA λ _ → pB
-
 isOfHLevelΣ : ∀ n → isOfHLevel n A → ((x : A) → isOfHLevel n (B x))
                   → isOfHLevel n (Σ A B)
 isOfHLevelΣ 0 = isContrΣ
@@ -249,7 +246,28 @@ isGroupoidΣ = isOfHLevelΣ 3
 is2GroupoidΣ : is2Groupoid A → ((x : A) → is2Groupoid (B x)) → is2Groupoid (Σ A B)
 is2GroupoidΣ = isOfHLevelΣ 4
 
+-- h-level of ×
+
+isProp× : ∀ {A : Type ℓ} {B : Type ℓ'} → isProp A → isProp B → isProp (A × B)
+isProp× pA pB = isPropΣ pA (λ _ → pB)
+
+isOfHLevel× : ∀ {A : Type ℓ} {B : Type ℓ'} n → isOfHLevel n A → isOfHLevel n B
+                                             → isOfHLevel n (A × B)
+isOfHLevel× n hA hB = isOfHLevelΣ n hA (λ _ → hB)
+
+isSet× : ∀ {A : Type ℓ} {B : Type ℓ'} → isSet A → isSet B → isSet (A × B)
+isSet× = isOfHLevel× 2
+
+isGroupoid× : ∀ {A : Type ℓ} {B : Type ℓ'} → isGroupoid A → isGroupoid B
+                                           → isGroupoid (A × B)
+isGroupoid× = isOfHLevel× 3
+
+is2Groupoid× : ∀ {A : Type ℓ} {B : Type ℓ'} → is2Groupoid A → is2Groupoid B
+                                            → is2Groupoid (A × B)
+is2Groupoid× = isOfHLevel× 4
+
 -- h-level of Π-types
+
 isOfHLevelΠ : ∀ n → ((x : A) → isOfHLevel n (B x))
                   → isOfHLevel n ((x : A) → B x)
 isOfHLevelΠ 0 h = (λ x → fst (h x)) , λ f i y → snd (h y) (f y) i

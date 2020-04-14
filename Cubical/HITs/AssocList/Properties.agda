@@ -178,8 +178,6 @@ module _(discA : Discrete A) where
 
 
  FMS-with-str≡AL-with-str : FMS-with-str discA ≡ AL-with-str
- FMS-with-str≡AL-with-str = SIP (multi-set-structure A setA)
-                                (multi-set-iso A setA)
-                                (Multi-Set-is-SNS A setA)
+ FMS-with-str≡AL-with-str = sip (Multi-Set-is-SNS A setA)
                                 (FMS-with-str discA) AL-with-str
-                                .fst (FMSet≃AssocList , FMS→AL-isIso)
+                                (FMSet≃AssocList , FMS→AL-isIso)

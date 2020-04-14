@@ -24,11 +24,15 @@ open import Cubical.HITs.PropositionalTruncation.Base
 private
   variable
     ℓ : Level
-    A B : Type ℓ
+    A B C : Type ℓ
 
 rec : ∀ {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥ → P
 rec Pprop f ∣ x ∣ = f x
 rec Pprop f (squash x y i) = Pprop (rec Pprop f x) (rec Pprop f y) i
+
+rec2 : ∀ {P : Type ℓ} → isProp P → (A → A → P) → ∥ A ∥ → ∥ A ∥ → P
+rec2 Pprop f = rec (isPropΠ (λ _ → Pprop))
+                   (λ a → rec Pprop (f a))
 
 elim : ∀ {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a))
      → ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
@@ -71,6 +75,12 @@ elim' : ∀ {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a)) 
           ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
 elim' {P = P} Pprop f a =
   rec (Pprop a) (λ x → transp (λ i → P (squash ∣ x ∣ a i)) i0 (f x)) a
+
+map : (A → B) → (∥ A ∥ → ∥ B ∥)
+map f = rec squash (∣_∣ ∘ f)
+
+map2 : (A → B → C) → (∥ A ∥ → ∥ B ∥ → ∥ C ∥)
+map2 f = rec (isPropΠ λ _ → squash) (map ∘ f)
 
 -- The propositional truncation can be eliminated into non-propositional
 -- types as long as the function used in the eliminator is 'coherently
