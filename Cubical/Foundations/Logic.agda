@@ -317,6 +317,7 @@ powersets-are-sets {X = X} = isSetΠ (λ _ → isSetHProp)
 
 
 -- We want to show that ℙ X ≃ Σ[A ∈ Type ℓ] (A ↪ X)
+-- Does it even hold until we assume isSet X?
 _↪_ : Type ℓ → Type ℓ → Type ℓ
 A ↪ B = Σ[ f ∈ (A → B) ] hasPropFibers f
 
@@ -324,7 +325,7 @@ Embedding→Subset : {X : Type ℓ} → Σ[ A ∈ Type ℓ ] (A ↪ X) → ℙ X
 Embedding→Subset (A , f , isPropFiber) x = fiber f x , isPropFiber x
 
 Subset→Embedding : {X : Type ℓ} → ℙ X → Σ[ A ∈ Type ℓ ] (A ↪ X)
-Subset→Embedding {X = X} A =  D , f , ψ
+Subset→Embedding {X = X} A = D , f , ψ
  where
   D = Σ[ x ∈ X ] x ∈ A
 
@@ -341,5 +342,9 @@ Subset→Embedding {X = X} A =  D , f , ψ
     r = ΣProp≡ (∈-isProp A) p
     
     q : PathP (λ i → p i ≡ x) y≡x z≡x
-    q = {!!}
+    q i j = hfill (λ k → λ { (j=0) → (p i)
+                           ; (i=0) → (y≡x j)
+                           ; (j=1) → x
+                           ; (i=1) → (z≡x j) })
+                  (inS {!!}) j
 
