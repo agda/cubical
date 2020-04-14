@@ -48,3 +48,8 @@ nAryOp≃VecFun {n = n} = isoToEquiv f
   Iso.inv f      = curryⁿ
   Iso.rightInv f = $ⁿ-curryⁿ
   Iso.leftInv f  = curryⁿ-$ⁿ {n = n}
+
+-- In order to apply ua to nAryOp≃VecFun we probably need to change
+-- the base-case of nAryLevel to "ℓ-max ℓ₁ ℓ₂". This will make it
+-- necessary to add lots of Lifts in zero cases so it's not done yet,
+-- but if the Path is ever needed then it might be worth to do.

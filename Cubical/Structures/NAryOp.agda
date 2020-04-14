@@ -27,5 +27,3 @@ nAryFunIso n (X , fX) (Y , fY) f =
 
 nAry-is-SNS : (n : ℕ) → SNS {ℓ} _ (nAryFunIso n)
 nAry-is-SNS n = SNS-≡→SNS-PathP (nAryFunIso n) (nAryFunExtEquiv n)
-
-
