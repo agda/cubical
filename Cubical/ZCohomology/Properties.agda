@@ -2,14 +2,15 @@
 module Cubical.ZCohomology.Properties where
 
 open import Cubical.ZCohomology.Base
+open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Univalence
 open import Cubical.Data.NatMinusTwo.Base
 open import Cubical.Data.Empty
 open import Cubical.Data.Sigma
@@ -17,14 +18,17 @@ open import Cubical.Data.Prod.Base
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation
 open import Cubical.HITs.Nullification
-open import Cubical.Data.Int
+open import Cubical.Data.Int hiding (_+_)
 open import Cubical.Data.Nat
-open import Cubical.HITs.Truncation
+open import Cubical.HITs.Truncation renaming (elim to trElim)
 
 open import Cubical.HITs.Pushout
 open import Cubical.Data.Sum.Base
 open import Cubical.Data.HomotopyGroup
 open import Cubical.Data.Bool
+
+open import Cubical.ZCohomology.cupProdPrelims renaming (Kn→ΩKn+1 to Kn→ΩKn+1')
+
 private
   variable
     ℓ ℓ' : Level
@@ -60,3 +64,39 @@ coHomRed+1Equiv zero A i = ∥ helpLemma {C = (Int , pos 0)} i ∥₀
       helper (inr tt) = sym snd
 
 coHomRed+1Equiv (suc n) A i = ∥ coHomRed+1.helpLemma A i {C = ((coHomK (suc n)) , ∣ north ∣)} i ∥₀
+
+
+-------------------
+{- This section contains a proof of Kn≃ΩKn+1, which is needed for the cup product -}
+
+{- Compiles slowly right now. Possible improvements :
+1. Use S¹ instead of S 1 in definition of K.
+2. Use copatterns -}
+
+Kn→ΩKn+1 : (n : ℕ) → coHomK n → typ (Ω (coHomK-ptd (suc n)))
+Kn→ΩKn+1 = Kn→ΩKn+1'
+
+isEquivKn→ΩKn+1 : (n : ℕ) → isEquiv (Kn→ΩKn+1 n)
+isEquivKn→ΩKn+1 zero = compEquiv (looper , isEquivLooper) (cong ∣_∣ , isEquivHelper hLevl3) .snd
+  where
+  hLevl3 : (x y : S₊ 1) (p q : x ≡ y) → isProp (p ≡ q)
+  hLevl3 x y = J (λ y p → (q : x ≡ y) → isProp (p ≡ q) )
+                 (transport (λ i → isSet (helper (~ i))) isSetInt refl)
+    where
+    helper : (x ≡ x) ≡ Int
+    helper = (λ i → transp (λ j → ua S1≃SuspBool (~ j ∨ ~ i)) (~ i) x ≡ transp (λ j → ua S1≃SuspBool (~ j ∨ ~ i)) (~ i) x) ∙
+           (λ i → transp (λ j → S¹≡SuspBool (~ j ∨ ~ i)) (~ i) (transport (sym (ua S1≃SuspBool)) x) ≡ transp (λ j → S¹≡SuspBool (~ j ∨ ~ i)) (~ i) (transport (sym (ua S1≃SuspBool)) x)) ∙
+           basedΩS¹≡Int (transport (sym S¹≡SuspBool) (transport (sym (ua S1≃SuspBool)) x))
+isEquivKn→ΩKn+1 (suc zero) = transport (λ i → isEquiv (Kn→ΩKn+1Sucn zero (~ i)))
+                                        (compEquiv (trElim (λ _ → isOfHLevelTrunc (2 + (suc zero))) (λ a → ∣ ϕ north a ∣) ,
+                                                     isEquiv∣ϕ∣)
+                                                   (truncEquivΩ (ℕ→ℕ₋₂ (suc zero))) .snd)
+isEquivKn→ΩKn+1 (suc (suc n)) = transport (λ i → isEquiv (Kn→ΩKn+1Sucn (suc n) (~ i)))
+                                      (compEquiv (conEquiv3 (4 + n) _ (ϕ north) (n , λ i → suc (suc (suc (+-suc n n (~ i))))) (FthalFun-2nConnected (suc n) _ (sphereConnected _)))
+                                                 (truncEquivΩ (ℕ→ℕ₋₂ (suc (suc n)))) .snd)
+
+Kn≃ΩKn+1 : (n : ℕ) → coHomK n ≃ typ (Ω (coHomK-ptd (suc n)))
+Kn≃ΩKn+1 n = Kn→ΩKn+1 n , isEquivKn→ΩKn+1 n
+
+ΩKn+1→Kn : (n : ℕ) → typ (Ω (coHomK-ptd (suc n))) → coHomK n
+ΩKn+1→Kn n a = equiv-proof (isEquivKn→ΩKn+1 n) a .fst .fst

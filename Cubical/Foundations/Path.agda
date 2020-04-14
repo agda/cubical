@@ -6,6 +6,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Univalence
 
 private
   variable

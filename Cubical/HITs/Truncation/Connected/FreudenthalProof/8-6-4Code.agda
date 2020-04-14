@@ -35,30 +35,30 @@ private
 
 
 {- We first need to show that (a variant of) the canceller function defined in FreudenthalProof.Prelim is an equivalence -}
-abstract
-  isEquivCancel : ∀ {ℓ} {A : Type ℓ}{a : A} (n : ℕ) (q : north ≡ south) →
-                   isEquiv {A = ∥ fiber (λ y → σ a y)
-                           (q ∙ sym (merid a)) ∥ ℕ→ℕ₋₂ (n + n)}
-                           {B = ∥ fiber merid q ∥ ℕ→ℕ₋₂ (n + n)}
-                           (elim (λ _ → isOfHLevelTrunc (2 + (n + n) ))
-                                λ b → ∣ (fst b) , canceller (sym (merid a)) (merid (fst b)) q (snd b) ∣)
-  isEquivCancel {a = a} n q = isoToEquiv (iso
-                                        ((elim (λ _ → isOfHLevelTrunc (2 + (n + n))) λ b → ∣ (fst b) , canceller (sym (merid a)) (merid (fst b)) q (snd b) ∣))
-                                        (elim (λ _ → isOfHLevelTrunc (2 + (n + n))) λ s → ∣ (fst s) , cancellerInv (λ i → (merid a) (~ i)) (merid (fst s)) q (snd s) ∣)
-                                        (λ b → elim {B = λ b → ((elim (λ _ → isOfHLevelTrunc (2 + (n + n)))
-                                                                                        λ b → ∣ (fst b) , canceller (sym (merid a)) (merid (fst b)) q (snd b) ∣))
+
+isEquivCancel : ∀ {ℓ} {A : Type ℓ}{a : A} (n : ℕ) (q : north ≡ south) →
+                 isEquiv {A = ∥ fiber (λ y → σ a y)
+                         (q ∙ sym (merid a)) ∥ ℕ→ℕ₋₂ (n + n)}
+                         {B = ∥ fiber merid q ∥ ℕ→ℕ₋₂ (n + n)}
+                         (elim (λ _ → isOfHLevelTrunc (2 + (n + n) ))
+                              λ b → ∣ (fst b) , canceller (sym (merid a)) (merid (fst b)) q (snd b) ∣)
+isEquivCancel {a = a} n q = isoToEquiv (iso
+                                      ((elim (λ _ → isOfHLevelTrunc (2 + (n + n))) λ b → ∣ (fst b) , canceller (sym (merid a)) (merid (fst b)) q (snd b) ∣))
+                                      (elim (λ _ → isOfHLevelTrunc (2 + (n + n))) λ s → ∣ (fst s) , cancellerInv (λ i → (merid a) (~ i)) (merid (fst s)) q (snd s) ∣)
+                                      (λ b → elim {B = λ b → ((elim (λ _ → isOfHLevelTrunc (2 + (n + n)))
+                                                                                      λ b → ∣ (fst b) , canceller (sym (merid a)) (merid (fst b)) q (snd b) ∣))
+                                                            ((elim (λ _ → isOfHLevelTrunc (2 + (n + n)))
+                                                                                      λ s → ∣ (fst s) , cancellerInv (sym (merid a)) (merid (fst s)) q (snd s) ∣) b)
+                                                       ≡ b}
+                                                 (λ x →  isOfHLevelSuc _ (isOfHLevelTrunc (2 + (n + n)) _ x))
+                                                 (λ b i → ∣ fst b , cancellerSection (sym (merid a)) (merid (fst b)) q (snd b) i ∣) b)
+                                       (λ b → elim {B = λ b → ((elim (λ _ → isOfHLevelTrunc (2 + (n + n)))
+                                                                                      λ b → ∣ (fst b) , cancellerInv (sym (merid a)) (merid (fst b)) q (snd b) ∣))
                                                               ((elim (λ _ → isOfHLevelTrunc (2 + (n + n)))
-                                                                                        λ s → ∣ (fst s) , cancellerInv (sym (merid a)) (merid (fst s)) q (snd s) ∣) b)
-                                                         ≡ b}
-                                                   (λ x →  isOfHLevelSuc _ (isOfHLevelTrunc (2 + (n + n)) _ x))
-                                                   (λ b i → ∣ fst b , cancellerSection (sym (merid a)) (merid (fst b)) q (snd b) i ∣) b)
-                                         (λ b → elim {B = λ b → ((elim (λ _ → isOfHLevelTrunc (2 + (n + n)))
-                                                                                        λ b → ∣ (fst b) , cancellerInv (sym (merid a)) (merid (fst b)) q (snd b) ∣))
-                                                                ((elim (λ _ → isOfHLevelTrunc (2 + (n + n)))
-                                                                                        λ s → ∣ (fst s) , canceller (sym (merid a)) (merid (fst s)) q (snd s) ∣) b)
-                                                         ≡ b}
-                                                    (λ x → isOfHLevelSuc (suc (n + n)) (isOfHLevelTrunc (2 + (n + n)) _ x))
-                                                    (λ b i → ∣ fst b , cancellerRetract (sym (merid a)) (merid (fst b)) q (snd b) i ∣) b)) .snd
+                                                                                      λ s → ∣ (fst s) , canceller (sym (merid a)) (merid (fst s)) q (snd s) ∣) b)
+                                                       ≡ b}
+                                                  (λ x → isOfHLevelSuc (suc (n + n)) (isOfHLevelTrunc (2 + (n + n)) _ x))
+                                                  (λ b i → ∣ fst b , cancellerRetract (sym (merid a)) (merid (fst b)) q (snd b) i ∣) b)) .snd
 
 {- CODE will be defined by means of univalence applied to an equivalence
 ∥ fiber (λ y → σ a y) (q ∙ sym (merid c)) ∥ (ℕ→ℕ₋₂ (n + n)) ≃ ∥ fiber merid q ∥ (ℕ→ℕ₋₂ (n + n)).
@@ -70,7 +70,7 @@ sufMap : (n : ℕ) (c a x₂ : A)
         ≡ (q ∙ sym (merid c)) → ∥ Σ A (λ x → merid x ≡ q) ∥ (ℕ→ℕ₋₂ (n + n))
 sufMap {A = A} n c a x₂ iscon q = Lemma8-6-2 (A , a) (A , a) n n iscon iscon
                                               (λ x₂ c → ((merid x₂  ∙ sym (merid a)) ≡ (q ∙ sym (merid c)) → ∥ Σ A (λ x → merid x ≡ q) ∥ (ℕ→ℕ₋₂ (n + n))) ,
-                                                         isOfHLevelPi (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevelTrunc (2 + (n + n)))
+                                                         isOfHLevelΠ (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevelTrunc (2 + (n + n)))
                                               (λ x r → ∣ x , canceller (sym (merid a)) (merid x) q r ∣)
                                               (λ x r → ∣ x , switcher (merid a) q (merid x) r ∣)
                                               (funExt (λ x i → ∣ (refl i) , ((switcherCancellerIdGeneral (merid a) q
@@ -96,7 +96,7 @@ RlFunId {A = A} a n iscon q b = cong (λ x → x (snd b))
                                      (proj₁ (((Lemma8-6-2 (A , a) (A , a) n n iscon iscon
                                                           (λ x₂ c → (((merid x₂  ∙ sym (merid a))
                                                                      ≡ (q ∙ sym (merid c)) → ∥ Σ A (λ x → merid x ≡ q) ∥ (ℕ→ℕ₋₂ (n + n)) ) ,
-                                                                     isOfHLevelPi (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevelTrunc (2 + (n + n))))
+                                                                     isOfHLevelΠ (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevelTrunc (2 + (n + n))))
                                                           (λ x r → ∣ x , canceller (sym (merid a)) (merid x) q r ∣)
                                                           (λ b s → ∣ b , switcher (merid a) q (merid b) s ∣)
                                                           (funExt (λ x → λ j → ∣ (refl j) , (switcherCancellerIdGeneral (merid a) q
@@ -145,43 +145,44 @@ RlFunEquiv {A = A} a c n iscon q = fst (conInd-i→iii {A = Unit} {B = A} (λ x 
   natHelper (suc n) = cong (λ x → suc x) (natHelper n)
 
 {- We will also need the following function to get things on the right form -}
+
+helperFun : ∀ {ℓ ℓ'} {X : Type ℓ} {x y : X} (p : x ≡ y) {A : x ≡ x → Type ℓ'} {B : x ≡ y → Type ℓ'}  →
+           ((q : x ≡ y) → A (q ∙ (sym p)) ≡ B q) →
+           (q : x ≡ x) →
+           transport (λ i₁ → Type ℓ') (A q)
+         ≡ B (transport (λ i → x ≡ p i) q )
+helperFun {ℓ' = ℓ'} {x = x} = J (λ y p → {A : x ≡ x → Type ℓ'} {B : x ≡ y → Type ℓ'} →
+                                        ((q : x ≡ y) → A (q ∙ (sym p)) ≡ B q) →
+                                        (q : x ≡ x) →
+                                        transport (λ i₁ → Type ℓ') (A q)
+                                      ≡ B (transport (λ i → x ≡ p i) q ) )
+                               λ {A} {B} k q → transportRefl (A q) ∙
+                                               cong (λ x → A x) (rUnit q) ∙
+                                               k q ∙
+                                               cong (λ x → B x) (sym (transportRefl q))
+
+helperFunRefl : ∀ {ℓ ℓ'} {X : Type ℓ} {x : X}
+                        {A : x ≡ x → Type ℓ'}
+                        {B : x ≡ x → Type ℓ'} →
+                        helperFun {X = X} (refl {x = x}) {A = A} {B = B}
+                      ≡ λ k q → transportRefl (A q) ∙
+                                cong (λ x → A x) (rUnit q) ∙
+                                k q ∙
+                                cong (λ x → B x) (sym (transportRefl q))
+helperFunRefl {ℓ' = ℓ'} {x = x} {A = A} {B = B} = cong (λ x → x {A} {B})
+                                                      (JRefl (λ y p → {A : x ≡ x → Type ℓ'} {B : x ≡ y → Type ℓ'} →
+                                                                      ((q : x ≡ y) → A (q ∙ (sym p)) ≡ B q) →
+                                                                      (q : x ≡ x) →
+                                                                      transport (λ i₁ → Type ℓ') (A q)
+                                                                    ≡ B (transport (λ i → x ≡ p i) q ) )
+                              λ {A} {B} k q → transportRefl (A q) ∙
+                                              cong (λ x → A x) (rUnit q) ∙
+                                              k q ∙
+                                              cong (λ x → B x) (sym (transportRefl q)))
+
+{- For now things do not compute properly, so we use an abstract version of univalence-}
+
 abstract
-  helperFun : ∀ {ℓ ℓ'} {X : Type ℓ} {x y : X} (p : x ≡ y) {A : x ≡ x → Type ℓ'} {B : x ≡ y → Type ℓ'}  →
-             ((q : x ≡ y) → A (q ∙ (sym p)) ≡ B q) →
-             (q : x ≡ x) →
-             transport (λ i₁ → Type ℓ') (A q)
-           ≡ B (transport (λ i → x ≡ p i) q )
-  helperFun {ℓ' = ℓ'} {x = x} = J (λ y p → {A : x ≡ x → Type ℓ'} {B : x ≡ y → Type ℓ'} →
-                                          ((q : x ≡ y) → A (q ∙ (sym p)) ≡ B q) →
-                                          (q : x ≡ x) →
-                                          transport (λ i₁ → Type ℓ') (A q)
-                                        ≡ B (transport (λ i → x ≡ p i) q ) )
-                                 λ {A} {B} k q → transportRefl (A q) ∙
-                                                 cong (λ x → A x) (rUnit q) ∙
-                                                 k q ∙
-                                                 cong (λ x → B x) (sym (transportRefl q))
-
-  helperFunRefl : ∀ {ℓ ℓ'} {X : Type ℓ} {x : X}
-                          {A : x ≡ x → Type ℓ'}
-                          {B : x ≡ x → Type ℓ'} →
-                          helperFun {X = X} (refl {x = x}) {A = A} {B = B}
-                        ≡ λ k q → transportRefl (A q) ∙
-                                  cong (λ x → A x) (rUnit q) ∙
-                                  k q ∙
-                                  cong (λ x → B x) (sym (transportRefl q))
-  helperFunRefl {ℓ' = ℓ'} {x = x} {A = A} {B = B} = cong (λ x → x {A} {B})
-                                                        (JRefl (λ y p → {A : x ≡ x → Type ℓ'} {B : x ≡ y → Type ℓ'} →
-                                                                        ((q : x ≡ y) → A (q ∙ (sym p)) ≡ B q) →
-                                                                        (q : x ≡ x) →
-                                                                        transport (λ i₁ → Type ℓ') (A q)
-                                                                      ≡ B (transport (λ i → x ≡ p i) q ) )
-                                λ {A} {B} k q → transportRefl (A q) ∙
-                                                cong (λ x → A x) (rUnit q) ∙
-                                                k q ∙
-                                                cong (λ x → B x) (sym (transportRefl q)))
-
-  {- For now things do not compute properly, so we use an abstract version of univalence-}
-
   ua' : ∀ {A B : Type ℓ} → A ≃ B → A ≡ B
   ua' = ua
 
@@ -211,7 +212,7 @@ sufMapId {A = A} n a x1 iscon = (proj₂ (Lemma8-6-2 (A , a) (A , a) n n iscon i
                                                     (λ x₂ c → ((merid x₂  ∙ sym (merid a))
                                                             ≡ ((merid x1) ∙ sym (merid c)) →
                                                               ∥ Σ A (λ x → merid x ≡ (merid x1)) ∥ (ℕ→ℕ₋₂ (n + n))) ,
-                                                              isOfHLevelPi (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevelTrunc (2 +  (n + n)))
+                                                              isOfHLevelΠ (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevelTrunc (2 +  (n + n)))
                                                     (λ x r → ∣ x , canceller (sym (merid a)) (merid x) (merid x1) r ∣)
                                                     (λ x r → ∣ x , switcher (merid a) (merid x1) (merid x) r ∣)
                                                     (funExt (λ x i → ∣ (refl i) , ((switcherCancellerIdGeneral (merid a) (merid x1)
@@ -224,7 +225,7 @@ sufMapId2 :  (n : ℕ) (a x1 : A)
 sufMapId2 {A = A} n a x1 iscon i = (proj₁ (Lemma8-6-2 (A , a) (A , a) n n iscon iscon
                                                        (λ x₂ c → ((merid x₂  ∙ sym (merid a))
                                                                 ≡ ((merid x1) ∙ sym (merid c)) → ∥ Σ A (λ x → merid x ≡ (merid x1)) ∥ (ℕ→ℕ₋₂ (n + n))) ,
-                                                                 isOfHLevelPi (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevelTrunc (2 + (n + n)))
+                                                                 isOfHLevelΠ (2+ ((ℕ→ℕ₋₂ (n + n)))) λ _ → isOfHLevelTrunc (2 + (n + n)))
                                                        (λ x r → ∣ x , canceller (sym (merid a)) (merid x) (merid x1) r ∣)
                                                        (λ x r → ∣ x , switcher (merid a) (merid x1) (merid x) r ∣)
                                                        (funExt (λ x i → ∣ (refl i) , ((switcherCancellerIdGeneral (merid a) (merid x1)

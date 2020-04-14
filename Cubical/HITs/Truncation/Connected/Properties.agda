@@ -13,8 +13,10 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.NatMinusTwo.Base
 open import Cubical.Data.Prod.Base
 open import Cubical.HITs.Susp
@@ -22,6 +24,9 @@ open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation.Base
 open import Cubical.HITs.Truncation.Properties renaming (elim to trElim)
 open import Cubical.HITs.Nullification
+open import Cubical.HITs.Pushout.Base
+open import Cubical.HITs.Sn.Base
+open import Cubical.Data.Unit.Properties
 
 open import Cubical.Data.HomotopyGroup
 
@@ -112,3 +117,66 @@ abstract
 
 ------------------------------
 
+
+inrConnected : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} (n : ℕ₋₂)
+         (f : C → A) (g : C → B)  →
+         is- n -Connected f →
+         is-_-Connected {A = B} {B = Pushout f g} n inr
+inrConnected {A = A} {B = B} {C = C} n f g iscon = elim.3→1 inr n λ P → (λ k → helpLemmas.k P k) , λ b  → refl
+        where
+        module helpLemmas {ℓ : Level} (P : (Pushout f g) → HLevel ℓ (2+ n))
+                   (h : (b : B) → typ (P (inr b)))
+          where
+          Q : A → HLevel _ (2+ n)
+          Q a = (P (inl a))
+
+          fun : (c : C) → typ (Q (f c))
+          fun c = transport (λ i → typ (P (push c (~ i)))) (h (g c))
+
+          k : (d : Pushout f g) → typ (P d)
+          k (inl x) = elim.2→3 f n Q (elim.1→2 f n iscon Q) .fst fun x  
+          k (inr x) = h x
+          k (push a i) = hcomp (λ k → λ{(i = i0) → elim.2→3 f n Q
+                                                                     (elim.1→2 f n iscon Q) .fst
+                                                                     fun (f a) ;
+                                               (i = i1) → transportTransport⁻ (λ j → typ (P (push a j))) (h (g a)) k})
+                                     (transp (λ j → typ (P (push a (i ∧ j))))
+                                             (~ i)
+                                             (elim.2→3 f n Q
+                                                        (elim.1→2 f n iscon Q) .snd fun i a))
+
+
+sphereConnected : (n : ℕ) → is- (-1+ n) -ConnectedType (S₊ n)   
+sphereConnected zero = ∣ north ∣ , (isOfHLevelTrunc 1 ∣ north ∣)
+sphereConnected (suc n) = transport (λ i → is- ℕ→ℕ₋₂ n -ConnectedType (Susp≡Push {A = S₊ n} (~ i)))
+                          (trivFunCon← {A = Pushout {A = S₊ n} (λ x → tt) λ x → tt} {a = inr tt } _
+                                        (transport (λ i → is- (-1+ n) -Connected (mapsAgree (~ i)))
+                                                   (inrConnected _ (λ x → tt) (λ x → tt) λ{tt → transport (λ i → isContr (∥ fibUnit (~ i) ∥ (-1+ n))) (sphereConnected n)})))
+  where
+  mapsAgree : Path ((x : Unit) → Pushout {A = S₊ n} (λ x → tt) (λ x → tt)) (λ (x : Unit) → inr tt) inr 
+  mapsAgree = funExt λ {tt → refl}
+  
+  fibUnit : fiber (λ (x : S₊ n) → tt) tt ≡ S₊ n
+  fibUnit = isoToPath (iso (λ b → fst b) (λ a → a , refl) (λ b → refl) λ b i → (fst b) , isProp→isSet isPropUnit tt tt refl (snd b) i)
+
+  Susp≡Push : Susp A ≡ Pushout {A = A} (λ a → tt) λ a → tt
+  Susp≡Push {A = A} = isoToPath (iso fun inverse sect retr)
+    where
+    fun : Susp A → Pushout {A = A} (λ a → tt) (λ a → tt)
+    fun north = inl tt
+    fun south = inr tt
+    fun (merid a i) = push a i
+    inverse : Pushout {A = A} (λ a → tt) (λ a → tt) → Susp A
+    inverse (inl tt) = north
+    inverse (inr tt) = south
+    inverse (push a i) = merid a i
+
+    sect : section fun inverse
+    sect (inl tt) = refl
+    sect (inr tt) = refl
+    sect (push a i) = refl
+
+    retr : retract fun inverse
+    retr north = refl
+    retr south = refl
+    retr (merid a i) = refl

@@ -30,139 +30,140 @@ private
 {- this file contains a proof that σ is 2n-connected -}
 
 --- defining pair⁼ as in the HoTT book. Using J to be able to have easy access to the refl case ----
-abstract
-  pair⁼ : ∀ {ℓ'} {B : A → Type ℓ'} {x y : Σ A (λ a → B a)} (p : fst x ≡ fst y) →
-            transport (λ i → B (p i)) (snd x) ≡ (snd y) →
-            x ≡ y
-  pair⁼ {B = B}{x = x1 , x2} {y = y1 , y2} p = J (λ y1 p → ((y2 : B y1) → (transport (λ i → B (p i)) x2 ≡ y2) → (x1 , x2) ≡ (y1 , y2)))
-                                                 (λ y2 p2 i → x1 , ((sym (transportRefl x2)) ∙ p2) i) p y2
+pair⁼ : ∀ {ℓ'} {B : A → Type ℓ'} {x y : Σ A (λ a → B a)} (p : fst x ≡ fst y) →
+          transport (λ i → B (p i)) (snd x) ≡ (snd y) →
+          x ≡ y
+pair⁼ {B = B}{x = x1 , x2} {y = y1 , y2} p = J (λ y1 p → ((y2 : B y1) → (transport (λ i → B (p i)) x2 ≡ y2) → (x1 , x2) ≡ (y1 , y2)))
+                                               (λ y2 p2 i → x1 , ((sym (transportRefl x2)) ∙ p2) i) p y2
 
-  pair⁼Refl : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {a : A} {x y : B a} (p : transport (λ i → B a) x ≡ y) →
-              pair⁼ {B = B} {x = (a , x)} {y = (a , y)} refl p
-                ≡
-              λ i → a , ((sym (transportRefl x)) ∙ p) i
-  pair⁼Refl {A = A} {B = B} {a = a} {x = x} {y = y} p = cong (λ f → f y p)
-                                                             (JRefl (λ y1 p → ((y2 : B y1) → (transport (λ i → B (p i)) x ≡ y2) →
-                                                                              _≡_ {A = Σ A (λ a → B a)} (a , x) (y1 , y2)))
-                                                                    (λ y2 p2 i → a , ((sym (transportRefl x)) ∙ p2) i))
+pair⁼Refl : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {a : A} {x y : B a} (p : transport (λ i → B a) x ≡ y) →
+            pair⁼ {B = B} {x = (a , x)} {y = (a , y)} refl p
+              ≡
+            λ i → a , ((sym (transportRefl x)) ∙ p) i
+pair⁼Refl {A = A} {B = B} {a = a} {x = x} {y = y} p = cong (λ f → f y p)
+                                                           (JRefl (λ y1 p → ((y2 : B y1) → (transport (λ i → B (p i)) x ≡ y2) →
+                                                                            _≡_ {A = Σ A (λ a → B a)} (a , x) (y1 , y2)))
+                                                                  (λ y2 p2 i → a , ((sym (transportRefl x)) ∙ p2) i))
 
-  pair⁼Sym : ∀ {ℓ'} {B : A → Type ℓ'} {x y : Σ A (λ a → B a)}
-                    (p : fst x ≡ fst y)
-                    (q : transport (λ i → B (p i)) (snd x) ≡ (snd y)) →
-                    sym (pair⁼ {x = x} {y = y} p q)
-                  ≡ pair⁼ (sym p) (transportLemma {B = B} p (snd x) (snd y) q )
-  pair⁼Sym {ℓ} {A = A} {B = B} {x = x} {y = y} p = J {ℓ} {A} {fst x} (λ fsty p → (sndy : B (fsty)) (q : transport (λ i → B (p i)) (snd x) ≡ (sndy)) →
-                                                                                 sym (pair⁼ p q)
-                                                                               ≡ pair⁼ (sym p) (transportLemma {B = B} p (snd x) (sndy) q ))
-                                                                     (λ sndy → J (λ sndy q → sym (pair⁼ (λ _ → fst x) q)
-                                                                                              ≡ pair⁼ refl (transportLemma {B = B} refl (snd x) sndy q))
-                                                                                  ((λ j → (sym (pair⁼Refl refl j) )) ∙
-                                                                                  (λ k i → fst x , ((rUnit (sym (transportRefl (snd x))) (~ k)) (~ i))) ∙
-                                                                                  (λ k i → fst x , helper (~ k) i) ∙
-                                                                                  sym (pair⁼Refl (transportLemma {B = B} (λ _ → fst x) (snd x)
-                                                                                                                 (transport (λ i → B (fst x)) (snd x)) refl))))
-                                                                     p (snd y)
-    where
-    helper : (sym (transportRefl (transport (λ i₁ → B (fst x)) (snd x)))) ∙
-             (transportLemma {B = B} (λ _ → fst x) (snd x)
-                                                   (transport (λ i₂ → B (fst x)) (snd x))
-                                                   (λ _ → transport (λ i₂ → B (fst x)) (snd x)))
-             ≡ (transportRefl (snd x))
-    helper = (λ i → sym (transportRefl (transport (λ i₁ → B (fst x)) (snd x))) ∙
-             (transportLemmaRefl {B = B} (snd x) (snd x) i) (snd x)
-                                 (transport (λ i₂ → B (fst x)) (snd x))
-                                 (λ _ → transport (λ i₂ → B (fst x)) (snd x))) ∙
-              (λ i →  sym (transportRefl (transport (λ i₁ → B (fst x)) (snd x))) ∙
-                      transportRefl (transport (λ i₂ → B (fst x)) (snd x)) ∙
-                      (λ _ → transport (λ i₂ → B (fst x)) (snd x)) ∙
-                      transportRefl (snd x)) ∙
-              (λ i → sym (transportRefl (transport (λ i₁ → B (fst x)) (snd x))) ∙
-                      transportRefl (transport (λ i₂ → B (fst x)) (snd x)) ∙
-                      lUnit (transportRefl (snd x)) (~ i)) ∙
-              assoc (sym (transportRefl (transport (λ i₁ → B (fst x)) (snd x))))
-                    (transportRefl (transport (λ i₁ → B (fst x)) (snd x)))
-                    (transportRefl (snd x)) ∙
-              (λ i → (lCancel (transportRefl (transport (λ i₁ → B (fst x)) (snd x))) i) ∙
-                     transportRefl (snd x)) ∙
-              sym (lUnit (transportRefl (snd x)))
 
-  {- We need something slightly stronger than functoriality of transport.
-     Since we will be transporting over dependent pairs, we also need to split the second component -}
-  functTransp2 : ∀ {ℓ ℓ'} {A : Type ℓ} {a1 b : A} {C : Σ A (λ b → a1 ≡ b) → Type ℓ' } (p : a1 ≡ b) (q : b ≡ a1) →
-                 transport (λ i → C (pair⁼ (p ∙ q) (pairLemma2 (p ∙ q)) i) )
-               ≡ λ x → transport (λ i → C (pair⁼ q ((pairLemma p q)) i))
-                                 (transport (λ i → C (pair⁼ p (pairLemma2 p) i))
-                                             x)
-  functTransp2 {ℓ} {ℓ'} {A = A} {a1 = a1} {b = b} {C = C} =
-                        J (λ b p → (q : b ≡ a1) →
-                                   transport (λ i → C (pair⁼ {B = λ a → a1 ≡ a} {x = (a1 , refl {x = a1})}
-                                                             (p ∙ q) (pairLemma2 (p ∙ q)) i) )
-                                 ≡ λ x → transport (λ i → C (pair⁼ q ((pairLemma p q)) i))
-                                                   (transport (λ i → C (pair⁼ p (pairLemma2 p) i))
-                                                               x))
-                          λ q → (λ j → subst C (hej a1 q (~ j))) ∙
-                                (λ j → subst C (pair⁼ (λ _ → a1) (pairLemma2 (λ _ → a1)) ∙
-                                pair⁼ q (pairLemmaRefl q (~ j)))) ∙
-                                funExt λ x → (substComposite-∙ C (pair⁼ refl (pairLemma2 refl)) (pair⁼ q (pairLemma refl q)) x)
+{- We will also need the following idenitity for sym (pair⁼ p q). -}
+pair⁼Sym : ∀ {ℓ'} {B : A → Type ℓ'} {x y : Σ A (λ a → B a)}
+                  (p : fst x ≡ fst y)
+                  (q : transport (λ i → B (p i)) (snd x) ≡ (snd y)) →
+                  sym (pair⁼ {x = x} {y = y} p q)
+                ≡ pair⁼ (sym p) (transportLemma {B = B} p (snd x) (snd y) q )
+pair⁼Sym {ℓ} {A = A} {B = B} {x = x} {y = y} p = J {ℓ} {A} {fst x} (λ fsty p → (sndy : B (fsty)) (q : transport (λ i → B (p i)) (snd x) ≡ (sndy)) →
+                                                                               sym (pair⁼ p q)
+                                                                             ≡ pair⁼ (sym p) (transportLemma {B = B} p (snd x) (sndy) q ))
+                                                                   (λ sndy → J (λ sndy q → sym (pair⁼ (λ _ → fst x) q)
+                                                                                            ≡ pair⁼ refl (transportLemma {B = B} refl (snd x) sndy q))
+                                                                                ((λ j → (sym (pair⁼Refl refl j) )) ∙
+                                                                                (λ k i → fst x , ((rUnit (sym (transportRefl (snd x))) (~ k)) (~ i))) ∙
+                                                                                (λ k i → fst x , helper (~ k) i) ∙
+                                                                                sym (pair⁼Refl (transportLemma {B = B} (λ _ → fst x) (snd x)
+                                                                                                               (transport (λ i → B (fst x)) (snd x)) refl))))
+                                                                   p (snd y)
+  where
+  helper : (sym (transportRefl (transport (λ i₁ → B (fst x)) (snd x)))) ∙
+           (transportLemma {B = B} (λ _ → fst x) (snd x)
+                                                 (transport (λ i₂ → B (fst x)) (snd x))
+                                                 (λ _ → transport (λ i₂ → B (fst x)) (snd x)))
+           ≡ (transportRefl (snd x))
+  helper = (λ i → sym (transportRefl (transport (λ i₁ → B (fst x)) (snd x))) ∙
+           (transportLemmaRefl {B = B} (snd x) (snd x) i) (snd x)
+                               (transport (λ i₂ → B (fst x)) (snd x))
+                               (λ _ → transport (λ i₂ → B (fst x)) (snd x))) ∙
+            (λ i →  sym (transportRefl (transport (λ i₁ → B (fst x)) (snd x))) ∙
+                    transportRefl (transport (λ i₂ → B (fst x)) (snd x)) ∙
+                    (λ _ → transport (λ i₂ → B (fst x)) (snd x)) ∙
+                    transportRefl (snd x)) ∙
+            (λ i → sym (transportRefl (transport (λ i₁ → B (fst x)) (snd x))) ∙
+                    transportRefl (transport (λ i₂ → B (fst x)) (snd x)) ∙
+                    lUnit (transportRefl (snd x)) (~ i)) ∙
+            assoc (sym (transportRefl (transport (λ i₁ → B (fst x)) (snd x))))
+                  (transportRefl (transport (λ i₁ → B (fst x)) (snd x)))
+                  (transportRefl (snd x)) ∙
+            (λ i → (lCancel (transportRefl (transport (λ i₁ → B (fst x)) (snd x))) i) ∙
+                   transportRefl (snd x)) ∙
+            sym (lUnit (transportRefl (snd x)))
+
+{- We need something slightly stronger than functoriality of transport.
+   Since we will be transporting over dependent pairs, we also need to split the second component -}
+functTransp2 : ∀ {ℓ ℓ'} {A : Type ℓ} {a1 b : A} {C : Σ A (λ b → a1 ≡ b) → Type ℓ' } (p : a1 ≡ b) (q : b ≡ a1) →
+               transport (λ i → C (pair⁼ (p ∙ q) (pairLemma2 (p ∙ q)) i) )
+             ≡ λ x → transport (λ i → C (pair⁼ q ((pairLemma p q)) i))
+                               (transport (λ i → C (pair⁼ p (pairLemma2 p) i))
+                                           x)
+functTransp2 {ℓ} {ℓ'} {A = A} {a1 = a1} {b = b} {C = C} =
+                      J (λ b p → (q : b ≡ a1) →
+                                 transport (λ i → C (pair⁼ {B = λ a → a1 ≡ a} {x = (a1 , refl {x = a1})}
+                                                           (p ∙ q) (pairLemma2 (p ∙ q)) i) )
+                               ≡ λ x → transport (λ i → C (pair⁼ q ((pairLemma p q)) i))
+                                                 (transport (λ i → C (pair⁼ p (pairLemma2 p) i))
+                                                             x))
+                        λ q → (λ j → subst C (hej a1 q (~ j))) ∙
+                              (λ j → subst C (pair⁼ (λ _ → a1) (pairLemma2 (λ _ → a1)) ∙
+                              pair⁼ q (pairLemmaRefl q (~ j)))) ∙
+                              funExt λ x → (substComposite-∙ C (pair⁼ refl (pairLemma2 refl)) (pair⁼ q (pairLemma refl q)) x)
+         where
+         hej : (b : A) (q : a1 ≡ b) → (pair⁼ {A = A} {B = λ a → a1 ≡ a}
+                                               {x = (a1 , λ _ → a1)} {y = (a1 , λ _ → a1)}
+                                               (λ _ → a1) (pairLemma2 {a = a1} {b = a1} (λ _ → a1)) ∙
+                                       pair⁼ q ((pairLemma2 q) ∙ lUnit q))
+                                     ≡ pair⁼ (refl ∙ q) (pairLemma2 (refl {x = a1} ∙ q))
+         hej b = J (λ b q → pair⁼ (λ _ → a1) (pairLemma2 (λ _ → a1)) ∙
+                            pair⁼ q (pairLemma2 q ∙ lUnit q)
+                          ≡ pair⁼ (refl ∙ q) (pairLemma2 (refl ∙ q)))
+                   ((λ i → (helper2 i) ∙ pair⁼ refl (pairLemma2 refl ∙ lUnit refl)) ∙
+                     sym (lUnit (pair⁼ (λ _ → a1) (pairLemma2 (λ _ → a1) ∙ lUnit (λ _ → a1)))) ∙
+                     desired≡)
            where
-           hej : (b : A) (q : a1 ≡ b) → (pair⁼ {A = A} {B = λ a → a1 ≡ a}
-                                                 {x = (a1 , λ _ → a1)} {y = (a1 , λ _ → a1)}
-                                                 (λ _ → a1) (pairLemma2 {a = a1} {b = a1} (λ _ → a1)) ∙
-                                         pair⁼ q ((pairLemma2 q) ∙ lUnit q))
-                                       ≡ pair⁼ (refl ∙ q) (pairLemma2 (refl {x = a1} ∙ q))
-           hej b = J (λ b q → pair⁼ (λ _ → a1) (pairLemma2 (λ _ → a1)) ∙
-                              pair⁼ q (pairLemma2 q ∙ lUnit q)
-                            ≡ pair⁼ (refl ∙ q) (pairLemma2 (refl ∙ q)))
-                     ((λ i → (helper2 i) ∙ pair⁼ refl (pairLemma2 refl ∙ lUnit refl)) ∙
-                       sym (lUnit (pair⁼ (λ _ → a1) (pairLemma2 (λ _ → a1) ∙ lUnit (λ _ → a1)))) ∙
-                       desired≡)
-             where
-             helper2 : (pair⁼ {A = A} {B = λ a → a1 ≡ a}
-                              {x = (a1 , λ _ → a1)} {y = (a1 , λ _ → a1)}
-                              (λ _ → a1) (pairLemma2 {a = a1} {b = a1} (λ _ → a1)))
-                      ≡ refl
-             helper2 = (λ i → (JRefl (λ y1 p → ((y2 : a1 ≡ y1) → (transport (λ i → a1 ≡ (p i)) refl ≡ y2) →
-                                               _≡_ {A = Σ A (λ a → a1 ≡ a)} (a1 , refl) (y1 , y2)))
-                                     (λ y2 p2 i → refl {x = a1} i , ((sym (transportRefl refl)) ∙ p2) i) i)
-                              (λ _ → a1)
-                              (pairLemma2 {a = a1} {b = a1} (λ _ → a1))) ∙
-                       (λ j → λ i → a1 , ((sym (transportRefl refl)) ∙
-                                         JRefl (λ b p →  transport (λ i → a1 ≡ p i) refl ≡ p)
-                                               (transportRefl refl) j ) i) ∙
-                        λ j i → a1 , (lCancel (transportRefl refl) j) i
+           helper2 : (pair⁼ {A = A} {B = λ a → a1 ≡ a}
+                            {x = (a1 , λ _ → a1)} {y = (a1 , λ _ → a1)}
+                            (λ _ → a1) (pairLemma2 {a = a1} {b = a1} (λ _ → a1)))
+                    ≡ refl
+           helper2 = (λ i → (JRefl (λ y1 p → ((y2 : a1 ≡ y1) → (transport (λ i → a1 ≡ (p i)) refl ≡ y2) →
+                                             _≡_ {A = Σ A (λ a → a1 ≡ a)} (a1 , refl) (y1 , y2)))
+                                   (λ y2 p2 i → refl {x = a1} i , ((sym (transportRefl refl)) ∙ p2) i) i)
+                            (λ _ → a1)
+                            (pairLemma2 {a = a1} {b = a1} (λ _ → a1))) ∙
+                     (λ j → λ i → a1 , ((sym (transportRefl refl)) ∙
+                                       JRefl (λ b p →  transport (λ i → a1 ≡ p i) refl ≡ p)
+                                             (transportRefl refl) j ) i) ∙
+                      λ j i → a1 , (lCancel (transportRefl refl) j) i
 
-             PathP1 : PathP (λ j → _≡_ {A = Σ A (λ a → a1 ≡ a)}
-                                       (a1 , (λ _ → a1))
-                                       (a1 , lUnit (λ _ → a1) (~ j)))
-                            (pair⁼ (λ _ → a1) (pairLemma2 (λ _ → a1) ∙ lUnit (λ _ → a1)))
-                            refl
-             PathP1 j = hcomp (λ k → λ{(j = i0) → pair⁼ (λ _ → a1) (pairLemma2 (λ _ → a1) ∙
-                                                  lUnit (λ _ → a1))
-                                     ; (j = i1) → ((λ i → pair⁼ (λ _ → a1) (rUnit (pairLemma2 (λ _ → a1)) (~ i)) ) ∙
-                                                    helper2) k})
-                              (pair⁼ refl ((pairLemma2 (λ _ → a1)) ∙
-                                           (λ i → lUnit refl (i ∧ (~ j)))))
+           PathP1 : PathP (λ j → _≡_ {A = Σ A (λ a → a1 ≡ a)}
+                                     (a1 , (λ _ → a1))
+                                     (a1 , lUnit (λ _ → a1) (~ j)))
+                          (pair⁼ (λ _ → a1) (pairLemma2 (λ _ → a1) ∙ lUnit (λ _ → a1)))
+                          refl
+           PathP1 j = hcomp (λ k → λ{(j = i0) → pair⁼ (λ _ → a1) (pairLemma2 (λ _ → a1) ∙
+                                                lUnit (λ _ → a1))
+                                   ; (j = i1) → ((λ i → pair⁼ (λ _ → a1) (rUnit (pairLemma2 (λ _ → a1)) (~ i)) ) ∙
+                                                  helper2) k})
+                            (pair⁼ refl ((pairLemma2 (λ _ → a1)) ∙
+                                         (λ i → lUnit refl (i ∧ (~ j)))))
 
-             PathP2 : PathP (λ j → _≡_ {A = Σ A (λ a → a1 ≡ a)}
-                                       (a1 , (λ _ → a1))
-                                       (a1 , lUnit (λ _ → a1) j))
-                            refl
-                            (pair⁼ ((λ _ → a1) ∙ refl) (pairLemma2 ((λ _ → a1) ∙ refl)))
-             PathP2 j = hcomp (λ k → λ{(j = i0) → helper2 k
-                                     ; (j = i1) → (pair⁼ ((λ _ → a1) ∙ refl) (pairLemma2 ((λ _ → a1) ∙ refl)))})
-                              (pair⁼ (lUnit (λ _ → a1) j) (pairLemma2 (lUnit (λ _ → a1) j)))
+           PathP2 : PathP (λ j → _≡_ {A = Σ A (λ a → a1 ≡ a)}
+                                     (a1 , (λ _ → a1))
+                                     (a1 , lUnit (λ _ → a1) j))
+                          refl
+                          (pair⁼ ((λ _ → a1) ∙ refl) (pairLemma2 ((λ _ → a1) ∙ refl)))
+           PathP2 j = hcomp (λ k → λ{(j = i0) → helper2 k
+                                   ; (j = i1) → (pair⁼ ((λ _ → a1) ∙ refl) (pairLemma2 ((λ _ → a1) ∙ refl)))})
+                            (pair⁼ (lUnit (λ _ → a1) j) (pairLemma2 (lUnit (λ _ → a1) j)))
 
-             pathsCancel : (λ j → _≡_ {A = Σ A (λ a → a1 ≡ a)} (a1 , (λ _ → a1)) (a1 , lUnit (λ _ → a1) (~ j))) ∙
-                            ((λ j → _≡_ {A = Σ A (λ a → a1 ≡ a)} (a1 , (λ _ → a1)) (a1 , lUnit (λ _ → a1) j)))
-                         ≡ refl
-             pathsCancel = lCancel (λ j → _≡_ {A = Σ A (λ a → a1 ≡ a)} (a1 , (λ _ → a1)) (a1 , lUnit (λ _ → a1) j))
+           pathsCancel : (λ j → _≡_ {A = Σ A (λ a → a1 ≡ a)} (a1 , (λ _ → a1)) (a1 , lUnit (λ _ → a1) (~ j))) ∙
+                          ((λ j → _≡_ {A = Σ A (λ a → a1 ≡ a)} (a1 , (λ _ → a1)) (a1 , lUnit (λ _ → a1) j)))
+                       ≡ refl
+           pathsCancel = lCancel (λ j → _≡_ {A = Σ A (λ a → a1 ≡ a)} (a1 , (λ _ → a1)) (a1 , lUnit (λ _ → a1) j))
 
-             desired≡ : pair⁼ (λ _ → a1) (λ i i₁ → (pairLemma2 (λ _ → a1) ∙ lUnit (λ _ → a1)) i i₁)
-                      ≡ pair⁼ ((λ _ → a1) ∙ refl) (pairLemma2 ((λ _ → a1) ∙ refl))
-             desired≡ = transport (λ i → PathP (λ j → pathsCancel i j)
-                                               (pair⁼ (λ _ → a1) (pairLemma2 (λ _ → a1) ∙ lUnit (λ _ → a1)))
-                                               (pair⁼ ((λ _ → a1) ∙ refl) (pairLemma2 ((λ _ → a1) ∙ refl))))
-                                  (compPathP PathP1 PathP2)
+           desired≡ : pair⁼ (λ _ → a1) (λ i i₁ → (pairLemma2 (λ _ → a1) ∙ lUnit (λ _ → a1)) i i₁)
+                    ≡ pair⁼ ((λ _ → a1) ∙ refl) (pairLemma2 ((λ _ → a1) ∙ refl))
+           desired≡ = transport (λ i → PathP (λ j → pathsCancel i j)
+                                             (pair⁼ (λ _ → a1) (pairLemma2 (λ _ → a1) ∙ lUnit (λ _ → a1)))
+                                             (pair⁼ ((λ _ → a1) ∙ refl) (pairLemma2 ((λ _ → a1) ∙ refl))))
+                                (compPathP PathP1 PathP2)
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -456,9 +457,11 @@ codeTranspId2 {ℓ}  {X = X} {a = a} = J (λ b q → (p : a ≡ b) (A : (a ≡ a
                                           λ k → (transportRefl (A (subst (_≡_ a) (λ i → a) p)) ∙ (λ i → A (pairLemmaId p (λ i₁ → a ) (~ k)  i))) ∙ f p
 
      where
-     transpLemma2 : ∀ {ℓ ℓ'} {X : Type ℓ} {x : X} {A : x ≡ x → Type ℓ'} (p : x ≡ x) → (λ i → transportRefl A i p)  ≡ (transportRefl (A (transport (λ i → x ≡ x)  p)) ∙ (λ i → A ((transportRefl p) i)))
+     transpLemma2 : ∀ {ℓ ℓ'} {X : Type ℓ} {x : X} {A : x ≡ x → Type ℓ'} (p : x ≡ x) →
+                   (λ i → transportRefl A i p)
+                ≡ (transportRefl (A (transport (λ i → x ≡ x)  p)) ∙ (λ i → A ((transportRefl p) i)))
      transpLemma2 {ℓ' = ℓ'}{x = x} {A = A} p j = hcomp (λ k → λ{(j = i0) → (sym (lUnit (λ i → transportRefl (A ((transportRefl p) i)) i))) k
-                                                             ; (j = i1) → (transportRefl (A (transport (λ i → x ≡ x)  p)) ∙
+                                                               ; (j = i1) → (transportRefl (A (transport (λ i → x ≡ x)  p)) ∙
                                                                           (λ i → A ((transportRefl p) i)))})
                                                      ((λ i → transportRefl (A (transport (λ i → x ≡ x) p )) (i ∧ j)) ∙
                                                      (λ i → transportRefl (A ((transportRefl p) i)) (i ∨ j)))
@@ -564,8 +567,13 @@ codeTranspId3 n a x1 iscon = (RlFun a x1 n iscon (merid x1)) (outer (inner guy))
 
 {- We now need to show that the outer transport applied to ∣ x1 , refl ∣ gives ∣ x1 , refl ∣. We transform the outer transport-}
 codeTranspId4 : (n : ℕ) (a x1 : A) (iscon : is- (ℕ→ℕ₋₂ n) -ConnectedType A) →
-                transport (λ i → uncurry (CODE a n iscon) (pair⁼ (sym (merid a)) (pairLemma (merid x1) (sym (merid a)) ) i)) ∣ x1 , refl ∣
-                ≡ transport (λ i → uncurry (CODE a n iscon) (pair⁼ (λ i₁ → merid a (~ i₁)) (transpRCancel (λ i → north ≡ (merid a (~ i))) (merid x1 ∙ (sym (merid a)))) i)) ∣ x1 , rUnit (merid x1) ∙ sym (cong (λ x → merid x1 ∙ x) (lCancel (merid a)))  ∙ assocJ (merid x1) (sym (merid a)) (merid a) ∙ sym (pairLemma {a1 = north} (merid x1 ∙ (sym (merid a))) (merid a)) ∣
+                transport (λ i → uncurry (CODE a n iscon) (pair⁼ (sym (merid a)) (pairLemma (merid x1) (sym (merid a)) ) i))
+                          ∣ x1 , refl ∣
+              ≡ transport (λ i → uncurry (CODE a n iscon) (pair⁼ (λ i₁ → merid a (~ i₁)) (transpRCancel (λ i → north ≡ (merid a (~ i))) (merid x1 ∙ (sym (merid a)))) i))
+                          ∣ x1 , rUnit (merid x1) ∙
+                                sym (cong (λ x → merid x1 ∙ x) (lCancel (merid a)))  ∙
+                                assocJ (merid x1) (sym (merid a)) (merid a) ∙
+                                sym (pairLemma {a1 = north} (merid x1 ∙ (sym (merid a))) (merid a)) ∣
 codeTranspId4 {ℓ} {A = A} n a x1 iscon = sym (helper north (sym (merid a)))
    where
    helper : (y : Susp A) → (q : south ≡ y) → transport (λ i → uncurry (CODE a n iscon) (pair⁼ q (transpRCancel (λ i → north ≡ q i) ((merid x1) ∙ q)) i))
@@ -573,16 +581,16 @@ codeTranspId4 {ℓ} {A = A} n a x1 iscon = sym (helper north (sym (merid a)))
                                                              sym (cong (λ x → merid x1 ∙ x) (lCancel (sym q))) ∙
                                                              assocJ (merid x1) q (sym q) ∙ sym ((pairLemma {a1 = north} (merid x1 ∙ q) (sym q))) ∣
                                           ≡ transport (λ i → uncurry (CODE a n iscon) (pair⁼ q (pairLemma (merid x1) q ) i)) ∣ x1 , refl ∣
-   helper y = J (λ y q → transport (λ i → uncurry (CODE a n iscon) (pair⁼ q (transpRCancel (λ i → north ≡ q i) ((merid x1) ∙ q)) i)) ∣ x1 , rUnit (merid x1)  ∙ sym (cong (λ x → merid x1 ∙ x) (lCancel (sym q))) ∙ assocJ (merid x1) q (sym q) ∙ sym ((pairLemma {a1 = north} (merid x1 ∙ q) (sym q))) ∣ ≡ transport (λ i → uncurry (CODE a n iscon) (pair⁼ q (pairLemma (merid x1) q ) i)) ∣ x1 , refl ∣)
-               (transport
-      (λ i →
-         uncurry (CODE a n iscon)
-         (pair⁼ refl
-          (transpRCancel (λ i₁ → north ≡ refl i₁) (merid x1 ∙ refl)) i)) ∣ x1 , originalPath ∣
+   helper y = J (λ y q → transport (λ i → uncurry (CODE a n iscon) (pair⁼ q (transpRCancel (λ i → north ≡ q i) ((merid x1) ∙ q)) i))
+                                    ∣ x1 , rUnit (merid x1)  ∙
+                                          sym (cong (λ x → merid x1 ∙ x) (lCancel (sym q))) ∙
+                                          assocJ (merid x1) q (sym q) ∙ sym ((pairLemma {a1 = north} (merid x1 ∙ q) (sym q))) ∣
+                        ≡ transport (λ i → uncurry (CODE a n iscon) (pair⁼ q (pairLemma (merid x1) q ) i)) ∣ x1 , refl ∣)
+               (transport (λ i → uncurry (CODE a n iscon) (pair⁼ refl (transpRCancel (λ i₁ → north ≡ refl i₁) (merid x1 ∙ refl)) i)) ∣ x1 , originalPath ∣
                ≡⟨ (λ j → (transport (λ i → uncurry (CODE a n iscon) (pair⁼Refl (transpRCancel (λ i₁ → north ≡ south) (merid x1 ∙ refl)) j i))) ∣ x1 , originalPath ∣) ⟩
                (transport (λ i → uncurry (CODE a n iscon)
-                                 (south , ((sym (transportRefl (transport (λ i → _≡_ {A = Susp A} north south) (merid x1 ∙ (λ _ → south))))) ∙ (
-                                           transpRCancel {A = north ≡ south} {B = north ≡ south} (λ _ → _≡_ {A = Susp A} north south)
+                                 (south , ((sym (transportRefl (transport (λ i → _≡_ {A = Susp A} north south) (merid x1 ∙ (λ _ → south))))) ∙
+                                           (transpRCancel {A = north ≡ south} {B = north ≡ south} (λ _ → _≡_ {A = Susp A} north south)
                                                          (merid x1 ∙ (refl {x = south})))) i) ))
                           ∣ x1 , originalPath ∣
                ≡⟨ (λ j → (transport (λ i → uncurry (CODE a n iscon)
@@ -1170,10 +1178,13 @@ codeTranspId6 {ℓ}{A = A} n a x1 iscon = transportLemma {B = uncurry (CODE a n 
                        (λ k →  transportRefl (p ∙ (λ _ → north)) ∙ (rUnit (sym (transportRefl (p ∙ (λ _ → north)))) (~ k))) ∙
                        (rCancel (transportRefl (p ∙ (λ _ → north))) )
 
-  finalStep :  transport (cong (λ q → ∥ fiber merid q ∥ ℕ→ℕ₋₂ (n + n)) (sym (pairLemma ((merid x1) ∙ sym (merid a)) (merid a) ∙                                                   sym (assocJ (merid x1) (sym (merid a)) (merid a)) ∙ (λ i → (merid x1) ∙ lCancel (merid a) i) ∙ sym (rUnit (merid x1))))) ∣ x1 , refl ∣
-                               ≡ ∣ x1 , rUnit (merid x1) ∙ sym (cong (λ x → merid x1 ∙ x) (lCancel (merid a))) ∙
-                                                                                   assocJ (merid x1) (sym (merid a)) (merid a) ∙
-                                                                                   sym (pairLemma {a1 = north} (merid x1 ∙ (sym (merid a))) (merid a)) ∣
+  finalStep :  transport (cong (λ q → ∥ fiber merid q ∥ ℕ→ℕ₋₂ (n + n)) (sym (pairLemma ((merid x1) ∙ sym (merid a)) (merid a) ∙
+                                                                          sym (assocJ (merid x1) (sym (merid a)) (merid a)) ∙
+                                                                          (λ i → (merid x1) ∙ lCancel (merid a) i) ∙ sym (rUnit (merid x1)))))
+                         ∣ x1 , refl ∣
+                       ≡ ∣ x1 , rUnit (merid x1) ∙ sym (cong (λ x → merid x1 ∙ x) (lCancel (merid a))) ∙
+                                                                           assocJ (merid x1) (sym (merid a)) (merid a) ∙
+                                                                           sym (pairLemma {a1 = north} (merid x1 ∙ (sym (merid a))) (merid a)) ∣
   finalStep  = (λ k → transport (cong (λ q → ∥ fiber merid q ∥ ℕ→ℕ₋₂ (n + n))
                                                  (λ i → (sym (pairLemma ((merid x1) ∙ sym (merid a)) (merid a) ∙
                                                  sym (assocJ (merid x1) (sym (merid a)) (merid a)) ∙

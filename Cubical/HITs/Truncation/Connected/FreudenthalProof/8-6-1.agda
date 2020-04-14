@@ -29,7 +29,10 @@ private
     A : Type ℓ
     B : Type ℓ'
 
+{- This file contains lemma 8.6.1. from the HoTT book -}
+
 private
+{- The following two lemmas transform the expression as in the HoTT book -}
   Lemma861-fibId : ∀{ℓ} (n : ℕ₋₂) (k : ℕ) (f : A → B) →
                    (is- n -Connected f) →
                    (P : B → HLevel ℓ (((suc k) + (2+ n))))
@@ -87,6 +90,7 @@ private
                   ≡ Σ ((b : B) → fst (P b)) λ g → ((a : A) → g (f a) ≡ l a)
   Lemma861-fibId2 n k f isCon P l = isoToPath (iso (λ p → fst p , funExt⁻ (snd p)) (λ p → fst p , funExt (snd p)) (λ b → refl) λ b → refl)
 
+{-
   Lemma861 : ∀{ℓ} (n : ℕ₋₂) (k : ℕ) (f : A → B) →
              (is- n -Connected f) →
              (P : B → HLevel ℓ (k + (2+ n))) →
@@ -128,6 +132,54 @@ private
                                                                                             (Lemma861-fibId n (suc k) f iscon P l a b
                                                                                                               (λ x → (snd (P x)) (fst a x) (fst b x)) (~ i)))
                                                                                             ((Lemma861 n (suc k) f iscon
+                                                                                                       ((λ x → ((fst a) x ≡ (fst b) x ) ,
+                                                                                                        (snd (P x)) (fst a x) (fst b x) )))
+                                                                                             λ z → ((snd a z) ∙ sym (snd b z)))
+-}
+
+  Lemma861 : ∀{ℓ} (n : ℕ₋₂) (k : ℕ) (f : A → B) →
+             (is- n -Connected f) →
+             (P : B → HLevel ℓ (k + (2+ n))) →
+             is- (-2+ k) -Truncated (indConFun {k = -2+ (k + (2+ n))} f P)
+  Lemma861 {B = B} {ℓ = ℓ} neg2 zero f iscon P = equiv-proof (conInd-i→ii f neg2 iscon P)
+  Lemma861 {B = B} {ℓ = ℓ} neg2 (suc zero) f iscon P l = transport (λ i → isOfHLevel (suc (zero))
+                                                                            (Lemma861-fibId2 neg2 (zero) f iscon P l (~ i)))
+                                                                          λ a b → transport (λ i → isOfHLevel (zero)
+                                                                                            (Lemma861-fibId neg2 (zero) f iscon P l a b
+                                                                                                            (λ x → ((snd (P x)) (fst a x) (fst b x)) ,
+                                                                                                              (λ y → isOfHLevelSuc 1 (snd (P x))
+                                                                                                                                     (fst a x) (fst b x) _ _)) (~ i)))
+                                                                                            ((Lemma861 neg2 (zero) f iscon
+                                                                                                       ((λ x → ((fst a) x ≡ (fst b) x ) ,
+                                                                                                        ((snd (P x)) (fst a x) (fst b x) ,
+                                                                                                         (λ y → isOfHLevelSuc 1 (snd (P x))
+                                                                                                                                (fst a x) (fst b x) _ _)) )))
+                                                                                              λ z → (snd a z) ∙ sym (snd b z)) .fst
+  Lemma861 {B = B} {ℓ = ℓ} neg2 (suc (suc k)) f iscon P l = transport (λ i → isOfHLevel (suc (suc k))
+                                                                            (Lemma861-fibId2 neg2 (suc k) f iscon P l (~ i)))
+                                                                          λ a b → transport (λ i → isOfHLevel (suc k)
+                                                                                            (Lemma861-fibId neg2 (suc k) f iscon P l a b
+                                                                                                              (λ x → (snd (P x)) (fst a x) (fst b x)) (~ i)))
+                                                                                            ((Lemma861 neg2 (suc k) f iscon
+                                                                                                       ((λ x → ((fst a) x ≡ (fst b) x ) ,
+                                                                                                        (snd (P x)) (fst a x) (fst b x) )))
+                                                                                             λ z → ((snd a z) ∙ sym (snd b z)))
+  Lemma861 {B = B} {ℓ = ℓ} (-1+ n) zero f iscon P = equiv-proof (conInd-i→ii f (-1+ n) iscon P)
+  Lemma861 {B = B} {ℓ = ℓ} (-1+ n) (suc zero) f iscon P l = transport (λ i → isOfHLevel (suc (zero))
+                                                                               (Lemma861-fibId2 (-1+ n) (zero) f iscon P l (~ i)))
+                                                                             λ a b → transport (λ i → isOfHLevel (zero)
+                                                                                               (Lemma861-fibId (-1+ n) (zero) f iscon P l a b
+                                                                                                               (λ x → snd (P x) (fst a x) (fst b x)) (~ i)))
+                                                                                               ((Lemma861 (-1+ n) (zero) f iscon
+                                                                                                          ((λ x → ((fst a) x ≡ (fst b) x ) ,
+                                                                                                            (snd (P x) (fst a x) (fst b x)) )))
+                                                                                                 λ z → (snd a z) ∙ sym (snd b z)) .fst
+  Lemma861 {B = B} {ℓ = ℓ} (-1+ n) (suc (suc k)) f iscon P l = transport (λ i → isOfHLevel (suc (suc k))
+                                                                            (Lemma861-fibId2 (-1+ n) (suc k) f iscon P l (~ i)))
+                                                                          λ a b → transport (λ i → isOfHLevel (suc k)
+                                                                                            (Lemma861-fibId (-1+ n) (suc k) f iscon P l a b
+                                                                                                              (λ x → (snd (P x)) (fst a x) (fst b x)) (~ i)))
+                                                                                            ((Lemma861 (-1+ n) (suc k) f iscon
                                                                                                        ((λ x → ((fst a) x ≡ (fst b) x ) ,
                                                                                                         (snd (P x)) (fst a x) (fst b x) )))
                                                                                              λ z → ((snd a z) ∙ sym (snd b z)))

@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.ZCohomology.S1Loop where
+module Cubical.ZCohomology.cupProdPrelims where
 
 open import Cubical.ZCohomology.Base
 open import Cubical.HITs.S1
@@ -8,19 +8,19 @@ open import Cubical.HITs.S3
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.HAEquiv
 open import Cubical.Data.NatMinusTwo.Base
 open import Cubical.Data.Empty
 open import Cubical.Data.Sigma
 open import Cubical.Data.Prod.Base
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Nullification
-open import Cubical.Data.Unit
 open import Cubical.Data.Int renaming (_+_ to +Int)
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (elim to trElim)
@@ -38,88 +38,7 @@ private
     A : Type ℓ
     B : Type ℓ'
 
-
-compToIdEquiv : (f : A → B) (g : B → A) → f ∘ g ≡ idfun B → isEquiv f → isEquiv g
-compToIdEquiv f g id iseqf =
-              isoToIsEquiv (iso g
-                                f
-                                (λ b → (λ i → (equiv-proof iseqf (f b) .snd (g (f b) , cong (λ h → h (f b)) id) (~ i))  .fst ) ∙
-                                   cong (λ x → (equiv-proof iseqf (f b) .fst .fst )) id ∙
-                                   λ i → (equiv-proof iseqf (f b) .snd) (b , refl) i .fst )
-                                λ a → cong (λ f → f a) id)
-
-Susp≡Push : Susp A ≡ Pushout {A = A} (λ a → tt) λ a → tt
-Susp≡Push {A = A} = isoToPath (iso fun inverse sect retr)
-  where
-  fun : Susp A → Pushout {A = A} (λ a → tt) (λ a → tt)
-  fun north = inl tt
-  fun south = inr tt
-  fun (merid a i) = push a i
-  inverse : Pushout {A = A} (λ a → tt) (λ a → tt) → Susp A
-  inverse (inl tt) = north
-  inverse (inr tt) = south
-  inverse (push a i) = merid a i
-
-  sect : section fun inverse
-  sect (inl tt) = refl
-  sect (inr tt) = refl
-  sect (push a i) = refl
-
-  retr : retract fun inverse
-  retr north = refl
-  retr south = refl
-  retr (merid a i) = refl
-
-Pr2310 : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} (n : ℕ₋₂)
-         (f : C → A) (g : C → B)  →
-         is- n -Connected f →
-         is-_-Connected {A = B} {B = Pushout f g} n inr
-Pr2310 {A = A} {B = B} {C = C} n f g iscon = elim.3→1 inr n λ P → (λ k → helpLemmas.k P k) , λ b  → refl
-        where
-        module helpLemmas {ℓ : Level} (P : (Pushout f g) → HLevel ℓ (2+ n))
-                   (h : (b : B) → typ (P (inr b)))
-          where
-          Q : A → HLevel _ (2+ n)
-          Q a = (P (inl a))
-
-          fun : (c : C) → typ (Q (f c))
-          fun c = transport (λ i → typ (P (push c (~ i)))) (h (g c))
-
-          k : (d : Pushout f g) → typ (P d)
-          k (inl x) = elim.2→3 f n Q (elim.1→2 f n iscon Q) .fst fun x  
-          k (inr x) = h x
-          k (push a i) = hcomp (λ k → λ{(i = i0) → elim.2→3 f n Q
-                                                                     (elim.1→2 f n iscon Q) .fst
-                                                                     fun (f a) ;
-                                               (i = i1) → transportTransport⁻ (λ j → typ (P (push a j))) (h (g a)) k})
-                                     (transp (λ j → typ (P (push a (i ∧ j))))
-                                             (~ i)
-                                             (elim.2→3 f n Q
-                                                        (elim.1→2 f n iscon Q) .snd fun i a))
-
-
-Pr242 : (n : ℕ) → is- (-1+ n) -ConnectedType (S₊ n)   
-Pr242 zero = ∣ north ∣ , (isOfHLevelTrunc 1 ∣ north ∣)
-Pr242 (suc n) = transport (λ i → is- ℕ→ℕ₋₂ n -ConnectedType (Susp≡Push {A = S₊ n} (~ i)))
-                          (trivFunCon← {A = Pushout {A = S₊ n} (λ x → tt) λ x → tt} {a = inr tt } _
-                                        (transport (λ i → is- (-1+ n) -Connected (mapsAgree (~ i)))
-                                                   (Pr2310 _ (λ x → tt) (λ x → tt) λ{tt → transport (λ i → isContr (∥ fibUnit (~ i) ∥ (-1+ n))) (Pr242 n)})))
-  where
-  mapsAgree : Path ((x : Unit) → Pushout {A = S₊ n} (λ x → tt) (λ x → tt)) (λ (x : Unit) → inr tt) inr 
-  mapsAgree = funExt λ {tt → refl}
-  fibUnit : fiber (λ (x : S₊ n) → tt) tt ≡ S₊ n
-  fibUnit = isoToPath (iso (λ b → fst b) (λ a → a , refl) (λ b → refl) λ b i → (fst b) , isProp→isSet isPropUnit tt tt refl (snd b) i)
-
-
-  -- need to show susp and pushout are same here
-
-Pr242SpecCase : is- 2 -ConnectedType (Susp (Susp S¹))
-Pr242SpecCase = transport (λ i → is- 2 -ConnectedType (helper i)) (Pr242 3)
-  where
-  helper : S₊ 3 ≡ Susp (Susp S¹)
-  helper = (λ i → Susp (Susp (Susp (ua Bool≃Susp⊥ (~ i))))) ∙ λ i → Susp (Susp (S¹≡SuspBool (~ i)))
-
-
+{- Some useful lemmas -- should probably be moved -}
 congFunct : {a b c : A} (f : A → B) (p : a ≡ b) (q : b ≡ c) → cong f (p ∙ q) ≡ cong f p ∙ cong f q
 congFunct f p q i = hcomp (λ j → λ{(i = i0) → rUnit (cong f (p ∙ q)) (~ j) ;
                                     (i = i1) → cong f (rUnit p (~ j)) ∙ cong f q})
@@ -130,16 +49,16 @@ symDistr p q i = hcomp (λ j → λ{(i = i0) → rUnit (sym (p ∙ q)) (~ j)  ;
                                  (i = i1) → sym (lUnit q (~ j)) ∙ sym p})
                        (sym ((λ k → p (k ∨ i)) ∙ q) ∙ sym λ k → p (i ∧ k))
 
-{- We want to prove that Kn≃ΩKn+1. For this we need the map ϕ-}
+{- We want to prove that Kn≃ΩKn+1. For this we use the map ϕ-}
 
-private
-  ϕ : (pt a : A) → typ (Ω (Susp A , north))
-  ϕ pt a = (merid a) ∙ sym (merid pt)
+
+ϕ : (pt a : A) → typ (Ω (Susp A , north))
+ϕ pt a = (merid a) ∙ sym (merid pt)
 
 {- To define the map for n=0 we use the λ k → loopᵏ map for S₊ 1. The loop is given by ϕ south north -}
 
 
-looper : Int → _≡_ {A = S₊ 1} north north
+looper : Int → Path (S₊ 1) north north
 looper (pos zero) = refl
 looper (pos (suc n)) = looper (pos n) ∙ (ϕ south north)
 looper (negsuc zero) = sym (ϕ south north)
@@ -151,28 +70,30 @@ Kn→ΩKn+1 zero x = cong ∣_∣ (looper x)
 Kn→ΩKn+1 (suc n) = trElim (λ x → (isOfHLevelTrunc (2 + (suc (suc n))) ∣ north ∣ ∣ north ∣))
                            λ a → cong ∣_∣ ((merid a) ∙ (sym (merid north)))
 
+{- We want to show that this map is an equivalence. n ≥ 2 follows from Freudenthal, and  -}
+
 {-
 We want to show that the function (looper : Int → S₊ 1) defined by λ k → loopᵏ is an equivalece. We already know that the corresponding function (intLoop : Int → S¹ is) an equivalence,
 so the idea is to show that when intLoop is transported along a suitable path S₊ 1 ≡ S¹ we get looper. Instead of using S₊ 1 straight away, we begin by showing this for the equivalent Susp Bool.
 -}
 
 -- loop for Susp Bool --
-loop* : _≡_ {A = Susp Bool} north north
+loop* : Path (Susp Bool) north north
 loop* = merid false ∙ sym (merid true)
 
 -- the loop function --
-intLoop* : Int → _≡_ {A = Susp Bool} north north
+intLoop* : Int → Path (Susp Bool) north north
 intLoop* (pos zero) = refl
 intLoop* (pos (suc n)) = intLoop* (pos n) ∙ loop*
 intLoop* (negsuc zero) = sym loop*
 intLoop* (negsuc (suc n)) = intLoop* (negsuc n) ∙ sym loop*
 
 -- we show that the loop spaces agree --
-loopSpId : ΩS¹ ≡ _≡_ {A = Susp Bool} north north
+loopSpId : ΩS¹ ≡ Path (Susp Bool) north north
 loopSpId i = typ (Ω (S¹≡SuspBool i , transp ((λ j → S¹≡SuspBool (j ∧ i))) (~ i) base))
 
 -- the transport map --
-altMap2 : Int → _≡_ {A = Susp Bool} north north
+altMap2 : Int → Path (Susp Bool) north north
 altMap2 n i = transport S¹≡SuspBool (intLoop n i)
 
 -- We show that the transporting intLoop over S¹≡SuspBool gives intLoop* (modulo function extensionality) --
@@ -194,7 +115,7 @@ altMap≡intLoop*2 (pos (suc n)) = (λ i → (altMap≡intLoop*2 (pos n) i) ∙ 
     anotherHelper : (n : ℕ) → altMap2 (pos (suc (suc n))) ≡ altMap2 (pos (suc n)) ∙ altMap2 (pos 1)
     anotherHelper n = ((λ i j → transport S¹≡SuspBool ((intLoop (pos (suc n)) ∙ loop) j))) ∙
                          rUnit (λ j → transport S¹≡SuspBool ((intLoop (pos (suc n)) ∙ loop) j) ) ∙
-                         (λ i → (λ j → transport S¹≡SuspBool ((intLoop (pos (suc n)) ∙ λ k → loop (k ∧ (~ i))) j)) ∙ λ j → transport S¹≡SuspBool (loop (j ∨ (~ i))) ) ∙
+                         (λ i → (λ j → transport S¹≡SuspBool ((intLoop (pos (suc n)) ∙ λ k → loop (k ∧ (~ i))) j)) ∙ λ j → transport S¹≡SuspBool (loop (j ∨ (~ i)))) ∙
                          (λ i → (λ j → transport S¹≡SuspBool (rUnit (intLoop (pos (suc n))) (~ i) j)) ∙ λ j → transport S¹≡SuspBool ((lUnit loop i) j))
 
 altMap≡intLoop*2 (negsuc zero) = sym ((λ i j → transport S¹≡SuspBool (loop (~ j))) ∙
@@ -208,7 +129,7 @@ altMap≡intLoop*2 (negsuc (suc n)) = helper n
   anotherHelper n = ((λ i → rUnit (λ j → (transport S¹≡SuspBool ((intLoop (negsuc n) ∙ sym loop) j))) i)) ∙
                        ((λ i → (λ j → transport S¹≡SuspBool ((intLoop (negsuc n) ∙ (λ k → loop ((~ k) ∨ i))) j)) ∙ λ j → transport S¹≡SuspBool (loop ((~ j) ∧ i)))) ∙
                        (λ i → ((λ j → transport S¹≡SuspBool (rUnit (intLoop (negsuc n)) (~ i) j))) ∙ altMap2 (negsuc zero))
-  
+
   helper : (n : ℕ) → intLoop* (negsuc n) ∙ (sym loop*) ≡ altMap2 (negsuc (suc n))
   helper zero = (λ i → altMapneg1 (~ i) ∙ altMapneg1 (~ i)) ∙ sym (anotherHelper zero)
   helper (suc n) = (λ i → (helper n i) ∙ altMapneg1 (~ i) ) ∙
@@ -248,8 +169,6 @@ S1→SuspBool (merid south i) = merid true i
 S1≃SuspBool : Susp Bool ≃ S₊ 1
 S1≃SuspBool = isoToEquiv (iso SuspBool→S1 S1→SuspBool  retrHelper sectHelper)
   where
-
-
   sectHelper : section S1→SuspBool SuspBool→S1
   sectHelper north = refl
   sectHelper south = refl
@@ -293,10 +212,26 @@ isEquivLooper = transport (λ i → isEquiv (funExt (looperIntoBool) (~ i))) isE
                                      congEquiv (transport (ua S1≃SuspBool) ,
                                                transportEquiv (ua S1≃SuspBool) .snd) .snd) .snd
 
-isSetS1 : isSet (_≡_ {A = S₊ 1} north north)
+----------------------------------- n = 1 -----------------------------------------------------
+
+{- We begin by stating some useful lemmas -}
+
+sphereConnectedSpecCase : is- 2 -ConnectedType (Susp (Susp S¹))
+sphereConnectedSpecCase = transport (λ i → is- 2 -ConnectedType (helper i)) (sphereConnected 3)
+  where
+  helper : S₊ 3 ≡ Susp (Susp S¹)
+  helper = (λ i → Susp (Susp (Susp (ua Bool≃Susp⊥ (~ i))))) ∙ λ i → Susp (Susp (S¹≡SuspBool (~ i)))
+
+S¹≡S1 : S₊ 1 ≡ S¹
+S¹≡S1 = (λ i → Susp (ua (Bool≃Susp⊥) (~ i))) ∙ sym S¹≡SuspBool
+
+S³≡SuspSuspS¹ : S³ ≡ Susp (Susp S¹)
+S³≡SuspSuspS¹ = S³≡SuspS² ∙ λ i → Susp (S²≡SuspS¹ i)
+
+isSetS1 : isSet (Path (S₊ 1) north north)
 isSetS1 = transport (λ i → isSet (helper i)) isSetInt 
   where
-  helper : Int ≡ (_≡_ {A = S₊ 1} north north)
+  helper : Int ≡ (Path (S₊ 1) north north)
   helper = sym ΩS¹≡Int ∙
            (λ i → typ (Ω (S¹≡SuspBool i , transport (λ j → S¹≡SuspBool (j ∧ i)) base))) ∙
            (λ i → typ (Ω (ua S1≃SuspBool i , transport (λ j → ua S1≃SuspBool (i ∧ j)) north))) 
@@ -305,12 +240,16 @@ isEquivHelper2 : isOfHLevel 3 A → isEquiv {B = ∥ A ∥ 1} ∣_∣
 isEquivHelper2  ofHlevl =
                isoToIsEquiv (iso ∣_∣
                                  (trElim (λ _ → ofHlevl) (λ a → a))
-                                 (trElim {B = λ b → ∣ trElim (λ _ → ofHlevl) (λ a₁ → a₁) b ∣ ≡ b} (λ b → isOfHLevelSuc 3 (isOfHLevelTrunc 3) ∣ trElim (λ _ → ofHlevl) (λ a₁ → a₁) b ∣ b) λ a → refl)
+                                 (trElim {B = λ b → ∣ trElim (λ _ → ofHlevl) (λ a₁ → a₁) b ∣ ≡ b}
+                                         (λ b → isOfHLevelSuc 3 (isOfHLevelTrunc 3)
+                                                                 ∣ trElim (λ _ → ofHlevl) (λ a₁ → a₁) b ∣ b)
+                                         λ a → refl)
                                  λ b → refl)
 
-isEquivHelper : {a b : A} → isOfHLevel 3 A → isEquiv {B = _≡_ {A = ∥ A ∥ 1} ∣ a ∣ ∣ b ∣ } (cong ∣_∣)
+isEquivHelper : {a b : A} → isOfHLevel 3 A → isEquiv {B = Path (∥ A ∥ 1) ∣ a ∣ ∣ b ∣ } (cong ∣_∣)
 isEquivHelper {A = A} {a = a} {b = b} ofHlevl = congEquiv (∣_∣ , isEquivHelper2 ofHlevl) .snd
 
+{- We give the following map and show that it is an equivalence -}
 
 d-map : typ (Ω ((Susp S¹) , north)) → S¹ 
 d-map p = subst HopfSuspS¹ p base
@@ -323,13 +262,10 @@ d-mapId r = substComposite HopfSuspS¹ (merid r) (sym (merid base)) base ∙
   rotLemma base = refl
   rotLemma (loop i) = refl
 
-S³≡SuspSuspS¹ : S³ ≡ Susp (Susp S¹)
-S³≡SuspSuspS¹ = S³≡SuspS² ∙ λ i → Susp (S²≡SuspS¹ i)
-
-d-mapComp : fiber d-map base ≡ (_≡_ {A = Susp (Susp S¹)} north north)
+d-mapComp : fiber d-map base ≡ Path (Susp (Susp S¹)) north north
 d-mapComp = sym (pathSigma≡sigmaPath {B = HopfSuspS¹} _ _) ∙ helper 
   where
-  helper : (_≡_ {A = Σ (Susp S¹) λ x → HopfSuspS¹ x} (north , base) (north , base)) ≡ (_≡_ {A = Susp (Susp S¹)} north north)
+  helper : Path (Σ (Susp S¹) λ x → HopfSuspS¹ x) (north , base) (north , base) ≡ Path (Susp (Susp S¹)) north north
   helper = (λ i → (_≡_ {A = S³≡TotalHopf (~ i)}
                         (transp (λ j → S³≡TotalHopf (~ i ∨ ~ j)) (~ i) (north , base))
                         ((transp (λ j → S³≡TotalHopf (~ i ∨ ~ j)) (~ i) (north , base))))) ∙
@@ -340,7 +276,7 @@ d-mapComp = sym (pathSigma≡sigmaPath {B = HopfSuspS¹} _ _) ∙ helper
 is1Connected-dmap : is- 1 -Connected d-map
 is1Connected-dmap base = transport (λ j → isContr (∥ d-mapComp (~ j) ∥ ℕ→ℕ₋₂ 1))
                                    (transport (λ i →  isContr (PathΩ {A = Susp (Susp S¹)} {a = north} (ℕ→ℕ₋₂ 1) i))
-                                              (refl , isOfHLevelSuc 1 (isOfHLevelSuc 0 Pr242SpecCase) ∣ north ∣ ∣ north ∣ (λ _ → ∣ north ∣)))
+                                              (refl , isOfHLevelSuc 1 (isOfHLevelSuc 0 sphereConnectedSpecCase) ∣ north ∣ ∣ north ∣ (λ _ → ∣ north ∣)))
 is1Connected-dmap (loop j) = 
                hcomp (λ k → λ{(j = i0) → is1Connected-dmap base ;
                                (j = i1) → isPropIsOfHLevel 0 (transport (λ i → isContr (∥ fiber d-map (loop i) ∥ ℕ→ℕ₋₂ 1))
@@ -350,17 +286,25 @@ is1Connected-dmap (loop j) =
                      (transp (λ i → isContr (∥ fiber d-map (loop (i ∧ j)) ∥ ℕ→ℕ₋₂ 1)) (~ j)
                              (transport (λ j → isContr (∥ d-mapComp (~ j) ∥ ℕ→ℕ₋₂ 1))
                                    (transport (λ i →  isContr (PathΩ {A = Susp (Susp S¹)} {a = north} (ℕ→ℕ₋₂ 1) i))
-                                              (refl , isOfHLevelSuc 1 (isOfHLevelSuc 0 Pr242SpecCase) ∣ north ∣ ∣ north ∣ (λ _ → ∣ north ∣)))))
+                                              (refl , isOfHLevelSuc 1 (isOfHLevelSuc 0 sphereConnectedSpecCase) ∣ north ∣ ∣ north ∣ (λ _ → ∣ north ∣)))))
 
 d-equiv : isEquiv {A = ∥  typ (Ω (Susp S¹ , north)) ∥ (ℕ→ℕ₋₂ 1)} {B = ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (trElim (λ x → isOfHLevelTrunc 3) λ x → ∣ d-map x ∣ )
 d-equiv = conEquiv (ℕ→ℕ₋₂ 1) d-map is1Connected-dmap .snd
 
+{- We show that composing (λ a → ∣ ϕ base a ∣) and (λ x → ∣ d-map x ∣) gives us the identity function.  -}
+
 d-mapId2 : (λ (x : ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)) → (trElim {n = 3} {B = λ _ → ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (λ x → isOfHLevelTrunc 3) λ x → ∣ d-map x ∣)
                                              (trElim (λ _ → isOfHLevelTrunc 3) (λ a → ∣ ϕ base a ∣) x)) ≡ λ x → x
-d-mapId2 = funExt (trElim (λ x → isOfHLevelSuc 2 (isOfHLevelTrunc 3 ((trElim {n = 3} {B = λ _ → ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (λ x → isOfHLevelTrunc 3) λ x → ∣ d-map x ∣) (trElim (λ _ → isOfHLevelTrunc 3) (λ a → ∣ ϕ base a ∣) x)) x)) λ a i → ∣ d-mapId a i ∣)
+d-mapId2 = funExt (trElim (λ x → isOfHLevelSuc 2 (isOfHLevelTrunc 3 ((trElim {n = 3}
+                                                                              {B = λ _ → ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)}
+                                                                              (λ x → isOfHLevelTrunc 3) λ x → ∣ d-map x ∣)
+                                                                              (trElim (λ _ → isOfHLevelTrunc 3)
+                                                                                      (λ a → ∣ ϕ base a ∣) x)) x))
+                          λ a i → ∣ d-mapId a i ∣)
 
-isEquiv∣ϕ∣ : isEquiv {A = ∥ S¹ ∥ ℕ→ℕ₋₂ 1} (trElim (λ _ → isOfHLevelTrunc 3) (λ a → ∣ ϕ base a ∣))
-isEquiv∣ϕ∣ = compToIdEquiv (trElim {n = 3} {B = λ _ → ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (λ x → isOfHLevelTrunc 3) λ x → ∣ d-map x ∣)
+{- This means that (λ a → ∣ ϕ base a ∣) is an equivalence -}
+isEquiv∣ϕ-base∣ : isEquiv {A = ∥ S¹ ∥ ℕ→ℕ₋₂ 1} (trElim (λ _ → isOfHLevelTrunc 3) (λ a → ∣ ϕ base a ∣))
+isEquiv∣ϕ-base∣ = composesToId→Equiv (trElim {n = 3} {B = λ _ → ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (λ x → isOfHLevelTrunc 3) λ x → ∣ d-map x ∣)
                           (trElim (λ _ → isOfHLevelTrunc 3) (λ a → ∣ ϕ base a ∣))
                           d-mapId2
                           d-equiv
@@ -368,13 +312,13 @@ isEquiv∣ϕ∣ = compToIdEquiv (trElim {n = 3} {B = λ _ → ∥ S¹ ∥ (ℕ�
 ---------------------------------
 -- We cheat when n = 1 and use J to prove the following lemmma.  There is an obvious dependent path between ϕ base and ϕ north. Since the first one is an equivalence, so is the other.
 -- 
-funTEST2 : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ} {C : (A : Type ℓ) (a1 : A) → Type ℓ'} (p : A ≡ B) (a : A) (b : B) →
+pointFunEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ} {C : (A : Type ℓ) (a1 : A) → Type ℓ'} (p : A ≡ B) (a : A) (b : B) →
             (transport p a ≡ b) →
             (f : (A : Type ℓ) →
             (a1 : A) (a2 : ∥ A ∥ 1)  → C A a1) →
             isEquiv (f A a) →
             isEquiv (f B b)
-funTEST2 {ℓ = ℓ}{A = A} {B = B} {C = C} =
+pointFunEquiv {ℓ = ℓ}{A = A} {B = B} {C = C} =
          J (λ B p → (a : A) (b : B) →
                       (transport p a ≡ b) →
                       (f : (A : Type ℓ) →
@@ -383,11 +327,14 @@ funTEST2 {ℓ = ℓ}{A = A} {B = B} {C = C} =
                       isEquiv (f B b))
            λ a b trefl f is → transport (λ i → isEquiv (f A ((sym (transportRefl a) ∙ trefl) i))) is
 
------------------------------------------------------
+{- By pointFunEquiv, this gives that λ a → ∣ ϕ north a ∣ is an equivalence. -}
 
-final : isEquiv {A = ∥ S₊ 1 ∥ 1} {B = ∥ typ (Ω (S₊ 2 , north)) ∥ 1} (trElim (λ _ → isOfHLevelTrunc 3) (λ a → ∣ ϕ north a ∣))
-final = funTEST2 {A = S¹} (λ i → S¹≡S1 (~ i)) base north refl (λ A a1 → trElim (λ _ → isOfHLevelTrunc 3) (λ a → ∣ ϕ a1 a ∣)) isEquiv∣ϕ∣
+isEquiv∣ϕ∣ : isEquiv {A = ∥ S₊ 1 ∥ 1} {B = ∥ typ (Ω (S₊ 2 , north)) ∥ 1} (trElim (λ _ → isOfHLevelTrunc 3) (λ a → ∣ ϕ north a ∣))
+isEquiv∣ϕ∣ = pointFunEquiv {A = S¹} (λ i → S¹≡S1 (~ i)) base north refl (λ A a1 → trElim (λ _ → isOfHLevelTrunc 3) (λ a → ∣ ϕ a1 a ∣)) isEquiv∣ϕ-base∣
 
+---------------------------------------------------- Finishing up ---------------------------------
+
+{- For n ≥ 1, we rewrite our function as the composition below. -}
 Kn→ΩKn+1Sucn : (n : ℕ) → Kn→ΩKn+1 (suc n) ≡ λ x → truncEquivΩ (ℕ→ℕ₋₂ (suc n)) .fst (trElim (λ _ → isOfHLevelTrunc (3 + n)) (λ a → ∣ ϕ north a ∣) x)
 Kn→ΩKn+1Sucn n = funExt (trElim (λ x → isOfHLevelSuc (suc (suc n))
                                                        ((isOfHLevelTrunc ( 2 + (suc (suc n))) ∣ north ∣ ∣ north ∣)
@@ -397,28 +344,3 @@ Kn→ΩKn+1Sucn n = funExt (trElim (λ x → isOfHLevelSuc (suc (suc n))
 
 
 
-
-isEquivKn→ΩKn+1 : (n : ℕ) → isEquiv (Kn→ΩKn+1 n)
-isEquivKn→ΩKn+1 zero = compEquiv (looper , isEquivLooper) (cong ∣_∣ , isEquivHelper hLevl3) .snd
-  where
-  hLevl3 : (x y : S₊ 1) (p q : x ≡ y) → isProp (p ≡ q)
-  hLevl3 x y = J (λ y p → (q : x ≡ y) → isProp (p ≡ q) )
-                 (transport (λ i → isSet (helper (~ i))) isSetInt refl)
-    where
-    helper : (x ≡ x) ≡ Int
-    helper = (λ i → transp (λ j → ua S1≃SuspBool (~ j ∨ ~ i)) (~ i) x ≡ transp (λ j → ua S1≃SuspBool (~ j ∨ ~ i)) (~ i) x) ∙
-           (λ i → transp (λ j → S¹≡SuspBool (~ j ∨ ~ i)) (~ i) (transport (sym (ua S1≃SuspBool)) x) ≡ transp (λ j → S¹≡SuspBool (~ j ∨ ~ i)) (~ i) (transport (sym (ua S1≃SuspBool)) x)) ∙
-           basedΩS¹≡Int (transport (sym S¹≡SuspBool) (transport (sym (ua S1≃SuspBool)) x))
-isEquivKn→ΩKn+1 (suc zero) = transport (λ i → isEquiv (Kn→ΩKn+1Sucn zero (~ i)))
-                                        (compEquiv (trElim (λ _ → isOfHLevelTrunc (2 + (suc zero))) (λ a → ∣ ϕ north a ∣) ,
-                                                     final)
-                                                   (truncEquivΩ (ℕ→ℕ₋₂ (suc zero))) .snd)
-isEquivKn→ΩKn+1 (suc (suc n)) = transport (λ i → isEquiv (Kn→ΩKn+1Sucn (suc n) (~ i)))
-                                      (compEquiv (conEquiv3 (4 + n) _ (ϕ north) (n , λ i → suc (suc (suc (+-suc n n (~ i))))) (FthalFun-2nConnected (suc n) _ (Pr242 _)))
-                                                 (truncEquivΩ (ℕ→ℕ₋₂ (suc (suc n)))) .snd)
-
-Kn≃ΩKn+1 : (n : ℕ) → coHomK n ≃ typ (Ω (coHomK-ptd (suc n)))
-Kn≃ΩKn+1 n = Kn→ΩKn+1 n , isEquivKn→ΩKn+1 n
-
-ΩKn+1→Kn : (n : ℕ) → typ (Ω (coHomK-ptd (suc n))) → coHomK n
-ΩKn+1→Kn n a = equiv-proof (isEquivKn→ΩKn+1 n) a .fst .fst
