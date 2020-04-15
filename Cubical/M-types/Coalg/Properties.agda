@@ -149,13 +149,13 @@ abstract
     U {C,γ = C,γ}
       Iso⟨ refl-iso ⟩
     Σ (C → 𝓛) (λ f → out-fun ∘ f ≡ step {C,γ = C,γ} f)
-      Iso⟨ Σ-ap-iso₂ (λ f → sym-iso (pathToIso in-inj)) ⟩
+      Iso⟨ Σ-ap-iso₂ (λ f → isoInv (pathToIso in-inj)) ⟩
     Σ (C → 𝓛) (λ f → in-fun ∘ out-fun ∘ f ≡ in-fun ∘ step {C,γ = C,γ} f)
       Iso⟨ Σ-ap-iso₂ (λ f → pathToIso λ i → identity-f-r {k = in-fun ∘ out-fun {S = S}} in-inverse-out f i ≡ in-fun ∘ step {C,γ = C,γ} f) ⟩
     Σ (C -> 𝓛) (λ f → f ≡ in-fun ∘ step {C,γ = C,γ} f)
       Iso⟨ refl-iso ⟩
     Σ (C → 𝓛) (λ f → f ≡ Ψ {C,γ = C,γ} f)
-      Iso⟨ sym-iso (Σ-ap-iso (sym-iso (lemma10-Iso {C,γ = C,γ})) (λ _ → refl-iso)) ⟩
+      Iso⟨ isoInv (Σ-ap-iso (isoInv (lemma10-Iso {C,γ = C,γ})) (λ _ → refl-iso)) ⟩
     Σ (Cone C,γ) (λ c → e c ≡ Ψ {C,γ = C,γ} (e c))
       Iso⟨ Σ-ap-iso₂ (λ c → pathToIso λ i → e c ≡ funExt⁻ (commutivity {C,γ = C,γ}) c i) ⟩
     Σ (Cone C,γ) (λ c → e c ≡ e (Φ {C,γ = C,γ} c))
@@ -163,11 +163,11 @@ abstract
     Σ (Cone C,γ) (λ c → c ≡ Φ {C,γ = C,γ} c)
       Iso⟨ refl-iso ⟩
     Σ (Cone C,γ) (λ { (u , q) → (u , q) ≡ (ϕ₀ {C,γ = C,γ} u , ϕ₁ {C,γ = C,γ} u q)})
-      Iso⟨ (Σ-ap-iso₂ λ {(u , q) → sym-iso (Σ-split-iso {a = u} {a' = ϕ₀ {C,γ = C,γ} u} {b = q} {b' = ϕ₁ {C,γ = C,γ} u q})}) ⟩
+      Iso⟨ (Σ-ap-iso₂ λ {(u , q) → isoInv (Σ-split-iso {a = u} {a' = ϕ₀ {C,γ = C,γ} u} {b = q} {b' = ϕ₁ {C,γ = C,γ} u q})}) ⟩
     Σ (Cone C,γ) (λ { (u , q) → Σ (u ≡ ϕ₀ {C,γ = C,γ} u) λ p → PathP (λ i → Cone₁ {C,γ = C,γ} (p i)) q (ϕ₁ {C,γ = C,γ} u q) })
       Iso⟨ (iso (λ {((u , p) , q , r) → (u , q) , p , r}) (λ {((u , q) , p , r) → (u , p) , (q , r)}) (λ _ → refl) λ _ → refl) ⟩
     Σ (Σ (Cone₀ {C,γ = C,γ}) (λ u → u ≡ ϕ₀ {C,γ = C,γ} u)) (λ { (u , p) → Σ (Cone₁ {C,γ = C,γ} u) λ q → PathP (λ i → Cone₁ {C,γ = C,γ} (p i)) q (ϕ₁ u q)})
-      Iso⟨ sym-iso (Σ-ap-iso (pathToIso missing-0) λ x → pathToIso (missing-2 x)) ⟩
+      Iso⟨ isoInv (Σ-ap-iso (pathToIso missing-0) λ x → pathToIso (missing-2 x)) ⟩
     Σ (Lift {ℓ-zero} {ℓ} Unit) (λ { (lift tt) → Lift {ℓ-zero} {ℓ} Unit })
       Iso⟨ (iso (λ x → lift tt) (λ _ → lift tt , lift tt) (λ b i → lift tt) (λ a i → lift tt , lift tt)) ⟩
     Lift {ℓ-zero} {ℓ} Unit ∎Iso

@@ -134,7 +134,7 @@ leftInv (α-iso-step-1-4-Iso {S = S@(A , B)}) = refl-fun
   PathP (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n)
     Iso⟨ pathToIso (PathP≡Path (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n)) ⟩
   subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)) ≡ (u n)
-    Iso⟨ (sym-iso (Iso→fun-Injection-Iso-x (pathToIso (cong (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n))))) ⟩
+    Iso⟨ (isoInv (Iso→fun-Injection-Iso-x (pathToIso (cong (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n))))) ⟩
   (subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 {S = S} a p n) (subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)))
       ≡
   subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 {S = S} a p n) (u n))
@@ -183,7 +183,7 @@ leftInv comp-α-iso-step-1-4-Iso-Sym-L-unique-iso (a , b) = refl
 -----------------------------------------------------
 
 shift-iso : ∀ {ℓ} {S : Container {ℓ}} -> Iso (P₀ {S = S} (M-type S)) (M-type S)
-shift-iso {S = S@(A , B)} = (compIso (sym-α-iso-step-6) (compIso (sym-iso (α-iso-step-5-Iso {S = S})) (comp-α-iso-step-1-4-Iso-Sym-L-unique-iso {S = S})))
+shift-iso {S = S@(A , B)} = (compIso (sym-α-iso-step-6) (compIso (isoInv (α-iso-step-5-Iso {S = S})) (comp-α-iso-step-1-4-Iso-Sym-L-unique-iso {S = S})))
 
 shift : ∀ {ℓ} {S : Container {ℓ}} -> P₀ {S = S} (M-type S) ≡ M-type S
 shift {S = S@(A , B)} = isoToPath shift-iso -- lemma 13 & lemma 12

@@ -50,11 +50,11 @@ X ∎Iso = refl-iso {X = X}
 infixr  0 _Iso⟨_⟩_
 infix   1 _∎Iso
 
-sym-iso : ∀ {ℓ ℓ'} {X : Set ℓ} {Y : Set ℓ'} → Iso X Y → Iso Y X
-fun (sym-iso isom) = inv isom
-inv (sym-iso isom) = fun isom
-rightInv (sym-iso isom) = leftInv isom
-leftInv (sym-iso isom) = rightInv isom
+isoInv : ∀ {ℓ ℓ'} {X : Set ℓ} {Y : Set ℓ'} → Iso X Y → Iso Y X
+fun (isoInv isom) = inv isom
+inv (isoInv isom) = fun isom
+rightInv (isoInv isom) = leftInv isom
+leftInv (isoInv isom) = rightInv isom
 
 funExt-iso :
   ∀ {ℓ} {A : Set ℓ} {B : A → Set ℓ} (f g : (x : A) → Set ℓ) →
@@ -238,7 +238,7 @@ Iso→fun-Injection-Iso :
   → Iso (fun isom ∘ f ≡ fun isom ∘ g) (f ≡ g)
 Iso→fun-Injection-Iso {A = A} {B} {C} isom {f = f} {g} =
   (fun isom) ∘ f ≡ (fun isom) ∘ g
-    Iso⟨ sym-iso funExtIso ⟩
+    Iso⟨ isoInv funExtIso ⟩
   (∀ x → (fun isom) (f x) ≡ (fun isom) (g x))
      Iso⟨ Iso→Pi-fun-Injection isom ⟩
   (∀ x → f x ≡ g x)
@@ -257,7 +257,7 @@ Iso→inv-Injection-Path :
   ∀ {f g : C -> B} →
   -----------------------
   ((inv isom) ∘ f ≡ (inv isom) ∘ g) ≡ (f ≡ g)
-Iso→inv-Injection-Path {A = A} {B} {C} isom {f = f} {g} = Iso→fun-Injection-Path (sym-iso isom)
+Iso→inv-Injection-Path {A = A} {B} {C} isom {f = f} {g} = Iso→fun-Injection-Path (isoInv isom)
 
 Iso→fun-Injection-Iso-x :
   ∀ {ℓ} {A B : Set ℓ}
@@ -287,7 +287,7 @@ Iso→inv-Injection-Iso-x :
   → ∀ {x y : B}
   → Iso ((inv isom) x ≡ (inv isom) y) (x ≡ y)
 Iso→inv-Injection-Iso-x {A = A} {B = B} isom =
-  Iso→fun-Injection-Iso-x {A = B} {B = A} (sym-iso isom)
+  Iso→fun-Injection-Iso-x {A = B} {B = A} (isoInv isom)
 
 Iso→fun-Injection-Path-x :
   ∀ {ℓ} {A B : Set ℓ}
