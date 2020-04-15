@@ -26,11 +26,16 @@ module _ {a p q} {A : Type a} (P : A → Type p) (Q : A → Type q)
     g-h {xv} ((a , p) , eq) = J (λ _ eq₁ → g (h ((a , p) , eq₁)) ≡ ((a , p) , eq₁))
                                 (cong g (JRefl (λ xv₁ eq₁ → fiber (f (xv₁ .fst)) (xv₁ .snd)) (p , refl)))
                                 eq
-  -- half of Thm 4.7.7 (fiberwise equivalences)
+  -- Thm 4.7.7 (fiberwise equivalences)
   fiberEquiv : ([tf] : isEquiv total)
                → ∀ x → isEquiv (f x)
   fiberEquiv [tf] x .equiv-proof y = isContrRetract (fibers-total .Iso.inv) (fibers-total .Iso.fun) (fibers-total .Iso.rightInv)
                                                     ([tf] .equiv-proof (x , y))
+
+  totalEquiv : (fx-equiv : ∀ x → isEquiv (f x))
+               → isEquiv total
+  totalEquiv fx-equiv .equiv-proof (x , v) = isContrRetract (fibers-total .Iso.fun) (fibers-total .Iso.inv) (fibers-total .Iso.leftInv)
+                                                            (fx-equiv x .equiv-proof v)
 
 
 module _ {ℓ : Level} {U : Type ℓ} {ℓr} (_~_ : U → U → Type ℓr)
