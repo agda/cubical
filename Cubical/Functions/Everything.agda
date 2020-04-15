@@ -1,8 +1,8 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Functions.Everything where
 
-open import Cubical.Functions.Embedding public
-open import Cubical.Functions.Surjection public
-open import Cubical.Functions.FunExtEquiv public
-open import Cubical.Functions.Fibration public
-open import Cubical.Functions.Bundle public
+import Cubical.Functions.Bundle
+import Cubical.Functions.Embedding
+import Cubical.Functions.Fibration
+import Cubical.Functions.FunExtEquiv
+import Cubical.Functions.Surjection

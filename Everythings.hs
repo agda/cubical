@@ -103,7 +103,8 @@ helpText = unlines [
   " gen d1 d2 ... dn           generates Everything files in the given directories",
   " gen-except d1 d2 ... dn    generates Everything files in all directories",
   "                            except in those given",
-  " checkREADME                checks all Everything files are imported in README"]
+  " check-README               checks all Everything files are imported in README",
+  " get-imports-README         gets the list of all Everything files imported in README"]
 
 main :: IO ()
 main = do
@@ -114,6 +115,10 @@ main = do
     "gen"  :dirs -> genEverythings   dirs
     "check-except":ex_dirs -> checkEverythings (all_dirs \\ ex_dirs)
     "gen-except"  :ex_dirs -> genEverythings   (all_dirs \\ ex_dirs)
-    ["checkREADME"] -> checkREADME
+    ["check-README"] -> checkREADME
+    ["get-imports-README"] -> do
+      imported <- filter (\fp -> head fp == "Everything")
+                    <$> getImported ["README","Cubical"]
+      putStrLn . unwords $ map (\fp -> showFP '/' fp ++ ".agda") imported
     "help":_ -> putStrLn helpText
     _ -> putStrLn "argument(s) not recognized, try 'help'"

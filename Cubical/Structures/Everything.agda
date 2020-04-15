@@ -1,10 +1,9 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Structures.Everything where
 
-open import Cubical.Structures.Pointed public
-open import Cubical.Structures.Monoid public
-open import Cubical.Structures.NAryOp
-open import Cubical.Structures.Queue public
-open import Cubical.Structures.MultiSet public
-
-open import Cubical.Structures.TypeEqvTo public
+import Cubical.Structures.Monoid
+import Cubical.Structures.MultiSet
+import Cubical.Structures.NAryOp
+import Cubical.Structures.Pointed
+import Cubical.Structures.Queue
+import Cubical.Structures.TypeEqvTo

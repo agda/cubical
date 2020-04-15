@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.Relation.Everything where
 
-open import Cubical.Relation.Nullary public
-open import Cubical.Relation.Nullary.DecidableEq public
-open import Cubical.Relation.Binary public
+import Cubical.Relation.Binary
+import Cubical.Relation.Nullary
+import Cubical.Relation.Nullary.DecidableEq

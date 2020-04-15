@@ -4,10 +4,12 @@ AGDA=$(AGDA_EXEC) $(RTS_OPTIONS)
 EVERYTHINGS=runhaskell ./Everythings.hs
 
 .PHONY : all
-all : check
+all : gen-everythings check
 
 .PHONY : test
-test: check-whitespace check-everythings check
+test: check-whitespace gen-and-check-everythings check-README check
+
+# checking and fixing whitespace
 
 .PHONY : fix-whitespace
 fix-whitespace:
@@ -17,6 +19,8 @@ fix-whitespace:
 check-whitespace:
 	cabal exec -- fix-agda-whitespace --check
 
+# checking and generating Everything files
+
 .PHONY : check-everythings
 check-everythings:
 	$(EVERYTHINGS) check-except Experiments
@@ -25,26 +29,21 @@ check-everythings:
 gen-everythings:
 	$(EVERYTHINGS) gen-except Core Foundations Codata Experiments
 
+.PHONY : gen-and-check-everythings
+gen-and-check-everythings:
+	$(EVERYTHINGS) gen-except Core Foundations Codata Experiments
+	$(EVERYTHINGS) check Core Foundations Codata
+
 .PHONY : check-README
 check-README:
-	$(EVERYTHINGS) checkREADME
+	$(EVERYTHINGS) check-README
+	
+# typechecking and generating listings for all files imported in in README
 
 .PHONY : check
 check: $(wildcard Cubical/**/*.agda)
-	$(AGDA) Cubical/Core/Everything.agda
-	$(AGDA) Cubical/Foundations/Everything.agda
-	$(AGDA) Cubical/Codata/Everything.agda
-	$(AGDA) Cubical/Data/Everything.agda
-	$(AGDA) Cubical/HITs/Everything.agda
-	$(AGDA) Cubical/Homotopy/Everything.agda
-	$(AGDA) Cubical/Relation/Everything.agda
-	$(AGDA) Cubical/Induction/Everything.agda
-	$(AGDA) Cubical/Modalities/Everything.agda
-	$(AGDA) Cubical/Structures/Everything.agda
+	$(foreach f, $(shell $(EVERYTHINGS) get-imports-README), $(AGDA) $(f);)
 	$(AGDA) Cubical/WithK.agda
-	$(AGDA) Cubical/Experiments/Everything.agda
-	$(AGDA) Cubical/ZCohomology/Everything.agda
-	$(AGDA) Cubical/Categories/Everything.agda
 
 .PHONY: listings
 listings: $(wildcard Cubical/**/*.agda)
