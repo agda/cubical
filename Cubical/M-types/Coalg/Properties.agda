@@ -114,12 +114,12 @@ postulate
 e-inj-Iso : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} {x y}
   → Iso (inv (lemma10-Iso {C,γ = C,γ}) x ≡ inv (lemma10-Iso {C,γ = C,γ}) y)
          (x ≡ y)
-e-inj-Iso {C,γ = C,γ} = ≡-rel-b-inj-x-Iso (lemma10-Iso {C,γ = C,γ})
+e-inj-Iso {C,γ = C,γ} = Iso→inv-Injection-Iso-x (lemma10-Iso {C,γ = C,γ})
 
 e-inj : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} {x y}
   → (inv (lemma10-Iso {C,γ = C,γ}) x ≡ inv (lemma10-Iso {C,γ = C,γ}) y)
   ≡ (x ≡ y)
-e-inj {C,γ = C,γ} = ≡-rel-b-inj-x (lemma10-Iso {C,γ = C,γ})
+e-inj {C,γ = C,γ} = Iso→inv-Injection-Path-x (lemma10-Iso {C,γ = C,γ})
 
 u0 : ∀ {ℓ} {S : Container {ℓ}} {C,γ : Coalg₀ {S = S}} -> Cone₀ {C,γ = C,γ}
 u0 {C,γ = C,γ} = λ { 0 _ → lift tt ; (suc n) -> step {C,γ = C,γ} (u0 {C,γ = C,γ} n) }

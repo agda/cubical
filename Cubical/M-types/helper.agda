@@ -102,7 +102,7 @@ postulate
       -- fibers-total
       -- homotopyNatural : {f g : A → B} (H : ∀ a → f a ≡ g a) {x y : A} (p : x ≡ y) →
       -- Hfa≡fHa {!!} {!!} {!!}
-      -- Vogt lemma -- law of excluded middle -- Hfa≡fHa (equiv)
+      -- Vogt lemma -- Hfa≡fHa (equiv)
 
 Σ-ap-iso₁ : ∀ {i} {X X' : Set i} {Y : X' → Set i}
           → (isom : Iso X X')
@@ -166,9 +166,6 @@ leftInv (Σ-ap-iso₁ {i} {X = X} {X'} {Y} isom) (x , y) = ΣPathP (leftInv isom
 
 ---
 
-identity-x : ∀ {ℓ} {A B : Set ℓ} (k : A -> A) -> k ≡ idfun A -> ∀ (x : A) -> k x ≡ x
-identity-x {A = A} k = funExt⁻
-
 -- Right
 extent-r : ∀ {ℓ} {A B C : Set ℓ} {a b : A -> B} (f : C -> A) -> a ≡ b -> a ∘ f ≡ b ∘ f
 extent-r = λ f x i → x i ∘ f
@@ -185,45 +182,41 @@ identity-f-l {A = A} {k = k} p f = extent-l {a = k} {b = idfun A} f p
 
 -- General
 
-≡-rel-a-monomorphism : ∀ {ℓ} {A B C : Set ℓ} (a : A -> B) (b : B -> A) -> a ∘ b ≡ idfun B -> b ∘ a ≡ idfun A -> {f g : C -> A} -> (a ∘ f ≡ a ∘ g) -> (f ≡ g)
-≡-rel-a-monomorphism a b left right {f = f} {g = g} p = λ i →
-  compPath-filler {x = f} {y = (b ∘ a ∘ f)} {z = g}
-    (sym (identity-f-r right f))
-    (λ j → compPath-filler {y = b ∘ a ∘ g}
-      (λ k → b ∘ p k)
-      (identity-f-r right g)
-        j j)
-      i i
-
-transport-iso :
-  ∀ {ℓ} {X Y : Set ℓ}
-  → (isom : Iso X Y)
-  → transport (isoToPath isom) ≡ fun isom
-transport-iso isom = funExt (transportRefl ∘ fun isom)
+Iso→monomorphism : -- TODO: Not used !
+  ∀ {ℓ} {A B C : Set ℓ}
+  → (isom : Iso A B)
+  --------------------
+  → {f g : C -> A}
+  → (fun isom ∘ f ≡ fun isom ∘ g)
+  → (f ≡ g)
+Iso→monomorphism (iso a b right left) {f = f} {g = g} p =
+  (sym (identity-f-r (funExt left) f)) ∙ (λ k → b ∘ p k) ∙ (identity-f-r (funExt left) g)
 
 abstract
-  ≡-to-embedding : ∀ {ℓ} {A B C : Set ℓ}
+  Iso→isEmbedding : ∀ {ℓ} {A B C : Set ℓ}
     → (isom : Iso A B)
     -------------------------------
     → isEmbedding (fun isom)
-  ≡-to-embedding {A = A} {B} {C} isom = (isEquiv→isEmbedding (equivIsEquiv (isoToEquiv isom)))
+  Iso→isEmbedding {A = A} {B} {C} isom = (isEquiv→isEmbedding (equivIsEquiv (isoToEquiv isom)))
 
 funExtIso : ∀ {ℓ ℓ₁} {A : Type ℓ} {B : A → Type ℓ₁} {f g : (x : A) → B x} → Iso (∀ x → f x ≡ g x) (f ≡ g)
 funExtIso = iso funExt funExt⁻ refl-fun refl-fun
 
-≡-rel-a-inj' : ∀ {ℓ} {A B C : Set ℓ} (a : A -> B) (e : isEmbedding a) → ∀ {f g : C -> A} -> ∀ x → ((a (f x) ≡ a (g x)) ≡ (f x ≡ g x))
-≡-rel-a-inj' a e {f = f} {g} x = sym (ua (cong a , e (f x) (g x)))
+isEmbedding→Injection' :
+  ∀ {ℓ} {A B C : Set ℓ}
+  → (a : A -> B)
+  → (e : isEmbedding a)
+  ----------------------
+  → ∀ {f g : C -> A} ->
+  ∀ x → (a (f x) ≡ a (g x)) ≡ (f x ≡ g x)
+isEmbedding→Injection' a e {f = f} {g} x = sym (ua (cong a , e (f x) (g x)))
 
-≡-rel-a-inj-Iso-helper-3 :
+Iso→fun-Injection :
   ∀ {ℓ} {A B C : Set ℓ} (isom : Iso A B)
   → ∀ {f g : C -> A}
   → (x : C) → (fun isom (f x) ≡ fun isom (g x)) ≡ (f x ≡ g x)
-≡-rel-a-inj-Iso-helper-3 {A = A} {B} {C} isom {f = f} {g} =
-  -- temp
-  -- where
-  --   abstract
-  --     temp = λ x → sym (ua (congEquiv (isoToEquiv isom)))
-  ≡-rel-a-inj' {A = A} {B} {C} (fun isom) (≡-to-embedding {A = A} {B} {C} isom) {f = f} {g = g}
+Iso→fun-Injection {A = A} {B} {C} isom {f = f} {g} =
+  isEmbedding→Injection' {A = A} {B} {C} (fun isom) (Iso→isEmbedding {A = A} {B} {C} isom) {f = f} {g = g}
 
 pathCongFunExt :
   ∀ {ℓ} {A : Set ℓ} (a b : (x : A) → Set ℓ)
@@ -232,45 +225,46 @@ pathCongFunExt :
 pathCongFunExt a b p =
   pathToIso (cong (λ k → ∀ x → k x) (funExt p))
 
-≡-rel-a-inj-Iso-helper :
+Iso→Pi-fun-Injection :
   ∀ {ℓ} {A B C : Set ℓ} (isom : Iso A B)
   → ∀ {f g : C -> A}
   → Iso (∀ x → (fun isom) (f x) ≡ (fun isom) (g x)) (∀ x → f x ≡ g x)
-≡-rel-a-inj-Iso-helper {A = A} {B} {C} isom {f = f} {g} =
-  pathCongFunExt (λ x → fun isom (f x) ≡ fun isom (g x)) (λ x → f x ≡ g x) (≡-rel-a-inj-Iso-helper-3 isom {f = f} {g = g})
+Iso→Pi-fun-Injection {A = A} {B} {C} isom {f = f} {g} =
+  pathCongFunExt (λ x → fun isom (f x) ≡ fun isom (g x)) (λ x → f x ≡ g x) (Iso→fun-Injection isom {f = f} {g = g})
 
-≡-rel-a-inj-Iso :
+Iso→fun-Injection-Iso :
   ∀ {ℓ} {A B C : Set ℓ} (isom : Iso A B)
   → ∀ {f g : C -> A}
   → Iso (fun isom ∘ f ≡ fun isom ∘ g) (f ≡ g)
-≡-rel-a-inj-Iso {A = A} {B} {C} isom {f = f} {g} =
+Iso→fun-Injection-Iso {A = A} {B} {C} isom {f = f} {g} =
   (fun isom) ∘ f ≡ (fun isom) ∘ g
     Iso⟨ sym-iso funExtIso ⟩
   (∀ x → (fun isom) (f x) ≡ (fun isom) (g x))
-     Iso⟨ ≡-rel-a-inj-Iso-helper isom ⟩
+     Iso⟨ Iso→Pi-fun-Injection isom ⟩
   (∀ x → f x ≡ g x)
      Iso⟨ funExtIso ⟩
   f ≡ g ∎Iso
 
-≡-rel-a-inj :
+Iso→fun-Injection-Path :
   ∀ {ℓ} {A B C : Set ℓ} (isom : Iso A B)
   → ∀ {f g : C -> A}
   → (fun isom ∘ f ≡ fun isom ∘ g) ≡ (f ≡ g)
-≡-rel-a-inj {A = A} {B} {C} isom {f = f} {g} = isoToPath (≡-rel-a-inj-Iso isom)
+Iso→fun-Injection-Path {A = A} {B} {C} isom {f = f} {g} =
+  isoToPath (Iso→fun-Injection-Iso isom)
 
-≡-rel-b-inj :
+Iso→inv-Injection-Path :
   ∀ {ℓ} {A B C : Set ℓ} (isom : Iso A B) →
   ∀ {f g : C -> B} →
   -----------------------
   ((inv isom) ∘ f ≡ (inv isom) ∘ g) ≡ (f ≡ g)
-≡-rel-b-inj {A = A} {B} {C} isom {f = f} {g} = isoToPath (≡-rel-a-inj-Iso (sym-iso isom))
+Iso→inv-Injection-Path {A = A} {B} {C} isom {f = f} {g} = Iso→fun-Injection-Path (sym-iso isom)
 
-≡-rel-a-inj-x-Iso :
+Iso→fun-Injection-Iso-x :
   ∀ {ℓ} {A B : Set ℓ}
   → (isom : Iso A B)
   → ∀ {x y : A}
   → Iso ((fun isom) x ≡ (fun isom) y) (x ≡ y)
-≡-rel-a-inj-x-Iso isom {x} {y} =
+Iso→fun-Injection-Iso-x isom {x} {y} =
   let tempx = λ {(lift tt) → x}
       tempy = λ {(lift tt) → y} in
   fun isom x ≡ fun isom y
@@ -279,7 +273,7 @@ pathCongFunExt a b p =
              refl-fun
              refl-fun ⟩
   (∀ (t : Lift Unit) -> (((fun isom) ∘ tempx) t ≡ ((fun isom) ∘ tempy) t))
-    Iso⟨ ≡-rel-a-inj-Iso-helper isom ⟩
+    Iso⟨ Iso→Pi-fun-Injection isom ⟩
   (∀ (t : Lift Unit) -> tempx t ≡ tempy t)
      Iso⟨ iso (λ x₁ → x₁ (lift tt))
               (λ x₁ t → x₁)
@@ -287,26 +281,29 @@ pathCongFunExt a b p =
               refl-fun ⟩
   x ≡ y ∎Iso
 
-≡-rel-b-inj-x-Iso :
+Iso→inv-Injection-Iso-x :
   ∀ {ℓ} {A B : Set ℓ}
   → (isom : Iso A B)
   → ∀ {x y : B}
   → Iso ((inv isom) x ≡ (inv isom) y) (x ≡ y)
-≡-rel-b-inj-x-Iso {A = A} {B = B} isom = ≡-rel-a-inj-x-Iso {A = B} {B = A} (sym-iso isom)
+Iso→inv-Injection-Iso-x {A = A} {B = B} isom =
+  Iso→fun-Injection-Iso-x {A = B} {B = A} (sym-iso isom)
 
-≡-rel-a-inj-x :
+Iso→fun-Injection-Path-x :
   ∀ {ℓ} {A B : Set ℓ}
   → (isom : Iso A B)
   → ∀ {x y : A}
   → ((fun isom) x ≡ (fun isom) y) ≡ (x ≡ y)
-≡-rel-a-inj-x isom {x} {y} = isoToPath (≡-rel-a-inj-x-Iso isom)
+Iso→fun-Injection-Path-x isom {x} {y} =
+  isoToPath (Iso→fun-Injection-Iso-x isom)
 
-≡-rel-b-inj-x :
+Iso→inv-Injection-Path-x :
   ∀ {ℓ} {A B : Set ℓ}
   → (isom : Iso A B)
   → ∀ {x y : B}
   → ((inv isom) x ≡ (inv isom) y) ≡ (x ≡ y)
-≡-rel-b-inj-x isom = isoToPath (≡-rel-b-inj-x-Iso isom)
+Iso→inv-Injection-Path-x isom =
+  isoToPath (Iso→inv-Injection-Iso-x isom)
 
 -------------------------
 -- Unit / × properties --

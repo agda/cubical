@@ -134,7 +134,7 @@ leftInv (α-iso-step-1-4-Iso {S = S@(A , B)}) = refl-fun
   PathP (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n)
     Iso⟨ pathToIso (PathP≡Path (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n)) ⟩
   subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)) ≡ (u n)
-    Iso⟨ (sym-iso (≡-rel-a-inj-x-Iso (pathToIso (cong (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n))))) ⟩
+    Iso⟨ (sym-iso (Iso→fun-Injection-Iso-x (pathToIso (cong (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n))))) ⟩
   (subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 {S = S} a p n) (subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)))
       ≡
   subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 {S = S} a p n) (u n))
