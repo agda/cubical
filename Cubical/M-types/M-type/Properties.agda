@@ -15,7 +15,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Embedding
+open import Cubical.Functions.Embedding
 open import Cubical.Foundations.Equiv
 
 open import Cubical.M-types.helper
@@ -37,14 +37,6 @@ out-inverse-in {S = S} = funExt (leftInv {A = P₀ {S = S} (M-type S)} {B = M-ty
 
 in-out-id : ∀ {ℓ} {S : Container {ℓ}} -> ∀ {x y} → (in-fun (out-fun {S = S} x) ≡ in-fun (out-fun {S = S} y)) ≡ (x ≡ y)
 in-out-id {x = x} {y} i = (in-inverse-out i x) ≡ (in-inverse-out i y)
-
--- Embeddings
-
-in-embedding : ∀ {ℓ} {S : Container {ℓ}} → isEmbedding {A = P₀ (M-type S)} {B = M-type S} (in-fun {S = S})
-in-embedding {S = S} = ≡-to-embedding {A = P₀ (M-type S)} {C = M-type S} shift-iso
-
-out-embedding : ∀ {ℓ} {S : Container {ℓ}} → isEmbedding (out-fun {S = S})
-out-embedding {S = S} = ≡-to-embedding {A = M-type S} {C = P₀ {S = S} (M-type S)} (sym-iso shift-iso)
 
 -- constructor properties
 

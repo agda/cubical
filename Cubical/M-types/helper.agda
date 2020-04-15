@@ -7,7 +7,7 @@ open import Cubical.Foundations.Function using (_∘_)
 open import Cubical.Data.Unit
 open import Cubical.Data.Prod
 open import Cubical.Data.Nat as ℕ using (ℕ ; suc ; _+_ )
-open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma hiding (_×_)
 
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
@@ -16,8 +16,10 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
-open import Cubical.Foundations.Embedding
-open import Cubical.Foundations.FunExtEquiv
+open import Cubical.Foundations.Equiv.HalfAdjoint
+
+open import Cubical.Functions.Embedding
+open import Cubical.Functions.FunExtEquiv
 
 module Cubical.M-types.helper where
 
@@ -199,11 +201,12 @@ transport-iso :
   → transport (isoToPath isom) ≡ fun isom
 transport-iso isom = funExt (transportRefl ∘ fun isom)
 
-≡-to-embedding : ∀ {ℓ} {A B C : Set ℓ}
-  → (isom : Iso A B)
-  -------------------------------
-  → isEmbedding (fun isom)
-≡-to-embedding {A = A} {B} {C} isom = (isEquiv→isEmbedding (equivIsEquiv (isoToEquiv isom)))
+abstract
+  ≡-to-embedding : ∀ {ℓ} {A B C : Set ℓ}
+    → (isom : Iso A B)
+    -------------------------------
+    → isEmbedding (fun isom)
+  ≡-to-embedding {A = A} {B} {C} isom = (isEquiv→isEmbedding (equivIsEquiv (isoToEquiv isom)))
 
 funExtIso : ∀ {ℓ ℓ₁} {A : Type ℓ} {B : A → Type ℓ₁} {f g : (x : A) → B x} → Iso (∀ x → f x ≡ g x) (f ≡ g)
 funExtIso = iso funExt funExt⁻ refl-fun refl-fun
@@ -216,15 +219,18 @@ funExtIso = iso funExt funExt⁻ refl-fun refl-fun
   → ∀ {f g : C -> A}
   → (x : C) → (fun isom (f x) ≡ fun isom (g x)) ≡ (f x ≡ g x)
 ≡-rel-a-inj-Iso-helper-3 {A = A} {B} {C} isom {f = f} {g} =
+  -- temp
+  -- where
+  --   abstract
+  --     temp = λ x → sym (ua (congEquiv (isoToEquiv isom)))
   ≡-rel-a-inj' {A = A} {B} {C} (fun isom) (≡-to-embedding {A = A} {B} {C} isom) {f = f} {g = g}
 
-abstract
-  pathCongFunExt :
-    ∀ {ℓ} {A : Set ℓ} (a b : (x : A) → Set ℓ)
-    → (∀ x → (a x) ≡ (b x))
-    → Iso (∀ x → a x) (∀ x → b x)
-  pathCongFunExt a b p =
-    pathToIso (cong (λ k → ∀ x → k x) (funExt p))
+pathCongFunExt :
+  ∀ {ℓ} {A : Set ℓ} (a b : (x : A) → Set ℓ)
+  → (∀ x → (a x) ≡ (b x))
+  → Iso (∀ x → a x) (∀ x → b x)
+pathCongFunExt a b p =
+  pathToIso (cong (λ k → ∀ x → k x) (funExt p))
 
 ≡-rel-a-inj-Iso-helper :
   ∀ {ℓ} {A B C : Set ℓ} (isom : Iso A B)
@@ -257,14 +263,7 @@ abstract
   ∀ {f g : C -> B} →
   -----------------------
   ((inv isom) ∘ f ≡ (inv isom) ∘ g) ≡ (f ≡ g)
-≡-rel-b-inj {A = A} {B} {C} isom {f = f} {g} =
-  (inv isom) ∘ f ≡ (inv isom) ∘ g
-    ≡⟨ sym funExtPath ⟩
-  (∀ x → inv isom (f x) ≡ inv isom (g x))
-    ≡⟨ (λ i → ∀ x → ≡-rel-a-inj' {A = B} {A} {C} (inv isom) (≡-to-embedding {A = B} {A} {C} (sym-iso isom)) {f = f} {g = g} x i) ⟩
-  (∀ x → f x ≡ g x)
-    ≡⟨ funExtPath ⟩
-  f ≡ g ∎
+≡-rel-b-inj {A = A} {B} {C} isom {f = f} {g} = isoToPath (≡-rel-a-inj-Iso (sym-iso isom))
 
 ≡-rel-a-inj-x-Iso :
   ∀ {ℓ} {A B : Set ℓ}

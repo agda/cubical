@@ -6,7 +6,7 @@ open import Cubical.Data.Sum
 open import Cubical.Data.Prod
 open import Cubical.Data.Nat
 open import Cubical.Data.List
-open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma hiding (_×_)
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv

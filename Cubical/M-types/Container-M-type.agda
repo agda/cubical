@@ -8,7 +8,7 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Prod
 open import Cubical.Data.Nat as ℕ using (ℕ ; suc ; _+_ )
 open import Cubical.Data.Sum
-open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma hiding (_×_)
 
 open import Cubical.Foundations.Transport
 
