@@ -26,10 +26,10 @@ open import Cubical.Data.Int
 open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.BiInvEquiv
-open import Cubical.Foundations.HAEquiv
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Foundations.Equiv.BiInvertible
+open import Cubical.Foundations.Equiv.HalfAdjoint
 
 open import Cubical.Relation.Nullary
 

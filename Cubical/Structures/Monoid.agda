@@ -108,4 +108,3 @@ inv-lemma M x y z left-inverse right-inverse =
   (y ·⟨ M ⟩ x) ·⟨ M ⟩ z ≡⟨ cong (λ - → - ·⟨ M ⟩ z) left-inverse ⟩
   id M ·⟨ M ⟩ z         ≡⟨ monoid-lid M z ⟩
   z ∎
-

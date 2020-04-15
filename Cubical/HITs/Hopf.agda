@@ -8,7 +8,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Int
-open import Cubical.Data.Prod
+open import Cubical.Data.Sigma
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.S2
@@ -97,7 +97,7 @@ constant-loop : (F : S¹ → S¹ → Int) → (x y : S¹) → F base base ≡ F 
 constant-loop F x y = L0 ∙ L1
   where
   p : isSet (S¹ → Int)
-  p = isOfHLevelPi 2 (λ _ → isSetInt)
+  p = isSetΠ (λ _ → isSetInt)
   L : F base ≡ F x
   L = S¹→HSet (S¹ → Int) p F x
   L0 : F base base ≡ F x base

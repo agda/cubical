@@ -15,7 +15,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.HAEquiv
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Sigma
@@ -23,7 +23,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 
-open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
+open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash; ∃; ∃-syntax)
 open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₀; ∣_∣₀; squash₀)
 
 -- Type quotients
@@ -57,8 +57,7 @@ elimProp Bprop f (squash/ x y p q i j) =
 elimProp Bprop f (eq/ a b r i) = elimEq/ Bprop (eq/ a b r) (f a) (f b) i
 
 -- lemma 6.10.2 in hott book
--- TODO: defined truncated Sigma as ∃
-[]surjective : (x : A / R) → ∥ Σ[ a ∈ A ] [ a ] ≡ x ∥
+[]surjective : (x : A / R) → ∃[ a ∈ A ] [ a ] ≡ x
 []surjective = elimProp (λ x → squash) (λ a → ∣ a , refl ∣)
 
 elim : {B : A / R → Type ℓ} →
@@ -123,7 +122,7 @@ isEquivRel→isEffective {R = R} Rprop Req a b = isoToEquiv (iso intro out intro
 
 discreteSetQuotients : Discrete A → isPropValued R → isEquivRel R → (∀ a₀ a₁ → Dec (R a₀ a₁)) → Discrete (A / R)
 discreteSetQuotients {A = A} {R = R} Adis Rprop Req Rdec =
-  elim (λ a₀ → isSetPi (λ a₁ → isProp→isSet (isPropDec (squash/ a₀ a₁))))
+  elim (λ a₀ → isSetΠ (λ a₁ → isProp→isSet (isPropDec (squash/ a₀ a₁))))
     discreteSetQuotients' discreteSetQuotients'-eq
   where
     discreteSetQuotients' : (a : A) (y : A / R) → Dec ([ a ] ≡ y)

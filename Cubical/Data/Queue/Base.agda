@@ -9,7 +9,7 @@ open import Cubical.Structures.Queue
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
 open import Cubical.Data.List
-open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
+open import Cubical.Data.Sigma
 
 module _ (A : Type ℓ) (Aset : isSet A) where
  open Queues-on A Aset
@@ -79,7 +79,7 @@ module _ (A : Type ℓ) (Aset : isSet A) where
  pop₂ (trunc q q' α β i j) =
    isOfHLevelSum 0
      (isProp→isSet isPropUnit)
-     (isOfHLevelΣ 2 trunc λ _ → Aset)
+     (isSetΣ trunc λ _ → Aset)
      (pop₂ q) (pop₂ q') (cong pop₂ α) (cong pop₂ β)
     i j
 
@@ -166,5 +166,4 @@ module _ (A : Type ℓ) (Aset : isSet A) where
 
  -- And we get the desired Path
  Path-1List-2List : 1List ≡ 2List
- Path-1List-2List = SIP queue-structure queue-iso  Queue-is-SNS 1List 2List .fst
-                   (quotEquiv , quotEquiv-is-queue-iso)
+ Path-1List-2List = sip Queue-is-SNS 1List 2List (quotEquiv , quotEquiv-is-queue-iso)

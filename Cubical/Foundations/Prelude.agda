@@ -187,6 +187,10 @@ transport p a = transp (λ i → p i) i0 a
 transportRefl : (x : A) → transport refl x ≡ x
 transportRefl {A = A} x i = transp (λ _ → A) i x
 
+transport-filler : ∀ {ℓ} {A B : Type ℓ} (p : A ≡ B) (x : A)
+                   → PathP (λ i → p i) x (transport p x)
+transport-filler p x i = transp (λ j → p (i ∧ j)) (~ i) x
+
 -- We want B to be explicit in subst
 subst : (B : A → Type ℓ') (p : x ≡ y) → B x → B y
 subst B p pa = transport (λ i → B (p i)) pa
@@ -197,7 +201,7 @@ substRefl px = transportRefl px
 funExt : {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
 funExt p i x = p x i
 
--- the inverse to funExt (see Foundations.FunExtEquiv)
+-- the inverse to funExt (see Functions.FunExtEquiv)
 funExt⁻ : ∀ {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
 funExt⁻ eq x i = eq i x
 

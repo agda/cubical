@@ -8,6 +8,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Univalence
 open import Cubical.HITs.Sn
 open import Cubical.Data.Empty
 open import Cubical.HITs.Susp
@@ -117,7 +118,7 @@ ind2 : {n : ℕ₋₁}
        (g : (a b : A) → B ∣ a ∣ ∣ b ∣)
        (x y : ∥ A ∥ n) →
        B x y
-ind2 {n = n} hB g = ind (λ _ → isOfHLevelPi (1 + 1+ n) (λ _ → hB _ _)) λ a →
+ind2 {n = n} hB g = ind (λ _ → isOfHLevelΠ (1 + 1+ n) (λ _ → hB _ _)) λ a →
                     ind (λ _ → hB _ _) (λ b → g a b)
 
 ind3 : {n : ℕ₋₁}
@@ -126,23 +127,20 @@ ind3 : {n : ℕ₋₁}
        (g : (a b c : A) → B (∣ a ∣) ∣ b ∣ ∣ c ∣)
        (x y z : ∥ A ∥ n) →
        B x y z
-ind3 {n = n} hB g = ind2 (λ _ _ → isOfHLevelPi (1 + 1+ n) (hB _ _)) λ a b →
+ind3 {n = n} hB g = ind2 (λ _ _ → isOfHLevelΠ (1 + 1+ n) (hB _ _)) λ a b →
                     ind (λ _ → hB _ _ _) (λ c → g a b c)
 
-idemTrunc : (n : ℕ₋₁) → isOfHLevel (1 + 1+ n) A → (∥ A ∥ n) ≃ A
-idemTrunc {A = A} n hA = isoToEquiv (iso f g f-g g-f)
+truncIdempotent≃ : (n : ℕ₋₁) → isOfHLevel (1 + 1+ n) A → ∥ A ∥ n ≃ A
+truncIdempotent≃ {A = A} n hA = isoToEquiv f
   where
-  f : ∥ A ∥ n → A
-  f = ind (λ _ → hA) λ a → a
+  f : Iso (∥ A ∥ n) A
+  Iso.fun f        = ind (λ _ → hA) λ a → a
+  Iso.inv f        = ∣_∣
+  Iso.rightInv f _ = refl
+  Iso.leftInv f    = ind (λ _ → isOfHLevelPath (1 + 1+ n) (isOfHLevel∥∥ n) _ _) (λ _ → refl)
 
-  g : A → ∥ A ∥ n
-  g = ∣_∣
-
-  f-g : ∀ a → f (g a) ≡ a
-  f-g a = refl
-
-  g-f : ∀ x → g (f x) ≡ x
-  g-f = ind (λ _ → isOfHLevelPath (1 + 1+ n) (isOfHLevel∥∥ n) _ _) (λ _ → refl)
+truncIdempotent : (n : ℕ₋₁) → isOfHLevel (1 + 1+ n) A → ∥ A ∥ n ≡ A
+truncIdempotent n hA = ua (truncIdempotent≃ n hA)
 
 propTrunc≃Trunc-1 : ∥ A ∥₋₁ ≃ ∥ A ∥ -1
 propTrunc≃Trunc-1 =

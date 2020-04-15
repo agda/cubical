@@ -1,13 +1,13 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.Surjection where
+module Cubical.Functions.Surjection where
 
 open import Cubical.Core.Everything
-open import Cubical.Data.Prod
+open import Cubical.Data.Sigma
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Embedding
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Functions.Embedding
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
 private
@@ -24,7 +24,7 @@ section→isSurjection : {g : B → A} → section f g → isSurjection f
 section→isSurjection {g = g} s b = ∣ g b , s b ∣
 
 isSurjectionIsProp : isProp (isSurjection f)
-isSurjectionIsProp = isPropPi λ _ → squash
+isSurjectionIsProp = isPropΠ λ _ → squash
 
 isEquiv→isSurjection : isEquiv f → isSurjection f
 isEquiv→isSurjection e b = ∣ fst (equiv-proof e b) ∣
@@ -49,5 +49,5 @@ isEquiv≃isEmbedding×isSurjection : isEquiv f ≃ isEmbedding f × isSurjectio
 isEquiv≃isEmbedding×isSurjection = isoToEquiv (iso
   isEquiv→isEmbedding×isSurjection
   isEmbedding×isSurjection→isEquiv
-  (λ _ → isOfHLevelProd 1 isEmbeddingIsProp isSurjectionIsProp _ _)
+  (λ _ → isOfHLevelΣ 1 isEmbeddingIsProp (\ _ → isSurjectionIsProp) _ _)
   (λ _ → isPropIsEquiv _ _ _))

@@ -3,7 +3,7 @@ module Cubical.HITs.Localization.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.PathSplitEquiv
+open import Cubical.Foundations.Equiv.PathSplit
 open isPathSplitEquiv
 
 module _ {ℓα ℓs ℓt} {A : Type ℓα} {S : A → Type ℓs} {T : A → Type ℓt} where

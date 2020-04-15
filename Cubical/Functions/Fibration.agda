@@ -1,12 +1,15 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.Fibration where
+module Cubical.Functions.Fibration where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
+open import Cubical.Data.Sigma
 
 module FiberIso {ℓb} {B : Type ℓb} {ℓ} (p⁻¹ : B → Type ℓ) (x : B) where
 
@@ -62,3 +65,11 @@ module _ {ℓb} (B : Type ℓb) (ℓ : Level) where
           Iso.rightInv isom p⁻¹ i x = ua (fiberEquiv p⁻¹ x) i
           Iso.leftInv  isom (E , p) i = ua e (~ i) , fst ∘ ua-unglue e (~ i)
             where e = totalEquiv p
+
+-- The path type in a fiber of f is equivalent to a fiber of (cong f)
+fiber≡ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {f : A → B} {b : B} (h h' : fiber f b)
+  → (h ≡ h') ≡ fiber (cong f) (h .snd ∙∙ refl ∙∙ sym (h' .snd))
+fiber≡ {f = f} h h' =
+  ua Σ≡ ⁻¹ ∙
+  cong (Σ (h .fst ≡ h' .fst)) (funExt λ p → flipSquarePath ∙ PathP≡doubleCompPathʳ _ _ _ _)
+

@@ -6,11 +6,11 @@ open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Everything
 
-open import Cubical.Data.Prod using (_×_; _,_)
+open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum using (_⊎_; inl; inr)
 
-open import Cubical.HITs.PropositionalTruncation using (∥_∥; ∣_∣; squash)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥; ∣_∣; squash; ∃; ∃-syntax)
 open import Cubical.HITs.Interval using (Interval; zero; one; seg)
 
 -- Cylinder A is a cylinder object in the category of cubical types.
@@ -39,7 +39,7 @@ module _ {ℓ} {A : Type ℓ} where
   include (inr x) = inr x
 
   -- The above inclusion is surjective
-  includeSurjective : ∀ c → ∥ Σ[ s ∈ A ⊎ A ] include s ≡ c ∥
+  includeSurjective : ∀ c → ∃[ s ∈ A ⊎ A ] include s ≡ c
   includeSurjective (inl x) = ∣ inl x , refl ∣
   includeSurjective (inr x) = ∣ inr x , refl ∣
   includeSurjective (cross x i) =
@@ -263,4 +263,3 @@ module Push {ℓ} {A : Type ℓ} where
            Cylinder→Pushout
            Cylinder→Pushout→Cylinder
            Pushout→Cylinder→Pushout)
-

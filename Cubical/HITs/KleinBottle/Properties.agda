@@ -17,7 +17,6 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Data.Nat
 open import Cubical.Data.Int public renaming (_+_ to _+Int_ ; +-assoc to +Int-assoc; +-comm to +Int-comm)
-open import Cubical.Data.Prod
 open import Cubical.Data.Sigma
 open import Cubical.HITs.S1
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
@@ -124,8 +123,6 @@ isGroupoidKleinBottle =
     ≡⟨ sym (ua Σ≡) ⟩
   Σ ΩS¹ (λ p → PathP (λ j → invS¹Loop (p j)) base base)
     ≡⟨ (λ i → Σ ΩS¹ (λ p → PathP (λ j → invS¹Loop (p (j ∨ i))) (twistBaseLoop (p i)) base)) ⟩
-  Σ ΩS¹ (λ _ → ΩS¹)
-    ≡⟨ sym A×B≡A×ΣB ⟩
   ΩS¹ × ΩS¹
     ≡⟨ (λ i → ΩS¹≡Int i × ΩS¹≡Int i) ⟩
   Int × Int ∎
