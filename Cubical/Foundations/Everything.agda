@@ -45,5 +45,6 @@ open import Cubical.Foundations.Univalence public
 open import Cubical.Foundations.Univalence.Universe
 open import Cubical.Foundations.GroupoidLaws public
 open import Cubical.Foundations.Isomorphism public
+open import Cubical.Foundations.CartesianKanOps
 open import Cubical.Foundations.Logic
 open import Cubical.Foundations.SIP
