@@ -342,9 +342,5 @@ Subset→Embedding {X = X} A = D , f , ψ
     r = ΣProp≡ (∈-isProp A) p
     
     q : PathP (λ i → p i ≡ x) y≡x z≡x
-    q i j = hfill (λ k → λ { (j=0) → (p i)
-                           ; (i=0) → (y≡x j)
-                           ; (j=1) → x
-                           ; (i=1) → (z≡x j) })
-                  (inS {!!}) j
+    q i j = hcomp (λ k → λ { (j = i1) → x ; (i = i0) → y≡x j ; (i = i1) → z≡x (~ k ∨ j) }) (y≡x (i ∨ j))
 
