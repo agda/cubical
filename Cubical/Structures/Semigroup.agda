@@ -4,37 +4,38 @@ module Cubical.Structures.Semigroup where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
-open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
+open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
-open import Cubical.Structures.InftyMagma as M hiding (⟨_⟩)
+open import Cubical.Structures.NAryOp 
 
 private
   variable
     ℓ ℓ' : Level
 
-semigroup-axioms : (X : Type ℓ) → ∞-magma-structure X → Type ℓ
+raw-semigroup-structure : Type ℓ → Type ℓ
+raw-semigroup-structure X = X → X → X
+
+raw-semigroup-is-SNS : SNS {ℓ} raw-semigroup-structure _
+raw-semigroup-is-SNS = nAryFunSNS 2
+
+semigroup-axioms : (X : Type ℓ) → raw-semigroup-structure X → Type ℓ
 semigroup-axioms X _·_ = isSet X ×
                          ((x y z : X) → (x · (y · z)) ≡ ((x · y) · z))
 
 semigroup-structure : Type ℓ → Type ℓ
-semigroup-structure = add-to-structure (∞-magma-structure) semigroup-axioms
+semigroup-structure = add-to-structure (raw-semigroup-structure) semigroup-axioms
 
 Semigroup : Type (ℓ-suc ℓ)
 Semigroup {ℓ} = TypeWithStr ℓ semigroup-structure
 
 -- Operations for extracting components
 
-Semigroup→∞-Magma : Semigroup {ℓ} → ∞-Magma {ℓ}
-Semigroup→∞-Magma (G , _·_ , _) = G , _·_
-
--- Operations for extracting components
-
 ⟨_⟩ : Semigroup → Type ℓ
-⟨ G ⟩ = M.⟨ Semigroup→∞-Magma G ⟩
+⟨ G , _ ⟩ = G
 
 semigroup-operation : (G : Semigroup {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
-semigroup-operation G = ∞-magma-operation (Semigroup→∞-Magma G)
+semigroup-operation (_ , f , _) = f
 
 module semigroup-operation-syntax where
 
@@ -56,19 +57,18 @@ semigroup-assoc (_ , _ , _ , P) = P
 -- Semigroup equivalences
 
 semigroup-iso : StrIso semigroup-structure ℓ
-semigroup-iso = add-to-iso ∞-magma-structure ∞-magma-iso semigroup-axioms
+semigroup-iso = add-to-iso (nAryFunIso 2) semigroup-axioms
 
 semigroup-axiom-isProp : (X : Type ℓ)
-                       → (s : ∞-magma-structure X)
+                       → (s : raw-semigroup-structure X)
                        → isProp (semigroup-axioms X s)
 semigroup-axiom-isProp X _·_ = isPropΣ isPropIsSet
-                               λ isSetX →  isPropPi (λ x → isPropPi (λ y → isPropPi (λ z → isSetX _ _)))
+                               λ isSetX →  isPropΠ (λ x → isPropΠ (λ y → isPropΠ (λ z → isSetX _ _)))
 
 semigroup-is-SNS : SNS {ℓ} semigroup-structure semigroup-iso
-semigroup-is-SNS = add-axioms-SNS ∞-magma-structure ∞-magma-iso
-                               semigroup-axioms semigroup-axiom-isProp ∞-magma-is-SNS
+semigroup-is-SNS = add-axioms-SNS _ semigroup-axiom-isProp (nAryFunSNS 2)
 
 SemigroupPath : (M N : Semigroup {ℓ}) → (M ≃[ semigroup-iso ] N) ≃ (M ≡ N)
-SemigroupPath M N = SIP semigroup-structure semigroup-iso semigroup-is-SNS M N
+SemigroupPath = SIP semigroup-is-SNS
 
 
