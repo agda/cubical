@@ -27,7 +27,7 @@ pointed-is-SNS : SNS {ℓ} pointed-structure pointed-iso
 pointed-is-SNS f = invEquiv (ua-ungluePath-Equiv f)
 
 pointed-SIP : (A B : Pointed ℓ) → A ≃[ pointed-iso ] B ≃ (A ≡ B)
-pointed-SIP = SIP pointed-structure pointed-iso pointed-is-SNS
+pointed-SIP = SIP pointed-is-SNS
 
 pointed-sip : (A B : Pointed ℓ) → A ≃[ pointed-iso ] B → (A ≡ B)
 pointed-sip A B = equivFun (pointed-SIP A B) -- ≡ λ (e , p) i → ua e i , ua-gluePath e p i
