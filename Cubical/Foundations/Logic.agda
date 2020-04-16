@@ -308,16 +308,16 @@ A ⊆ B = ∀ x → x ∈ A → x ∈ B
 
 
 ⊆-extensionality :  {X : Type ℓ} (A B : ℙ X)
-                  → (A ⊆ B) → (B ⊆ A) → A ≡ B
+                  → A ⊆ B → B ⊆ A → A ≡ B
 ⊆-extensionality A B φ ψ i x = ⇔toPath {P = (A x)} {Q = (B x)} (φ x) (ψ x) i
 
 
 powersets-are-sets : {X : Type ℓ} → isSet (ℙ X)
 powersets-are-sets {X = X} = isSetΠ (λ _ → isSetHProp)
 
+-- TODO:  (A ≡ B) ≃ (A ⊆ B) × (B ⊆ A)
 
 -- We want to show that ℙ X ≃ Σ[A ∈ Type ℓ] (A ↪ X)
--- Does it even hold until we assume isSet X?
 _↪_ : Type ℓ → Type ℓ → Type ℓ
 A ↪ B = Σ[ f ∈ (A → B) ] hasPropFibers f
 
