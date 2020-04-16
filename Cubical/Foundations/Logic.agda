@@ -9,13 +9,15 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.Prelude as FP
 open import Cubical.Functions.Embedding
+open import Cubical.Functions.Fibration as Fib
 open import Cubical.Foundations.Equiv
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
-open import Cubical.Foundations.HLevels using (hProp; isPropΠ; isPropΠ2; isSetΠ; isSetHProp; isOfHLevelΣ) public
+open import Cubical.Foundations.HLevels using (hProp; isPropΠ; isPropΠ2; isSetΠ; isSetHProp; isOfHLevelΣ; isPropΣ) public
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Univalence using (ua)
 
 open import Cubical.Relation.Nullary hiding (¬_)
 
@@ -301,27 +303,29 @@ A ⊆ B = ∀ x → x ∈ A → x ∈ B
 
 ⊆-refl-consequence : {X : Type ℓ} (A B : ℙ X)
                    → A ≡ B → (A ⊆ B) × (B ⊆ A)
-⊆-refl-consequence {X} A B p =  (λ x a → transport (cong (λ C → C x .fst) p) a)
-                              , (λ x b → transport (cong (λ C → C x .fst) (sym p)) b)
--- subst (λ B → (A ⊆ B)) p (⊆-refl A) , subst (λ A → (B ⊆ A)) (sym p) (⊆-refl B)
+⊆-refl-consequence {X} A B p = subst (λ B → (A ⊆ B)) p (⊆-refl A) , subst (λ A → (B ⊆ A)) (sym p) (⊆-refl B)
 
 
-⊆-extensionality :  {X : Type ℓ} (A B : ℙ X)
-                  → A ⊆ B → B ⊆ A → A ≡ B
-⊆-extensionality A B φ ψ i x = ⇔toPath {P = (A x)} {Q = (B x)} (φ x) (ψ x) i
+⊆-extensionality : {X : Type ℓ} (A B : ℙ X)
+                 → (A ⊆ B) × (B ⊆ A) → A ≡ B
+⊆-extensionality A B (φ , ψ) i x = ⇔toPath {P = (A x)} {Q = (B x)} (φ x) (ψ x) i
 
 
 powersets-are-sets : {X : Type ℓ} → isSet (ℙ X)
 powersets-are-sets {X = X} = isSetΠ (λ _ → isSetHProp)
 
--- TODO:  (A ≡ B) ≃ (A ⊆ B) × (B ⊆ A)
+⊆-extensionalityEquiv : {X : Type ℓ} (A B : ℙ X)
+                      → (A ⊆ B) × (B ⊆ A) ≃ (A ≡ B)
+⊆-extensionalityEquiv A B = isoToEquiv (iso (⊆-extensionality A B)
+                                            (⊆-refl-consequence A B)
+                                            (λ _ → powersets-are-sets A B _ _)
+                                            (λ _ → isPropΣ (⊆-isProp A B) (λ _ → ⊆-isProp B A) _ _))
 
--- We want to show that ℙ X ≃ Σ[A ∈ Type ℓ] (A ↪ X)
-_↪_ : Type ℓ → Type ℓ → Type ℓ
-A ↪ B = Σ[ f ∈ (A → B) ] hasPropFibers f
 
+-- We show that the powerset is the subtype classifier
+-- i.e. ℙ X ≃ Σ[A ∈ Type ℓ] (A ↪ X)
 Embedding→Subset : {X : Type ℓ} → Σ[ A ∈ Type ℓ ] (A ↪ X) → ℙ X
-Embedding→Subset (A , f , isPropFiber) x = fiber f x , isPropFiber x
+Embedding→Subset (_ , f , isPropFiber) x = fiber f x , isPropFiber x
 
 Subset→Embedding : {X : Type ℓ} → ℙ X → Σ[ A ∈ Type ℓ ] (A ↪ X)
 Subset→Embedding {X = X} A = D , f , ψ
@@ -339,8 +343,30 @@ Subset→Embedding {X = X} A = D , f , ψ
 
     r : (y , y∈A) ≡ (z , z∈A)
     r = ΣProp≡ (∈-isProp A) p
-    
+
     q : PathP (λ i → p i ≡ x) y≡x z≡x
-    q i j = hcomp (λ k → λ { (j = i1) → x ; (i = i0) → y≡x j ; (i = i1) → z≡x (~ k ∨ j) }) (y≡x (i ∨ j))
+    q i j = hcomp (λ k → λ { (j = i1) → x
+                           ; (i = i0) → y≡x j
+                           ; (i = i1) → z≡x (~ k ∨ j) })
+                  (y≡x (i ∨ j))
 
 
+Subset→Embedding→Subset : {X : Type ℓ} → section (Embedding→Subset {ℓ} {X}) (Subset→Embedding {ℓ} {X})
+Subset→Embedding→Subset _ = funExt λ x → ΣProp≡ (λ _ → FP.isPropIsProp) (ua (Fib.FiberIso.fiberEquiv _ x))
+
+Embedding→Subset→Embedding : {X : Type ℓ} → retract (Embedding→Subset {ℓ} {X}) (Subset→Embedding {ℓ} {X})
+Embedding→Subset→Embedding {ℓ = ℓ} {X = X} (A , f , ψ) = cong (assocΣ .fst) p
+ where
+ χ = Subset→Embedding (Embedding→Subset (A , f , ψ)) .snd .snd
+
+ p : (((Σ[ x ∈ X ] fiber f x) , fst) , χ) ≡ ((A , f) , ψ)
+ p = ΣProp≡ (λ _ → hasPropFibersIsProp) ((equivToIso (Fib.fibrationEquiv X ℓ)) .Iso.leftInv (A , f))
+
+
+
+
+Subset≃Embedding : {X : Type ℓ} → ℙ X ≃ (Σ[ A ∈ Type ℓ ] (A ↪ X))
+Subset≃Embedding = isoToEquiv (iso Subset→Embedding Embedding→Subset Embedding→Subset→Embedding Subset→Embedding→Subset)
+
+Subset≡Embedding : {X : Type ℓ} → ℙ X ≡ (Σ[ A ∈ Type ℓ ] (A ↪ X))
+Subset≡Embedding = ua Subset≃Embedding
