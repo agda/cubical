@@ -13,7 +13,6 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Data.NatMinusTwo.Base
 open import Cubical.Data.Empty
 open import Cubical.Data.Sigma
-open import Cubical.Data.Prod.Base
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation
 open import Cubical.HITs.Nullification
@@ -37,22 +36,22 @@ coHomRed+1Equiv : (n : ℕ) →
                  (coHom n A) ≡ (coHomRed n ((A ⊎ Unit , inr (tt))))
 coHomRed+1Equiv zero A i = ∥ helpLemma {C = (Int , pos 0)} i ∥₀
   module coHomRed+1 where
-  helpLemma : {C : Pointed ℓ} → ( (A → (typ C)) ≡  ((((A ⊎ Unit) , inr (tt)) →* C)))
+  helpLemma : {C : Pointed ℓ} → ( (A → (typ C)) ≡  ((((A ⊎ Unit) , inr (tt)) →∙ C)))
   helpLemma {C = C} = isoToPath (iso map1
                                      map2
                                      (λ b → linvPf b)
                                      (λ _  → refl))
     where
-    map1 : (A → typ C) → ((((A ⊎ Unit) , inr (tt)) →* C))
+    map1 : (A → typ C) → ((((A ⊎ Unit) , inr (tt)) →∙ C))
     map1 f = map1' , refl module helpmap where
       map1' : A ⊎ Unit → fst C
       map1' (inl x) = f x
       map1' (inr x) = pt C
 
-    map2 : ((((A ⊎ Unit) , inr (tt)) →* C)) → (A → typ C)
+    map2 : ((((A ⊎ Unit) , inr (tt)) →∙ C)) → (A → typ C)
     map2 (g , pf) x = g (inl x)
 
-    linvPf : (b :((((A ⊎ Unit) , inr (tt)) →* C))) →  map1 (map2 b) ≡ b
+    linvPf : (b :((((A ⊎ Unit) , inr (tt)) →∙ C))) →  map1 (map2 b) ≡ b
     linvPf (f , snd) i = (λ x → helper x i)  , λ j → snd ((~ i) ∨ j)
       where
       helper : (x : A ⊎ Unit) → ((helpmap.map1') (map2 (f , snd)) x) ≡ f x

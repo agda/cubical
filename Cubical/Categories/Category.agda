@@ -1,8 +1,30 @@
-{-# OPTIONS --cubical #-}
+{-
+  Definition of various kinds of categories.
+
+  This library follows the UniMath terminology, that is:
+
+  Concept              Ob C   Hom C  Univalence
+
+  Precategory          Type   Type   No
+  Category             Type   Set    No
+  Univalent Category   Type   Set    Yes
+
+  This file also contains
+    - pathToIso : Turns a path between two objects into an isomorphism between them
+    - opposite categories
+
+
+-}
+
+{-# OPTIONS --cubical --safe #-}
+
 
 module Cubical.Categories.Category where
 
+open import Cubical.Core.Glue
 open import Cubical.Foundations.Prelude
+
+-- Precategories
 
 record Precategory ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   no-eta-equality
@@ -17,11 +39,38 @@ record Precategory ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
 
 open Precategory public
 
+-- Categories
+
 record isCategory {ℓ ℓ'} (𝒞 : Precategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   field
     homIsSet : ∀ {x y} → isSet (𝒞 .hom x y)
 
 open isCategory public
+
+-- Isomorphisms and paths in precategories
+
+record CatIso {ℓ ℓ' : Level} {𝒞 : Precategory ℓ ℓ'} (x y : 𝒞 .ob) : Type ℓ' where
+  constructor catiso
+  field
+    h : 𝒞 .hom x y
+    h⁻¹ : 𝒞 .hom y x
+    sec : 𝒞 .seq h⁻¹ h ≡ 𝒞 .idn y
+    ret : 𝒞 .seq h h⁻¹ ≡ 𝒞 .idn x
+
+pathToIso : {ℓ ℓ' : Level} {𝒞 : Precategory ℓ ℓ'} (x y : 𝒞 .ob) (p : x ≡ y) → CatIso {𝒞 = 𝒞} x y
+pathToIso {𝒞 = 𝒞} x y p = J (λ z _ → CatIso x z) (catiso (𝒞 .idn x) idx (𝒞 .seq-λ idx) (𝒞 .seq-λ idx)) p
+  where
+    idx = 𝒞 .idn x
+
+-- Univalent Categories
+
+record isUnivalent {ℓ ℓ'} (𝒞 : Precategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
+  field
+    univ : (x y : 𝒞 .ob) → isEquiv (pathToIso {𝒞 = 𝒞} x y)
+
+open isUnivalent public
+
+-- Opposite Categories
 
 _^op : ∀ {ℓ ℓ'} → Precategory ℓ ℓ' → Precategory ℓ ℓ'
 (𝒞 ^op) .ob = 𝒞 .ob

@@ -12,7 +12,7 @@ open import Cubical.Data.SumFin
 open import Cubical.Relation.Nullary
 
 open import Cubical.Data.Sum
-open import Cubical.Data.Prod
+open import Cubical.Data.Sigma
 
 open import Cubical.Data.Graph.Base
 
@@ -159,4 +159,3 @@ module _ {ℓv ℓe ℓv' ℓe'} where
     _<$>_ asDiag {x , x'} {y , y'} (inr f) | yes p | yes _  = subst _ p  (×Hom₂ x f )
     _<$>_ asDiag {x , x'} {y , y'} f | yes p | no  _  = subst _ p  (×Hom₂ x (lower f) )
     _<$>_ asDiag {x , x'} {y , y'} f | no  _ | yes p' = subst _ p' (×Hom₁ (lower f) x')
-

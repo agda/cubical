@@ -8,7 +8,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Int
-open import Cubical.Data.Prod
+open import Cubical.Data.Sigma
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.S2

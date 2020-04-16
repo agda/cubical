@@ -4,7 +4,7 @@ module Cubical.Structures.Queue where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.FunExtEquiv
+open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
@@ -12,7 +12,7 @@ open import Cubical.Structures.Pointed
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
-open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
+open import Cubical.Data.Sigma
 
 
 -- Developing Queues as a standard notion of structure, see
@@ -96,12 +96,12 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
 
 
  Queue-is-SNS : SNS {ℓ₁ = ℓ} queue-structure queue-iso
- Queue-is-SNS = join-SNS pointed-structure pointed-iso pointed-is-SNS
-             (λ X → (left-action-structure X) × (pop-structure X))
-             (λ B C e →  (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
-                       × (∀ q → pop-map-forward (e .fst) (B .snd .snd q) ≡ C .snd .snd (e .fst q)))
-               (join-SNS left-action-structure left-action-iso Left-Action-is-SNS
-                         pop-structure         pop-iso         Pop-is-SNS        )
+ Queue-is-SNS =
+   join-SNS pointed-iso pointed-is-SNS
+            {S₂ = λ X → (left-action-structure X) × (pop-structure X)}
+            (λ B C e → (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
+                     × (∀ q → pop-map-forward (e .fst) (B .snd .snd q) ≡ C .snd .snd (e .fst q)))
+            (join-SNS left-action-iso Left-Action-is-SNS pop-iso Pop-is-SNS)
 
 
 
@@ -111,5 +111,5 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  queue-axioms : (Q : Type ℓ) → queue-structure Q → Type ℓ
  queue-axioms Q (emp , push , pop) =   (isSet Q)
                                      × (pop emp ≡ inl tt)
-                                     × ∀ a → pop (push a emp) ≡ inr (emp , a)
+                                     × ∀ a q → pop (push a q) ≡ inr (q , a)
                                      -- etc.

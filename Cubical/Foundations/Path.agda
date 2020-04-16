@@ -113,3 +113,20 @@ isProp→isSet-PathP : ∀ {ℓ} {B : I → Type ℓ} → ((i : I) → isProp (B
                    → isProp (PathP (λ i → B i) b0 b1)
 isProp→isSet-PathP {B = B} hB b0 b1 =
   transport (λ i → isProp (PathP≡Path B b0 b1 (~ i))) (isProp→isSet (hB i1) _ _)
+
+-- Flipping a square along its diagonal
+
+flipSquare : ∀ {ℓ} {A : Type ℓ}
+  {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
+  {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
+  {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁}
+  → Square a₀₋ a₁₋ a₋₀ a₋₁
+  → Square a₋₀ a₋₁ a₀₋ a₁₋
+flipSquare sq i j = sq j i
+
+flipSquarePath : ∀ {ℓ} {A : Type ℓ}
+  {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
+  {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
+  {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁}
+  → Square a₀₋ a₁₋ a₋₀ a₋₁ ≡ Square a₋₀ a₋₁ a₀₋ a₁₋
+flipSquarePath = isoToPath (iso flipSquare flipSquare (λ _ → refl) (λ _ → refl))
