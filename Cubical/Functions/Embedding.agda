@@ -75,6 +75,11 @@ private
 hasPropFibers : (A → B) → Type _
 hasPropFibers f = ∀ y → isProp (fiber f y)
 
+-- some notation
+_↪_ : Type ℓ → Type ℓ → Type ℓ
+A ↪ B = Σ[ f ∈ (A → B) ] hasPropFibers f
+
+
 hasPropFibersIsProp : isProp (hasPropFibers f)
 hasPropFibersIsProp = isPropΠ (λ _ → isPropIsProp)
 
