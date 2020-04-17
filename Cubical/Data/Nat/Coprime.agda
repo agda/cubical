@@ -22,10 +22,10 @@ areCoprime (m , n) = isGCD m n 1
 
 module _ ((m , n) : ℕ × ℕ₊₁) where
   private
-    d    = gcd m (ℕ₊₁→ℕ n)
-    d∣m  = gcdIsGCD m (ℕ₊₁→ℕ n) .fst .fst
-    d∣sn = gcdIsGCD m (ℕ₊₁→ℕ n) .fst .snd
-    gr   = gcdIsGCD m (ℕ₊₁→ℕ n) .snd
+    d   = gcd m (ℕ₊₁→ℕ n)
+    d∣m = gcdIsGCD m (ℕ₊₁→ℕ n) .fst .fst
+    d∣n = gcdIsGCD m (ℕ₊₁→ℕ n) .fst .snd
+    gr  = gcdIsGCD m (ℕ₊₁→ℕ n) .snd
 
     c₁ : ℕ
     p₁ : c₁ * d ≡ m
@@ -33,10 +33,10 @@ module _ ((m , n) : ℕ × ℕ₊₁) where
 
     c₂ : ℕ₊₁
     p₂ : (ℕ₊₁→ℕ c₂) * d ≡ (ℕ₊₁→ℕ n)
-    c₂ = 1+ (∣s-untrunc d∣sn .fst); p₂ = ∣s-untrunc d∣sn .snd
+    c₂ = 1+ (∣s-untrunc d∣n .fst); p₂ = ∣s-untrunc d∣n .snd
 
-  toCoprime : ℕ × ℕ₊₁ → ℕ × ℕ₊₁
-  toCoprime (m , n) = (c₁ , c₂)
+  toCoprime : ℕ × ℕ₊₁
+  toCoprime = (c₁ , c₂)
 
   private
     lem : ∀ a {b c d e} → a * b ≡ c → c * d ≡ e → a * (b * d) ≡ e
@@ -50,15 +50,15 @@ module _ ((m , n) : ℕ × ℕ₊₁) where
     d-cancelʳ : ∀ d' → (d' * d) ∣ d → d' ∣ 1
     d-cancelʳ d' div = ∣-cancelʳ d-1 (∣-trans (subst (λ x → (d' * x) ∣ x) p div)
                                               (∣-refl (sym (*-identityˡ _))))
-      where d-1 = m∣sn→z<m d∣sn .fst
+      where d-1 = m∣sn→z<m d∣n .fst
             p : d ≡ suc d-1
-            p = sym (+-comm 1 d-1 ∙ m∣sn→z<m d∣sn .snd)
+            p = sym (+-comm 1 d-1 ∙ m∣sn→z<m d∣n .snd)
 
   toCoprimeAreCoprime : areCoprime (c₁ , ℕ₊₁→ℕ c₂)
   fst toCoprimeAreCoprime = ∣-oneˡ c₁ , ∣-oneˡ (ℕ₊₁→ℕ c₂)
-  snd toCoprimeAreCoprime d' (d'∣c₁ , d'∣sc₂) = PropTrunc.rec isProp∣ (λ a →
-                                                PropTrunc.rec isProp∣ (λ b →
-                                                 d-cancelʳ d' (gr' d' a b)) d'∣sc₂) d'∣c₁
+  snd toCoprimeAreCoprime d' (d'∣c₁ , d'∣c₂) = PropTrunc.rec isProp∣ (λ a →
+                                               PropTrunc.rec isProp∣ (λ b →
+                                                d-cancelʳ d' (gr' d' a b)) d'∣c₂) d'∣c₁
 
   toCoprime∣ : (c₁ ∣ m) × (ℕ₊₁→ℕ c₂ ∣ ℕ₊₁→ℕ n)
   toCoprime∣ = ∣ d , *-comm d c₁ ∙ p₁ ∣ , ∣ d , *-comm d (ℕ₊₁→ℕ c₂) ∙ p₂ ∣
