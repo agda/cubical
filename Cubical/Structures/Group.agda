@@ -25,10 +25,10 @@ raw-group-is-SNS = raw-semigroup-is-SNS
 
 group-axioms : (G : Type ℓ) → raw-group-structure G → Type ℓ
 group-axioms G _·_ = i × ii
-                     
+
   where
   i = semigroup-axioms G _·_
-  
+
   ii = Σ[ e ∈ G ] ((x : G) → (x · e ≡ x) × (e · x ≡ x)) ×
                   ((x : G) → Σ[ x' ∈ G ] (x · x' ≡ e) × (x' · x ≡ e))
 
@@ -151,7 +151,7 @@ group-axioms-isProp X s t = η t
         group-assoc 𝒢 ,
         (λ x → fst (is-identity-e x)) ,
         (λ x → snd (is-identity-e x))
-                                                      
+
 
   γ : isProp (Σ[ e ∈ X ] ((x : X) → (x ·⟨ 𝒢 ⟩ e ≡ x) × (e ·⟨ 𝒢 ⟩ x ≡ x)) ×
                          ((x : X) → Σ[ x' ∈ X ] (x ·⟨ 𝒢 ⟩ x' ≡ e) × (x' ·⟨ 𝒢 ⟩ x ≡ e)))

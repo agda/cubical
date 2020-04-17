@@ -7,7 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
-open import Cubical.Structures.NAryOp 
+open import Cubical.Structures.NAryOp
 
 private
   variable
@@ -70,5 +70,3 @@ semigroup-is-SNS = add-axioms-SNS _ semigroup-axiom-isProp (nAryFunSNS 2)
 
 SemigroupPath : (M N : Semigroup {ℓ}) → (M ≃[ semigroup-iso ] N) ≃ (M ≡ N)
 SemigroupPath = SIP semigroup-is-SNS
-
-
