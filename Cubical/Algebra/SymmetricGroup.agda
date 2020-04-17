@@ -66,5 +66,3 @@ supp : {X : Type ℓ} {P : isSet X} → ⟨ Symmetric-Group X P ⟩ → ℘ X
 supp {P = P} f x = (equivFun f x ≢ x) , isPropΠ λ _ → isProp⊥
 
 -- TODO: In order to do this easily we have to develop a theory of sets
-
- 

@@ -15,7 +15,7 @@ private
     ℓ ℓ' : Level
 
 ---------------------------------------------------------------------
--- Groups basic properties 
+-- Groups basic properties
 ---------------------------------------------------------------------
 
 -- We will use the multiplicative notation for groups
@@ -67,7 +67,7 @@ module _ (G : Groups {ℓ}) where
                          (x ⁻¹) · (x · z) ≡⟨ ·-is-assoc _ _ _ ⟩
                          ((x ⁻¹) · x) · z ≡⟨ cong (_· z) (⁻¹· x) ∙ ₁· z ⟩
                          z ∎
-                         
+
   right-cancel : ∀ (x y z : ⟨ G ⟩) → x · z ≡ y · z → x ≡ y
   right-cancel x y z eq = x                ≡⟨ sym (cong (x ·_) (·⁻¹ z) ∙ ·₁ x) ⟩
                           x · (z · (z ⁻¹)) ≡⟨ ·-is-assoc _ _ _ ⟩
