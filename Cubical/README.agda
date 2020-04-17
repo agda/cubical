@@ -35,3 +35,6 @@ import Cubical.Codata.Everything
 
 -- Various experiments using Cubical Agda
 import Cubical.Experiments.Everything
+
+-- Algebra library (in development)
+import Cubical.Algebra.Everything
