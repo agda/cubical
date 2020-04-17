@@ -9,7 +9,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv.PathSplit
 open isPathSplitEquiv
-open import Cubical.Modalities.Everything
+open import Cubical.Modalities.Modality
 open Modality
 
 open import Cubical.Data.Empty as ⊥ using (⊥)
