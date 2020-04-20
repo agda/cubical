@@ -75,6 +75,8 @@ substComposite B p q Bx = sym (substRefl {B = B} _) ∙ helper where
   helper : subst B refl (subst B (p ∙ q) Bx) ≡ subst B q (subst B p Bx)
   helper i = subst B (λ k → compSq (~ i ∧ ~ k) (~ i ∨ k)) (subst B (λ k → compSq (~ i ∨ ~ k) (~ i ∧ k)) Bx)
 
+
+
 -- substitution commutes with morphisms in slices
 substCommSlice : ∀ {ℓ ℓ′} {A : Type ℓ}
                    → (B C : A → Type ℓ′)

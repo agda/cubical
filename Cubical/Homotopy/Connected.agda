@@ -249,6 +249,7 @@ connectedTruncIso2 : ∀ {ℓ} {A B : Type ℓ} (n m : ℕ) (f : A → B)
 connectedTruncIso2 {A = A} {B = B} n m f (x , pf) con = connectedTruncIso n f (isConnectedSubtr n x f (transport (λ i → isHLevelConnectedFun (pf (~ i)) f) con))
 
 
+
 connectedTruncEquiv : ∀ {ℓ} {A B : Type ℓ} (n : ℕ) (f : A → B)
                    → isHLevelConnectedFun n f
                    → hLevelTrunc n A ≃ hLevelTrunc n B

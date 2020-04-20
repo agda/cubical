@@ -43,12 +43,12 @@ private
     B : Type ℓ'
 
 {- We want to prove that Kn≃ΩKn+1. For this we use the map ϕ-}
-private
-  ϕ : (pt a : A) → typ (Ω (Susp A , north))
-  ϕ pt a = (merid a) ∙ sym (merid pt)
+
+ϕ : (pt a : A) → typ (Ω (Susp A , north))
+ϕ pt a = (merid a) ∙ sym (merid pt)
 
   {- To define the map for n=0 we use the λ k → loopᵏ map for S₊ 1. The loop is given by ϕ south north -}
-
+private
   loop* : Path (S₊ 1) north north
   loop* = ϕ north south
 
@@ -237,6 +237,22 @@ decode-fun2 : (n : ℕ) → (x : A) → hLevelTrunc n (x ≡ x) → Path (hLevel
 decode-fun2 zero x = trElim (λ _ → isOfHLevelPath 0 (∣ x ∣ , isOfHLevelTrunc 1 ∣ x ∣) ∣ x ∣ ∣ x ∣) (λ p i → ∣ p i ∣)
 decode-fun2 (suc n) x = trElim (λ _ → isOfHLevelPath' (suc n) (isOfHLevelTrunc (suc (suc n))) ∣ x ∣ ∣ x ∣) (cong ∣_∣)
 
+--   {- auxiliary function r used to define encode -}
+
+--     r : {m : ℕ₋₂} (u : ∥ B ∥ (suc₋₂ m)) → P u u
+--     r = elim (λ x → hLevelP x x) (λ a → ∣ refl ∣)
+
+--     {- encode function from x ≡ y to P x y -}
+--     encode-fun : {n : ℕ₋₂} (x y : ∥ B ∥ (suc₋₂ n)) → x ≡ y → P x y
+--     encode-fun x y p = transport (λ i → P x (p i)) (r x)
+{-
+encode2 : (n : ℕ) (x : A) → Path (hLevelTrunc (suc n) A) ∣ x ∣ ∣ x ∣ → hLevelTrunc n (x ≡ x)
+encode2 {A = A} n x p = transport (λ i → hLevelTrunc n (x ≡ {!p i!})) {!!}
+  where
+  r : (m : ℕ) (u : hLevelTrunc (1 + m) A) → hLevelTrunc m (u ≡ u)
+  r m = trElim (λ x → isOfHLevelSuc m (isOfHLevelTrunc _) ) λ a → ∣ refl ∣
+-}
+
 funsAreSame : (n : ℕ) (x : A) (b : hLevelTrunc n (x ≡ x)) → (decode-fun2 n x b) ≡ (ΩTrunc.decode-fun ∣ x ∣ ∣ x ∣ b)
 funsAreSame zero x = trElim (λ a → isOfHLevelPath 0 (refl , (isOfHLevelSuc 1 (isOfHLevelTrunc 1) ∣ x ∣ ∣ x ∣ refl)) _ _) λ a → refl
 funsAreSame (suc n) x = trElim (λ a → isOfHLevelPath _ (isOfHLevelPath' (suc n) (isOfHLevelTrunc (suc (suc n))) ∣ x ∣ ∣ x ∣) _ _) λ a → refl
@@ -267,3 +283,9 @@ mapId2 : (n : ℕ) →  Kn→ΩKn+1 n ≡ Iso.fun (Iso-Kn-ΩKn+1 n)
 mapId2 zero = refl
 mapId2 (suc zero) = funExt (trElim (λ x → isOfHLevelPath 3 (isOfHLevelTrunc 4 ∣ north ∣ ∣ north ∣) _ _) λ a → refl)
 mapId2 (suc (suc n)) = funExt (trElim (λ x → isOfHLevelPath (4 + n) (isOfHLevelTrunc (5 + n) ∣ north ∣ ∣ north ∣) _ _) λ a → refl)
+
+Iso2-Kn-ΩKn+1 : (n : ℕ) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
+Iso.fun (Iso2-Kn-ΩKn+1 n) = Kn→ΩKn+1 n
+Iso.inv (Iso2-Kn-ΩKn+1 n) = Iso.inv (Iso-Kn-ΩKn+1 n)
+Iso.rightInv (Iso2-Kn-ΩKn+1 n) a = funExt⁻ (mapId2 n) _ ∙ Iso.rightInv (Iso-Kn-ΩKn+1 n) a
+Iso.leftInv (Iso2-Kn-ΩKn+1 n) a = cong (Iso.inv (Iso-Kn-ΩKn+1 n)) (funExt⁻ (mapId2 n) a) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 n) a
