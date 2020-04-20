@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe #-}
 
-module Cubical.Foundations.Embedding where
+module Cubical.Functions.Embedding where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function

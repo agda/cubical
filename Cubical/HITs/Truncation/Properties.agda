@@ -7,7 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.PathSplitEquiv
+open import Cubical.Foundations.Equiv.PathSplit
 open isPathSplitEquiv
 open import Cubical.Modalities.Everything
 open Modality
@@ -169,7 +169,6 @@ truncIdempotent≃ n hA = ∣_∣ , isModalToIsEquiv (HLevelTruncModality n) hA
 truncIdempotent : (n : ℕ) → isOfHLevel n A → hLevelTrunc n A ≡ A
 truncIdempotent n hA = ua (invEquiv (truncIdempotent≃ n hA))
 
-
 -- universal property
 
 module univTrunc where
@@ -190,6 +189,21 @@ module univTrunc where
   univTrunc n {B} = isoToEquiv (iso (fun n {B}) (inv n {B}) (sect n {B}) (retr n {B}))
 
 
+-- functorial action
+
+map : {n : ℕ} {B : Type ℓ'} (g : A → B)
+  → hLevelTrunc n A → hLevelTrunc n B
+map g = rec (isOfHLevelTrunc _) (λ a → ∣ g a ∣)
+
+mapCompIso : {n : ℕ} {B : Type ℓ'} → (Iso A B) → Iso (hLevelTrunc n A) (hLevelTrunc n B)
+Iso.fun (mapCompIso g) = rec (isOfHLevelTrunc _) λ a → ∣ Iso.fun g a ∣
+Iso.inv (mapCompIso g) = rec (isOfHLevelTrunc _) λ b → ∣ Iso.inv g b ∣
+Iso.rightInv (mapCompIso g) = elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _) λ b → cong ∣_∣ (Iso.rightInv g b)
+Iso.leftInv (mapCompIso g) = elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _) λ a → cong ∣_∣ (Iso.leftInv g a)
+
+mapId : {n : ℕ} → ∀ t → map {n = n} (idfun A) t ≡ t
+mapId {n = n} =
+  elim (λ _ → isOfHLevelPath n (isOfHLevelTrunc n) _ _) (λ _ → refl)
 
 -- equivalences to prop/set/groupoid truncations
 
@@ -243,19 +257,36 @@ groupoidTrunc≡Trunc1 = ua groupoidTrunc≃Trunc1
 
 ---- ∥ Ω A ∥ ₙ ≡ Ω ∥ A ∥ₙ₊₁  ----
 
+abstract
+  isOfHLevelHLevel2 : ∀ n → isOfHLevel (suc n) (HLevel ℓ n)
+  isOfHLevelHLevel2 0 = isPropHContr
+  isOfHLevelHLevel2 (suc n) x y = subst (isOfHLevel (suc n)) eq (isOfHLevel≡ (suc n) (snd x) (snd y))
+    where eq : ∀ {A B : Type ℓ} {hA : isOfHLevel (suc n) A} {hB : isOfHLevel (suc n) B}
+               → (A ≡ B) ≡ ((A , hA) ≡ (B , hB))
+          eq = ua (_ , ΣProp≡-equiv (λ _ → isPropIsOfHLevel (suc n)))
+
   {- Proofs of Theorem 7.3.12. and Corollary 7.3.13. in the HoTT book  -}
 
-private
+module ΩTrunc where
   {- We define the fibration P to show a more general result  -}
   P : {X : Type ℓ} {n : ℕ₋₂} → ∥ X ∥ (suc₋₂ n) → ∥ X ∥ (suc₋₂ n) → Type ℓ
-  P {n = n} x y = elim2 (λ _ _  → isOfHLevelHLevel (2+ n))
-                        (λ a b → ∥ a ≡ b ∥ n , isOfHLevelTrunc (2+ n)) x y .fst
+  P {n = n} x y =  elim2 (λ _ _  → isOfHLevelHLevel2 (2+ n))
+                         (λ a b → ∥ a ≡ b ∥ n , isOfHLevelTrunc (2+ n)) x y .fst
 
   {- We will need P to be of hLevel n + 3  -}
   hLevelP : {n : ℕ₋₂} (a b : ∥ B ∥ (suc₋₂ n)) → isOfHLevel (2+ (suc₋₂ n)) (P a b)
   hLevelP {n = n} =
     elim2 (λ x y → isProp→isOfHLevelSuc (2+ n) (isPropIsOfHLevel (2+ suc₋₂ n)))
           (λ a b → isOfHLevelSuc (2+ n) (isOfHLevelTrunc (2+ n)))
+
+
+  decode* : ∀ {n : ℕ₋₂} (u v : B)
+          → P {n = n} ∣ u ∣ ∣ v ∣ → Path (∥ B ∥ (suc₋₂ n)) ∣ u ∣ ∣ v ∣
+  decode* {B = B} {n = neg2} u v =
+    rec ( isOfHLevelTrunc 1 ∣ u ∣ ∣ v ∣
+        , λ _ → isOfHLevelSuc 1 (isOfHLevelTrunc 1) _ _ _ _) (λ p i → ∣ p i ∣)
+  decode* {n = ℕ₋₂.-1+ n} u v =
+    rec (isOfHLevelTrunc (suc (suc n)) ∣ u ∣ ∣ v ∣) (λ p i → ∣ p i ∣)
 
   {- decode function from P x y to x ≡ y -}
   decode-fun : {n : ℕ₋₂} (x y : ∥ B ∥ (suc₋₂ n)) → P x y → x ≡ y
@@ -264,13 +295,7 @@ private
                                 (λ _ → isOfHLevelSuc (2+ suc₋₂ n) (isOfHLevelTrunc (2+ suc₋₂ n)) u v))
           decode*
       where
-      decode* : ∀ {n : ℕ₋₂} (u v : B)
-              → P {n = n} ∣ u ∣ ∣ v ∣ → Path (∥ B ∥ (suc₋₂ n)) ∣ u ∣ ∣ v ∣
-      decode* {B = B} {n = neg2} u v =
-        rec ( isOfHLevelTrunc 1 ∣ u ∣ ∣ v ∣
-            , λ _ → isOfHLevelSuc 1 (isOfHLevelTrunc 1) _ _ _ _) (λ p i → ∣ p i ∣)
-      decode* {n = ℕ₋₂.-1+ n} u v =
-        rec (isOfHLevelTrunc (suc (suc n)) ∣ u ∣ ∣ v ∣) (λ p i → ∣ p i ∣)
+ 
 
   {- auxiliary function r used to define encode -}
   r : {m : ℕ₋₂} (u : ∥ B ∥ (suc₋₂ m)) → P u u
@@ -322,22 +347,27 @@ private
 
   {- The final Iso established -}
   IsoFinal : (n : ℕ₋₂) (x y : ∥ B ∥ (suc₋₂ n)) → Iso (x ≡ y) (P x y)
-  IsoFinal _ x y = iso (encode-fun x y ) (decode-fun x y) (P-linv x y) (P-rinv x y)
+  Iso.fun (IsoFinal _ x y) = encode-fun x y
+  Iso.inv (IsoFinal _ x y) = decode-fun x y
+  Iso.rightInv (IsoFinal _ x y) = P-linv x y
+  Iso.leftInv (IsoFinal _ x y) = P-rinv x y
 
   IsoFinal2 : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} (x y : ∥ B ∥ (suc₋₂ n)) → Iso (P x y) (x ≡ y)
-  IsoFinal2 x y = iso (decode-fun x y) (encode-fun x y ) (P-rinv x y) (P-linv x y)
+  Iso.fun (IsoFinal2 x y) = decode-fun x y
+  Iso.inv (IsoFinal2 x y) = encode-fun x y
+  Iso.rightInv (IsoFinal2 x y) = P-rinv x y
+  Iso.leftInv (IsoFinal2 x y) = P-linv x y
 
 PathIdTrunc : {a b : A} (n : ℕ₋₂) → (Path (∥ A ∥ (suc₋₂ n)) ∣ a ∣ ∣ b ∣) ≡ (∥ a ≡ b ∥ n)
-PathIdTrunc n = isoToPath (IsoFinal n _ _)
+PathIdTrunc n = isoToPath (ΩTrunc.IsoFinal n _ _)
 
 PathΩ : {a : A} (n : ℕ₋₂) → (Path (∥ A ∥ (suc₋₂ n)) ∣ a ∣ ∣ a ∣) ≡ (∥ a ≡ a ∥ n)
 PathΩ n = PathIdTrunc n
 
 truncEquivΩ : {a : A} (n : ℕ₋₂) → (∥ a ≡ a ∥ n) ≃ (_≡_ {A = ∥ A ∥ (suc₋₂ n)} ∣ a ∣ ∣ a ∣)
-truncEquivΩ {a = a} n = isoToEquiv (IsoFinal2 ∣ a ∣ ∣ a ∣)
+truncEquivΩ {a = a} n = isoToEquiv (ΩTrunc.IsoFinal2 ∣ a ∣ ∣ a ∣)
 
 --------------------------
-
 
 truncOfTruncEq : (n m : ℕ) → ∥ A ∥ (-2+ n) ≃ ∥ ∥ A ∥ (-2+ (n + m)) ∥ (-2+ n)
 truncOfTruncEq {A = A} n m = isoToEquiv (iso fun funInv sect retr)

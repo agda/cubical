@@ -40,13 +40,14 @@ open import Cubical.Foundations.Equiv
   renaming ( fiber        to fiberPath
            ; isEquiv   to isEquivPath
            ; _≃_       to EquivPath
-           ; equivFun  to equivFunPath )
-  hiding   ( isPropIsEquiv
-           ; equivCtr
+           ; equivFun  to equivFunPath
+           ; isPropIsEquiv to isPropIsEquivPath )
+  hiding   ( equivCtr
            ; equivIsEquiv )
 
 open import Cubical.Foundations.Univalence
   renaming ( EquivContr   to EquivContrPath )
+open import Cubical.Foundations.Isomorphism
 open import Cubical.HITs.PropositionalTruncation public
   renaming ( squash to squashPath
            ; rec to recPropTruncPath
@@ -282,3 +283,31 @@ EquivContr A = helper1 f1 f2 f12 (EquivContrPath A)
 ∥∥-induction : ∀ {A : Type ℓ} {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
                 ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
 ∥∥-induction Pprop f x = elimPropTruncPath (λ a → isPropToIsPropPath (Pprop a)) f x
+
+
+-- Univalence
+
+path≡Id : ∀ {ℓ} {A B : Type ℓ} → Path _ (Path _ A B) (Id A B)
+path≡Id = isoToPath (iso pathToId idToPath idToPathToId pathToIdToPath )
+
+equivPathToEquivPath : ∀ {ℓ} {A : Type ℓ} {B : Type ℓ} → (p : EquivPath A B) →
+                       Path _ (equivToEquivPath (equivPathToEquiv p)) p
+equivPathToEquivPath (f , p) i =
+  ( f , isPropIsEquivPath f (equivToEquivPath (equivPathToEquiv (f , p)) .pr₂) p i )
+
+equivPath≡Equiv : ∀ {ℓ} {A B : Type ℓ} → Path _ (EquivPath A B) (A ≃ B)
+equivPath≡Equiv {ℓ} = isoToPath (iso (equivPathToEquiv {ℓ}) equivToEquivPath equivToEquiv equivPathToEquivPath)
+
+univalenceId : ∀ {ℓ} {A B : Type ℓ} → (A ≡ B) ≃ (A ≃ B)
+univalenceId {ℓ} {A = A} {B = B} = equivPathToEquiv rem
+  where
+  rem0 : Path _ (Lift (EquivPath A B)) (Lift (A ≃ B))
+  rem0 = congPath Lift equivPath≡Equiv
+
+  rem1 : Path _ (Id A B) (Lift (A ≃ B))
+  rem1 i = hcomp (λ j → λ { (i = i0) → path≡Id {A = A} {B = B} j
+                          ; (i = i1) → rem0 j })
+                 (univalencePath {A = A} {B = B} i)
+
+  rem : EquivPath (Id A B) (A ≃ B)
+  rem = compEquiv (eqweqmap rem1) (invEquiv LiftEquiv)

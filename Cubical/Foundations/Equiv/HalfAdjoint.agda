@@ -8,7 +8,7 @@ Half adjoint equivalences ([HAEquiv])
 
 -}
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Foundations.HAEquiv where
+module Cubical.Foundations.Equiv.HalfAdjoint where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -91,8 +91,8 @@ iso→HAEquiv {A = A} {B = B} (iso f g ε η) = f , (record { g = g ; sec = η ;
 equiv→HAEquiv : A ≃ B → HAEquiv A B
 equiv→HAEquiv e = iso→HAEquiv (equivToIso e)
 
-congEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
-congEquiv {A = A} {B} {x} {y} e = isoToEquiv (iso intro elim intro-elim elim-intro)
+congIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y : A} (e : A ≃ B) → Iso (x ≡ y) (e .fst x ≡ e .fst y)
+congIso {A = A} {B} {x} {y} e = (iso intro elim intro-elim elim-intro)
   where
     e' : HAEquiv A B
     e' = equiv→HAEquiv e
@@ -143,3 +143,7 @@ congEquiv {A = A} {B} {x} {y} e = isoToEquiv (iso intro elim intro-elim elim-int
                      ; (j = i0) → secEq e x (i ∨ k)
                      ; (j = i1) → secEq e y (i ∨ k) })
             (secEq e (p j) i)
+
+
+congEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
+congEquiv {A = A} {B} {x} {y} e = isoToEquiv (congIso e)

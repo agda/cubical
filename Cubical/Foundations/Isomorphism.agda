@@ -16,6 +16,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.Base
 
+open import Cubical.Foundations.Function
+
 private
   variable
     ℓ : Level
@@ -36,6 +38,9 @@ record Iso {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ ℓ') w
     inv : B → A
     rightInv : section fun inv
     leftInv : retract fun inv
+
+isIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → Type _
+isIso {A = A} {B = B} f = Σ[ g ∈ (B → A) ] Σ[ _ ∈ section f g ] retract f g
 
 -- Any iso is an equivalence
 module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (i : Iso A B) where

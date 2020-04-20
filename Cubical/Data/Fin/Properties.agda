@@ -4,7 +4,7 @@ module Cubical.Data.Fin.Properties where
 
 open import Cubical.Core.Everything
 
-open import Cubical.Foundations.Embedding
+open import Cubical.Functions.Embedding
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
@@ -17,7 +17,6 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
-open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
 
 open import Cubical.Induction.WellFounded
 
@@ -199,3 +198,18 @@ extract≡ k n
 
 isContrResidue : ∀{k n} → isContr (Residue (suc k) n)
 isContrResidue {k} {n} = inhProp→isContr (reduce k n) (isPropResidue (suc k) n)
+
+
+-- the modulo operator on ℕ
+
+_%_ : ℕ → ℕ → ℕ
+n % zero = n
+n % (suc k) = toℕ (extract (reduce k n))
+
+n%k≡n[modk] : ∀ n k → Σ[ o ∈ ℕ ] o * k + n % k ≡ n
+n%k≡n[modk] n zero = zero , refl
+n%k≡n[modk] n (suc k) = o , sym (expand≡ _ _ o) ∙ reduce k n .snd
+  where o = reduce k n .fst .snd
+
+n%sk<sk : (n k : ℕ) → (n % suc k) < suc k
+n%sk<sk n k = extract (reduce k n) .snd

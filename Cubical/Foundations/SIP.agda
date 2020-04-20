@@ -16,8 +16,8 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties renaming (cong≃ to _⋆_)
-open import Cubical.Foundations.HAEquiv
-open import Cubical.Data.Prod.Base hiding (_×_) renaming (_×Σ_ to _×_)
+open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.Structure public
 
@@ -96,9 +96,9 @@ SNS-≡→SNS-PathP {S = S} ι θ {A = A} {B = B} e = EquivJ P C e (str A) (str 
 --
 --    sip : A ≃[ ι ] B → A ≡ B
 --
-sip : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
+sip : {S : Type ℓ₁ → Type ℓ₂} {ι : StrIso S ℓ₃} (θ : SNS-PathP S ι)
       (A B : TypeWithStr ℓ₁ S) → A ≃[ ι ] B → A ≡ B
-sip S ι θ A B (e , p) i = ua e i , θ e .fst p i
+sip θ A B (e , p) i = ua e i , θ e .fst p i
 
 -- The inverse to sip uses the following little lemma
 private
@@ -108,9 +108,9 @@ private
   lem S A B e i = PathP (λ j → S (ua-pathToEquiv e i j)) (A .snd) (B .snd)
 
 -- The inverse
-sip⁻ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
+sip⁻ : {S : Type ℓ₁ → Type ℓ₂} {ι : StrIso S ℓ₃} (θ : SNS-PathP S ι)
        (A B : TypeWithStr ℓ₁ S) → A ≡ B → A ≃[ ι ] B
-sip⁻ S ι θ A B r = pathToEquiv p , invEq (θ (pathToEquiv p)) q
+sip⁻ {S = S} θ A B r = pathToEquiv p , invEq (θ (pathToEquiv p)) q
   where
   p : typ A ≡ typ B
   p = cong fst r
@@ -118,15 +118,15 @@ sip⁻ S ι θ A B r = pathToEquiv p , invEq (θ (pathToEquiv p)) q
   q = transport⁻ (lem S A B p) (cong snd r)
 
 -- We can rather directly show that sip and sip⁻ are mutually inverse:
-sip-sip⁻ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
+sip-sip⁻ : {S : Type ℓ₁ → Type ℓ₂} {ι : StrIso S ℓ₃} (θ : SNS-PathP S ι)
            (A B : TypeWithStr ℓ₁ S) (r : A ≡ B)
-         → sip S ι θ A B (sip⁻ S ι θ A B r) ≡ r
-sip-sip⁻ S ι θ A B r =
+         → sip θ A B (sip⁻ θ A B r) ≡ r
+sip-sip⁻ {S = S} θ A B r =
   let p : typ A ≡ typ B
       p = cong fst r
       q : PathP (λ i → S (p i)) (str A) (str B)
       q = cong snd r
-  in sip S ι θ A B (sip⁻ S ι θ A B r)
+  in sip θ A B (sip⁻ θ A B r)
    ≡⟨ refl ⟩
      (λ i → ( ua (pathToEquiv p) i)
             , θ (pathToEquiv p) .fst
@@ -148,11 +148,11 @@ sip-sip⁻ S ι θ A B r =
 
 
 -- The trickier direction:
-sip⁻-sip : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) (θ : SNS-PathP S ι)
+sip⁻-sip : {S : Type ℓ₁ → Type ℓ₂} {ι : StrIso S ℓ₃} (θ : SNS-PathP S ι)
            (A B : TypeWithStr ℓ₁ S) (r : A ≃[ ι ] B)
-         → sip⁻ S ι θ A B (sip S ι θ A B r) ≡ r
-sip⁻-sip S ι θ A B (e , p) =
-    sip⁻ S ι θ A B (sip S ι θ A B (e , p))
+         → sip⁻ θ A B (sip θ A B r) ≡ r
+sip⁻-sip {S = S} θ A B (e , p) =
+    sip⁻ θ A B (sip θ A B (e , p))
   ≡⟨ refl ⟩
     pathToEquiv (ua e) , invEq (θ (pathToEquiv (ua e))) (f⁺ p')
   ≡⟨ (λ i → pathToEquiv-ua e i , invEq (θ (pathToEquiv-ua e i)) (pth' i)) ⟩
@@ -196,13 +196,17 @@ sip⁻-sip S ι θ A B (e , p) =
                (f⁺ p') (f⁻ (f⁺ p'))
   pth' = transport (λ i → casteq i) pth
 
-
 -- Finally package everything up to get the cubical SIP
-SIP : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃)
+SIP : {S : Type ℓ₁ → Type ℓ₂} {ι : StrIso S ℓ₃}
       (θ : SNS-PathP S ι) (A B : TypeWithStr ℓ₁ S)
     → A ≃[ ι ] B ≃ (A ≡ B)
-SIP S ι θ A B = isoToEquiv (iso (sip S ι θ A B) (sip⁻ S ι θ A B)
-                               (sip-sip⁻ S ι θ A B) (sip⁻-sip S ι θ A B))
+SIP {S = S} {ι} θ A B = isoToEquiv f
+  where
+  f : Iso (A ≃[ ι ] B) (A ≡ B)
+  Iso.fun f      = sip θ A B
+  Iso.inv f      = sip⁻ θ A B
+  Iso.rightInv f = sip-sip⁻ θ A B
+  Iso.leftInv f  = sip⁻-sip θ A B
 
 
 -- Now, we want to add axioms (i.e. propositions) to our Structure S that don't affect the ι.
@@ -214,20 +218,20 @@ add-to-structure : (S : Type ℓ₁ → Type ℓ₂)
                  → Type ℓ₁ → Type (ℓ-max ℓ₂ ℓ₄)
 add-to-structure S axioms X = Σ[ s ∈ S X ] (axioms X s)
 
-add-to-iso : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃)
+add-to-iso : {S : Type ℓ₁ → Type ℓ₂} (ι : StrIso S ℓ₃)
              (axioms : (X : Type ℓ₁) → S X → Type ℓ₄)
            → StrIso (add-to-structure S axioms) ℓ₃
-add-to-iso S ι axioms (X , (s , a)) (Y , (t , b)) f = ι (X , s) (Y , t) f
+add-to-iso ι axioms (X , (s , a)) (Y , (t , b)) f = ι (X , s) (Y , t) f
 
 
-add-ax-lemma : (S : Type ℓ₁ → Type ℓ₂)
+add-ax-lemma : {S : Type ℓ₁ → Type ℓ₂}
                (axioms : (X : Type ℓ₁) → S X → Type ℓ₄)
                (axioms-are-Props : (X : Type ℓ₁) (s : S X) → isProp (axioms X s))
                {X Y : Type ℓ₁} {s : S X} {t : S Y} {a : axioms X s} {b : axioms Y t}
                (f : X ≃ Y)
              → PathP (λ i → S (ua f i)) s t ≃
                PathP (λ i → add-to-structure S axioms (ua f i)) (s , a) (t , b)
-add-ax-lemma S axioms axioms-are-Props {s = s} {t = t} {a = a} {b = b} f = isoToEquiv (iso φ ψ η ε)
+add-ax-lemma {S = S} axioms axioms-are-Props {s = s} {t = t} {a = a} {b = b} f = isoToEquiv (iso φ ψ η ε)
       where
        φ : PathP (λ i → S (ua f i)) s t → PathP (λ i → add-to-structure S axioms (ua f i)) (s , a) (t , b)
        φ p i = p i , isProp→PathP (λ i → axioms-are-Props (ua f i) (p i)) a b i
@@ -244,15 +248,15 @@ add-ax-lemma S axioms axioms-are-Props {s = s} {t = t} {a = a} {b = b} f = isoTo
        ε p = refl
 
 
-add-axioms-SNS : (S : Type ℓ₁ → Type ℓ₂)
+add-axioms-SNS : {S : Type ℓ₁ → Type ℓ₂}
                  (ι : (A B : Σ[ X ∈ (Type ℓ₁) ] (S X)) → A .fst ≃ B .fst → Type ℓ₃)
-                 (axioms : (X : Type ℓ₁) → S X → Type ℓ₄)
+                 {axioms : (X : Type ℓ₁) → S X → Type ℓ₄}
                  (axioms-are-Props : (X : Type ℓ₁) (s : S X) → isProp (axioms X s))
                  (θ : SNS-PathP S ι)
-               → SNS-PathP (add-to-structure S axioms) (add-to-iso S ι axioms)
-add-axioms-SNS S ι axioms axioms-are-Props θ {X , s , a} {Y , t , b} f =
-  add-to-iso S ι axioms (X , s , a) (Y , t , b) f                      ≃⟨ θ f ⟩
-  PathP (λ i → S (ua f i)) s t                                        ≃⟨ add-ax-lemma S axioms axioms-are-Props f ⟩
+               → SNS-PathP (add-to-structure S axioms) (add-to-iso ι axioms)
+add-axioms-SNS {S = S} ι {axioms = axioms} axioms-are-Props θ {X , s , a} {Y , t , b} f =
+  add-to-iso ι axioms (X , s , a) (Y , t , b) f                       ≃⟨ θ f ⟩
+  PathP (λ i → S (ua f i)) s t                                        ≃⟨ add-ax-lemma axioms axioms-are-Props f ⟩
   PathP (λ i → (add-to-structure S axioms) (ua f i)) (s , a) (t , b)  ■
 
 
@@ -272,10 +276,10 @@ join-iso : {S₁ : Type ℓ₁ → Type ℓ₂} (ι₁ : StrIso S₁ ℓ₃)
 join-iso ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) f = (ι₁ (X , s₁) (Y , t₁) f) × (ι₂ (X , s₂) (Y , t₂) f)
 
 
-join-SNS : (S₁ : Type ℓ₁ → Type ℓ₂) (ι₁ : StrIso S₁ ℓ₃) (θ₁ : SNS-PathP S₁ ι₁)
-           (S₂ : Type ℓ₁ → Type ℓ₄) (ι₂ : StrIso S₂ ℓ₅) (θ₂ : SNS-PathP S₂ ι₂)
+join-SNS : {S₁ : Type ℓ₁ → Type ℓ₂} (ι₁ : StrIso S₁ ℓ₃) (θ₁ : SNS-PathP S₁ ι₁)
+           {S₂ : Type ℓ₁ → Type ℓ₄} (ι₂ : StrIso S₂ ℓ₅) (θ₂ : SNS-PathP S₂ ι₂)
          → SNS-PathP (join-structure S₁ S₂) (join-iso ι₁ ι₂)
-join-SNS S₁ ι₁ θ₁ S₂ ι₂ θ₂ {X , s₁ , s₂} {Y , t₁ , t₂} e = isoToEquiv (iso φ ψ η ε)
+join-SNS {S₁ = S₁} ι₁ θ₁ {S₂} ι₂ θ₂ {X , s₁ , s₂} {Y , t₁ , t₂} e = isoToEquiv (iso φ ψ η ε)
    where
     φ : join-iso ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) e
       → PathP (λ i → join-structure S₁ S₂ (ua e i)) (s₁ , s₂) (t₁ , t₂)

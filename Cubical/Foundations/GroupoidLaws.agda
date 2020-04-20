@@ -64,6 +64,20 @@ rCancel-filler {x = x} p k j i =
 rCancel : (p : x ≡ y) → p ∙ p ⁻¹ ≡ refl
 rCancel {x = x} p j i = rCancel-filler p i1 j i
 
+rCancel-filler' : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) → (i j k : I) → A
+rCancel-filler' {x = x} {y} p i j k =
+  hfill
+    (λ i → λ
+      { (j = i1) → p (~ i ∧ k)
+      ; (k = i0) → x
+      ; (k = i1) → p (~ i)
+      })
+    (inS (p k))
+    (~ i)
+
+rCancel' : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) → p ∙ p ⁻¹ ≡ refl
+rCancel' p j k = rCancel-filler' p i0 j k
+
 lCancel : (p : x ≡ y) → p ⁻¹ ∙ p ≡ refl
 lCancel p = rCancel (p ⁻¹)
 
@@ -264,3 +278,15 @@ hcomp-cong : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 :
              (ueq : ∀ i → PartialP φ (\ o → u i o ≡ u' i o)) → (outS u0 ≡ outS u0') [ φ ↦ (\ { (φ = i1) → ueq i0 1=1}) ]
              → (hcomp u (outS u0) ≡ hcomp u' (outS u0')) [ φ ↦ (\ { (φ = i1) → ueq i1 1=1 }) ]
 hcomp-cong u u0 u' u0' ueq 0eq = inS (\ j → hcomp (\ i o → ueq i o j) (outS 0eq j))
+
+---
+
+congFunct : ∀ {ℓ} {B : Type ℓ} → (f : A → B) (p : x ≡ y) (q : y ≡ z) → cong f (p ∙ q) ≡ cong f p ∙ cong f q
+congFunct f p q i = hcomp (λ j → λ{(i = i0) → rUnit (cong f (p ∙ q)) (~ j) ;
+                                    (i = i1) → cong f (rUnit p (~ j)) ∙ cong f q})
+                          (cong f (p ∙ (λ k → q (k ∧ (~ i)))) ∙ cong f λ k → q ((~ i) ∨ k) )
+
+symDistr : (p : x ≡ y) (q : y ≡ z)  → sym (p ∙ q) ≡ sym q ∙ sym p
+symDistr p q i = hcomp (λ j → λ{(i = i0) → rUnit (sym (p ∙ q)) (~ j)  ;
+                                 (i = i1) → sym (lUnit q (~ j)) ∙ sym p})
+                       (sym ((λ k → p (k ∨ i)) ∙ q) ∙ sym λ k → p (i ∧ k))

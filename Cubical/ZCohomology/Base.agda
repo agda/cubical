@@ -42,4 +42,4 @@ coHomK-ptd (suc n) = (coHomK (suc n) , ∣ north ∣)
 
 {- Reduced cohomology -}
 coHomRed : (n : ℕ) → (A : Pointed ℓ) → Type ℓ
-coHomRed n A = ∥  (A →* (coHomK-ptd n)) ∥₀
+coHomRed n A = ∥  (A →∙ (coHomK-ptd n)) ∥₀
