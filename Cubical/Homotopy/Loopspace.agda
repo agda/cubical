@@ -41,12 +41,12 @@ exchange {A = A} {a = a} {c = c} {p = p} {r = r} {p' = p'} {r' = r'} α β α' �
          hcomp (λ k → λ { (i = i0) → p ∙ p'
                          ; (i = i1) → (β ⋆ β') (k ∨ ~ z)
                          ; (z = i0) → ((α ∙ β) ⋆ (α' ∙ β')) i })
-               (btm-Filler z i)
+               (bottom z i)
   where
-  btm-Filler : PathP (λ i → p ∙ p' ≡ (β ⋆ β') (~ i)) ((α ∙ β) ⋆ (α' ∙ β')) (α ⋆ α')
-  btm-Filler i = hcomp (λ k → λ { (i = i0) → (α ∙ β) ⋆ (α' ∙ β')
-                                 ; (i = i1) → rUnit α (~ k) ⋆ rUnit α' (~ k)})
-                       ((α ∙ λ j → β (~ i ∧ j)) ⋆ (α' ∙ λ j → β' (~ i ∧ j)))
+  bottom : PathP (λ i → p ∙ p' ≡ (β ⋆ β') (~ i)) ((α ∙ β) ⋆ (α' ∙ β')) (α ⋆ α')
+  bottom i = hcomp (λ k → λ { (i = i0) → (α ∙ β) ⋆ (α' ∙ β')
+                             ; (i = i1) → rUnit α (~ k) ⋆ rUnit α' (~ k)})
+                   ((α ∙ λ j → β (~ i ∧ j)) ⋆ (α' ∙ λ j → β' (~ i ∧ j)))
 
 
 Eckmann-Hilton : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (α β : typ ((Ω^ (2 + n)) A))
@@ -89,7 +89,7 @@ Eckmann-Hilton {A = (A , pt)} zero α β =
 Eckmann-Hilton {A = (A , pt)} (suc n) α β = Eckmann-Hilton 0 α β
 
 
-{- Composition in fundamental group -}
+{- Homotopy group version -}
 π-comp : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → ∥ typ ((Ω^ (suc n)) A) ∥₀ → ∥ typ ((Ω^ (suc n)) A) ∥₀ → ∥ typ ((Ω^ (suc n)) A) ∥₀
 π-comp n = elim2 (λ _ _ → setTruncIsSet) λ p q → ∣ p ∙ q ∣₀
 

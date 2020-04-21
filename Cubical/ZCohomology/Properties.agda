@@ -14,21 +14,23 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
 open import Cubical.Data.NatMinusTwo.Base
 open import Cubical.Data.Empty
-open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.HITs.Susp
-open import Cubical.HITs.SetTruncation
+open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
 open import Cubical.HITs.Nullification
 open import Cubical.Data.Int hiding (_+_)
 open import Cubical.Data.Nat
+open import Cubical.Data.Prod
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
 
+
 open import Cubical.HITs.Pushout
 open import Cubical.Data.Sum.Base
 open import Cubical.Data.HomotopyGroup
-open import Cubical.Data.Bool
+open import Cubical.Data.Bool hiding (_⊕_)
 
 open import Cubical.ZCohomology.cupProdPrelims
 
@@ -150,3 +152,87 @@ commₖ {n = n} x y i = ΩKn+1→Kn (EH-instance (Kn→ΩKn+1 n x) (Kn→ΩKn+1 
     K-Id n = (λ i → typ (Ω (isoToPath (Iso2-Kn-ΩKn+1 (suc n)) i , hcomp (λ k → λ {(i = i0) → ∣ north ∣
                                                                                   ; (i = i1) → transportRefl (λ j → ∣ rCancel (merid north) k j ∣) k})
                                                                          (transp (λ j → isoToPath (Iso2-Kn-ΩKn+1 (suc n)) (i ∧ j)) (~ i)  ∣ north ∣))))
+
+
+---- Algebra with cohomology groups ---
+
+private
+  § : isSet ∥ A ∥₀
+  § = setTruncIsSet
+
+_+ₕ_ : {n : ℕ} → coHom n A → coHom n A → coHom n A
+_+ₕ_ = sElim2 (λ _ _ → §) λ a b → ∣ (λ x → a x +ₖ b x) ∣₀
+
+-ₕ_ : {n : ℕ} → coHom n A → coHom n A 
+-ₕ_ = sRec § λ a → ∣ (λ x → -ₖ a x) ∣₀
+
+0ₕ : {n : ℕ} → coHom n A
+0ₕ = ∣ (λ _ → 0ₖ) ∣₀
+
+rUnitₕ : {n : ℕ} (x : coHom n A) → x +ₕ 0ₕ ≡ x
+rUnitₕ  = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
+                λ a i → ∣ funExt (λ x → rUnitₖ (a x)) i ∣₀
+
+lUnitₕ : {n : ℕ} (x : coHom n A) → 0ₕ +ₕ x ≡ x
+lUnitₕ = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
+               λ a i → ∣ funExt (λ x → lUnitₖ (a x)) i ∣₀
+
+rCancelₕ : {n : ℕ} (x : coHom n A) → x +ₕ (-ₕ x) ≡ 0ₕ
+rCancelₕ = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
+                 λ a i → ∣ funExt (λ x → rCancelₖ (a x)) i ∣₀
+
+lCancelₕ : {n : ℕ} (x : coHom n A) → (-ₕ x) +ₕ x  ≡ 0ₕ
+lCancelₕ = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
+                 λ a i → ∣ funExt (λ x → lCancelₖ (a x)) i ∣₀
+
+
+
+assocₕ : {n : ℕ} (x y z : coHom n A) → ((x +ₕ y) +ₕ z) ≡ (x +ₕ (y +ₕ z))
+assocₕ = elim3 (λ _ _ _ → isOfHLevelPath 1 (§ _ _))
+               λ a b c i → ∣ funExt (λ x → assocₖ (a x) (b x) (c x)) i ∣₀
+
+
+commₕ : {n : ℕ} (x y : coHom n A) → (x +ₕ y) ≡ (y +ₕ x)
+commₕ {n = n} = sElim2 (λ _ _ → isOfHLevelPath 1 (§ _ _))
+                       λ a b i → ∣ funExt (λ x → commₖ (a x) (b x)) i ∣₀
+
+
+-- Cup-prouct --
+
+_∧-map_ : (n m : ℕ) → (S₊ (suc n) , north) wedge (S₊ (suc m) , north) → S₊ (suc n + suc m)
+_∧-map_ n m = {!!}
+  where
+  S' : (n : ℕ) → Pointed ℓ-zero
+  S' zero = Unit , tt
+  S' (suc zero) = S₊ 1 , north
+  S' (suc (suc n)) = ((S₊ 1 , north) wedge S' (suc n)) , inl north
+
+  S'≡S : (n : ℕ) → typ (S' (suc n)) ≡ S₊ (suc n)
+  helper : (n : ℕ) → transp (λ j → S'≡S n j) i0 (snd (S' (suc n))) ≡ north
+  S'≡S zero = refl
+  S'≡S (suc n) = (λ i → (S₊ 1 , north) wedge S' (suc n)) ∙
+                 (λ i → (S₊ 1 , north) wedge ((S'≡S n i) , transp (λ j → S'≡S n (i ∧ j)) (~ i) (pt (S' (suc n))))) ∙
+                 (λ i → (S₊ 1 , north) wedge (S₊ (suc n) , helper n i)) ∙
+                 {!!} ∙
+                 {!!}
+  helper zero = refl
+  helper (suc n) = {!!}
+    where
+    helper2 : (n : ℕ) → Iso ((S₊ 1 , north) wedge (S₊ (suc n) , north)) (S₊ (suc (suc n)))
+    Iso.fun (helper2 n) (inl x) = PushoutSusp→Susp {!!}
+    Iso.fun (helper2 n) (inr x) = PushoutSusp→Susp {!!}
+    Iso.fun (helper2 n) (push tt i) = {!!}
+    Iso.inv (helper2 n) = {!!}
+    Iso.rightInv (helper2 n) = {!!}
+    Iso.leftInv (helper2 n) = {!!}
+    
+smashₕ  : (A : Type ℓ) (n m : ℕ) → Type ℓ
+smashₕ A n m = (coHom n A , ∣ (λ a → coHom-pt n) ∣₀) smash (coHom n A , ∣ (λ a → coHom-pt n) ∣₀)
+
+⌣' : (n m : ℕ) → (coHomK (suc m) , coHom-pt (suc m)) smash (coHomK (suc m) , coHom-pt (suc m))
+  → coHomK ((suc n) + (suc m))
+⌣' n m = equiv-proof (elim.isEquivPrecompose {A = ((S₊ (suc n)) , north) wedge ((S₊ (suc m)) , north)}
+                                             (λ a → {!smash!})
+                                             {!!}
+                                             {!!}
+                                             {!!}) {!!} .fst .fst 
