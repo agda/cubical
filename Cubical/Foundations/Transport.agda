@@ -25,6 +25,10 @@ transpFill φ A u0 i = transp (λ j → outS (A (i ∧ j))) (~ i ∨ φ) u0
 transport⁻ : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → B → A
 transport⁻ p = transport (λ i → p (~ i))
 
+transport⁻-filler : ∀ {ℓ} {A B : Type ℓ} (p : A ≡ B) (x : B)
+                   → PathP (λ i → p (~ i)) x (transport⁻ p x)
+transport⁻-filler p x i = transp (λ j → p (~ i ∨ ~ j)) (~ i) x
+
 transport⁻Transport : ∀ {ℓ} {A B : Type ℓ} → (p : A ≡ B) → (a : A) →
                           transport⁻ p (transport p a) ≡ a
 transport⁻Transport p a j =

@@ -46,12 +46,14 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
     (isoToEquiv (iso f (fst sec) (snd sec) (λ x → (secCong (fst sec (f x)) x).fst (snd sec (f x))))) .snd
 
   sectionOfEquiv' : (f : A → B) → isEquiv f → B → A
-  sectionOfEquiv' f record { equiv-proof = all-fibers-contractible } x =
-    all-fibers-contractible x .fst .fst
+  sectionOfEquiv' f isEqv x =
+    let all-fibers-contractible = isEqv .equiv-proof
+    in  all-fibers-contractible x .fst .fst
 
   isSec : (f : A → B) → (pf : isEquiv f) → section f (sectionOfEquiv' f pf)
-  isSec f record { equiv-proof = all-fibers-contractible } x =
-    all-fibers-contractible x .fst .snd
+  isSec f isEqv x =
+    let all-fibers-contractible = isEqv .equiv-proof
+    in  all-fibers-contractible x .fst .snd
 
   sectionOfEquiv : (f : A → B) → isEquiv f → hasSection f
   sectionOfEquiv f e = sectionOfEquiv' f e , isSec f e
