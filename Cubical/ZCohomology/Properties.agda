@@ -38,6 +38,7 @@ private
     A : Type ℓ
     B : Type ℓ'
 
+
 {- Equivalence between cohomology of A and reduced cohomology of (A + 1) -}
 coHomRed+1Equiv : (n : ℕ) →
                  (A : Set ℓ) →
@@ -139,28 +140,13 @@ assocₖ {n = n} x y z = (λ i → ΩKn+1→Kn (Kn→ΩKn+1 n (ΩKn+1→Kn (Kn�
                           (λ i → ΩKn+1→Kn ((Kn→ΩKn+1 n x) ∙ Iso.rightInv (Iso2-Kn-ΩKn+1 n) ((Kn→ΩKn+1 n y ∙ Kn→ΩKn+1 n z)) (~ i)))
 
 commₖ : {n : ℕ} (x y : coHomK n) → (x +ₖ y) ≡ (y +ₖ x)
-commₖ {n = n} x y = λ i → ΩKn+1→Kn (EH-instance (Kn→ΩKn+1 n x) (Kn→ΩKn+1 n y) i)
+commₖ {n = n} x y i = ΩKn+1→Kn (EH-instance (Kn→ΩKn+1 n x) (Kn→ΩKn+1 n y) i)
   where
   EH-instance : (p q : typ (Ω ((∥ S₊ (suc n) ∥ ℕ→ℕ₋₂ (suc n)) , ∣ north ∣))) → p ∙ q ≡ q ∙ p
-  EH-instance p q = (λ i → transport⁻Transport (K-Id n) p (~ i) ∙ transport⁻Transport (K-Id n) q (~ i) ) ∙
-                    (λ i → transport (sym (K-Id n)) (rUnit (transport (K-Id n) p) i) ∙ transport (sym (K-Id n)) (transport (K-Id n) q)) ∙
-                    (λ i → transport (sym (K-Id n)) ((transport (K-Id n) p) ∙ {!!}) ∙ {!λ j → (transport (sym (K-Id n)) (transport (K-Id n) q)) ?!}) ∙
-                    {!!} ∙
-                    {!!} ∙
-                    {!!} ∙
-                    {!!}
+  EH-instance = transport (λ i → (p q : K-Id n (~ i)) → p ∙ q ≡ q ∙ p)
+                          λ p q → Eckmann-Hilton 0 p q
     where
-    K-Id : (n : ℕ) → typ (Ω (hLevelTrunc (3 + n) (S₊ (1 + n)) , ∣ north ∣)) ≡ typ ((Ω^ 2) (hLevelTrunc (4 + n) (S₊ (2 + n)) , ∣ north ∣ ))
-    K-Id n = (λ i → typ (Ω (isoToPath (Iso2-Kn-ΩKn+1 (suc n)) i , transp (λ j → isoToPath (Iso2-Kn-ΩKn+1 (suc n)) (i ∧ j)) (~ i)  ∣ north ∣))) ∙
-             (λ i → typ (Ω (typ (Ω (hLevelTrunc (4 + n) (S₊ (2 + n)) , ∣ north ∣)) , transportRefl (λ j → ∣ rCancel (merid north) i j ∣) i)))
-
-    K-Iso : (n : ℕ) → Iso (typ (Ω (hLevelTrunc (3 + n) (S₊ (1 + n)) , ∣ north ∣))) (typ ((Ω^ 2) (hLevelTrunc (4 + n) (S₊ (2 + n)) , ∣ north ∣ )))
-    K-Iso n = {!!}
-    
-    subst∙ : ∀ {ℓ} {A : Type ℓ} {x y : A} (P : (x ≡ x) ≡ (y ≡ y)) (p q : x ≡ x)
-            → transport P p ∙ transport P q ≡ transport P (p ∙ q)
-    subst∙ {x = x} {y = y} P p q = (λ i → transport (lUnit P i) (rUnit p i) ∙ transport (lUnit P i) q) ∙
-                                   (λ i → transport ((λ j → x ≡ q (i ∧ (~ j))) ∙ P)  (p ∙ (λ j → q (i ∧ j))) ∙ transport ((λ j → x ≡ q ((~ i) ∨ j)) ∙ P) λ j → q ((~ i) ∧ j) ) ∙
-                                   {!!} ∙
-                                   {!transport ? ?!} ∙
-                                   {!!}
+    K-Id : (n : ℕ) → typ (Ω (hLevelTrunc (3 + n) (S₊ (1 + n)) , ∣ north ∣)) ≡ typ ((Ω^ 2) (hLevelTrunc (4 + n) (S₊ (2 + n)) , ∣  north ∣ ))
+    K-Id n = (λ i → typ (Ω (isoToPath (Iso2-Kn-ΩKn+1 (suc n)) i , hcomp (λ k → λ {(i = i0) → ∣ north ∣
+                                                                                  ; (i = i1) → transportRefl (λ j → ∣ rCancel (merid north) k j ∣) k})
+                                                                         (transp (λ j → isoToPath (Iso2-Kn-ΩKn+1 (suc n)) (i ∧ j)) (~ i)  ∣ north ∣))))
