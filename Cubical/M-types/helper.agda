@@ -96,13 +96,24 @@ leftInv (Σ-ap-iso₂ {X = X} {Y} {Y'} isom) (x , y') = ΣPathP (refl , leftInv 
           → Σ X Y ≡ Σ X Y'
 Σ-ap₂ {X = X} {Y} {Y'} isom = isoToPath (Σ-ap-iso₂ (pathToIso ∘ isom))
 
-postulate
-  naturality-1 : ∀ {ℓ} {A B : Set ℓ} (p : Iso A B) (x : A) → cong (fun p) (leftInv p x) ≡ rightInv p (fun p x)
-  naturality-2 : ∀ {ℓ} {A B : Set ℓ} (p : Iso A B) (x : B) → cong (inv p) (rightInv p x) ≡ leftInv p (inv p x)
-      -- fibers-total
-      -- homotopyNatural : {f g : A → B} (H : ∀ a → f a ≡ g a) {x y : A} (p : x ≡ y) →
-      -- Hfa≡fHa {!!} {!!} {!!}
-      -- Vogt lemma -- Hfa≡fHa (equiv)
+-- Theorem 4.2.3. of HoTT book (similar to iso→HAEquiv)
+Iso→HAEquiv : ∀ {ℓ} {A B : Set ℓ} → Iso A B → HAEquiv A B
+Iso→HAEquiv (iso f g H K) =
+  f , (record { g = g
+              ; sec = K
+              ; ret = λ b → sym (H (f (g b))) ∙ (cong f (K (g b)) ∙ H b)
+              ; com = λ a →
+              cong f (K a)
+                ≡⟨ lUnit (cong f (K a)) ⟩
+              refl ∙ cong f (K a)
+                ≡⟨ cong (λ m → m ∙ cong f (K a)) (sym (lCancel (H (f (g (f a)))))) ⟩
+              (sym (H (f (g (f a)))) ∙ H (f (g (f a)))) ∙ cong f (K a)
+                ≡⟨ sym (assoc (sym (H (f (g (f a))))) (H (f (g (f a)))) (cong f (K a))) ⟩
+              sym (H (f (g (f a)))) ∙ H (f (g (f a))) ∙ cong f (K a)
+                ≡⟨ cong (λ m → sym (H (f (g (f a)))) ∙ m) (homotopyNatural (H ∘ f) (K a)) ⟩
+              sym (H (f (g (f a)))) ∙ (cong (f ∘ g ∘ f) (K a)) ∙ H (f a)
+                ≡⟨ cong (λ m → sym (H (f (g (f a)))) ∙ cong f m ∙ H (f a)) (sym (Hfa≡fHa (λ x → g (f x)) K a)) ⟩
+              sym (H (f (g (f a)))) ∙ (cong f (K (g (f a)))) ∙ H (f a) ∎})
 
 Σ-ap-iso₁ : ∀ {i} {X X' : Set i} {Y : X' → Set i}
           → (isom : Iso X X')
@@ -120,18 +131,27 @@ rightInv (Σ-ap-iso₁ {i} {X = X} {X'} {Y} isom) (x , y) = ΣPathP (rightInv is
     subst Y refl y
       ≡⟨ substRefl {B = Y} y ⟩
     y ∎))
-leftInv (Σ-ap-iso₁ {i} {X = X} {X'} {Y} isom) (x , y) = ΣPathP (leftInv isom x ,
+leftInv (Σ-ap-iso₁ {i} {X = X} {X'} {Y} isom@(iso f g H K)) (x , y) = ΣPathP (K x ,
   transport
-    (sym (PathP≡Path (λ j → Y (fun isom (leftInv isom x j))) (subst Y (sym ((rightInv isom) (fun isom x))) y) y))
-    (subst Y (cong (fun isom) (leftInv isom x)) (subst Y (sym ((rightInv isom) (fun isom x))) y)
-      ≡⟨ sym (substComposite Y (sym ((rightInv isom) (fun isom x))) (λ j → fun isom (leftInv isom x j)) y) ⟩
-    subst Y (sym ((rightInv isom) (fun isom x)) ∙ (cong (fun isom) (leftInv isom x))) y
-      ≡⟨ cong (λ a → subst Y (sym ((rightInv isom) (fun isom x)) ∙ a) y) (naturality-1 isom x) ⟩
-    subst Y (sym ((rightInv isom) (fun isom x)) ∙ (rightInv isom) (fun isom x)) y
-      ≡⟨ cong (λ a → subst Y a y) (lCancel (rightInv isom (fun isom x))) ⟩
+    (sym (PathP≡Path (λ j → cong Y (cong f (K x)) j) (subst Y (sym (H (f x))) y) y))
+    (subst Y (cong f (K x)) (subst Y (sym (H (f x))) y)
+      ≡⟨ sym (substComposite Y (sym (H (f x))) (cong f (K x)) y) ⟩
+    subst Y (sym (H (f x)) ∙ (cong f (K x))) y
+      ≡⟨ cong (λ a → subst Y a y) simple-helper ⟩
     subst Y (refl) y
       ≡⟨ substRefl {B = Y} y ⟩
     y ∎))
+  where
+    postulate
+      simple-helper-helper : (sym (H (f x)) ∙ sym (H (f (g (f x)))) ∙ cong f (K (g (f x))) ∙ H (f x)) ≡ refl
+
+    simple-helper : (sym (H (f x)) ∙ (cong f (K x))) ≡ refl
+    simple-helper =
+      sym (H (f x)) ∙ cong f (K x)
+        ≡⟨ cong (λ a → sym (H (f x)) ∙ a) (isHAEquiv.com (Iso→HAEquiv isom .snd) x) ⟩
+      sym (H (f x)) ∙ sym (H (f (g (f x)))) ∙ cong f (K (g (f x))) ∙ H (f x)
+        ≡⟨ simple-helper-helper ⟩
+      refl ∎
 
 Σ-ap₁ : ∀ {i} {X X' : Set i} {Y : X' → Set i}
           → (isom : X ≡ X')
