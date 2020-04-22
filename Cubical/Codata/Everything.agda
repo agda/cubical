@@ -13,7 +13,7 @@ open import Cubical.Codata.Conat public
 
 open import Cubical.Codata.M public
 
-open import Cubical.M-types.Everything public
+open import Cubical.Codata.M-types.Everything public
 
 -- Also uses {-# TERMINATING #-}.
 open import Cubical.Codata.M.Bisimilarity public
