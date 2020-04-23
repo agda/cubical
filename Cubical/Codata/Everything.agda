@@ -27,5 +27,3 @@ open import Cubical.Codata.M-types.Container public
 open import Cubical.Codata.M-types.Container-M-type public
 open import Cubical.Codata.M-types.itree public
 open import Cubical.Codata.M-types.stream public
-open import Cubical.Codata.M-types.bisim-examples public
-open import Cubical.Codata.M-types.bisim-stream public
