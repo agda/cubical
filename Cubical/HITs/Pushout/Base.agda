@@ -18,20 +18,6 @@ data Pushout {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
   push : (a : A) → inl (f a) ≡ inr (g a)
 
 
----
-
-_wedge_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Type (ℓ-max ℓ ℓ')
-_wedge_ (A , ptA) (B , ptB) = Pushout {A = Unit} {B = A} {C = B} (λ {tt → ptA}) (λ {tt → ptB})
-
-i∧ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} → A wedge B → (typ A) × (typ B)
-i∧ {A = A , ptA} {B = B , ptB} (inl x) = x , ptB
-i∧ {A = A , ptA} {B = B , ptB} (inr x) = ptA , x
-i∧ {A = A , ptA} {B = B , ptB} (push tt i) = ptA , ptB
-
-_smash_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Type (ℓ-max ℓ ℓ')
-_smash_ A B = Pushout {A = (A wedge B)} {B = Unit} {C = (typ A) × (typ B)} (λ _ → tt) i∧
-
-
 -- Suspension defined as a pushout
 
 PushoutSusp : ∀ {ℓ} (A : Type ℓ) → Type ℓ

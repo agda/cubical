@@ -18,7 +18,7 @@ open import Cubical.HITs.Susp
 open import Cubical.HITs.Truncation as Trunc
 open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.Pushout
-open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Base
 open import Cubical.Data.Unit
 
 open import Cubical.Data.NatMinusTwo.Base
