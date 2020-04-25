@@ -33,25 +33,25 @@ monoid-axioms X (e , _·_ ) = isSet X
 monoid-structure : Type ℓ → Type ℓ
 monoid-structure = add-to-structure raw-monoid-structure monoid-axioms
 
-Monoids : Type (ℓ-suc ℓ)
-Monoids {ℓ} = TypeWithStr ℓ monoid-structure
+Monoid : Type (ℓ-suc ℓ)
+Monoid {ℓ} = TypeWithStr ℓ monoid-structure
 
 -- Monoid extractors
 
-⟨_⟩ : Monoids {ℓ} → Type ℓ
+⟨_⟩ : Monoid {ℓ} → Type ℓ
 ⟨ G , _ ⟩ = G
 
-monoid-id : (M : Monoids {ℓ}) → ⟨ M ⟩
+monoid-id : (M : Monoid {ℓ}) → ⟨ M ⟩
 monoid-id (_ , (e , _) , _) = e
 
-monoid-operation : (M : Monoids {ℓ}) → ⟨ M ⟩ → ⟨ M ⟩ → ⟨ M ⟩
+monoid-operation : (M : Monoid {ℓ}) → ⟨ M ⟩ → ⟨ M ⟩ → ⟨ M ⟩
 monoid-operation (_ , (_ , f) , _) = f
 
 module monoid-syntax where
-  id : (M : Monoids {ℓ}) → ⟨ M ⟩
+  id : (M : Monoid {ℓ}) → ⟨ M ⟩
   id = monoid-id
 
-  monoid-operation-syntax : (M : Monoids {ℓ}) → ⟨ M ⟩ → ⟨ M ⟩ → ⟨ M ⟩
+  monoid-operation-syntax : (M : Monoid {ℓ}) → ⟨ M ⟩ → ⟨ M ⟩ → ⟨ M ⟩
   monoid-operation-syntax = monoid-operation
 
   infixr 20 monoid-operation-syntax
@@ -59,18 +59,18 @@ module monoid-syntax where
 
 open monoid-syntax
 
-monoid-is-set : (M : Monoids {ℓ}) → isSet (⟨ M ⟩)
+monoid-is-set : (M : Monoid {ℓ}) → isSet (⟨ M ⟩)
 monoid-is-set (_ , _ , P , _) = P
 
-monoid-assoc : (M : Monoids {ℓ})
+monoid-assoc : (M : Monoid {ℓ})
              → (x y z : ⟨ M ⟩) → x ·⟨ M ⟩ (y ·⟨ M ⟩ z) ≡ (x ·⟨ M ⟩ y) ·⟨ M ⟩ z
 monoid-assoc (_ , _ , _ , P , _) = P
 
-monoid-rid : (M : Monoids {ℓ})
+monoid-rid : (M : Monoid {ℓ})
            → (x : ⟨ M ⟩) → x ·⟨ M ⟩ (id M) ≡ x
 monoid-rid (_ , _ , _ , _ , P , _) = P
 
-monoid-lid : (M : Monoids {ℓ})
+monoid-lid : (M : Monoid {ℓ})
            → (x : ⟨ M ⟩) → (id M) ·⟨ M ⟩ x ≡ x
 monoid-lid (_ , _ , _ , _ , _ , P) = P
 
@@ -90,13 +90,13 @@ monoid-axioms-are-Props X (e , _·_) s = β s
 monoid-is-SNS : SNS {ℓ} monoid-structure monoid-iso
 monoid-is-SNS = add-axioms-SNS _ monoid-axioms-are-Props raw-monoid-is-SNS
 
-MonoidPath : (M N : Monoids {ℓ}) → (M ≃[ monoid-iso ] N) ≃ (M ≡ N)
+MonoidPath : (M N : Monoid {ℓ}) → (M ≃[ monoid-iso ] N) ≃ (M ≡ N)
 MonoidPath = SIP monoid-is-SNS
 
 -- Added for its use in groups
 -- If there exists a inverse of an element it is unique
 
-inv-lemma : (M : Monoids {ℓ})
+inv-lemma : (M : Monoid {ℓ})
           → (x y z : ⟨ M ⟩)
           → y ·⟨ M ⟩ x ≡ id M
           → x ·⟨ M ⟩ z ≡ id M

@@ -10,7 +10,7 @@ open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
-open import Cubical.Structures.Monoid using (Monoids; inv-lemma)
+open import Cubical.Structures.Monoid using (Monoid; inv-lemma)
 
 
 private
@@ -35,59 +35,59 @@ group-axioms G _·_ = i × ii
 group-structure : Type ℓ → Type ℓ
 group-structure = add-to-structure raw-group-structure group-axioms
 
-Groups : Type (ℓ-suc ℓ)
-Groups {ℓ} = TypeWithStr ℓ group-structure
+Group : Type (ℓ-suc ℓ)
+Group {ℓ} = TypeWithStr ℓ group-structure
 
 -- Extracting components of a group
-⟨_⟩ : Groups {ℓ} → Type ℓ
+⟨_⟩ : Group {ℓ} → Type ℓ
 ⟨ G , _ ⟩ = G
 
-group-operation : (G : Groups {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
+group-operation : (G : Group {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
 group-operation (_ , f , _) = f
 
 module group-operation-syntax where
 
-  group-operation-syntax : (G : Groups {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
+  group-operation-syntax : (G : Group {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
   group-operation-syntax = group-operation
   infixl 20 group-operation-syntax
   syntax group-operation-syntax G x y = x ·⟨ G ⟩ y
 
 open group-operation-syntax
 
-group-is-set : (G : Groups {ℓ}) → isSet ⟨ G ⟩
+group-is-set : (G : Group {ℓ}) → isSet ⟨ G ⟩
 group-is-set (_ , _ , (P , _) , _) = P
 
-group-assoc : (G : Groups {ℓ})
+group-assoc : (G : Group {ℓ})
             → (x y z : ⟨ G ⟩) → (x ·⟨ G ⟩ (y ·⟨ G ⟩ z)) ≡ ((x ·⟨ G ⟩ y) ·⟨ G ⟩ z)
 group-assoc (_ , _ , (_ , P) , _) = P
 
 -- Defining identity
 
-id : (G : Groups {ℓ}) → ⟨ G ⟩
+id : (G : Group {ℓ}) → ⟨ G ⟩
 id (_ , _ , _ , P) = fst P
 
-group-rid : (G : Groups {ℓ})
+group-rid : (G : Group {ℓ})
           → (x : ⟨ G ⟩) → x ·⟨ G ⟩ (id G) ≡ x
 group-rid (_ , _ , _ , P) x = fst ((fst (snd P)) x)
 
-group-lid : (G : Groups {ℓ})
+group-lid : (G : Group {ℓ})
           → (x : ⟨ G ⟩) → (id G) ·⟨ G ⟩ x ≡ x
 group-lid (_ , _ , _ , P) x = snd ((fst (snd P)) x)
 
 -- Defining the inverse function
-inv : (G : Groups {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩
+inv : (G : Group {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩
 inv (_ , _ , _ , P) x = fst ((snd (snd P)) x)
 
-group-rinv : (G : Groups {ℓ})
+group-rinv : (G : Group {ℓ})
                → (x : ⟨ G ⟩) → x ·⟨ G ⟩ (inv G x) ≡ id G
 group-rinv (_ , _ , _ , P) x = fst (snd ((snd (snd P)) x))
 
-group-linv : (G : Groups {ℓ})
+group-linv : (G : Group {ℓ})
                → (x : ⟨ G ⟩) → (inv G x) ·⟨ G ⟩ x ≡ id G
 group-linv (_ , _ , _ , P) x = snd (snd ((snd (snd P)) x))
 
 -- Additive notation for groups
-module additive-notation (G : Groups {ℓ}) where
+module additive-notation (G : Group {ℓ}) where
 
   ₀ : ⟨ G ⟩
   ₀ = id G
@@ -99,7 +99,7 @@ module additive-notation (G : Groups {ℓ}) where
   -_ = inv G
 
 --Multiplicative notation for groups
-module multiplicative-notation (G : Groups {ℓ}) where
+module multiplicative-notation (G : Group {ℓ}) where
 
   ₁ : ⟨ G ⟩
   ₁ = id G
@@ -131,7 +131,7 @@ group-axioms-isProp : (X : Type ℓ)
                     → isProp (group-axioms X s)
 group-axioms-isProp X s t = η t
   where
-  𝒢 : Groups
+  𝒢 : Group
   𝒢 = X , s , t
 
   is-identity : X → Type _
@@ -145,7 +145,7 @@ group-axioms-isProp X s t = η t
    isPropΠ λ { x (x' , _ , P) (x'' , Q , _) → ΣProp≡ (λ _ → isPropΣ (group-is-set 𝒢 _ _) λ _ → group-is-set 𝒢 _ _)
                                                       (inv-lemma ℳ x x' x'' P Q) }
    where
-    ℳ : Monoids
+    ℳ : Monoid
     ℳ = ⟨ 𝒢 ⟩ , (e , group-operation 𝒢) ,
         group-is-set 𝒢 ,
         group-assoc 𝒢 ,
@@ -167,5 +167,5 @@ group-axioms-isProp X s t = η t
 group-is-SNS : SNS {ℓ} group-structure group-iso
 group-is-SNS = add-axioms-SNS _ group-axioms-isProp (nAryFunSNS 2)
 
-GroupPath : (M N : Groups {ℓ}) → (M ≃[ group-iso ] N) ≃ (M ≡ N)
+GroupPath : (M N : Group {ℓ}) → (M ≃[ group-iso ] N) ≃ (M ≡ N)
 GroupPath = SIP group-is-SNS
