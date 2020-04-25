@@ -90,7 +90,7 @@ iso→HAEquiv {A = A} {B = B} (iso f g ε η) = f , (record { g = g ; sec = η ;
                       (cong (cong f) (sym (Hfa≡fHa (λ x → g (f x)) η a)) i j)
 
 -- Theorem 4.2.3. of HoTT book (similar to iso→HAEquiv)
-iso→HAEquiv' : ∀ {ℓ} {A B : Set ℓ} → Iso A B → HAEquiv A B
+iso→HAEquiv' : Iso A B → HAEquiv A B
 fst (iso→HAEquiv' (iso f g ε η)) = f
 isHAEquiv.g (snd (iso→HAEquiv' (iso f g ε η))) = g
 isHAEquiv.sec (snd (iso→HAEquiv' (iso f g ε η))) = η
