@@ -20,7 +20,7 @@ private
 
 -- We will use the multiplicative notation for groups
 
-module _ (G : Groups {ℓ}) where
+module _ (G : Group {ℓ}) where
 
   open multiplicative-notation G
 
