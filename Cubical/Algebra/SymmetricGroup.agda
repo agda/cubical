@@ -18,11 +18,6 @@ private
   variable
     ℓ ℓ' : Level
 
-
-private
-  lemma : ∀ (X : Type ℓ) → isSet X → isSet (X ≃ X)
-  lemma X X-isSet = isOfHLevelΣ 2 (isOfHLevelΠ 2 (λ _ → X-isSet)) λ f → isProp→isSet (isPropIsEquiv f)
-
 infixr 20 _∘_
 
 _∘_ : {A B C : Type ℓ} → B ≃ C → A ≃ B → A ≃ C
@@ -47,7 +42,7 @@ Symmetric-Group : (X : Type ℓ) → isSet X → Groups
 Symmetric-Group X isSetX =
   (X ≃ X) ,
   _∘_ ,
-  (lemma X isSetX , ∘-assoc) ,
+  (isOfHLevel≃ 2 isSetX isSetX , ∘-assoc) ,
   idEquiv X , (λ f → compEquivIdEquiv f , compEquivEquivId f) , λ f → invEquiv f , invEquiv-is-linv f , invEquiv-is-rinv f
 
 -- Finite symmetrics groups
@@ -64,5 +59,3 @@ x ≢ y = ¬ (x ≡ y)
 
 supp : {X : Type ℓ} {P : isSet X} → ⟨ Symmetric-Group X P ⟩ → ℘ X
 supp {P = P} f x = (equivFun f x ≢ x) , isPropΠ λ _ → isProp⊥
-
--- TODO: In order to do this easily we have to develop a theory of sets
