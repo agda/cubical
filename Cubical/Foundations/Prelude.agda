@@ -205,6 +205,8 @@ funExt p i x = p x i
 funExt⁻ : ∀ {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
 funExt⁻ eq x i = eq i x
 
+happly = funExt⁻
+
 -- J for paths and its computation rule
 
 module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
