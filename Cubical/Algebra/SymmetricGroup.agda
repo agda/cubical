@@ -16,21 +16,12 @@ private
   variable
     ℓ ℓ' : Level
 
-infixr 20 _∘_
-
-_∘_ : {A B C : Type ℓ} → B ≃ C → A ≃ B → A ≃ C
-g ∘ f = compEquiv f g
-
-∘-assoc : {A B C D : Type ℓ} (h : C ≃ D) (g : B ≃ C) (f : A ≃ B)
-        → h ∘ (g ∘ f) ≡ (h ∘ g) ∘ f
-∘-assoc h g f = equivEq _ _ refl
-
 Symmetric-Group : (X : Type ℓ) → isSet X → Group
 Symmetric-Group X isSetX =
   (X ≃ X) ,
-  _∘_ ,
-  (isOfHLevel≃ 2 isSetX isSetX , ∘-assoc) ,
-  idEquiv X , (λ f → compEquivIdEquiv f , compEquivEquivId f) , λ f → invEquiv f , invEquiv-is-linv f , invEquiv-is-rinv f
+  compEquiv ,
+  (isOfHLevel≃ 2 isSetX isSetX , compEquiv-assoc) ,
+  idEquiv X , (λ f → compEquivEquivId f , compEquivIdEquiv f) , λ f → invEquiv f , invEquiv-is-rinv f , invEquiv-is-linv f
 
 -- Finite symmetrics groups
 Sym : ℕ → Group
