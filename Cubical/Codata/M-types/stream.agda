@@ -1,6 +1,5 @@
 {-# OPTIONS --cubical --guardedness #-} --safe
 
-
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
 open import Cubical.Data.Prod
@@ -18,7 +17,6 @@ open import Cubical.Codata.Stream
 open import Cubical.Codata.M-types.M-type
 open import Cubical.Codata.M-types.helper
 open import Cubical.Codata.M-types.Container
-open import Cubical.Codata.M-types.Container-M-type
 
 module Cubical.Codata.M-types.stream where
 
@@ -41,9 +39,9 @@ hd {A} S = out-fun S .fst
 tl : ∀ {A} -> stream A -> stream A
 tl {A} S = out-fun S .snd tt
 
--- --------------------------
--- -- Stream using M-types --
--- --------------------------
+--------------------------
+-- Stream using M-types --
+--------------------------
 
 stream-pair-M : ∀ A B → stream A × stream B ≡ M-type (Container-product (stream-S A) (stream-S B))
 stream-pair-M A B = M-product-equality (stream-S A) (stream-S B)
@@ -92,6 +90,3 @@ zip-2 (x , y) = cons-2 λ n → cons-2-inv x n , cons-2-inv y n
 
 zeros : stream ℕ
 zeros = cons-2 λ _ → 0
-
-postulate
-  hd-of-cons-2 : ∀ {A} (f : ℕ → A) → hd (cons-2 f) ≡ f 0
