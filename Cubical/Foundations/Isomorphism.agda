@@ -106,18 +106,18 @@ compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁
 compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) .Iso.leftInv a
   = cong inv (leftInv₁ (fun a) ) ∙ leftInv a
 
-refl-iso : ∀ {ℓ} {X : Set ℓ} → Iso X X
-Iso.fun (refl-iso {X = X}) = idfun X
-Iso.inv (refl-iso {X = X}) = idfun X
-Iso.rightInv (refl-iso {X = X}) x = refl {x = x}
-Iso.leftInv (refl-iso {X = X}) x = refl {x = x}
+idIso : ∀ {ℓ} {X : Set ℓ} → Iso X X
+Iso.fun (idIso {X = X}) = idfun X
+Iso.inv (idIso {X = X}) = idfun X
+Iso.rightInv (idIso {X = X}) x = refl {x = x}
+Iso.leftInv (idIso {X = X}) x = refl {x = x}
 
 -- Helpful notation
 _Iso⟨_⟩_ : ∀ {ℓ ℓ' ℓ''} {B : Set ℓ'} {C : Set ℓ''} (X : Set ℓ) → Iso X B → Iso B C → Iso X C
 _ Iso⟨ f ⟩ g = compIso f g
 
 _∎Iso : ∀ {ℓ} (X : Set ℓ) → Iso X X
-X ∎Iso = refl-iso {X = X}
+X ∎Iso = idIso {X = X}
 
 infixr  0 _Iso⟨_⟩_
 infix   1 _∎Iso
@@ -128,10 +128,3 @@ Iso.inv (isoInv isom) = Iso.fun isom
 Iso.rightInv (isoInv isom) = Iso.leftInv isom
 Iso.leftInv (isoInv isom) = Iso.rightInv isom
 
-funExt-iso :
-  ∀ {ℓ} {A : Set ℓ} {B : A → Set ℓ} (f g : (x : A) → Set ℓ) →
-  (∀ (x : A) → Iso (f x) (g x)) → Iso (∀ x → f x) (∀ x → g x)
-Iso.fun (funExt-iso f g p) x y = Iso.fun (p y) (x y)
-Iso.inv (funExt-iso f g p) x y = Iso.inv (p y) (x y)
-Iso.rightInv (funExt-iso f g p) x i y = Iso.rightInv (p y) (x y) i
-Iso.leftInv (funExt-iso f g p) x i y = Iso.leftInv (p y) (x y) i

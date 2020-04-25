@@ -44,21 +44,19 @@ mapˡ f (a , b) = (f a , b)
   → x ≡ y
 ΣPathP eq i = fst eq i , snd eq i
 
-Σ≡ : {x y : Σ A B}  →
+Σ-split-iso : ∀ {a a' : A} {b : B a} {b' : B a'} → Iso (Σ (a ≡ a') (λ q → PathP (λ i → B (q i)) b b')) ((a , b) ≡ (a' , b'))
+Iso.fun (Σ-split-iso) = ΣPathP
+Iso.inv (Σ-split-iso) eq = (λ i → fst (eq i)) , (λ i → snd (eq i))
+Iso.rightInv (Σ-split-iso) x = refl {x = x}
+Iso.leftInv (Σ-split-iso) x = refl {x = x}
+
+Σ≃ : {x y : Σ A B}  →
      Σ (fst x ≡ fst y) (λ p → PathP (λ i → B (p i)) (snd x) (snd y)) ≃
      (x ≡ y)
-Σ≡ {A = A} {B = B} {x} {y} = isoToEquiv (iso intro elim intro-elim elim-intro)
-  where
-    intro = ΣPathP
+Σ≃ {A = A} {B = B} {x} {y} = isoToEquiv (Σ-split-iso)
 
-    elim : x ≡ y → Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y ))
-    elim eq = (λ i → fst (eq i)) , (λ i → snd (eq i))
-
-    intro-elim : ∀ eq → intro (elim eq) ≡ eq
-    intro-elim eq = refl
-
-    elim-intro : ∀ eq → elim (intro eq) ≡ eq
-    elim-intro eq = refl
+Σ≡ : ∀ {a a' : A} {b : B a} {b' : B a'} → (Σ (a ≡ a') (λ q → PathP (λ i → B (q i)) b b')) ≡ ((a , b) ≡ (a' , b'))
+Σ≡ = isoToPath Σ-split-iso -- ua Σ≃
 
 ΣProp≡ : ((x : A) → isProp (B x)) → {u v : Σ A B}
        → (p : u .fst ≡ v .fst) → u ≡ v
@@ -156,7 +154,7 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
       where
         discreteΣ'' : (b1 : B a0) → Dec ((a0 , b0) ≡ (a0 , b1))
         discreteΣ'' b1 with Bdis a0 b0 b1
-        ... | (yes q) = yes (transport (ua Σ≡) (refl , q))
+        ... | (yes q) = yes (transport (ua Σ≃) (refl , q))
         ... | (no ¬q) = no (λ r → ¬q (subst (λ X → PathP (λ i → B (X i)) b0 b1) (Discrete→isSet Adis a0 a0 (cong fst r) refl) (cong snd r)))
     discreteΣ' (no ¬p) = no (λ r → ¬p (cong fst r))
 
@@ -196,34 +194,6 @@ PiΣ = isoToEquiv (iso (λ f → fst ∘ f , snd ∘ f)
 
 swapΣEquiv : ∀ {ℓ'} (A : Type ℓ) (B : Type ℓ') → A × B ≃ B × A
 swapΣEquiv A B = isoToEquiv (iso (λ x → x .snd , x .fst) (λ z → z .snd , z .fst) (\ _ → refl) (\ _ → refl))
-
-Σ-split-iso : ∀ {ℓ} {A : Set ℓ} {B : A → Set ℓ} {a a' : A} {b : B a} {b' : B a'} → Iso (Σ (a ≡ a') (λ q → PathP (λ i → B (q i)) b b')) ((a , b) ≡ (a' , b'))
-Iso.fun (Σ-split-iso) = ΣPathP
-Iso.inv (Σ-split-iso) eq = (λ i → fst (eq i)) , (λ i → snd (eq i))
-Iso.rightInv (Σ-split-iso) x = refl {x = x}
-Iso.leftInv (Σ-split-iso) x = refl {x = x}
-
-Σ-split : ∀ {ℓ} {A : Set ℓ} {B : A → Set ℓ} {a a' : A} {b : B a} {b' : B a'} → (Σ (a ≡ a') (λ q → PathP (λ i → B (q i)) b b')) ≡ ((a , b) ≡ (a' , b'))
-Σ-split = ua Σ≡
-
-Σ-split-iso' : ∀ {ℓ} {A B : Set ℓ} {a a' : A} {b' b : B} → (Σ (a ≡ a') (λ q → b ≡ b')) ≡ ((a , b) ≡ (a' , b'))
-Σ-split-iso' = ua Σ≡
-
-Σ-ap-iso₂ : ∀ {i j} {X : Set i}
-          → {Y Y' : X → Set j}
-          → ((x : X) → Iso (Y x) (Y' x))
-          → Iso (Σ X Y)
-                 (Σ X Y')
-Iso.fun (Σ-ap-iso₂ {X = X} {Y} {Y'} isom) (x , y) = x , Iso.fun (isom x) y
-Iso.inv (Σ-ap-iso₂ {X = X} {Y} {Y'} isom) (x , y') = x , Iso.inv (isom x) y'
-Iso.rightInv (Σ-ap-iso₂ {X = X} {Y} {Y'} isom) (x , y) = ΣPathP (refl , Iso.rightInv (isom x) y)
-Iso.leftInv (Σ-ap-iso₂ {X = X} {Y} {Y'} isom) (x , y') = ΣPathP (refl , Iso.leftInv (isom x) y')
-
-Σ-ap₂ : ∀ {i j} {X : Set i}
-          → {Y Y' : X → Set j}
-          → ((x : X) → Y x ≡ Y' x)
-          → Σ X Y ≡ Σ X Y'
-Σ-ap₂ {X = X} {Y} {Y'} isom = isoToPath (Σ-ap-iso₂ (pathToIso ∘ isom))
 
 Σ-ap-iso₁ : ∀ {i} {X X' : Set i} {Y : X' → Set i}
           → (isom : Iso X X')
@@ -266,6 +236,22 @@ Iso.leftInv (Σ-ap-iso₁ {i} {X = X} {X'} {Y} isom@(iso f g ε η)) (x , y) = �
           → (isom : X ≡ X')
           → Σ X (Y ∘ transport isom) ≡ Σ X' Y
 Σ-ap₁ {i} {X = X} {X'} {Y} isom = isoToPath (Σ-ap-iso₁ (pathToIso isom))
+
+Σ-ap-iso₂ : ∀ {ℓ ℓ'} {X : Set ℓ}
+          → {Y Y' : X → Set ℓ'}
+          → ((x : X) → Iso (Y x) (Y' x))
+          → Iso (Σ X Y)
+                 (Σ X Y')
+Iso.fun (Σ-ap-iso₂ {X = X} {Y} {Y'} isom) (x , y) = x , Iso.fun (isom x) y
+Iso.inv (Σ-ap-iso₂ {X = X} {Y} {Y'} isom) (x , y') = x , Iso.inv (isom x) y'
+Iso.rightInv (Σ-ap-iso₂ {X = X} {Y} {Y'} isom) (x , y) = ΣPathP (refl , Iso.rightInv (isom x) y)
+Iso.leftInv (Σ-ap-iso₂ {X = X} {Y} {Y'} isom) (x , y') = ΣPathP (refl , Iso.leftInv (isom x) y')
+
+Σ-ap₂ : ∀ {ℓ ℓ'} {X : Set ℓ}
+          → {Y Y' : X → Set ℓ'}
+          → ((x : X) → Y x ≡ Y' x)
+          → Σ X Y ≡ Σ X Y'
+Σ-ap₂ {X = X} {Y} {Y'} isom = isoToPath (Σ-ap-iso₂ (pathToIso ∘ isom))
 
 Σ-ap-iso : ∀ {i} {X X' : Set i}
            {Y : X → Set i} {Y' : X' → Set i}
