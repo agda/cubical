@@ -23,6 +23,12 @@ raw-group-structure = raw-semigroup-structure
 raw-group-is-SNS : SNS {ℓ} raw-group-structure _
 raw-group-is-SNS = raw-semigroup-is-SNS
 
+-- The neutral element and the inverse function will be derived from the
+-- axioms, instead of being defined in the raw-group-structure in order
+-- to have that isomorphisms between groups are equivalences that preserves
+-- multiplication (so we don't have to show that they also preserve inversion
+-- and neutral element, although they will preserve them).
+
 group-axioms : (G : Type ℓ) → raw-group-structure G → Type ℓ
 group-axioms G _·_ = i × ii
 
