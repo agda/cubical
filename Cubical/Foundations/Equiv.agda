@@ -96,6 +96,15 @@ compEquiv f g = isoToEquiv
 compEquivIdEquiv : {A B : Type ℓ} (e : A ≃ B) → compEquiv (idEquiv A) e ≡ e
 compEquivIdEquiv e = equivEq _ _ refl
 
+compEquivEquivId : {A B : Type ℓ} (e : A ≃ B) → compEquiv e (idEquiv B) ≡ e
+compEquivEquivId e = equivEq _ _ refl
+
+invEquiv-is-rinv : {A B : Type ℓ} (e : A ≃ B) → compEquiv e (invEquiv e) ≡ idEquiv A
+invEquiv-is-rinv e = equivEq _ _ (funExt (secEq e))
+
+invEquiv-is-linv : {A B : Type ℓ} (e : A ≃ B) → compEquiv (invEquiv e) e ≡ idEquiv B
+invEquiv-is-linv e = equivEq _ _ (funExt (retEq e))
+
 LiftEquiv : {A : Type ℓ} → A ≃ Lift {i = ℓ} {j = ℓ'} A
 LiftEquiv = isoToEquiv (iso lift lower (λ _ → refl) (λ _ → refl))
 
