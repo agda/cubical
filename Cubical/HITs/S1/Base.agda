@@ -54,10 +54,9 @@ decodeSquare (pos zero) i j    = loop (i ∨ ~ j)
 decodeSquare (pos (suc n)) i j = hfill (λ k → λ { (j = i0) → base
                                                 ; (j = i1) → loop k } )
                                        (inS (intLoop (pos n) j)) i
-decodeSquare (negsuc n) i j = hcomp (λ k → λ { (i = i1) → intLoop (negsuc n) j
-                                             ; (j = i0) → base
-                                             ; (j = i1) → loop (i ∨ ~ k) })
-                                    (intLoop (negsuc n) j)
+decodeSquare (negsuc n) i j = hfill (λ k → λ { (j = i0) → base
+                                             ; (j = i1) → loop (~ k) })
+                                    (inS (intLoop (negsuc n) j)) (~ i)
 
 decode : (x : S¹) → helix x → base ≡ x
 decode base         = intLoop

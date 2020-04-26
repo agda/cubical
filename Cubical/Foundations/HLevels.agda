@@ -348,6 +348,9 @@ isOfHLevelLift n = isOfHLevelRetract n lower lift λ _ → refl
 inhProp→isContr : A → isProp A → isContr A
 inhProp→isContr x h = x , h x
 
+extend : isContr A → (∀ φ → (u : Partial φ A) → Sub A φ u)
+extend (x , p) φ u = inS (hcomp (λ { j (φ = i1) → p (u 1=1) j }) x)
+
 isContrPartial→isContr : ∀ {ℓ} {A : Type ℓ}
                        → (extend : ∀ φ → Partial φ A → A)
                        → (∀ u → u ≡ (extend i1 λ { _ → u}))
