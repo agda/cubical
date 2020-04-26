@@ -63,6 +63,9 @@ i∧ {A = A , ptA} {B = B , ptB} (push tt i) = ptA , ptB
 _⋀_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Type (ℓ-max ℓ ℓ')
 _⋀_ A B = Pushout {A = (A ⋁ B)} {B = Unit} {C = (typ A) × (typ B)} (λ _ → tt) i∧
 
+_⋀∙_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Pointed (ℓ-max ℓ ℓ')
+A ⋀∙ B = Pushout {A = (A ⋁ B)} {B = Unit} {C = (typ A) × (typ B)} (λ _ → tt) i∧ , (inl tt) 
+
 
 _⋀⃗_ : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''} {D : Pointed ℓ'''} (f : A →∙ C) (g : B →∙ D)  → A ⋀ B → C ⋀ D
 (f ⋀⃗ g) (inl tt) = inl tt
@@ -104,9 +107,82 @@ Iso.leftInv ⋀-comm (push (inl x) i) = refl
 Iso.leftInv ⋀-comm (push (inr x) i) = refl
 Iso.leftInv ⋀-comm (push (push a i₁) i) = refl
 
-rearrange-proj : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''} → A ⋀ B → (C ⋀ B , inl tt) ⋀ A
-rearrange-proj (inl x) = inl tt
-rearrange-proj {C = C} (inr (x , x₁)) = inr (inr ((snd C) , x₁) , x)
-rearrange-proj {A = A}{B = B} {C = C} (push (inl x) i) = (push (inr x) ∙ (λ i → inr (push (inr (snd B)) i , x))) i
-rearrange-proj {A = A}{B = B} {C = C} (push (inr x) i) = (push (inr (snd A)) ∙ (λ i → inr (push (inr x) i , snd A))) i
-rearrange-proj {A = A}{B = B} {C = C} (push (push a i₁) i) = (push (inr (snd A)) ∙ (λ i → inr (push (inr (snd B)) i , (snd A)))) i
+⋀-associate : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''} → A ⋀ (B ⋀∙ C) → (C ⋀∙ B) ⋀ A
+⋀-associate (inl x) = inl tt
+⋀-associate (inr (x , inl x₁)) = inr ((inl tt) , x)
+⋀-associate (inr (x , inr (x₁ , x₂))) = inr ((inr (x₂ , x₁)) , x)
+⋀-associate (inr (x , push (inl x₁) i)) = inr (push (inr x₁) i , x)
+⋀-associate (inr (x , push (inr x₁) i)) = inr (push (inl x₁) i , x)
+⋀-associate (inr (x , push (push a i₁) i)) = inr (push (push tt (~ i₁)) i , x)
+⋀-associate (push (inl x) i) = push (inr x) i
+⋀-associate {A = A} (push (inr (inl tt)) i) = push (inr (snd A)) i
+⋀-associate (push (inr (inr (x , x₁))) i) = push (inl (inr (x₁ , x))) i
+⋀-associate {A = A} {B = B} {C = C} (push (inr (push (inl x) j)) i) =
+  hcomp (λ k → λ { (i = i0) → inl tt
+                  ; (i = i1) → (inr (push (inr x) j , snd A))
+                  ; (j = i0) → push (push tt k) i
+                  ; (j = i1) → push (inl (inr (snd C , x))) i})
+        (push (inl (push (inr x) j)) i)
+⋀-associate {A = A} {B = B} {C = C} (push (inr (push (inr x) j)) i) =
+  hcomp ((λ k → λ { (i = i0) → inl tt
+                   ; (i = i1) → inr (push (inl x) j , snd A)
+                   ; (j = i0) → push (push tt k) i
+                   ; (j = i1) → push (inl (inr (x , snd B))) i}))
+        (push (inl (push (inl x) j)) i)
+⋀-associate {A = A} {B = B} {C = C} (push (inr (push (push tt z) j)) i) =
+  hcomp (λ k → λ { (i = i0) → inl tt
+                  ; (i = i1) → inr ((push (push tt (~ z)) j) , (snd A))
+                  ; (j = i0) → push (push tt k) i
+                  ; (j = i1) → push (inl (inr (snd C , (snd B)))) i
+                  })
+        (push (inl (push (push tt (~ z)) j)) i)
+⋀-associate {A = A} (push (push a i₁) i) = push (inr (snd A)) i
+
+⋀-associate⁻ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''} → (C ⋀∙ B) ⋀ A → A ⋀ (B ⋀∙ C)
+⋀-associate⁻ (inl x) = inl tt
+⋀-associate⁻ (inr (inl x , x₁)) = inr (x₁ , (inl tt))
+⋀-associate⁻ (inr (inr (x , x₂) , x₁)) = inr (x₁ , (inr (x₂ , x)))
+⋀-associate⁻ (inr (push (inl x) i , x₁)) = inr (x₁ , push (inr x) i)
+⋀-associate⁻ (inr (push (inr x) i , x₁)) = inr (x₁ , push (inl x) i)
+⋀-associate⁻ (inr (push (push a i₁) i , x)) = inr (x , push (push tt (~ i₁)) i)
+⋀-associate⁻ {A = A} (push (inl (inl x)) i) = push (inl (snd A)) i
+⋀-associate⁻ (push (inl (inr (x , x₁))) i) = push (inr (inr (x₁ , x))) i
+⋀-associate⁻ {A = A} {B = B} (push (inl (push (inl x) j)) i) =
+  hcomp (λ k → λ {(i = i0) → inl tt
+                 ; (i = i1) → inr (snd A , push (inr x) j)
+                 ; (j = i0) → push (push tt (~ k)) i
+                 ; (j = i1) → push (inr (inr ((snd B) , x))) i})
+        (push (inr (push (inr x) j)) i)
+⋀-associate⁻ {A = A} {C = C} (push (inl (push (inr x) j)) i) = 
+  hcomp (λ k → λ {(i = i0) → inl tt
+                ; (i = i1) → inr (snd A , push (inl x) j)
+                ; (j = i0) → push (push tt (~ k)) i
+                ; (j = i1) → push (inr (inr (x , (snd C)))) i})
+        (push (inr (push (inl x) j)) i)
+⋀-associate⁻ {A = A} {B = B} {C = C} (push (inl (push (push a z) j)) i) =
+  hcomp (λ k → λ { (i = i0) → inl tt
+                  ; (i = i1) → inr (snd A , (push (push tt (~ z)) j))
+                  ; (j = i0) → push (push tt (~ k)) i
+                  ; (j = i1) → push (inr (inr (snd B , snd C))) i 
+                  })
+        (push (inr (push (push tt (~ z)) j)) i)
+⋀-associate⁻ (push (inr x) i) = push (inl x) i
+⋀-associate⁻ {A = A} (push (push a i₁) i) = push (inl (snd A)) i
+
+⋀-Iso : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''} → Iso (A ⋀ (B ⋀∙ C)) ((C ⋀∙ B) ⋀ A)
+Iso.fun ⋀-Iso = ⋀-associate
+Iso.inv ⋀-Iso = ⋀-associate⁻
+Iso.rightInv ⋀-Iso (inl x) = refl
+Iso.rightInv ⋀-Iso (inr (inl x , x₁)) = refl
+Iso.rightInv ⋀-Iso (inr (inr (x , x₂) , x₁)) = refl
+Iso.rightInv ⋀-Iso (inr (push (inl x) i , x₁)) z = inr (push (inl x) i , x₁)
+Iso.rightInv ⋀-Iso (inr (push (inr x) i , x₁)) z = inr (push (inr x) i , x₁)
+Iso.rightInv ⋀-Iso (inr (push (push tt j) i , x₁)) z = inr (push (push tt j) i , x₁)
+Iso.rightInv ⋀-Iso (push (inl (inl x)) i) z = push (push tt (~ z)) i
+Iso.rightInv ⋀-Iso (push (inl (inr (x , x₁))) i) j = push (inl (inr (x , x₁))) i
+Iso.rightInv ⋀-Iso (push (inl (push (inl x) i₁)) i) = {!!}
+Iso.rightInv ⋀-Iso (push (inl (push (inr x) i₁)) i) = {!!}
+Iso.rightInv ⋀-Iso (push (inl (push (push a i₂) i₁)) i) = {!a!}
+Iso.rightInv ⋀-Iso (push (inr x) i) = {!!}
+Iso.rightInv ⋀-Iso (push (push a i₁) i) = {!!}
+Iso.leftInv ⋀-Iso = {!!}
