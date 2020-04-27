@@ -3,9 +3,9 @@
 module Cubical.Structures.Poset where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv       hiding (_■)
 open import Cubical.Foundations.Logic
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv        hiding   (_■)
 open import Cubical.Foundations.SIP          renaming (SNS-≡ to SNS)
 open import Cubical.Core.Primitives
 open import Cubical.Foundations.HLevels
