@@ -185,8 +185,3 @@ poset-SIP {ℓ₁ = ℓ₁} A B eqv P Q i = foo (eqv , i)
 
 ≃ₚ→≡ : (P Q : Poset ℓ₀ ℓ₁) → P ≃ₚ Q → P ≡ Q
 ≃ₚ→≡ (A , A-pos) (B , B-pos) (eqv , i) = poset-SIP A B eqv A-pos B-pos i
-
-
--- --}
--- --}
--- --}
