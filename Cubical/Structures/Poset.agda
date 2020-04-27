@@ -178,10 +178,10 @@ poset-SIP : (A : Type ℓ₀) (B : Type ℓ₀) (eqv : A ≃ B)
             (P : PosetStr ℓ₁ A) (Q : PosetStr ℓ₁ B)
           → poset-iso (A , P) (B , Q) eqv
           → (A , P) ≡ (B , Q)
-poset-SIP {ℓ₁ = ℓ₁} A B eqv P Q i = foo (eqv , i)
+poset-SIP {ℓ₁ = ℓ₁} A B eqv P Q i = φ (eqv , i)
   where
-    foo : (A , P) ≃[ poset-iso ] (B , Q) → (A , P) ≡ (B , Q)
-    foo = equivFun (SIP poset-is-SNS-PathP (A , P) (B , Q))
+    φ : (A , P) ≃[ poset-iso ] (B , Q) → (A , P) ≡ (B , Q)
+    φ = equivFun (SIP poset-is-SNS-PathP (A , P) (B , Q))
 
 ≃ₚ→≡ : (P Q : Poset ℓ₀ ℓ₁) → P ≃ₚ Q → P ≡ Q
 ≃ₚ→≡ (A , A-pos) (B , B-pos) (eqv , i) = poset-SIP A B eqv A-pos B-pos i
