@@ -108,6 +108,8 @@ Poset : (ℓ₀ ℓ₁ : Level) → Type (ℓ-max (ℓ-suc ℓ₀) (ℓ-suc ℓ�
 Poset ℓ₀ ℓ₁ = Σ (Type ℓ₀) (PosetStr ℓ₁)
 
 -- Some projections for syntactic convenience.
+
+-- Carrier set of a poset.
 ∣_∣ₚ : Poset ℓ₀ ℓ₁ → Type ℓ₀
 ∣ X , _ ∣ₚ = X
 
