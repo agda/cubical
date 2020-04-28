@@ -54,6 +54,9 @@ private
 [_] : hProp ℓ → Type ℓ
 [_] = fst
 
+isProp[] : (A : hProp ℓ) → isProp [ A ]
+isProp[] = snd
+
 ∥_∥ₚ : Type ℓ → hProp ℓ
 ∥ A ∥ₚ = ∥ A ∥ , propTruncIsProp
 
