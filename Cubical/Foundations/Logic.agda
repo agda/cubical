@@ -168,8 +168,8 @@ syntax ∀[]-syntax (λ a → P)          = ∀[ a ] P
 ∃[∶]-syntax : (A → hProp ℓ) → hProp _
 ∃[∶]-syntax {A = A} P = ∥ Σ A (fst ∘ P) ∥ₚ
 
-syntax ∃[]-syntax {A = A} (λ x → P) = ∃[ x ∶ A ] P
-syntax ∃[∶]-syntax (λ x → P) = ∃[ x ] P
+syntax ∃[∶]-syntax {A = A} (λ x → P) = ∃[ x ∶ A ] P
+syntax ∃[]-syntax (λ x → P) = ∃[ x ] P
 --------------------------------------------------------------------------------
 -- Decidable mere proposition
 
