@@ -10,7 +10,7 @@ open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
-open import Cubical.Structures.Monoid using (Monoid; inv-lemma)
+open import Cubical.Structures.Monoid hiding (⟨_⟩)
 
 
 private
@@ -55,7 +55,7 @@ module group-operation-syntax where
 
   group-operation-syntax : (G : Group {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
   group-operation-syntax = group-operation
-  infixl 20 group-operation-syntax
+  infixr 20 group-operation-syntax
   syntax group-operation-syntax G x y = x ·⟨ G ⟩ y
 
 open group-operation-syntax
@@ -69,62 +69,28 @@ group-assoc (_ , _ , (_ , P) , _) = P
 
 -- Defining identity
 
-id : (G : Group {ℓ}) → ⟨ G ⟩
-id (_ , _ , _ , P) = fst P
+group-id : (G : Group {ℓ}) → ⟨ G ⟩
+group-id (_ , _ , _ , P) = fst P
 
 group-rid : (G : Group {ℓ})
-          → (x : ⟨ G ⟩) → x ·⟨ G ⟩ (id G) ≡ x
+          → (x : ⟨ G ⟩) → x ·⟨ G ⟩ (group-id G) ≡ x
 group-rid (_ , _ , _ , P) x = fst ((fst (snd P)) x)
 
 group-lid : (G : Group {ℓ})
-          → (x : ⟨ G ⟩) → (id G) ·⟨ G ⟩ x ≡ x
+          → (x : ⟨ G ⟩) → (group-id G) ·⟨ G ⟩ x ≡ x
 group-lid (_ , _ , _ , P) x = snd ((fst (snd P)) x)
 
 -- Defining the inverse function
-inv : (G : Group {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩
-inv (_ , _ , _ , P) x = fst ((snd (snd P)) x)
+group-inv : (G : Group {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩
+group-inv (_ , _ , _ , P) x = fst ((snd (snd P)) x)
 
 group-rinv : (G : Group {ℓ})
-               → (x : ⟨ G ⟩) → x ·⟨ G ⟩ (inv G x) ≡ id G
+               → (x : ⟨ G ⟩) → x ·⟨ G ⟩ (group-inv G x) ≡ group-id G
 group-rinv (_ , _ , _ , P) x = fst (snd ((snd (snd P)) x))
 
 group-linv : (G : Group {ℓ})
-               → (x : ⟨ G ⟩) → (inv G x) ·⟨ G ⟩ x ≡ id G
+               → (x : ⟨ G ⟩) → (group-inv G x) ·⟨ G ⟩ x ≡ group-id G
 group-linv (_ , _ , _ , P) x = snd (snd ((snd (snd P)) x))
-
--- Additive notation for groups
-module additive-notation (G : Group {ℓ}) where
-
-  ₀ : ⟨ G ⟩
-  ₀ = id G
-
-  _+_ : ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
-  _+_ = group-operation G
-
-  -_ : ⟨ G ⟩ → ⟨ G ⟩
-  -_ = inv G
-
---Multiplicative notation for groups
-module multiplicative-notation (G : Group {ℓ}) where
-
-  ₁ : ⟨ G ⟩
-  ₁ = id G
-
-  _·_ : ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
-  _·_ = group-operation G
-
-  _⁻¹ : ⟨ G ⟩ → ⟨ G ⟩
-  _⁻¹ = inv G
-
-  ·-is-assoc = group-assoc G
-
-  ·₁  = group-rid G
-
-  ₁·  = group-lid G
-
-  ·⁻¹ = group-rinv G
-
-  ⁻¹· = group-linv G
 
 -- Iso for groups are those for monoids
 group-iso : StrIso group-structure ℓ
@@ -175,3 +141,20 @@ group-is-SNS = add-axioms-SNS _ group-axioms-isProp (nAryFunSNS 2)
 
 GroupPath : (M N : Group {ℓ}) → (M ≃[ group-iso ] N) ≃ (M ≡ N)
 GroupPath = SIP group-is-SNS
+
+-- Group ·syntax
+
+module group-·syntax (G : Group {ℓ}) where
+
+  infixr 18 _·_
+
+  _·_ : ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
+  _·_ = group-operation G
+
+  ₁ : ⟨ G ⟩
+  ₁ = group-id G
+
+  infix 19 _⁻¹
+
+  _⁻¹ : ⟨ G ⟩ → ⟨ G ⟩
+  _⁻¹ = group-inv G

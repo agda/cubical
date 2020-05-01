@@ -70,3 +70,12 @@ semigroup-is-SNS = add-axioms-SNS _ semigroup-axiom-isProp (nAryFunSNS 2)
 
 SemigroupPath : (M N : Semigroup {ℓ}) → (M ≃[ semigroup-iso ] N) ≃ (M ≡ N)
 SemigroupPath = SIP semigroup-is-SNS
+
+-- Semigroup ·syntax
+
+module semigroup-·syntax (G : Semigroup {ℓ}) where
+
+  infixr 18 _·_
+
+  _·_ : ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
+  _·_ = semigroup-operation G

@@ -11,7 +11,7 @@ open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Monoid hiding (⟨_⟩)
-open import Cubical.Structures.AbGroup
+open import Cubical.Structures.AbGroup hiding (⟨_⟩)
 open import Cubical.Structures.Pointed
 
 private
@@ -53,3 +53,90 @@ ring-is-SNS = add-axioms-SNS _ ring-axioms-isProp raw-ring-is-SNS
 
 RingPath : (M N : Ring {ℓ}) → (M ≃[ ring-iso ] N) ≃ (M ≡ N)
 RingPath = SIP ring-is-SNS
+
+-- Rings have an abelian group
+
+Ring→AbGroup : Ring {ℓ} → AbGroup {ℓ}
+Ring→AbGroup (R , (_+_ , _) , +AbGroup , _) = R , _+_ , +AbGroup
+
+-- Rings have a monoid
+
+Ring→Monoid : Ring {ℓ} → Monoid {ℓ}
+Ring→Monoid (R , (_ , ₁ , _·_) , _ , ·Monoid , _) = R , (₁ , _·_) , ·Monoid
+
+-- Ring extractors
+
+⟨_⟩ : Ring {ℓ} → Type ℓ
+⟨ R , _ ⟩ = R
+
+module _ (R : Ring {ℓ}) where
+  ring+-operation = abgroup-operation (Ring→AbGroup R)
+
+  ring-is-set = abgroup-is-set (Ring→AbGroup R)
+
+  ring+-assoc = abgroup-assoc (Ring→AbGroup R)
+
+  ring+-id = abgroup-id (Ring→AbGroup R)
+
+  ring+-rid = abgroup-rid (Ring→AbGroup R)
+
+  ring+-lid = abgroup-lid (Ring→AbGroup R)
+
+  ring+-inv = abgroup-inv (Ring→AbGroup R)
+
+  ring+-rinv = abgroup-rinv (Ring→AbGroup R)
+
+  ring+-linv = abgroup-linv (Ring→AbGroup R)
+
+  ring+-comm = abgroup-comm (Ring→AbGroup R)
+
+  ring·-operation = monoid-operation (Ring→Monoid R)
+
+  ring·-assoc = monoid-assoc (Ring→Monoid R)
+
+  ring·-id = monoid-id (Ring→Monoid R)
+
+  ring·-rid = monoid-rid (Ring→Monoid R)
+
+  ring·-lid = monoid-lid (Ring→Monoid R)
+
+module ring-syntax where
+
+  ring+-operation-syntax : (R : Ring {ℓ}) → ⟨ R ⟩ → ⟨ R ⟩ → ⟨ R ⟩
+  ring+-operation-syntax R = ring+-operation R
+
+  infixr 14 ring+-operation-syntax
+  syntax ring+-operation-syntax R x y = x +⟨ R ⟩ y
+
+  ring·-operation-syntax : (R : Ring {ℓ}) → ⟨ R ⟩ → ⟨ R ⟩ → ⟨ R ⟩
+  ring·-operation-syntax R = ring·-operation R
+
+  infixr 18 ring·-operation-syntax
+  syntax ring·-operation-syntax R x y = x ·⟨ R ⟩ y
+
+open ring-syntax
+
+ring-rdist : (R : Ring {ℓ}) (x y z : ⟨ R ⟩) → x ·⟨ R ⟩ (y +⟨ R ⟩ z) ≡ (x ·⟨ R ⟩ y) +⟨ R ⟩ (x ·⟨ R ⟩ z)
+ring-rdist (_ , _ , _ , _ , P , _) = P
+
+ring-ldist : (R : Ring {ℓ}) (x y z : ⟨ R ⟩) → (x +⟨ R ⟩ y) ·⟨ R ⟩ z ≡ (x ·⟨ R ⟩ z) +⟨ R ⟩ (y ·⟨ R ⟩ z)
+ring-ldist (_ , _ , _ , _ , _ , P) = P
+
+-- Ring ·syntax
+
+module ring-·syntax (R : Ring {ℓ}) where
+
+  infixr 14 _+_
+  infixr 18 _·_
+  infix  15 -_
+
+  _+_ = ring+-operation R
+
+  _·_ = ring·-operation R
+
+  ₀ = ring+-id R
+
+  ₁ = ring·-id R
+
+  -_ = ring+-inv R
+

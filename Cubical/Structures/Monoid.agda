@@ -47,6 +47,8 @@ monoid-id (_ , (e , _) , _) = e
 monoid-operation : (M : Monoid {ℓ}) → ⟨ M ⟩ → ⟨ M ⟩ → ⟨ M ⟩
 monoid-operation (_ , (_ , f) , _) = f
 
+-- Monoid syntax with explicit monoid
+
 module monoid-syntax where
   id : (M : Monoid {ℓ}) → ⟨ M ⟩
   id = monoid-id
@@ -54,10 +56,12 @@ module monoid-syntax where
   monoid-operation-syntax : (M : Monoid {ℓ}) → ⟨ M ⟩ → ⟨ M ⟩ → ⟨ M ⟩
   monoid-operation-syntax = monoid-operation
 
-  infixr 20 monoid-operation-syntax
+  infixr 18 monoid-operation-syntax
   syntax monoid-operation-syntax M x y = x ·⟨ M ⟩ y
 
 open monoid-syntax
+
+-- More Monoid extractors
 
 monoid-is-set : (M : Monoid {ℓ}) → isSet (⟨ M ⟩)
 monoid-is-set (_ , _ , P , _) = P
@@ -108,3 +112,15 @@ inv-lemma M x y z left-inverse right-inverse =
   (y ·⟨ M ⟩ x) ·⟨ M ⟩ z ≡⟨ cong (λ - → - ·⟨ M ⟩ z) left-inverse ⟩
   id M ·⟨ M ⟩ z         ≡⟨ monoid-lid M z ⟩
   z ∎
+
+-- Monoid ·syntax
+
+module monoid-·syntax (M : Monoid {ℓ}) where
+
+  infixr 18 _·_
+
+  _·_ : ⟨ M ⟩ → ⟨ M ⟩ → ⟨ M ⟩
+  _·_ = monoid-operation M
+
+  ₁ : ⟨ M ⟩
+  ₁ = monoid-id M
