@@ -11,6 +11,7 @@ open import Cubical.Data.Empty
 open import Cubical.Relation.Nullary using (¬_)
 
 open import Cubical.Structures.Group
+open import Cubical.Structures.NAryOp
 
 private
   variable
@@ -24,5 +25,6 @@ Symmetric-Group X isSetX =
   idEquiv X , (λ f → compEquivEquivId f , compEquivIdEquiv f) , λ f → invEquiv f , invEquiv-is-rinv f , invEquiv-is-linv f
 
 -- Finite symmetrics groups
+
 Sym : ℕ → Group
 Sym n = Symmetric-Group (Fin n) isSetFin

@@ -22,13 +22,24 @@ private
 
 module _ (G : Group {ℓ}) where
 
-  open multiplicative-notation G
+  open group-·syntax G
+
+  private
+    ₁· = group-lid G
+
+    ·₁ = group-rid G
+
+    ·-assoc = group-assoc G
+
+    ⁻¹· = group-linv G
+
+    ·⁻¹ = group-rinv G
 
   id-is-unique : isContr (Σ[ x ∈ ⟨ G ⟩ ] ∀ (y : ⟨ G ⟩) → (x · y ≡ y) × (y · x ≡ y))
   id-is-unique = (₁ , λ y → ₁· y , ·₁ y) ,
                  λ { (e , is-unit) → ΣProp≡ (λ x → isPropΠ λ y → isPropΣ (group-is-set G _ _)
                                                                     λ _ →    group-is-set G _ _)
-                                              (₁     ≡⟨ sym (snd (is-unit (id G))) ⟩
+                                              (₁     ≡⟨ sym (snd (is-unit ₁)) ⟩
                                                ₁ · e ≡⟨ ₁· e ⟩
                                                e ∎
                                               )}
@@ -37,12 +48,12 @@ module _ (G : Group {ℓ}) where
                → x · y ≡ ₁
                → (y ≡ x ⁻¹) × (x ≡ y ⁻¹)
   are-inverses x y eq = (y                ≡⟨ sym (₁· y) ⟩
-                         ₁ · y            ≡⟨ sym (·-is-assoc _ _ _ ∙ cong (_· y) (⁻¹· _)) ⟩
+                         ₁ · y            ≡⟨ sym (·-assoc _ _ _ ∙ cong (_· y) (⁻¹· _)) ⟩
                          (x ⁻¹) · (x · y) ≡⟨ cong ((x ⁻¹) ·_) eq ⟩
                          (x ⁻¹) · ₁       ≡⟨ ·₁ _ ⟩
                          x ⁻¹ ∎)
                      , (x                 ≡⟨ sym (·₁ x) ⟩
-                        x · ₁             ≡⟨ cong (x ·_) (sym (·⁻¹ y)) ∙ ·-is-assoc _ _ _ ⟩
+                        x · ₁             ≡⟨ cong (x ·_) (sym (·⁻¹ y)) ∙ ·-assoc _ _ _ ⟩
                         (x · y) · (y ⁻¹)  ≡⟨ cong (_· (y ⁻¹)) eq ⟩
                         ₁ · (y ⁻¹)        ≡⟨ ₁· _ ⟩
                         y ⁻¹ ∎)
@@ -54,7 +65,7 @@ module _ (G : Group {ℓ}) where
   inv-distr : ∀ (x y : ⟨ G ⟩) → (x · y) ⁻¹ ≡ (y ⁻¹) · (x ⁻¹)
   inv-distr x y = sym (fst (are-inverses _ _ γ))
     where γ : (x · y) · ((y ⁻¹) · (x ⁻¹)) ≡ ₁
-          γ = (x · y) · ((y ⁻¹) · (x ⁻¹)) ≡⟨ sym (cong (x ·_) (sym (·-is-assoc _ _ _)) ∙ ·-is-assoc _ _ _) ⟩
+          γ = (x · y) · ((y ⁻¹) · (x ⁻¹)) ≡⟨ sym (cong (x ·_) (sym (·-assoc _ _ _)) ∙ ·-assoc _ _ _) ⟩
               x · ((y · (y ⁻¹)) · (x ⁻¹)) ≡⟨ cong (λ - → x · (- · (x ⁻¹))) (·⁻¹ y) ⟩
               x · (₁ · (x ⁻¹))            ≡⟨ cong (x ·_) (₁· (x ⁻¹)) ⟩
               x · (x ⁻¹)                  ≡⟨ ·⁻¹ x ⟩
@@ -62,16 +73,16 @@ module _ (G : Group {ℓ}) where
 
   left-cancel : ∀ (x y z : ⟨ G ⟩) → x · y ≡ x · z → y ≡ z
   left-cancel x y z eq = y                ≡⟨ sym (cong (_· y) (⁻¹· x) ∙ ₁· y) ⟩
-                         ((x ⁻¹) · x) · y ≡⟨ sym (·-is-assoc _ _ _) ⟩
+                         ((x ⁻¹) · x) · y ≡⟨ sym (·-assoc _ _ _) ⟩
                          (x ⁻¹) · (x · y) ≡⟨ cong ((x ⁻¹) ·_) eq ⟩
-                         (x ⁻¹) · (x · z) ≡⟨ ·-is-assoc _ _ _ ⟩
+                         (x ⁻¹) · (x · z) ≡⟨ ·-assoc _ _ _ ⟩
                          ((x ⁻¹) · x) · z ≡⟨ cong (_· z) (⁻¹· x) ∙ ₁· z ⟩
                          z ∎
 
   right-cancel : ∀ (x y z : ⟨ G ⟩) → x · z ≡ y · z → x ≡ y
   right-cancel x y z eq = x                ≡⟨ sym (cong (x ·_) (·⁻¹ z) ∙ ·₁ x) ⟩
-                          x · (z · (z ⁻¹)) ≡⟨ ·-is-assoc _ _ _ ⟩
+                          x · (z · (z ⁻¹)) ≡⟨ ·-assoc _ _ _ ⟩
                           (x · z) · (z ⁻¹) ≡⟨ cong (_· (z ⁻¹)) eq ⟩
-                          (y · z) · (z ⁻¹) ≡⟨ sym (·-is-assoc _ _ _) ⟩
+                          (y · z) · (z ⁻¹) ≡⟨ sym (·-assoc _ _ _) ⟩
                           y · (z · (z ⁻¹)) ≡⟨ cong (y ·_) (·⁻¹ z) ∙ ·₁ y ⟩
                           y ∎
