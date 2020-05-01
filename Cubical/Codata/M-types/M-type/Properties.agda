@@ -1,8 +1,6 @@
-{-# OPTIONS --cubical --guardedness #-} --safe
+{-# OPTIONS --cubical --guardedness #-}
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv using (_≃_)
-open import Cubical.Foundations.Function using (_∘_)
+module Cubical.Codata.M-types.M-type.Properties where
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Prod
@@ -10,18 +8,18 @@ open import Cubical.Data.Nat as ℕ using (ℕ ; suc ; _+_ )
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv using (_≃_)
+open import Cubical.Foundations.Function using (_∘_)
 open import Cubical.Foundations.Transport
-
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
-open import Cubical.Functions.Embedding
 open import Cubical.Foundations.Equiv
 
+open import Cubical.Functions.Embedding
+
 open import Cubical.Codata.M-types.helper
-
-module Cubical.Codata.M-types.M-type.Properties where
-
 open import Cubical.Codata.M-types.M-type.Base
 open import Cubical.Codata.M-types.Container
 

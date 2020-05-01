@@ -1,5 +1,7 @@
 {-# OPTIONS --cubical --guardedness #-} --safe
 
+module Cubical.Codata.M-types.itree where
+
 open import Cubical.Data.Unit
 open import Cubical.Data.Prod
 open import Cubical.Data.Nat as ℕ using (ℕ ; suc ; _+_ )
@@ -14,9 +16,7 @@ open import Cubical.Codata.M-types.Container
 open import Cubical.Codata.M-types.M-type
 open import Cubical.Codata.M-types.Coalg
 
-module Cubical.Codata.M-types.itree where
-
--- itrees (and buildup examples)
+-- Delay monad defined as an M-type
 delay-S : (R : Set₀) -> Container
 delay-S R = (Unit ⊎ R) , λ { (inr _) -> ⊥ ; (inl tt) -> Unit }
 
@@ -45,7 +45,10 @@ tree-ret {E} {R} r = in-fun (inl r , λ ())
 tree-vis : ∀ {E} {R}  -> ∀ {A} -> E A -> (A -> tree E R) -> tree E R
 tree-vis {A = A} e k = in-fun (inr (A , e) , λ { (lift x) -> k x } )
 
--- ITREES
+-- ITrees (and buildup examples)
+-- https://arxiv.org/pdf/1906.00046.pdf
+-- Interaction Trees: Representing Recursive and Impure Programs in Coq
+-- Li-yao Xia, Yannick Zakowski, Paul He, Chung-Kil Hur, Gregory Malecha, Benjamin C. Pierce, Steve Zdancewic
 
 itree-S : ∀ (E : Set₀ -> Set₁) (R : Set₀) -> Container {ℓ-suc ℓ-zero}
 itree-S E R = ((Unit ⊎ R) ⊎ Σ Set E) , (λ { (inl (inl _)) -> Lift Unit ; (inl (inr _)) -> ⊥₁ ; (inr (A , e)) -> Lift A } )
@@ -70,18 +73,3 @@ tau = in-fun ∘ tau'
 
 vis : ∀ {E} {R}  -> ∀ {A : Set} -> E A -> (A -> itree E R) -> itree E R
 vis {A = A} e = in-fun ∘ (vis' {A = A} e)
-
--- Bind operations
-{-# TERMINATING #-}
-bind-helper : ∀ {E : Set -> Set₁} {R S : Set} -> (R -> itree E S) -> P₀ {S = itree-S E R} (itree E R) -> itree E S
-bind-helper k (inl (inl tt), b) = tau (bind-helper k (out-fun (b (lift tt))))
-bind-helper k (inl (inr r), _) = k r
-bind-helper k (inr (A , e), k') = vis e λ (x : A) → bind-helper k (out-fun (k' (lift x)))
-
-bind : ∀ {E} {R} {S} -> itree E R -> (R -> itree E S) -> itree E S
-bind {E} {R} {S} t k = bind-helper k (out-fun {S = itree-S E R} t)
-
-syntax bind e₁ (λ x → e₂) = x ← e₁ , e₂
-
-trigger : ∀ {E R} -> E R -> itree E R
-trigger e = vis e λ x → ret x

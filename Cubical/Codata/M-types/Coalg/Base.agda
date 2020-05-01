@@ -1,26 +1,22 @@
-{-# OPTIONS --cubical --guardedness #-} --safe
+{-# OPTIONS --cubical --guardedness #-}
+
+module Cubical.Codata.M-types.Coalg.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function using ( _∘_ )
-
-open import Cubical.Data.Unit
-
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
--- open import Cubical.Foundations.Id using (ap ; _∙_)
 open import Cubical.Foundations.GroupoidLaws
 
+open import Cubical.Data.Unit
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod
-open import Cubical.Codata.M-types.helper
-
 open import Cubical.Data.Sigma
 
-module Cubical.Codata.M-types.Coalg.Base where
-
 open import Cubical.Codata.M-types.Container
+open import Cubical.Codata.M-types.helper
 
 -------------------------------
 -- Definition of a Coalgebra --

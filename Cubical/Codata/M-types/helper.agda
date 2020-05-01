@@ -1,4 +1,6 @@
-{-# OPTIONS --cubical --guardedness #-} --safe
+{-# OPTIONS --cubical --guardedness #-}
+
+module Cubical.Codata.M-types.helper where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv using (_≃_)
@@ -19,10 +21,6 @@ open import Cubical.Foundations.Path
 
 open import Cubical.Functions.Embedding
 open import Cubical.Functions.FunExtEquiv
-
-module Cubical.Codata.M-types.helper where
-
-module helper where
 
 open Iso
 
@@ -96,7 +94,6 @@ iso→inv-Injection-Path :
   -----------------------
   ((inv isom) ∘ f ≡ (inv isom) ∘ g) ≡ (f ≡ g)
 iso→inv-Injection-Path {A = A} {B} {C} isom {f = f} {g} = iso→fun-Injection-Path (isoInv isom)
-
 
 iso→fun-Injection-Iso-x :
     ∀ {ℓ} {A B : Set ℓ}

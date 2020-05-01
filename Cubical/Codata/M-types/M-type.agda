@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --guardedness #-} --safe
+{-# OPTIONS --cubical --guardedness #-}
 
 module Cubical.Codata.M-types.M-type where
 

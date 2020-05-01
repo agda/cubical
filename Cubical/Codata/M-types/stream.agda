@@ -1,4 +1,6 @@
-{-# OPTIONS --cubical --guardedness #-} --safe
+{-# OPTIONS --cubical --guardedness #-}
+
+module Cubical.Codata.M-types.stream where
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
@@ -17,8 +19,6 @@ open import Cubical.Codata.Stream
 open import Cubical.Codata.M-types.M-type
 open import Cubical.Codata.M-types.helper
 open import Cubical.Codata.M-types.Container
-
-module Cubical.Codata.M-types.stream where
 
 --------------------------------------
 -- Stream definitions using M-types --
