@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --guardedness #-} --safe
+{-# OPTIONS --cubical --guardedness --safe #-}
 
 module Cubical.Codata.M-types.itree where
 

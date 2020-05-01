@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --guardedness #-}
+{-# OPTIONS --cubical --guardedness --safe #-}
 
 module Cubical.Codata.M-types.Container where
 
@@ -51,11 +51,6 @@ L (x ,, pi) = Σ ((n : ℕ) → x n) λ x → (n : ℕ) → pi {n = n} (x (suc n
 shift-chain : ∀ {ℓ} -> Chain {ℓ} -> Chain {ℓ}
 shift-chain = λ X,π -> ((λ x → X X,π (suc x)) ,, λ {n} → π X,π {suc n})
 
-PX,Pπ : ∀ {ℓ} (S : Container {ℓ}) -> Chain
-PX,Pπ {ℓ} S =
-  (λ n → P₀ {S = S} (X (sequence S) n)) ,,
-  (λ {n : ℕ} x → P₁ (λ z → z) (π (sequence S) {n = suc n} x ))
-
 ! : ∀ {ℓ} {A : Set ℓ} (x : A) -> Lift {ℓ-zero} {ℓ} Unit
 ! x = lift tt
 
@@ -74,6 +69,11 @@ W S (suc n) = P₀ {S = S} (W S n)
 sequence : ∀ {ℓ} -> Container {ℓ} -> Chain {ℓ}
 X (sequence {ℓ} S) n = W {ℓ} S n
 π (sequence {ℓ} S) {n} = πₙ {ℓ} S {n}
+
+PX,Pπ : ∀ {ℓ} (S : Container {ℓ}) -> Chain
+PX,Pπ {ℓ} S =
+  (λ n → P₀ {S = S} (X (sequence S) n)) ,,
+  (λ {n : ℕ} x → P₁ (λ z → z) (π (sequence S) {n = suc n} x ))
 
 -----------------------------------
 -- M-type is limit of a sequence --

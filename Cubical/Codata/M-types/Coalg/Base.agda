@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --guardedness #-}
+{-# OPTIONS --cubical --guardedness --safe #-}
 
 module Cubical.Codata.M-types.Coalg.Base where
 
