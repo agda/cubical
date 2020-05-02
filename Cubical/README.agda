@@ -52,3 +52,6 @@ import Cubical.Experiments.Everything
 import Cubical.Induction.Everything
 import Cubical.Structures.Everything
 import Cubical.ZCohomology.Everything
+
+-- Algebra library (in development)
+import Cubical.Algebra.Everything
