@@ -67,15 +67,15 @@ SuspBool≃S1 = isoToEquiv iso1
   Iso.leftInv iso1 (merid true i) = refl
 
 
--- map between S₊ 
+-- map between S₊
+private
+  f' : {a : A} → A → S₊ 1 → Susp A
+  f' {a = pt} A north = north
+  f' {a = pt} A south = north
+  f' {a = pt} a (merid p i) = ((merid a) ∙ sym (merid pt)) i
 
-f' : {a : A} → A → S₊ 1 → Susp A
-f' {a = pt} A north = north
-f' {a = pt} A south = north
-f' {a = pt} a (merid p i) = ((merid a) ∙ sym (merid pt)) i
-
-proj' : {A : Pointed ℓ} {B : Pointed ℓ'} → typ A → typ B → A ⋀ B
-proj' a b = inr (a , b)
+  proj' : {A : Pointed ℓ} {B : Pointed ℓ'} → typ A → typ B → A ⋀ B
+  proj' a b = inr (a , b)
 
 module smashS1→susp {(A , pt) : Pointed ℓ} where
   fun : (S₊ 1 , north) ⋀ (A , pt) → (Susp A)
@@ -86,33 +86,20 @@ module smashS1→susp {(A , pt) : Pointed ℓ} where
   fun (push (inl (merid a i₁)) i) = rCancel (merid pt) (~ i) i₁
   fun (push (inr x) i) = north
   fun (push (push tt i₁) i) = north
-  
+
   fun⁻ : Susp A → (S₊ 1 , north) ⋀ (A , pt)
   fun⁻ north = inl tt
   fun⁻ south = inl tt
-  fun⁻ (merid a i) = (push (inr a) ∙∙ cong (λ x → proj' {A = S₊ 1 , north} {B = A , pt} x a) (merid south ∙ sym (merid north)) ∙∙ sym (push (inr a))) i
-
-smashMap : {!(A : Pointed ℓ) → ?!}
-smashMap = {!!}
-
-
-S' : ℕ → Type₀
-S' zero = Unit
-S' (suc zero) = S₊ 1
-S' (suc (suc n)) = (S₊ 1 , north) ⋀ (S₊ (suc n) , north)
-
-hej : (m : ℕ) → S₊ (suc m) ≡ Susp (S₊ m)
-hej m = refl
-
-S'-map-pt1 : (n m : ℕ) → (S₊ (suc (suc n)) , north) ⋀ (S₊ (suc m) , north) → ((S₊ 1 , north) ⋀ (S₊ (suc n) , north) , inl tt) ⋀ (S₊ (suc m) , north)
-S'-map-pt1 n m = (smashS1→susp.fun⁻ , refl) ⋀⃗ ((λ x → x) , refl)
-
-S'-map : (n m : ℕ) → (S₊ (suc n) , north) ⋀ (S₊ (suc m) , north) → S' (2 + n + m)
-S'-map zero n a = a
-S'-map (suc n) m = {!!} ∘ {!!} ∘ S'-map-pt1 n m
+  fun⁻ (merid a i) =
+    (push (inr a) ∙∙ cong (λ x → proj' {A = S₊ 1 , north} {B = A , pt} x a) (merid south ∙ sym (merid north)) ∙∙ sym (push (inr a))) i
 
 sphereSmashMap : (n m : ℕ) → (S₊ (suc n) , north) ⋀ (S₊ (suc m) , north) → S₊ (2 + n + m)
-sphereSmashMap n m = {!!}
+sphereSmashMap zero m = smashS1→susp.fun
+sphereSmashMap (suc n) m =
+  smashS1→susp.fun ∘
+  (idfun∙ _ ⋀⃗ (sphereSmashMap n m , refl)) ∘
+  ⋀-associate ∘
+  ((smashS1→susp.fun⁻ , refl) ⋀⃗ idfun∙ _)
 
 -- private
 --   f* : {a : A} → S¹ → A → Susp A
@@ -209,7 +196,7 @@ sphereSmashMap n m = {!!}
 -- --                                             ; (j = i1) → proj (loop i) a})
 -- --                                   (compLrFiller (push (inr a)) (λ i → proj (loop i) a) (sym (push (inr a))) j i)
 
-  
+
 -- --  {- hcomp (λ k → λ { (i = i0) → ((λ j → id3 j ∙ sym (projₗ a) ∙ λ j → proj (loop (~ j)) a) ∙
 -- --                                                          invCancelHelper _ _) k -- j
 -- --                                           ; (i = i1) → lUnit (rUnit (sym (projₗ a)) (~ k)) (~ k) -- j
@@ -233,7 +220,7 @@ sphereSmashMap n m = {!!}
 
 -- --     filler : funInv (f* {a = pt} (loop i) a) ≡ proj (loop i) a
 -- --     filler = (λ j → funInv (funExt (λ x → merid x ∙ sym (merid pt)) (i ∨ j) a)) ∙ sym (projₗ a) ∙ λ j → proj (loop (i ∨ (~ j))) a
-    
+
 -- --     id1 : sym (projᵣ base) ∙ cong ((λ x → proj {A = S¹ , base} {B = A , pt} x pt)) loop ∙ projᵣ base ≡ refl
 -- --     id1 = (λ i → (push (inl (loop i))) ∙ (λ j → inr (loop (i ∨ j) , pt)) ∙ sym (push (inl base))) ∙
 -- --           (λ i → push (inl base) ∙ lUnit (sym (push (inl base))) (~ i)) ∙
@@ -249,18 +236,18 @@ sphereSmashMap n m = {!!}
 -- --           (λ j i → (cong funInv (merid a) ∙ id2 j) i) ∙
 -- --           (λ j i → rUnit (cong funInv (merid a)) (~ j) i)
 
-    
 
--- --     test5 : ((sym (projₗ a) ∙ cong (λ x → proj {A = S¹ , base} {B = A , pt} x a) loop ∙ (projₗ a))) ≡ λ j → funInv (merid a j) 
+
+-- --     test5 : ((sym (projₗ a) ∙ cong (λ x → proj {A = S¹ , base} {B = A , pt} x a) loop ∙ (projₗ a))) ≡ λ j → funInv (merid a j)
 -- --     test5 = refl
-    
+
 -- --   test6 : (ia ib : I) → (x : S¹) → retrHelper (loop ia) pt ≡ {!? ∙ sym (cong (projₗ) loop) ∙ ?!}
 -- --   test6 = {!!}
 -- --     where
 -- --     test7 : ((sym (projₗ pt) ∙ cong (λ x → proj {A = S¹ , base} {B = A , pt} x pt) loop ∙ (projₗ pt))) ≡ refl
 -- --     test7 = (λ i j → funInv (merid pt j)) ∙ λ i → {!!}
 -- -- {-
--- --   test2 : (i : I) → (retrHelper (loop i) pt) ≡ (λ j → funInv (rCancel (merid pt) j i)) ∙ sym (projᵣ (loop i))  
+-- --   test2 : (i : I) → (retrHelper (loop i) pt) ≡ (λ j → funInv (rCancel (merid pt) j i)) ∙ sym (projᵣ (loop i))
 -- --   test2 i = (λ z → hfill ((λ k → λ { (i = i0) → ((λ j → id3 i pt j ∙ sym (projₗ pt) ∙ λ j → proj (loop (~ j)) pt) ∙ invCancelHelper i pt _ _) k
 -- --                                     ; (i = i1) → lUnit (rUnit (sym (projₗ pt)) (~ k)) (~ k) }))
 -- --                          (inS ((λ j → funInv (funExt (λ x → merid x ∙ sym (merid pt)) (i ∨ j) pt)) ∙ sym (projₗ pt) ∙ λ j → proj (loop (i ∨ (~ j))) pt)) (~ z)) ∙
@@ -279,7 +266,7 @@ sphereSmashMap n m = {!!}
 
 -- --   idIsEquiv2 : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B
 -- --   idIsEquiv2 = J (λ B p → _ ≃ B) (idEquiv _)
-  
+
 -- --   helper2 : (x : S¹ × A) → funInv (fun (inr x)) ≡ inr x
 -- --   helper2 (x , x₁) = retrHelper x x₁
 -- --   funRetr2 : (x : (S¹ , base) smash (A , pt)) → funInv (fun x) ≡ x
@@ -296,7 +283,7 @@ sphereSmashMap n m = {!!}
 -- --     test3 (push a i) q = {!!}
 
 -- --     test2 : (x : S¹ × A) (v : (S¹ , base) wedge (A , pt)) (q :  Path ((S¹ , base) smash (A , pt)) (inr x) (inl tt)) →  q (~ i) ≡ (q ∙ push v) (~ i)
--- --     test2 x v q = (λ j → q ((~ i) ∧ (~ j))) ∙ λ j → (q ∙ push v) ((~ i) ∧ j)  
+-- --     test2 x v q = (λ j → q ((~ i) ∧ (~ j))) ∙ λ j → (q ∙ push v) ((~ i) ∧ j)
 
 -- --   funRetr : (x : (S¹ , base) smash (A , pt)) → funInv (fun x) ≡ x
 -- --   funRetr (inl tt) = refl
@@ -319,20 +306,20 @@ sphereSmashMap n m = {!!}
 -- --                                                            ; (i = i1) → _ }) ((λ j → funInv (rCancel (merid pt) (~ i ∨ j) i₁)) ∙
 -- --                                              λ j → push (inl (loop i₁)) (i ∧ j)))) -}
 -- --     where
-    
+
 -- --     bottom : funInv (rCancel (merid pt) (~ i) z) ≡ push (inl (loop z)) i
 -- --     bottom = (λ j → funInv(rCancel (merid pt) (~ i) (z ∨ j))) ∙ (λ j → push (inl (loop z)) (i ∧ j))
 
 -- --     i=i1 : (λ j → funInv(rCancel (merid pt) i0 (z ∨ j))) ∙ (λ j → push (inl (loop z)) j) ≡ retrHelper (loop z) pt
 -- --     i=i1 = {!-- rCancel (merid pt) i1!}
-    
+
 -- --     frontCubeFiller : (i j z : I) → (S¹ , base) smash (A , pt) -- bottom is i j , z is height
 -- --     frontCubeFiller i j z = hfill (λ k → λ { (i = i0) → inl tt
 -- --                                             ; (i = i1) → sym (projᵣₗ k) j
 -- --                                             ; (j = i0) → inl tt
 -- --                                             ; (j = i1) → projᵣ base (~ i)}) (inS (push (inl base) (i ∧ j))) z
 
--- --     bottomCubeFiller : (i j z : I) → (S¹ , base) smash (A , pt) 
+-- --     bottomCubeFiller : (i j z : I) → (S¹ , base) smash (A , pt)
 -- --     bottomCubeFiller i j z = funInv (rCancel (merid pt) (~ i) (z ∧ j))
 
 
@@ -343,7 +330,7 @@ sphereSmashMap n m = {!!}
 
 
 -- --   funRetr (push (inr x) i) = λ j → (projₗ x ((~ i) ∨ (~ j)))
--- --   funRetr (push (push tt i₁) i) = {!  
+-- --   funRetr (push (push tt i₁) i) = {!
 
 -- -- i₁ = i0 ⊢ hcomp
 -- --           (λ { k (i = i0) → λ _ → inl tt

@@ -22,3 +22,6 @@ _→∙_ A B = Σ[ f ∈ (typ A → typ B) ] f (pt A) ≡ pt B
 
 _→∙_∙ : ∀{ℓ ℓ'} → (A : Pointed ℓ) (B : Pointed ℓ') → Pointed (ℓ-max ℓ ℓ')
 A →∙ B ∙  = (A →∙ B) , (λ x → pt B) , refl
+
+idfun∙ : ∀ {ℓ} (A : Pointed ℓ) → A →∙ A
+idfun∙ A = (λ x → x) , refl

@@ -38,39 +38,41 @@ exchange : ∀ {ℓ} {A : Type ℓ} {a b c : A} {p q r : a ≡ b} {p' q' r' : b 
            (α : p ≡ q) (β : q ≡ r) (α' : p' ≡ q') (β' : q' ≡ r')
         → (α ∙ β) ⋆ (α' ∙ β') ≡ (α ⋆ α') ∙ (β ⋆ β')
 exchange {A = A} {a = a} {c = c} {p = p} {r = r} {p' = p'} {r' = r'} α β α' β' z i =
-         hcomp (λ k → λ { (i = i0) → p ∙ p'
-                         ; (i = i1) → (β ⋆ β') (k ∨ ~ z)
-                         ; (z = i0) → ((α ∙ β) ⋆ (α' ∙ β')) i })
-               (bottom z i)
+  hcomp (λ k → λ { (i = i0) → p ∙ p'
+                  ; (i = i1) → (β ⋆ β') (k ∨ ~ z)
+                  ; (z = i0) → ((α ∙ β) ⋆ (α' ∙ β')) i })
+        (bottom z i)
   where
   bottom : PathP (λ i → p ∙ p' ≡ (β ⋆ β') (~ i)) ((α ∙ β) ⋆ (α' ∙ β')) (α ⋆ α')
-  bottom i = hcomp (λ k → λ { (i = i0) → (α ∙ β) ⋆ (α' ∙ β')
-                             ; (i = i1) → rUnit α (~ k) ⋆ rUnit α' (~ k)})
-                   ((α ∙ λ j → β (~ i ∧ j)) ⋆ (α' ∙ λ j → β' (~ i ∧ j)))
-
+  bottom i =
+    hcomp (λ k → λ { (i = i0) → (α ∙ β) ⋆ (α' ∙ β')
+                    ; (i = i1) → rUnit α (~ k) ⋆ rUnit α' (~ k)})
+          ((α ∙ λ j → β (~ i ∧ j)) ⋆ (α' ∙ λ j → β' (~ i ∧ j)))
 
 Eckmann-Hilton : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (α β : typ ((Ω^ (2 + n)) A))
               → α ∙ β ≡ β ∙ α
 Eckmann-Hilton {A = (A , pt)} zero α β =
-        α ∙ β                                                                                      ≡⟨ (λ i → unit1 α (~ i) ∙ unit2 β (~ i)) ⟩
-        (rUnit refl ∙ (refl ⋆ α) ∙ sym (rUnit refl)) ∙ lUnit refl ∙ (β ⋆ refl) ∙ sym (lUnit refl)  ≡⟨ helper (rUnit refl) (refl ⋆ α) (β ⋆ refl) ⟩
-        rUnit refl ∙ ((refl ⋆ α) ∙ (β ⋆ refl)) ∙ sym (rUnit refl)                                  ≡⟨ (λ i → rUnit refl ∙ exchange refl β α refl (~ i) ∙ sym (rUnit refl)) ⟩
-        rUnit refl ∙ ((refl ∙ β) ⋆ (α ∙ refl)) ∙ sym (rUnit refl)                                  ≡⟨ (λ i → rUnit refl ∙ helper2 i ∙ sym (rUnit refl)) ⟩
-        rUnit refl ∙ ((β ∙ refl) ⋆ (refl ∙ α)) ∙ sym (rUnit refl)                                  ≡⟨ (λ i → rUnit refl ∙ exchange β refl refl α i ∙ sym (rUnit refl) ) ⟩
-        rUnit refl ∙ ((β ⋆ refl) ∙ (refl ⋆ α)) ∙ sym (rUnit refl)                                  ≡⟨ sym (helper (rUnit refl) (β ⋆ refl) (refl ⋆ α))  ⟩
-        (lUnit refl ∙ (β ⋆ refl) ∙ sym (lUnit refl)) ∙ rUnit refl ∙ (refl ⋆ α) ∙ sym (rUnit refl)  ≡⟨ (λ i → unit2 β i ∙ unit1 α i) ⟩
-        β ∙ α ∎
+  α ∙ β                                                                                      ≡⟨ (λ i → unit1 α (~ i) ∙ unit2 β (~ i)) ⟩
+  (rUnit refl ∙ (refl ⋆ α) ∙ sym (rUnit refl)) ∙ lUnit refl ∙ (β ⋆ refl) ∙ sym (lUnit refl)  ≡⟨ helper (rUnit refl) (refl ⋆ α) (β ⋆ refl) ⟩
+  rUnit refl ∙ ((refl ⋆ α) ∙ (β ⋆ refl)) ∙ sym (rUnit refl)                                  ≡⟨ (λ i → rUnit refl ∙ exchange refl β α refl (~ i) ∙ sym (rUnit refl)) ⟩
+  rUnit refl ∙ ((refl ∙ β) ⋆ (α ∙ refl)) ∙ sym (rUnit refl)                                  ≡⟨ (λ i → rUnit refl ∙ helper2 i ∙ sym (rUnit refl)) ⟩
+  rUnit refl ∙ ((β ∙ refl) ⋆ (refl ∙ α)) ∙ sym (rUnit refl)                                  ≡⟨ (λ i → rUnit refl ∙ exchange β refl refl α i ∙ sym (rUnit refl) ) ⟩
+  rUnit refl ∙ ((β ⋆ refl) ∙ (refl ⋆ α)) ∙ sym (rUnit refl)                                  ≡⟨ sym (helper (rUnit refl) (β ⋆ refl) (refl ⋆ α))  ⟩
+  (lUnit refl ∙ (β ⋆ refl) ∙ sym (lUnit refl)) ∙ rUnit refl ∙ (refl ⋆ α) ∙ sym (rUnit refl)  ≡⟨ (λ i → unit2 β i ∙ unit1 α i) ⟩
+  β ∙ α ∎
   where
-  helper : ∀ {ℓ} {A : Type ℓ} {a b : A} (p : a ≡ b) (q q' : b ≡ b) → (p ∙ q ∙ (sym p)) ∙ p ∙ q' ∙ sym p ≡ p ∙ (q ∙ q') ∙ sym p
-  helper p q q' = (p ∙ q ∙ (sym p)) ∙ p ∙ q' ∙ sym p ≡⟨ (λ i → assoc p q (sym p) i ∙ p ∙ q' ∙ sym p) ⟩
-                   ((p ∙ q) ∙ sym p) ∙ p ∙ q' ∙ sym p ≡⟨ assoc ((p ∙ q) ∙ sym p) p (q' ∙ sym p) ⟩
-                   (((p ∙ q) ∙ sym p) ∙ p) ∙ q' ∙ sym p ≡⟨ (λ i → assoc (p ∙ q) (sym p) p (~ i) ∙ q' ∙ sym p) ⟩
-                   ((p ∙ q) ∙ (sym p ∙ p)) ∙ q' ∙ sym p ≡⟨ (λ i → ((p ∙ q) ∙ lCancel p i) ∙ q' ∙ sym p) ⟩
-                   ((p ∙ q) ∙ refl) ∙ q' ∙ sym p ≡⟨ (λ i → rUnit (p ∙ q) (~ i) ∙ q' ∙ sym p) ⟩
-                   (p ∙ q) ∙ q' ∙ sym p ≡⟨ assoc (p ∙ q) q' (sym p) ⟩
-                   ((p ∙ q) ∙ q') ∙ sym p ≡⟨ (λ i → assoc p q q' (~ i) ∙ sym p) ⟩
-                   (p ∙ (q ∙ q')) ∙ sym p ≡⟨ sym (assoc p (q ∙ q') (sym p)) ⟩
-                   p ∙ (q ∙ q') ∙ sym p ∎
+  helper : ∀ {ℓ} {A : Type ℓ} {a b : A} (p : a ≡ b) (q q' : b ≡ b)
+        → (p ∙ q ∙ (sym p)) ∙ p ∙ q' ∙ sym p ≡ p ∙ (q ∙ q') ∙ sym p
+  helper p q q' =
+    (p ∙ q ∙ (sym p)) ∙ p ∙ q' ∙ sym p                      ≡⟨ (λ i → assoc p q (sym p) i ∙ p ∙ q' ∙ sym p) ⟩
+    ((p ∙ q) ∙ sym p) ∙ p ∙ q' ∙ sym p                      ≡⟨ assoc ((p ∙ q) ∙ sym p) p (q' ∙ sym p) ⟩
+    (((p ∙ q) ∙ sym p) ∙ p) ∙ q' ∙ sym p                    ≡⟨ (λ i → assoc (p ∙ q) (sym p) p (~ i) ∙ q' ∙ sym p) ⟩
+    ((p ∙ q) ∙ (sym p ∙ p)) ∙ q' ∙ sym p                    ≡⟨ (λ i → ((p ∙ q) ∙ lCancel p i) ∙ q' ∙ sym p) ⟩
+    ((p ∙ q) ∙ refl) ∙ q' ∙ sym p                           ≡⟨ (λ i → rUnit (p ∙ q) (~ i) ∙ q' ∙ sym p) ⟩
+    (p ∙ q) ∙ q' ∙ sym p                                    ≡⟨ assoc (p ∙ q) q' (sym p) ⟩
+    ((p ∙ q) ∙ q') ∙ sym p                                  ≡⟨ (λ i → assoc p q q' (~ i) ∙ sym p) ⟩
+    (p ∙ (q ∙ q')) ∙ sym p                                  ≡⟨ sym (assoc p (q ∙ q') (sym p)) ⟩
+    p ∙ (q ∙ q') ∙ sym p ∎
 
   helper2 : (refl ∙ β) ⋆ (α ∙ refl) ≡ ((β ∙ refl) ⋆ (refl ∙ α))
   helper2 = (λ i → (rUnit ((lUnit β) (~ i)) i) ⋆ (lUnit (rUnit α (~ i)) i))
@@ -90,7 +92,8 @@ Eckmann-Hilton {A = (A , pt)} (suc n) α β = Eckmann-Hilton 0 α β
 
 
 {- Homotopy group version -}
-π-comp : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → ∥ typ ((Ω^ (suc n)) A) ∥₀ → ∥ typ ((Ω^ (suc n)) A) ∥₀ → ∥ typ ((Ω^ (suc n)) A) ∥₀
+π-comp : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → ∥ typ ((Ω^ (suc n)) A) ∥₀
+      → ∥ typ ((Ω^ (suc n)) A) ∥₀ → ∥ typ ((Ω^ (suc n)) A) ∥₀
 π-comp n = elim2 (λ _ _ → setTruncIsSet) λ p q → ∣ p ∙ q ∣₀
 
 Eckmann-Hilton-π : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p q : ∥ typ ((Ω^ (2 + n)) A) ∥₀)
