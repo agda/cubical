@@ -7,6 +7,7 @@ open import Cubical.Foundations.Prelude hiding ( comp )
 import Cubical.Foundations.Isomorphism as I
 import Cubical.Foundations.Equiv as E
 import Cubical.Foundations.Equiv.HalfAdjoint as HAE
+open import Cubical.Data.Prod.Base
 
 record isGroup {ℓ} (A : Type ℓ) : Type ℓ where
   constructor group-struct
@@ -26,6 +27,12 @@ record Group ℓ : Type (ℓ-suc ℓ) where
     type : Type ℓ
     setStruc : isSet type
     groupStruc : isGroup type
+
+isAbelianGroup : ∀ {ℓ} → Type (ℓ-suc ℓ)
+isAbelianGroup {ℓ} = Σ[ G ∈ Group ℓ ] (∀ a b → isGroup.comp (Group.groupStruc G) a b ≡ isGroup.comp (Group.groupStruc G) b a)
+
+-- (group type setStruc (group-struct id inv comp lUnit rUnit assoc lCancel rCancel)) =
+  -- (a b : type) → comp a b ≡ comp b a
 
 isMorph : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (f : (Group.type G → Group.type H)) → Type (ℓ-max ℓ ℓ')
 isMorph (group G Gset (group-struct _ _ _⊙_ _ _ _ _ _))

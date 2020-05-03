@@ -4,6 +4,8 @@ module Cubical.HITs.Pushout.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Pointed
+open import Cubical.Data.Prod
 
 open import Cubical.Data.Unit
 

@@ -259,11 +259,7 @@ groupoidTrunc≡Trunc1 = ua groupoidTrunc≃Trunc1
 
 abstract
   isOfHLevelHLevel2 : ∀ n → isOfHLevel (suc n) (HLevel ℓ n)
-  isOfHLevelHLevel2 0 = isPropHContr
-  isOfHLevelHLevel2 (suc n) x y = subst (isOfHLevel (suc n)) eq (isOfHLevel≡ (suc n) (snd x) (snd y))
-    where eq : ∀ {A B : Type ℓ} {hA : isOfHLevel (suc n) A} {hB : isOfHLevel (suc n) B}
-               → (A ≡ B) ≡ ((A , hA) ≡ (B , hB))
-          eq = ua (_ , ΣProp≡-equiv (λ _ → isPropIsOfHLevel (suc n)))
+  isOfHLevelHLevel2 n = isOfHLevelHLevel n 
 
   {- Proofs of Theorem 7.3.12. and Corollary 7.3.13. in the HoTT book  -}
 
@@ -274,19 +270,11 @@ module ΩTrunc where
                          (λ a b → ∥ a ≡ b ∥ n , isOfHLevelTrunc (2+ n)) x y .fst
 
   {- We will need P to be of hLevel n + 3  -}
-  hLevelP : {n : ℕ₋₂} (a b : ∥ B ∥ (suc₋₂ n)) → isOfHLevel (2+ (suc₋₂ n)) (P a b)
-  hLevelP {n = n} =
-    elim2 (λ x y → isProp→isOfHLevelSuc (2+ n) (isPropIsOfHLevel (2+ suc₋₂ n)))
-          (λ a b → isOfHLevelSuc (2+ n) (isOfHLevelTrunc (2+ n)))
-
-
-  decode* : ∀ {n : ℕ₋₂} (u v : B)
-          → P {n = n} ∣ u ∣ ∣ v ∣ → Path (∥ B ∥ (suc₋₂ n)) ∣ u ∣ ∣ v ∣
-  decode* {B = B} {n = neg2} u v =
-    rec ( isOfHLevelTrunc 1 ∣ u ∣ ∣ v ∣
-        , λ _ → isOfHLevelSuc 1 (isOfHLevelTrunc 1) _ _ _ _) (λ p i → ∣ p i ∣)
-  decode* {n = ℕ₋₂.-1+ n} u v =
-    rec (isOfHLevelTrunc (suc (suc n)) ∣ u ∣ ∣ v ∣) (λ p i → ∣ p i ∣)
+  abstract
+    hLevelP : {n : ℕ₋₂} (a b : ∥ B ∥ (suc₋₂ n)) → isOfHLevel (2+ (suc₋₂ n)) (P a b)
+    hLevelP {n = n} =
+      elim2 (λ x y → isProp→isOfHLevelSuc (2+ n) (isPropIsOfHLevel (2+ suc₋₂ n)))
+            (λ a b → isOfHLevelSuc (2+ n) (isOfHLevelTrunc (2+ n)))
 
   {- decode function from P x y to x ≡ y -}
   decode-fun : {n : ℕ₋₂} (x y : ∥ B ∥ (suc₋₂ n)) → P x y → x ≡ y
@@ -295,7 +283,13 @@ module ΩTrunc where
                                 (λ _ → isOfHLevelSuc (2+ suc₋₂ n) (isOfHLevelTrunc (2+ suc₋₂ n)) u v))
           decode*
       where
- 
+      decode* : ∀ {n : ℕ₋₂} (u v : B)
+              → P {n = n} ∣ u ∣ ∣ v ∣ → Path (∥ B ∥ (suc₋₂ n)) ∣ u ∣ ∣ v ∣
+      decode* {B = B} {n = neg2} u v =
+        rec ( isOfHLevelTrunc 1 ∣ u ∣ ∣ v ∣
+            , λ _ → isOfHLevelSuc 1 (isOfHLevelTrunc 1) _ _ _ _) (cong ∣_∣)
+      decode* {n = ℕ₋₂.-1+ n} u v =
+        rec (isOfHLevelTrunc (suc (suc n)) ∣ u ∣ ∣ v ∣) (cong ∣_∣)
 
   {- auxiliary function r used to define encode -}
   r : {m : ℕ₋₂} (u : ∥ B ∥ (suc₋₂ m)) → P u u
