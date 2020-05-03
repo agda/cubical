@@ -244,7 +244,7 @@ groupoidTrunc≡Trunc1 = ua groupoidTrunc≃Trunc1
 
 abstract
   isOfHLevelHLevel2 : ∀ n → isOfHLevel (suc n) (HLevel ℓ n)
-  isOfHLevelHLevel2 n = isOfHLevelHLevel n 
+  isOfHLevelHLevel2 n = isOfHLevelHLevel n
 
   {- Proofs of Theorem 7.3.12. and Corollary 7.3.13. in the HoTT book  -}
 
@@ -347,7 +347,7 @@ PathΩ n = PathIdTrunc n
 
 truncOfTruncIso : (n m : ℕ) → Iso (hLevelTrunc n A) (hLevelTrunc n (hLevelTrunc (m + n) A))
 Iso.fun (truncOfTruncIso n m) = elim (λ _ → isOfHLevelTrunc n) λ a → ∣ ∣ a ∣ ∣
-Iso.inv (truncOfTruncIso {A = A} n m) = 
+Iso.inv (truncOfTruncIso {A = A} n m) =
   elim (λ _ → isOfHLevelTrunc n)
        (elim (λ _ → (isOfHLevelPlus m (isOfHLevelTrunc n )))
              λ a → ∣ a ∣)
