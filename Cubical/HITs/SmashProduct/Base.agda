@@ -104,7 +104,7 @@ Smash→⋀ (proj x y) = inr (x , y)
 Smash→⋀ (gluel a i) = push (inl a) (~ i)
 Smash→⋀ (gluer b i) = push (inr b) (~ i)
 
-
+{- associativity maps for smash produts. Proof pretty much direcly translated from https://github.com/ecavallo/redtt/blob/master/library/pointed/smash.red -}
 private
   pivotl : (b b' : typ B)
          → Path (Smash A B) (proj (snd A) b) (proj (snd A) b')
@@ -180,12 +180,12 @@ private
       top-filler2 : I → I → Smash (Smash∙ C B) A
       top-filler2 i j =
         hcomp (λ k → λ { (j = i0) → gluer (snd A) (i ∧ k)
-                        ; (j = i1) → gluel (gluer b (~ k)) i})
-              (hcomp (λ k → λ { (j = i0) → gluel (gluer (snd B) i0) (~ k ∧ (~ i))
-                               ; (j = i1) → gluel (baser) (~ k ∨ i)
-                               ; (i = i0) → gluel (gluer (snd B) j) (~ k)
-                               ; (i = i1) → gluel (proj (snd C) (snd B)) j })
-                     (gluel (proj (snd C) (snd B)) (j ∨ (~ i))))
+                          ; (j = i1) → gluel (gluer b (~ k)) i})
+                (hcomp (λ k → λ { (j = i0) → gluel (gluer (snd B) i0) (~ k ∧ (~ i))
+                                 ; (j = i1) → gluel (baser) (~ k ∨ i)
+                                 ; (i = i0) → gluel (gluer (snd B) j) (~ k)
+                                 ; (i = i1) → gluel (proj (snd C) (snd B)) j })
+                       (gluel (proj (snd C) (snd B)) (j ∨ (~ i))))
 
   rearrange : Smash (Smash∙ A B) C → Smash (Smash∙ C B) A
   rearrange basel = basel

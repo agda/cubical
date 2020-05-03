@@ -77,13 +77,15 @@ Eckmann-Hilton {A = (A , pt)} zero α β =
   helper2 : (refl ∙ β) ⋆ (α ∙ refl) ≡ ((β ∙ refl) ⋆ (refl ∙ α))
   helper2 = (λ i → (rUnit ((lUnit β) (~ i)) i) ⋆ (lUnit (rUnit α (~ i)) i))
 
-  unit1 : {a : A} (γ : Path (a ≡ a) (λ _ → a) λ _ → a) → lUnit refl ∙ (refl ⋆ γ) ∙ sym (lUnit refl) ≡ γ
+  unit1 : {a : A} (γ : Path (a ≡ a) (λ _ → a) λ _ → a)
+       → lUnit refl ∙ (refl ⋆ γ) ∙ sym (lUnit refl) ≡ γ
   unit1 {a = a} γ = lUnit refl ∙ (refl ⋆ γ) ∙ sym (lUnit refl)  ≡⟨ (λ i → (λ j → lUnit refl (j ∧ ~ i)) ∙ (λ j → lUnit (γ j) (~ i)) ∙ λ j → lUnit refl (~ i ∧ ~ j)) ⟩
                     refl ∙ γ ∙ refl                             ≡⟨ (λ i → lUnit (rUnit γ (~ i)) (~ i)) ⟩
                     γ ∎
 
 
-  unit2 : {a : A} (γ : Path (a ≡ a) (λ _ → a) λ _ → a) → rUnit refl ∙ (γ ⋆ refl) ∙ sym (rUnit refl) ≡ γ
+  unit2 : {a : A} (γ : Path (a ≡ a) (λ _ → a) λ _ → a)
+       → rUnit refl ∙ (γ ⋆ refl) ∙ sym (rUnit refl) ≡ γ
   unit2 γ = rUnit refl ∙ (γ ⋆ refl) ∙ sym (rUnit refl)          ≡⟨ (λ i → (λ j → rUnit refl (j ∧ ~ i)) ∙ (λ j → rUnit (γ j) (~ i)) ∙ λ j → rUnit refl (~ i ∧ ~ j)) ⟩
             refl ∙ γ ∙ refl                                     ≡⟨ (λ i → lUnit (rUnit γ (~ i)) (~ i)) ⟩
             γ ∎

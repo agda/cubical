@@ -51,7 +51,7 @@ module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc 
           ( (∀ t → isContr (fiber (fwd p a) t))
           , isProp→isOfHLevelSuc n (isPropΠ λ _ → isPropIsContr)
           ))
-        
+
         (isHLevelConnectedPoint (suc n) connA (pt A))
         .equiv-proof
         (λ _ → Trunc.elim

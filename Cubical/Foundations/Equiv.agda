@@ -158,15 +158,11 @@ infix   1 _■
 
 composesToId→Equiv : (f : A → B) (g : B → A) → f ∘ g ≡ idfun B → isEquiv f → isEquiv g
 composesToId→Equiv f g id iseqf =
-              isoToIsEquiv (iso g
-                                f
-                                (λ b → (λ i → (equiv-proof iseqf (f b) .snd (g (f b) , cong (λ h → h (f b)) id) (~ i))  .fst ) ∙
-                                   cong (λ x → (equiv-proof iseqf (f b) .fst .fst )) id ∙
-                                   λ i → (equiv-proof iseqf (f b) .snd) (b , refl) i .fst )
-                                λ a → cong (λ f → f a) id)
-
-composesToId→Iso : (G : Iso A B) → (g : B → A) → (Iso.fun G) ∘ g ≡ idfun B → Iso B A
-Iso.fun (composesToId→Iso (iso fun inv rightInv leftInv) g path) = g
-Iso.inv (composesToId→Iso (iso fun inv rightInv leftInv) g path) = fun
-Iso.rightInv (composesToId→Iso (iso fun inv rightInv leftInv) g path) b = (sym (leftInv (g (fun b))) ∙ cong (λ x → inv x) (cong (λ f → f (fun b)) path)) ∙ leftInv b
-Iso.leftInv (composesToId→Iso (iso fun inv rightInv leftInv) g path) b = cong (λ f → f b) path
+  isoToIsEquiv
+    (iso g
+         f
+         (λ b → (λ i → (equiv-proof iseqf (f b) .snd (g (f b) ,
+                          cong (λ h → h (f b)) id) (~ i))  .fst )
+                 ∙ cong (λ x → (equiv-proof iseqf (f b) .fst .fst )) id
+                 ∙ λ i → (equiv-proof iseqf (f b) .snd) (b , refl) i .fst )
+         λ a → cong (λ f → f a) id)
