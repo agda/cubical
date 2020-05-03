@@ -254,10 +254,12 @@ Iso.leftInv (decodeIso n x) b = cong (ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣) (f
 Iso-Kn-ΩKn+1 : (n : ℕ) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
 Iso-Kn-ΩKn+1 zero = compIso isolooper (congIso (truncIdempotent≃ _ isOfHLevelS1))
 Iso-Kn-ΩKn+1 (suc zero) = compIso Iso∣ϕ∣ (decodeIso _ north)
-Iso-Kn-ΩKn+1 (suc (suc n)) = compIso (connectedTruncIso2 (4 + n) _ (ϕ north) (n , (λ i → suc (suc (suc (+-suc n n (~ i))))) ∙
-                                                                                  (λ i → suc (suc (+-suc n (suc n) ((~ i))))))
+Iso-Kn-ΩKn+1 (suc (suc n)) = compIso (connectedTruncIso2 (4 + n) _ (ϕ north) (n , helper)
                                                                              (isConnectedσ (suc n) (sphereConnected _)))
                                      (decodeIso _ north)
+  where
+  helper : n + (4 + n) ≡ 2 + (n + (2 + n))
+  helper = +-suc n (3 + n) ∙ (λ i → suc (+-suc n (2 + n) i))
 
 mapId2 : (n : ℕ) →  Kn→ΩKn+1 n ≡ Iso.fun (Iso-Kn-ΩKn+1 n)
 mapId2 zero = refl

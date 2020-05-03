@@ -92,10 +92,3 @@ setSigmaIso {A = A} {B = B} = iso fun funinv sect retr
   retr : retract fun funinv
   retr = elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
               λ { (a , p) → refl }
-
-
-setSigmaIso2 : ∀ {ℓ} {B : A → Type ℓ} (f g : (x : A) → B x) (a : A) (p1 p2 : f a ≡ g a)
-              → ((x : A) → isSet (B x))
-              → Path ∥ Σ[ x ∈ A ] f x ≡ g x ∥₀ ∣ (a , p1) ∣₀ ∣ (a , p2) ∣₀ 
-setSigmaIso2 f g a p1 p2 set i = ∣ a , set a (f a) (g a) p1 p2 i ∣₀
-

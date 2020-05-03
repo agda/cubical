@@ -111,7 +111,8 @@ compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁
 compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) .Iso.leftInv a
   = cong inv (leftInv₁ (fun a) ) ∙ leftInv a
 
-composesToId→Iso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}  (G : Iso A B) → (g : B → A) → (Iso.fun G) ∘ g ≡ idfun B → Iso B A
+composesToId→Iso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}  (G : Iso A B) (g : B → A)
+                 → (Iso.fun G) ∘ g ≡ idfun B → Iso B A
 Iso.fun (composesToId→Iso (iso fun inv rightInv leftInv) g path) = g
 Iso.inv (composesToId→Iso (iso fun inv rightInv leftInv) g path) = fun
 Iso.rightInv (composesToId→Iso (iso fun inv rightInv leftInv) g path) b =

@@ -149,10 +149,6 @@ elim3 {n = n} hB g =
   elim2 (λ _ _ → isOfHLevelΠ n (hB _ _))
     (λ a b → elim (λ _ → hB _ _ _) (λ c → g a b c))
 
-
-∥_∥-fun : ∀ {ℓ'} {B : Type ℓ'} (f : A → B) (n : ℕ₋₂) → ∥ A ∥ n → ∥ B ∥ n
-∥ f ∥-fun n = elim (λ _ → isOfHLevelTrunc (2+ n)) λ a → ∣ f a ∣
-
 HLevelTruncModality : ∀ {ℓ} (n : ℕ) → Modality ℓ
 isModal       (HLevelTruncModality n) = isOfHLevel n
 isModalIsProp (HLevelTruncModality n) = isPropIsOfHLevel n
@@ -171,23 +167,12 @@ truncIdempotent n hA = ua (invEquiv (truncIdempotent≃ n hA))
 
 -- universal property
 
-module univTrunc where
-  fun : ∀ {ℓ} (n : ℕ₋₂) {B : HLevel ℓ (2+ n)} → (∥ A ∥ n → (fst B)) → (A → (fst B))
-  fun n {B , lev} = λ g a → g ∣ a ∣
-
-  inv : ∀ {ℓ} (n : ℕ₋₂) {B : HLevel ℓ (2+ n)} → (A → (fst B)) → (∥ A ∥ n → (fst B))
-  inv n {B , lev} = elim (λ _ → lev)
-
-  sect : ∀ {ℓ} (n : ℕ₋₂) {B : HLevel ℓ (2+ n)} → section {A = (∥ A ∥ n → (fst B))} {B = (A → (fst B))} (fun n {B}) (inv n {B})
-  sect n {B , lev} b = refl
-
-  retr : ∀ {ℓ} (n : ℕ₋₂) {B : HLevel ℓ (2+ n)} → retract {A = (∥ A ∥ n → (fst B))} {B = (A → (fst B))} (fun n {B}) (inv n {B})
-  retr neg2 {B , lev} b = funExt λ x → sym ((snd lev) (elim (λ _ → lev) (λ a → b ∣ a ∣) x)) ∙ (snd lev) (b x)
-  retr (-2+ suc n) {B , lev} b = funExt (elim (λ x → (isOfHLevelSuc (2+ (-2+ (suc n)) ) lev) ((elim (λ _ → lev) (λ a → b ∣ a ∣) x)) (b x)) λ a → refl)
-
-  univTrunc : ∀ {ℓ} (n : ℕ₋₂) {B : HLevel ℓ (2+ n)} → (∥ A ∥ n → (fst B)) ≃ (A → (fst B))
-  univTrunc n {B} = isoToEquiv (iso (fun n {B}) (inv n {B}) (sect n {B}) (retr n {B}))
-
+univTrunc : ∀ {ℓ} (n : ℕ) {B : HLevel ℓ n} → Iso (hLevelTrunc n A → B .fst) (A → B .fst)
+Iso.fun (univTrunc n {B , lev}) g a = g ∣ a ∣
+Iso.inv (univTrunc n {B , lev}) = elim λ _ → lev
+Iso.rightInv (univTrunc n {B , lev}) b = refl
+Iso.leftInv (univTrunc n {B , lev}) b = funExt (elim (λ x → isOfHLevelPath _ lev _ _)
+                                                     λ a → refl)
 
 -- functorial action
 
@@ -269,12 +254,11 @@ module ΩTrunc where
   P {n = n} x y =  elim2 (λ _ _  → isOfHLevelHLevel2 (2+ n))
                          (λ a b → ∥ a ≡ b ∥ n , isOfHLevelTrunc (2+ n)) x y .fst
 
-  {- We will need P to be of hLevel n + 3  -}
-  abstract
-    hLevelP : {n : ℕ₋₂} (a b : ∥ B ∥ (suc₋₂ n)) → isOfHLevel (2+ (suc₋₂ n)) (P a b)
-    hLevelP {n = n} =
-      elim2 (λ x y → isProp→isOfHLevelSuc (2+ n) (isPropIsOfHLevel (2+ suc₋₂ n)))
-            (λ a b → isOfHLevelSuc (2+ n) (isOfHLevelTrunc (2+ n)))
+  {- We will need P to be of hLevel n + 3 -}
+  hLevelP : {n : ℕ₋₂} (a b : ∥ B ∥ (suc₋₂ n)) → isOfHLevel (2+ (suc₋₂ n)) (P a b)
+  hLevelP {n = n} =
+    elim2 (λ x y → isProp→isOfHLevelSuc (2+ n) (isPropIsOfHLevel (2+ suc₋₂ n)))
+          (λ a b → isOfHLevelSuc (2+ n) (isOfHLevelTrunc (2+ n)))
 
   {- decode function from P x y to x ≡ y -}
   decode-fun : {n : ℕ₋₂} (x y : ∥ B ∥ (suc₋₂ n)) → P x y → x ≡ y
@@ -358,28 +342,20 @@ PathIdTrunc n = isoToPath (ΩTrunc.IsoFinal n _ _)
 PathΩ : {a : A} (n : ℕ₋₂) → (Path (∥ A ∥ (suc₋₂ n)) ∣ a ∣ ∣ a ∣) ≡ (∥ a ≡ a ∥ n)
 PathΩ n = PathIdTrunc n
 
-truncEquivΩ : {a : A} (n : ℕ₋₂) → (∥ a ≡ a ∥ n) ≃ (_≡_ {A = ∥ A ∥ (suc₋₂ n)} ∣ a ∣ ∣ a ∣)
-truncEquivΩ {a = a} n = isoToEquiv (ΩTrunc.IsoFinal2 ∣ a ∣ ∣ a ∣)
-
 --------------------------
 
-truncOfTruncEq : (n m : ℕ) → ∥ A ∥ (-2+ n) ≃ ∥ ∥ A ∥ (-2+ (n + m)) ∥ (-2+ n)
-truncOfTruncEq {A = A} n m = isoToEquiv (iso fun funInv sect retr)
-  where
-  fun : ∥ A ∥ (-2+ n) → ∥ ∥ A ∥ (-2+ (n + m)) ∥ (-2+ n)
-  fun = elim (λ _ → isOfHLevelTrunc n) λ a → ∣ ∣ a ∣ ∣
-  funInv : ∥ ∥ A ∥ (-2+ (n + m)) ∥ (-2+ n) → ∥ A ∥ (-2+ n)
-  funInv = elim (λ _ → isOfHLevelTrunc n)
-                (elim (λ _ → transport (λ i → isOfHLevel (+-comm n m (~ i)) (∥ A ∥ (-2+ n)))
-                                        (isOfHLevelPlus m (isOfHLevelTrunc n )))
-                      λ a → ∣ a ∣)
 
-  sect : section fun funInv
-  sect = elim (λ x → isOfHLevelPath n (isOfHLevelTrunc n) _ _ )
-                  (elim (λ x → isOfHLevelPath (n + m) (transport (λ i → isOfHLevel (+-comm n m (~ i))
-                                                                                     (∥ ∥ A ∥ (-2+ (n + m)) ∥ (-2+ n)))
-                                                                  (isOfHLevelPlus m (isOfHLevelTrunc n))) _ _ )
-                        λ a → refl)
+truncOfTruncIso : (n m : ℕ) → Iso (hLevelTrunc n A) (hLevelTrunc n (hLevelTrunc (m + n) A))
+Iso.fun (truncOfTruncIso n m) = elim (λ _ → isOfHLevelTrunc n) λ a → ∣ ∣ a ∣ ∣
+Iso.inv (truncOfTruncIso {A = A} n m) = 
+  elim (λ _ → isOfHLevelTrunc n)
+       (elim (λ _ → (isOfHLevelPlus m (isOfHLevelTrunc n )))
+             λ a → ∣ a ∣)
+Iso.rightInv (truncOfTruncIso {A = A} n m) =
+  elim (λ x → isOfHLevelPath n (isOfHLevelTrunc n) _ _ )
+               (elim (λ x → isOfHLevelPath (m + n) (isOfHLevelPlus m (isOfHLevelTrunc n)) _ _ )
+                      λ a → refl)
+Iso.leftInv (truncOfTruncIso n m) = elim (λ x → isOfHLevelPath n (isOfHLevelTrunc n) _ _) λ a → refl
 
-  retr : retract fun funInv
-  retr = elim (λ x → isOfHLevelPath n (isOfHLevelTrunc n) _ _) λ a → refl
+truncOfTruncEq : (n m : ℕ) → (hLevelTrunc n A) ≃ (hLevelTrunc n (hLevelTrunc (m + n) A))
+truncOfTruncEq n m = isoToEquiv (truncOfTruncIso n m)

@@ -57,6 +57,7 @@ postCompEquiv : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B
              → (C → A) ≃ (C → B)
 postCompEquiv e = (λ φ x → fst e (φ x)) , isEquivPostComp e
 
+
 hasSection : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → Type _
 hasSection {A = A} {B} f = Σ[ g ∈ (B → A) ] section f g
 

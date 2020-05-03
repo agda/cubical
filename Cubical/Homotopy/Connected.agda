@@ -35,7 +35,7 @@ isHLevelTruncatedFun : ∀ {ℓ ℓ'} (n : ℕ) {A : Type ℓ} {B : Type ℓ'} (
 isHLevelTruncatedFun n f = ∀ b → isOfHLevel n (fiber f b)
 
 isConnectedSubtr : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n m : ℕ) (f : A → B)
-                → isHLevelConnectedFun (n + m) f
+                → isHLevelConnectedFun (m + n) f
                 → isHLevelConnectedFun n f
 isConnectedSubtr n m f iscon b =
   transport (λ i → isContr (ua (truncOfTruncEq {A = fiber f b} n m) (~ i) ))
@@ -238,9 +238,8 @@ connectedTruncIso {A = A} {B = B} (suc n) f con = g
            →  P (map fst p)
     helper P hlev pf = Trunc.elim hlev λ pair → pf (fst pair) (snd pair)
 
-  backRetract : (a : A) → ∥ fst ∥-fun (-1+ n) (fst (con (f a))) ≡ ∣ a ∣
-  backRetract a = cong (∥ fst ∥-fun (-1+ n))
-                       (snd (con (f a)) ∣ a , refl ∣)
+  backRetract : (a : A) → map fst (con (f a) .fst) ≡ ∣ a ∣
+  backRetract a = cong (map fst) (con (f a) .snd ∣ a , refl ∣)
 
   g : Iso (hLevelTrunc (suc n) A) (hLevelTrunc (suc n) B)
   Iso.fun g = map f
@@ -251,7 +250,7 @@ connectedTruncIso {A = A} {B = B} (suc n) f con = g
                               backSection
 
 connectedTruncIso2 : ∀ {ℓ} {A B : Type ℓ} (n m : ℕ) (f : A → B)
-                   → Σ[ x ∈ ℕ ] n + x ≡ m
+                   → Σ[ x ∈ ℕ ] x + n ≡ m
                    → isHLevelConnectedFun m f
                    → Iso (hLevelTrunc n A) (hLevelTrunc n B)
 connectedTruncIso2 {A = A} {B = B} n m f (x , pf) con =
