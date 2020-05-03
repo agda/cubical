@@ -35,7 +35,7 @@ open import Cubical.Data.Sum.Base
 open import Cubical.Data.HomotopyGroup
 open import Cubical.Data.Bool hiding (_⊕_)
 
-open import Cubical.ZCohomology.cupProdPrelims
+open import Cubical.ZCohomology.KcompPrelims
 
 private
   variable
