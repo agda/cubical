@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.ZCohomology.cupProdPrelims where
+module Cubical.ZCohomology.KcompPrelims where
 
 open import Cubical.ZCohomology.Base
 open import Cubical.HITs.S1
@@ -204,7 +204,7 @@ private
 
   ---------------------------------
   -- We cheat when n = 1 and use J to prove the following lemmma.  There is an obvious dependent path between ϕ base and ϕ north. Since the first one is an iso, so is the other.
-  --
+  -- So far this hasn't been an issue.
 
 
   pointFunIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ} {C : (A : Type ℓ) (a1 : A) → Type ℓ'} (p : A ≡ B) (a : A) (b : B) →
