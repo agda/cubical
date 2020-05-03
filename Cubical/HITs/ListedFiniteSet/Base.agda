@@ -2,7 +2,7 @@
 module Cubical.HITs.ListedFiniteSet.Base where
 
 open import Cubical.Core.Everything
-open import Cubical.Foundations.Logic
+open import Cubical.Foundations.Logic hiding (_∈_)
 open import Cubical.Foundations.Everything
 
 private
