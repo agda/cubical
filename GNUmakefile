@@ -42,7 +42,7 @@ check-README:
 
 .PHONY : check
 check: $(wildcard Cubical/**/*.agda)
-	$(foreach f, $(shell $(EVERYTHINGS) get-imports-README), $(AGDA) $(f);)
+	$(foreach f, $(shell $(EVERYTHINGS) get-imports-README), $(AGDA) "$(f)" && ) true
 	$(AGDA) Cubical/WithK.agda
 
 .PHONY: listings
