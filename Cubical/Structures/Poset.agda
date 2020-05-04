@@ -78,7 +78,7 @@ isAntisym {ℓ₀ = ℓ₀} {ℓ₁ = ℓ₁} {A = X} A-set _⊑_ = φ , φ-prop
     φ      : Type (ℓ-max ℓ₀ ℓ₁)
     φ      = ((x y : X) → [ x ⊑ y ] → [ y ⊑ x ] → x ≡ y)
     φ-prop : isProp φ
-    φ-prop = isPropΠ λ x → isPropΠ λ y → isPropΠ λ _ → isPropΠ λ _ → A-set x y
+    φ-prop = isPropΠ3 λ x y z → isPropΠ λ _ → A-set x y
 
 -- The predicate expressing that a given order satisfies the partial order
 -- axioms.
