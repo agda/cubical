@@ -93,7 +93,7 @@ PosetStr ℓ₁ = add-to-structure (Order ℓ₁) λ A _⊑_ → [ satPosetAx �
 PosetStr-set : (ℓ₁ : Level) (A : Type ℓ₀) → isSet (PosetStr ℓ₁ A)
 PosetStr-set ℓ₁ A =
   isSetΣ
-    (isSetΠ λ _ → isSetΠ λ _ → isSetHProp) λ _⊑_ →
+    (isSetΠ2 λ _ _ → isSetHProp) λ _⊑_ →
       isProp→isSet (snd (satPosetAx ℓ₁ A _⊑_))
 
 Poset : (ℓ₀ ℓ₁ : Level) → Type (ℓ-max (ℓ-suc ℓ₀) (ℓ-suc ℓ₁))
