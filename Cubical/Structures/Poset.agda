@@ -34,7 +34,7 @@ Order-is-SNS {ℓ₁ = ℓ₁} {X = X}  _⊑₀_ _⊑₁_ = f , f-equiv
     f i = funExt λ x → funExt λ y → ⇔toPath (fst (i x y)) (snd (i x y))
 
     ⇔-prop : isProp ((x y : X) → [ x ⊑₀ y ⇔ x ⊑₁ y ])
-    ⇔-prop = isPropΠ λ x → isPropΠ λ y → snd (x ⊑₀ y ⇔ x ⊑₁ y)
+    ⇔-prop = isPropΠ2 λ x y → snd (x ⊑₀ y ⇔ x ⊑₁ y)
 
     f-equiv : isEquiv f
     f-equiv = record { equiv-proof = λ eq → (g eq , sec eq) , h eq }
