@@ -98,6 +98,7 @@ shift-iso S@(A , B) =
     Iso⟨ α-iso-step-1-4-Iso-lem-12 ⟩
   M-type S ∎Iso
     where
+    abstract
       α-iso-step-5-Iso-helper0 :
         ∀ (a : (ℕ -> A))
         → (p : (n : ℕ) → a (suc n) ≡ a n)

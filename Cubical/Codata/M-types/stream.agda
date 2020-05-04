@@ -14,10 +14,10 @@ open import Cubical.Codata.M-types.Container
 -- Stream definitions using M-types --
 --------------------------------------
 
-stream-S : ∀ A -> Container
+stream-S : ∀ A -> Container ℓ-zero
 stream-S A = (A , (λ _ → Unit))
 
-stream : ∀ (A : Set₀) -> Set₀
+stream : ∀ (A : Type₀) -> Type₀
 stream A = M-type (stream-S A)
 
 cons : ∀ {A} -> A -> stream A -> stream A

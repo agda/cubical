@@ -45,7 +45,7 @@ out-inj : ∀ {ℓ} {S : Container ℓ} {Z : Type ℓ} -> ∀ {f g : Z → M-typ
 out-inj {ℓ} {S = S} {Z = Z} {f = f} {g = g} = iso→inv-Injection-Path {ℓ = ℓ} {A = P₀ S (M-type S)} {B = M-type S} {C = Z} (shift-iso S) {f = f} {g = g}
 
 in-inj-x : ∀ {ℓ} {S : Container ℓ} -> ∀ {x y : P₀ S (M-type S)} -> (in-fun x ≡ in-fun y) ≡ (x ≡ y)
-in-inj-x {ℓ} {S = S} {x = x} {y} = iso→fun-Injection-Path-x shift-iso
+in-inj-x {ℓ} {S = S} {x = x} {y} = iso→fun-Injection-Path-x (shift-iso S)
 
-out-inj-x : ∀ {ℓ} {S : Container {ℓ}} -> ∀ {x y : M-type S} -> (out-fun x ≡ out-fun y) ≡ (x ≡ y)
-out-inj-x {ℓ} {S = S} {x = x} {y} = iso→inv-Injection-Path-x shift-iso
+out-inj-x : ∀ {ℓ} {S : Container ℓ} -> ∀ {x y : M-type S} -> (out-fun x ≡ out-fun y) ≡ (x ≡ y)
+out-inj-x {ℓ} {S = S} {x = x} {y} = iso→inv-Injection-Path-x (shift-iso S)

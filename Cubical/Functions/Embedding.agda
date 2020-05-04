@@ -134,15 +134,14 @@ isEquiv→hasPropFibers e b = isContr→isProp (equiv-proof e b)
 isEquiv→isEmbedding : isEquiv f → isEmbedding f
 isEquiv→isEmbedding e = hasPropFibers→isEmbedding (isEquiv→hasPropFibers e)
 
-abstract
-  iso→isEmbedding : ∀ {ℓ} {A B : Set ℓ}
-    → (isom : Iso A B)
-    -------------------------------
-    → isEmbedding (Iso.fun isom)
-  iso→isEmbedding {A = A} {B} isom = (isEquiv→isEmbedding (equivIsEquiv (isoToEquiv isom)))
+iso→isEmbedding : ∀ {ℓ} {A B : Type ℓ}
+  → (isom : Iso A B)
+  -------------------------------
+  → isEmbedding (Iso.fun isom)
+iso→isEmbedding {A = A} {B} isom = (isEquiv→isEmbedding (equivIsEquiv (isoToEquiv isom)))
 
 isEmbedding→Injection :
-  ∀ {ℓ} {A B C : Set ℓ}
+  ∀ {ℓ} {A B C : Type ℓ}
   → (a : A -> B)
   → (e : isEmbedding a)
   ----------------------
