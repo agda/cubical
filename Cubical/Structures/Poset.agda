@@ -22,10 +22,7 @@ Order : (ℓ₁ : Level) → Type ℓ₀ → Type (ℓ-max ℓ₀ (ℓ-suc ℓ�
 Order ℓ₁ A = A → A → hProp ℓ₁
 
 order-iso : (M N : Σ (Type ℓ₀) (Order ℓ₁)) →  fst M ≃ fst N → Type (ℓ-max ℓ₀ ℓ₁)
-order-iso (A , _⊑₀_) (B , _⊑₁_) eqv =
-  (x y : A) → [ x ⊑₀ y ⇔ f x ⊑₁ f y ]
-  where
-    f = equivFun eqv
+order-iso (A , _⊑₀_) (B , _⊑₁_) (f , _) = (x y : A) → [ x ⊑₀ y ⇔ f x ⊑₁ f y ]
 
 isSetOrder : (ℓ₁ : Level) (A : Type ℓ₀) → isSet (Order ℓ₁ A)
 isSetOrder ℓ₁ A = isSetΠ (λ _ → isSetΠ λ _ → isSetHProp)
