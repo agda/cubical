@@ -49,6 +49,6 @@ concat : ∀ {m n} → Vec (Vec A m) n → Vec A (n * m)
 concat []         = []
 concat (xs ∷ xss) = xs ++ concat xss
 
-lookup : ∀ {a n} {A : Set a} → Fin n → Vec A n → A
+lookup : ∀ {n} {A : Type ℓ} → Fin n → Vec A n → A
 lookup zero    (x ∷ xs) = x
 lookup (suc i) (x ∷ xs) = lookup i xs
