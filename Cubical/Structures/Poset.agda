@@ -97,7 +97,7 @@ PosetStr-set ℓ₁ A =
       isProp→isSet (snd (satPosetAx ℓ₁ A _⊑_))
 
 Poset : (ℓ₀ ℓ₁ : Level) → Type (ℓ-max (ℓ-suc ℓ₀) (ℓ-suc ℓ₁))
-Poset ℓ₀ ℓ₁ = Σ (Type ℓ₀) (PosetStr ℓ₁)
+Poset ℓ₀ ℓ₁ = TypeWithStr ℓ₀ (PosetStr ℓ₁)
 
 -- Some projections for syntactic convenience.
 
