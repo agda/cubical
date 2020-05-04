@@ -27,24 +27,24 @@ open import Cubical.Codata.M-types.Container
 
 open Iso
 
-in-inverse-out : ∀ {ℓ} {S : Container {ℓ}} -> (in-fun ∘ out-fun {S = S}) ≡ idfun (M-type S)
-in-inverse-out {S = S} = funExt (rightInv {A = P₀ (M-type S)} {B = M-type S} (shift-iso {S = S}))
+in-inverse-out : ∀ {ℓ} {S : Container ℓ} -> (in-fun ∘ out-fun {S = S}) ≡ idfun (M-type S)
+in-inverse-out {S = S} = funExt (rightInv {A = P₀ S (M-type S)} {B = M-type S} (shift-iso S))
 
-out-inverse-in : ∀ {ℓ} {S : Container {ℓ}} -> (out-fun {S = S} ∘ in-fun {S = S}) ≡ idfun (P₀ (M-type S))
-out-inverse-in {S = S} = funExt (leftInv {A = P₀ {S = S} (M-type S)} {B = M-type S} (shift-iso {S = S}))
+out-inverse-in : ∀ {ℓ} {S : Container ℓ} -> (out-fun {S = S} ∘ in-fun {S = S}) ≡ idfun (P₀ S (M-type S))
+out-inverse-in {S = S} = funExt (leftInv {A = P₀ S (M-type S)} {B = M-type S} (shift-iso S))
 
-in-out-id : ∀ {ℓ} {S : Container {ℓ}} -> ∀ {x y} → (in-fun (out-fun {S = S} x) ≡ in-fun (out-fun {S = S} y)) ≡ (x ≡ y)
+in-out-id : ∀ {ℓ} {S : Container ℓ} -> ∀ {x y} → (in-fun (out-fun {S = S} x) ≡ in-fun (out-fun {S = S} y)) ≡ (x ≡ y)
 in-out-id {x = x} {y} i = (in-inverse-out i x) ≡ (in-inverse-out i y)
 
 -- constructor properties
 
-in-inj : ∀ {ℓ} {S : Container {ℓ}} {Z : Set ℓ} -> ∀ {f g : Z → P₀ (M-type S)} -> (in-fun ∘ f ≡ in-fun ∘ g) ≡ (f ≡ g)
-in-inj {ℓ} {S = S} {Z = Z} {f = f} {g = g} = iso→fun-Injection-Path {ℓ = ℓ} {A = P₀ (M-type S)} {B = M-type S} {C = Z} (shift-iso) {f = f} {g = g}
+in-inj : ∀ {ℓ} {S : Container ℓ} {Z : Type ℓ} -> ∀ {f g : Z → P₀ S (M-type S)} -> (in-fun ∘ f ≡ in-fun ∘ g) ≡ (f ≡ g)
+in-inj {ℓ} {S = S} {Z = Z} {f = f} {g = g} = iso→fun-Injection-Path {ℓ = ℓ} {A = P₀ S (M-type S)} {B = M-type S} {C = Z} (shift-iso S) {f = f} {g = g}
 
-out-inj : ∀ {ℓ} {S : Container {ℓ}} {Z : Set ℓ} -> ∀ {f g : Z → M-type S} -> (out-fun ∘ f ≡ out-fun ∘ g) ≡ (f ≡ g)
-out-inj {ℓ} {S = S} {Z = Z} {f = f} {g = g} = iso→inv-Injection-Path {ℓ = ℓ} {A = P₀ (M-type S)} {B = M-type S} {C = Z} (shift-iso) {f = f} {g = g}
+out-inj : ∀ {ℓ} {S : Container ℓ} {Z : Type ℓ} -> ∀ {f g : Z → M-type S} -> (out-fun ∘ f ≡ out-fun ∘ g) ≡ (f ≡ g)
+out-inj {ℓ} {S = S} {Z = Z} {f = f} {g = g} = iso→inv-Injection-Path {ℓ = ℓ} {A = P₀ S (M-type S)} {B = M-type S} {C = Z} (shift-iso S) {f = f} {g = g}
 
-in-inj-x : ∀ {ℓ} {S : Container {ℓ}} -> ∀ {x y : P₀ (M-type S)} -> (in-fun x ≡ in-fun y) ≡ (x ≡ y)
+in-inj-x : ∀ {ℓ} {S : Container ℓ} -> ∀ {x y : P₀ S (M-type S)} -> (in-fun x ≡ in-fun y) ≡ (x ≡ y)
 in-inj-x {ℓ} {S = S} {x = x} {y} = iso→fun-Injection-Path-x shift-iso
 
 out-inj-x : ∀ {ℓ} {S : Container {ℓ}} -> ∀ {x y : M-type S} -> (out-fun x ≡ out-fun y) ≡ (x ≡ y)

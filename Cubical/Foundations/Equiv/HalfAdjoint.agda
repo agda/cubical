@@ -168,6 +168,7 @@ congEquiv {A = A} {B} {x} {y} e = isoToEquiv (iso intro elim intro-elim elim-int
 coherent : ∀ {ℓ} {A B : Set ℓ} (isom : Iso A B) → Set ℓ
 coherent (iso f g H K) = ∀ x → cong f (K x) ≡ H (f x)
 
+-- vogt's lemma (https://ncatlab.org/nlab/show/homotopy+equivalence#vogts_lemma)
 vogt : ∀ {ℓ} {X Y : Set ℓ} → (isom : Iso X Y) → Σ ((y : Y) → Iso.fun isom (Iso.inv isom y) ≡ y) λ iso' → coherent (iso (Iso.fun isom) (Iso.inv isom) iso' (Iso.leftInv isom))
 vogt {X = X} isom@(iso f g ε η) = ε' , γ
   where

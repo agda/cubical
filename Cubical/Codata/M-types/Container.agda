@@ -24,60 +24,57 @@ open import Cubical.Codata.M-types.helper
 -- Container and Container Functor --
 -------------------------------------
 
-Container : ∀ {ℓ} -> Set (ℓ-suc ℓ)
-Container {ℓ} = Σ (Set ℓ) (λ A -> A -> Set ℓ)
+Container : ∀ ℓ -> Type (ℓ-suc ℓ)
+Container ℓ = Σ[ A ∈ (Type ℓ) ] (A → Type ℓ)
 
-P₀ : ∀ {ℓ} {S : Container {ℓ}} -> Set ℓ -> Set ℓ
-P₀ {S = S} X  = Σ (S .fst) λ x → (S .snd x) -> X
+P₀ : ∀ {ℓ} (S : Container ℓ) -> Type ℓ -> Type ℓ
+P₀ (A , B) X  = Σ[ a ∈ A ] (B a -> X)
 
-P₁ : ∀ {ℓ} {S : Container {ℓ}} {X Y} (f : X -> Y) -> P₀ {S = S} X -> P₀ {S = S} Y
+P₁ : ∀ {ℓ} {S : Container ℓ} {X Y} (f : X -> Y) -> P₀ S X -> P₀ S Y
 P₁ {S = S} f = λ { (a , g) ->  a , f ∘ g }
 
 -----------------------
 -- Chains and Limits --
 -----------------------
 
-record Chain {ℓ} : Set (ℓ-suc ℓ) where
+record Chain ℓ : Type (ℓ-suc ℓ) where
   constructor _,,_
   field
-    X : ℕ -> Set ℓ
+    X : ℕ -> Type ℓ
     π : {n : ℕ} -> X (suc n) -> X n
 
 open Chain public
 
-L : ∀ {ℓ} -> Chain {ℓ} → Set ℓ
-L (x ,, pi) = Σ ((n : ℕ) → x n) λ x → (n : ℕ) → pi {n = n} (x (suc n)) ≡ x n
+limit-of-chain : ∀ {ℓ} -> Chain ℓ → Type ℓ
+limit-of-chain (x ,, pi) = Σ[ x ∈ ((n : ℕ) → x n) ] ((n : ℕ) → pi {n = n} (x (suc n)) ≡ x n)
 
-shift-chain : ∀ {ℓ} -> Chain {ℓ} -> Chain {ℓ}
+shift-chain : ∀ {ℓ} -> Chain ℓ -> Chain ℓ
 shift-chain = λ X,π -> ((λ x → X X,π (suc x)) ,, λ {n} → π X,π {suc n})
-
-! : ∀ {ℓ} {A : Set ℓ} (x : A) -> Lift {ℓ-zero} {ℓ} Unit
-! x = lift tt
 
 ------------------------------------------------------
 -- Limit type of a Container , and Shift of a Limit --
 ------------------------------------------------------
 
-W : ∀ {ℓ} -> Container {ℓ} -> ℕ -> Set ℓ -- (ℓ-max ℓ ℓ')
+W : ∀ {ℓ} -> Container ℓ -> ℕ -> Type ℓ
 W S 0 = Lift Unit
-W S (suc n) = P₀ {S = S} (W S n)
+W S (suc n) = P₀ S (W S n)
 
-πₙ : ∀ {ℓ} -> (S : Container {ℓ}) -> {n : ℕ} -> W S (suc n) -> W S n
-πₙ {ℓ} S {0} = ! {ℓ}
+πₙ : ∀ {ℓ} -> (S : Container ℓ) -> {n : ℕ} -> W S (suc n) -> W S n
+πₙ {ℓ} S {0} _ = lift tt
 πₙ S {suc n} = P₁ (πₙ S {n})
 
-sequence : ∀ {ℓ} -> Container {ℓ} -> Chain {ℓ}
+sequence : ∀ {ℓ} -> Container ℓ -> Chain ℓ
 X (sequence {ℓ} S) n = W {ℓ} S n
 π (sequence {ℓ} S) {n} = πₙ {ℓ} S {n}
 
-PX,Pπ : ∀ {ℓ} (S : Container {ℓ}) -> Chain
+PX,Pπ : ∀ {ℓ} (S : Container ℓ) -> Chain ℓ
 PX,Pπ {ℓ} S =
-  (λ n → P₀ {S = S} (X (sequence S) n)) ,,
+  (λ n → P₀ S (X (sequence S) n)) ,,
   (λ {n : ℕ} x → P₁ (λ z → z) (π (sequence S) {n = suc n} x ))
 
 -----------------------------------
 -- M-type is limit of a sequence --
 -----------------------------------
 
-M-type : ∀ {ℓ} -> Container {ℓ} → Set ℓ
-M-type = L ∘ sequence
+M-type : ∀ {ℓ} -> Container ℓ → Type ℓ
+M-type = limit-of-chain ∘ sequence

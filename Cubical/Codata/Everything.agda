@@ -16,7 +16,12 @@ open import Cubical.Codata.M public
 -- Also uses {-# TERMINATING #-}.
 open import Cubical.Codata.M.Bisimilarity public
 
--- Another M-type implemetation
+{-
+-- Another M-type implemetation based on
+-- https://arxiv.org/pdf/1504.02949.pdf
+-- "Non-wellfounded trees in Homotopy Type Theory"
+-- Benedikt Ahrens, Paolo Capriotti, Régis Spadotti
+-}
 
 open import Cubical.Codata.M-types.Everything public
 

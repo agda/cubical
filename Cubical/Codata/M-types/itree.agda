@@ -34,7 +34,7 @@ data ⊥₁ : Set₁ where
 
 -- TREES
 tree-S : (E : Set₀ -> Set₁) (R : Set₀) -> Container {ℓ-suc ℓ-zero}
-tree-S E R = (R ⊎ Σ Set (λ A -> E A)) , (λ { (inl _) -> ⊥₁ ; (inr (A , e)) -> Lift A } )
+tree-S E R = (R ⊎ Σ[ A ∈ Set ] (E A)) , (λ { (inl _) -> ⊥₁ ; (inr (A , e)) -> Lift A } )
 
 tree : (E : Set₀ -> Set₁) (R : Set₀) -> Set₁
 tree E R = M-type (tree-S E R)
@@ -51,7 +51,7 @@ tree-vis {A = A} e k = in-fun (inr (A , e) , λ { (lift x) -> k x } )
 -- Li-yao Xia, Yannick Zakowski, Paul He, Chung-Kil Hur, Gregory Malecha, Benjamin C. Pierce, Steve Zdancewic
 
 itree-S : ∀ (E : Set₀ -> Set₁) (R : Set₀) -> Container {ℓ-suc ℓ-zero}
-itree-S E R = ((Unit ⊎ R) ⊎ Σ Set E) , (λ { (inl (inl _)) -> Lift Unit ; (inl (inr _)) -> ⊥₁ ; (inr (A , e)) -> Lift A } )
+itree-S E R = ((Unit ⊎ R) ⊎ Σ[ A ∈ Set ] (E A)) , (λ { (inl (inl _)) -> Lift Unit ; (inl (inr _)) -> ⊥₁ ; (inr (A , e)) -> Lift A } )
 
 itree :  ∀ (E : Set₀ -> Set₁) (R : Set₀) -> Set₁
 itree E R = M-type (itree-S E R)
