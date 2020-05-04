@@ -143,7 +143,7 @@ module PosetReasoning (P : Poset ℓ₀ ℓ₁) where
 RP-iso-prop : (P Q : Σ (Type ℓ₀) (Order ℓ₁))
             → (eqv : fst P ≃ fst Q) → isProp (order-iso P Q eqv)
 RP-iso-prop (A , _⊑₀_) (B , _⊑₁_) (f , _) =
-  isPropΠ λ x → isPropΠ λ y → snd (x ⊑₀ y ⇔ f x ⊑₁ f y)
+  isPropΠ2 λ x y → snd (x ⊑₀ y ⇔ f x ⊑₁ f y)
 
 poset-iso : (P Q : Poset ℓ₀ ℓ₁) → ∣ P ∣ₚ ≃ ∣ Q ∣ₚ → Type (ℓ-max ℓ₀ ℓ₁)
 poset-iso {ℓ₁ = ℓ₁} = add-to-iso order-iso (λ A _⊑_ → [ satPosetAx ℓ₁ A _⊑_ ])
