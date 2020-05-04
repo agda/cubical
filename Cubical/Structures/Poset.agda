@@ -25,7 +25,7 @@ order-iso : (M N : Σ (Type ℓ₀) (Order ℓ₁)) →  fst M ≃ fst N → Typ
 order-iso (A , _⊑₀_) (B , _⊑₁_) (f , _) = (x y : A) → [ x ⊑₀ y ⇔ f x ⊑₁ f y ]
 
 isSetOrder : (ℓ₁ : Level) (A : Type ℓ₀) → isSet (Order ℓ₁ A)
-isSetOrder ℓ₁ A = isSetΠ (λ _ → isSetΠ λ _ → isSetHProp)
+isSetOrder ℓ₁ A = isSetΠ2 λ _ _ → isSetHProp
 
 Order-is-SNS : SNS {ℓ₀} (Order ℓ₁) order-iso
 Order-is-SNS {ℓ₁ = ℓ₁} {X = X}  _⊑₀_ _⊑₁_ = f , f-equiv
