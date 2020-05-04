@@ -51,10 +51,7 @@ Order-is-SNS {ℓ₁ = ℓ₁} {X = X}  _⊑₀_ _⊑₁_ = f , f-equiv
         h : (p : _⊑₀_ ≡ _⊑₁_) → (fib : fiber f p) → (g p , sec p) ≡ fib
         h p (i , _) = ΣProp≡ A-prop B-prop
           where
-            A-prop : _
             A-prop = λ i′ → isOfHLevelSuc 2 (isSetOrder ℓ₁ X) _⊑₀_ _⊑₁_ (f i′) p
-
-            B-prop : _
             B-prop = ⇔-prop (g p) i
 
 -- We now write down the axioms for a partial order.
