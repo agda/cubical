@@ -33,9 +33,52 @@ monoid-axioms X (e , _·_ ) = isSet X
 monoid-structure : Type ℓ → Type ℓ
 monoid-structure = add-to-structure raw-monoid-structure monoid-axioms
 
-Monoids : Type (ℓ-suc ℓ)
-Monoids {ℓ} = TypeWithStr ℓ monoid-structure
+Monoid : Type (ℓ-suc ℓ)
+Monoid {ℓ} = TypeWithStr ℓ monoid-structure
 
+-- Monoid extractors
+
+⟨_⟩ : Monoid {ℓ} → Type ℓ
+⟨ G , _ ⟩ = G
+
+monoid-id : (M : Monoid {ℓ}) → ⟨ M ⟩
+monoid-id (_ , (e , _) , _) = e
+
+monoid-operation : (M : Monoid {ℓ}) → ⟨ M ⟩ → ⟨ M ⟩ → ⟨ M ⟩
+monoid-operation (_ , (_ , f) , _) = f
+
+-- Monoid syntax with explicit monoid
+
+module monoid-syntax where
+  id : (M : Monoid {ℓ}) → ⟨ M ⟩
+  id = monoid-id
+
+  monoid-operation-syntax : (M : Monoid {ℓ}) → ⟨ M ⟩ → ⟨ M ⟩ → ⟨ M ⟩
+  monoid-operation-syntax = monoid-operation
+
+  infixr 18 monoid-operation-syntax
+  syntax monoid-operation-syntax M x y = x ·⟨ M ⟩ y
+
+open monoid-syntax
+
+-- More Monoid extractors
+
+monoid-is-set : (M : Monoid {ℓ}) → isSet (⟨ M ⟩)
+monoid-is-set (_ , _ , P , _) = P
+
+monoid-assoc : (M : Monoid {ℓ})
+             → (x y z : ⟨ M ⟩) → x ·⟨ M ⟩ (y ·⟨ M ⟩ z) ≡ (x ·⟨ M ⟩ y) ·⟨ M ⟩ z
+monoid-assoc (_ , _ , _ , P , _) = P
+
+monoid-rid : (M : Monoid {ℓ})
+           → (x : ⟨ M ⟩) → x ·⟨ M ⟩ (id M) ≡ x
+monoid-rid (_ , _ , _ , _ , P , _) = P
+
+monoid-lid : (M : Monoid {ℓ})
+           → (x : ⟨ M ⟩) → (id M) ·⟨ M ⟩ x ≡ x
+monoid-lid (_ , _ , _ , _ , _ , P) = P
+
+-- Monoid equivalence
 monoid-iso : StrIso monoid-structure ℓ
 monoid-iso = add-to-iso (join-iso pointed-iso (nAryFunIso 2)) monoid-axioms
 
@@ -51,5 +94,33 @@ monoid-axioms-are-Props X (e , _·_) s = β s
 monoid-is-SNS : SNS {ℓ} monoid-structure monoid-iso
 monoid-is-SNS = add-axioms-SNS _ monoid-axioms-are-Props raw-monoid-is-SNS
 
-MonoidPath : (M N : Monoids {ℓ}) → (M ≃[ monoid-iso ] N) ≃ (M ≡ N)
+MonoidPath : (M N : Monoid {ℓ}) → (M ≃[ monoid-iso ] N) ≃ (M ≡ N)
 MonoidPath = SIP monoid-is-SNS
+
+-- Added for its use in groups
+-- If there exists a inverse of an element it is unique
+
+inv-lemma : (M : Monoid {ℓ})
+          → (x y z : ⟨ M ⟩)
+          → y ·⟨ M ⟩ x ≡ id M
+          → x ·⟨ M ⟩ z ≡ id M
+          → y ≡ z
+inv-lemma M x y z left-inverse right-inverse =
+  y                     ≡⟨ sym (monoid-rid M y) ⟩
+  y ·⟨ M ⟩ id M         ≡⟨ cong (λ - → y ·⟨ M ⟩ -) (sym right-inverse) ⟩
+  y ·⟨ M ⟩ (x ·⟨ M ⟩ z) ≡⟨ monoid-assoc M y x z ⟩
+  (y ·⟨ M ⟩ x) ·⟨ M ⟩ z ≡⟨ cong (λ - → - ·⟨ M ⟩ z) left-inverse ⟩
+  id M ·⟨ M ⟩ z         ≡⟨ monoid-lid M z ⟩
+  z ∎
+
+-- Monoid ·syntax
+
+module monoid-·syntax (M : Monoid {ℓ}) where
+
+  infixr 18 _·_
+
+  _·_ : ⟨ M ⟩ → ⟨ M ⟩ → ⟨ M ⟩
+  _·_ = monoid-operation M
+
+  ₁ : ⟨ M ⟩
+  ₁ = monoid-id M

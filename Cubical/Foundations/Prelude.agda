@@ -201,7 +201,10 @@ substRefl px = transportRefl px
 funExt : {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
 funExt p i x = p x i
 
--- the inverse to funExt (see Functions.FunExtEquiv)
+-- the inverse to funExt (see Functions.FunExtEquiv), converting paths
+-- between functions to homotopies; `funExt⁻` is called `happly` and
+-- defined by path induction in the HoTT book (see function 2.9.2 in
+-- section 2.9)
 funExt⁻ : ∀ {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
 funExt⁻ eq x i = eq i x
 
