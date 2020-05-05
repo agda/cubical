@@ -95,6 +95,9 @@ m+n≡0→m≡0×n≡0 {suc m} p = ⊥.rec (snotz p)
 *-distribʳ zero _ _ = refl
 *-distribʳ (suc m) n o = sym (+-assoc o (m * o) (n * o)) ∙ cong (o +_) (*-distribʳ m n o)
 
+*-distribˡ : ∀ o m n → (o * m) + (o * n) ≡ o * (m + n)
+*-distribˡ o m n = (λ i → *-comm o m i + *-comm o n i) ∙ *-distribʳ m n o ∙ *-comm (m + n) o
+
 *-assoc : ∀ m n o → m * (n * o) ≡ (m * n) * o
 *-assoc zero _ _ = refl
 *-assoc (suc m) n o = cong (n * o +_) (*-assoc m n o) ∙ *-distribʳ n (m * n) o

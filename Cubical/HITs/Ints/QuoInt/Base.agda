@@ -8,17 +8,60 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
+open import Cubical.Relation.Nullary
 
-open import Cubical.Data.Int hiding (neg; abs; sgn)
-open import Cubical.Data.Nat hiding (elim)
+open import Cubical.Data.Int as Int using (Int; sucInt; predInt; discreteInt; isSetInt)
+open import Cubical.Data.Nat as ℕ using (ℕ; zero; suc)
+open import Cubical.Data.Bool as Bool using (Bool; not; notnot)
 
 variable
   l : Level
 
+
+Sign : Type₀
+Sign = Bool
+
+pattern spos = Bool.false
+pattern sneg = Bool.true
+
+_*S_ : Sign → Sign → Sign
+_*S_ = Bool._⊕_
+
+
 data ℤ : Type₀ where
-  pos    : (n : ℕ) → ℤ
-  neg    : (n : ℕ) → ℤ
-  posneg : pos 0 ≡ neg 0
+  signed : (s : Sign) (n : ℕ) → ℤ
+  posneg : signed spos 0 ≡ signed sneg 0
+
+pattern pos n = signed spos n
+pattern neg n = signed sneg n
+
+
+sign : ℤ → Sign
+sign (signed _ zero) = spos
+sign (signed s (suc _)) = s
+sign (posneg i) = spos
+
+sign-pos : ∀ n → sign (pos n) ≡ spos
+sign-pos zero = refl
+sign-pos (suc n) = refl
+
+abs : ℤ → ℕ
+abs (signed _ n) = n
+abs (posneg i) = zero
+
+signed-inv : ∀ n → signed (sign n) (abs n) ≡ n
+signed-inv (pos zero) = refl
+signed-inv (neg zero) = posneg
+signed-inv (signed s (suc n)) = refl
+signed-inv (posneg i) j = posneg (i ∧ j)
+
+signed-zero : ∀ s₁ s₂ → signed s₁ zero ≡ signed s₂ zero
+signed-zero spos spos = refl
+signed-zero sneg sneg = refl
+signed-zero spos sneg = posneg
+signed-zero sneg spos = sym posneg
+
 
 rec : ∀ {A : Type l} → (pos' neg' : ℕ → A) → pos' 0 ≡ neg' 0 → ℤ → A
 rec pos' neg' eq (pos m)    = pos' m
@@ -34,15 +77,16 @@ elim P pos' neg' eq (pos n) = pos' n
 elim P pos' neg' eq (neg n) = neg' n
 elim P pos' neg' eq (posneg i) = eq i
 
+
 Int→ℤ : Int → ℤ
-Int→ℤ (pos n) = pos n
-Int→ℤ (negsuc n) = neg (suc n)
+Int→ℤ (Int.pos n) = pos n
+Int→ℤ (Int.negsuc n) = neg (suc n)
 
 ℤ→Int : ℤ → Int
-ℤ→Int (pos n) = pos n
-ℤ→Int (neg zero) = pos 0
-ℤ→Int (neg (suc n)) = negsuc n
-ℤ→Int (posneg _) = pos 0
+ℤ→Int (pos n) = Int.pos n
+ℤ→Int (neg zero) = Int.pos 0
+ℤ→Int (neg (suc n)) = Int.negsuc n
+ℤ→Int (posneg _) = Int.pos 0
 
 ℤ→Int→ℤ : ∀ (n : ℤ) → Int→ℤ (ℤ→Int n) ≡ n
 ℤ→Int→ℤ (pos n) _       = pos n
@@ -51,14 +95,36 @@ Int→ℤ (negsuc n) = neg (suc n)
 ℤ→Int→ℤ (posneg j) i    = posneg (j ∧ i)
 
 Int→ℤ→Int : ∀ (n : Int) → ℤ→Int (Int→ℤ n) ≡ n
-Int→ℤ→Int (pos n) _ = pos n
-Int→ℤ→Int (negsuc n) _ = negsuc n
+Int→ℤ→Int (Int.pos n) _ = Int.pos n
+Int→ℤ→Int (Int.negsuc n) _ = Int.negsuc n
 
 Int≡ℤ : Int ≡ ℤ
 Int≡ℤ = isoToPath (iso Int→ℤ ℤ→Int ℤ→Int→ℤ Int→ℤ→Int)
 
+discreteℤ : Discrete ℤ
+discreteℤ = subst Discrete Int≡ℤ discreteInt
+
 isSetℤ : isSet ℤ
 isSetℤ = subst isSet Int≡ℤ isSetInt
+
+
+-_ : ℤ → ℤ
+- signed s n = signed (not s) n
+- posneg i   = posneg (~ i)
+
+negate-invol : ∀ n → - - n ≡ n
+negate-invol (signed s n) i = signed (notnot s i) n
+negate-invol (posneg i)   _ = posneg i
+
+negateEquiv : ℤ ≃ ℤ
+negateEquiv = isoToEquiv (iso -_ -_ negate-invol negate-invol)
+
+negateEq : ℤ ≡ ℤ
+negateEq = ua negateEquiv
+
+
+infixl 6 _+_
+infixl 7 _*_
 
 sucℤ : ℤ → ℤ
 sucℤ (pos n)       = pos (suc n)
@@ -67,10 +133,10 @@ sucℤ (neg (suc n)) = neg n
 sucℤ (posneg _)    = pos 1
 
 predℤ : ℤ → ℤ
-predℤ (pos zero)    = neg 1
-predℤ (pos (suc n)) = pos n
-predℤ (neg n)       = neg (suc n)
-predℤ (posneg _)    = neg 1
+predℤ = subst (λ Z → (Z → Z)) negateEq sucℤ
+  -- definitionally equal to λ n → - (sucℤ (- n))
+  -- strictly more useful than the direct pattern matching version,
+  --  see negateSuc and negatePred
 
 sucPredℤ : ∀ n → sucℤ (predℤ n) ≡ n
 sucPredℤ (pos zero)    = sym posneg
@@ -84,10 +150,12 @@ predSucℤ (neg zero)    = posneg
 predSucℤ (neg (suc _)) = refl
 predSucℤ (posneg i) j  = posneg (i ∧ j)
 
-_+ℤ_ : ℤ → ℤ → ℤ
-m +ℤ (pos (suc n)) = sucℤ   (m +ℤ pos n)
-m +ℤ (neg (suc n)) = predℤ  (m +ℤ neg n)
-m +ℤ _             = m
+_+_ : ℤ → ℤ → ℤ
+(signed _ zero) + n = n
+(posneg _)      + n = n
+(pos (suc m))   + n = sucℤ  (pos m + n)
+(neg (suc m))   + n = predℤ (neg m + n)
+
 
 sucPathℤ : ℤ ≡ ℤ
 sucPathℤ  = isoToPath (iso sucℤ predℤ sucPredℤ predSucℤ)
@@ -106,75 +174,42 @@ subEqℤ zero    = refl
 subEqℤ (suc n) = subEqℤ n ∙ predPathℤ
 
 addℤ : ℤ → ℤ → ℤ
-addℤ m (pos n)    = transport (addEqℤ n) m
-addℤ m (neg n)    = transport (subEqℤ n) m
-addℤ m (posneg _) = m
+addℤ (pos m) n    = transport (addEqℤ m) n
+addℤ (neg m) n    = transport (subEqℤ m) n
+addℤ (posneg _) n = n
 
-isEquivAddℤ : (m : ℤ) → isEquiv (λ n → addℤ n m)
+isEquivAddℤ : (m : ℤ) → isEquiv (addℤ m)
 isEquivAddℤ (pos n)    = isEquivTransport (addEqℤ n)
 isEquivAddℤ (neg n)    = isEquivTransport (subEqℤ n)
 isEquivAddℤ (posneg _) = isEquivTransport refl
 
-addℤ≡+ℤ : addℤ ≡ _+ℤ_
-addℤ≡+ℤ i  m (pos (suc n)) = sucℤ   (addℤ≡+ℤ i m (pos n))
-addℤ≡+ℤ i  m (neg (suc n)) = predℤ  (addℤ≡+ℤ i m (neg n))
-addℤ≡+ℤ i  m (pos zero)    = m
-addℤ≡+ℤ i  m (neg zero)    = m
-addℤ≡+ℤ _  m (posneg _)    = m
+addℤ≡+ℤ : addℤ ≡ _+_
+addℤ≡+ℤ i  (pos (suc m)) n = sucℤ   (addℤ≡+ℤ i (pos m) n)
+addℤ≡+ℤ i  (neg (suc m)) n = predℤ  (addℤ≡+ℤ i (neg m) n)
+addℤ≡+ℤ i  (pos zero) n    = n
+addℤ≡+ℤ i  (neg zero) n    = n
+addℤ≡+ℤ _  (posneg _) n    = n
 
-isEquiv+ℤ : (m : ℤ) → isEquiv (λ n → n +ℤ m)
-isEquiv+ℤ = subst (λ _+_ → (m : ℤ) → isEquiv (λ n → n + m)) addℤ≡+ℤ isEquivAddℤ
-
-data Sign : Type₀ where
-  pos neg : Sign
-
-sign : ℤ → Sign
-sign (pos n)       = pos
-sign (neg 0)       = pos
-sign (neg (suc n)) = neg
-sign (posneg i)    = pos
-
-abs : ℤ → ℕ
-abs (pos n) = n
-abs (neg n) = n
-abs (posneg i) = 0
-
-signed : Sign → ℕ → ℤ
-signed Sign.pos n = pos n
-signed Sign.neg n = neg n
-
-signed-inv : ∀ z → signed (sign z) (abs z) ≡ z
-signed-inv (pos n)       = refl
-signed-inv (neg zero)    = posneg
-signed-inv (neg (suc n)) = refl
-signed-inv (posneg i)    = \ j → posneg (i ∧ j)
-{-
-
- The square for   signed-inv (posneg i)
+isEquiv+ℤ : (m : ℤ) → isEquiv (m +_)
+isEquiv+ℤ = subst (λ _+_ → (m : ℤ) → isEquiv (m +_)) addℤ≡+ℤ isEquivAddℤ
 
 
-              posneg i
-       --------------------->
-       ^                     ^
-       |                     |
- pos 0 |                     | posneg j
-       |                     |
-       |                     |
-       |                     |
-       ---------------------->
-         = pos 0
-         = signed Sign.pos 0
-         signed (sign (posneg i))
-                (abs (posneg i))
--}
+_*_ : ℤ → ℤ → ℤ
+m * n = signed (sign m *S sign n) (abs m ℕ.* abs n)
+
+private
+  *-abs : ∀ m n → abs (m * n) ≡ abs m ℕ.* abs n
+  *-abs m n = refl
 
 
--- * Multiplication
+-- Natural number and negative integer literals for ℤ
 
-_*S_ : Sign → Sign → Sign
-pos *S neg = neg
-neg *S pos = neg
-_   *S _   = pos
+open import Cubical.Data.Nat.Literals public
 
-_*ℤ_ : ℤ → ℤ → ℤ
-m *ℤ n = signed (sign m *S sign n) (abs m * abs n)
+instance
+  fromNatℤ : HasFromNat ℤ
+  fromNatℤ = record { Constraint = λ _ → Unit ; fromNat = λ n → pos n }
+
+instance
+  fromNegℤ : HasFromNeg ℤ
+  fromNegℤ = record { Constraint = λ _ → Unit ; fromNeg = λ n → neg n }

@@ -56,6 +56,18 @@ elimProp Bprop f (squash/ x y p q i j) =
     g = elimProp Bprop f
 elimProp Bprop f (eq/ a b r i) = elimEq/ Bprop (eq/ a b r) (f a) (f b) i
 
+elimProp2 : {P : A / R → A / R → Type ℓ} (Pprop : ∀ x y → isProp (P x y))
+            (f : (a b : A) → P [ a ] [ b ])
+          → (x y : A / R) → P x y
+elimProp2 Pprop f = elimProp (λ x → isPropΠ (Pprop x))
+                             (λ a → elimProp (Pprop [ a ]) (f a))
+
+elimProp3 : {P : A / R → A / R → A / R → Type ℓ} (Pprop : ∀ x y z → isProp (P x y z))
+            (f : (a b c : A) → P [ a ] [ b ] [ c ])
+          → (x y z : A / R) → P x y z
+elimProp3 Pprop f = elimProp2 (λ x y → isPropΠ (Pprop x y))
+                              (λ a b → elimProp (Pprop [ a ] [ b ]) (f a b))
+
 -- lemma 6.10.2 in hott book
 []surjective : (x : A / R) → ∃[ a ∈ A ] [ a ] ≡ x
 []surjective = elimProp (λ x → squash) (λ a → ∣ a , refl ∣)
@@ -73,6 +85,20 @@ elim Bset f feq (squash/ x y p q i j) =
               (g x) (g y) (cong g p) (cong g q) (squash/ x y p q) i j
     where
       g = elim Bset f feq
+
+rec : {B : Type ℓ} (Bset : isSet B)
+      (f : A → B) (feq : (a b : A) (r : R a b) → f a ≡ f b)
+    → A / R → B
+rec Bset = elim (λ _ → Bset)
+
+rec2 : {B : Type ℓ} (Bset : isSet B)
+       (f : A → A → B) (feql : (a b c : A) (r : R a b) → f a c ≡ f b c)
+                       (feqr : (a b c : A) (r : R b c) → f a b ≡ f a c)
+    → A / R → A / R → B
+rec2 Bset f feql feqr = rec (isSetΠ (λ _ → Bset))
+                            (λ a → rec Bset (f a) (feqr a))
+                            (λ a b r → funExt (elimProp (λ _ → Bset _ _)
+                                              (λ c → feql a b c r)))
 
 
 setQuotUniversal : {B : Type ℓ} (Bset : isSet B) →
