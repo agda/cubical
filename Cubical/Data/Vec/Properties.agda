@@ -57,5 +57,5 @@ FinVec≃Vec : (A : Type ℓ) (n : ℕ) → FinVec A n ≃ Vec A n
 FinVec≃Vec A n = isoToEquiv (FinVecIsoVec A n)
 
 FinVec≡Vec : (A : Type ℓ) (n : ℕ) → FinVec A n ≡ Vec A n
-FinVec≡Vec A n = isoToPath (FinVecIsoVec A n)
+FinVec≡Vec A n = ua (FinVec≃Vec A n)
 

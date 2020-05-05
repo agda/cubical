@@ -63,3 +63,22 @@ module _ (R : CommRing {ℓ}) where
   addVecMatrixComm {m} {n} = transport (λ i → (M N : FinMatrix≡VecMatrix ⟨ R ⟩ m n i)
                                             → addMatrixPath i M N ≡ addMatrixPath i N M)
                                        addFinMatrixComm
+
+
+  -- More direct definition of addition for VecMatrix:
+
+  addVec : ∀ {m} → Vec ⟨ R ⟩ m → Vec ⟨ R ⟩ m → Vec ⟨ R ⟩ m
+  addVec [] [] = []
+  addVec (x ∷ xs) (y ∷ ys) = x +⟨ R ⟩ y ∷ addVec xs ys
+
+  addVecMatrix' : ∀ {m n} → VecMatrix ⟨ R ⟩ m n → VecMatrix ⟨ R ⟩ m n → VecMatrix ⟨ R ⟩ m n
+  addVecMatrix' [] [] = []
+  addVecMatrix' (M ∷ MS) (N ∷ NS) = addVec M N ∷ addVecMatrix' MS NS
+
+  -- This proof seems tricky... It might help if transp reduces for Vec
+  addVecMatrixEq : ∀ {m n} → (M N : VecMatrix ⟨ R ⟩ m n) → addVecMatrix M N ≡ addVecMatrix' M N
+  addVecMatrixEq {zero} {n} [] [] = λ i → foo i
+    where
+    foo : transport (λ j → Vec (ua (FinVec≃Vec ⟨ R ⟩ n) j) zero) [] ≡ []
+    foo = {!!}
+  addVecMatrixEq {suc m} {n} (M ∷ MS) (N ∷ NS) = {!!}
