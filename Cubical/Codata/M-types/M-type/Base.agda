@@ -82,6 +82,8 @@ leftInv (lemma11-Iso {ℓ = ℓ} {S = S} X l) (x , y) i =
 -- https://arxiv.org/pdf/1504.02949.pdf
 -- "Non-wellfounded trees in Homotopy Type Theory"
 -- Benedikt Ahrens, Paolo Capriotti, Régis Spadotti
+
+-- This definition is inefficient, it should be updated to use some cubical features!
 shift-iso : ∀ {ℓ} (S : Container ℓ) -> Iso (P₀ S (M-type S)) (M-type S)
 shift-iso S@(A , B) =
   P₀ S (M-type S)
@@ -119,7 +121,7 @@ shift-iso S@(A , B) =
         PathP (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n)
           Iso⟨ pathToIso (PathP≡Path (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n)) ⟩
         subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)) ≡ (u n)
-          Iso⟨ temp ⟩
+          Iso⟨ (invIso (temp (pathToIso (cong (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n))))) ⟩
         (subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)))
                ≡
         subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n))
@@ -135,7 +137,7 @@ shift-iso S@(A , B) =
         subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n) ∎Iso
         where
           abstract
-            temp = (invIso (iso→fun-Injection-Iso-x (pathToIso (cong (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n)))))
+            temp = iso→fun-Injection-Iso-x
 
       α-iso-step-5-Iso :
         Iso
