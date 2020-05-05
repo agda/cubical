@@ -35,7 +35,7 @@ infixr 2 _≡⟨_⟩_
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ₀ ℓ₁ ℓ₂ : Level
     A : Type ℓ
     B : A → Type ℓ
     x y z w : A
@@ -200,6 +200,12 @@ substRefl px = transportRefl px
 
 funExt : {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
 funExt p i x = p x i
+
+funExt2 : {A₀ : Type ℓ₀} {A₁ : Type ℓ₁} {B : A₀ → A₁ → Type ℓ₂}
+        → {f g : (x : A₀) (y : A₁) → B x y}
+        → ((x : A₀) (y : A₁) → f x y ≡ g x y)
+        → f ≡ g
+funExt2 eq = funExt λ x → funExt λ y → eq x y
 
 -- the inverse to funExt (see Functions.FunExtEquiv), converting paths
 -- between functions to homotopies; `funExt⁻` is called `happly` and
