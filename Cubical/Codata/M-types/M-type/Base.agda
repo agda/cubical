@@ -83,7 +83,7 @@ leftInv (lemma11-Iso {ℓ = ℓ} {S = S} X l) (x , y) i =
 -- "Non-wellfounded trees in Homotopy Type Theory"
 -- Benedikt Ahrens, Paolo Capriotti, Régis Spadotti
 
--- This definition is inefficient, it should be updated to use some cubical features!
+-- TODO: This definition is inefficient, it should be updated to use some cubical features!
 shift-iso : ∀ {ℓ} (S : Container ℓ) -> Iso (P₀ S (M-type S)) (M-type S)
 shift-iso S@(A , B) =
   P₀ S (M-type S)
