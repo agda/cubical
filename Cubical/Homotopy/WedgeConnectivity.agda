@@ -14,14 +14,14 @@ open import Cubical.Homotopy.Connected
 module WedgeConnectivity {ℓ ℓ' ℓ''} (n m : ℕ)
   (A : Pointed ℓ) (connA : isHLevelConnected (suc n) (typ A))
   (B : Pointed ℓ') (connB : isHLevelConnected (suc m) (typ B))
-  (P : typ A → typ B → HLevel ℓ'' (n + m))
+  (P : typ A → typ B → TypeOfHLevel ℓ'' (n + m))
   (f : (a : typ A) → P a (pt B) .fst)
   (g : (b : typ B) → P (pt A) b .fst)
   (p : f (pt A) ≡ g (pt B))
   where
 
   private
-    Q : typ A → HLevel _ n
+    Q : typ A → TypeOfHLevel _ n
     Q a =
       ( (Σ[ k ∈ ((b : typ B) → P a b .fst) ] k (pt B) ≡ f a)
       , isOfHLevelRetract n

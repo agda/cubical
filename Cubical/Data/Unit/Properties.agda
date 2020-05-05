@@ -15,5 +15,5 @@ isContrUnit = tt , λ {tt → refl}
 isPropUnit : isProp Unit
 isPropUnit _ _ i = tt -- definitionally equal to: isContr→isProp isContrUnit
 
-isOfHLevelUnit : (n : ℕ) → isOfHLevel n Unit
+isOfHLevelUnit : (n : HLevel) → isOfHLevel n Unit
 isOfHLevelUnit n = isContr→isOfHLevel n isContrUnit

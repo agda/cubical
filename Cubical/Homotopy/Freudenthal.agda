@@ -18,7 +18,7 @@ open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
 open import Cubical.Homotopy.Loopspace
 
-module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc n)) (typ A)) where
+module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc n)) (typ A)) where
 
   σ : typ A → typ (Ω (∙Susp (typ A)))
   σ a = merid a ∙ merid (pt A) ⁻¹

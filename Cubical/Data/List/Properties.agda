@@ -67,7 +67,7 @@ module ListPath {ℓ} {A : Type ℓ} where
     J (λ ys p → decode xs ys (encode xs ys p) ≡ p)
       (cong (decode xs xs) (encodeRefl xs) ∙ decodeRefl xs)
 
-  isOfHLevelCover : (n : ℕ) (p : isOfHLevel (suc (suc n)) A)
+  isOfHLevelCover : (n : HLevel) (p : isOfHLevel (suc (suc n)) A)
     (xs ys : List A) → isOfHLevel (suc n) (Cover xs ys)
   isOfHLevelCover n p [] [] =
     isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isPropUnit)
@@ -78,7 +78,7 @@ module ListPath {ℓ} {A : Type ℓ} where
   isOfHLevelCover n p (x ∷ xs) (y ∷ ys) =
     isOfHLevelΣ (suc n) (p x y) (\ _ → isOfHLevelCover n p xs ys)
 
-isOfHLevelList : ∀ {ℓ} (n : ℕ) {A : Type ℓ}
+isOfHLevelList : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isOfHLevel (suc (suc n)) A → isOfHLevel (suc (suc n)) (List A)
 isOfHLevelList n ofLevel xs ys =
   isOfHLevelRetract (suc n)

@@ -232,7 +232,7 @@ groupoidTrunc≡Trunc1 = ua groupoidTrunc≃Trunc1
 private
   {- We define the fibration P to show a more general result  -}
   P : {X : Type ℓ} {n : ℕ₋₂} → ∥ X ∥ (suc₋₂ n) → ∥ X ∥ (suc₋₂ n) → Type ℓ
-  P {n = n} x y = elim2 (λ _ _  → isOfHLevelHLevel (2+ n))
+  P {n = n} x y = elim2 (λ _ _  → isOfHLevelTypeOfHLevel (2+ n))
                         (λ a b → ∥ a ≡ b ∥ n , isOfHLevelTrunc (2+ n)) x y .fst
 
   {- We will need P to be of hLevel n + 3  -}

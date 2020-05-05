@@ -16,14 +16,14 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Truncation as Trunc
 
-isHLevelConnected : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Type ℓ
+isHLevelConnected : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ
 isHLevelConnected n A = isContr (hLevelTrunc n A)
 
-isHLevelConnectedFun : ∀ {ℓ ℓ'} (n : ℕ) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
+isHLevelConnectedFun : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
 isHLevelConnectedFun n f = ∀ b → isHLevelConnected n (fiber f b)
 
-isEquivPrecomposeConnected : ∀ {ℓ ℓ' ℓ''} (n : ℕ)
-  {A : Type ℓ} {B : Type ℓ'} (P : B → HLevel ℓ'' n) (f : A → B)
+isEquivPrecomposeConnected : ∀ {ℓ ℓ' ℓ''} (n : HLevel)
+  {A : Type ℓ} {B : Type ℓ'} (P : B → TypeOfHLevel ℓ'' n) (f : A → B)
   → isHLevelConnectedFun n f
   → isEquiv (λ(s : (b : B) → P b .fst) → s ∘ f)
 isEquivPrecomposeConnected n {A} {B} P f fConn =
@@ -46,8 +46,8 @@ isEquivPrecomposeConnected n {A} {B} P f fConn =
       (P b .snd)
       (λ {(a , p) → subst (fst ∘ P) p (t a)})
 
-isOfHLevelPrecomposeConnected : ∀ {ℓ ℓ' ℓ''} (k : ℕ) (n : ℕ)
-  {A : Type ℓ} {B : Type ℓ'} (P : B → HLevel ℓ'' (k + n)) (f : A → B)
+isOfHLevelPrecomposeConnected : ∀ {ℓ ℓ' ℓ''} (k : HLevel) (n : HLevel)
+  {A : Type ℓ} {B : Type ℓ'} (P : B → TypeOfHLevel ℓ'' (k + n)) (f : A → B)
   → isHLevelConnectedFun n f
   → isOfHLevelFun k (λ(s : (b : B) → P b .fst) → s ∘ f)
 isOfHLevelPrecomposeConnected zero n P f fConn =
@@ -65,14 +65,14 @@ isOfHLevelPrecomposeConnected (suc k) n P f fConn t =
               f fConn
               (funExt⁻ (p₀ ∙∙ refl ∙∙ sym p₁))))})
 
-isHLevelConnectedPath : ∀ {ℓ} (n : ℕ) {A : Type ℓ}
+isHLevelConnectedPath : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isHLevelConnected (suc n) A
   → (a₀ a₁ : A) → isHLevelConnected n (a₀ ≡ a₁)
 isHLevelConnectedPath n connA a₀ a₁ =
   subst isContr (PathIdTrunc _)
     (isContr→isContrPath connA _ _)
 
-isHLevelConnectedRetract : ∀ {ℓ ℓ'} (n : ℕ)
+isHLevelConnectedRetract : ∀ {ℓ ℓ'} (n : HLevel)
   {A : Type ℓ} {B : Type ℓ'}
   (f : A → B) (g : B → A)
   (h : (x : A) → g (f x) ≡ x)
@@ -85,7 +85,7 @@ isHLevelConnectedRetract n f g h =
       (λ _ → isOfHLevelPath n (isOfHLevelTrunc n) _ _)
       (λ a → cong ∣_∣ (h a)))
 
-isHLevelConnectedPoint : ∀ {ℓ} (n : ℕ) {A : Type ℓ}
+isHLevelConnectedPoint : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isHLevelConnected (suc n) A
   → (a : A) → isHLevelConnectedFun n (λ(_ : Unit) → a)
 isHLevelConnectedPoint n connA a₀ a =
