@@ -47,7 +47,7 @@ iso→fun-Injection-Iso :
   → Iso (fun isom ∘ f ≡ fun isom ∘ g) (f ≡ g)
 iso→fun-Injection-Iso {A = A} {B} {C} isom {f = f} {g} =
   (fun isom) ∘ f ≡ (fun isom) ∘ g
-    Iso⟨ isoInv funExtIso ⟩
+    Iso⟨ invIso funExtIso ⟩
   (∀ x → (fun isom) (f x) ≡ (fun isom) (g x))
      Iso⟨ iso→Pi-fun-Injection isom ⟩
   (∀ x → f x ≡ g x)
@@ -66,7 +66,7 @@ iso→inv-Injection-Path :
   ∀ {f g : C -> B} →
   -----------------------
   ((inv isom) ∘ f ≡ (inv isom) ∘ g) ≡ (f ≡ g)
-iso→inv-Injection-Path {A = A} {B} {C} isom {f = f} {g} = iso→fun-Injection-Path (isoInv isom)
+iso→inv-Injection-Path {A = A} {B} {C} isom {f = f} {g} = iso→fun-Injection-Path (invIso isom)
 
 iso→fun-Injection-Iso-x :
     ∀ {ℓ} {A B : Type ℓ}
@@ -96,7 +96,7 @@ iso→inv-Injection-Iso-x :
   → ∀ {x y : B}
   → Iso ((inv isom) x ≡ (inv isom) y) (x ≡ y)
 iso→inv-Injection-Iso-x {A = A} {B = B} isom =
-  iso→fun-Injection-Iso-x {A = B} {B = A} (isoInv isom)
+  iso→fun-Injection-Iso-x {A = B} {B = A} (invIso isom)
 
 iso→fun-Injection-Path-x :
   ∀ {ℓ} {A B : Type ℓ}

@@ -122,9 +122,9 @@ X ∎Iso = idIso {X = X}
 infixr  0 _Iso⟨_⟩_
 infix   1 _∎Iso
 
-isoInv : ∀ {ℓ ℓ'} {X : Type ℓ} {Y : Type ℓ'} → Iso X Y → Iso Y X
-Iso.fun (isoInv isom) = Iso.inv isom
-Iso.inv (isoInv isom) = Iso.fun isom
-Iso.rightInv (isoInv isom) = Iso.leftInv isom
-Iso.leftInv (isoInv isom) = Iso.rightInv isom
+invIso : ∀ {ℓ ℓ'} {X : Type ℓ} {Y : Type ℓ'} → Iso X Y → Iso Y X
+Iso.fun (invIso isom) = Iso.inv isom
+Iso.inv (invIso isom) = Iso.fun isom
+Iso.rightInv (invIso isom) = Iso.leftInv isom
+Iso.leftInv (invIso isom) = Iso.rightInv isom
 

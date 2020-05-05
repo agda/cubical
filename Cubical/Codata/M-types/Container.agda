@@ -32,9 +32,12 @@ Container ℓ = TypeWithStr ℓ (λ x → x → Type ℓ)
 
 -- Polynomial functor (P₀ , P₁)  defined over a container
 -- https://ncatlab.org/nlab/show/polynomial+functor
+
+-- P₀ object part of functor
 P₀ : ∀ {ℓ} (S : Container ℓ) -> Type ℓ -> Type ℓ
 P₀ (A , B) X  = Σ[ a ∈ A ] (B a -> X)
 
+-- P₁ morphism part of functor
 P₁ : ∀ {ℓ} {S : Container ℓ} {X Y} (f : X -> Y) -> P₀ S X -> P₀ S Y
 P₁ {S = S} f = λ { (a , g) ->  a , f ∘ g }
 
