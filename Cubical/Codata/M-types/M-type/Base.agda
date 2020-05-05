@@ -110,67 +110,33 @@ shift-iso S@(A , B) =
       IsoPath : ∀ {ℓ} (P : I → Type ℓ) (p : P i0) (q : P i1) → Iso (PathP P p q) (Path (P i1) (transport (λ i → P i) p) q)
       IsoPath P p q = pathToIso (λ i → PathP (λ j → P (i ∨ j)) (transp (λ j → P (i ∧ j)) (~ i) p) q)
 
-      abstract
-        α-iso-step-5-Iso-helper1 :
-          ∀ (a : ℕ -> A)
-          → (p : (n : ℕ) → a (suc n) ≡ a n)
-          → (u : (n : ℕ) → B (a n) → W S n)
-          → (n : ℕ)
-          → Iso (PathP (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n))
-                 (πₙ S ∘ (subst (λ k → B k → W S (suc n)) (α-iso-step-5-Iso-helper0 a p (suc n))) (u (suc n))
-                   ≡ subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n))
-        α-iso-step-5-Iso-helper1 a p u n =
-            PathP (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n)
-                  Iso⟨ IsoPath (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n) ⟩
-            subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)) ≡ (u n)
-                  Iso⟨ (isoInv (iso→fun-Injection-Iso-x {A = B (a n) → W S n} {B = B (a 0) → W S n}
-                                  (iso (λ x y → x (subst B (sym (α-iso-step-5-Iso-helper0 a p n)) y))
-                                       (λ x y → x (subst B (α-iso-step-5-Iso-helper0 a p n) y))
-                                       (λ b → funExt λ y → 
-                                         b (subst B (α-iso-step-5-Iso-helper0 a p n) (subst B (sym (α-iso-step-5-Iso-helper0 a p n)) y))
-                                           ≡⟨ cong b (sym (substComposite B (sym (α-iso-step-5-Iso-helper0 a p n)) (α-iso-step-5-Iso-helper0 a p n) y)) ⟩
-                                         b (subst B (sym (α-iso-step-5-Iso-helper0 a p n) ∙ α-iso-step-5-Iso-helper0 a p n) y)
-                                           ≡⟨ cong (λ k → b (subst B k y)) (lCancel (α-iso-step-5-Iso-helper0 a p n)) ⟩
-                                         b (subst B refl y)
-                                           ≡⟨ cong b (substRefl {B = B} y) ⟩
-                                         b y ∎)
-                                       (λ b → funExt λ y → 
-                                         b (subst B (sym (α-iso-step-5-Iso-helper0 a p n)) (subst B (α-iso-step-5-Iso-helper0 a p n) y))
-                                           ≡⟨ cong b (sym (substComposite B (α-iso-step-5-Iso-helper0 a p n) (sym (α-iso-step-5-Iso-helper0 a p n)) y)) ⟩
-                                         b (subst B (α-iso-step-5-Iso-helper0 a p n ∙ sym (α-iso-step-5-Iso-helper0 a p n)) y)
-                                           ≡⟨ cong (λ k → b (subst B k y)) (rCancel (α-iso-step-5-Iso-helper0 a p n)) ⟩
-                                         b (subst B refl y)
-                                           ≡⟨ cong b (substRefl {B = B} y) ⟩
-                                         b y ∎)))) ⟩ 
-            (subst (λ k → B k → W S n) (p n) (πₙ S ∘ (u (suc n))) ∘ (subst B (sym (α-iso-step-5-Iso-helper0 a p n))))
-              ≡
-            (u n ∘ (subst B (sym (α-iso-step-5-Iso-helper0 a p n))))
-              Iso⟨ iso (λ x → (πₙ S ∘ (subst (λ k → B k → W S (suc n))  (α-iso-step-5-Iso-helper0 a p (suc n)) (u (suc n))))
-                                 ≡⟨ {!!} ⟩
-                              (subst (λ k → B k → W S n) (p n) (πₙ S ∘ (u (suc n))) ∘ (subst B (λ i → α-iso-step-5-Iso-helper0 a p n (~ i))))
-                                 ≡⟨ x ⟩
-                              (λ x₁ → u n (subst B (λ i → α-iso-step-5-Iso-helper0 a p n (~ i)) x₁)) 
-                                 ≡⟨ {!!} ⟩
-                              subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n) ∎)
-                       {!!}
-                       {!!}
-                       {!!} ⟩ 
-            (πₙ S ∘ (subst (λ k → B k → W S (suc n)) (α-iso-step-5-Iso-helper0 a p (suc n))) (u (suc n))
-                   ≡
-            subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)) ∎Iso
-          --       (subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)))
-          --       ≡
-          -- subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n))
-          --       Iso⟨ pathToIso (λ i → (sym (substComposite (λ k → B k → W S n) (p n) (α-iso-step-5-Iso-helper0 a p n) (πₙ S ∘ u (suc n)))) i
-          --       ≡ subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)) ⟩
-          --       subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p (suc n)) (πₙ S ∘ u (suc n))
-          --       ≡
-          -- subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)
-          --          Iso⟨ pathToIso (λ i → (substCommSlice (λ k → B k → W S (suc n)) (λ k → B k → W S n) (λ a x x₁ → (πₙ S) (x x₁)) ((α-iso-step-5-Iso-helper0 a p) (suc n)) (u (suc n))) i
-          --       ≡ subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)) ⟩
-          --         πₙ S ∘ subst (λ k → B k → W S (suc n)) (α-iso-step-5-Iso-helper0 a p (suc n)) (u (suc n))
-          --       ≡
-          --       subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n) ∎Iso)
+      α-iso-step-5-Iso-helper1 :
+        ∀ (a : ℕ -> A)
+        → (p : (n : ℕ) → a (suc n) ≡ a n)
+        → (u : (n : ℕ) → B (a n) → W S n)
+        → (n : ℕ)
+        → (PathP (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n))
+        ≡ (πₙ S ∘ (subst (λ k → B k → W S (suc n)) (α-iso-step-5-Iso-helper0 a p (suc n))) (u (suc n))
+                  ≡ subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n))
+      α-iso-step-5-Iso-helper1 a p u n =
+        PathP (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n)
+          ≡⟨ PathP≡Path (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n) ⟩
+        subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)) ≡ (u n)
+          ≡⟨ temp ⟩
+        (subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)))
+          ≡
+        subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n))
+          ≡⟨ (cong (λ m → m ≡ subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)) (sym (substComposite (λ k → B k → W S n) (p n) (α-iso-step-5-Iso-helper0 a p n) (πₙ S ∘ u (suc n))))) ⟩
+        subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p (suc n)) (πₙ S ∘ u (suc n))
+          ≡
+        subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)
+          ≡⟨ (cong (λ m → m ≡ subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)) (substCommSlice (λ k → B k → W S (suc n)) (λ k → B k → W S n) (λ a x x₁ → (πₙ S) (x x₁)) ((α-iso-step-5-Iso-helper0 a p) (suc n)) (u (suc n)))) ⟩
+        πₙ S ∘ subst (λ k → B k → W S (suc n)) (α-iso-step-5-Iso-helper0 a p (suc n)) (u (suc n))
+           ≡
+        subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n) ∎
+        where
+          abstract
+            temp = (sym (iso→fun-Injection-Path-x (pathToIso (cong (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n)))))
 
       α-iso-step-5-Iso :
         Iso
@@ -183,7 +149,7 @@ shift-iso S@(A , B) =
       α-iso-step-5-Iso =
         Σ-ap-iso (lemma11-Iso {S = S} (λ _ → A) (λ _ x → x)) (λ a,p →
           Σ-ap-iso (pathToIso (cong (λ k → (n : ℕ) → k n) (funExt λ n → cong (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 (a,p .fst) (a,p .snd) n)))) λ u →
-                              pathToIso (cong (λ k → (n : ℕ) → k n) (funExt λ n → isoToPath (α-iso-step-5-Iso-helper1 (a,p .fst) (a,p .snd) u n))))
+                              pathToIso (cong (λ k → (n : ℕ) → k n) (funExt λ n → (α-iso-step-5-Iso-helper1 (a,p .fst) (a,p .snd) u n))))
 
       α-iso-step-1-4-Iso-lem-12 :
         Iso (Σ[ a ∈ (Σ[ a ∈ ((n : ℕ) → A)] ((n : ℕ) → a (suc n) ≡ a n)) ]
