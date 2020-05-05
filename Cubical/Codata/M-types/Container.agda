@@ -18,15 +18,20 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sum
 
+open import Cubical.Foundations.Structure
+
 open import Cubical.Codata.M-types.helper
 
 -------------------------------------
 -- Container and Container Functor --
 -------------------------------------
 
+-- Σ[ A ∈ (Type ℓ) ] (A → Type ℓ)
 Container : ∀ ℓ -> Type (ℓ-suc ℓ)
-Container ℓ = Σ[ A ∈ (Type ℓ) ] (A → Type ℓ)
+Container ℓ = TypeWithStr ℓ (λ x → x → Type ℓ)
 
+-- Polynomial functor (P₀ , P₁)  defined over a container
+-- https://ncatlab.org/nlab/show/polynomial+functor
 P₀ : ∀ {ℓ} (S : Container ℓ) -> Type ℓ -> Type ℓ
 P₀ (A , B) X  = Σ[ a ∈ A ] (B a -> X)
 

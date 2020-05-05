@@ -90,6 +90,8 @@ iso→HAEquiv {A = A} {B = B} (iso f g ε η) = f , (record { g = g ; sec = η ;
                       (cong (cong f) (sym (Hfa≡fHa (λ x → g (f x)) η a)) i j)
 
 -- Theorem 4.2.3. of HoTT book (similar to iso→HAEquiv)
+-- This exists to make the proof of vogt (see later in the file) easier,
+-- since iso→HAEquiv does not reduce fully when applied.
 iso→HAEquiv' : Iso A B → HAEquiv A B
 fst (iso→HAEquiv' (iso f g ε η)) = f
 isHAEquiv.g (snd (iso→HAEquiv' (iso f g ε η))) = g
