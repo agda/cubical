@@ -17,6 +17,12 @@ private
   variable
     ℓ₀ ℓ₁ ℓ₂ : Level
 
+-- TODO: is this defined somewhere?
+uncurry : ∀ {A : Type ℓ₀} {B : A → Type ℓ₁} {C : Σ A B → Type ℓ₂} →
+          ((x : A) → (y : B x) → C (x , y)) →
+          ((p : Σ A B) → C p)
+uncurry f (x , y) = f x y
+
 module JoinSyntax (A : Type ℓ₀) {ℓ₂ : Level} (join : Fam ℓ₂ A → A) where
 
   join-of : {I : Type ℓ₂} → (I → A) → A
@@ -69,3 +75,187 @@ isDist {ℓ₂ = ℓ₂} P _⊓_ ⋁_ = ∧-dist-over-⋁ , ∧-dist-over-⋁-pr
 
     ∧-dist-over-⋁-prop : isProp ∧-dist-over-⋁
     ∧-dist-over-⋁-prop p q = funExt2 λ x U → carrier-is-set P _ _ (p x U) (q x U)
+
+FrameAx : {A : Type ℓ₀} → RawFrameStr ℓ₁ ℓ₂ A → hProp _
+FrameAx {ℓ₀ = ℓ₀} {ℓ₁ = ℓ₁} {A = A} (s@(_⊑_ , _) , ⊤ , _∧_ , ⋁_) =
+  isTop P ⊤ ⊓ isGLB P _∧_ ⊓ isLUB P ⋁_ ⊓ isDist P _∧_ ⋁_
+  where
+    P : Poset ℓ₀ ℓ₁
+    P = A , s
+
+FrameStr : (ℓ₁ ℓ₂ : Level) → Type ℓ₀ → Type _
+FrameStr ℓ₁ ℓ₂ = add-to-structure (RawFrameStr ℓ₁ ℓ₂) λ _ RF → [ FrameAx RF ]
+
+Frame : (ℓ₀ ℓ₁ ℓ₂ : Level) → Type _
+Frame ℓ₀ ℓ₁ ℓ₂ = Σ (Type ℓ₀) (FrameStr ℓ₁ ℓ₂)
+
+-- Projection for the carrier set of a frame
+-- i.e., the carrier set of the underlying poset.
+∣_∣F : Frame ℓ₀ ℓ₁ ℓ₂ → Type ℓ₀
+∣ A , _ ∣F = A
+
+-- The underlying poset of a frame.
+pos : Frame ℓ₀ ℓ₁ ℓ₂ → Poset ℓ₀ ℓ₁
+pos (A , (P , _) , _) = A , P
+
+-- Projections for the top element, meet, and join of a frame.
+
+⊤[_] : (F : Frame ℓ₀ ℓ₁ ℓ₂) → ∣ F ∣F
+⊤[ _ , (_ , (⊤ , _)) , _ ] = ⊤
+
+glb-of : (F : Frame ℓ₀ ℓ₁ ℓ₂) → ∣ F ∣F → ∣ F ∣F → ∣ F ∣F
+glb-of (_ , (_ , _ , _⊓_ , _) , _) = _⊓_
+
+syntax glb-of F x y = x ⊓[ F ] y
+
+⋁[_]_ : (F : Frame ℓ₀ ℓ₁ ℓ₂) → Fam ℓ₂ ∣ F ∣F → ∣ F ∣F
+⋁[ (_ , (_ , (_ , _ , ⋁_)) , _) ] U = ⋁ U
+
+-- Projections for frame laws.
+
+module _ (F : Frame ℓ₀ ℓ₁ ℓ₂) where
+  private
+    P = pos F
+
+    _⊑_ : ∣ F ∣F → ∣ F ∣F → hProp ℓ₁
+    x ⊑ y = x ⊑[ P ] y
+
+    open JoinSyntax ∣ F ∣F (λ - → ⋁[ F ] -)
+
+  ⊤[_]-top : (x : ∣ F ∣F) → [ x ⊑ ⊤[ F ] ]
+  ⊤[_]-top = let (_ , _ , frame-str) = F in fst frame-str
+
+  ⊓[_]-lower₀ : (x y : ∣ F ∣F) → [ (x ⊓[ F ] y) ⊑ x ]
+  ⊓[_]-lower₀ = let (_ , _ , str) = F in λ x y → fst (fst (fst (snd str)) x y)
+
+
+  ⊓[_]-lower₁ : (x y : ∣ F ∣F) → [ (x ⊓[ F ] y) ⊑ y ]
+  ⊓[_]-lower₁ = let (_ , _ , str) = F in λ x y → snd (fst (fst (snd str)) x y)
+
+  ⊓[_]-greatest : (x y z : ∣ F ∣F) → [ z ⊑ x ] → [ z ⊑ y ] → [ z ⊑ (x ⊓[ F ] y) ]
+  ⊓[_]-greatest =
+    let (_ , _ , str) = F in λ x y z z⊑x z⊑y → snd (fst (snd str)) x y z (z⊑x , z⊑y)
+
+  ⋁[_]-upper : (U : Fam ℓ₂ ∣ F ∣F) (o : ∣ F ∣F) → o ε U → [ o ⊑ (⋁[ F ] U) ]
+  ⋁[_]-upper = let (_ , _ , str) = F in fst (fst (snd (snd str)))
+
+  ⋁[_]-least : (U : Fam ℓ₂ ∣ F ∣F) (x : ∣ F ∣F)
+             → [ ∀[ y ε U ] (y ⊑ x) ] → [ (⋁[ F ] U) ⊑ x ]
+  ⋁[_]-least = let (_ , _ , str) = F in snd (fst (snd (snd str)))
+
+  dist : (x : ∣ F ∣F) (U : Fam ℓ₂ ∣ F ∣F)
+       → x ⊓[ F ] (⋁⟨ i ⟩ (U $ i)) ≡ ⋁⟨ i ⟩ (x ⊓[ F ] (U $ i))
+  dist = let (_ , _ , str) = F in snd (snd (snd str))
+
+  top-unique : (y : ∣ F ∣F) → ((x : ∣ F ∣F) → [ x ⊑ y ]) → y ≡ ⊤[ F ]
+  top-unique y y-top = ⊑[ pos F ]-antisym y ⊤[ F ] (⊤[_]-top y) (y-top ⊤[ F ])
+
+  ⊓-unique : (x y z : ∣ F ∣F)
+           → [ z ⊑ x ] → [ z ⊑ y ] → ((w : ∣ F ∣F) → [ w ⊑ x ] → [ w ⊑ y ] → [ w ⊑ z ])
+           → z ≡ x ⊓[ F ] y
+  ⊓-unique x y z z⊑x z⊑y greatest =
+    ⊑[ P ]-antisym z (x ⊓[ F ] y) (⊓[_]-greatest x y z z⊑x z⊑y) NTS
+    where
+      NTS : [ (x ⊓[ F ] y) ⊑ z ]
+      NTS = greatest (x ⊓[ F ] y) (⊓[_]-lower₀ x y) (⊓[_]-lower₁ x y)
+
+  ⋁-unique : (U : Fam ℓ₂ ∣ F ∣F) (z : ∣ F ∣F)
+           → ((x : ∣ F ∣F) → x ε U → [ x ⊑ z ])
+           → ((w : ∣ F ∣F) → ((o : ∣ F ∣F) → o ε U → [ o ⊑ w ]) → [ z ⊑ w ])
+           → z ≡ ⋁[ F ] U
+  ⋁-unique U z upper least =
+    ⊑[ P ]-antisym z (⋁[ F ] U) (least (⋁[ F ] U) (⋁[_]-upper U)) NTS
+    where
+      NTS : [ (⋁[ F ] U) ⊑ z ]
+      NTS = ⋁[_]-least U z upper
+
+  comm : (x y : ∣ F ∣F) → x ⊓[ F ] y ≡ y ⊓[ F ] x
+  comm x y = ⊓-unique y x _ (⊓[_]-lower₁ x y) (⊓[_]-lower₀ x y) NTS
+    where
+      NTS = λ w w⊑y w⊑x → ⊓[_]-greatest x y w w⊑x w⊑y
+
+  family-iff : {U V : Fam ℓ₂ ∣ F ∣F}
+             → ((x : ∣ F ∣F) → (x ε U → x ε V) × (x ε V → x ε U))
+             → ⋁[ F ] U ≡ ⋁[ F ] V
+  family-iff {U = U} {V = V} h = ⋁-unique _ _ ub least
+    where
+      ub : (o : ∣ F ∣F) → o ε V → [ o ⊑ (⋁[ F ] U) ]
+      ub o (i , p) =
+        subst (λ - → [ - ⊑ _ ]) p (⋁[ _ ]-upper _ (snd (h (V $ i)) (i , refl)))
+
+      least : (w : ∣ F ∣F)
+            → ((o : ∣ F ∣F) → o ε V → [ o ⊑ w ])
+            → [ (⋁[ F ] U) ⊑ w ]
+      least w f = ⋁[ _ ]-least _ λ o oεU → f o (fst (h o) oεU)
+
+  flatten : (I : Type ℓ₂) (J : I → Type ℓ₂) (f : (i : I) → J i → ∣ F ∣F)
+          → ⋁[ F ] (Σ I J , uncurry f) ≡ ⋁[ F ] ⁅ ⋁[ F ] (J i , λ j → f i j) ∣ i ∶ I ⁆
+  flatten I J f = ⊑[ pos F ]-antisym _ _ down up
+    where
+      open PosetReasoning (pos F)
+
+      LHS = ⋁[ F ] (Σ I J , uncurry f)
+      RHS = ⋁[ F ] (I , (λ i → ⋁[ F ] (J i , f i)))
+
+      down : [ LHS ⊑ RHS ]
+      down = ⋁[_]-least _ _ isUB
+        where
+          isUB : (x : ∣ F ∣F) → x ε (Σ I J , uncurry f) → [ x ⊑ RHS ]
+          isUB x ((i , j) , eq) =
+              x                          ⊑⟨ ≡⇒⊑ (pos F) (sym eq)      ⟩
+              f i j                      ⊑⟨ ⋁[_]-upper _ _ (j , refl) ⟩
+              ⋁[ F ] (J i , λ - → f i -) ⊑⟨ ⋁[_]-upper _ _ (i , refl) ⟩
+              RHS                        ■
+
+      up : [ RHS ⊑ LHS ]
+      up = ⋁[_]-least _ _ isUB
+        where
+          isUB : (x : ∣ F ∣F)
+               → x ε ⁅ ⋁[ F ] (J i , f i) ∣ i ∶ I ⁆ → [ x ⊑ (⋁[ F ] (Σ I J , uncurry f)) ]
+          isUB x (i , p) =
+            x                          ⊑⟨ ≡⇒⊑ (pos F) (sym p)  ⟩
+            ⋁[ F ] ⁅ f i j ∣ j ∶ J i ⁆ ⊑⟨ ⋁[_]-least _ _ isUB′ ⟩
+            ⋁[ F ] (Σ I J , uncurry f) ■
+            where
+              isUB′ : (z : ∣ F ∣F) → z ε ⁅ f i j ∣ j ∶ J i ⁆ → [ z ⊑ LHS ]
+              isUB′ z (j , q) = ⋁[_]-upper _ _ ((i , j) , q)
+
+  sym-distr : (U@(I , _) V@(J , _) : Fam ℓ₂ ∣ F ∣F)
+            → (⋁⟨ i ⟩ (U $ i)) ⊓[ F ] (⋁⟨ i ⟩ (V $ i))
+            ≡ ⋁[ F ] ⁅ (U $ i) ⊓[ F ] (V $ j) ∣ (i , j) ∶ (I × J) ⁆
+  sym-distr U@(I , _) V@(J , _) =
+    (⋁[ F ] U) ⊓[ F ] (⋁[ F ] V)
+      ≡⟨ dist (⋁[ F ] U) V ⟩
+    ⋁[ F ] ((λ - → (⋁[ F ] U) ⊓[ F ] -) ⟨$⟩ V)
+      ≡⟨ cong (λ - → ⋁[ F ] (- ⟨$⟩ V)) NTS₀ ⟩
+    ⋁[ F ] ((λ x → x ⊓[ F ] (⋁[ F ] U)) ⟨$⟩ V)
+      ≡⟨ cong (λ - → ⋁[ F ] (- ⟨$⟩ V)) NTS₁ ⟩
+    ⋁[ F ] ((λ x → ⋁[ F ] ((λ y → x ⊓[ F ] y) ⟨$⟩ U)) ⟨$⟩ V)
+      ≡⟨ sym (flatten (index V) (λ _ → index U) λ j i →  (V $ j) ⊓[ F ] (U $ i))  ⟩
+    ⋁[ F ] ⁅ (V $ j) ⊓[ F ] (U $ i) ∣ (j , i) ∶ (J × I) ⁆
+      ≡⟨ family-iff NTS₂  ⟩
+    ⋁[ F ] ⁅ (U $ i) ⊓[ F ] (V $ j) ∣ (i , j) ∶ (I × J) ⁆
+      ∎
+    where
+      open PosetReasoning (pos F)
+
+      NTS₀ : (λ - → (⋁[ F ] U) ⊓[ F ] -) ≡ (λ - → - ⊓[ F ] (⋁[ F ] U))
+      NTS₀ = funExt λ x → comm (⋁[ F ] U) x
+
+      NTS₁ : (λ - → - ⊓[ F ] (⋁[ F ] U)) ≡ (λ - → ⋁[ F ] ((λ y → - ⊓[ F ] y) ⟨$⟩ U))
+      NTS₁ = funExt λ x → dist x U
+
+      NTS₂ : _
+      NTS₂ x = down , up
+        where
+          down : _
+          down ((j , i) , eq) =
+            subst
+              (λ - → x ε (_ , -))
+              (funExt (λ { (i′ , j′) → comm (V $ j′) (U $ i′) })) ((i , j) , eq)
+
+          up : _
+          up ((i , j) , eq) =
+            subst
+              (λ - → x ε (_ , -))
+              (funExt (λ { (j′ , i′) → comm (U $ i′) (V $ j′) })) ((j , i) , eq)
