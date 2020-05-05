@@ -139,6 +139,9 @@ module PosetReasoning (P : Poset ℓ₀ ℓ₁) where
   infixr 0 _⊑⟨_⟩_
   infix  1 _■
 
+≡⇒⊑ : (P : Poset ℓ₀ ℓ₁) → {x y : ∣ P ∣ₚ} → x ≡ y → [ x ⊑[ P ] y ]
+≡⇒⊑ P {x = x} p = subst (λ z → [ x ⊑[ P ] z ]) p (⊑[ P ]-refl x)
+
 -- Poset univalence.
 RP-iso-prop : (P Q : Σ (Type ℓ₀) (Order ℓ₁))
             → (eqv : fst P ≃ fst Q) → isProp (order-iso P Q eqv)
