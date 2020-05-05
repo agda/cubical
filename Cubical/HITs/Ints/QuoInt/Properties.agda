@@ -132,6 +132,7 @@ predℤ-inj m n p = sym (sucPredℤ m) ∙ cong sucℤ p ∙ sucPredℤ n
 
 
 -- this proof is why we defined ℤ using `signed` instead of `pos` and `neg`
+-- based on that in: https://github.com/danr/Agda-Numerics
 *-assoc : ∀ m n o → m * (n * o) ≡ m * n * o
 
 *-assoc (signed s zero) n o =
@@ -185,6 +186,8 @@ signed-distrib sneg (suc m) n = cong predℤ (signed-distrib sneg m n)
 *-pos-suc m n = signed-distrib (sign n) (abs n) (m ℕ.* abs n)
                 ∙ (λ i → signed-inv n i + signed (sign-pos m (~ i) *S sign n) (m ℕ.* abs n))
 
+
+-- the below is based on that in: https://github.com/danr/Agda-Numerics
 
 *-distribˡ-pos : ∀ o m n → (pos o * m) + (pos o * n) ≡ pos o * (m + n)
 *-distribˡ-pos zero m n = signed-zero (sign n) (sign (m + n))
