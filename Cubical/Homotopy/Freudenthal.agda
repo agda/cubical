@@ -17,7 +17,7 @@ open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
 open import Cubical.Homotopy.Loopspace
 
-module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc n)) (typ A)) where
+module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n)) (typ A)) where
 
   σ : typ A → typ (Ω (∙Susp (typ A)))
   σ a = merid a ∙ merid (pt A) ⁻¹
@@ -51,7 +51,7 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isHLevelConnected (suc (s
           , isProp→isOfHLevelSuc n (isPropΠ λ _ → isPropIsContr)
           ))
         (λ _ → pt A)
-        (isHLevelConnectedPoint (suc n) connA (pt A))
+        (isConnectedPoint (suc n) connA (pt A))
         .equiv-proof
         (λ _ → Trunc.elim
           (λ _ → isProp→isOfHLevelSuc (n + suc n) isPropIsContr)
@@ -104,9 +104,9 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isHLevelConnected (suc (s
       (uncurry λ a →
         J (λ p r → encode south p ≡ ∣ a , r ∣) (encodeMerid a))
 
-  isConnectedMerid : isHLevelConnectedFun 2n+2 (merid {A = typ A})
+  isConnectedMerid : isConnectedFun 2n+2 (merid {A = typ A})
   isConnectedMerid p = encode south p , contractCodeSouth p
 
-  isConnectedσ : isHLevelConnectedFun 2n+2 σ
+  isConnectedσ : isConnectedFun 2n+2 σ
   isConnectedσ =
-    transport (λ i → isHLevelConnectedFun 2n+2 (interpolate (pt A) (~ i))) isConnectedMerid
+    transport (λ i → isConnectedFun 2n+2 (interpolate (pt A) (~ i))) isConnectedMerid

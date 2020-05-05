@@ -11,8 +11,8 @@ open import Cubical.HITs.Truncation as Trunc
 open import Cubical.Homotopy.Connected
 
 module WedgeConnectivity {ℓ ℓ' ℓ''} (n m : ℕ)
-  (A : Pointed ℓ) (connA : isHLevelConnected (suc n) (typ A))
-  (B : Pointed ℓ') (connB : isHLevelConnected (suc m) (typ B))
+  (A : Pointed ℓ) (connA : isConnected (suc n) (typ A))
+  (B : Pointed ℓ') (connB : isConnected (suc m) (typ B))
   (P : typ A → typ B → TypeOfHLevel ℓ'' (n + m))
   (f : (a : typ A) → P a (pt B) .fst)
   (g : (b : typ B) → P (pt A) b .fst)
@@ -28,13 +28,13 @@ module WedgeConnectivity {ℓ ℓ' ℓ''} (n m : ℕ)
           (λ {(h , q) → h , funExt⁻ q _})
           (λ _ → refl)
           (isOfHLevelPrecomposeConnected n m (P a) (λ _ → pt B)
-            (isHLevelConnectedPoint m connB (pt B)) (λ _ → f a))
+            (isConnectedPoint m connB (pt B)) (λ _ → f a))
       )
 
     main : isContr (fiber (λ s _ → s (pt A)) (λ _ → g , p ⁻¹))
     main =
       isEquivPrecomposeConnected n Q (λ _ → pt A)
-        (isHLevelConnectedPoint n connA (pt A))
+        (isConnectedPoint n connA (pt A))
         .equiv-proof (λ _ → g , p ⁻¹)
 
   abstract
