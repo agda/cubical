@@ -7,6 +7,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.SIP     renaming (SNS-≡ to SNS)
 open import Cubical.Structures.Poset
 open import Cubical.Data.Sigma
+open import Cubical.Foundations.Equiv   hiding (_■)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Logic
 open import Cubical.Foundations.Family
@@ -259,3 +260,98 @@ module _ (F : Frame ℓ₀ ℓ₁ ℓ₂) where
             subst
               (λ - → x ε (_ , -))
               (funExt (λ { (j′ , i′) → comm (U $ i′) (V $ j′) })) ((j , i) , eq)
+
+RF-iso : {ℓ₁ ℓ₂ : Level} (M N : Σ (Type ℓ₀) (RawFrameStr ℓ₁ ℓ₂))
+       → fst M ≃ fst N → Type _
+RF-iso {ℓ₂ = ℓ₂} (A , (P , _) , ⊤₀ , _⊓₀_ , ⋁₀) (B , (Q , _), ⊤₁ , _⊓₁_ , ⋁₁) i =
+    (order-iso (A , P) (B , Q) i)
+  × (f ⊤₀ ≡ ⊤₁)
+  × ((x y : A) → f (x ⊓₀ y) ≡ (f x) ⊓₁ (f y))
+  × ((U : Fam ℓ₂ A) → f (⋁₀ U) ≡ ⋁₁ (f ⟨$⟩ U))
+  where
+    f = equivFun i
+
+pos-of : Σ (Type ℓ₀) (RawFrameStr ℓ₁ ℓ₂) → Σ (Type ℓ₀) (Order ℓ₁)
+pos-of (A , ((RPS , _) , _)) = (A , RPS)
+
+top-of : (F : Σ (Type ℓ₀) (RawFrameStr ℓ₁ ℓ₂)) → fst F
+top-of (_ , _ , ⊤ , _) = ⊤
+
+RF-is-SNS : SNS {ℓ₀} (RawFrameStr ℓ₁ ℓ₂) RF-iso
+RF-is-SNS {ℓ₁ = ℓ₁} {ℓ₂ = ℓ₂} {X = A} F@(P , ⊤₀ , _⊓₀_ , ⋁₀) G@(Q , ⊤₁ , _⊓₁_ , ⋁₁) =
+  f , f-equiv
+  where
+    C = RawFrameStr ℓ₁ ℓ₂ A
+
+    _⊑₀_ : A → A → hProp ℓ₁
+    x ⊑₀ y = x ⊑[ (A , P) ] y
+
+    _⊑₁_ : A → A → hProp ℓ₁
+    x ⊑₁ y = x ⊑[ (A , Q) ] y
+
+    A-set₀ = carrier-is-set (A , P)
+
+    PS-A = fst P
+    PS-B = fst Q
+
+    f : RF-iso (A , F) (A , G) (idEquiv A) → F ≡ G
+    f (iₚ , eq-⊤ , ⊓-xeq , ⋁-xeq) =
+      P , ⊤₀ , _⊓₀_ , ⋁₀   ≡⟨ cong (λ - → (P , - , _⊓₀_ , ⋁₀))              eq-⊤ ⟩
+      P , ⊤₁ , _⊓₀_ , ⋁₀   ≡⟨ cong {B = λ _ → C} (λ - → P , ⊤₁ , - , ⋁₀)    ⊓-eq ⟩
+      P , ⊤₁ , _⊓₁_ , ⋁₀   ≡⟨ cong {B = λ _ → C} (λ - → P , ⊤₁ , _⊓₁_ , -)  ⋁-eq ⟩
+      P , ⊤₁ , _⊓₁_ , ⋁₁   ≡⟨ cong {B = λ _ → C} (λ - → - , ⊤₁ , _⊓₁_ , ⋁₁) eq   ⟩
+      Q , ⊤₁ , _⊓₁_ , ⋁₁   ∎
+      where
+        eq : P ≡ Q
+        eq = ΣProp≡
+               (poset-ax-props A)
+               (funExt λ x → funExt λ y → ⇔toPath (fst (iₚ x y)) (snd (iₚ x y)))
+
+        ⊓-eq : _⊓₀_ ≡ _⊓₁_
+        ⊓-eq = funExt (λ x → funExt λ y → ⊓-xeq x y)
+
+        ⋁-eq : ⋁₀ ≡ ⋁₁
+        ⋁-eq = funExt λ U → ⋁-xeq U
+
+    f-equiv : isEquiv f
+    f-equiv = record { equiv-proof = λ eq → (g eq , ret eq) , h eq }
+      where
+        g : (eq : F ≡ G) → RF-iso (A , F) (A , G) (idEquiv A)
+        g eq = φ , ψ , ϑ , ξ
+          where
+            𝒻  = equivFun (idEquiv A)
+
+            φ : order-iso (A , _⊑₀_) (A , _⊑₁_) (idEquiv A)
+            φ x y =
+                (subst (λ { ((_⊑⋆_ , _) , _) → [ x ⊑⋆ y ] }) eq)
+              , subst (λ { ((_⊑⋆_ , _) , _) → [ x ⊑⋆ y ] }) (sym eq)
+
+            ψ : equivFun (idEquiv A) ⊤₀ ≡ ⊤₁
+            ψ = subst (λ { (_ , - , _ , _) → 𝒻 - ≡ ⊤₁ }) (sym eq) refl
+
+            ϑ : (x y : A) → 𝒻 (x ⊓₀ y) ≡ (𝒻 x) ⊓₁ (𝒻 y)
+            ϑ x y =
+              subst (λ { (_ , _ , _-_ , _) → 𝒻 (x - y) ≡ (𝒻 x) ⊓₁ (𝒻 y) }) (sym eq) refl
+
+            ξ : (U : Fam ℓ₂ A) → 𝒻 (⋁₀ U) ≡ ⋁₁ (index U , λ i → 𝒻 (U $ i))
+            ξ U = subst (λ { (_ , _ , _ , -) → 𝒻 (- U) ≡ ⋁₁ (𝒻 ⟨$⟩ U) }) (sym eq) refl
+
+        str-set : isSet (RawFrameStr ℓ₁ ℓ₂ A)
+        str-set = isSetΣ (PosetStr-set ℓ₁ A) λ _ →
+                  isSetΣ A-set₀ λ _ →
+                  isSetΣ (isSetΠ λ _ → isSetΠ λ _ → A-set₀) λ _ → isSetΠ λ _ → A-set₀
+
+        ret : (eq : F ≡ G) → f (g eq) ≡ eq
+        ret eq = str-set F G (f (g eq)) eq
+
+        RF-iso-prop : isProp (RF-iso (A , F) (A , G) (idEquiv A))
+        RF-iso-prop =
+          isPropΣ (RP-iso-prop (A , fst P) (A , fst Q) (idEquiv A)) (λ _ →
+          isPropΣ (λ p q → A-set₀ _ _ p q ) λ _ →
+          isPropΣ (isPropΠ λ _ → isPropΠ λ _ → A-set₀ _ _) λ _ →
+          isPropΠ λ _ → A-set₀ _ _)
+
+        h : (eq : F ≡ G) → (fib : fiber f eq) → (g eq , ret eq) ≡ fib
+        h eq (i , p) =
+          ΣProp≡ (λ x → isOfHLevelSuc 2 str-set F G (f x) eq) (RF-iso-prop (g eq) i)
+
