@@ -78,7 +78,7 @@ leftInv (lemma11-Iso {ℓ = ℓ} {S = S} X l) (x , y) i =
 -- Shifting the limit of a chain is an equivalence --
 -----------------------------------------------------
 
--- Proof of Theorem 7
+-- Shift is equivalence (12) and (13) in the proof of Theorem 7
 -- https://arxiv.org/pdf/1504.02949.pdf
 -- "Non-wellfounded trees in Homotopy Type Theory"
 -- Benedikt Ahrens, Paolo Capriotti, Régis Spadotti
@@ -107,36 +107,34 @@ shift-iso S@(A , B) =
       α-iso-step-5-Iso-helper0 a p 0 = refl
       α-iso-step-5-Iso-helper0 a p (suc n) = p n ∙ α-iso-step-5-Iso-helper0 a p n
 
-      IsoPath : ∀ {ℓ} (P : I → Type ℓ) (p : P i0) (q : P i1) → Iso (PathP P p q) (Path (P i1) (transport (λ i → P i) p) q)
-      IsoPath P p q = pathToIso (λ i → PathP (λ j → P (i ∨ j)) (transp (λ j → P (i ∧ j)) (~ i) p) q)
 
       α-iso-step-5-Iso-helper1 :
-        ∀ (a : ℕ -> A)
-        → (p : (n : ℕ) → a (suc n) ≡ a n)
-        → (u : (n : ℕ) → B (a n) → W S n)
-        → (n : ℕ)
-        → (PathP (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n))
-        ≡ (πₙ S ∘ (subst (λ k → B k → W S (suc n)) (α-iso-step-5-Iso-helper0 a p (suc n))) (u (suc n))
-                  ≡ subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n))
+          ∀ (a : ℕ -> A)
+          → (p : (n : ℕ) → a (suc n) ≡ a n)
+          → (u : (n : ℕ) → B (a n) → W S n)
+          → (n : ℕ)
+          → (PathP (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n))
+          ≡ (πₙ S ∘ (subst (λ k → B k → W S (suc n)) (α-iso-step-5-Iso-helper0 a p (suc n))) (u (suc n))
+                    ≡ subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n))
       α-iso-step-5-Iso-helper1 a p u n =
-        PathP (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n)
-          ≡⟨ PathP≡Path (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n) ⟩
-        subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)) ≡ (u n)
-          ≡⟨ temp ⟩
-        (subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)))
-          ≡
-        subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n))
-          ≡⟨ (cong (λ m → m ≡ subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)) (sym (substComposite (λ k → B k → W S n) (p n) (α-iso-step-5-Iso-helper0 a p n) (πₙ S ∘ u (suc n))))) ⟩
-        subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p (suc n)) (πₙ S ∘ u (suc n))
-          ≡
-        subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)
-          ≡⟨ (cong (λ m → m ≡ subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)) (substCommSlice (λ k → B k → W S (suc n)) (λ k → B k → W S n) (λ a x x₁ → (πₙ S) (x x₁)) ((α-iso-step-5-Iso-helper0 a p) (suc n)) (u (suc n)))) ⟩
-        πₙ S ∘ subst (λ k → B k → W S (suc n)) (α-iso-step-5-Iso-helper0 a p (suc n)) (u (suc n))
-           ≡
-        subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n) ∎
-        where
-          abstract
-            temp = (sym (iso→fun-Injection-Path-x (pathToIso (cong (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n)))))
+          PathP (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n)
+            ≡⟨ PathP≡Path (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n) ⟩
+          subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)) ≡ (u n)
+            ≡⟨ temp ⟩
+          (subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)))
+            ≡
+          subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n))
+            ≡⟨ (cong (λ m → m ≡ subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)) (sym (substComposite (λ k → B k → W S n) (p n) (α-iso-step-5-Iso-helper0 a p n) (πₙ S ∘ u (suc n))))) ⟩
+          subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p (suc n)) (πₙ S ∘ u (suc n))
+            ≡
+          subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)
+            ≡⟨ (cong (λ m → m ≡ subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)) (substCommSlice (λ k → B k → W S (suc n)) (λ k → B k → W S n) (λ a x x₁ → (πₙ S) (x x₁)) ((α-iso-step-5-Iso-helper0 a p) (suc n)) (u (suc n)))) ⟩
+          πₙ S ∘ subst (λ k → B k → W S (suc n)) (α-iso-step-5-Iso-helper0 a p (suc n)) (u (suc n))
+            ≡
+          subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n) ∎
+          where
+            abstract
+              temp = (sym (iso→fun-Injection-Path-x (pathToIso (cong (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n)))))
 
       α-iso-step-5-Iso :
         Iso
