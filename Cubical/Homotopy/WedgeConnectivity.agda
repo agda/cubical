@@ -4,7 +4,6 @@ module Cubical.Homotopy.WedgeConnectivity where
 open import Cubical.Foundations.Everything
 open import Cubical.Data.HomotopyGroup
 open import Cubical.Data.Nat
-import Cubical.Data.NatMinusTwo as ℕ₋₂
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
