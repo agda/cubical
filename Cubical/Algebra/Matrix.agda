@@ -41,8 +41,7 @@ FinMatrix→VecMatrix→FinMatrix {n = zero} M = funExt₂ λ _ f → ⊥.rec (�
 FinMatrix→VecMatrix→FinMatrix {m = suc m} {n = suc n} M = funExt₂ goal
   where
   goal : (fm : Fin (suc m)) (fn : Fin (suc n)) →
-           VecMatrix→FinMatrix (_ ∷ FinMatrix→VecMatrix (λ z → M (suc z))) fm fn
-           ≡ M fm fn
+         VecMatrix→FinMatrix (_ ∷ FinMatrix→VecMatrix (λ z → M (suc z))) fm fn ≡ M fm fn
   goal zero zero = refl
   goal zero (suc fn) i = FinVec→Vec→FinVec (λ z → M zero (suc z)) i fn
   goal (suc fm) fn i = FinMatrix→VecMatrix→FinMatrix (λ z → M (suc z)) i fm fn
@@ -64,13 +63,14 @@ FinMatrix≡VecMatrix _ _ _ = ua FinMatrix≃VecMatrix
 
 -- We could have constructed the above Path as follows, but that
 -- doesn't reduce as nicely as ua isn't on the toplevel:
+--
 -- FinMatrix≡VecMatrix : (A : Type ℓ) (m n : ℕ) → FinMatrix A m n ≡ VecMatrix A m n
 -- FinMatrix≡VecMatrix A m n i = FinVec≡Vec (FinVec≡Vec A n i) m i
 
 
 -- Experiment using addition. Transport commutativity from one
 -- representation to the the other and relate the transported
--- operation with a direct definition.
+-- operation with a more direct definition.
 module _ (R : CommRing {ℓ}) where
 
   open commring-·syntax R
@@ -136,3 +136,11 @@ module _ (R : CommRing {ℓ}) where
   -- We then directly get the properties about addVecMatrix'
   addVecMatrixComm' : ∀ {m n} → (M N : VecMatrix ⟨ R ⟩ m n) → addVecMatrix' M N ≡ addVecMatrix' N M
   addVecMatrixComm' M N = sym (addVecMatrixEq M N) ∙∙ addVecMatrixComm M N ∙∙ addVecMatrixEq N M
+
+  -- TODO: prove more properties about addition of matrices for both
+  -- FinMatrix and VecMatrix
+
+
+
+-- TODO: define multiplication of matrices and do the same kind of
+-- reasoning as we did for addition

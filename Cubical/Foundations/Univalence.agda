@@ -221,7 +221,8 @@ uaβ e x = transportRefl (equivFun e x)
 uaη : ∀ {A B : Type ℓ} → (P : A ≡ B) → ua (pathToEquiv P) ≡ P
 uaη = J (λ _ q → ua (pathToEquiv q) ≡ q) (cong ua pathToEquivRefl ∙ uaIdEquiv)
 
--- Useful function for manually unfolding a transported function over ua
+-- Useful lemma for unfolding a transported function over ua
+-- If we would have regularity this would be refl
 transportUAop₁ : ∀ {A B : Type ℓ} → (e : A ≃ B) (f : A → A) (x : B)
                → transport (λ i → ua e i → ua e i) f x ≡ equivFun e (f (invEq e x))
 transportUAop₁ e f x i = transportRefl (equivFun e (f (invEq e (transportRefl x i)))) i
@@ -233,8 +234,6 @@ transportUAop₂ : ∀ {ℓ} {A B : Type ℓ} → (e : A ≃ B) (f : A → A →
 transportUAop₂ e f x y i =
     transportRefl (equivFun e (f (invEq e (transportRefl x i))
                                  (invEq e (transportRefl y i)))) i
-
-
 
 -- Alternative version of EquivJ that only requires a predicate on functions
 elimEquivFun : {A B : Type ℓ} (P : (A : Type ℓ) → (A → B) → Type ℓ')
