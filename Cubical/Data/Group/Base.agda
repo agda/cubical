@@ -3,6 +3,8 @@
 module Cubical.Data.Group.Base where
 
 open import Cubical.Foundations.Prelude hiding ( comp )
+open import Cubical.Foundations.HLevels
+open import Cubical.Data.Prod
 
 import Cubical.Foundations.Isomorphism as I
 import Cubical.Foundations.Equiv as E
@@ -160,3 +162,45 @@ compIso {ℓ} {F} {G} {H}
     ret f = h→f (f→h f) ≡⟨ cong g→f (hg (f→g f)) ⟩
              g→f (f→g f) ≡⟨ gf _ ⟩
              f ∎
+
+
+Im : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (Group.type G → Group.type H)
+      → Type (ℓ-max ℓ ℓ')
+Im (group A setA strucA) (group B setB strucB) f =
+     Σ[ b ∈ B ] Σ[ a ∈ A ] f a ≡ b
+
+isInIm : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (Group.type G → Group.type H)
+       → Group.type H → Type _
+isInIm G H ϕ h = Σ[ g ∈ Group.type G ] ϕ g ≡ h 
+
+Ker : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') (f : (Group.type G → Group.type H))
+         → Type (ℓ-max ℓ ℓ')
+Ker (group A setA strA) (group B setB strB) f =
+         Σ[ a ∈ A ] f a ≡ isGroup.id strB
+
+isInKer : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (Group.type G → Group.type H)
+       → Group.type G → Type _
+isInKer G H ϕ g = ϕ g ≡ isGroup.id (Group.groupStruc H)
+
+
+
+{- direct products of groups -}
+dirProd : ∀ {ℓ ℓ'} (A : Group ℓ) (B : Group ℓ') → Group (ℓ-max ℓ ℓ')
+Group.type (dirProd (group A setA strucA) (group B setB strucB)) = A × B
+Group.setStruc (dirProd (group A setA strucA) (group B setB strucB)) = isOfHLevelProd 2 setA setB
+isGroup.id (Group.groupStruc (dirProd (group A setA strucA) (group B setB strucB))) =
+  (isGroup.id strucA) , (isGroup.id strucB)
+isGroup.inv (Group.groupStruc (dirProd (group A setA strucA) (group B setB strucB))) =
+  map (isGroup.inv strucA) (isGroup.inv strucB)
+isGroup.comp (Group.groupStruc (dirProd (group A setA strucA) (group B setB strucB))) (a1 , b1) (a2 , b2) =
+  (isGroup.comp strucA a1 a2) , isGroup.comp strucB b1 b2
+isGroup.lUnit (Group.groupStruc (dirProd (group A setA strucA) (group B setB strucB))) (a , b) i =
+  (isGroup.lUnit strucA a i) , (isGroup.lUnit strucB b i)
+isGroup.rUnit (Group.groupStruc (dirProd (group A setA strucA) (group B setB strucB))) (a , b) i =
+  (isGroup.rUnit strucA a i) , (isGroup.rUnit strucB b i)
+isGroup.assoc (Group.groupStruc (dirProd (group A setA strucA) (group B setB strucB))) (a1 , b1) (a2 , b2) (a3 , b3) i =
+  (isGroup.assoc strucA a1 a2 a3 i) , (isGroup.assoc strucB b1 b2 b3 i)
+isGroup.lCancel (Group.groupStruc (dirProd (group A setA strucA) (group B setB strucB))) (a , b) i =
+  (isGroup.lCancel strucA a i) , (isGroup.lCancel strucB b i)
+isGroup.rCancel (Group.groupStruc (dirProd (group A setA strucA) (group B setB strucB))) (a , b) i =
+  (isGroup.rCancel strucA a i) , (isGroup.rCancel strucB b i)

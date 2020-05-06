@@ -281,3 +281,25 @@ Iso.leftInv (Iso2-Kn-ΩKn+1 n) a = linv
   abstract
     linv : Iso.inv (Iso-Kn-ΩKn+1 n) (Kn→ΩKn+1 n a) ≡ a
     linv = cong (Iso.inv (Iso-Kn-ΩKn+1 n)) (funExt⁻ (mapId2 n) a) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 n) a
+
+--- even more abstract
+
+abstract
+  absInv : (n : ℕ) → typ (Ω (coHomK-ptd (2 + n))) → coHomK (1 + n)
+  absInv n = Iso.inv (Iso-Kn-ΩKn+1 (1 + n))
+
+  absSect : (n : ℕ) (a : typ (Ω (coHomK-ptd (2 + n)))) → Kn→ΩKn+1 (1 + n) (absInv n a) ≡ a
+  absSect n a = funExt⁻ (mapId2 (1 + n)) _ ∙ Iso.rightInv (Iso-Kn-ΩKn+1 (1 + n)) a
+
+  absRetr : (n : ℕ) (a : coHomK (1 + n)) → absInv n (Kn→ΩKn+1 (1 + n) a) ≡ a
+  absRetr n a = cong (Iso.inv (Iso-Kn-ΩKn+1 (1 + n))) (funExt⁻ (mapId2 (1 + n)) a) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 (1 + n)) a
+  
+
+Iso3-Kn-ΩKn+1 : (n : ℕ) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
+Iso.fun (Iso3-Kn-ΩKn+1 n) = Kn→ΩKn+1 n
+Iso.inv (Iso3-Kn-ΩKn+1 zero) = Iso.inv (Iso-Kn-ΩKn+1 zero)
+Iso.inv (Iso3-Kn-ΩKn+1 (suc n)) = absInv n
+Iso.rightInv (Iso3-Kn-ΩKn+1 zero) a = funExt⁻ (mapId2 zero) (Iso.inv isolooper2 (Iso.inv (congIso (truncIdempotent≃ 3 isOfHLevelS1)) a)) ∙ Iso.rightInv (Iso-Kn-ΩKn+1 zero) a
+Iso.rightInv (Iso3-Kn-ΩKn+1 (suc n)) = absSect n
+Iso.leftInv (Iso3-Kn-ΩKn+1 zero) a = cong (Iso.inv (Iso-Kn-ΩKn+1 zero)) (funExt⁻ (mapId2 zero) a) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 zero) a
+Iso.leftInv (Iso3-Kn-ΩKn+1 (suc n)) = absRetr n
