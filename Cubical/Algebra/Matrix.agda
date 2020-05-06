@@ -29,8 +29,7 @@ VecMatrix : (A : Type ℓ) (m n : ℕ) → Type ℓ
 VecMatrix A m n = Vec (Vec A n) m
 
 FinMatrix→VecMatrix : {m n : ℕ} → FinMatrix A m n → VecMatrix A m n
-FinMatrix→VecMatrix {m = zero}  _ = []
-FinMatrix→VecMatrix {m = suc m} M = FinVec→Vec (M zero) ∷ FinMatrix→VecMatrix (λ x → M (suc x))
+FinMatrix→VecMatrix M = FinVec→Vec (λ fm → FinVec→Vec (λ fn → M fm fn))
 
 VecMatrix→FinMatrix : {m n : ℕ} → VecMatrix A m n → FinMatrix A m n
 VecMatrix→FinMatrix M fn fm = lookup fm (lookup fn M)
