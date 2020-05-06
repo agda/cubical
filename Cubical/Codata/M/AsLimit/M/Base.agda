@@ -5,7 +5,7 @@
 -- "Non-wellfounded trees in Homotopy Type Theory"
 -- Benedikt Ahrens, Paolo Capriotti, Régis Spadotti
 
-module Cubical.Codata.M-types.M-type.Base where
+module Cubical.Codata.M.AsLimit.M.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv using (_≃_)
@@ -27,10 +27,10 @@ open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Sum
 
-open import Cubical.Codata.M-types.helper
-open import Cubical.Codata.M-types.Container
+open import Cubical.Codata.M.AsLimit.helper
+open import Cubical.Codata.M.AsLimit.Container
 
-open import Cubical.Codata.M-types.Coalg.Base
+open import Cubical.Codata.M.AsLimit.Coalg.Base
 
 open Iso
 
@@ -84,9 +84,9 @@ leftInv (lemma11-Iso {ℓ = ℓ} {S = S} X l) (x , y) i =
 -- Benedikt Ahrens, Paolo Capriotti, Régis Spadotti
 
 -- TODO: This definition is inefficient, it should be updated to use some cubical features!
-shift-iso : ∀ {ℓ} (S : Container ℓ) -> Iso (P₀ S (M-type S)) (M-type S)
+shift-iso : ∀ {ℓ} (S : Container ℓ) -> Iso (P₀ S (M S)) (M S)
 shift-iso S@(A , B) =
-  P₀ S (M-type S)
+  P₀ S (M S)
     Iso⟨ Σ-ap-iso₂ (λ x → iso (λ f → (λ n z → f z .fst n) , λ n i a → f a .snd n i)
                                (λ (u , q) z → (λ n → u n z) , λ n i → q n i z)
                               (λ _ → refl)
@@ -99,7 +99,7 @@ shift-iso S@(A , B) =
                                (π (sequence S) ∘ u (suc n))
                                (u n)))
     Iso⟨ α-iso-step-1-4-Iso-lem-12 ⟩
-  M-type S ∎Iso
+  M S ∎Iso
     where
       α-iso-step-5-Iso-helper0 :
         ∀ (a : (ℕ -> A))
@@ -112,29 +112,29 @@ shift-iso S@(A , B) =
       α-iso-step-5-Iso-helper1-Iso :
         ∀ (a : ℕ -> A)
         → (p : (n : ℕ) → a (suc n) ≡ a n)
-        → (u : (n : ℕ) → B (a n) → W S n)
+        → (u : (n : ℕ) → B (a n) → Wₙ S n)
         → (n : ℕ)
         → Iso
-            (PathP (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n))
-            (πₙ S ∘ (subst (\k -> B k → W (A , B) (suc n)) (α-iso-step-5-Iso-helper0 a p (suc n))) (u (suc n)) ≡ subst (λ k → B k → W (A , B) n) (α-iso-step-5-Iso-helper0 a p n) (u n))
+            (PathP (λ x → B (p n x) → Wₙ S n) (πₙ S ∘ u (suc n)) (u n))
+            (πₙ S ∘ (subst (\k -> B k → Wₙ S (suc n)) (α-iso-step-5-Iso-helper0 a p (suc n))) (u (suc n)) ≡ subst (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 a p n) (u n))
       α-iso-step-5-Iso-helper1-Iso  a p u n  =
-        PathP (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n)
-          Iso⟨ pathToIso (PathP≡Path (λ x → B (p n x) → W S n) (πₙ S ∘ u (suc n)) (u n)) ⟩
-        subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)) ≡ (u n)
-          Iso⟨ (invIso (temp (pathToIso (cong (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n))))) ⟩
-        (subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (subst (λ k → B k → W S n) (p n) (πₙ S ∘ u (suc n)))
+        PathP (λ x → B (p n x) → Wₙ S n) (πₙ S ∘ u (suc n)) (u n)
+          Iso⟨ pathToIso (PathP≡Path (λ x → B (p n x) → Wₙ S n) (πₙ S ∘ u (suc n)) (u n)) ⟩
+        subst (λ k → B k → Wₙ S n) (p n) (πₙ S ∘ u (suc n)) ≡ (u n)
+          Iso⟨ (invIso (temp (pathToIso (cong (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 a p n))))) ⟩
+        (subst (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 a p n) (subst (λ k → B k → Wₙ S n) (p n) (πₙ S ∘ u (suc n)))
                ≡
-        subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n))
-          Iso⟨ pathToIso (λ i → (sym (substComposite (λ k → B k → W S n) (p n) (α-iso-step-5-Iso-helper0 a p n) (πₙ S ∘ u (suc n)))) i
-                            ≡ subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)) ⟩
-        subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p (suc n)) (πₙ S ∘ u (suc n))
+        subst (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 a p n) (u n))
+          Iso⟨ pathToIso (λ i → (sym (substComposite (λ k → B k → Wₙ S n) (p n) (α-iso-step-5-Iso-helper0 a p n) (πₙ S ∘ u (suc n)))) i
+                            ≡ subst (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 a p n) (u n)) ⟩
+        subst (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 a p (suc n)) (πₙ S ∘ u (suc n))
           ≡
-        subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)
-          Iso⟨ pathToIso (λ i → (substCommSlice (λ k → B k → W S (suc n)) (λ k → B k → W S n) (λ a x x₁ → (πₙ S) (x x₁)) ((α-iso-step-5-Iso-helper0 a p) (suc n)) (u (suc n))) i
-                         ≡ subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n)) ⟩
-        πₙ S ∘ subst (λ k → B k → W S (suc n)) (α-iso-step-5-Iso-helper0 a p (suc n)) (u (suc n))
+        subst (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 a p n) (u n)
+          Iso⟨ pathToIso (λ i → (substCommSlice (λ k → B k → Wₙ S (suc n)) (λ k → B k → Wₙ S n) (λ a x x₁ → (πₙ S) (x x₁)) ((α-iso-step-5-Iso-helper0 a p) (suc n)) (u (suc n))) i
+                         ≡ subst (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 a p n) (u n)) ⟩
+        πₙ S ∘ subst (λ k → B k → Wₙ S (suc n)) (α-iso-step-5-Iso-helper0 a p (suc n)) (u (suc n))
           ≡
-        subst (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 a p n) (u n) ∎Iso
+        subst (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 a p n) (u n) ∎Iso
         where
           abstract
             temp = iso→fun-Injection-Iso-x
@@ -149,7 +149,7 @@ shift-iso S@(A , B) =
             (Σ[ a ∈ A ] (Σ[ u ∈ ((n : ℕ) → B a → X (sequence S) n) ] ((n : ℕ) → π (sequence S) ∘ (u (suc n)) ≡ u n)))
       α-iso-step-5-Iso =
         Σ-ap-iso (lemma11-Iso {S = S} (λ _ → A) (λ _ x → x)) (λ a,p →
-          Σ-ap-iso (pathToIso (cong (λ k → (n : ℕ) → k n) (funExt λ n → cong (λ k → B k → W S n) (α-iso-step-5-Iso-helper0 (a,p .fst) (a,p .snd) n)))) λ u →
+          Σ-ap-iso (pathToIso (cong (λ k → (n : ℕ) → k n) (funExt λ n → cong (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 (a,p .fst) (a,p .snd) n)))) λ u →
                               pathToIso (cong (λ k → (n : ℕ) → k n) (funExt λ n → isoToPath (α-iso-step-5-Iso-helper1-Iso (a,p .fst) (a,p .snd) u n))))
 
       α-iso-step-1-4-Iso-lem-12 :
@@ -167,15 +167,15 @@ shift-iso S@(A , B) =
       snd (rightInv α-iso-step-1-4-Iso-lem-12 (b , c) i) (suc n) = c (suc n)
       leftInv α-iso-step-1-4-Iso-lem-12 (a , b) = refl
 
-shift : ∀ {ℓ} (S : Container ℓ) -> P₀ S (M-type S) ≡ M-type S
+shift : ∀ {ℓ} (S : Container ℓ) -> P₀ S (M S) ≡ M S
 shift S = isoToPath (shift-iso S) -- lemma 13 & lemma 12
 
 -- Transporting along shift
 
-in-fun : ∀ {ℓ} {S : Container ℓ} -> P₀ S (M-type S) -> M-type S
+in-fun : ∀ {ℓ} {S : Container ℓ} -> P₀ S (M S) -> M S
 in-fun {S = S} = fun (shift-iso S)
 
-out-fun : ∀ {ℓ} {S : Container ℓ} -> M-type S -> P₀ S (M-type S)
+out-fun : ∀ {ℓ} {S : Container ℓ} -> M S -> P₀ S (M S)
 out-fun {S = S} = inv (shift-iso S)
 
 -- Property of functions into M-types
@@ -184,12 +184,12 @@ lift-to-M : ∀ {ℓ} {A : Type ℓ} {S : Container ℓ}
   → (x : (n : ℕ) -> A → X (sequence S) n)
   → ((n : ℕ) → (a : A) →  π (sequence S) (x (suc n) a) ≡ x n a)
   ---------------
-  → (A → M-type S)
+  → (A → M S)
 lift-to-M x p a = (λ n → x n a) , λ n i → p n a i
 
 lift-direct-M : ∀ {ℓ} {S : Container ℓ}
   → (x : (n : ℕ) → X (sequence S) n)
   → ((n : ℕ) →  π (sequence S) (x (suc n)) ≡ x n)
   ---------------
-  → M-type S
+  → M S
 lift-direct-M x p = x , p

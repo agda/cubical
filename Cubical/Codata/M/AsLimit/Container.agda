@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --guardedness --safe #-}
 
-module Cubical.Codata.M-types.Container where
+module Cubical.Codata.M.AsLimit.Container where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv using (_≃_)
@@ -20,7 +20,7 @@ open import Cubical.Data.Sum
 
 open import Cubical.Foundations.Structure
 
-open import Cubical.Codata.M-types.helper
+open import Cubical.Codata.M.AsLimit.helper
 
 -------------------------------------
 -- Container and Container Functor --
@@ -63,17 +63,17 @@ shift-chain = λ X,π -> ((λ x → X X,π (suc x)) ,, λ {n} → π X,π {suc n
 -- Limit type of a Container , and Shift of a Limit --
 ------------------------------------------------------
 
-W : ∀ {ℓ} -> Container ℓ -> ℕ -> Type ℓ
-W S 0 = Lift Unit
-W S (suc n) = P₀ S (W S n)
+Wₙ : ∀ {ℓ} -> Container ℓ -> ℕ -> Type ℓ
+Wₙ S 0 = Lift Unit
+Wₙ S (suc n) = P₀ S (Wₙ S n)
 
-πₙ : ∀ {ℓ} -> (S : Container ℓ) -> {n : ℕ} -> W S (suc n) -> W S n
+πₙ : ∀ {ℓ} -> (S : Container ℓ) -> {n : ℕ} -> Wₙ S (suc n) -> Wₙ S n
 πₙ {ℓ} S {0} _ = lift tt
 πₙ S {suc n} = P₁ (πₙ S {n})
 
 sequence : ∀ {ℓ} -> Container ℓ -> Chain ℓ
-X (sequence {ℓ} S) n = W {ℓ} S n
-π (sequence {ℓ} S) {n} = πₙ {ℓ} S {n}
+X (sequence S) n = Wₙ S n
+π (sequence S) {n} = πₙ S {n}
 
 PX,Pπ : ∀ {ℓ} (S : Container ℓ) -> Chain ℓ
 PX,Pπ {ℓ} S =
@@ -81,8 +81,8 @@ PX,Pπ {ℓ} S =
   (λ {n : ℕ} x → P₁ (λ z → z) (π (sequence S) {n = suc n} x ))
 
 -----------------------------------
--- M-type is limit of a sequence --
+-- M type is limit of a sequence --
 -----------------------------------
 
-M-type : ∀ {ℓ} -> Container ℓ → Type ℓ
-M-type = limit-of-chain ∘ sequence
+M : ∀ {ℓ} -> Container ℓ → Type ℓ
+M = limit-of-chain ∘ sequence

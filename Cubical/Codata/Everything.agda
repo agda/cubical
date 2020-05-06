@@ -17,17 +17,15 @@ open import Cubical.Codata.M public
 open import Cubical.Codata.M.Bisimilarity public
 
 {-
--- Another M-type implemetation based on
+-- Alternative M type implemetation, based on
 -- https://arxiv.org/pdf/1504.02949.pdf
 -- "Non-wellfounded trees in Homotopy Type Theory"
 -- Benedikt Ahrens, Paolo Capriotti, Régis Spadotti
 -}
 
-open import Cubical.Codata.M-types.Everything public
-
-open import Cubical.Codata.M-types.M-type public
-open import Cubical.Codata.M-types.Coalg public
-open import Cubical.Codata.M-types.helper public
-open import Cubical.Codata.M-types.Container public
-open import Cubical.Codata.M-types.itree public
-open import Cubical.Codata.M-types.stream public
+open import Cubical.Codata.M.AsLimit.M
+open import Cubical.Codata.M.AsLimit.Coalg
+open import Cubical.Codata.M.AsLimit.helper
+open import Cubical.Codata.M.AsLimit.Container
+open import Cubical.Codata.M.AsLimit.itree
+open import Cubical.Codata.M.AsLimit.stream

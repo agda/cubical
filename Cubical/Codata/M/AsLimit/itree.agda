@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --guardedness --safe #-}
 
-module Cubical.Codata.M-types.itree where
+module Cubical.Codata.M.AsLimit.itree where
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Prod
@@ -12,16 +12,16 @@ open import Cubical.Data.Bool
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Codata.M-types.Container
-open import Cubical.Codata.M-types.M-type
-open import Cubical.Codata.M-types.Coalg
+open import Cubical.Codata.M.AsLimit.Container
+open import Cubical.Codata.M.AsLimit.M
+open import Cubical.Codata.M.AsLimit.Coalg
 
 -- Delay monad defined as an M-type
 delay-S : (R : Type₀) -> Container ℓ-zero
 delay-S R = (Unit ⊎ R) , λ { (inr _) -> ⊥ ; (inl tt) -> Unit }
 
 delay : (R : Type₀) -> Type₀
-delay R = M-type (delay-S R)
+delay R = M (delay-S R)
 
 delay-ret : {R : Type₀} -> R -> delay R
 delay-ret r = in-fun (inr r , λ ())
@@ -37,7 +37,7 @@ tree-S : (E : Type₀ -> Type₁) (R : Type₀) -> Container (ℓ-suc ℓ-zero)
 tree-S E R = (R ⊎ (Σ[ A ∈ Type₀ ] (E A))) , (λ { (inl _) -> ⊥₁ ; (inr (A , e)) -> Lift A } )
 
 tree : (E : Type₀ -> Type₁) (R : Type₀) -> Type₁
-tree E R = M-type (tree-S E R)
+tree E R = M (tree-S E R)
 
 tree-ret : ∀ {E} {R}  -> R -> tree E R
 tree-ret {E} {R} r = in-fun (inl r , λ ())
@@ -54,7 +54,7 @@ itree-S : ∀ (E : Type₀ -> Type₁) (R : Type₀) -> Container (ℓ-suc ℓ-z
 itree-S E R = ((Unit ⊎ R) ⊎ (Σ[ A ∈ Type₀ ] (E A))) , (λ { (inl (inl _)) -> Lift Unit ; (inl (inr _)) -> ⊥₁ ; (inr (A , e)) -> Lift A } )
 
 itree :  ∀ (E : Type₀ -> Type₁) (R : Type₀) -> Type₁
-itree E R = M-type (itree-S E R)
+itree E R = M (itree-S E R)
 
 ret' : ∀ {E} {R}  -> R -> P₀ (itree-S E R) (itree E R)
 ret' {E} {R} r = inl (inr r) , λ ()

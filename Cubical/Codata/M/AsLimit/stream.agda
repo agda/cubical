@@ -1,24 +1,24 @@
 {-# OPTIONS --cubical --guardedness --safe #-}
 
-module Cubical.Codata.M-types.stream where
+module Cubical.Codata.M.AsLimit.stream where
 
 open import Cubical.Data.Unit
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Codata.M-types.M-type
-open import Cubical.Codata.M-types.helper
-open import Cubical.Codata.M-types.Container
+open import Cubical.Codata.M.AsLimit.M
+open import Cubical.Codata.M.AsLimit.helper
+open import Cubical.Codata.M.AsLimit.Container
 
 --------------------------------------
--- Stream definitions using M-types --
+-- Stream definitions using M.AsLimit --
 --------------------------------------
 
 stream-S : ∀ A -> Container ℓ-zero
 stream-S A = (A , (λ _ → Unit))
 
 stream : ∀ (A : Type₀) -> Type₀
-stream A = M-type (stream-S A)
+stream A = M (stream-S A)
 
 cons : ∀ {A} -> A -> stream A -> stream A
 cons x xs = in-fun (x , λ { tt -> xs } )
