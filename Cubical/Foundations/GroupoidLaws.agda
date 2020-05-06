@@ -350,12 +350,13 @@ cube-comp₀₋₋ c p i j k =
     (c i j k)
 
 compPath-filler-in-filler :
-            (p : _ ≡ y) → ∀ q
+            (p : _ ≡ y) → (q : _ ≡ _ )
           → _≡_ {A = Square (p ∙ q) (p ∙ q) (λ _ → x) (λ _ → z)}
            (λ i j → hcomp
-                      (λ { i₂ (j = i0) → x
-                         ; i₂ (j = i1) → q (i₂ ∨ ~ i)
-                         ; i₂ (i = i0) → (p ∙ q) j
+                      (λ i₂ →
+                       λ { (j = i0) → x
+                         ; (j = i1) → q (i₂ ∨ ~ i)
+                         ; (i = i0) → (p ∙ q) j
                         })
                       (compPath-filler p q (~ i) j))
            (λ _ → p ∙ q)
