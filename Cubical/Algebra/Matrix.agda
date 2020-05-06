@@ -73,11 +73,10 @@ FinMatrix≡VecMatrix _ _ _ = ua FinMatrix≃VecMatrix
 -- operation with a direct definition.
 module _ (R : CommRing {ℓ}) where
 
-  open commring-operation-syntax
+  open commring-·syntax R
 
-  -- TODO: how to just use +? Seems to work for AbGroup...
   addFinMatrix : ∀ {m n} → FinMatrix ⟨ R ⟩ m n → FinMatrix ⟨ R ⟩ m n → FinMatrix ⟨ R ⟩ m n
-  addFinMatrix M N = λ k l → M k l +⟨ R ⟩ N k l
+  addFinMatrix M N = λ k l → M k l + N k l
 
   addFinMatrixComm : ∀ {m n} → (M N : FinMatrix ⟨ R ⟩ m n) → addFinMatrix M N ≡ addFinMatrix N M
   addFinMatrixComm M N i k l = commring+-comm R (M k l) (N k l) i
@@ -107,12 +106,12 @@ module _ (R : CommRing {ℓ}) where
 
   addVec : ∀ {m} → Vec ⟨ R ⟩ m → Vec ⟨ R ⟩ m → Vec ⟨ R ⟩ m
   addVec [] [] = []
-  addVec (x ∷ xs) (y ∷ ys) = x +⟨ R ⟩ y ∷ addVec xs ys
+  addVec (x ∷ xs) (y ∷ ys) = x + y ∷ addVec xs ys
 
   addVecLem : ∀ {m} → (M N : Vec ⟨ R ⟩ m)
-            → FinVec→Vec (λ l → lookup l M +⟨ R ⟩ lookup l N) ≡ addVec M N
+            → FinVec→Vec (λ l → lookup l M + lookup l N) ≡ addVec M N
   addVecLem {zero} [] [] = refl
-  addVecLem {suc m} (x ∷ xs) (y ∷ ys) = cong (λ zs → x +⟨ R ⟩ y ∷ zs) (addVecLem xs ys)
+  addVecLem {suc m} (x ∷ xs) (y ∷ ys) = cong (λ zs → x + y ∷ zs) (addVecLem xs ys)
 
   addVecMatrix' : ∀ {m n} → VecMatrix ⟨ R ⟩ m n → VecMatrix ⟨ R ⟩ m n → VecMatrix ⟨ R ⟩ m n
   addVecMatrix' [] [] = []
@@ -124,8 +123,8 @@ module _ (R : CommRing {ℓ}) where
   addVecMatrixEq {suc m} {n} (M ∷ MS) (N ∷ NS) =
     addVecMatrix (M ∷ MS) (N ∷ NS)
       ≡⟨ transportUAop₂ FinMatrix≃VecMatrix addFinMatrix (M ∷ MS) (N ∷ NS) ⟩
-    FinVec→Vec (λ l → lookup l M +⟨ R ⟩ lookup l N) ∷ _
-      ≡⟨ (λ i → addVecLem M N i ∷ FinMatrix→VecMatrix (λ k l → lookup l (lookup k MS) +⟨ R ⟩ lookup l (lookup k NS))) ⟩
+    FinVec→Vec (λ l → lookup l M + lookup l N) ∷ _
+      ≡⟨ (λ i → addVecLem M N i ∷ FinMatrix→VecMatrix (λ k l → lookup l (lookup k MS) + lookup l (lookup k NS))) ⟩
     addVec M N ∷ _
       ≡⟨ cong (λ X → addVec M N ∷ X) (sym (transportUAop₂ FinMatrix≃VecMatrix addFinMatrix MS NS) ∙ addVecMatrixEq MS NS) ⟩
     addVec M N ∷ addVecMatrix' MS NS ∎
