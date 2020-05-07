@@ -246,7 +246,7 @@ open import Cubical.HITs.PropositionalTruncation public
 
 open import Cubical.HITs.S1 as S1
   renaming (loop to loopPath )
-  hiding (helix ; winding ; ΩS¹ ; encode ; intLoop)
+  hiding (helix ; winding ; ΩS¹ ; encode ; intLoop ; windingIntLoop ; decode ; decodeEncode)
 
 
 loop : base ≡ base
@@ -307,6 +307,21 @@ intLoop (pos zero)       = refl
 intLoop (pos (suc n))    = intLoop (pos n) ∙ loop
 intLoop (negsuc zero)    = sym loop
 intLoop (negsuc (suc n)) = intLoop (negsuc n) ∙ sym loop
+
+-- windingIntLoop : (n : Int) → winding (intLoop n) ≡ n
+-- windingIntLoop (pos zero)       = refl
+-- windingIntLoop (pos (suc n))    = cong sucInt (windingIntLoop (pos n))
+-- windingIntLoop (negsuc zero)    = refl
+-- windingIntLoop (negsuc (suc n)) = cong predInt (windingIntLoop (negsuc n))
+
+decode : (x : S¹) → helix x → base ≡ x
+decode x p = S¹-elim (λ x → helix x → base ≡ x) intLoop rem x p
+  where
+  rem : transport (λ x' → helix x' → base ≡ x') loop intLoop ≡ intLoop
+  rem = {!!}
+
+decodeEncode : (x : S¹) (p : base ≡ x) → decode x (encode x p) ≡ p
+decodeEncode .base refl = refl
 
 -- Some tests
 module _ where
