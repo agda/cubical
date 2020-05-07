@@ -8,6 +8,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence using (ua)
 
 private
   variable
@@ -132,3 +133,19 @@ isEquiv→hasPropFibers e b = isContr→isProp (equiv-proof e b)
 
 isEquiv→isEmbedding : isEquiv f → isEmbedding f
 isEquiv→isEmbedding e = hasPropFibers→isEmbedding (isEquiv→hasPropFibers e)
+
+iso→isEmbedding : ∀ {ℓ} {A B : Type ℓ}
+  → (isom : Iso A B)
+  -------------------------------
+  → isEmbedding (Iso.fun isom)
+iso→isEmbedding {A = A} {B} isom = (isEquiv→isEmbedding (equivIsEquiv (isoToEquiv isom)))
+
+isEmbedding→Injection :
+  ∀ {ℓ} {A B C : Type ℓ}
+  → (a : A -> B)
+  → (e : isEmbedding a)
+  ----------------------
+  → ∀ {f g : C -> A} ->
+  ∀ x → (a (f x) ≡ a (g x)) ≡ (f x ≡ g x)
+isEmbedding→Injection a e {f = f} {g} x = sym (ua (cong a , e (f x) (g x)))
+

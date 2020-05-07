@@ -218,7 +218,7 @@ SIP S ι θ A B =
             (Σ[ p ∈ (typ A) ≡ (typ B) ] (ι A B (pathToEquiv p)))                ≃⟨ iii ⟩
             (A ≃[ ι ] B)                                                            ■
     where
-     i = invEquiv Σ≡
+     i = invEquiv Σ≃
      ii = Σ-cong-≃ (hom-lemma-dep S ι θ A B)
      iii = Σ-change-of-variable-≃ pathToEquiv (equivIsEquiv univalence)
 
