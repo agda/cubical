@@ -33,13 +33,12 @@ iso→fun-Injection :
 iso→fun-Injection {A = A} {B} {C} isom {f = f} {g} =
   isEmbedding→Injection {A = A} {B} {C} (Iso.fun isom) (iso→isEmbedding {A = A} {B} isom) {f = f} {g = g}
 
-abstract
-  iso→Pi-fun-Injection :
-    ∀ {ℓ} {A B C : Type ℓ} (isom : Iso A B)
-    → ∀ {f g : C -> A}
-    → Iso (∀ x → (fun isom) (f x) ≡ (fun isom) (g x)) (∀ x → f x ≡ g x)
-  iso→Pi-fun-Injection {A = A} {B} {C} isom {f = f} {g} =
-    pathToIso (cong (λ k → ∀ x → k x) (funExt (iso→fun-Injection isom {f = f} {g = g})))
+iso→Pi-fun-Injection :
+  ∀ {ℓ} {A B C : Type ℓ} (isom : Iso A B)
+  → ∀ {f g : C -> A}
+  → Iso (∀ x → (fun isom) (f x) ≡ (fun isom) (g x)) (∀ x → f x ≡ g x)
+iso→Pi-fun-Injection {A = A} {B} {C} isom {f = f} {g} =
+  pathToIso (cong (λ k → ∀ x → k x) (funExt (iso→fun-Injection isom {f = f} {g = g})))
 
 iso→fun-Injection-Iso :
   ∀ {ℓ} {A B C : Type ℓ} (isom : Iso A B)

@@ -39,6 +39,10 @@ private
   limit-collapse X l x₀ 0 = x₀
   limit-collapse {S = S} X l x₀ (suc n) = l n (limit-collapse {S = S} X l x₀ n)
 
+-- Lemma 11
+-- https://arxiv.org/pdf/1504.02949.pdf
+-- "Non-wellfounded trees in Homotopy Type Theory"
+-- Benedikt Ahrens, Paolo Capriotti, Régis Spadotti
 lemma11-Iso :
   ∀ {ℓ} {S : Container ℓ} (X : ℕ → Type ℓ) (l : (n : ℕ) → X n → X (suc n))
   → Iso (Σ[ x ∈ ((n : ℕ) → X n)] ((n : ℕ) → x (suc n) ≡ l n (x n)))
@@ -78,6 +82,17 @@ leftInv (lemma11-Iso {ℓ = ℓ} {S = S} X l) (x , y) i =
 -- Shifting the limit of a chain is an equivalence --
 -----------------------------------------------------
 
+-- Lemma 10
+-- https://arxiv.org/pdf/1504.02949.pdf
+-- "Non-wellfounded trees in Homotopy Type Theory"
+-- Benedikt Ahrens, Paolo Capriotti, Régis Spadotti
+
+lemma10-Iso : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) -> Iso (C,γ .fst -> M S) (Cone C,γ)
+fun (lemma10-Iso _) f = (λ n z → (f z) .fst n) , λ n i a → (f a) .snd n i
+inv (lemma10-Iso _) (u , q) z = (λ n → u n z) , λ n i → q n i z
+rightInv (lemma10-Iso _) _ = refl
+leftInv (lemma10-Iso _) _ = refl
+    
 -- Shift is equivalence (12) and (13) in the proof of Theorem 7
 -- https://arxiv.org/pdf/1504.02949.pdf
 -- "Non-wellfounded trees in Homotopy Type Theory"
@@ -87,10 +102,7 @@ leftInv (lemma11-Iso {ℓ = ℓ} {S = S} X l) (x , y) i =
 shift-iso : ∀ {ℓ} (S : Container ℓ) -> Iso (P₀ S (M S)) (M S)
 shift-iso S@(A , B) =
   P₀ S (M S)
-    Iso⟨ Σ-ap-iso₂ (λ x → iso (λ f → (λ n z → f z .fst n) , λ n i a → f a .snd n i)
-                               (λ (u , q) z → (λ n → u n z) , λ n i → q n i z)
-                              (λ _ → refl)
-                              (λ _ → refl)) ⟩
+    Iso⟨ Σ-ap-iso₂ (λ x → lemma10-Iso (B x , λ _ → x , idfun (B x))) ⟩
   (Σ[ a ∈ A ] (Σ[ u ∈ ((n : ℕ) → B a → X (sequence S) n) ] ((n : ℕ) → π (sequence S) ∘ (u (suc n)) ≡ u n)))
     Iso⟨ invIso α-iso-step-5-Iso ⟩
   (Σ[ a ∈ (Σ[ a ∈ ((n : ℕ) → A) ] ((n : ℕ) → a (suc n) ≡ a n)) ]
