@@ -93,7 +93,7 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
   Lift {ℓ-zero} {ℓ} Unit ∎Iso
   where
     e = inv (lemma10-Iso C,γ)
-    
+
     step : ∀ {Y : Set ℓ} (f : C -> Y) → C → P₀ S Y
     step {Y = Y} f = P₁ f  ∘ γ
 
@@ -105,7 +105,7 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
     ϕ₀ u (suc n) = step (u n)
 
     ϕ₁ :
-      ∀ (u : (n : ℕ) → C → Wₙ S n) 
+      ∀ (u : (n : ℕ) → C → Wₙ S n)
       → (g : (n : ℕ) → πₙ S ∘ u (suc n) ≡ u n)
       → (n : ℕ) → πₙ S ∘ (ϕ₀ u (suc n)) ≡ ϕ₀ u n
     ϕ₁ u g 0 i a = lift tt
@@ -121,7 +121,7 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
       comp-abstr'0 : Iso (Σ[ f ∈ (C → M S) ] (out-fun ∘ f ≡ step f))
                          (Σ[ f ∈ (C → M S) ] (in-fun ∘ out-fun ∘ f ≡ in-fun ∘ step f))
       comp-abstr'0 = Σ-ap-iso₂ (λ f → invIso (computation-abstract'0 {f = out-fun ∘ f} {g = step f}))
-    
+
       computation-abstract'1 : (f : C → M S) → in-fun {S = S} ∘ out-fun ∘ f ≡ f
       computation-abstract'1 f =
         in-fun {S = S} ∘ out-fun ∘ f
@@ -136,7 +136,7 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
                  (x ≡ y)
     e-inj-Iso = iso→inv-Injection-Iso-x (lemma10-Iso C,γ)
 
-    private      
+    private
       u0 : Cone₀ C,γ
       u0 = λ { 0 _ → lift tt ; (suc n) -> step (u0 n) }
 
@@ -149,7 +149,7 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
       missing-0-helper : (b : Σ[ u ∈ Cone₀ C,γ ] (u ≡ ϕ₀ u)) → (u0 , funExt p0) ≡ b
 
     missing-0-Iso : Iso (Lift {ℓ-zero} {ℓ} Unit) (Σ (Cone₀ C,γ) (λ u → u ≡ ϕ₀ u))
-    fun (missing-0-Iso) = (λ _ → u0 , (funExt p0))   
+    fun (missing-0-Iso) = (λ _ → u0 , (funExt p0))
     inv (missing-0-Iso) = (λ x → lift tt)
     rightInv (missing-0-Iso) = (λ b → missing-0-helper b)
     leftInv (missing-0-Iso) = λ a i → lift tt
@@ -159,7 +159,7 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
         (x : Lift Unit)
         → Iso (Lift {ℓ-zero} {ℓ} Unit)
                (Σ[ q ∈ (Cone₁ C,γ (fun missing-0-Iso x .fst)) ] (PathP (λ i → Cone₁ C,γ (fun missing-0-Iso x .snd i)) q (ϕ₁ (fun missing-0-Iso x .fst) q)))
-    
+
 U-contr : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) -> isContr (U C,γ)
 U-contr {ℓ} C,γ = inv (contr-is-ext-Iso {A = U C,γ} (U-is-Unit-Iso C,γ)) (lift tt , λ { (lift tt) -> refl })
   where
@@ -174,7 +174,7 @@ U-contr {ℓ} C,γ = inv (contr-is-ext-Iso {A = U C,γ} (U-is-Unit-Iso C,γ)) (l
     inv (contr-is-ext-Iso-helper (iso f g rightI leftI) a) x y = sym (leftI a) ∙ cong g (x (f y)) ∙ leftI y
     rightInv (contr-is-ext-Iso-helper p@(iso f g rightI leftI) a) b = funExt λ y → isContrIsPropPath (f a , b) y (cong f (sym (leftI a) ∙ cong g (b (f (g y))) ∙ leftI (g y)) ∙ rightI y) (b y)
     leftInv (contr-is-ext-Iso-helper p@(iso f g rightI leftI) a) b = funExt λ y → isContrIsPropPath (a , b) y (sym (leftI a) ∙ cong g (cong f (b (g (f y))) ∙ rightI (f y)) ∙ leftI y) (b y)
-  
+
     -- Can this be generalized to Iso A B → Iso (H A) (H B) , not just for H = isContr ?
     contr-is-ext-Iso : ∀ {ℓ} {A B : Set ℓ} -> Iso A B -> Iso (isContr A) (isContr B)
     contr-is-ext-Iso {A = A} {B} p = Σ-ap-iso p (contr-is-ext-Iso-helper p)
@@ -190,11 +190,11 @@ coalg-unfold : ∀ {ℓ} {S : Container ℓ} -> (C,γ : Coalg₀ S) -> (_⇒_ {S
 coalg-unfold C,γ = lim-terminal {C,γ = C,γ} .fst
 
 -- unique function into final coalg
-coalg-unfold-universal : ∀ {ℓ} {S : Container ℓ} -> (C,γ : Coalg₀ S) -> (y : C,γ ⇒ M-coalg) → fst lim-terminal ≡ y  
+coalg-unfold-universal : ∀ {ℓ} {S : Container ℓ} -> (C,γ : Coalg₀ S) -> (y : C,γ ⇒ M-coalg) → fst lim-terminal ≡ y
 coalg-unfold-universal C,γ = lim-terminal {C,γ = C,γ} .snd
 
 -- unique function into final coalg
-coalg-unfold-function : ∀ {ℓ} {S : Container ℓ} → (C,γ : Coalg₀ S) -> (C,γ .fst) -> (M-coalg .fst)  
+coalg-unfold-function : ∀ {ℓ} {S : Container ℓ} → (C,γ : Coalg₀ S) -> (C,γ .fst) -> (M-coalg .fst)
 coalg-unfold-function C,γ y = (coalg-unfold C,γ) .fst y
 
 M-final-coalg : ∀ {ℓ} {S : Container ℓ} -> Final {S = S}

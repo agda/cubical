@@ -92,7 +92,7 @@ fun (lemma10-Iso _) f = (λ n z → (f z) .fst n) , λ n i a → (f a) .snd n i
 inv (lemma10-Iso _) (u , q) z = (λ n → u n z) , λ n i → q n i z
 rightInv (lemma10-Iso _) _ = refl
 leftInv (lemma10-Iso _) _ = refl
-    
+
 -- Shift is equivalence (12) and (13) in the proof of Theorem 7
 -- https://arxiv.org/pdf/1504.02949.pdf
 -- "Non-wellfounded trees in Homotopy Type Theory"
