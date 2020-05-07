@@ -46,6 +46,15 @@ cong f refl = refl
 _∙_ : x ≡ y → y ≡ z → x ≡ z
 refl ∙ q = q
 
+infix  3 _∎
+infixr 2 _≡⟨_⟩_
+
+_≡⟨_⟩_ : (x : A) {y z : A} → x ≡ y → y ≡ z → x ≡ z
+_ ≡⟨ p ⟩ q = p ∙ q
+
+_∎ : (x : A) → x ≡ x
+_ ∎ = refl
+
 transport : ∀ (C : A → Type ℓ') {x y : A} → x ≡ y → C x → C y
 transport C refl b = b
 
@@ -244,19 +253,13 @@ S¹-rec : (b : A) (l : b ≡ b) → S¹ → A
 S¹-rec b l = S1.rec b (eqToPath l)
 
 foo : (C : A → Type ℓ) {x y : A} (b : C x) (p : Path _ x y) → subst C p b ≡ transport C (pathToEq p) b
-foo C b p = JPath (λ _ q → subst C q b ≡ transport C (pathToEq q) b) rem p
+foo C {x} b p = JPath (λ _ q → subst C q b ≡ transport C (pathToEq q) b) rem p
   where
-  -- When I normalize and paste the RHS I get a bug
-  rem : subst C reflPath b ≡ transport C (pathToEq reflPath) b
-  rem = {!!}
-  -- Try to uncomment
-  -- rem : subst C reflPath b ≡ transport C (transp (λ i → x ≡ x) i0 refl) b
-  -- rem = {!!}
-  -- This gives the error:
-  --   x != x of type A
-  -- (because one has de Bruijn index 0 and the other 4)
-  -- when checking that the expression
-  -- transport C (transp (λ i → x ≡ x) i0 refl) b has type C x
+  rem : transp (λ i → C x) i0 b ≡ transport C (transp (λ i → x ≡ x) i0 refl) b
+  rem = transp (λ i → C x) i0 b ≡⟨ pathToEq (transportRefl b) ⟩
+        b ≡⟨ refl ⟩
+        transport C refl b ≡⟨ cong (λ x → transport C x b) (pathToEq (symPath (transportRefl refl))) ⟩
+        transport C (transp (λ i → x ≡ x) i0 refl) b ∎
 
 S¹-elim : (C : S¹ → Type ℓ) (b : C base) (l : transport C loop b ≡ b) → (x : S¹) → C x
 S¹-elim C b l x = S1.ind C b (eqToPath (suff ∙ l)) x
