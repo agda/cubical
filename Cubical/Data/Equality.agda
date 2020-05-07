@@ -58,12 +58,14 @@ _ ∎ = refl
 transport : ∀ (C : A → Type ℓ') {x y : A} → x ≡ y → C x → C y
 transport C refl b = b
 
+sym : x ≡ y → y ≡ x
+sym refl = refl
 
 eqToPath : x ≡ y → Path A x y
 eqToPath refl = reflPath
 
 pathToEq : Path A x y → x ≡ y
-pathToEq p = transportPath (congPath (λ u → _ ≡ u) p) refl
+pathToEq {x = x} = JPath (λ y _ → x ≡ y) refl
 
 eqToPath-pathToEq : (p : Path A x y) → Path _ (eqToPath (pathToEq p)) p
 eqToPath-pathToEq p =
@@ -244,6 +246,7 @@ open import Cubical.HITs.PropositionalTruncation public
 
 open import Cubical.HITs.S1 as S1
   renaming (loop to loopPath )
+  hiding (helix ; winding ; ΩS¹ ; encode ; intLoop)
 
 
 loop : base ≡ base
@@ -266,3 +269,58 @@ S¹-elim C b l x = S1.ind C b (eqToPath (suff ∙ l)) x
   where
   suff : subst C loopPath b ≡ transport C (pathToEq loopPath) b
   suff = foo C b loopPath
+
+
+boo : {B : Type ℓ'} (f : A → B) (p : Path A x y) → cong f (pathToEq p) ≡ pathToEq (congPath f p)
+boo f p = JPath (λ _ q → cong f (pathToEq q) ≡ pathToEq (congPath f q)) rem p
+  where
+  rem : cong f (transp (λ i → x ≡ x) i0 refl) ≡ transp (λ i → f x ≡ f x) i0 refl
+  rem = pathToEq (compPath (λ i → cong f (transportRefl refl i)) (symPath (transportRefl refl)))
+
+S¹-recβ : (b : A) (l : b ≡ b) → cong (S¹-rec b l) (pathToEq loopPath) ≡ l
+S¹-recβ b l =
+  cong (S¹-rec b l) (pathToEq loopPath) ≡⟨ boo _ loopPath ⟩
+  pathToEq (congPath (S¹-rec b l) loopPath) ≡⟨ refl ⟩
+  pathToEq (eqToPath l) ≡⟨ pathToEq (pathToEq-eqToPath l) ⟩
+  l ∎
+
+
+-- βloop/elim : {C : S¹ -> Type} (c : C base) (α : Path (transport C loop c) c) -> Path (apd (S¹-induction C c α) loop) α
+open import Cubical.Data.Nat
+  hiding (_+_ ; _*_ ; +-assoc ; +-comm)
+open import Cubical.Data.Int
+
+helix : S¹ → Type₀
+helix = S¹-rec Int (pathToEq sucPathInt)
+
+ΩS¹ : Type₀
+ΩS¹ = base ≡ base
+
+encode : ∀ x → base ≡ x → helix x
+encode x p = transport helix p (pos zero)
+
+winding : ΩS¹ → Int
+winding = encode base
+
+intLoop : Int → ΩS¹
+intLoop (pos zero)       = refl
+intLoop (pos (suc n))    = intLoop (pos n) ∙ loop
+intLoop (negsuc zero)    = sym loop
+intLoop (negsuc (suc n)) = intLoop (negsuc n) ∙ sym loop
+
+-- Some tests
+module _ where
+ private
+  test-winding-refl : winding refl ≡ pos 0
+  test-winding-refl = refl
+
+  -- I think this is stuck because transp in ≡ doesn't reduce?
+  test-winding-loop : winding loop ≡ pos 1
+  test-winding-loop = {!!}
+
+  test-winding-pos5 : winding (intLoop (pos 5)) ≡ pos 5
+  test-winding-pos5 = {!!}
+
+  test-winding-neg5 : winding (intLoop (negsuc 5)) ≡ negsuc 5
+  test-winding-neg5 = {!!}
+
