@@ -4,6 +4,7 @@ module Cubical.HITs.FiniteMultiset.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Nat
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Relation.Nullary
 open import Cubical.HITs.FiniteMultiset.Base
 open import Cubical.Structures.MultiSet
@@ -113,3 +114,107 @@ module _(discA : Discrete A) where
 
  FMS-with-str : Multi-Set A (Discrete→isSet discA)
  FMS-with-str = (FMSet A , [] , _∷_ , FMScount)
+
+
+
+ -- We prove some useful properties of the FMScount function
+ FMScount-≡-lemma : ∀ {a} {x} xs → a ≡ x → FMScount a (x ∷ xs) ≡ suc (FMScount a xs)
+ FMScount-≡-lemma {a} {x} xs a≡x with discA a x
+ ...                         | yes _   = refl
+ ...                         | no  a≢x = ⊥.rec (a≢x a≡x)
+
+
+ FMScount-≡-lemma-refl : ∀ {x} xs → FMScount x (x ∷ xs) ≡ suc (FMScount x xs)
+ FMScount-≡-lemma-refl {x} xs = FMScount-≡-lemma xs refl
+
+
+ FMScount-≢-lemma : ∀ {a} {x} xs → ¬ a ≡ x → FMScount a (x ∷ xs) ≡ FMScount a xs
+ FMScount-≢-lemma {a} {x} xs a≢x with discA a x
+ ...                         | yes a≡x = ⊥.rec (a≢x a≡x)
+ ...                         | no  _   = refl
+
+
+ FMScount-0-lemma : ∀ xs → (∀ a → FMScount a xs ≡ 0) → xs ≡ []
+ FMScount-0-lemma = ElimProp.f (isPropΠ λ _ → trunc _ _) (λ _ → refl) θ
+  where
+  θ : ∀ x {xs} → ((∀ a → FMScount a xs ≡ 0) → xs ≡ [])
+               → ((∀ a → FMScount a (x ∷ xs) ≡ 0) → (x ∷ xs) ≡ [])
+  θ x {xs} _ p = ⊥.rec (snotz (sym (FMScount-≡-lemma-refl xs) ∙ p x))
+
+
+ -- we define a function that removes an element a from a finite multiset once
+ -- by simultaneously defining two lemmas about it
+ remove1 : A → FMSet A → FMSet A
+ remove1 a [] = []
+ remove1 a (x ∷ xs) with (discA a x)
+ ...               | yes _ = xs
+ ...               | no  _ = x ∷ remove1 a xs
+ remove1 a (comm x y xs i) = path i
+  where
+  path : remove1 a (x ∷ y ∷ xs) ≡ remove1 a (y ∷ x ∷ xs)
+  path with discA a x with discA a y
+  path | yes a≡x      | yes a≡y = λ i → ((sym a≡y ∙ a≡x) i) ∷ xs
+  path | yes a≡x      | no  _   = λ i → y ∷ (eq i)
+   where
+   eq : xs ≡ remove1 a (x ∷ xs)
+   eq with discA a x
+   eq | yes _   = refl
+   eq | no  a≢x = ⊥.rec (a≢x a≡x)
+  path | no  _        | yes a≡y = λ i → x ∷ (eq i)
+   where
+   eq : remove1 a (y ∷ xs) ≡ xs
+   eq with discA a y
+   eq | yes _   = refl
+   eq | no  a≢y = ⊥.rec (a≢y a≡y)
+  path | no  a≢x      | no  a≢y = (λ i → x ∷ (p i)) ∙∙ comm x y (remove1 a xs) ∙∙ (λ i → y ∷ (sym q i))
+   where
+    p : remove1 a (y ∷ xs) ≡ y ∷ (remove1 a xs)
+    p with discA a y
+    p | yes a≡y = ⊥.rec (a≢y a≡y)
+    p | no  _   = refl
+    q : remove1 a (x ∷ xs) ≡ x ∷ (remove1 a xs)
+    q with discA a x
+    q | yes a≡x = ⊥.rec (a≢x a≡x)
+    q | no  _   = refl
+ remove1 a (trunc xs ys p q i j) = trunc (remove1 a xs) (remove1 a ys) (cong (remove1 a) p) (cong (remove1 a) q) i j
+
+
+ remove1-≡-lemma : ∀ {a} {x} xs → a ≡ x → xs ≡ remove1 a (x ∷ xs)
+ remove1-≡-lemma {a} {x} xs a≡x with discA a x
+ ...                            | yes _   = refl
+ ...                            | no  a≢x = ⊥.rec (a≢x a≡x)
+
+ remove1-≢-lemma : ∀ {a} {x} xs → ¬ a ≡ x → remove1 a (x ∷ xs) ≡ x ∷ remove1 a xs
+ remove1-≢-lemma {a} {x} xs a≢x with discA a x
+ ...                            | yes a≡x = ⊥.rec (a≢x a≡x)
+ ...                            | no  _   = refl
+
+
+ remove1-predℕ-lemma : ∀ a xs → FMScount a (remove1 a xs) ≡ predℕ (FMScount a xs)
+ remove1-predℕ-lemma a = ElimProp.f (isSetℕ _ _) refl θ
+  where
+  θ : ∀ x {xs} → FMScount a (remove1 a xs) ≡ predℕ (FMScount a xs)
+               → FMScount a (remove1 a (x ∷ xs)) ≡ predℕ (FMScount a (x ∷ xs))
+  θ x {xs} p with discA a x
+  ...        | yes _   = refl
+  ...        | no  a≢x = FMScount-≢-lemma (remove1 a xs) a≢x ∙ p
+
+
+ remove1-zero-lemma : ∀ a xs → FMScount a xs ≡ zero → xs ≡ remove1 a xs
+ remove1-zero-lemma a = ElimProp.f (isPropΠ λ _ → trunc _ _) (λ _ → refl) θ
+  where
+  θ : ∀ x {xs} → (FMScount a xs ≡ zero → xs ≡ remove1 a xs)
+               → FMScount a (x ∷ xs) ≡ zero → x ∷ xs ≡ remove1 a (x ∷ xs)
+  θ x {xs} hyp p with discA a x
+  ...            | yes _ = ⊥.rec (snotz p)
+  ...            | no  _ = cong (x ∷_) (hyp p)
+
+
+ remove1-suc-lemma : ∀ a n xs → FMScount a xs ≡ suc n → xs ≡ a ∷ (remove1 a xs)
+ remove1-suc-lemma a n = ElimProp.f (isPropΠ λ _ → trunc _ _) (λ p → ⊥.rec (znots p)) θ
+  where
+  θ : ∀ x {xs} → (FMScount a xs ≡ suc n → xs ≡ a ∷ (remove1 a xs))
+               → FMScount a (x ∷ xs) ≡ suc n → x ∷ xs ≡ a ∷ (remove1 a (x ∷ xs))
+  θ x {xs} hyp p with discA a x
+  ...            | yes a≡x = (λ i → (sym a≡x i) ∷ xs)
+  ...            | no  a≢x = cong (x ∷_) (hyp p) ∙ comm x a (remove1 a xs)
