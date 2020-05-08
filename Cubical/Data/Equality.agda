@@ -1,7 +1,7 @@
 {-
 
-This module converts between the path equality
-and the inductively define equality types.
+This module converts between the path types and the inductively
+defined equality types.
 
 -}
 {-# OPTIONS --cubical --safe #-}
@@ -17,6 +17,7 @@ open import Cubical.Foundations.Prelude public
            ; sym       to symPath
            ; _∙_       to compPath
            ; cong      to congPath
+           ; subst     to substPath
            ; funExt    to funExtPath
            ; isContr   to isContrPath
            ; isProp    to isPropPath )
@@ -30,24 +31,34 @@ open import Cubical.Foundations.Equiv
            ; equivIsEquiv )
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence hiding (univalence)
+open import Cubical.HITs.PropositionalTruncation public
+  renaming ( squash to squashPath
+           ; rec to recPropTruncPath
+           ; elim to elimPropTruncPath )
+open import Cubical.HITs.S1 as S1
+  renaming (loop to loopPath )
+  hiding (helix ; winding ; ΩS¹ ; encode ; intLoop ; windingIntLoop ; decode ; decodeEncode)
+open import Cubical.Data.Nat
+  hiding (_+_ ; _*_ ; +-assoc ; +-comm)
+open import Cubical.Data.Int
 
-
+-- Import the builtin equality type defined as an inductive family
 open import Agda.Builtin.Equality public
 
 private
  variable
   ℓ ℓ' : Level
-  A : Set ℓ
-  x y z : A
-
-cong : ∀ {B : Type ℓ'} (f : A → B) → ∀ {x y : A} → x ≡ y → f x ≡ f y
-cong f refl = refl
-
-_∙_ : x ≡ y → y ≡ z → x ≡ z
-refl ∙ q = q
+  A : Type ℓ
+  B : Type ℓ'
 
 infix  3 _∎
 infixr 2 _≡⟨_⟩_
+
+ap : (f : A → B) {x y : A} → x ≡ y → f x ≡ f y
+ap f refl = refl
+
+_∙_ : {x y z : A} → x ≡ y → y ≡ z → x ≡ z
+refl ∙ q = q
 
 _≡⟨_⟩_ : (x : A) {y z : A} → x ≡ y → y ≡ z → x ≡ z
 _ ≡⟨ p ⟩ q = p ∙ q
@@ -58,21 +69,28 @@ _ ∎ = refl
 transport : ∀ (C : A → Type ℓ') {x y : A} → x ≡ y → C x → C y
 transport C refl b = b
 
-sym : x ≡ y → y ≡ x
+sym : {x y : A} → x ≡ y → y ≡ x
 sym refl = refl
 
-eqToPath : x ≡ y → Path A x y
+apd : {C : A → Type ℓ} (f : (x : A) → C x) {x y : A} (p : x ≡ y) → transport C p (f x) ≡ f y
+apd f refl = refl
+
+congPathd : {C : A → Type ℓ} (f : (x : A) → C x) {x y : A} (p : Path A x y) → Path (C y) (substPath C p (f x)) (f y)
+congPathd f p = fromPathP (congPath f p)
+
+-- Equality between Path and equality
+eqToPath : {x y : A} → x ≡ y → Path A x y
 eqToPath refl = reflPath
 
-pathToEq : Path A x y → x ≡ y
+pathToEq : {x y : A} → Path A x y → x ≡ y
 pathToEq {x = x} = JPath (λ y _ → x ≡ y) refl
 
-eqToPath-pathToEq : (p : Path A x y) → Path _ (eqToPath (pathToEq p)) p
+eqToPath-pathToEq : {x y : A} → (p : Path A x y) → Path _ (eqToPath (pathToEq p)) p
 eqToPath-pathToEq p =
   JPath (λ _ h → Path _ (eqToPath (pathToEq h)) h)
         (congPath eqToPath (transportRefl refl)) p
 
-pathToEq-eqToPath : (p : x ≡ y) → Path _ (pathToEq (eqToPath p)) p
+pathToEq-eqToPath : {x y : A} → (p : x ≡ y) → Path _ (pathToEq (eqToPath p)) p
 pathToEq-eqToPath refl = transportRefl refl
 
 PathIsoEq : {x y : A} → Iso (Path A x y) (x ≡ y)
@@ -85,12 +103,28 @@ Path≡Eq : {x y : A} → (Path A x y) ≡ (x ≡ y)
 Path≡Eq = pathToEq PathPathEq
 
 -- We get funext by going back and forth between Path and Eq
-funExt : {B : A → Type ℓ} {f g : (x : A) → B x} →
-         ((x : A) → f x ≡ g x) → f ≡ g
+funExt : {B : A → Type ℓ} {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
 funExt p = pathToEq (λ i x → eqToPath (p x) i)
 
--- Equivalences expressed using Id
+-- Some lemmas relating the definitions for Path and ≡
+substPath≡transport' : (C : A → Type ℓ) {x y : A} (b : C x) (p : x ≡ y) → substPath C (eqToPath p) b ≡ transport C p b
+substPath≡transport' C b refl = pathToEq (transportRefl b)
 
+substPath≡transport : (C : A → Type ℓ) {x y : A} (b : C x) (p : Path _ x y) → substPath C p b ≡ transport C (pathToEq p) b
+substPath≡transport C b p = ap (λ x → substPath C x b) (pathToEq (symPath (eqToPath-pathToEq p)))
+                          ∙ substPath≡transport' C b (pathToEq p)
+
+
+congPath≡ap : {x y : A} → (f : A → B) (p : x ≡ y) → congPath f (eqToPath p) ≡ eqToPath (ap f p)
+congPath≡ap f refl = refl
+
+ap≡congPath : {x y : A} → (f : A → B) (p : Path A x y) → ap f (pathToEq p) ≡ pathToEq (congPath f p)
+ap≡congPath {x = x} f p = JPath (λ _ q → ap f (pathToEq q) ≡ pathToEq (congPath f q)) rem p
+  where
+  rem : ap f (transp (λ i → x ≡ x) i0 refl) ≡ transp (λ i → f x ≡ f x) i0 refl
+  rem = pathToEq (compPath (λ i → ap f (transportRefl refl i)) (symPath (transportRefl refl)))
+
+-- Equivalences expressed using ≡ everywhere
 fiber : ∀ {A : Type ℓ} {B : Type ℓ'} (f : A → B) (y : B) → Type (ℓ-max ℓ ℓ')
 fiber {A = A} f y = Σ[ x ∈ A ] f x ≡ y
 
@@ -111,13 +145,13 @@ infix 4 _≃_
 _≃_ : ∀ (A : Type ℓ) (B : Type ℓ') → Type (ℓ-max ℓ ℓ')
 A ≃ B = Σ[ f ∈ (A → B) ] (isEquiv f)
 
-equivFun : ∀ {B : Type ℓ'} → A ≃ B → A → B
+equivFun : A ≃ B → A → B
 equivFun e = e .fst
 
-equivIsEquiv : ∀ {B : Type ℓ'} (e : A ≃ B) → isEquiv (equivFun e)
+equivIsEquiv : (e : A ≃ B) → isEquiv (equivFun e)
 equivIsEquiv e = e .snd
 
-equivCtr : ∀ {B : Type ℓ'} (e : A ≃ B) (y : B) → fiber (equivFun e) y
+equivCtr : (e : A ≃ B) (y : B) → fiber (equivFun e) y
 equivCtr e y = e .snd .equiv-proof y .fst
 
 
@@ -125,18 +159,16 @@ equivCtr e y = e .snd .equiv-proof y .fst
 -- also be achieved by making lines in the universe and transporting
 -- back and forth along them.
 
-fiberPathToFiber : {B : Type ℓ'} {f : A → B} {y : B} → fiberPath f y → fiber f y
+fiberPathToFiber : {f : A → B} {y : B} → fiberPath f y → fiber f y
 fiberPathToFiber (x , p) = (x , pathToEq p)
 
-fiberToFiberPath : {B : Type ℓ'} {f : A → B} {y : B} → fiber f y → fiberPath f y
+fiberToFiberPath : {f : A → B} {y : B} → fiber f y → fiberPath f y
 fiberToFiberPath (x , p) = (x , eqToPath p)
 
-fiberToFiber : {B : Type ℓ'} {f : A → B} {y : B} (p : fiber f y)
-             → Path _ (fiberPathToFiber (fiberToFiberPath p)) p
+fiberToFiber : {f : A → B} {y : B} (p : fiber f y) → Path _ (fiberPathToFiber (fiberToFiberPath p)) p
 fiberToFiber (x , p) i = x , pathToEq-eqToPath p i
 
-fiberPathToFiberPath : {B : Type ℓ'} {f : A → B} {y : B} (p : fiberPath f y)
-                     → Path _ (fiberToFiberPath (fiberPathToFiber p)) p
+fiberPathToFiberPath : {f : A → B} {y : B} (p : fiberPath f y) → Path _ (fiberToFiberPath (fiberPathToFiber p)) p
 fiberPathToFiberPath (x , p) i = x , eqToPath-pathToEq p i
 
 isContrPathToIsContr : isContrPath A → isContr A
@@ -163,12 +195,12 @@ helper1 f g h (x , p) =
 
 helper2 : {A B : Type ℓ} (f : A → B) (g : B → A) (h : ∀ y → Path _ (g (f y)) y)
         → isContr B → isContrPath A
-helper2 {A = A} f g h (x , p) = (g x , λ y → eqToPath (cong g (p (f y)) ∙ pathToEq (h y)))
+helper2 {A = A} f g h (x , p) = (g x , λ y → eqToPath (ap g (p (f y)) ∙ pathToEq (h y)))
 
 -- This proof is essentially the one for proving that isContr with
--- Path is a proposition, but as we are working with Eq we have to
+-- Path is a proposition, but as we are working with ≡ we have to
 -- insert a lof of conversion functions.
--- TODO: prove this directly?
+-- TODO: prove this directly following the HoTT proof?
 isPropIsContr : (p1 p2 : isContr A) → Path (isContr A) p1 p2
 isPropIsContr (a0 , p0) (a1 , p1) j =
   ( eqToPath (p0 a1) j ,
@@ -184,12 +216,12 @@ isPropIsContr (a0 , p0) (a1 , p1) j =
 isPropIsEquiv : {A B : Type ℓ} {f : A → B} (h1 h2 : isEquiv f) → Path _ h1 h2
 equiv-proof (isPropIsEquiv h1 h2 i) y = isPropIsContr (h1 .equiv-proof y) (h2 .equiv-proof y) i
 
-equivToEquivPath : ∀ {A : Type ℓ} {B : Type ℓ'} → A ≃ B → EquivPath A B
+equivToEquivPath : A ≃ B → EquivPath A B
 equivToEquivPath (f , p) =
   (f , λ { .equiv-proof y → helper2 fiberPathToFiber fiberToFiberPath fiberPathToFiberPath (p .equiv-proof y) })
 
--- Go from a Path equivalence to an Id equivalence
-equivPathToEquiv : {A : Type ℓ} {B : Type ℓ'} → EquivPath A B → A ≃ B
+-- Go from a Path equivalence to an ≡ equivalence
+equivPathToEquiv : EquivPath A B → A ≃ B
 equivPathToEquiv (f , p) =
   (f , λ { .equiv-proof y → helper1 fiberPathToFiber fiberToFiberPath fiberToFiber (p .equiv-proof y) })
 
@@ -208,7 +240,8 @@ equivPath≡Equiv {ℓ} = isoToPath (iso (equivPathToEquiv {ℓ}) equivToEquivPa
 path≡Eq : {A B : Type ℓ} → Path _ (Path _ A B) (A ≡ B)
 path≡Eq = isoToPath (iso pathToEq eqToPath pathToEq-eqToPath eqToPath-pathToEq)
 
-univalenceEq : {A B : Type ℓ} → (A ≡ B) ≃ (A ≃ B)
+-- Univalence formulated using ≡ everywhere
+univalenceEq : (A ≡ B) ≃ (A ≃ B)
 univalenceEq {A = A} {B = B} = equivPathToEquiv rem
   where
   rem0 : Path _ (Lift (EquivPath A B)) (Lift (A ≃ B))
@@ -223,13 +256,7 @@ univalenceEq {A = A} {B = B} = equivPathToEquiv rem
   rem = compEquiv (eqweqmap rem1) (invEquiv LiftEquiv)
 
 
-
--- Propositional truncation:
-
-open import Cubical.HITs.PropositionalTruncation public
-  renaming ( squash to squashPath
-           ; rec to recPropTruncPath
-           ; elim to elimPropTruncPath )
+-- Propositional truncation using ≡ with paths under the hood
 
 ∥∥-isProp : ∀ (x y : ∥ A ∥) → x ≡ y
 ∥∥-isProp x y = pathToEq (squashPath x y)
@@ -242,100 +269,63 @@ open import Cubical.HITs.PropositionalTruncation public
 ∥∥-induction Pprop = elimPropTruncPath (λ a → isPropToIsPropPath (Pprop a))
 
 
--- Circle
-
-open import Cubical.HITs.S1 as S1
-  renaming (loop to loopPath )
-  hiding (helix ; winding ; ΩS¹ ; encode ; intLoop ; windingIntLoop ; decode ; decodeEncode)
-
+-- The circle using ≡
 
 loop : base ≡ base
 loop = pathToEq loopPath
 
-S¹-rec : (b : A) (l : b ≡ b) → S¹ → A
+S¹-rec : {A : Type ℓ} (b : A) (l : b ≡ b) → S¹ → A
 S¹-rec b l = S1.rec b (eqToPath l)
 
-foo : (C : A → Type ℓ) {x y : A} (b : C x) (p : Path _ x y) → subst C p b ≡ transport C (pathToEq p) b
-foo C {x} b p = JPath (λ _ q → subst C q b ≡ transport C (pathToEq q) b) rem p
-  where
-  rem : transp (λ i → C x) i0 b ≡ transport C (transp (λ i → x ≡ x) i0 refl) b
-  rem = transp (λ i → C x) i0 b ≡⟨ pathToEq (transportRefl b) ⟩
-        b ≡⟨ refl ⟩
-        transport C refl b ≡⟨ cong (λ x → transport C x b) (pathToEq (symPath (transportRefl refl))) ⟩
-        transport C (transp (λ i → x ≡ x) i0 refl) b ∎
-
 S¹-elim : (C : S¹ → Type ℓ) (b : C base) (l : transport C loop b ≡ b) → (x : S¹) → C x
-S¹-elim C b l x = S1.ind C b (eqToPath (suff ∙ l)) x
-  where
-  suff : subst C loopPath b ≡ transport C (pathToEq loopPath) b
-  suff = foo C b loopPath
+S¹-elim C b l x = S1.ind C b (eqToPath (substPath≡transport C b loopPath ∙ l)) x
 
-
-boo : {B : Type ℓ'} (f : A → B) (p : Path A x y) → cong f (pathToEq p) ≡ pathToEq (congPath f p)
-boo f p = JPath (λ _ q → cong f (pathToEq q) ≡ pathToEq (congPath f q)) rem p
-  where
-  rem : cong f (transp (λ i → x ≡ x) i0 refl) ≡ transp (λ i → f x ≡ f x) i0 refl
-  rem = pathToEq (compPath (λ i → cong f (transportRefl refl i)) (symPath (transportRefl refl)))
-
-S¹-recβ : (b : A) (l : b ≡ b) → cong (S¹-rec b l) (pathToEq loopPath) ≡ l
+S¹-recβ : (b : A) (l : b ≡ b) → ap (S¹-rec b l) loop ≡ l
 S¹-recβ b l =
-  cong (S¹-rec b l) (pathToEq loopPath) ≡⟨ boo _ loopPath ⟩
+  ap (S¹-rec b l) loop ≡⟨ ap≡congPath (S¹-rec b l) loopPath ⟩
   pathToEq (congPath (S¹-rec b l) loopPath) ≡⟨ refl ⟩
   pathToEq (eqToPath l) ≡⟨ pathToEq (pathToEq-eqToPath l) ⟩
   l ∎
 
 
--- βloop/elim : {C : S¹ -> Type} (c : C base) (α : Path (transport C loop c) c) -> Path (apd (S¹-induction C c α) loop) α
-open import Cubical.Data.Nat
-  hiding (_+_ ; _*_ ; +-assoc ; +-comm)
-open import Cubical.Data.Int
+-- This seems hard to prove?
+-- S¹-elimβ : (C : S¹ → Type ℓ) (b : C base) (l : transport C loop b ≡ b) → apd (S¹-elim C b l) loop ≡ l
+-- S¹-elimβ C b l =
+  -- apd (S¹-elim C b l) (pathToEq loopPath) ≡⟨ {!!} ⟩
+  -- {!!} ≡⟨ {!!} ⟩
+  -- l ∎
 
-helix : S¹ → Type₀
-helix = S¹-rec Int (pathToEq sucPathInt)
+
+-- We now compute some winding numbers to check that everything computes as expected
+
+Cover : S¹ → Type₀
+Cover = S¹-rec Int (pathToEq sucPathInt)
 
 ΩS¹ : Type₀
 ΩS¹ = base ≡ base
 
-encode : ∀ x → base ≡ x → helix x
-encode x p = transport helix p (pos zero)
+encode : {x : S¹} → base ≡ x → Cover x
+encode p = transport Cover p (pos zero)
 
 winding : ΩS¹ → Int
-winding = encode base
+winding = encode {base}
 
-intLoop : Int → ΩS¹
-intLoop (pos zero)       = refl
-intLoop (pos (suc n))    = intLoop (pos n) ∙ loop
-intLoop (negsuc zero)    = sym loop
-intLoop (negsuc (suc n)) = intLoop (negsuc n) ∙ sym loop
+loop^ : Int → ΩS¹
+loop^ (pos zero)       = refl
+loop^ (pos (suc n))    = loop^ (pos n) ∙ loop
+loop^ (negsuc zero)    = sym loop
+loop^ (negsuc (suc n)) = loop^ (negsuc n) ∙ sym loop
 
--- windingIntLoop : (n : Int) → winding (intLoop n) ≡ n
--- windingIntLoop (pos zero)       = refl
--- windingIntLoop (pos (suc n))    = cong sucInt (windingIntLoop (pos n))
--- windingIntLoop (negsuc zero)    = refl
--- windingIntLoop (negsuc (suc n)) = cong predInt (windingIntLoop (negsuc n))
-
-decode : (x : S¹) → helix x → base ≡ x
-decode x p = S¹-elim (λ x → helix x → base ≡ x) intLoop rem x p
-  where
-  rem : transport (λ x' → helix x' → base ≡ x') loop intLoop ≡ intLoop
-  rem = {!!}
-
-decodeEncode : (x : S¹) (p : base ≡ x) → decode x (encode x p) ≡ p
-decodeEncode .base refl = refl
-
--- Some tests
-module _ where
- private
+private
   test-winding-refl : winding refl ≡ pos 0
   test-winding-refl = refl
 
-  -- I think this is stuck because transp in ≡ doesn't reduce?
   test-winding-loop : winding loop ≡ pos 1
-  test-winding-loop = {!!}
+  test-winding-loop = refl
 
-  test-winding-pos5 : winding (intLoop (pos 5)) ≡ pos 5
-  test-winding-pos5 = {!!}
+  test-winding-pos5 : winding (loop^ (pos 2)) ≡ pos 2
+  test-winding-pos5 = refl
 
-  test-winding-neg5 : winding (intLoop (negsuc 5)) ≡ negsuc 5
-  test-winding-neg5 = {!!}
+  test-winding-neg5 : winding (loop^ (negsuc 2)) ≡ negsuc 2
+  test-winding-neg5 = refl
 
