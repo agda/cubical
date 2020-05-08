@@ -349,53 +349,20 @@ cube-comp₀₋₋ c p i j k =
       })
     (c i j k)
 
-compPath-filler-in-filler :
-            (p : _ ≡ y) → (q : _ ≡ _ )
-          → _≡_ {A = Square (p ∙ q) (p ∙ q) (λ _ → x) (λ _ → z)}
-           (λ i j → hcomp
-                      (λ i₂ →
-                       λ { (j = i0) → x
-                         ; (j = i1) → q (i₂ ∨ ~ i)
-                         ; (i = i0) → (p ∙ q) j
-                        })
-                      (compPath-filler p q (~ i) j))
-           (λ _ → p ∙ q)
-compPath-filler-in-filler p q z i j =
-   hcomp
-     (λ k → λ {
-        (j = i0) → p i0
-      ; (j = i1) → q (k ∨ ~ i ∧ ~ z)
-      ; (i = i0) → hcomp
-                   (λ i₂ → λ {
-                     (j = i0) → p i0
-                    ;(j = i1) → q ((k ∨  ~ z) ∧ i₂)
-                    ;(z = i1) (k = i0) → p j
-                   })
-                  (p j)
-      ; (i = i1) →  compPath-filler p (λ i₁ → q (k ∧ i₁)) k j
-      ; (z = i0) → hfill
-                     ((λ i₂ → λ { (j = i0) → p i0
-                         ; (j = i1) → q (i₂ ∨ ~ i)
-                         ; (i = i0) → (p ∙ q) j
-                        }))
-                     (inS ((compPath-filler p q (~ i) j))) k
-      ; (z = i1) → compPath-filler p q k j
-     })
-     (((compPath-filler p q (~ i ∧ (~ z)) j)))
 
 
 pentagonIdentity : (p : x ≡ y) → (q : y ≡ z) → (r : z ≡ w) → (s : w ≡ v)
-                  → (assoc p q (r ∙ s) ∙ assoc (p ∙ q) r s)
-                        ≡    (((cong (p ∙_) (assoc q r s))
-                              ∙ assoc p (q ∙ r) s) ∙
-                              (cong (_∙ s) (assoc p q r)))
+                      →
+            (assoc p q (r ∙ s) ∙ assoc (p ∙ q) r s)
+                              ≡
+   cong (p ∙_) (assoc q r s) ∙∙ assoc p (q ∙ r) s ∙∙ cong (_∙ s) (assoc p q r)
+   
 pentagonIdentity {x = x} {y} p q r s =
         (λ i →
               (λ j → cong (p ∙_) (assoc q r s) (i ∧ j))
-           ∙∙ (λ j → lemma₀₀ i j ∙ lemma₀₁ i j)
+           ∙∙ (λ j → lemma₀₀ i j ∙ lemma₀₁ i j) 
            ∙∙ (λ j → lemma₁₀ i j ∙ lemma₁₁ i j)
         )
-        ∙ doubleCompPath-elim _ _ _
    where
 
 
@@ -473,6 +440,7 @@ pentagonIdentity {x = x} {y} p q r s =
         })
         (p i₁))
 
+
     lemma₁₀-front : I → I → I → _
     lemma₁₀-front i j i₁ =
        (((λ _ → x) ∙∙ compPath-filler p q j ∙∙
@@ -486,6 +454,41 @@ pentagonIdentity {x = x} {y} p q r s =
             })
             (q (j ∨ i₁))
          )) i₁)
+
+    compPath-filler-in-filler :
+                (p : _ ≡ y) → (q : _ ≡ _ )
+              → _≡_ {A = Square (p ∙ q) (p ∙ q) (λ _ → x) (λ _ → z)}
+               (λ i j → hcomp
+                          (λ i₂ →
+                           λ { (j = i0) → x
+                             ; (j = i1) → q (i₂ ∨ ~ i)
+                             ; (i = i0) → (p ∙ q) j
+                            })
+                          (compPath-filler p q (~ i) j))
+               (λ _ → p ∙ q)
+    compPath-filler-in-filler p q z i j =
+       hcomp
+         (λ k → λ {
+            (j = i0) → p i0
+          ; (j = i1) → q (k ∨ ~ i ∧ ~ z)
+          ; (i = i0) → hcomp
+                       (λ i₂ → λ {
+                         (j = i0) → p i0
+                        ;(j = i1) → q ((k ∨  ~ z) ∧ i₂)
+                        ;(z = i1) (k = i0) → p j
+                       })
+                      (p j)
+          ; (i = i1) →  compPath-filler p (λ i₁ → q (k ∧ i₁)) k j
+          ; (z = i0) → hfill
+                         ((λ i₂ → λ { (j = i0) → p i0
+                             ; (j = i1) → q (i₂ ∨ ~ i)
+                             ; (i = i0) → (p ∙ q) j
+                            }))
+                         (inS ((compPath-filler p q (~ i) j))) k
+          ; (z = i1) → compPath-filler p q k j
+         })
+         (((compPath-filler p q (~ i ∧ (~ z)) j)))
+
 
     lemma₁₀-back' : _
     lemma₁₀-back' k j i₁ =
