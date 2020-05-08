@@ -66,7 +66,7 @@ tail-to-tl : ∀ {A : Set} (b : stream A) → tail (stream-to-Stream b) ≡ stre
 tail-to-tl b = refl
 
 postulate
-  tl-to-tail : ∀ {A : Set} (b : Stream A) → tl (Stream-to-stream b) ≡ Stream-to-stream (tail b) 
+  tl-to-tail : ∀ {A : Set} (b : Stream A) → tl (Stream-to-stream b) ≡ Stream-to-stream (tail b)
   -- should this comput ?
 
 nth : ∀ {A : Set} → ℕ → (b : Stream A) → A
@@ -92,7 +92,7 @@ stream-equality-iso-1 b = bisim-nat (stream-to-Stream (Stream-to-stream b)) b (h
       where
         open Equality≅Bisimulation
         open _≈_
-  
+
         bisim-nat' : ∀ {A : Set} → (a b : Stream A) → ((n : ℕ) → nth n a ≡ nth n b) -> a ≈ b
         ≈head (bisim-nat' a b nat-bisim) = nat-bisim 0
         ≈tail (bisim-nat' a b nat-bisim) = bisim-nat' (tail a) (tail b) (nat-bisim ∘ suc)
@@ -129,7 +129,7 @@ zeros = lift-direct-M zeros-x zeros-π
     zeros-x : (n : ℕ) → Wₙ (stream-S ℕ) n
     zeros-x 0 = lift tt
     zeros-x (suc n) = 0 , (λ _ → zeros-x n)
-    
+
     zeros-π : (n : ℕ) → πₙ (stream-S ℕ) (zeros-x (suc n)) ≡ zeros-x n
     zeros-π 0 i = lift tt
     zeros-π (suc n) i = 0 , (λ _ → zeros-π n i)
