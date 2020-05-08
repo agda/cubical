@@ -14,7 +14,7 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Codata.M.AsLimit.Container
 open import Cubical.Codata.M.AsLimit.M
-open import Cubical.Codata.M.AsLimit.Coalg
+open import Cubical.Codata.M.AsLimit.Coalg.Base
 
 -- Delay monad defined as an M-type
 delay-S : (R : Type₀) -> Container ℓ-zero
