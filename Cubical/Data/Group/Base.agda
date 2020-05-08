@@ -14,11 +14,42 @@ record isGroup {ℓ} (A : Type ℓ) : Type ℓ where
     id  : A
     inv  : A → A
     comp  : A → A → A
-    lUnit : ∀ a → comp id a ≡ a
     rUnit : ∀ a → comp a id ≡ a
     assoc  : ∀ a b c → comp (comp a b) c ≡ comp a (comp b c)
-    lCancel  : ∀ a → comp (inv a) a ≡ id
     rCancel : ∀ a → comp a (inv a) ≡ id
+
+  abstract
+    lCancel : ∀ a → comp (inv a) a ≡ id
+    lCancel a =
+      comp (inv a) a
+        ≡⟨ sym (rUnit (comp (inv a) a))  ⟩
+      comp (comp (inv a) a) id
+        ≡⟨ cong (comp (comp (inv a) a)) (sym (rCancel (inv a))) ⟩
+      comp (comp (inv a) a) (comp (inv a) (inv (inv a)))
+        ≡⟨ sym (assoc (comp (inv a) a) (inv a) (inv (inv a))) ⟩
+      comp (comp (comp (inv a) a) (inv a)) (inv (inv a))
+        ≡⟨ cong (λ b → comp b (inv (inv a))) (assoc (inv a) a (inv a)) ⟩
+      comp (comp (inv a) (comp a (inv a))) (inv (inv a))
+        ≡⟨ cong (λ b → comp (comp (inv a) b) (inv (inv a))) (rCancel a) ⟩
+      comp (comp (inv a) id) (inv (inv a))
+        ≡⟨ cong (λ b → comp b (inv (inv a))) (rUnit (inv a)) ⟩
+      comp (inv a) (inv (inv a))
+        ≡⟨ rCancel (inv a) ⟩
+      id
+        ∎
+
+    lUnit : ∀ a → comp id a ≡ a
+    lUnit a =
+      comp id a
+        ≡⟨ cong (λ b → comp b a) (sym (rCancel a)) ⟩
+      comp (comp a (inv a)) a
+        ≡⟨ assoc a (inv a) a ⟩
+      comp a (comp (inv a) a)
+        ≡⟨ cong (comp a) (lCancel a) ⟩
+      comp a id
+        ≡⟨ rUnit a ⟩
+      a
+        ∎
 
 record Group ℓ : Type (ℓ-suc ℓ) where
   constructor group
@@ -28,8 +59,8 @@ record Group ℓ : Type (ℓ-suc ℓ) where
     groupStruc : isGroup type
 
 isMorph : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (f : (Group.type G → Group.type H)) → Type (ℓ-max ℓ ℓ')
-isMorph (group G Gset (group-struct _ _ _⊙_ _ _ _ _ _))
-        (group H Hset (group-struct _ _ _∘_ _ _ _ _ _)) f
+isMorph (group G Gset (group-struct _ _ _⊙_ _ _ _))
+        (group H Hset (group-struct _ _ _∘_ _ _ _)) f
         = (g0 g1 : G) → f (g0 ⊙ g1) ≡ (f g0) ∘ (f g1)
 
 morph : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → Type (ℓ-max ℓ ℓ')
@@ -108,9 +139,9 @@ Equiv→Iso' {G = group G Gset Ggroup}
     i' = E.equivToIso e'
 
 compMorph : ∀ {ℓ} {F G H : Group ℓ} (I : morph F G) (J : morph G H) → morph F H
-compMorph {ℓ} {group F Fset (group-struct _ _ _⊙_ _ _ _ _ _)}
-              {group G Gset (group-struct _ _ _∙_ _ _ _ _ _)}
-              {group H Hset (group-struct _ _ _∘_ _ _ _ _ _)}
+compMorph {ℓ} {group F Fset (group-struct _ _ _⊙_ _ _ _)}
+              {group G Gset (group-struct _ _ _∙_ _ _ _)}
+              {group H Hset (group-struct _ _ _∘_ _ _ _)}
               (i , ic) (j , jc) = k , kc
   where
     k : F → H

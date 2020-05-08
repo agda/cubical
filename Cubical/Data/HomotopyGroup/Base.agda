@@ -23,7 +23,7 @@ open import Cubical.HITs.SetTruncation as SetTrunc
     A = typ ((Ω^ n') p)
 
     g : isGroup ∥ A ∥₀
-    g = group-struct e _⁻¹ _⊙_ lUnit rUnit assoc lCancel rCancel
+    g = group-struct e _⁻¹ _⊙_ rUnit assoc rCancel
       where
         e : ∥ A ∥₀
         e = ∣ pt ((Ω^ n') p) ∣₀
@@ -34,10 +34,6 @@ open import Cubical.HITs.SetTruncation as SetTrunc
         _⊙_ : ∥ A ∥₀ → ∥ A ∥₀ → ∥ A ∥₀
         _⊙_ = SetTrunc.elim2 (λ _ _ → squash₀) λ a₀ a₁ → ∣ a₀ ∙ a₁ ∣₀
 
-        lUnit : (a : ∥ A ∥₀) → (e ⊙ a) ≡ a
-        lUnit = SetTrunc.elim (λ _ → isProp→isSet (squash₀ _ _))
-                (λ a → cong ∣_∣₀ (sym (GL.lUnit a) ))
-
         rUnit : (a : ∥ A ∥₀) → a ⊙ e ≡ a
         rUnit = SetTrunc.elim (λ _ → isProp→isSet (squash₀ _ _))
                 (λ a → cong ∣_∣₀ (sym (GL.rUnit a) ))
@@ -45,10 +41,6 @@ open import Cubical.HITs.SetTruncation as SetTrunc
         assoc : (a b c : ∥ A ∥₀) → ((a ⊙ b) ⊙ c) ≡ (a ⊙ (b ⊙ c))
         assoc = SetTrunc.elim3 (λ _ _ _ → isProp→isSet (squash₀ _ _))
                 (λ a b c → cong ∣_∣₀ (sym (GL.assoc _ _ _)))
-
-        lCancel : (a : ∥ A ∥₀) → ((a ⁻¹) ⊙ a) ≡ e
-        lCancel = SetTrunc.elim (λ _ → isProp→isSet (squash₀ _ _))
-                  λ a → cong ∣_∣₀ (GL.lCancel _)
 
         rCancel : (a : ∥ A ∥₀) → (a ⊙ (a ⁻¹)) ≡ e
         rCancel = SetTrunc.elim (λ _ → isProp→isSet (squash₀ _ _))
