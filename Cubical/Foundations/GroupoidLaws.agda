@@ -356,11 +356,11 @@ pentagonIdentity : (p : x ≡ y) → (q : y ≡ z) → (r : z ≡ w) → (s : w 
             (assoc p q (r ∙ s) ∙ assoc (p ∙ q) r s)
                               ≡
    cong (p ∙_) (assoc q r s) ∙∙ assoc p (q ∙ r) s ∙∙ cong (_∙ s) (assoc p q r)
-   
+
 pentagonIdentity {x = x} {y} p q r s =
         (λ i →
               (λ j → cong (p ∙_) (assoc q r s) (i ∧ j))
-           ∙∙ (λ j → lemma₀₀ i j ∙ lemma₀₁ i j) 
+           ∙∙ (λ j → lemma₀₀ i j ∙ lemma₀₁ i j)
            ∙∙ (λ j → lemma₁₀ i j ∙ lemma₁₁ i j)
         )
    where
