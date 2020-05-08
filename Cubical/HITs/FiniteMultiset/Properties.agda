@@ -80,36 +80,36 @@ module FMSetUniversal {ℓ} {M : Type ℓ} (MSet : isSet M)
 
 
 -- We want to construct a multiset-structure on FMSet A, the empty set and insertion are given by the constructors,
--- for the membership part we use the recursor
+-- for the count part we use the recursor
 
 -- Is there a way around the auxillary functions with the with-syntax?
-FMSmember-∷*-aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ
-FMSmember-∷*-aux a x (yes a≡x) n = suc n
-FMSmember-∷*-aux a x (no  a≢x) n = n
+FMScount-∷*-aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ
+FMScount-∷*-aux a x (yes a≡x) n = suc n
+FMScount-∷*-aux a x (no  a≢x) n = n
 
 
-FMSmember-comm*-aux :  (a x y : A) (n : ℕ) (p : Dec (a ≡ x)) (q : Dec (a ≡ y))
-                     →  FMSmember-∷*-aux a x p (FMSmember-∷*-aux a y q n)
-                      ≡ FMSmember-∷*-aux a y q (FMSmember-∷*-aux a x p n)
-FMSmember-comm*-aux a x y n (yes a≡x) (yes a≡y) = refl
-FMSmember-comm*-aux a x y n (yes a≡x) (no  a≢y) = refl
-FMSmember-comm*-aux a x y n (no  a≢x) (yes a≡y) = refl
-FMSmember-comm*-aux a x y n (no  a≢x) (no  a≢y) = refl
+FMScount-comm*-aux :  (a x y : A) (n : ℕ) (p : Dec (a ≡ x)) (q : Dec (a ≡ y))
+                     →  FMScount-∷*-aux a x p (FMScount-∷*-aux a y q n)
+                      ≡ FMScount-∷*-aux a y q (FMScount-∷*-aux a x p n)
+FMScount-comm*-aux a x y n (yes a≡x) (yes a≡y) = refl
+FMScount-comm*-aux a x y n (yes a≡x) (no  a≢y) = refl
+FMScount-comm*-aux a x y n (no  a≢x) (yes a≡y) = refl
+FMScount-comm*-aux a x y n (no  a≢x) (no  a≢y) = refl
 
 
--- If A has decidable equality we can define the member-function:
+-- If A has decidable equality we can define the count-function:
 module _(discA : Discrete A) where
- FMSmember-∷* : A → A → ℕ → ℕ
- FMSmember-∷* a x n = FMSmember-∷*-aux a x (discA a x) n
+ FMScount-∷* : A → A → ℕ → ℕ
+ FMScount-∷* a x n = FMScount-∷*-aux a x (discA a x) n
 
- FMSmember-comm* :  (a x y : A) (n : ℕ)
-                  →  FMSmember-∷* a x (FMSmember-∷* a y n)
-                   ≡ FMSmember-∷* a y (FMSmember-∷* a x n)
- FMSmember-comm* a x y n = FMSmember-comm*-aux a x y n (discA a x) (discA a y)
+ FMScount-comm* :  (a x y : A) (n : ℕ)
+                  →  FMScount-∷* a x (FMScount-∷* a y n)
+                   ≡ FMScount-∷* a y (FMScount-∷* a x n)
+ FMScount-comm* a x y n = FMScount-comm*-aux a x y n (discA a x) (discA a y)
 
- FMSmember : A → FMSet A → ℕ
- FMSmember a = Rec.f isSetℕ 0 (FMSmember-∷* a) (FMSmember-comm* a)
+ FMScount : A → FMSet A → ℕ
+ FMScount a = Rec.f isSetℕ 0 (FMScount-∷* a) (FMScount-comm* a)
 
 
  FMS-with-str : Multi-Set A (Discrete→isSet discA)
- FMS-with-str = (FMSet A , [] , _∷_ , FMSmember)
+ FMS-with-str = (FMSet A , [] , _∷_ , FMScount)
