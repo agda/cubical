@@ -57,60 +57,21 @@ Stream-to-stream : ∀ {A : Set} -> Stream A -> stream A
 Stream-to-stream s = lift-to-M Stream-to-stream-func-x Stream-to-stream-func-π s
 
 private
-  Stream-to-stream-func-x-tail : ∀ {A : Set} (n : ℕ) -> Stream A → Wₙ (stream-S A) n
-  Stream-to-stream-func-x-tail 0 x = lift tt
-  Stream-to-stream-func-x-tail (suc n) x = (head (tail x)) , λ _ → Stream-to-stream-func-x-tail n (tail x)
-
-  Stream-to-stream-func-π-tail : ∀ {A : Set} (n : ℕ) -> (x : Stream A) → πₙ (stream-S A) (Stream-to-stream-func-x-tail (suc n) x) ≡ Stream-to-stream-func-x-tail n x
-  Stream-to-stream-func-π-tail 0 x = refl {x = lift tt}
-  Stream-to-stream-func-π-tail (suc n) x i = (head (tail x)) , λ _ → Stream-to-stream-func-π-tail n (tail x) i
-
-Stream-to-stream-tail : ∀ {A : Set} -> Stream A -> stream A
-Stream-to-stream-tail s = lift-to-M Stream-to-stream-func-x-tail Stream-to-stream-func-π-tail s
-
-private
-  tail-x-eq : ∀ {A : Set} → (b : Stream A) → ∀ n → (Stream-to-stream-func-x n (tail b)) ≡ (Stream-to-stream-func-x-tail n b)
-  tail-x-eq b 0 = refl
-  tail-x-eq b (suc n) = ΣPathP (refl , funExt λ _ → tail-x-eq (tail b) n)
-
-  tail-π-eq :
-    ∀ {A : Set} → (b : Stream A) → (n : ℕ) → 
-    PathP (λ i → πₙ (stream-S A) (funExt (tail-x-eq b) i (suc n)) ≡ funExt (tail-x-eq b) i n)
-      (Stream-to-stream-func-π n (tail b))
-      (Stream-to-stream-func-π-tail n b)
-  tail-π-eq b 0 i = refl
-  tail-π-eq {A} b (suc n) i = ΣPathP (refl , funExt λ _ → tail-π-eq (tail b) n i)
-  
-tail-eq : ∀ {A : Set} → (b : Stream A) → Stream-to-stream (tail b) ≡ Stream-to-stream-tail b
-tail-eq b =
-  (λ n → Stream-to-stream-func-x n (tail b)) , (λ n → Stream-to-stream-func-π n (tail b)) 
-    ≡⟨ ΣPathP (funExt (tail-x-eq b) , λ i n j → tail-π-eq b n i j) ⟩
-  (λ n → Stream-to-stream-func-x-tail n b) , (λ n → Stream-to-stream-func-π-tail n b) ∎
-
-postulate
-  transport-const : ∀ {ℓ} (K : Set ℓ) p → transport (λ i → K) p ≡ p
--- transport-const K p i = {!!}
-
-private
-  tail-eq-2-x : ∀ {A : Set} → (b : Stream A) (n : ℕ) → fst (tl (Stream-to-stream b)) n ≡ fst (Stream-to-stream (tail b)) n
-  tail-eq-2-x {A = A} b n = 
-    fst (tl (Stream-to-stream b)) n
-      ≡⟨ refl ⟩
-    fst (out-fun (lift-to-M Stream-to-stream-func-x Stream-to-stream-func-π b) .snd tt) n
-      ≡⟨ refl ⟩
-    transport (λ i → Wₙ (stream-S A) n) (Stream-to-stream-func-x n (tail b))
-      ≡⟨ transport-const (Wₙ (stream-S A) n) (Stream-to-stream-func-x n (tail b)) ⟩
-    Stream-to-stream-func-x n (tail b) ∎
+  tail-eq-x : ∀ {A : Set} → (b : Stream A) (n : ℕ) → fst (tl (Stream-to-stream b)) n ≡ fst (Stream-to-stream (tail b)) n
+  tail-eq-x {A = A} b n =
+    transport (λ i → (Wₙ (stream-S A) n)) (Stream-to-stream-func-x n (tail b))
+      ≡⟨ sym (transport-filler (λ i → Wₙ (stream-S A) n) (Stream-to-stream-func-x n (tail b))) ⟩
+    fst (Stream-to-stream (tail b)) n ∎ -- transport-filler
 
   postulate
-    tail-π-eq-2 :
-      ∀ {A : Set} → (b : Stream A) → (n : ℕ) → 
-      PathP (λ i → π (sequence (stream-S A)) (funExt (tail-eq-2-x b) i (suc n)) ≡ funExt (tail-eq-2-x b) i n)
+    tail-eq-π :
+      ∀ {A : Set} → (b : Stream A) → (n : ℕ) →
+      PathP (λ i → πₙ (stream-S A) (funExt (tail-eq-x b) i (suc n)) ≡ funExt (tail-eq-x b) i n)
         (snd (tl (Stream-to-stream b)) n)
         (Stream-to-stream-func-π n (tail b))
 
-tail-eq-2' : ∀ {A : Set} → (b : Stream A) → tl (Stream-to-stream b) ≡ Stream-to-stream (tail b)
-tail-eq-2' b = ΣPathP (funExt (tail-eq-2-x b) , λ i n j → tail-π-eq-2 b n i j)
+tail-eq : ∀ {A : Set} → (b : Stream A) → tl (Stream-to-stream b) ≡ Stream-to-stream (tail b)
+tail-eq b = ΣPathP (funExt (tail-eq-x b) , λ i n j → tail-eq-π b n i j)
 
 hd-to-head : ∀ {A : Set} (b : Stream A) → hd (Stream-to-stream b) ≡ head b
 hd-to-head {A = A} b = refl
@@ -126,7 +87,7 @@ tl-to-tail :
   → tl (Stream-to-stream b) ≡ Stream-to-stream (tail b)
 tl-to-tail {A = A} b =
   tl (Stream-to-stream b)
-    ≡⟨ tail-eq-2' b ⟩
+    ≡⟨ tail-eq b ⟩
   Stream-to-stream (tail b) ∎
 
 nth : ∀ {A : Set} → ℕ → (b : Stream A) → A
