@@ -121,7 +121,7 @@ shift-iso S@(A , B) =
         PathP (λ x → B (p n x) → Wₙ S n) (πₙ S ∘ u (suc n)) (u n)
           Iso⟨ pathToIso (PathP≡Path (λ x → B (p n x) → Wₙ S n) (πₙ S ∘ u (suc n)) (u n)) ⟩
         subst (λ k → B k → Wₙ S n) (p n) (πₙ S ∘ u (suc n)) ≡ (u n)
-          Iso⟨ (invIso (temp (pathToIso (cong (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 a p n))))) ⟩
+          Iso⟨ (invIso (temp' (pathToIso (cong (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 a p n))))) ⟩
         (subst (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 a p n) (subst (λ k → B k → Wₙ S n) (p n) (πₙ S ∘ u (suc n)))
                ≡
         subst (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 a p n) (u n))
@@ -137,7 +137,7 @@ shift-iso S@(A , B) =
         subst (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 a p n) (u n) ∎Iso
         where
           abstract
-            temp = iso→fun-Injection-Iso-x
+            temp' = iso→fun-Injection-Iso-x
 
       α-iso-step-5-Iso :
         Iso
