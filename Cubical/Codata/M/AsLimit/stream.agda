@@ -116,7 +116,7 @@ stream-equality-iso-1 b = bisim-nat (stream-to-Stream (Stream-to-stream b)) b (h
 private
   stream-equality-iso-2-x : ∀ {A : Set} → (a : stream A) (n : ℕ) → Stream-to-stream-func-x n (stream-to-Stream a) ≡ fst a n
   stream-equality-iso-2-x a 0 = refl
-  stream-equality-iso-2-x a (suc n) =
+  stream-equality-iso-2-x {A} a (suc n) =
     Stream-to-stream-func-x (suc n) (stream-to-Stream a)
       ≡⟨ refl ⟩
     (head (stream-to-Stream a) , (λ _ → Stream-to-stream-func-x n (tail (stream-to-Stream a))))
@@ -130,7 +130,7 @@ private
     (fst (fst a (suc 0)) , (λ _ → fst (tl a) n))
       ≡⟨ ΣPathP (temp n , refl) ⟩
     (fst (fst a (suc n)) , (λ _ → fst (tl a) n))
-      ≡⟨ ΣPathP (refl , temp') ⟩
+      ≡⟨ ΣPathP (refl , funExt λ _ → temp') ⟩
     fst (fst a (suc n)) , snd (fst a (suc n))
       ≡⟨ refl ⟩
     fst a (suc n) ∎
@@ -139,11 +139,15 @@ private
       temp 0 = refl
       temp (suc n) = temp n ∙ cong fst (sym (snd a (suc n)))
 
-      postulate
-        temp' : (λ _ → fst (tl a) n) ≡ snd (fst a (suc n))
+      temp' : fst (tl a) n ≡ snd (fst a (suc n)) tt
+      temp' = sym (transport-filler (λ i → Wₙ (stream-S A) n) (a .fst (suc n) .snd tt))
 
   postulate
-    stream-equality-iso-2-π : ∀ {A : Set} → (a : stream A) (n : ℕ) → PathP (λ i → π (sequence (stream-S A)) (funExt (stream-equality-iso-2-x a) i (suc n)) ≡ funExt (stream-equality-iso-2-x a) i n) (Stream-to-stream-func-π n (stream-to-Stream a)) (snd a n)
+    stream-equality-iso-2-π :
+      ∀ {A : Set} → (a : stream A) (n : ℕ)
+      → PathP (λ i → πₙ (stream-S A) (funExt (stream-equality-iso-2-x a) i (suc n)) ≡ funExt (stream-equality-iso-2-x a) i n)
+        (Stream-to-stream-func-π n (stream-to-Stream a))
+        (snd a n)
 
 stream-equality-iso-2 : ∀ {A : Set} → (a : stream A) → Stream-to-stream (stream-to-Stream a) ≡ a
 stream-equality-iso-2 a =
