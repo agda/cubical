@@ -218,3 +218,12 @@ module _(discA : Discrete A) where
   θ x {xs} hyp p with discA a x
   ...            | yes a≡x = (λ i → (sym a≡x i) ∷ xs)
   ...            | no  a≢x = cong (x ∷_) (hyp p) ∙ comm x a (remove1 a xs)
+
+
+ FMScount-remove1-≢-lemma : ∀ {a} {x} xs → ¬ a ≡ x → FMScount a (remove1 x xs) ≡ FMScount a xs
+ FMScount-remove1-≢-lemma {a} {x} xs a≢x with discreteℕ (FMScount x xs) zero
+ ...                     | yes p = cong (FMScount a) (sym (remove1-zero-lemma x xs p))
+ ...                     | no ¬p = sym (FMScount-≢-lemma (remove1 x xs) a≢x) ∙ cong (FMScount a) eq₁
+   where
+   eq₁ : (x ∷ remove1 x xs) ≡ xs
+   eq₁ = sym (remove1-suc-lemma x (predℕ (FMScount x xs)) xs (suc-predℕ (FMScount x xs) ¬p))
