@@ -100,10 +100,32 @@ _+ₖ_ {n = n} x y  = ΩKn+1→Kn (Kn→ΩKn+1 n x ∙ Kn→ΩKn+1 n y)
 -ₖ_ : {n : ℕ} → coHomK n → coHomK n
 -ₖ_ {n = n} x = ΩKn+1→Kn (sym (Kn→ΩKn+1 n x))
 
-
 Kn→ΩKn+10ₖ : (n : ℕ) → Kn→ΩKn+1 n 0ₖ ≡ refl
 Kn→ΩKn+10ₖ zero = refl
 Kn→ΩKn+10ₖ (suc n) = (λ i → cong ∣_∣ (rCancel (merid north) i)) -- could also use refl for n = 1, but for computational reasons I don't want to expand the definition if not necessary.
+
+-0ₖ : {n : ℕ} → -ₖ 0ₖ {n = n} ≡ 0ₖ
+-0ₖ {n = n} = (λ i → ΩKn+1→Kn (sym (Kn→ΩKn+10ₖ n i)))
+            ∙∙ (λ i → ΩKn+1→Kn (Kn→ΩKn+10ₖ n (~ i)))
+            ∙∙ Iso.leftInv (Iso3-Kn-ΩKn+1 n) 0ₖ
+
+
+
+-- cong-ₖ : {n : ℕ} (x : coHomK n) → PathP (λ i → -0ₖ {n = (suc n)} i ≡ -0ₖ i) (cong -ₖ_ (Kn→ΩKn+1 n x)) (Kn→ΩKn+1 n (-ₖ x))
+-- cong-ₖ {n = n} x j i =
+--   hcomp (λ k → λ{ (i = i0) → -0ₖ j
+--                  ; (i = i1) → -0ₖ j
+--                  ; (j = i0) → ΩKn+1→Kn (sym (Kn→ΩKn+1 (suc n) (Kn→ΩKn+1 n x i)))
+--                  ; (j = i1) → Iso.rightInv (Iso3-Kn-ΩKn+1 n) (sym (Kn→ΩKn+1 n x)) (~ k) i})
+--         (hcomp (λ k → λ{ (j = i0) → {!!}
+--                         ; (j = i1) → {!!}})
+--                {!!})
+-- {-
+-- j = i0 ⊢ ΩKn+1→Kn (sym (Kn→ΩKn+1 (suc n) (Kn→ΩKn+1 n x i)))
+-- j = i1 ⊢ Kn→ΩKn+1 x (~ i) -- Kn→ΩKn+1 n (-ₖ x) i
+-- i = i0 ⊢ -0ₖ j
+-- i = i1 ⊢ -0ₖ j
+-- -}
 
 +ₖ→∙ : (n : ℕ) (a b : coHomK n) → Kn→ΩKn+1 n (a +ₖ b) ≡ Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b
 +ₖ→∙ n a b = Iso.rightInv (Iso3-Kn-ΩKn+1 n) (Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b)
@@ -193,6 +215,7 @@ assocₖ {n = n} x y z = (λ i → ΩKn+1→Kn (Kn→ΩKn+1 n (ΩKn+1→Kn (Kn�
 
 
 -- Group structure of cohomology groups ---
+
 
 private
   § : isSet ∥ A ∥₀

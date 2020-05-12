@@ -21,6 +21,7 @@ open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
+open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
 open import Cubical.HITs.Nullification
 open import Cubical.Data.Int hiding (_+_)
 open import Cubical.Data.Nat
@@ -41,34 +42,6 @@ open import Cubical.Data.Sum.Base
 open import Cubical.Data.HomotopyGroup
 open import Cubical.Data.Bool hiding (_⊕_)
 
-
--- {-
--- record AbGroup {ℓ} (A : Type ℓ) : Type ℓ where
---   constructor abgr
---   field
---     noll : A
---     _⊕_ : A → A → A
---     associate : (a b c : A) → (a ⊕ b) ⊕ c ≡ a ⊕ (b ⊕ c)
---     commute : (a b : A) → a ⊕ b ≡ (b ⊕ a)
---     r-unit : (a : A) → a ⊕ noll ≡ a
---     negate : (a : A) → Σ[ a⁻ ∈ A ] (a ⊕ a⁻ ≡ noll)
--- -}
--- {-
--- grHom : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (ϕ : A → B)
---      → AbGroup A → AbGroup B → Type (ℓ-max ℓ ℓ') 
--- grHom {A = A} {B = B} ϕ (abgr 0A _+A_ as-A comm-A r-A neg-A) (abgr 0B _+B_ as-B comm-B r-B neg-B) = (x y : A) → ϕ (x +A y) ≡ (ϕ x +B ϕ y)
--- ImHom : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (ϕ : A → B) (A' : AbGroup A) (B' : AbGroup B)
---         →  grHom ϕ A' B' → Type (ℓ-max ℓ ℓ')
--- ImHom {A = A} {B = B} ϕ Agr Bgr hom = Σ[ b ∈ B ] Σ[ a ∈ A ] ϕ a ≡ b
--- KerHom : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (ϕ : A → B) (A' : AbGroup A) (B' : AbGroup B)
---         →  grHom ϕ A' B' → Type (ℓ-max ℓ ℓ')
--- KerHom {A = A} {B = B} ϕ Agr (abgr 0B _+B_ as-B comm-B r-B neg-B) hom = Σ[ a ∈ A ] ϕ a ≡ 0B
--- -}
-
-
--- ---
-
-
 private
   variable
     ℓ ℓ' ℓ'' : Level
@@ -86,9 +59,6 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
   D : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
   D = Pushout f g
 
-  -- σ : typ A → typ (Ω (∙Susp (typ A)))
-  -- σ a = merid a ∙ merid (pt A) ⁻¹
-
   i : (n : ℕ) → coHom n D → coHom n A × coHom n B
   i zero = sRec (isOfHLevelProd 2 setTruncIsSet setTruncIsSet)
                 λ { δ →  ∣ (λ x → δ (inl x)) ∣₀ , ∣ (λ x → δ (inr x)) ∣₀}
@@ -96,14 +66,14 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
                    λ { δ →  ∣ (λ x → δ (inl x)) ∣₀ , ∣ (λ x → δ (inr x)) ∣₀}
 
   Δ : (n : ℕ) → coHom n A × coHom n B → coHom n C
-  Δ n (α , β) = coHomFun n f α +ₕ -ₕ (coHomFun n g β) -- coHomFun∙2 n f α +ₕ (-ₕ (coHomFun n g β))
+  Δ n (α , β) = coHomFun n f α +ₕ -ₕ (coHomFun n g β)
 
   d-pre : (n : ℕ) → (C → coHomK n) → D → coHomK (suc n)
   d-pre n γ (inl x) = 0ₖ
   d-pre n γ (inr x) = 0ₖ
   d-pre zero γ (push a i) = Kn→ΩKn+1 zero (γ a) i
   d-pre (suc n) γ (push a i) = Kn→ΩKn+1 (suc n) (γ a) i
-
+  
   d : (n : ℕ) → coHom n C → coHom (suc n) D
   d n = sRec setTruncIsSet λ a → ∣ d-pre n a ∣₀
 
@@ -183,10 +153,185 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
   dIsHom (suc n) = sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
                    λ f g i → ∣ funExt (λ x → dHomHelper (suc n) f g x) i ∣₀
 
-
   -- Long Exact Sequence
 
-
-  Im-d⊂Ker-i : (n : ℕ) (x : coHom (suc n) D) → isInIm (coHomGr n C) (coHomGr (suc n) D) (d n) x → isInKer (coHomGr (suc n) D) (×coHomGr (suc n) A B) (i (suc n)) x
+  Im-d⊂Ker-i : (n : ℕ) (x : coHom (suc n) D)
+            → isInIm (coHomGr n C) (coHomGr (suc n) D) (d n) x
+            → isInKer (coHomGr (suc n) D) (×coHomGr (suc n) A B) (i (suc n)) x
   Im-d⊂Ker-i n = sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 (isOfHLevelProd 2 setTruncIsSet setTruncIsSet) _ _)
-                       λ a (δ , p) → {!!}
+                       λ a → pElim (λ _ → isOfHLevelPath' 1 (isOfHLevelProd 2 setTruncIsSet setTruncIsSet) _ _)
+                               (sigmaElim (λ _ → isOfHLevelPath 2 (isOfHLevelProd 2 setTruncIsSet setTruncIsSet) _ _)
+                                λ δ b → (λ i → sElim (λ _ → isOfHLevelProd 2 setTruncIsSet setTruncIsSet)
+                                                 (λ { δ → ∣ (λ x → δ (inl x)) ∣₀ , ∣ (λ x → δ (inr x)) ∣₀ }) (b (~ i))))
+
+  Ker-i⊂Im-d : (n : ℕ) (x : coHom (suc n) D)
+            → isInKer (coHomGr (suc n) D) (×coHomGr (suc n) A B) (i (suc n)) x
+            → isInIm (coHomGr n C) (coHomGr (suc n) D) (d n) x
+  Ker-i⊂Im-d n = sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
+                       λ a p → pRec {A = (λ x → a (inl x)) ≡ λ _ → 0ₖ} (isOfHLevelΠ 1 (λ _ → propTruncIsProp))
+                                     (λ p1 → pRec propTruncIsProp λ p2 → ∣ ∣ (λ c → ΩKn+1→Kn (sym (cong (λ F → F (f c)) p1)
+                                                                                               ∙∙ cong a (push c)
+                                                                                               ∙∙ cong (λ F → F (g c)) p2)) ∣₀
+                                                                           , cong ∣_∣₀ (funExt (λ δ → helper n a p1 p2 δ)) ∣₋₁)
+                                     (Iso.fun (PathIdTrunc₀Iso) (cong proj₁ p))
+                                     (Iso.fun (PathIdTrunc₀Iso) (cong proj₂ p))
+    where
+      pushFiller : (n : ℕ) (F : D → ∥ S₊ (suc n) ∥ ℕ→ℕ₋₂ (suc n))
+                (p1 : Path (_ → ∥ S₊ (suc n) ∥ ℕ→ℕ₋₂ (suc n)) (λ a₁ → F (inl a₁)) (λ _ → ∣ north ∣))
+                (p2 : Path (_ → ∥ S₊ (suc n) ∥ ℕ→ℕ₋₂ (suc n)) (λ a₁ → F (inr a₁)) (λ _ → ∣ north ∣)) →
+                (c : C) → I → I → ∥ S₊ (suc n) ∥ ℕ→ℕ₋₂ (suc n)
+      pushFiller n F p1 p2 c i j =
+        hcomp (λ k → λ { (i = i1) → F (push c j)
+                        ; (j = i0) → p1 (~ i ∧ k) (f c)
+                        ; (j = i1) → p2 (~ i ∧ k) (g c)})
+              (F (push c j))
+      helper : (n : ℕ) (F : D → ∥ S₊ (suc n) ∥ ℕ→ℕ₋₂ (suc n))
+               (p1 : Path (_ → ∥ S₊ (suc n) ∥ ℕ→ℕ₋₂ (suc n)) (λ a₁ → F (inl a₁)) (λ _ → ∣ north ∣))
+               (p2 : Path (_ → ∥ S₊ (suc n) ∥ ℕ→ℕ₋₂ (suc n)) (λ a₁ → F (inr a₁)) (λ _ → ∣ north ∣)) →
+               (δ : D) → d-pre n (λ c → ΩKn+1→Kn ((λ i₁ → p1 (~ i₁) (f c))
+                                                     ∙∙ cong F (push c)
+                                                     ∙∙ cong (λ F → F (g c)) p2)) δ ≡ F δ
+      helper zero F p1 p2 (inl x) = sym (cong (λ f → f x) p1)
+      helper zero F p1 p2 (inr x) = sym (cong (λ f → f x) p2)
+      helper zero F p1 p2 (push a i) j = 
+        hcomp (λ k → λ { (i = i0) → p1 (~ j) (f a)
+                        ; (i = i1) → p2 (~ j) (g a)
+                        ; (j = i0) → Iso.rightInv (Iso3-Kn-ΩKn+1 zero) ((λ i₁ → p1 (~ i₁) (f a))
+                                                                       ∙∙ cong F (push a)
+                                                                       ∙∙ cong (λ F₁ → F₁ (g a)) p2) (~ k) i
+                        ; (j = i1) → F (push a i)})
+              (pushFiller zero F p1 p2 a j i)
+      helper (suc n) F p1 p2 (inl x) = sym (cong (λ f → f x) p1)
+      helper (suc n) F p1 p2 (inr x) = sym (cong (λ f → f x) p2)
+      helper (suc n) F p1 p2 (push a i) j =
+        hcomp (λ k → λ { (i = i0) → p1 (~ j) (f a)
+                        ; (i = i1) → p2 (~ j) (g a)
+                        ; (j = i0) → Iso.rightInv (Iso3-Kn-ΩKn+1 (suc n)) ((λ i₁ → p1 (~ i₁) (f a))
+                                                                           ∙∙ cong F (push a)
+                                                                           ∙∙ cong (λ F₁ → F₁ (g a)) p2) (~ k) i
+                        ; (j = i1) → F (push a i)})
+              (pushFiller (suc n) F p1 p2 a j i)
+
+  Im-i⊂Ker-Δ : (n : ℕ) (x : coHom n A × coHom n B)
+            → isInIm (coHomGr n D) (×coHomGr n A B) (i n) x
+            → isInKer (×coHomGr n A B) (coHomGr n C) (Δ n) x
+  Im-i⊂Ker-Δ n (Fa , Fb) =
+    sElim {B = λ Fa → (Fb : _) → isInIm (coHomGr n D) (×coHomGr n A B) (i n) (Fa , Fb)
+                                → isInKer (×coHomGr n A B) (coHomGr n C) (Δ n) (Fa , Fb)}
+          (λ _ → isOfHLevelΠ 2 λ _ → (isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 setTruncIsSet _ _))
+          (λ Fa → sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+                        λ Fb → pRec (setTruncIsSet _ _)
+                                     (sigmaElim (λ x → isOfHLevelSuc 1 (setTruncIsSet _ _))
+                                                λ Fd p → helper n Fa Fb Fd p))
+          Fa
+          Fb
+    where
+    helper : (n : ℕ) (Fa : A → coHomK n) (Fb : B → coHomK n) (Fd : D → coHomK n)
+          → (i n ∣ Fd ∣₀ ≡ (∣ Fa ∣₀ , ∣ Fb ∣₀))
+          → (Δ n) (∣ Fa ∣₀ , ∣ Fb ∣₀) ≡ 0ₕ
+    helper zero Fa Fb Fd p = cong (Δ zero) (sym p)
+                           ∙ (λ i → ∣ (λ x → Fd (inl (f x))) ∣₀ +ₕ -ₕ ∣ (λ x → Fd (push x (~ i))) ∣₀)
+                           ∙ rCancelₕ ∣ (λ x → Fd (inl (f x))) ∣₀
+    helper (suc n) Fa Fb Fd p = cong (Δ (suc n)) (sym p)
+                              ∙ (λ i → ∣ (λ x → Fd (inl (f x))) ∣₀ +ₕ -ₕ ∣ (λ x → Fd (push x (~ i))) ∣₀)
+                              ∙ rCancelₕ ∣ (λ x → Fd (inl (f x))) ∣₀
+
+  
+
+  Ker-Δ⊂Im-i : (n : ℕ) (a : coHom n A × coHom n B)
+            → isInKer (×coHomGr n A B) (coHomGr n C) (Δ n) a
+            → isInIm (coHomGr n D) (×coHomGr n A B) (i n) a
+  Ker-Δ⊂Im-i n (Fa , Fb) =
+    sElim {B = λ Fa → (Fb : _) → isInKer (×coHomGr n A B) (coHomGr n C) (Δ n) (Fa , Fb)
+                                → isInIm (coHomGr n D) (×coHomGr n A B) (i n) (Fa , Fb)}
+          (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
+          (λ Fa → sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
+                         λ Fb p → pRec propTruncIsProp
+                                        (λ q → ∣ ∣ helpFun n Fa Fb (funExt⁻ q) ∣₀
+                                                , anotherHelper n Fa Fb q ∣₋₁)
+                                        (helper n Fa Fb p))
+          Fa
+          Fb
+
+    where
+    helper : (n : ℕ) (Fa : A → coHomK n) (Fb : B → coHomK n)
+           → (Δ n) (∣ Fa ∣₀ , ∣ Fb ∣₀) ≡ 0ₕ
+           → ∥  (Path (_ → _) (λ c → Fa (f c)) (λ c → Fb (g c))) ∥₋₁
+    helper zero Fa Fb p = Iso.fun (PathIdTrunc₀Iso)
+                                   (sym (rUnitₕ (coHomFun zero f ∣ Fa ∣₀))
+                                 ∙ (λ i → coHomFun zero f ∣ Fa ∣₀ +ₕ (lCancelₕ (coHomFun zero g ∣ Fb ∣₀) (~ i)))
+                                 ∙ sym (assocₕ (coHomFun zero f ∣ Fa ∣₀) (-ₕ (coHomFun zero g ∣ Fb ∣₀)) (coHomFun zero g ∣ Fb ∣₀))
+                                 ∙ cong (λ x → x +ₕ (coHomFun zero g ∣ Fb ∣₀)) p
+                                 ∙ lUnitₕ (coHomFun zero g ∣ Fb ∣₀))
+    helper (suc n) Fa Fb p = Iso.fun (PathIdTrunc₀Iso)
+                                      (sym (rUnitₕ (coHomFun (suc n) f ∣ Fa ∣₀))
+                                    ∙ (λ i → coHomFun (suc n) f ∣ Fa ∣₀ +ₕ (lCancelₕ (coHomFun (suc n) g ∣ Fb ∣₀) (~ i)))
+                                    ∙ sym (assocₕ (coHomFun (suc n) f ∣ Fa ∣₀) (-ₕ (coHomFun (suc n) g ∣ Fb ∣₀)) (coHomFun (suc n) g ∣ Fb ∣₀))
+                                    ∙ cong (λ x → x +ₕ (coHomFun (suc n) g ∣ Fb ∣₀)) p
+                                    ∙ lUnitₕ (coHomFun (suc n) g ∣ Fb ∣₀))
+
+    helpFun : (n : ℕ) (Fa : A → coHomK n) (Fb : B → coHomK n)
+            → ((c : C) → Fa (f c) ≡ Fb (g c))
+            → D → coHomK n
+    helpFun n Fa Fb p (inl x) = Fa x
+    helpFun n Fa Fb p (inr x) = Fb x
+    helpFun n Fa Fb p (push a i) = p a i
+
+    anotherHelper : (n : ℕ) (Fa : A → coHomK n) (Fb : B → coHomK n)
+                 → (q : Path (C → coHomK n) (λ c → Fa (f c)) (λ c → Fb (g c)))
+                 → i n ∣ helpFun n Fa Fb (λ x i₁ → q i₁ x) ∣₀ ≡ (∣ Fa ∣₀ , ∣ Fb ∣₀)
+    anotherHelper zero Fa Fb q = refl
+    anotherHelper (suc n) Fa Fb q = refl
+
+
+  Ker-d⊂Im-Δ : (n : ℕ) (a : coHom n C)
+             → isInKer (coHomGr n C) (coHomGr (suc n) D) (d n) a
+             → isInIm (×coHomGr n A B) (coHomGr n C) (Δ n) a
+  Ker-d⊂Im-Δ n =
+    sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
+          λ Fa p → pRec propTruncIsProp (λ p → ∣ {!!} , {!!} ∣₋₁) (Iso.fun (PathIdTrunc₀Iso) p)
+
+    where
+    
+
+  -- Im-Δ⊂Ker-d : (n : ℕ) (a : coHom n C)
+  --            → isInIm (×coHomGr n A B) (coHomGr n C) (Δ n) a
+  --            → isInKer (coHomGr n C) (coHomGr (suc n) D) (d n) a
+  -- Im-Δ⊂Ker-d n =
+  --   sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+  --         λ Fc → pRec (isOfHLevelPath' 1 setTruncIsSet _ _)
+  --                      (sigmaProdElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+  --                                     λ Fa Fb p → pRec (isOfHLevelPath' 1 setTruncIsSet _ _)
+  --                                                       (λ q → ((λ i → d n ∣ (q (~ i)) ∣₀) ∙ dΔ-Id n Fa Fb))
+  --                                                       (Iso.fun (PathIdTrunc₀Iso) p))
+
+  --   where
+
+  --   d-preLeftId : (n : ℕ) (Fa : A → coHomK n)(d : D)
+  --               → d-pre n (Fa ∘ f) d ≡ 0ₖ
+  --   d-preLeftId n Fa (inl x) = Kn→ΩKn+1 n (Fa x)
+  --   d-preLeftId n Fa (inr x) = refl
+  --   d-preLeftId zero Fa (push a i) j = Kn→ΩKn+1 zero (Fa (f a)) (j ∨ i)
+  --   d-preLeftId (suc n) Fa (push a i) j = Kn→ΩKn+1 (suc n) (Fa (f a)) (j ∨ i)
+
+  --   d-preRightId : (n : ℕ) (Fb : B → coHomK n) (d : D)
+  --               → d-pre n (Fb ∘ g) d ≡ 0ₖ
+  --   d-preRightId n Fb (inl x) = refl
+  --   d-preRightId n Fb (inr x) = sym (Kn→ΩKn+1 n (Fb x))
+  --   d-preRightId zero Fb (push a i) j = Kn→ΩKn+1 zero (Fb (g a)) (~ j ∧ i)
+  --   d-preRightId (suc n) Fb (push a i) j = Kn→ΩKn+1 (suc n) (Fb (g a)) (~ j ∧ i)
+
+  --   dΔ-Id : (n : ℕ) (Fa : A → coHomK n) (Fb : B → coHomK n)
+  --           → d n (Δ n (∣ Fa ∣₀ , ∣ Fb ∣₀)) ≡ 0ₕ
+  --   dΔ-Id zero Fa Fb =
+  --     dIsHom zero ∣ (λ x → Fa (f x)) ∣₀ (-ₕ ∣ (λ x → Fb (g x)) ∣₀)
+  --    ∙ (λ i → d zero ∣ (λ x → Fa (f x)) ∣₀ +ₕ morphMinus (coHomGr zero C) (coHomGr 1 D) (d zero) (dIsHom zero) ∣ (λ x → Fb (g x)) ∣₀ i)
+  --    ∙ (λ i → d zero ∣ (λ x → Fa (f x)) ∣₀ +ₕ -ₕ (d zero ∣ (λ x → Fb (g x)) ∣₀))
+  --    ∙ (λ i → ∣ funExt (d-preLeftId zero Fa) i ∣₀ +ₕ -ₕ ∣ funExt (d-preRightId zero Fb) i ∣₀)
+  --    ∙ rCancelₕ 0ₕ
+  --   dΔ-Id (suc n) Fa Fb =
+  --     dIsHom (suc n) ∣ (λ x → Fa (f x)) ∣₀ (-ₕ ∣ (λ x → Fb (g x)) ∣₀)
+  --    ∙ (λ i → d (suc n) ∣ (λ x → Fa (f x)) ∣₀ +ₕ morphMinus (coHomGr (suc n) C) (coHomGr (2 + n) D) (d (suc n)) (dIsHom (suc n)) ∣ (λ x → Fb (g x)) ∣₀ i)
+  --    ∙ (λ i → d (suc n) ∣ (λ x → Fa (f x)) ∣₀ +ₕ -ₕ (d (suc n) ∣ (λ x → Fb (g x)) ∣₀))
+  --    ∙ (λ i → ∣ funExt (d-preLeftId (suc n) Fa) i ∣₀ +ₕ -ₕ ∣ funExt (d-preRightId (suc n) Fb) i ∣₀)
+  --    ∙ rCancelₕ 0ₕ

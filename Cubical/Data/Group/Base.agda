@@ -2,9 +2,10 @@
 
 module Cubical.Data.Group.Base where
 
-open import Cubical.Foundations.Prelude hiding ( comp )
+open import Cubical.Foundations.Prelude hiding (comp)
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Prod
+open import Cubical.HITs.PropositionalTruncation hiding (map)
 
 import Cubical.Foundations.Isomorphism as I
 import Cubical.Foundations.Equiv as E
@@ -36,6 +37,46 @@ isMorph (group G Gset (group-struct _ _ _⊙_ _ _ _ _ _))
 
 morph : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → Type (ℓ-max ℓ ℓ')
 morph G H = Σ (Group.type G →  Group.type H) (isMorph G H)
+
+morph0→0 : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (f : (Group.type G → Group.type H))
+           → isMorph G H f
+           → f (isGroup.id (Group.groupStruc G)) ≡ isGroup.id (Group.groupStruc H)
+morph0→0 (group G strucG (group-struct idG invG compG lUnitG rUnitG assocG lCancelG rCancelG))
+          (group H strucH (group-struct idH invH compH lUnitH rUnitH assocH lCancelH rCancelH)) f morph =
+  f idG                                               ≡⟨ sym (rUnitH (f idG)) ⟩
+  compH (f idG) idH                                   ≡⟨ (λ i → compH (f idG) (rCancelH (f idG) (~ i))) ⟩
+  compH (f idG) (compH (f idG) (invH (f idG)))        ≡⟨ sym (assocH (f idG) (f idG) (invH (f idG))) ⟩
+  compH (compH (f idG) (f idG)) (invH (f idG))        ≡⟨ sym (cong (λ x → compH x (invH (f idG))) (sym (cong f (lUnitG idG)) ∙ morph idG idG)) ⟩
+  compH (f idG) (invH (f idG))                        ≡⟨ rCancelH (f idG) ⟩
+  idH ∎
+
+morphMinus : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (f : (Group.type G → Group.type H))
+           → isMorph G H f
+           → (g : Group.type G) → f (isGroup.inv (Group.groupStruc G) g) ≡ isGroup.inv (Group.groupStruc H) (f g)
+morphMinus G H f morph g =
+  let idG = isGroup.id (Group.groupStruc G)
+      idH = isGroup.id (Group.groupStruc H)
+      invG = isGroup.inv (Group.groupStruc G)
+      invH = isGroup.inv (Group.groupStruc H)
+      lCancelG = isGroup.lCancel (Group.groupStruc G)
+      rCancelH = isGroup.rCancel (Group.groupStruc H)
+      lUnitH = isGroup.lUnit (Group.groupStruc H)
+      rUnitH = isGroup.rUnit (Group.groupStruc H)
+      assocH = isGroup.assoc (Group.groupStruc H)
+      compG = isGroup.comp (Group.groupStruc G)
+      compH = isGroup.comp (Group.groupStruc H)
+      helper : compH (f (invG g)) (f g) ≡ idH
+      helper = sym (morph (invG g) g) ∙ (λ i → f (lCancelG g i)) ∙ morph0→0 G H f morph
+  in f (invG g)                                                   ≡⟨ sym (rUnitH (f (invG g))) ⟩
+     compH (f (invG g)) idH                                       ≡⟨ (λ i → compH (f (invG g)) (rCancelH (f g) (~ i))) ⟩
+     compH (f (invG g)) (compH (f g) (invH (f g)))                ≡⟨ sym (assocH (f (invG g)) (f g) (invH (f g))) ⟩
+     compH (compH (f (invG g)) (f g)) (invH (f g))                ≡⟨ cong (λ x → compH x (invH (f g))) helper ⟩
+     compH idH (invH (f g))                                       ≡⟨ lUnitH (invH (f g)) ⟩
+     invH (f g) ∎
+
+
+
+-- sym (rUnitH (f (invG g))) ∙ (λ i → compH (f (invG g)) (rCancelH (f g) (~ i))) ∙ sym (assocH (f (invG g)) (f g) (invH (f g))) ∙ cong (λ x → compH x (invH (f g))) helper ∙ lUnitH (invH (f g))
 
 record Iso {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') : Type (ℓ-max ℓ ℓ') where
   constructor iso
@@ -164,19 +205,9 @@ compIso {ℓ} {F} {G} {H}
              f ∎
 
 
-Im : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (Group.type G → Group.type H)
-      → Type (ℓ-max ℓ ℓ')
-Im (group A setA strucA) (group B setB strucB) f =
-     Σ[ b ∈ B ] Σ[ a ∈ A ] f a ≡ b
-
 isInIm : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (Group.type G → Group.type H)
        → Group.type H → Type _
-isInIm G H ϕ h = Σ[ g ∈ Group.type G ] ϕ g ≡ h 
-
-Ker : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') (f : (Group.type G → Group.type H))
-         → Type (ℓ-max ℓ ℓ')
-Ker (group A setA strA) (group B setB strB) f =
-         Σ[ a ∈ A ] f a ≡ isGroup.id strB
+isInIm G H ϕ h = ∃[ g ∈ Group.type G ] ϕ g ≡ h
 
 isInKer : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (Group.type G → Group.type H)
        → Group.type G → Type _

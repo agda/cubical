@@ -7,6 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Equiv.PathSplit
 open isPathSplitEquiv
 open import Cubical.Modalities.Modality
@@ -192,50 +193,56 @@ mapId {n = n} =
 
 -- equivalences to prop/set/groupoid truncations
 
+
+-- -1 --
+propTruncTrunc-1Iso : Iso ∥ A ∥₋₁ (∥ A ∥ -1)
+Iso.fun propTruncTrunc-1Iso = PropTrunc.elim (λ _ → isOfHLevelTrunc 1) ∣_∣
+Iso.inv propTruncTrunc-1Iso = elim (λ _ → squash₋₁) ∣_∣₋₁
+Iso.rightInv propTruncTrunc-1Iso = elim (λ _ → isOfHLevelPath 1 (isOfHLevelTrunc 1) _ _) (λ _ → refl)
+Iso.leftInv propTruncTrunc-1Iso = PropTrunc.elim (λ _ → isOfHLevelPath 1 squash₋₁ _ _) (λ _ → refl)
+
 propTrunc≃Trunc-1 : ∥ A ∥₋₁ ≃ ∥ A ∥ -1
-propTrunc≃Trunc-1 =
-  isoToEquiv
-    (iso
-      (PropTrunc.elim (λ _ → isOfHLevelTrunc 1) ∣_∣)
-      (elim (λ _ → squash₋₁) ∣_∣₋₁)
-      (elim (λ _ → isOfHLevelPath 1 (isOfHLevelTrunc 1) _ _) (λ _ → refl))
-      (PropTrunc.elim (λ _ → isOfHLevelPath 1 squash₋₁ _ _) (λ _ → refl)))
+propTrunc≃Trunc-1 = isoToEquiv propTruncTrunc-1Iso
 
 propTrunc≡Trunc-1 : ∥ A ∥₋₁ ≡ ∥ A ∥ -1
 propTrunc≡Trunc-1 = ua propTrunc≃Trunc-1
 
+-- 0 --
+setTruncTrunc0Iso : Iso ∥ A ∥₀ (∥ A ∥ 0)
+Iso.fun setTruncTrunc0Iso = SetTrunc.elim (λ _ → isOfHLevelTrunc 2) ∣_∣
+Iso.inv setTruncTrunc0Iso = elim (λ _ → squash₀) ∣_∣₀
+Iso.rightInv setTruncTrunc0Iso = elim (λ _ → isOfHLevelPath 2 (isOfHLevelTrunc 2) _ _) (λ _ → refl)
+Iso.leftInv setTruncTrunc0Iso = SetTrunc.elim (λ _ → isOfHLevelPath 2 squash₀ _ _) (λ _ → refl)
+
 setTrunc≃Trunc0 : ∥ A ∥₀ ≃ ∥ A ∥ 0
-setTrunc≃Trunc0 =
-  isoToEquiv
-    (iso
-      (SetTrunc.elim (λ _ → isOfHLevelTrunc 2) ∣_∣)
-      (elim (λ _ → squash₀) ∣_∣₀)
-      (elim (λ _ → isOfHLevelPath 2 (isOfHLevelTrunc 2) _ _) (λ _ → refl))
-      (SetTrunc.elim (λ _ → isOfHLevelPath 2 squash₀ _ _) (λ _ → refl)))
+setTrunc≃Trunc0 = isoToEquiv setTruncTrunc0Iso
 
 propTrunc≡Trunc0 : ∥ A ∥₀ ≡ ∥ A ∥ -0
 propTrunc≡Trunc0 = ua setTrunc≃Trunc0
 
+-- 1 --
+groupoidTrunc≃Trunc1Iso : Iso ∥ A ∥₁ (∥ A ∥ 1)
+Iso.fun groupoidTrunc≃Trunc1Iso = GpdTrunc.elim (λ _ → isOfHLevelTrunc 3) ∣_∣
+Iso.inv groupoidTrunc≃Trunc1Iso = elim (λ _ → squash₁) ∣_∣₁
+Iso.rightInv groupoidTrunc≃Trunc1Iso = elim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) (λ _ → refl)
+Iso.leftInv groupoidTrunc≃Trunc1Iso = GpdTrunc.elim (λ _ → isOfHLevelPath 3 squash₁ _ _) (λ _ → refl)
+
 groupoidTrunc≃Trunc1 : ∥ A ∥₁ ≃ ∥ A ∥ 1
-groupoidTrunc≃Trunc1 =
-  isoToEquiv
-    (iso
-      (GpdTrunc.elim (λ _ → isOfHLevelTrunc 3) ∣_∣)
-      (elim (λ _ → squash₁) ∣_∣₁)
-      (elim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) (λ _ → refl))
-      (GpdTrunc.elim (λ _ → isOfHLevelPath 3 squash₁ _ _) (λ _ → refl)))
+groupoidTrunc≃Trunc1 = isoToEquiv groupoidTrunc≃Trunc1Iso
 
 groupoidTrunc≡Trunc1 : ∥ A ∥₁ ≡ ∥ A ∥ 1
 groupoidTrunc≡Trunc1 = ua groupoidTrunc≃Trunc1
 
+
+-- 2 --
+2GroupoidTrunc≃Trunc2Iso : Iso ∥ A ∥₂ (∥ A ∥ 2)
+Iso.fun 2GroupoidTrunc≃Trunc2Iso = 2GpdTrunc.elim (λ _ → isOfHLevelTrunc 4) ∣_∣
+Iso.inv 2GroupoidTrunc≃Trunc2Iso = elim (λ _ → squash₂) ∣_∣₂
+Iso.rightInv 2GroupoidTrunc≃Trunc2Iso = elim (λ _ → isOfHLevelPath 4 (isOfHLevelTrunc 4) _ _) (λ _ → refl)
+Iso.leftInv 2GroupoidTrunc≃Trunc2Iso = 2GpdTrunc.elim (λ _ → isOfHLevelPath 4 squash₂ _ _) (λ _ → refl)
+
 2GroupoidTrunc≃Trunc2 : ∥ A ∥₂ ≃ ∥ A ∥ 2
-2GroupoidTrunc≃Trunc2 =
-  isoToEquiv
-    (iso
-      (2GpdTrunc.elim (λ _ → isOfHLevelTrunc 4) ∣_∣)
-      (elim (λ _ → squash₂) ∣_∣₂)
-      (elim (λ _ → isOfHLevelPath 4 (isOfHLevelTrunc 4) _ _) (λ _ → refl))
-      (2GpdTrunc.elim (λ _ → isOfHLevelPath 4 squash₂ _ _) (λ _ → refl)))
+2GroupoidTrunc≃Trunc2 = isoToEquiv 2GroupoidTrunc≃Trunc2Iso
 
 2GroupoidTrunc≡Trunc2 : ∥ A ∥₂ ≡ ∥ A ∥ 2
 2GroupoidTrunc≡Trunc2 = ua 2GroupoidTrunc≃Trunc2
@@ -342,7 +349,14 @@ PathIdTrunc n = isoToPath (ΩTrunc.IsoFinal n _ _)
 PathΩ : {a : A} (n : ℕ₋₂) → (Path (∥ A ∥ (suc₋₂ n)) ∣ a ∣ ∣ a ∣) ≡ (∥ a ≡ a ∥ n)
 PathΩ n = PathIdTrunc n
 
---------------------------
+{- Special cases using old defs of truncations -}
+PathIdTrunc₀Iso : {a b : A} → Iso (∣ a ∣₀ ≡ ∣ b ∣₀) ∥ a ≡ b ∥₋₁
+PathIdTrunc₀Iso = compIso (congIso setTrunc≃Trunc0)
+                    (compIso (ΩTrunc.IsoFinal _ ∣ _ ∣ ∣ _ ∣)
+                             (symIso propTruncTrunc-1Iso))
+
+
+-------------------------
 
 
 truncOfTruncIso : (n m : ℕ) → Iso (hLevelTrunc n A) (hLevelTrunc n (hLevelTrunc (m + n) A))

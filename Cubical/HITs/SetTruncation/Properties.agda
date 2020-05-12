@@ -16,7 +16,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
-open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma hiding (_×_)
+open import Cubical.Data.Prod
 
 private
   variable
@@ -92,3 +93,22 @@ setSigmaIso {A = A} {B = B} = iso fun funinv sect retr
   retr : retract fun funinv
   retr = elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
               λ { (a , p) → refl }
+
+sigmaElim : ∀ {ℓ ℓ'} {B : ∥ A ∥₀ → Type ℓ} {C : Σ ∥ A ∥₀ B  → Type ℓ'}
+            (Bset : (x : Σ ∥ A ∥₀ B) → isSet (C x))
+            (g : (a : A) (b : B ∣ a ∣₀) → C (∣ a ∣₀ , b))
+            (x : Σ ∥ A ∥₀ B) → C x
+sigmaElim {B = B} {C = C} set g (x , y) = elim {B = λ x → (y : B x) → C (x , y)}
+                                               (λ _ → isOfHLevelΠ 2 λ _ → set (_ , _))
+                                               g x y
+
+sigmaProdElim : ∀ {ℓ ℓ' ℓ''} {B : Type ℓ} {C : ∥ A ∥₀ × ∥ B ∥₀ → Type ℓ'} {D : Σ (∥ A ∥₀ × ∥ B ∥₀) C  → Type ℓ''}
+             (Bset : (x : Σ (∥ A ∥₀ × ∥ B ∥₀) C) → isSet (D x))
+             (g : (a : A) (b : B) (c : C (∣ a ∣₀ , ∣ b ∣₀)) → D ((∣ a ∣₀ , ∣ b ∣₀) , c))
+             (x : Σ (∥ A ∥₀ × ∥ B ∥₀) C) → D x
+sigmaProdElim {B = B} {C = C} {D = D} set g ((x , y) , c) =
+  elim {B = λ x → (y : ∥ B ∥₀) (c : C (x , y)) → D ((x , y) , c)}
+       (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelΠ 2 λ _ → set _)
+       (λ x → elim (λ _ → isOfHLevelΠ 2 λ _ → set _)
+                    λ y c → g x y c)
+       x y c
