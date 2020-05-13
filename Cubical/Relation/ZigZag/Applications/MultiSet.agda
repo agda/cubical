@@ -6,6 +6,7 @@ module Cubical.Relation.ZigZag.Applications.MultiSet where
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Data.Nat
 open import Cubical.Data.List hiding ([_])
@@ -37,6 +38,12 @@ module Lists&ALists (discA : Discrete A) where
  -- the relation we're interested in
  R : {A B : TypeWithStr ℓ-zero (S A (Discrete→isSet discA))} → (A .fst) → (B .fst) → Type₀
  R {X , count₁} {Y , count₂} x y = ∀ a → count₁ a x ≡ count₂ a y
+
+ -- relation between R and ι
+ ι = count-iso A (Discrete→isSet discA)
+ ι-R-char : {X Y : TypeWithStr ℓ-zero (S A (Discrete→isSet discA))} (e : (X .fst) ≃ (Y .fst))
+          → (∀ x → R {X} {Y} x (e .fst x)) ≃ (ι X Y e)
+ ι-R-char e = isoToEquiv (iso (λ f → λ a x → f x a) (λ g → λ x a → g a x) (λ _ → refl) λ _ → refl)
 
 
  aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ
@@ -102,6 +109,38 @@ module Lists&ALists (discA : Discrete A) where
  List/Rᴸ≃AList/Rᴬᴸ : List/Rᴸ ≃ AList/Rᴬᴸ
  List/Rᴸ≃AList/Rᴬᴸ = ZigZag.Bisimulation→Equiv.Thm (List A) (AList A)
                                                    (R {List A , Lcount} {AList A , ALcount}) φ ψ (zigzagR , η , ε)
+
+ --We want to show that this is an isomorphism of count-structures.
+ --For this we first have to define the count-functions
+ LQcount : A → List/Rᴸ → ℕ
+ LQcount a [ xs ] = Lcount a xs
+ LQcount a (eq/ xs ys r i) = ρ a i
+  where
+  ρ : ∀ a → Lcount a xs ≡ Lcount a ys
+  ρ a = (r .snd .fst a) ∙ sym (r .snd .snd a)
+ LQcount a (squash/ xs/ xs/₁ p q i j) =
+         isSetℕ (LQcount a xs/) (LQcount a xs/₁) (cong (LQcount a) p) (cong (LQcount a) q) i j
+
+
+ ALQcount : A → AList/Rᴬᴸ → ℕ
+ ALQcount a [ xs ] = ALcount a xs
+ ALQcount a (eq/ xs ys r i) = ρ a i
+  where
+  ρ : ∀ a → ALcount a xs ≡ ALcount a ys
+  ρ a = sym (r .snd .fst a) ∙ (r .snd .snd a)
+ ALQcount a (squash/ xs/ xs/₁ p q i j) =
+          isSetℕ (ALQcount a xs/) (ALQcount a xs/₁) (cong (ALQcount a) p) (cong (ALQcount a) q) i j
+
+ -- We get that the equivalence is an isomorphism directly from the fact that is induced by a bisimulation
+ -- and the fact that we can characterize ι (count-iso) in terms of R
+ ξ = List/Rᴸ≃AList/Rᴬᴸ .fst
+
+ observation : (xs : List A) → R {List/Rᴸ , LQcount} {AList/Rᴬᴸ , ALQcount} [ xs ] (ξ [ xs ])
+ observation = η
+
+ ξ-is-count-iso : ι (List/Rᴸ , LQcount) (AList/Rᴬᴸ , ALQcount) List/Rᴸ≃AList/Rᴬᴸ
+ ξ-is-count-iso = ι-R-char {Y = (AList/Rᴬᴸ , ALQcount)} List/Rᴸ≃AList/Rᴬᴸ .fst
+                           (elimProp (λ _ → isPropΠ (λ _ → isSetℕ _ _)) observation)
 
 
  -- We now show that List/Rᴸ≃FMSet
