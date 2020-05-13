@@ -362,6 +362,37 @@ record Lift {i j} (A : Type i) : Type (ℓ-max i j) where
 
 open Lift public
 
+doubleCompPath-filler∙ : {a b c d : A} (p : a ≡ b) (q : b ≡ c) (r : c ≡ d)
+                       → PathP (λ i → p i ≡ r (~ i)) (p ∙ q ∙ r) q
+doubleCompPath-filler∙ {A = A} {b = b} p q r j i =
+  hcomp (λ k → λ { (i = i0) → p j
+                  ; (i = i1) → side j k
+                  ; (j = i1) → q (i ∧ k)})
+        (p (j ∨ i))
+  where
+  side : I → I → A
+  side i j =
+    hcomp (λ k → λ { (i = i1) → q j
+                    ; (j = i0) → b
+                    ; (j = i1) → r (~ i ∧ k)})
+          (q j)
 
-liftExt : ∀ {A : Type ℓ} {a b : Lift {ℓ} {ℓ'} A} → (lower a ≡ lower b) → a ≡ b
-liftExt x i = lift (x i)
+PathP→compPathL : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+           → PathP (λ i → p i ≡ q i) r s
+           → sym p ∙ r ∙ q ≡ s
+PathP→compPathL {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (j ∨ k)
+                  ; (i = i1) → q (j ∨ k)
+                  ; (j = i0) → doubleCompPath-filler∙ (sym p) r q (~ k) i
+                  ; (j = i1) → s i })
+        (P j i)
+
+PathP→compPathR : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+           → PathP (λ i → p i ≡ q i) r s
+           → r ≡ p ∙ s ∙ sym q
+PathP→compPathR {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (j ∧ (~ k))
+                  ; (i = i1) → q (j ∧ (~ k))
+                  ; (j = i0) → r i
+                  ; (j = i1) → doubleCompPath-filler∙ p s (sym q) (~ k) i})
+        (P j i)
