@@ -10,7 +10,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Data.Nat
 open import Cubical.Data.List hiding ([_])
-open import Cubical.Structures.MultiSet renaming (count-structure to S)
+open import Cubical.Structures.MultiSet
 open import Cubical.HITs.SetQuotients.Base
 open import Cubical.HITs.SetQuotients.Properties
 open import Cubical.HITs.FiniteMultiset as FMS hiding ([_])
@@ -36,12 +36,13 @@ infixr 5 ⟨_,_⟩∷_
 -- We have a count-structure on List and AList and use these to get a bisimulation between the two
 module Lists&ALists (discA : Discrete A) where
  -- the relation we're interested in
- R : {A B : TypeWithStr ℓ-zero (S A (Discrete→isSet discA))} → (A .fst) → (B .fst) → Type₀
+ S = count-structure A (Discrete→isSet discA)
+ R : {A B : TypeWithStr ℓ-zero S} → (A .fst) → (B .fst) → Type₀
  R {X , count₁} {Y , count₂} x y = ∀ a → count₁ a x ≡ count₂ a y
 
  -- relation between R and ι
  ι = count-iso A (Discrete→isSet discA)
- ι-R-char : {X Y : TypeWithStr ℓ-zero (S A (Discrete→isSet discA))} (e : (X .fst) ≃ (Y .fst))
+ ι-R-char : {X Y : TypeWithStr ℓ-zero S} (e : (X .fst) ≃ (Y .fst))
           → (∀ x → R {X} {Y} x (e .fst x)) ≃ (ι X Y e)
  ι-R-char e = isoToEquiv (iso (λ f → λ a x → f x a) (λ g → λ x a → g a x) (λ _ → refl) λ _ → refl)
 
@@ -52,11 +53,11 @@ module Lists&ALists (discA : Discrete A) where
 
 
  -- the count-structures
- Lcount : S A (Discrete→isSet discA) (List A)
+ Lcount : S (List A)
  Lcount a [] = zero
  Lcount a (x ∷ xs) = aux a x (discA a x) (Lcount a xs)
 
- ALcount : S A (Discrete→isSet discA) (AList A)
+ ALcount : S (AList A)
  ALcount a ⟨⟩ = zero
  ALcount a (⟨ x , zero ⟩∷ xs) = ALcount a xs
  ALcount a (⟨ x , suc n ⟩∷ xs) = aux a x (discA a x) (ALcount a (⟨ x , n ⟩∷ xs))
@@ -132,15 +133,14 @@ module Lists&ALists (discA : Discrete A) where
           isSetℕ (ALQcount a xs/) (ALQcount a xs/₁) (cong (ALQcount a) p) (cong (ALQcount a) q) i j
 
  -- We get that the equivalence is an isomorphism directly from the fact that is induced by a bisimulation
- -- and the fact that we can characterize ι (count-iso) in terms of R
- ξ = List/Rᴸ≃AList/Rᴬᴸ .fst
+ -- and the fact that we can characterize ι (count-iso) in terms of R through the following observation
+ -- ξ = List/Rᴸ≃AList/Rᴬᴸ .fst
+ -- observation : (xs : List A) → R {List/Rᴸ , LQcount} {AList/Rᴬᴸ , ALQcount} [ xs ] (ξ [ xs ])
+ -- observation = η
 
- observation : (xs : List A) → R {List/Rᴸ , LQcount} {AList/Rᴬᴸ , ALQcount} [ xs ] (ξ [ xs ])
- observation = η
-
- ξ-is-count-iso : ι (List/Rᴸ , LQcount) (AList/Rᴬᴸ , ALQcount) List/Rᴸ≃AList/Rᴬᴸ
- ξ-is-count-iso = ι-R-char {Y = (AList/Rᴬᴸ , ALQcount)} List/Rᴸ≃AList/Rᴬᴸ .fst
-                           (elimProp (λ _ → isPropΠ (λ _ → isSetℕ _ _)) observation)
+ List/Rᴸ≃AList/Rᴬᴸ-is-count-iso : ι (List/Rᴸ , LQcount) (AList/Rᴬᴸ , ALQcount) List/Rᴸ≃AList/Rᴬᴸ
+ List/Rᴸ≃AList/Rᴬᴸ-is-count-iso = ι-R-char {Y = (AList/Rᴬᴸ , ALQcount)} List/Rᴸ≃AList/Rᴬᴸ .fst
+                                  (elimProp (λ _ → isPropΠ (λ _ → isSetℕ _ _)) η)
 
 
  -- We now show that List/Rᴸ≃FMSet
@@ -223,6 +223,15 @@ module Lists&ALists (discA : Discrete A) where
  FMSet≃List/Rᴸ : FMSet A ≃ List/Rᴸ
  FMSet≃List/Rᴸ = isoToEquiv (iso μ ν σ τ)
 
+ --and this is a count-isomorphism, which is easier to prove for the inverse equiv
+ List/Rᴸ≃FMSet : List/Rᴸ ≃ FMSet A
+ List/Rᴸ≃FMSet = isoToEquiv (iso ν μ τ σ)
+
+ List/Rᴸ≃FMSet-is-count-iso : ι (List/Rᴸ , LQcount) (FMSet A , FMScount discA) List/Rᴸ≃FMSet
+ List/Rᴸ≃FMSet-is-count-iso = ι-R-char {Y = (FMSet A , FMScount discA)} List/Rᴸ≃FMSet .fst
+                              (elimProp (λ _ → isPropΠ (λ _ → isSetℕ _ _)) λ xs a → List→FMSet-count a xs)
+
+
  {-
  Putting everything together we get:
 
@@ -251,5 +260,5 @@ module Lists&ALists (discA : Discrete A) where
  Then we get that this HIT is equivalent to the corresponding set quotient that identifies elements
  that give the same count on each a : A.
 
- TODO: Show that all the equivalences are indeed isomorphisms of multisets!
+ TODO: Show that all the equivalences are indeed isomorphisms of multisets not only of count-structures!
  -}
