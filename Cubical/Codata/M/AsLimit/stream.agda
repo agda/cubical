@@ -19,19 +19,19 @@ open import Cubical.Codata.M.AsLimit.Container
 -- Stream definitions using M.AsLimit --
 --------------------------------------
 
-stream-S : ∀ A -> Container ℓ-zero
+stream-S : ∀ A → Container ℓ-zero
 stream-S A = (A , (λ _ → Unit))
 
-stream : ∀ (A : Type₀) -> Type₀
+stream : ∀ (A : Type₀) → Type₀
 stream A = M (stream-S A)
 
-cons : ∀ {A} -> A -> stream A -> stream A
-cons x xs = in-fun (x , λ { tt -> xs } )
+cons : ∀ {A} → A → stream A → stream A
+cons x xs = in-fun (x , λ { tt → xs } )
 
-hd : ∀ {A} -> stream A -> A
+hd : ∀ {A} → stream A → A
 hd {A} s = out-fun s .fst
 
-tl : ∀ {A} -> stream A -> stream A
+tl : ∀ {A} → stream A → stream A
 tl {A} s = out-fun s .snd tt
 
 ------------------------------
@@ -40,59 +40,81 @@ tl {A} s = out-fun s .snd tt
 
 open Stream
 
-stream-to-Stream : ∀ {A : Set} → stream A → Stream A
+stream-to-Stream : ∀ {A : Type₀} → stream A → Stream A
 head (stream-to-Stream x) = hd x
 tail (stream-to-Stream x) = stream-to-Stream (tl x)
 
 private
-  Stream-to-stream-func-x : ∀ {A : Set} (n : ℕ) -> Stream A → Wₙ (stream-S A) n
+  Stream-to-stream-func-x : ∀ {A : Type₀} (n : ℕ) → Stream A → Wₙ (stream-S A) n
   Stream-to-stream-func-x 0 x = lift tt
   Stream-to-stream-func-x (suc n) x = head x , λ _ → Stream-to-stream-func-x n (tail x)
 
-  Stream-to-stream-func-π : ∀ {A : Set} (n : ℕ) (x : Stream A) → πₙ (stream-S A) (Stream-to-stream-func-x (suc n) x) ≡ Stream-to-stream-func-x n x
+  Stream-to-stream-func-π : ∀ {A : Type₀} (n : ℕ) (x : Stream A) → πₙ (stream-S A) (Stream-to-stream-func-x (suc n) x) ≡ Stream-to-stream-func-x n x
   Stream-to-stream-func-π 0 x = refl {x = lift tt}
   Stream-to-stream-func-π (suc n) x = λ i → head x , λ _ → Stream-to-stream-func-π n (tail x) i
 
-Stream-to-stream : ∀ {A : Set} -> Stream A -> stream A
+Stream-to-stream : ∀ {A : Type₀} → Stream A → stream A
 Stream-to-stream s = lift-to-M Stream-to-stream-func-x Stream-to-stream-func-π s
 
-hd-to-head : ∀ {A : Set} (b : Stream A) → hd (Stream-to-stream b) ≡ head b
+hd-to-head : ∀ {A : Type₀} (b : Stream A) → hd (Stream-to-stream b) ≡ head b
 hd-to-head {A = A} b = refl
 
-head-to-hd : ∀ {A : Set} (b : stream A) → head (stream-to-Stream b) ≡ hd b
+head-to-hd : ∀ {A : Type₀} (b : stream A) → head (stream-to-Stream b) ≡ hd b
 head-to-hd {A = A} b = refl
 
-tail-to-tl : ∀ {A : Set} (b : stream A) → tail (stream-to-Stream b) ≡ stream-to-Stream (tl b)
+tail-to-tl : ∀ {A : Type₀} (b : stream A) → tail (stream-to-Stream b) ≡ stream-to-Stream (tl b)
 tail-to-tl b = refl
 
 private
-  tail-eq-x : ∀ {A : Set} → (b : Stream A) (n : ℕ) → fst (tl (Stream-to-stream b)) n ≡ fst (Stream-to-stream (tail b)) n
+  tail-eq-x : ∀ {A : Type₀} → (b : Stream A) (n : ℕ) → fst (tl (Stream-to-stream b)) n ≡ fst (Stream-to-stream (tail b)) n
   tail-eq-x {A = A} b n =
-    transport (λ i → (Wₙ (stream-S A) n)) (Stream-to-stream-func-x n (tail b))
+    fst (tl (Stream-to-stream b)) n -- = transport (λ i → (Wₙ (stream-S A) n)) (Stream-to-stream-func-x n (tail b))
       ≡⟨ sym (transport-filler (λ i → Wₙ (stream-S A) n) (Stream-to-stream-func-x n (tail b))) ⟩
     fst (Stream-to-stream (tail b)) n ∎
 
-  postulate
-    tail-eq-π :
-      ∀ {A : Set} → (b : Stream A) → (n : ℕ) →
-      PathP (λ i → πₙ (stream-S A) (tail-eq-x b (suc n) i) ≡ tail-eq-x b n i)
-        (snd (tl (Stream-to-stream b)) n)
-        (Stream-to-stream-func-π n (tail b))
+  fgsa :
+    ∀ {A : Type₀} → (b : Stream A) → (n : ℕ) →
+    PathP (λ i → πₙ (stream-S A) (tail-eq-x b (suc n) i) ≡ tail-eq-x b n i) (snd (tl (Stream-to-stream b)) n) (transport (λ i → πₙ (stream-S A) (tail-eq-x b (suc n) i) ≡ tail-eq-x b n i) (snd (tl (Stream-to-stream b)) n))
+  fgsa {A} b n = transport-filler (λ i → πₙ (stream-S A) (tail-eq-x b (suc n) i) ≡ tail-eq-x b n i) (snd (tl (Stream-to-stream b)) n)
 
+  tail-eq-π :
+      ∀ {A : Type₀} → (b : Stream A) → (n : ℕ) →
+      PathP (λ i → πₙ (stream-S A) (tail-eq-x b (suc n) i) ≡ tail-eq-x b n i)
+        (snd (tl (Stream-to-stream b)) n) -- transport ? refl
+        (Stream-to-stream-func-π n (tail b)) -- = refl
+  tail-eq-π {A} b 0 = toPathP refl
+  tail-eq-π {A} b (suc n) i =
+    compPathP-filler
+      {x = transport (λ i → πₙ (stream-S A) (tail-eq-x b (suc n) i) ≡ tail-eq-x b n i) (snd (tl (Stream-to-stream b)) n)}
+      {y = (snd (tl (Stream-to-stream b)) n)}
+      {B = (λ i → πₙ (stream-S A) (tail-eq-x b (suc n) i) ≡ tail-eq-x b n i)}
+      {z = Stream-to-stream-func-π n (tail b)}
+      (symP (fgsa b n)) {!!} i {!!}
+    
+  
+  -- tail-eq-π {A} b 2 = toPathP
+  --   (transport (λ i → πₙ (stream-S A) (tail-eq-x b 3 i) ≡ tail-eq-x b 2 i) (snd (tl (Stream-to-stream b)) 2)
+  --     ≡⟨ {!!} ⟩ -- sym (transport-filler (λ i → Wₙ (stream-S A) n) (Stream-to-stream-func-x n (tail b)))
+  --   {!!} -- PathP (λ i → p i) (transport (λ i → πₙ (stream-S A) (tail-eq-x b 3 i) ≡ tail-eq-x b 2 i) refl) refl
+  --     ≡⟨ {!!} ⟩
+  --   refl {x = head (tail b) , λ _ → head (tail (tail b)) , λ _ → lift tt}
+  --     ≡⟨ refl ⟩
+  --   Stream-to-stream-func-π 2 (tail b) ∎)
+        
 tl-to-tail :
-  ∀ {A : Set} (b : Stream A)
+  ∀ {A : Type₀} (b : Stream A)
   → tl (Stream-to-stream b) ≡ Stream-to-stream (tail b)
 tl-to-tail {A = A} b =
   ΣPathP (funExt (tail-eq-x b) , λ i n j → tail-eq-π b n i j)
 
-nth : ∀ {A : Set} → ℕ → (b : Stream A) → A
+nth : ∀ {A : Type₀} → ℕ → (b : Stream A) → A
 nth 0 b = head b
 nth (suc n) b = nth n (tail b)
 
-stream-equality-iso-1 : ∀ {A : Set} → (b : Stream A) → stream-to-Stream (Stream-to-stream b) ≡ b
+stream-equality-iso-1 : ∀ {A : Type₀} → (b : Stream A) → stream-to-Stream (Stream-to-stream b) ≡ b
 stream-equality-iso-1 b = bisim-nat (stream-to-Stream (Stream-to-stream b)) b (helper b)
   where
-    helper : ∀ {A : Set} → (b : Stream A) → ((n : ℕ) → nth n (stream-to-Stream (Stream-to-stream b)) ≡ nth n b)
+    helper : ∀ {A : Type₀} → (b : Stream A) → ((n : ℕ) → nth n (stream-to-Stream (Stream-to-stream b)) ≡ nth n b)
     helper b 0 = head-to-hd (Stream-to-stream b) ∙ hd-to-head b
     helper b (suc n) =
       nth (suc n) (stream-to-Stream (Stream-to-stream b))
@@ -103,18 +125,18 @@ stream-equality-iso-1 b = bisim-nat (stream-to-Stream (Stream-to-stream b)) b (h
         ≡⟨ helper (tail b) n ⟩
       nth n (tail b) ∎
 
-    bisim-nat : ∀ {A : Set} → (a b : Stream A) → ((n : ℕ) → nth n a ≡ nth n b) -> a ≡ b
+    bisim-nat : ∀ {A : Type₀} → (a b : Stream A) → ((n : ℕ) → nth n a ≡ nth n b) → a ≡ b
     bisim-nat a b nat-bisim = bisim (bisim-nat' a b nat-bisim)
       where
         open Equality≅Bisimulation
         open _≈_
 
-        bisim-nat' : ∀ {A : Set} → (a b : Stream A) → ((n : ℕ) → nth n a ≡ nth n b) -> a ≈ b
+        bisim-nat' : ∀ {A : Type₀} → (a b : Stream A) → ((n : ℕ) → nth n a ≡ nth n b) → a ≈ b
         ≈head (bisim-nat' a b nat-bisim) = nat-bisim 0
         ≈tail (bisim-nat' a b nat-bisim) = bisim-nat' (tail a) (tail b) (nat-bisim ∘ suc)
 
 private
-  stream-equality-iso-2-x : ∀ {A : Set} → (a : stream A) (n : ℕ) → Stream-to-stream-func-x n (stream-to-Stream a) ≡ fst a n
+  stream-equality-iso-2-x : ∀ {A : Type₀} → (a : stream A) (n : ℕ) → Stream-to-stream-func-x n (stream-to-Stream a) ≡ fst a n
   stream-equality-iso-2-x a 0 = refl
   stream-equality-iso-2-x {A} a (suc n) =
     Stream-to-stream-func-x (suc n) (stream-to-Stream a)
@@ -144,12 +166,12 @@ private
 
   postulate
     stream-equality-iso-2-π :
-      ∀ {A : Set} → (a : stream A) (n : ℕ)
+      ∀ {A : Type₀} → (a : stream A) (n : ℕ)
       → PathP (λ i → πₙ (stream-S A) (funExt (stream-equality-iso-2-x a) i (suc n)) ≡ funExt (stream-equality-iso-2-x a) i n)
         (Stream-to-stream-func-π n (stream-to-Stream a))
         (snd a n)
 
-stream-equality-iso-2 : ∀ {A : Set} → (a : stream A) → Stream-to-stream (stream-to-Stream a) ≡ a
+stream-equality-iso-2 : ∀ {A : Type₀} → (a : stream A) → Stream-to-stream (stream-to-Stream a) ≡ a
 stream-equality-iso-2 a =
   Stream-to-stream (stream-to-Stream a)
     ≡⟨ refl ⟩
@@ -160,7 +182,7 @@ stream-equality-iso-2 a =
     ≡⟨ ΣPathP (funExt (stream-equality-iso-2-x a) , λ i n j → stream-equality-iso-2-π a n i j) ⟩
   a ∎
 
-stream-equality : ∀ {A : Set} -> stream A ≡ Stream A
+stream-equality : ∀ {A : Type₀} → stream A ≡ Stream A
 stream-equality = isoToPath (iso stream-to-Stream Stream-to-stream stream-equality-iso-1 stream-equality-iso-2)
 
 ------------------------------------------------------
