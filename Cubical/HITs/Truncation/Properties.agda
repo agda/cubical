@@ -116,17 +116,18 @@ isOfHLevelTrunc (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilledTrunc
 
 rec : {n : ℕ}
       {B : Type ℓ'} →
-      (isOfHLevel n B) →
-      (g : (a : A) → B) →
-      (hLevelTrunc n A → B)
-rec {B = B} h = Null.elim {B = λ _ → B} λ x → isOfHLevel→isSnNull h
+      isOfHLevel n B →
+      (A → B) →
+      hLevelTrunc n A →
+      B
+rec h = Null.rec (isOfHLevel→isSnNull h)
 
 elim : {n : ℕ}
-  {B : hLevelTrunc n A → Type ℓ'}
-  (hB : (x : hLevelTrunc n A) → isOfHLevel n (B x))
-  (g : (a : A) → B (∣ a ∣))
-  (x : hLevelTrunc n A) →
-  B x
+       {B : hLevelTrunc n A → Type ℓ'}
+       (hB : (x : hLevelTrunc n A) → isOfHLevel n (B x))
+       (g : (a : A) → B (∣ a ∣))
+       (x : hLevelTrunc n A) →
+       B x
 elim hB = Null.elim (λ x → isOfHLevel→isSnNull (hB x))
 
 elim2 : {n : ℕ}
