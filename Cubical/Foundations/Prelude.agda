@@ -156,6 +156,17 @@ compPathP {A = A} {x = x} {B = B} p q i =
                   (i = i1) → q j })
        (p i)
 
+
+compPathP' : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y z : A} {x' : B x} {y' : B y} {z' : B z} {p : x ≡ y} {q : y ≡ z}
+             (P : PathP (λ i → B (p i)) x' y') (Q : PathP (λ i → B (q i)) y' z')
+          → PathP (λ i → B ((p ∙ q) i)) x' z'
+compPathP' {B = B} {x' = x'} {p = p} {q = q} P Q i =
+  comp (λ j → B (compPath-filler p q j i))
+       (λ j → λ { (i = i0) → x'  ;
+                   (i = i1) → Q j })
+       (P i)
+
+
 compPathP-filler : ∀ {A : I → Type ℓ} {x : A i0} {y : A i1} {B_i1 : Type ℓ} {B : A i1 ≡ B_i1} {z : B i1}
                    → (p : PathP A x y) (q : PathP (λ i → B i) y z)
                    → PathP (λ j → PathP (λ k → (compPath-filler (λ i → A i) B j k)) x (q j)) p (compPathP p q)
@@ -164,6 +175,17 @@ compPathP-filler {A = A} {x = x} {B = B} p q j i =
        (λ j → λ { (i = i0) → x ;
                   (i = i1) → q j })
        (inS (p i)) j
+
+
+compPathP'-filler : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y z : A} {x' : B x} {y' : B y} {z' : B z} {p : x ≡ y} {q : y ≡ z}
+             (P : PathP (λ i → B (p i)) x' y') (Q : PathP (λ i → B (q i)) y' z')
+          → PathP (λ j → PathP (λ i → B (compPath-filler p q j i)) x' (Q j)) P (compPathP' {x = x} {y = y} {x' = x'} {y' = y'} P Q)
+compPathP'-filler {B = B} {x' = x'} {p = p} {q = q} P Q j i =
+  fill (λ j → B (compPath-filler p q j i))
+        (λ j → λ { (i = i0) → x'  ;
+                    (i = i1) → Q j })
+        (inS (P i))
+        j
 
 _≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → x ≡ z
 _ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
@@ -361,6 +383,31 @@ record Lift {i j} (A : Type i) : Type (ℓ-max i j) where
     lower : A
 
 open Lift public
+
+
+{- filler of
+           q⁻¹
+       z — — — > x
+       ^         ^
+     q |         | p⁻¹       
+       |         |        
+       x — — — > y    
+            p                
+-}
+
+invSides-filler : {x y z : A} (p : x ≡ y) (q : x ≡ z) → PathP (λ j → q j ≡ p (~ j)) p (sym q)
+invSides-filler {A = A} {x = x} p q i j = cube-filler i j i1
+  where
+  cube-filler : I → I → I → A
+  cube-filler i j z =
+    hfill (λ k → λ { (i = i0) → p (k ∧ j)
+                    ; (i = i1) → q (~ j ∧ k)
+                    ; (j = i0) → q (i ∧ k)
+                    ; (j = i1) → p (~ i ∧ k)})
+          (inS x)
+          z
+
+
 
 doubleCompPath-filler∙ : {a b c d : A} (p : a ≡ b) (q : b ≡ c) (r : c ≡ d)
                        → PathP (λ i → p i ≡ r (~ i)) (p ∙ q ∙ r) q

@@ -120,7 +120,7 @@ rec : {n : ℕ}
       (isOfHLevel n B) →
       (g : (a : A) → B) →
       (hLevelTrunc n A → B)
-rec {B = B} h = Null.elim {B = λ _ → B} λ x → isOfHLevel→isSnNull h
+rec {B = B} h = Null.rec (isOfHLevel→isSnNull h)
 
 elim : {n : ℕ}
   {B : hLevelTrunc n A → Type ℓ'}
