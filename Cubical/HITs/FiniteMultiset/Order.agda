@@ -17,10 +17,15 @@ open import Cubical.Relation.Nullary.DecidableEq
 
 private
  variable
-  A : Type₀
+  ℓ : Level
 
-module _(discA : Discrete A) where
- _≼_ : FMSet A → FMSet A → Type₀ --\preceq
+
+-- We define a partial order on FMSet A and use it to proof
+-- a strong induction principle for finite multi-sets.
+-- Finally, we use this stronger elimination principle to show
+-- that any two FMSets can be identified, if they have the same count for every a : A
+module _{A : Type ℓ} (discA : Discrete A) where
+ _≼_ : FMSet A → FMSet A → Type ℓ
  xs ≼ ys = ∀ a → FMScount discA a xs ≤ FMScount discA a ys
 
  ≼-refl : ∀ xs → xs ≼ xs
@@ -74,15 +79,12 @@ module _(discA : Discrete A) where
 
 
  -- proving a strong elimination principle for finite multisets
- module ≼-ElimProp {ℓ} {B : FMSet A → Type ℓ}
+ module ≼-ElimProp {ℓ'} {B : FMSet A → Type ℓ'}
                        (BisProp : ∀ {xs} → isProp (B xs)) (b₀ : B [])
                        (B-≼-hyp : ∀ x xs → (∀ ys → ys ≼ xs → B ys) → B (x ∷ xs)) where
 
-  C : FMSet A → Type ℓ
+  C : FMSet A → Type (ℓ-max ℓ ℓ')
   C xs = ∀ ys → ys ≼ xs → B ys
-
-  obs : (∀ xs → C xs) → (∀ xs → B xs)
-  obs C-hyp xs = C-hyp xs xs (≼-refl xs)
 
   g : ∀ xs → C xs
   g = ElimProp.f (isPropΠ2 (λ _ _ → BisProp)) c₀ θ
@@ -100,11 +102,13 @@ module _(discA : Discrete A) where
     χ vs vs≼zs = hyp vs (≼-trans vs zs xs vs≼zs (≼-remove1-lemma x xs ys ys≼x∷xs))
 
   f : ∀ xs → B xs
-  f = obs g
+  f = C→B g
+   where
+   C→B : (∀ xs → C xs) → (∀ xs → B xs)
+   C→B C-hyp xs = C-hyp xs xs (≼-refl xs)
 
 
-
- ≼-ElimPropBin :  ∀ {ℓ} {B : FMSet A → FMSet A → Type ℓ}
+ ≼-ElimPropBin :  ∀ {ℓ'} {B : FMSet A → FMSet A → Type ℓ'}
                    → (∀ {xs} {ys} → isProp (B xs ys))
                    → (B [] [])
                    → (∀ x xs ys → (∀ vs ws → vs ≼ xs → ws ≼ ys → B vs ws) → B (x ∷ xs) ys)
@@ -127,7 +131,7 @@ module _(discA : Discrete A) where
 
 
 
- ≼-ElimPropBinSym :  ∀ {ℓ} {B : FMSet A → FMSet A → Type ℓ}
+ ≼-ElimPropBinSym :  ∀ {ℓ'} {B : FMSet A → FMSet A → Type ℓ'}
                       → (∀ {xs} {ys} → isProp (B xs ys))
                       → (∀ {xs} {ys} → B xs ys → B ys xs)
                       → (B [] [])
@@ -140,9 +144,9 @@ module _(discA : Discrete A) where
   right-hyp x xs ys h₁ = BisSym (left-hyp x ys xs (λ vs ws vs≼ys ws≼xs → BisSym (h₁ ws vs ws≼xs vs≼ys)))
 
 
-
+ -- The main result
  module FMScountExt where
-  B : FMSet A → FMSet A → Type₀
+  B : FMSet A → FMSet A → Type ℓ
   B xs ys = (∀ a → FMScount discA a xs ≡ FMScount discA a ys) → xs ≡ ys
 
   BisProp : ∀ {xs} {ys} → isProp (B xs ys)

@@ -12,7 +12,8 @@ open import Cubical.Relation.Nullary.DecidableEq
 
 private
   variable
-    A : Type₀
+    ℓ : Level
+    A : Type ℓ
 
 infixr 30 _++_
 

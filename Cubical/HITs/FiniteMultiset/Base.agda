@@ -7,11 +7,12 @@ open import Cubical.Foundations.HLevels
 
 private
   variable
-    A : Type₀
+    ℓ : Level
+    A : Type ℓ
 
 infixr 5 _∷_
 
-data FMSet (A : Type₀) : Type₀ where
+data FMSet (A : Type ℓ) : Type ℓ where
   []    : FMSet A
   _∷_   : (x : A) → (xs : FMSet A) → FMSet A
   comm  : ∀ x y xs → x ∷ y ∷ xs ≡ y ∷ x ∷ xs
