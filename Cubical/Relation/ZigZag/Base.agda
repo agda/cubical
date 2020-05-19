@@ -14,14 +14,14 @@ open import Cubical.HITs.SetQuotients.Properties
 
 private
  variable
-  ℓ : Level
+  ℓ ℓ' : Level
 
 
-isZigZagComplete : {A B : Type ℓ} (R : A → B → Type ℓ) → Type ℓ
+isZigZagComplete : {A B : Type ℓ} (R : A → B → Type ℓ') → Type (ℓ-max ℓ ℓ')
 isZigZagComplete R = ∀ a b a' b' → R a b → R a' b → R a' b' → R a b'
 
 
-isBisimulation : {A B : Type ℓ} (R : A → B → Type ℓ) (f : A → B) (g : B → A) → Type ℓ
+isBisimulation : {A B : Type ℓ} (R : A → B → Type ℓ') (f : A → B) (g : B → A) → Type (ℓ-max ℓ ℓ')
 isBisimulation R f g =  isZigZagComplete R
                       × (∀ a → R a (f a))
                       × (∀ b → R (g b) b)
@@ -29,7 +29,7 @@ isBisimulation R f g =  isZigZagComplete R
 
 -- The following result is due to Carlo Angiuli
 module Bisimulation→Equiv (A B : Type ℓ)
-                          (R : A → B → Type ℓ)
+                          (R : A → B → Type ℓ')
                           (f : A → B) (g : B → A)
                           (isBisimRfg : isBisimulation R f g) where
 
@@ -44,10 +44,10 @@ module Bisimulation→Equiv (A B : Type ℓ)
  β = isBisimRfg .snd .snd
 
  -- using R we can define binary relations on A and B
- Rᴬ : A → A → Type ℓ
+ Rᴬ : A → A → Type (ℓ-max ℓ ℓ')
  Rᴬ a a' = Σ[ b ∈ B ] (R a b × R a' b)
 
- Rᴮ : B → B → Type ℓ
+ Rᴮ : B → B → Type (ℓ-max ℓ ℓ')
  Rᴮ b b' = Σ[ a ∈ A ] (R a b × R a b')
 
  -- Rᴬ and Rᴮ are equivalence relations

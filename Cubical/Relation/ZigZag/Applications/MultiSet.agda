@@ -14,7 +14,7 @@ open import Cubical.Structures.MultiSet
 open import Cubical.HITs.SetQuotients.Base
 open import Cubical.HITs.SetQuotients.Properties
 open import Cubical.HITs.FiniteMultiset as FMS hiding ([_])
-open import Cubical.HITs.FiniteMultiset.Order as FMSO
+open import Cubical.HITs.FiniteMultiset.Order
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
 open import Cubical.Relation.ZigZag.Base as ZigZag
@@ -22,11 +22,11 @@ open import Cubical.Relation.ZigZag.Base as ZigZag
 private
  variable
   ℓ : Level
-  A : Type₀
+  A : Type ℓ
 
 
 -- we define simple association lists without any higher constructors
-data AList (A : Type₀) : Type₀ where
+data AList (A : Type ℓ) : Type ℓ where
  ⟨⟩ : AList A
  ⟨_,_⟩∷_ : A → ℕ → AList A → AList A
 
@@ -34,15 +34,15 @@ infixr 5 ⟨_,_⟩∷_
 
 
 -- We have a count-structure on List and AList and use these to get a bisimulation between the two
-module Lists&ALists (discA : Discrete A) where
+module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  -- the relation we're interested in
  S = count-structure A (Discrete→isSet discA)
- R : {A B : TypeWithStr ℓ-zero S} → (A .fst) → (B .fst) → Type₀
+ R : {A B : TypeWithStr ℓ S} → (A .fst) → (B .fst) → Type ℓ
  R {X , count₁} {Y , count₂} x y = ∀ a → count₁ a x ≡ count₂ a y
 
  -- relation between R and ι
  ι = count-iso A (Discrete→isSet discA)
- ι-R-char : {X Y : TypeWithStr ℓ-zero S} (e : (X .fst) ≃ (Y .fst))
+ ι-R-char : {X Y : TypeWithStr ℓ S} (e : (X .fst) ≃ (Y .fst))
           → (∀ x → R {X} {Y} x (e .fst x)) ≃ (ι X Y e)
  ι-R-char e = isoToEquiv (iso (λ f → λ a x → f x a) (λ g → λ x a → g a x) (λ _ → refl) λ _ → refl)
 
@@ -150,8 +150,8 @@ module Lists&ALists (discA : Discrete A) where
   where
   r' : Rᴸ (a ∷ xs) (a ∷ xs')
   r' =  ⟨ a , 1 ⟩∷ (r .fst)
-      , (λ a' → cong (λ n →  aux a' a (discA a' a) n) (r .snd .fst a'))
-      , (λ a' → cong (λ n →  aux a' a (discA a' a) n) (r .snd .snd a'))
+      , (λ a' → cong (aux a' a (discA a' a)) (r .snd .fst a'))
+      , (λ a' → cong (aux a' a (discA a' a)) (r .snd .snd a'))
  a ∷/ squash/ xs xs₁ p q i j = squash/ (a ∷/ xs) (a ∷/ xs₁) (cong (a ∷/_) p) (cong (a ∷/_) q) i j
 
  infixr 5 _∷/_
@@ -198,7 +198,7 @@ module Lists&ALists (discA : Discrete A) where
    θ a = sym (List→FMSet-count a xs) ∙∙ ρ a ∙∙ List→FMSet-count a ys
 
    path : List→FMSet xs ≡ List→FMSet ys
-   path = FMSO.FMScountExt.Thm discA _ _ θ
+   path = FMScountExt.Thm discA _ _ θ
  ν (squash/ xs/ xs/' p q i j) = trunc (ν xs/) (ν xs/') (cong ν p) (cong ν q) i j
 
 
