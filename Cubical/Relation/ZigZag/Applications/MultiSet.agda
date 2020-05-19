@@ -14,7 +14,7 @@ open import Cubical.Structures.MultiSet
 open import Cubical.HITs.SetQuotients.Base
 open import Cubical.HITs.SetQuotients.Properties
 open import Cubical.HITs.FiniteMultiset as FMS hiding ([_])
-open import Cubical.HITs.FiniteMultiset.Order
+open import Cubical.HITs.FiniteMultiset.CountExtensionality
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
 open import Cubical.Relation.ZigZag.Base as ZigZag

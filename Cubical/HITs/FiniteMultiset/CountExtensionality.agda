@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.HITs.FiniteMultiset.Order where
+module Cubical.HITs.FiniteMultiset.CountExtensionality where
 
 
 open import Cubical.Foundations.Prelude
