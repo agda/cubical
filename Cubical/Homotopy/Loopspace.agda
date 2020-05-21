@@ -26,20 +26,13 @@ open import Cubical.HITs.SetTruncation
 Ω→ (f , f∙) = (λ p → (sym f∙ ∙ cong f p) ∙ f∙) , cong (λ q → q ∙ f∙) (sym (rUnit (sym f∙))) ∙ lCancel f∙
 
 
-module _ {ℓ : Level} {A : Type ℓ} {a b c : A} {p q : a ≡ b} {r s : b ≡ c} (α : p ≡ q) (β : r ≡ s) where
-  _◾ᵣ_ : (α : p ≡ q) (r : b ≡ c) → p ∙ r ≡ q ∙ r
-  (α ◾ᵣ r) i =
-     α i ∙ r
-
-  _◾ₗ_ : (p : a ≡ b) (β : r ≡ s) → p ∙ r ≡ p ∙ s
-  (p ◾ₗ β) i =
-    p ∙ β i
-
-  generalEH : (α ◾ᵣ r) ∙ (q ◾ₗ β) ≡ (p ◾ₗ β) ∙ (α ◾ᵣ s)
-  generalEH j i =
-     hcomp (λ k → λ { (i = i0) → p ∙ r
-                     ; (i = i1) → α (k ∨ ~ j) ∙ β (k ∨ j) })
-           (α (~ j ∧ i) ∙ β (j ∧ i))
+generalEH : {ℓ : Level} {A : Type ℓ} {a b c : A} {p q : a ≡ b} {r s : b ≡ c} (α : p ≡ q) (β : r ≡ s)
+         → (cong (λ x → x ∙ r) α) ∙ (cong (λ x → q ∙ x) β)
+          ≡ (cong (λ x → p ∙ x) β) ∙ (cong (λ x → x ∙ s) α)
+generalEH {p = p} {r = r} α β j i =
+   hcomp (λ k → λ { (i = i0) → p ∙ r
+                   ; (i = i1) → α (k ∨ ~ j) ∙ β (k ∨ j) })
+         (α (~ j ∧ i) ∙ β (j ∧ i))
 
 Eckmann-Hilton : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (α β : typ ((Ω^ (2 + n)) A))
               → α ∙ β ≡ β ∙ α
@@ -57,5 +50,5 @@ Eckmann-Hilton {A = A} n α β i =
 
 Eckmann-Hilton-π : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p q : ∥ typ ((Ω^ (2 + n)) A) ∥₀)
                → π-comp (1 + n) p q ≡ π-comp (1 + n) q p
-Eckmann-Hilton-π {A = (A , pt)} n = elim2 (λ x y → isOfHLevelPath 2 setTruncIsSet _ _)
-                                           λ p q → cong ∣_∣₀ (Eckmann-Hilton n p q)
+Eckmann-Hilton-π  n = elim2 (λ x y → isOfHLevelPath 2 setTruncIsSet _ _)
+                             λ p q → cong ∣_∣₀ (Eckmann-Hilton n p q)

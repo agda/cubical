@@ -20,11 +20,8 @@ data Smash {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') : Type (ℓ-max ℓ �
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ''' : Level
-    A : Pointed ℓ
-    B : Pointed ℓ'
-    C : Pointed ℓ''
-    D : Pointed ℓ'''
+    ℓ ℓ' : Level
+    A B C D : Pointed ℓ
 
 Smash-map : (f : A →∙ C) (g : B →∙ D) → Smash A B → Smash C D
 Smash-map f g basel = basel
