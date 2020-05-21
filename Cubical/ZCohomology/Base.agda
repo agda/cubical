@@ -1,7 +1,6 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.ZCohomology.Base where
 
-
 open import Cubical.Data.Int.Base
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.NatMinusTwo.Base
@@ -43,9 +42,3 @@ coHomK-ptd (suc n) = (coHomK (suc n) , ∣ north ∣)
 {- Reduced cohomology -}
 coHomRed : (n : ℕ) → (A : Pointed ℓ) → Type ℓ
 coHomRed n A = ∥  (A →∙ (coHomK-ptd n)) ∥₀
-
-
----
-coHom-pt : (n : ℕ) → coHomK n
-coHom-pt zero = pos 0
-coHom-pt (suc n) = ∣ north ∣

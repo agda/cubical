@@ -34,18 +34,21 @@ isHLevelConnectedFun n f = ∀ b → isHLevelConnected n (fiber f b)
 isHLevelTruncatedFun : ∀ {ℓ ℓ'} (n : ℕ) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
 isHLevelTruncatedFun n f = ∀ b → isOfHLevel n (fiber f b)
 
-isConnectedSubtr : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n m : ℕ) (f : A → B)
+isConnectedSubtr : ∀ {ℓ} {A : Type ℓ} (n m : ℕ)
+                → isHLevelConnected (m + n) A
+                → isHLevelConnected n A
+isConnectedSubtr {A = A} n m iscon =
+  transport (λ i → isContr (ua (truncOfTruncEq {A = A} n m) (~ i)))
+             (∣ iscon .fst ∣ , Trunc.elim (λ _ → isOfHLevelPath n (isOfHLevelTrunc n) _ _) λ a → cong ∣_∣ (iscon .snd a))
+
+isConnectedFunSubtr : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n m : ℕ) (f : A → B)
                 → isHLevelConnectedFun (m + n) f
                 → isHLevelConnectedFun n f
-isConnectedSubtr n m f iscon b =
-  transport (λ i → isContr (ua (truncOfTruncEq {A = fiber f b} n m) (~ i) ))
-            (∣ iscon b .fst ∣ ,
-              Trunc.elim (λ x → isOfHLevelPath n (isOfHLevelTrunc n) _ _)
-                     λ a → cong ∣_∣ (iscon b .snd a))
+isConnectedFunSubtr n m f iscon b = isConnectedSubtr n m (iscon b)
 
 private
-  typeToFiber : ∀ {ℓ} (A : Type ℓ)  (b : Unit) → A ≡ fiber (λ (x : A) → b) b
-  typeToFiber A tt = isoToPath typeToFiberIso
+  typeToFiber : ∀ {ℓ} (A : Type ℓ) → A ≡ fiber (λ (x : A) → tt) tt
+  typeToFiber A = isoToPath typeToFiberIso
     where
     typeToFiberIso : Iso A (fiber (λ (x : A) → tt) tt)
     Iso.fun typeToFiberIso x = x , refl
@@ -80,48 +83,48 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (n :
 
   isEquivPrecompose : ∀ {ℓ'''} (P : B → HLevel ℓ''' n)
                    → isHLevelConnectedFun n f
-                   → isEquiv λ(s : (b : B) → P b .fst) → s ∘ f
+                   → isEquiv (λ(s : (b : B) → P b .fst) → s ∘ f)
   isEquivPrecompose P fConn = isoToIsEquiv (isIsoPrecompose P fConn)
 
-  isConnectedPrecompose : ((∀ {ℓ'''} (P : B → HLevel ℓ''' n)
-                                  → hasSection λ(s : (b : B) → P b .fst) → s ∘ f))
+  isConnectedPrecompose : ((P : B → HLevel (ℓ-max ℓ ℓ') n)
+                                    → hasSection (λ(s : (b : B) → P b .fst) → s ∘ f))
                        → isHLevelConnectedFun n f
-  isConnectedPrecompose P→sect b = (c n P→sect b) , λ y → sym (fun n P→sect b y)
+  isConnectedPrecompose P→sect b = c n P→sect b , λ y →  sym (fun n P→sect b y) -- (c n P→sect b) , λ y → sym (fun n P→sect b y)
     where
-    P : (n : ℕ) → (∀ {ℓ} (P : B → HLevel ℓ n)
+    P : (n : ℕ) → ((P : B → HLevel ℓ n)
      → hasSection (λ(s : (b : B) → P b .fst) → s ∘ f))
      → B → Type _
     P n s b = hLevelTrunc n (fiber f b)
-
-    c : (n : ℕ) → (∀ {ℓ} (P : B → HLevel ℓ n)
+    
+    c : (n : ℕ) → ((P : B → HLevel (ℓ-max ℓ ℓ') n)
      → hasSection (λ(s : (b : B) → P b .fst) → s ∘ f)) → (b : B)
      → hLevelTrunc n (fiber f b)
     c n s = (s λ b → (hLevelTrunc n (fiber f b) , isOfHLevelTrunc _)) .fst
               λ a → ∣ a , refl ∣
 
-    fun : (n : ℕ) (s : (∀ {ℓ} (P : B → HLevel ℓ n)
-      → hasSection λ(s : (b : B) → P b .fst) → s ∘ f))
+    fun : (n : ℕ) (P→sect : ((P : B → HLevel (ℓ-max ℓ ℓ') n)
+                     → hasSection λ(s : (b : B) → P b .fst) → s ∘ f))
       → (b : B) (w : (hLevelTrunc n (fiber f b)))
-      → w ≡ c n s b
-    fun zero s b w = isOfHLevelSuc zero (isOfHLevelTrunc _) w (c zero s b)
-    fun (suc n) s b = Trunc.elim (λ x → isOfHLevelPath (suc n) (isOfHLevelTrunc _) x (c (suc n) s b))
+      → w ≡ c n P→sect b
+    fun zero P→sect b w = isOfHLevelSuc zero (isOfHLevelTrunc _) w (c zero P→sect b)
+    fun (suc n) P→sect b = Trunc.elim (λ x → isOfHLevelPath (suc n) (isOfHLevelTrunc _) x (c (suc n) P→sect b))
                                  λ a → transport eqtyp c* b (fst a) (snd a)
         where
         eqtyp : ((a : A) → ∣ (a , refl {x = f a}) ∣
-                          ≡ c (suc n) s (f a))
+                          ≡ c (suc n) P→sect (f a))
               ≡ ((b : B) (a : A) (p : f (a) ≡ b) → ∣ (a , p) ∣
-                                                  ≡ c (suc n) s b)
+                                                  ≡ c (suc n) P→sect b)
         eqtyp =
             isoToPath
-              (iso (λ g b a → J (λ b p → ∣ a , p ∣ ≡ c (suc n) s b) (g a))
+              (iso (λ g b a → J (λ b p → ∣ a , p ∣ ≡ c (suc n) P→sect b) (g a))
                    (λ g a → g (f a) a refl)
-                   (λ h i b a p → (J (λ b x → (J (λ b₂ p → ∣ a , p ∣ ≡ c (suc n) s b₂)
+                   (λ h i b a p → (J (λ b x → (J (λ b₂ p → ∣ a , p ∣ ≡ c (suc n) P→sect b₂)
                                                    (h (f a) a (λ _ → f a)) x ≡ h b a x))
-                                      (JRefl (λ b₂ p → ∣ a , p ∣ ≡ c (suc n) s b₂) (h (f a) a (λ _ → f a))))
+                                      (JRefl (λ b₂ p → ∣ a , p ∣ ≡ c (suc n) P→sect b₂) (h (f a) a (λ _ → f a))))
                                     p i)
-                   λ h i a p → JRefl (λ b₁ p → ∣ a , p ∣ ≡ c (suc n) s b₁) (h a) i p)
-        c* : ((a : A) → ∣ (a , refl {x = f a}) ∣ ≡ c (suc n) s (f a))
-        c* a = sym (cong (λ x → x a) (s (λ b → hLevelTrunc (suc n) (fiber f b) , isOfHLevelTrunc _) .snd λ a → ∣ a , refl ∣))
+                   λ h i a p → JRefl (λ b₁ p → ∣ a , p ∣ ≡ c (suc n) P→sect b₁) (h a) i p)
+        c* : ((a : A) → ∣ (a , refl {x = f a}) ∣ ≡ c (suc n) P→sect (f a))
+        c* a = sym (cong (λ x → x a) (P→sect (λ b → hLevelTrunc (suc n) (fiber f b) , isOfHLevelTrunc _) .snd λ a → ∣ a , refl ∣))
 
 isOfHLevelPrecomposeConnected : ∀ {ℓ ℓ' ℓ''} (k : ℕ) (n : ℕ)
   {A : Type ℓ} {B : Type ℓ'} (P : B → HLevel ℓ'' (k + n)) (f : A → B)
@@ -142,19 +145,21 @@ isOfHLevelPrecomposeConnected (suc k) n P f fConn t =
               f fConn
               (funExt⁻ (p₀ ∙∙ refl ∙∙ sym p₁))))})
 
-indMapEquiv→conType : ∀ {ℓ} {A : Type ℓ} (n : ℕ) → (∀ {ℓ'} (B : HLevel ℓ' n)
-                     → isEquiv (λ (b : (fst B)) → λ (a : A) → b)) → isHLevelConnected n A
+indMapEquiv→conType : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
+                   → ((B : HLevel ℓ n)
+                      → isEquiv (λ (b : (fst B)) → λ (a : A) → b))
+                   → isHLevelConnected n A
 indMapEquiv→conType {A = A} n BEq =
-  transport (λ i → isContr (hLevelTrunc n (typeToFiber A tt (~ i))))
+  transport (λ i → isContr (hLevelTrunc n (typeToFiber A (~ i))))
             (elim.isConnectedPrecompose (λ _ → tt) n
-                                        (λ {ℓ'} P → isEquiv-hasSection _ (compEquiv ((λ Q → Q tt) , isoToIsEquiv (helper P))
-                                                                                     (_ , BEq (P tt)) .snd ))
+                                        (λ P → isEquiv-hasSection _ ((compEquiv ((λ Q → Q tt) , isoToIsEquiv (helper P))
+                                                                                 (_ , BEq (P tt)) .snd )))
                                         tt)
   where
   helper : ∀ {ℓ'} (P : Unit → HLevel ℓ' n)
          → Iso ((b : Unit) → fst (P b)) (fst (P tt))
   Iso.fun (helper P) = λ Q → Q tt
-  Iso.inv (helper P) = λ a → λ {tt → a}
+  Iso.inv (helper P) = λ a _ → a
   Iso.rightInv (helper P) b = refl
   Iso.leftInv (helper P) b = refl
 
@@ -254,7 +259,7 @@ connectedTruncIso2 : ∀ {ℓ} {A B : Type ℓ} (n m : ℕ) (f : A → B)
                    → isHLevelConnectedFun m f
                    → Iso (hLevelTrunc n A) (hLevelTrunc n B)
 connectedTruncIso2 {A = A} {B = B} n m f (x , pf) con =
-  connectedTruncIso n f (isConnectedSubtr n x f (transport (λ i → isHLevelConnectedFun (pf (~ i)) f) con))
+  connectedTruncIso n f (isConnectedFunSubtr n x f (transport (λ i → isHLevelConnectedFun (pf (~ i)) f) con))
 
 connectedTruncEquiv : ∀ {ℓ} {A B : Type ℓ} (n : ℕ) (f : A → B)
                    → isHLevelConnectedFun n f
@@ -297,16 +302,10 @@ sphereConnected (suc n) =
                                      (inr tt)
                                      ((transport (λ i → isHLevelConnectedFun (suc n) (mapsAgree (~ i)))
                                                  (inrConnected _ (λ _ → tt) (λ _ → tt)
-                                                               λ {tt → transport (λ i → isContr (hLevelTrunc (suc n) ((isoToPath fibIso) (~ i))))
+                                                               λ {tt → transport (λ i → isContr (hLevelTrunc (suc n) (fibId (S₊ n) (~ i))))
                                                                                   (sphereConnected n)}))))
   where
   mapsAgree : Path ((x : Unit) → Pushout {A = S₊ n} (λ x → tt) (λ x → tt))
                    (λ (x : Unit) → inr tt)
                    inr
-  mapsAgree = funExt λ {tt → refl}
-
-  fibIso : Iso (fiber (λ (x : S₊ n) → tt) tt) (S₊ n)
-  Iso.fun (fibIso) = fst
-  Iso.inv (fibIso) a = a , refl
-  Iso.leftInv (fibIso) b = refl
-  Iso.rightInv (fibIso) b = refl
+  mapsAgree = funExt λ _ → refl

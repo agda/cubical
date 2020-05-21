@@ -32,15 +32,15 @@ module Helpers where
 
 open Helpers
 
-IxCont : Type₀ → Type₁
-IxCont X = Σ (X → Type₀) \ S → ∀ x → S x → X → Type₀
+IxCont : ∀ {ℓ} -> Type ℓ → Type (ℓ-suc ℓ)
+IxCont {ℓ} X = Σ (X → Type ℓ) λ S → ∀ x → S x → X → Type ℓ
 
 
-⟦_⟧ : ∀ {X : Type₀} → IxCont X → (X → Type₀) → (X → Type₀)
-⟦ (S , P) ⟧ X x = Σ (S x) \ s → ∀ y → P x s y → X y
+⟦_⟧ : ∀ {ℓ} {X : Type ℓ} → IxCont X → (X → Type ℓ) → (X → Type ℓ)
+⟦ (S , P) ⟧ X x = Σ (S x) λ s → ∀ y → P x s y → X y
 
 
-record M {X : Type₀} (C : IxCont X) (x : X) : Type₀ where
+record M {ℓ} {X : Type ℓ} (C : IxCont X) (x : X) : Type ℓ where -- Type₀
   coinductive
   field
     head : C .fst x
@@ -48,10 +48,13 @@ record M {X : Type₀} (C : IxCont X) (x : X) : Type₀ where
 
 open M public
 
-module _ {X : Type₀} {C : IxCont X} where
+module _ {ℓ} {X : Type ℓ} {C : IxCont X} where
 
   private
     F = ⟦ C ⟧
+
+  inM : ∀ x → F (M C) x → M C x
+  inM x (head , tail) = record { head = head ; tails = tail }
 
   out : ∀ x → M C x → F (M C) x
   out x a = (a .head) , (a .tails)

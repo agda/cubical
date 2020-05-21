@@ -118,3 +118,25 @@ Iso.inv (composesToId→Iso (iso fun inv rightInv leftInv) g path) = fun
 Iso.rightInv (composesToId→Iso (iso fun inv rightInv leftInv) g path) b =
   (sym (leftInv (g (fun b))) ∙ cong (λ x → inv x) (cong (λ f → f (fun b)) path)) ∙ leftInv b
 Iso.leftInv (composesToId→Iso (iso fun inv rightInv leftInv) g path) b = cong (λ f → f b) path
+
+idIso : ∀ {ℓ} {X : Type ℓ} → Iso X X
+Iso.fun (idIso {X = X}) = idfun X
+Iso.inv (idIso {X = X}) = idfun X
+Iso.rightInv (idIso {X = X}) x = refl {x = x}
+Iso.leftInv (idIso {X = X}) x = refl {x = x}
+
+-- Helpful notation
+_Iso⟨_⟩_ : ∀ {ℓ ℓ' ℓ''} {B : Type ℓ'} {C : Type ℓ''} (X : Type ℓ) → Iso X B → Iso B C → Iso X C
+_ Iso⟨ f ⟩ g = compIso f g
+
+_∎Iso : ∀ {ℓ} (X : Type ℓ) → Iso X X
+X ∎Iso = idIso {X = X}
+
+infixr  0 _Iso⟨_⟩_
+infix   1 _∎Iso
+
+invIso : ∀ {ℓ ℓ'} {X : Type ℓ} {Y : Type ℓ'} → Iso X Y → Iso Y X
+Iso.fun (invIso isom) = Iso.inv isom
+Iso.inv (invIso isom) = Iso.fun isom
+Iso.rightInv (invIso isom) = Iso.leftInv isom
+Iso.leftInv (invIso isom) = Iso.rightInv isom

@@ -100,6 +100,6 @@ sphereSmashMap : (n m : ℕ) → (S₊ (suc n) , north) ⋀ (S₊ (suc m) , nort
 sphereSmashMap zero m = smashS1→susp.fun
 sphereSmashMap (suc n) m =
   smashS1→susp.fun ∘
-  (idfun∙ _ ⋀⃗ (sphereSmashMap n m , refl)) ∘
+  (idfun∙ _ ⋀→ (sphereSmashMap n m , refl)) ∘
   ⋀-associate ∘
-  ((smashS1→susp.fun⁻ , refl) ⋀⃗ idfun∙ _)
+  ((smashS1→susp.fun⁻ , refl) ⋀→ idfun∙ _)

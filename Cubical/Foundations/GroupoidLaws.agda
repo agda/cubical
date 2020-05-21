@@ -281,12 +281,54 @@ hcomp-cong u u0 u' u0' ueq 0eq = inS (\ j → hcomp (\ i o → ueq i o j) (outS 
 
 ---
 
-congFunct : ∀ {ℓ} {B : Type ℓ} → (f : A → B) (p : x ≡ y) (q : y ≡ z) → cong f (p ∙ q) ≡ cong f p ∙ cong f q
-congFunct f p q i = hcomp (λ j → λ{(i = i0) → rUnit (cong f (p ∙ q)) (~ j) ;
-                                    (i = i1) → cong f (rUnit p (~ j)) ∙ cong f q})
-                          (cong f (p ∙ (λ k → q (k ∧ (~ i)))) ∙ cong f λ k → q ((~ i) ∨ k) )
 
-symDistr : (p : x ≡ y) (q : y ≡ z)  → sym (p ∙ q) ≡ sym q ∙ sym p
-symDistr p q i = hcomp (λ j → λ{(i = i0) → rUnit (sym (p ∙ q)) (~ j)  ;
-                                 (i = i1) → sym (lUnit q (~ j)) ∙ sym p})
-                       (sym ((λ k → p (k ∨ i)) ∙ q) ∙ sym λ k → p (i ∧ k))
+invSides-filler : {x y z : A} (p : x ≡ y) (q : x ≡ z) → PathP (λ j → q j ≡ p (~ j)) p (sym q)
+invSides-filler {A = A} {x = x} p q i j =
+  hcomp (λ k → λ { (i = i0) → p (k ∧ j)
+                  ; (i = i1) → q (~ j ∧ k)
+                  ; (j = i0) → q (i ∧ k)
+                  ; (j = i1) → p (~ i ∧ k)})
+        x
+
+congFunct-filler : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y z : A} (f : A → B) (p : x ≡ y) (q : y ≡ z)
+                → I → I → I → B
+congFunct-filler {x = x} f p q i j z =
+  hfill (λ k → λ { (i = i0) → f x
+                  ; (i = i1) → f (q k)
+                  ; (j = i0) → f (compPath-filler p q k i)})
+        (inS (f (p i)))
+        z
+
+congFunct : ∀ {ℓ} {B : Type ℓ} (f : A → B) (p : x ≡ y) (q : y ≡ z) → cong f (p ∙ q) ≡ cong f p ∙ cong f q
+congFunct f p q j i = congFunct-filler f p q i j i1
+
+
+-- congFunct for dependent types
+congFunct-dep : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y z : A} (f : (a : A) → B a) (p : x ≡ y) (q : y ≡ z)
+         → PathP (λ i → PathP (λ j → B (compPath-filler p q i j)) (f x) (f (q i))) (cong f p) (cong f (p ∙ q))
+congFunct-dep {B = B} {x = x} f p q i j = f (compPath-filler p q i j)
+
+cong₂Funct : (f : A → A → A) →
+        (p : x ≡ y) →
+        {u v : A} (q : u ≡ v) →
+        cong₂ f p q ≡ cong (λ x → f x u) p ∙ cong (f y) q
+cong₂Funct {x = x} {y = y} f p {u = u} {v = v} q j i =
+  hcomp (λ k → λ { (i = i0) → f x u
+                  ; (i = i1) → f y (q k)
+                  ; (j = i0) → f (p i) (q (i ∧ k))})
+       (f (p i) u)
+
+
+symDistr-filler : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → I → I → I → A
+symDistr-filler {A = A} {z = z} p q i j k =
+  hfill (λ k → λ { (i = i0) → q (k ∨ j)
+                  ; (i = i1) → p (~ k ∧ j) })
+        (inS (invSides-filler q (sym p) i j))
+        k
+
+symDistr : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → sym (p ∙ q) ≡ sym q ∙ sym p
+symDistr p q i j = symDistr-filler p q j i i1
+
+
+
+

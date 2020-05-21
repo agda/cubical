@@ -88,7 +88,7 @@ setSigmaIso {A = A} {B = B} = iso fun funinv sect retr
   sect : section fun funinv
   sect = elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
               λ { (a , p) → elim {B = λ p → fun (funinv ∣ a , p ∣₀) ≡ ∣ a , p ∣₀}
-              (λ p → isOfHLevelPath 2 setTruncIsSet _ _) (λ p → refl) p }
+              (λ p → isOfHLevelPath 2 setTruncIsSet _ _) (λ _ → refl) p }
   retr : retract fun funinv
   retr = elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-              λ { (a , p) → refl }
+              λ { _ → refl }

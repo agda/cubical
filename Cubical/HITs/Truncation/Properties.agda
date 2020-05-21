@@ -330,12 +330,6 @@ module ΩTrunc where
   Iso.rightInv (IsoFinal _ x y) = P-linv x y
   Iso.leftInv (IsoFinal _ x y) = P-rinv x y
 
-  IsoFinal2 : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} (x y : ∥ B ∥ (suc₋₂ n)) → Iso (P x y) (x ≡ y)
-  Iso.fun (IsoFinal2 x y) = decode-fun x y
-  Iso.inv (IsoFinal2 x y) = encode-fun x y
-  Iso.rightInv (IsoFinal2 x y) = P-rinv x y
-  Iso.leftInv (IsoFinal2 x y) = P-linv x y
-
 PathIdTrunc : {a b : A} (n : ℕ₋₂) → (Path (∥ A ∥ (suc₋₂ n)) ∣ a ∣ ∣ b ∣) ≡ (∥ a ≡ b ∥ n)
 PathIdTrunc n = isoToPath (ΩTrunc.IsoFinal n _ _)
 

@@ -58,7 +58,8 @@ coHomRed+1Equiv zero A i = ∥ helpLemma {C = (Int , pos 0)} i ∥₀
                                      (λ _  → refl))
     where
     map1 : (A → typ C) → ((((A ⊎ Unit) , inr (tt)) →∙ C))
-    map1 f = map1' , refl module helpmap where
+    map1 f = map1' , refl
+      module helpmap where
       map1' : A ⊎ Unit → fst C
       map1' (inl x) = f x
       map1' (inr x) = pt C
@@ -210,16 +211,16 @@ commₕ {n = n} = sElim2 (λ _ _ → isOfHLevelPath 1 (§ _ _))
 ---- Group structure of reduced cohomology groups (in progress - might need K to compute properly first) ---
 
 +ₕ∙ : {A : Pointed ℓ} (n : ℕ) → coHomRed n A → coHomRed n A → coHomRed n A
-+ₕ∙ zero = sElim2 (λ _ _ → §) λ { (a , pa) (b , pb) → ∣ (λ x → a x +ₖ b x) , (λ i → (pa i +ₖ pb i)) ∣₀ } -- ∣ (λ x → a x +ₖ b x) ∣₀
++ₕ∙ zero = sElim2 (λ _ _ → §) λ { (a , pa) (b , pb) → ∣ (λ x → a x +ₖ b x) , (λ i → (pa i +ₖ pb i)) ∣₀ }
 +ₕ∙ (suc n) = sElim2 (λ _ _ → §) λ { (a , pa) (b , pb) → ∣ (λ x → a x +ₖ b x) , (λ i → pa i +ₖ pb i) ∙ lUnitₖ 0ₖ ∣₀ }
 
 -ₕ∙  : {A : Pointed ℓ} (n : ℕ) → coHomRed n A → coHomRed n A
 -ₕ∙ zero = sRec § λ {(a , pt) → ∣ (λ x → -ₖ a x ) , (λ i → -ₖ (pt i)) ∣₀}
 -ₕ∙ (suc zero) = sRec § λ {(a , pt) → ∣ (λ x → -ₖ a x ) , (λ i → -ₖ (pt i)) ∙ (λ i → ΩKn+1→Kn (sym (Kn→ΩKn+10ₖ (suc zero) i))) ∣₀}
 -ₕ∙ (suc (suc n)) = sRec § λ {(a , pt) → ∣ (λ x → -ₖ a x ) , (λ i → -ₖ (pt i)) ∙
-                                                                 (λ i → ΩKn+1→Kn (sym (Kn→ΩKn+10ₖ (suc (suc n)) i))) ∙
-                                                                 (λ i → ΩKn+1→Kn (Kn→ΩKn+10ₖ (suc (suc n)) (~ i))) ∙
-                                                                 Iso.leftInv (Iso2-Kn-ΩKn+1 (suc (suc n))) ∣ north ∣ ∣₀}
+                                                              (λ i → ΩKn+1→Kn (sym (Kn→ΩKn+10ₖ (suc (suc n)) i))) ∙
+                                                              (λ i → ΩKn+1→Kn (Kn→ΩKn+10ₖ (suc (suc n)) (~ i))) ∙
+                                                              Iso.leftInv (Iso2-Kn-ΩKn+1 (suc (suc n))) ∣ north ∣ ∣₀}
 
 0ₕ∙ : {A : Pointed ℓ} (n : ℕ) → coHomRed n A
 0ₕ∙ zero = ∣ (λ _ → 0ₖ) , refl ∣₀
