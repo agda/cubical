@@ -328,7 +328,3 @@ symDistr-filler {A = A} {z = z} p q i j k =
 
 symDistr : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → sym (p ∙ q) ≡ sym q ∙ sym p
 symDistr p q i j = symDistr-filler p q j i i1
-
-
-
-

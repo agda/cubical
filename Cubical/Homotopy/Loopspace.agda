@@ -43,7 +43,7 @@ module _ {ℓ : Level} {A : Type ℓ} {a b c : A} {p q : a ≡ b} {r s : b ≡ c
 
 Eckmann-Hilton : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (α β : typ ((Ω^ (2 + n)) A))
               → α ∙ β ≡ β ∙ α
-Eckmann-Hilton {A = A} n α β i = 
+Eckmann-Hilton {A = A} n α β i =
   comp (λ k → rUnit (snd ((Ω^ (1 + n)) A)) (~ k) ≡ rUnit (snd ((Ω^ (1 + n)) A)) (~ k))
                -- note : rUnit refl := lUnit refl
        (λ k → λ { (i = i0) → (cong (λ x → rUnit x (~ k)) α) ∙ cong (λ x → lUnit x (~ k)) β
@@ -59,5 +59,3 @@ Eckmann-Hilton-π : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p q : ∥ typ ((Ω^ (
                → π-comp (1 + n) p q ≡ π-comp (1 + n) q p
 Eckmann-Hilton-π {A = (A , pt)} n = elim2 (λ x y → isOfHLevelPath 2 setTruncIsSet _ _)
                                            λ p q → cong ∣_∣₀ (Eckmann-Hilton n p q)
-
-

@@ -95,7 +95,7 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (n :
      → hasSection (λ(s : (b : B) → P b .fst) → s ∘ f))
      → B → Type _
     P n s b = hLevelTrunc n (fiber f b)
-    
+
     c : (n : ℕ) → ((P : B → HLevel (ℓ-max ℓ ℓ') n)
      → hasSection (λ(s : (b : B) → P b .fst) → s ∘ f)) → (b : B)
      → hLevelTrunc n (fiber f b)
