@@ -45,11 +45,10 @@ Eckmann-Hilton : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (α β : typ ((Ω^ (2 + n
               → α ∙ β ≡ β ∙ α
 Eckmann-Hilton {A = A} n α β i = 
   comp (λ k → rUnit (snd ((Ω^ (1 + n)) A)) (~ k) ≡ rUnit (snd ((Ω^ (1 + n)) A)) (~ k))
+               -- note : rUnit refl := lUnit refl
        (λ k → λ { (i = i0) → (cong (λ x → rUnit x (~ k)) α) ∙ cong (λ x → lUnit x (~ k)) β
                 ;  (i = i1) → (cong (λ x → lUnit x (~ k)) β) ∙ cong (λ x → rUnit x (~ k)) α})
        (generalEH α β i)
-
-
 
 {- Homotopy group version -}
 π-comp : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → ∥ typ ((Ω^ (suc n)) A) ∥₀
