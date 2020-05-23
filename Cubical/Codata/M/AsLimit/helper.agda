@@ -112,4 +112,3 @@ iso→inv-Injection-Path-x :
   → ((inv isom) x ≡ (inv isom) y) ≡ (x ≡ y)
 iso→inv-Injection-Path-x isom =
   isoToPath (iso→inv-Injection-Iso-x isom)
-

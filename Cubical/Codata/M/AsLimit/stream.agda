@@ -77,30 +77,21 @@ private
     PathP (λ i → πₙ (stream-S A) (tail-eq-x b (suc n) i) ≡ tail-eq-x b n i) (snd (tl (Stream-to-stream b)) n) (transport (λ i → πₙ (stream-S A) (tail-eq-x b (suc n) i) ≡ tail-eq-x b n i) (snd (tl (Stream-to-stream b)) n))
   fgsa {A} b n = transport-filler (λ i → πₙ (stream-S A) (tail-eq-x b (suc n) i) ≡ tail-eq-x b n i) (snd (tl (Stream-to-stream b)) n)
 
-  tail-eq-π :
+  postulate
+    tail-eq-π :
       ∀ {A : Type₀} → (b : Stream A) → (n : ℕ) →
       PathP (λ i → πₙ (stream-S A) (tail-eq-x b (suc n) i) ≡ tail-eq-x b n i)
         (snd (tl (Stream-to-stream b)) n) -- transport ? refl
         (Stream-to-stream-func-π n (tail b)) -- = refl
-  tail-eq-π {A} b 0 = toPathP refl
-  tail-eq-π {A} b (suc n) i =
-    compPathP-filler
-      {x = transport (λ i → πₙ (stream-S A) (tail-eq-x b (suc n) i) ≡ tail-eq-x b n i) (snd (tl (Stream-to-stream b)) n)}
-      {y = (snd (tl (Stream-to-stream b)) n)}
-      {B = (λ i → πₙ (stream-S A) (tail-eq-x b (suc n) i) ≡ tail-eq-x b n i)}
-      {z = Stream-to-stream-func-π n (tail b)}
-      (symP (fgsa b n)) {!!} i {!!}
-    
-  
-  -- tail-eq-π {A} b 2 = toPathP
-  --   (transport (λ i → πₙ (stream-S A) (tail-eq-x b 3 i) ≡ tail-eq-x b 2 i) (snd (tl (Stream-to-stream b)) 2)
-  --     ≡⟨ {!!} ⟩ -- sym (transport-filler (λ i → Wₙ (stream-S A) n) (Stream-to-stream-func-x n (tail b)))
-  --   {!!} -- PathP (λ i → p i) (transport (λ i → πₙ (stream-S A) (tail-eq-x b 3 i) ≡ tail-eq-x b 2 i) refl) refl
-  --     ≡⟨ {!!} ⟩
-  --   refl {x = head (tail b) , λ _ → head (tail (tail b)) , λ _ → lift tt}
-  --     ≡⟨ refl ⟩
-  --   Stream-to-stream-func-π 2 (tail b) ∎)
-        
+  -- tail-eq-π {A} b 0 = toPathP refl
+  -- tail-eq-π {A} b (suc n) i =
+  --   compPathP-filler
+  --     {x = transport (λ i → πₙ (stream-S A) (tail-eq-x b (suc n) i) ≡ tail-eq-x b n i) (snd (tl (Stream-to-stream b)) n)}
+  --     {y = (snd (tl (Stream-to-stream b)) n)}
+  --     {B = (λ i → πₙ (stream-S A) (tail-eq-x b (suc n) i) ≡ tail-eq-x b n i)}
+  --     {z = Stream-to-stream-func-π n (tail b)}
+  --     (symP (fgsa b n)) {!!} i {!!}
+
 tl-to-tail :
   ∀ {A : Type₀} (b : Stream A)
   → tl (Stream-to-stream b) ≡ Stream-to-stream (tail b)
