@@ -60,3 +60,5 @@ FinVec≃Vec n = isoToEquiv (FinVecIsoVec n)
 FinVec≡Vec : (n : ℕ) → FinVec A n ≡ Vec A n
 FinVec≡Vec n = ua (FinVec≃Vec n)
 
+isContrVec0 : isContr (Vec A 0)
+isContrVec0 = [] , λ { [] → refl }
