@@ -114,13 +114,25 @@ isOfHLevelTrunc (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilledTrunc
 
 -- hLevelTrunc n is a modality
 
-rec : {n : ℕ}
+-- This more direct definition should behave better than recElim
+-- below. Commented for now as it breaks some cohomology code if we
+-- use it instead of recElim.
+-- rec : {n : ℕ}
+--       {B : Type ℓ'} →
+--       isOfHLevel n B →
+--       (A → B) →
+--       hLevelTrunc n A →
+--       B
+-- rec h = Null.rec (isOfHLevel→isSnNull h)
+
+-- TODO: remove this
+recElim : {n : ℕ}
       {B : Type ℓ'} →
       isOfHLevel n B →
       (A → B) →
       hLevelTrunc n A →
       B
-rec h = Null.rec (isOfHLevel→isSnNull h)
+recElim {B = B} h = Null.elim {B = λ _ → B} λ x → isOfHLevel→isSnNull h
 
 elim : {n : ℕ}
        {B : hLevelTrunc n A → Type ℓ'}
@@ -129,6 +141,7 @@ elim : {n : ℕ}
        (x : hLevelTrunc n A) →
        B x
 elim hB = Null.elim (λ x → isOfHLevel→isSnNull (hB x))
+
 
 elim2 : {n : ℕ}
   {B : hLevelTrunc n A → hLevelTrunc n A → Type ℓ'}
@@ -179,11 +192,11 @@ Iso.leftInv (univTrunc n {B , lev}) b = funExt (elim (λ x → isOfHLevelPath _ 
 
 map : {n : ℕ} {B : Type ℓ'} (g : A → B)
   → hLevelTrunc n A → hLevelTrunc n B
-map g = rec (isOfHLevelTrunc _) (λ a → ∣ g a ∣)
+map g = recElim (isOfHLevelTrunc _) (λ a → ∣ g a ∣)
 
 mapCompIso : {n : ℕ} {B : Type ℓ'} → (Iso A B) → Iso (hLevelTrunc n A) (hLevelTrunc n B)
-Iso.fun (mapCompIso g) = rec (isOfHLevelTrunc _) λ a → ∣ Iso.fun g a ∣
-Iso.inv (mapCompIso g) = rec (isOfHLevelTrunc _) λ b → ∣ Iso.inv g b ∣
+Iso.fun (mapCompIso g) = recElim (isOfHLevelTrunc _) λ a → ∣ Iso.fun g a ∣
+Iso.inv (mapCompIso g) = recElim (isOfHLevelTrunc _) λ b → ∣ Iso.inv g b ∣
 Iso.rightInv (mapCompIso g) = elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _) λ b → cong ∣_∣ (Iso.rightInv g b)
 Iso.leftInv (mapCompIso g) = elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _) λ a → cong ∣_∣ (Iso.leftInv g a)
 
@@ -271,10 +284,10 @@ module ΩTrunc where
       decode* : ∀ {n : ℕ₋₂} (u v : B)
               → P {n = n} ∣ u ∣ ∣ v ∣ → Path (∥ B ∥ (suc₋₂ n)) ∣ u ∣ ∣ v ∣
       decode* {B = B} {n = neg2} u v =
-        rec ( isOfHLevelTrunc 1 ∣ u ∣ ∣ v ∣
+        recElim ( isOfHLevelTrunc 1 ∣ u ∣ ∣ v ∣
             , λ _ → isOfHLevelSuc 1 (isOfHLevelTrunc 1) _ _ _ _) (cong ∣_∣)
       decode* {n = ℕ₋₂.-1+ n} u v =
-        rec (isOfHLevelTrunc (suc (suc n)) ∣ u ∣ ∣ v ∣) (cong ∣_∣)
+        recElim (isOfHLevelTrunc (suc (suc n)) ∣ u ∣ ∣ v ∣) (cong ∣_∣)
 
   {- auxiliary function r used to define encode -}
   r : {m : ℕ₋₂} (u : ∥ B ∥ (suc₋₂ m)) → P u u
