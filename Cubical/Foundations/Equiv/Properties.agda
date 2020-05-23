@@ -64,6 +64,12 @@ hasSection {A = A} {B} f = Σ[ g ∈ (B → A) ] section f g
 hasRetract : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → Type _
 hasRetract {A = A} {B} f = Σ[ g ∈ (B → A) ] retract f g
 
+isEquiv-hasSection : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B)
+                    → isEquiv f
+                    → hasSection f
+isEquiv-hasSection f isEq = (λ b → equiv-proof isEq b .fst .fst) ,
+                            λ b → equiv-proof isEq b .fst .snd
+
 isContr-hasSection : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B) → isContr (hasSection (fst e))
 fst (isContr-hasSection e) = invEq e , retEq e
 snd (isContr-hasSection e) (f , ε) i = (λ b → fst (p b i)) , (λ b → snd (p b i))
