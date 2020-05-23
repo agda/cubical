@@ -12,6 +12,9 @@ file.
 If you want to use Agda 2.6.0.1 instead of the latest development version, you
 can check out the tag `v0.1` of this library.
 
+If you want to use Agda 2.6.1 instead of the latest development version, you
+can check out the tag `v0.2` of this library.
+
 The type theory that Cubical Agda implements is a variation of the
 cubical type theory of:
 

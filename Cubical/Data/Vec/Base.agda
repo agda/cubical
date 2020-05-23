@@ -6,6 +6,7 @@ module Cubical.Data.Vec.Base where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat
+open import Cubical.Data.FinData
 
 private
   variable
@@ -47,3 +48,7 @@ _++_ : ∀ {m n} → Vec A m → Vec A n → Vec A (m + n)
 concat : ∀ {m n} → Vec (Vec A m) n → Vec A (n * m)
 concat []         = []
 concat (xs ∷ xss) = xs ++ concat xss
+
+lookup : ∀ {n} {A : Type ℓ} → Fin n → Vec A n → A
+lookup zero    (x ∷ xs) = x
+lookup (suc i) (x ∷ xs) = lookup i xs

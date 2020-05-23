@@ -31,6 +31,8 @@ module _ {A : Type ℓ} {B : A → Type ℓ₁} {f g : (x : A) → B x} where
   funExtPath : (∀ x → f x ≡ g x) ≡ (f ≡ g)
   funExtPath = ua funExtEquiv
 
+  funExtIso : Iso (∀ x → f x ≡ g x) (f ≡ g)
+  funExtIso = iso funExt funExt⁻ (λ x → refl {x = x}) (λ x → refl {x = x})
 
 -- Function extensionality for binary functions
 funExt₂ : {A : Type ℓ} {B : A → Type ℓ₁} {C : (x : A) → B x → Type ℓ₂}
