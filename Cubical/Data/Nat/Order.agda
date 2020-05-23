@@ -70,6 +70,10 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
 ≤-suc : m ≤ n → m ≤ suc n
 ≤-suc (k , p) = suc k , cong suc p
 
+≤-predℕ : predℕ n ≤ n
+≤-predℕ {zero} = ≤-refl
+≤-predℕ {suc n} = ≤-suc ≤-refl
+
 ≤-trans : k ≤ m → m ≤ n → k ≤ n
 ≤-trans {k} {m} {n} (i , p) (j , q) = i + j , l2 ∙ (l1 ∙ q)
   where
@@ -108,6 +112,16 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
 
 ¬m<m : ¬ m < m
 ¬m<m {m} = ¬-<-zero ∘ ≤-+k-cancel {k = m}
+
+≤0→≡0 : n ≤ 0 → n ≡ 0
+≤0→≡0 {zero} ineq = refl
+≤0→≡0 {suc n} ineq = ⊥.rec (¬-<-zero ineq)
+
+predℕ-≤-predℕ : m ≤ n → (predℕ m) ≤ (predℕ n)
+predℕ-≤-predℕ {zero} {zero}   ineq = ≤-refl
+predℕ-≤-predℕ {zero} {suc n}  ineq = zero-≤
+predℕ-≤-predℕ {suc m} {zero}  ineq = ⊥.rec (¬-<-zero ineq)
+predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 
 ¬m+n<m : ¬ m + n < m
 ¬m+n<m {m} {n} = ¬-<-zero ∘ <-k+-cancel ∘ subst (m + n <_) (sym (+-zero m))

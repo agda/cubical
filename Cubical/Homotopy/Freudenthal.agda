@@ -42,23 +42,23 @@ module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc 
     fwd : (p : north ≡ north) (a : typ A)
       → hLevelTrunc 2n+2 (fiber σ p)
       → hLevelTrunc 2n+2 (fiber (λ x → merid x ∙ merid a ⁻¹) p)
-    fwd p a = Trunc.rec (isOfHLevelTrunc 2n+2) (uncurry (WC.extension p a))
+    fwd p a = Trunc.recElim (isOfHLevelTrunc 2n+2) (uncurry (WC.extension p a))
 
     isEquivFwd : (p : north ≡ north) (a : typ A) → isEquiv (fwd p a)
     isEquivFwd p a .equiv-proof =
-      isEquivPrecomposeConnected (suc n)
+      elim.isEquivPrecompose (λ _ → pt A) (suc n)
         (λ a →
           ( (∀ t → isContr (fiber (fwd p a) t))
           , isProp→isOfHLevelSuc n (isPropΠ λ _ → isPropIsContr)
           ))
-        (λ _ → pt A)
+
         (isHLevelConnectedPoint (suc n) connA (pt A))
         .equiv-proof
         (λ _ → Trunc.elim
           (λ _ → isProp→isOfHLevelSuc (n + suc n) isPropIsContr)
           (λ fib →
             subst (λ k → isContr (fiber k ∣ fib ∣))
-              (cong (Trunc.rec (isOfHLevelTrunc 2n+2) ∘ uncurry)
+              (cong (Trunc.recElim (isOfHLevelTrunc 2n+2) ∘ uncurry)
                 (funExt (WC.right p) ⁻¹))
               (subst isEquiv
                 (funExt (Trunc.mapId) ⁻¹)
@@ -111,3 +111,17 @@ module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc 
   isConnectedσ : isHLevelConnectedFun 2n+2 σ
   isConnectedσ =
     transport (λ i → isHLevelConnectedFun 2n+2 (interpolate (pt A) (~ i))) isConnectedMerid
+
+
+FreudenthalEquiv : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
+                → isHLevelConnected (2 + n) (typ A)
+                → hLevelTrunc ((suc n) + (suc n)) (typ A)
+                 ≃ hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north)))
+FreudenthalEquiv n A iscon = connectedTruncEquiv _
+                                                 (σ n {A = A} iscon)
+                                                 (isConnectedσ _ iscon)
+FreudenthalIso : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
+                → isHLevelConnected (2 + n) (typ A)
+                → Iso (hLevelTrunc ((suc n) + (suc n)) (typ A))
+                       (hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north))))
+FreudenthalIso n A iscon = connectedTruncIso _ (σ n {A = A} iscon) (isConnectedσ _ iscon)

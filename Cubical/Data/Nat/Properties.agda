@@ -36,6 +36,12 @@ discreteℕ (suc m) (suc n) with discreteℕ m n
 isSetℕ : isSet ℕ
 isSetℕ = Discrete→isSet discreteℕ
 
+-- Arithmetic facts about predℕ
+
+suc-predℕ : ∀ n → ¬ n ≡ 0 → n ≡ suc (predℕ n)
+suc-predℕ zero p = ⊥.rec (p refl)
+suc-predℕ (suc n) p = refl
+
 -- Arithmetic facts about +
 
 +-zero : ∀ m → m + 0 ≡ m
