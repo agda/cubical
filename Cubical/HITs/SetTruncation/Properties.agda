@@ -16,6 +16,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
+open import Cubical.Data.Sigma
 
 private
   variable
@@ -74,3 +75,20 @@ setTruncIdempotent≃ {A = A} hA = isoToEquiv f
 
 setTruncIdempotent : isSet A → ∥ A ∥₀ ≡ A
 setTruncIdempotent hA = ua (setTruncIdempotent≃ hA)
+
+
+setSigmaIso : ∀ {ℓ} {B : A → Type ℓ} → Iso ∥ Σ A B ∥₀ ∥ Σ A (λ x → ∥ B x ∥₀) ∥₀
+setSigmaIso {A = A} {B = B} = iso fun funinv sect retr
+  where
+  {- writing it out explicitly to avoid yellow highlighting -}
+  fun : ∥ Σ A B ∥₀ → ∥ Σ A (λ x → ∥ B x ∥₀) ∥₀
+  fun = rec setTruncIsSet λ {(a , p) → ∣ a , ∣ p ∣₀ ∣₀}
+  funinv : ∥ Σ A (λ x → ∥ B x ∥₀) ∥₀ → ∥ Σ A B ∥₀
+  funinv = rec setTruncIsSet (λ {(a , p) → rec setTruncIsSet (λ p → ∣ a , p ∣₀) p})
+  sect : section fun funinv
+  sect = elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+              λ { (a , p) → elim {B = λ p → fun (funinv ∣ a , p ∣₀) ≡ ∣ a , p ∣₀}
+              (λ p → isOfHLevelPath 2 setTruncIsSet _ _) (λ _ → refl) p }
+  retr : retract fun funinv
+  retr = elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+              λ { _ → refl }
