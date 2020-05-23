@@ -16,6 +16,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.Base
 
+open import Cubical.Foundations.Function
+
 private
   variable
     ℓ : Level
@@ -36,6 +38,9 @@ record Iso {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ ℓ') w
     inv : B → A
     rightInv : section fun inv
     leftInv : retract fun inv
+
+isIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → Type _
+isIso {A = A} {B = B} f = Σ[ g ∈ (B → A) ] Σ[ _ ∈ section f g ] retract f g
 
 -- Any iso is an equivalence
 module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (i : Iso A B) where
@@ -106,6 +111,14 @@ compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁
 compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) .Iso.leftInv a
   = cong inv (leftInv₁ (fun a) ) ∙ leftInv a
 
+composesToId→Iso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}  (G : Iso A B) (g : B → A)
+                 → (Iso.fun G) ∘ g ≡ idfun B → Iso B A
+Iso.fun (composesToId→Iso (iso fun inv rightInv leftInv) g path) = g
+Iso.inv (composesToId→Iso (iso fun inv rightInv leftInv) g path) = fun
+Iso.rightInv (composesToId→Iso (iso fun inv rightInv leftInv) g path) b =
+  (sym (leftInv (g (fun b))) ∙ cong (λ x → inv x) (cong (λ f → f (fun b)) path)) ∙ leftInv b
+Iso.leftInv (composesToId→Iso (iso fun inv rightInv leftInv) g path) b = cong (λ f → f b) path
+
 idIso : ∀ {ℓ} {X : Type ℓ} → Iso X X
 Iso.fun (idIso {X = X}) = idfun X
 Iso.inv (idIso {X = X}) = idfun X
@@ -127,4 +140,3 @@ Iso.fun (invIso isom) = Iso.inv isom
 Iso.inv (invIso isom) = Iso.fun isom
 Iso.rightInv (invIso isom) = Iso.leftInv isom
 Iso.leftInv (invIso isom) = Iso.rightInv isom
-
