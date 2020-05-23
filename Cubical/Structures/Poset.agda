@@ -29,13 +29,13 @@ isSetOrder ℓ₁ A = isSetΠ2 λ _ _ → isSetHProp
 -- We first start by defining what it means a for a function to be
 -- order-preserving. The name "monotonic" is reserved for partial orders.
 
-isOrderPreserving : (M : Σ (Type ℓ₀) (Order ℓ₁)) (N : Σ (Type ℓ₀′) (Order ℓ₁′))
+isOrderPreserving : (M : TypeWithStr ℓ₀ (Order ℓ₁)) (N : TypeWithStr ℓ₀′ (Order ℓ₁′))
                   → (fst M → fst N) → Type _
 isOrderPreserving (A , _⊑₀_) (B , _⊑₁_) f =
   (x y : A) → [ x ⊑₀ y ] → [ f x ⊑₁ f y ]
 
-isPropIsOrderPreserving : (M : Σ(Type ℓ₀)  (Order ℓ₁))
-                          (N : Σ (Type ℓ₀′) (Order ℓ₁′))
+isPropIsOrderPreserving : (M : TypeWithStr ℓ₀  (Order ℓ₁))
+                          (N : TypeWithStr ℓ₀′ (Order ℓ₁′))
                         → (f : fst M → fst N)
                         → isProp (isOrderPreserving M N f)
 isPropIsOrderPreserving M (_ , _⊑₁_) f = isPropΠ3 λ x y p → snd (f x ⊑₁ f y)
@@ -44,8 +44,8 @@ isPropIsOrderPreserving M (_ , _⊑₁_) f = isPropΠ3 λ x y p → snd (f x ⊑
 -- nothing but the property that both directions of the equivalence are
 -- order-preserving.
 
-isAnOrderPreservingEqv : (M : Σ (Type ℓ₀) (Order ℓ₁))
-                         (N : Σ (Type ℓ₀′) (Order ℓ₁′))
+isAnOrderPreservingEqv : (M : TypeWithStr ℓ₀  (Order ℓ₁))
+                         (N : TypeWithStr ℓ₀′ (Order ℓ₁′))
                        → fst M ≃ fst N → Type _
 isAnOrderPreservingEqv M N e@(f , _) =
   isOrderPreserving M N f × isOrderPreserving N M g
