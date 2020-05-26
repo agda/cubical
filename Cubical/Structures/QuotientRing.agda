@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe #-}
 
-module Cubical.Structures.QuotientRing where 
+module Cubical.Structures.QuotientRing where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -18,12 +18,12 @@ private
     ℓ″ : Level
 
 module _ (R′ : Ring {ℓ}) (I : ⟨ R′ ⟩  → hProp ℓ) (I-isIdeal : isIdeal R′ I) where
-  private 
+  private
     open ring-·syntax R′
     open isIdeal I-isIdeal
     open ringAxioms R′
     open calculations R′
-    R = ⟨ R′ ⟩ 
+    R = ⟨ R′ ⟩
 
   R/I : Type ℓ
   R/I = R / (λ x y → x - y ∈ I)
@@ -85,12 +85,12 @@ module _ (R′ : Ring {ℓ}) (I : ⟨ R′ ⟩  → hProp ℓ) (I-isIdeal : isId
       where calculate : x - y ≡ (x + a) - (y + a)
             calculate =
                       x - y                 ≡⟨ translatedDifference a x y ⟩
-                      ((a + x) - (a + y))   ≡⟨ cong (λ u → u - (a + y)) (ring+-comm _ _) ⟩ 
-                      ((x + a) - (a + y))   ≡⟨ cong (λ u → (x + a) - u) (ring+-comm _ _) ⟩ 
+                      ((a + x) - (a + y))   ≡⟨ cong (λ u → u - (a + y)) (ring+-comm _ _) ⟩
+                      ((x + a) - (a + y))   ≡⟨ cong (λ u → (x + a) - u) (ring+-comm _ _) ⟩
                       ((x + a) - (y + a))   ∎
 
 
-    homogenity' : (x y : R) → (x - y ∈ I) 
+    homogenity' : (x y : R) → (x - y ∈ I)
                   → translate x ≡ translate y
     homogenity' x y x-y∈I i r = pointwise-equal r i
       where
@@ -107,7 +107,7 @@ module _ (R′ : Ring {ℓ}) (I : ⟨ R′ ⟩  → hProp ℓ) (I-isIdeal : isId
     +/I-comm : (x y : R/I) → x +/I y ≡ y +/I x
     +/I-comm = elimProp (λ x → isOfHLevelΠ 1 λ y → squash/ (x +/I y) (y +/I x))
                                       (λ x' → elimProp (λ _ → squash/ _ _)
-                                                       λ y' → eq x' y') 
+                                                       λ y' → eq x' y')
 
        where eq : (x y : R) → [ x ] +/I [ y ] ≡ [ y ] +/I [ x ]
              eq x y i =  [ ring+-comm x y i ]
@@ -168,7 +168,7 @@ module _ (R′ : Ring {ℓ}) (I : ⟨ R′ ⟩  → hProp ℓ) (I-isIdeal : isId
         left· x = elim (λ y → squash/)
                      (λ y → [ x · y ])
                      (eq x)
-        eq' : (x x' : R) → (x - x' ∈ I) → left· x ≡ left· x' 
+        eq' : (x x' : R) → (x - x' ∈ I) → left· x ≡ left· x'
         eq' x x' x-x'∈I i y = elimProp (λ y → squash/ (left· x y) (left· x' y))
                                        (λ y → eq′ y)
                                        y i
@@ -190,7 +190,7 @@ module _ (R′ : Ring {ℓ}) (I : ⟨ R′ ⟩  → hProp ℓ) (I-isIdeal : isId
                                      (λ y → isOfHLevelΠ 1 λ z → squash/ _ _)
                                      λ y' → elimProp (λ z → squash/ _ _)
                                                      (λ z' → eq x' y' z'))
-                                                     
+
       where eq : (x y z : R) → [ x ] ·/I ([ y ] ·/I [ z ]) ≡ ([ x ] ·/I [ y ]) ·/I [ z ]
             eq x y z i =  [ ring·-assoc x y z i ]
 
@@ -243,4 +243,3 @@ module _ (R′ : Ring {ℓ}) (I : ⟨ R′ ⟩  → hProp ℓ) (I-isIdeal : isId
               ; ldist = /I-ldist
               ; rdist = /I-rdist
               })
-

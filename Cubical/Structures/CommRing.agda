@@ -54,6 +54,7 @@ CommRing→Ring (R , str , isRing , ·comm) = R , str , isRing
 ⟨ R , _ ⟩ = R
 
 module _ (R : CommRing {ℓ}) where
+  open ringAxioms
 
   commring+-operation = ring+-operation (CommRing→Ring R)
 

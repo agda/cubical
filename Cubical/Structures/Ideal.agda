@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe #-}
 
-module Cubical.Structures.Ideal where 
+module Cubical.Structures.Ideal where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -13,7 +13,7 @@ private
     ℓ : Level
     ℓ′ : Level
     ℓ″ : Level
-    
+
 _holds : ∀ {ℓ} → hProp ℓ → Type ℓ
 (P , _) holds = P
 
@@ -22,8 +22,8 @@ _∈_ : {X : Type ℓ′ } → (x : X) → (P : X → hProp ℓ″) → Type _
 x ∈ P = P(x) holds
 
 module _ (R′ : Ring {ℓ}) where
-  private 
-    R = ⟨ R′ ⟩ 
+  private
+    R = ⟨ R′ ⟩
 
 
   open ring-·syntax R′
