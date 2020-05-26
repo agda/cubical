@@ -69,7 +69,7 @@ Ring→Monoid (R , (_ , ₁ , _·_) , _ , ·Monoid , _) = R , (₁ , _·_) , ·M
 ⟨_⟩ : Ring {ℓ} → Type ℓ
 ⟨ R , _ ⟩ = R
 
-module _ (R : Ring {ℓ}) where
+module ringAxioms (R : Ring {ℓ}) where
   ring+-operation = abgroup-operation (Ring→AbGroup R)
 
   ring-is-set = abgroup-is-set (Ring→AbGroup R)
@@ -101,6 +101,7 @@ module _ (R : Ring {ℓ}) where
   ring·-lid = monoid-lid (Ring→Monoid R)
 
 module ring-syntax where
+  open ringAxioms
 
   ring+-operation-syntax : (R : Ring {ℓ}) → ⟨ R ⟩ → ⟨ R ⟩ → ⟨ R ⟩
   ring+-operation-syntax R = ring+-operation R
@@ -125,8 +126,10 @@ ring-ldist (_ , _ , _ , _ , _ , P) = P
 -- Ring ·syntax
 
 module ring-·syntax (R : Ring {ℓ}) where
-
+  open ringAxioms
+  
   infixr 14 _+_
+  infixr 14 _-_
   infixr 18 _·_
   infix  15 -_
 
@@ -140,3 +143,124 @@ module ring-·syntax (R : Ring {ℓ}) where
 
   -_ = ring+-inv R
 
+  _-_ : ⟨ R ⟩ → ⟨ R ⟩ → ⟨ R ⟩
+  x - y = x + - y
+
+
+record ringStructure {ℓ} (R : Type ℓ) : Type ℓ where
+  field
+    ₀ : R
+    ₁ : R
+    _+_ : R → R → R
+    -_ : R → R
+    _·_ : R → R → R
+
+    +-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z
+    +-rid : (x : R) → x + ₀ ≡ x
+    +-comm : (x y : R) → x + y ≡ y + x
+    +-rinv : (x : R) → x + (- x) ≡ ₀
+
+    ·-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z
+    ·-lid : (x : R) → ₁ · x ≡ x
+    ·-rid : (x : R) → x · ₁ ≡ x
+
+    ldist : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
+    rdist : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
+
+  +-lid : (x : R) → ₀ + x ≡ x
+  +-lid x =         ₀ + x     ≡⟨ +-comm _ _ ⟩
+                    x + ₀     ≡⟨ +-rid x ⟩
+                    x         ∎
+  
+  +-linv : (x : R) → (- x) + x ≡ ₀
+  +-linv x =         (- x) + x    ≡⟨ +-comm _ _ ⟩
+                     x + (- x)    ≡⟨ +-rinv x ⟩
+                     ₀            ∎
+
+createRing : (R : Type ℓ)
+             → isSet R
+             → ringStructure R
+             → Ring {ℓ}
+createRing R isSet-R ringStr =
+           let open ringStructure ringStr 
+           in R , (_+_ , ₁ , _·_) ,
+              (((isSet-R , +-assoc)
+                , ₀
+                , ((λ x → +-rid x , +-lid x) 
+                  , λ x → (- x) , ((+-rinv x) , (+-linv x))))
+                , +-comm)
+              , (isSet-R
+                , (·-assoc
+                  , (·-rid
+                    , ·-lid)))
+              , rdist
+                , ldist             
+
+
+{- 
+  some basic calculations (used for example in QuotientRing.agda),
+  that might should become obsolete or subject to change once we 
+  have a ring solver (see https://github.com/agda/cubical/issues/297)
+-}
+module calculations (R : Ring {ℓ}) where
+  open ringAxioms R
+  open ring-·syntax R
+
+  implicitInverse : (x y : ⟨ R ⟩)
+                 → x + y ≡ ₀
+                 → y ≡ - x
+  implicitInverse x y p = y             ≡⟨ sym (ring+-lid y) ⟩
+                       ₀ + y            ≡⟨ cong (λ u → u + y)
+                                               (sym (ring+-linv x)) ⟩
+                       (- x + x) + y   ≡⟨ sym (ring+-assoc _ _ _) ⟩
+                       (- x) + (x + y) ≡⟨ cong (λ u → (- x) + u) p ⟩
+                       (- x) + ₀       ≡⟨ ring+-rid _ ⟩
+                       - x             ∎ 
+
+  0-selfinverse : - ₀ ≡ ₀
+  0-selfinverse = sym (implicitInverse _ _ (ring+-rid ₀))
+
+  0-idempotent : ₀ + ₀ ≡ ₀
+  0-idempotent = ring+-lid ₀
+
+  +-idempotency→0 : (x : ⟨ R ⟩) → x ≡ x + x → ₀ ≡ x
+  +-idempotency→0 x p = ₀               ≡⟨ sym (ring+-rinv _) ⟩
+                        x + (- x)       ≡⟨ cong (λ u → u + (- x)) p ⟩
+                        (x + x) + (- x)   ≡⟨ sym (ring+-assoc _ _ _) ⟩
+                        x + (x + (- x)) ≡⟨ cong (λ u → x + u) (ring+-rinv _) ⟩
+                        x + ₀           ≡⟨ ring+-rid x ⟩
+                        x               ∎
+  
+  0-rightNullifies : (x : ⟨ R ⟩) → ₀ ≡ x · ₀
+  0-rightNullifies x =
+              let x·0-is-idempotent : x · ₀ ≡ x · ₀ + x · ₀
+                  x·0-is-idempotent =
+                    x · ₀              ≡⟨ cong (λ u → x · u) (sym 0-idempotent) ⟩
+                    x · (₀ + ₀)        ≡⟨ (ring-rdist R _ _ _) ⟩ 
+                    (x · ₀) + (x · ₀)  ∎
+              in +-idempotency→0 _ x·0-is-idempotent
+              
+  0-leftNullifies : (x : ⟨ R ⟩) → ₀ ≡ ₀ · x
+  0-leftNullifies x =
+              let 0·x-is-idempotent : ₀ · x ≡ ₀ · x + ₀ · x
+                  0·x-is-idempotent =
+                    ₀ · x              ≡⟨ cong (λ u → u · x) (sym 0-idempotent) ⟩
+                    (₀ + ₀) · x        ≡⟨ (ring-ldist R _ _ _) ⟩ 
+                    (₀ · x) + (₀ · x)  ∎
+              in +-idempotency→0 _ 0·x-is-idempotent
+              
+  -commutesWithRight-· : (x y : ⟨ R ⟩) →  x · (- y) ≡ - (x · y)
+  -commutesWithRight-· x y = implicitInverse (x · y) (x · (- y))
+  
+                                        (x · y + x · (- y)     ≡⟨ sym (ring-rdist R _ _ _) ⟩
+                                        x · (y + (- y))        ≡⟨ cong (λ u → x · u) (ring+-rinv y) ⟩
+                                        x · ₀                  ≡⟨ sym (0-rightNullifies x) ⟩
+                                        ₀ ∎) 
+
+  -commutesWithLeft-· : (x y : ⟨ R ⟩) →  (- x) · y ≡ - (x · y)
+  -commutesWithLeft-· x y = implicitInverse (x · y) ((- x) · y)
+  
+                                        (x · y + (- x) · y     ≡⟨ sym (ring-ldist R _ _ _) ⟩
+                                        (x - x) · y            ≡⟨ cong (λ u → u · y) (ring+-rinv x) ⟩
+                                        ₀ · y                  ≡⟨ sym (0-leftNullifies y) ⟩
+                                        ₀ ∎) 
