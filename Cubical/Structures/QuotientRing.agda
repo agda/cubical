@@ -71,7 +71,8 @@ module _ (R′ : Ring {ℓ}) (I : ⟨ R′ ⟩  → hProp ℓ) (I-isIdeal : isId
     translate x = elim
                     (λ r → squash/)
                     (λ y → [ x + y ])
-                    λ y y' diffrenceInIdeal → eq/ (x + y) (x + y') (homogenity x y y' diffrenceInIdeal)
+                    λ y y' diffrenceInIdeal
+                      → eq/ (x + y) (x + y') (homogenity x y y' diffrenceInIdeal)
 
     isSetR/I : isSet R/I
     isSetR/I = squash/
@@ -159,11 +160,13 @@ module _ (R′ : Ring {ℓ}) (I : ⟨ R′ ⟩  → hProp ℓ) (I-isIdeal : isId
                eq'
       where
         eq : (x y y' : R) → (y - y' ∈ I) → [ x · y ] ≡ [ x · y' ]
-        eq x y y' y-y'∈I = eq/ _ _ (subst (λ u → u ∈ I)
-                                          (x · (y - y')            ≡⟨ ring-rdist R′ _ _ _ ⟩
-                                          ((x · y) + x · (- y'))   ≡⟨ cong (λ u → (x · y) + u) (-commutesWithRight-· x y')  ⟩
-                                          (x · y) - (x · y')       ∎)
-                                          (isIdeal.·-closedLeft I-isIdeal x y-y'∈I))
+        eq x y y' y-y'∈I = eq/ _ _
+                             (subst (λ u → u ∈ I)
+                                  (x · (y - y')            ≡⟨ ring-rdist _ _ _ ⟩
+                                  ((x · y) + x · (- y'))   ≡⟨ cong (λ u → (x · y) + u)
+                                                                   (-commutesWithRight-· x y')  ⟩
+                                  (x · y) - (x · y')       ∎)
+                                  (isIdeal.·-closedLeft I-isIdeal x y-y'∈I))
         left· : (x : R) → R/I → R/I
         left· x = elim (λ y → squash/)
                      (λ y → [ x · y ])
@@ -176,10 +179,12 @@ module _ (R′ : Ring {ℓ}) (I : ⟨ R′ ⟩  → hProp ℓ) (I-isIdeal : isId
                                 eq′ : (y : R) → left· x [ y ] ≡ left· x' [ y ]
                                 eq′ y = eq/ (x · y) (x' · y)
                                             (subst (λ u → u ∈ I)
-                                                   ((x - x') · y         ≡⟨ ring-ldist R′ x (- x') y ⟩
-                                                    x · y + (- x') · y   ≡⟨ cong (λ u → x · y + u) (-commutesWithLeft-· x' y) ⟩
-                                                    x · y - x' · y       ∎)
-                                                   (isIdeal.·-closedRight I-isIdeal y x-x'∈I))
+                                              ((x - x') · y         ≡⟨ ring-ldist x (- x') y ⟩
+                                               x · y + (- x') · y   ≡⟨ cong
+                                                                         (λ u → x · y + u)
+                                                                         (-commutesWithLeft-· x' y) ⟩
+                                               x · y - x' · y       ∎)
+                                              (isIdeal.·-closedRight I-isIdeal y x-x'∈I))
 
 
     -- more or less copy paste from '+/I' - this is preliminary anyway
@@ -214,7 +219,7 @@ module _ (R′ : Ring {ℓ}) (I : ⟨ R′ ⟩  → hProp ℓ) (I-isIdeal : isId
                                                                λ z → eq x y z))
       where
         eq : (x y z : R) → ([ x ] +/I [ y ]) ·/I [ z ] ≡ ([ x ] ·/I [ z ]) +/I ([ y ] ·/I [ z ])
-        eq x y z i = [ ring-ldist R′ x y z i ]
+        eq x y z i = [ ring-ldist x y z i ]
 
     /I-rdist : (x y z : R/I) → x ·/I (y +/I z) ≡ (x ·/I y) +/I (x ·/I z)
     /I-rdist = elimProp (λ x → isOfHLevelΠ 1 λ y → isOfHLevelΠ 1 λ z → squash/ _ _)
@@ -223,7 +228,7 @@ module _ (R′ : Ring {ℓ}) (I : ⟨ R′ ⟩  → hProp ℓ) (I-isIdeal : isId
                                                                λ z → eq x y z))
       where
         eq : (x y z : R) → [ x ] ·/I ([ y ] +/I [ z ]) ≡ ([ x ] ·/I [ y ]) +/I ([ x ] ·/I [ z ])
-        eq x y z i = [ ring-rdist R′ x y z i ]
+        eq x y z i = [ ring-rdist x y z i ]
 
   asRing : Ring {ℓ}
   asRing = createRing R/I isSetR/I

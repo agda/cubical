@@ -77,7 +77,7 @@ Ring→Monoid (R , (_ , ₁ , _·_) , _ , ·Monoid , _) = R , (₁ , _·_) , ·M
 ⟨_⟩ : Ring {ℓ} → Type ℓ
 ⟨ R , _ ⟩ = R
 
-module ringAxioms (R : Ring {ℓ}) where
+module partialRingAxioms (R : Ring {ℓ}) where
   ring+-operation = abgroup-operation (Ring→AbGroup R)
 
   ring-is-set = abgroup-is-set (Ring→AbGroup R)
@@ -108,8 +108,9 @@ module ringAxioms (R : Ring {ℓ}) where
 
   ring·-lid = monoid-lid (Ring→Monoid R)
 
+
 module ring-syntax where
-  open ringAxioms
+  open partialRingAxioms
 
   ring+-operation-syntax : (R : Ring {ℓ}) → ⟨ R ⟩ → ⟨ R ⟩ → ⟨ R ⟩
   ring+-operation-syntax R = ring+-operation R
@@ -123,18 +124,25 @@ module ring-syntax where
   infixr 18 ring·-operation-syntax
   syntax ring·-operation-syntax R x y = x ·⟨ R ⟩ y
 
-open ring-syntax
+module ringAxioms (R : Ring {ℓ}) where
+  open ring-syntax
+  open partialRingAxioms R public
 
-ring-rdist : (R : Ring {ℓ}) (x y z : ⟨ R ⟩) → x ·⟨ R ⟩ (y +⟨ R ⟩ z) ≡ (x ·⟨ R ⟩ y) +⟨ R ⟩ (x ·⟨ R ⟩ z)
-ring-rdist (_ , _ , _ , _ , P , _) = P
+  private
+    ring-rdist′ : (R : Ring {ℓ}) (x y z : ⟨ R ⟩) → x ·⟨ R ⟩ (y +⟨ R ⟩ z) ≡ (x ·⟨ R ⟩ y) +⟨ R ⟩ (x ·⟨ R ⟩ z)
+    ring-rdist′ (_ , _ , _ , _ , P , _) = P
 
-ring-ldist : (R : Ring {ℓ}) (x y z : ⟨ R ⟩) → (x +⟨ R ⟩ y) ·⟨ R ⟩ z ≡ (x ·⟨ R ⟩ z) +⟨ R ⟩ (y ·⟨ R ⟩ z)
-ring-ldist (_ , _ , _ , _ , _ , P) = P
+    ring-ldist′ : (R : Ring {ℓ}) (x y z : ⟨ R ⟩) → (x +⟨ R ⟩ y) ·⟨ R ⟩ z ≡ (x ·⟨ R ⟩ z) +⟨ R ⟩ (y ·⟨ R ⟩ z)
+    ring-ldist′ (_ , _ , _ , _ , _ , P) = P
+
+  ring-rdist = ring-rdist′ R
+  ring-ldist = ring-ldist′ R
+
 
 -- Ring ·syntax
 
 module ring-·syntax (R : Ring {ℓ}) where
-  open ringAxioms
+  open partialRingAxioms
 
   infixr 14 _+_
   infixr 14 _-_
@@ -244,7 +252,7 @@ module calculations (R : Ring {ℓ}) where
               let x·0-is-idempotent : x · ₀ ≡ x · ₀ + x · ₀
                   x·0-is-idempotent =
                     x · ₀              ≡⟨ cong (λ u → x · u) (sym 0-idempotent) ⟩
-                    x · (₀ + ₀)        ≡⟨ (ring-rdist R _ _ _) ⟩
+                    x · (₀ + ₀)        ≡⟨ (ring-rdist _ _ _) ⟩
                     (x · ₀) + (x · ₀)  ∎
               in +-idempotency→0 _ x·0-is-idempotent
 
@@ -253,22 +261,22 @@ module calculations (R : Ring {ℓ}) where
               let 0·x-is-idempotent : ₀ · x ≡ ₀ · x + ₀ · x
                   0·x-is-idempotent =
                     ₀ · x              ≡⟨ cong (λ u → u · x) (sym 0-idempotent) ⟩
-                    (₀ + ₀) · x        ≡⟨ (ring-ldist R _ _ _) ⟩
+                    (₀ + ₀) · x        ≡⟨ (ring-ldist _ _ _) ⟩
                     (₀ · x) + (₀ · x)  ∎
               in +-idempotency→0 _ 0·x-is-idempotent
 
   -commutesWithRight-· : (x y : ⟨ R ⟩) →  x · (- y) ≡ - (x · y)
   -commutesWithRight-· x y = implicitInverse (x · y) (x · (- y))
 
-                                        (x · y + x · (- y)     ≡⟨ sym (ring-rdist R _ _ _) ⟩
-                                        x · (y + (- y))        ≡⟨ cong (λ u → x · u) (ring+-rinv y) ⟩
-                                        x · ₀                  ≡⟨ sym (0-rightNullifies x) ⟩
-                                        ₀ ∎)
+                               (x · y + x · (- y)     ≡⟨ sym (ring-rdist _ _ _) ⟩
+                               x · (y + (- y))        ≡⟨ cong (λ u → x · u) (ring+-rinv y) ⟩
+                               x · ₀                  ≡⟨ sym (0-rightNullifies x) ⟩
+                               ₀ ∎)
 
   -commutesWithLeft-· : (x y : ⟨ R ⟩) →  (- x) · y ≡ - (x · y)
   -commutesWithLeft-· x y = implicitInverse (x · y) ((- x) · y)
 
-                                        (x · y + (- x) · y     ≡⟨ sym (ring-ldist R _ _ _) ⟩
-                                        (x - x) · y            ≡⟨ cong (λ u → u · y) (ring+-rinv x) ⟩
-                                        ₀ · y                  ≡⟨ sym (0-leftNullifies y) ⟩
-                                        ₀ ∎)
+                              (x · y + (- x) · y     ≡⟨ sym (ring-ldist _ _ _) ⟩
+                              (x - x) · y            ≡⟨ cong (λ u → u · y) (ring+-rinv x) ⟩
+                              ₀ · y                  ≡⟨ sym (0-leftNullifies y) ⟩
+                              ₀ ∎)
