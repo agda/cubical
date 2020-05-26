@@ -25,4 +25,4 @@ data Sierp (ℓ : Level) : Type ℓ where
   isSetSierp : isSet (Sierp ℓ)
 
 -- References
--- [0]:  http://cs.ioc.ee/ewscs/2017/studsess/veltri-slides.pdf
+-- [0]: http://cs.ioc.ee/ewscs/2017/studsess/veltri-slides.pdf
