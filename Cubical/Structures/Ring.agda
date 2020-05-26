@@ -131,6 +131,9 @@ module ringAxioms (R : Ring {ℓ}) where
   ring-ldist = ring-ldist′ R
 
 
+ringIsSet : (R : Ring {ℓ}) → isSet (⟨ R ⟩)
+ringIsSet R = abgroupIsSet (Ring→AbGroup R)
+
 -- Ring ·syntax
 
 module ring-·syntax (R : Ring {ℓ}) where

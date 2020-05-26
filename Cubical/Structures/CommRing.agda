@@ -100,6 +100,9 @@ module commring-operation-syntax where
   infixr 18 commring·-operation-syntax
   syntax commring·-operation-syntax G x y = x ·⟨ G ⟩ y
 
+commRingIsSet : (R : CommRing {ℓ}) → isSet (⟨ R ⟩)
+commRingIsSet R = ringIsSet (CommRing→Ring R)
+
 open commring-operation-syntax
 
 commring-comm : (R : CommRing {ℓ}) (x y : ⟨ R ⟩) → x ·⟨ R ⟩ y ≡ y ·⟨ R ⟩ x
