@@ -50,9 +50,9 @@ private
 ϕ pt a = (merid a) ∙ sym (merid pt)
 
   {- To define the map for n=0 we use the λ k → loopᵏ map for S₊ 1. The loop is given by ϕ south north -}
-private
-  loop* : Path (S₊ 1) north north
-  loop* = ϕ north south
+
+loop* : Path (S₊ 1) north north
+loop* = ϕ north south
 
 looper : Int → Path (S₊ 1) north north
 looper (pos zero) = refl

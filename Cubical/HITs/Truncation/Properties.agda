@@ -120,7 +120,7 @@ rec : {n : ℕ}
       (isOfHLevel n B) →
       (g : (a : A) → B) →
       (hLevelTrunc n A → B)
-rec {B = B} h = Null.rec (isOfHLevel→isSnNull h)
+rec {B = B} h = Null.elim (λ _ → isOfHLevel→isSnNull (h)) --Null.rec (isOfHLevel→isSnNull h)
 
 elim : {n : ℕ}
   {B : hLevelTrunc n A → Type ℓ'}
@@ -217,7 +217,7 @@ Iso.leftInv setTruncTrunc0Iso = SetTrunc.elim (λ _ → isOfHLevelPath 2 squash�
 setTrunc≃Trunc0 : ∥ A ∥₀ ≃ ∥ A ∥ 0
 setTrunc≃Trunc0 = isoToEquiv setTruncTrunc0Iso
 
-propTrunc≡Trunc0 : ∥ A ∥₀ ≡ ∥ A ∥ -0
+propTrunc≡Trunc0 : ∥ A ∥₀ ≡ ∥ A ∥ 0
 propTrunc≡Trunc0 = ua setTrunc≃Trunc0
 
 -- 1 --

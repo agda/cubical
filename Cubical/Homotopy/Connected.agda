@@ -35,14 +35,17 @@ isHLevelConnectedFun n f = ∀ b → isHLevelConnected n (fiber f b)
 isHLevelTruncatedFun : ∀ {ℓ ℓ'} (n : ℕ) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
 isHLevelTruncatedFun n f = ∀ b → isOfHLevel n (fiber f b)
 
-isConnectedSubtr : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n m : ℕ) (f : A → B)
+isConnectedSubtr : ∀ {ℓ} {A : Type ℓ} (n m : ℕ)
+                → isHLevelConnected (m + n) A
+                → isHLevelConnected n A
+isConnectedSubtr {A = A} n m iscon =
+  transport (λ i → isContr (ua (truncOfTruncEq {A = A} n m) (~ i)))
+             (∣ iscon .fst ∣ , Trunc.elim (λ _ → isOfHLevelPath n (isOfHLevelTrunc n) _ _) λ a → cong ∣_∣ (iscon .snd a))
+
+isConnectedFunSubtr : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n m : ℕ) (f : A → B)
                 → isHLevelConnectedFun (m + n) f
                 → isHLevelConnectedFun n f
-isConnectedSubtr n m f iscon b =
-  transport (λ i → isContr (ua (truncOfTruncEq {A = fiber f b} n m) (~ i) ))
-            (∣ iscon b .fst ∣ ,
-              Trunc.elim (λ x → isOfHLevelPath n (isOfHLevelTrunc n) _ _)
-                     λ a → cong ∣_∣ (iscon b .snd a))
+isConnectedFunSubtr n m f iscon b = isConnectedSubtr n m (iscon b)
 
 private
   typeToFiber : ∀ {ℓ} (A : Type ℓ)  (b : Unit) → A ≡ fiber (λ (x : A) → b) b
@@ -274,7 +277,7 @@ connectedTruncIso2 : ∀ {ℓ} {A B : Type ℓ} (n m : ℕ) (f : A → B)
                    → isHLevelConnectedFun m f
                    → Iso (hLevelTrunc n A) (hLevelTrunc n B)
 connectedTruncIso2 {A = A} {B = B} n m f (x , pf) con =
-  connectedTruncIso n f (isConnectedSubtr n x f (transport (λ i → isHLevelConnectedFun (pf (~ i)) f) con))
+  connectedTruncIso n f (isConnectedFunSubtr n x f (transport (λ i → isHLevelConnectedFun (pf (~ i)) f) con))
 
 connectedTruncEquiv : ∀ {ℓ} {A B : Type ℓ} (n : ℕ) (f : A → B)
                    → isHLevelConnectedFun n f
@@ -332,395 +335,395 @@ sphereConnected (suc n) =
   Iso.rightInv (fibIso) b = refl
 
 
-private
-  variable
-    ℓ ℓ' ℓ'' : Level
-    A : Type ℓ
-    B : Type ℓ'
-    A' : Pointed ℓ
-    B' : Pointed ℓ'
-    C' : Pointed ℓ''
+-- private
+--   variable
+--     ℓ ℓ' ℓ'' : Level
+--     A : Type ℓ
+--     B : Type ℓ'
+--     A' : Pointed ℓ
+--     B' : Pointed ℓ'
+--     C' : Pointed ℓ''
 
 
 
 
 
-isConnectedSmashIdfun2 : {A B C : Pointed₀}
-                      → (f : A →∙ B) (nf nc : ℕ)
-                      → isHLevelConnectedFun nf (fst f)
-                      → isHLevelConnected (2 + nc) (fst C)
-                      → isHLevelConnectedFun (1 + nc + nf) (Smash-map f (idfun∙ C))
-isConnectedSmashIdfun2 {A = A , ptA} {B = B , ptB} {C = C , ptC} (f , fpt) nf nc conf conC = λ b → {!!} , {!!}
-  where
-  module proof {ℓ : Level} (P : (Smash (B , ptB) (C , ptC)) → HLevel ℓ (1 + nc + nf))
-           (d : (x : Smash (A , ptA) (C , ptC)) → P ((Smash-map (f , fpt) (idfun∙ (C , ptC)) ) x) .fst)
-    where
-    F : (c : C) → _
-    F c = λ(s : (b : B) → P (proj b  c) .fst) → s ∘ f
-
-    step1 : (c : C) → isHLevelTruncatedFun (1 + nc) (F c)
-    step1 c = isOfHLevelPrecomposeConnected (1 + nc) nf ((λ b → P (proj b  c) .fst , P (proj b c) .snd)) f conf
-
-    codomFun : (c : C) (a : A) → P (proj (f a)  c) .fst
-    codomFun c = d ∘ λ a → proj a c
-
-    Q : C → HLevel _ (1 + nc)
-    Q c = fiber (F c) (codomFun c) , step1 c _
-
-
-    helper : (a : A) → transport (λ i → P (gluel (f a) (~ i)) .fst) (d (basel))
-                      ≡ d (proj a ptC)
-    helper a i =
-      hcomp (λ k → λ {(i = i0) → transport (λ j → P (compPath-filler refl (gluel (f a)) (~ j) (~ j ∨ k)) .fst) (d basel)
-                    ; (i = i1) → d (proj a ptC)})
-           (transp (λ j → P (compPath-filler refl (gluel (f a)) (~ j) (~ i ∧ (~ j))) .fst) i (d (gluel a (~ i))))
-
-{-
-i = i0 ⊢ transport (λ i₁ → P (gluel (f a) (~ i₁)) .fst) (d basel)
-i = i1 ⊢ d (proj a ptC)
--}
-    {- transport (PathP≡Path (λ i → P (gluel (f a) (~ i)) .fst) (d basel) (d (proj a ptC)))
-                         (transport (λ j → PathP (λ i → P (lUnit (gluel (f a)) (~ j) (~ i)) .fst) (d basel) (d (proj a ptC)))
-                                    λ i → d (gluel a (~ i))) -}
-
-    QptC : Q ptC .fst
-    QptC = (λ b → transport (λ i → P (gluel b (~ i)) .fst) (d basel)) ,
-           λ i a → hcomp (λ k → λ {(i = i0) → transport (λ j → P (compPath-filler refl (gluel (f a)) (~ j) (~ j ∨ k)) .fst) (d basel)
-                                  ; (i = i1) → d (proj a ptC)})
-                          (transp (λ j → P (compPath-filler refl (gluel (f a)) (~ j) (~ i ∧ (~ j))) .fst) i (d (gluel a (~ i))))
-
-
-    Q-constructor : (c : C) → Q c .fst
-    Q-constructor c = Iso.inv (elim.isIsoPrecompose (λ (_ : Unit) → ptC) (1 + nc) Q (isHLevelConnectedPoint _ conC ptC)) (λ _ → QptC) c
-
-    Q-constructor' : Q-constructor ptC .snd ≡ (Trunc.rec (Q ptC .snd) (λ { (a , p) → subst (fst ∘ Q) p QptC}) ((isHLevelConnectedPoint _ conC ptC) ptC .fst)) .snd
-    Q-constructor' = refl
-
-    Q-test : isHLevelConnected (suc nc) (fiber (λ (_ : Unit) → ptC) ptC)
-    Q-test = ∣ tt , refl ∣ , λ y → sym ((isHLevelConnectedPoint _ conC ptC) ptC .snd _) ∙ (isHLevelConnectedPoint _ conC ptC) ptC .snd y
-
-    hLevelContr : isContr (isHLevelConnected (suc nc) (fiber (λ (_ : Unit) → ptC) ptC))
-    hLevelContr = Q-test , isPropIsOfHLevel 0 Q-test
-
-    helper3 : (isHLevelConnectedPoint _ conC ptC) ptC .fst ≡ ∣ tt , refl ∣
-    helper3 = (isHLevelConnectedPoint _ conC ptC) ptC .snd ∣ tt , refl ∣
-
-    g : (b : B) (c : C) → P (proj b c) .fst
-    g b c = Q-constructor c .fst b
-
-    Q-constructor-β : (b : B) → Q-constructor ptC .fst b ≡ QptC .fst b
-    Q-constructor-β b = sym ((λ i → transportRefl (QptC) (~ i) .fst b) ∙
-                        ((λ i → (Trunc.rec (Q ptC .snd) (λ { (a , p) → subst (fst ∘ Q) p QptC}) (helper3 (~ i))) .fst b)))
-
-    Q-constructor23 : PathP (λ i → _) (Q-constructor ptC .snd) ((Trunc.rec (Q ptC .snd) (λ { (a , p) → subst (fst ∘ Q) p QptC}) (Q-test .fst)) .snd)
-    Q-constructor23 i = ((Trunc.rec (Q ptC .snd) (λ { (a , p) → subst (fst ∘ Q) p QptC}) (helper3 i)) .snd)
-
-    Q-constructor24 : (a : A) → PathP (λ i → Q-constructor-β (f a) i ≡ d (proj a ptC)) (λ i → Q-constructor ptC .snd i a) λ i → QptC .snd i a
-    Q-constructor24 a i j =
-      hcomp (λ k → λ { (i = i0) → Q-constructor23 (~ k) j a
-                     ; (i = i1) → QptC .snd j a
-                     ; (j = i1) → d (proj a ptC)})
-            (transportRefl (QptC) i .snd j a)
-
-    Q-constructor25 : (a : A) → PathP (λ i → d (proj a ptC) ≡ Q-constructor-β (f a) i) ((λ i → Q-constructor ptC .snd (~ i) a)) λ i → QptC .snd (~ i) a
-    Q-constructor25 a i j = Q-constructor24 a i (~ j)
-
-
-
-{-
-i = i0 ⊢ 
-i = i1 ⊢ QptC .snd j a
-j = i0 ⊢ 
-j = i1 ⊢ d (proj a ptC)
--}
-
-    otherway-filler : (b : B) → I → I → P basel .fst
-    otherway-filler b i j = 
-      fill (λ _ → P basel .fst)
-           (λ k → λ {(i = i0) → transport (λ i → P (gluel b i) .fst) (g b ptC)
-                    ; (i = i1) → transportTransport⁻ (λ i → P (gluel b i) .fst) (d basel) k})
-           (inS (transport (λ i → P (gluel b i) .fst) (Q-constructor-β b i)))
-           j
-
-    otherway : (b : B) → transport (λ i → P (gluel b i) .fst) (g b ptC) ≡ d basel
-    otherway b i = otherway-filler b i i1
-
-    otherway2 : (b : B) → transport (λ i → P (gluel b i) .fst) (g b ptC) ≡ d basel
-    otherway2 b = (λ i → transport (λ i → P (gluel b i) .fst) (Q-constructor-β b i)) 
-                ∙ transportTransport⁻ (λ i → P (gluel b i) .fst) (d basel)
-
-    {- (λ i → transport (λ i → P (gluel b i) .fst) (Q-constructor-β b i)) ∙
-                 transportTransport⁻ (λ i → P (gluel b i) .fst) (d basel) -}
-
-
-    otherwaygluel : (i : I) (a : A) → {!!}
-    otherwaygluel = {!!}
-
-
-    path1-filler : (b : B) → I → ((i : I) → P (gluel b i) .fst)
-    path1-filler b j i =
-      hfill
-       (λ k → λ {(i = i0) → g b ptC
-                ; (i = i1) → otherway2 b k})
-       (inS (transp (λ j → P (gluel b (i ∧ j)) .fst) (~ i) (g b ptC)))
-       j
-
-    path1 : (b : B) → PathP (λ i → P (gluel b i) .fst) (g b ptC) (d basel)
-    path1 b i = path1-filler b i1 i
-
-    path1* : (a : A) → PathP (λ i → P (gluel (f a) i) .fst) (g (f a) ptC) (d basel)
-    path1* a i =
-      comp (λ k → P (compPath-filler refl (gluel (f a)) i k) .fst)
-           (λ k → λ {(i = i0) → g (f a) ptC
-                    ; (i = i1) → d (gluel a k)})
-           ((cong (λ F → F a) (Q-constructor ptC .snd)) i)
-
-
-{-
-Goal: P (gluel (f a) i) .fst
-———— Boundary ——————————————————————————————————————————————
-i = i0 ⊢ g (f a) ptC
-i = i1 ⊢ d basel
--}
-
-    path1*-filler : (a : A) (i : I) (j : I) → P (compPath-filler (λ _ → proj (f a) ptC) (gluel (f a)) i j) .fst
-    path1*-filler a i j =
-      fill (λ k → P (compPath-filler refl (gluel (f a)) i k) .fst)
-           (λ k → λ {(i = i0) → g (f a) ptC
-                    ; (i = i1) → d (gluel a k)})
-           (inS ( ((Q-constructor ptC .snd i a))))
-                j
-
-    path2 : (c : C) → PathP (λ i → P (gluer c i) .fst) (g ptB c) (d baser)
-    path2 c i =
-      comp (λ k → P (compPath-filler (λ i → proj (fpt i) c) (gluer c) i k) .fst)
-           (λ k → λ { (i = i0) → g (fpt k) c
-                     ; (i = i1) → d (gluer c k) })
-           (Q-constructor c .snd i ptA)
-
-
-    
-
-
-{-
-j = i0 ⊢ path1 (f a) i
-j = i1 ⊢ path1* a i
-i = i0 ⊢ g (f a) ptC
-i = i1 ⊢ d basel
--}
-
-
-    h : (x : Smash (B , ptB) (C , ptC)) → P x .fst
-    h basel = d basel
-    h baser = d baser
-    h (proj x y) = g x y
-    h (gluel b i) = path1 b i
-    h (gluer c i) = path2 c i
-
-    hsection : (x : Smash (A , ptA) (C , ptC)) → h (Smash-map (f , fpt) (idfun∙ (C , ptC)) x) ≡ d x
-    hsection basel = refl
-    hsection baser = refl
-    hsection (proj x y) i = Q-constructor y .snd i x
-    hsection (gluel a i) j =
-      comp (λ k → P (lUnit (gluel (f a)) (j ∨ k) i) .fst)
-           (λ k → λ { (i = i0) → Q-constructor ptC .snd j a
-                     ; (i = i1) → d basel
-                     ; (j = i0) → h (lUnit (gluel (f a)) k i)
-                     ; (j = i1) → {!d (gluel a i)!}})
-           {!!}
-    {-
-      comp (λ k → P (compPath-filler refl (gluel (f a)) (j ∨ k) i) .fst)
-           (λ k → λ { (i = i0) → Q-constructor ptC .snd j a
-                     ; (i = i1) → path1 (f a) (k ∨ j)
-                     ; (j = i0) → h (compPath-filler refl (gluel (f a)) k i)
-                     ; (j = i1) → d (gluel a i)})
-           {!!} -}
-    {-
-      comp (λ k → P (compPath-filler refl (gluel (f a)) (k ∨ j) i) .fst)
-           (λ k → λ { (i = i0) → Q-constructor ptC .snd j a
-                     ; (i = i1) → {!path1 (f a) ?!} -- path1-filler (f a) k (k ∨ j) -- path1 (f a) (k ∨ j)
-                     ; (j = i0) → h (compPath-filler refl (gluel (f a)) k i)
-                     ; (j = i1) → {!!}}) -- d (gluel a i)
-    -- transp (λ r → P (compPath-filler refl (gluel (f a)) (r ∨ k) i) .fst) k ((transp (λ r → P (compPath-filler refl (gluel (f a)) (~ r ∨ k) i) .fst)) k (d (gluel a i)))
-           {!Q-constructor-β (f a)!}
-     -}
-      where
-      test2 : I → (i : I) → P ((refl ∙ gluel (f a)) i) .fst
-      test2 j i =
-        comp (λ k → P (compPath-filler refl (gluel (f a)) (j ∨ k) i) .fst)
-             (λ k → λ { (i = i0) → d (proj a ptC) -- g (f a) ptC
-                       ; (i = i1) → transp (λ r → P (gluel (f a) (r ∧ (k ∨ j))) .fst) {!j!} (Q-constructor-β (f a) j) -- transp (λ r → P (gluel (f a) (r ∧ k)) .fst) (~ k) (Q-constructor-β (f a) j)
-                       ; (j = i0) → compPathP'-filler (λ i → Q-constructor ptC .snd (~ i) a) (λ i → transp (λ r → P (gluel (f a) (r ∧ i)) .fst) (~ i) (g (f a) ptC)) k i
-                       ; (j = i1) → d (gluel a i) }) -- d (gluel a i)})
-             {!!}
-
-
-           {-
-           (comp (λ  k → P (compPath-filler refl (gluel (f a)) (j ∧ k) i) .fst)
-                 (λ k → λ { (i = i0) → Q-constructor ptC .snd j a
-                           ; (i = i1) → path1-filler (f a) k (j ∧ k)
-                           ; (j = i0) → g (f a) ptC
-                           ; (j = i1) → side-filler i k})
-                 {!compPath-filler refl (gluel (f a)) i0 j!}) -}
-      
-      side-filler : (i : I) (k : I) → P (compPath-filler (λ _ → proj (f a) (pt (C , ptC))) (gluel (f a)) k i) .fst
-      side-filler i k =
-        comp (λ l → P (compPath-filler refl (gluel (f a)) k {!!}) .fst)
-             (λ l → λ { (i = i0) → {!transport (λ i₂ → P (gluel (f a) ₂) .fst) (g (f a) ptC)!}
-                       ; (i = i1) → {!!}
-                       ; (k = i0) → {!!}
-                       ; (k = i1) → {!!} })
-             {!otherway (f a) ?!}
-    hsection (gluer c i) j = {!transp (λ r → P (((refl ∙ gluel (f a)) ((r ∨ ?))) .fst)) l (transp (λ r → P (((refl ∙ gluel (f a)) ((~ r) ∨ ?))) .fst) l (d (gluel a i))) !}
-    {-
-      comp (λ k → P (compPath-filler (λ i → proj (fpt i) c) (gluer c) (k ∨ j) i) .fst)
-           (λ k → λ { (i = i0) → Q-constructor c .snd j ptA
-                     ; (i = i1) → path2 c (k ∨ j)
-                     ; (j = i0) → h (compPath-filler (λ i → proj (fpt i) c) (gluer c) k i)
-                     ; (j = i1) → d (gluer c i)
-                     })
-           (comp (λ  k → P (compPath-filler (λ i₁ → proj (fpt i₁) c) (gluer c) (j ∧ k) (i ∧ k)) .fst)
-                 (λ k → λ { (i = i0) → Q-constructor c .snd j ptA
-                           ; (j = i0) → h (proj (fpt (i ∧ k)) c)
-                           ; (j = i1) → d (gluer c (i ∧ k))
-                     })
-                 (Q-constructor c .snd j ptA))
-    -}
-
--- isConnectedSmashIdfun : (f : A' →∙ B') (nf nc : ℕ)
---                     → isHLevelConnectedFun nf (fst f)
---                     → isHLevelConnected (2 + nc) (fst C')
---                     → isHLevelConnectedFun (1 + nf + nc) (f ⋀⃗ idfun∙ C')
--- isConnectedSmashIdfun {A' = (A , ptA)} {B' = (B , ptB)} {C' = (C , ptC)} (f , fpt) nf nc conf conC = {!isHLel!}
+-- isConnectedSmashIdfun2 : {A B C : Pointed₀}
+--                       → (f : A →∙ B) (nf nc : ℕ)
+--                       → isHLevelConnectedFun nf (fst f)
+--                       → isHLevelConnected (2 + nc) (fst C)
+--                       → isHLevelConnectedFun (1 + nc + nf) (Smash-map f (idfun∙ C))
+-- isConnectedSmashIdfun2 {A = A , ptA} {B = B , ptB} {C = C , ptC} (f , fpt) nf nc conf conC = λ b → {!!} , {!!}
 --   where
---   module _ (P : ((B , ptB) ⋀ (C , ptC)) → HLevel (ℓ-max (ℓ-max ℓ ℓ') ℓ'') (1 + nc + nf))
---            (d : (x : (A , ptA) ⋀ (C , ptC)) → P (((f , fpt) ⋀⃗ idfun∙ (C , ptC) ) x) .fst)
---             where
+--   module proof {ℓ : Level} (P : (Smash (B , ptB) (C , ptC)) → HLevel ℓ (1 + nc + nf))
+--            (d : (x : Smash (A , ptA) (C , ptC)) → P ((Smash-map (f , fpt) (idfun∙ (C , ptC)) ) x) .fst)
+--     where
 --     F : (c : C) → _
---     F c = λ(s : (b : B) → P (inr (b , c)) .fst) → s ∘ f
+--     F c = λ(s : (b : B) → P (proj b  c) .fst) → s ∘ f
 
 --     step1 : (c : C) → isHLevelTruncatedFun (1 + nc) (F c)
---     step1 c = isOfHLevelPrecomposeConnected (1 + nc) nf ((λ b → P (inr (b , c)) .fst , P (inr (b , c)) .snd)) f conf
+--     step1 c = isOfHLevelPrecomposeConnected (1 + nc) nf ((λ b → P (proj b  c) .fst , P (proj b c) .snd)) f conf
 
---     codomFun : (c : C) (a : A) → P (inr ((f a) , c)) .fst
---     codomFun c = d ∘ λ a → inr (a , c)
+--     codomFun : (c : C) (a : A) → P (proj (f a)  c) .fst
+--     codomFun c = d ∘ λ a → proj a c
 
 --     Q : C → HLevel _ (1 + nc)
 --     Q c = fiber (F c) (codomFun c) , step1 c _
 
 
---     helper : (a : A) → transport (λ i → P (push (inl (f a)) i) .fst) (d (inl tt))
---                      ≡ d (inr (a , ptC))
---     helper a = transport (PathP≡Path (λ i → P (push (inl (f a)) i) .fst) (d (inl tt)) (d (inr (a , ptC))))
---                          (transport (λ j → PathP (λ i → P (rUnit (push (inl (f a))) (~ j) i) .fst) (d (inl tt)) (d (inr (a , ptC))))
---                          λ i → d (push (inl a) i))
+--     helper : (a : A) → transport (λ i → P (gluel (f a) (~ i)) .fst) (d (basel))
+--                       ≡ d (proj a ptC)
+--     helper a i =
+--       hcomp (λ k → λ {(i = i0) → transport (λ j → P (compPath-filler refl (gluel (f a)) (~ j) (~ j ∨ k)) .fst) (d basel)
+--                     ; (i = i1) → d (proj a ptC)})
+--            (transp (λ j → P (compPath-filler refl (gluel (f a)) (~ j) (~ i ∧ (~ j))) .fst) i (d (gluel a (~ i))))
 
+-- {-
+-- i = i0 ⊢ transport (λ i₁ → P (gluel (f a) (~ i₁)) .fst) (d basel)
+-- i = i1 ⊢ d (proj a ptC)
+-- -}
+--     {- transport (PathP≡Path (λ i → P (gluel (f a) (~ i)) .fst) (d basel) (d (proj a ptC)))
+--                          (transport (λ j → PathP (λ i → P (lUnit (gluel (f a)) (~ j) (~ i)) .fst) (d basel) (d (proj a ptC)))
+--                                     λ i → d (gluel a (~ i))) -}
 
 --     QptC : Q ptC .fst
---     QptC = (λ b → transport (λ i → P (push (inl b) i) .fst) (d (inl tt))) ,
---            funExt helper
---       where
+--     QptC = (λ b → transport (λ i → P (gluel b (~ i)) .fst) (d basel)) ,
+--            λ i a → hcomp (λ k → λ {(i = i0) → transport (λ j → P (compPath-filler refl (gluel (f a)) (~ j) (~ j ∨ k)) .fst) (d basel)
+--                                   ; (i = i1) → d (proj a ptC)})
+--                           (transp (λ j → P (compPath-filler refl (gluel (f a)) (~ j) (~ i ∧ (~ j))) .fst) i (d (gluel a (~ i))))
 
 
 --     Q-constructor : (c : C) → Q c .fst
---     Q-constructor c = Iso.inv (elim.isIsoPrecompose (λ _ → ptC) (1 + nc) Q (isHLevelConnectedPoint _ conC ptC)) (λ ( _ : Unit) → QptC) c
+--     Q-constructor c = Iso.inv (elim.isIsoPrecompose (λ (_ : Unit) → ptC) (1 + nc) Q (isHLevelConnectedPoint _ conC ptC)) (λ _ → QptC) c
 
---     g : (b : B) (c : C) → P (inr (b , c)) .fst
+--     Q-constructor' : Q-constructor ptC .snd ≡ (Trunc.rec (Q ptC .snd) (λ { (a , p) → subst (fst ∘ Q) p QptC}) ((isHLevelConnectedPoint _ conC ptC) ptC .fst)) .snd
+--     Q-constructor' = refl
+
+--     Q-test : isHLevelConnected (suc nc) (fiber (λ (_ : Unit) → ptC) ptC)
+--     Q-test = ∣ tt , refl ∣ , λ y → sym ((isHLevelConnectedPoint _ conC ptC) ptC .snd _) ∙ (isHLevelConnectedPoint _ conC ptC) ptC .snd y
+
+--     hLevelContr : isContr (isHLevelConnected (suc nc) (fiber (λ (_ : Unit) → ptC) ptC))
+--     hLevelContr = Q-test , isPropIsOfHLevel 0 Q-test
+
+--     helper3 : (isHLevelConnectedPoint _ conC ptC) ptC .fst ≡ ∣ tt , refl ∣
+--     helper3 = (isHLevelConnectedPoint _ conC ptC) ptC .snd ∣ tt , refl ∣
+
+--     g : (b : B) (c : C) → P (proj b c) .fst
 --     g b c = Q-constructor c .fst b
 
---     Q-constructor-β : (b : B) → Q-constructor ptC .fst b ≡ transport (λ i → P (push (inl b) i) .fst) (d (inl tt))
---     Q-constructor-β b = ((λ i → (Trunc.rec (Q ptC .snd) (λ { (a , p) → subst (fst ∘ Q) p QptC}) (helper3 i)) .fst b)) ∙
---                         (λ i → transportRefl (QptC) i .fst b)
+--     Q-constructor-β : (b : B) → Q-constructor ptC .fst b ≡ QptC .fst b
+--     Q-constructor-β b = sym ((λ i → transportRefl (QptC) (~ i) .fst b) ∙
+--                         ((λ i → (Trunc.rec (Q ptC .snd) (λ { (a , p) → subst (fst ∘ Q) p QptC}) (helper3 (~ i))) .fst b)))
 
---       where
---       helper3 : (isHLevelConnectedPoint _ conC ptC) ptC .fst ≡ ∣ tt , refl ∣
---       helper3 = (isHLevelConnectedPoint _ conC ptC) ptC .snd ∣ tt , refl ∣
+--     Q-constructor23 : PathP (λ i → _) (Q-constructor ptC .snd) ((Trunc.rec (Q ptC .snd) (λ { (a , p) → subst (fst ∘ Q) p QptC}) (Q-test .fst)) .snd)
+--     Q-constructor23 i = ((Trunc.rec (Q ptC .snd) (λ { (a , p) → subst (fst ∘ Q) p QptC}) (helper3 i)) .snd)
 
---     gid1 : (a : A) (c : C) → g (f a) c  ≡ d (inr (a , c))
---     gid1 a c i = (Q-constructor c .snd) i a
+--     Q-constructor24 : (a : A) → PathP (λ i → Q-constructor-β (f a) i ≡ d (proj a ptC)) (λ i → Q-constructor ptC .snd i a) λ i → QptC .snd i a
+--     Q-constructor24 a i j =
+--       hcomp (λ k → λ { (i = i0) → Q-constructor23 (~ k) j a
+--                      ; (i = i1) → QptC .snd j a
+--                      ; (j = i1) → d (proj a ptC)})
+--             (transportRefl (QptC) i .snd j a)
 
---     gid2 : (b : B) → g b ptC ≡ transport (λ i → P (push (inl b) i) .fst) (d (inl tt))
---     gid2 b = Q-constructor-β b
+--     Q-constructor25 : (a : A) → PathP (λ i → d (proj a ptC) ≡ Q-constructor-β (f a) i) ((λ i → Q-constructor ptC .snd (~ i) a)) λ i → QptC .snd (~ i) a
+--     Q-constructor25 a i j = Q-constructor24 a i (~ j)
+
+
 
 -- {-
---     compPath : (c : C) → PathP _ (d (inl tt)) (g ptB c)
---     compPath c = compPathP (λ i → d (push (inr c) i)) (compPathP (sym (gid1 ptA c)) (λ i → g (fpt i) c))
-
-
---     compPathTransport : (c : C) →  ((λ z → P ((push (inr c) ∙
---                                     (λ i → inr (fpt (~ i) , c))) z) .fst) ∙
---                                     (λ i → ((λ i₁ → P (inr (f ptA , c)) .fst) ∙ (λ i₁ → P (inr (fpt i₁ , c)) .fst)) i))
---                                   ≡ λ i → P (push (inr c) i) .fst
---     compPathTransport c = (λ k → ((λ z → P ((push (inr c) ∙
---                                     (λ i → inr (fpt (~ i) , c))) z) .fst) ∙
---                                     ((lUnit (λ i₁ → P (inr (fpt i₁ , c)) .fst) (~ k) ))))
---                            ∙ (λ k →  ((λ z → P ((push (inr c) ∙
---                                     (λ i → inr (fpt (~ i ∨ k) , c))) z) .fst) ∙
---                                     (λ i₁ → P (inr (fpt (i₁ ∨ k) , c)) .fst) ))
---                            ∙ (λ k → ((λ z → P ((push (inr c) ∙ refl) z) .fst) ∙ refl))
---                            ∙ (λ k → rUnit ((λ z → P ((rUnit (push (inr c)) (~ k)) z) .fst)) (~ k))
+-- i = i0 ⊢ 
+-- i = i1 ⊢ QptC .snd j a
+-- j = i0 ⊢ 
+-- j = i1 ⊢ d (proj a ptC)
 -- -}
---     compP-filler : (c : C) → I → I → I → (B , ptB) ⋀ (C , ptC)
---     compP-filler c i j z =
---         hfill (λ k → λ { (i = i0) → inr (fpt (~ j ∧ ~ k) , c) 
---                         ; (i = i1) → push (inr c) j
---                         ; (j = i1) → inr (fpt i , c)})
---               (inS (invSides-filler (λ i → inr (fpt (~ i) , c))
---                                     (sym (push (inr c))) i j))
---               z
+
+--     otherway-filler : (b : B) → I → I → P basel .fst
+--     otherway-filler b i j = 
+--       fill (λ _ → P basel .fst)
+--            (λ k → λ {(i = i0) → transport (λ i → P (gluel b i) .fst) (g b ptC)
+--                     ; (i = i1) → transportTransport⁻ (λ i → P (gluel b i) .fst) (d basel) k})
+--            (inS (transport (λ i → P (gluel b i) .fst) (Q-constructor-β b i)))
+--            j
+
+--     otherway : (b : B) → transport (λ i → P (gluel b i) .fst) (g b ptC) ≡ d basel
+--     otherway b i = otherway-filler b i i1
+
+--     otherway2 : (b : B) → transport (λ i → P (gluel b i) .fst) (g b ptC) ≡ d basel
+--     otherway2 b = (λ i → transport (λ i → P (gluel b i) .fst) (Q-constructor-β b i)) 
+--                 ∙ transportTransport⁻ (λ i → P (gluel b i) .fst) (d basel)
+
+--     {- (λ i → transport (λ i → P (gluel b i) .fst) (Q-constructor-β b i)) ∙
+--                  transportTransport⁻ (λ i → P (gluel b i) .fst) (d basel) -}
 
 
---     gid2-filler : C → I → I → {!!}
---     gid2-filler c i j =
---                    fill (λ l → P (compP-filler c l i i1) .fst)
---                         (λ k → λ { (i = i0) → d (push (inr c) (~ k))
---                                   ; (i = i1) → g (fpt k) c })
---                         (inS (gid1 ptA c (~ i)))
---                         {!j!}
-
---     gid1Path : (c : C) → PathP (λ i → P (push (inr c) i) .fst) (d (inl tt)) (g ptB c)
---     gid1Path c i = comp (λ j → P (compP-filler c j i i1) .fst)
---                         (λ k → λ { (i = i0) → d (push (inr c) (~ k))
---                                   ; (i = i1) → g (fpt k) c })
---                         (gid1 ptA c (~ i))
+--     otherwaygluel : (i : I) (a : A) → {!!}
+--     otherwaygluel = {!!}
 
 
+--     path1-filler : (b : B) → I → ((i : I) → P (gluel b i) .fst)
+--     path1-filler b j i =
+--       hfill
+--        (λ k → λ {(i = i0) → g b ptC
+--                 ; (i = i1) → otherway2 b k})
+--        (inS (transp (λ j → P (gluel b (i ∧ j)) .fst) (~ i) (g b ptC)))
+--        j
 
---     gid2Path : (b : B) → PathP (λ i → P (push (inl b) i) .fst) (d (inl tt)) (g b ptC)
---     gid2Path b i =
---        comp (λ _ → P (push (inl b) i) .fst)
---             (λ k → λ {(i = i0) → (d (inl tt))
---                      ; (i = i1) → gid2 b (~ k)})
---             (transp (λ j → P (push (inl b) (j ∧ i)) .fst) (~ i) (d (inl tt)))
+--     path1 : (b : B) → PathP (λ i → P (gluel b i) .fst) (g b ptC) (d basel)
+--     path1 b i = path1-filler b i1 i
 
---     gid1Path≡gid2Path : PathP (λ j → PathP (λ i → P (push (push tt (~ j)) i) .fst) (d (inl tt)) (g ptB ptC)) (gid1Path ptC) (gid2Path ptB)
---     gid1Path≡gid2Path j i =
---       comp (λ k → P {!Q-constructor-β ptB!} .fst)
---            (λ k → λ { (i = i0) → {!!} -- Q-constructor-β (fpt (~ k)) j 
---                      ; (i = i1) → {!!} -- d (push (inr ptC) (~ k ∨ j))
---                      ; (j = i0) → {!!}
---                      ; (j = i1) → {!!} })
---            {!gid2!}
+--     path1* : (a : A) → PathP (λ i → P (gluel (f a) i) .fst) (g (f a) ptC) (d basel)
+--     path1* a i =
+--       comp (λ k → P (compPath-filler refl (gluel (f a)) i k) .fst)
+--            (λ k → λ {(i = i0) → g (f a) ptC
+--                     ; (i = i1) → d (gluel a k)})
+--            ((cong (λ F → F a) (Q-constructor ptC .snd)) i)
 
--- -- -- {-
--- -- -- Goal: P (push (push tt (~ j)) i) .fst
--- -- -- ———— Boundary ——————————————————————————————————————————————
--- -- -- j = i0 ⊢ gid1path ptC i
--- -- -- j = i1 ⊢ gid2Path ptB i
--- -- -- i = i0 ⊢ d (inl tt)
--- -- -- i = i1 ⊢ g ptB ptC
--- -- -- -}
+
+-- {-
+-- Goal: P (gluel (f a) i) .fst
+-- ———— Boundary ——————————————————————————————————————————————
+-- i = i0 ⊢ g (f a) ptC
+-- i = i1 ⊢ d basel
+-- -}
+
+--     path1*-filler : (a : A) (i : I) (j : I) → P (compPath-filler (λ _ → proj (f a) ptC) (gluel (f a)) i j) .fst
+--     path1*-filler a i j =
+--       fill (λ k → P (compPath-filler refl (gluel (f a)) i k) .fst)
+--            (λ k → λ {(i = i0) → g (f a) ptC
+--                     ; (i = i1) → d (gluel a k)})
+--            (inS ( ((Q-constructor ptC .snd i a))))
+--                 j
+
+--     path2 : (c : C) → PathP (λ i → P (gluer c i) .fst) (g ptB c) (d baser)
+--     path2 c i =
+--       comp (λ k → P (compPath-filler (λ i → proj (fpt i) c) (gluer c) i k) .fst)
+--            (λ k → λ { (i = i0) → g (fpt k) c
+--                      ; (i = i1) → d (gluer c k) })
+--            (Q-constructor c .snd i ptA)
+
+
+    
+
+
+-- {-
+-- j = i0 ⊢ path1 (f a) i
+-- j = i1 ⊢ path1* a i
+-- i = i0 ⊢ g (f a) ptC
+-- i = i1 ⊢ d basel
+-- -}
+
+
+--     h : (x : Smash (B , ptB) (C , ptC)) → P x .fst
+--     h basel = d basel
+--     h baser = d baser
+--     h (proj x y) = g x y
+--     h (gluel b i) = path1 b i
+--     h (gluer c i) = path2 c i
+
+--     hsection : (x : Smash (A , ptA) (C , ptC)) → h (Smash-map (f , fpt) (idfun∙ (C , ptC)) x) ≡ d x
+--     hsection basel = refl
+--     hsection baser = refl
+--     hsection (proj x y) i = Q-constructor y .snd i x
+--     hsection (gluel a i) j =
+--       comp (λ k → P (lUnit (gluel (f a)) (j ∨ k) i) .fst)
+--            (λ k → λ { (i = i0) → Q-constructor ptC .snd j a
+--                      ; (i = i1) → d basel
+--                      ; (j = i0) → h (lUnit (gluel (f a)) k i)
+--                      ; (j = i1) → {!d (gluel a i)!}})
+--            {!!}
+--     {-
+--       comp (λ k → P (compPath-filler refl (gluel (f a)) (j ∨ k) i) .fst)
+--            (λ k → λ { (i = i0) → Q-constructor ptC .snd j a
+--                      ; (i = i1) → path1 (f a) (k ∨ j)
+--                      ; (j = i0) → h (compPath-filler refl (gluel (f a)) k i)
+--                      ; (j = i1) → d (gluel a i)})
+--            {!!} -}
+--     {-
+--       comp (λ k → P (compPath-filler refl (gluel (f a)) (k ∨ j) i) .fst)
+--            (λ k → λ { (i = i0) → Q-constructor ptC .snd j a
+--                      ; (i = i1) → {!path1 (f a) ?!} -- path1-filler (f a) k (k ∨ j) -- path1 (f a) (k ∨ j)
+--                      ; (j = i0) → h (compPath-filler refl (gluel (f a)) k i)
+--                      ; (j = i1) → {!!}}) -- d (gluel a i)
+--     -- transp (λ r → P (compPath-filler refl (gluel (f a)) (r ∨ k) i) .fst) k ((transp (λ r → P (compPath-filler refl (gluel (f a)) (~ r ∨ k) i) .fst)) k (d (gluel a i)))
+--            {!Q-constructor-β (f a)!}
+--      -}
+--       where
+--       test2 : I → (i : I) → P ((refl ∙ gluel (f a)) i) .fst
+--       test2 j i =
+--         comp (λ k → P (compPath-filler refl (gluel (f a)) (j ∨ k) i) .fst)
+--              (λ k → λ { (i = i0) → d (proj a ptC) -- g (f a) ptC
+--                        ; (i = i1) → transp (λ r → P (gluel (f a) (r ∧ (k ∨ j))) .fst) {!j!} (Q-constructor-β (f a) j) -- transp (λ r → P (gluel (f a) (r ∧ k)) .fst) (~ k) (Q-constructor-β (f a) j)
+--                        ; (j = i0) → compPathP'-filler (λ i → Q-constructor ptC .snd (~ i) a) (λ i → transp (λ r → P (gluel (f a) (r ∧ i)) .fst) (~ i) (g (f a) ptC)) k i
+--                        ; (j = i1) → d (gluel a i) }) -- d (gluel a i)})
+--              {!!}
+
+
+--            {-
+--            (comp (λ  k → P (compPath-filler refl (gluel (f a)) (j ∧ k) i) .fst)
+--                  (λ k → λ { (i = i0) → Q-constructor ptC .snd j a
+--                            ; (i = i1) → path1-filler (f a) k (j ∧ k)
+--                            ; (j = i0) → g (f a) ptC
+--                            ; (j = i1) → side-filler i k})
+--                  {!compPath-filler refl (gluel (f a)) i0 j!}) -}
+      
+--       side-filler : (i : I) (k : I) → P (compPath-filler (λ _ → proj (f a) (pt (C , ptC))) (gluel (f a)) k i) .fst
+--       side-filler i k =
+--         comp (λ l → P (compPath-filler refl (gluel (f a)) k {!!}) .fst)
+--              (λ l → λ { (i = i0) → {!transport (λ i₂ → P (gluel (f a) ₂) .fst) (g (f a) ptC)!}
+--                        ; (i = i1) → {!!}
+--                        ; (k = i0) → {!!}
+--                        ; (k = i1) → {!!} })
+--              {!otherway (f a) ?!}
+--     hsection (gluer c i) j = {!transp (λ r → P (((refl ∙ gluel (f a)) ((r ∨ ?))) .fst)) l (transp (λ r → P (((refl ∙ gluel (f a)) ((~ r) ∨ ?))) .fst) l (d (gluel a i))) !}
+--     {-
+--       comp (λ k → P (compPath-filler (λ i → proj (fpt i) c) (gluer c) (k ∨ j) i) .fst)
+--            (λ k → λ { (i = i0) → Q-constructor c .snd j ptA
+--                      ; (i = i1) → path2 c (k ∨ j)
+--                      ; (j = i0) → h (compPath-filler (λ i → proj (fpt i) c) (gluer c) k i)
+--                      ; (j = i1) → d (gluer c i)
+--                      })
+--            (comp (λ  k → P (compPath-filler (λ i₁ → proj (fpt i₁) c) (gluer c) (j ∧ k) (i ∧ k)) .fst)
+--                  (λ k → λ { (i = i0) → Q-constructor c .snd j ptA
+--                            ; (j = i0) → h (proj (fpt (i ∧ k)) c)
+--                            ; (j = i1) → d (gluer c (i ∧ k))
+--                      })
+--                  (Q-constructor c .snd j ptA))
+--     -}
+
+-- -- isConnectedSmashIdfun : (f : A' →∙ B') (nf nc : ℕ)
+-- --                     → isHLevelConnectedFun nf (fst f)
+-- --                     → isHLevelConnected (2 + nc) (fst C')
+-- --                     → isHLevelConnectedFun (1 + nf + nc) (f ⋀⃗ idfun∙ C')
+-- -- isConnectedSmashIdfun {A' = (A , ptA)} {B' = (B , ptB)} {C' = (C , ptC)} (f , fpt) nf nc conf conC = {!isHLel!}
+-- --   where
+-- --   module _ (P : ((B , ptB) ⋀ (C , ptC)) → HLevel (ℓ-max (ℓ-max ℓ ℓ') ℓ'') (1 + nc + nf))
+-- --            (d : (x : (A , ptA) ⋀ (C , ptC)) → P (((f , fpt) ⋀⃗ idfun∙ (C , ptC) ) x) .fst)
+-- --             where
+-- --     F : (c : C) → _
+-- --     F c = λ(s : (b : B) → P (inr (b , c)) .fst) → s ∘ f
+
+-- --     step1 : (c : C) → isHLevelTruncatedFun (1 + nc) (F c)
+-- --     step1 c = isOfHLevelPrecomposeConnected (1 + nc) nf ((λ b → P (inr (b , c)) .fst , P (inr (b , c)) .snd)) f conf
+
+-- --     codomFun : (c : C) (a : A) → P (inr ((f a) , c)) .fst
+-- --     codomFun c = d ∘ λ a → inr (a , c)
+
+-- --     Q : C → HLevel _ (1 + nc)
+-- --     Q c = fiber (F c) (codomFun c) , step1 c _
+
+
+-- --     helper : (a : A) → transport (λ i → P (push (inl (f a)) i) .fst) (d (inl tt))
+-- --                      ≡ d (inr (a , ptC))
+-- --     helper a = transport (PathP≡Path (λ i → P (push (inl (f a)) i) .fst) (d (inl tt)) (d (inr (a , ptC))))
+-- --                          (transport (λ j → PathP (λ i → P (rUnit (push (inl (f a))) (~ j) i) .fst) (d (inl tt)) (d (inr (a , ptC))))
+-- --                          λ i → d (push (inl a) i))
+
+
+-- --     QptC : Q ptC .fst
+-- --     QptC = (λ b → transport (λ i → P (push (inl b) i) .fst) (d (inl tt))) ,
+-- --            funExt helper
+-- --       where
+
+
+-- --     Q-constructor : (c : C) → Q c .fst
+-- --     Q-constructor c = Iso.inv (elim.isIsoPrecompose (λ _ → ptC) (1 + nc) Q (isHLevelConnectedPoint _ conC ptC)) (λ ( _ : Unit) → QptC) c
+
+-- --     g : (b : B) (c : C) → P (inr (b , c)) .fst
+-- --     g b c = Q-constructor c .fst b
+
+-- --     Q-constructor-β : (b : B) → Q-constructor ptC .fst b ≡ transport (λ i → P (push (inl b) i) .fst) (d (inl tt))
+-- --     Q-constructor-β b = ((λ i → (Trunc.rec (Q ptC .snd) (λ { (a , p) → subst (fst ∘ Q) p QptC}) (helper3 i)) .fst b)) ∙
+-- --                         (λ i → transportRefl (QptC) i .fst b)
+
+-- --       where
+-- --       helper3 : (isHLevelConnectedPoint _ conC ptC) ptC .fst ≡ ∣ tt , refl ∣
+-- --       helper3 = (isHLevelConnectedPoint _ conC ptC) ptC .snd ∣ tt , refl ∣
+
+-- --     gid1 : (a : A) (c : C) → g (f a) c  ≡ d (inr (a , c))
+-- --     gid1 a c i = (Q-constructor c .snd) i a
+
+-- --     gid2 : (b : B) → g b ptC ≡ transport (λ i → P (push (inl b) i) .fst) (d (inl tt))
+-- --     gid2 b = Q-constructor-β b
+
+-- -- {-
+-- --     compPath : (c : C) → PathP _ (d (inl tt)) (g ptB c)
+-- --     compPath c = compPathP (λ i → d (push (inr c) i)) (compPathP (sym (gid1 ptA c)) (λ i → g (fpt i) c))
+
+
+-- --     compPathTransport : (c : C) →  ((λ z → P ((push (inr c) ∙
+-- --                                     (λ i → inr (fpt (~ i) , c))) z) .fst) ∙
+-- --                                     (λ i → ((λ i₁ → P (inr (f ptA , c)) .fst) ∙ (λ i₁ → P (inr (fpt i₁ , c)) .fst)) i))
+-- --                                   ≡ λ i → P (push (inr c) i) .fst
+-- --     compPathTransport c = (λ k → ((λ z → P ((push (inr c) ∙
+-- --                                     (λ i → inr (fpt (~ i) , c))) z) .fst) ∙
+-- --                                     ((lUnit (λ i₁ → P (inr (fpt i₁ , c)) .fst) (~ k) ))))
+-- --                            ∙ (λ k →  ((λ z → P ((push (inr c) ∙
+-- --                                     (λ i → inr (fpt (~ i ∨ k) , c))) z) .fst) ∙
+-- --                                     (λ i₁ → P (inr (fpt (i₁ ∨ k) , c)) .fst) ))
+-- --                            ∙ (λ k → ((λ z → P ((push (inr c) ∙ refl) z) .fst) ∙ refl))
+-- --                            ∙ (λ k → rUnit ((λ z → P ((rUnit (push (inr c)) (~ k)) z) .fst)) (~ k))
+-- -- -}
+-- --     compP-filler : (c : C) → I → I → I → (B , ptB) ⋀ (C , ptC)
+-- --     compP-filler c i j z =
+-- --         hfill (λ k → λ { (i = i0) → inr (fpt (~ j ∧ ~ k) , c) 
+-- --                         ; (i = i1) → push (inr c) j
+-- --                         ; (j = i1) → inr (fpt i , c)})
+-- --               (inS (invSides-filler (λ i → inr (fpt (~ i) , c))
+-- --                                     (sym (push (inr c))) i j))
+-- --               z
+
+
+-- --     gid2-filler : C → I → I → {!!}
+-- --     gid2-filler c i j =
+-- --                    fill (λ l → P (compP-filler c l i i1) .fst)
+-- --                         (λ k → λ { (i = i0) → d (push (inr c) (~ k))
+-- --                                   ; (i = i1) → g (fpt k) c })
+-- --                         (inS (gid1 ptA c (~ i)))
+-- --                         {!j!}
+
+-- --     gid1Path : (c : C) → PathP (λ i → P (push (inr c) i) .fst) (d (inl tt)) (g ptB c)
+-- --     gid1Path c i = comp (λ j → P (compP-filler c j i i1) .fst)
+-- --                         (λ k → λ { (i = i0) → d (push (inr c) (~ k))
+-- --                                   ; (i = i1) → g (fpt k) c })
+-- --                         (gid1 ptA c (~ i))
+
+
+
+-- --     gid2Path : (b : B) → PathP (λ i → P (push (inl b) i) .fst) (d (inl tt)) (g b ptC)
+-- --     gid2Path b i =
+-- --        comp (λ _ → P (push (inl b) i) .fst)
+-- --             (λ k → λ {(i = i0) → (d (inl tt))
+-- --                      ; (i = i1) → gid2 b (~ k)})
+-- --             (transp (λ j → P (push (inl b) (j ∧ i)) .fst) (~ i) (d (inl tt)))
+
+-- --     gid1Path≡gid2Path : PathP (λ j → PathP (λ i → P (push (push tt (~ j)) i) .fst) (d (inl tt)) (g ptB ptC)) (gid1Path ptC) (gid2Path ptB)
+-- --     gid1Path≡gid2Path j i =
+-- --       comp (λ k → P {!Q-constructor-β ptB!} .fst)
+-- --            (λ k → λ { (i = i0) → {!!} -- Q-constructor-β (fpt (~ k)) j 
+-- --                      ; (i = i1) → {!!} -- d (push (inr ptC) (~ k ∨ j))
+-- --                      ; (j = i0) → {!!}
+-- --                      ; (j = i1) → {!!} })
+-- --            {!gid2!}
+
+-- -- -- -- {-
+-- -- -- -- Goal: P (push (push tt (~ j)) i) .fst
+-- -- -- -- ———— Boundary ——————————————————————————————————————————————
+-- -- -- -- j = i0 ⊢ gid1path ptC i
+-- -- -- -- j = i1 ⊢ gid2Path ptB i
+-- -- -- -- i = i0 ⊢ d (inl tt)
+-- -- -- -- i = i1 ⊢ g ptB ptC
+-- -- -- -- -}
             
--- --     h : (x : (B , ptB) ⋀ (C , ptC)) → P x .fst
--- --     h (inl x) = d (inl tt)
--- --     h (inr (b , c)) = g b c
--- --     h (push (inl b) i) = gid2Path b i
--- --     h (push (inr x) i) = gid1Path x i
--- --     h (push (push tt i) j) = gid1Path≡gid2Path (~ i) j
+-- -- --     h : (x : (B , ptB) ⋀ (C , ptC)) → P x .fst
+-- -- --     h (inl x) = d (inl tt)
+-- -- --     h (inr (b , c)) = g b c
+-- -- --     h (push (inl b) i) = gid2Path b i
+-- -- --     h (push (inr x) i) = gid1Path x i
+-- -- --     h (push (push tt i) j) = gid1Path≡gid2Path (~ i) j
 
--- --     sect-h : (x : (A , ptA) ⋀ (C , ptC)) → h (((f , fpt) ⋀⃗ idfun∙ (C , ptC)) x) ≡ d x
--- --     sect-h (inl x) = refl
--- --     sect-h (inr (x , x₁)) i = gid1 x x₁ i -- (Q-constructor x₁ .snd) i x
--- --     sect-h (push (inl x) i) j = {!!}
--- --     sect-h (push (inr x) i) = {!!}
--- --     sect-h (push (push a i) j) k = {!!}
+-- -- --     sect-h : (x : (A , ptA) ⋀ (C , ptC)) → h (((f , fpt) ⋀⃗ idfun∙ (C , ptC)) x) ≡ d x
+-- -- --     sect-h (inl x) = refl
+-- -- --     sect-h (inr (x , x₁)) i = gid1 x x₁ i -- (Q-constructor x₁ .snd) i x
+-- -- --     sect-h (push (inl x) i) j = {!!}
+-- -- --     sect-h (push (inr x) i) = {!!}
+-- -- --     sect-h (push (push a i) j) k = {!!}

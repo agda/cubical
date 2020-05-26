@@ -10,6 +10,10 @@ open import Cubical.Foundations.Univalence
 
 open import Cubical.HITs.S1.Base
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
+open import Cubical.HITs.SetTruncation as s
+open import Cubical.Data.Int
+open import Cubical.Data.Nat
+open import Cubical.Data.Prod
 
 isConnectedS¹ : (s : S¹) → ∥ base ≡ s ∥
 isConnectedS¹ base = ∣ refl ∣
