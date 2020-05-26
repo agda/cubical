@@ -1,7 +1,6 @@
 {-# OPTIONS --cubical --safe #-}
 module Cubical.ZCohomology.Base where
 
-
 open import Cubical.Data.Int.Base
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.NatMinusTwo.Base

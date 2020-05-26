@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.ZCohomology.Sn.Sn where
+module Cubical.ZCohomology.CohomZero-map where
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.S1.S1

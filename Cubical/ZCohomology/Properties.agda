@@ -22,12 +22,13 @@ open import Cubical.HITs.Nullification
 open import Cubical.Data.Int hiding (_+_)
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod
-open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
+open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; recElim to trRec ; elim3 to trElim3)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
 open import Cubical.HITs.SmashProduct.Base
 open import Cubical.Data.Group.Base hiding (_≃_ ; Iso)
+open import Cubical.Data.Group.GroupLibrary
 
 
 open import Cubical.HITs.Pushout
@@ -58,7 +59,8 @@ coHomRed+1Equiv zero A i = ∥ helpLemma {C = (Int , pos 0)} i ∥₀
                                      (λ _  → refl))
     where
     map1 : (A → typ C) → ((((A ⊎ Unit) , inr (tt)) →∙ C))
-    map1 f = map1' , refl module helpmap where
+    map1 f = map1' , refl
+      module helpmap where
       map1' : A ⊎ Unit → fst C
       map1' (inl x) = f x
       map1' (inr x) = pt C
@@ -161,27 +163,6 @@ rUnitₖ {n = suc n} x = (λ i → ΩKn+1→Kn (Kn→ΩKn+1 (suc n) x ∙ Kn→�
 rUnitₖ' : {n : ℕ} (x : coHomK n) → x +ₖ 0ₖ ≡ x
 rUnitₖ' {n = n} x = commₖ x 0ₖ ∙ lUnitₖ x
 
--- rCancelₖ  : {n : ℕ} (x : coHomK n) → x +ₖ (-ₖ x) ≡ 0ₖ
--- rCancelₖ {n = zero} x = (λ i → ΩKn+1→Kn (Kn→ΩKn+1 zero x ∙ Iso.rightInv (Iso3-Kn-ΩKn+1 zero) (sym (Kn→ΩKn+1 zero x)) i)) ∙
---                         cong ΩKn+1→Kn (rCancel (Kn→ΩKn+1 zero x))
--- rCancelₖ {n = suc zero} x = (λ i → ΩKn+1→Kn (Kn→ΩKn+1 1 x ∙ Iso.rightInv (Iso3-Kn-ΩKn+1 1) (sym (Kn→ΩKn+1 1 x)) i)) ∙
---                             cong ΩKn+1→Kn (rCancel (Kn→ΩKn+1 1 x))
--- rCancelₖ {n = suc (suc n)} x = (λ i → ΩKn+1→Kn (Kn→ΩKn+1 (2 + n) x ∙ Iso.rightInv (Iso3-Kn-ΩKn+1 (2 + n)) (sym (Kn→ΩKn+1 (2 + n) x)) i)) ∙
---                                cong ΩKn+1→Kn (rCancel (Kn→ΩKn+1 (2 + n) x)) ∙
---                                (λ i → ΩKn+1→Kn (Kn→ΩKn+10ₖ (suc (suc n)) (~ i))) ∙
---                                Iso.leftInv (Iso3-Kn-ΩKn+1 (suc (suc n))) 0ₖ
-
--- lCancelₖ : {n : ℕ} (x : coHomK n) → (-ₖ x) +ₖ x  ≡ 0ₖ
--- lCancelₖ {n = zero} x = (λ i → ΩKn+1→Kn (Iso.rightInv (Iso3-Kn-ΩKn+1 zero) (sym (Kn→ΩKn+1 zero x)) i ∙ Kn→ΩKn+1 zero x)) ∙
---                         cong ΩKn+1→Kn (lCancel (Kn→ΩKn+1 zero x))
--- lCancelₖ {n = suc zero} x = ((λ i → ΩKn+1→Kn (Iso.rightInv (Iso3-Kn-ΩKn+1 1) (sym (Kn→ΩKn+1 1 x)) i ∙ Kn→ΩKn+1 1 x))) ∙
---                             cong ΩKn+1→Kn (lCancel (Kn→ΩKn+1 1 x))
--- lCancelₖ {n = suc (suc n)} x = (λ i → ΩKn+1→Kn (Iso.rightInv (Iso3-Kn-ΩKn+1 (2 + n)) (sym (Kn→ΩKn+1 (2 + n) x)) i ∙ Kn→ΩKn+1 (2 + n) x)) ∙
---                                cong ΩKn+1→Kn (lCancel (Kn→ΩKn+1 (2 + n) x)) ∙
---                                (λ i → ΩKn+1→Kn (Kn→ΩKn+10ₖ (suc (suc n)) (~ i))) ∙
---                                Iso.leftInv (Iso3-Kn-ΩKn+1 (suc (suc n))) 0ₖ
-
-
 rCancelₖ  : {n : ℕ} (x : coHomK n) → x +ₖ (-ₖ x) ≡ 0ₖ
 rCancelₖ {n = zero} x = (λ i → ΩKn+1→Kn (Kn→ΩKn+1 zero x ∙ Iso.rightInv (Iso3-Kn-ΩKn+1 zero) (sym (Kn→ΩKn+1 zero x)) i)) ∙
                         cong ΩKn+1→Kn (rCancel (Kn→ΩKn+1 zero x))
@@ -255,7 +236,6 @@ commₕ {n = n} = sElim2 (λ _ _ → isOfHLevelPath 1 (§ _ _))
                        λ a b i → ∣ funExt (λ x → commₖ (a x) (b x)) i ∣₀
 
 
-
 rUnitlUnit0 : {n : ℕ} → rUnitₖ {n = n} 0ₖ  ≡ lUnitₖ 0ₖ
 rUnitlUnit0 {n = zero} = refl
 rUnitlUnit0 {n = suc n} =
@@ -298,13 +278,6 @@ rUnitlUnit0 {n = suc n} =
 +ₕ∙ zero = sElim2 (λ _ _ → §) λ { (a , pa) (b , pb) → ∣ (λ x → a x +ₖ b x) , (λ i → (pa i +ₖ pb i)) ∣₀ } -- ∣ (λ x → a x +ₖ b x) ∣₀
 +ₕ∙ (suc n) = sElim2 (λ _ _ → §) λ { (a , pa) (b , pb) → ∣ (λ x → a x +ₖ b x) , (λ i → pa i +ₖ pb i) ∙ lUnitₖ 0ₖ ∣₀ }
 
--- -ₕ∙  : {A : Pointed ℓ} (n : ℕ) → coHomRed n A → coHomRed n A
--- -ₕ∙ zero = sRec § λ {(a , pt) → ∣ (λ x → -ₖ a x ) , (λ i → -ₖ (pt i)) ∣₀}
--- -ₕ∙ (suc zero) = sRec § λ {(a , pt) → ∣ (λ x → -ₖ a x ) , (λ i → -ₖ (pt i)) ∙ (λ i → ΩKn+1→Kn (sym (Kn→ΩKn+10ₖ (suc zero) i))) ∣₀}
--- -ₕ∙ (suc (suc n)) = sRec § λ {(a , pt) → ∣ (λ x → -ₖ a x ) , (λ i → -ₖ (pt i)) ∙
---                                                                  (λ i → ΩKn+1→Kn (sym (Kn→ΩKn+10ₖ (suc (suc n)) i))) ∙
---                                                                  (λ i → ΩKn+1→Kn (Kn→ΩKn+10ₖ (suc (suc n)) (~ i))) ∙
---                                                                  Iso.leftInv (Iso3-Kn-ΩKn+1 (suc (suc n))) ∣ north ∣ ∣₀}
 
 -ₕ∙  : {A : Pointed ℓ} (n : ℕ) → coHomRed n A → coHomRed n A
 -ₕ∙ zero = sRec § λ {(a , pt) → ∣ (λ x → -ₖ a x ) , (λ i → -ₖ (pt i)) ∣₀}

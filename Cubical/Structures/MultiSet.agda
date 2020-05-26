@@ -22,17 +22,17 @@ module _(A : Type ℓ)
 
  open Queues-on A Aset
 
- member-structure : Type ℓ → Type ℓ
- member-structure X = A → X → ℕ
+ count-structure : Type ℓ → Type ℓ
+ count-structure X = A → X → ℕ
 
- Member : Type (ℓ-suc ℓ)
- Member = TypeWithStr ℓ member-structure
+ Count : Type (ℓ-suc ℓ)
+ Count = TypeWithStr ℓ count-structure
 
- member-iso : StrIso member-structure ℓ
- member-iso (X , f) (Y , g) e = ∀ a x → f a x ≡ g a (e .fst x)
+ count-iso : StrIso count-structure ℓ
+ count-iso (X , f) (Y , g) e = ∀ a x → f a x ≡ g a (e .fst x)
 
- Member-is-SNS : SNS {ℓ} member-structure member-iso
- Member-is-SNS = SNS-≡→SNS-PathP member-iso ((λ _ _ → funExt₂Equiv))
+ Count-is-SNS : SNS {ℓ} count-structure count-iso
+ Count-is-SNS = SNS-≡→SNS-PathP count-iso ((λ _ _ → funExt₂Equiv))
 
  -- a multi set structure inspired bei Okasaki
  multi-set-structure : Type ℓ → Type ℓ
@@ -51,8 +51,7 @@ module _(A : Type ℓ)
  Multi-Set-is-SNS : SNS {ℓ₁ = ℓ} multi-set-structure multi-set-iso
  Multi-Set-is-SNS =
    join-SNS pointed-iso pointed-is-SNS
-            {S₂ = λ X → (left-action-structure X) × (member-structure X)}
+            {S₂ = λ X → (left-action-structure X) × (count-structure X)}
             (λ B C e →  (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
                       × (∀ a x → (B .snd .snd a x) ≡ (C .snd .snd a (e .fst x))))
-            (join-SNS left-action-iso Left-Action-is-SNS member-iso Member-is-SNS)
-
+            (join-SNS left-action-iso Left-Action-is-SNS count-iso Count-is-SNS)

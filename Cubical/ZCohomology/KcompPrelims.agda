@@ -2,41 +2,38 @@
 module Cubical.ZCohomology.KcompPrelims where
 
 open import Cubical.ZCohomology.Base
-open import Cubical.HITs.S1
-open import Cubical.HITs.S2
-open import Cubical.HITs.S3
+open import Cubical.Homotopy.Connected
+open import Cubical.HITs.Hopf
+open import Cubical.Homotopy.Freudenthal hiding (encode)
 open import Cubical.HITs.Sn
-open import Cubical.HITs.Sn.Properties
+open import Cubical.HITs.S1
+open import Cubical.HITs.Truncation renaming (elim to trElim ; recElim to trRec ; map to trMap)
+
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Data.NatMinusTwo.Base
-open import Cubical.Data.Empty
-open import Cubical.Data.Sigma hiding (_×_)
-open import Cubical.Data.Prod.Base
-open import Cubical.HITs.Susp
-open import Cubical.HITs.Nullification
+
 open import Cubical.Data.Int renaming (_+_ to +Int)
 open import Cubical.Data.Nat
-open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; map to trMap)
-open import Cubical.HITs.Hopf
-open import Cubical.Homotopy.Connected
-open import Cubical.Homotopy.Freudenthal hiding (encode)
-open import Cubical.Homotopy.Loopspace
-open import Cubical.HITs.Sn
+open import Cubical.Data.NatMinusTwo.Base
 
-open import Cubical.HITs.Pushout
-open import Cubical.Data.Sum.Base
-open import Cubical.Data.HomotopyGroup
+open import Cubical.HITs.Susp
+open import Cubical.HITs.Nullification
+open import Cubical.Data.Prod.Base
+open import Cubical.Homotopy.Loopspace
 open import Cubical.Data.Bool
+open import Cubical.Data.Sum.Base
+open import Cubical.Data.Sigma hiding (_×_)
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Pointed
+open import Cubical.HITs.S3
+
 private
   variable
     ℓ ℓ' : Level
@@ -49,7 +46,7 @@ private
 ϕ : (pt a : A) → typ (Ω (Susp A , north))
 ϕ pt a = (merid a) ∙ sym (merid pt)
 
-  {- To define the map for n=0 we use the λ k → loopᵏ map for S₊ 1. The loop is given by ϕ south north -}
+  {- To define the map for n=0 we use the λ k → loopᵏ map for S₊ 1. The loop is given by ϕ north south -}
 
 loop* : Path (S₊ 1) north north
 loop* = ϕ north south
@@ -59,8 +56,6 @@ looper (pos zero) = refl
 looper (pos (suc n)) = looper (pos n) ∙ loop*
 looper (negsuc zero) = sym loop*
 looper (negsuc (suc n)) = looper (negsuc n) ∙ sym loop*
-
-
 
 private
 
@@ -141,12 +136,11 @@ private
   S3≡SuspSuspS¹ : S₊ 3 ≡ Susp (Susp S¹)
   S3≡SuspSuspS¹ = (λ i → Susp (Susp (Susp (ua Bool≃Susp⊥ (~ i))))) ∙ λ i → Susp (Susp (S¹≡SuspBool (~ i)))
 
-  sphereConnectedSpecCase : isHLevelConnected 4 (Susp (Susp S¹)) -- is- 2 -ConnectedType (Susp (Susp S¹))
+  sphereConnectedSpecCase : isHLevelConnected 4 (Susp (Susp S¹))
   sphereConnectedSpecCase = transport (λ i → isHLevelConnected 4 (S3≡SuspSuspS¹ i)) (sphereConnected 3)
 
 
-
-  {- We give the following map and show that it is an equivalence -}
+  {- We give the following map and show that its truncation is an equivalence -}
 
   d-map : typ (Ω ((Susp S¹) , north)) → S¹
   d-map p = subst HopfSuspS¹ p base
@@ -175,10 +169,7 @@ private
                                                  (refl , isOfHLevelSuc 1 (isOfHLevelSuc 0 sphereConnectedSpecCase) ∣ north ∣ ∣ north ∣ (λ _ → ∣ north ∣))))
 
   d-iso2 : Iso (hLevelTrunc 3 (typ (Ω (Susp S¹ , north)))) (hLevelTrunc 3 S¹)
-  Iso.fun d-iso2 = trMap d-map
-  Iso.inv d-iso2 = Iso.inv (connectedTruncIso _ d-map is1Connected-dmap)
-  Iso.rightInv d-iso2 = Iso.rightInv (connectedTruncIso _ d-map is1Connected-dmap)
-  Iso.leftInv d-iso2 = Iso.leftInv (connectedTruncIso _ d-map is1Connected-dmap)
+  d-iso2 = connectedTruncIso _ d-map is1Connected-dmap
 
   d-iso : isIso {A = ∥  typ (Ω (Susp S¹ , north)) ∥ (ℕ→ℕ₋₂ 1)} {B = ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (trElim (λ x → isOfHLevelTrunc 3) λ x → ∣ d-map x ∣ )
   d-iso = (Iso.inv (connectedTruncIso _ d-map is1Connected-dmap)) , (Iso.rightInv (connectedTruncIso _ d-map is1Connected-dmap)
@@ -233,7 +224,7 @@ private
   Iso.rightInv Iso∣ϕ∣ = isIso∣ϕ∣ .snd .fst
   Iso.leftInv Iso∣ϕ∣ = isIso∣ϕ∣ .snd .snd
 
--- ---------------------------------------------------- Finishing up ---------------------------------
+---------------------------------------------------- Finishing up ---------------------------------
 
 -- We need ΩTrunc. It appears to compute better when restated for this particular case --
 
@@ -248,7 +239,7 @@ funsAreSame (suc n) x = trElim (λ a → isOfHLevelPath _ (isOfHLevelPath' (suc 
 decodeIso : (n : ℕ) (x : A) → Iso (hLevelTrunc n (x ≡ x)) (Path (hLevelTrunc (suc n) A) ∣ x ∣ ∣ x ∣)
 Iso.fun (decodeIso n x) = decode-fun2 n x
 Iso.inv (decodeIso n x) = ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣
-Iso.rightInv (decodeIso n x) b = funExt⁻ (funExt (funsAreSame n x)) (ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣ b) ∙ ΩTrunc.P-rinv ∣ x ∣ ∣ x ∣ b
+Iso.rightInv (decodeIso n x) b = funsAreSame n x (ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣ b) ∙ ΩTrunc.P-rinv ∣ x ∣ ∣ x ∣ b
 Iso.leftInv (decodeIso n x) b = cong (ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣) (funsAreSame n x b) ∙ ΩTrunc.P-linv ∣ x ∣ ∣ x ∣ b
 
 Iso-Kn-ΩKn+1 : (n : ℕ) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))

@@ -115,20 +115,33 @@ isOfHLevelTrunc (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilledTrunc
 
 -- hLevelTrunc n is a modality
 
-rec : {n : ℕ}
-      {B : Type ℓ'} →
-      (isOfHLevel n B) →
-      (g : (a : A) → B) →
-      (hLevelTrunc n A → B)
-rec {B = B} h = Null.elim (λ _ → isOfHLevel→isSnNull (h)) --Null.rec (isOfHLevel→isSnNull h)
+-- This more direct definition should behave better than recElim
+-- below. Commented for now as it breaks some cohomology code if we
+-- use it instead of recElim.
+-- rec : {n : ℕ}
+--       {B : Type ℓ'} →
+--       isOfHLevel n B →
+--       (A → B) →
+--       hLevelTrunc n A →
+--       B
+-- rec h = Null.rec (isOfHLevel→isSnNull h)
 
+-- TODO: remove this
+recElim : {n : ℕ}
+      {B : Type ℓ'} →
+      isOfHLevel n B →
+      (A → B) →
+      hLevelTrunc n A →
+      B
+recElim {B = B} h = Null.elim {B = λ _ → B} λ x → isOfHLevel→isSnNull h
 elim : {n : ℕ}
-  {B : hLevelTrunc n A → Type ℓ'}
-  (hB : (x : hLevelTrunc n A) → isOfHLevel n (B x))
-  (g : (a : A) → B (∣ a ∣))
-  (x : hLevelTrunc n A) →
-  B x
+       {B : hLevelTrunc n A → Type ℓ'}
+       (hB : (x : hLevelTrunc n A) → isOfHLevel n (B x))
+       (g : (a : A) → B (∣ a ∣))
+       (x : hLevelTrunc n A) →
+       B x
 elim hB = Null.elim (λ x → isOfHLevel→isSnNull (hB x))
+
 
 elim2 : {n : ℕ}
   {B : hLevelTrunc n A → hLevelTrunc n A → Type ℓ'}
@@ -179,13 +192,14 @@ Iso.leftInv (univTrunc n {B , lev}) b = funExt (elim (λ x → isOfHLevelPath _ 
 
 map : {n : ℕ} {B : Type ℓ'} (g : A → B)
   → hLevelTrunc n A → hLevelTrunc n B
-map g = rec (isOfHLevelTrunc _) (λ a → ∣ g a ∣)
+map g = recElim (isOfHLevelTrunc _) (λ a → ∣ g a ∣)
 
 mapCompIso : {n : ℕ} {B : Type ℓ'} → (Iso A B) → Iso (hLevelTrunc n A) (hLevelTrunc n B)
-Iso.fun (mapCompIso g) = rec (isOfHLevelTrunc _) λ a → ∣ Iso.fun g a ∣
-Iso.inv (mapCompIso g) = rec (isOfHLevelTrunc _) λ b → ∣ Iso.inv g b ∣
+Iso.fun (mapCompIso g) = recElim (isOfHLevelTrunc _) λ a → ∣ Iso.fun g a ∣
+Iso.inv (mapCompIso g) = recElim (isOfHLevelTrunc _) λ b → ∣ Iso.inv g b ∣
 Iso.rightInv (mapCompIso g) = elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _) λ b → cong ∣_∣ (Iso.rightInv g b)
 Iso.leftInv (mapCompIso g) = elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _) λ a → cong ∣_∣ (Iso.leftInv g a)
+
 
 mapId : {n : ℕ} → ∀ t → map {n = n} (idfun A) t ≡ t
 mapId {n = n} =
@@ -277,10 +291,10 @@ module ΩTrunc where
       decode* : ∀ {n : ℕ₋₂} (u v : B)
               → P {n = n} ∣ u ∣ ∣ v ∣ → Path (∥ B ∥ (suc₋₂ n)) ∣ u ∣ ∣ v ∣
       decode* {B = B} {n = neg2} u v =
-        rec ( isOfHLevelTrunc 1 ∣ u ∣ ∣ v ∣
+        recElim ( isOfHLevelTrunc 1 ∣ u ∣ ∣ v ∣
             , λ _ → isOfHLevelSuc 1 (isOfHLevelTrunc 1) _ _ _ _) (cong ∣_∣)
       decode* {n = ℕ₋₂.-1+ n} u v =
-        rec (isOfHLevelTrunc (suc (suc n)) ∣ u ∣ ∣ v ∣) (cong ∣_∣)
+        recElim (isOfHLevelTrunc (suc (suc n)) ∣ u ∣ ∣ v ∣) (cong ∣_∣)
 
   {- auxiliary function r used to define encode -}
   r : {m : ℕ₋₂} (u : ∥ B ∥ (suc₋₂ m)) → P u u
@@ -337,19 +351,13 @@ module ΩTrunc where
   Iso.rightInv (IsoFinal _ x y) = P-linv x y
   Iso.leftInv (IsoFinal _ x y) = P-rinv x y
 
-  IsoFinal2 : ∀ {ℓ} {B : Type ℓ} {n : ℕ₋₂} (x y : ∥ B ∥ (suc₋₂ n)) → Iso (P x y) (x ≡ y)
-  Iso.fun (IsoFinal2 x y) = decode-fun x y
-  Iso.inv (IsoFinal2 x y) = encode-fun x y
-  Iso.rightInv (IsoFinal2 x y) = P-rinv x y
-  Iso.leftInv (IsoFinal2 x y) = P-linv x y
-
 PathIdTrunc : {a b : A} (n : ℕ₋₂) → (Path (∥ A ∥ (suc₋₂ n)) ∣ a ∣ ∣ b ∣) ≡ (∥ a ≡ b ∥ n)
 PathIdTrunc n = isoToPath (ΩTrunc.IsoFinal n _ _)
 
 PathΩ : {a : A} (n : ℕ₋₂) → (Path (∥ A ∥ (suc₋₂ n)) ∣ a ∣ ∣ a ∣) ≡ (∥ a ≡ a ∥ n)
 PathΩ n = PathIdTrunc n
 
-{- Special cases using old defs of truncations -}
+{- Special case using old defs of truncations -}
 PathIdTrunc₀Iso : {a b : A} → Iso (∣ a ∣₀ ≡ ∣ b ∣₀) ∥ a ≡ b ∥₋₁
 PathIdTrunc₀Iso = compIso (congIso setTrunc≃Trunc0)
                     (compIso (ΩTrunc.IsoFinal _ ∣ _ ∣ ∣ _ ∣)

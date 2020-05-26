@@ -280,12 +280,6 @@ hcomp-cong : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 :
 hcomp-cong u u0 u' u0' ueq 0eq = inS (\ j → hcomp (\ i o → ueq i o j) (outS 0eq j))
 
 ---
-{-
-congFunct : ∀ {ℓ} {B : Type ℓ} → (f : A → B) (p : x ≡ y) (q : y ≡ z) → cong f (p ∙ q) ≡ cong f p ∙ cong f q
-congFunct f p q i = hcomp (λ j → λ{(i = i0) → rUnit (cong f (p ∙ q)) (~ j) ;
-                                    (i = i1) → cong f (rUnit p (~ j)) ∙ cong f q})
-                          (cong f (p ∙ (λ k → q (k ∧ (~ i)))) ∙ cong f λ k → q ((~ i) ∨ k) )
--}
 
 congFunct-filler : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y z : A} (f : A → B) (p : x ≡ y) (q : y ≡ z)
                 → I → I → I → B
@@ -300,7 +294,7 @@ congFunct : ∀ {ℓ} {B : Type ℓ} (f : A → B) (p : x ≡ y) (q : y ≡ z) �
 congFunct f p q j i = congFunct-filler f p q i j i1
 
 
--- congFunct for dependent types 
+-- congFunct for dependent types
 congFunct-dep : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y z : A} (f : (a : A) → B a) (p : x ≡ y) (q : y ≡ z)
          → PathP (λ i → PathP (λ j → B (compPath-filler p q i j)) (f x) (f (q i))) (cong f p) (cong f (p ∙ q))
 congFunct-dep {B = B} {x = x} f p q i j = f (compPath-filler p q i j)
@@ -325,10 +319,3 @@ symDistr-filler {A = A} {z = z} p q i j k =
 
 symDistr : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → sym (p ∙ q) ≡ sym q ∙ sym p
 symDistr p q i j = symDistr-filler p q j i i1
-
-{-
-symDistr : (p : x ≡ y) (q : y ≡ z)  → sym (p ∙ q) ≡ sym q ∙ sym p
-symDistr p q i = hcomp (λ j → λ{(i = i0) → rUnit (sym (p ∙ q)) (~ j)  ;
-                                 (i = i1) → sym (lUnit q (~ j)) ∙ sym p})
-                       (sym ((λ k → p (k ∨ i)) ∙ q) ∙ sym λ k → p (i ∧ k))
--}
