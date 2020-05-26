@@ -30,7 +30,7 @@ raw-group-is-SNS = raw-semigroup-is-SNS
 -- and neutral element, although they will preserve them).
 
 group-axioms : (G : Type ℓ) → raw-group-structure G → Type ℓ
-group-axioms G _·_ = semigroup-axioms G _·_ × 
+group-axioms G _·_ = semigroup-axioms G _·_ ×
                      (Σ[ e ∈ G ] ((x : G) → (x · e ≡ x) × (e · x ≡ x)) ×
                       ((x : G) → Σ[ x' ∈ G ] (x · x' ≡ e) × (x' · x ≡ e)))
 

@@ -127,7 +127,7 @@ ring-ldist (_ , _ , _ , _ , _ , P) = P
 
 module ring-·syntax (R : Ring {ℓ}) where
   open ringAxioms
-  
+
   infixr 14 _+_
   infixr 14 _-_
   infixr 18 _·_
@@ -171,7 +171,7 @@ record ringStructure {ℓ} (R : Type ℓ) : Type ℓ where
   +-lid x =         ₀ + x     ≡⟨ +-comm _ _ ⟩
                     x + ₀     ≡⟨ +-rid x ⟩
                     x         ∎
-  
+
   +-linv : (x : R) → (- x) + x ≡ ₀
   +-linv x =         (- x) + x    ≡⟨ +-comm _ _ ⟩
                      x + (- x)    ≡⟨ +-rinv x ⟩
@@ -182,11 +182,11 @@ createRing : (R : Type ℓ)
              → ringStructure R
              → Ring {ℓ}
 createRing R isSet-R ringStr =
-           let open ringStructure ringStr 
+           let open ringStructure ringStr
            in R , (_+_ , ₁ , _·_) ,
               (((isSet-R , +-assoc)
                 , ₀
-                , ((λ x → +-rid x , +-lid x) 
+                , ((λ x → +-rid x , +-lid x)
                   , λ x → (- x) , ((+-rinv x) , (+-linv x))))
                 , +-comm)
               , (isSet-R
@@ -194,12 +194,12 @@ createRing R isSet-R ringStr =
                   , (·-rid
                     , ·-lid)))
               , rdist
-                , ldist             
+                , ldist
 
 
-{- 
+{-
   some basic calculations (used for example in QuotientRing.agda),
-  that might should become obsolete or subject to change once we 
+  that might should become obsolete or subject to change once we
   have a ring solver (see https://github.com/agda/cubical/issues/297)
 -}
 module calculations (R : Ring {ℓ}) where
@@ -215,7 +215,7 @@ module calculations (R : Ring {ℓ}) where
                        (- x + x) + y   ≡⟨ sym (ring+-assoc _ _ _) ⟩
                        (- x) + (x + y) ≡⟨ cong (λ u → (- x) + u) p ⟩
                        (- x) + ₀       ≡⟨ ring+-rid _ ⟩
-                       - x             ∎ 
+                       - x             ∎
 
   0-selfinverse : - ₀ ≡ ₀
   0-selfinverse = sym (implicitInverse _ _ (ring+-rid ₀))
@@ -230,37 +230,37 @@ module calculations (R : Ring {ℓ}) where
                         x + (x + (- x)) ≡⟨ cong (λ u → x + u) (ring+-rinv _) ⟩
                         x + ₀           ≡⟨ ring+-rid x ⟩
                         x               ∎
-  
+
   0-rightNullifies : (x : ⟨ R ⟩) → ₀ ≡ x · ₀
   0-rightNullifies x =
               let x·0-is-idempotent : x · ₀ ≡ x · ₀ + x · ₀
                   x·0-is-idempotent =
                     x · ₀              ≡⟨ cong (λ u → x · u) (sym 0-idempotent) ⟩
-                    x · (₀ + ₀)        ≡⟨ (ring-rdist R _ _ _) ⟩ 
+                    x · (₀ + ₀)        ≡⟨ (ring-rdist R _ _ _) ⟩
                     (x · ₀) + (x · ₀)  ∎
               in +-idempotency→0 _ x·0-is-idempotent
-              
+
   0-leftNullifies : (x : ⟨ R ⟩) → ₀ ≡ ₀ · x
   0-leftNullifies x =
               let 0·x-is-idempotent : ₀ · x ≡ ₀ · x + ₀ · x
                   0·x-is-idempotent =
                     ₀ · x              ≡⟨ cong (λ u → u · x) (sym 0-idempotent) ⟩
-                    (₀ + ₀) · x        ≡⟨ (ring-ldist R _ _ _) ⟩ 
+                    (₀ + ₀) · x        ≡⟨ (ring-ldist R _ _ _) ⟩
                     (₀ · x) + (₀ · x)  ∎
               in +-idempotency→0 _ 0·x-is-idempotent
-              
+
   -commutesWithRight-· : (x y : ⟨ R ⟩) →  x · (- y) ≡ - (x · y)
   -commutesWithRight-· x y = implicitInverse (x · y) (x · (- y))
-  
+
                                         (x · y + x · (- y)     ≡⟨ sym (ring-rdist R _ _ _) ⟩
                                         x · (y + (- y))        ≡⟨ cong (λ u → x · u) (ring+-rinv y) ⟩
                                         x · ₀                  ≡⟨ sym (0-rightNullifies x) ⟩
-                                        ₀ ∎) 
+                                        ₀ ∎)
 
   -commutesWithLeft-· : (x y : ⟨ R ⟩) →  (- x) · y ≡ - (x · y)
   -commutesWithLeft-· x y = implicitInverse (x · y) ((- x) · y)
-  
+
                                         (x · y + (- x) · y     ≡⟨ sym (ring-ldist R _ _ _) ⟩
                                         (x - x) · y            ≡⟨ cong (λ u → u · y) (ring+-rinv x) ⟩
                                         ₀ · y                  ≡⟨ sym (0-leftNullifies y) ⟩
-                                        ₀ ∎) 
+                                        ₀ ∎)
