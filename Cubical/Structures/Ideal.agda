@@ -52,5 +52,3 @@ module _ (R′ : Ring {ℓ}) where
       -closed : {x : R} → x ∈ I → - x ∈ I
       ₀-closed : ₀ ∈ I
       ·-closedRight : {x : R} → (r : R) → x ∈ I → x · r ∈ I
-
-
