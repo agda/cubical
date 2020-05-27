@@ -34,7 +34,8 @@ module _ (R : CommRing {ℓ}) where
       y₁-y₂divides0 = ₀                        ≡⟨ sym (commring+-rinv ₁) ⟩
                       ₁ - ₁                    ≡⟨ cong (λ u → u - ₁) (sym (y₁-inv)) ⟩
                       (x · y₁) - ₁             ≡⟨ cong (λ u → (x · y₁) - u) (sym (y₂-inv)) ⟩
-                      (x · y₁) - (x · y₂)      ≡⟨ cong (λ u → (x · y₁) + u) (sym (-commutesWithRight-· x y₂)) ⟩
+                      (x · y₁) - (x · y₂)      ≡⟨ cong (λ u → (x · y₁) + u)
+                                                       (sym (-commutesWithRight-· x y₂)) ⟩
                       (x · y₁) + (x · (- y₂))  ≡⟨ sym (commring-rdist _ _ _) ⟩
                       x · (y₁ - y₂)            ∎
 
