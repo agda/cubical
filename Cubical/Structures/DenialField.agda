@@ -7,6 +7,8 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
+open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+
 open import Cubical.Data.Empty
 open import Cubical.Structures.CommRing
 import Cubical.Structures.Ring
@@ -66,3 +68,25 @@ module _ (R : CommRing {ℓ}) where
   isPropIsDenialField : isProp (isDenialField)
   isPropIsDenialField w1 w2 i = (λ irrelevant → isProp⊥ ((fst w1) irrelevant) ((fst w2) irrelevant) i) ,
                                 (isPropNonZeroElementsInvertible (snd w1) (snd w2) i)
+
+private
+  denialFieldAxioms : (R : Type ℓ) → comm-ring-structure R → Type ℓ
+  denialFieldAxioms R cringStr = isDenialField (R , cringStr)
+
+  denialFieldAxioms-isProp : (R : Type ℓ) → (cringStr : comm-ring-structure R) → isProp (denialFieldAxioms R cringStr)
+  denialFieldAxioms-isProp R cringStr = isPropIsDenialField (R , cringStr)
+
+denialFieldStructure : Type ℓ → Type ℓ
+denialFieldStructure = add-to-structure comm-ring-structure denialFieldAxioms
+
+DenialField : Type (ℓ-suc ℓ)
+DenialField {ℓ} = TypeWithStr ℓ denialFieldStructure
+
+denialFieldIso : StrIso denialFieldStructure ℓ
+denialFieldIso = add-to-iso comm-ring-iso denialFieldAxioms
+
+denialFieldIsSNS : SNS {ℓ} denialFieldStructure denialFieldIso
+denialFieldIsSNS = add-axioms-SNS _ denialFieldAxioms-isProp comm-ring-is-SNS
+
+DenialFieldPath : (K L : DenialField {ℓ}) → (K ≃[ denialFieldIso ] L) ≃ (K ≡ L)
+DenialFieldPath = SIP denialFieldIsSNS
