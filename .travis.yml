@@ -64,7 +64,7 @@ install:
   - cd -
   - git clone https://github.com/agda/fix-whitespace --depth=1
   - cd fix-whitespace
-  - cabal v1-install fix-whitespace.cabal
+  - cabal install fix-whitespace.cabal
   - cd -
   # snapshot package-db on cache miss
   - echo "snapshotting package-db to build-cache";
