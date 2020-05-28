@@ -20,11 +20,14 @@ module _ (R : CommRing {ℓ}) where
   open commRingAxioms R
   open Cubical.Structures.Ring.calculations (CommRing→Ring R)
 
-  isDenialField : Type ℓ
-  isDenialField = (x : ⟨ R ⟩) → (x ≡ ₀ → ⊥) → Σ[ y ∈ ⟨ R ⟩ ] (x · y) ≡ ₁
+  nonZeroElementsAreInvertible : Type ℓ
+  nonZeroElementsAreInvertible = ((x : ⟨ R ⟩) → (x ≡ ₀ → ⊥) → Σ[ y ∈ ⟨ R ⟩ ] (x · y) ≡ ₁)
 
-  isPropIsField : isProp (isDenialField)
-  isPropIsField witness1 witness2 i x x-non-zero =
+  isDenialField : Type ℓ
+  isDenialField = (₀ ≡ ₁ → ⊥) × nonZeroElementsAreInvertible
+
+  isPropNonZeroElementsInvertible : isProp (nonZeroElementsAreInvertible)
+  isPropNonZeroElementsInvertible witness1 witness2 i x x-non-zero =
     let
       y₁ = fst (witness1 x x-non-zero)
       y₁-inv = snd (witness1 x x-non-zero)
@@ -59,3 +62,7 @@ module _ (R : CommRing {ℓ}) where
               {witness2 x x-non-zero}
               inverseIsUnique
               i
+
+  isPropIsDenialField : isProp (isDenialField)
+  isPropIsDenialField w1 w2 i = (λ irrelevant → isProp⊥ ((fst w1) irrelevant) ((fst w2) irrelevant) i) ,
+                                (isPropNonZeroElementsInvertible (snd w1) (snd w2) i)
