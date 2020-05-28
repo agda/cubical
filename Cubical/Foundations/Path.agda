@@ -16,6 +16,7 @@ private
 cong′ : ∀ {B : Type ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
       → Path B (f x) (f y)
 cong′ f = cong f
+{-# INLINE cong′ #-}
 
 PathP≡Path : ∀ (P : I → Type ℓ) (p : P i0) (q : P i1) →
              PathP P p q ≡ Path (P i1) (transport (λ i → P i) p) q
