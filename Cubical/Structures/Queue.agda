@@ -39,7 +39,7 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  left-action-iso (X , l) (Y , m) e = ∀ a x → e .fst (l a x) ≡ m a (e .fst x)
 
  Left-Action-is-SNS : SNS {ℓ} left-action-structure left-action-iso
- Left-Action-is-SNS = SNS-≡→SNS-PathP left-action-iso ((λ _ _ → funExt₂Equiv))
+ Left-Action-is-SNS = SNS-≡→SNS-PathP left-action-iso (λ _ _ → funExt₂Equiv)
 
 
  -- Now for the deq-map as a structure
@@ -57,8 +57,8 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  deq-map-forward-∘ g f (inr (b , a)) = refl
 
 
- deq-map-lemma : {X : Type ℓ} → idfun (Unit ⊎ (X × A)) ≡ deq-map-forward (idfun X)
- deq-map-lemma {X = X} = funExt γ
+ deq-map-id : {X : Type ℓ} → idfun (Unit ⊎ (X × A)) ≡ deq-map-forward (idfun X)
+ deq-map-id {X = X} = funExt γ
   where
    γ : ∀ z → z ≡ deq-map-forward (idfun X) z
    γ (inl tt) = refl
@@ -76,7 +76,7 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  deq-iso (X , p) (Y , q) e = ∀ x → deq-map-forward (e .fst) (p x) ≡ q (e .fst x)
 
  Deq-is-SNS : SNS {ℓ} deq-structure deq-iso
- Deq-is-SNS = SNS-≡→SNS-PathP deq-iso (λ p q → (subst (λ f → (∀ x → f (p x) ≡ q x) ≃ (p ≡ q)) deq-map-lemma funExtEquiv))
+ Deq-is-SNS = SNS-≡→SNS-PathP deq-iso (λ p q → (subst (λ f → (∀ x → f (p x) ≡ q x) ≃ (p ≡ q)) deq-map-id funExtEquiv))
 
 
 
