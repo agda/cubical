@@ -17,21 +17,21 @@ module _ (A : Type ℓ) (Aset : isSet A) where
  -- following Cavallo we can now define 1Lists and 2Lists as Queues on A
  -- and prove that there is a queue-iso between them, this then gives us a path
  1List : Queue
- 1List = (Q , emp , push , pop)
+ 1List = (Q , emp , enq , deq)
   where
    Q = List A
    emp = []
-   push = _∷_
-   pop : Q → Unit ⊎ (Q × A)
-   pop [] = inl tt
-   pop (x ∷ []) = inr ([] , x)
-   pop (x ∷ x' ∷ xs) = pop-map-forward (push x) (pop (x' ∷ xs))
+   enq = _∷_
+   deq : Q → Unit ⊎ (Q × A)
+   deq [] = inl tt
+   deq (x ∷ []) = inr ([] , x)
+   deq (x ∷ x' ∷ xs) = deq-map-forward (enq x) (deq (x' ∷ xs))
 
  -- for later convenience
  Q₁ = typ 1List
  emp₁ = str 1List .fst
- push₁ = str 1List .snd .fst
- pop₁ = str 1List .snd .snd
+ enq₁ = str 1List .snd .fst
+ deq₁ = str 1List .snd .snd
 
 
  -- Now for 2Lists
@@ -49,43 +49,43 @@ module _ (A : Type ℓ) (Aset : isSet A) where
    ∙ cong (λ ws → Q₂⟨ xs , ws ⟩) (++-assoc ys [ z ] zs)
 
 
-  -- push into the first list, pop from the second if possible
+  -- enq into the first list, deq from the second if possible
 
  emp₂ : Q₂
  emp₂ = Q₂⟨ [] , [] ⟩
 
- push₂ : A → Q₂ → Q₂
- push₂ a Q₂⟨ xs , ys ⟩ = Q₂⟨ a ∷ xs , ys ⟩
- push₂ a (tilt xs ys z i) = tilt (a ∷ xs) ys z i
- push₂ a (trunc q q' α β i j) =
-   trunc _ _ (cong (push₂ a) α) (cong (push₂ a) β) i j
+ enq₂ : A → Q₂ → Q₂
+ enq₂ a Q₂⟨ xs , ys ⟩ = Q₂⟨ a ∷ xs , ys ⟩
+ enq₂ a (tilt xs ys z i) = tilt (a ∷ xs) ys z i
+ enq₂ a (trunc q q' α β i j) =
+   trunc _ _ (cong (enq₂ a) α) (cong (enq₂ a) β) i j
 
 
- pop₂Flush : List A → Unit ⊎ (Q₂ × A)
- pop₂Flush [] = inl tt
- pop₂Flush (x ∷ xs) = inr (Q₂⟨ [] , xs ⟩ , x)
+ deq₂Flush : List A → Unit ⊎ (Q₂ × A)
+ deq₂Flush [] = inl tt
+ deq₂Flush (x ∷ xs) = inr (Q₂⟨ [] , xs ⟩ , x)
 
- pop₂ : Q₂ → Unit ⊎ (Q₂ × A)
- pop₂ Q₂⟨ xs , [] ⟩ = pop₂Flush (rev xs)
- pop₂ Q₂⟨ xs , y ∷ ys ⟩ = inr (Q₂⟨ xs , ys ⟩ , y)
- pop₂ (tilt xs [] z i) = path i
+ deq₂ : Q₂ → Unit ⊎ (Q₂ × A)
+ deq₂ Q₂⟨ xs , [] ⟩ = deq₂Flush (rev xs)
+ deq₂ Q₂⟨ xs , y ∷ ys ⟩ = inr (Q₂⟨ xs , ys ⟩ , y)
+ deq₂ (tilt xs [] z i) = path i
    where
-   path : pop₂Flush (rev (xs ++ [ z ])) ≡ inr (Q₂⟨ xs , [] ⟩ , z)
+   path : deq₂Flush (rev (xs ++ [ z ])) ≡ inr (Q₂⟨ xs , [] ⟩ , z)
    path =
-     cong pop₂Flush (rev-++ xs [ z ])
+     cong deq₂Flush (rev-++ xs [ z ])
      ∙ cong (λ q → inr (q , z)) (sym (multitilt [] [] (rev xs)))
      ∙ cong (λ ys → inr (Q₂⟨ ys , [] ⟩ , z)) (rev-rev xs)
- pop₂ (tilt xs (y ∷ ys) z i) = inr (tilt xs ys z i , y)
- pop₂ (trunc q q' α β i j) =
+ deq₂ (tilt xs (y ∷ ys) z i) = inr (tilt xs ys z i , y)
+ deq₂ (trunc q q' α β i j) =
    isOfHLevelSum 0
      (isProp→isSet isPropUnit)
      (isSetΣ trunc λ _ → Aset)
-     (pop₂ q) (pop₂ q') (cong pop₂ α) (cong pop₂ β)
+     (deq₂ q) (deq₂ q') (cong deq₂ α) (cong deq₂ β)
     i j
 
 
  2List : Queue
- 2List = (Q₂ , emp₂ , push₂ , pop₂)
+ 2List = (Q₂ , emp₂ , enq₂ , deq₂)
 
 
 
@@ -140,28 +140,28 @@ module _ (A : Type ℓ) (Aset : isSet A) where
  quot∘emp : quot emp₁ ≡ emp₂
  quot∘emp = refl
 
- quot∘push : ∀ x xs → quot (push₁ x xs) ≡ push₂ x (quot xs)
- quot∘push x xs = refl
+ quot∘enq : ∀ x xs → quot (enq₁ x xs) ≡ enq₂ x (quot xs)
+ quot∘enq x xs = refl
 
 
- quot∘pop : ∀ xs → pop-map-forward quot (pop₁ xs) ≡ pop₂ (quot xs)
- quot∘pop [] = refl
- quot∘pop (x ∷ []) = refl
- quot∘pop (x ∷ x' ∷ xs) =
-   pop-map-forward-∘ quot (push₁ x) (pop₁ (x' ∷ xs))
-   ∙ sym (pop-map-forward-∘ (push₂ x) quot (pop₁ (x' ∷ xs)))
-   ∙ cong (pop-map-forward (push₂ x)) (quot∘pop (x' ∷ xs))
+ quot∘deq : ∀ xs → deq-map-forward quot (deq₁ xs) ≡ deq₂ (quot xs)
+ quot∘deq [] = refl
+ quot∘deq (x ∷ []) = refl
+ quot∘deq (x ∷ x' ∷ xs) =
+   deq-map-forward-∘ quot (enq₁ x) (deq₁ (x' ∷ xs))
+   ∙ sym (deq-map-forward-∘ (enq₂ x) quot (deq₁ (x' ∷ xs)))
+   ∙ cong (deq-map-forward (enq₂ x)) (quot∘deq (x' ∷ xs))
    ∙ lemma x x' (rev xs)
    where
    lemma : ∀ x x' ys
-     → pop-map-forward (push₂ x) (pop₂Flush (ys ++ [ x' ]))
-       ≡ pop₂Flush ((ys ++ [ x' ]) ++ [ x ])
+     → deq-map-forward (enq₂ x) (deq₂Flush (ys ++ [ x' ]))
+       ≡ deq₂Flush ((ys ++ [ x' ]) ++ [ x ])
    lemma x x' [] i = inr (tilt [] [] x i , x')
    lemma x x' (y ∷ ys) i = inr (tilt [] (ys ++ [ x' ]) x i , y)
 
 
  quotEquiv-is-queue-iso : queue-iso 1List 2List quotEquiv
- quotEquiv-is-queue-iso = quot∘emp , quot∘push , quot∘pop
+ quotEquiv-is-queue-iso = quot∘emp , quot∘enq , quot∘deq
 
 
  -- And we get the desired Path

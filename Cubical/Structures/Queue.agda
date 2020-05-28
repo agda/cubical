@@ -27,8 +27,8 @@ variable
 -- We start fixing a set A on which we define what it means for a type Q to have
 -- a Queue structure (wrt. A)
 module Queues-on (A : Type ℓ) (Aset : isSet A) where
- -- A Queue structure has three components, the empty Queue, a push function and a pop function
- -- We first deal with push and pop as separate structures
+ -- A Queue structure has three components, the empty Queue, an enqueue function and a dequeue function
+ -- We first deal with enq and deq as separate structures
  left-action-structure : Type ℓ → Type ℓ
  left-action-structure X = A → X → X
 
@@ -42,41 +42,41 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  Left-Action-is-SNS = SNS-≡→SNS-PathP left-action-iso ((λ _ _ → funExt₂Equiv))
 
 
- -- Now for the pop-map as a structure
+ -- Now for the deq-map as a structure
  -- First, a few preliminary results that we will need later
- pop-map-forward : {X Y : Type ℓ} → (X → Y)
+ deq-map-forward : {X Y : Type ℓ} → (X → Y)
                   →  Unit ⊎ (X × A) → Unit ⊎ (Y × A)
- pop-map-forward f (inl tt) = inl tt
- pop-map-forward f (inr (x , a)) = inr (f x , a)
+ deq-map-forward f (inl tt) = inl tt
+ deq-map-forward f (inr (x , a)) = inr (f x , a)
 
 
- pop-map-forward-∘ :{B C D : Type ℓ}
+ deq-map-forward-∘ :{B C D : Type ℓ}
   (g : C → D) (f : B → C)
-  → ∀ r → pop-map-forward {X = C} g (pop-map-forward f r) ≡ pop-map-forward (λ b → g (f b)) r
- pop-map-forward-∘ g f (inl tt) = refl
- pop-map-forward-∘ g f (inr (b , a)) = refl
+  → ∀ r → deq-map-forward {X = C} g (deq-map-forward f r) ≡ deq-map-forward (λ b → g (f b)) r
+ deq-map-forward-∘ g f (inl tt) = refl
+ deq-map-forward-∘ g f (inr (b , a)) = refl
 
 
- pop-map-lemma : {X : Type ℓ} → idfun (Unit ⊎ (X × A)) ≡ pop-map-forward (idfun X)
- pop-map-lemma {X = X} = funExt γ
+ deq-map-lemma : {X : Type ℓ} → idfun (Unit ⊎ (X × A)) ≡ deq-map-forward (idfun X)
+ deq-map-lemma {X = X} = funExt γ
   where
-   γ : ∀ z → z ≡ pop-map-forward (idfun X) z
+   γ : ∀ z → z ≡ deq-map-forward (idfun X) z
    γ (inl tt) = refl
    γ (inr xa) = refl
 
 
 
- pop-structure : Type ℓ → Type ℓ
- pop-structure X = X → Unit ⊎ (X × A)
+ deq-structure : Type ℓ → Type ℓ
+ deq-structure X = X → Unit ⊎ (X × A)
 
- Pop : Type (ℓ-suc ℓ)
- Pop = TypeWithStr ℓ pop-structure
+ Deq : Type (ℓ-suc ℓ)
+ Deq = TypeWithStr ℓ deq-structure
 
- pop-iso : StrIso pop-structure ℓ
- pop-iso (X , p) (Y , q) e = ∀ x → pop-map-forward (e .fst) (p x) ≡ q (e .fst x)
+ deq-iso : StrIso deq-structure ℓ
+ deq-iso (X , p) (Y , q) e = ∀ x → deq-map-forward (e .fst) (p x) ≡ q (e .fst x)
 
- Pop-is-SNS : SNS {ℓ} pop-structure pop-iso
- Pop-is-SNS = SNS-≡→SNS-PathP pop-iso (λ p q → (subst (λ f → (∀ x → f (p x) ≡ q x) ≃ (p ≡ q)) pop-map-lemma funExtEquiv))
+ Deq-is-SNS : SNS {ℓ} deq-structure deq-iso
+ Deq-is-SNS = SNS-≡→SNS-PathP deq-iso (λ p q → (subst (λ f → (∀ x → f (p x) ≡ q x) ≃ (p ≡ q)) deq-map-lemma funExtEquiv))
 
 
 
@@ -88,20 +88,20 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  Queue = TypeWithStr ℓ queue-structure
 
  queue-iso : StrIso queue-structure ℓ
- queue-iso (Q₁ , emp₁ , push₁ , pop₁) (Q₂ , emp₂ , push₂ , pop₂) e =
+ queue-iso (Q₁ , emp₁ , enq₁ , deq₁) (Q₂ , emp₂ , enq₂ , deq₂) e =
             (e .fst emp₁ ≡ emp₂)
-          × (∀ a q → e .fst (push₁ a q) ≡ push₂ a (e .fst q))
-          × (∀ q → pop-map-forward (e .fst) (pop₁ q) ≡ pop₂ (e .fst q))
+          × (∀ a q → e .fst (enq₁ a q) ≡ enq₂ a (e .fst q))
+          × (∀ q → deq-map-forward (e .fst) (deq₁ q) ≡ deq₂ (e .fst q))
 
 
 
  Queue-is-SNS : SNS {ℓ₁ = ℓ} queue-structure queue-iso
  Queue-is-SNS =
    join-SNS pointed-iso pointed-is-SNS
-            {S₂ = λ X → (left-action-structure X) × (pop-structure X)}
+            {S₂ = λ X → (left-action-structure X) × (deq-structure X)}
             (λ B C e → (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
-                     × (∀ q → pop-map-forward (e .fst) (B .snd .snd q) ≡ C .snd .snd (e .fst q)))
-            (join-SNS left-action-iso Left-Action-is-SNS pop-iso Pop-is-SNS)
+                     × (∀ q → deq-map-forward (e .fst) (B .snd .snd q) ≡ C .snd .snd (e .fst q)))
+            (join-SNS left-action-iso Left-Action-is-SNS deq-iso Deq-is-SNS)
 
 
 
@@ -109,7 +109,7 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  -- Should we add further axioms for Queues?
  -- Some suggestions:
  queue-axioms : (Q : Type ℓ) → queue-structure Q → Type ℓ
- queue-axioms Q (emp , push , pop) =   (isSet Q)
-                                     × (pop emp ≡ inl tt)
-                                     × ∀ a q → pop (push a q) ≡ inr (q , a)
+ queue-axioms Q (emp , enq , deq) =   (isSet Q)
+                                     × (deq emp ≡ inl tt)
+                                     × ∀ a q → deq (enq a q) ≡ inr (q , a)
                                      -- etc.
