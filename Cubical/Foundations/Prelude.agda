@@ -42,9 +42,11 @@ private
 
 refl : x ≡ x
 refl {x = x} = λ _ → x
+{-# INLINE refl #-}
 
 sym : x ≡ y → y ≡ x
 sym p i = p (~ i)
+{-# INLINE sym #-}
 
 symP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} →
        (p : PathP A x y) → PathP (λ i → A (~ i)) y x
@@ -53,6 +55,7 @@ symP p j = p (~ j)
 cong : ∀ (f : (a : A) → B a) (p : x ≡ y) →
        PathP (λ i → B (p i)) (f x) (f y)
 cong f p i = f (p i)
+{-# INLINE cong #-}
 
 cong₂ : ∀ {C : (a : A) → (b : B a) → Type ℓ} →
         (f : (a : A) → (b : B a) → C a b) →
@@ -60,6 +63,7 @@ cong₂ : ∀ {C : (a : A) → (b : B a) → Type ℓ} →
         {u : B x} {v : B y} (q : PathP (λ i → B (p i)) u v) →
         PathP (λ i → C (p i) (q i)) (f x u) (f y v)
 cong₂ f p q i = f (p i) (q i)
+{-# INLINE cong₂ #-}
 
 {- The most natural notion of homogenous path composition
     in a cubical setting is double composition:
