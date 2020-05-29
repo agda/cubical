@@ -39,8 +39,11 @@ ring-structure = add-to-structure raw-ring-structure ring-axioms
 Ring : Type (ℓ-suc ℓ)
 Ring {ℓ} = TypeWithStr ℓ ring-structure
 
+ring-StrIso : StrIso raw-ring-structure ℓ
+ring-StrIso = (join-iso (nAryFunIso 2) (join-iso pointed-iso (nAryFunIso 2)))
+
 ring-iso : StrIso ring-structure ℓ
-ring-iso = add-to-iso (join-iso (nAryFunIso 2) (join-iso pointed-iso (nAryFunIso 2))) ring-axioms
+ring-iso = add-to-iso ring-StrIso ring-axioms
 
 ring-axioms-isProp : (X : Type ℓ) (s : raw-ring-structure X) → isProp (ring-axioms X s)
 ring-axioms-isProp X (_+_ , ₁ , _·_) = isPropΣ (abelian-group-axioms-isProp X _+_)
@@ -115,6 +118,11 @@ module explicit-ring-syntax where
 
   infixr 18 ring·-operation-syntax
   syntax ring·-operation-syntax R x y = x ·⟨ R ⟩ y
+
+  ring₁-constant-syntax : (R : Ring {ℓ}) → ⟨ R ⟩
+  ring₁-constant-syntax R = ring·-id R
+
+  syntax ring₁-constant-syntax R = ₁⟨ R ⟩
 
 module ring-axioms (R : Ring {ℓ}) where
   open explicit-ring-syntax
