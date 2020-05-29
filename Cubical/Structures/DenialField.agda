@@ -73,7 +73,8 @@ private
   denialFieldAxioms : (R : Type ℓ) → comm-ring-structure R → Type ℓ
   denialFieldAxioms R cringStr = isDenialField (R , cringStr)
 
-  denialFieldAxioms-isProp : (R : Type ℓ) → (cringStr : comm-ring-structure R) → isProp (denialFieldAxioms R cringStr)
+  denialFieldAxioms-isProp : (R : Type ℓ) → (cringStr : comm-ring-structure R)
+                             → isProp (denialFieldAxioms R cringStr)
   denialFieldAxioms-isProp R cringStr = isPropIsDenialField (R , cringStr)
 
 denialFieldStructure : Type ℓ → Type ℓ
