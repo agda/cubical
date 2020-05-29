@@ -22,8 +22,8 @@ nAryFunStructure {ℓ = ℓ} n = TypeWithStr _ (λ (X : Type ℓ) → nAryOp n X
 
 -- iso for n-ary functions
 nAryFunIso : (n : ℕ) → StrIso (λ (X : Type ℓ) → nAryOp n X X) ℓ
-nAryFunIso n (X , fX) (Y , fY) f =
-  (xs : Vec X n) → equivFun f (fX $ⁿ xs) ≡ fY $ⁿ map (equivFun f) xs
+nAryFunIso n (X , opX) (Y , opY) f =
+  (xs : Vec X n) → equivFun f (opX $ⁿ xs) ≡ opY $ⁿ map (equivFun f) xs
 
 nAryFunSNS : (n : ℕ) → SNS {ℓ} _ (nAryFunIso n)
 nAryFunSNS n = SNS-≡→SNS-PathP (nAryFunIso n) (nAryFunExtEquiv n)
