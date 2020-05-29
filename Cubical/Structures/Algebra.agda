@@ -29,19 +29,37 @@ module _ (R : Ring {ℓ}) where
   rawAlgebraIsSNS = join-SNS (rawStrIsoScalarMultiplication R) (rawStrIsoScalarMultiplication-SNS R)
                              ring-StrIso raw-ring-is-SNS
 
-  moduleAxioms : (M : Type ℓ) (str : rawModuleStructure R M) → Type ℓ
-  moduleAxioms M (_⋆_ , _+_) = abelian-group-axioms M _+_
-                               × ((r s : ⟨ R ⟩) (x : M) → (r ·⟨ R ⟩ s) ⋆ x ≡ r ⋆ (s ⋆ x))
-                               × ((r s : ⟨ R ⟩) (x : M) → (r +⟨ R ⟩ s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
-                               × ((r : ⟨ R ⟩) (x y : M) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
-                               × ((x : M) → ((₁⟨ R ⟩) ⋆ x) ≡ x)
-
   algebraAxioms : (A : Type ℓ) (str : rawAlgebraStructure A) → Type ℓ
   algebraAxioms A (_⋆_ , (_+_ , ₁ , _·_)) =
                ring-axioms A (_+_ , ₁ , _·_)
-               × moduleAxioms A (_⋆_ , _+_)
+               × moduleAxioms R A (_⋆_ , _+_)
                × ((r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
                × ((r : ⟨ R ⟩) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y))
 
   algebraStructure : Type ℓ → Type ℓ
   algebraStructure = add-to-structure rawAlgebraStructure algebraAxioms
+
+  algebraStrIso : StrIso rawAlgebraStructure ℓ
+  algebraStrIso = join-iso (rawStrIsoScalarMultiplication R) ring-StrIso
+
+  algebraIso : StrIso algebraStructure ℓ
+  algebraIso = add-to-iso algebraStrIso algebraAxioms
+
+  algebraAxiomIsProp : (A : Type ℓ) (str : rawAlgebraStructure A)
+                       → isProp (algebraAxioms A str)
+  algebraAxiomIsProp A (_⋆_ , (_+_ , ₁ , _·_)) =
+                                       isPropΣ (ring-axioms-isProp A ((_+_ , ₁ , _·_)))
+    λ ((((isSet-A , _), _) , _) , _) → isPropΣ (moduleAxiomsIsProp R A (_⋆_ , _+_))
+                                 λ _ → isPropΣ (isPropΠ3 (λ _ _ _ → isSet-A _ _) )
+                                          λ _ → isPropΠ3 (λ _ _ _ → isSet-A _ _)
+
+  algebraIsSNS : SNS {ℓ} algebraStructure algebraIso
+  algebraIsSNS = add-axioms-SNS _ algebraAxiomIsProp rawAlgebraIsSNS
+
+
+Algebra : (R : Ring {ℓ}) → Type (ℓ-suc ℓ)
+Algebra {ℓ} R = TypeWithStr ℓ (algebraStructure R)
+
+AlgebraPath : (R : Ring {ℓ}) → (A B : Algebra {ℓ} R)
+              → (A ≃[ algebraIso R ] B) ≃ (A ≡ B)
+AlgebraPath R = SIP (algebraIsSNS R)
