@@ -30,6 +30,7 @@ nAryFunSNS n = SNS-≡→SNS-PathP (nAryFunIso n) (nAryFunExtEquiv n)
 
 -- Some specializations that are not used at the moment, but kept as
 -- they might become useful later.
+-- It also helps newcomers to understand the SIP-related code.
 private
 
   -- unary
