@@ -10,37 +10,38 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
-open import Cubical.Structures.CommRing
-open import Cubical.Structures.Ring hiding (⟨_⟩)
+open import Cubical.Structures.Ring
+open import Cubical.Structures.AbGroup hiding (⟨_⟩)
+open import Cubical.Structures.Group using (raw-group-structure)
+open import Cubical.Structures.Module
 
 private
   variable
     ℓ : Level
 
-module _ (R : CommRing {ℓ}) where
+module _ (R : Ring {ℓ}) where
+  open ring-syntax
 
   rawAlgebraStructure : Type ℓ → Type ℓ
-  rawAlgebraStructure A = (⟨ R ⟩ → A → A)
-                          × raw-ring-structure A
-
-  rawStrIsoScalarMultiplication : StrIso {ℓ} (λ A → (⟨ R ⟩ → A → A)) ℓ
-  rawStrIsoScalarMultiplication (A , ⋆-A) (B , ⋆-B) f =
-    (r : ⟨ R ⟩) → (x : A) → equivFun f (⋆-A r x) ≡ ⋆-B r ((equivFun f) x)
-
-  scalarMultiplicationFunExt : {A : Type ℓ}
-     → (s t : ⟨ R ⟩ → A → A)
-     → ((r : ⟨ R ⟩) → (x : A) → s r x ≡ t r x) ≃ (s ≡ t)
-  scalarMultiplicationFunExt s t =
-    isoToEquiv (iso (λ φ i r x → φ r x i)
-                    (λ ψ r x i → ψ i r x)
-                    (λ _ → refl) λ _ → refl)
-
-  rawStrIsoScalarMultiplication-SNS : SNS _ rawStrIsoScalarMultiplication
-  rawStrIsoScalarMultiplication-SNS =
-    SNS-≡→SNS-PathP rawStrIsoScalarMultiplication
-                    scalarMultiplicationFunExt
+  rawAlgebraStructure = (addLeftMultiplication R) raw-ring-structure
 
   rawAlgebraIsSNS : SNS {ℓ} rawAlgebraStructure _
-  rawAlgebraIsSNS = join-SNS rawStrIsoScalarMultiplication rawStrIsoScalarMultiplication-SNS
+  rawAlgebraIsSNS = join-SNS (rawStrIsoScalarMultiplication R) (rawStrIsoScalarMultiplication-SNS R)
                              ring-StrIso raw-ring-is-SNS
 
+  moduleAxioms : (M : Type ℓ) (str : rawModuleStructure R M) → Type ℓ
+  moduleAxioms M (_⋆_ , _+_) = abelian-group-axioms M _+_
+                               × ((r s : ⟨ R ⟩) (x : M) → (r ·⟨ R ⟩ s) ⋆ x ≡ r ⋆ (s ⋆ x))
+                               × ((r s : ⟨ R ⟩) (x : M) → (r +⟨ R ⟩ s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
+                               × ((r : ⟨ R ⟩) (x y : M) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
+                               × ((x : M) → ((₁⟨ R ⟩) ⋆ x) ≡ x)
+
+  algebraAxioms : (A : Type ℓ) (str : rawAlgebraStructure A) → Type ℓ
+  algebraAxioms A (_⋆_ , (_+_ , ₁ , _·_)) =
+               ring-axioms A (_+_ , ₁ , _·_)
+               × moduleAxioms A (_⋆_ , _+_)
+               × ((r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
+               × ((r : ⟨ R ⟩) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y))
+
+  algebraStructure : Type ℓ → Type ℓ
+  algebraStructure = add-to-structure rawAlgebraStructure algebraAxioms
