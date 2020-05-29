@@ -103,6 +103,12 @@ module comm-ring-explicit-syntax where
   infixr 18 commring·-operation-syntax
   syntax commring·-operation-syntax G x y = x ·⟨ G ⟩ y
 
+  commring₁-constant-syntax : (R : CommRing {ℓ}) → ⟨ R ⟩
+  commring₁-constant-syntax R = commring·-id R
+
+  syntax commring₁-constant-syntax R = ₁⟨ R ⟩
+
+
 commRingIsSet : (R : CommRing {ℓ}) → isSet (⟨ R ⟩)
 commRingIsSet R = ringIsSet (CommRing→Ring R)
 
