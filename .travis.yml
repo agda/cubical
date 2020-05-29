@@ -61,10 +61,14 @@ install:
       travis_wait 30 cabal install;
     fi
   # installing fix-agda-whitespace
-  - cd src/fix-agda-whitespace
-  - cabal install fix-agda-whitespace.cabal
   - cd -
+  - git clone https://github.com/agda/fix-whitespace --depth=1
+  - cd fix-whitespace
+  - cabal install fix-whitespace.cabal
+  - cd -
+  - yes | rm -R fix-whitespace
   # snapshot package-db on cache miss
+  - cd agda
   - echo "snapshotting package-db to build-cache";
     mkdir -p $HOME/.cabsnap;
     cp -a $HOME/.ghc $HOME/.cabsnap/ghc;

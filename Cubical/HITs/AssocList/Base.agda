@@ -7,14 +7,14 @@ open import Cubical.Data.Nat   using (ℕ; _+_)
 private
   variable
     ℓ : Level
-    A : Type₀
+    A : Type ℓ
 
 infixr 5 ⟨_,_⟩∷_
 
 
 
 
-data AssocList (A : Type₀) : Type₀ where
+data AssocList (A : Type ℓ) : Type ℓ where
  ⟨⟩ : AssocList A
  ⟨_,_⟩∷_ : (a : A) (n : ℕ) (xs : AssocList A) → AssocList A
  per : ∀ a b xs →   ⟨ a , 1 ⟩∷ ⟨ b , 1 ⟩∷ xs
@@ -31,7 +31,7 @@ pattern ⟨_⟩ a = ⟨ a , 1 ⟩∷ ⟨⟩
 
 
 --Elimination and recursion principle for association lists
-module Elim {ℓ} {B : AssocList A → Type ℓ}
+module Elim {ℓ'} {B : AssocList A → Type ℓ'}
        (⟨⟩* : B ⟨⟩) (⟨_,_⟩∷*_ : (x : A) (n : ℕ) {xs : AssocList A} → B xs → B (⟨ x , n ⟩∷ xs))
        (per* :  (x y : A) {xs : AssocList A} (b : B xs)
               → PathP (λ i → B (per x y xs i)) (⟨ x , 1 ⟩∷* ⟨ y , 1 ⟩∷* b) (⟨ y , 1 ⟩∷* ⟨ x , 1 ⟩∷* b))
@@ -51,7 +51,7 @@ module Elim {ℓ} {B : AssocList A → Type ℓ}
 
 
 
-module ElimProp {ℓ} {B : AssocList A → Type ℓ} (BProp : {xs : AssocList A} → isProp (B xs))
+module ElimProp {ℓ'} {B : AssocList A → Type ℓ'} (BProp : {xs : AssocList A} → isProp (B xs))
        (⟨⟩* : B ⟨⟩) (⟨_,_⟩∷*_ : (x : A) (n : ℕ) {xs : AssocList A} → B xs → B (⟨ x , n ⟩∷ xs)) where
 
  f : (xs : AssocList A) → B xs
@@ -63,7 +63,7 @@ module ElimProp {ℓ} {B : AssocList A → Type ℓ} (BProp : {xs : AssocList A}
 
 
 
-module Rec {ℓ} {B : Type ℓ} (BType : isSet B)
+module Rec {ℓ'} {B : Type ℓ'} (BType : isSet B)
        (⟨⟩* : B) (⟨_,_⟩∷*_ : (x : A) (n : ℕ) → B → B)
        (per* :  (x y : A) (b : B) → (⟨ x , 1 ⟩∷* ⟨ y , 1 ⟩∷* b) ≡ (⟨ y , 1 ⟩∷* ⟨ x , 1 ⟩∷* b))
        (agg* :  (x : A) (m n : ℕ) (b : B) → (⟨ x , m ⟩∷* ⟨ x , n ⟩∷* b) ≡ (⟨ x , m + n ⟩∷* b))
