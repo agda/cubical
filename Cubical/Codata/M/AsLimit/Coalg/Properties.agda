@@ -38,8 +38,7 @@ open Iso
 -----------------------------------------------------------------------------
 
 M-coalg : ∀ {ℓ} {S : Container ℓ} -> Coalg₀ S
-M-coalg {S = S} =
-  (M S) , out-fun
+M-coalg {S = S} = (M S) , out-fun
 
 Final : ∀ {ℓ} {S : Container ℓ} -> Type (ℓ-suc ℓ)
 Final {S = S} = Σ[ X,ρ ∈ Coalg₀ S ] ∀ (C,γ : Coalg₀ S) -> isContr ((C,γ) ⇒ (X,ρ))
