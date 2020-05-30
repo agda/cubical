@@ -37,18 +37,9 @@ open Iso
 -- The limit of a Polynomial functor over a Container is a Final Coalgebra --
 -----------------------------------------------------------------------------
 
-Ps : ∀ {ℓ} -> (S : Container ℓ) -> (C,γ : Coalg₀ S) -> Container ℓ
-Ps S (C , γ) = C , λ x → P₀ S C
-
-Ms : ∀ {ℓ} -> (S : Container ℓ) -> Container ℓ
-Ms S = M S , λ x → P₀ S (M S)
-
 M-coalg : ∀ {ℓ} {S : Container ℓ} -> Coalg₀ S
 M-coalg {S = S} =
   (M S) , out-fun
-
-PM-coalg : ∀ {ℓ} {S : Container ℓ} -> Coalg₀ S
-PM-coalg {S = S} = (P₀ S (M S)) , (P₁ out-fun)
 
 Final : ∀ {ℓ} {S : Container ℓ} -> Set (ℓ-suc ℓ)
 Final {S = S} = Σ[ X,ρ ∈ Coalg₀ S ] ∀ (C,γ : Coalg₀ S) -> isContr ((C,γ) ⇒ (X,ρ))
@@ -87,7 +78,7 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
   (Σ[ (u , q) ∈ Cone C,γ ] (Σ[ p ∈ u ≡ ϕ₀ u ] (PathP (λ i → Cone₁ C,γ (p i)) q (ϕ₁ u q))))
     Iso⟨ (iso (λ {((u , p) , q , r) → (u , q) , p , r}) (λ {((u , q) , p , r) → (u , p) , (q , r)}) (λ _ → refl) λ _ → refl) ⟩
   (Σ[ (u , p) ∈ (Σ[ u ∈ Cone₀ C,γ ] (u ≡ ϕ₀ u)) ] (Σ[ q ∈ Cone₁ C,γ u ] (PathP (λ i → Cone₁ C,γ (p i)) q (ϕ₁ u q))))
-    Iso⟨ invIso (Σ-ap-iso (missing-0-Iso) λ x → (missing-2-Iso x)) ⟩
+    Iso⟨ invIso (Σ-ap-iso (missing-0-Iso) λ x → missing-2-Iso) ⟩
   (Σ[ _ ∈ Lift {ℓ-zero} {ℓ} Unit ] (Lift {ℓ-zero} {ℓ} Unit))
     Iso⟨ (iso (λ x → lift tt) (λ _ → lift tt , lift tt) (λ b i → lift tt) (λ a i → lift tt , lift tt)) ⟩
   Lift {ℓ-zero} {ℓ} Unit ∎Iso
@@ -108,8 +99,8 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
       ∀ (u : (n : ℕ) → C → Wₙ S n)
       → (g : (n : ℕ) → πₙ S ∘ u (suc n) ≡ u n)
       → (n : ℕ) → πₙ S ∘ (ϕ₀ u (suc n)) ≡ ϕ₀ u n
-    ϕ₁ u g 0 i a = lift tt
-    ϕ₁ u g (suc n) i a = step (λ x → g n i x) a
+    ϕ₁ u g 0 = funExt λ _ → refl {x = lift tt}
+    ϕ₁ u g (suc n) = cong step (g n)
 
     Φ : Cone C,γ -> Cone C,γ
     Φ (u , g) = ϕ₀ u , ϕ₁ u g
@@ -128,7 +119,7 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
           ≡⟨ cong (λ a → a ∘ f) in-inverse-out ⟩
         f ∎
 
-    postulate -- Naturality
+    postulate -- long proof..
       commutivity : Ψ ∘ e ≡ e ∘ Φ
 
     e-inj-Iso : ∀ {x y}
@@ -144,21 +135,55 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
       p0 0 = refl
       p0 (suc n) = refl
 
-    -- Lemma 11 should be used somewhere about here
-    postulate
-      missing-0-helper : (b : Σ[ u ∈ Cone₀ C,γ ] (u ≡ ϕ₀ u)) → (u0 , funExt p0) ≡ b
+    missing-0-Iso : Iso (Lift {ℓ-zero} {ℓ} Unit) (Σ[ u ∈ (Cone₀ C,γ) ] (u ≡ ϕ₀ u))
+    missing-0-Iso =
+      Lift Unit
+        Iso⟨ iso (λ _ _ → lift tt) (λ _ → lift tt) (λ _ → refl) (λ _ → refl) ⟩
+      (C -> Lift Unit)
+        Iso⟨ invIso (lemma11-Iso {S = S} (λ n → C → Wₙ S n) λ n u → P₁ u ∘ γ) ⟩
+      Σ[ u ∈ (Cone₀ C,γ) ] ((n : ℕ) → u (suc n) ≡ ϕ₀ u (suc n))
+        Iso⟨ Σ-ap-iso₂ (λ _ → iso (λ {a 0 → refl ; a (suc n) → a n})
+                                   (λ b → b ∘ suc)
+                                   (λ b → funExt λ {0 → refl ; (suc n) → refl})
+                                   λ _ → refl) ⟩
+      Σ[ u ∈ (Cone₀ C,γ) ] ((n : ℕ) → u n ≡ ϕ₀ u n)
+        Iso⟨ Σ-ap-iso₂ (λ _ → funExtIso) ⟩
+      (Σ[ u ∈ (Cone₀ C,γ) ] (u ≡ ϕ₀ u)) ∎Iso
 
-    missing-0-Iso : Iso (Lift {ℓ-zero} {ℓ} Unit) (Σ (Cone₀ C,γ) (λ u → u ≡ ϕ₀ u))
-    fun (missing-0-Iso) = (λ _ → u0 , (funExt p0))
-    inv (missing-0-Iso) = (λ x → lift tt)
-    rightInv (missing-0-Iso) = (λ b → missing-0-helper b)
-    leftInv (missing-0-Iso) = λ a i → lift tt
+    private
+      mi = fun missing-0-Iso (lift tt)
 
-    postulate
-      missing-2-Iso :
-        (x : Lift Unit)
-        → Iso (Lift {ℓ-zero} {ℓ} Unit)
-               (Σ[ q ∈ (Cone₁ C,γ (fun missing-0-Iso x .fst)) ] (PathP (λ i → Cone₁ C,γ (fun missing-0-Iso x .snd i)) q (ϕ₁ (fun missing-0-Iso x .fst) q)))
+    missing-2-Iso :
+      Iso
+        (Lift {ℓ-zero} {ℓ} Unit)
+        (Σ[ q ∈ (Cone₁ C,γ (mi .fst)) ]
+          (PathP (λ i → Cone₁ C,γ (mi .snd i))
+            q
+            (ϕ₁ (mi .fst) q)))
+    missing-2-Iso =
+      Lift Unit
+        Iso⟨ iso (λ _ _ _ → lift tt) (λ _ → lift tt) (λ _ _ _ _ → lift tt) (λ _ _ → lift tt) ⟩
+      (πₙ S ∘ (mi .fst (suc 0)) ≡ mi .fst 0)
+        Iso⟨ invIso (lemma11-Iso {S = S} (λ n → πₙ S ∘ mi .fst (suc n) ≡ mi .fst n) λ n g → cong step g) ⟩
+      (Σ[ q ∈ (Cone₁ C,γ (mi .fst)) ] ((n : ℕ) → q (suc n) ≡ ϕ₁ (mi .fst) q (suc n)))
+        Iso⟨ Σ-ap-iso₂ (λ x → idIso) ⟩
+      (Σ[ q ∈ (Cone₁ C,γ (mi .fst)) ] ((n : ℕ) →
+        PathP (λ x → πₙ S ∘ ((mi .snd x) (suc (suc n))) ≡ (mi .snd x) (suc n))
+          (q (suc n))
+          (ϕ₁ (mi .fst) q (suc n))))
+        Iso⟨ Σ-ap-iso₂ (λ x → funExtIso) ⟩
+      (Σ[ q ∈ (Cone₁ C,γ (mi .fst)) ] (
+        PathP (λ x → (n : ℕ) → πₙ S ∘ ((mi .snd x) (suc (suc n))) ≡ (mi .snd x) (suc n))
+          (q ∘ suc)
+          (ϕ₁ (mi .fst) q ∘ suc)))
+        Iso⟨ Σ-ap-iso₂ (λ x →
+             iso (λ {a i 0 → refl ; a i (suc n) → a i n})
+                 (λ a i n → a i (suc n))
+                 (λ {_ _ _ 0 → refl ; a _ i (suc n) → a i (suc n)})
+                 λ _ → refl) ⟩
+      (Σ[ q ∈ (Cone₁ C,γ (mi .fst)) ] (PathP (λ i → Cone₁ C,γ (mi .snd i))
+                                             q
+                                             (ϕ₁ (mi .fst) q))) ∎Iso
 
 U-contr : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) -> isContr (U C,γ)
 U-contr {ℓ} C,γ = inv (contr-is-ext-Iso {A = U C,γ} (U-is-Unit-Iso C,γ)) (lift tt , λ { (lift tt) -> refl })

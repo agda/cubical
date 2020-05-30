@@ -22,6 +22,7 @@ open import Cubical.Codata.M.AsLimit.M
 -- Bisimilarity of Coalgebra --
 -------------------------------
 
+-- Strong bisimilarity
 record bisimulation {ℓ} (S : Container ℓ) (C,γ : Coalg₀ S) (R : C,γ .fst -> C,γ .fst -> Set ℓ) : Set (ℓ-suc ℓ) where
   coinductive
 

@@ -36,10 +36,10 @@ _⇒_ = Coalg₁
 --------------------------
 
 Cone₀ : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) -> Type ℓ
-Cone₀ {S = S} (C , _) = (n : ℕ) → C → X (sequence S) n
+Cone₀ {S = S} (C , _) = (n : ℕ) → C → Wₙ S n
 
 Cone₁ : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) -> (f : Cone₀ C,γ) -> Type ℓ
-Cone₁ {S = S} (C , _) f = (n : ℕ) → π (sequence S) ∘ (f (suc n)) ≡ f n
+Cone₁ {S = S} (C , _) f = (n : ℕ) → πₙ S ∘ (f (suc n)) ≡ f n
 
 Cone : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) -> Type ℓ
 Cone {S = S} C,γ = Σ[ Cone ∈ Cone₀ C,γ ] (Cone₁ C,γ Cone)
