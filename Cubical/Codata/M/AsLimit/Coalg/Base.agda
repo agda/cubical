@@ -22,10 +22,10 @@ open import Cubical.Codata.M.AsLimit.helper
 -- Definition of a Coalgebra --
 -------------------------------
 
-Coalg₀ : ∀ {ℓ} (S : Container ℓ) -> Type (ℓ-suc ℓ)
+Coalg₀ : ∀ {ℓ} (S : Container ℓ) → Type (ℓ-suc ℓ)
 Coalg₀ {ℓ} S = Σ[ C ∈ Type ℓ ] (C → P₀ S C)
 
-Coalg₁ : ∀ {ℓ} {S : Container ℓ} -> Coalg₀ S -> Coalg₀ S -> Type ℓ
+Coalg₁ : ∀ {ℓ} {S : Container ℓ} → Coalg₀ S → Coalg₀ S → Type ℓ
 Coalg₁ {S = S} (C , γ) (D , δ) = Σ (C → D) λ f → δ ∘ f ≡ (P₁ f) ∘ γ
 
 -- Coalgebra morphism notation
@@ -35,11 +35,11 @@ _⇒_ = Coalg₁
 -- Definition of a Cone --
 --------------------------
 
-Cone₀ : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) -> Type ℓ
+Cone₀ : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) → Type ℓ
 Cone₀ {S = S} (C , _) = (n : ℕ) → C → Wₙ S n
 
-Cone₁ : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) -> (f : Cone₀ C,γ) -> Type ℓ
+Cone₁ : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) → (f : Cone₀ C,γ) → Type ℓ
 Cone₁ {S = S} (C , _) f = (n : ℕ) → πₙ S ∘ (f (suc n)) ≡ f n
 
-Cone : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) -> Type ℓ
+Cone : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) → Type ℓ
 Cone {S = S} C,γ = Σ[ Cone ∈ Cone₀ C,γ ] (Cone₁ C,γ Cone)

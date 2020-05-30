@@ -37,19 +37,19 @@ open Iso
 -- The limit of a Polynomial functor over a Container is a Final Coalgebra --
 -----------------------------------------------------------------------------
 
-M-coalg : ∀ {ℓ} {S : Container ℓ} -> Coalg₀ S
+M-coalg : ∀ {ℓ} {S : Container ℓ} → Coalg₀ S
 M-coalg {S = S} = (M S) , out-fun
 
-Final : ∀ {ℓ} {S : Container ℓ} -> Type (ℓ-suc ℓ)
-Final {S = S} = Σ[ X,ρ ∈ Coalg₀ S ] ∀ (C,γ : Coalg₀ S) -> isContr ((C,γ) ⇒ (X,ρ))
+Final : ∀ {ℓ} {S : Container ℓ} → Type (ℓ-suc ℓ)
+Final {S = S} = Σ[ X,ρ ∈ Coalg₀ S ] ∀ (C,γ : Coalg₀ S) → isContr ((C,γ) ⇒ (X,ρ))
 
 --------------------------------------------------------
 -- Properties of Bisimulations and (Final) Coalgebras --
 --------------------------------------------------------
 
-U : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) -> Type ℓ
+U : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) → Type ℓ
 U {S = S} (C , γ) =
-  Σ[ f ∈ (C -> M S) ] (out-fun ∘ f ≡ P₁ f ∘ γ)
+  Σ[ f ∈ (C → M S) ] (out-fun ∘ f ≡ P₁ f ∘ γ)
 
 U-is-Unit-Iso :
   ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S)
@@ -62,7 +62,7 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
     Iso⟨ comp-abstr'0 ⟩
   (Σ[ f ∈ (C → M S) ] (in-fun ∘ out-fun ∘ f ≡ in-fun ∘ step f))
     Iso⟨ Σ-ap-iso₂ (λ f → pathToIso (cong (λ k → k ≡ in-fun ∘ step f) (computation-abstract'1 f))) ⟩
-  (Σ[ f ∈ (C -> M S) ] (f ≡ in-fun ∘ step f))
+  (Σ[ f ∈ (C → M S) ] (f ≡ in-fun ∘ step f))
     Iso⟨ idIso ⟩
   (Σ[ f ∈ (C → M S) ] (f ≡ Ψ f))
     Iso⟨ Σ-ap-iso (lemma10-Iso C,γ) (λ _ → idIso) ⟩
@@ -86,14 +86,14 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
   where
     e = inv (lemma10-Iso C,γ)
 
-    step : ∀ {Y : Type ℓ} (f : C -> Y) → C → P₀ S Y
+    step : ∀ {Y : Type ℓ} (f : C → Y) → C → P₀ S Y
     step {Y = Y} f = P₁ f  ∘ γ
 
-    Ψ : ∀ (f : C -> M S) -> C -> M S
+    Ψ : ∀ (f : C → M S) → C → M S
     Ψ f = in-fun ∘ step f
 
-    ϕ₀ : ∀ (u : (n : ℕ) → C → Wₙ S n) -> (n : ℕ) -> C -> Wₙ S n
-    ϕ₀ u 0 = λ x -> lift tt
+    ϕ₀ : ∀ (u : (n : ℕ) → C → Wₙ S n) → (n : ℕ) → C → Wₙ S n
+    ϕ₀ u 0 = λ x → lift tt
     ϕ₀ u (suc n) = step (u n)
 
     ϕ₁ :
@@ -103,7 +103,7 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
     ϕ₁ u g 0 = funExt λ _ → refl {x = lift tt}
     ϕ₁ u g (suc n) = cong step (g n)
 
-    Φ : Cone C,γ -> Cone C,γ
+    Φ : Cone C,γ → Cone C,γ
     Φ (u , g) = ϕ₀ u , ϕ₁ u g
 
     computation-abstract'0 : {f g : C → P₀ S (M S)} → Iso (in-fun ∘ f ≡ in-fun ∘ g) (f ≡ g)
@@ -130,7 +130,7 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
 
     private
       u0 : Cone₀ C,γ
-      u0 = λ { 0 _ → lift tt ; (suc n) -> step (u0 n) }
+      u0 = λ { 0 _ → lift tt ; (suc n) → step (u0 n) }
 
       p0 : (n : ℕ) → u0 n ≡ ϕ₀ u0 n
       p0 0 = refl
@@ -140,7 +140,7 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
     missing-0-Iso =
       Lift Unit
         Iso⟨ iso (λ _ _ → lift tt) (λ _ → lift tt) (λ _ → refl) (λ _ → refl) ⟩
-      (C -> Lift Unit)
+      (C → Lift Unit)
         Iso⟨ invIso (lemma11-Iso {S = S} (λ n → C → Wₙ S n) λ n u → P₁ u ∘ γ) ⟩
       Σ[ u ∈ (Cone₀ C,γ) ] ((n : ℕ) → u (suc n) ≡ ϕ₀ u (suc n))
         Iso⟨ Σ-ap-iso₂ (λ _ → iso (λ {a 0 → refl ; a (suc n) → a n})
@@ -186,8 +186,8 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
                                              q
                                              (ϕ₁ (mi .fst) q))) ∎Iso
 
-U-contr : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) -> isContr (U C,γ)
-U-contr {ℓ} C,γ = inv (contr-is-ext-Iso {A = U C,γ} (U-is-Unit-Iso C,γ)) (lift tt , λ { (lift tt) -> refl })
+U-contr : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) → isContr (U C,γ)
+U-contr {ℓ} C,γ = inv (contr-is-ext-Iso {A = U C,γ} (U-is-Unit-Iso C,γ)) (lift tt , λ { (lift tt) → refl })
   where
     isContrIsPropPath : ∀ {ℓ} {A : Type ℓ} → (x : isContr A) → ∀ y → isProp (x .fst ≡ y)
     isContrIsPropPath {A = A} x y = isContr→isProp (isContr→isContrPath x (x .fst) y)
@@ -202,7 +202,7 @@ U-contr {ℓ} C,γ = inv (contr-is-ext-Iso {A = U C,γ} (U-is-Unit-Iso C,γ)) (l
     leftInv (contr-is-ext-Iso-helper p@(iso f g rightI leftI) a) b = funExt λ y → isContrIsPropPath (a , b) y (sym (leftI a) ∙ cong g (cong f (b (g (f y))) ∙ rightI (f y)) ∙ leftI y) (b y)
 
     -- Can this be generalized to Iso A B → Iso (H A) (H B) , not just for H = isContr ?
-    contr-is-ext-Iso : ∀ {ℓ} {A B : Type ℓ} -> Iso A B -> Iso (isContr A) (isContr B)
+    contr-is-ext-Iso : ∀ {ℓ} {A B : Type ℓ} → Iso A B → Iso (isContr A) (isContr B)
     contr-is-ext-Iso {A = A} {B} p = Σ-ap-iso p (contr-is-ext-Iso-helper p)
 
 ----------------------------------------------------
@@ -212,22 +212,22 @@ U-contr {ℓ} C,γ = inv (contr-is-ext-Iso {A = U C,γ} (U-is-Unit-Iso C,γ)) (l
 lim-terminal : ∀ {ℓ} {S : Container ℓ} {C,γ : Coalg₀ S} → isContr (C,γ ⇒ M-coalg)
 lim-terminal {C,γ = C,γ} = inv (U-is-Unit-Iso C,γ) (lift tt) , U-contr C,γ .snd
 
-coalg-unfold : ∀ {ℓ} {S : Container ℓ} -> (C,γ : Coalg₀ S) -> (_⇒_ {S = S} (C,γ) (M-coalg {S = S}))
+coalg-unfold : ∀ {ℓ} {S : Container ℓ} → (C,γ : Coalg₀ S) → (_⇒_ {S = S} (C,γ) (M-coalg {S = S}))
 coalg-unfold C,γ = lim-terminal {C,γ = C,γ} .fst
 
 -- unique function into final coalg
-coalg-unfold-universal : ∀ {ℓ} {S : Container ℓ} -> (C,γ : Coalg₀ S) -> (y : C,γ ⇒ M-coalg) → fst lim-terminal ≡ y
+coalg-unfold-universal : ∀ {ℓ} {S : Container ℓ} → (C,γ : Coalg₀ S) → (y : C,γ ⇒ M-coalg) → fst lim-terminal ≡ y
 coalg-unfold-universal C,γ = lim-terminal {C,γ = C,γ} .snd
 
 -- unique function into final coalg
-coalg-unfold-function : ∀ {ℓ} {S : Container ℓ} → (C,γ : Coalg₀ S) -> (C,γ .fst) -> (M-coalg .fst)
+coalg-unfold-function : ∀ {ℓ} {S : Container ℓ} → (C,γ : Coalg₀ S) → (C,γ .fst) → (M-coalg .fst)
 coalg-unfold-function C,γ y = (coalg-unfold C,γ) .fst y
 
-M-final-coalg : ∀ {ℓ} {S : Container ℓ} -> Final {S = S}
+M-final-coalg : ∀ {ℓ} {S : Container ℓ} → Final {S = S}
 M-final-coalg {ℓ} {S = S} = M-coalg , λ C,γ → lim-terminal {C,γ = C,γ}
 
 -- final-is-contr : ∀ {ℓ} {S : Container {ℓ}} → isContr (Final {S = S})
 -- final-is-contr = M-final-coalg , λ y → {!!}
 
-final-coalg-property-2 : ∀ {ℓ} {S : Container ℓ} -> (C : Coalg₀ S) -> (F : Final {S = S}) -> ∀ (f g : C ⇒ F .fst) -> f ≡ g
+final-coalg-property-2 : ∀ {ℓ} {S : Container ℓ} → (C : Coalg₀ S) → (F : Final {S = S}) → ∀ (f g : C ⇒ F .fst) → f ≡ g
 final-coalg-property-2 C F f g = (sym (F .snd C .snd f)) ∙ (F .snd C .snd g) -- follows from contractability
