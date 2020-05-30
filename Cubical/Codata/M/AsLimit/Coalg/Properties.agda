@@ -41,14 +41,14 @@ M-coalg : ∀ {ℓ} {S : Container ℓ} -> Coalg₀ S
 M-coalg {S = S} =
   (M S) , out-fun
 
-Final : ∀ {ℓ} {S : Container ℓ} -> Set (ℓ-suc ℓ)
+Final : ∀ {ℓ} {S : Container ℓ} -> Type (ℓ-suc ℓ)
 Final {S = S} = Σ[ X,ρ ∈ Coalg₀ S ] ∀ (C,γ : Coalg₀ S) -> isContr ((C,γ) ⇒ (X,ρ))
 
 --------------------------------------------------------
 -- Properties of Bisimulations and (Final) Coalgebras --
 --------------------------------------------------------
 
-U : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) -> Set ℓ
+U : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) -> Type ℓ
 U {S = S} (C , γ) =
   Σ[ f ∈ (C -> M S) ] (out-fun ∘ f ≡ P₁ f ∘ γ)
 
@@ -75,9 +75,11 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
     Iso⟨ idIso ⟩
   (Σ[ (u , q) ∈ Cone C,γ ] ((u , q) ≡ (ϕ₀ u , ϕ₁ u q)))
     Iso⟨ (Σ-ap-iso₂ λ {(u , q) → invIso (Σ-split-iso {x = (u , q)} {y = (ϕ₀ u , ϕ₁ u q)})}) ⟩
-  (Σ[ (u , q) ∈ Cone C,γ ] (Σ[ p ∈ u ≡ ϕ₀ u ] (PathP (λ i → Cone₁ C,γ (p i)) q (ϕ₁ u q))))
+  (Σ[ (u , q) ∈ Cone C,γ ]
+  (Σ[ p ∈ u ≡ ϕ₀ u ] (PathP (λ i → Cone₁ C,γ (p i)) q (ϕ₁ u q))))
     Iso⟨ (iso (λ {((u , p) , q , r) → (u , q) , p , r}) (λ {((u , q) , p , r) → (u , p) , (q , r)}) (λ _ → refl) λ _ → refl) ⟩
-  (Σ[ (u , p) ∈ (Σ[ u ∈ Cone₀ C,γ ] (u ≡ ϕ₀ u)) ] (Σ[ q ∈ Cone₁ C,γ u ] (PathP (λ i → Cone₁ C,γ (p i)) q (ϕ₁ u q))))
+  (Σ[ (u , p) ∈ (Σ[ u ∈ Cone₀ C,γ ] (u ≡ ϕ₀ u)) ]
+  (Σ[ q ∈ Cone₁ C,γ u ] (PathP (λ i → Cone₁ C,γ (p i)) q (ϕ₁ u q))))
     Iso⟨ invIso (Σ-ap-iso (missing-0-Iso) λ x → missing-2-Iso) ⟩
   (Σ[ _ ∈ Lift {ℓ-zero} {ℓ} Unit ] (Lift {ℓ-zero} {ℓ} Unit))
     Iso⟨ (iso (λ x → lift tt) (λ _ → lift tt , lift tt) (λ b i → lift tt) (λ a i → lift tt , lift tt)) ⟩
@@ -85,7 +87,7 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
   where
     e = inv (lemma10-Iso C,γ)
 
-    step : ∀ {Y : Set ℓ} (f : C -> Y) → C → P₀ S Y
+    step : ∀ {Y : Type ℓ} (f : C -> Y) → C → P₀ S Y
     step {Y = Y} f = P₁ f  ∘ γ
 
     Ψ : ∀ (f : C -> M S) -> C -> M S
@@ -188,11 +190,11 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
 U-contr : ∀ {ℓ} {S : Container ℓ} (C,γ : Coalg₀ S) -> isContr (U C,γ)
 U-contr {ℓ} C,γ = inv (contr-is-ext-Iso {A = U C,γ} (U-is-Unit-Iso C,γ)) (lift tt , λ { (lift tt) -> refl })
   where
-    isContrIsPropPath : ∀ {ℓ} {A : Set ℓ} → (x : isContr A) → ∀ y → isProp (x .fst ≡ y)
+    isContrIsPropPath : ∀ {ℓ} {A : Type ℓ} → (x : isContr A) → ∀ y → isProp (x .fst ≡ y)
     isContrIsPropPath {A = A} x y = isContr→isProp (isContr→isContrPath x (x .fst) y)
 
     contr-is-ext-Iso-helper :
-      ∀ {ℓ} {A B : Set ℓ}
+      ∀ {ℓ} {A B : Type ℓ}
       → (p : Iso A B)
       → ((a : A) → Iso (∀ y → a ≡ y) (∀ y → (fun p a) ≡ y))
     fun (contr-is-ext-Iso-helper (iso f g rightI leftI) a) x y = cong f (x (g y)) ∙ rightI y
@@ -201,7 +203,7 @@ U-contr {ℓ} C,γ = inv (contr-is-ext-Iso {A = U C,γ} (U-is-Unit-Iso C,γ)) (l
     leftInv (contr-is-ext-Iso-helper p@(iso f g rightI leftI) a) b = funExt λ y → isContrIsPropPath (a , b) y (sym (leftI a) ∙ cong g (cong f (b (g (f y))) ∙ rightI (f y)) ∙ leftI y) (b y)
 
     -- Can this be generalized to Iso A B → Iso (H A) (H B) , not just for H = isContr ?
-    contr-is-ext-Iso : ∀ {ℓ} {A B : Set ℓ} -> Iso A B -> Iso (isContr A) (isContr B)
+    contr-is-ext-Iso : ∀ {ℓ} {A B : Type ℓ} -> Iso A B -> Iso (isContr A) (isContr B)
     contr-is-ext-Iso {A = A} {B} p = Σ-ap-iso p (contr-is-ext-Iso-helper p)
 
 ----------------------------------------------------

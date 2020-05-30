@@ -26,7 +26,7 @@ open import Cubical.Codata.M.AsLimit.M
 record bisimulation {ℓ} (S : Container ℓ) (C,γ : Coalg₀ S) (R : C,γ .fst -> C,γ .fst -> Set ℓ) : Set (ℓ-suc ℓ) where
   coinductive
 
-  R⁻ = Σ (C,γ .fst) (λ a -> Σ (C,γ .fst) (λ b -> R a b))
+  R⁻ = Σ[ a ∈ (C,γ .fst) ] Σ[ b ∈ (C,γ .fst) ] (R a b)
 
   π₁ : R⁻ -> C,γ .fst
   π₁ = fst

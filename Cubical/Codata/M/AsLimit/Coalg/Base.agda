@@ -25,7 +25,7 @@ open import Cubical.Codata.M.AsLimit.helper
 Coalg₀ : ∀ {ℓ} (S : Container ℓ) -> Type (ℓ-suc ℓ)
 Coalg₀ {ℓ} S = Σ[ C ∈ Type ℓ ] (C → P₀ S C)
 
-Coalg₁ : ∀ {ℓ} {S : Container ℓ} -> Coalg₀ S -> Coalg₀ S -> Set ℓ
+Coalg₁ : ∀ {ℓ} {S : Container ℓ} -> Coalg₀ S -> Coalg₀ S -> Type ℓ
 Coalg₁ {S = S} (C , γ) (D , δ) = Σ (C → D) λ f → δ ∘ f ≡ (P₁ f) ∘ γ
 
 -- Coalgebra morphism notation
