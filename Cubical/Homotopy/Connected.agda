@@ -17,7 +17,7 @@ open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SmashProduct
-open import Cubical.HITs.Truncation as Trunc
+open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn.Base
@@ -76,7 +76,7 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (n :
        where
     inv : ((a : A) → P (f a) .fst) → (b : B) → hLevelTrunc n (fiber f b) → P b .fst
     inv t b =
-      Trunc.recElim
+      trRec
         (P b .snd)
         (λ {(a , p) → subst (fst ∘ P) p (t a)})
 
@@ -231,9 +231,9 @@ connectedTruncIso {A = A} {B = B} (suc n) f con = g
   back y = map fst ((con y) .fst)
 
   backSection :  (b : B) → Path (hLevelTrunc (suc n) B)
-                                 (Trunc.recElim (isOfHLevelTrunc (suc n))
+                                 (trRec (isOfHLevelTrunc (suc n))
                                             (λ a → ∣ f a ∣)
-                                            (Trunc.recElim {n = suc n }
+                                            (trRec {n = suc n }
                                                        {B = hLevelTrunc (suc n) A} (isOfHLevelTrunc (suc n)) back ∣ b ∣))
                                ∣ b ∣
   backSection b = helper (λ p → map f p ≡ ∣ b ∣)
@@ -254,7 +254,7 @@ connectedTruncIso {A = A} {B = B} (suc n) f con = g
 
   g : Iso (hLevelTrunc (suc n) A) (hLevelTrunc (suc n) B)
   Iso.fun g = map f
-  Iso.inv g = Trunc.recElim (isOfHLevelTrunc _) back
+  Iso.inv g = trRec (isOfHLevelTrunc _) back
   Iso.leftInv g = Trunc.elim (λ x → isOfHLevelPath (suc n) (isOfHLevelTrunc _) _ _)
                                λ a → cong (map fst) (con (f a) .snd  ∣ a , refl ∣)
   Iso.rightInv g = Trunc.elim (λ x → isOfHLevelPath (suc n) (isOfHLevelTrunc _) _ _)

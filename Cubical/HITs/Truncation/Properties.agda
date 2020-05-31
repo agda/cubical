@@ -111,6 +111,7 @@ isSnNull→isOfHLevel {n = suc n} nA = isSphereFilled→isOfHLevelSuc (λ f → 
 isOfHLevelTrunc : (n : ℕ) → isOfHLevel n (hLevelTrunc n A)
 isOfHLevelTrunc zero    = hub ⊥.rec , λ _ → ≡hub ⊥.rec
 isOfHLevelTrunc (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilledTrunc
+
 -- isOfHLevelTrunc n = isSnNull→isOfHLevel isNull-Null
 
 -- hLevelTrunc n is a modality
@@ -118,13 +119,13 @@ isOfHLevelTrunc (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilledTrunc
 -- This more direct definition should behave better than recElim
 -- below. Commented for now as it breaks some cohomology code if we
 -- use it instead of recElim.
--- rec : {n : ℕ}
---       {B : Type ℓ'} →
---       isOfHLevel n B →
---       (A → B) →
---       hLevelTrunc n A →
---       B
--- rec h = Null.rec (isOfHLevel→isSnNull h)
+rec : {n : ℕ}
+      {B : Type ℓ'} →
+      isOfHLevel n B →
+      (A → B) →
+      hLevelTrunc n A →
+      B
+rec h = Null.rec (isOfHLevel→isSnNull h)
 
 -- TODO: remove this
 recElim : {n : ℕ}
@@ -192,7 +193,7 @@ Iso.leftInv (univTrunc n {B , lev}) b = funExt (elim (λ x → isOfHLevelPath _ 
 
 map : {n : ℕ} {B : Type ℓ'} (g : A → B)
   → hLevelTrunc n A → hLevelTrunc n B
-map g = recElim (isOfHLevelTrunc _) (λ a → ∣ g a ∣)
+map g = rec (isOfHLevelTrunc _) (λ a → ∣ g a ∣)
 
 mapCompIso : {n : ℕ} {B : Type ℓ'} → (Iso A B) → Iso (hLevelTrunc n A) (hLevelTrunc n B)
 Iso.fun (mapCompIso g) = recElim (isOfHLevelTrunc _) λ a → ∣ Iso.fun g a ∣

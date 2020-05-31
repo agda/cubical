@@ -12,67 +12,72 @@ import Cubical.Foundations.Isomorphism as I
 import Cubical.Foundations.Equiv as E
 import Cubical.Foundations.Equiv.HalfAdjoint as HAE
 
+open import Cubical.Data.Sigma hiding (_×_)
+
 open import Cubical.HITs.SetQuotients as sq
 
 
--- imGroup : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → morph G H
---         → Group (ℓ-max ℓ ℓ')
--- Group.type (imGroup G H (ϕ , mf)) = Σ[ x ∈ Group.type H ] isInIm G H ϕ x
--- Group.setStruc (imGroup G H (ϕ , mf)) = isOfHLevelΣ 2 (Group.setStruc H) λ _ → isOfHLevelSuc 1 propTruncIsProp
--- isGroup.id (Group.groupStruc (imGroup G H (ϕ , mf))) =
---  let idH = isGroup.id (Group.groupStruc H)
---      idG = isGroup.id (Group.groupStruc G)
---      invG = isGroup.inv (Group.groupStruc G)
---      invH = isGroup.inv (Group.groupStruc H)
---      lUnit = isGroup.lUnit (Group.groupStruc H)
---      rCancel = isGroup.rCancel (Group.groupStruc H)
---  in idH , ∣ idG , morph0→0 G H ϕ mf ∣
--- isGroup.inv (Group.groupStruc (imGroup G H (ϕ , mf))) (h , hinim) =
---   let idH = isGroup.id (Group.groupStruc H)
---       idG = isGroup.id (Group.groupStruc G)
---       invG = isGroup.inv (Group.groupStruc G)
---       invH = isGroup.inv (Group.groupStruc H)
---       lUnit = isGroup.lUnit (Group.groupStruc H)
---       rCancel = isGroup.rCancel (Group.groupStruc H)
---   in invH h , rec propTruncIsProp
---                   (λ a → ∣ (invG (fst a))
---                           , morphMinus G H ϕ mf (fst a) ∙ cong (λ x → invH x) (snd a) ∣)
---                   hinim
--- isGroup.comp (Group.groupStruc (imGroup G H (ϕ , mf))) (h1 , h1inim) (h2 , h2inim) =
---  let idH = isGroup.id (Group.groupStruc H)
---      idG = isGroup.id (Group.groupStruc G)
---      invG = isGroup.inv (Group.groupStruc G)
---      invH = isGroup.inv (Group.groupStruc H)
---      compH = isGroup.comp (Group.groupStruc H)
---      compG = isGroup.comp (Group.groupStruc G)
---      lUnit = isGroup.lUnit (Group.groupStruc H)
---      rCancel = isGroup.rCancel (Group.groupStruc H)
---  in compH h1 h2 , rec propTruncIsProp
---                       (λ p1 → rec propTruncIsProp
---                                   (λ p2 → ∣ (compG (fst p1) (fst p2))
---                                           , mf (fst p1) (fst p2) ∙ cong₂ compH (snd p1) (snd p2) ∣)
---                                    h2inim)
---                       h1inim
--- isGroup.lUnit (Group.groupStruc (imGroup G H (ϕ , mf))) (h , _) =
---  let lUnit = isGroup.lUnit (Group.groupStruc H)
---  in ΣProp≡ (λ _ → propTruncIsProp)
---            (lUnit h)
--- isGroup.rUnit (Group.groupStruc (imGroup G H (ϕ , mf))) (h , _) =
---  let rUnit = isGroup.rUnit (Group.groupStruc H)
---  in ΣProp≡ (λ _ → propTruncIsProp)
---            (rUnit h)
--- isGroup.assoc (Group.groupStruc (imGroup G H (ϕ , mf))) (h1 , _) (h2 , _) (h3 , _) =
---  let assoc = isGroup.assoc (Group.groupStruc H)
---  in ΣProp≡ (λ _ → propTruncIsProp)
---            (assoc h1 h2 h3)
--- isGroup.lCancel (Group.groupStruc (imGroup G H (ϕ , mf))) (h , _) =
---  let lCancel = isGroup.lCancel (Group.groupStruc H)
---  in ΣProp≡ (λ _ → propTruncIsProp)
---            (lCancel h)
--- isGroup.rCancel (Group.groupStruc (imGroup G H (ϕ , mf))) (h , _) =
---  let rCancel = isGroup.rCancel (Group.groupStruc H)
---  in ΣProp≡ (λ _ → propTruncIsProp)
---            (rCancel h)
+
+
+imGroup : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → morph G H
+
+         → Group (ℓ-max ℓ ℓ')
+Group.type (imGroup G H (ϕ , mf)) = Σ[ x ∈ Group.type H ] isInIm G H ϕ x
+Group.setStruc (imGroup G H (ϕ , mf)) = isOfHLevelΣ 2 (Group.setStruc H) λ _ → isOfHLevelSuc 1 propTruncIsProp
+isGroup.id (Group.groupStruc (imGroup G H (ϕ , mf))) =
+ let idH = isGroup.id (Group.groupStruc H)
+     idG = isGroup.id (Group.groupStruc G)
+     invG = isGroup.inv (Group.groupStruc G)
+     invH = isGroup.inv (Group.groupStruc H)
+     lUnit = isGroup.lUnit (Group.groupStruc H)
+     rCancel = isGroup.rCancel (Group.groupStruc H)
+ in idH , ∣ idG , morph0→0 G H ϕ mf ∣
+isGroup.inv (Group.groupStruc (imGroup G H (ϕ , mf))) (h , hinim) =
+  let idH = isGroup.id (Group.groupStruc H)
+      idG = isGroup.id (Group.groupStruc G)
+      invG = isGroup.inv (Group.groupStruc G)
+      invH = isGroup.inv (Group.groupStruc H)
+      lUnit = isGroup.lUnit (Group.groupStruc H)
+      rCancel = isGroup.rCancel (Group.groupStruc H)
+  in invH h , rec propTruncIsProp
+                  (λ a → ∣ (invG (fst a))
+                          , morphMinus G H ϕ mf (fst a) ∙ cong (λ x → invH x) (snd a) ∣)
+                  hinim
+isGroup.comp (Group.groupStruc (imGroup G H (ϕ , mf))) (h1 , h1inim) (h2 , h2inim) =
+ let idH = isGroup.id (Group.groupStruc H)
+     idG = isGroup.id (Group.groupStruc G)
+     invG = isGroup.inv (Group.groupStruc G)
+     invH = isGroup.inv (Group.groupStruc H)
+     compH = isGroup.comp (Group.groupStruc H)
+     compG = isGroup.comp (Group.groupStruc G)
+     lUnit = isGroup.lUnit (Group.groupStruc H)
+     rCancel = isGroup.rCancel (Group.groupStruc H)
+ in compH h1 h2 , rec propTruncIsProp
+                      (λ p1 → rec propTruncIsProp
+                                  (λ p2 → ∣ (compG (fst p1) (fst p2))
+                                          , mf (fst p1) (fst p2) ∙ cong₂ compH (snd p1) (snd p2) ∣)
+                                   h2inim)
+                      h1inim
+isGroup.lUnit (Group.groupStruc (imGroup G H (ϕ , mf))) (h , _) =
+ let lUnit = isGroup.lUnit (Group.groupStruc H)
+ in ΣProp≡ (λ _ → propTruncIsProp)
+           (lUnit h)
+isGroup.rUnit (Group.groupStruc (imGroup G H (ϕ , mf))) (h , _) =
+  let rUnit = isGroup.rUnit (Group.groupStruc H)
+  in ΣProp≡ (λ _ → propTruncIsProp)
+           (rUnit h)
+isGroup.assoc (Group.groupStruc (imGroup G H (ϕ , mf))) (h1 , _) (h2 , _) (h3 , _) =
+ let assoc = isGroup.assoc (Group.groupStruc H)
+ in ΣProp≡ (λ _ → propTruncIsProp)
+           (assoc h1 h2 h3)
+isGroup.lCancel (Group.groupStruc (imGroup G H (ϕ , mf))) (h , _) =
+ let lCancel = isGroup.lCancel (Group.groupStruc H)
+ in ΣProp≡ (λ _ → propTruncIsProp)
+           (lCancel h)
+isGroup.rCancel (Group.groupStruc (imGroup G H (ϕ , mf))) (h , _) =
+ let rCancel = isGroup.rCancel (Group.groupStruc H)
+ in ΣProp≡ (λ _ → propTruncIsProp)
+           (rCancel h)
 
 
 -- kerGroup : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → morph G H
