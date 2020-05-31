@@ -158,7 +158,7 @@ module ring-·syntax (R : Ring {ℓ}) where
   x - y = x + - y
 
 
-record ringStructure {ℓ} (R : Type ℓ) : Type ℓ where
+record expandedRingStructure {ℓ} (R : Type ℓ) : Type ℓ where
   field
     ₀ : R
     ₁ : R
@@ -190,10 +190,10 @@ record ringStructure {ℓ} (R : Type ℓ) : Type ℓ where
 
 createRing : (R : Type ℓ)
              → isSet R
-             → ringStructure R
+             → expandedRingStructure R
              → Ring {ℓ}
 createRing R isSet-R ringStr =
-           let open ringStructure ringStr
+           let open expandedRingStructure ringStr
            in R , (_+_ , ₁ , _·_) ,
               (((isSet-R , +-assoc)
                 , ₀
