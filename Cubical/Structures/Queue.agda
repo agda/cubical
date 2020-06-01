@@ -7,12 +7,14 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Functions.Surjection
 
 open import Cubical.Structures.Pointed
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma
+open import Cubical.Data.List
 
 
 -- Developing Queues as a standard notion of structure, see
@@ -139,4 +141,23 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  queue-iso = add-to-iso raw-queue-iso queue-axioms
 
  Queue-is-SNS : SNS queue-structure queue-iso
- Queue-is-SNS = add-axioms-SNS raw-queue-iso  isProp-queue-axioms RawQueue-is-SNS
+ Queue-is-SNS = add-axioms-SNS raw-queue-iso isProp-queue-axioms RawQueue-is-SNS
+
+
+ finite-queue-axioms : (Q : Type ℓ) → queue-structure Q → Type ℓ
+ finite-queue-axioms Q ((emp , enq , _) , _) = isSurjection (foldr enq emp)
+
+ isProp-finite-queue-axioms : ∀ Q S → isProp (finite-queue-axioms Q S)
+ isProp-finite-queue-axioms Q S = isPropIsSurjection
+
+ finite-queue-structure : Type ℓ → Type ℓ
+ finite-queue-structure = add-to-structure queue-structure finite-queue-axioms
+
+ FiniteQueue : Type (ℓ-suc ℓ)
+ FiniteQueue = TypeWithStr ℓ finite-queue-structure
+
+ finite-queue-iso : StrIso finite-queue-structure ℓ
+ finite-queue-iso = add-to-iso queue-iso finite-queue-axioms
+
+ FiniteQueue-is-SNS : SNS finite-queue-structure finite-queue-iso
+ FiniteQueue-is-SNS = add-axioms-SNS queue-iso isProp-finite-queue-axioms Queue-is-SNS

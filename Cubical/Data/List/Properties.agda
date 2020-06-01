@@ -142,3 +142,7 @@ discreteList eqA (x ∷ xs) (y ∷ ys) with eqA x y | discreteList eqA xs ys
 ... | yes p | yes q = yes (λ i → p i ∷ q i)
 ... | yes _ | no ¬q = no (λ p → ¬q (cons-inj₂ p))
 ... | no ¬p | _     = no (λ q → ¬p (cons-inj₁ q))
+
+foldrCons : (xs : List A) → foldr _∷_ [] xs ≡ xs
+foldrCons [] = refl
+foldrCons (x ∷ xs) = cong (x ∷_) (foldrCons xs)

@@ -11,6 +11,7 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Sum
 open import Cubical.Data.List
 open import Cubical.Data.Sigma
+open import Cubical.HITs.PropositionalTruncation
 
 module _ (A : Type ℓ) (Aset : isSet A) where
  open Queues-on A Aset
@@ -87,6 +88,9 @@ module _ (A : Type ℓ) (Aset : isSet A) where
 
    isInjDeq : ∀ q q' → deq₁ q ≡ deq₁ q' → q ≡ q'
    isInjDeq _ _ p = isInjDeq-lemma _ _ (SumPath.encode _ _ p)
+
+ Finite1List : FiniteQueue
+ Finite1List = (Q₁ , str 1List , λ q → ∣ q , foldrCons q ∣)
 
 
  -- Now for 2Lists
@@ -226,3 +230,10 @@ module _ (A : Type ℓ) (Aset : isSet A) where
 
  Path-1List-2List : 1List ≡ 2List
  Path-1List-2List = sip Queue-is-SNS 1List 2List (quotEquiv , quotEquiv-is-queue-iso)
+
+ Finite2List : FiniteQueue
+ Finite2List = Q₂ , str 2List , subst (uncurry finite-queue-axioms) Path-1List-2List (snd (str Finite1List))
+
+ Path-Finite1List-Finite2List : Finite1List ≡ Finite2List
+ Path-Finite1List-Finite2List =
+   sip FiniteQueue-is-SNS Finite1List Finite2List (quotEquiv , quotEquiv-is-queue-iso)
