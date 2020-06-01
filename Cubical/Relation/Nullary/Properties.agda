@@ -69,7 +69,11 @@ notEmptyPopulated {A = A} pop u = u (fixpoint (pop (h , hIsConst))) where
   hIsConst : ∀ x y → h x ≡ h y
   hIsConst x y i = ⊥.elim (isProp⊥ (u x) (u y) i)
 
--- these implications induce the following for different kinds of stability
+-- these implications induce the following for different kinds of stability, gradually weakening the assumption
+Dec→Stable : Dec A → Stable A
+Dec→Stable (yes x) = λ _ → x
+Dec→Stable (no x) = λ f → ⊥.elim (f x)
+
 Stable→PStable : Stable A → PStable A
 Stable→PStable st = st ∘ notEmptyPopulated
 
@@ -89,7 +93,7 @@ Collapsible→HStable : Collapsible A → HStable A
 Collapsible→HStable f x = fixpoint (populatedBy x f)
 
 HStable≡→Collapsible≡ : HStable≡ A → Collapsible≡ A
-HStable≡→Collapsible≡ st x y = HStable→Collapsible (st x y)
+HStable≡→Collapsible≡ hst x y = HStable→Collapsible (hst x y)
 
 Collapsible≡→HStable≡ : Collapsible≡ A → HStable≡ A
 Collapsible≡→HStable≡ col x y = Collapsible→HStable (col x y)
@@ -120,8 +124,18 @@ isSet→HStable≡ setA x y = extract where
   extract (squash p q i) = setA x y (extract p) (extract q) i
 
 -- by the above two more sufficient conditions to inhibit isSet A are given
+PStable≡→HStable≡ : PStable≡ A → HStable≡ A
+PStable≡→HStable≡ pst x y = PStable→HStable (pst x y)
+
 PStable≡→isSet : PStable≡ A → isSet A
-PStable≡→isSet st = HStable≡→isSet (λ x y → PStable→HStable (st x y))
+PStable≡→isSet = HStable≡→isSet ∘ PStable≡→HStable≡
+
+Stable≡→PStable≡ : Stable≡ A → PStable≡ A
+Stable≡→PStable≡ st x y = Stable→PStable (st x y)
 
 Stable≡→isSet : Stable≡ A → isSet A
-Stable≡→isSet st = PStable≡→isSet (λ x y → Stable→PStable (st x y))
+Stable≡→isSet = PStable≡→isSet ∘ Stable≡→PStable≡
+
+-- Proof of Hedberg's theorem: a type with decidable equality is an h-set
+Discrete→isSet : Discrete A → isSet A
+Discrete→isSet d = Stable≡→isSet (λ x y → Dec→Stable (d x y))

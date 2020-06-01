@@ -47,19 +47,22 @@ Populated A = (f : Collapsible A) → Fixpoint (f .fst)
 PStable : Type ℓ → Type ℓ
 PStable A = Populated A → A
 
+onAllPaths : (Type ℓ → Type ℓ) → Type ℓ → Type ℓ
+onAllPaths S A = (x y : A) → S (x ≡ y)
+
 Separated Stable≡ : Type ℓ → Type ℓ
-Separated A = (x y : A) → Stable (x ≡ y)
+Separated = onAllPaths Stable
 Stable≡ = Separated
 
 HSeparated HStable≡ : Type ℓ → Type ℓ
-HSeparated A = (x y : A) → HStable (x ≡ y)
+HSeparated = onAllPaths HStable
 HStable≡ = HSeparated
 
 Collapsible≡ : Type ℓ → Type ℓ
-Collapsible≡ A = (x y : A) → Collapsible (x ≡ y)
+Collapsible≡ = onAllPaths Collapsible
 
 PStable≡ : Type ℓ → Type ℓ
-PStable≡ A = (x y : A) → PStable (x ≡ y)
+PStable≡ = onAllPaths PStable
 
 Discrete : Type ℓ → Type ℓ
-Discrete A = (x y : A) → Dec (x ≡ y)
+Discrete = onAllPaths Dec
