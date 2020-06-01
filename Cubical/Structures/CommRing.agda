@@ -1,5 +1,4 @@
 {-# OPTIONS --cubical --safe #-}
-
 module Cubical.Structures.CommRing where
 
 open import Cubical.Foundations.Prelude
