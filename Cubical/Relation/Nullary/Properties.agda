@@ -1,4 +1,12 @@
 {-# OPTIONS --cubical --safe #-}
+{-
+
+Properties of nullary relations, i.e. structures on types.
+
+Includes several results from "Generalizations of Hedberg's Theorem"
+by Altenkirch, Coquand, Escardo, Kraus
+
+-}
 module Cubical.Relation.Nullary.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -49,20 +57,20 @@ mapDec _ f (no ¬p) = no (f ¬p)
 
 -- we have the following implications
 -- X ── ∣_∣ ─→ ∥ X ∥
--- ∥ X ∥ ── populatedBy ─→ Populated X
--- Populated X ── notEmptyPopulated ─→ NonEmpty X
+-- ∥ X ∥ ── populatedBy ─→ ⟪ X ⟫
+-- ⟪ X ⟫ ── notEmptyPopulated ─→ NonEmpty X
 
 -- reexport propositional truncation for uniformity
 open Cubical.HITs.PropositionalTruncation.Base
   using (∣_∣) public
 
-populatedBy : ∥ A ∥ → Populated A
+populatedBy : ∥ A ∥ → ⟪ A ⟫
 populatedBy {A = A} a (f , fIsConst) = h a where
   h : ∥ A ∥ → Fixpoint f
   h ∣ a ∣ = f a , fIsConst (f a) a
   h (squash a b i) = 2-Constant→isPropFixpoint f fIsConst (h a) (h b) i
 
-notEmptyPopulated : Populated A → NonEmpty A
+notEmptyPopulated : ⟪ A ⟫ → NonEmpty A
 notEmptyPopulated {A = A} pop u = u (fixpoint (pop (h , hIsConst))) where
   h : A → A
   h a = ⊥.elim (u a)
@@ -137,5 +145,8 @@ Stable≡→isSet : Stable≡ A → isSet A
 Stable≡→isSet = PStable≡→isSet ∘ Stable≡→PStable≡
 
 -- Proof of Hedberg's theorem: a type with decidable equality is an h-set
+Discrete→Stable≡ : Discrete A → Stable≡ A
+Discrete→Stable≡ d x y = Dec→Stable (d x y)
+
 Discrete→isSet : Discrete A → isSet A
-Discrete→isSet d = Stable≡→isSet (λ x y → Dec→Stable (d x y))
+Discrete→isSet = Stable≡→isSet ∘ Discrete→Stable≡

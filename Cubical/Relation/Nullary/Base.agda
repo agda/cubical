@@ -41,11 +41,12 @@ HStable = SplitSupport
 Collapsible : Type ℓ → Type ℓ
 Collapsible A = Σ[ f ∈ (A → A) ] 2-Constant f
 
-Populated : Type ℓ → Type ℓ
+Populated ⟪_⟫ : Type ℓ → Type ℓ
 Populated A = (f : Collapsible A) → Fixpoint (f .fst)
+⟪_⟫ = Populated
 
 PStable : Type ℓ → Type ℓ
-PStable A = Populated A → A
+PStable A = ⟪ A ⟫ → A
 
 onAllPaths : (Type ℓ → Type ℓ) → Type ℓ → Type ℓ
 onAllPaths S A = (x y : A) → S (x ≡ y)

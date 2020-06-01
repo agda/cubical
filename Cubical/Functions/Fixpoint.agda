@@ -19,19 +19,20 @@ module _ {ℓ} {A : Type ℓ} where
   fixpointPath : {f : A → A} → (p : Fixpoint f) → f (fixpoint p) ≡ fixpoint p
   fixpointPath = snd
 
+  -- Kraus' lemma
   2-Constant→isPropFixpoint : (f : A → A) → 2-Constant f → isProp (Fixpoint f)
   2-Constant→isPropFixpoint f connection (x , p) (y , q) i = s i , t i where
     noose : ∀ x y → f x ≡ f y
     noose x y = sym (connection x x) ∙ connection x y
-    -- the main idea is that for any path p, cong f p does not depend p
+    -- the main idea is that for any path p, cong f p does not depend on p
     -- but only on its endpoints and the structure of 2-Constant f
-    KrausLemma : ∀ {x y} → (p : x ≡ y) → noose x y ≡ cong f p
-    KrausLemma {x} = J (λ y p → noose x y ≡ cong f p) (lCancel (connection x x))
+    KrausInsight : ∀ {x y} → (p : x ≡ y) → noose x y ≡ cong f p
+    KrausInsight {x} = J (λ y p → noose x y ≡ cong f p) (lCancel (connection x x))
     -- Need to solve for a path s : x ≡ y, such that:
     -- transport (λ i → cong f s i ≡ s i) p ≡ q
     s : x ≡ y
     s = sym p ∙∙ noose x y ∙∙ q
-    t' : PathP (λ i → p i ≡ q i) (noose x y) s
-    t' = doubleCompPath-filler (sym p) (noose x y) q
+    t' : PathP (λ i → noose x y i ≡ s i) p q
+    t' i j = doubleCompPath-filler (sym p) (noose x y) q j i
     t : PathP (λ i → cong f s i ≡ s i) p q
-    t i j = subst (λ noose → PathP (λ i → p i ≡ q i) noose s) (KrausLemma s) t' j i
+    t = subst (λ kraus → PathP (λ i → kraus i ≡ s i) p q) (KrausInsight s) t'
