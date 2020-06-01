@@ -11,7 +11,7 @@ open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 open import Cubical.Structures.Pointed
 
 open import Cubical.Data.Unit
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma
 
 
@@ -49,7 +49,6 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  deq-map-forward f (inl tt) = inl tt
  deq-map-forward f (inr (x , a)) = inr (f x , a)
 
-
  deq-map-forward-∘ :{B C D : Type ℓ}
   (g : C → D) (f : B → C)
   → ∀ r → deq-map-forward {X = C} g (deq-map-forward f r) ≡ deq-map-forward (λ b → g (f b)) r
@@ -63,8 +62,6 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
    γ : ∀ z → z ≡ deq-map-forward (idfun X) z
    γ (inl tt) = refl
    γ (inr xa) = refl
-
-
 
  deq-structure : Type ℓ → Type ℓ
  deq-structure X = X → Unit ⊎ (X × A)
@@ -81,22 +78,20 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
 
 
  -- Now we can do Queues:
- queue-structure : Type ℓ → Type ℓ
- queue-structure Q = Q × (A → Q → Q) × (Q → Unit ⊎ (Q × A))
+ raw-queue-structure : Type ℓ → Type ℓ
+ raw-queue-structure Q = Q × (A → Q → Q) × (Q → Unit ⊎ (Q × A))
 
- Queue : Type (ℓ-suc ℓ)
- Queue = TypeWithStr ℓ queue-structure
+ RawQueue : Type (ℓ-suc ℓ)
+ RawQueue = TypeWithStr ℓ raw-queue-structure
 
- queue-iso : StrIso queue-structure ℓ
- queue-iso (Q₁ , emp₁ , enq₁ , deq₁) (Q₂ , emp₂ , enq₂ , deq₂) e =
-            (e .fst emp₁ ≡ emp₂)
-          × (∀ a q → e .fst (enq₁ a q) ≡ enq₂ a (e .fst q))
-          × (∀ q → deq-map-forward (e .fst) (deq₁ q) ≡ deq₂ (e .fst q))
+ raw-queue-iso : StrIso raw-queue-structure ℓ
+ raw-queue-iso (Q₁ , emp₁ , enq₁ , deq₁) (Q₂ , emp₂ , enq₂ , deq₂) e =
+   (e .fst emp₁ ≡ emp₂)
+   × (∀ a q → e .fst (enq₁ a q) ≡ enq₂ a (e .fst q))
+   × (∀ q → deq-map-forward (e .fst) (deq₁ q) ≡ deq₂ (e .fst q))
 
-
-
- Queue-is-SNS : SNS {ℓ₁ = ℓ} queue-structure queue-iso
- Queue-is-SNS =
+ RawQueue-is-SNS : SNS raw-queue-structure raw-queue-iso
+ RawQueue-is-SNS =
    join-SNS pointed-iso pointed-is-SNS
             {S₂ = λ X → (left-action-structure X) × (deq-structure X)}
             (λ B C e → (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
@@ -105,11 +100,40 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
 
 
 
+ returnOrEnq : {Q : Type ℓ}
+  → raw-queue-structure Q → A → Unit ⊎ (Q × A) → Q × A
+ returnOrEnq (emp , enq , _) a qr =
+   ⊎.rec (λ _ → emp , a) (λ {(q , b) → enq a q , b}) qr
 
- -- Should we add further axioms for Queues?
- -- Some suggestions:
- queue-axioms : (Q : Type ℓ) → queue-structure Q → Type ℓ
- queue-axioms Q (emp , enq , deq) =   (isSet Q)
-                                     × (deq emp ≡ inl tt)
-                                     × ∀ a q → deq (enq a q) ≡ inr (q , a)
-                                     -- etc.
+ queue-axioms : (Q : Type ℓ) → raw-queue-structure Q → Type ℓ
+ queue-axioms Q S@(emp , enq , deq) =
+   (isSet Q)
+   × (deq emp ≡ inl tt)
+   × (∀ a q → deq (enq a q) ≡ inr (returnOrEnq S a (deq q)))
+   × (∀ q q' → deq q ≡ deq q' → q ≡ q')
+
+ isProp-queue-axioms : ∀ Q S → isProp (queue-axioms Q S)
+ isProp-queue-axioms Q S =
+   isPropΣ
+     isPropIsSet
+     (λ Qset →
+       isProp×
+       (isOfHLevelDeq Qset _ _)
+       (isProp×
+         (isPropΠ2 λ _ _ → isOfHLevelDeq Qset _ _)
+         (isPropΠ3 λ _ _ _ → Qset _ _)))
+   where
+   isOfHLevelDeq : isOfHLevel 2 Q → isOfHLevel 2 (Unit ⊎ (Q × A))
+   isOfHLevelDeq Qset = isOfHLevelSum 0 (isOfHLevelUnit 2) (isOfHLevel× 2 Qset Aset)
+
+ queue-structure : Type ℓ → Type ℓ
+ queue-structure = add-to-structure raw-queue-structure queue-axioms
+
+ Queue : Type (ℓ-suc ℓ)
+ Queue = TypeWithStr ℓ queue-structure
+
+ queue-iso : StrIso queue-structure ℓ
+ queue-iso = add-to-iso raw-queue-iso queue-axioms
+
+ Queue-is-SNS : SNS queue-structure queue-iso
+ Queue-is-SNS = add-axioms-SNS raw-queue-iso  isProp-queue-axioms RawQueue-is-SNS

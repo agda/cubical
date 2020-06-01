@@ -6,6 +6,7 @@ open import Cubical.Foundations.Everything
 open import Cubical.Foundations.SIP
 open import Cubical.Structures.Queue
 
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
 open import Cubical.Data.List
@@ -14,10 +15,10 @@ open import Cubical.Data.Sigma
 module _ (A : Type ℓ) (Aset : isSet A) where
  open Queues-on A Aset
 
- -- following Cavallo we can now define 1Lists and 2Lists as Queues on A
+ -- following Cavallo we can now define Raw1Lists and Raw2Lists as Queues on A
  -- and prove that there is a queue-iso between them, this then gives us a path
- 1List : Queue
- 1List = (Q , emp , enq , deq)
+ Raw1List : RawQueue
+ Raw1List = (Q , emp , enq , deq)
   where
    Q = List A
    emp = []
@@ -28,10 +29,59 @@ module _ (A : Type ℓ) (Aset : isSet A) where
    deq (x ∷ x' ∷ xs) = deq-map-forward (enq x) (deq (x' ∷ xs))
 
  -- for later convenience
- Q₁ = typ 1List
- emp₁ = str 1List .fst
- enq₁ = str 1List .snd .fst
- deq₁ = str 1List .snd .snd
+ Q₁ = typ Raw1List
+ emp₁ = str Raw1List .fst
+ enq₁ = str Raw1List .snd .fst
+ deq₁ = str Raw1List .snd .snd
+
+ 1List : Queue
+ 1List = (Q₁ , str Raw1List , isSetQ , refl , deq-enq , isInjDeq)
+  where
+   S = str Raw1List
+
+   isSetQ : isSet Q₁
+   isSetQ = isOfHLevelList 0 Aset
+
+   deq-enq : ∀ a q → deq₁ (enq₁ a q) ≡ inr (returnOrEnq S a (deq₁ q))
+   deq-enq a [] = refl
+   deq-enq a (x ∷ []) = refl
+   deq-enq a (x ∷ x' ∷ xs) =
+     subst
+       (λ t →
+         deq-map-forward (enq₁ a) (deq-map-forward (enq₁ x) t)
+         ≡ inr (returnOrEnq S a (deq-map-forward (enq₁ x) t)))
+       (deq-enq x' xs ⁻¹)
+       refl
+
+   isInjReturnOrEnq : ∀ a a' qr qr'
+     → returnOrEnq S a qr ≡ returnOrEnq S a' qr'
+     → (a ≡ a') × (qr ≡ qr')
+   isInjReturnOrEnq a a' (inl _) (inl _) p = cong snd p , refl
+   isInjReturnOrEnq a a' (inl _) (inr (q' , b')) p =
+     ⊥.rec (lower (ListPath.encode _ _ (cong fst p)))
+   isInjReturnOrEnq a a' (inr (q , b)) (inl _) p =
+     ⊥.rec (lower (ListPath.encode _ _ (cong fst p)))
+   isInjReturnOrEnq a a' (inr (q , b)) (inr (q' , b')) p =
+     fst c , cong inr (ΣPathP (ListPath.decode _ _ (snd c) , cong snd p))
+     where
+     c = ListPath.encode _ _ (cong fst p)
+
+   isInjDeq-lemma : ∀ q q' → SumPath.Cover (deq₁ q) (deq₁ q') → q ≡ q'
+   isInjDeq-lemma [] [] _ = refl
+   isInjDeq-lemma [] (y ∷ q') c =
+     ⊥.rec (lower (subst (SumPath.Cover (inl tt)) (deq-enq y q') c))
+   isInjDeq-lemma (x ∷ q) [] c =
+     ⊥.rec (lower (subst (λ r → SumPath.Cover r (inl tt)) (deq-enq x q) c))
+   isInjDeq-lemma (x ∷ q) (y ∷ q') c =
+     cong₂ _∷_ (fst p) (isInjDeq-lemma q q' (SumPath.encode _ _ (snd p)))
+     where
+     p : (x ≡ y) × (deq₁ q ≡ deq₁ q')
+     p =
+       isInjReturnOrEnq _ _ _ _
+         (lower (subst (uncurry SumPath.Cover) (ΣPathP (deq-enq x q , deq-enq y q')) c))
+
+   isInjDeq : ∀ q q' → deq₁ q ≡ deq₁ q' → q ≡ q'
+   isInjDeq _ _ p = isInjDeq-lemma _ _ (SumPath.encode _ _ p)
 
 
  -- Now for 2Lists
@@ -84,11 +134,8 @@ module _ (A : Type ℓ) (Aset : isSet A) where
     i j
 
 
- 2List : Queue
- 2List = (Q₂ , emp₂ , enq₂ , deq₂)
-
-
-
+ Raw2List : RawQueue
+ Raw2List = (Q₂ , emp₂ , enq₂ , deq₂)
 
  -- We construct an equivalence Q₁≃Q₂ and prove that this is a queue-iso
  quot : Q₁ → Q₂
@@ -160,10 +207,17 @@ module _ (A : Type ℓ) (Aset : isSet A) where
    lemma x x' (y ∷ ys) i = inr (tilt [] (ys ++ [ x' ]) x i , y)
 
 
- quotEquiv-is-queue-iso : queue-iso 1List 2List quotEquiv
+ quotEquiv-is-queue-iso : raw-queue-iso Raw1List Raw2List quotEquiv
  quotEquiv-is-queue-iso = quot∘emp , quot∘enq , quot∘deq
 
 
- -- And we get the desired Path
+ -- And we get a path between the raw 1Lists and 2Lists
+ Path-Raw1List-Raw2List : Raw1List ≡ Raw2List
+ Path-Raw1List-Raw2List = sip RawQueue-is-SNS Raw1List Raw2List (quotEquiv , quotEquiv-is-queue-iso)
+
+ -- We derive the axioms for 2List from those for 1List
+ 2List : Queue
+ 2List = Q₂ , str Raw2List , subst (uncurry queue-axioms) Path-Raw1List-Raw2List (snd (str 1List))
+
  Path-1List-2List : 1List ≡ 2List
  Path-1List-2List = sip Queue-is-SNS 1List 2List (quotEquiv , quotEquiv-is-queue-iso)
