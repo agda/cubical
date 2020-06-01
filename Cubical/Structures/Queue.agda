@@ -110,6 +110,7 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
    (isSet Q)
    × (deq emp ≡ inl tt)
    × (∀ a q → deq (enq a q) ≡ inr (returnOrEnq S a (deq q)))
+   × (∀ a a' q q' → enq a q ≡ enq a' q' → (a ≡ a') × (q ≡ q'))
    × (∀ q q' → deq q ≡ deq q' → q ≡ q')
 
  isProp-queue-axioms : ∀ Q S → isProp (queue-axioms Q S)
@@ -121,7 +122,9 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
        (isOfHLevelDeq Qset _ _)
        (isProp×
          (isPropΠ2 λ _ _ → isOfHLevelDeq Qset _ _)
-         (isPropΠ3 λ _ _ _ → Qset _ _)))
+         (isProp×
+           (isPropΠ3 λ _ _ _ → isPropΠ2 λ _ _ → isProp× (Aset _ _) (Qset _ _))
+           (isPropΠ3 λ _ _ _ → Qset _ _))))
    where
    isOfHLevelDeq : isOfHLevel 2 Q → isOfHLevel 2 (Unit ⊎ (Q × A))
    isOfHLevelDeq Qset = isOfHLevelSum 0 (isOfHLevelUnit 2) (isOfHLevel× 2 Qset Aset)

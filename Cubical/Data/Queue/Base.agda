@@ -35,7 +35,7 @@ module _ (A : Type ℓ) (Aset : isSet A) where
  deq₁ = str Raw1List .snd .snd
 
  1List : Queue
- 1List = (Q₁ , str Raw1List , isSetQ , refl , deq-enq , isInjDeq)
+ 1List = (Q₁ , str Raw1List , isSetQ , refl , deq-enq , {!!} , isInjDeq)
   where
    S = str Raw1List
 
@@ -52,6 +52,11 @@ module _ (A : Type ℓ) (Aset : isSet A) where
          ≡ inr (returnOrEnq S a (deq-map-forward (enq₁ x) t)))
        (deq-enq x' xs ⁻¹)
        refl
+
+   isInjEnq : ∀ a a' q q' → enq₁ a q ≡ enq₁ a' q' → (a ≡ a') × (q ≡ q')
+   isInjEnq _ _ _ _ p = fst c , ListPath.decode _ _ (snd c)
+     where
+     c = ListPath.encode _ _ p
 
    isInjReturnOrEnq : ∀ a a' qr qr'
      → returnOrEnq S a qr ≡ returnOrEnq S a' qr'
