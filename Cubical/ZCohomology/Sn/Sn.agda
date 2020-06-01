@@ -47,15 +47,41 @@ open import Cubical.Data.HomotopyGroup
 open import Cubical.Data.Bool hiding (_⊕_)
 
 
-congDep : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {a : A} (p q r s : a ≡ a) (f : (a ≡ a) → B) → PathP (λ i → p i ≡ q i) r s
-          → PathP (λ i → {!B!}) (f r) (f s) -- PathP (λ i → f (p i) ≡ f (q i)) (cong f r) (cong f s)
-congDep = {!!}
+cong₂Funct2 : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} {B : Type ℓ'} (f : A → A → B) →
+        (p : x ≡ y) →
+        {u v : A} (q : u ≡ v) →
+        cong₂ f p q ≡ cong (λ x → f x u) p ∙ cong (f y) q
+cong₂Funct2 {x = x} {y = y} f p {u = u} {v = v} q j i =
+  hcomp (λ k → λ { (i = i0) → f x u
+                  ; (i = i1) → f y (q k)
+                  ; (j = i0) → f (p i) (q (i ∧ k))})
+       (f (p i) u)
 
-moveDownPathP : {!!}
-moveDownPathP = {!!}
+cong₂Sym : ∀ {ℓ} {A : Type ℓ} {x : A}
+           (p : x ≡ x) →
+           (refl ≡ p) → 
+           (P : p ≡ p) →
+           cong₂ (λ x y → x ∙ y) P (sym P) ≡ refl
+cong₂Sym {x = x} p = J (λ p _ → (P : p ≡ p) → cong₂ (λ x y → x ∙ y) P (sym P) ≡ refl)
+                       λ P → cong₂Funct2 (λ x y → x ∙ y) P (sym P)
+                            ∙ PathP→compPathR (λ j → cong (λ x → rUnit x (~ j)) P ∙ cong (λ x → lUnit x (~ j)) (sym P))
+                            ∙ (λ j → (sym (rUnit refl)) ∙ rCancel P j ∙ lUnit refl)
+                            ∙ (λ j → sym (rUnit refl) ∙ lUnit (lUnit refl) (~ j) )
+                            ∙ rCancel (sym (rUnit refl))
 
-congFunct2 : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y : A} (f : A → A → B) (j₁ : x ≡ y) {u v : A} (q : u ≡ v) → cong₂ f j₁ q ≡ cong (λ x₁ → f x₁ u) j₁ ∙ cong (f y) q
-congFunct2 = {!!}
+abstract
+  cong₂Sym1 : ∀ {ℓ} {A : Type ℓ} {x : A}
+             (p : x ≡ x) →
+             (refl ≡ p) → 
+             (P : p ≡ p) →
+             cong (λ x → x ∙ p) P ≡ cong (λ x → p ∙ x) P
+  cong₂Sym1 {x = x} p id P = rUnit _
+                           ∙ (λ i → cong (λ x → x ∙ p) P ∙ lCancel (λ i → p ∙ P i) (~ i)) -- cong (λ x → cong (λ x → x ∙ p) P ∙ x) {!!}
+                           ∙ assoc _ _ _
+                           ∙ (λ j → cong₂Funct2 (λ x y → x ∙ y) P (sym P) (~ j) ∙ (λ i → p ∙ P i))
+                           ∙ (λ j → cong₂Sym p id P j ∙ (λ i → p ∙ P i))
+                           ∙ sym (lUnit _)
+
 
 prodId : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y : A × B} → proj₁ x ≡ proj₁ y → proj₂ x ≡ proj₂ y → x ≡ y
 prodId {x = (a , b)} {y = (c , d)} id1 id2 i = (id1 i) , (id2 i)
@@ -152,18 +178,6 @@ coHom0-S0 =
 ×morph mf1 mf2 = (λ {(a , b) → (mf1 .fst a) , mf2 .fst b}) , λ {(a , b) (c , d) i → mf1 .snd a c i , mf2 .snd b d i}
 
 
-helper1 : Iso (S₊ 1) S¹
-Iso.fun helper1 north = base
-Iso.fun helper1 south = base
-Iso.fun helper1 (merid a i) = loop i
-Iso.inv helper1 base = north
-Iso.inv helper1 (loop i) = loop* i
-Iso.rightInv helper1 base = refl
-Iso.rightInv helper1 (loop i) j = {!helper loop!}
-Iso.leftInv helper1 north = refl
-Iso.leftInv helper1 south = merid north
-Iso.leftInv helper1 (merid north i) j = {!compPath-filler (merid south) (sym (merid north))!}
-Iso.leftInv helper1 (merid south i) j = {!!}
 
 isGroupoidS1 : isGroupoid (S₊ 1)
 isGroupoidS1 = transport (λ i → isGroupoid (S¹≡S1 (~ i))) isGroupoidS¹
@@ -171,8 +185,6 @@ isConnectedS1 : (x : S₊ 1) → ∥ north ≡ x ∥₋₁
 isConnectedS1 x = pRec propTruncIsProp
                        (λ p → ∣ cong (transport (sym (S¹≡S1))) p ∙ transport⁻Transport (S¹≡S1) x ∣₋₁)
                        (isConnectedS¹ (transport S¹≡S1 x))
-isConnectedS1Loop : (x : S₊ 1) (p : x ≡ x) → ∥ refl ≡ p ∥₋₁
-isConnectedS1Loop x p = {!∥ ? ∥!}
 
 -- basechange* : (x y : S¹) → x ≡ y → x ≡ y → ΩS¹
 -- basechange* x y = J (λ y p → (x ≡ y) → ΩS¹) (basechange x)
@@ -277,20 +289,108 @@ coHom1Iso =
   d : _
   d = MV.d _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0
 
+  i : _
+  i = MV.i _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 1
+
   Δ : _
   Δ = MV.Δ _ _ (S₊ 1) (λ _ → tt) (λ _ → tt) 0
 
 
   d-surj : (x : coHom 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt)))
          → isInIm (coHomGr 0 (S₊ 0)) (coHomGr 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))) (MV.d _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0) x
-  d-surj x = {!!}
+  d-surj = sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
+                 λ x → exactSurjectiveR' (coHomGr 0 (S₊ 0))
+                                          (coHomGr 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt)))
+                                          (×coHomGr 1 Unit Unit)
+                                          {!d , MV.dIsHom _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0!}
+                                          {!i , MV.iIsHom _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 1!}
+                                          {!grIso.fun (coHomGrUnit≥1 0)!}
+                                          {!!}
+                                          ?
+                                          ∣ x ∣₀
 
+{- exactSurjectiveR (coHomGr 0 (S₊ 0))
+                            (coHomGr 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt)))
+                            (×coHomGr 1 Unit Unit)
+                            trivialGroup
+                            (d , MV.dIsHom _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0)
+                            {!i , M!}
+                            (? , {!grIso.fun (coHomGrUnit≥1 0)!})
+                            {!!}
+                            {!!}
+                            {!!}
+-}
   theFuns : (a : Int) → Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt) → ∥ S₊ 1 ∥ ℕ→ℕ₋₂ 1
   theFuns a (inl x) = 0ₖ
   theFuns a (inr x) = 0ₖ
   theFuns a (push north i) = Kn→ΩKn+1 0 a i
   theFuns a (push south i) = 0ₖ
 
+
+  theFunsId2 : (a b : Int) (x : Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))
+             → Kn→ΩKn+1 1 (theFuns a x) ∙ Kn→ΩKn+1 1 (theFuns b x) ≡ Kn→ΩKn+1 1 (theFuns (a +ℤ b) x)
+  theFunsId2 a b (inl x) = (λ i → (λ j → ∣ rCancel (merid north) i j ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣) ∙ sym (lUnit (Kn→ΩKn+1 1 ∣ north ∣))
+  theFunsId2 a b (inr x) = (λ i → (λ j → ∣ rCancel (merid north) i j ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣) ∙ sym (lUnit (Kn→ΩKn+1 1 ∣ north ∣))
+  theFunsId2 a b (push north i) j = 
+    hcomp (λ k → λ {(i = i0) → ((λ i₁ →
+             (λ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
+          ∙ (λ i₁ → lUnit (Kn→ΩKn+1 1 ∣ north ∣) (~ i₁)))
+         j
+                   ; (i = i1) → ((λ i₁ →
+             (λ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
+          ∙ (λ i₁ → lUnit (Kn→ΩKn+1 1 ∣ north ∣) (~ i₁)))
+         j
+                   ; (j = i0) → cong₂Funct2 (λ p q → Kn→ΩKn+1 1 p ∙ Kn→ΩKn+1 1 q) (Kn→ΩKn+1 0 a) (Kn→ΩKn+1 0 b) (~ k) i 
+                   ; (j = i1) → (helper2 a b) k i })
+          (hcomp (λ k → λ { (j = i0) → compPath-filler (cong (λ x₁ → Kn→ΩKn+1 1 x₁ ∙ Kn→ΩKn+1 1 ∣ north ∣) (Kn→ΩKn+1 0 a)) (cong (λ q → Kn→ΩKn+1 1 ∣ north ∣ ∙ Kn→ΩKn+1 1 q) (Kn→ΩKn+1 0 b)) k i
+                           ; (j = i1) → compPath-filler (cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 a)) (cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 b)) k i
+                           ; (i = i1) → RHS-filler b j k
+                           ; (i = i0) → ((λ i₁ →
+             (λ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
+          ∙ (λ i₁ → lUnit (Kn→ΩKn+1 1 ∣ north ∣) (~ i₁)))
+         j})
+                 (bottom-filler a j i))
+
+    where
+
+    bottom-filler : (a : Int) →
+                  PathP (λ j → (cong (λ x → x ∙ Kn→ΩKn+1 1 ∣ north ∣)
+       (λ i₁ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣)
+       ∙ sym (lUnit (Kn→ΩKn+1 1 ∣ north ∣)))
+      j ≡ (cong (λ x → x ∙ Kn→ΩKn+1 1 ∣ north ∣)
+       (λ i₁ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣)
+       ∙ sym (lUnit (Kn→ΩKn+1 1 ∣ north ∣)))
+      j) (cong (λ x₁ → Kn→ΩKn+1 1 x₁ ∙ Kn→ΩKn+1 1 ∣ north ∣) (Kn→ΩKn+1 0 a)) (cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 a))
+    bottom-filler a j i =
+      hcomp (λ k → λ {(j = i0) → helper2 (~ k) i ;
+                       (j = i1) → cong (λ x → lUnit (Kn→ΩKn+1 1 x) (~ k)) (Kn→ΩKn+1 0 a) i})
+            ((λ j₂ → ∣ rCancel (merid north) j j₂ ∣) ∙ Kn→ΩKn+1 1 (Kn→ΩKn+1 0 a i))
+
+       where
+       helper2 : Path (Kn→ΩKn+1 1 ∣ north ∣ ∙ Kn→ΩKn+1 1 ∣ north ∣ ≡ Kn→ΩKn+1 1 ∣ north ∣ ∙ Kn→ΩKn+1 1 ∣ north ∣)
+                      (λ i → Kn→ΩKn+1 1 (Kn→ΩKn+1 0 a i) ∙ Kn→ΩKn+1 1 ∣ north ∣)
+                      (λ i → Kn→ΩKn+1 1 ∣ north ∣ ∙ Kn→ΩKn+1 1 (Kn→ΩKn+1 0 a i))
+       helper2 = cong₂Sym1 (Kn→ΩKn+1 1 ∣ north ∣) (λ i j → ∣ rCancel (merid north) (~ i) j ∣) (λ i → Kn→ΩKn+1 1 (Kn→ΩKn+1 0 a i))
+
+    RHS-filler : (b : Int) →
+               PathP (λ j → (cong (λ x → x ∙ Kn→ΩKn+1 1 ∣ north ∣) (λ i j → ∣ rCancel (merid north) i j ∣) ∙ (sym (lUnit (Kn→ΩKn+1 1 ∣ north ∣)))) j
+                           ≡ (cong (λ x → x ∙ Kn→ΩKn+1 1 ∣ north ∣) (λ i j → ∣ rCancel (merid north) i j ∣) ∙ (sym (lUnit (Kn→ΩKn+1 1 ∣ north ∣)))) j)
+                     (cong (λ q → Kn→ΩKn+1 1 ∣ north ∣ ∙ Kn→ΩKn+1 1 q) (Kn→ΩKn+1 0 b))
+                     (cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 b))
+    RHS-filler b j i =
+      hcomp (λ k → λ {(j = i0) → cong (λ q → Kn→ΩKn+1 1 ∣ north ∣ ∙ Kn→ΩKn+1 1 q) (Kn→ΩKn+1 0 b) i ;
+                       (j = i1) → cong (λ x → lUnit (Kn→ΩKn+1 1 x) (~ k)) (Kn→ΩKn+1 0 b) i})
+            (cong (λ q → (λ i → ∣ rCancel (merid north) j i ∣) ∙ Kn→ΩKn+1 1 q) (Kn→ΩKn+1 0 b) i)
+
+    helper2 : (a b : Int) → cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 a) ∙ cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 b) ≡ cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 (a +ℤ b))
+    helper2 a b =
+        sym (congFunct (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 a) (Kn→ΩKn+1 0 b))
+      ∙ (λ i → cong (Kn→ΩKn+1 1) (Iso.rightInv (Iso3-Kn-ΩKn+1 0) (Kn→ΩKn+1 0 a ∙ Kn→ΩKn+1 0 b) (~ i)))
+      ∙ (λ i → cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 (a +ₖ b)) )
+      ∙ (λ i → cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 (addLemma a b i)))
+
+  theFunsId2 a b (push south i) = (λ i → (λ j → ∣ rCancel (merid north) i j ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
+                                ∙ sym (lUnit _)
 
   inj : (a : Int) → theFuns a ≡ (λ _ → ∣ north ∣) → a ≡ pos 0
   inj a id =
@@ -312,9 +412,6 @@ coHom1Iso =
          ∙ sym (cong (λ f → f (inr tt)) id))
          ∙ rCancel (cong (λ f → f (inr tt)) id)
 
-  isInImTheFuns : (x : Int) → isInIm (coHomGr 0 (S₊ 0)) (coHomGr 1 (Pushout (λ _ → tt) (λ _ → tt))) d ∣ theFuns x ∣₀
-  isInImTheFuns x = {!!}
-
   consMember : (a : Int) → Group.type ImGr
   consMember a = d ∣ (λ _ → a) ∣₀ , ∣ ∣ (λ _ → a) ∣₀ , refl ∣₋₁
 
@@ -325,39 +422,49 @@ coHom1Iso =
                 (∣ (λ _ → a) ∣₀ , ∣ (λ _ → 0) ∣₀)
                 , cong ∣_∣₀ (λ i x → (rUnitₖ a i)) ∣₋₁)
 
-  f+consMember : (f : Group.type ImGr) → ∃[ x ∈ Int ] (isGroup.comp (Group.groupStruc ImGr) f (isGroup.inv (Group.groupStruc ImGr) (consMember x)) ≡ (∣ theFuns x ∣₀ , d-surj ∣ theFuns x ∣₀))
-  f+consMember f =
+  f+consMember' : (f : Group.type ImGr) → ∃[ x ∈ Int × Int ] (isGroup.comp (Group.groupStruc ImGr) f (isGroup.inv (Group.groupStruc ImGr) (consMember (proj₁ x))) ≡ (∣ theFuns (proj₂ x) ∣₀ , d-surj ∣ theFuns (proj₂ x) ∣₀))
+  f+consMember' f =
     let null = isGroup.id (Group.groupStruc ImGr)
         - = isGroup.inv (Group.groupStruc ImGr)
         _+_ = isGroup.comp (Group.groupStruc ImGr)
     in
     sigmaElim {C = λ (f :  Group.type ImGr)
-           → ∃[ x ∈ Int ] (isGroup.comp (Group.groupStruc ImGr) f (isGroup.inv (Group.groupStruc ImGr) (consMember x))
-                         ≡ (∣ theFuns x ∣₀ , d-surj ∣ theFuns x ∣₀)) }
+           → ∃[ x ∈ Int × Int ] (isGroup.comp (Group.groupStruc ImGr) f (isGroup.inv (Group.groupStruc ImGr) (consMember (proj₁ x))) ≡ (∣ theFuns (proj₂ x) ∣₀ , d-surj ∣ theFuns (proj₂ x) ∣₀)) }
               (λ _ → isOfHLevelSuc 1 propTruncIsProp)
               (λ f idf → pRec propTruncIsProp
-                               (sigmaElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
-                                          λ g id → ∣ (g south) , (ΣProp≡ (λ _ → propTruncIsProp)
-                                                                         (pRec (setTruncIsSet _ _)
-                                                                               (λ id →  {! (λ i → ∣ id i  ∣₀ +ₕ -ₕ (consMember (g south) .fst)) !}
-                                                                                       ∙ {!!}
-                                                                                       ∙ {!!})
-                                                                               (Iso.fun PathIdTrunc₀Iso id))) ∣₋₁)
+                               ((sigmaElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
+                                           λ g id → ∣ ((g south) , ((g north) +ₖ (-ₖ g south)))
+                                                   , (ΣProp≡ (λ _ → propTruncIsProp)
+                                                             (pRec (setTruncIsSet _ _)
+                                                                   (λ id → (λ i → ∣ id (~ i) ∣₀ +ₕ -ₕ ∣ MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 (λ _ → g south) ∣₀) ∙ funId1 g)
+                                                                   (Iso.fun PathIdTrunc₀Iso id))) ∣₋₁))
                                idf)
               f
-    where
-    subtrLemma : (a b : Int) → a - b ≡ a +ₖ (-ₖ b)
-    subtrLemma = {!!}
 
-    funId : (g : S₊ 0 → Int)
-          → (x : Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))
-          → MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 g x +ₖ (-ₖ MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 (λ _ → g south) x) ≡
-            theFuns (g north - g south) x
-    funId g (inl x) = cong (λ x → (0ₖ {n = 1} ) +ₖ x) (-0ₖ {n = 1}) ∙ rUnitₖ (0ₖ {n = 1})
-    funId g (inr x) = cong (λ x → (0ₖ {n = 1} ) +ₖ x) (-0ₖ {n = 1}) ∙ rUnitₖ (0ₖ {n = 1})
-    funId g (push north i) j =
-      {!!}
-    funId g (push south i) j = {!!}
+    where
+    funId1 : (g : S₊ 0 → Int)
+           → ∣ MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 g ∣₀ +ₕ -ₕ ∣ MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 (λ _ → g south) ∣₀ ≡
+             ∣ theFuns ((g north) +ₖ (-ₖ (g south))) ∣₀
+    funId1 g = (λ i → ∣ MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 g ∣₀
+                    +ₕ (morphMinus (coHomGr 0 (S₊ 0)) (coHomGr 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))) d
+                                   (MV.dIsHom Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0) ∣ (λ _ → g south) ∣₀ (~ i)))
+             ∙ sym (MV.dIsHom Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 ∣ g ∣₀ (-ₕ ∣ (λ _ → g south) ∣₀))
+             ∙ (cong (λ x → d ∣ x ∣₀) g'Id)
+             ∙ cong ∣_∣₀ helper
+      where
+      g' : S₊ 0 → Int
+      g' north = (g north) +ₖ (-ₖ (g south))
+      g' south = 0
+
+      g'Id : (λ x → g x +ₖ (-ₖ (g south))) ≡ g'
+      g'Id = funExt (λ {north → refl
+                      ; south → rCancelₖ (g south)})
+
+      helper : MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 g' ≡ theFuns (g north +ₖ (-ₖ g south))
+      helper = funExt λ {(inl tt) → refl
+                       ; (inr tt) → refl
+                       ; (push north i) → refl
+                       ; (push south i) → refl}
 
   finIm : (f : Group.type ImGr) → ∃[ x ∈ Int ] ((∣ theFuns x ∣₀ , d-surj ∣ theFuns x ∣₀) ≡ f)
   finIm f =
@@ -366,86 +473,8 @@ coHom1Iso =
         _+_ = isGroup.comp (Group.groupStruc ImGr)
         rUnit = isGroup.rUnit (Group.groupStruc ImGr)
         lCancel = isGroup.lCancel (Group.groupStruc ImGr)
-    in pRec propTruncIsProp (λ {(a , id) → ∣ a , (sym (sym (rUnit f) ∙ cong (λ x → f + x) (sym (lCancel null)) ∙ cong (λ x → f + x) (rUnit (- null)) ∙ cong (λ x → f + (- x)) (sym (consMember≡0 a)) ∙ id)) ∣₋₁}) (f+consMember f) -- (f+consMember f)
+    in pRec propTruncIsProp (λ {((a , b) , id)  → ∣ b , (ΣProp≡ (λ _ → propTruncIsProp) (cong fst (sym id) ∙ cong (λ x → f .fst +ₕ x) ((λ i → (-ₕ (consMember≡0 a i .fst))) ∙ sym (lUnitₕ (-ₕ 0ₕ)) ∙ rCancelₕ 0ₕ) ∙ (rUnitₕ (f .fst)))) ∣₋₁}) (f+consMember' f)
 
-
-  surjective : {!f + consMember f+consMember!}
-  surjective = {!!}
-
-
-  theFunsId3 : (a b : Int) → ∣ theFuns a ∣₀ ≡ ∣ theFuns b ∣₀ → a ≡ b
-  theFunsId3 = {!!}
-
-  theFunsId2 : (a b : Int) (x : Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))
-             → Kn→ΩKn+1 1 (theFuns a x) ∙ Kn→ΩKn+1 1 (theFuns b x) ≡ Kn→ΩKn+1 1 (theFuns (a +ℤ b) x)
-  theFunsId2 a b (inl x) = (λ i → (λ j → ∣ rCancel (merid north) i j ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
-                         ∙ sym (lUnit _)
-  theFunsId2 a b (inr x) = (λ i → (λ j → ∣ rCancel (merid north) i j ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
-                         ∙ sym (lUnit _)
-  theFunsId2 a b (push north i) j =
-    hcomp (λ k → λ {(i = i0) → ((λ i₁ →
-             (λ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
-          ∙ (λ i₁ → lUnit (Kn→ΩKn+1 1 ∣ north ∣) (~ i₁)))
-         j
-                   ; (i = i1) → ((λ i₁ →
-             (λ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
-          ∙ (λ i₁ → lUnit (Kn→ΩKn+1 1 ∣ north ∣) (~ i₁)))
-         j
-                   ; (j = i0) → congFunct2 (λ p q → Kn→ΩKn+1 1 p ∙ Kn→ΩKn+1 1 q) (Kn→ΩKn+1 0 a) (Kn→ΩKn+1 0 b) (~ k) i 
-                   ; (j = i1) → (helper2 a b) k i })
-          (hcomp (λ k → λ { (i = i1) → {!!}
-                           ; (i = i0) → ((λ i₁ →
-             (λ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
-          ∙ (λ i₁ → lUnit (Kn→ΩKn+1 1 ∣ north ∣) (~ i₁)))
-         j})
-                 {!absRetr ? ?!})
-
-
-
-{-
-i = i0 ⊢ ((λ i₁ →
-             (λ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
-          ∙ (λ i₁ → lUnit (Kn→ΩKn+1 1 ∣ north ∣) (~ i₁)))
-         j
-i = i1 ⊢ ((λ i₁ →
-             (λ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
-          ∙ (λ i₁ → lUnit (Kn→ΩKn+1 1 ∣ north ∣) (~ i₁)))
-         j
-j = i0 ⊢  cong (λ x₁ → Kn→ΩKn+1 1 x₁ ∙ Kn→ΩKn+1 1 ∣ north ∣) (Kn→ΩKn+1 0 a) ∙
-          cong (λ q → Kn→ΩKn+1 1 ∣ north ∣ ∙ Kn→ΩKn+1 1 q) (Kn→ΩKn+1 0 b)
-j = i1 ⊢ (cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 a) ∙ cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 b)) i
--}
-
-    where
-
-
-
-
-    helper3 : sym ((λ i₁ → (λ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣) ∙ (λ i₁ → lUnit (Kn→ΩKn+1 1 ∣ north ∣) (~ i₁))) ∙ cong (λ x₁ → Kn→ΩKn+1 1 x₁ ∙ Kn→ΩKn+1 1 ∣ north ∣) (Kn→ΩKn+1 0 a) ∙ cong (λ q → Kn→ΩKn+1 1 ∣ north ∣ ∙ Kn→ΩKn+1 1 q) (Kn→ΩKn+1 0 b) ∙ (λ i₁ →
-             (λ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
-          ∙ (λ i₁ → lUnit (Kn→ΩKn+1 1 ∣ north ∣) (~ i₁)) ≡
-              cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 a) ∙ cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 b)
-    helper3 = {!λ i → !}
-            ∙ {!!}
-            ∙ {!!}
-
-    helper2 : (a b : Int) → cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 a) ∙ cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 b) ≡ cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 (a +ℤ b))
-    helper2 a b =
-        sym (congFunct (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 a) (Kn→ΩKn+1 0 b))
-      ∙ (λ i → cong (Kn→ΩKn+1 1) (Iso.rightInv (Iso3-Kn-ΩKn+1 0) (Kn→ΩKn+1 0 a ∙ Kn→ΩKn+1 0 b) (~ i)))
-      ∙ (λ i → cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 (a +ₖ b)) )
-      ∙ (λ i → cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 (addLemma a b i)))
-
-  theFunsId2 a b (push south i) = (λ i → (λ j → ∣ rCancel (merid north) i j ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
-                                ∙ sym (lUnit _)
-
-
-  theFunsId : (a b : Int) → ∣ theFuns (a +ℤ b) ∣₀ ≡ (∣ theFuns a ∣₀ +ₕ ∣ theFuns b ∣₀)
-  theFunsId a b = {!!}
-                ∙ {!!}
-                ∙ (λ i → ∣ (λ x → ΩKn+1→Kn {!congFunct ∣_∣ ? ? i!}) ∣₀)
-                ∙ (λ i → ∣ (λ x → ΩKn+1→Kn (Kn→ΩKn+1 1 (theFuns a x) ∙ Kn→ΩKn+1 1 (theFuns b x))) ∣₀)
-                ∙ λ i → ∣ (λ x → (theFuns a x) +ₖ theFuns b x) ∣₀
 
 
 -- coHomGrIm : grIso (coHomGr 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt)))

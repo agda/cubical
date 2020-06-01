@@ -16,9 +16,7 @@ open import Cubical.Data.Sigma hiding (_×_)
 
 open import Cubical.HITs.SetQuotients as sq
 
-
-
-
+-- The image of a morphism
 imGroup : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → morph G H
 
          → Group (ℓ-max ℓ ℓ')

@@ -51,6 +51,12 @@ isInKer : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (Group.type G → 
 isInKer G H ϕ g = ϕ g ≡ isGroup.id (Group.groupStruc H)
 
 
+isSurjective : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → morph G H → Type _
+isSurjective G H ϕ = (x : Group.type H) → isInIm G H (fst ϕ) x 
+
+isInjective : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → morph G H → Type _
+isInjective G H ϕ = (x : Group.type G) → isInKer G H (fst ϕ) x → x ≡ isGroup.id (Group.groupStruc G)
+
 
 {- morphisms takes id to id -}
 morph0→0 : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (f : (Group.type G → Group.type H))
@@ -192,6 +198,7 @@ leftist-group : ∀ {ℓ} {A : Type ℓ} (Aset : isSet A)
 leftist-group Aset id inv comp lUnit assoc lCancel =
   group _ Aset (leftist-group-struct id inv comp lUnit assoc lCancel)
 
+
 record Iso {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') : Type (ℓ-max ℓ ℓ') where
   constructor iso
   field
@@ -210,8 +217,8 @@ record Iso'' {ℓ ℓ'} (A : Group ℓ) (B : Group ℓ') : Type (ℓ-max ℓ ℓ
   constructor iso''
   field
     ϕ : morph A B
-    inj : (x : Group.type A) → isInKer A B (fst ϕ) x → x ≡ isGroup.id (Group.groupStruc A)
-    surj : (x : Group.type B) → isInIm A B (fst ϕ) x
+    inj : isInjective A B ϕ
+    surj : isSurjective A B ϕ
 
 _≃_ : ∀ {ℓ ℓ'} (A : Group ℓ) (B : Group ℓ') → Type (ℓ-max ℓ ℓ')
 A ≃ B = Σ (morph A B) \ f → (E.isEquiv (f .fst))
@@ -374,3 +381,54 @@ Iso''→Iso A B (iso'' ϕ inj surj) =
          ((a1 + - a2) + a2) ≡⟨ cong (λ x → x + a2) fstIdHelper ⟩
          (id + a2) ≡⟨ lUnit a2 ⟩
          a2 ∎
+
+
+-- Injectivity and surjectivity in terms of exact sequences
+exactInjectiveL : ∀ {ℓ ℓ' ℓ''} (E : Group ℓ'') (F : Group ℓ'') (G : Group ℓ) (H : Group ℓ')
+                (ϕ : morph E F) (ψ : morph F G) (ξ : morph G H) 
+              → isSurjective E F ϕ
+              → ((x : Group.type G) → isInKer G H (fst ξ) x → (isInIm F G (fst ψ) x))
+              → isProp (Group.type E)
+              → isInjective G H ξ
+exactInjectiveL (group E _ (group-struct idE _ _ _ _ _ _ _)) F G H
+               (ϕ , mfϕ) (ψ , mfψ) _ surjϕ ker⊂im isPropE x inker =
+                 rec (Group.setStruc G _ _)
+                     (λ {(f , id) → sym id ∙ cong ψ (isPropF f (isGroup.id (Group.groupStruc F))) ∙ morph0→0 F G ψ mfψ})
+                     (ker⊂im x inker)
+  where
+  isPropF : isProp (Group.type F)
+  isPropF a b = rec (Group.setStruc F _ _)
+                     (λ {(c , id-c) → rec (Group.setStruc F _ _)
+                                           (λ {(d , id-d) → sym id-c ∙ cong ϕ (isPropE c d) ∙ id-d})
+                                           (surjϕ b) })
+                     (surjϕ a)
+
+
+exactSurjectiveR : ∀ {ℓ ℓ' ℓ''} (E : Group ℓ'') (F : Group ℓ'') (G : Group ℓ) (H : Group ℓ')
+                  (ϕ : morph E F) (ψ : morph F G) (ξ : morph G H) 
+                → isInjective G H ξ
+                → ((x : Group.type F) → (isInKer F G (fst ψ) x) → isInIm E F (fst ϕ) x)
+                → isProp (Group.type H)
+                → isSurjective E F ϕ
+exactSurjectiveR E F (group G GSet (group-struct idG -G _+G_ lUnitG rUnitG assocG lCancelG rCancelG))
+                (group H _ (group-struct idH _ _ _ _ _ _ _))
+                (ϕ , mfϕ) (ψ , mfψ) (ξ , mfξ) isInjξ ker⊂im isPropH x = ker⊂im x (isPropF (ψ x) idG)
+
+  where
+  isPropF : isProp G
+  isPropF a b = sym (rUnitG a)
+              ∙ cong (a +G_) (sym (lCancelG b))
+              ∙ sym (assocG a (-G b) b)
+              ∙ cong (λ x → x +G b) helper
+              ∙ lUnitG b
+    where
+    helper : a +G (-G b) ≡ idG
+    helper = isInjξ (a +G (-G b)) (isPropH (ξ (a +G -G b)) idH )
+
+exactSurjectiveR' : ∀ {ℓ ℓ' ℓ''} (E : Group ℓ) (F : Group ℓ') (G : Group ℓ'')
+                  (ϕ : morph E F) (ψ : morph F G)
+                → ((x : Group.type F) → (isInKer F G (fst ψ) x) → isInIm E F (fst ϕ) x)
+                → isProp (Group.type G)
+                → isSurjective E F ϕ
+exactSurjectiveR' E F (group G GSet (group-struct idG -G _+G_ lUnitG rUnitG assocG lCancelG rCancelG))
+                (ϕ , mfϕ) (ψ , mfψ) ker⊂im isPropG x = ker⊂im x (isPropG (ψ x) idG)
