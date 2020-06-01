@@ -4,6 +4,7 @@ module Cubical.Relation.Nullary.HLevels where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
+open import Cubical.Functions.Fixpoint
 
 open import Cubical.Relation.Nullary
 
@@ -19,12 +20,16 @@ isPropHStable≡ : isProp (HStable≡ A)
 isPropHStable≡ f g i x y a = HStable≡→isSet f x y (f x y a) (g x y a) i
 
 isPropCollapsible≡ : isProp (Collapsible≡ A)
-isPropCollapsible≡ {A = A} f g = (isPropΠ λ x → isPropΠ λ y → isPropCollapsiblePointwise) f g where
+isPropCollapsible≡ {A = A} f = (isPropΠ λ x → isPropΠ λ y → isPropCollapsiblePointwise) f where
   sA : isSet A
   sA = Collapsible≡→isSet f
   gA : isGroupoid A
-  gA = isOfHLevelSuc 2 sA
+  gA = isSet→isGroupoid sA
   isPropCollapsiblePointwise : ∀ {x y} → isProp (Collapsible (x ≡ y))
-  isPropCollapsiblePointwise {x} {y} (a , ca) (b , cb) i =
-    (λ p → sA _ _ (a p) (b p) i) ,
-    (λ r s → isProp→PathP (λ k → gA x y (sA _ _ (a r) (b r) k) (sA _ _ (a s) (b s) k)) (ca r s) (cb r s) i)
+  isPropCollapsiblePointwise {x} {y} (a , ca) (b , cb) = λ i → endoFunction i , endoFunctionIsConstant i where
+    endoFunction : a ≡ b
+    endoFunction = funExt λ p → sA _ _ (a p) (b p)
+    isProp2-Constant : (k : I) → isProp (2-Constant (endoFunction k))
+    isProp2-Constant k = isPropΠ λ r → isPropΠ λ s → gA x y (endoFunction k r) (endoFunction k s)
+    endoFunctionIsConstant : PathP (λ i → 2-Constant (endoFunction i)) ca cb
+    endoFunctionIsConstant = isProp→PathP isProp2-Constant ca cb

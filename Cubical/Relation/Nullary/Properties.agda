@@ -3,6 +3,7 @@ module Cubical.Relation.Nullary.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Functions.Fixpoint
 
 open import Cubical.Data.Empty as ⊥
 
@@ -69,14 +70,14 @@ notEmptyPopulated {A = A} pop u = u (fixpoint (pop (h , hIsConst))) where
   hIsConst x y i = ⊥.elim (isProp⊥ (u x) (u y) i)
 
 -- these implications induce the following for different kinds of stability
-PStable→HStable : PStable A → HStable A
-PStable→HStable pst = pst ∘ populatedBy
-
 Stable→PStable : Stable A → PStable A
 Stable→PStable st = st ∘ notEmptyPopulated
 
--- although HStable and Collapsible are not properties, their path versions, HStable≡ and Collapsible≡, are
--- nevertheless they imply each other
+PStable→HStable : PStable A → HStable A
+PStable→HStable pst = pst ∘ populatedBy
+
+-- Although HStable and Collapsible are not properties, their path versions, HStable≡ and Collapsible≡, are.
+-- Nevertheless they are logically equivalent
 HStable→Collapsible : HStable A → Collapsible A
 HStable→Collapsible {A = A} hst = h , hIsConst where
   h : A → A

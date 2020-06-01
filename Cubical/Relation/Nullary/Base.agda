@@ -3,6 +3,7 @@ module Cubical.Relation.Nullary.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Functions.Fixpoint
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.HITs.PropositionalTruncation.Base

@@ -5,8 +5,6 @@
 module Cubical.Foundations.Function where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.CartesianKanOps
 
 -- The identity function
 idfun : ∀ {ℓ} → (A : Type ℓ) → A → A
@@ -118,45 +116,3 @@ homotopySymInv {f = f} p a j i =
       (j = i0) → p (p a (~ i)) i;
       (j = i1) → p a (i ∧ ~ k)})
     (p (p a (~ i ∨ j)) i)
-
-module _ {ℓ} {A : Type ℓ} where
-  Fixpoint : (A → A) → Type ℓ
-  Fixpoint f = Σ A λ x → f x ≡ x
-
-  fixpoint : {f : A → A} → Fixpoint f → A
-  fixpoint = fst
-
-  fixpointPath : {f : A → A} → (p : Fixpoint f) → f (fixpoint p) ≡ fixpoint p
-  fixpointPath = snd
-
-  2-Constant→isPropFixpoint : (f : A → A) → 2-Constant f → isProp (Fixpoint f)
-  2-Constant→isPropFixpoint f connection (x , p) (y , q) i = s i , t i where
-    infixl 25 _[0→_] _[_→0]
-    -- some helpful notation to aid readability
-    _[0→_] : {x y : A} (p : x ≡ y) → (i : I) → x ≡ p i
-    p [0→ i ] = λ k → p (i ∧ k)
-    _[_→0] : {x y : A} (p : x ≡ y) → (i : I) → p i ≡ x
-    p [ i →0] = λ k → p (i ∧ ~ k)
-    noose : ∀ x y → f x ≡ f y
-    noose x y = sym (connection x x) ∙ connection x y
-    -- the main idea is that for any path p, cong f p does not depend p
-    -- but only on its endpoints and the structure of 2-Constant f
-    KrausLemma : ∀ {x y} → (p : x ≡ y) → cong f p ≡ noose x y
-    KrausLemma {x} = J (λ y p → cong f p ≡ noose x y) (sym (lCancel (connection x x)))
-    -- suppose we have a path s : x ≡ y, then we need to proof transport s p ≡ q
-    -- a short calculation with the lemma reveals that we require:
-    -- sym (noose x y) ∙ p ∙ s ≡ q
-    -- reordering motivates the required definition:
-    s : x ≡ y
-    s = sym p ∙∙ noose x y ∙∙ q
-    t' : sym (cong f s) ∙∙ p ∙∙ s ≡ q
-    t' =
-      sym (cong f s) ∙∙ p ∙∙ s
-        ≡[ i ]⟨ sym (KrausLemma s i) ∙∙ p ∙∙ (sym p ∙∙ noose x y ∙∙ q) ⟩
-      (sym (noose x y) ∙∙ p ∙∙ (sym p ∙∙ noose x y ∙∙ q))
-        ≡[ i ]⟨ sym (noose x y) ∙∙ p [0→ ~ i ] ∙∙ (p [ ~ i →0] ∙∙ noose x y ∙∙ q) ⟩
-      (sym (noose x y) ∙∙ refl ∙∙ (noose x y ∙ q))
-        ≡⟨ J (λ _ p → p ∙∙ refl ∙∙ (sym p ∙ q) ≡ q) (λ i → lUnit (lUnit q (~ i)) (~ i)) (sym (noose x y)) ⟩
-      q ∎
-    t : PathP (λ i → cong f s i ≡ s i) p q
-    t = coe1→0 (λ k → PathP (λ i → cong f s (i ∨ k) ≡ s (i ∨ k)) (doubleCompPath-filler (sym (cong f s)) p s k) q) t'
