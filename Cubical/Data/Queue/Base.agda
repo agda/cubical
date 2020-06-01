@@ -35,7 +35,7 @@ module _ (A : Type ℓ) (Aset : isSet A) where
  deq₁ = str Raw1List .snd .snd
 
  1List : Queue
- 1List = (Q₁ , str Raw1List , isSetQ , refl , deq-enq , {!!} , isInjDeq)
+ 1List = (Q₁ , str Raw1List , isSetQ , refl , deq-enq , isInjEnq , isInjDeq)
   where
    S = str Raw1List
 
