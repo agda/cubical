@@ -337,6 +337,12 @@ Iso.inv (idIso G) = (λ x → x) , λ _ _ → refl
 Iso.rightInv (idIso G) _ = refl
 Iso.leftInv (idIso G) _ = refl
 
+invIso : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → Iso G H → Iso H G
+Iso.fun (invIso G H (iso _ inv _ _)) = inv
+Iso.inv (invIso G H (iso fun _ _ _)) = fun
+Iso.rightInv (invIso G H (iso _ _ _ leftInv)) = leftInv
+Iso.leftInv (invIso G H (iso _ _ rightInv _)) = rightInv
+
 Iso''→Iso : ∀ {ℓ ℓ'} (A : Group ℓ) (B : Group ℓ') → Iso'' A B → Iso A B
 Iso''→Iso A B (iso'' ϕ inj surj) =
   Iso'→Iso

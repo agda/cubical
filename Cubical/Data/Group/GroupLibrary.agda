@@ -144,57 +144,34 @@ isGroup.rCancel (Group.groupStruc intGroup) = λ a → +-comm a (pos 0 - a) ∙ 
 
 
 
--- -- Short exact sequences without req for first group to be definitionally equal to the trivial group --
--- record SES {ℓ ℓ' ℓ'' ℓ'''} (A : Group ℓ) (B : Group ℓ') (leftGr : Group ℓ'') (rightGr : Group ℓ''') : Type (ℓ-suc (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓ''')))) where
---   constructor ses
---   field
---     isTrivialLeft : Iso leftGr trivialGroup
---     isTrivialRight : Iso rightGr trivialGroup
+ -- Short exact sequences without req for first group to be definitionally equal to the trivial group --
+record SES {ℓ ℓ' ℓ'' ℓ'''} (A : Group ℓ) (B : Group ℓ') (leftGr : Group ℓ'') (rightGr : Group ℓ''') : Type (ℓ-suc (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓ''')))) where
+  constructor ses
+  field
+    isTrivialLeft : isProp (Group.type leftGr)
+    isTrivialRight : isProp (Group.type rightGr)
 
---     left : morph leftGr A
---     right : morph B rightGr
---     ϕ : morph A B
+    left : morph leftGr A
+    right : morph B rightGr
+    ϕ : morph A B
     
---     Ker-ϕ⊂Im-left : (x : Group.type A) --
---                   → isInKer A B (fst ϕ) x
---                   → isInIm leftGr A (fst left) x
---     Ker-right⊂Im-ϕ : (x : Group.type B) --
---                    → isInKer B rightGr (fst right) x
---                    → isInIm A B (fst ϕ) x
-
--- SES→inj-surj-morph : ∀ {ℓ ℓ' ℓ'' ℓ'''} (A : Group ℓ) (B : Group ℓ') (leftGr : Group ℓ'') (rightGr : Group ℓ''')
---                    → SES A B leftGr rightGr
---                    → inj-surj-morph A B
--- inj-surj-morph.ϕ (SES→inj-surj-morph _ _ _ _ (ses _ _ _ _ ϕ _ _)) = ϕ
--- inj-surj-morph.inj
---   (SES→inj-surj-morph A _ lGr _
---     (ses (iso ψ ξ rinv linv) _ left _ ϕ Ker-ϕ⊂Im-left _)) x inKer =
---   rec (isOfHLevelPath' 1 (Group.setStruc A) _ _)
---       (λ (a , pf) → sym pf ∙∙ (λ i → fst left (helper a i)) ∙∙ morph0→0 lGr A (fst left) (snd left))
---       (Ker-ϕ⊂Im-left x inKer)
---   where
---   helper : (a : Group.type lGr) → a ≡ isGroup.id (Group.groupStruc lGr)
---   helper a =
---     a                                      ≡⟨ sym (linv a) ⟩
---     ξ .fst (ψ .fst a)                      ≡⟨ refl ⟩
---     ξ .fst tt                              ≡⟨ morph0→0 trivialGroup lGr (fst ξ) (snd ξ) ⟩
---     isGroup.id (Group.groupStruc lGr) ∎
-
--- inj-surj-morph.surj (SES→inj-surj-morph _ _ _ rGr
---                             (ses _ (iso ψ ξ rinv linv) _ right ϕ _ Ker-right⊂Im-ϕ)) b =
---   Ker-right⊂Im-ϕ b (helper (right .fst b))
---   where
---   helper : (a : Group.type rGr) → a ≡ isGroup.id (Group.groupStruc rGr)
---   helper a =
---     a                                      ≡⟨ sym (linv a) ⟩
---     ξ .fst (ψ .fst a)                      ≡⟨ refl ⟩
---     ξ .fst tt                              ≡⟨ morph0→0 trivialGroup rGr (fst ξ) (snd ξ) ⟩
---     isGroup.id (Group.groupStruc rGr) ∎
-
--- SES→Iso : ∀ {ℓ ℓ' ℓ'' ℓ'''} (A : Group ℓ) (B : Group ℓ') (leftGr : Group ℓ'') (rightGr : Group ℓ''')
---         → SES A B leftGr rightGr
---         → Iso A B
--- SES→Iso A B lGr rGr seq = inj-surj-morph→Iso A B (SES→inj-surj-morph A B lGr rGr seq)
+    Ker-ϕ⊂Im-left : (x : Group.type A) --
+                  → isInKer A B (fst ϕ) x
+                  → isInIm leftGr A (fst left) x
+    Ker-right⊂Im-ϕ : (x : Group.type B) --
+                   → isInKer B rightGr (fst right) x
+                   → isInIm A B (fst ϕ) x
+SES→Iso : ∀ {ℓ ℓ' ℓ'' ℓ'''} (A : Group ℓ) (B : Group ℓ') (leftGr : Group ℓ'') (rightGr : Group ℓ''')
+        → SES A B leftGr rightGr
+        → Iso A B
+SES→Iso A B lGr rGr (ses PropL PropR (lfun , lmf) (rfun , rmf) (ϕ , mf) Ker-ϕ⊂Im-left Ker-right⊂Im-ϕ) =
+  Iso''→Iso _ _
+    (iso''
+      (ϕ , mf)
+      (λ a inker → rec (Group.setStruc A _ _)
+                        (λ { (a , p) → sym p ∙ cong lfun (PropL a _) ∙ morph0→0 lGr A lfun lmf })
+                        (Ker-ϕ⊂Im-left a inker))
+      λ a → Ker-right⊂Im-ϕ a (PropR _ _))
 
 
 {- direct products of groups -}

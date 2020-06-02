@@ -43,8 +43,9 @@ Eckmann-Hilton {A = A} n α β i =
        (generalEH α β i)
 
 {- Homotopy group version -}
-π-comp : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → ∥ typ ((Ω^ (suc n)) A) ∥₀
+π-comp : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
       → ∥ typ ((Ω^ (suc n)) A) ∥₀ → ∥ typ ((Ω^ (suc n)) A) ∥₀
+      → ∥ typ ((Ω^ (suc n)) A) ∥₀
 π-comp n = elim2 (λ _ _ → setTruncIsSet) λ p q → ∣ p ∙ q ∣₀
 
 Eckmann-Hilton-π : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p q : ∥ typ ((Ω^ (2 + n)) A) ∥₀)

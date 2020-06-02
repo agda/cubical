@@ -33,7 +33,7 @@ open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
 open import Cubical.HITs.SmashProduct.Base
 open import Cubical.Data.Unit
-open import Cubical.Data.Group.Base renaming (Iso to grIso ; compIso to compGrIso)
+open import Cubical.Data.Group.Base renaming (Iso to grIso ; compIso to compGrIso ; invIso to invGrIso ; idIso to idGrIso)
 open import Cubical.Data.Group.GroupLibrary
 open import Cubical.ZCohomology.coHomZero-map
 
@@ -45,6 +45,7 @@ open import Cubical.HITs.Pushout
 open import Cubical.Data.Sum.Base
 open import Cubical.Data.HomotopyGroup
 open import Cubical.Data.Bool hiding (_⊕_)
+
 
 
 cong₂Funct2 : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} {B : Type ℓ'} (f : A → A → B) →
@@ -126,6 +127,19 @@ Iso.leftInv (pushoutSn n) (merid a i) = refl
 Sn≡Pushout : (n : ℕ) → (S₊ (suc n)) ≡ (Pushout {A = S₊ n} (λ _ → tt) λ _ → tt)
 Sn≡Pushout n = isoToPath (pushoutSn n)
 
+
+coHomPushout≡coHomSn : (n m : ℕ) → grIso (coHomGr m (S₊ (suc n))) (coHomGr m (Pushout {A = S₊ n} (λ _ → tt) λ _ → tt))
+grIso.fun (coHomPushout≡coHomSn n m) = (sRec setTruncIsSet λ f → ∣ (λ {(inl x) → f north ; (inr x) → f south ; (push a i) → f (merid a i)}) ∣₀)
+                                     , sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+                                              λ a b → cong ∣_∣₀ (funExt λ {(inl x) → refl ; (inr x) → refl ; (push a i) → refl })
+grIso.inv (coHomPushout≡coHomSn n m) = sRec setTruncIsSet (λ f → ∣ (λ {north → f (inl tt) ; south → f (inr tt) ; (merid a i) → f (push a i)}) ∣₀)
+                                     , sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+                                              λ a b → cong ∣_∣₀ (funExt λ {north → refl ; south → refl ; (merid a i) → refl })
+grIso.rightInv (coHomPushout≡coHomSn n m) = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+                                                  λ f → cong ∣_∣₀ (funExt λ {(inl x) → refl ; (inr x) → refl ; (push a i) → refl })
+grIso.leftInv (coHomPushout≡coHomSn n m) = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+                                                 λ f → cong ∣_∣₀ (funExt λ {north → refl ; south → refl ; (merid a i) → refl })
+
 isContr→≡Unit : {A : Type₀} → isContr A → A ≡ Unit
 isContr→≡Unit contr = isoToPath (iso (λ _ → tt) (λ _ → fst contr) (λ _ → refl) λ _ → snd contr _)
 
@@ -141,11 +155,8 @@ grIso.inv coHomGrUnit0 = (λ a → ∣ (λ _ → a) ∣₀) , λ a b i → ∣ (
 grIso.rightInv coHomGrUnit0 a = refl
 grIso.leftInv coHomGrUnit0 = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _) λ a → refl
 
-coHomGrUnit≥1 : (n : ℕ) → grIso (coHomGr (suc n) Unit) trivialGroup
-grIso.fun (coHomGrUnit≥1 n) = (λ _ → tt) , (λ _ _ → refl)
-grIso.inv (coHomGrUnit≥1 n) = (λ _ → ∣ (λ _ → ∣ north ∣) ∣₀) , λ _ _ → sym (rUnitₕ 0ₕ)
-grIso.rightInv (coHomGrUnit≥1 n) a = refl
-grIso.leftInv (coHomGrUnit≥1 n) a = sym (helper2 .snd 0ₕ) ∙ helper2 .snd a
+isContrCohomUnit : (n : ℕ) → isContr (coHom (suc n) Unit)
+isContrCohomUnit n = subst isContr (λ i → ∥ UnitToTypeId (coHomK (suc n)) (~ i) ∥₀) (helper n)
   where
   helper : (n : ℕ) → isContr (∥ coHomK (suc n) ∥₀)
   helper n = subst isContr ((isoToPath (truncOfTruncIso {A = S₊ (1 + n)} 2 (1 + n))) ∙ sym propTrunc≡Trunc0 ∙ λ i → ∥ hLevelTrunc (suc (+-comm n 2 i)) (S₊ (1 + n)) ∥₀)
@@ -155,8 +166,11 @@ grIso.leftInv (coHomGrUnit≥1 n) a = sym (helper2 .snd 0ₕ) ∙ helper2 .snd a
     helper2 zero = 0 , refl
     helper2 (suc n) = (suc n) , λ i → suc (+-comm n 2 i)
 
-  helper2 : isContr (coHom (suc n) Unit)
-  helper2 = subst isContr (λ i → ∥ UnitToTypeId (coHomK (suc n)) (~ i) ∥₀) (helper n)
+coHomGrUnit≥1 : (n : ℕ) → grIso (coHomGr (suc n) Unit) trivialGroup
+grIso.fun (coHomGrUnit≥1 n) = (λ _ → tt) , (λ _ _ → refl)
+grIso.inv (coHomGrUnit≥1 n) = (λ _ → ∣ (λ _ → ∣ north ∣) ∣₀) , λ _ _ → sym (rUnitₕ 0ₕ)
+grIso.rightInv (coHomGrUnit≥1 n) a = refl
+grIso.leftInv (coHomGrUnit≥1 n) a = sym (isContrCohomUnit n .snd 0ₕ) ∙ isContrCohomUnit n .snd a
 
 S0→Int : (a : Int × Int) → S₊ 0 → Int
 S0→Int a north = proj₁ a
@@ -216,76 +230,57 @@ isConnectedS1 x = pRec propTruncIsProp
 -- fst (invMapSurj G H (ϕ , pf) surj) a = {!pRec!}
 -- snd (invMapSurj G H (ϕ , pf) surj) = {!!}
 
--- ImIso : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') (ϕ : morph G H) → ((x : Group.type H) → isInIm G H (fst ϕ) x)
---       → grIso H (imGroup G H ϕ)
--- ImIso G H (ϕ , mf) surj =
---  let idH = isGroup.id (Group.groupStruc H)
---      idG = isGroup.id (Group.groupStruc G)
---      _+G_ = isGroup.comp (Group.groupStruc G)
---      _+H_ = isGroup.comp (Group.groupStruc H)
---      _+Im_ = isGroup.comp (Group.groupStruc (imGroup G H (ϕ , mf)))
---      invG = isGroup.inv (Group.groupStruc G)
---      invH = isGroup.inv (Group.groupStruc H)
---      lUnit = isGroup.lUnit (Group.groupStruc H)
---      lCancel = isGroup.rCancel (Group.groupStruc H)
---  in
---   Iso''→Iso _ _
---     (iso'' ((λ x → x , pRec propTruncIsProp (λ (a , b) → ∣ a , b ∣₋₁) (surj x))
---            , λ a b → pRec (Group.setStruc (imGroup G H (ϕ , mf)) _ _)
---                           (λ surja → pRec (Group.setStruc (imGroup G H (ϕ , mf)) _ _)
---                              (λ surjb →
---                                pRec (Group.setStruc (imGroup G H (ϕ , mf)) _ _)
---                                 (λ surja+b →
---                                 (λ i → (a +H b) , (pRec (propTruncIsProp)
---                                                          (λ (a , b) → ∣ a , b ∣₋₁)
---                                                          (propTruncIsProp (surj (isGroup.comp (Group.groupStruc H) a b)) ∣ surja+b ∣₋₁ i))) ∙
---                                  (λ i → (a +H b) , ∣ (fst surja+b) , (snd surja+b) ∣₋₁) ∙
---                                  ΣProp≡ (λ _ → propTruncIsProp) refl  ∙
---                                  λ i → (a +H b) ,  pRec (propTruncIsProp)
---                                                            (λ p1 →
---                                                               pRec (λ x y → squash x y)
---                                                               (λ p2 →
---                                                                  ∣
---                                                                  isGroup.comp (Group.groupStruc G) (fst p1) (fst p2) ,
---                                                                  mf (fst p1) (fst p2) ∙
---                                                                  cong₂ (isGroup.comp (Group.groupStruc H)) (snd p1) (snd p2)
---                                                                  ∣₋₁)
---                                                               (pRec (propTruncIsProp)
---                                                                ∣_∣₋₁ (propTruncIsProp ∣ surjb ∣₋₁ (surj b) i)))
---                                                            (pRec (propTruncIsProp)
---                                                             ∣_∣₋₁ (propTruncIsProp ∣ surja ∣₋₁ (surj a) i )))
---                                 (surj (isGroup.comp (Group.groupStruc H) a b)))
---                              (surj b))
---                           (surj a))
---            (λ x inker → cong fst inker)
---            {- 
--- pElim (λ _ → Group.setStruc H _ _)
---                               (λ xinim →
-                                
---                               (surj x)) -}
---            λ x → pRec propTruncIsProp (λ inimx → ∣ (ϕ (inimx .fst)) , ΣProp≡ (λ _ → propTruncIsProp) (inimx .snd) ∣₋₁) (snd x))
-
-
-coHom1Iso : grIso intGroup
-                  ((imGroup (coHomGr 0 (S₊ 0))
-                            (coHomGr 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt)))
-                            (MV.d _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0
-                            , MV.dIsHom Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0)))
-coHom1Iso =
-    Iso''→Iso _ _
-       (iso'' ((λ x → ∣ theFuns x ∣₀ , d-surj ∣ theFuns x ∣₀)
-             , (λ a b → ΣProp≡ (λ _ → propTruncIsProp)
-                           (cong ∣_∣₀ (funExt λ x → sym (Iso.leftInv (Iso3-Kn-ΩKn+1 1) _)
-                          ∙ cong (ΩKn+1→Kn) (sym (theFunsId2 a b x))))))
-              (λ x inker → pRec (isSetInt _ _) (inj x) (Iso.fun PathIdTrunc₀Iso (cong fst inker)))
-              finIm)
+ImIso : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') (ϕ : morph G H) → ((x : Group.type H) → isInIm G H (fst ϕ) x)
+      → grIso H (imGroup G H ϕ)
+ImIso G H (ϕ , mf) surj =
+ let idH = isGroup.id (Group.groupStruc H)
+     idG = isGroup.id (Group.groupStruc G)
+     _+G_ = isGroup.comp (Group.groupStruc G)
+     _+H_ = isGroup.comp (Group.groupStruc H)
+     _+Im_ = isGroup.comp (Group.groupStruc (imGroup G H (ϕ , mf)))
+     invG = isGroup.inv (Group.groupStruc G)
+     invH = isGroup.inv (Group.groupStruc H)
+     lUnit = isGroup.lUnit (Group.groupStruc H)
+     lCancel = isGroup.rCancel (Group.groupStruc H)
+ in
+  Iso''→Iso _ _
+    (iso'' ((λ x → x , pRec propTruncIsProp (λ (a , b) → ∣ a , b ∣₋₁) (surj x))
+           , λ a b → pRec (Group.setStruc (imGroup G H (ϕ , mf)) _ _)
+                          (λ surja → pRec (Group.setStruc (imGroup G H (ϕ , mf)) _ _)
+                             (λ surjb →
+                               pRec (Group.setStruc (imGroup G H (ϕ , mf)) _ _)
+                                (λ surja+b →
+                                (λ i → (a +H b) , (pRec (propTruncIsProp)
+                                                         (λ (a , b) → ∣ a , b ∣₋₁)
+                                                         (propTruncIsProp (surj (isGroup.comp (Group.groupStruc H) a b)) ∣ surja+b ∣₋₁ i))) ∙
+                                 (λ i → (a +H b) , ∣ (fst surja+b) , (snd surja+b) ∣₋₁) ∙
+                                 ΣProp≡ (λ _ → propTruncIsProp) refl  ∙
+                                 λ i → (a +H b) ,  pRec (propTruncIsProp)
+                                                           (λ p1 →
+                                                              pRec (λ x y → squash x y)
+                                                              (λ p2 →
+                                                                 ∣
+                                                                 isGroup.comp (Group.groupStruc G) (fst p1) (fst p2) ,
+                                                                 mf (fst p1) (fst p2) ∙
+                                                                 cong₂ (isGroup.comp (Group.groupStruc H)) (snd p1) (snd p2)
+                                                                 ∣₋₁)
+                                                              (pRec (propTruncIsProp)
+                                                               ∣_∣₋₁ (propTruncIsProp ∣ surjb ∣₋₁ (surj b) i)))
+                                                           (pRec (propTruncIsProp)
+                                                            ∣_∣₋₁ (propTruncIsProp ∣ surja ∣₋₁ (surj a) i )))
+                                (surj (isGroup.comp (Group.groupStruc H) a b)))
+                             (surj b))
+                          (surj a))
+           (λ x inker → cong fst inker)
+           λ x → pRec propTruncIsProp (λ inimx → ∣ (ϕ (inimx .fst)) , ΣProp≡ (λ _ → propTruncIsProp) (inimx .snd) ∣₋₁) (snd x))
+{-
+H¹-S¹≃Int : grIso intGroup (coHomGr 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt)))
+H¹-S¹≃Int =
+  Iso''→Iso _ _
+    (iso'' ((λ x → ∣ theFuns x ∣₀) , λ a b → cong ∣_∣₀ (funExt λ x → sym (Iso.leftInv (Iso3-Kn-ΩKn+1 1) _) ∙ sym (cong (ΩKn+1→Kn) (theFunsId2 a b x))))
+           (λ x inker → pRec (isSetInt _ _) (inj x) (Iso.fun PathIdTrunc₀Iso inker))
+           finIm)
   where
-  ImGr : _
-  ImGr =  (imGroup (coHomGr 0 (S₊ 0))
-                            (coHomGr 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt)))
-                            (MV.d _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0
-                            , MV.dIsHom Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0))
-
   d : _
   d = MV.d _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0
 
@@ -299,27 +294,14 @@ coHom1Iso =
   d-surj : (x : coHom 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt)))
          → isInIm (coHomGr 0 (S₊ 0)) (coHomGr 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))) (MV.d _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0) x
   d-surj = sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
-                 λ x → exactSurjectiveR' (coHomGr 0 (S₊ 0))
-                                          (coHomGr 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt)))
-                                          (×coHomGr 1 Unit Unit)
-                                          {!d , MV.dIsHom _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0!}
-                                          {!i , MV.iIsHom _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 1!}
-                                          {!grIso.fun (coHomGrUnit≥1 0)!}
-                                          {!!}
-                                          ?
-                                          ∣ x ∣₀
+                  λ x → MV.Ker-i⊂Im-d _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0 ∣ x ∣₀
+                        (sym (isContrHelper .snd _))
+      where
+      isContrHelper : isContr (Group.type (×coHomGr 1 Unit Unit))
+      isContrHelper = (∣ (λ _ → ∣ north ∣) ∣₀ , ∣ (λ _ → ∣ north ∣) ∣₀)
+                     , λ y → prodId (cong ∣_∣₀ (λ i _ → ∣ merid north i ∣) ∙ isContrCohomUnit 0 .snd (proj₁ y))
+                                     (cong ∣_∣₀ (λ i _ → ∣ merid north i ∣) ∙ isContrCohomUnit 0 .snd (proj₂ y))
 
-{- exactSurjectiveR (coHomGr 0 (S₊ 0))
-                            (coHomGr 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt)))
-                            (×coHomGr 1 Unit Unit)
-                            trivialGroup
-                            (d , MV.dIsHom _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0)
-                            {!i , M!}
-                            (? , {!grIso.fun (coHomGrUnit≥1 0)!})
-                            {!!}
-                            {!!}
-                            {!!}
--}
   theFuns : (a : Int) → Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt) → ∥ S₊ 1 ∥ ℕ→ℕ₋₂ 1
   theFuns a (inl x) = 0ₖ
   theFuns a (inr x) = 0ₖ
@@ -412,35 +394,26 @@ coHom1Iso =
          ∙ sym (cong (λ f → f (inr tt)) id))
          ∙ rCancel (cong (λ f → f (inr tt)) id)
 
-  consMember : (a : Int) → Group.type ImGr
-  consMember a = d ∣ (λ _ → a) ∣₀ , ∣ ∣ (λ _ → a) ∣₀ , refl ∣₋₁
 
-  consMember≡0 : (a : Int) → consMember a ≡ isGroup.id (Group.groupStruc ImGr)
+  consMember : (a : Int) → coHom 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))
+  consMember a = d ∣ (λ _ → a) ∣₀
+
+  consMember≡0 : (a : Int) → consMember a ≡ 0ₕ
   consMember≡0 a =
-    ΣProp≡ (λ _ → propTruncIsProp)
            (MV.Im-Δ⊂Ker-d _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0 ∣ (λ _ → a) ∣₀ ∣
                 (∣ (λ _ → a) ∣₀ , ∣ (λ _ → 0) ∣₀)
                 , cong ∣_∣₀ (λ i x → (rUnitₖ a i)) ∣₋₁)
 
-  f+consMember' : (f : Group.type ImGr) → ∃[ x ∈ Int × Int ] (isGroup.comp (Group.groupStruc ImGr) f (isGroup.inv (Group.groupStruc ImGr) (consMember (proj₁ x))) ≡ (∣ theFuns (proj₂ x) ∣₀ , d-surj ∣ theFuns (proj₂ x) ∣₀))
-  f+consMember' f =
-    let null = isGroup.id (Group.groupStruc ImGr)
-        - = isGroup.inv (Group.groupStruc ImGr)
-        _+_ = isGroup.comp (Group.groupStruc ImGr)
-    in
-    sigmaElim {C = λ (f :  Group.type ImGr)
-           → ∃[ x ∈ Int × Int ] (isGroup.comp (Group.groupStruc ImGr) f (isGroup.inv (Group.groupStruc ImGr) (consMember (proj₁ x))) ≡ (∣ theFuns (proj₂ x) ∣₀ , d-surj ∣ theFuns (proj₂ x) ∣₀)) }
-              (λ _ → isOfHLevelSuc 1 propTruncIsProp)
-              (λ f idf → pRec propTruncIsProp
-                               ((sigmaElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
-                                           λ g id → ∣ ((g south) , ((g north) +ₖ (-ₖ g south)))
-                                                   , (ΣProp≡ (λ _ → propTruncIsProp)
-                                                             (pRec (setTruncIsSet _ _)
-                                                                   (λ id → (λ i → ∣ id (~ i) ∣₀ +ₕ -ₕ ∣ MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 (λ _ → g south) ∣₀) ∙ funId1 g)
-                                                                   (Iso.fun PathIdTrunc₀Iso id))) ∣₋₁))
-                               idf)
-              f
-
+  f+consMember' : (f : coHom 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))) → ∃[ x ∈ Int × Int ] (f +ₕ (-ₕ (consMember (proj₁ x))) ≡ ∣ theFuns (proj₂ x) ∣₀)
+  f+consMember' =
+    sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
+          λ f → pRec propTruncIsProp
+                      (sigmaElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
+                                 (λ g id → ∣ ((g south) , ((g north) +ₖ (-ₖ g south)))
+                                           , (pRec (setTruncIsSet _ _)
+                                                    (λ id → (λ i → ∣ id (~ i) ∣₀ +ₕ -ₕ ∣ MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 (λ _ → g south) ∣₀) ∙ funId1 g)
+                                                    (Iso.fun PathIdTrunc₀Iso id)) ∣₋₁))
+                      (d-surj ∣ f ∣₀)
     where
     funId1 : (g : S₊ 0 → Int)
            → ∣ MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 g ∣₀ +ₕ -ₕ ∣ MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 (λ _ → g south) ∣₀ ≡
@@ -465,16 +438,197 @@ coHom1Iso =
                        ; (inr tt) → refl
                        ; (push north i) → refl
                        ; (push south i) → refl}
-
-  finIm : (f : Group.type ImGr) → ∃[ x ∈ Int ] ((∣ theFuns x ∣₀ , d-surj ∣ theFuns x ∣₀) ≡ f)
+  finIm : (f : coHom 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))) → ∃[ x ∈ Int ] (∣ theFuns x ∣₀ ≡ f)
   finIm f =
-    let null = isGroup.id (Group.groupStruc ImGr)
-        - = isGroup.inv (Group.groupStruc ImGr)
-        _+_ = isGroup.comp (Group.groupStruc ImGr)
-        rUnit = isGroup.rUnit (Group.groupStruc ImGr)
-        lCancel = isGroup.lCancel (Group.groupStruc ImGr)
-    in pRec propTruncIsProp (λ {((a , b) , id)  → ∣ b , (ΣProp≡ (λ _ → propTruncIsProp) (cong fst (sym id) ∙ cong (λ x → f .fst +ₕ x) ((λ i → (-ₕ (consMember≡0 a i .fst))) ∙ sym (lUnitₕ (-ₕ 0ₕ)) ∙ rCancelₕ 0ₕ) ∙ (rUnitₕ (f .fst)))) ∣₋₁}) (f+consMember' f)
+    pRec propTruncIsProp
+          (λ {((a , b) , id) → ∣ b , (sym id ∙ cong (λ x → f +ₕ x) ((λ i → (-ₕ (consMember≡0 a i))) ∙ sym (lUnitₕ (-ₕ 0ₕ)) ∙ rCancelₕ 0ₕ) ∙ (rUnitₕ f)) ∣₋₁})
+         (f+consMember' f)
+-}
+Hⁿ-Sⁿ≃Int : (n : ℕ) → grIso intGroup (coHomGr (suc n) (S₊ (suc n)))
+Hⁿ-Sⁿ≃Int zero =
+  compGrIso {F = intGroup} {G = {!!}} {H = {!coHomGr 1 (S₊ 1)!}}
+    (Iso''→Iso _ _
+      (iso'' ((λ x → ∣ theFuns x ∣₀) , λ a b → cong ∣_∣₀ (funExt λ x → sym (Iso.leftInv (Iso3-Kn-ΩKn+1 1) _) ∙ sym (cong (ΩKn+1→Kn) (theFunsId2 a b x))))
+             (λ x inker → pRec (isSetInt _ _) (inj x) (Iso.fun PathIdTrunc₀Iso inker))
+             finIm))
+    {!invGrIso _ _ (coHomPushout≡coHomSn 0 1)!}
+  where
+  d : _
+  d = MV.d _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0
 
+  i : _
+  i = MV.i _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 1
+
+  Δ : _
+  Δ = MV.Δ _ _ (S₊ 1) (λ _ → tt) (λ _ → tt) 0
+
+
+  d-surj : (x : coHom 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt)))
+         → isInIm (coHomGr 0 (S₊ 0)) (coHomGr 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))) (MV.d _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0) x
+  d-surj = sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
+                  λ x → MV.Ker-i⊂Im-d _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0 ∣ x ∣₀
+                        (sym (isContrHelper .snd _))
+      where
+      isContrHelper : isContr (Group.type (×coHomGr 1 Unit Unit))
+      isContrHelper = (∣ (λ _ → ∣ north ∣) ∣₀ , ∣ (λ _ → ∣ north ∣) ∣₀)
+                     , λ y → prodId (cong ∣_∣₀ (λ i _ → ∣ merid north i ∣) ∙ isContrCohomUnit 0 .snd (proj₁ y))
+                                     (cong ∣_∣₀ (λ i _ → ∣ merid north i ∣) ∙ isContrCohomUnit 0 .snd (proj₂ y))
+
+  theFuns : (a : Int) → Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt) → ∥ S₊ 1 ∥ ℕ→ℕ₋₂ 1
+  theFuns a (inl x) = 0ₖ
+  theFuns a (inr x) = 0ₖ
+  theFuns a (push north i) = Kn→ΩKn+1 0 a i
+  theFuns a (push south i) = 0ₖ
+
+
+  theFunsId2 : (a b : Int) (x : Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))
+             → Kn→ΩKn+1 1 (theFuns a x) ∙ Kn→ΩKn+1 1 (theFuns b x) ≡ Kn→ΩKn+1 1 (theFuns (a +ℤ b) x)
+  theFunsId2 a b (inl x) = (λ i → (λ j → ∣ rCancel (merid north) i j ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣) ∙ sym (lUnit (Kn→ΩKn+1 1 ∣ north ∣))
+  theFunsId2 a b (inr x) = (λ i → (λ j → ∣ rCancel (merid north) i j ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣) ∙ sym (lUnit (Kn→ΩKn+1 1 ∣ north ∣))
+  theFunsId2 a b (push north i) j = 
+    hcomp (λ k → λ {(i = i0) → ((λ i₁ →
+             (λ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
+          ∙ (λ i₁ → lUnit (Kn→ΩKn+1 1 ∣ north ∣) (~ i₁)))
+         j
+                   ; (i = i1) → ((λ i₁ →
+             (λ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
+          ∙ (λ i₁ → lUnit (Kn→ΩKn+1 1 ∣ north ∣) (~ i₁)))
+         j
+                   ; (j = i0) → cong₂Funct2 (λ p q → Kn→ΩKn+1 1 p ∙ Kn→ΩKn+1 1 q) (Kn→ΩKn+1 0 a) (Kn→ΩKn+1 0 b) (~ k) i 
+                   ; (j = i1) → (helper2 a b) k i })
+          (hcomp (λ k → λ { (j = i0) → compPath-filler (cong (λ x₁ → Kn→ΩKn+1 1 x₁ ∙ Kn→ΩKn+1 1 ∣ north ∣) (Kn→ΩKn+1 0 a)) (cong (λ q → Kn→ΩKn+1 1 ∣ north ∣ ∙ Kn→ΩKn+1 1 q) (Kn→ΩKn+1 0 b)) k i
+                           ; (j = i1) → compPath-filler (cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 a)) (cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 b)) k i
+                           ; (i = i1) → RHS-filler b j k
+                           ; (i = i0) → ((λ i₁ →
+             (λ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
+          ∙ (λ i₁ → lUnit (Kn→ΩKn+1 1 ∣ north ∣) (~ i₁)))
+         j})
+                 (bottom-filler a j i))
+
+    where
+
+    bottom-filler : (a : Int) →
+                  PathP (λ j → (cong (λ x → x ∙ Kn→ΩKn+1 1 ∣ north ∣)
+       (λ i₁ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣)
+       ∙ sym (lUnit (Kn→ΩKn+1 1 ∣ north ∣)))
+      j ≡ (cong (λ x → x ∙ Kn→ΩKn+1 1 ∣ north ∣)
+       (λ i₁ j₁ → ∣ rCancel (merid north) i₁ j₁ ∣)
+       ∙ sym (lUnit (Kn→ΩKn+1 1 ∣ north ∣)))
+      j) (cong (λ x₁ → Kn→ΩKn+1 1 x₁ ∙ Kn→ΩKn+1 1 ∣ north ∣) (Kn→ΩKn+1 0 a)) (cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 a))
+    bottom-filler a j i =
+      hcomp (λ k → λ {(j = i0) → helper2 (~ k) i ;
+                       (j = i1) → cong (λ x → lUnit (Kn→ΩKn+1 1 x) (~ k)) (Kn→ΩKn+1 0 a) i})
+            ((λ j₂ → ∣ rCancel (merid north) j j₂ ∣) ∙ Kn→ΩKn+1 1 (Kn→ΩKn+1 0 a i))
+
+       where
+       helper2 : Path (Kn→ΩKn+1 1 ∣ north ∣ ∙ Kn→ΩKn+1 1 ∣ north ∣ ≡ Kn→ΩKn+1 1 ∣ north ∣ ∙ Kn→ΩKn+1 1 ∣ north ∣)
+                      (λ i → Kn→ΩKn+1 1 (Kn→ΩKn+1 0 a i) ∙ Kn→ΩKn+1 1 ∣ north ∣)
+                      (λ i → Kn→ΩKn+1 1 ∣ north ∣ ∙ Kn→ΩKn+1 1 (Kn→ΩKn+1 0 a i))
+       helper2 = cong₂Sym1 (Kn→ΩKn+1 1 ∣ north ∣) (λ i j → ∣ rCancel (merid north) (~ i) j ∣) (λ i → Kn→ΩKn+1 1 (Kn→ΩKn+1 0 a i))
+
+    RHS-filler : (b : Int) →
+               PathP (λ j → (cong (λ x → x ∙ Kn→ΩKn+1 1 ∣ north ∣) (λ i j → ∣ rCancel (merid north) i j ∣) ∙ (sym (lUnit (Kn→ΩKn+1 1 ∣ north ∣)))) j
+                           ≡ (cong (λ x → x ∙ Kn→ΩKn+1 1 ∣ north ∣) (λ i j → ∣ rCancel (merid north) i j ∣) ∙ (sym (lUnit (Kn→ΩKn+1 1 ∣ north ∣)))) j)
+                     (cong (λ q → Kn→ΩKn+1 1 ∣ north ∣ ∙ Kn→ΩKn+1 1 q) (Kn→ΩKn+1 0 b))
+                     (cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 b))
+    RHS-filler b j i =
+      hcomp (λ k → λ {(j = i0) → cong (λ q → Kn→ΩKn+1 1 ∣ north ∣ ∙ Kn→ΩKn+1 1 q) (Kn→ΩKn+1 0 b) i ;
+                       (j = i1) → cong (λ x → lUnit (Kn→ΩKn+1 1 x) (~ k)) (Kn→ΩKn+1 0 b) i})
+            (cong (λ q → (λ i → ∣ rCancel (merid north) j i ∣) ∙ Kn→ΩKn+1 1 q) (Kn→ΩKn+1 0 b) i)
+
+    helper2 : (a b : Int) → cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 a) ∙ cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 b) ≡ cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 (a +ℤ b))
+    helper2 a b =
+        sym (congFunct (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 a) (Kn→ΩKn+1 0 b))
+      ∙ (λ i → cong (Kn→ΩKn+1 1) (Iso.rightInv (Iso3-Kn-ΩKn+1 0) (Kn→ΩKn+1 0 a ∙ Kn→ΩKn+1 0 b) (~ i)))
+      ∙ (λ i → cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 (a +ₖ b)) )
+      ∙ (λ i → cong (Kn→ΩKn+1 1) (Kn→ΩKn+1 0 (addLemma a b i)))
+
+  theFunsId2 a b (push south i) = (λ i → (λ j → ∣ rCancel (merid north) i j ∣) ∙ Kn→ΩKn+1 1 ∣ north ∣)
+                                ∙ sym (lUnit _)
+
+  inj : (a : Int) → theFuns a ≡ (λ _ → ∣ north ∣) → a ≡ pos 0
+  inj a id =
+    pRec (isSetInt _ _)
+         (sigmaElim (λ _ → isOfHLevelPath 2 isSetInt _ _)
+                    (λ a p → pRec (isSetInt _ _)
+                    (λ id2 →  sym (Iso.leftInv (Iso3-Kn-ΩKn+1 0) _)
+                             ∙ cong (ΩKn+1→Kn)
+                                 (PathP→compPathR
+                                   (cong (λ f → cong f (push north)) id)
+                                     ∙ test))
+                    (Iso.fun PathIdTrunc₀Iso p))) (d-surj ∣ theFuns a ∣₀)
+    where
+
+    test : (λ i → id i (inl tt)) ∙ (λ i → ∣ north ∣) ∙ sym (λ i → id i (inr tt)) ≡ refl
+    test = (λ i → cong (λ f → f (inl tt)) id
+         ∙ lUnit (sym (cong (λ f → f (inr tt)) id)) (~ i))
+         ∙ (λ i → cong (λ f → f (push south i)) id
+         ∙ sym (cong (λ f → f (inr tt)) id))
+         ∙ rCancel (cong (λ f → f (inr tt)) id)
+
+
+  consMember : (a : Int) → coHom 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))
+  consMember a = d ∣ (λ _ → a) ∣₀
+
+  consMember≡0 : (a : Int) → consMember a ≡ 0ₕ
+  consMember≡0 a =
+           (MV.Im-Δ⊂Ker-d _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0 ∣ (λ _ → a) ∣₀ ∣
+                (∣ (λ _ → a) ∣₀ , ∣ (λ _ → 0) ∣₀)
+                , cong ∣_∣₀ (λ i x → (rUnitₖ a i)) ∣₋₁)
+
+  f+consMember' : (f : coHom 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))) → ∃[ x ∈ Int × Int ] (f +ₕ (-ₕ (consMember (proj₁ x))) ≡ ∣ theFuns (proj₂ x) ∣₀)
+  f+consMember' =
+    sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
+          λ f → pRec propTruncIsProp
+                      (sigmaElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
+                                 (λ g id → ∣ ((g south) , ((g north) +ₖ (-ₖ g south)))
+                                           , (pRec (setTruncIsSet _ _)
+                                                    (λ id → (λ i → ∣ id (~ i) ∣₀ +ₕ -ₕ ∣ MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 (λ _ → g south) ∣₀) ∙ funId1 g)
+                                                    (Iso.fun PathIdTrunc₀Iso id)) ∣₋₁))
+                      (d-surj ∣ f ∣₀)
+    where
+    funId1 : (g : S₊ 0 → Int)
+           → ∣ MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 g ∣₀ +ₕ -ₕ ∣ MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 (λ _ → g south) ∣₀ ≡
+             ∣ theFuns ((g north) +ₖ (-ₖ (g south))) ∣₀
+    funId1 g = (λ i → ∣ MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 g ∣₀
+                    +ₕ (morphMinus (coHomGr 0 (S₊ 0)) (coHomGr 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))) d
+                                   (MV.dIsHom Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0) ∣ (λ _ → g south) ∣₀ (~ i)))
+             ∙ sym (MV.dIsHom Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 ∣ g ∣₀ (-ₕ ∣ (λ _ → g south) ∣₀))
+             ∙ (cong (λ x → d ∣ x ∣₀) g'Id)
+             ∙ cong ∣_∣₀ helper
+      where
+      g' : S₊ 0 → Int
+      g' north = (g north) +ₖ (-ₖ (g south))
+      g' south = 0
+
+      g'Id : (λ x → g x +ₖ (-ₖ (g south))) ≡ g'
+      g'Id = funExt (λ {north → refl
+                      ; south → rCancelₖ (g south)})
+
+      helper : MV.d-pre Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0 g' ≡ theFuns (g north +ₖ (-ₖ g south))
+      helper = funExt λ {(inl tt) → refl
+                       ; (inr tt) → refl
+                       ; (push north i) → refl
+                       ; (push south i) → refl}
+  finIm : (f : coHom 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))) → ∃[ x ∈ Int ] (∣ theFuns x ∣₀ ≡ f)
+  finIm f =
+    pRec propTruncIsProp
+          (λ {((a , b) , id) → ∣ b , (sym id ∙ cong (λ x → f +ₕ x) ((λ i → (-ₕ (consMember≡0 a i))) ∙ sym (lUnitₕ (-ₕ 0ₕ)) ∙ rCancelₕ 0ₕ) ∙ (rUnitₕ f)) ∣₋₁})
+         (f+consMember' f)
+Hⁿ-Sⁿ≃Int (suc n) =
+  compGrIso (Hⁿ-Sⁿ≃Int n)
+            (transport (λ i → grIso {!!} {!coHomGr (suc (suc n)) (Pushout (λ _ → tt) (λ _ → tt))!}) {!!})
+
+
+{-
+coHom1S1≃ℤ : grIso intGroup (coHomGr 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt)))
+grIso.fun coHom1S1≃ℤ = grIso.fun {!compGrIso coHom1Iso (invGrIso _ _ (ImIso _ _ (d-morph _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0) ?))!}
+grIso.inv coHom1S1≃ℤ = {!!}
+grIso.rightInv coHom1S1≃ℤ = {!!}
+grIso.leftInv coHom1S1≃ℤ = {!!}
+-}
+
+-- compGrIso coHom1Iso (invGrIso _ _ (ImIso _ _ {!d-morph _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0!} {!!}))
 
 
 -- coHomGrIm : grIso (coHomGr 1 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt)))
