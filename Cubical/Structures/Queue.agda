@@ -145,10 +145,10 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
 
 
  finite-queue-axioms : (Q : Type ℓ) → queue-structure Q → Type ℓ
- finite-queue-axioms Q ((emp , enq , _) , _) = isSurjection (foldr enq emp)
+ finite-queue-axioms Q ((emp , enq , _) , _) = isEquiv (foldr enq emp)
 
  isProp-finite-queue-axioms : ∀ Q S → isProp (finite-queue-axioms Q S)
- isProp-finite-queue-axioms Q S = isPropIsSurjection
+ isProp-finite-queue-axioms Q S = isPropIsEquiv _
 
  finite-queue-structure : Type ℓ → Type ℓ
  finite-queue-structure = add-to-structure queue-structure finite-queue-axioms

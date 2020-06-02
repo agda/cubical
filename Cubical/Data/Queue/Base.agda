@@ -90,7 +90,7 @@ module _ (A : Type ℓ) (Aset : isSet A) where
    isInjDeq _ _ p = isInjDeq-lemma _ _ (SumPath.encode _ _ p)
 
  Finite1List : FiniteQueue
- Finite1List = (Q₁ , str 1List , λ q → ∣ q , foldrCons q ∣)
+ Finite1List = (Q₁ , str 1List , subst isEquiv (sym (funExt foldrCons)) (idIsEquiv _))
 
 
  -- Now for 2Lists
@@ -222,18 +222,53 @@ module _ (A : Type ℓ) (Aset : isSet A) where
 
  -- And we get a path between the raw 1Lists and 2Lists
  Path-Raw1List-Raw2List : Raw1List ≡ Raw2List
- Path-Raw1List-Raw2List = sip RawQueue-is-SNS Raw1List Raw2List (quotEquiv , quotEquiv-is-queue-iso)
+ Path-Raw1List-Raw2List = sip RawQueue-is-SNS _ _ (quotEquiv , quotEquiv-is-queue-iso)
 
  -- We derive the axioms for 2List from those for 1List
  2List : Queue
  2List = Q₂ , str Raw2List , subst (uncurry queue-axioms) Path-Raw1List-Raw2List (snd (str 1List))
 
  Path-1List-2List : 1List ≡ 2List
- Path-1List-2List = sip Queue-is-SNS 1List 2List (quotEquiv , quotEquiv-is-queue-iso)
+ Path-1List-2List = sip Queue-is-SNS _ _ (quotEquiv , quotEquiv-is-queue-iso)
 
  Finite2List : FiniteQueue
  Finite2List = Q₂ , str 2List , subst (uncurry finite-queue-axioms) Path-1List-2List (snd (str Finite1List))
 
  Path-Finite1List-Finite2List : Finite1List ≡ Finite2List
  Path-Finite1List-Finite2List =
-   sip FiniteQueue-is-SNS Finite1List Finite2List (quotEquiv , quotEquiv-is-queue-iso)
+   sip FiniteQueue-is-SNS _ _ (quotEquiv , quotEquiv-is-queue-iso)
+
+
+ -- All finite queues are equal to 1List
+ isContrFiniteQueue : isContr FiniteQueue
+ isContrFiniteQueue .fst = Finite1List
+ isContrFiniteQueue .snd (Q , (S@(emp , enq , deq) , _ , deq-emp , deq-enq , _) , fin) =
+   sip FiniteQueue-is-SNS _ _ ((f , fin) , f∘emp , f∘enq , sym ∘ f∘deq)
+   where
+   deq₁-enq₁ = str 1List .snd .snd .snd .fst
+
+   f : Q₁ → Q
+   f = foldr enq emp
+
+   f∘emp : f emp₁ ≡ emp
+   f∘emp = refl
+
+   f∘enq : ∀ a xs → f (enq₁ a xs) ≡ enq a (f xs)
+   f∘enq _ _ = refl
+
+   fA : Q₁ × A → Q × A
+   fA (q , a) = (f q , a)
+
+   f∘returnOrEnq : (x : A) (xsr : Unit ⊎ (List A × A)) →
+     returnOrEnq S x (deq-map-forward f xsr) ≡ fA (returnOrEnq (str Raw1List) x xsr)
+   f∘returnOrEnq _ (inl _) = refl
+   f∘returnOrEnq _ (inr _) = refl
+   
+   f∘deq : ∀ xs → deq (f xs) ≡ deq-map-forward f (deq₁ xs)
+   f∘deq [] = deq-emp
+   f∘deq (x ∷ xs) =
+     deq-enq x (f xs)
+     ∙ cong (inr ∘ returnOrEnq S x) (f∘deq xs)
+     ∙ cong inr (f∘returnOrEnq x (deq₁ xs))
+     ∙ cong (deq-map-forward f) (sym (deq₁-enq₁ x xs))
+
