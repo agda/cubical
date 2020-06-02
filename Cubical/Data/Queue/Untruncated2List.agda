@@ -81,7 +81,7 @@ module _ (A : Type ℓ) (Aset : isSet A) where
        ; (i = i1) → xs ++ rev-snoc ys z (~ j)
        })
      (++-assoc xs [ z ] (rev ys) i)
- 
+
  quot∘eval : ∀ q → quot (eval q) ≡ q
  quot∘eval Q⟨ xs , ys ⟩ = flushEq xs ys
  quot∘eval (tilt xs ys z i) j =
