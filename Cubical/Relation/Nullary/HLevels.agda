@@ -20,7 +20,7 @@ isPropHStable≡ : isProp (HStable≡ A)
 isPropHStable≡ f g i x y a = HStable≡→isSet f x y (f x y a) (g x y a) i
 
 isPropCollapsible≡ : isProp (Collapsible≡ A)
-isPropCollapsible≡ {A = A} f = (isPropΠ λ x → isPropΠ λ y → isPropCollapsiblePointwise) f where
+isPropCollapsible≡ {A = A} f = (isPropΠ2 λ x y → isPropCollapsiblePointwise) f where
   sA : isSet A
   sA = Collapsible≡→isSet f
   gA : isGroupoid A
@@ -30,6 +30,6 @@ isPropCollapsible≡ {A = A} f = (isPropΠ λ x → isPropΠ λ y → isPropColl
     endoFunction : a ≡ b
     endoFunction = funExt λ p → sA _ _ (a p) (b p)
     isProp2-Constant : (k : I) → isProp (2-Constant (endoFunction k))
-    isProp2-Constant k = isPropΠ λ r → isPropΠ λ s → gA x y (endoFunction k r) (endoFunction k s)
+    isProp2-Constant k = isPropΠ2 λ r s → gA x y (endoFunction k r) (endoFunction k s)
     endoFunctionIsConstant : PathP (λ i → 2-Constant (endoFunction i)) ca cb
     endoFunctionIsConstant = isProp→PathP isProp2-Constant ca cb
