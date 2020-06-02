@@ -3,6 +3,7 @@ module Cubical.Data.List.Properties where
 
 open import Agda.Builtin.List
 open import Cubical.Core.Everything
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Empty as ⊥
@@ -23,6 +24,10 @@ module _ {ℓ} {A : Type ℓ} where
   ++-assoc [] ys zs = refl
   ++-assoc (x ∷ xs) ys zs = cong (_∷_ x) (++-assoc xs ys zs)
 
+  rev-snoc : (xs : List A) (y : A) → rev (xs ++ [ y ]) ≡ y ∷ rev xs
+  rev-snoc [] y = refl
+  rev-snoc (x ∷ xs) y = cong (_++ [ x ]) (rev-snoc xs y)
+
   rev-++ : (xs ys : List A) → rev (xs ++ ys) ≡ rev ys ++ rev xs
   rev-++ [] ys = sym (++-unit-r (rev ys))
   rev-++ (x ∷ xs) ys =
@@ -31,7 +36,19 @@ module _ {ℓ} {A : Type ℓ} where
 
   rev-rev : (xs : List A) → rev (rev xs) ≡ xs
   rev-rev [] = refl
-  rev-rev (x ∷ xs) = rev-++ (rev xs) [ x ] ∙ cong (_∷_ x) (rev-rev xs)
+  rev-rev (x ∷ xs) = rev-snoc (rev xs) x ∙ cong (_∷_ x) (rev-rev xs)
+
+  rev-rev-snoc : (xs : List A) (y : A) →
+    Square (rev-rev (xs ++ [ y ])) (cong (_++ [ y ]) (rev-rev xs)) (cong rev (rev-snoc xs y)) refl
+  rev-rev-snoc [] y = sym (lUnit refl)
+  rev-rev-snoc (x ∷ xs) y i j =
+    hcomp
+      (λ k → λ
+        { (i = i1) → compPath-filler (rev-snoc (rev xs) x) (cong (x ∷_) (rev-rev xs)) k j ++ [ y ]
+        ; (j = i0) → rev (rev-snoc xs y i ++ [ x ])
+        ; (j = i1) → x ∷ rev-rev-snoc xs y i k
+        })
+      (rev-snoc (rev-snoc xs y i) x j)
 
 -- Path space of list type
 module ListPath {ℓ} {A : Type ℓ} where
