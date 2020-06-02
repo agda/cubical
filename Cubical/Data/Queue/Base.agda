@@ -234,11 +234,6 @@ module _ (A : Type ℓ) (Aset : isSet A) where
  Finite2List : FiniteQueue
  Finite2List = Q₂ , str 2List , subst (uncurry finite-queue-axioms) Path-1List-2List (snd (str Finite1List))
 
- Path-Finite1List-Finite2List : Finite1List ≡ Finite2List
- Path-Finite1List-Finite2List =
-   sip FiniteQueue-is-SNS _ _ (quotEquiv , quotEquiv-is-queue-iso)
-
-
  -- All finite queues are equal to 1List
  isContrFiniteQueue : isContr FiniteQueue
  isContrFiniteQueue .fst = Finite1List
