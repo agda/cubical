@@ -263,7 +263,7 @@ module _ (A : Type ℓ) (Aset : isSet A) where
      returnOrEnq S x (deq-map-forward f xsr) ≡ fA (returnOrEnq (str Raw1List) x xsr)
    f∘returnOrEnq _ (inl _) = refl
    f∘returnOrEnq _ (inr _) = refl
-   
+
    f∘deq : ∀ xs → deq (f xs) ≡ deq-map-forward f (deq₁ xs)
    f∘deq [] = deq-emp
    f∘deq (x ∷ xs) =
@@ -271,4 +271,3 @@ module _ (A : Type ℓ) (Aset : isSet A) where
      ∙ cong (inr ∘ returnOrEnq S x) (f∘deq xs)
      ∙ cong inr (f∘returnOrEnq x (deq₁ xs))
      ∙ cong (deq-map-forward f) (sym (deq₁-enq₁ x xs))
-
