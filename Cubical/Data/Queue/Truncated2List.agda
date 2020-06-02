@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-exact-split --safe #-}
-module Cubical.Data.Queue.Untruncated2List where
+module Cubical.Data.Queue.Truncated2List where
 
 open import Cubical.Foundations.Everything
 
@@ -11,32 +11,26 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Sum
 open import Cubical.Data.List
 open import Cubical.Data.Sigma
-open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Data.Queue.1List
 
-module _ (A : Type ℓ) (Aset : isSet A) where
+module Truncated2List (A : Type ℓ) (Aset : isSet A) where
  open Queues-on A Aset
 
- -- Untruncated 2Lists
  data Q : Set ℓ where
    Q⟨_,_⟩ : (xs ys : List A) → Q
    tilt : ∀ xs ys z → Q⟨ xs ++ [ z ] , ys ⟩ ≡ Q⟨ xs , ys ++ [ z ] ⟩
+   trunc : (q q' : Q) (α β : q ≡ q') → α ≡ β
+
+ multitilt : (xs ys zs : List A) → Q⟨ xs ++ rev zs , ys ⟩ ≡ Q⟨ xs , ys ++ zs ⟩
+ multitilt xs ys [] = cong₂ Q⟨_,_⟩ (++-unit-r xs) (sym (++-unit-r ys))
+ multitilt xs ys (z ∷ zs) =
+   cong (λ ws → Q⟨ ws , ys ⟩) (sym (++-assoc xs (rev zs) [ z ]))
+   ∙ tilt (xs ++ rev zs) ys z
+   ∙ multitilt xs (ys ++ [ z ]) zs
+   ∙ cong (λ ws → Q⟨ xs , ws ⟩) (++-assoc ys [ z ] zs)
 
   -- enq into the first list, deq from the second if possible
-
- flushEq' : (xs ys : List A) → Q⟨ xs ++ ys , [] ⟩ ≡ Q⟨ xs , rev ys ⟩
- flushEq' xs [] = cong Q⟨_, [] ⟩ (++-unit-r xs)
- flushEq' xs (z ∷ ys) j =
-   hcomp
-     (λ i → λ
-       { (j = i0) → Q⟨ ++-assoc xs [ z ] ys i , [] ⟩
-       ; (j = i1) → tilt xs (rev ys) z i
-       })
-     (flushEq' (xs ++ [ z ]) ys j)
-
- flushEq : (xs ys : List A) → Q⟨ xs ++ rev ys , [] ⟩ ≡ Q⟨ xs , ys ⟩
- flushEq xs ys = flushEq' xs (rev ys) ∙ cong Q⟨ xs ,_⟩ (rev-rev ys)
 
  emp : Q
  emp = Q⟨ [] , [] ⟩
@@ -44,6 +38,8 @@ module _ (A : Type ℓ) (Aset : isSet A) where
  enq : A → Q → Q
  enq a Q⟨ xs , ys ⟩ = Q⟨ a ∷ xs , ys ⟩
  enq a (tilt xs ys z i) = tilt (a ∷ xs) ys z i
+ enq a (trunc q q' α β i j) =
+   trunc _ _ (cong (enq a) α) (cong (enq a) β) i j
 
  deqFlush : List A → Unit ⊎ (Q × A)
  deqFlush [] = inl tt
@@ -56,14 +52,21 @@ module _ (A : Type ℓ) (Aset : isSet A) where
    where
    path : deqFlush (rev (xs ++ [ z ])) ≡ inr (Q⟨ xs , [] ⟩ , z)
    path =
-     cong deqFlush (rev-snoc xs z)
-     ∙ cong (λ q → inr (q , z)) (sym (flushEq' [] xs))
+     cong deqFlush (rev-++ xs [ z ])
+     ∙ cong (λ q → inr (q , z)) (sym (multitilt [] [] (rev xs)))
+     ∙ cong (λ ys → inr (Q⟨ ys , [] ⟩ , z)) (rev-rev xs)
  deq (tilt xs (y ∷ ys) z i) = inr (tilt xs ys z i , y)
+ deq (trunc q q' α β i j) =
+   isOfHLevelSum 0
+     (isProp→isSet isPropUnit)
+     (isSetΣ trunc λ _ → Aset)
+     (deq q) (deq q') (cong deq α) (cong deq β)
+    i j
 
  Raw : RawQueue
  Raw = (Q , emp , enq , deq)
 
- -- We construct an equivalence Q₁≃Q and prove that this is a queue-iso
+ -- We construct an equivalence to 1Lists and prove this is a queue-iso
 
  private
    module One = 1List A Aset
@@ -74,48 +77,33 @@ module _ (A : Type ℓ) (Aset : isSet A) where
 
  eval : Q → Q₁
  eval Q⟨ xs , ys ⟩ = xs ++ rev ys
- eval (tilt xs ys z i) =
-   hcomp
-     (λ j → λ
-       { (i = i0) → (xs ++ [ z ]) ++ rev ys
-       ; (i = i1) → xs ++ rev-snoc ys z (~ j)
-       })
-     (++-assoc xs [ z ] (rev ys) i)
- 
- quot∘eval : ∀ q → quot (eval q) ≡ q
- quot∘eval Q⟨ xs , ys ⟩ = flushEq xs ys
- quot∘eval (tilt xs ys z i) j =
-   hcomp
-     (λ k → λ
-       { (i = i0) →
-         compPath-filler (flushEq' (xs ++ [ z ]) (rev ys)) (cong Q⟨ xs ++ [ z ] ,_⟩ (rev-rev ys)) k j
-       ; (i = i1) → helper k
-       ; (j = i0) →
-         Q⟨ compPath-filler (++-assoc xs [ z ] (rev ys)) (cong (xs ++_) (sym (rev-snoc ys z))) k i , [] ⟩
-       ; (j = i1) → tilt xs (rev-rev ys k) z i
-       })
-     flushEq'-filler
+ eval (tilt xs ys z i) = path i
    where
-   flushEq'-filler : Q
-   flushEq'-filler =
-     hfill
-       (λ i → λ
-         { (j = i0) → Q⟨ ++-assoc xs [ z ] (rev ys) i , [] ⟩
-         ; (j = i1) → tilt xs (rev (rev ys)) z i
-         })
-       (inS (flushEq' (xs ++ [ z ]) (rev ys) j))
-       i
+   path : (xs ++ [ z ]) ++ rev ys ≡ xs ++ rev (ys ++ [ z ])
+   path =
+     ++-assoc xs [ z ] (rev ys)
+     ∙ cong (_++_ xs) (sym (rev-++ ys [ z ]))
+ eval (trunc q q' α β i j) = -- truncated case
+   isOfHLevelList 0 Aset (eval q) (eval q') (cong eval α) (cong eval β) i j
 
-   helper : I → Q
-   helper k =
-     hcomp
-       (λ l → λ
-         { (j = i0) → Q⟨ xs ++ rev-snoc ys z (l ∧ ~ k) , [] ⟩
-         ; (j = i1) → Q⟨ xs , rev-rev-snoc ys z l k ⟩
-         ; (k = i0) → flushEq' xs (rev-snoc ys z l) j
-         ; (k = i1) → flushEq xs (ys ++ [ z ]) j
-         })
-       (compPath-filler (flushEq' xs (rev (ys ++ [ z ]))) (cong Q⟨ xs ,_⟩ (rev-rev (ys ++ [ z ]))) k j)
+ quot∘eval : ∀ q → quot (eval q) ≡ q
+ quot∘eval Q⟨ xs , ys ⟩ = multitilt xs [] ys
+ quot∘eval (tilt xs ys z i) = -- truncated case
+   isOfHLevelPathP'
+     {A = λ i → quot (eval (tilt xs ys z i)) ≡ tilt xs ys z i}
+     0
+     (λ _ → trunc _ _)
+     (multitilt (xs ++ [ z ]) [] ys) (multitilt xs [] (ys ++ [ z ]))
+     .fst i
+ quot∘eval (trunc q q' α β i j) = -- truncated case
+   isOfHLevelPathP'
+     {A = λ i →
+       PathP (λ j → quot (eval (trunc q q' α β i j)) ≡ trunc q q' α β i j)
+         (quot∘eval q) (quot∘eval q')}
+     0
+     (λ _ → isOfHLevelPathP' 1 (λ _ → isOfHLevelSuc 2 trunc _ _) _ _)
+     (cong quot∘eval α) (cong quot∘eval β)
+     .fst i j
 
  eval∘quot : ∀ xs → eval (quot xs) ≡ xs
  eval∘quot = ++-unit-r
@@ -145,6 +133,7 @@ module _ (A : Type ℓ) (Aset : isSet A) where
        ≡ deqFlush ((ys ++ [ x' ]) ++ [ x ])
    lemma x x' [] i = inr (tilt [] [] x i , x')
    lemma x x' (y ∷ ys) i = inr (tilt [] (ys ++ [ x' ]) x i , y)
+
 
  quotEquiv-is-queue-iso : raw-queue-iso One.Raw Raw quotEquiv
  quotEquiv-is-queue-iso = quot∘emp , quot∘enq , quot∘deq
