@@ -31,7 +31,7 @@ module 1List (A : Type ℓ) (Aset : isSet A) where
  Raw = (Q , emp , enq , deq)
 
  WithLaws : Queue
- WithLaws = (Q , str Raw , isSetQ , refl , deq-enq , isInjEnq , isInjDeq)
+ WithLaws = (Q , S , isSetQ , refl , deq-enq , isInjEnq , isInjDeq)
   where
    S = str Raw
 

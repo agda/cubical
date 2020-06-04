@@ -17,7 +17,7 @@ open import Cubical.Data.Queue.1List
 module Truncated2List (A : Type ℓ) (Aset : isSet A) where
  open Queues-on A Aset
 
- data Q : Set ℓ where
+ data Q : Type ℓ where
    Q⟨_,_⟩ : (xs ys : List A) → Q
    tilt : ∀ xs ys z → Q⟨ xs ++ [ z ] , ys ⟩ ≡ Q⟨ xs , ys ++ [ z ] ⟩
    trunc : (q q' : Q) (α β : q ≡ q') → α ≡ β

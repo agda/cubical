@@ -19,7 +19,7 @@ module _ (A : Type ℓ) (Aset : isSet A) where
  open Queues-on A Aset
 
  -- Untruncated 2Lists
- data Q : Set ℓ where
+ data Q : Type ℓ where
    Q⟨_,_⟩ : (xs ys : List A) → Q
    tilt : ∀ xs ys z → Q⟨ xs ++ [ z ] , ys ⟩ ≡ Q⟨ xs , ys ++ [ z ] ⟩
 
@@ -156,6 +156,10 @@ module _ (A : Type ℓ) (Aset : isSet A) where
  -- We derive the axioms for 2List from those for 1List
  WithLaws : Queue
  WithLaws = Q , str Raw , subst (uncurry queue-axioms) Raw-1≡2 (snd (str One.WithLaws))
+
+ -- In particular, the untruncated queue type is a set
+ isSetQ : isSet Q
+ isSetQ = str WithLaws .snd .fst
 
  WithLaws-1≡2 : One.WithLaws ≡ WithLaws
  WithLaws-1≡2 = sip Queue-is-SNS _ _ (quotEquiv , quotEquiv-is-queue-iso)
