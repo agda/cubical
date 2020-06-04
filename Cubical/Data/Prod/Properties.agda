@@ -20,6 +20,9 @@ private
 
 -- Swapping is an equivalence
 
+×≡ : {a b : A × B} → proj₁ a ≡ proj₁ b → proj₂ a ≡ proj₂ b → a ≡ b
+×≡ {a = (a1 , b1)} {b = (a2 , b2)} id1 id2 i = (id1 i) , (id2 i)
+
 swap : A × B → B × A
 swap (x , y) = (y , x)
 

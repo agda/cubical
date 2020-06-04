@@ -50,20 +50,26 @@ S1→SuspBool south = south
 S1→SuspBool (merid north i) = merid true i
 S1→SuspBool (merid south i) = merid false i
 
+SuspBool→S1-sect : section SuspBool→S1 S1→SuspBool
+SuspBool→S1-sect north = refl
+SuspBool→S1-sect south = refl
+SuspBool→S1-sect (merid north i) = refl
+SuspBool→S1-sect (merid south i) = refl
+
+SuspBool→S1-retr : retract SuspBool→S1 S1→SuspBool
+SuspBool→S1-retr north = refl
+SuspBool→S1-retr south = refl
+SuspBool→S1-retr (merid false i) = refl
+SuspBool→S1-retr (merid true i) = refl
+
 SuspBool≃S1 : Susp Bool ≃ S₊ 1
 SuspBool≃S1 = isoToEquiv iso1
   where
   iso1 : Iso (Susp Bool) (S₊ 1)
   Iso.fun iso1 = SuspBool→S1
   Iso.inv iso1 = S1→SuspBool
-  Iso.rightInv iso1 north = refl
-  Iso.rightInv iso1 south = refl
-  Iso.rightInv iso1 (merid north i) = refl
-  Iso.rightInv iso1 (merid south i) = refl
-  Iso.leftInv iso1 north = refl
-  Iso.leftInv iso1 south = refl
-  Iso.leftInv iso1 (merid false i) = refl
-  Iso.leftInv iso1 (merid true i) = refl
+  Iso.rightInv iso1 = SuspBool→S1-sect
+  Iso.leftInv iso1 = SuspBool→S1-retr
 
 
 -- map between S¹ ∧ A and Susp A.

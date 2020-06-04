@@ -8,9 +8,11 @@ module Cubical.HITs.S1.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Nat
@@ -30,6 +32,14 @@ module _ where
     comp (λ _ → S¹) u (outS u0) ≡ hcomp u (outS u0)
   compS1 φ u u0 = refl
 
+
+
+toPropElim : ∀ {ℓ} {B : S¹ → Type ℓ} → ((s : S¹) → isProp (B s)) → B base → (s : S¹) → B s
+toPropElim {B = B} isprop b base = b
+toPropElim {B = B} isprop b (loop i) = hcomp (λ k → λ {(i = i0) → b
+                                                     ; (i = i1) → isprop base (subst B (loop) b) b k})
+                                      (transp (λ j → B (loop (i ∧ j))) (~ i) b)
+
 helix : S¹ → Type₀
 helix base     = Int
 helix (loop i) = sucPathInt i
@@ -48,6 +58,7 @@ intLoop (pos zero)       = refl
 intLoop (pos (suc n))    = intLoop (pos n) ∙ loop
 intLoop (negsuc zero)    = sym loop
 intLoop (negsuc (suc n)) = intLoop (negsuc n) ∙ sym loop
+
 
 decodeSquare : (n : Int) → PathP (λ i → base ≡ loop i) (intLoop (predInt n)) (intLoop n)
 decodeSquare (pos zero) i j    = loop (i ∨ ~ j)
@@ -72,6 +83,7 @@ decode (loop i) y j =
 decodeEncode : (x : S¹) (p : base ≡ x) → decode x (encode x p) ≡ p
 decodeEncode x p = J (λ y q → decode y (encode y q) ≡ q) (λ _ → refl) p
 
+
 isSetΩS¹ : isSet ΩS¹
 isSetΩS¹ p q r s j i =
   hcomp (λ k → λ { (i = i0) → decodeEncode base p k
@@ -79,6 +91,12 @@ isSetΩS¹ p q r s j i =
                  ; (j = i0) → decodeEncode base (r i) k
                  ; (j = i1) → decodeEncode base (s i) k })
         (decode base (isSetInt (winding p) (winding q) (cong winding r) (cong winding s) j i))
+
+
+isSetΩx : (x : S¹) → isSet (x ≡ x)
+isSetΩx = toPropElim
+           (λ s → isPropIsSet)
+           isSetΩS¹
 
 -- This proof does not rely on rewriting hcomp with empty systems in
 -- Int as ghcomp has been implemented!
@@ -127,6 +145,14 @@ winding-hom a b i =
                  ; (i = i1) → windingIntLoop (winding a + winding b) t })
         (winding (intLoop-hom (winding a) (winding b) i))
 
+-- Commutativity
+comm-ΩS¹ : (p q : ΩS¹) → p ∙ q ≡ q ∙ p
+comm-ΩS¹ p q = sym (cong₂ (_∙_) (decodeEncode base p) (decodeEncode base q))
+             ∙ intLoop-hom (winding p) (winding q)
+             ∙ cong intLoop (+-comm (winding p) (winding q))
+             ∙ sym (intLoop-hom (winding q) (winding p))
+             ∙ (cong₂ (_∙_) (decodeEncode base q) (decodeEncode base p))
+
 -- Based homotopy group
 
 basedΩS¹ : (x : S¹) → Type₀
@@ -153,6 +179,8 @@ private
 
 basedΩS¹→ΩS¹ : (i : I) → basedΩS¹ (loop i) → ΩS¹
 basedΩS¹→ΩS¹ i x j = basedΩS¹→ΩS¹-filler i1 i x j
+
+
 
 basedΩS¹→ΩS¹→basedΩS¹ : (i : I) → (x : basedΩS¹ (loop i))
                         → ΩS¹→basedΩS¹ i (basedΩS¹→ΩS¹ i x) ≡ x
@@ -240,6 +268,48 @@ basedΩS¹≡ΩS¹ x = ua (basechange x , basechange-isequiv x)
 basedΩS¹≡Int : (x : S¹) → basedΩS¹ x ≡ Int
 basedΩS¹≡Int x = (basedΩS¹≡ΩS¹ x) ∙ ΩS¹≡Int
 
+
+
+
+---- A shorter proof of the same thing -----
+basechange2 : (x : S¹) → ΩS¹ → (x ≡ x)
+basechange2 base p = p
+basechange2 (loop i) p =
+  hcomp (λ k → λ { (i = i0) → lUnit (rUnit p (~ k)) (~ k)
+                  ; (i = i1) → (cong ((sym loop) ∙_) (comm-ΩS¹ p loop)
+                              ∙ assoc (sym loop) loop p
+                              ∙ cong (_∙ p) (lCancel loop)
+                              ∙ sym (lUnit _)) k })
+        ((λ j → loop (~ j ∧ i)) ∙ p ∙ λ j → loop (j ∧ i))
+
+basechange2⁻ : (x : S¹) → (x ≡ x) → ΩS¹
+basechange2⁻ base p = p
+basechange2⁻ (loop i) p =
+  hcomp (λ k → λ { (i = i0) → lUnit (rUnit p (~ k)) (~ k)
+                  ; (i = i1) → (cong (loop ∙_) (comm-ΩS¹ p (sym loop))
+                              ∙ assoc loop (sym loop) p
+                              ∙ cong (_∙ p) (rCancel loop)
+                              ∙ sym (lUnit _)) k })
+        ((λ j → loop (i ∧ j)) ∙ p ∙ λ j → loop (i ∧ (~ j)))
+
+basechange2-sect : (x : S¹) → section (basechange2 x) (basechange2⁻ x)
+basechange2-sect =
+  toPropElim (λ _ → isOfHLevelΠ 1 λ _ → isSetΩx _ _ _ )
+             λ _ → refl
+
+basechange2-retr : (x : S¹) → retract (basechange2 x) (basechange2⁻ x)
+basechange2-retr =
+  toPropElim (λ s → isOfHLevelΠ 1 λ x → isSetΩx _ _ _)
+             λ _ → refl
+
+
+-- baschange2⁻ is a morphism
+
+basechange2⁻-morph : (x : S¹) (p q : x ≡ x) →
+                     basechange2⁻ x (p ∙ q) ≡ basechange2⁻ x p ∙ basechange2⁻ x q
+basechange2⁻-morph = toPropElim {B = λ x → (p q : x ≡ x) → basechange2⁻ x (p ∙ q) ≡ basechange2⁻ x p ∙ basechange2⁻ x q}
+                               (λ x → isOfHLevelΠ 1 λ p → isOfHLevelΠ 1 λ q → isSetΩS¹ _ _ )
+                               λ _ _ → refl
 
 -- Some tests
 module _ where
@@ -376,3 +446,6 @@ rotInv-4 base base i = base
 rotInv-4 base (loop k) i = rotInv-aux-4 i0 k (~ i) i1
 rotInv-4 (loop j) base i = loop j
 rotInv-4 (loop j) (loop k) i = rotInv-aux-4 j k (~ i) i1
+
+
+
