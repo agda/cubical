@@ -14,8 +14,6 @@ open import Cubical.Structures.Ideal
 private
   variable
     ℓ : Level
-    ℓ′ : Level
-    ℓ″ : Level
 
 module _ (R′ : Ring {ℓ}) (I : ⟨ R′ ⟩  → hProp ℓ) (I-isIdeal : isIdeal R′ I) where
   private
