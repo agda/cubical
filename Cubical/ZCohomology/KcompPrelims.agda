@@ -7,7 +7,7 @@ open import Cubical.HITs.Hopf
 open import Cubical.Homotopy.Freudenthal hiding (encode)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
-open import Cubical.HITs.Truncation renaming (elim to trElim ; recElim to trRec ; map to trMap)
+open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; map to trMap)
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -175,23 +175,12 @@ private
   d-iso2 : Iso (hLevelTrunc 3 (typ (Ω (Susp S¹ , north)))) (hLevelTrunc 3 S¹)
   d-iso2 = connectedTruncIso _ d-map is1Connected-dmap
 
-  d-iso : isIso {A = ∥  typ (Ω (Susp S¹ , north)) ∥ (ℕ→ℕ₋₂ 1)} {B = ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (trElim (λ x → isOfHLevelTrunc 3) λ x → ∣ d-map x ∣ )
-  d-iso = (Iso.inv (connectedTruncIso _ d-map is1Connected-dmap)) , (Iso.rightInv (connectedTruncIso _ d-map is1Connected-dmap)
-                                                                  , Iso.leftInv (connectedTruncIso _ d-map is1Connected-dmap))
-
   {- We show that composing (λ a → ∣ ϕ base a ∣) and (λ x → ∣ d-map x ∣) gives us the identity function.  -}
 
-  d-mapId2 : (λ (x : hLevelTrunc 3 S¹) → (trRec {n = 3} {B = hLevelTrunc 3 S¹} (isOfHLevelTrunc 3) λ x → ∣ d-map x ∣)
-                                               (trRec (isOfHLevelTrunc 3) (λ a → ∣ ϕ base a ∣) x)) ≡ λ x → x
-  d-mapId2 = funExt (trElim (λ x → isOfHLevelSuc 2 (isOfHLevelTrunc 3 ((trElim {n = 3}
-                                                                                {B = λ _ → ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)}
-                                                                                (λ x → isOfHLevelTrunc 3) λ x → ∣ d-map x ∣)
-                                                                                (trElim (λ _ → isOfHLevelTrunc 3)
-                                                                                        (λ a → ∣ ϕ base a ∣) x)) x))
-                            λ a i → ∣ d-mapId a i ∣)
+  d-mapId2 : Iso.fun d-iso2 ∘ trMap (ϕ base) ≡ idfun (hLevelTrunc 3 S¹)
+  d-mapId2 = funExt (trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) (λ a → cong ∣_∣ (d-mapId a)))
 
   {- This means that (λ a → ∣ ϕ base a ∣) is an equivalence -}
-
 
   Iso∣ϕ-base∣ : Iso (hLevelTrunc 3 S¹) (hLevelTrunc 3 (typ (Ω (Susp S¹ , north))))
   Iso∣ϕ-base∣ = composesToId→Iso d-iso2 (trMap (ϕ base)) d-mapId2
