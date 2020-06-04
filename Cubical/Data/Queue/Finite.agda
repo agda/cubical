@@ -17,6 +17,10 @@ open import Cubical.Data.Queue.1List
 
 -- All finite queues are equal to 1List.Finite
 
+private
+  variable
+    ℓ : Level
+
 module _ (A : Type ℓ) (Aset : isSet A) where
  open Queues-on A Aset
  private

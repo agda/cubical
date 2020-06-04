@@ -11,7 +11,7 @@ open import Cubical.Data.Sum
 open import Cubical.Data.List
 open import Cubical.Data.Sigma
 
-module 1List (A : Type ℓ) (Aset : isSet A) where
+module 1List {ℓ} (A : Type ℓ) (Aset : isSet A) where
  open Queues-on A Aset
 
  Q = List A

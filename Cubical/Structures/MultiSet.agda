@@ -9,18 +9,19 @@ open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Structures.Pointed
-open import Cubical.Structures.Queue
+open import Cubical.Structures.LeftAction
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 
+private
+  variable
+    ℓ : Level
 
 module _(A : Type ℓ)
         (Aset : isSet A) where
-
- open Queues-on A Aset
 
  count-structure : Type ℓ → Type ℓ
  count-structure X = A → X → ℕ
@@ -51,7 +52,7 @@ module _(A : Type ℓ)
  Multi-Set-is-SNS : SNS {ℓ₁ = ℓ} multi-set-structure multi-set-iso
  Multi-Set-is-SNS =
    join-SNS pointed-iso pointed-is-SNS
-            {S₂ = λ X → (left-action-structure X) × (count-structure X)}
+            {S₂ = λ X → (left-action-structure A X) × (count-structure X)}
             (λ B C e →  (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
                       × (∀ a x → (B .snd .snd a x) ≡ (C .snd .snd a (e .fst x))))
-            (join-SNS left-action-iso Left-Action-is-SNS count-iso Count-is-SNS)
+            (join-SNS (left-action-iso A) (Left-Action-is-SNS A) count-iso Count-is-SNS)
