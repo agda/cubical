@@ -12,62 +12,53 @@ open import Cubical.Data.Vec
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
-private
-  variable
-    ℓ ℓ' : Level
+module _ {ℓ₁ ℓ₂ : Level} where
 
--- TODO: generalize to different target type?
-nAryFunStructure : (n : ℕ) → Type (ℓ-max (ℓ-suc ℓ) (nAryLevel ℓ ℓ n))
-nAryFunStructure {ℓ = ℓ} n = TypeWithStr _ (λ (X : Type ℓ) → nAryOp n X X)
+  nAryFun-structure : (n : ℕ) (S : Type ℓ₁ → Type ℓ₂)
+    → Type ℓ₁ → Type (nAryLevel ℓ₁ ℓ₂ n)
+  nAryFun-structure n S X = nAryOp n X (S X)
 
--- iso for n-ary functions
-nAryFunIso : (n : ℕ) → StrIso (λ (X : Type ℓ) → nAryOp n X X) ℓ
-nAryFunIso n (X , fX) (Y , fY) f =
-  (xs : Vec X n) → equivFun f (fX $ⁿ xs) ≡ fY $ⁿ map (equivFun f) xs
+  -- iso for n-ary functions
+  nAryFunIso : (n : ℕ) {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level} (ι : StrIso S ℓ₃)
+    → StrIso (nAryFun-structure n S) (ℓ-max ℓ₁ ℓ₃)
+  nAryFunIso n ι (X , fX) (Y , fY) e =
+    (xs : Vec X n) → ι (X , fX $ⁿ xs) (Y , fY $ⁿ map (equivFun e) xs) e
 
-nAryFunSNS : (n : ℕ) → SNS {ℓ} _ (nAryFunIso n)
-nAryFunSNS n = SNS-≡→SNS-PathP (nAryFunIso n) (nAryFunExtEquiv n)
+  nAryFunSNS : {S : Type ℓ₁ → Type ℓ₂} (n : ℕ) {ℓ₃ : Level}
+    (ι : StrIso S ℓ₃) (θ : SNS S ι)
+    → SNS (nAryFun-structure n S) (nAryFunIso n ι)
+  nAryFunSNS n ι θ =
+    SNS-≡→SNS-PathP (nAryFunIso n ι) λ fX fY →
+    compEquiv
+      (equivPi λ xs → SNS-PathP→SNS-≡ _ ι θ _ _)
+      (nAryFunExtEquiv n fX fY)
 
 -- Some specializations that are not used at the moment, but kept as
 -- they might become useful later.
-private
+module _ {ℓ₁ ℓ₂ : Level} where
 
   -- unary
-  unaryFunIso : StrIso  (λ (X : Type ℓ) → nAryOp 1 X X) ℓ
-  unaryFunIso (A , f) (B , g) e =
-    (x : A) → equivFun e (f x) ≡ g (equivFun e x)
+  unaryFunIso : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level} (ι : StrIso S ℓ₃)
+    → StrIso (nAryFun-structure 1 S) (ℓ-max ℓ₁ ℓ₃)
+  unaryFunIso ι (A , f) (B , g) e =
+    (x : A) → ι (A , f x) (B , g (equivFun e x)) e
 
-  unaryFunSNS : SNS {ℓ} _ unaryFunIso
-  unaryFunSNS = SNS-≡→SNS-PathP unaryFunIso (λ s t → compEquiv lem (nAryFunExtEquiv 1 s t))
-    where
-    lem : ∀ {X} → {s t : X → X} →
-            ((x : X) → s x ≡ t x) ≃
-            ((xs : Vec X 1) → (s $ⁿ xs) ≡ (t $ⁿ map (λ x → x) xs))
-    lem {X} {s} {t} = isoToEquiv f
-      where
-      f : Iso ((x : X) → s x ≡ t x)
-              ((xs : Vec X 1) → (s $ⁿ xs) ≡ (t $ⁿ map (λ x → x) xs))
-      Iso.fun f p (x ∷ [])           = p x
-      Iso.inv f p x                  = p (x ∷ [])
-      Iso.rightInv f p _ xs@(x ∷ []) = p xs
-      Iso.leftInv f p _              = p
+  unaryFunSNS : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level}
+    (ι : StrIso S ℓ₃) (θ : SNS S ι)
+    → SNS (nAryFun-structure 1 S) (unaryFunIso ι)
+  unaryFunSNS ι θ =
+    SNS-≡→SNS-PathP (unaryFunIso ι) λ fX fY →
+    compEquiv (equivPi λ _ → SNS-PathP→SNS-≡ _ ι θ _ _) funExtEquiv
 
   -- binary
-  binaryFunIso : StrIso  (λ (X : Type ℓ) → nAryOp 2 X X) ℓ
-  binaryFunIso (A , f) (B , g) e =
-    (x y : A) → equivFun e (f x y) ≡ g (equivFun e x) (equivFun e y)
+  binaryFunIso : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level} (ι : StrIso S ℓ₃)
+    → StrIso (nAryFun-structure 2 S) (ℓ-max ℓ₁ ℓ₃)
+  binaryFunIso ι (A , f) (B , g) e =
+    (x y : A) → ι (A , f x y) (B , g (equivFun e x) (equivFun e y)) e
 
-  binaryFunSNS : SNS {ℓ} _ binaryFunIso
-  binaryFunSNS = SNS-≡→SNS-PathP binaryFunIso (λ s t → compEquiv lem (nAryFunExtEquiv 2 s t))
-    where
-    lem : ∀ {X} → {s t : X → X → X} →
-            ((x y : X) → s x y ≡ t x y) ≃
-            ((xs : Vec X 2) → (s $ⁿ xs) ≡ (t $ⁿ map (λ x → x) xs))
-    lem {X} {s} {t} = isoToEquiv f
-      where
-      f : Iso ((x y : X) → s x y ≡ t x y)
-              ((xs : Vec X 2) → (s $ⁿ xs) ≡ (t $ⁿ map (λ x → x) xs))
-      Iso.fun f p (x ∷ y ∷ [])           = p x y
-      Iso.inv f p x y                    = p (x ∷ y ∷ [])
-      Iso.rightInv f p _ xs@(x ∷ y ∷ []) = p xs
-      Iso.leftInv f p _                  = p
+  binaryFunSNS : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level}
+    (ι : StrIso S ℓ₃) (θ : SNS S ι)
+    → SNS (nAryFun-structure 2 S) (binaryFunIso ι)
+  binaryFunSNS ι θ =
+    SNS-≡→SNS-PathP (binaryFunIso ι) λ fX fY →
+    compEquiv (equivPi λ _ → equivPi λ _ → SNS-PathP→SNS-≡ _ ι θ _ _) funExt₂Equiv

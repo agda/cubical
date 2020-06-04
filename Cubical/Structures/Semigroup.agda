@@ -7,6 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Structures.Pointed
 open import Cubical.Structures.NAryOp
 
 private
@@ -17,7 +18,7 @@ raw-semigroup-structure : Type ℓ → Type ℓ
 raw-semigroup-structure X = X → X → X
 
 raw-semigroup-is-SNS : SNS {ℓ} raw-semigroup-structure _
-raw-semigroup-is-SNS = nAryFunSNS 2
+raw-semigroup-is-SNS = binaryFunSNS pointed-iso pointed-is-SNS
 
 semigroup-axioms : (X : Type ℓ) → raw-semigroup-structure X → Type ℓ
 semigroup-axioms X _·_ = isSet X ×
@@ -57,7 +58,7 @@ semigroup-assoc (_ , _ , _ , P) = P
 -- Semigroup equivalences
 
 semigroup-iso : StrIso semigroup-structure ℓ
-semigroup-iso = add-to-iso (nAryFunIso 2) semigroup-axioms
+semigroup-iso = add-to-iso (binaryFunIso pointed-iso) semigroup-axioms
 
 semigroup-axiom-isProp : (X : Type ℓ)
                        → (s : raw-semigroup-structure X)
@@ -66,7 +67,7 @@ semigroup-axiom-isProp X _·_ = isPropΣ isPropIsSet
                                λ isSetX →  isPropΠ (λ x → isPropΠ (λ y → isPropΠ (λ z → isSetX _ _)))
 
 semigroup-is-SNS : SNS {ℓ} semigroup-structure semigroup-iso
-semigroup-is-SNS = add-axioms-SNS _ semigroup-axiom-isProp (nAryFunSNS 2)
+semigroup-is-SNS = add-axioms-SNS _ semigroup-axiom-isProp raw-semigroup-is-SNS
 
 SemigroupPath : (M N : Semigroup {ℓ}) → (M ≃[ semigroup-iso ] N) ≃ (M ≡ N)
 SemigroupPath = SIP semigroup-is-SNS

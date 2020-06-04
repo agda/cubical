@@ -10,6 +10,8 @@ open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 open import Cubical.Functions.Surjection
 
 open import Cubical.Structures.Pointed
+open import Cubical.Structures.NAryOp
+open import Cubical.Structures.Parameterized
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum as ⊎
@@ -32,17 +34,18 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  -- A Queue structure has three components, the empty Queue, an enqueue function and a dequeue function
  -- We first deal with enq and deq as separate structures
  left-action-structure : Type ℓ → Type ℓ
- left-action-structure X = A → X → X
-
- Left-Action : Type (ℓ-suc ℓ)
- Left-Action = TypeWithStr ℓ left-action-structure
+ left-action-structure =
+   parameterized-structure A λ _ → nAryFun-structure 1 pointed-structure
 
  left-action-iso : StrIso left-action-structure ℓ
- left-action-iso (X , l) (Y , m) e = ∀ a x → e .fst (l a x) ≡ m a (e .fst x)
+ left-action-iso =
+   parameterized-iso A λ _ → unaryFunIso pointed-iso
 
  Left-Action-is-SNS : SNS {ℓ} left-action-structure left-action-iso
- Left-Action-is-SNS = SNS-≡→SNS-PathP left-action-iso (λ _ _ → funExt₂Equiv)
-
+ Left-Action-is-SNS =
+   Parameterized-is-SNS A
+     (λ _ → unaryFunIso pointed-iso)
+     (λ _ → unaryFunSNS pointed-iso pointed-is-SNS)
 
  -- Now for the deq-map as a structure
  -- First, a few preliminary results that we will need later

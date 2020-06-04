@@ -7,6 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
+open import Cubical.Structures.Pointed
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Group hiding (⟨_⟩)
 
@@ -25,7 +26,7 @@ AbGroup : Type (ℓ-suc ℓ)
 AbGroup {ℓ} = TypeWithStr ℓ abelian-group-structure
 
 abelian-group-iso : StrIso abelian-group-structure ℓ
-abelian-group-iso = add-to-iso (nAryFunIso 2) abelian-group-axioms
+abelian-group-iso = add-to-iso (binaryFunIso pointed-iso) abelian-group-axioms
 
 abelian-group-axioms-isProp : (X : Type ℓ)
                            → (s : raw-group-structure X)
