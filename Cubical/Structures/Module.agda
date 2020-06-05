@@ -23,7 +23,7 @@ addLeftMultiplication R S A = (⟨ R ⟩ → A → A)
                               × S A
 
 module _ (R : Ring {ℓ}) where
-  open ring-syntax
+  open explicit-ring-syntax
 
   rawModuleStructure : Type ℓ → Type ℓ
   rawModuleStructure = (addLeftMultiplication R) raw-group-structure

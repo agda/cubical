@@ -19,7 +19,7 @@ private
   variable
     ℓ : Level
 
-module _ (R : Ring {ℓ}) where
+module over (R : Ring {ℓ}) where
   open ring-syntax
 
   rawAlgebraStructure : Type ℓ → Type ℓ
@@ -56,7 +56,7 @@ module _ (R : Ring {ℓ}) where
   algebraIsSNS : SNS {ℓ} algebraStructure algebraIso
   algebraIsSNS = add-axioms-SNS _ algebraAxiomIsProp rawAlgebraIsSNS
 
-
+open over
 Algebra : (R : Ring {ℓ}) → Type (ℓ-suc ℓ)
 Algebra {ℓ} R = TypeWithStr ℓ (algebraStructure R)
 
