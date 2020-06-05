@@ -116,7 +116,7 @@ module ring-syntax where
   infixr 18 ring·-operation-syntax
   syntax ring·-operation-syntax R x y = x ·⟨ R ⟩ y
 
-module ringAxioms (R : Ring {ℓ}) where
+module ring-axioms (R : Ring {ℓ}) where
   open ring-syntax
   open partialRingAxioms R public
 
@@ -214,7 +214,7 @@ createRing R isSet-R ringStr =
   have a ring solver (see https://github.com/agda/cubical/issues/297)
 -}
 module calculations (R : Ring {ℓ}) where
-  open ringAxioms R
+  open ring-axioms R
   open ring-·syntax R
 
   implicitInverse : (x y : ⟨ R ⟩)
@@ -242,30 +242,30 @@ module calculations (R : Ring {ℓ}) where
                         x + ₀           ≡⟨ ring+-rid x ⟩
                         x               ∎
 
-  0-rightNullifies : (x : ⟨ R ⟩) → ₀ ≡ x · ₀
+  0-rightNullifies : (x : ⟨ R ⟩) → x · ₀ ≡ ₀
   0-rightNullifies x =
               let x·0-is-idempotent : x · ₀ ≡ x · ₀ + x · ₀
                   x·0-is-idempotent =
                     x · ₀              ≡⟨ cong (λ u → x · u) (sym 0-idempotent) ⟩
                     x · (₀ + ₀)        ≡⟨ (ring-rdist _ _ _) ⟩
                     (x · ₀) + (x · ₀)  ∎
-              in +-idempotency→0 _ x·0-is-idempotent
+              in sym (+-idempotency→0 _ x·0-is-idempotent)
 
-  0-leftNullifies : (x : ⟨ R ⟩) → ₀ ≡ ₀ · x
+  0-leftNullifies : (x : ⟨ R ⟩) → ₀ · x ≡ ₀
   0-leftNullifies x =
               let 0·x-is-idempotent : ₀ · x ≡ ₀ · x + ₀ · x
                   0·x-is-idempotent =
                     ₀ · x              ≡⟨ cong (λ u → u · x) (sym 0-idempotent) ⟩
                     (₀ + ₀) · x        ≡⟨ (ring-ldist _ _ _) ⟩
                     (₀ · x) + (₀ · x)  ∎
-              in +-idempotency→0 _ 0·x-is-idempotent
+              in sym (+-idempotency→0 _ 0·x-is-idempotent)
 
   -commutesWithRight-· : (x y : ⟨ R ⟩) →  x · (- y) ≡ - (x · y)
   -commutesWithRight-· x y = implicitInverse (x · y) (x · (- y))
 
                                (x · y + x · (- y)     ≡⟨ sym (ring-rdist _ _ _) ⟩
                                x · (y + (- y))        ≡⟨ cong (λ u → x · u) (ring+-rinv y) ⟩
-                               x · ₀                  ≡⟨ sym (0-rightNullifies x) ⟩
+                               x · ₀                  ≡⟨ 0-rightNullifies x ⟩
                                ₀ ∎)
 
   -commutesWithLeft-· : (x y : ⟨ R ⟩) →  (- x) · y ≡ - (x · y)
@@ -273,5 +273,5 @@ module calculations (R : Ring {ℓ}) where
 
                               (x · y + (- x) · y     ≡⟨ sym (ring-ldist _ _ _) ⟩
                               (x - x) · y            ≡⟨ cong (λ u → u · y) (ring+-rinv x) ⟩
-                              ₀ · y                  ≡⟨ sym (0-leftNullifies y) ⟩
+                              ₀ · y                  ≡⟨ 0-leftNullifies y ⟩
                               ₀ ∎)
