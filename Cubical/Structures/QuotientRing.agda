@@ -17,7 +17,7 @@ private
 
 module _ (R′ : Ring {ℓ}) (I : ⟨ R′ ⟩  → hProp ℓ) (I-isIdeal : isIdeal R′ I) where
   private
-    open ring-·syntax R′
+    open ring-syntax R′
     open isIdeal I-isIdeal
     open ring-axioms R′
     open calculations R′

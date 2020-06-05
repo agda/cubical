@@ -50,7 +50,7 @@ CommRing→Ring (R , str , isRing , ·comm) = R , str , isRing
 ⟨_⟩ : CommRing {ℓ} → Type ℓ
 ⟨ R , _ ⟩ = R
 
-module commRingAxioms (R : CommRing {ℓ}) where
+module comm-ring-axioms (R : CommRing {ℓ}) where
   open ring-axioms
 
   commring+-operation = ring+-operation (CommRing→Ring R)
@@ -88,7 +88,7 @@ module commRingAxioms (R : CommRing {ℓ}) where
   commring-rdist = ring-rdist (CommRing→Ring R)
 
 module commring-operation-syntax where
-  open commRingAxioms
+  open comm-ring-axioms
 
   commring+-operation-syntax : (R : CommRing {ℓ}) → ⟨ R ⟩ → ⟨ R ⟩ → ⟨ R ⟩
   commring+-operation-syntax R = commring+-operation R
@@ -108,8 +108,8 @@ open commring-operation-syntax
 commring-comm : (R : CommRing {ℓ}) (x y : ⟨ R ⟩) → x ·⟨ R ⟩ y ≡ y ·⟨ R ⟩ x
 commring-comm (_ , _ , _ , P) = P
 
--- CommRing ·syntax
+-- CommRing syntax
 
-module commring-·syntax (R : CommRing {ℓ}) where
-  open ring-·syntax (CommRing→Ring R) public
-  open commRingAxioms R
+module commring-syntax (R : CommRing {ℓ}) where
+  open ring-syntax (CommRing→Ring R) public
+  open comm-ring-axioms R

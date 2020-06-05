@@ -101,7 +101,7 @@ module partialRingAxioms (R : Ring {ℓ}) where
   ring·-lid = monoid-lid (Ring→Monoid R)
 
 
-module ring-syntax where
+module explicit-ring-syntax where
   open partialRingAxioms
 
   ring+-operation-syntax : (R : Ring {ℓ}) → ⟨ R ⟩ → ⟨ R ⟩ → ⟨ R ⟩
@@ -117,7 +117,7 @@ module ring-syntax where
   syntax ring·-operation-syntax R x y = x ·⟨ R ⟩ y
 
 module ring-axioms (R : Ring {ℓ}) where
-  open ring-syntax
+  open explicit-ring-syntax
   open partialRingAxioms R public
 
   private
@@ -134,9 +134,9 @@ module ring-axioms (R : Ring {ℓ}) where
 ringIsSet : (R : Ring {ℓ}) → isSet (⟨ R ⟩)
 ringIsSet R = abgroupIsSet (Ring→AbGroup R)
 
--- Ring ·syntax
+-- Ring syntax
 
-module ring-·syntax (R : Ring {ℓ}) where
+module ring-syntax (R : Ring {ℓ}) where
   open partialRingAxioms
 
   infixr 14 _+_
@@ -215,7 +215,7 @@ createRing R isSet-R ringStr =
 -}
 module calculations (R : Ring {ℓ}) where
   open ring-axioms R
-  open ring-·syntax R
+  open ring-syntax R
 
   implicitInverse : (x y : ⟨ R ⟩)
                  → x + y ≡ ₀
