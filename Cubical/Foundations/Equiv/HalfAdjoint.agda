@@ -174,40 +174,10 @@ coherent : ∀ {ℓ} {A B : Type ℓ} (isom : Iso A B) → Type ℓ
 coherent (iso f g H K) = ∀ x → cong f (K x) ≡ H (f x)
 
 -- vogt's lemma (https://ncatlab.org/nlab/show/homotopy+equivalence#vogts_lemma)
-vogt : ∀ {ℓ} {X Y : Type ℓ} → (isom : Iso X Y) → Σ ((y : Y) → Iso.fun isom (Iso.inv isom y) ≡ y) λ iso' → coherent (iso (Iso.fun isom) (Iso.inv isom) iso' (Iso.leftInv isom))
-vogt {X = X} isom@(iso f g ε η) = ε' , γ
+vogt : ∀ {ℓ} {X Y : Type ℓ} (isom : Iso X Y)
+  → Σ ((y : Y) → Iso.fun isom (Iso.inv isom y) ≡ y)
+      (λ iso' → coherent (iso (Iso.fun isom) (Iso.inv isom) iso' (Iso.leftInv isom)))
+vogt {X = X} isom@(iso f g ε η) =
+  e .snd .isHAEquiv.ret , e .snd .isHAEquiv.com
   where
-    ε' : ∀ y → f (g y) ≡ y
-    ε' x = cong (f ∘ g) (sym (ε x)) ∙ cong f (η (g x)) ∙ ε x
-
-    lem : ∀ (x : X)
-      → cong f (η (g (f x))) ∙ ε (f x)
-      ≡ cong (f ∘ g) (ε (f x)) ∙ cong f (η x)
-    lem x =
-      cong f (η (g (f x))) ∙ ε (f x)
-        ≡⟨ lUnit (cong (f) (η (g (f x))) ∙ ε (f x)) ⟩
-      refl ∙ cong f (η (g (f x))) ∙ ε (f x)
-        ≡⟨ cong (λ a → a ∙ cong f (η (g (f x))) ∙ ε (f x)) (sym (rCancel (ε (f (g (f x)))))) ⟩
-      (ε (f (g (f x))) ∙ sym (ε (f (g (f x))))) ∙ cong f (η (g (f x))) ∙ ε (f x)
-        ≡⟨ sym (assoc (ε (f (g (f x)))) (sym (ε (f (g (f x))))) (cong f (η (g (f x))) ∙ ε (f x))) ⟩
-      ε (f (g (f x))) ∙ sym (ε (f (g (f x)))) ∙ cong f (η (g (f x))) ∙ ε (f x)
-        ≡⟨ cong (λ a → ε (f (g (f x))) ∙ a) (sym (isHAEquiv.com (iso→HAEquiv' isom .snd) x)) ⟩
-      ε (f (g (f x))) ∙ cong f (η x)
-        ≡⟨ cong (λ a → a ∙ cong f (η x)) (Hfa≡fHa (f ∘ g) ε (f x)) ⟩
-      cong (f ∘ g) (ε (f x)) ∙ cong f (η x) ∎
-
-    γ : coherent (iso f g ε' η)
-    γ x = sym
-      (ε' (f x)
-        ≡⟨ refl ⟩
-      cong (f ∘ g) (sym (ε (f x))) ∙ cong f (η (g (f x))) ∙ ε (f x)
-        ≡⟨ cong (λ a → cong (f ∘ g) (sym (ε (f x))) ∙ a) (lem x) ⟩
-      cong (f ∘ g) (sym (ε (f x))) ∙ cong (f ∘ g) (ε (f x)) ∙ cong f (η x)
-        ≡⟨ refl ⟩
-      sym (cong (f ∘ g) (ε (f x))) ∙ cong (f ∘ g) (ε (f x)) ∙ cong f (η x)
-        ≡⟨ assoc (sym (cong (f ∘ g) (ε (f x)))) (cong (f ∘ g) (ε (f x))) (cong f (η x)) ⟩
-      (sym (cong (f ∘ g) (ε (f x))) ∙ cong (f ∘ g) (ε (f x))) ∙ cong f (η x)
-        ≡⟨ cong (λ a → a ∙ cong f (η x)) (lCancel (cong (f ∘ g) (ε (f x)))) ⟩
-      refl ∙ cong f (η x)
-        ≡⟨ sym (lUnit (cong f (η x))) ⟩
-      cong f (η x) ∎)
+  e = iso→HAEquiv isom
