@@ -19,7 +19,7 @@ module _ (R′ : Ring {ℓ}) (I : ⟨ R′ ⟩  → hProp ℓ) (I-isIdeal : isId
   private
     open ring-·syntax R′
     open isIdeal I-isIdeal
-    open ringAxioms R′
+    open ring-axioms R′
     open calculations R′
     R = ⟨ R′ ⟩
 
