@@ -30,7 +30,7 @@ private
 
 Σ-≡-≃ : {X : Type ℓ} {A : X → Type ℓ'}
        → (σ τ : Σ X A) → ((σ ≡ τ) ≃ (Σ[ p ∈ (σ .fst) ≡ (τ .fst) ] (subst A p (σ .snd) ≡ (τ .snd))))
-Σ-≡-≃ {A = A} σ τ = pathToEquiv (pathSigma≡sigmaPath σ τ)
+Σ-≡-≃ {A = A} σ τ = invEquiv (ΣPath≃pathΣ σ τ)
 
 
 
@@ -96,12 +96,12 @@ NatΣ τ (x , a) = (x , τ x a)
    ψ (y , a) = (g y , subst A (sym (η y)) a)
 
    φψ : (z : (Σ Y A)) → φ (ψ z) ≡ z
-   φψ (y , a) = sigmaPath→pathSigma (φ (ψ (y , a))) (y , a)
-                                    (η y ,  transportTransport⁻ (λ i → A (η y i)) a)
+   φψ (y , a) = ΣPath→pathΣ (φ (ψ (y , a))) (y , a)
+                            (η y ,  transportTransport⁻ (λ i → A (η y i)) a)
      -- last term proves transp (λ i → A (η y i)) i0 (transp (λ i → A (η y (~ i))) i0 a) ≡ a
 
    ψφ : (z : (Σ X (A ∘ f))) → ψ (φ z) ≡ z
-   ψφ (x , a) = sigmaPath→pathSigma (ψ (φ (x , a))) (x , a) (ε x , q)
+   ψφ (x , a) = ΣPath→pathΣ (ψ (φ (x , a))) (x , a) (ε x , q)
      where
       b : A (f (g (f x)))
       b = (transp (λ i → A (η (f x) (~ i))) i0 a)
