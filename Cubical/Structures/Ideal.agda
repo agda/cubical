@@ -20,7 +20,7 @@ module _ (R′ : Ring {ℓ}) where
   private
     R = ⟨ R′ ⟩
 
-  open ring-·syntax R′
+  open ring-syntax R′
 
   {- by default, 'ideal' means two-sided ideal -}
   record isIdeal (I : R → hProp ℓ′) : Type (ℓ-max ℓ′ ℓ) where
