@@ -204,7 +204,7 @@ swapΣEquiv A B = isoToEquiv (iso (λ x → x .snd , x .fst) (λ z → z .snd , 
 Iso.fun (Σ-ap-iso₁ isom) x = (Iso.fun isom) (x .fst) , x .snd
 Iso.inv (Σ-ap-iso₁ {B = B} isom) x = (Iso.inv isom) (x .fst) , subst B (sym (ε' (x .fst))) (x .snd)
   where
-    ε' = fst (vogt isom)
+    ε' = isHAEquiv.ret (snd (iso→HAEquiv isom))
 Iso.rightInv (Σ-ap-iso₁ {B = B} isom) (x , y) = ΣPathP (ε' x ,
   transport
     (sym (PathP≡Path (λ j → cong B (ε' x) j) (subst B (sym (ε' x)) y) y))
@@ -216,7 +216,7 @@ Iso.rightInv (Σ-ap-iso₁ {B = B} isom) (x , y) = ΣPathP (ε' x ,
       ≡⟨ substRefl {B = B} y ⟩
     y ∎))
   where
-    ε' = fst (vogt isom)
+    ε' = isHAEquiv.ret (snd (iso→HAEquiv isom))
 Iso.leftInv (Σ-ap-iso₁ {A = A} {B = B} isom@(iso f g ε η)) (x , y) = ΣPathP (η x ,
   transport
     (sym (PathP≡Path (λ j → cong B (cong f (η x)) j) (subst B (sym (ε' (f x))) y) y))
@@ -228,8 +228,8 @@ Iso.leftInv (Σ-ap-iso₁ {A = A} {B = B} isom@(iso f g ε η)) (x , y) = ΣPath
       ≡⟨ substRefl {B = B} y ⟩
     y ∎))
   where
-    ε' = fst (vogt isom)
-    γ = snd (vogt isom)
+    ε' = isHAEquiv.ret (snd (iso→HAEquiv isom))
+    γ = isHAEquiv.com (snd (iso→HAEquiv isom))
 
     lem : (x : A) → sym (ε' (f x)) ∙ cong f (η x) ≡ refl
     lem x = cong (λ a → sym (ε' (f x)) ∙ a) (γ x) ∙ lCancel (ε' (f x))

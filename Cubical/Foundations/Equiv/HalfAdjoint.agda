@@ -69,6 +69,7 @@ private
     A : Type ℓ
     B : Type ℓ'
 
+-- vogt's lemma (https://ncatlab.org/nlab/show/homotopy+equivalence#vogts_lemma)
 iso→HAEquiv : Iso A B → HAEquiv A B
 iso→HAEquiv {A = A} {B = B} (iso f g ε η) = f , (record { g = g ; sec = η ; ret = ret ; com = com })
   where
@@ -148,15 +149,3 @@ congIso {A = A} {B} {x} {y} e = (iso intro elim intro-elim elim-intro)
 
 congEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
 congEquiv {A = A} {B} {x} {y} e = isoToEquiv (congIso e)
-
-coherent : ∀ {ℓ} {A B : Type ℓ} (isom : Iso A B) → Type ℓ
-coherent (iso f g H K) = ∀ x → cong f (K x) ≡ H (f x)
-
--- vogt's lemma (https://ncatlab.org/nlab/show/homotopy+equivalence#vogts_lemma)
-vogt : ∀ {ℓ} {X Y : Type ℓ} (isom : Iso X Y)
-  → Σ ((y : Y) → Iso.fun isom (Iso.inv isom y) ≡ y)
-      (λ iso' → coherent (iso (Iso.fun isom) (Iso.inv isom) iso' (Iso.leftInv isom)))
-vogt {X = X} isom@(iso f g ε η) =
-  e .snd .isHAEquiv.ret , e .snd .isHAEquiv.com
-  where
-  e = iso→HAEquiv isom
