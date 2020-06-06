@@ -102,17 +102,7 @@ congIso {A = A} {B} {x} {y} e = (iso intro elim intro-elim elim-intro)
     f : A → B
     f = e' .fst
 
-    g : B → A
-    g = isHAEquiv.g (e' .snd)
-
-    sec : ∀ a → g (f a) ≡ a
-    sec = isHAEquiv.sec (e' .snd)
-
-    ret : ∀ b → f (g b) ≡ b
-    ret = isHAEquiv.ret (e' .snd)
-
-    com : ∀ a → cong f (sec a) ≡ ret (f a)
-    com = isHAEquiv.com (e' .snd)
+    open isHAEquiv (e' .snd)
 
     intro : x ≡ y → f x ≡ f y
     intro = cong f
