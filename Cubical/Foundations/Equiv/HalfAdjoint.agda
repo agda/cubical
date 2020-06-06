@@ -89,25 +89,6 @@ iso→HAEquiv {A = A} {B = B} (iso f g ε η) = f , (record { g = g ; sec = η ;
                                ; (j = i1) → ε (f a) k})
                       (cong (cong f) (sym (Hfa≡fHa (λ x → g (f x)) η a)) i j)
 
--- Theorem 4.2.3. of HoTT book (similar to iso→HAEquiv)
-iso→HAEquiv' : Iso A B → HAEquiv A B
-fst (iso→HAEquiv' (iso f g ε η)) = f
-isHAEquiv.g (snd (iso→HAEquiv' (iso f g ε η))) = g
-isHAEquiv.sec (snd (iso→HAEquiv' (iso f g ε η))) = η
-isHAEquiv.ret (snd (iso→HAEquiv' (iso f g ε η))) b = sym (ε (f (g b))) ∙ (cong f (η (g b)) ∙ ε b)
-isHAEquiv.com (snd (iso→HAEquiv' (iso f g ε η))) a =
-  cong f (η a)
-    ≡⟨ lUnit (cong f (η a)) ⟩
-  refl ∙ cong f (η a)
-    ≡⟨ cong (λ m → m ∙ cong f (η a)) (sym (lCancel (ε (f (g (f a)))))) ⟩
-  (sym (ε (f (g (f a)))) ∙ ε (f (g (f a)))) ∙ cong f (η a)
-    ≡⟨ sym (assoc (sym (ε (f (g (f a))))) (ε (f (g (f a)))) (cong f (η a))) ⟩
-  sym (ε (f (g (f a)))) ∙ ε (f (g (f a))) ∙ cong f (η a)
-    ≡⟨ cong (λ m → sym (ε (f (g (f a)))) ∙ m) (homotopyNatural (ε ∘ f) (η a)) ⟩
-  sym (ε (f (g (f a)))) ∙ (cong (f ∘ g ∘ f) (η a)) ∙ ε (f a)
-    ≡⟨ cong (λ m → sym (ε (f (g (f a)))) ∙ cong f m ∙ ε (f a)) (sym (Hfa≡fHa (λ x → g (f x)) η a)) ⟩
-  sym (ε (f (g (f a)))) ∙ (cong f (η (g (f a)))) ∙ ε (f a) ∎
-
 equiv→HAEquiv : A ≃ B → HAEquiv A B
 equiv→HAEquiv e = iso→HAEquiv (equivToIso e)
 
