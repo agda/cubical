@@ -2,7 +2,14 @@
 
 Basic properties about Σ-types
 
-- Characterization of equality in Σ-types using transport ([ΣPath≡pathΣ])
+- Action of Σ on functions ([map-fst], [map-snd])
+- Characterization of equality in Σ-types using dependent paths ([ΣPath{Iso,≃,≡}PathΣ], [Σ≡Prop])
+- Proof that discrete types are closed under Σ ([discreteΣ])
+- Commutativity and associativity ([swapΣEquiv, Σ-assoc])
+- Distributivity of Π over Σ ([PiΣ])
+- Action of Σ on isomorphisms, equivalences, and paths ([Σ-cong-fst], [Σ-cong-snd], ...)
+- Characterization of equality in Σ-types using transport ([ΣPathTransport{≃,≡}PathΣ])
+- Σ with a contractible base is its fiber ([Σ-contractFst, ΣUnit])
 
 -}
 {-# OPTIONS --cubical --safe #-}
@@ -40,6 +47,8 @@ map-fst f (a , b) = (f a , b)
 map-snd : (∀ {a} → B a → B' a) → Σ A B → Σ A B'
 map-snd f (a , b) = (a , f b)
 
+-- Characterization of paths in Σ using dependent paths
+
 ΣPathP : ∀ {x y}
   → Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y))
   → x ≡ y
@@ -65,6 +74,8 @@ leftInv ΣPathIsoPathΣ x = refl {x = x}
        → (p : u .fst ≡ v .fst) → u ≡ v
 Σ≡Prop pB {u} {v} p i = (p i) , isProp→PathP (λ i → pB (p i)) (u .snd) (v .snd) i
 
+-- Σ of discrete types
+
 discreteΣ : Discrete A → ((a : A) → Discrete (B a)) → Discrete (Σ A B)
 discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
   where
@@ -77,6 +88,9 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
         ... | (no ¬q) = no (λ r → ¬q (subst (λ X → PathP (λ i → B (X i)) b0 b1) (Discrete→isSet Adis a0 a0 (cong fst r) refl) (cong snd r)))
     discreteΣ' (no ¬p) = no (λ r → ¬p (cong fst r))
 
+swapΣEquiv : A × A' ≃ A' × A
+swapΣEquiv = isoToEquiv (iso (λ x → x .snd , x .fst) (λ z → z .snd , z .fst) (\ _ → refl) (\ _ → refl))
+
 Σ-assoc : (Σ[ (a , b) ∈ Σ A B ] C a b) ≃ (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
 Σ-assoc = isoToEquiv (iso (λ { ((x , y) , z) → (x , (y , z)) })
                           (λ { (x , (y , z)) → ((x , y) , z) })
@@ -86,9 +100,6 @@ PiΣ : ((a : A) → Σ[ b ∈ B a ] C a b) ≃ (Σ[ f ∈ ((a : A) → B a) ] �
 PiΣ = isoToEquiv (iso (λ f → fst ∘ f , snd ∘ f)
                       (λ (f , g) → (λ x → f x , g x))
                       (λ _ → refl) (λ _ → refl))
-
-swapΣEquiv : A × A' ≃ A' × A
-swapΣEquiv = isoToEquiv (iso (λ x → x .snd , x .fst) (λ z → z .snd , z .fst) (\ _ → refl) (\ _ → refl))
 
 Σ-cong-iso-fst : (isom : Iso A A') → Iso (Σ A (B ∘ (fun isom))) (Σ A' B)
 fun (Σ-cong-iso-fst isom) x = (fun isom) (x .fst) , x .snd
