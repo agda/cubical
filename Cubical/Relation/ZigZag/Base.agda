@@ -1,6 +1,6 @@
 -- We define ZigZag-complete relations and prove that bisimulations
 -- give rise to equivalences on the set quotients.
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Relation.ZigZag.Base where
 
 open import Cubical.Core.Everything

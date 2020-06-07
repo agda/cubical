@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --guardedness #-}
+{-# OPTIONS --cubical --no-import-sorts --safe --guardedness #-}
 module Cubical.Codata.Stream.Properties where
 
 open import Cubical.Core.Everything

@@ -8,7 +8,7 @@ It would be interesting to compare the proves with the one in Cubical.Foundation
 
 
 
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Experiments.EscardoSIP where
 
 open import Cubical.Core.Everything

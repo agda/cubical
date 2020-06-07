@@ -5,7 +5,7 @@ Basic properties about Σ-types
 - Characterization of equality in Σ-types using transport ([pathSigma≡sigmaPath])
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Data.Sigma.Properties where
 
 open import Cubical.Data.Sigma.Base

@@ -5,7 +5,7 @@ This file contains:
 - Definition of set quotients
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.SetQuotients.Base where
 
 open import Cubical.Core.Primitives

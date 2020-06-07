@@ -8,7 +8,7 @@ A couple of general facts about equivalences:
 
 (these are not in 'Equiv.agda' because they need Univalence.agda (which imports Equiv.agda))
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Equiv.Properties where
 
 open import Cubical.Core.Everything
