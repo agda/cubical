@@ -22,38 +22,38 @@ private
 module over (R : Ring {ℓ}) where
   open ring-syntax
 
-  rawAlgebraStructure : Type ℓ → Type ℓ
-  rawAlgebraStructure = (addLeftMultiplication R) raw-ring-structure
+  raw-algebra-structure : Type ℓ → Type ℓ
+  raw-algebra-structure = (add-left-multiplication R) raw-ring-structure
 
-  rawAlgebraIsSNS : SNS {ℓ} rawAlgebraStructure _
+  rawAlgebraIsSNS : SNS {ℓ} raw-algebra-structure _
   rawAlgebraIsSNS = join-SNS (rawStrIsoScalarMultiplication R) (rawStrIsoScalarMultiplication-SNS R)
                              ring-StrIso raw-ring-is-SNS
 
-  algebraAxioms : (A : Type ℓ) (str : rawAlgebraStructure A) → Type ℓ
-  algebraAxioms A (_⋆_ , (_+_ , ₁ , _·_)) =
+  algebra-axioms : (A : Type ℓ) (str : raw-algebra-structure A) → Type ℓ
+  algebra-axioms A (_⋆_ , (_+_ , ₁ , _·_)) =
                ring-axioms A (_+_ , ₁ , _·_)
                × moduleAxioms R A (_⋆_ , _+_)
                × ((r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
                × ((r : ⟨ R ⟩) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y))
 
   algebraStructure : Type ℓ → Type ℓ
-  algebraStructure = add-to-structure rawAlgebraStructure algebraAxioms
+  algebraStructure = add-to-structure raw-algebra-structure algebra-axioms
 
-  algebraStrIso : StrIso rawAlgebraStructure ℓ
-  algebraStrIso = join-iso (rawStrIsoScalarMultiplication R) ring-StrIso
+  algebra-str-iso : StrIso raw-algebra-structure ℓ
+  algebra-str-iso = join-iso (rawStrIsoScalarMultiplication R) ring-StrIso
 
-  algebraIso : StrIso algebraStructure ℓ
-  algebraIso = add-to-iso algebraStrIso algebraAxioms
+  algebra-iso : StrIso algebraStructure ℓ
+  algebra-iso = add-to-iso algebra-str-iso algebra-axioms
 
-  algebraAxiomIsProp : (A : Type ℓ) (str : rawAlgebraStructure A)
-                       → isProp (algebraAxioms A str)
+  algebraAxiomIsProp : (A : Type ℓ) (str : raw-algebra-structure A)
+                       → isProp (algebra-axioms A str)
   algebraAxiomIsProp A (_⋆_ , (_+_ , ₁ , _·_)) =
                                        isPropΣ (ring-axioms-isProp A ((_+_ , ₁ , _·_)))
     λ ((((isSet-A , _), _) , _) , _) → isPropΣ (moduleAxiomsIsProp R A (_⋆_ , _+_))
                                  λ _ → isPropΣ (isPropΠ3 (λ _ _ _ → isSet-A _ _) )
                                           λ _ → isPropΠ3 (λ _ _ _ → isSet-A _ _)
 
-  algebraIsSNS : SNS {ℓ} algebraStructure algebraIso
+  algebraIsSNS : SNS {ℓ} algebraStructure algebra-iso
   algebraIsSNS = add-axioms-SNS _ algebraAxiomIsProp rawAlgebraIsSNS
 
 open over
@@ -61,5 +61,5 @@ Algebra : (R : Ring {ℓ}) → Type (ℓ-suc ℓ)
 Algebra {ℓ} R = TypeWithStr ℓ (algebraStructure R)
 
 AlgebraPath : (R : Ring {ℓ}) → (A B : Algebra {ℓ} R)
-              → (A ≃[ algebraIso R ] B) ≃ (A ≡ B)
+              → (A ≃[ algebra-iso R ] B) ≃ (A ≡ B)
 AlgebraPath R = SIP (algebraIsSNS R)

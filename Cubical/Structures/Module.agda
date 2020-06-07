@@ -18,15 +18,15 @@ private
   variable
     ℓ : Level
 
-addLeftMultiplication : Ring {ℓ} → (Type ℓ → Type ℓ) → Type ℓ → Type ℓ
-addLeftMultiplication R S A = (⟨ R ⟩ → A → A)
+add-left-multiplication : Ring {ℓ} → (Type ℓ → Type ℓ) → Type ℓ → Type ℓ
+add-left-multiplication R S A = (⟨ R ⟩ → A → A)
                               × S A
 
 module _ (R : Ring {ℓ}) where
   open explicit-ring-syntax
 
-  rawModuleStructure : Type ℓ → Type ℓ
-  rawModuleStructure = (addLeftMultiplication R) raw-group-structure
+  raw-module-structure : Type ℓ → Type ℓ
+  raw-module-structure = (add-left-multiplication R) raw-group-structure
 
 
   rawStrIsoScalarMultiplication : StrIso {ℓ} (λ A → (⟨ R ⟩ → A → A)) ℓ
@@ -46,14 +46,14 @@ module _ (R : Ring {ℓ}) where
     SNS-≡→SNS-PathP rawStrIsoScalarMultiplication
                     scalarMultiplicationFunExt
 
-  moduleAxioms : (M : Type ℓ) (str : rawModuleStructure M) → Type ℓ
+  moduleAxioms : (M : Type ℓ) (str : raw-module-structure M) → Type ℓ
   moduleAxioms M (_⋆_ , _+_) = abelian-group-axioms M _+_
                                × ((r s : ⟨ R ⟩) (x : M) → (r ·⟨ R ⟩ s) ⋆ x ≡ r ⋆ (s ⋆ x))
                                × ((r s : ⟨ R ⟩) (x : M) → (r +⟨ R ⟩ s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
                                × ((r : ⟨ R ⟩) (x y : M) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
                                × ((x : M) → ₁⟨ R ⟩ ⋆ x ≡ x)
 
-  moduleAxiomsIsProp : (M : Type ℓ) (str : rawModuleStructure M)
+  moduleAxiomsIsProp : (M : Type ℓ) (str : raw-module-structure M)
                        → isProp (moduleAxioms M str)
   moduleAxiomsIsProp M (_⋆_ , _+_) = isPropΣ (abelian-group-axioms-isProp M _+_)
     λ (((isSet-M , _) , _) , _)  →   isPropΣ (isPropΠ3 (λ _ _ _ → isSet-M _ _))
@@ -62,4 +62,4 @@ module _ (R : Ring {ℓ}) where
                                         λ _ → isPropΠ (λ _ → isSet-M _ _)
 
   moduleStructure : Type ℓ → Type ℓ
-  moduleStructure = add-to-structure rawModuleStructure moduleAxioms
+  moduleStructure = add-to-structure raw-module-structure moduleAxioms
