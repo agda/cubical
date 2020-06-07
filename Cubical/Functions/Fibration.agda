@@ -70,6 +70,6 @@ module _ {ℓb} (B : Type ℓb) (ℓ : Level) where
 fiber≡ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {f : A → B} {b : B} (h h' : fiber f b)
   → (h ≡ h') ≡ fiber (cong f) (h .snd ∙∙ refl ∙∙ sym (h' .snd))
 fiber≡ {f = f} h h' =
-  Σ≡ ⁻¹ ∙
+  ΣPath≡PathΣ ⁻¹ ∙
   cong (Σ (h .fst ≡ h' .fst)) (funExt λ p → flipSquarePath ∙ PathP≡doubleCompPathʳ _ _ _ _)
 

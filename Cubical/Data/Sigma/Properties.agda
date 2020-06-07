@@ -45,21 +45,21 @@ map-snd f (a , b) = (a , f b)
   → x ≡ y
 ΣPathP eq i = fst eq i , snd eq i
 
-Σ-iso : {x y : Σ A B}
+ΣPathIsoPathΣ : {x y : Σ A B}
   → Iso (Σ[ q ∈ fst x ≡ fst y ] (PathP (λ i → B (q i)) (snd x) (snd y)))
         (x ≡ y)
-fun Σ-iso = ΣPathP
-inv Σ-iso eq = (λ i → fst (eq i)) , (λ i → snd (eq i))
-rightInv Σ-iso x = refl {x = x}
-leftInv Σ-iso x = refl {x = x}
+fun ΣPathIsoPathΣ = ΣPathP
+inv ΣPathIsoPathΣ eq = (λ i → fst (eq i)) , (λ i → snd (eq i))
+rightInv ΣPathIsoPathΣ x = refl {x = x}
+leftInv ΣPathIsoPathΣ x = refl {x = x}
 
-Σ≃ : {x y : Σ A B} →
-     Σ (fst x ≡ fst y) (λ p → PathP (λ i → B (p i)) (snd x) (snd y)) ≃
-     (x ≡ y)
-Σ≃ = isoToEquiv Σ-iso
+ΣPath≃PathΣ : {x y : Σ A B}
+  → Σ (fst x ≡ fst y) (λ p → PathP (λ i → B (p i)) (snd x) (snd y)) ≃
+    (x ≡ y)
+ΣPath≃PathΣ = isoToEquiv ΣPathIsoPathΣ
 
-Σ≡ : {x y : Σ A B} → (Σ (fst x ≡ fst y) (λ q → PathP (λ i → B (q i)) (snd x) (snd y))) ≡ (x ≡ y)
-Σ≡ = ua Σ≃
+ΣPath≡PathΣ : {x y : Σ A B} → (Σ (fst x ≡ fst y) (λ q → PathP (λ i → B (q i)) (snd x) (snd y))) ≡ (x ≡ y)
+ΣPath≡PathΣ = ua ΣPath≃PathΣ
 
 Σ≡Prop : ((x : A) → isProp (B x)) → {u v : Σ A B}
        → (p : u .fst ≡ v .fst) → u ≡ v
@@ -73,7 +73,7 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
       where
         discreteΣ'' : (b1 : B a0) → Dec ((a0 , b0) ≡ (a0 , b1))
         discreteΣ'' b1 with Bdis a0 b0 b1
-        ... | (yes q) = yes (transport (ua Σ≃) (refl , q))
+        ... | (yes q) = yes (transport ΣPath≡PathΣ (refl , q))
         ... | (no ¬q) = no (λ r → ¬q (subst (λ X → PathP (λ i → B (X i)) b0 b1) (Discrete→isSet Adis a0 a0 (cong fst r) refl) (cong snd r)))
     discreteΣ' (no ¬p) = no (λ r → ¬p (cong fst r))
 
@@ -165,7 +165,9 @@ leftInv (Σ-cong-iso-snd isom) (x , y') = ΣPathP (refl , leftInv (isom x) y')
 
 ΣPathTransport≃PathΣ : (a b : Σ A B) → ΣPathTransport a b ≃ (a ≡ b)
 ΣPathTransport≃PathΣ {B = B} a b =
-  compEquiv (isoToEquiv (Σ-cong-iso-snd λ p → invIso (equivToIso (PathP≃Path (λ i → B (p i)) _ _)))) Σ≃
+  compEquiv
+    (isoToEquiv (Σ-cong-iso-snd λ p → invIso (equivToIso (PathP≃Path (λ i → B (p i)) _ _))))
+    ΣPath≃PathΣ
 
 ΣPathTransport→PathΣ : (a b : Σ A B) → ΣPathTransport a b → (a ≡ b)
 ΣPathTransport→PathΣ a b = ΣPathTransport≃PathΣ a b .fst
