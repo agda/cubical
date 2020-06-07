@@ -75,8 +75,8 @@ FinMatrix≡VecMatrix _ _ _ = ua FinMatrix≃VecMatrix
 -- operation with a more direct definition.
 module _ (R : CommRing {ℓ}) where
 
-  open commring-·syntax R
-  open commRingAxioms R
+  open comm-ring-syntax R
+  open comm-ring-axioms R
 
   addFinMatrix : ∀ {m n} → FinMatrix ⟨ R ⟩ m n → FinMatrix ⟨ R ⟩ m n → FinMatrix ⟨ R ⟩ m n
   addFinMatrix M N = λ k l → M k l + N k l

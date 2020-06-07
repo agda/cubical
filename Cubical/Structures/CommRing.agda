@@ -90,7 +90,7 @@ module comm-ring-axioms (R : CommRing {ℓ}) where
 
   commring-rdist = ring-rdist (CommRing→Ring R)
 
-module commring-operation-syntax where
+module comm-ring-explicit-syntax where
   open comm-ring-axioms
 
   commring+-operation-syntax : (R : CommRing {ℓ}) → ⟨ R ⟩ → ⟨ R ⟩ → ⟨ R ⟩
@@ -106,13 +106,13 @@ module commring-operation-syntax where
 commRingIsSet : (R : CommRing {ℓ}) → isSet (⟨ R ⟩)
 commRingIsSet R = ringIsSet (CommRing→Ring R)
 
-open commring-operation-syntax
+open comm-ring-explicit-syntax
 
 commring-comm : (R : CommRing {ℓ}) (x y : ⟨ R ⟩) → x ·⟨ R ⟩ y ≡ y ·⟨ R ⟩ x
 commring-comm (_ , _ , _ , P) = P
 
 -- CommRing syntax
 
-module commring-syntax (R : CommRing {ℓ}) where
+module comm-ring-syntax (R : CommRing {ℓ}) where
   open ring-syntax (CommRing→Ring R) public
   open comm-ring-axioms R
