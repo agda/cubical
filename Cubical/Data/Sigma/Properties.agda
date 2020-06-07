@@ -60,7 +60,7 @@ leftInv Σ-iso x = refl {x = x}
 Σ≃ = isoToEquiv Σ-iso
 
 Σ≡ : {x y : Σ A B} → (Σ (fst x ≡ fst y) (λ q → PathP (λ i → B (q i)) (snd x) (snd y))) ≡ (x ≡ y)
-Σ≡ = isoToPath Σ-iso -- ua Σ≃
+Σ≡ = ua Σ≃
 
 ΣProp≡ : ((x : A) → isProp (B x)) → {u v : Σ A B}
        → (p : u .fst ≡ v .fst) → u ≡ v
