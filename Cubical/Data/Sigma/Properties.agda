@@ -165,21 +165,18 @@ leftInv (Σ-ap-iso₂ isom) (x , y') = ΣPathP (refl , leftInv (isom x) y')
 ΣPathTransport {B = B} a b =
   Σ (fst a ≡ fst b) (λ p → transport (λ i → B (p i)) (snd a) ≡ snd b)
 
-_Σ≡T_ : (a b : Σ A B) → Type _
-a Σ≡T b = ΣPathTransport a b
-
-ΣPath≃pathΣ : (a b : Σ A B) → (a Σ≡T b) ≃ (a ≡ b)
-ΣPath≃pathΣ {B = B} a b =
+ΣPathTransport≃PathΣ : (a b : Σ A B) → ΣPathTransport a b ≃ (a ≡ b)
+ΣPathTransport≃PathΣ {B = B} a b =
   compEquiv (isoToEquiv (Σ-ap-iso₂ λ p → invIso (equivToIso (PathP≃Path (λ i → B (p i)) _ _)))) Σ≃
 
-ΣPath→pathΣ : (a b : Σ A B) → (a Σ≡T b) → (a ≡ b)
-ΣPath→pathΣ a b = ΣPath≃pathΣ a b .fst
+ΣPathTransport→PathΣ : (a b : Σ A B) → ΣPathTransport a b → (a ≡ b)
+ΣPathTransport→PathΣ a b = ΣPathTransport≃PathΣ a b .fst
 
-pathΣ→ΣPath : (a b : Σ A B) → (a ≡ b) → (a Σ≡T b)
-pathΣ→ΣPath a b = invEq (ΣPath≃pathΣ a b)
+PathΣ→ΣPathTransport : (a b : Σ A B) → (a ≡ b) → ΣPathTransport a b
+PathΣ→ΣPathTransport a b = invEq (ΣPathTransport≃PathΣ a b)
 
-ΣPath≡pathΣ : (a b : Σ A B) → (a Σ≡T b) ≡ (a ≡ b)
-ΣPath≡pathΣ a b = ua (ΣPath≃pathΣ a b)
+ΣPathTransport≡PathΣ : (a b : Σ A B) → ΣPathTransport a b ≡ (a ≡ b)
+ΣPathTransport≡PathΣ a b = ua (ΣPathTransport≃PathΣ a b)
 
 Σ-contractFst : (c : isContr A) → Σ A B ≃ B (c .fst)
 Σ-contractFst {B = B} c =
@@ -191,7 +188,7 @@ pathΣ→ΣPath a b = invEq (ΣPath≃pathΣ a b)
         cong (λ p → subst B p b) (isProp→isSet (isContr→isProp c) _ _ _ _)
         ∙ transportRefl _)
       (λ {(a , b) →
-        ΣPath≃pathΣ _ _ .fst (c .snd a , transportTransport⁻ (cong B (c .snd a)) _)}))
+        ΣPathTransport≃PathΣ _ _ .fst (c .snd a , transportTransport⁻ (cong B (c .snd a)) _)}))
 
 -- a special case of the above
 ΣUnit : ∀ {ℓ} (A : Unit → Type ℓ) → Σ Unit A ≃ A tt

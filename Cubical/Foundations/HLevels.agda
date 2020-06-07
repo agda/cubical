@@ -22,7 +22,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Equiv.HalfAdjoint  using (congEquiv)
 open import Cubical.Foundations.Univalence         using (ua; univalence)
 
-open import Cubical.Data.Sigma using (ΣPath≡pathΣ; _Σ≡T_; ΣProp≡; _×_)
+open import Cubical.Data.Sigma
 open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)
 
 private
@@ -232,10 +232,10 @@ isOfHLevelΣ : ∀ n → isOfHLevel n A → ((x : A) → isOfHLevel n (B x))
 isOfHLevelΣ 0 = isContrΣ
 isOfHLevelΣ 1 = isPropΣ
 isOfHLevelΣ {B = B} (suc (suc n)) h1 h2 x y =
-  let h3 : isOfHLevel (suc n) (x Σ≡T y)
+  let h3 : isOfHLevel (suc n) (ΣPathTransport x y)
       h3 = isOfHLevelΣ (suc n) (h1 (fst x) (fst y)) λ p → h2 (p i1)
                        (subst B p (snd x)) (snd y)
-  in transport (λ i → isOfHLevel (suc n) (ΣPath≡pathΣ x y i)) h3
+  in transport (λ i → isOfHLevel (suc n) (ΣPathTransport≡PathΣ x y i)) h3
 
 isSetΣ : isSet A → ((x : A) → isSet (B x)) → isSet (Σ A B)
 isSetΣ = isOfHLevelΣ 2
