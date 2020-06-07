@@ -157,7 +157,7 @@ private
     rotLemma (loop i) = refl
 
   d-mapComp : fiber d-map base ≡ Path (Susp (Susp S¹)) north north
-  d-mapComp = sym (pathSigma≡sigmaPath {B = HopfSuspS¹} _ _) ∙ helper
+  d-mapComp = ΣPathTransport≡PathΣ {B = HopfSuspS¹} _ _ ∙ helper
     where
     helper : Path (Σ (Susp S¹) λ x → HopfSuspS¹ x) (north , base) (north , base) ≡ Path (Susp (Susp S¹)) north north
     helper = (λ i → (Path (S³≡TotalHopf (~ i))

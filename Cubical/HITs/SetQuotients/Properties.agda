@@ -97,8 +97,9 @@ effective : (Rprop : isPropValued R) (Requiv : isEquivRel R) (a b : A) → [ a ]
 effective {A = A} {R = R} Rprop (EquivRel R/refl R/sym R/trans) a b p = transport aa≡ab (R/refl _)
   where
     helper : A / R → hProp _
-    helper = elim (λ _ → isSetHProp) (λ c → (R a c , Rprop a c))
-                              (λ c d cd → ΣProp≡ (λ _ → isPropIsProp)
+    helper =
+      elim (λ _ → isSetHProp) (λ c → (R a c , Rprop a c))
+                              (λ c d cd → Σ≡Prop (λ _ → isPropIsProp)
                                                  (ua (PropEquiv→Equiv (Rprop a c) (Rprop a d)
                                                                       (λ ac → R/trans _ _ _ ac cd) (λ ad → R/trans _ _ _ ad (R/sym _ _ cd)))))
 
