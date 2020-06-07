@@ -100,7 +100,7 @@ euclid< = WFI.induction <-wellfounded λ {
 euclid : ∀ m n → GCD m n
 euclid m n with n ≟ m
 ... | lt p = euclid< m n p
-... | gt p = Σ.mapʳ symGCD (euclid< n m p)
+... | gt p = Σ.map-snd symGCD (euclid< n m p)
 ... | eq p = m , divsGCD (∣-refl (sym p))
 
 isContrGCD : ∀ m n → isContr (GCD m n)

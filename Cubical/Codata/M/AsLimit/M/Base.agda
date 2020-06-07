@@ -87,10 +87,11 @@ leftInv (lemma11-Iso {ℓ = ℓ} {S = S} X l) (x , y) i =
 shift-iso : ∀ {ℓ} (S : Container ℓ) -> Iso (P₀ S (M S)) (M S)
 shift-iso S@(A , B) =
   P₀ S (M S)
-    Iso⟨ Σ-ap-iso₂ (λ x → iso (λ f → (λ n z → f z .fst n) , λ n i a → f a .snd n i)
-                               (λ (u , q) z → (λ n → u n z) , λ n i → q n i z)
-                              (λ _ → refl)
-                              (λ _ → refl)) ⟩
+    Iso⟨ Σ-cong-iso-snd
+         (λ x → iso (λ f → (λ n z → f z .fst n) , λ n i a → f a .snd n i)
+                    (λ (u , q) z → (λ n → u n z) , λ n i → q n i z)
+                    (λ _ → refl)
+                    (λ _ → refl)) ⟩
   (Σ[ a ∈ A ] (Σ[ u ∈ ((n : ℕ) → B a → X (sequence S) n) ] ((n : ℕ) → π (sequence S) ∘ (u (suc n)) ≡ u n)))
     Iso⟨ invIso α-iso-step-5-Iso ⟩
   (Σ[ a ∈ (Σ[ a ∈ ((n : ℕ) → A) ] ((n : ℕ) → a (suc n) ≡ a n)) ]
@@ -148,8 +149,8 @@ shift-iso S@(A , B) =
                                   (u n)))
             (Σ[ a ∈ A ] (Σ[ u ∈ ((n : ℕ) → B a → X (sequence S) n) ] ((n : ℕ) → π (sequence S) ∘ (u (suc n)) ≡ u n)))
       α-iso-step-5-Iso =
-        Σ-ap-iso (lemma11-Iso {S = S} (λ _ → A) (λ _ x → x)) (λ a,p →
-          Σ-ap-iso (pathToIso (cong (λ k → (n : ℕ) → k n) (funExt λ n → cong (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 (a,p .fst) (a,p .snd) n)))) λ u →
+        Σ-cong-iso (lemma11-Iso {S = S} (λ _ → A) (λ _ x → x)) (λ a,p →
+          Σ-cong-iso (pathToIso (cong (λ k → (n : ℕ) → k n) (funExt λ n → cong (λ k → B k → Wₙ S n) (α-iso-step-5-Iso-helper0 (a,p .fst) (a,p .snd) n)))) λ u →
                               pathToIso (cong (λ k → (n : ℕ) → k n) (funExt λ n → isoToPath (α-iso-step-5-Iso-helper1-Iso (a,p .fst) (a,p .snd) u n))))
 
       α-iso-step-1-4-Iso-lem-12 :
