@@ -40,7 +40,7 @@ private
 
 m≤n-isProp : isProp (m ≤ n)
 m≤n-isProp {m} {n} (k , p) (l , q)
-  = ΣProp≡ witness-prop lemma
+  = Σ≡Prop witness-prop lemma
   where
   lemma : k ≡ l
   lemma = inj-+m (p ∙ (sym q))
@@ -212,7 +212,7 @@ module _
       = case dichotomy b n return (λ d → d ≡ inr (m , p)) of λ
       { (inl n<b) → ⊥.rec (<-asym n<b (m , +-comm m b ∙ sym p))
       ; (inr (m' , q))
-      → cong inr (ΣProp≡ (λ x → isSetℕ n (b + x)) (inj-m+ {m = b} (sym q ∙ p)))
+      → cong inr (Σ≡Prop (λ x → isSetℕ n (b + x)) (inj-m+ {m = b} (sym q ∙ p)))
       }
 
     b = suc b₀

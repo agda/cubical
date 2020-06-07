@@ -87,9 +87,9 @@ Order-is-SNS {ℓ = ℓ} {ℓ₁ = ℓ₁} {X = X}  _⊑₀_ _⊑₁_ =
 
         NTS : (fib : fiber f p) → ((to , from) , eq) ≡ fib
         NTS ((φ , ψ) , eq) =
-          ΣProp≡
+          Σ≡Prop
             (λ i′ → isOfHLevelSuc 2 (isSetOrder ℓ₁ X) _⊑₀_ _⊑₁_ (f i′) p)
-            (ΣProp≡
+            (Σ≡Prop
                (λ _ → isPropIsOrderPreserving (X , _⊑₁_) (X , _⊑₀_) (idfun _))
                (isPropIsOrderPreserving (X , _⊑₀_) (X , _⊑₁_) (idfun _) to φ))
 
@@ -198,7 +198,7 @@ forget-mono : (P : Poset ℓ₀ ℓ₁) (Q : Poset ℓ₀′ ℓ₁′)
             → f ≡ g
             → (f , f-mono) ≡ (g , g-mono)
 forget-mono P Q (f , f-mono) (g , g-mono) =
-  ΣProp≡ (λ f → isPropΠ3 λ x y x⊑y → snd (f x ⊑[ Q ] f y))
+  Σ≡Prop (λ f → isPropΠ3 λ x y x⊑y → snd (f x ⊑[ Q ] f y))
 
 module PosetReasoning (P : Poset ℓ₀ ℓ₁) where
 
@@ -261,7 +261,7 @@ isPosetIso P Q (f , _) = Σ[ (g , _) ∈ (Q ─m→ P) ] section f g × retract 
 isPosetIso-prop : (P Q : Poset ℓ₀ ℓ₁) (f : P ─m→ Q)
                 → isProp (isPosetIso P Q f)
 isPosetIso-prop P Q (f , f-mono) (g₀ , sec₀ , ret₀) (g₁ , sec₁ , ret₁) =
-  ΣProp≡ NTS g₀=g₁
+  Σ≡Prop NTS g₀=g₁
   where
     NTS : ((g , _) : Q ─m→ P) → isProp (section f g × retract f g)
     NTS (g , g-mono) = isPropΣ
@@ -307,10 +307,10 @@ P ≅ₚ Q = Σ[ f ∈ P ─m→ Q ] isPosetIso P Q f
         is = iso f g sec ret
 
     sec : section to from
-    sec (f , _) = ΣProp≡ (isPosetIso-prop P Q) refl
+    sec (f , _) = Σ≡Prop (isPosetIso-prop P Q) refl
 
     ret : retract to from
-    ret (e , _) = ΣProp≡ (isPropIsAMonotonicEqv P Q) (ΣProp≡ isPropIsEquiv refl)
+    ret (e , _) = Σ≡Prop (isPropIsAMonotonicEqv P Q) (Σ≡Prop isPropIsEquiv refl)
 
 -- Once we have this equivalence, the main result is then: the type of poset
 -- isomorphisms between `P` and `Q` is equivalent to the type of identity proofs

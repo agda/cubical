@@ -48,7 +48,7 @@ isPropIsGCD = isProp× isPropIsCD (isPropΠ2 (λ _ _ → isProp∣))
 
 isPropGCD : isProp (GCD m n)
 isPropGCD (d , dCD , gr) (d' , d'CD , gr') =
-  ΣProp≡ (λ _ → isPropIsGCD) (antisym∣ (gr' d dCD) (gr d' d'CD))
+  Σ≡Prop (λ _ → isPropIsGCD) (antisym∣ (gr' d dCD) (gr d' d'CD))
 
 
 symGCD : isGCD m n d → isGCD n m d

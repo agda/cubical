@@ -129,7 +129,7 @@ module SetElim (Bset : isSet B) where
   eqv : (g : Σ (A → B) 2-Constant)
       → ∀ fi → fib g ≡ fi
   eqv g (f , p) =
-    ΣProp≡ (λ f → isOfHLevelΣ 2 Fset Kset _ _)
+    Σ≡Prop (λ f → isOfHLevelΣ 2 Fset Kset _ _)
       (cong (uncurry rec→Set) (sym p) ∙ setRecLemma f)
 
   trunc→Set≃ : (∥ A ∥ → B) ≃ (Σ (A → B) 2-Constant)

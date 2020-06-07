@@ -38,7 +38,7 @@ suc m ∣' n = Σ[ c ∈ ℕ ] c * suc m ≡ n
 isProp∣' : isProp (m ∣' n)
 isProp∣' {zero} {n} = isSetℕ _ _
 isProp∣' {suc m} {n} (c₁ , p₁) (c₂ , p₂) =
-  ΣProp≡ (λ _ → isSetℕ _ _) (inj-*sm {c₁} {m} {c₂} (p₁ ∙ sym p₂))
+  Σ≡Prop (λ _ → isSetℕ _ _) (inj-*sm {c₁} {m} {c₂} (p₁ ∙ sym p₂))
 
 ∣≃∣' : (m ∣ n) ≃ (m ∣' n)
 ∣≃∣' {zero} = PropEquiv→Equiv isProp∣ isProp∣'

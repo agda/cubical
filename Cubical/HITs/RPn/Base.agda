@@ -62,8 +62,8 @@ Bool* = Bool , ∣ idEquiv _ ∣
 isContr-BoolPointedIso : ∀ x → isContr ((Bool , false) ≃[ pointed-iso ] (Bool , x))
 fst (isContr-BoolPointedIso x) = ((λ y → x ⊕ y) , isEquiv-⊕ x) , ⊕-comm x false
 snd (isContr-BoolPointedIso x) (e , p)
-  = ΣProp≡ (λ e → isSetBool (equivFun e false) x)
-           (ΣProp≡ isPropIsEquiv (funExt λ { false → ⊕-comm x false ∙ sym p
+  = Σ≡Prop (λ e → isSetBool (equivFun e false) x)
+           (Σ≡Prop isPropIsEquiv (funExt λ { false → ⊕-comm x false ∙ sym p
                                            ; true  → ⊕-comm x true  ∙ sym q }))
   where q : e .fst true ≡ not x
         q with dichotomyBool (invEq e (not x))

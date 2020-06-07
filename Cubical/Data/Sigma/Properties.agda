@@ -61,9 +61,9 @@ leftInv Σ-iso x = refl {x = x}
 Σ≡ : {x y : Σ A B} → (Σ (fst x ≡ fst y) (λ q → PathP (λ i → B (q i)) (snd x) (snd y))) ≡ (x ≡ y)
 Σ≡ = ua Σ≃
 
-ΣProp≡ : ((x : A) → isProp (B x)) → {u v : Σ A B}
+Σ≡Prop : ((x : A) → isProp (B x)) → {u v : Σ A B}
        → (p : u .fst ≡ v .fst) → u ≡ v
-ΣProp≡ pB {u} {v} p i = (p i) , isProp→PathP (λ i → pB (p i)) (u .snd) (v .snd) i
+Σ≡Prop pB {u} {v} p i = (p i) , isProp→PathP (λ i → pB (p i)) (u .snd) (v .snd) i
 
 discreteΣ : Discrete A → ((a : A) → Discrete (B a)) → Discrete (Σ A B)
 discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
