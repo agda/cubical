@@ -46,21 +46,21 @@ mapˡ f (a , b) = (f a , b)
   → x ≡ y
 ΣPathP eq i = fst eq i , snd eq i
 
-Σ-split-iso : {x y : Σ A B}
+Σ-iso : {x y : Σ A B}
   → Iso (Σ[ q ∈ fst x ≡ fst y ] (PathP (λ i → B (q i)) (snd x) (snd y)))
-         (x ≡ y)
-fun (Σ-split-iso) = ΣPathP
-inv (Σ-split-iso) eq = (λ i → fst (eq i)) , (λ i → snd (eq i))
-rightInv (Σ-split-iso) x = refl {x = x}
-leftInv (Σ-split-iso) x = refl {x = x}
+        (x ≡ y)
+fun Σ-iso = ΣPathP
+inv Σ-iso eq = (λ i → fst (eq i)) , (λ i → snd (eq i))
+rightInv Σ-iso x = refl {x = x}
+leftInv Σ-iso x = refl {x = x}
 
 Σ≃ : {x y : Σ A B} →
      Σ (fst x ≡ fst y) (λ p → PathP (λ i → B (p i)) (snd x) (snd y)) ≃
      (x ≡ y)
-Σ≃ = isoToEquiv (Σ-split-iso)
+Σ≃ = isoToEquiv Σ-iso
 
 Σ≡ : {x y : Σ A B} → (Σ (fst x ≡ fst y) (λ q → PathP (λ i → B (q i)) (snd x) (snd y))) ≡ (x ≡ y)
-Σ≡ = isoToPath Σ-split-iso -- ua Σ≃
+Σ≡ = isoToPath Σ-iso -- ua Σ≃
 
 ΣProp≡ : ((x : A) → isProp (B x)) → {u v : Σ A B}
        → (p : u .fst ≡ v .fst) → u ≡ v
