@@ -355,7 +355,7 @@ Subset→Embedding→Subset : {X : Type ℓ} → section (Embedding→Subset {�
 Subset→Embedding→Subset _ = funExt λ x → ΣProp≡ (λ _ → FP.isPropIsProp) (ua (Fib.FiberIso.fiberEquiv _ x))
 
 Embedding→Subset→Embedding : {X : Type ℓ} → retract (Embedding→Subset {ℓ} {X}) (Subset→Embedding {ℓ} {X})
-Embedding→Subset→Embedding {ℓ = ℓ} {X = X} (A , f , ψ) = cong (assocΣ .fst) p
+Embedding→Subset→Embedding {ℓ = ℓ} {X = X} (A , f , ψ) = cong (Σ-assoc .fst) p
  where
  χ = Subset→Embedding (Embedding→Subset (A , f , ψ)) .snd .snd
 

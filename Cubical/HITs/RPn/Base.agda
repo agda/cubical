@@ -252,12 +252,12 @@ TotalCov≃Sn (ℕ→ℕ₋₁ n) =
     This was proved above by ⊕*.isEquivˡ.
 -}
     u : ∀ {n} → (Σ[ x ∈ Total (cov⁻¹ n) ] typ (cov⁻¹ n (fst x))) ≃ (Total (cov⁻¹ n) × Bool)
-    u {n} = Σ[ x ∈ Total (cov⁻¹ n) ] typ (cov⁻¹ n (fst x))      ≃⟨ assocΣ ⟩
+    u {n} = Σ[ x ∈ Total (cov⁻¹ n) ] typ (cov⁻¹ n (fst x))      ≃⟨ Σ-assoc ⟩
             Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ Σ-cong-equiv-snd (λ x → swapΣEquiv) ⟩
             Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ Σ-cong-equiv-snd
                                                                    (λ x → Σ-cong-equiv-snd
                                                                      (λ y → ⊕*.Equivˡ (cov⁻¹ n x) y)) ⟩
-            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × Bool              ≃⟨ invEquiv assocΣ ⟩
+            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × Bool              ≃⟨ invEquiv Σ-assoc ⟩
             Total (cov⁻¹ n) × Bool                              ■
 
     H : ∀ x → u .fst x ≡ (Σf x , snd (Σg x))
