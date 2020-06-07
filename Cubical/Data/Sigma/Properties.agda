@@ -29,7 +29,7 @@ open Iso
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A A' : Type ℓ
     B B' : (a : A) → Type ℓ
     C : (a : A) (b : B a) → Type ℓ
@@ -95,13 +95,10 @@ PiΣ = isoToEquiv (iso (λ f → fst ∘ f , snd ∘ f)
                       (λ (f , g) → (λ x → f x , g x))
                       (λ _ → refl) (λ _ → refl))
 
-swapΣEquiv : ∀ {ℓ'} (A : Type ℓ) (B : Type ℓ') → A × B ≃ B × A
-swapΣEquiv A B = isoToEquiv (iso (λ x → x .snd , x .fst) (λ z → z .snd , z .fst) (\ _ → refl) (\ _ → refl))
+swapΣEquiv : A × A' ≃ A' × A
+swapΣEquiv = isoToEquiv (iso (λ x → x .snd , x .fst) (λ z → z .snd , z .fst) (\ _ → refl) (\ _ → refl))
 
-Σ-ap-iso₁ : ∀ {ℓ} {ℓ'} {A A' : Type ℓ} {B : A' → Type ℓ'}
-          → (isom : Iso A A')
-          → Iso (Σ A (B ∘ (fun isom)))
-                (Σ A' B)
+Σ-ap-iso₁ : (isom : Iso A A') → Iso (Σ A (B ∘ (fun isom))) (Σ A' B)
 fun (Σ-ap-iso₁ isom) x = (fun isom) (x .fst) , x .snd
 inv (Σ-ap-iso₁ {B = B} isom) x = (inv isom) (x .fst) , subst B (sym (ε' (x .fst))) (x .snd)
   where
@@ -147,23 +144,20 @@ leftInv (Σ-ap-iso₂ isom) (x , y') = ΣPathP (refl , leftInv (isom x) y')
 Σ-ap₂ : ((x : A) → B x ≡ B' x) → Σ A B ≡ Σ A B'
 Σ-ap₂ {A = A} p i = Σ[ x ∈ A ] (p x i)
 
-Σ-ap-iso :
-  ∀ {ℓ ℓ'} {A A' : Type ℓ}
-  → {B : A → Type ℓ'} {B' : A' → Type ℓ'}
+Σ-ap-iso : {A A' : Type ℓ} {B : A → Type ℓ'} {B' : A' → Type ℓ'}
   → (isom : Iso A A')
   → ((x : A) → Iso (B x) (B' (fun isom x)))
   ------------------------
   → Iso (Σ A B) (Σ A' B')
 Σ-ap-iso isom isom' = compIso (Σ-ap-iso₂ isom') (Σ-ap-iso₁ isom)
 
-Σ-ap' :
-  ∀ {ℓ ℓ'} {X X' : Type ℓ} {Y : X → Type ℓ'} {Y' : X' → Type ℓ'}
-  → (isom : X ≡ X')
-  → (PathP (λ i → isom i → Type ℓ') Y Y')
+Σ-ap' : {A A' : Type ℓ} {Y : A → Type ℓ'} {Y' : A' → Type ℓ'}
+  → (p : A ≡ A')
+  → (PathP (λ i → p i → Type ℓ') Y Y')
   ----------
-  → (Σ X Y)
-  ≡ (Σ X' Y')
-Σ-ap'  {ℓ} {ℓ'} isom isom' = cong₂ (λ (a : Type ℓ) (b : a → Type ℓ') → Σ a λ x → b x) isom isom'
+  → (Σ A Y)
+  ≡ (Σ A' Y')
+Σ-ap' p p' = cong₂ (λ (a : Type _) (b : a → Type _) → Σ a λ x → b x) p p'
 
 -- Alternative version for path in Σ-types, as in the HoTT book
 
@@ -187,8 +181,7 @@ pathΣ→ΣPath a b = invEq (ΣPath≃pathΣ a b)
 ΣPath≡pathΣ : (a b : Σ A B) → (a Σ≡T b) ≡ (a ≡ b)
 ΣPath≡pathΣ a b = ua (ΣPath≃pathΣ a b)
 
-Σ-contractFst : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} (c : isContr A)
-  → Σ A B ≃ B (c .fst)
+Σ-contractFst : (c : isContr A) → Σ A B ≃ B (c .fst)
 Σ-contractFst {B = B} c =
   isoToEquiv
     (iso
