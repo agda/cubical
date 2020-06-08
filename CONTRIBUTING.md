@@ -25,11 +25,10 @@ When preparing a PR here are some general guidelines:
   of the file. All definitions should be maximally universe
   polymorphic.
 
-- Make reasonably many arguments implicit, but don't overdo it. If you
-  find yourself having to provide some argument explicitly most of the
-  time then it should not be implicit. The same applies the other way
-  around, if some argument most often can be replaced by `_` then it
-  should be made implicit.
+- Make reasonably many arguments implicit. If you find yourself having
+  to provide some argument explicitly most of the time then it should
+  not be implicit. The same applies the other way around, if some argument
+  most often can be replaced by `_` then it should be made implicit.
 
 - Use `Type ℓ` for universes (so `Set ℓ` is not allowed in order to
   avoid confusion with the type of h-sets).
