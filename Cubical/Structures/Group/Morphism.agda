@@ -73,8 +73,8 @@ isGroupHomInv G H  ((f , eq) , morph) h h' = isInj-f _ _ (
   isInj-f : (x y : ⟨ G ⟩) → f x ≡ f y → x ≡ y
   isInj-f x y = invEq (_ , isEquiv→isEmbedding eq x y)
 
-invGroup : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupIso G H → GroupIso H G
-invGroup G H (f , morph) = invEquiv f , isGroupHomInv G H (f , morph)
+invGroupIso : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupIso G H → GroupIso H G
+invGroupIso G H (f , morph) = invEquiv f , isGroupHomInv G H (f , morph)
 
 -- Homomorphism and Isomorphism equality
 groupHomEq : (G : Group {ℓ}) (H : Group {ℓ'}) (f g : GroupHom G H) → (fst f ≡ fst g) → f ≡ g

@@ -6,10 +6,14 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Structures.Group.Base
 
 module GroupLemmas {ℓ : Level} (G : Group {ℓ}) where
+  op = group-operation G
   _⨀_ = group-operation G
   id = group-id G
   inv = group-inv G
   abstract
+    set : isSet ⟨ G ⟩
+    set = group-is-set G
+
     lUnit : (a : ⟨ G ⟩) → a ≡ id ⨀ a
     lUnit a = sym (group-lid G a)
     
