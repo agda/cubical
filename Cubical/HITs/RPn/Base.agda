@@ -62,8 +62,8 @@ Bool* = Bool , ∣ idEquiv _ ∣
 isContr-BoolPointedIso : ∀ x → isContr ((Bool , false) ≃[ pointed-iso ] (Bool , x))
 fst (isContr-BoolPointedIso x) = ((λ y → x ⊕ y) , isEquiv-⊕ x) , ⊕-comm x false
 snd (isContr-BoolPointedIso x) (e , p)
-  = ΣProp≡ (λ e → isSetBool (equivFun e false) x)
-           (ΣProp≡ isPropIsEquiv (funExt λ { false → ⊕-comm x false ∙ sym p
+  = Σ≡Prop (λ e → isSetBool (equivFun e false) x)
+           (Σ≡Prop isPropIsEquiv (funExt λ { false → ⊕-comm x false ∙ sym p
                                            ; true  → ⊕-comm x true  ∙ sym q }))
   where q : e .fst true ≡ not x
         q with dichotomyBool (invEq e (not x))
@@ -227,7 +227,7 @@ TotalCov≃Sn (ℕ→ℕ₋₁ n) =
       where open ⊕* (cov⁻¹ (-1+ n) x)
 
     i : Total (cov⁻¹ (ℕ→ℕ₋₁ n)) ≃ Pushout Σf Σg
-    i = (Σ[ x ∈ RP (ℕ→ℕ₋₁ n) ] typ (cov⁻¹ (ℕ→ℕ₋₁ n) x)) ≃⟨ congΣEquiv cov⁻¹≃E ⟩
+    i = (Σ[ x ∈ RP (ℕ→ℕ₋₁ n) ] typ (cov⁻¹ (ℕ→ℕ₋₁ n) x)) ≃⟨ Σ-cong-equiv-snd cov⁻¹≃E ⟩
         (Σ[ x ∈ RP (ℕ→ℕ₋₁ n) ] E x)                     ≃⟨ flatten ⟩
         Pushout Σf Σg                                   ■
 {-
@@ -252,11 +252,12 @@ TotalCov≃Sn (ℕ→ℕ₋₁ n) =
     This was proved above by ⊕*.isEquivˡ.
 -}
     u : ∀ {n} → (Σ[ x ∈ Total (cov⁻¹ n) ] typ (cov⁻¹ n (fst x))) ≃ (Total (cov⁻¹ n) × Bool)
-    u {n} = Σ[ x ∈ Total (cov⁻¹ n) ] typ (cov⁻¹ n (fst x))      ≃⟨ assocΣ ⟩
-            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ congΣEquiv (λ x → swapΣEquiv _ _) ⟩
-            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ congΣEquiv (λ x → congΣEquiv (λ y →
-                                                                             ⊕*.Equivˡ (cov⁻¹ n x) y)) ⟩
-            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × Bool              ≃⟨ invEquiv assocΣ ⟩
+    u {n} = Σ[ x ∈ Total (cov⁻¹ n) ] typ (cov⁻¹ n (fst x))      ≃⟨ Σ-assoc ⟩
+            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ Σ-cong-equiv-snd (λ x → swapΣEquiv) ⟩
+            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ Σ-cong-equiv-snd
+                                                                   (λ x → Σ-cong-equiv-snd
+                                                                     (λ y → ⊕*.Equivˡ (cov⁻¹ n x) y)) ⟩
+            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × Bool              ≃⟨ invEquiv Σ-assoc ⟩
             Total (cov⁻¹ n) × Bool                              ■
 
     H : ∀ x → u .fst x ≡ (Σf x , snd (Σg x))

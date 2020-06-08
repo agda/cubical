@@ -13,7 +13,7 @@ open import Cubical.Relation.Nullary.DecidableEq
 private
   variable
     ℓ : Level
-    A : Type₀
+    A : Type ℓ
 
 
 
@@ -86,32 +86,32 @@ AssocList≡FMSet = ua AssocList≃FMSet
 
 
 
--- We want to define a multiset structure on AssocList A, we use the recursor to define the membership-function
-ALmember-⟨,⟩∷*-aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ → ℕ
-ALmember-⟨,⟩∷*-aux a x (yes a≡x) n xs = n + xs
-ALmember-⟨,⟩∷*-aux a x (no  a≢x) n xs = xs
+-- We want to define a multiset structure on AssocList A, we use the recursor to define the count-function
+ALcount-⟨,⟩∷*-aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ → ℕ
+ALcount-⟨,⟩∷*-aux a x (yes a≡x) n xs = n + xs
+ALcount-⟨,⟩∷*-aux a x (no  a≢x) n xs = xs
 
 
-ALmember-per*-aux :  (a x y : A) (xs : ℕ) (p : Dec (a ≡ x)) (q : Dec (a ≡ y))
-                   →  ALmember-⟨,⟩∷*-aux a x p 1 (ALmember-⟨,⟩∷*-aux a y q 1 xs)
-                    ≡ ALmember-⟨,⟩∷*-aux a y q 1 (ALmember-⟨,⟩∷*-aux a x p 1 xs)
-ALmember-per*-aux a x y xs (yes a≡x) (yes a≡y) = refl
-ALmember-per*-aux a x y xs (yes a≡x) (no  a≢y) = refl
-ALmember-per*-aux a x y xs (no  a≢x) (yes a≡y) = refl
-ALmember-per*-aux a x y xs (no  a≢x) (no  a≢y) = refl
+ALcount-per*-aux :  (a x y : A) (xs : ℕ) (p : Dec (a ≡ x)) (q : Dec (a ≡ y))
+                   →  ALcount-⟨,⟩∷*-aux a x p 1 (ALcount-⟨,⟩∷*-aux a y q 1 xs)
+                    ≡ ALcount-⟨,⟩∷*-aux a y q 1 (ALcount-⟨,⟩∷*-aux a x p 1 xs)
+ALcount-per*-aux a x y xs (yes a≡x) (yes a≡y) = refl
+ALcount-per*-aux a x y xs (yes a≡x) (no  a≢y) = refl
+ALcount-per*-aux a x y xs (no  a≢x) (yes a≡y) = refl
+ALcount-per*-aux a x y xs (no  a≢x) (no  a≢y) = refl
 
 
-ALmember-agg*-aux :  (a x : A) (m n xs : ℕ) (p : Dec (a ≡ x))
-                   →  ALmember-⟨,⟩∷*-aux a x p m (ALmember-⟨,⟩∷*-aux a x p n xs)
-                    ≡ ALmember-⟨,⟩∷*-aux a x p (m + n) xs
-ALmember-agg*-aux a x m n xs (yes x≡a) = +-assoc m n xs
-ALmember-agg*-aux a x m n xs (no  x≢a) = refl
+ALcount-agg*-aux :  (a x : A) (m n xs : ℕ) (p : Dec (a ≡ x))
+                   →  ALcount-⟨,⟩∷*-aux a x p m (ALcount-⟨,⟩∷*-aux a x p n xs)
+                    ≡ ALcount-⟨,⟩∷*-aux a x p (m + n) xs
+ALcount-agg*-aux a x m n xs (yes x≡a) = +-assoc m n xs
+ALcount-agg*-aux a x m n xs (no  x≢a) = refl
 
 
-ALmember-del*-aux :  (a x : A) (xs : ℕ) (p : Dec (a ≡ x))
-                   →  ALmember-⟨,⟩∷*-aux a x p 0 xs ≡ xs
-ALmember-del*-aux a x xs (yes a≡x) = refl
-ALmember-del*-aux a x xs (no  a≢x) = refl
+ALcount-del*-aux :  (a x : A) (xs : ℕ) (p : Dec (a ≡ x))
+                   →  ALcount-⟨,⟩∷*-aux a x p 0 xs ≡ xs
+ALcount-del*-aux a x xs (yes a≡x) = refl
+ALcount-del*-aux a x xs (no  a≢x) = refl
 
 
 
@@ -120,60 +120,60 @@ module _(discA : Discrete A) where
 
 
 
- ALmember-⟨,⟩∷* : A → A → ℕ → ℕ → ℕ
- ALmember-⟨,⟩∷* a x n xs = ALmember-⟨,⟩∷*-aux a x (discA a x) n xs
+ ALcount-⟨,⟩∷* : A → A → ℕ → ℕ → ℕ
+ ALcount-⟨,⟩∷* a x n xs = ALcount-⟨,⟩∷*-aux a x (discA a x) n xs
 
 
- ALmember-per* :  (a x y : A) (xs : ℕ)
-                →  ALmember-⟨,⟩∷* a x 1 (ALmember-⟨,⟩∷* a y 1 xs)
-                 ≡ ALmember-⟨,⟩∷* a y 1 (ALmember-⟨,⟩∷* a x 1 xs)
- ALmember-per* a x y xs = ALmember-per*-aux a x y xs (discA a x) (discA a y)
+ ALcount-per* :  (a x y : A) (xs : ℕ)
+                →  ALcount-⟨,⟩∷* a x 1 (ALcount-⟨,⟩∷* a y 1 xs)
+                 ≡ ALcount-⟨,⟩∷* a y 1 (ALcount-⟨,⟩∷* a x 1 xs)
+ ALcount-per* a x y xs = ALcount-per*-aux a x y xs (discA a x) (discA a y)
 
 
- ALmember-agg* :  (a x : A) (m n xs : ℕ)
-                →  ALmember-⟨,⟩∷* a x m (ALmember-⟨,⟩∷* a x n xs)
-                 ≡ ALmember-⟨,⟩∷* a x (m + n) xs
- ALmember-agg* a x m n xs = ALmember-agg*-aux a x m n xs (discA a x)
+ ALcount-agg* :  (a x : A) (m n xs : ℕ)
+                →  ALcount-⟨,⟩∷* a x m (ALcount-⟨,⟩∷* a x n xs)
+                 ≡ ALcount-⟨,⟩∷* a x (m + n) xs
+ ALcount-agg* a x m n xs = ALcount-agg*-aux a x m n xs (discA a x)
 
 
- ALmember-del* :  (a x : A) (xs : ℕ) → ALmember-⟨,⟩∷* a x 0 xs ≡ xs
- ALmember-del* a x xs = ALmember-del*-aux a x xs (discA a x)
+ ALcount-del* :  (a x : A) (xs : ℕ) → ALcount-⟨,⟩∷* a x 0 xs ≡ xs
+ ALcount-del* a x xs = ALcount-del*-aux a x xs (discA a x)
 
 
- ALmember : A → AssocList A → ℕ
- ALmember a = AL.Rec.f isSetℕ 0 (ALmember-⟨,⟩∷* a) (ALmember-per* a) (ALmember-agg* a) (ALmember-del* a)
+ ALcount : A → AssocList A → ℕ
+ ALcount a = AL.Rec.f isSetℕ 0 (ALcount-⟨,⟩∷* a) (ALcount-per* a) (ALcount-agg* a) (ALcount-del* a)
 
 
 
  AL-with-str : Multi-Set A setA
- AL-with-str = (AssocList A , ⟨⟩ , ⟨_, 1 ⟩∷_ , ALmember)
+ AL-with-str = (AssocList A , ⟨⟩ , ⟨_, 1 ⟩∷_ , ALcount)
 
 
 -- We want to show that Al-with-str ≅ FMS-with-str as multiset-structures
  FMS→AL-isIso : multi-set-iso A setA (FMS-with-str discA) (AL-with-str) FMSet≃AssocList
  FMS→AL-isIso = refl , (λ a xs → refl) , φ
   where
-  φ : ∀ a xs → FMSmember discA a xs ≡ ALmember a (FMS→AL xs)
+  φ : ∀ a xs → FMScount discA a xs ≡ ALcount a (FMS→AL xs)
   φ a = FMS.ElimProp.f (isSetℕ _ _) refl ψ
    where
    χ :  (x : A) (xs ys : ℕ) (p : Dec (a ≡ x))
       → xs ≡ ys
-      → FMSmember-∷*-aux a x p xs ≡ ALmember-⟨,⟩∷*-aux a x p 1 ys
+      → FMScount-∷*-aux a x p xs ≡ ALcount-⟨,⟩∷*-aux a x p 1 ys
    χ x xs ys (yes p) q = cong suc q
    χ x xs ys (no ¬p) q = q
 
    ψ :  (x : A) {xs : FMSet A}
-      → FMSmember discA a xs ≡ ALmember a (FMS→AL xs)
-      → FMSmember discA a (x ∷ xs) ≡ ALmember a (FMS→AL (x ∷ xs))
+      → FMScount discA a xs ≡ ALcount a (FMS→AL xs)
+      → FMScount discA a (x ∷ xs) ≡ ALcount a (FMS→AL (x ∷ xs))
    ψ x {xs} p = subst B α θ
     where
-    B = λ ys → FMSmember discA a (x ∷ xs) ≡ ALmember a ys
+    B = λ ys → FMScount discA a (x ∷ xs) ≡ ALcount a ys
 
     α : ⟨ x , 1 ⟩∷ FMS→AL xs ≡ FMS→AL (x ∷ xs)
     α = sym (multi-∷-id x 1 xs)
 
-    θ : FMSmember discA a (x ∷ xs) ≡ ALmember a (⟨ x , 1 ⟩∷ (FMS→AL xs))
-    θ = χ x (FMSmember discA a xs) (ALmember a (FMS→AL xs)) (discA a x) p
+    θ : FMScount discA a (x ∷ xs) ≡ ALcount a (⟨ x , 1 ⟩∷ (FMS→AL xs))
+    θ = χ x (FMScount discA a xs) (ALcount a (FMS→AL xs)) (discA a x) p
 
 
 

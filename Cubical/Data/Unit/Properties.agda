@@ -10,6 +10,9 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Unit.Base
 open import Cubical.Data.Prod.Base
 
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+
 isContrUnit : isContr Unit
 isContrUnit = tt , λ {tt → refl}
 
@@ -21,4 +24,11 @@ isOfHLevelUnit n = isContr→isOfHLevel n isContrUnit
 
 diagonal-unit : Unit ≡ Unit × Unit
 diagonal-unit = isoToPath (iso (λ x → tt , tt) (λ x → tt) (λ {(tt , tt) i → tt , tt}) λ {tt i → tt})
-  where open import Cubical.Foundations.Isomorphism
+
+fibId : ∀ {ℓ} (A : Type ℓ) → (fiber (λ (x : A) → tt) tt) ≡ A
+fibId A = isoToPath
+            (iso fst
+                 (λ a → a , refl)
+                 (λ _ → refl)
+                 (λ a i → fst a
+                         , isOfHLevelSuc 1 isPropUnit _ _ (snd a) refl i))

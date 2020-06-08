@@ -114,8 +114,10 @@ group-axioms-isProp X s t = η t
 
   β : (e : X) → is-identity e → isProp ((x : X) → Σ[ x' ∈ X ] (x ·⟨ 𝒢 ⟩ x' ≡ e) × (x' ·⟨ 𝒢 ⟩ x ≡ e))
   β e is-identity-e =
-   isPropΠ λ { x (x' , _ , P) (x'' , Q , _) → ΣProp≡ (λ _ → isPropΣ (group-is-set 𝒢 _ _) λ _ → group-is-set 𝒢 _ _)
-                                                      (inv-lemma ℳ x x' x'' P Q) }
+   isPropΠ λ { x (x' , _ , P) (x'' , Q , _) →
+   Σ≡Prop
+     (λ _ → isPropΣ (group-is-set 𝒢 _ _) (λ _ → group-is-set 𝒢 _ _))
+     (inv-lemma ℳ x x' x'' P Q) }
    where
     ℳ : Monoid
     ℳ = ⟨ 𝒢 ⟩ , (e , group-operation 𝒢) ,
@@ -127,7 +129,7 @@ group-axioms-isProp X s t = η t
 
   γ : isProp (Σ[ e ∈ X ] ((x : X) → (x ·⟨ 𝒢 ⟩ e ≡ x) × (e ·⟨ 𝒢 ⟩ x ≡ x)) ×
                          ((x : X) → Σ[ x' ∈ X ] (x ·⟨ 𝒢 ⟩ x' ≡ e) × (x' ·⟨ 𝒢 ⟩ x ≡ e)))
-  γ (e , P , _) (e' , Q , _) = ΣProp≡ (λ e → isPropΣ (α e) λ is-identity-e → β e is-identity-e)
+  γ (e , P , _) (e' , Q , _) = Σ≡Prop (λ e → isPropΣ (α e) λ is-identity-e → β e is-identity-e)
                                       (e          ≡⟨ sym (fst (Q e)) ⟩
                                       e ·⟨ 𝒢 ⟩ e' ≡⟨ snd (P e') ⟩
                                       e' ∎)

@@ -61,7 +61,7 @@ _≡ₚ_ : (x y : A) → hProp _
 x ≡ₚ y = ∥ x ≡ y ∥ₚ
 
 hProp≡ : [ P ] ≡ [ Q ] → P ≡ Q
-hProp≡ p = ΣProp≡ (\ _ → isPropIsProp) p
+hProp≡ p = Σ≡Prop (\ _ → isPropIsProp) p
 
 --------------------------------------------------------------------------------
 -- Logical implication of mere propositions
@@ -342,7 +342,7 @@ Subset→Embedding {X = X} A = D , f , ψ
     p = y≡x ∙ sym z≡x
 
     r : (y , y∈A) ≡ (z , z∈A)
-    r = ΣProp≡ (∈-isProp A) p
+    r = Σ≡Prop (∈-isProp A) p
 
     q : PathP (λ i → p i ≡ x) y≡x z≡x
     q i j = hcomp (λ k → λ { (j = i1) → x
@@ -352,15 +352,15 @@ Subset→Embedding {X = X} A = D , f , ψ
 
 
 Subset→Embedding→Subset : {X : Type ℓ} → section (Embedding→Subset {ℓ} {X}) (Subset→Embedding {ℓ} {X})
-Subset→Embedding→Subset _ = funExt λ x → ΣProp≡ (λ _ → FP.isPropIsProp) (ua (Fib.FiberIso.fiberEquiv _ x))
+Subset→Embedding→Subset _ = funExt λ x → Σ≡Prop (λ _ → FP.isPropIsProp) (ua (Fib.FiberIso.fiberEquiv _ x))
 
 Embedding→Subset→Embedding : {X : Type ℓ} → retract (Embedding→Subset {ℓ} {X}) (Subset→Embedding {ℓ} {X})
-Embedding→Subset→Embedding {ℓ = ℓ} {X = X} (A , f , ψ) = cong (assocΣ .fst) p
+Embedding→Subset→Embedding {ℓ = ℓ} {X = X} (A , f , ψ) = cong (Σ-assoc .fst) p
  where
  χ = Subset→Embedding (Embedding→Subset (A , f , ψ)) .snd .snd
 
  p : (((Σ[ x ∈ X ] fiber f x) , fst) , χ) ≡ ((A , f) , ψ)
- p = ΣProp≡ (λ _ → hasPropFibersIsProp) ((equivToIso (Fib.fibrationEquiv X ℓ)) .Iso.leftInv (A , f))
+ p = Σ≡Prop (λ _ → hasPropFibersIsProp) ((equivToIso (Fib.fibrationEquiv X ℓ)) .Iso.leftInv (A , f))
 
 
 

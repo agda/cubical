@@ -51,3 +51,6 @@ isEquiv≃isEmbedding×isSurjection = isoToEquiv (iso
   isEmbedding×isSurjection→isEquiv
   (λ _ → isOfHLevelΣ 1 isEmbeddingIsProp (\ _ → isSurjectionIsProp) _ _)
   (λ _ → isPropIsEquiv _ _ _))
+
+isPropIsSurjection : isProp (isSurjection f)
+isPropIsSurjection = isPropΠ λ _ → propTruncIsProp

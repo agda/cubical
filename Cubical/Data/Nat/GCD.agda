@@ -48,7 +48,7 @@ isPropIsGCD = isProp× isPropIsCD (isPropΠ2 (λ _ _ → isProp∣))
 
 isPropGCD : isProp (GCD m n)
 isPropGCD (d , dCD , gr) (d' , d'CD , gr') =
-  ΣProp≡ (λ _ → isPropIsGCD) (antisym∣ (gr' d dCD) (gr d' d'CD))
+  Σ≡Prop (λ _ → isPropIsGCD) (antisym∣ (gr' d dCD) (gr d' d'CD))
 
 
 symGCD : isGCD m n d → isGCD n m d
@@ -100,7 +100,7 @@ euclid< = WFI.induction <-wellfounded λ {
 euclid : ∀ m n → GCD m n
 euclid m n with n ≟ m
 ... | lt p = euclid< m n p
-... | gt p = Σ.mapʳ symGCD (euclid< n m p)
+... | gt p = Σ.map-snd symGCD (euclid< n m p)
 ... | eq p = m , divsGCD (∣-refl (sym p))
 
 isContrGCD : ∀ m n → isContr (GCD m n)

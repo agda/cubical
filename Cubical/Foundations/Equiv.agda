@@ -168,3 +168,14 @@ _■ = idEquiv
 
 infixr  0 _≃⟨_⟩_
 infix   1 _■
+
+composesToId→Equiv : (f : A → B) (g : B → A) → f ∘ g ≡ idfun B → isEquiv f → isEquiv g
+composesToId→Equiv f g id iseqf =
+  isoToIsEquiv
+    (iso g
+         f
+         (λ b → (λ i → (equiv-proof iseqf (f b) .snd (g (f b) ,
+                          cong (λ h → h (f b)) id) (~ i))  .fst )
+                 ∙ cong (λ x → (equiv-proof iseqf (f b) .fst .fst )) id
+                 ∙ λ i → (equiv-proof iseqf (f b) .snd) (b , refl) i .fst )
+         λ a → cong (λ f → f a) id)

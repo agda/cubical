@@ -43,7 +43,7 @@ module _ {ℓb ℓf} (B : Type ℓb) (ℓ : Level) (F : Type ℓf) where
 -}
 
   bundleEquiv : (B → TypeEqvTo ℓ' F) ≃ (Σ[ E ∈ Type ℓ' ] Σ[ p ∈ (E → B) ] ∀ x → ∥ fiber p x ≃ F ∥)
-  bundleEquiv = compEquiv (compEquiv PiΣ (pathToEquiv p)) assocΣ
+  bundleEquiv = compEquiv (compEquiv PiΣ (pathToEquiv p)) Σ-assoc
     where e = fibrationEquiv B ℓ
           p :   (Σ[ p⁻¹ ∈ (B → Type ℓ') ]            ∀ x → ∥ p⁻¹ x ≃ F ∥)
               ≡ (Σ[ p ∈ (Σ[ E ∈ Type ℓ' ] (E → B)) ] ∀ x → ∥ fiber (snd p) x ≃ F ∥ )

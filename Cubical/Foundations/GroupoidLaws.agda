@@ -13,7 +13,7 @@ private
   variable
     ℓ : Level
     A : Type ℓ
-    x y z w : A
+    x y z w v : A
 
 _⁻¹ : (x ≡ y) → (y ≡ x)
 x≡y ⁻¹ = sym x≡y
@@ -81,44 +81,10 @@ rCancel' p j k = rCancel-filler' p i0 j k
 lCancel : (p : x ≡ y) → p ⁻¹ ∙ p ≡ refl
 lCancel p = rCancel (p ⁻¹)
 
--- The filler of the three-out-of-four identification: 3outof4-filler α p β =
--- PathP (λ i → PathP (λ j → PathP (λ k → A) (α i i0) (α i i1))
--- (λ j → α i j) (λ j → β i j)) (λ j i → α i0 i) (3outof4 α p β)
-
-3outof4-filler : (α : I → I → A) → (p : α i1 i0 ≡ α i1 i1) →
-  (β : PathP (λ j → Path A (α j i0) (α j i1)) (λ i → α i0 i) p) → I → I → I → A
-3outof4-filler α p β k j i =
-  hfill (λ k → λ { (i = i0) → α k i0
-                  ; (i = i1) → α k i1
-                  ; (j = i0) → α k i
-                  ; (j = i1) → β k i
-                  }) (inS (α i0 i)) k
-
-3outof4 : (α : I → I → A) → (p : α i1 i0 ≡ α i1 i1) →
-  (β : PathP (λ j → Path A (α j i0) (α j i1)) (λ i → α i0 i) p) → (λ i → α i1 i) ≡ p
-3outof4 α p β j i = 3outof4-filler α p β i1 j i
-
--- The filler of the pre-associative square: preassoc p q r =
--- PathP (λ i → PathP (λ j → PathP (λ k → A) x (compPath-filler q r i j))
--- (refl i) (λ j → compPath-filler (p ∙ q) r i j)) (λ j i → compPath-filler p q j i) (preassoc p q r)
-
-preassoc-filler : {x y z w : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) → I → I → I → A
-preassoc-filler {x = x} p q r k j i =
-  hfill (λ k → λ { (i = i0) → x
-                  ; (i = i1) → compPath-filler q r k j
-                  ; (j = i0) → p i
-               -- ; (j = i1) → compPath-filler (p ∙ q) r k i
-                  }) (inS (compPath-filler p q j i)) k
-
-preassoc : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) →
-  PathP (λ j → Path A x ((q ∙ r) j)) p ((p ∙ q) ∙ r)
-preassoc {x = x} p q r j i = preassoc-filler p q r i1 j i
-
--- deducing associativity for compPath
-
 assoc : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) →
   p ∙ q ∙ r ≡ (p ∙ q) ∙ r
-assoc p q r = 3outof4 (λ j i → compPath-filler p (q ∙ r) j i) ((p ∙ q) ∙ r) (preassoc p q r)
+assoc p q r k = (compPath-filler p q k) ∙ compPath-filler' q r (~ k)
+
 
 -- heterogeneous groupoid laws
 
@@ -152,36 +118,32 @@ lCancelP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x
    PathP (λ j → PathP (λ i → lCancel (λ i → A i) j i) y y) (compPathP (symP p) p) refl
 lCancelP p = rCancelP (symP p)
 
-3outof4P : {A : I → I → Type ℓ} {P : (A i0 i1) ≡ (A i1 i1)}
-  {B : PathP (λ j → Path (Type ℓ) (A i0 j) (A i1 j)) (λ i → A i i0) P}
-  (α : ∀ (i j : I) → A j i)
-  (p : PathP (λ i → P i) (α i1 i0) (α i1 i1)) →
-  (β : PathP (λ j → PathP (λ i → B j i) (α j i0) (α j i1)) (λ i → α i0 i) p) →
-  PathP (λ j → PathP (λ i → 3outof4 (λ j i → A i j) P B j i) (α i1 i0) (α i1 i1)) (λ i → α i1 i) p
-3outof4P {A = A} {P} {B} α p β j i =
-  comp (λ k → 3outof4-filler (λ j i → A i j) P B k j i)
-       (λ k → λ { (i = i0) → α k i0
-                ; (i = i1) → α k i1
-                ; (j = i0) → α k i
-                ; (j = i1) → β k i
-                }) (α i0 i)
 
-preassocP : {A : I → Type ℓ} {x : A i0} {y : A i1} {B_i1 : Type ℓ} {B : (A i1) ≡ B_i1} {z : B i1}
-  {C_i1 : Type ℓ} {C : (B i1) ≡ C_i1} {w : C i1} (p : PathP A x y) (q : PathP (λ i → B i) y z) (r : PathP (λ i → C i) z w) →
-  PathP (λ j → PathP (λ i → preassoc (λ i → A i) B C j i) x ((compPathP q r) j)) p (compPathP (compPathP p q) r)
-preassocP {A = A} {x = x} {B = B} {C = C} p q r j i =
-  comp (λ k → preassoc-filler (λ i → A i) B C k j i)
-       (λ k → λ { (i = i0) → x
-                ; (i = i1) → compPathP-filler q r k j
-                ; (j = i0) → p i
-             -- ; (j = i1) → compPathP-filler (compPathP p q) r i k
-                }) (compPathP-filler p q j i)
 
 assocP : {A : I → Type ℓ} {x : A i0} {y : A i1} {B_i1 : Type ℓ} {B : (A i1) ≡ B_i1} {z : B i1}
   {C_i1 : Type ℓ} {C : (B i1) ≡ C_i1} {w : C i1} (p : PathP A x y) (q : PathP (λ i → B i) y z) (r : PathP (λ i → C i) z w) →
   PathP (λ j → PathP (λ i → assoc (λ i → A i) B C j i) x w) (compPathP p (compPathP q r)) (compPathP (compPathP p q) r)
-assocP p q r =
-  3outof4P (λ j i → compPathP-filler p (compPathP q r) j i) (compPathP (compPathP p q) r) (preassocP p q r)
+assocP {A = A} {B = B} {C = C} p q r k i =
+    comp (hfill  (λ j → λ {
+                     (i = i0) → A i0
+                   ; (i = i1) → compPath-filler' (λ i₁ → B i₁) (λ i₁ → C i₁) (~ k) j })
+                     (inS (compPath-filler (λ i₁ → A i₁) (λ i₁ → B i₁) k i)) )
+     (λ j → λ
+      { (i = i0) → p i0
+      ; (i = i1) →
+        comp (hfill ((λ l → λ
+            { (j = i0) → B k
+            ; (j = i1) → C l
+            ; (k = i1) → C (j ∧ l)
+            })) (inS (B ( j ∨ k)) ) )
+          (λ l → λ
+            { (j = i0) → q k
+            ; (j = i1) → r l
+            ; (k = i1) → r (j ∧ l)
+            })
+          (q (j ∨ k))
+      })
+    (compPathP-filler p q k i)
 
 
 
@@ -278,3 +240,234 @@ hcomp-cong : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 :
              (ueq : ∀ i → PartialP φ (\ o → u i o ≡ u' i o)) → (outS u0 ≡ outS u0') [ φ ↦ (\ { (φ = i1) → ueq i0 1=1}) ]
              → (hcomp u (outS u0) ≡ hcomp u' (outS u0')) [ φ ↦ (\ { (φ = i1) → ueq i1 1=1 }) ]
 hcomp-cong u u0 u' u0' ueq 0eq = inS (\ j → hcomp (\ i o → ueq i o j) (outS 0eq j))
+
+
+invSides-filler : {x y z : A} (p : x ≡ y) (q : x ≡ z) → PathP (λ j → q j ≡ p (~ j)) p (sym q)
+invSides-filler {A = A} {x = x} p q i j =
+  hcomp (λ k → λ { (i = i0) → p (k ∧ j)
+                  ; (i = i1) → q (~ j ∧ k)
+                  ; (j = i0) → q (i ∧ k)
+                  ; (j = i1) → p (~ i ∧ k)})
+        x
+
+congFunct-filler : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y z : A} (f : A → B) (p : x ≡ y) (q : y ≡ z)
+                → I → I → I → B
+congFunct-filler {x = x} f p q i j z =
+  hfill (λ k → λ { (i = i0) → f x
+                  ; (i = i1) → f (q k)
+                  ; (j = i0) → f (compPath-filler p q k i)})
+        (inS (f (p i)))
+        z
+
+congFunct : ∀ {ℓ} {B : Type ℓ} (f : A → B) (p : x ≡ y) (q : y ≡ z) → cong f (p ∙ q) ≡ cong f p ∙ cong f q
+congFunct f p q j i = congFunct-filler f p q i j i1
+
+
+-- congFunct for dependent types
+congFunct-dep : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y z : A} (f : (a : A) → B a) (p : x ≡ y) (q : y ≡ z)
+         → PathP (λ i → PathP (λ j → B (compPath-filler p q i j)) (f x) (f (q i))) (cong f p) (cong f (p ∙ q))
+congFunct-dep {B = B} {x = x} f p q i j = f (compPath-filler p q i j)
+
+cong₂Funct : (f : A → A → A) →
+        (p : x ≡ y) →
+        {u v : A} (q : u ≡ v) →
+        cong₂ f p q ≡ cong (λ x → f x u) p ∙ cong (f y) q
+cong₂Funct {x = x} {y = y} f p {u = u} {v = v} q j i =
+  hcomp (λ k → λ { (i = i0) → f x u
+                  ; (i = i1) → f y (q k)
+                  ; (j = i0) → f (p i) (q (i ∧ k))})
+       (f (p i) u)
+
+
+symDistr-filler : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → I → I → I → A
+symDistr-filler {A = A} {z = z} p q i j k =
+  hfill (λ k → λ { (i = i0) → q (k ∨ j)
+                  ; (i = i1) → p (~ k ∧ j) })
+        (inS (invSides-filler q (sym p) i j))
+        k
+
+symDistr : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → sym (p ∙ q) ≡ sym q ∙ sym p
+symDistr p q i j = symDistr-filler p q j i i1
+
+
+
+
+pentagonIdentity : (p : x ≡ y) → (q : y ≡ z) → (r : z ≡ w) → (s : w ≡ v)
+                      →
+            (assoc p q (r ∙ s) ∙ assoc (p ∙ q) r s)
+                              ≡
+   cong (p ∙_) (assoc q r s) ∙∙ assoc p (q ∙ r) s ∙∙ cong (_∙ s) (assoc p q r)
+
+pentagonIdentity {x = x} {y} p q r s =
+        (λ i →
+              (λ j → cong (p ∙_) (assoc q r s) (i ∧ j))
+           ∙∙ (λ j → lemma₀₀ i j ∙ lemma₀₁ i j)
+           ∙∙ (λ j → lemma₁₀ i j ∙ lemma₁₁ i j)
+        )
+   where
+
+
+    lemma₀₀ : ( i j : I) → _ ≡ _
+    lemma₀₀ i j i₁ =
+         hcomp
+        (λ k → λ { (j = i0) → p i₁
+                 ; (i₁ = i0) → x
+                 ; (i₁ = i1) → hcomp
+                                 (λ k₁ → λ { (i = i0) → (q (j ∧ k))
+                                           ; (k = i0) → y
+                                           ; (j = i0) → y
+                                           ; (j = i1)(k = i1) → r (k₁ ∧ i)})
+                                 (q (j ∧ k))
+        }) (p i₁)
+
+    lemma₀₁ : ( i j : I) → hcomp
+                       (λ k → λ {(i = i0) → q j
+                               ; (j = i0) → y
+                               ; (j = i1) → r (k ∧ i)
+                          })
+                       (q j) ≡ _
+    lemma₀₁ i j i₁ = (hcomp
+                        (λ k → λ { (j = i1) → hcomp
+                                                (λ k₁ → λ { (i₁ = i0) → r i
+                                                          ; (k = i0) → r i
+                                                          ; (i = i1) → s (k₁ ∧  k ∧  i₁)
+                                                          ; (i₁ = i1)(k = i1) → s k₁ })
+                                                (r ((i₁ ∧ k) ∨ i))
+                                  ; (i₁ = i0) → compPath-filler q r i j
+                                  ; (i₁ = i1) → hcomp
+                                                  (λ k₁ → λ { (k = i0) → r i
+                                                            ; (k = i1) → s k₁
+                                                            ; (i = i1) → s (k ∧ k₁)})
+                                                  (r (i ∨ k))})
+                         (hfill
+                             (λ k → λ { (j = i1) → r k
+                                      ; (i₁ = i1) → r k
+                                      ; (i₁ = i0)(j = i0) → y })
+                             (inS (q (i₁ ∨ j))) i))
+
+    lemma₁₁ : ( i j : I) → (r (i ∨ j)) ≡ _
+    lemma₁₁ i j i₁ =
+           hcomp
+             (λ k → λ { (i = i1) → s (i₁ ∧ k)
+                      ; (j = i1) → s (i₁ ∧ k)
+                      ; (i₁ = i0) → r (i ∨ j)
+                      ; (i₁ = i1) → s k
+              }) (r (i ∨ j ∨ i₁))
+
+
+    lemma₁₀-back :  I → I → I → _
+    lemma₁₀-back i j i₁ =
+        hcomp
+         (λ k → λ {
+           (i₁ = i0) → x
+         ; (i₁ = i1) → hcomp
+                         (λ k₁ → λ { (k = i0) → q (j ∨ ~ i)
+                                   ; (k = i1) → r (k₁ ∧ j)
+                                   ; (j = i0) → q (k ∨ ~ i)
+                                   ; (j = i1) → r (k₁ ∧ k)
+                                   ; (i = i0) → r (k ∧ j ∧ k₁)
+                         })
+                         (q (k ∨ j ∨ ~ i))
+         ; (i = i0)(j = i0) → (p ∙ q) i₁
+         })
+        (hcomp
+           (λ k → λ { (i₁ = i0) → x
+                    ; (i₁ = i1) → q ((j ∨ ~ i ) ∧ k)
+                    ; (j = i0)(i = i1) → p i₁
+            })
+            (p i₁))
+
+
+    lemma₁₀-front : I → I → I → _
+    lemma₁₀-front i j i₁ =
+       (((λ _ → x) ∙∙ compPath-filler p q j ∙∙
+         (λ i₁ →
+             hcomp
+                (λ k → λ { (i₁ = i0) → q j
+                         ; (i₁ = i1) → r (k ∧ (j ∨ i))
+                         ; (j = i0)(i = i0) → q i₁
+                         ; (j = i1) → r (i₁ ∧ k)
+               })
+            (q (j ∨ i₁))
+         )) i₁)
+
+    compPath-filler-in-filler :
+                (p : _ ≡ y) → (q : _ ≡ _ )
+              → _≡_ {A = Square (p ∙ q) (p ∙ q) (λ _ → x) (λ _ → z)}
+               (λ i j → hcomp
+                          (λ i₂ →
+                           λ { (j = i0) → x
+                             ; (j = i1) → q (i₂ ∨ ~ i)
+                             ; (i = i0) → (p ∙ q) j
+                            })
+                          (compPath-filler p q (~ i) j))
+               (λ _ → p ∙ q)
+    compPath-filler-in-filler p q z i j =
+       hcomp
+         (λ k → λ {
+            (j = i0) → p i0
+          ; (j = i1) → q (k ∨ ~ i ∧ ~ z)
+          ; (i = i0) → hcomp
+                       (λ i₂ → λ {
+                         (j = i0) → p i0
+                        ;(j = i1) → q ((k ∨  ~ z) ∧ i₂)
+                        ;(z = i1) (k = i0) → p j
+                       })
+                      (p j)
+          ; (i = i1) →  compPath-filler p (λ i₁ → q (k ∧ i₁)) k j
+          ; (z = i0) → hfill
+                         ((λ i₂ → λ { (j = i0) → p i0
+                             ; (j = i1) → q (i₂ ∨ ~ i)
+                             ; (i = i0) → (p ∙ q) j
+                            }))
+                         (inS ((compPath-filler p q (~ i) j))) k
+          ; (z = i1) → compPath-filler p q k j
+         })
+         (compPath-filler p q (~ i ∧ ~ z) j)
+
+
+    cube-comp₋₀₋ :
+        (c : I → I → I → A)
+      → {a' : Square _ _ _ _}
+      → (λ i i₁ → c i i0 i₁) ≡ a'
+      → (I → I → I → A)
+    cube-comp₋₀₋ c p i j k =
+       hcomp
+         (λ l → λ {
+            (i = i0) → c i0 j k
+           ;(i = i1) → c i1 j k
+           ;(j = i0) → p l i k
+           ;(j = i1) → c i i1 k
+           ;(k = i0) → c i j i0
+           ;(k = i1) → c i j i1
+          })
+        (c i j k)
+
+    cube-comp₀₋₋ :
+        (c : I → I → I → A)
+      → {a' : Square _ _ _ _}
+      → (λ i i₁ → c i0 i i₁) ≡ a'
+      → (I → I → I → A)
+    cube-comp₀₋₋ c p i j k =
+       hcomp
+         (λ l → λ {
+            (i = i0) → p l j k
+           ;(i = i1) → c i1 j k
+           ;(j = i0) → c i i0 k
+           ;(j = i1) → c i i1 k
+           ;(k = i0) → c i j i0
+           ;(k = i1) → c i j i1
+          })
+        (c i j k)
+
+
+
+    lemma₁₀-back' : _
+    lemma₁₀-back' k j i₁ =
+       (cube-comp₋₀₋ (lemma₁₀-back)
+         (compPath-filler-in-filler p q)) k j i₁
+
+
+    lemma₁₀ : ( i j : I) → _ ≡ _
+    lemma₁₀ i j i₁ =
+        (cube-comp₀₋₋ lemma₁₀-front (sym lemma₁₀-back')) i j i₁
