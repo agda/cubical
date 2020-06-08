@@ -8,11 +8,11 @@ open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 private
   variable
-    ℓ' : Level
+    ℓ ℓ' : Level
 
 -- Constant structure
 
-module _ {ℓ} (A : Type ℓ) where
+module _ (A : Type ℓ) where
 
   constant-structure : Type ℓ' → Type ℓ
   constant-structure _ = A
