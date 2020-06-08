@@ -92,9 +92,12 @@ group-linv : (G : Group {ℓ})
                → (x : ⟨ G ⟩) → (group-inv G x) ·⟨ G ⟩ x ≡ group-id G
 group-linv (_ , _ , _ , P) x = snd (snd ((snd (snd P)) x))
 
--- Iso for groups are those for monoids
+-- Hom and Iso for groups are those for monoids
+group-hom : StrHom group-structure ℓ
+group-hom = add-to-hom (nAryFunHom 2) group-axioms
+
 group-iso : StrIso group-structure ℓ
-group-iso = add-to-iso (nAryFunIso 2) group-axioms
+group-iso = StrHom→StrIso group-hom
 
 -- Group axioms isProp
 

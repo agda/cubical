@@ -24,8 +24,11 @@ abelian-group-structure = add-to-structure raw-group-structure abelian-group-axi
 AbGroup : Type (ℓ-suc ℓ)
 AbGroup {ℓ} = TypeWithStr ℓ abelian-group-structure
 
+abelian-group-hom : StrHom abelian-group-structure ℓ
+abelian-group-hom = add-to-hom (nAryFunHom 2) abelian-group-axioms
+
 abelian-group-iso : StrIso abelian-group-structure ℓ
-abelian-group-iso = add-to-iso (nAryFunIso 2) abelian-group-axioms
+abelian-group-iso = StrHom→StrIso abelian-group-hom
 
 abelian-group-axioms-isProp : (X : Type ℓ)
                            → (s : raw-group-structure X)
