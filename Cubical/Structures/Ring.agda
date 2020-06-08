@@ -23,12 +23,14 @@ raw-ring-structure X = (X → X → X) × X × (X → X → X)
 
 -- Maybe this is not the best way? (Suggestions welcome, maybe having raw-monoid-iso defined?)
 raw-ring-is-SNS : SNS {ℓ} raw-ring-structure _
-raw-ring-is-SNS = join-SNS (binaryFunIso pointed-iso)
-                           (binaryFunSNS pointed-iso pointed-is-SNS)
-                           (join-iso pointed-iso (binaryFunIso pointed-iso))
+raw-ring-is-SNS = join-SNS binaryIso binarySNS
+                           (join-iso pointed-iso binaryIso)
                            (join-SNS
                              pointed-iso pointed-is-SNS
-                             (binaryFunIso pointed-iso) (binaryFunSNS pointed-iso pointed-is-SNS))
+                             binaryIso binarySNS)
+  where
+  binaryIso = binaryFunIso pointed-iso
+  binarySNS = binaryFunSNS pointed-iso pointed-is-SNS
 
 ring-axioms : (X : Type ℓ) (s : raw-ring-structure X) → Type ℓ
 ring-axioms X (_+_ , ₁ , _·_) = abelian-group-axioms X _+_ ×
