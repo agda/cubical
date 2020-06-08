@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Relation.Nullary.HLevels where
 
 open import Cubical.Foundations.Prelude
@@ -16,7 +16,7 @@ private
 isPropPopulated : isProp (Populated A)
 isPropPopulated = isPropΠ λ x → 2-Constant→isPropFixpoint (x .fst) (x .snd)
 
-isPropHStable≡ : isProp (HStable≡ A)
+isPropHStable≡ : isProp (HSeparated A)
 isPropHStable≡ f g i x y a = HStable≡→isSet f x y (f x y a) (g x y a) i
 
 isPropCollapsible≡ : isProp (Collapsible≡ A)

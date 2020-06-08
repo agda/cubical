@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Relation.Nullary.Base where
 
 open import Cubical.Foundations.Prelude
@@ -34,9 +34,8 @@ Stable A = NonEmpty A → A
 open Cubical.HITs.PropositionalTruncation.Base
   using (∥_∥) public
 
-SplitSupport HStable : Type ℓ → Type ℓ
+SplitSupport : Type ℓ → Type ℓ
 SplitSupport A = ∥ A ∥ → A
-HStable = SplitSupport
 
 Collapsible : Type ℓ → Type ℓ
 Collapsible A = Σ[ f ∈ (A → A) ] 2-Constant f
@@ -51,13 +50,11 @@ PStable A = ⟪ A ⟫ → A
 onAllPaths : (Type ℓ → Type ℓ) → Type ℓ → Type ℓ
 onAllPaths S A = (x y : A) → S (x ≡ y)
 
-Separated Stable≡ : Type ℓ → Type ℓ
+Separated : Type ℓ → Type ℓ
 Separated = onAllPaths Stable
-Stable≡ = Separated
 
-HSeparated HStable≡ : Type ℓ → Type ℓ
-HSeparated = onAllPaths HStable
-HStable≡ = HSeparated
+HSeparated : Type ℓ → Type ℓ
+HSeparated = onAllPaths SplitSupport
 
 Collapsible≡ : Type ℓ → Type ℓ
 Collapsible≡ = onAllPaths Collapsible

@@ -1,10 +1,10 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 {-
 
 Properties of nullary relations, i.e. structures on types.
 
-Includes several results from "Generalizations of Hedberg's Theorem"
-by Altenkirch, Coquand, Escardo, Kraus
+Includes several results from [Notions of Anonymous Existence in Martin-Löf Type Theory](https://lmcs.episciences.org/3217)
+by Altenkirch, Coquand, Escardo, Kraus.
 
 -}
 module Cubical.Relation.Nullary.Properties where
@@ -85,26 +85,26 @@ Dec→Stable (no x) = λ f → ⊥.elim (f x)
 Stable→PStable : Stable A → PStable A
 Stable→PStable st = st ∘ notEmptyPopulated
 
-PStable→HStable : PStable A → HStable A
-PStable→HStable pst = pst ∘ populatedBy
+PStable→SplitSupport : PStable A → SplitSupport A
+PStable→SplitSupport pst = pst ∘ populatedBy
 
--- Although HStable and Collapsible are not properties, their path versions, HStable≡ and Collapsible≡, are.
+-- Although SplitSupport and Collapsible are not properties, their path versions, HSeparated and Collapsible≡, are.
 -- Nevertheless they are logically equivalent
-HStable→Collapsible : HStable A → Collapsible A
-HStable→Collapsible {A = A} hst = h , hIsConst where
+SplitSupport→Collapsible : SplitSupport A → Collapsible A
+SplitSupport→Collapsible {A = A} hst = h , hIsConst where
   h : A → A
   h p = hst ∣ p ∣
   hIsConst : 2-Constant h
   hIsConst p q i = hst (squash ∣ p ∣ ∣ q ∣ i)
 
-Collapsible→HStable : Collapsible A → HStable A
-Collapsible→HStable f x = fixpoint (populatedBy x f)
+Collapsible→SplitSupport : Collapsible A → SplitSupport A
+Collapsible→SplitSupport f x = fixpoint (populatedBy x f)
 
-HStable≡→Collapsible≡ : HStable≡ A → Collapsible≡ A
-HStable≡→Collapsible≡ hst x y = HStable→Collapsible (hst x y)
+HSeparated→Collapsible≡ : HSeparated A → Collapsible≡ A
+HSeparated→Collapsible≡ hst x y = SplitSupport→Collapsible (hst x y)
 
-Collapsible≡→HStable≡ : Collapsible≡ A → HStable≡ A
-Collapsible≡→HStable≡ col x y = Collapsible→HStable (col x y)
+Collapsible≡→HSeparated : Collapsible≡ A → HSeparated A
+Collapsible≡→HSeparated col x y = Collapsible→SplitSupport (col x y)
 
 -- stability of path space under truncation or path collapsability are necessary and sufficient properties
 -- for a a type to be a set.
@@ -122,31 +122,31 @@ Collapsible≡→isSet {A = A} col a b p q = p≡q where
                            ; (j = i0) → rem p i k
                            ; (j = i1) → rem q i k }) a
 
-HStable≡→isSet : HStable≡ A → isSet A
-HStable≡→isSet = Collapsible≡→isSet ∘ HStable≡→Collapsible≡
+HSeparated→isSet : HSeparated A → isSet A
+HSeparated→isSet = Collapsible≡→isSet ∘ HSeparated→Collapsible≡
 
-isSet→HStable≡ : isSet A → HStable≡ A
-isSet→HStable≡ setA x y = extract where
+isSet→HSeparated : isSet A → HSeparated A
+isSet→HSeparated setA x y = extract where
   extract : ∥ x ≡ y ∥ → x ≡ y
   extract ∣ p ∣ = p
   extract (squash p q i) = setA x y (extract p) (extract q) i
 
--- by the above two more sufficient conditions to inhibit isSet A are given
-PStable≡→HStable≡ : PStable≡ A → HStable≡ A
-PStable≡→HStable≡ pst x y = PStable→HStable (pst x y)
+-- by the above more sufficient conditions to inhibit isSet A are given
+PStable≡→HSeparated : PStable≡ A → HSeparated A
+PStable≡→HSeparated pst x y = PStable→SplitSupport (pst x y)
 
 PStable≡→isSet : PStable≡ A → isSet A
-PStable≡→isSet = HStable≡→isSet ∘ PStable≡→HStable≡
+PStable≡→isSet = HSeparated→isSet ∘ PStable≡→HSeparated
 
-Stable≡→PStable≡ : Stable≡ A → PStable≡ A
-Stable≡→PStable≡ st x y = Stable→PStable (st x y)
+Separated→PStable≡ : Separated A → PStable≡ A
+Separated→PStable≡ st x y = Stable→PStable (st x y)
 
-Stable≡→isSet : Stable≡ A → isSet A
-Stable≡→isSet = PStable≡→isSet ∘ Stable≡→PStable≡
+Separated→isSet : Separated A → isSet A
+Separated→isSet = PStable≡→isSet ∘ Separated→PStable≡
 
 -- Proof of Hedberg's theorem: a type with decidable equality is an h-set
-Discrete→Stable≡ : Discrete A → Stable≡ A
-Discrete→Stable≡ d x y = Dec→Stable (d x y)
+Discrete→Separated : Discrete A → Separated A
+Discrete→Separated d x y = Dec→Stable (d x y)
 
 Discrete→isSet : Discrete A → isSet A
-Discrete→isSet = Stable≡→isSet ∘ Discrete→Stable≡
+Discrete→isSet = Separated→isSet ∘ Discrete→Separated
