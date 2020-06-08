@@ -79,8 +79,7 @@ When preparing a PR here are some general guidelines:
 
 - Some useful lemmas have specialized versions with higher arity to
   make code easier to read. See for example `isPropΠ2` and `isSetΠ2`
-  in
-  [HLevels.agda](https://github.com/agda/cubical/blob/master/Cubical/Foundations/HLevels.agda)
+  in [HLevels.agda](https://github.com/agda/cubical/blob/master/Cubical/Foundations/HLevels.agda)
   as well as various versions of function extensionality in
   [FunExtEquiv.agda](https://github.com/agda/cubical/blob/master/Cubical/Functions/FunExtEquiv.agda).
 
