@@ -31,7 +31,6 @@ private
 -- There are more universe polymorphic versions of these results in
 -- Cubical.Foundations.Equiv.HalfAdjoint that seem to have better
 -- computational behavior
-
 private
   isEquivCong : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → (cong (fst e) p))
   isEquivCong {B = B} e = EquivJ (λ (A' : Type _) (e' : A' ≃ B) →
