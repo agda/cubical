@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe #-}
-module Cubical.Structures.Group where
+module Cubical.Structures.Group.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv

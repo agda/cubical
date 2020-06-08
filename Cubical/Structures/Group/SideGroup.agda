@@ -1,9 +1,9 @@
 {-# OPTIONS --cubical --safe #-}
 
-module Cubical.Structures.Group.Base where
+module Cubical.Structures.Group.SideGroup where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Structures.Group
+open import Cubical.Structures.Group.Base
 
 rightist-group : ∀ {ℓ} {A : Type ℓ}
   → (comp : A → A → A)
