@@ -10,6 +10,9 @@ open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 open import Cubical.Functions.Surjection
 
 open import Cubical.Structures.Pointed
+open import Cubical.Structures.NAryOp
+open import Cubical.Structures.Parameterized
+open import Cubical.Structures.LeftAction
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum as ⊎
@@ -21,30 +24,17 @@ open import Cubical.Data.List
 -- https://github.com/ecavallo/cubical/blob/queue/Cubical/Experiments/Queue.agda
 -- for the original development
 
-variable
- ℓ ℓ' : Level
-
-
+private
+  variable
+   ℓ ℓ' : Level
 
 -- We start fixing a set A on which we define what it means for a type Q to have
 -- a Queue structure (wrt. A)
 module Queues-on (A : Type ℓ) (Aset : isSet A) where
  -- A Queue structure has three components, the empty Queue, an enqueue function and a dequeue function
  -- We first deal with enq and deq as separate structures
- left-action-structure : Type ℓ → Type ℓ
- left-action-structure X = A → X → X
 
- Left-Action : Type (ℓ-suc ℓ)
- Left-Action = TypeWithStr ℓ left-action-structure
-
- left-action-iso : StrIso left-action-structure ℓ
- left-action-iso (X , l) (Y , m) e = ∀ a x → e .fst (l a x) ≡ m a (e .fst x)
-
- Left-Action-is-SNS : SNS {ℓ} left-action-structure left-action-iso
- Left-Action-is-SNS = SNS-≡→SNS-PathP left-action-iso (λ _ _ → funExt₂Equiv)
-
-
- -- Now for the deq-map as a structure
+ -- deq-map as a structure
  -- First, a few preliminary results that we will need later
  deq-map-forward : {X Y : Type ℓ} → (X → Y)
                   →  Unit ⊎ (X × A) → Unit ⊎ (Y × A)
@@ -95,10 +85,10 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  RawQueue-is-SNS : SNS raw-queue-structure raw-queue-iso
  RawQueue-is-SNS =
    join-SNS pointed-iso pointed-is-SNS
-            {S₂ = λ X → (left-action-structure X) × (deq-structure X)}
+            {S₂ = λ X → (left-action-structure A X) × (deq-structure X)}
             (λ B C e → (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
                      × (∀ q → deq-map-forward (e .fst) (B .snd .snd q) ≡ C .snd .snd (e .fst q)))
-            (join-SNS left-action-iso Left-Action-is-SNS deq-iso Deq-is-SNS)
+            (join-SNS (left-action-iso A) (Left-Action-is-SNS A) deq-iso Deq-is-SNS)
 
 
 

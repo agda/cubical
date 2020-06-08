@@ -21,7 +21,10 @@ raw-monoid-structure X = X × (X → X → X)
 
 -- If we ignore the axioms we get a "raw" monoid
 raw-monoid-is-SNS : SNS {ℓ} raw-monoid-structure _
-raw-monoid-is-SNS = join-SNS pointed-iso pointed-is-SNS (nAryFunIso 2) (nAryFunSNS 2)
+raw-monoid-is-SNS =
+  join-SNS
+    pointed-iso pointed-is-SNS
+    (binaryFunIso pointed-iso) (binaryFunSNS pointed-iso pointed-is-SNS)
 
 -- Monoid axioms
 monoid-axioms : (X : Type ℓ) → raw-monoid-structure X → Type ℓ
@@ -80,7 +83,7 @@ monoid-lid (_ , _ , _ , _ , _ , P) = P
 
 -- Monoid equivalence
 monoid-iso : StrIso monoid-structure ℓ
-monoid-iso = add-to-iso (join-iso pointed-iso (nAryFunIso 2)) monoid-axioms
+monoid-iso = add-to-iso (join-iso pointed-iso (binaryFunIso pointed-iso)) monoid-axioms
 
 -- We have to show that the monoid axioms are indeed propositions
 monoid-axioms-are-Props : (X : Type ℓ) (s : raw-monoid-structure X) → isProp (monoid-axioms X s)

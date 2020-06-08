@@ -15,7 +15,7 @@ open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Data.Queue.1List
 
-module _ (A : Type ℓ) (Aset : isSet A) where
+module Untruncated2List {ℓ} (A : Type ℓ) (Aset : isSet A) where
  open Queues-on A Aset
 
  -- Untruncated 2Lists

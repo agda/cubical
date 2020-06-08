@@ -23,9 +23,14 @@ raw-ring-structure X = (X → X → X) × X × (X → X → X)
 
 -- Maybe this is not the best way? (Suggestions welcome, maybe having raw-monoid-iso defined?)
 raw-ring-is-SNS : SNS {ℓ} raw-ring-structure _
-raw-ring-is-SNS = join-SNS (nAryFunIso 2) (nAryFunSNS 2)
-                           (join-iso pointed-iso (nAryFunIso 2))
-                           (join-SNS pointed-iso pointed-is-SNS (nAryFunIso 2) (nAryFunSNS 2))
+raw-ring-is-SNS = join-SNS binaryIso binarySNS
+                           (join-iso pointed-iso binaryIso)
+                           (join-SNS
+                             pointed-iso pointed-is-SNS
+                             binaryIso binarySNS)
+  where
+  binaryIso = binaryFunIso pointed-iso
+  binarySNS = binaryFunSNS pointed-iso pointed-is-SNS
 
 ring-axioms : (X : Type ℓ) (s : raw-ring-structure X) → Type ℓ
 ring-axioms X (_+_ , ₁ , _·_) = abelian-group-axioms X _+_ ×
@@ -40,7 +45,10 @@ Ring : Type (ℓ-suc ℓ)
 Ring {ℓ} = TypeWithStr ℓ ring-structure
 
 ring-iso : StrIso ring-structure ℓ
-ring-iso = add-to-iso (join-iso (nAryFunIso 2) (join-iso pointed-iso (nAryFunIso 2))) ring-axioms
+ring-iso =
+  add-to-iso
+    (join-iso (binaryFunIso pointed-iso) (join-iso pointed-iso (binaryFunIso pointed-iso)))
+    ring-axioms
 
 ring-axioms-isProp : (X : Type ℓ) (s : raw-ring-structure X) → isProp (ring-axioms X s)
 ring-axioms-isProp X (_+_ , ₁ , _·_) = isPropΣ (abelian-group-axioms-isProp X _+_)

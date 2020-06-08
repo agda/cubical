@@ -8,19 +8,23 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 open import Cubical.Functions.FunExtEquiv
 
+open import Cubical.Structures.Constant
 open import Cubical.Structures.Pointed
-open import Cubical.Structures.Queue
+open import Cubical.Structures.NAryOp
+open import Cubical.Structures.Parameterized
+open import Cubical.Structures.LeftAction
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 
+private
+  variable
+    ℓ : Level
 
 module _(A : Type ℓ)
         (Aset : isSet A) where
-
- open Queues-on A Aset
 
  count-structure : Type ℓ → Type ℓ
  count-structure X = A → X → ℕ
@@ -29,10 +33,13 @@ module _(A : Type ℓ)
  Count = TypeWithStr ℓ count-structure
 
  count-iso : StrIso count-structure ℓ
- count-iso (X , f) (Y , g) e = ∀ a x → f a x ≡ g a (e .fst x)
+ count-iso = parameterized-iso A λ _ → unaryFunIso (constant-iso ℕ)
 
  Count-is-SNS : SNS {ℓ} count-structure count-iso
- Count-is-SNS = SNS-≡→SNS-PathP count-iso ((λ _ _ → funExt₂Equiv))
+ Count-is-SNS =
+   Parameterized-is-SNS A
+     (λ _ → unaryFunIso (constant-iso ℕ))
+     (λ _ → unaryFunSNS (constant-iso ℕ) (constant-is-SNS ℕ))
 
  -- a multi set structure inspired bei Okasaki
  multi-set-structure : Type ℓ → Type ℓ
@@ -42,16 +49,13 @@ module _(A : Type ℓ)
  Multi-Set = TypeWithStr ℓ multi-set-structure
 
  multi-set-iso : StrIso multi-set-structure ℓ
- multi-set-iso (X , emp₁ , insert₁ , memb₁) (Y , emp₂ , insert₂ , memb₂) e =
-            (e .fst emp₁ ≡ emp₂)
-          × (∀ a q → e .fst (insert₁ a q) ≡ insert₂ a (e .fst q))
-          × (∀ a x → memb₁ a x ≡ memb₂ a (e .fst x))
-
+ multi-set-iso =
+   join-iso pointed-iso (join-iso (left-action-iso A) count-iso)
 
  Multi-Set-is-SNS : SNS {ℓ₁ = ℓ} multi-set-structure multi-set-iso
  Multi-Set-is-SNS =
    join-SNS pointed-iso pointed-is-SNS
-            {S₂ = λ X → (left-action-structure X) × (count-structure X)}
+            {S₂ = λ X → (left-action-structure A X) × (count-structure X)}
             (λ B C e →  (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
                       × (∀ a x → (B .snd .snd a x) ≡ (C .snd .snd a (e .fst x))))
-            (join-SNS left-action-iso Left-Action-is-SNS count-iso Count-is-SNS)
+            (join-SNS (left-action-iso A) (Left-Action-is-SNS A) count-iso Count-is-SNS)
