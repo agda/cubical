@@ -240,10 +240,6 @@ module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
 singl : (a : A) → Type _
 singl {A = A} a = Σ[ x ∈ A ] (a ≡ x)
 
-contrSingl : (p : x ≡ y) → Path (singl x) (x , refl) (y , p)
-contrSingl p i = (p i , λ j → p (i ∧ j))
-
-
 -- Converting to and from a PathP
 
 module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
@@ -260,6 +256,9 @@ module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
 
 isContr : Type ℓ → Type ℓ
 isContr A = Σ[ x ∈ A ] (∀ y → x ≡ y)
+
+isContrSingl : (a : A) → isContr (singl a)
+isContrSingl a = (a , refl) , λ p i → p .snd i , λ j → p .snd (i ∧ j)
 
 isProp : Type ℓ → Type ℓ
 isProp A = (x y : A) → x ≡ y

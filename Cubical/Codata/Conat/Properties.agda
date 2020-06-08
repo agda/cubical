@@ -36,7 +36,6 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 open import Cubical.Codata.Conat.Base
 
 Unwrap-prev : Conat′ → Type₀
@@ -103,7 +102,7 @@ module IsSet where
   ≡′-stable {suc x} {zero}  ¬¬p′ = ⊥.rec (¬¬p′ λ p → conat-absurd (sym p))
 
   isSetConat : isSet Conat
-  isSetConat _ _ = Stable≡→isSet (λ _ _ → ≡-stable) _ _
+  isSetConat _ _ = Separated→isSet (λ _ _ → ≡-stable) _ _
 
   isSetConat′ : isSet Conat′
   isSetConat′ m n p′ q′ = cong (cong force) (isSetConat (conat m) (conat n) p q)
