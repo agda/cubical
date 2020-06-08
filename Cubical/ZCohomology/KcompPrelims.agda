@@ -100,7 +100,7 @@ private
 
 
   isolooper2 : Iso Int (Path (S₊ 1) north north)
-  isolooper2 = compIso ΩS¹IsoInt (compIso iso2 iso1)
+  isolooper2 = compIso (invIso ΩS¹IsoInt) (compIso iso2 iso1)
     where
     iso1 : Iso (Path (Susp Bool) north north) (Path (S₊ 1) north north)
     iso1 = congIso SuspBoolIsoS1
