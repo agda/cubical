@@ -89,7 +89,7 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
     discreteΣ' (no ¬p) = no (λ r → ¬p (cong fst r))
 
 swapΣEquiv : A × A' ≃ A' × A
-swapΣEquiv = isoToEquiv (iso (λ x → x .snd , x .fst) (λ z → z .snd , z .fst) (\ _ → refl) (\ _ → refl))
+swapΣEquiv = isoToEquiv (iso (λ x → x .snd , x .fst) (λ z → z .snd , z .fst) (λ _ → refl) (λ _ → refl))
 
 Σ-assoc : (Σ[ (a , b) ∈ Σ A B ] C a b) ≃ (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
 Σ-assoc = isoToEquiv (iso (λ { ((x , y) , z) → (x , (y , z)) })
@@ -101,39 +101,30 @@ PiΣ = isoToEquiv (iso (λ f → fst ∘ f , snd ∘ f)
                       (λ (f , g) → (λ x → f x , g x))
                       (λ _ → refl) (λ _ → refl))
 
-Σ-cong-iso-fst : (isom : Iso A A') → Iso (Σ A (B ∘ (fun isom))) (Σ A' B)
-fun (Σ-cong-iso-fst isom) x = (fun isom) (x .fst) , x .snd
-inv (Σ-cong-iso-fst {B = B} isom) x = (inv isom) (x .fst) , subst B (sym (ε' (x .fst))) (x .snd)
+Σ-cong-iso-fst : (isom : Iso A A') → Iso (Σ A (B ∘ fun isom)) (Σ A' B)
+fun (Σ-cong-iso-fst isom) x = fun isom (x .fst) , x .snd
+inv (Σ-cong-iso-fst {B = B} isom) x = inv isom (x .fst) , subst B (sym (ε (x .fst))) (x .snd)
   where
-    ε' = isHAEquiv.ret (snd (iso→HAEquiv isom))
-rightInv (Σ-cong-iso-fst {B = B} isom) (x , y) = ΣPathP (ε' x ,
-  transport
-    (sym (PathP≡Path (λ j → cong B (ε' x) j) (subst B (sym (ε' x)) y) y))
-    (subst B (ε' x) (subst B (sym (ε' x)) y)
-      ≡⟨ sym (substComposite B (sym (ε' x)) (ε' x) y) ⟩
-    subst B ((sym (ε' x)) ∙ (ε' x)) y
-      ≡⟨ (cong (λ a → subst B a y) (lCancel (ε' x))) ⟩
-    subst B refl y
-      ≡⟨ substRefl {B = B} y ⟩
-    y ∎))
+  ε = isHAEquiv.ret (snd (iso→HAEquiv isom))
+rightInv (Σ-cong-iso-fst {B = B} isom) (x , y) = ΣPathP (ε x , toPathP goal)
   where
-    ε' = isHAEquiv.ret (snd (iso→HAEquiv isom))
-leftInv (Σ-cong-iso-fst {A = A} {B = B} isom@(iso f g ε η)) (x , y) = ΣPathP (η x ,
-  transport
-    (sym (PathP≡Path (λ j → cong B (cong f (η x)) j) (subst B (sym (ε' (f x))) y) y))
-    (subst B (cong f (η x)) (subst B (sym (ε' (f x))) y)
-      ≡⟨ sym (substComposite B (sym (ε' (f x))) (cong f (η x)) y) ⟩
-    subst B (sym (ε' (f x)) ∙ (cong f (η x))) y
-      ≡⟨ cong (λ a → subst B a y) (lem x) ⟩
-    subst B (refl) y
-      ≡⟨ substRefl {B = B} y ⟩
-    y ∎))
+  ε = isHAEquiv.ret (snd (iso→HAEquiv isom))
+  goal : subst B (ε x) (subst B (sym (ε x)) y) ≡ y
+  goal = sym (substComposite B (sym (ε x)) (ε x) y)
+      ∙∙ cong (λ x → subst B x y) (lCancel (ε x))
+      ∙∙ substRefl {B = B} y
+leftInv (Σ-cong-iso-fst {A = A} {B = B} isom@(iso f _ _ η)) (x , y) = ΣPathP (η x , toPathP goal)
   where
-    ε' = isHAEquiv.ret (snd (iso→HAEquiv isom))
-    γ = isHAEquiv.com (snd (iso→HAEquiv isom))
+  ε = isHAEquiv.ret (snd (iso→HAEquiv isom))
+  γ = isHAEquiv.com (snd (iso→HAEquiv isom))
 
-    lem : (x : A) → sym (ε' (f x)) ∙ cong f (η x) ≡ refl
-    lem x = cong (λ a → sym (ε' (f x)) ∙ a) (γ x) ∙ lCancel (ε' (f x))
+  lem : (x : A) → sym (ε (f x)) ∙ cong f (η x) ≡ refl
+  lem x = cong (λ a → sym (ε (f x)) ∙ a) (γ x) ∙ lCancel (ε (f x))
+
+  goal : subst B (cong f (η x)) (subst B (sym (ε (f x))) y) ≡ y
+  goal = sym (substComposite B (sym (ε (f x))) (cong f (η x)) y)
+      ∙∙ cong (λ a → subst B a y) (lem x)
+      ∙∙ substRefl {B = B} y
 
 Σ-cong-equiv-fst : (e : A ≃ A') → Σ A (B ∘ equivFun e) ≃ Σ A' B
 Σ-cong-equiv-fst e = isoToEquiv (Σ-cong-iso-fst (equivToIso e))
@@ -204,4 +195,3 @@ PathΣ→ΣPathTransport a b = invEq (ΣPathTransport≃PathΣ a b)
 -- a special case of the above
 ΣUnit : ∀ {ℓ} (A : Unit → Type ℓ) → Σ Unit A ≃ A tt
 ΣUnit A = isoToEquiv (iso snd (λ { x → (tt , x) }) (λ _ → refl) (λ _ → refl))
-

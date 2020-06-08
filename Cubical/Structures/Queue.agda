@@ -107,19 +107,14 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
 
  isProp-queue-axioms : ∀ Q S → isProp (queue-axioms Q S)
  isProp-queue-axioms Q S =
-   isPropΣ
-     isPropIsSet
-     (λ Qset →
-       isProp×
-       (isOfHLevelDeq Qset _ _)
-       (isProp×
-         (isPropΠ2 λ _ _ → isOfHLevelDeq Qset _ _)
-         (isProp×
-           (isPropΠ3 λ _ _ _ → isPropΠ2 λ _ _ → isProp× (Aset _ _) (Qset _ _))
-           (isPropΠ3 λ _ _ _ → Qset _ _))))
+   isPropΣ isPropIsSet
+           (λ Qset → isProp×3 (isOfHLevelDeq Qset _ _)
+                              (isPropΠ2 λ _ _ → isOfHLevelDeq Qset _ _)
+                              (isPropΠ3 λ _ _ _ → isPropΠ2 λ _ _ → isProp× (Aset _ _) (Qset _ _))
+                              (isPropΠ3 λ _ _ _ → Qset _ _))
    where
-   isOfHLevelDeq : isOfHLevel 2 Q → isOfHLevel 2 (Unit ⊎ (Q × A))
-   isOfHLevelDeq Qset = isOfHLevelSum 0 (isOfHLevelUnit 2) (isOfHLevel× 2 Qset Aset)
+   isOfHLevelDeq : isSet Q → isOfHLevel 2 (Unit ⊎ (Q × A))
+   isOfHLevelDeq Qset = isSetSum isSetUnit (isSet× Qset Aset)
 
  queue-structure : Type ℓ → Type ℓ
  queue-structure = add-to-structure raw-queue-structure queue-axioms
