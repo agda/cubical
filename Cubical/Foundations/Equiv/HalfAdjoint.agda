@@ -14,7 +14,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Function using (_∘_)
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 
 private
@@ -73,6 +73,11 @@ HAEquiv A B = Σ[ f ∈ (A → B) ] isHAEquiv f
 iso→HAEquiv : Iso A B → HAEquiv A B
 iso→HAEquiv (iso f g ε η) = f , isHAEquivf
   where
+    Hfa≡fHa : (f : A → A) → (H : ∀ a → f a ≡ a) → ∀ a → H (f a) ≡ cong f (H a)
+    Hfa≡fHa f H = J (λ f p → ∀ a → funExt⁻ (sym p) (f a) ≡ cong f (funExt⁻ (sym p) a))
+                    (λ a → refl)
+                    (sym (funExt H))
+
     isHAEquivf : isHAEquiv f
     isHAEquiv.g isHAEquivf         = g
     isHAEquiv.sec isHAEquivf       = η
@@ -89,32 +94,33 @@ iso→HAEquiv (iso f g ε η) = f , isHAEquivf
 equiv→HAEquiv : A ≃ B → HAEquiv A B
 equiv→HAEquiv e = iso→HAEquiv (equivToIso e)
 
-congIso : {x y : A} (e : A ≃ B) → Iso (x ≡ y) (e .fst x ≡ e .fst y)
+congIso : {x y : A} (e : Iso A B) → Iso (x ≡ y) (Iso.fun e x ≡ Iso.fun e y)
 congIso {x = x} {y} e = goal
   where
-  open isHAEquiv (equiv→HAEquiv e .snd)
+  open isHAEquiv (iso→HAEquiv e .snd)
   open Iso
 
-  goal : Iso (x ≡ y) (e .fst x ≡ e .fst y)
-  fun goal   = cong (equiv→HAEquiv e .fst)
+  goal : Iso (x ≡ y) (Iso.fun e x ≡ Iso.fun e y)
+  fun goal   = cong (iso→HAEquiv e .fst)
   inv goal p = sym (sec x) ∙∙ cong g p ∙∙ sec y
   rightInv goal p i j =
-    hcomp (λ k → λ { (i = i0) → equiv→HAEquiv e .fst
+    hcomp (λ k → λ { (i = i0) → iso→HAEquiv e .fst
                                   (doubleCompPath-filler (sym (sec x)) (cong g p) (sec y) k j)
                    ; (i = i1) → ret (p j) k
                    ; (j = i0) → com x i k
                    ; (j = i1) → com y i k })
-          (equiv→HAEquiv e .fst (g (p j)))
+          (iso→HAEquiv e .fst (g (p j)))
   leftInv goal p i j =
     hcomp (λ k → λ { (i = i1) → p j
-                   ; (j = i0) → secEq e x (i ∨ k)
-                   ; (j = i1) → secEq e y (i ∨ k) })
-          (secEq e (p j) i)
+                   ; (j = i0) → Iso.leftInv e x (i ∨ k)
+                   ; (j = i1) → Iso.leftInv e y (i ∨ k) })
+          (Iso.leftInv e (p j) i)
 
 -- This is proved more directly in Foundations.Equiv.Properties, but
--- that proof is not as universe polymorphic as this one
+-- that proof is not as universe polymorphic as this one and this one
+-- seems to have a lot better computational properties
 isEquivCong : {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → cong (e .fst) p)
-isEquivCong e = isoToIsEquiv (congIso e)
+isEquivCong e = isoToIsEquiv (congIso (equivToIso e))
 
 congEquiv : {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
-congEquiv e = isoToEquiv (congIso e)
+congEquiv e = isoToEquiv (congIso (equivToIso e))
