@@ -7,7 +7,7 @@ Theory about isomorphisms
 - Any isomorphism is an equivalence ([isoToEquiv])
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Isomorphism where
 
 open import Cubical.Core.Everything

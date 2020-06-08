@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.ZCohomology.Properties where
 
 open import Cubical.ZCohomology.Base
@@ -22,7 +22,7 @@ open import Cubical.HITs.Nullification
 open import Cubical.Data.Int hiding (_+_)
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod
-open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; recElim to trRec ; elim3 to trElim3)
+open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
@@ -47,8 +47,8 @@ private
 
 {- Equivalence between cohomology of A and reduced cohomology of (A + 1) -}
 coHomRed+1Equiv : (n : ℕ) →
-                 (A : Set ℓ) →
-                 (coHom n A) ≡ (coHomRed n ((A ⊎ Unit , inr (tt))))
+                  (A : Type ℓ) →
+                  (coHom n A) ≡ (coHomRed n ((A ⊎ Unit , inr (tt))))
 coHomRed+1Equiv zero A i = ∥ helpLemma {C = (Int , pos 0)} i ∥₀
   module coHomRed+1 where
   helpLemma : {C : Pointed ℓ} → ( (A → (typ C)) ≡  ((((A ⊎ Unit) , inr (tt)) →∙ C)))
