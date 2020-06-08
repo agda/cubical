@@ -89,49 +89,32 @@ iso→HAEquiv (iso f g ε η) = f , isHAEquivf
 equiv→HAEquiv : A ≃ B → HAEquiv A B
 equiv→HAEquiv e = iso→HAEquiv (equivToIso e)
 
-congIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y : A} (e : A ≃ B) → Iso (x ≡ y) (e .fst x ≡ e .fst y)
-congIso {A = A} {B} {x} {y} e = (iso intro elim intro-elim elim-intro)
+congIso : {x y : A} (e : A ≃ B) → Iso (x ≡ y) (e .fst x ≡ e .fst y)
+congIso {x = x} {y} e = goal
   where
-    e' : HAEquiv A B
-    e' = equiv→HAEquiv e
+  open isHAEquiv (equiv→HAEquiv e .snd)
+  open Iso
 
-    f : A → B
-    f = e' .fst
+  goal : Iso (x ≡ y) (e .fst x ≡ e .fst y)
+  fun goal   = cong (equiv→HAEquiv e .fst)
+  inv goal p = sym (sec x) ∙∙ cong g p ∙∙ sec y
+  rightInv goal p i j =
+    hcomp (λ k → λ { (i = i0) → equiv→HAEquiv e .fst
+                                  (doubleCompPath-filler (sym (sec x)) (cong g p) (sec y) k j)
+                   ; (i = i1) → ret (p j) k
+                   ; (j = i0) → com x i k
+                   ; (j = i1) → com y i k })
+          (equiv→HAEquiv e .fst (g (p j)))
+  leftInv goal p i j =
+    hcomp (λ k → λ { (i = i1) → p j
+                   ; (j = i0) → secEq e x (i ∨ k)
+                   ; (j = i1) → secEq e y (i ∨ k) })
+          (secEq e (p j) i)
 
-    open isHAEquiv (e' .snd)
+-- This is proved more directly in Foundations.Equiv.Properties, but
+-- that proof is not as universe polymorphic as this one
+isEquivCong : {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → cong (e .fst) p)
+isEquivCong e = isoToIsEquiv (congIso e)
 
-    intro : x ≡ y → f x ≡ f y
-    intro = cong f
-
-    elim-sides : ∀ p i j → Partial (~ i ∨ i) A
-    elim-sides p i j = λ { (i = i0) → sec x j
-                         ; (i = i1) → sec y j }
-
-    elim-bot : ∀ p i → A
-    elim-bot p i = cong g p i
-
-    elim : f x ≡ f y → x ≡ y
-    elim p i = hcomp (elim-sides p i) (elim-bot p i)
-
-    intro-elim : ∀ p → intro (elim p) ≡ p
-    intro-elim p i j =
-      hcomp (λ k → λ { (i = i0) → f (hfill (elim-sides p j)
-                                    (inS (elim-bot p j)) k)
-                     ; (i = i1) → ret (p j) k
-                     ; (j = i0) → com x i k
-                     ; (j = i1) → com y i k })
-            (f (g (p j)))
-
-    elim-intro : ∀ p → elim (intro p) ≡ p
-    elim-intro p i j =
-      hcomp (λ k → λ { (i = i0) → hfill (λ l → λ { (j = i0) → secEq e x l
-                                                 ; (j = i1) → secEq e y l })
-                                        (inS (cong (λ z → g (f z)) p j)) k
-                     ; (i = i1) → p j
-                     ; (j = i0) → secEq e x (i ∨ k)
-                     ; (j = i1) → secEq e y (i ∨ k) })
-            (secEq e (p j) i)
-
-
-congEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
-congEquiv {A = A} {B} {x} {y} e = isoToEquiv (congIso e)
+congEquiv : {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
+congEquiv e = isoToEquiv (congIso e)

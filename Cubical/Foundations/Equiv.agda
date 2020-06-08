@@ -130,7 +130,8 @@ homotopyNatural {f = f} {g = g} H {x} {y} p i j =
                    ; (j = i1) → cong g p (i ∨ k) })
           (H (p i) j)
 
-Hfa≡fHa : ∀ {A : Type ℓ} (f : A → A) → (H : ∀ a → f a ≡ a) → ∀ a → H (f a) ≡ cong f (H a)
+-- TODO: can probably be simplified using that f is the identity function
+Hfa≡fHa : ∀ (f : A → A) → (H : ∀ a → f a ≡ a) → ∀ a → H (f a) ≡ cong f (H a)
 Hfa≡fHa {A = A} f H a =
   H (f a)                          ≡⟨ rUnit (H (f a)) ⟩
   H (f a) ∙ refl                   ≡⟨ cong (_∙_ (H (f a))) (sym (rCancel (H a))) ⟩
