@@ -50,7 +50,7 @@ module _ {ℓ : Level} {U : Type ℓ} {ℓr} (_~_ : U → U → Type ℓr)
   isContrToUniv {A} {B}
     = fiberEquiv (λ z → A ≡ z) (λ z → A ~ z) (\ B → idTo~ {A} {B})
                  (λ { .equiv-proof y
-                    → isContrΣ ((_ , refl) , (\ z → contrSingl (z .snd)))
+                    → isContrΣ (isContrSingl _)
                                    \ a → isContr→isContrPath (c A) _ _
                     })
                  B
