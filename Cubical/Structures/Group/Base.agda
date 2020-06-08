@@ -92,13 +92,6 @@ group-linv : (G : Group {ℓ})
                → (x : ⟨ G ⟩) → (group-inv G x) ·⟨ G ⟩ x ≡ group-id G
 group-linv (_ , _ , _ , P) x = snd (snd ((snd (snd P)) x))
 
--- Hom and Iso for groups are those for monoids
-group-hom : StrHom group-structure ℓ
-group-hom = add-to-hom (nAryFunHom 2) group-axioms
-
-group-iso : StrIso group-structure ℓ
-group-iso = StrHom→StrIso group-hom
-
 -- Group axioms isProp
 
 group-axioms-isProp : (X : Type ℓ)
@@ -138,15 +131,7 @@ group-axioms-isProp X s t = η t
   η : isProp (group-axioms X s)
   η = isPropΣ (semigroup-axiom-isProp X s) λ _ → γ
 
--- Group paths equivalent to equality
-group-is-SNS : SNS {ℓ} group-structure group-iso
-group-is-SNS = add-axioms-SNS _ group-axioms-isProp (nAryFunSNS 2)
-
-GroupPath : (M N : Group {ℓ}) → (M ≃[ group-iso ] N) ≃ (M ≡ N)
-GroupPath = SIP group-is-SNS
-
 -- Group ·syntax
-
 module group-·syntax (G : Group {ℓ}) where
 
   infixr 18 _·_

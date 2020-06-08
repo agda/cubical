@@ -36,7 +36,6 @@ nAryFunSNS n = SNS-≡→SNS-PathP (nAryFunIso n) (nAryFunExtEquiv n)
 -- Some specializations that are not used at the moment, but kept as
 -- they might become useful later.
 private
-
   -- unary
   unaryFunIso : StrIso  (λ (X : Type ℓ) → nAryOp 1 X X) ℓ
   unaryFunIso (A , f) (B , g) e =
@@ -57,10 +56,13 @@ private
       Iso.rightInv f p _ xs@(x ∷ []) = p xs
       Iso.leftInv f p _              = p
 
+module _ where
   -- binary
+  binaryFunHom : StrHom (λ (X : Type ℓ) → nAryOp 2 X X) ℓ
+  binaryFunHom (A , f) (B , g) e = (x y : A) → e (f x y) ≡ g (e x) (e y)
+
   binaryFunIso : StrIso  (λ (X : Type ℓ) → nAryOp 2 X X) ℓ
-  binaryFunIso (A , f) (B , g) e =
-    (x y : A) → equivFun e (f x y) ≡ g (equivFun e x) (equivFun e y)
+  binaryFunIso = StrHom→StrIso binaryFunHom
 
   binaryFunSNS : SNS {ℓ} _ binaryFunIso
   binaryFunSNS = SNS-≡→SNS-PathP binaryFunIso (λ s t → compEquiv lem (nAryFunExtEquiv 2 s t))
