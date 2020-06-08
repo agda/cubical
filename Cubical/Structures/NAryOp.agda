@@ -33,8 +33,6 @@ module _ {ℓ₁ ℓ₂ : Level} where
       (equivPi λ xs → SNS-PathP→SNS-≡ _ ι θ _ _)
       (nAryFunExtEquiv n fX fY)
 
--- Some specializations that are not used at the moment, but kept as
--- they might become useful later.
 module _ {ℓ₁ ℓ₂ : Level} where
 
   -- unary
