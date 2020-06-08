@@ -6,10 +6,10 @@ When preparing a PR here are some general guidelines:
 
 - Please read through and clean your code before making a PR. Clean
   code has reasonable line length (<100 characters), good indentation,
-  appropriate amount of comments and consistent naming.
+  appropriate amounts of comments and consistent naming.
 
 - Local definitions should be put in `where`, `let-in` or `private` so
-  that it is easier to see which are the main results of a file and
+  that it is easy to see which are the main results of a file and
   which are just helper definitions.
 
 - If the code is based on some paper add a reference to the version of
@@ -25,10 +25,19 @@ When preparing a PR here are some general guidelines:
   of the file. All definitions should be maximally universe
   polymorphic.
 
+- Make reasonably many arguments implicit, but don't overdo it. If you
+  find yourself having to provide some argument explicitly most of the
+  time then it should not be implicit. The same applies the other way
+  around, if some argument most often can be replaced by `_` then it
+  should be made implicit.
+
 - Use `Type ℓ` for universes (so `Set ℓ` is not allowed in order to
   avoid confusion with the type of h-sets).
 
-- All files should start with `{-# OPTIONS --cubical --safe #-}`
+- All files should start with
+
+  `{-# OPTIONS --cubical --no-import-sorts --safe #-}`
+
   unless there is a good reason for it not to.
 
 - It is much easier for us to review and merge smaller and
@@ -43,22 +52,38 @@ When preparing a PR here are some general guidelines:
 
 - Draft PRs are very appreciated so that we can discuss the code as it
   develops. It also helps with knowing who's working on what and
-  reducing duplicate efforts.
+  reducing duplicate efforts. If your code contains postulates then it
+  should be in a draft PR until the postulates have been filled in.
 
 - We automatically check for whitespace in the end of lines using
   Travis. It is easy to configure emacs so that this is visible while
   editing files by adding `(setq-default show-trailing-whitespace t)`
-  to `~/.emacs`.
+  to `~/.emacs`. The command `M-x delete-trailing-whitespace` is also
+  very useful. It is possible to add a hook that runs this command
+  automatically when saving Agda files.
 
 - Use copattern-matching when instantiating records for efficiency.
   This seems especially important when constructing Iso's.
 
+- If typechecking starts becoming slow try to fix the efficiency
+  problems directly. We don't want to merge files that are very slow
+  to typecheck so they will have to optimized at some point and it's
+  often much easier to fix these things directly. If you don't know
+  what to try make a draft PR and ask for help.
+
 - It is often useful to give explicit names to the Iso, Equiv and Path
   version of a result. Try to avoid switching between these when
-  constructing something, for instance if we want to construct a Path
+  constructing something, for instance if you want to construct a Path
   out of a series of Iso's then compose the Isos first and then apply
   `isoToPath` once instead of converting all of them to paths and
   composing them as paths.
+
+- Some useful lemmas have specialized versions with higher arity to
+  make code easier to read. See for example `isPropΠ2` and `isSetΠ2`
+  in
+  [HLevels.agda](https://github.com/agda/cubical/blob/master/Cubical/Foundations/HLevels.agda)
+  as well as various versions of function extensionality in
+  [FunExtEquiv.agda](https://github.com/agda/cubical/blob/master/Cubical/Functions/FunExtEquiv.agda).
 
 - Unless a file is in the `Core`, `Foundations`, `Codata` or
   `Experiments` package you don't need to add it manually to the
