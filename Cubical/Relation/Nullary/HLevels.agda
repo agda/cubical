@@ -16,8 +16,8 @@ private
 isPropPopulated : isProp (Populated A)
 isPropPopulated = isPropΠ λ x → 2-Constant→isPropFixpoint (x .fst) (x .snd)
 
-isPropHStable≡ : isProp (HSeparated A)
-isPropHStable≡ f g i x y a = HStable≡→isSet f x y (f x y a) (g x y a) i
+isPropHSeparated : isProp (HSeparated A)
+isPropHSeparated f g i x y a = HSeparated→isSet f x y (f x y a) (g x y a) i
 
 isPropCollapsible≡ : isProp (Collapsible≡ A)
 isPropCollapsible≡ {A = A} f = (isPropΠ2 λ x y → isPropCollapsiblePointwise) f where
