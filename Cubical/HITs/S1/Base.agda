@@ -88,8 +88,14 @@ windingIntLoop (pos (suc n))    = cong sucInt (windingIntLoop (pos n))
 windingIntLoop (negsuc zero)    = refl
 windingIntLoop (negsuc (suc n)) = cong predInt (windingIntLoop (negsuc n))
 
+ΩS¹IsoInt : Iso ΩS¹ Int
+Iso.fun ΩS¹IsoInt      = winding
+Iso.inv ΩS¹IsoInt      = intLoop
+Iso.rightInv ΩS¹IsoInt = windingIntLoop
+Iso.leftInv ΩS¹IsoInt  = decodeEncode base
+
 ΩS¹≡Int : ΩS¹ ≡ Int
-ΩS¹≡Int = isoToPath (iso winding intLoop windingIntLoop (decodeEncode base))
+ΩS¹≡Int = isoToPath ΩS¹IsoInt
 
 -- intLoop and winding are group homomorphisms
 private

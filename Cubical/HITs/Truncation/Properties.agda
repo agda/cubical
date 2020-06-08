@@ -161,6 +161,9 @@ isModalIsProp (HLevelTruncModality n) = isPropIsOfHLevel n
 ◯-elim-β      (HLevelTruncModality n) = λ _ _ _ → refl
 ◯-=-isModal   (HLevelTruncModality n) = isOfHLevelPath n (isOfHLevelTrunc n)
 
+truncIdempotentIso : (n : ℕ) → isOfHLevel n A → Iso A (hLevelTrunc n A)
+truncIdempotentIso n hA = isModalToIso (HLevelTruncModality n) hA
+
 truncIdempotent≃ : (n : ℕ) → isOfHLevel n A → A ≃ hLevelTrunc n A
 truncIdempotent≃ n hA = ∣_∣ , isModalToIsEquiv (HLevelTruncModality n) hA
 
