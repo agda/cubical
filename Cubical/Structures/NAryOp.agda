@@ -20,10 +20,15 @@ private
 nAryFunStructure : (n : ℕ) → Type (ℓ-max (ℓ-suc ℓ) (nAryLevel ℓ ℓ n))
 nAryFunStructure {ℓ = ℓ} n = TypeWithStr _ (λ (X : Type ℓ) → nAryOp n X X)
 
+-- hom for n-ary functions
+nAryFunHom : (n : ℕ) → StrHom (λ (X : Type ℓ) → nAryOp n X X) ℓ
+nAryFunHom n (X , fX) (Y , fY) f = (xs : Vec X n) → f (fX $ⁿ xs) ≡ (fY $ⁿ map f xs)
+
 -- iso for n-ary functions
 nAryFunIso : (n : ℕ) → StrIso (λ (X : Type ℓ) → nAryOp n X X) ℓ
-nAryFunIso n (X , fX) (Y , fY) f =
-  (xs : Vec X n) → equivFun f (fX $ⁿ xs) ≡ fY $ⁿ map (equivFun f) xs
+nAryFunIso n = StrHom→StrIso (nAryFunHom n)
+--nAryFunIso n (X , fX) (Y , fY) f =
+--  (xs : Vec X n) → equivFun f (fX $ⁿ xs) ≡ fY $ⁿ map (equivFun f) xs
 
 nAryFunSNS : (n : ℕ) → SNS {ℓ} _ (nAryFunIso n)
 nAryFunSNS n = SNS-≡→SNS-PathP (nAryFunIso n) (nAryFunExtEquiv n)
