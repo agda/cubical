@@ -37,7 +37,7 @@ record Iso {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ ℓ') w
     fun : A → B
     inv : B → A
     rightInv : section fun inv
-    leftInv : retract fun inv
+    leftInv  : retract fun inv
 
 isIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → Type _
 isIso {A = A} {B = B} f = Σ[ g ∈ (B → A) ] Σ[ _ ∈ section f g ] retract f g
@@ -97,33 +97,41 @@ isoToEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso A B → A ≃
 isoToEquiv i .fst = _
 isoToEquiv i .snd = isoToIsEquiv i
 
-isoToPath : ∀ {ℓ} {A B : Type ℓ} → (Iso A B) → A ≡ B
+isoToPath : ∀ {ℓ} {A B : Type ℓ} → Iso A B → A ≡ B
 isoToPath {A = A} {B = B} f i =
   Glue B (λ { (i = i0) → (A , isoToEquiv f)
             ; (i = i1) → (B , idEquiv B) })
 
+open Iso
+
+invIso : ∀ {ℓ ℓ'} {X : Type ℓ} {Y : Type ℓ'} → Iso X Y → Iso Y X
+fun (invIso f) = inv f
+inv (invIso f) = fun f
+rightInv (invIso f) = leftInv f
+leftInv (invIso f)  = rightInv f
+
 compIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
           → Iso A B → Iso B C → Iso A C
-compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) .Iso.fun = fun₁ ∘ fun
-compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) .Iso.inv = inv ∘ inv₁
-compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) .Iso.rightInv b
-  = cong fun₁ (rightInv (inv₁ b)) ∙ (rightInv₁ b)
-compIso (iso fun inv rightInv leftInv) (iso fun₁ inv₁ rightInv₁ leftInv₁) .Iso.leftInv a
-  = cong inv (leftInv₁ (fun a) ) ∙ leftInv a
+fun (compIso (iso f _ _ _) (iso g _ _ _))       = g ∘ f
+inv (compIso (iso _ finv _ _) (iso _ ginv _ _)) = finv ∘ ginv
+rightInv (compIso (iso _ _ rightInv _) (iso g ginv rightInv' _)) b =
+  cong g (rightInv (ginv b)) ∙ rightInv' b
+leftInv (compIso (iso f finv _ leftInv) (iso _ _ _ leftInv')) a =
+  cong finv (leftInv' (f a)) ∙ leftInv a
 
 composesToId→Iso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}  (G : Iso A B) (g : B → A)
-                 → (Iso.fun G) ∘ g ≡ idfun B → Iso B A
-Iso.fun (composesToId→Iso (iso fun inv rightInv leftInv) g path) = g
-Iso.inv (composesToId→Iso (iso fun inv rightInv leftInv) g path) = fun
-Iso.rightInv (composesToId→Iso (iso fun inv rightInv leftInv) g path) b =
-  (sym (leftInv (g (fun b))) ∙ cong (λ x → inv x) (cong (λ f → f (fun b)) path)) ∙ leftInv b
-Iso.leftInv (composesToId→Iso (iso fun inv rightInv leftInv) g path) b = cong (λ f → f b) path
+                 → G .fun ∘ g ≡ idfun B → Iso B A
+fun (composesToId→Iso _ g _)             = g
+inv (composesToId→Iso (iso f _ _ _) _ _) = f
+rightInv (composesToId→Iso (iso f finv _ leftInv) g path) b =
+  sym (leftInv (g (f b))) ∙∙ cong (λ g → finv (g (f b))) path ∙∙ leftInv b
+leftInv (composesToId→Iso _ _ path) b i = path i b
 
 idIso : ∀ {ℓ} {X : Type ℓ} → Iso X X
-Iso.fun (idIso {X = X}) = idfun X
-Iso.inv (idIso {X = X}) = idfun X
-Iso.rightInv (idIso {X = X}) x = refl {x = x}
-Iso.leftInv (idIso {X = X}) x = refl {x = x}
+fun idIso = idfun _
+inv idIso = idfun _
+rightInv idIso _ = refl
+leftInv idIso _  = refl
 
 -- Helpful notation
 _Iso⟨_⟩_ : ∀ {ℓ ℓ' ℓ''} {B : Type ℓ'} {C : Type ℓ''} (X : Type ℓ) → Iso X B → Iso B C → Iso X C
@@ -135,8 +143,3 @@ X ∎Iso = idIso {X = X}
 infixr  0 _Iso⟨_⟩_
 infix   1 _∎Iso
 
-invIso : ∀ {ℓ ℓ'} {X : Type ℓ} {Y : Type ℓ'} → Iso X Y → Iso Y X
-Iso.fun (invIso isom) = Iso.inv isom
-Iso.inv (invIso isom) = Iso.fun isom
-Iso.rightInv (invIso isom) = Iso.leftInv isom
-Iso.leftInv (invIso isom) = Iso.rightInv isom
