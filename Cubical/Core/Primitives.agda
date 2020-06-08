@@ -4,7 +4,7 @@ This file document and export the main primitives of Cubical Agda. It
 also defines some basic derived operations (composition and filling).
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Core.Primitives where
 
 open import Agda.Builtin.Cubical.Path public
@@ -34,17 +34,9 @@ open import Agda.Primitive public
   renaming ( lzero to ℓ-zero
            ; lsuc  to ℓ-suc
            ; _⊔_   to ℓ-max
+           ; Set   to Type
            ; Setω  to Typeω )
 open import Agda.Builtin.Sigma public
-
-Type : (ℓ : Level) → Set (ℓ-suc ℓ)
-Type ℓ = Set ℓ
-
-Type₀ : Type (ℓ-suc ℓ-zero)
-Type₀ = Type ℓ-zero
-
-Type₁ : Type (ℓ-suc (ℓ-suc ℓ-zero))
-Type₁ = Type (ℓ-suc ℓ-zero)
 
 -- This file document the Cubical Agda primitives. The primitives
 -- themselves are bound by the Agda files imported above.

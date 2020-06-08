@@ -1,7 +1,7 @@
 {-
   Definitions for functions
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Function where
 
 open import Cubical.Foundations.Prelude

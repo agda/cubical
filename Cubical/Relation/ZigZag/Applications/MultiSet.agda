@@ -1,6 +1,6 @@
 -- We apply the theory of zigzag complete relations to finite multisets and association lists.
 -- See discussion at the end of the file.
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Relation.ZigZag.Applications.MultiSet where
 
 open import Cubical.Core.Everything

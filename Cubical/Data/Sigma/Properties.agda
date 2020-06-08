@@ -12,7 +12,7 @@ Basic properties about Σ-types
 - Σ with a contractible base is its fiber ([Σ-contractFst, ΣUnit])
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Data.Sigma.Properties where
 
 open import Cubical.Data.Sigma.Base

@@ -7,7 +7,7 @@ Half adjoint equivalences ([HAEquiv])
 - Cong is an equivalence ([congEquiv])
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Equiv.HalfAdjoint where
 
 open import Cubical.Foundations.Prelude

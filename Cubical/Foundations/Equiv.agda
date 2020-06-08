@@ -14,7 +14,7 @@ There are more statements about equivalences in Equiv/Properties.agda:
 - if f is an equivalence then postcomposition with f is an equivalence
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Equiv where
 
 open import Cubical.Foundations.Function
@@ -147,7 +147,7 @@ invEq≡→equivFun≡ : ∀ (e : A ≃ B) {x y} → invEq e x ≡ y → equivFu
 invEq≡→equivFun≡ e {x} p = cong (equivFun e) (sym p) ∙ retEq e x
 
 equivPi
-  : ∀{F : A → Set ℓ} {G : A → Set ℓ'}
+  : ∀{F : A → Type ℓ} {G : A → Type ℓ'}
   → ((x : A) → F x ≃ G x) → (((x : A) → F x) ≃ ((x : A) → G x))
 equivPi k .fst f x = k x .fst (f x)
 equivPi k .snd .equiv-proof f

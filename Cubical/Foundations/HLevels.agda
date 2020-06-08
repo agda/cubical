@@ -7,7 +7,7 @@ Basic theory about h-levels/n-types:
 - Hedberg's theorem can be found in Cubical/Relation/Nullary/DecidableEq
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.HLevels where
 
 open import Cubical.Foundations.Prelude

@@ -3,7 +3,7 @@
 Definition of the Klein bottle as a HIT
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.KleinBottle.Properties where
 
 open import Cubical.Core.Everything
@@ -27,7 +27,7 @@ loop1 : S¹ → KleinBottle
 loop1 base = point
 loop1 (loop i) = line1 i
 
-invS¹Loop : S¹ → Set
+invS¹Loop : S¹ → Type
 invS¹Loop base = S¹
 invS¹Loop (loop i) = invS¹Path i
 

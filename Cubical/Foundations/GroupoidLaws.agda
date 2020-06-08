@@ -4,7 +4,7 @@ This file proves the higher groupoid structure of types
 for homogeneous and heterogeneous paths
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.GroupoidLaws where
 
 open import Cubical.Foundations.Prelude
@@ -205,7 +205,7 @@ cong-∙∙ f p q r j i = hcomp (λ k → λ { (j = i0) → f (doubleCompPath-fi
                                      ; (i = i1) → f (r k) })
                             (f (q i))
 
-hcomp-unique : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
+hcomp-unique : ∀ {ℓ} {A : Type ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
                (h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
                → (hcomp u (outS u0) ≡ outS (h2 i1)) [ φ ↦ (\ { (φ = i1) → (\ i → u i1 1=1)}) ]
 hcomp-unique {φ = φ} u u0 h2 = inS (\ i → hcomp (\ k → \ { (φ = i1) → u k 1=1
@@ -213,7 +213,7 @@ hcomp-unique {φ = φ} u u0 h2 = inS (\ i → hcomp (\ k → \ { (φ = i1) → u
                                                    (outS u0))
 
 
-lid-unique : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
+lid-unique : ∀ {ℓ} {A : Type ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
                (h1 h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
                → (outS (h1 i1) ≡ outS (h2 i1)) [ φ ↦ (\ { (φ = i1) → (\ i → u i1 1=1)}) ]
 lid-unique {φ = φ} u u0 h1 h2 = inS (\ i → hcomp (\ k → \ { (φ = i1) → u k 1=1
@@ -222,8 +222,8 @@ lid-unique {φ = φ} u u0 h1 h2 = inS (\ i → hcomp (\ k → \ { (φ = i1) → 
                                                    (outS u0))
 
 
-transp-hcomp : ∀ {ℓ} (φ : I) {A' : Set ℓ}
-                     (A : (i : I) → Set ℓ [ φ ↦ (λ _ → A') ]) (let B = \ (i : I) → outS (A i))
+transp-hcomp : ∀ {ℓ} (φ : I) {A' : Type ℓ}
+                     (A : (i : I) → Type ℓ [ φ ↦ (λ _ → A') ]) (let B = \ (i : I) → outS (A i))
                  → ∀ {ψ} (u : I → Partial ψ (B i0)) → (u0 : B i0 [ ψ ↦ u i0 ]) →
                  (transp B φ (hcomp u (outS u0)) ≡ hcomp (\ i o → transp B φ (u i o)) (transp B φ (outS u0)))
                    [ ψ ↦ (\ { (ψ = i1) → (\ i → transp B φ (u i1 1=1))}) ]
@@ -234,9 +234,8 @@ transp-hcomp φ A u u0 = inS (sym (outS (hcomp-unique
     B = \ (i : I) → outS (A i)
 
 
-hcomp-cong : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
-                                    (u' : I → Partial φ A) → (u0' : A [ φ ↦ u' i0 ]) →
-
+hcomp-cong : ∀ {ℓ} {A : Type ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
+                                     (u' : I → Partial φ A) → (u0' : A [ φ ↦ u' i0 ]) →
              (ueq : ∀ i → PartialP φ (\ o → u i o ≡ u' i o)) → (outS u0 ≡ outS u0') [ φ ↦ (\ { (φ = i1) → ueq i0 1=1}) ]
              → (hcomp u (outS u0) ≡ hcomp u' (outS u0')) [ φ ↦ (\ { (φ = i1) → ueq i1 1=1 }) ]
 hcomp-cong u u0 u' u0' ueq 0eq = inS (\ j → hcomp (\ i o → ueq i o j) (outS 0eq j))
