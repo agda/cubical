@@ -100,15 +100,13 @@ private
 
 
   isolooper2 : Iso Int (Path (S₊ 1) north north)
-  isolooper2 = compIso (iso intLoop winding (decodeEncode base) windingIntLoop)
-                       (compIso iso2
-                                iso1)
+  isolooper2 = compIso (invIso ΩS¹IsoInt) (compIso iso2 iso1)
     where
     iso1 : Iso (Path (Susp Bool) north north) (Path (S₊ 1) north north)
-    iso1 = congIso SuspBool≃S1
+    iso1 = congIso SuspBoolIsoS1
 
     iso2 : Iso ΩS¹ (Path (Susp Bool) north north)
-    iso2 = congIso (isoToEquiv (iso S¹→SuspBool SuspBool→S¹ SuspBool→S¹→SuspBool S¹→SuspBool→S¹))
+    iso2 = congIso S¹IsoSuspBool
 
   isolooper : Iso Int (Path (S₊ 1) north north)
   Iso.fun isolooper = looper
@@ -236,7 +234,7 @@ Iso.rightInv (decodeIso n x) b = funsAreSame n x (ΩTrunc.encode-fun ∣ x ∣ �
 Iso.leftInv (decodeIso n x) b = cong (ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣) (funsAreSame n x b) ∙ ΩTrunc.P-linv ∣ x ∣ ∣ x ∣ b
 
 Iso-Kn-ΩKn+1 : (n : ℕ) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
-Iso-Kn-ΩKn+1 zero = compIso isolooper (congIso (truncIdempotent≃ _ isOfHLevelS1))
+Iso-Kn-ΩKn+1 zero = compIso isolooper (congIso (truncIdempotentIso _ isOfHLevelS1))
 Iso-Kn-ΩKn+1 (suc zero) = compIso Iso∣ϕ∣ (decodeIso _ north)
 Iso-Kn-ΩKn+1 (suc (suc n)) = compIso (connectedTruncIso2 (4 + n) _ (ϕ north) (n , helper)
                                                                              (isConnectedσ (suc n) (sphereConnected _)))

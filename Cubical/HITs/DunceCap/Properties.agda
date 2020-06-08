@@ -61,4 +61,4 @@ snd isContr-Dunce = sym ∘ contrDunce
 
 
 Dunce≡DunceCone : Dunce ≡ DunceCone
-Dunce≡DunceCone = ua (Contr→Equiv isContr-Dunce isContr-DunceCone)
+Dunce≡DunceCone = ua (isContr→Equiv isContr-Dunce isContr-DunceCone)

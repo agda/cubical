@@ -28,14 +28,18 @@ private
     ℓ ℓ′ : Level
     A B : Type ℓ
 
+-- There are more universe polymorphic versions of these results in
+-- Cubical.Foundations.Equiv.HalfAdjoint that seem to have better
+-- computational behavior
+private
+  isEquivCong : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → (cong (fst e) p))
+  isEquivCong {B = B} e = EquivJ (λ (A' : Type _) (e' : A' ≃ B) →
+                                 (x' y' : A') → isEquiv (λ (p : x' ≡ y') → cong (fst e') p))
+                                 (λ x' y' → idIsEquiv (x' ≡ y')) e _ _
 
-isEquivCong : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → (cong (fst e) p))
-isEquivCong {B = B} e = EquivJ (λ (A' : Type _) (e' : A' ≃ B) →
-                               (x' y' : A') → isEquiv (λ (p : x' ≡ y') → cong (fst e') p))
-                               (λ x' y' → idIsEquiv (x' ≡ y')) e _ _
-
-congEquiv : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
-congEquiv e = ((λ (p : _ ≡ _) → cong (fst e) p) , isEquivCong e)
+  congEquiv : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B)
+            → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
+  congEquiv e = ((λ (p : _ ≡ _) → cong (fst e) p) , isEquivCong e)
 
 isEquivPreComp : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
   → isEquiv (λ (φ : B → C) → φ ∘ e .fst)

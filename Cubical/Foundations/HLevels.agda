@@ -19,8 +19,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Equiv.HalfAdjoint  using (congEquiv)
-open import Cubical.Foundations.Univalence         using (ua; univalence)
+open import Cubical.Foundations.Univalence using (ua ; univalence)
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)

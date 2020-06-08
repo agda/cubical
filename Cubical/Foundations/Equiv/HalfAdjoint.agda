@@ -14,8 +14,14 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Function using (_∘_)
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
+
+private
+  variable
+    ℓ ℓ' : Level
+    A : Type ℓ
+    B : Type ℓ'
 
 record isHAEquiv {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type (ℓ-max ℓ ℓ') where
   field
@@ -60,82 +66,61 @@ record isHAEquiv {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type 
                            (g (cap0 j i))
 
 
-HAEquiv : ∀ {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') → Type (ℓ-max ℓ ℓ')
-HAEquiv A B = Σ (A → B) λ f → isHAEquiv f
-
-private
-  variable
-    ℓ ℓ' : Level
-    A : Type ℓ
-    B : Type ℓ'
+HAEquiv : (A : Type ℓ) (B : Type ℓ') → Type (ℓ-max ℓ ℓ')
+HAEquiv A B = Σ[ f ∈ (A → B) ] isHAEquiv f
 
 -- vogt's lemma (https://ncatlab.org/nlab/show/homotopy+equivalence#vogts_lemma)
 iso→HAEquiv : Iso A B → HAEquiv A B
-iso→HAEquiv {A = A} {B = B} (iso f g ε η) = f , (record { g = g ; sec = η ; ret = ret ; com = com })
+iso→HAEquiv (iso f g ε η) = f , isHAEquivf
   where
-    sides : ∀ b i j → Partial (~ i ∨ i) B
-    sides b i j = λ { (i = i0) → ε (f (g b)) j
-                    ; (i = i1) → ε b j }
+    Hfa≡fHa : (f : A → A) → (H : ∀ a → f a ≡ a) → ∀ a → H (f a) ≡ cong f (H a)
+    Hfa≡fHa f H = J (λ f p → ∀ a → funExt⁻ (sym p) (f a) ≡ cong f (funExt⁻ (sym p) a))
+                    (λ a → refl)
+                    (sym (funExt H))
 
-    bot : ∀ b i → B
-    bot b i = cong f (η (g b)) i
-
-    ret : (b : B) → f (g b) ≡ b
-    ret b i = hcomp (sides b i) (bot b i)
-
-    com : (a : A) → cong f (η a) ≡ ret (f a)
-    com a i j = hcomp (λ k → λ { (i = i0) → ε (f (η a j)) k
-                               ; (i = i1) → hfill (sides (f a) j) (inS (bot (f a) j)) k
-                               ; (j = i0) → ε (f (g (f a))) k
-                               ; (j = i1) → ε (f a) k})
-                      (cong (cong f) (sym (Hfa≡fHa (λ x → g (f x)) η a)) i j)
+    isHAEquivf : isHAEquiv f
+    isHAEquiv.g isHAEquivf         = g
+    isHAEquiv.sec isHAEquivf       = η
+    isHAEquiv.ret isHAEquivf b i   =
+      hcomp (λ j → λ { (i = i0) → ε (f (g b)) j
+                     ; (i = i1) → ε b j })
+            (f (η (g b) i))
+    isHAEquiv.com isHAEquivf a i j =
+      hcomp (λ k → λ { (i = i0) → ε (f (η a j)) k
+                     ; (j = i0) → ε (f (g (f a))) k
+                     ; (j = i1) → ε (f a) k})
+            (f (Hfa≡fHa (λ x → g (f x)) η a (~ i) j))
 
 equiv→HAEquiv : A ≃ B → HAEquiv A B
 equiv→HAEquiv e = iso→HAEquiv (equivToIso e)
 
-congIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y : A} (e : A ≃ B) → Iso (x ≡ y) (e .fst x ≡ e .fst y)
-congIso {A = A} {B} {x} {y} e = (iso intro elim intro-elim elim-intro)
+congIso : {x y : A} (e : Iso A B) → Iso (x ≡ y) (Iso.fun e x ≡ Iso.fun e y)
+congIso {x = x} {y} e = goal
   where
-    e' : HAEquiv A B
-    e' = equiv→HAEquiv e
+  open isHAEquiv (iso→HAEquiv e .snd)
+  open Iso
 
-    f : A → B
-    f = e' .fst
+  goal : Iso (x ≡ y) (Iso.fun e x ≡ Iso.fun e y)
+  fun goal   = cong (iso→HAEquiv e .fst)
+  inv goal p = sym (sec x) ∙∙ cong g p ∙∙ sec y
+  rightInv goal p i j =
+    hcomp (λ k → λ { (i = i0) → iso→HAEquiv e .fst
+                                  (doubleCompPath-filler (sym (sec x)) (cong g p) (sec y) k j)
+                   ; (i = i1) → ret (p j) k
+                   ; (j = i0) → com x i k
+                   ; (j = i1) → com y i k })
+          (iso→HAEquiv e .fst (g (p j)))
+  leftInv goal p i j =
+    hcomp (λ k → λ { (i = i1) → p j
+                   ; (j = i0) → Iso.leftInv e x (i ∨ k)
+                   ; (j = i1) → Iso.leftInv e y (i ∨ k) })
+          (Iso.leftInv e (p j) i)
 
-    open isHAEquiv (e' .snd)
+-- This is proved more directly in Foundations.Equiv.Properties, but
+-- that proof is not as universe polymorphic as this one and this one
+-- seems to have a lot better computational properties
+isEquivCong : {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → cong (e .fst) p)
+isEquivCong e = isoToIsEquiv (congIso (equivToIso e))
 
-    intro : x ≡ y → f x ≡ f y
-    intro = cong f
-
-    elim-sides : ∀ p i j → Partial (~ i ∨ i) A
-    elim-sides p i j = λ { (i = i0) → sec x j
-                         ; (i = i1) → sec y j }
-
-    elim-bot : ∀ p i → A
-    elim-bot p i = cong g p i
-
-    elim : f x ≡ f y → x ≡ y
-    elim p i = hcomp (elim-sides p i) (elim-bot p i)
-
-    intro-elim : ∀ p → intro (elim p) ≡ p
-    intro-elim p i j =
-      hcomp (λ k → λ { (i = i0) → f (hfill (elim-sides p j)
-                                    (inS (elim-bot p j)) k)
-                     ; (i = i1) → ret (p j) k
-                     ; (j = i0) → com x i k
-                     ; (j = i1) → com y i k })
-            (f (g (p j)))
-
-    elim-intro : ∀ p → elim (intro p) ≡ p
-    elim-intro p i j =
-      hcomp (λ k → λ { (i = i0) → hfill (λ l → λ { (j = i0) → secEq e x l
-                                                 ; (j = i1) → secEq e y l })
-                                        (inS (cong (λ z → g (f z)) p j)) k
-                     ; (i = i1) → p j
-                     ; (j = i0) → secEq e x (i ∨ k)
-                     ; (j = i1) → secEq e y (i ∨ k) })
-            (secEq e (p j) i)
-
-
-congEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
-congEquiv {A = A} {B} {x} {y} e = isoToEquiv (congIso e)
+congEquiv : {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
+congEquiv e = isoToEquiv (congIso (equivToIso e))
