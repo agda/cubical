@@ -29,7 +29,6 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 open import Cubical.Data.Unit.Base
 
 open Iso
@@ -50,24 +49,26 @@ map-snd f (a , b) = (a , f b)
 -- Characterization of paths in Σ using dependent paths
 
 ΣPathP : ∀ {x y}
-       → Σ (fst x ≡ fst y) (λ p → PathP (λ i → B (p i)) (snd x) (snd y))
+       → Σ[ p ∈ (fst x ≡ fst y) ] PathP (λ i → B (p i)) (snd x) (snd y)
        → x ≡ y
 ΣPathP eq i = fst eq i , snd eq i
 
 ΣPathIsoPathΣ : {x y : Σ A B}
-  → Iso (Σ[ q ∈ fst x ≡ fst y ] (PathP (λ i → B (q i)) (snd x) (snd y)))
-        (x ≡ y)
-fun ΣPathIsoPathΣ = ΣPathP
-inv ΣPathIsoPathΣ eq = (λ i → fst (eq i)) , (λ i → snd (eq i))
-rightInv ΣPathIsoPathΣ x = refl {x = x}
-leftInv ΣPathIsoPathΣ x = refl {x = x}
+              → Iso (Σ[ p ∈ fst x ≡ fst y ] (PathP (λ i → B (p i)) (snd x) (snd y)))
+                    (x ≡ y)
+fun ΣPathIsoPathΣ        = ΣPathP
+inv ΣPathIsoPathΣ eq     = (λ i → fst (eq i)) , (λ i → snd (eq i))
+rightInv ΣPathIsoPathΣ _ = refl
+leftInv ΣPathIsoPathΣ _  = refl
 
 ΣPath≃PathΣ : {x y : Σ A B}
-  → Σ (fst x ≡ fst y) (λ p → PathP (λ i → B (p i)) (snd x) (snd y)) ≃
-    (x ≡ y)
+            → (Σ[ p ∈ (fst x ≡ fst y) ] PathP (λ i → B (p i)) (snd x) (snd y))
+            ≃ (x ≡ y)
 ΣPath≃PathΣ = isoToEquiv ΣPathIsoPathΣ
 
-ΣPath≡PathΣ : {x y : Σ A B} → (Σ (fst x ≡ fst y) (λ q → PathP (λ i → B (q i)) (snd x) (snd y))) ≡ (x ≡ y)
+ΣPath≡PathΣ : {x y : Σ A B}
+            → (Σ[ p ∈ (fst x ≡ fst y) ] PathP (λ i → B (p i)) (snd x) (snd y))
+            ≡ (x ≡ y)
 ΣPath≡PathΣ = ua ΣPath≃PathΣ
 
 Σ≡Prop : ((x : A) → isProp (B x)) → {u v : Σ A B}
@@ -158,26 +159,18 @@ leftInv (Σ-cong-iso-snd isom) (x , y') = ΣPathP (refl , leftInv (isom x) y')
 Σ-cong-snd : ((x : A) → B x ≡ B' x) → Σ A B ≡ Σ A B'
 Σ-cong-snd {A = A} p i = Σ[ x ∈ A ] (p x i)
 
-Σ-cong-iso : {A A' : Type ℓ} {B : A → Type ℓ'} {B' : A' → Type ℓ'}
-  → (isom : Iso A A')
-  → ((x : A) → Iso (B x) (B' (fun isom x)))
-  ------------------------
-  → Iso (Σ A B) (Σ A' B')
+Σ-cong-iso : (isom : Iso A A')
+           → ((x : A) → Iso (B x) (B' (fun isom x)))
+           → Iso (Σ A B) (Σ A' B')
 Σ-cong-iso isom isom' = compIso (Σ-cong-iso-snd isom') (Σ-cong-iso-fst isom)
 
-Σ-cong' : {A A' : Type ℓ} {Y : A → Type ℓ'} {Y' : A' → Type ℓ'}
-  → (p : A ≡ A')
-  → (PathP (λ i → p i → Type ℓ') Y Y')
-  ----------
-  → (Σ A Y)
-  ≡ (Σ A' Y')
-Σ-cong' p p' = cong₂ (λ (a : Type _) (b : a → Type _) → Σ a λ x → b x) p p'
+Σ-cong' : (p : A ≡ A') → PathP (λ i → p i → Type ℓ') B B' → Σ A B ≡ Σ A' B'
+Σ-cong' p p' = cong₂ (λ (A : Type _) (B : A → Type _) → Σ A B) p p'
 
 -- Alternative version for path in Σ-types, as in the HoTT book
 
 ΣPathTransport : (a b : Σ A B) → Type _
-ΣPathTransport {B = B} a b =
-  Σ (fst a ≡ fst b) (λ p → transport (λ i → B (p i)) (snd a) ≡ snd b)
+ΣPathTransport {B = B} a b = Σ[ p ∈ (fst a ≡ fst b) ] transport (λ i → B (p i)) (snd a) ≡ snd b
 
 ΣPathTransport≃PathΣ : (a b : Σ A B) → ΣPathTransport a b ≃ (a ≡ b)
 ΣPathTransport≃PathΣ {B = B} a b =
