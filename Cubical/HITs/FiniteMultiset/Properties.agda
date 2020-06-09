@@ -84,22 +84,30 @@ module FMSetUniversal {ℓ} {M : Type ℓ} (MSet : isSet M)
 -- We want to construct a multiset-structure on FMSet A, the empty set and insertion are given by the constructors,
 -- for the count part we use the recursor
 
+-- Is there a way around the auxillary functions with the with-syntax?
+FMScount-∷*-aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ
+FMScount-∷*-aux a x (yes a≡x) n = suc n
+FMScount-∷*-aux a x (no  a≢x) n = n
+
+
+FMScount-comm*-aux :  (a x y : A) (n : ℕ) (p : Dec (a ≡ x)) (q : Dec (a ≡ y))
+                     →  FMScount-∷*-aux a x p (FMScount-∷*-aux a y q n)
+                      ≡ FMScount-∷*-aux a y q (FMScount-∷*-aux a x p n)
+FMScount-comm*-aux a x y n (yes a≡x) (yes a≡y) = refl
+FMScount-comm*-aux a x y n (yes a≡x) (no  a≢y) = refl
+FMScount-comm*-aux a x y n (no  a≢x) (yes a≡y) = refl
+FMScount-comm*-aux a x y n (no  a≢x) (no  a≢y) = refl
+
 
 -- If A has decidable equality we can define the count-function:
 module _(discA : Discrete A) where
  FMScount-∷* : A → A → ℕ → ℕ
- FMScount-∷* a x n with discA a x
- ... | yes a≡x = suc n
- ... | no  a≢x = n
+ FMScount-∷* a x n = FMScount-∷*-aux a x (discA a x) n
 
  FMScount-comm* :  (a x y : A) (n : ℕ)
                   →  FMScount-∷* a x (FMScount-∷* a y n)
                    ≡ FMScount-∷* a y (FMScount-∷* a x n)
- FMScount-comm* a x y n with discA a x | discA a y
- ... | yes a≡x | yes a≡y = refl
- ... | yes a≡x | no  a≢y = refl
- ... | no  a≢x | yes a≡y = refl
- ... | no  a≢x | no  a≢y = refl
+ FMScount-comm* a x y n = FMScount-comm*-aux a x y n (discA a x) (discA a y)
 
  FMScount : A → FMSet A → ℕ
  FMScount a = Rec.f isSetℕ 0 (FMScount-∷* a) (FMScount-comm* a)
@@ -142,21 +150,24 @@ module _(discA : Discrete A) where
  remove1 a (x ∷ xs) with (discA a x)
  ...               | yes _ = xs
  ...               | no  _ = x ∷ remove1 a xs
- remove1 a (comm x y xs i) with discA a x with discA a y
- ... | yes a≡x      | yes a≡y = ((sym a≡y ∙ a≡x) i) ∷ xs
- ... | yes a≡x      | no  _   = y ∷ (eq i)
+ remove1 a (comm x y xs i) = path i
+  where
+  path : remove1 a (x ∷ y ∷ xs) ≡ remove1 a (y ∷ x ∷ xs)
+  path with discA a x with discA a y
+  path | yes a≡x      | yes a≡y = λ i → ((sym a≡y ∙ a≡x) i) ∷ xs
+  path | yes a≡x      | no  _   = λ i → y ∷ (eq i)
    where
-     eq : xs ≡ remove1 a (x ∷ xs)
-     eq with discA a x
-     eq | yes _   = refl
-     eq | no  a≢x = ⊥.rec (a≢x a≡x)
- remove1 a (comm x y xs i) | no  _        | yes a≡y = x ∷ (eq i)
+   eq : xs ≡ remove1 a (x ∷ xs)
+   eq with discA a x
+   eq | yes _   = refl
+   eq | no  a≢x = ⊥.rec (a≢x a≡x)
+  path | no  _        | yes a≡y = λ i → x ∷ (eq i)
    where
    eq : remove1 a (y ∷ xs) ≡ xs
    eq with discA a y
    eq | yes _   = refl
    eq | no  a≢y = ⊥.rec (a≢y a≡y)
- remove1 a (comm x y xs i) | no  a≢x      | no  a≢y = ((λ i → x ∷ (p i)) ∙∙ comm x y (remove1 a xs) ∙∙ (λ i → y ∷ (sym q i))) i
+  path | no  a≢x      | no  a≢y = (λ i → x ∷ (p i)) ∙∙ comm x y (remove1 a xs) ∙∙ (λ i → y ∷ (sym q i))
    where
     p : remove1 a (y ∷ xs) ≡ y ∷ (remove1 a xs)
     p with discA a y
