@@ -5,8 +5,8 @@ Basic properties about Σ-types
 - Action of Σ on functions ([map-fst], [map-snd])
 - Characterization of equality in Σ-types using dependent paths ([ΣPath{Iso,≃,≡}PathΣ], [Σ≡Prop])
 - Proof that discrete types are closed under Σ ([discreteΣ])
-- Commutativity and associativity ([swapΣEquiv, Σ-assoc])
-- Distributivity of Π over Σ ([PiΣ])
+- Commutativity and associativity ([Σ-swap-*, Σ-assoc-*])
+- Distributivity of Π over Σ ([Σ-Π-*])
 - Action of Σ on isomorphisms, equivalences, and paths ([Σ-cong-fst], [Σ-cong-snd], ...)
 - Characterization of equality in Σ-types using transport ([ΣPathTransport{≃,≡}PathΣ])
 - Σ with a contractible base is its fiber ([Σ-contractFst, ΣUnit])
@@ -41,7 +41,7 @@ private
     B B' : (a : A) → Type ℓ
     C : (a : A) (b : B a) → Type ℓ
 
-map-fst : {B : Type ℓ} → (f : A → A') → Σ A (λ _ → B) → Σ A' (λ _ → B)
+map-fst : {B : Type ℓ} → (f : A → A') → A × B → A' × B
 map-fst f (a , b) = (f a , b)
 
 map-snd : (∀ {a} → B a → B' a) → Σ A B → Σ A B'
@@ -50,8 +50,8 @@ map-snd f (a , b) = (a , f b)
 -- Characterization of paths in Σ using dependent paths
 
 ΣPathP : ∀ {x y}
-  → Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y))
-  → x ≡ y
+       → Σ (fst x ≡ fst y) (λ p → PathP (λ i → B (p i)) (snd x) (snd y))
+       → x ≡ y
 ΣPathP eq i = fst eq i , snd eq i
 
 ΣPathIsoPathΣ : {x y : Σ A B}
@@ -88,18 +88,32 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
         ... | (no ¬q) = no (λ r → ¬q (subst (λ X → PathP (λ i → B (X i)) b0 b1) (Discrete→isSet Adis a0 a0 (cong fst r) refl) (cong snd r)))
     discreteΣ' (no ¬p) = no (λ r → ¬p (cong fst r))
 
-swapΣEquiv : A × A' ≃ A' × A
-swapΣEquiv = isoToEquiv (iso (λ x → x .snd , x .fst) (λ z → z .snd , z .fst) (λ _ → refl) (λ _ → refl))
+Σ-swap-Iso : Iso (A × A') (A' × A)
+fun Σ-swap-Iso (x , y) = (y , x)
+inv Σ-swap-Iso (x , y) = (y , x)
+rightInv Σ-swap-Iso _ = refl
+leftInv Σ-swap-Iso _  = refl
 
-Σ-assoc : (Σ[ (a , b) ∈ Σ A B ] C a b) ≃ (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
-Σ-assoc = isoToEquiv (iso (λ { ((x , y) , z) → (x , (y , z)) })
-                          (λ { (x , (y , z)) → ((x , y) , z) })
-                          (λ _ → refl) (λ _ → refl))
+Σ-swap-≃ : A × A' ≃ A' × A
+Σ-swap-≃ = isoToEquiv Σ-swap-Iso
 
-PiΣ : ((a : A) → Σ[ b ∈ B a ] C a b) ≃ (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
-PiΣ = isoToEquiv (iso (λ f → fst ∘ f , snd ∘ f)
-                      (λ (f , g) → (λ x → f x , g x))
-                      (λ _ → refl) (λ _ → refl))
+Σ-assoc-Iso : Iso (Σ[ (a , b) ∈ Σ A B ] C a b) (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
+fun Σ-assoc-Iso ((x , y) , z) = (x , (y , z))
+inv Σ-assoc-Iso (x , (y , z)) = ((x , y) , z)
+rightInv Σ-assoc-Iso _ = refl
+leftInv Σ-assoc-Iso _  = refl
+
+Σ-assoc-≃ : (Σ[ (a , b) ∈ Σ A B ] C a b) ≃ (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
+Σ-assoc-≃ = isoToEquiv Σ-assoc-Iso
+
+Σ-Π-Iso : Iso ((a : A) → Σ[ b ∈ B a ] C a b) (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
+fun Σ-Π-Iso f         = (fst ∘ f , snd ∘ f)
+inv Σ-Π-Iso (f , g) x = (f x , g x)
+rightInv Σ-Π-Iso _    = refl
+leftInv Σ-Π-Iso _     = refl
+
+Σ-Π-≃ : ((a : A) → Σ[ b ∈ B a ] C a b) ≃ (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
+Σ-Π-≃ = isoToEquiv Σ-Π-Iso
 
 Σ-cong-iso-fst : (isom : Iso A A') → Iso (Σ A (B ∘ fun isom)) (Σ A' B)
 fun (Σ-cong-iso-fst isom) x = fun isom (x .fst) , x .snd
