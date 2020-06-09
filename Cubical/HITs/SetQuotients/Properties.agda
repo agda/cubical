@@ -34,6 +34,8 @@ private
     A : Type ℓ
     R : A → A → Type ℓ'
     B : A / R → Type ℓ''
+    C : A / R → A / R → Type ℓ''
+    D : A / R → A / R → A / R → Type ℓ''
 
 elimEq/ : (Bprop : (x : A / R ) → isProp (B x))
           {x y : A / R}
@@ -55,6 +57,20 @@ elimProp Bprop f (squash/ x y p q i j) =
     where
     g = elimProp Bprop f
 elimProp Bprop f (eq/ a b r i) = elimEq/ Bprop (eq/ a b r) (f a) (f b) i
+
+elimProp2 : ((x y : A / R ) → isProp (C x y)) →
+                       (f : (a b : A) → C [ a ] [ b ]) →
+                       (x y : A / R) → C x y
+elimProp2 Cprop f = elimProp (λ x → isPropΠ (λ y → Cprop x y))
+                             (λ x → elimProp (λ y → Cprop [ x ] y)
+                                             (f x))
+
+elimProp3 : ((x y z : A / R ) → isProp (D x y z)) →
+                       (f : (a b c : A) → D [ a ] [ b ] [ c ]) →
+                       (x y z : A / R) → D x y z
+elimProp3 Dprop f = elimProp (λ x → isPropΠ2 (λ y z → Dprop x y z))
+                             (λ x → elimProp2 (λ y z → Dprop [ x ] y z)
+                                             (f x))
 
 -- lemma 6.10.2 in hott book
 []surjective : (x : A / R) → ∃[ a ∈ A ] [ a ] ≡ x
