@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --postfix-projections --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --postfix-projections --safe #-}
 
 module Cubical.Categories.Presheaves where
 

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Structures.CommRing where
 
 open import Cubical.Foundations.Prelude
@@ -28,7 +28,10 @@ CommRing : Type (ℓ-suc ℓ)
 CommRing {ℓ} = TypeWithStr ℓ comm-ring-structure
 
 comm-ring-iso : StrIso comm-ring-structure ℓ
-comm-ring-iso = add-to-iso (join-iso (nAryFunIso 2) (join-iso pointed-iso (nAryFunIso 2))) comm-ring-axioms
+comm-ring-iso =
+  add-to-iso
+    (join-iso (binaryFunIso pointed-iso) (join-iso pointed-iso (binaryFunIso pointed-iso)))
+    comm-ring-axioms
 
 comm-ring-axioms-isProp : (X : Type ℓ) (s : raw-ring-structure X) → isProp (comm-ring-axioms X s)
 comm-ring-axioms-isProp X (_·_ , ₀ , _+_) = isPropΣ (ring-axioms-isProp X (_·_ , ₀ , _+_))

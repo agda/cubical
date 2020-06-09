@@ -6,7 +6,7 @@ Portions of this file adapted from Nicolai Kraus' code here:
   https://bitbucket.org/nicolaikraus/agda/src/e30d70c72c6af8e62b72eefabcc57623dd921f04/trunc-inverse.lagda
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Pointed.Homogeneous where
 
 open import Cubical.Foundations.Prelude

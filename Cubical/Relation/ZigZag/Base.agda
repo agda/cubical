@@ -1,12 +1,12 @@
 -- We define ZigZag-complete relations and prove that bisimulations
 -- give rise to equivalences on the set quotients.
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Relation.ZigZag.Base where
 
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Data.Sigma using (_×_; ΣProp≡)
+open import Cubical.Data.Sigma using (_×_; Σ≡Prop)
 open import Cubical.HITs.SetQuotients.Base
 open import Cubical.HITs.SetQuotients.Properties
 
