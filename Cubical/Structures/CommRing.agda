@@ -103,8 +103,8 @@ module commring-operation-syntax where
 
 open commring-operation-syntax
 
-commring-comm : (R : CommRing {ℓ}) (x y : ⟨ R ⟩) → x ·⟨ R ⟩ y ≡ y ·⟨ R ⟩ x
-commring-comm (_ , _ , _ , P) = P
+commring·-comm : (R : CommRing {ℓ}) (x y : ⟨ R ⟩) → x ·⟨ R ⟩ y ≡ y ·⟨ R ⟩ x
+commring·-comm (_ , _ , _ , P) = P
 
 -- CommRing ·syntax
 

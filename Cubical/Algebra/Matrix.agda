@@ -1,19 +1,29 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts  #-} -- TODO add --safe when the holes are gone
 module Cubical.Algebra.Matrix where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.HLevels
 open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Bool
 open import Cubical.Data.Nat hiding (_+_)
 open import Cubical.Data.Vec
+open import Cubical.Data.Sigma.Base
 open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
 
+open import Cubical.Structures.Group hiding (⟨_⟩)
+open import Cubical.Structures.AbGroup hiding (⟨_⟩)
+open import Cubical.Structures.Monoid hiding (⟨_⟩)
+open import Cubical.Structures.Ring hiding (⟨_⟩)
 open import Cubical.Structures.CommRing
+
+open Iso
 
 private
   variable
@@ -29,22 +39,22 @@ VecMatrix : (A : Type ℓ) (m n : ℕ) → Type ℓ
 VecMatrix A m n = Vec (Vec A n) m
 
 FinMatrix→VecMatrix : {m n : ℕ} → FinMatrix A m n → VecMatrix A m n
-FinMatrix→VecMatrix M = FinVec→Vec (λ fm → FinVec→Vec (λ fn → M fm fn))
+FinMatrix→VecMatrix M = FinVec→Vec (λ fm → FinVec→Vec (M fm))
 
 VecMatrix→FinMatrix : {m n : ℕ} → VecMatrix A m n → FinMatrix A m n
 VecMatrix→FinMatrix M fn fm = lookup fm (lookup fn M)
 
 FinMatrix→VecMatrix→FinMatrix : {m n : ℕ} (M : FinMatrix A m n)
                               → VecMatrix→FinMatrix (FinMatrix→VecMatrix M) ≡ M
-FinMatrix→VecMatrix→FinMatrix {m = zero} M = funExt λ f → ⊥.rec (¬Fin0 f)
-FinMatrix→VecMatrix→FinMatrix {n = zero} M = funExt₂ λ _ f → ⊥.rec (¬Fin0 f)
+FinMatrix→VecMatrix→FinMatrix {m = zero} M = funExt (⊥.rec ∘ ¬Fin0)
+FinMatrix→VecMatrix→FinMatrix {n = zero} M = funExt₂ (λ _ → ⊥.rec ∘ ¬Fin0)
 FinMatrix→VecMatrix→FinMatrix {m = suc m} {n = suc n} M = funExt₂ goal
   where
-  goal : (fm : Fin (suc m)) (fn : Fin (suc n)) →
-         VecMatrix→FinMatrix (_ ∷ FinMatrix→VecMatrix (λ z → M (suc z))) fm fn ≡ M fm fn
-  goal zero zero = refl
-  goal zero (suc fn) i = FinVec→Vec→FinVec (λ z → M zero (suc z)) i fn
-  goal (suc fm) fn i = FinMatrix→VecMatrix→FinMatrix (λ z → M (suc z)) i fm fn
+  goal : (fm : Fin (suc m)) (fn : Fin (suc n))
+       → VecMatrix→FinMatrix (_ ∷ FinMatrix→VecMatrix (M ∘ suc)) fm fn ≡ M fm fn
+  goal zero zero       = refl
+  goal zero (suc fn) i = FinVec→Vec→FinVec (M zero ∘ suc) i fn
+  goal (suc fm) fn i   = FinMatrix→VecMatrix→FinMatrix (M ∘ suc) i fm fn
 
 VecMatrix→FinMatrix→VecMatrix : {m n : ℕ} (M : VecMatrix A m n)
                               → FinMatrix→VecMatrix (VecMatrix→FinMatrix M) ≡ M
@@ -53,8 +63,10 @@ VecMatrix→FinMatrix→VecMatrix {m = suc m} (M ∷ MS) i =
   Vec→FinVec→Vec M i ∷ VecMatrix→FinMatrix→VecMatrix MS i
 
 FinMatrixIsoVecMatrix : (A : Type ℓ) (m n : ℕ) → Iso (FinMatrix A m n) (VecMatrix A m n)
-FinMatrixIsoVecMatrix A m n =
-  iso FinMatrix→VecMatrix VecMatrix→FinMatrix VecMatrix→FinMatrix→VecMatrix FinMatrix→VecMatrix→FinMatrix
+fun (FinMatrixIsoVecMatrix A m n)      = FinMatrix→VecMatrix
+inv (FinMatrixIsoVecMatrix A m n)      = VecMatrix→FinMatrix
+rightInv (FinMatrixIsoVecMatrix A m n) = VecMatrix→FinMatrix→VecMatrix
+leftInv (FinMatrixIsoVecMatrix A m n)  = FinMatrix→VecMatrix→FinMatrix
 
 FinMatrix≃VecMatrix : {m n : ℕ} → FinMatrix A m n ≃ VecMatrix A m n
 FinMatrix≃VecMatrix {_} {A} {m} {n} = isoToEquiv (FinMatrixIsoVecMatrix A m n)
@@ -70,6 +82,101 @@ FinMatrix≡VecMatrix _ _ _ = ua FinMatrix≃VecMatrix
 -- FinMatrix≡VecMatrix A m n i = FinVec≡Vec (FinVec≡Vec A n i) m i
 
 
+-- Square matrices over a commuative ring form a commutative ring
+module _ (R : CommRing {ℓ}) where
+
+  open commring-·syntax R
+
+  -- Operations
+
+  zeroFinMatrix : ∀ {m n} → FinMatrix ⟨ R ⟩ m n
+  zeroFinMatrix _ _ = ₀
+
+  negFinMatrix : ∀ {m n} → FinMatrix ⟨ R ⟩ m n → FinMatrix ⟨ R ⟩ m n
+  negFinMatrix M i j = - M i j
+
+  addFinMatrix : ∀ {m n} → FinMatrix ⟨ R ⟩ m n → FinMatrix ⟨ R ⟩ m n → FinMatrix ⟨ R ⟩ m n
+  addFinMatrix M N i j = M i j + N i j
+
+  oneFinMatrix : ∀ {n} → FinMatrix ⟨ R ⟩ n n
+  oneFinMatrix i j = if i == j then ₁ else ₀
+
+  sumVec : ∀ {n} → FinVec ⟨ R ⟩ n → ⟨ R ⟩
+  sumVec {zero} v  = ₀
+  sumVec {suc n} v = v zero + sumVec (v ∘ suc)
+
+  mulFinMatrix : ∀ {m1 m2 m3} → FinMatrix ⟨ R ⟩ m1 m2 → FinMatrix ⟨ R ⟩ m2 m3 → FinMatrix ⟨ R ⟩ m1 m3
+  mulFinMatrix M N i k = sumVec λ j → M i j · N j k
+
+  -- Properties
+
+  isSetFinMatrix : ∀ {m n} → isSet (FinMatrix ⟨ R ⟩ m n)
+  isSetFinMatrix = isSetΠ2 λ _ _ → commring-is-set R
+
+  addFinMatrixAssoc : ∀ {m n} → (M N K : FinMatrix ⟨ R ⟩ m n) → addFinMatrix M (addFinMatrix N K) ≡ addFinMatrix (addFinMatrix M N) K
+  addFinMatrixAssoc M N K i j k = commring+-assoc R (M j k) (N j k) (K j k) i
+
+  addFinMatrix0r : ∀ {m n} → (M : FinMatrix ⟨ R ⟩ m n) → addFinMatrix M zeroFinMatrix ≡ M
+  addFinMatrix0r M i j k = commring+-rid R (M j k) i
+
+  addFinMatrix0l : ∀ {m n} → (M : FinMatrix ⟨ R ⟩ m n) → addFinMatrix zeroFinMatrix M ≡ M
+  addFinMatrix0l M i j k = commring+-lid R (M j k) i
+
+  addFinMatrixNegMatrixr : ∀ {m n} → (M : FinMatrix ⟨ R ⟩ m n) → addFinMatrix M (negFinMatrix M) ≡ zeroFinMatrix
+  addFinMatrixNegMatrixr M i j k = commring+-rinv R (M j k) i
+
+  addFinMatrixNegMatrixl : ∀ {m n} → (M : FinMatrix ⟨ R ⟩ m n) → addFinMatrix (negFinMatrix M) M ≡ zeroFinMatrix
+  addFinMatrixNegMatrixl M i j k = commring+-linv R (M j k) i
+
+  addFinMatrixComm : ∀ {m n} → (M N : FinMatrix ⟨ R ⟩ m n) → addFinMatrix M N ≡ addFinMatrix N M
+  addFinMatrixComm M N i k l = commring+-comm R (M k l) (N k l) i
+
+  mulFinMatrixAssoc : ∀ {m n k l} → (M : FinMatrix ⟨ R ⟩ m n) → (N : FinMatrix ⟨ R ⟩ n k) → (K : FinMatrix ⟨ R ⟩ k l)
+                   → mulFinMatrix M (mulFinMatrix N K) ≡ mulFinMatrix (mulFinMatrix M N) K
+  mulFinMatrixAssoc M N K i j k = {!!}
+
+  mulFinMatrix1r : ∀ {m n} → (M : FinMatrix ⟨ R ⟩ m n) → mulFinMatrix M oneFinMatrix ≡ M
+  mulFinMatrix1r {n = zero} M = funExt₂ λ j → \ { () }
+  mulFinMatrix1r {n = suc n} M = funExt₂ λ j k → {!!}
+
+  mulFinMatrix1l : ∀ {m n} → (M : FinMatrix ⟨ R ⟩ m n) → mulFinMatrix oneFinMatrix M ≡ M
+  mulFinMatrix1l M i j k = {!!}
+
+  mulFinMatrixComm : ∀ {n} → (M N : FinMatrix ⟨ R ⟩ n n) → mulFinMatrix M N ≡ mulFinMatrix N M
+  -- Agda bug?
+  mulFinMatrixComm {n = n} M N i j k = sumVec {n = {!n!}} (λ l → commring·-comm R (M j k) (N k j) i)
+
+  -- TODO: maybe add a better constructor for rings where the 0 is given with
+  -- the raw data and where we don't have to give redundant data (like
+  -- commutativity of + and two axioms about 0 + x and x + 0).
+  -- This should probably be done after proving that the nested
+  -- Sigma type version of CommRing is equivalent to a Record version.
+  FinMatrixCommRing : (n : ℕ) → CommRing {ℓ}
+  FinMatrixCommRing n = FinMatrix ⟨ R ⟩ n n , comm-ring-structure-FinMatrix
+    where
+    raw-ring-structure-FinMatrix : raw-ring-structure (FinMatrix ⟨ R ⟩ n n)
+    raw-ring-structure-FinMatrix = addFinMatrix , oneFinMatrix , mulFinMatrix
+
+    group-axioms-FinMatrix : group-axioms _ addFinMatrix
+    group-axioms-FinMatrix = (isSetFinMatrix , addFinMatrixAssoc)
+                           , zeroFinMatrix
+                           , (λ M → addFinMatrix0r M , addFinMatrix0l M)
+                           , λ M → negFinMatrix M , addFinMatrixNegMatrixr M , addFinMatrixNegMatrixl M
+
+    abelian-group-axioms-FinMatrix : abelian-group-axioms _ addFinMatrix
+    abelian-group-axioms-FinMatrix = group-axioms-FinMatrix , addFinMatrixComm
+
+    ring-axioms-FinMatrix : ring-axioms _ raw-ring-structure-FinMatrix
+    ring-axioms-FinMatrix = abelian-group-axioms-FinMatrix
+                          , (isSetFinMatrix , mulFinMatrixAssoc , mulFinMatrix1r , mulFinMatrix1l)
+                          , {!!} , {!!} -- Distributivity...
+
+    comm-ring-axioms-FinMatrix : comm-ring-axioms _ raw-ring-structure-FinMatrix
+    comm-ring-axioms-FinMatrix = ring-axioms-FinMatrix , mulFinMatrixComm
+
+    comm-ring-structure-FinMatrix : comm-ring-structure (FinMatrix ⟨ R ⟩ n n)
+    comm-ring-structure-FinMatrix = raw-ring-structure-FinMatrix , comm-ring-axioms-FinMatrix
+
 -- Experiment using addition. Transport commutativity from one
 -- representation to the the other and relate the transported
 -- operation with a more direct definition.
@@ -77,31 +184,26 @@ module _ (R : CommRing {ℓ}) where
 
   open commring-·syntax R
 
-  addFinMatrix : ∀ {m n} → FinMatrix ⟨ R ⟩ m n → FinMatrix ⟨ R ⟩ m n → FinMatrix ⟨ R ⟩ m n
-  addFinMatrix M N = λ k l → M k l + N k l
-
-  addFinMatrixComm : ∀ {m n} → (M N : FinMatrix ⟨ R ⟩ m n) → addFinMatrix M N ≡ addFinMatrix N M
-  addFinMatrixComm M N i k l = commring+-comm R (M k l) (N k l) i
 
   addVecMatrix : ∀ {m n} → VecMatrix ⟨ R ⟩ m n → VecMatrix ⟨ R ⟩ m n → VecMatrix ⟨ R ⟩ m n
   addVecMatrix {m} {n} = transport (λ i → FinMatrix≡VecMatrix ⟨ R ⟩ m n i
                                         → FinMatrix≡VecMatrix ⟨ R ⟩ m n i
                                         → FinMatrix≡VecMatrix ⟨ R ⟩ m n i)
-                                   addFinMatrix
+                                   (addFinMatrix R)
 
   addMatrixPath : ∀ {m n} → PathP (λ i → FinMatrix≡VecMatrix ⟨ R ⟩ m n i
                                        → FinMatrix≡VecMatrix ⟨ R ⟩ m n i
                                        → FinMatrix≡VecMatrix ⟨ R ⟩ m n i)
-                                  addFinMatrix addVecMatrix
+                                  (addFinMatrix R) addVecMatrix
   addMatrixPath {m} {n} i = transp (λ j → FinMatrix≡VecMatrix ⟨ R ⟩ m n (i ∧ j)
                                         → FinMatrix≡VecMatrix ⟨ R ⟩ m n (i ∧ j)
                                         → FinMatrix≡VecMatrix ⟨ R ⟩ m n (i ∧ j))
-                                   (~ i) addFinMatrix
+                                   (~ i) (addFinMatrix R)
 
   addVecMatrixComm : ∀ {m n} → (M N : VecMatrix ⟨ R ⟩ m n) → addVecMatrix M N ≡ addVecMatrix N M
   addVecMatrixComm {m} {n} = transport (λ i → (M N : FinMatrix≡VecMatrix ⟨ R ⟩ m n i)
                                             → addMatrixPath i M N ≡ addMatrixPath i N M)
-                                       addFinMatrixComm
+                                       (addFinMatrixComm R)
 
 
   -- More direct definition of addition for VecMatrix:
@@ -124,11 +226,11 @@ module _ (R : CommRing {ℓ}) where
   addVecMatrixEq {zero} {n} [] [] j = transp (λ i → Vec (Vec ⟨ R ⟩ n) 0) j []
   addVecMatrixEq {suc m} {n} (M ∷ MS) (N ∷ NS) =
     addVecMatrix (M ∷ MS) (N ∷ NS)
-      ≡⟨ transportUAop₂ FinMatrix≃VecMatrix addFinMatrix (M ∷ MS) (N ∷ NS) ⟩
+      ≡⟨ transportUAop₂ FinMatrix≃VecMatrix (addFinMatrix R) (M ∷ MS) (N ∷ NS) ⟩
     FinVec→Vec (λ l → lookup l M + lookup l N) ∷ _
       ≡⟨ (λ i → addVecLem M N i ∷ FinMatrix→VecMatrix (λ k l → lookup l (lookup k MS) + lookup l (lookup k NS))) ⟩
     addVec M N ∷ _
-      ≡⟨ cong (λ X → addVec M N ∷ X) (sym (transportUAop₂ FinMatrix≃VecMatrix addFinMatrix MS NS) ∙ addVecMatrixEq MS NS) ⟩
+      ≡⟨ cong (λ X → addVec M N ∷ X) (sym (transportUAop₂ FinMatrix≃VecMatrix (addFinMatrix R) MS NS) ∙ addVecMatrixEq MS NS) ⟩
     addVec M N ∷ addVecMatrix' MS NS ∎
 
   -- By binary funext we get an equality as functions
@@ -138,11 +240,3 @@ module _ (R : CommRing {ℓ}) where
   -- We then directly get the properties about addVecMatrix'
   addVecMatrixComm' : ∀ {m n} → (M N : VecMatrix ⟨ R ⟩ m n) → addVecMatrix' M N ≡ addVecMatrix' N M
   addVecMatrixComm' M N = sym (addVecMatrixEq M N) ∙∙ addVecMatrixComm M N ∙∙ addVecMatrixEq N M
-
-  -- TODO: prove more properties about addition of matrices for both
-  -- FinMatrix and VecMatrix
-
-
-
--- TODO: define multiplication of matrices and do the same kind of
--- reasoning as we did for addition
