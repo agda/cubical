@@ -33,8 +33,8 @@ raw-ring-is-SNS = join-SNS binaryIso binarySNS
   binarySNS = binaryFunSNS pointed-iso pointed-is-SNS
 
 ring-axioms : (X : Type ℓ) (s : raw-ring-structure X) → Type ℓ
-ring-axioms X (_+_ , ₁ , _·_) = abelian-group-axioms X _+_ ×
-                                monoid-axioms X (₁ , _·_) ×
+ring-axioms X (_+_ , 1r , _·_) = abelian-group-axioms X _+_ ×
+                                monoid-axioms X (1r , _·_) ×
                                 ((x y z : X) → x · (y + z) ≡ (x · y) + (x · z)) ×
                                 ((x y z : X) → (x + y) · z ≡ (x · z) + (y · z))
 
@@ -51,8 +51,8 @@ ring-iso =
     ring-axioms
 
 ring-axioms-isProp : (X : Type ℓ) (s : raw-ring-structure X) → isProp (ring-axioms X s)
-ring-axioms-isProp X (_+_ , ₁ , _·_) = isPropΣ (abelian-group-axioms-isProp X _+_)
-                                      λ _ → isPropΣ (monoid-axioms-are-Props X (₁ , _·_))
+ring-axioms-isProp X (_+_ , 1r , _·_) = isPropΣ (abelian-group-axioms-isProp X _+_)
+                                      λ _ → isPropΣ (monoid-axioms-are-Props X (1r , _·_))
                                       λ { (isSetX , _) → isPropΣ (isPropΠ3 (λ _ _ _ → isSetX _ _))
                                       λ _ → isPropΠ3 (λ _ _ _ → isSetX _ _)}
 
@@ -70,7 +70,7 @@ Ring→AbGroup (R , (_+_ , _) , +AbGroup , _) = R , _+_ , +AbGroup
 -- Rings have a monoid
 
 Ring→Monoid : Ring {ℓ} → Monoid {ℓ}
-Ring→Monoid (R , (_ , ₁ , _·_) , _ , ·Monoid , _) = R , (₁ , _·_) , ·Monoid
+Ring→Monoid (R , (_ , 1r , _·_) , _ , ·Monoid , _) = R , (1r , _·_) , ·Monoid
 
 -- Ring extractors
 
@@ -156,9 +156,9 @@ module ring-syntax (R : Ring {ℓ}) where
 
   _·_ = ring·-operation R
 
-  ₀ = ring+-id R
+  0r = ring+-id R
 
-  ₁ = ring·-id R
+  1r = ring·-id R
 
   -_ = ring+-inv R
 
@@ -168,33 +168,33 @@ module ring-syntax (R : Ring {ℓ}) where
 
 record expandedRingStructure {ℓ} (R : Type ℓ) : Type ℓ where
   field
-    ₀ : R
-    ₁ : R
+    0r : R
+    1r : R
     _+_ : R → R → R
     -_ : R → R
     _·_ : R → R → R
 
     +-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z
-    +-rid : (x : R) → x + ₀ ≡ x
+    +-rid : (x : R) → x + 0r ≡ x
     +-comm : (x y : R) → x + y ≡ y + x
-    +-rinv : (x : R) → x + (- x) ≡ ₀
+    +-rinv : (x : R) → x + (- x) ≡ 0r
 
     ·-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z
-    ·-lid : (x : R) → ₁ · x ≡ x
-    ·-rid : (x : R) → x · ₁ ≡ x
+    ·-lid : (x : R) → 1r · x ≡ x
+    ·-rid : (x : R) → x · 1r ≡ x
 
     ldist : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
     rdist : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
 
-  +-lid : (x : R) → ₀ + x ≡ x
-  +-lid x =         ₀ + x     ≡⟨ +-comm _ _ ⟩
-                    x + ₀     ≡⟨ +-rid x ⟩
+  +-lid : (x : R) → 0r + x ≡ x
+  +-lid x =         0r + x     ≡⟨ +-comm _ _ ⟩
+                    x + 0r     ≡⟨ +-rid x ⟩
                     x         ∎
 
-  +-linv : (x : R) → (- x) + x ≡ ₀
+  +-linv : (x : R) → (- x) + x ≡ 0r
   +-linv x =         (- x) + x    ≡⟨ +-comm _ _ ⟩
                      x + (- x)    ≡⟨ +-rinv x ⟩
-                     ₀            ∎
+                     0r            ∎
 
 createRing : (R : Type ℓ)
              → isSet R
@@ -202,9 +202,9 @@ createRing : (R : Type ℓ)
              → Ring {ℓ}
 createRing R isSet-R ringStr =
            let open expandedRingStructure ringStr
-           in R , (_+_ , ₁ , _·_) ,
+           in R , (_+_ , 1r , _·_) ,
               (((isSet-R , +-assoc)
-                , ₀
+                , 0r
                 , ((λ x → +-rid x , +-lid x)
                   , λ x → (- x) , ((+-rinv x) , (+-linv x))))
                 , +-comm)
@@ -221,51 +221,51 @@ createRing R isSet-R ringStr =
   that might should become obsolete or subject to change once we
   have a ring solver (see https://github.com/agda/cubical/issues/297)
 -}
-module calculations (R : Ring {ℓ}) where
+module theory (R : Ring {ℓ}) where
   open ring-axioms R
   open ring-syntax R
 
   implicitInverse : (x y : ⟨ R ⟩)
-                 → x + y ≡ ₀
+                 → x + y ≡ 0r
                  → y ≡ - x
   implicitInverse x y p = y             ≡⟨ sym (ring+-lid y) ⟩
-                       ₀ + y            ≡⟨ cong (λ u → u + y)
+                       0r + y            ≡⟨ cong (λ u → u + y)
                                                (sym (ring+-linv x)) ⟩
                        (- x + x) + y   ≡⟨ sym (ring+-assoc _ _ _) ⟩
                        (- x) + (x + y) ≡⟨ cong (λ u → (- x) + u) p ⟩
-                       (- x) + ₀       ≡⟨ ring+-rid _ ⟩
+                       (- x) + 0r       ≡⟨ ring+-rid _ ⟩
                        - x             ∎
 
-  0-selfinverse : - ₀ ≡ ₀
-  0-selfinverse = sym (implicitInverse _ _ (ring+-rid ₀))
+  0-selfinverse : - 0r ≡ 0r
+  0-selfinverse = sym (implicitInverse _ _ (ring+-rid 0r))
 
-  0-idempotent : ₀ + ₀ ≡ ₀
-  0-idempotent = ring+-lid ₀
+  0-idempotent : 0r + 0r ≡ 0r
+  0-idempotent = ring+-lid 0r
 
-  +-idempotency→0 : (x : ⟨ R ⟩) → x ≡ x + x → ₀ ≡ x
-  +-idempotency→0 x p = ₀               ≡⟨ sym (ring+-rinv _) ⟩
+  +-idempotency→0 : (x : ⟨ R ⟩) → x ≡ x + x → 0r ≡ x
+  +-idempotency→0 x p = 0r               ≡⟨ sym (ring+-rinv _) ⟩
                         x + (- x)       ≡⟨ cong (λ u → u + (- x)) p ⟩
                         (x + x) + (- x)   ≡⟨ sym (ring+-assoc _ _ _) ⟩
                         x + (x + (- x)) ≡⟨ cong (λ u → x + u) (ring+-rinv _) ⟩
-                        x + ₀           ≡⟨ ring+-rid x ⟩
+                        x + 0r           ≡⟨ ring+-rid x ⟩
                         x               ∎
 
-  0-rightNullifies : (x : ⟨ R ⟩) → x · ₀ ≡ ₀
+  0-rightNullifies : (x : ⟨ R ⟩) → x · 0r ≡ 0r
   0-rightNullifies x =
-              let x·0-is-idempotent : x · ₀ ≡ x · ₀ + x · ₀
+              let x·0-is-idempotent : x · 0r ≡ x · 0r + x · 0r
                   x·0-is-idempotent =
-                    x · ₀              ≡⟨ cong (λ u → x · u) (sym 0-idempotent) ⟩
-                    x · (₀ + ₀)        ≡⟨ (ring-rdist _ _ _) ⟩
-                    (x · ₀) + (x · ₀)  ∎
+                    x · 0r              ≡⟨ cong (λ u → x · u) (sym 0-idempotent) ⟩
+                    x · (0r + 0r)        ≡⟨ (ring-rdist _ _ _) ⟩
+                    (x · 0r) + (x · 0r)  ∎
               in sym (+-idempotency→0 _ x·0-is-idempotent)
 
-  0-leftNullifies : (x : ⟨ R ⟩) → ₀ · x ≡ ₀
+  0-leftNullifies : (x : ⟨ R ⟩) → 0r · x ≡ 0r
   0-leftNullifies x =
-              let 0·x-is-idempotent : ₀ · x ≡ ₀ · x + ₀ · x
+              let 0·x-is-idempotent : 0r · x ≡ 0r · x + 0r · x
                   0·x-is-idempotent =
-                    ₀ · x              ≡⟨ cong (λ u → u · x) (sym 0-idempotent) ⟩
-                    (₀ + ₀) · x        ≡⟨ (ring-ldist _ _ _) ⟩
-                    (₀ · x) + (₀ · x)  ∎
+                    0r · x              ≡⟨ cong (λ u → u · x) (sym 0-idempotent) ⟩
+                    (0r + 0r) · x        ≡⟨ (ring-ldist _ _ _) ⟩
+                    (0r · x) + (0r · x)  ∎
               in sym (+-idempotency→0 _ 0·x-is-idempotent)
 
   -commutesWithRight-· : (x y : ⟨ R ⟩) →  x · (- y) ≡ - (x · y)
@@ -273,13 +273,44 @@ module calculations (R : Ring {ℓ}) where
 
                                (x · y + x · (- y)     ≡⟨ sym (ring-rdist _ _ _) ⟩
                                x · (y + (- y))        ≡⟨ cong (λ u → x · u) (ring+-rinv y) ⟩
-                               x · ₀                  ≡⟨ 0-rightNullifies x ⟩
-                               ₀ ∎)
+                               x · 0r                  ≡⟨ 0-rightNullifies x ⟩
+                               0r ∎)
 
   -commutesWithLeft-· : (x y : ⟨ R ⟩) →  (- x) · y ≡ - (x · y)
   -commutesWithLeft-· x y = implicitInverse (x · y) ((- x) · y)
 
                               (x · y + (- x) · y     ≡⟨ sym (ring-ldist _ _ _) ⟩
                               (x - x) · y            ≡⟨ cong (λ u → u · y) (ring+-rinv x) ⟩
-                              ₀ · y                  ≡⟨ 0-leftNullifies y ⟩
-                              ₀ ∎)
+                              0r · y                  ≡⟨ 0-leftNullifies y ⟩
+                              0r ∎)
+
+  -isDistributive : (x y : ⟨ R ⟩) →  (- x) + (- y) ≡ - (x + y)
+  -isDistributive x y =
+    implicitInverse _ _
+         ((x + y) + ((- x) + (- y)) ≡⟨ sym (ring+-assoc _ _ _) ⟩
+          x + (y + ((- x) + (- y))) ≡⟨ cong
+                                         (λ u → x + (y + u))
+                                         (ring+-comm _ _) ⟩
+          x + (y + ((- y) + (- x))) ≡⟨ cong (λ u → x + u) (ring+-assoc _ _ _) ⟩
+          x + ((y + (- y)) + (- x)) ≡⟨ cong (λ u → x + (u + (- x)))
+                                            (ring+-rinv _) ⟩
+          x + (0r + (- x))           ≡⟨ cong (λ u → x + u) (ring+-lid _) ⟩
+          x + (- x)                 ≡⟨ ring+-rinv _ ⟩
+          0r ∎)
+
+  translatedDifference :
+    ∀ (x a b : ⟨ R ⟩)
+    → a - b ≡ (x + a) - (x + b)
+  translatedDifference x a b =
+              a - b                       ≡⟨ cong (λ u → a + u)
+                                                  (sym (ring+-lid _)) ⟩
+              (a + (0r + (- b)))          ≡⟨ cong (λ u → a + (u + (- b)))
+                                                  (sym (ring+-rinv _)) ⟩
+              (a + ((x + (- x)) + (- b))) ≡⟨ cong (λ u → a + u)
+                                                  (sym (ring+-assoc _ _ _)) ⟩
+              (a + (x + ((- x) + (- b)))) ≡⟨ (ring+-assoc _ _ _) ⟩
+              ((a + x) + ((- x) + (- b))) ≡⟨ cong (λ u → u + ((- x) + (- b)))
+                                                  (ring+-comm _ _) ⟩
+              ((x + a) + ((- x) + (- b))) ≡⟨ cong (λ u → (x + a) + u)
+                                                  (-isDistributive _ _) ⟩
+              ((x + a) - (x + b)) ∎

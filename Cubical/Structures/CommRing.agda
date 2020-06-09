@@ -17,7 +17,7 @@ private
     ℓ ℓ' : Level
 
 comm-ring-axioms : (X : Type ℓ) (s : raw-ring-structure X) → Type ℓ
-comm-ring-axioms X (_+_ , ₁ , _·_) = (ring-axioms X (_+_ , ₁ , _·_)) ×
+comm-ring-axioms X (_+_ , 1r , _·_) = (ring-axioms X (_+_ , 1r , _·_)) ×
                                      ((x y : X) → x · y ≡ y · x)
 
 comm-ring-structure : Type ℓ → Type ℓ
@@ -34,7 +34,7 @@ comm-ring-iso =
     comm-ring-axioms
 
 comm-ring-axioms-isProp : (X : Type ℓ) (s : raw-ring-structure X) → isProp (comm-ring-axioms X s)
-comm-ring-axioms-isProp X (_·_ , ₀ , _+_) = isPropΣ (ring-axioms-isProp X (_·_ , ₀ , _+_))
+comm-ring-axioms-isProp X (_·_ , 0r , _+_) = isPropΣ (ring-axioms-isProp X (_·_ , 0r , _+_))
                                             λ ((((isSetX , _) , _) , _) , _) → isPropΠ2 λ _ _ → isSetX _ _
 
 comm-ring-is-SNS : SNS {ℓ} comm-ring-structure comm-ring-iso
