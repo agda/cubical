@@ -83,3 +83,12 @@ isOfHLevelSum n lA lB c c' =
     (SumPath.decode c c')
     (SumPath.decodeEncode c c')
     (SumPath.isOfHLevelCover n lA lB c c')
+
+isSetSum : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isSet A → isSet B → isSet (A ⊎ B)
+isSetSum = isOfHLevelSum 0
+
+isGroupoidSum : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isGroupoid A → isGroupoid B → isGroupoid (A ⊎ B)
+isGroupoidSum = isOfHLevelSum 1
+
+is2GroupoidSum : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → is2Groupoid A → is2Groupoid B → is2Groupoid (A ⊎ B)
+is2GroupoidSum = isOfHLevelSum 2

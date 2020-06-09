@@ -27,6 +27,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Equiv.Properties
 
+open import Cubical.Data.Sigma
+
 record isPathSplitEquiv {ℓ ℓ'} {A : Type  ℓ} {B : Type ℓ'} (f : A → B) : Type (ℓ-max ℓ ℓ') where
   field
     sec : hasSection f
@@ -77,13 +79,13 @@ module _ {ℓ} {A B : Type ℓ} where
   fst (equivToPathSplit (f , _)) = f
   snd (equivToPathSplit (_ , e)) = fromIsEquiv _ e
 
-  equivHasUniqueSection : (f : A → B) → isEquiv f → isContr (Σ (B → A) (section f))
+  equivHasUniqueSection : (f : A → B) → isEquiv f → ∃![ g ∈ (B → A) ] section f g
   equivHasUniqueSection f eq = helper'
     where
     helper : isContr (fiber (λ (φ : B → A) → f ∘ φ) (idfun B))
     helper = (equiv-proof (snd (postCompEquiv (f , eq)))) (idfun B)
 
-    helper' : isContr (Σ[ φ ∈ (B → A) ] ((x : B) → f (φ x) ≡ x))
+    helper' : ∃![ φ ∈ (B → A) ] ((x : B) → f (φ x) ≡ x)
     fst helper' = (helper .fst .fst , λ x i → helper .fst .snd i x)
     snd helper' y i = (fst (η i) , λ b j → snd (η i) j b)
       where η = helper .snd (fst y , λ i b → snd y b i)

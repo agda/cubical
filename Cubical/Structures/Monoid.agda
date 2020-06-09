@@ -90,9 +90,10 @@ monoid-axioms-are-Props : (X : Type ℓ) (s : raw-monoid-structure X) → isProp
 monoid-axioms-are-Props X (e , _·_) s = β s
    where
    α = s .fst
-   β = isProp× isPropIsSet
-      (isProp× (isPropΠ3 (λ x y z → α (x · (y · z)) ((x · y) · z)))
-      (isProp× (isPropΠ (λ x → α (x · e) x)) (isPropΠ (λ x → α (e · x) x))))
+   β = isProp×3 isPropIsSet
+                (isPropΠ3 (λ x y z → α (x · (y · z)) ((x · y) · z)))
+                (isPropΠ (λ x → α (x · e) x))
+                (isPropΠ (λ x → α (e · x) x))
 
 monoid-is-SNS : SNS {ℓ} monoid-structure monoid-iso
 monoid-is-SNS = add-axioms-SNS _ monoid-axioms-are-Props raw-monoid-is-SNS

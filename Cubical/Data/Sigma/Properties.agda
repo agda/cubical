@@ -5,8 +5,8 @@ Basic properties about Σ-types
 - Action of Σ on functions ([map-fst], [map-snd])
 - Characterization of equality in Σ-types using dependent paths ([ΣPath{Iso,≃,≡}PathΣ], [Σ≡Prop])
 - Proof that discrete types are closed under Σ ([discreteΣ])
-- Commutativity and associativity ([swapΣEquiv, Σ-assoc])
-- Distributivity of Π over Σ ([PiΣ])
+- Commutativity and associativity ([Σ-swap-*, Σ-assoc-*])
+- Distributivity of Π over Σ ([Σ-Π-*])
 - Action of Σ on isomorphisms, equivalences, and paths ([Σ-cong-fst], [Σ-cong-snd], ...)
 - Characterization of equality in Σ-types using transport ([ΣPathTransport{≃,≡}PathΣ])
 - Σ with a contractible base is its fiber ([Σ-contractFst, ΣUnit])
@@ -29,7 +29,6 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 open import Cubical.Data.Unit.Base
 
 open Iso
@@ -41,7 +40,7 @@ private
     B B' : (a : A) → Type ℓ
     C : (a : A) (b : B a) → Type ℓ
 
-map-fst : {B : Type ℓ} → (f : A → A') → Σ A (λ _ → B) → Σ A' (λ _ → B)
+map-fst : {B : Type ℓ} → (f : A → A') → A × B → A' × B
 map-fst f (a , b) = (f a , b)
 
 map-snd : (∀ {a} → B a → B' a) → Σ A B → Σ A B'
@@ -50,24 +49,26 @@ map-snd f (a , b) = (a , f b)
 -- Characterization of paths in Σ using dependent paths
 
 ΣPathP : ∀ {x y}
-  → Σ (fst x ≡ fst y) (λ a≡ → PathP (λ i → B (a≡ i)) (snd x) (snd y))
-  → x ≡ y
+       → Σ[ p ∈ (fst x ≡ fst y) ] PathP (λ i → B (p i)) (snd x) (snd y)
+       → x ≡ y
 ΣPathP eq i = fst eq i , snd eq i
 
 ΣPathIsoPathΣ : {x y : Σ A B}
-  → Iso (Σ[ q ∈ fst x ≡ fst y ] (PathP (λ i → B (q i)) (snd x) (snd y)))
-        (x ≡ y)
-fun ΣPathIsoPathΣ = ΣPathP
-inv ΣPathIsoPathΣ eq = (λ i → fst (eq i)) , (λ i → snd (eq i))
-rightInv ΣPathIsoPathΣ x = refl {x = x}
-leftInv ΣPathIsoPathΣ x = refl {x = x}
+              → Iso (Σ[ p ∈ fst x ≡ fst y ] (PathP (λ i → B (p i)) (snd x) (snd y)))
+                    (x ≡ y)
+fun ΣPathIsoPathΣ        = ΣPathP
+inv ΣPathIsoPathΣ eq     = (λ i → fst (eq i)) , (λ i → snd (eq i))
+rightInv ΣPathIsoPathΣ _ = refl
+leftInv ΣPathIsoPathΣ _  = refl
 
 ΣPath≃PathΣ : {x y : Σ A B}
-  → Σ (fst x ≡ fst y) (λ p → PathP (λ i → B (p i)) (snd x) (snd y)) ≃
-    (x ≡ y)
+            → (Σ[ p ∈ (fst x ≡ fst y) ] PathP (λ i → B (p i)) (snd x) (snd y))
+            ≃ (x ≡ y)
 ΣPath≃PathΣ = isoToEquiv ΣPathIsoPathΣ
 
-ΣPath≡PathΣ : {x y : Σ A B} → (Σ (fst x ≡ fst y) (λ q → PathP (λ i → B (q i)) (snd x) (snd y))) ≡ (x ≡ y)
+ΣPath≡PathΣ : {x y : Σ A B}
+            → (Σ[ p ∈ (fst x ≡ fst y) ] PathP (λ i → B (p i)) (snd x) (snd y))
+            ≡ (x ≡ y)
 ΣPath≡PathΣ = ua ΣPath≃PathΣ
 
 Σ≡Prop : ((x : A) → isProp (B x)) → {u v : Σ A B}
@@ -88,52 +89,57 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
         ... | (no ¬q) = no (λ r → ¬q (subst (λ X → PathP (λ i → B (X i)) b0 b1) (Discrete→isSet Adis a0 a0 (cong fst r) refl) (cong snd r)))
     discreteΣ' (no ¬p) = no (λ r → ¬p (cong fst r))
 
-swapΣEquiv : A × A' ≃ A' × A
-swapΣEquiv = isoToEquiv (iso (λ x → x .snd , x .fst) (λ z → z .snd , z .fst) (\ _ → refl) (\ _ → refl))
+Σ-swap-Iso : Iso (A × A') (A' × A)
+fun Σ-swap-Iso (x , y) = (y , x)
+inv Σ-swap-Iso (x , y) = (y , x)
+rightInv Σ-swap-Iso _ = refl
+leftInv Σ-swap-Iso _  = refl
 
-Σ-assoc : (Σ[ (a , b) ∈ Σ A B ] C a b) ≃ (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
-Σ-assoc = isoToEquiv (iso (λ { ((x , y) , z) → (x , (y , z)) })
-                          (λ { (x , (y , z)) → ((x , y) , z) })
-                          (λ _ → refl) (λ _ → refl))
+Σ-swap-≃ : A × A' ≃ A' × A
+Σ-swap-≃ = isoToEquiv Σ-swap-Iso
 
-PiΣ : ((a : A) → Σ[ b ∈ B a ] C a b) ≃ (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
-PiΣ = isoToEquiv (iso (λ f → fst ∘ f , snd ∘ f)
-                      (λ (f , g) → (λ x → f x , g x))
-                      (λ _ → refl) (λ _ → refl))
+Σ-assoc-Iso : Iso (Σ[ (a , b) ∈ Σ A B ] C a b) (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
+fun Σ-assoc-Iso ((x , y) , z) = (x , (y , z))
+inv Σ-assoc-Iso (x , (y , z)) = ((x , y) , z)
+rightInv Σ-assoc-Iso _ = refl
+leftInv Σ-assoc-Iso _  = refl
 
-Σ-cong-iso-fst : (isom : Iso A A') → Iso (Σ A (B ∘ (fun isom))) (Σ A' B)
-fun (Σ-cong-iso-fst isom) x = (fun isom) (x .fst) , x .snd
-inv (Σ-cong-iso-fst {B = B} isom) x = (inv isom) (x .fst) , subst B (sym (ε' (x .fst))) (x .snd)
+Σ-assoc-≃ : (Σ[ (a , b) ∈ Σ A B ] C a b) ≃ (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
+Σ-assoc-≃ = isoToEquiv Σ-assoc-Iso
+
+Σ-Π-Iso : Iso ((a : A) → Σ[ b ∈ B a ] C a b) (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
+fun Σ-Π-Iso f         = (fst ∘ f , snd ∘ f)
+inv Σ-Π-Iso (f , g) x = (f x , g x)
+rightInv Σ-Π-Iso _    = refl
+leftInv Σ-Π-Iso _     = refl
+
+Σ-Π-≃ : ((a : A) → Σ[ b ∈ B a ] C a b) ≃ (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
+Σ-Π-≃ = isoToEquiv Σ-Π-Iso
+
+Σ-cong-iso-fst : (isom : Iso A A') → Iso (Σ A (B ∘ fun isom)) (Σ A' B)
+fun (Σ-cong-iso-fst isom) x = fun isom (x .fst) , x .snd
+inv (Σ-cong-iso-fst {B = B} isom) x = inv isom (x .fst) , subst B (sym (ε (x .fst))) (x .snd)
   where
-    ε' = isHAEquiv.ret (snd (iso→HAEquiv isom))
-rightInv (Σ-cong-iso-fst {B = B} isom) (x , y) = ΣPathP (ε' x ,
-  transport
-    (sym (PathP≡Path (λ j → cong B (ε' x) j) (subst B (sym (ε' x)) y) y))
-    (subst B (ε' x) (subst B (sym (ε' x)) y)
-      ≡⟨ sym (substComposite B (sym (ε' x)) (ε' x) y) ⟩
-    subst B ((sym (ε' x)) ∙ (ε' x)) y
-      ≡⟨ (cong (λ a → subst B a y) (lCancel (ε' x))) ⟩
-    subst B refl y
-      ≡⟨ substRefl {B = B} y ⟩
-    y ∎))
+  ε = isHAEquiv.ret (snd (iso→HAEquiv isom))
+rightInv (Σ-cong-iso-fst {B = B} isom) (x , y) = ΣPathP (ε x , toPathP goal)
   where
-    ε' = isHAEquiv.ret (snd (iso→HAEquiv isom))
-leftInv (Σ-cong-iso-fst {A = A} {B = B} isom@(iso f g ε η)) (x , y) = ΣPathP (η x ,
-  transport
-    (sym (PathP≡Path (λ j → cong B (cong f (η x)) j) (subst B (sym (ε' (f x))) y) y))
-    (subst B (cong f (η x)) (subst B (sym (ε' (f x))) y)
-      ≡⟨ sym (substComposite B (sym (ε' (f x))) (cong f (η x)) y) ⟩
-    subst B (sym (ε' (f x)) ∙ (cong f (η x))) y
-      ≡⟨ cong (λ a → subst B a y) (lem x) ⟩
-    subst B (refl) y
-      ≡⟨ substRefl {B = B} y ⟩
-    y ∎))
+  ε = isHAEquiv.ret (snd (iso→HAEquiv isom))
+  goal : subst B (ε x) (subst B (sym (ε x)) y) ≡ y
+  goal = sym (substComposite B (sym (ε x)) (ε x) y)
+      ∙∙ cong (λ x → subst B x y) (lCancel (ε x))
+      ∙∙ substRefl {B = B} y
+leftInv (Σ-cong-iso-fst {A = A} {B = B} isom@(iso f _ _ η)) (x , y) = ΣPathP (η x , toPathP goal)
   where
-    ε' = isHAEquiv.ret (snd (iso→HAEquiv isom))
-    γ = isHAEquiv.com (snd (iso→HAEquiv isom))
+  ε = isHAEquiv.ret (snd (iso→HAEquiv isom))
+  γ = isHAEquiv.com (snd (iso→HAEquiv isom))
 
-    lem : (x : A) → sym (ε' (f x)) ∙ cong f (η x) ≡ refl
-    lem x = cong (λ a → sym (ε' (f x)) ∙ a) (γ x) ∙ lCancel (ε' (f x))
+  lem : (x : A) → sym (ε (f x)) ∙ cong f (η x) ≡ refl
+  lem x = cong (λ a → sym (ε (f x)) ∙ a) (γ x) ∙ lCancel (ε (f x))
+
+  goal : subst B (cong f (η x)) (subst B (sym (ε (f x))) y) ≡ y
+  goal = sym (substComposite B (sym (ε (f x))) (cong f (η x)) y)
+      ∙∙ cong (λ a → subst B a y) (lem x)
+      ∙∙ substRefl {B = B} y
 
 Σ-cong-equiv-fst : (e : A ≃ A') → Σ A (B ∘ equivFun e) ≃ Σ A' B
 Σ-cong-equiv-fst e = isoToEquiv (Σ-cong-iso-fst (equivToIso e))
@@ -153,26 +159,18 @@ leftInv (Σ-cong-iso-snd isom) (x , y') = ΣPathP (refl , leftInv (isom x) y')
 Σ-cong-snd : ((x : A) → B x ≡ B' x) → Σ A B ≡ Σ A B'
 Σ-cong-snd {A = A} p i = Σ[ x ∈ A ] (p x i)
 
-Σ-cong-iso : {A A' : Type ℓ} {B : A → Type ℓ'} {B' : A' → Type ℓ'}
-  → (isom : Iso A A')
-  → ((x : A) → Iso (B x) (B' (fun isom x)))
-  ------------------------
-  → Iso (Σ A B) (Σ A' B')
+Σ-cong-iso : (isom : Iso A A')
+           → ((x : A) → Iso (B x) (B' (fun isom x)))
+           → Iso (Σ A B) (Σ A' B')
 Σ-cong-iso isom isom' = compIso (Σ-cong-iso-snd isom') (Σ-cong-iso-fst isom)
 
-Σ-cong' : {A A' : Type ℓ} {Y : A → Type ℓ'} {Y' : A' → Type ℓ'}
-  → (p : A ≡ A')
-  → (PathP (λ i → p i → Type ℓ') Y Y')
-  ----------
-  → (Σ A Y)
-  ≡ (Σ A' Y')
-Σ-cong' p p' = cong₂ (λ (a : Type _) (b : a → Type _) → Σ a λ x → b x) p p'
+Σ-cong' : (p : A ≡ A') → PathP (λ i → p i → Type ℓ') B B' → Σ A B ≡ Σ A' B'
+Σ-cong' p p' = cong₂ (λ (A : Type _) (B : A → Type _) → Σ A B) p p'
 
 -- Alternative version for path in Σ-types, as in the HoTT book
 
 ΣPathTransport : (a b : Σ A B) → Type _
-ΣPathTransport {B = B} a b =
-  Σ (fst a ≡ fst b) (λ p → transport (λ i → B (p i)) (snd a) ≡ snd b)
+ΣPathTransport {B = B} a b = Σ[ p ∈ (fst a ≡ fst b) ] transport (λ i → B (p i)) (snd a) ≡ snd b
 
 ΣPathTransport≃PathΣ : (a b : Σ A B) → ΣPathTransport a b ≃ (a ≡ b)
 ΣPathTransport≃PathΣ {B = B} a b =
@@ -204,4 +202,3 @@ PathΣ→ΣPathTransport a b = invEq (ΣPathTransport≃PathΣ a b)
 -- a special case of the above
 ΣUnit : ∀ {ℓ} (A : Unit → Type ℓ) → Σ Unit A ≃ A tt
 ΣUnit A = isoToEquiv (iso snd (λ { x → (tt , x) }) (λ _ → refl) (λ _ → refl))
-
