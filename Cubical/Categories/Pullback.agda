@@ -6,6 +6,7 @@
 module Cubical.Categories.Pullback where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 
 private
@@ -31,7 +32,7 @@ record Pullback {𝒞 : Precategory ℓ ℓ'} (cspn : Cospan 𝒞) : Type (ℓ-m
   field
     c : ob 𝒞
     cn : Cone cspn c
-    universal : {c' : ob 𝒞} (cn' : Cone cspn c') → isContr (Σ[ f ∈ 𝒞 .hom c' c ] Σ[ q ∈ Cone.p₁ cn' ≡ 𝒞 .seq f (Cone.p₁ cn) ] (Cone.p₂ cn' ≡ 𝒞 .seq f (Cone.p₂ cn)))
+    universal : {c' : ob 𝒞} (cn' : Cone cspn c') → ∃![ f ∈ 𝒞 .hom c' c ] Σ[ q ∈ Cone.p₁ cn' ≡ 𝒞 .seq f (Cone.p₁ cn) ] (Cone.p₂ cn' ≡ 𝒞 .seq f (Cone.p₂ cn))
 
 -- whisker the parallel morphisms g and g' with f
 lPrecatWhisker : {𝒞 : Precategory ℓ ℓ'} {x y z : 𝒞 .ob} (f : 𝒞 .hom x y) (g g' : 𝒞 .hom y z) (p : g ≡ g') → 𝒞 .seq f g ≡ 𝒞 .seq f g'
