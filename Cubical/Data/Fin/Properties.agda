@@ -141,14 +141,14 @@ Residue+k-k
   → Residue+k k n (Residue-k k n R) ≡ R
 Residue+k-k k n (((r , r<k) , zero) , p) = Empty.rec (<-asym r<k (lemma₀ p refl))
 Residue+k-k k n ((f , suc o) , p)
-  = ΣProp≡ (λ tup → isSetℕ (expand× tup) (k + n)) refl
+  = Σ≡Prop (λ tup → isSetℕ (expand× tup) (k + n)) refl
 
 Residue-k+k
   : (k n : ℕ)
   → (R : Residue k n)
   → Residue-k k n (Residue+k k n R) ≡ R
 Residue-k+k k n ((f , o) , p)
-  = ΣProp≡ (λ tup → isSetℕ (expand× tup) n) refl
+  = Σ≡Prop (λ tup → isSetℕ (expand× tup) n) refl
 
 private
   Residue≃ : ∀ k n → Residue k n ≃ Residue k (k + n)

@@ -37,7 +37,7 @@ module _ (G : Group {ℓ}) where
 
   id-is-unique : isContr (Σ[ x ∈ ⟨ G ⟩ ] ∀ (y : ⟨ G ⟩) → (x · y ≡ y) × (y · x ≡ y))
   id-is-unique = (₁ , λ y → ₁· y , ·₁ y) ,
-                 λ { (e , is-unit) → ΣProp≡ (λ x → isPropΠ λ y → isPropΣ (group-is-set G _ _)
+                 λ { (e , is-unit) → Σ≡Prop (λ x → isPropΠ λ y → isPropΣ (group-is-set G _ _)
                                                                     λ _ →    group-is-set G _ _)
                                               (₁     ≡⟨ sym (snd (is-unit ₁)) ⟩
                                                ₁ · e ≡⟨ ₁· e ⟩

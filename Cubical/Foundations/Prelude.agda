@@ -42,9 +42,11 @@ private
 
 refl : x ≡ x
 refl {x = x} = λ _ → x
+{-# INLINE refl #-}
 
 sym : x ≡ y → y ≡ x
 sym p i = p (~ i)
+{-# INLINE sym #-}
 
 symP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} →
        (p : PathP A x y) → PathP (λ i → A (~ i)) y x
@@ -53,6 +55,7 @@ symP p j = p (~ j)
 cong : ∀ (f : (a : A) → B a) (p : x ≡ y) →
        PathP (λ i → B (p i)) (f x) (f y)
 cong f p i = f (p i)
+{-# INLINE cong #-}
 
 cong₂ : ∀ {C : (a : A) → (b : B a) → Type ℓ} →
         (f : (a : A) → (b : B a) → C a b) →
@@ -60,6 +63,7 @@ cong₂ : ∀ {C : (a : A) → (b : B a) → Type ℓ} →
         {u : B x} {v : B y} (q : PathP (λ i → B (p i)) u v) →
         PathP (λ i → C (p i) (q i)) (f x u) (f y v)
 cong₂ f p q i = f (p i) (q i)
+{-# INLINE cong₂ #-}
 
 {- The most natural notion of homogenous path composition
     in a cubical setting is double composition:
@@ -198,14 +202,20 @@ subst B p pa = transport (λ i → B (p i)) pa
 substRefl : (px : B x) → subst B refl px ≡ px
 substRefl px = transportRefl px
 
-funExt : {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
+funExt : {B : A → I → Type ℓ'}
+  {f : (x : A) → B x i0} {g : (x : A) → B x i1}
+  → ((x : A) → PathP (B x) (f x) (g x))
+  → PathP (λ i → (x : A) → B x i) f g
 funExt p i x = p x i
 
 -- the inverse to funExt (see Functions.FunExtEquiv), converting paths
 -- between functions to homotopies; `funExt⁻` is called `happly` and
 -- defined by path induction in the HoTT book (see function 2.9.2 in
 -- section 2.9)
-funExt⁻ : ∀ {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
+funExt⁻ : {B : A → I → Type ℓ'}
+  {f : (x : A) → B x i0} {g : (x : A) → B x i1}
+  → PathP (λ i → (x : A) → B x i) f g
+  → ((x : A) → PathP (B x) (f x) (g x))
 funExt⁻ eq x i = eq i x
 
 -- J for paths and its computation rule

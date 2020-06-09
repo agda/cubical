@@ -120,7 +120,7 @@ isGroupoidKleinBottle =
   Path KleinBottle point point
     ≡⟨ (λ i → basePath i ≡ basePath i) ⟩
   Path (Σ S¹ invS¹Loop) (base , base) (base , base)
-    ≡⟨ sym Σ≡ ⟩
+    ≡⟨ sym ΣPath≡PathΣ ⟩
   Σ ΩS¹ (λ p → PathP (λ j → invS¹Loop (p j)) base base)
     ≡⟨ (λ i → Σ ΩS¹ (λ p → PathP (λ j → invS¹Loop (p (j ∨ i))) (twistBaseLoop (p i)) base)) ⟩
   ΩS¹ × ΩS¹

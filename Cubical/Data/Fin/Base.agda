@@ -43,7 +43,7 @@ toℕ = fst
 
 -- ... and injective.
 toℕ-injective : ∀{fj fk : Fin k} → toℕ fj ≡ toℕ fk → fj ≡ fk
-toℕ-injective {fj = fj} {fk} = ΣProp≡ (λ _ → m≤n-isProp)
+toℕ-injective {fj = fj} {fk} = Σ≡Prop (λ _ → m≤n-isProp)
 
 -- A case analysis helper for induction.
 fsplit

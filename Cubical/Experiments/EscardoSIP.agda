@@ -30,7 +30,7 @@ private
 
 Σ-≡-≃ : {X : Type ℓ} {A : X → Type ℓ'}
        → (σ τ : Σ X A) → ((σ ≡ τ) ≃ (Σ[ p ∈ (σ .fst) ≡ (τ .fst) ] (subst A p (σ .snd) ≡ (τ .snd))))
-Σ-≡-≃ {A = A} σ τ = pathToEquiv (pathSigma≡sigmaPath σ τ)
+Σ-≡-≃ {A = A} σ τ = invEquiv (ΣPathTransport≃PathΣ σ τ)
 
 
 
@@ -96,12 +96,12 @@ NatΣ τ (x , a) = (x , τ x a)
    ψ (y , a) = (g y , subst A (sym (η y)) a)
 
    φψ : (z : (Σ Y A)) → φ (ψ z) ≡ z
-   φψ (y , a) = sigmaPath→pathSigma (φ (ψ (y , a))) (y , a)
-                                    (η y ,  transportTransport⁻ (λ i → A (η y i)) a)
+   φψ (y , a) =
+     ΣPathTransport→PathΣ _ _ (η y ,  transportTransport⁻ (λ i → A (η y i)) a)
      -- last term proves transp (λ i → A (η y i)) i0 (transp (λ i → A (η y (~ i))) i0 a) ≡ a
 
    ψφ : (z : (Σ X (A ∘ f))) → ψ (φ z) ≡ z
-   ψφ (x , a) = sigmaPath→pathSigma (ψ (φ (x , a))) (x , a) (ε x , q)
+   ψφ (x , a) = ΣPathTransport→PathΣ _ _ (ε x , q)
      where
       b : A (f (g (f x)))
       b = (transp (λ i → A (η (f x) (~ i))) i0 a)
@@ -218,7 +218,7 @@ SIP S ι θ A B =
             (Σ[ p ∈ (typ A) ≡ (typ B) ] (ι A B (pathToEquiv p)))                ≃⟨ iii ⟩
             (A ≃[ ι ] B)                                                            ■
     where
-     i = invEquiv Σ≃
+     i = invEquiv ΣPath≃PathΣ
      ii = Σ-cong-≃ (hom-lemma-dep S ι θ A B)
      iii = Σ-change-of-variable-≃ pathToEquiv (equivIsEquiv univalence)
 
