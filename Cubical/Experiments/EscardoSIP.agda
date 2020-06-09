@@ -5,10 +5,7 @@ https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html#s
 All the needed preliminary results from the lecture notes are stated and proven in this file.
 It would be interesting to compare the proves with the one in Cubical.Foundations.SIP
 -}
-
-
-
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Experiments.EscardoSIP where
 
 open import Cubical.Core.Everything
@@ -16,12 +13,10 @@ open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Data.Sigma.Properties
 
-
 private
   variable
     ℓ ℓ' ℓ'' : Level
     S : Type ℓ → Type ℓ'
-
 
 -- We prove several useful equalities and equivalences between Σ-types all the proofs are taken from
 -- Martin Hötzel-Escardó's lecture notes.
@@ -121,28 +116,6 @@ NatΣ τ (x , a) = (x , τ x a)
                       → (isEquiv f) → ((Σ X (A ∘ f)) ≃ (Σ Y A))
 Σ-change-of-variable-≃ f isEquivf =
                       isoToEquiv (Σ-change-of-variable-Iso f (equiv→HAEquiv (f , isEquivf) .snd))
-
-
-
-
-Σ-assoc-Iso : (X : Type ℓ) (A : X → Type ℓ') (P : Σ X A → Type ℓ'')
-         → (Iso (Σ (Σ X A) P) (Σ[ x ∈ X ] (Σ[ a ∈ A x ] P (x , a))))
-Σ-assoc-Iso X A P = iso f g ε η
-   where
-    f : (Σ (Σ X A) P) → (Σ[ x ∈ X ] (Σ[ a ∈ A x ] P (x , a)))
-    f ((x , a) , p) = (x , (a , p))
-    g : (Σ[ x ∈ X ] (Σ[ a ∈ A x ] P (x , a))) →  (Σ (Σ X A) P)
-    g (x , (a , p)) = ((x , a) , p)
-    ε : section f g
-    ε n = refl
-    η : retract f g
-    η m = refl
-
-Σ-assoc-≃ : (X : Type ℓ) (A : X → Type ℓ') (P : Σ X A → Type ℓ'')
-         → (Σ (Σ X A) P) ≃ (Σ[ x ∈ X ] (Σ[ a ∈ A x ] P (x , a)))
-Σ-assoc-≃ X A P = isoToEquiv (Σ-assoc-Iso X A P)
-
-
 
 
 -- A structure is a type-family S : Type ℓ → Type ℓ', i.e. for X : Type ℓ and s : S X, the pair (X , s)

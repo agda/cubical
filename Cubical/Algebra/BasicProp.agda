@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Algebra.BasicProp where
 
 open import Cubical.Foundations.Prelude
@@ -35,7 +35,7 @@ module _ (G : Group {ℓ}) where
 
     ·⁻¹ = group-rinv G
 
-  id-is-unique : isContr (Σ[ x ∈ ⟨ G ⟩ ] ∀ (y : ⟨ G ⟩) → (x · y ≡ y) × (y · x ≡ y))
+  id-is-unique : ∃![ x ∈ ⟨ G ⟩ ] ∀ (y : ⟨ G ⟩) → (x · y ≡ y) × (y · x ≡ y)
   id-is-unique = (₁ , λ y → ₁· y , ·₁ y) ,
                  λ { (e , is-unit) → Σ≡Prop (λ x → isPropΠ λ y → isPropΣ (group-is-set G _ _)
                                                                     λ _ →    group-is-set G _ _)

@@ -12,7 +12,7 @@ various consequences of univalence
 - Isomorphism induction ([elimIso])
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Univalence where
 
 open import Cubical.Foundations.Prelude
@@ -20,6 +20,8 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.GroupoidLaws
+
+open import Cubical.Data.Sigma.Base
 
 open import Cubical.Core.Glue public
   using ( Glue ; glue ; unglue ; lineToEquiv )
@@ -142,7 +144,7 @@ unglueEquiv A φ f = ( unglue φ , unglueIsEquiv A φ f )
 -- unglue is an equivalence. The standard formulation can be found in
 -- Cubical/Basics/Univalence.
 --
-EquivContr : ∀ (A : Type ℓ) → isContr (Σ[ T ∈ Type ℓ ] T ≃ A)
+EquivContr : ∀ (A : Type ℓ) → ∃![ T ∈ Type ℓ ] (T ≃ A)
 EquivContr {ℓ = ℓ} A =
   ( (A , idEquiv A)
   , idEquiv≡ )

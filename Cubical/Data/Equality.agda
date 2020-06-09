@@ -8,7 +8,7 @@ and the inductively define equality types.
 
 TODO: reconsider naming scheme.
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 module Cubical.Data.Equality where
 
@@ -24,7 +24,7 @@ open import Cubical.Foundations.Isomorphism
 private
  variable
   ℓ : Level
-  A : Set ℓ
+  A : Type ℓ
   x y z : A
 
 ptoc : x ≡p y → x ≡c y

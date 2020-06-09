@@ -7,7 +7,7 @@ Basic theory about h-levels/n-types:
 - Hedberg's theorem can be found in Cubical/Relation/Nullary/DecidableEq
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.HLevels where
 
 open import Cubical.Foundations.Prelude
@@ -19,15 +19,14 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Equiv.HalfAdjoint  using (congEquiv)
-open import Cubical.Foundations.Univalence         using (ua; univalence)
+open import Cubical.Foundations.Univalence using (ua ; univalence)
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' ℓ''' : Level
     A : Type ℓ
     B : A → Type ℓ
     C : (x : A) → B x → Type ℓ
@@ -248,8 +247,16 @@ is2GroupoidΣ = isOfHLevelΣ 4
 
 -- h-level of ×
 
-isProp× : ∀ {A : Type ℓ} {B : Type ℓ'} → isProp A → isProp B → isProp (A × B)
+isProp× : {A : Type ℓ} {B : Type ℓ'} → isProp A → isProp B → isProp (A × B)
 isProp× pA pB = isPropΣ pA (λ _ → pB)
+
+isProp×2 : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+         → isProp A → isProp B → isProp C → isProp (A × B × C)
+isProp×2 pA pB pC = isProp× pA (isProp× pB pC)
+
+isProp×3 : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
+         → isProp A → isProp B → isProp C → isProp D → isProp (A × B × C × D)
+isProp×3 pA pB pC pD = isProp×2 pA pB (isProp× pC pD)
 
 isOfHLevel× : ∀ {A : Type ℓ} {B : Type ℓ'} n → isOfHLevel n A → isOfHLevel n B
                                              → isOfHLevel n (A × B)
@@ -285,6 +292,9 @@ isPropΠ2 h = isPropΠ λ x → isPropΠ λ y → h x y
 isPropΠ3 : (h : (x : A) (y : B x) (z : C x y) → isProp (D x y z))
          → isProp ((x : A) (y : B x) (z : C x y) → D x y z)
 isPropΠ3 h = isPropΠ λ x → isPropΠ λ y → isPropΠ λ z → h x y z
+
+isProp→ : {A : Type ℓ} {B : Type ℓ'} → isProp B → isProp (A → B)
+isProp→ pB = isPropΠ λ _ → pB
 
 isSetΠ : ((x : A) → isSet (B x)) → isSet ((x : A) → B x)
 isSetΠ = isOfHLevelΠ 2

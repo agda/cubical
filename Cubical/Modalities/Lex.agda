@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --postfix-projections #-}
+{-# OPTIONS --cubical --no-import-sorts --safe --postfix-projections #-}
 
 open import Cubical.Foundations.Everything renaming (uncurry to λ⟨,⟩_)
 open import Cubical.Data.Sigma.Properties

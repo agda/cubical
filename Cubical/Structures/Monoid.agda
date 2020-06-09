@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Structures.Monoid where
 
 open import Cubical.Foundations.Prelude
@@ -21,7 +21,10 @@ raw-monoid-structure X = X × (X → X → X)
 
 -- If we ignore the axioms we get a "raw" monoid
 raw-monoid-is-SNS : SNS {ℓ} raw-monoid-structure _
-raw-monoid-is-SNS = join-SNS pointed-iso pointed-is-SNS (nAryFunIso 2) (nAryFunSNS 2)
+raw-monoid-is-SNS =
+  join-SNS
+    pointed-iso pointed-is-SNS
+    (binaryFunIso pointed-iso) (binaryFunSNS pointed-iso pointed-is-SNS)
 
 -- Monoid axioms
 monoid-axioms : (X : Type ℓ) → raw-monoid-structure X → Type ℓ
@@ -80,16 +83,17 @@ monoid-lid (_ , _ , _ , _ , _ , P) = P
 
 -- Monoid equivalence
 monoid-iso : StrIso monoid-structure ℓ
-monoid-iso = add-to-iso (join-iso pointed-iso (nAryFunIso 2)) monoid-axioms
+monoid-iso = add-to-iso (join-iso pointed-iso (binaryFunIso pointed-iso)) monoid-axioms
 
 -- We have to show that the monoid axioms are indeed propositions
 monoid-axioms-are-Props : (X : Type ℓ) (s : raw-monoid-structure X) → isProp (monoid-axioms X s)
 monoid-axioms-are-Props X (e , _·_) s = β s
    where
    α = s .fst
-   β = isProp× isPropIsSet
-      (isProp× (isPropΠ3 (λ x y z → α (x · (y · z)) ((x · y) · z)))
-      (isProp× (isPropΠ (λ x → α (x · e) x)) (isPropΠ (λ x → α (e · x) x))))
+   β = isProp×3 isPropIsSet
+                (isPropΠ3 (λ x y z → α (x · (y · z)) ((x · y) · z)))
+                (isPropΠ (λ x → α (x · e) x))
+                (isPropΠ (λ x → α (e · x) x))
 
 monoid-is-SNS : SNS {ℓ} monoid-structure monoid-iso
 monoid-is-SNS = add-axioms-SNS _ monoid-axioms-are-Props raw-monoid-is-SNS

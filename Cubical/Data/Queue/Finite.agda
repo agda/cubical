@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
 module Cubical.Data.Queue.Finite where
 
 open import Cubical.Foundations.Everything
@@ -16,6 +16,10 @@ open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Data.Queue.1List
 
 -- All finite queues are equal to 1List.Finite
+
+private
+  variable
+    ℓ : Level
 
 module _ (A : Type ℓ) (Aset : isSet A) where
  open Queues-on A Aset

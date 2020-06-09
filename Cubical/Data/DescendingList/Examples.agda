@@ -9,7 +9,7 @@
 -- 2. "sorting" finite multisets by converting into sorted lists.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 module Cubical.Data.DescendingList.Examples where
 
@@ -31,11 +31,11 @@ open import Cubical.HITs.FiniteMultiset
 
 infix 4 _≤_ _≥_
 
-data _≤_ : ℕ → ℕ → Set where
+data _≤_ : ℕ → ℕ → Type where
  z≤n : ∀ {n}                 → zero  ≤ n
  s≤s : ∀ {m n} (m≤n : m ≤ n) → suc m ≤ suc n
 
-_≥_ : ℕ → ℕ → Set
+_≥_ : ℕ → ℕ → Type
 m ≥ n = n ≤ m
 
 ≤pred : {n m : ℕ} → suc n ≤ suc m → n ≤ m

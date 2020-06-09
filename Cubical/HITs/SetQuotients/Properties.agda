@@ -4,7 +4,7 @@ Set quotients:
 
 -}
 
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.SetQuotients.Properties where
 
 open import Cubical.HITs.SetQuotients.Base
@@ -23,7 +23,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 
-open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash; ∃; ∃-syntax)
+open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
 open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₀; ∣_∣₀; squash₀)
 
 -- Type quotients
@@ -100,7 +100,7 @@ effective {A = A} {R = R} Rprop (EquivRel R/refl R/sym R/trans) a b p = transpor
     helper =
       elim (λ _ → isSetHProp) (λ c → (R a c , Rprop a c))
                               (λ c d cd → Σ≡Prop (λ _ → isPropIsProp)
-                                                 (ua (PropEquiv→Equiv (Rprop a c) (Rprop a d)
+                                                 (ua (isPropEquiv→Equiv (Rprop a c) (Rprop a d)
                                                                       (λ ac → R/trans _ _ _ ac cd) (λ ad → R/trans _ _ _ ad (R/sym _ _ cd)))))
 
     aa≡ab : R a a ≡ R a b

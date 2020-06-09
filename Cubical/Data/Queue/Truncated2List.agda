@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
 module Cubical.Data.Queue.Truncated2List where
 
 open import Cubical.Foundations.Everything
@@ -14,7 +14,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Data.Queue.1List
 
-module Truncated2List (A : Type ℓ) (Aset : isSet A) where
+module Truncated2List {ℓ} (A : Type ℓ) (Aset : isSet A) where
  open Queues-on A Aset
 
  data Q : Type ℓ where

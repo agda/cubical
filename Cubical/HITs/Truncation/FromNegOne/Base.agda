@@ -3,7 +3,7 @@
 An simpler definition of truncation ∥ A ∥ n from n ≥ -1
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.Truncation.FromNegOne.Base where
 
 open import Cubical.Data.NatMinusOne renaming (suc₋₁ to suc)

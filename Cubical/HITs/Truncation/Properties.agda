@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.Truncation.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -160,6 +160,9 @@ isModalIsProp (HLevelTruncModality n) = isPropIsOfHLevel n
 ◯-elim        (HLevelTruncModality n) = elim
 ◯-elim-β      (HLevelTruncModality n) = λ _ _ _ → refl
 ◯-=-isModal   (HLevelTruncModality n) = isOfHLevelPath n (isOfHLevelTrunc n)
+
+truncIdempotentIso : (n : ℕ) → isOfHLevel n A → Iso A (hLevelTrunc n A)
+truncIdempotentIso n hA = isModalToIso (HLevelTruncModality n) hA
 
 truncIdempotent≃ : (n : ℕ) → isOfHLevel n A → A ≃ hLevelTrunc n A
 truncIdempotent≃ n hA = ∣_∣ , isModalToIsEquiv (HLevelTruncModality n) hA

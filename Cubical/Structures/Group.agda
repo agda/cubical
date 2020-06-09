@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Structures.Group where
 
 open import Cubical.Foundations.Prelude
@@ -8,6 +8,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
+open import Cubical.Structures.Pointed
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid hiding (⟨_⟩)
@@ -94,7 +95,7 @@ group-linv (_ , _ , _ , P) x = snd (snd ((snd (snd P)) x))
 
 -- Iso for groups are those for monoids
 group-iso : StrIso group-structure ℓ
-group-iso = add-to-iso (nAryFunIso 2) group-axioms
+group-iso = add-to-iso (binaryFunIso pointed-iso) group-axioms
 
 -- Group axioms isProp
 
@@ -139,7 +140,7 @@ group-axioms-isProp X s t = η t
 
 -- Group paths equivalent to equality
 group-is-SNS : SNS {ℓ} group-structure group-iso
-group-is-SNS = add-axioms-SNS _ group-axioms-isProp (nAryFunSNS 2)
+group-is-SNS = add-axioms-SNS _ group-axioms-isProp raw-group-is-SNS
 
 GroupPath : (M N : Group {ℓ}) → (M ≃[ group-iso ] N) ≃ (M ≡ N)
 GroupPath = SIP group-is-SNS

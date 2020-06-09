@@ -5,7 +5,7 @@ This file contains:
 - Eliminator for propositional truncation
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.PropositionalTruncation.Properties where
 
 open import Cubical.Core.Everything
@@ -178,7 +178,7 @@ module SetElim (Bset : isSet B) where
 open SetElim public using (rec→Set; trunc→Set≃)
 
 elim→Set
-  : {P : ∥ A ∥ → Set ℓ}
+  : {P : ∥ A ∥ → Type ℓ}
   → (∀ t → isSet (P t))
   → (f : (x : A) → P ∣ x ∣)
   → (kf : ∀ x y → PathP (λ i → P (squash ∣ x ∣ ∣ y ∣ i)) (f x) (f y))
