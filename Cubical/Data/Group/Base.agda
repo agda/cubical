@@ -87,7 +87,25 @@ morph0→0 G' H' f ismorph = 0→0
     comp H (f (id G)) (inv H (f (id G)))                        ≡⟨ rCancel H (f (id G)) ⟩
     id H ∎
   
+morph0→0' : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') (f : morph G H)
+           → morph.fun f (isGroup.id (Group.groupStruc G)) ≡ isGroup.id (Group.groupStruc H)
+morph0→0' G' H' f' = 0→0
+  where
+  open Group
+  open isGroup
+  G = Group.groupStruc G'
+  H = Group.groupStruc H'
+  f = morph.fun f'
+  ismorph = morph.ismorph f'
 
+  0→0 : f (id G) ≡ id H
+  0→0 =
+    f (id G)                                               ≡⟨ sym (rUnit H (f (id G))) ⟩
+    comp H (f (id G)) (id H)                                   ≡⟨ (λ i → comp H (f (id G)) (rCancel H (f (id G)) (~ i))) ⟩
+    comp H (f (id G)) (comp H (f (id G)) (inv H (f (id G))))        ≡⟨ sym (assoc H (f (id G)) (f (id G)) (inv H (f (id G)))) ⟩
+    comp H (comp H (f (id G)) (f (id G))) (inv H (f (id G)))        ≡⟨ sym (cong (λ x → comp H x (inv H (f (id G)))) (sym (cong f (lUnit G (id G))) ∙ ismorph (id G) (id G))) ⟩
+    comp H (f (id G)) (inv H (f (id G)))                        ≡⟨ rCancel H (f (id G)) ⟩
+    id H ∎
 
 {- a morphism ϕ satisfies ϕ(- a) = - ϕ(a)  -}
 morphMinus : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (f : (Group.type G → Group.type H))
@@ -340,6 +358,12 @@ Iso''→Iso {A = A} {B = B} is =
       comp A' (comp A' a1 (inv A' a2)) a2 ≡⟨ cong (λ x → comp A' x a2) fstIdHelper ⟩
       comp A' (id A') a2 ≡⟨ lUnit A' a2 ⟩
       a2 ∎
+
+groupIso→Iso : ∀ {ℓ ℓ'} {G : Group ℓ} {H : Group ℓ'} → Iso G H → I.Iso (Group.type G) (Group.type H)
+I.Iso.fun (groupIso→Iso i) = morph.fun (Iso.fun i)
+I.Iso.inv (groupIso→Iso i) = morph.fun (Iso.inv i)
+I.Iso.rightInv (groupIso→Iso i) = Iso.rightInv i
+I.Iso.leftInv (groupIso→Iso i) = Iso.leftInv i
 
 
 -- -- Injectivity and surjectivity in terms of exact sequences

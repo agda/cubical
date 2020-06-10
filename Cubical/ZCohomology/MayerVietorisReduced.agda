@@ -356,12 +356,15 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
 
 d-morph : ∀ {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : C → A) (g : C → B) (n : ℕ)
         → morph (coHomGr n C) (coHomGr (suc n) (Pushout f g))
-d-morph A B C f g n = mph (MV.d A B C f g n) (MV.dIsHom A B C f g n)
+morph.fun (d-morph A B C f g n) = MV.d A B C f g n
+morph.ismorph (d-morph A B C f g n) = MV.dIsHom A B C f g n
 
 i-morph : ∀ {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : C → A) (g : C → B) (n : ℕ)
         → morph (coHomGr n (Pushout f g)) (×coHomGr n A B)
-i-morph A B C f g n = mph (MV.i A B C f g n) (MV.iIsHom A B C f g n)
+morph.fun (i-morph A B C f g n) = MV.i A B C f g n
+morph.ismorph (i-morph A B C f g n) = MV.iIsHom A B C f g n
 
 Δ-morph : ∀ {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : C → A) (g : C → B) (n : ℕ)
         → morph (×coHomGr n A B) (coHomGr n C)
-Δ-morph A B C f g n = mph (MV.Δ A B C f g n) (MV.ΔIsHom A B C f g n)
+morph.fun (Δ-morph A B C f g n) = MV.Δ A B C f g n
+morph.ismorph (Δ-morph A B C f g n) = MV.ΔIsHom A B C f g n
