@@ -953,7 +953,71 @@ coHom2Torus =
                  (setTruncIso
                   (compIso schonfIso (compIso (targetIso test13) funIso))))
                 (Iso.fun (symIso setTruncOfProdIso) (0ₕ , ∣ g ∣₀)))
-  helper2' = {!!}
+  helper2' f g = (λ i → Iso.fun (symIso
+                 (setTruncIso
+                  (compIso schonfIso ((targetIso test13))))) ∣ (λ x → 0ₖ , (f x +ₖ g x)) ∣₀)
+               ∙ (λ i →  ∣ Iso.fun (symIso (compIso schonfIso (targetIso test13))) (λ x → 0ₖ , (f x +ₖ g x)) ∣₀)
+               ∙ (λ i → ∣ Iso.inv schonfIso (Iso.inv (targetIso test13) ((λ x → 0ₖ , (f x +ₖ g x)))) ∣₀)
+               ∙ (λ i → ∣ {!!} ∣₀)
+               ∙ {!!}
+               ∙ {!!}
+    where
+    fun : S₊ 1 × S₊ 1 → hLevelTrunc 4 (S₊ 2)
+    fun (x , north) = 0ₖ +ₖ 0ₖ
+    fun (x , south) = 0ₖ +ₖ 0ₖ
+    fun (x , (merid south i)) = 0ₖ +ₖ (Kn→ΩKn+1 1 (f x +ₖ g x) i)
+    fun (x , (merid north i)) = 0ₖ +ₖ 0ₖ
+
+    helper : Iso.inv schonfIso (Iso.inv (targetIso test13) ((λ x → 0ₖ , (f x +ₖ g x)))) ≡ fun
+    helper = funExt λ {(x , north) → refl ; (x , south) → refl ; (x , (merid north i)) → refl ; (x , (merid south i)) → refl}
+
+    helper2 : ∣ Iso.inv schonfIso (Iso.inv (targetIso test13) ((λ x → 0ₖ , (f x +ₖ g x)))) ∣₀
+            ≡ (∣ Iso.inv schonfIso (Iso.inv (targetIso test13) ((λ x → 0ₖ , f x))) ∣₀ +ₕ ∣ Iso.inv schonfIso (Iso.inv (targetIso test13) ((λ x → 0ₖ , g x))) ∣₀)
+    helper2 =
+      cong ∣_∣₀
+           (funExt λ {(x , north) → ((λ i → (∣ north ∣ +ₖ Kn→ΩKn+1 1 (f x +ₖ g x) i))
+                                            ∙∙ sym (rUnitₖ (0ₖ +ₖ 0ₖ)) ∙ cong (λ x → ((0ₖ +ₖ 0ₖ) +ₖ x)) (rUnitₖ 0ₖ) 
+                                            ∙∙ refl)
+                    ; (x , south) → refl
+                                            ∙∙ sym (rUnitₖ (0ₖ +ₖ 0ₖ)) ∙ cong (λ x → ((0ₖ +ₖ 0ₖ) +ₖ x)) (rUnitₖ 0ₖ) 
+                                            ∙∙ (λ i → (∣ north ∣ +ₖ Kn→ΩKn+1 1 (f x) i) +ₖ ∣ north ∣ +ₖ Kn→ΩKn+1 1 (g x) i)
+                    ; (x , (merid south i)) j → hcomp (λ k → λ {(j = i0) → ∣ north ∣ +ₖ Kn→ΩKn+1 1 (f x +ₖ g x) (i ∨ (~ k))
+                                                                ; (j = i1) → (∣ north ∣ +ₖ Kn→ΩKn+1 1 (f x) (i ∧ k)) +ₖ ∣ north ∣ +ₖ Kn→ΩKn+1 1 (g x) (i ∧ k)})
+                                                                 ((sym (rUnitₖ (0ₖ +ₖ 0ₖ)) ∙ cong (λ x → ((0ₖ +ₖ 0ₖ) +ₖ x)) (rUnitₖ 0ₖ)) j)
+                    ; (x , (merid north u)) → {!!}})
+      where
+      anotherone : (x : _) → cong (0ₖ +ₖ_) (Kn→ΩKn+1 1 (f x +ₖ g x)) ≡ {!!}
+      anotherone x = {!!}
+
+      helper5 : (x : _) → Iso.inv schonfIso (Iso.inv (targetIso test13) ((λ x → 0ₖ , f x +ₖ g x))) x
+                        ≡ (Iso.inv schonfIso (Iso.inv (targetIso test13) ((λ x → 0ₖ , f x))) x) +ₖ (Iso.inv schonfIso (Iso.inv (targetIso test13) ((λ x → 0ₖ , g x))) x)
+      helper5 (x , north) = sym (rUnitₖ (0ₖ +ₖ 0ₖ)) ∙ (λ i → (0ₖ +ₖ 0ₖ) +ₖ (lUnitₖ 0ₖ (~ i)))
+      helper5 (x , south) = sym (rUnitₖ (0ₖ +ₖ 0ₖ)) ∙ (λ i → (0ₖ +ₖ 0ₖ) +ₖ (lUnitₖ 0ₖ (~ i)))
+      helper5 (x , merid north i) = sym (rUnitₖ (0ₖ +ₖ 0ₖ)) ∙ (λ i → (0ₖ +ₖ 0ₖ) +ₖ (lUnitₖ 0ₖ (~ i)))
+      helper5 (x , merid south i) j =
+        {!!}
+        where
+        helper13 : sym (sym (rUnitₖ (0ₖ +ₖ 0ₖ)) ∙ (λ i → (0ₖ +ₖ 0ₖ) +ₖ (lUnitₖ 0ₖ (~ i))))
+                ∙ (λ i → ∣ north ∣ +ₖ Kn→ΩKn+1 1 (f x +ₖ g x) i) ∙ (sym (rUnitₖ (0ₖ +ₖ 0ₖ))
+                ∙ (λ i → (0ₖ +ₖ 0ₖ) +ₖ (lUnitₖ 0ₖ (~ i))))
+                ≡ λ i → (∣ north ∣ +ₖ Kn→ΩKn+1 1 (f x) i) +ₖ
+         ∣ north ∣ +ₖ Kn→ΩKn+1 1 (g x) i
+        helper13 = (λ j → sym ((λ i → (rUnitₖ (lUnitₖ 0ₖ (j ∧ (~ i))) (~ i))) ∙ (λ i → (0ₖ +ₖ 0ₖ) +ₖ lUnitₖ 0ₖ (~ i)))
+                              ∙ lUnit (rUnit ((λ i → lUnitₖ (Kn→ΩKn+1 1 (f x +ₖ g x) i) j)) j) j
+                              ∙ ((λ i → (rUnitₖ (lUnitₖ 0ₖ (j ∧ (~ i))) (~ i)))) ∙ λ i → (0ₖ +ₖ 0ₖ) +ₖ lUnitₖ 0ₖ (~ i))
+                 ∙ (λ j → sym ((λ i → (rUnitₖ (lUnitₖ 0ₖ (~ i)) (~ i))) ∙ (λ i → (0ₖ +ₖ 0ₖ) +ₖ lUnitₖ 0ₖ (~ i))) ∙
+                           {!!} ∙
+                           (λ i → (rUnitₖ (lUnitₖ 0ₖ (~ i)) (~ i))) ∙ λ i → (0ₖ +ₖ 0ₖ) +ₖ lUnitₖ 0ₖ (~ i))
+                 ∙ {!!}
+                 ∙ {!!}
+{-
+i = i0 ⊢ (sym (rUnitₖ (0ₖ +ₖ 0ₖ)) ∙ (λ i → (0ₖ +ₖ 0ₖ) +ₖ (lUnitₖ 0ₖ (~ i)))) j 
+i = i1 ⊢ (sym (rUnitₖ (0ₖ +ₖ 0ₖ)) ∙ (λ i → (0ₖ +ₖ 0ₖ) +ₖ (lUnitₖ 0ₖ (~ i)))) j 
+j = i0 ⊢ ∣ north ∣ +ₖ Kn→ΩKn+1 1 (f x +ₖ g x) i
+j = i1 ⊢ (∣ north ∣ +ₖ Kn→ΩKn+1 1 (f x) i) +ₖ
+         ∣ north ∣ +ₖ Kn→ΩKn+1 1 (g x) i
+-}
+
 
   helper' : Iso Int (Unit × Int)
   Iso.inv helper' = proj₂
