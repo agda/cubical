@@ -119,7 +119,7 @@ in a cabal sandbox do the following:
 > make
 ```
 
-If you have cabal-v2 installed the sandbox command should be replaced
+If you have cabal v2 installed the sandbox command should be replaced
 by `cabal v1-sandbox init`. 
 
 If the above commands succeed this the agda and agda-mode executables
@@ -252,7 +252,21 @@ works in emacs run
 and then type `C-c C-l`. This should now load the file and you can
 start developing your own cubical files.
 
+Registering the cubical library
+===============================
+
 You can also register cubical as a library to depend on it in your own
 Agda developments:
 
 https://agda.readthedocs.io/en/latest/tools/package-system.html
+
+On a Linux/Mac installation you need the following files (where
+`/path/to/cubical.agda-lib` has been replaced by the path to the
+`cubical.agda-lib` file):
+
+```
+$ cat .agda/defaults
+cubical
+$ cat .agda/libraries
+/path/to/cubical.agda-lib
+```
