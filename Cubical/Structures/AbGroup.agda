@@ -77,6 +77,9 @@ module abgroup-operation-syntax where
   infixr 20 abgroup-operation-syntax
   syntax abgroup-operation-syntax G x y = x ·⟨ G ⟩ y
 
+abgroupIsSet : (A : AbGroup {ℓ}) → isSet ⟨ A ⟩
+abgroupIsSet A = group-is-set (AbGroup→Group A)
+
 open abgroup-operation-syntax
 
 abgroup-comm : (G : AbGroup {ℓ}) (x y : ⟨ G ⟩) → x ·⟨ G ⟩ y ≡ y ·⟨ G ⟩ x
