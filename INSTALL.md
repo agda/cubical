@@ -13,7 +13,7 @@ these instructions, but this hasn't been tested.
 There are three main ways of installing the development version of Agda:
 
 1. Using cabal `v2-build`: https://www.haskell.org/cabal/
-2. Using cabal *sandboxes*: https://www.haskell.org/cabal/
+2. Using cabal sandboxes: https://www.haskell.org/cabal/
 3. Using stack: https://docs.haskellstack.org/
 
 We recommend whichever approach that works for you. This INSTALL file
@@ -119,12 +119,14 @@ in a cabal sandbox do the following:
 > make
 ```
 
-This should put the agda and agda-mode executables in the folder
-`agda/.cabal-sandbox/bin`.
+If you have cabal-v2 installed the sandbox command should be replaced
+by `cabal v1-sandbox init`. 
 
-In order to be able to access these on your system you need to add
-them to your `$PATH` environment variable. On a typical Linux/Mac
-installation (using Bash or Zsh as the shell) this can be done by adding
+If the above commands succeed this the agda and agda-mode executables
+will be in the folder `agda/.cabal-sandbox/bin`. In order to be able
+to access these on your system you need to add them to your `$PATH`
+environment variable. On a typical Linux/Mac installation (using Bash
+or Zsh as the shell) this can be done by adding
 
 ```
 export PATH=/path/to/agda/.cabal-sandbox/bin:$PATH
