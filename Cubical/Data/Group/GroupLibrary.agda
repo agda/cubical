@@ -195,21 +195,23 @@ isGroup.lCancel (Group.groupStruc (dirProd A B)) (a1 , b1) i =
 isGroup.rCancel (Group.groupStruc (dirProd A B)) (a1 , b1) i =
   (isGroup.rCancel (Group.groupStruc A) a1 i) , (isGroup.rCancel (Group.groupStruc B) b1 i)
 
+×morph : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Group ℓ} {B : Group ℓ'} {C : Group ℓ''} {D : Group ℓ'''} → morph A B → morph C D → morph (dirProd A C) (dirProd B D) 
+morph.fun (×morph mf1 mf2) =
+  (λ {(a , b) → (morph.fun mf1 a) , morph.fun mf2 b}) 
+morph.ismorph (×morph mf1 mf2) =
+  (λ {(a , b) (c , d) i → morph.ismorph mf1 a c i , morph.ismorph mf2 b d i})
 
 dirProdIso : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Group ℓ} {B : Group ℓ'} {C : Group ℓ''} {D : Group ℓ'''}
            → Iso A C → Iso B D
            → Iso (dirProd A B) (dirProd C D)
-dirProdIso {A = A'} {B = B'} {C = C'} {D = D'} isoAC isoBD =
-  Iso'→Iso
-    (iso'
-      (I.iso
-        (λ a → (morph.fun (Iso.fun isoAC) (proj₁ a)) , (morph.fun (Iso.fun isoBD) (proj₂ a)))
-        (λ a → (morph.fun (Iso.inv isoAC) (proj₁ a)) , (morph.fun (Iso.inv isoBD) (proj₂ a)))
-        (λ a → ×≡ (Iso.rightInv isoAC (proj₁ a)) (Iso.rightInv isoBD (proj₂ a)))
-        λ a → ×≡ (Iso.leftInv isoAC (proj₁ a)) (Iso.leftInv isoBD (proj₂ a)))
-      λ {(_ , _) (_ , _) → ×≡ (morph.ismorph (Iso.fun isoAC) _ _) (morph.ismorph (Iso.fun isoBD) _ _)})
-
-
+Iso.fun (dirProdIso {A = A'} {B = B'} {C = C'} {D = D'} isoAC isoBD) =
+  ×morph (Iso.fun isoAC) (Iso.fun isoBD)
+Iso.inv (dirProdIso {A = A'} {B = B'} {C = C'} {D = D'} isoAC isoBD) =
+  ×morph (Iso.inv isoAC) (Iso.inv isoBD)
+Iso.rightInv (dirProdIso {A = A'} {B = B'} {C = C'} {D = D'} isoAC isoBD) (a , b) =
+  ×≡ (Iso.rightInv isoAC a) (Iso.rightInv isoBD b)
+Iso.leftInv (dirProdIso {A = A'} {B = B'} {C = C'} {D = D'} isoAC isoBD) (a , b) =
+  ×≡ (Iso.leftInv isoAC a) (Iso.leftInv isoBD b)
 
 {-
 Given the following diagram

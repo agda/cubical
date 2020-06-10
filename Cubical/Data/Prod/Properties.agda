@@ -83,3 +83,29 @@ isOfHLevelProd {A = A} {B = B} n h1 h2 =
 
     ε : retract φ ψ
     ε (a , b) i = secEq f a i , secEq g b i
+
+
+{- Some simple ismorphisms -}
+
+prodIso : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
+       → Iso A C
+       → Iso B D
+       → Iso (A × B) (C × D)
+Iso.fun (prodIso iAC iBD) (a , b) = (Iso.fun iAC a) , Iso.fun iBD b
+Iso.inv (prodIso iAC iBD) (c , d) = (Iso.inv iAC c) , Iso.inv iBD d
+Iso.rightInv (prodIso iAC iBD) (c , d) = ×≡ (Iso.rightInv iAC c) (Iso.rightInv iBD d)
+Iso.leftInv (prodIso iAC iBD) (a , b) = ×≡ (Iso.leftInv iAC a) (Iso.leftInv iBD b)
+
+toProdIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+         → Iso (A → B × C) ((A → B) × (A → C))
+Iso.fun toProdIso = λ f → (λ a → proj₁ (f a)) , (λ a → proj₂ (f a))
+Iso.inv toProdIso (f , g) = λ a → (f a) , (g a)
+Iso.rightInv toProdIso (f , g) = refl
+Iso.leftInv toProdIso b = funExt λ a → sym (×-η _)
+
+schönfinkelIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+         → Iso (A × B → C) (A → B → C)
+Iso.fun schönfinkelIso f a b = f (a , b)
+Iso.inv schönfinkelIso f (a , b) = f a b
+Iso.rightInv schönfinkelIso a = refl
+Iso.leftInv schönfinkelIso f = funExt λ {(a , b) → refl}

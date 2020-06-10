@@ -77,6 +77,21 @@ setTruncIdempotent≃ {A = A} hA = isoToEquiv f
 setTruncIdempotent : isSet A → ∥ A ∥₀ ≡ A
 setTruncIdempotent hA = ua (setTruncIdempotent≃ hA)
 
+isContr→isContrSetTrunc : ∀ {ℓ} {A : Type ℓ} → isContr A → isContr (∥ A ∥₀)
+isContr→isContrSetTrunc contr = ∣ fst contr ∣₀
+                                , elim (λ _ → isOfHLevelPath 2 (setTruncIsSet) _ _)
+                                       λ a → cong ∣_∣₀ (snd contr a)
+
+
+setTruncIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso A B → Iso ∥ A ∥₀ ∥ B ∥₀
+Iso.fun (setTruncIso is) = rec setTruncIsSet (λ x → ∣ Iso.fun is x ∣₀)
+Iso.inv (setTruncIso is) = rec setTruncIsSet (λ x → ∣ Iso.inv is x ∣₀)
+Iso.rightInv (setTruncIso is) =
+  elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        λ a → cong ∣_∣₀ (Iso.rightInv is a)
+Iso.leftInv (setTruncIso is) =
+  elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        λ a → cong ∣_∣₀ (Iso.leftInv is a)
 
 setSigmaIso : ∀ {ℓ} {B : A → Type ℓ} → Iso ∥ Σ A B ∥₀ ∥ Σ A (λ x → ∥ B x ∥₀) ∥₀
 setSigmaIso {A = A} {B = B} = iso fun funinv sect retr
@@ -112,3 +127,25 @@ sigmaProdElim {B = B} {C = C} {D = D} set g ((x , y) , c) =
        (λ x → elim (λ _ → isOfHLevelΠ 2 λ _ → set _)
                     λ y c → g x y c)
        x y c
+
+
+prodElim : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : ∥ A ∥₀ × ∥ B ∥₀ → Type ℓ''}
+        → ((x : ∥ A ∥₀ × ∥ B ∥₀) → isOfHLevel 2 (C x))
+        → ((a : A) (b : B) → C (∣ a ∣₀ , ∣ b ∣₀))
+        → (x : ∥ A ∥₀ × ∥ B ∥₀) → C x
+prodElim {A = A} {B = B} {C = C} hlevel ind (a , b) = schonf a b
+  where
+  schonf : (a : ∥ A ∥₀) (b : ∥ B ∥₀) → C (a , b)
+  schonf = elim (λ x → isOfHLevelΠ 2 λ y → hlevel (_ , _)) λ a → elim (λ x → hlevel (_ , _))
+                 λ b → ind a b
+
+setTruncOfProdIso :  ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso ∥ A × B ∥₀ (∥ A ∥₀ × ∥ B ∥₀) 
+Iso.fun setTruncOfProdIso = rec (isOfHLevelProd 2 setTruncIsSet setTruncIsSet) λ { (a , b) → ∣ a ∣₀ , ∣ b ∣₀ }
+Iso.inv setTruncOfProdIso = prodElim (λ _ → setTruncIsSet) λ a b → ∣ a , b ∣₀
+Iso.rightInv setTruncOfProdIso =
+  prodElim (λ _ → isOfHLevelPath 2 (isOfHLevelProd 2 setTruncIsSet setTruncIsSet) _ _)
+           λ _ _ → refl
+Iso.leftInv setTruncOfProdIso =
+  elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        λ {(a , b) → refl}
+

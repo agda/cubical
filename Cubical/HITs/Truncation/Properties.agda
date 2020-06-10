@@ -198,8 +198,12 @@ map g = rec (isOfHLevelTrunc _) (λ a → ∣ g a ∣)
 mapCompIso : {n : ℕ} {B : Type ℓ'} → (Iso A B) → Iso (hLevelTrunc n A) (hLevelTrunc n B)
 Iso.fun (mapCompIso g) = recElim (isOfHLevelTrunc _) λ a → ∣ Iso.fun g a ∣
 Iso.inv (mapCompIso g) = recElim (isOfHLevelTrunc _) λ b → ∣ Iso.inv g b ∣
-Iso.rightInv (mapCompIso g) = elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _) λ b → cong ∣_∣ (Iso.rightInv g b)
-Iso.leftInv (mapCompIso g) = elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _) λ a → cong ∣_∣ (Iso.leftInv g a)
+Iso.rightInv (mapCompIso g) =
+  elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _)
+        λ b → cong ∣_∣ (Iso.rightInv g b)
+Iso.leftInv (mapCompIso g) =
+  elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _)
+       λ a → cong ∣_∣ (Iso.leftInv g a)
 
 
 mapId : {n : ℕ} → ∀ t → map {n = n} (idfun A) t ≡ t
@@ -261,6 +265,12 @@ Iso.leftInv 2GroupoidTrunc≃Trunc2Iso = 2GpdTrunc.elim (λ _ → isOfHLevelPath
 
 2GroupoidTrunc≡Trunc2 : ∥ A ∥₂ ≡ ∥ A ∥ 2
 2GroupoidTrunc≡Trunc2 = ua 2GroupoidTrunc≃Trunc2
+
+
+isContr→isContrTrunc : ∀ {ℓ} {A : Type ℓ} (n : ℕ) → isContr A → isContr (hLevelTrunc n A)
+isContr→isContrTrunc n contr = ∣ fst contr ∣ , (elim (λ _ → isOfHLevelPath n (isOfHLevelTrunc n) _ _) λ a → cong ∣_∣ (snd contr a))
+
+
 
 ---- ∥ Ω A ∥ ₙ ≡ Ω ∥ A ∥ₙ₊₁  ----
 
@@ -382,3 +392,5 @@ Iso.leftInv (truncOfTruncIso n m) = elim (λ x → isOfHLevelPath n (isOfHLevelT
 
 truncOfTruncEq : (n m : ℕ) → (hLevelTrunc n A) ≃ (hLevelTrunc n (hLevelTrunc (m + n) A))
 truncOfTruncEq n m = isoToEquiv (truncOfTruncIso n m)
+
+

@@ -43,7 +43,7 @@ record morph {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') : Type (ℓ-max ℓ ℓ
   field
     fun : Group.type G → Group.type H
     ismorph : isMorph G H fun
-  
+
 
 open import Cubical.Data.Sigma hiding (_×_ ; comp)
 
@@ -108,10 +108,9 @@ morph0→0' G' H' f' = 0→0
     id H ∎
 
 {- a morphism ϕ satisfies ϕ(- a) = - ϕ(a)  -}
-morphMinus : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (f : (Group.type G → Group.type H))
-           → isMorph G H f
-           → (g : Group.type G) → f (isGroup.inv (Group.groupStruc G) g) ≡ isGroup.inv (Group.groupStruc H) (f g)
-morphMinus G H f mf g =
+morphMinus : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (ϕ : morph G H)
+           → (g : Group.type G) → morph.fun ϕ (isGroup.inv (Group.groupStruc G) g) ≡ isGroup.inv (Group.groupStruc H) (morph.fun ϕ g)
+morphMinus G H ϕ g =
   let idG = isGroup.id (Group.groupStruc G)
       idH = isGroup.id (Group.groupStruc H)
       invG = isGroup.inv (Group.groupStruc G)
@@ -123,6 +122,8 @@ morphMinus G H f mf g =
       assocH = isGroup.assoc (Group.groupStruc H)
       compG = isGroup.comp (Group.groupStruc G)
       compH = isGroup.comp (Group.groupStruc H)
+      f = morph.fun ϕ
+      mf = morph.ismorph ϕ
       helper : compH (f (invG g)) (f g) ≡ idH
       helper = sym (mf (invG g) g) ∙ (λ i → f (lCancelG g i)) ∙ morph0→0 G H f mf -- sym (morph (invG g) g) ∙ (λ i → f (lCancelG g i)) ∙ morph0→0 G H f morph
   in f (invG g)                                                   ≡⟨ sym (rUnitH (f (invG g))) ⟩
@@ -347,7 +348,7 @@ Iso''→Iso {A = A} {B = B} is =
           _+B_ = isGroup.comp (Group.groupStruc B)
       in Iso''.inj is _
                    (ϕmf a1 (inv A' a2)
-                  ∙ cong (λ x → comp B' (ϕ a1) x) (morphMinus A B ϕ ϕmf a2)
+                  ∙ cong (λ x → comp B' (ϕ a1) x) (morphMinus A B (Iso''.ϕ is) a2)
                   ∙ cong (λ x → comp B' x (inv B' (ϕ a2))) (pf1 ∙ sym pf2)
                   ∙ rCancel B' (ϕ a2))
     fstId : a1 ≡ a2

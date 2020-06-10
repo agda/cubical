@@ -30,9 +30,13 @@ diagonal-unit : Unit ≡ Unit × Unit
 diagonal-unit = isoToPath (iso (λ x → tt , tt) (λ x → tt) (λ {(tt , tt) i → tt , tt}) λ {tt i → tt})
 
 fibId : ∀ {ℓ} (A : Type ℓ) → (fiber (λ (x : A) → tt) tt) ≡ A
-fibId A = isoToPath
-            (iso fst
-                 (λ a → a , refl)
-                 (λ _ → refl)
-                 (λ a i → fst a
-                         , isOfHLevelSuc 1 isPropUnit _ _ (snd a) refl i))
+fibId A =
+  isoToPath
+    (iso fst
+         (λ a → a , refl)
+         (λ _ → refl)
+         (λ a i → fst a
+                 , isOfHLevelSuc 1 isPropUnit _ _ (snd a) refl i))
+
+isContr→≡Unit : {A : Type₀} → isContr A → A ≡ Unit
+isContr→≡Unit contr = isoToPath (iso (λ _ → tt) (λ _ → fst contr) (λ _ → refl) λ _ → snd contr _)

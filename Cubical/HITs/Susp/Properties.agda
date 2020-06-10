@@ -2,6 +2,7 @@
 module Cubical.HITs.Susp.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 
@@ -56,3 +57,25 @@ congSuspEquiv {ℓ} {A} {B} h = isoToEquiv isom
         Iso.leftInv isom north = refl
         Iso.leftInv isom south = refl
         Iso.leftInv isom (merid a i) j = merid (secEq h a j) i
+
+suspToPropRec : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Susp A → Type ℓ'} (a : A)
+                 → ((x : Susp A) → isProp (B x))
+                 → B north
+                 → (x : Susp A) → B x
+suspToPropRec a isProp Bnorth north = Bnorth
+suspToPropRec {B = B} a isProp Bnorth south = subst B (merid a) Bnorth
+suspToPropRec {B = B} a isProp Bnorth (merid a₁ i) =
+  hcomp (λ k → λ {(i = i0) → Bnorth ;
+                   (i = i1) → isProp
+                                south
+                                (subst B (merid a₁) Bnorth)
+                                (subst B (merid a) Bnorth) k})
+        (transp (λ j → B (merid a₁ (j ∧ i))) (~ i) Bnorth)
+
+suspToPropRec2 : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Susp A → Susp A → Type ℓ'} (a : A)
+                 → ((x y : Susp A) → isProp (B x y))
+                 → B north north
+                 → (x y : Susp A) → B x y
+suspToPropRec2 a isProp Bnorth =
+  suspToPropRec a (λ x → isOfHLevelΠ 1 λ y → isProp x y)
+                      (suspToPropRec a (λ x → isProp north x) Bnorth)

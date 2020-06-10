@@ -143,3 +143,11 @@ Iso.fun (invIso isom) = Iso.inv isom
 Iso.inv (invIso isom) = Iso.fun isom
 Iso.rightInv (invIso isom) = Iso.leftInv isom
 Iso.leftInv (invIso isom) = Iso.rightInv isom
+
+codomainIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+           → Iso B C
+           → Iso (A → B) (A → C)
+Iso.fun (codomainIso is) f a = Iso.fun is (f a)
+Iso.inv (codomainIso is) f a = Iso.inv is (f a)
+Iso.rightInv (codomainIso is) f = funExt λ a → Iso.rightInv is (f a)
+Iso.leftInv (codomainIso is) f = funExt λ a → Iso.leftInv is (f a)
