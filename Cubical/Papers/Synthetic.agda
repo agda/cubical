@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Papers.Synthetic where
+module Cubical.Papers.Synthetic where
 
 -- Cubical synthetic homotopy theory
 -- Mörtberg and Pujet, „Cubical synthetic homotopy theory“.
