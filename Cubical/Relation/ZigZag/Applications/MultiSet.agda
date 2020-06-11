@@ -76,9 +76,9 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
  η : ∀ x → R {List A , Lcount} {AList A , ALcount} x (φ x)
  η [] a = refl
- η (x ∷ xs) a  with (discA a x)
- ...           | yes a≡x = cong suc (η xs a)
- ...           | no  a≢x = η xs a
+ η (x ∷ xs) a with (discA a x)
+ ...          | yes a≡x = cong suc (η xs a)
+ ...          | no  a≢x = η xs a
 
 
  -- for the other direction we need a little helper function
@@ -94,33 +94,38 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  ...                 | yes a≡x = cong suc (ε' x n xs a)
  ...                 | no  a≢x = ε' x n xs a
 
+ -- Induced quotients and equivalence
 
- -- R {List A , Lcount} {AList A , ALcount} is zigzag-complete
- zigzagR : isZigZagComplete (R {List A , Lcount} {AList A , ALcount})
- zigzagR _ _ _ _ r r' r'' a = (r a) ∙∙ sym (r' a) ∙∙ (r'' a)
+ open isBisimulation
 
+ -- R {List A , Lcount} {AList A , ALcount} is a bisimulation
+ isBisimR : isBisimulation (R {List A , Lcount} {AList A , ALcount})
+ isBisimR .zigzag r r' r'' a = (r a) ∙∙ sym (r' a) ∙∙ (r'' a)
+ isBisimR .fwd = φ
+ isBisimR .fwdRel = η
+ isBisimR .bwd = ψ
+ isBisimR .bwdRel = ε
+ isBisimR .prop xs y = isPropΠ λ _ → isSetℕ _ _
 
- -- now we can apply the main result about zigzag-complete relations:
- Rᴸ  = ZigZag.Bisimulation→Equiv.Rᴬ (List A) (AList A) (R {List A , Lcount} {AList A , ALcount}) φ ψ (zigzagR , η , ε)
- Rᴬᴸ = ZigZag.Bisimulation→Equiv.Rᴮ (List A) (AList A) (R {List A , Lcount} {AList A , ALcount}) φ ψ (zigzagR , η , ε)
+ module E = Bisim→Equiv (R , isBisimR)
+ open E renaming (Rᴸ to Rᴸ; Rᴿ to Rᴬᴸ)
 
  List/Rᴸ = (List A) / Rᴸ
  AList/Rᴬᴸ = (AList A) / Rᴬᴸ
 
  List/Rᴸ≃AList/Rᴬᴸ : List/Rᴸ ≃ AList/Rᴬᴸ
- List/Rᴸ≃AList/Rᴬᴸ = ZigZag.Bisimulation→Equiv.Thm (List A) (AList A)
-                                                   (R {List A , Lcount} {AList A , ALcount}) φ ψ (zigzagR , η , ε)
+ List/Rᴸ≃AList/Rᴬᴸ = E.Thm
 
  --We want to show that this is an isomorphism of count-structures.
  --For this we first have to define the count-functions
  LQcount : A → List/Rᴸ → ℕ
  LQcount a [ xs ] = Lcount a xs
  LQcount a (eq/ xs ys r i) = ρ a i
-  where
-  ρ : ∀ a → Lcount a xs ≡ Lcount a ys
-  ρ a = (r .snd .fst a) ∙ sym (r .snd .snd a)
+   where
+   ρ : ∀ a → Lcount a xs ≡ Lcount a ys
+   ρ a = r a ∙ sym (η ys a)
  LQcount a (squash/ xs/ xs/₁ p q i j) =
-         isSetℕ (LQcount a xs/) (LQcount a xs/₁) (cong (LQcount a) p) (cong (LQcount a) q) i j
+   isSetℕ (LQcount a xs/) (LQcount a xs/₁) (cong (LQcount a) p) (cong (LQcount a) q) i j
 
 
  ALQcount : A → AList/Rᴬᴸ → ℕ
@@ -128,7 +133,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  ALQcount a (eq/ xs ys r i) = ρ a i
   where
   ρ : ∀ a → ALcount a xs ≡ ALcount a ys
-  ρ a = sym (r .snd .fst a) ∙ (r .snd .snd a)
+  ρ a = sym (r a) ∙ ε ys a
  ALQcount a (squash/ xs/ xs/₁ p q i j) =
           isSetℕ (ALQcount a xs/) (ALQcount a xs/₁) (cong (ALQcount a) p) (cong (ALQcount a) q) i j
 
@@ -149,9 +154,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  a ∷/ eq/ xs xs' r i = eq/ (a ∷ xs) (a ∷ xs') r' i
   where
   r' : Rᴸ (a ∷ xs) (a ∷ xs')
-  r' =  ⟨ a , 1 ⟩∷ (r .fst)
-      , (λ a' → cong (aux a' a (discA a' a)) (r .snd .fst a'))
-      , (λ a' → cong (aux a' a (discA a' a)) (r .snd .snd a'))
+  r' a' = cong (aux a' a (discA a' a)) (r a')
  a ∷/ squash/ xs xs₁ p q i j = squash/ (a ∷/ xs) (a ∷/ xs₁) (cong (a ∷/_) p) (cong (a ∷/_) q) i j
 
  infixr 5 _∷/_
@@ -163,7 +166,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
   β a b = elimProp (λ _ → squash/ _ _) (λ xs → eq/ _ _ (γ xs))
    where
      γ : ∀ xs → Rᴸ (a ∷ b ∷ xs) (b ∷ a ∷ xs)
-     γ xs = φ (a ∷ b ∷ xs) , η (a ∷ b ∷ xs) , λ c → sym (δ c) ∙ η (a ∷ b ∷ xs) c
+     γ xs c = δ c ∙ η (b ∷ a ∷ xs) c
       where
       δ : ∀ c → Lcount c (a ∷ b ∷ xs) ≡ Lcount c (b ∷ a ∷ xs)
       δ c with discA c a | discA c b
@@ -192,7 +195,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  ν (eq/ xs ys r i) = path i
   where
    ρ : ∀ a → Lcount a xs ≡ Lcount a ys
-   ρ = λ a → (r .snd .fst a) ∙ sym (r .snd .snd a)
+   ρ a = r a ∙ sym (η ys a)
 
    θ : ∀ a → FMScount discA a (List→FMSet xs) ≡ FMScount discA a (List→FMSet ys)
    θ a = sym (List→FMSet-count a xs) ∙∙ ρ a ∙∙ List→FMSet-count a ys
