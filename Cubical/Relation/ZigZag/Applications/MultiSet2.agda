@@ -38,8 +38,8 @@ postulate -- TODO
 
 -- We have a count-structure on List and AList and use these to get a bisimulation between the two
 module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
- -- the relation we're interested in
- S = parameterized-structure {ℓ₁ = ℓ} A (λ _ → unaryFun-structure (constant-structure (ℕ , isSetℕ)))
+
+  S = parameterized-structure {ℓ₁ = ℓ} A (λ _ → unaryFun-structure (constant-structure (ℕ , isSetℕ)))
 
  ρ = parameterized-rel {ℓ₁ = ℓ} A
    (λ _ → unaryFun-structure (constant-structure (ℕ , isSetℕ)))
