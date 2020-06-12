@@ -20,9 +20,9 @@ private
   variable
     ℓ : Level
 
-module _(A : Type ℓ)
-        (Aset : isSet A) where
+module _ (A : Type ℓ) (Aset : isSet A) where
 
+ count-desc : Desc ℓ
  count-desc = param A (recvar (constant ℕ))
 
  open Macro ℓ count-desc public renaming

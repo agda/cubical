@@ -6,8 +6,9 @@ open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 open import Cubical.Structures.Macro
 
-module _ {ℓ} (A : Type ℓ) where
+module _ {ℓ ℓ' : Level} (A : Type ℓ') where
 
+  left-action-desc : Desc ℓ
   left-action-desc = param A (recvar var)
 
   open Macro ℓ left-action-desc public renaming
