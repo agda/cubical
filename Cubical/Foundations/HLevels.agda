@@ -293,6 +293,9 @@ isPropΠ3 : (h : (x : A) (y : B x) (z : C x y) → isProp (D x y z))
          → isProp ((x : A) (y : B x) (z : C x y) → D x y z)
 isPropΠ3 h = isPropΠ λ x → isPropΠ λ y → isPropΠ λ z → h x y z
 
+isPropImplicitΠ : (h : (x : A) → isProp (B x)) → isProp ({x : A} → B x)
+isPropImplicitΠ h f g i {x} = h x (f {x}) (g {x}) i
+
 isProp→ : {A : Type ℓ} {B : Type ℓ'} → isProp B → isProp (A → B)
 isProp→ pB = isPropΠ λ _ → pB
 
