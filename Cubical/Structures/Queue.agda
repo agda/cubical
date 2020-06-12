@@ -13,6 +13,7 @@ open import Cubical.Structures.Pointed
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Parameterized
 open import Cubical.Structures.LeftAction
+open import Cubical.Structures.Functorial
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum as ⊎
@@ -62,12 +63,13 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  Deq = TypeWithStr ℓ deq-structure
 
  deq-iso : StrIso deq-structure ℓ
- deq-iso (X , p) (Y , q) e = ∀ x → deq-map-forward (e .fst) (p x) ≡ q (e .fst x)
+ deq-iso = unaryFunIso (functorial-iso deq-map-forward)
 
  Deq-is-SNS : SNS {ℓ} deq-structure deq-iso
- Deq-is-SNS = SNS-≡→SNS-PathP deq-iso (λ p q → (subst (λ f → (∀ x → f (p x) ≡ q x) ≃ (p ≡ q)) deq-map-id funExtEquiv))
-
-
+ Deq-is-SNS =
+   unaryFunSNS
+     (functorial-iso deq-map-forward)
+     (functorial-is-SNS deq-map-forward (funExt⁻ (sym deq-map-id)))
 
  -- Now we can do Queues:
  raw-queue-structure : Type ℓ → Type ℓ
@@ -77,17 +79,13 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  RawQueue = TypeWithStr ℓ raw-queue-structure
 
  raw-queue-iso : StrIso raw-queue-structure ℓ
- raw-queue-iso (Q₁ , emp₁ , enq₁ , deq₁) (Q₂ , emp₂ , enq₂ , deq₂) e =
-   (e .fst emp₁ ≡ emp₂)
-   × (∀ a q → e .fst (enq₁ a q) ≡ enq₂ a (e .fst q))
-   × (∀ q → deq-map-forward (e .fst) (deq₁ q) ≡ deq₂ (e .fst q))
+ raw-queue-iso =
+   join-iso pointed-iso (join-iso (left-action-iso A) deq-iso)
 
  RawQueue-is-SNS : SNS raw-queue-structure raw-queue-iso
  RawQueue-is-SNS =
    join-SNS pointed-iso pointed-is-SNS
-            {S₂ = λ X → (left-action-structure A X) × (deq-structure X)}
-            (λ B C e → (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
-                     × (∀ q → deq-map-forward (e .fst) (B .snd .snd q) ≡ C .snd .snd (e .fst q)))
+            (join-iso (left-action-iso A) deq-iso)
             (join-SNS (left-action-iso A) (Left-Action-is-SNS A) deq-iso Deq-is-SNS)
 
 
