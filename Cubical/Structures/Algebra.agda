@@ -10,6 +10,8 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
+open import Cubical.Structures.NAryOp
+open import Cubical.Structures.Pointed
 open import Cubical.Structures.Ring
 open import Cubical.Structures.AbGroup hiding (⟨_⟩)
 open import Cubical.Structures.Group using (raw-group-structure)
@@ -27,7 +29,7 @@ module over (R : Ring {ℓ}) where
 
   rawAlgebraIsSNS : SNS {ℓ} raw-algebra-structure _
   rawAlgebraIsSNS = join-SNS (rawStrIsoScalarMultiplication R) (rawStrIsoScalarMultiplication-SNS R)
-                             ring-StrIso raw-ring-is-SNS
+                             ring-str-iso raw-ring-is-SNS
 
   algebra-axioms : (A : Type ℓ) (str : raw-algebra-structure A) → Type ℓ
   algebra-axioms A (_⋆_ , (_+_ , ₁ , _·_)) =
@@ -40,7 +42,7 @@ module over (R : Ring {ℓ}) where
   algebraStructure = add-to-structure raw-algebra-structure algebra-axioms
 
   algebra-str-iso : StrIso raw-algebra-structure ℓ
-  algebra-str-iso = join-iso (rawStrIsoScalarMultiplication R) ring-StrIso
+  algebra-str-iso = join-iso (rawStrIsoScalarMultiplication R) ring-str-iso
 
   algebra-iso : StrIso algebraStructure ℓ
   algebra-iso = add-to-iso algebra-str-iso algebra-axioms

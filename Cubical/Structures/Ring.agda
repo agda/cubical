@@ -44,13 +44,13 @@ ring-structure = add-to-structure raw-ring-structure ring-axioms
 Ring : Type (ℓ-suc ℓ)
 Ring {ℓ} = TypeWithStr ℓ ring-structure
 
-ring-StrIso : StrIso raw-ring-structure ℓ
-ring-StrIso = (join-iso (nAryFunIso 2) (join-iso pointed-iso (nAryFunIso 2)))
+ring-str-iso : StrIso raw-ring-structure ℓ
+ring-str-iso = (join-iso (binaryFunIso pointed-iso) (join-iso pointed-iso (binaryFunIso pointed-iso)))
 
 ring-iso : StrIso ring-structure ℓ
 ring-iso =
   add-to-iso
-    (join-iso (binaryFunIso pointed-iso) (join-iso pointed-iso (binaryFunIso pointed-iso)))
+    ring-str-iso
     ring-axioms
 
 ring-axioms-isProp : (X : Type ℓ) (s : raw-ring-structure X) → isProp (ring-axioms X s)

@@ -63,3 +63,5 @@ module _ (R : Ring {ℓ}) where
 
   moduleStructure : Type ℓ → Type ℓ
   moduleStructure = add-to-structure raw-module-structure moduleAxioms
+
+{- application of SNS is missing -}
