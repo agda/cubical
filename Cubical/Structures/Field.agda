@@ -35,46 +35,46 @@ denialInequality : (R : CommRing {ℓ}) → ⟨ R ⟩ → ⟨ R ⟩ → hProp _
 denialInequality _ x y = (¬ x ≡ y) , isProp¬ (x ≡ y)
 
 module _ (R : CommRing {ℓ}) (inequality : ⟨ R ⟩ → ⟨ R ⟩ → hProp ℓ) where
-  open commring-·syntax R
-  open commRingAxioms R
-  open Cubical.Structures.Ring.calculations (CommRing→Ring R)
+  open comm-ring-syntax R
+  open comm-ring-axioms R
+  open Cubical.Structures.Ring.theory (CommRing→Ring R)
 
   nonZeroElementsAreInvertible : Type ℓ
-  nonZeroElementsAreInvertible = ((x : ⟨ R ⟩) → [ inequality x ₀ ] → Σ[ y ∈ ⟨ R ⟩ ] (x · y) ≡ ₁)
+  nonZeroElementsAreInvertible = ((x : ⟨ R ⟩) → [ inequality x 0r ] → Σ[ y ∈ ⟨ R ⟩ ] (x · y) ≡ 1r)
 
 
   isPropNonZeroElementsInvertible : isProp (nonZeroElementsAreInvertible)
   isPropNonZeroElementsInvertible witness1 witness2 i x x-non-zero =
     let
-      y₁ = fst (witness1 x x-non-zero)
-      y₁-inv = snd (witness1 x x-non-zero)
+      y1r = fst (witness1 x x-non-zero)
+      y1r-inv = snd (witness1 x x-non-zero)
       y₂ = fst (witness2 x x-non-zero)
       y₂-inv = snd (witness2 x x-non-zero)
 
-      y₁-y₂divides0 = ₀                        ≡⟨ sym (commring+-rinv ₁) ⟩
-                      ₁ - ₁                    ≡⟨ cong (λ u → u - ₁) (sym (y₁-inv)) ⟩
-                      (x · y₁) - ₁             ≡⟨ cong (λ u → (x · y₁) - u) (sym (y₂-inv)) ⟩
-                      (x · y₁) - (x · y₂)      ≡⟨ cong (λ u → (x · y₁) + u)
+      y1r-y₂divides0 = 0r                        ≡⟨ sym (commring+-rinv 1r) ⟩
+                      1r - 1r                    ≡⟨ cong (λ u → u - 1r) (sym (y1r-inv)) ⟩
+                      (x · y1r) - 1r             ≡⟨ cong (λ u → (x · y1r) - u) (sym (y₂-inv)) ⟩
+                      (x · y1r) - (x · y₂)      ≡⟨ cong (λ u → (x · y1r) + u)
                                                        (sym (-commutesWithRight-· x y₂)) ⟩
-                      (x · y₁) + (x · (- y₂))  ≡⟨ sym (commring-rdist _ _ _) ⟩
-                      x · (y₁ - y₂)            ∎
+                      (x · y1r) + (x · (- y₂))  ≡⟨ sym (commring-rdist _ _ _) ⟩
+                      x · (y1r - y₂)            ∎
 
-      y₁-y₂≡0 = y₁ - y₂                ≡⟨ sym (commring·-lid _) ⟩
-                ₁ · (y₁ - y₂)          ≡⟨ cong (λ u → u · (y₁ - y₂)) (sym y₁-inv) ⟩
-                (x · y₁) · (y₁ - y₂)   ≡⟨ cong (λ u → u · (y₁ - y₂)) (commring-comm R _ _) ⟩
-                (y₁ · x) · (y₁ - y₂)   ≡⟨ sym (commring·-assoc _ _ _) ⟩
-                y₁ · (x · (y₁ - y₂))   ≡⟨ cong (λ u → y₁ · u) (sym y₁-y₂divides0) ⟩
-                y₁ · ₀                 ≡⟨ 0-rightNullifies _ ⟩
-                ₀                      ∎
+      y1r-y₂≡0 = y1r - y₂                ≡⟨ sym (commring·-lid _) ⟩
+                1r · (y1r - y₂)          ≡⟨ cong (λ u → u · (y1r - y₂)) (sym y1r-inv) ⟩
+                (x · y1r) · (y1r - y₂)   ≡⟨ cong (λ u → u · (y1r - y₂)) (commring-comm R _ _) ⟩
+                (y1r · x) · (y1r - y₂)   ≡⟨ sym (commring·-assoc _ _ _) ⟩
+                y1r · (x · (y1r - y₂))   ≡⟨ cong (λ u → y1r · u) (sym y1r-y₂divides0) ⟩
+                y1r · 0r                 ≡⟨ 0-rightNullifies _ ⟩
+                0r                      ∎
 
-      inverseIsUnique = y₁                ≡⟨ sym (commring+-rid _) ⟩
-                        y₁ + ₀            ≡⟨ cong (λ u → y₁ + u) (sym (commring+-linv _)) ⟩
-                        y₁ + (- y₂ + y₂)  ≡⟨ commring+-assoc _ _ _ ⟩
-                        (y₁ - y₂) + y₂    ≡⟨ cong (λ u → u + y₂) y₁-y₂≡0 ⟩
-                        ₀ + y₂            ≡⟨ commring+-lid _ ⟩
+      inverseIsUnique = y1r                ≡⟨ sym (commring+-rid _) ⟩
+                        y1r + 0r            ≡⟨ cong (λ u → y1r + u) (sym (commring+-linv _)) ⟩
+                        y1r + (- y₂ + y₂)  ≡⟨ commring+-assoc _ _ _ ⟩
+                        (y1r - y₂) + y₂    ≡⟨ cong (λ u → u + y₂) y1r-y₂≡0 ⟩
+                        0r + y₂            ≡⟨ commring+-lid _ ⟩
                         y₂                ∎
 
-    in ΣProp≡ (λ y → commRingIsSet R (x · y) ₁)
+    in Σ≡Prop (λ y → commRingIsSet R (x · y) 1r)
               {witness1 x x-non-zero}
               {witness2 x x-non-zero}
               inverseIsUnique

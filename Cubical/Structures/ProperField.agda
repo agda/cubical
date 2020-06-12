@@ -18,10 +18,10 @@ private
     ℓ : Level
 
 module _ (R : CommRing {ℓ}) where
-  open commring-·syntax R
+  open comm-ring-syntax R
 
   isProperField : Type ℓ
-  isProperField = (¬ ₀ ≡ ₁) × (nonZeroElementsAreInvertible R (denialInequality R))
+  isProperField = (¬ 0r ≡ 1r) × (nonZeroElementsAreInvertible R (denialInequality R))
 
   isPropIsProperField : isProp (isProperField)
   isPropIsProperField = isPropΣ (isProp¬ _)

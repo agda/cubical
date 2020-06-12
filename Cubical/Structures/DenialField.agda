@@ -29,7 +29,7 @@ private
     ℓ : Level
 
 module _ (R : CommRing {ℓ}) where
-  open commring-·syntax R
+  open comm-ring-syntax R
 
   zeroIdealIsPrime : hProp _
   zeroIdealIsPrime = isPrimeIdeal (CommRing→Ring R) (zeroIdeal (CommRing→Ring R))
