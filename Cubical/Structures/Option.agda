@@ -79,7 +79,7 @@ module OptionPathP where
     isom .Iso.inv = encode _ ox oy
     isom .Iso.rightInv = decodeEncode ox oy
     isom .Iso.leftInv = encodeDecode A ox oy
-  
+
 option-iso : {S : Type ℓ → Type ℓ₁}
   → StrIso S ℓ₁' → StrIso (option-structure S) ℓ₁'
 option-iso ι (X , ox) (Y , oy) e = option-rel (λ x y → ι (X , x) (Y , y) e) ox oy
