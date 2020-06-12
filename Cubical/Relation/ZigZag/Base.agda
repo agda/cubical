@@ -87,4 +87,3 @@ module Bisim→Equiv {A B : Type ℓ} (R : Bisimulation A B ℓ') where
     η = elimProp (λ _ → squash/ _ _) (λ b → eq/ _ _ (sim .fwdRel (g b)))
 
     ε = elimProp (λ _ → squash/ _ _) (λ a → eq/ _ _ (sim .bwdRel (f a)))
-
