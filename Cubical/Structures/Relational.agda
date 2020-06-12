@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Functions.FunExtEquiv
@@ -42,11 +43,20 @@ postulate -- TODO
     → isProp (A i0) -- isSet would be enough
     → PathP (λ i → B i (p i)) b₀ b₁ ≃ PathP (λ i → B i (q i)) b₀ b₁
 
-postulate -- TODO
-  ua→ : ∀ {ℓ ℓ'} {A₀ A₁ : Type ℓ} {e : A₀ ≃ A₁} {B : (i : I) → Type ℓ'}
-    {f₀ : A₀ → B i0} {f₁ : A₁ → B i1}
-    → ((a : A₀) → PathP (λ i → B i) (f₀ a) (f₁ (e .fst a)))
-    → PathP (λ i → ua e i → B i) f₀ f₁
+ua→ : ∀ {ℓ ℓ'} {A₀ A₁ : Type ℓ} {e : A₀ ≃ A₁} {B : (i : I) → Type ℓ'}
+  {f₀ : A₀ → B i0} {f₁ : A₁ → B i1}
+  → ((a : A₀) → PathP (λ i → B i) (f₀ a) (f₁ (e .fst a)))
+  → PathP (λ i → ua e i → B i) f₀ f₁
+ua→ {e = e} {f₀ = f₀} {f₁} h i a =
+  hcomp
+    (λ j → λ
+      { (i = i0) → f₀ a
+      ; (i = i1) → f₁ (lem a j)
+      })
+    (h (transp (λ j → ua e (~ j ∧ i)) (~ i) a) i)
+  where
+  lem : ∀ a₁ → e .fst (transport⁻ (ua e) a₁) ≡ a₁
+  lem a₁ = sym (transportRefl _) ∙ transportTransport⁻ (ua e) a₁
 
 -- main event
 
