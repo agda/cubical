@@ -36,12 +36,14 @@ setUA A B e i = (ua e i , t i)
     t : PathP (λ i → isSet (ua e i)) (A .snd) (B .snd)
     t = isProp→PathP (λ _ → isPropIsSet) _ _
 
-postulate -- TODO
-  helper : ∀ {ℓ ℓ'} {A : I → Type ℓ} (B : (i : I) → A i → Type ℓ')
-    {a₀ : A i0} {a₁ : A i1} {b₀ : B i0 a₀} {b₁ : B i1 a₁}
-    {p q : PathP A a₀ a₁}
-    → isProp (A i0) -- isSet would be enough
-    → PathP (λ i → B i (p i)) b₀ b₁ ≃ PathP (λ i → B i (q i)) b₀ b₁
+adjustPathPByProp : ∀ {ℓ ℓ'} {A : I → Type ℓ} (B : (i : I) → A i → Type ℓ')
+  {a₀ : A i0} {a₁ : A i1} {b₀ : B i0 a₀} {b₁ : B i1 a₁}
+  {p q : PathP A a₀ a₁}
+  → (∀ i → isProp (A i)) -- isSet would be enough
+  → PathP (λ i → B i (p i)) b₀ b₁
+  → PathP (λ i → B i (q i)) b₀ b₁
+adjustPathPByProp B {b₀ = b₀} {b₁} {p} {q} propA =
+  subst (λ r → PathP (λ i → B i (r i)) b₀ b₁) (isOfHLevelPathP 1 propA _ _ p q)
 
 ua→ : ∀ {ℓ ℓ'} {A₀ A₁ : Type ℓ} {e : A₀ ≃ A₁} {B : (i : I) → Type ℓ'}
   {f₀ : A₀ → B i0} {f₁ : A₁ → B i1}
@@ -283,10 +285,8 @@ module _ where
     )
   isSNRSJoin {S₁ = S₁} {S₂ = S₂} θ₁ θ₂ _ (code₁ , code₂) .path =
     equivFun ΣPathP≃PathPΣ
-      ( equivFun (helper (λ i z → S₁ (_ , z) .fst) isPropIsSet)
-        (θ₁ _ code₁ .path)
-      , equivFun (helper (λ i z → S₂ (_ , z) .fst) isPropIsSet)
-        (θ₂ _ code₂ .path)
+      ( adjustPathPByProp (λ i z → S₁ (_ , z) .fst) (λ _ → isPropIsSet) (θ₁ _ code₁ .path)
+      , adjustPathPByProp (λ i z → S₂ (_ , z) .fst) (λ _ → isPropIsSet) (θ₂ _ code₂ .path)
       )
 
 -- Parameterized structure
@@ -321,7 +321,7 @@ module _ {ℓ ℓ₁ ℓ₂} (A : Type ℓ) where
   isSNRSParameterized ρ θ _ code .quoᴿ .snd (f , h) j .snd a = θ a _ (code a) .quoᴿ .snd (f a , h a) j .snd
   isSNRSParameterized {S = S} ρ θ R code .path =
     funExt λ a →
-    equivFun (helper (λ i z → S a (_ , z) .fst) isPropIsSet) (θ a R (code a) .path)
+    adjustPathPByProp (λ i z → S a (_ , z) .fst) (λ _ → isPropIsSet) (θ a R (code a) .path)
 
 module _  {ℓ ℓ₁} where
 
