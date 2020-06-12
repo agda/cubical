@@ -128,7 +128,7 @@ open Descends
 
 isSNRS : (S : hSet ℓ → hSet ℓ') {ℓ'' : Level} → StrRel S ℓ'' → Type _
 isSNRS {ℓ} S ρ =
-  (A B : SetWithStr ℓ S) (R : Bisimulation (typ A) (typ B) ℓ)
+  {A B : SetWithStr ℓ S} (R : Bisimulation (typ A) (typ B) ℓ)
   → ρ (A .fst) (B .fst) (Bisimulation→Suitable R) .fst (A .snd) (B .snd)
   → Descends S ρ A B R
 
@@ -140,14 +140,13 @@ coolLemmaᴸ : ∀ {ℓ₁} {S : hSet ℓ → hSet ℓ₁} {ℓ₁' : Level} (ρ
   (code₀₀ : ρ X Y (Bisimulation→Suitable R) .fst x₀ y₀)
   (code₁₁ : ρ X Y (Bisimulation→Suitable R) .fst x₁ y₁)
   → ρ X Y (Bisimulation→Suitable R) .fst x₀ y₁
-  → θ (X , x₀) (Y , y₀) R code₀₀ .quoᴸ .fst .fst
-    ≡ θ (X , x₁) (Y , y₁) R code₁₁ .quoᴸ .fst .fst
+  → θ _ code₀₀ .quoᴸ .fst .fst ≡ θ _ code₁₁ .quoᴸ .fst .fst
 coolLemmaᴸ {S = S} ρ θ X Y R {x₀} {x₁} {y₀} {y₁} code₀₀ code₁₁ code₀₁ =
-  cong fst (θ _ _ R code₀₀ .quoᴸ .snd (θ _ _ R code₀₁ .quoᴸ .fst))
+  cong fst (θ R code₀₀ .quoᴸ .snd (θ R code₀₁ .quoᴸ .fst))
   ∙ lem
-    (symP (θ _ _ R code₀₁ .path))
-    (symP (θ _ _ R code₁₁ .path))
-    (cong fst (θ _ _ R code₀₁ .quoᴿ .snd (θ _ _ R code₁₁ .quoᴿ .fst)))
+    (symP (θ R code₀₁ .path))
+    (symP (θ R code₁₁ .path))
+    (cong fst (θ R code₀₁ .quoᴿ .snd (θ R code₁₁ .quoᴿ .fst)))
   where
   lem : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
     → PathP A a₀ a₁
@@ -163,14 +162,13 @@ coolLemmaᴿ : ∀ {ℓ₁} {S : hSet ℓ → hSet ℓ₁} {ℓ₁' : Level} (ρ
   (code₀₀ : ρ X Y (Bisimulation→Suitable R) .fst x₀ y₀)
   (code₁₁ : ρ X Y (Bisimulation→Suitable R) .fst x₁ y₁)
   → ρ X Y (Bisimulation→Suitable R) .fst x₁ y₀
-  → θ (X , x₀) (Y , y₀) R code₀₀ .quoᴿ .fst .fst
-    ≡ θ (X , x₁) (Y , y₁) R code₁₁ .quoᴿ .fst .fst
+  → θ _ code₀₀ .quoᴿ .fst .fst ≡ θ _ code₁₁ .quoᴿ .fst .fst
 coolLemmaᴿ {S = S} ρ θ X Y R {x₀} {x₁} {y₀} {y₁} code₀₀ code₁₁ code₁₀ =
-  cong fst (θ _ _ R code₀₀ .quoᴿ .snd (θ _ _ R code₁₀ .quoᴿ .fst))
+  cong fst (θ R code₀₀ .quoᴿ .snd (θ R code₁₀ .quoᴿ .fst))
   ∙ lem
-    (θ _ _ R code₁₀ .path)
-    (θ _ _ R code₁₁ .path)
-    (cong fst (θ _ _ R code₁₀ .quoᴸ .snd (θ _ _ R code₁₁ .quoᴸ .fst)))
+    (θ R code₁₀ .path)
+    (θ R code₁₁ .path)
+    (cong fst (θ R code₁₀ .quoᴸ .snd (θ R code₁₁ .quoᴸ .fst)))
   where
   lem : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
     → PathP A a₀ a₁
@@ -193,9 +191,9 @@ module _ {ℓ : Level} (A : hSet ℓ') where
   constant-rel _ _ _ .snd .prop = A .snd
 
   isSNRSConstant : isSNRS constant-structure constant-rel
-  isSNRSConstant (_ , a₀) (_ , a₁) _ _ .quoᴸ = isContrSingl a₀
-  isSNRSConstant (_ , a₀) (_ , a₁) _ _ .quoᴿ = isContrSingl a₁
-  isSNRSConstant (_ , a₀) (_ , a₁) _ r .path = r
+  isSNRSConstant _ _ .quoᴸ = isContrSingl _
+  isSNRSConstant _ _ .quoᴿ = isContrSingl _
+  isSNRSConstant _ r .path = r
 
 -- Variable structure
 
@@ -208,11 +206,11 @@ pointed-rel _ _ R .snd .zigzag = R .snd .zigzag
 pointed-rel _ _ R .snd .prop = R .snd .prop
 
 isSNRSPointed : isSNRS {ℓ = ℓ} pointed-structure pointed-rel
-isSNRSPointed (_ , x) (_ , y) _ _ .quoᴸ .fst = [ x ] , refl
-isSNRSPointed (X , x) (_ , y) _ _ .quoᴸ .snd = uncurry (J' _ refl)
-isSNRSPointed (_ , x) (_ , y) _ _ .quoᴿ .fst = [ y ] , refl
-isSNRSPointed (_ , x) (_ , y) _ _ .quoᴿ .snd = uncurry (J' _ refl)
-isSNRSPointed (_ , x) (_ , y) R r .path =
+isSNRSPointed _ _ .quoᴸ .fst = _ , refl
+isSNRSPointed _ _ .quoᴸ .snd = uncurry (J' _ refl)
+isSNRSPointed _ _ .quoᴿ .fst = _ , refl
+isSNRSPointed _ _ .quoᴿ .snd = uncurry (J' _ refl)
+isSNRSPointed {A = _ , x} {_ , y} R r .path =
   equivFun (compEquiv R≃Rᴿ (compEquiv effEquiv (invEquiv (ua-ungluePath-Equiv E.Thm)))) r
   where
   module E = Bisim→Equiv R
@@ -265,36 +263,36 @@ module _ {ℓ₁ ℓ₂} where
     {S₂ : hSet ℓ → hSet ℓ₂} {ℓ₂' : Level} {ρ₂ : StrRel S₂ ℓ₂'}
     → isSNRS S₁ ρ₁ → isSNRS S₂ ρ₂
     → isSNRS (join-structure S₁ S₂) (join-rel S₁ ρ₁ S₂ ρ₂)
-  isSNRSJoin θ₁ θ₂ _ _ _ (code₁ , code₂) .quoᴸ .fst .fst =
-    θ₁ _ _ _ code₁ .quoᴸ .fst .fst , θ₂ _ _ _ code₂ .quoᴸ .fst .fst
-  isSNRSJoin θ₁ θ₂ _ _ _ (code₁ , code₂) .quoᴸ .fst .snd =
-    θ₁ _ _ _ code₁ .quoᴸ .fst .snd , θ₂ _ _ _ code₂ .quoᴸ .fst .snd
-  isSNRSJoin θ₁ θ₂ _ _ R (code₁ , code₂) .quoᴸ .snd (p , α) j =
-    ( ( θ₁ _ _ R code₁ .quoᴸ .snd (p .fst ,  α .fst) j .fst
-      , θ₂ _ _ R code₂ .quoᴸ .snd (p .snd ,  α .snd) j .fst
+  isSNRSJoin θ₁ θ₂ _ (code₁ , code₂) .quoᴸ .fst .fst =
+    θ₁ _ code₁ .quoᴸ .fst .fst , θ₂ _ code₂ .quoᴸ .fst .fst
+  isSNRSJoin θ₁ θ₂ _ (code₁ , code₂) .quoᴸ .fst .snd =
+    θ₁ _ code₁ .quoᴸ .fst .snd , θ₂ _ code₂ .quoᴸ .fst .snd
+  isSNRSJoin θ₁ θ₂ R (code₁ , code₂) .quoᴸ .snd (p , α) j =
+    ( ( θ₁ R code₁ .quoᴸ .snd (p .fst ,  α .fst) j .fst
+      , θ₂ R code₂ .quoᴸ .snd (p .snd ,  α .snd) j .fst
       )
-    , ( θ₁ _ _ _ code₁ .quoᴸ .snd (p .fst , α .fst) j .snd
-      , θ₂ _ _ _ code₂ .quoᴸ .snd (p .snd , α .snd) j .snd
-      )
-    )
-  isSNRSJoin θ₁ θ₂ _ _ _ (code₁ , code₂) .quoᴿ .fst .fst =
-    θ₁ _ _ _ code₁ .quoᴿ .fst .fst , θ₂ _ _ _ code₂ .quoᴿ .fst .fst
-  isSNRSJoin θ₁ θ₂ _ _ _ (code₁ , code₂) .quoᴿ .fst .snd =
-    θ₁ _ _ _ code₁ .quoᴿ .fst .snd , θ₂ _ _ _ code₂ .quoᴿ .fst .snd
-  isSNRSJoin θ₁ θ₂ _ _ R (code₁ , code₂) .quoᴿ .snd (p , α) j =
-    ( ( θ₁ _ _ R code₁ .quoᴿ .snd (p .fst ,  α .fst) j .fst
-      , θ₂ _ _ R code₂ .quoᴿ .snd (p .snd ,  α .snd) j .fst
-      )
-    , ( θ₁ _ _ _ code₁ .quoᴿ .snd (p .fst , α .fst) j .snd
-      , θ₂ _ _ _ code₂ .quoᴿ .snd (p .snd , α .snd) j .snd
+    , ( θ₁ _ code₁ .quoᴸ .snd (p .fst , α .fst) j .snd
+      , θ₂ _ code₂ .quoᴸ .snd (p .snd , α .snd) j .snd
       )
     )
-  isSNRSJoin {S₁ = S₁} {S₂ = S₂} θ₁ θ₂ _ _ _ (code₁ , code₂) .path =
+  isSNRSJoin θ₁ θ₂ _ (code₁ , code₂) .quoᴿ .fst .fst =
+    θ₁ _ code₁ .quoᴿ .fst .fst , θ₂ _ code₂ .quoᴿ .fst .fst
+  isSNRSJoin θ₁ θ₂ _ (code₁ , code₂) .quoᴿ .fst .snd =
+    θ₁ _ code₁ .quoᴿ .fst .snd , θ₂ _ code₂ .quoᴿ .fst .snd
+  isSNRSJoin θ₁ θ₂ R (code₁ , code₂) .quoᴿ .snd (p , α) j =
+    ( ( θ₁ R code₁ .quoᴿ .snd (p .fst ,  α .fst) j .fst
+      , θ₂ R code₂ .quoᴿ .snd (p .snd ,  α .snd) j .fst
+      )
+    , ( θ₁ _ code₁ .quoᴿ .snd (p .fst , α .fst) j .snd
+      , θ₂ _ code₂ .quoᴿ .snd (p .snd , α .snd) j .snd
+      )
+    )
+  isSNRSJoin {S₁ = S₁} {S₂ = S₂} θ₁ θ₂ _ (code₁ , code₂) .path =
     equivFun ΣPathP≃PathPΣ
       ( equivFun (helper (λ i z → S₁ (_ , z) .fst) isPropIsSet)
-        (θ₁ _ _ _ code₁ .path)
+        (θ₁ _ code₁ .path)
       , equivFun (helper (λ i z → S₂ (_ , z) .fst) isPropIsSet)
-        (θ₂ _ _ _ code₂ .path)
+        (θ₂ _ code₂ .path)
       )
 
 -- Parameterized structure
@@ -321,18 +319,18 @@ module _ {ℓ ℓ₁ ℓ₂} (A : Type ℓ) where
     (ρ : ∀ a → StrRel (S a) ℓ₃)
     → (∀ a → isSNRS (S a) (ρ a))
     → isSNRS (parameterized-structure S) (parameterized-rel S ρ)
-  isSNRSParameterized ρ θ _ _ _ code .quoᴸ .fst .fst a = θ a _ _ _ (code a) .quoᴸ .fst .fst
-  isSNRSParameterized ρ θ _ _ _ code .quoᴸ .fst .snd a = θ a _ _ _ (code a) .quoᴸ .fst .snd
-  isSNRSParameterized ρ θ _ _ R code .quoᴸ .snd (f , h) j .fst a = θ a _ _ R (code a) .quoᴸ .snd (f a , h a) j .fst
-  isSNRSParameterized ρ θ _ _ _ code .quoᴸ .snd (f , h) j .snd a = θ a _ _ _ (code a) .quoᴸ .snd (f a , h a) j .snd
-  isSNRSParameterized ρ θ _ _ _ code .quoᴿ .fst .fst a = θ a _ _ _ (code a) .quoᴿ .fst .fst
-  isSNRSParameterized ρ θ _ _ _ code .quoᴿ .fst .snd a = θ a _ _ _ (code a) .quoᴿ .fst .snd
-  isSNRSParameterized ρ θ _ _ R code .quoᴿ .snd (f , h) j .fst a = θ a _ _ R (code a) .quoᴿ .snd (f a , h a) j .fst
-  isSNRSParameterized ρ θ _ _ _ code .quoᴿ .snd (f , h) j .snd a = θ a _ _ _ (code a) .quoᴿ .snd (f a , h a) j .snd
-  isSNRSParameterized {S = S} ρ θ (_ , s) (_ , t) R code .path =
+  isSNRSParameterized ρ θ _ code .quoᴸ .fst .fst a = θ a _ (code a) .quoᴸ .fst .fst
+  isSNRSParameterized ρ θ _ code .quoᴸ .fst .snd a = θ a _ (code a) .quoᴸ .fst .snd
+  isSNRSParameterized ρ θ R code .quoᴸ .snd (f , h) j .fst a = θ a R (code a) .quoᴸ .snd (f a , h a) j .fst
+  isSNRSParameterized ρ θ _ code .quoᴸ .snd (f , h) j .snd a = θ a _ (code a) .quoᴸ .snd (f a , h a) j .snd
+  isSNRSParameterized ρ θ _ code .quoᴿ .fst .fst a = θ a _ (code a) .quoᴿ .fst .fst
+  isSNRSParameterized ρ θ _ code .quoᴿ .fst .snd a = θ a _ (code a) .quoᴿ .fst .snd
+  isSNRSParameterized ρ θ R code .quoᴿ .snd (f , h) j .fst a = θ a R (code a) .quoᴿ .snd (f a , h a) j .fst
+  isSNRSParameterized ρ θ _ code .quoᴿ .snd (f , h) j .snd a = θ a _ (code a) .quoᴿ .snd (f a , h a) j .snd
+  isSNRSParameterized {S = S} ρ θ {_ , s} {_ , t} R code .path =
     funExt λ a →
     equivFun (helper (λ i z → S a (_ , z) .fst) isPropIsSet)
-      (θ a (_ , s a) (_ , t a) R (code a) .path)
+      (θ a {_ , s a} {_ , t a} R (code a) .path)
 
 module _  {ℓ ℓ₁} where
 
@@ -354,12 +352,12 @@ module _  {ℓ ℓ₁} where
   isSNRSUnaryFun : {S : hSet ℓ → hSet ℓ₁} {ℓ₁' : Level} (ρ : StrRel S ℓ₁')
     → isSNRS S ρ
     → isSNRS (unaryFun-structure S) (unaryFun-rel S ρ)
-  isSNRSUnaryFun {S = S} ρ θ (X , f) (Y , g) (R , bis) code .quoᴸ .fst =
-    str , λ _ → J' _ (θ _ _ _ _ .quoᴸ .fst .snd)
+  isSNRSUnaryFun {S = S} ρ θ {X , f} {Y , g} (R , bis) code .quoᴸ .fst =
+    str , λ _ → J' _ (θ _ _ .quoᴸ .fst .snd)
     where
     str : _
     str [ x ] =
-      θ (X , f x) (Y , g (bis .fwd x)) (R , bis) (code _ _ (bis .fwdRel x)) .quoᴸ .fst .fst
+      θ {X , f x} {Y , g (bis .fwd x)} (R , bis) (code _ _ (bis .fwdRel x)) .quoᴸ .fst .fst
     str (eq/ x₀ x₁ r i) =
       coolLemmaᴸ ρ θ X Y (R , bis)
         (code _ _ (bis .fwdRel x₀))
@@ -368,19 +366,19 @@ module _  {ℓ ℓ₁} where
         i
     str (squash/ _ _ p q j i) =
       S _ .snd _ _ (cong str p) (cong str q) j i
-  isSNRSUnaryFun {S = S} ρ θ (X , f) (Y , g) (R , bis) code .quoᴸ .snd (f' , h) =
+  isSNRSUnaryFun {S = S} ρ θ (R , bis) code .quoᴸ .snd (f' , h) =
     Σ≡Prop
       (λ _ → isPropΠ3 λ _ _ _ → ρ _ _ _ .snd .prop _ _)
       (funExt
         (elimProp
           (λ _ → S _ .snd _ _)
-          (λ x → cong fst (θ _ _ _ _ .quoᴸ .snd (f' [ x ] , h x [ x ] refl)))))
-  isSNRSUnaryFun {S = S} ρ θ (X , f) (Y , g) (R , bis) code .quoᴿ .fst =
-    str , λ _ → J' _ (θ _ _ _ _ .quoᴿ .fst .snd)
+          (λ x → cong fst (θ _ _ .quoᴸ .snd (f' [ x ] , h x [ x ] refl)))))
+  isSNRSUnaryFun {S = S} ρ θ {X , f} {Y , g} (R , bis) code .quoᴿ .fst =
+    str , λ _ → J' _ (θ _ _ .quoᴿ .fst .snd)
     where
     str : _
     str [ y ] =
-      θ (X , f (bis .bwd y)) (Y , g y) (R , bis) (code _ _ (bis .bwdRel y)) .quoᴿ .fst .fst
+      θ {X , f (bis .bwd y)} {Y , g y} (R , bis) (code _ _ (bis .bwdRel y)) .quoᴿ .fst .fst
     str (eq/ y₀ y₁ r i) =
       coolLemmaᴿ ρ θ X Y (R , bis)
         (code _ _ (bis .bwdRel y₀))
@@ -389,21 +387,21 @@ module _  {ℓ ℓ₁} where
         i
     str (squash/ _ _ p q j i) =
       S _ .snd _ _ (cong str p) (cong str q) j i
-  isSNRSUnaryFun {S = S} ρ θ (X , f) (Y , g) (R , bis) code .quoᴿ .snd (g' , h) =
+  isSNRSUnaryFun {S = S} ρ θ (R , bis) code .quoᴿ .snd (g' , h) =
     Σ≡Prop
       (λ _ → isPropΠ3 λ _ _ _ → ρ _ _ _ .snd .prop _ _)
       (funExt
         (elimProp
           (λ _ → S _ .snd _ _)
-          (λ y → cong fst (θ _ _ _ _ .quoᴿ .snd (g' [ y ] , h y [ y ] refl)))))
-  isSNRSUnaryFun {S = S} ρ θ (X , f) (Y , g) (R , bis) code .path =
+          (λ y → cong fst (θ _ _ .quoᴿ .snd (g' [ y ] , h y [ y ] refl)))))
+  isSNRSUnaryFun {S = S} ρ θ (R , bis) code .path =
     ua→
       (elimProp
         (λ _ → isOfHLevelPathP' 1 (λ i → S _ .snd) _ _)
         (λ x →
-          θ _ _ _ (code _ _ (bis .fwdRel x)) .path
+          θ _ (code _ _ (bis .fwdRel x)) .path
           ▷ cong fst
-            (θ _ _ _ (code _ _ (bis .fwdRel x)) .quoᴿ .snd
-              (θ _ _ _ (code _ _ (bis .bwdRel (bis .fwd x))) .quoᴿ .fst))))
+            (θ _ (code _ _ (bis .fwdRel x)) .quoᴿ .snd
+              (θ _ (code _ _ (bis .bwdRel (bis .fwd x))) .quoᴿ .fst))))
     where
     module E = Bisim→Equiv (R , bis)
