@@ -7,18 +7,18 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
-open import Cubical.Structures.Pointed
-open import Cubical.Structures.NAryOp
+open import Cubical.Structures.Macro
 
 private
   variable
     ℓ ℓ' : Level
 
-raw-semigroup-structure : Type ℓ → Type ℓ
-raw-semigroup-structure X = X → X → X
-
-raw-semigroup-is-SNS : SNS {ℓ} raw-semigroup-structure _
-raw-semigroup-is-SNS = binaryFunSNS pointed-iso pointed-is-SNS
+module _ {ℓ} where
+  open Macro ℓ (recvar (recvar var)) public renaming
+    ( structure to raw-semigroup-structure
+    ; iso to raw-semigroup-iso
+    ; isSNS to raw-semigroup-is-SNS
+    )
 
 semigroup-axioms : (X : Type ℓ) → raw-semigroup-structure X → Type ℓ
 semigroup-axioms X _·_ = isSet X ×
@@ -58,7 +58,7 @@ semigroup-assoc (_ , _ , _ , P) = P
 -- Semigroup equivalences
 
 semigroup-iso : StrIso semigroup-structure ℓ
-semigroup-iso = add-to-iso (binaryFunIso pointed-iso) semigroup-axioms
+semigroup-iso = add-to-iso raw-semigroup-iso semigroup-axioms
 
 semigroup-axiom-isProp : (X : Type ℓ)
                        → (s : raw-semigroup-structure X)

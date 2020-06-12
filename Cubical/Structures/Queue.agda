@@ -34,7 +34,7 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  -- A Queue structure has three components, the empty Queue, an enqueue function and a dequeue function
  -- We first deal with enq and deq as separate structures
 
- -- deq-map as a structure
+ -- deq as a structure
  -- First, a few preliminary results that we will need later
  deq-map-forward : {X Y : Type ℓ} → (X → Y)
                   →  Unit ⊎ (X × A) → Unit ⊎ (Y × A)
