@@ -122,11 +122,11 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  List/Rᴸ≃AList/Rᴬᴸ : List/Rᴸ ≃ AList/Rᴬᴸ
  List/Rᴸ≃AList/Rᴬᴸ = E.Thm
 
- main =
-   θ ((List A , isOfHLevelList 0 (Discrete→isSet discA)) , Lcount)
-     ((AList A , isOfHLevelAList 0 (Discrete→isSet discA)) , ALcount)
-     (R , isBisimR)
-     (λ a _ _ r → r a)
+ main : Descends _ _
+   ((List A , isOfHLevelList 0 (Discrete→isSet discA)) , Lcount)
+   ((AList A , isOfHLevelAList 0 (Discrete→isSet discA)) , ALcount)
+   (R , isBisimR)
+ main = θ (R , isBisimR) (λ a r → r a)
 
  open Descends
 

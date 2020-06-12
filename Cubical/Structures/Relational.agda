@@ -25,11 +25,6 @@ _▷_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ : A i0} {a₁ a₁' : A i1}
 (p ▷ q) i =
   hcomp (λ j → λ {(i = i0) → p i0; (i = i1) → q j}) (p i)
 
-J' : ∀ {ℓ ℓ'} {A : Type ℓ} {x : A}
-  (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl)
-  (y : A) (p : x ≡ y) → P y p
-J' P d y p = transport (λ i → P (p i) (λ j → p (i ∧ j))) d
-
 _/set_ : ∀ {ℓ ℓ'} (A : Type ℓ) (R : A → A → Type ℓ') → hSet (ℓ-max ℓ ℓ')
 A /set R = A / R , squash/
 
@@ -61,39 +56,27 @@ private
 
 open isBisimulation
 
--- Suitable relations
-
-record isSuitable {A B : Type ℓ} (R : A → B → Type ℓ') : Type (ℓ-max ℓ ℓ') where
-  field
-    zigzag : isZigZagComplete R
-    prop : ∀ a b → isProp (R a b)
-
-SuitableRel : (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
-SuitableRel A B ℓ' =
-  Σ[ R ∈ (A → B → Type ℓ') ] isSuitable R
+--------------------------------------------------------------------------------
+-- Prop-valued relations
+--------------------------------------------------------------------------------
 
 PropValuedRel : (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 PropValuedRel A B ℓ' =
   Σ[ R ∈ (A → B → Type ℓ') ] ∀ a b → isProp (R a b)
 
-open isSuitable
+quotientPropValued : {A : Type ℓ} (R : A → A → Type ℓ)
+  → PropValuedRel A (A / R) ℓ
+quotientPropValued R .fst a b = [ a ] ≡ b
+quotientPropValued R .snd a = squash/ [ a ]
 
-quotientSuitable : {A : Type ℓ} (R : A → A → Type ℓ)
-  → SuitableRel A (A / R) ℓ
-quotientSuitable R .fst a b = [ a ] ≡ b
-quotientSuitable R .snd .zigzag r₀ r₁ r₂ = r₀ ∙ sym r₁ ∙ r₂
-quotientSuitable R .snd .prop a = squash/ [ a ]
+Bisimulation→PropValued : {A B : Type ℓ} {ℓ' : Level}
+  → Bisimulation A B ℓ' → PropValuedRel A B ℓ'
+Bisimulation→PropValued (R , bisim) .fst = R
+Bisimulation→PropValued (R , bisim) .snd = bisim .prop
 
-isBisimulation→isSuitable : {A B : Type ℓ} {R : A → B → Type ℓ'}
-  → isBisimulation R → isSuitable R
-isBisimulation→isSuitable bisim .zigzag = bisim .zigzag
-isBisimulation→isSuitable bisim .prop = bisim .prop
-
-Bisimulation→Suitable : {A B : Type ℓ} {ℓ' : Level}
-  → Bisimulation A B ℓ' → SuitableRel A B ℓ'
-Bisimulation→Suitable (R , bisim) = R , isBisimulation→isSuitable bisim
-
+--------------------------------------------------------------------------------
 -- Definition of standard notion of structure
+--------------------------------------------------------------------------------
 
 SetWithStr : (ℓ : Level) (S : hSet ℓ → hSet ℓ') → Type (ℓ-max (ℓ-suc ℓ) ℓ')
 SetWithStr ℓ S = Σ[ X ∈ hSet ℓ ] S X .fst
@@ -106,14 +89,14 @@ typ (X , s) = X .fst
 
 StrRel : (S : hSet ℓ → hSet ℓ') (ℓ'' : Level) → Type (ℓ-max (ℓ-suc (ℓ-max ℓ ℓ'')) ℓ')
 StrRel {ℓ} S ℓ'' =
-  (A B : hSet ℓ) (R : SuitableRel (A .fst) (B .fst) ℓ)
+  (A B : hSet ℓ) (R : PropValuedRel (A .fst) (B .fst) ℓ)
   → PropValuedRel (S A .fst) (S B .fst) ℓ''
 
 QuoStructure : (S : hSet ℓ → hSet ℓ') (ρ : StrRel S ℓ'')
   (A : SetWithStr ℓ S) (R : typ A → typ A → Type ℓ)
   → Type (ℓ-max ℓ' ℓ'')
 QuoStructure S ρ A R =
-  Σ (S (typ A /set R) .fst) (ρ (A .fst) (typ A /set R) (quotientSuitable R) .fst (A .snd))
+  Σ (S (typ A /set R) .fst) (ρ (A .fst) (typ A /set R) (quotientPropValued R) .fst (A .snd))
 
 record Descends (S : hSet ℓ → hSet ℓ') (ρ : StrRel S ℓ'')
   (A B : SetWithStr ℓ S) (R : Bisimulation (typ A) (typ B) ℓ) : Type (ℓ-max ℓ' ℓ'')
@@ -134,7 +117,7 @@ open Descends
 isSNRS : (S : hSet ℓ → hSet ℓ') → StrRel S ℓ'' → Type _
 isSNRS {ℓ} S ρ =
   {A B : SetWithStr ℓ S} (R : Bisimulation (typ A) (typ B) ℓ)
-  → ρ (A .fst) (B .fst) (Bisimulation→Suitable R) .fst (A .snd) (B .snd)
+  → ρ (A .fst) (B .fst) (Bisimulation→PropValued R) .fst (A .snd) (B .snd)
   → Descends S ρ A B R
 
 -- Two cool lemmas
@@ -142,9 +125,9 @@ isSNRS {ℓ} S ρ =
 coolLemmaᴸ : {S : hSet ℓ → hSet ℓ₁} (ρ : StrRel S ℓ₁') (θ : isSNRS S ρ)
   {X Y : hSet ℓ} (R : Bisimulation (X .fst) (Y .fst) ℓ)
   {x₀ x₁ : S X .fst} {y₀ y₁ : S Y .fst}
-  (code₀₀ : ρ X Y (Bisimulation→Suitable R) .fst x₀ y₀)
-  (code₁₁ : ρ X Y (Bisimulation→Suitable R) .fst x₁ y₁)
-  → ρ X Y (Bisimulation→Suitable R) .fst x₀ y₁
+  (code₀₀ : ρ X Y (Bisimulation→PropValued R) .fst x₀ y₀)
+  (code₁₁ : ρ X Y (Bisimulation→PropValued R) .fst x₁ y₁)
+  → ρ X Y (Bisimulation→PropValued R) .fst x₀ y₁
   → θ _ code₀₀ .quoᴸ .fst .fst ≡ θ _ code₁₁ .quoᴸ .fst .fst
 coolLemmaᴸ {S = S} ρ θ R {x₀} {x₁} {y₀} {y₁} code₀₀ code₁₁ code₀₁ =
   cong fst (θ R code₀₀ .quoᴸ .snd (θ R code₀₁ .quoᴸ .fst))
@@ -164,9 +147,9 @@ coolLemmaᴸ {S = S} ρ θ R {x₀} {x₁} {y₀} {y₁} code₀₀ code₁₁ c
 coolLemmaᴿ : {S : hSet ℓ → hSet ℓ₁} (ρ : StrRel S ℓ₁') (θ : isSNRS S ρ)
   {X Y : hSet ℓ} (R : Bisimulation (X .fst) (Y .fst) ℓ)
   {x₀ x₁ : S X .fst} {y₀ y₁ : S Y .fst}
-  (code₀₀ : ρ X Y (Bisimulation→Suitable R) .fst x₀ y₀)
-  (code₁₁ : ρ X Y (Bisimulation→Suitable R) .fst x₁ y₁)
-  → ρ X Y (Bisimulation→Suitable R) .fst x₁ y₀
+  (code₀₀ : ρ X Y (Bisimulation→PropValued R) .fst x₀ y₀)
+  (code₁₁ : ρ X Y (Bisimulation→PropValued R) .fst x₁ y₁)
+  → ρ X Y (Bisimulation→PropValued R) .fst x₁ y₀
   → θ _ code₀₀ .quoᴿ .fst .fst ≡ θ _ code₁₁ .quoᴿ .fst .fst
 coolLemmaᴿ {S = S} ρ θ R {x₀} {x₁} {y₀} {y₁} code₀₀ code₁₁ code₁₀ =
   cong fst (θ R code₀₀ .quoᴿ .snd (θ R code₁₀ .quoᴿ .fst))
@@ -182,6 +165,10 @@ coolLemmaᴿ {S = S} ρ θ R {x₀} {x₁} {y₀} {y₁} code₀₀ code₁₁ c
     → a₁ ≡ a₁'
   lem {A = A} p₀ p₁ q i =
     comp A (λ k → λ {(i = i0) → p₀ k; (i = i1) → p₁ k}) (q i)
+
+--------------------------------------------------------------------------------
+-- Structure combinators
+--------------------------------------------------------------------------------
 
 -- Constant structure
 
@@ -206,13 +193,11 @@ pointed-structure X = X
 
 pointed-rel : StrRel pointed-structure ℓ
 pointed-rel _ _ R .fst x y = R .fst x y
-pointed-rel _ _ R .snd = R .snd .prop
+pointed-rel _ _ R .snd = R .snd
 
 isSNRSPointed : isSNRS {ℓ = ℓ} pointed-structure pointed-rel
-isSNRSPointed _ _ .quoᴸ .fst = _ , refl
-isSNRSPointed _ _ .quoᴸ .snd = uncurry (J' _ refl)
-isSNRSPointed _ _ .quoᴿ .fst = _ , refl
-isSNRSPointed _ _ .quoᴿ .snd = uncurry (J' _ refl)
+isSNRSPointed _ _ .quoᴸ = isContrSingl _
+isSNRSPointed _ _ .quoᴿ = isContrSingl _
 isSNRSPointed {A = _ , x} {_ , y} R r .path =
   equivFun (compEquiv R≃Rᴿ (compEquiv effEquiv (invEquiv (ua-ungluePath-Equiv E.Thm)))) r
   where
@@ -388,7 +373,7 @@ module _  {ℓ ℓ₁} where
         (elimProp
           (λ _ → S _ .snd _ _)
           (λ y → cong fst (θ _ _ .quoᴿ .snd (g' [ y ] , h refl)))))
-  isSNRSUnaryFun {S = S} ρ θ (R , bis) code .path =
+  isSNRSUnaryFun {S = S} ρ θ (_ , bis) code .path =
     ua→
       (elimProp
         (λ _ → isOfHLevelPathP' 1 (λ i → S _ .snd) _ _)
@@ -397,5 +382,3 @@ module _  {ℓ ℓ₁} where
           ▷ cong fst
             (θ _ (code (bis .fwdRel x)) .quoᴿ .snd
               (θ _ (code (bis .bwdRel (bis .fwd x))) .quoᴿ .fst))))
-    where
-    module E = Bisim→Equiv (R , bis)
