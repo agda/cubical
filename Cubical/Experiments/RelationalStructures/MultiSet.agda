@@ -1,23 +1,23 @@
 -- We apply the theory of zigzag complete relations to finite multisets and association lists.
-{-# OPTIONS --cubical --no-import-sorts #-}
-module Cubical.Relation.ZigZag.Applications.MultiSet2 where
+-- This is a version of Cubical.Relation.ZigZag.Applications.MultiSet that uses structured
+-- relations rather than structured isomorphisms.
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
+module Cubical.Experiments.RelationalStructures.MultiSet where
 
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
+open import Cubical.Data.Unit
+open import Cubical.Data.Empty
 open import Cubical.Data.Nat
 open import Cubical.Data.List hiding ([_])
 open import Cubical.Data.Sigma
-open import Cubical.Structures.Relational
-open import Cubical.HITs.SetQuotients.Base
-open import Cubical.HITs.SetQuotients.Properties
-open import Cubical.HITs.FiniteMultiset as FMS hiding ([_])
-open import Cubical.HITs.FiniteMultiset.CountExtensionality
+open import Cubical.HITs.SetQuotients
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
-open import Cubical.Relation.ZigZag.Base as ZigZag
+open import Cubical.Relation.ZigZag.Base
+
+open import Cubical.Experiments.RelationalStructures.Base
 
 private
  variable
@@ -26,15 +26,52 @@ private
 
 
 -- we define simple association lists without any higher constructors
-data AList (A : Type ℓ) : Type ℓ where
+data AList {ℓ} (A : Type ℓ) : Type ℓ where
  ⟨⟩ : AList A
  ⟨_,_⟩∷_ : A → ℕ → AList A → AList A
 
 infixr 5 ⟨_,_⟩∷_
 
-postulate -- TODO
-  isOfHLevelAList : ∀ {ℓ} (n : ℕ) {A : Type ℓ}
-    → isOfHLevel (suc (suc n)) A → isOfHLevel (suc (suc n)) (AList A)
+isSetAList : ∀ {ℓ} {A : Type ℓ} → isSet A → isSet (AList A)
+isSetAList {ℓ} {A} setA xs ys =
+  isOfHLevelRetract 1
+    (encode xs ys)
+    (decode xs ys)
+    (decodeEncode xs ys)
+    (isPropCover xs ys)
+  where
+  Cover : AList A → AList A → Type ℓ
+  Cover ⟨⟩ ⟨⟩ = Lift Unit
+  Cover ⟨⟩ (⟨ y , n ⟩∷ ys) = Lift ⊥
+  Cover (⟨ x , n ⟩∷ xs) ⟨⟩ = Lift ⊥
+  Cover (⟨ x , n ⟩∷ xs) (⟨ y , m ⟩∷ ys) = (x ≡ y) × (n ≡ m) × Cover xs ys
+
+  encodeRefl : ∀ xs → Cover xs xs
+  encodeRefl ⟨⟩ = _
+  encodeRefl (⟨ x , n ⟩∷ xs) = refl , refl , encodeRefl xs
+
+  encode : ∀ xs ys → xs ≡ ys → Cover xs ys
+  encode xs _ p = subst (Cover xs) p (encodeRefl xs)
+
+  decode : ∀ xs ys → Cover xs ys → xs ≡ ys
+  decode ⟨⟩ ⟨⟩ _ = refl
+  decode (⟨ x , n ⟩∷ xs) (⟨ y , m ⟩∷ ys) (xy , nm , c) i = ⟨ xy i , nm i ⟩∷ decode _ _ c i
+
+  decodeEncodeRefl : ∀ xs → decode xs xs (encodeRefl xs) ≡ refl
+  decodeEncodeRefl ⟨⟩ = refl
+  decodeEncodeRefl (⟨ x , n ⟩∷ xs) = cong (cong ⟨ x , n ⟩∷_) (decodeEncodeRefl xs)
+
+  decodeEncode : ∀ xs ys p → decode xs ys (encode xs ys p) ≡ p
+  decodeEncode xs ys =
+    J (λ ys p → decode xs ys (encode xs ys p) ≡ p)
+      (cong (decode xs xs) (transportRefl _) ∙ decodeEncodeRefl xs)
+
+  isPropCover : ∀ xs ys → isProp (Cover xs ys)
+  isPropCover ⟨⟩ ⟨⟩ = isOfHLevelLift 1 (isOfHLevelUnit 1)
+  isPropCover ⟨⟩ (⟨ y , m ⟩∷ ys) = isOfHLevelLift 1 isProp⊥
+  isPropCover (⟨ x , n ⟩∷ xs) ⟨⟩ = isOfHLevelLift 1 isProp⊥
+  isPropCover (⟨ x , n ⟩∷ xs) (⟨ y , m ⟩∷ ys) =
+    isProp× (setA x y) (isProp× (isSetℕ n m) (isPropCover xs ys))
 
 -- We have a count-structure on List and AList and use these to get a bisimulation between the two
 module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
@@ -61,7 +98,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  Lcount a [] = zero
  Lcount a (x ∷ xs) = aux a x (discA a x) (Lcount a xs)
 
- ALcount : S (AList A , isOfHLevelAList 0 (Discrete→isSet discA)) .fst
+ ALcount : S (AList A , isSetAList (Discrete→isSet discA)) .fst
  ALcount a ⟨⟩ = zero
  ALcount a (⟨ x , zero ⟩∷ xs) = ALcount a xs
  ALcount a (⟨ x , suc n ⟩∷ xs) = aux a x (discA a x) (ALcount a (⟨ x , n ⟩∷ xs))
@@ -124,7 +161,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
  main : Descends _ _
    ((List A , isOfHLevelList 0 (Discrete→isSet discA)) , Lcount)
-   ((AList A , isOfHLevelAList 0 (Discrete→isSet discA)) , ALcount)
+   ((AList A , isSetAList (Discrete→isSet discA)) , ALcount)
    (R , isBisimR)
  main = θ (R , isBisimR) (λ a r → r a)
 

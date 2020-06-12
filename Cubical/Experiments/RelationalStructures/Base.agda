@@ -1,8 +1,7 @@
-{-# OPTIONS --cubical #-}
-module Cubical.Structures.Relational where
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
+module Cubical.Experiments.RelationalStructures.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
@@ -11,7 +10,6 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Sigma
 open import Cubical.Relation.ZigZag.Base
-open import Cubical.Relation.Binary
 open import Cubical.HITs.SetQuotients
 
 -- lemmas to move or inline
