@@ -9,9 +9,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 open import Cubical.Functions.Surjection
 
-open import Cubical.Structures.Pointed
-open import Cubical.Structures.NAryOp
-open import Cubical.Structures.Parameterized
+open import Cubical.Structures.Macro
 open import Cubical.Structures.LeftAction
 
 open import Cubical.Data.Unit
@@ -70,27 +68,14 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
 
 
  -- Now we can do Queues:
- raw-queue-structure : Type ℓ → Type ℓ
- raw-queue-structure Q = Q × (A → Q → Q) × (Q → Unit ⊎ (Q × A))
+ open Macro ℓ (var , left-action-desc A , foreign deq-iso Deq-is-SNS) public renaming
+   ( structure to raw-queue-structure
+   ; iso to raw-queue-iso
+   ; isSNS to RawQueue-is-SNS
+   )
 
  RawQueue : Type (ℓ-suc ℓ)
  RawQueue = TypeWithStr ℓ raw-queue-structure
-
- raw-queue-iso : StrIso raw-queue-structure ℓ
- raw-queue-iso (Q₁ , emp₁ , enq₁ , deq₁) (Q₂ , emp₂ , enq₂ , deq₂) e =
-   (e .fst emp₁ ≡ emp₂)
-   × (∀ a q → e .fst (enq₁ a q) ≡ enq₂ a (e .fst q))
-   × (∀ q → deq-map-forward (e .fst) (deq₁ q) ≡ deq₂ (e .fst q))
-
- RawQueue-is-SNS : SNS raw-queue-structure raw-queue-iso
- RawQueue-is-SNS =
-   join-SNS pointed-iso pointed-is-SNS
-            {S₂ = λ X → (left-action-structure A X) × (deq-structure X)}
-            (λ B C e → (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
-                     × (∀ q → deq-map-forward (e .fst) (B .snd .snd q) ≡ C .snd .snd (e .fst q)))
-            (join-SNS (left-action-iso A) (Left-Action-is-SNS A) deq-iso Deq-is-SNS)
-
-
 
  returnOrEnq : {Q : Type ℓ}
   → raw-queue-structure Q → A → Unit ⊎ (Q × A) → Q × A
