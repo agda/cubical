@@ -288,6 +288,7 @@ Decₚ P = Dec [ P ] , isPropDec (isProp[] P)
 ℙ : ∀ {ℓ} → Type ℓ → Type (ℓ-suc ℓ)
 ℙ {ℓ} X = X → hProp ℓ
 
+infix 5 _∈_
 _∈_ : {X : Type ℓ} → X → ℙ X → Type ℓ
 x ∈ A = [ A x ]
 
