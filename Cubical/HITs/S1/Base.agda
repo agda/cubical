@@ -32,14 +32,7 @@ module _ where
     comp (λ _ → S¹) u (outS u0) ≡ hcomp u (outS u0)
   compS1 φ u u0 = refl
 
-
-
-toPropElim : ∀ {ℓ} {B : S¹ → Type ℓ} → ((s : S¹) → isProp (B s)) → B base → (s : S¹) → B s
-toPropElim {B = B} isprop b base = b
-toPropElim {B = B} isprop b (loop i) = hcomp (λ k → λ {(i = i0) → b
-                                                     ; (i = i1) → isprop base (subst B (loop) b) b k})
-                                      (transp (λ j → B (loop (i ∧ j))) (~ i) b)
-
+-- ΩS¹ ≡ Int
 helix : S¹ → Type₀
 helix base     = Int
 helix (loop i) = sucPathInt i
@@ -93,10 +86,7 @@ isSetΩS¹ p q r s j i =
         (decode base (isSetInt (winding p) (winding q) (cong winding r) (cong winding s) j i))
 
 
-isSetΩx : (x : S¹) → isSet (x ≡ x)
-isSetΩx = toPropElim
-           (λ s → isPropIsSet)
-           isSetΩS¹
+
 
 -- This proof does not rely on rewriting hcomp with empty systems in
 -- Int as ghcomp has been implemented!
@@ -269,9 +259,19 @@ basedΩS¹≡Int : (x : S¹) → basedΩS¹ x ≡ Int
 basedΩS¹≡Int x = (basedΩS¹≡ΩS¹ x) ∙ ΩS¹≡Int
 
 
-
-
 ---- A shorter proof of the same thing -----
+
+toPropElim : ∀ {ℓ} {B : S¹ → Type ℓ}
+             → ((s : S¹) → isProp (B s))
+             → B base
+             → (s : S¹) → B s
+toPropElim isprop b base = b
+toPropElim isprop b (loop i) =
+  isOfHLevel→isOfHLevelDep 1 isprop b b loop i
+
+isSetΩx : (x : S¹) → isSet (x ≡ x)
+isSetΩx = toPropElim (λ _ → isPropIsSet) isSetΩS¹
+
 basechange2 : (x : S¹) → ΩS¹ → (x ≡ x)
 basechange2 base p = p
 basechange2 (loop i) p =
@@ -302,14 +302,29 @@ basechange2-retr =
   toPropElim (λ s → isOfHLevelΠ 1 λ x → isSetΩx _ _ _)
              λ _ → refl
 
+basedΩS¹≡ΩS¹' : (x : S¹) → basedΩS¹ x ≡ ΩS¹
+basedΩS¹≡ΩS¹' x =
+  isoToPath
+    (iso (basechange2⁻ x)
+         (basechange2 x)
+         (basechange2-retr x)
+         (basechange2-sect x))
+
+-- in fact, the two maps are equal
+
+basechange≡basechange2 : basechange ≡ basechange2⁻
+basechange≡basechange2 =
+  funExt (toPropElim (λ _ → isOfHLevelPath' 1 (isOfHLevelΠ 2 (λ _ → isSetΩS¹)) _ _)
+         refl)
 
 -- baschange2⁻ is a morphism
 
 basechange2⁻-morph : (x : S¹) (p q : x ≡ x) →
                      basechange2⁻ x (p ∙ q) ≡ basechange2⁻ x p ∙ basechange2⁻ x q
-basechange2⁻-morph = toPropElim {B = λ x → (p q : x ≡ x) → basechange2⁻ x (p ∙ q) ≡ basechange2⁻ x p ∙ basechange2⁻ x q}
-                               (λ x → isOfHLevelΠ 1 λ p → isOfHLevelΠ 1 λ q → isSetΩS¹ _ _ )
-                               λ _ _ → refl
+basechange2⁻-morph =
+  toPropElim {B = λ x → (p q : x ≡ x) → basechange2⁻ x (p ∙ q) ≡ basechange2⁻ x p ∙ basechange2⁻ x q}
+             (λ x → isOfHLevelΠ 1 λ p → isOfHLevelΠ 1 λ q → isSetΩS¹ _ _ )
+             λ _ _ → refl
 
 -- Some tests
 module _ where

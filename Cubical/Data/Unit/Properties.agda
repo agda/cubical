@@ -26,6 +26,12 @@ isOfHLevelUnit n = isContr→isOfHLevel n isContrUnit
 UnitToTypeId : ∀ {ℓ} (A : Type ℓ) → (Unit → A) ≡ A
 UnitToTypeId A = isoToPath (iso (λ f → f tt) (λ a _ → a) (λ _ → refl) λ _ → refl)
 
+ContrToTypeIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isContr A → Iso (A → B) B
+Iso.fun (ContrToTypeIso iscontr) f = f (fst iscontr)
+Iso.inv (ContrToTypeIso iscontr) b _ = b
+Iso.rightInv (ContrToTypeIso iscontr) _ = refl
+Iso.leftInv (ContrToTypeIso iscontr) f = funExt λ x → cong f (snd iscontr x)
+
 diagonal-unit : Unit ≡ Unit × Unit
 diagonal-unit = isoToPath (iso (λ x → tt , tt) (λ x → tt) (λ {(tt , tt) i → tt , tt}) λ {tt i → tt})
 

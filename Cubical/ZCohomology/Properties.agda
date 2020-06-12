@@ -129,6 +129,7 @@ Kn→ΩKn+10ₖ (suc n) = (λ i → cong ∣_∣ (rCancel (merid north) i)) -- c
 -- i = i1 ⊢ -0ₖ j
 -- -}
 
+
 +ₖ→∙ : (n : ℕ) (a b : coHomK n) → Kn→ΩKn+1 n (a +ₖ b) ≡ Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b
 +ₖ→∙ n a b = Iso.rightInv (Iso3-Kn-ΩKn+1 n) (Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b)
 
