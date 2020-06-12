@@ -112,8 +112,22 @@ compEquiv-assoc : (f : A ≃ B) (g : B ≃ C) (h : C ≃ D)
                 → compEquiv f (compEquiv g h) ≡ compEquiv (compEquiv f g) h
 compEquiv-assoc f g h = equivEq _ _ refl
 
-LiftEquiv : A ≃ Lift {i = ℓ} {j = ℓ'} A
-LiftEquiv = isoToEquiv LiftIso
+LiftEquiv : {A : Type ℓ} → A ≃ Lift {j = ℓ'} A
+LiftEquiv .fst a .lower = a
+LiftEquiv .snd .equiv-proof a+ .fst .fst = a+ .lower
+LiftEquiv .snd .equiv-proof _ .fst .snd = refl
+LiftEquiv .snd .equiv-proof _ .snd (_ , p) i .fst = p (~ i) .lower
+LiftEquiv .snd .equiv-proof _ .snd (_ , p) i .snd j = p (~ i ∨ j)
+
+Lift≃Lift : (e : A ≃ B) → Lift {j = ℓ'} A ≃ Lift {j = ℓ''} B
+Lift≃Lift e .fst a .lower = e .fst (a .lower)
+Lift≃Lift e .snd .equiv-proof b .fst .fst .lower = invEq e (b .lower)
+Lift≃Lift e .snd .equiv-proof b .fst .snd i .lower =
+  e .snd .equiv-proof (b .lower) .fst .snd i
+Lift≃Lift e .snd .equiv-proof b .snd (a , p) i .fst .lower =
+  e .snd .equiv-proof (b .lower) .snd (a .lower , cong lower p) i .fst
+Lift≃Lift e .snd .equiv-proof b .snd (a , p) i .snd j .lower =
+  e .snd .equiv-proof (b .lower) .snd (a .lower , cong lower p) i .snd j
 
 isContr→Equiv : isContr A → isContr B → A ≃ B
 isContr→Equiv Actr Bctr = isoToEquiv (isContr→Iso Actr Bctr)
