@@ -134,6 +134,17 @@ equivPi k .snd .equiv-proof f .snd (g , p) i .fst x =
 equivPi k .snd .equiv-proof f .snd (g , p) i .snd j x =
   equivCtrPath (k x) (f x) (g x , λ k → p k x) i .snd j
 
+equivPi' : ∀ {F : A → Type ℓ} {G : A → Type ℓ'}
+        → ((x : A) → F x ≃ G x) → ({x : A} → F x) ≃ ({x : A} → G x)
+equivPi' k .fst f {x} = k x .fst (f {x})
+equivPi' k .snd .equiv-proof f .fst .fst {x}   = equivCtr (k x) (f {x}) .fst
+equivPi' k .snd .equiv-proof f .fst .snd i {x} = equivCtr (k x) (f {x}) .snd i
+equivPi' k .snd .equiv-proof f .snd (g , p) i .fst {x} =
+  equivCtrPath (k x) (f {x}) (g {x} , λ j → p j {x}) i .fst
+equivPi' k .snd .equiv-proof f .snd (g , p) i .snd j {x} =
+  equivCtrPath (k x) (f {x}) (g {x} , λ k → p k {x}) i .snd j
+
+
 -- Some helpful notation:
 _≃⟨_⟩_ : (X : Type ℓ) → (X ≃ B) → (B ≃ C) → (X ≃ C)
 _ ≃⟨ f ⟩ g = compEquiv f g

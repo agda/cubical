@@ -13,8 +13,10 @@ module Cubical.Data.Sigma.Nested.Currying where
 open import Cubical.Data.Nat
 
 open import Cubical.Data.Vec
+open import Cubical.Data.List
 open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
+open import Cubical.Data.Maybe
 
 open import Cubical.Foundations.Everything
 
@@ -44,6 +46,16 @@ iso-Π-Π' B = iso (λ x {y} → x y) (λ x y → x {y}) (λ b → refl) (λ b �
                → (B : A → Type ℓ')
                → Type (ℓ-max ℓ ℓ')
 Π-u = caseBool Π' Π
+
+
+iso-Π-u : ∀ {ℓ ℓ'} {A : Type ℓ}
+               → (B : A → Type ℓ')
+               → ∀ b₁ b₂
+               → Iso (Π-u b₁ B) (Π-u b₂  B)
+iso-Π-u B false false = idIso
+iso-Π-u B false true = iso-Π-Π' B
+iso-Π-u B true false = invIso (iso-Π-Π' B)
+iso-Π-u B true true = idIso
 
 
 -- helper for defining functions of "configurable" explicity
@@ -179,7 +191,7 @@ NestedΣᵣ-≃-Sig : ∀ {ℓ} → ∀ {n}
 Sig-of-Sig zero = _
 Sig-of-Sig (suc zero) = Type _
 Sig-of-Sig (suc (suc n)) =
-  sig-n+1-unsplit (suc n)
+  sig-n+1.from (suc n)
     (Sig-of-Sig (suc n) ,
       (λ x → n-curriedᵣ {n = suc n} x (const (Type _))  ) ∘ (equivFun NestedΣᵣ-≃-Sig))
 
@@ -188,7 +200,7 @@ NestedΣᵣ-≃-Sig {n = suc zero} = idEquiv _
 NestedΣᵣ-≃-Sig {n = suc (suc zero)} = idEquiv _
 NestedΣᵣ-≃-Sig {n = suc (suc (suc n))} =
  let 
-     nestedΣ-unsplit = NestedΣᵣ-n+1-unsplit-iso _ (Sig-of-Sig (suc (suc n)) ,
+     nestedΣ-unsplit = nestedΣᵣ-n+1.isom-from _ (Sig-of-Sig (suc (suc n)) ,
                          (λ x → n-curriedᵣ {n = suc (suc n)} x _ ) ∘ _) 
      
      curr-uncurr x = invEquiv
@@ -200,8 +212,7 @@ NestedΣᵣ-≃-Sig {n = suc (suc (suc n))} =
                (isoToEquiv nestedΣ-unsplit)
                (Σ-cong-equiv-fst NestedΣᵣ-≃-Sig))
                (Σ-cong-equiv-snd curr-uncurr))
-               (isoToEquiv (sig-n+1-iso _))
-
+               (isoToEquiv (sig-n+1.isom _))
 
 
 -- this function generates analogue of Σ-assoc-≃ "all the way down"
@@ -210,3 +221,43 @@ NestedΣᵣ-≃-Sig {n = suc (suc (suc n))} =
               → _
 Σ-par-assoc-n {ℓ} p = n-curryᵣ (Sig-of-Sig {ℓ} (len p))
                    (isoToEquiv ∘ NestedΣ-NestedΣᵣ-Iso p ∘ (equivFun NestedΣᵣ-≃-Sig))
+
+
+--- this function helps to create descriptions of explicity of arguments
+
+
+impex' :  Bool → List ℕ → Σ _ (Vec Bool)
+impex' x [] = _ , []
+impex' x (zero ∷ x₂) = impex' (not x) x₂
+impex' x (suc x₁ ∷ x₂) = _ , (x ∷ snd (impex' x (x₁ ∷ x₂)))
+
+impex : (l : List ℕ) → Vec Bool _
+impex = snd ∘ impex' false
+
+
+-- --- helper for extractin signature of function as nested sigma
+
+
+extractSig : ∀ {ℓ ℓ'}
+                   → (l : List ℕ)
+                   → {s : Sig ℓ _}
+                   → ∀ {r}
+                   → (n-curriedᵣ-conf {ℓ' = ℓ'} (impex l) s r)
+                   → Sig ℓ _ 
+extractSig l {s} x = s
+
+
+-- equivalence of functions of different explicity
+
+n-exp-imp-≃ : ∀ {ℓ ℓ'} → ∀ {n}
+                   → (v₁ v₂ : Vec Bool n)
+                   → (s : Sig ℓ n)
+                   → ∀ {r}
+                   →  (n-curriedᵣ-conf {ℓ' = ℓ'} v₁ s r)
+                    ≃ (n-curriedᵣ-conf {ℓ' = ℓ'} v₂ s r)  
+n-exp-imp-≃ {n = 0} v₁ v₂ s = idEquiv _
+n-exp-imp-≃ {n = 1} v₁ v₂ s = isoToEquiv (iso-Π-u _ (head v₁) (head v₂) )
+n-exp-imp-≃ {n = (suc (suc n))} v₁ v₂ s =
+  compEquiv (isoToEquiv (iso-Π-u _ (head v₁) false))
+    (compEquiv (equivPi λ x → n-exp-imp-≃ (tail v₁) (tail v₂) (snd s x) )
+      ((isoToEquiv (iso-Π-u _ false (head v₂)))))

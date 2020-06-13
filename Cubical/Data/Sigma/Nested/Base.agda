@@ -5,10 +5,10 @@ This file contains definition of:
  - Sig - array of type families where conseciutive ones can depend on previous 
  - NestedΣᵣ - Type of "rightmost" nested Sigmas, parametrised by Sig
 
- - isomorphism of concatenation and spliting of signature and coresponding NesteΣ
+ - isomorphism of concatenation and spliting of Sig and coresponding NestedΣᵣ
 
- - isomorphism giving easy acess to last type in signature, and last "field" in
-   NestedΣ
+ - isomorphism giving easy acess to last type in Sig, and last "field" in
+   NestedΣᵣ
 
 -}
 
@@ -22,7 +22,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.Everything
 
--- Sig comes from "Signature" (I am not shure if this name is OK)
+-- Sig comes from "Signature" (I am not shure if this name is waranted here)
 -- this type descirbes array of n Types, (Type families?) where k-th can
 -- depend on all previous.
 -- Something similiar (but with more features, and other (i presume) goals) is defined
@@ -31,8 +31,9 @@ open import Cubical.Foundations.Everything
 -- next signature is defined as a Pair of:
 -- * shorter signature
 -- * Type parametrised by Record of this signature 
+-- (https://github.com/agda/agda-stdlib/blob/eeb731977da2daa079563e3d1d43b9e70d8f919a/src/Data/Record.agda#L56)
 --
--- here the next Sig shape is defined in "oposite way",
+-- here the next signature is defined in "oposite way",
 -- as pair of:
 -- * Type
 -- * and function from this Type into shorter signatures
@@ -44,8 +45,8 @@ open import Cubical.Foundations.Everything
 
 
 Sig : ∀ ℓ → ℕ →  Type (ℓ-suc ℓ)
-Sig ℓ zero = Lift Unit
-Sig ℓ (suc zero) = Type ℓ
+Sig ℓ 0 = Lift Unit
+Sig ℓ 1 = Type ℓ
 Sig ℓ (suc (suc n)) = Σ (Type ℓ) λ x → x → Sig ℓ (suc n)
 
 
@@ -54,8 +55,8 @@ Sig ℓ (suc (suc n)) = Σ (Type ℓ) λ x → x → Sig ℓ (suc n)
 -- Definitions with "ᵣ" potfix, marks functions to work with this "default" rightmost shape
 
 NestedΣᵣ : ∀ {ℓ} → ∀ {n} → Sig ℓ n → Type ℓ
-NestedΣᵣ {n = zero} _ = Lift Unit
-NestedΣᵣ {n = suc zero} Ty = Ty
+NestedΣᵣ {n = 0} _ = Lift Unit
+NestedΣᵣ {n = 1} Ty = Ty
 NestedΣᵣ {n = suc (suc n)} (Ty , →Sig) = Σ Ty (NestedΣᵣ ∘ →Sig)
 
 
@@ -64,7 +65,7 @@ NestedΣᵣ {n = suc (suc n)} (Ty , →Sig) = Σ Ty (NestedΣᵣ ∘ →Sig)
 -- those four basic helpers sometimes helps to avoid some case splitting
 
 prependTyᵣ : ∀ {ℓ} → ∀ {n} → {A : Type ℓ} → (A → Sig ℓ n) → Sig ℓ (suc n)
-prependTyᵣ {n = zero} {A} _ = A
+prependTyᵣ {n = 0} {A} _ = A
 prependTyᵣ {n = suc n} = _ ,_ 
 
 
@@ -72,7 +73,7 @@ popTyᵣ : ∀ {ℓ} → ∀ {n}
            → Sig ℓ (suc n)
            → Σ[ A ∈  Type ℓ ] (A → Sig ℓ n)
            
-popTyᵣ {n = zero} x = x , (const _)
+popTyᵣ {n = 0} x = x , (const _)
 popTyᵣ {n = suc n} x = fst x , snd x
 
 prependValᵣ : ∀ {ℓ} → ∀ {n} → {A : Type ℓ}
@@ -80,7 +81,7 @@ prependValᵣ : ∀ {ℓ} → ∀ {n} → {A : Type ℓ}
                 → (x : A)
                 → NestedΣᵣ (s x)
                 → NestedΣᵣ (prependTyᵣ {n = n} s)
-prependValᵣ {n = zero} s x _ = x
+prependValᵣ {n = 0} s x _ = x
 prependValᵣ {n = suc n} s = _,_
 
 
@@ -89,7 +90,7 @@ popValᵣ : ∀ {ℓ} → ∀ {n} → {A : Type ℓ}
                 → NestedΣᵣ (prependTyᵣ {n = n} s)
                 → Σ[ x ∈ A ] NestedΣᵣ (s x)
                  
-popValᵣ {n = zero} s x = x , _
+popValᵣ {n = 0} s x = x , _
 popValᵣ {n = suc n} s x = x
 
 
@@ -103,191 +104,199 @@ popValᵣ {n = suc n} s x = x
 --   NestedΣ of diferent than "rightmost" shapes
 
 
-sig-concat : ∀ {ℓ} → ∀ {n m}
-           → (sₙ : Sig ℓ n)
-           → (sₘ : NestedΣᵣ sₙ →  Sig ℓ m)
-           → Sig ℓ (n + m)
-sig-concat {n = zero} sₙ sₘ = sₘ _
-sig-concat {n = suc zero} {m} sₙ sₘ = prependTyᵣ {n = m} {A = sₙ} sₘ
-sig-concat {n = suc (suc n)} {m} sₙ sₘ =
-   prependTyᵣ {n = (suc n) + m}
-     λ x → sig-concat {n = suc n} {m} (snd sₙ x) (sₘ ∘ (x ,_)) 
+module sig-cs where
 
-sig-split : ∀ {ℓ} → ∀ {n m}
-           → Sig ℓ (n + m)
-           → Σ[ sₙ ∈  Sig ℓ n ] (NestedΣᵣ sₙ → Sig ℓ m)
-sig-split {n = zero} x = _ , const x
-sig-split {n = suc zero} {zero} = _, _
-sig-split {n = suc zero} {suc m} = idfun _
-sig-split {n = suc (suc n)} x =
-  let z = λ (y : fst x) → sig-split {n = suc n} (snd x y)
-  in (fst x , fst ∘ z) ,  uncurry (snd ∘ z)
+  concat : ∀ {ℓ} → ∀ {n m}
+             → (sₙ : Sig ℓ n)
+             → (sₘ : NestedΣᵣ sₙ →  Sig ℓ m)
+             → Sig ℓ (n + m)
+  concat {n = 0} sₙ sₘ = sₘ _
+  concat {n = 1} {m} sₙ sₘ = prependTyᵣ {n = m} {A = sₙ} sₘ
+  concat {n = suc (suc n)} {m} sₙ sₘ =
+     prependTyᵣ {n = (suc n) + m}
+       λ x → concat {n = suc n} {m} (snd sₙ x) (sₘ ∘ (x ,_)) 
 
-section-split-concat : ∀ {ℓ} → ∀ {n m}
-    → section sig-split (uncurry (sig-concat {ℓ} {n} {m}))
-section-split-concat {n = zero} b = refl
-section-split-concat {n = suc zero} {zero} b = refl
-section-split-concat {n = suc zero} {suc m} b = refl
-section-split-concat {n = suc (suc n)} {m} b i =
-  let z = λ (y : fst (fst b)) →
-            section-split-concat (snd (fst b) y , snd b ∘ (y ,_)) i
-  in ((fst (fst b)) ,  fst ∘ z) , uncurry (snd ∘ z)
+  split : ∀ {ℓ} → ∀ {n m}
+             → Sig ℓ (n + m)
+             → Σ[ sₙ ∈  Sig ℓ n ] (NestedΣᵣ sₙ → Sig ℓ m)
+  split {n = 0} x = _ , const x
+  split {n = 1} {0} = _, _
+  split {n = 1} {suc m} = idfun _
+  split {n = suc (suc n)} x =
+    let z = λ (y : fst x) → split {n = suc n} (snd x y)
+    in (fst x , fst ∘ z) ,  uncurry (snd ∘ z)
 
-retract-split-concat : ∀ {ℓ} → ∀ {n m}
-    → retract sig-split (uncurry (sig-concat {ℓ} {n} {m}))
-retract-split-concat {n = zero} a = refl
-retract-split-concat {n = suc zero} {zero} a = refl
-retract-split-concat {n = suc zero} {suc m} a = refl
-retract-split-concat {n = suc (suc n)} {m} a i =
-  prependTyᵣ λ (y : fst a) → retract-split-concat {n = suc n} {m} (snd a y) i
+  split-concat : ∀ {ℓ} → ∀ {n m}
+      → section split (uncurry (concat {ℓ} {n} {m}))
+  split-concat {n = 0} b = refl
+  split-concat {n = 1} {0} b = refl
+  split-concat {n = 1} {suc m} b = refl
+  split-concat {n = suc (suc n)} {m} b i =
+    let z = λ (y : fst (fst b)) →
+              split-concat (snd (fst b) y , snd b ∘ (y ,_)) i
+    in ((fst (fst b)) ,  fst ∘ z) , uncurry (snd ∘ z)
 
-sig-split-concat-Iso : ∀ {ℓ} → ∀ {n m}
-                   → Iso (Sig ℓ (n + m))
-                         (Σ[ sₙ ∈  Sig ℓ n ] (NestedΣᵣ sₙ → Sig ℓ m))
-sig-split-concat-Iso {ℓ} {n} {m} =
-  iso (sig-split)
-      (uncurry sig-concat)
-      (section-split-concat)
-      (retract-split-concat {n = n})
+  concat-split : ∀ {ℓ} → ∀ {n m}
+      → retract split (uncurry (concat {ℓ} {n} {m}))
+  concat-split {n = 0} a = refl
+  concat-split {n = 1} {0} a = refl
+  concat-split {n = 1} {suc m} a = refl
+  concat-split {n = suc (suc n)} {m} a i =
+    prependTyᵣ λ (y : fst a) → concat-split {n = suc n} {m} (snd a y) i
 
-
-nestedΣᵣ-split :  ∀ {ℓ} → ∀ {n m} 
-                       → (s : Sig ℓ (n + m))
-                       → NestedΣᵣ s
-                       → Σ (NestedΣᵣ (fst (sig-split {n = n} s)))
-                           (NestedΣᵣ ∘ (snd (sig-split {n = n} {m = m} s))) 
-nestedΣᵣ-split {n = zero} s x = _ , x
-nestedΣᵣ-split {n = suc zero} {zero} s = _, _
-nestedΣᵣ-split {n = suc zero} {suc m} s x = x
-nestedΣᵣ-split {n = suc (suc n)} {m} s x =
-   _ , snd (nestedΣᵣ-split {n = suc n} ((snd s) (fst x)) (snd x))
-
-nestedΣᵣ-concat :  ∀ {ℓ} → ∀ {n m} 
-                       → (sₙ : Sig ℓ n)
-                       → (sₘ : NestedΣᵣ sₙ →  Sig ℓ m)
-                       → Σ (NestedΣᵣ sₙ) (NestedΣᵣ ∘ sₘ)
-                       → NestedΣᵣ (sig-concat sₙ sₘ)
-nestedΣᵣ-concat {n = zero} sₙ sₘ = snd
-nestedΣᵣ-concat {n = suc zero} {m} sₙ sₘ = prependValᵣ sₘ _ ∘ snd
-nestedΣᵣ-concat {n = suc (suc n)} {m} sₙ sₘ x =
-     prependValᵣ {n = suc n + m} (_) _
-      (nestedΣᵣ-concat {n = suc n} _ _ (_ , snd x))
-
-nestedΣᵣ-split' :  ∀ {ℓ} → ∀ {n m} 
-                       → (sₙ :  Sig ℓ n )
-                       → (sₘ : NestedΣᵣ sₙ → Sig ℓ m)
-                       → NestedΣᵣ (sig-concat sₙ sₘ)
-                       → Σ (NestedΣᵣ sₙ) (NestedΣᵣ ∘ sₘ) 
-nestedΣᵣ-split' {n = zero} sₙ sₘ = _ ,_
-nestedΣᵣ-split' {n = suc zero} {zero} sₙ sₘ = _, _
-nestedΣᵣ-split' {n = suc zero} {suc m} sₙ sₘ = idfun _
-nestedΣᵣ-split' {n = suc (suc n)} {m} sₙ sₘ (a , x) =
- let (fs , sn) = nestedΣᵣ-split' {n = suc n} {m} _ _ x 
- in (a , fs) , sn
-  
-nestedΣᵣ-concat' :  ∀ {ℓ} → ∀ {n m} 
-                       → (s : Sig ℓ (n + m))
-                       → Σ (NestedΣᵣ (fst (sig-split {n = n} s)))
-                           (NestedΣᵣ ∘ (snd (sig-split {n = n} {m = m} s)))
-                       → NestedΣᵣ s
-nestedΣᵣ-concat' {n = zero} s = snd
-nestedΣᵣ-concat' {n = suc zero} {zero} s = fst
-nestedΣᵣ-concat' {n = suc zero} {suc m} s x = x
-nestedΣᵣ-concat' {n = suc (suc n)} s ((a , x) , y) =
-   a , nestedΣᵣ-concat' {n = suc n} (snd s a) (x , y)
-
-nestedΣᵣ-concat-split-Iso : ∀ {ℓ} → ∀ {n m} 
-                       → (s : Sig ℓ (n + m))
-                       →  Iso
-                        (Σ (NestedΣᵣ (fst (sig-split {n = n} s)))
-                             (λ x → NestedΣᵣ (snd (sig-split {n = n} {m = m} s) x)))
-                        (NestedΣᵣ s)
-Iso.fun (nestedΣᵣ-concat-split-Iso {n = n} {m = m} s) = nestedΣᵣ-concat' {n = n} {m = m} s
-Iso.inv (nestedΣᵣ-concat-split-Iso {n = n} {m = m} s) = nestedΣᵣ-split {n = n} {m = m} s
-Iso.rightInv (nestedΣᵣ-concat-split-Iso {n = zero} s) b = refl
-Iso.rightInv (nestedΣᵣ-concat-split-Iso {n = suc zero} {zero} s) b = refl
-Iso.rightInv (nestedΣᵣ-concat-split-Iso {n = suc zero} {suc m} s) b = refl
-Iso.rightInv (nestedΣᵣ-concat-split-Iso {n = suc (suc n)} {m} s) b =
-  cong (_ ,_) (Iso.rightInv (nestedΣᵣ-concat-split-Iso {n = (suc n)} {m} ((snd s) (fst b))) (snd b))
-Iso.leftInv (nestedΣᵣ-concat-split-Iso {n = zero} s) a = refl
-Iso.leftInv (nestedΣᵣ-concat-split-Iso {n = suc zero} {zero} s) a = refl
-Iso.leftInv (nestedΣᵣ-concat-split-Iso {n = suc zero} {suc m} s) a = refl
-Iso.leftInv (nestedΣᵣ-concat-split-Iso {n = suc (suc n)} s) ((a , x) , y) =
- cong (λ (x' , y') → ((a , x') , y'))
-    (Iso.leftInv (nestedΣᵣ-concat-split-Iso {n = suc n} (snd s a)) (x , y))
+  isom : ∀ {ℓ} → ∀ {n m}
+                     → Iso (Sig ℓ (n + m))
+                           (Σ[ sₙ ∈  Sig ℓ n ] (NestedΣᵣ sₙ → Sig ℓ m))
+  isom {ℓ} {n} {m} =
+    iso (split)
+        (uncurry concat)
+        (split-concat)
+        (concat-split {n = n})
 
 
+-- isomorphism of NestedΣᵣ related to concat-split isomorphism of Sig
+
+module nestedΣᵣ-cs where
+
+
+  split :  ∀ {ℓ} → ∀ {n m} 
+                         → (s : Sig ℓ (n + m))
+                         → NestedΣᵣ s
+                         → Σ (NestedΣᵣ (fst (sig-cs.split {n = n} s)))
+                             (NestedΣᵣ ∘ (snd (sig-cs.split {n = n} {m = m} s))) 
+  split {n = 0} s x = _ , x
+  split {n = 1} {0} s = _, _
+  split {n = 1} {suc m} s x = x
+  split {n = suc (suc n)} {m} s x =
+     _ , snd (split {n = suc n} ((snd s) (fst x)) (snd x))
+
+  concat :  ∀ {ℓ} → ∀ {n m} 
+                         → (sₙ : Sig ℓ n)
+                         → (sₘ : NestedΣᵣ sₙ →  Sig ℓ m)
+                         → Σ (NestedΣᵣ sₙ) (NestedΣᵣ ∘ sₘ)
+                         → NestedΣᵣ (sig-cs.concat sₙ sₘ)
+  concat {n = 0} sₙ sₘ = snd
+  concat {n = 1} {m} sₙ sₘ = prependValᵣ sₘ _ ∘ snd
+  concat {n = suc (suc n)} {m} sₙ sₘ x =
+       prependValᵣ {n = suc n + m} (_) _
+        (concat {n = suc n} _ _ (_ , snd x))
+
+  split' :  ∀ {ℓ} → ∀ {n m} 
+                         → (sₙ :  Sig ℓ n )
+                         → (sₘ : NestedΣᵣ sₙ → Sig ℓ m)
+                         → NestedΣᵣ (sig-cs.concat sₙ sₘ)
+                         → Σ (NestedΣᵣ sₙ) (NestedΣᵣ ∘ sₘ) 
+  split' {n = 0} sₙ sₘ = _ ,_
+  split' {n = 1} {0} sₙ sₘ = _, _
+  split' {n = 1} {suc m} sₙ sₘ = idfun _
+  split' {n = suc (suc n)} {m} sₙ sₘ (a , x) =
+   let (fs , sn) = split' {n = suc n} {m} _ _ x 
+   in (a , fs) , sn
+
+  concat' :  ∀ {ℓ} → ∀ {n m} 
+                         → (s : Sig ℓ (n + m))
+                         → Σ (NestedΣᵣ (fst (sig-cs.split {n = n} s)))
+                             (NestedΣᵣ ∘ (snd (sig-cs.split {n = n} {m = m} s)))
+                         → NestedΣᵣ s
+  concat' {n = 0} s = snd
+  concat' {n = 1} {0} s = fst
+  concat' {n = 1} {suc m} s x = x
+  concat' {n = suc (suc n)} s ((a , x) , y) =
+     a , concat' {n = suc n} (snd s a) (x , y)
+
+  isom : ∀ {ℓ} → ∀ {n m} 
+                         → (s : Sig ℓ (n + m))
+                         →  Iso
+                          (Σ (NestedΣᵣ (fst (sig-cs.split {n = n} s)))
+                               (λ x → NestedΣᵣ (snd (sig-cs.split {n = n} {m = m} s) x)))
+                          (NestedΣᵣ s)
+  Iso.fun (isom {n = n} {m = m} s) = concat' {n = n} {m = m} s
+  Iso.inv (isom {n = n} {m = m} s) = split {n = n} {m = m} s
+  Iso.rightInv (isom {n = 0} s) b = refl
+  Iso.rightInv (isom {n = 1} {0} s) b = refl
+  Iso.rightInv (isom {n = 1} {suc m} s) b = refl
+  Iso.rightInv (isom {n = suc (suc n)} {m} s) b =
+    cong (_ ,_) (Iso.rightInv (isom {n = (suc n)} {m} ((snd s) (fst b))) (snd b))
+  Iso.leftInv (isom {n = 0} s) a = refl
+  Iso.leftInv (isom {n = 1} {0} s) a = refl
+  Iso.leftInv (isom {n = 1} {suc m} s) a = refl
+  Iso.leftInv (isom {n = suc (suc n)} s) ((a , x) , y) =
+   cong (λ (x' , y') → ((a , x') , y'))
+      (Iso.leftInv (isom {n = suc n} (snd s a)) (x , y))
 
 
 
--- * sig-n+1-iso 
---   relates Sig ℓ (suc n) and Σ (Sig ℓ n) (λ sₙ → NestedΣᵣ sₙ → Sig ℓ 1) 
---   this isomorphism is used later in file "Currying.agda" to
---   construct Sig-of-Sig, allowing to treat Sig as NestedΣ 
 
+-- -- * sig-n+1-iso 
+-- --   relates Sig ℓ (suc n) and Σ (Sig ℓ n) (λ sₙ → NestedΣᵣ sₙ → Sig ℓ 1) 
+-- --   this isomorphism is used later in file "Currying.agda" to
+-- --   construct Sig-of-Sig, allowing to treat Sig as NestedΣ 
 
---TODO : try make n implicit ?
-sig-n+1-split : ∀ {ℓ} → ∀ n → Sig ℓ (suc n) → Σ (Sig ℓ n) (λ sₙ → NestedΣᵣ sₙ → Sig ℓ 1)
-sig-n+1-split zero s =  _ , const s
-sig-n+1-split 1 s = s
-sig-n+1-split (suc (suc n)) s =
-  let z : (fst s) → _
-      z x = sig-n+1-split (suc n) (snd s x)
+module sig-n+1 where
 
-  in (fst s , fst ∘ z ) , uncurry (snd ∘ z)
+  to : ∀ {ℓ} → ∀ n → Sig ℓ (suc n) → Σ (Sig ℓ n) (λ sₙ → NestedΣᵣ sₙ → Sig ℓ 1)
+  to 0 s =  _ , const s
+  to 1 s = s
+  to (suc (suc n)) s =
+    let z : (fst s) → _
+        z x = to (suc n) (snd s x)
 
-sig-n+1-unsplit : ∀ {ℓ} → ∀ n → Σ (Sig ℓ n) (λ sₙ → NestedΣᵣ sₙ → Sig ℓ 1) → Sig ℓ (suc n) 
-sig-n+1-unsplit zero x = snd x _
-sig-n+1-unsplit (suc zero) x = x
-sig-n+1-unsplit (suc (suc n)) (s , r→Ty) =
-  (fst s) , λ x → sig-n+1-unsplit (suc n) ((snd s) x , r→Ty ∘ (x ,_))
+    in (fst s , fst ∘ z ) , uncurry (snd ∘ z)
 
-sig-n+1-iso : ∀ {ℓ} → ∀ n → Iso (Σ (Sig ℓ n) (λ sₙ → NestedΣᵣ sₙ → Sig ℓ 1)) (Sig ℓ (suc n)) 
-Iso.fun (sig-n+1-iso n) = sig-n+1-unsplit n
-Iso.inv (sig-n+1-iso n) = sig-n+1-split n
-Iso.rightInv (sig-n+1-iso zero) b = refl
-Iso.rightInv (sig-n+1-iso (suc zero)) b = refl
-Iso.rightInv (sig-n+1-iso (suc (suc n))) (s , z) =
-  cong ( s ,_ ) (funExt λ x → Iso.rightInv (sig-n+1-iso (suc n)) (z x))
+  from : ∀ {ℓ} → ∀ n → Σ (Sig ℓ n) (λ sₙ → NestedΣᵣ sₙ → Sig ℓ 1) → Sig ℓ (suc n) 
+  from 0 x = snd x _
+  from 1 x = x
+  from (suc (suc n)) (s , r→Ty) =
+    (fst s) , λ x → from (suc n) ((snd s) x , r→Ty ∘ (x ,_))
 
-Iso.leftInv (sig-n+1-iso zero) a = refl
-Iso.leftInv (sig-n+1-iso (suc zero)) a = refl
-Iso.leftInv (sig-n+1-iso (suc (suc n))) ((Ty , s) , r→Ty) i =
-  let z : Ty → _
-      z x = (Iso.leftInv (sig-n+1-iso (suc n))) (s x , (r→Ty ∘ (x ,_))) i
+  isom : ∀ {ℓ} → ∀ n → Iso (Σ (Sig ℓ n) (λ sₙ → NestedΣᵣ sₙ → Sig ℓ 1)) (Sig ℓ (suc n)) 
+  Iso.fun (isom n) = from n
+  Iso.inv (isom n) = to n
+  Iso.rightInv (isom 0) b = refl
+  Iso.rightInv (isom 1) b = refl
+  Iso.rightInv (isom (suc (suc n))) (s , z) =
+    cong ( s ,_ ) (funExt λ x → Iso.rightInv (isom (suc n)) (z x))
 
-  in (Ty , fst ∘ z) , uncurry (snd ∘ z)
+  Iso.leftInv (isom 0) a = refl
+  Iso.leftInv (isom 1) a = refl
+  Iso.leftInv (isom (suc (suc n))) ((Ty , s) , r→Ty) i =
+    let z : Ty → _
+        z x = (Iso.leftInv (isom (suc n))) (s x , (r→Ty ∘ (x ,_))) i
 
-NestedΣᵣ-n+1-split-iso : ∀ {ℓ} → ∀ n → (s : Sig ℓ (suc n)) →
-                        Iso (NestedΣᵣ s) (Σ _ (snd (sig-n+1-split n s)))
-NestedΣᵣ-n+1-split-iso zero s = iso (_ ,_) snd (λ b → refl) λ a → refl
-NestedΣᵣ-n+1-split-iso 1 s = idIso
-NestedΣᵣ-n+1-split-iso {ℓ} (suc (suc n)) s =
- let prev = NestedΣᵣ-n+1-split-iso {ℓ} (suc n) in 
- iso (λ r → let (fs , se) = Iso.fun (prev ((snd s) (fst r))) (snd r)
-            in (fst r , fs) , se )
-     (λ r → fst (fst r) , Iso.inv (prev ((snd s) (fst (fst r)))) (snd (fst r) , snd r))
-     (λ r i → let (fs , se) = Iso.rightInv (prev ((snd s) (fst (fst r)))) (snd (fst r) , snd r) i
-              in (fst (fst r) , fs) , se)
-     λ r i →   let (fs , se) =
-                     Iso.leftInv (prev ((snd s) (fst r))) (snd r) i
-               in (fst r) , fs , se
+    in (Ty , fst ∘ z) , uncurry (snd ∘ z)
 
-NestedΣᵣ-n+1-unsplit-iso : ∀ {ℓ} → ∀ n →
-                         (s-r  : Σ (Sig ℓ n) λ z → NestedΣᵣ z → Sig ℓ 1) →
-                          Iso (NestedΣᵣ (sig-n+1-unsplit {ℓ} n s-r)) (Σ _ (snd s-r))
-NestedΣᵣ-n+1-unsplit-iso zero s = iso (_ ,_) snd (λ b → refl) λ a → refl
-NestedΣᵣ-n+1-unsplit-iso 1 s = idIso
-Iso.fun (NestedΣᵣ-n+1-unsplit-iso (suc (suc n)) s-r) r =
-  let (fs , se) = Iso.fun (NestedΣᵣ-n+1-unsplit-iso (suc n)
-            ((snd (fst s-r) (fst r)) , (snd s-r) ∘ ( fst r ,_))) (snd r )
+module nestedΣᵣ-n+1 where
 
-  in ((fst r) , fs) , se
-Iso.inv (NestedΣᵣ-n+1-unsplit-iso (suc (suc n)) s) ((_ , _) , b) =
-  _ , Iso.inv (NestedΣᵣ-n+1-unsplit-iso (suc n) (_ , snd s ∘ (_ ,_))) (_ , b)
-Iso.rightInv (NestedΣᵣ-n+1-unsplit-iso (suc (suc n)) s) ((a , r) , b) i =
-  let z = Iso.rightInv (NestedΣᵣ-n+1-unsplit-iso (suc n) (snd (fst s) a , snd s ∘ (a ,_)))
-               (r , b) i
-  in (a , fst z) , snd z
-Iso.leftInv (NestedΣᵣ-n+1-unsplit-iso (suc (suc n)) s) (_ , r) =
-  cong (_ ,_) (Iso.leftInv (NestedΣᵣ-n+1-unsplit-iso (suc n) _ ) r)
+  isom-to : ∀ {ℓ} → ∀ n → (s : Sig ℓ (suc n)) →
+                          Iso (NestedΣᵣ s) (Σ _ (snd (sig-n+1.to n s)))
+  isom-to zero s = iso (_ ,_) snd (λ b → refl) λ a → refl
+  isom-to 1 s = idIso
+  isom-to {ℓ} (suc (suc n)) s =
+   let prev = isom-to {ℓ} (suc n) in 
+   iso (λ r → let (fs , se) = Iso.fun (prev ((snd s) (fst r))) (snd r)
+              in (fst r , fs) , se )
+       (λ r → fst (fst r) , Iso.inv (prev ((snd s) (fst (fst r)))) (snd (fst r) , snd r))
+       (λ r i → let (fs , se) = Iso.rightInv (prev ((snd s) (fst (fst r)))) (snd (fst r) , snd r) i
+                in (fst (fst r) , fs) , se)
+       λ r i →   let (fs , se) =
+                       Iso.leftInv (prev ((snd s) (fst r))) (snd r) i
+                 in (fst r) , fs , se
+
+  isom-from : ∀ {ℓ} → ∀ n →
+                           (s-r  : Σ (Sig ℓ n) λ z → NestedΣᵣ z → Sig ℓ 1) →
+                            Iso (NestedΣᵣ (sig-n+1.from {ℓ} n s-r)) (Σ _ (snd s-r))
+  isom-from zero s = iso (_ ,_) snd (λ b → refl) λ a → refl
+  isom-from 1 s = idIso
+  Iso.fun (isom-from (suc (suc n)) s-r) r =
+    let (fs , se) = Iso.fun (isom-from (suc n)
+              ((snd (fst s-r) (fst r)) , (snd s-r) ∘ ( fst r ,_))) (snd r )
+
+    in ((fst r) , fs) , se
+  Iso.inv (isom-from (suc (suc n)) s) ((_ , _) , b) =
+    _ , Iso.inv (isom-from (suc n) (_ , snd s ∘ (_ ,_))) (_ , b)
+  Iso.rightInv (isom-from (suc (suc n)) s) ((a , r) , b) i =
+    let z = Iso.rightInv (isom-from (suc n) (snd (fst s) a , snd s ∘ (a ,_)))
+                 (r , b) i
+    in (a , fst z) , snd z
+  Iso.leftInv (isom-from (suc (suc n)) s) (_ , r) =
+    cong (_ ,_) (Iso.leftInv (isom-from (suc n) _ ) r)

@@ -58,13 +58,13 @@ NestedΣ-NestedΣᵣ-Iso : ∀ {ℓ} → (sh : Par) → (s : Sig ℓ (len sh))
 
 NestedΣ □ x = x
 NestedΣ [- shL - shR -] s =
-   let (sL , sR) = sig-split {n = len shL} {m = len shR} s
+   let (sL , sR) = sig-cs.split {n = len shL} {m = len shR} s
    in Σ (NestedΣ shL sL) (NestedΣ shR ∘ sR ∘ Iso.fun (NestedΣ-NestedΣᵣ-Iso shL _))
 
 NestedΣ-NestedΣᵣ-Iso □ s = idIso
 NestedΣ-NestedΣᵣ-Iso [- shL - shR -] s = 
-  let (sL , sR) = sig-split {n = len shL} {m = len shR} s 
+  let (sL , sR) = sig-cs.split {n = len shL} {m = len shR} s 
   in compIso (Σ-cong-iso-snd λ _ → NestedΣ-NestedΣᵣ-Iso shR _)
       (compIso (Σ-cong-iso-fst {B = NestedΣᵣ ∘ sR} (NestedΣ-NestedΣᵣ-Iso shL sL))
-        (nestedΣᵣ-concat-split-Iso {n = len shL} {m = len shR} s))
+        (nestedΣᵣ-cs.isom {n = len shL} {m = len shR} s))
 
