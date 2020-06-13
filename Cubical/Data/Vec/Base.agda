@@ -52,3 +52,7 @@ concat (xs ∷ xss) = xs ++ concat xss
 lookup : ∀ {n} {A : Type ℓ} → Fin n → Vec A n → A
 lookup zero    (x ∷ xs) = x
 lookup (suc i) (x ∷ xs) = lookup i xs
+
+repeat : ∀ {n} → A → Vec A n
+repeat {n = zero} x = []
+repeat {n = suc n} x = x ∷ repeat x
