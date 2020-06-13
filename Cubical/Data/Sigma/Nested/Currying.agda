@@ -224,6 +224,9 @@ NestedΣᵣ-≃-Sig {n = suc (suc (suc n))} =
 
 
 --- this function helps to create descriptions of explicity of arguments
+--- consecutive numbers mark lengh of strings of explicit and implicit arguments
+--- from argument (2 ∷ 3 ∷ 1 ∷ []) it generates 
+--  (repeat {2} false ++ repeat {3} true  ++ repeat {1} false)
 
 
 impex' :  Bool → List ℕ → Σ _ (Vec Bool)
