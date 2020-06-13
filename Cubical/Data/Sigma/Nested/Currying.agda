@@ -134,8 +134,7 @@ Iso.leftInv (n-curryᵣ-uncurryᵣ-conf-Iso {n = suc (suc n)} v s) a =
   funExt
     (uncurry λ x → funExt⁻
        ( cong (n-uncurryᵣ-conf (tail v) _) (cong (λ f → f x) (app-u= (head v) f'))
-         ∙
-         (Iso.leftInv (n-curryᵣ-uncurryᵣ-conf-Iso (tail v) (snd s x)) (a ∘ (x ,_)))))
+         ∙ (Iso.leftInv (n-curryᵣ-uncurryᵣ-conf-Iso (tail v) (snd s x)) (a ∘ (x ,_)))))
 
 ----------
 
@@ -238,7 +237,7 @@ impex : (l : List ℕ) → Vec Bool _
 impex = snd ∘ impex' false
 
 
--- --- helper for extractin signature of function as nested sigma
+-- helper for extracting signature of function as nested sigma
 
 
 extractSig : ∀ {ℓ ℓ'}

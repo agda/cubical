@@ -3,7 +3,7 @@
 This file contains definition of:
  
  - Sig - array of type families where conseciutive ones can depend on previous 
- - NestedΣᵣ - Type of "rightmost" nested Sigmas, parametrised by Sig
+ - NestedΣᵣ - Type of "right-most" nested Sigmas, parametrised by Sig
 
  - isomorphism of concatenation and spliting of Sig and coresponding NestedΣᵣ
 
@@ -52,7 +52,7 @@ Sig ℓ (suc (suc n)) = Σ (Type ℓ) λ x → x → Sig ℓ (suc n)
 
 -- This file only defines NestedΣ in one particular "shape" - rightmost
 -- , meaning that next nested sigma is always in the second argument of outer one. 
--- Definitions with "ᵣ" potfix, marks functions to work with this "default" rightmost shape
+-- Definitions with "ᵣ" postfix, marks functions to work with this "default" rightmost shape
 
 NestedΣᵣ : ∀ {ℓ} → ∀ {n} → Sig ℓ n → Type ℓ
 NestedΣᵣ {n = 0} _ = Lift Unit
@@ -62,7 +62,7 @@ NestedΣᵣ {n = suc (suc n)} (Ty , →Sig) = Σ Ty (NestedΣᵣ ∘ →Sig)
 
 
 
--- those four basic helpers sometimes helps to avoid some case splitting
+-- those four basic helpers sometimes helps to avoid some case splitting near n = 0
 
 prependTyᵣ : ∀ {ℓ} → ∀ {n} → {A : Type ℓ} → (A → Sig ℓ n) → Sig ℓ (suc n)
 prependTyᵣ {n = 0} {A} _ = A
@@ -92,7 +92,6 @@ popValᵣ : ∀ {ℓ} → ∀ {n} → {A : Type ℓ}
                  
 popValᵣ {n = 0} s x = x , _
 popValᵣ {n = suc n} s x = x
-
 
 
 
