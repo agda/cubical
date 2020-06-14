@@ -39,74 +39,70 @@ private
   variable
     A : Type ℓ'
 
+module UU-Lemmas where
   reg : transport (λ _ → A) ≡ idfun A
   reg {A} i z = transp (λ _ → A) i z
 
-nu : ∀ x y → x ≡ y → El x ≃ El y
-nu x y p = transportEquiv (cong El p)
+  nu : ∀ x y → x ≡ y → El x ≃ El y
+  nu x y p = transportEquiv (cong El p)
 
-cong-un-te
-  : ∀ x y (p : El x ≡ El y)
-  → cong El (un x y (transportEquiv p)) ≡ p
-cong-un-te x y p
-  = isInjectiveTransport (
-      transport (cong El (un x y (transportEquiv p)))
-        ≡⟨ cong transport (comp _) ⟩
-      transport (ua (transportEquiv p))
-        ≡[ i ]⟨ (λ z → uaβ (transportEquiv p) z i) ⟩
-      transport p ∎)
+  cong-un-te
+    : ∀ x y (p : El x ≡ El y)
+    → cong El (un x y (transportEquiv p)) ≡ p
+  cong-un-te x y p
+    = comp (transportEquiv p) ∙ uaTransportη p
 
+  nu-un : ∀ x y (e : El x ≃ El y) → nu x y (un x y e) ≡ e
+  nu-un x y e
+    = equivEq (nu x y (un x y e)) e λ i z
+        → (cong (λ p → transport p z) (comp e) ∙ uaβ e z) i
 
-nu-un : ∀ x y (e : El x ≃ El y) → nu x y (un x y e) ≡ e
-nu-un x y e
-  = equivEq (nu x y (un x y e)) e λ i z
-      → (cong (λ p → transport p z) (comp e) ∙ uaβ e z) i
+  El-un-equiv : ∀ x i → El (un x x (idEquiv _) i) ≃ El x
+  El-un-equiv x i = λ where
+      .fst → transp (λ j → p j) (i ∨ ~ i)
+      .snd → transp (λ j → isEquiv (transp (λ k → p (j ∧ k)) (~ j ∨ i ∨ ~ i)))
+                (i ∨ ~ i) (idIsEquiv T)
+    where
+    T = El (un x x (idEquiv _) i)
+    p : T ≡ El x
+    p j = (comp (idEquiv _) ∙ uaIdEquiv {A = El x}) j i
 
-El-un-equiv : ∀ x i → El (un x x (idEquiv _) i) ≃ El x
-El-un-equiv x i = λ where
-    .fst → transp (λ j → p j) (i ∨ ~ i)
-    .snd → transp (λ j → isEquiv (transp (λ k → p (j ∧ k)) (~ j ∨ i ∨ ~ i)))
-              (i ∨ ~ i) (idIsEquiv T)
-  where
-  T = El (un x x (idEquiv _) i)
-  p : T ≡ El x
-  p j = (comp (idEquiv _) ∙ uaIdEquiv {A = El x}) j i
+  un-refl : ∀ x → un x x (idEquiv (El x)) ≡ refl
+  un-refl x i j
+    = hcomp (λ k → λ where
+          (i = i0) → un x x (idEquiv (El x)) j
+          (i = i1) → un x x (idEquiv (El x)) (j ∨ k)
+          (j = i0) → un x x (idEquiv (El x)) (~ i ∨ k)
+          (j = i1) → x)
+        (un (un x x (idEquiv (El x)) (~ i)) x (El-un-equiv x (~ i)) j)
 
-un-refl : ∀ x → un x x (idEquiv (El x)) ≡ refl
-un-refl x i j
-  = hcomp (λ k → λ where
-        (i = i0) → un x x (idEquiv (El x)) j
-        (i = i1) → un x x (idEquiv (El x)) (j ∨ k)
-        (j = i0) → un x x (idEquiv (El x)) (~ i ∨ k)
-        (j = i1) → x)
-      (un (un x x (idEquiv (El x)) (~ i)) x (El-un-equiv x (~ i)) j)
+  nu-refl : ∀ x → nu x x refl ≡ idEquiv (El x)
+  nu-refl x = equivEq (nu x x refl) (idEquiv (El x)) reg
 
-nu-refl : ∀ x → nu x x refl ≡ idEquiv (El x)
-nu-refl x = equivEq (nu x x refl) (idEquiv (El x)) reg
+  un-nu : ∀ x y (p : x ≡ y) → un x y (nu x y p) ≡ p
+  un-nu x y p
+    = J (λ z q → un x z (nu x z q) ≡ q) (cong (un x x) (nu-refl x) ∙ un-refl x) p
 
-un-nu : ∀ x y (p : x ≡ y) → un x y (nu x y p) ≡ p
-un-nu x y p
-  = J (λ z q → un x z (nu x z q) ≡ q) (cong (un x x) (nu-refl x) ∙ un-refl x) p
+open UU-Lemmas
+open Iso
+
+equivIso : ∀ s t → Iso (s ≡ t) (El s ≃ El t)
+equivIso s t .fun = nu s t
+equivIso s t .inv = un s t
+equivIso s t .rightInv = nu-un s t
+equivIso s t .leftInv = un-nu s t
+
+pathIso : ∀ s t → Iso (s ≡ t) (El s ≡ El t)
+pathIso s t .fun = cong El
+pathIso s t .inv = un s t ∘ transportEquiv
+pathIso s t .rightInv = cong-un-te s t
+pathIso s t .leftInv = un-nu s t
 
 minivalence : ∀{s t} → (s ≡ t) ≃ (El s ≃ El t)
-minivalence {s} {t} = isoToEquiv mini
-  where
-  open Iso
-  mini : Iso (s ≡ t) (El s ≃ El t)
-  mini .fun = nu s t
-  mini .inv = un s t
-  mini .rightInv = nu-un s t
-  mini .leftInv = un-nu s t
+minivalence {s} {t} = isoToEquiv (equivIso s t)
 
 path-reflection : ∀{s t} → (s ≡ t) ≃ (El s ≡ El t)
-path-reflection {s} {t} = isoToEquiv reflect
-  where
-  open Iso
-  reflect : Iso (s ≡ t) (El s ≡ El t)
-  reflect .fun = cong El
-  reflect .inv = un s t ∘ transportEquiv
-  reflect .rightInv = cong-un-te s t
-  reflect .leftInv = un-nu s t
+path-reflection {s} {t} = isoToEquiv (pathIso s t)
 
 isEmbeddingEl : isEmbedding El
 isEmbeddingEl s t = snd path-reflection
