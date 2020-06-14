@@ -157,11 +157,11 @@ record SES {ℓ ℓ' ℓ'' ℓ'''} (A : Group ℓ) (B : Group ℓ') (leftGr : Gr
     ϕ : morph A B
     
     Ker-ϕ⊂Im-left : (x : Group.type A) --
-                  → isInKer A B (morph.fun ϕ) x
-                  → isInIm leftGr A (morph.fun left) x
+                  → isInKer A B ϕ x
+                  → isInIm leftGr A left x
     Ker-right⊂Im-ϕ : (x : Group.type B) --
-                   → isInKer B rightGr (morph.fun right) x
-                   → isInIm A B (morph.fun ϕ) x
+                   → isInKer B rightGr right x
+                   → isInIm A B ϕ x
 SES→Iso : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Group ℓ} {B : Group ℓ'} (leftGr : Group ℓ'') (rightGr : Group ℓ''')
         → SES A B leftGr rightGr
         → Iso A B
@@ -223,10 +223,10 @@ If ψ is an isomorphism and ϕ is surjective with ker ϕ ≡ {ψ (a , a) ∣ a �
 diagonalIso1 : ∀ {ℓ ℓ' ℓ''} (A : Group ℓ) (B : Group ℓ') (C : Group ℓ'')
                (ψ : Iso (dirProd A A) B) (ϕ : morph B C)
              → isSurjective _ _ ϕ
-             → ((x : Group.type B) → isInKer B C (morph.fun ϕ) x
+             → ((x : Group.type B) → isInKer B C ϕ x
                                     → ∃[ y ∈ Group.type A ] x ≡ morph.fun (Iso.fun ψ) (y , y))
              → ((x : Group.type B) → (∃[ y ∈ Group.type A ] x ≡ morph.fun (Iso.fun ψ) (y , y))
-                                    → isInKer B C (morph.fun ϕ) x)
+                                    → isInKer B C ϕ x)
              → Iso A C
 diagonalIso1 A' B' C' ψ' ϕ' issurj ker→diag diag→ker =
   Iso''→Iso
@@ -295,8 +295,8 @@ If ϕ is surjective with ker ϕ ≡ {(a , a) ∣ a ∈ A}, then C ≃ B
 
 diagonalIso : ∀ {ℓ ℓ' ℓ''} (A : Group ℓ) (B : Group ℓ') (C : Group ℓ'')
            → (ϕ : morph (dirProd A A) B)
-           → ((x : Group.type (dirProd A A)) → isInKer (dirProd A A) B (morph.fun ϕ) x → ∃[ y ∈ Group.type A ] x ≡ (y , y))
-           → ((x : Group.type (dirProd A A)) → ∃[ y ∈ Group.type A ] x ≡ (y , y) → isInKer (dirProd A A) B (morph.fun ϕ) x)
+           → ((x : Group.type (dirProd A A)) → isInKer (dirProd A A) B ϕ x → ∃[ y ∈ Group.type A ] x ≡ (y , y))
+           → ((x : Group.type (dirProd A A)) → ∃[ y ∈ Group.type A ] x ≡ (y , y) → isInKer (dirProd A A) B ϕ x)
            → isSurjective (dirProd A A) B ϕ
            → Iso C A
            → Iso C B
@@ -320,7 +320,7 @@ diagonalIso A' B' C' ϕ' diagKer1 diagKer2 issurj I =
   morph.fun fstProj = λ a → a , (id A)
   morph.ismorph fstProj = λ g0 g1 i → comp A g0 g1 , lUnit A (id A) (~ i)
 
-  inj :  (a : Group.type C') → isInKer C' B' (λ x → ϕ (morph.fun fstProj (C→A x))) a
+  inj :  (a : Group.type C') → isInKer C' B' (compMorph (compMorph (Iso.fun I) fstProj) ϕ') a
         → a ≡ id C
   inj a inker = rec (Group.setStruc C' _ _)
                     (λ {(b , id') → sym (Iso.leftInv I a)

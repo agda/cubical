@@ -384,7 +384,7 @@ H¹-S¹≅ℤ =
   helper : (F : S₊ 0 → Int) (f g : ∥ (Unit → Int) ∥₀) (id : morph.fun (MV.Δ Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0) (f , g) ≡ ∣ F ∣₀)
          → isInKer (coHomGr 0 (S₊ 0))
                     (coHomGr 1 (Pushout (λ _ → tt) (λ _ → tt)))
-                    (morph.fun (MV.d Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0))
+                    (MV.d Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0)
                     ∣ F ∣₀
          → ∃[ x ∈ Int ] ∣ F ∣₀ ≡ morph.fun (grIso.inv H⁰-S⁰≅ℤ×ℤ) (x , x)
   helper F =

@@ -175,7 +175,7 @@ Iso.rightInv testID a = {!!}
 Iso.leftInv testID = {!!}
 
 
-maybe13 : Iso (Σ[ f ∈ coHom 1 (S₊∙ 1 ⋁ S₊∙ 1) ] isInIm (coHomGr 0 Unit) (coHomGr 1 _) (morph.fun (MV.d (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 0)) f)
+maybe13 : Iso (Σ[ f ∈ coHom 1 (S₊∙ 1 ⋁ S₊∙ 1) ] isInIm (coHomGr 0 Unit) (coHomGr 1 _) (MV.d (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 0) f)
               ∥ S₊ 1 ∥₀
 Iso.fun maybe13 (f , inim) =
   pRec helper (sigmaElim (λ _ → setTruncIsSet) (λ g id → {!!})) inim
@@ -195,10 +195,6 @@ Iso.leftInv maybe13 (f , inim) =
   pRec {!!} {!!} inim
 
 
-maybe : (a b : Int) (x : MV.D (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north)) → MV.d-pre (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 0 (λ _ → a) x ≡ MV.d-pre (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 0 (λ _ → b) x
-maybe a b (inl x) = refl
-maybe a b (inr x) = refl
-maybe a b (push a₁ i) j = {!Kn→ΩKn+1 zero ?!}
 
 testID2 : Iso (coHom 1 ((S₊∙ 1) ⋁ S₊∙ 1)) (coHom 1 (S₊ 1 × S₊ 1))
 Iso.fun testID2 = sRec setTruncIsSet λ f → ∣ (λ {(a , b) → f (inl a) +ₖ f (inl b)}) ∣₀
@@ -304,30 +300,36 @@ Iso.leftInv test1 =
 -}
 
 anotherhelper : (x : coHom 0 Unit)
-              → isInIm (×coHomGr 0 (S₊ 1) (S₊ 1)) (coHomGr 0 Unit) (morph.fun (MV.Δ (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 0)) x
+              → isInIm (×coHomGr 0 (S₊ 1) (S₊ 1)) (coHomGr 0 Unit) (MV.Δ (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 0) x
 anotherhelper =
   sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
         λ f → ∣ (∣ (λ _ → f tt) ∣₀ , 0ₕ) , cong ∣_∣₀ (funExt (λ _ → cong ((f tt) +ₖ_) -0ₖ ∙ rUnitₖ (f tt))) ∣₋₁
 
 athirdhelper : (x : coHom 0 Unit)
-             → isInKer (coHomGr 0 Unit) (coHomGr 1 _) (morph.fun (MV.d (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 0)) x
+             → isInKer (coHomGr 0 Unit) (coHomGr 1 _) (MV.d (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 0) x
 athirdhelper x = MV.Im-Δ⊂Ker-d (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 0 x
                  (anotherhelper x)
 
 
-afourthhelper : (x : coHom 1 (S₊∙ 1 ⋁ S₊∙ 1)) → isInIm (coHomGr 0 Unit) (coHomGr 1 _) (morph.fun (MV.d (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 0)) x
+afourthhelper : (x : coHom 1 (S₊∙ 1 ⋁ S₊∙ 1)) → isInIm (coHomGr 0 Unit) (coHomGr 1 _) (MV.d (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 0) x
               → x ≡ 0ₕ
 afourthhelper x inim = pRec (setTruncIsSet _ _) (λ {(y , id) → sym id ∙ athirdhelper y}) inim
 
-H¹-S¹∨S¹ : grIso (coHomGr 1 (S₊∙ 1 ⋁ S₊∙ 1)) (×coHomGr 1 (S₊ 1) (S₊ 1))
-H¹-S¹∨S¹ =
-  Iso''→Iso
+H¹-S¹∨S¹ : Iso'' (coHomGr 1 (Pushout (λ _ → north) (λ _ → north))) (×coHomGr 1 (S₊ 1) (S₊ 1))
+Iso''.ϕ H¹-S¹∨S¹ = MV.i (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 1
+Iso''.inj H¹-S¹∨S¹ x inker = {!afourthhelper x (MV.Ker-i⊂Im-d (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 0 x inker)!}
+Iso''.surj H¹-S¹∨S¹ x = {!MV.Ker-Δ⊂Im-i (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 1 x ?!}
+
+{-
     (iso''
-      (MV.i (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 1)
-      (λ x inker → afourthhelper x {!!})
-      λ x → {!MV.Ker-Δ⊂Im-i (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 1 x ?!})
-
-
+      {!!}
+      ? -- (λ x inker → afourthhelper x (MV.Ker-i⊂Im-d (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 0 x inker))
+      λ x → MV.Ker-Δ⊂Im-i (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 1 x (helper x))
+  where
+  helper : (x : Group.type (×coHomGr 1 (S₊ 1) (S₊ 1))) → isInKer (×coHomGr 1 (S₊ 1) (S₊ 1)) (coHomGr 1 Unit)
+      (MV.Δ (S₊ 1) (S₊ 1) Unit (λ _ → north) (λ _ → north) 1) x
+  helper = {!!}
+-}
 
 
 

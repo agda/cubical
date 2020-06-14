@@ -38,7 +38,6 @@ isMorph : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (f : (Group.type G
 isMorph G H f = (g0 g1 : Group.type G) → f (isGroup.comp (Group.groupStruc G) g0 g1) ≡ isGroup.comp (Group.groupStruc H) (f g0) (f g1)
 
 record morph {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') : Type (ℓ-max ℓ ℓ') where
-  no-eta-equality
   constructor mph
   field
     fun : Group.type G → Group.type H
@@ -48,20 +47,20 @@ record morph {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') : Type (ℓ-max ℓ ℓ
 open import Cubical.Data.Sigma hiding (_×_ ; comp)
 
 
-isInIm : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (Group.type G → Group.type H)
+isInIm : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (morph G H)
        → Group.type H → Type _
-isInIm G H ϕ h = ∃[ g ∈ Group.type G ] ϕ g ≡ h
+isInIm G H ϕ h = ∃[ g ∈ Group.type G ] (morph.fun ϕ g) ≡ h
 
-isInKer : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → (Group.type G → Group.type H)
+isInKer : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → morph G H
        → Group.type G → Type _
-isInKer G H ϕ g = ϕ g ≡ isGroup.id (Group.groupStruc H)
+isInKer G H ϕ g = (morph.fun ϕ g) ≡ isGroup.id (Group.groupStruc H)
 
 
 isSurjective : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → morph G H → Type _
-isSurjective G H ϕ = (x : Group.type H) → isInIm G H (morph.fun ϕ) x 
+isSurjective G H ϕ = (x : Group.type H) → isInIm G H ϕ x 
 
 isInjective : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') → morph G H → Type _
-isInjective G H ϕ = (x : Group.type G) → isInKer G H (morph.fun ϕ) x → x ≡ isGroup.id (Group.groupStruc G)
+isInjective G H ϕ = (x : Group.type G) → isInKer G H ϕ x → x ≡ isGroup.id (Group.groupStruc G)
 
 
 -0≡0 : ∀ {ℓ} {G : Group ℓ} → isGroup.inv (Group.groupStruc G) (isGroup.id (Group.groupStruc G)) ≡ isGroup.id (Group.groupStruc G)
@@ -251,14 +250,36 @@ record Iso' {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') : Type (ℓ-max ℓ ℓ'
     isoSetMorph : isMorph G H (I.Iso.fun isoSet)
 
 record Iso'' {ℓ ℓ'} (A : Group ℓ) (B : Group ℓ') : Type (ℓ-max ℓ ℓ') where
+  no-eta-equality
   constructor iso''
   field
     ϕ : morph A B
     inj : isInjective A B ϕ
     surj : isSurjective A B ϕ
 
+record Iso''' {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') : Type (ℓ-max ℓ ℓ') where
+  constructor iso'''
+  field
+    fun : morph G H
+    inv : Group.type H → Group.type G
+    rightInv : I.section (morph.fun fun) inv
+    leftInv : I.retract (morph.fun fun) inv
+
 _≃_ : ∀ {ℓ ℓ'} (A : Group ℓ) (B : Group ℓ') → Type (ℓ-max ℓ ℓ')
 A ≃ B = Σ (morph A B) \ f → (E.isEquiv (morph.fun f))
+
+open isGroup
+Iso'''→Iso : ∀ {ℓ ℓ'} {G : Group ℓ} {H : Group ℓ'} → Iso''' G H → Iso G H
+Iso.fun (Iso'''→Iso is) = Iso'''.fun is
+morph.fun (Iso.inv (Iso'''→Iso is)) = Iso'''.inv is
+morph.ismorph (Iso.inv (Iso'''→Iso {G = G} {H = H} is)) a b =
+    cong₂ (λ x y → (Iso'''.inv is) (comp (Group.groupStruc H) x y))
+          (sym (Iso'''.rightInv is _))
+          (sym (Iso'''.rightInv is _))
+  ∙ cong (Iso'''.inv is) (sym (morph.ismorph (Iso'''.fun is) _ _))
+  ∙ Iso'''.leftInv is _
+Iso.rightInv (Iso'''→Iso is) = Iso'''.rightInv is
+Iso.leftInv (Iso'''→Iso is) = Iso'''.leftInv is
 
 Iso'→Iso : ∀ {ℓ ℓ'} {G : Group ℓ} {H : Group ℓ'} → Iso' G H → Iso G H
 morph.fun (Iso.fun (Iso'→Iso {G = G} {H = H} iso1)) = I.Iso.fun (Iso'.isoSet iso1)
@@ -326,46 +347,88 @@ Iso''→Iso {A = A} {B = B} is =
                  λ b i → rec (helper (morph.fun (Iso''.ϕ is) b)) (λ a → a) (propTruncIsProp (Iso''.surj is (morph.fun (Iso''.ϕ is) b)) ∣ b , refl ∣ i) .fst)
           (morph.ismorph (Iso''.ϕ is)))
   where
-  helper : (b : _) → isProp (Σ (Group.type A) (λ a → (morph.fun (Iso''.ϕ is)) a ≡ b))
-  helper b (a1 , pf1) (a2 , pf2) =
-    ΣProp≡ (λ _ → isOfHLevelPath' 1 (Group.setStruc B) _ _)
-           fstId
-    where
-    open Group
-    open isGroup
-    open morph
-    A' = groupStruc A
-    B' = groupStruc B
-    ϕ = morph.fun (Iso''.ϕ is)
-    ϕmf = morph.ismorph (Iso''.ϕ is)
+  abstract
+    helper : (b : _) → isProp (Σ (Group.type A) (λ a → (morph.fun (Iso''.ϕ is)) a ≡ b))
+    helper _ a b =
+      ΣProp≡ (λ _ → isOfHLevelPath' 1 (Group.setStruc B) _ _)
+             fstId
+      where
+      open Group
+      open isGroup
+      open morph
+      A' = groupStruc A
+      B' = groupStruc B
 
-    fstIdHelper : isGroup.comp (Group.groupStruc A) a1 (isGroup.inv (Group.groupStruc A) a2)
-                ≡ isGroup.id (Group.groupStruc A)
-    fstIdHelper =
-      let -A = isGroup.inv (Group.groupStruc A)
-          -B = isGroup.inv (Group.groupStruc B)
-          rCancelB = isGroup.rCancel (Group.groupStruc B)
-          _+B_ = isGroup.comp (Group.groupStruc B)
-      in Iso''.inj is _
-                   (ϕmf a1 (inv A' a2)
-                  ∙ cong (λ x → comp B' (ϕ a1) x) (morphMinus A B (Iso''.ϕ is) a2)
-                  ∙ cong (λ x → comp B' x (inv B' (ϕ a2))) (pf1 ∙ sym pf2)
-                  ∙ rCancel B' (ϕ a2))
-    fstId : a1 ≡ a2
-    fstId =
-      a1 ≡⟨ sym (rUnit A' a1) ⟩
-      comp A' a1 (id A') ≡⟨ cong (λ x → comp A' a1 x) (sym (lCancel A' a2)) ⟩
-      comp A' a1 (comp A' (inv A' a2) a2) ≡⟨ sym (assoc A' a1 (inv A' a2) a2) ⟩
-      comp A' (comp A' a1 (inv A' a2)) a2 ≡⟨ cong (λ x → comp A' x a2) fstIdHelper ⟩
-      comp A' (id A') a2 ≡⟨ lUnit A' a2 ⟩
-      a2 ∎
+      fstIdHelper : isGroup.comp (Group.groupStruc A) (fst a) (isGroup.inv (Group.groupStruc A) (fst b))
+                  ≡ isGroup.id (Group.groupStruc A)
+      fstIdHelper =
+        let -A = isGroup.inv (Group.groupStruc A)
+            -B = isGroup.inv (Group.groupStruc B)
+            rCancelB = isGroup.rCancel (Group.groupStruc B)
+            _+B_ = isGroup.comp (Group.groupStruc B)
+        in Iso''.inj is _
+                     (morph.ismorph (Iso''.ϕ is) (fst a) (inv A' (fst b))
+                    ∙ cong (λ x → comp B' (morph.fun (Iso''.ϕ is) (fst a)) x) (morphMinus A B (Iso''.ϕ is) (fst b))
+                    ∙ cong (λ x → comp B' x (inv B' (morph.fun (Iso''.ϕ is) (fst b)))) ((snd a) ∙ sym (snd b))
+                    ∙ rCancel B' (morph.fun (Iso''.ϕ is) (fst b)))
+      fstId : fst a ≡ fst b
+      fstId =
+        (fst a) ≡⟨ sym (rUnit A' (fst a)) ⟩
+        comp A' (fst a) (id A') ≡⟨ cong (λ x → comp A' (fst a) x) (sym (lCancel A' (fst b))) ⟩
+        comp A' (fst a) (comp A' (inv A' (fst b)) (fst b)) ≡⟨ sym (assoc A' (fst a) (inv A' (fst b)) (fst b)) ⟩
+        comp A' (comp A' (fst a) (inv A' (fst b))) (fst b) ≡⟨ cong (λ x → comp A' x (fst b)) fstIdHelper ⟩
+        comp A' (id A') (fst b) ≡⟨ lUnit A' (fst b) ⟩
+        (fst b) ∎
+
+
+
+Iso''→Iso2 : ∀ {ℓ ℓ'} {A : Group ℓ} {B : Group ℓ'} → Iso'' A B → Iso A B
+Iso''→Iso2 {A = A} {B = B} is = Iso'''→Iso theIso
+  where
+  abstract
+    helper : (b : _) → isProp (Σ (Group.type A) (λ a → (morph.fun (Iso''.ϕ is)) a ≡ b))
+    helper _ a b =
+      ΣProp≡ (λ _ → isOfHLevelPath' 1 (Group.setStruc B) _ _)
+             fstId
+      where
+      open Group
+      open isGroup
+      open morph
+      A' = groupStruc A
+      B' = groupStruc B
+
+      fstIdHelper : isGroup.comp (Group.groupStruc A) (fst a) (isGroup.inv (Group.groupStruc A) (fst b))
+                  ≡ isGroup.id (Group.groupStruc A)
+      fstIdHelper =
+        let -A = isGroup.inv (Group.groupStruc A)
+            -B = isGroup.inv (Group.groupStruc B)
+            rCancelB = isGroup.rCancel (Group.groupStruc B)
+            _+B_ = isGroup.comp (Group.groupStruc B)
+        in Iso''.inj is _
+                     (morph.ismorph (Iso''.ϕ is) (fst a) (inv A' (fst b))
+                    ∙ cong (λ x → comp B' (morph.fun (Iso''.ϕ is) (fst a)) x) (morphMinus A B (Iso''.ϕ is) (fst b))
+                    ∙ cong (λ x → comp B' x (inv B' (morph.fun (Iso''.ϕ is) (fst b)))) ((snd a) ∙ sym (snd b))
+                    ∙ rCancel B' (morph.fun (Iso''.ϕ is) (fst b)))
+      fstId : fst a ≡ fst b
+      fstId =
+        (fst a) ≡⟨ sym (rUnit A' (fst a)) ⟩
+        comp A' (fst a) (id A') ≡⟨ cong (λ x → comp A' (fst a) x) (sym (lCancel A' (fst b))) ⟩
+        comp A' (fst a) (comp A' (inv A' (fst b)) (fst b)) ≡⟨ sym (assoc A' (fst a) (inv A' (fst b)) (fst b)) ⟩
+        comp A' (comp A' (fst a) (inv A' (fst b))) (fst b) ≡⟨ cong (λ x → comp A' x (fst b)) fstIdHelper ⟩
+        comp A' (id A') (fst b) ≡⟨ lUnit A' (fst b) ⟩
+        (fst b) ∎
+
+  theIso : Iso''' A B
+  Iso'''.fun theIso = Iso''.ϕ is
+  Iso'''.inv theIso b = rec (helper b) (λ a → a) (Iso''.surj is b) .fst
+  Iso'''.rightInv theIso b = rec (helper b) (λ a → a) (Iso''.surj is b) .snd
+  Iso'''.leftInv theIso b i = rec (helper (morph.fun (Iso''.ϕ is) b)) (λ a → a) (propTruncIsProp (Iso''.surj is (morph.fun (Iso''.ϕ is) b)) ∣ b , refl ∣ i) .fst
 
 groupIso→Iso : ∀ {ℓ ℓ'} {G : Group ℓ} {H : Group ℓ'} → Iso G H → I.Iso (Group.type G) (Group.type H)
 I.Iso.fun (groupIso→Iso i) = morph.fun (Iso.fun i)
 I.Iso.inv (groupIso→Iso i) = morph.fun (Iso.inv i)
 I.Iso.rightInv (groupIso→Iso i) = Iso.rightInv i
 I.Iso.leftInv (groupIso→Iso i) = Iso.leftInv i
-
 
 -- -- Injectivity and surjectivity in terms of exact sequences
 
