@@ -59,7 +59,7 @@ open Bool using (Bool ; true ; false)
 
 partialBool : ∀ i → Partial (i ∨ ~ i) Bool
 partialBool i = λ {(i = i1) → true
-                 ; (i = i0) → false}
+								 ; (i = i0) → false}
 
 open CorePrimitives using (inS ; outS ; hcomp)
 open Prelude using (_∙_)
@@ -82,7 +82,7 @@ open Univalence using (ua)
 --------------------------------------------------------------------------------
 
 open T2 using (Torus ; point ; line1 ; line2 ; square
-                ; t2c ; c2t ; c2t-t2c ; t2c-c2t ; Torus≡S¹×S¹)
+								; t2c ; c2t ; c2t-t2c ; t2c-c2t ; Torus≡S¹×S¹)
 
 -- 3.1 The Loop Spaces of the Circle and Torus
 open S1 using (ΩS¹)
@@ -106,7 +106,7 @@ open Isomorphism using (isoToPath ; iso)
 -- Notation of the paper, current notation under ΩS¹≡Int
 ΩS¹≡Int' : ΩS¹ ≡ Int
 ΩS¹≡Int' = isoToPath (iso winding loopn
-                         winding-loopn (decodeEncode base))
+											winding-loopn (decodeEncode base))
 
 open T2 using (ΩTorus≡Int×Int ; windingTorus)
 
@@ -128,8 +128,8 @@ _ = refl
 open Suspension using (Susp ; north ; south ; merid)
 open Sn using (S₊)
 open Suspension using (SuspBool→S¹ ; S¹→SuspBool
-                        ; SuspBool→S¹→SuspBool
-                        ; S¹→SuspBool→S¹)
+											; SuspBool→S¹→SuspBool
+											; S¹→SuspBool→S¹)
 
 -- Deprecated version of S₊
 open import Agda.Builtin.Nat renaming (Nat to ℕ)
@@ -164,9 +164,9 @@ h1 i j = merid false (i ∧ j)
 
 h2 : I → I → 1 -sphere
 h2 i j = hcomp (λ k → λ { (i = i0) → north
-                        ; (i = i1) → merid false (j ∨ ~ k)
-                        ; (j = i1) → merid true i })
-               (merid true i)
+												; (i = i1) → merid false (j ∨ ~ k)
+												; (j = i1) → merid true i })
+							 (merid true i)
 
 -- Deprecated version of S¹→SuspBool→S¹
 c2s-s2c : ∀ (t : 1 -sphere) → c2s (s2c t) ≡ t
@@ -204,7 +204,7 @@ open JoinProp using (join-assoc)
 -- rot in the paper is substituted by a rot and rotLoop in S1
 open S1 using (rot ; rotLoop)
 open Hopf renaming (HopfSuspS¹ to Hopf
-                  ; JoinS¹S¹→TotalHopf to j2h
-                  ; TotalHopf→JoinS¹S¹ to h2j)
-          using (HopfS²)
+									; JoinS¹S¹→TotalHopf to j2h
+									; TotalHopf→JoinS¹S¹ to h2j)
+					using (HopfS²)
 open S1 renaming (rotInv-1 to lem-rot-inv)
