@@ -47,14 +47,14 @@ module _ (A : Type ℓ) (Aset : isSet A) where
    fA (q , a) = (f q , a)
 
    f∘returnOrEnq : (x : A) (xsr : Unit ⊎ (List A × A)) →
-     returnOrEnq S x (deq-map-forward f xsr) ≡ fA (returnOrEnq (str One.Raw) x xsr)
+     returnOrEnq S x (deq-map f xsr) ≡ fA (returnOrEnq (str One.Raw) x xsr)
    f∘returnOrEnq _ (inl _) = refl
    f∘returnOrEnq _ (inr _) = refl
 
-   f∘deq : ∀ xs → deq (f xs) ≡ deq-map-forward f (deq₁ xs)
+   f∘deq : ∀ xs → deq (f xs) ≡ deq-map f (deq₁ xs)
    f∘deq [] = deq-emp
    f∘deq (x ∷ xs) =
      deq-enq x (f xs)
      ∙ cong (inr ∘ returnOrEnq S x) (f∘deq xs)
      ∙ cong inr (f∘returnOrEnq x (deq₁ xs))
-     ∙ cong (deq-map-forward f) (sym (deq₁-enq₁ x xs))
+     ∙ cong (deq-map f) (sym (deq₁-enq₁ x xs))

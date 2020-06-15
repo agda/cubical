@@ -9,10 +9,10 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 open import Cubical.Functions.Surjection
 
-open import Cubical.Structures.Pointed
-open import Cubical.Structures.NAryOp
-open import Cubical.Structures.Parameterized
+open import Cubical.Structures.Macro
 open import Cubical.Structures.LeftAction
+open import Cubical.Structures.Functorial
+open import Cubical.Structures.NAryOp
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum as ⊎
@@ -34,63 +34,41 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  -- A Queue structure has three components, the empty Queue, an enqueue function and a dequeue function
  -- We first deal with enq and deq as separate structures
 
- -- deq-map as a structure
+ -- deq as a structure
  -- First, a few preliminary results that we will need later
- deq-map-forward : {X Y : Type ℓ} → (X → Y)
+ deq-map : {X Y : Type ℓ} → (X → Y)
                   →  Unit ⊎ (X × A) → Unit ⊎ (Y × A)
- deq-map-forward f (inl tt) = inl tt
- deq-map-forward f (inr (x , a)) = inr (f x , a)
+ deq-map f (inl tt) = inl tt
+ deq-map f (inr (x , a)) = inr (f x , a)
 
- deq-map-forward-∘ :{B C D : Type ℓ}
+ deq-map-∘ :{B C D : Type ℓ}
   (g : C → D) (f : B → C)
-  → ∀ r → deq-map-forward {X = C} g (deq-map-forward f r) ≡ deq-map-forward (λ b → g (f b)) r
- deq-map-forward-∘ g f (inl tt) = refl
- deq-map-forward-∘ g f (inr (b , a)) = refl
+  → ∀ r → deq-map {X = C} g (deq-map f r) ≡ deq-map (λ b → g (f b)) r
+ deq-map-∘ g f (inl tt) = refl
+ deq-map-∘ g f (inr (b , a)) = refl
 
+ deq-map-id : {X : Type ℓ} → ∀ r → deq-map (idfun X) r ≡ r
+ deq-map-id (inl _) = refl
+ deq-map-id (inr _) = refl
 
- deq-map-id : {X : Type ℓ} → idfun (Unit ⊎ (X × A)) ≡ deq-map-forward (idfun X)
- deq-map-id {X = X} = funExt γ
-  where
-   γ : ∀ z → z ≡ deq-map-forward (idfun X) z
-   γ (inl tt) = refl
-   γ (inr xa) = refl
-
- deq-structure : Type ℓ → Type ℓ
- deq-structure X = X → Unit ⊎ (X × A)
+ open Macro ℓ (recvar (functorial deq-map deq-map-id)) public renaming
+   ( structure to deq-structure
+   ; iso to deq-iso
+   ; isSNS to Deq-is-SNS
+   )
 
  Deq : Type (ℓ-suc ℓ)
  Deq = TypeWithStr ℓ deq-structure
 
- deq-iso : StrIso deq-structure ℓ
- deq-iso (X , p) (Y , q) e = ∀ x → deq-map-forward (e .fst) (p x) ≡ q (e .fst x)
-
- Deq-is-SNS : SNS {ℓ} deq-structure deq-iso
- Deq-is-SNS = SNS-≡→SNS-PathP deq-iso (λ p q → (subst (λ f → (∀ x → f (p x) ≡ q x) ≃ (p ≡ q)) deq-map-id funExtEquiv))
-
-
-
  -- Now we can do Queues:
- raw-queue-structure : Type ℓ → Type ℓ
- raw-queue-structure Q = Q × (A → Q → Q) × (Q → Unit ⊎ (Q × A))
+ open Macro ℓ (var , left-action-desc A , foreign deq-iso Deq-is-SNS) public renaming
+   ( structure to raw-queue-structure
+   ; iso to raw-queue-iso
+   ; isSNS to RawQueue-is-SNS
+   )
 
  RawQueue : Type (ℓ-suc ℓ)
  RawQueue = TypeWithStr ℓ raw-queue-structure
-
- raw-queue-iso : StrIso raw-queue-structure ℓ
- raw-queue-iso (Q₁ , emp₁ , enq₁ , deq₁) (Q₂ , emp₂ , enq₂ , deq₂) e =
-   (e .fst emp₁ ≡ emp₂)
-   × (∀ a q → e .fst (enq₁ a q) ≡ enq₂ a (e .fst q))
-   × (∀ q → deq-map-forward (e .fst) (deq₁ q) ≡ deq₂ (e .fst q))
-
- RawQueue-is-SNS : SNS raw-queue-structure raw-queue-iso
- RawQueue-is-SNS =
-   join-SNS pointed-iso pointed-is-SNS
-            {S₂ = λ X → (left-action-structure A X) × (deq-structure X)}
-            (λ B C e → (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
-                     × (∀ q → deq-map-forward (e .fst) (B .snd .snd q) ≡ C .snd .snd (e .fst q)))
-            (join-SNS (left-action-iso A) (Left-Action-is-SNS A) deq-iso Deq-is-SNS)
-
-
 
  returnOrEnq : {Q : Type ℓ}
   → raw-queue-structure Q → A → Unit ⊎ (Q × A) → Q × A

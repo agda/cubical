@@ -55,6 +55,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  -- the count-structures
  Lcount : S (List A)
  Lcount a [] = zero
+
  Lcount a (x ∷ xs) = aux a x (discA a x) (Lcount a xs)
 
  ALcount : S (AList A)
@@ -100,7 +101,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
  -- R {List A , Lcount} {AList A , ALcount} is a bisimulation
  isBisimR : isBisimulation (R {List A , Lcount} {AList A , ALcount})
- isBisimR .zigzag r r' r'' a = (r a) ∙∙ sym (r' a) ∙∙ (r'' a)
+ isBisimR .zigzag r r' r'' a = r a ∙∙ sym (r' a) ∙∙ r'' a
  isBisimR .fwd = φ
  isBisimR .fwdRel = η
  isBisimR .bwd = ψ

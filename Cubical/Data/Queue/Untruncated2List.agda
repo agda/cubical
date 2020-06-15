@@ -131,17 +131,17 @@ module Untruncated2List {ℓ} (A : Type ℓ) (Aset : isSet A) where
  quot∘enq : ∀ x xs → quot (enq₁ x xs) ≡ enq x (quot xs)
  quot∘enq x xs = refl
 
- quot∘deq : ∀ xs → deq-map-forward quot (deq₁ xs) ≡ deq (quot xs)
+ quot∘deq : ∀ xs → deq-map quot (deq₁ xs) ≡ deq (quot xs)
  quot∘deq [] = refl
  quot∘deq (x ∷ []) = refl
  quot∘deq (x ∷ x' ∷ xs) =
-   deq-map-forward-∘ quot (enq₁ x) (deq₁ (x' ∷ xs))
-   ∙ sym (deq-map-forward-∘ (enq x) quot (deq₁ (x' ∷ xs)))
-   ∙ cong (deq-map-forward (enq x)) (quot∘deq (x' ∷ xs))
+   deq-map-∘ quot (enq₁ x) (deq₁ (x' ∷ xs))
+   ∙ sym (deq-map-∘ (enq x) quot (deq₁ (x' ∷ xs)))
+   ∙ cong (deq-map (enq x)) (quot∘deq (x' ∷ xs))
    ∙ lemma x x' (rev xs)
    where
    lemma : ∀ x x' ys
-     → deq-map-forward (enq x) (deqFlush (ys ++ [ x' ]))
+     → deq-map (enq x) (deqFlush (ys ++ [ x' ]))
        ≡ deqFlush ((ys ++ [ x' ]) ++ [ x ])
    lemma x x' [] i = inr (tilt [] [] x i , x')
    lemma x x' (y ∷ ys) i = inr (tilt [] (ys ++ [ x' ]) x i , y)

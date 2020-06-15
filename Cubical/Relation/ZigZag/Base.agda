@@ -21,7 +21,7 @@ isZigZagComplete : {A B : Type ℓ} (R : A → B → Type ℓ') → Type (ℓ-ma
 isZigZagComplete R = ∀ {a b a' b'} → R a b → R a' b → R a' b' → R a b'
 
 ZigZagRel : (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
-ZigZagRel A B ℓ' = Σ (A → B → Type ℓ') isZigZagComplete
+ZigZagRel A B ℓ' = Σ[ R ∈ (A → B → Type ℓ') ] (isZigZagComplete R)
 
 record isBisimulation {A B : Type ℓ} (R : A → B → Type ℓ') : Type (ℓ-max ℓ ℓ') where
   field
@@ -87,4 +87,3 @@ module Bisim→Equiv {A B : Type ℓ} (R : Bisimulation A B ℓ') where
     η = elimProp (λ _ → squash/ _ _) (λ b → eq/ _ _ (sim .fwdRel (g b)))
 
     ε = elimProp (λ _ → squash/ _ _) (λ a → eq/ _ _ (sim .bwdRel (f a)))
-
