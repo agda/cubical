@@ -60,8 +60,9 @@ record SemigroupIso (M N : Semigroup {ℓ}) : Type ℓ where
   constructor semigroupiso
 
   -- Shorter qualified names
-  module M = Semigroup M
-  module N = Semigroup N
+  private
+    module M = Semigroup M
+    module N = Semigroup N
 
   field
     e     : ⟨ M ⟩ ≃ ⟨ N ⟩
