@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Experiments.Brunerie where
 
 open import Cubical.Foundations.Everything

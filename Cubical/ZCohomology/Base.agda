@@ -1,6 +1,5 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.ZCohomology.Base where
-
 
 open import Cubical.Data.Int.Base
 open import Cubical.Data.Nat.Base
@@ -25,7 +24,7 @@ private
 {- Types Kₙ from Brunerie 2016 -}
 coHomK : (n : ℕ) → Type₀
 coHomK zero = Int
-coHomK (suc n) = ∥ S₊ (suc n) ∥  (suc n)
+coHomK (suc n) = ∥ S₊ (suc n) ∥  (2 + suc n)
 
 {- Cohomology -}
 coHom : (n : ℕ) → Type ℓ → Type ℓ

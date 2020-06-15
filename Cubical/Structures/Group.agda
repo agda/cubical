@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Structures.Group where
 
 open import Cubical.Foundations.Prelude
@@ -8,6 +8,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
+open import Cubical.Structures.Pointed
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid hiding (⟨_⟩)
@@ -30,13 +31,9 @@ raw-group-is-SNS = raw-semigroup-is-SNS
 -- and neutral element, although they will preserve them).
 
 group-axioms : (G : Type ℓ) → raw-group-structure G → Type ℓ
-group-axioms G _·_ = i × ii
-
-  where
-  i = semigroup-axioms G _·_
-
-  ii = Σ[ e ∈ G ] ((x : G) → (x · e ≡ x) × (e · x ≡ x)) ×
-                  ((x : G) → Σ[ x' ∈ G ] (x · x' ≡ e) × (x' · x ≡ e))
+group-axioms G _·_ = semigroup-axioms G _·_ ×
+                     (Σ[ e ∈ G ] ((x : G) → (x · e ≡ x) × (e · x ≡ x)) ×
+                      ((x : G) → Σ[ x' ∈ G ] (x · x' ≡ e) × (x' · x ≡ e)))
 
 group-structure : Type ℓ → Type ℓ
 group-structure = add-to-structure raw-group-structure group-axioms
@@ -94,7 +91,7 @@ group-linv (_ , _ , _ , P) x = snd (snd ((snd (snd P)) x))
 
 -- Iso for groups are those for monoids
 group-iso : StrIso group-structure ℓ
-group-iso = add-to-iso (nAryFunIso 2) group-axioms
+group-iso = add-to-iso (binaryFunIso pointed-iso) group-axioms
 
 -- Group axioms isProp
 
@@ -114,8 +111,10 @@ group-axioms-isProp X s t = η t
 
   β : (e : X) → is-identity e → isProp ((x : X) → Σ[ x' ∈ X ] (x ·⟨ 𝒢 ⟩ x' ≡ e) × (x' ·⟨ 𝒢 ⟩ x ≡ e))
   β e is-identity-e =
-   isPropΠ λ { x (x' , _ , P) (x'' , Q , _) → ΣProp≡ (λ _ → isPropΣ (group-is-set 𝒢 _ _) λ _ → group-is-set 𝒢 _ _)
-                                                      (inv-lemma ℳ x x' x'' P Q) }
+   isPropΠ λ { x (x' , _ , P) (x'' , Q , _) →
+   Σ≡Prop
+     (λ _ → isPropΣ (group-is-set 𝒢 _ _) (λ _ → group-is-set 𝒢 _ _))
+     (inv-lemma ℳ x x' x'' P Q) }
    where
     ℳ : Monoid
     ℳ = ⟨ 𝒢 ⟩ , (e , group-operation 𝒢) ,
@@ -127,7 +126,7 @@ group-axioms-isProp X s t = η t
 
   γ : isProp (Σ[ e ∈ X ] ((x : X) → (x ·⟨ 𝒢 ⟩ e ≡ x) × (e ·⟨ 𝒢 ⟩ x ≡ x)) ×
                          ((x : X) → Σ[ x' ∈ X ] (x ·⟨ 𝒢 ⟩ x' ≡ e) × (x' ·⟨ 𝒢 ⟩ x ≡ e)))
-  γ (e , P , _) (e' , Q , _) = ΣProp≡ (λ e → isPropΣ (α e) λ is-identity-e → β e is-identity-e)
+  γ (e , P , _) (e' , Q , _) = Σ≡Prop (λ e → isPropΣ (α e) λ is-identity-e → β e is-identity-e)
                                       (e          ≡⟨ sym (fst (Q e)) ⟩
                                       e ·⟨ 𝒢 ⟩ e' ≡⟨ snd (P e') ⟩
                                       e' ∎)
@@ -137,7 +136,7 @@ group-axioms-isProp X s t = η t
 
 -- Group paths equivalent to equality
 group-is-SNS : SNS {ℓ} group-structure group-iso
-group-is-SNS = add-axioms-SNS _ group-axioms-isProp (nAryFunSNS 2)
+group-is-SNS = add-axioms-SNS _ group-axioms-isProp raw-group-is-SNS
 
 GroupPath : (M N : Group {ℓ}) → (M ≃[ group-iso ] N) ≃ (M ≡ N)
 GroupPath = SIP group-is-SNS

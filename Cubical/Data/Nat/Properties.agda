@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
 module Cubical.Data.Nat.Properties where
 
 open import Cubical.Core.Everything
@@ -35,6 +35,12 @@ discreteℕ (suc m) (suc n) with discreteℕ m n
 
 isSetℕ : isSet ℕ
 isSetℕ = Discrete→isSet discreteℕ
+
+-- Arithmetic facts about predℕ
+
+suc-predℕ : ∀ n → ¬ n ≡ 0 → n ≡ suc (predℕ n)
+suc-predℕ zero p = ⊥.rec (p refl)
+suc-predℕ (suc n) p = refl
 
 -- Arithmetic facts about +
 

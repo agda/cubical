@@ -1,5 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
-
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Structures.CommRing where
 
 open import Cubical.Foundations.Prelude
@@ -18,7 +17,7 @@ private
     ℓ ℓ' : Level
 
 comm-ring-axioms : (X : Type ℓ) (s : raw-ring-structure X) → Type ℓ
-comm-ring-axioms X (_+_ , ₁ , _·_) = (ring-axioms X (_+_ , ₁ , _·_)) ×
+comm-ring-axioms X (_+_ , 1r , _·_) = (ring-axioms X (_+_ , 1r , _·_)) ×
                                      ((x y : X) → x · y ≡ y · x)
 
 comm-ring-structure : Type ℓ → Type ℓ
@@ -29,10 +28,13 @@ CommRing : Type (ℓ-suc ℓ)
 CommRing {ℓ} = TypeWithStr ℓ comm-ring-structure
 
 comm-ring-iso : StrIso comm-ring-structure ℓ
-comm-ring-iso = add-to-iso (join-iso (nAryFunIso 2) (join-iso pointed-iso (nAryFunIso 2))) comm-ring-axioms
+comm-ring-iso =
+  add-to-iso
+    (join-iso (binaryFunIso pointed-iso) (join-iso pointed-iso (binaryFunIso pointed-iso)))
+    comm-ring-axioms
 
 comm-ring-axioms-isProp : (X : Type ℓ) (s : raw-ring-structure X) → isProp (comm-ring-axioms X s)
-comm-ring-axioms-isProp X (_·_ , ₀ , _+_) = isPropΣ (ring-axioms-isProp X (_·_ , ₀ , _+_))
+comm-ring-axioms-isProp X (_·_ , 0r , _+_) = isPropΣ (ring-axioms-isProp X (_·_ , 0r , _+_))
                                             λ ((((isSetX , _) , _) , _) , _) → isPropΠ2 λ _ _ → isSetX _ _
 
 comm-ring-is-SNS : SNS {ℓ} comm-ring-structure comm-ring-iso
@@ -51,7 +53,8 @@ CommRing→Ring (R , str , isRing , ·comm) = R , str , isRing
 ⟨_⟩ : CommRing {ℓ} → Type ℓ
 ⟨ R , _ ⟩ = R
 
-module _ (R : CommRing {ℓ}) where
+module comm-ring-axioms (R : CommRing {ℓ}) where
+  open ring-axioms
 
   commring+-operation = ring+-operation (CommRing→Ring R)
 
@@ -87,7 +90,8 @@ module _ (R : CommRing {ℓ}) where
 
   commring-rdist = ring-rdist (CommRing→Ring R)
 
-module commring-operation-syntax where
+module comm-ring-explicit-syntax where
+  open comm-ring-axioms
 
   commring+-operation-syntax : (R : CommRing {ℓ}) → ⟨ R ⟩ → ⟨ R ⟩ → ⟨ R ⟩
   commring+-operation-syntax R = commring+-operation R
@@ -99,12 +103,16 @@ module commring-operation-syntax where
   infixr 18 commring·-operation-syntax
   syntax commring·-operation-syntax G x y = x ·⟨ G ⟩ y
 
-open commring-operation-syntax
+commRingIsSet : (R : CommRing {ℓ}) → isSet (⟨ R ⟩)
+commRingIsSet R = ringIsSet (CommRing→Ring R)
+
+open comm-ring-explicit-syntax
 
 commring-comm : (R : CommRing {ℓ}) (x y : ⟨ R ⟩) → x ·⟨ R ⟩ y ≡ y ·⟨ R ⟩ x
 commring-comm (_ , _ , _ , P) = P
 
--- CommRing ·syntax
+-- CommRing syntax
 
-module commring-·syntax (R : CommRing {ℓ}) where
-  open ring-·syntax (CommRing→Ring R) public
+module comm-ring-syntax (R : CommRing {ℓ}) where
+  open ring-syntax (CommRing→Ring R) public
+  open comm-ring-axioms R

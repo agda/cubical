@@ -10,7 +10,7 @@ This file contains:
 
 -}
 
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 module Cubical.HITs.Pushout.Properties where
 

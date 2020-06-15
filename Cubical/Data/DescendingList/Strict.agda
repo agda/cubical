@@ -2,7 +2,7 @@
 -- Strictly descending lists
 ------------------------------------------------------------------------
 
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 open import Cubical.Core.Everything
 

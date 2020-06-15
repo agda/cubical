@@ -3,7 +3,7 @@
 Freudenthal suspension theorem
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Homotopy.Freudenthal where
 
 open import Cubical.Foundations.Everything
@@ -45,12 +45,12 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
 
     isEquivFwd : (p : north ≡ north) (a : typ A) → isEquiv (fwd p a)
     isEquivFwd p a .equiv-proof =
-      isEquivPrecomposeConnected (suc n)
+      elim.isEquivPrecompose (λ _ → pt A) (suc n)
         (λ a →
           ( (∀ t → isContr (fiber (fwd p a) t))
           , isProp→isOfHLevelSuc n (isPropΠ λ _ → isPropIsContr)
           ))
-        (λ _ → pt A)
+
         (isConnectedPoint (suc n) connA (pt A))
         .equiv-proof
         (λ _ → Trunc.elim
@@ -110,3 +110,17 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
   isConnectedσ : isConnectedFun 2n+2 σ
   isConnectedσ =
     transport (λ i → isConnectedFun 2n+2 (interpolate (pt A) (~ i))) isConnectedMerid
+
+
+FreudenthalEquiv : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
+                → isConnected (2 + n) (typ A)
+                → hLevelTrunc ((suc n) + (suc n)) (typ A)
+                 ≃ hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north)))
+FreudenthalEquiv n A iscon = connectedTruncEquiv _
+                                                 (σ n {A = A} iscon)
+                                                 (isConnectedσ _ iscon)
+FreudenthalIso : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
+                → isConnected (2 + n) (typ A)
+                → Iso (hLevelTrunc ((suc n) + (suc n)) (typ A))
+                       (hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north))))
+FreudenthalIso n A iscon = connectedTruncIso _ (σ n {A = A} iscon) (isConnectedσ _ iscon)

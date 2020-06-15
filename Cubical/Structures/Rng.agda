@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 module Cubical.Structures.Rng where
 
@@ -9,7 +9,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
-open import Cubical.Structures.NAryOp
+open import Cubical.Structures.Macro
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.AbGroup
 
@@ -17,11 +17,12 @@ private
   variable
     ℓ ℓ' : Level
 
-raw-rng-structure : Type ℓ → Type ℓ
-raw-rng-structure X = (X → X → X) × (X → X → X)
-
-raw-rng-is-SNS : SNS {ℓ} raw-rng-structure _
-raw-rng-is-SNS = join-SNS (nAryFunIso 2) (nAryFunSNS 2) (nAryFunIso 2) (nAryFunSNS 2)
+module _ {ℓ} where
+  open Macro ℓ (recvar (recvar var) , recvar (recvar var)) public renaming
+    ( structure to raw-rng-structure
+    ; iso to raw-rng-iso
+    ; isSNS to raw-rng-is-SNS
+    )
 
 rng-axioms : (X : Type ℓ) (s : raw-rng-structure X) → Type ℓ
 rng-axioms X (_·_ , _+_) = abelian-group-axioms X _·_ ×
@@ -37,7 +38,7 @@ Rngs : Type (ℓ-suc ℓ)
 Rngs {ℓ} = TypeWithStr ℓ rng-structure
 
 rng-iso : StrIso rng-structure ℓ
-rng-iso = add-to-iso (join-iso (nAryFunIso 2) (nAryFunIso 2)) rng-axioms
+rng-iso = add-to-iso raw-rng-iso rng-axioms
 
 rng-axioms-isProp : (X : Type ℓ) (s : raw-rng-structure X) → isProp (rng-axioms X s)
 rng-axioms-isProp X (_·_ , _+_) = isPropΣ (abelian-group-axioms-isProp X _·_)
