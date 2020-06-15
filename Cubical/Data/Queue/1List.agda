@@ -25,7 +25,7 @@ module 1List {ℓ} (A : Type ℓ) (Aset : isSet A) where
  deq : Q → Unit ⊎ (Q × A)
  deq [] = inl tt
  deq (x ∷ []) = inr ([] , x)
- deq (x ∷ x' ∷ xs) = deq-map-forward (enq x) (deq (x' ∷ xs))
+ deq (x ∷ x' ∷ xs) = deq-map (enq x) (deq (x' ∷ xs))
 
  Raw : RawQueue
  Raw = (Q , emp , enq , deq)
@@ -44,8 +44,8 @@ module 1List {ℓ} (A : Type ℓ) (Aset : isSet A) where
    deq-enq a (x ∷ x' ∷ xs) =
      subst
        (λ t →
-         deq-map-forward (enq a) (deq-map-forward (enq x) t)
-         ≡ inr (returnOrEnq S a (deq-map-forward (enq x) t)))
+         deq-map (enq a) (deq-map (enq x) t)
+         ≡ inr (returnOrEnq S a (deq-map (enq x) t)))
        (deq-enq x' xs ⁻¹)
        refl
 
