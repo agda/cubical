@@ -51,20 +51,14 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  deq-map-id (inl _) = refl
  deq-map-id (inr _) = refl
 
- deq-structure : Type ℓ → Type ℓ
- deq-structure X = X → Unit ⊎ (X × A)
+ open Macro ℓ (recvar (functorial deq-map deq-map-id)) public renaming
+   ( structure to deq-structure
+   ; iso to deq-iso
+   ; isSNS to Deq-is-SNS
+   )
 
  Deq : Type (ℓ-suc ℓ)
  Deq = TypeWithStr ℓ deq-structure
-
- deq-iso : StrIso deq-structure ℓ
- deq-iso = unaryFunIso (functorial-iso deq-map)
-
- Deq-is-SNS : SNS {ℓ} deq-structure deq-iso
- Deq-is-SNS =
-   unaryFunSNS
-     (functorial-iso deq-map)
-     (functorial-is-SNS deq-map deq-map-id)
 
  -- Now we can do Queues:
  open Macro ℓ (var , left-action-desc A , foreign deq-iso Deq-is-SNS) public renaming
