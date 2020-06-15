@@ -67,4 +67,3 @@ NestedΣ-NestedΣᵣ-Iso [- shL - shR -] s =
      _ Iso⟨ Σ-cong-iso-snd (λ _ → NestedΣ-NestedΣᵣ-Iso shR _) ⟩
      _ Iso⟨ Σ-cong-iso-fst (NestedΣ-NestedΣᵣ-Iso shL sL) ⟩
      _ Iso⟨ nestedΣᵣ-cs.isom-split {n = len shL} {m = len shR} _ ⟩ _ ∎Iso
-

@@ -1,4 +1,27 @@
+{-
+
+  From (I → Sig ℓ n) we can generate Sig ℓ (n * 3)
+  in the two ways by arranging fileds in diferent order
+   (this is illustrated in Example.agda)
+
+  Of course for both definitions, the path betwen most nested arguments must be at the end,
+  becouse its type depends on all the previous fields.
+
+
+  In second part of this file, those generated signatures are used to
+  define paths of arbitrary dimension (generalization of Path, Square and Cube from Prelude).
+
+  The diferent order of fields results in two diferent (equivalent after uncurring)
+  definitions of Pathⁿ.
+
+  Non-primed definition have order of arguments consistent with definitions from Prelude.
+
+
+-}
+
+
 {-# OPTIONS --cubical --safe #-}
+
 module Cubical.Data.Sigma.Nested.Path where
 
 open import Cubical.Data.Nat
@@ -17,6 +40,7 @@ open import Cubical.Data.Sigma.Nested.Currying
 
 
 
+
 sig-PathP : ∀ {ℓ} → ∀ {n}
                  → (p : I → Sig ℓ n)
                  → (x₀ : NestedΣᵣ (p i0)) → (x₁ : NestedΣᵣ (p i1))
@@ -30,6 +54,8 @@ sig-PathP {n = suc (suc n)} p x₀ x₁ =
          (isoToEquiv ΣPathPIsoPathPΣ)
 
 
+-- this verision is putting all the PathPs in the last fields (most nested Sigmas)
+
 sig-PathP-withEnds : ∀ {ℓ} → ∀ {n} → (I → Sig ℓ n) → Sig ℓ (n + n + n)
 sig-PathP-withEnds {n = n} s =
    sig-cs.concat
@@ -37,7 +63,8 @@ sig-PathP-withEnds {n = n} s =
      (fst ∘ uncurry (sig-PathP s) ∘ nestedΣᵣ-cs.split' (s i0) _)
 
 
-
+-- this verision is putting puting PathPs as early as it is possible
+--   (just after second end is defined)
 
 sig-PathP-withEnds' : ∀ {ℓ} → ∀ {n} → (I → Sig ℓ n) → Sig ℓ (n * 3)
 sig-PathP-withEnds' {n = 0} x = _
@@ -103,6 +130,16 @@ withEnds'-Iso-withEnds {n = n} p =  _ Iso⟨ nestedΣᵣ-combine-iso p ⟩
 
 
 
+mkSigPath : ∀ {ℓ} → ∀ n → NestedΣᵣ (sig-PathP-withEnds' (λ _ → Sig-of-Sig n)) → (I → Sig ℓ n)
+mkSigPath {ℓ} n x i =
+ equivFun NestedΣᵣ-≃-Sig (snd (snd (Iso.fun (nestedΣᵣ-combine-iso  {n = n} (λ _ → Sig-of-Sig n)) x)) i)
+
+
+
+
+
+
+
 
 
 3^ : ℕ → ℕ
@@ -111,6 +148,14 @@ withEnds'-Iso-withEnds {n = n} p =  _ Iso⟨ nestedΣᵣ-combine-iso p ⟩
 
 3^-lem : ∀ n → 3^ n + 3^ n + 3^ n ≡ 3^ (suc n)
 3^-lem n = (λ i → +-assoc (3^ n) (3^ n) (+-zero (3^ n) (~ i)) (~ i)) ∙ *-comm 3 (3^ n)
+
+
+-- this function generates explcity description for definition of Pathⁿ
+
+-- note that for each dimension we introduce 2 explicit arguments
+-- so for dimension n we will get
+--    2 * n   - explicit arguments
+--    (3^ n - 1 - (2 * n))  - implicit arguments
 
 pathⁿ-args-desc : ∀ n → Vec Bool (predℕ (3^ n))
 pathⁿ-args-desc 0 = []
