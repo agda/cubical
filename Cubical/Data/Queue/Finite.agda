@@ -6,9 +6,7 @@ open import Cubical.Foundations.Everything
 open import Cubical.Foundations.SIP
 open import Cubical.Structures.Queue
 
-open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Unit
-open import Cubical.Data.Sum
+open import Cubical.Data.Maybe
 open import Cubical.Data.List
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation
@@ -46,15 +44,15 @@ module _ (A : Type ℓ) (Aset : isSet A) where
    fA : Q₁ × A → Q × A
    fA (q , a) = (f q , a)
 
-   f∘returnOrEnq : (x : A) (xsr : Unit ⊎ (List A × A)) →
+   f∘returnOrEnq : (x : A) (xsr : Maybe (List A × A)) →
      returnOrEnq S x (deq-map f xsr) ≡ fA (returnOrEnq (str One.Raw) x xsr)
-   f∘returnOrEnq _ (inl _) = refl
-   f∘returnOrEnq _ (inr _) = refl
+   f∘returnOrEnq _ nothing = refl
+   f∘returnOrEnq _ (just _) = refl
 
    f∘deq : ∀ xs → deq (f xs) ≡ deq-map f (deq₁ xs)
    f∘deq [] = deq-emp
    f∘deq (x ∷ xs) =
      deq-enq x (f xs)
-     ∙ cong (inr ∘ returnOrEnq S x) (f∘deq xs)
-     ∙ cong inr (f∘returnOrEnq x (deq₁ xs))
+     ∙ cong (just ∘ returnOrEnq S x) (f∘deq xs)
+     ∙ cong just (f∘returnOrEnq x (deq₁ xs))
      ∙ cong (deq-map f) (sym (deq₁-enq₁ x xs))
