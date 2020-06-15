@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Functions.Fibration where
 
 open import Cubical.Foundations.Prelude
@@ -30,10 +30,10 @@ module FiberIso {ℓb} {B : Type ℓb} {ℓ} (p⁻¹ : B → Type ℓ) (x : B) w
     where h : Σ[ s ∈ singl x ] p⁻¹ (s .fst) → fiber p x
           h ((x , p) , y) = (x , y) , sym p
           r : Path (Σ[ s ∈ singl x ] p⁻¹ (s .fst))
-                   ((x  , refl ) , subst (λ z → p⁻¹ z) q y)
+                   ((x  , refl ) , subst p⁻¹ q y)
                    ((x' , sym q) , y                            )
-          r i = (contrSingl (sym q) i) , toPathP {A = λ i → p⁻¹ (q (~ i))}
-                                         (transport⁻Transport (λ i → p⁻¹ (q i)) y) i
+          r = ΣPathP (isContrSingl x .snd (x' , sym q)
+                     , toPathP (transport⁻Transport (λ i → p⁻¹ (q i)) y))
 
   -- HoTT Lemma 4.8.1
   fiberEquiv : fiber p x ≃ p⁻¹ x
@@ -70,6 +70,6 @@ module _ {ℓb} (B : Type ℓb) (ℓ : Level) where
 fiber≡ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {f : A → B} {b : B} (h h' : fiber f b)
   → (h ≡ h') ≡ fiber (cong f) (h .snd ∙∙ refl ∙∙ sym (h' .snd))
 fiber≡ {f = f} h h' =
-  ua Σ≡ ⁻¹ ∙
+  ΣPath≡PathΣ ⁻¹ ∙
   cong (Σ (h .fst ≡ h' .fst)) (funExt λ p → flipSquarePath ∙ PathP≡doubleCompPathʳ _ _ _ _)
 

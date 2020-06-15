@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Path where
 
 open import Cubical.Foundations.Prelude
@@ -16,6 +16,7 @@ private
 cong′ : ∀ {B : Type ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
       → Path B (f x) (f y)
 cong′ f = cong f
+{-# INLINE cong′ #-}
 
 PathP≡Path : ∀ (P : I → Type ℓ) (p : P i0) (q : P i1) →
              PathP P p q ≡ Path (P i1) (transport (λ i → P i) p) q
@@ -26,7 +27,7 @@ PathP≃Path : ∀ (P : I → Type ℓ) (p : P i0) (q : P i1) →
 PathP≃Path P p q = transportEquiv (PathP≡Path P p q)
 
 -- Alternative more unfolded proof
-toPathP-isEquiv : ∀ (A : I → Set ℓ) {x y} → isEquiv (toPathP {A = A} {x} {y})
+toPathP-isEquiv : ∀ (A : I → Type ℓ) {x y} → isEquiv (toPathP {A = A} {x} {y})
 toPathP-isEquiv A {x} {y} = isoToIsEquiv (iso toPathP fromPathP to-from from-to)
  where
    to-from : ∀ (p : PathP A x y) → toPathP (fromPathP p) ≡ p

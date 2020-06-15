@@ -3,7 +3,7 @@
 Definition of the circle as a HIT with a proof that Ω(S¹) ≡ ℤ
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.S1.Base where
 
 open import Cubical.Foundations.Prelude
@@ -54,10 +54,9 @@ decodeSquare (pos zero) i j    = loop (i ∨ ~ j)
 decodeSquare (pos (suc n)) i j = hfill (λ k → λ { (j = i0) → base
                                                 ; (j = i1) → loop k } )
                                        (inS (intLoop (pos n) j)) i
-decodeSquare (negsuc n) i j = hcomp (λ k → λ { (i = i1) → intLoop (negsuc n) j
-                                             ; (j = i0) → base
-                                             ; (j = i1) → loop (i ∨ ~ k) })
-                                    (intLoop (negsuc n) j)
+decodeSquare (negsuc n) i j = hfill (λ k → λ { (j = i0) → base
+                                             ; (j = i1) → loop (~ k) })
+                                    (inS (intLoop (negsuc n) j)) (~ i)
 
 decode : (x : S¹) → helix x → base ≡ x
 decode base         = intLoop
@@ -89,8 +88,14 @@ windingIntLoop (pos (suc n))    = cong sucInt (windingIntLoop (pos n))
 windingIntLoop (negsuc zero)    = refl
 windingIntLoop (negsuc (suc n)) = cong predInt (windingIntLoop (negsuc n))
 
+ΩS¹IsoInt : Iso ΩS¹ Int
+Iso.fun ΩS¹IsoInt      = winding
+Iso.inv ΩS¹IsoInt      = intLoop
+Iso.rightInv ΩS¹IsoInt = windingIntLoop
+Iso.leftInv ΩS¹IsoInt  = decodeEncode base
+
 ΩS¹≡Int : ΩS¹ ≡ Int
-ΩS¹≡Int = isoToPath (iso winding intLoop windingIntLoop (decodeEncode base))
+ΩS¹≡Int = isoToPath ΩS¹IsoInt
 
 -- intLoop and winding are group homomorphisms
 private

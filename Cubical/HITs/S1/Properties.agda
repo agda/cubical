@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.S1.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -26,3 +26,9 @@ isGroupoidS¹ s t =
           (isConnectedS¹ t)))
     (isConnectedS¹ s)
 
+
+toPropElim : ∀ {ℓ} {B : S¹ → Type ℓ} → ((s : S¹) → isProp (B s)) → B base → (s : S¹) → B s
+toPropElim {B = B} isprop b base = b
+toPropElim {B = B} isprop b (loop i) = hcomp (λ k → λ {(i = i0) → b
+                                                     ; (i = i1) → isprop base (subst B (loop) b) b k})
+                                      (transp (λ j → B (loop (i ∧ j))) (~ i) b)

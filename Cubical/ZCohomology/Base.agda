@@ -1,6 +1,5 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.ZCohomology.Base where
-
 
 open import Cubical.Data.Int.Base
 open import Cubical.Data.Nat.Base

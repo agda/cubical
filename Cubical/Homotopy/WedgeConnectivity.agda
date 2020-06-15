@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Homotopy.WedgeConnectivity where
 
 open import Cubical.Foundations.Everything
@@ -34,7 +34,7 @@ module WedgeConnectivity {ℓ ℓ' ℓ''} (n m : ℕ)
 
     main : isContr (fiber (λ s _ → s (pt A)) (λ _ → g , p ⁻¹))
     main =
-      isEquivPrecomposeConnected n Q (λ _ → pt A)
+      elim.isEquivPrecompose (λ _ → pt A) n Q
         (isHLevelConnectedPoint n connA (pt A))
         .equiv-proof (λ _ → g , p ⁻¹)
 

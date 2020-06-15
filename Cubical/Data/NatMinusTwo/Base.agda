@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
 module Cubical.Data.NatMinusTwo.Base where
 
 open import Cubical.Core.Primitives
@@ -17,6 +17,12 @@ pattern -1+_ n = -2+ (suc n)
 
 2+_ : ℕ₋₂ → ℕ
 2+ (-2+ n) = n
+
+pred₋₂ : ℕ₋₂ → ℕ₋₂
+pred₋₂ neg2 = neg2
+pred₋₂ neg1 = neg2
+pred₋₂ (ℕ→ℕ₋₂ zero) = neg1
+pred₋₂ (ℕ→ℕ₋₂ (suc n)) = (ℕ→ℕ₋₂ n)
 
 suc₋₂ : ℕ₋₂ → ℕ₋₂
 suc₋₂ (-2+ n) = -2+ (suc n)

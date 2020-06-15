@@ -12,7 +12,7 @@ various consequences of univalence
 - Isomorphism induction ([elimIso])
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Univalence where
 
 open import Cubical.Foundations.Prelude
@@ -20,6 +20,8 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.GroupoidLaws
+
+open import Cubical.Data.Sigma.Base
 
 open import Cubical.Core.Glue public
   using ( Glue ; glue ; unglue ; lineToEquiv )
@@ -142,7 +144,7 @@ unglueEquiv A φ f = ( unglue φ , unglueIsEquiv A φ f )
 -- unglue is an equivalence. The standard formulation can be found in
 -- Cubical/Basics/Univalence.
 --
-EquivContr : ∀ (A : Type ℓ) → isContr (Σ[ T ∈ Type ℓ ] T ≃ A)
+EquivContr : ∀ (A : Type ℓ) → ∃![ T ∈ Type ℓ ] (T ≃ A)
 EquivContr {ℓ = ℓ} A =
   ( (A , idEquiv A)
   , idEquiv≡ )
@@ -215,11 +217,25 @@ univalencePath = ua (compEquiv univalence LiftEquiv)
 -- The computation rule for ua. Because of "ghcomp" it is now very
 -- simple compared to cubicaltt:
 -- https://github.com/mortberg/cubicaltt/blob/master/examples/univalence.ctt#L202
-uaβ : {A B : Type ℓ} (e : A ≃ B) (x : A) → transport (ua e) x ≡ e .fst x
-uaβ e x = transportRefl (e .fst x)
+uaβ : {A B : Type ℓ} (e : A ≃ B) (x : A) → transport (ua e) x ≡ equivFun e x
+uaβ e x = transportRefl (equivFun e x)
 
 uaη : ∀ {A B : Type ℓ} → (P : A ≡ B) → ua (pathToEquiv P) ≡ P
 uaη = J (λ _ q → ua (pathToEquiv q) ≡ q) (cong ua pathToEquivRefl ∙ uaIdEquiv)
+
+-- Useful lemma for unfolding a transported function over ua
+-- If we would have regularity this would be refl
+transportUAop₁ : ∀ {A B : Type ℓ} → (e : A ≃ B) (f : A → A) (x : B)
+               → transport (λ i → ua e i → ua e i) f x ≡ equivFun e (f (invEq e x))
+transportUAop₁ e f x i = transportRefl (equivFun e (f (invEq e (transportRefl x i)))) i
+
+-- Binary version
+transportUAop₂ : ∀ {ℓ} {A B : Type ℓ} → (e : A ≃ B) (f : A → A → A) (x y : B)
+               → transport (λ i → ua e i → ua e i → ua e i) f x y ≡
+                 equivFun e (f (invEq e x) (invEq e y))
+transportUAop₂ e f x y i =
+    transportRefl (equivFun e (f (invEq e (transportRefl x i))
+                                 (invEq e (transportRefl y i)))) i
 
 -- Alternative version of EquivJ that only requires a predicate on functions
 elimEquivFun : {A B : Type ℓ} (P : (A : Type ℓ) → (A → B) → Type ℓ')

@@ -5,10 +5,7 @@ https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html#s
 All the needed preliminary results from the lecture notes are stated and proven in this file.
 It would be interesting to compare the proves with the one in Cubical.Foundations.SIP
 -}
-
-
-
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Experiments.EscardoSIP where
 
 open import Cubical.Core.Everything
@@ -16,12 +13,10 @@ open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Data.Sigma.Properties
 
-
 private
   variable
     ℓ ℓ' ℓ'' : Level
     S : Type ℓ → Type ℓ'
-
 
 -- We prove several useful equalities and equivalences between Σ-types all the proofs are taken from
 -- Martin Hötzel-Escardó's lecture notes.
@@ -30,7 +25,7 @@ private
 
 Σ-≡-≃ : {X : Type ℓ} {A : X → Type ℓ'}
        → (σ τ : Σ X A) → ((σ ≡ τ) ≃ (Σ[ p ∈ (σ .fst) ≡ (τ .fst) ] (subst A p (σ .snd) ≡ (τ .snd))))
-Σ-≡-≃ {A = A} σ τ = pathToEquiv (pathSigma≡sigmaPath σ τ)
+Σ-≡-≃ {A = A} σ τ = invEquiv (ΣPathTransport≃PathΣ σ τ)
 
 
 
@@ -96,12 +91,12 @@ NatΣ τ (x , a) = (x , τ x a)
    ψ (y , a) = (g y , subst A (sym (η y)) a)
 
    φψ : (z : (Σ Y A)) → φ (ψ z) ≡ z
-   φψ (y , a) = sigmaPath→pathSigma (φ (ψ (y , a))) (y , a)
-                                    (η y ,  transportTransport⁻ (λ i → A (η y i)) a)
+   φψ (y , a) =
+     ΣPathTransport→PathΣ _ _ (η y ,  transportTransport⁻ (λ i → A (η y i)) a)
      -- last term proves transp (λ i → A (η y i)) i0 (transp (λ i → A (η y (~ i))) i0 a) ≡ a
 
    ψφ : (z : (Σ X (A ∘ f))) → ψ (φ z) ≡ z
-   ψφ (x , a) = sigmaPath→pathSigma (ψ (φ (x , a))) (x , a) (ε x , q)
+   ψφ (x , a) = ΣPathTransport→PathΣ _ _ (ε x , q)
      where
       b : A (f (g (f x)))
       b = (transp (λ i → A (η (f x) (~ i))) i0 a)
@@ -121,28 +116,6 @@ NatΣ τ (x , a) = (x , τ x a)
                       → (isEquiv f) → ((Σ X (A ∘ f)) ≃ (Σ Y A))
 Σ-change-of-variable-≃ f isEquivf =
                       isoToEquiv (Σ-change-of-variable-Iso f (equiv→HAEquiv (f , isEquivf) .snd))
-
-
-
-
-Σ-assoc-Iso : (X : Type ℓ) (A : X → Type ℓ') (P : Σ X A → Type ℓ'')
-         → (Iso (Σ (Σ X A) P) (Σ[ x ∈ X ] (Σ[ a ∈ A x ] P (x , a))))
-Σ-assoc-Iso X A P = iso f g ε η
-   where
-    f : (Σ (Σ X A) P) → (Σ[ x ∈ X ] (Σ[ a ∈ A x ] P (x , a)))
-    f ((x , a) , p) = (x , (a , p))
-    g : (Σ[ x ∈ X ] (Σ[ a ∈ A x ] P (x , a))) →  (Σ (Σ X A) P)
-    g (x , (a , p)) = ((x , a) , p)
-    ε : section f g
-    ε n = refl
-    η : retract f g
-    η m = refl
-
-Σ-assoc-≃ : (X : Type ℓ) (A : X → Type ℓ') (P : Σ X A → Type ℓ'')
-         → (Σ (Σ X A) P) ≃ (Σ[ x ∈ X ] (Σ[ a ∈ A x ] P (x , a)))
-Σ-assoc-≃ X A P = isoToEquiv (Σ-assoc-Iso X A P)
-
-
 
 
 -- A structure is a type-family S : Type ℓ → Type ℓ', i.e. for X : Type ℓ and s : S X, the pair (X , s)
@@ -218,7 +191,7 @@ SIP S ι θ A B =
             (Σ[ p ∈ (typ A) ≡ (typ B) ] (ι A B (pathToEquiv p)))                ≃⟨ iii ⟩
             (A ≃[ ι ] B)                                                            ■
     where
-     i = invEquiv Σ≡
+     i = invEquiv ΣPath≃PathΣ
      ii = Σ-cong-≃ (hom-lemma-dep S ι θ A B)
      iii = Σ-change-of-variable-≃ pathToEquiv (equivIsEquiv univalence)
 

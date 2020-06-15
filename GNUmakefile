@@ -13,11 +13,11 @@ test: check-whitespace gen-and-check-everythings check-README check
 
 .PHONY : fix-whitespace
 fix-whitespace:
-	cabal exec -- fix-agda-whitespace
+	cabal exec -- fix-whitespace
 
 .PHONY : check-whitespace
 check-whitespace:
-	cabal exec -- fix-agda-whitespace --check
+	cabal exec -- fix-whitespace --check
 
 # checking and generating Everything files
 
@@ -37,12 +37,12 @@ gen-and-check-everythings:
 .PHONY : check-README
 check-README:
 	$(EVERYTHINGS) check-README
-	
+
 # typechecking and generating listings for all files imported in in README
 
 .PHONY : check
 check: $(wildcard Cubical/**/*.agda)
-	$(foreach f, $(shell $(EVERYTHINGS) get-imports-README), $(AGDA) $(f);)
+	$(foreach f, $(shell $(EVERYTHINGS) get-imports-README), $(AGDA) "$(f)" && ) true
 	$(AGDA) Cubical/WithK.agda
 
 .PHONY: listings
