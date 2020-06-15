@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
-module Cubical.Data.NatMinusTwo.Base where
+module Cubical.Experiments.NatMinusTwo.Base where
 
 open import Cubical.Core.Primitives
 open import Cubical.Data.Nat

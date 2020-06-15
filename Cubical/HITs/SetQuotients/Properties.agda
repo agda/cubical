@@ -24,7 +24,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
-open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₀; ∣_∣₀; squash₀)
+open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂; ∣_∣₂; squash₂)
 
 -- Type quotients
 
