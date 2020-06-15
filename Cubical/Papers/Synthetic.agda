@@ -50,33 +50,33 @@ import Cubical.HITs.Hopf                      as Hopf
 --------------------------------------------------------------------------------
 
 -- 2.1 The Interval and Path Types
-open Path using (PathP)
-open Prelude using (_≡_ ; refl ; funExt)
-open Prelude renaming (sym to _⁻¹)
+open Path using (PathP) public
+open Prelude using (_≡_ ; refl ; funExt) public
+open Prelude renaming (sym to _⁻¹) public
 
 -- 2.2 Transport and Composition
-open Prelude using (transport ; subst ; J ; JRefl)
-open PrimitiveCubical using (Partial)
-open Bool using (Bool ; true ; false)
+open Prelude using (transport ; subst ; J ; JRefl) public
+open PrimitiveCubical using (Partial) public
+open Bool using (Bool ; true ; false) public
 
 partialBool : ∀ i → Partial (i ∨ ~ i) Bool
 partialBool i = λ {(i = i1) → true
                  ; (i = i0) → false}
 
-open CorePrimitives using (inS ; outS ; hcomp)
-open Prelude using (_∙_)
+open CorePrimitives using (inS ; outS ; hcomp) public
+open Prelude using (_∙_) public
 
 -- 2.3 Higher Inductive Types
-open S1 using (S¹ ; base ; loop)
+open S1 using (S¹ ; base ; loop) public
 
 double : S¹ → S¹
 double base = base
 double (loop i) = (loop ∙ loop) i
 
 -- 2.4 Glue Types and Univalence
-open Equiv using (idEquiv)
-open CoreGlue using (Glue)
-open Univalence using (ua)
+open Equiv using (idEquiv) public
+open CoreGlue using (Glue) public
+open Univalence using (ua) public
 
 --------------------------------------------------------------------------------
 -- 3.  The Circle and Torus
@@ -87,11 +87,11 @@ open T2 using ( Torus ; point ; line1 ; line2 ; square
               ; t2c ; c2t ; c2t-t2c ; t2c-c2t ; Torus≡S¹×S¹)
 
 -- 3.1 The Loop Spaces of the Circle and Torus
-open S1 using (ΩS¹)
-open T2 using (ΩTorus)
-open Int using (Int ; pos ; negsuc)
-open IntProp using (sucPathInt)
-open S1 using (helix ; winding)
+open S1 using (ΩS¹) public
+open T2 using (ΩTorus) public
+open Int using (Int ; pos ; negsuc) public
+open IntProp using (sucPathInt) public
+open S1 using (helix ; winding) public
 
 -- Examples computing the winding numbers of the circle
 _ : winding (loop ∙ loop ∙ loop) ≡ pos 3
@@ -100,17 +100,17 @@ _ = refl
 _ : winding ((loop ⁻¹) ∙ loop ∙ (loop ⁻¹)) ≡ negsuc 0
 _ = refl
 
-open S1 renaming (intLoop to loopn)
-open S1 renaming (windingIntLoop to winding-loopn)
-open S1 using (encode ; decode ; decodeEncode ; ΩS¹≡Int)
-open Isomorphism using (isoToPath ; iso)
+open S1 renaming (intLoop to loopn) public
+open S1 renaming (windingIntLoop to winding-loopn) public
+open S1 using (encode ; decode ; decodeEncode ; ΩS¹≡Int) public
+open Isomorphism using (isoToPath ; iso) public
 
 -- Notation of the paper, current notation under ΩS¹≡Int
 ΩS¹≡Int' : ΩS¹ ≡ Int
 ΩS¹≡Int' = isoToPath (iso winding loopn
                       winding-loopn (decodeEncode base))
 
-open T2 using (ΩTorus≡Int×Int ; windingTorus)
+open T2 using (ΩTorus≡Int×Int ; windingTorus) public
 
 -- Examples at the end of section 3.
 _ : windingTorus (line1 ∙ line2) ≡ (pos 1 , pos 1)
@@ -127,16 +127,16 @@ _ = refl
 --------------------------------------------------------------------------------
 
 -- 4.1 Suspension
-open Suspension using (Susp ; north ; south ; merid)
-open Sn using (S₊)
+open Suspension using (Susp ; north ; south ; merid) public
+open Sn using (S₊) public
 open Suspension using ( SuspBool→S¹ ; S¹→SuspBool
                       ; SuspBool→S¹→SuspBool
-                      ; S¹→SuspBool→S¹)
+                      ; S¹→SuspBool→S¹) public
 
 -- Deprecated version of S₊
-open BNat renaming (Nat to ℕ)
-open CorePrimitives renaming (Type to Set)
-open BBool using (Bool)
+open BNat renaming (Nat to ℕ) public
+open CorePrimitives renaming (Type to Set) public
+open BBool using (Bool) public
 -- At the time the paper was published, Set was used instead of Type
 _-sphere : ℕ → Set
 0 -sphere = Bool
@@ -144,7 +144,7 @@ _-sphere : ℕ → Set
 
 -- Lemma 4.1. The (1)-sphere is equal to the circle S1.
 
-open BBool using (true ; false)
+open BBool using (true ; false) public
 -- Deprecated version of SuspBool→S¹
 s2c : 1 -sphere → S¹
 s2c north = base
@@ -157,7 +157,7 @@ c2s : S¹ → 1 -sphere
 c2s base = north
 c2s (loop i) = (merid true ∙ (merid false ⁻¹)) i
 
-open GroupoidLaws using (rUnit)
+open GroupoidLaws using (rUnit) public
 -- Deprecated version of SuspBool→S¹→SuspBool
 s2c-c2s : ∀ (p : S¹) → s2c (c2s p) ≡ p
 s2c-c2s base = refl
@@ -185,30 +185,30 @@ c2s-s2c (merid false i) j = merid false (i ∧ j)
 1-sphere≡S¹ = isoToPath (iso s2c c2s s2c-c2s c2s-s2c)
 
 -- Definitions of S2 and S3
-open S2 using (S²)
-open S3 using (S³)
+open S2 using (S²) public
+open S3 using (S³) public
 
 -- 4.2 Pushouts and the 3 × 3 Lemma
-open Push using (Pushout)
+open Push using (Pushout) public
 -- 3x3-span is implemented as a record
-open PushProp using (3x3-span)
-open 3x3-span using (f□1)
+open PushProp using (3x3-span) public
+open 3x3-span using (f□1) public
 -- The rest of the definitions inside the 3x3-lemma
 -- A□0-A○□ , A□○-A○□ ...
-open 3x3-span using (3x3-lemma)
+open 3x3-span using (3x3-lemma) public
 
 -- 4.3 The Join and S³
-open Join renaming (join to Join) using (S³≡joinS¹S¹)
-open JoinProp using (join-assoc)
+open Join renaming (join to Join) using (S³≡joinS¹S¹) public
+open JoinProp using (join-assoc) public
 
 --------------------------------------------------------------------------------
 -- 5.  The Hopf Fibration
 --------------------------------------------------------------------------------
 
 -- rot in the paper is substituted by a rot and rotLoop in S1
-open S1 using (rot ; rotLoop)
+open S1 using (rot ; rotLoop) public
 open Hopf renaming ( HopfSuspS¹ to Hopf
                    ; JoinS¹S¹→TotalHopf to j2h
                    ; TotalHopf→JoinS¹S¹ to h2j)
-          using (HopfS²)
-open S1 renaming (rotInv-1 to lem-rot-inv)
+          using (HopfS²) public
+open S1 renaming (rotInv-1 to lem-rot-inv) public
