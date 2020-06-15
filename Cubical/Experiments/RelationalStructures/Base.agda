@@ -58,7 +58,7 @@ quotientRel R a b = [ a ] ≡ b
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₂ ℓ₂' : Level
+    ℓ ℓ' ℓ'' ℓ₀ ℓ₁ ℓ₁' ℓ₂ ℓ₂' : Level
 
 open isBisimulation
 
@@ -124,7 +124,7 @@ private
       (symP (θ R code₁₁ .path))
       (cong fst (θ R code₀₁ .quoᴿ .snd (θ R code₁₁ .quoᴿ .fst)))
     where
-    lem : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
+    lem : {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
       → PathP A a₀ a₁
       → PathP A a₀' a₁'
       → a₀ ≡ a₀'
@@ -146,7 +146,7 @@ private
       (θ R code₁₁ .path)
       (cong fst (θ R code₁₀ .quoᴸ .snd (θ R code₁₁ .quoᴸ .fst)))
     where
-    lem : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
+    lem : {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
       → PathP A a₀ a₁
       → PathP A a₀' a₁'
       → a₀ ≡ a₀'
@@ -160,13 +160,13 @@ private
 
 -- Constant structure
 
-module _ (A : hSet ℓ') where
+module _ (A : hSet ℓ₀) where
 
-  constant-setStructure : SetStructure ℓ ℓ'
+  constant-setStructure : SetStructure ℓ ℓ₀
   constant-setStructure .struct = constant-structure (A .fst)
   constant-setStructure .set _ = A .snd
 
-  constant-rel : StrRel {ℓ = ℓ} (constant-setStructure .struct) ℓ'
+  constant-rel : StrRel {ℓ = ℓ} (constant-setStructure .struct) ℓ₀
   constant-rel .rel _ _ _ a₀ a₁ = a₀ ≡ a₁
   constant-rel .prop _ = A .snd
 
@@ -213,57 +213,55 @@ isSNRSPointed {A = _ , x} {_ , y} R r .path =
 
 -- Product of structures
 
-module _ where
+join-setStructure : SetStructure ℓ ℓ₁ → SetStructure ℓ ℓ₂ → SetStructure ℓ (ℓ-max ℓ₁ ℓ₂)
+join-setStructure S₁ S₂ .struct X = S₁ .struct X × S₂ .struct X
+join-setStructure S₁ S₂ .set setX = isSet× (S₁ .set setX) (S₂ .set setX)
 
-  join-setStructure : SetStructure ℓ ℓ₁ → SetStructure ℓ ℓ₂ → SetStructure ℓ (ℓ-max ℓ₁ ℓ₂)
-  join-setStructure S₁ S₂ .struct X = S₁ .struct X × S₂ .struct X
-  join-setStructure S₁ S₂ .set setX = isSet× (S₁ .set setX) (S₂ .set setX)
+join-rel :
+  {S₁ : Type ℓ → Type ℓ₁} (ρ₁ : StrRel S₁ ℓ₁')
+  {S₂ : Type ℓ → Type ℓ₂} (ρ₂ : StrRel S₂ ℓ₂')
+  → StrRel (join-structure S₁ S₂) (ℓ-max ℓ₁' ℓ₂')
+join-rel ρ₁ ρ₂ .rel X Y R (s₁ , s₂) (t₁ , t₂) =
+  ρ₁ .rel X Y R s₁ t₁
+  × ρ₂ .rel X Y R s₂ t₂
+join-rel ρ₁ ρ₂ .prop propR (s₁ , s₂) (t₁ , t₂) =
+  isProp× (ρ₁ .prop propR s₁ t₁) (ρ₂ .prop propR s₂ t₂)
 
-  join-rel :
-    {S₁ : Type ℓ → Type ℓ₁} {ℓ₁' : Level} (ρ₁ : StrRel S₁ ℓ₁')
-    {S₂ : Type ℓ → Type ℓ₂} {ℓ₂' : Level} (ρ₂ : StrRel S₂ ℓ₂')
-    → StrRel (join-structure S₁ S₂) (ℓ-max ℓ₁' ℓ₂')
-  join-rel ρ₁ ρ₂ .rel X Y R (s₁ , s₂) (t₁ , t₂) =
-    ρ₁ .rel X Y R s₁ t₁
-    × ρ₂ .rel X Y R s₂ t₂
-  join-rel ρ₁ ρ₂ .prop propR (s₁ , s₂) (t₁ , t₂) =
-    isProp× (ρ₁ .prop propR s₁ t₁) (ρ₂ .prop propR s₂ t₂)
-
-  isSNRSJoin :
-    (S₁ : SetStructure ℓ ℓ₁) {ℓ₁' : Level} {ρ₁ : StrRel (S₁ .struct) ℓ₁'}
-    (S₂ : SetStructure ℓ ℓ₂) {ℓ₂' : Level} {ρ₂ : StrRel (S₂ .struct) ℓ₂'}
-    → isSNRS S₁ ρ₁ → isSNRS S₂ ρ₂
-    → isSNRS (join-setStructure S₁ S₂) (join-rel ρ₁ ρ₂)
-  isSNRSJoin _ _ θ₁ θ₂ _ (code₁ , code₂) .quoᴸ .fst .fst =
-    θ₁ _ code₁ .quoᴸ .fst .fst , θ₂ _ code₂ .quoᴸ .fst .fst
-  isSNRSJoin _ _ θ₁ θ₂ _ (code₁ , code₂) .quoᴸ .fst .snd =
-    θ₁ _ code₁ .quoᴸ .fst .snd , θ₂ _ code₂ .quoᴸ .fst .snd
-  isSNRSJoin _ _ θ₁ θ₂ R (code₁ , code₂) .quoᴸ .snd (p , α) j =
-    ( ( θ₁ R code₁ .quoᴸ .snd (p .fst ,  α .fst) j .fst
-      , θ₂ R code₂ .quoᴸ .snd (p .snd ,  α .snd) j .fst
-      )
-    , ( θ₁ _ code₁ .quoᴸ .snd (p .fst , α .fst) j .snd
-      , θ₂ _ code₂ .quoᴸ .snd (p .snd , α .snd) j .snd
-      )
+isSNRSJoin :
+  (S₁ : SetStructure ℓ ℓ₁) {ρ₁ : StrRel (S₁ .struct) ℓ₁'}
+  (S₂ : SetStructure ℓ ℓ₂) {ρ₂ : StrRel (S₂ .struct) ℓ₂'}
+  → isSNRS S₁ ρ₁ → isSNRS S₂ ρ₂
+  → isSNRS (join-setStructure S₁ S₂) (join-rel ρ₁ ρ₂)
+isSNRSJoin _ _ θ₁ θ₂ _ (code₁ , code₂) .quoᴸ .fst .fst =
+  θ₁ _ code₁ .quoᴸ .fst .fst , θ₂ _ code₂ .quoᴸ .fst .fst
+isSNRSJoin _ _ θ₁ θ₂ _ (code₁ , code₂) .quoᴸ .fst .snd =
+  θ₁ _ code₁ .quoᴸ .fst .snd , θ₂ _ code₂ .quoᴸ .fst .snd
+isSNRSJoin _ _ θ₁ θ₂ R (code₁ , code₂) .quoᴸ .snd (p , α) j =
+  ( ( θ₁ R code₁ .quoᴸ .snd (p .fst ,  α .fst) j .fst
+    , θ₂ R code₂ .quoᴸ .snd (p .snd ,  α .snd) j .fst
     )
-  isSNRSJoin _ _ θ₁ θ₂ _ (code₁ , code₂) .quoᴿ .fst .fst =
-    θ₁ _ code₁ .quoᴿ .fst .fst , θ₂ _ code₂ .quoᴿ .fst .fst
-  isSNRSJoin _ _ θ₁ θ₂ _ (code₁ , code₂) .quoᴿ .fst .snd =
-    θ₁ _ code₁ .quoᴿ .fst .snd , θ₂ _ code₂ .quoᴿ .fst .snd
-  isSNRSJoin _ _ θ₁ θ₂ R (code₁ , code₂) .quoᴿ .snd (p , α) j =
-    ( ( θ₁ R code₁ .quoᴿ .snd (p .fst ,  α .fst) j .fst
-      , θ₂ R code₂ .quoᴿ .snd (p .snd ,  α .snd) j .fst
-      )
-    , ( θ₁ _ code₁ .quoᴿ .snd (p .fst , α .fst) j .snd
-      , θ₂ _ code₂ .quoᴿ .snd (p .snd , α .snd) j .snd
-      )
+  , ( θ₁ _ code₁ .quoᴸ .snd (p .fst , α .fst) j .snd
+    , θ₂ _ code₂ .quoᴸ .snd (p .snd , α .snd) j .snd
     )
-  isSNRSJoin _ _ θ₁ θ₂ _ (code₁ , code₂) .path =
-    equivFun ΣPathP≃PathPΣ (θ₁ _ code₁ .path , θ₂ _ code₂ .path)
+  )
+isSNRSJoin _ _ θ₁ θ₂ _ (code₁ , code₂) .quoᴿ .fst .fst =
+  θ₁ _ code₁ .quoᴿ .fst .fst , θ₂ _ code₂ .quoᴿ .fst .fst
+isSNRSJoin _ _ θ₁ θ₂ _ (code₁ , code₂) .quoᴿ .fst .snd =
+  θ₁ _ code₁ .quoᴿ .fst .snd , θ₂ _ code₂ .quoᴿ .fst .snd
+isSNRSJoin _ _ θ₁ θ₂ R (code₁ , code₂) .quoᴿ .snd (p , α) j =
+  ( ( θ₁ R code₁ .quoᴿ .snd (p .fst ,  α .fst) j .fst
+    , θ₂ R code₂ .quoᴿ .snd (p .snd ,  α .snd) j .fst
+    )
+  , ( θ₁ _ code₁ .quoᴿ .snd (p .fst , α .fst) j .snd
+    , θ₂ _ code₂ .quoᴿ .snd (p .snd , α .snd) j .snd
+    )
+  )
+isSNRSJoin _ _ θ₁ θ₂ _ (code₁ , code₂) .path =
+  equivFun ΣPathP≃PathPΣ (θ₁ _ code₁ .path , θ₂ _ code₂ .path)
 
 -- Parameterized structure
 
-module _ {ℓ ℓ₀ ℓ₁} (A : Type ℓ₀) where
+module _ (A : Type ℓ₀) where
 
   parameterized-setStructure : (A → SetStructure ℓ ℓ₁) → SetStructure ℓ (ℓ-max ℓ₀ ℓ₁)
   parameterized-setStructure S .struct X = (a : A) → (S a .struct X)
@@ -291,76 +289,76 @@ module _ {ℓ ℓ₀ ℓ₁} (A : Type ℓ₀) where
   isSNRSParameterized _ ρ θ _ code .quoᴿ .snd (f , h) j .snd a = θ a _ (code a) .quoᴿ .snd (f a , h a) j .snd
   isSNRSParameterized _ ρ θ R code .path = funExt λ a → θ a R (code a) .path
 
-module _  {ℓ ℓ₁} where
+-- Variable assumption
 
-  unaryFun-setStructure : SetStructure ℓ ℓ₁ → SetStructure ℓ (ℓ-max ℓ ℓ₁)
-  unaryFun-setStructure S .struct X = X → S .struct X
-  unaryFun-setStructure S .set setX = isSetΠ λ _ → S .set setX
+unaryFun-setStructure : SetStructure ℓ ℓ₁ → SetStructure ℓ (ℓ-max ℓ ℓ₁)
+unaryFun-setStructure S .struct X = X → S .struct X
+unaryFun-setStructure S .set setX = isSetΠ λ _ → S .set setX
 
-  unaryFun-rel : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
-    → StrRel S ℓ₁' → StrRel (nAryFun-structure 1 S) (ℓ-max ℓ ℓ₁')
-  unaryFun-rel ρ .rel X Y R f g =
-    {x : X} {y : Y} → R x y → ρ .rel X Y R (f x) (g y)
-  unaryFun-rel ρ .prop propR f g =
-    isPropImplicitΠ λ x →
-    isPropImplicitΠ λ y →
-    isPropΠ λ _ → ρ .prop propR (f x) (g y)
+unaryFun-rel : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
+  → StrRel S ℓ₁' → StrRel (nAryFun-structure 1 S) (ℓ-max ℓ ℓ₁')
+unaryFun-rel ρ .rel X Y R f g =
+  {x : X} {y : Y} → R x y → ρ .rel X Y R (f x) (g y)
+unaryFun-rel ρ .prop propR f g =
+  isPropImplicitΠ λ x →
+  isPropImplicitΠ λ y →
+  isPropΠ λ _ → ρ .prop propR (f x) (g y)
 
-  isSNRSUnaryFun : (S : SetStructure ℓ ℓ₁) {ℓ₁' : Level} (ρ : StrRel (S .struct) ℓ₁')
-    → isSNRS S ρ
-    → isSNRS (unaryFun-setStructure S) (unaryFun-rel ρ)
-  isSNRSUnaryFun S ρ θ {X , f} {Y , g} (R , bis) code .quoᴸ .fst =
-    f₀ , λ p → subst (λ y → ρ .rel _ _ _ _ (f₀ y)) p (θ _ _ .quoᴸ .fst .snd)
-    where
-    f₀ : _
-    f₀ [ x ] = θ (R , bis) (code (bis .fwdRel x)) .quoᴸ .fst .fst
-    f₀ (eq/ x₀ x₁ r i) =
-      quoᴸ-coherence S ρ θ (R , bis)
-        (code (bis .fwdRel x₀))
-        (code (bis .fwdRel x₁))
-        (code r)
-        i
-    f₀ (squash/ _ _ p q j i) =
-      S .set squash/ _ _ (cong f₀ p) (cong f₀ q) j i
-  isSNRSUnaryFun S ρ θ (R , bis) code .quoᴸ .snd (f' , h) =
-    Σ≡Prop
-      (λ _ → isPropImplicitΠ λ _ → isPropImplicitΠ λ _ → isPropΠ λ _ →
-        ρ .prop (λ _ _ → squash/ _ _) _ _)
-      (funExt
-        (elimProp
-          (λ _ → S .set squash/ _ _)
-          (λ x → cong fst (θ _ _ .quoᴸ .snd (f' [ x ] , h refl)))))
-  isSNRSUnaryFun S ρ θ (R , bis) code .quoᴿ .fst =
-    g₀ , λ p → subst (λ y → ρ .rel _ _ _ _ (g₀ y)) p (θ _ _ .quoᴿ .fst .snd)
-    where
-    g₀ : _
-    g₀ [ y ] = θ (R , bis) (code (bis .bwdRel y)) .quoᴿ .fst .fst
-    g₀ (eq/ y₀ y₁ r i) =
-      quoᴿ-coherence S ρ θ (R , bis)
-        (code (bis .bwdRel y₀))
-        (code (bis .bwdRel y₁))
-        (code r)
-        i
-    g₀ (squash/ _ _ p q j i) =
-      S .set squash/ _ _ (cong g₀ p) (cong g₀ q) j i
-  isSNRSUnaryFun S ρ θ _ code .quoᴿ .snd (g' , h) =
-    Σ≡Prop
-      (λ _ → isPropImplicitΠ λ _ → isPropImplicitΠ λ _ → isPropΠ λ _ →
-        ρ .prop (λ _ _ → squash/ _ _) _ _)
-      (funExt
-        (elimProp
-          (λ _ → S .set squash/ _ _)
-          (λ y → cong fst (θ _ _ .quoᴿ .snd (g' [ y ] , h refl)))))
-  isSNRSUnaryFun S ρ θ (R , bis) code .path =
-    ua→
+isSNRSUnaryFun : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁')
+  → isSNRS S ρ
+  → isSNRS (unaryFun-setStructure S) (unaryFun-rel ρ)
+isSNRSUnaryFun S ρ θ {X , f} {Y , g} (R , bis) code .quoᴸ .fst =
+  f₀ , λ p → subst (λ y → ρ .rel _ _ _ _ (f₀ y)) p (θ _ _ .quoᴸ .fst .snd)
+  where
+  f₀ : _
+  f₀ [ x ] = θ (R , bis) (code (bis .fwdRel x)) .quoᴸ .fst .fst
+  f₀ (eq/ x₀ x₁ r i) =
+    quoᴸ-coherence S ρ θ (R , bis)
+      (code (bis .fwdRel x₀))
+      (code (bis .fwdRel x₁))
+      (code r)
+      i
+  f₀ (squash/ _ _ p q j i) =
+    S .set squash/ _ _ (cong f₀ p) (cong f₀ q) j i
+isSNRSUnaryFun S ρ θ (R , bis) code .quoᴸ .snd (f' , h) =
+  Σ≡Prop
+    (λ _ → isPropImplicitΠ λ _ → isPropImplicitΠ λ _ → isPropΠ λ _ →
+      ρ .prop (λ _ _ → squash/ _ _) _ _)
+    (funExt
       (elimProp
-        (λ _ → isOfHLevelPathP' 1
-          (λ i → S .set (subst isSet (λ j → ua E.Thm (i ∧ j)) squash/))
-          _ _)
-        (λ x →
-          θ _ (code (bis .fwdRel x)) .path
-          ▷ cong fst
-            (θ _ (code (bis .fwdRel x)) .quoᴿ .snd
-              (θ _ (code (bis .bwdRel (bis .fwd x))) .quoᴿ .fst))))
-    where
-    module E = Bisim→Equiv (R , bis)
+        (λ _ → S .set squash/ _ _)
+        (λ x → cong fst (θ _ _ .quoᴸ .snd (f' [ x ] , h refl)))))
+isSNRSUnaryFun S ρ θ (R , bis) code .quoᴿ .fst =
+  g₀ , λ p → subst (λ y → ρ .rel _ _ _ _ (g₀ y)) p (θ _ _ .quoᴿ .fst .snd)
+  where
+  g₀ : _
+  g₀ [ y ] = θ (R , bis) (code (bis .bwdRel y)) .quoᴿ .fst .fst
+  g₀ (eq/ y₀ y₁ r i) =
+    quoᴿ-coherence S ρ θ (R , bis)
+      (code (bis .bwdRel y₀))
+      (code (bis .bwdRel y₁))
+      (code r)
+      i
+  g₀ (squash/ _ _ p q j i) =
+    S .set squash/ _ _ (cong g₀ p) (cong g₀ q) j i
+isSNRSUnaryFun S ρ θ _ code .quoᴿ .snd (g' , h) =
+  Σ≡Prop
+    (λ _ → isPropImplicitΠ λ _ → isPropImplicitΠ λ _ → isPropΠ λ _ →
+      ρ .prop (λ _ _ → squash/ _ _) _ _)
+    (funExt
+      (elimProp
+        (λ _ → S .set squash/ _ _)
+        (λ y → cong fst (θ _ _ .quoᴿ .snd (g' [ y ] , h refl)))))
+isSNRSUnaryFun S ρ θ (R , bis) code .path =
+  ua→
+    (elimProp
+      (λ _ → isOfHLevelPathP' 1
+        (λ i → S .set (subst isSet (λ j → ua E.Thm (i ∧ j)) squash/))
+        _ _)
+      (λ x →
+        θ _ (code (bis .fwdRel x)) .path
+        ▷ cong fst
+          (θ _ (code (bis .fwdRel x)) .quoᴿ .snd
+            (θ _ (code (bis .bwdRel (bis .fwd x))) .quoᴿ .fst))))
+  where
+  module E = Bisim→Equiv (R , bis)
