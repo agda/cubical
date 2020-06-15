@@ -137,7 +137,10 @@ module withEndsDemo {ℓ} {A₀ : I → Type ℓ}
                         {A₃ : ∀ {i} → ∀ {a₀ a₁} → A₂ {i} {a₀} a₁ → Type ℓ} where
 
   s : I → Sig ℓ 4
-  s i = A₀ i , λ a₀ → A₁ a₀ , λ a₁ → A₂ a₁ , (λ a₂ → A₃ a₂)
+  s i = _ , λ (a₀ : A₀ i) →
+        _ , λ (a₁ : A₁ a₀) →
+        _ , λ (a₂ : A₂ a₁) →
+                    A₃ a₂
 
   sigPathP : Sig ℓ 12
   sigPathP = sig-PathP-withEnds s
@@ -146,33 +149,33 @@ module withEndsDemo {ℓ} {A₀ : I → Type ℓ}
   sigPathP' = sig-PathP-withEnds' s
 
   sigPathP-test : sig-PathP-withEnds s ≡
-        ( _ , (λ (x0 : A₀ i0) →
-          _ , (λ (x1 : A₁ x0) →
-          _ , (λ (x2 : A₂ x1) →
-          _ , (λ (x3 : A₃ x2) →
-          _ , (λ (x4 : A₀ i1) →
-          _ , (λ (x5 : A₁ x4) →
-          _ , (λ (x6 : A₂ x5) →
-          _ , (λ (x7 : A₃ x6) →
-          _ , (λ (p1 : PathP (λ z → A₀ z) x0 x4) →
-          _ , (λ (p2 : PathP (λ z → A₁ (p1 z)) x1 x5) →
-          _ , (λ (p3 : PathP (λ z → A₂ (p2 z)) x2 x6) →
-                       PathP (λ i → A₃ (p3 i)) x3 x7))))))))))))
+        ( _ , λ (x0 : A₀ i0) →
+          _ , λ (x1 : A₁ x0) →
+          _ , λ (x2 : A₂ x1) →
+          _ , λ (x3 : A₃ x2) →
+          _ , λ (x4 : A₀ i1) →
+          _ , λ (x5 : A₁ x4) →
+          _ , λ (x6 : A₂ x5) →
+          _ , λ (x7 : A₃ x6) →
+          _ , λ (p1 : PathP (λ z → A₀ z) x0 x4) →
+          _ , λ (p2 : PathP (λ z → A₁ (p1 z)) x1 x5) →
+          _ , λ (p3 : PathP (λ z → A₂ (p2 z)) x2 x6) →
+                       PathP (λ i → A₃ (p3 i)) x3 x7)
   sigPathP-test = refl
 
   sigPathP-test' : sig-PathP-withEnds' s ≡
-        ( _ , (λ (x0 : A₀ i0) →
-          _ , (λ (x1 : A₀ i1) →
-          _ , (λ (p1 : PathP (λ z → A₀ z) x0 x1) →
-          _ , (λ (x2 : A₁ x0) →
-          _ , (λ (x3 : A₁ x1) →
-          _ , (λ (p2 : PathP (λ z → A₁ (p1 z)) x2 x3) →
-          _ , (λ (x4 : A₂ x2) →
-          _ , (λ (x5 : A₂ x3) →
-          _ , (λ (p3 : PathP (λ z → A₂ (p2 z)) x4 x5) →
-          _ , (λ ( x : A₃ x4) →
-          _ , (λ ( y : A₃ x5) →
-                       PathP (λ i → A₃ (p3 i)) x y ))))))))))))
+        ( _ , λ (x0 : A₀ i0) →
+          _ , λ (x1 : A₀ i1) →
+          _ , λ (p1 : PathP (λ z → A₀ z) x0 x1) →
+          _ , λ (x2 : A₁ x0) →
+          _ , λ (x3 : A₁ x1) →
+          _ , λ (p2 : PathP (λ z → A₁ (p1 z)) x2 x3) →
+          _ , λ (x4 : A₂ x2) →
+          _ , λ (x5 : A₂ x3) →
+          _ , λ (p3 : PathP (λ z → A₂ (p2 z)) x4 x5) →
+          _ , λ ( x : A₃ x4) →
+          _ , λ ( y : A₃ x5) →
+                       PathP (λ i → A₃ (p3 i)) x y )
   sigPathP-test' = refl
 
 
