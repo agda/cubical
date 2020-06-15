@@ -11,6 +11,8 @@ open import Cubical.Functions.Surjection
 
 open import Cubical.Structures.Macro
 open import Cubical.Structures.LeftAction
+open import Cubical.Structures.Functorial
+open import Cubical.Structures.NAryOp
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum as ⊎
@@ -34,24 +36,20 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
 
  -- deq as a structure
  -- First, a few preliminary results that we will need later
- deq-map-forward : {X Y : Type ℓ} → (X → Y)
+ deq-map : {X Y : Type ℓ} → (X → Y)
                   →  Unit ⊎ (X × A) → Unit ⊎ (Y × A)
- deq-map-forward f (inl tt) = inl tt
- deq-map-forward f (inr (x , a)) = inr (f x , a)
+ deq-map f (inl tt) = inl tt
+ deq-map f (inr (x , a)) = inr (f x , a)
 
- deq-map-forward-∘ :{B C D : Type ℓ}
+ deq-map-∘ :{B C D : Type ℓ}
   (g : C → D) (f : B → C)
-  → ∀ r → deq-map-forward {X = C} g (deq-map-forward f r) ≡ deq-map-forward (λ b → g (f b)) r
- deq-map-forward-∘ g f (inl tt) = refl
- deq-map-forward-∘ g f (inr (b , a)) = refl
+  → ∀ r → deq-map {X = C} g (deq-map f r) ≡ deq-map (λ b → g (f b)) r
+ deq-map-∘ g f (inl tt) = refl
+ deq-map-∘ g f (inr (b , a)) = refl
 
-
- deq-map-id : {X : Type ℓ} → idfun (Unit ⊎ (X × A)) ≡ deq-map-forward (idfun X)
- deq-map-id {X = X} = funExt γ
-  where
-   γ : ∀ z → z ≡ deq-map-forward (idfun X) z
-   γ (inl tt) = refl
-   γ (inr xa) = refl
+ deq-map-id : {X : Type ℓ} → ∀ r → deq-map (idfun X) r ≡ r
+ deq-map-id (inl _) = refl
+ deq-map-id (inr _) = refl
 
  deq-structure : Type ℓ → Type ℓ
  deq-structure X = X → Unit ⊎ (X × A)
@@ -60,12 +58,13 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  Deq = TypeWithStr ℓ deq-structure
 
  deq-iso : StrIso deq-structure ℓ
- deq-iso (X , p) (Y , q) e = ∀ x → deq-map-forward (e .fst) (p x) ≡ q (e .fst x)
+ deq-iso = unaryFunIso (functorial-iso deq-map)
 
  Deq-is-SNS : SNS {ℓ} deq-structure deq-iso
- Deq-is-SNS = SNS-≡→SNS-PathP deq-iso (λ p q → (subst (λ f → (∀ x → f (p x) ≡ q x) ≃ (p ≡ q)) deq-map-id funExtEquiv))
-
-
+ Deq-is-SNS =
+   unaryFunSNS
+     (functorial-iso deq-map)
+     (functorial-is-SNS deq-map deq-map-id)
 
  -- Now we can do Queues:
  open Macro ℓ (var , left-action-desc A , foreign deq-iso Deq-is-SNS) public renaming
