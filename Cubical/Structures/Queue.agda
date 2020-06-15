@@ -9,11 +9,10 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 open import Cubical.Functions.Surjection
 
-open import Cubical.Structures.Pointed
-open import Cubical.Structures.NAryOp
-open import Cubical.Structures.Parameterized
+open import Cubical.Structures.Macro
 open import Cubical.Structures.LeftAction
 open import Cubical.Structures.Functorial
+open import Cubical.Structures.NAryOp
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum as ⊎
@@ -35,7 +34,7 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  -- A Queue structure has three components, the empty Queue, an enqueue function and a dequeue function
  -- We first deal with enq and deq as separate structures
 
- -- deq-map as a structure
+ -- deq as a structure
  -- First, a few preliminary results that we will need later
  deq-map : {X Y : Type ℓ} → (X → Y)
                   →  Unit ⊎ (X × A) → Unit ⊎ (Y × A)
@@ -52,39 +51,24 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  deq-map-id (inl _) = refl
  deq-map-id (inr _) = refl
 
- deq-structure : Type ℓ → Type ℓ
- deq-structure X = X → Unit ⊎ (X × A)
+ open Macro ℓ (recvar (functorial deq-map deq-map-id)) public renaming
+   ( structure to deq-structure
+   ; iso to deq-iso
+   ; isSNS to Deq-is-SNS
+   )
 
  Deq : Type (ℓ-suc ℓ)
  Deq = TypeWithStr ℓ deq-structure
 
- deq-iso : StrIso deq-structure ℓ
- deq-iso = unaryFunIso (functorial-iso deq-map)
-
- Deq-is-SNS : SNS {ℓ} deq-structure deq-iso
- Deq-is-SNS =
-   unaryFunSNS
-     (functorial-iso deq-map)
-     (functorial-is-SNS deq-map deq-map-id)
-
  -- Now we can do Queues:
- raw-queue-structure : Type ℓ → Type ℓ
- raw-queue-structure Q = Q × (A → Q → Q) × (Q → Unit ⊎ (Q × A))
+ open Macro ℓ (var , left-action-desc A , foreign deq-iso Deq-is-SNS) public renaming
+   ( structure to raw-queue-structure
+   ; iso to raw-queue-iso
+   ; isSNS to RawQueue-is-SNS
+   )
 
  RawQueue : Type (ℓ-suc ℓ)
  RawQueue = TypeWithStr ℓ raw-queue-structure
-
- raw-queue-iso : StrIso raw-queue-structure ℓ
- raw-queue-iso =
-   join-iso pointed-iso (join-iso (left-action-iso A) deq-iso)
-
- RawQueue-is-SNS : SNS raw-queue-structure raw-queue-iso
- RawQueue-is-SNS =
-   join-SNS pointed-iso pointed-is-SNS
-            (join-iso (left-action-iso A) deq-iso)
-            (join-SNS (left-action-iso A) (Left-Action-is-SNS A) deq-iso Deq-is-SNS)
-
-
 
  returnOrEnq : {Q : Type ℓ}
   → raw-queue-structure Q → A → Unit ⊎ (Q × A) → Q × A
