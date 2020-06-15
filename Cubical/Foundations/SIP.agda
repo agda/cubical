@@ -84,12 +84,12 @@ module _ {S : Type ℓ₁ → Type ℓ₂} {ι : StrIso S ℓ₃}
   (θ : SNS-PathP S ι) (A B : TypeWithStr ℓ₁ S)
   where
 
+  sip : A ≃[ ι ] B → A ≡ B
+  sip (e , p) i = ua e i , θ e .fst p i
+
   SIP : A ≃[ ι ] B ≃ (A ≡ B)
   SIP =
-    isoToEquiv (compIso (Σ-cong-iso (invIso univalenceIso) (equivToIso ∘ θ)) ΣPathIsoPathΣ)
-
-  sip : A ≃[ ι ] B → A ≡ B
-  sip = SIP .fst
+    sip , isoToIsEquiv (compIso (Σ-cong-iso (invIso univalenceIso) (equivToIso ∘ θ)) ΣPathIsoPathΣ)
 
   sip⁻ : A ≡ B → A ≃[ ι ] B
   sip⁻ = invEq SIP
