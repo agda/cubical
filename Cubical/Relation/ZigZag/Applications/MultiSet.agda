@@ -100,7 +100,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
  -- R {List A , Lcount} {AList A , ALcount} is a bisimulation
  isBisimR : isBisimulation (R {List A , Lcount} {AList A , ALcount})
- isBisimR .zigzag r r' r'' a = (r a) ∙∙ sym (r' a) ∙∙ (r'' a)
+ isBisimR .zigzag r r' r'' a = r a ∙∙ sym (r' a) ∙∙ r'' a
  isBisimR .fwd = φ
  isBisimR .fwdRel = η
  isBisimR .bwd = ψ
