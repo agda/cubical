@@ -113,51 +113,54 @@ isSNRS {ℓ} S ρ =
   → ρ .rel (A .fst) (B .fst) (R .fst) (A .snd) (B .snd)
   → Descends (S .struct) ρ A B R
 
--- Two cool lemmas
+--------------------------------------------------------------------------------
+-- Two lemmas that get used later on
+--------------------------------------------------------------------------------
 
-coolLemmaᴸ : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁') (θ : isSNRS S ρ)
-  {X Y : Type ℓ} (R : Bisimulation X Y ℓ)
-  {x₀ x₁ : S .struct X} {y₀ y₁ : S .struct Y}
-  (code₀₀ : ρ .rel X Y (R .fst) x₀ y₀)
-  (code₁₁ : ρ .rel X Y (R .fst) x₁ y₁)
-  → ρ .rel X Y (R .fst) x₀ y₁
-  → θ _ code₀₀ .quoᴸ .fst .fst ≡ θ _ code₁₁ .quoᴸ .fst .fst
-coolLemmaᴸ S ρ θ R {x₀} {x₁} {y₀} {y₁} code₀₀ code₁₁ code₀₁ =
-  cong fst (θ R code₀₀ .quoᴸ .snd (θ R code₀₁ .quoᴸ .fst))
-  ∙ lem
-    (symP (θ R code₀₁ .path))
-    (symP (θ R code₁₁ .path))
-    (cong fst (θ R code₀₁ .quoᴿ .snd (θ R code₁₁ .quoᴿ .fst)))
-  where
-  lem : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
-    → PathP A a₀ a₁
-    → PathP A a₀' a₁'
-    → a₀ ≡ a₀'
-    → a₁ ≡ a₁'
-  lem {A = A} p₀ p₁ q i =
-    comp A (λ k → λ {(i = i0) → p₀ k; (i = i1) → p₁ k}) (q i)
+private
+  quoᴸ-coherence : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁') (θ : isSNRS S ρ)
+    {X Y : Type ℓ} (R : Bisimulation X Y ℓ)
+    {x₀ x₁ : S .struct X} {y₀ y₁ : S .struct Y}
+    (code₀₀ : ρ .rel X Y (R .fst) x₀ y₀)
+    (code₁₁ : ρ .rel X Y (R .fst) x₁ y₁)
+    → ρ .rel X Y (R .fst) x₀ y₁
+    → θ _ code₀₀ .quoᴸ .fst .fst ≡ θ _ code₁₁ .quoᴸ .fst .fst
+  quoᴸ-coherence S ρ θ R {x₀} {x₁} {y₀} {y₁} code₀₀ code₁₁ code₀₁ =
+    cong fst (θ R code₀₀ .quoᴸ .snd (θ R code₀₁ .quoᴸ .fst))
+    ∙ lem
+      (symP (θ R code₀₁ .path))
+      (symP (θ R code₁₁ .path))
+      (cong fst (θ R code₀₁ .quoᴿ .snd (θ R code₁₁ .quoᴿ .fst)))
+    where
+    lem : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
+      → PathP A a₀ a₁
+      → PathP A a₀' a₁'
+      → a₀ ≡ a₀'
+      → a₁ ≡ a₁'
+    lem {A = A} p₀ p₁ q i =
+      comp A (λ k → λ {(i = i0) → p₀ k; (i = i1) → p₁ k}) (q i)
 
-coolLemmaᴿ : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁') (θ : isSNRS S ρ)
-  {X Y : Type ℓ} (R : Bisimulation X Y ℓ)
-  {x₀ x₁ : S .struct X} {y₀ y₁ : S .struct Y}
-  (code₀₀ : ρ .rel X Y (R .fst) x₀ y₀)
-  (code₁₁ : ρ .rel X Y (R .fst) x₁ y₁)
-  → ρ .rel X Y (R .fst) x₁ y₀
-  → θ _ code₀₀ .quoᴿ .fst .fst ≡ θ _ code₁₁ .quoᴿ .fst .fst
-coolLemmaᴿ S ρ θ R {x₀} {x₁} {y₀} {y₁} code₀₀ code₁₁ code₁₀ =
-  cong fst (θ R code₀₀ .quoᴿ .snd (θ R code₁₀ .quoᴿ .fst))
-  ∙ lem
-    (θ R code₁₀ .path)
-    (θ R code₁₁ .path)
-    (cong fst (θ R code₁₀ .quoᴸ .snd (θ R code₁₁ .quoᴸ .fst)))
-  where
-  lem : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
-    → PathP A a₀ a₁
-    → PathP A a₀' a₁'
-    → a₀ ≡ a₀'
-    → a₁ ≡ a₁'
-  lem {A = A} p₀ p₁ q i =
-    comp A (λ k → λ {(i = i0) → p₀ k; (i = i1) → p₁ k}) (q i)
+  quoᴿ-coherence : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁') (θ : isSNRS S ρ)
+    {X Y : Type ℓ} (R : Bisimulation X Y ℓ)
+    {x₀ x₁ : S .struct X} {y₀ y₁ : S .struct Y}
+    (code₀₀ : ρ .rel X Y (R .fst) x₀ y₀)
+    (code₁₁ : ρ .rel X Y (R .fst) x₁ y₁)
+    → ρ .rel X Y (R .fst) x₁ y₀
+    → θ _ code₀₀ .quoᴿ .fst .fst ≡ θ _ code₁₁ .quoᴿ .fst .fst
+  quoᴿ-coherence S ρ θ R {x₀} {x₁} {y₀} {y₁} code₀₀ code₁₁ code₁₀ =
+    cong fst (θ R code₀₀ .quoᴿ .snd (θ R code₁₀ .quoᴿ .fst))
+    ∙ lem
+      (θ R code₁₀ .path)
+      (θ R code₁₁ .path)
+      (cong fst (θ R code₁₀ .quoᴸ .snd (θ R code₁₁ .quoᴸ .fst)))
+    where
+    lem : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
+      → PathP A a₀ a₁
+      → PathP A a₀' a₁'
+      → a₀ ≡ a₀'
+      → a₁ ≡ a₁'
+    lem {A = A} p₀ p₁ q i =
+      comp A (λ k → λ {(i = i0) → p₀ k; (i = i1) → p₁ k}) (q i)
 
 --------------------------------------------------------------------------------
 -- Structure combinators
@@ -320,7 +323,7 @@ module _  {ℓ ℓ₁} where
     f₀ : _
     f₀ [ x ] = θ (R , bis) (code (bis .fwdRel x)) .quoᴸ .fst .fst
     f₀ (eq/ x₀ x₁ r i) =
-      coolLemmaᴸ S ρ θ (R , bis)
+      quoᴸ-coherence S ρ θ (R , bis)
         (code (bis .fwdRel x₀))
         (code (bis .fwdRel x₁))
         (code r)
@@ -341,7 +344,7 @@ module _  {ℓ ℓ₁} where
     g₀ : _
     g₀ [ y ] = θ (R , bis) (code (bis .bwdRel y)) .quoᴿ .fst .fst
     g₀ (eq/ y₀ y₁ r i) =
-      coolLemmaᴿ S ρ θ (R , bis)
+      quoᴿ-coherence S ρ θ (R , bis)
         (code (bis .bwdRel y₀))
         (code (bis .bwdRel y₁))
         (code r)
