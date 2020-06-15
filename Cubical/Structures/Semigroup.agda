@@ -12,8 +12,7 @@ open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Structures.Pointed
-open import Cubical.Structures.NAryOp
+open import Cubical.Structures.Macro
 
 open Iso
 
@@ -73,13 +72,13 @@ record SemigroupIso (M N : Semigroup {ℓ}) : Type ℓ where
 -- that are stated using Σ-types. For this we define Semigroup as a
 -- nested Σ-type, prove that it's equivalent to the above record
 -- definition and then transport results along this equivalence.
-module SemigroupΣ-theory where
+module SemigroupΣ-theory {ℓ} where
 
-  raw-semigroup-structure : Type ℓ → Type ℓ
-  raw-semigroup-structure A = A → A → A
-
-  raw-semigroup-is-SNS : SNS {ℓ} raw-semigroup-structure _
-  raw-semigroup-is-SNS = binaryFunSNS pointed-iso pointed-is-SNS
+  open Macro ℓ (recvar (recvar var)) renaming
+    ( structure to raw-semigroup-structure
+    ; iso       to raw-semigroup-iso
+    ; isSNS     to raw-semigroup-is-SNS
+    )
 
   semigroup-axioms : (A : Type ℓ) → raw-semigroup-structure A → Type ℓ
   semigroup-axioms A _·_ = isSet A
@@ -89,14 +88,14 @@ module SemigroupΣ-theory where
   semigroup-structure = add-to-structure raw-semigroup-structure semigroup-axioms
 
   SemigroupΣ : Type (ℓ-suc ℓ)
-  SemigroupΣ {ℓ} = TypeWithStr ℓ semigroup-structure
-
-  semigroup-iso : StrIso semigroup-structure ℓ
-  semigroup-iso = add-to-iso (binaryFunIso pointed-iso) semigroup-axioms
+  SemigroupΣ = TypeWithStr ℓ semigroup-structure
 
   semigroup-axioms-isProp : (A : Type ℓ) (_·_ : raw-semigroup-structure A)
                           → isProp (semigroup-axioms A _·_)
   semigroup-axioms-isProp _ _ = isPropΣ isPropIsSet λ isSetA → isPropΠ3 λ _ _ _ → isSetA _ _
+
+  semigroup-iso : StrIso semigroup-structure ℓ
+  semigroup-iso = add-to-iso raw-semigroup-iso semigroup-axioms
 
   semigroup-axiomsIsoIsSemigroup : {A : Type ℓ} (_·_ : raw-semigroup-structure A)
                                  → Iso (semigroup-axioms A _·_) (IsSemigroup _·_)
@@ -113,7 +112,7 @@ module SemigroupΣ-theory where
   Semigroup→SemigroupΣ (semigroup A _·_ isSemigroup) =
     A , _·_ , semigroup-axiomsIsoIsSemigroup _ .inv isSemigroup
 
-  SemigroupΣ→Semigroup : SemigroupΣ {ℓ} → Semigroup
+  SemigroupΣ→Semigroup : SemigroupΣ → Semigroup
   SemigroupΣ→Semigroup (A , _·_ , isSemigroupΣ) =
     semigroup A _·_ (semigroup-axiomsIsoIsSemigroup _ .fun isSemigroupΣ)
 
@@ -127,7 +126,7 @@ module SemigroupΣ-theory where
   semigroup-is-SNS : SNS {ℓ} semigroup-structure semigroup-iso
   semigroup-is-SNS = add-axioms-SNS _ semigroup-axioms-isProp raw-semigroup-is-SNS
 
-  SemigroupPathΣ : (M N : SemigroupΣ {ℓ}) → (M ≃[ semigroup-iso ] N) ≃ (M ≡ N)
+  SemigroupPathΣ : (M N : SemigroupΣ) → (M ≃[ semigroup-iso ] N) ≃ (M ≡ N)
   SemigroupPathΣ = SIP semigroup-is-SNS
 
   SemigroupIsoΣ : (M N : Semigroup {ℓ}) → Type ℓ

@@ -8,23 +8,19 @@ open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Structures.Pointed
-open import Cubical.Structures.NAryOp
+open import Cubical.Structures.Macro
 
 private
   variable
     ℓ : Level
 
 -- Monoids
-raw-monoid-structure : Type ℓ → Type ℓ
-raw-monoid-structure X = X × (X → X → X)
-
--- If we ignore the axioms we get a "raw" monoid
-raw-monoid-is-SNS : SNS {ℓ} raw-monoid-structure _
-raw-monoid-is-SNS =
-  join-SNS
-    pointed-iso pointed-is-SNS
-    (binaryFunIso pointed-iso) (binaryFunSNS pointed-iso pointed-is-SNS)
+module _ {ℓ} where
+  open Macro ℓ (var , recvar (recvar var)) public renaming
+    ( structure to raw-monoid-structure
+    ; iso to raw-monoid-iso
+    ; isSNS to raw-monoid-is-SNS
+    )
 
 -- Monoid axioms
 monoid-axioms : (X : Type ℓ) → raw-monoid-structure X → Type ℓ
@@ -83,7 +79,7 @@ monoid-lid (_ , _ , _ , _ , _ , P) = P
 
 -- Monoid equivalence
 monoid-iso : StrIso monoid-structure ℓ
-monoid-iso = add-to-iso (join-iso pointed-iso (binaryFunIso pointed-iso)) monoid-axioms
+monoid-iso = add-to-iso raw-monoid-iso monoid-axioms
 
 -- We have to show that the monoid axioms are indeed propositions
 monoid-axioms-are-Props : (X : Type ℓ) (s : raw-monoid-structure X) → isProp (monoid-axioms X s)
