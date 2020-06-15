@@ -120,7 +120,7 @@ in a cabal sandbox do the following:
 ```
 
 If you have cabal v2 installed the sandbox command should be replaced
-by `cabal v1-sandbox init`. 
+by `cabal v1-sandbox init`.
 
 If the above commands succeed this the agda and agda-mode executables
 will be in the folder `agda/.cabal-sandbox/bin`. In order to be able

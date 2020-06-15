@@ -49,12 +49,11 @@ len [- x - x₁ -] = len x + len x₁
 
 NestedΣ : ∀ {ℓ} → ∀ sh → Sig ℓ (len sh) → Type ℓ
 
-
 -- for any signature, there is isomorphism betwen NestedΣᵣ (nested Sigma in rigtmost shape)
 -- and NestedΣ sh (nested Sigma in shape described by the argument of type Par)
 
 NestedΣ-NestedΣᵣ-Iso : ∀ {ℓ} → (sh : Par) → (s : Sig ℓ (len sh))
-                      → Iso (NestedΣ sh s) (NestedΣᵣ s) 
+                      → Iso (NestedΣ sh s) (NestedΣᵣ s)
 
 NestedΣ □ x = x
 NestedΣ [- shL - shR -] s =
@@ -62,9 +61,10 @@ NestedΣ [- shL - shR -] s =
    in Σ (NestedΣ shL sL) (NestedΣ shR ∘ sR ∘ Iso.fun (NestedΣ-NestedΣᵣ-Iso shL _))
 
 NestedΣ-NestedΣᵣ-Iso □ s = idIso
-NestedΣ-NestedΣᵣ-Iso [- shL - shR -] s = 
-  let (sL , sR) = sig-cs.split {n = len shL} {m = len shR} s 
-  in compIso (Σ-cong-iso-snd λ _ → NestedΣ-NestedΣᵣ-Iso shR _)
-      (compIso (Σ-cong-iso-fst {B = NestedΣᵣ ∘ sR} (NestedΣ-NestedΣᵣ-Iso shL sL))
-        (nestedΣᵣ-cs.isom {n = len shL} {m = len shR} s))
+NestedΣ-NestedΣᵣ-Iso [- shL - shR -] s =
+  let (sL , sR) = sig-cs.split {n = len shL} {m = len shR} s
+  in
+     _ Iso⟨ Σ-cong-iso-snd (λ _ → NestedΣ-NestedΣᵣ-Iso shR _) ⟩
+     _ Iso⟨ Σ-cong-iso-fst (NestedΣ-NestedΣᵣ-Iso shL sL) ⟩
+     _ Iso⟨ nestedΣᵣ-cs.isom-split {n = len shL} {m = len shR} _ ⟩ _ ∎Iso
 
