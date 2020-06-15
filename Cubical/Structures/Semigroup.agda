@@ -74,7 +74,7 @@ record SemigroupIso (M N : Semigroup {ℓ}) : Type ℓ where
 -- definition and then transport results along this equivalence.
 module SemigroupΣ-theory {ℓ} where
 
-  open Macro ℓ (recvar (recvar var)) renaming
+  open Macro ℓ (recvar (recvar var)) public renaming
     ( structure to raw-semigroup-structure
     ; iso       to raw-semigroup-iso
     ; isSNS     to raw-semigroup-is-SNS
