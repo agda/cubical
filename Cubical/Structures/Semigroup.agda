@@ -52,7 +52,7 @@ record Semigroup : Type (ℓ-suc ℓ) where
 
 -- Extractor for the carrier type
 ⟨_⟩ : Semigroup → Type ℓ
-⟨ G ⟩ = Semigroup.Carrier G
+⟨_⟩ = Semigroup.Carrier
 
 
 record SemigroupIso (M N : Semigroup {ℓ}) : Type ℓ where
@@ -64,7 +64,7 @@ record SemigroupIso (M N : Semigroup {ℓ}) : Type ℓ where
   module N = Semigroup N
 
   field
-    e : ⟨ M ⟩ ≃ ⟨ N ⟩
+    e     : ⟨ M ⟩ ≃ ⟨ N ⟩
     isHom : (x y : ⟨ M ⟩) → equivFun e (x M.· y) ≡ equivFun e x N.· equivFun e y
 
 
@@ -93,31 +93,32 @@ module SemigroupΣ-theory where
   semigroup-iso : StrIso semigroup-structure ℓ
   semigroup-iso = add-to-iso (binaryFunIso pointed-iso) semigroup-axioms
 
-  semigroup-axioms-isProp : (A : Type ℓ) (s : raw-semigroup-structure A)
-                          → isProp (semigroup-axioms A s)
-  semigroup-axioms-isProp A _·_ = isPropΣ isPropIsSet λ isSetA → isPropΠ3 λ _ _ _ → isSetA _ _
+  semigroup-axioms-isProp : (A : Type ℓ) (_·_ : raw-semigroup-structure A)
+                          → isProp (semigroup-axioms A _·_)
+  semigroup-axioms-isProp _ _ = isPropΣ isPropIsSet λ isSetA → isPropΠ3 λ _ _ _ → isSetA _ _
 
-  semigroup-axiomsIsoIsSemigroup : (A : Type ℓ) (s : raw-semigroup-structure A)
-                                 → Iso (semigroup-axioms A s) (IsSemigroup s)
-  fun (semigroup-axiomsIsoIsSemigroup A s) (x , y)           = issemigroup x y
-  inv (semigroup-axiomsIsoIsSemigroup A s) (issemigroup x y) = (x , y)
-  rightInv (semigroup-axiomsIsoIsSemigroup A s) _            = refl
-  leftInv (semigroup-axiomsIsoIsSemigroup A s) _             = refl
+  semigroup-axiomsIsoIsSemigroup : {A : Type ℓ} (_·_ : raw-semigroup-structure A)
+                                 → Iso (semigroup-axioms A _·_) (IsSemigroup _·_)
+  fun (semigroup-axiomsIsoIsSemigroup s) (x , y)           = issemigroup x y
+  inv (semigroup-axiomsIsoIsSemigroup s) (issemigroup x y) = (x , y)
+  rightInv (semigroup-axiomsIsoIsSemigroup s) _            = refl
+  leftInv (semigroup-axiomsIsoIsSemigroup s) _             = refl
 
-  semigroup-axioms≡IsSemigroup : (A : Type ℓ) (s : raw-semigroup-structure A)
-                               → semigroup-axioms A s ≡ IsSemigroup s
-  semigroup-axioms≡IsSemigroup A s = isoToPath (semigroup-axiomsIsoIsSemigroup A s)
+  semigroup-axioms≡IsSemigroup : {A : Type ℓ} (_·_ : raw-semigroup-structure A)
+                               → semigroup-axioms _ _·_ ≡ IsSemigroup _·_
+  semigroup-axioms≡IsSemigroup s = isoToPath (semigroup-axiomsIsoIsSemigroup s)
 
   Semigroup→SemigroupΣ : Semigroup {ℓ} → SemigroupΣ
   Semigroup→SemigroupΣ (semigroup A _·_ isSemigroup) =
-    A , _·_ , semigroup-axiomsIsoIsSemigroup _ _ .inv isSemigroup
+    A , _·_ , semigroup-axiomsIsoIsSemigroup _ .inv isSemigroup
 
   SemigroupΣ→Semigroup : SemigroupΣ {ℓ} → Semigroup
-  SemigroupΣ→Semigroup (X , _·_ , isSemigroupΣ) =
-    semigroup X _·_ (semigroup-axiomsIsoIsSemigroup _ _ .fun isSemigroupΣ)
+  SemigroupΣ→Semigroup (A , _·_ , isSemigroupΣ) =
+    semigroup A _·_ (semigroup-axiomsIsoIsSemigroup _ .fun isSemigroupΣ)
 
   SemigroupIsoSemigroupΣ : Iso (Semigroup {ℓ}) SemigroupΣ
-  SemigroupIsoSemigroupΣ = iso Semigroup→SemigroupΣ SemigroupΣ→Semigroup (λ _ → refl) (λ _ → refl)
+  SemigroupIsoSemigroupΣ =
+    iso Semigroup→SemigroupΣ SemigroupΣ→Semigroup (λ _ → refl) (λ _ → refl)
 
   Semigroup≡SemigroupΣ : Semigroup {ℓ} ≡ SemigroupΣ
   Semigroup≡SemigroupΣ = isoToPath SemigroupIsoSemigroupΣ
@@ -131,15 +132,15 @@ module SemigroupΣ-theory where
   SemigroupIsoΣ : (M N : Semigroup {ℓ}) → Type ℓ
   SemigroupIsoΣ M N = Semigroup→SemigroupΣ M ≃[ semigroup-iso ] Semigroup→SemigroupΣ N
 
-  SemigroupIsoΣPath : (M N : Semigroup {ℓ}) → Iso (SemigroupIso M N) (SemigroupIsoΣ M N)
-  fun (SemigroupIsoΣPath M N) (semigroupiso e h) = (e , h)
-  inv (SemigroupIsoΣPath M N) (e , h)            = semigroupiso e h
-  rightInv (SemigroupIsoΣPath M N) _             = refl
-  leftInv (SemigroupIsoΣPath M N) _              = refl
+  SemigroupIsoΣPath : {M N : Semigroup {ℓ}} → Iso (SemigroupIso M N) (SemigroupIsoΣ M N)
+  fun SemigroupIsoΣPath (semigroupiso e h) = (e , h)
+  inv SemigroupIsoΣPath (e , h)            = semigroupiso e h
+  rightInv SemigroupIsoΣPath _             = refl
+  leftInv SemigroupIsoΣPath _              = refl
 
   SemigroupPath : (M N : Semigroup {ℓ}) → (SemigroupIso M N) ≃ (M ≡ N)
   SemigroupPath M N =
-    SemigroupIso M N                                ≃⟨ isoToEquiv (SemigroupIsoΣPath M N) ⟩
+    SemigroupIso M N                                ≃⟨ isoToEquiv SemigroupIsoΣPath ⟩
     SemigroupIsoΣ M N                               ≃⟨ SemigroupPathΣ (Semigroup→SemigroupΣ M) (Semigroup→SemigroupΣ N) ⟩
     Semigroup→SemigroupΣ M ≡ Semigroup→SemigroupΣ N ≃⟨ isoToEquiv (invIso (congIso SemigroupIsoSemigroupΣ)) ⟩
     M ≡ N ■
@@ -148,9 +149,9 @@ module SemigroupΣ-theory where
 -- We now extract the important results from the above module
 
 isPropIsSemiGroup : {A : Type ℓ} (_·_ : A → A → A) → isProp (IsSemigroup _·_)
-isPropIsSemiGroup s =
-  subst isProp (SemigroupΣ-theory.semigroup-axioms≡IsSemigroup _ s)
-        (SemigroupΣ-theory.semigroup-axioms-isProp _ s)
+isPropIsSemiGroup _·_ =
+  subst isProp (SemigroupΣ-theory.semigroup-axioms≡IsSemigroup _·_)
+        (SemigroupΣ-theory.semigroup-axioms-isProp _ _·_)
 
 SemigroupPath : (M N : Semigroup {ℓ}) → (SemigroupIso M N) ≃ (M ≡ N)
 SemigroupPath = SemigroupΣ-theory.SemigroupPath
