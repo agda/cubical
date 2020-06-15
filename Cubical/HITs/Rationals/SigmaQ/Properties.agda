@@ -57,11 +57,11 @@ private
 reduce-[] : ∀ x → reduce Quo.[ x .fst ] ≡ x
      -- equivalent to: Sigma.[ s .fst ] ≡ x
 reduce-[] ((signed s a , b) , cp) =
-  ΣProp≡ (λ _ → isPropIsGCD) (toCoprime-eq₂ s (a , b) cp)
+  Σ≡Prop (λ _ → isPropIsGCD) (toCoprime-eq₂ s (a , b) cp)
 reduce-[] ((posneg i , b) , cp) j =
   isSet→isSet' Sigma.isSetℚ
-    (ΣProp≡ (λ _ → isPropIsGCD) (toCoprime-eq₂ spos (0 , b) cp))
-    (ΣProp≡ (λ _ → isPropIsGCD) (toCoprime-eq₂ sneg (0 , b) cp))
+    (Σ≡Prop (λ _ → isPropIsGCD) (toCoprime-eq₂ spos (0 , b) cp))
+    (Σ≡Prop (λ _ → isPropIsGCD) (toCoprime-eq₂ sneg (0 , b) cp))
     (λ i → Sigma.[ posneg i , b ]) (λ i → (posneg i , b) , cp) i j
 
 

@@ -32,9 +32,9 @@ signedPair s (a , b) = (signed s a , b)
 
 []-cancelʳ : ∀ ((a , b) : ℤ × ℕ₊₁) k → [ a * pos (ℕ₊₁→ℕ k) , b *₊₁ k ] ≡ [ a , b ]
 []-cancelʳ (signed s zero    , b) k =
-  ΣProp≡ (λ _ → isPropIsGCD) (λ i → signed-zero spos s i , 1)
+  Σ≡Prop (λ _ → isPropIsGCD) (λ i → signed-zero spos s i , 1)
 []-cancelʳ (signed s (suc a) , b) k =
-  ΣProp≡ (λ _ → isPropIsGCD) (λ i → signedPair (*S-comm s spos i)
+  Σ≡Prop (λ _ → isPropIsGCD) (λ i → signedPair (*S-comm s spos i)
                                                (toCoprime-cancelʳ (suc a , b) k i))
 []-cancelʳ (posneg i ,         b) k j =
   isSet→isSet' isSetℚ ([]-cancelʳ (pos zero , b) k) ([]-cancelʳ (neg zero , b) k)
