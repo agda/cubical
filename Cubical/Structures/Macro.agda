@@ -1,3 +1,8 @@
+{-
+
+Descriptor language for easily defining structures
+
+-}
 {-# OPTIONS --cubical --no-exact-split --safe #-}
 module Cubical.Structures.Macro where
 
@@ -16,16 +21,25 @@ open import Cubical.Structures.Parameterized
 open import Cubical.Structures.Functorial
 
 data Desc (ℓ : Level) : Typeω where
+  -- constant structure: X ↦ A
   constant : ∀ {ℓ'} → Type ℓ' → Desc ℓ
+  -- pointed structure: X ↦ X
   var : Desc ℓ
+  -- join of structures S,T : X ↦ (S X × T X)
   _,_ : Desc ℓ  → Desc ℓ  → Desc ℓ
+  -- structure S parameterized by constant A : X ↦ (A → S X)
   param : ∀ {ℓ'} → (A : Type ℓ') → Desc ℓ  → Desc ℓ
+  -- structure S parameterized by variable argument: X ↦ (X → S X)
   recvar : Desc ℓ  → Desc ℓ
+  -- arbitrary structure with notion of structured isomorphism given by functorial action
   functorial : ∀ {ℓ'} {S : Type ℓ → Type ℓ'}
     (F : ∀ {X Y} → (X → Y) → S X → S Y) → (∀ {X} s → F (idfun X) s ≡ s) → Desc ℓ
+  -- arbitrary structure
   foreign : ∀ {ℓ' ℓ''} {S : Type ℓ → Type ℓ'} (ι : StrIso S ℓ'') → SNS S ι → Desc ℓ
 
 infixr 4 _,_
+
+{- Universe level calculations -}
 
 macro-structure-level : ∀ {ℓ} → Desc ℓ → Level
 macro-structure-level (constant {ℓ'} x) = ℓ'
@@ -36,15 +50,6 @@ macro-structure-level {ℓ} (recvar d) = ℓ-max ℓ (macro-structure-level d)
 macro-structure-level (functorial {ℓ'} _ _) = ℓ'
 macro-structure-level (foreign {ℓ'} _ _) = ℓ'
 
-macro-structure : ∀ {ℓ} → (d : Desc ℓ) → Type ℓ → Type (macro-structure-level d)
-macro-structure (constant A) X = A
-macro-structure var X = X
-macro-structure (d₀ , d₁) X = macro-structure d₀ X × macro-structure d₁ X
-macro-structure (param A d) X = A → macro-structure d X
-macro-structure (recvar d) X = X → macro-structure d X
-macro-structure (functorial {S = S} _ _) = S
-macro-structure (foreign {S = S} _ _) = S
-
 macro-iso-level : ∀ {ℓ} → Desc ℓ → Level
 macro-iso-level (constant {ℓ'} x) = ℓ'
 macro-iso-level {ℓ} var = ℓ
@@ -54,6 +59,17 @@ macro-iso-level {ℓ} (recvar d) = ℓ-max ℓ (macro-iso-level d)
 macro-iso-level (functorial {ℓ' = ℓ'} _ _) = ℓ'
 macro-iso-level (foreign {ℓ'' = ℓ''} _ _) = ℓ''
 
+-- Structure defined by a descriptor
+macro-structure : ∀ {ℓ} → (d : Desc ℓ) → Type ℓ → Type (macro-structure-level d)
+macro-structure (constant A) X = A
+macro-structure var X = X
+macro-structure (d₀ , d₁) X = macro-structure d₀ X × macro-structure d₁ X
+macro-structure (param A d) X = A → macro-structure d X
+macro-structure (recvar d) X = X → macro-structure d X
+macro-structure (functorial {S = S} _ _) = S
+macro-structure (foreign {S = S} _ _) = S
+
+-- Notion of structured isomorphism defined by a descriptor
 macro-iso : ∀ {ℓ} → (d : Desc ℓ) → StrIso {ℓ} (macro-structure d) (macro-iso-level d)
 macro-iso (constant A) = constant-iso A
 macro-iso var = pointed-iso
@@ -63,6 +79,7 @@ macro-iso (recvar d) = unaryFunIso (macro-iso d)
 macro-iso (functorial F _) = functorial-iso F
 macro-iso (foreign ι _) = ι
 
+-- Proof that structure induced by descriptor is a standard notion of structure
 macro-is-SNS : ∀ {ℓ} → (d : Desc ℓ) → SNS (macro-structure d) (macro-iso d)
 macro-is-SNS (constant A) = constant-is-SNS A
 macro-is-SNS var = pointed-is-SNS
@@ -72,6 +89,7 @@ macro-is-SNS (recvar d) = unaryFunSNS (macro-iso d) (macro-is-SNS d)
 macro-is-SNS (functorial F η) = functorial-is-SNS F η
 macro-is-SNS (foreign _ θ) = θ
 
+-- Module for easy importing
 module Macro ℓ (d : Desc ℓ) where
 
   structure = macro-structure d
