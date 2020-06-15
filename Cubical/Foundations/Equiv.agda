@@ -112,7 +112,7 @@ compEquiv-assoc : (f : A ≃ B) (g : B ≃ C) (h : C ≃ D)
                 → compEquiv f (compEquiv g h) ≡ compEquiv (compEquiv f g) h
 compEquiv-assoc f g h = equivEq _ _ refl
 
-LiftEquiv : {A : Type ℓ} → A ≃ Lift {j = ℓ'} A
+LiftEquiv : A ≃ Lift {i = ℓ} {j = ℓ'} A
 LiftEquiv .fst a .lower = a
 LiftEquiv .snd .equiv-proof a+ .fst .fst = a+ .lower
 LiftEquiv .snd .equiv-proof _ .fst .snd = refl
