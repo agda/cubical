@@ -23,8 +23,6 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn.Base
 open import Cubical.Data.Unit
 
-open import Cubical.Data.NatMinusTwo.Base
-
 -- Note that relative to most sources, this notation is off by +2
 isConnected : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ
 isConnected n A = isContr (hLevelTrunc n A)

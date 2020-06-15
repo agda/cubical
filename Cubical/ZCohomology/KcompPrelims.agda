@@ -21,7 +21,6 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 
 open import Cubical.Data.Int renaming (_+_ to +Int)
 open import Cubical.Data.Nat
-open import Cubical.Data.NatMinusTwo.Base
 
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Nullification
