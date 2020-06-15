@@ -28,7 +28,6 @@ import Cubical.Foundations.Isomorphism        as Isomorphism
 import Cubical.HITs.Susp                      as Suspension
 import Cubical.HITs.Sn                        as Sn
 import Agda.Builtin.Nat                       as BNat
-import Agda.Builtin.Cubical.Path              as BPath
 import Agda.Builtin.Bool                      as BBool
 import Cubical.Foundations.GroupoidLaws       as GroupoidLaws
 import Cubical.HITs.S2                        as S2
@@ -136,7 +135,7 @@ open Suspension using ( SuspBool→S¹ ; S¹→SuspBool
 
 -- Deprecated version of S₊
 open BNat renaming (Nat to ℕ)
-open BPath using (Set)
+open CorePrimitives renaming (Type to Set)
 open BBool using (Bool)
 -- At the time the paper was published, Set was used instead of Type
 _-sphere : ℕ → Set
