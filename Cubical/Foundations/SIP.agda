@@ -86,7 +86,7 @@ module _ {S : Type ℓ₁ → Type ℓ₂} {ι : StrIso S ℓ₃}
 
   SIP : A ≃[ ι ] B ≃ (A ≡ B)
   SIP =
-    isoToEquiv (compIso (Σ-cong-iso (equivToIso (invEquiv univalence)) (equivToIso ∘ θ)) ΣPathIsoPathΣ)
+    isoToEquiv (compIso (Σ-cong-iso (invIso univalenceIso) (equivToIso ∘ θ)) ΣPathIsoPathΣ)
 
   sip : A ≃[ ι ] B → A ≡ B
   sip = SIP .fst
