@@ -134,7 +134,7 @@ open Suspension using ( SuspBool→S¹ ; S¹→SuspBool
                       ; S¹→SuspBool→S¹) public
 
 -- Deprecated version of S₊
-open BNat renaming (Nat to ℕ)
+open BNat renaming (Nat to ℕ) hiding (_*_) public
 open CorePrimitives renaming (Type to Set) public
 open BBool using (Bool) public
 -- At the time the paper was published, Set was used instead of Type
