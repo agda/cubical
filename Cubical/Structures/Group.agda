@@ -19,10 +19,10 @@ private
     ℓ ℓ' : Level
 
 raw-group-structure : Type ℓ → Type ℓ
-raw-group-structure = raw-semigroup-structure
+raw-group-structure = SemigroupΣ-theory.raw-semigroup-structure
 
 raw-group-is-SNS : SNS {ℓ} raw-group-structure _
-raw-group-is-SNS = raw-semigroup-is-SNS
+raw-group-is-SNS = SemigroupΣ-theory.raw-semigroup-is-SNS
 
 -- The neutral element and the inverse function will be derived from the
 -- axioms, instead of being defined in the raw-group-structure in order
@@ -31,7 +31,7 @@ raw-group-is-SNS = raw-semigroup-is-SNS
 -- and neutral element, although they will preserve them).
 
 group-axioms : (G : Type ℓ) → raw-group-structure G → Type ℓ
-group-axioms G _·_ = semigroup-axioms G _·_ ×
+group-axioms G _·_ = SemigroupΣ-theory.semigroup-axioms G _·_ ×
                      (Σ[ e ∈ G ] ((x : G) → (x · e ≡ x) × (e · x ≡ x)) ×
                       ((x : G) → Σ[ x' ∈ G ] (x · x' ≡ e) × (x' · x ≡ e)))
 
@@ -132,7 +132,7 @@ group-axioms-isProp X s t = η t
                                       e' ∎)
 
   η : isProp (group-axioms X s)
-  η = isPropΣ (semigroup-axiom-isProp X s) λ _ → γ
+  η = isPropΣ (SemigroupΣ-theory.semigroup-axioms-isProp X s) λ _ → γ
 
 -- Group paths equivalent to equality
 group-is-SNS : SNS {ℓ} group-structure group-iso

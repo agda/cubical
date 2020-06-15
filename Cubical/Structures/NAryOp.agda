@@ -4,13 +4,12 @@ module Cubical.Structures.NAryOp where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Vec
-
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 module _ {ℓ₁ ℓ₂ : Level} where
 
