@@ -29,6 +29,8 @@ private
 -- would only contain isSet A if we had it.
 record IsSemigroup {A : Type ℓ} (_·_ : A → A → A) : Type ℓ where
 
+  -- TODO: add no-eta-equality for efficiency? This breaks some proofs later
+
   constructor issemigroup
 
   field
