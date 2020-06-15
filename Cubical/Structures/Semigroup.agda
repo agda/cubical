@@ -40,6 +40,16 @@ record Semigroup : Type (ℓ-suc ℓ) where
 
   open IsSemigroup isSemigroup public
 
+
+record SemigroupIso (M N : Semigroup {ℓ}) : Type ℓ where
+
+  -- How can this be written nicer without all the qualified names?
+  field
+    equiv : Semigroup.Carrier M ≃ Semigroup.Carrier N
+    is-hom : (x y : Semigroup.Carrier M)
+           → equivFun equiv (Semigroup._·_ M x y) ≡ Semigroup._·_ N (equivFun equiv x) (equivFun equiv y)
+
+
 module semigroup-sip where
 
   raw-semigroup-structure : Type ℓ → Type ℓ
@@ -100,19 +110,27 @@ module semigroup-sip where
   SemigroupPath' : (M N : Semigroup' {ℓ}) → (M ≃[ semigroup-iso ] N) ≃ (M ≡ N)
   SemigroupPath' = SIP semigroup-is-SNS
 
-  SemigroupIso : (M N : Semigroup {ℓ}) → Type ℓ
-  SemigroupIso M N = Semigroup→Semigroup' M ≃[ semigroup-iso ] Semigroup→Semigroup' N
+  SemigroupIsoTemp : (M N : Semigroup {ℓ}) → Type ℓ
+  SemigroupIsoTemp M N = Semigroup→Semigroup' M ≃[ semigroup-iso ] Semigroup→Semigroup' N
+
+  SemigroupIsoTempPath : (M N : Semigroup {ℓ}) → Iso (SemigroupIso M N) (SemigroupIsoTemp M N)
+  fun (SemigroupIsoTempPath M N) record { equiv = x ; is-hom = y } = (x , y)
+  inv (SemigroupIsoTempPath M N) (x , y) = record { equiv = x ; is-hom = y }
+  rightInv (SemigroupIsoTempPath M N) _ = refl
+  leftInv (SemigroupIsoTempPath M N) _  = refl
 
   SemigroupPath : (M N : Semigroup {ℓ}) → (SemigroupIso M N) ≃ (M ≡ N)
-  SemigroupPath M N = compEquiv (SemigroupPath' (Semigroup→Semigroup' M) (Semigroup→Semigroup' N))
-                                (isoToEquiv (invIso (congIso SemigroupIsoSemigroup')))
+  SemigroupPath M N =
+    SemigroupIso M N                                ≃⟨ isoToEquiv (SemigroupIsoTempPath M N) ⟩
+    SemigroupIsoTemp M N                            ≃⟨ SemigroupPath' (Semigroup→Semigroup' M) (Semigroup→Semigroup' N) ⟩
+    Semigroup→Semigroup' M ≡ Semigroup→Semigroup' N ≃⟨ isoToEquiv (invIso (congIso SemigroupIsoSemigroup')) ⟩
+    M ≡ N ■
 
 
--- TODO: define a more natural version of SemigroupIso and prove that it is equal to the SemigroupIso from above
+open semigroup-sip
 
 
-
-
+open Iso
 
 
 -- TODO: do we need any of the code below now that we have a Record?
