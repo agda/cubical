@@ -28,7 +28,6 @@ private
 --
 -- Note that as we are using Path for all equations the IsMagma record
 -- would only contain isSet A if we had it.
---
 record IsSemigroup {A : Type ℓ} (_·_ : A → A → A) : Type ℓ where
 
   constructor issemigroup
@@ -69,6 +68,10 @@ record SemigroupIso (M N : Semigroup {ℓ}) : Type ℓ where
     isHom : (x y : ⟨ M ⟩) → equivFun e (x M.· y) ≡ equivFun e x N.· equivFun e y
 
 
+-- Develop some theory about Semigroups using various general results
+-- that are stated using Σ-types. For this we define Semigroup as a
+-- nested Σ-type, prove that it's equivalent to the above record
+-- definition and then transport results along this equivalence.
 module SemigroupΣ-theory where
 
   raw-semigroup-structure : Type ℓ → Type ℓ
