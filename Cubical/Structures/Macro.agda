@@ -34,7 +34,7 @@ data Desc (ℓ : Level) : Typeω where
   -- arbitrary structure with notion of structured isomorphism given by functorial action
   functorial : ∀ {ℓ'} {S : Type ℓ → Type ℓ'}
     (F : ∀ {X Y} → (X → Y) → S X → S Y) → (∀ {X} s → F (idfun X) s ≡ s) → Desc ℓ
-  -- arbitrary structure
+  -- arbitrary standard notion of structure
   foreign : ∀ {ℓ' ℓ''} {S : Type ℓ → Type ℓ'} (ι : StrIso S ℓ'') → SNS S ι → Desc ℓ
 
 infixr 4 _,_
