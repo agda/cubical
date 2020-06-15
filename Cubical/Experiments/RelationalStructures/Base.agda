@@ -47,6 +47,13 @@ ua→ {e = e} {f₀ = f₀} {f₁} h i a =
   lem : ∀ a₁ → e .fst (transport⁻ (ua e) a₁) ≡ a₁
   lem a₁ = sym (transportRefl _) ∙ transportTransport⁻ (ua e) a₁
 
+Rel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+Rel A B ℓ' = A → B → Type ℓ'
+
+quotientRel : ∀ {ℓ} {A : Type ℓ} (R : A → A → Type ℓ)
+  → Rel A (A / R) ℓ
+quotientRel R a b = [ a ] ≡ b
+
 -- main event
 
 private
@@ -54,21 +61,6 @@ private
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₂ ℓ₂' : Level
 
 open isBisimulation
-
---------------------------------------------------------------------------------
--- Prop-valued relations
---------------------------------------------------------------------------------
-
-Rel : (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
-Rel A B ℓ' = A → B → Type ℓ'
-
-PropValuedRel : (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
-PropValuedRel A B ℓ' =
-  Σ[ R ∈ (A → B → Type ℓ') ] ∀ a b → isProp (R a b)
-
-quotientRel : {A : Type ℓ} (R : A → A → Type ℓ)
-  → Rel A (A / R) ℓ
-quotientRel R a b = [ a ] ≡ b
 
 --------------------------------------------------------------------------------
 -- Definition of standard notion of structure
