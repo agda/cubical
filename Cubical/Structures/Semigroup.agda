@@ -128,8 +128,8 @@ module SemigroupΣ-theory {ℓ} where
   semigroup-is-SNS : SNS {ℓ} semigroup-structure semigroup-iso
   semigroup-is-SNS = add-axioms-SNS _ semigroup-axioms-isProp raw-semigroup-is-SNS
 
-  SemigroupPathΣ : (M N : SemigroupΣ) → (M ≃[ semigroup-iso ] N) ≃ (M ≡ N)
-  SemigroupPathΣ = SIP semigroup-is-SNS
+  SemigroupΣPath : (M N : SemigroupΣ) → (M ≃[ semigroup-iso ] N) ≃ (M ≡ N)
+  SemigroupΣPath = SIP semigroup-is-SNS
 
   SemigroupIsoΣ : (M N : Semigroup {ℓ}) → Type ℓ
   SemigroupIsoΣ M N = Semigroup→SemigroupΣ M ≃[ semigroup-iso ] Semigroup→SemigroupΣ N
@@ -143,15 +143,15 @@ module SemigroupΣ-theory {ℓ} where
   SemigroupPath : (M N : Semigroup {ℓ}) → (SemigroupIso M N) ≃ (M ≡ N)
   SemigroupPath M N =
     SemigroupIso M N                                ≃⟨ isoToEquiv SemigroupIsoΣPath ⟩
-    SemigroupIsoΣ M N                               ≃⟨ SemigroupPathΣ (Semigroup→SemigroupΣ M) (Semigroup→SemigroupΣ N) ⟩
+    SemigroupIsoΣ M N                               ≃⟨ SemigroupΣPath (Semigroup→SemigroupΣ M) (Semigroup→SemigroupΣ N) ⟩
     Semigroup→SemigroupΣ M ≡ Semigroup→SemigroupΣ N ≃⟨ isoToEquiv (invIso (congIso SemigroupIsoSemigroupΣ)) ⟩
     M ≡ N ■
 
 
 -- We now extract the important results from the above module
 
-isPropIsSemiGroup : {A : Type ℓ} (_·_ : A → A → A) → isProp (IsSemigroup _·_)
-isPropIsSemiGroup _·_ =
+isPropIsSemigroup : {A : Type ℓ} (_·_ : A → A → A) → isProp (IsSemigroup _·_)
+isPropIsSemigroup _·_ =
   subst isProp (SemigroupΣ-theory.semigroup-axioms≡IsSemigroup _·_)
         (SemigroupΣ-theory.semigroup-axioms-isProp _ _·_)
 
