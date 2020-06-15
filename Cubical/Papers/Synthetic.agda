@@ -27,6 +27,9 @@ import Cubical.Foundations.Isomorphism        as Isomorphism
 -- 4.1
 import Cubical.HITs.Susp                      as Suspension
 import Cubical.HITs.Sn                        as Sn
+import Agda.Builtin.Nat                       as BNat
+import Agda.Builtin.Cubical.Path              as BPath
+import Agda.Builtin.Bool                      as BBool
 import Cubical.Foundations.GroupoidLaws       as GroupoidLaws
 import Cubical.HITs.S2                        as S2
 import Cubical.HITs.S3                        as S3
@@ -132,15 +135,17 @@ open Suspension using ( SuspBool→S¹ ; S¹→SuspBool
                       ; S¹→SuspBool→S¹)
 
 -- Deprecated version of S₊
-open import Agda.Builtin.Nat renaming (Nat to ℕ)
-open import Agda.Builtin.Bool using (Bool)
+open BNat renaming (Nat to ℕ)
+open BPath using (Set)
+open BBool using (Bool)
+-- At the time the paper was published, Set was used instead of Type
 _-sphere : ℕ → Set
 0 -sphere = Bool
 (suc n) -sphere = Susp (n -sphere)
 
 -- Lemma 4.1. The (1)-sphere is equal to the circle S1.
 
-open import Agda.Builtin.Bool using (true ; false)
+open BBool using (true ; false)
 -- Deprecated version of SuspBool→S¹
 s2c : 1 -sphere → S¹
 s2c north = base
