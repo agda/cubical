@@ -3,6 +3,7 @@
 This file contains definition of:
 
  - Sig - array of type families where conseciutive ones can depend on previous
+
  - NestedΣᵣ - Type of "right-most" nested Sigmas, parametrised by Sig
 
  - isomorphism of concatenation and spliting of Sig and coresponding NestedΣᵣ
