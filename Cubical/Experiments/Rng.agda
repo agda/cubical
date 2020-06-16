@@ -1,5 +1,9 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+-- This file needs to be rewritten so that Rng's are defined as a
+-- record (as is the case for other algebraic structures like
+-- rings). As this file isn't used for anything at the moment this
+-- rewrite has been postponed.
 
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Structures.Rng where
 
 open import Cubical.Foundations.Prelude
