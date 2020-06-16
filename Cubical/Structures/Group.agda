@@ -95,6 +95,8 @@ group-iso = add-to-iso (binaryFunIso pointed-iso) group-axioms
 
 -- Group axioms isProp
 
+open monoid-theory
+
 group-axioms-isProp : (X : Type ℓ)
                     → (s : raw-group-structure X)
                     → isProp (group-axioms X s)
@@ -116,13 +118,10 @@ group-axioms-isProp X s t = η t
      (λ _ → isPropΣ (group-is-set 𝒢 _ _) (λ _ → group-is-set 𝒢 _ _))
      (inv-lemma ℳ x x' x'' P Q) }
    where
+    -- TODO: this should be provided by the group structure
     ℳ : Monoid
-    ℳ = ⟨ 𝒢 ⟩ , (e , group-operation 𝒢) ,
-        group-is-set 𝒢 ,
-        group-assoc 𝒢 ,
-        (λ x → fst (is-identity-e x)) ,
-        (λ x → snd (is-identity-e x))
-
+    ℳ = makeMonoid ⟨ 𝒢 ⟩ e (group-operation 𝒢) (group-is-set 𝒢) (group-assoc 𝒢)
+                    (λ x → is-identity-e x .fst) (λ x → is-identity-e x .snd)
 
   γ : isProp (Σ[ e ∈ X ] ((x : X) → (x ·⟨ 𝒢 ⟩ e ≡ x) × (e ·⟨ 𝒢 ⟩ x ≡ x)) ×
                          ((x : X) → Σ[ x' ∈ X ] (x ·⟨ 𝒢 ⟩ x' ≡ e) × (x' ·⟨ 𝒢 ⟩ x ≡ e)))
