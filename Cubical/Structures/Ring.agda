@@ -1,22 +1,54 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-
 module Cubical.Structures.Ring where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
-open import Cubical.Data.Sigma
-
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+
+open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
-open import Cubical.Structures.Monoid hiding (⟨_⟩)
-open import Cubical.Structures.AbGroup hiding (⟨_⟩)
+open import Cubical.Structures.Monoid    hiding (⟨_⟩)
+open import Cubical.Structures.AbGroup   hiding (⟨_⟩)
+
+open Iso
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ : Level
+
+record IsRing {R : Type ℓ} (_+_ _·_ : R → R → R) (-_ : R → R) (0r 1r : R) : Type ℓ where
+
+  constructor isring
+
+  field
+    -- TODO: fix once we have IsAbGroup as a record
+    +-isAbelianGroup : abelian-group-axioms R _+_
+    ·-isMonoid : IsMonoid 1r _·_
+    distrib : ((x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
+            × ((x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
+    zero : (x : R) → (x · 0r ≡ 0r) × (0r · x ≡ 0r)
+
+  open IsMonoid ·-isMonoid public
+    renaming
+    ( assoc       to ·-assoc
+    ; identity    to ·-identity
+    ; lid         to ·-lid
+    ; rid         to ·-rid
+    ; isSemigroup to ·-isSemigroup
+    )
+
+  zero-lid : (x : R) → 0r · x ≡ 0r
+  zero-lid x = zero x .snd
+
+  zero-rid : (x : R) → x · 0r ≡ 0r
+  zero-rid x = zero x .fst
 
 module _ {ℓ} where
   open Macro ℓ (recvar (recvar var) , var , recvar (recvar var)) public renaming
@@ -25,11 +57,11 @@ module _ {ℓ} where
     ; isSNS to raw-ring-is-SNS
     )
 
-ring-axioms : (X : Type ℓ) (s : raw-ring-structure X) → Type ℓ
-ring-axioms X (_+_ , 1r , _·_) = abelian-group-axioms X _+_ ×
-                                 IsMonoid 1r _·_ ×
-                                 ((x y z : X) → x · (y + z) ≡ (x · y) + (x · z)) ×
-                                 ((x y z : X) → (x + y) · z ≡ (x · z) + (y · z))
+ring-axioms : (R : Type ℓ) (s : raw-ring-structure R) → Type ℓ
+ring-axioms R (_+_ , 1r , _·_) = abelian-group-axioms R _+_
+                               × IsMonoid 1r _·_
+                               × ((x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
+                               × ((x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
 
 ring-structure : Type ℓ → Type ℓ
 ring-structure = add-to-structure raw-ring-structure ring-axioms
@@ -40,16 +72,16 @@ Ring {ℓ} = TypeWithStr ℓ ring-structure
 ring-iso : StrIso ring-structure ℓ
 ring-iso = add-to-iso raw-ring-iso ring-axioms
 
-ring-axioms-isProp : (X : Type ℓ) (s : raw-ring-structure X) → isProp (ring-axioms X s)
-ring-axioms-isProp X (_+_ , 1r , _·_) = isPropΣ (abelian-group-axioms-isProp X _+_)
+ring-axioms-isProp : (R : Type ℓ) (s : raw-ring-structure R) → isProp (ring-axioms R s)
+ring-axioms-isProp R (_+_ , 1r , _·_) = isPropΣ (abelian-group-axioms-isProp R _+_)
                                       λ _ → isPropΣ (isPropIsMonoid 1r _·_)
-                                      λ X → isPropΣ (isPropΠ3 (λ _ _ _ → IsSemigroup.is-set (X .IsMonoid.isSemigroup) _ _))
-                                      λ _ → isPropΠ3 (λ _ _ _ → IsSemigroup.is-set (X .IsMonoid.isSemigroup) _ _)
+                                      λ R → isPropΣ (isPropΠ3 (λ _ _ _ → IsSemigroup.is-set (R .IsMonoid.isSemigroup) _ _))
+                                      λ _ → isPropΠ3 (λ _ _ _ → IsSemigroup.is-set (R .IsMonoid.isSemigroup) _ _)
 
 ring-is-SNS : SNS {ℓ} ring-structure ring-iso
 ring-is-SNS = add-axioms-SNS _ ring-axioms-isProp raw-ring-is-SNS
 
-RingPath : (M N : Ring {ℓ}) → (M ≃[ ring-iso ] N) ≃ (M ≡ N)
+RingPath : (R S : Ring {ℓ}) → (R ≃[ ring-iso ] S) ≃ (R ≡ S)
 RingPath = SIP ring-is-SNS
 
 -- Rings have an abelian group

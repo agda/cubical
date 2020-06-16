@@ -125,7 +125,7 @@ module MonoidΣ-theory {ℓ} where
                          → monoid-axioms A s ≡ IsMonoid (s .fst) (s .snd)
   monoid-axioms≡IsMonoid s = isoToPath (monoid-axiomsIsoIsMonoid s)
 
-  Monoid→MonoidΣ : Monoid {ℓ} → MonoidΣ
+  Monoid→MonoidΣ : Monoid → MonoidΣ
   Monoid→MonoidΣ (monoid A ε _·_ isMonoid) =
     A , (ε , _·_) , monoid-axiomsIsoIsMonoid (ε , _·_) .inv isMonoid
 
@@ -133,29 +133,26 @@ module MonoidΣ-theory {ℓ} where
   MonoidΣ→Monoid (A , (ε , _·_) , isMonoidΣ) =
     monoid A ε _·_ (monoid-axiomsIsoIsMonoid (ε , _·_) .fun isMonoidΣ)
 
-  MonoidIsoMonoidΣ : Iso (Monoid {ℓ}) MonoidΣ
+  MonoidIsoMonoidΣ : Iso Monoid MonoidΣ
   MonoidIsoMonoidΣ =
     iso Monoid→MonoidΣ MonoidΣ→Monoid (λ _ → refl) (λ _ → refl)
 
-  Monoid≡MonoidΣ : Monoid {ℓ} ≡ MonoidΣ
-  Monoid≡MonoidΣ = isoToPath MonoidIsoMonoidΣ
-
-  monoid-is-SNS : SNS {ℓ} monoid-structure monoid-iso
+  monoid-is-SNS : SNS monoid-structure monoid-iso
   monoid-is-SNS = add-axioms-SNS _ monoid-axioms-isProp raw-monoid-is-SNS
 
   MonoidΣPath : (M N : MonoidΣ) → (M ≃[ monoid-iso ] N) ≃ (M ≡ N)
   MonoidΣPath = SIP monoid-is-SNS
 
-  MonoidIsoΣ : (M N : Monoid {ℓ}) → Type ℓ
+  MonoidIsoΣ : (M N : Monoid) → Type ℓ
   MonoidIsoΣ M N = Monoid→MonoidΣ M ≃[ monoid-iso ] Monoid→MonoidΣ N
 
-  MonoidIsoΣPath : {M N : Monoid {ℓ}} → Iso (MonoidIso M N) (MonoidIsoΣ M N)
+  MonoidIsoΣPath : {M N : Monoid} → Iso (MonoidIso M N) (MonoidIsoΣ M N)
   fun MonoidIsoΣPath (monoidiso e h1 h2) = (e , h1 , h2)
   inv MonoidIsoΣPath (e , h1 , h2)       = monoidiso e h1 h2
   rightInv MonoidIsoΣPath _              = refl
   leftInv MonoidIsoΣPath _               = refl
 
-  MonoidPath : (M N : Monoid {ℓ}) → (MonoidIso M N) ≃ (M ≡ N)
+  MonoidPath : (M N : Monoid) → (MonoidIso M N) ≃ (M ≡ N)
   MonoidPath M N =
     MonoidIso M N                       ≃⟨ isoToEquiv MonoidIsoΣPath ⟩
     MonoidIsoΣ M N                      ≃⟨ MonoidΣPath (Monoid→MonoidΣ M) (Monoid→MonoidΣ N) ⟩
