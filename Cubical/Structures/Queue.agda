@@ -7,7 +7,6 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
-open import Cubical.Functions.Surjection
 
 open import Cubical.Structures.Macro
 open import Cubical.Structures.LeftAction
@@ -15,7 +14,7 @@ open import Cubical.Structures.Functorial
 open import Cubical.Structures.NAryOp
 
 open import Cubical.Data.Unit
-open import Cubical.Data.Sum as ⊎
+open import Cubical.Data.Maybe as Maybe
 open import Cubical.Data.Sigma
 open import Cubical.Data.List
 
@@ -36,20 +35,19 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
 
  -- deq as a structure
  -- First, a few preliminary results that we will need later
- deq-map : {X Y : Type ℓ} → (X → Y)
-                  →  Unit ⊎ (X × A) → Unit ⊎ (Y × A)
- deq-map f (inl tt) = inl tt
- deq-map f (inr (x , a)) = inr (f x , a)
+ deq-map : {X Y : Type ℓ} → (X → Y) → Maybe (X × A) → Maybe (Y × A)
+ deq-map f nothing = nothing
+ deq-map f (just (x , a)) = just (f x , a)
 
  deq-map-∘ :{B C D : Type ℓ}
   (g : C → D) (f : B → C)
   → ∀ r → deq-map {X = C} g (deq-map f r) ≡ deq-map (λ b → g (f b)) r
- deq-map-∘ g f (inl tt) = refl
- deq-map-∘ g f (inr (b , a)) = refl
+ deq-map-∘ g f nothing = refl
+ deq-map-∘ g f (just (b , a)) = refl
 
  deq-map-id : {X : Type ℓ} → ∀ r → deq-map (idfun X) r ≡ r
- deq-map-id (inl _) = refl
- deq-map-id (inr _) = refl
+ deq-map-id nothing = refl
+ deq-map-id (just _) = refl
 
  open Macro ℓ (recvar (functorial deq-map deq-map-id)) public renaming
    ( structure to deq-structure
@@ -71,15 +69,15 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  RawQueue = TypeWithStr ℓ raw-queue-structure
 
  returnOrEnq : {Q : Type ℓ}
-  → raw-queue-structure Q → A → Unit ⊎ (Q × A) → Q × A
+  → raw-queue-structure Q → A → Maybe (Q × A) → Q × A
  returnOrEnq (emp , enq , _) a qr =
-   ⊎.rec (λ _ → emp , a) (λ {(q , b) → enq a q , b}) qr
+   Maybe.rec (emp , a) (λ {(q , b) → enq a q , b}) qr
 
  queue-axioms : (Q : Type ℓ) → raw-queue-structure Q → Type ℓ
  queue-axioms Q S@(emp , enq , deq) =
    (isSet Q)
-   × (deq emp ≡ inl tt)
-   × (∀ a q → deq (enq a q) ≡ inr (returnOrEnq S a (deq q)))
+   × (deq emp ≡ nothing)
+   × (∀ a q → deq (enq a q) ≡ just (returnOrEnq S a (deq q)))
    × (∀ a a' q q' → enq a q ≡ enq a' q' → (a ≡ a') × (q ≡ q'))
    × (∀ q q' → deq q ≡ deq q' → q ≡ q')
 
@@ -91,8 +89,8 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
                               (isPropΠ3 λ _ _ _ → isPropΠ2 λ _ _ → isProp× (Aset _ _) (Qset _ _))
                               (isPropΠ3 λ _ _ _ → Qset _ _))
    where
-   isOfHLevelDeq : isSet Q → isOfHLevel 2 (Unit ⊎ (Q × A))
-   isOfHLevelDeq Qset = isSetSum isSetUnit (isSet× Qset Aset)
+   isOfHLevelDeq : isSet Q → isOfHLevel 2 (Maybe (Q × A))
+   isOfHLevelDeq Qset = isOfHLevelMaybe 0 (isSet× Qset Aset)
 
  queue-structure : Type ℓ → Type ℓ
  queue-structure = add-to-structure raw-queue-structure queue-axioms
