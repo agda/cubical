@@ -19,10 +19,10 @@ private
     ℓ ℓ' : Level
 
 raw-group-structure : Type ℓ → Type ℓ
-raw-group-structure = raw-semigroup-structure
+raw-group-structure = SemigroupΣ-theory.raw-semigroup-structure
 
 raw-group-is-SNS : SNS {ℓ} raw-group-structure _
-raw-group-is-SNS = raw-semigroup-is-SNS
+raw-group-is-SNS = SemigroupΣ-theory.raw-semigroup-is-SNS
 
 -- The neutral element and the inverse function will be derived from the
 -- axioms, instead of being defined in the raw-group-structure in order
@@ -31,13 +31,9 @@ raw-group-is-SNS = raw-semigroup-is-SNS
 -- and neutral element, although they will preserve them).
 
 group-axioms : (G : Type ℓ) → raw-group-structure G → Type ℓ
-group-axioms G _·_ = i × ii
-
-  where
-  i = semigroup-axioms G _·_
-
-  ii = Σ[ e ∈ G ] ((x : G) → (x · e ≡ x) × (e · x ≡ x)) ×
-                  ((x : G) → Σ[ x' ∈ G ] (x · x' ≡ e) × (x' · x ≡ e))
+group-axioms G _·_ = SemigroupΣ-theory.semigroup-axioms G _·_ ×
+                     (Σ[ e ∈ G ] ((x : G) → (x · e ≡ x) × (e · x ≡ x)) ×
+                      ((x : G) → Σ[ x' ∈ G ] (x · x' ≡ e) × (x' · x ≡ e)))
 
 group-structure : Type ℓ → Type ℓ
 group-structure = add-to-structure raw-group-structure group-axioms
@@ -99,6 +95,8 @@ group-iso = add-to-iso (binaryFunIso pointed-iso) group-axioms
 
 -- Group axioms isProp
 
+open monoid-theory
+
 group-axioms-isProp : (X : Type ℓ)
                     → (s : raw-group-structure X)
                     → isProp (group-axioms X s)
@@ -120,13 +118,10 @@ group-axioms-isProp X s t = η t
      (λ _ → isPropΣ (group-is-set 𝒢 _ _) (λ _ → group-is-set 𝒢 _ _))
      (inv-lemma ℳ x x' x'' P Q) }
    where
+    -- TODO: this should be provided by the group structure
     ℳ : Monoid
-    ℳ = ⟨ 𝒢 ⟩ , (e , group-operation 𝒢) ,
-        group-is-set 𝒢 ,
-        group-assoc 𝒢 ,
-        (λ x → fst (is-identity-e x)) ,
-        (λ x → snd (is-identity-e x))
-
+    ℳ = makeMonoid ⟨ 𝒢 ⟩ e (group-operation 𝒢) (group-is-set 𝒢) (group-assoc 𝒢)
+                    (λ x → is-identity-e x .fst) (λ x → is-identity-e x .snd)
 
   γ : isProp (Σ[ e ∈ X ] ((x : X) → (x ·⟨ 𝒢 ⟩ e ≡ x) × (e ·⟨ 𝒢 ⟩ x ≡ x)) ×
                          ((x : X) → Σ[ x' ∈ X ] (x ·⟨ 𝒢 ⟩ x' ≡ e) × (x' ·⟨ 𝒢 ⟩ x ≡ e)))
@@ -136,7 +131,7 @@ group-axioms-isProp X s t = η t
                                       e' ∎)
 
   η : isProp (group-axioms X s)
-  η = isPropΣ (semigroup-axiom-isProp X s) λ _ → γ
+  η = isPropΣ (SemigroupΣ-theory.semigroup-axioms-isProp X s) λ _ → γ
 
 -- Group paths equivalent to equality
 group-is-SNS : SNS {ℓ} group-structure group-iso

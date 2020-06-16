@@ -12,6 +12,6 @@ open import Cubical.Core.Primitives
 
 -- set truncation as a higher inductive type:
 
-data ∥_∥₀ {ℓ} (A : Type ℓ) : Type ℓ where
-  ∣_∣₀ : A → ∥ A ∥₀
-  squash₀ : ∀ (x y : ∥ A ∥₀) (p q : x ≡ y) → p ≡ q
+data ∥_∥₂ {ℓ} (A : Type ℓ) : Type ℓ where
+  ∣_∣₂ : A → ∥ A ∥₂
+  squash₂ : ∀ (x y : ∥ A ∥₂) (p q : x ≡ y) → p ≡ q

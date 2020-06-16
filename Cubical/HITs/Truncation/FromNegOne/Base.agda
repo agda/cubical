@@ -2,6 +2,9 @@
 
 An simpler definition of truncation ∥ A ∥ n from n ≥ -1
 
+Note that this uses the HoTT book's indexing, so it will be off
+ from `∥_∥_` in HITs.Truncation.Base by -2
+
 -}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.Truncation.FromNegOne.Base where
