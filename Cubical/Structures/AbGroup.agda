@@ -79,10 +79,10 @@ module AbGroupΣ-theory {ℓ} where
   abgroup-iso : StrIso abgroup-structure ℓ
   abgroup-iso = add-to-iso (binaryFunIso pointed-iso) abgroup-axioms
 
-  abgroup-axioms-isProp : (G : Type ℓ) (s : raw-group-structure G)
+  isProp-abgroup-axioms : (G : Type ℓ) (s : raw-group-structure G)
                         → isProp (abgroup-axioms G s)
-  abgroup-axioms-isProp G _+_ =
-    isPropΣ (group-axioms-isProp G _+_)
+  isProp-abgroup-axioms G _+_ =
+    isPropΣ (GroupΣ-theory.isProp-group-axioms G _+_)
             λ { (H , _) → isPropΠ2 λ _ _ → IsSemigroup.is-set H _ _}
 
   AbGroup→AbGroupΣ : AbGroup → AbGroupΣ
@@ -97,7 +97,7 @@ module AbGroupΣ-theory {ℓ} where
   AbGroupIsoAbGroupΣ = iso AbGroup→AbGroupΣ AbGroupΣ→AbGroup (λ _ → refl) (λ _ → refl)
 
   abgroup-is-SNS : SNS abgroup-structure abgroup-iso
-  abgroup-is-SNS = add-axioms-SNS _ abgroup-axioms-isProp raw-group-is-SNS
+  abgroup-is-SNS = add-axioms-SNS _ isProp-abgroup-axioms raw-group-is-SNS
 
   AbGroupΣPath : (M N : AbGroupΣ) → (M ≃[ abgroup-iso ] N) ≃ (M ≡ N)
   AbGroupΣPath = SIP abgroup-is-SNS

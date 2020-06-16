@@ -23,17 +23,32 @@ private
   variable
     ℓ : Level
 
-record IsRing {R : Type ℓ} (_+_ _·_ : R → R → R) (-_ : R → R) (0r 1r : R) : Type ℓ where
+record IsRing {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R) : Type ℓ where
 
   constructor isring
 
   field
-    -- TODO: fix once we have IsAbGroup as a record
-    +-isAbelianGroup : abelian-group-axioms R _+_
-    ·-isMonoid : IsMonoid 1r _·_
-    distrib : ((x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
-            × ((x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
-    zero : (x : R) → (x · 0r ≡ 0r) × (0r · x ≡ 0r)
+    +-isAbGroup : IsAbGroup 0r _+_ -_
+    ·-isMonoid  : IsMonoid 1r _·_
+    dist        : (x y z : R) → (x · (y + z) ≡ (x · y) + (x · z))
+                              × ((x + y) · z ≡ (x · z) + (y · z))
+    -- This is in the Agda stdlib, but it's redundant
+    -- zero             : (x : R) → (x · 0r ≡ 0r) × (0r · x ≡ 0r)
+
+  open IsAbGroup +-isAbGroup public
+    renaming
+    ( assoc       to +-assoc
+    ; identity    to +-identity
+    ; lid         to +-lid
+    ; rid         to +-rid
+    ; inverse     to +-inv
+    ; invl        to +-linv
+    ; invr        to +-rinv
+    ; comm        to +-comm
+    ; isSemigroup to +-isSemigroup
+    ; isMonoid    to +-isMonoid
+    ; isGroup     to +-isGroup
+    )
 
   open IsMonoid ·-isMonoid public
     renaming
@@ -44,188 +59,135 @@ record IsRing {R : Type ℓ} (_+_ _·_ : R → R → R) (-_ : R → R) (0r 1r : 
     ; isSemigroup to ·-isSemigroup
     )
 
-  zero-lid : (x : R) → 0r · x ≡ 0r
-  zero-lid x = zero x .snd
+  ·-ldist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
+  ·-ldist-+ x y z = dist x y z .fst
 
-  zero-rid : (x : R) → x · 0r ≡ 0r
-  zero-rid x = zero x .fst
+  ·-rdist-+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
+  ·-rdist-+ x y z = dist x y z .snd
 
-module _ {ℓ} where
-  open Macro ℓ (recvar (recvar var) , var , recvar (recvar var)) public renaming
-    ( structure to raw-ring-structure
-    ; iso to raw-ring-iso
-    ; isSNS to raw-ring-is-SNS
-    )
+  -- TODO: prove these somewhere
 
-ring-axioms : (R : Type ℓ) (s : raw-ring-structure R) → Type ℓ
-ring-axioms R (_+_ , 1r , _·_) = abelian-group-axioms R _+_
-                               × IsMonoid 1r _·_
-                               × ((x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
-                               × ((x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
+  -- zero-lid : (x : R) → 0r · x ≡ 0r
+  -- zero-lid x = zero x .snd
 
-ring-structure : Type ℓ → Type ℓ
-ring-structure = add-to-structure raw-ring-structure ring-axioms
+  -- zero-rid : (x : R) → x · 0r ≡ 0r
+  -- zero-rid x = zero x .fst
 
-Ring : Type (ℓ-suc ℓ)
-Ring {ℓ} = TypeWithStr ℓ ring-structure
+record Ring : Type (ℓ-suc ℓ) where
 
-ring-iso : StrIso ring-structure ℓ
-ring-iso = add-to-iso raw-ring-iso ring-axioms
+  constructor ring
 
-ring-axioms-isProp : (R : Type ℓ) (s : raw-ring-structure R) → isProp (ring-axioms R s)
-ring-axioms-isProp R (_+_ , 1r , _·_) = isPropΣ (abelian-group-axioms-isProp R _+_)
-                                      λ _ → isPropΣ (isPropIsMonoid 1r _·_)
-                                      λ R → isPropΣ (isPropΠ3 (λ _ _ _ → IsSemigroup.is-set (R .IsMonoid.isSemigroup) _ _))
-                                      λ _ → isPropΠ3 (λ _ _ _ → IsSemigroup.is-set (R .IsMonoid.isSemigroup) _ _)
+  field
+    Carrier : Type ℓ
+    0r      : Carrier
+    1r      : Carrier
+    _+_     : Carrier → Carrier → Carrier
+    _·_     : Carrier → Carrier → Carrier
+    -_      : Carrier → Carrier
+    isRing  : IsRing 0r 1r _+_ _·_ -_
 
-ring-is-SNS : SNS {ℓ} ring-structure ring-iso
-ring-is-SNS = add-axioms-SNS _ ring-axioms-isProp raw-ring-is-SNS
+  infix  8 -_
+  infixl 7 _·_
+  infixl 6 _+_
 
-RingPath : (R S : Ring {ℓ}) → (R ≃[ ring-iso ] S) ≃ (R ≡ S)
-RingPath = SIP ring-is-SNS
+  open IsRing isRing public
 
--- Rings have an abelian group
+-- Extractor for the carrier type
+⟨_⟩ : Ring → Type ℓ
+⟨_⟩ = Ring.Carrier
 
-Ring→AbGroup : Ring {ℓ} → AbGroup {ℓ}
-Ring→AbGroup (R , (_+_ , _) , +AbGroup , _) = R , _+_ , +AbGroup
-
--- Rings have a monoid
-
-Ring→Monoid : Ring {ℓ} → Monoid {ℓ}
-Ring→Monoid (R , (_ , 1r , _·_) , _ , ·Monoid , _) = monoid R 1r _·_ ·Monoid
-
--- Ring extractors
-
-⟨_⟩ : Ring {ℓ} → Type ℓ
-⟨ R , _ ⟩ = R
-
-module partialRingAxioms (R : Ring {ℓ}) where
-  ring+-operation = abgroup-operation (Ring→AbGroup R)
-
-  ring-is-set = abgroup-is-set (Ring→AbGroup R)
-
-  ring+-assoc = abgroup-assoc (Ring→AbGroup R)
-
-  ring+-id = abgroup-id (Ring→AbGroup R)
-
-  ring+-rid = abgroup-rid (Ring→AbGroup R)
-
-  ring+-lid = abgroup-lid (Ring→AbGroup R)
-
-  ring+-inv = abgroup-inv (Ring→AbGroup R)
-
-  ring+-rinv = abgroup-rinv (Ring→AbGroup R)
-
-  ring+-linv = abgroup-linv (Ring→AbGroup R)
-
-  ring+-comm = abgroup-comm (Ring→AbGroup R)
-
-  open Monoid (Ring→Monoid R) public
-       renaming ( ε to ring·-id ; _·_ to ring·-operation
-                ; assoc to ring·-assoc ; rid to ring·-rid ; lid to ring·-lid )
+-- TODO: add makeRing
 
 
-module explicit-ring-syntax where
-  open partialRingAxioms
+record RingIso (R S : Ring {ℓ}) : Type ℓ where
 
-  ring+-operation-syntax : (R : Ring {ℓ}) → ⟨ R ⟩ → ⟨ R ⟩ → ⟨ R ⟩
-  ring+-operation-syntax R = ring+-operation R
-
-  infixr 14 ring+-operation-syntax
-  syntax ring+-operation-syntax R x y = x +⟨ R ⟩ y
-
-  ring·-operation-syntax : (R : Ring {ℓ}) → ⟨ R ⟩ → ⟨ R ⟩ → ⟨ R ⟩
-  ring·-operation-syntax R = R .snd .fst .snd .snd
-
-  infixr 18 ring·-operation-syntax
-  syntax ring·-operation-syntax R x y = x ·⟨ R ⟩ y
-
-module ring-axioms (R : Ring {ℓ}) where
-  open explicit-ring-syntax
-  open partialRingAxioms R public
+  constructor groupiso
 
   private
-    ring-rdist′ : (R : Ring {ℓ}) (x y z : ⟨ R ⟩) → x ·⟨ R ⟩ (y +⟨ R ⟩ z) ≡ (x ·⟨ R ⟩ y) +⟨ R ⟩ (x ·⟨ R ⟩ z)
-    ring-rdist′ (_ , _ , _ , _ , P , _) = P
+    module R = Ring R
+    module S = Ring S
 
-    ring-ldist′ : (R : Ring {ℓ}) (x y z : ⟨ R ⟩) → (x +⟨ R ⟩ y) ·⟨ R ⟩ z ≡ (x ·⟨ R ⟩ z) +⟨ R ⟩ (y ·⟨ R ⟩ z)
-    ring-ldist′ (_ , _ , _ , _ , _ , P) = P
-
-  ring-rdist = ring-rdist′ R
-  ring-ldist = ring-ldist′ R
-
-
-ringIsSet : (R : Ring {ℓ}) → isSet (⟨ R ⟩)
-ringIsSet R = abgroupIsSet (Ring→AbGroup R)
-
--- Ring syntax
-
-module ring-syntax (R : Ring {ℓ}) where
-  open partialRingAxioms
-
-  infixr 14 _+_
-  infixr 14 _-_
-  infix  15 -_
-
-  _+_ = ring+-operation R
-
-  _·_ = ring·-operation R
-
-  0r = ring+-id R
-
-  1r = ring·-id R
-
-  -_ = ring+-inv R
-
-  _-_ : ⟨ R ⟩ → ⟨ R ⟩ → ⟨ R ⟩
-  x - y = x + - y
-
-
-record expandedRingStructure {ℓ} (R : Type ℓ) : Type ℓ where
   field
-    0r : R
-    1r : R
-    _+_ : R → R → R
-    -_ : R → R
-    _·_ : R → R → R
+    e : ⟨ R ⟩ ≃ ⟨ S ⟩
+    pres1 : equivFun e R.1r ≡ S.1r
+    isHom+ : (x y : ⟨ R ⟩) → equivFun e (x R.+ y) ≡ equivFun e x S.+ equivFun e y
+    isHom· : (x y : ⟨ R ⟩) → equivFun e (x R.· y) ≡ equivFun e x S.· equivFun e y
 
-    +-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z
-    +-rid : (x : R) → x + 0r ≡ x
-    +-comm : (x y : R) → x + y ≡ y + x
-    +-rinv : (x : R) → x + (- x) ≡ 0r
+module RingΣ-theory {ℓ} where
 
-    ·-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z
-    ·-lid : (x : R) → 1r · x ≡ x
-    ·-rid : (x : R) → x · 1r ≡ x
+  open Macro ℓ (recvar (recvar var) , var , recvar (recvar var)) public renaming
+    ( structure to raw-ring-structure
+    ; iso       to raw-ring-iso
+    ; isSNS     to raw-ring-is-SNS )
 
-    ldist : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
-    rdist : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
+  ring-axioms : (R : Type ℓ) (s : raw-ring-structure R) → Type ℓ
+  ring-axioms R (_+_ , 1r , _·_) = AbGroupΣ-theory.abgroup-axioms R _+_
+                                 × IsMonoid 1r _·_
+                                 × ((x y z : R) → (x · (y + z) ≡ (x · y) + (x · z))
+                                                × ((x + y) · z ≡ (x · z) + (y · z)))
 
-  +-lid : (x : R) → 0r + x ≡ x
-  +-lid x =         0r + x     ≡⟨ +-comm _ _ ⟩
-                    x + 0r     ≡⟨ +-rid x ⟩
-                    x         ∎
+  ring-structure : Type ℓ → Type ℓ
+  ring-structure = add-to-structure raw-ring-structure ring-axioms
 
-  +-linv : (x : R) → (- x) + x ≡ 0r
-  +-linv x =         (- x) + x    ≡⟨ +-comm _ _ ⟩
-                     x + (- x)    ≡⟨ +-rinv x ⟩
-                     0r            ∎
+  RingΣ : Type (ℓ-suc ℓ)
+  RingΣ = TypeWithStr ℓ ring-structure
 
-createRing : (R : Type ℓ)
-             → isSet R
-             → expandedRingStructure R
-             → Ring {ℓ}
-createRing R isSet-R ringStr =
-           let open expandedRingStructure ringStr
-           in R , (_+_ , 1r , _·_) ,
-              (((isSet-R , +-assoc)
-                , 0r
-                , ((λ x → +-rid x , +-lid x)
-                  , λ x → (- x) , ((+-rinv x) , (+-linv x))))
-                , +-comm)
-              , ismonoid (issemigroup isSet-R ·-assoc) (λ x → ·-rid x , ·-lid x)
-              , rdist
-                , ldist
+  ring-iso : StrIso ring-structure ℓ
+  ring-iso = add-to-iso raw-ring-iso ring-axioms
+
+  ring-axioms-isProp : (R : Type ℓ) (s : raw-ring-structure R) → isProp (ring-axioms R s)
+  ring-axioms-isProp R (_+_ , 1r , _·_) =
+    isProp× (AbGroupΣ-theory.isProp-abgroup-axioms R _+_)
+            (isPropΣ (isPropIsMonoid 1r _·_)
+                     λ R → isPropΠ3 λ _ _ _ →
+                             isProp× (IsSemigroup.is-set (R .IsMonoid.isSemigroup) _ _)
+                                     (IsSemigroup.is-set (R .IsMonoid.isSemigroup) _ _))
+
+  Ring→RingΣ : Ring → RingΣ
+  Ring→RingΣ (ring R 0r 1r _+_ _·_ -_ (isring +-isAbelianGroup ·-isMonoid dist)) = R , (_+_ , 1r , _·_) , AbGroupΣ-theory.AbGroup→AbGroupΣ (abgroup _ _ _ _ +-isAbelianGroup) .snd .snd , ·-isMonoid , dist
+
+  RingΣ→Ring : RingΣ → Ring
+  RingΣ→Ring (_ , (y1 , y2 , y3) , z , w1 , w2) =
+    ring _ _ y2 y1 y3 _
+      (isring (AbGroupΣ-theory.AbGroupΣ→AbGroup (_ , _ , z ) .AbGroup.isAbGroup)
+              w1 w2)
+
+  RingIsoRingΣ : Iso Ring RingΣ
+  RingIsoRingΣ = iso Ring→RingΣ RingΣ→Ring (λ _ → refl) (λ _ → refl)
+
+  ring-is-SNS : SNS ring-structure ring-iso
+  ring-is-SNS = add-axioms-SNS _ ring-axioms-isProp raw-ring-is-SNS
+
+  RingΣPath : (R S : RingΣ) → (R ≃[ ring-iso ] S) ≃ (R ≡ S)
+  RingΣPath = SIP ring-is-SNS
+
+  RingIsoΣ : (M N : Ring) → Type ℓ
+  RingIsoΣ M N = Ring→RingΣ M ≃[ ring-iso ] Ring→RingΣ N
+
+  RingIsoΣPath : {M N : Ring} → Iso (RingIso M N) (RingIsoΣ M N)
+  fun RingIsoΣPath (groupiso e h1 h2 h3) = e , h2 , h1 , h3
+  inv RingIsoΣPath (e , h1 , h2 , h3)    = groupiso e h2 h1 h3
+  rightInv RingIsoΣPath _                = refl
+  leftInv RingIsoΣPath _                 = refl
+
+  RingPath : (M N : Ring) → (RingIso M N) ≃ (M ≡ N)
+  RingPath M N =
+    RingIso M N                       ≃⟨ isoToEquiv RingIsoΣPath ⟩
+    RingIsoΣ M N                      ≃⟨ RingΣPath (Ring→RingΣ M) (Ring→RingΣ N) ⟩
+    Ring→RingΣ M ≡ Ring→RingΣ N ≃⟨ isoToEquiv (invIso (congIso RingIsoRingΣ)) ⟩
+    M ≡ N ■
+
+
+RingPath : (M N : Ring {ℓ}) → (RingIso M N) ≃ (M ≡ N)
+RingPath = RingΣ-theory.RingPath
+
+-- Rings have an abelian group and a monoid
+
+Ring→AbGroup : Ring {ℓ} → AbGroup {ℓ}
+Ring→AbGroup (ring _ _ _ _ _ _ R) = abgroup _ _ _ _ (IsRing.+-isAbGroup R)
+
+Ring→Monoid : Ring {ℓ} → Monoid {ℓ}
+Ring→Monoid (ring _ _ _ _ _ _ R) = monoid _ _ _ (IsRing.·-isMonoid R)
 
 
 {-
@@ -234,40 +196,41 @@ createRing R isSet-R ringStr =
   have a ring solver (see https://github.com/agda/cubical/issues/297)
 -}
 module theory (R : Ring {ℓ}) where
-  open ring-axioms R
-  open ring-syntax R
+
+  open Ring R
 
   implicitInverse : (x y : ⟨ R ⟩)
                  → x + y ≡ 0r
                  → y ≡ - x
-  implicitInverse x y p = y             ≡⟨ sym (ring+-lid y) ⟩
-                       0r + y            ≡⟨ cong (λ u → u + y)
-                                               (sym (ring+-linv x)) ⟩
-                       (- x + x) + y   ≡⟨ sym (ring+-assoc _ _ _) ⟩
-                       (- x) + (x + y) ≡⟨ cong (λ u → (- x) + u) p ⟩
-                       (- x) + 0r       ≡⟨ ring+-rid _ ⟩
-                       - x             ∎
+  implicitInverse x y p =
+    y               ≡⟨ sym (+-lid y) ⟩
+    0r + y          ≡⟨ cong (λ u → u + y) (sym (+-linv x)) ⟩
+    (- x + x) + y   ≡⟨ sym (+-assoc _ _ _) ⟩
+    (- x) + (x + y) ≡⟨ cong (λ u → (- x) + u) p ⟩
+    (- x) + 0r      ≡⟨ +-rid _ ⟩
+    - x             ∎
 
   0-selfinverse : - 0r ≡ 0r
-  0-selfinverse = sym (implicitInverse _ _ (ring+-rid 0r))
+  0-selfinverse = sym (implicitInverse _ _ (+-rid 0r))
 
   0-idempotent : 0r + 0r ≡ 0r
-  0-idempotent = ring+-lid 0r
+  0-idempotent = +-lid 0r
 
   +-idempotency→0 : (x : ⟨ R ⟩) → x ≡ x + x → 0r ≡ x
-  +-idempotency→0 x p = 0r               ≡⟨ sym (ring+-rinv _) ⟩
-                        x + (- x)       ≡⟨ cong (λ u → u + (- x)) p ⟩
-                        (x + x) + (- x)   ≡⟨ sym (ring+-assoc _ _ _) ⟩
-                        x + (x + (- x)) ≡⟨ cong (λ u → x + u) (ring+-rinv _) ⟩
-                        x + 0r           ≡⟨ ring+-rid x ⟩
-                        x               ∎
+  +-idempotency→0 x p =
+    0r              ≡⟨ sym (+-rinv _) ⟩
+    x + (- x)       ≡⟨ cong (λ u → u + (- x)) p ⟩
+    (x + x) + (- x) ≡⟨ sym (+-assoc _ _ _) ⟩
+    x + (x + (- x)) ≡⟨ cong (λ u → x + u) (+-rinv _) ⟩
+    x + 0r          ≡⟨ +-rid x ⟩
+    x               ∎
 
   0-rightNullifies : (x : ⟨ R ⟩) → x · 0r ≡ 0r
   0-rightNullifies x =
               let x·0-is-idempotent : x · 0r ≡ x · 0r + x · 0r
                   x·0-is-idempotent =
                     x · 0r               ≡⟨ cong (λ u → x · u) (sym 0-idempotent) ⟩
-                    x · (0r + 0r)        ≡⟨ ring-rdist _ _ _ ⟩
+                    x · (0r + 0r)        ≡⟨ ·-ldist-+ _ _ _ ⟩
                     (x · 0r) + (x · 0r)  ∎
               in sym (+-idempotency→0 _ x·0-is-idempotent)
 
@@ -276,54 +239,51 @@ module theory (R : Ring {ℓ}) where
               let 0·x-is-idempotent : 0r · x ≡ 0r · x + 0r · x
                   0·x-is-idempotent =
                     0r · x               ≡⟨ cong (λ u → u · x) (sym 0-idempotent) ⟩
-                    (0r + 0r) · x        ≡⟨ ring-ldist _ _ _ ⟩
+                    (0r + 0r) · x        ≡⟨ ·-rdist-+ _ _ _ ⟩
                     (0r · x) + (0r · x)  ∎
               in sym (+-idempotency→0 _ 0·x-is-idempotent)
 
   -commutesWithRight-· : (x y : ⟨ R ⟩) →  x · (- y) ≡ - (x · y)
   -commutesWithRight-· x y = implicitInverse (x · y) (x · (- y))
 
-                               (x · y + x · (- y)     ≡⟨ sym (ring-rdist _ _ _) ⟩
-                               x · (y + (- y))        ≡⟨ cong (λ u → x · u) (ring+-rinv y) ⟩
+                               (x · y + x · (- y)     ≡⟨ sym (·-ldist-+ _ _ _) ⟩
+                               x · (y + (- y))        ≡⟨ cong (λ u → x · u) (+-rinv y) ⟩
                                x · 0r                 ≡⟨ 0-rightNullifies x ⟩
                                0r ∎)
 
   -commutesWithLeft-· : (x y : ⟨ R ⟩) →  (- x) · y ≡ - (x · y)
   -commutesWithLeft-· x y = implicitInverse (x · y) ((- x) · y)
 
-                              (x · y + (- x) · y     ≡⟨ sym (ring-ldist _ _ _) ⟩
-                              (x - x) · y            ≡⟨ cong (λ u → u · y) (ring+-rinv x) ⟩
+                              (x · y + (- x) · y     ≡⟨ sym (·-rdist-+ _ _ _) ⟩
+                              (x - x) · y            ≡⟨ cong (λ u → u · y) (+-rinv x) ⟩
                               0r · y                 ≡⟨ 0-leftNullifies y ⟩
                               0r ∎)
 
-  -isDistributive : (x y : ⟨ R ⟩) →  (- x) + (- y) ≡ - (x + y)
+  -isDistributive : (x y : ⟨ R ⟩) → (- x) + (- y) ≡ - (x + y)
   -isDistributive x y =
     implicitInverse _ _
-         ((x + y) + ((- x) + (- y)) ≡⟨ sym (ring+-assoc _ _ _) ⟩
+         ((x + y) + ((- x) + (- y)) ≡⟨ sym (+-assoc _ _ _) ⟩
           x + (y + ((- x) + (- y))) ≡⟨ cong
                                          (λ u → x + (y + u))
-                                         (ring+-comm _ _) ⟩
-          x + (y + ((- y) + (- x))) ≡⟨ cong (λ u → x + u) (ring+-assoc _ _ _) ⟩
+                                         (+-comm _ _) ⟩
+          x + (y + ((- y) + (- x))) ≡⟨ cong (λ u → x + u) (+-assoc _ _ _) ⟩
           x + ((y + (- y)) + (- x)) ≡⟨ cong (λ u → x + (u + (- x)))
-                                            (ring+-rinv _) ⟩
-          x + (0r + (- x))           ≡⟨ cong (λ u → x + u) (ring+-lid _) ⟩
-          x + (- x)                 ≡⟨ ring+-rinv _ ⟩
+                                            (+-rinv _) ⟩
+          x + (0r + (- x))           ≡⟨ cong (λ u → x + u) (+-lid _) ⟩
+          x + (- x)                 ≡⟨ +-rinv _ ⟩
           0r ∎)
 
-  translatedDifference :
-    ∀ (x a b : ⟨ R ⟩)
-    → a - b ≡ (x + a) - (x + b)
+  translatedDifference : (x a b : ⟨ R ⟩) → a - b ≡ (x + a) - (x + b)
   translatedDifference x a b =
               a - b                       ≡⟨ cong (λ u → a + u)
-                                                  (sym (ring+-lid _)) ⟩
+                                                  (sym (+-lid _)) ⟩
               (a + (0r + (- b)))          ≡⟨ cong (λ u → a + (u + (- b)))
-                                                  (sym (ring+-rinv _)) ⟩
+                                                  (sym (+-rinv _)) ⟩
               (a + ((x + (- x)) + (- b))) ≡⟨ cong (λ u → a + u)
-                                                  (sym (ring+-assoc _ _ _)) ⟩
-              (a + (x + ((- x) + (- b)))) ≡⟨ (ring+-assoc _ _ _) ⟩
+                                                  (sym (+-assoc _ _ _)) ⟩
+              (a + (x + ((- x) + (- b)))) ≡⟨ (+-assoc _ _ _) ⟩
               ((a + x) + ((- x) + (- b))) ≡⟨ cong (λ u → u + ((- x) + (- b)))
-                                                  (ring+-comm _ _) ⟩
+                                                  (+-comm _ _) ⟩
               ((x + a) + ((- x) + (- b))) ≡⟨ cong (λ u → (x + a) + u)
                                                   (-isDistributive _ _) ⟩
               ((x + a) - (x + b)) ∎
-

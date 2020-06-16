@@ -93,8 +93,7 @@ module MonoidΣ-theory {ℓ} where
   open Macro ℓ (var , recvar (recvar var)) public renaming
     ( structure to raw-monoid-structure
     ; iso to raw-monoid-iso
-    ; isSNS to raw-monoid-is-SNS
-    )
+    ; isSNS to raw-monoid-is-SNS )
 
   monoid-axioms : (A : Type ℓ) → raw-monoid-structure A → Type ℓ
   monoid-axioms A (e , _·_) = IsSemigroup _·_

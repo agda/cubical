@@ -114,30 +114,30 @@ module GroupΣ-theory {ℓ} where
 
   open monoid-theory
 
-  group-axioms-isProp : (X : Type ℓ)
-                      → (s : raw-group-structure X)
-                      → isProp (group-axioms X s)
-  group-axioms-isProp X _+_ = isPropΣ (isPropIsSemigroup _) γ
+  isProp-group-axioms : (G : Type ℓ)
+                      → (s : raw-group-structure G)
+                      → isProp (group-axioms G s)
+  isProp-group-axioms G _+_ = isPropΣ (isPropIsSemigroup _) γ
     where
     γ : (h : IsSemigroup _+_) →
-        isProp (Σ[ e ∈ X ] ((x : X) → (x + e ≡ x) × (e + x ≡ x))
-                         × ((x : X) → Σ[ x' ∈ X ] (x + x' ≡ e) × (x' + x ≡ e)))
+        isProp (Σ[ e ∈ G ] ((x : G) → (x + e ≡ x) × (e + x ≡ x))
+                         × ((x : G) → Σ[ x' ∈ G ] (x + x' ≡ e) × (x' + x ≡ e)))
     γ h (e , P , _) (e' , Q , _) =
-      Σ≡Prop (λ x → isPropΣ (isPropΠ λ _ → isProp× (isSetX _ _) (isSetX _ _)) (β x))
+      Σ≡Prop (λ x → isPropΣ (isPropΠ λ _ → isProp× (isSetG _ _) (isSetG _ _)) (β x))
              (sym (fst (Q e)) ∙ snd (P e'))
       where
-      isSetX : isSet X
-      isSetX = IsSemigroup.is-set h
+      isSetG : isSet G
+      isSetG = IsSemigroup.is-set h
 
-      β : (e : X) → ((x : X) → (x + e ≡ x) × (e + x ≡ x))
-        → isProp ((x : X) → Σ[ x' ∈ X ] (x + x' ≡ e) × (x' + x ≡ e))
+      β : (e : G) → ((x : G) → (x + e ≡ x) × (e + x ≡ x))
+        → isProp ((x : G) → Σ[ x' ∈ G ] (x + x' ≡ e) × (x' + x ≡ e))
       β e He =
         isPropΠ λ { x (x' , _ , P) (x'' , Q , _) →
-                Σ≡Prop (λ _ → isProp× (isSetX _ _) (isSetX _ _))
+                Σ≡Prop (λ _ → isProp× (isSetG _ _) (isSetG _ _))
                        (inv-lemma ℳ x x' x'' P Q) }
         where
           ℳ : Monoid
-          ℳ = makeMonoid X e _+_ isSetX (IsSemigroup.assoc h) (λ x → He x .fst) (λ x → He x .snd)
+          ℳ = makeMonoid G e _+_ isSetG (IsSemigroup.assoc h) (λ x → He x .fst) (λ x → He x .snd)
 
   Group→GroupΣ : Group → GroupΣ
   Group→GroupΣ (group _ _ _ -_ isGroup) =
@@ -153,7 +153,7 @@ module GroupΣ-theory {ℓ} where
   GroupIsoGroupΣ = iso Group→GroupΣ GroupΣ→Group (λ _ → refl) (λ _ → refl)
 
   group-is-SNS : SNS group-structure group-iso
-  group-is-SNS = add-axioms-SNS _ group-axioms-isProp raw-group-is-SNS
+  group-is-SNS = add-axioms-SNS _ isProp-group-axioms raw-group-is-SNS
 
   GroupΣPath : (M N : GroupΣ) → (M ≃[ group-iso ] N) ≃ (M ≡ N)
   GroupΣPath = SIP group-is-SNS
