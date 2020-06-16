@@ -20,8 +20,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Structures.Group hiding (⟨_⟩)
 open import Cubical.Structures.AbGroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid hiding (⟨_⟩)
-open import Cubical.Structures.Ring hiding (⟨_⟩)
-open import Cubical.Structures.CommRing
+open import Cubical.Structures.Ring
 
 open Iso
 
@@ -85,9 +84,10 @@ FinMatrix≡VecMatrix _ _ _ = ua FinMatrix≃VecMatrix
 -- Experiment using addition. Transport commutativity from one
 -- representation to the the other and relate the transported
 -- operation with a more direct definition.
-module _ (R' : CommRing {ℓ}) where
+module _ (R' : Ring {ℓ}) where
 
-  open CommRing R' renaming ( Carrier to R ; is-set to isSetR )
+  open Ring R' renaming ( Carrier to R ; is-set to isSetR )
+  open theory R'
 
   -- Operations
 
@@ -137,31 +137,51 @@ module _ (R' : CommRing {ℓ}) where
                    → mulFinMatrix M (mulFinMatrix N K) ≡ mulFinMatrix (mulFinMatrix M N) K
   mulFinMatrixAssoc M N K i j k = {!!}
 
-  mulFinMatrix1r : ∀ {m n} → (M : FinMatrix R m n) → mulFinMatrix M oneFinMatrix ≡ M
-  mulFinMatrix1r {n = zero} M = funExt₂ λ j → \ { () }
-  mulFinMatrix1r {n = suc n} M = funExt₂ λ j k → {!!}
+  sumVecMulr0 : (n : ℕ) (V : FinVec R n) → sumVec (λ i → V i · 0r) ≡ 0r
+  sumVecMulr0 zero _ = refl
+  sumVecMulr0 (suc n) V = (λ i → 0-rightNullifies (V zero) i + sumVecMulr0 n (V ∘ suc) i) ∙ +-rid 0r
 
-  mulFinMatrix1l : ∀ {m n} → (M : FinMatrix R m n) → mulFinMatrix oneFinMatrix M ≡ M
-  mulFinMatrix1l M i j k = {!!}
+  sumVecMul0r : (n : ℕ) (V : FinVec R n) → sumVec (λ i → 0r · V i) ≡ 0r
+  sumVecMul0r zero _ = refl
+  sumVecMul0r (suc n) V = (λ i → 0-leftNullifies (V zero) i + sumVecMul0r n (V ∘ suc) i) ∙ +-lid 0r
 
-  mulFinMatrixDistrAddFinMatrix : ∀ {n} (M N K : FinMatrix R n n)
-                                → mulFinMatrix M (addFinMatrix N K) ≡ addFinMatrix (mulFinMatrix M N) (mulFinMatrix M K)
-  mulFinMatrixDistrAddFinMatrix = {!!}
+  sumVecMulr1 : (n : ℕ) (V : FinVec R n) → (j : Fin n) → sumVec (λ i → V i · (if i == j then 1r else 0r)) ≡ V j
+  sumVecMulr1 (suc n) V zero = (λ k → ·-rid (V zero) k + sumVecMulr0 n (V ∘ suc) k) ∙ +-rid (V zero)
+  sumVecMulr1 (suc n) V (suc j) =
+     (λ i → 0-rightNullifies (V zero) i + sumVec (λ x → V (suc x) · (if x == j then 1r else 0r)))
+     ∙∙ +-lid _ ∙∙ sumVecMulr1 n (V ∘ suc) j
 
-  mulFinMatrixComm : ∀ {n} → (M N : FinMatrix R n n) → mulFinMatrix M N ≡ mulFinMatrix N M
-  mulFinMatrixComm {n = n} M N i j k = {!!} -- sumVec {n = {!n!}} (λ l → commring·-comm R (M j k) (N k j) i)
+  sumVecMul1r : (n : ℕ) (V : FinVec R n) → (j : Fin n) → sumVec (λ i → (if j == i then 1r else 0r) · V i) ≡ V j
+  sumVecMul1r (suc n) V zero = (λ k → ·-lid (V zero) k + sumVecMul0r n (V ∘ suc) k) ∙ +-rid (V zero)
+  sumVecMul1r (suc n) V (suc j) =
+    (λ i → 0-leftNullifies (V zero) i + sumVec (λ i → (if j == i then 1r else 0r) · V (suc i)))
+    ∙∙ +-lid _ ∙∙ sumVecMul1r n (V ∘ suc) j
 
-  FinMatrixCommRing : (n : ℕ) → CommRing {ℓ}
-  FinMatrixCommRing n = makeCommRing {R = FinMatrix R n n} (zeroFinMatrix {n = n}) oneFinMatrix addFinMatrix mulFinMatrix
+  mulFinMatrixr1 : ∀ {m n} → (M : FinMatrix R m n) → mulFinMatrix M oneFinMatrix ≡ M
+  mulFinMatrixr1 M = funExt₂ λ i j → sumVecMulr1 _ (M i) j
+
+  mulFinMatrix1r : ∀ {m n} → (M : FinMatrix R m n) → mulFinMatrix oneFinMatrix M ≡ M
+  mulFinMatrix1r M = funExt₂ λ i j → sumVecMul1r _ (λ x → M x j) i
+
+  mulFinMatrixrDistrAddFinMatrix : ∀ {n} (M N K : FinMatrix R n n)
+                                 → mulFinMatrix M (addFinMatrix N K) ≡ addFinMatrix (mulFinMatrix M N) (mulFinMatrix M K)
+  mulFinMatrixrDistrAddFinMatrix = {!!}
+
+  mulFinMatrixlDistrAddFinMatrix : ∀ {n} (M N K : FinMatrix R n n)
+                                 → mulFinMatrix (addFinMatrix M N) K ≡ addFinMatrix (mulFinMatrix M K) (mulFinMatrix N K)
+  mulFinMatrixlDistrAddFinMatrix = {!!}
+
+  FinMatrixRing : (n : ℕ) → Ring {ℓ}
+  FinMatrixRing n = makeRing {R = FinMatrix R n n} zeroFinMatrix oneFinMatrix addFinMatrix mulFinMatrix
                           negFinMatrix isSetFinMatrix addFinMatrixAssoc addFinMatrix0r addFinMatrixNegMatrixr addFinMatrixComm
-                          mulFinMatrixAssoc mulFinMatrix1r mulFinMatrixDistrAddFinMatrix mulFinMatrixComm
+                          mulFinMatrixAssoc mulFinMatrixr1 mulFinMatrix1r mulFinMatrixrDistrAddFinMatrix mulFinMatrixlDistrAddFinMatrix
 
 -- Experiment using addition. Transport commutativity from one
 -- representation to the the other and relate the transported
 -- operation with a more direct definition.
-module _ (R' : CommRing {ℓ}) where
+module _ (R' : Ring {ℓ}) where
 
-  open CommRing R' renaming ( Carrier to R )
+  open Ring R' renaming ( Carrier to R )
 
   addVecMatrix : ∀ {m n} → VecMatrix R m n → VecMatrix R m n → VecMatrix R m n
   addVecMatrix {m} {n} = transport (λ i → FinMatrix≡VecMatrix R m n i
