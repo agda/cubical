@@ -60,11 +60,11 @@ record IsRing {R : Type ℓ}
     ; isSemigroup to ·-isSemigroup
     )
 
-  ·-ldist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
-  ·-ldist-+ x y z = dist x y z .fst
+  ·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
+  ·-rdist-+ x y z = dist x y z .fst
 
-  ·-rdist-+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
-  ·-rdist-+ x y z = dist x y z .snd
+  ·-ldist-+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
+  ·-ldist-+ x y z = dist x y z .snd
 
   -- TODO: prove these somewhere
 
@@ -100,8 +100,39 @@ record Ring : Type (ℓ-suc ℓ) where
 isSetRing : (R : Ring {ℓ}) → isSet ⟨ R ⟩
 isSetRing R = R .Ring.isRing .IsRing.·-isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
--- TODO: add makeRing
+makeIsRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
+             (is-setR : isSet R)
+             (+-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
+             (+-rid : (x : R) → x + 0r ≡ x)
+             (+-rinv : (x : R) → x + (- x) ≡ 0r)
+             (+-comm : (x y : R) → x + y ≡ y + x)
+             (+-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
+             (·-rid : (x : R) → x · 1r ≡ x)
+             (·-lid : (x : R) → 1r · x ≡ x)
+             (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
+             (·-ldist-+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
+           → IsRing 0r 1r _+_ _·_ -_
+makeIsRing is-setR assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+ =
+  isring (makeIsAbGroup is-setR assoc +-rid +-rinv +-comm)
+         (makeIsMonoid is-setR ·-assoc ·-rid ·-lid)
+         λ x y z → ·-rdist-+ x y z , ·-ldist-+ x y z
 
+makeRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
+           (is-setR : isSet R)
+           (+-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
+           (+-rid : (x : R) → x + 0r ≡ x)
+           (+-rinv : (x : R) → x + (- x) ≡ 0r)
+           (+-comm : (x y : R) → x + y ≡ y + x)
+           (+-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
+           (·-rid : (x : R) → x · 1r ≡ x)
+           (·-lid : (x : R) → 1r · x ≡ x)
+           (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
+           (·-ldist-+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
+         → Ring
+makeRing 0r 1r _+_ _·_ -_ is-setR assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+ =
+  ring _ 0r 1r _+_ _·_ -_
+       (makeIsRing is-setR assoc +-rid +-rinv +-comm
+                   ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+ )
 
 record RingIso (R S : Ring {ℓ}) : Type ℓ where
 
@@ -249,7 +280,7 @@ module theory (R : Ring {ℓ}) where
               let x·0-is-idempotent : x · 0r ≡ x · 0r + x · 0r
                   x·0-is-idempotent =
                     x · 0r               ≡⟨ cong (λ u → x · u) (sym 0-idempotent) ⟩
-                    x · (0r + 0r)        ≡⟨ ·-ldist-+ _ _ _ ⟩
+                    x · (0r + 0r)        ≡⟨ ·-rdist-+ _ _ _ ⟩
                     (x · 0r) + (x · 0r)  ∎
               in sym (+-idempotency→0 _ x·0-is-idempotent)
 
@@ -258,14 +289,14 @@ module theory (R : Ring {ℓ}) where
               let 0·x-is-idempotent : 0r · x ≡ 0r · x + 0r · x
                   0·x-is-idempotent =
                     0r · x               ≡⟨ cong (λ u → u · x) (sym 0-idempotent) ⟩
-                    (0r + 0r) · x        ≡⟨ ·-rdist-+ _ _ _ ⟩
+                    (0r + 0r) · x        ≡⟨ ·-ldist-+ _ _ _ ⟩
                     (0r · x) + (0r · x)  ∎
               in sym (+-idempotency→0 _ 0·x-is-idempotent)
 
   -commutesWithRight-· : (x y : ⟨ R ⟩) →  x · (- y) ≡ - (x · y)
   -commutesWithRight-· x y = implicitInverse (x · y) (x · (- y))
 
-                               (x · y + x · (- y)     ≡⟨ sym (·-ldist-+ _ _ _) ⟩
+                               (x · y + x · (- y)     ≡⟨ sym (·-rdist-+ _ _ _) ⟩
                                x · (y + (- y))        ≡⟨ cong (λ u → x · u) (+-rinv y) ⟩
                                x · 0r                 ≡⟨ 0-rightNullifies x ⟩
                                0r ∎)
@@ -273,7 +304,7 @@ module theory (R : Ring {ℓ}) where
   -commutesWithLeft-· : (x y : ⟨ R ⟩) →  (- x) · y ≡ - (x · y)
   -commutesWithLeft-· x y = implicitInverse (x · y) ((- x) · y)
 
-                              (x · y + (- x) · y     ≡⟨ sym (·-rdist-+ _ _ _) ⟩
+                              (x · y + (- x) · y     ≡⟨ sym (·-ldist-+ _ _ _) ⟩
                               (x - x) · y            ≡⟨ cong (λ u → u · y) (+-rinv x) ⟩
                               0r · y                 ≡⟨ 0-leftNullifies y ⟩
                               0r ∎)

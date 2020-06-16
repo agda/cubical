@@ -68,7 +68,28 @@ record Group : Type (ℓ-suc ℓ) where
 ⟨_⟩ : Group → Type ℓ
 ⟨_⟩ = Group.Carrier
 
--- TODO: add makeGroup
+-- TODO: we don't need all of these arguments...
+makeIsGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
+              (is-setG : isSet G)
+              (assoc : (x y z : G) → x + (y + z) ≡ (x + y) + z)
+              (rid : (x : G) → x + 0g ≡ x)
+              (lid : (x : G) → 0g + x ≡ x)
+              (rinv : (x : G) → x + (- x) ≡ 0g)
+              (linv : (x : G) → (- x) + x ≡ 0g)
+            → IsGroup 0g _+_ -_
+makeIsGroup is-setG assoc rid lid rinv linv =
+   isgroup (makeIsMonoid is-setG assoc rid lid) λ x → rinv x , linv x
+
+makeGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
+            (is-setG : isSet G)
+            (assoc : (x y z : G) → x + (y + z) ≡ (x + y) + z)
+            (rid : (x : G) → x + 0g ≡ x)
+            (lid : (x : G) → 0g + x ≡ x)
+            (rinv : (x : G) → x + (- x) ≡ 0g)
+            (linv : (x : G) → (- x) + x ≡ 0g)
+          → Group
+makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv =
+  group _ 0g _+_ -_ (makeIsGroup is-setG assoc rid lid rinv linv)
 
 
 record GroupIso (G H : Group {ℓ}) : Type ℓ where
@@ -138,7 +159,7 @@ module GroupΣ-theory {ℓ} where
                        (inv-lemma ℳ x x' x'' P Q) }
         where
           ℳ : Monoid
-          ℳ = makeMonoid G e _+_ isSetG (IsSemigroup.assoc h) (λ x → He x .fst) (λ x → He x .snd)
+          ℳ = makeMonoid e _+_ isSetG (IsSemigroup.assoc h) (λ x → He x .fst) (λ x → He x .snd)
 
   Group→GroupΣ : Group → GroupΣ
   Group→GroupΣ (group _ _ _ -_ isGroup) =

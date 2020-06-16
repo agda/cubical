@@ -60,7 +60,35 @@ record CommRing : Type (ℓ-suc ℓ) where
 ⟨_⟩ : CommRing → Type ℓ
 ⟨_⟩ = CommRing.Carrier
 
--- TODO: add makeCommRing
+makeIsCommRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
+                 (is-setR : isSet R)
+                 (+-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
+                 (+-rid : (x : R) → x + 0r ≡ x)
+                 (+-rinv : (x : R) → x + (- x) ≡ 0r)
+                 (+-comm : (x y : R) → x + y ≡ y + x)
+                 (·-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
+                 (·-rid : (x : R) → x · 1r ≡ x)
+                 (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
+                 (·-comm : (x y : R) → x · y ≡ y · x)
+               → IsCommRing 0r 1r _+_ _·_ -_
+makeIsCommRing {_+_ = _+_} is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm =
+  iscommring (makeIsRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid
+                         (λ x → ·-comm _ _ ∙ ·-rid x) ·-rdist-+
+                         (λ x y z → ·-comm _ _ ∙∙ ·-rdist-+ z x y ∙∙ λ i → (·-comm z x i) + (·-comm z y i))) ·-comm
+
+makeCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
+               (is-setR : isSet R)
+               (+-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
+               (+-rid : (x : R) → x + 0r ≡ x)
+               (+-rinv : (x : R) → x + (- x) ≡ 0r)
+               (+-comm : (x y : R) → x + y ≡ y + x)
+               (·-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
+               (·-rid : (x : R) → x · 1r ≡ x)
+               (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
+               (·-comm : (x y : R) → x · y ≡ y · x)
+             → CommRing
+makeCommRing 0r 1r _+_ _·_ -_ is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm =
+  commring _ _ _ _ _ _ (makeIsCommRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm)
 
 CommRing→Ring : CommRing {ℓ} → Ring
 CommRing→Ring (commring _ _ _ _ _ _ H) = ring _ _ _ _ _ _ (IsCommRing.isRing H)

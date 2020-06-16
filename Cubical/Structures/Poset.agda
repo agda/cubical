@@ -1,5 +1,4 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-
 module Cubical.Structures.Poset where
 
 open import Cubical.Foundations.Prelude

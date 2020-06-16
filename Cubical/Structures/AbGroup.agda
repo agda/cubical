@@ -56,7 +56,26 @@ record AbGroup : Type (ℓ-suc ℓ) where
 ⟨_⟩ : AbGroup → Type ℓ
 ⟨_⟩ = AbGroup.Carrier
 
--- TODO: add makeAbGroup
+makeIsAbGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
+              (is-setG : isSet G)
+              (assoc   : (x y z : G) → x + (y + z) ≡ (x + y) + z)
+              (rid     : (x : G) → x + 0g ≡ x)
+              (rinv    : (x : G) → x + (- x) ≡ 0g)
+              (comm    : (x y : G) → x + y ≡ y + x)
+            → IsAbGroup 0g _+_ -_
+makeIsAbGroup is-setG assoc rid rinv comm =
+  isabgroup (makeIsGroup is-setG assoc rid (λ x → comm _ _ ∙ rid x) rinv (λ x → comm _ _ ∙ rinv x)) comm
+
+makeAbGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
+            (is-setG : isSet G)
+            (assoc : (x y z : G) → x + (y + z) ≡ (x + y) + z)
+            (rid : (x : G) → x + 0g ≡ x)
+            (rinv : (x : G) → x + (- x) ≡ 0g)
+            (comm    : (x y : G) → x + y ≡ y + x)
+          → AbGroup
+makeAbGroup 0g _+_ -_ is-setG assoc rid rinv comm =
+  abgroup _ 0g _+_ -_ (makeIsAbGroup is-setG assoc rid rinv comm)
+
 
 AbGroup→Group : AbGroup {ℓ} → Group
 AbGroup→Group (abgroup _ _ _ _ H) = group _ _ _ _ (IsAbGroup.isGroup H)
