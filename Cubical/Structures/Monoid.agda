@@ -29,15 +29,15 @@ record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
 
   field
     isSemigroup : IsSemigroup _·_
-    identity    : (x : A) → (ε · x ≡ x) × (x · ε ≡ x)
+    identity    : (x : A) → (x · ε ≡ x) × (ε · x ≡ x)
 
   open IsSemigroup isSemigroup public
 
   lid : (x : A) → ε · x ≡ x
-  lid x = identity x .fst
+  lid x = identity x .snd
 
   rid : (x : A) → x · ε ≡ x
-  rid x = identity x .snd
+  rid x = identity x .fst
 
 
 record Monoid : Type (ℓ-suc ℓ) where
@@ -63,6 +63,15 @@ record Monoid : Type (ℓ-suc ℓ) where
 ⟨_⟩ : Monoid → Type ℓ
 ⟨_⟩ = Monoid.Carrier
 
+-- Easier to use constructor
+makeMonoid : (A : Type ℓ) (ε : A) (_·_ : A → A → A)
+             (is-setA : isSet A)
+             (assoc : (x y z : A) → x · (y · z) ≡ (x · y) · z)
+             (rid : (x : A) → (x · ε) ≡ x)
+             (lid : (x : A) → (ε · x) ≡ x)
+           → Monoid {ℓ}
+makeMonoid A ε _·_ is-setA assoc rid lid =
+  monoid A ε _·_ (ismonoid (issemigroup is-setA assoc) λ x → rid x , lid x)
 
 record MonoidIso (M N : Monoid {ℓ}) : Type ℓ where
 
@@ -89,7 +98,7 @@ module MonoidΣ-theory {ℓ} where
 
   monoid-axioms : (A : Type ℓ) → raw-monoid-structure A → Type ℓ
   monoid-axioms A (e , _·_) = IsSemigroup _·_
-                            × ((x : A) → (e · x ≡ x) × (x · e ≡ x))
+                            × ((x : A) → (x · e ≡ x) × (e · x ≡ x))
 
   monoid-structure : Type ℓ → Type ℓ
   monoid-structure = add-to-structure raw-monoid-structure monoid-axioms
@@ -100,8 +109,7 @@ module MonoidΣ-theory {ℓ} where
   monoid-axioms-isProp : (A : Type ℓ) (s : raw-monoid-structure A) → isProp (monoid-axioms A s)
   monoid-axioms-isProp A (e , _·_) =
     isPropΣ (isPropIsSemigroup _·_)
-            λ α → isPropΠ λ _ → isProp× (IsSemigroup.is-set α _ _)
-                                        (IsSemigroup.is-set α _ _)
+            λ α → isPropΠ λ _ → isProp× (IsSemigroup.is-set α _ _) (IsSemigroup.is-set α _ _)
 
   monoid-iso : StrIso monoid-structure ℓ
   monoid-iso = add-to-iso raw-monoid-iso monoid-axioms
