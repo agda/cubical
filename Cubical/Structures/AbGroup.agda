@@ -25,7 +25,8 @@ private
   variable
     ℓ : Level
 
-record IsAbGroup {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G) : Type ℓ where
+record IsAbGroup {G : Type ℓ}
+                 (0g : G) (_+_ : G → G → G) (-_ : G → G) : Type ℓ where
 
   constructor isabgroup
 
@@ -60,7 +61,7 @@ record AbGroup : Type (ℓ-suc ℓ) where
 AbGroup→Group : AbGroup {ℓ} → Group
 AbGroup→Group (abgroup _ _ _ _ H) = group _ _ _ _ (IsAbGroup.isGroup H)
 
-AbGroupIso : (G H : AbGroup {ℓ}) → Type ℓ
+AbGroupIso : (G H : AbGroup) → Type ℓ
 AbGroupIso G H = GroupIso (AbGroup→Group G) (AbGroup→Group H)
 
 module AbGroupΣ-theory {ℓ} where
@@ -82,7 +83,7 @@ module AbGroupΣ-theory {ℓ} where
   isProp-abgroup-axioms : (G : Type ℓ) (s : raw-group-structure G)
                         → isProp (abgroup-axioms G s)
   isProp-abgroup-axioms G _+_ =
-    isPropΣ (GroupΣ-theory.isProp-group-axioms G _+_)
+    isPropΣ (isProp-group-axioms G _+_)
             λ { (H , _) → isPropΠ2 λ _ _ → IsSemigroup.is-set H _ _}
 
   AbGroup→AbGroupΣ : AbGroup → AbGroupΣ
@@ -99,30 +100,30 @@ module AbGroupΣ-theory {ℓ} where
   abgroup-is-SNS : SNS abgroup-structure abgroup-iso
   abgroup-is-SNS = add-axioms-SNS _ isProp-abgroup-axioms raw-group-is-SNS
 
-  AbGroupΣPath : (M N : AbGroupΣ) → (M ≃[ abgroup-iso ] N) ≃ (M ≡ N)
+  AbGroupΣPath : (G H : AbGroupΣ) → (G ≃[ abgroup-iso ] H) ≃ (G ≡ H)
   AbGroupΣPath = SIP abgroup-is-SNS
 
-  AbGroupIsoΣ : (M N : AbGroup) → Type ℓ
-  AbGroupIsoΣ M N = AbGroup→AbGroupΣ M ≃[ abgroup-iso ] AbGroup→AbGroupΣ N
+  AbGroupIsoΣ : (G H : AbGroup) → Type ℓ
+  AbGroupIsoΣ G H = AbGroup→AbGroupΣ G ≃[ abgroup-iso ] AbGroup→AbGroupΣ H
 
-  AbGroupPath : (M N : AbGroup) → (AbGroupIso M N) ≃ (M ≡ N)
-  AbGroupPath M N =
-    AbGroupIso M N                          ≃⟨ isoToEquiv GroupIsoΣPath ⟩
-    AbGroupIsoΣ M N                         ≃⟨ AbGroupΣPath (AbGroup→AbGroupΣ M) (AbGroup→AbGroupΣ N) ⟩
-    AbGroup→AbGroupΣ M ≡ AbGroup→AbGroupΣ N ≃⟨ isoToEquiv (invIso (congIso AbGroupIsoAbGroupΣ)) ⟩
-    M ≡ N ■
+  AbGroupPath : (G H : AbGroup) → (AbGroupIso G H) ≃ (G ≡ H)
+  AbGroupPath G H =
+    AbGroupIso G H                          ≃⟨ isoToEquiv GroupIsoΣPath ⟩
+    AbGroupIsoΣ G H                         ≃⟨ AbGroupΣPath _ _ ⟩
+    AbGroup→AbGroupΣ G ≡ AbGroup→AbGroupΣ H ≃⟨ isoToEquiv (invIso (congIso AbGroupIsoAbGroupΣ)) ⟩
+    G ≡ H ■
 
 -- Extract the characterization of equality of groups
-AbGroupPath : (M N : AbGroup {ℓ}) → (AbGroupIso M N) ≃ (M ≡ N)
+AbGroupPath : (G H : AbGroup {ℓ}) → (AbGroupIso G H) ≃ (G ≡ H)
 AbGroupPath = AbGroupΣ-theory.AbGroupPath
 
 isPropIsAbGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
                 → isProp (IsAbGroup 0g _+_ -_)
-isPropIsAbGroup 0g _+_ -_ (isabgroup GG Gcomm) (isabgroup HG Hcomm) =
-  λ i → isabgroup (isPropIsGroup _ _ _ GG HG i) (isPropComm Gcomm Hcomm i)
+isPropIsAbGroup 0g _+_ -_ (isabgroup GG GC) (isabgroup HG HC) =
+  λ i → isabgroup (isPropIsGroup _ _ _ GG HG i) (isPropComm GC HC i)
   where
   isSetG : isSet _
-  isSetG = IsSemigroup.is-set (IsMonoid.isSemigroup (IsGroup.isMonoid GG))
+  isSetG = GG .IsGroup.isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
   isPropComm : isProp ((x y : _) → x + y ≡ y + x)
   isPropComm = isPropΠ2 λ _ _ → isSetG _ _

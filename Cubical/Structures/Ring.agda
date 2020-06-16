@@ -23,7 +23,8 @@ private
   variable
     ℓ : Level
 
-record IsRing {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R) : Type ℓ where
+record IsRing {R : Type ℓ}
+              (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R) : Type ℓ where
 
   constructor isring
 
@@ -96,6 +97,9 @@ record Ring : Type (ℓ-suc ℓ) where
 ⟨_⟩ : Ring → Type ℓ
 ⟨_⟩ = Ring.Carrier
 
+isSetRing : (R : Ring {ℓ}) → isSet ⟨ R ⟩
+isSetRing R = R .Ring.isRing .IsRing.·-isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+
 -- TODO: add makeRing
 
 
@@ -135,8 +139,8 @@ module RingΣ-theory {ℓ} where
   ring-iso : StrIso ring-structure ℓ
   ring-iso = add-to-iso raw-ring-iso ring-axioms
 
-  ring-axioms-isProp : (R : Type ℓ) (s : raw-ring-structure R) → isProp (ring-axioms R s)
-  ring-axioms-isProp R (_+_ , 1r , _·_) =
+  isProp-ring-axioms : (R : Type ℓ) (s : raw-ring-structure R) → isProp (ring-axioms R s)
+  isProp-ring-axioms R (_+_ , 1r , _·_) =
     isProp× (AbGroupΣ-theory.isProp-abgroup-axioms R _+_)
             (isPropΣ (isPropIsMonoid 1r _·_)
                      λ R → isPropΠ3 λ _ _ _ →
@@ -156,30 +160,45 @@ module RingΣ-theory {ℓ} where
   RingIsoRingΣ = iso Ring→RingΣ RingΣ→Ring (λ _ → refl) (λ _ → refl)
 
   ring-is-SNS : SNS ring-structure ring-iso
-  ring-is-SNS = add-axioms-SNS _ ring-axioms-isProp raw-ring-is-SNS
+  ring-is-SNS = add-axioms-SNS _ isProp-ring-axioms raw-ring-is-SNS
 
   RingΣPath : (R S : RingΣ) → (R ≃[ ring-iso ] S) ≃ (R ≡ S)
   RingΣPath = SIP ring-is-SNS
 
-  RingIsoΣ : (M N : Ring) → Type ℓ
-  RingIsoΣ M N = Ring→RingΣ M ≃[ ring-iso ] Ring→RingΣ N
+  RingIsoΣ : (R S : Ring) → Type ℓ
+  RingIsoΣ R S = Ring→RingΣ R ≃[ ring-iso ] Ring→RingΣ S
 
-  RingIsoΣPath : {M N : Ring} → Iso (RingIso M N) (RingIsoΣ M N)
+  RingIsoΣPath : {R S : Ring} → Iso (RingIso R S) (RingIsoΣ R S)
   fun RingIsoΣPath (groupiso e h1 h2 h3) = e , h2 , h1 , h3
   inv RingIsoΣPath (e , h1 , h2 , h3)    = groupiso e h2 h1 h3
   rightInv RingIsoΣPath _                = refl
   leftInv RingIsoΣPath _                 = refl
 
-  RingPath : (M N : Ring) → (RingIso M N) ≃ (M ≡ N)
-  RingPath M N =
-    RingIso M N                       ≃⟨ isoToEquiv RingIsoΣPath ⟩
-    RingIsoΣ M N                      ≃⟨ RingΣPath (Ring→RingΣ M) (Ring→RingΣ N) ⟩
-    Ring→RingΣ M ≡ Ring→RingΣ N ≃⟨ isoToEquiv (invIso (congIso RingIsoRingΣ)) ⟩
-    M ≡ N ■
+  RingPath : (R S : Ring) → (RingIso R S) ≃ (R ≡ S)
+  RingPath R S =
+    RingIso R S                 ≃⟨ isoToEquiv RingIsoΣPath ⟩
+    RingIsoΣ R S                ≃⟨ RingΣPath _ _ ⟩
+    Ring→RingΣ R ≡ Ring→RingΣ S ≃⟨ isoToEquiv (invIso (congIso RingIsoRingΣ)) ⟩
+    R ≡ S ■
 
 
-RingPath : (M N : Ring {ℓ}) → (RingIso M N) ≃ (M ≡ N)
+RingPath : (R S : Ring {ℓ}) → (RingIso R S) ≃ (R ≡ S)
 RingPath = RingΣ-theory.RingPath
+
+isPropIsRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
+             → isProp (IsRing 0r 1r _+_ _·_ -_)
+isPropIsRing 0r 1r _+_ _·_ -_ (isring RG RM RD) (isring SG SM SD) =
+  λ i → isring (isPropIsAbGroup _ _ _ RG SG i)
+               (isPropIsMonoid _ _ RM SM i)
+               (isPropDistr RD SD i)
+  where
+  isSetR : isSet _
+  isSetR = RM .IsMonoid.isSemigroup .IsSemigroup.is-set
+
+  isPropDistr : isProp ((x y z : _) → ((x · (y + z)) ≡ ((x · y) + (x · z)))
+                                    × (((x + y) · z) ≡ ((x · z) + (y · z))))
+  isPropDistr = isPropΠ3 λ _ _ _ → isProp× (isSetR _ _) (isSetR _ _)
+
 
 -- Rings have an abelian group and a monoid
 

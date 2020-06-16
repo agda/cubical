@@ -24,7 +24,8 @@ private
   variable
     ℓ : Level
 
-record IsGroup {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G) : Type ℓ where
+record IsGroup {G : Type ℓ}
+               (0g : G) (_+_ : G → G → G) (-_ : G → G) : Type ℓ where
 
   constructor isgroup
 
@@ -155,27 +156,27 @@ module GroupΣ-theory {ℓ} where
   group-is-SNS : SNS group-structure group-iso
   group-is-SNS = add-axioms-SNS _ isProp-group-axioms raw-group-is-SNS
 
-  GroupΣPath : (M N : GroupΣ) → (M ≃[ group-iso ] N) ≃ (M ≡ N)
+  GroupΣPath : (G H : GroupΣ) → (G ≃[ group-iso ] H) ≃ (G ≡ H)
   GroupΣPath = SIP group-is-SNS
 
-  GroupIsoΣ : (M N : Group) → Type ℓ
-  GroupIsoΣ M N = Group→GroupΣ M ≃[ group-iso ] Group→GroupΣ N
+  GroupIsoΣ : (G H : Group) → Type ℓ
+  GroupIsoΣ G H = Group→GroupΣ G ≃[ group-iso ] Group→GroupΣ H
 
-  GroupIsoΣPath : {M N : Group} → Iso (GroupIso M N) (GroupIsoΣ M N)
+  GroupIsoΣPath : {G H : Group} → Iso (GroupIso G H) (GroupIsoΣ G H)
   fun GroupIsoΣPath (groupiso e h) = (e , h)
   inv GroupIsoΣPath (e , h)        = groupiso e h
   rightInv GroupIsoΣPath _         = refl
   leftInv GroupIsoΣPath _          = refl
 
-  GroupPath : (M N : Group) → (GroupIso M N) ≃ (M ≡ N)
-  GroupPath M N =
-    GroupIso M N                       ≃⟨ isoToEquiv GroupIsoΣPath ⟩
-    GroupIsoΣ M N                      ≃⟨ GroupΣPath (Group→GroupΣ M) (Group→GroupΣ N) ⟩
-    Group→GroupΣ M ≡ Group→GroupΣ N ≃⟨ isoToEquiv (invIso (congIso GroupIsoGroupΣ)) ⟩
-    M ≡ N ■
+  GroupPath : (G H : Group) → (GroupIso G H) ≃ (G ≡ H)
+  GroupPath G H =
+    GroupIso G H                    ≃⟨ isoToEquiv GroupIsoΣPath ⟩
+    GroupIsoΣ G H                   ≃⟨ GroupΣPath _ _ ⟩
+    Group→GroupΣ G ≡ Group→GroupΣ H ≃⟨ isoToEquiv (invIso (congIso GroupIsoGroupΣ)) ⟩
+    G ≡ H ■
 
 -- Extract the characterization of equality of groups
-GroupPath : (M N : Group {ℓ}) → (GroupIso M N) ≃ (M ≡ N)
+GroupPath : (G H : Group {ℓ}) → (GroupIso G H) ≃ (G ≡ H)
 GroupPath = GroupΣ-theory.GroupPath
 
 -- This is easier to just prove directly for groups as the GroupΣ is
@@ -189,4 +190,4 @@ isPropIsGroup 0g _+_ -_ (isgroup GM Ginv) (isgroup HM Hinv) =
   isSetG = IsSemigroup.is-set (IsMonoid.isSemigroup GM)
 
   isPropInv : isProp ((x : _) → ((x + (- x)) ≡ 0g) × (((- x) + x) ≡ 0g))
-  isPropInv = isPropΠ λ x → isProp× (isSetG _ _) (isSetG _ _)
+  isPropInv = isPropΠ λ _ → isProp× (isSetG _ _) (isSetG _ _)

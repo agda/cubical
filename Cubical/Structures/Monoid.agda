@@ -154,7 +154,7 @@ module MonoidΣ-theory {ℓ} where
   MonoidPath : (M N : Monoid) → (MonoidIso M N) ≃ (M ≡ N)
   MonoidPath M N =
     MonoidIso M N                       ≃⟨ isoToEquiv MonoidIsoΣPath ⟩
-    MonoidIsoΣ M N                      ≃⟨ MonoidΣPath (Monoid→MonoidΣ M) (Monoid→MonoidΣ N) ⟩
+    MonoidIsoΣ M N                      ≃⟨ MonoidΣPath _ _ ⟩
     Monoid→MonoidΣ M ≡ Monoid→MonoidΣ N ≃⟨ isoToEquiv (invIso (congIso MonoidIsoMonoidΣ)) ⟩
     M ≡ N ■
 

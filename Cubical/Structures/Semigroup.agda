@@ -139,7 +139,7 @@ module SemigroupΣ-theory {ℓ} where
   SemigroupPath : (M N : Semigroup) → (SemigroupIso M N) ≃ (M ≡ N)
   SemigroupPath M N =
     SemigroupIso M N                                ≃⟨ isoToEquiv SemigroupIsoΣPath ⟩
-    SemigroupIsoΣ M N                               ≃⟨ SemigroupΣPath (Semigroup→SemigroupΣ M) (Semigroup→SemigroupΣ N) ⟩
+    SemigroupIsoΣ M N                               ≃⟨ SemigroupΣPath _ _ ⟩
     Semigroup→SemigroupΣ M ≡ Semigroup→SemigroupΣ N ≃⟨ isoToEquiv (invIso (congIso SemigroupIsoSemigroupΣ)) ⟩
     M ≡ N ■
 
