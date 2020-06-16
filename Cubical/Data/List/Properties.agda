@@ -50,6 +50,17 @@ module _ {ℓ} {A : Type ℓ} where
         })
       (rev-snoc (rev-snoc xs y i) x j)
 
+  data SnocView : List A → Type ℓ where
+    nil : SnocView []
+    snoc : (x : A) → (xs : List A) → (sx : SnocView xs) → SnocView (xs ∷ʳ x)
+
+  snocView : (xs : List A) → SnocView xs
+  snocView xs = helper nil xs
+    where
+    helper : {l : List A} -> SnocView l -> (r : List A) -> SnocView (l ++ r)
+    helper {l} sl [] = subst SnocView (sym (++-unit-r l)) sl
+    helper {l} sl (x ∷ r) = subst SnocView (++-assoc l (x ∷ []) r) (helper (snoc x l sl) r)
+
 -- Path space of list type
 module ListPath {ℓ} {A : Type ℓ} where
 
