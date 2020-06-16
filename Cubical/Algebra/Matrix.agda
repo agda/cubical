@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Algebra.Matrix where
 
 open import Cubical.Foundations.Prelude
@@ -34,7 +34,8 @@ FinMatrix→VecMatrix M = FinVec→Vec (λ fm → FinVec→Vec (λ fn → M fm f
 VecMatrix→FinMatrix : {m n : ℕ} → VecMatrix A m n → FinMatrix A m n
 VecMatrix→FinMatrix M fn fm = lookup fm (lookup fn M)
 
-FinMatrix→VecMatrix→FinMatrix : {m n : ℕ} (M : FinMatrix A m n) → VecMatrix→FinMatrix (FinMatrix→VecMatrix M) ≡ M
+FinMatrix→VecMatrix→FinMatrix : {m n : ℕ} (M : FinMatrix A m n)
+                              → VecMatrix→FinMatrix (FinMatrix→VecMatrix M) ≡ M
 FinMatrix→VecMatrix→FinMatrix {m = zero} M = funExt λ f → ⊥.rec (¬Fin0 f)
 FinMatrix→VecMatrix→FinMatrix {n = zero} M = funExt₂ λ _ f → ⊥.rec (¬Fin0 f)
 FinMatrix→VecMatrix→FinMatrix {m = suc m} {n = suc n} M = funExt₂ goal
@@ -45,9 +46,11 @@ FinMatrix→VecMatrix→FinMatrix {m = suc m} {n = suc n} M = funExt₂ goal
   goal zero (suc fn) i = FinVec→Vec→FinVec (λ z → M zero (suc z)) i fn
   goal (suc fm) fn i = FinMatrix→VecMatrix→FinMatrix (λ z → M (suc z)) i fm fn
 
-VecMatrix→FinMatrix→VecMatrix : {m n : ℕ} (M : VecMatrix A m n) → FinMatrix→VecMatrix (VecMatrix→FinMatrix M) ≡ M
+VecMatrix→FinMatrix→VecMatrix : {m n : ℕ} (M : VecMatrix A m n)
+                              → FinMatrix→VecMatrix (VecMatrix→FinMatrix M) ≡ M
 VecMatrix→FinMatrix→VecMatrix {m = zero} [] = refl
-VecMatrix→FinMatrix→VecMatrix {m = suc m} (M ∷ MS) i = Vec→FinVec→Vec M i ∷ VecMatrix→FinMatrix→VecMatrix MS i
+VecMatrix→FinMatrix→VecMatrix {m = suc m} (M ∷ MS) i =
+  Vec→FinVec→Vec M i ∷ VecMatrix→FinMatrix→VecMatrix MS i
 
 FinMatrixIsoVecMatrix : (A : Type ℓ) (m n : ℕ) → Iso (FinMatrix A m n) (VecMatrix A m n)
 FinMatrixIsoVecMatrix A m n =
@@ -72,13 +75,14 @@ FinMatrix≡VecMatrix _ _ _ = ua FinMatrix≃VecMatrix
 -- operation with a more direct definition.
 module _ (R : CommRing {ℓ}) where
 
-  open commring-·syntax R
+  open comm-ring-syntax R
+  open comm-ring-axioms R
 
   addFinMatrix : ∀ {m n} → FinMatrix ⟨ R ⟩ m n → FinMatrix ⟨ R ⟩ m n → FinMatrix ⟨ R ⟩ m n
   addFinMatrix M N = λ k l → M k l + N k l
 
   addFinMatrixComm : ∀ {m n} → (M N : FinMatrix ⟨ R ⟩ m n) → addFinMatrix M N ≡ addFinMatrix N M
-  addFinMatrixComm M N i k l = commring+-comm R (M k l) (N k l) i
+  addFinMatrixComm M N i k l = commring+-comm (M k l) (N k l) i
 
   addVecMatrix : ∀ {m n} → VecMatrix ⟨ R ⟩ m n → VecMatrix ⟨ R ⟩ m n → VecMatrix ⟨ R ⟩ m n
   addVecMatrix {m} {n} = transport (λ i → FinMatrix≡VecMatrix ⟨ R ⟩ m n i

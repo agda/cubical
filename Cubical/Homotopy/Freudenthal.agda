@@ -3,7 +3,7 @@
 Freudenthal suspension theorem
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Homotopy.Freudenthal where
 
 open import Cubical.Foundations.Everything
@@ -42,7 +42,7 @@ module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc 
     fwd : (p : north ≡ north) (a : typ A)
       → hLevelTrunc 2n+2 (fiber σ p)
       → hLevelTrunc 2n+2 (fiber (λ x → merid x ∙ merid a ⁻¹) p)
-    fwd p a = trRec (isOfHLevelTrunc 2n+2) (uncurry (WC.extension p a))
+    fwd p a = Trunc.rec (isOfHLevelTrunc 2n+2) (uncurry (WC.extension p a))
 
     isEquivFwd : (p : north ≡ north) (a : typ A) → isEquiv (fwd p a)
     isEquivFwd p a .equiv-proof =
@@ -58,7 +58,7 @@ module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc 
           (λ _ → isProp→isOfHLevelSuc (n + suc n) isPropIsContr)
           (λ fib →
             subst (λ k → isContr (fiber k ∣ fib ∣))
-              (cong (trRec (isOfHLevelTrunc 2n+2) ∘ uncurry)
+              (cong (Trunc.rec (isOfHLevelTrunc 2n+2) ∘ uncurry)
                 (funExt (WC.right p) ⁻¹))
               (subst isEquiv
                 (funExt (Trunc.mapId) ⁻¹)

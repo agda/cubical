@@ -4,7 +4,7 @@ Set quotients:
 
 -}
 
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.SetQuotients.Properties where
 
 open import Cubical.HITs.SetQuotients.Base
@@ -23,7 +23,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 
-open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash; ∃; ∃-syntax)
+open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
 open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₀; ∣_∣₀; squash₀)
 
 -- Type quotients
@@ -34,6 +34,8 @@ private
     A : Type ℓ
     R : A → A → Type ℓ'
     B : A / R → Type ℓ''
+    C : A / R → A / R → Type ℓ''
+    D : A / R → A / R → A / R → Type ℓ''
 
 setQuotientIsSet : isSet (A / R)
 setQuotientIsSet a b p q = squash/ a b p q
@@ -59,6 +61,20 @@ elimProp Bprop f (squash/ x y p q i j) =
     where
     g = elimProp Bprop f
 elimProp Bprop f (eq/ a b r i) = elimEq/ Bprop (eq/ a b r) (f a) (f b) i
+
+elimProp2 : ((x y : A / R ) → isProp (C x y)) →
+                       (f : (a b : A) → C [ a ] [ b ]) →
+                       (x y : A / R) → C x y
+elimProp2 Cprop f = elimProp (λ x → isPropΠ (λ y → Cprop x y))
+                             (λ x → elimProp (λ y → Cprop [ x ] y)
+                                             (f x))
+
+elimProp3 : ((x y z : A / R ) → isProp (D x y z)) →
+                       (f : (a b c : A) → D [ a ] [ b ] [ c ]) →
+                       (x y z : A / R) → D x y z
+elimProp3 Dprop f = elimProp (λ x → isPropΠ2 (λ y z → Dprop x y z))
+                             (λ x → elimProp2 (λ y z → Dprop [ x ] y z)
+                                             (f x))
 
 -- lemma 6.10.2 in hott book
 []surjective : (x : A / R) → ∃[ a ∈ A ] [ a ] ≡ x
@@ -122,9 +138,10 @@ effective : (Rprop : isPropValued R) (Requiv : isEquivRel R) (a b : A) → [ a ]
 effective {A = A} {R = R} Rprop (EquivRel R/refl R/sym R/trans) a b p = transport aa≡ab (R/refl _)
   where
     helper : A / R → hProp _
-    helper = elim (λ _ → isSetHProp) (λ c → (R a c , Rprop a c))
-                              (λ c d cd → ΣProp≡ (λ _ → isPropIsProp)
-                                                 (ua (PropEquiv→Equiv (Rprop a c) (Rprop a d)
+    helper =
+      elim (λ _ → isSetHProp) (λ c → (R a c , Rprop a c))
+                              (λ c d cd → Σ≡Prop (λ _ → isPropIsProp)
+                                                 (ua (isPropEquiv→Equiv (Rprop a c) (Rprop a d)
                                                                       (λ ac → R/trans _ _ _ ac cd) (λ ad → R/trans _ _ _ ad (R/sym _ _ cd)))))
 
     aa≡ab : R a a ≡ R a b

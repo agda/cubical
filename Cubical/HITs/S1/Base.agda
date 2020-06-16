@@ -3,7 +3,7 @@
 Definition of the circle as a HIT with a proof that Ω(S¹) ≡ ℤ
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.S1.Base where
 
 open import Cubical.Foundations.Prelude
@@ -96,8 +96,14 @@ windingIntLoop (pos (suc n))    = cong sucInt (windingIntLoop (pos n))
 windingIntLoop (negsuc zero)    = refl
 windingIntLoop (negsuc (suc n)) = cong predInt (windingIntLoop (negsuc n))
 
+ΩS¹IsoInt : Iso ΩS¹ Int
+Iso.fun ΩS¹IsoInt      = winding
+Iso.inv ΩS¹IsoInt      = intLoop
+Iso.rightInv ΩS¹IsoInt = windingIntLoop
+Iso.leftInv ΩS¹IsoInt  = decodeEncode base
+
 ΩS¹≡Int : ΩS¹ ≡ Int
-ΩS¹≡Int = isoToPath (iso winding intLoop windingIntLoop (decodeEncode base))
+ΩS¹≡Int = isoToPath ΩS¹IsoInt
 
 -- intLoop and winding are group homomorphisms
 private
@@ -303,19 +309,10 @@ basechange2-retr =
              λ _ → refl
 
 basedΩS¹≡ΩS¹' : (x : S¹) → basedΩS¹ x ≡ ΩS¹
-basedΩS¹≡ΩS¹' x =
-  isoToPath
-    (iso (basechange2⁻ x)
-         (basechange2 x)
-         (basechange2-retr x)
-         (basechange2-sect x))
-
--- in fact, the two maps are equal
-
-basechange≡basechange2 : basechange ≡ basechange2⁻
-basechange≡basechange2 =
-  funExt (toPropElim (λ _ → isOfHLevelPath' 1 (isOfHLevelΠ 2 (λ _ → isSetΩS¹)) _ _)
-         refl)
+basedΩS¹≡ΩS¹' x = isoToPath (iso (basechange2⁻ x)
+                                 (basechange2 x)
+                                 (basechange2-retr x)
+                                 (basechange2-sect x))
 
 -- baschange2⁻ is a morphism
 
@@ -323,7 +320,7 @@ basechange2⁻-morph : (x : S¹) (p q : x ≡ x) →
                      basechange2⁻ x (p ∙ q) ≡ basechange2⁻ x p ∙ basechange2⁻ x q
 basechange2⁻-morph =
   toPropElim {B = λ x → (p q : x ≡ x) → basechange2⁻ x (p ∙ q) ≡ basechange2⁻ x p ∙ basechange2⁻ x q}
-             (λ x → isOfHLevelΠ 1 λ p → isOfHLevelΠ 1 λ q → isSetΩS¹ _ _ )
+             (λ _ → isPropΠ2 λ _ _ → isSetΩS¹ _ _)
              λ _ _ → refl
 
 -- Some tests

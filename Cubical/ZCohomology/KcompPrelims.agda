@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.ZCohomology.KcompPrelims where
 
 open import Cubical.ZCohomology.Base
@@ -7,7 +7,7 @@ open import Cubical.HITs.Hopf
 open import Cubical.Homotopy.Freudenthal hiding (encode)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
-open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec)
+open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; map to trMap)
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -73,40 +73,38 @@ private
   thrdcomp = cong SuspBool→S1
 
 
-  looper2 : Int → Path (S₊ 1) north north
-  looper2 a = thrdcomp (sndcomp (intLoop a))
+looper2 : Int → Path (S₊ 1) north north
+looper2 a = thrdcomp (sndcomp (intLoop a))
 
-  looper≡looper2 : (x : Int) → looper x ≡ looper2 x
-  looper≡looper2 (pos zero) = refl
-  looper≡looper2 (pos (suc n)) =
-         looper (pos n) ∙ loop*                                       ≡⟨ (λ i → looper≡looper2 (pos n) i ∙ congFunct SuspBool→S1 (merid false)  (sym (merid true)) (~ i)) ⟩
-         looper2 (pos n) ∙ cong SuspBool→S1 (ϕ true false)           ≡⟨ sym (congFunct SuspBool→S1 (sndcomp (intLoop (pos n))) (ϕ true false)) ⟩
-         cong SuspBool→S1 (sndcomp (intLoop (pos n)) ∙ ϕ true false) ≡⟨ cong thrdcomp (sym (congFunct S¹→SuspBool (intLoop (pos n)) loop)) ⟩
-         looper2 (pos (suc n)) ∎
-  looper≡looper2 (negsuc zero) =
-         sym loop*                                                    ≡⟨ symDistr (merid south) (sym (merid north)) ⟩
-         merid north ∙ sym (merid south)                              ≡⟨ sym (congFunct SuspBool→S1 (merid true) (sym (merid false))) ⟩
-         cong SuspBool→S1 (merid true ∙ sym (merid false))           ≡⟨ cong thrdcomp (sym (symDistr (merid false) (sym (merid true)))) ⟩
-         looper2 (negsuc zero) ∎
-  looper≡looper2 (negsuc (suc n)) =
-         looper (negsuc n) ∙ sym loop*                                                    ≡⟨ ((λ i → looper≡looper2 (negsuc n) i ∙ symDistr (merid south) (sym (merid north)) i)) ⟩
-         looper2 (negsuc n) ∙ merid north ∙ sym (merid south)                             ≡⟨ cong (λ x → looper2 (negsuc n) ∙ x) (sym (congFunct SuspBool→S1 (merid true) (sym (merid false)))) ⟩
-         looper2 (negsuc n) ∙ cong SuspBool→S1 (ϕ false true)                            ≡⟨ cong (λ x → looper2 (negsuc n) ∙ x) (cong thrdcomp (sym (symDistr (merid false) (sym (merid true))))) ⟩
-         looper2 (negsuc n) ∙ cong SuspBool→S1 (sym (ϕ true false))                      ≡⟨ sym (congFunct SuspBool→S1 (sndcomp (intLoop (negsuc n))) (sym (ϕ true false))) ⟩
-         thrdcomp (cong S¹→SuspBool (intLoop (negsuc n)) ∙ cong S¹→SuspBool (sym loop)) ≡⟨ cong thrdcomp (sym (congFunct S¹→SuspBool (intLoop (negsuc n)) (sym loop))) ⟩
-         looper2 (negsuc (suc n)) ∎
+looper≡looper2 : (x : Int) → looper x ≡ looper2 x
+looper≡looper2 (pos zero) = refl
+looper≡looper2 (pos (suc n)) =
+       looper (pos n) ∙ loop*                                       ≡⟨ (λ i → looper≡looper2 (pos n) i ∙ congFunct SuspBool→S1 (merid false)  (sym (merid true)) (~ i)) ⟩
+       looper2 (pos n) ∙ cong SuspBool→S1 (ϕ true false)           ≡⟨ sym (congFunct SuspBool→S1 (sndcomp (intLoop (pos n))) (ϕ true false)) ⟩
+       cong SuspBool→S1 (sndcomp (intLoop (pos n)) ∙ ϕ true false) ≡⟨ cong thrdcomp (sym (congFunct S¹→SuspBool (intLoop (pos n)) loop)) ⟩
+       looper2 (pos (suc n)) ∎
+looper≡looper2 (negsuc zero) =
+       sym loop*                                                    ≡⟨ symDistr (merid south) (sym (merid north)) ⟩
+       merid north ∙ sym (merid south)                              ≡⟨ sym (congFunct SuspBool→S1 (merid true) (sym (merid false))) ⟩
+       cong SuspBool→S1 (merid true ∙ sym (merid false))           ≡⟨ cong thrdcomp (sym (symDistr (merid false) (sym (merid true)))) ⟩
+       looper2 (negsuc zero) ∎
+looper≡looper2 (negsuc (suc n)) =
+       looper (negsuc n) ∙ sym loop*                                                    ≡⟨ ((λ i → looper≡looper2 (negsuc n) i ∙ symDistr (merid south) (sym (merid north)) i)) ⟩
+       looper2 (negsuc n) ∙ merid north ∙ sym (merid south)                             ≡⟨ cong (λ x → looper2 (negsuc n) ∙ x) (sym (congFunct SuspBool→S1 (merid true) (sym (merid false)))) ⟩
+       looper2 (negsuc n) ∙ cong SuspBool→S1 (ϕ false true)                            ≡⟨ cong (λ x → looper2 (negsuc n) ∙ x) (cong thrdcomp (sym (symDistr (merid false) (sym (merid true))))) ⟩
+       looper2 (negsuc n) ∙ cong SuspBool→S1 (sym (ϕ true false))                      ≡⟨ sym (congFunct SuspBool→S1 (sndcomp (intLoop (negsuc n))) (sym (ϕ true false))) ⟩
+       thrdcomp (cong S¹→SuspBool (intLoop (negsuc n)) ∙ cong S¹→SuspBool (sym loop)) ≡⟨ cong thrdcomp (sym (congFunct S¹→SuspBool (intLoop (negsuc n)) (sym loop))) ⟩
+       looper2 (negsuc (suc n)) ∎
 
-
+private
   isolooper2 : Iso Int (Path (S₊ 1) north north)
-  isolooper2 = compIso (iso intLoop winding (decodeEncode base) windingIntLoop)
-                       (compIso iso2
-                                iso1)
+  isolooper2 = compIso (invIso ΩS¹IsoInt) (compIso iso2 iso1)
     where
     iso1 : Iso (Path (Susp Bool) north north) (Path (S₊ 1) north north)
-    iso1 = congIso SuspBool≃S1
+    iso1 = congIso SuspBoolIsoS1
 
     iso2 : Iso ΩS¹ (Path (Susp Bool) north north)
-    iso2 = congIso (isoToEquiv (iso S¹→SuspBool SuspBool→S¹ SuspBool→S¹→SuspBool S¹→SuspBool→S¹))
+    iso2 = congIso S¹IsoSuspBool
 
   isolooper : Iso Int (Path (S₊ 1) north north)
   Iso.fun isolooper = looper
@@ -154,7 +152,7 @@ private
     rotLemma (loop i) = refl
 
   d-mapComp : fiber d-map base ≡ Path (Susp (Susp S¹)) north north
-  d-mapComp = sym (pathSigma≡sigmaPath {B = HopfSuspS¹} _ _) ∙ helper
+  d-mapComp = ΣPathTransport≡PathΣ {B = HopfSuspS¹} _ _ ∙ helper
     where
     helper : Path (Σ (Susp S¹) λ x → HopfSuspS¹ x) (north , base) (north , base) ≡ Path (Susp (Susp S¹)) north north
     helper = (λ i → (Path (S³≡TotalHopf (~ i))
@@ -171,21 +169,12 @@ private
   d-iso2 : Iso (hLevelTrunc 3 (typ (Ω (Susp S¹ , north)))) (hLevelTrunc 3 S¹)
   d-iso2 = connectedTruncIso _ d-map is1Connected-dmap
 
-  d-iso : isIso {A = ∥  typ (Ω (Susp S¹ , north)) ∥ (ℕ→ℕ₋₂ 1)} {B = ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (trRec (isOfHLevelTrunc 3) λ x → ∣ d-map x ∣ )
-  d-iso = (Iso.inv (connectedTruncIso _ d-map is1Connected-dmap)) , (Iso.rightInv (connectedTruncIso _ d-map is1Connected-dmap)
-                                                                  , Iso.leftInv (connectedTruncIso _ d-map is1Connected-dmap))
-
   {- We show that composing (λ a → ∣ ϕ base a ∣) and (λ x → ∣ d-map x ∣) gives us the identity function.  -}
 
-  d-mapId2 : (λ (x : hLevelTrunc 3 S¹) → (trRec {n = 3} {B = hLevelTrunc 3 S¹} (isOfHLevelTrunc 3) λ x → ∣ d-map x ∣)
-                                               (trRec (isOfHLevelTrunc 3) (λ a → ∣ ϕ base a ∣) x)) ≡ λ x → x
-  d-mapId2 = funExt (trElim (λ x → isOfHLevelSuc 2 (isOfHLevelTrunc 3 ((trRec (isOfHLevelTrunc 3) λ x → ∣ d-map x ∣)
-                                                                                (trRec (isOfHLevelTrunc 3)
-                                                                                        (λ a → ∣ ϕ base a ∣) x)) x))
-                            λ a i → ∣ d-mapId a i ∣)
+  d-mapId2 : Iso.fun d-iso2 ∘ trMap (ϕ base) ≡ idfun (hLevelTrunc 3 S¹)
+  d-mapId2 = funExt (trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) (λ a → cong ∣_∣ (d-mapId a)))
 
   {- This means that (λ a → ∣ ϕ base a ∣) is an equivalence -}
-
 
   Iso∣ϕ-base∣ : Iso (hLevelTrunc 3 S¹) (hLevelTrunc 3 (typ (Ω (Susp S¹ , north))))
   Iso∣ϕ-base∣ = composesToId→Iso d-iso2 (trMap (ϕ base)) d-mapId2
@@ -241,7 +230,7 @@ Iso.rightInv (decodeIso n x) b = funsAreSame n x (ΩTrunc.encode-fun ∣ x ∣ �
 Iso.leftInv (decodeIso n x) b = cong (ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣) (funsAreSame n x b) ∙ ΩTrunc.P-linv ∣ x ∣ ∣ x ∣ b
 
 Iso-Kn-ΩKn+1 : (n : ℕ) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
-Iso-Kn-ΩKn+1 zero = compIso isolooper (congIso (truncIdempotent≃ _ isOfHLevelS1))
+Iso-Kn-ΩKn+1 zero = compIso isolooper (congIso (truncIdempotentIso _ isOfHLevelS1))
 Iso-Kn-ΩKn+1 (suc zero) = compIso Iso∣ϕ∣ (decodeIso _ north)
 Iso-Kn-ΩKn+1 (suc (suc n)) = compIso (connectedTruncIso2 (4 + n) _ (ϕ north) (n , helper)
                                                                              (isConnectedσ (suc n) (sphereConnected _)))
@@ -255,7 +244,10 @@ mapId2 zero = refl
 mapId2 (suc zero) = funExt (trElim (λ x → isOfHLevelPath 3 (isOfHLevelTrunc 4 ∣ north ∣ ∣ north ∣) _ _) λ a → refl)
 mapId2 (suc (suc n)) = funExt (trElim (λ x → isOfHLevelPath (4 + n) (isOfHLevelTrunc (5 + n) ∣ north ∣ ∣ north ∣) _ _) λ a → refl)
 
-{- This version computes somewhat better -}
+
+
+
+-- Experiments with abstract definitions
 
 Iso2-Kn-ΩKn+1 : (n : ℕ) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
 Iso.fun (Iso2-Kn-ΩKn+1 n) = Kn→ΩKn+1 n
@@ -274,21 +266,30 @@ Iso.leftInv (Iso2-Kn-ΩKn+1 n) a = linv
 --- even more abstract
 
 abstract
-  absInv : (n : ℕ) → typ (Ω (coHomK-ptd (2 + n))) → coHomK (1 + n)
-  absInv n = Iso.inv (Iso-Kn-ΩKn+1 (1 + n))
+  absInv' : (n : ℕ) → typ (Ω (coHomK-ptd (2 + n))) → coHomK (1 + n)
+  absInv' n = Iso.inv (Iso-Kn-ΩKn+1 (1 + n))
 
-  absSect : (n : ℕ) (a : typ (Ω (coHomK-ptd (2 + n)))) → Kn→ΩKn+1 (1 + n) (absInv n a) ≡ a
-  absSect n a = funExt⁻ (mapId2 (1 + n)) _ ∙ Iso.rightInv (Iso-Kn-ΩKn+1 (1 + n)) a
+  absSect' : (n : ℕ) (a : typ (Ω (coHomK-ptd (2 + n)))) → Kn→ΩKn+1 (1 + n) (absInv' n a) ≡ a
+  absSect' n a = funExt⁻ (mapId2 (1 + n)) _ ∙ Iso.rightInv (Iso-Kn-ΩKn+1 (1 + n)) a
 
-  absRetr : (n : ℕ) (a : coHomK (1 + n)) → absInv n (Kn→ΩKn+1 (1 + n) a) ≡ a
-  absRetr n a = cong (Iso.inv (Iso-Kn-ΩKn+1 (1 + n))) (funExt⁻ (mapId2 (1 + n)) a) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 (1 + n)) a
-  
+  absRetr' : (n : ℕ) (a : coHomK (1 + n)) → absInv' n (Kn→ΩKn+1 (1 + n) a) ≡ a
+  absRetr' n a = cong (Iso.inv (Iso-Kn-ΩKn+1 (1 + n))) (funExt⁻ (mapId2 (1 + n)) a) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 (1 + n)) a
+
+
+absInv : (n : ℕ) → typ (Ω (coHomK-ptd (1 + n))) → coHomK n
+absInv zero = Iso.inv (Iso-Kn-ΩKn+1 zero)
+absInv (suc n) = absInv' n
+
+absSect : (n : ℕ) → section (Kn→ΩKn+1 n) (absInv n)
+absSect zero a = funExt⁻ (mapId2 zero) (Iso.inv isolooper2 (Iso.inv (congIso (truncIdempotentIso _ isOfHLevelS1)) a)) ∙ Iso.rightInv (Iso-Kn-ΩKn+1 zero) a
+absSect (suc n) = absSect' n
+
+absRetr : (n : ℕ) → retract (Kn→ΩKn+1 n) (absInv n)
+absRetr zero a = cong (Iso.inv (Iso-Kn-ΩKn+1 zero)) (funExt⁻ (mapId2 zero) a) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 zero) a
+absRetr (suc n) = absRetr' n
 
 Iso3-Kn-ΩKn+1 : (n : ℕ) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
 Iso.fun (Iso3-Kn-ΩKn+1 n) = Kn→ΩKn+1 n
-Iso.inv (Iso3-Kn-ΩKn+1 zero) = Iso.inv (Iso-Kn-ΩKn+1 zero)
-Iso.inv (Iso3-Kn-ΩKn+1 (suc n)) = absInv n
-Iso.rightInv (Iso3-Kn-ΩKn+1 zero) a = funExt⁻ (mapId2 zero) (Iso.inv isolooper2 (Iso.inv (congIso (truncIdempotent≃ 3 isOfHLevelS1)) a)) ∙ Iso.rightInv (Iso-Kn-ΩKn+1 zero) a
-Iso.rightInv (Iso3-Kn-ΩKn+1 (suc n)) = absSect n
-Iso.leftInv (Iso3-Kn-ΩKn+1 zero) a = cong (Iso.inv (Iso-Kn-ΩKn+1 zero)) (funExt⁻ (mapId2 zero) a) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 zero) a
-Iso.leftInv (Iso3-Kn-ΩKn+1 (suc n)) = absRetr n
+Iso.inv (Iso3-Kn-ΩKn+1 n) = absInv n
+Iso.rightInv (Iso3-Kn-ΩKn+1 n) = absSect n
+Iso.leftInv (Iso3-Kn-ΩKn+1 n) = absRetr n

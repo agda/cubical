@@ -4,13 +4,14 @@
 - transport is an equivalence ([transportEquiv])
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Transport where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.GroupoidLaws
 
 -- Direct definition of transport filler, note that we have to
 -- explicitly tell Agda that the type is constant (like in CHM)
@@ -93,3 +94,11 @@ substCommSlice B C F p Bx i = comp pathC (λ k → λ where
   pathC i = cong C p i
   pathB : I → Type _
   pathB i = cong B p i
+
+-- transports between loop spaces preserve path composition
+overPathFunct : ∀ {ℓ} {A : Type ℓ} {x y : A} (p q : x ≡ x) (P : x ≡ y)
+           → transport (λ i → P i ≡ P i) (p ∙ q)
+            ≡ transport (λ i → P i ≡ P i) p ∙ transport (λ i → P i ≡ P i) q
+overPathFunct p q =
+  J (λ y P → transport (λ i → P i ≡ P i) (p ∙ q) ≡ transport (λ i → P i ≡ P i) p ∙ transport (λ i → P i ≡ P i) q)
+    (transportRefl (p ∙ q) ∙ cong₂ _∙_ (sym (transportRefl p)) (sym (transportRefl q)))

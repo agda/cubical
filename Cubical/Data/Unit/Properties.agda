@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Data.Unit.Properties where
 
 open import Cubical.Core.Everything
@@ -19,6 +19,9 @@ isContrUnit = tt , λ {tt → refl}
 
 isPropUnit : isProp Unit
 isPropUnit _ _ i = tt -- definitionally equal to: isContr→isProp isContrUnit
+
+isSetUnit : isSet Unit
+isSetUnit = isProp→isSet isPropUnit
 
 isOfHLevelUnit : (n : ℕ) → isOfHLevel n Unit
 isOfHLevelUnit n = isContr→isOfHLevel n isContrUnit

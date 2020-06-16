@@ -139,6 +139,16 @@ prodElim {A = A} {B = B} {C = C} hlevel ind (a , b) = schonf a b
   schonf = elim (λ x → isOfHLevelΠ 2 λ y → hlevel (_ , _)) λ a → elim (λ x → hlevel (_ , _))
                  λ b → ind a b
 
+prodElim2 : ∀ {ℓ ℓ' ℓ'' ℓ''' ℓ''''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
+            {E : (∥ A ∥₀ × ∥ B ∥₀) → (∥ C ∥₀ × ∥ D ∥₀) → Type ℓ''''}
+         → ((x : ∥ A ∥₀ × ∥ B ∥₀) (y : ∥ C ∥₀ × ∥ D ∥₀) → isOfHLevel 2 (E x y))
+         → ((a : A) (b : B) (c : C) (d : D) → E (∣ a ∣₀ , ∣ b ∣₀) (∣ c ∣₀ , ∣ d ∣₀))
+         → ((x : ∥ A ∥₀ × ∥ B ∥₀) (y : ∥ C ∥₀ × ∥ D ∥₀) → (E x y))
+prodElim2 isset f = prodElim (λ _ → isOfHLevelΠ 2 λ _ → isset _ _)
+                             λ a b → prodElim (λ _ → isset _ _)
+                                     λ c d → f a b c d
+
+
 setTruncOfProdIso :  ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso ∥ A × B ∥₀ (∥ A ∥₀ × ∥ B ∥₀) 
 Iso.fun setTruncOfProdIso = rec (isOfHLevelProd 2 setTruncIsSet setTruncIsSet) λ { (a , b) → ∣ a ∣₀ , ∣ b ∣₀ }
 Iso.inv setTruncOfProdIso = prodElim (λ _ → setTruncIsSet) λ a b → ∣ a , b ∣₀

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Data.List.Base where
 
 open import Agda.Builtin.List        public
@@ -26,3 +26,7 @@ module _ {ℓ} {A : Type ℓ} where
   length : List A → ℕ
   length [] = 0
   length (x ∷ l) = 1 + length l
+
+  foldr : ∀ {ℓ'} {B : Type ℓ'} → (A → B → B) → B → List A → B
+  foldr f b [] = b
+  foldr f b (x ∷ xs) = f x (foldr f b xs)

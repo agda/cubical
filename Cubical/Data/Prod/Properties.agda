@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Data.Prod.Properties where
 
 open import Cubical.Core.Everything
@@ -103,9 +103,9 @@ Iso.inv toProdIso (f , g) = λ a → (f a) , (g a)
 Iso.rightInv toProdIso (f , g) = refl
 Iso.leftInv toProdIso b = funExt λ a → sym (×-η _)
 
-schönfinkelIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+curryIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
          → Iso (A × B → C) (A → B → C)
-Iso.fun schönfinkelIso f a b = f (a , b)
-Iso.inv schönfinkelIso f (a , b) = f a b
-Iso.rightInv schönfinkelIso a = refl
-Iso.leftInv schönfinkelIso f = funExt λ {(a , b) → refl}
+Iso.fun curryIso f a b = f (a , b)
+Iso.inv curryIso f (a , b) = f a b
+Iso.rightInv curryIso a = refl
+Iso.leftInv curryIso f = funExt λ {(a , b) → refl}

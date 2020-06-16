@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.Susp.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -10,27 +10,29 @@ open import Cubical.Data.Bool
 open import Cubical.HITs.Join
 open import Cubical.HITs.Susp.Base
 
+open Iso
+
 Susp-iso-joinBool : ∀ {ℓ} {A : Type ℓ} → Iso (Susp A) (join A Bool)
-Iso.fun Susp-iso-joinBool north = inr true
-Iso.fun Susp-iso-joinBool south = inr false
-Iso.fun Susp-iso-joinBool (merid a i) = (sym (push a true) ∙ push a false) i
-Iso.inv Susp-iso-joinBool (inr true ) = north
-Iso.inv Susp-iso-joinBool (inr false) = south
-Iso.inv Susp-iso-joinBool (inl _) = north
-Iso.inv Susp-iso-joinBool (push a true  i) = north
-Iso.inv Susp-iso-joinBool (push a false i) = merid a i
-Iso.rightInv Susp-iso-joinBool (inr true ) = refl
-Iso.rightInv Susp-iso-joinBool (inr false) = refl
-Iso.rightInv Susp-iso-joinBool (inl a) = sym (push a true)
-Iso.rightInv Susp-iso-joinBool (push a true  i) j = push a true (i ∨ ~ j)
-Iso.rightInv Susp-iso-joinBool (push a false i) j
+fun Susp-iso-joinBool north = inr true
+fun Susp-iso-joinBool south = inr false
+fun Susp-iso-joinBool (merid a i) = (sym (push a true) ∙ push a false) i
+inv Susp-iso-joinBool (inr true ) = north
+inv Susp-iso-joinBool (inr false) = south
+inv Susp-iso-joinBool (inl _) = north
+inv Susp-iso-joinBool (push a true  i) = north
+inv Susp-iso-joinBool (push a false i) = merid a i
+rightInv Susp-iso-joinBool (inr true ) = refl
+rightInv Susp-iso-joinBool (inr false) = refl
+rightInv Susp-iso-joinBool (inl a) = sym (push a true)
+rightInv Susp-iso-joinBool (push a true  i) j = push a true (i ∨ ~ j)
+rightInv Susp-iso-joinBool (push a false i) j
   = hcomp (λ k → λ { (i = i0) → push a true (~ j)
                    ; (i = i1) → push a false k
                    ; (j = i1) → push a false (i ∧ k) })
           (push a true (~ i ∧ ~ j))
-Iso.leftInv Susp-iso-joinBool north = refl
-Iso.leftInv Susp-iso-joinBool south = refl
-Iso.leftInv (Susp-iso-joinBool {A = A}) (merid a i) j
+leftInv Susp-iso-joinBool north = refl
+leftInv Susp-iso-joinBool south = refl
+leftInv (Susp-iso-joinBool {A = A}) (merid a i) j
   = hcomp (λ k → λ { (i = i0) → transp (λ _ → Susp A) (k ∨ j) north
                    ; (i = i1) → transp (λ _ → Susp A) (k ∨ j) (merid a k)
                    ; (j = i1) → merid a (i ∧ k) })
@@ -65,12 +67,7 @@ suspToPropRec : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Susp A → Type ℓ'} (a : A)
 suspToPropRec a isProp Bnorth north = Bnorth
 suspToPropRec {B = B} a isProp Bnorth south = subst B (merid a) Bnorth
 suspToPropRec {B = B} a isProp Bnorth (merid a₁ i) =
-  hcomp (λ k → λ {(i = i0) → Bnorth ;
-                   (i = i1) → isProp
-                                south
-                                (subst B (merid a₁) Bnorth)
-                                (subst B (merid a) Bnorth) k})
-        (transp (λ j → B (merid a₁ (j ∧ i))) (~ i) Bnorth)
+  isOfHLevel→isOfHLevelDep 1 isProp Bnorth (subst B (merid a) Bnorth) (merid a₁) i
 
 suspToPropRec2 : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Susp A → Susp A → Type ℓ'} (a : A)
                  → ((x y : Susp A) → isProp (B x y))

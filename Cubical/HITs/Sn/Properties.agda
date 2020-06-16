@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.Sn.Properties where
 
 open import Cubical.Data.Int hiding (_+_)
@@ -12,7 +12,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
-open import Cubical.HITs.S1
+open import Cubical.HITs.S1 hiding (inv)
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod
 open import Cubical.HITs.Sn.Base
@@ -23,12 +23,13 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.SmashProduct
 open import Cubical.HITs.PropositionalTruncation
 
+open Iso
+
 private
   variable
     ℓ ℓ' : Level
     A : Type ℓ
     B : Type ℓ'
-
 
 --- Some silly lemmas on S1 ---
 
@@ -50,14 +51,14 @@ isConnectedS1 x = rec propTruncIsProp
 
 
 SuspBool→S1 : Susp Bool → S₊ 1
-SuspBool→S1 north = north
-SuspBool→S1 south = south
+SuspBool→S1 north           = north
+SuspBool→S1 south           = south
 SuspBool→S1 (merid false i) = merid south i
-SuspBool→S1 (merid true i) = merid north i
+SuspBool→S1 (merid true i)  = merid north i
 
 S1→SuspBool : S₊ 1 → Susp Bool
-S1→SuspBool north = north
-S1→SuspBool south = south
+S1→SuspBool north           = north
+S1→SuspBool south           = south
 S1→SuspBool (merid north i) = merid true i
 S1→SuspBool (merid south i) = merid false i
 
@@ -72,16 +73,6 @@ SuspBool→S1-retr north = refl
 SuspBool→S1-retr south = refl
 SuspBool→S1-retr (merid false i) = refl
 SuspBool→S1-retr (merid true i) = refl
-
-SuspBool≃S1 : Susp Bool ≃ S₊ 1
-SuspBool≃S1 = isoToEquiv iso1
-  where
-  iso1 : Iso (Susp Bool) (S₊ 1)
-  Iso.fun iso1 = SuspBool→S1
-  Iso.inv iso1 = S1→SuspBool
-  Iso.rightInv iso1 = SuspBool→S1-sect
-  Iso.leftInv iso1 = SuspBool→S1-retr
-
 
 S1→S¹ : S₊ 1 → S¹
 S1→S¹ x = SuspBool→S¹ (S1→SuspBool x)
@@ -99,6 +90,20 @@ S1→S¹-retr x =
     cong SuspBool→S1 (SuspBool→S¹→SuspBool (S1→SuspBool x))
   ∙ SuspBool→S1-sect x
 
+SuspBoolIsoS1 : Iso (Susp Bool) (S₊ 1)
+fun SuspBoolIsoS1                      = SuspBool→S1
+inv SuspBoolIsoS1                      = S1→SuspBool
+rightInv SuspBoolIsoS1 north           = refl
+rightInv SuspBoolIsoS1 south           = refl
+rightInv SuspBoolIsoS1 (merid north i) = refl
+rightInv SuspBoolIsoS1 (merid south i) = refl
+leftInv SuspBoolIsoS1 north            = refl
+leftInv SuspBoolIsoS1 south            = refl
+leftInv SuspBoolIsoS1 (merid false i)  = refl
+leftInv SuspBoolIsoS1 (merid true i)   = refl
+
+SuspBool≃S1 : Susp Bool ≃ S₊ 1
+SuspBool≃S1 = isoToEquiv SuspBoolIsoS1
 
 -- map between S¹ ∧ A and Susp A.
 private
@@ -111,28 +116,28 @@ private
   proj' a b = inr (a , b)
 
 module smashS1→susp {(A , pt) : Pointed ℓ} where
-  fun : (S₊ 1 , north) ⋀ (A , pt) → (Susp A)
-  fun (inl tt) = north
-  fun (inr (x , x₁)) = f' {a = pt} x₁ x
-  fun  (push (inl north) i) = north
-  fun (push (inl south) i) = north
-  fun (push (inl (merid a i₁)) i) = rCancel (merid pt) (~ i) i₁
-  fun (push (inr x) i) = north
-  fun (push (push tt i₁) i) = north
+  f : (S₊ 1 , north) ⋀ (A , pt) → (Susp A)
+  f (inl tt)                    = north
+  f (inr (x , x₁))              = f' {a = pt} x₁ x
+  f  (push (inl north) i)       = north
+  f (push (inl south) i)        = north
+  f (push (inl (merid a i₁)) i) = rCancel (merid pt) (~ i) i₁
+  f (push (inr x) i)            = north
+  f (push (push tt i₁) i)       = north
 
-  fun⁻ : Susp A → (S₊ 1 , north) ⋀ (A , pt)
-  fun⁻ north = inl tt
-  fun⁻ south = inl tt
-  fun⁻ (merid a i) =
+  f⁻ : Susp A → (S₊ 1 , north) ⋀ (A , pt)
+  f⁻ north = inl tt
+  f⁻ south = inl tt
+  f⁻ (merid a i) =
     (push (inr a) ∙∙ cong (λ x → proj' {A = S₊ 1 , north} {B = A , pt} x a) (merid south ∙ sym (merid north)) ∙∙ sym (push (inr a))) i
 
   {- TODO : Prove that they cancel out -}
 
 {- Map used in definition of cup product. Maybe mover there later -}
 sphereSmashMap : (n m : ℕ) → (S₊ (suc n) , north) ⋀ (S₊ (suc m) , north) → S₊ (2 + n + m)
-sphereSmashMap zero m = smashS1→susp.fun
+sphereSmashMap zero m = smashS1→susp.f
 sphereSmashMap (suc n) m =
-  smashS1→susp.fun ∘
+  smashS1→susp.f ∘
   (idfun∙ _ ⋀→ (sphereSmashMap n m , refl)) ∘
   ⋀-associate ∘
-  ((smashS1→susp.fun⁻ , refl) ⋀→ idfun∙ _)
+  ((smashS1→susp.f⁻ , refl) ⋀→ idfun∙ _)

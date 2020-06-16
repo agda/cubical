@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --postfix-projections #-}
+{-# OPTIONS --cubical --no-import-sorts --safe --postfix-projections #-}
 
 open import Cubical.Core.Everything
 

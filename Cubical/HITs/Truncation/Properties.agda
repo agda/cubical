@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.Truncation.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -116,9 +116,7 @@ isOfHLevelTrunc (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilledTrunc
 
 -- hLevelTrunc n is a modality
 
--- This more direct definition should behave better than recElim
--- below. Commented for now as it breaks some cohomology code if we
--- use it instead of recElim.
+
 rec : {n : ℕ}
       {B : Type ℓ'} →
       isOfHLevel n B →
@@ -127,14 +125,6 @@ rec : {n : ℕ}
       B
 rec h = Null.rec (isOfHLevel→isSnNull h)
 
--- TODO: remove this
-recElim : {n : ℕ}
-      {B : Type ℓ'} →
-      isOfHLevel n B →
-      (A → B) →
-      hLevelTrunc n A →
-      B
-recElim {B = B} h = Null.elim {B = λ _ → B} λ x → isOfHLevel→isSnNull h
 elim : {n : ℕ}
        {B : hLevelTrunc n A → Type ℓ'}
        (hB : (x : hLevelTrunc n A) → isOfHLevel n (B x))
@@ -174,6 +164,9 @@ isModalIsProp (HLevelTruncModality n) = isPropIsOfHLevel n
 ◯-elim-β      (HLevelTruncModality n) = λ _ _ _ → refl
 ◯-=-isModal   (HLevelTruncModality n) = isOfHLevelPath n (isOfHLevelTrunc n)
 
+truncIdempotentIso : (n : ℕ) → isOfHLevel n A → Iso A (hLevelTrunc n A)
+truncIdempotentIso n hA = isModalToIso (HLevelTruncModality n) hA
+
 truncIdempotent≃ : (n : ℕ) → isOfHLevel n A → A ≃ hLevelTrunc n A
 truncIdempotent≃ n hA = ∣_∣ , isModalToIsEquiv (HLevelTruncModality n) hA
 
@@ -196,15 +189,10 @@ map : {n : ℕ} {B : Type ℓ'} (g : A → B)
 map g = rec (isOfHLevelTrunc _) (λ a → ∣ g a ∣)
 
 mapCompIso : {n : ℕ} {B : Type ℓ'} → (Iso A B) → Iso (hLevelTrunc n A) (hLevelTrunc n B)
-Iso.fun (mapCompIso g) = recElim (isOfHLevelTrunc _) λ a → ∣ Iso.fun g a ∣
-Iso.inv (mapCompIso g) = recElim (isOfHLevelTrunc _) λ b → ∣ Iso.inv g b ∣
-Iso.rightInv (mapCompIso g) =
-  elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _)
-        λ b → cong ∣_∣ (Iso.rightInv g b)
-Iso.leftInv (mapCompIso g) =
-  elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _)
-       λ a → cong ∣_∣ (Iso.leftInv g a)
-
+Iso.fun (mapCompIso g) = map (Iso.fun g)
+Iso.inv (mapCompIso g) = map (Iso.inv g)
+Iso.rightInv (mapCompIso g) = elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _) λ b → cong ∣_∣ (Iso.rightInv g b)
+Iso.leftInv (mapCompIso g) = elim (λ x → isOfHLevelPath _ (isOfHLevelTrunc _) _ _) λ a → cong ∣_∣ (Iso.leftInv g a)
 
 mapId : {n : ℕ} → ∀ t → map {n = n} (idfun A) t ≡ t
 mapId {n = n} =
@@ -302,10 +290,10 @@ module ΩTrunc where
       decode* : ∀ {n : ℕ₋₂} (u v : B)
               → P {n = n} ∣ u ∣ ∣ v ∣ → Path (∥ B ∥ (suc₋₂ n)) ∣ u ∣ ∣ v ∣
       decode* {B = B} {n = neg2} u v =
-        recElim ( isOfHLevelTrunc 1 ∣ u ∣ ∣ v ∣
+        rec ( isOfHLevelTrunc 1 ∣ u ∣ ∣ v ∣
             , λ _ → isOfHLevelSuc 1 (isOfHLevelTrunc 1) _ _ _ _) (cong ∣_∣)
       decode* {n = ℕ₋₂.-1+ n} u v =
-        recElim (isOfHLevelTrunc (suc (suc n)) ∣ u ∣ ∣ v ∣) (cong ∣_∣)
+        rec (isOfHLevelTrunc (suc (suc n)) ∣ u ∣ ∣ v ∣) (cong ∣_∣)
 
   {- auxiliary function r used to define encode -}
   r : {m : ℕ₋₂} (u : ∥ B ∥ (suc₋₂ m)) → P u u
@@ -370,10 +358,9 @@ PathΩ n = PathIdTrunc n
 
 {- Special case using old defs of truncations -}
 PathIdTrunc₀Iso : {a b : A} → Iso (∣ a ∣₀ ≡ ∣ b ∣₀) ∥ a ≡ b ∥₋₁
-PathIdTrunc₀Iso = compIso (congIso setTrunc≃Trunc0)
+PathIdTrunc₀Iso = compIso (congIso setTruncTrunc0Iso)
                     (compIso (ΩTrunc.IsoFinal _ ∣ _ ∣ ∣ _ ∣)
                              (symIso propTruncTrunc-1Iso))
-
 
 -------------------------
 
@@ -392,5 +379,3 @@ Iso.leftInv (truncOfTruncIso n m) = elim (λ x → isOfHLevelPath n (isOfHLevelT
 
 truncOfTruncEq : (n m : ℕ) → (hLevelTrunc n A) ≃ (hLevelTrunc n (hLevelTrunc (m + n) A))
 truncOfTruncEq n m = isoToEquiv (truncOfTruncIso n m)
-
-

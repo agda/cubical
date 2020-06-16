@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Homotopy.Connected where
 
 open import Cubical.Core.Everything
@@ -76,7 +76,7 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (n :
        where
     inv : ((a : A) → P (f a) .fst) → (b : B) → hLevelTrunc n (fiber f b) → P b .fst
     inv t b =
-      trRec
+      Trunc.rec
         (P b .snd)
         (λ {(a , p) → subst (fst ∘ P) p (t a)})
 
@@ -231,9 +231,9 @@ connectedTruncIso {A = A} {B = B} (suc n) f con = g
   back y = map fst ((con y) .fst)
 
   backSection :  (b : B) → Path (hLevelTrunc (suc n) B)
-                                 (trRec (isOfHLevelTrunc (suc n))
+                                 (Trunc.rec (isOfHLevelTrunc (suc n))
                                             (λ a → ∣ f a ∣)
-                                            (trRec {n = suc n }
+                                            (Trunc.rec {n = suc n }
                                                        {B = hLevelTrunc (suc n) A} (isOfHLevelTrunc (suc n)) back ∣ b ∣))
                                ∣ b ∣
   backSection b = helper (λ p → map f p ≡ ∣ b ∣)
@@ -254,7 +254,7 @@ connectedTruncIso {A = A} {B = B} (suc n) f con = g
 
   g : Iso (hLevelTrunc (suc n) A) (hLevelTrunc (suc n) B)
   Iso.fun g = map f
-  Iso.inv g = trRec (isOfHLevelTrunc _) back
+  Iso.inv g = Trunc.rec (isOfHLevelTrunc _) back
   Iso.leftInv g = Trunc.elim (λ x → isOfHLevelPath (suc n) (isOfHLevelTrunc _) _ _)
                                λ a → cong (map fst) (con (f a) .snd  ∣ a , refl ∣)
   Iso.rightInv g = Trunc.elim (λ x → isOfHLevelPath (suc n) (isOfHLevelTrunc _) _ _)
