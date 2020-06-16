@@ -86,7 +86,7 @@ QuoSetStructure : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
 QuoSetStructure S ρ A R =
   Σ (S (typ A / R)) (ρ .rel (typ A) (typ A / R) (quotientRel R) (A .snd))
 
-record Descends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
+record BisimDescends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
   (A B : TypeWithStr ℓ S) (R : Bisimulation (typ A) (typ B) ℓ) : Type (ℓ-max ℓ' ℓ'')
   where
   private
@@ -97,13 +97,13 @@ record Descends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
     quoᴿ : isContr (QuoSetStructure S ρ B E.Rᴿ)
     path : PathP (λ i → S (ua E.Thm i)) (quoᴸ .fst .fst) (quoᴿ .fst .fst)
 
-open Descends public
+open BisimDescends public
 
 isSNRS : (S : SetStructure ℓ ℓ') → StrRel (S .struct) ℓ'' → Type _
 isSNRS {ℓ} S ρ =
   {A B : TypeWithStr ℓ (S .struct)} (R : Bisimulation (typ A) (typ B) ℓ)
   → ρ .rel (A .fst) (B .fst) (R .fst) (A .snd) (B .snd)
-  → Descends (S .struct) ρ A B R
+  → BisimDescends (S .struct) ρ A B R
 
 --------------------------------------------------------------------------------
 -- Two lemmas that get used later on

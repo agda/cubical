@@ -37,12 +37,12 @@ infixr 5 ⟨_,_⟩∷_
 -- We have a count-structure on List and AList and use these to get a bisimulation between the two
 module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
- S = parameterized-setStructure {ℓ₁ = ℓ} A (λ _ → unaryFun-setStructure (constant-setStructure (ℕ , isSetℕ)))
+ S = parameterized-setStructure A {ℓ = ℓ} (λ _ → unaryFun-setStructure (constant-setStructure (ℕ , isSetℕ)))
 
- ρ = parameterized-rel {ℓ₁ = ℓ} A (λ _ → unaryFun-rel (constant-rel (ℕ , isSetℕ)))
+ ρ = parameterized-rel A {ℓ = ℓ} (λ _ → unaryFun-rel (constant-rel (ℕ , isSetℕ)))
 
  θ : isSNRS S ρ
- θ = isSNRSParameterized {ℓ₁ = ℓ} A
+ θ = isSNRSParameterized {ℓ₀ = ℓ} A
    (λ _ → unaryFun-setStructure (constant-setStructure (ℕ , isSetℕ)))
    (λ _ → unaryFun-rel (constant-rel (ℕ , isSetℕ)))
    (λ _ → isSNRSUnaryFun
@@ -121,10 +121,10 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  List/Rᴸ≃AList/Rᴬᴸ : List/Rᴸ ≃ AList/Rᴬᴸ
  List/Rᴸ≃AList/Rᴬᴸ = E.Thm
 
- main : Descends _ _ (List A , Lcount) (AList A , ALcount) (R , isBisimR)
+ main : BisimDescends _ _ (List A , Lcount) (AList A , ALcount) (R , isBisimR)
  main = θ (R , isBisimR) (λ a r → r a)
 
- open Descends
+ open BisimDescends
 
  List/Rᴸ-structure : S .struct List/Rᴸ
  List/Rᴸ-structure = main .quoᴸ .fst .fst
