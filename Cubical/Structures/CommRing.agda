@@ -3,110 +3,166 @@ module Cubical.Structures.CommRing where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
-open import Cubical.Data.Sigma
-
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
+open import Cubical.Data.Sigma
+
+open import Cubical.Structures.Macro
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Pointed
-open import Cubical.Structures.Ring hiding (⟨_⟩)
+open import Cubical.Structures.Semigroup hiding (⟨_⟩)
+open import Cubical.Structures.Monoid    hiding (⟨_⟩)
+open import Cubical.Structures.AbGroup   hiding (⟨_⟩)
+open import Cubical.Structures.Ring      hiding (⟨_⟩)
+
+open Iso
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ : Level
 
-comm-ring-axioms : (X : Type ℓ) (s : raw-ring-structure X) → Type ℓ
-comm-ring-axioms X (_+_ , ₁ , _·_) = (ring-axioms X (_+_ , ₁ , _·_)) ×
-                                     ((x y : X) → x · y ≡ y · x)
+record IsCommRing {R : Type ℓ}
+                  (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R) : Type ℓ where
 
-comm-ring-structure : Type ℓ → Type ℓ
-comm-ring-structure = add-to-structure raw-ring-structure comm-ring-axioms
+  constructor iscommring
 
+  field
+    isRing : IsRing 0r 1r _+_ _·_ -_
+    ·-comm : (x y : R) → x · y ≡ y · x
 
-CommRing : Type (ℓ-suc ℓ)
-CommRing {ℓ} = TypeWithStr ℓ comm-ring-structure
+  open IsRing isRing public
 
-comm-ring-iso : StrIso comm-ring-structure ℓ
-comm-ring-iso =
-  add-to-iso
-    (join-iso (binaryFunIso pointed-iso) (join-iso pointed-iso (binaryFunIso pointed-iso)))
-    comm-ring-axioms
+record CommRing : Type (ℓ-suc ℓ) where
 
-comm-ring-axioms-isProp : (X : Type ℓ) (s : raw-ring-structure X) → isProp (comm-ring-axioms X s)
-comm-ring-axioms-isProp X (_·_ , ₀ , _+_) = isPropΣ (ring-axioms-isProp X (_·_ , ₀ , _+_))
-                                            λ ((((isSetX , _) , _) , _) , _) → isPropΠ2 λ _ _ → isSetX _ _
+  constructor commring
 
-comm-ring-is-SNS : SNS {ℓ} comm-ring-structure comm-ring-iso
-comm-ring-is-SNS = add-axioms-SNS _ comm-ring-axioms-isProp raw-ring-is-SNS
+  field
+    Carrier    : Type ℓ
+    0r         : Carrier
+    1r         : Carrier
+    _+_        : Carrier → Carrier → Carrier
+    _·_        : Carrier → Carrier → Carrier
+    -_         : Carrier → Carrier
+    isCommRing : IsCommRing 0r 1r _+_ _·_ -_
 
-CommRingPath : (M N : CommRing {ℓ}) → (M ≃[ comm-ring-iso ] N) ≃ (M ≡ N)
-CommRingPath = SIP comm-ring-is-SNS
+  infix  8 -_
+  infixl 7 _·_
+  infixl 6 _+_
 
--- CommRing is Ring
+  open IsCommRing isCommRing public
+
+-- Extractor for the carrier type
+⟨_⟩ : CommRing → Type ℓ
+⟨_⟩ = CommRing.Carrier
+
+makeIsCommRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
+                 (is-setR : isSet R)
+                 (+-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
+                 (+-rid : (x : R) → x + 0r ≡ x)
+                 (+-rinv : (x : R) → x + (- x) ≡ 0r)
+                 (+-comm : (x y : R) → x + y ≡ y + x)
+                 (·-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
+                 (·-rid : (x : R) → x · 1r ≡ x)
+                 (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
+                 (·-comm : (x y : R) → x · y ≡ y · x)
+               → IsCommRing 0r 1r _+_ _·_ -_
+makeIsCommRing {_+_ = _+_} is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm =
+  iscommring (makeIsRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid
+                         (λ x → ·-comm _ _ ∙ ·-rid x) ·-rdist-+
+                         (λ x y z → ·-comm _ _ ∙∙ ·-rdist-+ z x y ∙∙ λ i → (·-comm z x i) + (·-comm z y i))) ·-comm
+
+makeCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
+               (is-setR : isSet R)
+               (+-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
+               (+-rid : (x : R) → x + 0r ≡ x)
+               (+-rinv : (x : R) → x + (- x) ≡ 0r)
+               (+-comm : (x y : R) → x + y ≡ y + x)
+               (·-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
+               (·-rid : (x : R) → x · 1r ≡ x)
+               (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
+               (·-comm : (x y : R) → x · y ≡ y · x)
+             → CommRing
+makeCommRing 0r 1r _+_ _·_ -_ is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm =
+  commring _ _ _ _ _ _ (makeIsCommRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm)
 
 CommRing→Ring : CommRing {ℓ} → Ring
-CommRing→Ring (R , str , isRing , ·comm) = R , str , isRing
+CommRing→Ring (commring _ _ _ _ _ _ H) = ring _ _ _ _ _ _ (IsCommRing.isRing H)
 
--- CommRing Extractors
+CommRingIso : (R S : CommRing) → Type ℓ
+CommRingIso R S = RingIso (CommRing→Ring R) (CommRing→Ring S)
 
-⟨_⟩ : CommRing {ℓ} → Type ℓ
-⟨ R , _ ⟩ = R
+module CommRingΣ-theory {ℓ} where
 
-module _ (R : CommRing {ℓ}) where
+  open RingΣ-theory
 
-  commring+-operation = ring+-operation (CommRing→Ring R)
+  comm-ring-axioms : (R : Type ℓ) (s : raw-ring-structure R) → Type ℓ
+  comm-ring-axioms R (_+_ , 1r , _·_) = ring-axioms R (_+_ , 1r , _·_)
+                                      × ((x y : R) → x · y ≡ y · x)
 
-  commring-is-set = ring-is-set (CommRing→Ring R)
+  comm-ring-structure : Type ℓ → Type ℓ
+  comm-ring-structure = add-to-structure raw-ring-structure comm-ring-axioms
 
-  commring+-assoc = ring+-assoc (CommRing→Ring R)
+  CommRingΣ : Type (ℓ-suc ℓ)
+  CommRingΣ = TypeWithStr ℓ comm-ring-structure
 
-  commring+-id = ring+-id (CommRing→Ring R)
+  comm-ring-iso : StrIso comm-ring-structure ℓ
+  comm-ring-iso =
+    add-to-iso (join-iso (binaryFunIso pointed-iso)
+                         (join-iso pointed-iso (binaryFunIso pointed-iso))) comm-ring-axioms
 
-  commring+-rid = ring+-rid (CommRing→Ring R)
+  isProp-comm-ring-axioms : (R : Type ℓ) (s : raw-ring-structure R)
+                          → isProp (comm-ring-axioms R s)
+  isProp-comm-ring-axioms R (_·_ , 0r , _+_) =
+    isPropΣ (isProp-ring-axioms R (_·_ , 0r , _+_))
+            λ { (_ , x , _)→ isPropΠ2 λ _ _ →
+                  x .IsMonoid.isSemigroup .IsSemigroup.is-set _ _}
 
-  commring+-lid = ring+-lid (CommRing→Ring R)
+  CommRing→CommRingΣ : CommRing → CommRingΣ
+  CommRing→CommRingΣ (commring _ _ _ _ _ _ (iscommring G C)) =
+    _ , _ , Ring→RingΣ (ring _ _ _ _ _ _ G) .snd .snd , C
 
-  commring+-inv = ring+-inv (CommRing→Ring R)
+  CommRingΣ→CommRing : CommRingΣ → CommRing
+  CommRingΣ→CommRing (_ , _ , G , C) =
+    commring _ _ _ _ _ _ (iscommring (RingΣ→Ring (_ , _ , G) .Ring.isRing) C)
 
-  commring+-rinv = ring+-rinv (CommRing→Ring R)
+  CommRingIsoCommRingΣ : Iso CommRing CommRingΣ
+  CommRingIsoCommRingΣ =
+    iso CommRing→CommRingΣ CommRingΣ→CommRing (λ _ → refl) (λ _ → refl)
 
-  commring+-linv = ring+-linv (CommRing→Ring R)
+  comm-ring-is-SNS : SNS comm-ring-structure comm-ring-iso
+  comm-ring-is-SNS = add-axioms-SNS _ isProp-comm-ring-axioms raw-ring-is-SNS
 
-  commring+-comm = ring+-comm (CommRing→Ring R)
+  CommRingΣPath : (R S : CommRingΣ) → (R ≃[ comm-ring-iso ] S) ≃ (R ≡ S)
+  CommRingΣPath = SIP comm-ring-is-SNS
 
-  commring·-operation = ring·-operation (CommRing→Ring R)
+  CommRingIsoΣ : (R S : CommRing) → Type ℓ
+  CommRingIsoΣ R S = CommRing→CommRingΣ R ≃[ comm-ring-iso ] CommRing→CommRingΣ S
 
-  commring·-assoc = ring·-assoc (CommRing→Ring R)
+  CommRingPath : (R S : CommRing) → (CommRingIso R S) ≃ (R ≡ S)
+  CommRingPath R S =
+    CommRingIso R S   ≃⟨ isoToEquiv RingIsoΣPath ⟩
+    CommRingIsoΣ R S  ≃⟨ CommRingΣPath _ _ ⟩
+    CommRing→CommRingΣ R ≡ CommRing→CommRingΣ S
+      ≃⟨ isoToEquiv (invIso (congIso CommRingIsoCommRingΣ)) ⟩
+    R ≡ S ■
 
-  commring·-id = ring·-id (CommRing→Ring R)
+-- Extract the characterization of equality of groups
+CommRingPath : (R S : CommRing {ℓ}) → (CommRingIso R S) ≃ (R ≡ S)
+CommRingPath = CommRingΣ-theory.CommRingPath
 
-  commring·-rid = ring·-rid (CommRing→Ring R)
+isPropIsCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
+             → isProp (IsCommRing 0r 1r _+_ _·_ -_)
+isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
+  λ i → iscommring (isPropIsRing _ _ _ _ _ RR SR i)
+                   (isPropComm RC SC i)
+  where
+  isSetR : isSet _
+  isSetR = RR .IsRing.·-isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
-  commring·-lid = ring·-lid (CommRing→Ring R)
-
-  commring-ldist = ring-ldist (CommRing→Ring R)
-
-  commring-rdist = ring-rdist (CommRing→Ring R)
-
-module commring-operation-syntax where
-
-  commring+-operation-syntax : (R : CommRing {ℓ}) → ⟨ R ⟩ → ⟨ R ⟩ → ⟨ R ⟩
-  commring+-operation-syntax R = commring+-operation R
-  infixr 14 commring+-operation-syntax
-  syntax commring+-operation-syntax G x y = x +⟨ G ⟩ y
-
-  commring·-operation-syntax : (R : CommRing {ℓ}) → ⟨ R ⟩ → ⟨ R ⟩ → ⟨ R ⟩
-  commring·-operation-syntax R = commring·-operation R
-  infixr 18 commring·-operation-syntax
-  syntax commring·-operation-syntax G x y = x ·⟨ G ⟩ y
-
-open commring-operation-syntax
-
-commring·-comm : (R : CommRing {ℓ}) (x y : ⟨ R ⟩) → x ·⟨ R ⟩ y ≡ y ·⟨ R ⟩ x
-commring·-comm (_ , _ , _ , P) = P
-
--- CommRing ·syntax
-
-module commring-·syntax (R : CommRing {ℓ}) where
-  open ring-·syntax (CommRing→Ring R) public
+  isPropComm : isProp ((x y : _) → x · y ≡ y · x)
+  isPropComm = isPropΠ2 λ _ _ → isSetR _ _

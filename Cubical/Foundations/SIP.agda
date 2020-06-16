@@ -12,6 +12,7 @@ module Cubical.Foundations.SIP where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence renaming (ua-pathToEquiv to ua-pathToEquiv')
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
@@ -25,23 +26,6 @@ private
   variable
     ℓ₁ ℓ₂ ℓ₃ ℓ₄ ℓ₅ : Level
     S : Type ℓ₁ → Type ℓ₂
-
-  -- For technical reasons we reprove ua-pathToEquiv using the
-  -- particular proof constructed by iso→HAEquiv. The reason is that we
-  -- want to later be able to extract
-  --
-  --   eq : ua-au (ua e) ≡ cong ua (au-ua e)
-  --
-  uaHAEquiv : (A B : Type ℓ₁) → HAEquiv (A ≃ B) (A ≡ B)
-  uaHAEquiv A B = iso→HAEquiv (iso ua pathToEquiv ua-pathToEquiv' pathToEquiv-ua)
-
-  open isHAEquiv
-
-  -- We now extract the particular proof constructed from iso→HAEquiv
-  -- for reasons explained above.
-  ua-pathToEquiv : {A B : Type ℓ₁} (e : A ≡ B) → ua (pathToEquiv e) ≡ e
-  ua-pathToEquiv e = uaHAEquiv _ _ .snd .ret e
-
 
 -- Note that for any equivalence (f , e) : X ≃ Y the type  ι (X , s) (Y , t) (f , e) need not to be
 -- a proposition. Indeed this type should correspond to the ways s and t can be identified
@@ -92,122 +76,23 @@ SNS-≡→SNS-PathP {S = S} ι θ {A = A} {B = B} e = EquivJ P C e (str A) (str 
      ψ = transportEquiv λ j → PathP (λ i → S (uaIdEquiv {A = Y} (~ j) i)) s t
 
 
--- We can now directly define an invertible function
---
---    sip : A ≃[ ι ] B → A ≡ B
---
-sip : {S : Type ℓ₁ → Type ℓ₂} {ι : StrIso S ℓ₃} (θ : SNS-PathP S ι)
-      (A B : TypeWithStr ℓ₁ S) → A ≃[ ι ] B → A ≡ B
-sip θ A B (e , p) i = ua e i , θ e .fst p i
+--- We can now define an invertible function
+---
+---    sip : A ≃[ ι ] B → A ≡ B
 
--- The inverse to sip uses the following little lemma
-private
-  lem : (S : Type ℓ₁ → Type ℓ₂) (A B : TypeWithStr ℓ₁ S) (e : typ A ≡ typ B)
-      → PathP (λ i → S (ua (pathToEquiv e) i)) (A .snd) (B .snd) ≡
-        PathP (λ i → S (e i)) (A .snd) (B .snd)
-  lem S A B e i = PathP (λ j → S (ua-pathToEquiv e i j)) (A .snd) (B .snd)
-
--- The inverse
-sip⁻ : {S : Type ℓ₁ → Type ℓ₂} {ι : StrIso S ℓ₃} (θ : SNS-PathP S ι)
-       (A B : TypeWithStr ℓ₁ S) → A ≡ B → A ≃[ ι ] B
-sip⁻ {S = S} θ A B r = pathToEquiv p , invEq (θ (pathToEquiv p)) q
+module _ {S : Type ℓ₁ → Type ℓ₂} {ι : StrIso S ℓ₃}
+  (θ : SNS-PathP S ι) (A B : TypeWithStr ℓ₁ S)
   where
-  p : typ A ≡ typ B
-  p = cong fst r
-  q : PathP (λ i → S (ua (pathToEquiv p) i)) (A .snd) (B .snd)
-  q = transport⁻ (lem S A B p) (cong snd r)
 
--- We can rather directly show that sip and sip⁻ are mutually inverse:
-sip-sip⁻ : {S : Type ℓ₁ → Type ℓ₂} {ι : StrIso S ℓ₃} (θ : SNS-PathP S ι)
-           (A B : TypeWithStr ℓ₁ S) (r : A ≡ B)
-         → sip θ A B (sip⁻ θ A B r) ≡ r
-sip-sip⁻ {S = S} θ A B r =
-  let p : typ A ≡ typ B
-      p = cong fst r
-      q : PathP (λ i → S (p i)) (str A) (str B)
-      q = cong snd r
-  in sip θ A B (sip⁻ θ A B r)
-   ≡⟨ refl ⟩
-     (λ i → ( ua (pathToEquiv p) i)
-            , θ (pathToEquiv p) .fst
-                (invEq (θ (pathToEquiv p))
-                       (transport⁻ (lem S A B p) q)) i)
-   ≡⟨ (λ i j → ( ua (pathToEquiv p) j
-               , retEq (θ (pathToEquiv p))
-                       (transport⁻ (lem S A B p) q) i j)) ⟩
-     (λ i → ( ua (pathToEquiv p) i
-            , transport⁻ (lem S A B p) q i))
-   ≡⟨ (λ i j → ( ua-pathToEquiv p i j
-               , transp (λ k → PathP (λ j → S (ua-pathToEquiv p (i ∧ k) j)) (str A) (str B))
-                        (~ i) (transport⁻ (lem S A B p) q) j)) ⟩
-     (λ i → ( p i
-            , transport (λ i → lem S A B p i) (transport⁻ (lem S A B p) q) i))
-   ≡⟨ (λ i j → ( p j
-               , transportTransport⁻ (lem S A B p) q i j)) ⟩
-     r ∎
+  sip : A ≃[ ι ] B → A ≡ B
+  sip (e , p) i = ua e i , θ e .fst p i
 
+  SIP : A ≃[ ι ] B ≃ (A ≡ B)
+  SIP =
+    sip , isoToIsEquiv (compIso (Σ-cong-iso (invIso univalenceIso) (equivToIso ∘ θ)) ΣPathIsoPathΣ)
 
--- The trickier direction:
-sip⁻-sip : {S : Type ℓ₁ → Type ℓ₂} {ι : StrIso S ℓ₃} (θ : SNS-PathP S ι)
-           (A B : TypeWithStr ℓ₁ S) (r : A ≃[ ι ] B)
-         → sip⁻ θ A B (sip θ A B r) ≡ r
-sip⁻-sip {S = S} θ A B (e , p) =
-    sip⁻ θ A B (sip θ A B (e , p))
-  ≡⟨ refl ⟩
-    pathToEquiv (ua e) , invEq (θ (pathToEquiv (ua e))) (f⁺ p')
-  ≡⟨ (λ i → pathToEquiv-ua e i , invEq (θ (pathToEquiv-ua e i)) (pth' i)) ⟩
-    e , invEq (θ e) (f⁻ (f⁺ p'))
-  ≡⟨ (λ i → e , invEq (θ e) (transportTransport⁻ (lem S A B (ua e)) p' i)) ⟩
-    e , invEq (θ e) (θ e .fst p)
-  ≡⟨ (λ i → e , (secEq (θ e) p i)) ⟩
-    e , p ∎
-  where
-  p' : PathP (λ i → S (ua e i)) (str A) (str B)
-  p' = θ e .fst p
-
-  f⁺ : PathP (λ i → S (ua e i)) (str A) (str B)
-     → PathP (λ i → S (ua (pathToEquiv (ua e)) i)) (str A) (str B)
-  f⁺ = transport (λ i → PathP (λ j → S (ua-pathToEquiv (ua e) (~ i) j)) (str A) (str B))
-
-  f⁻ : PathP (λ i → S (ua (pathToEquiv (ua e)) i)) (str A) (str B)
-     → PathP (λ i → S (ua e i)) (str A) (str B)
-  f⁻ = transport (λ i → PathP (λ j → S (ua-pathToEquiv (ua e) i j)) (str A) (str B))
-
-  -- We can prove the following as in sip∘pis-id, but the type is not
-  -- what we want as it should be "cong ua (pathToEquiv-ua e)"
-  pth : PathP (λ j → PathP (λ k → S (ua-pathToEquiv (ua e) j k)) (str A) (str B))
-              (f⁺ p') (f⁻ (f⁺ p'))
-  pth i = transp (λ k → PathP (λ j → S (ua-pathToEquiv (ua e) (i ∧ k) j)) (str A) (str B))
-                 (~ i) (f⁺ p')
-
-  -- So we build an equality that we want to cast the types with
-  casteq : PathP (λ j → PathP (λ k → S (ua-pathToEquiv (ua e) j k)) (str A) (str B))
-                 (f⁺ p') (f⁻ (f⁺ p'))
-         ≡ PathP (λ j → PathP (λ k → S (cong ua (pathToEquiv-ua e) j k)) (str A) (str B))
-                 (f⁺ p') (f⁻ (f⁺ p'))
-  casteq i = PathP (λ j → PathP (λ k → S (eq i j k)) (str A) (str B)) (f⁺ p') (f⁻ (f⁺ p'))
-    where
-    -- This is where we need the half-adjoint equivalence property
-    eq : ua-pathToEquiv (ua e) ≡ cong ua (pathToEquiv-ua e)
-    eq = sym (uaHAEquiv (typ A) (typ B) .snd .com e)
-
-  -- We then get a term of the type we need
-  pth' : PathP (λ j → PathP (λ k → S (cong ua (pathToEquiv-ua e) j k)) (str A) (str B))
-               (f⁺ p') (f⁻ (f⁺ p'))
-  pth' = transport (λ i → casteq i) pth
-
--- Finally package everything up to get the cubical SIP
-SIP : {S : Type ℓ₁ → Type ℓ₂} {ι : StrIso S ℓ₃}
-      (θ : SNS-PathP S ι) (A B : TypeWithStr ℓ₁ S)
-    → A ≃[ ι ] B ≃ (A ≡ B)
-SIP {S = S} {ι} θ A B = isoToEquiv f
-  where
-  f : Iso (A ≃[ ι ] B) (A ≡ B)
-  Iso.fun f      = sip θ A B
-  Iso.inv f      = sip⁻ θ A B
-  Iso.rightInv f = sip-sip⁻ θ A B
-  Iso.leftInv f  = sip⁻-sip θ A B
-
+  sip⁻ : A ≡ B → A ≃[ ι ] B
+  sip⁻ = invEq SIP
 
 -- Now, we want to add axioms (i.e. propositions) to our Structure S that don't affect the ι.
 -- We use a lemma due to Zesen Qian, which can now be found in Foundations.Prelude:
