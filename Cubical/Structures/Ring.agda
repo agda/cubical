@@ -10,6 +10,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 open import Cubical.Structures.Macro
+open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid hiding (⟨_⟩)
 open import Cubical.Structures.AbGroup hiding (⟨_⟩)
 
@@ -26,7 +27,7 @@ module _ {ℓ} where
 
 ring-axioms : (X : Type ℓ) (s : raw-ring-structure X) → Type ℓ
 ring-axioms X (_+_ , 1r , _·_) = abelian-group-axioms X _+_ ×
-                                 monoid-axioms X (1r , _·_) ×
+                                 IsMonoid 1r _·_ ×
                                  ((x y z : X) → x · (y + z) ≡ (x · y) + (x · z)) ×
                                  ((x y z : X) → (x + y) · z ≡ (x · z) + (y · z))
 
@@ -41,9 +42,9 @@ ring-iso = add-to-iso raw-ring-iso ring-axioms
 
 ring-axioms-isProp : (X : Type ℓ) (s : raw-ring-structure X) → isProp (ring-axioms X s)
 ring-axioms-isProp X (_+_ , 1r , _·_) = isPropΣ (abelian-group-axioms-isProp X _+_)
-                                      λ _ → isPropΣ (monoid-axioms-are-Props X (1r , _·_))
-                                      λ { (isSetX , _) → isPropΣ (isPropΠ3 (λ _ _ _ → isSetX _ _))
-                                      λ _ → isPropΠ3 (λ _ _ _ → isSetX _ _)}
+                                      λ _ → isPropΣ (isPropIsMonoid 1r _·_)
+                                      λ X → isPropΣ (isPropΠ3 (λ _ _ _ → IsSemigroup.is-set (X .IsMonoid.isSemigroup) _ _))
+                                      λ _ → isPropΠ3 (λ _ _ _ → IsSemigroup.is-set (X .IsMonoid.isSemigroup) _ _)
 
 ring-is-SNS : SNS {ℓ} ring-structure ring-iso
 ring-is-SNS = add-axioms-SNS _ ring-axioms-isProp raw-ring-is-SNS
@@ -59,7 +60,7 @@ Ring→AbGroup (R , (_+_ , _) , +AbGroup , _) = R , _+_ , +AbGroup
 -- Rings have a monoid
 
 Ring→Monoid : Ring {ℓ} → Monoid {ℓ}
-Ring→Monoid (R , (_ , 1r , _·_) , _ , ·Monoid , _) = R , (1r , _·_) , ·Monoid
+Ring→Monoid (R , (_ , 1r , _·_) , _ , ·Monoid , _) = monoid R 1r _·_ ·Monoid
 
 -- Ring extractors
 
@@ -87,15 +88,9 @@ module partialRingAxioms (R : Ring {ℓ}) where
 
   ring+-comm = abgroup-comm (Ring→AbGroup R)
 
-  ring·-operation = monoid-operation (Ring→Monoid R)
-
-  ring·-assoc = monoid-assoc (Ring→Monoid R)
-
-  ring·-id = monoid-id (Ring→Monoid R)
-
-  ring·-rid = monoid-rid (Ring→Monoid R)
-
-  ring·-lid = monoid-lid (Ring→Monoid R)
+  open Monoid (Ring→Monoid R) public
+       renaming ( ε to ring·-id ; _·_ to ring·-operation
+                ; assoc to ring·-assoc ; rid to ring·-rid ; lid to ring·-lid )
 
 
 module explicit-ring-syntax where
@@ -108,7 +103,7 @@ module explicit-ring-syntax where
   syntax ring+-operation-syntax R x y = x +⟨ R ⟩ y
 
   ring·-operation-syntax : (R : Ring {ℓ}) → ⟨ R ⟩ → ⟨ R ⟩ → ⟨ R ⟩
-  ring·-operation-syntax R = ring·-operation R
+  ring·-operation-syntax R = R .snd .fst .snd .snd
 
   infixr 18 ring·-operation-syntax
   syntax ring·-operation-syntax R x y = x ·⟨ R ⟩ y
@@ -138,7 +133,6 @@ module ring-syntax (R : Ring {ℓ}) where
 
   infixr 14 _+_
   infixr 14 _-_
-  infixr 18 _·_
   infix  15 -_
 
   _+_ = ring+-operation R
@@ -197,10 +191,7 @@ createRing R isSet-R ringStr =
                 , ((λ x → +-rid x , +-lid x)
                   , λ x → (- x) , ((+-rinv x) , (+-linv x))))
                 , +-comm)
-              , (isSet-R
-                , (·-assoc
-                  , (·-rid
-                    , ·-lid)))
+              , ismonoid (issemigroup isSet-R ·-assoc) (λ x → ·-rid x , ·-lid x)
               , rdist
                 , ldist
 
@@ -243,8 +234,8 @@ module theory (R : Ring {ℓ}) where
   0-rightNullifies x =
               let x·0-is-idempotent : x · 0r ≡ x · 0r + x · 0r
                   x·0-is-idempotent =
-                    x · 0r              ≡⟨ cong (λ u → x · u) (sym 0-idempotent) ⟩
-                    x · (0r + 0r)        ≡⟨ (ring-rdist _ _ _) ⟩
+                    x · 0r               ≡⟨ cong (λ u → x · u) (sym 0-idempotent) ⟩
+                    x · (0r + 0r)        ≡⟨ ring-rdist _ _ _ ⟩
                     (x · 0r) + (x · 0r)  ∎
               in sym (+-idempotency→0 _ x·0-is-idempotent)
 
@@ -252,8 +243,8 @@ module theory (R : Ring {ℓ}) where
   0-leftNullifies x =
               let 0·x-is-idempotent : 0r · x ≡ 0r · x + 0r · x
                   0·x-is-idempotent =
-                    0r · x              ≡⟨ cong (λ u → u · x) (sym 0-idempotent) ⟩
-                    (0r + 0r) · x        ≡⟨ (ring-ldist _ _ _) ⟩
+                    0r · x               ≡⟨ cong (λ u → u · x) (sym 0-idempotent) ⟩
+                    (0r + 0r) · x        ≡⟨ ring-ldist _ _ _ ⟩
                     (0r · x) + (0r · x)  ∎
               in sym (+-idempotency→0 _ 0·x-is-idempotent)
 
@@ -262,7 +253,7 @@ module theory (R : Ring {ℓ}) where
 
                                (x · y + x · (- y)     ≡⟨ sym (ring-rdist _ _ _) ⟩
                                x · (y + (- y))        ≡⟨ cong (λ u → x · u) (ring+-rinv y) ⟩
-                               x · 0r                  ≡⟨ 0-rightNullifies x ⟩
+                               x · 0r                 ≡⟨ 0-rightNullifies x ⟩
                                0r ∎)
 
   -commutesWithLeft-· : (x y : ⟨ R ⟩) →  (- x) · y ≡ - (x · y)
@@ -270,7 +261,7 @@ module theory (R : Ring {ℓ}) where
 
                               (x · y + (- x) · y     ≡⟨ sym (ring-ldist _ _ _) ⟩
                               (x - x) · y            ≡⟨ cong (λ u → u · y) (ring+-rinv x) ⟩
-                              0r · y                  ≡⟨ 0-leftNullifies y ⟩
+                              0r · y                 ≡⟨ 0-leftNullifies y ⟩
                               0r ∎)
 
   -isDistributive : (x y : ⟨ R ⟩) →  (- x) + (- y) ≡ - (x + y)
@@ -303,3 +294,4 @@ module theory (R : Ring {ℓ}) where
               ((x + a) + ((- x) + (- b))) ≡⟨ cong (λ u → (x + a) + u)
                                                   (-isDistributive _ _) ⟩
               ((x + a) - (x + b)) ∎
+
