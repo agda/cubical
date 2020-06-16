@@ -3,7 +3,7 @@
 A parameterized family of structures can be combined into a single structure
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Structures.Parameterized where
 
 open import Cubical.Foundations.Prelude
