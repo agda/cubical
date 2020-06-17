@@ -47,6 +47,19 @@ isEquivTransport {A = A} {B = B} p =
 transportEquiv : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B
 transportEquiv p = (transport p , isEquivTransport p)
 
+transpEquiv : ∀ {ℓ} {A B : Type ℓ} (p : A ≡ B) → ∀ i → p i ≃ B
+transpEquiv P i .fst = transp (λ j → P (i ∨ j)) i
+transpEquiv P i .snd
+  = transp (λ k → isEquiv (transp (λ j → P (i ∨ (j ∧ k))) (i ∨ ~ k)))
+      i (idIsEquiv (P i))
+
+uaTransportη : ∀ {ℓ} {A B : Type ℓ} (P : A ≡ B) → ua (transportEquiv P) ≡ P
+uaTransportη P i j
+  = Glue (P i1) λ where
+      (j = i0) → P i0 , transportEquiv P
+      (i = i1) → P j , transpEquiv P j
+      (j = i1) → P i1 , idEquiv (P i1)
+
 pathToIso : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → Iso A B
 pathToIso x = iso (transport x) (transport⁻ x ) ( transportTransport⁻ x) (transport⁻Transport x)
 
