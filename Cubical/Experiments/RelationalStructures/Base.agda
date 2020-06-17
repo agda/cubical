@@ -189,27 +189,9 @@ isSNRSPointed : isSNRS {ℓ = ℓ} pointed-setStructure pointed-rel
 isSNRSPointed _ _ .quoᴸ = isContrSingl _
 isSNRSPointed _ _ .quoᴿ = isContrSingl _
 isSNRSPointed {A = _ , x} {_ , y} R r .path =
-  equivFun (compEquiv R≃Rᴿ (compEquiv effEquiv (invEquiv (ua-ungluePath-Equiv E.Thm)))) r
+  ua-gluePath (Bisim→Equiv.Thm R) (eq/ (S.fwd x) y (S.zigzag (S.bwdRel y) r (S.fwdRel x)))
   where
-  module E = Bisim→Equiv R
   module S = isBisimulation (R .snd)
-
-  effEquiv : E.Rᴿ (S.fwd x) y ≃ Path (_ / E.Rᴿ) [ S.fwd x ] [ y ]
-  effEquiv .fst = eq/ (S.fwd x) y
-  effEquiv .snd =
-    isEquivRel→isEffective
-      (λ _ _ → S.prop _ _)
-      (bisim→EquivRel (invBisim R) .snd)
-      (S.fwd x)
-      y
-
-  R≃Rᴿ : R .fst x y ≃ E.Rᴿ (S.fwd x) y
-  R≃Rᴿ =
-    isPropEquiv→Equiv
-      (S.prop x y)
-      (S.prop (S.bwd y) (S.fwd x))
-      (λ r → S.zigzag (S.bwdRel y) r (S.fwdRel x))
-      (λ s → S.zigzag (S.fwdRel x) s (S.bwdRel y))
 
 -- Product of structures
 
