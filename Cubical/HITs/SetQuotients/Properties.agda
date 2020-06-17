@@ -24,7 +24,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
-open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₀; ∣_∣₀; squash₀)
+open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂; ∣_∣₂; squash₂)
 
 -- Type quotients
 
@@ -148,7 +148,7 @@ effective {A = A} {R = R} Rprop (EquivRel R/refl R/sym R/trans) a b p = transpor
     aa≡ab i = fst (helper (p i))
 
 isEquivRel→isEffective : isPropValued R → isEquivRel R → isEffective R
-isEquivRel→isEffective {R = R} Rprop Req a b = isoToEquiv (iso intro out intro-out out-intro)
+isEquivRel→isEffective {R = R} Rprop Req a b = isoToIsEquiv (iso out intro out-intro intro-out)
   where
     intro : [ a ] ≡ [ b ] → R a b
     intro = effective Rprop Req a b

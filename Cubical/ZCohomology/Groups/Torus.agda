@@ -192,10 +192,10 @@ H⁰-T²≅0 =
   Iso'→Iso
     (iso'
       (iso (sRec isSetInt (λ f → f (north , north)))
-           (λ a → ∣ (λ x → a) ∣₀)
+           (λ a → ∣ (λ x → a) ∣₂)
            (λ a → refl)
            (sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                  λ f → cong ∣_∣₀
+                  λ f → cong ∣_∣₂
                       (funExt λ {(x , y) → suspToPropRec2
                                               {B = λ x y → f (north , north) ≡ f (x , y)}
                                               north
@@ -279,12 +279,12 @@ H¹-T²≅ℤ×ℤ =
                 (setTruncOfProdIso))
                 (sElim2
                     (λ _ _ → isOfHLevelPath 2 (isOfHLevelProd 2 setTruncIsSet setTruncIsSet) _ _)
-                    λ f g → ×≡ (cong ∣_∣₀
+                    λ f g → ×≡ (cong ∣_∣₂
                                      (funExt (λ x → helper (f (x , S¹→S1 base) +ₖ g (x , S¹→S1 base))
                                                    ∙ sym (cong₂ (λ x y → x +ₖ y)
                                                                 (helper (f (x , S¹→S1 base)))
                                                                 (helper (g (x , S¹→S1 base)))))))
-                                (cong ∣_∣₀
+                                (cong ∣_∣₂
                                    (funExt
                                      (suspToPropRec
                                         north

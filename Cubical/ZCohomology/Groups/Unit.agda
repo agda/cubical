@@ -17,31 +17,28 @@ open import Cubical.HITs.Truncation
 open import Cubical.Homotopy.Connected
 open import Cubical.Data.Unit
 open import Cubical.Data.Group.Base renaming (Iso to grIso ; compIso to compGrIso ; invIso to invGrIso ; idIso to idGrIso)
-open import Cubical.Data.Group.GroupLibrary
-open import Cubical.ZCohomology.coHomZero-map
-
 
 H⁰-Unit≅ℤ : grIso (coHomGr 0 Unit) intGroup
 grIso.fun H⁰-Unit≅ℤ = mph (sRec isSetInt (λ f → f tt))
                              (sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _)
                                      (λ a b → addLemma (a tt) (b tt)))
-grIso.inv H⁰-Unit≅ℤ = mph (λ a → ∣ (λ _ → a) ∣₀) (λ a b i → ∣ (λ _ → addLemma a b (~ i)) ∣₀)
+grIso.inv H⁰-Unit≅ℤ = mph (λ a → ∣ (λ _ → a) ∣₂) (λ a b i → ∣ (λ _ → addLemma a b (~ i)) ∣₂)
 grIso.rightInv H⁰-Unit≅ℤ a = refl
 grIso.leftInv H⁰-Unit≅ℤ = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _) λ a → refl
 
 
 {- Hⁿ(Unit) for n ≥ 1 -}
 isContrHⁿ-Unit : (n : ℕ) → isContr (coHom (suc n) Unit)
-isContrHⁿ-Unit n = subst isContr (λ i → ∥ UnitToTypeId (coHomK (suc n)) (~ i) ∥₀) (helper' n)
+isContrHⁿ-Unit n = subst isContr (λ i → ∥ UnitToTypeId (coHomK (suc n)) (~ i) ∥₂) (helper' n)
   where
-  helper' : (n : ℕ) → isContr (∥ coHomK (suc n) ∥₀)
+  helper' : (n : ℕ) → isContr (∥ coHomK (suc n) ∥₂)
   helper' n =
     subst isContr
       ((isoToPath (truncOfTruncIso {A = S₊ (1 + n)} 2 (1 + n)))
-         ∙∙ sym propTrunc≡Trunc0
-         ∙∙ λ i → ∥ hLevelTrunc (suc (+-comm n 2 i)) (S₊ (1 + n)) ∥₀)
+         ∙∙ sym propTrunc≡Trunc2
+         ∙∙ λ i → ∥ hLevelTrunc (suc (+-comm n 2 i)) (S₊ (1 + n)) ∥₂)
       (isConnectedSubtr 2 (helper2 n .fst)
-        (subst (λ x → isHLevelConnected x (S₊ (suc n))) (sym (helper2 n .snd)) (sphereConnected (suc n))) )
+        (subst (λ x → isConnected x (S₊ (suc n))) (sym (helper2 n .snd)) (sphereConnected (suc n))) )
     where
     helper2 : (n : ℕ) → Σ[ m ∈ ℕ ] m + 2  ≡ 2 + n
     helper2 zero = 0 , refl
@@ -50,7 +47,7 @@ isContrHⁿ-Unit n = subst isContr (λ i → ∥ UnitToTypeId (coHomK (suc n)) (
 Hⁿ-Unit≅0 : (n : ℕ) → grIso (coHomGr (suc n) Unit) trivialGroup
 grIso.fun (Hⁿ-Unit≅0 n) = mph (λ _ → tt)
                               (λ _ _ → refl)
-grIso.inv (Hⁿ-Unit≅0 n) = mph (λ _ → ∣ (λ _ → ∣ north ∣) ∣₀)
+grIso.inv (Hⁿ-Unit≅0 n) = mph (λ _ → ∣ (λ _ → ∣ north ∣) ∣₂)
                               (λ _ _ → sym (rUnitₕ 0ₕ))
 grIso.rightInv (Hⁿ-Unit≅0 n) _ = refl
 grIso.leftInv (Hⁿ-Unit≅0 n) _ = isOfHLevelSuc 0 (isContrHⁿ-Unit n) _ _

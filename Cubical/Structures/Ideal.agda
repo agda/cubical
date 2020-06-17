@@ -1,22 +1,20 @@
-{-# OPTIONS --cubical --safe #-}
-
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Structures.Ideal where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Logic using ([_]; _∈_)
+
 open import Cubical.Structures.Ring
 
 private
   variable
     ℓ : Level
 
-module _ (R′ : Ring {ℓ}) where
-  private
-    R = ⟨ R′ ⟩
+module _ (R' : Ring {ℓ}) where
 
-  open ring-syntax R′
+  open Ring R' renaming (Carrier to R)
 
   {- by default, 'ideal' means two-sided ideal -}
   record isIdeal (I : R → hProp ℓ) : Type ℓ where
@@ -47,15 +45,14 @@ module _ (R′ : Ring {ℓ}) where
 
   {- Examples of ideals -}
   zeroSubset : (x : R) → hProp ℓ
-  zeroSubset x = (x ≡ 0r) , ringIsSet R′ x 0r
+  zeroSubset x = (x ≡ 0r) , isSetRing R' _ _
 
-  open ring-axioms R′
-  open theory R′
+  open theory R'
 
   isIdealZeroIdeal : isIdeal zeroSubset
   isIdealZeroIdeal = record
                        { +-closed = λ x≡0 y≡0 → _ + _    ≡⟨ cong (λ u → u + _) x≡0 ⟩
-                                                0r + _    ≡⟨ ring+-lid _ ⟩
+                                                0r + _   ≡⟨ +-lid _ ⟩
                                                 _        ≡⟨ y≡0 ⟩
                                                 0r        ∎
                        ; -closed = λ x≡0 → - _ ≡⟨ cong (λ u → - u) x≡0 ⟩

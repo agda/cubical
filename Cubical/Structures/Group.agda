@@ -3,157 +3,212 @@ module Cubical.Structures.Group where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
-open import Cubical.Data.Sigma
-
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
-open import Cubical.Structures.Pointed
+open import Cubical.Data.Sigma
+
+open import Cubical.Structures.Macro
 open import Cubical.Structures.NAryOp
+open import Cubical.Structures.Pointed
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid hiding (⟨_⟩)
 
+open Iso
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ : Level
 
-raw-group-structure : Type ℓ → Type ℓ
-raw-group-structure = raw-semigroup-structure
+record IsGroup {G : Type ℓ}
+               (0g : G) (_+_ : G → G → G) (-_ : G → G) : Type ℓ where
 
-raw-group-is-SNS : SNS {ℓ} raw-group-structure _
-raw-group-is-SNS = raw-semigroup-is-SNS
+  constructor isgroup
 
--- The neutral element and the inverse function will be derived from the
--- axioms, instead of being defined in the raw-group-structure in order
--- to have that isomorphisms between groups are equivalences that preserves
--- multiplication (so we don't have to show that they also preserve inversion
--- and neutral element, although they will preserve them).
+  field
+    isMonoid  : IsMonoid 0g _+_
+    inverse   : (x : G) → (x + (- x) ≡ 0g) × ((- x) + x ≡ 0g)
 
-group-axioms : (G : Type ℓ) → raw-group-structure G → Type ℓ
-group-axioms G _·_ = semigroup-axioms G _·_ ×
-                     (Σ[ e ∈ G ] ((x : G) → (x · e ≡ x) × (e · x ≡ x)) ×
-                      ((x : G) → Σ[ x' ∈ G ] (x · x' ≡ e) × (x' · x ≡ e)))
+  open IsMonoid isMonoid public
 
-group-structure : Type ℓ → Type ℓ
-group-structure = add-to-structure raw-group-structure group-axioms
+  infixl 6 _-_
 
-Group : Type (ℓ-suc ℓ)
-Group {ℓ} = TypeWithStr ℓ group-structure
+  _-_ : G → G → G
+  x - y = x + (- y)
 
--- Extracting components of a group
-⟨_⟩ : Group {ℓ} → Type ℓ
-⟨ G , _ ⟩ = G
+  invl : (x : G) → (- x) + x ≡ 0g
+  invl x = inverse x .snd
 
-group-operation : (G : Group {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
-group-operation (_ , f , _) = f
+  invr : (x : G) → x + (- x) ≡ 0g
+  invr x = inverse x .fst
 
-module group-operation-syntax where
+  -- uniqueness of inverse?
 
-  group-operation-syntax : (G : Group {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
-  group-operation-syntax = group-operation
-  infixr 20 group-operation-syntax
-  syntax group-operation-syntax G x y = x ·⟨ G ⟩ y
+record Group : Type (ℓ-suc ℓ) where
 
-open group-operation-syntax
+  constructor group
 
-group-is-set : (G : Group {ℓ}) → isSet ⟨ G ⟩
-group-is-set (_ , _ , (P , _) , _) = P
+  field
+    Carrier : Type ℓ
+    0g      : Carrier
+    _+_     : Carrier → Carrier → Carrier
+    -_      : Carrier → Carrier
+    isGroup : IsGroup 0g _+_ -_
 
-group-assoc : (G : Group {ℓ})
-            → (x y z : ⟨ G ⟩) → (x ·⟨ G ⟩ (y ·⟨ G ⟩ z)) ≡ ((x ·⟨ G ⟩ y) ·⟨ G ⟩ z)
-group-assoc (_ , _ , (_ , P) , _) = P
+  infix  8 -_
+  infixl 7 _+_
 
--- Defining identity
+  open IsGroup isGroup public
 
-group-id : (G : Group {ℓ}) → ⟨ G ⟩
-group-id (_ , _ , _ , P) = fst P
+-- Extractor for the carrier type
+⟨_⟩ : Group → Type ℓ
+⟨_⟩ = Group.Carrier
 
-group-rid : (G : Group {ℓ})
-          → (x : ⟨ G ⟩) → x ·⟨ G ⟩ (group-id G) ≡ x
-group-rid (_ , _ , _ , P) x = fst ((fst (snd P)) x)
+-- TODO: we don't need all of these arguments...
+makeIsGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
+              (is-setG : isSet G)
+              (assoc : (x y z : G) → x + (y + z) ≡ (x + y) + z)
+              (rid : (x : G) → x + 0g ≡ x)
+              (lid : (x : G) → 0g + x ≡ x)
+              (rinv : (x : G) → x + (- x) ≡ 0g)
+              (linv : (x : G) → (- x) + x ≡ 0g)
+            → IsGroup 0g _+_ -_
+makeIsGroup is-setG assoc rid lid rinv linv =
+   isgroup (makeIsMonoid is-setG assoc rid lid) λ x → rinv x , linv x
 
-group-lid : (G : Group {ℓ})
-          → (x : ⟨ G ⟩) → (group-id G) ·⟨ G ⟩ x ≡ x
-group-lid (_ , _ , _ , P) x = snd ((fst (snd P)) x)
+makeGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
+            (is-setG : isSet G)
+            (assoc : (x y z : G) → x + (y + z) ≡ (x + y) + z)
+            (rid : (x : G) → x + 0g ≡ x)
+            (lid : (x : G) → 0g + x ≡ x)
+            (rinv : (x : G) → x + (- x) ≡ 0g)
+            (linv : (x : G) → (- x) + x ≡ 0g)
+          → Group
+makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv =
+  group _ 0g _+_ -_ (makeIsGroup is-setG assoc rid lid rinv linv)
 
--- Defining the inverse function
-group-inv : (G : Group {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩
-group-inv (_ , _ , _ , P) x = fst ((snd (snd P)) x)
 
-group-rinv : (G : Group {ℓ})
-               → (x : ⟨ G ⟩) → x ·⟨ G ⟩ (group-inv G x) ≡ group-id G
-group-rinv (_ , _ , _ , P) x = fst (snd ((snd (snd P)) x))
+record GroupIso (G H : Group {ℓ}) : Type ℓ where
 
-group-linv : (G : Group {ℓ})
-               → (x : ⟨ G ⟩) → (group-inv G x) ·⟨ G ⟩ x ≡ group-id G
-group-linv (_ , _ , _ , P) x = snd (snd ((snd (snd P)) x))
+  constructor groupiso
 
--- Iso for groups are those for monoids
-group-iso : StrIso group-structure ℓ
-group-iso = add-to-iso (binaryFunIso pointed-iso) group-axioms
+  private
+    module G = Group G
+    module H = Group H
 
--- Group axioms isProp
+  field
+    e : ⟨ G ⟩ ≃ ⟨ H ⟩
+    isHom : (x y : ⟨ G ⟩) → equivFun e (x G.+ y) ≡ equivFun e x H.+ equivFun e y
 
-group-axioms-isProp : (X : Type ℓ)
-                    → (s : raw-group-structure X)
-                    → isProp (group-axioms X s)
-group-axioms-isProp X s t = η t
+
+module GroupΣ-theory {ℓ} where
+
+  raw-group-structure : Type ℓ → Type ℓ
+  raw-group-structure = SemigroupΣ-theory.raw-semigroup-structure
+
+  raw-group-is-SNS : SNS raw-group-structure _
+  raw-group-is-SNS = SemigroupΣ-theory.raw-semigroup-is-SNS
+
+  -- The neutral element and the inverse function will be derived from the
+  -- axioms, instead of being defined in the raw-group-structure in order
+  -- to have that isomorphisms between groups are equivalences that preserves
+  -- multiplication (so we don't have to show that they also preserve inversion
+  -- and neutral element, although they will preserve them).
+  group-axioms : (G : Type ℓ) → raw-group-structure G → Type ℓ
+  group-axioms G _·_ =
+      IsSemigroup _·_
+    × (Σ[ e ∈ G ] ((x : G) → (x · e ≡ x) × (e · x ≡ x))
+                × ((x : G) → Σ[ x' ∈ G ] (x · x' ≡ e) × (x' · x ≡ e)))
+
+  group-structure : Type ℓ → Type ℓ
+  group-structure = add-to-structure raw-group-structure group-axioms
+
+  GroupΣ : Type (ℓ-suc ℓ)
+  GroupΣ = TypeWithStr ℓ group-structure
+
+  -- Iso for groups are those for monoids (but different axioms)
+  group-iso : StrIso group-structure ℓ
+  group-iso = add-to-iso (binaryFunIso pointed-iso) group-axioms
+
+  open monoid-theory
+
+  isProp-group-axioms : (G : Type ℓ)
+                      → (s : raw-group-structure G)
+                      → isProp (group-axioms G s)
+  isProp-group-axioms G _+_ = isPropΣ (isPropIsSemigroup _) γ
+    where
+    γ : (h : IsSemigroup _+_) →
+        isProp (Σ[ e ∈ G ] ((x : G) → (x + e ≡ x) × (e + x ≡ x))
+                         × ((x : G) → Σ[ x' ∈ G ] (x + x' ≡ e) × (x' + x ≡ e)))
+    γ h (e , P , _) (e' , Q , _) =
+      Σ≡Prop (λ x → isPropΣ (isPropΠ λ _ → isProp× (isSetG _ _) (isSetG _ _)) (β x))
+             (sym (fst (Q e)) ∙ snd (P e'))
+      where
+      isSetG : isSet G
+      isSetG = IsSemigroup.is-set h
+
+      β : (e : G) → ((x : G) → (x + e ≡ x) × (e + x ≡ x))
+        → isProp ((x : G) → Σ[ x' ∈ G ] (x + x' ≡ e) × (x' + x ≡ e))
+      β e He =
+        isPropΠ λ { x (x' , _ , P) (x'' , Q , _) →
+                Σ≡Prop (λ _ → isProp× (isSetG _ _) (isSetG _ _))
+                       (inv-lemma ℳ x x' x'' P Q) }
+        where
+          ℳ : Monoid
+          ℳ = makeMonoid e _+_ isSetG (IsSemigroup.assoc h) (λ x → He x .fst) (λ x → He x .snd)
+
+  Group→GroupΣ : Group → GroupΣ
+  Group→GroupΣ (group _ _ _ -_ isGroup) =
+   _ , _ , IsMonoid.isSemigroup (IsGroup.isMonoid isGroup) ,
+   _ , IsMonoid.identity (IsGroup.isMonoid isGroup) ,
+   λ x → (- x) , IsGroup.inverse isGroup x
+
+  GroupΣ→Group : GroupΣ → Group
+  GroupΣ→Group (_ , _ , SG , _ , H0g , w ) =
+     group _ _ _ (λ x → w x .fst) (isgroup (ismonoid SG H0g) λ x → w x .snd)
+
+  GroupIsoGroupΣ : Iso Group GroupΣ
+  GroupIsoGroupΣ = iso Group→GroupΣ GroupΣ→Group (λ _ → refl) (λ _ → refl)
+
+  group-is-SNS : SNS group-structure group-iso
+  group-is-SNS = add-axioms-SNS _ isProp-group-axioms raw-group-is-SNS
+
+  GroupΣPath : (G H : GroupΣ) → (G ≃[ group-iso ] H) ≃ (G ≡ H)
+  GroupΣPath = SIP group-is-SNS
+
+  GroupIsoΣ : (G H : Group) → Type ℓ
+  GroupIsoΣ G H = Group→GroupΣ G ≃[ group-iso ] Group→GroupΣ H
+
+  GroupIsoΣPath : {G H : Group} → Iso (GroupIso G H) (GroupIsoΣ G H)
+  fun GroupIsoΣPath (groupiso e h) = (e , h)
+  inv GroupIsoΣPath (e , h)        = groupiso e h
+  rightInv GroupIsoΣPath _         = refl
+  leftInv GroupIsoΣPath _          = refl
+
+  GroupPath : (G H : Group) → (GroupIso G H) ≃ (G ≡ H)
+  GroupPath G H =
+    GroupIso G H                    ≃⟨ isoToEquiv GroupIsoΣPath ⟩
+    GroupIsoΣ G H                   ≃⟨ GroupΣPath _ _ ⟩
+    Group→GroupΣ G ≡ Group→GroupΣ H ≃⟨ isoToEquiv (invIso (congIso GroupIsoGroupΣ)) ⟩
+    G ≡ H ■
+
+-- Extract the characterization of equality of groups
+GroupPath : (G H : Group {ℓ}) → (GroupIso G H) ≃ (G ≡ H)
+GroupPath = GroupΣ-theory.GroupPath
+
+-- This is easier to just prove directly for groups as the GroupΣ is
+-- so different from the record
+isPropIsGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
+              → isProp (IsGroup 0g _+_ -_)
+isPropIsGroup 0g _+_ -_ (isgroup GM Ginv) (isgroup HM Hinv) =
+  λ i → isgroup (isPropIsMonoid _ _ GM HM i) (isPropInv Ginv Hinv i)
   where
-  𝒢 : Group
-  𝒢 = X , s , t
+  isSetG : isSet _
+  isSetG = IsSemigroup.is-set (IsMonoid.isSemigroup GM)
 
-  is-identity : X → Type _
-  is-identity e = (x : X) → (x ·⟨ 𝒢 ⟩ e ≡ x) × (e ·⟨ 𝒢 ⟩ x ≡ x)
-
-  α : (e : X) → isProp (is-identity e)
-  α e = isPropΠ (λ _ → isPropΣ (group-is-set 𝒢 _ _) (λ _ → group-is-set 𝒢 _ _))
-
-  β : (e : X) → is-identity e → isProp ((x : X) → Σ[ x' ∈ X ] (x ·⟨ 𝒢 ⟩ x' ≡ e) × (x' ·⟨ 𝒢 ⟩ x ≡ e))
-  β e is-identity-e =
-   isPropΠ λ { x (x' , _ , P) (x'' , Q , _) →
-   Σ≡Prop
-     (λ _ → isPropΣ (group-is-set 𝒢 _ _) (λ _ → group-is-set 𝒢 _ _))
-     (inv-lemma ℳ x x' x'' P Q) }
-   where
-    ℳ : Monoid
-    ℳ = ⟨ 𝒢 ⟩ , (e , group-operation 𝒢) ,
-        group-is-set 𝒢 ,
-        group-assoc 𝒢 ,
-        (λ x → fst (is-identity-e x)) ,
-        (λ x → snd (is-identity-e x))
-
-
-  γ : isProp (Σ[ e ∈ X ] ((x : X) → (x ·⟨ 𝒢 ⟩ e ≡ x) × (e ·⟨ 𝒢 ⟩ x ≡ x)) ×
-                         ((x : X) → Σ[ x' ∈ X ] (x ·⟨ 𝒢 ⟩ x' ≡ e) × (x' ·⟨ 𝒢 ⟩ x ≡ e)))
-  γ (e , P , _) (e' , Q , _) = Σ≡Prop (λ e → isPropΣ (α e) λ is-identity-e → β e is-identity-e)
-                                      (e          ≡⟨ sym (fst (Q e)) ⟩
-                                      e ·⟨ 𝒢 ⟩ e' ≡⟨ snd (P e') ⟩
-                                      e' ∎)
-
-  η : isProp (group-axioms X s)
-  η = isPropΣ (semigroup-axiom-isProp X s) λ _ → γ
-
--- Group paths equivalent to equality
-group-is-SNS : SNS {ℓ} group-structure group-iso
-group-is-SNS = add-axioms-SNS _ group-axioms-isProp raw-group-is-SNS
-
-GroupPath : (M N : Group {ℓ}) → (M ≃[ group-iso ] N) ≃ (M ≡ N)
-GroupPath = SIP group-is-SNS
-
--- Group ·syntax
-
-module group-·syntax (G : Group {ℓ}) where
-
-  infixr 18 _·_
-
-  _·_ : ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
-  _·_ = group-operation G
-
-  ₁ : ⟨ G ⟩
-  ₁ = group-id G
-
-  infix 19 _⁻¹
-
-  _⁻¹ : ⟨ G ⟩ → ⟨ G ⟩
-  _⁻¹ = group-inv G
+  isPropInv : isProp ((x : _) → ((x + (- x)) ≡ 0g) × (((- x) + x) ≡ 0g))
+  isPropInv = isPropΠ λ _ → isProp× (isSetG _ _) (isSetG _ _)

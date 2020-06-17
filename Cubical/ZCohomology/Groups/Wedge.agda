@@ -42,13 +42,13 @@ private
   Iso''.ϕ (H¹-⋁'' {A = A} {B = B}) = (MV.i (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B) 1)
   Iso''.inj (H¹-⋁'' {A = A} {B = B}) = -- Requires a "useless" elimination to terminate
     sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-          λ f inker → helper ∣ f ∣₀ (MV.Ker-i⊂Im-d _ _ Unit (λ _ → pt A) (λ _ → pt B) 0 ∣ f ∣₀ inker)
+          λ f inker → helper ∣ f ∣₂ (MV.Ker-i⊂Im-d _ _ Unit (λ _ → pt A) (λ _ → pt B) 0 ∣ f ∣₂ inker)
     where
     surj-helper : (x : coHom 0 Unit)
             → isInIm (×coHomGr 0 (typ A) (typ B)) (coHomGr 0 Unit) (Δ {A = A} {B = B} 0) x
     surj-helper =
       sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
-            λ f → ∣ (∣ (λ _ → f tt) ∣₀ , 0ₕ) , cong ∣_∣₀ (funExt (λ _ → cong ((f tt) +ₖ_) -0ₖ ∙ rUnitₖ (f tt))) ∣₋₁
+            λ f → ∣ (∣ (λ _ → f tt) ∣₂ , 0ₕ) , cong ∣_∣₂ (funExt (λ _ → cong ((f tt) +ₖ_) -0ₖ ∙ rUnitₖ (f tt))) ∣₋₁
 
     helper : (x : coHom 1 (A ⋁ B)) → isInIm (coHomGr 0 Unit) (coHomGr 1 _) (d {A = A} {B = B} 0) x
                   → x ≡ 0ₕ

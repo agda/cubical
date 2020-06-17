@@ -36,10 +36,10 @@ H⁰-S¹⋁S¹ =
     (iso'
       (iso
         (sRec isSetInt (λ f → f (inl north)))
-        (λ a → ∣ (λ _ → a) ∣₀)
+        (λ a → ∣ (λ _ → a) ∣₂)
         (λ _ → refl)
         (sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-               (λ f → cong ∣_∣₀
+               (λ f → cong ∣_∣₂
                            (funExt (PushoutToProp
                                       (λ _ → isSetInt _ _)
                                       (suspToPropRec north (λ _ → isSetInt _ _) refl)
@@ -58,16 +58,16 @@ H⁰-S²⋁S¹⋁S¹ =
     (Iso'→Iso
       (iso'
         (iso
-          (λ a →  ∣ (λ _ → a) ∣₀)
+          (λ a →  ∣ (λ _ → a) ∣₂)
           (sRec isSetInt (λ f → f (inl north)))
           (sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                 λ a → cong ∣_∣₀ (funExt (PushoutToProp (λ _ → isSetInt _ _)
+                 λ a → cong ∣_∣₂ (funExt (PushoutToProp (λ _ → isSetInt _ _)
                                            (suspToPropRec north (λ _ → isSetInt _ _) refl)
                                            (PushoutToProp (λ _ → isSetInt _ _)
                                              (suspToPropRec north (λ _ → isSetInt _ _) (cong a (push tt)))
                                              (suspToPropRec north (λ _ → isSetInt _ _) (cong a (push tt ∙ λ i → inr (push tt i))))))))
           (λ _ → refl))
-        λ a b → cong ∣_∣₀ (funExt λ _ → sym (addLemma a b))))
+        λ a b → cong ∣_∣₂ (funExt λ _ → sym (addLemma a b))))
 
 ------------- H¹(S²⋁S¹⋁S¹) ---------
 H¹-S²⋁S¹⋁S¹ : grIso (coHomGr 1 S²⋁S¹⋁S¹) (dirProd intGroup intGroup)
