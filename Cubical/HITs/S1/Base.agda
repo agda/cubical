@@ -170,96 +170,96 @@ private
                    ; (j = i1) → loop (i ∧ (~ t)) })
           (inS (x j)) l
 
-ΩS¹→basedΩS¹ : (i : I) → ΩS¹ → basedΩS¹ (loop i)
-ΩS¹→basedΩS¹ i x j = ΩS¹→basedΩS¹-filler i1 i x j
+  ΩS¹→basedΩS¹ : (i : I) → ΩS¹ → basedΩS¹ (loop i)
+  ΩS¹→basedΩS¹ i x j = ΩS¹→basedΩS¹-filler i1 i x j
 
-basedΩS¹→ΩS¹ : (i : I) → basedΩS¹ (loop i) → ΩS¹
-basedΩS¹→ΩS¹ i x j = basedΩS¹→ΩS¹-filler i1 i x j
-
-
-
-basedΩS¹→ΩS¹→basedΩS¹ : (i : I) → (x : basedΩS¹ (loop i))
-                        → ΩS¹→basedΩS¹ i (basedΩS¹→ΩS¹ i x) ≡ x
-basedΩS¹→ΩS¹→basedΩS¹ i x j k =
-  hcomp (λ t → λ { (j = i1) → basedΩS¹→ΩS¹-filler (~ t) i x k
-                 ; (j = i0) → ΩS¹→basedΩS¹ i (basedΩS¹→ΩS¹ i x) k
-                 ; (k = i0) → loop (i ∧ (t ∨ (~ j)))
-                 ; (k = i1) → loop (i ∧ (t ∨ (~ j))) })
-        (ΩS¹→basedΩS¹-filler (~ j) i (basedΩS¹→ΩS¹ i x) k)
-
-ΩS¹→basedΩS¹→ΩS¹ : (i : I) → (x : ΩS¹)
-                        → basedΩS¹→ΩS¹ i (ΩS¹→basedΩS¹ i x) ≡ x
-ΩS¹→basedΩS¹→ΩS¹ i x j k =
-  hcomp (λ t → λ { (j = i1) → ΩS¹→basedΩS¹-filler (~ t) i x k
-                 ; (j = i0) → basedΩS¹→ΩS¹ i (ΩS¹→basedΩS¹ i x) k
-                 ; (k = i0) → loop (i ∧ ((~ t) ∧ j))
-                 ; (k = i1) → loop (i ∧ ((~ t) ∧ j)) })
-        (basedΩS¹→ΩS¹-filler (~ j) i (ΩS¹→basedΩS¹ i x) k)
-
--- from the existence of our quasi-inverse, we deduce that the basechange is an equivalence
--- for all loop i
-
-basedΩS¹→ΩS¹-isequiv : (i : I) → isEquiv (basedΩS¹→ΩS¹ i)
-basedΩS¹→ΩS¹-isequiv i = isoToIsEquiv (iso (basedΩS¹→ΩS¹ i) (ΩS¹→basedΩS¹ i)
-                 (ΩS¹→basedΩS¹→ΩS¹ i) (basedΩS¹→ΩS¹→basedΩS¹ i))
+  basedΩS¹→ΩS¹ : (i : I) → basedΩS¹ (loop i) → ΩS¹
+  basedΩS¹→ΩS¹ i x j = basedΩS¹→ΩS¹-filler i1 i x j
 
 
--- now extend the basechange so that both ends match
--- (and therefore we get a basechange for any x : S¹)
 
-loop-conjugation : basedΩS¹→ΩS¹ i1 ≡ λ x → x
-loop-conjugation i x =
-  let p = (doubleCompPath-elim loop x (sym loop))
-          ∙ (λ i → (lUnit loop i ∙ x) ∙ sym loop)
-  in
-  ((sym (decodeEncode base (basedΩS¹→ΩS¹ i1 x)))
-  ∙ (λ t → intLoop (winding (p t)))
-  ∙ (λ t → intLoop (winding-hom (intLoop (pos (suc zero)) ∙ x)
-                                (intLoop (negsuc zero)) t))
-  ∙ (λ t → intLoop ((winding-hom (intLoop (pos (suc zero))) x t)
-                    + (windingIntLoop (negsuc zero) t)))
-  ∙ (λ t → intLoop (((windingIntLoop (pos (suc zero)) t) + (winding x)) + (negsuc zero)))
-  ∙ (λ t → intLoop ((+-comm (pos (suc zero)) (winding x) t) + (negsuc zero)))
-  ∙ (λ t → intLoop (+-assoc (winding x) (pos (suc zero)) (negsuc zero) (~ t)))
-  ∙ (decodeEncode base x)) i
+  basedΩS¹→ΩS¹→basedΩS¹ : (i : I) → (x : basedΩS¹ (loop i))
+                          → ΩS¹→basedΩS¹ i (basedΩS¹→ΩS¹ i x) ≡ x
+  basedΩS¹→ΩS¹→basedΩS¹ i x j k =
+    hcomp (λ t → λ { (j = i1) → basedΩS¹→ΩS¹-filler (~ t) i x k
+                   ; (j = i0) → ΩS¹→basedΩS¹ i (basedΩS¹→ΩS¹ i x) k
+                   ; (k = i0) → loop (i ∧ (t ∨ (~ j)))
+                   ; (k = i1) → loop (i ∧ (t ∨ (~ j))) })
+          (ΩS¹→basedΩS¹-filler (~ j) i (basedΩS¹→ΩS¹ i x) k)
 
-refl-conjugation : basedΩS¹→ΩS¹ i0 ≡ λ x → x
-refl-conjugation i x j =
-  hfill (λ t → λ { (j = i0) → base
-                 ; (j = i1) → base })
-        (inS (x j)) (~ i)
+  ΩS¹→basedΩS¹→ΩS¹ : (i : I) → (x : ΩS¹)
+                          → basedΩS¹→ΩS¹ i (ΩS¹→basedΩS¹ i x) ≡ x
+  ΩS¹→basedΩS¹→ΩS¹ i x j k =
+    hcomp (λ t → λ { (j = i1) → ΩS¹→basedΩS¹-filler (~ t) i x k
+                   ; (j = i0) → basedΩS¹→ΩS¹ i (ΩS¹→basedΩS¹ i x) k
+                   ; (k = i0) → loop (i ∧ ((~ t) ∧ j))
+                   ; (k = i1) → loop (i ∧ ((~ t) ∧ j)) })
+          (basedΩS¹→ΩS¹-filler (~ j) i (ΩS¹→basedΩS¹ i x) k)
 
-basechange : (x : S¹) → basedΩS¹ x → ΩS¹
-basechange base y = y
-basechange (loop i) y =
-  hcomp (λ t → λ { (i = i0) → refl-conjugation t y
-                 ; (i = i1) → loop-conjugation t y })
-        (basedΩS¹→ΩS¹ i y)
+  -- from the existence of our quasi-inverse, we deduce that the basechange is an equivalence
+  -- for all loop i
 
--- for any loop i, the old basechange is equal to the new one
-basedΩS¹→ΩS¹≡basechange : (i : I) → basedΩS¹→ΩS¹ i ≡ basechange (loop i)
-basedΩS¹→ΩS¹≡basechange i j y =
-  hfill (λ t → λ { (i = i0) → refl-conjugation t y
-                 ; (i = i1) → loop-conjugation t y })
-        (inS (basedΩS¹→ΩS¹ i y)) j
-
--- so for any loop i, the extended basechange is an equivalence
-basechange-isequiv-aux : (i : I) → isEquiv (basechange (loop i))
-basechange-isequiv-aux i =
-  transport (λ j → isEquiv (basedΩS¹→ΩS¹≡basechange i j)) (basedΩS¹→ΩS¹-isequiv i)
+  basedΩS¹→ΩS¹-isequiv : (i : I) → isEquiv (basedΩS¹→ΩS¹ i)
+  basedΩS¹→ΩS¹-isequiv i = isoToIsEquiv (iso (basedΩS¹→ΩS¹ i) (ΩS¹→basedΩS¹ i)
+                   (ΩS¹→basedΩS¹→ΩS¹ i) (basedΩS¹→ΩS¹→basedΩS¹ i))
 
 
--- as being an equivalence is contractible, basechange is an equivalence for all x : S¹
-basechange-isequiv : (x : S¹) → isEquiv (basechange x)
-basechange-isequiv base = basechange-isequiv-aux i0
-basechange-isequiv (loop i) =
-  hcomp (λ t → λ { (i = i0) → basechange-isequiv-aux i0
-                 ; (i = i1) → isPropIsEquiv (basechange base) (basechange-isequiv-aux i1)
-                                            (basechange-isequiv-aux i0) t })
-        (basechange-isequiv-aux i)
+  -- now extend the basechange so that both ends match
+  -- (and therefore we get a basechange for any x : S¹)
 
-basedΩS¹≡ΩS¹ : (x : S¹) → basedΩS¹ x ≡ ΩS¹
-basedΩS¹≡ΩS¹ x = ua (basechange x , basechange-isequiv x)
+  loop-conjugation : basedΩS¹→ΩS¹ i1 ≡ λ x → x
+  loop-conjugation i x =
+    let p = (doubleCompPath-elim loop x (sym loop))
+            ∙ (λ i → (lUnit loop i ∙ x) ∙ sym loop)
+    in
+    ((sym (decodeEncode base (basedΩS¹→ΩS¹ i1 x)))
+    ∙ (λ t → intLoop (winding (p t)))
+    ∙ (λ t → intLoop (winding-hom (intLoop (pos (suc zero)) ∙ x)
+                                  (intLoop (negsuc zero)) t))
+    ∙ (λ t → intLoop ((winding-hom (intLoop (pos (suc zero))) x t)
+                      + (windingIntLoop (negsuc zero) t)))
+    ∙ (λ t → intLoop (((windingIntLoop (pos (suc zero)) t) + (winding x)) + (negsuc zero)))
+    ∙ (λ t → intLoop ((+-comm (pos (suc zero)) (winding x) t) + (negsuc zero)))
+    ∙ (λ t → intLoop (+-assoc (winding x) (pos (suc zero)) (negsuc zero) (~ t)))
+    ∙ (decodeEncode base x)) i
+
+  refl-conjugation : basedΩS¹→ΩS¹ i0 ≡ λ x → x
+  refl-conjugation i x j =
+    hfill (λ t → λ { (j = i0) → base
+                   ; (j = i1) → base })
+          (inS (x j)) (~ i)
+
+  basechange : (x : S¹) → basedΩS¹ x → ΩS¹
+  basechange base y = y
+  basechange (loop i) y =
+    hcomp (λ t → λ { (i = i0) → refl-conjugation t y
+                   ; (i = i1) → loop-conjugation t y })
+          (basedΩS¹→ΩS¹ i y)
+
+  -- for any loop i, the old basechange is equal to the new one
+  basedΩS¹→ΩS¹≡basechange : (i : I) → basedΩS¹→ΩS¹ i ≡ basechange (loop i)
+  basedΩS¹→ΩS¹≡basechange i j y =
+    hfill (λ t → λ { (i = i0) → refl-conjugation t y
+                   ; (i = i1) → loop-conjugation t y })
+          (inS (basedΩS¹→ΩS¹ i y)) j
+
+  -- so for any loop i, the extended basechange is an equivalence
+  basechange-isequiv-aux : (i : I) → isEquiv (basechange (loop i))
+  basechange-isequiv-aux i =
+    transport (λ j → isEquiv (basedΩS¹→ΩS¹≡basechange i j)) (basedΩS¹→ΩS¹-isequiv i)
+
+
+  -- as being an equivalence is contractible, basechange is an equivalence for all x : S¹
+  basechange-isequiv : (x : S¹) → isEquiv (basechange x)
+  basechange-isequiv base = basechange-isequiv-aux i0
+  basechange-isequiv (loop i) =
+    hcomp (λ t → λ { (i = i0) → basechange-isequiv-aux i0
+                   ; (i = i1) → isPropIsEquiv (basechange base) (basechange-isequiv-aux i1)
+                                              (basechange-isequiv-aux i0) t })
+          (basechange-isequiv-aux i)
+
+  basedΩS¹≡ΩS¹ : (x : S¹) → basedΩS¹ x ≡ ΩS¹
+  basedΩS¹≡ΩS¹ x = ua (basechange x , basechange-isequiv x)
 
 basedΩS¹≡Int : (x : S¹) → basedΩS¹ x ≡ Int
 basedΩS¹≡Int x = (basedΩS¹≡ΩS¹ x) ∙ ΩS¹≡Int
