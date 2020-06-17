@@ -110,6 +110,11 @@ module _ (R' : Ring {ℓ}) where
   sumVecExt {n = zero} _    = refl
   sumVecExt {n = suc n} h i = h zero i + sumVecExt (h ∘ suc) i
 
+  sumVecExchange : ∀ {m n} → (M : FinMatrix R m n) → ∑ (λ i → ∑ (λ j → M i j)) ≡ ∑ (λ j → ∑ (λ i → M i j))
+  sumVecExchange {m = zero} {n = n} M = {!!}
+  sumVecExchange {m = suc m} {n = zero} M = {!!}
+  sumVecExchange {m = suc m} {n = suc n} M = {!sumVecExchange (λ i j → M (suc i) (suc j))!}
+
   sumVecMulrdist : ∀ {n} → (x : R) → (V : FinVec R n)
                  → x · ∑ V ≡ ∑ λ i → x · V i
   sumVecMulrdist {n = zero}  x _ = 0-rightNullifies x
@@ -183,7 +188,12 @@ module _ (R' : Ring {ℓ}) where
 
   mulFinMatrixAssoc : ∀ {m n k l} → (M : FinMatrix R m n) → (N : FinMatrix R n k) → (K : FinMatrix R k l)
                    → mulFinMatrix M (mulFinMatrix N K) ≡ mulFinMatrix (mulFinMatrix M N) K
-  mulFinMatrixAssoc M N K i j k = {!!}
+  mulFinMatrixAssoc M N K = funExt₂ λ i j →
+    ∑ (λ k → M i k · ∑ (λ l → N k l · K l j))   ≡⟨ sumVecExt (λ k → sumVecMulrdist (M i k) (λ l → N k l · K l j)) ⟩
+    ∑ (λ k → ∑ (λ l → M i k · (N k l · K l j))) ≡⟨ sumVecExt (λ k → sumVecExt (λ l → ·-assoc (M i k) (N k l) (K l j))) ⟩
+    ∑ (λ k → ∑ (λ l → M i k · N k l · K l j))   ≡⟨ sumVecExchange (λ k l → M i k · N k l · K l j) ⟩
+    ∑ (λ l → ∑ (λ k → M i k · N k l · K l j))   ≡⟨ sumVecExt (λ l → sym (sumVecMulldist (K l j) (λ k → M i k · N k l))) ⟩
+    ∑ (λ l → ∑ (λ k → M i k · N k l) · K l j)   ∎
 
   mulFinMatrixr1 : ∀ {m n} → (M : FinMatrix R m n) → mulFinMatrix M oneFinMatrix ≡ M
   mulFinMatrixr1 M = funExt₂ λ i j → sumVecMulr1 _ (M i) j
