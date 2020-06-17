@@ -63,7 +63,7 @@ morph.fun (grIso.inv (coHomPushout≅coHomSn n m)) =
        (λ f → ∣ (λ {north → f (inl tt)
                   ; south → f (inr tt)
                   ; (merid a i) → f (push a i)}) ∣₂)
-morph.ismorph (grIso.inv (coHomPushout≅coHomSn n m)) = 
+morph.ismorph (grIso.inv (coHomPushout≅coHomSn n m)) =
   sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
          λ a b → cong ∣_∣₂ (funExt λ {north → refl
                                     ; south → refl
@@ -139,7 +139,7 @@ H¹-S¹≅ℤ =
                                  (∣ (λ _ → x) ∣₂ , ∣ (λ _ → 0) ∣₂) ,
                                               (cong ∣_∣₂ (funExt (surjHelper x))) ∙ sym id ∣₋₁ }) surj) )
     (invGrIso (coHomPushout≅coHomSn 0 1))
-                                              
+
   where
   surjHelper :  (x : Int) (x₁ : S₊ 0) → x +ₖ (-ₖ pos 0) ≡ S0→Int (x , x) x₁
   surjHelper x north = cong (x +ₖ_) (-0ₖ) ∙ rUnitₖ x
@@ -166,7 +166,7 @@ H¹-S¹≅ℤ =
     helper2 : (f g : Unit → Int)
             → Σ[ x ∈ Int ] morph.fun (grIso.inv H⁰-S⁰≅ℤ×ℤ) (x , x)
              ≡ morph.fun (MV.Δ Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt) 0) (∣ f ∣₂ , ∣ g ∣₂)
-    helper2 f g = (f _ +ₖ (-ₖ g _) ) , cong ∣_∣₂ (funExt (λ {north → refl ; south → refl})) 
+    helper2 f g = (f _ +ₖ (-ₖ g _) ) , cong ∣_∣₂ (funExt (λ {north → refl ; south → refl}))
 
 
 ---------------------------- Hⁿ(Sⁿ) ≅ ℤ , n ≥ 1 -------------------
@@ -199,7 +199,7 @@ Hⁿ-Sⁿ≅ℤ (suc n) =
 
 
 ------------------------- H¹(S⁰) ≅ 0 -------------------------------
-H¹-S⁰≅0 : grIso (coHomGr 1 (S₊ 0)) trivialGroup 
+H¹-S⁰≅0 : grIso (coHomGr 1 (S₊ 0)) trivialGroup
 H¹-S⁰≅0 =
   Iso'→Iso
     (iso'
@@ -216,7 +216,7 @@ H¹-S⁰≅0 =
    helper f =
      elim2 (λ _ _ → isOfHLevelΠ 3 λ _ → isOfHLevelΠ 3 λ _ → isOfHLevelPlus {n = 1} 2 propTruncIsProp)
            (suspToPropRec2 north (λ _ _ → isOfHLevelΠ 1 λ _ → isOfHLevelΠ 1 λ _ → propTruncIsProp)
-           λ id id2 → ∣ funExt (λ {north → id ; south → id2}) ∣₋₁) 
+           λ id id2 → ∣ funExt (λ {north → id ; south → id2}) ∣₋₁)
 
 ------------------------- H²(S¹) ≅ 0 -------------------------------
 
@@ -305,7 +305,7 @@ Iso.leftInv S¹→S¹≡S¹×Int f = funExt λ { base → S¹map-id (f base)
                   (λ i → ∣ basechange2 (S¹map (f base))
                              (intLoop (winding (basechange2⁻ (S¹map (f base)) (λ i₁ → S¹map (f (loop i₁)))))) i ∣)
                   (cong f loop)
-  helper2 i j = 
+  helper2 i j =
     hcomp (λ k → λ { (i = i0) → cong ∣_∣ (basechange2 (S¹map (f base))
                                            (intLoop (winding (basechange2⁻ (S¹map (f base)) (λ i₁ → S¹map (f (loop i₁))))))) j
                     ; (i = i1) → S¹map-id (f (loop j)) k
@@ -374,7 +374,7 @@ coHom1S1≃ℤ =
         (λ a → ∣ Iso.inv S¹→S¹≡S1→S1 (Iso.inv S¹→S¹≡S¹×Int (base , a)) ∣₂) -- inv
          (λ a → (λ i → proj₂ (Iso.fun S¹→S¹≡S¹×Int (Iso.fun S¹→S¹≡S1→S1 (Iso.inv S¹→S¹≡S1→S1 (Iso.inv S¹→S¹≡S¹×Int (base , a)))))) -- rInv
               ∙ (λ i → proj₂ (Iso.fun S¹→S¹≡S¹×Int (Iso.rightInv S¹→S¹≡S1→S1 (Iso.inv S¹→S¹≡S¹×Int (base , a)) i)))
-              ∙ λ i → proj₂ (Iso.rightInv S¹→S¹≡S¹×Int (base , a) i)) 
+              ∙ λ i → proj₂ (Iso.rightInv S¹→S¹≡S¹×Int (base , a) i))
         (sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)  -- lInv
                λ f → (λ i → ∣ Iso.inv S¹→S¹≡S1→S1 (Iso.inv S¹→S¹≡S¹×Int (base , proj₂ (Iso.fun S¹→S¹≡S¹×Int (Iso.fun S¹→S¹≡S1→S1 f)))) ∣₂)
                     ∙∙ ((λ i → sRec setTruncIsSet

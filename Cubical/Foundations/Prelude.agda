@@ -28,7 +28,7 @@ open import Cubical.Core.Primitives public
 infixr 30 _∙_
 infix  3 _∎
 infixr 2 _≡⟨_⟩_
-infixr 2.5 _≡⟨_⟩≡⟨_⟩_ 
+infixr 2.5 _≡⟨_⟩≡⟨_⟩_
 
 -- Basic theory about paths. These proofs should typically be
 -- inlined. This module also makes equational reasoning work with
@@ -403,10 +403,10 @@ liftExt x i = lift (x i)
            q⁻¹
        z — — — > x
        ^         ^
-     q |         | p⁻¹       
-       |         |        
-       x — — — > y    
-            p                
+     q |         | p⁻¹
+       |         |
+       x — — — > y
+            p
 -}
 
 doubleCompPath-filler∙ : {a b c d : A} (p : a ≡ b) (q : b ≡ c) (r : c ≡ d)

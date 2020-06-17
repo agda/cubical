@@ -7,19 +7,14 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Prod
 open import Cubical.HITs.PropositionalTruncation hiding (map)
 open import Cubical.Data.Group.Base
-open import Cubical.Data.Sigma.Base hiding (comp) 
-
-import Cubical.Foundations.Isomorphism as I
-import Cubical.Foundations.Equiv as E
-import Cubical.Foundations.Equiv.HalfAdjoint as HAE
-
+open import Cubical.Data.Sigma.Base hiding (comp)
 
 
 {-
 Given the following diagram
   a ↦ (a , 0)   ψ         ϕ
  A -->  A × A -------> B --->  C
-If ψ is an isomorphism and ϕ is surjective with ker ϕ ≡ {ψ (a , a) ∣ a ∈ A}, then C ≅ B  
+If ψ is an isomorphism and ϕ is surjective with ker ϕ ≡ {ψ (a , a) ∣ a ∈ A}, then C ≅ B
 -}
 
 diagonalIso1 : ∀ {ℓ ℓ' ℓ''} (A : Group ℓ) (B : Group ℓ') (C : Group ℓ'')
@@ -85,14 +80,14 @@ diagonalIso1 A' B' C' ψ' ϕ' issurj ker→diag diag→ker =
 Given the following diagram
 
       ϕ
-A × A ⇉ B 
+A × A ⇉ B
   ^
   |
   | a ↦ (a , 0)
   |
   A ≃ C
 
-If ϕ is surjective with ker ϕ ≡ {(a , a) ∣ a ∈ A}, then C ≅ B  
+If ϕ is surjective with ker ϕ ≡ {(a , a) ∣ a ∈ A}, then C ≅ B
 -}
 
 diagonalIso2 : ∀ {ℓ ℓ' ℓ''} (A : Group ℓ) (B : Group ℓ') (C : Group ℓ'')
