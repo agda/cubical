@@ -8,7 +8,10 @@ open import Cubical.Foundations.HLevels
 
 open import Cubical.HITs.SetQuotients.Base
 
-module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : A → A → Type ℓ') where
+Rel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+Rel A B ℓ' = A → B → Type ℓ'
+
+module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isRefl : Type (ℓ-max ℓ ℓ')
   isRefl = (a : A) → R a a
 

@@ -1,16 +1,11 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Experiments.RelationalStructures.Base where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Everything
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Sigma
 open import Cubical.Relation.ZigZag.Base
+open import Cubical.Relation.Binary
 open import Cubical.HITs.SetQuotients
 
 open import Cubical.Structures.Constant
@@ -21,34 +16,6 @@ open import Cubical.Structures.NAryOp
 open import Cubical.Foundations.SIP
 
 -- lemmas to move or inline
-
-_◁_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ : A i1}
-  → a₀ ≡ a₀' → PathP A a₀' a₁ → PathP A a₀ a₁
-(p ◁ q) i =
-  hcomp (λ j → λ {(i = i0) → p (~ j); (i = i1) → q i1}) (q i)
-
-_▷_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ : A i0} {a₁ a₁' : A i1}
-  → PathP A a₀ a₁ → a₁ ≡ a₁' → PathP A a₀ a₁'
-(p ▷ q) i =
-  hcomp (λ j → λ {(i = i0) → p i0; (i = i1) → q j}) (p i)
-
-ua→ : ∀ {ℓ ℓ'} {A₀ A₁ : Type ℓ} {e : A₀ ≃ A₁} {B : (i : I) → Type ℓ'}
-  {f₀ : A₀ → B i0} {f₁ : A₁ → B i1}
-  → ((a : A₀) → PathP (λ i → B i) (f₀ a) (f₁ (e .fst a)))
-  → PathP (λ i → ua e i → B i) f₀ f₁
-ua→ {e = e} {f₀ = f₀} {f₁} h i a =
-  hcomp
-    (λ j → λ
-      { (i = i0) → f₀ a
-      ; (i = i1) → f₁ (lem a j)
-      })
-    (h (transp (λ j → ua e (~ j ∧ i)) (~ i) a) i)
-  where
-  lem : ∀ a₁ → e .fst (transport⁻ (ua e) a₁) ≡ a₁
-  lem a₁ = sym (transportRefl _) ∙ transportTransport⁻ (ua e) a₁
-
-Rel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
-Rel A B ℓ' = A → B → Type ℓ'
 
 quotientRel : ∀ {ℓ} {A : Type ℓ} (R : A → A → Type ℓ)
   → Rel A (A / R) ℓ
@@ -80,10 +47,10 @@ record StrRel (S : Type ℓ → Type ℓ')(ℓ'' : Level) : Type (ℓ-max (ℓ-s
 
 open StrRel public
 
-QuoSetStructure : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
-  (A : TypeWithStr ℓ S) (R : typ A → typ A → Type ℓ)
+QuoStructure : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
+  (A : TypeWithStr ℓ S) (R : Rel (typ A) (typ A) ℓ)
   → Type (ℓ-max ℓ' ℓ'')
-QuoSetStructure S ρ A R =
+QuoStructure S ρ A R =
   Σ (S (typ A / R)) (ρ .rel (typ A) (typ A / R) (quotientRel R) (A .snd))
 
 record BisimDescends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
@@ -93,8 +60,8 @@ record BisimDescends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
     module E = Bisim→Equiv R
 
   field
-    quoᴸ : isContr (QuoSetStructure S ρ A E.Rᴸ)
-    quoᴿ : isContr (QuoSetStructure S ρ B E.Rᴿ)
+    quoᴸ : isContr (QuoStructure S ρ A E.Rᴸ)
+    quoᴿ : isContr (QuoStructure S ρ B E.Rᴿ)
     path : PathP (λ i → S (ua E.Thm i)) (quoᴸ .fst .fst) (quoᴿ .fst .fst)
 
 open BisimDescends public

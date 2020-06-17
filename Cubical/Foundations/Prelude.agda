@@ -246,6 +246,17 @@ module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
   fromPathP : PathP A x y → transp A i0 x ≡ y
   fromPathP p i = transp (λ j → A (i ∨ j)) i (p i)
 
+-- Whiskering a dependent path by a path
+
+_◁_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ : A i1}
+  → a₀ ≡ a₀' → PathP A a₀' a₁ → PathP A a₀ a₁
+(p ◁ q) i =
+  hcomp (λ j → λ {(i = i0) → p (~ j); (i = i1) → q i1}) (q i)
+
+_▷_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ : A i0} {a₁ a₁' : A i1}
+  → PathP A a₀ a₁ → a₁ ≡ a₁' → PathP A a₀ a₁'
+(p ▷ q) i =
+  hcomp (λ j → λ {(i = i0) → p i0; (i = i1) → q j}) (p i)
 
 -- Direct definitions of lower h-levels
 

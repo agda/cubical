@@ -50,12 +50,11 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
      (constant-rel (ℕ , isSetℕ))
      (isSNRSConstant (ℕ , isSetℕ)))
 
+ -- the count-structures
  aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ
  aux a x (yes a≡x) n = suc n
  aux a x (no  a≢x) n = n
 
-
- -- the count-structures
  Lcount : S .struct (List A)
  Lcount a [] = zero
  Lcount a (x ∷ xs) = aux a x (discA a x) (Lcount a xs)
