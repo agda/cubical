@@ -14,6 +14,7 @@ open import Cubical.Data.Nat.Order renaming (_≟_ to trichotomy)
 open import Cubical.Data.List as List
 open import Cubical.Relation.Nullary
 open import Cubical.Data.Bool
+open import Cubical.Data.Maybe
 
 open import Cubical.Structures.Macro
 
@@ -102,8 +103,6 @@ private
       R.extendContext (varg (R.def (quote Type) (varg ℓ' ∷ []))) (buildDesc (n + 1) B)>>= λ descB →
       removeIndex 0 descB >>= λ descB' →
       R.returnTC (R.con (quote Desc._,_) (varg descA ∷ varg descB' ∷ []))
-
-    -- buildDesc n (R.def f args) = {!!}
     buildDesc n (R.pi (R.arg (R.arg-info R.visible R.relevant) A@(R.var x [])) (R.abs _ B)) with discreteℕ n x
     ... | yes _ =
       R.extendContext (varg A) (buildDesc (n + 1) B) >>= λ descB →
@@ -118,8 +117,11 @@ private
       removeIndex 0 descB >>= λ descB' →
       R.returnTC (R.con (quote param) (varg A ∷ varg descB' ∷ []))
     buildDesc n (R.meta x _) = R.blockOnMeta x
+    buildDesc n (R.def (quote Maybe) (R.arg _ _ ∷ R.arg _ A ∷ [])) =
+      buildDesc n A >>= λ descA →
+      R.returnTC (R.con (quote maybe) (varg descA ∷ []))
     buildDesc n A = R.returnTC (R.con (quote constant) (varg A ∷ []))
-  autoDescLam _ _ = R.typeError [ R.strErr "Not a function" ]
+  autoDescLam _ t = R.typeError (R.strErr "Not a function: " ∷ R.termErr t ∷ [])
 
   getDomain : R.Term → R.TC R.Term
   getDomain t =
@@ -128,8 +130,7 @@ private
     A → R.typeError (R.strErr "Not a function type: " ∷ R.termErr t ∷ [])
 
   autoDescTerm : R.Term → R.TC R.Term
-  autoDescTerm t =
-    getDomain t >>= λ A → R.catchTC (R.normalise t >>= autoDescLam A) (autoDescLam A t)
+  autoDescTerm t = getDomain t >>= λ A → R.normalise t >>= autoDescLam A
 
 macro
   autoDesc : R.Term → R.Term → R.TC Unit
