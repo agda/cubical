@@ -12,7 +12,7 @@ open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Structures.Macro
+open import Cubical.Structures.Auto
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 
 open Iso
@@ -100,10 +100,14 @@ record MonoidIso (M N : Monoid {ℓ}) : Type ℓ where
 
 module MonoidΣ-theory {ℓ} where
 
-  open Macro ℓ (var , recvar (recvar var)) public renaming
-    ( structure to raw-monoid-structure
-    ; iso to raw-monoid-iso
-    ; isSNS to raw-monoid-is-SNS )
+  raw-monoid-structure : Type ℓ → Type ℓ
+  raw-monoid-structure X = X × (X → X → X)
+
+  raw-monoid-iso : StrIso raw-monoid-structure _
+  raw-monoid-iso = autoIso raw-monoid-structure
+
+  raw-monoid-is-SNS : SNS _ raw-monoid-iso
+  raw-monoid-is-SNS = autoSNS raw-monoid-structure
 
   monoid-axioms : (M : Type ℓ) → raw-monoid-structure M → Type ℓ
   monoid-axioms M (e , _·_) = IsSemigroup _·_
