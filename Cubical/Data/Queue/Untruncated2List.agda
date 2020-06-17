@@ -6,9 +6,7 @@ open import Cubical.Foundations.Everything
 open import Cubical.Foundations.SIP
 open import Cubical.Structures.Queue
 
-open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Unit
-open import Cubical.Data.Sum
+open import Cubical.Data.Maybe
 open import Cubical.Data.List
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation
@@ -45,20 +43,20 @@ module Untruncated2List {ℓ} (A : Type ℓ) (Aset : isSet A) where
  enq a Q⟨ xs , ys ⟩ = Q⟨ a ∷ xs , ys ⟩
  enq a (tilt xs ys z i) = tilt (a ∷ xs) ys z i
 
- deqFlush : List A → Unit ⊎ (Q × A)
- deqFlush [] = inl tt
- deqFlush (x ∷ xs) = inr (Q⟨ [] , xs ⟩ , x)
+ deqFlush : List A → Maybe (Q × A)
+ deqFlush [] = nothing
+ deqFlush (x ∷ xs) = just (Q⟨ [] , xs ⟩ , x)
 
- deq : Q → Unit ⊎ (Q × A)
+ deq : Q → Maybe (Q × A)
  deq Q⟨ xs , [] ⟩ = deqFlush (rev xs)
- deq Q⟨ xs , y ∷ ys ⟩ = inr (Q⟨ xs , ys ⟩ , y)
+ deq Q⟨ xs , y ∷ ys ⟩ = just (Q⟨ xs , ys ⟩ , y)
  deq (tilt xs [] z i) = path i
    where
-   path : deqFlush (rev (xs ++ [ z ])) ≡ inr (Q⟨ xs , [] ⟩ , z)
+   path : deqFlush (rev (xs ++ [ z ])) ≡ just (Q⟨ xs , [] ⟩ , z)
    path =
      cong deqFlush (rev-snoc xs z)
-     ∙ cong (λ q → inr (q , z)) (sym (flushEq' [] xs))
- deq (tilt xs (y ∷ ys) z i) = inr (tilt xs ys z i , y)
+     ∙ cong (λ q → just (q , z)) (sym (flushEq' [] xs))
+ deq (tilt xs (y ∷ ys) z i) = just (tilt xs ys z i , y)
 
  Raw : RawQueue
  Raw = (Q , emp , enq , deq)
@@ -131,20 +129,20 @@ module Untruncated2List {ℓ} (A : Type ℓ) (Aset : isSet A) where
  quot∘enq : ∀ x xs → quot (enq₁ x xs) ≡ enq x (quot xs)
  quot∘enq x xs = refl
 
- quot∘deq : ∀ xs → deq-map-forward quot (deq₁ xs) ≡ deq (quot xs)
+ quot∘deq : ∀ xs → deq-map quot (deq₁ xs) ≡ deq (quot xs)
  quot∘deq [] = refl
  quot∘deq (x ∷ []) = refl
  quot∘deq (x ∷ x' ∷ xs) =
-   deq-map-forward-∘ quot (enq₁ x) (deq₁ (x' ∷ xs))
-   ∙ sym (deq-map-forward-∘ (enq x) quot (deq₁ (x' ∷ xs)))
-   ∙ cong (deq-map-forward (enq x)) (quot∘deq (x' ∷ xs))
+   deq-map-∘ quot (enq₁ x) (deq₁ (x' ∷ xs))
+   ∙ sym (deq-map-∘ (enq x) quot (deq₁ (x' ∷ xs)))
+   ∙ cong (deq-map (enq x)) (quot∘deq (x' ∷ xs))
    ∙ lemma x x' (rev xs)
    where
    lemma : ∀ x x' ys
-     → deq-map-forward (enq x) (deqFlush (ys ++ [ x' ]))
+     → deq-map (enq x) (deqFlush (ys ++ [ x' ]))
        ≡ deqFlush ((ys ++ [ x' ]) ++ [ x ])
-   lemma x x' [] i = inr (tilt [] [] x i , x')
-   lemma x x' (y ∷ ys) i = inr (tilt [] (ys ++ [ x' ]) x i , y)
+   lemma x x' [] i = just (tilt [] [] x i , x')
+   lemma x x' (y ∷ ys) i = just (tilt [] (ys ++ [ x' ]) x i , y)
 
  quotEquiv-is-queue-iso : raw-queue-iso One.Raw Raw quotEquiv
  quotEquiv-is-queue-iso = quot∘emp , quot∘enq , quot∘deq

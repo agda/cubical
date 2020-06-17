@@ -8,7 +8,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Nat hiding (_+_)
+open import Cubical.Data.Nat hiding (_+_ ; +-comm)
 open import Cubical.Data.Vec
 open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
@@ -73,56 +73,55 @@ FinMatrix≡VecMatrix _ _ _ = ua FinMatrix≃VecMatrix
 -- Experiment using addition. Transport commutativity from one
 -- representation to the the other and relate the transported
 -- operation with a more direct definition.
-module _ (R : CommRing {ℓ}) where
+module _ (R' : CommRing {ℓ}) where
 
-  open comm-ring-syntax R
-  open comm-ring-axioms R
+  open CommRing R' renaming ( Carrier to R )
 
-  addFinMatrix : ∀ {m n} → FinMatrix ⟨ R ⟩ m n → FinMatrix ⟨ R ⟩ m n → FinMatrix ⟨ R ⟩ m n
+  addFinMatrix : ∀ {m n} → FinMatrix R m n → FinMatrix R m n → FinMatrix R m n
   addFinMatrix M N = λ k l → M k l + N k l
 
-  addFinMatrixComm : ∀ {m n} → (M N : FinMatrix ⟨ R ⟩ m n) → addFinMatrix M N ≡ addFinMatrix N M
-  addFinMatrixComm M N i k l = commring+-comm (M k l) (N k l) i
+  addFinMatrixComm : ∀ {m n} → (M N : FinMatrix R m n) → addFinMatrix M N ≡ addFinMatrix N M
+  addFinMatrixComm M N i k l = +-comm (M k l) (N k l) i
 
-  addVecMatrix : ∀ {m n} → VecMatrix ⟨ R ⟩ m n → VecMatrix ⟨ R ⟩ m n → VecMatrix ⟨ R ⟩ m n
-  addVecMatrix {m} {n} = transport (λ i → FinMatrix≡VecMatrix ⟨ R ⟩ m n i
-                                        → FinMatrix≡VecMatrix ⟨ R ⟩ m n i
-                                        → FinMatrix≡VecMatrix ⟨ R ⟩ m n i)
+  addVecMatrix : ∀ {m n} → VecMatrix R m n → VecMatrix R m n → VecMatrix R m n
+  addVecMatrix {m} {n} = transport (λ i → FinMatrix≡VecMatrix R m n i
+                                        → FinMatrix≡VecMatrix R m n i
+                                        → FinMatrix≡VecMatrix R m n i)
                                    addFinMatrix
 
-  addMatrixPath : ∀ {m n} → PathP (λ i → FinMatrix≡VecMatrix ⟨ R ⟩ m n i
-                                       → FinMatrix≡VecMatrix ⟨ R ⟩ m n i
-                                       → FinMatrix≡VecMatrix ⟨ R ⟩ m n i)
+  addMatrixPath : ∀ {m n} → PathP (λ i → FinMatrix≡VecMatrix R m n i
+                                       → FinMatrix≡VecMatrix R m n i
+                                       → FinMatrix≡VecMatrix R m n i)
                                   addFinMatrix addVecMatrix
-  addMatrixPath {m} {n} i = transp (λ j → FinMatrix≡VecMatrix ⟨ R ⟩ m n (i ∧ j)
-                                        → FinMatrix≡VecMatrix ⟨ R ⟩ m n (i ∧ j)
-                                        → FinMatrix≡VecMatrix ⟨ R ⟩ m n (i ∧ j))
+  addMatrixPath {m} {n} i = transp (λ j → FinMatrix≡VecMatrix R m n (i ∧ j)
+                                        → FinMatrix≡VecMatrix R m n (i ∧ j)
+                                        → FinMatrix≡VecMatrix R m n (i ∧ j))
                                    (~ i) addFinMatrix
 
-  addVecMatrixComm : ∀ {m n} → (M N : VecMatrix ⟨ R ⟩ m n) → addVecMatrix M N ≡ addVecMatrix N M
-  addVecMatrixComm {m} {n} = transport (λ i → (M N : FinMatrix≡VecMatrix ⟨ R ⟩ m n i)
+  addVecMatrixComm : ∀ {m n} → (M N : VecMatrix R m n) → addVecMatrix M N ≡ addVecMatrix N M
+  addVecMatrixComm {m} {n} = transport (λ i → (M N : FinMatrix≡VecMatrix R m n i)
                                             → addMatrixPath i M N ≡ addMatrixPath i N M)
                                        addFinMatrixComm
 
 
   -- More direct definition of addition for VecMatrix:
 
-  addVec : ∀ {m} → Vec ⟨ R ⟩ m → Vec ⟨ R ⟩ m → Vec ⟨ R ⟩ m
+  addVec : ∀ {m} → Vec R m → Vec R m → Vec R m
   addVec [] [] = []
   addVec (x ∷ xs) (y ∷ ys) = x + y ∷ addVec xs ys
 
-  addVecLem : ∀ {m} → (M N : Vec ⟨ R ⟩ m)
+  addVecLem : ∀ {m} → (M N : Vec R m)
             → FinVec→Vec (λ l → lookup l M + lookup l N) ≡ addVec M N
   addVecLem {zero} [] [] = refl
   addVecLem {suc m} (x ∷ xs) (y ∷ ys) = cong (λ zs → x + y ∷ zs) (addVecLem xs ys)
 
-  addVecMatrix' : ∀ {m n} → VecMatrix ⟨ R ⟩ m n → VecMatrix ⟨ R ⟩ m n → VecMatrix ⟨ R ⟩ m n
+  addVecMatrix' : ∀ {m n} → VecMatrix R m n → VecMatrix R m n → VecMatrix R m n
   addVecMatrix' [] [] = []
   addVecMatrix' (M ∷ MS) (N ∷ NS) = addVec M N ∷ addVecMatrix' MS NS
 
   -- The key lemma relating addVecMatrix and addVecMatrix'
-  addVecMatrixEq : ∀ {m n} → (M N : VecMatrix ⟨ R ⟩ m n) → addVecMatrix M N ≡ addVecMatrix' M N
-  addVecMatrixEq {zero} {n} [] [] j = transp (λ i → Vec (Vec ⟨ R ⟩ n) 0) j []
+  addVecMatrixEq : ∀ {m n} → (M N : VecMatrix R m n) → addVecMatrix M N ≡ addVecMatrix' M N
+  addVecMatrixEq {zero} {n} [] [] j = transp (λ i → Vec (Vec R n) 0) j []
   addVecMatrixEq {suc m} {n} (M ∷ MS) (N ∷ NS) =
     addVecMatrix (M ∷ MS) (N ∷ NS)
       ≡⟨ transportUAop₂ FinMatrix≃VecMatrix addFinMatrix (M ∷ MS) (N ∷ NS) ⟩
@@ -137,7 +136,7 @@ module _ (R : CommRing {ℓ}) where
   addVecMatrixEqFun i M N = addVecMatrixEq M N i
 
   -- We then directly get the properties about addVecMatrix'
-  addVecMatrixComm' : ∀ {m n} → (M N : VecMatrix ⟨ R ⟩ m n) → addVecMatrix' M N ≡ addVecMatrix' N M
+  addVecMatrixComm' : ∀ {m n} → (M N : VecMatrix R m n) → addVecMatrix' M N ≡ addVecMatrix' N M
   addVecMatrixComm' M N = sym (addVecMatrixEq M N) ∙∙ addVecMatrixComm M N ∙∙ addVecMatrixEq N M
 
   -- TODO: prove more properties about addition of matrices for both
