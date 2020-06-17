@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts  #-} -- TODO add --safe when the holes are gone
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Algebra.Matrix where
 
 open import Cubical.Foundations.Prelude
@@ -80,16 +80,10 @@ FinMatrix≡VecMatrix _ _ _ = ua FinMatrix≃VecMatrix
 -- FinMatrix≡VecMatrix : (A : Type ℓ) (m n : ℕ) → FinMatrix A m n ≡ VecMatrix A m n
 -- FinMatrix≡VecMatrix A m n i = FinVec≡Vec (FinVec≡Vec A n i) m i
 
-
--- Experiment using addition. Transport commutativity from one
--- representation to the the other and relate the transported
--- operation with a more direct definition.
 module _ (R' : Ring {ℓ}) where
 
   open Ring R' renaming ( Carrier to R ; is-set to isSetR )
   open theory R'
-
-  -- Operations
 
   zeroFinMatrix : ∀ {m n} → FinMatrix R m n
   zeroFinMatrix _ _ = 0r
@@ -103,6 +97,7 @@ module _ (R' : Ring {ℓ}) where
   oneFinMatrix : ∀ {n} → FinMatrix R n n
   oneFinMatrix i j = if i == j then 1r else 0r
 
+  -- TODO: upstream
   ∑ : ∀ {n} → FinVec R n → R
   ∑ = foldrFin _+_ 0r
 
@@ -110,10 +105,37 @@ module _ (R' : Ring {ℓ}) where
   sumVecExt {n = zero} _    = refl
   sumVecExt {n = suc n} h i = h zero i + sumVecExt (h ∘ suc) i
 
+  sumVecSplit : ∀ {n} → (V W : FinVec R n) → ∑ (λ i → V i + W i) ≡ ∑ V + ∑ W
+  sumVecSplit {n = zero}  V W = sym (+-rid 0r)
+  sumVecSplit {n = suc n} V W =
+    V zero + W zero + ∑ (λ i → V (suc i) + W (suc i)) ≡⟨ (λ i → V zero + W zero + sumVecSplit (V ∘ suc) (W ∘ suc) i) ⟩
+    V zero + W zero + (∑ (V ∘ suc) + ∑ (W ∘ suc))     ≡⟨ sym (+-assoc _ _ _) ⟩
+    V zero + (W zero + (∑ (V ∘ suc) + ∑ (W ∘ suc)))   ≡⟨ cong (λ x → V zero + x) (+-assoc-comm1 _ _ _) ⟩
+    V zero + (∑ (V ∘ suc) + (W zero + (∑ (W ∘ suc)))) ≡⟨ +-assoc _ _ _ ⟩
+    V zero + ∑ (V ∘ suc) + (W zero + ∑ (W ∘ suc))     ∎
+
+  -- TODO: generalize to sum of n arbitrary elements
+  sumVec0r : (n : ℕ) → ∑ (λ (i : Fin n) → 0r) ≡ 0r
+  sumVec0r zero    = refl
+  sumVec0r (suc n) = cong (λ x → 0r + x) (sumVec0r n) ∙ +-rid 0r
+
   sumVecExchange : ∀ {m n} → (M : FinMatrix R m n) → ∑ (λ i → ∑ (λ j → M i j)) ≡ ∑ (λ j → ∑ (λ i → M i j))
-  sumVecExchange {m = zero} {n = n} M = {!!}
-  sumVecExchange {m = suc m} {n = zero} M = {!!}
-  sumVecExchange {m = suc m} {n = suc n} M = {!sumVecExchange (λ i j → M (suc i) (suc j))!}
+  sumVecExchange {m = zero}  {n = n}     M = sym (sumVec0r n)
+  sumVecExchange {m = suc m} {n = zero}  M = cong (λ x → 0r + x) (sumVec0r m) ∙ +-rid 0r
+  sumVecExchange {m = suc m} {n = suc n} M =
+     let a  = M zero zero
+         L  = ∑ λ j → M zero (suc j)
+         C  = ∑ λ i → M (suc i) zero
+         N  = ∑ λ i → ∑ λ j → M (suc i) (suc j)
+         -- N reindexed
+         N' = ∑ λ j → ∑ λ i → M (suc i) (suc j)
+     in a + L + ∑ (λ i → ∑ (λ j → M (suc i) j)) ≡⟨ (λ k → a + L + sumVecSplit (λ i → M (suc i) zero) (λ i → ∑ (λ j → M (suc i) (suc j))) k) ⟩
+        a + L + (C + N)                         ≡⟨ (λ k → a + L + (C + sumVecExchange (λ i j → M (suc i) (suc j)) k)) ⟩
+        a + L + (C + N')                        ≡⟨ sym (+-assoc _ _ _) ⟩
+        a + (L + (C + N'))                      ≡⟨ (λ k → a + +-assoc-comm1 L C N' k) ⟩
+        a + (C + (L + N'))                      ≡⟨ +-assoc _ _ _ ⟩
+        a + C + (L + N')                        ≡⟨ (λ k → a + C + sumVecSplit (λ j → M zero (suc j)) (λ j → ∑ (λ i → M (suc i) (suc j))) (~ k)) ⟩
+        a + C + ∑ (λ j → ∑ (λ i → M i (suc j))) ∎
 
   sumVecMulrdist : ∀ {n} → (x : R) → (V : FinVec R n)
                  → x · ∑ V ≡ ∑ λ i → x · V i
@@ -130,16 +152,6 @@ module _ (R' : Ring {ℓ}) where
     (V zero + ∑ (V ∘ suc)) · x           ≡⟨ ·-ldist-+ _ _ _ ⟩
     V zero · x + (∑ (V ∘ suc)) · x       ≡⟨ (λ i → V zero · x + sumVecMulldist x (V ∘ suc) i) ⟩
     V zero · x + ∑ (λ i → V (suc i) · x) ∎
-
-  sumVecSplit : ∀ {n} → (V W : FinVec R n) → ∑ (λ i → V i + W i) ≡ ∑ V + ∑ W
-  sumVecSplit {n = zero}  V W = sym (+-rid 0r)
-  sumVecSplit {n = suc n} V W =
-    V zero + W zero + ∑ (λ i → V (suc i) + W (suc i)) ≡⟨ (λ i → V zero + W zero + sumVecSplit (V ∘ suc) (W ∘ suc) i) ⟩
-    V zero + W zero + (∑ (V ∘ suc) + ∑ (W ∘ suc))     ≡⟨ sym (+-assoc _ _ _) ⟩
-    V zero + (W zero + (∑ (V ∘ suc) + ∑ (W ∘ suc)))   ≡⟨ cong (λ x → V zero + x) (+-assoc-comm1 _ _ _) ⟩
-    V zero + (∑ (V ∘ suc) + (W zero + (∑ (W ∘ suc)))) ≡⟨ +-assoc _ _ _ ⟩
-    V zero + ∑ (V ∘ suc) + (W zero + ∑ (W ∘ suc))     ∎
-
 
   sumVecMulr0 : ∀ {n} → (V : FinVec R n) → ∑ (λ i → V i · 0r) ≡ 0r
   sumVecMulr0 V = sym (sumVecMulldist 0r V) ∙ 0-rightNullifies _
@@ -158,7 +170,6 @@ module _ (R' : Ring {ℓ}) where
   sumVecMul1r (suc n) V (suc j) =
     (λ i → 0-leftNullifies (V zero) i + ∑ (λ i → (if j == i then 1r else 0r) · V (suc i)))
     ∙∙ +-lid _ ∙∙ sumVecMul1r n (V ∘ suc) j
-
 
   mulFinMatrix : ∀ {m1 m2 m3} → FinMatrix R m1 m2 → FinMatrix R m2 m3 → FinMatrix R m1 m3
   mulFinMatrix M N i k = ∑ λ j → M i j · N j k
