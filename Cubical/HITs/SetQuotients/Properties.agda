@@ -37,10 +37,6 @@ private
     C : A / R → A / R → Type ℓ''
     D : A / R → A / R → A / R → Type ℓ''
 
-setQuotientIsSet : isSet (A / R)
-setQuotientIsSet a b p q = squash/ a b p q
-
-
 elimEq/ : (Bprop : (x : A / R ) → isProp (B x))
           {x y : A / R}
           (eq : x ≡ y)
@@ -93,28 +89,6 @@ elim Bset f feq (squash/ x y p q i j) =
               (g x) (g y) (cong g p) (cong g q) (squash/ x y p q) i j
     where
       g = elim Bset f feq
-
--- elim2 : {B : A / R → A / R → Type ℓ} →
---                    (Bset : (x y : A / R) → isSet (B x y)) →
---                    (f : (a : A) (b : A) → (B [ a ] [ b ])) →
---                    (feq1 : (a a₁ b : A) (r : R a₁ b) →
---       PathP (λ i → B [ a ] (eq/ a₁ b r i)) (f a a₁) (f a b)) →
---                    (feq2 : (a a₁ b : A) (r : R a₁ a) →
---       PathP (λ i → B (eq/ a₁ a r i) [ b ]) (f a₁ b) (f a b)) →
---                    {!(a b c d : A) (r1 : R a b) (r2 : R a b) →  !} →
---                    (x y : A / R) → B x y
-
-      
--- elim2 {A = A} {B = B} Bset f feq1 feq2 _ =
---   elim (λ _ → isOfHLevelΠ 2 λ _ → Bset _ _)
---        (λ a → elim (λ _ → Bset _ _) (λ b → f a b) (feq1 _))
---        λ p q r i → elim (Bset (eq/ p q r i)) (λ b → feq2 q p b r i) (λ a b r2 → {!isOfHLevel→isOfHLevelDep 2 {A = A} {λ x y → B [ y ] [ y ]}!})
---        {-
--- Goal: PathP (λ i → (y : A / R) → B (eq/ p q r i) y)
---       (elim (λ z → Bset [ p ] z) (λ b → f p b) (feq p))
---       (elim (λ z → Bset [ q ] z) (λ b → f q b) (feq q))
--- -}
-
 
 setQuotUniversal : {B : Type ℓ} (Bset : isSet B) →
                    (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
@@ -187,4 +161,3 @@ discreteSetQuotients {A = A} {R = R} Adis Rprop Req Rdec =
       J (λ b ab → ∀ k → PathP (λ i → (y : A / R) → Dec (ab i ≡ y))
                               (discreteSetQuotients' a) k)
         (λ k → funExt (λ x → isPropDec (squash/ _ _) _ _)) (eq/ a b ab) (discreteSetQuotients' b)
-

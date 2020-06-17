@@ -131,7 +131,6 @@ elim : {n : HLevel}
        B x
 elim hB = Null.elim (λ x → isOfHLevel→isSnNull (hB x))
 
-
 elim2 : {n : HLevel}
   {B : hLevelTrunc n A → hLevelTrunc n A → Type ℓ'}
   (hB : ((x y : hLevelTrunc n A) → isOfHLevel n (B x y)))
@@ -360,7 +359,7 @@ PathΩ n = PathIdTrunc n
 PathIdTrunc₀Iso : {a b : A} → Iso (∣ a ∣₂ ≡ ∣ b ∣₂) ∥ a ≡ b ∥₁
 PathIdTrunc₀Iso = compIso (congIso setTruncTrunc2Iso)
                     (compIso (ΩTrunc.IsoFinal _ ∣ _ ∣ ∣ _ ∣)
-                             (symIso propTruncTrunc1Iso))
+                             (invIso propTruncTrunc1Iso))
 
 -------------------------
 

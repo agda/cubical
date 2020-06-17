@@ -52,7 +52,6 @@ intLoop (pos (suc n))    = intLoop (pos n) ∙ loop
 intLoop (negsuc zero)    = sym loop
 intLoop (negsuc (suc n)) = intLoop (negsuc n) ∙ sym loop
 
-
 decodeSquare : (n : Int) → PathP (λ i → base ≡ loop i) (intLoop (predInt n)) (intLoop n)
 decodeSquare (pos zero) i j    = loop (i ∨ ~ j)
 decodeSquare (pos (suc n)) i j = hfill (λ k → λ { (j = i0) → base
@@ -76,7 +75,6 @@ decode (loop i) y j =
 decodeEncode : (x : S¹) (p : base ≡ x) → decode x (encode x p) ≡ p
 decodeEncode x p = J (λ y q → decode y (encode y q) ≡ q) (λ _ → refl) p
 
-
 isSetΩS¹ : isSet ΩS¹
 isSetΩS¹ p q r s j i =
   hcomp (λ k → λ { (i = i0) → decodeEncode base p k
@@ -84,9 +82,6 @@ isSetΩS¹ p q r s j i =
                  ; (j = i0) → decodeEncode base (r i) k
                  ; (j = i1) → decodeEncode base (s i) k })
         (decode base (isSetInt (winding p) (winding q) (cong winding r) (cong winding s) j i))
-
-
-
 
 -- This proof does not rely on rewriting hcomp with empty systems in
 -- Int as ghcomp has been implemented!
@@ -265,7 +260,7 @@ basedΩS¹≡Int : (x : S¹) → basedΩS¹ x ≡ Int
 basedΩS¹≡Int x = (basedΩS¹≡ΩS¹ x) ∙ ΩS¹≡Int
 
 
----- A shorter proof of the same thing -----
+---- Alternative proof of the same thing -----
 
 toPropElim : ∀ {ℓ} {B : S¹ → Type ℓ}
              → ((s : S¹) → isProp (B s))
@@ -458,6 +453,3 @@ rotInv-4 base base i = base
 rotInv-4 base (loop k) i = rotInv-aux-4 i0 k (~ i) i1
 rotInv-4 (loop j) base i = loop j
 rotInv-4 (loop j) (loop k) i = rotInv-aux-4 j k (~ i) i1
-
-
-

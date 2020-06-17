@@ -26,7 +26,7 @@ open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
 open import Cubical.HITs.SmashProduct.Base
-open import Cubical.Data.Group.Base hiding (_≃_ ; Iso)
+open import Cubical.Data.Group.Base hiding (_≃_ ; Iso ; invIso)
 
 open import Cubical.Foundations.Equiv.HalfAdjoint
 
@@ -315,19 +315,19 @@ isCommΩK-based (suc n) x p q =
   Iso.leftInv (congIsoHelper x) a = assocₖ a x (-ₖ x) ∙∙ cong (a +ₖ_) (rCancelₖ x) ∙∙ rUnitₖ a
 
   typId : (x : coHomK (suc n)) → (x ≡ x) ≡ Path (coHomK (suc n)) 0ₖ 0ₖ
-  typId x = isoToPath (congIso (symIso (congIsoHelper x))) ∙ λ i → rCancelₖ x i ≡ rCancelₖ x i
+  typId x = isoToPath (congIso (invIso (congIsoHelper x))) ∙ λ i → rCancelₖ x i ≡ rCancelₖ x i
 
   transpTypId : (p q : (x ≡ x)) → transport (λ i → typId x i) (p ∙ q) ≡ transport (λ i → typId x i) p ∙ transport (λ i → typId x i) q
   transpTypId p q =
-      ((substComposite (λ x → x) (isoToPath ((congIso (symIso (congIsoHelper x)))))
+      ((substComposite (λ x → x) (isoToPath ((congIso (invIso (congIsoHelper x)))))
                                  (λ i → rCancelₖ x i ≡ rCancelₖ x i) (p ∙ q))
     ∙∙ (λ i → transport (λ i → rCancelₖ x i ≡ rCancelₖ x i) (transportRefl (congFunct (_+ₖ (-ₖ x)) p q i) i))
     ∙∙ overPathFunct (cong (_+ₖ (-ₖ x)) p) (cong (_+ₖ (-ₖ x)) q) (rCancelₖ x))
     ∙∙ cong₂ (λ y z → transport (λ i → rCancelₖ x i ≡ rCancelₖ x i) y ∙ transport (λ i → rCancelₖ x i ≡ rCancelₖ x i) z)
              (sym (transportRefl (cong (_+ₖ (-ₖ x)) p)))
              (sym (transportRefl (cong (_+ₖ (-ₖ x)) q)))
-    ∙∙ cong₂ (_∙_) (sym (substComposite (λ x → x) (isoToPath ((congIso (symIso (congIsoHelper x))))) (λ i → rCancelₖ x i ≡ rCancelₖ x i) p))
-                   (sym (substComposite (λ x → x) (isoToPath ((congIso (symIso (congIsoHelper x))))) (λ i → rCancelₖ x i ≡ rCancelₖ x i) q))
+    ∙∙ cong₂ (_∙_) (sym (substComposite (λ x → x) (isoToPath ((congIso (invIso (congIsoHelper x))))) (λ i → rCancelₖ x i ≡ rCancelₖ x i) p))
+                   (sym (substComposite (λ x → x) (isoToPath ((congIso (invIso (congIsoHelper x))))) (λ i → rCancelₖ x i ≡ rCancelₖ x i) q))
 
 
 open import Cubical.Data.Int renaming (_+_ to _ℤ+_)

@@ -327,11 +327,11 @@ H²-T²≡ℤ =
     compIso
           helper'
           (compIso
-            (symIso (prodIso (groupIso→Iso H²-S¹≅0)
+            (invIso (prodIso (groupIso→Iso H²-S¹≅0)
                              (groupIso→Iso (invGrIso (Hⁿ-Sⁿ≅ℤ 0)))))
             (compIso
-              (symIso setTruncOfProdIso)
-              (symIso
+              (invIso setTruncOfProdIso)
+              (invIso
                 (setTruncIso
                   (compIso
                     curryIso

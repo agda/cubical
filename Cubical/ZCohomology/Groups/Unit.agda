@@ -67,7 +67,7 @@ Hⁿ-contrType≅0 {A = A} n contr =
   where
   helper1 : Iso (coHom (suc n) A) (coHom (suc n) Unit)
   helper1 = compIso (setTruncIso (ContrToTypeIso contr))
-                    (setTruncIso (symIso (ContrToTypeIso isContrUnit)))
+                    (setTruncIso (invIso (ContrToTypeIso isContrUnit)))
 
   helper : isContr (coHom (suc n) A)
   helper = (Iso.inv helper1 0ₕ)
