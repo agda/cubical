@@ -49,17 +49,8 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  deq-map-id nothing = refl
  deq-map-id (just _) = refl
 
- open Macro ℓ (recvar (functorial deq-map deq-map-id)) public renaming
-   ( structure to deq-structure
-   ; iso to deq-iso
-   ; isSNS to Deq-is-SNS
-   )
-
- Deq : Type (ℓ-suc ℓ)
- Deq = TypeWithStr ℓ deq-structure
-
  -- Now we can do Queues:
- open Macro ℓ (var , left-action-desc A , foreign deq-iso Deq-is-SNS) public renaming
+ open Macro ℓ (var , param A (recvar var) , recvar (functorial deq-map deq-map-id)) public renaming
    ( structure to raw-queue-structure
    ; iso to raw-queue-iso
    ; isSNS to RawQueue-is-SNS
