@@ -123,25 +123,29 @@ private
     buildDesc n A = R.returnTC (R.con (quote constant) (varg A ∷ []))
   autoDescLam _ t = R.typeError (R.strErr "Not a function: " ∷ R.termErr t ∷ [])
 
-  getDomain : R.Term → R.TC R.Term
-  getDomain t =
-    R.withNormalisation true (R.inferType t) >>= λ where
-    (R.pi (R.arg _ A) _) → R.returnTC A
-    A → R.typeError (R.strErr "Not a function type: " ∷ R.termErr t ∷ [])
-
-  autoDescTerm : R.Term → R.TC R.Term
-  autoDescTerm t = getDomain t >>= λ A → R.normalise t >>= autoDescLam A
+  autoDescTerm : R.Term → R.Term → R.TC R.Term
+  autoDescTerm dom t =
+    R.catchTC (R.noConstraints (R.normalise t)) (R.returnTC t) >>=
+    autoDescLam dom
 
 macro
   autoDesc : R.Term → R.Term → R.TC Unit
-  autoDesc t hole = autoDescTerm t >>= R.unify hole
+  autoDesc t hole =
+    R.inferType hole >>= λ T →
+    R.checkType R.unknown (R.def (quote Level) []) >>= λ ℓ →
+    R.unify (R.def (quote Desc) [ varg ℓ ]) T >>= λ _ →
+    autoDescTerm (R.def (quote Type) [ varg ℓ ]) t >>= R.unify hole
 
   autoIso : R.Term → R.Term → R.TC Unit
   autoIso t hole =
-    autoDescTerm t >>= λ desc →
-    R.unify (R.def (quote macro-iso) (varg desc ∷ [])) hole
+    R.checkType R.unknown (R.def (quote Level) []) >>= λ ℓ →
+    R.checkType R.unknown (R.def (quote Desc) [ varg ℓ ]) >>= λ d →
+    R.unify (R.def (quote macro-iso) [ varg d ]) hole >>= λ _ →
+    autoDescTerm (R.def (quote Type) [ varg ℓ ]) t >>= R.unify d
 
   autoSNS : R.Term → R.Term → R.TC Unit
   autoSNS t hole =
-    autoDescTerm t >>= λ desc →
-    R.unify (R.def (quote macro-is-SNS) (varg desc ∷ harg R.unknown ∷ harg R.unknown ∷ [])) hole
+    R.checkType R.unknown (R.def (quote Level) []) >>= λ ℓ →
+    R.checkType R.unknown (R.def (quote Desc) [ varg ℓ ]) >>= λ d →
+    R.unify (R.def (quote macro-is-SNS) (varg d ∷ harg R.unknown ∷ harg R.unknown ∷ [])) hole >>= λ _ →
+    autoDescTerm (R.def (quote Type) [ varg ℓ ]) t >>= R.unify d
