@@ -23,6 +23,9 @@ import Agda.Builtin.Reflection as R
 private
   _>>=_ = R.bindTC
 
+  _>>_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → R.TC A → R.TC B → R.TC B
+  f >> g = f >>= λ _ → g
+
   infixl 4 _>>=_
 
   liftTC : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
@@ -90,59 +93,67 @@ private
     removeIndex' (suc fuel) n (R.meta x args) = R.blockOnMeta x
     removeIndex' (suc fuel) n R.unknown = R.returnTC R.unknown
 
-  buildDesc : ℕ → R.Type → R.TC R.Term
-  buildDesc n A@(R.var x []) with discreteℕ n x
-  ... | yes _ = R.returnTC (R.con (quote var) [])
-  ... | no _ = R.returnTC (R.con (quote constant) (varg A ∷ []))
-  buildDesc n (R.def Σ (R.arg _ ℓ' ∷ R.arg _ ℓ'' ∷ (R.arg _ A) ∷ (R.arg _ (R.lam _ (R.abs _ B))) ∷ [])) =
-    buildDesc n A >>= λ descA →
-    R.extendContext (varg (R.def (quote Type) (varg ℓ' ∷ []))) (buildDesc (n + 1) B)>>= λ descB →
-    removeIndex 0 descB >>= λ descB' →
-    R.returnTC (R.con (quote Desc._,_) (varg descA ∷ varg descB' ∷ []))
-  buildDesc n (R.pi (R.arg (R.arg-info R.visible R.relevant) A@(R.var x [])) (R.abs _ B)) with discreteℕ n x
-  ... | yes _ =
-    R.extendContext (varg A) (buildDesc (n + 1) B) >>= λ descB →
-    removeIndex 0 descB >>= λ descB' →
-    R.returnTC (R.con (quote recvar) (varg descB' ∷ []))
-  ... | no _ =
-    R.extendContext (varg A) (buildDesc (n + 1) B) >>= λ descB →
-    removeIndex 0 descB >>= λ descB' →
-    R.returnTC (R.con (quote param) (varg A ∷ varg descB' ∷ []))
-  buildDesc n (R.pi (R.arg (R.arg-info R.visible R.relevant) A) (R.abs _ B)) =
-    R.extendContext (varg A) (buildDesc (n + 1) B) >>= λ descB →
-    removeIndex 0 descB >>= λ descB' →
-    R.returnTC (R.con (quote param) (varg A ∷ varg descB' ∷ []))
-  buildDesc n (R.meta x _) = R.blockOnMeta x
-  buildDesc n (R.def (quote Maybe) (R.arg _ _ ∷ R.arg _ A ∷ [])) =
-    buildDesc n A >>= λ descA →
-    R.returnTC (R.con (quote maybe) (varg descA ∷ []))
-  buildDesc n A = R.returnTC (R.con (quote constant) (varg A ∷ []))
+  mutual
+    buildDesc : ℕ → R.Type → R.TC R.Term
+    buildDesc n t =
+      R.catchTC
+        -- Prefer to return constant descriptor if possible
+        (removeIndex n t >> R.returnTC (R.con (quote constant) (varg t ∷ [])))
+        (buildDesc' n t)
 
-  autoDescTerm : R.Term → R.Term → R.TC R.Term
-  autoDescTerm dom t =
-    R.catchTC (R.noConstraints (R.reduce t)) (R.returnTC t) >>= λ where
-    (R.lam R.visible (R.abs _ t)) →
-      R.extendContext (varg dom) (R.normalise t >>= buildDesc 0) >>= removeIndex 0 
-    _ → R.typeError (R.strErr "Not a function: " ∷ R.termErr t ∷ [])
+    buildDesc' : ℕ → R.Type → R.TC R.Term
+    buildDesc' n A@(R.var x []) with discreteℕ n x
+    ... | yes _ = R.returnTC (R.con (quote var) [])
+    ... | no _ = R.returnTC (R.con (quote constant) (varg A ∷ []))
+    buildDesc' n (R.def Σ (R.arg _ ℓ' ∷ R.arg _ ℓ'' ∷ (R.arg _ A) ∷ (R.arg _ (R.lam _ (R.abs _ B))) ∷ [])) =
+      buildDesc n A >>= λ descA →
+      R.extendContext (varg (R.def (quote Type) (varg ℓ' ∷ []))) (buildDesc (n + 1) B)>>= λ descB →
+      removeIndex 0 descB >>= λ descB' →
+      R.returnTC (R.con (quote Desc._,_) (varg descA ∷ varg descB' ∷ []))
+    buildDesc' n (R.pi (R.arg (R.arg-info R.visible R.relevant) A@(R.var x [])) (R.abs _ B)) with discreteℕ n x
+    ... | yes _ =
+      R.extendContext (varg A) (buildDesc (n + 1) B) >>= λ descB →
+      removeIndex 0 descB >>= λ descB' →
+      R.returnTC (R.con (quote recvar) (varg descB' ∷ []))
+    ... | no _ =
+      R.extendContext (varg A) (buildDesc (n + 1) B) >>= λ descB →
+      removeIndex 0 descB >>= λ descB' →
+      R.returnTC (R.con (quote param) (varg A ∷ varg descB' ∷ []))
+    buildDesc' n (R.pi (R.arg (R.arg-info R.visible R.relevant) A) (R.abs _ B)) =
+      R.extendContext (varg A) (buildDesc (n + 1) B) >>= λ descB →
+      removeIndex 0 descB >>= λ descB' →
+      R.returnTC (R.con (quote param) (varg A ∷ varg descB' ∷ []))
+    buildDesc' n (R.meta x _) = R.blockOnMeta x
+    buildDesc' n (R.def (quote Maybe) (R.arg _ _ ∷ R.arg _ A ∷ [])) =
+      buildDesc n A >>= λ descA →
+      R.returnTC (R.con (quote maybe) (varg descA ∷ []))
+    buildDesc' n A = R.returnTC (R.con (quote constant) (varg A ∷ []))
+
+    autoDescTerm : R.Term → R.Term → R.TC R.Term
+    autoDescTerm dom t =
+      R.catchTC (R.noConstraints (R.reduce t)) (R.returnTC t) >>= λ where
+      (R.lam R.visible (R.abs _ t)) →
+        R.extendContext (varg dom) (R.normalise t >>= buildDesc 0) >>= removeIndex 0 
+      _ → R.typeError (R.strErr "Not a function: " ∷ R.termErr t ∷ [])
 
 macro
   autoDesc : R.Term → R.Term → R.TC Unit
   autoDesc t hole =
     R.inferType hole >>= λ T →
     R.checkType R.unknown (R.def (quote Level) []) >>= λ ℓ →
-    R.unify (R.def (quote Desc) [ varg ℓ ]) T >>= λ _ →
+    R.unify (R.def (quote Desc) [ varg ℓ ]) T >>
     autoDescTerm (R.def (quote Type) [ varg ℓ ]) t >>= R.unify hole
 
   autoIso : R.Term → R.Term → R.TC Unit
   autoIso t hole =
     R.checkType R.unknown (R.def (quote Level) []) >>= λ ℓ →
     R.checkType R.unknown (R.def (quote Desc) [ varg ℓ ]) >>= λ d →
-    R.unify (R.def (quote macro-iso) [ varg d ]) hole >>= λ _ →
+    R.unify (R.def (quote macro-iso) [ varg d ]) hole >>
     autoDescTerm (R.def (quote Type) [ varg ℓ ]) t >>= R.unify d
 
   autoSNS : R.Term → R.Term → R.TC Unit
   autoSNS t hole =
     R.checkType R.unknown (R.def (quote Level) []) >>= λ ℓ →
     R.checkType R.unknown (R.def (quote Desc) [ varg ℓ ]) >>= λ d →
-    R.unify (R.def (quote macro-is-SNS) (varg d ∷ harg R.unknown ∷ harg R.unknown ∷ [])) hole >>= λ _ →
+    R.unify (R.def (quote macro-is-SNS) (varg d ∷ harg R.unknown ∷ harg R.unknown ∷ [])) hole >>
     autoDescTerm (R.def (quote Type) [ varg ℓ ]) t >>= R.unify d
