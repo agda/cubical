@@ -47,11 +47,11 @@ add (suc x) y = do
   return (suc z)
 
 private
-  -- addBad x y will do x + y + 1 calls
+  -- addBad x y will do x + y calls
   _ : addBad 3 5 ≡ (8 , ∣ 8 ∣)
   _ = refl
 
-  -- add x y will only do x + 1 recursive calls
+  -- add x y will only do x recursive calls
   _ : add 3 5 ≡ (8 , ∣ 3 ∣)
   _ = refl
 
