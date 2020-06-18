@@ -90,43 +90,40 @@ private
     removeIndex' (suc fuel) n (R.meta x args) = R.blockOnMeta x
     removeIndex' (suc fuel) n R.unknown = R.returnTC R.unknown
 
-  autoDescLam : R.Term → R.Term → R.TC R.Term
-  autoDescLam dom (R.lam R.visible (R.abs _ t)) =
-    R.extendContext (varg dom) (buildDesc 0 t) >>= removeIndex 0
-    where
-    buildDesc : ℕ → R.Type → R.TC R.Term
-    buildDesc n A@(R.var x []) with discreteℕ n x
-    ... | yes _ = R.returnTC (R.con (quote var) [])
-    ... | no _ = R.returnTC (R.con (quote constant) (varg A ∷ []))
-    buildDesc n (R.def _×_ (R.arg _ ℓ' ∷ R.arg _ ℓ'' ∷ (R.arg _ A) ∷ (R.arg _ (R.lam _ (R.abs _ B))) ∷ [])) =
-      buildDesc n A >>= λ descA →
-      R.extendContext (varg (R.def (quote Type) (varg ℓ' ∷ []))) (buildDesc (n + 1) B)>>= λ descB →
-      removeIndex 0 descB >>= λ descB' →
-      R.returnTC (R.con (quote Desc._,_) (varg descA ∷ varg descB' ∷ []))
-    buildDesc n (R.pi (R.arg (R.arg-info R.visible R.relevant) A@(R.var x [])) (R.abs _ B)) with discreteℕ n x
-    ... | yes _ =
-      R.extendContext (varg A) (buildDesc (n + 1) B) >>= λ descB →
-      removeIndex 0 descB >>= λ descB' →
-      R.returnTC (R.con (quote recvar) (varg descB' ∷ []))
-    ... | no _ =
-      R.extendContext (varg A) (buildDesc (n + 1) B) >>= λ descB →
-      removeIndex 0 descB >>= λ descB' →
-      R.returnTC (R.con (quote param) (varg A ∷ varg descB' ∷ []))
-    buildDesc n (R.pi (R.arg (R.arg-info R.visible R.relevant) A) (R.abs _ B)) =
-      R.extendContext (varg A) (buildDesc (n + 1) B) >>= λ descB →
-      removeIndex 0 descB >>= λ descB' →
-      R.returnTC (R.con (quote param) (varg A ∷ varg descB' ∷ []))
-    buildDesc n (R.meta x _) = R.blockOnMeta x
-    buildDesc n (R.def (quote Maybe) (R.arg _ _ ∷ R.arg _ A ∷ [])) =
-      buildDesc n A >>= λ descA →
-      R.returnTC (R.con (quote maybe) (varg descA ∷ []))
-    buildDesc n A = R.returnTC (R.con (quote constant) (varg A ∷ []))
-  autoDescLam _ t = R.typeError (R.strErr "Not a function: " ∷ R.termErr t ∷ [])
+  buildDesc : ℕ → R.Type → R.TC R.Term
+  buildDesc n A@(R.var x []) with discreteℕ n x
+  ... | yes _ = R.returnTC (R.con (quote var) [])
+  ... | no _ = R.returnTC (R.con (quote constant) (varg A ∷ []))
+  buildDesc n (R.def Σ (R.arg _ ℓ' ∷ R.arg _ ℓ'' ∷ (R.arg _ A) ∷ (R.arg _ (R.lam _ (R.abs _ B))) ∷ [])) =
+    buildDesc n A >>= λ descA →
+    R.extendContext (varg (R.def (quote Type) (varg ℓ' ∷ []))) (buildDesc (n + 1) B)>>= λ descB →
+    removeIndex 0 descB >>= λ descB' →
+    R.returnTC (R.con (quote Desc._,_) (varg descA ∷ varg descB' ∷ []))
+  buildDesc n (R.pi (R.arg (R.arg-info R.visible R.relevant) A@(R.var x [])) (R.abs _ B)) with discreteℕ n x
+  ... | yes _ =
+    R.extendContext (varg A) (buildDesc (n + 1) B) >>= λ descB →
+    removeIndex 0 descB >>= λ descB' →
+    R.returnTC (R.con (quote recvar) (varg descB' ∷ []))
+  ... | no _ =
+    R.extendContext (varg A) (buildDesc (n + 1) B) >>= λ descB →
+    removeIndex 0 descB >>= λ descB' →
+    R.returnTC (R.con (quote param) (varg A ∷ varg descB' ∷ []))
+  buildDesc n (R.pi (R.arg (R.arg-info R.visible R.relevant) A) (R.abs _ B)) =
+    R.extendContext (varg A) (buildDesc (n + 1) B) >>= λ descB →
+    removeIndex 0 descB >>= λ descB' →
+    R.returnTC (R.con (quote param) (varg A ∷ varg descB' ∷ []))
+  buildDesc n (R.meta x _) = R.blockOnMeta x
+  buildDesc n (R.def (quote Maybe) (R.arg _ _ ∷ R.arg _ A ∷ [])) =
+    buildDesc n A >>= λ descA →
+    R.returnTC (R.con (quote maybe) (varg descA ∷ []))
+  buildDesc n A = R.returnTC (R.con (quote constant) (varg A ∷ []))
 
   autoDescTerm : R.Term → R.Term → R.TC R.Term
   autoDescTerm dom t =
-    R.catchTC (R.noConstraints (R.normalise t)) (R.returnTC t) >>=
-    autoDescLam dom
+    R.catchTC (R.noConstraints (R.reduce t)) (R.returnTC t) >>= λ where
+    (R.lam R.visible (R.abs _ t)) →
+      R.extendContext (varg dom) (R.normalise t >>= buildDesc 0) >>= removeIndex 0 
+    _ → R.typeError (R.strErr "Not a function: " ∷ R.termErr t ∷ [])
 
 macro
   autoDesc : R.Term → R.Term → R.TC Unit
