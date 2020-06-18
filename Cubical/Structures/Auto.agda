@@ -23,10 +23,10 @@ import Agda.Builtin.Reflection as R
 private
   _>>=_ = R.bindTC
 
-  _>>_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → R.TC A → R.TC B → R.TC B
+  _>>_ : ∀ {ℓ} {B : Type ℓ} → R.TC Unit → R.TC B → R.TC B
   f >> g = f >>= λ _ → g
 
-  infixl 4 _>>=_
+  infixl 4 _>>=_ _>>_
 
   liftTC : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
     → (A → B) → R.TC A → R.TC B
@@ -98,7 +98,7 @@ private
     buildDesc n t =
       R.catchTC
         -- Prefer to return constant descriptor if possible
-        (removeIndex n t >> R.returnTC (R.con (quote constant) (varg t ∷ [])))
+        (removeIndex n t >>= λ _ → R.returnTC (R.con (quote constant) (varg t ∷ [])))
         (buildDesc' n t)
 
     buildDesc' : ℕ → R.Type → R.TC R.Term
@@ -139,17 +139,19 @@ private
 macro
   autoDesc : R.Term → R.Term → R.TC Unit
   autoDesc t hole =
-    R.inferType hole >>= λ T →
+    R.inferType hole >>= λ H →
     R.checkType R.unknown (R.def (quote Level) []) >>= λ ℓ →
-    R.unify (R.def (quote Desc) [ varg ℓ ]) T >>
-    autoDescTerm (R.def (quote Type) [ varg ℓ ]) t >>= R.unify hole
+    R.unify (R.def (quote Desc) [ varg ℓ ]) H >>
+    autoDescTerm (R.def (quote Type) [ varg ℓ ]) t >>=
+    R.unify hole
 
   autoIso : R.Term → R.Term → R.TC Unit
   autoIso t hole =
     R.checkType R.unknown (R.def (quote Level) []) >>= λ ℓ →
     R.checkType R.unknown (R.def (quote Desc) [ varg ℓ ]) >>= λ d →
     R.unify (R.def (quote macro-iso) [ varg d ]) hole >>
-    autoDescTerm (R.def (quote Type) [ varg ℓ ]) t >>= R.unify d
+    autoDescTerm (R.def (quote Type) [ varg ℓ ]) t >>=
+    R.unify d
 
   autoSNS : R.Term → R.Term → R.TC Unit
   autoSNS t hole =
