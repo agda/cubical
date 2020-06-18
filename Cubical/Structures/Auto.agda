@@ -59,7 +59,6 @@ private
   harg : ∀ {ℓ} {A : Type ℓ} → A → R.Arg A
   harg = R.arg (R.arg-info R.hidden R.relevant)
 
-  -- Upper bound on the amount of fuel needed for removeIndex below
   size : R.Term → ℕ
   size (R.var _ []) = 1
   size (R.var x (R.arg _ a ∷ args)) = size a + size (R.var x args)
@@ -140,43 +139,46 @@ private
 
   mutual
     -- Build structure descriptor from a term [t], where [n] is the deBruijn index of the type variable
-    buildDesc : ℕ → R.Type → R.TC R.Term
-    buildDesc n t =
+    buildDesc : ℕ → ℕ → R.Type → R.TC R.Term
+    buildDesc 0 _ _ = R.typeError (R.strErr "Out of fuel!" ∷ [])
+    buildDesc (suc fuel) n t =
       R.catchTC
         -- Prefer to return constant descriptor if possible
-        (removeIndex n t >>= λ _ → R.returnTC (R.con (quote constant) (varg t ∷ [])))
-        (buildDesc' n t)
+        (removeIndex n t >>= λ _ → R.returnTC (R.con (quote constant) [ varg t ]))
+        (R.reduce t >>= buildDesc' fuel n)
 
-    buildDesc' : ℕ → R.Type → R.TC R.Term
-    buildDesc' n A@(R.var x []) with discreteℕ n x
+    buildDesc' : ℕ → ℕ → R.Type → R.TC R.Term
+    buildDesc' fuel n A@(R.var x []) with discreteℕ n x
     ... | yes _ = R.returnTC (R.con (quote var) [])
-    ... | no _ = R.returnTC (R.con (quote constant) (varg A ∷ []))
-    buildDesc' n (R.def Σ (R.arg _ ℓ' ∷ R.arg _ ℓ'' ∷ (R.arg _ A) ∷ (R.arg _ (R.lam _ (R.abs _ B))) ∷ [])) =
-      buildDesc n A >>= λ descA →
-      R.extendContext (varg (R.def (quote Type) (varg ℓ' ∷ []))) (buildDesc (suc n) B) >>= removeIndex 0 >>= λ descB →
+    ... | no _ = R.returnTC (R.con (quote constant) [ varg A ])
+    buildDesc' fuel n (R.def Σ (R.arg _ ℓ' ∷ _ ∷ (R.arg _ A) ∷ (R.arg _ (R.lam _ (R.abs _ B))) ∷ [])) =
+      buildDesc fuel n A >>= λ descA →
+      R.extendContext (varg (R.def (quote Type) [ varg ℓ' ])) (buildDesc fuel (suc n) B) >>= removeIndex 0 >>= λ descB →
       R.returnTC (R.con (quote Desc._,_) (varg descA ∷ varg descB ∷ []))
-    buildDesc' n (R.pi (R.arg (R.arg-info R.visible R.relevant) A@(R.var x [])) (R.abs _ B)) with discreteℕ n x
+    buildDesc' fuel n (R.pi (R.arg (R.arg-info R.visible R.relevant) A@(R.var x [])) (R.abs _ B)) with discreteℕ n x
     ... | yes _ =
-      R.extendContext (varg A) (buildDesc (suc n) B) >>= removeIndex 0 >>= λ descB →
+      R.extendContext (varg A) (buildDesc fuel (suc n) B) >>= removeIndex 0 >>= λ descB →
       R.returnTC (R.con (quote recvar) (varg descB ∷ []))
     ... | no _ =
-      R.extendContext (varg A) (buildDesc (suc n) B) >>= removeIndex 0 >>= λ descB →
+      R.extendContext (varg A) (buildDesc fuel (suc n) B) >>= removeIndex 0 >>= λ descB →
       R.returnTC (R.con (quote param) (varg A ∷ varg descB ∷ []))
-    buildDesc' n (R.pi (R.arg (R.arg-info R.visible R.relevant) A) (R.abs _ B)) =
-      R.extendContext (varg A) (buildDesc (suc n) B) >>= removeIndex 0 >>= λ descB →
+    buildDesc' fuel n (R.pi (R.arg (R.arg-info R.visible R.relevant) A) (R.abs _ B)) =
+      R.extendContext (varg A) (buildDesc fuel (suc n) B) >>= removeIndex 0 >>= λ descB →
       R.returnTC (R.con (quote param) (varg A ∷ varg descB ∷ []))
-    buildDesc' n (R.meta x _) = R.blockOnMeta x
-    buildDesc' n (R.def (quote Maybe) (R.arg _ _ ∷ R.arg _ A ∷ [])) =
-      buildDesc n A >>= λ descA →
+    buildDesc' fuel n (R.meta x _) = R.blockOnMeta x
+    buildDesc' fuel n (R.def (quote Maybe) (R.arg _ _ ∷ R.arg _ A ∷ [])) =
+      buildDesc fuel n A >>= λ descA →
       R.returnTC (R.con (quote maybe) (varg descA ∷ []))
-    buildDesc' n A = R.returnTC (R.con (quote constant) (varg A ∷ []))
+    buildDesc' fuel n A = R.returnTC (R.con (quote constant) (varg A ∷ []))
 
   -- Build structure descriptor from a function [f] with domain [Type ℓ]
   autoDescTerm : R.Term → R.Term → R.TC R.Term
   autoDescTerm ℓ f =
     R.catchTC (R.noConstraints (R.reduce f)) (R.returnTC f) >>= λ where
-    (R.lam R.visible (R.abs _ f)) →
-      R.extendContext (varg (R.def (quote Type) [ varg ℓ ])) (R.normalise f >>= buildDesc 0) >>=
+    (R.lam R.visible (R.abs _ t)) →
+      R.extendContext (varg (R.def (quote Type) [ varg ℓ ]))
+        (R.normalise t >>= λ norm → buildDesc (size norm) 0 t)
+      >>=
       removeIndex 0
     _ → R.typeError (R.strErr "Not a function: " ∷ R.termErr f ∷ [])
 
@@ -188,6 +190,14 @@ macro
     R.unify (R.def (quote Desc) [ varg ℓ ]) H >>
     autoDescTerm ℓ t >>=
     R.unify hole
+
+  autoStructure : R.Term → R.Term → R.TC Unit
+  autoStructure t hole =
+    R.checkType R.unknown (R.def (quote Level) []) >>= λ ℓ →
+    R.checkType R.unknown (R.def (quote Desc) [ varg ℓ ]) >>= λ d →
+    R.unify (R.def (quote macro-structure) [ varg d ]) hole >>
+    autoDescTerm ℓ t >>=
+    R.unify d
 
   autoIso : R.Term → R.Term → R.TC Unit
   autoIso t hole =

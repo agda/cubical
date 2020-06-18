@@ -34,13 +34,15 @@ data Desc (ℓ : Level) : Typeω where
   recvar : Desc ℓ  → Desc ℓ
   -- Maybe on a structure S: X ↦ Maybe (S X)
   maybe : Desc ℓ → Desc ℓ
-  -- arbitrary structure with notion of structured isomorphism given by functorial action
-  functorial : ∀ {ℓ'} {S : Type ℓ → Type ℓ'}
-    (F : ∀ {X Y} → (X → Y) → S X → S Y) → (∀ {X} s → F (idfun X) s ≡ s) → Desc ℓ
   -- arbitrary standard notion of structure
   foreign : ∀ {ℓ' ℓ''} {S : Type ℓ → Type ℓ'} (ι : StrIso S ℓ'') → SNS S ι → Desc ℓ
 
 infixr 4 _,_
+
+-- arbitrary structure with notion of structured isomorphism given by functorial action
+functorial : ∀ {ℓ ℓ'} {S : Type ℓ → Type ℓ'}
+  (F : ∀ {X Y} → (X → Y) → S X → S Y) → (∀ {X} s → F (idfun X) s ≡ s) → Desc ℓ
+functorial F η = foreign (functorial-iso F) (functorial-is-SNS F η)
 
 {- Universe level calculations -}
 
@@ -51,7 +53,6 @@ macro-structure-level {ℓ} (d₀ , d₁) = ℓ-max (macro-structure-level d₀)
 macro-structure-level (param {ℓ'} A d) = ℓ-max ℓ' (macro-structure-level d)
 macro-structure-level {ℓ} (recvar d) = ℓ-max ℓ (macro-structure-level d)
 macro-structure-level (maybe d) = macro-structure-level d
-macro-structure-level (functorial {ℓ'} _ _) = ℓ'
 macro-structure-level (foreign {ℓ'} _ _) = ℓ'
 
 macro-iso-level : ∀ {ℓ} → Desc ℓ → Level
@@ -61,7 +62,6 @@ macro-iso-level {ℓ} (d₀ , d₁) = ℓ-max (macro-iso-level d₀) (macro-iso-
 macro-iso-level (param {ℓ'} A d) = ℓ-max ℓ' (macro-iso-level d)
 macro-iso-level {ℓ} (recvar d) = ℓ-max ℓ (macro-iso-level d)
 macro-iso-level (maybe d) = macro-iso-level d
-macro-iso-level (functorial {ℓ' = ℓ'} _ _) = ℓ'
 macro-iso-level (foreign {ℓ'' = ℓ''} _ _) = ℓ''
 
 -- Structure defined by a descriptor
@@ -72,7 +72,6 @@ macro-structure (d₀ , d₁) X = macro-structure d₀ X × macro-structure d₁
 macro-structure (param A d) X = A → macro-structure d X
 macro-structure (recvar d) X = X → macro-structure d X
 macro-structure (maybe d) = maybe-structure (macro-structure d)
-macro-structure (functorial {S = S} _ _) = S
 macro-structure (foreign {S = S} _ _) = S
 
 -- Notion of structured isomorphism defined by a descriptor
@@ -83,7 +82,6 @@ macro-iso (d₀ , d₁) = join-iso (macro-iso d₀) (macro-iso d₁)
 macro-iso (param A d) = parameterized-iso A λ _ → macro-iso d
 macro-iso (recvar d) = unaryFunIso (macro-iso d)
 macro-iso (maybe d) = maybe-iso (macro-iso d)
-macro-iso (functorial F _) = functorial-iso F
 macro-iso (foreign ι _) = ι
 
 -- Proof that structure induced by descriptor is a standard notion of structure
@@ -94,7 +92,6 @@ macro-is-SNS (d₀ , d₁) = join-SNS (macro-iso d₀) (macro-is-SNS d₀) (macr
 macro-is-SNS (param A d) = Parameterized-is-SNS A (λ _ → macro-iso d) (λ _ → macro-is-SNS d)
 macro-is-SNS (recvar d) = unaryFunSNS (macro-iso d) (macro-is-SNS d)
 macro-is-SNS (maybe d) = maybe-is-SNS (macro-iso d) (macro-is-SNS d)
-macro-is-SNS (functorial F η) = functorial-is-SNS F η
 macro-is-SNS (foreign _ θ) = θ
 
 -- Module for easy importing
