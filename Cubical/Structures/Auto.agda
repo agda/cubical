@@ -150,9 +150,9 @@ private
     buildDesc' n A@(R.var x []) with discreteℕ n x
     ... | yes _ = R.returnTC (R.con (quote var) [])
     ... | no _ = R.returnTC (R.con (quote constant) (varg A ∷ []))
-    buildDesc' n (R.def Σ (R.arg _ ℓ' ∷ R.arg _ ℓ'' ∷ (R.arg _ A) ∷ (R.arg _ (R.lam _ (R.abs _ B))) ∷ [])) =
+    buildDesc' n (R.def Σ (_ ∷ _ ∷ (R.arg _ A) ∷ (R.arg _ (R.lam _ (R.abs _ B))) ∷ [])) =
       buildDesc n A >>= λ descA →
-      R.extendContext (varg (R.def (quote Type) (varg ℓ' ∷ []))) (buildDesc (suc n) B) >>= removeIndex 0 >>= λ descB →
+      R.extendContext (varg R.unknown) (buildDesc (suc n) B) >>= removeIndex 0 >>= λ descB →
       R.returnTC (R.con (quote Desc._,_) (varg descA ∷ varg descB ∷ []))
     buildDesc' n (R.pi (R.arg (R.arg-info R.visible R.relevant) A@(R.var x [])) (R.abs _ B)) with discreteℕ n x
     ... | yes _ =
