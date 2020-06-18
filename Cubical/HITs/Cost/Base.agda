@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.HITs.TruncNat.Base where
+module Cubical.HITs.Cost.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -10,38 +10,48 @@ open import Cubical.Data.Sigma
 private
   variable
     ℓ : Level
-    A : Type ℓ
-
-TruncNat : Type
-TruncNat = ∥ ℕ ∥
+    A B : Type ℓ
 
 Cost : (A : Type ℓ) → Type ℓ
-Cost A = A × TruncNat
+Cost A = A × ∥ ℕ ∥
 
--- To compare two elements of Cost we only need to look at the first parts
+-- To compare two elements of Cost A we only need to look at the first parts
 Cost≡ : (x y : Cost A) → x .fst ≡ y .fst → x ≡ y
 Cost≡ _ _ = Σ≡Prop λ _ → squash
 
+_>>=_ : Cost A → (A → Cost B) → Cost B
+(x , m) >>= g with g x
+... | (y , n) = (y , map suc (map2 _+_ m n))
+
+_>>_ : Cost A → Cost B → Cost B
+(x , m) >> (y , n) = (y , map suc (map2 _+_ m n))
+
+return : A → Cost A
+return x = (x , ∣ 0 ∣)
+
 -- An inefficient version of addition which recurses on both arguments
 addBad : ℕ → ℕ → Cost ℕ
-addBad 0 0 = (0 , ∣ 0 ∣)
-addBad 0 (suc y) with addBad 0 y
-... | z , c = (suc z , map suc c)
-addBad (suc x) y with addBad x y
-... | z , c = (suc z , map suc c)
+addBad 0 0       = return 0
+addBad 0 (suc y) = do
+  x ← addBad 0 y
+  return (suc x)
+addBad (suc x) y = do
+  z ← addBad x y
+  return (suc z)
 
 -- More efficient addition which only recurse on the first argument
 add : ℕ → ℕ → Cost ℕ
-add 0       y = (y , ∣ 0 ∣)
-add (suc x) y with add x y
-... | z , c = (suc z , map suc c)
+add 0       y = return y
+add (suc x) y = do
+  z ← add x y
+  return (suc z)
 
 private
-  -- addBad x y will do x + y recursive calls
+  -- addBad x y will do x + y + 1 calls
   _ : addBad 3 5 ≡ (8 , ∣ 8 ∣)
   _ = refl
 
-  -- add x y will only do x recursive calls
+  -- add x y will only do x + 1 recursive calls
   _ : add 3 5 ≡ (8 , ∣ 3 ∣)
   _ = refl
 
@@ -60,19 +70,22 @@ add≡addBad i x y = Cost≡ (add x y) (addBad x y) (rem x y) i
 -- Another example: computing Fibonacci numbers
 
 fib : ℕ → Cost ℕ
-fib 0 = 0 , ∣ 0 ∣
-fib 1 = 1 , ∣ 0 ∣
-fib (suc (suc x)) with fib (suc x) | fib x
-... | y , c1 | z , c2 = y + z , map (suc ∘ suc) (map2 _+_ c1 c2)
+fib 0 = return 0
+fib 1 = return 1
+fib (suc (suc x)) = do
+  y ← fib (suc x)
+  z ← fib x
+  return (y + z)
 
 fibTail : ℕ → Cost ℕ
-fibTail 0       = 0 , ∣ 0 ∣
+fibTail 0       = return 0
 fibTail (suc x) = fibAux x 1 0
   where
   fibAux : ℕ → ℕ → ℕ → Cost ℕ
-  fibAux 0 res _ = res , ∣ 0 ∣
-  fibAux (suc x) res prev with fibAux x (res + prev) res
-  ... | r , cn = r , (map suc cn)
+  fibAux 0 res _          = return res
+  fibAux (suc x) res prev = do
+    r ← fibAux x (res + prev) res
+    return r
 
 
 private
