@@ -1,6 +1,15 @@
 {-
 
-Macros for automatically generating structure definitions
+Macros (autoDesc, autoIso, autoSNS) for automatically generating structure definitions.
+
+For example:
+
+  autoDesc (λ (X : Type₀) → X → X × ℕ)   ↦   recvar (var , constant ℕ)
+
+We prefer to use the constant structure whenever possible, e.g., [autoDesc (λ (X : Type₀) → ℕ → ℕ)]
+is [constant (ℕ → ℕ)] rather than [param ℕ (constant ℕ)].
+
+Writing [auto* (λ X → ⋯)] doesn't seem to work, but [auto* (λ (X : Type ℓ) → ⋯)] does.
 
 -}
 {-# OPTIONS --cubical --no-exact-split --safe #-}
@@ -50,6 +59,15 @@ private
   harg : ∀ {ℓ} {A : Type ℓ} → A → R.Arg A
   harg = R.arg (R.arg-info R.hidden R.relevant)
 
+  sizePattern : R.Pattern → ℕ
+  sizePattern (R.con _ []) = 1
+  sizePattern (R.con c (R.arg _ p ∷ ps)) = sizePattern p + sizePattern (R.con c ps)
+  sizePattern R.dot = 1
+  sizePattern (R.var _) = 1
+  sizePattern (R.lit _) = 1
+  sizePattern (R.proj _) = 1
+  sizePattern R.absurd = 1
+
   size : R.Term → ℕ
   size (R.var _ []) = 1
   size (R.var x (R.arg _ a ∷ args)) = size a + size (R.var x args)
@@ -58,7 +76,11 @@ private
   size (R.def _ []) = 1
   size (R.def f (R.arg _ a ∷ args)) = size a + size (R.def f args)
   size (R.lam _ (R.abs _ t)) = suc (size t)
-  size (R.pat-lam cs []) = 1
+  size (R.pat-lam [] []) = 1
+  size (R.pat-lam (R.clause [] t ∷ cs) []) = size t + size (R.pat-lam cs [])
+  size (R.pat-lam (R.clause (R.arg _ p ∷ ps) t ∷ cs) []) =
+    sizePattern p + size (R.pat-lam (R.clause ps t ∷ cs) [])
+  size (R.pat-lam (R.absurd-clause ps ∷ cs) []) = 1
   size (R.pat-lam cs (R.arg _ a ∷ args)) = size a + size (R.pat-lam cs args)
   size (R.pi (R.arg _ a) (R.abs _ b)) = suc (size a + size b)
   size (R.agda-sort (R.set t)) = suc (size t)
@@ -69,9 +91,21 @@ private
   size R.unknown = 1
 
   removeIndex : ℕ → R.Term → R.TC R.Term
-  removeIndex n t = removeIndex' (size t) n t
+  removeIndex n t = removeIndex' (size t) n t -- Ought to be possible without fuel...
     where
-    -- Ought to be possible without fuel...
+    countPatternVars : R.Pattern → ℕ
+    countPatternVars (R.con c []) = 0
+    countPatternVars (R.con c (R.arg _ p ∷ ps)) = countPatternVars p + countPatternVars (R.con c ps)
+    countPatternVars R.dot = 0
+    countPatternVars (R.var s) = 1
+    countPatternVars (R.lit l) = 0
+    countPatternVars (R.proj f) = 0
+    countPatternVars R.absurd = 0
+
+    countPatternArgsVars : List (R.Arg R.Pattern) → ℕ
+    countPatternArgsVars [] = 0
+    countPatternArgsVars (R.arg _ p ∷ ps) = countPatternVars p + countPatternArgsVars ps
+
     removeIndex' : ℕ → ℕ → R.Term → R.TC R.Term
     removeIndex' 0 _ _ = R.typeError (R.strErr "Out of fuel!" ∷ [])
     removeIndex' (suc fuel) n (R.var m args) with trichotomy m n
@@ -81,7 +115,15 @@ private
     removeIndex' (suc fuel) n (R.con c args) = liftTC (R.con c) (mapTC (argTC (removeIndex' fuel n)) args)
     removeIndex' (suc fuel) n (R.def f args) = liftTC (R.def f) (mapTC (argTC (removeIndex' fuel n)) args)
     removeIndex' (suc fuel) n (R.lam v (R.abs s t)) = liftTC (R.lam v ∘ R.abs s) (removeIndex' fuel (suc n) t)
-    removeIndex' (suc fuel) n (R.pat-lam cs args) = R.returnTC R.unknown -- fix me
+    removeIndex' (suc fuel) n (R.pat-lam cs args) =
+      mapTC
+        (λ { (R.clause ps body) → liftTC (R.clause ps) (removeIndex' fuel (countPatternArgsVars ps) body)
+           ; (R.absurd-clause ps) → R.returnTC (R.absurd-clause ps)
+           })
+        cs
+      >>= λ cs' →
+      mapTC (argTC (removeIndex' fuel n)) args >>= λ args' →
+      R.returnTC (R.pat-lam cs' args')
     removeIndex' (suc fuel) n (R.pi (R.arg v a) (R.abs s b)) =
       removeIndex' fuel n a >>= λ a' →
       removeIndex' fuel (suc n) b >>= λ b' →
@@ -133,7 +175,7 @@ private
     autoDescTerm dom t =
       R.catchTC (R.noConstraints (R.reduce t)) (R.returnTC t) >>= λ where
       (R.lam R.visible (R.abs _ t)) →
-        R.extendContext (varg dom) (R.normalise t >>= buildDesc 0) >>= removeIndex 0 
+        R.extendContext (varg dom) (R.normalise t >>= buildDesc 0) >>= removeIndex 0
       _ → R.typeError (R.strErr "Not a function: " ∷ R.termErr t ∷ [])
 
 macro
