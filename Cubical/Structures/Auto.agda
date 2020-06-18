@@ -59,6 +59,7 @@ private
   harg : ∀ {ℓ} {A : Type ℓ} → A → R.Arg A
   harg = R.arg (R.arg-info R.hidden R.relevant)
 
+  -- Upper bound on the amount of fuel needed for removeIndex below
   size : R.Term → ℕ
   size (R.var _ []) = 1
   size (R.var x (R.arg _ a ∷ args)) = size a + size (R.var x args)
@@ -90,7 +91,7 @@ private
   size (R.meta _ _) = 1
   size R.unknown = 1
 
-  -- Check that de Bruijn index [n] does not appear in a term [t], and decrement indices above [n]
+  -- Check that de Bruijn index [n] does not appear in a term [t], and decrement indices above [n].
   -- Raises "Bad dependency" if [n] does occur.
   removeIndex : ℕ → R.Term → R.TC R.Term
   removeIndex n t = removeIndex' (size t) n t -- Ought to be possible without fuel...
