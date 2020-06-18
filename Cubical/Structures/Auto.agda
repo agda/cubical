@@ -59,15 +59,6 @@ private
   harg : ∀ {ℓ} {A : Type ℓ} → A → R.Arg A
   harg = R.arg (R.arg-info R.hidden R.relevant)
 
-  sizePattern : R.Pattern → ℕ
-  sizePattern (R.con _ []) = 1
-  sizePattern (R.con c (R.arg _ p ∷ ps)) = sizePattern p + sizePattern (R.con c ps)
-  sizePattern R.dot = 1
-  sizePattern (R.var _) = 1
-  sizePattern (R.lit _) = 1
-  sizePattern (R.proj _) = 1
-  sizePattern R.absurd = 1
-
   size : R.Term → ℕ
   size (R.var _ []) = 1
   size (R.var x (R.arg _ a ∷ args)) = size a + size (R.var x args)
@@ -80,6 +71,15 @@ private
   size (R.pat-lam (R.clause [] t ∷ cs) []) = size t + size (R.pat-lam cs [])
   size (R.pat-lam (R.clause (R.arg _ p ∷ ps) t ∷ cs) []) =
     sizePattern p + size (R.pat-lam (R.clause ps t ∷ cs) [])
+    where
+    sizePattern : R.Pattern → ℕ
+    sizePattern (R.con _ []) = 1
+    sizePattern (R.con c (R.arg _ p ∷ ps)) = sizePattern p + sizePattern (R.con c ps)
+    sizePattern R.dot = 1
+    sizePattern (R.var _) = 1
+    sizePattern (R.lit _) = 1
+    sizePattern (R.proj _) = 1
+    sizePattern R.absurd = 1
   size (R.pat-lam (R.absurd-clause ps ∷ cs) []) = 1
   size (R.pat-lam cs (R.arg _ a ∷ args)) = size a + size (R.pat-lam cs args)
   size (R.pi (R.arg _ a) (R.abs _ b)) = suc (size a + size b)
@@ -90,6 +90,8 @@ private
   size (R.meta _ _) = 1
   size R.unknown = 1
 
+  -- Check that de Bruijn index [n] does not appear in a term [t], and decrement indices above [n]
+  -- Raises "Bad dependency" if [n] does occur.
   removeIndex : ℕ → R.Term → R.TC R.Term
   removeIndex n t = removeIndex' (size t) n t -- Ought to be possible without fuel...
     where
@@ -136,6 +138,7 @@ private
     removeIndex' (suc fuel) n R.unknown = R.returnTC R.unknown
 
   mutual
+    -- Build structure descriptor from a term [t], where [n] is the deBruijn index of the type variable
     buildDesc : ℕ → R.Type → R.TC R.Term
     buildDesc n t =
       R.catchTC
@@ -171,12 +174,15 @@ private
       R.returnTC (R.con (quote maybe) (varg descA ∷ []))
     buildDesc' n A = R.returnTC (R.con (quote constant) (varg A ∷ []))
 
-    autoDescTerm : R.Term → R.Term → R.TC R.Term
-    autoDescTerm dom t =
-      R.catchTC (R.noConstraints (R.reduce t)) (R.returnTC t) >>= λ where
-      (R.lam R.visible (R.abs _ t)) →
-        R.extendContext (varg dom) (R.normalise t >>= buildDesc 0) >>= removeIndex 0
-      _ → R.typeError (R.strErr "Not a function: " ∷ R.termErr t ∷ [])
+  -- Build structure descriptor from a function [f] with domain type [dom] (which should be [Type ℓ]
+  -- for some [ℓ])
+  autoDescTerm : R.Term → R.Term → R.TC R.Term
+  autoDescTerm dom f =
+    R.catchTC (R.noConstraints (R.reduce f)) (R.returnTC f) >>= λ where
+    (R.lam R.visible (R.abs _ f)) →
+      R.extendContext (varg dom) (R.normalise f >>= buildDesc 0) >>=
+      removeIndex 0
+    _ → R.typeError (R.strErr "Not a function: " ∷ R.termErr f ∷ [])
 
 macro
   autoDesc : R.Term → R.Term → R.TC Unit
