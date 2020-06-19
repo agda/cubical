@@ -85,7 +85,7 @@ private
   maybeShape _ A₀ X = Maybe (A₀ X)
 
 private
-  -- Build structure descriptor from a function [f : Type ℓ → Type ℓ']
+  -- Build structure descriptor from a function [t : Type ℓ → Type ℓ']
   buildDesc : ℕ → R.Term → R.Term → R.Term → R.TC R.Term
   buildDesc zero ℓ ℓ' t = R.typeError (R.strErr "Ran out of fuel! at \n" ∷ R.termErr t ∷ [])
   buildDesc (suc fuel) ℓ ℓ' t =
