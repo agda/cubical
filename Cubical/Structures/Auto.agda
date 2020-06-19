@@ -140,7 +140,7 @@ private
       R.unify t (R.def (quote maybeShape) (varg ℓ ∷ varg A₀ ∷ [])) >>
       buildDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
       R.returnTC (R.con (quote maybe) (varg d₀ ∷ []))
-      
+
   autoDesc' : R.Term → R.Term → R.TC Unit
   autoDesc' t hole =
     R.inferType hole >>= λ H →
