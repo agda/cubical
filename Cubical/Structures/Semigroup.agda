@@ -79,7 +79,6 @@ module SemigroupΣ-theory {ℓ} where
   raw-semigroup-structure : Type ℓ → Type ℓ
   raw-semigroup-structure X = X → X → X
 
-  raw-semigroup-iso : StrIso raw-semigroup-structure _
   raw-semigroup-iso = autoIso raw-semigroup-structure
 
   raw-semigroup-is-SNS : SNS _ raw-semigroup-iso

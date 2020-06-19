@@ -103,7 +103,6 @@ module MonoidΣ-theory {ℓ} where
   raw-monoid-structure : Type ℓ → Type ℓ
   raw-monoid-structure X = X × (X → X → X)
 
-  raw-monoid-iso : StrIso raw-monoid-structure _
   raw-monoid-iso = autoIso raw-monoid-structure
 
   raw-monoid-is-SNS : SNS _ raw-monoid-iso

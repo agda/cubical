@@ -11,7 +11,6 @@ module _ {ℓ ℓ' : Level} (A : Type ℓ') where
   left-action-structure : Type ℓ → Type ℓ'
   left-action-structure _ = A
 
-  left-action-iso : StrIso left-action-structure _
   left-action-iso = autoIso left-action-structure
 
   Left-Action-is-SNS : SNS _ left-action-iso

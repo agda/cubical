@@ -22,7 +22,6 @@ module _ (A : Type ℓ) (Aset : isSet A) where
  count-structure : Type ℓ → Type ℓ
  count-structure X = A → X → ℕ
 
- count-iso : StrIso count-structure _
  count-iso = autoIso count-structure
 
  count-is-SNS : SNS _ count-iso
@@ -34,7 +33,6 @@ module _ (A : Type ℓ) (Aset : isSet A) where
  multi-set-structure : Type ℓ → Type ℓ
  multi-set-structure X = X × (A → X → X) × (A → X → ℕ)
 
- multi-set-iso : StrIso multi-set-structure _
  multi-set-iso = autoIso multi-set-structure
 
  Multi-Set-is-SNS : SNS _ multi-set-iso
