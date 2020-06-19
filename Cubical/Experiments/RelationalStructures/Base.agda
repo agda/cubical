@@ -306,8 +306,6 @@ isSNRSUnaryFun S ρ θ (R , bis) code .path =
         _ _)
       (λ x →
         θ _ (code (bis .fwdRel x)) .path
-        ▷ cong fst
-          (θ _ (code (bis .fwdRel x)) .quoᴿ .snd
-            (θ _ (code (bis .bwdRel (bis .fwd x))) .quoᴿ .fst))))
+        ▷ quoᴿ-coherence S ρ θ (R , bis) _ _ (code (bis .bwdRel (bis .fwd x)))))
   where
   module E = Bisim→Equiv (R , bis)
