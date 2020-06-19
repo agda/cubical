@@ -68,6 +68,9 @@ record Group : Type (ℓ-suc ℓ) where
 ⟨_⟩ : Group → Type ℓ
 ⟨_⟩ = Group.Carrier
 
+isSetGroup : (G : Group {ℓ}) → isSet ⟨ G ⟩
+isSetGroup G = Group.isGroup G .IsGroup.isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+
 -- TODO: we don't need all of these arguments...
 makeIsGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
               (is-setG : isSet G)
@@ -135,6 +138,10 @@ module GroupΣ-theory {ℓ} where
   group-iso = add-to-iso (binaryFunIso pointed-iso) group-axioms
 
   open monoid-theory
+
+  isSetGroupΣ : (G : GroupΣ)
+               → isSet _
+  isSetGroupΣ (_ , _ , (isSemigroup-G , _ , _)) = IsSemigroup.is-set isSemigroup-G
 
   isProp-group-axioms : (G : Type ℓ)
                       → (s : raw-group-structure G)

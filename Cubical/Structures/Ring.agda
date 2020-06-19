@@ -67,6 +67,7 @@ record IsRing {R : Type ℓ}
   ·-ldist-+ x y z = dist x y z .snd
 
   -- TODO: prove these somewhere
+  -- -> these are 0-rightNullifies and 0-leftNullifies below in theory
 
   -- zero-lid : (x : R) → 0r · x ≡ 0r
   -- zero-lid x = zero x .snd
@@ -179,7 +180,11 @@ module RingΣ-theory {ℓ} where
                                      (IsSemigroup.is-set (R .IsMonoid.isSemigroup) _ _))
 
   Ring→RingΣ : Ring → RingΣ
-  Ring→RingΣ (ring R 0r 1r _+_ _·_ -_ (isring +-isAbelianGroup ·-isMonoid dist)) = R , (_+_ , 1r , _·_) , AbGroupΣ-theory.AbGroup→AbGroupΣ (abgroup _ _ _ _ +-isAbelianGroup) .snd .snd , ·-isMonoid , dist
+  Ring→RingΣ (ring R 0r 1r _+_ _·_ -_ (isring +-isAbelianGroup ·-isMonoid dist)) =
+    R , (_+_ , 1r , _·_) ,
+    AbGroupΣ-theory.AbGroup→AbGroupΣ (abgroup _ _ _ _ +-isAbelianGroup) .snd .snd ,
+    ·-isMonoid ,
+    dist
 
   RingΣ→Ring : RingΣ → Ring
   RingΣ→Ring (_ , (y1 , y2 , y3) , z , w1 , w2) =
@@ -242,8 +247,8 @@ Ring→Monoid (ring _ _ _ _ _ _ R) = monoid _ _ _ (IsRing.·-isMonoid R)
 
 {-
   some basic calculations (used for example in QuotientRing.agda),
-  that might should become obsolete or subject to change once we
-  have a ring solver (see https://github.com/agda/cubical/issues/297)
+  that should become obsolete or subject to change once we have a
+  ring solver (see https://github.com/agda/cubical/issues/297)
 -}
 module theory (R : Ring {ℓ}) where
 

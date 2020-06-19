@@ -80,6 +80,9 @@ makeAbGroup 0g _+_ -_ is-setG assoc rid rinv comm =
 AbGroup→Group : AbGroup {ℓ} → Group
 AbGroup→Group (abgroup _ _ _ _ H) = group _ _ _ _ (IsAbGroup.isGroup H)
 
+isSetAbGroup : (A : AbGroup {ℓ}) → isSet ⟨ A ⟩
+isSetAbGroup A = isSetGroup (AbGroup→Group A)
+
 AbGroupIso : (G H : AbGroup) → Type ℓ
 AbGroupIso G H = GroupIso (AbGroup→Group G) (AbGroup→Group H)
 
@@ -95,6 +98,9 @@ module AbGroupΣ-theory {ℓ} where
 
   AbGroupΣ : Type (ℓ-suc ℓ)
   AbGroupΣ = TypeWithStr ℓ abgroup-structure
+
+  isSetAbGroupΣ : (A : AbGroupΣ) → isSet _
+  isSetAbGroupΣ (A , _+_ , (isGroup-A , _)) = isSetGroupΣ (A , _+_ , isGroup-A)
 
   abgroup-iso : StrIso abgroup-structure ℓ
   abgroup-iso = add-to-iso (binaryFunIso pointed-iso) abgroup-axioms
