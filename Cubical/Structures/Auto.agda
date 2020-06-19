@@ -154,6 +154,13 @@ macro
   autoDesc : R.Term → R.Term → R.TC Unit
   autoDesc = autoDesc'
 
+  -- Sanity check: this should just return its input
+  autoStructure : R.Term → R.Term → R.TC Unit
+  autoStructure t hole =
+    newMeta (tDesc R.unknown) >>= λ d →
+    R.unify hole (R.def (quote macro-structure) [ varg d ]) >>
+    autoDesc' t d
+
   autoIso : R.Term → R.Term → R.TC Unit
   autoIso t hole =
     newMeta (tDesc R.unknown) >>= λ d →
