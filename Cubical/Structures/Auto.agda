@@ -32,7 +32,6 @@ private
 
 -- Some reflection utilities
 private
-
   _>>=_ = R.bindTC
   _<|>_ = R.catchTC
 
@@ -48,6 +47,9 @@ private
 
   tType : R.Term → R.Term
   tType ℓ = R.def (quote Type) [ varg ℓ ]
+
+  tDesc : R.Term → R.Term
+  tDesc ℓ = R.def (quote Desc) [ varg ℓ ]
 
   func : (ℓ ℓ' : Level) → Type (ℓ-suc (ℓ-max ℓ ℓ'))
   func ℓ ℓ' = Type ℓ → Type ℓ'
@@ -142,10 +144,10 @@ private
   autoDesc' : R.Term → R.Term → R.TC Unit
   autoDesc' t hole =
     R.inferType hole >>= λ H →
-    newMeta (R.def (quote Level) []) >>= λ ℓ →
-    newMeta (R.def (quote Level) []) >>= λ ℓ' →
-    R.unify (R.def (quote Desc) [ varg ℓ ]) H >>
-    R.checkType t (R.def (quote func) (varg ℓ ∷ varg ℓ' ∷ [])) >>
+    newMeta tLevel >>= λ ℓ →
+    newMeta tLevel >>= λ ℓ' →
+    R.unify (tDesc ℓ) H >>
+    R.checkType t (tStruct ℓ ℓ') >>
     buildDesc FUEL ℓ ℓ' t >>= R.unify hole
 
 macro
@@ -154,12 +156,12 @@ macro
 
   autoIso : R.Term → R.Term → R.TC Unit
   autoIso t hole =
-    newMeta (R.def (quote Desc) [ varg R.unknown ]) >>= λ d →
+    newMeta (tDesc R.unknown) >>= λ d →
     R.unify hole (R.def (quote macro-iso) [ varg d ]) >>
     autoDesc' t d
 
   autoSNS : R.Term → R.Term → R.TC Unit
   autoSNS t hole =
-    newMeta (R.def (quote Desc) [ varg R.unknown ]) >>= λ d →
+    newMeta (tDesc R.unknown) >>= λ d →
     R.unify hole (R.def (quote macro-is-SNS) [ varg d ]) >>
     autoDesc' t d
