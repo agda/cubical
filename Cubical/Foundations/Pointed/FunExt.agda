@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Pointed.FunExt where
 
 open import Cubical.Foundations.Prelude
@@ -9,7 +9,11 @@ open import Cubical.Foundations.Pointed.Base
 open import Cubical.Foundations.Pointed.Properties
 open import Cubical.Foundations.Pointed.Homotopy
 
-module _ {ℓ ℓ'} {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
+private
+  variable
+    ℓ ℓ' : Level
+
+module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 
   -- pointed function extensionality
   funExt∙P : {f g : Π∙ A B ptB} → f ∙∼P g → f ≡ g

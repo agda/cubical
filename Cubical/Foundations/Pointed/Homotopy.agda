@@ -22,7 +22,11 @@ open import Cubical.Homotopy.Base
 
 open import Cubical.Data.Sigma
 
-module _ {ℓ ℓ'} {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
+private
+  variable
+    ℓ ℓ' : Level
+
+module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 
   ⋆ = pt A
 
