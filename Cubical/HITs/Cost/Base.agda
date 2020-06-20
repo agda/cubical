@@ -10,7 +10,7 @@ open import Cubical.Data.Sigma
 private
   variable
     ℓ : Level
-    A B : Type ℓ
+    A B C : Type ℓ
 
 Cost : (A : Type ℓ) → Type ℓ
 Cost A = A × ∥ ℕ ∥
@@ -19,15 +19,29 @@ Cost A = A × ∥ ℕ ∥
 Cost≡ : (x y : Cost A) → x .fst ≡ y .fst → x ≡ y
 Cost≡ _ _ = Σ≡Prop λ _ → squash
 
+-- To make it easier to program with Cost A we prove that it forms a
+-- monad which counts the number of calls to >>=. We could also turn
+-- it into a proper state monad which tracks the cost, but for the
+-- programs we write later this simple version suffices
 _>>=_ : Cost A → (A → Cost B) → Cost B
 (x , m) >>= g with g x
 ... | (y , n) = (y , map suc (map2 _+_ m n))
 
-_>>_ : Cost A → Cost B → Cost B
-(x , m) >> (y , n) = (y , map suc (map2 _+_ m n))
-
 return : A → Cost A
 return x = (x , ∣ 0 ∣)
+
+-- The monad laws all hold by Cost≡
+
+>>=-return : (f : Cost A) → f >>= return ≡ f
+>>=-return f = Cost≡ _ _ refl
+
+return->>= : (a : A) (f : A → Cost B) → return a >>= f ≡ f a
+return->>= a f = Cost≡ _ _ refl
+
+>>=-assoc : (f : Cost A) (g : A → Cost B) (h : B → Cost C)
+          → (f >>= g) >>= h ≡ f >>= (λ x → g x >>= h)
+>>=-assoc f g h = Cost≡ _ _ refl
+
 
 -- An inefficient version of addition which recurses on both arguments
 addBad : ℕ → ℕ → Cost ℕ
@@ -66,7 +80,6 @@ add≡addBad i x y = Cost≡ (add x y) (addBad x y) (rem x y) i
   rem (suc x) y = cong suc (rem x y)
 
 
-
 -- Another example: computing Fibonacci numbers
 
 fib : ℕ → Cost ℕ
@@ -101,7 +114,7 @@ private
   _ : fibTail 20 ≡ (6765 , ∣ 19 ∣)
   _ = refl
 
--- TODO: finish this proof
+-- Exercise left to the reader: prove that fib and fibTail are equal functions
 -- fib≡fibTail : fib ≡ fibTail
 -- fib≡fibTail i x = Cost≡ (fib x) (fibTail x) (rem x) i
 --   where
