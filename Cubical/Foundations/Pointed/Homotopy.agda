@@ -100,6 +100,11 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
                                                     (φ {f = f} {g = g})
                                                     λ H → isEquivTransport (P≡Q H)
 
+  -- ∙∼≃∙∼P transformed to a path
+  ∙∼≡∙∼P : (f g : Π∙ A B ptB) → (f ∙∼ g) ≡ (f ∙∼P g)
+  ∙∼≡∙∼P f g = ua (∙∼≃∙∼P f g)
+
+
   -- Verifies that the pointed homotopies actually correspond
   -- to their Σ-type versions
   {-

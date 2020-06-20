@@ -34,3 +34,15 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
   -- transformed to equivalence
   funExt∙P≃ : (f g : Π∙ A B ptB) → (f ∙∼P g) ≃ (f ≡ g)
   funExt∙P≃ f g = isoToEquiv (funExt∙PIso f g)
+
+
+  -- funExt∙≃ using the other kind of pointed homotopy
+  funExt∙≃ : (f g : Π∙ A B ptB) → (f ∙∼ g) ≃ (f ≡ g)
+  funExt∙≃ f g = compEquiv (∙∼≃∙∼P f g) (funExt∙P≃ f g)
+
+  -- standard pointed function extensionality and its inverse
+  funExt∙ : {f g : Π∙ A B ptB} → f ∙∼ g → f ≡ g
+  funExt∙ {f = f} {g = g} = equivFun (funExt∙≃ f g)
+
+  funExt∙⁻ : {f g : Π∙ A B ptB} → f ≡ g → f ∙∼ g
+  funExt∙⁻ {f = f} {g = g} = equivFun (invEquiv (funExt∙≃ f g))
