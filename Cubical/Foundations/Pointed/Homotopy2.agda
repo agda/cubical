@@ -8,7 +8,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Fiberwise
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
-
+open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Pointed.Base
 open import Cubical.Foundations.Pointed.Properties
 
@@ -16,17 +16,40 @@ open import Cubical.Homotopy.Base
 
 open import Cubical.Data.Sigma
 
-module SquarePath where
-  module _ {ℓ : Level} {A : Type ℓ} where
-    SquareTransf1 : {a₀₀ a₀₁ a₁₀ a₁₁ : A}
-                    (a₀₋ : a₀₀ ≡ a₀₁)
+module _ where
+  module _ {ℓ : Level} {A : Type ℓ} {a₀₀ a₀₁ a₁₀ a₁₁ : A} where
+    {- SquareTransf1 : (a₀₋ : a₀₀ ≡ a₀₁)
                     (a₁₋ : a₁₀ ≡ a₁₁)
-                    -- (a₋₀ : a₀₀ ≡ a₁₀)
-                    -- (a₋₁ : a₀₁ ≡ a₁₁)
+                    (a₋₀ : a₀₀ ≡ a₁₀)
+                    (a₋₁ : a₀₁ ≡ a₁₁)
                     → Square a₀₋ a₁₋ refl refl ≡ Square ? ? ? ?
-    SquareTransf1 = ?
+    SquareTransf1 = ? -}
+    Square≃doubleComp : (a₀₋ : a₀₀ ≡ a₀₁)
+                    (a₁₋ : a₁₀ ≡ a₁₁)
+                    (a₋₀ : a₀₀ ≡ a₁₀)
+                    (a₋₁ : a₀₁ ≡ a₁₁)
+                    → Square a₀₋ a₁₋ a₋₀ a₋₁ ≃ (a₋₀ ⁻¹ ∙∙ a₀₋ ∙∙ a₋₁ ≡ a₁₋)
+    Square≃doubleComp a₀₋ a₁₋ a₋₀ a₋₁ = transportEquiv (PathP≡doubleCompPathˡ a₋₀ a₀₋ a₁₋ a₋₁)
 
+  module _ {ℓ : Level}  where
+    cong≡ : {A : Type ℓ} {a b c : A} (p : a ≡ b) → (a ≡ c) ≡ (b ≡ c)
+    cong≡ {c = c} = cong (_≡ c)
+    {-
 
+    lWhisker : {A : Type ℓ} {a b c : A} (p : a ≡ b) (q r : b ≡ c) (H : q ≡ r) → p ∙ q ≡ p ∙ r
+    lWhisker p q r H = λ i → p ∙ (H i)
+
+    lWhiskerIso : {A : Type ℓ} {a b c : A} (p : a ≡ b) (q r : b ≡ c) → Iso (q ≡ r) (p ∙ q ≡ p ∙ r)
+    lWhiskerIso p q r = iso (lWhisker p q r)
+                            (λ H i → {!!})
+                            {!!} {!!}
+
+    lWhisker≡ : {A : Type ℓ} {a b c : A} (p : a ≡ b) (q r : b ≡ c) → (q ≡ r) ≡ (p ∙ q ≡ p ∙ r)
+    lWhisker≡ p q r = {!!}
+
+    lInv≡ : {A : Type ℓ} {a b c : A} (p : a ≡ b) (q : b ≡ c) (r : a ≡ c) → (p ∙ q ≡ r) ≡ (q ≡ p ⁻¹ ∙ r)
+    lInv≡ p q r = (lWhisker≡ (p ⁻¹) (p ∙ q) r) ∙ (cong≡ (assoc (p ⁻¹) p q ∙∙ cong (_∙ q) (lCancel p) ∙∙ sym (lUnit q)))
+    -}
 -- pointed homotopies
 module _ {ℓ ℓ'} {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 
@@ -54,8 +77,23 @@ module _ {ℓ ℓ'} {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)}
     Q : (H : f₁ ∼ g₁) → Type ℓ'
     Q H = PathP (λ i → H ⋆ i ≡ ptB) f₂ g₂
 
+    module _ (H : f₁ ∼ g₁) where
+      p = H ⋆
+      r = f₂
+      s = g₂
+      P≡Q : P H ≡ Q H
+      P≡Q = p ≡ r ∙ s ⁻¹ ≡⟨ {!!} ⟩
+            r ∙ s ⁻¹ ≡ p ≡⟨ {!!} ⟩
+            r ≡ p ∙ s ≡⟨ {!!} ⟩
+            p ⁻¹ ∙ r ≡ s ≡⟨ {!!} ⟩
+            p ⁻¹ ∙ r ∙ refl ≡ s ≡⟨ {!!} ⟩
+            p ⁻¹ ∙∙ r ∙∙ refl ≡ s
+              ≡⟨ sym (ua (Square≃doubleComp r s p refl)) ⟩
+            PathP (λ i → p i ≡ ptB) r s ∎
+
+
     φ : (H : f₁ ∼ g₁) → P H → Q H
-    φ H = {!!}
+    φ H = transport (P≡Q H)
 
   module _ (f g : Π∙ A B ptB) where
     private
@@ -73,6 +111,9 @@ module _ {ℓ ℓ'} {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)}
   ∙∼P≡∙∼PΣ : (f g : Π∙ A B ptB) → f ∙∼P g ≡ f ∙∼PΣ g
   ∙∼P≡∙∼PΣ f g = refl
 
+  ∙∼Σ≡∙∼PΣ : (f g : Π∙ A B ptB) → f ∙∼Σ g ≡ f ∙∼Σ g
+  ∙∼Σ≡∙∼PΣ f g = {!ΣPathP!}
+
   totφ : {f g : Π∙ A B ptB} → f ∙∼Σ g → f ∙∼PΣ g
   totφ {f = f} {g = g} (p₁ , p₂) = p₁ , φ {f = f} {g = g} p₁ p₂
 
@@ -80,7 +121,7 @@ module _ {ℓ ℓ'} {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)}
   ∙∼≃∙∼P f g = totφ {f = f} {g = g} , totalEquiv (P {f = f} {g = g})
                                                     (Q {f = f} {g = g})
                                                     (φ {f = f} {g = g})
-                                                    {!!}
+                                                    λ H → isEquivTransport (P≡Q H)
 
 
 
