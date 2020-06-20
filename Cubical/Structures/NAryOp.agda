@@ -58,30 +58,7 @@ module _ {ℓ₁ ℓ₂ : Level} where
     SNS-≡→SNS-PathP (unaryFunIso ι) λ fX fY →
     compEquiv (equivPi λ _ → SNS-PathP→SNS-≡ _ ι θ _ _) funExtEquiv
 
---module _ where
   -- binary
-{-<<<<<<< HEAD
-  binaryFunHom : StrHom (λ (X : Type ℓ) → nAryOp 2 X X) ℓ
-  binaryFunHom (A , f) (B , g) e = (x y : A) → e (f x y) ≡ g (e x) (e y)
-
-  binaryFunIso : StrIso  (λ (X : Type ℓ) → nAryOp 2 X X) ℓ
-  binaryFunIso = StrHom→StrIso binaryFunHom
-
-  binaryFunSNS : SNS {ℓ} _ binaryFunIso
-  binaryFunSNS = SNS-≡→SNS-PathP binaryFunIso (λ s t → compEquiv lem (nAryFunExtEquiv 2 s t))
-    where
-    lem : ∀ {X} → {s t : X → X → X} →
-            ((x y : X) → s x y ≡ t x y) ≃
-            ((xs : Vec X 2) → (s $ⁿ xs) ≡ (t $ⁿ map (λ x → x) xs))
-    lem {X} {s} {t} = isoToEquiv f
-      where
-      f : Iso ((x y : X) → s x y ≡ t x y)
-              ((xs : Vec X 2) → (s $ⁿ xs) ≡ (t $ⁿ map (λ x → x) xs))
-      Iso.fun f p (x ∷ y ∷ [])           = p x y
-      Iso.inv f p x y                    = p (x ∷ y ∷ [])
-      Iso.rightInv f p _ xs@(x ∷ y ∷ []) = p xs
-      Iso.leftInv f p _                  = p
-=======-}
   binaryFunIso : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level} (ι : StrIso S ℓ₃)
     → StrIso (nAryFun-structure 2 S) (ℓ-max ℓ₁ ℓ₃)
   binaryFunIso ι (A , f) (B , g) e =
@@ -93,4 +70,3 @@ module _ {ℓ₁ ℓ₂ : Level} where
   binaryFunSNS ι θ =
     SNS-≡→SNS-PathP (binaryFunIso ι) λ fX fY →
     compEquiv (equivPi λ _ → equivPi λ _ → SNS-PathP→SNS-≡ _ ι θ _ _) funExt₂Equiv
--->>>>>>> master

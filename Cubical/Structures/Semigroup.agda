@@ -128,16 +128,11 @@ module SemigroupΣ-theory {ℓ} where
   SemigroupIsoΣ : (M N : Semigroup) → Type ℓ
   SemigroupIsoΣ M N = Semigroup→SemigroupΣ M ≃[ semigroup-iso ] Semigroup→SemigroupΣ N
 
-{-<<<<<<< HEAD
-semigroup-iso : StrIso semigroup-structure ℓ
-semigroup-iso = add-to-iso binaryFunIso semigroup-axioms
-=======-}
   SemigroupIsoΣPath : {M N : Semigroup} → Iso (SemigroupIso M N) (SemigroupIsoΣ M N)
   fun SemigroupIsoΣPath (semigroupiso e h) = (e , h)
   inv SemigroupIsoΣPath (e , h)            = semigroupiso e h
   rightInv SemigroupIsoΣPath _             = refl
   leftInv SemigroupIsoΣPath _              = refl
--->>>>>>> master
 
   SemigroupPath : (M N : Semigroup) → (SemigroupIso M N) ≃ (M ≡ N)
   SemigroupPath M N =
@@ -145,12 +140,6 @@ semigroup-iso = add-to-iso binaryFunIso semigroup-axioms
     SemigroupIsoΣ M N                               ≃⟨ SemigroupΣPath _ _ ⟩
     Semigroup→SemigroupΣ M ≡ Semigroup→SemigroupΣ N ≃⟨ isoToEquiv (invIso (congIso SemigroupIsoSemigroupΣ)) ⟩
     M ≡ N ■
-
-{-<<<<<<< HEAD
-semigroup-is-SNS : SNS {ℓ} semigroup-structure semigroup-iso
-semigroup-is-SNS = add-axioms-SNS _ semigroup-axiom-isProp binaryFunSNS
-=======
->>>>>>> master
 
 -- We now extract the important results from the above module
 
@@ -162,7 +151,7 @@ isPropIsSemigroup _·_ =
 SemigroupPath : (M N : Semigroup {ℓ}) → (SemigroupIso M N) ≃ (M ≡ N)
 SemigroupPath = SemigroupΣ-theory.SemigroupPath
 
--}
+
 -- To rename the fields when using a Semigroup use for example the following:
 --
 -- open Semigroup M renaming ( Carrier to M ; _·_ to _·M_ )

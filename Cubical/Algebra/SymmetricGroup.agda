@@ -10,20 +10,18 @@ open import Cubical.Data.Fin using (Fin ; isSetFin)
 open import Cubical.Data.Empty
 open import Cubical.Relation.Nullary using (¬_)
 
-open import Cubical.Data.Group hiding (_≃_)
+open import Cubical.Structures.Group
 open import Cubical.Structures.NAryOp
 
 private
   variable
     ℓ : Level
 
-Symmetric-Group : (X : Type ℓ) → isSet X → Group ℓ
-Symmetric-Group X isSetX =
-  group (X ≃ X) (isOfHLevel≃ 2 isSetX isSetX)
-        (group-struct (idEquiv X) invEquiv compEquiv compEquivIdEquiv compEquivEquivId
-                      (λ a b c → sym (compEquiv-assoc a b c)) invEquiv-is-linv invEquiv-is-rinv)
+Symmetric-Group : (X : Type ℓ) → isSet X → Group {ℓ}
+Symmetric-Group X isSetX = makeGroup (idEquiv X) compEquiv invEquiv (isOfHLevel≃ 2 isSetX isSetX)
+  compEquiv-assoc compEquivEquivId compEquivIdEquiv invEquiv-is-rinv invEquiv-is-linv
 
 -- Finite symmetrics groups
 
-Sym : ℕ → Group _
+Sym : ℕ → Group
 Sym n = Symmetric-Group (Fin n) isSetFin

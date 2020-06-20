@@ -87,15 +87,9 @@ record MonoidIso (M N : Monoid {ℓ}) : Type ℓ where
 
   constructor monoidiso
 
-{-<<<<<<< HEAD
--- If we ignore the axioms we get a "raw" monoid
-raw-monoid-is-SNS : SNS {ℓ} raw-monoid-structure _
-raw-monoid-is-SNS = join-SNS pointed-iso pointed-is-SNS (binaryFunIso) (binaryFunSNS)
-=======-}
   private
     module M = Monoid M
     module N = Monoid N
--->>>>>>> master
 
   field
     e     : ⟨ M ⟩ ≃ ⟨ N ⟩
@@ -158,14 +152,8 @@ module MonoidΣ-theory {ℓ} where
   MonoidΣPath : (M N : MonoidΣ) → (M ≃[ monoid-iso ] N) ≃ (M ≡ N)
   MonoidΣPath = SIP monoid-is-SNS
 
-{-<<<<<<< HEAD
--- Monoid equivalence
-monoid-iso : StrIso monoid-structure ℓ
-monoid-iso = add-to-iso (join-iso pointed-iso (binaryFunIso)) monoid-axioms
-=======-}
   MonoidIsoΣ : (M N : Monoid) → Type ℓ
   MonoidIsoΣ M N = Monoid→MonoidΣ M ≃[ monoid-iso ] Monoid→MonoidΣ N
->>>>>>> master
 
   MonoidIsoΣPath : {M N : Monoid} → Iso (MonoidIso M N) (MonoidIsoΣ M N)
   fun MonoidIsoΣPath (monoidiso e h1 h2) = (e , h1 , h2)

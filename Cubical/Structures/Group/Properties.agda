@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 module Cubical.Structures.Group.Properties where
 
@@ -6,63 +6,43 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Structures.Group.Base
 
 module GroupLemmas {ℓ : Level} (G : Group {ℓ}) where
-  op = group-operation G
-  _⨀_ = group-operation G
-  id = group-id G
-  inv = group-inv G
+  open Group G
   abstract
-    set : isSet ⟨ G ⟩
-    set = group-is-set G
-
-    lUnit : (a : ⟨ G ⟩) → a ≡ id ⨀ a
-    lUnit a = sym (group-lid G a)
-    
-    rUnit : (a : ⟨ G ⟩) → a ≡ a ⨀ id
-    rUnit a = sym (group-rid G a)
-
-    lCancel : (a : ⟨ G ⟩) → inv a ⨀ a ≡ id
-    lCancel = group-linv G
-
-    rCancel : (a : ⟨ G ⟩) → a ⨀ inv a ≡ id
-    rCancel = group-rinv G
-
-    assoc : (a b c : ⟨ G ⟩) → a ⨀ (b ⨀ c) ≡ (a ⨀ b) ⨀ c
-    assoc = group-assoc G
-
-    simplL : (a : ⟨ G ⟩) {b c : ⟨ G ⟩} → a ⨀ b ≡ a ⨀ c → b ≡ c
+    simplL : (a : ⟨ G ⟩) {b c : ⟨ G ⟩} → a + b ≡ a + c → b ≡ c
     simplL a {b} {c} p =
       b
-        ≡⟨ lUnit b ∙ cong (_⨀ b) (sym (lCancel a)) ∙ sym (assoc _ _ _) ⟩
-      inv a ⨀ (a ⨀ b)
-        ≡⟨ cong (inv a ⨀_) p ⟩
-      inv a ⨀ (a ⨀ c)
-        ≡⟨ assoc _ _ _ ∙ cong (_⨀ c) (lCancel a) ∙ sym (lUnit c) ⟩
+        ≡⟨ sym (lid b) ∙ cong (_+ b) (sym (invl a)) ∙ sym (assoc _ _ _) ⟩
+      - a + (a + b)
+        ≡⟨ cong (- a +_) p ⟩
+      - a + (a + c)
+        ≡⟨ assoc _ _ _ ∙ cong (_+ c) (invl a) ∙ lid c ⟩
       c ∎
 
-    simplR : {a b : ⟨ G ⟩} (c : ⟨ G ⟩) → a ⨀ c ≡ b ⨀ c → a ≡ b
+    simplR : {a b : ⟨ G ⟩} (c : ⟨ G ⟩) → a + c ≡ b + c → a ≡ b
     simplR {a} {b} c p =
       a
-        ≡⟨ rUnit a ∙ cong (a ⨀_) (sym (rCancel c)) ∙ assoc _ _ _ ⟩
-      (a ⨀ c) ⨀ inv c
-        ≡⟨ cong (_⨀ inv c) p ⟩
-      (b ⨀ c) ⨀ inv c
-        ≡⟨ sym (assoc _ _ _) ∙ cong (b ⨀_) (rCancel c) ∙ sym (rUnit b) ⟩
+        ≡⟨ sym (rid a) ∙ cong (a +_) (sym (invr c)) ∙ assoc _ _ _ ⟩
+      (a + c) - c
+        ≡⟨ cong (_- c) p ⟩
+      (b + c) - c
+        ≡⟨ sym (assoc _ _ _) ∙ cong (b +_) (invr c) ∙ rid b ⟩
       b ∎
 
-  invInvo : (a : ⟨ G ⟩) → inv (inv a) ≡ a
-  invInvo a = simplL (inv a) (rCancel (inv a) ∙ sym (lCancel a))
+  invInvo : (a : ⟨ G ⟩) → - (- a) ≡ a
+  invInvo a = simplL (- a) (invr (- a) ∙ sym (invl a))
 
-  invId : inv id ≡ id
-  invId = simplL id (rCancel id ∙ lUnit id)
+  invId : - 0g ≡ 0g
+  invId = simplL 0g (invr 0g ∙ sym (lid 0g))
 
-  idUniqueL : {e : ⟨ G ⟩} (x : ⟨ G ⟩) → e ⨀ x ≡ x → e ≡ id
-  idUniqueL {e} x p = simplR x (p ∙ lUnit _)
+  idUniqueL : {e : ⟨ G ⟩} (x : ⟨ G ⟩) → e + x ≡ x → e ≡ 0g
+  idUniqueL {e} x p = simplR x (p ∙ sym (lid _))
 
-  idUniqueR : (x : ⟨ G ⟩) {e : ⟨ G ⟩} → x ⨀ e ≡ x → e ≡ id
-  idUniqueR x {e} p = simplL x (p ∙ rUnit _)
+  idUniqueR : (x : ⟨ G ⟩) {e : ⟨ G ⟩} → x + e ≡ x → e ≡ 0g
+  idUniqueR x {e} p = simplL x (p ∙ sym (rid _))
 
-  invUniqueL : {g h : ⟨ G ⟩} → g ⨀ h ≡ id → g ≡ inv h
-  invUniqueL {g} {h} p = simplR h (p ∙ sym (lCancel h))
+  invUniqueL : {g h : ⟨ G ⟩} → g + h ≡ 0g → g ≡ - h
+  invUniqueL {g} {h} p = simplR h (p ∙ sym (invl h))
 
-  invUniqueR : {g h : ⟨ G ⟩} → g ⨀ h ≡ id → h ≡ inv g
-  invUniqueR {g} {h} p = simplL g (p ∙ sym (rCancel g))
+  invUniqueR : {g h : ⟨ G ⟩} → g + h ≡ 0g → h ≡ - g
+  invUniqueR {g} {h} p = simplL g (p ∙ sym (invr g))
+
