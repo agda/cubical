@@ -60,7 +60,7 @@ record Group : Type (ℓ-suc ℓ) where
     isGroup : IsGroup 0g _+_ -_
 
   infix  8 -_
-  infixl 7 _+_
+  infixr 7 _+_
 
   open IsGroup isGroup public
 

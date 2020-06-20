@@ -28,21 +28,32 @@ module GroupLemmas {ℓ : Level} (G : Group {ℓ}) where
         ≡⟨ sym (assoc _ _ _) ∙ cong (b +_) (invr c) ∙ rid b ⟩
       b ∎
 
-  invInvo : (a : ⟨ G ⟩) → - (- a) ≡ a
-  invInvo a = simplL (- a) (invr (- a) ∙ sym (invl a))
+    invInvo : (a : ⟨ G ⟩) → - (- a) ≡ a
+    invInvo a = simplL (- a) (invr (- a) ∙ sym (invl a))
 
-  invId : - 0g ≡ 0g
-  invId = simplL 0g (invr 0g ∙ sym (lid 0g))
+    invId : - 0g ≡ 0g
+    invId = simplL 0g (invr 0g ∙ sym (lid 0g))
 
-  idUniqueL : {e : ⟨ G ⟩} (x : ⟨ G ⟩) → e + x ≡ x → e ≡ 0g
-  idUniqueL {e} x p = simplR x (p ∙ sym (lid _))
+    idUniqueL : {e : ⟨ G ⟩} (x : ⟨ G ⟩) → e + x ≡ x → e ≡ 0g
+    idUniqueL {e} x p = simplR x (p ∙ sym (lid _))
 
-  idUniqueR : (x : ⟨ G ⟩) {e : ⟨ G ⟩} → x + e ≡ x → e ≡ 0g
-  idUniqueR x {e} p = simplL x (p ∙ sym (rid _))
+    idUniqueR : (x : ⟨ G ⟩) {e : ⟨ G ⟩} → x + e ≡ x → e ≡ 0g
+    idUniqueR x {e} p = simplL x (p ∙ sym (rid _))
 
-  invUniqueL : {g h : ⟨ G ⟩} → g + h ≡ 0g → g ≡ - h
-  invUniqueL {g} {h} p = simplR h (p ∙ sym (invl h))
+    invUniqueL : {g h : ⟨ G ⟩} → g + h ≡ 0g → g ≡ - h
+    invUniqueL {g} {h} p = simplR h (p ∙ sym (invl h))
 
-  invUniqueR : {g h : ⟨ G ⟩} → g + h ≡ 0g → h ≡ - g
-  invUniqueR {g} {h} p = simplL g (p ∙ sym (invr g))
+    invUniqueR : {g h : ⟨ G ⟩} → g + h ≡ 0g → h ≡ - g
+    invUniqueR {g} {h} p = simplL g (p ∙ sym (invr g))
+
+    invDistr : (a b : ⟨ G ⟩) → - (a + b) ≡ - b - a
+    invDistr a b = sym (invUniqueR γ) where
+      γ : (a + b) + (- b - a) ≡ 0g
+      γ = (a + b) + (- b - a)
+            ≡⟨ sym (assoc _ _ _) ⟩
+          a + b + (- b) + (- a)
+            ≡⟨ cong (a +_) (assoc _ _ _ ∙ cong (_+ (- a)) (invr b)) ⟩
+          a + (0g - a)
+            ≡⟨ cong (a +_) (lid (- a)) ∙ invr a ⟩
+          0g ∎
 
