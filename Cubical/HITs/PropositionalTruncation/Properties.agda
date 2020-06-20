@@ -5,7 +5,7 @@ This file contains:
 - Eliminator for propositional truncation
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.PropositionalTruncation.Properties where
 
 open import Cubical.Core.Everything
@@ -129,7 +129,7 @@ module SetElim (Bset : isSet B) where
   eqv : (g : Σ (A → B) 2-Constant)
       → ∀ fi → fib g ≡ fi
   eqv g (f , p) =
-    ΣProp≡ (λ f → isOfHLevelΣ 2 Fset Kset _ _)
+    Σ≡Prop (λ f → isOfHLevelΣ 2 Fset Kset _ _)
       (cong (uncurry rec→Set) (sym p) ∙ setRecLemma f)
 
   trunc→Set≃ : (∥ A ∥ → B) ≃ (Σ (A → B) 2-Constant)
@@ -178,7 +178,7 @@ module SetElim (Bset : isSet B) where
 open SetElim public using (rec→Set; trunc→Set≃)
 
 elim→Set
-  : {P : ∥ A ∥ → Set ℓ}
+  : {P : ∥ A ∥ → Type ℓ}
   → (∀ t → isSet (P t))
   → (f : (x : A) → P ∣ x ∣)
   → (kf : ∀ x y → PathP (λ i → P (squash ∣ x ∣ ∣ y ∣ i)) (f x) (f y))
@@ -340,5 +340,5 @@ module GpdElim (Bgpd : isGroupoid B) where
 
 open GpdElim using (rec→Gpd; trunc→Gpd≃) public
 
-RecHSet : (P : A → HLevel ℓ 2) → 3-Constant P → ∥ A ∥ → HLevel ℓ 2
-RecHSet P 3kP = rec→Gpd (isOfHLevelHLevel 2) P 3kP
+RecHSet : (P : A → TypeOfHLevel ℓ 2) → 3-Constant P → ∥ A ∥ → TypeOfHLevel ℓ 2
+RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP

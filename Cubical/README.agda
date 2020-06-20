@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --no-import-sorts #-}
 module Cubical.README where
 
 ------------------------------------------------------------------------
@@ -32,6 +32,9 @@ import Cubical.HITs.Everything
 
 -- Coinductive data types and properties
 import Cubical.Codata.Everything
+
+-- Papers
+import Cubical.Papers.Everything
 
 -- Properties and proofs about relations
 import Cubical.Relation.Everything

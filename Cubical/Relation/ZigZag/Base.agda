@@ -1,98 +1,89 @@
 -- We define ZigZag-complete relations and prove that bisimulations
 -- give rise to equivalences on the set quotients.
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Relation.ZigZag.Base where
 
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Data.Sigma using (_×_; ΣProp≡)
 open import Cubical.HITs.SetQuotients.Base
 open import Cubical.HITs.SetQuotients.Properties
 
-
+open import Cubical.Relation.Binary.Base
+open BinaryRelation
+open isEquivRel
 
 private
  variable
   ℓ ℓ' : Level
 
-
 isZigZagComplete : {A B : Type ℓ} (R : A → B → Type ℓ') → Type (ℓ-max ℓ ℓ')
-isZigZagComplete R = ∀ a b a' b' → R a b → R a' b → R a' b' → R a b'
+isZigZagComplete R = ∀ {a b a' b'} → R a b → R a' b → R a' b' → R a b'
 
+ZigZagRel : (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+ZigZagRel A B ℓ' = Σ[ R ∈ (A → B → Type ℓ') ] (isZigZagComplete R)
 
-isBisimulation : {A B : Type ℓ} (R : A → B → Type ℓ') (f : A → B) (g : B → A) → Type (ℓ-max ℓ ℓ')
-isBisimulation R f g =  isZigZagComplete R
-                      × (∀ a → R a (f a))
-                      × (∀ b → R (g b) b)
+record isBisimulation {A B : Type ℓ} (R : A → B → Type ℓ') : Type (ℓ-max ℓ ℓ') where
+  field
+    zigzag : isZigZagComplete R
+    fwd : A → B
+    fwdRel : (a : A) → R a (fwd a)
+    bwd : B → A
+    bwdRel : (b : B) → R (bwd b) b
+    prop : ∀ a b → isProp (R a b)
 
+open isBisimulation
+
+Bisimulation : (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+Bisimulation A B ℓ' =
+  Σ[ R ∈ (A → B → Type ℓ') ] isBisimulation R
+
+invBisim : {A B : Type ℓ} {ℓ' : Level} → Bisimulation A B ℓ' → Bisimulation B A ℓ'
+invBisim (R , bisim) .fst b a = R a b
+invBisim (R , bisim) .snd .zigzag aRb aRb' a'Rb' = bisim .zigzag a'Rb' aRb' aRb
+invBisim (R , bisim) .snd .fwd = bisim .bwd
+invBisim (R , bisim) .snd .fwdRel = bisim .bwdRel
+invBisim (R , bisim) .snd .bwd = bisim .fwd
+invBisim (R , bisim) .snd .bwdRel = bisim .fwdRel
+invBisim (R , bisim) .snd .prop b a = bisim .prop a b
+
+bisim→EquivRel : {A B : Type ℓ}
+  → Bisimulation A B ℓ' → Σ (A → A → Type ℓ') isEquivRel
+bisim→EquivRel (R , sim) .fst a₀ a₁ = R a₀ (sim .fwd a₁)
+bisim→EquivRel (R , sim) .snd .reflexive a = sim .fwdRel a
+bisim→EquivRel (R , sim) .snd .symmetric a₀ a₁ r =
+  sim .zigzag (sim .fwdRel a₁) r (sim .fwdRel a₀)
+bisim→EquivRel (R , sim) .snd .transitive a₀ a₁ a₂ r s =
+  sim .zigzag r (sim .fwdRel a₁) s
+
+isPropBisimEquivRel : {A B : Type ℓ} (R : Bisimulation A B ℓ')
+  → isPropValued (bisim→EquivRel R .fst)
+isPropBisimEquivRel (_ , sim) a₀ a₁ = sim .prop a₀ (sim .fwd a₁)
 
 -- The following result is due to Carlo Angiuli
-module Bisimulation→Equiv (A B : Type ℓ)
-                          (R : A → B → Type ℓ')
-                          (f : A → B) (g : B → A)
-                          (isBisimRfg : isBisimulation R f g) where
+module Bisim→Equiv {A B : Type ℓ} (R : Bisimulation A B ℓ') where
 
- -- first we fix some notation
- zigzag : isZigZagComplete R
- zigzag = isBisimRfg .fst
+  private
+    sim = R .snd
+    f = sim .fwd
+    g = sim .bwd
 
- α : ∀ a → R a (f a)
- α = isBisimRfg .snd .fst
+  Rᴸ = bisim→EquivRel R .fst
+  Rᴿ = bisim→EquivRel (invBisim R) .fst
 
- β : ∀ b → R (g b) b
- β = isBisimRfg .snd .snd
+  Thm : (A / Rᴸ) ≃ (B / Rᴿ)
+  Thm = isoToEquiv (iso φ ψ η ε)
+    where
+    φ : _
+    φ [ a ] = [ f a ]
+    φ (eq/ a₀ a₁ r i) = eq/ _ _ (sim .zigzag (sim .bwdRel (f a₁)) r (sim .fwdRel a₀)) i
+    φ (squash/ _ _ p q j i) = squash/ _ _ (cong φ p) (cong φ q) j i
 
- -- using R we can define binary relations on A and B
- Rᴬ : A → A → Type (ℓ-max ℓ ℓ')
- Rᴬ a a' = Σ[ b ∈ B ] (R a b × R a' b)
+    ψ : _
+    ψ [ b ] = [ g b ]
+    ψ (eq/ b₀ b₁ s i) = eq/ _ _ (sim .zigzag (sim .bwdRel b₀) s (sim .fwdRel (g b₁))) i
+    ψ (squash/ _ _ p q j i) = squash/ _ _ (cong ψ p) (cong ψ q) j i
 
- Rᴮ : B → B → Type (ℓ-max ℓ ℓ')
- Rᴮ b b' = Σ[ a ∈ A ] (R a b × R a b')
+    η = elimProp (λ _ → squash/ _ _) (λ b → eq/ _ _ (sim .fwdRel (g b)))
 
- -- Rᴬ and Rᴮ are equivalence relations
- Rᴬ-reflexive : ∀ a → Rᴬ a a
- Rᴬ-reflexive a = f a , α a , α a
-
- Rᴬ-symmetric : ∀ a a' → Rᴬ a a' → Rᴬ a' a
- Rᴬ-symmetric a a' (b , r , s) = b , s , r
-
- Rᴬ-transitive : ∀ a a' a'' → Rᴬ a a' → Rᴬ a' a'' → Rᴬ a a''
- Rᴬ-transitive a a' a'' (b , r , s) (b' , r' , s') = b' , zigzag _ _ _ _ r s r' , s'
-
-
- Rᴮ-reflexive : ∀ b → Rᴮ b b
- Rᴮ-reflexive b = g b , β b , β b
-
- Rᴮ-symmetric : ∀ b b' → Rᴮ b b' → Rᴮ b' b
- Rᴮ-symmetric b b' (a , r , s) = a , s , r
-
- Rᴮ-transitive : ∀ b b' b'' → Rᴮ b b' → Rᴮ b' b'' → Rᴮ b b''
- Rᴮ-transitive b b' b'' (a , r , s) (a' , r' , s') = a , r , zigzag _ _ _ _ s r' s'
-
-
- -- proof of A / Rᴬ ≃ B / Rᴮ
- φ : A / Rᴬ → B / Rᴮ
- φ [ a ] = [ f a ]
- φ (eq/ a a' r i) = eq/ (f a) (f a') s i
-  where
-  s : Rᴮ (f a) (f a')
-  s = a , α a , zigzag _ _ _ _ (r .snd .fst) (r .snd .snd) (α a')
- φ (squash/ x x₁ p q i j) = squash/ (φ x) (φ x₁) (cong φ p) (cong φ q) i j
-
- ψ : B / Rᴮ → A / Rᴬ
- ψ [ b ] = [ g b ]
- ψ (eq/ b b' s i) = eq/ (g b) (g b') r i
-  where
-  r : Rᴬ (g b) (g b')
-  r = b' , zigzag _ _ _ _ (β b) (s .snd .fst) (s .snd .snd) , β b'
- ψ (squash/ y y₁ p q i j) =  squash/ (ψ y) (ψ y₁) (cong ψ p) (cong ψ q) i j
-
- η : section φ ψ
- η y = elimProp (λ y → squash/ (φ (ψ y)) y) (λ b → eq/ _ _ (g b , α (g b) , β b)) y
-
- ε : retract φ ψ
- ε x = elimProp (λ x → squash/ (ψ (φ x)) x) (λ a → eq/ _ _ (f a , β (f a) , α a)) x
-
- Thm : (A / Rᴬ) ≃ (B / Rᴮ)
- Thm = isoToEquiv (iso φ ψ η ε)
+    ε = elimProp (λ _ → squash/ _ _) (λ a → eq/ _ _ (sim .bwdRel (f a)))

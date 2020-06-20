@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Data.Maybe.Properties where
 
 open import Cubical.Core.Everything
@@ -59,7 +59,7 @@ module MaybePath {ℓ} {A : Type ℓ} where
   Cover≡Path c c' = isoToPath
     (iso (decode c c') (encode c c') (decodeEncode c c') (encodeDecode c c'))
 
-  isOfHLevelCover : (n : ℕ)
+  isOfHLevelCover : (n : HLevel)
     → isOfHLevel (suc (suc n)) A
     → ∀ c c' → isOfHLevel (suc n) (Cover c c')
   isOfHLevelCover n p nothing  nothing   = isOfHLevelLift (suc n) (isOfHLevelUnit (suc n))
@@ -67,7 +67,7 @@ module MaybePath {ℓ} {A : Type ℓ} where
   isOfHLevelCover n p (just a) nothing   = isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥)
   isOfHLevelCover n p (just a) (just a') = p a a'
 
-isOfHLevelMaybe : ∀ {ℓ} (n : ℕ) {A : Type ℓ}
+isOfHLevelMaybe : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isOfHLevel (suc (suc n)) A
   → isOfHLevel (suc (suc n)) (Maybe A)
 isOfHLevelMaybe n lA c c' =

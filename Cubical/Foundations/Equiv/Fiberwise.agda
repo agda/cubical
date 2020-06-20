@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Equiv.Fiberwise where
 
 open import Cubical.Core.Everything
@@ -7,6 +7,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
+open import Cubical.Data.Sigma
 
 module _ {a p q} {A : Type a} (P : A → Type p) (Q : A → Type q)
          (f : ∀ x → P x → Q x)
@@ -43,14 +44,14 @@ module _ {a p q} {A : Type a} (P : A → Type p) (Q : A → Type q)
 
 module _ {ℓ : Level} {U : Type ℓ} {ℓr} (_~_ : U → U → Type ℓr)
          (idTo~ : ∀ {A B} → A ≡ B → A ~ B)
-         (c : ∀ A → isContr (Σ U \ X → A ~ X))
+         (c : ∀ A → ∃![ X ∈ U ] (A ~ X))
        where
 
   isContrToUniv : ∀ {A B} → isEquiv (idTo~ {A} {B})
   isContrToUniv {A} {B}
     = fiberEquiv (λ z → A ≡ z) (λ z → A ~ z) (\ B → idTo~ {A} {B})
                  (λ { .equiv-proof y
-                    → isContrΣ ((_ , refl) , (\ z → contrSingl (z .snd)))
+                    → isContrΣ (isContrSingl _)
                                    \ a → isContr→isContrPath (c A) _ _
                     })
                  B

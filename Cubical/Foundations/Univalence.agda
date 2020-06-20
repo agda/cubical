@@ -12,7 +12,7 @@ various consequences of univalence
 - Isomorphism induction ([elimIso])
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Univalence where
 
 open import Cubical.Foundations.Prelude
@@ -20,6 +20,8 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.GroupoidLaws
+
+open import Cubical.Data.Sigma.Base
 
 open import Cubical.Core.Glue public
   using ( Glue ; glue ; unglue ; lineToEquiv )
@@ -142,7 +144,7 @@ unglueEquiv A φ f = ( unglue φ , unglueIsEquiv A φ f )
 -- unglue is an equivalence. The standard formulation can be found in
 -- Cubical/Basics/Univalence.
 --
-EquivContr : ∀ (A : Type ℓ) → isContr (Σ[ T ∈ Type ℓ ] T ≃ A)
+EquivContr : ∀ (A : Type ℓ) → ∃![ T ∈ Type ℓ ] (T ≃ A)
 EquivContr {ℓ = ℓ} A =
   ( (A , idEquiv A)
   , idEquiv≡ )
@@ -177,8 +179,14 @@ module Univalence (au : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B)
   au-ua {B = B} = EquivJ (λ _ f → au (ua f) ≡ f)
                          (subst (λ r → au r ≡ idEquiv _) (sym uaIdEquiv) (aurefl {B = B}))
 
+  isoThm : ∀ {ℓ} {A B : Type ℓ} → Iso (A ≡ B) (A ≃ B)
+  isoThm .Iso.fun = au
+  isoThm .Iso.inv = ua
+  isoThm .Iso.rightInv = au-ua
+  isoThm .Iso.leftInv = ua-au
+
   thm : ∀ {ℓ} {A B : Type ℓ} → isEquiv au
-  thm {A = A} {B = B} = isoToIsEquiv {B = A ≃ B} (iso au ua au-ua ua-au)
+  thm {A = A} {B = B} = isoToIsEquiv {B = A ≃ B} isoThm
 
 pathToEquiv : {A B : Type ℓ} → A ≡ B → A ≃ B
 pathToEquiv p = lineToEquiv (λ i → p i)
@@ -193,6 +201,9 @@ ua-pathToEquiv : {A B : Type ℓ} (p : A ≡ B) → ua (pathToEquiv p) ≡ p
 ua-pathToEquiv = Univalence.ua-au pathToEquiv pathToEquivRefl
 
 -- Univalence
+univalenceIso : {A B : Type ℓ} → Iso (A ≡ B) (A ≃ B)
+univalenceIso = Univalence.isoThm pathToEquiv pathToEquivRefl
+
 univalence : {A B : Type ℓ} → (A ≡ B) ≃ (A ≃ B)
 univalence = ( pathToEquiv , Univalence.thm pathToEquiv pathToEquivRefl  )
 

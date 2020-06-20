@@ -1,90 +1,151 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Structures.AbGroup where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
-open import Cubical.Data.Sigma
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
+open import Cubical.Data.Sigma
+
+open import Cubical.Structures.Macro
 open import Cubical.Structures.NAryOp
+open import Cubical.Structures.Pointed
+open import Cubical.Structures.Semigroup hiding (⟨_⟩)
+open import Cubical.Structures.Monoid hiding (⟨_⟩)
 open import Cubical.Structures.Group hiding (⟨_⟩)
+
+open Iso
 
 private
   variable
     ℓ : Level
 
-abelian-group-axioms : (X : Type ℓ) → raw-group-structure X → Type ℓ
-abelian-group-axioms X _·_ = group-axioms X _·_ ×
-                             ((x y : X) → x · y ≡ y · x)
+record IsAbGroup {G : Type ℓ}
+                 (0g : G) (_+_ : G → G → G) (-_ : G → G) : Type ℓ where
 
-abelian-group-structure : Type ℓ → Type ℓ
-abelian-group-structure = add-to-structure raw-group-structure abelian-group-axioms
+  constructor isabgroup
 
-AbGroup : Type (ℓ-suc ℓ)
-AbGroup {ℓ} = TypeWithStr ℓ abelian-group-structure
+  field
+    isGroup : IsGroup 0g _+_ -_
+    comm    : (x y : G) → x + y ≡ y + x
 
-abelian-group-hom : StrHom abelian-group-structure ℓ
-abelian-group-hom = add-to-hom (binaryFunHom) abelian-group-axioms
+  open IsGroup isGroup public
 
-abelian-group-iso : StrIso abelian-group-structure ℓ
-abelian-group-iso = add-to-iso binaryFunIso abelian-group-axioms --StrHom→StrIso abelian-group-hom
+record AbGroup : Type (ℓ-suc ℓ) where
 
-abelian-group-axioms-isProp : (X : Type ℓ)
-                           → (s : raw-group-structure X)
-                           → isProp (abelian-group-axioms X s)
-abelian-group-axioms-isProp X _·_ = isPropΣ (group-axioms-isProp X _·_)
-                                    λ { ((isSetX , _) , _) → isPropΠ2 λ _ _ → isSetX _ _}
+  constructor abgroup
 
-abelian-group-is-SNS : SNS {ℓ} abelian-group-structure abelian-group-iso
-abelian-group-is-SNS = add-axioms-SNS _ abelian-group-axioms-isProp raw-group-is-SNS
+  field
+    Carrier   : Type ℓ
+    0g        : Carrier
+    _+_       : Carrier → Carrier → Carrier
+    -_        : Carrier → Carrier
+    isAbGroup : IsAbGroup 0g _+_ -_
 
-AbGroupPath : (M N : AbGroup {ℓ}) → (M ≃[ abelian-group-iso ] N) ≃ (M ≡ N)
-AbGroupPath = SIP abelian-group-is-SNS
+  infix  8 -_
+  infixl 7 _+_
 
--- Abelian group is group
+  open IsAbGroup isAbGroup public
+
+-- Extractor for the carrier type
+⟨_⟩ : AbGroup → Type ℓ
+⟨_⟩ = AbGroup.Carrier
+
+makeIsAbGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
+              (is-setG : isSet G)
+              (assoc   : (x y z : G) → x + (y + z) ≡ (x + y) + z)
+              (rid     : (x : G) → x + 0g ≡ x)
+              (rinv    : (x : G) → x + (- x) ≡ 0g)
+              (comm    : (x y : G) → x + y ≡ y + x)
+            → IsAbGroup 0g _+_ -_
+makeIsAbGroup is-setG assoc rid rinv comm =
+  isabgroup (makeIsGroup is-setG assoc rid (λ x → comm _ _ ∙ rid x) rinv (λ x → comm _ _ ∙ rinv x)) comm
+
+makeAbGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
+            (is-setG : isSet G)
+            (assoc : (x y z : G) → x + (y + z) ≡ (x + y) + z)
+            (rid : (x : G) → x + 0g ≡ x)
+            (rinv : (x : G) → x + (- x) ≡ 0g)
+            (comm    : (x y : G) → x + y ≡ y + x)
+          → AbGroup
+makeAbGroup 0g _+_ -_ is-setG assoc rid rinv comm =
+  abgroup _ 0g _+_ -_ (makeIsAbGroup is-setG assoc rid rinv comm)
+
 
 AbGroup→Group : AbGroup {ℓ} → Group
-AbGroup→Group (G , _·_ , isGroup , ·comm) = G , _·_ , isGroup
+AbGroup→Group (abgroup _ _ _ _ H) = group _ _ _ _ (IsAbGroup.isGroup H)
 
--- Abelian group extractors
+AbGroupHom : (G H : AbGroup) → Type ℓ
+AbGroupHom G H = GroupHom (AbGroup→Group G) (AbGroup→Group H)
 
-⟨_⟩ : AbGroup {ℓ} → Type ℓ
-⟨ G , _ ⟩ = G
+AbGroupIso : (G H : AbGroup) → Type ℓ
+AbGroupIso G H = GroupIso (AbGroup→Group G) (AbGroup→Group H)
 
-module _ (G : AbGroup {ℓ}) where
+module AbGroupΣ-theory {ℓ} where
 
-  abgroup-operation = group-operation (AbGroup→Group G)
+  open GroupΣ-theory
 
-  abgroup-is-set = group-is-set (AbGroup→Group G)
+  abgroup-axioms : (G : Type ℓ) → raw-group-structure G → Type ℓ
+  abgroup-axioms G _+_ = group-axioms G _+_ × ((x y : G) → x + y ≡ y + x)
 
-  abgroup-assoc = group-assoc (AbGroup→Group G)
+  abgroup-structure : Type ℓ → Type ℓ
+  abgroup-structure = add-to-structure raw-group-structure abgroup-axioms
 
-  abgroup-id = group-id (AbGroup→Group G)
+  AbGroupΣ : Type (ℓ-suc ℓ)
+  AbGroupΣ = TypeWithStr ℓ abgroup-structure
 
-  abgroup-rid = group-rid (AbGroup→Group G)
+  abgroup-iso : StrIso abgroup-structure ℓ
+  abgroup-iso = add-to-iso (binaryFunIso pointed-iso) abgroup-axioms
 
-  abgroup-lid = group-lid (AbGroup→Group G)
+  isProp-abgroup-axioms : (G : Type ℓ) (s : raw-group-structure G)
+                        → isProp (abgroup-axioms G s)
+  isProp-abgroup-axioms G _+_ =
+    isPropΣ (isProp-group-axioms G _+_)
+            λ { (H , _) → isPropΠ2 λ _ _ → IsSemigroup.is-set H _ _}
 
-  abgroup-inv = group-inv (AbGroup→Group G)
+  AbGroup→AbGroupΣ : AbGroup → AbGroupΣ
+  AbGroup→AbGroupΣ (abgroup _ _ _ _ (isabgroup G C)) =
+    _ , _ , Group→GroupΣ (group _ _ _ _ G) .snd .snd , C
 
-  abgroup-rinv = group-rinv (AbGroup→Group G)
+  AbGroupΣ→AbGroup : AbGroupΣ → AbGroup
+  AbGroupΣ→AbGroup (_ , _ , G , C) =
+    abgroup _ _ _ _ (isabgroup (GroupΣ→Group (_ , _ , G) .Group.isGroup) C)
 
-  abgroup-linv = group-linv (AbGroup→Group G)
+  AbGroupIsoAbGroupΣ : Iso AbGroup AbGroupΣ
+  AbGroupIsoAbGroupΣ = iso AbGroup→AbGroupΣ AbGroupΣ→AbGroup (λ _ → refl) (λ _ → refl)
 
-module abgroup-operation-syntax where
+  abgroup-is-SNS : SNS abgroup-structure abgroup-iso
+  abgroup-is-SNS = add-axioms-SNS _ isProp-abgroup-axioms raw-group-is-SNS
 
-  abgroup-operation-syntax : (G : AbGroup {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
-  abgroup-operation-syntax G = abgroup-operation G
-  infixr 20 abgroup-operation-syntax
-  syntax abgroup-operation-syntax G x y = x ·⟨ G ⟩ y
+  AbGroupΣPath : (G H : AbGroupΣ) → (G ≃[ abgroup-iso ] H) ≃ (G ≡ H)
+  AbGroupΣPath = SIP abgroup-is-SNS
 
-open abgroup-operation-syntax
+  AbGroupIsoΣ : (G H : AbGroup) → Type ℓ
+  AbGroupIsoΣ G H = AbGroup→AbGroupΣ G ≃[ abgroup-iso ] AbGroup→AbGroupΣ H
 
-abgroup-comm : (G : AbGroup {ℓ}) (x y : ⟨ G ⟩) → x ·⟨ G ⟩ y ≡ y ·⟨ G ⟩ x
-abgroup-comm (_ , _ , _ , P) = P
+  AbGroupPath : (G H : AbGroup) → (AbGroupIso G H) ≃ (G ≡ H)
+  AbGroupPath G H =
+    AbGroupIso G H                          ≃⟨ isoToEquiv GroupIsoΣPath ⟩
+    AbGroupIsoΣ G H                         ≃⟨ AbGroupΣPath _ _ ⟩
+    AbGroup→AbGroupΣ G ≡ AbGroup→AbGroupΣ H ≃⟨ isoToEquiv (invIso (congIso AbGroupIsoAbGroupΣ)) ⟩
+    G ≡ H ■
 
--- AbGroup ·syntax
+-- Extract the characterization of equality of groups
+AbGroupPath : (G H : AbGroup {ℓ}) → (AbGroupIso G H) ≃ (G ≡ H)
+AbGroupPath = AbGroupΣ-theory.AbGroupPath
 
-module abgroup-·syntax (G : AbGroup {ℓ}) where
-  open group-·syntax (AbGroup→Group G) public
+isPropIsAbGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
+                → isProp (IsAbGroup 0g _+_ -_)
+isPropIsAbGroup 0g _+_ -_ (isabgroup GG GC) (isabgroup HG HC) =
+  λ i → isabgroup (isPropIsGroup _ _ _ GG HG i) (isPropComm GC HC i)
+  where
+  isSetG : isSet _
+  isSetG = GG .IsGroup.isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+
+  isPropComm : isProp ((x y : _) → x + y ≡ y + x)
+  isPropComm = isPropΠ2 λ _ _ → isSetG _ _

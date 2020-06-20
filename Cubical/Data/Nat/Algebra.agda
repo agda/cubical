@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
 
 {-
 
@@ -223,7 +223,7 @@ module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (�
 isNatInductive≡isNatHInitial : {N : NatAlgebra ℓ'} (ℓ : Level)
                              → isNatInductive N (ℓ-max ℓ' ℓ) ≡ isNatHInitial N (ℓ-max ℓ' ℓ)
 isNatInductive≡isNatHInitial {ℓ'} {N} ℓ =
-  isoToPath (equivToIso (PropEquiv→Equiv isPropIsNatInductive isPropIsNatHInitial ind→init init→ind)) where
+  isoToPath (equivToIso (isPropEquiv→Equiv isPropIsNatInductive isPropIsNatHInitial ind→init init→ind)) where
   open import Cubical.Foundations.Equiv
   open AlgebraPropositionality
   open AlgebraHInit→Ind N ℓ renaming (Fsection to init→ind)

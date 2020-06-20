@@ -8,7 +8,7 @@ A couple of general facts about equivalences:
 
 (these are not in 'Equiv.agda' because they need Univalence.agda (which imports Equiv.agda))
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Equiv.Properties where
 
 open import Cubical.Core.Everything
@@ -28,14 +28,18 @@ private
     ℓ ℓ′ : Level
     A B : Type ℓ
 
+-- There are more universe polymorphic versions of these results in
+-- Cubical.Foundations.Equiv.HalfAdjoint that seem to have better
+-- computational behavior
+private
+  isEquivCong : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → (cong (fst e) p))
+  isEquivCong {B = B} e = EquivJ (λ (A' : Type _) (e' : A' ≃ B) →
+                                 (x' y' : A') → isEquiv (λ (p : x' ≡ y') → cong (fst e') p))
+                                 (λ x' y' → idIsEquiv (x' ≡ y')) e _ _
 
-isEquivCong : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → (cong (fst e) p))
-isEquivCong {B = B} e = EquivJ (λ (A' : Type _) (e' : A' ≃ B) →
-                               (x' y' : A') → isEquiv (λ (p : x' ≡ y') → cong (fst e') p))
-                               (λ x' y' → idIsEquiv (x' ≡ y')) e _ _
-
-congEquiv : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
-congEquiv e = ((λ (p : _ ≡ _) → cong (fst e) p) , isEquivCong e)
+  congEquiv : ∀ {ℓ} {A B : Type ℓ} {x y : A} (e : A ≃ B)
+            → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
+  congEquiv e = ((λ (p : _ ≡ _) → cong (fst e) p) , isEquivCong e)
 
 isEquivPreComp : ∀ {ℓ ℓ′} {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
   → isEquiv (λ (φ : B → C) → φ ∘ e .fst)
@@ -79,13 +83,13 @@ snd (isContr-hasSection e) (f , ε) i = (λ b → fst (p b i)) , (λ b → snd (
 -- there is a (much slower) alternate proof that also works for retract
 
 isContr-hasSection' : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B) → isContr (hasSection (fst e))
-isContr-hasSection' {_} {A} {B} e = transport (λ i → isContr (Σ[ g ∈ (B → A) ] eq g i))
+isContr-hasSection' {_} {A} {B} e = transport (λ i → ∃![ g ∈ (B → A) ] eq g i)
                                               (equiv-proof (isEquivPostComp e) (idfun _))
   where eq : ∀ (g : B → A) → ((fst e) ∘ g ≡ idfun _) ≡ (section (fst e) g)
         eq g = sym (funExtPath {f = (fst e) ∘ g} {g = idfun _})
 
 isContr-hasRetract : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B) → isContr (hasRetract (fst e))
-isContr-hasRetract {_} {A} {B} e = transport (λ i → isContr (Σ[ g ∈ (B → A) ] eq g i))
+isContr-hasRetract {_} {A} {B} e = transport (λ i → ∃![ g ∈ (B → A) ] eq g i)
                                               (equiv-proof (isEquivPreComp e) (idfun _))
   where eq : ∀ (g : B → A) → (g ∘ (fst e) ≡ idfun _) ≡ (retract (fst e) g)
         eq g = sym (funExtPath {f = g ∘ (fst e)} {g = idfun _})

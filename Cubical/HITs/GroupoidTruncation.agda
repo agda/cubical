@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.GroupoidTruncation where
 
 open import Cubical.HITs.GroupoidTruncation.Base public

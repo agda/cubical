@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Algebra.SymmetricGroup where
 
 open import Cubical.Foundations.Prelude
@@ -10,21 +10,20 @@ open import Cubical.Data.Fin using (Fin ; isSetFin)
 open import Cubical.Data.Empty
 open import Cubical.Relation.Nullary using (¬_)
 
-open import Cubical.Structures.Group
+open import Cubical.Data.Group hiding (_≃_)
 open import Cubical.Structures.NAryOp
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ : Level
 
-Symmetric-Group : (X : Type ℓ) → isSet X → Group
+Symmetric-Group : (X : Type ℓ) → isSet X → Group ℓ
 Symmetric-Group X isSetX =
-  (X ≃ X) ,
-  compEquiv ,
-  (isOfHLevel≃ 2 isSetX isSetX , compEquiv-assoc) ,
-  idEquiv X , (λ f → compEquivEquivId f , compEquivIdEquiv f) , λ f → invEquiv f , invEquiv-is-rinv f , invEquiv-is-linv f
+  group (X ≃ X) (isOfHLevel≃ 2 isSetX isSetX)
+        (group-struct (idEquiv X) invEquiv compEquiv compEquivIdEquiv compEquivEquivId
+                      (λ a b c → sym (compEquiv-assoc a b c)) invEquiv-is-linv invEquiv-is-rinv)
 
 -- Finite symmetrics groups
 
-Sym : ℕ → Group
+Sym : ℕ → Group _
 Sym n = Symmetric-Group (Fin n) isSetFin

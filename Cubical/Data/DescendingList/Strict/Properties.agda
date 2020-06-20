@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Everything
@@ -22,7 +22,7 @@ unsort (cons x xs x>xs) = x ∷ unsort xs
 
 module _ where
   open import Cubical.Relation.Nullary
-  data Tri (A B C : Set) : Set where
+  data Tri (A B C : Type) : Type where
     tri-< : A → ¬ B → ¬ C → Tri A B C
     tri-≡ : ¬ A → B → ¬ C → Tri A B C
     tri-> : ¬ A → ¬ B → C → Tri A B C
@@ -35,7 +35,7 @@ module IsoToLFSet
    (>-irreflexive : ∀ {x} → Type¬ x > x)
   where
 
-  Tri' : A → A → Set
+  Tri' : A → A → Type
   Tri' x y = Tri (y > x) (x ≡ y) (x > y)
 
   open import Cubical.Foundations.Logic
@@ -58,7 +58,7 @@ module IsoToLFSet
   >ᴴ-trans x y [] x>y y>zs = >ᴴ[]
   >ᴴ-trans x y (cons z zs _) x>y (>ᴴcons y>z) = >ᴴcons (>-trans x>y y>z)
 
-  ≡ₚ-sym : ∀ {A : Set} {x y : A} → [ x ≡ₚ y ] → [ y ≡ₚ x ]
+  ≡ₚ-sym : ∀ {A : Type} {x y : A} → [ x ≡ₚ y ] → [ y ≡ₚ x ]
   ≡ₚ-sym p = PropTrunc.rec squash (λ p → ∣ sym p ∣) p
 
   >-all : ∀ x l → x >ᴴ l → ∀ a → [ a ∈ˡ l ] → x > a
