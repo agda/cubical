@@ -19,7 +19,7 @@ module _ {ℓ ℓ'} {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)}
   funExt∙P⁻ : {f g : Π∙ A B ptB} → f ≡ g → f ∙∼P g
   funExt∙P⁻ p = (λ a i → p i .fst a) , λ i → p i .snd
 
-  -- function extensionality is an isomorphis
+  -- function extensionality is an isomorphism, PathP version
   funExt∙PIso : (f g : Π∙ A B ptB) → Iso (f ∙∼P g) (f ≡ g)
   funExt∙PIso f g =
     iso (funExt∙P {f = f} {g = g})
