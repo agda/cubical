@@ -11,10 +11,12 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Pointed.Base
 open import Cubical.Foundations.Pointed.Properties
 
+open import Cubical.Homotopy.Base
+
 open import Cubical.Data.Sigma
 
-_∼_ : {ℓ ℓ' : Level} {X : Type ℓ} {A : X → Type ℓ'} → (f g : (x : X) → A x) → Type (ℓ-max ℓ ℓ')
-f ∼ g = ∀ x → f x ≡ g x
+-- _∼_ : {ℓ ℓ' : Level} {X : Type ℓ} {A : X → Type ℓ'} → (f g : (x : X) → A x) → Type (ℓ-max ℓ ℓ')
+-- f ∼ g = ∀ x → f x ≡ g x
 
 -- pointed homotopies
 module _ {ℓ ℓ'} {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
@@ -127,7 +129,7 @@ module _ {ℓ ℓ'} {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)}
       r₃ p₁ = (f₂ ∙ g₂ ⁻¹) ⁻¹ ∙ f₂
                   ≡⟨ cong (_∙ f₂) (symDistr f₂ (g₂ ⁻¹)) ⟩
               (g₂ ⁻¹ ⁻¹ ∙ f₂ ⁻¹) ∙ f₂
-                  ≡⟨ assoc' (g₂ ⁻¹ ⁻¹) (f₂ ⁻¹) f₂ ⟩
+                  ≡⟨ sym (assoc (g₂ ⁻¹ ⁻¹) (f₂ ⁻¹) f₂) ⟩
               g₂ ⁻¹ ⁻¹ ∙ (f₂ ⁻¹ ∙ f₂) ≡⟨ cong (g₂ ⁻¹ ⁻¹ ∙_) (lCancel f₂) ∙ sym (rUnit (g₂ ⁻¹ ⁻¹)) ⟩
               g₂ ⁻¹ ⁻¹ ≡⟨ sym (symInvo g₂) ⟩
               g₂ ≡⟨ refl ⟩ refl

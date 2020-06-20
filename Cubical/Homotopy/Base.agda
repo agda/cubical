@@ -19,8 +19,3 @@ funExt∼ H = funExt H
 
 ∼-refl : {X : Type ℓ} {Y : X → Type ℓ'} {f : (x : X) → Y x} → f ∼ f
 ∼-refl {f = f} = λ x → refl {x = f x}
-
-∼-induction : {X : Type ℓ} {Y : X → Type ℓ'} {f : (x : X) → Y x} (P : (g : (x : X) → Y x) → (H : f ∼ g) → Type ℓ'')
-  -- → hasSection λ (s : (g : (x : X) → Y x) → (H : f ∼ g) → P g H) → {!s!}
-  → hasSection {A = (g : (x : X) → Y x) → (H : f ∼ g) → P g H} {B = P f ∼-refl} λ s → s f ∼-refl
-∼-induction P = {!!} , {!!}
