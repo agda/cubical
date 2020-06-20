@@ -92,13 +92,20 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
     totφ : {f g : Π∙ A B ptB} → f ∙∼ g → f ∙∼P g
     totφ {f = f} {g = g} (p₁ , p₂) = p₁ , φ {f = f} {g = g} p₁ p₂
 
+  -- transformation of the homotopies using totφ
+  ∙∼→∙∼P : {f g : Π∙ A B ptB} → (f ∙∼ g) → (f ∙∼P g)
+  ∙∼→∙∼P {f = f} {g = g} = totφ {f = f} {g = g}
 
   -- Proof that ∙∼ and ∙∼P are equivalent using the fiberwise equivalence φ
   ∙∼≃∙∼P : (f g : Π∙ A B ptB) → (f ∙∼ g) ≃ (f ∙∼P g)
-  ∙∼≃∙∼P f g = totφ {f = f} {g = g} , totalEquiv (P {f = f} {g = g})
+  ∙∼≃∙∼P f g = ∙∼→∙∼P {f = f} {g = g} , totalEquiv (P {f = f} {g = g})
                                                     (Q {f = f} {g = g})
                                                     (φ {f = f} {g = g})
                                                     λ H → isEquivTransport (P≡Q H)
+
+  -- inverse of ∙∼→∙∼P extracted from the equivalence
+  ∙∼P→∙∼ : {f g : Π∙ A B ptB} → f ∙∼P g → f ∙∼ g
+  ∙∼P→∙∼ {f = f} {g = g} = equivFun (invEquiv (∙∼≃∙∼P f g))
 
   -- ∙∼≃∙∼P transformed to a path
   ∙∼≡∙∼P : (f g : Π∙ A B ptB) → (f ∙∼ g) ≡ (f ∙∼P g)
