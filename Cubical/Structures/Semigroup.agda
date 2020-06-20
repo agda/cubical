@@ -79,8 +79,7 @@ module SemigroupΣ-theory {ℓ} where
   open Macro ℓ (recvar (recvar var)) public renaming
     ( structure to raw-semigroup-structure
     ; iso       to raw-semigroup-iso
-    ; isSNS     to raw-semigroup-is-SNS
-    )
+    ; isSNS     to raw-semigroup-is-SNS )
 
   semigroup-axioms : (A : Type ℓ) → raw-semigroup-structure A → Type ℓ
   semigroup-axioms A _·_ = isSet A
@@ -110,7 +109,7 @@ module SemigroupΣ-theory {ℓ} where
                                → semigroup-axioms _ _·_ ≡ IsSemigroup _·_
   semigroup-axioms≡IsSemigroup s = isoToPath (semigroup-axiomsIsoIsSemigroup s)
 
-  Semigroup→SemigroupΣ : Semigroup {ℓ} → SemigroupΣ
+  Semigroup→SemigroupΣ : Semigroup → SemigroupΣ
   Semigroup→SemigroupΣ (semigroup A _·_ isSemigroup) =
     A , _·_ , semigroup-axiomsIsoIsSemigroup _ .inv isSemigroup
 
@@ -118,32 +117,29 @@ module SemigroupΣ-theory {ℓ} where
   SemigroupΣ→Semigroup (A , _·_ , isSemigroupΣ) =
     semigroup A _·_ (semigroup-axiomsIsoIsSemigroup _ .fun isSemigroupΣ)
 
-  SemigroupIsoSemigroupΣ : Iso (Semigroup {ℓ}) SemigroupΣ
+  SemigroupIsoSemigroupΣ : Iso Semigroup SemigroupΣ
   SemigroupIsoSemigroupΣ =
     iso Semigroup→SemigroupΣ SemigroupΣ→Semigroup (λ _ → refl) (λ _ → refl)
 
-  Semigroup≡SemigroupΣ : Semigroup {ℓ} ≡ SemigroupΣ
-  Semigroup≡SemigroupΣ = isoToPath SemigroupIsoSemigroupΣ
-
-  semigroup-is-SNS : SNS {ℓ} semigroup-structure semigroup-iso
+  semigroup-is-SNS : SNS semigroup-structure semigroup-iso
   semigroup-is-SNS = add-axioms-SNS _ semigroup-axioms-isProp raw-semigroup-is-SNS
 
   SemigroupΣPath : (M N : SemigroupΣ) → (M ≃[ semigroup-iso ] N) ≃ (M ≡ N)
   SemigroupΣPath = SIP semigroup-is-SNS
 
-  SemigroupIsoΣ : (M N : Semigroup {ℓ}) → Type ℓ
+  SemigroupIsoΣ : (M N : Semigroup) → Type ℓ
   SemigroupIsoΣ M N = Semigroup→SemigroupΣ M ≃[ semigroup-iso ] Semigroup→SemigroupΣ N
 
-  SemigroupIsoΣPath : {M N : Semigroup {ℓ}} → Iso (SemigroupIso M N) (SemigroupIsoΣ M N)
+  SemigroupIsoΣPath : {M N : Semigroup} → Iso (SemigroupIso M N) (SemigroupIsoΣ M N)
   fun SemigroupIsoΣPath (semigroupiso e h) = (e , h)
   inv SemigroupIsoΣPath (e , h)            = semigroupiso e h
   rightInv SemigroupIsoΣPath _             = refl
   leftInv SemigroupIsoΣPath _              = refl
 
-  SemigroupPath : (M N : Semigroup {ℓ}) → (SemigroupIso M N) ≃ (M ≡ N)
+  SemigroupPath : (M N : Semigroup) → (SemigroupIso M N) ≃ (M ≡ N)
   SemigroupPath M N =
     SemigroupIso M N                                ≃⟨ isoToEquiv SemigroupIsoΣPath ⟩
-    SemigroupIsoΣ M N                               ≃⟨ SemigroupΣPath (Semigroup→SemigroupΣ M) (Semigroup→SemigroupΣ N) ⟩
+    SemigroupIsoΣ M N                               ≃⟨ SemigroupΣPath _ _ ⟩
     Semigroup→SemigroupΣ M ≡ Semigroup→SemigroupΣ N ≃⟨ isoToEquiv (invIso (congIso SemigroupIsoSemigroupΣ)) ⟩
     M ≡ N ■
 
