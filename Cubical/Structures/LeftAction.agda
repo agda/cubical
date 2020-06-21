@@ -8,8 +8,8 @@ open import Cubical.Structures.Auto
 
 module _ {ℓ ℓ' : Level} (A : Type ℓ') where
 
-  left-action-structure : Type ℓ → Type ℓ'
-  left-action-structure _ = A
+  left-action-structure : Type ℓ → Type (ℓ-max ℓ ℓ')
+  left-action-structure X = A → X → X
 
   left-action-iso = autoIso left-action-structure
 
