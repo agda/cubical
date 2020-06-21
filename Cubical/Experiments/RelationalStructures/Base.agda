@@ -15,19 +15,12 @@ open import Cubical.Structures.NAryOp
 
 open import Cubical.Foundations.SIP
 
--- lemmas to move or inline
-
-quotientRel : ∀ {ℓ} {A : Type ℓ} (R : A → A → Type ℓ)
-  → Rel A (A / R) ℓ
-quotientRel R a b = [ a ] ≡ b
-
--- main event
-
 private
   variable
     ℓ ℓ' ℓ'' ℓ₀ ℓ₁ ℓ₁' ℓ₂ ℓ₂' : Level
 
 open isBisimulation
+open BinaryRelation
 
 --------------------------------------------------------------------------------
 -- Definition of standard notion of structure
@@ -51,7 +44,14 @@ QuoStructure : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
   (A : TypeWithStr ℓ S) (R : Rel (typ A) (typ A) ℓ)
   → Type (ℓ-max ℓ' ℓ'')
 QuoStructure S ρ A R =
-  Σ (S (typ A / R)) (ρ .rel (typ A) (typ A / R) (quotientRel R) (A .snd))
+  Σ (S (typ A / R)) (ρ .rel (typ A) (typ A / R) (λ a b → [ a ] ≡ b) (A .snd))
+
+isPropQuotientStructure : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'')
+  → Type (ℓ-max (ℓ-suc ℓ) (ℓ-max ℓ' ℓ''))
+isPropQuotientStructure {ℓ = ℓ} {S = S} ρ =
+  (A : TypeWithStr ℓ S) (R : typ A → typ A → Type ℓ)
+  → isEquivRel R
+  → isProp (QuoStructure S ρ A R)
 
 record BisimDescends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
   (A B : TypeWithStr ℓ S) (R : Bisimulation (typ A) (typ B) ℓ) : Type (ℓ-max ℓ' ℓ'')
@@ -137,6 +137,9 @@ module _ (A : hSet ℓ₀) where
   constant-rel .rel _ _ _ a₀ a₁ = a₀ ≡ a₁
   constant-rel .prop _ = A .snd
 
+  isPropQuoStructureConstant : isPropQuotientStructure {ℓ = ℓ} constant-rel
+  isPropQuoStructureConstant (X , a) R e = isContr→isProp (isContrSingl _)
+
   isSNRSConstant : isSNRS {ℓ = ℓ} constant-setStructure constant-rel
   isSNRSConstant _ _ .quoᴸ = isContrSingl _
   isSNRSConstant _ _ .quoᴿ = isContrSingl _
@@ -151,6 +154,9 @@ pointed-setStructure .set setX = setX
 pointed-rel : StrRel pointed-structure ℓ
 pointed-rel .rel _ _ R = R
 pointed-rel .prop propR = propR
+
+isPropQuoStructurePointed : isPropQuotientStructure {ℓ = ℓ} pointed-rel
+isPropQuoStructurePointed (X , x) R e = isContr→isProp (isContrSingl _)
 
 isSNRSPointed : isSNRS {ℓ = ℓ} pointed-setStructure pointed-rel
 isSNRSPointed _ _ .quoᴸ = isContrSingl _
@@ -175,6 +181,21 @@ join-rel ρ₁ ρ₂ .rel X Y R (s₁ , s₂) (t₁ , t₂) =
   × ρ₂ .rel X Y R s₂ t₂
 join-rel ρ₁ ρ₂ .prop propR (s₁ , s₂) (t₁ , t₂) =
   isProp× (ρ₁ .prop propR s₁ t₁) (ρ₂ .prop propR s₂ t₂)
+
+isPropQuoStructureJoin :
+  {S₁ : Type ℓ → Type ℓ₁} (ρ₁ : StrRel S₁ ℓ₁')
+  {S₂ : Type ℓ → Type ℓ₂} (ρ₂ : StrRel S₂ ℓ₂')
+  → isPropQuotientStructure ρ₁
+  → isPropQuotientStructure ρ₂
+  → isPropQuotientStructure (join-rel ρ₁ ρ₂)
+isPropQuoStructureJoin ρ₁ ρ₂ q₁ q₂ (X , (s₁ , s₂)) R e (t , r) (t' , r') =
+  equivFun ΣPath≃PathΣ
+    ( equivFun ΣPath≃PathΣ
+      ( cong fst (q₁ (X , s₁) R e (t .fst , r .fst) (t' .fst , r' .fst))
+      , cong fst (q₂ (X , s₂) R e (t .snd , r .snd) (t' .snd , r' .snd))
+      )
+    , isProp→PathP (λ _ → join-rel ρ₁ ρ₂ .prop (λ _ _ → squash/ _ _) _ _) _ _
+    )
 
 isSNRSJoin :
   (S₁ : SetStructure ℓ ℓ₁) {ρ₁ : StrRel (S₁ .struct) ℓ₁'}
@@ -252,6 +273,18 @@ unaryFun-rel ρ .prop propR f g =
   isPropImplicitΠ λ x →
   isPropImplicitΠ λ y →
   isPropΠ λ _ → ρ .prop propR (f x) (g y)
+
+isPropQuoStructureUnaryFun : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁')
+  → isPropQuotientStructure ρ
+  → isPropQuotientStructure (unaryFun-rel ρ)
+isPropQuoStructureUnaryFun S ρ q (X , f) R e (t , c) (t' , c') =
+  equivFun ΣPath≃PathΣ
+    ( funExt
+      (elimProp
+        (λ _ → S .set squash/ _ _)
+        (λ x → cong fst (q (X , f x) R e (t [ x ] , c refl) (t' [ x ] , c' refl))))
+    , isProp→PathP (λ _ → unaryFun-rel ρ .prop (λ _ _ → squash/ _ _) _ _) _ _
+    )
 
 isSNRSUnaryFun : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁')
   → isSNRS S ρ
