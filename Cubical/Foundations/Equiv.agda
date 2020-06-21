@@ -29,9 +29,6 @@ private
     ℓ ℓ' ℓ''  : Level
     A B C D : Type ℓ
 
-fiber : ∀ {A : Type ℓ} {B : Type ℓ'} (f : A → B) (y : B) → Type (ℓ-max ℓ ℓ')
-fiber {A = A} f y = Σ[ x ∈ A ] f x ≡ y
-
 equivIsEquiv : (e : A ≃ B) → isEquiv (equivFun e)
 equivIsEquiv e = snd e
 
