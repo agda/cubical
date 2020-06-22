@@ -27,11 +27,11 @@ unaryFun-setStructure : SetStructure ℓ ℓ₁ → SetStructure ℓ (ℓ-max �
 unaryFun-setStructure S .struct X = X → S .struct X
 unaryFun-setStructure S .set setX = isSetΠ λ _ → S .set setX
 
-unaryFun-rel : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
+unaryFun-propRel : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
   → StrRel S ℓ₁' → StrRel (nAryFun-structure 1 S) (ℓ-max ℓ ℓ₁')
-unaryFun-rel ρ .rel X Y R f g =
+unaryFun-propRel ρ .rel X Y R f g =
   {x : X} {y : Y} → R x y → ρ .rel X Y R (f x) (g y)
-unaryFun-rel ρ .prop propR f g =
+unaryFun-propRel ρ .prop propR f g =
   isPropImplicitΠ λ x →
   isPropImplicitΠ λ y →
   isPropΠ λ _ → ρ .prop propR (f x) (g y)
@@ -99,14 +99,14 @@ private
 
 isSNRSUnaryFun : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁')
   → isSNRS S ρ
-  → isSNRS (unaryFun-setStructure S) (unaryFun-rel ρ)
+  → isSNRS (unaryFun-setStructure S) (unaryFun-propRel ρ)
 isSNRSUnaryFun S ρ θ .propQuo R (t , c) (t' , c') =
   equivFun ΣPath≃PathΣ
     ( funExt
       (elimProp
         (λ _ → S .set squash/ _ _)
         (λ x → cong fst (θ .propQuo R (t [ x ] , c refl) (t' [ x ] , c' refl))))
-    , isProp→PathP (λ _ → unaryFun-rel ρ .prop (λ _ _ → squash/ _ _) _ _) _ _
+    , isProp→PathP (λ _ → unaryFun-propRel ρ .prop (λ _ _ → squash/ _ _) _ _) _ _
     )
 isSNRSUnaryFun S ρ θ .descends {X , f} {Y , g} (R , bis) .fst code .quoᴸ =
   f₀ , λ p → subst (λ y → ρ .rel _ _ _ _ (f₀ y)) p (θ .descends _ .fst _ .quoᴸ .snd)

@@ -25,15 +25,15 @@ pointed-setStructure : SetStructure ℓ ℓ
 pointed-setStructure .struct = pointed-structure
 pointed-setStructure .set setX = setX
 
-pointed-rel : StrRel pointed-structure ℓ
-pointed-rel .rel _ _ R = R
-pointed-rel .prop propR = propR
+pointed-propRel : StrRel pointed-structure ℓ
+pointed-propRel .rel _ _ R = R
+pointed-propRel .prop propR = propR
 
 open isSNRS
 open BisimDescends
 open isBisimulation
 
-isSNRSPointed : isSNRS {ℓ = ℓ} pointed-setStructure pointed-rel
+isSNRSPointed : isSNRS {ℓ = ℓ} pointed-setStructure pointed-propRel
 isSNRSPointed .propQuo _ = isContr→isProp (isContrSingl _)
 isSNRSPointed .descends _ .fst _ .quoᴸ = (_ , refl)
 isSNRSPointed .descends _ .fst _ .quoᴿ = (_ , refl)

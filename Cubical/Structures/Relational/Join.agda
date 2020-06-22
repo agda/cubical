@@ -26,14 +26,14 @@ join-setStructure : SetStructure ℓ ℓ₁ → SetStructure ℓ ℓ₂ → SetS
 join-setStructure S₁ S₂ .struct X = S₁ .struct X × S₂ .struct X
 join-setStructure S₁ S₂ .set setX = isSet× (S₁ .set setX) (S₂ .set setX)
 
-join-rel :
+join-propRel :
   {S₁ : Type ℓ → Type ℓ₁} (ρ₁ : StrRel S₁ ℓ₁')
   {S₂ : Type ℓ → Type ℓ₂} (ρ₂ : StrRel S₂ ℓ₂')
   → StrRel (join-structure S₁ S₂) (ℓ-max ℓ₁' ℓ₂')
-join-rel ρ₁ ρ₂ .rel X Y R (s₁ , s₂) (t₁ , t₂) =
+join-propRel ρ₁ ρ₂ .rel X Y R (s₁ , s₂) (t₁ , t₂) =
   ρ₁ .rel X Y R s₁ t₁
   × ρ₂ .rel X Y R s₂ t₂
-join-rel ρ₁ ρ₂ .prop propR (s₁ , s₂) (t₁ , t₂) =
+join-propRel ρ₁ ρ₂ .prop propR (s₁ , s₂) (t₁ , t₂) =
   isProp× (ρ₁ .prop propR s₁ t₁) (ρ₂ .prop propR s₂ t₂)
 
 open isSNRS
@@ -43,14 +43,14 @@ isSNRSJoin :
   (S₁ : SetStructure ℓ ℓ₁) {ρ₁ : StrRel (S₁ .struct) ℓ₁'}
   (S₂ : SetStructure ℓ ℓ₂) {ρ₂ : StrRel (S₂ .struct) ℓ₂'}
   → isSNRS S₁ ρ₁ → isSNRS S₂ ρ₂
-  → isSNRS (join-setStructure S₁ S₂) (join-rel ρ₁ ρ₂)
+  → isSNRS (join-setStructure S₁ S₂) (join-propRel ρ₁ ρ₂)
 isSNRSJoin _ {ρ₁} _ {ρ₂} θ₁ θ₂ .propQuo R (t , r) (t' , r') =
   equivFun ΣPath≃PathΣ
     ( equivFun ΣPath≃PathΣ
       ( cong fst (θ₁ .propQuo R (t .fst , r .fst) (t' .fst , r' .fst))
       , cong fst (θ₂ .propQuo R (t .snd , r .snd) (t' .snd , r' .snd))
       )
-    , isProp→PathP (λ _ → join-rel ρ₁ ρ₂ .prop (λ _ _ → squash/ _ _) _ _) _ _
+    , isProp→PathP (λ _ → join-propRel ρ₁ ρ₂ .prop (λ _ _ → squash/ _ _) _ _) _ _
     )
 isSNRSJoin _ _ θ₁ θ₂ .descends _ .fst (code₁ , code₂) .quoᴸ .fst =
   θ₁ .descends _ .fst code₁ .quoᴸ .fst , θ₂ .descends _ .fst code₂ .quoᴸ .fst

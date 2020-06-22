@@ -29,12 +29,12 @@ module _ (A : Type ℓ₀) where
   parameterized-setStructure S .struct X = (a : A) → (S a .struct X)
   parameterized-setStructure S .set setX = isSetΠ λ a → S a .set setX
 
-  parameterized-rel : {S : A → Type ℓ → Type ℓ₁} {ℓ₁' : Level}
+  parameterized-propRel : {S : A → Type ℓ → Type ℓ₁} {ℓ₁' : Level}
     → (∀ a → StrRel (S a) ℓ₁')
     → StrRel (parameterized-structure A S) (ℓ-max ℓ₀ ℓ₁')
-  parameterized-rel ρ .rel X Y R s t =
+  parameterized-propRel ρ .rel X Y R s t =
     (a : A) → ρ a .rel X Y R (s a) (t a)
-  parameterized-rel ρ .prop propR s t =
+  parameterized-propRel ρ .prop propR s t =
     isPropΠ λ a → ρ a .prop propR (s a) (t a)
 
   open isSNRS
@@ -43,11 +43,11 @@ module _ (A : Type ℓ₀) where
   isSNRSParameterized : (S : A → SetStructure ℓ ℓ₁) {ℓ₁' : Level}
     (ρ : ∀ a → StrRel (S a .struct) ℓ₁')
     → (∀ a → isSNRS (S a) (ρ a))
-    → isSNRS (parameterized-setStructure S) (parameterized-rel ρ)
+    → isSNRS (parameterized-setStructure S) (parameterized-propRel ρ)
   isSNRSParameterized _ ρ θ .propQuo R f f' =
     equivFun ΣPath≃PathΣ
       ( funExt (λ a → cong fst (θ a .propQuo R (f .fst a , f .snd a) (f' .fst a , f' .snd a)))
-      , isProp→PathP (λ _ → parameterized-rel ρ .prop (λ _ _ → squash/ _ _) _ _) _ _
+      , isProp→PathP (λ _ → parameterized-propRel ρ .prop (λ _ _ → squash/ _ _) _ _) _ _
       )
   isSNRSParameterized _ ρ θ .descends _ .fst code .quoᴸ .fst a =
     θ a .descends _ .fst (code a) .quoᴸ .fst
