@@ -1,3 +1,8 @@
+{-
+
+  Maybe structure: X ↦ Maybe (S X)
+
+-}
 {-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
 module Cubical.Structures.Maybe where
 
@@ -78,7 +83,7 @@ module MaybePathP where
     isom .Iso.rightInv = decodeEncode ox oy
     isom .Iso.leftInv = encodeDecode A ox oy
 
--- Structured isomorphism
+-- Structured isomorphisms
 
 maybe-structure : (S : Type ℓ → Type ℓ₁) → Type ℓ → Type ℓ₁
 maybe-structure S X = Maybe (S X)
@@ -93,49 +98,3 @@ maybe-is-SNS ι θ {X , ox} {Y , oy} e =
   compEquiv
     (maybe-rel-cong (λ x y → θ {X , x} {Y , y} e) ox oy)
     (MaybePathP.Code≃PathP ox oy)
-
--- Structured relation
-
-maybe-setStructure : SetStructure ℓ ℓ₁ → SetStructure ℓ ℓ₁
-maybe-setStructure S .struct X = Maybe (S .struct X)
-maybe-setStructure S .set setX = isOfHLevelMaybe 0 (S .set setX)
-
-maybe-propRel : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
-  → StrRel S ℓ₁' → StrRel (λ X → Maybe (S X)) ℓ₁'
-maybe-propRel ρ .rel X Y R = maybe-rel (ρ .rel X Y R)
-maybe-propRel ρ .prop propR nothing nothing = isOfHLevelLift 1 isPropUnit
-maybe-propRel ρ .prop propR nothing (just y) = isOfHLevelLift 1 isProp⊥
-maybe-propRel ρ .prop propR (just x) nothing = isOfHLevelLift 1 isProp⊥
-maybe-propRel ρ .prop propR (just x) (just y) = ρ .prop propR x y
-
-open isSNRS
-open BisimDescends
-
-isSNRSMaybe : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁')
-  → isSNRS S ρ
-  → isSNRS (maybe-setStructure S) (maybe-propRel ρ)
-isSNRSMaybe S ρ θ .propQuo {X , nothing} R (nothing , lift tt) (nothing , lift tt) = refl
-isSNRSMaybe S ρ θ .propQuo {X , just x} R (just x' , p) (just y' , q) =
-  cong (λ {(z , r) → (just z , r)}) (θ .propQuo R (x' , p) (y' , q))
-isSNRSMaybe S ρ θ .descends {X , nothing} R .fst code .quoᴸ = nothing , _
-isSNRSMaybe S ρ θ .descends {X , just x} {Y , just y} R .fst code .quoᴸ =
-  just (θ .descends R .fst code .quoᴸ .fst) , θ .descends R .fst code .quoᴸ .snd
-isSNRSMaybe S ρ θ .descends {B = Y , nothing} R .fst code .quoᴿ = nothing , _
-isSNRSMaybe S ρ θ .descends {X , just x} {Y , just y} R .fst code .quoᴿ =
-  just (θ .descends R .fst code .quoᴿ .fst) , θ .descends R .fst code .quoᴿ .snd
-isSNRSMaybe S ρ θ .descends {X , nothing} {Y , nothing} R .fst code .path i = nothing
-isSNRSMaybe S ρ θ .descends {X , just x} {Y , just y} R .fst code .path i =
-  just (θ .descends R .fst code .path i)
-isSNRSMaybe S ρ θ .descends {X , nothing} {Y , nothing} R .snd d = _
-isSNRSMaybe S ρ θ .descends {X , nothing} {Y , just y} R .snd d with d .quoᴸ | d .quoᴿ | d .path
-... | nothing , _ | just y' , _ | p = lift (MaybePathP.encode _ _ _ p .lower)
-isSNRSMaybe S ρ θ .descends {X , just x} {Y , nothing} R .snd d with d .quoᴸ | d .quoᴿ | d .path
-... | just x' , _ | nothing , _ | p = lift (MaybePathP.encode _ _ _ p .lower)
-isSNRSMaybe S ρ θ .descends {X , just x} {Y , just y} R .snd d with d .quoᴸ | d .quoᴿ | d .path
-... | just x' , c | just y' , c' | p =
-  θ .descends R .snd d'
-  where
-  d' : BisimDescends (S .struct) ρ (X , x) (Y , y) R
-  d' .quoᴸ = x' , c
-  d' .quoᴿ = y' , c'
-  d' .path = MaybePathP.encode _ _ _ p
