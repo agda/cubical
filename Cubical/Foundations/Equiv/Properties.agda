@@ -20,6 +20,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Path
 
 open import Cubical.Functions.FunExtEquiv
 
@@ -68,17 +69,55 @@ hasSection {A = A} {B = B} f = Σ[ g ∈ (B → A) ] section f g
 hasRetract : (A → B) → Type _
 hasRetract {A = A} {B = B} f = Σ[ g ∈ (B → A) ] retract f g
 
-isEquiv-hasSection : (f : A → B)
-                    → isEquiv f
-                    → hasSection f
-isEquiv-hasSection f isEq = (λ b → equiv-proof isEq b .fst .fst) ,
-                            λ b → equiv-proof isEq b .fst .snd
+isEquiv→isContrHasSection : {f : A → B} → isEquiv f → isContr (hasSection f)
+fst (isEquiv→isContrHasSection isEq) = invIsEq isEq , secIsEq isEq
+snd (isEquiv→isContrHasSection isEq) (f , ε) i = (λ b → fst (p b i)) , (λ b → snd (p b i))
+  where p : ∀ b → (invIsEq isEq b , secIsEq isEq b) ≡ (f b , ε b)
+        p b = isEq .equiv-proof b .snd (f b , ε b)
+
+isEquiv→hasSection : {f : A → B} → isEquiv f → hasSection f
+isEquiv→hasSection = fst ∘ isEquiv→isContrHasSection
 
 isContr-hasSection : (e : A ≃ B) → isContr (hasSection (fst e))
-fst (isContr-hasSection e) = invEq e , retEq e
-snd (isContr-hasSection e) (f , ε) i = (λ b → fst (p b i)) , (λ b → snd (p b i))
-  where p : ∀ b → (invEq e b , retEq e b) ≡ (f b , ε b)
-        p b = snd (equiv-proof (snd e) b) (f b , ε b)
+isContr-hasSection e = isEquiv→isContrHasSection (snd e)
+
+isEquiv→isContrHasRetract : {f : A → B} → isEquiv f → isContr (hasRetract f)
+fst (isEquiv→isContrHasRetract isEq) = invIsEq isEq , retIsEq isEq
+snd (isEquiv→isContrHasRetract {f = f} isEq) (g , η) =
+    λ i → (λ b → p b i) , (λ a →  q a i)
+  where p : ∀ b → invIsEq isEq b ≡ g b
+        p b = sym (η (invIsEq isEq b)) ∙' cong g (secIsEq isEq b)
+        -- one square from the definition of invIsEq
+        ieSq : ∀ a → Square (cong g (secIsEq isEq (f a)))
+                            refl
+                            (cong (g ∘ f) (retIsEq isEq a))
+                            refl
+        ieSq a k j = g (commSqIsEq isEq a k j)
+        -- one square from η
+        ηSq : ∀ a → Square (η (invIsEq isEq (f a)))
+                           (η a)
+                           (cong (g ∘ f) (retIsEq isEq a))
+                           (retIsEq isEq a)
+        ηSq a i j = η (retIsEq isEq a i) j
+        -- and one last square from the definition of p
+        pSq : ∀ b → Square (η (invIsEq isEq b))
+                           refl
+                           (cong g (secIsEq isEq b))
+                           (p b)
+        pSq b i j = compPath'-filler (sym (η (invIsEq isEq b))) (cong g (secIsEq isEq b)) j i
+        q : ∀ a → Square (retIsEq isEq a) (η a) (p (f a)) refl
+        q a i j = hcomp (λ k → λ { (i = i0) → ηSq a j k
+                                 ; (i = i1) → η a (j ∧ k)
+                                 ; (j = i0) → pSq (f a) i k
+                                 ; (j = i1) → η a k
+                                 })
+                        (ieSq a j i)
+
+isEquiv→hasRetract : {f : A → B} → isEquiv f → hasRetract f
+isEquiv→hasRetract = fst ∘ isEquiv→isContrHasRetract
+
+isContr-hasRetract : (e : A ≃ B) → isContr (hasRetract (fst e))
+isContr-hasRetract e = isEquiv→isContrHasRetract (snd e)
 
 -- there is a (much slower) alternate proof that also works for retract
 
@@ -88,12 +127,11 @@ isContr-hasSection' {_} {A} {B} e = transport (λ i → ∃![ g ∈ (B → A) ] 
   where eq : ∀ (g : B → A) → ((fst e) ∘ g ≡ idfun _) ≡ (section (fst e) g)
         eq g = sym (funExtPath {f = (fst e) ∘ g} {g = idfun _})
 
-isContr-hasRetract : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B) → isContr (hasRetract (fst e))
-isContr-hasRetract {_} {A} {B} e = transport (λ i → ∃![ g ∈ (B → A) ] eq g i)
+isContr-hasRetract' : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B) → isContr (hasRetract (fst e))
+isContr-hasRetract' {_} {A} {B} e = transport (λ i → ∃![ g ∈ (B → A) ] eq g i)
                                               (equiv-proof (isEquivPreComp e) (idfun _))
   where eq : ∀ (g : B → A) → (g ∘ (fst e) ≡ idfun _) ≡ (retract (fst e) g)
         eq g = sym (funExtPath {f = g ∘ (fst e)} {g = idfun _})
-
 
 cong≃ : (F : Type ℓ → Type ℓ′) → (A ≃ B) → F A ≃ F B
 cong≃ F e = pathToEquiv (cong F (ua e))
