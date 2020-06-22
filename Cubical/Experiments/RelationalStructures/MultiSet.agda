@@ -121,7 +121,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  List/Rᴸ≃AList/Rᴬᴸ = E.Thm
 
  main : BisimDescends _ _ (List A , Lcount) (AList A , ALcount) (R , isBisimR)
- main = θ .isSNRS.descends (R , isBisimR) (λ a r → r a)
+ main = θ .isSNRS.descends (R , isBisimR) .fst (λ a r → r a)
 
  open BisimDescends
 
