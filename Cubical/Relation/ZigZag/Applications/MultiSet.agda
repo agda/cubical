@@ -18,9 +18,7 @@ open import Cubical.HITs.SetQuotients
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.ZigZag.Base
 
-open import Cubical.Structures.Relational.Constant
-open import Cubical.Structures.Relational.Parameterized
-open import Cubical.Structures.Relational.UnaryOp
+open import Cubical.Structures.Relational.Macro
 
 -- we define simple association lists without any higher constructors
 data AList {ℓ} (A : Type ℓ) : Type ℓ where
@@ -37,18 +35,11 @@ private
 -- We have a count-structure on List and AList and use these to get a bisimulation between the two
 module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
- S = parameterized-setStructure A {ℓ = ℓ} (λ _ → unaryFun-setStructure (constant-setStructure (ℕ , isSetℕ)))
-
- ρ = parameterized-propRel A {ℓ = ℓ} (λ _ → unaryFun-propRel (constant-propRel (ℕ , isSetℕ)))
-
- θ : isSNRS S ρ
- θ = isSNRSParameterized {ℓ₀ = ℓ} A
-   (λ _ → unaryFun-setStructure (constant-setStructure (ℕ , isSetℕ)))
-   (λ _ → unaryFun-propRel (constant-propRel (ℕ , isSetℕ)))
-   (λ _ → isSNRSUnaryFun
-     (constant-setStructure (ℕ , isSetℕ))
-     (constant-propRel (ℕ , isSetℕ))
-     (isSNRSConstant (ℕ , isSetℕ)))
+ open RelMacro ℓ (param A (recvar (constant (ℕ , isSetℕ)))) renaming
+   ( structure to S
+   ; relation to ρ
+   ; SNRS to θ
+   )
 
  -- the count-structures
  aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ
