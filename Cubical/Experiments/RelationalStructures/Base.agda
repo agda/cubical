@@ -21,56 +21,12 @@ private
 
 open isBisimulation
 open BinaryRelation
+open BisimDescends
+open isSNRS
 
 --------------------------------------------------------------------------------
 -- Definition of standard notion of structure
 --------------------------------------------------------------------------------
-
-record SetStructure (ℓ ℓ' : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
-  field
-    struct : Type ℓ → Type ℓ'
-    set : ∀ {A} → isSet A → isSet (struct A)
-
-open SetStructure public
-
-record StrRel (S : Type ℓ → Type ℓ')(ℓ'' : Level) : Type (ℓ-max (ℓ-suc (ℓ-max ℓ ℓ'')) ℓ') where
-  field
-    rel : (A B : Type ℓ) (R : Rel A B ℓ) → Rel (S A) (S B) ℓ''
-    prop : ∀ {A} {B} {R} → (∀ a b → isProp (R a b)) → ∀ s t → isProp (rel A B R s t)
-
-open StrRel public
-
-QuoStructure : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
-  (A : TypeWithStr ℓ S) (R : Rel (typ A) (typ A) ℓ)
-  → Type (ℓ-max ℓ' ℓ'')
-QuoStructure S ρ A R =
-  Σ (S (typ A / R)) (ρ .rel (typ A) (typ A / R) (λ a b → [ a ] ≡ b) (A .snd))
-
-record BisimDescends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
-  (A B : TypeWithStr ℓ S) (R : Bisimulation (typ A) (typ B) ℓ) : Type (ℓ-max ℓ' ℓ'')
-  where
-  private
-    module E = Bisim→Equiv R
-
-  field
-    quoᴸ : QuoStructure S ρ A E.Rᴸ
-    quoᴿ : QuoStructure S ρ B E.Rᴿ
-    path : PathP (λ i → S (ua E.Thm i)) (quoᴸ .fst) (quoᴿ .fst)
-
-open BisimDescends
-
-record isSNRS (S : SetStructure ℓ ℓ') (ρ : StrRel (S .struct) ℓ'') : Type (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ') ℓ'')
-  where
-  field
-    propQuo : {A : TypeWithStr ℓ (S .struct)}
-      (R : Σ[ R ∈ (typ A → typ A → Type ℓ) ] isEquivRel R)
-      → isProp (QuoStructure (S .struct) ρ A (R .fst))
-    descends : {A B : TypeWithStr ℓ (S .struct)}
-      (R : Bisimulation (typ A) (typ B) ℓ)
-      → (ρ .rel (A .fst) (B .fst) (R .fst) (A .snd) (B .snd) → BisimDescends (S .struct) ρ A B R)
-      × (BisimDescends (S .struct) ρ A B R → ρ .rel (A .fst) (B .fst) (R .fst) (A .snd) (B .snd))
-
-open isSNRS
 
 --------------------------------------------------------------------------------
 -- Two lemmas that get used later on
