@@ -38,7 +38,7 @@ record StrRel (S : Type ℓ → Type ℓ') (ℓ'' : Level) : Type (ℓ-max (ℓ-
 open StrRel public
 
 -- Given a type A and relation R, a quotient structure is a structure on the set quotient A/R such that
--- 
+--
 QuotientStructure : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
   (A : TypeWithStr ℓ S) (R : Rel (typ A) (typ A) ℓ)
   → Type (ℓ-max ℓ' ℓ'')
