@@ -102,11 +102,17 @@ compPathr-cancel p q = (q ∙ sym p) ∙ p ≡⟨ sym (assoc q (sym p) p) ⟩
                               q ∙ refl ≡⟨ sym (rUnit q) ⟩
                                      q ∎
 
-compPathl-isEquiv : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) → isEquiv (λ (q : y ≡ z) → p ∙ q)
+compPathl-isEquiv : {x y z : A} (p : x ≡ y) → isEquiv (λ (q : y ≡ z) → p ∙ q)
 compPathl-isEquiv p = isoToIsEquiv (iso (p ∙_) (sym p ∙_) (compPathl-cancel p) (compPathl-cancel (sym p)))
 
-compPathr-isEquiv : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : y ≡ z) → isEquiv (λ (q : x ≡ y) → q ∙ p)
+compPathlEquiv : {x y z : A} (p : x ≡ y) → (y ≡ z) ≃ (x ≡ z)
+compPathlEquiv p = (p ∙_) , compPathl-isEquiv p
+
+compPathr-isEquiv : {x y z : A} (p : y ≡ z) → isEquiv (λ (q : x ≡ y) → q ∙ p)
 compPathr-isEquiv p = isoToIsEquiv (iso (_∙ p) (_∙ sym p) (compPathr-cancel p) (compPathr-cancel (sym p)))
+
+compPathrEquiv : {x y z : A} (p : y ≡ z) → (x ≡ y) ≃ (x ≡ z)
+compPathrEquiv p = (_∙ p) , compPathr-isEquiv p
 
 -- Variation of isProp→isSet for PathP
 isProp→isSet-PathP : ∀ {ℓ} {B : I → Type ℓ} → ((i : I) → isProp (B i))

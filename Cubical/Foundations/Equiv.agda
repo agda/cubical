@@ -145,9 +145,6 @@ isContr→Equiv Actr Bctr = isoToEquiv (isContr→Iso Actr Bctr)
 isPropEquiv→Equiv : (Aprop : isProp A) (Bprop : isProp B) (f : A → B) (g : B → A) → A ≃ B
 isPropEquiv→Equiv Aprop Bprop f g = isoToEquiv (isProp→Iso Aprop Bprop f g)
 
-invEq≡→equivFun≡ : ∀ (e : A ≃ B) {x y} → invEq e x ≡ y → equivFun e y ≡ x
-invEq≡→equivFun≡ e {x} p = cong (equivFun e) (sym p) ∙ retEq e x
-
 equivPi : ∀ {F : A → Type ℓ} {G : A → Type ℓ'}
         → ((x : A) → F x ≃ G x) → ((x : A) → F x) ≃ ((x : A) → G x)
 equivPi k .fst f x = k x .fst (f x)

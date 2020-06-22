@@ -154,20 +154,18 @@ isEmbedding→Injection a e {f = f} {g} x = sym (ua (cong a , e (f x) (g x)))
 -- if `f` has a retract, then `cong f` has, as well. If `B` is a set, then `cong f`
 -- further has a section, making it an embedding. If `B` is not a set, the situation
 -- is more complicated.
-module _ (retf : hasRetract f) where
+module _ {f : A → B} (retf : hasRetract f) where
   open Σ retf renaming (fst to g ; snd to ϕ)
-  private
-    imgTypeOf : (f : A → B) → Type _
-    imgTypeOf {B = B} _ = B
 
   congRetract : f w ≡ f x → w ≡ x
   congRetract {w = w} {x = x} p = sym (ϕ w) ∙∙ cong g p ∙∙ ϕ x
-  isRetractRetractCong : retract (cong {x = w} {y = x} f) congRetract
-  isRetractRetractCong p = transport (PathP≡doubleCompPathˡ _ _ _ _) (λ i j → ϕ (p j) i)
+
+  isRetractCongRetract : retract (cong {x = w} {y = x} f) congRetract
+  isRetractCongRetract p = transport (PathP≡doubleCompPathˡ _ _ _ _) (λ i j → ϕ (p j) i)
 
   hasRetract→hasRetractCong : hasRetract (cong {x = w} {y = x} f)
-  hasRetract→hasRetractCong = congRetract , isRetractRetractCong
+  hasRetract→hasRetractCong = congRetract , isRetractCongRetract
 
-  setRetraction→isEmbedding : isSet (imgTypeOf f) → isEmbedding f
-  setRetraction→isEmbedding setB w x =
+  isSetRetract→isEmbedding : isSet B → isEmbedding f
+  isSetRetract→isEmbedding setB w x =
     isoToIsEquiv (iso (cong f) congRetract (λ _ → setB _ _ _ _) (hasRetract→hasRetractCong .snd))

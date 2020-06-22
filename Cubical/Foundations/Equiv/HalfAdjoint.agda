@@ -92,7 +92,15 @@ iso→HAEquiv (iso f g ε η) = f , isHAEquivf
             (f (Hfa≡fHa (λ x → g (f x)) η a (~ i) j))
 
 equiv→HAEquiv : A ≃ B → HAEquiv A B
-equiv→HAEquiv e = iso→HAEquiv (equivToIso e)
+equiv→HAEquiv e = e .fst , λ where
+  .isHAEquiv.g → invIsEq (snd e)
+  .isHAEquiv.sec → retIsEq (snd e)
+  .isHAEquiv.ret → secIsEq (snd e)
+  .isHAEquiv.com a i j → hcomp (λ k → λ { (i = i0) → cong (fst e) (retIsEq (snd e) a) j
+                                        ; (i = i1) → secIsEq (snd e) (fst e a) (~ k ∨ j)
+                                        ; (j = i0) → secIsEq (snd e) (fst e a) (~ k ∧ i)
+                                        ; (j = i1) → fst e a })
+                               (commSqIsEq (snd e) a j i)
 
 congIso : {x y : A} (e : Iso A B) → Iso (x ≡ y) (Iso.fun e x ≡ Iso.fun e y)
 congIso {x = x} {y} e = goal
