@@ -123,12 +123,3 @@ congIso {x = x} {y} e = goal
                    ; (j = i0) → Iso.leftInv e x (i ∨ k)
                    ; (j = i1) → Iso.leftInv e y (i ∨ k) })
           (Iso.leftInv e (p j) i)
-
--- This is proved more directly in Foundations.Equiv.Properties, but
--- that proof is not as universe polymorphic as this one and this one
--- seems to have a lot better computational properties
-isEquivCong : {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → cong (e .fst) p)
-isEquivCong e = isoToIsEquiv (congIso (equivToIso e))
-
-congEquiv : {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
-congEquiv e = isoToEquiv (congIso (equivToIso e))

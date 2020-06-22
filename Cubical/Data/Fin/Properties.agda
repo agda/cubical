@@ -95,10 +95,10 @@ private
   expand×Inj : ∀ k → {t1 t2 : Fin (suc k) × ℕ} → expand× t1 ≡ expand× t2 → t1 ≡ t2
   expand×Inj k {f1 , zero} {f2 , zero} p i
     = toℕ-injective {fj = f1} {f2} p i , zero
-  expand×Inj k {f1 , suc o1} {(r , r<sk) , zero} p
-    = Empty.rec (<-asym r<sk (lemma₀ refl p))
-  expand×Inj k {(r , r<sk) , zero} {f2 , suc o2} p
-    = Empty.rec (<-asym r<sk (lemma₀ refl (sym p)))
+  expand×Inj k {f1 , suc o1} {f2 , zero} p
+    = Empty.rec (<-asym (snd f2) (lemma₀ refl p))
+  expand×Inj k {f1 , zero} {f2 , suc o2} p
+    = Empty.rec (<-asym (snd f1) (lemma₀ refl (sym p)))
   expand×Inj k {f1 , suc o1} {f2 , suc o2}
     = cong (λ { (f , o) → (f , suc o) })
     ∘ expand×Inj k {f1 , o1} {f2 , o2}

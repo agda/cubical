@@ -18,8 +18,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-  using (isEquivCong; congEquiv)
+open import Cubical.Foundations.Equiv.HalfAdjoint using (congIso)
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
@@ -30,6 +29,12 @@ private
   variable
     ℓ ℓ′ : Level
     A B : Type ℓ
+
+isEquivCong : {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → cong (e .fst) p)
+isEquivCong e = isoToIsEquiv (congIso (equivToIso e))
+
+congEquiv : {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
+congEquiv e = isoToEquiv (congIso (equivToIso e))
 
 equivAdjointEquiv : (e : A ≃ B) → ∀ {a b} → (a ≡ invEq e b) ≃ (equivFun e a ≡ b)
 equivAdjointEquiv e = compEquiv (congEquiv e) (compPathrEquiv (retEq e _))

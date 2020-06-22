@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
@@ -134,7 +135,7 @@ isEquiv→hasPropFibers : isEquiv f → hasPropFibers f
 isEquiv→hasPropFibers e b = isContr→isProp (equiv-proof e b)
 
 isEquiv→isEmbedding : isEquiv f → isEmbedding f
-isEquiv→isEmbedding e = hasPropFibers→isEmbedding (isEquiv→hasPropFibers e)
+isEquiv→isEmbedding e = λ _ _ → congEquiv (_ , e) .snd
 
 iso→isEmbedding : ∀ {ℓ} {A B : Type ℓ}
   → (isom : Iso A B)
