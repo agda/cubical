@@ -179,8 +179,14 @@ module Univalence (au : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B)
   au-ua {B = B} = EquivJ (λ _ f → au (ua f) ≡ f)
                          (subst (λ r → au r ≡ idEquiv _) (sym uaIdEquiv) (aurefl {B = B}))
 
+  isoThm : ∀ {ℓ} {A B : Type ℓ} → Iso (A ≡ B) (A ≃ B)
+  isoThm .Iso.fun = au
+  isoThm .Iso.inv = ua
+  isoThm .Iso.rightInv = au-ua
+  isoThm .Iso.leftInv = ua-au
+
   thm : ∀ {ℓ} {A B : Type ℓ} → isEquiv au
-  thm {A = A} {B = B} = isoToIsEquiv {B = A ≃ B} (iso au ua au-ua ua-au)
+  thm {A = A} {B = B} = isoToIsEquiv {B = A ≃ B} isoThm
 
 pathToEquiv : {A B : Type ℓ} → A ≡ B → A ≃ B
 pathToEquiv p = lineToEquiv (λ i → p i)
@@ -195,6 +201,9 @@ ua-pathToEquiv : {A B : Type ℓ} (p : A ≡ B) → ua (pathToEquiv p) ≡ p
 ua-pathToEquiv = Univalence.ua-au pathToEquiv pathToEquivRefl
 
 -- Univalence
+univalenceIso : {A B : Type ℓ} → Iso (A ≡ B) (A ≃ B)
+univalenceIso = Univalence.isoThm pathToEquiv pathToEquivRefl
+
 univalence : {A B : Type ℓ} → (A ≡ B) ≃ (A ≃ B)
 univalence = ( pathToEquiv , Univalence.thm pathToEquiv pathToEquivRefl  )
 

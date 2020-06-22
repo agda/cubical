@@ -3,7 +3,7 @@
 Descriptor language for easily defining structures
 
 -}
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
 module Cubical.Structures.Macro where
 
 open import Cubical.Foundations.Prelude
@@ -18,6 +18,7 @@ open import Cubical.Structures.Constant
 open import Cubical.Structures.Pointed
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Parameterized
+open import Cubical.Structures.Maybe
 open import Cubical.Structures.Functorial
 
 data Desc (ℓ : Level) : Typeω where
@@ -31,6 +32,8 @@ data Desc (ℓ : Level) : Typeω where
   param : ∀ {ℓ'} → (A : Type ℓ') → Desc ℓ  → Desc ℓ
   -- structure S parameterized by variable argument: X ↦ (X → S X)
   recvar : Desc ℓ  → Desc ℓ
+  -- Maybe on a structure S: X ↦ Maybe (S X)
+  maybe : Desc ℓ → Desc ℓ
   -- arbitrary structure with notion of structured isomorphism given by functorial action
   functorial : ∀ {ℓ'} {S : Type ℓ → Type ℓ'}
     (F : ∀ {X Y} → (X → Y) → S X → S Y) → (∀ {X} s → F (idfun X) s ≡ s) → Desc ℓ
@@ -47,6 +50,7 @@ macro-structure-level {ℓ} var = ℓ
 macro-structure-level {ℓ} (d₀ , d₁) = ℓ-max (macro-structure-level d₀) (macro-structure-level d₁)
 macro-structure-level (param {ℓ'} A d) = ℓ-max ℓ' (macro-structure-level d)
 macro-structure-level {ℓ} (recvar d) = ℓ-max ℓ (macro-structure-level d)
+macro-structure-level (maybe d) = macro-structure-level d
 macro-structure-level (functorial {ℓ'} _ _) = ℓ'
 macro-structure-level (foreign {ℓ'} _ _) = ℓ'
 
@@ -56,6 +60,7 @@ macro-iso-level {ℓ} var = ℓ
 macro-iso-level {ℓ} (d₀ , d₁) = ℓ-max (macro-iso-level d₀) (macro-iso-level d₁)
 macro-iso-level (param {ℓ'} A d) = ℓ-max ℓ' (macro-iso-level d)
 macro-iso-level {ℓ} (recvar d) = ℓ-max ℓ (macro-iso-level d)
+macro-iso-level (maybe d) = macro-iso-level d
 macro-iso-level (functorial {ℓ' = ℓ'} _ _) = ℓ'
 macro-iso-level (foreign {ℓ'' = ℓ''} _ _) = ℓ''
 
@@ -66,6 +71,7 @@ macro-structure var X = X
 macro-structure (d₀ , d₁) X = macro-structure d₀ X × macro-structure d₁ X
 macro-structure (param A d) X = A → macro-structure d X
 macro-structure (recvar d) X = X → macro-structure d X
+macro-structure (maybe d) = maybe-structure (macro-structure d)
 macro-structure (functorial {S = S} _ _) = S
 macro-structure (foreign {S = S} _ _) = S
 
@@ -76,6 +82,7 @@ macro-iso var = pointed-iso
 macro-iso (d₀ , d₁) = join-iso (macro-iso d₀) (macro-iso d₁)
 macro-iso (param A d) = parameterized-iso A λ _ → macro-iso d
 macro-iso (recvar d) = unaryFunIso (macro-iso d)
+macro-iso (maybe d) = maybe-iso (macro-iso d)
 macro-iso (functorial F _) = functorial-iso F
 macro-iso (foreign ι _) = ι
 
@@ -86,6 +93,7 @@ macro-is-SNS var = pointed-is-SNS
 macro-is-SNS (d₀ , d₁) = join-SNS (macro-iso d₀) (macro-is-SNS d₀) (macro-iso d₁) (macro-is-SNS d₁)
 macro-is-SNS (param A d) = Parameterized-is-SNS A (λ _ → macro-iso d) (λ _ → macro-is-SNS d)
 macro-is-SNS (recvar d) = unaryFunSNS (macro-iso d) (macro-is-SNS d)
+macro-is-SNS (maybe d) = maybe-is-SNS (macro-iso d) (macro-is-SNS d)
 macro-is-SNS (functorial F η) = functorial-is-SNS F η
 macro-is-SNS (foreign _ θ) = θ
 
