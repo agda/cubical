@@ -47,8 +47,11 @@ record GroupIso (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') w
   constructor groupiso
 
   field
-    fun : ⟨ G ⟩ ≃ ⟨ H ⟩
-    isHom : isGroupHom G H (equivFun fun)
+    eq : ⟨ G ⟩ ≃ ⟨ H ⟩
+    isHom : isGroupHom G H (equivFun eq)
+
+  hom : GroupHom G H
+  hom = equivFun eq , isHom
 
 -- Morphism composition
 isGroupHomComp : (F : Group {ℓ}) (G : Group {ℓ'}) (H : Group {ℓ''}) →
@@ -68,7 +71,7 @@ idGroupIso : (G : Group {ℓ}) → GroupIso G G
 idGroupIso G = groupiso (idEquiv (Group.Carrier G)) (λ _ _ → refl)
 
 -- Isomorphism inversion
-isGroupHomInv : (G : Group {ℓ}) (H : Group {ℓ'}) (f : GroupIso G H) → isGroupHom H G (invEq (GroupIso.fun f))
+isGroupHomInv : (G : Group {ℓ}) (H : Group {ℓ'}) (f : GroupIso G H) → isGroupHom H G (invEq (GroupIso.eq f))
 isGroupHomInv G H  (groupiso (f , eq) morph) h h' = isInj-f _ _ (
   f (g (h ⋆² h') )
     ≡⟨ retEq (f , eq) _ ⟩
@@ -92,7 +95,7 @@ invGroupIso G H (groupiso f morph) = groupiso (invEquiv f) (isGroupHomInv G H (g
 groupHomEq : (G : Group {ℓ}) (H : Group {ℓ'}) (f g : GroupHom G H) → (fst f ≡ fst g) → f ≡ g
 groupHomEq G H f g p = Σ≡Prop (λ _ → isPropIsGroupHom G H) p
 
-groupIsoEq : (G : Group {ℓ}) (H : Group {ℓ'}) (f g : GroupIso G H) → (GroupIso.fun f ≡ GroupIso.fun g) → f ≡ g
+groupIsoEq : (G : Group {ℓ}) (H : Group {ℓ'}) (f g : GroupIso G H) → (GroupIso.eq f ≡ GroupIso.eq g) → f ≡ g
 -- This proof would take one line with Σ≡Prop using Σ-types
 groupIsoEq G H (groupiso f fm) (groupiso g gm) p i =
   groupiso (p i)
@@ -196,7 +199,7 @@ GroupPath = GroupΣ-theory.GroupPath
 Group-ua : {G H : Group {ℓ}} → (GroupIso G H) → (G ≡ H)
 Group-ua {G = G} {H = H} = equivFun (GroupPath G H)
 
-caracGroup-ua : {G H : Group {ℓ}} (f : GroupIso G H) → cong Group.Carrier (Group-ua f) ≡ ua (GroupIso.fun f)
+caracGroup-ua : {G H : Group {ℓ}} (f : GroupIso G H) → cong Group.Carrier (Group-ua f) ≡ ua (GroupIso.eq f)
 caracGroup-ua (groupiso f m) =
   (refl ∙∙ ua f ∙∙ refl)
     ≡⟨ sym (rUnit (ua f)) ⟩
@@ -233,11 +236,11 @@ Group-uaCompIso : {F G H : Group {ℓ}} (f : GroupIso F G) (g : GroupIso G H) �
 Group-uaCompIso f g = caracGroup≡ _ _ (
   cong Carrier (Group-ua (compGroupIso f g))
     ≡⟨ caracGroup-ua (compGroupIso f g) ⟩
-  ua (fun (compGroupIso f g))
+  ua (eq (compGroupIso f g))
     ≡⟨ uaCompEquiv _ _ ⟩
-  ua (fun f) ∙ ua (fun g)
-    ≡⟨ cong (_∙ ua (fun g)) (sym (caracGroup-ua f)) ⟩
-  cong Carrier (Group-ua f) ∙ ua (fun g)
+  ua (eq f) ∙ ua (eq g)
+    ≡⟨ cong (_∙ ua (eq g)) (sym (caracGroup-ua f)) ⟩
+  cong Carrier (Group-ua f) ∙ ua (eq g)
     ≡⟨ cong (cong Carrier (Group-ua f) ∙_) (sym (caracGroup-ua g)) ⟩
   cong Carrier (Group-ua f) ∙ cong Carrier (Group-ua g)
     ≡⟨ sym (cong-∙ Carrier (Group-ua f) (Group-ua g)) ⟩
