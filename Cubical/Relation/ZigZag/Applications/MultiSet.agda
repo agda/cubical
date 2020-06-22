@@ -122,7 +122,8 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  AList/Rᴬᴸ-structure : S .struct AList/Rᴬᴸ
  AList/Rᴬᴸ-structure = main .quoᴿ .fst
 
- -- We get that the equivalence is an isomorphism directly from the fact that is induced by a bisimulation
+ -- We get a path between count-structures over the equivalence directly from the fact that the bisimulation
+ -- is structured
 
  List/Rᴸ≡AList/Rᴬᴸ :
    Path (TypeWithStr ℓ (S .struct)) (List/Rᴸ , List/Rᴸ-structure) (AList/Rᴬᴸ , AList/Rᴬᴸ-structure)
