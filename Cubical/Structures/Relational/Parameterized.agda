@@ -40,29 +40,29 @@ module _ (A : Type ℓ₀) where
   open isSNRS
   open BisimDescends
 
-  isSNRSParameterized : (S : A → SetStructure ℓ ℓ₁) {ℓ₁' : Level}
-    (ρ : ∀ a → StrRel (S a .struct) ℓ₁')
+  isSNRSParameterized : {S : A → SetStructure ℓ ℓ₁} {ℓ₁' : Level}
+    {ρ : ∀ a → StrRel (S a .struct) ℓ₁'}
     → (∀ a → isSNRS (S a) (ρ a))
     → isSNRS (parameterized-setStructure S) (parameterized-propRel ρ)
-  isSNRSParameterized _ ρ θ .propQuo R f f' =
+  isSNRSParameterized {ρ = ρ} θ .propQuo R f f' =
     equivFun ΣPath≃PathΣ
       ( funExt (λ a → cong fst (θ a .propQuo R (f .fst a , f .snd a) (f' .fst a , f' .snd a)))
       , isProp→PathP (λ _ → parameterized-propRel ρ .prop (λ _ _ → squash/ _ _) _ _) _ _
       )
-  isSNRSParameterized _ ρ θ .descends _ .fst code .quoᴸ .fst a =
+  isSNRSParameterized θ .descends _ .fst code .quoᴸ .fst a =
     θ a .descends _ .fst (code a) .quoᴸ .fst
-  isSNRSParameterized _ ρ θ .descends _ .fst code .quoᴸ .snd a =
+  isSNRSParameterized θ .descends _ .fst code .quoᴸ .snd a =
     θ a .descends _ .fst (code a) .quoᴸ .snd
-  isSNRSParameterized _ ρ θ .descends _ .fst code .quoᴿ .fst a =
+  isSNRSParameterized θ .descends _ .fst code .quoᴿ .fst a =
     θ a .descends _ .fst (code a) .quoᴿ .fst
-  isSNRSParameterized _ ρ θ .descends _ .fst code .quoᴿ .snd a =
+  isSNRSParameterized θ .descends _ .fst code .quoᴿ .snd a =
     θ a .descends _ .fst (code a) .quoᴿ .snd
-  isSNRSParameterized _ ρ θ .descends _ .fst code .path =
+  isSNRSParameterized θ .descends _ .fst code .path =
     funExt λ a → θ a .descends _ .fst (code a) .path
-  isSNRSParameterized _ ρ θ .descends {A = X , f} {B = Y , g} R .snd d a =
+  isSNRSParameterized θ .descends {A = X , f} {B = Y , g} R .snd d a =
     θ a .descends R .snd d'
     where
-    d' : BisimDescends _ (ρ a) (X , f a) (Y , g a) R
+    d' : BisimDescends _ _ (X , f a) (Y , g a) R
     d' .quoᴸ = d .quoᴸ .fst a , d .quoᴸ .snd a
     d' .quoᴿ = d .quoᴿ .fst a , d .quoᴿ .snd a
     d' .path i = d .path i a

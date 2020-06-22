@@ -40,11 +40,11 @@ open isSNRS
 open BisimDescends
 
 isSNRSJoin :
-  (S₁ : SetStructure ℓ ℓ₁) {ρ₁ : StrRel (S₁ .struct) ℓ₁'}
-  (S₂ : SetStructure ℓ ℓ₂) {ρ₂ : StrRel (S₂ .struct) ℓ₂'}
+  {S₁ : SetStructure ℓ ℓ₁} {ρ₁ : StrRel (S₁ .struct) ℓ₁'}
+  {S₂ : SetStructure ℓ ℓ₂} {ρ₂ : StrRel (S₂ .struct) ℓ₂'}
   → isSNRS S₁ ρ₁ → isSNRS S₂ ρ₂
   → isSNRS (join-setStructure S₁ S₂) (join-propRel ρ₁ ρ₂)
-isSNRSJoin _ {ρ₁} _ {ρ₂} θ₁ θ₂ .propQuo R (t , r) (t' , r') =
+isSNRSJoin {ρ₁ = ρ₁} {ρ₂ = ρ₂} θ₁ θ₂ .propQuo R (t , r) (t' , r') =
   equivFun ΣPath≃PathΣ
     ( equivFun ΣPath≃PathΣ
       ( cong fst (θ₁ .propQuo R (t .fst , r .fst) (t' .fst , r' .fst))
@@ -52,25 +52,25 @@ isSNRSJoin _ {ρ₁} _ {ρ₂} θ₁ θ₂ .propQuo R (t , r) (t' , r') =
       )
     , isProp→PathP (λ _ → join-propRel ρ₁ ρ₂ .prop (λ _ _ → squash/ _ _) _ _) _ _
     )
-isSNRSJoin _ _ θ₁ θ₂ .descends _ .fst (code₁ , code₂) .quoᴸ .fst =
+isSNRSJoin θ₁ θ₂ .descends _ .fst (code₁ , code₂) .quoᴸ .fst =
   θ₁ .descends _ .fst code₁ .quoᴸ .fst , θ₂ .descends _ .fst code₂ .quoᴸ .fst
-isSNRSJoin _ _ θ₁ θ₂ .descends _  .fst (code₁ , code₂) .quoᴸ .snd =
+isSNRSJoin θ₁ θ₂ .descends _  .fst (code₁ , code₂) .quoᴸ .snd =
   θ₁ .descends _ .fst code₁ .quoᴸ .snd , θ₂ .descends _ .fst code₂ .quoᴸ .snd
-isSNRSJoin _ _ θ₁ θ₂ .descends _ .fst (code₁ , code₂) .quoᴿ .fst =
+isSNRSJoin θ₁ θ₂ .descends _ .fst (code₁ , code₂) .quoᴿ .fst =
   θ₁ .descends _ .fst code₁ .quoᴿ .fst , θ₂ .descends _ .fst code₂ .quoᴿ .fst
-isSNRSJoin _ _ θ₁ θ₂ .descends _ .fst (code₁ , code₂) .quoᴿ .snd =
+isSNRSJoin θ₁ θ₂ .descends _ .fst (code₁ , code₂) .quoᴿ .snd =
   θ₁ .descends _ .fst code₁ .quoᴿ .snd , θ₂ .descends _ .fst code₂ .quoᴿ .snd
-isSNRSJoin _ _ θ₁ θ₂ .descends _ .fst (code₁ , code₂) .path =
+isSNRSJoin θ₁ θ₂ .descends _ .fst (code₁ , code₂) .path =
   equivFun ΣPathP≃PathPΣ (θ₁ .descends _ .fst code₁ .path , θ₂ .descends _ .fst code₂ .path)
-isSNRSJoin _ {ρ₁} _ {ρ₂} θ₁ θ₂ .descends {A = X , s} {B = Y , t} R .snd d =
+isSNRSJoin θ₁ θ₂ .descends {A = X , s} {B = Y , t} R .snd d =
   θ₁ .descends R .snd d₁ , θ₂ .descends R .snd d₂
   where
-  d₁ : BisimDescends _ ρ₁ (X , s .fst) (Y , t .fst) R
+  d₁ : BisimDescends _ _ (X , s .fst) (Y , t .fst) R
   d₁ .quoᴸ = d .quoᴸ .fst .fst , d .quoᴸ .snd .fst
   d₁ .quoᴿ = d .quoᴿ .fst .fst , d .quoᴿ .snd .fst
   d₁ .path i = d .path i .fst
 
-  d₂ : BisimDescends _ ρ₂ (X , s .snd) (Y , t .snd) R
+  d₂ : BisimDescends _ _ (X , s .snd) (Y , t .snd) R
   d₂ .quoᴸ = d .quoᴸ .fst .snd , d .quoᴸ .snd .snd
   d₂ .quoᴿ = d .quoᴿ .fst .snd , d .quoᴿ .snd .snd
   d₂ .path i = d .path i .snd

@@ -97,10 +97,10 @@ private
     lem {A = A} p₀ p₁ q i =
       comp A (λ k → λ {(i = i0) → p₀ k; (i = i1) → p₁ k}) (q i)
 
-isSNRSUnaryFun : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁')
+isSNRSUnaryFun : {S : SetStructure ℓ ℓ₁} {ρ : StrRel (S .struct) ℓ₁'}
   → isSNRS S ρ
   → isSNRS (unaryFun-setStructure S) (unaryFun-propRel ρ)
-isSNRSUnaryFun S ρ θ .propQuo R (t , c) (t' , c') =
+isSNRSUnaryFun {S = S} {ρ} θ .propQuo R (t , c) (t' , c') =
   equivFun ΣPath≃PathΣ
     ( funExt
       (elimProp
@@ -108,7 +108,7 @@ isSNRSUnaryFun S ρ θ .propQuo R (t , c) (t' , c') =
         (λ x → cong fst (θ .propQuo R (t [ x ] , c refl) (t' [ x ] , c' refl))))
     , isProp→PathP (λ _ → unaryFun-propRel ρ .prop (λ _ _ → squash/ _ _) _ _) _ _
     )
-isSNRSUnaryFun S ρ θ .descends {X , f} {Y , g} (R , bis) .fst code .quoᴸ =
+isSNRSUnaryFun {S = S} {ρ} θ .descends {X , f} {Y , g} (R , bis) .fst code .quoᴸ =
   f₀ , λ p → subst (λ y → ρ .rel _ _ _ _ (f₀ y)) p (θ .descends _ .fst _ .quoᴸ .snd)
   where
   f₀ : _
@@ -121,7 +121,7 @@ isSNRSUnaryFun S ρ θ .descends {X , f} {Y , g} (R , bis) .fst code .quoᴸ =
       i
   f₀ (squash/ _ _ p q j i) =
     S .set squash/ _ _ (cong f₀ p) (cong f₀ q) j i
-isSNRSUnaryFun S ρ θ .descends (R , bis) .fst code .quoᴿ =
+isSNRSUnaryFun {S = S} {ρ} θ .descends (R , bis) .fst code .quoᴿ =
   g₀ , λ p → subst (λ y → ρ .rel _ _ _ _ (g₀ y)) p (θ .descends _ .fst _ .quoᴿ .snd)
   where
   g₀ : _
@@ -134,7 +134,7 @@ isSNRSUnaryFun S ρ θ .descends (R , bis) .fst code .quoᴿ =
       i
   g₀ (squash/ _ _ p q j i) =
     S .set squash/ _ _ (cong g₀ p) (cong g₀ q) j i
-isSNRSUnaryFun S ρ θ .descends (R , bis) .fst code .path =
+isSNRSUnaryFun {S = S} {ρ} θ .descends (R , bis) .fst code .path =
   ua→
     (elimProp
       (λ _ → isOfHLevelPathP' 1
@@ -145,7 +145,7 @@ isSNRSUnaryFun S ρ θ .descends (R , bis) .fst code .path =
         ▷ quoᴿ-coherence S ρ θ (R , bis) _ _ (code (bis .bwdRel (bis .fwd x)))))
   where
   module E = Bisim→Equiv (R , bis)
-isSNRSUnaryFun S ρ θ .descends {A = X , f} {B = Y , g} (R , bis) .snd d {x} {y} r =
+isSNRSUnaryFun {S = S} {ρ} θ .descends {A = X , f} {B = Y , g} (R , bis) .snd d {x} {y} r =
   θ .descends (R , bis) .snd dxy
   where
   dxy : BisimDescends (S .struct) ρ (X , f x) (Y , g y) (R , bis)
