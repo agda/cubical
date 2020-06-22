@@ -33,7 +33,6 @@ data FuncDesc (ℓ : Level) : Typeω where
   param : ∀ {ℓ'} → (A : Type ℓ') → FuncDesc ℓ  → FuncDesc ℓ
   -- structure S parameterized by variable argument: X ↦ (X → S X)
   maybe : FuncDesc ℓ → FuncDesc ℓ
-  -- arbitrary standard notion of structure
 
 data Desc (ℓ : Level) : Typeω where
   -- constant structure: X ↦ A
