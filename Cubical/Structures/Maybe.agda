@@ -18,11 +18,6 @@ private
   variable
     ℓ ℓ₁ ℓ₁' : Level
 
--- Structured isomorphism
-
-maybe-structure : (S : Type ℓ → Type ℓ₁) → Type ℓ → Type ℓ₁
-maybe-structure S X = Maybe (S X)
-
 maybe-rel : {A B : Type ℓ} (R : A → B → Type ℓ₁) → Maybe A → Maybe B → Type ℓ₁
 maybe-rel R nothing nothing = Lift Unit
 maybe-rel R nothing (just _) = Lift ⊥
@@ -82,6 +77,11 @@ module MaybePathP where
     isom .Iso.inv = encode _ ox oy
     isom .Iso.rightInv = decodeEncode ox oy
     isom .Iso.leftInv = encodeDecode A ox oy
+
+-- Structured isomorphism
+
+maybe-structure : (S : Type ℓ → Type ℓ₁) → Type ℓ → Type ℓ₁
+maybe-structure S X = Maybe (S X)
 
 maybe-iso : {S : Type ℓ → Type ℓ₁}
   → StrIso S ℓ₁' → StrIso (maybe-structure S) ℓ₁'
