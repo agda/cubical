@@ -121,15 +121,15 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  List/Rᴸ≃AList/Rᴬᴸ = E.Thm
 
  main : BisimDescends _ _ (List A , Lcount) (AList A , ALcount) (R , isBisimR)
- main = θ (R , isBisimR) (λ a r → r a)
+ main = θ .isSNRS.descends (R , isBisimR) (λ a r → r a)
 
  open BisimDescends
 
  List/Rᴸ-structure : S .struct List/Rᴸ
- List/Rᴸ-structure = main .quoᴸ .fst .fst
+ List/Rᴸ-structure = main .quoᴸ .fst
 
  AList/Rᴬᴸ-structure : S .struct AList/Rᴬᴸ
- AList/Rᴬᴸ-structure = main .quoᴿ .fst .fst
+ AList/Rᴬᴸ-structure = main .quoᴿ .fst
 
  -- We get that the equivalence is an isomorphism directly from the fact that is induced by a bisimulation
 
