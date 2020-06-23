@@ -226,36 +226,44 @@ private
     buildDesc FUEL ℓ ℓ' t >>= R.unify hole
 
 macro
+  -- (Type ℓ → Type ℓ₁) → FuncDesc ℓ
   autoFuncDesc : R.Term → R.Term → R.TC Unit
   autoFuncDesc = autoFuncDesc'
 
+  -- (S : Type ℓ → Type ℓ₁) → ∀ {X Y} → (X → Y) → (S X → S Y)
   autoFuncAction : R.Term → R.Term → R.TC Unit
   autoFuncAction t hole =
     newMeta (tFuncDesc R.unknown) >>= λ d →
     R.unify hole (R.def (quote funcMacro-action) [ varg d ]) >>
     autoFuncDesc' t d
 
+  -- (S : Type ℓ → Type ℓ₁) → ∀ {X} s → autoFuncAction S (idfun X) s ≡ s
   autoFuncId : R.Term → R.Term → R.TC Unit
   autoFuncId t hole =
     newMeta (tFuncDesc R.unknown) >>= λ d →
     R.unify hole (R.def (quote funcMacro-id) [ varg d ]) >>
     autoFuncDesc' t d
 
+  -- (S : Type ℓ → Type ℓ₁) → Desc ℓ
   autoDesc : R.Term → R.Term → R.TC Unit
   autoDesc = autoDesc'
 
+  -- (S : Type ℓ → Type ℓ₁) → (Type ℓ → Type ℓ₁)
+  -- Removes Funct[_] annotations
   autoStructure : R.Term → R.Term → R.TC Unit
   autoStructure t hole =
     newMeta (tDesc R.unknown) >>= λ d →
     R.unify hole (R.def (quote macro-structure) [ varg d ]) >>
     autoDesc' t d
 
+  -- (S : Type ℓ → Type ℓ₁) → StrIso (autoStructure S) _
   autoIso : R.Term → R.Term → R.TC Unit
   autoIso t hole =
     newMeta (tDesc R.unknown) >>= λ d →
     R.unify hole (R.def (quote macro-iso) [ varg d ]) >>
     autoDesc' t d
 
+  -- (S : Type ℓ → Type ℓ₁) → SNS (autoStructure S) (autoIso S)
   autoSNS : R.Term → R.Term → R.TC Unit
   autoSNS t hole =
     newMeta (tDesc R.unknown) >>= λ d →
