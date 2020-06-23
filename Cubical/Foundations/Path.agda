@@ -150,7 +150,7 @@ module _ {a₀₀ a₁₁ : A} {a₋ : a₀₀ ≡ a₁₁}
   slideSquareFaces i j k (i = i0) = a₋ (j ∧ ~ k)
   slideSquareFaces i j k (i = i1) = a₁₋ j
   slideSquareFaces i j k (j = i0) = a₋₀ i
-  slideSquareFaces i j k (j = i1) = a₋ (i ∨ ~ k)  
+  slideSquareFaces i j k (j = i1) = a₋ (i ∨ ~ k)
 
   slideSquare : Square a₋ a₁₋ a₋₀ refl → Square refl a₁₋ a₋₀ a₋
   slideSquare sq i j = hcomp (slideSquareFaces i j) (sq i j)
