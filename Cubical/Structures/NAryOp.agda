@@ -13,21 +13,21 @@ open import Cubical.Data.Vec
 
 module _ {ℓ₁ ℓ₂ : Level} where
 
-  nAryFun-structure : (n : ℕ) (S : Type ℓ₁ → Type ℓ₂)
+  NAryFunStructure : (n : ℕ) (S : Type ℓ₁ → Type ℓ₂)
     → Type ℓ₁ → Type (nAryLevel ℓ₁ ℓ₂ n)
-  nAryFun-structure n S X = nAryOp n X (S X)
+  NAryFunStructure n S X = nAryOp n X (S X)
 
   -- iso for n-ary functions
-  nAryFunIso : (n : ℕ) {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level} (ι : StrEquiv S ℓ₃)
-    → StrEquiv (nAryFun-structure n S) (ℓ-max ℓ₁ ℓ₃)
-  nAryFunIso n ι (X , fX) (Y , fY) e =
+  NAryFunEquivStr : (n : ℕ) {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level} (ι : StrEquiv S ℓ₃)
+    → StrEquiv (NAryFunStructure n S) (ℓ-max ℓ₁ ℓ₃)
+  NAryFunEquivStr n ι (X , fX) (Y , fY) e =
     (xs : Vec X n) → ι (X , fX $ⁿ xs) (Y , fY $ⁿ map (equivFun e) xs) e
 
-  nAryFunSNS : {S : Type ℓ₁ → Type ℓ₂} (n : ℕ) {ℓ₃ : Level}
+  nAryFunUnivalentStr : {S : Type ℓ₁ → Type ℓ₂} (n : ℕ) {ℓ₃ : Level}
     (ι : StrEquiv S ℓ₃) (θ : UnivalentStr S ι)
-    → UnivalentStr (nAryFun-structure n S) (nAryFunIso n ι)
-  nAryFunSNS n ι θ =
-    UnivalentStr-≡→UnivalentStr (nAryFunIso n ι) λ fX fY →
+    → UnivalentStr (NAryFunStructure n S) (NAryFunEquivStr n ι)
+  nAryFunUnivalentStr n ι θ =
+    UnivalentStr-≡→UnivalentStr (NAryFunEquivStr n ι) λ fX fY →
     compEquiv
       (equivPi λ xs → UnivalentStr→UnivalentStr-≡ _ ι θ _ _)
       (nAryFunExtEquiv n fX fY)
@@ -35,27 +35,27 @@ module _ {ℓ₁ ℓ₂ : Level} where
 module _ {ℓ₁ ℓ₂ : Level} where
 
   -- unary
-  unaryFunIso : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level} (ι : StrEquiv S ℓ₃)
-    → StrEquiv (nAryFun-structure 1 S) (ℓ-max ℓ₁ ℓ₃)
-  unaryFunIso ι (A , f) (B , g) e =
+  UnaryFunEquivStr : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level} (ι : StrEquiv S ℓ₃)
+    → StrEquiv (NAryFunStructure 1 S) (ℓ-max ℓ₁ ℓ₃)
+  UnaryFunEquivStr ι (A , f) (B , g) e =
     (x : A) → ι (A , f x) (B , g (equivFun e x)) e
 
-  unaryFunSNS : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level}
+  unaryFunUnivalentStr : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level}
     (ι : StrEquiv S ℓ₃) (θ : UnivalentStr S ι)
-    → UnivalentStr (nAryFun-structure 1 S) (unaryFunIso ι)
-  unaryFunSNS ι θ =
-    UnivalentStr-≡→UnivalentStr (unaryFunIso ι) λ fX fY →
+    → UnivalentStr (NAryFunStructure 1 S) (UnaryFunEquivStr ι)
+  unaryFunUnivalentStr ι θ =
+    UnivalentStr-≡→UnivalentStr (UnaryFunEquivStr ι) λ fX fY →
     compEquiv (equivPi λ _ → UnivalentStr→UnivalentStr-≡ _ ι θ _ _) funExtEquiv
 
   -- binary
-  binaryFunIso : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level} (ι : StrEquiv S ℓ₃)
-    → StrEquiv (nAryFun-structure 2 S) (ℓ-max ℓ₁ ℓ₃)
-  binaryFunIso ι (A , f) (B , g) e =
+  BinaryFunEquivStr : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level} (ι : StrEquiv S ℓ₃)
+    → StrEquiv (NAryFunStructure 2 S) (ℓ-max ℓ₁ ℓ₃)
+  BinaryFunEquivStr ι (A , f) (B , g) e =
     (x y : A) → ι (A , f x y) (B , g (equivFun e x) (equivFun e y)) e
 
-  binaryFunSNS : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level}
+  binaryFunUnivalentStr : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level}
     (ι : StrEquiv S ℓ₃) (θ : UnivalentStr S ι)
-    → UnivalentStr (nAryFun-structure 2 S) (binaryFunIso ι)
-  binaryFunSNS ι θ =
-    UnivalentStr-≡→UnivalentStr (binaryFunIso ι) λ fX fY →
+    → UnivalentStr (NAryFunStructure 2 S) (BinaryFunEquivStr ι)
+  binaryFunUnivalentStr ι θ =
+    UnivalentStr-≡→UnivalentStr (BinaryFunEquivStr ι) λ fX fY →
     compEquiv (equivPi λ _ → equivPi λ _ → UnivalentStr→UnivalentStr-≡ _ ι θ _ _) funExt₂Equiv

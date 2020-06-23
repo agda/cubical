@@ -28,10 +28,10 @@ module _ (X : Type ℓ') where
   PointedEqvTo-structure = AxiomStructure PointedStructure (λ Y _ → ∥ Y ≃ X ∥)
 
   PointedEqvTo-iso : StrEquiv PointedEqvTo-structure ℓ''
-  PointedEqvTo-iso = AxiomIso PointedIso (λ Y _ → ∥ Y ≃ X ∥)
+  PointedEqvTo-iso = AxiomEquivStr PointedEquivStr (λ Y _ → ∥ Y ≃ X ∥)
 
   PointedEqvTo-is-SNS : UnivalentStr {ℓ} PointedEqvTo-structure PointedEqvTo-iso
-  PointedEqvTo-is-SNS = axiomUnivalentStr PointedIso {axioms = λ Y _ → ∥ Y ≃ X ∥}
+  PointedEqvTo-is-SNS = axiomUnivalentStr PointedEquivStr {axioms = λ Y _ → ∥ Y ≃ X ∥}
                                           (λ _ _ → squash) pointedUnivalentStr
 
   PointedEqvTo-SIP : (A B : PointedEqvTo ℓ X) → A ≃[ PointedEqvTo-iso ] B ≃ (A ≡ B)

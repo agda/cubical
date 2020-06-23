@@ -23,17 +23,17 @@ AxiomStructure : (S : Type ℓ → Type ℓ₁)
                → Type ℓ → Type (ℓ-max ℓ₁ ℓ₂)
 AxiomStructure S axioms X = Σ[ s ∈ S X ] (axioms X s)
 
-AxiomIso : {S : Type ℓ → Type ℓ₁} (ι : StrEquiv S ℓ₁')
+AxiomEquivStr : {S : Type ℓ → Type ℓ₁} (ι : StrEquiv S ℓ₁')
            (axioms : (X : Type ℓ) → S X → Type ℓ₂)
          → StrEquiv (AxiomStructure S axioms) ℓ₁'
-AxiomIso ι axioms (X , (s , a)) (Y , (t , b)) f = ι (X , s) (Y , t) f
+AxiomEquivStr ι axioms (X , (s , a)) (Y , (t , b)) f = ι (X , s) (Y , t) f
 
 axiomUnivalentStr : {S : Type ℓ → Type ℓ₁}
                  (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → A .fst ≃ B .fst → Type ℓ₁')
                  {axioms : (X : Type ℓ) → S X → Type ℓ₂}
                  (axioms-are-Props : (X : Type ℓ) (s : S X) → isProp (axioms X s))
                  (θ : UnivalentStr S ι)
-               → UnivalentStr (AxiomStructure S axioms) (AxiomIso ι axioms)
+               → UnivalentStr (AxiomStructure S axioms) (AxiomEquivStr ι axioms)
 axiomUnivalentStr {S = S} ι {axioms = axioms} axioms-are-Props θ {X , s , a} {Y , t , b} f =
   compEquiv
     (θ f)

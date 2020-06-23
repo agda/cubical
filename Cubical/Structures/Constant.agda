@@ -17,8 +17,8 @@ module _ (A : Type ℓ) where
   ConstantStructure : Type ℓ' → Type ℓ
   ConstantStructure _ = A
 
-  ConstantIso : StrEquiv {ℓ'} ConstantStructure ℓ
-  ConstantIso (_ , a) (_ , a') _ = a ≡ a'
+  ConstantEquivStr : StrEquiv {ℓ'} ConstantStructure ℓ
+  ConstantEquivStr (_ , a) (_ , a') _ = a ≡ a'
 
-  constantUnivalentStr : UnivalentStr {ℓ'} ConstantStructure ConstantIso
+  constantUnivalentStr : UnivalentStr {ℓ'} ConstantStructure ConstantEquivStr
   constantUnivalentStr e = idEquiv _

@@ -108,7 +108,7 @@ module CommRingΣ-theory {ℓ} where
   CommRingΣ = TypeWithStr ℓ CommRingStructure
 
   CommRingEquivStr : StrEquiv CommRingStructure ℓ
-  CommRingEquivStr = AxiomIso raw-ring-iso CommRingAxioms
+  CommRingEquivStr = AxiomEquivStr raw-ring-iso CommRingAxioms
 
   isProp-CommRingAxioms : (R : Type ℓ) (s : raw-ring-structure R)
                           → isProp (CommRingAxioms R s)

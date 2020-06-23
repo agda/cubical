@@ -42,7 +42,7 @@ Rngs : Type (ℓ-suc ℓ)
 Rngs {ℓ} = TypeWithStr ℓ rng-structure
 
 rng-iso : StrEquiv rng-structure ℓ
-rng-iso = AxiomIso raw-rng-iso rng-axioms
+rng-iso = AxiomEquivStr raw-rng-iso rng-axioms
 
 rng-axioms-isProp : (X : Type ℓ) (s : raw-rng-structure X) → isProp (rng-axioms X s)
 rng-axioms-isProp X (_·_ , _+_) = isPropΣ (abelian-group-axioms-isProp X _·_)

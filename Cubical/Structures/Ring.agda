@@ -169,7 +169,7 @@ module RingΣ-theory {ℓ} where
   RingΣ = TypeWithStr ℓ ring-structure
 
   ring-iso : StrEquiv ring-structure ℓ
-  ring-iso = AxiomIso raw-ring-iso ring-axioms
+  ring-iso = AxiomEquivStr raw-ring-iso ring-axioms
 
   isProp-ring-axioms : (R : Type ℓ) (s : raw-ring-structure R) → isProp (ring-axioms R s)
   isProp-ring-axioms R (_+_ , 1r , _·_) =

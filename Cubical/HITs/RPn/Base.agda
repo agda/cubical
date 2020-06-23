@@ -53,15 +53,15 @@ Bool* = Bool , ∣ idEquiv _ ∣
 -- Our first goal is to 'lift' `_⊕_ : Bool → Bool ≃ Bool` to a function `_⊕_ : A → A ≃ Bool`
 --  for any 2-element type (A, ∣e∣).
 
--- `isContr-BoolPointedIso` and `isContr-2-EltPointed-iso` are contained in the proof
---  of Lemma II.2 in [BR17], though we prove `isContr-BoolPointedIso` more directly
+-- `isContr-BoolPointedEquivStr` and `isContr-2-EltPointed-iso` are contained in the proof
+--  of Lemma II.2 in [BR17], though we prove `isContr-BoolPointedEquivStr` more directly
 --  with ⊕ -- [BR17] proves it for just the x = false case and uses notEquiv to get
 --  the x = true case.
 
 -- (λ y → x ⊕ y) is the unqiue pointed isomorphism (Bool , false) ≃ (Bool , x)
-isContr-BoolPointedIso : ∀ x → isContr ((Bool , false) ≃[ PointedIso ] (Bool , x))
-fst (isContr-BoolPointedIso x) = ((λ y → x ⊕ y) , isEquiv-⊕ x) , ⊕-comm x false
-snd (isContr-BoolPointedIso x) (e , p)
+isContr-BoolPointedEquivStr : ∀ x → isContr ((Bool , false) ≃[ PointedEquivStr ] (Bool , x))
+fst (isContr-BoolPointedEquivStr x) = ((λ y → x ⊕ y) , isEquiv-⊕ x) , ⊕-comm x false
+snd (isContr-BoolPointedEquivStr x) (e , p)
   = Σ≡Prop (λ e → isSetBool (equivFun e false) x)
            (Σ≡Prop isPropIsEquiv (funExt λ { false → ⊕-comm x false ∙ sym p
                                            ; true  → ⊕-comm x true  ∙ sym q }))
@@ -77,8 +77,8 @@ isContr-2-EltPointed-iso : (X∙ : 2-EltPointed₀)
                          → isContr ((Bool , false , ∣ idEquiv Bool ∣) ≃[ PointedEqvTo-iso Bool ] X∙)
 isContr-2-EltPointed-iso (X , x , ∣e∣)
   = PropTrunc.rec isPropIsContr
-                  (λ e → J (λ X∙ _ → isContr ((Bool , false) ≃[ PointedIso ] X∙))
-                           (isContr-BoolPointedIso (e .fst x))
+                  (λ e → J (λ X∙ _ → isContr ((Bool , false) ≃[ PointedEquivStr ] X∙))
+                           (isContr-BoolPointedEquivStr (e .fst x))
                            (sym (pointed-sip _ _ (e , refl))))
                   ∣e∣
 
@@ -107,8 +107,8 @@ module ⊕* (X : 2-EltType₀) where
     where R₁ : ∥ fst X ≃ Bool ∥ → typ X → typ X → Bool
           R₁ ∣e∣ y = invEq (fst (fst (isContr-2-EltPointed-iso (fst X , y , ∣e∣))))
           R₂ : (B : Type₀) → B ≃ Bool → B → B → Bool
-          R₂ A e y = invEq (fst (fst (J (λ A∙ _ → isContr ((Bool , false) ≃[ PointedIso ] A∙))
-                                        (isContr-BoolPointedIso (e .fst y))
+          R₂ A e y = invEq (fst (fst (J (λ A∙ _ → isContr ((Bool , false) ≃[ PointedEquivStr ] A∙))
+                                        (isContr-BoolPointedEquivStr (e .fst y))
                                         (sym (pointed-sip (A , y) (Bool , e .fst y) (e , refl))))))
 
   -- as a consequence, we get that ⊕* is commutative, and is therefore also an equivalence on the left

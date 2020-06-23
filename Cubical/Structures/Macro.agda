@@ -71,19 +71,19 @@ macro-structure var X = X
 macro-structure (d₀ , d₁) X = macro-structure d₀ X × macro-structure d₁ X
 macro-structure (param A d) X = A → macro-structure d X
 macro-structure (recvar d) X = X → macro-structure d X
-macro-structure (maybe d) = maybe-structure (macro-structure d)
+macro-structure (maybe d) = MaybeStructure (macro-structure d)
 macro-structure (functorial {S = S} _ _) = S
 macro-structure (foreign {S = S} _ _) = S
 
 -- Notion of structured isomorphism defined by a descriptor
 macro-iso : ∀ {ℓ} → (d : Desc ℓ) → StrEquiv {ℓ} (macro-structure d) (macro-iso-level d)
-macro-iso (constant A) = ConstantIso A
-macro-iso var = PointedIso
+macro-iso (constant A) = ConstantEquivStr A
+macro-iso var = PointedEquivStr
 macro-iso (d₀ , d₁) = join-iso (macro-iso d₀) (macro-iso d₁)
-macro-iso (param A d) = parameterized-iso A λ _ → macro-iso d
-macro-iso (recvar d) = unaryFunIso (macro-iso d)
-macro-iso (maybe d) = maybe-iso (macro-iso d)
-macro-iso (functorial F _) = FunctorialIso F
+macro-iso (param A d) = ParamEquivStr A λ _ → macro-iso d
+macro-iso (recvar d) = UnaryFunEquivStr (macro-iso d)
+macro-iso (maybe d) = MaybeEquivStr (macro-iso d)
+macro-iso (functorial F _) = FunctorialEquivStr F
 macro-iso (foreign ι _) = ι
 
 -- Proof that structure induced by descriptor is a standard notion of structure
@@ -91,9 +91,9 @@ macro-is-SNS : ∀ {ℓ} → (d : Desc ℓ) → UnivalentStr (macro-structure d)
 macro-is-SNS (constant A) = constantUnivalentStr A
 macro-is-SNS var = pointedUnivalentStr
 macro-is-SNS (d₀ , d₁) = join-SNS (macro-iso d₀) (macro-is-SNS d₀) (macro-iso d₁) (macro-is-SNS d₁)
-macro-is-SNS (param A d) = Parameterized-is-SNS A (λ _ → macro-iso d) (λ _ → macro-is-SNS d)
-macro-is-SNS (recvar d) = unaryFunSNS (macro-iso d) (macro-is-SNS d)
-macro-is-SNS (maybe d) = maybe-is-SNS (macro-iso d) (macro-is-SNS d)
+macro-is-SNS (param A d) = ParamUnivalentStr A (λ _ → macro-iso d) (λ _ → macro-is-SNS d)
+macro-is-SNS (recvar d) = unaryFunUnivalentStr (macro-iso d) (macro-is-SNS d)
+macro-is-SNS (maybe d) = maybeUnivalentStr (macro-iso d) (macro-is-SNS d)
 macro-is-SNS (functorial F η) = functorialUnivalentStr F η
 macro-is-SNS (foreign _ θ) = θ
 

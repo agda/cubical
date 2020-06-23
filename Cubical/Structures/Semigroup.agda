@@ -97,7 +97,7 @@ module SemigroupΣ-theory {ℓ} where
   semigroup-axioms-isProp _ _ = isPropΣ isPropIsSet λ isSetA → isPropΠ3 λ _ _ _ → isSetA _ _
 
   semigroup-iso : StrEquiv semigroup-structure ℓ
-  semigroup-iso = AxiomIso raw-semigroup-iso semigroup-axioms
+  semigroup-iso = AxiomEquivStr raw-semigroup-iso semigroup-axioms
 
   semigroup-axiomsIsoIsSemigroup : {A : Type ℓ} (_·_ : raw-semigroup-structure A)
                                  → Iso (semigroup-axioms A _·_) (IsSemigroup _·_)

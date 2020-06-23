@@ -19,14 +19,14 @@ private
 PointedStructure : Type ℓ → Type ℓ
 PointedStructure X = X
 
-PointedIso : StrEquiv PointedStructure ℓ
-PointedIso A B f = equivFun f (pt A) ≡ pt B
+PointedEquivStr : StrEquiv PointedStructure ℓ
+PointedEquivStr A B f = equivFun f (pt A) ≡ pt B
 
-pointedUnivalentStr : UnivalentStr {ℓ} PointedStructure PointedIso
+pointedUnivalentStr : UnivalentStr {ℓ} PointedStructure PointedEquivStr
 pointedUnivalentStr f = invEquiv (ua-ungluePath-Equiv f)
 
-pointedSIP : (A B : Pointed ℓ) → A ≃[ PointedIso ] B ≃ (A ≡ B)
+pointedSIP : (A B : Pointed ℓ) → A ≃[ PointedEquivStr ] B ≃ (A ≡ B)
 pointedSIP = SIP pointedUnivalentStr
 
-pointed-sip : (A B : Pointed ℓ) → A ≃[ PointedIso ] B → (A ≡ B)
+pointed-sip : (A B : Pointed ℓ) → A ≃[ PointedEquivStr ] B → (A ≡ B)
 pointed-sip A B = equivFun (pointedSIP A B) -- ≡ λ (e , p) i → ua e i , ua-gluePath e p i
