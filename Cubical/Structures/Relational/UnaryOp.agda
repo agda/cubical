@@ -137,9 +137,7 @@ isSNRSUnaryFun {S = S} {ρ} θ .descends (R , bis) .fst code .quoᴿ =
 isSNRSUnaryFun {S = S} {ρ} θ .descends (R , bis) .fst code .path =
   ua→
     (elimProp
-      (λ _ → isOfHLevelPathP' 1
-        (λ i → S .set (subst isSet (λ j → ua E.Thm (i ∧ j)) squash/))
-        _ _)
+      (λ _ → isOfHLevelPathP' 1 (S .set squash/) _ _)
       (λ x →
         θ .descends _ .fst (code (bis .fwdRel x)) .path
         ▷ quoᴿ-coherence S ρ θ (R , bis) _ _ (code (bis .bwdRel (bis .fwd x)))))

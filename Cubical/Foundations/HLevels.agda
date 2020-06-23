@@ -98,20 +98,20 @@ isOfHLevelPath 0 h x y = isContr→isContrPath h x y
 isOfHLevelPath (suc n) h x y = isOfHLevelSuc n (isOfHLevelPath' n h x y)
 
 isOfHLevelPathP' : {A : I → Type ℓ} (n : HLevel)
-                   → (∀ i → isOfHLevel (suc n) (A i))
+                   → isOfHLevel (suc n) (A i1)
                    → (x : A i0) (y : A i1) → isOfHLevel n (PathP A x y)
 isOfHLevelPathP' {A = A} n h x y = transport⁻ (λ i → isOfHLevel n (PathP≡Path A x y i))
-                                              (isOfHLevelPath' n (h i1) _ _)
+                                              (isOfHLevelPath' n h _ _)
 
 isOfHLevelPathP : {A : I → Type ℓ} (n : HLevel)
-                  → (∀ i → isOfHLevel n (A i))
+                  → isOfHLevel n (A i1)
                   → (x : A i0) (y : A i1) → isOfHLevel n (PathP A x y)
 isOfHLevelPathP {A = A} n h x y = transport⁻ (λ i → isOfHLevel n (PathP≡Path A x y i))
-                                             (isOfHLevelPath n (h i1) _ _)
+                                             (isOfHLevelPath n h _ _)
 
 isProp→isContrPathP : {A : I → Type ℓ} → (∀ i → isProp (A i))
                                        → (x : A i0) (y : A i1) → isContr (PathP A x y)
-isProp→isContrPathP h x y = isProp→PathP h x y , isOfHLevelPathP 1 h x y _
+isProp→isContrPathP h x y = isProp→PathP h x y , isOfHLevelPathP 1 (h i1) x y _
 
 -- h-level of isOfHLevel
 
