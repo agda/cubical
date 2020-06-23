@@ -7,6 +7,8 @@ Definition of what it means to be a notion of relational structure
 module Cubical.Foundations.RelationalStructure where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Univalence
 open import Cubical.Data.Sigma
@@ -75,5 +77,28 @@ record isSNRS (S : SetStructure ℓ ℓ') (ρ : StrRel (S .struct) ℓ'') : Type
       → (ρ .rel (A .fst) (B .fst) (R .fst) (A .snd) (B .snd) → BisimDescends (S .struct) ρ A B R)
       × (BisimDescends (S .struct) ρ A B R → ρ .rel (A .fst) (B .fst) (R .fst) (A .snd) (B .snd))
 
-open isSNRS
+  descendsEquiv : {A B : TypeWithStr ℓ (S .struct)}
+    (R : Bisimulation (typ A) (typ B) ℓ)
+    → ρ .rel (A .fst) (B .fst) (R .fst) (A .snd) (B .snd) ≃ BisimDescends (S .struct) ρ A B R
+  descendsEquiv R =
+    isPropEquiv→Equiv
+      (ρ .prop (R .snd .isBisimulation.prop) _ _)
+      isPropDescends
+      (descends R .fst)
+      (descends R .snd)
+    where
+    module E = Bisim→Equiv R
+
+    isPropDescends : (d₀ d₁ : BisimDescends (S .struct) ρ _ _ R) → d₀ ≡ d₁
+    isPropDescends d₀ d₁ j .quoᴸ = propQuo (bisim→EquivRel R) (d₀ .quoᴸ) (d₁ .quoᴸ) j
+    isPropDescends d₀ d₁ j .quoᴿ = propQuo (bisim→EquivRel (invBisim R)) (d₀ .quoᴿ) (d₁ .quoᴿ) j
+    isPropDescends d₀ d₁ j .path =
+      isProp→PathP
+        {B = λ j →
+          PathP (λ i → S .struct (ua E.Thm i))
+          (isPropDescends d₀ d₁ j .quoᴸ .fst)
+          (isPropDescends d₀ d₁ j .quoᴿ .fst)}
+        (λ i → isOfHLevelPathP' 1 (S .set squash/) _ _)
+        (d₀ .path) (d₁ .path)
+        j
 
