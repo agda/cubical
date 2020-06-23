@@ -90,6 +90,20 @@ elim Bset f feq (squash/ x y p q i j) =
     where
       g = elim Bset f feq
 
+rec : {B : Type ℓ} (Bset : isSet B)
+      (f : A → B) (feq : (a b : A) (r : R a b) → f a ≡ f b)
+    → A / R → B
+rec Bset = elim (λ _ → Bset)
+
+rec2 : {B : Type ℓ} (Bset : isSet B)
+       (f : A → A → B) (feql : (a b c : A) (r : R a b) → f a c ≡ f b c)
+                       (feqr : (a b c : A) (r : R b c) → f a b ≡ f a c)
+    → A / R → A / R → B
+rec2 Bset f feql feqr = rec (isSetΠ (λ _ → Bset))
+                            (λ a → rec Bset (f a) (feqr a))
+                            (λ a b r → funExt (elimProp (λ _ → Bset _ _)
+                                              (λ c → feql a b c r)))
+
 
 setQuotUniversal : {B : Type ℓ} (Bset : isSet B) →
                    (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
