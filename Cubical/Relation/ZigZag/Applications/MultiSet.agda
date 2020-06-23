@@ -60,10 +60,11 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  ALcount a (⟨ x , zero ⟩∷ xs) = ALcount a xs
  ALcount a (⟨ x , suc n ⟩∷ xs) = aux a x (discA a x) (ALcount a (⟨ x , n ⟩∷ xs))
 
+ -- now for the bisimulation between List and Alist
+
  R : List A → AList A → Type ℓ
  R xs ys = ∀ a → Lcount a xs ≡ ALcount a ys
 
- -- now for the bisimulation between List and Alist
  φ : List A → AList A
  φ [] = ⟨⟩
  φ (x ∷ xs) = ⟨ x , 1 ⟩∷ φ xs
