@@ -12,6 +12,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Structures.Axiom
 open import Cubical.Structures.Macro
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Pointed
@@ -91,13 +92,13 @@ module AbGroupΣ-theory {ℓ} where
   abgroup-axioms G _+_ = group-axioms G _+_ × ((x y : G) → x + y ≡ y + x)
 
   abgroup-structure : Type ℓ → Type ℓ
-  abgroup-structure = add-to-structure raw-group-structure abgroup-axioms
+  abgroup-structure = AxiomStructure raw-group-structure abgroup-axioms
 
   AbGroupΣ : Type (ℓ-suc ℓ)
   AbGroupΣ = TypeWithStr ℓ abgroup-structure
 
   abgroup-iso : StrIso abgroup-structure ℓ
-  abgroup-iso = add-to-iso (binaryFunIso pointed-iso) abgroup-axioms
+  abgroup-iso = AxiomIso (binaryFunIso pointed-iso) abgroup-axioms
 
   isProp-abgroup-axioms : (G : Type ℓ) (s : raw-group-structure G)
                         → isProp (abgroup-axioms G s)
@@ -117,7 +118,7 @@ module AbGroupΣ-theory {ℓ} where
   AbGroupIsoAbGroupΣ = iso AbGroup→AbGroupΣ AbGroupΣ→AbGroup (λ _ → refl) (λ _ → refl)
 
   abgroup-is-SNS : UnivalentStr abgroup-structure abgroup-iso
-  abgroup-is-SNS = add-axioms-SNS _ isProp-abgroup-axioms raw-group-is-SNS
+  abgroup-is-SNS = AxiomUnivalentStr _ isProp-abgroup-axioms raw-group-is-SNS
 
   AbGroupΣPath : (G H : AbGroupΣ) → (G ≃[ abgroup-iso ] H) ≃ (G ≡ H)
   AbGroupΣPath = SIP abgroup-is-SNS

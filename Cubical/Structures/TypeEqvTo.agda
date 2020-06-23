@@ -9,6 +9,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.SIP
 open import Cubical.Foundations.Pointed
+open import Cubical.Structures.Axiom
 open import Cubical.Structures.Pointed
 
 private
@@ -24,13 +25,13 @@ PointedEqvTo ℓ X = TypeWithStr ℓ (λ Y → Y × ∥ Y ≃ X ∥)
 module _ (X : Type ℓ') where
 
   PointedEqvTo-structure : Type ℓ → Type (ℓ-max ℓ ℓ')
-  PointedEqvTo-structure = add-to-structure pointed-structure (λ Y _ → ∥ Y ≃ X ∥)
+  PointedEqvTo-structure = AxiomStructure pointed-structure (λ Y _ → ∥ Y ≃ X ∥)
 
   PointedEqvTo-iso : StrIso PointedEqvTo-structure ℓ''
-  PointedEqvTo-iso = add-to-iso pointed-iso (λ Y _ → ∥ Y ≃ X ∥)
+  PointedEqvTo-iso = AxiomIso pointed-iso (λ Y _ → ∥ Y ≃ X ∥)
 
   PointedEqvTo-is-SNS : UnivalentStr {ℓ} PointedEqvTo-structure PointedEqvTo-iso
-  PointedEqvTo-is-SNS = add-axioms-SNS pointed-iso {axioms = λ Y _ → ∥ Y ≃ X ∥}
+  PointedEqvTo-is-SNS = AxiomUnivalentStr pointed-iso {axioms = λ Y _ → ∥ Y ≃ X ∥}
                                        (λ _ _ → squash) pointed-is-SNS
 
   PointedEqvTo-SIP : (A B : PointedEqvTo ℓ X) → A ≃[ PointedEqvTo-iso ] B ≃ (A ≡ B)

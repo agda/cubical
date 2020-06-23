@@ -35,14 +35,14 @@ rng-axioms X (_·_ , _+_) = abelian-group-axioms X _·_ ×
                            ((x y z : X) → (x + y) · z ≡ (x · z) + (y · z))
 
 rng-structure : Type ℓ → Type ℓ
-rng-structure = add-to-structure raw-rng-structure rng-axioms
+rng-structure = AxiomStructure raw-rng-structure rng-axioms
 
 
 Rngs : Type (ℓ-suc ℓ)
 Rngs {ℓ} = TypeWithStr ℓ rng-structure
 
 rng-iso : StrIso rng-structure ℓ
-rng-iso = add-to-iso raw-rng-iso rng-axioms
+rng-iso = AxiomIso raw-rng-iso rng-axioms
 
 rng-axioms-isProp : (X : Type ℓ) (s : raw-rng-structure X) → isProp (rng-axioms X s)
 rng-axioms-isProp X (_·_ , _+_) = isPropΣ (abelian-group-axioms-isProp X _·_)
@@ -51,7 +51,7 @@ rng-axioms-isProp X (_·_ , _+_) = isPropΣ (abelian-group-axioms-isProp X _·_)
                                   λ _ → isPropΠ3 (λ _ _ _ → isSetX _ _)}
 
 rng-is-SNS : SNS {ℓ} rng-structure rng-iso
-rng-is-SNS = add-axioms-SNS _ rng-axioms-isProp raw-rng-is-SNS
+rng-is-SNS = AxiomUnivalentStr _ rng-axioms-isProp raw-rng-is-SNS
 
 RngPath : (M N : Rngs {ℓ}) → (M ≃[ rng-iso ] N) ≃ (M ≡ N)
 RngPath = SIP rng-is-SNS

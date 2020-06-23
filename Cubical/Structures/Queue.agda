@@ -8,6 +8,7 @@ open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP
 
+open import Cubical.Structures.Axiom
 open import Cubical.Structures.Macro
 open import Cubical.Structures.LeftAction
 open import Cubical.Structures.Functorial
@@ -93,16 +94,16 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
    isOfHLevelDeq Qset = isOfHLevelMaybe 0 (isSet× Qset Aset)
 
  queue-structure : Type ℓ → Type ℓ
- queue-structure = add-to-structure raw-queue-structure queue-axioms
+ queue-structure = AxiomStructure raw-queue-structure queue-axioms
 
  Queue : Type (ℓ-suc ℓ)
  Queue = TypeWithStr ℓ queue-structure
 
  queue-iso : StrIso queue-structure ℓ
- queue-iso = add-to-iso raw-queue-iso queue-axioms
+ queue-iso = AxiomIso raw-queue-iso queue-axioms
 
  Queue-is-SNS : UnivalentStr queue-structure queue-iso
- Queue-is-SNS = add-axioms-SNS raw-queue-iso isProp-queue-axioms RawQueue-is-SNS
+ Queue-is-SNS = AxiomUnivalentStr raw-queue-iso isProp-queue-axioms RawQueue-is-SNS
 
 
  finite-queue-axioms : (Q : Type ℓ) → queue-structure Q → Type ℓ
@@ -112,13 +113,13 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  isProp-finite-queue-axioms Q S = isPropIsEquiv _
 
  finite-queue-structure : Type ℓ → Type ℓ
- finite-queue-structure = add-to-structure queue-structure finite-queue-axioms
+ finite-queue-structure = AxiomStructure queue-structure finite-queue-axioms
 
  FiniteQueue : Type (ℓ-suc ℓ)
  FiniteQueue = TypeWithStr ℓ finite-queue-structure
 
  finite-queue-iso : StrIso finite-queue-structure ℓ
- finite-queue-iso = add-to-iso queue-iso finite-queue-axioms
+ finite-queue-iso = AxiomIso queue-iso finite-queue-axioms
 
  FiniteQueue-is-SNS : UnivalentStr finite-queue-structure finite-queue-iso
- FiniteQueue-is-SNS = add-axioms-SNS queue-iso isProp-finite-queue-axioms Queue-is-SNS
+ FiniteQueue-is-SNS = AxiomUnivalentStr queue-iso isProp-finite-queue-axioms Queue-is-SNS

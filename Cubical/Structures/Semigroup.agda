@@ -12,6 +12,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Structures.Axiom
 open import Cubical.Structures.Macro
 
 open Iso
@@ -86,7 +87,7 @@ module SemigroupΣ-theory {ℓ} where
                          × ((x y z : A) → x · (y · z) ≡ (x · y) · z)
 
   semigroup-structure : Type ℓ → Type ℓ
-  semigroup-structure = add-to-structure raw-semigroup-structure semigroup-axioms
+  semigroup-structure = AxiomStructure raw-semigroup-structure semigroup-axioms
 
   SemigroupΣ : Type (ℓ-suc ℓ)
   SemigroupΣ = TypeWithStr ℓ semigroup-structure
@@ -96,7 +97,7 @@ module SemigroupΣ-theory {ℓ} where
   semigroup-axioms-isProp _ _ = isPropΣ isPropIsSet λ isSetA → isPropΠ3 λ _ _ _ → isSetA _ _
 
   semigroup-iso : StrIso semigroup-structure ℓ
-  semigroup-iso = add-to-iso raw-semigroup-iso semigroup-axioms
+  semigroup-iso = AxiomIso raw-semigroup-iso semigroup-axioms
 
   semigroup-axiomsIsoIsSemigroup : {A : Type ℓ} (_·_ : raw-semigroup-structure A)
                                  → Iso (semigroup-axioms A _·_) (IsSemigroup _·_)
@@ -122,7 +123,7 @@ module SemigroupΣ-theory {ℓ} where
     iso Semigroup→SemigroupΣ SemigroupΣ→Semigroup (λ _ → refl) (λ _ → refl)
 
   semigroup-is-SNS : UnivalentStr semigroup-structure semigroup-iso
-  semigroup-is-SNS = add-axioms-SNS _ semigroup-axioms-isProp raw-semigroup-is-SNS
+  semigroup-is-SNS = AxiomUnivalentStr _ semigroup-axioms-isProp raw-semigroup-is-SNS
 
   SemigroupΣPath : (M N : SemigroupΣ) → (M ≃[ semigroup-iso ] N) ≃ (M ≡ N)
   SemigroupΣPath = SIP semigroup-is-SNS

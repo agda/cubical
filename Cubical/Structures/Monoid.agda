@@ -12,6 +12,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Structures.Axiom
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 
@@ -110,7 +111,7 @@ module MonoidΣ-theory {ℓ} where
                             × ((x : M) → (x · e ≡ x) × (e · x ≡ x))
 
   monoid-structure : Type ℓ → Type ℓ
-  monoid-structure = add-to-structure raw-monoid-structure monoid-axioms
+  monoid-structure = AxiomStructure raw-monoid-structure monoid-axioms
 
   MonoidΣ : Type (ℓ-suc ℓ)
   MonoidΣ = TypeWithStr ℓ monoid-structure
@@ -121,7 +122,7 @@ module MonoidΣ-theory {ℓ} where
             λ α → isPropΠ λ _ → isProp× (IsSemigroup.is-set α _ _) (IsSemigroup.is-set α _ _)
 
   monoid-iso : StrIso monoid-structure ℓ
-  monoid-iso = add-to-iso raw-monoid-iso monoid-axioms
+  monoid-iso = AxiomIso raw-monoid-iso monoid-axioms
 
   monoid-axiomsIsoIsMonoid : {M : Type ℓ} (s : raw-monoid-structure M)
                            → Iso (monoid-axioms M s) (IsMonoid (s .fst) (s .snd))
@@ -147,7 +148,7 @@ module MonoidΣ-theory {ℓ} where
     iso Monoid→MonoidΣ MonoidΣ→Monoid (λ _ → refl) (λ _ → refl)
 
   monoid-is-SNS : UnivalentStr monoid-structure monoid-iso
-  monoid-is-SNS = add-axioms-SNS _ monoid-axioms-isProp raw-monoid-is-SNS
+  monoid-is-SNS = AxiomUnivalentStr _ monoid-axioms-isProp raw-monoid-is-SNS
 
   MonoidΣPath : (M N : MonoidΣ) → (M ≃[ monoid-iso ] N) ≃ (M ≡ N)
   MonoidΣPath = SIP monoid-is-SNS

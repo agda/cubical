@@ -12,7 +12,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Structures.Macro
+open import Cubical.Structures.Axiom
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Pointed
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
@@ -105,14 +105,14 @@ module CommRingΣ-theory {ℓ} where
                                       × ((x y : R) → x · y ≡ y · x)
 
   comm-ring-structure : Type ℓ → Type ℓ
-  comm-ring-structure = add-to-structure raw-ring-structure comm-ring-axioms
+  comm-ring-structure = AxiomStructure raw-ring-structure comm-ring-axioms
 
   CommRingΣ : Type (ℓ-suc ℓ)
   CommRingΣ = TypeWithStr ℓ comm-ring-structure
 
   comm-ring-iso : StrIso comm-ring-structure ℓ
   comm-ring-iso =
-    add-to-iso (join-iso (binaryFunIso pointed-iso)
+    AxiomIso (join-iso (binaryFunIso pointed-iso)
                          (join-iso pointed-iso (binaryFunIso pointed-iso))) comm-ring-axioms
 
   isProp-comm-ring-axioms : (R : Type ℓ) (s : raw-ring-structure R)
@@ -135,7 +135,7 @@ module CommRingΣ-theory {ℓ} where
     iso CommRing→CommRingΣ CommRingΣ→CommRing (λ _ → refl) (λ _ → refl)
 
   comm-ring-is-SNS : UnivalentStr comm-ring-structure comm-ring-iso
-  comm-ring-is-SNS = add-axioms-SNS _ isProp-comm-ring-axioms raw-ring-is-SNS
+  comm-ring-is-SNS = AxiomUnivalentStr _ isProp-comm-ring-axioms raw-ring-is-SNS
 
   CommRingΣPath : (R S : CommRingΣ) → (R ≃[ comm-ring-iso ] S) ≃ (R ≡ S)
   CommRingΣPath = SIP comm-ring-is-SNS

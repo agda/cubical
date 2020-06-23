@@ -12,6 +12,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Structures.Axiom
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid    hiding (⟨_⟩)
@@ -162,13 +163,13 @@ module RingΣ-theory {ℓ} where
                                                 × ((x + y) · z ≡ (x · z) + (y · z)))
 
   ring-structure : Type ℓ → Type ℓ
-  ring-structure = add-to-structure raw-ring-structure ring-axioms
+  ring-structure = AxiomStructure raw-ring-structure ring-axioms
 
   RingΣ : Type (ℓ-suc ℓ)
   RingΣ = TypeWithStr ℓ ring-structure
 
   ring-iso : StrIso ring-structure ℓ
-  ring-iso = add-to-iso raw-ring-iso ring-axioms
+  ring-iso = AxiomIso raw-ring-iso ring-axioms
 
   isProp-ring-axioms : (R : Type ℓ) (s : raw-ring-structure R) → isProp (ring-axioms R s)
   isProp-ring-axioms R (_+_ , 1r , _·_) =
@@ -191,7 +192,7 @@ module RingΣ-theory {ℓ} where
   RingIsoRingΣ = iso Ring→RingΣ RingΣ→Ring (λ _ → refl) (λ _ → refl)
 
   ring-is-SNS : UnivalentStr ring-structure ring-iso
-  ring-is-SNS = add-axioms-SNS _ isProp-ring-axioms raw-ring-is-SNS
+  ring-is-SNS = AxiomUnivalentStr _ isProp-ring-axioms raw-ring-is-SNS
 
   RingΣPath : (R S : RingΣ) → (R ≃[ ring-iso ] S) ≃ (R ≡ S)
   RingΣPath = SIP ring-is-SNS

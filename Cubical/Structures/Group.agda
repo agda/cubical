@@ -12,6 +12,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Structures.Axiom
 open import Cubical.Structures.Macro
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Pointed
@@ -125,14 +126,14 @@ module GroupΣ-theory {ℓ} where
                 × ((x : G) → Σ[ x' ∈ G ] (x · x' ≡ e) × (x' · x ≡ e)))
 
   group-structure : Type ℓ → Type ℓ
-  group-structure = add-to-structure raw-group-structure group-axioms
+  group-structure = AxiomStructure raw-group-structure group-axioms
 
   GroupΣ : Type (ℓ-suc ℓ)
   GroupΣ = TypeWithStr ℓ group-structure
 
   -- Iso for groups are those for monoids (but different axioms)
   group-iso : StrIso group-structure ℓ
-  group-iso = add-to-iso (binaryFunIso pointed-iso) group-axioms
+  group-iso = AxiomIso (binaryFunIso pointed-iso) group-axioms
 
   open monoid-theory
 
@@ -175,7 +176,7 @@ module GroupΣ-theory {ℓ} where
   GroupIsoGroupΣ = iso Group→GroupΣ GroupΣ→Group (λ _ → refl) (λ _ → refl)
 
   group-is-SNS : UnivalentStr group-structure group-iso
-  group-is-SNS = add-axioms-SNS _ isProp-group-axioms raw-group-is-SNS
+  group-is-SNS = AxiomUnivalentStr _ isProp-group-axioms raw-group-is-SNS
 
   GroupΣPath : (G H : GroupΣ) → (G ≃[ group-iso ] H) ≃ (G ≡ H)
   GroupΣPath = SIP group-is-SNS
