@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.Rationals.QuoQ.Properties where
 
 open import Cubical.Foundations.Everything hiding (_⁻¹)
