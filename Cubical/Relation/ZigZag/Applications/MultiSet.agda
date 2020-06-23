@@ -5,9 +5,10 @@ module Cubical.Relation.ZigZag.Applications.MultiSet where
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Structure
 open import Cubical.Foundations.RelationalStructure
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Univalence
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty
@@ -15,9 +16,12 @@ open import Cubical.Data.Nat
 open import Cubical.Data.List hiding ([_])
 open import Cubical.Data.Sigma
 open import Cubical.HITs.SetQuotients
+open import Cubical.HITs.FiniteMultiset as FMS hiding ([_])
+open import Cubical.HITs.FiniteMultiset.CountExtensionality
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.ZigZag.Base
 
+open import Cubical.Structures.MultiSet
 open import Cubical.Structures.Relational.Macro
 
 -- we define simple association lists without any higher constructors
@@ -37,9 +41,9 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
  open RelMacro ℓ (param A (recvar (constant (ℕ , isSetℕ)))) renaming
    ( structure to S
-   ; relation to ρ
-   ; SNRS to θ
+   ; SNRS to υ
    )
+
 
  -- the count-structures
  aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ
@@ -57,6 +61,9 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
  R : List A → AList A → Type ℓ
  R xs ys = ∀ a → Lcount a xs ≡ ALcount a ys
+
+ -- relation between R and ι
+ ι = count-iso A (Discrete→isSet discA)
 
  -- now for the bisimulation between List and Alist
  φ : List A → AList A
@@ -112,19 +119,127 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  List/Rᴸ≃AList/Rᴬᴸ = E.Thm
 
  main : BisimDescends _ _ (List A , Lcount) (AList A , ALcount) (R , isBisimR)
- main = θ .isSNRS.descends (R , isBisimR) .fst (λ a r → r a)
-
- open BisimDescends
+ main = υ .isSNRS.descends (R , isBisimR) .fst (λ a r → r a)
 
  List/Rᴸ-structure : S .struct List/Rᴸ
- List/Rᴸ-structure = main .quoᴸ .fst
+ List/Rᴸ-structure = main .BisimDescends.quoᴸ .fst
+
+ LQcount = List/Rᴸ-structure
 
  AList/Rᴬᴸ-structure : S .struct AList/Rᴬᴸ
- AList/Rᴬᴸ-structure = main .quoᴿ .fst
+ AList/Rᴬᴸ-structure = main .BisimDescends.quoᴿ .fst
 
  -- We get a path between count-structures over the equivalence directly from the fact that the bisimulation
  -- is structured
 
  List/Rᴸ≡AList/Rᴬᴸ :
    Path (TypeWithStr ℓ (S .struct)) (List/Rᴸ , List/Rᴸ-structure) (AList/Rᴬᴸ , AList/Rᴬᴸ-structure)
- List/Rᴸ≡AList/Rᴬᴸ =  ΣPathP (ua E.Thm , main .path)
+ List/Rᴸ≡AList/Rᴬᴸ =  ΣPathP (ua E.Thm , main .BisimDescends.path)
+
+ -- We now show that List/Rᴸ≃FMSet
+ _∷/_ : A → List/Rᴸ → List/Rᴸ
+ a ∷/ [ xs ] = [ a ∷ xs ]
+ a ∷/ eq/ xs xs' r i = eq/ (a ∷ xs) (a ∷ xs') r' i
+  where
+  r' : Rᴸ (a ∷ xs) (a ∷ xs')
+  r' a' = cong (aux a' a (discA a' a)) (r a')
+ a ∷/ squash/ xs xs₁ p q i j = squash/ (a ∷/ xs) (a ∷/ xs₁) (cong (a ∷/_) p) (cong (a ∷/_) q) i j
+
+ infixr 5 _∷/_
+
+ μ : FMSet A → List/Rᴸ
+ μ = FMS.Rec.f squash/ [ [] ] _∷/_ β
+  where
+  β : ∀ a b [xs] → a ∷/ b ∷/ [xs] ≡ b ∷/ a ∷/ [xs]
+  β a b = elimProp (λ _ → squash/ _ _) (λ xs → eq/ _ _ (γ xs))
+   where
+     γ : ∀ xs → Rᴸ (a ∷ b ∷ xs) (b ∷ a ∷ xs)
+     γ xs c = δ c ∙ η (b ∷ a ∷ xs) c
+      where
+      δ : ∀ c → Lcount c (a ∷ b ∷ xs) ≡ Lcount c (b ∷ a ∷ xs)
+      δ c with discA c a | discA c b
+      δ c | yes _        | yes _ = refl
+      δ c | yes _        | no  _ = refl
+      δ c | no  _        | yes _ = refl
+      δ c | no  _        | no  _ = refl
+
+
+ -- The inverse is induced by the standard projection of lists into finite multisets,
+ -- which is a morphism of count-structures
+ -- Moreover, we need 'count-extensionality' for finite multisets
+ List→FMSet : List A → FMSet A
+ List→FMSet [] = []
+ List→FMSet (x ∷ xs) = x ∷ List→FMSet xs
+
+ List→FMSet-count : ∀ a xs → Lcount a xs ≡ FMScount discA a (List→FMSet xs)
+ List→FMSet-count a [] = refl
+ List→FMSet-count a (x ∷ xs) with discA a x
+ ...                         | yes _ = cong suc (List→FMSet-count a xs)
+ ...                         | no  _ = List→FMSet-count a xs
+
+
+ ν : List/Rᴸ → FMSet A
+ ν [ xs ] = List→FMSet xs
+ ν (eq/ xs ys r i) = path i
+  where
+   ρ : ∀ a → Lcount a xs ≡ Lcount a ys
+   ρ a = r a ∙ sym (η ys a)
+
+   θ : ∀ a → FMScount discA a (List→FMSet xs) ≡ FMScount discA a (List→FMSet ys)
+   θ a = sym (List→FMSet-count a xs) ∙∙ ρ a ∙∙ List→FMSet-count a ys
+
+   path : List→FMSet xs ≡ List→FMSet ys
+   path = FMScountExt.Thm discA _ _ θ
+ ν (squash/ xs/ xs/' p q i j) = trunc (ν xs/) (ν xs/') (cong ν p) (cong ν q) i j
+
+
+ σ : section μ ν
+ σ = elimProp (λ _ → squash/ _ _) θ
+  where
+  θ : (xs : List A) → μ (ν [ xs ]) ≡ [ xs ]
+  θ [] = refl
+  θ (x ∷ xs) = cong (x ∷/_) (θ xs)
+
+
+ ν-∷/-commute : (x : A) (ys : List/Rᴸ) → ν (x ∷/ ys) ≡ x ∷ ν ys
+ ν-∷/-commute x = elimProp (λ _ → FMS.trunc _ _) λ xs → refl
+
+ τ : retract μ ν
+ τ = FMS.ElimProp.f (FMS.trunc _ _) refl θ
+  where
+  θ : ∀ x {xs} → ν (μ xs) ≡ xs → ν (μ (x ∷ xs)) ≡ x ∷ xs
+  θ x {xs} p = ν-∷/-commute x (μ xs) ∙ cong (x ∷_) p
+
+
+ FMSet≃List/Rᴸ : FMSet A ≃ List/Rᴸ
+ FMSet≃List/Rᴸ = isoToEquiv (iso μ ν σ τ)
+
+ --and this is a count-isomorphism, which is easier to prove for the inverse equiv
+ List/Rᴸ≃FMSet : List/Rᴸ ≃ FMSet A
+ List/Rᴸ≃FMSet = isoToEquiv (iso ν μ τ σ)
+
+ List/Rᴸ≃FMSet-is-count-iso : ι (List/Rᴸ , LQcount) (FMSet A , FMScount discA) List/Rᴸ≃FMSet
+ List/Rᴸ≃FMSet-is-count-iso a = elimProp (λ _ → isSetℕ _ _) (List→FMSet-count a)
+
+ {-
+ Putting everything together we get:
+               ≃
+ List/Rᴸ ------------> AList/Rᴬᴸ
+   |
+   |≃
+   |
+   ∨
+               ≃
+ FMSet A ------------> AssocList A
+ We thus get that AList/Rᴬᴸ≃AssocList.
+ Constructing such an equivalence directly requires count extensionality for association lists,
+ which should be even harder to prove than for finite multisets.
+ This strategy should work for all implementations of multisets with HITs.
+ We just have to show that:
+  ∙ The HIT is equivalent to FMSet (like AssocList)
+  ∙ There is a bisimulation between lists and the basic data type of the HIT
+    with the higher constructors removed (like AList)
+ Then we get that this HIT is equivalent to the corresponding set quotient that identifies elements
+ that give the same count on each a : A.
+ TODO: Show that all the equivalences are indeed isomorphisms of multisets not only of count-structures!
+ -}
