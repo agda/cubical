@@ -96,37 +96,3 @@ module _ {S : Type ℓ₁ → Type ℓ₂} {ι : StrEquiv S ℓ₃}
 
   sip⁻ : A ≡ B → A ≃[ ι ] B
   sip⁻ = invEq SIP
-
--- Now, we want to join two structures. Together with the adding of
--- axioms this will allow us to prove that a lot of mathematical
--- structures are a standard notion of structure
-
-join-structure : (S₁ : Type ℓ₁ → Type ℓ₂) (S₂ : Type ℓ₁ → Type ℓ₄)
-               → Type ℓ₁ → Type (ℓ-max ℓ₂ ℓ₄)
-join-structure S₁ S₂ X = S₁ X × S₂ X
-
-
-join-iso : {S₁ : Type ℓ₁ → Type ℓ₂} (ι₁ : StrEquiv S₁ ℓ₃)
-           {S₂ : Type ℓ₁ → Type ℓ₄} (ι₂ : StrEquiv S₂ ℓ₅)
-         → StrEquiv (join-structure S₁ S₂) (ℓ-max ℓ₃ ℓ₅)
-join-iso ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) f = (ι₁ (X , s₁) (Y , t₁) f) × (ι₂ (X , s₂) (Y , t₂) f)
-
-
-join-SNS : {S₁ : Type ℓ₁ → Type ℓ₂} (ι₁ : StrEquiv S₁ ℓ₃) (θ₁ : UnivalentStr S₁ ι₁)
-           {S₂ : Type ℓ₁ → Type ℓ₄} (ι₂ : StrEquiv S₂ ℓ₅) (θ₂ : UnivalentStr S₂ ι₂)
-         → UnivalentStr (join-structure S₁ S₂) (join-iso ι₁ ι₂)
-join-SNS {S₁ = S₁} ι₁ θ₁ {S₂} ι₂ θ₂ {X , s₁ , s₂} {Y , t₁ , t₂} e = isoToEquiv (iso φ ψ η ε)
-   where
-    φ : join-iso ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) e
-      → PathP (λ i → join-structure S₁ S₂ (ua e i)) (s₁ , s₂) (t₁ , t₂)
-    φ (p , q) i = (θ₁ e .fst p i) , (θ₂ e .fst q i)
-
-    ψ : PathP (λ i → join-structure S₁ S₂ (ua e i)) (s₁ , s₂) (t₁ , t₂)
-      → join-iso ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) e
-    ψ p = invEq (θ₁ e) (λ i → p i .fst) , invEq (θ₂ e) (λ i → p i .snd)
-
-    η : section φ ψ
-    η p i j = retEq (θ₁ e) (λ k → p k .fst) i j , retEq (θ₂ e) (λ k → p k .snd) i j
-
-    ε : retract φ ψ
-    ε (p , q) i = secEq (θ₁ e) p i , secEq (θ₂ e) q i

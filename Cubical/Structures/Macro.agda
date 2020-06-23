@@ -15,10 +15,11 @@ open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Constant
-open import Cubical.Structures.Pointed
+open import Cubical.Structures.Maybe
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Parameterized
-open import Cubical.Structures.Maybe
+open import Cubical.Structures.Pointed
+open import Cubical.Structures.Product
 open import Cubical.Structures.Functorial
 
 data Desc (ℓ : Level) : Typeω where
@@ -79,7 +80,7 @@ macro-structure (foreign {S = S} _ _) = S
 macro-iso : ∀ {ℓ} → (d : Desc ℓ) → StrEquiv {ℓ} (macro-structure d) (macro-iso-level d)
 macro-iso (constant A) = ConstantEquivStr A
 macro-iso var = PointedEquivStr
-macro-iso (d₀ , d₁) = join-iso (macro-iso d₀) (macro-iso d₁)
+macro-iso (d₀ , d₁) = ProductEquivStr (macro-iso d₀) (macro-iso d₁)
 macro-iso (param A d) = ParamEquivStr A λ _ → macro-iso d
 macro-iso (recvar d) = UnaryFunEquivStr (macro-iso d)
 macro-iso (maybe d) = MaybeEquivStr (macro-iso d)
@@ -90,7 +91,7 @@ macro-iso (foreign ι _) = ι
 macro-is-SNS : ∀ {ℓ} → (d : Desc ℓ) → UnivalentStr (macro-structure d) (macro-iso d)
 macro-is-SNS (constant A) = constantUnivalentStr A
 macro-is-SNS var = pointedUnivalentStr
-macro-is-SNS (d₀ , d₁) = join-SNS (macro-iso d₀) (macro-is-SNS d₀) (macro-iso d₁) (macro-is-SNS d₁)
+macro-is-SNS (d₀ , d₁) = ProductUnivalentStr (macro-iso d₀) (macro-is-SNS d₀) (macro-iso d₁) (macro-is-SNS d₁)
 macro-is-SNS (param A d) = ParamUnivalentStr A (λ _ → macro-iso d) (λ _ → macro-is-SNS d)
 macro-is-SNS (recvar d) = unaryFunUnivalentStr (macro-iso d) (macro-is-SNS d)
 macro-is-SNS (maybe d) = maybeUnivalentStr (macro-iso d) (macro-is-SNS d)
