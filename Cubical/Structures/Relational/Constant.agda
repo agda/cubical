@@ -26,7 +26,7 @@ module _ (A : hSet ℓ') where
   constant-setStructure .set _ = A .snd
 
   constant-propRel : StrRel {ℓ = ℓ} (constant-setStructure .struct) ℓ'
-  constant-propRel .rel _ _ _ a₀ a₁ = a₀ ≡ a₁
+  constant-propRel .rel _ a₀ a₁ = a₀ ≡ a₁
   constant-propRel .prop _ = A .snd
 
   open isSNRS

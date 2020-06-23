@@ -29,8 +29,8 @@ unaryFun-setStructure S .set setX = isSetΠ λ _ → S .set setX
 
 unaryFun-propRel : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
   → StrRel S ℓ₁' → StrRel (nAryFun-structure 1 S) (ℓ-max ℓ ℓ₁')
-unaryFun-propRel ρ .rel X Y R f g =
-  {x : X} {y : Y} → R x y → ρ .rel X Y R (f x) (g y)
+unaryFun-propRel ρ .rel R f g =
+  ∀ {x y} → R x y → ρ .rel R (f x) (g y)
 unaryFun-propRel ρ .prop propR f g =
   isPropImplicitΠ λ x →
   isPropImplicitΠ λ y →
@@ -44,9 +44,9 @@ private
   quoᴸ-coherence : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁') (θ : isSNRS S ρ)
     {X Y : Type ℓ} (R : Bisimulation X Y ℓ)
     {x₀ x₁ : S .struct X} {y₀ y₁ : S .struct Y}
-    (code₀₀ : ρ .rel X Y (R .fst) x₀ y₀)
-    (code₁₁ : ρ .rel X Y (R .fst) x₁ y₁)
-    → ρ .rel X Y (R .fst) x₀ y₁
+    (code₀₀ : ρ .rel (R .fst) x₀ y₀)
+    (code₁₁ : ρ .rel (R .fst) x₁ y₁)
+    → ρ .rel (R .fst) x₀ y₁
     → θ .descends R .fst code₀₀ .quoᴸ  .fst ≡ θ .descends R .fst code₁₁ .quoᴸ .fst
   quoᴸ-coherence S ρ θ R {x₀} {x₁} {y₀} {y₁} code₀₀ code₁₁ code₀₁ =
     cong fst
@@ -72,9 +72,9 @@ private
   quoᴿ-coherence : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁') (θ : isSNRS S ρ)
     {X Y : Type ℓ} (R : Bisimulation X Y ℓ)
     {x₀ x₁ : S .struct X} {y₀ y₁ : S .struct Y}
-    (code₀₀ : ρ .rel X Y (R .fst) x₀ y₀)
-    (code₁₁ : ρ .rel X Y (R .fst) x₁ y₁)
-    → ρ .rel X Y (R .fst) x₁ y₀
+    (code₀₀ : ρ .rel (R .fst) x₀ y₀)
+    (code₁₁ : ρ .rel (R .fst) x₁ y₁)
+    → ρ .rel (R .fst) x₁ y₀
     → θ .descends R .fst code₀₀ .quoᴿ .fst ≡ θ .descends R .fst code₁₁ .quoᴿ .fst
   quoᴿ-coherence S ρ θ R {x₀} {x₁} {y₀} {y₁} code₀₀ code₁₁ code₁₀ =
     cong fst
@@ -109,7 +109,7 @@ isSNRSUnaryFun {S = S} {ρ} θ .propQuo R (t , c) (t' , c') =
     , isProp→PathP (λ _ → unaryFun-propRel ρ .prop (λ _ _ → squash/ _ _) _ _) _ _
     )
 isSNRSUnaryFun {S = S} {ρ} θ .descends {X , f} {Y , g} (R , bis) .fst code .quoᴸ =
-  f₀ , λ p → subst (λ y → ρ .rel _ _ _ _ (f₀ y)) p (θ .descends _ .fst _ .quoᴸ .snd)
+  f₀ , λ p → subst (λ y → ρ .rel _ _ (f₀ y)) p (θ .descends _ .fst _ .quoᴸ .snd)
   where
   f₀ : _
   f₀ [ x ] = θ .descends (R , bis) .fst (code (bis .fwdRel x)) .quoᴸ .fst
@@ -122,7 +122,7 @@ isSNRSUnaryFun {S = S} {ρ} θ .descends {X , f} {Y , g} (R , bis) .fst code .qu
   f₀ (squash/ _ _ p q j i) =
     S .set squash/ _ _ (cong f₀ p) (cong f₀ q) j i
 isSNRSUnaryFun {S = S} {ρ} θ .descends (R , bis) .fst code .quoᴿ =
-  g₀ , λ p → subst (λ y → ρ .rel _ _ _ _ (g₀ y)) p (θ .descends _ .fst _ .quoᴿ .snd)
+  g₀ , λ p → subst (λ y → ρ .rel _ _ (g₀ y)) p (θ .descends _ .fst _ .quoᴿ .snd)
   where
   g₀ : _
   g₀ [ y ] = θ .descends (R , bis) .fst (code (bis .bwdRel y)) .quoᴿ .fst

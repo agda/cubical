@@ -30,9 +30,8 @@ join-propRel :
   {S₁ : Type ℓ → Type ℓ₁} (ρ₁ : StrRel S₁ ℓ₁')
   {S₂ : Type ℓ → Type ℓ₂} (ρ₂ : StrRel S₂ ℓ₂')
   → StrRel (join-structure S₁ S₂) (ℓ-max ℓ₁' ℓ₂')
-join-propRel ρ₁ ρ₂ .rel X Y R (s₁ , s₂) (t₁ , t₂) =
-  ρ₁ .rel X Y R s₁ t₁
-  × ρ₂ .rel X Y R s₂ t₂
+join-propRel ρ₁ ρ₂ .rel R (s₁ , s₂) (t₁ , t₂) =
+  ρ₁ .rel R s₁ t₁ × ρ₂ .rel R s₂ t₂
 join-propRel ρ₁ ρ₂ .prop propR (s₁ , s₂) (t₁ , t₂) =
   isProp× (ρ₁ .prop propR s₁ t₁) (ρ₂ .prop propR s₂ t₂)
 

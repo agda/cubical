@@ -26,7 +26,7 @@ pointed-setStructure .struct = pointed-structure
 pointed-setStructure .set setX = setX
 
 pointed-propRel : StrRel pointed-structure ℓ
-pointed-propRel .rel _ _ R = R
+pointed-propRel .rel R = R
 pointed-propRel .prop propR = propR
 
 open isSNRS

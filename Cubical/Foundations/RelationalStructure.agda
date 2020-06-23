@@ -34,8 +34,8 @@ open SetStructure public
 -- and Y. We require the output to be proposition-valued when the input is proposition-valued.
 record StrRel (S : Type ℓ → Type ℓ') (ℓ'' : Level) : Type (ℓ-max (ℓ-suc (ℓ-max ℓ ℓ'')) ℓ') where
   field
-    rel : (A B : Type ℓ) (R : Rel A B ℓ) → Rel (S A) (S B) ℓ''
-    prop : ∀ {A} {B} {R} → (∀ a b → isProp (R a b)) → ∀ s t → isProp (rel A B R s t)
+    rel : ∀ {A B} (R : Rel A B ℓ) → Rel (S A) (S B) ℓ''
+    prop : ∀ {A B R} → (∀ a b → isProp (R a b)) → ∀ s t → isProp (rel {A} {B} R s t)
 
 open StrRel public
 
@@ -45,7 +45,7 @@ QuotientStructure : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
   (A : TypeWithStr ℓ S) (R : Rel (typ A) (typ A) ℓ)
   → Type (ℓ-max ℓ' ℓ'')
 QuotientStructure S ρ A R =
-  Σ (S (typ A / R)) (ρ .rel (typ A) (typ A / R) (λ a b → [ a ] ≡ b) (A .snd))
+  Σ (S (typ A / R)) (ρ .rel (λ a b → [ a ] ≡ b) (A .snd))
 
 -- A bisimulation R between a pair of structured types A, B /descends to the quotients/ when the induced
 -- equivalence relations Rᴸ and Rᴿ on A and B induce structures on A/Rᴸ and B/Rᴿ and there is a path
@@ -74,12 +74,12 @@ record isSNRS (S : SetStructure ℓ ℓ') (ρ : StrRel (S .struct) ℓ'') : Type
       → isProp (QuotientStructure (S .struct) ρ A (R .fst))
     descends : {A B : TypeWithStr ℓ (S .struct)}
       (R : Bisimulation (typ A) (typ B) ℓ)
-      → (ρ .rel (A .fst) (B .fst) (R .fst) (A .snd) (B .snd) → BisimDescends (S .struct) ρ A B R)
-      × (BisimDescends (S .struct) ρ A B R → ρ .rel (A .fst) (B .fst) (R .fst) (A .snd) (B .snd))
+      → (ρ .rel (R .fst) (A .snd) (B .snd) → BisimDescends (S .struct) ρ A B R)
+      × (BisimDescends (S .struct) ρ A B R → ρ .rel (R .fst) (A .snd) (B .snd))
 
   descendsEquiv : {A B : TypeWithStr ℓ (S .struct)}
     (R : Bisimulation (typ A) (typ B) ℓ)
-    → ρ .rel (A .fst) (B .fst) (R .fst) (A .snd) (B .snd) ≃ BisimDescends (S .struct) ρ A B R
+    → ρ .rel (R .fst) (A .snd) (B .snd) ≃ BisimDescends (S .struct) ρ A B R
   descendsEquiv R =
     isPropEquiv→Equiv
       (ρ .prop (R .snd .isBisimulation.prop) _ _)

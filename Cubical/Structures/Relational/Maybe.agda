@@ -27,7 +27,7 @@ maybe-setStructure S .set setX = isOfHLevelMaybe 0 (S .set setX)
 
 maybe-propRel : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
   → StrRel S ℓ₁' → StrRel (λ X → Maybe (S X)) ℓ₁'
-maybe-propRel ρ .rel X Y R = maybe-rel (ρ .rel X Y R)
+maybe-propRel ρ .rel R = maybe-rel (ρ .rel R)
 maybe-propRel ρ .prop propR nothing nothing = isOfHLevelLift 1 isPropUnit
 maybe-propRel ρ .prop propR nothing (just y) = isOfHLevelLift 1 isProp⊥
 maybe-propRel ρ .prop propR (just x) nothing = isOfHLevelLift 1 isProp⊥

@@ -32,8 +32,8 @@ module _ (A : Type ℓ₀) where
   parameterized-propRel : {S : A → Type ℓ → Type ℓ₁} {ℓ₁' : Level}
     → (∀ a → StrRel (S a) ℓ₁')
     → StrRel (parameterized-structure A S) (ℓ-max ℓ₀ ℓ₁')
-  parameterized-propRel ρ .rel X Y R s t =
-    (a : A) → ρ a .rel X Y R (s a) (t a)
+  parameterized-propRel ρ .rel R s t =
+    (a : A) → ρ a .rel R (s a) (t a)
   parameterized-propRel ρ .prop propR s t =
     isPropΠ λ a → ρ a .prop propR (s a) (t a)
 
