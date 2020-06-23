@@ -17,16 +17,16 @@ private
 -- Standard notion of structure from a "functorial" action
 -- We don't need all the functor axioms, only F id ≡ id
 
-functorial-iso : {S : Type ℓ → Type ℓ₁}
+FunctorialIso : {S : Type ℓ → Type ℓ₁}
   → (∀ {X Y} → (X → Y) → S X → S Y)
   → StrIso S ℓ₁
-functorial-iso F (X , s) (Y , t) e = F (e .fst) s ≡ t
+FunctorialIso F (X , s) (Y , t) e = F (e .fst) s ≡ t
 
-functorial-is-SNS : {S : Type ℓ → Type ℓ₁}
+functorialUnivalentStr : {S : Type ℓ → Type ℓ₁}
   (F : ∀ {X Y} → (X → Y) → S X → S Y)
   → (∀ {X} s → F (idfun X) s ≡ s)
-  → UnivalentStr S (functorial-iso F)
-functorial-is-SNS F η =
+  → UnivalentStr S (FunctorialIso F)
+functorialUnivalentStr F η =
   UnivalentStr-≡→UnivalentStr
-    (functorial-iso F)
+    (FunctorialIso F)
     (λ s t → pathToEquiv (cong (_≡ t) (η s)))

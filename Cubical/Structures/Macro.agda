@@ -83,7 +83,7 @@ macro-iso (d₀ , d₁) = join-iso (macro-iso d₀) (macro-iso d₁)
 macro-iso (param A d) = parameterized-iso A λ _ → macro-iso d
 macro-iso (recvar d) = unaryFunIso (macro-iso d)
 macro-iso (maybe d) = maybe-iso (macro-iso d)
-macro-iso (functorial F _) = functorial-iso F
+macro-iso (functorial F _) = FunctorialIso F
 macro-iso (foreign ι _) = ι
 
 -- Proof that structure induced by descriptor is a standard notion of structure
@@ -94,7 +94,7 @@ macro-is-SNS (d₀ , d₁) = join-SNS (macro-iso d₀) (macro-is-SNS d₀) (macr
 macro-is-SNS (param A d) = Parameterized-is-SNS A (λ _ → macro-iso d) (λ _ → macro-is-SNS d)
 macro-is-SNS (recvar d) = unaryFunSNS (macro-iso d) (macro-is-SNS d)
 macro-is-SNS (maybe d) = maybe-is-SNS (macro-iso d) (macro-is-SNS d)
-macro-is-SNS (functorial F η) = functorial-is-SNS F η
+macro-is-SNS (functorial F η) = functorialUnivalentStr F η
 macro-is-SNS (foreign _ θ) = θ
 
 -- Module for easy importing
