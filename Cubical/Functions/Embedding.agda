@@ -153,8 +153,7 @@ isEmbedding→Injection :
 isEmbedding→Injection a e {f = f} {g} x = sym (ua (cong a , e (f x) (g x)))
 
 -- if `f` has a retract, then `cong f` has, as well. If `B` is a set, then `cong f`
--- further has a section, making it an embedding. If `B` is not a set, the situation
--- is more complicated.
+-- further has a section, making `f` an embedding.
 module _ {f : A → B} (retf : hasRetract f) where
   open Σ retf renaming (fst to g ; snd to ϕ)
 
@@ -167,6 +166,6 @@ module _ {f : A → B} (retf : hasRetract f) where
   hasRetract→hasRetractCong : hasRetract (cong {x = w} {y = x} f)
   hasRetract→hasRetractCong = congRetract , isRetractCongRetract
 
-  isSetRetract→isEmbedding : isSet B → isEmbedding f
-  isSetRetract→isEmbedding setB w x =
+  retractableIntoSet→isEmbedding : isSet B → isEmbedding f
+  retractableIntoSet→isEmbedding setB w x =
     isoToIsEquiv (iso (cong f) congRetract (λ _ → setB _ _ _ _) (hasRetract→hasRetractCong .snd))
