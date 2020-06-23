@@ -30,7 +30,7 @@ open import Cubical.Functions.FunExtEquiv
 private
   variable
     ℓ ℓ′ : Level
-    A B : Type ℓ
+    A B C : Type ℓ
 
 isEquivCong : {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → cong (e .fst) p)
 isEquivCong e = isoToIsEquiv (congIso (equivToIso e))
@@ -54,7 +54,7 @@ preCompEquiv : {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
              → (B → C) ≃ (A → C)
 preCompEquiv e = (λ φ → φ ∘ fst e) , isEquivPreComp e
 
-depPostCompEquiv : {C : Type ℓ′} {A B : C → Type ℓ} (e : ∀ c → A c ≃ B c)
+depPostCompEquiv : {A : C → Type ℓ} {B : C → Type ℓ′} (e : ∀ c → A c ≃ B c)
                  → (∀ c → A c) ≃ (∀ c → B c)
 depPostCompEquiv {A = A} {B} e = isoToEquiv pcIso where
   eIso : ∀ c → Iso (A c) (B c)
@@ -66,13 +66,11 @@ depPostCompEquiv {A = A} {B} e = isoToEquiv pcIso where
   Iso.rightInv pcIso f i c = Iso.rightInv (eIso c) (f c) i
   Iso.leftInv pcIso g i c = Iso.leftInv (eIso c) (g c) i
 
-isEquivPostComp : {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
-                → isEquiv (λ (φ : C → A) → e .fst ∘ φ)
+isEquivPostComp :(e : A ≃ B) → isEquiv (λ (φ : C → A) → e .fst ∘ φ)
 isEquivPostComp {A = A} {B} {C} e = snd (depPostCompEquiv (λ _ → e))
 
-postCompEquiv : {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
-              → (C → A) ≃ (C → B)
-postCompEquiv e = (λ φ → fst e ∘ φ) , isEquivPostComp e
+postCompEquiv : (e : A ≃ B) → (C → A) ≃ (C → B)
+postCompEquiv e = _ , isEquivPostComp e
 
 hasSection : (A → B) → Type _
 hasSection {A = A} {B = B} f = Σ[ g ∈ (B → A) ] section f g
