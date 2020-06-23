@@ -38,7 +38,7 @@ record StrRel (S : Type ℓ → Type ℓ') (ℓ'' : Level) : Type (ℓ-max (ℓ-
 open StrRel public
 
 -- Given a type A and relation R, a quotient structure is a structure on the set quotient A/R such that
---
+-- the graph of [_] : A → A/R is a structured relation
 QuotientStructure : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
   (A : TypeWithStr ℓ S) (R : Rel (typ A) (typ A) ℓ)
   → Type (ℓ-max ℓ' ℓ'')
@@ -61,6 +61,9 @@ record BisimDescends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
 
 open BisimDescends
 
+-- A notion of structured relations is standard when
+-- (a) Given a structured type A and equivalence relation R, there is at most one quotient structure on A/R
+-- (b) Any bisimulation descends to the quotients if and only if it is structured
 record isSNRS (S : SetStructure ℓ ℓ') (ρ : StrRel (S .struct) ℓ'') : Type (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ') ℓ'')
   where
   field
