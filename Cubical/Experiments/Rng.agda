@@ -41,7 +41,7 @@ rng-structure = AxiomStructure raw-rng-structure rng-axioms
 Rngs : Type (ℓ-suc ℓ)
 Rngs {ℓ} = TypeWithStr ℓ rng-structure
 
-rng-iso : StrIso rng-structure ℓ
+rng-iso : StrEquiv rng-structure ℓ
 rng-iso = AxiomIso raw-rng-iso rng-axioms
 
 rng-axioms-isProp : (X : Type ℓ) (s : raw-rng-structure X) → isProp (rng-axioms X s)

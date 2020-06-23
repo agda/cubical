@@ -19,7 +19,7 @@ private
 
 FunctorialIso : {S : Type ℓ → Type ℓ₁}
   → (∀ {X Y} → (X → Y) → S X → S Y)
-  → StrIso S ℓ₁
+  → StrEquiv S ℓ₁
 FunctorialIso F (X , s) (Y , t) e = F (e .fst) s ≡ t
 
 functorialUnivalentStr : {S : Type ℓ → Type ℓ₁}

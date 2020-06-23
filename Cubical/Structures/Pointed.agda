@@ -19,7 +19,7 @@ private
 PointedStructure : Type ℓ → Type ℓ
 PointedStructure X = X
 
-PointedIso : StrIso PointedStructure ℓ
+PointedIso : StrEquiv PointedStructure ℓ
 PointedIso A B f = equivFun f (pt A) ≡ pt B
 
 pointedUnivalentStr : UnivalentStr {ℓ} PointedStructure PointedIso

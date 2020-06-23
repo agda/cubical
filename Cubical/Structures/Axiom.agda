@@ -23,9 +23,9 @@ AxiomStructure : (S : Type ℓ → Type ℓ₁)
                → Type ℓ → Type (ℓ-max ℓ₁ ℓ₂)
 AxiomStructure S axioms X = Σ[ s ∈ S X ] (axioms X s)
 
-AxiomIso : {S : Type ℓ → Type ℓ₁} (ι : StrIso S ℓ₁')
+AxiomIso : {S : Type ℓ → Type ℓ₁} (ι : StrEquiv S ℓ₁')
            (axioms : (X : Type ℓ) → S X → Type ℓ₂)
-         → StrIso (AxiomStructure S axioms) ℓ₁'
+         → StrEquiv (AxiomStructure S axioms) ℓ₁'
 AxiomIso ι axioms (X , (s , a)) (Y , (t , b)) f = ι (X , s) (Y , t) f
 
 axiomUnivalentStr : {S : Type ℓ → Type ℓ₁}

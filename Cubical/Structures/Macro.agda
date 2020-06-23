@@ -38,7 +38,7 @@ data Desc (ℓ : Level) : Typeω where
   functorial : ∀ {ℓ'} {S : Type ℓ → Type ℓ'}
     (F : ∀ {X Y} → (X → Y) → S X → S Y) → (∀ {X} s → F (idfun X) s ≡ s) → Desc ℓ
   -- arbitrary standard notion of structure
-  foreign : ∀ {ℓ' ℓ''} {S : Type ℓ → Type ℓ'} (ι : StrIso S ℓ'') → UnivalentStr S ι → Desc ℓ
+  foreign : ∀ {ℓ' ℓ''} {S : Type ℓ → Type ℓ'} (ι : StrEquiv S ℓ'') → UnivalentStr S ι → Desc ℓ
 
 infixr 4 _,_
 
@@ -76,7 +76,7 @@ macro-structure (functorial {S = S} _ _) = S
 macro-structure (foreign {S = S} _ _) = S
 
 -- Notion of structured isomorphism defined by a descriptor
-macro-iso : ∀ {ℓ} → (d : Desc ℓ) → StrIso {ℓ} (macro-structure d) (macro-iso-level d)
+macro-iso : ∀ {ℓ} → (d : Desc ℓ) → StrEquiv {ℓ} (macro-structure d) (macro-iso-level d)
 macro-iso (constant A) = ConstantIso A
 macro-iso var = PointedIso
 macro-iso (d₀ , d₁) = join-iso (macro-iso d₀) (macro-iso d₁)

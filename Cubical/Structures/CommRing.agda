@@ -101,15 +101,14 @@ module CommRingΣ-theory {ℓ} where
   CommRingAxioms : (R : Type ℓ) (s : raw-ring-structure R) → Type ℓ
   CommRingAxioms R (_+_ , 1r , _·_) = ring-axioms R (_+_ , 1r , _·_)
                                       × ((x y : R) → x · y ≡ y · x)
-
   CommRingStructure : Type ℓ → Type ℓ
   CommRingStructure = AxiomStructure raw-ring-structure CommRingAxioms
 
   CommRingΣ : Type (ℓ-suc ℓ)
   CommRingΣ = TypeWithStr ℓ CommRingStructure
 
-  CommRingIso : StrIso CommRingStructure ℓ
-  CommRingIso = AxiomIso raw-ring-iso CommRingAxioms
+  CommRingEquivStr : StrEquiv CommRingStructure ℓ
+  CommRingEquivStr = AxiomIso raw-ring-iso CommRingAxioms
 
   isProp-CommRingAxioms : (R : Type ℓ) (s : raw-ring-structure R)
                           → isProp (CommRingAxioms R s)
@@ -130,14 +129,14 @@ module CommRingΣ-theory {ℓ} where
   CommRingIsoCommRingΣ =
     iso CommRing→CommRingΣ CommRingΣ→CommRing (λ _ → refl) (λ _ → refl)
 
-  CommRingUnivalentStr : UnivalentStr CommRingStructure CommRingIso
+  CommRingUnivalentStr : UnivalentStr CommRingStructure CommRingEquivStr
   CommRingUnivalentStr = axiomUnivalentStr _ isProp-CommRingAxioms raw-ring-is-SNS
 
-  CommRingΣPath : (R S : CommRingΣ) → (R ≃[ CommRingIso ] S) ≃ (R ≡ S)
+  CommRingΣPath : (R S : CommRingΣ) → (R ≃[ CommRingEquivStr ] S) ≃ (R ≡ S)
   CommRingΣPath = SIP CommRingUnivalentStr
 
   CommRingIsoΣ : (R S : CommRing) → Type ℓ
-  CommRingIsoΣ R S = CommRing→CommRingΣ R ≃[ CommRingIso ] CommRing→CommRingΣ S
+  CommRingIsoΣ R S = CommRing→CommRingΣ R ≃[ CommRingEquivStr ] CommRing→CommRingΣ S
 
   CommRingPath : (R S : CommRing) → (CommRingIso R S) ≃ (R ≡ S)
   CommRingPath R S =

@@ -21,8 +21,8 @@ str : (A : TypeWithStr ℓ S) → S (typ A)
 str = snd
 
 -- An S-structure should have a notion of S-homomorphism, or rather S-isomorphism.
--- This will be implemented by a function ι : StrIso S ℓ'
+-- This will be implemented by a function ι : StrEquiv S ℓ'
 -- that gives us for any two types with S-structure (X , s) and (Y , t) a family:
 --    ι (X , s) (Y , t) : (X ≃ Y) → Type ℓ''
-StrIso : (S : Type ℓ → Type ℓ'') (ℓ' : Level) → Type (ℓ-max (ℓ-suc (ℓ-max ℓ ℓ')) ℓ'')
-StrIso {ℓ} S ℓ' = (A B : TypeWithStr ℓ S) → typ A ≃ typ B → Type ℓ'
+StrEquiv : (S : Type ℓ → Type ℓ'') (ℓ' : Level) → Type (ℓ-max (ℓ-suc (ℓ-max ℓ ℓ')) ℓ'')
+StrEquiv {ℓ} S ℓ' = (A B : TypeWithStr ℓ S) → typ A ≃ typ B → Type ℓ'

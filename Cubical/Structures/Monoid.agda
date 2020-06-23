@@ -121,7 +121,7 @@ module MonoidΣ-theory {ℓ} where
     isPropΣ (isPropIsSemigroup _·_)
             λ α → isPropΠ λ _ → isProp× (IsSemigroup.is-set α _ _) (IsSemigroup.is-set α _ _)
 
-  monoid-iso : StrIso monoid-structure ℓ
+  monoid-iso : StrEquiv monoid-structure ℓ
   monoid-iso = AxiomIso raw-monoid-iso monoid-axioms
 
   monoid-axiomsIsoIsMonoid : {M : Type ℓ} (s : raw-monoid-structure M)

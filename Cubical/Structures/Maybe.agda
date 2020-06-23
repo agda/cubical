@@ -81,10 +81,10 @@ module MaybePathP where
     isom .Iso.leftInv = encodeDecode A ox oy
 
 maybe-iso : {S : Type ℓ → Type ℓ₁}
-  → StrIso S ℓ₁' → StrIso (maybe-structure S) ℓ₁'
+  → StrEquiv S ℓ₁' → StrEquiv (maybe-structure S) ℓ₁'
 maybe-iso ι (X , ox) (Y , oy) e = maybe-rel (λ x y → ι (X , x) (Y , y) e) ox oy
 
-maybe-is-SNS : {S : Type ℓ → Type ℓ₁} (ι : StrIso S ℓ₁')
+maybe-is-SNS : {S : Type ℓ → Type ℓ₁} (ι : StrEquiv S ℓ₁')
   → UnivalentStr S ι → UnivalentStr (maybe-structure S) (maybe-iso ι)
 maybe-is-SNS ι θ {X , ox} {Y , oy} e =
   compEquiv

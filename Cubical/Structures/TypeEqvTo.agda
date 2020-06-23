@@ -27,7 +27,7 @@ module _ (X : Type ℓ') where
   PointedEqvTo-structure : Type ℓ → Type (ℓ-max ℓ ℓ')
   PointedEqvTo-structure = AxiomStructure PointedStructure (λ Y _ → ∥ Y ≃ X ∥)
 
-  PointedEqvTo-iso : StrIso PointedEqvTo-structure ℓ''
+  PointedEqvTo-iso : StrEquiv PointedEqvTo-structure ℓ''
   PointedEqvTo-iso = AxiomIso PointedIso (λ Y _ → ∥ Y ≃ X ∥)
 
   PointedEqvTo-is-SNS : UnivalentStr {ℓ} PointedEqvTo-structure PointedEqvTo-iso

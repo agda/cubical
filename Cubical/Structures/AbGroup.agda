@@ -97,7 +97,7 @@ module AbGroupΣ-theory {ℓ} where
   AbGroupΣ : Type (ℓ-suc ℓ)
   AbGroupΣ = TypeWithStr ℓ abgroup-structure
 
-  abgroup-iso : StrIso abgroup-structure ℓ
+  abgroup-iso : StrEquiv abgroup-structure ℓ
   abgroup-iso = AxiomIso (binaryFunIso PointedIso) abgroup-axioms
 
   isProp-abgroup-axioms : (G : Type ℓ) (s : raw-group-structure G)
