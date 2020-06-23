@@ -5,6 +5,7 @@ open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Functions.Embedding
 open import Cubical.Data.Empty as ⊥
@@ -14,6 +15,10 @@ open import Cubical.Relation.Nullary
 open import Cubical.Data.Sum
 
 open import Cubical.Data.Maybe.Base
+
+map-Maybe-id : ∀ {ℓ} {A : Type ℓ} → ∀ m → map-Maybe (idfun A) m ≡ m
+map-Maybe-id nothing = refl
+map-Maybe-id (just _) = refl
 
 -- Path space of Maybe type
 module MaybePath {ℓ} {A : Type ℓ} where

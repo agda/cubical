@@ -12,6 +12,7 @@ open import Cubical.Structures.Macro
 open import Cubical.Structures.LeftAction
 open import Cubical.Structures.Functorial
 open import Cubical.Structures.NAryOp
+open import Cubical.Structures.Auto
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Maybe as Maybe
@@ -36,8 +37,10 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  -- deq as a structure
  -- First, a few preliminary results that we will need later
  deq-map : {X Y : Type ℓ} → (X → Y) → Maybe (X × A) → Maybe (Y × A)
- deq-map f nothing = nothing
- deq-map f (just (x , a)) = just (f x , a)
+ deq-map = autoFuncAction (λ (X : Type ℓ) → Maybe (X × A))
+
+ deq-map-id : {X : Type ℓ} → ∀ r → deq-map (idfun X) r ≡ r
+ deq-map-id = autoFuncId (λ (X : Type ℓ) → Maybe (X × A))
 
  deq-map-∘ :{B C D : Type ℓ}
   (g : C → D) (f : B → C)
@@ -45,21 +48,11 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  deq-map-∘ g f nothing = refl
  deq-map-∘ g f (just (b , a)) = refl
 
- deq-map-id : {X : Type ℓ} → ∀ r → deq-map (idfun X) r ≡ r
- deq-map-id nothing = refl
- deq-map-id (just _) = refl
-
- open Macro ℓ (recvar (functorial deq-map deq-map-id)) public renaming
-   ( structure to deq-structure
-   ; iso to deq-iso
-   ; isSNS to Deq-is-SNS
-   )
-
- Deq : Type (ℓ-suc ℓ)
- Deq = TypeWithStr ℓ deq-structure
-
  -- Now we can do Queues:
- open Macro ℓ (var , left-action-desc A , foreign deq-iso Deq-is-SNS) public renaming
+ raw-queue-desc =
+   autoDesc (λ (X : Type ℓ) → X × (A → X → X) × (X → Funct[ Maybe (X × A) ]))
+
+ open Macro ℓ raw-queue-desc public renaming
    ( structure to raw-queue-structure
    ; iso to raw-queue-iso
    ; isSNS to RawQueue-is-SNS

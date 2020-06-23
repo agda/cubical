@@ -8,11 +8,8 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 open import Cubical.Functions.FunExtEquiv
 
-open import Cubical.Structures.Macro
-open import Cubical.Structures.LeftAction
+open import Cubical.Structures.Auto
 
-open import Cubical.Data.Unit
-open import Cubical.Data.Sum
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 
@@ -22,23 +19,24 @@ private
 
 module _ (A : Type ℓ) (Aset : isSet A) where
 
- count-desc : Desc ℓ
- count-desc = param A (recvar (constant ℕ))
+ count-structure : Type ℓ → Type ℓ
+ count-structure X = A → X → ℕ
 
- open Macro ℓ count-desc public renaming
-   ( structure to count-structure
-   ; iso to count-iso
-   ; isSNS to Count-is-SNS
-   )
+ count-iso = autoIso count-structure
+
+ count-is-SNS : SNS _ count-iso
+ count-is-SNS = autoSNS count-structure
 
  Count : Type (ℓ-suc ℓ)
  Count = TypeWithStr ℓ count-structure
 
- open Macro ℓ (var , (param A (recvar var)) , count-desc) public renaming
-   ( structure to multi-set-structure
-   ; iso to multi-set-iso
-   ; isSNS to Multi-Set-is-SNS
-   )
+ multi-set-structure : Type ℓ → Type ℓ
+ multi-set-structure X = X × (A → X → X) × (A → X → ℕ)
+
+ multi-set-iso = autoIso multi-set-structure
+
+ Multi-Set-is-SNS : SNS _ multi-set-iso
+ Multi-Set-is-SNS = autoSNS multi-set-structure
 
  Multi-Set : Type (ℓ-suc ℓ)
  Multi-Set = TypeWithStr ℓ multi-set-structure
