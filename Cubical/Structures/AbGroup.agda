@@ -118,7 +118,7 @@ module AbGroupΣ-theory {ℓ} where
   AbGroupIsoAbGroupΣ = iso AbGroup→AbGroupΣ AbGroupΣ→AbGroup (λ _ → refl) (λ _ → refl)
 
   abgroup-is-SNS : UnivalentStr abgroup-structure abgroup-iso
-  abgroup-is-SNS = AxiomUnivalentStr _ isProp-abgroup-axioms raw-group-is-SNS
+  abgroup-is-SNS = axiomUnivalentStr _ isProp-abgroup-axioms raw-group-is-SNS
 
   AbGroupΣPath : (G H : AbGroupΣ) → (G ≃[ abgroup-iso ] H) ≃ (G ≡ H)
   AbGroupΣPath = SIP abgroup-is-SNS

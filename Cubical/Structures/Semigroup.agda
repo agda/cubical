@@ -123,7 +123,7 @@ module SemigroupΣ-theory {ℓ} where
     iso Semigroup→SemigroupΣ SemigroupΣ→Semigroup (λ _ → refl) (λ _ → refl)
 
   semigroup-is-SNS : UnivalentStr semigroup-structure semigroup-iso
-  semigroup-is-SNS = AxiomUnivalentStr _ semigroup-axioms-isProp raw-semigroup-is-SNS
+  semigroup-is-SNS = axiomUnivalentStr _ semigroup-axioms-isProp raw-semigroup-is-SNS
 
   SemigroupΣPath : (M N : SemigroupΣ) → (M ≃[ semigroup-iso ] N) ≃ (M ≡ N)
   SemigroupΣPath = SIP semigroup-is-SNS

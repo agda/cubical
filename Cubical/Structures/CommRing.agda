@@ -131,7 +131,7 @@ module CommRingΣ-theory {ℓ} where
     iso CommRing→CommRingΣ CommRingΣ→CommRing (λ _ → refl) (λ _ → refl)
 
   comm-ring-is-SNS : UnivalentStr comm-ring-structure comm-ring-iso
-  comm-ring-is-SNS = AxiomUnivalentStr _ isProp-comm-ring-axioms raw-ring-is-SNS
+  comm-ring-is-SNS = axiomUnivalentStr _ isProp-comm-ring-axioms raw-ring-is-SNS
 
   CommRingΣPath : (R S : CommRingΣ) → (R ≃[ comm-ring-iso ] S) ≃ (R ≡ S)
   CommRingΣPath = SIP comm-ring-is-SNS

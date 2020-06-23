@@ -31,8 +31,8 @@ module _ (X : Type ℓ') where
   PointedEqvTo-iso = AxiomIso PointedIso (λ Y _ → ∥ Y ≃ X ∥)
 
   PointedEqvTo-is-SNS : UnivalentStr {ℓ} PointedEqvTo-structure PointedEqvTo-iso
-  PointedEqvTo-is-SNS = AxiomUnivalentStr PointedIso {axioms = λ Y _ → ∥ Y ≃ X ∥}
-                                          (λ _ _ → squash) PointedUnivalentStr
+  PointedEqvTo-is-SNS = axiomUnivalentStr PointedIso {axioms = λ Y _ → ∥ Y ≃ X ∥}
+                                          (λ _ _ → squash) pointedUnivalentStr
 
   PointedEqvTo-SIP : (A B : PointedEqvTo ℓ X) → A ≃[ PointedEqvTo-iso ] B ≃ (A ≡ B)
   PointedEqvTo-SIP = SIP PointedEqvTo-is-SNS

@@ -241,7 +241,7 @@ poset-is-SNS {ℓ₁ = ℓ₁} =
   UnivalentStr→UnivalentStr-≡
     (PosetStr ℓ₁)
     isAMonotonicEqv
-    (AxiomUnivalentStr _ NTS (UnivalentStr-≡→UnivalentStr isAnOrderPreservingEqv Order-is-SNS))
+    (axiomUnivalentStr _ NTS (UnivalentStr-≡→UnivalentStr isAnOrderPreservingEqv Order-is-SNS))
   where
     NTS : (A : Type ℓ) (_⊑_ : Order ℓ₁ A) → isProp [ satPosetAx ℓ₁ A _⊑_ ]
     NTS A _⊑_ = snd (satPosetAx ℓ₁ A _⊑_)

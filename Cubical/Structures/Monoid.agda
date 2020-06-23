@@ -148,7 +148,7 @@ module MonoidΣ-theory {ℓ} where
     iso Monoid→MonoidΣ MonoidΣ→Monoid (λ _ → refl) (λ _ → refl)
 
   monoid-is-SNS : UnivalentStr monoid-structure monoid-iso
-  monoid-is-SNS = AxiomUnivalentStr _ monoid-axioms-isProp raw-monoid-is-SNS
+  monoid-is-SNS = axiomUnivalentStr _ monoid-axioms-isProp raw-monoid-is-SNS
 
   MonoidΣPath : (M N : MonoidΣ) → (M ≃[ monoid-iso ] N) ≃ (M ≡ N)
   MonoidΣPath = SIP monoid-is-SNS

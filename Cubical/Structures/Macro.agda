@@ -88,8 +88,8 @@ macro-iso (foreign ι _) = ι
 
 -- Proof that structure induced by descriptor is a standard notion of structure
 macro-is-SNS : ∀ {ℓ} → (d : Desc ℓ) → UnivalentStr (macro-structure d) (macro-iso d)
-macro-is-SNS (constant A) = ConstantUnivalentStr A
-macro-is-SNS var = PointedUnivalentStr
+macro-is-SNS (constant A) = constantUnivalentStr A
+macro-is-SNS var = pointedUnivalentStr
 macro-is-SNS (d₀ , d₁) = join-SNS (macro-iso d₀) (macro-is-SNS d₀) (macro-iso d₁) (macro-is-SNS d₁)
 macro-is-SNS (param A d) = Parameterized-is-SNS A (λ _ → macro-iso d) (λ _ → macro-is-SNS d)
 macro-is-SNS (recvar d) = unaryFunSNS (macro-iso d) (macro-is-SNS d)

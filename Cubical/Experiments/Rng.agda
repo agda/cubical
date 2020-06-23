@@ -51,7 +51,7 @@ rng-axioms-isProp X (_·_ , _+_) = isPropΣ (abelian-group-axioms-isProp X _·_)
                                   λ _ → isPropΠ3 (λ _ _ _ → isSetX _ _)}
 
 rng-is-SNS : SNS {ℓ} rng-structure rng-iso
-rng-is-SNS = AxiomUnivalentStr _ rng-axioms-isProp raw-rng-is-SNS
+rng-is-SNS = axiomUnivalentStr _ rng-axioms-isProp raw-rng-is-SNS
 
 RngPath : (M N : Rngs {ℓ}) → (M ≃[ rng-iso ] N) ≃ (M ≡ N)
 RngPath = SIP rng-is-SNS

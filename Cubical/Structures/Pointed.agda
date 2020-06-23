@@ -22,11 +22,11 @@ PointedStructure X = X
 PointedIso : StrIso PointedStructure ℓ
 PointedIso A B f = equivFun f (pt A) ≡ pt B
 
-PointedUnivalentStr : UnivalentStr {ℓ} PointedStructure PointedIso
-PointedUnivalentStr f = invEquiv (ua-ungluePath-Equiv f)
+pointedUnivalentStr : UnivalentStr {ℓ} PointedStructure PointedIso
+pointedUnivalentStr f = invEquiv (ua-ungluePath-Equiv f)
 
-pointed-SIP : (A B : Pointed ℓ) → A ≃[ PointedIso ] B ≃ (A ≡ B)
-pointed-SIP = SIP PointedUnivalentStr
+pointedSIP : (A B : Pointed ℓ) → A ≃[ PointedIso ] B ≃ (A ≡ B)
+pointedSIP = SIP pointedUnivalentStr
 
 pointed-sip : (A B : Pointed ℓ) → A ≃[ PointedIso ] B → (A ≡ B)
-pointed-sip A B = equivFun (pointed-SIP A B) -- ≡ λ (e , p) i → ua e i , ua-gluePath e p i
+pointed-sip A B = equivFun (pointedSIP A B) -- ≡ λ (e , p) i → ua e i , ua-gluePath e p i

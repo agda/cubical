@@ -176,7 +176,7 @@ module GroupΣ-theory {ℓ} where
   GroupIsoGroupΣ = iso Group→GroupΣ GroupΣ→Group (λ _ → refl) (λ _ → refl)
 
   group-is-SNS : UnivalentStr group-structure group-iso
-  group-is-SNS = AxiomUnivalentStr _ isProp-group-axioms raw-group-is-SNS
+  group-is-SNS = axiomUnivalentStr _ isProp-group-axioms raw-group-is-SNS
 
   GroupΣPath : (G H : GroupΣ) → (G ≃[ group-iso ] H) ≃ (G ≡ H)
   GroupΣPath = SIP group-is-SNS

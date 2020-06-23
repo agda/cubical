@@ -103,7 +103,7 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  queue-iso = AxiomIso raw-queue-iso queue-axioms
 
  Queue-is-SNS : UnivalentStr queue-structure queue-iso
- Queue-is-SNS = AxiomUnivalentStr raw-queue-iso isProp-queue-axioms RawQueue-is-SNS
+ Queue-is-SNS = axiomUnivalentStr raw-queue-iso isProp-queue-axioms RawQueue-is-SNS
 
 
  finite-queue-axioms : (Q : Type ℓ) → queue-structure Q → Type ℓ
@@ -122,4 +122,4 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  finite-queue-iso = AxiomIso queue-iso finite-queue-axioms
 
  FiniteQueue-is-SNS : UnivalentStr finite-queue-structure finite-queue-iso
- FiniteQueue-is-SNS = AxiomUnivalentStr queue-iso isProp-finite-queue-axioms Queue-is-SNS
+ FiniteQueue-is-SNS = axiomUnivalentStr queue-iso isProp-finite-queue-axioms Queue-is-SNS

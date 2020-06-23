@@ -192,7 +192,7 @@ module RingΣ-theory {ℓ} where
   RingIsoRingΣ = iso Ring→RingΣ RingΣ→Ring (λ _ → refl) (λ _ → refl)
 
   ring-is-SNS : UnivalentStr ring-structure ring-iso
-  ring-is-SNS = AxiomUnivalentStr _ isProp-ring-axioms raw-ring-is-SNS
+  ring-is-SNS = axiomUnivalentStr _ isProp-ring-axioms raw-ring-is-SNS
 
   RingΣPath : (R S : RingΣ) → (R ≃[ ring-iso ] S) ≃ (R ≡ S)
   RingΣPath = SIP ring-is-SNS
