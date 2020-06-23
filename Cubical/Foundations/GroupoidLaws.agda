@@ -284,8 +284,8 @@ symDistr p q i j = symDistr-filler p q j i i1
 hcomp-equivFillerSub : {ϕ : I} → (p : I → Partial ϕ A) → (a : A [ ϕ ↦ p i0 ])
                      → (i : I)
                      → A [ ϕ ∨ i ∨ ~ i ↦ (λ { (i = i0) → outS a
-                                              ; (i = i1) → hcomp (λ i → p (~ i)) (hcomp p (outS a))
-                                              ; (ϕ = i1) → p i0 1=1 }) ]
+                                            ; (i = i1) → hcomp (λ i → p (~ i)) (hcomp p (outS a))
+                                            ; (ϕ = i1) → p i0 1=1 }) ]
 hcomp-equivFillerSub {ϕ = ϕ} p a i =
   inS (hcomp (λ k → λ { (i = i1) → hfill (λ j → p (~ j)) (inS (hcomp p (outS a))) k
                       ; (i = i0) → outS a

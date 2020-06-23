@@ -16,6 +16,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Path
 
 private
   variable
@@ -120,11 +121,7 @@ equiv→HAEquiv e = e .fst , λ where
   .isHAEquiv.g → invIsEq (snd e)
   .isHAEquiv.sec → retIsEq (snd e)
   .isHAEquiv.ret → secIsEq (snd e)
-  .isHAEquiv.com a i j → hcomp (λ k → λ { (i = i0) → cong (fst e) (retIsEq (snd e) a) j
-                                        ; (i = i1) → secIsEq (snd e) (fst e a) (~ k ∨ j)
-                                        ; (j = i0) → secIsEq (snd e) (fst e a) (~ k ∧ i)
-                                        ; (j = i1) → fst e a })
-                               (commSqIsEq (snd e) a j i)
+  .isHAEquiv.com a → flipSquare (slideSquare (commSqIsEq (snd e) a))
 
 congIso : {x y : A} (e : Iso A B) → Iso (x ≡ y) (Iso.fun e x ≡ Iso.fun e y)
 congIso {x = x} {y} e = goal

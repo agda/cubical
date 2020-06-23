@@ -143,8 +143,8 @@ flipSquarePath :
   → Square a₀₋ a₁₋ a₋₀ a₋₁ ≡ Square a₋₀ a₋₁ a₀₋ a₁₋
 flipSquarePath = isoToPath (iso flipSquare flipSquare (λ _ → refl) (λ _ → refl))
 
-module _ {a₀₀ a₁₁ : A} (a₋ : a₀₀ ≡ a₁₁)
-  {a₁₀ : A} (a₁₋ : a₁₀ ≡ a₁₁) (a₋₀ : a₀₀ ≡ a₁₀) where
+module _ {a₀₀ a₁₁ : A} {a₋ : a₀₀ ≡ a₁₁}
+  {a₁₀ : A} {a₁₋ : a₁₀ ≡ a₁₁} {a₋₀ : a₀₀ ≡ a₁₀} where
 
   slideSquareFaces : (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A
   slideSquareFaces i j k (i = i0) = a₋ (j ∧ ~ k)

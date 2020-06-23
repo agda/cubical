@@ -184,7 +184,7 @@ isPropIsHAEquiv {f = f} ishaef = goal ishaef where
       -- secondly, convert the path into a dependent path for later convenience
       ≃⟨  Σ-cong-equiv-snd (λ s → Σ-cong-equiv-snd
                              λ η → depPostCompEquiv
-                               λ x → compEquiv (flipSquareEquiv {a₀₀ = f x}) (invEquiv (slideSquareEquiv _ _ _))) ⟩
+                               λ x → compEquiv (flipSquareEquiv {a₀₀ = f x}) (invEquiv slideSquareEquiv)) ⟩
     Σ _ rCoh2
       ≃⟨ Σ-cong-equiv-snd (λ s → invEquiv Σ-Π-≃) ⟩
     Σ _ rCoh3
