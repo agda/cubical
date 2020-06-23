@@ -6,6 +6,7 @@ A couple of general facts about equivalences:
 - if f is an equivalence then pre- and postcomposition with f are equivalences ([preCompEquiv], [postCompEquiv])
 - if f is an equivalence then (Σ[ g ] section f g) and (Σ[ g ] retract f g) are contractible ([isContr-section], [isContr-retract])
 
+- isHAEquiv is a proposition [isPropIsHAEquiv]
 (these are not in 'Equiv.agda' because they need Univalence.agda (which imports Equiv.agda))
 -}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
@@ -18,10 +19,11 @@ open import Cubical.Data.Sigma
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint using (congIso)
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Functions.FunExtEquiv
 
@@ -52,11 +54,21 @@ preCompEquiv : {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
              → (B → C) ≃ (A → C)
 preCompEquiv e = (λ φ → φ ∘ fst e) , isEquivPreComp e
 
+depPostCompEquiv : {C : Type ℓ′} {A B : C → Type ℓ} (e : ∀ c → A c ≃ B c)
+                 → (∀ c → A c) ≃ (∀ c → B c)
+depPostCompEquiv {A = A} {B} e = isoToEquiv pcIso where
+  eIso : ∀ c → Iso (A c) (B c)
+  eIso c = equivToIso (e c)
+
+  pcIso : Iso (∀ c → A c) (∀ c → B c)
+  Iso.fun pcIso f c = Iso.fun (eIso c) (f c)
+  Iso.inv pcIso g c = Iso.inv (eIso c) (g c)
+  Iso.rightInv pcIso f i c = Iso.rightInv (eIso c) (f c) i
+  Iso.leftInv pcIso g i c = Iso.leftInv (eIso c) (g c) i
+
 isEquivPostComp : {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
                 → isEquiv (λ (φ : C → A) → e .fst ∘ φ)
-isEquivPostComp {A = A} {B} {C} e = EquivJ
-                  (λ (A : Type _) (e' : A ≃ B) →  isEquiv (λ (φ : C → A) → e' .fst ∘ φ))
-                  (idIsEquiv (C → B)) e
+isEquivPostComp {A = A} {B} {C} e = snd (depPostCompEquiv (λ _ → e))
 
 postCompEquiv : {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
               → (C → A) ≃ (C → B)
@@ -142,3 +154,46 @@ cong≃-idEquiv : (F : Type ℓ → Type ℓ′) (A : Type ℓ) → cong≃ F (i
 cong≃-idEquiv F A = cong≃ F (idEquiv A) ≡⟨ cong (λ p → pathToEquiv (cong F p)) uaIdEquiv  ⟩
                     pathToEquiv refl    ≡⟨ pathToEquivRefl ⟩
                     idEquiv (F A)       ∎
+
+isPropIsHAEquiv : {f : A → B} → isProp (isHAEquiv f)
+isPropIsHAEquiv {f = f} ishaef = goal ishaef where
+  equivF : isEquiv f
+  equivF = isHAEquiv→isEquiv ishaef
+
+  rCoh1 : (sec : hasSection f) → Type _
+  rCoh1 (g , ε) = Σ[ η ∈ retract f g ] ∀ x → cong f (η x) ≡ ε (f x)
+
+  rCoh2 : (sec : hasSection f) → Type _
+  rCoh2 (g , ε) = Σ[ η ∈ retract f g ] ∀ x → Square (ε (f x)) refl (cong f (η x)) refl
+
+  rCoh3 : (sec : hasSection f) → Type _
+  rCoh3 (g , ε) = ∀ x → Σ[ ηx ∈ g (f x) ≡ x ] Square (ε (f x)) refl (cong f ηx) refl
+
+  rCoh4 : (sec : hasSection f) → Type _
+  rCoh4 (g , ε) = ∀ x → Path (fiber f (f x)) (g (f x) , ε (f x)) (x , refl)
+
+  characterization : isHAEquiv f ≃ Σ _ rCoh4
+  characterization =
+    isHAEquiv f
+      -- first convert between Σ and record
+      ≃⟨ isoToEquiv (iso (λ e → (e .g , e .ret) , (e .sec , e .com))
+                         (λ e → record { g = e .fst .fst ; ret = e .fst .snd
+                                       ; sec = e .snd .fst ; com = e .snd .snd })
+                         (λ _ → refl) (λ _ → refl)) ⟩
+    Σ _ rCoh1
+      -- secondly, convert the path into a dependent path for later convenience
+      ≃⟨  Σ-cong-equiv-snd (λ s → Σ-cong-equiv-snd
+                             λ η → depPostCompEquiv
+                               λ x → compEquiv (flipSquareEquiv {a₀₀ = f x}) (invEquiv (slideSquareEquiv _ _ _))) ⟩
+    Σ _ rCoh2
+      ≃⟨ Σ-cong-equiv-snd (λ s → invEquiv Σ-Π-≃) ⟩
+    Σ _ rCoh3
+      ≃⟨ Σ-cong-equiv-snd (λ s → depPostCompEquiv λ x → ΣPath≃PathΣ) ⟩
+    Σ _ rCoh4
+      ■
+    where open isHAEquiv
+
+  goal : isProp (isHAEquiv f)
+  goal = subst isProp (sym (ua characterization))
+    (isPropΣ (isContr→isProp (isEquiv→isContrHasSection equivF))
+             λ s → isPropΠ λ x → isProp→isSet (isContr→isProp (equivF .equiv-proof (f x))) _ _)

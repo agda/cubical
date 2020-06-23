@@ -65,6 +65,30 @@ record isHAEquiv {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type 
                                     ; (i = i1) → filler j k })
                            (g (cap0 j i))
 
+  isHAEquiv→Iso : Iso A B
+  Iso.fun isHAEquiv→Iso = f
+  Iso.inv isHAEquiv→Iso = g
+  Iso.rightInv isHAEquiv→Iso = ret
+  Iso.leftInv isHAEquiv→Iso = sec
+
+  isHAEquiv→isEquiv : isEquiv f
+  isHAEquiv→isEquiv .equiv-proof y = (g y , ret y) , isCenter where
+    isCenter : ∀ xp → (g y , ret y) ≡ xp
+    isCenter (x , p) i = gy≡x i , ry≡p i where
+      gy≡x : g y ≡ x
+      gy≡x = sym (cong g p) ∙∙ refl ∙∙ sec x
+
+      lem0 : Square (cong f (sec x)) p (cong f (sec x)) p
+      lem0 i j = invSides-filler p (sym (cong f (sec x))) (~ i) j
+
+      ry≡p : Square (ret y) p (cong f gy≡x) refl
+      ry≡p i j = hcomp (λ k → λ { (i = i0) → cong ret p k j
+                                ; (i = i1) → lem0 k j
+                                ; (j = i0) → f (doubleCompPath-filler (sym (cong g p)) refl (sec x) k i)
+                                ; (j = i1) → p k })
+                       (com x (~ i) j)
+
+open isHAEquiv using (isHAEquiv→Iso; isHAEquiv→isEquiv) public
 
 HAEquiv : (A : Type ℓ) (B : Type ℓ') → Type (ℓ-max ℓ ℓ')
 HAEquiv A B = Σ[ f ∈ (A → B) ] isHAEquiv f

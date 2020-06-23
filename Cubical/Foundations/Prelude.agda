@@ -79,18 +79,19 @@ cong₂ f p q i = f (p i) (q i)
    `doubleCompPath-filler p q r` gives the whole square
 -}
 
+doubleComp-faces : {x y z w : A } (p : x ≡ y) (r : z ≡ w)
+                 → (i : I) (j : I) → Partial (i ∨ ~ i) A
+doubleComp-faces p r i j (i = i0) = p (~ j)
+doubleComp-faces p r i j (i = i1) = r j
+
 _∙∙_∙∙_ : w ≡ x → x ≡ y → y ≡ z → w ≡ z
 (p ∙∙ q ∙∙ r) i =
-  hcomp (λ j → λ { (i = i0) → p (~ j)
-                 ; (i = i1) → r j })
-        (q i)
+  hcomp (doubleComp-faces p r i) (q i)
 
 doubleCompPath-filler : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w)
                       → PathP (λ j → p (~ j) ≡ r j) q (p ∙∙ q ∙∙ r)
 doubleCompPath-filler p q r j i =
-  hfill (λ j → λ { (i = i0) → p (~ j)
-                 ; (i = i1) → r j })
-        (inS (q i)) j
+  hfill (doubleComp-faces p r i) (inS (q i)) j
 
 -- any two definitions of double composition are equal
 compPath-unique : ∀ (p : x ≡ y) (q : y ≡ z) (r : z ≡ w)
