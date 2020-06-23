@@ -3,9 +3,8 @@ module Cubical.Data.Queue.Untruncated2ListInvariant where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Unit
-open import Cubical.Data.Sum
 open import Cubical.Data.List
+open import Cubical.Data.Maybe
 open import Cubical.Data.Prod
 
 module Untruncated2ListInvariant {ℓ} (A : Type ℓ) where
@@ -14,21 +13,21 @@ module Untruncated2ListInvariant {ℓ} (A : Type ℓ) where
  Inv : List A → List A → Type ℓ
  Inv xs ys = ys ≡ [] → xs ≡ []
 
- Inv-isProp : (xs ys : List A) → isProp (Inv xs ys)
- Inv-isProp xs ys = λ p q → λ i Hf → list≡nil-isProp (p Hf) (q Hf) i
+ isPropInv : (xs ys : List A) → isProp (Inv xs ys)
+ isPropInv xs ys = isPropΠ λ _ → isPropXs≡[]
 
  Inv-ys≡ys' : {xs ys ys' : List A} → (p : ys ≡ ys') →
    (invL : Inv xs ys) → (invR : Inv xs ys') → PathP (λ i → Inv xs (p i)) invL invR
- Inv-ys≡ys' {xs = xs} p invL invR = isProp→PathP (λ i → Inv-isProp xs (p i)) invL invR
+ Inv-ys≡ys' {xs = xs} p invL invR = isProp→PathP (λ i → isPropInv xs (p i)) invL invR
 
- inv-ys-cons : {xs ys : List A} {y : A} → Inv xs (y ∷ ys)
- inv-ys-cons contra = ⊥.rec (¬cons≡nil contra)
+ inv-xs-∷ : {xs ys : List A} {y : A} → Inv xs (y ∷ ys)
+ inv-xs-∷ contra = ⊥.rec (¬cons≡nil contra)
 
- inv-ys-snoc : {xs ys : List A} → {y : A} → Inv xs (ys ∷ʳ y)
- inv-ys-snoc contra = ⊥.rec (¬snoc≡nil contra)
+ inv-xs-∷ʳ : {xs ys : List A} → {y : A} → Inv xs (ys ∷ʳ y)
+ inv-xs-∷ʳ contra = ⊥.rec (¬snoc≡nil contra)
 
- inv-xs-nil : {ys : List A} → Inv [] ys
- inv-xs-nil ys = refl
+ inv-[]-ys : {ys : List A} → Inv [] ys
+ inv-[]-ys ys = refl
 
  inv-invalid : {xs : List A} {x : A} → Inv (xs ∷ʳ x) [] → ⊥
  inv-invalid inv = ¬snoc≡nil (inv refl)
@@ -46,37 +45,37 @@ module Untruncated2ListInvariant {ℓ} (A : Type ℓ) where
    where
      helper : ∀ xs ys l r → SnocView xs → Q⟨ xs , ys ! l ⟩ ≡ Q⟨ [] , ys ++ rev xs ! r ⟩
      helper .[] ys l r nil i = Q⟨ [] , ++-unit-r ys (~ i) ! Inv-ys≡ys' (++-unit-r ys ⁻¹) l r i  ⟩
-     helper .(xs ∷ʳ x) ys l r (snoc x xs s) = move-x ∙ IH ∙ Q-ys≡ys' [] inv-xs-nil r lemma
+     helper .(xs ∷ʳ x) ys l r (snoc x xs s) = move-x ∙ IH ∙ Q-ys≡ys' [] inv-[]-ys r lemma
        where
-       move-x : Q⟨ xs ∷ʳ x , ys ! l ⟩ ≡ Q⟨ xs , ys ∷ʳ x ! inv-ys-snoc ⟩
-       move-x = tilt xs ys x l inv-ys-snoc
-       IH : Q⟨ xs , ys ∷ʳ x ! inv-ys-snoc ⟩ ≡ Q⟨ [] , (ys ∷ʳ x) ++ rev xs ! inv-xs-nil ⟩
-       IH = helper xs (ys ∷ʳ x) inv-ys-snoc inv-xs-nil s
+       move-x : Q⟨ xs ∷ʳ x , ys ! l ⟩ ≡ Q⟨ xs , ys ∷ʳ x ! inv-xs-∷ʳ ⟩
+       move-x = tilt xs ys x l inv-xs-∷ʳ
+       IH : Q⟨ xs , ys ∷ʳ x ! inv-xs-∷ʳ ⟩ ≡ Q⟨ [] , (ys ∷ʳ x) ++ rev xs ! inv-[]-ys ⟩
+       IH = helper xs (ys ∷ʳ x) inv-xs-∷ʳ inv-[]-ys s
        lemma : (ys ∷ʳ x) ++ rev xs ≡ ys ++ rev (xs ∷ʳ x)
-       lemma = ++-assoc ys (x ∷ []) (rev xs) ∙ cong (_++_ ys) (cons≡rev-snoc x xs)
+       lemma = ++-assoc ys (x ∷ []) (rev xs) ∙ cong (ys ++_) (cons≡rev-snoc x xs)
 
  emp : Q
- emp = Q⟨ [] , [] ! inv-xs-nil ⟩
+ emp = Q⟨ [] , [] ! inv-[]-ys ⟩
 
  enq : A → Q → Q
- enq a Q⟨ xs , [] ! inv ⟩ = Q⟨ xs , a ∷ [] ! inv-ys-cons ⟩
- enq a Q⟨ xs , y ∷ ys ! inv ⟩ = Q⟨ a ∷ xs , y ∷ ys ! inv-ys-cons ⟩
+ enq a Q⟨ xs , [] ! inv ⟩ = Q⟨ xs , a ∷ [] ! inv-xs-∷ ⟩
+ enq a Q⟨ xs , y ∷ ys ! inv ⟩ = Q⟨ a ∷ xs , y ∷ ys ! inv-xs-∷ ⟩
  enq a (tilt xs [] z l r i) = proof i
    where
-   proof : Q⟨ xs ++ z ∷ [] , a ∷ [] ! inv-ys-cons ⟩ ≡ Q⟨ a ∷ xs , z ∷ [] ! inv-ys-cons ⟩
+   proof : Q⟨ xs ++ z ∷ [] , a ∷ [] ! inv-xs-∷ ⟩ ≡ Q⟨ a ∷ xs , z ∷ [] ! inv-xs-∷ ⟩
    proof = ⊥.rec (inv-invalid l)
- enq a (tilt xs (y ∷ ys) z l r i) = tilt (a ∷ xs) (y ∷ ys) z inv-ys-cons inv-ys-cons i
+ enq a (tilt xs (y ∷ ys) z l r i) = tilt (a ∷ xs) (y ∷ ys) z inv-xs-∷ inv-xs-∷ i
 
- deq : Q → Unit ⊎ (Q × A)
- deq Q⟨ xs , [] ! inv ⟩ = inl tt
- deq Q⟨ xs , y ∷ [] ! inv ⟩ = inr (Q⟨ [] , rev xs ! inv-xs-nil ⟩ , y)
- deq Q⟨ xs , y₁ ∷ y₂ ∷ ys ! inv ⟩ = inr (Q⟨ xs , y₂ ∷ ys ! inv-ys-cons ⟩ , y₁)
+ deq : Q → Maybe (Q × A)
+ deq Q⟨ xs , [] ! inv ⟩ = nothing
+ deq Q⟨ xs , y ∷ [] ! inv ⟩ = just (Q⟨ [] , rev xs ! inv-[]-ys ⟩ , y)
+ deq Q⟨ xs , y₁ ∷ y₂ ∷ ys ! inv ⟩ = just (Q⟨ xs , y₂ ∷ ys ! inv-xs-∷ ⟩ , y₁)
  deq (tilt xs [] z l r i) = proof i
    where
-   proof : inl tt ≡ inr (Q⟨ [] , rev xs ! inv-xs-nil ⟩ , z)
+   proof : nothing ≡ just (Q⟨ [] , rev xs ! inv-[]-ys ⟩ , z)
    proof = ⊥.rec (inv-invalid l)
- deq (tilt xs (y ∷ []) z l r i) = inr (proof i , y)
+ deq (tilt xs (y ∷ []) z l r i) = just (proof i , y)
    where
-   proof : Q⟨ [] , rev (xs ∷ʳ z) ! inv-xs-nil ⟩ ≡ Q⟨ xs , z ∷ [] ! inv-ys-cons ⟩
-   proof = Q-ys≡ys' [] inv-xs-nil inv-ys-cons (cons≡rev-snoc z xs ⁻¹) ∙ flush-xs xs (z ∷ []) inv-ys-cons inv-ys-cons ⁻¹
- deq (tilt xs (y₁ ∷ y₂ ∷ ys) z l r i) = inr ((tilt xs (y₂ ∷ ys) z inv-ys-cons inv-ys-cons i) , y₁)
+   proof : Q⟨ [] , rev (xs ∷ʳ z) ! inv-[]-ys ⟩ ≡ Q⟨ xs , z ∷ [] ! inv-xs-∷ ⟩
+   proof = Q-ys≡ys' [] inv-[]-ys inv-xs-∷ (cons≡rev-snoc z xs ⁻¹) ∙ flush-xs xs (z ∷ []) inv-xs-∷ inv-xs-∷ ⁻¹
+ deq (tilt xs (y₁ ∷ y₂ ∷ ys) z l r i) = just ((tilt xs (y₂ ∷ ys) z inv-xs-∷ inv-xs-∷ i) , y₁)

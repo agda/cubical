@@ -155,12 +155,12 @@ cons≡rev-snoc : (x : A) → (xs : List A) → x ∷ rev xs ≡ rev (xs ∷ʳ x
 cons≡rev-snoc _ [] = refl
 cons≡rev-snoc x (y ∷ ys) = λ i → cons≡rev-snoc x ys i ++ y ∷ []
 
-nil≡nil-isContr : isContr (Path (List A) [] [])
-nil≡nil-isContr = refl , ListPath.decodeEncode [] []
+isContr[]≡[] : isContr (Path (List A) [] [])
+isContr[]≡[] = refl , ListPath.decodeEncode [] []
 
-list≡nil-isProp : {xs : List A} → isProp (xs ≡ [])
-list≡nil-isProp {xs = []} = isOfHLevelSuc 0 nil≡nil-isContr
-list≡nil-isProp {xs = x ∷ xs} = λ p _ → ⊥.rec (¬cons≡nil p)
+isPropXs≡[] : {xs : List A} → isProp (xs ≡ [])
+isPropXs≡[] {xs = []} = isOfHLevelSuc 0 isContr[]≡[]
+isPropXs≡[] {xs = x ∷ xs} = λ p _ → ⊥.rec (¬cons≡nil p)
 
 discreteList : Discrete A → Discrete (List A)
 discreteList eqA []       []       = yes refl
