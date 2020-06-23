@@ -8,7 +8,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Path
 
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
 private
   variable
@@ -25,7 +25,8 @@ functorial-iso F (X , s) (Y , t) e = F (e .fst) s ≡ t
 functorial-is-SNS : {S : Type ℓ → Type ℓ₁}
   (F : ∀ {X Y} → (X → Y) → S X → S Y)
   → (∀ {X} s → F (idfun X) s ≡ s)
-  → SNS S (functorial-iso F)
+  → UnivalentStr S (functorial-iso F)
 functorial-is-SNS F η =
-  SNS-≡→SNS-PathP (functorial-iso F)
+  UnivalentStr-≡→UnivalentStr
+    (functorial-iso F)
     (λ s t → pathToEquiv (cong (_≡ t) (η s)))

@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
@@ -190,7 +190,7 @@ module RingΣ-theory {ℓ} where
   RingIsoRingΣ : Iso Ring RingΣ
   RingIsoRingΣ = iso Ring→RingΣ RingΣ→Ring (λ _ → refl) (λ _ → refl)
 
-  ring-is-SNS : SNS ring-structure ring-iso
+  ring-is-SNS : UnivalentStr ring-structure ring-iso
   ring-is-SNS = add-axioms-SNS _ isProp-ring-axioms raw-ring-is-SNS
 
   RingΣPath : (R S : RingΣ) → (R ≃[ ring-iso ] S) ≃ (R ≡ S)

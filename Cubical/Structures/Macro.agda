@@ -10,7 +10,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Sigma
 
@@ -38,7 +38,7 @@ data Desc (ℓ : Level) : Typeω where
   functorial : ∀ {ℓ'} {S : Type ℓ → Type ℓ'}
     (F : ∀ {X Y} → (X → Y) → S X → S Y) → (∀ {X} s → F (idfun X) s ≡ s) → Desc ℓ
   -- arbitrary standard notion of structure
-  foreign : ∀ {ℓ' ℓ''} {S : Type ℓ → Type ℓ'} (ι : StrIso S ℓ'') → SNS S ι → Desc ℓ
+  foreign : ∀ {ℓ' ℓ''} {S : Type ℓ → Type ℓ'} (ι : StrIso S ℓ'') → UnivalentStr S ι → Desc ℓ
 
 infixr 4 _,_
 
@@ -87,7 +87,7 @@ macro-iso (functorial F _) = functorial-iso F
 macro-iso (foreign ι _) = ι
 
 -- Proof that structure induced by descriptor is a standard notion of structure
-macro-is-SNS : ∀ {ℓ} → (d : Desc ℓ) → SNS (macro-structure d) (macro-iso d)
+macro-is-SNS : ∀ {ℓ} → (d : Desc ℓ) → UnivalentStr (macro-structure d) (macro-iso d)
 macro-is-SNS (constant A) = constant-is-SNS A
 macro-is-SNS var = pointed-is-SNS
 macro-is-SNS (d₀ , d₁) = join-SNS (macro-iso d₀) (macro-is-SNS d₀) (macro-iso d₁) (macro-is-SNS d₁)

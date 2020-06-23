@@ -2,7 +2,7 @@
 module Cubical.Structures.LeftAction where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Structures.Macro
 

@@ -6,7 +6,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Structures.Macro
 open import Cubical.Structures.LeftAction
@@ -101,7 +101,7 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  queue-iso : StrIso queue-structure ℓ
  queue-iso = add-to-iso raw-queue-iso queue-axioms
 
- Queue-is-SNS : SNS queue-structure queue-iso
+ Queue-is-SNS : UnivalentStr queue-structure queue-iso
  Queue-is-SNS = add-axioms-SNS raw-queue-iso isProp-queue-axioms RawQueue-is-SNS
 
 
@@ -120,5 +120,5 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  finite-queue-iso : StrIso finite-queue-structure ℓ
  finite-queue-iso = add-to-iso queue-iso finite-queue-axioms
 
- FiniteQueue-is-SNS : SNS finite-queue-structure finite-queue-iso
+ FiniteQueue-is-SNS : UnivalentStr finite-queue-structure finite-queue-iso
  FiniteQueue-is-SNS = add-axioms-SNS queue-iso isProp-finite-queue-axioms Queue-is-SNS

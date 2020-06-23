@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
@@ -110,7 +110,7 @@ module GroupΣ-theory {ℓ} where
   raw-group-structure : Type ℓ → Type ℓ
   raw-group-structure = SemigroupΣ-theory.raw-semigroup-structure
 
-  raw-group-is-SNS : SNS raw-group-structure _
+  raw-group-is-SNS : UnivalentStr raw-group-structure _
   raw-group-is-SNS = SemigroupΣ-theory.raw-semigroup-is-SNS
 
   -- The neutral element and the inverse function will be derived from the
@@ -174,7 +174,7 @@ module GroupΣ-theory {ℓ} where
   GroupIsoGroupΣ : Iso Group GroupΣ
   GroupIsoGroupΣ = iso Group→GroupΣ GroupΣ→Group (λ _ → refl) (λ _ → refl)
 
-  group-is-SNS : SNS group-structure group-iso
+  group-is-SNS : UnivalentStr group-structure group-iso
   group-is-SNS = add-axioms-SNS _ isProp-group-axioms raw-group-is-SNS
 
   GroupΣPath : (G H : GroupΣ) → (G ≃[ group-iso ] H) ≃ (G ≡ H)

@@ -6,7 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Data.Unit
@@ -85,7 +85,7 @@ maybe-iso : {S : Type ℓ → Type ℓ₁}
 maybe-iso ι (X , ox) (Y , oy) e = maybe-rel (λ x y → ι (X , x) (Y , y) e) ox oy
 
 maybe-is-SNS : {S : Type ℓ → Type ℓ₁} (ι : StrIso S ℓ₁')
-  → SNS S ι → SNS (maybe-structure S) (maybe-iso ι)
+  → UnivalentStr S ι → UnivalentStr (maybe-structure S) (maybe-iso ι)
 maybe-is-SNS ι θ {X , ox} {Y , oy} e =
   compEquiv
     (maybe-rel-cong (λ x y → θ {X , x} {Y , y} e) ox oy)

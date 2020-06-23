@@ -31,8 +31,8 @@ private
 -- a proposition. Indeed this type should correspond to the ways s and t can be identified
 -- as S-structures. This we call a standard notion of structure or SNS.
 -- We will use a different definition, but the two definitions are interchangeable.
-SNS-≡ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
-SNS-≡ {ℓ₁} S ι = ∀ {X : Type ℓ₁} (s t : S X) → ι (X , s) (X , t) (idEquiv X) ≃ (s ≡ t)
+UnivalentStr-≡ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
+UnivalentStr-≡ {ℓ₁} S ι = ∀ {X : Type ℓ₁} (s t : S X) → ι (X , s) (X , t) (idEquiv X) ≃ (s ≡ t)
 
 
 -- We introduce the notation for structure preserving equivalences a
@@ -43,25 +43,25 @@ A ≃[ ι ] B = Σ[ e ∈ typ A ≃ typ B ] (ι A B e)
 
 
 
--- The following PathP version of SNS-≡ is a bit easier to work with
+-- The following PathP version of UnivalentStr-≡ is a bit easier to work with
 -- for the proof of the SIP
-SNS-PathP : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
-SNS-PathP {ℓ₁} S ι = {A B : TypeWithStr ℓ₁ S} (e : typ A ≃ typ B)
+UnivalentStr : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
+UnivalentStr {ℓ₁} S ι = {A B : TypeWithStr ℓ₁ S} (e : typ A ≃ typ B)
                   → ι A B e ≃ PathP (λ i → S (ua e i)) (str A) (str B)
 
 -- A quick sanity-check that our definition is interchangeable with
--- Escardó's. The direction SNS-≡→SNS-PathP corresponds more or less
+-- Escardó's. The direction UnivalentStr-≡→UnivalentStr corresponds more or less
 -- to a dependent EquivJ formulation of Escardó's homomorphism-lemma.
-SNS-PathP→SNS-≡ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → SNS-PathP S ι → SNS-≡ S ι
-SNS-PathP→SNS-≡ S ι θ {X = X} s t = ι (X , s) (X , t) (idEquiv X)           ≃⟨ θ (idEquiv X) ⟩
+UnivalentStr→UnivalentStr-≡ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → UnivalentStr S ι → UnivalentStr-≡ S ι
+UnivalentStr→UnivalentStr-≡ S ι θ {X = X} s t = ι (X , s) (X , t) (idEquiv X)           ≃⟨ θ (idEquiv X) ⟩
                                    PathP (λ i → S (ua (idEquiv X) i)) s t  ≃⟨ φ ⟩
                                    s ≡ t                                   ■
   where
    φ = transportEquiv (λ j → PathP (λ i → S (uaIdEquiv {A = X} j i)) s t)
 
 
-SNS-≡→SNS-PathP : (ι : StrIso S ℓ₃) → SNS-≡ S ι → SNS-PathP S ι
-SNS-≡→SNS-PathP {S = S} ι θ {A = A} {B = B} e = EquivJ P C e (str A) (str B)
+UnivalentStr-≡→UnivalentStr : (ι : StrIso S ℓ₃) → UnivalentStr-≡ S ι → UnivalentStr S ι
+UnivalentStr-≡→UnivalentStr {S = S} ι θ {A = A} {B = B} e = EquivJ P C e (str A) (str B)
   where
    Y = typ B
 
@@ -81,7 +81,7 @@ SNS-≡→SNS-PathP {S = S} ι θ {A = A} {B = B} e = EquivJ P C e (str A) (str 
 ---    sip : A ≃[ ι ] B → A ≡ B
 
 module _ {S : Type ℓ₁ → Type ℓ₂} {ι : StrIso S ℓ₃}
-  (θ : SNS-PathP S ι) (A B : TypeWithStr ℓ₁ S)
+  (θ : UnivalentStr S ι) (A B : TypeWithStr ℓ₁ S)
   where
 
   sip : A ≃[ ι ] B → A ≡ B
@@ -137,8 +137,8 @@ add-axioms-SNS : {S : Type ℓ₁ → Type ℓ₂}
                  (ι : (A B : Σ[ X ∈ (Type ℓ₁) ] (S X)) → A .fst ≃ B .fst → Type ℓ₃)
                  {axioms : (X : Type ℓ₁) → S X → Type ℓ₄}
                  (axioms-are-Props : (X : Type ℓ₁) (s : S X) → isProp (axioms X s))
-                 (θ : SNS-PathP S ι)
-               → SNS-PathP (add-to-structure S axioms) (add-to-iso ι axioms)
+                 (θ : UnivalentStr S ι)
+               → UnivalentStr (add-to-structure S axioms) (add-to-iso ι axioms)
 add-axioms-SNS {S = S} ι {axioms = axioms} axioms-are-Props θ {X , s , a} {Y , t , b} f =
   add-to-iso ι axioms (X , s , a) (Y , t , b) f                       ≃⟨ θ f ⟩
   PathP (λ i → S (ua f i)) s t                                        ≃⟨ add-ax-lemma axioms axioms-are-Props f ⟩
@@ -161,9 +161,9 @@ join-iso : {S₁ : Type ℓ₁ → Type ℓ₂} (ι₁ : StrIso S₁ ℓ₃)
 join-iso ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) f = (ι₁ (X , s₁) (Y , t₁) f) × (ι₂ (X , s₂) (Y , t₂) f)
 
 
-join-SNS : {S₁ : Type ℓ₁ → Type ℓ₂} (ι₁ : StrIso S₁ ℓ₃) (θ₁ : SNS-PathP S₁ ι₁)
-           {S₂ : Type ℓ₁ → Type ℓ₄} (ι₂ : StrIso S₂ ℓ₅) (θ₂ : SNS-PathP S₂ ι₂)
-         → SNS-PathP (join-structure S₁ S₂) (join-iso ι₁ ι₂)
+join-SNS : {S₁ : Type ℓ₁ → Type ℓ₂} (ι₁ : StrIso S₁ ℓ₃) (θ₁ : UnivalentStr S₁ ι₁)
+           {S₂ : Type ℓ₁ → Type ℓ₄} (ι₂ : StrIso S₂ ℓ₅) (θ₂ : UnivalentStr S₂ ι₂)
+         → UnivalentStr (join-structure S₁ S₂) (join-iso ι₁ ι₂)
 join-SNS {S₁ = S₁} ι₁ θ₁ {S₂} ι₂ θ₂ {X , s₁ , s₂} {Y , t₁ , t₂} e = isoToEquiv (iso φ ψ η ε)
    where
     φ : join-iso ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) e

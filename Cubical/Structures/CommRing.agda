@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
@@ -134,7 +134,7 @@ module CommRingΣ-theory {ℓ} where
   CommRingIsoCommRingΣ =
     iso CommRing→CommRingΣ CommRingΣ→CommRing (λ _ → refl) (λ _ → refl)
 
-  comm-ring-is-SNS : SNS comm-ring-structure comm-ring-iso
+  comm-ring-is-SNS : UnivalentStr comm-ring-structure comm-ring-iso
   comm-ring-is-SNS = add-axioms-SNS _ isProp-comm-ring-axioms raw-ring-is-SNS
 
   CommRingΣPath : (R S : CommRingΣ) → (R ≃[ comm-ring-iso ] S) ≃ (R ≡ S)

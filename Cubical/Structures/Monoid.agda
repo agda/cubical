@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
@@ -146,7 +146,7 @@ module MonoidΣ-theory {ℓ} where
   MonoidIsoMonoidΣ =
     iso Monoid→MonoidΣ MonoidΣ→Monoid (λ _ → refl) (λ _ → refl)
 
-  monoid-is-SNS : SNS monoid-structure monoid-iso
+  monoid-is-SNS : UnivalentStr monoid-structure monoid-iso
   monoid-is-SNS = add-axioms-SNS _ monoid-axioms-isProp raw-monoid-is-SNS
 
   MonoidΣPath : (M N : MonoidΣ) → (M ≃[ monoid-iso ] N) ≃ (M ≡ N)

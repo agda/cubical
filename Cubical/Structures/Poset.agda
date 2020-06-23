@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Logic
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv        renaming (_■ to _QED)
-open import Cubical.Foundations.SIP          renaming (SNS-≡ to SNS)
+open import Cubical.Foundations.SIP
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.Function
 open import Cubical.Core.Primitives
@@ -51,7 +51,7 @@ isAnOrderPreservingEqv M N e@(f , _) =
   where
     g = equivFun (invEquiv e)
 
-Order-is-SNS : SNS {ℓ} (Order ℓ₁) isAnOrderPreservingEqv
+Order-is-SNS : UnivalentStr-≡ {ℓ} (Order ℓ₁) isAnOrderPreservingEqv
 Order-is-SNS {ℓ = ℓ} {ℓ₁ = ℓ₁} {X = X}  _⊑₀_ _⊑₁_ =
   f , record { equiv-proof = f-equiv }
   where
@@ -234,18 +234,18 @@ _≃ₚ_ P Q = Σ[ i ∈ ∣ P ∣ₚ ≃ ∣ Q ∣ₚ ] isAMonotonicEqv P Q i
 -- From this, we can already establish that posets form an SNS and prove that
 -- the category of posets is univalent.
 
-poset-is-SNS : SNS {ℓ} (PosetStr ℓ₁) isAMonotonicEqv
+poset-is-SNS : UnivalentStr-≡ {ℓ} (PosetStr ℓ₁) isAMonotonicEqv
 poset-is-SNS {ℓ₁ = ℓ₁} =
-  SNS-PathP→SNS-≡
+  UnivalentStr→UnivalentStr-≡
     (PosetStr ℓ₁)
     isAMonotonicEqv
-    (add-axioms-SNS _ NTS (SNS-≡→SNS-PathP isAnOrderPreservingEqv Order-is-SNS))
+    (add-axioms-SNS _ NTS (UnivalentStr-≡→UnivalentStr isAnOrderPreservingEqv Order-is-SNS))
   where
     NTS : (A : Type ℓ) (_⊑_ : Order ℓ₁ A) → isProp [ satPosetAx ℓ₁ A _⊑_ ]
     NTS A _⊑_ = snd (satPosetAx ℓ₁ A _⊑_)
 
 poset-univ₀ : (P Q : Poset ℓ₀ ℓ₁) → (P ≃ₚ Q) ≃ (P ≡ Q)
-poset-univ₀ = SIP (SNS-≡→SNS-PathP isAMonotonicEqv poset-is-SNS)
+poset-univ₀ = SIP (UnivalentStr-≡→UnivalentStr isAMonotonicEqv poset-is-SNS)
 
 -- This result is almost what we want but it is better talk directly about poset
 -- _isomorphisms_ rather than equivalences. In the case when types `A` and `B`

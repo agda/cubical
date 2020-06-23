@@ -7,7 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Data.Sigma
 
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 open import Cubical.Foundations.Pointed
 open import Cubical.Structures.Pointed
 
@@ -29,7 +29,7 @@ module _ (X : Type ℓ') where
   PointedEqvTo-iso : StrIso PointedEqvTo-structure ℓ''
   PointedEqvTo-iso = add-to-iso pointed-iso (λ Y _ → ∥ Y ≃ X ∥)
 
-  PointedEqvTo-is-SNS : SNS {ℓ} PointedEqvTo-structure PointedEqvTo-iso
+  PointedEqvTo-is-SNS : UnivalentStr {ℓ} PointedEqvTo-structure PointedEqvTo-iso
   PointedEqvTo-is-SNS = add-axioms-SNS pointed-iso {axioms = λ Y _ → ∥ Y ≃ X ∥}
                                        (λ _ _ → squash) pointed-is-SNS
 

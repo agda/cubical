@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
@@ -116,7 +116,7 @@ module AbGroupΣ-theory {ℓ} where
   AbGroupIsoAbGroupΣ : Iso AbGroup AbGroupΣ
   AbGroupIsoAbGroupΣ = iso AbGroup→AbGroupΣ AbGroupΣ→AbGroup (λ _ → refl) (λ _ → refl)
 
-  abgroup-is-SNS : SNS abgroup-structure abgroup-iso
+  abgroup-is-SNS : UnivalentStr abgroup-structure abgroup-iso
   abgroup-is-SNS = add-axioms-SNS _ isProp-abgroup-axioms raw-group-is-SNS
 
   AbGroupΣPath : (G H : AbGroupΣ) → (G ≃[ abgroup-iso ] H) ≃ (G ≡ H)

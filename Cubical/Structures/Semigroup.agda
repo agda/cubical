@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
@@ -121,7 +121,7 @@ module SemigroupΣ-theory {ℓ} where
   SemigroupIsoSemigroupΣ =
     iso Semigroup→SemigroupΣ SemigroupΣ→Semigroup (λ _ → refl) (λ _ → refl)
 
-  semigroup-is-SNS : SNS semigroup-structure semigroup-iso
+  semigroup-is-SNS : UnivalentStr semigroup-structure semigroup-iso
   semigroup-is-SNS = add-axioms-SNS _ semigroup-axioms-isProp raw-semigroup-is-SNS
 
   SemigroupΣPath : (M N : SemigroupΣ) → (M ≃[ semigroup-iso ] N) ≃ (M ≡ N)

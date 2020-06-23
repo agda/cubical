@@ -4,7 +4,7 @@ module Cubical.Structures.NAryOp where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Functions.FunExtEquiv
 
@@ -24,12 +24,12 @@ module _ {ℓ₁ ℓ₂ : Level} where
     (xs : Vec X n) → ι (X , fX $ⁿ xs) (Y , fY $ⁿ map (equivFun e) xs) e
 
   nAryFunSNS : {S : Type ℓ₁ → Type ℓ₂} (n : ℕ) {ℓ₃ : Level}
-    (ι : StrIso S ℓ₃) (θ : SNS S ι)
-    → SNS (nAryFun-structure n S) (nAryFunIso n ι)
+    (ι : StrIso S ℓ₃) (θ : UnivalentStr S ι)
+    → UnivalentStr (nAryFun-structure n S) (nAryFunIso n ι)
   nAryFunSNS n ι θ =
-    SNS-≡→SNS-PathP (nAryFunIso n ι) λ fX fY →
+    UnivalentStr-≡→UnivalentStr (nAryFunIso n ι) λ fX fY →
     compEquiv
-      (equivPi λ xs → SNS-PathP→SNS-≡ _ ι θ _ _)
+      (equivPi λ xs → UnivalentStr→UnivalentStr-≡ _ ι θ _ _)
       (nAryFunExtEquiv n fX fY)
 
 module _ {ℓ₁ ℓ₂ : Level} where
@@ -41,11 +41,11 @@ module _ {ℓ₁ ℓ₂ : Level} where
     (x : A) → ι (A , f x) (B , g (equivFun e x)) e
 
   unaryFunSNS : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level}
-    (ι : StrIso S ℓ₃) (θ : SNS S ι)
-    → SNS (nAryFun-structure 1 S) (unaryFunIso ι)
+    (ι : StrIso S ℓ₃) (θ : UnivalentStr S ι)
+    → UnivalentStr (nAryFun-structure 1 S) (unaryFunIso ι)
   unaryFunSNS ι θ =
-    SNS-≡→SNS-PathP (unaryFunIso ι) λ fX fY →
-    compEquiv (equivPi λ _ → SNS-PathP→SNS-≡ _ ι θ _ _) funExtEquiv
+    UnivalentStr-≡→UnivalentStr (unaryFunIso ι) λ fX fY →
+    compEquiv (equivPi λ _ → UnivalentStr→UnivalentStr-≡ _ ι θ _ _) funExtEquiv
 
   -- binary
   binaryFunIso : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level} (ι : StrIso S ℓ₃)
@@ -54,8 +54,8 @@ module _ {ℓ₁ ℓ₂ : Level} where
     (x y : A) → ι (A , f x y) (B , g (equivFun e x) (equivFun e y)) e
 
   binaryFunSNS : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level}
-    (ι : StrIso S ℓ₃) (θ : SNS S ι)
-    → SNS (nAryFun-structure 2 S) (binaryFunIso ι)
+    (ι : StrIso S ℓ₃) (θ : UnivalentStr S ι)
+    → UnivalentStr (nAryFun-structure 2 S) (binaryFunIso ι)
   binaryFunSNS ι θ =
-    SNS-≡→SNS-PathP (binaryFunIso ι) λ fX fY →
-    compEquiv (equivPi λ _ → equivPi λ _ → SNS-PathP→SNS-≡ _ ι θ _ _) funExt₂Equiv
+    UnivalentStr-≡→UnivalentStr (binaryFunIso ι) λ fX fY →
+    compEquiv (equivPi λ _ → equivPi λ _ → UnivalentStr→UnivalentStr-≡ _ ι θ _ _) funExt₂Equiv
