@@ -44,6 +44,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
    ; SNRS to υ
    )
 
+ ι = count-iso A (Discrete→isSet discA)
 
  -- the count-structures
  aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ
@@ -61,9 +62,6 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
  R : List A → AList A → Type ℓ
  R xs ys = ∀ a → Lcount a xs ≡ ALcount a ys
-
- -- relation between R and ι
- ι = count-iso A (Discrete→isSet discA)
 
  -- now for the bisimulation between List and Alist
  φ : List A → AList A
