@@ -133,7 +133,7 @@ module GroupΣ-theory {ℓ} where
 
   -- Iso for groups are those for monoids (but different axioms)
   group-iso : StrIso group-structure ℓ
-  group-iso = AxiomIso (binaryFunIso pointed-iso) group-axioms
+  group-iso = AxiomIso (binaryFunIso PointedIso) group-axioms
 
   open monoid-theory
 

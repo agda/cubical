@@ -59,7 +59,7 @@ Bool* = Bool , ∣ idEquiv _ ∣
 --  the x = true case.
 
 -- (λ y → x ⊕ y) is the unqiue pointed isomorphism (Bool , false) ≃ (Bool , x)
-isContr-BoolPointedIso : ∀ x → isContr ((Bool , false) ≃[ pointed-iso ] (Bool , x))
+isContr-BoolPointedIso : ∀ x → isContr ((Bool , false) ≃[ PointedIso ] (Bool , x))
 fst (isContr-BoolPointedIso x) = ((λ y → x ⊕ y) , isEquiv-⊕ x) , ⊕-comm x false
 snd (isContr-BoolPointedIso x) (e , p)
   = Σ≡Prop (λ e → isSetBool (equivFun e false) x)
@@ -77,7 +77,7 @@ isContr-2-EltPointed-iso : (X∙ : 2-EltPointed₀)
                          → isContr ((Bool , false , ∣ idEquiv Bool ∣) ≃[ PointedEqvTo-iso Bool ] X∙)
 isContr-2-EltPointed-iso (X , x , ∣e∣)
   = PropTrunc.rec isPropIsContr
-                  (λ e → J (λ X∙ _ → isContr ((Bool , false) ≃[ pointed-iso ] X∙))
+                  (λ e → J (λ X∙ _ → isContr ((Bool , false) ≃[ PointedIso ] X∙))
                            (isContr-BoolPointedIso (e .fst x))
                            (sym (pointed-sip _ _ (e , refl))))
                   ∣e∣
@@ -107,7 +107,7 @@ module ⊕* (X : 2-EltType₀) where
     where R₁ : ∥ fst X ≃ Bool ∥ → typ X → typ X → Bool
           R₁ ∣e∣ y = invEq (fst (fst (isContr-2-EltPointed-iso (fst X , y , ∣e∣))))
           R₂ : (B : Type₀) → B ≃ Bool → B → B → Bool
-          R₂ A e y = invEq (fst (fst (J (λ A∙ _ → isContr ((Bool , false) ≃[ pointed-iso ] A∙))
+          R₂ A e y = invEq (fst (fst (J (λ A∙ _ → isContr ((Bool , false) ≃[ PointedIso ] A∙))
                                         (isContr-BoolPointedIso (e .fst y))
                                         (sym (pointed-sip (A , y) (Bool , e .fst y) (e , refl))))))
 

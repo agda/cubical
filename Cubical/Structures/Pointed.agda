@@ -16,17 +16,17 @@ private
 
 -- Pointed types with SNS
 
-pointed-structure : Type ℓ → Type ℓ
-pointed-structure X = X
+PointedStructure : Type ℓ → Type ℓ
+PointedStructure X = X
 
-pointed-iso : StrIso pointed-structure ℓ
-pointed-iso A B f = equivFun f (pt A) ≡ pt B
+PointedIso : StrIso PointedStructure ℓ
+PointedIso A B f = equivFun f (pt A) ≡ pt B
 
-pointed-is-SNS : UnivalentStr {ℓ} pointed-structure pointed-iso
-pointed-is-SNS f = invEquiv (ua-ungluePath-Equiv f)
+PointedUnivalentStr : UnivalentStr {ℓ} PointedStructure PointedIso
+PointedUnivalentStr f = invEquiv (ua-ungluePath-Equiv f)
 
-pointed-SIP : (A B : Pointed ℓ) → A ≃[ pointed-iso ] B ≃ (A ≡ B)
-pointed-SIP = SIP pointed-is-SNS
+pointed-SIP : (A B : Pointed ℓ) → A ≃[ PointedIso ] B ≃ (A ≡ B)
+pointed-SIP = SIP PointedUnivalentStr
 
-pointed-sip : (A B : Pointed ℓ) → A ≃[ pointed-iso ] B → (A ≡ B)
+pointed-sip : (A B : Pointed ℓ) → A ≃[ PointedIso ] B → (A ≡ B)
 pointed-sip A B = equivFun (pointed-SIP A B) -- ≡ λ (e , p) i → ua e i , ua-gluePath e p i

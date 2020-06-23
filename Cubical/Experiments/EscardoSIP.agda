@@ -201,18 +201,18 @@ SIP S ι θ A B =
 
 
 -- A simple example: pointed types
-pointed-structure : Type ℓ → Type ℓ
-pointed-structure X = X
+PointedStructure : Type ℓ → Type ℓ
+PointedStructure X = X
 
 Pointed-Type : Type (ℓ-suc ℓ)
-Pointed-Type {ℓ = ℓ} = Σ (Type ℓ) pointed-structure
+Pointed-Type {ℓ = ℓ} = Σ (Type ℓ) PointedStructure
 
 pointed-ι : (A B : Pointed-Type) → (A .fst) ≃ (B. fst) → Type ℓ
 pointed-ι (X , x) (Y , y) f = (equivFun f) x ≡ y
 
-pointed-is-sns : SNS {ℓ = ℓ} pointed-structure pointed-ι
+pointed-is-sns : SNS {ℓ = ℓ} PointedStructure pointed-ι
 pointed-is-sns s t = idEquiv (s ≡ t)
 
 pointed-type-sip : (X Y : Type ℓ) (x : X) (y : Y)
                   → (Σ[ f ∈ X ≃ Y ] (f .fst) x ≡ y) ≃ ((X , x) ≡ (Y , y))
-pointed-type-sip X Y x y = invEquiv (SIP pointed-structure pointed-ι pointed-is-sns (X , x) (Y , y))
+pointed-type-sip X Y x y = invEquiv (SIP PointedStructure pointed-ι pointed-is-sns (X , x) (Y , y))

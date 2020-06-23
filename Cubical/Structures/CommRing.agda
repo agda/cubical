@@ -13,8 +13,6 @@ open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axiom
-open import Cubical.Structures.NAryOp
-open import Cubical.Structures.Pointed
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid    hiding (⟨_⟩)
 open import Cubical.Structures.AbGroup   hiding (⟨_⟩)
@@ -111,9 +109,7 @@ module CommRingΣ-theory {ℓ} where
   CommRingΣ = TypeWithStr ℓ comm-ring-structure
 
   comm-ring-iso : StrIso comm-ring-structure ℓ
-  comm-ring-iso =
-    AxiomIso (join-iso (binaryFunIso pointed-iso)
-                         (join-iso pointed-iso (binaryFunIso pointed-iso))) comm-ring-axioms
+  comm-ring-iso = AxiomIso raw-ring-iso comm-ring-axioms
 
   isProp-comm-ring-axioms : (R : Type ℓ) (s : raw-ring-structure R)
                           → isProp (comm-ring-axioms R s)
