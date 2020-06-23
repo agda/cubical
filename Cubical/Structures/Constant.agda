@@ -14,11 +14,11 @@ private
 
 module _ (A : Type ℓ) where
 
-  constant-structure : Type ℓ' → Type ℓ
-  constant-structure _ = A
+  ConstantStructure : Type ℓ' → Type ℓ
+  ConstantStructure _ = A
 
-  constant-iso : StrIso {ℓ'} constant-structure ℓ
-  constant-iso (_ , a) (_ , a') _ = a ≡ a'
+  ConstantIso : StrIso {ℓ'} ConstantStructure ℓ
+  ConstantIso (_ , a) (_ , a') _ = a ≡ a'
 
-  constant-is-SNS : UnivalentStr {ℓ'} constant-structure constant-iso
-  constant-is-SNS e = idEquiv _
+  ConstantUnivalentStr : UnivalentStr {ℓ'} ConstantStructure ConstantIso
+  ConstantUnivalentStr e = idEquiv _
