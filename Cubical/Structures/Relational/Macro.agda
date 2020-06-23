@@ -30,7 +30,6 @@ data RelDesc (ℓ : Level) : Typeω where
   recvar : RelDesc ℓ  → RelDesc ℓ
   -- Maybe on a structure S: X ↦ Maybe (S X)
   maybe : RelDesc ℓ → RelDesc ℓ
-  -- arbitrary structure with notion of structured isomorphism given by functorial action
 
 infixr 4 _,_
 
