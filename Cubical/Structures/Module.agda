@@ -80,6 +80,26 @@ module _ {R : Ring {ℓ}} where
   isSetLeftModule : (M : LeftModule R) → isSet ⟨ M ⟩
   isSetLeftModule M = isSetAbGroup (LeftModule→AbGroup M)
 
+  open Ring R using (1r) renaming (_+_ to _+r_; _·_ to _·s_)
+
+  makeIsLeftModule : {M : Type ℓ} {0m : M}
+                  {_+_ : M → M → M} { -_ : M → M} {_⋆_ : ⟨ R ⟩r → M → M}
+                  (isSet-M : isSet M)
+                  (+-assoc :  (x y z : M) → x + (y + z) ≡ (x + y) + z)
+                  (+-rid : (x : M) → x + 0m ≡ x)
+                  (+-rinv : (x : M) → x + (- x) ≡ 0m)
+                  (+-comm : (x y : M) → x + y ≡ y + x)
+                  (⋆-assoc : (r s : ⟨ R ⟩r) (x : M) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
+                  (⋆-ldist : (r s : ⟨ R ⟩r) (x : M) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
+                  (⋆-rdist : (r : ⟨ R ⟩r) (x y : M) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
+                  (⋆-lid   : (x : M) → 1r ⋆ x ≡ x)
+                → IsLeftModule R 0m _+_ -_ _⋆_
+  makeIsLeftModule isSet-M
+                +-assoc +-rid +-rinv +-comm
+                ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid =
+                ismodule (makeIsAbGroup isSet-M +-assoc +-rid +-rinv +-comm)
+                         ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid
+
 record LeftModuleEquiv {R : Ring {ℓ}} (M N : LeftModule R) : Type ℓ where
 
   constructor moduleiso

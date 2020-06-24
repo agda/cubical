@@ -80,6 +80,42 @@ module _ {R : Ring {ℓ}} where
   isSetAlgebra : (A : Algebra R) → isSet ⟨ A ⟩
   isSetAlgebra A = isSetAbGroup (Algebra→AbGroup A)
 
+module _ {R : Ring {ℓ}} where
+  open Ring R using (1r; ·-ldist-+) renaming (_+_ to _+r_; _·_ to _·s_)
+
+  makeIsAlgebra : {A : Type ℓ} {0a 1a : A}
+                  {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩r → A → A}
+                  (isSet-A : isSet A)
+                  (+-assoc :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
+                  (+-rid : (x : A) → x + 0a ≡ x)
+                  (+-rinv : (x : A) → x + (- x) ≡ 0a)
+                  (+-comm : (x y : A) → x + y ≡ y + x)
+                  (·-assoc :  (x y z : A) → x · (y · z) ≡ (x · y) · z)
+                  (·-rid : (x : A) → x · 1a ≡ x)
+                  (·-lid : (x : A) → 1a · x ≡ x)
+                  (·-rdist-+ : (x y z : A) → x · (y + z) ≡ (x · y) + (x · z))
+                  (·-ldist-+ : (x y z : A) → (x + y) · z ≡ (x · z) + (y · z))
+                  (⋆-assoc : (r s : ⟨ R ⟩r) (x : A) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
+                  (⋆-ldist : (r s : ⟨ R ⟩r) (x : A) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
+                  (⋆-rdist : (r : ⟨ R ⟩r) (x y : A) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
+                  (⋆-lid   : (x : A) → 1r ⋆ x ≡ x)
+                  (⋆-lassoc : (r : ⟨ R ⟩r) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
+                  (⋆-rassoc : (r : ⟨ R ⟩r) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y))
+                → IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_
+  makeIsAlgebra isSet-A
+                +-assoc +-rid +-rinv +-comm
+                ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+
+                ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid ⋆-lassoc ⋆-rassoc =
+                isalgebra
+                  (makeIsRing isSet-A +-assoc +-rid +-rinv +-comm
+                              ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+)
+                  (makeIsLeftModule isSet-A
+                                    +-assoc +-rid +-rinv +-comm
+                                    ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid)
+                  ⋆-lassoc ⋆-rassoc
+
+
+
 record AlgebraEquiv {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
 
   constructor moduleiso
