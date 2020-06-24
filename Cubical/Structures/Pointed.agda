@@ -1,20 +1,22 @@
+{-
+
+Pointed structure: X ↦ X
+
+-}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Structures.Pointed where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Path
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
-
 open import Cubical.Foundations.Pointed.Base
 
 private
   variable
     ℓ : Level
 
--- Pointed types with SNS
+-- Structured isomorphisms
 
 pointed-structure : Type ℓ → Type ℓ
 pointed-structure X = X

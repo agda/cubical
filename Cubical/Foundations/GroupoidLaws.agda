@@ -151,20 +151,20 @@ assocP {A = A} {B = B} {C = C} p q r k i =
 
 -- some exchange law for doubleCompPath and refl
 
-rhombus-filler : {ℓ : Level} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → I → I → A
-rhombus-filler p q i j =
-  hcomp (λ t → λ { (i = i0) → p (~ t ∨ j)
-                 ; (i = i1) → q (t ∧ j)
-                 ; (j = i0) → p (~ t ∨ i)
-                 ; (j = i1) → q (t ∧ i) })
-        (p i1)
+invSides-filler : {x y z : A} (p : x ≡ y) (q : x ≡ z) → Square p (sym q) q (sym p)
+invSides-filler {x = x} p q i j =
+  hcomp (λ k → λ { (i = i0) → p (k ∧ j)
+                 ; (i = i1) → q (~ j ∧ k)
+                 ; (j = i0) → q (i ∧ k)
+                 ; (j = i1) → p (~ i ∧ k)})
+        x
 
 leftright : {ℓ : Level} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) →
             (refl ∙∙ p ∙∙ q) ≡ (p ∙∙ q ∙∙ refl)
 leftright p q i j =
   hcomp (λ t → λ { (j = i0) → p (i ∧ (~ t))
                  ; (j = i1) → q (t ∨ i) })
-        (rhombus-filler p q i j)
+        (invSides-filler q (sym p) (~ i) j)
 
 -- equating doubleCompPath and a succession of two compPath
 
@@ -240,15 +240,6 @@ hcomp-cong : ∀ {ℓ} {A : Type ℓ} {φ} → (u : I → Partial φ A) → (u0 
              → (hcomp u (outS u0) ≡ hcomp u' (outS u0')) [ φ ↦ (\ { (φ = i1) → ueq i1 1=1 }) ]
 hcomp-cong u u0 u' u0' ueq 0eq = inS (\ j → hcomp (\ i o → ueq i o j) (outS 0eq j))
 
-
-invSides-filler : {x y z : A} (p : x ≡ y) (q : x ≡ z) → PathP (λ j → q j ≡ p (~ j)) p (sym q)
-invSides-filler {A = A} {x = x} p q i j =
-  hcomp (λ k → λ { (i = i0) → p (k ∧ j)
-                  ; (i = i1) → q (~ j ∧ k)
-                  ; (j = i0) → q (i ∧ k)
-                  ; (j = i1) → p (~ i ∧ k)})
-        x
-
 congFunct-filler : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y z : A} (f : A → B) (p : x ≡ y) (q : y ≡ z)
                 → I → I → I → B
 congFunct-filler {x = x} f p q i j z =
@@ -277,7 +268,6 @@ cong₂Funct {x = x} {y = y} f p {u = u} {v = v} q j i =
                   ; (j = i0) → f (p i) (q (i ∧ k))})
        (f (p i) u)
 
-
 symDistr-filler : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → I → I → I → A
 symDistr-filler {A = A} {z = z} p q i j k =
   hfill (λ k → λ { (i = i0) → q (k ∨ j)
@@ -289,6 +279,22 @@ symDistr : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → 
 symDistr p q i j = symDistr-filler p q j i i1
 
 
+-- we can not write hcomp-isEquiv : {ϕ : I} → (p : I → Partial ϕ A) → isEquiv (λ (a : A [ ϕ ↦ p i0 ]) → hcomp p a)
+-- due to size issues. But what we can write (compare to hfill) is:
+hcomp-equivFillerSub : {ϕ : I} → (p : I → Partial ϕ A) → (a : A [ ϕ ↦ p i0 ])
+                     → (i : I)
+                     → A [ ϕ ∨ i ∨ ~ i ↦ (λ { (i = i0) → outS a
+                                            ; (i = i1) → hcomp (λ i → p (~ i)) (hcomp p (outS a))
+                                            ; (ϕ = i1) → p i0 1=1 }) ]
+hcomp-equivFillerSub {ϕ = ϕ} p a i =
+  inS (hcomp (λ k → λ { (i = i1) → hfill (λ j → p (~ j)) (inS (hcomp p (outS a))) k
+                      ; (i = i0) → outS a
+                      ; (ϕ = i1) → p (~ k ∧ i) 1=1 })
+             (hfill p a i))
+
+hcomp-equivFiller : {ϕ : I} → (p : I → Partial ϕ A) → (a : A [ ϕ ↦ p i0 ])
+                  → (i : I) → A
+hcomp-equivFiller p a i = outS (hcomp-equivFillerSub p a i)
 
 
 pentagonIdentity : (p : x ≡ y) → (q : y ≡ z) → (r : z ≡ w) → (s : w ≡ v)

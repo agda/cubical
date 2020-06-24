@@ -12,7 +12,7 @@ open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Structures.Macro
+open import Cubical.Structures.Auto
 
 open Iso
 
@@ -76,10 +76,13 @@ record SemigroupIso (M N : Semigroup {ℓ}) : Type ℓ where
 -- definition and then transport results along this equivalence.
 module SemigroupΣ-theory {ℓ} where
 
-  open Macro ℓ (recvar (recvar var)) public renaming
-    ( structure to raw-semigroup-structure
-    ; iso       to raw-semigroup-iso
-    ; isSNS     to raw-semigroup-is-SNS )
+  raw-semigroup-structure : Type ℓ → Type ℓ
+  raw-semigroup-structure X = X → X → X
+
+  raw-semigroup-iso = autoIso raw-semigroup-structure
+
+  raw-semigroup-is-SNS : SNS _ raw-semigroup-iso
+  raw-semigroup-is-SNS = autoSNS raw-semigroup-structure
 
   semigroup-axioms : (A : Type ℓ) → raw-semigroup-structure A → Type ℓ
   semigroup-axioms A _·_ = isSet A

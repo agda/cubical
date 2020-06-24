@@ -1,3 +1,8 @@
+{-
+
+  Maybe structure: X ↦ Maybe (S X)
+
+-}
 {-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
 module Cubical.Structures.Maybe where
 
@@ -6,6 +11,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.RelationalStructure
 open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 open import Cubical.Functions.FunExtEquiv
 
@@ -16,9 +22,6 @@ open import Cubical.Data.Maybe
 private
   variable
     ℓ ℓ₁ ℓ₁' : Level
-
-maybe-structure : (S : Type ℓ → Type ℓ₁) → Type ℓ → Type ℓ₁
-maybe-structure S X = Maybe (S X)
 
 maybe-rel : {A B : Type ℓ} (R : A → B → Type ℓ₁) → Maybe A → Maybe B → Type ℓ₁
 maybe-rel R nothing nothing = Lift Unit
@@ -79,6 +82,11 @@ module MaybePathP where
     isom .Iso.inv = encode _ ox oy
     isom .Iso.rightInv = decodeEncode ox oy
     isom .Iso.leftInv = encodeDecode A ox oy
+
+-- Structured isomorphisms
+
+maybe-structure : (S : Type ℓ → Type ℓ₁) → Type ℓ → Type ℓ₁
+maybe-structure S X = Maybe (S X)
 
 maybe-iso : {S : Type ℓ → Type ℓ₁}
   → StrIso S ℓ₁' → StrIso (maybe-structure S) ℓ₁'

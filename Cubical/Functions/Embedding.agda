@@ -5,9 +5,12 @@ module Cubical.Functions.Embedding where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Univalence using (ua)
 
 private
@@ -132,7 +135,7 @@ isEquiv→hasPropFibers : isEquiv f → hasPropFibers f
 isEquiv→hasPropFibers e b = isContr→isProp (equiv-proof e b)
 
 isEquiv→isEmbedding : isEquiv f → isEmbedding f
-isEquiv→isEmbedding e = hasPropFibers→isEmbedding (isEquiv→hasPropFibers e)
+isEquiv→isEmbedding e = λ _ _ → congEquiv (_ , e) .snd
 
 iso→isEmbedding : ∀ {ℓ} {A B : Type ℓ}
   → (isom : Iso A B)
@@ -149,3 +152,20 @@ isEmbedding→Injection :
   ∀ x → (a (f x) ≡ a (g x)) ≡ (f x ≡ g x)
 isEmbedding→Injection a e {f = f} {g} x = sym (ua (cong a , e (f x) (g x)))
 
+-- if `f` has a retract, then `cong f` has, as well. If `B` is a set, then `cong f`
+-- further has a section, making `f` an embedding.
+module _ {f : A → B} (retf : hasRetract f) where
+  open Σ retf renaming (fst to g ; snd to ϕ)
+
+  congRetract : f w ≡ f x → w ≡ x
+  congRetract {w = w} {x = x} p = sym (ϕ w) ∙∙ cong g p ∙∙ ϕ x
+
+  isRetractCongRetract : retract (cong {x = w} {y = x} f) congRetract
+  isRetractCongRetract p = transport (PathP≡doubleCompPathˡ _ _ _ _) (λ i j → ϕ (p j) i)
+
+  hasRetract→hasRetractCong : hasRetract (cong {x = w} {y = x} f)
+  hasRetract→hasRetractCong = congRetract , isRetractCongRetract
+
+  retractableIntoSet→isEmbedding : isSet B → isEmbedding f
+  retractableIntoSet→isEmbedding setB w x =
+    isoToIsEquiv (iso (cong f) congRetract (λ _ → setB _ _ _ _) (hasRetract→hasRetractCong .snd))

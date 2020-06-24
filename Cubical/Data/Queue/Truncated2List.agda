@@ -89,7 +89,7 @@ module Truncated2List {ℓ} (A : Type ℓ) (Aset : isSet A) where
    isOfHLevelPathP'
      {A = λ i → quot (eval (tilt xs ys z i)) ≡ tilt xs ys z i}
      0
-     (λ _ → trunc _ _)
+     (trunc _ _)
      (multitilt (xs ++ [ z ]) [] ys) (multitilt xs [] (ys ++ [ z ]))
      .fst i
  quot∘eval (trunc q q' α β i j) = -- truncated case
@@ -98,7 +98,7 @@ module Truncated2List {ℓ} (A : Type ℓ) (Aset : isSet A) where
        PathP (λ j → quot (eval (trunc q q' α β i j)) ≡ trunc q q' α β i j)
          (quot∘eval q) (quot∘eval q')}
      0
-     (λ _ → isOfHLevelPathP' 1 (λ _ → isOfHLevelSuc 2 trunc _ _) _ _)
+     (isOfHLevelPathP' 1 (isOfHLevelSuc 2 trunc _ _) _ _)
      (cong quot∘eval α) (cong quot∘eval β)
      .fst i j
 
