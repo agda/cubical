@@ -1,6 +1,7 @@
 {-
 
-A parameterized family of structures can be combined into a single structure
+A parameterized family of structures S can be combined into a single structure:
+X ↦ (a : A) → S a X
 
 -}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}

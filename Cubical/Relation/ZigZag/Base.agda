@@ -6,9 +6,7 @@ module Cubical.Relation.ZigZag.Base where
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
-open import Cubical.HITs.SetQuotients.Base
-open import Cubical.HITs.SetQuotients.Properties
-
+open import Cubical.HITs.SetQuotients
 open import Cubical.Relation.Binary.Base
 open BinaryRelation
 open isEquivRel
