@@ -133,7 +133,13 @@ isContr→Equiv : isContr A → isContr B → A ≃ B
 isContr→Equiv Actr Bctr = isoToEquiv (isContr→Iso Actr Bctr)
 
 isPropEquiv→Equiv : (Aprop : isProp A) (Bprop : isProp B) (f : A → B) (g : B → A) → A ≃ B
-isPropEquiv→Equiv Aprop Bprop f g = isoToEquiv (isProp→Iso Aprop Bprop f g)
+isPropEquiv→Equiv Aprop Bprop f g = f , hf
+  where
+  hf : isEquiv f
+  hf .equiv-proof y .fst          = (g y , Bprop (f (g y)) y)
+  hf .equiv-proof y .snd h i .fst = Aprop (g y) (h .fst) i
+  hf .equiv-proof y .snd h i .snd = isProp→isSet' Bprop (Bprop (f (g y)) y) (h .snd)
+                                                  (cong f (Aprop (g y) (h .fst))) refl i
 
 invEq≡→equivFun≡ : ∀ (e : A ≃ B) {x y} → invEq e x ≡ y → equivFun e y ≡ x
 invEq≡→equivFun≡ e {x} p = cong (equivFun e) (sym p) ∙ retEq e x

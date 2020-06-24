@@ -358,6 +358,13 @@ isProp→isSet h a b p q j i =
                  ; (j = i0) → h a (p i) k
                  ; (j = i1) → h a (q i) k }) a
 
+isProp→isSet' : isProp A → isSet' A
+isProp→isSet' h {a} p q r s i j =
+  hcomp (λ k → λ { (i = i0) → h a (p j) k
+                 ; (i = i1) → h a (q j) k
+                 ; (j = i0) → h a (r i) k
+                 ; (j = i1) → h a (s i) k}) a
+
 isPropIsProp : isProp (isProp A)
 isPropIsProp f g i a b = isProp→isSet f a b (f a b) (g a b) i
 
