@@ -12,7 +12,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Structures.Axiom
+open import Cubical.Structures.Axioms
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid    hiding (⟨_⟩)
 open import Cubical.Structures.AbGroup   hiding (⟨_⟩)
@@ -102,13 +102,13 @@ module CommRingΣTheory {ℓ} where
   CommRingAxioms R (_+_ , 1r , _·_) = RingAxioms R (_+_ , 1r , _·_)
                                       × ((x y : R) → x · y ≡ y · x)
   CommRingStructure : Type ℓ → Type ℓ
-  CommRingStructure = AxiomStructure RawRingStructure CommRingAxioms
+  CommRingStructure = AxiomsStructure RawRingStructure CommRingAxioms
 
   CommRingΣ : Type (ℓ-suc ℓ)
   CommRingΣ = TypeWithStr ℓ CommRingStructure
 
   CommRingEquivStr : StrEquiv CommRingStructure ℓ
-  CommRingEquivStr = AxiomEquivStr RawRingEquivStr CommRingAxioms
+  CommRingEquivStr = AxiomsEquivStr RawRingEquivStr CommRingAxioms
 
   isPropCommRingAxioms : (R : Type ℓ) (s : RawRingStructure R)
                        → isProp (CommRingAxioms R s)
@@ -130,7 +130,7 @@ module CommRingΣTheory {ℓ} where
     iso CommRing→CommRingΣ CommRingΣ→CommRing (λ _ → refl) (λ _ → refl)
 
   commRingUnivalentStr : UnivalentStr CommRingStructure CommRingEquivStr
-  commRingUnivalentStr = axiomUnivalentStr _ isPropCommRingAxioms rawRingUnivalentStr
+  commRingUnivalentStr = axiomsUnivalentStr _ isPropCommRingAxioms rawRingUnivalentStr
 
   CommRingΣPath : (R S : CommRingΣ) → (R ≃[ CommRingEquivStr ] S) ≃ (R ≡ S)
   CommRingΣPath = SIP commRingUnivalentStr

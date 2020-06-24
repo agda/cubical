@@ -12,7 +12,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 
-open import Cubical.Structures.Axiom
+open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
@@ -39,13 +39,13 @@ RngAxioms X (_·_ , _+_) =
   ((x y z : X) → x · (y + z) ≡ (x · y) + (x · z)) × ((x y z : X) → (x + y) · z ≡ (x · z) + (y · z))
 
 RngStructure : Type ℓ → Type ℓ
-RngStructure = AxiomStructure RawRngStructure RngAxioms
+RngStructure = AxiomsStructure RawRngStructure RngAxioms
 
 Rng : Type (ℓ-suc ℓ)
 Rng {ℓ} = TypeWithStr ℓ RngStructure
 
 RngEquivStr : StrEquiv RngStructure ℓ
-RngEquivStr = AxiomEquivStr RawRngEquivStr RngAxioms
+RngEquivStr = AxiomsEquivStr RawRngEquivStr RngAxioms
 
 isPropRngAxioms : (X : Type ℓ) (s : RawRngStructure X) → isProp (RngAxioms X s)
 isPropRngAxioms X (_·_ , _+_) = isPropΣ (AbGroupΣTheory.isPropAbGroupAxioms X _·_)
@@ -54,7 +54,7 @@ isPropRngAxioms X (_·_ , _+_) = isPropΣ (AbGroupΣTheory.isPropAbGroupAxioms X
                                   λ _ → isPropΠ3 (λ _ _ _ → isSetX _ _)}
 
 rngUnivalentStr : UnivalentStr {ℓ} RngStructure RngEquivStr
-rngUnivalentStr = axiomUnivalentStr _ isPropRngAxioms rawRngUnivalentStr
+rngUnivalentStr = axiomsUnivalentStr _ isPropRngAxioms rawRngUnivalentStr
 
 RngPath : (M N : Rng {ℓ}) → (M ≃[ RngEquivStr ] N) ≃ (M ≡ N)
 RngPath = SIP rngUnivalentStr

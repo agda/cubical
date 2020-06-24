@@ -12,7 +12,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Structures.Axiom
+open import Cubical.Structures.Axioms
 open import Cubical.Structures.Macro
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Pointed
@@ -92,13 +92,13 @@ module AbGroupΣTheory {ℓ} where
   AbGroupAxioms G _+_ = GroupAxioms G _+_ × ((x y : G) → x + y ≡ y + x)
 
   AbGroupStructure : Type ℓ → Type ℓ
-  AbGroupStructure = AxiomStructure RawGroupStructure AbGroupAxioms
+  AbGroupStructure = AxiomsStructure RawGroupStructure AbGroupAxioms
 
   AbGroupΣ : Type (ℓ-suc ℓ)
   AbGroupΣ = TypeWithStr ℓ AbGroupStructure
 
   AbGroupEquivStr : StrEquiv AbGroupStructure ℓ
-  AbGroupEquivStr = AxiomEquivStr (BinaryFunEquivStr PointedEquivStr) AbGroupAxioms
+  AbGroupEquivStr = AxiomsEquivStr (BinaryFunEquivStr PointedEquivStr) AbGroupAxioms
 
   isPropAbGroupAxioms : (G : Type ℓ) (s : RawGroupStructure G)
                       → isProp (AbGroupAxioms G s)
@@ -118,7 +118,7 @@ module AbGroupΣTheory {ℓ} where
   AbGroupIsoAbGroupΣ = iso AbGroup→AbGroupΣ AbGroupΣ→AbGroup (λ _ → refl) (λ _ → refl)
 
   abGroupUnivalentStr : UnivalentStr AbGroupStructure AbGroupEquivStr
-  abGroupUnivalentStr = axiomUnivalentStr _ isPropAbGroupAxioms rawGroupUnivalentStr
+  abGroupUnivalentStr = axiomsUnivalentStr _ isPropAbGroupAxioms rawGroupUnivalentStr
 
   AbGroupΣPath : (G H : AbGroupΣ) → (G ≃[ AbGroupEquivStr ] H) ≃ (G ≡ H)
   AbGroupΣPath = SIP abGroupUnivalentStr

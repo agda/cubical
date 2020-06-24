@@ -13,7 +13,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.Properties
 
-open import Cubical.Structures.Axiom
+open import Cubical.Structures.Axioms
 
 -- We will adopt the convention of denoting the level of the carrier
 -- set by ℓ₀ and the level of the relation result by ℓ₁.
@@ -129,7 +129,7 @@ satPosetAx {ℓ₀ = ℓ₀} ℓ₁ A _⊑_ = φ , φ-prop
 
 -- The poset structure.
 PosetStructure : (ℓ₁ : Level) → Type ℓ₀ → Type (ℓ-max ℓ₀ (ℓ-suc ℓ₁))
-PosetStructure ℓ₁ = AxiomStructure (Order ℓ₁) λ A _⊑_ → [ satPosetAx ℓ₁ A _⊑_ ]
+PosetStructure ℓ₁ = AxiomsStructure (Order ℓ₁) λ A _⊑_ → [ satPosetAx ℓ₁ A _⊑_ ]
 
 isSetPosetStructure : (ℓ₁ : Level) (A : Type ℓ₀) → isSet (PosetStructure ℓ₁ A)
 isSetPosetStructure ℓ₁ A =
@@ -241,7 +241,7 @@ posetUnivalentStr {ℓ₁ = ℓ₁} =
   UnivalentStr→SNS
     (PosetStructure ℓ₁)
     isAMonotonicEqv
-    (axiomUnivalentStr _ NTS (SNS→UnivalentStr isAnOrderPreservingEqv orderUnivalentStr))
+    (axiomsUnivalentStr _ NTS (SNS→UnivalentStr isAnOrderPreservingEqv orderUnivalentStr))
   where
     NTS : (A : Type ℓ) (_⊑_ : Order ℓ₁ A) → isProp [ satPosetAx ℓ₁ A _⊑_ ]
     NTS A _⊑_ = snd (satPosetAx ℓ₁ A _⊑_)

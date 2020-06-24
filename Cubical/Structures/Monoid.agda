@@ -12,7 +12,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Structures.Axiom
+open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 
@@ -114,7 +114,7 @@ module MonoidΣTheory {ℓ} where
                             × ((x : M) → (x · e ≡ x) × (e · x ≡ x))
 
   MonoidStructure : Type ℓ → Type ℓ
-  MonoidStructure = AxiomStructure RawMonoidStructure MonoidAxioms
+  MonoidStructure = AxiomsStructure RawMonoidStructure MonoidAxioms
 
   MonoidΣ : Type (ℓ-suc ℓ)
   MonoidΣ = TypeWithStr ℓ MonoidStructure
@@ -125,7 +125,7 @@ module MonoidΣTheory {ℓ} where
             λ α → isPropΠ λ _ → isProp× (IsSemigroup.is-set α _ _) (IsSemigroup.is-set α _ _)
 
   MonoidEquivStr : StrEquiv MonoidStructure ℓ
-  MonoidEquivStr = AxiomEquivStr RawMonoidEquivStr MonoidAxioms
+  MonoidEquivStr = AxiomsEquivStr RawMonoidEquivStr MonoidAxioms
 
   MonoidAxiomsIsoIsMonoid : {M : Type ℓ} (s : RawMonoidStructure M)
     → Iso (MonoidAxioms M s) (IsMonoid (s .fst) (s .snd))
@@ -151,7 +151,7 @@ module MonoidΣTheory {ℓ} where
     iso Monoid→MonoidΣ MonoidΣ→Monoid (λ _ → refl) (λ _ → refl)
 
   monoidUnivalentStr : UnivalentStr MonoidStructure MonoidEquivStr
-  monoidUnivalentStr = axiomUnivalentStr _ isPropMonoidAxioms rawMonoidUnivalentStr
+  monoidUnivalentStr = axiomsUnivalentStr _ isPropMonoidAxioms rawMonoidUnivalentStr
 
   MonoidΣPath : (M N : MonoidΣ) → (M ≃[ MonoidEquivStr ] N) ≃ (M ≡ N)
   MonoidΣPath = SIP monoidUnivalentStr

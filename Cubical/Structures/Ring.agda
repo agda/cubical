@@ -12,7 +12,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Structures.Axiom
+open import Cubical.Structures.Axioms
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid    hiding (⟨_⟩)
@@ -163,13 +163,13 @@ module RingΣTheory {ℓ} where
     × ((x y z : R) → (x · (y + z) ≡ (x · y) + (x · z)) × ((x + y) · z ≡ (x · z) + (y · z)))
 
   RingStructure : Type ℓ → Type ℓ
-  RingStructure = AxiomStructure RawRingStructure RingAxioms
+  RingStructure = AxiomsStructure RawRingStructure RingAxioms
 
   RingΣ : Type (ℓ-suc ℓ)
   RingΣ = TypeWithStr ℓ RingStructure
 
   RingEquivStr : StrEquiv RingStructure ℓ
-  RingEquivStr = AxiomEquivStr RawRingEquivStr RingAxioms
+  RingEquivStr = AxiomsEquivStr RawRingEquivStr RingAxioms
 
   isPropRingAxioms : (R : Type ℓ) (s : RawRingStructure R) → isProp (RingAxioms R s)
   isPropRingAxioms R (_+_ , 1r , _·_) =
@@ -197,7 +197,7 @@ module RingΣTheory {ℓ} where
   RingIsoRingΣ = iso Ring→RingΣ RingΣ→Ring (λ _ → refl) (λ _ → refl)
 
   ringUnivalentStr : UnivalentStr RingStructure RingEquivStr
-  ringUnivalentStr = axiomUnivalentStr _ isPropRingAxioms rawRingUnivalentStr
+  ringUnivalentStr = axiomsUnivalentStr _ isPropRingAxioms rawRingUnivalentStr
 
   RingΣPath : (R S : RingΣ) → (R ≃[ RingEquivStr ] S) ≃ (R ≡ S)
   RingΣPath = SIP ringUnivalentStr

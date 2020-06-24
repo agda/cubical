@@ -12,7 +12,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Structures.Axiom
+open import Cubical.Structures.Axioms
 open import Cubical.Structures.Macro
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Pointed
@@ -126,14 +126,14 @@ module GroupΣTheory {ℓ} where
                 × ((x : G) → Σ[ x' ∈ G ] (x · x' ≡ e) × (x' · x ≡ e)))
 
   GroupStructure : Type ℓ → Type ℓ
-  GroupStructure = AxiomStructure RawGroupStructure GroupAxioms
+  GroupStructure = AxiomsStructure RawGroupStructure GroupAxioms
 
   GroupΣ : Type (ℓ-suc ℓ)
   GroupΣ = TypeWithStr ℓ GroupStructure
 
   -- Structured equivalences for groups are those for monoids (but different axioms)
   GroupEquivStr : StrEquiv GroupStructure ℓ
-  GroupEquivStr = AxiomEquivStr (BinaryFunEquivStr PointedEquivStr) GroupAxioms
+  GroupEquivStr = AxiomsEquivStr (BinaryFunEquivStr PointedEquivStr) GroupAxioms
 
   open MonoidTheory
 
@@ -176,7 +176,7 @@ module GroupΣTheory {ℓ} where
   GroupIsoGroupΣ = iso Group→GroupΣ GroupΣ→Group (λ _ → refl) (λ _ → refl)
 
   groupUnivalentStr : UnivalentStr GroupStructure GroupEquivStr
-  groupUnivalentStr = axiomUnivalentStr _ isPropGroupAxioms rawGroupUnivalentStr
+  groupUnivalentStr = axiomsUnivalentStr _ isPropGroupAxioms rawGroupUnivalentStr
 
   GroupΣPath : (G H : GroupΣ) → (G ≃[ GroupEquivStr ] H) ≃ (G ≡ H)
   GroupΣPath = SIP groupUnivalentStr

@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Structures.Axiom where
+module Cubical.Structures.Axioms where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -18,28 +18,28 @@ private
 -- We use a lemma due to Zesen Qian, which can now be found in Foundations.Prelude:
 -- https://github.com/riaqn/cubical/blob/hgroup/Cubical/Data/Group/Properties.agda#L83
 
-AxiomStructure : (S : Type ℓ → Type ℓ₁)
+AxiomsStructure : (S : Type ℓ → Type ℓ₁)
                  (axioms : (X : Type ℓ) → S X → Type ℓ₂)
                → Type ℓ → Type (ℓ-max ℓ₁ ℓ₂)
-AxiomStructure S axioms X = Σ[ s ∈ S X ] (axioms X s)
+AxiomsStructure S axioms X = Σ[ s ∈ S X ] (axioms X s)
 
-AxiomEquivStr : {S : Type ℓ → Type ℓ₁} (ι : StrEquiv S ℓ₁')
+AxiomsEquivStr : {S : Type ℓ → Type ℓ₁} (ι : StrEquiv S ℓ₁')
            (axioms : (X : Type ℓ) → S X → Type ℓ₂)
-         → StrEquiv (AxiomStructure S axioms) ℓ₁'
-AxiomEquivStr ι axioms (X , (s , a)) (Y , (t , b)) e = ι (X , s) (Y , t) e
+         → StrEquiv (AxiomsStructure S axioms) ℓ₁'
+AxiomsEquivStr ι axioms (X , (s , a)) (Y , (t , b)) e = ι (X , s) (Y , t) e
 
-axiomUnivalentStr : {S : Type ℓ → Type ℓ₁}
+axiomsUnivalentStr : {S : Type ℓ → Type ℓ₁}
                  (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → A .fst ≃ B .fst → Type ℓ₁')
                  {axioms : (X : Type ℓ) → S X → Type ℓ₂}
                  (axioms-are-Props : (X : Type ℓ) (s : S X) → isProp (axioms X s))
                  (θ : UnivalentStr S ι)
-               → UnivalentStr (AxiomStructure S axioms) (AxiomEquivStr ι axioms)
-axiomUnivalentStr {S = S} ι {axioms = axioms} axioms-are-Props θ {X , s , a} {Y , t , b} e =
+               → UnivalentStr (AxiomsStructure S axioms) (AxiomsEquivStr ι axioms)
+axiomsUnivalentStr {S = S} ι {axioms = axioms} axioms-are-Props θ {X , s , a} {Y , t , b} e =
   ι (X , s) (Y , t) e
     ≃⟨ θ e ⟩
   PathP (λ i → S (ua e i)) s t
     ≃⟨ invEquiv (Σ-contractSnd λ _ → isOfHLevelPathP' 0 (axioms-are-Props _ _) _ _) ⟩
   Σ[ p ∈ PathP (λ i → S (ua e i)) s t ] PathP (λ i → axioms (ua e i) (p i)) a b
     ≃⟨ ΣPath≃PathΣ ⟩
-  PathP (λ i → AxiomStructure S axioms (ua e i)) (s , a) (t , b)
+  PathP (λ i → AxiomsStructure S axioms (ua e i)) (s , a) (t , b)
   ■

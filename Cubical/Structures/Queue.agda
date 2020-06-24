@@ -8,7 +8,7 @@ open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.SIP
 
-open import Cubical.Structures.Axiom
+open import Cubical.Structures.Axioms
 open import Cubical.Structures.Macro
 open import Cubical.Structures.LeftAction
 open import Cubical.Structures.Functorial
@@ -87,16 +87,16 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
    isOfHLevelDeq Qset = isOfHLevelMaybe 0 (isSet× Qset Aset)
 
  QueueStructure : Type ℓ → Type ℓ
- QueueStructure = AxiomStructure RawQueueStructure QueueAxioms
+ QueueStructure = AxiomsStructure RawQueueStructure QueueAxioms
 
  Queue : Type (ℓ-suc ℓ)
  Queue = TypeWithStr ℓ QueueStructure
 
  QueueEquivStr : StrEquiv QueueStructure ℓ
- QueueEquivStr = AxiomEquivStr RawQueueEquivStr QueueAxioms
+ QueueEquivStr = AxiomsEquivStr RawQueueEquivStr QueueAxioms
 
  queueUnivalentStr : UnivalentStr QueueStructure QueueEquivStr
- queueUnivalentStr = axiomUnivalentStr RawQueueEquivStr isPropQueueAxioms rawQueueUnivalentStr
+ queueUnivalentStr = axiomsUnivalentStr RawQueueEquivStr isPropQueueAxioms rawQueueUnivalentStr
 
 
  FiniteQueueAxioms : (Q : Type ℓ) → QueueStructure Q → Type ℓ
@@ -106,13 +106,13 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  isPropFiniteQueueAxioms Q S = isPropIsEquiv _
 
  FiniteQueueStructure : Type ℓ → Type ℓ
- FiniteQueueStructure = AxiomStructure QueueStructure FiniteQueueAxioms
+ FiniteQueueStructure = AxiomsStructure QueueStructure FiniteQueueAxioms
 
  FiniteQueue : Type (ℓ-suc ℓ)
  FiniteQueue = TypeWithStr ℓ FiniteQueueStructure
 
  FiniteQueueEquivStr : StrEquiv FiniteQueueStructure ℓ
- FiniteQueueEquivStr = AxiomEquivStr QueueEquivStr FiniteQueueAxioms
+ FiniteQueueEquivStr = AxiomsEquivStr QueueEquivStr FiniteQueueAxioms
 
  finiteQueueUnivalentStr : UnivalentStr FiniteQueueStructure FiniteQueueEquivStr
- finiteQueueUnivalentStr = axiomUnivalentStr QueueEquivStr isPropFiniteQueueAxioms queueUnivalentStr
+ finiteQueueUnivalentStr = axiomsUnivalentStr QueueEquivStr isPropFiniteQueueAxioms queueUnivalentStr
