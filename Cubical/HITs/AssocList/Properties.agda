@@ -133,8 +133,8 @@ module _(discA : Discrete A) where
 
 
 -- We want to show that Al-with-str ≅ FMS-with-str as multiset-structures
- FMS→AL-isIso : MultiSetEquivStr A setA (FMS-with-str discA) (AL-with-str) FMSet≃AssocList
- FMS→AL-isIso = refl , (λ a xs → refl) , φ
+ FMS→AL-EquivStr : MultiSetEquivStr A setA (FMS-with-str discA) (AL-with-str) FMSet≃AssocList
+ FMS→AL-EquivStr = refl , (λ a xs → refl) , φ
   where
   φ : ∀ a xs → FMScount discA a xs ≡ ALcount a (FMS→AL xs)
   φ a = FMS.ElimProp.f (isSetℕ _ _) refl ψ
@@ -159,4 +159,4 @@ module _(discA : Discrete A) where
  FMS-with-str≡AL-with-str : FMS-with-str discA ≡ AL-with-str
  FMS-with-str≡AL-with-str = sip (multiSetUnivalentStr A setA)
                                 (FMS-with-str discA) AL-with-str
-                                (FMSet≃AssocList , FMS→AL-isIso)
+                                (FMSet≃AssocList , FMS→AL-EquivStr)
