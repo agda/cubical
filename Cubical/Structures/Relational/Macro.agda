@@ -51,7 +51,7 @@ RelMacroRelLevel (param {ℓ'} A d) = ℓ-max ℓ' (RelMacroRelLevel d)
 RelMacroRelLevel {ℓ} (recvar d) = ℓ-max ℓ (RelMacroRelLevel d)
 RelMacroRelLevel (maybe d) = RelMacroRelLevel d
 
--- Structure defined by a descriptor
+-- Set structure defined by a descriptor
 RelMacroStructure : ∀ {ℓ} → (d : RelDesc ℓ) → SetStructure ℓ (RelMacroStrLevel d)
 RelMacroStructure (constant A) = ConstantSetStructure A
 RelMacroStructure var = PointedSetStructure
@@ -60,7 +60,7 @@ RelMacroStructure (param A d) = ParamSetStructure A (λ _ → RelMacroStructure 
 RelMacroStructure (recvar d) = UnaryFunSetStructure (RelMacroStructure d)
 RelMacroStructure (maybe d) = MaybeSetStructure (RelMacroStructure d)
 
--- Notion of structured relmorphism defined by a descriptor
+-- Notion of structured relation defined by a descriptor
 RelMacroRel : ∀ {ℓ} → (d : RelDesc ℓ) → StrRel {ℓ} (RelMacroStructure d .struct) (RelMacroRelLevel d)
 RelMacroRel (constant A) = ConstantPropRel A
 RelMacroRel var = PointedPropRel
@@ -69,7 +69,7 @@ RelMacroRel (param A d) = ParamPropRel A (λ _ → RelMacroRel d)
 RelMacroRel (recvar d) = UnaryFunPropRel (RelMacroRel d)
 RelMacroRel (maybe d) = MaybePropRel (RelMacroRel d)
 
--- Proof that structure induced by descriptor is a standard notion of structure
+-- Proof that structure induced by descriptor is univalent
 relMacroUnivalentRel : ∀ {ℓ} → (d : RelDesc ℓ) → isUnivalentRel (RelMacroStructure d) (RelMacroRel d)
 relMacroUnivalentRel (constant A) = constantUnivalentRel A
 relMacroUnivalentRel var = pointedUnivalentRel

@@ -171,8 +171,8 @@ module RingΣTheory {ℓ} where
   RingEquivStr : StrEquiv RingStructure ℓ
   RingEquivStr = AxiomEquivStr RawRingEquivStr RingAxioms
 
-  isProp-RingAxioms : (R : Type ℓ) (s : RawRingStructure R) → isProp (RingAxioms R s)
-  isProp-RingAxioms R (_+_ , 1r , _·_) =
+  isPropRingAxioms : (R : Type ℓ) (s : RawRingStructure R) → isProp (RingAxioms R s)
+  isPropRingAxioms R (_+_ , 1r , _·_) =
     isProp× (AbGroupΣTheory.isPropAbGroupAxioms R _+_)
             (isPropΣ (isPropIsMonoid 1r _·_)
                      λ R → isPropΠ3 λ _ _ _ →
@@ -197,7 +197,7 @@ module RingΣTheory {ℓ} where
   RingIsoRingΣ = iso Ring→RingΣ RingΣ→Ring (λ _ → refl) (λ _ → refl)
 
   ringUnivalentStr : UnivalentStr RingStructure RingEquivStr
-  ringUnivalentStr = axiomUnivalentStr _ isProp-RingAxioms rawRingUnivalentStr
+  ringUnivalentStr = axiomUnivalentStr _ isPropRingAxioms rawRingUnivalentStr
 
   RingΣPath : (R S : RingΣ) → (R ≃[ RingEquivStr ] S) ≃ (R ≡ S)
   RingΣPath = SIP ringUnivalentStr

@@ -53,8 +53,8 @@ Bool* = Bool , ∣ idEquiv _ ∣
 -- Our first goal is to 'lift' `_⊕_ : Bool → Bool ≃ Bool` to a function `_⊕_ : A → A ≃ Bool`
 --  for any 2-element type (A, ∣e∣).
 
--- `isContr-BoolPointedEquivStr` and `isContr-2-EltPointed-iso` are contained in the proof
---  of Lemma II.2 in [BR17], though we prove `isContr-BoolPointedEquivStr` more directly
+-- `isContrBoolPointedEquiv` and `isContr-2-EltPointedEquiv` are contained in the proof
+--  of Lemma II.2 in [BR17], though we prove `isContr-BoolPointedEquiv` more directly
 --  with ⊕ -- [BR17] proves it for just the x = false case and uses notEquiv to get
 --  the x = true case.
 

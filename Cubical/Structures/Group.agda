@@ -116,7 +116,7 @@ module GroupΣTheory {ℓ} where
 
   -- The neutral element and the inverse function will be derived from the
   -- axioms, instead of being defined in the RawGroupStructure in order
-  -- to have that isomorphisms between groups are equivalences that preserves
+  -- to have that group equivalences are equivalences that preserves
   -- multiplication (so we don't have to show that they also preserve inversion
   -- and neutral element, although they will preserve them).
   GroupAxioms : (G : Type ℓ) → RawGroupStructure G → Type ℓ
@@ -131,7 +131,7 @@ module GroupΣTheory {ℓ} where
   GroupΣ : Type (ℓ-suc ℓ)
   GroupΣ = TypeWithStr ℓ GroupStructure
 
-  -- Iso for groups are those for monoids (but different axioms)
+  -- Structured equivalences for groups are those for monoids (but different axioms)
   GroupEquivStr : StrEquiv GroupStructure ℓ
   GroupEquivStr = AxiomEquivStr (BinaryFunEquivStr PointedEquivStr) GroupAxioms
 

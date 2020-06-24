@@ -23,10 +23,10 @@ private
     ℓ ℓ' : Level
 
 module _ {ℓ} where
-  rawRingDesc : Desc ℓ
-  rawRingDesc = autoDesc (λ (X : Type ℓ) → (X → X → X) × (X → X → X))
+  rawRngDesc : Desc ℓ
+  rawRngDesc = autoDesc (λ (X : Type ℓ) → (X → X → X) × (X → X → X))
 
-  open Macro ℓ rawRingDesc public renaming
+  open Macro ℓ rawRngDesc public renaming
     ( structure to RawRngStructure
     ; equiv to RawRngEquivStr
     ; univalent to rawRngUnivalentStr

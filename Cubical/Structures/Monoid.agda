@@ -119,8 +119,8 @@ module MonoidΣTheory {ℓ} where
   MonoidΣ : Type (ℓ-suc ℓ)
   MonoidΣ = TypeWithStr ℓ MonoidStructure
 
-  MonoidAxioms-isProp : (M : Type ℓ) (s : RawMonoidStructure M) → isProp (MonoidAxioms M s)
-  MonoidAxioms-isProp M (e , _·_) =
+  isPropMonoidAxioms : (M : Type ℓ) (s : RawMonoidStructure M) → isProp (MonoidAxioms M s)
+  isPropMonoidAxioms M (e , _·_) =
     isPropΣ (isPropIsSemigroup _·_)
             λ α → isPropΠ λ _ → isProp× (IsSemigroup.is-set α _ _) (IsSemigroup.is-set α _ _)
 
@@ -151,7 +151,7 @@ module MonoidΣTheory {ℓ} where
     iso Monoid→MonoidΣ MonoidΣ→Monoid (λ _ → refl) (λ _ → refl)
 
   monoidUnivalentStr : UnivalentStr MonoidStructure MonoidEquivStr
-  monoidUnivalentStr = axiomUnivalentStr _ MonoidAxioms-isProp rawMonoidUnivalentStr
+  monoidUnivalentStr = axiomUnivalentStr _ isPropMonoidAxioms rawMonoidUnivalentStr
 
   MonoidΣPath : (M N : MonoidΣ) → (M ≃[ MonoidEquivStr ] N) ≃ (M ≡ N)
   MonoidΣPath = SIP monoidUnivalentStr
@@ -178,7 +178,7 @@ module MonoidΣTheory {ℓ} where
 isPropIsMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M) → isProp (IsMonoid ε _·_)
 isPropIsMonoid ε _·_ =
   subst isProp (MonoidΣTheory.MonoidAxioms≡IsMonoid (ε , _·_))
-        (MonoidΣTheory.MonoidAxioms-isProp _ (ε , _·_))
+        (MonoidΣTheory.isPropMonoidAxioms _ (ε , _·_))
 
 MonoidPath : (M N : Monoid {ℓ}) → (MonoidEquiv M N) ≃ (M ≡ N)
 MonoidPath = MonoidΣTheory.MonoidPath

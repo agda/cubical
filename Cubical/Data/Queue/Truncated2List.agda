@@ -63,7 +63,7 @@ module Truncated2List {ℓ} (A : Type ℓ) (Aset : isSet A) where
  Raw : RawQueue
  Raw = (Q , emp , enq , deq)
 
- -- We construct an equivalence to 1Lists and prove this is a QueueEquivStr
+ -- We construct an equivalence to 1Lists and prove this is a queue-equivalence
 
  private
    module One = 1List A Aset
@@ -132,19 +132,19 @@ module Truncated2List {ℓ} (A : Type ℓ) (Aset : isSet A) where
    lemma x x' (y ∷ ys) i = just (tilt [] (ys ++ [ x' ]) x i , y)
 
 
- quotEquiv-is-QueueEquivStr : RawQueueEquivStr One.Raw Raw quotEquiv
- quotEquiv-is-QueueEquivStr = quot∘emp , quot∘enq , quot∘deq
+ quotEquivHasQueueEquivStr : RawQueueEquivStr One.Raw Raw quotEquiv
+ quotEquivHasQueueEquivStr = quot∘emp , quot∘enq , quot∘deq
 
  -- And we get a path between the raw 1Lists and 2Lists
  Raw-1≡2 : One.Raw ≡ Raw
- Raw-1≡2 = sip rawQueueUnivalentStr _ _ (quotEquiv , quotEquiv-is-QueueEquivStr)
+ Raw-1≡2 = sip rawQueueUnivalentStr _ _ (quotEquiv , quotEquivHasQueueEquivStr)
 
  -- We derive the axioms for 2List from those for 1List
  WithLaws : Queue
  WithLaws = Q , str Raw , subst (uncurry QueueAxioms) Raw-1≡2 (snd (str One.WithLaws))
 
  WithLaws-1≡2 : One.WithLaws ≡ WithLaws
- WithLaws-1≡2 = sip queueUnivalentStr _ _ (quotEquiv , quotEquiv-is-QueueEquivStr)
+ WithLaws-1≡2 = sip queueUnivalentStr _ _ (quotEquiv , quotEquivHasQueueEquivStr)
 
  Finite : FiniteQueue
  Finite = Q , str WithLaws , subst (uncurry FiniteQueueAxioms) WithLaws-1≡2 (snd (str One.Finite))

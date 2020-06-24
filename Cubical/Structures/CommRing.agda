@@ -113,7 +113,7 @@ module CommRingΣTheory {ℓ} where
   isPropCommRingAxioms : (R : Type ℓ) (s : RawRingStructure R)
                        → isProp (CommRingAxioms R s)
   isPropCommRingAxioms R (_·_ , 0r , _+_) =
-    isPropΣ (isProp-RingAxioms R (_·_ , 0r , _+_))
+    isPropΣ (isPropRingAxioms R (_·_ , 0r , _+_))
             λ { (_ , x , _) → isPropΠ2 λ _ _ →
                   x .IsMonoid.isSemigroup .IsSemigroup.is-set _ _}
 

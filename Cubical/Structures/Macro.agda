@@ -82,7 +82,6 @@ funcMacroAction (param A d) f s a = funcMacroAction d f (s a)
 funcMacroAction (maybe d) f = map-Maybe (funcMacroAction d f)
 
 -- Proof that the action preserves the identity
-
 funcMacroId : ∀ {ℓ} (d : FuncDesc ℓ)
   {X : Type ℓ} → ∀ s → funcMacroAction d (idfun X) s ≡ s
 funcMacroId (constant A) _ = refl
@@ -124,7 +123,7 @@ MacroStructure (maybe d) = MaybeStructure (MacroStructure d)
 MacroStructure (functorial d) = FuncMacroStructure d
 MacroStructure (foreign {S = S} _ _) = S
 
--- Notion of structured isomorphism defined by a descriptor
+-- Notion of structured equivalence defined by a descriptor
 MacroEquivStr : ∀ {ℓ} → (d : Desc ℓ) → StrEquiv {ℓ} (MacroStructure d) (macroEquivLevel d)
 MacroEquivStr (constant A) = ConstantEquivStr A
 MacroEquivStr var = PointedEquivStr
@@ -135,7 +134,7 @@ MacroEquivStr (maybe d) = MaybeEquivStr (MacroEquivStr d)
 MacroEquivStr (functorial d) = FunctorialEquivStr (funcMacroAction d)
 MacroEquivStr (foreign ι _) = ι
 
--- Proof that structure induced by descriptor is a standard notion of structure
+-- Proof that structure induced by descriptor is univalent
 MacroUnivalentStr : ∀ {ℓ} → (d : Desc ℓ) → UnivalentStr (MacroStructure d) (MacroEquivStr d)
 MacroUnivalentStr (constant A) = constantUnivalentStr A
 MacroUnivalentStr var = pointedUnivalentStr

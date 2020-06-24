@@ -211,7 +211,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  FMSet≃List/Rᴸ : FMSet A ≃ List/Rᴸ
  FMSet≃List/Rᴸ = isoToEquiv (iso μ ν σ τ)
 
- --and this is a CountEquivStrmorphism, which is easier to prove for the inverse equiv
+ --and this is a count-equivalence, which is easier to prove for the inverse equiv
  List/Rᴸ≃FMSet : List/Rᴸ ≃ FMSet A
  List/Rᴸ≃FMSet = isoToEquiv (iso ν μ τ σ)
 
