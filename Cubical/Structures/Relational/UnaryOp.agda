@@ -23,25 +23,25 @@ private
 
 -- Structured relations
 
-unaryFun-setStructure : SetStructure ℓ ℓ₁ → SetStructure ℓ (ℓ-max ℓ ℓ₁)
-unaryFun-setStructure S .struct X = X → S .struct X
-unaryFun-setStructure S .set setX = isSetΠ λ _ → S .set setX
+UnaryFunSetStructure : SetStructure ℓ ℓ₁ → SetStructure ℓ (ℓ-max ℓ ℓ₁)
+UnaryFunSetStructure S .struct X = X → S .struct X
+UnaryFunSetStructure S .set setX = isSetΠ λ _ → S .set setX
 
-unaryFun-propRel : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
-  → StrRel S ℓ₁' → StrRel (nAryFun-structure 1 S) (ℓ-max ℓ ℓ₁')
-unaryFun-propRel ρ .rel R f g =
+UnaryFunPropRel : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
+  → StrRel S ℓ₁' → StrRel (NAryFunStructure 1 S) (ℓ-max ℓ ℓ₁')
+UnaryFunPropRel ρ .rel R f g =
   ∀ {x y} → R x y → ρ .rel R (f x) (g y)
-unaryFun-propRel ρ .prop propR f g =
+UnaryFunPropRel ρ .prop propR f g =
   isPropImplicitΠ λ x →
   isPropImplicitΠ λ y →
   isPropΠ λ _ → ρ .prop propR (f x) (g y)
 
 open isBisimulation
 open BisimDescends
-open isSNRS
+open isUnivalentRel
 
 private
-  quoᴸ-coherence : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁') (θ : isSNRS S ρ)
+  quoᴸ-coherence : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁') (θ : isUnivalentRel S ρ)
     {X Y : Type ℓ} (R : Bisimulation X Y ℓ)
     {x₀ x₁ : S .struct X} {y₀ y₁ : S .struct Y}
     (code₀₀ : ρ .rel (R .fst) x₀ y₀)
@@ -69,7 +69,7 @@ private
     lem {A = A} p₀ p₁ q i =
       comp A (λ k → λ {(i = i0) → p₀ k; (i = i1) → p₁ k}) (q i)
 
-  quoᴿ-coherence : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁') (θ : isSNRS S ρ)
+  quoᴿ-coherence : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁') (θ : isUnivalentRel S ρ)
     {X Y : Type ℓ} (R : Bisimulation X Y ℓ)
     {x₀ x₁ : S .struct X} {y₀ y₁ : S .struct Y}
     (code₀₀ : ρ .rel (R .fst) x₀ y₀)
@@ -97,18 +97,18 @@ private
     lem {A = A} p₀ p₁ q i =
       comp A (λ k → λ {(i = i0) → p₀ k; (i = i1) → p₁ k}) (q i)
 
-isSNRSUnaryFun : {S : SetStructure ℓ ℓ₁} {ρ : StrRel (S .struct) ℓ₁'}
-  → isSNRS S ρ
-  → isSNRS (unaryFun-setStructure S) (unaryFun-propRel ρ)
-isSNRSUnaryFun {S = S} {ρ} θ .propQuo R (t , c) (t' , c') =
+unaryFunUnivalentRel : {S : SetStructure ℓ ℓ₁} {ρ : StrRel (S .struct) ℓ₁'}
+  → isUnivalentRel S ρ
+  → isUnivalentRel (UnaryFunSetStructure S) (UnaryFunPropRel ρ)
+unaryFunUnivalentRel {S = S} {ρ} θ .propQuo R (t , c) (t' , c') =
   equivFun ΣPath≃PathΣ
     ( funExt
       (elimProp
         (λ _ → S .set squash/ _ _)
         (λ x → cong fst (θ .propQuo R (t [ x ] , c refl) (t' [ x ] , c' refl))))
-    , isProp→PathP (λ _ → unaryFun-propRel ρ .prop (λ _ _ → squash/ _ _) _ _) _ _
+    , isProp→PathP (λ _ → UnaryFunPropRel ρ .prop (λ _ _ → squash/ _ _) _ _) _ _
     )
-isSNRSUnaryFun {S = S} {ρ} θ .descends {X , f} {Y , g} (R , bis) .fst code .quoᴸ =
+unaryFunUnivalentRel {S = S} {ρ} θ .descends {X , f} {Y , g} (R , bis) .fst code .quoᴸ =
   f₀ , λ p → subst (λ y → ρ .rel _ _ (f₀ y)) p (θ .descends _ .fst _ .quoᴸ .snd)
   where
   f₀ : _
@@ -121,7 +121,7 @@ isSNRSUnaryFun {S = S} {ρ} θ .descends {X , f} {Y , g} (R , bis) .fst code .qu
       i
   f₀ (squash/ _ _ p q j i) =
     S .set squash/ _ _ (cong f₀ p) (cong f₀ q) j i
-isSNRSUnaryFun {S = S} {ρ} θ .descends (R , bis) .fst code .quoᴿ =
+unaryFunUnivalentRel {S = S} {ρ} θ .descends (R , bis) .fst code .quoᴿ =
   g₀ , λ p → subst (λ y → ρ .rel _ _ (g₀ y)) p (θ .descends _ .fst _ .quoᴿ .snd)
   where
   g₀ : _
@@ -134,7 +134,7 @@ isSNRSUnaryFun {S = S} {ρ} θ .descends (R , bis) .fst code .quoᴿ =
       i
   g₀ (squash/ _ _ p q j i) =
     S .set squash/ _ _ (cong g₀ p) (cong g₀ q) j i
-isSNRSUnaryFun {S = S} {ρ} θ .descends (R , bis) .fst code .path =
+unaryFunUnivalentRel {S = S} {ρ} θ .descends (R , bis) .fst code .path =
   ua→
     (elimProp
       (λ _ → isOfHLevelPathP' 1 (S .set squash/) _ _)
@@ -143,7 +143,7 @@ isSNRSUnaryFun {S = S} {ρ} θ .descends (R , bis) .fst code .path =
         ▷ quoᴿ-coherence S ρ θ (R , bis) _ _ (code (bis .bwdRel (bis .fwd x)))))
   where
   module E = Bisim→Equiv (R , bis)
-isSNRSUnaryFun {S = S} {ρ} θ .descends {A = X , f} {B = Y , g} (R , bis) .snd d {x} {y} r =
+unaryFunUnivalentRel {S = S} {ρ} θ .descends {A = X , f} {B = Y , g} (R , bis) .snd d {x} {y} r =
   θ .descends (R , bis) .snd dxy
   where
   dxy : BisimDescends (S .struct) ρ (X , f x) (Y , g y) (R , bis)

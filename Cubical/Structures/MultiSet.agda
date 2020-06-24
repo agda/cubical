@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Structures.Auto
@@ -19,24 +19,24 @@ private
 
 module _ (A : Type ℓ) (Aset : isSet A) where
 
- count-structure : Type ℓ → Type ℓ
- count-structure X = A → X → ℕ
+ CountStructure : Type ℓ → Type ℓ
+ CountStructure X = A → X → ℕ
 
- count-iso = autoIso count-structure
+ CountEquivStr = AutoEquivStr CountStructure
 
- count-is-SNS : SNS _ count-iso
- count-is-SNS = autoSNS count-structure
+ countUnivalentStr : UnivalentStr _ CountEquivStr
+ countUnivalentStr = autoUnivalentStr CountStructure
 
  Count : Type (ℓ-suc ℓ)
- Count = TypeWithStr ℓ count-structure
+ Count = TypeWithStr ℓ CountStructure
 
- multi-set-structure : Type ℓ → Type ℓ
- multi-set-structure X = X × (A → X → X) × (A → X → ℕ)
+ MultiSetStructure : Type ℓ → Type ℓ
+ MultiSetStructure X = X × (A → X → X) × (A → X → ℕ)
 
- multi-set-iso = autoIso multi-set-structure
+ MultiSetEquivStr = AutoEquivStr MultiSetStructure
 
- Multi-Set-is-SNS : SNS _ multi-set-iso
- Multi-Set-is-SNS = autoSNS multi-set-structure
+ multiSetUnivalentStr : UnivalentStr _ MultiSetEquivStr
+ multiSetUnivalentStr = autoUnivalentStr MultiSetStructure
 
- Multi-Set : Type (ℓ-suc ℓ)
- Multi-Set = TypeWithStr ℓ multi-set-structure
+ MultiSet : Type (ℓ-suc ℓ)
+ MultiSet = TypeWithStr ℓ MultiSetStructure

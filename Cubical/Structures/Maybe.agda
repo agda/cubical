@@ -11,8 +11,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.RelationalStructure
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Data.Unit
@@ -23,24 +22,24 @@ private
   variable
     ℓ ℓ₁ ℓ₁' : Level
 
-maybe-rel : {A B : Type ℓ} (R : A → B → Type ℓ₁) → Maybe A → Maybe B → Type ℓ₁
-maybe-rel R nothing nothing = Lift Unit
-maybe-rel R nothing (just _) = Lift ⊥
-maybe-rel R (just _) nothing = Lift ⊥
-maybe-rel R (just x) (just y) = R x y
+MaybeRel : {A B : Type ℓ} (R : A → B → Type ℓ₁) → Maybe A → Maybe B → Type ℓ₁
+MaybeRel R nothing nothing = Lift Unit
+MaybeRel R nothing (just _) = Lift ⊥
+MaybeRel R (just _) nothing = Lift ⊥
+MaybeRel R (just x) (just y) = R x y
 
-maybe-rel-cong : {A B : Type ℓ} {R : A → B → Type ℓ₁} {S : A → B → Type ℓ₁'}
+congMaybeRel : {A B : Type ℓ} {R : A → B → Type ℓ₁} {S : A → B → Type ℓ₁'}
   → (∀ x y → R x y ≃ S x y)
-  → ∀ ox oy → maybe-rel R ox oy ≃ maybe-rel S ox oy
-maybe-rel-cong e nothing nothing = Lift≃Lift (idEquiv _)
-maybe-rel-cong e nothing (just _) = Lift≃Lift (idEquiv _)
-maybe-rel-cong e (just _) nothing = Lift≃Lift (idEquiv _)
-maybe-rel-cong e (just x) (just y) = e x y
+  → ∀ ox oy → MaybeRel R ox oy ≃ MaybeRel S ox oy
+congMaybeRel e nothing nothing = Lift≃Lift (idEquiv _)
+congMaybeRel e nothing (just _) = Lift≃Lift (idEquiv _)
+congMaybeRel e (just _) nothing = Lift≃Lift (idEquiv _)
+congMaybeRel e (just x) (just y) = e x y
 
 module MaybePathP where
 
   Code : (A : I → Type ℓ) → Maybe (A i0) → Maybe (A i1) → Type ℓ
-  Code A = maybe-rel (PathP A)
+  Code A = MaybeRel (PathP A)
 
   encodeRefl : {A : Type ℓ} → ∀ ox → Code (λ _ → A) ox ox
   encodeRefl nothing = lift tt
@@ -85,16 +84,16 @@ module MaybePathP where
 
 -- Structured isomorphisms
 
-maybe-structure : (S : Type ℓ → Type ℓ₁) → Type ℓ → Type ℓ₁
-maybe-structure S X = Maybe (S X)
+MaybeStructure : (S : Type ℓ → Type ℓ₁) → Type ℓ → Type ℓ₁
+MaybeStructure S X = Maybe (S X)
 
-maybe-iso : {S : Type ℓ → Type ℓ₁}
-  → StrIso S ℓ₁' → StrIso (maybe-structure S) ℓ₁'
-maybe-iso ι (X , ox) (Y , oy) e = maybe-rel (λ x y → ι (X , x) (Y , y) e) ox oy
+MaybeEquivStr : {S : Type ℓ → Type ℓ₁}
+  → StrEquiv S ℓ₁' → StrEquiv (MaybeStructure S) ℓ₁'
+MaybeEquivStr ι (X , ox) (Y , oy) e = MaybeRel (λ x y → ι (X , x) (Y , y) e) ox oy
 
-maybe-is-SNS : {S : Type ℓ → Type ℓ₁} (ι : StrIso S ℓ₁')
-  → SNS S ι → SNS (maybe-structure S) (maybe-iso ι)
-maybe-is-SNS ι θ {X , ox} {Y , oy} e =
+maybeUnivalentStr : {S : Type ℓ → Type ℓ₁} (ι : StrEquiv S ℓ₁')
+  → UnivalentStr S ι → UnivalentStr (MaybeStructure S) (MaybeEquivStr ι)
+maybeUnivalentStr ι θ {X , ox} {Y , oy} e =
   compEquiv
-    (maybe-rel-cong (λ x y → θ {X , x} {Y , y} e) ox oy)
+    (congMaybeRel (λ x y → θ {X , x} {Y , y} e) ox oy)
     (MaybePathP.Code≃PathP ox oy)

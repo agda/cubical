@@ -11,7 +11,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.RelationalStructure
 
 open import Cubical.Structures.Relational.Constant
-open import Cubical.Structures.Relational.Join
+open import Cubical.Structures.Relational.Product
 open import Cubical.Structures.Relational.Maybe
 open import Cubical.Structures.Relational.Parameterized
 open import Cubical.Structures.Relational.Pointed
@@ -35,52 +35,52 @@ infixr 4 _,_
 
 {- Universe level calculations -}
 
-relMacro-structure-level : ∀ {ℓ} → RelDesc ℓ → Level
-relMacro-structure-level (constant {ℓ'} A) = ℓ'
-relMacro-structure-level {ℓ} var = ℓ
-relMacro-structure-level {ℓ} (d₀ , d₁) = ℓ-max (relMacro-structure-level d₀) (relMacro-structure-level d₁)
-relMacro-structure-level (param {ℓ'} A d) = ℓ-max ℓ' (relMacro-structure-level d)
-relMacro-structure-level {ℓ} (recvar d) = ℓ-max ℓ (relMacro-structure-level d)
-relMacro-structure-level (maybe d) = relMacro-structure-level d
+RelMacroStrLevel : ∀ {ℓ} → RelDesc ℓ → Level
+RelMacroStrLevel (constant {ℓ'} A) = ℓ'
+RelMacroStrLevel {ℓ} var = ℓ
+RelMacroStrLevel {ℓ} (d₀ , d₁) = ℓ-max (RelMacroStrLevel d₀) (RelMacroStrLevel d₁)
+RelMacroStrLevel (param {ℓ'} A d) = ℓ-max ℓ' (RelMacroStrLevel d)
+RelMacroStrLevel {ℓ} (recvar d) = ℓ-max ℓ (RelMacroStrLevel d)
+RelMacroStrLevel (maybe d) = RelMacroStrLevel d
 
-relMacro-rel-level : ∀ {ℓ} → RelDesc ℓ → Level
-relMacro-rel-level (constant {ℓ'} x) = ℓ'
-relMacro-rel-level {ℓ} var = ℓ
-relMacro-rel-level {ℓ} (d₀ , d₁) = ℓ-max (relMacro-rel-level d₀) (relMacro-rel-level d₁)
-relMacro-rel-level (param {ℓ'} A d) = ℓ-max ℓ' (relMacro-rel-level d)
-relMacro-rel-level {ℓ} (recvar d) = ℓ-max ℓ (relMacro-rel-level d)
-relMacro-rel-level (maybe d) = relMacro-rel-level d
+RelMacroRelLevel : ∀ {ℓ} → RelDesc ℓ → Level
+RelMacroRelLevel (constant {ℓ'} x) = ℓ'
+RelMacroRelLevel {ℓ} var = ℓ
+RelMacroRelLevel {ℓ} (d₀ , d₁) = ℓ-max (RelMacroRelLevel d₀) (RelMacroRelLevel d₁)
+RelMacroRelLevel (param {ℓ'} A d) = ℓ-max ℓ' (RelMacroRelLevel d)
+RelMacroRelLevel {ℓ} (recvar d) = ℓ-max ℓ (RelMacroRelLevel d)
+RelMacroRelLevel (maybe d) = RelMacroRelLevel d
 
--- Structure defined by a descriptor
-relMacro-structure : ∀ {ℓ} → (d : RelDesc ℓ) → SetStructure ℓ (relMacro-structure-level d)
-relMacro-structure (constant A) = constant-setStructure A
-relMacro-structure var = pointed-setStructure
-relMacro-structure (d₀ , d₁) = join-setStructure (relMacro-structure d₀) (relMacro-structure d₁)
-relMacro-structure (param A d) = parameterized-setStructure A (λ _ → relMacro-structure d)
-relMacro-structure (recvar d) = unaryFun-setStructure (relMacro-structure d)
-relMacro-structure (maybe d) = maybe-setStructure (relMacro-structure d)
+-- Set structure defined by a descriptor
+RelMacroStructure : ∀ {ℓ} → (d : RelDesc ℓ) → SetStructure ℓ (RelMacroStrLevel d)
+RelMacroStructure (constant A) = ConstantSetStructure A
+RelMacroStructure var = PointedSetStructure
+RelMacroStructure (d₀ , d₁) = ProductSetStructure (RelMacroStructure d₀) (RelMacroStructure d₁)
+RelMacroStructure (param A d) = ParamSetStructure A (λ _ → RelMacroStructure d)
+RelMacroStructure (recvar d) = UnaryFunSetStructure (RelMacroStructure d)
+RelMacroStructure (maybe d) = MaybeSetStructure (RelMacroStructure d)
 
--- Notion of structured relmorphism defined by a descriptor
-relMacro-rel : ∀ {ℓ} → (d : RelDesc ℓ) → StrRel {ℓ} (relMacro-structure d .struct) (relMacro-rel-level d)
-relMacro-rel (constant A) = constant-propRel A
-relMacro-rel var = pointed-propRel
-relMacro-rel (d₀ , d₁) = join-propRel (relMacro-rel d₀) (relMacro-rel d₁)
-relMacro-rel (param A d) = parameterized-propRel A (λ _ → relMacro-rel d)
-relMacro-rel (recvar d) = unaryFun-propRel (relMacro-rel d)
-relMacro-rel (maybe d) = maybe-propRel (relMacro-rel d)
+-- Notion of structured relation defined by a descriptor
+RelMacroRel : ∀ {ℓ} → (d : RelDesc ℓ) → StrRel {ℓ} (RelMacroStructure d .struct) (RelMacroRelLevel d)
+RelMacroRel (constant A) = ConstantPropRel A
+RelMacroRel var = PointedPropRel
+RelMacroRel (d₀ , d₁) = ProductPropRel (RelMacroRel d₀) (RelMacroRel d₁)
+RelMacroRel (param A d) = ParamPropRel A (λ _ → RelMacroRel d)
+RelMacroRel (recvar d) = UnaryFunPropRel (RelMacroRel d)
+RelMacroRel (maybe d) = MaybePropRel (RelMacroRel d)
 
--- Proof that structure induced by descriptor is a standard notion of structure
-isSNRSRelMacro : ∀ {ℓ} → (d : RelDesc ℓ) → isSNRS (relMacro-structure d) (relMacro-rel d)
-isSNRSRelMacro (constant A) = isSNRSConstant A
-isSNRSRelMacro var = isSNRSPointed
-isSNRSRelMacro (d₀ , d₁) = isSNRSJoin (isSNRSRelMacro d₀) (isSNRSRelMacro d₁)
-isSNRSRelMacro (param A d) = isSNRSParameterized A (λ _ → isSNRSRelMacro d)
-isSNRSRelMacro (recvar d) = isSNRSUnaryFun (isSNRSRelMacro d)
-isSNRSRelMacro (maybe d) = isSNRSMaybe (isSNRSRelMacro d)
+-- Proof that structure induced by descriptor is univalent
+relMacroUnivalentRel : ∀ {ℓ} → (d : RelDesc ℓ) → isUnivalentRel (RelMacroStructure d) (RelMacroRel d)
+relMacroUnivalentRel (constant A) = constantUnivalentRel A
+relMacroUnivalentRel var = pointedUnivalentRel
+relMacroUnivalentRel (d₀ , d₁) = productUnivalentRel (relMacroUnivalentRel d₀) (relMacroUnivalentRel d₁)
+relMacroUnivalentRel (param A d) = paramUnivalentRel A (λ _ → relMacroUnivalentRel d)
+relMacroUnivalentRel (recvar d) = unaryFunUnivalentRel (relMacroUnivalentRel d)
+relMacroUnivalentRel (maybe d) = maybeUnivalentRel (relMacroUnivalentRel d)
 
 
 -- Module for easy importing
 module RelMacro ℓ (d : RelDesc ℓ) where
-  structure = relMacro-structure d
-  relation = relMacro-rel d
-  SNRS = isSNRSRelMacro d
+  structure = RelMacroStructure d
+  relation = RelMacroRel d
+  univalent = relMacroUnivalentRel d

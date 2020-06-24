@@ -2,16 +2,16 @@
 module Cubical.Structures.LeftAction where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Structures.Auto
 
 module _ {ℓ ℓ' : Level} (A : Type ℓ') where
 
-  left-action-structure : Type ℓ → Type (ℓ-max ℓ ℓ')
-  left-action-structure X = A → X → X
+  LeftActionStructure : Type ℓ → Type (ℓ-max ℓ ℓ')
+  LeftActionStructure X = A → X → X
 
-  left-action-iso = autoIso left-action-structure
+  LeftActionEquivStr = AutoEquivStr LeftActionStructure
 
-  Left-Action-is-SNS : SNS _ left-action-iso
-  Left-Action-is-SNS = autoSNS left-action-structure
+  leftActionUnivalentStr : UnivalentStr _ LeftActionEquivStr
+  leftActionUnivalentStr = autoUnivalentStr LeftActionStructure
