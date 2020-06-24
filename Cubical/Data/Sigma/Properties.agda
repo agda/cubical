@@ -75,6 +75,25 @@ leftInv ΣPathIsoPathΣ _  = refl
        → (p : u .fst ≡ v .fst) → u ≡ v
 Σ≡Prop pB {u} {v} p i = (p i) , isProp→PathP (λ i → pB (p i)) (u .snd) (v .snd) i
 
+-- Characterization of dependent paths in Σ
+
+module _ {A : I → Type ℓ} {B : (i : I) → (a : A i) → Type ℓ'}
+  {x : Σ (A i0) (B i0)} {y : Σ (A i1) (B i1)}
+  where
+
+  ΣPathPIsoPathPΣ :
+    Iso (Σ[ p ∈ PathP A (x .fst) (y .fst) ] PathP (λ i → B i (p i)) (x .snd) (y .snd))
+        (PathP (λ i → Σ (A i) (B i)) x y)
+  ΣPathPIsoPathPΣ .fun (p , q) i = p i , q i
+  ΣPathPIsoPathPΣ .inv pq .fst i = pq i .fst
+  ΣPathPIsoPathPΣ .inv pq .snd i = pq i .snd
+  ΣPathPIsoPathPΣ .rightInv _ = refl
+  ΣPathPIsoPathPΣ .leftInv _ = refl
+
+  ΣPathP≃PathPΣ = isoToEquiv ΣPathPIsoPathPΣ
+
+  ΣPathP≡PathPΣ = ua ΣPathP≃PathPΣ
+
 -- Σ of discrete types
 
 discreteΣ : Discrete A → ((a : A) → Discrete (B a)) → Discrete (Σ A B)
@@ -163,6 +182,11 @@ leftInv (Σ-cong-iso-snd isom) (x , y') = ΣPathP (refl , leftInv (isom x) y')
            → ((x : A) → Iso (B x) (B' (fun isom x)))
            → Iso (Σ A B) (Σ A' B')
 Σ-cong-iso isom isom' = compIso (Σ-cong-iso-snd isom') (Σ-cong-iso-fst isom)
+
+Σ-cong-equiv : (e : A ≃ A')
+             → ((x : A) → B x ≃ B' (equivFun e x))
+             → Σ A B ≃ Σ A' B'
+Σ-cong-equiv e e' = isoToEquiv (Σ-cong-iso (equivToIso e) (equivToIso ∘ e'))
 
 Σ-cong' : (p : A ≡ A') → PathP (λ i → p i → Type ℓ') B B' → Σ A B ≡ Σ A' B'
 Σ-cong' p p' = cong₂ (λ (A : Type _) (B : A → Type _) → Σ A B) p p'

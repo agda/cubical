@@ -29,9 +29,6 @@ private
     ℓ ℓ' ℓ''  : Level
     A B C D : Type ℓ
 
-fiber : ∀ {A : Type ℓ} {B : Type ℓ'} (f : A → B) (y : B) → Type (ℓ-max ℓ ℓ')
-fiber {A = A} f y = Σ[ x ∈ A ] f x ≡ y
-
 equivIsEquiv : (e : A ≃ B) → isEquiv (equivFun e)
 equivIsEquiv e = snd e
 
@@ -67,15 +64,28 @@ equiv-proof (isPropIsEquiv f p q i) y =
 equivEq : (e f : A ≃ B) → (h : e .fst ≡ f .fst) → e ≡ f
 equivEq e f h = λ i → (h i) , isProp→PathP (λ i → isPropIsEquiv (h i)) (e .snd) (f .snd) i
 
+module _ {f : A → B} (equivF : isEquiv f) where
+  invIsEq : B → A
+  invIsEq y = equivF .equiv-proof y .fst .fst
+
+  secIsEq : section f invIsEq
+  secIsEq y = equivF .equiv-proof y .fst .snd
+
+  retIsEq : retract f invIsEq
+  retIsEq a i = equivF .equiv-proof (f a) .snd (a , refl) i .fst
+
+  commSqIsEq : ∀ a → Square (secIsEq (f a)) refl (cong f (retIsEq a)) refl
+  commSqIsEq a i = equivF .equiv-proof (f a) .snd (a , refl) i .snd
+
 module _ (w : A ≃ B) where
   invEq : B → A
-  invEq y = fst (fst (snd w .equiv-proof y))
+  invEq = invIsEq (snd w)
 
   secEq : section invEq (w .fst)
-  secEq x i = fst (snd (snd w .equiv-proof (fst w x)) (x , (λ j → fst w x)) i)
+  secEq = retIsEq (snd w)
 
   retEq : retract invEq (w .fst)
-  retEq y = snd (fst (snd w .equiv-proof y))
+  retEq = secIsEq (snd w)
 
 open Iso
 
@@ -133,10 +143,13 @@ isContr→Equiv : isContr A → isContr B → A ≃ B
 isContr→Equiv Actr Bctr = isoToEquiv (isContr→Iso Actr Bctr)
 
 isPropEquiv→Equiv : (Aprop : isProp A) (Bprop : isProp B) (f : A → B) (g : B → A) → A ≃ B
-isPropEquiv→Equiv Aprop Bprop f g = isoToEquiv (isProp→Iso Aprop Bprop f g)
-
-invEq≡→equivFun≡ : ∀ (e : A ≃ B) {x y} → invEq e x ≡ y → equivFun e y ≡ x
-invEq≡→equivFun≡ e {x} p = cong (equivFun e) (sym p) ∙ retEq e x
+isPropEquiv→Equiv Aprop Bprop f g = f , hf
+  where
+  hf : isEquiv f
+  hf .equiv-proof y .fst          = (g y , Bprop (f (g y)) y)
+  hf .equiv-proof y .snd h i .fst = Aprop (g y) (h .fst) i
+  hf .equiv-proof y .snd h i .snd = isProp→isSet' Bprop (Bprop (f (g y)) y) (h .snd)
+                                                  (cong f (Aprop (g y) (h .fst))) refl i
 
 equivPi : ∀ {F : A → Type ℓ} {G : A → Type ℓ'}
         → ((x : A) → F x ≃ G x) → ((x : A) → F x) ≃ ((x : A) → G x)
