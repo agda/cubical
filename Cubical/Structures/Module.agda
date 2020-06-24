@@ -127,9 +127,9 @@ module LeftModuleΣTheory (R : Ring {ℓ}) where
   isSetLeftModuleΣ : (M : LeftModuleΣ)  → isSet _
   isSetLeftModuleΣ (M , (_+_ , _) , (isAbGroup-M , _)) = isSetAbGroupΣ (M , _+_ , isAbGroup-M)
 
-  isProp-LeftModuleAxioms : (M : Type ℓ) (s : RawLeftModuleStructure M)
+  isPropLeftModuleAxioms : (M : Type ℓ) (s : RawLeftModuleStructure M)
                              → isProp (LeftModuleAxioms M s)
-  isProp-LeftModuleAxioms M (_+_ , _⋆_) =
+  isPropLeftModuleAxioms M (_+_ , _⋆_) =
      isPropΣ (AbGroupΣTheory.isPropAbGroupAxioms M _+_)
              λ isAbGroup-M →
              isProp× (isPropΠ3 λ _ _ _ → (isSetAbGroupΣ (M , _+_ , isAbGroup-M)) _ _)
@@ -156,7 +156,7 @@ module LeftModuleΣTheory (R : Ring {ℓ}) where
 
 
   leftModuleUnivalentStr : UnivalentStr LeftModuleStructure LeftModuleEquivStr
-  leftModuleUnivalentStr = axiomsUnivalentStr _ isProp-LeftModuleAxioms RawLeftModuleUnivalentStr
+  leftModuleUnivalentStr = axiomsUnivalentStr _ isPropLeftModuleAxioms RawLeftModuleUnivalentStr
 
   LeftModuleΣPath : (M N : LeftModuleΣ) → (M ≃[ LeftModuleEquivStr ] N) ≃ (M ≡ N)
   LeftModuleΣPath = SIP leftModuleUnivalentStr

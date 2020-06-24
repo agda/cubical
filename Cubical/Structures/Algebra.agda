@@ -7,10 +7,11 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Structures.Axioms
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Module    renaming (⟨_⟩ to ⟨_⟩m)
 open import Cubical.Structures.Ring      renaming (⟨_⟩ to ⟨_⟩r)
@@ -79,7 +80,7 @@ module _ {R : Ring {ℓ}} where
   isSetAlgebra : (A : Algebra R) → isSet ⟨ A ⟩
   isSetAlgebra A = isSetAbGroup (Algebra→AbGroup A)
 
-record AlgebraIso {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
+record AlgebraEquiv {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
 
   constructor moduleiso
 
@@ -98,42 +99,42 @@ record AlgebraIso {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
     pres1  : equivFun e 1a ≡ 1a
     comm⋆  : (r : ⟨ R ⟩r) (x : ⟨ A ⟩) → equivFun e (r ⋆ x) ≡ r ⋆ equivFun e x
 
-module AlgebraΣ-theory (R : Ring {ℓ}) where
+module AlgebraΣTheory (R : Ring {ℓ}) where
 
   open Macro ℓ (recvar (recvar var) , recvar (recvar var) , var ,
                 param ⟨ R ⟩r (recvar var)) public renaming
-    ( structure to raw-algebra-structure
-    ; iso       to raw-algebra-iso
-    ; isSNS     to raw-algebra-is-SNS )
+    ( structure to RawAlgebraStructure
+    ; equiv     to RawAlgebraEquiv
+    ; univalent to RawAlgebraUnivalentStr )
 
   open Ring R using (1r) renaming (_+_ to _+r_; _·_ to _·r_)
-  open RingΣ-theory
-  open LeftModuleΣ-theory R
+  open RingΣTheory
+  open LeftModuleΣTheory R
 
-  algebra-axioms : (A : Type ℓ) (str : raw-algebra-structure A) → Type ℓ
-  algebra-axioms A (_+_ , _·_ , 1a , _⋆_) =
-               ring-axioms A (_+_ , 1a , _·_)
-               × leftModule-axioms A (_+_ , _⋆_)
+  AlgebraAxioms : (A : Type ℓ) (str : RawAlgebraStructure A) → Type ℓ
+  AlgebraAxioms A (_+_ , _·_ , 1a , _⋆_) =
+               RingAxioms A (_+_ , 1a , _·_)
+               × LeftModuleAxioms A (_+_ , _⋆_)
                × ((r : ⟨ R ⟩r) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
                × ((r : ⟨ R ⟩r) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y))
 
-  algebra-structure : Type ℓ → Type ℓ
-  algebra-structure = add-to-structure raw-algebra-structure algebra-axioms
+  AlgebraStructure : Type ℓ → Type ℓ
+  AlgebraStructure = AxiomsStructure RawAlgebraStructure AlgebraAxioms
 
   AlgebraΣ : Type (ℓ-suc ℓ)
-  AlgebraΣ = TypeWithStr ℓ algebra-structure
+  AlgebraΣ = TypeWithStr ℓ AlgebraStructure
 
-  algebra-iso : StrIso algebra-structure ℓ
-  algebra-iso = add-to-iso raw-algebra-iso algebra-axioms
+  AlgebraEquivStr : StrEquiv AlgebraStructure ℓ
+  AlgebraEquivStr = AxiomsEquivStr RawAlgebraEquiv AlgebraAxioms
 
   isSetAlgebraΣ : (A : AlgebraΣ) → isSet _
   isSetAlgebraΣ (A , _ , (_ , isLeftModule , _) ) = isSetLeftModuleΣ (A , _ , isLeftModule)
 
-  isProp-algebra-axioms : (A : Type ℓ) (s : raw-algebra-structure A)
-                             → isProp (algebra-axioms A s)
-  isProp-algebra-axioms A (_+_ , _·_ , 1a , _⋆_) =
-     isProp× (isProp-ring-axioms A (_+_ , 1a , _·_ ))
-    (isPropΣ (isProp-leftModule-axioms A (_+_ , _⋆_))
+  isProp-AlgebraAxioms : (A : Type ℓ) (s : RawAlgebraStructure A)
+                             → isProp (AlgebraAxioms A s)
+  isProp-AlgebraAxioms A (_+_ , _·_ , 1a , _⋆_) =
+     isProp× (isPropRingAxioms A (_+_ , 1a , _·_ ))
+    (isPropΣ (isPropLeftModuleAxioms A (_+_ , _⋆_))
       (λ isLeftModule →
      isProp× (isPropΠ3 (λ _ _ _ → (isSetLeftModuleΣ (A , _ , isLeftModule)) _ _))
              (isPropΠ3 (λ _ _ _ → (isSetLeftModuleΣ (A , _ , isLeftModule)) _ _))))
