@@ -17,17 +17,6 @@ module _ {ℓ₁ ℓ₂ : Level} where
     → Type ℓ₁ → Type (nAryLevel ℓ₁ ℓ₂ n)
   nAryFun-structure n S X = nAryOp n X (S X)
 
-{-
--- hom for n-ary functions
-nAryFunHom : (n : ℕ) → StrHom (λ (X : Type ℓ) → nAryOp n X X) ℓ
-nAryFunHom n (X , fX) (Y , fY) f = (xs : Vec X n) → f (fX $ⁿ xs) ≡ (fY $ⁿ map f xs)
-
--- iso for n-ary functions
-nAryFunIso : (n : ℕ) → StrIso (λ (X : Type ℓ) → nAryOp n X X) ℓ
-nAryFunIso n = StrHom→StrIso (nAryFunHom n)
---nAryFunIso n (X , fX) (Y , fY) f =
---  (xs : Vec X n) → equivFun f (fX $ⁿ xs) ≡ fY $ⁿ map (equivFun f) xs
--}
   -- iso for n-ary functions
   nAryFunIso : (n : ℕ) {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level} (ι : StrIso S ℓ₃)
     → StrIso (nAryFun-structure n S) (ℓ-max ℓ₁ ℓ₃)

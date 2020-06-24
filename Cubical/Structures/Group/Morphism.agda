@@ -40,8 +40,12 @@ isGroupHom G H f = (x y : ⟨ G ⟩) → f (x G.+ y) ≡ (f x H.+ f y) where
 isPropIsGroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) {f : ⟨ G ⟩ → ⟨ H ⟩} → isProp (isGroupHom G H f)
 isPropIsGroupHom G H {f} = isPropΠ2 λ a b → Group.is-set H _ _
 
-GroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) → Type (ℓ-max ℓ ℓ')
-GroupHom G H = Σ (⟨ G ⟩ → ⟨ H ⟩) (isGroupHom G H)
+record GroupHom (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
+  constructor grouphom
+
+  field
+    fun : ⟨ G ⟩ → ⟨ H ⟩
+    isHom : isGroupHom G H fun
 
 record GroupIso (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
   constructor groupiso
@@ -51,21 +55,21 @@ record GroupIso (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') w
     isHom : isGroupHom G H (equivFun eq)
 
   hom : GroupHom G H
-  hom = equivFun eq , isHom
+  hom = grouphom (equivFun eq) isHom
 
 -- Morphism composition
 isGroupHomComp : (F : Group {ℓ}) (G : Group {ℓ'}) (H : Group {ℓ''}) →
-  (f : GroupHom F G) → (g : GroupHom G H) → isGroupHom F H (fst g ∘ fst f)
-isGroupHomComp F G H (f , morph-f) (g , morph-g) x y =
+  (f : GroupHom F G) → (g : GroupHom G H) → isGroupHom F H (GroupHom.fun g ∘ GroupHom.fun f)
+isGroupHomComp F G H (grouphom f morph-f) (grouphom g morph-g) x y =
   cong g (morph-f _ _) ∙ morph-g _ _
-  
-compGroupHom : (F : Group {ℓ}) (G : Group {ℓ'}) (H : Group {ℓ''}) → GroupHom F G → GroupHom G H → GroupHom F H
-compGroupHom F G H (f , morph-f) (g , morph-g) =
-  g ∘ f , isGroupHomComp F G H (f , morph-f) (g , morph-g)
+
+compGroupHom : {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} → GroupHom F G → GroupHom G H → GroupHom F H
+compGroupHom {F = F} {G = G} {H = H} (grouphom f morph-f) (grouphom g morph-g) =
+  grouphom (g ∘ f) (isGroupHomComp F G H (grouphom f morph-f) (grouphom g morph-g))
 
 compGroupIso : {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} → GroupIso F G → GroupIso G H → GroupIso F H
 compGroupIso {F = F} {G = G} {H = H} (groupiso f morph-f) (groupiso g morph-g) =
-  groupiso (compEquiv f g) (isGroupHomComp F G H (fst f , morph-f) (fst g , morph-g))
+  groupiso (compEquiv f g) (isGroupHomComp F G H (grouphom _ morph-f) (grouphom _ morph-g))
 
 idGroupIso : (G : Group {ℓ}) → GroupIso G G
 idGroupIso G = groupiso (idEquiv (Group.Carrier G)) (λ _ _ → refl)
@@ -92,14 +96,15 @@ isGroupHomInv G H  (groupiso (f , eq) morph) h h' = isInj-f _ _ (
 invGroupIso : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupIso G H → GroupIso H G
 invGroupIso G H (groupiso f morph) = groupiso (invEquiv f) (isGroupHomInv G H (groupiso f morph))
 
-groupHomEq : (G : Group {ℓ}) (H : Group {ℓ'}) (f g : GroupHom G H) → (fst f ≡ fst g) → f ≡ g
-groupHomEq G H f g p = Σ≡Prop (λ _ → isPropIsGroupHom G H) p
+groupHomEq : (G : Group {ℓ}) (H : Group {ℓ'}) (f g : GroupHom G H) → (GroupHom.fun f ≡ GroupHom.fun g) → f ≡ g
+groupHomEq G H (grouphom f fm) (grouphom g gm) p i = grouphom (p i) (p-hom i) where
+  p-hom : PathP (λ i → isGroupHom G H (p i)) fm gm
+  p-hom = toPathP (isPropIsGroupHom G H _ _)
 
 groupIsoEq : (G : Group {ℓ}) (H : Group {ℓ'}) (f g : GroupIso G H) → (GroupIso.eq f ≡ GroupIso.eq g) → f ≡ g
--- This proof would take one line with Σ≡Prop using Σ-types
-groupIsoEq G H (groupiso f fm) (groupiso g gm) p i =
-  groupiso (p i)
-  (isOfHLevel→isOfHLevelDep 1 (λ f → isPropIsGroupHom G H {f}) fm gm (cong equivFun p) i)
+groupIsoEq G H (groupiso f fm) (groupiso g gm) p i = groupiso (p i) (p-hom i) where
+  p-hom : PathP (λ i → isGroupHom G H (p i .fst)) fm gm
+  p-hom = toPathP (isPropIsGroupHom G H _ _)
 
 module GroupΣ-theory {ℓ} where
 
@@ -193,10 +198,10 @@ module GroupΣ-theory {ℓ} where
     G ≡ H ■
 
 -- Extract the characterization of equality of groups
-GroupPath : (G H : Group {ℓ}) → (GroupIso G H) ≃ (G ≡ H)
+GroupPath : (G H : Group {ℓ}) → GroupIso G H ≃ (G ≡ H)
 GroupPath = GroupΣ-theory.GroupPath
 
-Group-ua : {G H : Group {ℓ}} → (GroupIso G H) → (G ≡ H)
+Group-ua : {G H : Group {ℓ}} → GroupIso G H → G ≡ H
 Group-ua {G = G} {H = H} = equivFun (GroupPath G H)
 
 caracGroup-ua : {G H : Group {ℓ}} (f : GroupIso G H) → cong Group.Carrier (Group-ua f) ≡ ua (GroupIso.eq f)
@@ -223,10 +228,10 @@ Group≡ G H = isoToEquiv (iso
 caracGroup≡ : {G H : Group {ℓ}} (p q : G ≡ H) → cong Group.Carrier p ≡ cong Group.Carrier q → p ≡ q
 caracGroup≡ {G = G} {H = H} p q t = cong (fst (Group≡ G H)) (Σ≡Prop (λ t →
   isPropΣ
-    (isOfHLevelPathP' 1 (λ i → transport (cong isSet λ j → t (i ∧ j)) (is-set G)) (0g G) (0g H)) λ t₁ → isPropΣ
-    (isOfHLevelPathP' 1 (λ i → transport (cong isSet λ j → t (i ∧ j) → t (i ∧ j) → t (i ∧ j)) (isSetΠ2 λ _ _ → is-set G)) (_+_ G) (_+_ H)) λ t₂ → isPropΣ
-    (isOfHLevelPathP' 1 (λ i → transport (cong isSet λ j → t (i ∧ j) → t (i ∧ j)) (isSetΠ λ _ → is-set G)) (-_ G) (-_ H))
-    (λ t₃ → isOfHLevelPathP 1 (λ i → transport (cong isProp λ j → IsGroup (t₁ (i ∧ j)) (t₂ (i ∧ j)) (t₃ (i ∧ j))) (isPropIsGroup _ _ _)) (isGroup G) (isGroup H)))
+    (isOfHLevelPathP' 1 (is-set H) _ _) λ t₁ → isPropΣ
+    (isOfHLevelPathP' 1 (isSetΠ2 λ _ _ → is-set H) _ _) λ t₂ → isPropΣ
+    (isOfHLevelPathP' 1 (isSetΠ λ _ → is-set H) _ _) λ t₃ →
+    isOfHLevelPathP 1 (isPropIsGroup _ _ _) _ _)
   t)
 
 Group-ua-id : (G : Group {ℓ}) → Group-ua (idGroupIso G) ≡ refl

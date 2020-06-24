@@ -35,24 +35,11 @@ private
 SNS-≡ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrIso S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
 SNS-≡ {ℓ₁} S ι = ∀ {X : Type ℓ₁} (s t : S X) → ι (X , s) (X , t) (idEquiv X) ≃ (s ≡ t)
 
-SNS-≡' : (S : Type ℓ₁ → Type ℓ₂) (ι : StrHom S ℓ₃) → Type _
-SNS-≡' {ℓ₁} S ι = ∀ {X : Type ℓ₁} (s t : S X) → ι (X , s) (X , t) (λ x → x) ≃ (s ≡ t)
-
-{-
--- A lemma which is actually trivial by definition but worth mentioning in a comment
-
-lemma : (S : Type ℓ₁ → Type ℓ₂) (ι : StrHom S ℓ₃) → SNS-≡ S (StrHom→StrIso ι) ≡ SNS-≡' S ι
-lemma S ι = refl
--}
-
 -- We introduce the notation for structure preserving equivalences a
 -- bit differently, but this definition doesn't actually change from
 -- Escardó's notes.
 _≃[_]_ : (A : TypeWithStr ℓ₁ S) (ι : StrIso S ℓ₂) (B : TypeWithStr ℓ₁ S) → Type (ℓ-max ℓ₁ ℓ₂)
 A ≃[ ι ] B = Σ[ e ∈ typ A ≃ typ B ] (ι A B e)
-
-_→[_]_ : (A : TypeWithStr ℓ₁ S) (ι : StrHom S ℓ₂) (B : TypeWithStr ℓ₁ S) → Type _
-A →[ ι ] B = Σ[ f ∈ (typ A → typ B) ] (ι A B f)
 
 -- The following PathP version of SNS-≡ is a bit easier to work with
 -- for the proof of the SIP
@@ -118,12 +105,6 @@ add-to-iso : {S : Type ℓ₁ → Type ℓ₂} (ι : StrIso S ℓ₃)
              (axioms : (X : Type ℓ₁) → S X → Type ℓ₄)
            → StrIso (add-to-structure S axioms) ℓ₃
 add-to-iso ι axioms (X , (s , a)) (Y , (t , b)) f = ι (X , s) (Y , t) f
-
-add-to-hom : {S : Type ℓ₁ → Type ℓ₂} (ι : StrHom S ℓ₃)
-             (axioms : (X : Type ℓ₁) → S X → Type ℓ₄)
-           → StrHom (add-to-structure S axioms) ℓ₃
-add-to-hom ι axioms (X , (s , a)) (Y , (t , b)) f = ι (X , s) (Y , t) f
-
 
 add-ax-lemma : {S : Type ℓ₁ → Type ℓ₂}
                (axioms : (X : Type ℓ₁) → S X → Type ℓ₄)

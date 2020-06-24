@@ -26,9 +26,3 @@ str = snd
 --    ι (X , s) (Y , t) : (X ≃ Y) → Type ℓ''
 StrIso : (S : Type ℓ → Type ℓ'') (ℓ' : Level) → Type (ℓ-max (ℓ-suc (ℓ-max ℓ ℓ')) ℓ'')
 StrIso {ℓ} S ℓ' = (A B : TypeWithStr ℓ S) → typ A ≃ typ B → Type ℓ'
-
-StrHom : (S : Type ℓ → Type ℓ'') (ℓ' : Level) → Type _
-StrHom {ℓ} S ℓ' = (A B : TypeWithStr ℓ S) → (typ A → typ B) → Type ℓ'
-
-StrHom→StrIso : {S : Type ℓ → Type ℓ''} {ℓ' : Level} → StrHom S ℓ' → StrIso S ℓ'
-StrHom→StrIso {S} {ℓ'} ι A B e = ι A B (e .fst)
