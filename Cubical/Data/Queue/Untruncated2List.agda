@@ -61,7 +61,7 @@ module Untruncated2List {ℓ} (A : Type ℓ) (Aset : isSet A) where
  Raw : RawQueue
  Raw = (Q , emp , enq , deq)
 
- -- We construct an equivalence Q₁≃Q and prove that this is a queue equivalence
+ -- We construct an equivalence Q₁≃Q and prove that this is an equivalence of queue structures
 
  private
    module One = 1List A Aset
@@ -122,7 +122,7 @@ module Untruncated2List {ℓ} (A : Type ℓ) (Aset : isSet A) where
  quotEquiv : Q₁ ≃ Q
  quotEquiv = isoToEquiv (iso quot eval quot∘eval eval∘quot)
 
- -- Now it only remains to prove that this is a QueueEquivStr
+ -- Now it only remains to prove that this is an equivalence of queue structures
  quot∘emp : quot emp₁ ≡ emp
  quot∘emp = refl
 
