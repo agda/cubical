@@ -1,3 +1,8 @@
+{-
+
+  Maybe structure: X ↦ Maybe (S X)
+
+-}
 {-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
 module Cubical.Structures.Maybe where
 
@@ -16,9 +21,6 @@ open import Cubical.Data.Maybe
 private
   variable
     ℓ ℓ₁ ℓ₁' : Level
-
-MaybeStructure : (S : Type ℓ → Type ℓ₁) → Type ℓ → Type ℓ₁
-MaybeStructure S X = Maybe (S X)
 
 MaybeRel : {A B : Type ℓ} (R : A → B → Type ℓ₁) → Maybe A → Maybe B → Type ℓ₁
 MaybeRel R nothing nothing = Lift Unit
@@ -79,6 +81,11 @@ module MaybePathP where
     isom .Iso.inv = encode _ ox oy
     isom .Iso.rightInv = decodeEncode ox oy
     isom .Iso.leftInv = encodeDecode A ox oy
+
+-- Structured isomorphisms
+
+MaybeStructure : (S : Type ℓ → Type ℓ₁) → Type ℓ → Type ℓ₁
+MaybeStructure S X = Maybe (S X)
 
 MaybeEquivStr : {S : Type ℓ → Type ℓ₁}
   → StrEquiv S ℓ₁' → StrEquiv (MaybeStructure S) ℓ₁'

@@ -151,8 +151,8 @@ indMapEquiv→conType : ∀ {ℓ} {A : Type ℓ} (n : HLevel)
 indMapEquiv→conType {A = A} n BEq =
   transport (λ i → isContr (hLevelTrunc n (typeToFiber A (~ i))))
             (elim.isConnectedPrecompose (λ _ → tt) n
-                                        (λ P → isEquiv-hasSection _ ((compEquiv ((λ Q → Q tt) , isoToIsEquiv (helper P))
-                                                                                 (_ , BEq (P tt)) .snd )))
+                                        (λ P → isEquiv→hasSection ((compEquiv ((λ Q → Q tt) , isoToIsEquiv (helper P))
+                                                                              (_ , BEq (P tt)) .snd )))
                                         tt)
   where
   helper : ∀ {ℓ'} (P : Unit → TypeOfHLevel ℓ' n)

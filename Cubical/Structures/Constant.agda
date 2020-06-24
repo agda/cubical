@@ -1,3 +1,8 @@
+{-
+
+Constant structure: _ ↦ A
+
+-}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Structures.Constant where
 
@@ -10,15 +15,15 @@ private
   variable
     ℓ ℓ' : Level
 
--- Constant structure
+-- Structured isomorphisms
 
-module _ (A : Type ℓ) where
+module _ (A : Type ℓ') where
 
-  ConstantStructure : Type ℓ' → Type ℓ
+  ConstantStructure : Type ℓ → Type ℓ'
   ConstantStructure _ = A
 
-  ConstantEquivStr : StrEquiv {ℓ'} ConstantStructure ℓ
+  ConstantEquivStr : StrEquiv {ℓ} ConstantStructure ℓ'
   ConstantEquivStr (_ , a) (_ , a') _ = a ≡ a'
 
-  constantUnivalentStr : UnivalentStr {ℓ'} ConstantStructure ConstantEquivStr
+  constantUnivalentStr : UnivalentStr {ℓ} ConstantStructure ConstantEquivStr
   constantUnivalentStr e = idEquiv _

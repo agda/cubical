@@ -6,7 +6,7 @@ open import Cubical.Foundations.Prelude hiding ( comp )
 
 import Cubical.Foundations.Isomorphism as I
 import Cubical.Foundations.Equiv as E
-import Cubical.Foundations.Equiv.HalfAdjoint as HAE
+import Cubical.Foundations.Equiv.Properties as EP
 
 record isGroup {ℓ} (A : Type ℓ) : Type ℓ where
   constructor group-struct
@@ -190,7 +190,7 @@ Iso'→Iso {G = group G Gset Ggroup} {H = group H Hset Hgroup} i = iso (fun , fu
     _⊙_ = isGroup.comp Ggroup
 
     invMorph : isMorph H_ G_ inv
-    invMorph h0 h1 = E.invEq (HAE.congEquiv e')
+    invMorph h0 h1 = E.invEq (EP.congEquiv e')
           (fun (inv (h0 ∘ h1)) ≡⟨ rightInv (h0 ∘ h1) ⟩
            h0 ∘ h1 ≡⟨ cong (λ x → x ∘ h1) (sym (rightInv h0)) ⟩
            (fun (inv h0)) ∘ h1 ≡⟨ cong (λ x → fun (inv h0) ∘ x) (sym (rightInv h1)) ⟩

@@ -38,6 +38,6 @@ axiomUnivalentStr {S = S} ι {axioms = axioms} axioms-are-Props θ {X , s , a} {
   compEquiv
     (θ f)
     (compEquiv
-      (invEquiv (Σ-contractSnd λ _ → isOfHLevelPathP' 0 (λ _ → axioms-are-Props _ _) _ _))
+      (invEquiv (Σ-contractSnd λ _ → isOfHLevelPathP' 0 (axioms-are-Props _ _) _ _))
       ΣPath≃PathΣ)
 
