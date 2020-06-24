@@ -1,3 +1,10 @@
+{-
+
+Add axioms (i.e., propositions) to a structure S without changing the definition of structured equivalence.
+
+X ↦ Σ[ s ∈ S X ] (P X s) where (P X s) is a proposition for all X and s.
+
+-}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Structures.Axioms where
 
@@ -14,26 +21,22 @@ private
   variable
     ℓ ℓ₁ ℓ₁' ℓ₂ : Level
 
--- Now, we want to add axioms (i.e. propositions) to our Structure S that don't affect the ι.
--- We use a lemma due to Zesen Qian, which can now be found in Foundations.Prelude:
--- https://github.com/riaqn/cubical/blob/hgroup/Cubical/Data/Group/Properties.agda#L83
-
 AxiomsStructure : (S : Type ℓ → Type ℓ₁)
-                 (axioms : (X : Type ℓ) → S X → Type ℓ₂)
-               → Type ℓ → Type (ℓ-max ℓ₁ ℓ₂)
+  (axioms : (X : Type ℓ) → S X → Type ℓ₂)
+  → Type ℓ → Type (ℓ-max ℓ₁ ℓ₂)
 AxiomsStructure S axioms X = Σ[ s ∈ S X ] (axioms X s)
 
 AxiomsEquivStr : {S : Type ℓ → Type ℓ₁} (ι : StrEquiv S ℓ₁')
-           (axioms : (X : Type ℓ) → S X → Type ℓ₂)
-         → StrEquiv (AxiomsStructure S axioms) ℓ₁'
+  (axioms : (X : Type ℓ) → S X → Type ℓ₂)
+  → StrEquiv (AxiomsStructure S axioms) ℓ₁'
 AxiomsEquivStr ι axioms (X , (s , a)) (Y , (t , b)) e = ι (X , s) (Y , t) e
 
 axiomsUnivalentStr : {S : Type ℓ → Type ℓ₁}
-                 (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → A .fst ≃ B .fst → Type ℓ₁')
-                 {axioms : (X : Type ℓ) → S X → Type ℓ₂}
-                 (axioms-are-Props : (X : Type ℓ) (s : S X) → isProp (axioms X s))
-                 (θ : UnivalentStr S ι)
-               → UnivalentStr (AxiomsStructure S axioms) (AxiomsEquivStr ι axioms)
+  (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → A .fst ≃ B .fst → Type ℓ₁')
+  {axioms : (X : Type ℓ) → S X → Type ℓ₂}
+  (axioms-are-Props : (X : Type ℓ) (s : S X) → isProp (axioms X s))
+  (θ : UnivalentStr S ι)
+  → UnivalentStr (AxiomsStructure S axioms) (AxiomsEquivStr ι axioms)
 axiomsUnivalentStr {S = S} ι {axioms = axioms} axioms-are-Props θ {X , s , a} {Y , t , b} e =
   ι (X , s) (Y , t) e
     ≃⟨ θ e ⟩
