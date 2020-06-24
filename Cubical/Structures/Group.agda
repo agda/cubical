@@ -109,10 +109,10 @@ record GroupEquiv (G H : Group {ℓ}) : Type ℓ where
 module GroupΣTheory {ℓ} where
 
   RawGroupStructure : Type ℓ → Type ℓ
-  RawGroupStructure = SemigroupΣ-theory.RawSemigroupStructure
+  RawGroupStructure = SemigroupΣTheory.RawSemigroupStructure
 
   rawGroupUnivalentStr : UnivalentStr RawGroupStructure _
-  rawGroupUnivalentStr = SemigroupΣ-theory.rawSemigroupUnivalentStr
+  rawGroupUnivalentStr = SemigroupΣTheory.rawSemigroupUnivalentStr
 
   -- The neutral element and the inverse function will be derived from the
   -- axioms, instead of being defined in the RawGroupStructure in order

@@ -75,7 +75,7 @@ record SemigroupEquiv (M N : Semigroup {ℓ}) : Type ℓ where
 -- that are stated using Σ-types. For this we define Semigroup as a
 -- nested Σ-type, prove that it's equivalent to the above record
 -- definition and then transport results along this equivalence.
-module SemigroupΣ-theory {ℓ} where
+module SemigroupΣTheory {ℓ} where
 
   RawSemigroupStructure : Type ℓ → Type ℓ
   RawSemigroupStructure X = X → X → X
@@ -152,11 +152,11 @@ module SemigroupΣ-theory {ℓ} where
 
 isPropIsSemigroup : {A : Type ℓ} (_·_ : A → A → A) → isProp (IsSemigroup _·_)
 isPropIsSemigroup _·_ =
-  subst isProp (SemigroupΣ-theory.SemigroupAxioms≡IsSemigroup _·_)
-        (SemigroupΣ-theory.isPropSemigroupAxioms _ _·_)
+  subst isProp (SemigroupΣTheory.SemigroupAxioms≡IsSemigroup _·_)
+        (SemigroupΣTheory.isPropSemigroupAxioms _ _·_)
 
 SemigroupPath : (M N : Semigroup {ℓ}) → (SemigroupEquiv M N) ≃ (M ≡ N)
-SemigroupPath = SemigroupΣ-theory.SemigroupPath
+SemigroupPath = SemigroupΣTheory.SemigroupPath
 
 
 -- To rename the fields when using a Semigroup use for example the following:

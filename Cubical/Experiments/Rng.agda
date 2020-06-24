@@ -4,15 +4,16 @@
 -- rewrite has been postponed.
 
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Structures.Rng where
+module Cubical.Experiments.Rng where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
-
+open import Cubical.Structures.Axiom
+open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.AbGroup
@@ -21,37 +22,39 @@ private
   variable
     ℓ ℓ' : Level
 
+rawRingDesc : Desc ℓ
+rawRingDesc {ℓ = ℓ} = autoDesc (λ (X : Type ℓ) → (X → X → X) × (X → X → X))
+
 module _ {ℓ} where
-  open Macro ℓ (recvar (recvar var) , recvar (recvar var)) public renaming
-    ( structure to raw-rng-structure
-    ; iso to raw-rng-iso
-    ; isSNS to raw-rng-is-SNS
+  open Macro ℓ rawRingDesc public renaming
+    ( structure to RawRngStructure
+    ; equiv to RawRngEquivStr
+    ; univalent to rawRngUnivalentStr
     )
 
-rng-axioms : (X : Type ℓ) (s : raw-rng-structure X) → Type ℓ
-rng-axioms X (_·_ , _+_) = abelian-GroupAxioms X _·_ ×
-                           SemigroupΣ-theory.SemigroupAxioms X _+_ ×
-                           ((x y z : X) → x · (y + z) ≡ (x · y) + (x · z)) ×
-                           ((x y z : X) → (x + y) · z ≡ (x · z) + (y · z))
+RngAxioms : (X : Type ℓ) (s : RawRngStructure X) → Type ℓ
+RngAxioms X (_·_ , _+_) =
+  AbGroupΣTheory.AbGroupAxioms X _·_ ×
+  SemigroupΣTheory.SemigroupAxioms X _+_ ×
+  ((x y z : X) → x · (y + z) ≡ (x · y) + (x · z)) × ((x y z : X) → (x + y) · z ≡ (x · z) + (y · z))
 
-rng-structure : Type ℓ → Type ℓ
-rng-structure = AxiomStructure raw-rng-structure rng-axioms
+RngStructure : Type ℓ → Type ℓ
+RngStructure = AxiomStructure RawRngStructure RngAxioms
 
+Rng : Type (ℓ-suc ℓ)
+Rng {ℓ} = TypeWithStr ℓ RngStructure
 
-Rngs : Type (ℓ-suc ℓ)
-Rngs {ℓ} = TypeWithStr ℓ rng-structure
+RngEquivStr : StrEquiv RngStructure ℓ
+RngEquivStr = AxiomEquivStr RawRngEquivStr RngAxioms
 
-rng-iso : StrEquiv rng-structure ℓ
-rng-iso = AxiomEquivStr raw-rng-iso rng-axioms
-
-rng-axioms-isProp : (X : Type ℓ) (s : raw-rng-structure X) → isProp (rng-axioms X s)
-rng-axioms-isProp X (_·_ , _+_) = isPropΣ (abelian-GroupAxioms-isProp X _·_)
-                                  λ _ → isPropΣ (SemigroupΣ-theory.isPropSemigroupAxioms X _+_)
+isPropRngAxioms : (X : Type ℓ) (s : RawRngStructure X) → isProp (RngAxioms X s)
+isPropRngAxioms X (_·_ , _+_) = isPropΣ (AbGroupΣTheory.isPropAbGroupAxioms X _·_)
+                                  λ _ → isPropΣ (SemigroupΣTheory.isPropSemigroupAxioms X _+_)
                                   λ { (isSetX , _) → isPropΣ (isPropΠ3 (λ _ _ _ → isSetX _ _))
                                   λ _ → isPropΠ3 (λ _ _ _ → isSetX _ _)}
 
-rng-is-SNS : SNS {ℓ} rng-structure rng-iso
-rng-is-SNS = axiomUnivalentStr _ rng-axioms-isProp raw-rng-is-SNS
+rngUnivalentStr : UnivalentStr {ℓ} RngStructure RngEquivStr
+rngUnivalentStr = axiomUnivalentStr _ isPropRngAxioms rawRngUnivalentStr
 
-RngPath : (M N : Rngs {ℓ}) → (M ≃[ rng-iso ] N) ≃ (M ≡ N)
-RngPath = SIP rng-is-SNS
+RngPath : (M N : Rng {ℓ}) → (M ≃[ RngEquivStr ] N) ≃ (M ≡ N)
+RngPath = SIP rngUnivalentStr
