@@ -27,6 +27,6 @@ functorialUnivalentStr : {S : Type ℓ → Type ℓ₁}
   → (∀ {X} s → F (idfun X) s ≡ s)
   → UnivalentStr S (FunctorialEquivStr F)
 functorialUnivalentStr F η =
-  UnivalentStr-≡→UnivalentStr
+  SNS→UnivalentStr
     (FunctorialEquivStr F)
     (λ s t → pathToEquiv (cong (_≡ t) (η s)))

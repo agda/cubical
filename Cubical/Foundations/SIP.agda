@@ -31,8 +31,8 @@ private
 -- a proposition. Indeed this type should correspond to the ways s and t can be identified
 -- as S-structures. This we call a standard notion of structure or SNS.
 -- We will use a different definition, but the two definitions are interchangeable.
-UnivalentStr-≡ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrEquiv S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
-UnivalentStr-≡ {ℓ₁} S ι = ∀ {X : Type ℓ₁} (s t : S X) → ι (X , s) (X , t) (idEquiv X) ≃ (s ≡ t)
+SNS : (S : Type ℓ₁ → Type ℓ₂) (ι : StrEquiv S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
+SNS {ℓ₁} S ι = ∀ {X : Type ℓ₁} (s t : S X) → ι (X , s) (X , t) (idEquiv X) ≃ (s ≡ t)
 
 
 -- We introduce the notation for structure preserving equivalences a
@@ -43,7 +43,7 @@ A ≃[ ι ] B = Σ[ e ∈ typ A ≃ typ B ] (ι A B e)
 
 
 
--- The following PathP version of UnivalentStr-≡ is a bit easier to work with
+-- The following PathP version of SNS is a bit easier to work with
 -- for the proof of the SIP
 UnivalentStr : (S : Type ℓ₁ → Type ℓ₂) (ι : StrEquiv S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
 UnivalentStr {ℓ₁} S ι =
@@ -51,11 +51,11 @@ UnivalentStr {ℓ₁} S ι =
   → ι A B e ≃ PathP (λ i → S (ua e i)) (str A) (str B)
 
 -- A quick sanity-check that our definition is interchangeable with
--- Escardó's. The direction UnivalentStr-≡→UnivalentStr corresponds more or less
+-- Escardó's. The direction SNS→UnivalentStr corresponds more or less
 -- to a dependent EquivJ formulation of Escardó's homomorphism-lemma.
-UnivalentStr→UnivalentStr-≡ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrEquiv S ℓ₃)
-  → UnivalentStr S ι → UnivalentStr-≡ S ι
-UnivalentStr→UnivalentStr-≡ S ι θ {X = X} s t =
+UnivalentStr→SNS : (S : Type ℓ₁ → Type ℓ₂) (ι : StrEquiv S ℓ₃)
+  → UnivalentStr S ι → SNS S ι
+UnivalentStr→SNS S ι θ {X = X} s t =
   ι (X , s) (X , t) (idEquiv X)
     ≃⟨ θ (idEquiv X) ⟩
   PathP (λ i → S (ua (idEquiv X) i)) s t
@@ -64,8 +64,8 @@ UnivalentStr→UnivalentStr-≡ S ι θ {X = X} s t =
   ■
 
 
-UnivalentStr-≡→UnivalentStr : (ι : StrEquiv S ℓ₃) → UnivalentStr-≡ S ι → UnivalentStr S ι
-UnivalentStr-≡→UnivalentStr {S = S} ι θ {A = A} {B = B} e = EquivJ P C e (str A) (str B)
+SNS→UnivalentStr : (ι : StrEquiv S ℓ₃) → SNS S ι → UnivalentStr S ι
+SNS→UnivalentStr {S = S} ι θ {A = A} {B = B} e = EquivJ P C e (str A) (str B)
   where
   Y = typ B
 

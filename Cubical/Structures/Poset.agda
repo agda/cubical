@@ -53,7 +53,7 @@ isAnOrderPreservingEqv M N e@(f , _) =
   where
     g = equivFun (invEquiv e)
 
-orderUnivalentStr : UnivalentStr-≡ {ℓ} (Order ℓ₁) isAnOrderPreservingEqv
+orderUnivalentStr : SNS {ℓ} (Order ℓ₁) isAnOrderPreservingEqv
 orderUnivalentStr {ℓ = ℓ} {ℓ₁ = ℓ₁} {X = X}  _⊑₀_ _⊑₁_ =
   f , record { equiv-proof = f-equiv }
   where
@@ -236,18 +236,18 @@ _≃ₚ_ P Q = Σ[ i ∈ ∣ P ∣ₚ ≃ ∣ Q ∣ₚ ] isAMonotonicEqv P Q i
 -- From this, we can already establish that posets form an SNS and prove that
 -- the category of posets is univalent.
 
-posetUnivalentStr : UnivalentStr-≡ {ℓ} (PosetStructure ℓ₁) isAMonotonicEqv
+posetUnivalentStr : SNS {ℓ} (PosetStructure ℓ₁) isAMonotonicEqv
 posetUnivalentStr {ℓ₁ = ℓ₁} =
-  UnivalentStr→UnivalentStr-≡
+  UnivalentStr→SNS
     (PosetStructure ℓ₁)
     isAMonotonicEqv
-    (axiomUnivalentStr _ NTS (UnivalentStr-≡→UnivalentStr isAnOrderPreservingEqv orderUnivalentStr))
+    (axiomUnivalentStr _ NTS (SNS→UnivalentStr isAnOrderPreservingEqv orderUnivalentStr))
   where
     NTS : (A : Type ℓ) (_⊑_ : Order ℓ₁ A) → isProp [ satPosetAx ℓ₁ A _⊑_ ]
     NTS A _⊑_ = snd (satPosetAx ℓ₁ A _⊑_)
 
 poset-univ₀ : (P Q : Poset ℓ₀ ℓ₁) → (P ≃ₚ Q) ≃ (P ≡ Q)
-poset-univ₀ = SIP (UnivalentStr-≡→UnivalentStr isAMonotonicEqv posetUnivalentStr)
+poset-univ₀ = SIP (SNS→UnivalentStr isAMonotonicEqv posetUnivalentStr)
 
 -- This result is almost what we want but it is better talk directly about poset
 -- _isomorphisms_ rather than equivalences. In the case when types `A` and `B`
