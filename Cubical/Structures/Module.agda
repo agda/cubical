@@ -7,10 +7,11 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Structures.Axioms
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Ring      renaming (⟨_⟩ to ⟨_⟩r)
 open import Cubical.Structures.AbGroup   hiding (⟨_⟩)
@@ -79,7 +80,7 @@ module _ {R : Ring {ℓ}} where
   isSetLeftModule : (M : LeftModule R) → isSet ⟨ M ⟩
   isSetLeftModule M = isSetAbGroup (LeftModule→AbGroup M)
 
-record LeftModuleIso {R : Ring {ℓ}} (M N : LeftModule R) : Type ℓ where
+record LeftModuleEquiv {R : Ring {ℓ}} (M N : LeftModule R) : Type ℓ where
 
   constructor moduleiso
 
@@ -96,40 +97,40 @@ record LeftModuleIso {R : Ring {ℓ}} (M N : LeftModule R) : Type ℓ where
     isHom+ : (x y : ⟨ M ⟩) → equivFun e (x + y) ≡ equivFun e x + equivFun e y
     comm⋆ : (r : ⟨ R ⟩r) (x : ⟨ M ⟩) → equivFun e (r ⋆ x) ≡ r ⋆ equivFun e x
 
-module LeftModuleΣ-theory (R : Ring {ℓ}) where
+module LeftModuleΣTheory (R : Ring {ℓ}) where
 
   open Macro ℓ (recvar (recvar var) , param ⟨ R ⟩r (recvar var)) public renaming
-    ( structure to raw-leftModule-structure
-    ; iso       to raw-leftModule-iso
-    ; isSNS     to raw-leftModule-is-SNS )
+    ( structure to RawLeftModuleStructure
+    ; equiv     to RawLeftModuleEquivStr
+    ; univalent to RawLeftModuleUnivalentStr )
 
   open Ring R using (_·_; 1r) renaming (_+_ to _+r_)
 
-  leftModule-axioms : (M : Type ℓ) (s : raw-leftModule-structure M) → Type ℓ
-  leftModule-axioms M (_+_ , _⋆_) = AbGroupΣ-theory.abgroup-axioms M _+_
+  LeftModuleAxioms : (M : Type ℓ) (s : RawLeftModuleStructure M) → Type ℓ
+  LeftModuleAxioms M (_+_ , _⋆_) = AbGroupΣTheory.AbGroupAxioms M _+_
                                     × ((r s : ⟨ R ⟩r) (x : M) → (r · s) ⋆ x ≡ r ⋆ (s ⋆ x))
                                     × ((r s : ⟨ R ⟩r) (x : M) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
                                     × ((r : ⟨ R ⟩r) (x y : M) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
                                     × ((x : M) → 1r ⋆ x ≡ x)
 
-  leftModule-structure : Type ℓ → Type ℓ
-  leftModule-structure = add-to-structure raw-leftModule-structure leftModule-axioms
+  LeftModuleStructure : Type ℓ → Type ℓ
+  LeftModuleStructure = AxiomsStructure RawLeftModuleStructure LeftModuleAxioms
 
   LeftModuleΣ : Type (ℓ-suc ℓ)
-  LeftModuleΣ = TypeWithStr ℓ leftModule-structure
+  LeftModuleΣ = TypeWithStr ℓ LeftModuleStructure
 
-  leftModule-iso : StrIso leftModule-structure ℓ
-  leftModule-iso = add-to-iso raw-leftModule-iso leftModule-axioms
+  LeftModuleEquivStr : StrEquiv LeftModuleStructure ℓ
+  LeftModuleEquivStr = AxiomsEquivStr RawLeftModuleEquivStr LeftModuleAxioms
 
-  open AbGroupΣ-theory using (isSetAbGroupΣ)
+  open AbGroupΣTheory using (isSetAbGroupΣ)
 
   isSetLeftModuleΣ : (M : LeftModuleΣ)  → isSet _
   isSetLeftModuleΣ (M , (_+_ , _) , (isAbGroup-M , _)) = isSetAbGroupΣ (M , _+_ , isAbGroup-M)
 
-  isProp-leftModule-axioms : (M : Type ℓ) (s : raw-leftModule-structure M)
-                             → isProp (leftModule-axioms M s)
-  isProp-leftModule-axioms M (_+_ , _⋆_) =
-     isPropΣ (AbGroupΣ-theory.isProp-abgroup-axioms M _+_)
+  isProp-LeftModuleAxioms : (M : Type ℓ) (s : RawLeftModuleStructure M)
+                             → isProp (LeftModuleAxioms M s)
+  isProp-LeftModuleAxioms M (_+_ , _⋆_) =
+     isPropΣ (AbGroupΣTheory.isPropAbGroupAxioms M _+_)
              λ isAbGroup-M →
              isProp× (isPropΠ3 λ _ _ _ → (isSetAbGroupΣ (M , _+_ , isAbGroup-M)) _ _)
             (isProp× (isPropΠ3 λ _ _ _ → (isSetAbGroupΣ (M , _+_ , isAbGroup-M)) _ _)
@@ -140,44 +141,45 @@ module LeftModuleΣ-theory (R : Ring {ℓ}) where
   LeftModule→LeftModuleΣ
     (leftmodule M 0m _+_ -_ _⋆_ (ismodule +-isAbGroup ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid)) =
     M , (_+_ , _⋆_) ,
-    AbGroupΣ-theory.AbGroup→AbGroupΣ (abgroup _ _ _ _ +-isAbGroup) .snd .snd ,
+    AbGroupΣTheory.AbGroup→AbGroupΣ (abgroup _ _ _ _ +-isAbGroup) .snd .snd ,
     ⋆-assoc , ⋆-ldist , ⋆-rdist , ⋆-lid
 
   LeftModuleΣ→LeftModule : LeftModuleΣ → LeftModule R
   LeftModuleΣ→LeftModule (M , (_+_ , _⋆_) , isAbGroup-M , ⋆-assoc , ⋆-ldist , ⋆-rdist , ⋆-lid) =
-    let isAbGroup = AbGroupΣ-theory.AbGroupΣ→AbGroup (_ , _ , isAbGroup-M ) .AbGroup.isAbGroup
+    let isAbGroup = AbGroupΣTheory.AbGroupΣ→AbGroup (_ , _ , isAbGroup-M ) .AbGroup.isAbGroup
     in leftmodule M _ _+_ _ _⋆_
        (ismodule isAbGroup ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid)
 
-  LeftModuleIsoLeftModuleΣ : Iso (LeftModule R) LeftModuleΣ
-  LeftModuleIsoLeftModuleΣ = iso LeftModule→LeftModuleΣ LeftModuleΣ→LeftModule
+  LeftModuleEquivStrLeftModuleΣ : Iso (LeftModule R) LeftModuleΣ
+  LeftModuleEquivStrLeftModuleΣ = iso LeftModule→LeftModuleΣ LeftModuleΣ→LeftModule
                                  (λ _ → refl) (λ _ → refl)
 
-  leftModule-is-SNS : SNS leftModule-structure leftModule-iso
-  leftModule-is-SNS = add-axioms-SNS _ isProp-leftModule-axioms raw-leftModule-is-SNS
 
-  LeftModuleΣPath : (M N : LeftModuleΣ) → (M ≃[ leftModule-iso ] N) ≃ (M ≡ N)
-  LeftModuleΣPath = SIP leftModule-is-SNS
+  leftModuleUnivalentStr : UnivalentStr LeftModuleStructure LeftModuleEquivStr
+  leftModuleUnivalentStr = axiomsUnivalentStr _ isProp-LeftModuleAxioms RawLeftModuleUnivalentStr
 
-  LeftModuleIsoΣ : (M N : LeftModule R) → Type ℓ
-  LeftModuleIsoΣ M N = LeftModule→LeftModuleΣ M ≃[ leftModule-iso ] LeftModule→LeftModuleΣ N
+  LeftModuleΣPath : (M N : LeftModuleΣ) → (M ≃[ LeftModuleEquivStr ] N) ≃ (M ≡ N)
+  LeftModuleΣPath = SIP leftModuleUnivalentStr
 
-  LeftModuleIsoΣPath : {M N : LeftModule R} → Iso (LeftModuleIso M N) (LeftModuleIsoΣ M N)
-  fun LeftModuleIsoΣPath (moduleiso e isHom+ comm⋆) = e , isHom+ , comm⋆
-  inv LeftModuleIsoΣPath (e , isHom+ , comm⋆) = moduleiso e isHom+ comm⋆
-  rightInv LeftModuleIsoΣPath _ = refl
-  leftInv LeftModuleIsoΣPath _ = refl
+  LeftModuleEquivStrΣ : (M N : LeftModule R) → Type ℓ
+  LeftModuleEquivStrΣ M N = LeftModule→LeftModuleΣ M ≃[ LeftModuleEquivStr ] LeftModule→LeftModuleΣ N
 
-  LeftModulePath : (M N : LeftModule R) → (LeftModuleIso M N) ≃ (M ≡ N)
+  LeftModuleEquivStrΣPath : {M N : LeftModule R} → Iso (LeftModuleEquiv M N) (LeftModuleEquivStrΣ M N)
+  fun LeftModuleEquivStrΣPath (moduleiso e isHom+ comm⋆) = e , isHom+ , comm⋆
+  inv LeftModuleEquivStrΣPath (e , isHom+ , comm⋆) = moduleiso e isHom+ comm⋆
+  rightInv LeftModuleEquivStrΣPath _ = refl
+  leftInv LeftModuleEquivStrΣPath _ = refl
+
+  LeftModulePath : (M N : LeftModule R) → (LeftModuleEquiv M N) ≃ (M ≡ N)
   LeftModulePath M N =
-    LeftModuleIso M N                                    ≃⟨ isoToEquiv LeftModuleIsoΣPath ⟩
-    LeftModuleIsoΣ M N                                   ≃⟨ LeftModuleΣPath _ _ ⟩
+    LeftModuleEquiv M N                                    ≃⟨ isoToEquiv LeftModuleEquivStrΣPath ⟩
+    LeftModuleEquivStrΣ M N                                   ≃⟨ LeftModuleΣPath _ _ ⟩
     LeftModule→LeftModuleΣ M ≡ LeftModule→LeftModuleΣ N  ≃⟨ isoToEquiv
                                                              (invIso
                                                              (congIso
-                                                             LeftModuleIsoLeftModuleΣ))
+                                                             LeftModuleEquivStrLeftModuleΣ))
                                                            ⟩
     M ≡ N ■
 
-LeftModulePath : {R : Ring {ℓ}} (M N : LeftModule R) → (LeftModuleIso M N) ≃ (M ≡ N)
-LeftModulePath {ℓ} {R} = LeftModuleΣ-theory.LeftModulePath R
+LeftModulePath : {R : Ring {ℓ}} (M N : LeftModule R) → (LeftModuleEquiv M N) ≃ (M ≡ N)
+LeftModulePath {ℓ} {R} = LeftModuleΣTheory.LeftModulePath R
