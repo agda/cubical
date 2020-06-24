@@ -47,7 +47,7 @@ module _ (R' : Ring {ℓ}) where
   zeroSubset : (x : R) → hProp ℓ
   zeroSubset x = (x ≡ 0r) , isSetRing R' _ _
 
-  open theory R'
+  open Theory R'
 
   isIdealZeroIdeal : isIdeal zeroSubset
   isIdealZeroIdeal = record
