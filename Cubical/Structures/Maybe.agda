@@ -28,13 +28,13 @@ MaybeRel R nothing (just _) = Lift ⊥
 MaybeRel R (just _) nothing = Lift ⊥
 MaybeRel R (just x) (just y) = R x y
 
-MaybeRel-cong : {A B : Type ℓ} {R : A → B → Type ℓ₁} {S : A → B → Type ℓ₁'}
+congMaybeRel : {A B : Type ℓ} {R : A → B → Type ℓ₁} {S : A → B → Type ℓ₁'}
   → (∀ x y → R x y ≃ S x y)
   → ∀ ox oy → MaybeRel R ox oy ≃ MaybeRel S ox oy
-MaybeRel-cong e nothing nothing = Lift≃Lift (idEquiv _)
-MaybeRel-cong e nothing (just _) = Lift≃Lift (idEquiv _)
-MaybeRel-cong e (just _) nothing = Lift≃Lift (idEquiv _)
-MaybeRel-cong e (just x) (just y) = e x y
+congMaybeRel e nothing nothing = Lift≃Lift (idEquiv _)
+congMaybeRel e nothing (just _) = Lift≃Lift (idEquiv _)
+congMaybeRel e (just _) nothing = Lift≃Lift (idEquiv _)
+congMaybeRel e (just x) (just y) = e x y
 
 module MaybePathP where
 
@@ -95,5 +95,5 @@ maybeUnivalentStr : {S : Type ℓ → Type ℓ₁} (ι : StrEquiv S ℓ₁')
   → UnivalentStr S ι → UnivalentStr (MaybeStructure S) (MaybeEquivStr ι)
 maybeUnivalentStr ι θ {X , ox} {Y , oy} e =
   compEquiv
-    (MaybeRel-cong (λ x y → θ {X , x} {Y , y} e) ox oy)
+    (congMaybeRel (λ x y → θ {X , x} {Y , y} e) ox oy)
     (MaybePathP.Code≃PathP ox oy)

@@ -83,13 +83,13 @@ funcMacroAction (maybe d) f = map-Maybe (funcMacroAction d f)
 
 -- Proof that the action preserves the identity
 
-funcMacro-id : ∀ {ℓ} (d : FuncDesc ℓ)
+funcMacroId : ∀ {ℓ} (d : FuncDesc ℓ)
   {X : Type ℓ} → ∀ s → funcMacroAction d (idfun X) s ≡ s
-funcMacro-id (constant A) _ = refl
-funcMacro-id var _ = refl
-funcMacro-id (d₀ , d₁) (s₀ , s₁) = ΣPath≃PathΣ .fst (funcMacro-id d₀ s₀ , funcMacro-id d₁ s₁)
-funcMacro-id (param A d) s = funExt λ a → funcMacro-id d (s a)
-funcMacro-id (maybe d) s = cong₂ map-Maybe (funExt (funcMacro-id d)) refl ∙ map-Maybe-id s
+funcMacroId (constant A) _ = refl
+funcMacroId var _ = refl
+funcMacroId (d₀ , d₁) (s₀ , s₁) = ΣPath≃PathΣ .fst (funcMacroId d₀ s₀ , funcMacroId d₁ s₁)
+funcMacroId (param A d) s = funExt λ a → funcMacroId d (s a)
+funcMacroId (maybe d) s = cong₂ map-Maybe (funExt (funcMacroId d)) refl ∙ map-Maybe-id s
 
 {- General structures -}
 
@@ -144,12 +144,12 @@ MacroUnivalentStr (d₀ , d₁) =
 MacroUnivalentStr (param A d) = ParamUnivalentStr A (λ _ → MacroEquivStr d) (λ _ → MacroUnivalentStr d)
 MacroUnivalentStr (recvar d) = unaryFunUnivalentStr (MacroEquivStr d) (MacroUnivalentStr d)
 MacroUnivalentStr (maybe d) = maybeUnivalentStr (MacroEquivStr d) (MacroUnivalentStr d)
-MacroUnivalentStr (functorial d) = functorialUnivalentStr (funcMacroAction d) (funcMacro-id d)
+MacroUnivalentStr (functorial d) = functorialUnivalentStr (funcMacroAction d) (funcMacroId d)
 MacroUnivalentStr (foreign _ θ) = θ
 
 -- Module for easy importing
 module Macro ℓ (d : Desc ℓ) where
 
   structure = MacroStructure d
-  iso = MacroEquivStr d
-  isSNS = MacroUnivalentStr d
+  equiv = MacroEquivStr d
+  univalent = MacroUnivalentStr d

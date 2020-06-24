@@ -80,10 +80,10 @@ module SemigroupΣ-theory {ℓ} where
   RawSemigroupStructure : Type ℓ → Type ℓ
   RawSemigroupStructure X = X → X → X
 
-  RawSemigroupEquivStr = autoIso RawSemigroupStructure
+  RawSemigroupEquivStr = AutoEquivStr RawSemigroupStructure
 
   rawSemigroupUnivalentStr : UnivalentStr _ RawSemigroupEquivStr
-  rawSemigroupUnivalentStr = autoSNS RawSemigroupStructure
+  rawSemigroupUnivalentStr = autoUnivalentStr RawSemigroupStructure
 
   SemigroupAxioms : (A : Type ℓ) → RawSemigroupStructure A → Type ℓ
   SemigroupAxioms A _·_ = isSet A

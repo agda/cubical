@@ -1,6 +1,6 @@
 {-
 
-Macros (autoDesc, autoStructure, autoIso, autoSNS) for automatically generating structure definitions.
+Macros (autoDesc, AutoStructure, AutoEquivStr, autoUnivalentStr) for automatically generating structure definitions.
 
 For example:
 
@@ -250,22 +250,22 @@ macro
 
   -- (S : Type ℓ → Type ℓ₁) → (Type ℓ → Type ℓ₁)
   -- Removes Funct[_] annotations
-  autoStructure : R.Term → R.Term → R.TC Unit
-  autoStructure t hole =
+  AutoStructure : R.Term → R.Term → R.TC Unit
+  AutoStructure t hole =
     newMeta (tDesc R.unknown) >>= λ d →
     R.unify hole (R.def (quote MacroStructure) [ varg d ]) >>
     autoDesc' t d
 
-  -- (S : Type ℓ → Type ℓ₁) → StrIso (autoStructure S) _
-  autoIso : R.Term → R.Term → R.TC Unit
-  autoIso t hole =
+  -- (S : Type ℓ → Type ℓ₁) → StrIso (AutoStructure S) _
+  AutoEquivStr : R.Term → R.Term → R.TC Unit
+  AutoEquivStr t hole =
     newMeta (tDesc R.unknown) >>= λ d →
     R.unify hole (R.def (quote MacroEquivStr) [ varg d ]) >>
     autoDesc' t d
 
-  -- (S : Type ℓ → Type ℓ₁) → SNS (autoStructure S) (autoIso S)
-  autoSNS : R.Term → R.Term → R.TC Unit
-  autoSNS t hole =
+  -- (S : Type ℓ → Type ℓ₁) → SNS (AutoStructure S) (AutoEquivStr S)
+  autoUnivalentStr : R.Term → R.Term → R.TC Unit
+  autoUnivalentStr t hole =
     newMeta (tDesc R.unknown) >>= λ d →
     R.unify hole (R.def (quote MacroUnivalentStr) [ varg d ]) >>
     autoDesc' t d

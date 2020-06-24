@@ -37,46 +37,46 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
 
  -- deq as a structure
  -- First, a few preliminary results that we will need later
- deq-map : {X Y : Type ℓ} → (X → Y) → Maybe (X × A) → Maybe (Y × A)
- deq-map = autoFuncAction (λ (X : Type ℓ) → Maybe (X × A))
+ deqMap : {X Y : Type ℓ} → (X → Y) → Maybe (X × A) → Maybe (Y × A)
+ deqMap = autoFuncAction (λ (X : Type ℓ) → Maybe (X × A))
 
- deq-map-id : {X : Type ℓ} → ∀ r → deq-map (idfun X) r ≡ r
- deq-map-id = autoFuncId (λ (X : Type ℓ) → Maybe (X × A))
+ deqMapId : {X : Type ℓ} → ∀ r → deqMap (idfun X) r ≡ r
+ deqMapId = autoFuncId (λ (X : Type ℓ) → Maybe (X × A))
 
- deq-map-∘ :{B C D : Type ℓ}
+ deqMap-∘ :{B C D : Type ℓ}
   (g : C → D) (f : B → C)
-  → ∀ r → deq-map {X = C} g (deq-map f r) ≡ deq-map (λ b → g (f b)) r
- deq-map-∘ g f nothing = refl
- deq-map-∘ g f (just (b , a)) = refl
+  → ∀ r → deqMap {X = C} g (deqMap f r) ≡ deqMap (λ b → g (f b)) r
+ deqMap-∘ g f nothing = refl
+ deqMap-∘ g f (just (b , a)) = refl
 
  -- Now we can do Queues:
- raw-queue-desc =
+ rawQueueDesc =
    autoDesc (λ (X : Type ℓ) → X × (A → X → X) × (X → Funct[ Maybe (X × A) ]))
 
- open Macro ℓ raw-queue-desc public renaming
-   ( structure to raw-queue-structure
-   ; iso to raw-queue-iso
-   ; isSNS to RawQueue-is-SNS
+ open Macro ℓ rawQueueDesc public renaming
+   ( structure to RawQueueStructure
+   ; equiv to RawQueueEquivStr
+   ; univalent to rawQueueUnivalentStr
    )
 
  RawQueue : Type (ℓ-suc ℓ)
- RawQueue = TypeWithStr ℓ raw-queue-structure
+ RawQueue = TypeWithStr ℓ RawQueueStructure
 
  returnOrEnq : {Q : Type ℓ}
-  → raw-queue-structure Q → A → Maybe (Q × A) → Q × A
+  → RawQueueStructure Q → A → Maybe (Q × A) → Q × A
  returnOrEnq (emp , enq , _) a qr =
    Maybe.rec (emp , a) (λ {(q , b) → enq a q , b}) qr
 
- queue-axioms : (Q : Type ℓ) → raw-queue-structure Q → Type ℓ
- queue-axioms Q S@(emp , enq , deq) =
+ QueueAxioms : (Q : Type ℓ) → RawQueueStructure Q → Type ℓ
+ QueueAxioms Q S@(emp , enq , deq) =
    (isSet Q)
    × (deq emp ≡ nothing)
    × (∀ a q → deq (enq a q) ≡ just (returnOrEnq S a (deq q)))
    × (∀ a a' q q' → enq a q ≡ enq a' q' → (a ≡ a') × (q ≡ q'))
    × (∀ q q' → deq q ≡ deq q' → q ≡ q')
 
- isProp-queue-axioms : ∀ Q S → isProp (queue-axioms Q S)
- isProp-queue-axioms Q S =
+ isPropQueueAxioms : ∀ Q S → isProp (QueueAxioms Q S)
+ isPropQueueAxioms Q S =
    isPropΣ isPropIsSet
            (λ Qset → isProp×3 (isOfHLevelDeq Qset _ _)
                               (isPropΠ2 λ _ _ → isOfHLevelDeq Qset _ _)
@@ -86,33 +86,33 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
    isOfHLevelDeq : isSet Q → isOfHLevel 2 (Maybe (Q × A))
    isOfHLevelDeq Qset = isOfHLevelMaybe 0 (isSet× Qset Aset)
 
- queue-structure : Type ℓ → Type ℓ
- queue-structure = AxiomStructure raw-queue-structure queue-axioms
+ QueueStructure : Type ℓ → Type ℓ
+ QueueStructure = AxiomStructure RawQueueStructure QueueAxioms
 
  Queue : Type (ℓ-suc ℓ)
- Queue = TypeWithStr ℓ queue-structure
+ Queue = TypeWithStr ℓ QueueStructure
 
- queue-iso : StrEquiv queue-structure ℓ
- queue-iso = AxiomEquivStr raw-queue-iso queue-axioms
+ QueueEquivStr : StrEquiv QueueStructure ℓ
+ QueueEquivStr = AxiomEquivStr RawQueueEquivStr QueueAxioms
 
- Queue-is-SNS : UnivalentStr queue-structure queue-iso
- Queue-is-SNS = axiomUnivalentStr raw-queue-iso isProp-queue-axioms RawQueue-is-SNS
+ queueUnivalentStr : UnivalentStr QueueStructure QueueEquivStr
+ queueUnivalentStr = axiomUnivalentStr RawQueueEquivStr isPropQueueAxioms rawQueueUnivalentStr
 
 
- finite-queue-axioms : (Q : Type ℓ) → queue-structure Q → Type ℓ
- finite-queue-axioms Q ((emp , enq , _) , _) = isEquiv (foldr enq emp)
+ FiniteQueueAxioms : (Q : Type ℓ) → QueueStructure Q → Type ℓ
+ FiniteQueueAxioms Q ((emp , enq , _) , _) = isEquiv (foldr enq emp)
 
- isProp-finite-queue-axioms : ∀ Q S → isProp (finite-queue-axioms Q S)
- isProp-finite-queue-axioms Q S = isPropIsEquiv _
+ isPropFiniteQueueAxioms : ∀ Q S → isProp (FiniteQueueAxioms Q S)
+ isPropFiniteQueueAxioms Q S = isPropIsEquiv _
 
- finite-queue-structure : Type ℓ → Type ℓ
- finite-queue-structure = AxiomStructure queue-structure finite-queue-axioms
+ FiniteQueueStructure : Type ℓ → Type ℓ
+ FiniteQueueStructure = AxiomStructure QueueStructure FiniteQueueAxioms
 
  FiniteQueue : Type (ℓ-suc ℓ)
- FiniteQueue = TypeWithStr ℓ finite-queue-structure
+ FiniteQueue = TypeWithStr ℓ FiniteQueueStructure
 
- finite-queue-iso : StrEquiv finite-queue-structure ℓ
- finite-queue-iso = AxiomEquivStr queue-iso finite-queue-axioms
+ FiniteQueueEquivStr : StrEquiv FiniteQueueStructure ℓ
+ FiniteQueueEquivStr = AxiomEquivStr QueueEquivStr FiniteQueueAxioms
 
- FiniteQueue-is-SNS : UnivalentStr finite-queue-structure finite-queue-iso
- FiniteQueue-is-SNS = axiomUnivalentStr queue-iso isProp-finite-queue-axioms Queue-is-SNS
+ finiteQueueUnivalentStr : UnivalentStr FiniteQueueStructure FiniteQueueEquivStr
+ finiteQueueUnivalentStr = axiomUnivalentStr QueueEquivStr isPropFiniteQueueAxioms queueUnivalentStr

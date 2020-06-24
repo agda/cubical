@@ -41,10 +41,10 @@ open StrRel public
 
 -- Given a type A and relation R, a quotient structure is a structure on the set quotient A/R such that
 -- the graph of [_] : A → A/R is a structured relation
-QuotientStructure : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
+InducedQuotientStr : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
   (A : TypeWithStr ℓ S) (R : Rel (typ A) (typ A) ℓ)
   → Type (ℓ-max ℓ' ℓ'')
-QuotientStructure S ρ A R =
+InducedQuotientStr S ρ A R =
   Σ (S (typ A / R)) (ρ .rel (λ a b → [ a ] ≡ b) (A .snd))
 
 -- A bisimulation R between a pair of structured types A, B /descends to the quotients/ when the induced
@@ -57,8 +57,8 @@ record BisimDescends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
     module E = Bisim→Equiv R
 
   field
-    quoᴸ : QuotientStructure S ρ A E.Rᴸ
-    quoᴿ : QuotientStructure S ρ B E.Rᴿ
+    quoᴸ : InducedQuotientStr S ρ A E.Rᴸ
+    quoᴿ : InducedQuotientStr S ρ B E.Rᴿ
     path : PathP (λ i → S (ua E.Thm i)) (quoᴸ .fst) (quoᴿ .fst)
 
 open BisimDescends
@@ -66,12 +66,12 @@ open BisimDescends
 -- A notion of structured relations is standard when
 -- (a) Given a structured type A and equivalence relation R, there is at most one quotient structure on A/R
 -- (b) Any bisimulation descends to the quotients if and only if it is structured
-record isSNRS (S : SetStructure ℓ ℓ') (ρ : StrRel (S .struct) ℓ'') : Type (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ') ℓ'')
+record isUnivalentRel (S : SetStructure ℓ ℓ') (ρ : StrRel (S .struct) ℓ'') : Type (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ') ℓ'')
   where
   field
     propQuo : {A : TypeWithStr ℓ (S .struct)}
       (R : Σ[ R ∈ (typ A → typ A → Type ℓ) ] isEquivRel R)
-      → isProp (QuotientStructure (S .struct) ρ A (R .fst))
+      → isProp (InducedQuotientStr (S .struct) ρ A (R .fst))
     descends : {A B : TypeWithStr ℓ (S .struct)}
       (R : Bisimulation (typ A) (typ B) ℓ)
       → (ρ .rel (R .fst) (A .snd) (B .snd) → BisimDescends (S .struct) ρ A B R)

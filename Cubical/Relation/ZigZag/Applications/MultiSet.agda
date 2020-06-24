@@ -36,17 +36,17 @@ private
   ℓ : Level
   A : Type ℓ
 
--- We have a count-structure on List and AList and use these to get a bisimulation between the two
+-- We have a CountStructure on List and AList and use these to get a bisimulation between the two
 module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
  open RelMacro ℓ (param A (recvar (constant (ℕ , isSetℕ)))) renaming
    ( structure to S
-   ; SNRS to υ
+   ; univalent to υ
    )
 
- ι = count-iso A (Discrete→isSet discA)
+ ι = CountEquivStr A (Discrete→isSet discA)
 
- -- the count-structures
+ -- the CountStructures
  aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ
  aux a x (yes a≡x) n = suc n
  aux a x (no  a≢x) n = n
@@ -118,21 +118,19 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  List/Rᴸ≃AList/Rᴬᴸ = E.Thm
 
  main : BisimDescends _ _ (List A , Lcount) (AList A , ALcount) (R , isBisimR)
- main = υ .isSNRS.descends (R , isBisimR) .fst (λ a r → r a)
+ main = υ .isUnivalentRel.descends (R , isBisimR) .fst (λ a r → r a)
 
- List/Rᴸ-structure : S .struct List/Rᴸ
- List/Rᴸ-structure = main .BisimDescends.quoᴸ .fst
+ LQcount : S .struct List/Rᴸ
+ LQcount = main .BisimDescends.quoᴸ .fst
 
- LQcount = List/Rᴸ-structure
+ ALQcount : S .struct AList/Rᴬᴸ
+ ALQcount = main .BisimDescends.quoᴿ .fst
 
- AList/Rᴬᴸ-structure : S .struct AList/Rᴬᴸ
- AList/Rᴬᴸ-structure = main .BisimDescends.quoᴿ .fst
-
- -- We get a path between count-structures over the equivalence directly from the fact that the bisimulation
+ -- We get a path between CountStructures over the equivalence directly from the fact that the bisimulation
  -- is structured
 
  List/Rᴸ≡AList/Rᴬᴸ :
-   Path (TypeWithStr ℓ (S .struct)) (List/Rᴸ , List/Rᴸ-structure) (AList/Rᴬᴸ , AList/Rᴬᴸ-structure)
+   Path (TypeWithStr ℓ (S .struct)) (List/Rᴸ , LQcount) (AList/Rᴬᴸ , ALQcount)
  List/Rᴸ≡AList/Rᴬᴸ =  ΣPathP (ua E.Thm , main .BisimDescends.path)
 
  -- We now show that List/Rᴸ≃FMSet
@@ -164,7 +162,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
 
  -- The inverse is induced by the standard projection of lists into finite multisets,
- -- which is a morphism of count-structures
+ -- which is a morphism of CountStructures
  -- Moreover, we need 'count-extensionality' for finite multisets
  List→FMSet : List A → FMSet A
  List→FMSet [] = []
@@ -213,12 +211,12 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  FMSet≃List/Rᴸ : FMSet A ≃ List/Rᴸ
  FMSet≃List/Rᴸ = isoToEquiv (iso μ ν σ τ)
 
- --and this is a count-isomorphism, which is easier to prove for the inverse equiv
+ --and this is a CountEquivStrmorphism, which is easier to prove for the inverse equiv
  List/Rᴸ≃FMSet : List/Rᴸ ≃ FMSet A
  List/Rᴸ≃FMSet = isoToEquiv (iso ν μ τ σ)
 
- List/Rᴸ≃FMSet-is-count-iso : ι (List/Rᴸ , LQcount) (FMSet A , FMScount discA) List/Rᴸ≃FMSet
- List/Rᴸ≃FMSet-is-count-iso a = elimProp (λ _ → isSetℕ _ _) (List→FMSet-count a)
+ List/Rᴸ≃FMSet-is-CountEquivStr : ι (List/Rᴸ , LQcount) (FMSet A , FMScount discA) List/Rᴸ≃FMSet
+ List/Rᴸ≃FMSet-is-CountEquivStr a = elimProp (λ _ → isSetℕ _ _) (List→FMSet-count a)
 
  {-
  Putting everything together we get:
@@ -240,5 +238,5 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
     with the higher constructors removed (like AList)
  Then we get that this HIT is equivalent to the corresponding set quotient that identifies elements
  that give the same count on each a : A.
- TODO: Show that all the equivalences are indeed isomorphisms of multisets not only of count-structures!
+ TODO: Show that all the equivalences are indeed isomorphisms of multisets not only of CountStructures!
  -}

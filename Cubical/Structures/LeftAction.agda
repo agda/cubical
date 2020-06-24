@@ -11,7 +11,7 @@ module _ {ℓ ℓ' : Level} (A : Type ℓ') where
   LeftActionStructure : Type ℓ → Type (ℓ-max ℓ ℓ')
   LeftActionStructure X = A → X → X
 
-  LeftActionEquivStr = autoIso LeftActionStructure
+  LeftActionEquivStr = AutoEquivStr LeftActionStructure
 
   leftActionUnivalentStr : UnivalentStr _ LeftActionEquivStr
-  leftActionUnivalentStr = autoSNS LeftActionStructure
+  leftActionUnivalentStr = autoUnivalentStr LeftActionStructure

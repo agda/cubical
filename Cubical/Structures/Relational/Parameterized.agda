@@ -25,41 +25,41 @@ private
 
 module _ (A : Type ℓ₀) where
 
-  param-setStructure : (A → SetStructure ℓ ℓ₁) → SetStructure ℓ (ℓ-max ℓ₀ ℓ₁)
-  param-setStructure S .struct X = (a : A) → (S a .struct X)
-  param-setStructure S .set setX = isSetΠ λ a → S a .set setX
+  ParamSetStructure : (A → SetStructure ℓ ℓ₁) → SetStructure ℓ (ℓ-max ℓ₀ ℓ₁)
+  ParamSetStructure S .struct X = (a : A) → (S a .struct X)
+  ParamSetStructure S .set setX = isSetΠ λ a → S a .set setX
 
-  param-propRel : {S : A → Type ℓ → Type ℓ₁} {ℓ₁' : Level}
+  ParamPropRel : {S : A → Type ℓ → Type ℓ₁} {ℓ₁' : Level}
     → (∀ a → StrRel (S a) ℓ₁')
     → StrRel (ParamStructure A S) (ℓ-max ℓ₀ ℓ₁')
-  param-propRel ρ .rel R s t =
+  ParamPropRel ρ .rel R s t =
     (a : A) → ρ a .rel R (s a) (t a)
-  param-propRel ρ .prop propR s t =
+  ParamPropRel ρ .prop propR s t =
     isPropΠ λ a → ρ a .prop propR (s a) (t a)
 
-  open isSNRS
+  open isUnivalentRel
   open BisimDescends
 
-  isSNRSParam : {S : A → SetStructure ℓ ℓ₁} {ℓ₁' : Level}
+  paramUnivalentRel : {S : A → SetStructure ℓ ℓ₁} {ℓ₁' : Level}
     {ρ : ∀ a → StrRel (S a .struct) ℓ₁'}
-    → (∀ a → isSNRS (S a) (ρ a))
-    → isSNRS (param-setStructure S) (param-propRel ρ)
-  isSNRSParam {ρ = ρ} θ .propQuo R f f' =
+    → (∀ a → isUnivalentRel (S a) (ρ a))
+    → isUnivalentRel (ParamSetStructure S) (ParamPropRel ρ)
+  paramUnivalentRel {ρ = ρ} θ .propQuo R f f' =
     equivFun ΣPath≃PathΣ
       ( funExt (λ a → cong fst (θ a .propQuo R (f .fst a , f .snd a) (f' .fst a , f' .snd a)))
-      , isProp→PathP (λ _ → param-propRel ρ .prop (λ _ _ → squash/ _ _) _ _) _ _
+      , isProp→PathP (λ _ → ParamPropRel ρ .prop (λ _ _ → squash/ _ _) _ _) _ _
       )
-  isSNRSParam θ .descends _ .fst code .quoᴸ .fst a =
+  paramUnivalentRel θ .descends _ .fst code .quoᴸ .fst a =
     θ a .descends _ .fst (code a) .quoᴸ .fst
-  isSNRSParam θ .descends _ .fst code .quoᴸ .snd a =
+  paramUnivalentRel θ .descends _ .fst code .quoᴸ .snd a =
     θ a .descends _ .fst (code a) .quoᴸ .snd
-  isSNRSParam θ .descends _ .fst code .quoᴿ .fst a =
+  paramUnivalentRel θ .descends _ .fst code .quoᴿ .fst a =
     θ a .descends _ .fst (code a) .quoᴿ .fst
-  isSNRSParam θ .descends _ .fst code .quoᴿ .snd a =
+  paramUnivalentRel θ .descends _ .fst code .quoᴿ .snd a =
     θ a .descends _ .fst (code a) .quoᴿ .snd
-  isSNRSParam θ .descends _ .fst code .path =
+  paramUnivalentRel θ .descends _ .fst code .path =
     funExt λ a → θ a .descends _ .fst (code a) .path
-  isSNRSParam θ .descends {A = X , f} {B = Y , g} R .snd d a =
+  paramUnivalentRel θ .descends {A = X , f} {B = Y , g} R .snd d a =
     θ a .descends R .snd d'
     where
     d' : BisimDescends _ _ (X , f a) (Y , g a) R

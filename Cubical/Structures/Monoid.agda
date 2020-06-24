@@ -104,10 +104,10 @@ module MonoidΣTheory {ℓ} where
   RawMonoidStructure : Type ℓ → Type ℓ
   RawMonoidStructure X = X × (X → X → X)
 
-  RawMonoidEquivStr = autoIso RawMonoidStructure
+  RawMonoidEquivStr = AutoEquivStr RawMonoidStructure
 
   rawMonoidUnivalentStr : UnivalentStr _ RawMonoidEquivStr
-  rawMonoidUnivalentStr = autoSNS RawMonoidStructure
+  rawMonoidUnivalentStr = autoUnivalentStr RawMonoidStructure
 
   MonoidAxioms : (M : Type ℓ) → RawMonoidStructure M → Type ℓ
   MonoidAxioms M (e , _·_) = IsSemigroup _·_

@@ -153,8 +153,8 @@ module RingΣTheory {ℓ} where
 
   open Macro ℓ (recvar (recvar var) , var , recvar (recvar var)) public renaming
     ( structure to RawRingStructure
-    ; iso       to RawRingEquivStr
-    ; isSNS     to rawRingUnivalentStr )
+    ; equiv     to RawRingEquivStr
+    ; univalent to rawRingUnivalentStr )
 
   RingAxioms : (R : Type ℓ) (s : RawRingStructure R) → Type ℓ
   RingAxioms R (_+_ , 1r , _·_) =
@@ -205,15 +205,15 @@ module RingΣTheory {ℓ} where
   RingEquivΣ : (R S : Ring) → Type ℓ
   RingEquivΣ R S = Ring→RingΣ R ≃[ RingEquivStr ] Ring→RingΣ S
 
-  RingEquivΣPath : {R S : Ring} → Iso (RingEquiv R S) (RingEquivΣ R S)
-  fun RingEquivΣPath (ringequiv e h1 h2 h3) = e , h2 , h1 , h3
-  inv RingEquivΣPath (e , h1 , h2 , h3)    = ringequiv e h2 h1 h3
-  rightInv RingEquivΣPath _                = refl
-  leftInv RingEquivΣPath _                 = refl
+  RingIsoΣPath : {R S : Ring} → Iso (RingEquiv R S) (RingEquivΣ R S)
+  fun RingIsoΣPath (ringequiv e h1 h2 h3) = e , h2 , h1 , h3
+  inv RingIsoΣPath (e , h1 , h2 , h3)    = ringequiv e h2 h1 h3
+  rightInv RingIsoΣPath _                = refl
+  leftInv RingIsoΣPath _                 = refl
 
   RingPath : (R S : Ring) → (RingEquiv R S) ≃ (R ≡ S)
   RingPath R S =
-    RingEquiv R S               ≃⟨ isoToEquiv RingEquivΣPath ⟩
+    RingEquiv R S               ≃⟨ isoToEquiv RingIsoΣPath ⟩
     RingEquivΣ R S              ≃⟨ RingΣPath _ _ ⟩
     Ring→RingΣ R ≡ Ring→RingΣ S ≃⟨ isoToEquiv (invIso (congIso RingIsoRingΣ)) ⟩
     R ≡ S ■

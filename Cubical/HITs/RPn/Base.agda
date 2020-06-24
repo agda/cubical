@@ -74,7 +74,7 @@ snd (isContr-BoolPointedEquivStr x) (e , p)
 --  that there is therefore a unique pointed isomorphism (Bool , false) ≃ (X , x) for any
 --  2-element pointed type (X , x, ∣e∣).
 isContr-2-EltPointed-iso : (X∙ : 2-EltPointed₀)
-                         → isContr ((Bool , false , ∣ idEquiv Bool ∣) ≃[ PointedEqvTo-iso Bool ] X∙)
+                         → isContr ((Bool , false , ∣ idEquiv Bool ∣) ≃[ PointedEqvToEquivStr Bool ] X∙)
 isContr-2-EltPointed-iso (X , x , ∣e∣)
   = PropTrunc.rec isPropIsContr
                   (λ e → J (λ X∙ _ → isContr ((Bool , false) ≃[ PointedEquivStr ] X∙))

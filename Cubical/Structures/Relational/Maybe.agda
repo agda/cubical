@@ -21,42 +21,42 @@ private
 
 -- Structured relations
 
-maybe-setStructure : SetStructure ℓ ℓ₁ → SetStructure ℓ ℓ₁
-maybe-setStructure S .struct = MaybeStructure (S .struct)
-maybe-setStructure S .set setX = isOfHLevelMaybe 0 (S .set setX)
+MaybeSetStructure : SetStructure ℓ ℓ₁ → SetStructure ℓ ℓ₁
+MaybeSetStructure S .struct = MaybeStructure (S .struct)
+MaybeSetStructure S .set setX = isOfHLevelMaybe 0 (S .set setX)
 
-maybe-propRel : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
+MaybePropRel : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
   → StrRel S ℓ₁' → StrRel (λ X → Maybe (S X)) ℓ₁'
-maybe-propRel ρ .rel R = MaybeRel (ρ .rel R)
-maybe-propRel ρ .prop propR nothing nothing = isOfHLevelLift 1 isPropUnit
-maybe-propRel ρ .prop propR nothing (just y) = isOfHLevelLift 1 isProp⊥
-maybe-propRel ρ .prop propR (just x) nothing = isOfHLevelLift 1 isProp⊥
-maybe-propRel ρ .prop propR (just x) (just y) = ρ .prop propR x y
+MaybePropRel ρ .rel R = MaybeRel (ρ .rel R)
+MaybePropRel ρ .prop propR nothing nothing = isOfHLevelLift 1 isPropUnit
+MaybePropRel ρ .prop propR nothing (just y) = isOfHLevelLift 1 isProp⊥
+MaybePropRel ρ .prop propR (just x) nothing = isOfHLevelLift 1 isProp⊥
+MaybePropRel ρ .prop propR (just x) (just y) = ρ .prop propR x y
 
-open isSNRS
+open isUnivalentRel
 open BisimDescends
 
-isSNRSMaybe : {S : SetStructure ℓ ℓ₁} {ρ : StrRel (S .struct) ℓ₁'}
-  → isSNRS S ρ
-  → isSNRS (maybe-setStructure S) (maybe-propRel ρ)
-isSNRSMaybe θ .propQuo {X , nothing} R (nothing , lift tt) (nothing , lift tt) = refl
-isSNRSMaybe θ .propQuo {X , just x} R (just x' , p) (just y' , q) =
+maybeUnivalentRel : {S : SetStructure ℓ ℓ₁} {ρ : StrRel (S .struct) ℓ₁'}
+  → isUnivalentRel S ρ
+  → isUnivalentRel (MaybeSetStructure S) (MaybePropRel ρ)
+maybeUnivalentRel θ .propQuo {X , nothing} R (nothing , lift tt) (nothing , lift tt) = refl
+maybeUnivalentRel θ .propQuo {X , just x} R (just x' , p) (just y' , q) =
   cong (λ {(z , r) → (just z , r)}) (θ .propQuo R (x' , p) (y' , q))
-isSNRSMaybe θ .descends {X , nothing} R .fst code .quoᴸ = nothing , _
-isSNRSMaybe θ .descends {X , just x} {Y , just y} R .fst code .quoᴸ =
+maybeUnivalentRel θ .descends {X , nothing} R .fst code .quoᴸ = nothing , _
+maybeUnivalentRel θ .descends {X , just x} {Y , just y} R .fst code .quoᴸ =
   just (θ .descends R .fst code .quoᴸ .fst) , θ .descends R .fst code .quoᴸ .snd
-isSNRSMaybe θ .descends {B = Y , nothing} R .fst code .quoᴿ = nothing , _
-isSNRSMaybe θ .descends {X , just x} {Y , just y} R .fst code .quoᴿ =
+maybeUnivalentRel θ .descends {B = Y , nothing} R .fst code .quoᴿ = nothing , _
+maybeUnivalentRel θ .descends {X , just x} {Y , just y} R .fst code .quoᴿ =
   just (θ .descends R .fst code .quoᴿ .fst) , θ .descends R .fst code .quoᴿ .snd
-isSNRSMaybe θ .descends {X , nothing} {Y , nothing} R .fst code .path i = nothing
-isSNRSMaybe θ .descends {X , just x} {Y , just y} R .fst code .path i =
+maybeUnivalentRel θ .descends {X , nothing} {Y , nothing} R .fst code .path i = nothing
+maybeUnivalentRel θ .descends {X , just x} {Y , just y} R .fst code .path i =
   just (θ .descends R .fst code .path i)
-isSNRSMaybe θ .descends {X , nothing} {Y , nothing} R .snd d = _
-isSNRSMaybe θ .descends {X , nothing} {Y , just y} R .snd d with d .quoᴸ | d .quoᴿ | d .path
+maybeUnivalentRel θ .descends {X , nothing} {Y , nothing} R .snd d = _
+maybeUnivalentRel θ .descends {X , nothing} {Y , just y} R .snd d with d .quoᴸ | d .quoᴿ | d .path
 ... | nothing , _ | just y' , _ | p = lift (MaybePathP.encode _ _ _ p .lower)
-isSNRSMaybe θ .descends {X , just x} {Y , nothing} R .snd d with d .quoᴸ | d .quoᴿ | d .path
+maybeUnivalentRel θ .descends {X , just x} {Y , nothing} R .snd d with d .quoᴸ | d .quoᴿ | d .path
 ... | just x' , _ | nothing , _ | p = lift (MaybePathP.encode _ _ _ p .lower)
-isSNRSMaybe θ .descends {X , just x} {Y , just y} R .snd d with d .quoᴸ | d .quoᴿ | d .path
+maybeUnivalentRel θ .descends {X , just x} {Y , just y} R .snd d with d .quoᴸ | d .quoᴿ | d .path
 ... | just x' , c | just y' , c' | p =
   θ .descends R .snd d'
   where

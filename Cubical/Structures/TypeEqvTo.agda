@@ -24,18 +24,18 @@ PointedEqvTo ℓ X = TypeWithStr ℓ (λ Y → Y × ∥ Y ≃ X ∥)
 
 module _ (X : Type ℓ') where
 
-  PointedEqvTo-structure : Type ℓ → Type (ℓ-max ℓ ℓ')
-  PointedEqvTo-structure = AxiomStructure PointedStructure (λ Y _ → ∥ Y ≃ X ∥)
+  PointedEqvToStructure : Type ℓ → Type (ℓ-max ℓ ℓ')
+  PointedEqvToStructure = AxiomStructure PointedStructure (λ Y _ → ∥ Y ≃ X ∥)
 
-  PointedEqvTo-iso : StrEquiv PointedEqvTo-structure ℓ''
-  PointedEqvTo-iso = AxiomEquivStr PointedEquivStr (λ Y _ → ∥ Y ≃ X ∥)
+  PointedEqvToEquivStr : StrEquiv PointedEqvToStructure ℓ''
+  PointedEqvToEquivStr = AxiomEquivStr PointedEquivStr (λ Y _ → ∥ Y ≃ X ∥)
 
-  PointedEqvTo-is-SNS : UnivalentStr {ℓ} PointedEqvTo-structure PointedEqvTo-iso
-  PointedEqvTo-is-SNS = axiomUnivalentStr PointedEquivStr {axioms = λ Y _ → ∥ Y ≃ X ∥}
+  pointedEqvToUnivalentStr : UnivalentStr {ℓ} PointedEqvToStructure PointedEqvToEquivStr
+  pointedEqvToUnivalentStr = axiomUnivalentStr PointedEquivStr {axioms = λ Y _ → ∥ Y ≃ X ∥}
                                           (λ _ _ → squash) pointedUnivalentStr
 
-  PointedEqvTo-SIP : (A B : PointedEqvTo ℓ X) → A ≃[ PointedEqvTo-iso ] B ≃ (A ≡ B)
-  PointedEqvTo-SIP = SIP PointedEqvTo-is-SNS
+  PointedEqvToSIP : (A B : PointedEqvTo ℓ X) → A ≃[ PointedEqvToEquivStr ] B ≃ (A ≡ B)
+  PointedEqvToSIP = SIP pointedEqvToUnivalentStr
 
-  PointedEqvTo-sip : (A B : PointedEqvTo ℓ X) → A ≃[ PointedEqvTo-iso ] B → (A ≡ B)
-  PointedEqvTo-sip A B = equivFun (PointedEqvTo-SIP A B)
+  PointedEqvTo-sip : (A B : PointedEqvTo ℓ X) → A ≃[ PointedEqvToEquivStr ] B → (A ≡ B)
+  PointedEqvTo-sip A B = equivFun (PointedEqvToSIP A B)

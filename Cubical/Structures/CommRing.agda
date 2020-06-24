@@ -140,7 +140,7 @@ module CommRingΣTheory {ℓ} where
 
   CommRingPath : (R S : CommRing) → (CommRingEquiv R S) ≃ (R ≡ S)
   CommRingPath R S =
-    CommRingEquiv R S   ≃⟨ isoToEquiv RingEquivΣPath ⟩
+    CommRingEquiv R S   ≃⟨ isoToEquiv RingIsoΣPath ⟩
     CommRingEquivΣ R S  ≃⟨ CommRingΣPath _ _ ⟩
     CommRing→CommRingΣ R ≡ CommRing→CommRingΣ S
       ≃⟨ isoToEquiv (invIso (congIso CommRingIsoCommRingΣ)) ⟩
