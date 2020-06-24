@@ -38,7 +38,7 @@ isHomogeneousPath : ∀ {ℓ} (A : Type ℓ) {x y : A} (p : x ≡ y) → isHomog
 isHomogeneousPath A {x} {y} p q
   = pointed-sip ((x ≡ y) , p) ((x ≡ y) , q) (eqv , compPathr-cancel p q)
   where eqv : (x ≡ y) ≃ (x ≡ y)
-        eqv = ((q ∙ sym p) ∙_) , compPathl-isEquiv (q ∙ sym p)
+        eqv = compPathlEquiv (q ∙ sym p)
 
 module HomogeneousDiscrete {ℓ} {A∙ : Pointed ℓ} (dA : Discrete (typ A∙)) (y : typ A∙) where
 
