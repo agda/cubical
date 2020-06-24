@@ -57,34 +57,34 @@ infixr 4 _,_
 
 {- Functorial structures -}
 
-funcMacro-structure-level : ∀ {ℓ} → FuncDesc ℓ → Level
-funcMacro-structure-level (constant {ℓ'} x) = ℓ'
-funcMacro-structure-level {ℓ} var = ℓ
-funcMacro-structure-level {ℓ} (d₀ , d₁) = ℓ-max (funcMacro-structure-level d₀) (funcMacro-structure-level d₁)
-funcMacro-structure-level (param {ℓ'} A d) = ℓ-max ℓ' (funcMacro-structure-level d)
-funcMacro-structure-level (maybe d) = funcMacro-structure-level d
+funcMacroLevel : ∀ {ℓ} → FuncDesc ℓ → Level
+funcMacroLevel (constant {ℓ'} x) = ℓ'
+funcMacroLevel {ℓ} var = ℓ
+funcMacroLevel {ℓ} (d₀ , d₁) = ℓ-max (funcMacroLevel d₀) (funcMacroLevel d₁)
+funcMacroLevel (param {ℓ'} A d) = ℓ-max ℓ' (funcMacroLevel d)
+funcMacroLevel (maybe d) = funcMacroLevel d
 
 -- Structure defined by a functorial descriptor
-funcMacro-structure : ∀ {ℓ} (d : FuncDesc ℓ) → Type ℓ → Type (funcMacro-structure-level d)
-funcMacro-structure (constant A) X = A
-funcMacro-structure var X = X
-funcMacro-structure (d₀ , d₁) X = funcMacro-structure d₀ X × funcMacro-structure d₁ X
-funcMacro-structure (param A d) X = A → funcMacro-structure d X
-funcMacro-structure (maybe d) = MaybeStructure (funcMacro-structure d)
+FuncMacroStructure : ∀ {ℓ} (d : FuncDesc ℓ) → Type ℓ → Type (funcMacroLevel d)
+FuncMacroStructure (constant A) X = A
+FuncMacroStructure var X = X
+FuncMacroStructure (d₀ , d₁) X = FuncMacroStructure d₀ X × FuncMacroStructure d₁ X
+FuncMacroStructure (param A d) X = A → FuncMacroStructure d X
+FuncMacroStructure (maybe d) = MaybeStructure (FuncMacroStructure d)
 
 -- Action defined by a functorial descriptor
-funcMacro-action : ∀ {ℓ} (d : FuncDesc ℓ)
-  {X Y : Type ℓ} → (X → Y) → funcMacro-structure d X → funcMacro-structure d Y
-funcMacro-action (constant A) _ = idfun A
-funcMacro-action var f = f
-funcMacro-action (d₀ , d₁) f (s₀ , s₁) = funcMacro-action d₀ f s₀ , funcMacro-action d₁ f s₁
-funcMacro-action (param A d) f s a = funcMacro-action d f (s a)
-funcMacro-action (maybe d) f = map-Maybe (funcMacro-action d f)
+funcMacroAction : ∀ {ℓ} (d : FuncDesc ℓ)
+  {X Y : Type ℓ} → (X → Y) → FuncMacroStructure d X → FuncMacroStructure d Y
+funcMacroAction (constant A) _ = idfun A
+funcMacroAction var f = f
+funcMacroAction (d₀ , d₁) f (s₀ , s₁) = funcMacroAction d₀ f s₀ , funcMacroAction d₁ f s₁
+funcMacroAction (param A d) f s a = funcMacroAction d f (s a)
+funcMacroAction (maybe d) f = map-Maybe (funcMacroAction d f)
 
 -- Proof that the action preserves the identity
 
 funcMacro-id : ∀ {ℓ} (d : FuncDesc ℓ)
-  {X : Type ℓ} → ∀ s → funcMacro-action d (idfun X) s ≡ s
+  {X : Type ℓ} → ∀ s → funcMacroAction d (idfun X) s ≡ s
 funcMacro-id (constant A) _ = refl
 funcMacro-id var _ = refl
 funcMacro-id (d₀ , d₁) (s₀ , s₁) = ΣPath≃PathΣ .fst (funcMacro-id d₀ s₀ , funcMacro-id d₁ s₁)
@@ -93,62 +93,63 @@ funcMacro-id (maybe d) s = cong₂ map-Maybe (funExt (funcMacro-id d)) refl ∙ 
 
 {- General structures -}
 
-macro-structure-level : ∀ {ℓ} → Desc ℓ → Level
-macro-structure-level (constant {ℓ'} x) = ℓ'
-macro-structure-level {ℓ} var = ℓ
-macro-structure-level {ℓ} (d₀ , d₁) = ℓ-max (macro-structure-level d₀) (macro-structure-level d₁)
-macro-structure-level (param {ℓ'} A d) = ℓ-max ℓ' (macro-structure-level d)
-macro-structure-level {ℓ} (recvar d) = ℓ-max ℓ (macro-structure-level d)
-macro-structure-level (maybe d) = macro-structure-level d
-macro-structure-level (functorial d) = funcMacro-structure-level d
-macro-structure-level (foreign {ℓ'} _ _) = ℓ'
+macroStrLevel : ∀ {ℓ} → Desc ℓ → Level
+macroStrLevel (constant {ℓ'} x) = ℓ'
+macroStrLevel {ℓ} var = ℓ
+macroStrLevel {ℓ} (d₀ , d₁) = ℓ-max (macroStrLevel d₀) (macroStrLevel d₁)
+macroStrLevel (param {ℓ'} A d) = ℓ-max ℓ' (macroStrLevel d)
+macroStrLevel {ℓ} (recvar d) = ℓ-max ℓ (macroStrLevel d)
+macroStrLevel (maybe d) = macroStrLevel d
+macroStrLevel (functorial d) = funcMacroLevel d
+macroStrLevel (foreign {ℓ'} _ _) = ℓ'
 
-macro-iso-level : ∀ {ℓ} → Desc ℓ → Level
-macro-iso-level (constant {ℓ'} x) = ℓ'
-macro-iso-level {ℓ} var = ℓ
-macro-iso-level {ℓ} (d₀ , d₁) = ℓ-max (macro-iso-level d₀) (macro-iso-level d₁)
-macro-iso-level (param {ℓ'} A d) = ℓ-max ℓ' (macro-iso-level d)
-macro-iso-level {ℓ} (recvar d) = ℓ-max ℓ (macro-iso-level d)
-macro-iso-level (maybe d) = macro-iso-level d
-macro-iso-level (functorial d) = funcMacro-structure-level d
-macro-iso-level (foreign {ℓ'' = ℓ''} _ _) = ℓ''
+macroEquivLevel : ∀ {ℓ} → Desc ℓ → Level
+macroEquivLevel (constant {ℓ'} x) = ℓ'
+macroEquivLevel {ℓ} var = ℓ
+macroEquivLevel {ℓ} (d₀ , d₁) = ℓ-max (macroEquivLevel d₀) (macroEquivLevel d₁)
+macroEquivLevel (param {ℓ'} A d) = ℓ-max ℓ' (macroEquivLevel d)
+macroEquivLevel {ℓ} (recvar d) = ℓ-max ℓ (macroEquivLevel d)
+macroEquivLevel (maybe d) = macroEquivLevel d
+macroEquivLevel (functorial d) = funcMacroLevel d
+macroEquivLevel (foreign {ℓ'' = ℓ''} _ _) = ℓ''
 
 -- Structure defined by a descriptor
-macro-structure : ∀ {ℓ} (d : Desc ℓ) → Type ℓ → Type (macro-structure-level d)
-macro-structure (constant A) X = A
-macro-structure var X = X
-macro-structure (d₀ , d₁) X = macro-structure d₀ X × macro-structure d₁ X
-macro-structure (param A d) X = A → macro-structure d X
-macro-structure (recvar d) X = X → macro-structure d X
-macro-structure (maybe d) = MaybeStructure (macro-structure d)
-macro-structure (functorial d) = funcMacro-structure d
-macro-structure (foreign {S = S} _ _) = S
+MacroStructure : ∀ {ℓ} (d : Desc ℓ) → Type ℓ → Type (macroStrLevel d)
+MacroStructure (constant A) X = A
+MacroStructure var X = X
+MacroStructure (d₀ , d₁) X = MacroStructure d₀ X × MacroStructure d₁ X
+MacroStructure (param A d) X = A → MacroStructure d X
+MacroStructure (recvar d) X = X → MacroStructure d X
+MacroStructure (maybe d) = MaybeStructure (MacroStructure d)
+MacroStructure (functorial d) = FuncMacroStructure d
+MacroStructure (foreign {S = S} _ _) = S
 
 -- Notion of structured isomorphism defined by a descriptor
-macro-iso : ∀ {ℓ} → (d : Desc ℓ) → StrEquiv {ℓ} (macro-structure d) (macro-iso-level d)
-macro-iso (constant A) = ConstantEquivStr A
-macro-iso var = PointedEquivStr
-macro-iso (d₀ , d₁) = ProductEquivStr (macro-iso d₀) (macro-iso d₁)
-macro-iso (param A d) = ParamEquivStr A λ _ → macro-iso d
-macro-iso (recvar d) = UnaryFunEquivStr (macro-iso d)
-macro-iso (maybe d) = MaybeEquivStr (macro-iso d)
-macro-iso (functorial d) = FunctorialEquivStr (funcMacro-action d)
-macro-iso (foreign ι _) = ι
+MacroEquivStr : ∀ {ℓ} → (d : Desc ℓ) → StrEquiv {ℓ} (MacroStructure d) (macroEquivLevel d)
+MacroEquivStr (constant A) = ConstantEquivStr A
+MacroEquivStr var = PointedEquivStr
+MacroEquivStr (d₀ , d₁) = ProductEquivStr (MacroEquivStr d₀) (MacroEquivStr d₁)
+MacroEquivStr (param A d) = ParamEquivStr A λ _ → MacroEquivStr d
+MacroEquivStr (recvar d) = UnaryFunEquivStr (MacroEquivStr d)
+MacroEquivStr (maybe d) = MaybeEquivStr (MacroEquivStr d)
+MacroEquivStr (functorial d) = FunctorialEquivStr (funcMacroAction d)
+MacroEquivStr (foreign ι _) = ι
 
 -- Proof that structure induced by descriptor is a standard notion of structure
-macro-is-SNS : ∀ {ℓ} → (d : Desc ℓ) → UnivalentStr (macro-structure d) (macro-iso d)
-macro-is-SNS (constant A) = constantUnivalentStr A
-macro-is-SNS var = pointedUnivalentStr
-macro-is-SNS (d₀ , d₁) = ProductUnivalentStr (macro-iso d₀) (macro-is-SNS d₀) (macro-iso d₁) (macro-is-SNS d₁)
-macro-is-SNS (param A d) = ParamUnivalentStr A (λ _ → macro-iso d) (λ _ → macro-is-SNS d)
-macro-is-SNS (recvar d) = unaryFunUnivalentStr (macro-iso d) (macro-is-SNS d)
-macro-is-SNS (maybe d) = maybeUnivalentStr (macro-iso d) (macro-is-SNS d)
-macro-is-SNS (functorial d) = functorialUnivalentStr (funcMacro-action d) (funcMacro-id d)
-macro-is-SNS (foreign _ θ) = θ
+MacroUnivalentStr : ∀ {ℓ} → (d : Desc ℓ) → UnivalentStr (MacroStructure d) (MacroEquivStr d)
+MacroUnivalentStr (constant A) = constantUnivalentStr A
+MacroUnivalentStr var = pointedUnivalentStr
+MacroUnivalentStr (d₀ , d₁) =
+  ProductUnivalentStr (MacroEquivStr d₀) (MacroUnivalentStr d₀) (MacroEquivStr d₁) (MacroUnivalentStr d₁)
+MacroUnivalentStr (param A d) = ParamUnivalentStr A (λ _ → MacroEquivStr d) (λ _ → MacroUnivalentStr d)
+MacroUnivalentStr (recvar d) = unaryFunUnivalentStr (MacroEquivStr d) (MacroUnivalentStr d)
+MacroUnivalentStr (maybe d) = maybeUnivalentStr (MacroEquivStr d) (MacroUnivalentStr d)
+MacroUnivalentStr (functorial d) = functorialUnivalentStr (funcMacroAction d) (funcMacro-id d)
+MacroUnivalentStr (foreign _ θ) = θ
 
 -- Module for easy importing
 module Macro ℓ (d : Desc ℓ) where
 
-  structure = macro-structure d
-  iso = macro-iso d
-  isSNS = macro-is-SNS d
+  structure = MacroStructure d
+  iso = MacroEquivStr d
+  isSNS = MacroUnivalentStr d

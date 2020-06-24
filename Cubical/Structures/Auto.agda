@@ -234,14 +234,14 @@ macro
   autoFuncAction : R.Term → R.Term → R.TC Unit
   autoFuncAction t hole =
     newMeta (tFuncDesc R.unknown) >>= λ d →
-    R.unify hole (R.def (quote funcMacro-action) [ varg d ]) >>
+    R.unify hole (R.def (quote funcMacroAction) [ varg d ]) >>
     autoFuncDesc' t d
 
   -- (S : Type ℓ → Type ℓ₁) → ∀ {X} s → autoFuncAction S (idfun X) s ≡ s
   autoFuncId : R.Term → R.Term → R.TC Unit
   autoFuncId t hole =
     newMeta (tFuncDesc R.unknown) >>= λ d →
-    R.unify hole (R.def (quote funcMacro-id) [ varg d ]) >>
+    R.unify hole (R.def (quote funcMacroId) [ varg d ]) >>
     autoFuncDesc' t d
 
   -- (S : Type ℓ → Type ℓ₁) → Desc ℓ
@@ -253,19 +253,19 @@ macro
   autoStructure : R.Term → R.Term → R.TC Unit
   autoStructure t hole =
     newMeta (tDesc R.unknown) >>= λ d →
-    R.unify hole (R.def (quote macro-structure) [ varg d ]) >>
+    R.unify hole (R.def (quote MacroStructure) [ varg d ]) >>
     autoDesc' t d
 
   -- (S : Type ℓ → Type ℓ₁) → StrIso (autoStructure S) _
   autoIso : R.Term → R.Term → R.TC Unit
   autoIso t hole =
     newMeta (tDesc R.unknown) >>= λ d →
-    R.unify hole (R.def (quote macro-iso) [ varg d ]) >>
+    R.unify hole (R.def (quote MacroEquivStr) [ varg d ]) >>
     autoDesc' t d
 
   -- (S : Type ℓ → Type ℓ₁) → SNS (autoStructure S) (autoIso S)
   autoSNS : R.Term → R.Term → R.TC Unit
   autoSNS t hole =
     newMeta (tDesc R.unknown) >>= λ d →
-    R.unify hole (R.def (quote macro-is-SNS) [ varg d ]) >>
+    R.unify hole (R.def (quote MacroUnivalentStr) [ varg d ]) >>
     autoDesc' t d

@@ -29,8 +29,8 @@ module _ {ℓ} where
     )
 
 rng-axioms : (X : Type ℓ) (s : raw-rng-structure X) → Type ℓ
-rng-axioms X (_·_ , _+_) = abelian-group-axioms X _·_ ×
-                           SemigroupΣ-theory.semigroup-axioms X _+_ ×
+rng-axioms X (_·_ , _+_) = abelian-GroupAxioms X _·_ ×
+                           SemigroupΣ-theory.SemigroupAxioms X _+_ ×
                            ((x y z : X) → x · (y + z) ≡ (x · y) + (x · z)) ×
                            ((x y z : X) → (x + y) · z ≡ (x · z) + (y · z))
 
@@ -45,8 +45,8 @@ rng-iso : StrEquiv rng-structure ℓ
 rng-iso = AxiomEquivStr raw-rng-iso rng-axioms
 
 rng-axioms-isProp : (X : Type ℓ) (s : raw-rng-structure X) → isProp (rng-axioms X s)
-rng-axioms-isProp X (_·_ , _+_) = isPropΣ (abelian-group-axioms-isProp X _·_)
-                                  λ _ → isPropΣ (SemigroupΣ-theory.semigroup-axioms-isProp X _+_)
+rng-axioms-isProp X (_·_ , _+_) = isPropΣ (abelian-GroupAxioms-isProp X _·_)
+                                  λ _ → isPropΣ (SemigroupΣ-theory.isPropSemigroupAxioms X _+_)
                                   λ { (isSetX , _) → isPropΣ (isPropΠ3 (λ _ _ _ → isSetX _ _))
                                   λ _ → isPropΠ3 (λ _ _ _ → isSetX _ _)}
 

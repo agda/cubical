@@ -91,30 +91,30 @@ makeCommRing 0r 1r _+_ _·_ -_ is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-r
 CommRing→Ring : CommRing {ℓ} → Ring
 CommRing→Ring (commring _ _ _ _ _ _ H) = ring _ _ _ _ _ _ (IsCommRing.isRing H)
 
-CommRingIso : (R S : CommRing) → Type ℓ
-CommRingIso R S = RingIso (CommRing→Ring R) (CommRing→Ring S)
+CommRingEquiv : (R S : CommRing) → Type ℓ
+CommRingEquiv R S = RingEquiv (CommRing→Ring R) (CommRing→Ring S)
 
-module CommRingΣ-theory {ℓ} where
+module CommRingΣTheory {ℓ} where
 
-  open RingΣ-theory
+  open RingΣTheory
 
-  CommRingAxioms : (R : Type ℓ) (s : raw-ring-structure R) → Type ℓ
-  CommRingAxioms R (_+_ , 1r , _·_) = ring-axioms R (_+_ , 1r , _·_)
+  CommRingAxioms : (R : Type ℓ) (s : RawRingStructure R) → Type ℓ
+  CommRingAxioms R (_+_ , 1r , _·_) = RingAxioms R (_+_ , 1r , _·_)
                                       × ((x y : R) → x · y ≡ y · x)
   CommRingStructure : Type ℓ → Type ℓ
-  CommRingStructure = AxiomStructure raw-ring-structure CommRingAxioms
+  CommRingStructure = AxiomStructure RawRingStructure CommRingAxioms
 
   CommRingΣ : Type (ℓ-suc ℓ)
   CommRingΣ = TypeWithStr ℓ CommRingStructure
 
   CommRingEquivStr : StrEquiv CommRingStructure ℓ
-  CommRingEquivStr = AxiomEquivStr raw-ring-iso CommRingAxioms
+  CommRingEquivStr = AxiomEquivStr RawRingEquivStr CommRingAxioms
 
-  isProp-CommRingAxioms : (R : Type ℓ) (s : raw-ring-structure R)
-                          → isProp (CommRingAxioms R s)
-  isProp-CommRingAxioms R (_·_ , 0r , _+_) =
-    isPropΣ (isProp-ring-axioms R (_·_ , 0r , _+_))
-            λ { (_ , x , _)→ isPropΠ2 λ _ _ →
+  isPropCommRingAxioms : (R : Type ℓ) (s : RawRingStructure R)
+                       → isProp (CommRingAxioms R s)
+  isPropCommRingAxioms R (_·_ , 0r , _+_) =
+    isPropΣ (isProp-RingAxioms R (_·_ , 0r , _+_))
+            λ { (_ , x , _) → isPropΠ2 λ _ _ →
                   x .IsMonoid.isSemigroup .IsSemigroup.is-set _ _}
 
   CommRing→CommRingΣ : CommRing → CommRingΣ
@@ -129,26 +129,26 @@ module CommRingΣ-theory {ℓ} where
   CommRingIsoCommRingΣ =
     iso CommRing→CommRingΣ CommRingΣ→CommRing (λ _ → refl) (λ _ → refl)
 
-  CommRingUnivalentStr : UnivalentStr CommRingStructure CommRingEquivStr
-  CommRingUnivalentStr = axiomUnivalentStr _ isProp-CommRingAxioms raw-ring-is-SNS
+  commRingUnivalentStr : UnivalentStr CommRingStructure CommRingEquivStr
+  commRingUnivalentStr = axiomUnivalentStr _ isPropCommRingAxioms rawRingUnivalentStr
 
   CommRingΣPath : (R S : CommRingΣ) → (R ≃[ CommRingEquivStr ] S) ≃ (R ≡ S)
-  CommRingΣPath = SIP CommRingUnivalentStr
+  CommRingΣPath = SIP commRingUnivalentStr
 
-  CommRingIsoΣ : (R S : CommRing) → Type ℓ
-  CommRingIsoΣ R S = CommRing→CommRingΣ R ≃[ CommRingEquivStr ] CommRing→CommRingΣ S
+  CommRingEquivΣ : (R S : CommRing) → Type ℓ
+  CommRingEquivΣ R S = CommRing→CommRingΣ R ≃[ CommRingEquivStr ] CommRing→CommRingΣ S
 
-  CommRingPath : (R S : CommRing) → (CommRingIso R S) ≃ (R ≡ S)
+  CommRingPath : (R S : CommRing) → (CommRingEquiv R S) ≃ (R ≡ S)
   CommRingPath R S =
-    CommRingIso R S   ≃⟨ isoToEquiv RingIsoΣPath ⟩
-    CommRingIsoΣ R S  ≃⟨ CommRingΣPath _ _ ⟩
+    CommRingEquiv R S   ≃⟨ isoToEquiv RingEquivΣPath ⟩
+    CommRingEquivΣ R S  ≃⟨ CommRingΣPath _ _ ⟩
     CommRing→CommRingΣ R ≡ CommRing→CommRingΣ S
       ≃⟨ isoToEquiv (invIso (congIso CommRingIsoCommRingΣ)) ⟩
     R ≡ S ■
 
 -- Extract the characterization of equality of groups
-CommRingPath : (R S : CommRing {ℓ}) → (CommRingIso R S) ≃ (R ≡ S)
-CommRingPath = CommRingΣ-theory.CommRingPath
+CommRingPath : (R S : CommRing {ℓ}) → (CommRingEquiv R S) ≃ (R ≡ S)
+CommRingPath = CommRingΣTheory.CommRingPath
 
 isPropIsCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
              → isProp (IsCommRing 0r 1r _+_ _·_ -_)

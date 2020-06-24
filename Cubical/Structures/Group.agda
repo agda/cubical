@@ -93,9 +93,9 @@ makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv =
   group _ 0g _+_ -_ (makeIsGroup is-setG assoc rid lid rinv linv)
 
 
-record GroupIso (G H : Group {ℓ}) : Type ℓ where
+record GroupEquiv (G H : Group {ℓ}) : Type ℓ where
 
-  constructor groupiso
+  constructor groupequiv
 
   private
     module G = Group G
@@ -106,41 +106,41 @@ record GroupIso (G H : Group {ℓ}) : Type ℓ where
     isHom : (x y : ⟨ G ⟩) → equivFun e (x G.+ y) ≡ equivFun e x H.+ equivFun e y
 
 
-module GroupΣ-theory {ℓ} where
+module GroupΣTheory {ℓ} where
 
-  raw-group-structure : Type ℓ → Type ℓ
-  raw-group-structure = SemigroupΣ-theory.raw-semigroup-structure
+  RawGroupStructure : Type ℓ → Type ℓ
+  RawGroupStructure = SemigroupΣ-theory.RawSemigroupStructure
 
-  raw-group-is-SNS : UnivalentStr raw-group-structure _
-  raw-group-is-SNS = SemigroupΣ-theory.raw-semigroup-is-SNS
+  rawGroupUnivalentStr : UnivalentStr RawGroupStructure _
+  rawGroupUnivalentStr = SemigroupΣ-theory.rawSemigroupUnivalentStr
 
   -- The neutral element and the inverse function will be derived from the
-  -- axioms, instead of being defined in the raw-group-structure in order
+  -- axioms, instead of being defined in the RawGroupStructure in order
   -- to have that isomorphisms between groups are equivalences that preserves
   -- multiplication (so we don't have to show that they also preserve inversion
   -- and neutral element, although they will preserve them).
-  group-axioms : (G : Type ℓ) → raw-group-structure G → Type ℓ
-  group-axioms G _·_ =
+  GroupAxioms : (G : Type ℓ) → RawGroupStructure G → Type ℓ
+  GroupAxioms G _·_ =
       IsSemigroup _·_
     × (Σ[ e ∈ G ] ((x : G) → (x · e ≡ x) × (e · x ≡ x))
                 × ((x : G) → Σ[ x' ∈ G ] (x · x' ≡ e) × (x' · x ≡ e)))
 
-  group-structure : Type ℓ → Type ℓ
-  group-structure = AxiomStructure raw-group-structure group-axioms
+  GroupStructure : Type ℓ → Type ℓ
+  GroupStructure = AxiomStructure RawGroupStructure GroupAxioms
 
   GroupΣ : Type (ℓ-suc ℓ)
-  GroupΣ = TypeWithStr ℓ group-structure
+  GroupΣ = TypeWithStr ℓ GroupStructure
 
   -- Iso for groups are those for monoids (but different axioms)
-  group-iso : StrEquiv group-structure ℓ
-  group-iso = AxiomEquivStr (BinaryFunEquivStr PointedEquivStr) group-axioms
+  GroupEquivStr : StrEquiv GroupStructure ℓ
+  GroupEquivStr = AxiomEquivStr (BinaryFunEquivStr PointedEquivStr) GroupAxioms
 
-  open monoid-theory
+  open MonoidTheory
 
-  isProp-group-axioms : (G : Type ℓ)
-                      → (s : raw-group-structure G)
-                      → isProp (group-axioms G s)
-  isProp-group-axioms G _+_ = isPropΣ (isPropIsSemigroup _) γ
+  isPropGroupAxioms : (G : Type ℓ)
+                      → (s : RawGroupStructure G)
+                      → isProp (GroupAxioms G s)
+  isPropGroupAxioms G _+_ = isPropΣ (isPropIsSemigroup _) γ
     where
     γ : (h : IsSemigroup _+_) →
         isProp (Σ[ e ∈ G ] ((x : G) → (x + e ≡ x) × (e + x ≡ x))
@@ -159,8 +159,8 @@ module GroupΣ-theory {ℓ} where
                 Σ≡Prop (λ _ → isProp× (isSetG _ _) (isSetG _ _))
                        (inv-lemma ℳ x x' x'' P Q) }
         where
-          ℳ : Monoid
-          ℳ = makeMonoid e _+_ isSetG (IsSemigroup.assoc h) (λ x → He x .fst) (λ x → He x .snd)
+        ℳ : Monoid
+        ℳ = makeMonoid e _+_ isSetG (IsSemigroup.assoc h) (λ x → He x .fst) (λ x → He x .snd)
 
   Group→GroupΣ : Group → GroupΣ
   Group→GroupΣ (group _ _ _ -_ isGroup) =
@@ -175,31 +175,31 @@ module GroupΣ-theory {ℓ} where
   GroupIsoGroupΣ : Iso Group GroupΣ
   GroupIsoGroupΣ = iso Group→GroupΣ GroupΣ→Group (λ _ → refl) (λ _ → refl)
 
-  group-is-SNS : UnivalentStr group-structure group-iso
-  group-is-SNS = axiomUnivalentStr _ isProp-group-axioms raw-group-is-SNS
+  groupUnivalentStr : UnivalentStr GroupStructure GroupEquivStr
+  groupUnivalentStr = axiomUnivalentStr _ isPropGroupAxioms rawGroupUnivalentStr
 
-  GroupΣPath : (G H : GroupΣ) → (G ≃[ group-iso ] H) ≃ (G ≡ H)
-  GroupΣPath = SIP group-is-SNS
+  GroupΣPath : (G H : GroupΣ) → (G ≃[ GroupEquivStr ] H) ≃ (G ≡ H)
+  GroupΣPath = SIP groupUnivalentStr
 
-  GroupIsoΣ : (G H : Group) → Type ℓ
-  GroupIsoΣ G H = Group→GroupΣ G ≃[ group-iso ] Group→GroupΣ H
+  GroupEquivΣ : (G H : Group) → Type ℓ
+  GroupEquivΣ G H = Group→GroupΣ G ≃[ GroupEquivStr ] Group→GroupΣ H
 
-  GroupIsoΣPath : {G H : Group} → Iso (GroupIso G H) (GroupIsoΣ G H)
-  fun GroupIsoΣPath (groupiso e h) = (e , h)
-  inv GroupIsoΣPath (e , h)        = groupiso e h
+  GroupIsoΣPath : {G H : Group} → Iso (GroupEquiv G H) (GroupEquivΣ G H)
+  fun GroupIsoΣPath (groupequiv e h) = (e , h)
+  inv GroupIsoΣPath (e , h)        = groupequiv e h
   rightInv GroupIsoΣPath _         = refl
   leftInv GroupIsoΣPath _          = refl
 
-  GroupPath : (G H : Group) → (GroupIso G H) ≃ (G ≡ H)
+  GroupPath : (G H : Group) → (GroupEquiv G H) ≃ (G ≡ H)
   GroupPath G H =
-    GroupIso G H                    ≃⟨ isoToEquiv GroupIsoΣPath ⟩
-    GroupIsoΣ G H                   ≃⟨ GroupΣPath _ _ ⟩
+    GroupEquiv G H                    ≃⟨ isoToEquiv GroupIsoΣPath ⟩
+    GroupEquivΣ G H                   ≃⟨ GroupΣPath _ _ ⟩
     Group→GroupΣ G ≡ Group→GroupΣ H ≃⟨ isoToEquiv (invIso (congIso GroupIsoGroupΣ)) ⟩
     G ≡ H ■
 
 -- Extract the characterization of equality of groups
-GroupPath : (G H : Group {ℓ}) → (GroupIso G H) ≃ (G ≡ H)
-GroupPath = GroupΣ-theory.GroupPath
+GroupPath : (G H : Group {ℓ}) → (GroupEquiv G H) ≃ (G ≡ H)
+GroupPath = GroupΣTheory.GroupPath
 
 -- This is easier to just prove directly for groups as the GroupΣ is
 -- so different from the record

@@ -84,7 +84,7 @@ makeMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
 makeMonoid ε _·_ is-setM assoc rid lid =
   monoid _ ε _·_ (makeIsMonoid is-setM assoc rid lid)
 
-record MonoidIso (M N : Monoid {ℓ}) : Type ℓ where
+record MonoidEquiv (M N : Monoid {ℓ}) : Type ℓ where
 
   constructor monoidiso
 
@@ -99,76 +99,76 @@ record MonoidIso (M N : Monoid {ℓ}) : Type ℓ where
 
 
 
-module MonoidΣ-theory {ℓ} where
+module MonoidΣTheory {ℓ} where
 
-  raw-monoid-structure : Type ℓ → Type ℓ
-  raw-monoid-structure X = X × (X → X → X)
+  RawMonoidStructure : Type ℓ → Type ℓ
+  RawMonoidStructure X = X × (X → X → X)
 
-  raw-monoid-iso = autoIso raw-monoid-structure
+  RawMonoidEquivStr = autoIso RawMonoidStructure
 
-  raw-monoid-is-SNS : UnivalentStr _ raw-monoid-iso
-  raw-monoid-is-SNS = autoSNS raw-monoid-structure
+  rawMonoidUnivalentStr : UnivalentStr _ RawMonoidEquivStr
+  rawMonoidUnivalentStr = autoSNS RawMonoidStructure
 
-  monoid-axioms : (M : Type ℓ) → raw-monoid-structure M → Type ℓ
-  monoid-axioms M (e , _·_) = IsSemigroup _·_
+  MonoidAxioms : (M : Type ℓ) → RawMonoidStructure M → Type ℓ
+  MonoidAxioms M (e , _·_) = IsSemigroup _·_
                             × ((x : M) → (x · e ≡ x) × (e · x ≡ x))
 
-  monoid-structure : Type ℓ → Type ℓ
-  monoid-structure = AxiomStructure raw-monoid-structure monoid-axioms
+  MonoidStructure : Type ℓ → Type ℓ
+  MonoidStructure = AxiomStructure RawMonoidStructure MonoidAxioms
 
   MonoidΣ : Type (ℓ-suc ℓ)
-  MonoidΣ = TypeWithStr ℓ monoid-structure
+  MonoidΣ = TypeWithStr ℓ MonoidStructure
 
-  monoid-axioms-isProp : (M : Type ℓ) (s : raw-monoid-structure M) → isProp (monoid-axioms M s)
-  monoid-axioms-isProp M (e , _·_) =
+  MonoidAxioms-isProp : (M : Type ℓ) (s : RawMonoidStructure M) → isProp (MonoidAxioms M s)
+  MonoidAxioms-isProp M (e , _·_) =
     isPropΣ (isPropIsSemigroup _·_)
             λ α → isPropΠ λ _ → isProp× (IsSemigroup.is-set α _ _) (IsSemigroup.is-set α _ _)
 
-  monoid-iso : StrEquiv monoid-structure ℓ
-  monoid-iso = AxiomEquivStr raw-monoid-iso monoid-axioms
+  MonoidEquivStr : StrEquiv MonoidStructure ℓ
+  MonoidEquivStr = AxiomEquivStr RawMonoidEquivStr MonoidAxioms
 
-  monoid-axiomsIsoIsMonoid : {M : Type ℓ} (s : raw-monoid-structure M)
-                           → Iso (monoid-axioms M s) (IsMonoid (s .fst) (s .snd))
-  fun (monoid-axiomsIsoIsMonoid s) (x , y)        = ismonoid x y
-  inv (monoid-axiomsIsoIsMonoid s) (ismonoid x y) = (x , y)
-  rightInv (monoid-axiomsIsoIsMonoid s) _         = refl
-  leftInv (monoid-axiomsIsoIsMonoid s) _          = refl
+  MonoidAxiomsIsoIsMonoid : {M : Type ℓ} (s : RawMonoidStructure M)
+    → Iso (MonoidAxioms M s) (IsMonoid (s .fst) (s .snd))
+  fun (MonoidAxiomsIsoIsMonoid s) (x , y)        = ismonoid x y
+  inv (MonoidAxiomsIsoIsMonoid s) (ismonoid x y) = (x , y)
+  rightInv (MonoidAxiomsIsoIsMonoid s) _         = refl
+  leftInv (MonoidAxiomsIsoIsMonoid s) _          = refl
 
-  monoid-axioms≡IsMonoid : {M : Type ℓ} (s : raw-monoid-structure M)
-                         → monoid-axioms M s ≡ IsMonoid (s .fst) (s .snd)
-  monoid-axioms≡IsMonoid s = isoToPath (monoid-axiomsIsoIsMonoid s)
+  MonoidAxioms≡IsMonoid : {M : Type ℓ} (s : RawMonoidStructure M)
+    → MonoidAxioms M s ≡ IsMonoid (s .fst) (s .snd)
+  MonoidAxioms≡IsMonoid s = isoToPath (MonoidAxiomsIsoIsMonoid s)
 
   Monoid→MonoidΣ : Monoid → MonoidΣ
   Monoid→MonoidΣ (monoid M ε _·_ isMonoid) =
-    M , (ε , _·_) , monoid-axiomsIsoIsMonoid (ε , _·_) .inv isMonoid
+    M , (ε , _·_) , MonoidAxiomsIsoIsMonoid (ε , _·_) .inv isMonoid
 
   MonoidΣ→Monoid : MonoidΣ → Monoid
   MonoidΣ→Monoid (M , (ε , _·_) , isMonoidΣ) =
-    monoid M ε _·_ (monoid-axiomsIsoIsMonoid (ε , _·_) .fun isMonoidΣ)
+    monoid M ε _·_ (MonoidAxiomsIsoIsMonoid (ε , _·_) .fun isMonoidΣ)
 
   MonoidIsoMonoidΣ : Iso Monoid MonoidΣ
   MonoidIsoMonoidΣ =
     iso Monoid→MonoidΣ MonoidΣ→Monoid (λ _ → refl) (λ _ → refl)
 
-  monoid-is-SNS : UnivalentStr monoid-structure monoid-iso
-  monoid-is-SNS = axiomUnivalentStr _ monoid-axioms-isProp raw-monoid-is-SNS
+  monoidUnivalentStr : UnivalentStr MonoidStructure MonoidEquivStr
+  monoidUnivalentStr = axiomUnivalentStr _ MonoidAxioms-isProp rawMonoidUnivalentStr
 
-  MonoidΣPath : (M N : MonoidΣ) → (M ≃[ monoid-iso ] N) ≃ (M ≡ N)
-  MonoidΣPath = SIP monoid-is-SNS
+  MonoidΣPath : (M N : MonoidΣ) → (M ≃[ MonoidEquivStr ] N) ≃ (M ≡ N)
+  MonoidΣPath = SIP monoidUnivalentStr
 
-  MonoidIsoΣ : (M N : Monoid) → Type ℓ
-  MonoidIsoΣ M N = Monoid→MonoidΣ M ≃[ monoid-iso ] Monoid→MonoidΣ N
+  MonoidEquivΣ : (M N : Monoid) → Type ℓ
+  MonoidEquivΣ M N = Monoid→MonoidΣ M ≃[ MonoidEquivStr ] Monoid→MonoidΣ N
 
-  MonoidIsoΣPath : {M N : Monoid} → Iso (MonoidIso M N) (MonoidIsoΣ M N)
+  MonoidIsoΣPath : {M N : Monoid} → Iso (MonoidEquiv M N) (MonoidEquivΣ M N)
   fun MonoidIsoΣPath (monoidiso e h1 h2) = (e , h1 , h2)
   inv MonoidIsoΣPath (e , h1 , h2)       = monoidiso e h1 h2
   rightInv MonoidIsoΣPath _              = refl
   leftInv MonoidIsoΣPath _               = refl
 
-  MonoidPath : (M N : Monoid) → (MonoidIso M N) ≃ (M ≡ N)
+  MonoidPath : (M N : Monoid) → (MonoidEquiv M N) ≃ (M ≡ N)
   MonoidPath M N =
-    MonoidIso M N                       ≃⟨ isoToEquiv MonoidIsoΣPath ⟩
-    MonoidIsoΣ M N                      ≃⟨ MonoidΣPath _ _ ⟩
+    MonoidEquiv M N                       ≃⟨ isoToEquiv MonoidIsoΣPath ⟩
+    MonoidEquivΣ M N                      ≃⟨ MonoidΣPath _ _ ⟩
     Monoid→MonoidΣ M ≡ Monoid→MonoidΣ N ≃⟨ isoToEquiv (invIso (congIso MonoidIsoMonoidΣ)) ⟩
     M ≡ N ■
 
@@ -177,14 +177,14 @@ module MonoidΣ-theory {ℓ} where
 
 isPropIsMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M) → isProp (IsMonoid ε _·_)
 isPropIsMonoid ε _·_ =
-  subst isProp (MonoidΣ-theory.monoid-axioms≡IsMonoid (ε , _·_))
-        (MonoidΣ-theory.monoid-axioms-isProp _ (ε , _·_))
+  subst isProp (MonoidΣTheory.MonoidAxioms≡IsMonoid (ε , _·_))
+        (MonoidΣTheory.MonoidAxioms-isProp _ (ε , _·_))
 
-MonoidPath : (M N : Monoid {ℓ}) → (MonoidIso M N) ≃ (M ≡ N)
-MonoidPath = MonoidΣ-theory.MonoidPath
+MonoidPath : (M N : Monoid {ℓ}) → (MonoidEquiv M N) ≃ (M ≡ N)
+MonoidPath = MonoidΣTheory.MonoidPath
 
 
-module monoid-theory {ℓ} (M' : Monoid {ℓ}) where
+module MonoidTheory {ℓ} (M' : Monoid {ℓ}) where
 
   open Monoid M' renaming ( Carrier to M )
 
