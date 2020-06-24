@@ -41,4 +41,5 @@ axiomUnivalentStr {S = S} ι {axioms = axioms} axioms-are-Props θ {X , s , a} {
     ≃⟨ invEquiv (Σ-contractSnd λ _ → isOfHLevelPathP' 0 (axioms-are-Props _ _) _ _) ⟩
   Σ[ p ∈ PathP (λ i → S (ua e i)) s t ] PathP (λ i → axioms (ua e i) (p i)) a b
     ≃⟨ ΣPath≃PathΣ ⟩
-  PathP (λ i → AxiomStructure S axioms (ua e i)) (s , a) (t , b) ■
+  PathP (λ i → AxiomStructure S axioms (ua e i)) (s , a) (t , b)
+  ■

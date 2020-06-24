@@ -56,11 +56,12 @@ UnivalentStr {ℓ₁} S ι =
 UnivalentStr→UnivalentStr-≡ : (S : Type ℓ₁ → Type ℓ₂) (ι : StrEquiv S ℓ₃)
   → UnivalentStr S ι → UnivalentStr-≡ S ι
 UnivalentStr→UnivalentStr-≡ S ι θ {X = X} s t =
-  ι (X , s) (X , t) (idEquiv X)           ≃⟨ θ (idEquiv X) ⟩
-  PathP (λ i → S (ua (idEquiv X) i)) s t  ≃⟨ φ ⟩
-  s ≡ t                                   ■
-  where
-  φ = transportEquiv (λ j → PathP (λ i → S (uaIdEquiv {A = X} j i)) s t)
+  ι (X , s) (X , t) (idEquiv X)
+    ≃⟨ θ (idEquiv X) ⟩
+  PathP (λ i → S (ua (idEquiv X) i)) s t
+    ≃⟨ transportEquiv (λ j → PathP (λ i → S (uaIdEquiv {A = X} j i)) s t) ⟩
+  s ≡ t
+  ■
 
 
 UnivalentStr-≡→UnivalentStr : (ι : StrEquiv S ℓ₃) → UnivalentStr-≡ S ι → UnivalentStr S ι
@@ -72,12 +73,13 @@ UnivalentStr-≡→UnivalentStr {S = S} ι θ {A = A} {B = B} e = EquivJ P C e (
   P X e' = (s : S X) (t : S Y) → ι (X , s) (Y , t) e' ≃ PathP (λ i → S (ua e' i)) s t
 
   C : (s t : S Y) → ι (Y , s) (Y , t) (idEquiv Y) ≃ PathP (λ i → S (ua (idEquiv Y) i)) s t
-  C s t = ι (Y , s) (Y , t) (idEquiv Y)           ≃⟨ θ s t ⟩
-          s ≡ t                                   ≃⟨ ψ ⟩
-          PathP (λ i → S (ua (idEquiv Y) i)) s t  ■
-    where
-    ψ = transportEquiv λ j → PathP (λ i → S (uaIdEquiv {A = Y} (~ j) i)) s t
-
+  C s t =
+    ι (Y , s) (Y , t) (idEquiv Y)
+      ≃⟨ θ s t ⟩
+    s ≡ t
+      ≃⟨ transportEquiv (λ j → PathP (λ i → S (uaIdEquiv {A = Y} (~ j) i)) s t) ⟩
+    PathP (λ i → S (ua (idEquiv Y) i)) s t
+    ■
 
 --- We can now define an invertible function
 ---
