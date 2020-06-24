@@ -26,7 +26,7 @@ AxiomStructure S axioms X = Σ[ s ∈ S X ] (axioms X s)
 AxiomEquivStr : {S : Type ℓ → Type ℓ₁} (ι : StrEquiv S ℓ₁')
            (axioms : (X : Type ℓ) → S X → Type ℓ₂)
          → StrEquiv (AxiomStructure S axioms) ℓ₁'
-AxiomEquivStr ι axioms (X , (s , a)) (Y , (t , b)) f = ι (X , s) (Y , t) f
+AxiomEquivStr ι axioms (X , (s , a)) (Y , (t , b)) e = ι (X , s) (Y , t) e
 
 axiomUnivalentStr : {S : Type ℓ → Type ℓ₁}
                  (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → A .fst ≃ B .fst → Type ℓ₁')
@@ -34,10 +34,11 @@ axiomUnivalentStr : {S : Type ℓ → Type ℓ₁}
                  (axioms-are-Props : (X : Type ℓ) (s : S X) → isProp (axioms X s))
                  (θ : UnivalentStr S ι)
                → UnivalentStr (AxiomStructure S axioms) (AxiomEquivStr ι axioms)
-axiomUnivalentStr {S = S} ι {axioms = axioms} axioms-are-Props θ {X , s , a} {Y , t , b} f =
-  compEquiv
-    (θ f)
-    (compEquiv
-      (invEquiv (Σ-contractSnd λ _ → isOfHLevelPathP' 0 (axioms-are-Props _ _) _ _))
-      ΣPath≃PathΣ)
-
+axiomUnivalentStr {S = S} ι {axioms = axioms} axioms-are-Props θ {X , s , a} {Y , t , b} e =
+  ι (X , s) (Y , t) e
+    ≃⟨ θ e ⟩
+  PathP (λ i → S (ua e i)) s t
+    ≃⟨ invEquiv (Σ-contractSnd λ _ → isOfHLevelPathP' 0 (axioms-are-Props _ _) _ _) ⟩
+  Σ[ p ∈ PathP (λ i → S (ua e i)) s t ] PathP (λ i → axioms (ua e i) (p i)) a b
+    ≃⟨ ΣPath≃PathΣ ⟩
+  PathP (λ i → AxiomStructure S axioms (ua e i)) (s , a) (t , b) ■
