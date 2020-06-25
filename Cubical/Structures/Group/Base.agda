@@ -8,7 +8,6 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
 
 open import Cubical.Data.Sigma
 
@@ -22,7 +21,7 @@ open Iso
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ : Level
 
 record IsGroup {G : Type ℓ}
                (0g : G) (_+_ : G → G → G) (-_ : G → G) : Type ℓ where
@@ -45,8 +44,6 @@ record IsGroup {G : Type ℓ}
 
   invr : (x : G) → x + (- x) ≡ 0g
   invr x = inverse x .fst
-
-  -- uniqueness of inverse?
 
 record Group : Type (ℓ-suc ℓ) where
 

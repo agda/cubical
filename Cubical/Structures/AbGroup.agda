@@ -85,7 +85,7 @@ AbGroupHom : (G : AbGroup {ℓ}) (H : AbGroup {ℓ'}) → Type (ℓ-max ℓ ℓ'
 AbGroupHom G H = GroupHom (AbGroup→Group G) (AbGroup→Group H)
 
 AbGroupEquiv : (G : AbGroup {ℓ}) (H : AbGroup {ℓ'}) → Type (ℓ-max ℓ ℓ')
-AbGroupEquiv G H = GroupIso (AbGroup→Group G) (AbGroup→Group H)
+AbGroupEquiv G H = GroupEquiv (AbGroup→Group G) (AbGroup→Group H)
 
 module AbGroupΣTheory {ℓ} where
 

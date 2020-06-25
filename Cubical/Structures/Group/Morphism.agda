@@ -9,11 +9,12 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 open import Cubical.Foundations.Function using (_∘_)
 open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Structures.Group.Base
+open import Cubical.Structures.Axioms
 open import Cubical.Structures.Macro
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Pointed
@@ -28,7 +29,7 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
--- The following definition of GroupHom and GroupIso are level-wise heterogeneous.
+-- The following definition of GroupHom and GroupEquiv are level-wise heterogeneous.
 -- This allows for example to deduce that G ≡ F from a chain of isomorphisms
 -- G ≃ H ≃ F, even if H does not lie in the same level as G and F.
 
@@ -47,8 +48,8 @@ record GroupHom (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') w
     fun : ⟨ G ⟩ → ⟨ H ⟩
     isHom : isGroupHom G H fun
 
-record GroupIso (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
-  constructor groupiso
+record GroupEquiv (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
+  constructor groupequiv
 
   field
     eq : ⟨ G ⟩ ≃ ⟨ H ⟩
@@ -67,16 +68,16 @@ compGroupHom : {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} → Grou
 compGroupHom {F = F} {G = G} {H = H} (grouphom f morph-f) (grouphom g morph-g) =
   grouphom (g ∘ f) (isGroupHomComp F G H (grouphom f morph-f) (grouphom g morph-g))
 
-compGroupIso : {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} → GroupIso F G → GroupIso G H → GroupIso F H
-compGroupIso {F = F} {G = G} {H = H} (groupiso f morph-f) (groupiso g morph-g) =
-  groupiso (compEquiv f g) (isGroupHomComp F G H (grouphom _ morph-f) (grouphom _ morph-g))
+compGroupEquiv : {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} → GroupEquiv F G → GroupEquiv G H → GroupEquiv F H
+compGroupEquiv {F = F} {G = G} {H = H} (groupequiv f morph-f) (groupequiv g morph-g) =
+  groupequiv (compEquiv f g) (isGroupHomComp F G H (grouphom _ morph-f) (grouphom _ morph-g))
 
-idGroupIso : (G : Group {ℓ}) → GroupIso G G
-idGroupIso G = groupiso (idEquiv (Group.Carrier G)) (λ _ _ → refl)
+idGroupEquiv : (G : Group {ℓ}) → GroupEquiv G G
+idGroupEquiv G = groupequiv (idEquiv (Group.Carrier G)) (λ _ _ → refl)
 
 -- Isomorphism inversion
-isGroupHomInv : (G : Group {ℓ}) (H : Group {ℓ'}) (f : GroupIso G H) → isGroupHom H G (invEq (GroupIso.eq f))
-isGroupHomInv G H  (groupiso (f , eq) morph) h h' = isInj-f _ _ (
+isGroupHomInv : (G : Group {ℓ}) (H : Group {ℓ'}) (f : GroupEquiv G H) → isGroupHom H G (invEq (GroupEquiv.eq f))
+isGroupHomInv G H  (groupequiv (f , eq) morph) h h' = isInj-f _ _ (
   f (g (h ⋆² h') )
     ≡⟨ retEq (f , eq) _ ⟩
   h ⋆² h'
@@ -93,54 +94,54 @@ isGroupHomInv G H  (groupiso (f , eq) morph) h h' = isInj-f _ _ (
   isInj-f : (x y : ⟨ G ⟩) → f x ≡ f y → x ≡ y
   isInj-f x y = invEq (_ , isEquiv→isEmbedding eq x y)
 
-invGroupIso : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupIso G H → GroupIso H G
-invGroupIso G H (groupiso f morph) = groupiso (invEquiv f) (isGroupHomInv G H (groupiso f morph))
+invGroupEquiv : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupEquiv G H → GroupEquiv H G
+invGroupEquiv G H (groupequiv f morph) = groupequiv (invEquiv f) (isGroupHomInv G H (groupequiv f morph))
 
 groupHomEq : (G : Group {ℓ}) (H : Group {ℓ'}) (f g : GroupHom G H) → (GroupHom.fun f ≡ GroupHom.fun g) → f ≡ g
 groupHomEq G H (grouphom f fm) (grouphom g gm) p i = grouphom (p i) (p-hom i) where
   p-hom : PathP (λ i → isGroupHom G H (p i)) fm gm
   p-hom = toPathP (isPropIsGroupHom G H _ _)
 
-groupIsoEq : (G : Group {ℓ}) (H : Group {ℓ'}) (f g : GroupIso G H) → (GroupIso.eq f ≡ GroupIso.eq g) → f ≡ g
-groupIsoEq G H (groupiso f fm) (groupiso g gm) p i = groupiso (p i) (p-hom i) where
+groupEquivEq : (G : Group {ℓ}) (H : Group {ℓ'}) (f g : GroupEquiv G H) → (GroupEquiv.eq f ≡ GroupEquiv.eq g) → f ≡ g
+groupEquivEq G H (groupequiv f fm) (groupequiv g gm) p i = groupequiv (p i) (p-hom i) where
   p-hom : PathP (λ i → isGroupHom G H (p i .fst)) fm gm
   p-hom = toPathP (isPropIsGroupHom G H _ _)
 
-module GroupΣ-theory {ℓ} where
+module GroupΣTheory {ℓ} where
 
-  raw-group-structure : Type ℓ → Type ℓ
-  raw-group-structure = SemigroupΣ-theory.raw-semigroup-structure
+  RawGroupStructure : Type ℓ → Type ℓ
+  RawGroupStructure = SemigroupΣTheory.RawSemigroupStructure
 
-  raw-group-is-SNS : SNS raw-group-structure _
-  raw-group-is-SNS = SemigroupΣ-theory.raw-semigroup-is-SNS
+  rawGroupUnivalentStr : UnivalentStr RawGroupStructure _
+  rawGroupUnivalentStr = SemigroupΣTheory.rawSemigroupUnivalentStr
 
   -- The neutral element and the inverse function will be derived from the
-  -- axioms, instead of being defined in the raw-group-structure in order
-  -- to have that isomorphisms between groups are equivalences that preserves
+  -- axioms, instead of being defined in the RawGroupStructure in order
+  -- to have that group equivalences are equivalences that preserves
   -- multiplication (so we don't have to show that they also preserve inversion
   -- and neutral element, although they will preserve them).
-  group-axioms : (G : Type ℓ) → raw-group-structure G → Type ℓ
-  group-axioms G _·_ =
+  GroupAxioms : (G : Type ℓ) → RawGroupStructure G → Type ℓ
+  GroupAxioms G _·_ =
       IsSemigroup _·_
     × (Σ[ e ∈ G ] ((x : G) → (x · e ≡ x) × (e · x ≡ x))
                 × ((x : G) → Σ[ x' ∈ G ] (x · x' ≡ e) × (x' · x ≡ e)))
 
-  group-structure : Type ℓ → Type ℓ
-  group-structure = add-to-structure raw-group-structure group-axioms
+  GroupStructure : Type ℓ → Type ℓ
+  GroupStructure = AxiomsStructure RawGroupStructure GroupAxioms
 
   GroupΣ : Type (ℓ-suc ℓ)
-  GroupΣ = TypeWithStr ℓ group-structure
+  GroupΣ = TypeWithStr ℓ GroupStructure
 
-  -- Iso for groups are those for monoids (but different axioms)
-  group-iso : StrIso group-structure ℓ
-  group-iso = add-to-iso (binaryFunIso pointed-iso) group-axioms
+  -- Structured equivalences for groups are those for monoids (but different axioms)
+  GroupEquivStr : StrEquiv GroupStructure ℓ
+  GroupEquivStr = AxiomsEquivStr (BinaryFunEquivStr PointedEquivStr) GroupAxioms
 
-  open monoid-theory
+  open MonoidTheory
 
-  isProp-group-axioms : (G : Type ℓ)
-                      → (s : raw-group-structure G)
-                      → isProp (group-axioms G s)
-  isProp-group-axioms G _+_ = isPropΣ (isPropIsSemigroup _) γ
+  isPropGroupAxioms : (G : Type ℓ)
+                      → (s : RawGroupStructure G)
+                      → isProp (GroupAxioms G s)
+  isPropGroupAxioms G _+_ = isPropΣ (isPropIsSemigroup _) γ
     where
     γ : (h : IsSemigroup _+_) →
         isProp (Σ[ e ∈ G ] ((x : G) → (x + e ≡ x) × (e + x ≡ x))
@@ -159,8 +160,8 @@ module GroupΣ-theory {ℓ} where
                 Σ≡Prop (λ _ → isProp× (isSetG _ _) (isSetG _ _))
                        (inv-lemma ℳ x x' x'' P Q) }
         where
-          ℳ : Monoid
-          ℳ = makeMonoid e _+_ isSetG (IsSemigroup.assoc h) (λ x → He x .fst) (λ x → He x .snd)
+        ℳ : Monoid
+        ℳ = makeMonoid e _+_ isSetG (IsSemigroup.assoc h) (λ x → He x .fst) (λ x → He x .snd)
 
   Group→GroupΣ : Group → GroupΣ
   Group→GroupΣ (group _ _ _ -_ isGroup) =
@@ -175,37 +176,37 @@ module GroupΣ-theory {ℓ} where
   GroupIsoGroupΣ : Iso Group GroupΣ
   GroupIsoGroupΣ = iso Group→GroupΣ GroupΣ→Group (λ _ → refl) (λ _ → refl)
 
-  group-is-SNS : SNS group-structure group-iso
-  group-is-SNS = add-axioms-SNS _ isProp-group-axioms raw-group-is-SNS
+  groupUnivalentStr : UnivalentStr GroupStructure GroupEquivStr
+  groupUnivalentStr = axiomsUnivalentStr _ isPropGroupAxioms rawGroupUnivalentStr
 
-  GroupΣPath : (G H : GroupΣ) → (G ≃[ group-iso ] H) ≃ (G ≡ H)
-  GroupΣPath = SIP group-is-SNS
+  GroupΣPath : (G H : GroupΣ) → (G ≃[ GroupEquivStr ] H) ≃ (G ≡ H)
+  GroupΣPath = SIP groupUnivalentStr
 
-  GroupIsoΣ : (G H : Group) → Type ℓ
-  GroupIsoΣ G H = Group→GroupΣ G ≃[ group-iso ] Group→GroupΣ H
+  GroupEquivΣ : (G H : Group) → Type ℓ
+  GroupEquivΣ G H = Group→GroupΣ G ≃[ GroupEquivStr ] Group→GroupΣ H
 
-  GroupIsoΣPath : {G H : Group} → Iso (GroupIso G H) (GroupIsoΣ G H)
-  fun GroupIsoΣPath (groupiso e h) = (e , h)
-  inv GroupIsoΣPath (e , h)        = groupiso e h
+  GroupIsoΣPath : {G H : Group} → Iso (GroupEquiv G H) (GroupEquivΣ G H)
+  fun GroupIsoΣPath (groupequiv e h) = (e , h)
+  inv GroupIsoΣPath (e , h)        = groupequiv e h
   rightInv GroupIsoΣPath _         = refl
   leftInv GroupIsoΣPath _          = refl
 
-  GroupPath : (G H : Group) → (GroupIso G H) ≃ (G ≡ H)
+  GroupPath : (G H : Group) → (GroupEquiv G H) ≃ (G ≡ H)
   GroupPath G H =
-    GroupIso G H                    ≃⟨ isoToEquiv GroupIsoΣPath ⟩
-    GroupIsoΣ G H                   ≃⟨ GroupΣPath _ _ ⟩
+    GroupEquiv G H                    ≃⟨ isoToEquiv GroupIsoΣPath ⟩
+    GroupEquivΣ G H                   ≃⟨ GroupΣPath _ _ ⟩
     Group→GroupΣ G ≡ Group→GroupΣ H ≃⟨ isoToEquiv (invIso (congIso GroupIsoGroupΣ)) ⟩
     G ≡ H ■
 
 -- Extract the characterization of equality of groups
-GroupPath : (G H : Group {ℓ}) → GroupIso G H ≃ (G ≡ H)
-GroupPath = GroupΣ-theory.GroupPath
+GroupPath : (G H : Group {ℓ}) → (GroupEquiv G H) ≃ (G ≡ H)
+GroupPath = GroupΣTheory.GroupPath
 
-Group-ua : {G H : Group {ℓ}} → GroupIso G H → G ≡ H
-Group-ua {G = G} {H = H} = equivFun (GroupPath G H)
+uaGroup : {G H : Group {ℓ}} → GroupEquiv G H → G ≡ H
+uaGroup {G = G} {H = H} = equivFun (GroupPath G H)
 
-caracGroup-ua : {G H : Group {ℓ}} (f : GroupIso G H) → cong Group.Carrier (Group-ua f) ≡ ua (GroupIso.eq f)
-caracGroup-ua (groupiso f m) =
+carac-uaGroup : {G H : Group {ℓ}} (f : GroupEquiv G H) → cong Group.Carrier (uaGroup f) ≡ ua (GroupEquiv.eq f)
+carac-uaGroup (groupequiv f m) =
   (refl ∙∙ ua f ∙∙ refl)
     ≡⟨ sym (rUnit (ua f)) ⟩
   ua f ∎
@@ -234,20 +235,21 @@ caracGroup≡ {G = G} {H = H} p q t = cong (fst (Group≡ G H)) (Σ≡Prop (λ t
     isOfHLevelPathP 1 (isPropIsGroup _ _ _) _ _)
   t)
 
-Group-ua-id : (G : Group {ℓ}) → Group-ua (idGroupIso G) ≡ refl
-Group-ua-id G = caracGroup≡ _ _ (caracGroup-ua (idGroupIso G) ∙ uaIdEquiv)
+Group-ua-id : (G : Group {ℓ}) → uaGroup (idGroupEquiv G) ≡ refl
+Group-ua-id G = caracGroup≡ _ _ (carac-uaGroup (idGroupEquiv G) ∙ uaIdEquiv)
 
-Group-uaCompIso : {F G H : Group {ℓ}} (f : GroupIso F G) (g : GroupIso G H) → Group-ua (compGroupIso f g) ≡ Group-ua f ∙ Group-ua g
-Group-uaCompIso f g = caracGroup≡ _ _ (
-  cong Carrier (Group-ua (compGroupIso f g))
-    ≡⟨ caracGroup-ua (compGroupIso f g) ⟩
-  ua (eq (compGroupIso f g))
+uaCompGroupEquiv : {F G H : Group {ℓ}} (f : GroupEquiv F G) (g : GroupEquiv G H) → uaGroup (compGroupEquiv f g) ≡ uaGroup f ∙ uaGroup g
+uaCompGroupEquiv f g = caracGroup≡ _ _ (
+  cong Carrier (uaGroup (compGroupEquiv f g))
+    ≡⟨ carac-uaGroup (compGroupEquiv f g) ⟩
+  ua (eq (compGroupEquiv f g))
     ≡⟨ uaCompEquiv _ _ ⟩
   ua (eq f) ∙ ua (eq g)
-    ≡⟨ cong (_∙ ua (eq g)) (sym (caracGroup-ua f)) ⟩
-  cong Carrier (Group-ua f) ∙ ua (eq g)
-    ≡⟨ cong (cong Carrier (Group-ua f) ∙_) (sym (caracGroup-ua g)) ⟩
-  cong Carrier (Group-ua f) ∙ cong Carrier (Group-ua g)
-    ≡⟨ sym (cong-∙ Carrier (Group-ua f) (Group-ua g)) ⟩
-  cong Carrier (Group-ua f ∙ Group-ua g) ∎) where
-  open GroupIso
+    ≡⟨ cong (_∙ ua (eq g)) (sym (carac-uaGroup f)) ⟩
+  cong Carrier (uaGroup f) ∙ ua (eq g)
+    ≡⟨ cong (cong Carrier (uaGroup f) ∙_) (sym (carac-uaGroup g)) ⟩
+  cong Carrier (uaGroup f) ∙ cong Carrier (uaGroup g)
+    ≡⟨ sym (cong-∙ Carrier (uaGroup f) (uaGroup g)) ⟩
+  cong Carrier (uaGroup f ∙ uaGroup g) ∎) where
+  open GroupEquiv
+
