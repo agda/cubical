@@ -26,12 +26,8 @@ private
 
 -- A notion of structured relation for a structure S assigns a relation on S X and S Y to every relation on X
 -- and Y. We require the output to be proposition-valued when the input is proposition-valued.
-record StrRel (S : Type ℓ → Type ℓ') (ℓ'' : Level) : Type (ℓ-max (ℓ-suc (ℓ-max ℓ ℓ'')) ℓ') where
-  field
-    rel : ∀ {A B} (R : Rel A B ℓ) → Rel (S A) (S B) ℓ''
-    prop : ∀ {A B R} → (∀ a b → isProp (R a b)) → ∀ s t → isProp (rel {A} {B} R s t)
-
-open StrRel public
+StrRel : (S : Type ℓ → Type ℓ') (ℓ'' : Level) → Type (ℓ-max (ℓ-suc (ℓ-max ℓ ℓ'')) ℓ')
+StrRel {ℓ = ℓ} S ℓ'' = ∀ {A B} (R : Rel A B ℓ) → Rel (S A) (S B) ℓ''
 
 -- Given a type A and relation R, a quotient structure is a structure on the set quotient A/R such that
 -- the graph of [_] : A → A/R is a structured relation
@@ -39,22 +35,22 @@ InducedQuotientStr : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
   (A : TypeWithStr ℓ S) (R : Rel (typ A) (typ A) ℓ)
   → Type (ℓ-max ℓ' ℓ'')
 InducedQuotientStr S ρ A R =
-  Σ[ s ∈ S (typ A / R) ] ρ .rel (graphRel [_]) (A .snd) s
+  Σ[ s ∈ S (typ A / R) ] ρ (graphRel [_]) (A .snd) s
 
 -- A structured equivalence relation R on a structured type A should induce a structure on A/R
 InducesQuotientStr : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'') → Type _
 InducesQuotientStr {ℓ = ℓ} S ρ =
   (A : TypeWithStr ℓ S) (R : EquivPropRel (typ A) ℓ)
-  → ρ .rel (R .fst .fst) (A .snd) (A .snd)
-  → ∃![ s ∈ S (typ A / R .fst .fst) ] ρ .rel (graphRel [_]) (A .snd) s
+  → ρ (R .fst .fst) (A .snd) (A .snd)
+  → ∃![ s ∈ S (typ A / R .fst .fst) ] ρ (graphRel [_]) (A .snd) s
 
 -- The inverse of a structured relation should be structured
 isSymmetricStrRel : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'') → Type _
 isSymmetricStrRel {ℓ = ℓ} {S = S} ρ =
   {X Y : Type ℓ} (R : PropRel X Y ℓ)
   {sx : S X} {sy : S Y}
-  → ρ .rel (R .fst) sx sy
-  → ρ .rel (invPropRel R .fst) sy sx
+  → ρ (R .fst) sx sy
+  → ρ (invPropRel R .fst) sy sx
 
 -- The composite of structured relations should be structured
 isTransitiveStrRel : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'') → Type _
@@ -62,9 +58,17 @@ isTransitiveStrRel {ℓ = ℓ} {S = S} ρ =
   {X Y Z : Type ℓ}
   (R₀ : PropRel X Y ℓ) (R₁ : PropRel Y Z ℓ)
   {sx : S X} {sy : S Y} {sz : S Z}
-  → ρ .rel (R₀ .fst) sx sy
-  → ρ .rel (R₁ .fst) sy sz
-  → ρ .rel (compPropRel R₀ R₁ .fst) sx sz
+  → ρ (R₀ .fst) sx sy
+  → ρ (R₁ .fst) sy sz
+  → ρ (compPropRel R₀ R₁ .fst) sx sz
+
+-- The type of structures on a prop-valued relation should be a prop
+preservesPropsStrRel : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'') → Type _
+preservesPropsStrRel {ℓ = ℓ} {S = S} ρ =
+  {X Y : Type ℓ} {R : Rel X Y ℓ}
+  → (∀ x y → isProp (R x y))
+  → (sx : S X) (sy : S Y)
+  → isProp (ρ R sx sy)
 
 record SuitableStrRel (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'') : Type (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ') ℓ'')
   where
@@ -72,6 +76,7 @@ record SuitableStrRel (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'') : Type 
     quo : InducesQuotientStr S ρ
     symmetric : isSymmetricStrRel ρ
     transitive : isTransitiveStrRel ρ
+    prop : preservesPropsStrRel ρ
 
 open SuitableStrRel
 
@@ -80,7 +85,7 @@ StrRelMatchesEquiv : {S : Type ℓ → Type ℓ'}
   → StrRel S ℓ'' → StrEquiv S ℓ''' → Type _
 StrRelMatchesEquiv {S = S} ρ ι =
   (A B : TypeWithStr _ S) (e : typ A ≃ typ B) →
-  ρ .rel (graphRel (e .fst)) (A .snd) (B .snd) ≃ ι A B e
+  ρ (graphRel (e .fst)) (A .snd) (B .snd) ≃ ι A B e
 
 -- Given a suitable notion of structured relation, if we have a structured quasi equivalence relation R
 -- between structured types A and B, we get induced structures on the quotients A/(R ∙ R⁻¹) and B/(R⁻¹ ∙ R),
@@ -100,7 +105,7 @@ record QERDescends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
   field
     quoᴸ : InducedQuotientStr S ρ A E.Rᴸ
     quoᴿ : InducedQuotientStr S ρ B E.Rᴿ
-    rel : ρ .rel (graphRel (E.Thm .fst)) (quoᴸ .fst) (quoᴿ .fst)
+    rel : ρ (graphRel (E.Thm .fst)) (quoᴸ .fst) (quoᴿ .fst)
 
 open QERDescends
 open isQuasiEquivRel
@@ -108,11 +113,11 @@ open isQuasiEquivRel
 structuredQER→structuredEquiv : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'')
   (θ : SuitableStrRel S ρ)
   (A B : TypeWithStr ℓ S) (R : QuasiEquivRel (typ A) (typ B) ℓ)
-  → ρ .rel (R .fst .fst) (A .snd) (B .snd)
+  → ρ (R .fst .fst) (A .snd) (B .snd)
   → QERDescends S ρ A B R
 structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴸ =
   θ .quo (X , s) (QER→EquivRel R)
-    (subst (λ R' → ρ .rel R' s s) correction
+    (subst (λ R' → ρ R' s s) correction
       (θ .transitive (R .fst) (invPropRel (R .fst)) r (θ .symmetric (R .fst) r)))
     .fst
   where
@@ -125,7 +130,7 @@ structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴸ =
 
 structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴿ =
   θ .quo (Y , t) (QER→EquivRel (invQER R))
-    (subst (λ R' → ρ .rel R' t t) correction
+    (subst (λ R' → ρ R' t t) correction
       (θ .transitive (invPropRel (R .fst)) (R .fst) (θ .symmetric (R .fst) r) r))
     .fst
   where
@@ -137,7 +142,7 @@ structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴿ =
         (λ r → ∣ _ , r , R .snd .bwdRel _ ∣))
 
 structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .rel =
-  subst (λ R' → ρ .rel R' (quol .fst) (quor .fst)) correction
+  subst (λ R' → ρ R' (quol .fst) (quor .fst)) correction
     (θ .transitive (compPropRel (invPropRel (quotientPropRel E.Rᴸ)) (R .fst)) (quotientPropRel E.Rᴿ)
       (θ .transitive (invPropRel (quotientPropRel E.Rᴸ)) (R .fst)
         (θ .symmetric (quotientPropRel E.Rᴸ) (quol .snd))

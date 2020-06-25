@@ -30,20 +30,18 @@ module _ (A : Type ℓ₀) where
     → (∀ a → preservesSets (S a)) → preservesSets (ParamStructure A S)
   preservesSetsParam p setX = isSetΠ λ a → p a setX
 
-  ParamPropRel : {S : A → Type ℓ → Type ℓ₁} {ℓ₁' : Level}
+  ParamRelStr : {S : A → Type ℓ → Type ℓ₁} {ℓ₁' : Level}
     → (∀ a → StrRel (S a) ℓ₁')
     → StrRel (ParamStructure A S) (ℓ-max ℓ₀ ℓ₁')
-  ParamPropRel ρ .rel R s t =
-    (a : A) → ρ a .rel R (s a) (t a)
-  ParamPropRel ρ .prop propR s t =
-    isPropΠ λ a → ρ a .prop propR (s a) (t a)
+  ParamRelStr ρ R s t =
+    (a : A) → ρ a R (s a) (t a)
 
   open SuitableStrRel
 
   paramSuitableRel : {S : A → Type ℓ → Type ℓ₁} {ℓ₁' : Level}
     {ρ : ∀ a → StrRel (S a) ℓ₁'}
     → (∀ a → SuitableStrRel (S a) (ρ a))
-    → SuitableStrRel (ParamStructure A S) (ParamPropRel ρ)
+    → SuitableStrRel (ParamStructure A S) (ParamRelStr ρ)
   paramSuitableRel {ρ = ρ} θ .quo (X , f) R r .fst .fst a =
     θ a .quo (X , f a) R (r a) .fst .fst
   paramSuitableRel {ρ = ρ} θ .quo (X , f) R r .fst .snd a =
@@ -56,9 +54,11 @@ module _ (A : Type ℓ₀) where
     θ a .symmetric R (r a)
   paramSuitableRel {ρ = ρ} θ .transitive R R' r r' a =
     θ a .transitive R R' (r a) (r' a)
+  paramSuitableRel {ρ = ρ} θ .prop propR s t =
+    isPropΠ λ a → θ a .prop propR (s a) (t a)
 
   paramRelMatchesEquiv : {S : A → Type ℓ → Type ℓ₁} {ℓ₁' : Level}
     (ρ : ∀ a → StrRel (S a) ℓ₁') {ι : ∀ a → StrEquiv (S a) ℓ₁'}
     → (∀ a → StrRelMatchesEquiv (ρ a) (ι a))
-    → StrRelMatchesEquiv (ParamPropRel ρ) (ParamEquivStr A ι)
+    → StrRelMatchesEquiv (ParamRelStr ρ) (ParamEquivStr A ι)
   paramRelMatchesEquiv ρ μ _ _ e = equivPi λ a → μ a _ _ e

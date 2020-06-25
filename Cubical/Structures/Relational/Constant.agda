@@ -25,16 +25,16 @@ module _ (A : hSet ℓ') where
   preservesSetsConstant : preservesSets {ℓ = ℓ} (ConstantStructure (A .fst))
   preservesSetsConstant _ = A .snd
 
-  ConstantPropRel : StrRel {ℓ = ℓ} (ConstantStructure (A .fst)) ℓ'
-  ConstantPropRel .rel _ a₀ a₁ = a₀ ≡ a₁
-  ConstantPropRel .prop _ = A .snd
+  ConstantRelStr : StrRel {ℓ = ℓ} (ConstantStructure (A .fst)) ℓ'
+  ConstantRelStr _ a₀ a₁ = a₀ ≡ a₁
 
   open SuitableStrRel
 
-  constantSuitableRel : SuitableStrRel {ℓ = ℓ} (ConstantStructure (A .fst)) ConstantPropRel
+  constantSuitableRel : SuitableStrRel {ℓ = ℓ} (ConstantStructure (A .fst)) ConstantRelStr
   constantSuitableRel .quo _ _ _ = isContrSingl _
   constantSuitableRel .symmetric _ = sym
   constantSuitableRel .transitive _ _ = _∙_
+  constantSuitableRel .prop _ = A .snd
 
-  constantRelMatchesEquiv : StrRelMatchesEquiv {ℓ = ℓ} ConstantPropRel (ConstantEquivStr (A .fst))
+  constantRelMatchesEquiv : StrRelMatchesEquiv {ℓ = ℓ} ConstantRelStr (ConstantEquivStr (A .fst))
   constantRelMatchesEquiv _ _ _ = idEquiv _

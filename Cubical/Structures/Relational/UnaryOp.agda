@@ -33,14 +33,10 @@ preservesSetsUnaryFun : {S : Type ℓ → Type ℓ₁}
   → preservesSets S → preservesSets (NAryFunStructure 1 S)
 preservesSetsUnaryFun p setX = isSetΠ λ _ → p setX
 
-UnaryFunPropRel : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
+UnaryFunRelStr : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
   → StrRel S ℓ₁' → StrRel (NAryFunStructure 1 S) (ℓ-max ℓ ℓ₁')
-UnaryFunPropRel ρ .rel R f g =
-  ∀ {x y} → R x y → ρ .rel R (f x) (g y)
-UnaryFunPropRel ρ .prop propR f g =
-  isPropImplicitΠ λ x →
-  isPropImplicitΠ λ y →
-  isPropΠ λ _ → ρ .prop propR (f x) (g y)
+UnaryFunRelStr ρ R f g =
+  ∀ {x y} → R x y → ρ R (f x) (g y)
 
 open BinaryRelation
 open isEquivRel
@@ -58,10 +54,10 @@ private
 
 unaryFunSuitableRel : {S : Type ℓ → Type ℓ₁} (p : preservesSets S) {ρ : StrRel S ℓ₁'}
   → SuitableStrRel S ρ
-  → SuitableStrRel (NAryFunStructure 1 S) (UnaryFunPropRel ρ)
+  → SuitableStrRel (NAryFunStructure 1 S) (UnaryFunRelStr ρ)
 unaryFunSuitableRel pres {ρ} θ .quo (X , f) R h .fst =
   f₀ ,
-  λ {x} → J (λ y p → ρ .rel (graphRel [_]) (f x) (f₀ y)) (θ .quo (X , f x) R (href x) .fst .snd)
+  λ {x} → J (λ y p → ρ (graphRel [_]) (f x) (f₀ y)) (θ .quo (X , f x) R (href x) .fst .snd)
   where
   href = h ∘ R .snd .reflexive
 
@@ -75,7 +71,7 @@ unaryFunSuitableRel pres {ρ} θ .quo (X , f) R h .fst =
         (θ .quo (X , f x₀) R (href x₀) .snd
           ( θ .quo (X , f x₁) R (href x₁) .fst .fst
           , subst
-            (λ T → ρ .rel T (f x₀) (θ .quo (X , f x₁) R (href x₁) .fst .fst))
+            (λ T → ρ T (f x₀) (θ .quo (X , f x₁) R (href x₁) .fst .fst))
             (composeWith[_] R)
             (θ .transitive (R .fst) (quotientPropRel (R .fst .fst))
               (h r)
@@ -86,7 +82,7 @@ unaryFunSuitableRel pres {ρ} θ .quo (X , f) R h .fst =
 unaryFunSuitableRel pres {ρ} θ .quo (X , f) R h .snd (f' , c) =
   Σ≡Prop
     (λ _ → isPropImplicitΠ λ _ → isPropImplicitΠ λ _ → isPropΠ λ _ →
-      ρ .prop (λ _ _ → squash/ _ _) _ _)
+      θ .prop (λ _ _ → squash/ _ _) _ _)
     (funExt
       (elimProp (λ _ → pres squash/ _ _)
         (λ x → cong fst (θ .quo (X , f x) R (href x) .snd (f' [ x ] , c refl)))))
@@ -95,13 +91,17 @@ unaryFunSuitableRel pres {ρ} θ .quo (X , f) R h .snd (f' , c) =
 unaryFunSuitableRel pres {ρ} θ .symmetric R h {x} {y} r = θ .symmetric R (h r)
 unaryFunSuitableRel pres {ρ} θ .transitive R R' h h' {x} {z} =
   Trunc.rec
-    (ρ .prop (λ _ _ → squash) _ _)
+    (θ .prop (λ _ _ → squash) _ _)
     (λ {(y , r , r') → θ .transitive R R' (h r) (h' r')})
+unaryFunSuitableRel pres {ρ} θ .prop propR f g =
+  isPropImplicitΠ λ x →
+  isPropImplicitΠ λ y →
+  isPropΠ λ _ → θ .prop propR (f x) (g y)
 
 unaryFunRelMatchesEquiv : {S : Type ℓ → Type ℓ₁}
   (ρ : StrRel S ℓ₁') {ι : StrEquiv S ℓ₁'}
   → StrRelMatchesEquiv ρ ι
-  → StrRelMatchesEquiv (UnaryFunPropRel ρ) (UnaryFunEquivStr ι)
+  → StrRelMatchesEquiv (UnaryFunRelStr ρ) (UnaryFunEquivStr ι)
 unaryFunRelMatchesEquiv ρ μ (X , f) (Y , g) e =
   compEquiv (isoToEquiv isom) (equivPi λ _ → μ _ _ e)
   where
@@ -109,8 +109,8 @@ unaryFunRelMatchesEquiv ρ μ (X , f) (Y , g) e =
 
   isom : Iso _ _
   isom .fun h x = h refl
-  isom .inv k {x} = J (λ y _ → ρ .rel (graphRel (e .fst)) (f x) (g y)) (k x)
-  isom .rightInv k i x = JRefl (λ y _ → ρ .rel (graphRel (e .fst)) (f x) (g y)) (k x) i
+  isom .inv k {x} = J (λ y _ → ρ (graphRel (e .fst)) (f x) (g y)) (k x)
+  isom .rightInv k i x = JRefl (λ y _ → ρ (graphRel (e .fst)) (f x) (g y)) (k x) i
   isom .leftInv h =
     implicitFunExt λ {x} →
     implicitFunExt λ {y} →
