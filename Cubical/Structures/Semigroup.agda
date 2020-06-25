@@ -33,11 +33,9 @@ record IsSemigroup {A : Type ℓ} (_·_ : A → A → A) : Type ℓ where
   -- TODO: add no-eta-equality for efficiency? This breaks some proofs later
 
   constructor issemigroup
-
   field
     is-set : isSet A
     assoc  : (x y z : A) → x · (y · z) ≡ (x · y) · z
-
 
 record Semigroup : Type (ℓ-suc ℓ) where
 
@@ -146,7 +144,6 @@ module SemigroupΣTheory {ℓ} where
     SemigroupEquivΣ M N                               ≃⟨ SemigroupΣPath _ _ ⟩
     Semigroup→SemigroupΣ M ≡ Semigroup→SemigroupΣ N ≃⟨ isoToEquiv (invIso (congIso SemigroupIsoSemigroupΣ)) ⟩
     M ≡ N ■
-
 
 -- We now extract the important results from the above module
 
