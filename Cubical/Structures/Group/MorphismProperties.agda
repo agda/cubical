@@ -113,6 +113,10 @@ module GroupΣTheory {ℓ} where
 
   open MonoidTheory
 
+  isSetGroupΣ : (G : GroupΣ)
+               → isSet _
+  isSetGroupΣ (_ , _ , (isSemigroup-G , _ , _)) = IsSemigroup.is-set isSemigroup-G
+
   isPropGroupAxioms : (G : Type ℓ)
                       → (s : RawGroupStructure G)
                       → isProp (GroupAxioms G s)

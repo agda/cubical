@@ -4,6 +4,7 @@ module Cubical.Structures.Group.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
 open import Cubical.Structures.Monoid hiding (⟨_⟩)
+open import Cubical.Structures.Semigroup using (IsSemigroup)
 
 private
   variable
@@ -50,6 +51,9 @@ record Group : Type (ℓ-suc ℓ) where
 -- Extractor for the carrier type
 ⟨_⟩ : Group → Type ℓ
 ⟨_⟩ = Group.Carrier
+
+isSetGroup : (G : Group {ℓ}) → isSet ⟨ G ⟩
+isSetGroup G = Group.isGroup G .IsGroup.isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
 makeIsGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
               (is-setG : isSet G)
