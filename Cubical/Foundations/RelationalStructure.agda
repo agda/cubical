@@ -39,14 +39,14 @@ InducedQuotientStr : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
   (A : TypeWithStr ℓ S) (R : Rel (typ A) (typ A) ℓ)
   → Type (ℓ-max ℓ' ℓ'')
 InducedQuotientStr S ρ A R =
-  Σ (S (typ A / R)) (ρ .rel (graphRel [_]) (A .snd))
+  Σ[ s ∈ S (typ A / R) ] ρ .rel (graphRel [_]) (A .snd) s
 
 -- A structured equivalence relation R on a structured type A should induce a structure on A/R
 InducesQuotientStr : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'') → Type _
 InducesQuotientStr {ℓ = ℓ} S ρ =
   (A : TypeWithStr ℓ S) (R : EquivPropRel (typ A) ℓ)
   → ρ .rel (R .fst .fst) (A .snd) (A .snd)
-  → isContr (InducedQuotientStr S ρ A (R .fst .fst))
+  → ∃![ s ∈ S (typ A / R .fst .fst) ] ρ .rel (graphRel [_]) (A .snd) s
 
 -- The inverse of a structured relation should be structured
 isSymmetricStrRel : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'') → Type _
