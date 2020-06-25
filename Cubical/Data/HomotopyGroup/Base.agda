@@ -21,7 +21,7 @@ open import Cubical.HITs.SetTruncation as SetTrunc
 
     A : Type ℓ
     A = typ ((Ω^ n') p)
-    
+
     e : ∥ A ∥₂
     e = ∣ pt ((Ω^ n') p) ∣₂
 

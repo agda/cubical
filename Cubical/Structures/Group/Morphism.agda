@@ -13,6 +13,7 @@ open import Cubical.Foundations.Function using (_∘_)
 open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Structures.Group.Base
+open import Cubical.Structures.Group.Properties
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Pointed
@@ -35,7 +36,7 @@ isGroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) (f : ⟨ G ⟩ → ⟨ H ⟩) 
 isGroupHom G H f = (x y : ⟨ G ⟩) → f (x G.+ y) ≡ (f x H.+ f y) where
   module G = Group G
   module H = Group H
-  
+
 isPropIsGroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) {f : ⟨ G ⟩ → ⟨ H ⟩} → isProp (isGroupHom G H f)
 isPropIsGroupHom G H {f} = isPropΠ2 λ a b → Group.is-set H _ _
 
@@ -251,4 +252,3 @@ uaCompGroupEquiv f g = caracGroup≡ _ _ (
     ≡⟨ sym (cong-∙ Carrier (uaGroup f) (uaGroup g)) ⟩
   cong Carrier (uaGroup f ∙ uaGroup g) ∎) where
   open GroupEquiv
-
