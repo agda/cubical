@@ -4,6 +4,10 @@ module Cubical.Structures.Group.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Structures.Group.Base
+open import Cubical.Foundations.HLevels
+open import Cubical.Data.Sigma
+open import Cubical.Structures.Monoid
+open import Cubical.Structures.Semigroup
 
 private
   variable
@@ -60,3 +64,14 @@ module GroupLemmas (G : Group {ℓ}) where
           a + (0g - a)
             ≡⟨ cong (a +_) (lid (- a)) ∙ invr a ⟩
           0g ∎
+
+isPropIsGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
+              → isProp (IsGroup 0g _+_ -_)
+isPropIsGroup 0g _+_ -_ (isgroup GM Ginv) (isgroup HM Hinv) =
+  λ i → isgroup (isPropIsMonoid _ _ GM HM i) (isPropInv Ginv Hinv i)
+  where
+  isSetG : isSet _
+  isSetG = IsSemigroup.is-set (IsMonoid.isSemigroup GM)
+
+  isPropInv : isProp ((x : _) → ((x + (- x)) ≡ 0g) × (((- x) + x) ≡ 0g))
+  isPropInv = isPropΠ λ _ → isProp× (isSetG _ _) (isSetG _ _)

@@ -2,14 +2,8 @@
 module Cubical.Structures.Group.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
-
 open import Cubical.Data.Sigma
-open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid hiding (⟨_⟩)
-
-open Iso
 
 private
   variable
@@ -169,14 +163,3 @@ makeGroup-left {A = A} id comp inv set assoc lUnit lCancel =
           ≡⟨ lUnit a ⟩
         a
           ∎
-
-isPropIsGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
-              → isProp (IsGroup 0g _+_ -_)
-isPropIsGroup 0g _+_ -_ (isgroup GM Ginv) (isgroup HM Hinv) =
-  λ i → isgroup (isPropIsMonoid _ _ GM HM i) (isPropInv Ginv Hinv i)
-  where
-  isSetG : isSet _
-  isSetG = IsSemigroup.is-set (IsMonoid.isSemigroup GM)
-
-  isPropInv : isProp ((x : _) → ((x + (- x)) ≡ 0g) × (((- x) + x) ≡ 0g))
-  isPropInv = isPropΠ λ _ → isProp× (isSetG _ _) (isSetG _ _)
