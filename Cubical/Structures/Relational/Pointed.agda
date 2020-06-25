@@ -21,27 +21,27 @@ private
 
 -- Structured relations
 
-pointed-setStructure : SetStructure ℓ ℓ
-pointed-setStructure .struct = pointed-structure
-pointed-setStructure .set setX = setX
+PointedSetStructure : SetStructure ℓ ℓ
+PointedSetStructure .struct = PointedStructure
+PointedSetStructure .set setX = setX
 
-pointed-propRel : StrRel pointed-structure ℓ
-pointed-propRel .rel R = R
-pointed-propRel .prop propR = propR
+PointedPropRel : StrRel PointedStructure ℓ
+PointedPropRel .rel R = R
+PointedPropRel .prop propR = propR
 
-open isSNRS
+open isUnivalentRel
 open BisimDescends
 open isBisimulation
 
-isSNRSPointed : isSNRS {ℓ = ℓ} pointed-setStructure pointed-propRel
-isSNRSPointed .propQuo _ = isContr→isProp (isContrSingl _)
-isSNRSPointed .descends _ .fst _ .quoᴸ = (_ , refl)
-isSNRSPointed .descends _ .fst _ .quoᴿ = (_ , refl)
-isSNRSPointed .descends {A = _ , x} {_ , y} R .fst r .path =
+pointedUnivalentRel : isUnivalentRel {ℓ = ℓ} PointedSetStructure PointedPropRel
+pointedUnivalentRel .propQuo _ = isContr→isProp (isContrSingl _)
+pointedUnivalentRel .descends _ .fst _ .quoᴸ = (_ , refl)
+pointedUnivalentRel .descends _ .fst _ .quoᴿ = (_ , refl)
+pointedUnivalentRel .descends {A = _ , x} {_ , y} R .fst r .path =
   ua-gluePath (Bisim→Equiv.Thm R) (eq/ (S.fwd x) y (S.zigzag (S.bwdRel y) r (S.fwdRel x)))
   where
   module S = isBisimulation (R .snd)
-isSNRSPointed .descends {A = _ , x} {_ , y} R .snd d =
+pointedUnivalentRel .descends {A = _ , x} {_ , y} R .snd d =
   R .snd .zigzag
     (R .snd .fwdRel x)
     (isEquivRel→isEffective

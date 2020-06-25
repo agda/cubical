@@ -24,7 +24,7 @@ module 1List {ℓ} (A : Type ℓ) (Aset : isSet A) where
  deq : Q → Maybe (Q × A)
  deq [] = nothing
  deq (x ∷ []) = just ([] , x)
- deq (x ∷ x' ∷ xs) = deq-map (enq x) (deq (x' ∷ xs))
+ deq (x ∷ x' ∷ xs) = deqMap (enq x) (deq (x' ∷ xs))
 
  Raw : RawQueue
  Raw = (Q , emp , enq , deq)
@@ -43,8 +43,8 @@ module 1List {ℓ} (A : Type ℓ) (Aset : isSet A) where
    deq-enq a (x ∷ x' ∷ xs) =
      subst
        (λ t →
-         deq-map (enq a) (deq-map (enq x) t)
-         ≡ just (returnOrEnq S a (deq-map (enq x) t)))
+         deqMap (enq a) (deqMap (enq x) t)
+         ≡ just (returnOrEnq S a (deqMap (enq x) t)))
        (deq-enq x' xs ⁻¹)
        refl
 
