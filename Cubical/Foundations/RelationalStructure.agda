@@ -118,8 +118,8 @@ structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴸ =
   where
   correction : compPropRel (R .fst) (invPropRel (R .fst)) .fst ≡ QER→EquivRel R .fst .fst
   correction =
-    funExt₂ λ x₀ x₁ → ua
-      (isPropEquiv→Equiv squash (R .fst .snd _ _)
+    funExt₂ λ x₀ x₁ →
+      (hPropExt squash (R .fst .snd _ _)
         (Trunc.rec (R .fst .snd _ _) (λ {(y , r , r') → R .snd .zigzag r r' (R .snd .fwdRel _)}))
         (λ r → ∣ _ , r , R .snd .fwdRel _ ∣))
 
@@ -131,8 +131,8 @@ structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴿ =
   where
   correction : compPropRel (invPropRel (R .fst)) (R .fst) .fst ≡ QER→EquivRel (invQER R) .fst .fst
   correction =
-    funExt₂ λ y₀ y₁ → ua
-      (isPropEquiv→Equiv squash (R .fst .snd _ _)
+    funExt₂ λ y₀ y₁ →
+      (hPropExt squash (R .fst .snd _ _)
         (Trunc.rec (R .fst .snd _ _) (λ {(x , r , r') → R .snd .zigzag (R .snd .bwdRel _) r' r}))
         (λ r → ∣ _ , r , R .snd .bwdRel _ ∣))
 
@@ -151,8 +151,8 @@ structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .rel =
 
   correction : [R] .fst ≡ graphRel (E.Thm .fst)
   correction =
-    funExt₂ λ qx qy → ua
-      (isPropEquiv→Equiv squash (squash/ _ _)
+    funExt₂ λ qx qy →
+      (hPropExt squash (squash/ _ _)
         (Trunc.rec (squash/ _ _)
           (λ {(y , qr , py) →
             Trunc.rec

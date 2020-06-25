@@ -52,10 +52,9 @@ private
   composeWith[_] R =
     funExt λ a →
     funExt λ t →
-    ua
-      (isPropEquiv→Equiv squash (squash/ _ _)
-        (Trunc.rec (squash/ _ _) (λ {(b , r , p) → eq/ a b r ∙ p }))
-        (λ p → ∣ a , R .snd .reflexive a , p ∣))
+    hPropExt squash (squash/ _ _)
+      (Trunc.rec (squash/ _ _) (λ {(b , r , p) → eq/ a b r ∙ p }))
+      (λ p → ∣ a , R .snd .reflexive a , p ∣)
 
 unaryFunSuitableRel : {S : Type ℓ → Type ℓ₁} (p : preservesSets S) {ρ : StrRel S ℓ₁'}
   → SuitableStrRel S ρ
