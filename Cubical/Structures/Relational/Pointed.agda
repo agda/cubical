@@ -31,7 +31,7 @@ PointedPropRel .rel R = R
 PointedPropRel .prop propR = propR
 
 open SuitableStrRel
-open isBisimulation
+open isQuasiEquivRel
 
 pointedSuitableRel : SuitableStrRel {ℓ = ℓ} PointedStructure PointedPropRel
 pointedSuitableRel .quo _ _ _ = isContrSingl _

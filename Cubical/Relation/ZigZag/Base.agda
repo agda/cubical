@@ -1,4 +1,4 @@
--- We define ZigZag-complete relations and prove that bisimulations
+-- We define ZigZag-complete relations and prove that quasi equivalence relations
 -- give rise to equivalences on the set quotients.
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Relation.ZigZag.Base where
@@ -24,7 +24,7 @@ isZigZagComplete R = ∀ {a b a' b'} → R a b → R a' b → R a' b' → R a b'
 ZigZagRel : (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 ZigZagRel A B ℓ' = Σ[ R ∈ (A → B → Type ℓ') ] (isZigZagComplete R)
 
-record isBisimulation {A B : Type ℓ} (R : A → B → Type ℓ') : Type (ℓ-max ℓ ℓ') where
+record isQuasiEquivRel {A B : Type ℓ} (R : A → B → Type ℓ') : Type (ℓ-max ℓ ℓ') where
   field
     zigzag : isZigZagComplete R
     fwd : A → B
@@ -32,40 +32,40 @@ record isBisimulation {A B : Type ℓ} (R : A → B → Type ℓ') : Type (ℓ-m
     bwd : B → A
     bwdRel : (b : B) → R (bwd b) b
 
-open isBisimulation
+open isQuasiEquivRel
 
-Bisimulation : (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
-Bisimulation A B ℓ' =
-  Σ[ R ∈ PropRel A B ℓ' ] isBisimulation (R .fst)
+QuasiEquivRel : (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+QuasiEquivRel A B ℓ' =
+  Σ[ R ∈ PropRel A B ℓ' ] isQuasiEquivRel (R .fst)
 
-invBisim : {A B : Type ℓ} {ℓ' : Level} → Bisimulation A B ℓ' → Bisimulation B A ℓ'
-invBisim (R , bisim) .fst = invPropRel R
-invBisim (R , bisim) .snd .zigzag aRb aRb' a'Rb' = bisim .zigzag a'Rb' aRb' aRb
-invBisim (R , bisim) .snd .fwd = bisim .bwd
-invBisim (R , bisim) .snd .fwdRel = bisim .bwdRel
-invBisim (R , bisim) .snd .bwd = bisim .fwd
-invBisim (R , bisim) .snd .bwdRel = bisim .fwdRel
+invQER : {A B : Type ℓ} {ℓ' : Level} → QuasiEquivRel A B ℓ' → QuasiEquivRel B A ℓ'
+invQER (R , qer) .fst = invPropRel R
+invQER (R , qer) .snd .zigzag aRb aRb' a'Rb' = qer .zigzag a'Rb' aRb' aRb
+invQER (R , qer) .snd .fwd = qer .bwd
+invQER (R , qer) .snd .fwdRel = qer .bwdRel
+invQER (R , qer) .snd .bwd = qer .fwd
+invQER (R , qer) .snd .bwdRel = qer .fwdRel
 
-bisim→EquivRel : {A B : Type ℓ}
-  → Bisimulation A B ℓ' → EquivPropRel A ℓ'
-bisim→EquivRel (R , sim) .fst .fst a₀ a₁ = R .fst a₀ (sim .fwd a₁)
-bisim→EquivRel (R , sim) .fst .snd _ _ = R .snd _ _
-bisim→EquivRel (R , sim) .snd .reflexive a = sim .fwdRel a
-bisim→EquivRel (R , sim) .snd .symmetric a₀ a₁ r =
+QER→EquivRel : {A B : Type ℓ}
+  → QuasiEquivRel A B ℓ' → EquivPropRel A ℓ'
+QER→EquivRel (R , sim) .fst .fst a₀ a₁ = R .fst a₀ (sim .fwd a₁)
+QER→EquivRel (R , sim) .fst .snd _ _ = R .snd _ _
+QER→EquivRel (R , sim) .snd .reflexive a = sim .fwdRel a
+QER→EquivRel (R , sim) .snd .symmetric a₀ a₁ r =
   sim .zigzag (sim .fwdRel a₁) r (sim .fwdRel a₀)
-bisim→EquivRel (R , sim) .snd .transitive a₀ a₁ a₂ r s =
+QER→EquivRel (R , sim) .snd .transitive a₀ a₁ a₂ r s =
   sim .zigzag r (sim .fwdRel a₁) s
 
 -- The following result is due to Carlo Angiuli
-module Bisim→Equiv {A B : Type ℓ} (R : Bisimulation A B ℓ') where
+module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
 
   private
     sim = R .snd
     f = sim .fwd
     g = sim .bwd
 
-  Rᴸ = bisim→EquivRel R .fst .fst
-  Rᴿ = bisim→EquivRel (invBisim R) .fst .fst
+  Rᴸ = QER→EquivRel R .fst .fst
+  Rᴿ = QER→EquivRel (invQER R) .fst .fst
 
   Thm : (A / Rᴸ) ≃ (B / Rᴿ)
   Thm = isoToEquiv (iso φ ψ η ε)

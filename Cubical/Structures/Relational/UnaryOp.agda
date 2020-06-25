@@ -43,7 +43,7 @@ UnaryFunPropRel ρ .prop propR f g =
 
 open BinaryRelation
 open isEquivRel
-open isBisimulation
+open isQuasiEquivRel
 open SuitableStrRel
 
 private

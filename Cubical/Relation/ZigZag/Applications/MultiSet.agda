@@ -1,4 +1,4 @@
--- We apply the theory of zigzag complete relations to finite multisets and association lists.
+-- We apply the theory of quasi equivalence relations to finite multisets and association lists.
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Relation.ZigZag.Applications.MultiSet where
 
@@ -37,7 +37,7 @@ private
   ℓ : Level
   A : Type ℓ
 
--- We have a CountStructure on List and AList and use these to get a bisimulation between the two
+-- We have a CountStructure on List and AList and use these to get a quasi-ER between the two
 module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
  module S = RelMacro ℓ (param A (recvar (constant (ℕ , isSetℕ))))
@@ -58,7 +58,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  ALcount a (⟨ x , zero ⟩∷ xs) = ALcount a xs
  ALcount a (⟨ x , suc n ⟩∷ xs) = aux a x (discA a x) (ALcount a (⟨ x , n ⟩∷ xs))
 
- -- now for the bisimulation between List and Alist
+ -- now for the quasi-ER between List and Alist
 
  R : List A → AList A → Type ℓ
  R xs ys = ∀ a → Lcount a xs ≡ ALcount a ys
@@ -95,22 +95,19 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
  -- Induced quotients and equivalence
 
- open isBisimulation
+ open isQuasiEquivRel
 
- -- R is a bisimulation
- isBisimR : isBisimulation R
- isBisimR .zigzag r r' r'' a = (r a) ∙∙ sym (r' a) ∙∙ (r'' a)
- isBisimR .fwd = φ
- isBisimR .fwdRel = η
- isBisimR .bwd = ψ
- isBisimR .bwdRel = ε
+ -- R is a quasi-ER
+ QuasiR : QuasiEquivRel _ _ ℓ
+ QuasiR .fst .fst = R
+ QuasiR .fst .snd _ _ = isPropΠ λ _ → isSetℕ _ _
+ QuasiR .snd .zigzag r r' r'' a = (r a) ∙∙ sym (r' a) ∙∙ (r'' a)
+ QuasiR .snd .fwd = φ
+ QuasiR .snd .fwdRel = η
+ QuasiR .snd .bwd = ψ
+ QuasiR .snd .bwdRel = ε
 
- BisimR : Bisimulation _ _ ℓ
- BisimR .fst .fst = R
- BisimR .fst .snd _ _ = isPropΠ λ _ → isSetℕ _ _
- BisimR .snd = isBisimR
-
- module E = Bisim→Equiv BisimR
+ module E = QER→Equiv QuasiR
  open E renaming (Rᴸ to Rᴸ; Rᴿ to Rᴬᴸ)
 
  List/Rᴸ = (List A) / Rᴸ
@@ -119,10 +116,10 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  List/Rᴸ≃AList/Rᴬᴸ : List/Rᴸ ≃ AList/Rᴬᴸ
  List/Rᴸ≃AList/Rᴬᴸ = E.Thm
 
- main : BisimDescends _ S.relation (List A , Lcount) (AList A , ALcount) BisimR
- main = structuredBisim→structuredEquiv _ S.suitable _ _ BisimR (λ a r → r a)
+ main : QERDescends _ S.relation (List A , Lcount) (AList A , ALcount) QuasiR
+ main = structuredQER→structuredEquiv _ S.suitable _ _ QuasiR (λ a r → r a)
 
- open BisimDescends
+ open QERDescends
 
  LQcount : S.structure List/Rᴸ
  LQcount = main .quoᴸ .fst
@@ -130,7 +127,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  ALQcount : S.structure AList/Rᴬᴸ
  ALQcount = main .quoᴿ .fst
 
- -- We get a path between CountStructures over the equivalence directly from the fact that the bisimulation
+ -- We get a path between CountStructures over the equivalence directly from the fact that the quasi-ER
  -- is structured
  List/Rᴸ≡AList/Rᴬᴸ :
    Path (TypeWithStr ℓ S.structure) (List/Rᴸ , LQcount) (AList/Rᴬᴸ , ALQcount)
@@ -233,7 +230,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  This strategy should work for all implementations of multisets with HITs.
  We just have to show that:
   ∙ The HIT is equivalent to FMSet (like AssocList)
-  ∙ There is a bisimulation between lists and the basic data type of the HIT
+  ∙ There is a quasi-ER between lists and the basic data type of the HIT
     with the higher constructors removed (like AList)
  Then we get that this HIT is equivalent to the corresponding set quotient that identifies elements
  that give the same count on each a : A.
