@@ -3,15 +3,15 @@
 module Cubical.Structures.Group.Properties where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Structures.Group.Base
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
-open import Cubical.Structures.Monoid
 open import Cubical.Structures.Semigroup
+open import Cubical.Structures.Monoid
+open import Cubical.Structures.Group.Base
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' ℓ'' : Level
 
 module GroupLemmas (G : Group {ℓ}) where
   open Group G
