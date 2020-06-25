@@ -14,6 +14,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.RelationalStructure
 open import Cubical.Foundations.Univalence
+open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Sigma
 open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.ZigZag.Base
@@ -50,8 +51,7 @@ private
   composeWith[_] : {A : Type ℓ} (R : EquivPropRel A ℓ)
     → compPropRel (R .fst) (quotientPropRel (R .fst .fst)) .fst ≡ graphRel [_]
   composeWith[_] R =
-    funExt λ a →
-    funExt λ t →
+    funExt₂ λ a t →
     hPropExt squash (squash/ _ _)
       (Trunc.rec (squash/ _ _) (λ {(b , r , p) → eq/ a b r ∙ p }))
       (λ p → ∣ a , R .snd .reflexive a , p ∣)
