@@ -135,6 +135,26 @@ record AlgebraEquiv {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
     pres1  : equivFun e 1a ≡ 1a
     comm⋆  : (r : ⟨ R ⟩r) (x : ⟨ A ⟩) → equivFun e (r ⋆ x) ≡ r ⋆ equivFun e x
 
+record AlgebraHom {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
+  -- don't we need more of this in general?
+
+  constructor moduleiso
+
+  instance
+    _ : Algebra R
+    _ = A
+    _ : Algebra R
+    _ = B
+
+  open Algebra {{...}}
+
+  field
+    f      : ⟨ A ⟩ → ⟨ B ⟩
+    isHom+ : (x y : ⟨ A ⟩) → f (x + y) ≡ f x + f y
+    isHom· : (x y : ⟨ A ⟩) → f (x · y) ≡ f x · f y
+    pres1  : f 1a ≡ 1a
+    comm⋆  : (r : ⟨ R ⟩r) (x : ⟨ A ⟩) → f (r ⋆ x) ≡ r ⋆ f x
+
 module AlgebraΣTheory (R : Ring {ℓ}) where
 
   open Macro ℓ (recvar (recvar var) , recvar (recvar var) , var ,
