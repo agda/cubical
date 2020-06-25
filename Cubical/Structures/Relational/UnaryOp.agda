@@ -7,13 +7,18 @@ Index a structure S by the type variable: X ↦ X → S X
 module Cubical.Structures.Relational.UnaryOp where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.RelationalStructure
 open import Cubical.Foundations.Univalence
 open import Cubical.Data.Sigma
+open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.ZigZag.Base
 open import Cubical.HITs.SetQuotients
+open import Cubical.HITs.PropositionalTruncation as Trunc
 
 open import Cubical.Structures.NAryOp
 
@@ -23,9 +28,9 @@ private
 
 -- Structured relations
 
-UnaryFunSetStructure : SetStructure ℓ ℓ₁ → SetStructure ℓ (ℓ-max ℓ ℓ₁)
-UnaryFunSetStructure S .struct X = X → S .struct X
-UnaryFunSetStructure S .set setX = isSetΠ λ _ → S .set setX
+preservesSetsUnaryFun : {S : Type ℓ → Type ℓ₁}
+  → preservesSets S → preservesSets (NAryFunStructure 1 S)
+preservesSetsUnaryFun p setX = isSetΠ λ _ → p setX
 
 UnaryFunPropRel : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
   → StrRel S ℓ₁' → StrRel (NAryFunStructure 1 S) (ℓ-max ℓ ℓ₁')
@@ -36,119 +41,81 @@ UnaryFunPropRel ρ .prop propR f g =
   isPropImplicitΠ λ y →
   isPropΠ λ _ → ρ .prop propR (f x) (g y)
 
+open BinaryRelation
+open isEquivRel
 open isBisimulation
-open BisimDescends
-open isUnivalentRel
+open SuitableStrRel
 
 private
-  quoᴸ-coherence : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁') (θ : isUnivalentRel S ρ)
-    {X Y : Type ℓ} (R : Bisimulation X Y ℓ)
-    {x₀ x₁ : S .struct X} {y₀ y₁ : S .struct Y}
-    (code₀₀ : ρ .rel (R .fst) x₀ y₀)
-    (code₁₁ : ρ .rel (R .fst) x₁ y₁)
-    → ρ .rel (R .fst) x₀ y₁
-    → θ .descends R .fst code₀₀ .quoᴸ  .fst ≡ θ .descends R .fst code₁₁ .quoᴸ .fst
-  quoᴸ-coherence S ρ θ R {x₀} {x₁} {y₀} {y₁} code₀₀ code₁₁ code₀₁ =
-    cong fst
-      (θ .propQuo (bisim→EquivRel R)
-        (θ .descends R .fst code₀₀ .quoᴸ)
-        (θ .descends R .fst code₀₁ .quoᴸ))
-    ∙ lem
-      (symP (θ .descends R .fst code₀₁ .path))
-      (symP (θ .descends R .fst code₁₁ .path))
-      (cong fst
-        (θ .propQuo (bisim→EquivRel (invBisim R))
-          (θ .descends R .fst code₀₁ .quoᴿ)
-          (θ .descends R .fst code₁₁ .quoᴿ)))
-    where
-    lem : {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
-      → PathP A a₀ a₁
-      → PathP A a₀' a₁'
-      → a₀ ≡ a₀'
-      → a₁ ≡ a₁'
-    lem {A = A} p₀ p₁ q i =
-      comp A (λ k → λ {(i = i0) → p₀ k; (i = i1) → p₁ k}) (q i)
+  composeWith[_] : {A : Type ℓ} (R : EquivPropRel A ℓ)
+    → compPropRel (R .fst) (quotientPropRel (R .fst .fst)) .fst ≡ graphRel [_]
+  composeWith[_] R =
+    funExt λ a →
+    funExt λ t →
+    ua
+      (isPropEquiv→Equiv squash (squash/ _ _)
+        (Trunc.rec (squash/ _ _) (λ {(b , r , p) → eq/ a b r ∙ p }))
+        (λ p → ∣ a , R .snd .reflexive a , p ∣))
 
-  quoᴿ-coherence : (S : SetStructure ℓ ℓ₁) (ρ : StrRel (S .struct) ℓ₁') (θ : isUnivalentRel S ρ)
-    {X Y : Type ℓ} (R : Bisimulation X Y ℓ)
-    {x₀ x₁ : S .struct X} {y₀ y₁ : S .struct Y}
-    (code₀₀ : ρ .rel (R .fst) x₀ y₀)
-    (code₁₁ : ρ .rel (R .fst) x₁ y₁)
-    → ρ .rel (R .fst) x₁ y₀
-    → θ .descends R .fst code₀₀ .quoᴿ .fst ≡ θ .descends R .fst code₁₁ .quoᴿ .fst
-  quoᴿ-coherence S ρ θ R {x₀} {x₁} {y₀} {y₁} code₀₀ code₁₁ code₁₀ =
-    cong fst
-      (θ .propQuo (bisim→EquivRel (invBisim R))
-        (θ .descends R .fst code₀₀ .quoᴿ)
-        (θ .descends R .fst code₁₀ .quoᴿ))
-    ∙ lem
-      (θ .descends R .fst code₁₀ .path)
-      (θ .descends R .fst code₁₁ .path)
-      (cong fst
-        (θ .propQuo (bisim→EquivRel R)
-          (θ .descends R .fst code₁₀ .quoᴸ)
-          (θ .descends R .fst code₁₁ .quoᴸ)))
-    where
-    lem : {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
-      → PathP A a₀ a₁
-      → PathP A a₀' a₁'
-      → a₀ ≡ a₀'
-      → a₁ ≡ a₁'
-    lem {A = A} p₀ p₁ q i =
-      comp A (λ k → λ {(i = i0) → p₀ k; (i = i1) → p₁ k}) (q i)
-
-unaryFunUnivalentRel : {S : SetStructure ℓ ℓ₁} {ρ : StrRel (S .struct) ℓ₁'}
-  → isUnivalentRel S ρ
-  → isUnivalentRel (UnaryFunSetStructure S) (UnaryFunPropRel ρ)
-unaryFunUnivalentRel {S = S} {ρ} θ .propQuo R (t , c) (t' , c') =
-  equivFun ΣPath≃PathΣ
-    ( funExt
-      (elimProp
-        (λ _ → S .set squash/ _ _)
-        (λ x → cong fst (θ .propQuo R (t [ x ] , c refl) (t' [ x ] , c' refl))))
-    , isProp→PathP (λ _ → UnaryFunPropRel ρ .prop (λ _ _ → squash/ _ _) _ _) _ _
-    )
-unaryFunUnivalentRel {S = S} {ρ} θ .descends {X , f} {Y , g} (R , bis) .fst code .quoᴸ =
-  f₀ , λ p → subst (λ y → ρ .rel _ _ (f₀ y)) p (θ .descends _ .fst _ .quoᴸ .snd)
+unaryFunSuitableRel : {S : Type ℓ → Type ℓ₁} (p : preservesSets S) {ρ : StrRel S ℓ₁'}
+  → SuitableStrRel S ρ
+  → SuitableStrRel (NAryFunStructure 1 S) (UnaryFunPropRel ρ)
+unaryFunSuitableRel pres {ρ} θ .quo (X , f) R h .fst =
+  f₀ ,
+  λ {x} → J (λ y p → ρ .rel (graphRel [_]) (f x) (f₀ y)) (θ .quo (X , f x) R (href x) .fst .snd)
   where
+  href = h ∘ R .snd .reflexive
+
   f₀ : _
-  f₀ [ x ] = θ .descends (R , bis) .fst (code (bis .fwdRel x)) .quoᴸ .fst
-  f₀ (eq/ x₀ x₁ r i) =
-    quoᴸ-coherence S ρ θ (R , bis)
-      (code (bis .fwdRel x₀))
-      (code (bis .fwdRel x₁))
-      (code r)
-      i
+  f₀ [ x ] = θ .quo (X , f x) R (href x) .fst .fst
+  f₀ (eq/ x₀ x₁ r i) = path i
+    where
+    path : θ .quo (X , f x₀) R (href x₀) .fst .fst ≡ θ .quo (X , f x₁) R (href x₁) .fst .fst
+    path =
+      cong fst
+        (θ .quo (X , f x₀) R (href x₀) .snd
+          ( θ .quo (X , f x₁) R (href x₁) .fst .fst
+          , subst
+            (λ T → ρ .rel T (f x₀) (θ .quo (X , f x₁) R (href x₁) .fst .fst))
+            (composeWith[_] R)
+            (θ .transitive (R .fst) (quotientPropRel (R .fst .fst))
+              (h r)
+              (θ .quo (X , f x₁) R (href x₁) .fst .snd))
+          ))
   f₀ (squash/ _ _ p q j i) =
-    S .set squash/ _ _ (cong f₀ p) (cong f₀ q) j i
-unaryFunUnivalentRel {S = S} {ρ} θ .descends (R , bis) .fst code .quoᴿ =
-  g₀ , λ p → subst (λ y → ρ .rel _ _ (g₀ y)) p (θ .descends _ .fst _ .quoᴿ .snd)
+    pres squash/ _ _ (cong f₀ p) (cong f₀ q) j i
+unaryFunSuitableRel pres {ρ} θ .quo (X , f) R h .snd (f' , c) =
+  Σ≡Prop
+    (λ _ → isPropImplicitΠ λ _ → isPropImplicitΠ λ _ → isPropΠ λ _ →
+      ρ .prop (λ _ _ → squash/ _ _) _ _)
+    (funExt
+      (elimProp (λ _ → pres squash/ _ _)
+        (λ x → cong fst (θ .quo (X , f x) R (href x) .snd (f' [ x ] , c refl)))))
   where
-  g₀ : _
-  g₀ [ y ] = θ .descends (R , bis) .fst (code (bis .bwdRel y)) .quoᴿ .fst
-  g₀ (eq/ y₀ y₁ r i) =
-    quoᴿ-coherence S ρ θ (R , bis)
-      (code (bis .bwdRel y₀))
-      (code (bis .bwdRel y₁))
-      (code r)
-      i
-  g₀ (squash/ _ _ p q j i) =
-    S .set squash/ _ _ (cong g₀ p) (cong g₀ q) j i
-unaryFunUnivalentRel {S = S} {ρ} θ .descends (R , bis) .fst code .path =
-  ua→
-    (elimProp
-      (λ _ → isOfHLevelPathP' 1 (S .set squash/) _ _)
-      (λ x →
-        θ .descends _ .fst (code (bis .fwdRel x)) .path
-        ▷ quoᴿ-coherence S ρ θ (R , bis) _ _ (code (bis .bwdRel (bis .fwd x)))))
+  href = h ∘ R .snd .reflexive
+unaryFunSuitableRel pres {ρ} θ .symmetric R h {x} {y} r = θ .symmetric R (h r)
+unaryFunSuitableRel pres {ρ} θ .transitive R R' h h' {x} {z} =
+  Trunc.rec
+    (ρ .prop (λ _ _ → squash) _ _)
+    (λ {(y , r , r') → θ .transitive R R' (h r) (h' r')})
+
+unaryFunRelMatchesEquiv : {S : Type ℓ → Type ℓ₁}
+  (ρ : StrRel S ℓ₁') {ι : StrEquiv S ℓ₁'}
+  → StrRelMatchesEquiv ρ ι
+  → StrRelMatchesEquiv (UnaryFunPropRel ρ) (UnaryFunEquivStr ι)
+unaryFunRelMatchesEquiv ρ μ (X , f) (Y , g) e =
+  compEquiv (isoToEquiv isom) (equivPi λ _ → μ _ _ e)
   where
-  module E = Bisim→Equiv (R , bis)
-unaryFunUnivalentRel {S = S} {ρ} θ .descends {A = X , f} {B = Y , g} (R , bis) .snd d {x} {y} r =
-  θ .descends (R , bis) .snd dxy
-  where
-  dxy : BisimDescends (S .struct) ρ (X , f x) (Y , g y) (R , bis)
-  dxy .quoᴸ = d .quoᴸ .fst [ x ] , d .quoᴸ .snd refl
-  dxy .quoᴿ = d .quoᴿ .fst [ y ] , d .quoᴿ .snd refl
-  dxy .path =
-    ua→⁻ (d .path) [ x ]
-    ▷ cong (d .quoᴿ .fst) (eq/ _ _ (bis .zigzag (bis .bwdRel y) r (bis .fwdRel x)))
+  open Iso
+
+  isom : Iso _ _
+  isom .fun h x = h refl
+  isom .inv k {x} = J (λ y _ → ρ .rel (graphRel (e .fst)) (f x) (g y)) (k x)
+  isom .rightInv k i x = JRefl (λ y _ → ρ .rel (graphRel (e .fst)) (f x) (g y)) (k x) i
+  isom .leftInv h =
+    implicitFunExt λ {x} →
+    implicitFunExt λ {y} →
+    funExt λ p →
+    J (λ y p →  isom .inv (isom .fun h) p ≡ h p)
+      (funExt⁻ (isom .rightInv (isom .fun h)) x)
+      p

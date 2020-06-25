@@ -11,8 +11,10 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Univalence
+open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Sigma
-open import Cubical.HITs.SetQuotients.Base
+open import Cubical.HITs.PropositionalTruncation as Trunc
+open import Cubical.HITs.SetQuotients
 open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.ZigZag.Base
 
@@ -20,15 +22,7 @@ open BinaryRelation
 
 private
   variable
-    ℓ ℓ' ℓ'' : Level
-
--- A set structure is a structure that takes sets to sets
-record SetStructure (ℓ ℓ' : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
-  field
-    struct : Type ℓ → Type ℓ'
-    set : ∀ {A} → isSet A → isSet (struct A)
-
-open SetStructure public
+    ℓ ℓ' ℓ'' ℓ''' : Level
 
 -- A notion of structured relation for a structure S assigns a relation on S X and S Y to every relation on X
 -- and Y. We require the output to be proposition-valued when the input is proposition-valued.
@@ -45,11 +39,58 @@ InducedQuotientStr : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
   (A : TypeWithStr ℓ S) (R : Rel (typ A) (typ A) ℓ)
   → Type (ℓ-max ℓ' ℓ'')
 InducedQuotientStr S ρ A R =
-  Σ (S (typ A / R)) (ρ .rel (λ a b → [ a ] ≡ b) (A .snd))
+  Σ (S (typ A / R)) (ρ .rel (graphRel [_]) (A .snd))
 
--- A bisimulation R between a pair of structured types A, B /descends to the quotients/ when the induced
--- equivalence relations Rᴸ and Rᴿ on A and B induce structures on A/Rᴸ and B/Rᴿ and there is a path
--- between these structures over the equivalence A/Rᴸ ≃ B/Rᴿ
+-- A structured equivalence relation R on a structured type A should induce a structure on A/R
+InducesQuotientStr : (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'') → Type _
+InducesQuotientStr {ℓ = ℓ} S ρ =
+  (A : TypeWithStr ℓ S) (R : EquivPropRel (typ A) ℓ)
+  → ρ .rel (R .fst .fst) (A .snd) (A .snd)
+  → isContr (InducedQuotientStr S ρ A (R .fst .fst))
+
+-- The inverse of a structured relation should be structured
+isSymmetricStrRel : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'') → Type _
+isSymmetricStrRel {ℓ = ℓ} {S = S} ρ =
+  {X Y : Type ℓ} (R : PropRel X Y ℓ)
+  {sx : S X} {sy : S Y}
+  → ρ .rel (R .fst) sx sy
+  → ρ .rel (invPropRel R .fst) sy sx
+
+-- The composite of structured relations should be structured
+isTransitiveStrRel : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'') → Type _
+isTransitiveStrRel {ℓ = ℓ} {S = S} ρ =
+  {X Y Z : Type ℓ}
+  (R₀ : PropRel X Y ℓ) (R₁ : PropRel Y Z ℓ)
+  {sx : S X} {sy : S Y} {sz : S Z}
+  → ρ .rel (R₀ .fst) sx sy
+  → ρ .rel (R₁ .fst) sy sz
+  → ρ .rel (compPropRel R₀ R₁ .fst) sx sz
+
+record SuitableStrRel (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'') : Type (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ') ℓ'')
+  where
+  field
+    quo : InducesQuotientStr S ρ
+    symmetric : isSymmetricStrRel ρ
+    transitive : isTransitiveStrRel ρ
+
+open SuitableStrRel
+
+-- We can also ask for a notion of structured relations to agree with some notion of structured equivalences
+StrRelMatchesEquiv : {S : Type ℓ → Type ℓ'}
+  → StrRel S ℓ'' → StrEquiv S ℓ''' → Type _
+StrRelMatchesEquiv {S = S} ρ ι =
+  (A B : TypeWithStr _ S) (e : typ A ≃ typ B) →
+  ρ .rel (graphRel (e .fst)) (A .snd) (B .snd) ≃ ι A B e
+
+-- Given a suitable notion of structured relation, if we have a structured bisimulation R
+-- between structured types A and B, we get induced structures on the quotients
+-- A/(R ∙ R⁻¹) and B/(R⁻¹ ∙ R), and the induced equivalence e : A/(R ∙ R⁻¹) ≃ B/(R⁻¹ ∙ R)
+-- is structured with respect to those quotient structures
+
+quotientPropRel : ∀ {ℓ} {A : Type ℓ} (R : Rel A A ℓ) → PropRel A (A / R) ℓ
+quotientPropRel R .fst a t = [ a ] ≡ t
+quotientPropRel R .snd _ _ = squash/ _ _
+
 record BisimDescends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
   (A B : TypeWithStr ℓ S) (R : Bisimulation (typ A) (typ B) ℓ) : Type (ℓ-max ℓ' ℓ'')
   where
@@ -59,46 +100,71 @@ record BisimDescends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
   field
     quoᴸ : InducedQuotientStr S ρ A E.Rᴸ
     quoᴿ : InducedQuotientStr S ρ B E.Rᴿ
-    path : PathP (λ i → S (ua E.Thm i)) (quoᴸ .fst) (quoᴿ .fst)
+    rel : ρ .rel (graphRel (E.Thm .fst)) (quoᴸ .fst) (quoᴿ .fst)
 
 open BisimDescends
+open isBisimulation
 
--- A notion of structured relations is standard when
--- (a) Given a structured type A and equivalence relation R, there is at most one quotient structure on A/R
--- (b) Any bisimulation descends to the quotients if and only if it is structured
-record isUnivalentRel (S : SetStructure ℓ ℓ') (ρ : StrRel (S .struct) ℓ'') : Type (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ') ℓ'')
+structuredBisim→structuredEquiv : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'')
+  (θ : SuitableStrRel S ρ)
+  (A B : TypeWithStr ℓ S) (R : Bisimulation (typ A) (typ B) ℓ)
+  → ρ .rel (R .fst .fst) (A .snd) (B .snd)
+  → BisimDescends S ρ A B R
+structuredBisim→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴸ =
+  θ .quo (X , s) (bisim→EquivRel R)
+    (subst (λ R' → ρ .rel R' s s) correction
+      (θ .transitive (R .fst) (invPropRel (R .fst)) r (θ .symmetric (R .fst) r)))
+    .fst
   where
-  field
-    propQuo : {A : TypeWithStr ℓ (S .struct)}
-      (R : Σ[ R ∈ (typ A → typ A → Type ℓ) ] isEquivRel R)
-      → isProp (InducedQuotientStr (S .struct) ρ A (R .fst))
-    descends : {A B : TypeWithStr ℓ (S .struct)}
-      (R : Bisimulation (typ A) (typ B) ℓ)
-      → (ρ .rel (R .fst) (A .snd) (B .snd) → BisimDescends (S .struct) ρ A B R)
-      × (BisimDescends (S .struct) ρ A B R → ρ .rel (R .fst) (A .snd) (B .snd))
+  correction : compPropRel (R .fst) (invPropRel (R .fst)) .fst ≡ bisim→EquivRel R .fst .fst
+  correction =
+    funExt₂ λ x₀ x₁ → ua
+      (isPropEquiv→Equiv squash (R .fst .snd _ _)
+        (Trunc.rec (R .fst .snd _ _) (λ {(y , r , r') → R .snd .zigzag r r' (R .snd .fwdRel _)}))
+        (λ r → ∣ _ , r , R .snd .fwdRel _ ∣))
 
-  descendsEquiv : {A B : TypeWithStr ℓ (S .struct)}
-    (R : Bisimulation (typ A) (typ B) ℓ)
-    → ρ .rel (R .fst) (A .snd) (B .snd) ≃ BisimDescends (S .struct) ρ A B R
-  descendsEquiv R =
-    isPropEquiv→Equiv
-      (ρ .prop (R .snd .isBisimulation.prop) _ _)
-      isPropDescends
-      (descends R .fst)
-      (descends R .snd)
-    where
-    module E = Bisim→Equiv R
+structuredBisim→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴿ =
+  θ .quo (Y , t) (bisim→EquivRel (invBisim R))
+    (subst (λ R' → ρ .rel R' t t) correction
+      (θ .transitive (invPropRel (R .fst)) (R .fst) (θ .symmetric (R .fst) r) r))
+    .fst
+  where
+  correction : compPropRel (invPropRel (R .fst)) (R .fst) .fst ≡ bisim→EquivRel (invBisim R) .fst .fst
+  correction =
+    funExt₂ λ y₀ y₁ → ua
+      (isPropEquiv→Equiv squash (R .fst .snd _ _)
+        (Trunc.rec (R .fst .snd _ _) (λ {(x , r , r') → R .snd .zigzag (R .snd .bwdRel _) r' r}))
+        (λ r → ∣ _ , r , R .snd .bwdRel _ ∣))
 
-    isPropDescends : (d₀ d₁ : BisimDescends (S .struct) ρ _ _ R) → d₀ ≡ d₁
-    isPropDescends d₀ d₁ j .quoᴸ = propQuo (bisim→EquivRel R) (d₀ .quoᴸ) (d₁ .quoᴸ) j
-    isPropDescends d₀ d₁ j .quoᴿ = propQuo (bisim→EquivRel (invBisim R)) (d₀ .quoᴿ) (d₁ .quoᴿ) j
-    isPropDescends d₀ d₁ j .path =
-      isProp→PathP
-        {B = λ j →
-          PathP (λ i → S .struct (ua E.Thm i))
-          (isPropDescends d₀ d₁ j .quoᴸ .fst)
-          (isPropDescends d₀ d₁ j .quoᴿ .fst)}
-        (λ i → isOfHLevelPathP' 1 (S .set squash/) _ _)
-        (d₀ .path) (d₁ .path)
-        j
+structuredBisim→structuredEquiv ρ θ (X , s) (Y , t) R r .rel =
+  subst (λ R' → ρ .rel R' (quol .fst) (quor .fst)) correction
+    (θ .transitive (compPropRel (invPropRel (quotientPropRel E.Rᴸ)) (R .fst)) (quotientPropRel E.Rᴿ)
+      (θ .transitive (invPropRel (quotientPropRel E.Rᴸ)) (R .fst)
+        (θ .symmetric (quotientPropRel E.Rᴸ) (quol .snd))
+        r)
+      (quor .snd))
+  where
+  module E = Bisim→Equiv R
+  quol = structuredBisim→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴸ
+  quor = structuredBisim→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴿ
+  [R] = compPropRel (compPropRel (invPropRel (quotientPropRel E.Rᴸ)) (R .fst)) (quotientPropRel E.Rᴿ)
 
+  correction : [R] .fst ≡ graphRel (E.Thm .fst)
+  correction =
+    funExt₂ λ qx qy → ua
+      (isPropEquiv→Equiv squash (squash/ _ _)
+        (Trunc.rec (squash/ _ _)
+          (λ {(y , qr , py) →
+            Trunc.rec
+              (squash/ _ _)
+              (λ {(x , px , r) →
+                cong (E.Thm .fst) (sym px)
+                ∙ eq/ (R .snd .fwd x) y (R .snd .zigzag (R .snd .bwdRel y) r (R .snd .fwdRel x))
+                ∙ py})
+              qr}))
+        (elimProp
+          {B = λ qx →
+            E.Thm .fst qx ≡ qy → [R] .fst qx qy}
+          (λ _ → isPropΠ λ _ → squash)
+          (λ x p → ∣ _ , ∣ _ , refl , R .snd .fwdRel x ∣ , p ∣)
+          qx))

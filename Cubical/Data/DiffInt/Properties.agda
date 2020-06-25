@@ -17,7 +17,7 @@ open import Cubical.HITs.SetQuotients
 open BinaryRelation
 
 relIsEquiv : isEquivRel rel
-relIsEquiv = EquivRel {A = ℕ × ℕ} relIsRefl relIsSym relIsTrans
+relIsEquiv = equivrel {A = ℕ × ℕ} relIsRefl relIsSym relIsTrans
   where
     relIsRefl : isRefl rel
     relIsRefl (a0 , a1) = refl

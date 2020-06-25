@@ -9,6 +9,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.RelationalStructure
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.SIP
 open import Cubical.Foundations.Univalence
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty
@@ -39,10 +40,7 @@ private
 -- We have a CountStructure on List and AList and use these to get a bisimulation between the two
 module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
- open RelMacro ℓ (param A (recvar (constant (ℕ , isSetℕ)))) renaming
-   ( structure to S
-   ; univalent to υ
-   )
+ module S = RelMacro ℓ (param A (recvar (constant (ℕ , isSetℕ))))
 
  ι = CountEquivStr A (Discrete→isSet discA)
 
@@ -51,11 +49,11 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  aux a x (yes a≡x) n = suc n
  aux a x (no  a≢x) n = n
 
- Lcount : S .struct (List A)
+ Lcount : S.structure (List A)
  Lcount a [] = zero
  Lcount a (x ∷ xs) = aux a x (discA a x) (Lcount a xs)
 
- ALcount : S .struct (AList A)
+ ALcount : S.structure (AList A)
  ALcount a ⟨⟩ = zero
  ALcount a (⟨ x , zero ⟩∷ xs) = ALcount a xs
  ALcount a (⟨ x , suc n ⟩∷ xs) = aux a x (discA a x) (ALcount a (⟨ x , n ⟩∷ xs))
@@ -106,9 +104,13 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  isBisimR .fwdRel = η
  isBisimR .bwd = ψ
  isBisimR .bwdRel = ε
- isBisimR .prop xs y = isPropΠ λ _ → isSetℕ _ _
 
- module E = Bisim→Equiv (R , isBisimR)
+ BisimR : Bisimulation _ _ ℓ
+ BisimR .fst .fst = R
+ BisimR .fst .snd _ _ = isPropΠ λ _ → isSetℕ _ _
+ BisimR .snd = isBisimR
+
+ module E = Bisim→Equiv BisimR
  open E renaming (Rᴸ to Rᴸ; Rᴿ to Rᴬᴸ)
 
  List/Rᴸ = (List A) / Rᴸ
@@ -117,21 +119,23 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  List/Rᴸ≃AList/Rᴬᴸ : List/Rᴸ ≃ AList/Rᴬᴸ
  List/Rᴸ≃AList/Rᴬᴸ = E.Thm
 
- main : BisimDescends _ _ (List A , Lcount) (AList A , ALcount) (R , isBisimR)
- main = υ .isUnivalentRel.descends (R , isBisimR) .fst (λ a r → r a)
+ main : BisimDescends _ S.relation (List A , Lcount) (AList A , ALcount) BisimR
+ main = structuredBisim→structuredEquiv _ S.suitable _ _ BisimR (λ a r → r a)
 
- LQcount : S .struct List/Rᴸ
- LQcount = main .BisimDescends.quoᴸ .fst
+ open BisimDescends
 
- ALQcount : S .struct AList/Rᴬᴸ
- ALQcount = main .BisimDescends.quoᴿ .fst
+ LQcount : S.structure List/Rᴸ
+ LQcount = main .quoᴸ .fst
+
+ ALQcount : S.structure AList/Rᴬᴸ
+ ALQcount = main .quoᴿ .fst
 
  -- We get a path between CountStructures over the equivalence directly from the fact that the bisimulation
  -- is structured
-
  List/Rᴸ≡AList/Rᴬᴸ :
-   Path (TypeWithStr ℓ (S .struct)) (List/Rᴸ , LQcount) (AList/Rᴬᴸ , ALQcount)
- List/Rᴸ≡AList/Rᴬᴸ =  ΣPathP (ua E.Thm , main .BisimDescends.path)
+   Path (TypeWithStr ℓ S.structure) (List/Rᴸ , LQcount) (AList/Rᴬᴸ , ALQcount)
+ List/Rᴸ≡AList/Rᴬᴸ =
+   sip S.univalent _ _ (E.Thm , (S.matches _ _ E.Thm .fst (main .rel)))
 
  -- We now show that List/Rᴸ≃FMSet
  _∷/_ : A → List/Rᴸ → List/Rᴸ
@@ -179,11 +183,11 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
  ν [ xs ] = List→FMSet xs
  ν (eq/ xs ys r i) = path i
   where
-   ρ : ∀ a → Lcount a xs ≡ Lcount a ys
-   ρ a = r a ∙ sym (η ys a)
+   countsAgree : ∀ a → Lcount a xs ≡ Lcount a ys
+   countsAgree a = r a ∙ sym (η ys a)
 
    θ : ∀ a → FMScount discA a (List→FMSet xs) ≡ FMScount discA a (List→FMSet ys)
-   θ a = sym (List→FMSet-count a xs) ∙∙ ρ a ∙∙ List→FMSet-count a ys
+   θ a = sym (List→FMSet-count a xs) ∙∙ countsAgree a ∙∙ List→FMSet-count a ys
 
    path : List→FMSet xs ≡ List→FMSet ys
    path = FMScountExt.Thm discA _ _ θ
@@ -207,11 +211,6 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
   θ : ∀ x {xs} → ν (μ xs) ≡ xs → ν (μ (x ∷ xs)) ≡ x ∷ xs
   θ x {xs} p = ν-∷/-commute x (μ xs) ∙ cong (x ∷_) p
 
-
- FMSet≃List/Rᴸ : FMSet A ≃ List/Rᴸ
- FMSet≃List/Rᴸ = isoToEquiv (iso μ ν σ τ)
-
- --and this is a count-equivalence, which is easier to prove for the inverse equiv
  List/Rᴸ≃FMSet : List/Rᴸ ≃ FMSet A
  List/Rᴸ≃FMSet = isoToEquiv (iso ν μ τ σ)
 

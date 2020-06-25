@@ -10,6 +10,7 @@ module Cubical.Structures.Relational.Parameterized where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.RelationalStructure
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Sigma
@@ -25,9 +26,9 @@ private
 
 module _ (A : Type ℓ₀) where
 
-  ParamSetStructure : (A → SetStructure ℓ ℓ₁) → SetStructure ℓ (ℓ-max ℓ₀ ℓ₁)
-  ParamSetStructure S .struct X = (a : A) → (S a .struct X)
-  ParamSetStructure S .set setX = isSetΠ λ a → S a .set setX
+  preservesSetsParam : {S : A → Type ℓ → Type ℓ₁}
+    → (∀ a → preservesSets (S a)) → preservesSets (ParamStructure A S)
+  preservesSetsParam p setX = isSetΠ λ a → p a setX
 
   ParamPropRel : {S : A → Type ℓ → Type ℓ₁} {ℓ₁' : Level}
     → (∀ a → StrRel (S a) ℓ₁')
@@ -37,33 +38,27 @@ module _ (A : Type ℓ₀) where
   ParamPropRel ρ .prop propR s t =
     isPropΠ λ a → ρ a .prop propR (s a) (t a)
 
-  open isUnivalentRel
-  open BisimDescends
+  open SuitableStrRel
 
-  paramUnivalentRel : {S : A → SetStructure ℓ ℓ₁} {ℓ₁' : Level}
-    {ρ : ∀ a → StrRel (S a .struct) ℓ₁'}
-    → (∀ a → isUnivalentRel (S a) (ρ a))
-    → isUnivalentRel (ParamSetStructure S) (ParamPropRel ρ)
-  paramUnivalentRel {ρ = ρ} θ .propQuo R f f' =
-    equivFun ΣPath≃PathΣ
-      ( funExt (λ a → cong fst (θ a .propQuo R (f .fst a , f .snd a) (f' .fst a , f' .snd a)))
-      , isProp→PathP (λ _ → ParamPropRel ρ .prop (λ _ _ → squash/ _ _) _ _) _ _
-      )
-  paramUnivalentRel θ .descends _ .fst code .quoᴸ .fst a =
-    θ a .descends _ .fst (code a) .quoᴸ .fst
-  paramUnivalentRel θ .descends _ .fst code .quoᴸ .snd a =
-    θ a .descends _ .fst (code a) .quoᴸ .snd
-  paramUnivalentRel θ .descends _ .fst code .quoᴿ .fst a =
-    θ a .descends _ .fst (code a) .quoᴿ .fst
-  paramUnivalentRel θ .descends _ .fst code .quoᴿ .snd a =
-    θ a .descends _ .fst (code a) .quoᴿ .snd
-  paramUnivalentRel θ .descends _ .fst code .path =
-    funExt λ a → θ a .descends _ .fst (code a) .path
-  paramUnivalentRel θ .descends {A = X , f} {B = Y , g} R .snd d a =
-    θ a .descends R .snd d'
-    where
-    d' : BisimDescends _ _ (X , f a) (Y , g a) R
-    d' .quoᴸ = d .quoᴸ .fst a , d .quoᴸ .snd a
-    d' .quoᴿ = d .quoᴿ .fst a , d .quoᴿ .snd a
-    d' .path i = d .path i a
+  paramSuitableRel : {S : A → Type ℓ → Type ℓ₁} {ℓ₁' : Level}
+    {ρ : ∀ a → StrRel (S a) ℓ₁'}
+    → (∀ a → SuitableStrRel (S a) (ρ a))
+    → SuitableStrRel (ParamStructure A S) (ParamPropRel ρ)
+  paramSuitableRel {ρ = ρ} θ .quo (X , f) R r .fst .fst a =
+    θ a .quo (X , f a) R (r a) .fst .fst
+  paramSuitableRel {ρ = ρ} θ .quo (X , f) R r .fst .snd a =
+    θ a .quo (X , f a) R (r a) .fst .snd
+  paramSuitableRel {ρ = ρ} θ .quo (X , f) R r .snd (q , c) i .fst a =
+    θ a .quo (X , f a) R (r a) .snd (q a , c a) i .fst
+  paramSuitableRel {ρ = ρ} θ .quo (X , f) R r .snd (q , c) i .snd a =
+    θ a .quo (X , f a) R (r a) .snd (q a , c a) i .snd
+  paramSuitableRel {ρ = ρ} θ .symmetric R r a =
+    θ a .symmetric R (r a)
+  paramSuitableRel {ρ = ρ} θ .transitive R R' r r' a =
+    θ a .transitive R R' (r a) (r' a)
 
+  paramRelMatchesEquiv : {S : A → Type ℓ → Type ℓ₁} {ℓ₁' : Level}
+    (ρ : ∀ a → StrRel (S a) ℓ₁') {ι : ∀ a → StrEquiv (S a) ℓ₁'}
+    → (∀ a → StrRelMatchesEquiv (ρ a) (ι a))
+    → StrRelMatchesEquiv (ParamPropRel ρ) (ParamEquivStr A ι)
+  paramRelMatchesEquiv ρ μ _ _ e = equivPi λ a → μ a _ _ e
