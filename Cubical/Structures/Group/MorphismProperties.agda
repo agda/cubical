@@ -28,7 +28,7 @@ open Iso
 private
   variable
     ℓ ℓ' ℓ'' : Level
-    
+
 isPropIsGroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) {f : ⟨ G ⟩ → ⟨ H ⟩} → isProp (isGroupHom G H f)
 isPropIsGroupHom G H {f} = isPropΠ2 λ a b → Group.is-set H _ _
 
