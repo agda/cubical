@@ -39,7 +39,7 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isTrans = (a b c : A)  → R a b → R b c → R a c
 
   record isEquivRel : Type (ℓ-max ℓ ℓ') where
-    constructor equivrel
+    constructor equivRel
     field
       reflexive : isRefl
       symmetric : isSym
