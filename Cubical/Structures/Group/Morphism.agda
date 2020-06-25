@@ -57,18 +57,19 @@ record GroupEquiv (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ')
   hom = grouphom (equivFun eq) isHom
 
 -- Morphism composition
-isGroupHomComp : (F : Group {ℓ}) (G : Group {ℓ'}) (H : Group {ℓ''}) →
+isGroupHomComp : {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} →
   (f : GroupHom F G) → (g : GroupHom G H) → isGroupHom F H (GroupHom.fun g ∘ GroupHom.fun f)
-isGroupHomComp F G H (grouphom f morph-f) (grouphom g morph-g) x y =
+isGroupHomComp (grouphom f morph-f) (grouphom g morph-g) x y =
   cong g (morph-f _ _) ∙ morph-g _ _
 
 compGroupHom : {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} → GroupHom F G → GroupHom G H → GroupHom F H
-compGroupHom {F = F} {G = G} {H = H} (grouphom f morph-f) (grouphom g morph-g) =
-  grouphom (g ∘ f) (isGroupHomComp F G H (grouphom f morph-f) (grouphom g morph-g))
+compGroupHom {F = F} {G = G} {H = H} f g = grouphom _ (isGroupHomComp f g)
 
 compGroupEquiv : {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} → GroupEquiv F G → GroupEquiv G H → GroupEquiv F H
-compGroupEquiv {F = F} {G = G} {H = H} (groupequiv f morph-f) (groupequiv g morph-g) =
-  groupequiv (compEquiv f g) (isGroupHomComp F G H (grouphom _ morph-f) (grouphom _ morph-g))
+compGroupEquiv {F = F} {G = G} {H = H} f g =
+  groupequiv (compEquiv f.eq g.eq) (isGroupHomComp f.hom g.hom) where
+  module f = GroupEquiv f
+  module g = GroupEquiv g
 
 idGroupEquiv : (G : Group {ℓ}) → GroupEquiv G G
 idGroupEquiv G = groupequiv (idEquiv (Group.Carrier G)) (λ _ _ → refl)
