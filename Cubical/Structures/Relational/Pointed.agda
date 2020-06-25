@@ -26,17 +26,17 @@ private
 preservesSetsPointed : preservesSets {ℓ = ℓ} PointedStructure
 preservesSetsPointed setX = setX
 
-PointedPropRel : StrRel PointedStructure ℓ
-PointedPropRel .rel R = R
-PointedPropRel .prop propR = propR
+PointedRelStr : StrRel PointedStructure ℓ
+PointedRelStr R = R
 
 open SuitableStrRel
 open isQuasiEquivRel
 
-pointedSuitableRel : SuitableStrRel {ℓ = ℓ} PointedStructure PointedPropRel
+pointedSuitableRel : SuitableStrRel {ℓ = ℓ} PointedStructure PointedRelStr
 pointedSuitableRel .quo _ _ _ = isContrSingl _
 pointedSuitableRel .symmetric _ r = r
 pointedSuitableRel .transitive _ _ r r' = ∣ _ , r , r' ∣
+pointedSuitableRel .prop propR = propR
 
-pointedRelMatchesEquiv : StrRelMatchesEquiv {ℓ = ℓ} PointedPropRel PointedEquivStr
+pointedRelMatchesEquiv : StrRelMatchesEquiv {ℓ = ℓ} PointedRelStr PointedEquivStr
 pointedRelMatchesEquiv _ _ _ = idEquiv _

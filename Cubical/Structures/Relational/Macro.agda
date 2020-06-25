@@ -69,16 +69,16 @@ preservesSetsRelMacro (maybe d) =
   preservesSetsMaybe (preservesSetsRelMacro d)
 
 -- Notion of structured relation defined by a descriptor
-RelMacroRel : ∀ {ℓ} → (d : RelDesc ℓ) → StrRel {ℓ} (RelMacroStructure d) (relMacroRelLevel d)
-RelMacroRel (constant A) = ConstantPropRel A
-RelMacroRel var = PointedPropRel
-RelMacroRel (d₀ , d₁) = ProductPropRel (RelMacroRel d₀) (RelMacroRel d₁)
-RelMacroRel (param A d) = ParamPropRel A (λ _ → RelMacroRel d)
-RelMacroRel (recvar d) = UnaryFunPropRel (RelMacroRel d)
-RelMacroRel (maybe d) = MaybePropRel (RelMacroRel d)
+RelMacroRelStr : ∀ {ℓ} → (d : RelDesc ℓ) → StrRel {ℓ} (RelMacroStructure d) (relMacroRelLevel d)
+RelMacroRelStr (constant A) = ConstantRelStr A
+RelMacroRelStr var = PointedRelStr
+RelMacroRelStr (d₀ , d₁) = ProductRelStr (RelMacroRelStr d₀) (RelMacroRelStr d₁)
+RelMacroRelStr (param A d) = ParamRelStr A (λ _ → RelMacroRelStr d)
+RelMacroRelStr (recvar d) = UnaryFunRelStr (RelMacroRelStr d)
+RelMacroRelStr (maybe d) = MaybeRelStr (RelMacroRelStr d)
 
 -- Proof that structure induced by descriptor is suitable
-relMacroSuitableRel : ∀ {ℓ} → (d : RelDesc ℓ) → SuitableStrRel _ (RelMacroRel d)
+relMacroSuitableRel : ∀ {ℓ} → (d : RelDesc ℓ) → SuitableStrRel _ (RelMacroRelStr d)
 relMacroSuitableRel (constant A) = constantSuitableRel A
 relMacroSuitableRel var = pointedSuitableRel
 relMacroSuitableRel (d₀ , d₁) = productSuitableRel (relMacroSuitableRel d₀) (relMacroSuitableRel d₁)
@@ -88,23 +88,23 @@ relMacroSuitableRel (maybe d) = maybeSuitableRel (relMacroSuitableRel d)
 
 -- Proof that structured relations and equivalences agree
 relMacroMatchesEquiv : ∀ {ℓ} → (d : RelDesc ℓ)
-  → StrRelMatchesEquiv (RelMacroRel d) (MacroEquivStr (relDesc→Desc d))
+  → StrRelMatchesEquiv (RelMacroRelStr d) (MacroEquivStr (relDesc→Desc d))
 relMacroMatchesEquiv (constant A) = constantRelMatchesEquiv A
 relMacroMatchesEquiv var = pointedRelMatchesEquiv
 relMacroMatchesEquiv (d₁ , d₂) =
   productRelMatchesEquiv
-    (RelMacroRel d₁) (RelMacroRel d₂)
+    (RelMacroRelStr d₁) (RelMacroRelStr d₂)
     (relMacroMatchesEquiv d₁) (relMacroMatchesEquiv d₂)
 relMacroMatchesEquiv (param A d) =
-  paramRelMatchesEquiv A (λ _ → RelMacroRel d) (λ _ → relMacroMatchesEquiv d)
+  paramRelMatchesEquiv A (λ _ → RelMacroRelStr d) (λ _ → relMacroMatchesEquiv d)
 relMacroMatchesEquiv (recvar d) =
-  unaryFunRelMatchesEquiv (RelMacroRel d) (relMacroMatchesEquiv d)
+  unaryFunRelMatchesEquiv (RelMacroRelStr d) (relMacroMatchesEquiv d)
 relMacroMatchesEquiv (maybe d) =
-  maybeRelMatchesEquiv (RelMacroRel d) (relMacroMatchesEquiv d)
+  maybeRelMatchesEquiv (RelMacroRelStr d) (relMacroMatchesEquiv d)
 
 -- Module for easy importing
 module RelMacro ℓ (d : RelDesc ℓ) where
-  relation = RelMacroRel d
+  relation = RelMacroRelStr d
   suitable = relMacroSuitableRel d
   matches = relMacroMatchesEquiv d
   open Macro ℓ (relDesc→Desc d) public
