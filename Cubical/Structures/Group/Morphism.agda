@@ -8,14 +8,12 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP
 open import Cubical.Foundations.Function using (_∘_)
 open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Structures.Group.Base
 open import Cubical.Structures.Axioms
-open import Cubical.Structures.Macro
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Pointed
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
