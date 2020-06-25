@@ -209,6 +209,12 @@ funExt : {B : A → I → Type ℓ'}
   → PathP (λ i → (x : A) → B x i) f g
 funExt p i x = p x i
 
+implicitFunExt : {B : A → I → Type ℓ'}
+  {f : {x : A} → B x i0} {g : {x : A} → B x i1}
+  → ({x : A} → PathP (B x) (f {x}) (g {x}))
+  → PathP (λ i → {x : A} → B x i) f g
+implicitFunExt p i {x} = p {x} i
+
 -- the inverse to funExt (see Functions.FunExtEquiv), converting paths
 -- between functions to homotopies; `funExt⁻` is called `happly` and
 -- defined by path induction in the HoTT book (see function 2.9.2 in
