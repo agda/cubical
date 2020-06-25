@@ -34,7 +34,6 @@ private
 SNS : (S : Type ℓ₁ → Type ℓ₂) (ι : StrEquiv S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
 SNS {ℓ₁} S ι = ∀ {X : Type ℓ₁} (s t : S X) → ι (X , s) (X , t) (idEquiv X) ≃ (s ≡ t)
 
-
 -- We introduce the notation for structure preserving equivalences a
 -- bit differently, but this definition doesn't actually change from
 -- Escardó's notes.

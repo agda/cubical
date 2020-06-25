@@ -33,7 +33,6 @@ module _ {ℓ₁ ℓ₂ : Level} where
       (nAryFunExtEquiv n fX fY)
 
 module _ {ℓ₁ ℓ₂ : Level} where
-
   -- unary
   UnaryFunEquivStr : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level} (ι : StrEquiv S ℓ₃)
     → StrEquiv (NAryFunStructure 1 S) (ℓ-max ℓ₁ ℓ₃)

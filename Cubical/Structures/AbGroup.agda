@@ -24,7 +24,7 @@ open Iso
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 record IsAbGroup {G : Type ℓ}
                  (0g : G) (_+_ : G → G → G) (-_ : G → G) : Type ℓ where
@@ -84,7 +84,10 @@ AbGroup→Group (abgroup _ _ _ _ H) = group _ _ _ _ (IsAbGroup.isGroup H)
 isSetAbGroup : (A : AbGroup {ℓ}) → isSet ⟨ A ⟩
 isSetAbGroup A = isSetGroup (AbGroup→Group A)
 
-AbGroupEquiv : (G H : AbGroup) → Type ℓ
+AbGroupHom : (G : AbGroup {ℓ}) (H : AbGroup {ℓ'}) → Type (ℓ-max ℓ ℓ')
+AbGroupHom G H = GroupHom (AbGroup→Group G) (AbGroup→Group H)
+
+AbGroupEquiv : (G : AbGroup {ℓ}) (H : AbGroup {ℓ'}) → Type (ℓ-max ℓ ℓ')
 AbGroupEquiv G H = GroupEquiv (AbGroup→Group G) (AbGroup→Group H)
 
 module AbGroupΣTheory {ℓ} where
