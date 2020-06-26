@@ -17,7 +17,7 @@ private
 module _ (R' : Ring {ℓ}) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R' I) where
   open Ring R' renaming (Carrier to R)
   open isIdeal I-isIdeal
-  open Theory R'
+  open RingTheory R'
 
   R/I : Type ℓ
   R/I = R / (λ x y → x - y ∈ I)
