@@ -162,3 +162,16 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
                    λ r x → (r ⋆ 1a) · inducedMap x ≡⟨ ⋆-lassoc r 1a (inducedMap x) ⟩
                            r ⋆ (1a · inducedMap x) ≡⟨ cong (λ u → r ⋆ u) (·-lid (inducedMap x)) ⟩
                            r ⋆ inducedMap x ∎
+
+  module _ (A : CommAlgebra R) where
+    open CommAlgebra A
+    open AlgebraTheory (CommRing→Ring R) (CommAlgebra→Algebra A)
+    open Construction using (var; const) renaming (_+_ to _+c_; -_ to -c_; _·_ to _·c_)
+
+    evaluateAt : AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
+                 → I → ⟨ A ⟩a
+    evaluateAt (algebrahom f _ _ _ _) x = f (var x)
+
+    mapRetrievable : ∀ (φ : I → ⟨ A ⟩a)
+                     → evaluateAt (inducedHom A φ) ≡ φ
+    mapRetrievable φ = refl
