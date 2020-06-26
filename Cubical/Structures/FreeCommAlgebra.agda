@@ -16,10 +16,10 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 
-open import Cubical.Structures.CommRing    using (CommRing; ⟨_⟩)
+open import Cubical.Structures.CommRing
 open import Cubical.Structures.Ring        using ()
-open import Cubical.Structures.Algebra     using (makeIsAlgebra) renaming (⟨_⟩ to ⟨_⟩r)
-open import Cubical.Structures.CommAlgebra
+open import Cubical.Structures.CommAlgebra renaming (⟨_⟩ to ⟨_⟩a)
+open import Cubical.Structures.Algebra     hiding (⟨_⟩)
 
 private
   variable
@@ -47,7 +47,7 @@ module Construction (R : CommRing {ℓ}) where
     ldist : (x y z : R[ I ]) → (x + y) · z ≡ (x · z) + (y · z)
 
     +HomConst : (s t : ⟨ R ⟩) → const (s +r t) ≡ const s + const t
-    ·HomConst : (s t : ⟨ R ⟩) → const (s ·r t) ≡ const s · const t
+    ·HomConst : (s t : ⟨ R ⟩) → const (s ·r t) ≡ (const s) · (const t)
 
     0-trunc : (x y : R[ I ]) (p q : x ≡ y) → p ≡ q
 
@@ -86,7 +86,7 @@ module Construction (R : CommRing {ℓ}) where
                                    R {A = R[ I ]}
                                    0a 1a
                                    _+_ _·_ -_ _⋆_
-  isCommAlgebra = makeIsCommAlgebra R 0-trunc
+  isCommAlgebra = makeIsCommAlgebra 0-trunc
                                     +-assoc +-rid +-rinv +-comm
                                     ·-assoc ·-lid ldist ·-comm
                                     ⋆-assoc ⋆-ldist-+ ⋆-rdist-+ ·-lid ⋆-assoc-·
@@ -94,3 +94,61 @@ module Construction (R : CommRing {ℓ}) where
 _[_] : (R : CommRing {ℓ}) (I : Type ℓ) → CommAlgebra R
 R [ I ] = let open Construction R
           in commalgebra R[ I ] 0a 1a _+_ _·_ -_ _⋆_ isCommAlgebra
+
+
+module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
+  open CommRing R using (0r; 1r) renaming (_·_ to _·r_; ·-comm to ·r-comm)
+
+  module _ (A : CommAlgebra R) (φ : I → ⟨ A ⟩a) where
+    open CommAlgebra A
+    open AlgebraTheory (CommRing→Ring R) (CommAlgebra→Algebra A)
+    open Construction using (var; const) renaming (_+_ to _+c_; -_ to -c_; _·_ to _·c_)
+
+    imageOf0Works : 0r ⋆ 1a ≡ 0a
+    imageOf0Works = 0-actsNullifying 1a
+
+    imageOf1Works : 1r ⋆ 1a ≡ 1a
+    imageOf1Works = ⋆-lid 1a
+
+    inducedMap : ⟨ R [ I ] ⟩a → ⟨ A ⟩a
+    inducedMap (var x) = φ x
+    inducedMap (const r) = r ⋆ 1a
+    inducedMap (P +c Q) = (inducedMap P) + (inducedMap Q)
+    inducedMap (-c P) = - inducedMap P
+    inducedMap (Construction.+-assoc P Q S i) = +-assoc (inducedMap P) (inducedMap Q) (inducedMap S) i
+    inducedMap (Construction.+-rid P i) =
+      let
+        eq : (inducedMap P) + (inducedMap (const 0r)) ≡ (inducedMap P)
+        eq = (inducedMap P) + (inducedMap (const 0r)) ≡⟨ refl ⟩
+             (inducedMap P) + (0r ⋆ 1a)               ≡⟨ cong
+                                                         (λ u → (inducedMap P) + u)
+                                                         (imageOf0Works) ⟩
+             (inducedMap P) + 0a                      ≡⟨ +-rid _ ⟩
+             (inducedMap P) ∎
+      in eq i
+    inducedMap (Construction.+-rinv P i) =
+      let eq : (inducedMap P - inducedMap P) ≡ (inducedMap (const 0r))
+          eq = (inducedMap P - inducedMap P) ≡⟨ +-rinv _ ⟩
+               0a                            ≡⟨ sym imageOf0Works ⟩
+               (inducedMap (const 0r))∎
+      in eq i
+    inducedMap (Construction.+-comm P Q i) = +-comm (inducedMap P) (inducedMap Q) i
+    inducedMap (P ·c Q) = inducedMap P · inducedMap Q
+    inducedMap (Construction.·-assoc P Q S i) = ·-assoc (inducedMap P) (inducedMap Q) (inducedMap S) i
+    inducedMap (Construction.·-lid P i) =
+      let eq = inducedMap (const 1r) · inducedMap P ≡⟨ cong (λ u → u · inducedMap P) imageOf1Works ⟩
+               1a · inducedMap P                    ≡⟨ ·-lid (inducedMap P) ⟩
+               inducedMap P ∎
+      in eq i
+    inducedMap (Construction.·-comm P Q i) = ·-comm (inducedMap P) (inducedMap Q) i
+    inducedMap (Construction.ldist P Q S i) = ·-ldist-+ (inducedMap P) (inducedMap Q) (inducedMap S) i
+    inducedMap (Construction.+HomConst s t i) = ⋆-ldist s t 1a i
+    inducedMap (Construction.·HomConst s t i) =
+      let eq = (s ·r t) ⋆ 1a       ≡⟨ cong (λ u → u ⋆ 1a) (·r-comm _ _) ⟩
+               (t ·r s) ⋆ 1a       ≡⟨ ⋆-assoc t s 1a ⟩
+               t ⋆ (s ⋆ 1a)        ≡⟨ cong (λ u → t ⋆ u) (sym (·-rid _)) ⟩
+               t ⋆ ((s ⋆ 1a) · 1a) ≡⟨ ⋆-rassoc t (s ⋆ 1a) 1a ⟩
+               (s ⋆ 1a) · (t ⋆ 1a) ∎
+      in eq i
+    inducedMap (Construction.0-trunc P Q p q i j) =
+      isSetAlgebra (CommAlgebra→Algebra A) (inducedMap P) (inducedMap Q) (cong _ p) (cong _ q) i j

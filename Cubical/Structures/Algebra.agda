@@ -41,6 +41,7 @@ record IsAlgebra (R : Ring {ℓ}) {A : Type ℓ}
     ⋆-rassoc     : (r : ⟨ R ⟩r) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y)
 
   open IsLeftModule isLeftModule public
+  open IsRing isRing public hiding (_-_; +-assoc; +-lid; +-linv; +-rid; +-rinv; +-comm)
 
 record Algebra (R : Ring {ℓ}) : Type (ℓ-suc ℓ) where
 
@@ -59,7 +60,7 @@ record Algebra (R : Ring {ℓ}) : Type (ℓ-suc ℓ) where
   open IsAlgebra isAlgebra public
 
 
-module _ {R : Ring {ℓ}} where
+module commonExtractors {R : Ring {ℓ}} where
   ⟨_⟩ : Algebra R → Type ℓ
   ⟨_⟩ = Algebra.Carrier
 
@@ -80,7 +81,6 @@ module _ {R : Ring {ℓ}} where
   isSetAlgebra : (A : Algebra R) → isSet ⟨ A ⟩
   isSetAlgebra A = isSetAbGroup (Algebra→AbGroup A)
 
-module _ {R : Ring {ℓ}} where
   open Ring R using (1r; ·-ldist-+) renaming (_+_ to _+r_; _·_ to _·s_)
 
   makeIsAlgebra : {A : Type ℓ} {0a 1a : A}
@@ -115,6 +115,7 @@ module _ {R : Ring {ℓ}} where
                   ⋆-lassoc ⋆-rassoc
 
 
+open commonExtractors public
 
 record AlgebraEquiv {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
 
@@ -203,7 +204,6 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
     (LeftModule→LeftModuleΣ (leftmodule A _ _ _ _ isLeftModule) .snd .snd) ,
     ⋆-lassoc ,
     ⋆-rassoc
-
 {-
   AlgebraΣ→Algebra : AlgebraΣ → Algebra R
   AlgebraΣ→Algebra (A , (_+_ , _·_ , 1a , _⋆_) , isRing , isLeftModule , lassoc , rassoc) =
@@ -219,3 +219,14 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
         isLeftModule″ = isLeftModule′
     in algebra A 0a 1a _+_ _·_ -_ _⋆_ (isalgebra isRing {!isLeftModule′!} lassoc rassoc)
 -}
+
+module AlgebraTheory (R : Ring {ℓ}) (A : Algebra R) where
+  open Ring R renaming (_+_ to _+r_)
+  open Algebra A
+
+  0-actsNullifying : (x : ⟨ A ⟩) → 0r ⋆ x ≡ 0a
+  0-actsNullifying x =
+    let idempotent-+ = 0r ⋆ x              ≡⟨ cong (λ u → u ⋆ x) (sym (RingTheory.0-idempotent R)) ⟩
+                       (0r +r 0r) ⋆ x      ≡⟨ ⋆-ldist 0r 0r x ⟩
+                       (0r ⋆ x) + (0r ⋆ x) ∎
+    in sym (RingTheory.+-idempotency→0 (Algebra→Ring A) (0r ⋆ x) idempotent-+)

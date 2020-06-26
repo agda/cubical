@@ -26,7 +26,7 @@ record IsCommAlgebra (R : CommRing {ℓ}) {A : Type ℓ}
 
   field
     isAlgebra : IsAlgebra (CommRing→Ring R) 0a 1a _+_ _·_ -_ _⋆_
-    comm      : (x y : A) → x · y ≡ y · x
+    ·-comm      : (x y : A) → x · y ≡ y · x
 
   open IsAlgebra isAlgebra public
 
@@ -44,8 +44,22 @@ record CommAlgebra (R : CommRing {ℓ}) : Type (ℓ-suc ℓ) where
     _⋆_            : ⟨ R ⟩r → Carrier → Carrier
     isCommAlgebra  : IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_
 
-module _ (R : CommRing {ℓ}) where
+  open IsCommAlgebra isCommAlgebra public
+
+module _ {R : CommRing {ℓ}} where
   open CommRing R using (1r) renaming (_+_ to _+r_; _·_ to _·s_)
+
+  ⟨_⟩ : CommAlgebra R → Type ℓ
+  ⟨_⟩ = CommAlgebra.Carrier
+
+  CommAlgebra→Algebra : (A : CommAlgebra R) → Algebra (CommRing→Ring R)
+  CommAlgebra→Algebra (commalgebra Carrier _ _ _ _ _ _ (iscommalgebra isAlgebra ·-comm)) =
+    algebra Carrier _ _ _ _ _ _ isAlgebra
+
+  CommAlgebra→CommRing : (A : CommAlgebra R) → CommRing {ℓ}
+  CommAlgebra→CommRing (commalgebra Carrier _ _ _ _ _ _
+                          (iscommalgebra (isalgebra isRing _  _ _) ·-comm)) =
+    commring Carrier _ _ _ _ _ (iscommring isRing ·-comm)
 
   makeIsCommAlgebra : {A : Type ℓ} {0a 1a : A}
                       {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩r → A → A}
