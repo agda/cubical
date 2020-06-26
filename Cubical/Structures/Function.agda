@@ -23,7 +23,7 @@ FunctionEquivStr : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
   → StrEquiv S ℓ₁' → StrEquiv T ℓ₂'
   → StrEquiv (FunctionStructure S T) (ℓ-max ℓ₁ (ℓ-max ℓ₁' ℓ₂'))
 FunctionEquivStr {S = S} {T} ι₁ ι₂ (X , f) (Y , g) e =
-  {s : S X} {t : S Y} → ι₁ (X , s) (Y , t) e → ι₂ (X , f s) (Y , g t) e 
+  {s : S X} {t : S Y} → ι₁ (X , s) (Y , t) e → ι₂ (X , f s) (Y , g t) e
 
 FunctionUnivalentStr : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
   (ι₁ : StrEquiv S ℓ₁') (θ₁ : UnivalentStr S ι₁)

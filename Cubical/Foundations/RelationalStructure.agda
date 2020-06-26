@@ -19,6 +19,8 @@ open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.ZigZag.Base
 
 open BinaryRelation
+open isEquivRel
+open isQuasiEquivRel
 
 private
   variable
@@ -80,21 +82,14 @@ record SuitableStrRel (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'') : Type 
 
 open SuitableStrRel
 
--- We can also ask for a notion of structured relations to agree with some notion of structured equivalences.
-StrRelMatchesEquiv : {S : Type ℓ → Type ℓ'}
-  → StrRel S ℓ'' → StrEquiv S ℓ''' → Type _
-StrRelMatchesEquiv {S = S} ρ ι =
-  (A B : TypeWithStr _ S) (e : typ A ≃ typ B) →
-  ρ (graphRel (e .fst)) (A .snd) (B .snd) ≃ ι A B e
+quotientPropRel : ∀ {ℓ} {A : Type ℓ} (R : Rel A A ℓ) → PropRel A (A / R) ℓ
+quotientPropRel R .fst a t = [ a ] ≡ t
+quotientPropRel R .snd _ _ = squash/ _ _
 
 -- Given a suitable notion of structured relation, if we have a structured quasi equivalence relation R
 -- between structured types A and B, we get induced structures on the quotients A/(R ∙ R⁻¹) and B/(R⁻¹ ∙ R),
 -- and the induced equivalence e : A/(R ∙ R⁻¹) ≃ B/(R⁻¹ ∙ R) is structured with respect to those quotient
 -- structures.
-
-quotientPropRel : ∀ {ℓ} {A : Type ℓ} (R : Rel A A ℓ) → PropRel A (A / R) ℓ
-quotientPropRel R .fst a t = [ a ] ≡ t
-quotientPropRel R .snd _ _ = squash/ _ _
 
 record QERDescends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
   (A B : TypeWithStr ℓ S) (R : QuasiEquivRel (typ A) (typ B) ℓ) : Type (ℓ-max ℓ' ℓ'')
@@ -108,7 +103,6 @@ record QERDescends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
     rel : ρ (graphRel (E.Thm .fst)) (quoᴸ .fst) (quoᴿ .fst)
 
 open QERDescends
-open isQuasiEquivRel
 
 structuredQER→structuredEquiv : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'')
   (θ : SuitableStrRel S ρ)
@@ -173,3 +167,66 @@ structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .rel =
           (λ _ → isPropΠ λ _ → squash)
           (λ x p → ∣ _ , ∣ _ , refl , R .snd .fwdRel x ∣ , p ∣)
           qx))
+
+-- We can also ask for a notion of structured relations to agree with some notion of structured equivalences.
+StrRelMatchesEquiv : {S : Type ℓ → Type ℓ'}
+  → StrRel S ℓ'' → StrEquiv S ℓ''' → Type _
+StrRelMatchesEquiv {S = S} ρ ι =
+  (A B : TypeWithStr _ S) (e : typ A ≃ typ B) →
+  ρ (graphRel (e .fst)) (A .snd) (B .snd) ≃ ι A B e
+
+-- Additional conditions for a "positive" notion of structured relation
+
+isReflexiveStrRel : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'') → Type _
+isReflexiveStrRel {ℓ = ℓ} {S = S} ρ =
+  {X : Type ℓ} (R : EquivPropRel X ℓ)
+  (s : S X) → ρ (R .fst .fst) s s
+
+isDetransitiveStrRel : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'') → Type _
+isDetransitiveStrRel {ℓ = ℓ} {S = S} ρ =
+  {X Y Z : Type ℓ}
+  (R₀ : PropRel X Y ℓ) (R₁ : PropRel Y Z ℓ)
+  {sx : S X}  {sz : S Z}
+  → ρ (compPropRel R₀ R₁ .fst) sx sz
+  → ∥ Σ[ sy ∈ S Y ] ρ (R₀ .fst) sx sy × ρ (R₁ .fst) sy sz ∥
+
+composePropRelWith[_] : {A : Type ℓ} (R : EquivPropRel A ℓ)
+  → compPropRel (R .fst) (quotientPropRel (R .fst .fst)) .fst ≡ graphRel [_]
+composePropRelWith[_] R =
+  funExt₂ λ a t →
+  hPropExt squash (squash/ _ _)
+    (Trunc.rec (squash/ _ _) (λ {(b , r , p) → eq/ a b r ∙ p }))
+    (λ p → ∣ a , R .snd .reflexive a , p ∣)
+
+reflexiveStrRelQuotientMap : {S : Type ℓ → Type ℓ'} (pres : preservesSets S)
+  {ρ : StrRel S ℓ''} (θ : SuitableStrRel S ρ) (ref : isReflexiveStrRel ρ)
+  → {X : Type ℓ} (R : EquivPropRel X ℓ)
+  → (S X / ρ (R .fst .fst)) → S (X / R .fst .fst)
+reflexiveStrRelQuotientMap pres θ ref R [ s ] =
+  θ .quo (_ , s) R (ref R s) .fst .fst
+reflexiveStrRelQuotientMap pres {ρ} θ ref R (eq/ s t r i) =
+  cong fst
+    (θ .quo (_ , s) R (ref R s) .snd
+      ( θ .quo (_ , t) R (ref R t) .fst .fst
+      , subst (λ R' → ρ R' s (θ .quo (_ , t) R (ref R t) .fst .fst))
+        (composePropRelWith[_] R)
+        (θ .transitive (R .fst) (quotientPropRel (R .fst .fst))
+          r
+          (θ .quo (_ , t) R (ref R t) .fst .snd))
+      ))
+    i
+reflexiveStrRelQuotientMap pres θ ref R (squash/ _ _ p q i j) =
+  pres squash/ _ _
+    (cong (reflexiveStrRelQuotientMap pres θ ref R) p)
+    (cong (reflexiveStrRelQuotientMap pres θ ref R) q)
+    i j
+
+record isPositiveStrRel {S : Type ℓ → Type ℓ'} (pres : preservesSets S)
+  {ρ : StrRel S ℓ''} (θ : SuitableStrRel S ρ)
+  : Type (ℓ-max (ℓ-suc ℓ) (ℓ-max ℓ' ℓ''))
+  where
+  field
+    reflexive : isReflexiveStrRel ρ
+    detransitive : isDetransitiveStrRel ρ
+    quo : {X : Type ℓ} (R : EquivPropRel X ℓ)
+      → isEquiv (reflexiveStrRelQuotientMap pres θ reflexive R)
