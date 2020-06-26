@@ -82,11 +82,11 @@ private
   pathSigma-π1 p i = fst (p i)
 
   filler-π2 : {a b : Σ A B} → (p : a ≡ b) → I → (i : I) → B (fst (p i))
-  filler-π2 {B = B} {a = a} p i =
+  filler-π2 {B = B} {a = a} p i j =
     fill (λ i → B (fst (p i)))
          (λ t → λ { (i = i0) → transport-filler (λ j → B (fst (p j))) (snd a) t
                   ; (i = i1) → snd (p t) })
-         (inS (snd a))
+         (inS (snd a)) j
 
   pathSigma-π2 : {a b : Σ A B} → (p : a ≡ b) →
     subst B (pathSigma-π1 p) (snd a) ≡ snd b

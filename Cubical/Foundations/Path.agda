@@ -50,18 +50,18 @@ toPathP-isEquiv A {x} {y} = isoToIsEquiv (iso toPathP fromPathP to-from from-to)
                                                    ; (h = i0) → transp (λ j → A ((i ∧ z) ∧ j)) (~ (i ∧ z)) x
                                                    ; (h = i1) → p i })
                                 (p (i ∧ h))
-   from-to : ∀ (q : transp A i0 x ≡ y) → fromPathP (toPathP {A = A} q) ≡ q
+   from-to : ∀ (q : transp (\ i → A i) i0 x ≡ y) → fromPathP (toPathP {A = A} q) ≡ q
    from-to q = (\ h i → outS (transp-hcomp i {A' = A i1} (\ j → inS (A (i ∨ j)))
                                            ((λ { j (i = i0) → x ; j (i = i1) → q j }))
                                            (inS ((transp (λ j → A (i ∧ j)) (~ i) x))))
                              h)
-             ∙ (\ h i → outS (hcomp-unique {A = A i1} ((λ { j (i = i0) → transp A i0 x ; j (i = i1) → q j }))
+             ∙ (\ h i → outS (hcomp-unique {A = A i1} ((λ { j (i = i0) → transp (\ i → A i) i0 x ; j (i = i1) → q j }))
                                       (inS ((transp (λ j → A (i ∨ j)) i (transp (λ j → A (i ∧ j)) (~ i) x))))
                                       \ h → inS (sq2 h i))
                              h)
              ∙ sym (lUnit q)
      where
-       sq2 : (\ h → transp A i0 x ≡ q h) [ (\ i → transp (\ j → A (i ∨ j)) i (transp (\ j → A (i ∧ j)) (~ i) x)) ≡ refl ∙ q ]
+       sq2 : (\ h → transp (\ i → A i) i0 x ≡ q h) [ (\ i → transp (\ j → A (i ∨ j)) i (transp (\ j → A (i ∧ j)) (~ i) x)) ≡ refl ∙ q ]
        sq2 = \ h i → comp (\ z → hcomp (\ w → \ { (i = i1) → A i1
                                               ; (i = i0) → A (h ∨ (w ∧ z))
                                               ; (h = i0) → A (i ∨ (w ∧ z))

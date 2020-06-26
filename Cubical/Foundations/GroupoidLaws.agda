@@ -263,11 +263,11 @@ lid-unique {φ = φ} u u0 h1 h2 = inS (\ i → hcomp (\ k → \ { (φ = i1) → 
 transp-hcomp : ∀ {ℓ} (φ : I) {A' : Set ℓ}
                      (A : (i : I) → Set ℓ [ φ ↦ (λ _ → A') ]) (let B = \ (i : I) → outS (A i))
                  → ∀ {ψ} (u : I → Partial ψ (B i0)) → (u0 : B i0 [ ψ ↦ u i0 ]) →
-                 (transp B φ (hcomp u (outS u0)) ≡ hcomp (\ i o → transp B φ (u i o)) (transp B φ (outS u0)))
-                   [ ψ ↦ (\ { (ψ = i1) → (\ i → transp B φ (u i1 1=1))}) ]
+                 (transp (\ i → B i) φ (hcomp u (outS u0)) ≡ hcomp (\ i o → transp (\ i → B i) φ (u i o)) (transp (\ i → B i) φ (outS u0)))
+                   [ ψ ↦ (\ { (ψ = i1) → (\ i → transp (\ i → B i) φ (u i1 1=1))}) ]
 transp-hcomp φ A u u0 = inS (sym (outS (hcomp-unique
-               ((\ i o → transp B φ (u i o))) (inS (transp B φ (outS u0)))
-                 \ i → inS (transp B φ (hfill u u0 i)))))
+               ((\ i o → transp (\ i → B i) φ (u i o))) (inS (transp (\ i → B i) φ (outS u0)))
+                 \ i → inS (transp (\ i → B i) φ (hfill u u0 i)))))
   where
     B = \ (i : I) → outS (A i)
 

@@ -85,7 +85,7 @@ substCommSlice : ∀ {ℓ ℓ′} {A : Type ℓ}
                    → (F : ∀ i → B i → C i)
                    → {x y : A} (p : x ≡ y) (u : B x)
                    → subst C p (F x u) ≡ F y (subst B p u)
-substCommSlice B C F p Bx i = comp pathC (λ k → λ where
+substCommSlice B C F p Bx i = comp (\ i → pathC i) (λ k → λ where
       (i = i0) → toPathP {A = pathC} (λ _ → subst C p (F _ Bx)) k
       (i = i1) → F (p k) (toPathP {A = pathB} (λ _ → subst B p Bx) k)
     ) (F _ Bx) where
