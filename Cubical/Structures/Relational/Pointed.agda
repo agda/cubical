@@ -8,10 +8,12 @@ module Cubical.Structures.Relational.Pointed where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.RelationalStructure
 open import Cubical.Foundations.Univalence
 open import Cubical.Relation.ZigZag.Base
 open import Cubical.HITs.SetQuotients
+open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Structures.Pointed
 
@@ -21,39 +23,20 @@ private
 
 -- Structured relations
 
-PointedSetStructure : SetStructure ℓ ℓ
-PointedSetStructure .struct = PointedStructure
-PointedSetStructure .set setX = setX
+preservesSetsPointed : preservesSets {ℓ = ℓ} PointedStructure
+preservesSetsPointed setX = setX
 
-PointedPropRel : StrRel PointedStructure ℓ
-PointedPropRel .rel R = R
-PointedPropRel .prop propR = propR
+PointedRelStr : StrRel PointedStructure ℓ
+PointedRelStr R = R
 
-open isUnivalentRel
-open BisimDescends
-open isBisimulation
+open SuitableStrRel
+open isQuasiEquivRel
 
-pointedUnivalentRel : isUnivalentRel {ℓ = ℓ} PointedSetStructure PointedPropRel
-pointedUnivalentRel .propQuo _ = isContr→isProp (isContrSingl _)
-pointedUnivalentRel .descends _ .fst _ .quoᴸ = (_ , refl)
-pointedUnivalentRel .descends _ .fst _ .quoᴿ = (_ , refl)
-pointedUnivalentRel .descends {A = _ , x} {_ , y} R .fst r .path =
-  ua-gluePath (Bisim→Equiv.Thm R) (eq/ (S.fwd x) y (S.zigzag (S.bwdRel y) r (S.fwdRel x)))
-  where
-  module S = isBisimulation (R .snd)
-pointedUnivalentRel .descends {A = _ , x} {_ , y} R .snd d =
-  R .snd .zigzag
-    (R .snd .fwdRel x)
-    (isEquivRel→isEffective
-      (λ _ _ → R .snd .prop _ _)
-      (bisim→EquivRel (invBisim R) .snd)
-      (R .snd .fwd x) y
-      .equiv-proof
-      (cong (E.Thm .fst) (d .quoᴸ .snd)
-        ∙∙ ua-ungluePath E.Thm (d .path)
-        ∙∙ sym (d .quoᴿ .snd))
-      .fst .fst)
-    (R .snd .bwdRel y)
-  where
-  module S = isBisimulation (R .snd)
-  module E = Bisim→Equiv R
+pointedSuitableRel : SuitableStrRel {ℓ = ℓ} PointedStructure PointedRelStr
+pointedSuitableRel .quo _ _ _ = isContrSingl _
+pointedSuitableRel .symmetric _ r = r
+pointedSuitableRel .transitive _ _ r r' = ∣ _ , r , r' ∣
+pointedSuitableRel .prop propR = propR
+
+pointedRelMatchesEquiv : StrRelMatchesEquiv {ℓ = ℓ} PointedRelStr PointedEquivStr
+pointedRelMatchesEquiv _ _ _ = idEquiv _

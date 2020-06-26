@@ -7,11 +7,15 @@
 module Cubical.Structures.Relational.Maybe where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.RelationalStructure
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty
 open import Cubical.Data.Maybe
+open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Maybe
 
@@ -21,46 +25,37 @@ private
 
 -- Structured relations
 
-MaybeSetStructure : SetStructure ℓ ℓ₁ → SetStructure ℓ ℓ₁
-MaybeSetStructure S .struct = MaybeStructure (S .struct)
-MaybeSetStructure S .set setX = isOfHLevelMaybe 0 (S .set setX)
+preservesSetsMaybe : {S : Type ℓ → Type ℓ₁} → preservesSets S → preservesSets (MaybeStructure S)
+preservesSetsMaybe p setX = isOfHLevelMaybe 0 (p setX)
 
-MaybePropRel : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
+MaybeRelStr : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
   → StrRel S ℓ₁' → StrRel (λ X → Maybe (S X)) ℓ₁'
-MaybePropRel ρ .rel R = MaybeRel (ρ .rel R)
-MaybePropRel ρ .prop propR nothing nothing = isOfHLevelLift 1 isPropUnit
-MaybePropRel ρ .prop propR nothing (just y) = isOfHLevelLift 1 isProp⊥
-MaybePropRel ρ .prop propR (just x) nothing = isOfHLevelLift 1 isProp⊥
-MaybePropRel ρ .prop propR (just x) (just y) = ρ .prop propR x y
+MaybeRelStr ρ R = MaybeRel (ρ R)
 
-open isUnivalentRel
-open BisimDescends
+open SuitableStrRel
 
-maybeUnivalentRel : {S : SetStructure ℓ ℓ₁} {ρ : StrRel (S .struct) ℓ₁'}
-  → isUnivalentRel S ρ
-  → isUnivalentRel (MaybeSetStructure S) (MaybePropRel ρ)
-maybeUnivalentRel θ .propQuo {X , nothing} R (nothing , lift tt) (nothing , lift tt) = refl
-maybeUnivalentRel θ .propQuo {X , just x} R (just x' , p) (just y' , q) =
-  cong (λ {(z , r) → (just z , r)}) (θ .propQuo R (x' , p) (y' , q))
-maybeUnivalentRel θ .descends {X , nothing} R .fst code .quoᴸ = nothing , _
-maybeUnivalentRel θ .descends {X , just x} {Y , just y} R .fst code .quoᴸ =
-  just (θ .descends R .fst code .quoᴸ .fst) , θ .descends R .fst code .quoᴸ .snd
-maybeUnivalentRel θ .descends {B = Y , nothing} R .fst code .quoᴿ = nothing , _
-maybeUnivalentRel θ .descends {X , just x} {Y , just y} R .fst code .quoᴿ =
-  just (θ .descends R .fst code .quoᴿ .fst) , θ .descends R .fst code .quoᴿ .snd
-maybeUnivalentRel θ .descends {X , nothing} {Y , nothing} R .fst code .path i = nothing
-maybeUnivalentRel θ .descends {X , just x} {Y , just y} R .fst code .path i =
-  just (θ .descends R .fst code .path i)
-maybeUnivalentRel θ .descends {X , nothing} {Y , nothing} R .snd d = _
-maybeUnivalentRel θ .descends {X , nothing} {Y , just y} R .snd d with d .quoᴸ | d .quoᴿ | d .path
-... | nothing , _ | just y' , _ | p = lift (MaybePathP.encode _ _ _ p .lower)
-maybeUnivalentRel θ .descends {X , just x} {Y , nothing} R .snd d with d .quoᴸ | d .quoᴿ | d .path
-... | just x' , _ | nothing , _ | p = lift (MaybePathP.encode _ _ _ p .lower)
-maybeUnivalentRel θ .descends {X , just x} {Y , just y} R .snd d with d .quoᴸ | d .quoᴿ | d .path
-... | just x' , c | just y' , c' | p =
-  θ .descends R .snd d'
-  where
-  d' : BisimDescends _ _ (X , x) (Y , y) R
-  d' .quoᴸ = x' , c
-  d' .quoᴿ = y' , c'
-  d' .path = MaybePathP.encode _ _ _ p
+maybeSuitableRel : {S : Type ℓ → Type ℓ₁} {ρ : StrRel S ℓ₁'}
+  → SuitableStrRel S ρ
+  → SuitableStrRel (MaybeStructure S) (MaybeRelStr ρ)
+maybeSuitableRel θ .quo (X , nothing) R _ .fst = nothing , _
+maybeSuitableRel θ .quo (X , nothing) R _ .snd (nothing , _) = refl
+maybeSuitableRel θ .quo (X , just s) R c .fst =
+  just (θ .quo (X , s) R c .fst .fst) , θ .quo (X , s) R c .fst .snd
+maybeSuitableRel θ .quo (X , just s) R c .snd (just s' , r) =
+  cong (λ {(t , r') → just t , r'}) (θ .quo (X , s) R c .snd (s' , r))
+maybeSuitableRel θ .symmetric R {nothing} {nothing} r = _
+maybeSuitableRel θ .symmetric R {just s} {just t} r = θ .symmetric R r
+maybeSuitableRel θ .transitive R R' {nothing} {nothing} {nothing} r r' = _
+maybeSuitableRel θ .transitive R R' {just s} {just t} {just u} r r' = θ .transitive R R' r r'
+maybeSuitableRel θ .prop propR nothing nothing = isOfHLevelLift 1 isPropUnit
+maybeSuitableRel θ .prop propR nothing (just y) = isOfHLevelLift 1 isProp⊥
+maybeSuitableRel θ .prop propR (just x) nothing = isOfHLevelLift 1 isProp⊥
+maybeSuitableRel θ .prop propR (just x) (just y) = θ .prop propR x y
+
+maybeRelMatchesEquiv : {S : Type ℓ → Type ℓ₁} (ρ : StrRel S ℓ₁') {ι : StrEquiv S ℓ₁'}
+  → StrRelMatchesEquiv ρ ι
+  → StrRelMatchesEquiv (MaybeRelStr ρ) (MaybeEquivStr ι)
+maybeRelMatchesEquiv ρ μ (X , nothing) (Y , nothing) _ = idEquiv _
+maybeRelMatchesEquiv ρ μ (X , nothing) (Y , just y) _ = idEquiv _
+maybeRelMatchesEquiv ρ μ (X , just x) (Y , nothing) _ = idEquiv _
+maybeRelMatchesEquiv ρ μ (X , just x) (Y , just y) = μ (X , x) (Y , y)

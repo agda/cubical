@@ -129,7 +129,7 @@ setQuotUniversal Bset = isoToEquiv (iso intro out outRightInv outLeftInv)
 open BinaryRelation
 
 effective : (Rprop : isPropValued R) (Requiv : isEquivRel R) (a b : A) → [ a ] ≡ [ b ] → R a b
-effective {A = A} {R = R} Rprop (EquivRel R/refl R/sym R/trans) a b p = transport aa≡ab (R/refl _)
+effective {A = A} {R = R} Rprop (equivRel R/refl R/sym R/trans) a b p = transport aa≡ab (R/refl _)
   where
     helper : A / R → hProp _
     helper =
