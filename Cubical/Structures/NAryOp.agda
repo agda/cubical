@@ -29,7 +29,7 @@ module _ {ℓ₁ ℓ₂ : Level} where
   nAryFunUnivalentStr n ι θ =
     SNS→UnivalentStr (NAryFunEquivStr n ι) λ fX fY →
     compEquiv
-      (equivPi λ xs → UnivalentStr→SNS _ ι θ _ _)
+      (equivΠCod λ xs → UnivalentStr→SNS _ ι θ _ _)
       (nAryFunExtEquiv n fX fY)
 
 module _ {ℓ₁ ℓ₂ : Level} where
@@ -44,7 +44,7 @@ module _ {ℓ₁ ℓ₂ : Level} where
     → UnivalentStr (NAryFunStructure 1 S) (UnaryFunEquivStr ι)
   unaryFunUnivalentStr ι θ =
     SNS→UnivalentStr (UnaryFunEquivStr ι) λ fX fY →
-    compEquiv (equivPi λ _ → UnivalentStr→SNS _ ι θ _ _) funExtEquiv
+    compEquiv (equivΠCod λ _ → UnivalentStr→SNS _ ι θ _ _) funExtEquiv
 
   -- binary
   BinaryFunEquivStr : {S : Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level} (ι : StrEquiv S ℓ₃)
@@ -57,4 +57,4 @@ module _ {ℓ₁ ℓ₂ : Level} where
     → UnivalentStr (NAryFunStructure 2 S) (BinaryFunEquivStr ι)
   binaryFunUnivalentStr ι θ =
     SNS→UnivalentStr (BinaryFunEquivStr ι) λ fX fY →
-    compEquiv (equivPi λ _ → equivPi λ _ → UnivalentStr→SNS _ ι θ _ _) funExt₂Equiv
+    compEquiv (equivΠCod λ _ → equivΠCod λ _ → UnivalentStr→SNS _ ι θ _ _) funExt₂Equiv

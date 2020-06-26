@@ -16,6 +16,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Maybe
 
 open import Cubical.Structures.Constant
+open import Cubical.Structures.Function
 open import Cubical.Structures.Maybe
 open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Parameterized
@@ -28,7 +29,7 @@ data FuncDesc (ℓ : Level) : Typeω where
   constant : ∀ {ℓ'} → Type ℓ' → FuncDesc ℓ
   -- pointed structure: X ↦ X
   var : FuncDesc ℓ
-  -- join of structures S,T : X ↦ (S X × T X)
+  -- product of structures S,T : X ↦ (S X × T X)
   _,_ : FuncDesc ℓ  → FuncDesc ℓ  → FuncDesc ℓ
   -- structure S parameterized by constant A : X ↦ (A → S X)
   param : ∀ {ℓ'} → (A : Type ℓ') → FuncDesc ℓ  → FuncDesc ℓ
@@ -40,8 +41,10 @@ data Desc (ℓ : Level) : Typeω where
   constant : ∀ {ℓ'} → Type ℓ' → Desc ℓ
   -- pointed structure: X ↦ X
   var : Desc ℓ
-  -- join of structures S,T : X ↦ (S X × T X)
+  -- product of structures S,T : X ↦ (S X × T X)
   _,_ : Desc ℓ  → Desc ℓ  → Desc ℓ
+  -- functions between structures S,T : X ↦ (S X → T X)
+  function : Desc ℓ → Desc ℓ → Desc ℓ
   -- structure S parameterized by constant A : X ↦ (A → S X)
   param : ∀ {ℓ'} → (A : Type ℓ') → Desc ℓ  → Desc ℓ
   -- structure S parameterized by variable argument: X ↦ (X → S X)
@@ -98,6 +101,7 @@ macroStrLevel {ℓ} var = ℓ
 macroStrLevel {ℓ} (d₀ , d₁) = ℓ-max (macroStrLevel d₀) (macroStrLevel d₁)
 macroStrLevel (param {ℓ'} A d) = ℓ-max ℓ' (macroStrLevel d)
 macroStrLevel {ℓ} (recvar d) = ℓ-max ℓ (macroStrLevel d)
+macroStrLevel (function d₀ d₁) = ℓ-max (macroStrLevel d₀) (macroStrLevel d₁)
 macroStrLevel (maybe d) = macroStrLevel d
 macroStrLevel (functorial d) = funcMacroLevel d
 macroStrLevel (foreign {ℓ'} _ _) = ℓ'
@@ -105,9 +109,10 @@ macroStrLevel (foreign {ℓ'} _ _) = ℓ'
 macroEquivLevel : ∀ {ℓ} → Desc ℓ → Level
 macroEquivLevel (constant {ℓ'} x) = ℓ'
 macroEquivLevel {ℓ} var = ℓ
-macroEquivLevel {ℓ} (d₀ , d₁) = ℓ-max (macroEquivLevel d₀) (macroEquivLevel d₁)
+macroEquivLevel (d₀ , d₁) = ℓ-max (macroEquivLevel d₀) (macroEquivLevel d₁)
 macroEquivLevel (param {ℓ'} A d) = ℓ-max ℓ' (macroEquivLevel d)
 macroEquivLevel {ℓ} (recvar d) = ℓ-max ℓ (macroEquivLevel d)
+macroEquivLevel (function d₀ d₁) = ℓ-max (macroStrLevel d₀) (ℓ-max (macroEquivLevel d₀) (macroEquivLevel d₁))
 macroEquivLevel (maybe d) = macroEquivLevel d
 macroEquivLevel (functorial d) = funcMacroLevel d
 macroEquivLevel (foreign {ℓ'' = ℓ''} _ _) = ℓ''
@@ -119,6 +124,7 @@ MacroStructure var X = X
 MacroStructure (d₀ , d₁) X = MacroStructure d₀ X × MacroStructure d₁ X
 MacroStructure (param A d) X = A → MacroStructure d X
 MacroStructure (recvar d) X = X → MacroStructure d X
+MacroStructure (function d₀ d₁) X = MacroStructure d₀ X → MacroStructure d₁ X
 MacroStructure (maybe d) = MaybeStructure (MacroStructure d)
 MacroStructure (functorial d) = FuncMacroStructure d
 MacroStructure (foreign {S = S} _ _) = S
@@ -130,6 +136,7 @@ MacroEquivStr var = PointedEquivStr
 MacroEquivStr (d₀ , d₁) = ProductEquivStr (MacroEquivStr d₀) (MacroEquivStr d₁)
 MacroEquivStr (param A d) = ParamEquivStr A λ _ → MacroEquivStr d
 MacroEquivStr (recvar d) = UnaryFunEquivStr (MacroEquivStr d)
+MacroEquivStr (function d₀ d₁) = FunctionEquivStr (MacroEquivStr d₀) (MacroEquivStr d₁)
 MacroEquivStr (maybe d) = MaybeEquivStr (MacroEquivStr d)
 MacroEquivStr (functorial d) = FunctorialEquivStr (funcMacroAction d)
 MacroEquivStr (foreign ι _) = ι
@@ -142,6 +149,8 @@ MacroUnivalentStr (d₀ , d₁) =
   ProductUnivalentStr (MacroEquivStr d₀) (MacroUnivalentStr d₀) (MacroEquivStr d₁) (MacroUnivalentStr d₁)
 MacroUnivalentStr (param A d) = ParamUnivalentStr A (λ _ → MacroEquivStr d) (λ _ → MacroUnivalentStr d)
 MacroUnivalentStr (recvar d) = unaryFunUnivalentStr (MacroEquivStr d) (MacroUnivalentStr d)
+MacroUnivalentStr (function d₀ d₁) =
+  FunctionUnivalentStr (MacroEquivStr d₀) (MacroUnivalentStr d₀) (MacroEquivStr d₁) (MacroUnivalentStr d₁)
 MacroUnivalentStr (maybe d) = maybeUnivalentStr (MacroEquivStr d) (MacroUnivalentStr d)
 MacroUnivalentStr (functorial d) = functorialUnivalentStr (funcMacroAction d) (funcMacroId d)
 MacroUnivalentStr (foreign _ θ) = θ

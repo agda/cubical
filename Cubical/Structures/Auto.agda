@@ -78,9 +78,9 @@ private
   pointedShape : (ℓ : Level) → Type ℓ → Type ℓ
   pointedShape _ X = X
 
-  joinShape : ∀ {ℓ₀ ℓ₁} (ℓ : Level)
+  productShape : ∀ {ℓ₀ ℓ₁} (ℓ : Level)
     → (Type ℓ → Type ℓ₀) → (Type ℓ → Type ℓ₁) → Type ℓ → Type (ℓ-max ℓ₀ ℓ₁)
-  joinShape _ A₀ A₁ X = A₀ X × A₁ X
+  productShape _ A₀ A₁ X = A₀ X × A₁ X
 
   paramShape : ∀ {ℓ₀ ℓ'} (ℓ : Level)
     → Type ℓ' → (Type ℓ → Type ℓ₀) → Type ℓ → Type (ℓ-max ℓ' ℓ₀)
@@ -89,6 +89,10 @@ private
   recvarShape : ∀ {ℓ₀} (ℓ : Level)
     → (Type ℓ → Type ℓ₀) → Type ℓ → Type (ℓ-max ℓ ℓ₀)
   recvarShape _ A₀ X = X → A₀ X
+
+  functionShape :  ∀ {ℓ₀ ℓ₁} (ℓ : Level)
+    → (Type ℓ → Type ℓ₀) → (Type ℓ → Type ℓ₁) → Type ℓ → Type (ℓ-max ℓ₀ ℓ₁)
+  functionShape _ A₀ A₁ X = A₀ X → A₁ X
 
   maybeShape : ∀ {ℓ₀} (ℓ : Level)
     → (Type ℓ → Type ℓ₀) → Type ℓ → Type ℓ₀
@@ -103,7 +107,7 @@ private
   buildFuncDesc : ℕ → R.Term → R.Term → R.Term → R.TC R.Term
   buildFuncDesc zero ℓ ℓ' t = R.typeError (R.strErr "Ran out of fuel! at \n" ∷ R.termErr t ∷ [])
   buildFuncDesc (suc fuel) ℓ ℓ' t =
-    tryConstant t <|> tryPointed t <|> tryJoin t <|> tryParam t <|> tryMaybe t <|>
+    tryConstant t <|> tryPointed t <|> tryProduct t <|> tryParam t <|> tryMaybe t <|>
     R.typeError (R.strErr "Can't automatically generate a functorial structure for\n" ∷ R.termErr t ∷ [])
     where
     tryConstant : R.Term → R.TC R.Term
@@ -126,13 +130,13 @@ private
       buildFuncDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
       R.returnTC (R.con (quote FuncDesc.param) (varg A ∷ varg d₀ ∷ []))
 
-    tryJoin : R.Term → R.TC R.Term
-    tryJoin t =
+    tryProduct : R.Term → R.TC R.Term
+    tryProduct t =
       newMeta tLevel >>= λ ℓ₀ →
       newMeta tLevel >>= λ ℓ₁ →
       newMeta (tStruct ℓ ℓ₀) >>= λ A₀ →
       newMeta (tStruct ℓ ℓ₁) >>= λ A₁ →
-      R.unify t (R.def (quote joinShape) (varg ℓ ∷ varg A₀ ∷ varg A₁ ∷ [])) >>
+      R.unify t (R.def (quote productShape) (varg ℓ ∷ varg A₀ ∷ varg A₁ ∷ [])) >>
       buildFuncDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
       buildFuncDesc fuel ℓ ℓ₁ A₁ >>= λ d₁ →
       R.returnTC (R.con (quote FuncDesc._,_) (varg d₀ ∷ varg d₁ ∷ []))
@@ -158,8 +162,8 @@ private
   buildDesc : ℕ → R.Term → R.Term → R.Term → R.TC R.Term
   buildDesc zero ℓ ℓ' t = R.typeError (R.strErr "Ran out of fuel! at \n" ∷ R.termErr t ∷ [])
   buildDesc (suc fuel) ℓ ℓ' t =
-    tryConstant t <|> tryPointed t <|> tryJoin t <|> tryParam t <|> tryRecvar t <|> tryMaybe t <|>
-    tryFunct t <|>
+    tryConstant t <|> tryPointed t <|> tryProduct t <|> tryParam t <|> tryRecvar t <|>
+    tryFunction t <|> tryMaybe t <|> tryFunct t <|>
     R.typeError (R.strErr "Can't automatically generate a structure for\n" ∷ R.termErr t ∷ [])
     where
     tryConstant : R.Term → R.TC R.Term
@@ -173,13 +177,13 @@ private
       R.unify t (R.def (quote pointedShape) (varg ℓ ∷ [])) >>
       R.returnTC (R.con (quote Desc.var) [])
 
-    tryJoin : R.Term → R.TC R.Term
-    tryJoin t =
+    tryProduct : R.Term → R.TC R.Term
+    tryProduct t =
       newMeta tLevel >>= λ ℓ₀ →
       newMeta tLevel >>= λ ℓ₁ →
       newMeta (tStruct ℓ ℓ₀) >>= λ A₀ →
       newMeta (tStruct ℓ ℓ₁) >>= λ A₁ →
-      R.unify t (R.def (quote joinShape) (varg ℓ ∷ varg A₀ ∷ varg A₁ ∷ [])) >>
+      R.unify t (R.def (quote productShape) (varg ℓ ∷ varg A₀ ∷ varg A₁ ∷ [])) >>
       buildDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
       buildDesc fuel ℓ ℓ₁ A₁ >>= λ d₁ →
       R.returnTC (R.con (quote Desc._,_) (varg d₀ ∷ varg d₁ ∷ []))
@@ -200,6 +204,17 @@ private
       R.unify t (R.def (quote recvarShape) (varg ℓ ∷ varg A₀ ∷ [])) >>
       buildDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
       R.returnTC (R.con (quote Desc.recvar) (varg d₀ ∷ []))
+
+    tryFunction : R.Term → R.TC R.Term
+    tryFunction t =
+      newMeta tLevel >>= λ ℓ₀ →
+      newMeta tLevel >>= λ ℓ₁ →
+      newMeta (tStruct ℓ ℓ₀) >>= λ A₀ →
+      newMeta (tStruct ℓ ℓ₁) >>= λ A₁ →
+      R.unify t (R.def (quote functionShape) (varg ℓ ∷ varg A₀ ∷ varg A₁ ∷ [])) >>
+      buildDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
+      buildDesc fuel ℓ ℓ₁ A₁ >>= λ d₁ →
+      R.returnTC (R.con (quote Desc.function) (varg d₀ ∷ varg d₁ ∷ []))
 
     tryMaybe : R.Term → R.TC R.Term
     tryMaybe t =

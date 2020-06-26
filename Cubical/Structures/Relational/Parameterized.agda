@@ -61,4 +61,4 @@ module _ (A : Type ℓ₀) where
     (ρ : ∀ a → StrRel (S a) ℓ₁') {ι : ∀ a → StrEquiv (S a) ℓ₁'}
     → (∀ a → StrRelMatchesEquiv (ρ a) (ι a))
     → StrRelMatchesEquiv (ParamRelStr ρ) (ParamEquivStr A ι)
-  paramRelMatchesEquiv ρ μ _ _ e = equivPi λ a → μ a _ _ e
+  paramRelMatchesEquiv ρ μ _ _ e = equivΠCod λ a → μ a _ _ e

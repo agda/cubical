@@ -103,7 +103,7 @@ unaryFunRelMatchesEquiv : {S : Type ℓ → Type ℓ₁}
   → StrRelMatchesEquiv ρ ι
   → StrRelMatchesEquiv (UnaryFunRelStr ρ) (UnaryFunEquivStr ι)
 unaryFunRelMatchesEquiv ρ μ (X , f) (Y , g) e =
-  compEquiv (isoToEquiv isom) (equivPi λ _ → μ _ _ e)
+  compEquiv (isoToEquiv isom) (equivΠCod λ _ → μ _ _ e)
   where
   open Iso
 
