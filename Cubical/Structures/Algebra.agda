@@ -137,9 +137,8 @@ record AlgebraEquiv {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
     comm⋆  : (r : ⟨ R ⟩r) (x : ⟨ A ⟩) → equivFun e (r ⋆ x) ≡ r ⋆ equivFun e x
 
 record AlgebraHom {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
-  -- don't we need more of this in general?
 
-  constructor moduleiso
+  constructor algebrahom
 
   instance
     _ : Algebra R

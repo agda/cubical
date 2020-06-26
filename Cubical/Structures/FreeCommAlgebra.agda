@@ -152,3 +152,13 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
       in eq i
     inducedMap (Construction.0-trunc P Q p q i j) =
       isSetAlgebra (CommAlgebra→Algebra A) (inducedMap P) (inducedMap Q) (cong _ p) (cong _ q) i j
+
+    inducedHom : AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
+    inducedHom = algebrahom
+                   inducedMap
+                   (λ x y → refl)
+                   (λ x y → refl)
+                   imageOf1Works
+                   λ r x → (r ⋆ 1a) · inducedMap x ≡⟨ ⋆-lassoc r 1a (inducedMap x) ⟩
+                           r ⋆ (1a · inducedMap x) ≡⟨ cong (λ u → r ⋆ u) (·-lid (inducedMap x)) ⟩
+                           r ⋆ inducedMap x ∎
