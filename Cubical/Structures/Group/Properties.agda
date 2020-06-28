@@ -14,7 +14,7 @@ private
     ℓ ℓ' ℓ'' : Level
 
 module GroupLemmas (G : Group {ℓ}) where
-  open Group G
+  open Group G public
   abstract
     simplL : (a : Carrier) {b c : Carrier} → a + b ≡ a + c → b ≡ c
     simplL a {b} {c} p =
