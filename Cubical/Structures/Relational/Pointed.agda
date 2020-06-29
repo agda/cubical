@@ -23,9 +23,6 @@ private
 
 -- Structured relations
 
-preservesSetsPointed : preservesSets {ℓ = ℓ} PointedStructure
-preservesSetsPointed setX = setX
-
 PointedRelStr : StrRel PointedStructure ℓ
 PointedRelStr R = R
 
@@ -36,6 +33,7 @@ pointedSuitableRel : SuitableStrRel {ℓ = ℓ} PointedStructure PointedRelStr
 pointedSuitableRel .quo _ _ _ = isContrSingl _
 pointedSuitableRel .symmetric _ r = r
 pointedSuitableRel .transitive _ _ r r' = ∣ _ , r , r' ∣
+pointedSuitableRel .set setX = setX
 pointedSuitableRel .prop propR = propR
 
 pointedRelMatchesEquiv : StrRelMatchesEquiv {ℓ = ℓ} PointedRelStr PointedEquivStr

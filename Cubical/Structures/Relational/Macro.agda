@@ -55,19 +55,6 @@ relMacroRelLevel d = macroEquivLevel (relDesc→Desc d)
 RelMacroStructure : ∀ {ℓ} → (d : RelDesc ℓ) → Type ℓ → Type (relMacroStrLevel d)
 RelMacroStructure d = MacroStructure (relDesc→Desc d)
 
-preservesSetsRelMacro : ∀ {ℓ} → (d : RelDesc ℓ)
-  {X : Type ℓ} → isSet X → isSet (RelMacroStructure d X)
-preservesSetsRelMacro (constant A) = preservesSetsConstant A
-preservesSetsRelMacro var = preservesSetsPointed
-preservesSetsRelMacro (d₀ , d₁) =
-  preservesSetsProduct (preservesSetsRelMacro d₀) (preservesSetsRelMacro d₁)
-preservesSetsRelMacro (param A d) =
-  preservesSetsParam A (λ _ → preservesSetsRelMacro d)
-preservesSetsRelMacro (recvar d) =
-  preservesSetsUnaryFun (preservesSetsRelMacro d)
-preservesSetsRelMacro (maybe d) =
-  preservesSetsMaybe (preservesSetsRelMacro d)
-
 -- Notion of structured relation defined by a descriptor
 RelMacroRelStr : ∀ {ℓ} → (d : RelDesc ℓ) → StrRel {ℓ} (RelMacroStructure d) (relMacroRelLevel d)
 RelMacroRelStr (constant A) = ConstantRelStr A
@@ -83,7 +70,7 @@ relMacroSuitableRel (constant A) = constantSuitableRel A
 relMacroSuitableRel var = pointedSuitableRel
 relMacroSuitableRel (d₀ , d₁) = productSuitableRel (relMacroSuitableRel d₀) (relMacroSuitableRel d₁)
 relMacroSuitableRel (param A d) = paramSuitableRel A (λ _ → relMacroSuitableRel d)
-relMacroSuitableRel (recvar d) = unaryFunSuitableRel (preservesSetsRelMacro d) (relMacroSuitableRel d)
+relMacroSuitableRel (recvar d) = unaryFunSuitableRel (relMacroSuitableRel d)
 relMacroSuitableRel (maybe d) = maybeSuitableRel (relMacroSuitableRel d)
 
 -- Proof that structured relations and equivalences agree

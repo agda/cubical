@@ -32,6 +32,12 @@ private
 isPropIsGroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) {f : ⟨ G ⟩ → ⟨ H ⟩} → isProp (isGroupHom G H f)
 isPropIsGroupHom G H {f} = isPropΠ2 λ a b → Group.is-set H _ _
 
+isSetGroupHom : {G : Group {ℓ}} {H : Group {ℓ'}} → isSet (GroupHom G H)
+isSetGroupHom {G = G} {H = H} = isOfHLevelRespectEquiv 2 equiv (isSetΣ (isSetΠ λ _ → is-set H) λ _ → isProp→isSet (isPropIsGroupHom G H)) where
+  open Group
+  equiv : (Σ[ g ∈ (Carrier G → Carrier H) ] (isGroupHom G H g)) ≃ GroupHom G H
+  equiv = isoToEquiv (iso (λ (g , m) → grouphom g m) (λ (grouphom g m) → g , m) (λ _ → refl) λ _ → refl)
+
 -- Morphism composition
 isGroupHomComp : {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} →
   (f : GroupHom F G) → (g : GroupHom G H) → isGroupHom F H (GroupHom.fun g ∘ GroupHom.fun f)
@@ -51,8 +57,8 @@ idGroupEquiv : (G : Group {ℓ}) → GroupEquiv G G
 idGroupEquiv G = groupequiv (idEquiv (Group.Carrier G)) (λ _ _ → refl)
 
 -- Isomorphism inversion
-isGroupHomInv : (G : Group {ℓ}) (H : Group {ℓ'}) (f : GroupEquiv G H) → isGroupHom H G (invEq (GroupEquiv.eq f))
-isGroupHomInv G H  (groupequiv (f , eq) morph) h h' = isInj-f _ _ (
+isGroupHomInv : {G : Group {ℓ}} {H : Group {ℓ'}} (f : GroupEquiv G H) → isGroupHom H G (invEq (GroupEquiv.eq f))
+isGroupHomInv {G = G} {H = H}  (groupequiv (f , eq) morph) h h' = isInj-f _ _ (
   f (g (h ⋆² h') )
     ≡⟨ retEq (f , eq) _ ⟩
   h ⋆² h'
@@ -69,16 +75,16 @@ isGroupHomInv G H  (groupequiv (f , eq) morph) h h' = isInj-f _ _ (
   isInj-f : (x y : ⟨ G ⟩) → f x ≡ f y → x ≡ y
   isInj-f x y = invEq (_ , isEquiv→isEmbedding eq x y)
 
-invGroupEquiv : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupEquiv G H → GroupEquiv H G
-invGroupEquiv G H (groupequiv f morph) = groupequiv (invEquiv f) (isGroupHomInv G H (groupequiv f morph))
+invGroupEquiv : {G : Group {ℓ}} {H : Group {ℓ'}} → GroupEquiv G H → GroupEquiv H G
+invGroupEquiv {G = G} {H = H} f = groupequiv (invEquiv (eq f)) (isGroupHomInv f) where open GroupEquiv
 
-groupHomEq : (G : Group {ℓ}) (H : Group {ℓ'}) (f g : GroupHom G H) → (GroupHom.fun f ≡ GroupHom.fun g) → f ≡ g
-groupHomEq G H (grouphom f fm) (grouphom g gm) p i = grouphom (p i) (p-hom i) where
+groupHomEq : {G : Group {ℓ}} {H : Group {ℓ'}} {f g : GroupHom G H} → (GroupHom.fun f ≡ GroupHom.fun g) → f ≡ g
+groupHomEq {G = G} {H = H} {grouphom f fm} {grouphom g gm} p i = grouphom (p i) (p-hom i) where
   p-hom : PathP (λ i → isGroupHom G H (p i)) fm gm
   p-hom = toPathP (isPropIsGroupHom G H _ _)
 
-groupEquivEq : (G : Group {ℓ}) (H : Group {ℓ'}) (f g : GroupEquiv G H) → (GroupEquiv.eq f ≡ GroupEquiv.eq g) → f ≡ g
-groupEquivEq G H (groupequiv f fm) (groupequiv g gm) p i = groupequiv (p i) (p-hom i) where
+groupEquivEq : {G : Group {ℓ}} {H : Group {ℓ'}} {f g : GroupEquiv G H} → (GroupEquiv.eq f ≡ GroupEquiv.eq g) → f ≡ g
+groupEquivEq {G = G} {H = H} {groupequiv f fm} {groupequiv g gm} p i = groupequiv (p i) (p-hom i) where
   p-hom : PathP (λ i → isGroupHom G H (p i .fst)) fm gm
   p-hom = toPathP (isPropIsGroupHom G H _ _)
 

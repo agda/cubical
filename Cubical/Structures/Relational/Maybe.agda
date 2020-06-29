@@ -25,9 +25,6 @@ private
 
 -- Structured relations
 
-preservesSetsMaybe : {S : Type ℓ → Type ℓ₁} → preservesSets S → preservesSets (MaybeStructure S)
-preservesSetsMaybe p setX = isOfHLevelMaybe 0 (p setX)
-
 MaybeRelStr : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
   → StrRel S ℓ₁' → StrRel (λ X → Maybe (S X)) ℓ₁'
 MaybeRelStr ρ R = MaybeRel (ρ R)
@@ -47,6 +44,7 @@ maybeSuitableRel θ .symmetric R {nothing} {nothing} r = _
 maybeSuitableRel θ .symmetric R {just s} {just t} r = θ .symmetric R r
 maybeSuitableRel θ .transitive R R' {nothing} {nothing} {nothing} r r' = _
 maybeSuitableRel θ .transitive R R' {just s} {just t} {just u} r r' = θ .transitive R R' r r'
+maybeSuitableRel θ .set setX = isOfHLevelMaybe 0 (θ .set setX)
 maybeSuitableRel θ .prop propR nothing nothing = isOfHLevelLift 1 isPropUnit
 maybeSuitableRel θ .prop propR nothing (just y) = isOfHLevelLift 1 isProp⊥
 maybeSuitableRel θ .prop propR (just x) nothing = isOfHLevelLift 1 isProp⊥

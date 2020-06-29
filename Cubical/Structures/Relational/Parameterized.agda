@@ -26,10 +26,6 @@ private
 
 module _ (A : Type ℓ₀) where
 
-  preservesSetsParam : {S : A → Type ℓ → Type ℓ₁}
-    → (∀ a → preservesSets (S a)) → preservesSets (ParamStructure A S)
-  preservesSetsParam p setX = isSetΠ λ a → p a setX
-
   ParamRelStr : {S : A → Type ℓ → Type ℓ₁} {ℓ₁' : Level}
     → (∀ a → StrRel (S a) ℓ₁')
     → StrRel (ParamStructure A S) (ℓ-max ℓ₀ ℓ₁')
@@ -54,6 +50,8 @@ module _ (A : Type ℓ₀) where
     θ a .symmetric R (r a)
   paramSuitableRel {ρ = ρ} θ .transitive R R' r r' a =
     θ a .transitive R R' (r a) (r' a)
+  paramSuitableRel {ρ = ρ} θ .set setX =
+    isSetΠ λ a → θ a .set setX
   paramSuitableRel {ρ = ρ} θ .prop propR s t =
     isPropΠ λ a → θ a .prop propR (s a) (t a)
 
