@@ -27,13 +27,6 @@ private
   variable
     ℓ ℓ₁ ℓ₁' ℓ₂ ℓ₂' : Level
 
--- Structured relations
-
-preservesSetsFunction : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
-  → preservesSets S → preservesSets T
-  → preservesSets (FunctionStructure S T)
-preservesSetsFunction p₁ p₂ setX = isSetΠ λ _ → p₂ setX
-
 FunctionRelStr : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
   → StrRel S ℓ₁' → StrRel T ℓ₂' → StrRel (FunctionStructure S T) (ℓ-max ℓ₁ (ℓ-max ℓ₁' ℓ₂'))
 FunctionRelStr ρ₁ ρ₂ R f g =
@@ -42,8 +35,6 @@ FunctionRelStr ρ₁ ρ₂ R f g =
 open BinaryRelation
 open isEquivRel
 open isQuasiEquivRel
-open SuitableStrRel
-open isPositiveStrRel
 
 private
   composeWith[_] : {A : Type ℓ} (R : EquivPropRel A ℓ)
@@ -65,42 +56,51 @@ private
       (λ r → ∣ _ , eq/ a b r , refl ∣)
 
 functionSuitableRel : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
-  (pres₁ : preservesSets S) (pres₂ : preservesSets T)
   {ρ₁ : StrRel S ℓ₁'} {ρ₂ : StrRel T ℓ₂'}
   (θ₁ : SuitableStrRel S ρ₁)
-  → isPositiveStrRel pres₁ θ₁
+  → PositiveStrRel θ₁
   → SuitableStrRel T ρ₂
   → SuitableStrRel (FunctionStructure S T) (FunctionRelStr ρ₁ ρ₂)
-functionSuitableRel {S = S} pres₁ pres₂ {ρ₁} {ρ₂} θ₁ σ θ₂ .quo (X , f) R h =
+functionSuitableRel {S = S} {ρ₁ = ρ₁} {ρ₂} θ₁ σ₁ θ₂ .quo (X , f) R h =
   final
   where
-  href = h ∘ σ .reflexive R
+  ref : (s : S X) → ρ₁ (R .fst .fst) s s
+  ref s =
+    subst
+      (uncurry (ρ₁ (R .fst .fst)))
+      (ΣPathP (σ₁ .act .actStrId s , σ₁ .act .actStrId s))
+      (σ₁ .act .actRel
+        (λ x y →
+          Trunc.rec (R .fst .snd _ _)
+            (λ p → subst (R .fst .fst x) p (R .snd .reflexive x)))
+        s s
+        (σ₁ .reflexive s))
 
   [f] : _
-  [f] [ s ] = θ₂ .quo (X , f s) R (href s) .fst .fst
+  [f] [ s ] = θ₂ .quo (X , f s) R (h (ref s)) .fst .fst
   [f] (eq/ s₀ s₁ r i) =
     cong fst
-      (θ₂ .quo (X , f s₀) R (href s₀) .snd
+      (θ₂ .quo (X , f s₀) R (h (ref s₀)) .snd
         ( [f] [ s₁ ]
         , subst (λ R' → ρ₂ R' (f s₀) ([f] [ s₁ ]))
-          (composePropRelWith[_] R)
+          (composeWith[_] R)
           (θ₂ .transitive (R .fst) (quotientPropRel (R .fst .fst))
             (h r)
-            (θ₂ .quo (X , f s₁) R (href s₁) .fst .snd))
+            (θ₂ .quo (X , f s₁) R (h (ref s₁)) .fst .snd))
         ))
       i
   [f] (squash/ _ _ p q j i) =
-    pres₂ squash/ _ _ (cong [f] p) (cong [f] q) j i
+    θ₂ .set squash/ _ _ (cong [f] p) (cong [f] q) j i
 
   relLemma : (s : S X) (t : S X)
-    → ρ₁ (graphRel [_]) s (funIsEq (σ .quo R) [ t ])
+    → ρ₁ (graphRel [_]) s (funIsEq (σ₁ .quo R) [ t ])
     → ρ₂ (graphRel [_]) (f s) ([f] [ t ])
   relLemma s t r =
     subst (λ R' → ρ₂ R' (f s) ([f] [ t ]))
       (composeWith[_] R)
       (θ₂ .transitive (R .fst) (quotientPropRel (R .fst .fst))
         (h r')
-        (θ₂ .quo (X , f t) R (href t) .fst .snd))
+        (θ₂ .quo (X , f t) R (h (ref t)) .fst .snd))
     where
     r' : ρ₁ (R .fst .fst) s t
     r' =
@@ -110,47 +110,56 @@ functionSuitableRel {S = S} pres₁ pres₂ {ρ₁} {ρ₂} θ₁ σ θ₂ .quo 
           (invPropRel (quotientPropRel (R .fst .fst)))
           r
           (θ₁ .symmetric (quotientPropRel (R .fst .fst))
-            (θ₁ .quo (X , t) R (σ .reflexive R t) .fst .snd)))
+            (subst
+              (λ t' → ρ₁ (graphRel [_]) t' (funIsEq (σ₁ .quo R) [ t ]))
+              (σ₁ .act .actStrId t)
+              (σ₁ .act .actRel eq/ t t (ref t)))))
 
   quoRelLemma : (s : S X) (t : S X / ρ₁ (R .fst .fst))
-    → ρ₁ (graphRel [_]) s (funIsEq (σ .quo R) t)
+    → ρ₁ (graphRel [_]) s (funIsEq (σ₁ .quo R) t)
     → ρ₂ (graphRel [_]) (f s) ([f] t)
   quoRelLemma s =
     elimProp (λ _ → isPropΠ λ _ → θ₂ .prop (λ _ _ → squash/ _ _) _ _)
       (relLemma s)
 
   final : Σ (Σ _ _) _
-  final .fst .fst = [f] ∘ invIsEq (σ .quo R)
+  final .fst .fst = [f] ∘ invIsEq (σ₁ .quo R)
   final .fst .snd {s} {t} r =
     quoRelLemma s
-      (invIsEq (σ .quo R) t)
-      (subst (ρ₁ (graphRel [_]) s) (sym (secIsEq (σ .quo R) t)) r)
+      (invIsEq (σ₁ .quo R) t)
+      (subst (ρ₁ (graphRel [_]) s) (sym (secIsEq (σ₁ .quo R) t)) r)
   final .snd (f' , c) =
     Σ≡Prop
       (λ _ → isPropImplicitΠ λ s →
         isPropImplicitΠ λ t →
         isPropΠ λ _ → θ₂ .prop (λ _ _ → squash/ _ _) _ _)
-      (funExt λ s → contractorLemma (invIsEq (σ .quo R) s) ∙ cong f' (secIsEq (σ .quo R) s))
+      (funExt λ s → contractorLemma (invIsEq (σ₁ .quo R) s) ∙ cong f' (secIsEq (σ₁ .quo R) s))
     where
     contractorLemma : (s : S X / ρ₁ (R .fst .fst))
-      → [f] s ≡ f' (funIsEq (σ .quo R) s)
+      → [f] s ≡ f' (funIsEq (σ₁ .quo R) s)
     contractorLemma =
       elimProp
-        (λ _ → pres₂ squash/ _ _)
+        (λ _ → θ₂ .set squash/ _ _)
         (λ s →
           cong fst
-            (θ₂ .quo (X , f s) R (href s) .snd
-              ( f' (funIsEq (σ .quo R) [ s ])
-              , c (θ₁ .quo (X , s) R (σ .reflexive R s) .fst .snd
-              ))))
-functionSuitableRel pres₁ pres₂ {ρ₁} {ρ₂} θ₁ σ θ₂ .symmetric R h r =
+            (θ₂ .quo (X , f s) R (h (ref s)) .snd
+              ( f' (funIsEq (σ₁ .quo R) [ s ])
+              , c
+                (subst
+                  (λ s' → ρ₁ (graphRel [_]) s' (funIsEq (σ₁ .quo R) [ s ]))
+                  (σ₁ .act .actStrId s)
+                  (σ₁ .act .actRel eq/ s s (ref s)))
+              )))
+functionSuitableRel {ρ₁ = ρ₁} {ρ₂} θ₁ σ θ₂ .symmetric R h r =
   θ₂ .symmetric R (h (θ₁ .symmetric (invPropRel R) r))
-functionSuitableRel pres₁ pres₂ {ρ₁} {ρ₂} θ₁ σ θ₂ .transitive R R' h h' rr' =
+functionSuitableRel {ρ₁ = ρ₁} {ρ₂} θ₁ σ θ₂ .transitive R R' h h' rr' =
   Trunc.rec
     (θ₂ .prop (λ _ _ → squash) _ _)
     (λ {(_ , r , r') → θ₂ .transitive R R' (h r) (h' r')})
     (σ .detransitive R R' rr')
-functionSuitableRel pres₁ pres₂ {ρ₁} {ρ₂} θ₁ σ θ₂ .prop propR f g =
+functionSuitableRel {ρ₁ = ρ₁} {ρ₂} θ₁ σ θ₂ .set setX =
+  isSetΠ λ _ → θ₂ .set setX
+functionSuitableRel {ρ₁ = ρ₁} {ρ₂} θ₁ σ θ₂ .prop propR f g =
   isPropImplicitΠ λ _ →
   isPropImplicitΠ λ _ →
   isPropΠ λ _ →

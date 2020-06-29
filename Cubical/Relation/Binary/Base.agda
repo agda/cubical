@@ -7,13 +7,17 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.HITs.SetQuotients.Base
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation.Base
 
 Rel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 Rel A B ℓ' = A → B → Type ℓ'
 
 PropRel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 PropRel A B ℓ' = Σ[ R ∈ Rel A B ℓ' ] ∀ a b → isProp (R a b)
+
+idPropRel : ∀ {ℓ} (A : Type ℓ) → PropRel A A ℓ
+idPropRel A .fst a a' = ∥ a ≡ a' ∥
+idPropRel A .snd _ _ = squash
 
 invPropRel : ∀ {ℓ ℓ'} {A B : Type ℓ}
   → PropRel A B ℓ' → PropRel B A ℓ'
