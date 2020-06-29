@@ -37,7 +37,6 @@ UnaryFunRelStr ρ R f g =
 open BinaryRelation
 open isEquivRel
 open isQuasiEquivRel
-open SuitableStrRel
 
 private
   composeWith[_] : {A : Type ℓ} (R : EquivPropRel A ℓ)

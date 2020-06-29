@@ -31,8 +31,6 @@ ProductRelStr :
 ProductRelStr ρ₁ ρ₂ R (s₁ , s₂) (t₁ , t₂) =
   ρ₁ R s₁ t₁ × ρ₂ R s₂ t₂
 
-open SuitableStrRel
-
 productSuitableRel :
   {S₁ : Type ℓ → Type ℓ₁} {ρ₁ : StrRel S₁ ℓ₁'}
   {S₂ : Type ℓ → Type ℓ₂} {ρ₂ : StrRel S₂ ℓ₂'}

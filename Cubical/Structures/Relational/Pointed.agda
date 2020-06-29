@@ -26,9 +26,6 @@ private
 PointedRelStr : StrRel PointedStructure ℓ
 PointedRelStr R = R
 
-open SuitableStrRel
-open isQuasiEquivRel
-
 pointedSuitableRel : SuitableStrRel {ℓ = ℓ} PointedStructure PointedRelStr
 pointedSuitableRel .quo _ _ _ = isContrSingl _
 pointedSuitableRel .symmetric _ r = r

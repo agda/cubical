@@ -34,7 +34,6 @@ FunctionRelStr ρ₁ ρ₂ R f g =
 
 open BinaryRelation
 open isEquivRel
-open isQuasiEquivRel
 
 private
   composeWith[_] : {A : Type ℓ} (R : EquivPropRel A ℓ)

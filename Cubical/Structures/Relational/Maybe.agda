@@ -29,8 +29,6 @@ MaybeRelStr : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
   → StrRel S ℓ₁' → StrRel (λ X → Maybe (S X)) ℓ₁'
 MaybeRelStr ρ R = MaybeRel (ρ R)
 
-open SuitableStrRel
-
 maybeSuitableRel : {S : Type ℓ → Type ℓ₁} {ρ : StrRel S ℓ₁'}
   → SuitableStrRel S ρ
   → SuitableStrRel (MaybeStructure S) (MaybeRelStr ρ)

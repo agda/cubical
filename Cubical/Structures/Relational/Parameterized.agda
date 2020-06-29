@@ -32,8 +32,6 @@ module _ (A : Type ℓ₀) where
   ParamRelStr ρ R s t =
     (a : A) → ρ a R (s a) (t a)
 
-  open SuitableStrRel
-
   paramSuitableRel : {S : A → Type ℓ → Type ℓ₁} {ℓ₁' : Level}
     {ρ : ∀ a → StrRel (S a) ℓ₁'}
     → (∀ a → SuitableStrRel (S a) (ρ a))
