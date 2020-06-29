@@ -163,3 +163,12 @@ functionSuitableRel {ρ₁ = ρ₁} {ρ₂} θ₁ σ θ₂ .prop propR f g =
   isPropImplicitΠ λ _ →
   isPropΠ λ _ →
   θ₂ .prop propR _ _
+
+functionRelMatchesEquiv : {S : Type ℓ → Type ℓ₁}
+  (ρ₁ : StrRel S ℓ₁') {ι₁ : StrEquiv S ℓ₁'}
+  (ρ₂ : StrRel S ℓ₂') {ι₂ : StrEquiv S ℓ₂'}
+  → StrRelMatchesEquiv ρ₁ ι₁
+  → StrRelMatchesEquiv ρ₂ ι₂
+  → StrRelMatchesEquiv (FunctionRelStr ρ₁ ρ₂) (FunctionEquivStr ι₁ ι₂)
+functionRelMatchesEquiv ρ₁ ρ₂ μ₁ μ₂ (X , f) (Y , g) e =
+  equivImplicitΠCod (equivImplicitΠCod (equiv→ (μ₁ _ _ e) (μ₂ _ _ e)))
