@@ -27,6 +27,3 @@ str = snd
 --    ι (X , s) (Y , t) : (X ≃ Y) → Type ℓ''
 StrEquiv : (S : Type ℓ → Type ℓ'') (ℓ' : Level) → Type (ℓ-max (ℓ-suc (ℓ-max ℓ ℓ')) ℓ'')
 StrEquiv {ℓ} S ℓ' = (A B : TypeWithStr ℓ S) → typ A ≃ typ B → Type ℓ'
-
-preservesSets : (S : Type ℓ → Type ℓ') → Type (ℓ-max (ℓ-suc ℓ) ℓ')
-preservesSets S = ∀ {X} → isSet X → isSet (S X)

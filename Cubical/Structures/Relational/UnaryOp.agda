@@ -29,10 +29,6 @@ private
 
 -- Structured relations
 
-preservesSetsUnaryFun : {S : Type ℓ → Type ℓ₁}
-  → preservesSets S → preservesSets (NAryFunStructure 1 S)
-preservesSetsUnaryFun p setX = isSetΠ λ _ → p setX
-
 UnaryFunRelStr : {S : Type ℓ → Type ℓ₁} {ℓ₁' : Level}
   → StrRel S ℓ₁' → StrRel (NAryFunStructure 1 S) (ℓ-max ℓ ℓ₁')
 UnaryFunRelStr ρ R f g =
@@ -52,10 +48,10 @@ private
       (Trunc.rec (squash/ _ _) (λ {(b , r , p) → eq/ a b r ∙ p }))
       (λ p → ∣ a , R .snd .reflexive a , p ∣)
 
-unaryFunSuitableRel : {S : Type ℓ → Type ℓ₁} (p : preservesSets S) {ρ : StrRel S ℓ₁'}
+unaryFunSuitableRel : {S : Type ℓ → Type ℓ₁} {ρ : StrRel S ℓ₁'}
   → SuitableStrRel S ρ
   → SuitableStrRel (NAryFunStructure 1 S) (UnaryFunRelStr ρ)
-unaryFunSuitableRel pres {ρ} θ .quo (X , f) R h .fst =
+unaryFunSuitableRel {ρ = ρ} θ .quo (X , f) R h .fst =
   f₀ ,
   λ {x} → J (λ y p → ρ (graphRel [_]) (f x) (f₀ y)) (θ .quo (X , f x) R (href x) .fst .snd)
   where
@@ -78,22 +74,24 @@ unaryFunSuitableRel pres {ρ} θ .quo (X , f) R h .fst =
               (θ .quo (X , f x₁) R (href x₁) .fst .snd))
           ))
   f₀ (squash/ _ _ p q j i) =
-    pres squash/ _ _ (cong f₀ p) (cong f₀ q) j i
-unaryFunSuitableRel pres {ρ} θ .quo (X , f) R h .snd (f' , c) =
+    θ .set squash/ _ _ (cong f₀ p) (cong f₀ q) j i
+unaryFunSuitableRel {ρ = ρ} θ .quo (X , f) R h .snd (f' , c) =
   Σ≡Prop
     (λ _ → isPropImplicitΠ λ _ → isPropImplicitΠ λ _ → isPropΠ λ _ →
       θ .prop (λ _ _ → squash/ _ _) _ _)
     (funExt
-      (elimProp (λ _ → pres squash/ _ _)
+      (elimProp (λ _ → θ .set squash/ _ _)
         (λ x → cong fst (θ .quo (X , f x) R (href x) .snd (f' [ x ] , c refl)))))
   where
   href = h ∘ R .snd .reflexive
-unaryFunSuitableRel pres {ρ} θ .symmetric R h {x} {y} r = θ .symmetric R (h r)
-unaryFunSuitableRel pres {ρ} θ .transitive R R' h h' {x} {z} =
+unaryFunSuitableRel θ .symmetric R h {x} {y} r = θ .symmetric R (h r)
+unaryFunSuitableRel θ .transitive R R' h h' {x} {z} =
   Trunc.rec
     (θ .prop (λ _ _ → squash) _ _)
     (λ {(y , r , r') → θ .transitive R R' (h r) (h' r')})
-unaryFunSuitableRel pres {ρ} θ .prop propR f g =
+unaryFunSuitableRel θ .set setX =
+  isSetΠ λ _ → θ .set setX
+unaryFunSuitableRel θ .prop propR f g =
   isPropImplicitΠ λ x →
   isPropImplicitΠ λ y →
   isPropΠ λ _ → θ .prop propR (f x) (g y)

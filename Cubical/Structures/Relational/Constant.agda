@@ -22,9 +22,6 @@ private
 
 module _ (A : hSet ℓ') where
 
-  preservesSetsConstant : preservesSets {ℓ = ℓ} (ConstantStructure (A .fst))
-  preservesSetsConstant _ = A .snd
-
   ConstantRelStr : StrRel {ℓ = ℓ} (ConstantStructure (A .fst)) ℓ'
   ConstantRelStr _ a₀ a₁ = a₀ ≡ a₁
 
@@ -34,6 +31,7 @@ module _ (A : hSet ℓ') where
   constantSuitableRel .quo _ _ _ = isContrSingl _
   constantSuitableRel .symmetric _ = sym
   constantSuitableRel .transitive _ _ = _∙_
+  constantSuitableRel .set _ = A .snd
   constantSuitableRel .prop _ = A .snd
 
   constantRelMatchesEquiv : StrRelMatchesEquiv {ℓ = ℓ} ConstantRelStr (ConstantEquivStr (A .fst))

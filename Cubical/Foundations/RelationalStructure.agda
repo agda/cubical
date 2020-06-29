@@ -62,6 +62,10 @@ isTransitiveStrRel {ℓ = ℓ} {S = S} ρ =
   → ρ (R₁ .fst) sy sz
   → ρ (compPropRel R₀ R₁ .fst) sx sz
 
+-- The type of structures on a set should be a set
+preservesSetsStr : (S : Type ℓ → Type ℓ') → Type (ℓ-max (ℓ-suc ℓ) ℓ')
+preservesSetsStr S = ∀ {X} → isSet X → isSet (S X)
+
 -- The type of structures on a prop-valued relation should be a prop
 preservesPropsStrRel : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'') → Type _
 preservesPropsStrRel {ℓ = ℓ} {S = S} ρ =
@@ -76,6 +80,7 @@ record SuitableStrRel (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'') : Type 
     quo : InducesQuotientStr S ρ
     symmetric : isSymmetricStrRel ρ
     transitive : isTransitiveStrRel ρ
+    set : preservesSetsStr S
     prop : preservesPropsStrRel ρ
 
 open SuitableStrRel

@@ -24,10 +24,6 @@ private
 
 -- Structured relations
 
-preservesSetsProduct : {S₁ : Type ℓ → Type ℓ₁} {S₂ : Type ℓ → Type ℓ₂}
-  → preservesSets S₁ → preservesSets S₂ → preservesSets (ProductStructure S₁ S₂)
-preservesSetsProduct p₁ p₂ setX = isSet× (p₁ setX) (p₂ setX)
-
 ProductRelStr :
   {S₁ : Type ℓ → Type ℓ₁} (ρ₁ : StrRel S₁ ℓ₁')
   {S₂ : Type ℓ → Type ℓ₂} (ρ₂ : StrRel S₂ ℓ₂')
@@ -54,6 +50,8 @@ productSuitableRel θ₁ θ₂ .symmetric R (r₁ , r₂) =
   θ₁ .symmetric R r₁ , θ₂ .symmetric R r₂
 productSuitableRel θ₁ θ₂ .transitive R R' (r₁ , r₂) (r₁' , r₂') =
   θ₁ .transitive R R' r₁ r₁' , θ₂ .transitive R R' r₂ r₂'
+productSuitableRel θ₁ θ₂ .set setX =
+  isSet× (θ₁ .set setX) (θ₂ .set setX)
 productSuitableRel θ₁ θ₂ .prop propR (s₁ , s₂) (t₁ , t₂) =
   isProp× (θ₁ .prop propR s₁ t₁) (θ₂ .prop propR s₂ t₂)
 
