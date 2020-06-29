@@ -60,22 +60,13 @@ functionSuitableRel : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ�
   → PositiveStrRel θ₁
   → SuitableStrRel T ρ₂
   → SuitableStrRel (FunctionStructure S T) (FunctionRelStr ρ₁ ρ₂)
-functionSuitableRel {S = S} {ρ₁ = ρ₁} {ρ₂} θ₁ σ₁ θ₂ .quo (X , f) R h =
+functionSuitableRel {S = S} {T = T} {ρ₁ = ρ₁} {ρ₂} θ₁ σ₁ θ₂ .quo (X , f) R h =
   final
   where
   ref : (s : S X) → ρ₁ (R .fst .fst) s s
-  ref s =
-    subst
-      (uncurry (ρ₁ (R .fst .fst)))
-      (ΣPathP (σ₁ .act .actStrId s , σ₁ .act .actStrId s))
-      (σ₁ .act .actRel
-        (λ x y →
-          Trunc.rec (R .fst .snd _ _)
-            (λ p → subst (R .fst .fst x) p (R .snd .reflexive x)))
-        s s
-        (σ₁ .reflexive s))
+  ref = posRelReflexive σ₁ R
 
-  [f] : _
+  [f] : S X / ρ₁ (R .fst .fst) → T (X / R .fst .fst)
   [f] [ s ] = θ₂ .quo (X , f s) R (h (ref s)) .fst .fst
   [f] (eq/ s₀ s₁ r i) =
     cong fst

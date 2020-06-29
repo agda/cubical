@@ -265,3 +265,18 @@ record PositiveStrRel {S : Type ℓ → Type ℓ'} {ρ : StrRel S ℓ''} (θ : S
     quo : {X : Type ℓ} (R : EquivPropRel X ℓ) → isEquiv (strRelQuotientComparison θ act R)
 
 open PositiveStrRel public
+
+posRelReflexive : {S : Type ℓ → Type ℓ'} {ρ : StrRel S ℓ''} {θ : SuitableStrRel S ρ}
+  → PositiveStrRel θ
+  → {X : Type ℓ} (R : EquivPropRel X ℓ)
+  → (s : S X) → ρ (R .fst .fst) s s
+posRelReflexive {ρ = ρ} σ R s =
+  subst
+    (uncurry (ρ (R .fst .fst)))
+    (ΣPathP (σ .act .actStrId s , σ .act .actStrId s))
+    (σ .act .actRel
+      (λ x y →
+        Trunc.rec (R .fst .snd _ _)
+          (λ p → subst (R .fst .fst x) p (R .snd .reflexive x)))
+      s s
+      (σ .reflexive s))
