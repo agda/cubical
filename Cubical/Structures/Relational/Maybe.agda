@@ -1,6 +1,6 @@
 {-
 
-  Maybe structure: X ↦ Maybe (S X)
+Maybe structure: X ↦ Maybe (S X)
 
 -}
 {-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
@@ -10,12 +10,15 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.RelationalStructure
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty
 open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
+open import Cubical.HITs.PropositionalTruncation as Trunc
+open import Cubical.HITs.SetQuotients
 
 open import Cubical.Structures.Maybe
 
@@ -55,3 +58,57 @@ maybeRelMatchesEquiv ρ μ (X , nothing) (Y , nothing) _ = idEquiv _
 maybeRelMatchesEquiv ρ μ (X , nothing) (Y , just y) _ = idEquiv _
 maybeRelMatchesEquiv ρ μ (X , just x) (Y , nothing) _ = idEquiv _
 maybeRelMatchesEquiv ρ μ (X , just x) (Y , just y) = μ (X , x) (Y , y)
+
+maybeRelAction :
+  {S : Type ℓ → Type ℓ₁} {ρ : StrRel S ℓ₁'}
+  → StrRelAction ρ
+  → StrRelAction (MaybeRelStr ρ)
+maybeRelAction α .actStr f = map-Maybe (α .actStr f)
+maybeRelAction α .actStrId s =
+  funExt⁻ (cong map-Maybe (funExt (α .actStrId))) s ∙ map-Maybe-id s
+maybeRelAction α .actRel h nothing nothing = _
+maybeRelAction α .actRel h (just s) (just t) r = α .actRel h s t r
+
+maybePositiveRel :
+  {S : Type ℓ → Type ℓ₁} {ρ : StrRel S ℓ₁'} {θ : SuitableStrRel S ρ}
+  → PositiveStrRel θ
+  → PositiveStrRel (maybeSuitableRel θ)
+maybePositiveRel σ .act = maybeRelAction (σ .act)
+maybePositiveRel σ .reflexive nothing = _
+maybePositiveRel σ .reflexive (just s) = σ .reflexive s
+maybePositiveRel σ .detransitive R R' {nothing} {nothing} r = ∣ nothing , _ , _ ∣
+maybePositiveRel σ .detransitive R R' {just s} {just u} rr' =
+  Trunc.map (λ {(t , r , r') → just t , r , r'}) (σ .detransitive R R' rr')
+maybePositiveRel {S = S} {ρ = ρ} {θ = θ} σ .quo {X} R =
+  subst isEquiv
+    (funExt
+      (elimProp (λ _ → maybeSuitableRel θ .set squash/ _ _)
+        (λ {nothing → refl; (just _) → refl})))
+    (compEquiv (isoToEquiv isom) (congMaybeEquiv (_ , σ .quo R)) .snd)
+  where
+  fwd : Maybe (S X) / MaybeRel (ρ (R .fst .fst)) → Maybe (S X / ρ (R .fst .fst))
+  fwd [ nothing ] = nothing
+  fwd [ just s ] = just [ s ]
+  fwd (eq/ nothing nothing r i) = nothing
+  fwd (eq/ (just s) (just t) r i) = just (eq/ s t r i)
+  fwd (squash/ _ _ p q i j) =
+    isOfHLevelMaybe 0 squash/ _ _ (cong fwd p) (cong fwd q) i j
+
+  bwd : Maybe (S X / ρ (R .fst .fst)) → Maybe (S X) / MaybeRel (ρ (R .fst .fst))
+  bwd nothing = [ nothing ]
+  bwd (just [ s ]) = [ just s ]
+  bwd (just (eq/ s t r i)) = eq/ (just s) (just t) r i
+  bwd (just (squash/ _ _ p q i j)) =
+    squash/ _ _ (cong (bwd ∘ just) p) (cong (bwd ∘ just) q) i j
+
+  open Iso
+  isom : Iso (Maybe (S X) / MaybeRel (ρ (R .fst .fst))) (Maybe (S X / ρ (R .fst .fst)))
+  isom .fun = fwd
+  isom .inv = bwd
+  isom .rightInv nothing = refl
+  isom .rightInv (just x) =
+    elimProp {B = λ x → fwd (bwd (just x)) ≡ just x}
+      (λ _ → isOfHLevelMaybe 0 squash/ _ _)
+      (λ _ → refl)
+      x
+  isom .leftInv = elimProp (λ _ → squash/ _ _) (λ {nothing → refl; (just _) → refl})

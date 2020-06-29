@@ -137,3 +137,16 @@ module SumUnit where
 
 Maybe≡SumUnit : Maybe A ≡ Unit ⊎ A
 Maybe≡SumUnit = isoToPath (iso SumUnit.Maybe→SumUnit SumUnit.SumUnit→Maybe SumUnit.SumUnit→Maybe→SumUnit SumUnit.Maybe→SumUnit→Maybe)
+
+congMaybeEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+  → A ≃ B → Maybe A ≃ Maybe B
+congMaybeEquiv e = isoToEquiv isom
+  where
+  open Iso
+  isom : Iso _ _
+  isom .fun = map-Maybe (equivFun e)
+  isom .inv = map-Maybe (invEq e)
+  isom .rightInv nothing = refl
+  isom .rightInv (just b) = cong just (retEq e b)
+  isom .leftInv nothing = refl
+  isom .leftInv (just a) = cong just (secEq e a)
