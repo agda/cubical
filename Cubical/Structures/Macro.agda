@@ -51,7 +51,7 @@ data Desc (ℓ : Level) : Typeω where
   maybe : Desc ℓ → Desc ℓ
   -- SNS from functorial action
   functorial : FuncDesc ℓ → Desc ℓ
-  -- arbitrary standard notion of structure
+  -- arbitrary univalent notion of structure
   foreign : ∀ {ℓ' ℓ''} {S : Type ℓ → Type ℓ'} (ι : StrEquiv S ℓ'') → UnivalentStr S ι → Desc ℓ
 
 infixr 4 _,_
