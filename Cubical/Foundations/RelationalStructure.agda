@@ -113,7 +113,7 @@ isDetransitiveStrRel {ℓ = ℓ} {S = S} ρ =
   (R : PropRel X Y ℓ) (R' : PropRel Y Z ℓ)
   {sx : S X} {sz : S Z}
   → ρ (compPropRel R R' .fst) sx sz
-  → ∥ Σ[ sy ∈ S Y ] ρ (R .fst) sx sy × ρ (R' .fst) sy sz ∥
+  → ∃[ sy ∈ S Y ] ρ (R .fst) sx sy × ρ (R' .fst) sy sz
 
 record StrRelAction {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'')
   : Type (ℓ-max (ℓ-suc ℓ) (ℓ-max ℓ' ℓ''))
