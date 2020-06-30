@@ -27,3 +27,14 @@ str = snd
 --    ι (X , s) (Y , t) : (X ≃ Y) → Type ℓ''
 StrEquiv : (S : Type ℓ → Type ℓ'') (ℓ' : Level) → Type (ℓ-max (ℓ-suc (ℓ-max ℓ ℓ')) ℓ'')
 StrEquiv {ℓ} S ℓ' = (A B : TypeWithStr ℓ S) → typ A ≃ typ B → Type ℓ'
+
+-- An S-structure may instead be equipped with an action on equivalences, which will
+-- induce a notion of S-homomorphism
+
+EquivAction : (S : Type ℓ → Type ℓ'') → Type (ℓ-max (ℓ-suc ℓ) ℓ'')
+EquivAction {ℓ} S = {X Y : Type ℓ} → X ≃ Y → S X ≃ S Y
+
+EquivAction→StrEquiv : {S : Type ℓ → Type ℓ''}
+  → EquivAction S → StrEquiv S ℓ''
+EquivAction→StrEquiv α (X , s) (Y , t) e = equivFun (α e) s ≡ t
+

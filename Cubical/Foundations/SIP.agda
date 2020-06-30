@@ -80,6 +80,20 @@ SNS→UnivalentStr {S = S} ι θ {A = A} {B = B} e = EquivJ P C e (str A) (str B
     PathP (λ i → S (ua (idEquiv Y) i)) s t
     ■
 
+TransportStr : {S : Type ℓ₁ → Type ℓ₂} (α : EquivAction S) → Type (ℓ-max (ℓ-suc ℓ₁) ℓ₂)
+TransportStr {ℓ} {S = S} c =
+  {X Y : Type ℓ} (e : X ≃ Y) (s : S X) → equivFun (c e) s ≡ transport (λ i → S (ua e i)) s
+
+TransportStr→UnivalentStr : {S : Type ℓ₁ → Type ℓ₂} (α : EquivAction S)
+  → TransportStr α → UnivalentStr S (EquivAction→StrEquiv α)
+TransportStr→UnivalentStr {S = S} α τ {X , s} {Y , t} e =
+  equivFun (α e) s ≡ t
+    ≃⟨ pathToEquiv (cong (_≡ t) (τ e s)) ⟩
+  transport (λ i → S (ua e i)) s ≡ t
+    ≃⟨ invEquiv (PathP≃Path _ _ _) ⟩
+  PathP (λ i → S (ua e i)) s t
+  ■
+
 --- We can now define an invertible function
 ---
 ---    sip : A ≃[ ι ] B → A ≡ B
