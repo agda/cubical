@@ -97,88 +97,6 @@ quotientPropRel : ∀ {ℓ} {A : Type ℓ} (R : Rel A A ℓ) → PropRel A (A / 
 quotientPropRel R .fst a t = [ a ] ≡ t
 quotientPropRel R .snd _ _ = squash/ _ _
 
--- Given a suitable notion of structured relation, if we have a structured quasi equivalence relation R
--- between structured types A and B, we get induced structures on the quotients A/(R ∙ R⁻¹) and B/(R⁻¹ ∙ R),
--- and the induced equivalence e : A/(R ∙ R⁻¹) ≃ B/(R⁻¹ ∙ R) is structured with respect to those quotient
--- structures.
-
-record QERDescends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
-  (A B : TypeWithStr ℓ S) (R : QuasiEquivRel (typ A) (typ B) ℓ) : Type (ℓ-max ℓ' ℓ'')
-  where
-  private
-    module E = QER→Equiv R
-
-  field
-    quoᴸ : InducedQuotientStr S ρ A E.Rᴸ
-    quoᴿ : InducedQuotientStr S ρ B E.Rᴿ
-    rel : ρ (graphRel (E.Thm .fst)) (quoᴸ .fst) (quoᴿ .fst)
-
-open QERDescends
-
-structuredQER→structuredEquiv : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'')
-  (θ : SuitableStrRel S ρ)
-  (A B : TypeWithStr ℓ S) (R : QuasiEquivRel (typ A) (typ B) ℓ)
-  → ρ (R .fst .fst) (A .snd) (B .snd)
-  → QERDescends S ρ A B R
-structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴸ =
-  θ .quo (X , s) (QER→EquivRel R)
-    (subst (λ R' → ρ R' s s) correction
-      (θ .transitive (R .fst) (invPropRel (R .fst)) r (θ .symmetric (R .fst) r)))
-    .fst
-  where
-  correction : compPropRel (R .fst) (invPropRel (R .fst)) .fst ≡ QER→EquivRel R .fst .fst
-  correction =
-    funExt₂ λ x₀ x₁ →
-      (hPropExt squash (R .fst .snd _ _)
-        (Trunc.rec (R .fst .snd _ _) (λ {(y , r , r') → R .snd .zigzag r r' (R .snd .fwdRel _)}))
-        (λ r → ∣ _ , r , R .snd .fwdRel _ ∣))
-
-structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴿ =
-  θ .quo (Y , t) (QER→EquivRel (invQER R))
-    (subst (λ R' → ρ R' t t) correction
-      (θ .transitive (invPropRel (R .fst)) (R .fst) (θ .symmetric (R .fst) r) r))
-    .fst
-  where
-  correction : compPropRel (invPropRel (R .fst)) (R .fst) .fst ≡ QER→EquivRel (invQER R) .fst .fst
-  correction =
-    funExt₂ λ y₀ y₁ →
-      (hPropExt squash (R .fst .snd _ _)
-        (Trunc.rec (R .fst .snd _ _) (λ {(x , r , r') → R .snd .zigzag (R .snd .bwdRel _) r' r}))
-        (λ r → ∣ _ , r , R .snd .bwdRel _ ∣))
-
-structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .rel =
-  subst (λ R' → ρ R' (quol .fst) (quor .fst)) correction
-    (θ .transitive (compPropRel (invPropRel (quotientPropRel E.Rᴸ)) (R .fst)) (quotientPropRel E.Rᴿ)
-      (θ .transitive (invPropRel (quotientPropRel E.Rᴸ)) (R .fst)
-        (θ .symmetric (quotientPropRel E.Rᴸ) (quol .snd))
-        r)
-      (quor .snd))
-  where
-  module E = QER→Equiv R
-  quol = structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴸ
-  quor = structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴿ
-  [R] = compPropRel (compPropRel (invPropRel (quotientPropRel E.Rᴸ)) (R .fst)) (quotientPropRel E.Rᴿ)
-
-  correction : [R] .fst ≡ graphRel (E.Thm .fst)
-  correction =
-    funExt₂ λ qx qy →
-      (hPropExt squash (squash/ _ _)
-        (Trunc.rec (squash/ _ _)
-          (λ {(y , qr , py) →
-            Trunc.rec
-              (squash/ _ _)
-              (λ {(x , px , r) →
-                cong (E.Thm .fst) (sym px)
-                ∙ eq/ (R .snd .fwd x) y (R .snd .zigzag (R .snd .bwdRel y) r (R .snd .fwdRel x))
-                ∙ py})
-              qr}))
-        (elimProp
-          {B = λ qx →
-            E.Thm .fst qx ≡ qy → [R] .fst qx qy}
-          (λ _ → isPropΠ λ _ → squash)
-          (λ x p → ∣ _ , ∣ _ , refl , R .snd .fwdRel x ∣ , p ∣)
-          qx))
-
 -- We can also ask for a notion of structured relations to agree with some notion of structured equivalences.
 
 StrRelMatchesEquiv : {S : Type ℓ → Type ℓ'}
@@ -280,3 +198,86 @@ posRelReflexive {ρ = ρ} σ R s =
           (λ p → subst (R .fst .fst x) p (R .snd .reflexive x)))
       s s
       (σ .reflexive s))
+
+-- Given a suitable notion of structured relation, if we have a structured quasi equivalence relation R
+-- between structured types A and B, we get induced structures on the quotients A/(R ∙ R⁻¹) and B/(R⁻¹ ∙ R),
+-- and the induced equivalence e : A/(R ∙ R⁻¹) ≃ B/(R⁻¹ ∙ R) is structured with respect to those quotient
+-- structures.
+
+record QERDescends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
+  (A B : TypeWithStr ℓ S) (R : QuasiEquivRel (typ A) (typ B) ℓ) : Type (ℓ-max ℓ' ℓ'')
+  where
+  private
+    module E = QER→Equiv R
+
+  field
+    quoᴸ : InducedQuotientStr S ρ A E.Rᴸ
+    quoᴿ : InducedQuotientStr S ρ B E.Rᴿ
+    rel : ρ (graphRel (E.Thm .fst)) (quoᴸ .fst) (quoᴿ .fst)
+
+open QERDescends
+
+structuredQER→structuredEquiv : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'')
+  (θ : SuitableStrRel S ρ)
+  (A B : TypeWithStr ℓ S) (R : QuasiEquivRel (typ A) (typ B) ℓ)
+  → ρ (R .fst .fst) (A .snd) (B .snd)
+  → QERDescends S ρ A B R
+structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴸ =
+  θ .quo (X , s) (QER→EquivRel R)
+    (subst (λ R' → ρ R' s s) correction
+      (θ .transitive (R .fst) (invPropRel (R .fst)) r (θ .symmetric (R .fst) r)))
+    .fst
+  where
+  correction : compPropRel (R .fst) (invPropRel (R .fst)) .fst ≡ QER→EquivRel R .fst .fst
+  correction =
+    funExt₂ λ x₀ x₁ →
+      (hPropExt squash (R .fst .snd _ _)
+        (Trunc.rec (R .fst .snd _ _) (λ {(y , r , r') → R .snd .zigzag r r' (R .snd .fwdRel _)}))
+        (λ r → ∣ _ , r , R .snd .fwdRel _ ∣))
+
+structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴿ =
+  θ .quo (Y , t) (QER→EquivRel (invQER R))
+    (subst (λ R' → ρ R' t t) correction
+      (θ .transitive (invPropRel (R .fst)) (R .fst) (θ .symmetric (R .fst) r) r))
+    .fst
+  where
+  correction : compPropRel (invPropRel (R .fst)) (R .fst) .fst ≡ QER→EquivRel (invQER R) .fst .fst
+  correction =
+    funExt₂ λ y₀ y₁ →
+      (hPropExt squash (R .fst .snd _ _)
+        (Trunc.rec (R .fst .snd _ _) (λ {(x , r , r') → R .snd .zigzag (R .snd .bwdRel _) r' r}))
+        (λ r → ∣ _ , r , R .snd .bwdRel _ ∣))
+
+structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .rel =
+  subst (λ R' → ρ R' (quol .fst) (quor .fst)) correction
+    (θ .transitive (compPropRel (invPropRel (quotientPropRel E.Rᴸ)) (R .fst)) (quotientPropRel E.Rᴿ)
+      (θ .transitive (invPropRel (quotientPropRel E.Rᴸ)) (R .fst)
+        (θ .symmetric (quotientPropRel E.Rᴸ) (quol .snd))
+        r)
+      (quor .snd))
+  where
+  module E = QER→Equiv R
+  quol = structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴸ
+  quor = structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴿ
+  [R] = compPropRel (compPropRel (invPropRel (quotientPropRel E.Rᴸ)) (R .fst)) (quotientPropRel E.Rᴿ)
+
+  correction : [R] .fst ≡ graphRel (E.Thm .fst)
+  correction =
+    funExt₂ λ qx qy →
+      (hPropExt squash (squash/ _ _)
+        (Trunc.rec (squash/ _ _)
+          (λ {(y , qr , py) →
+            Trunc.rec
+              (squash/ _ _)
+              (λ {(x , px , r) →
+                cong (E.Thm .fst) (sym px)
+                ∙ eq/ (R .snd .fwd x) y (R .snd .zigzag (R .snd .bwdRel y) r (R .snd .fwdRel x))
+                ∙ py})
+              qr}))
+        (elimProp
+          {B = λ qx →
+            E.Thm .fst qx ≡ qy → [R] .fst qx qy}
+          (λ _ → isPropΠ λ _ → squash)
+          (λ x p → ∣ _ , ∣ _ , refl , R .snd .fwdRel x ∣ , p ∣)
+          qx))
+
