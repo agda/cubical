@@ -104,8 +104,14 @@ isEmbedding-just  w z = MaybePath.Cover≃Path (just w) (just z) .snd
 ¬just≡nothing {A = A} {x = x} p = lower (subst (caseMaybe (Lift ⊥) (Maybe A)) p (just x))
 
 isProp-x≡nothing : (x : Maybe A) → isProp (x ≡ nothing)
-isProp-x≡nothing nothing x w = subst isProp (MaybePath.Cover≡Path nothing nothing) (isOfHLevelLift 1 isPropUnit) x w
+isProp-x≡nothing nothing x w =
+  subst isProp (MaybePath.Cover≡Path nothing nothing) (isOfHLevelLift 1 isPropUnit) x w
 isProp-x≡nothing (just _) p _ = ⊥.rec (¬just≡nothing p)
+
+isProp-nothing≡x : (x : Maybe A) → isProp (nothing ≡ x)
+isProp-nothing≡x nothing x w =
+  subst isProp (MaybePath.Cover≡Path nothing nothing) (isOfHLevelLift 1 isPropUnit) x w
+isProp-nothing≡x (just _) p _ = ⊥.rec (¬nothing≡just p)
 
 isContr-nothing≡nothing : isContr (nothing {A = A} ≡ nothing)
 isContr-nothing≡nothing = inhProp→isContr refl (isProp-x≡nothing _)

@@ -21,7 +21,7 @@ open import Cubical.Structures.Parameterized
 
 private
   variable
-    ℓ ℓ₀ ℓ₁ ℓ₁' : Level
+    ℓ ℓ₀ ℓ₁ ℓ₁' ℓ₁'' : Level
 
 -- Structured relations
 
@@ -54,7 +54,7 @@ module _ (A : Type ℓ₀) where
     isPropΠ λ a → θ a .prop propR (s a) (t a)
 
   paramRelMatchesEquiv : {S : A → Type ℓ → Type ℓ₁}
-    (ρ : ∀ a → StrRel (S a) ℓ₁') {ι : ∀ a → StrEquiv (S a) ℓ₁'}
+    (ρ : ∀ a → StrRel (S a) ℓ₁') {ι : ∀ a → StrEquiv (S a) ℓ₁''}
     → (∀ a → StrRelMatchesEquiv (ρ a) (ι a))
     → StrRelMatchesEquiv (ParamRelStr ρ) (ParamEquivStr A ι)
   paramRelMatchesEquiv ρ μ _ _ e = equivΠCod λ a → μ a _ _ e

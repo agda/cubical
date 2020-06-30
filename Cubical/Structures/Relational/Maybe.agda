@@ -20,11 +20,12 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation as Trunc
 open import Cubical.HITs.SetQuotients
 
+open import Cubical.Structures.Functorial
 open import Cubical.Structures.Maybe
 
 private
   variable
-    ℓ ℓ₁ ℓ₁' : Level
+    ℓ ℓ₁ ℓ₁' ℓ₁'' : Level
 
 -- Structured relations
 
@@ -51,12 +52,12 @@ maybeSuitableRel θ .prop propR nothing (just y) = isOfHLevelLift 1 isProp⊥
 maybeSuitableRel θ .prop propR (just x) nothing = isOfHLevelLift 1 isProp⊥
 maybeSuitableRel θ .prop propR (just x) (just y) = θ .prop propR x y
 
-maybeRelMatchesEquiv : {S : Type ℓ → Type ℓ₁} (ρ : StrRel S ℓ₁') {ι : StrEquiv S ℓ₁'}
+maybeRelMatchesEquiv : {S : Type ℓ → Type ℓ₁} (ρ : StrRel S ℓ₁') {ι : StrEquiv S ℓ₁''}
   → StrRelMatchesEquiv ρ ι
   → StrRelMatchesEquiv (MaybeRelStr ρ) (MaybeEquivStr ι)
-maybeRelMatchesEquiv ρ μ (X , nothing) (Y , nothing) _ = idEquiv _
-maybeRelMatchesEquiv ρ μ (X , nothing) (Y , just y) _ = idEquiv _
-maybeRelMatchesEquiv ρ μ (X , just x) (Y , nothing) _ = idEquiv _
+maybeRelMatchesEquiv ρ μ (X , nothing) (Y , nothing) _ = Lift≃Lift (idEquiv _)
+maybeRelMatchesEquiv ρ μ (X , nothing) (Y , just y) _ = Lift≃Lift (idEquiv _)
+maybeRelMatchesEquiv ρ μ (X , just x) (Y , nothing) _ = Lift≃Lift (idEquiv _)
 maybeRelMatchesEquiv ρ μ (X , just x) (Y , just y) = μ (X , x) (Y , y)
 
 maybeRelAction :
@@ -112,3 +113,16 @@ maybePositiveRel {S = S} {ρ = ρ} {θ = θ} σ .quo {X} R =
       (λ _ → refl)
       x
   isom .leftInv = elimProp (λ _ → squash/ _ _) (λ {nothing → refl; (just _) → refl})
+
+maybeRelMatchesFunctorial : {S : Type ℓ → Type ℓ₁}
+  (ρ : StrRel S ℓ₁') {F : ∀ {X Y} → (X → Y) → (S X → S Y)}
+  → StrRelMatchesEquiv ρ (FunctorialEquivStr F)
+  → StrRelMatchesEquiv (MaybeRelStr ρ) (FunctorialEquivStr (map-Maybe ∘ F))
+maybeRelMatchesFunctorial ρ μ (X , nothing) (Y , nothing) _ =
+  isContr→Equiv (isOfHLevelLift 0 isContrUnit) isContr-nothing≡nothing
+maybeRelMatchesFunctorial ρ μ (X , nothing) (Y , just y) _ =
+  uninhabEquiv lower ¬nothing≡just
+maybeRelMatchesFunctorial ρ μ (X , just x) (Y , nothing) _ =
+  uninhabEquiv lower ¬just≡nothing
+maybeRelMatchesFunctorial ρ μ (X , just x) (Y , just y) e =
+  compEquiv (μ (X , x) (Y , y) e) (_ , isEmbedding-just _ _)

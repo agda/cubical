@@ -19,11 +19,12 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation as Trunc
 open import Cubical.HITs.SetQuotients
 
+open import Cubical.Structures.Functorial
 open import Cubical.Structures.Product
 
 private
   variable
-    ℓ ℓ₁ ℓ₁' ℓ₂ ℓ₂' : Level
+    ℓ ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓ₂' ℓ₂'' : Level
 
 -- Structured relations
 
@@ -57,8 +58,8 @@ productSuitableRel θ₁ θ₂ .prop propR (s₁ , s₂) (t₁ , t₂) =
   isProp× (θ₁ .prop propR s₁ t₁) (θ₂ .prop propR s₂ t₂)
 
 productRelMatchesEquiv :
-  {S₁ : Type ℓ → Type ℓ₁} (ρ₁ : StrRel S₁ ℓ₁') {ι₁ : StrEquiv S₁ ℓ₁'}
-  {S₂ : Type ℓ → Type ℓ₂} (ρ₂ : StrRel S₂ ℓ₂') {ι₂ : StrEquiv S₂ ℓ₂'}
+  {S₁ : Type ℓ → Type ℓ₁} (ρ₁ : StrRel S₁ ℓ₁') {ι₁ : StrEquiv S₁ ℓ₁''}
+  {S₂ : Type ℓ → Type ℓ₂} (ρ₂ : StrRel S₂ ℓ₂') {ι₂ : StrEquiv S₂ ℓ₂''}
   → StrRelMatchesEquiv ρ₁ ι₁ → StrRelMatchesEquiv ρ₂ ι₂
   → StrRelMatchesEquiv (ProductRelStr ρ₁ ρ₂) (ProductEquivStr ι₁ ι₂)
 productRelMatchesEquiv ρ₁ ρ₂ μ₁ μ₂ A B e =
@@ -129,3 +130,12 @@ productPositiveRel {S₁ = S₁} {ρ₁} {θ₁} {S₂} {ρ₂} {θ₂} σ₁ σ
       (elimProp (λ _ → isPropΠ λ _ → isSet× squash/ squash/ _ _)
         (λ _ → elimProp (λ _ → isSet× squash/ squash/ _ _) (λ _ → refl)))
   isom .leftInv = elimProp (λ _ → squash/ _ _) (λ _ → refl)
+
+productRelMatchesFunctorial :
+  {S₁ : Type ℓ → Type ℓ₁} (ρ₁ : StrRel S₁ ℓ₁') {F₁ : ∀ {X Y} → (X → Y) → (S₁ X → S₁ Y)}
+  {S₂ : Type ℓ → Type ℓ₂} (ρ₂ : StrRel S₂ ℓ₂') {F₂ : ∀ {X Y} → (X → Y) → (S₂ X → S₂ Y)}
+  → StrRelMatchesEquiv ρ₁ (FunctorialEquivStr F₁)
+  → StrRelMatchesEquiv ρ₂ (FunctorialEquivStr F₂)
+  → StrRelMatchesEquiv (ProductRelStr ρ₁ ρ₂) (FunctorialEquivStr λ f → map-× (F₁ f) (F₂ f))
+productRelMatchesFunctorial ρ₁ ρ₂ μ₁ μ₂ _ _ e =
+  compEquiv (Σ-cong-equiv (μ₁ _ _ e) (λ _ → μ₂ _ _ e)) ΣPath≃PathΣ

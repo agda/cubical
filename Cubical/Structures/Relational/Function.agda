@@ -22,10 +22,11 @@ open import Cubical.HITs.SetQuotients
 open import Cubical.HITs.PropositionalTruncation as Trunc
 
 open import Cubical.Structures.Function
+open import Cubical.Structures.Functorial
 
 private
   variable
-    ℓ ℓ₁ ℓ₁' ℓ₂ ℓ₂' : Level
+    ℓ ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓ₂' ℓ₂'' : Level
 
 FunctionRelStr : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
   → StrRel S ℓ₁' → StrRel T ℓ₂' → StrRel (FunctionStructure S T) (ℓ-max ℓ₁ (ℓ-max ℓ₁' ℓ₂'))
@@ -155,11 +156,37 @@ functionSuitableRel {ρ₁ = ρ₁} {ρ₂} θ₁ σ θ₂ .prop propR f g =
   isPropΠ λ _ →
   θ₂ .prop propR _ _
 
-functionRelMatchesEquiv : {S : Type ℓ → Type ℓ₁}
-  (ρ₁ : StrRel S ℓ₁') {ι₁ : StrEquiv S ℓ₁'}
-  (ρ₂ : StrRel S ℓ₂') {ι₂ : StrEquiv S ℓ₂'}
+functionRelMatchesEquiv : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
+  (ρ₁ : StrRel S ℓ₁') {ι₁ : StrEquiv S ℓ₁''}
+  (ρ₂ : StrRel T ℓ₂') {ι₂ : StrEquiv T ℓ₂''}
   → StrRelMatchesEquiv ρ₁ ι₁
   → StrRelMatchesEquiv ρ₂ ι₂
   → StrRelMatchesEquiv (FunctionRelStr ρ₁ ρ₂) (FunctionEquivStr ι₁ ι₂)
 functionRelMatchesEquiv ρ₁ ρ₂ μ₁ μ₂ (X , f) (Y , g) e =
   equivImplicitΠCod (equivImplicitΠCod (equiv→ (μ₁ _ _ e) (μ₂ _ _ e)))
+
+functionRelMatchesEquiv+ : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
+  (ρ₁ : StrRel S ℓ₁') {F₁ : ∀ {X Y} → (X → Y) → S X → S Y}
+  (ρ₂ : StrRel T ℓ₂') {ι₂ : StrEquiv T ℓ₂''}
+  → StrRelMatchesEquiv ρ₁ (FunctorialEquivStr F₁)
+  → StrRelMatchesEquiv ρ₂ ι₂
+  → StrRelMatchesEquiv (FunctionRelStr ρ₁ ρ₂) (FunctionEquivStr+ F₁ ι₂)
+functionRelMatchesEquiv+ ρ₁ {F₁ = F₁} ρ₂ {ι₂ = ι₂} μ₁ μ₂ (X , f) (Y , g) e =
+  compEquiv
+    (functionRelMatchesEquiv ρ₁ ρ₂ μ₁ μ₂ (X , f) (Y , g) e)
+    (isoToEquiv isom)
+  where
+  open Iso
+  isom : Iso
+    (FunctionEquivStr (FunctorialEquivStr F₁) ι₂ (X , f) (Y , g) e)
+    (FunctionEquivStr+ F₁ ι₂ (X , f) (Y , g) e)
+  isom .fun h s = h refl
+  isom .inv k {x} = J (λ y _ → ι₂ (X , f x) (Y , g y) e) (k x)
+  isom .rightInv k i x = JRefl (λ y _ → ι₂ (X , f x) (Y , g y) e) (k x) i
+  isom .leftInv h =
+    implicitFunExt λ {x} →
+    implicitFunExt λ {y} →
+    funExt λ p →
+    J (λ y p → isom .inv (isom .fun h) p ≡ h p)
+      (funExt⁻ (isom .rightInv (isom .fun h)) x)
+      p

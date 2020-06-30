@@ -162,7 +162,7 @@ private
   buildDesc : ℕ → R.Term → R.Term → R.Term → R.TC R.Term
   buildDesc zero ℓ ℓ' t = R.typeError (R.strErr "Ran out of fuel! at \n" ∷ R.termErr t ∷ [])
   buildDesc (suc fuel) ℓ ℓ' t =
-    tryConstant t <|> tryPointed t <|> tryProduct t <|> tryParam t <|> tryRecvar t <|>
+    tryConstant t <|> tryPointed t <|> tryProduct t <|> tryFunction+ t <|>
     tryFunction t <|> tryMaybe t <|> tryFunct t <|>
     R.typeError (R.strErr "Can't automatically generate a structure for\n" ∷ R.termErr t ∷ [])
     where
@@ -188,22 +188,16 @@ private
       buildDesc fuel ℓ ℓ₁ A₁ >>= λ d₁ →
       R.returnTC (R.con (quote Desc._,_) (varg d₀ ∷ varg d₁ ∷ []))
 
-    tryParam : R.Term → R.TC R.Term
-    tryParam t =
-      newMeta (tType R.unknown) >>= λ A →
+    tryFunction+ : R.Term → R.TC R.Term
+    tryFunction+ t =
       newMeta tLevel >>= λ ℓ₀ →
+      newMeta tLevel >>= λ ℓ₁ →
       newMeta (tStruct ℓ ℓ₀) >>= λ A₀ →
-      R.unify t (R.def (quote paramShape) (varg ℓ ∷ varg A ∷ varg A₀ ∷ [])) >>
-      buildDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
-      R.returnTC (R.con (quote Desc.param) (varg A ∷ varg d₀ ∷ []))
-
-    tryRecvar : R.Term → R.TC R.Term
-    tryRecvar t =
-      newMeta tLevel >>= λ ℓ₀ →
-      newMeta (tStruct ℓ ℓ₀) >>= λ A₀ →
-      R.unify t (R.def (quote recvarShape) (varg ℓ ∷ varg A₀ ∷ [])) >>
-      buildDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
-      R.returnTC (R.con (quote Desc.recvar) (varg d₀ ∷ []))
+      newMeta (tStruct ℓ ℓ₁) >>= λ A₁ →
+      R.unify t (R.def (quote functionShape) (varg ℓ ∷ varg A₀ ∷ varg A₁ ∷ [])) >>
+      buildFuncDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
+      buildDesc fuel ℓ ℓ₁ A₁ >>= λ d₁ →
+      R.returnTC (R.con (quote Desc.function+) (varg d₀ ∷ varg d₁ ∷ []))
 
     tryFunction : R.Term → R.TC R.Term
     tryFunction t =
