@@ -4,7 +4,7 @@ Macros (autoDesc, AutoStructure, AutoEquivStr, autoUnivalentStr) for automatical
 
 For example:
 
-  autoDesc (λ (X : Type₀) → X → X × ℕ)   ↦   recvar (var , constant ℕ)
+  autoDesc (λ (X : Type₀) → X → X × ℕ)   ↦   function+ var (var , constant ℕ)
 
 We prefer to use the constant structure whenever possible, e.g., [autoDesc (λ (X : Type₀) → ℕ → ℕ)]
 is [constant (ℕ → ℕ)] rather than [param ℕ (constant ℕ)].
@@ -85,10 +85,6 @@ private
   paramShape : ∀ {ℓ₀ ℓ'} (ℓ : Level)
     → Type ℓ' → (Type ℓ → Type ℓ₀) → Type ℓ → Type (ℓ-max ℓ' ℓ₀)
   paramShape _ A A₀ X = A → A₀ X
-
-  recvarShape : ∀ {ℓ₀} (ℓ : Level)
-    → (Type ℓ → Type ℓ₀) → Type ℓ → Type (ℓ-max ℓ ℓ₀)
-  recvarShape _ A₀ X = X → A₀ X
 
   functionShape :  ∀ {ℓ₀ ℓ₁} (ℓ : Level)
     → (Type ℓ → Type ℓ₀) → (Type ℓ → Type ℓ₁) → Type ℓ → Type (ℓ-max ℓ₀ ℓ₁)

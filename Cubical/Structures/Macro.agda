@@ -56,8 +56,6 @@ data Desc (ℓ : Level) : Typeω where
 
 infixr 4 _,_
 
-pattern recvar d = function+ var d
-
 {- Functorial structures -}
 
 funcMacroLevel : ∀ {ℓ} → FuncDesc ℓ → Level
