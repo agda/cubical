@@ -173,7 +173,7 @@ module SetElim (Bset : isSet B) where
           i
 
   trunc→Set≃₂ : (∥ A ∥ → B) ≃ Σ (A → B) 2-Constant
-  trunc→Set≃₂ = compEquiv (equivPi preEquiv₁) preEquiv₂
+  trunc→Set≃₂ = compEquiv (equivΠCod preEquiv₁) preEquiv₂
 
 open SetElim public using (rec→Set; trunc→Set≃)
 
@@ -336,7 +336,7 @@ module GpdElim (Bgpd : isGroupoid B) where
   preEquiv₂ t = e , rec (isPropIsEquiv e) e-isEquiv t
 
   trunc→Gpd≃ : (∥ A ∥ → B) ≃ Σ (A → B) 3-Constant
-  trunc→Gpd≃ = compEquiv (equivPi preEquiv₂) preEquiv₁
+  trunc→Gpd≃ = compEquiv (equivΠCod preEquiv₂) preEquiv₁
 
 open GpdElim using (rec→Gpd; trunc→Gpd≃) public
 

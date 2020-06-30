@@ -25,4 +25,4 @@ module _ {ℓ ℓ₁ ℓ₂} (A : Type ℓ) where
   ParamUnivalentStr : {S : A → Type ℓ₁ → Type ℓ₂} {ℓ₃ : Level}
     (ι : ∀ a → StrEquiv (S a) ℓ₃) (θ : ∀ a → UnivalentStr (S a) (ι a))
     → UnivalentStr (ParamStructure S) (ParamEquivStr ι)
-  ParamUnivalentStr ι θ e = compEquiv (equivPi λ a → θ a e) funExtEquiv
+  ParamUnivalentStr ι θ e = compEquiv (equivΠCod λ a → θ a e) funExtEquiv

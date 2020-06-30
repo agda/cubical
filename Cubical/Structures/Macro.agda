@@ -16,8 +16,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Maybe
 
 open import Cubical.Structures.Constant
+open import Cubical.Structures.Function
 open import Cubical.Structures.Maybe
-open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Parameterized
 open import Cubical.Structures.Pointed
 open import Cubical.Structures.Product
@@ -28,11 +28,11 @@ data FuncDesc (ℓ : Level) : Typeω where
   constant : ∀ {ℓ'} → Type ℓ' → FuncDesc ℓ
   -- pointed structure: X ↦ X
   var : FuncDesc ℓ
-  -- join of structures S,T : X ↦ (S X × T X)
+  -- product of structures S,T : X ↦ (S X × T X)
   _,_ : FuncDesc ℓ  → FuncDesc ℓ  → FuncDesc ℓ
   -- structure S parameterized by constant A : X ↦ (A → S X)
   param : ∀ {ℓ'} → (A : Type ℓ') → FuncDesc ℓ  → FuncDesc ℓ
-  -- structure S parameterized by variable argument: X ↦ (X → S X)
+  -- Maybe on a structure S: X ↦ Maybe (S X)
   maybe : FuncDesc ℓ → FuncDesc ℓ
 
 data Desc (ℓ : Level) : Typeω where
@@ -40,17 +40,17 @@ data Desc (ℓ : Level) : Typeω where
   constant : ∀ {ℓ'} → Type ℓ' → Desc ℓ
   -- pointed structure: X ↦ X
   var : Desc ℓ
-  -- join of structures S,T : X ↦ (S X × T X)
+  -- product of structures S,T : X ↦ (S X × T X)
   _,_ : Desc ℓ  → Desc ℓ  → Desc ℓ
-  -- structure S parameterized by constant A : X ↦ (A → S X)
-  param : ∀ {ℓ'} → (A : Type ℓ') → Desc ℓ  → Desc ℓ
-  -- structure S parameterized by variable argument: X ↦ (X → S X)
-  recvar : Desc ℓ  → Desc ℓ
+  -- functions between structures S,T : X ↦ (S X → T X)
+  function : Desc ℓ → Desc ℓ → Desc ℓ
+  -- functions between structures S,T where S is functorial : X ↦ (S X → T X)
+  function+ : FuncDesc ℓ → Desc ℓ  → Desc ℓ
   -- Maybe on a structure S: X ↦ Maybe (S X)
   maybe : Desc ℓ → Desc ℓ
   -- SNS from functorial action
   functorial : FuncDesc ℓ → Desc ℓ
-  -- arbitrary standard notion of structure
+  -- arbitrary univalent notion of structure
   foreign : ∀ {ℓ' ℓ''} {S : Type ℓ → Type ℓ'} (ι : StrEquiv S ℓ'') → UnivalentStr S ι → Desc ℓ
 
 infixr 4 _,_
@@ -96,8 +96,8 @@ macroStrLevel : ∀ {ℓ} → Desc ℓ → Level
 macroStrLevel (constant {ℓ'} x) = ℓ'
 macroStrLevel {ℓ} var = ℓ
 macroStrLevel {ℓ} (d₀ , d₁) = ℓ-max (macroStrLevel d₀) (macroStrLevel d₁)
-macroStrLevel (param {ℓ'} A d) = ℓ-max ℓ' (macroStrLevel d)
-macroStrLevel {ℓ} (recvar d) = ℓ-max ℓ (macroStrLevel d)
+macroStrLevel {ℓ} (function+ d₀ d₁) = ℓ-max (funcMacroLevel d₀) (macroStrLevel d₁)
+macroStrLevel (function d₀ d₁) = ℓ-max (macroStrLevel d₀) (macroStrLevel d₁)
 macroStrLevel (maybe d) = macroStrLevel d
 macroStrLevel (functorial d) = funcMacroLevel d
 macroStrLevel (foreign {ℓ'} _ _) = ℓ'
@@ -105,9 +105,9 @@ macroStrLevel (foreign {ℓ'} _ _) = ℓ'
 macroEquivLevel : ∀ {ℓ} → Desc ℓ → Level
 macroEquivLevel (constant {ℓ'} x) = ℓ'
 macroEquivLevel {ℓ} var = ℓ
-macroEquivLevel {ℓ} (d₀ , d₁) = ℓ-max (macroEquivLevel d₀) (macroEquivLevel d₁)
-macroEquivLevel (param {ℓ'} A d) = ℓ-max ℓ' (macroEquivLevel d)
-macroEquivLevel {ℓ} (recvar d) = ℓ-max ℓ (macroEquivLevel d)
+macroEquivLevel (d₀ , d₁) = ℓ-max (macroEquivLevel d₀) (macroEquivLevel d₁)
+macroEquivLevel {ℓ} (function+ d₀ d₁) = ℓ-max (funcMacroLevel d₀) (macroEquivLevel d₁)
+macroEquivLevel (function d₀ d₁) = ℓ-max (macroStrLevel d₀) (ℓ-max (macroEquivLevel d₀) (macroEquivLevel d₁))
 macroEquivLevel (maybe d) = macroEquivLevel d
 macroEquivLevel (functorial d) = funcMacroLevel d
 macroEquivLevel (foreign {ℓ'' = ℓ''} _ _) = ℓ''
@@ -117,8 +117,8 @@ MacroStructure : ∀ {ℓ} (d : Desc ℓ) → Type ℓ → Type (macroStrLevel d
 MacroStructure (constant A) X = A
 MacroStructure var X = X
 MacroStructure (d₀ , d₁) X = MacroStructure d₀ X × MacroStructure d₁ X
-MacroStructure (param A d) X = A → MacroStructure d X
-MacroStructure (recvar d) X = X → MacroStructure d X
+MacroStructure (function+ d₀ d₁) X = FuncMacroStructure d₀ X → MacroStructure d₁ X
+MacroStructure (function d₀ d₁) X = MacroStructure d₀ X → MacroStructure d₁ X
 MacroStructure (maybe d) = MaybeStructure (MacroStructure d)
 MacroStructure (functorial d) = FuncMacroStructure d
 MacroStructure (foreign {S = S} _ _) = S
@@ -128,8 +128,8 @@ MacroEquivStr : ∀ {ℓ} → (d : Desc ℓ) → StrEquiv {ℓ} (MacroStructure 
 MacroEquivStr (constant A) = ConstantEquivStr A
 MacroEquivStr var = PointedEquivStr
 MacroEquivStr (d₀ , d₁) = ProductEquivStr (MacroEquivStr d₀) (MacroEquivStr d₁)
-MacroEquivStr (param A d) = ParamEquivStr A λ _ → MacroEquivStr d
-MacroEquivStr (recvar d) = UnaryFunEquivStr (MacroEquivStr d)
+MacroEquivStr (function+ d₀ d₁) = FunctionEquivStr+ (funcMacroAction d₀) (MacroEquivStr d₁)
+MacroEquivStr (function d₀ d₁) = FunctionEquivStr (MacroEquivStr d₀) (MacroEquivStr d₁)
 MacroEquivStr (maybe d) = MaybeEquivStr (MacroEquivStr d)
 MacroEquivStr (functorial d) = FunctorialEquivStr (funcMacroAction d)
 MacroEquivStr (foreign ι _) = ι
@@ -140,8 +140,10 @@ MacroUnivalentStr (constant A) = constantUnivalentStr A
 MacroUnivalentStr var = pointedUnivalentStr
 MacroUnivalentStr (d₀ , d₁) =
   ProductUnivalentStr (MacroEquivStr d₀) (MacroUnivalentStr d₀) (MacroEquivStr d₁) (MacroUnivalentStr d₁)
-MacroUnivalentStr (param A d) = ParamUnivalentStr A (λ _ → MacroEquivStr d) (λ _ → MacroUnivalentStr d)
-MacroUnivalentStr (recvar d) = unaryFunUnivalentStr (MacroEquivStr d) (MacroUnivalentStr d)
+MacroUnivalentStr (function+ d₀ d₁) =
+  functionUnivalentStr+ (funcMacroAction d₀) (funcMacroId d₀) (MacroEquivStr d₁) (MacroUnivalentStr d₁)
+MacroUnivalentStr (function d₀ d₁) =
+  functionUnivalentStr (MacroEquivStr d₀) (MacroUnivalentStr d₀) (MacroEquivStr d₁) (MacroUnivalentStr d₁)
 MacroUnivalentStr (maybe d) = maybeUnivalentStr (MacroEquivStr d) (MacroUnivalentStr d)
 MacroUnivalentStr (functorial d) = functorialUnivalentStr (funcMacroAction d) (funcMacroId d)
 MacroUnivalentStr (foreign _ θ) = θ

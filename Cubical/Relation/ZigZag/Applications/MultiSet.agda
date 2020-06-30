@@ -40,7 +40,7 @@ private
 -- We have a CountStructure on List and AList and use these to get a QER between the two
 module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
- module S = RelMacro ℓ (param A (recvar (constant (ℕ , isSetℕ))))
+ module S = RelMacro ℓ (param A (function+ var (constant (ℕ , isSetℕ))))
 
  ι = CountEquivStr A (Discrete→isSet discA)
 

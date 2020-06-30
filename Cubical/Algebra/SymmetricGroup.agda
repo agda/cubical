@@ -11,7 +11,6 @@ open import Cubical.Data.Empty
 open import Cubical.Relation.Nullary using (¬_)
 
 open import Cubical.Structures.Group
-open import Cubical.Structures.NAryOp
 
 private
   variable

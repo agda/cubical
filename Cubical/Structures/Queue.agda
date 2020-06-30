@@ -10,9 +10,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Macro
-open import Cubical.Structures.LeftAction
 open import Cubical.Structures.Functorial
-open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Auto
 
 open import Cubical.Data.Unit
