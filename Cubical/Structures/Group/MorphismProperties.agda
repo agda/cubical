@@ -14,7 +14,6 @@ open import Cubical.Functions.Embedding
 open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
-open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Pointed
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid hiding (⟨_⟩)
@@ -93,6 +92,9 @@ module GroupΣTheory {ℓ} where
   RawGroupStructure : Type ℓ → Type ℓ
   RawGroupStructure = SemigroupΣTheory.RawSemigroupStructure
 
+  RawGroupEquivStr : StrEquiv RawGroupStructure _
+  RawGroupEquivStr = SemigroupΣTheory.RawSemigroupEquivStr
+
   rawGroupUnivalentStr : UnivalentStr RawGroupStructure _
   rawGroupUnivalentStr = SemigroupΣTheory.rawSemigroupUnivalentStr
 
@@ -115,7 +117,7 @@ module GroupΣTheory {ℓ} where
 
   -- Structured equivalences for groups are those for monoids (but different axioms)
   GroupEquivStr : StrEquiv GroupStructure ℓ
-  GroupEquivStr = AxiomsEquivStr (BinaryFunEquivStr PointedEquivStr) GroupAxioms
+  GroupEquivStr = AxiomsEquivStr RawGroupEquivStr GroupAxioms
 
   open MonoidTheory
 

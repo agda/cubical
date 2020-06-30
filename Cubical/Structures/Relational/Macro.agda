@@ -19,7 +19,6 @@ open import Cubical.Structures.Relational.Maybe
 open import Cubical.Structures.Relational.Parameterized
 open import Cubical.Structures.Relational.Pointed
 open import Cubical.Structures.Relational.Product
-open import Cubical.Structures.Relational.UnaryOp
 
 open import Cubical.Structures.Functorial
 open import Cubical.Structures.Macro

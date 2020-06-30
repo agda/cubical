@@ -18,7 +18,6 @@ open import Cubical.Data.Maybe
 open import Cubical.Structures.Constant
 open import Cubical.Structures.Function
 open import Cubical.Structures.Maybe
-open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Parameterized
 open import Cubical.Structures.Pointed
 open import Cubical.Structures.Product
