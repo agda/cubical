@@ -7,7 +7,7 @@ For example:
   autoDesc (λ (X : Type₀) → X → X × ℕ)   ↦   function+ var (var , constant ℕ)
 
 We prefer to use the constant structure whenever possible, e.g., [autoDesc (λ (X : Type₀) → ℕ → ℕ)]
-is [constant (ℕ → ℕ)] rather than [param ℕ (constant ℕ)].
+is [constant (ℕ → ℕ)] rather than [function (constant ℕ) (constant ℕ)].
 
 Writing [auto* (λ X → ⋯)] doesn't seem to work, but [auto* (λ (X : Type ℓ) → ⋯)] does.
 
@@ -245,7 +245,7 @@ macro
   autoDesc = autoDesc'
 
   -- (S : Type ℓ → Type ℓ₁) → (Type ℓ → Type ℓ₁)
-  -- Removes Funct[_] annotations
+  -- Removes Transp[_] annotations
   AutoStructure : R.Term → R.Term → R.TC Unit
   AutoStructure t hole =
     newMeta (tDesc R.unknown) >>= λ d →

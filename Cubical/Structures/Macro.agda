@@ -33,7 +33,7 @@ data TranspDesc (ℓ : Level) : Typeω where
   function : (d₀ : TranspDesc ℓ) (d₁ : TranspDesc ℓ) → TranspDesc ℓ
   -- Maybe on a structure S: X ↦ Maybe (S X)
   maybe : TranspDesc ℓ → TranspDesc ℓ
-  -- Arbitrary transport structure
+  -- arbitrary transport structure
   foreign : ∀ {ℓ'} {S : Type ℓ → Type ℓ'} (α : EquivAction S) → TransportStr α → TranspDesc ℓ
 
 data Desc (ℓ : Level) : Typeω where
@@ -66,7 +66,7 @@ transpMacroLevel (function d₀ d₁) = ℓ-max (transpMacroLevel d₀) (transpM
 transpMacroLevel (maybe d) = transpMacroLevel d
 transpMacroLevel (foreign {ℓ'} α τ) = ℓ'
 
--- Structure defined by a functorial descriptor
+-- Structure defined by a transport descriptor
 TranspMacroStructure : ∀ {ℓ} (d : TranspDesc ℓ) → Type ℓ → Type (transpMacroLevel d)
 TranspMacroStructure (constant A) X = A
 TranspMacroStructure var X = X
@@ -75,7 +75,7 @@ TranspMacroStructure (function d₀ d₁) X = TranspMacroStructure d₀ X → Tr
 TranspMacroStructure (maybe d) = MaybeStructure (TranspMacroStructure d)
 TranspMacroStructure (foreign {S = S} α τ) = S
 
--- Action defined by a functorial descriptor
+-- Action defined by a transport descriptor
 transpMacroAction : ∀ {ℓ} (d : TranspDesc ℓ) → EquivAction (TranspMacroStructure d)
 transpMacroAction (constant A) = constantEquivAction A
 transpMacroAction var = pointedEquivAction

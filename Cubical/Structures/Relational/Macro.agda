@@ -30,7 +30,7 @@ data PosRelDesc (ℓ : Level) : Typeω where
   var : PosRelDesc ℓ
   -- product of structures S,T : X ↦ (S X × T X)
   _,_ : PosRelDesc ℓ  → PosRelDesc ℓ  → PosRelDesc ℓ
-  -- structure S parameterized by constant A : X ↦ (A → S X)
+  -- Maybe on a structure S: X ↦ Maybe (S X)
   maybe : PosRelDesc ℓ → PosRelDesc ℓ
 
 data RelDesc (ℓ : Level) : Typeω where
