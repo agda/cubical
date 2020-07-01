@@ -10,7 +10,6 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Macro
-open import Cubical.Structures.Functorial
 open import Cubical.Structures.Auto
 
 open import Cubical.Data.Unit
@@ -36,10 +35,10 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
  -- deq as a structure
  -- First, a few preliminary results that we will need later
  deqMap : {X Y : Type ℓ} → (X → Y) → Maybe (X × A) → Maybe (Y × A)
- deqMap = autoFuncAction (λ (X : Type ℓ) → Maybe (X × A))
+ deqMap = map-Maybe ∘ map-fst
 
  deqMapId : {X : Type ℓ} → ∀ r → deqMap (idfun X) r ≡ r
- deqMapId = autoFuncId (λ (X : Type ℓ) → Maybe (X × A))
+ deqMapId = map-Maybe-id
 
  deqMap-∘ :{B C D : Type ℓ}
   (g : C → D) (f : B → C)
@@ -49,7 +48,7 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
 
  -- Now we can do Queues:
  rawQueueDesc =
-   autoDesc (λ (X : Type ℓ) → X × (A → X → X) × (X → Funct[ Maybe (X × A) ]))
+   autoDesc (λ (X : Type ℓ) → X × (A → X → X) × (X → Transp[ Maybe (X × A) ]))
 
  open Macro ℓ rawQueueDesc public renaming
    ( structure to RawQueueStructure

@@ -97,3 +97,12 @@ maybeUnivalentStr ι θ {X , ox} {Y , oy} e =
   compEquiv
     (congMaybeRel (λ x y → θ {X , x} {Y , y} e) ox oy)
     (MaybePathP.Code≃PathP ox oy)
+
+maybeEquivAction : {S : Type ℓ → Type ℓ₁}
+  → EquivAction S → EquivAction (MaybeStructure S)
+maybeEquivAction α e = congMaybeEquiv (α e)
+
+maybeTransportStr : {S : Type ℓ → Type ℓ₁} (α : EquivAction S)
+  → TransportStr α → TransportStr (maybeEquivAction α)
+maybeTransportStr _ τ e nothing = refl
+maybeTransportStr _ τ e (just x) = cong just (τ e x)

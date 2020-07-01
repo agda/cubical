@@ -10,7 +10,9 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.SIP
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Functions.FunExtEquiv
@@ -43,25 +45,38 @@ functionUnivalentStr ι₁ θ₁ ι₂ θ₂ e =
     (equivImplicitΠCod (equivImplicitΠCod (equiv→ (θ₁ e) (θ₂ e))))
     funExtDepEquiv
 
--- Simpler definition of structured equivalence when the domain is functorial
+functionEquivAction : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
+  → EquivAction S → EquivAction T
+  → EquivAction (FunctionStructure S T)
+functionEquivAction α₁ α₂ e = equiv→ (α₁ e) (α₂ e)
+
+functionTransportStr : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
+  (α₁ : EquivAction S) (τ₁ : TransportStr α₁)
+  (α₂ : EquivAction T) (τ₂ : TransportStr α₂)
+  → TransportStr (functionEquivAction α₁ α₂)
+functionTransportStr {S = S} α₁ τ₁ α₂ τ₂ e f =
+  funExt λ t →
+  cong (equivFun (α₂ e) ∘ f) (invTransportStr α₁ τ₁ e t)
+  ∙ τ₂ e (f (subst⁻ S (ua e) t))
+
+-- Definition of structured equivalence using an action in the domain
 
 FunctionEquivStr+ : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
-  → (∀ {X Y} → (X → Y) → S X → S Y) → StrEquiv T ℓ₂'
+  → EquivAction S → StrEquiv T ℓ₂'
   → StrEquiv (FunctionStructure S T) (ℓ-max ℓ₁ ℓ₂')
-FunctionEquivStr+ {S = S} {T} F ι₂ (X , f) (Y , g) e =
-  (s : S X) → ι₂ (X , f s) (Y , g (F (e .fst) s)) e
+FunctionEquivStr+ {S = S} {T} α₁ ι₂ (X , f) (Y , g) e =
+  (s : S X) → ι₂ (X , f s) (Y , g (equivFun (α₁ e) s)) e
 
 functionUnivalentStr+ : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
-  (F : ∀ {X Y} → (X → Y) → S X → S Y) (η : ∀ {X} s → F (idfun X) s ≡ s)
+  (α₁ : EquivAction S) (τ₁ : TransportStr α₁)
   (ι₂ : StrEquiv T ℓ₂') (θ₂ : UnivalentStr T ι₂)
-  → UnivalentStr (FunctionStructure S T) (FunctionEquivStr+ F ι₂)
-functionUnivalentStr+ {S = S} F η ι₂ θ₂ =
-  SNS→UnivalentStr
-    (FunctionEquivStr+ F ι₂)
-    (λ {X} t t' →
-      compEquiv
-        (equivΠCod λ s →
-          compEquiv
-            (UnivalentStr→SNS _ ι₂ θ₂ (t s) (t' (F (idfun _) s)))
-            (pathToEquiv λ i → t s ≡ t' (η s i)))
-        funExtEquiv)
+  → UnivalentStr (FunctionStructure S T) (FunctionEquivStr+ α₁ ι₂)
+functionUnivalentStr+ {S = S} {T} α₁ τ₁ ι₂ θ₂ {X , f} {Y , g} e =
+  compEquiv
+    (compEquiv
+      (equivΠCod λ s →
+        compEquiv
+          (θ₂ e)
+          (pathToEquiv (cong (PathP (λ i → T (ua e i)) (f s) ∘ g) (τ₁ e s))))
+      (invEquiv heteroHomotopy≃Homotopy))
+    funExtDepEquiv

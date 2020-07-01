@@ -4,6 +4,7 @@ module Cubical.Functions.FunExtEquiv where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.CartesianKanOps
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
@@ -193,3 +194,25 @@ funExtDepEquiv {A = A} {B} {f} {g} = isoToEquiv isom
       sym (coei→i (λ k → coei→j A i k (p i) ≡ p k) i (coei→i A i (p i)))
       ◁ λ m k → lemi→j i (m ∨ k)
 
+heteroHomotopy≃Homotopy : {A : I → Type ℓ} {B : (i : I) → Type ℓ₁}
+  {f : A i0 → B i0} {g : A i1 → B i1}
+  → ({x₀ : A i0} {x₁ : A i1} → PathP A x₀ x₁ → PathP B (f x₀) (g x₁))
+  ≃ ((x₀ : A i0) → PathP B (f x₀) (g (transport (λ i → A i) x₀)))
+heteroHomotopy≃Homotopy {A = A} {B} {f} {g} = isoToEquiv isom
+  where
+  open Iso
+  isom : Iso _ _
+  isom .fun h x₀ = h (isContrSinglP A x₀ .fst .snd)
+  isom .inv k {x₀} {x₁} p =
+    subst (λ fib → PathP B (f x₀) (g (fib .fst))) (isContrSinglP A x₀ .snd (x₁ , p)) (k x₀)
+  isom .rightInv k = funExt λ x₀ →
+    cong (λ α → subst (λ fib → PathP B (f x₀) (g (fib .fst))) α (k x₀))
+      (isProp→isSet (isContr→isProp (isContrSinglP A x₀)) (isContrSinglP A x₀ .fst) _
+        (isContrSinglP A x₀ .snd (isContrSinglP A x₀ .fst))
+        refl)
+    ∙ transportRefl (k x₀)
+  isom .leftInv h j {x₀} {x₁} p =
+    transp
+      (λ i → PathP B (f x₀) (g (isContrSinglP A x₀ .snd (x₁ , p) (i ∨ j) .fst)))
+      j
+      (h (isContrSinglP A x₀ .snd (x₁ , p) j .snd))

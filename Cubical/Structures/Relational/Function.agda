@@ -22,7 +22,6 @@ open import Cubical.HITs.SetQuotients
 open import Cubical.HITs.PropositionalTruncation as Trunc
 
 open import Cubical.Structures.Function
-open import Cubical.Structures.Functorial
 
 private
   variable
@@ -166,20 +165,20 @@ functionRelMatchesEquiv ρ₁ ρ₂ μ₁ μ₂ (X , f) (Y , g) e =
   equivImplicitΠCod (equivImplicitΠCod (equiv→ (μ₁ _ _ e) (μ₂ _ _ e)))
 
 functionRelMatchesEquiv+ : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
-  (ρ₁ : StrRel S ℓ₁') {F₁ : ∀ {X Y} → (X → Y) → S X → S Y}
-  (ρ₂ : StrRel T ℓ₂') {ι₂ : StrEquiv T ℓ₂''}
-  → StrRelMatchesEquiv ρ₁ (FunctorialEquivStr F₁)
+  (ρ₁ : StrRel S ℓ₁') (α₁ : EquivAction S)
+  (ρ₂ : StrRel T ℓ₂') (ι₂ : StrEquiv T ℓ₂'')
+  → StrRelMatchesEquiv ρ₁ (EquivAction→StrEquiv α₁)
   → StrRelMatchesEquiv ρ₂ ι₂
-  → StrRelMatchesEquiv (FunctionRelStr ρ₁ ρ₂) (FunctionEquivStr+ F₁ ι₂)
-functionRelMatchesEquiv+ ρ₁ {F₁ = F₁} ρ₂ {ι₂ = ι₂} μ₁ μ₂ (X , f) (Y , g) e =
+  → StrRelMatchesEquiv (FunctionRelStr ρ₁ ρ₂) (FunctionEquivStr+ α₁ ι₂)
+functionRelMatchesEquiv+ ρ₁ α₁ ρ₂ ι₂ μ₁ μ₂ (X , f) (Y , g) e =
   compEquiv
     (functionRelMatchesEquiv ρ₁ ρ₂ μ₁ μ₂ (X , f) (Y , g) e)
     (isoToEquiv isom)
   where
   open Iso
   isom : Iso
-    (FunctionEquivStr (FunctorialEquivStr F₁) ι₂ (X , f) (Y , g) e)
-    (FunctionEquivStr+ F₁ ι₂ (X , f) (Y , g) e)
+    (FunctionEquivStr (EquivAction→StrEquiv α₁) ι₂ (X , f) (Y , g) e)
+    (FunctionEquivStr+ α₁ ι₂ (X , f) (Y , g) e)
   isom .fun h s = h refl
   isom .inv k {x} = J (λ y _ → ι₂ (X , f x) (Y , g y) e) (k x)
   isom .rightInv k i x = JRefl (λ y _ → ι₂ (X , f x) (Y , g y) e) (k x) i
