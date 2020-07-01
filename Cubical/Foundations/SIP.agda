@@ -24,7 +24,7 @@ open import Cubical.Foundations.Structure public
 
 private
   variable
-    ℓ₁ ℓ₂ ℓ₃ ℓ₄ ℓ₅ : Level
+    ℓ ℓ₁ ℓ₂ ℓ₃ ℓ₄ ℓ₅ : Level
     S : Type ℓ₁ → Type ℓ₂
 
 -- Note that for any equivalence (f , e) : X ≃ Y the type  ι (X , s) (Y , t) (f , e) need not to be
@@ -80,19 +80,27 @@ SNS→UnivalentStr {S = S} ι θ {A = A} {B = B} e = EquivJ P C e (str A) (str B
     PathP (λ i → S (ua (idEquiv Y) i)) s t
     ■
 
-TransportStr : {S : Type ℓ₁ → Type ℓ₂} (α : EquivAction S) → Type (ℓ-max (ℓ-suc ℓ₁) ℓ₂)
-TransportStr {ℓ} {S = S} c =
-  {X Y : Type ℓ} (e : X ≃ Y) (s : S X) → equivFun (c e) s ≡ transport (λ i → S (ua e i)) s
+TransportStr : {S : Type ℓ → Type ℓ₁} (α : EquivAction S) → Type (ℓ-max (ℓ-suc ℓ) ℓ₁)
+TransportStr {ℓ} {S = S} α =
+  {X Y : Type ℓ} (e : X ≃ Y) (s : S X) → equivFun (α e) s ≡ subst S (ua e) s
 
-TransportStr→UnivalentStr : {S : Type ℓ₁ → Type ℓ₂} (α : EquivAction S)
+TransportStr→UnivalentStr : {S : Type ℓ → Type ℓ₁} (α : EquivAction S)
   → TransportStr α → UnivalentStr S (EquivAction→StrEquiv α)
 TransportStr→UnivalentStr {S = S} α τ {X , s} {Y , t} e =
   equivFun (α e) s ≡ t
     ≃⟨ pathToEquiv (cong (_≡ t) (τ e s)) ⟩
-  transport (λ i → S (ua e i)) s ≡ t
+  subst S (ua e) s ≡ t
     ≃⟨ invEquiv (PathP≃Path _ _ _) ⟩
   PathP (λ i → S (ua e i)) s t
   ■
+
+invTransportStr : {S : Type ℓ → Type ℓ₂} (α : EquivAction S) (τ : TransportStr α)
+  {X Y : Type ℓ} (e : X ≃ Y) (t : S Y) → invEq (α e) t ≡ subst⁻ S (ua e) t
+invTransportStr {S = S} α τ e t =
+  sym (transport⁻Transport (cong S (ua e)) (invEq (α e) t))
+  ∙ sym (cong (subst⁻ S (ua e)) (τ e (invEq (α e) t)))
+  ∙ cong (subst⁻ S (ua e)) (retEq (α e) t)
+  
 
 --- We can now define an invertible function
 ---

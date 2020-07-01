@@ -20,7 +20,6 @@ open import Cubical.Structures.Relational.Parameterized
 open import Cubical.Structures.Relational.Pointed
 open import Cubical.Structures.Relational.Product
 
-open import Cubical.Structures.Functorial
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Maybe
 
@@ -50,11 +49,11 @@ data RelDesc (ℓ : Level) : Typeω where
 
 infixr 4 _,_
 
-posRelDesc→FuncDesc : ∀ {ℓ} → PosRelDesc ℓ → FuncDesc ℓ
-posRelDesc→FuncDesc (constant A) = constant (A .fst)
-posRelDesc→FuncDesc var = var
-posRelDesc→FuncDesc (d₀ , d₁) = posRelDesc→FuncDesc d₀ , posRelDesc→FuncDesc d₁
-posRelDesc→FuncDesc (maybe d) = maybe (posRelDesc→FuncDesc d)
+posRelDesc→TranspDesc : ∀ {ℓ} → PosRelDesc ℓ → TranspDesc ℓ
+posRelDesc→TranspDesc (constant A) = constant (A .fst)
+posRelDesc→TranspDesc var = var
+posRelDesc→TranspDesc (d₀ , d₁) = posRelDesc→TranspDesc d₀ , posRelDesc→TranspDesc d₁
+posRelDesc→TranspDesc (maybe d) = maybe (posRelDesc→TranspDesc d)
 
 posRelDesc→RelDesc : ∀ {ℓ} → PosRelDesc ℓ → RelDesc ℓ
 posRelDesc→RelDesc (constant A) = constant A
@@ -67,13 +66,13 @@ relDesc→Desc (constant A) = constant (A .fst)
 relDesc→Desc var = var
 relDesc→Desc (d₀ , d₁) = relDesc→Desc d₀ , relDesc→Desc d₁
 relDesc→Desc (param A d) = function+ (constant A) (relDesc→Desc d)
-relDesc→Desc (function+ d₀ d₁) = function+ (posRelDesc→FuncDesc d₀) (relDesc→Desc d₁)
+relDesc→Desc (function+ d₀ d₁) = function+ (posRelDesc→TranspDesc d₀) (relDesc→Desc d₁)
 relDesc→Desc (maybe d) = maybe (relDesc→Desc d)
 
 {- Universe level calculations -}
 
 posRelMacroStrLevel : ∀ {ℓ} → PosRelDesc ℓ → Level
-posRelMacroStrLevel d = funcMacroLevel (posRelDesc→FuncDesc d)
+posRelMacroStrLevel d = transpMacroLevel (posRelDesc→TranspDesc d)
 
 relMacroStrLevel : ∀ {ℓ} → RelDesc ℓ → Level
 relMacroStrLevel d = macroStrLevel (relDesc→Desc d)
@@ -96,7 +95,7 @@ relMacroRelLevel (maybe d) = relMacroRelLevel d
 {- Definition of structure -}
 
 PosRelMacroStructure : ∀ {ℓ} (d : PosRelDesc ℓ) → Type ℓ → Type (posRelMacroStrLevel d)
-PosRelMacroStructure d = FuncMacroStructure (posRelDesc→FuncDesc d)
+PosRelMacroStructure d = TranspMacroStructure (posRelDesc→TranspDesc d)
 
 RelMacroStructure : ∀ {ℓ} (d : RelDesc ℓ) → Type ℓ → Type (relMacroStrLevel d)
 RelMacroStructure d = MacroStructure (relDesc→Desc d)
@@ -146,15 +145,18 @@ relMacroSuitableRel (maybe d) = maybeSuitableRel (relMacroSuitableRel d)
 {- Proof that structured relations and equivalences agree -}
 
 posRelMacroMatchesEquiv : ∀ {ℓ} (d : PosRelDesc ℓ)
-  → StrRelMatchesEquiv (PosRelMacroRelStr d) (FunctorialEquivStr (funcMacroAction (posRelDesc→FuncDesc d)))
+  → StrRelMatchesEquiv (PosRelMacroRelStr d) (EquivAction→StrEquiv (transpMacroAction (posRelDesc→TranspDesc d)))
 posRelMacroMatchesEquiv (constant A) _ _ _ = idEquiv _
 posRelMacroMatchesEquiv var _ _ _ = idEquiv _
 posRelMacroMatchesEquiv (d₀ , d₁) =
-  productRelMatchesFunctorial
-    (PosRelMacroRelStr d₀) (PosRelMacroRelStr d₁)
+  productRelMatchesTransp
+    (PosRelMacroRelStr d₀) (transpMacroAction (posRelDesc→TranspDesc d₀))
+    (PosRelMacroRelStr d₁) (transpMacroAction (posRelDesc→TranspDesc d₁))
     (posRelMacroMatchesEquiv d₀) (posRelMacroMatchesEquiv d₁)
 posRelMacroMatchesEquiv (maybe d) =
-  maybeRelMatchesFunctorial (PosRelMacroRelStr d) (posRelMacroMatchesEquiv d)
+  maybeRelMatchesTransp
+    (PosRelMacroRelStr d) (transpMacroAction (posRelDesc→TranspDesc d))
+    (posRelMacroMatchesEquiv d)
 
 relMacroMatchesEquiv : ∀ {ℓ} (d : RelDesc ℓ)
   → StrRelMatchesEquiv (RelMacroRelStr d) (MacroEquivStr (relDesc→Desc d))
@@ -168,7 +170,8 @@ relMacroMatchesEquiv (param A d) =
   paramRelMatchesEquiv A (λ _ → RelMacroRelStr d) (λ _ → relMacroMatchesEquiv d)
 relMacroMatchesEquiv (function+ d₀ d₁) =
   functionRelMatchesEquiv+
-    (PosRelMacroRelStr d₀) (RelMacroRelStr d₁)
+    (PosRelMacroRelStr d₀) (transpMacroAction (posRelDesc→TranspDesc d₀))
+    (RelMacroRelStr d₁) (MacroEquivStr (relDesc→Desc d₁))
     (posRelMacroMatchesEquiv d₀) (relMacroMatchesEquiv d₁)
 relMacroMatchesEquiv (maybe d) =
   maybeRelMatchesEquiv (RelMacroRelStr d) (relMacroMatchesEquiv d)

@@ -20,7 +20,6 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation as Trunc
 open import Cubical.HITs.SetQuotients
 
-open import Cubical.Structures.Functorial
 open import Cubical.Structures.Maybe
 
 private
@@ -114,15 +113,15 @@ maybePositiveRel {S = S} {ρ = ρ} {θ = θ} σ .quo {X} R =
       x
   isom .leftInv = elimProp (λ _ → squash/ _ _) (λ {nothing → refl; (just _) → refl})
 
-maybeRelMatchesFunctorial : {S : Type ℓ → Type ℓ₁}
-  (ρ : StrRel S ℓ₁') {F : ∀ {X Y} → (X → Y) → (S X → S Y)}
-  → StrRelMatchesEquiv ρ (FunctorialEquivStr F)
-  → StrRelMatchesEquiv (MaybeRelStr ρ) (FunctorialEquivStr (map-Maybe ∘ F))
-maybeRelMatchesFunctorial ρ μ (X , nothing) (Y , nothing) _ =
+maybeRelMatchesTransp : {S : Type ℓ → Type ℓ₁}
+  (ρ : StrRel S ℓ₁') (α : EquivAction S)
+  → StrRelMatchesEquiv ρ (EquivAction→StrEquiv α)
+  → StrRelMatchesEquiv (MaybeRelStr ρ) (EquivAction→StrEquiv (maybeEquivAction α))
+maybeRelMatchesTransp _ _ μ (X , nothing) (Y , nothing) _ =
   isContr→Equiv (isOfHLevelLift 0 isContrUnit) isContr-nothing≡nothing
-maybeRelMatchesFunctorial ρ μ (X , nothing) (Y , just y) _ =
+maybeRelMatchesTransp _ _ μ (X , nothing) (Y , just y) _ =
   uninhabEquiv lower ¬nothing≡just
-maybeRelMatchesFunctorial ρ μ (X , just x) (Y , nothing) _ =
+maybeRelMatchesTransp _ _ μ (X , just x) (Y , nothing) _ =
   uninhabEquiv lower ¬just≡nothing
-maybeRelMatchesFunctorial ρ μ (X , just x) (Y , just y) e =
+maybeRelMatchesTransp _ _ μ (X , just x) (Y , just y) e =
   compEquiv (μ (X , x) (Y , y) e) (_ , isEmbedding-just _ _)

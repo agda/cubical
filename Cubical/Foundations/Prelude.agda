@@ -290,6 +290,11 @@ singl {A = A} a = Σ[ x ∈ A ] (a ≡ x)
 isContrSingl : (a : A) → isContr (singl a)
 isContrSingl a = (a , refl) , λ p i → p .snd i , λ j → p .snd (i ∧ j)
 
+isContrSinglP : (A : I → Type ℓ) (a : A i0) → isContr (Σ[ x ∈ A i1 ] PathP A a x)
+isContrSinglP A a .fst = _ , transport-filler (λ i → A i) a
+isContrSinglP A a .snd (x , p) i =
+  _ , λ j → fill A (λ j → λ {(i = i0) → transport-filler (λ i → A i) a j; (i = i1) → p j}) (inS a) j
+
 SquareP :
   (A : I → I → Type ℓ)
   {a₀₀ : A i0 i0} {a₀₁ : A i0 i1} (a₀₋ : PathP (λ j → A i0 j) a₀₀ a₀₁)

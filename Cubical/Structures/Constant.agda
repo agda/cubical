@@ -27,3 +27,9 @@ module _ (A : Type ℓ') where
 
   constantUnivalentStr : UnivalentStr {ℓ} ConstantStructure ConstantEquivStr
   constantUnivalentStr e = idEquiv _
+
+  constantEquivAction : EquivAction {ℓ} ConstantStructure
+  constantEquivAction e = idEquiv _
+
+  constantTransportStr : TransportStr {ℓ} constantEquivAction
+  constantTransportStr e _ = sym (transportRefl _)

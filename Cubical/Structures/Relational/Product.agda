@@ -19,7 +19,6 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation as Trunc
 open import Cubical.HITs.SetQuotients
 
-open import Cubical.Structures.Functorial
 open import Cubical.Structures.Product
 
 private
@@ -131,11 +130,11 @@ productPositiveRel {S₁ = S₁} {ρ₁} {θ₁} {S₂} {ρ₂} {θ₂} σ₁ σ
         (λ _ → elimProp (λ _ → isSet× squash/ squash/ _ _) (λ _ → refl)))
   isom .leftInv = elimProp (λ _ → squash/ _ _) (λ _ → refl)
 
-productRelMatchesFunctorial :
-  {S₁ : Type ℓ → Type ℓ₁} (ρ₁ : StrRel S₁ ℓ₁') {F₁ : ∀ {X Y} → (X → Y) → (S₁ X → S₁ Y)}
-  {S₂ : Type ℓ → Type ℓ₂} (ρ₂ : StrRel S₂ ℓ₂') {F₂ : ∀ {X Y} → (X → Y) → (S₂ X → S₂ Y)}
-  → StrRelMatchesEquiv ρ₁ (FunctorialEquivStr F₁)
-  → StrRelMatchesEquiv ρ₂ (FunctorialEquivStr F₂)
-  → StrRelMatchesEquiv (ProductRelStr ρ₁ ρ₂) (FunctorialEquivStr λ f → map-× (F₁ f) (F₂ f))
-productRelMatchesFunctorial ρ₁ ρ₂ μ₁ μ₂ _ _ e =
+productRelMatchesTransp :
+  {S₁ : Type ℓ → Type ℓ₁} (ρ₁ : StrRel S₁ ℓ₁') (α₁ : EquivAction S₁)
+  {S₂ : Type ℓ → Type ℓ₂} (ρ₂ : StrRel S₂ ℓ₂') (α₂ : EquivAction S₂)
+  → StrRelMatchesEquiv ρ₁ (EquivAction→StrEquiv α₁)
+  → StrRelMatchesEquiv ρ₂ (EquivAction→StrEquiv α₂)
+  → StrRelMatchesEquiv (ProductRelStr ρ₁ ρ₂) (EquivAction→StrEquiv (productEquivAction α₁ α₂))
+productRelMatchesTransp _ _ _ _ μ₁ μ₂ _ _ e =
   compEquiv (Σ-cong-equiv (μ₁ _ _ e) (λ _ → μ₂ _ _ e)) ΣPath≃PathΣ

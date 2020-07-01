@@ -30,10 +30,10 @@ import Agda.Builtin.Reflection as R
 private
   FUEL = 10000
 
--- Mark part of a structure definition as functorial
+-- Mark part of a structure definition to use transport-based structured equivalences
 abstract
-  Funct[_] : ∀ {ℓ} → Type ℓ → Type ℓ
-  Funct[ A ] = A
+  Transp[_] : ∀ {ℓ} → Type ℓ → Type ℓ
+  Transp[ A ] = A
 
 -- Some reflection utilities
 private
@@ -53,8 +53,8 @@ private
   tType : R.Term → R.Term
   tType ℓ = R.def (quote Type) [ varg ℓ ]
 
-  tFuncDesc : R.Term → R.Term
-  tFuncDesc ℓ = R.def (quote FuncDesc) [ varg ℓ ]
+  tTranspDesc : R.Term → R.Term
+  tTranspDesc ℓ = R.def (quote TranspDesc) [ varg ℓ ]
 
   tDesc : R.Term → R.Term
   tDesc ℓ = R.def (quote Desc) [ varg ℓ ]
@@ -94,37 +94,39 @@ private
     → (Type ℓ → Type ℓ₀) → Type ℓ → Type ℓ₀
   maybeShape _ A₀ X = Maybe (A₀ X)
 
-  functorialShape : ∀ {ℓ₀} (ℓ : Level)
+  transpShape : ∀ {ℓ₀} (ℓ : Level)
     → (Type ℓ → Type ℓ₀) → Type ℓ → Type ℓ₀
-  functorialShape _ A₀ X = Funct[ A₀ X ]
+  transpShape _ A₀ X = Transp[ A₀ X ]
 
 private
-  -- Build functorial structure descriptor from a function [t : Type ℓ → Type ℓ']
-  buildFuncDesc : ℕ → R.Term → R.Term → R.Term → R.TC R.Term
-  buildFuncDesc zero ℓ ℓ' t = R.typeError (R.strErr "Ran out of fuel! at \n" ∷ R.termErr t ∷ [])
-  buildFuncDesc (suc fuel) ℓ ℓ' t =
-    tryConstant t <|> tryPointed t <|> tryProduct t <|> tryParam t <|> tryMaybe t <|>
-    R.typeError (R.strErr "Can't automatically generate a functorial structure for\n" ∷ R.termErr t ∷ [])
+  -- Build transport structure descriptor from a function [t : Type ℓ → Type ℓ']
+  buildTranspDesc : ℕ → R.Term → R.Term → R.Term → R.TC R.Term
+  buildTranspDesc zero ℓ ℓ' t = R.typeError (R.strErr "Ran out of fuel! at \n" ∷ R.termErr t ∷ [])
+  buildTranspDesc (suc fuel) ℓ ℓ' t =
+    tryConstant t <|> tryPointed t <|> tryProduct t <|> tryFunction t <|> tryMaybe t <|>
+    R.typeError (R.strErr "Can't automatically generate a transp structure for\n" ∷ R.termErr t ∷ [])
     where
     tryConstant : R.Term → R.TC R.Term
     tryConstant t =
       newMeta (tType ℓ') >>= λ A →
       R.unify t (R.def (quote constantShape) (varg ℓ ∷ varg A ∷ [])) >>
-      R.returnTC (R.con (quote FuncDesc.constant) (varg A ∷ []))
+      R.returnTC (R.con (quote TranspDesc.constant) (varg A ∷ []))
 
     tryPointed : R.Term → R.TC R.Term
     tryPointed t =
       R.unify t (R.def (quote pointedShape) (varg ℓ ∷ [])) >>
-      R.returnTC (R.con (quote FuncDesc.var) [])
+      R.returnTC (R.con (quote TranspDesc.var) [])
 
-    tryParam : R.Term → R.TC R.Term
-    tryParam t =
-      newMeta (tType R.unknown) >>= λ A →
+    tryFunction : R.Term → R.TC R.Term
+    tryFunction t =
       newMeta tLevel >>= λ ℓ₀ →
+      newMeta tLevel >>= λ ℓ₁ →
       newMeta (tStruct ℓ ℓ₀) >>= λ A₀ →
-      R.unify t (R.def (quote paramShape) (varg ℓ ∷ varg A ∷ varg A₀ ∷ [])) >>
-      buildFuncDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
-      R.returnTC (R.con (quote FuncDesc.param) (varg A ∷ varg d₀ ∷ []))
+      newMeta (tStruct ℓ ℓ₁) >>= λ A₁ →
+      R.unify t (R.def (quote functionShape) (varg ℓ ∷ varg A₀ ∷ varg A₁ ∷ [])) >>
+      buildTranspDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
+      buildTranspDesc fuel ℓ ℓ₁ A₁ >>= λ d₁ →
+      R.returnTC (R.con (quote TranspDesc.function) (varg d₀ ∷ varg d₁ ∷ []))
 
     tryProduct : R.Term → R.TC R.Term
     tryProduct t =
@@ -133,33 +135,33 @@ private
       newMeta (tStruct ℓ ℓ₀) >>= λ A₀ →
       newMeta (tStruct ℓ ℓ₁) >>= λ A₁ →
       R.unify t (R.def (quote productShape) (varg ℓ ∷ varg A₀ ∷ varg A₁ ∷ [])) >>
-      buildFuncDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
-      buildFuncDesc fuel ℓ ℓ₁ A₁ >>= λ d₁ →
-      R.returnTC (R.con (quote FuncDesc._,_) (varg d₀ ∷ varg d₁ ∷ []))
+      buildTranspDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
+      buildTranspDesc fuel ℓ ℓ₁ A₁ >>= λ d₁ →
+      R.returnTC (R.con (quote TranspDesc._,_) (varg d₀ ∷ varg d₁ ∷ []))
 
     tryMaybe : R.Term → R.TC R.Term
     tryMaybe t =
       newMeta tLevel >>= λ ℓ₀ →
       newMeta (tStruct ℓ ℓ₀) >>= λ A₀ →
       R.unify t (R.def (quote maybeShape) (varg ℓ ∷ varg A₀ ∷ [])) >>
-      buildFuncDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
-      R.returnTC (R.con (quote FuncDesc.maybe) (varg d₀ ∷ []))
+      buildTranspDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
+      R.returnTC (R.con (quote TranspDesc.maybe) (varg d₀ ∷ []))
 
-  autoFuncDesc' : R.Term → R.Term → R.TC Unit
-  autoFuncDesc' t hole =
+  autoTranspDesc' : R.Term → R.Term → R.TC Unit
+  autoTranspDesc' t hole =
     R.inferType hole >>= λ H →
     newMeta tLevel >>= λ ℓ →
     newMeta tLevel >>= λ ℓ' →
-    R.unify (tFuncDesc ℓ) H >>
+    R.unify (tTranspDesc ℓ) H >>
     R.checkType t (tStruct ℓ ℓ') >>
-    buildFuncDesc FUEL ℓ ℓ' t >>= R.unify hole
+    buildTranspDesc FUEL ℓ ℓ' t >>= R.unify hole
 
   -- Build structure descriptor from a function [t : Type ℓ → Type ℓ']
   buildDesc : ℕ → R.Term → R.Term → R.Term → R.TC R.Term
   buildDesc zero ℓ ℓ' t = R.typeError (R.strErr "Ran out of fuel! at \n" ∷ R.termErr t ∷ [])
   buildDesc (suc fuel) ℓ ℓ' t =
-    tryConstant t <|> tryPointed t <|> tryProduct t <|> tryFunction+ t <|>
-    tryFunction t <|> tryMaybe t <|> tryFunct t <|>
+    tryConstant t <|> tryPointed t <|> tryProduct t <|> tryFunction t <|>
+    tryMaybe t <|> tryTransp t <|>
     R.typeError (R.strErr "Can't automatically generate a structure for\n" ∷ R.termErr t ∷ [])
     where
     tryConstant : R.Term → R.TC R.Term
@@ -184,17 +186,6 @@ private
       buildDesc fuel ℓ ℓ₁ A₁ >>= λ d₁ →
       R.returnTC (R.con (quote Desc._,_) (varg d₀ ∷ varg d₁ ∷ []))
 
-    tryFunction+ : R.Term → R.TC R.Term
-    tryFunction+ t =
-      newMeta tLevel >>= λ ℓ₀ →
-      newMeta tLevel >>= λ ℓ₁ →
-      newMeta (tStruct ℓ ℓ₀) >>= λ A₀ →
-      newMeta (tStruct ℓ ℓ₁) >>= λ A₁ →
-      R.unify t (R.def (quote functionShape) (varg ℓ ∷ varg A₀ ∷ varg A₁ ∷ [])) >>
-      buildFuncDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
-      buildDesc fuel ℓ ℓ₁ A₁ >>= λ d₁ →
-      R.returnTC (R.con (quote Desc.function+) (varg d₀ ∷ varg d₁ ∷ []))
-
     tryFunction : R.Term → R.TC R.Term
     tryFunction t =
       newMeta tLevel >>= λ ℓ₀ →
@@ -202,9 +193,9 @@ private
       newMeta (tStruct ℓ ℓ₀) >>= λ A₀ →
       newMeta (tStruct ℓ ℓ₁) >>= λ A₁ →
       R.unify t (R.def (quote functionShape) (varg ℓ ∷ varg A₀ ∷ varg A₁ ∷ [])) >>
-      buildDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
+      buildTranspDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
       buildDesc fuel ℓ ℓ₁ A₁ >>= λ d₁ →
-      R.returnTC (R.con (quote Desc.function) (varg d₀ ∷ varg d₁ ∷ []))
+      R.returnTC (R.con (quote Desc.function+) (varg d₀ ∷ varg d₁ ∷ []))
 
     tryMaybe : R.Term → R.TC R.Term
     tryMaybe t =
@@ -214,12 +205,12 @@ private
       buildDesc fuel ℓ ℓ₀ A₀ >>= λ d₀ →
       R.returnTC (R.con (quote Desc.maybe) (varg d₀ ∷ []))
 
-    tryFunct : R.Term → R.TC R.Term
-    tryFunct t =
+    tryTransp : R.Term → R.TC R.Term
+    tryTransp t =
       newMeta (tStruct ℓ ℓ') >>= λ A₀ →
-      R.unify t (R.def (quote functorialShape) (varg ℓ ∷ varg A₀ ∷ [])) >>
-      buildFuncDesc fuel ℓ ℓ' A₀ >>= λ d₀ →
-      R.returnTC (R.con (quote Desc.functorial) (varg d₀ ∷ []))
+      R.unify t (R.def (quote transpShape) (varg ℓ ∷ varg A₀ ∷ [])) >>
+      buildTranspDesc fuel ℓ ℓ' A₀ >>= λ d₀ →
+      R.returnTC (R.con (quote Desc.transpDesc) (varg d₀ ∷ []))
 
   autoDesc' : R.Term → R.Term → R.TC Unit
   autoDesc' t hole =
@@ -231,23 +222,23 @@ private
     buildDesc FUEL ℓ ℓ' t >>= R.unify hole
 
 macro
-  -- (Type ℓ → Type ℓ₁) → FuncDesc ℓ
-  autoFuncDesc : R.Term → R.Term → R.TC Unit
-  autoFuncDesc = autoFuncDesc'
+  -- (Type ℓ → Type ℓ₁) → TranspDesc ℓ
+  autoTranspDesc : R.Term → R.Term → R.TC Unit
+  autoTranspDesc = autoTranspDesc'
 
-  -- (S : Type ℓ → Type ℓ₁) → ∀ {X Y} → (X → Y) → (S X → S Y)
-  autoFuncAction : R.Term → R.Term → R.TC Unit
-  autoFuncAction t hole =
-    newMeta (tFuncDesc R.unknown) >>= λ d →
-    R.unify hole (R.def (quote funcMacroAction) [ varg d ]) >>
-    autoFuncDesc' t d
+  -- (S : Type ℓ → Type ℓ₁) → EquivAction (AutoStructure S)
+  autoEquivAction : R.Term → R.Term → R.TC Unit
+  autoEquivAction t hole =
+    newMeta (tTranspDesc R.unknown) >>= λ d →
+    R.unify hole (R.def (quote transpMacroAction) [ varg d ]) >>
+    autoTranspDesc' t d
 
-  -- (S : Type ℓ → Type ℓ₁) → ∀ {X} s → autoFuncAction S (idfun X) s ≡ s
-  autoFuncId : R.Term → R.Term → R.TC Unit
-  autoFuncId t hole =
-    newMeta (tFuncDesc R.unknown) >>= λ d →
-    R.unify hole (R.def (quote funcMacroId) [ varg d ]) >>
-    autoFuncDesc' t d
+  -- (S : Type ℓ → Type ℓ₁) → TransportStr (autoEquivAction S)
+  autoTransportStr : R.Term → R.Term → R.TC Unit
+  autoTransportStr t hole =
+    newMeta (tTranspDesc R.unknown) >>= λ d →
+    R.unify hole (R.def (quote transpMacroTransportStr) [ varg d ]) >>
+    autoTranspDesc' t d
 
   -- (S : Type ℓ → Type ℓ₁) → Desc ℓ
   autoDesc : R.Term → R.Term → R.TC Unit
@@ -261,14 +252,14 @@ macro
     R.unify hole (R.def (quote MacroStructure) [ varg d ]) >>
     autoDesc' t d
 
-  -- (S : Type ℓ → Type ℓ₁) → StrIso (AutoStructure S) _
+  -- (S : Type ℓ → Type ℓ₁) → StrEquiv (AutoStructure S) _
   AutoEquivStr : R.Term → R.Term → R.TC Unit
   AutoEquivStr t hole =
     newMeta (tDesc R.unknown) >>= λ d →
     R.unify hole (R.def (quote MacroEquivStr) [ varg d ]) >>
     autoDesc' t d
 
-  -- (S : Type ℓ → Type ℓ₁) → SNS (AutoStructure S) (AutoEquivStr S)
+  -- (S : Type ℓ → Type ℓ₁) → UnivalentStr (AutoStructure S) (AutoEquivStr S)
   autoUnivalentStr : R.Term → R.Term → R.TC Unit
   autoUnivalentStr t hole =
     newMeta (tDesc R.unknown) >>= λ d →
