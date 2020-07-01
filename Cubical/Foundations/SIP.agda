@@ -94,12 +94,17 @@ TransportStr→UnivalentStr {S = S} α τ {X , s} {Y , t} e =
   PathP (λ i → S (ua e i)) s t
   ■
 
+UnivalentStr→TransportStr : {S : Type ℓ → Type ℓ₁} (α : EquivAction S)
+  → UnivalentStr S (EquivAction→StrEquiv α) → TransportStr α
+UnivalentStr→TransportStr {S = S} α θ e s =
+  invEq (θ e) (transport-filler (cong S (ua e)) s)
+
 invTransportStr : {S : Type ℓ → Type ℓ₂} (α : EquivAction S) (τ : TransportStr α)
   {X Y : Type ℓ} (e : X ≃ Y) (t : S Y) → invEq (α e) t ≡ subst⁻ S (ua e) t
 invTransportStr {S = S} α τ e t =
   sym (transport⁻Transport (cong S (ua e)) (invEq (α e) t))
-  ∙ sym (cong (subst⁻ S (ua e)) (τ e (invEq (α e) t)))
-  ∙ cong (subst⁻ S (ua e)) (retEq (α e) t)
+  ∙∙ sym (cong (subst⁻ S (ua e)) (τ e (invEq (α e) t)))
+  ∙∙ cong (subst⁻ S (ua e)) (retEq (α e) t)
 
 
 --- We can now define an invertible function
