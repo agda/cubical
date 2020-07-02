@@ -27,6 +27,10 @@ module _ {ℓ} {A : Type ℓ} where
   length [] = 0
   length (x ∷ l) = 1 + length l
 
+  map : ∀ {ℓ'} {B : Type ℓ'} → (A → B) → List A → List B
+  map f [] = []
+  map f (x ∷ xs) = f x ∷ map f xs
+
   foldr : ∀ {ℓ'} {B : Type ℓ'} → (A → B → B) → B → List A → B
   foldr f b [] = b
   foldr f b (x ∷ xs) = f x (foldr f b xs)
