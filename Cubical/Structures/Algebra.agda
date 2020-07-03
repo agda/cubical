@@ -12,6 +12,7 @@ open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
+open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Module    renaming (⟨_⟩ to ⟨_⟩m)
 open import Cubical.Structures.Ring      renaming (⟨_⟩ to ⟨_⟩r)
@@ -155,13 +156,27 @@ record AlgebraHom {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
     pres1  : f 1a ≡ 1a
     comm⋆  : (r : ⟨ R ⟩r) (x : ⟨ A ⟩) → f (r ⋆ x) ≡ r ⋆ f x
 
+  pres0 : f 0a ≡ 0a
+  pres0 = sym (RingTheory.+-idempotency→0 (Algebra→Ring B) (f 0a)
+          (f 0a        ≡⟨ cong f (sym (+-rid _)) ⟩
+           f (0a + 0a) ≡⟨ isHom+ _ _ ⟩
+           f 0a + f 0a ∎))
+
+  isHom- : (x : ⟨ A ⟩) → f (- x) ≡ - f x
+  isHom- x = RingTheory.implicitInverse (Algebra→Ring B) (f x) (f (- x))
+             (f (x) + f (- x)  ≡⟨ sym (isHom+ _ _) ⟩
+             f (x - x)         ≡⟨ cong f (+-rinv _) ⟩
+             f 0a              ≡⟨ pres0 ⟩
+             0a ∎)
+
 module AlgebraΣTheory (R : Ring {ℓ}) where
 
-  open Macro ℓ (recvar (recvar var) , recvar (recvar var) , var ,
-                param ⟨ R ⟩r (recvar var)) public renaming
-    ( structure to RawAlgebraStructure
-    ; equiv     to RawAlgebraEquiv
-    ; univalent to RawAlgebraUnivalentStr )
+  RawAlgebraStructure = λ (A : Type ℓ) → (A → A → A) × (A → A → A) × A × (⟨ R ⟩r → A → A)
+
+  RawAlgebraEquivStr = AutoEquivStr RawAlgebraStructure
+
+  rawAlgebraUnivalentStr : UnivalentStr _ RawAlgebraEquivStr
+  rawAlgebraUnivalentStr = autoUnivalentStr RawAlgebraStructure
 
   open Ring R using (1r) renaming (_+_ to _+r_; _·_ to _·r_)
   open RingΣTheory
@@ -181,7 +196,7 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
   AlgebraΣ = TypeWithStr ℓ AlgebraStructure
 
   AlgebraEquivStr : StrEquiv AlgebraStructure ℓ
-  AlgebraEquivStr = AxiomsEquivStr RawAlgebraEquiv AlgebraAxioms
+  AlgebraEquivStr = AxiomsEquivStr RawAlgebraEquivStr AlgebraAxioms
 
   isSetAlgebraΣ : (A : AlgebraΣ) → isSet _
   isSetAlgebraΣ (A , _ , (_ , isLeftModule , _) ) = isSetLeftModuleΣ (A , _ , isLeftModule)
@@ -203,7 +218,15 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
     (LeftModule→LeftModuleΣ (leftmodule A _ _ _ _ isLeftModule) .snd .snd) ,
     ⋆-lassoc ,
     ⋆-rassoc
+
 {-
+  AlgebraΣ→Algebra : AlgebraΣ → Algebra R
+  AlgebraΣ→Algebra (A , (_+_ , _·_ , 1a , _⋆_) , isRing , isLeftModule , lassoc , rassoc) =
+    algebra A _ 1a _+_ _·_ _ _⋆_
+      (isalgebra (Ring.isRing (RingΣ→Ring (_ , (_ , isRing))))
+                 (LeftModule.isLeftModule (LeftModuleΣ→LeftModule ({!!} , ({!!} , isLeftModule))))
+                 lassoc
+                 rassoc)
   AlgebraΣ→Algebra : AlgebraΣ → Algebra R
   AlgebraΣ→Algebra (A , (_+_ , _·_ , 1a , _⋆_) , isRing , isLeftModule , lassoc , rassoc) =
     let

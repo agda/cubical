@@ -97,7 +97,7 @@ R [ I ] = let open Construction R
 
 
 module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
-  open CommRing R using (0r; 1r) renaming (_·_ to _·r_; ·-comm to ·r-comm)
+  open CommRing R using (0r; 1r) renaming (_·_ to _·r_; ·-comm to ·r-comm; ·-rid to ·r-rid)
 
   module _ (A : CommAlgebra R) (φ : I → ⟨ A ⟩a) where
     open CommAlgebra A
@@ -168,7 +168,13 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
     open AlgebraTheory (CommRing→Ring R) (CommAlgebra→Algebra A)
     open Construction using (var; const) renaming (_+_ to _+c_; -_ to -c_; _·_ to _·c_)
 
-    evaluateAt : AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
+    Hom = AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
+    open AlgebraHom
+
+    _$_ : Hom → ⟨ R [ I ] ⟩a → ⟨ A ⟩a
+    f $ x = AlgebraHom.f f x
+
+    evaluateAt : Hom
                  → I → ⟨ A ⟩a
     evaluateAt (algebrahom f _ _ _ _) x = f (var x)
 

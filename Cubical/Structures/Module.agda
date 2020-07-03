@@ -12,6 +12,7 @@ open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
+open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Ring      renaming (⟨_⟩ to ⟨_⟩r)
 open import Cubical.Structures.AbGroup   hiding (⟨_⟩)
@@ -119,10 +120,12 @@ record LeftModuleEquiv {R : Ring {ℓ}} (M N : LeftModule R) : Type ℓ where
 
 module LeftModuleΣTheory (R : Ring {ℓ}) where
 
-  open Macro ℓ (recvar (recvar var) , param ⟨ R ⟩r (recvar var)) public renaming
-    ( structure to RawLeftModuleStructure
-    ; equiv     to RawLeftModuleEquivStr
-    ; univalent to RawLeftModuleUnivalentStr )
+  RawLeftModuleStructure = λ (M : Type ℓ) → (M → M → M) × (⟨ R ⟩r → M → M)
+
+  RawLeftModuleEquivStr = AutoEquivStr RawLeftModuleStructure
+
+  RawLeftModuleUnivalentStr : UnivalentStr _ RawLeftModuleEquivStr
+  RawLeftModuleUnivalentStr = autoUnivalentStr RawLeftModuleStructure
 
   open Ring R using (_·_; 1r) renaming (_+_ to _+r_)
 
@@ -203,3 +206,4 @@ module LeftModuleΣTheory (R : Ring {ℓ}) where
 
 LeftModulePath : {R : Ring {ℓ}} (M N : LeftModule R) → (LeftModuleEquiv M N) ≃ (M ≡ N)
 LeftModulePath {ℓ} {R} = LeftModuleΣTheory.LeftModulePath R
+
