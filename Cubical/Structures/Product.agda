@@ -20,32 +20,31 @@ private
     ℓ ℓ₁ ℓ₁' ℓ₂ ℓ₂' : Level
 
 ProductStructure : (S₁ : Type ℓ → Type ℓ₁) (S₂ : Type ℓ → Type ℓ₂)
-               → Type ℓ → Type (ℓ-max ℓ₁ ℓ₂)
+  → Type ℓ → Type (ℓ-max ℓ₁ ℓ₂)
 ProductStructure S₁ S₂ X = S₁ X × S₂ X
 
+ProductEquivStr :
+  {S₁ : Type ℓ → Type ℓ₁} (ι₁ : StrEquiv S₁ ℓ₁')
+  {S₂ : Type ℓ → Type ℓ₂} (ι₂ : StrEquiv S₂ ℓ₂')
+  → StrEquiv (ProductStructure S₁ S₂) (ℓ-max ℓ₁' ℓ₂')
+ProductEquivStr ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) f =
+  (ι₁ (X , s₁) (Y , t₁) f) × (ι₂ (X , s₂) (Y , t₂) f)
 
-ProductEquivStr : {S₁ : Type ℓ → Type ℓ₁} (ι₁ : StrEquiv S₁ ℓ₁')
-           {S₂ : Type ℓ → Type ℓ₂} (ι₂ : StrEquiv S₂ ℓ₂')
-         → StrEquiv (ProductStructure S₁ S₂) (ℓ-max ℓ₁' ℓ₂')
-ProductEquivStr ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) f = (ι₁ (X , s₁) (Y , t₁) f) × (ι₂ (X , s₂) (Y , t₂) f)
+productUnivalentStr :
+  {S₁ : Type ℓ → Type ℓ₁} (ι₁ : StrEquiv S₁ ℓ₁') (θ₁ : UnivalentStr S₁ ι₁)
+  {S₂ : Type ℓ → Type ℓ₂} (ι₂ : StrEquiv S₂ ℓ₂') (θ₂ : UnivalentStr S₂ ι₂)
+  → UnivalentStr (ProductStructure S₁ S₂) (ProductEquivStr ι₁ ι₂)
+productUnivalentStr {S₁ = S₁} ι₁ θ₁ {S₂} ι₂ θ₂ {X , s₁ , s₂} {Y , t₁ , t₂} e =
+  compEquiv (Σ-cong-equiv (θ₁ e) (λ _ → θ₂ e)) ΣPath≃PathΣ
 
+productEquivAction :
+  {S₁ : Type ℓ → Type ℓ₁} (α₁ : EquivAction S₁)
+  {S₂ : Type ℓ → Type ℓ₂} (α₂ : EquivAction S₂)
+  → EquivAction (ProductStructure S₁ S₂)
+productEquivAction α₁ α₂ e = Σ-cong-equiv (α₁ e) (λ _ → α₂ e)
 
-ProductUnivalentStr : {S₁ : Type ℓ → Type ℓ₁} (ι₁ : StrEquiv S₁ ℓ₁') (θ₁ : UnivalentStr S₁ ι₁)
-           {S₂ : Type ℓ → Type ℓ₂} (ι₂ : StrEquiv S₂ ℓ₂') (θ₂ : UnivalentStr S₂ ι₂)
-         → UnivalentStr (ProductStructure S₁ S₂) (ProductEquivStr ι₁ ι₂)
-ProductUnivalentStr {S₁ = S₁} ι₁ θ₁ {S₂} ι₂ θ₂ {X , s₁ , s₂} {Y , t₁ , t₂} e =
-  isoToEquiv (iso φ ψ η ε)
-    where
-    φ : ProductEquivStr ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) e
-      → PathP (λ i → ProductStructure S₁ S₂ (ua e i)) (s₁ , s₂) (t₁ , t₂)
-    φ (p , q) i = (θ₁ e .fst p i) , (θ₂ e .fst q i)
-
-    ψ : PathP (λ i → ProductStructure S₁ S₂ (ua e i)) (s₁ , s₂) (t₁ , t₂)
-      → ProductEquivStr ι₁ ι₂ (X , s₁ , s₂) (Y , t₁ , t₂) e
-    ψ p = invEq (θ₁ e) (λ i → p i .fst) , invEq (θ₂ e) (λ i → p i .snd)
-
-    η : section φ ψ
-    η p i j = retEq (θ₁ e) (λ k → p k .fst) i j , retEq (θ₂ e) (λ k → p k .snd) i j
-
-    ε : retract φ ψ
-    ε (p , q) i = secEq (θ₁ e) p i , secEq (θ₂ e) q i
+productTransportStr :
+  {S₁ : Type ℓ → Type ℓ₁} (α₁ : EquivAction S₁) (τ₁ : TransportStr α₁)
+  {S₂ : Type ℓ → Type ℓ₂} (α₂ : EquivAction S₂) (τ₂ : TransportStr α₂)
+  → TransportStr (productEquivAction α₁ α₂)
+productTransportStr _ τ₁ _ τ₂ e (s₁ , s₂) = ΣPathP (τ₁ e s₁ , τ₂ e s₂)

@@ -13,6 +13,7 @@ open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
+open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid    hiding (⟨_⟩)
@@ -152,10 +153,12 @@ record RingEquiv (R S : Ring {ℓ}) : Type ℓ where
 
 module RingΣTheory {ℓ} where
 
-  open Macro ℓ (recvar (recvar var) , var , recvar (recvar var)) public renaming
-    ( structure to RawRingStructure
-    ; equiv     to RawRingEquivStr
-    ; univalent to rawRingUnivalentStr )
+  RawRingStructure = λ (X : Type ℓ) → (X → X → X) × X × (X → X → X)
+
+  RawRingEquivStr = AutoEquivStr RawRingStructure
+
+  rawRingUnivalentStr : UnivalentStr _ RawRingEquivStr
+  rawRingUnivalentStr = autoUnivalentStr RawRingStructure
 
   RingAxioms : (R : Type ℓ) (s : RawRingStructure R) → Type ℓ
   RingAxioms R (_+_ , 1r , _·_) =

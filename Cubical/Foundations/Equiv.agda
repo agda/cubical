@@ -65,6 +65,9 @@ equivEq : (e f : A ≃ B) → (h : e .fst ≡ f .fst) → e ≡ f
 equivEq e f h = λ i → (h i) , isProp→PathP (λ i → isPropIsEquiv (h i)) (e .snd) (f .snd) i
 
 module _ {f : A → B} (equivF : isEquiv f) where
+  funIsEq : A → B
+  funIsEq = f
+
   invIsEq : B → A
   invIsEq y = equivF .equiv-proof y .fst .fst
 
@@ -151,15 +154,35 @@ isPropEquiv→Equiv Aprop Bprop f g = f , hf
   hf .equiv-proof y .snd h i .snd = isProp→isSet' Bprop (Bprop (f (g y)) y) (h .snd)
                                                   (cong f (Aprop (g y) (h .fst))) refl i
 
-equivPi : ∀ {F : A → Type ℓ} {G : A → Type ℓ'}
+equivΠCod : ∀ {F : A → Type ℓ} {G : A → Type ℓ'}
         → ((x : A) → F x ≃ G x) → ((x : A) → F x) ≃ ((x : A) → G x)
-equivPi k .fst f x = k x .fst (f x)
-equivPi k .snd .equiv-proof f .fst .fst x   = equivCtr (k x) (f x) .fst
-equivPi k .snd .equiv-proof f .fst .snd i x = equivCtr (k x) (f x) .snd i
-equivPi k .snd .equiv-proof f .snd (g , p) i .fst x =
+equivΠCod k .fst f x = k x .fst (f x)
+equivΠCod k .snd .equiv-proof f .fst .fst x   = equivCtr (k x) (f x) .fst
+equivΠCod k .snd .equiv-proof f .fst .snd i x = equivCtr (k x) (f x) .snd i
+equivΠCod k .snd .equiv-proof f .snd (g , p) i .fst x =
   equivCtrPath (k x) (f x) (g x , λ j → p j x) i .fst
-equivPi k .snd .equiv-proof f .snd (g , p) i .snd j x =
+equivΠCod k .snd .equiv-proof f .snd (g , p) i .snd j x =
   equivCtrPath (k x) (f x) (g x , λ k → p k x) i .snd j
+
+equivImplicitΠCod : ∀ {F : A → Type ℓ} {G : A → Type ℓ'}
+        → ({x : A} → F x ≃ G x) → ({x : A} → F x) ≃ ({x : A} → G x)
+equivImplicitΠCod k .fst f {x} = k {x} .fst (f {x})
+equivImplicitΠCod k .snd .equiv-proof f .fst .fst {x}   = equivCtr (k {x}) (f {x}) .fst
+equivImplicitΠCod k .snd .equiv-proof f .fst .snd i {x} = equivCtr (k {x}) (f {x}) .snd i
+equivImplicitΠCod k .snd .equiv-proof f .snd (g , p) i .fst {x} =
+  equivCtrPath (k {x}) (f {x}) (g {x} , λ j → p j {x}) i .fst
+equivImplicitΠCod k .snd .equiv-proof f .snd (g , p) i .snd j {x} =
+  equivCtrPath (k {x}) (f {x}) (g {x} , λ k → p k {x}) i .snd j
+
+equiv→ : (A ≃ B) → (C ≃ D) → (A → C) ≃ (B → D)
+equiv→ h k = isoToEquiv isom
+  where
+  open Iso
+  isom : Iso _ _
+  isom .fun f b = equivFun k (f (invEq h b))
+  isom .inv g a = invEq k (g (equivFun h a))
+  isom .rightInv g = funExt λ b → retEq k _ ∙ cong g (retEq h b)
+  isom .leftInv f = funExt λ a → secEq k _ ∙ cong f (secEq h a)
 
 -- Some helpful notation:
 _≃⟨_⟩_ : (X : Type ℓ) → (X ≃ B) → (B ≃ C) → (X ≃ C)

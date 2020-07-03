@@ -46,6 +46,9 @@ map-fst f (a , b) = (f a , b)
 map-snd : (∀ {a} → B a → B' a) → Σ A B → Σ A B'
 map-snd f (a , b) = (a , f b)
 
+map-× : {B : Type ℓ} {B' : Type ℓ'} → (A → A') → (B → B') → A × B → A' × B'
+map-× f g (a , b) = (f a , g b)
+
 -- Characterization of paths in Σ using dependent paths
 
 module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}

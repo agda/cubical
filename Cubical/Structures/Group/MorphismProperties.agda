@@ -14,7 +14,6 @@ open import Cubical.Functions.Embedding
 open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
-open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Pointed
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid hiding (⟨_⟩)
@@ -31,6 +30,12 @@ private
 
 isPropIsGroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) {f : ⟨ G ⟩ → ⟨ H ⟩} → isProp (isGroupHom G H f)
 isPropIsGroupHom G H {f} = isPropΠ2 λ a b → Group.is-set H _ _
+
+isSetGroupHom : {G : Group {ℓ}} {H : Group {ℓ'}} → isSet (GroupHom G H)
+isSetGroupHom {G = G} {H = H} = isOfHLevelRespectEquiv 2 equiv (isSetΣ (isSetΠ λ _ → is-set H) λ _ → isProp→isSet (isPropIsGroupHom G H)) where
+  open Group
+  equiv : (Σ[ g ∈ (Carrier G → Carrier H) ] (isGroupHom G H g)) ≃ GroupHom G H
+  equiv = isoToEquiv (iso (λ (g , m) → grouphom g m) (λ (grouphom g m) → g , m) (λ _ → refl) λ _ → refl)
 
 -- Morphism composition
 isGroupHomComp : {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} →
@@ -51,8 +56,8 @@ idGroupEquiv : (G : Group {ℓ}) → GroupEquiv G G
 idGroupEquiv G = groupequiv (idEquiv (Group.Carrier G)) (λ _ _ → refl)
 
 -- Isomorphism inversion
-isGroupHomInv : (G : Group {ℓ}) (H : Group {ℓ'}) (f : GroupEquiv G H) → isGroupHom H G (invEq (GroupEquiv.eq f))
-isGroupHomInv G H  (groupequiv (f , eq) morph) h h' = isInj-f _ _ (
+isGroupHomInv : {G : Group {ℓ}} {H : Group {ℓ'}} (f : GroupEquiv G H) → isGroupHom H G (invEq (GroupEquiv.eq f))
+isGroupHomInv {G = G} {H = H}  (groupequiv (f , eq) morph) h h' = isInj-f _ _ (
   f (g (h ⋆² h') )
     ≡⟨ retEq (f , eq) _ ⟩
   h ⋆² h'
@@ -69,16 +74,16 @@ isGroupHomInv G H  (groupequiv (f , eq) morph) h h' = isInj-f _ _ (
   isInj-f : (x y : ⟨ G ⟩) → f x ≡ f y → x ≡ y
   isInj-f x y = invEq (_ , isEquiv→isEmbedding eq x y)
 
-invGroupEquiv : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupEquiv G H → GroupEquiv H G
-invGroupEquiv G H (groupequiv f morph) = groupequiv (invEquiv f) (isGroupHomInv G H (groupequiv f morph))
+invGroupEquiv : {G : Group {ℓ}} {H : Group {ℓ'}} → GroupEquiv G H → GroupEquiv H G
+invGroupEquiv {G = G} {H = H} f = groupequiv (invEquiv (eq f)) (isGroupHomInv f) where open GroupEquiv
 
-groupHomEq : (G : Group {ℓ}) (H : Group {ℓ'}) (f g : GroupHom G H) → (GroupHom.fun f ≡ GroupHom.fun g) → f ≡ g
-groupHomEq G H (grouphom f fm) (grouphom g gm) p i = grouphom (p i) (p-hom i) where
+groupHomEq : {G : Group {ℓ}} {H : Group {ℓ'}} {f g : GroupHom G H} → (GroupHom.fun f ≡ GroupHom.fun g) → f ≡ g
+groupHomEq {G = G} {H = H} {grouphom f fm} {grouphom g gm} p i = grouphom (p i) (p-hom i) where
   p-hom : PathP (λ i → isGroupHom G H (p i)) fm gm
   p-hom = toPathP (isPropIsGroupHom G H _ _)
 
-groupEquivEq : (G : Group {ℓ}) (H : Group {ℓ'}) (f g : GroupEquiv G H) → (GroupEquiv.eq f ≡ GroupEquiv.eq g) → f ≡ g
-groupEquivEq G H (groupequiv f fm) (groupequiv g gm) p i = groupequiv (p i) (p-hom i) where
+groupEquivEq : {G : Group {ℓ}} {H : Group {ℓ'}} {f g : GroupEquiv G H} → (GroupEquiv.eq f ≡ GroupEquiv.eq g) → f ≡ g
+groupEquivEq {G = G} {H = H} {groupequiv f fm} {groupequiv g gm} p i = groupequiv (p i) (p-hom i) where
   p-hom : PathP (λ i → isGroupHom G H (p i .fst)) fm gm
   p-hom = toPathP (isPropIsGroupHom G H _ _)
 
@@ -86,6 +91,9 @@ module GroupΣTheory {ℓ} where
 
   RawGroupStructure : Type ℓ → Type ℓ
   RawGroupStructure = SemigroupΣTheory.RawSemigroupStructure
+
+  RawGroupEquivStr : StrEquiv RawGroupStructure _
+  RawGroupEquivStr = SemigroupΣTheory.RawSemigroupEquivStr
 
   rawGroupUnivalentStr : UnivalentStr RawGroupStructure _
   rawGroupUnivalentStr = SemigroupΣTheory.rawSemigroupUnivalentStr
@@ -109,7 +117,7 @@ module GroupΣTheory {ℓ} where
 
   -- Structured equivalences for groups are those for monoids (but different axioms)
   GroupEquivStr : StrEquiv GroupStructure ℓ
-  GroupEquivStr = AxiomsEquivStr (BinaryFunEquivStr PointedEquivStr) GroupAxioms
+  GroupEquivStr = AxiomsEquivStr RawGroupEquivStr GroupAxioms
 
   open MonoidTheory
 

@@ -104,8 +104,14 @@ isEmbedding-just  w z = MaybePath.Cover≃Path (just w) (just z) .snd
 ¬just≡nothing {A = A} {x = x} p = lower (subst (caseMaybe (Lift ⊥) (Maybe A)) p (just x))
 
 isProp-x≡nothing : (x : Maybe A) → isProp (x ≡ nothing)
-isProp-x≡nothing nothing x w = subst isProp (MaybePath.Cover≡Path nothing nothing) (isOfHLevelLift 1 isPropUnit) x w
+isProp-x≡nothing nothing x w =
+  subst isProp (MaybePath.Cover≡Path nothing nothing) (isOfHLevelLift 1 isPropUnit) x w
 isProp-x≡nothing (just _) p _ = ⊥.rec (¬just≡nothing p)
+
+isProp-nothing≡x : (x : Maybe A) → isProp (nothing ≡ x)
+isProp-nothing≡x nothing x w =
+  subst isProp (MaybePath.Cover≡Path nothing nothing) (isOfHLevelLift 1 isPropUnit) x w
+isProp-nothing≡x (just _) p _ = ⊥.rec (¬nothing≡just p)
 
 isContr-nothing≡nothing : isContr (nothing {A = A} ≡ nothing)
 isContr-nothing≡nothing = inhProp→isContr refl (isProp-x≡nothing _)
@@ -137,3 +143,16 @@ module SumUnit where
 
 Maybe≡SumUnit : Maybe A ≡ Unit ⊎ A
 Maybe≡SumUnit = isoToPath (iso SumUnit.Maybe→SumUnit SumUnit.SumUnit→Maybe SumUnit.SumUnit→Maybe→SumUnit SumUnit.Maybe→SumUnit→Maybe)
+
+congMaybeEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+  → A ≃ B → Maybe A ≃ Maybe B
+congMaybeEquiv e = isoToEquiv isom
+  where
+  open Iso
+  isom : Iso _ _
+  isom .fun = map-Maybe (equivFun e)
+  isom .inv = map-Maybe (invEq e)
+  isom .rightInv nothing = refl
+  isom .rightInv (just b) = cong just (retEq e b)
+  isom .leftInv nothing = refl
+  isom .leftInv (just a) = cong just (secEq e a)

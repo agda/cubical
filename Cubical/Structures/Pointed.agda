@@ -33,3 +33,9 @@ pointedSIP = SIP pointedUnivalentStr
 
 pointed-sip : (A B : Pointed ℓ) → A ≃[ PointedEquivStr ] B → (A ≡ B)
 pointed-sip A B = equivFun (pointedSIP A B) -- ≡ λ (e , p) i → ua e i , ua-gluePath e p i
+
+pointedEquivAction : EquivAction {ℓ} PointedStructure
+pointedEquivAction e = e
+
+pointedTransportStr : TransportStr {ℓ} pointedEquivAction
+pointedTransportStr e s = sym (transportRefl _)

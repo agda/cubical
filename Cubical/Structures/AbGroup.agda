@@ -14,7 +14,6 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Macro
-open import Cubical.Structures.NAryOp
 open import Cubical.Structures.Pointed
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid hiding (⟨_⟩)
@@ -107,7 +106,7 @@ module AbGroupΣTheory {ℓ} where
   isSetAbGroupΣ (A , _+_ , (isGroup-A , _)) = isSetGroupΣ (A , _+_ , isGroup-A)
 
   AbGroupEquivStr : StrEquiv AbGroupStructure ℓ
-  AbGroupEquivStr = AxiomsEquivStr (BinaryFunEquivStr PointedEquivStr) AbGroupAxioms
+  AbGroupEquivStr = AxiomsEquivStr RawGroupEquivStr AbGroupAxioms
 
   isPropAbGroupAxioms : (G : Type ℓ) (s : RawGroupStructure G)
                       → isProp (AbGroupAxioms G s)
