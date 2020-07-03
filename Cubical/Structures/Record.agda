@@ -1,15 +1,6 @@
 {-
 
-Macros (autoDesc, AutoStructure, AutoEquivStr, autoUnivalentStr) for automatically generating structure definitions.
-
-For example:
-
-  autoDesc (λ (X : Type₀) → X → X × ℕ)   ↦   function+ var (var , constant ℕ)
-
-We prefer to use the constant structure whenever possible, e.g., [autoDesc (λ (X : Type₀) → ℕ → ℕ)]
-is [constant (ℕ → ℕ)] rather than [function (constant ℕ) (constant ℕ)].
-
-Writing [auto* (λ X → ⋯)] doesn't seem to work, but [auto* (λ (X : Type ℓ) → ⋯)] does.
+Generating univalent structures for records
 
 -}
 {-# OPTIONS --cubical --no-exact-split --safe #-}
@@ -88,9 +79,6 @@ private
   tTyp : R.Term → R.Term
   tTyp A = R.def (quote typ) (varg A ∷ [])
 
-  tTest : R.Term → R.Term
-  tTest A = R.con (quote Cubical.Data.Sigma._,_) (varg (tTyp A) ∷ varg (R.def (quote str) (varg A ∷ [])) ∷ [])
-
   tStrEquiv : R.Term → R.Term
   tStrEquiv S = R.def (quote StrEquiv) (varg S ∷ varg tℓ₀ ∷ [])
 
@@ -104,18 +92,14 @@ private
   withStrProj A sfield =
     R.def (quote map-snd) (varg (R.def sfield []) ∷ varg A ∷ [])
 
-  pathMap : (S : Type → Type) {T : Type → Type} {A B : TypeWithStr ℓ-zero S}
-    (e : typ A ≃ typ B) (f : {X : Type} → S X → T X)
-    → PathP (λ i → S (ua e i)) (str A) (str B)
-    → PathP (λ i → T (ua e i)) (f (str A)) (f (str B))
+  pathMap : (S : Type → Type) {T : Type → Type} {A B : Type}
+    (e : A ≃ B) (f : {X : Type} → S X → T X) {x : S A} {y : S B}
+    → PathP (λ i → S (ua e i)) x y
+    → PathP (λ i → T (ua e i)) (f x) (f y)
   pathMap S e f p i = f (p i)
 
   pathPShape : (S : Type → Type) (A B : TypeWithStr ℓ-zero S) (e : typ A ≃ typ B) → Type
   pathPShape S A B e = PathP (λ i → S (ua e i)) (str A) (str B)
-
-  fwdShape : (S : Type → Type) (ι : StrEquiv S ℓ-zero) → Type₁
-  fwdShape S ι =
-    (A B : TypeWithStr ℓ-zero S) (e : typ A ≃ typ B) → ι A B e → PathP (λ i → S (ua e i)) (str A) (str B)
 
   equivShape : (S : Type → Type) (ι : StrEquiv S ℓ-zero) → Type₁
   equivShape S ι =
@@ -145,24 +129,25 @@ private
 
 module _ (srec erec : R.Name) where
 
-  univalentRecordFwdClause : R.Name × R.Name × R.Term → R.TC R.Clause
-  univalentRecordFwdClause (sfield , efield , d) =
+  univalentRecordFwdClause : (e streq i : R.Term) → R.Name × R.Name × R.Term → R.TC R.Clause
+  univalentRecordFwdClause e streq i (sfield , efield , d) =
     R.returnTC
-      (R.clause
-        (("streq" , varg (R.def erec (varg (R.var 2 []) ∷ varg (R.var 1 []) ∷ varg (R.var 0 []) ∷ [])))
-          ∷ ("i" , varg tI)
-          ∷ [])
-        (varg (R.var 1) ∷ varg (R.var 0) ∷ varg (R.proj sfield) ∷ [])
+      (R.clause [] [ varg (R.proj sfield) ]
         (R.def (quote equivFun)
-          (varg (R.def (quote MacroUnivalentStr) (varg d ∷ varg (R.var 2 []) ∷ []))
-            ∷ varg (R.def efield [ varg (R.var 1 []) ])
-            ∷ varg (R.var 0 [])
+          (varg (R.def (quote MacroUnivalentStr) (varg d ∷ varg e ∷ []))
+            ∷ varg (R.def efield [ varg streq ])
+            ∷ varg i
             ∷ [])))
 
   univalentRecordFwd : List (R.Name × R.Name × R.Term) → R.TC R.Term
   univalentRecordFwd fds =
-    mapTC (List.map univalentRecordFwdClause fds) >>= λ body →
-    R.returnTC (R.pat-lam body [])
+    bodyTC >>= λ body → R.returnTC (vlam "streq" (vlam "i" (R.pat-lam body [])))
+    where
+    bodyTC : R.TC (List R.Clause)
+    bodyTC =
+      R.extendContext (varg (R.def erec (varg (R.var 2 []) ∷ varg (R.var 1 []) ∷ varg (R.var 0 []) ∷ []))) $
+      R.extendContext (varg tI) $
+      mapTC (List.map (univalentRecordFwdClause (R.var 2 []) (R.var 1 []) (R.var 0 [])) fds)
 
   univalentRecordBwdClause : (e : R.Term) (p : R.Term)
     → R.Name × R.Name × R.Term → R.TC R.Clause
@@ -187,17 +172,17 @@ module _ (srec erec : R.Name) where
           (univalentRecordBwdClause (R.var 1 []) (R.var 0 []))
           fds)
 
-  univalentRecordFwdBwdClause : (e : R.Term) (p : R.Term) (k : R.Term) (i : R.Term)
+  univalentRecordFwdBwdClause : (A B e p k i : R.Term)
     → R.Name × R.Name × R.Term → R.TC R.Clause
-  univalentRecordFwdBwdClause e p k i (sfield , efield , d) =
+  univalentRecordFwdBwdClause A B e p k i (sfield , efield , d) =
       R.returnTC
-        (R.clause [] [ varg (R.proj sfield) ]
-          (R.def (quote retEq)
-            (varg (R.def (quote MacroUnivalentStr) (varg d ∷ varg e ∷ []))
-              ∷ varg (R.def (quote pathMap) (varg (R.def srec []) ∷ varg e ∷ varg (R.def sfield []) ∷ varg p ∷ []))
-              ∷ varg k
-              ∷ varg i
-              ∷ [])))
+      (R.clause [] [ varg (R.proj sfield) ]
+        (R.def (quote retEq)
+          (varg (R.def (quote MacroUnivalentStr) (varg d ∷ harg (withStrProj A sfield) ∷ harg (withStrProj B sfield) ∷ varg e ∷ []))
+            ∷ varg (R.def (quote pathMap) (varg (R.def srec []) ∷ varg e ∷ varg (R.def sfield []) ∷ varg p ∷ []))
+            ∷ varg k
+            ∷ varg i
+            ∷ [])))
 
   univalentRecordFwdBwd : List (R.Name × R.Name × R.Term) → R.TC R.Term
   univalentRecordFwdBwd fds =
@@ -211,16 +196,17 @@ module _ (srec erec : R.Name) where
       R.extendContext (varg tI) $
       mapTC
         (List.map
-          (univalentRecordFwdBwdClause (R.var 3 []) (R.var 2 []) (R.var 1 []) (R.var 0 []))
+          (univalentRecordFwdBwdClause
+            (R.var 5 []) (R.var 4 []) (R.var 3 []) (R.var 2 []) (R.var 1 []) (R.var 0 []))
           fds)
 
-  univalentRecordBwdFwdClause : (e : R.Term) (streq : R.Term) (k : R.Term)
+  univalentRecordBwdFwdClause : (A B e streq k : R.Term)
     → R.Name × R.Name × R.Term → R.TC R.Clause
-  univalentRecordBwdFwdClause e streq k (sfield , efield , d) =
+  univalentRecordBwdFwdClause A B e streq k (sfield , efield , d) =
     R.returnTC
       (R.clause [] [ varg (R.proj efield) ]
         (R.def (quote secEq)
-          (varg (R.def (quote MacroUnivalentStr) (varg d ∷ varg e ∷ []))
+          (varg (R.def (quote MacroUnivalentStr) (varg d ∷ harg (withStrProj A sfield) ∷ harg (withStrProj B sfield) ∷ varg e ∷ []))
             ∷ varg (R.def efield [ varg streq ])
             ∷ varg k
             ∷ [])))
@@ -236,7 +222,8 @@ module _ (srec erec : R.Name) where
       R.extendContext (varg tI) $
       mapTC
         (List.map
-          (univalentRecordBwdFwdClause (R.var 2 []) (R.var 1 []) (R.var 0 []))
+          (univalentRecordBwdFwdClause
+            (R.var 4 []) (R.var 3 []) (R.var 2 []) (R.var 1 []) (R.var 0 []))
           fds)
 
   univalentRecordEquiv : List (R.Name × R.Name) → R.TC R.Term
@@ -258,8 +245,8 @@ module _ (srec erec : R.Name) where
         (varg (R.def (quote _≃_) (varg (tTyp (R.var 1 [])) ∷ varg (tTyp (R.var 0 [])) ∷ []))) $
       univalentRecordFwd fds >>= λ fwd →
       univalentRecordBwd fds >>= λ bwd →
-      R.returnTC R.unknown >>= λ fwdBwd → -- univalentRecordFwdBwd fds >>= λ fwdBwd →
-      R.returnTC R.unknown >>= λ bwdFwd → -- univalentRecordBwdFwd fds >>= λ bwdFwd →
+      univalentRecordFwdBwd fds >>= λ fwdBwd →
+      univalentRecordBwdFwd fds >>= λ bwdFwd →
       R.returnTC
         (R.def (quote isoToEquivTemplate) (varg fwd ∷ varg bwd ∷ varg fwdBwd ∷ varg bwdFwd ∷ []))
 
@@ -272,16 +259,6 @@ macro
         (varg d ∷ varg (withStrProj A sfield) ∷ varg (withStrProj B sfield) ∷ [])) >>
     fieldDesc' srec sfield >>=
     R.unify d
-
-  -- autoUnivalentRecordFwd : R.Name → R.Name → List (R.Name × R.Name) → R.Term → R.TC Unit
-  -- autoUnivalentRecordFwd srec erec fs hole =
-  --   univalentRecordFwd srec erec fs >>=
-  --   R.unify hole
-
-  -- autoUnivalentRecordBwd : R.Name → R.Name → List (R.Name × R.Name) → R.Term → R.TC Unit
-  -- autoUnivalentRecordBwd srec erec fs hole =
-  --   univalentRecordBwd srec erec fs >>=
-  --   R.unify hole
 
   autoUnivalentRecord : R.Name → R.Name → List (R.Name × R.Name) → R.Term → R.TC Unit
   autoUnivalentRecord srec erec fs hole =
