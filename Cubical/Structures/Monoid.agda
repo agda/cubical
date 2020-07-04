@@ -4,6 +4,7 @@ module Cubical.Structures.Monoid where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
@@ -181,52 +182,8 @@ module MonoidΣTheory {ℓ} where
   MonoidΣ→RawMonoidΣ (X , Y , Z) = X , Y
 
   InducedMonoidΣ : (M : MonoidΣ) (N : RawMonoidΣ) (e : M .fst ≃ N .fst) → RawMonoidEquivStr (MonoidΣ→RawMonoidΣ M) N e → MonoidΣ
-  InducedMonoidΣ (M , (εM , _·M_) , ((issemigroup H11 H12) , H2)) (N , HN@(εN , _·N_)) e (h1 , h2) = N , HN , goal
-    where
-    rem2 : invEq e εN ≡ εM
-    rem2 =
-      invEq e εN ≡⟨ cong (invEq e) (sym h1) ⟩
-      invEq e (equivFun e εM) ≡⟨ secEq e _ ⟩
-      εM ∎
-
-    rem : (x y : N) → invEq e (x ·N y) ≡ invEq e x ·M invEq e y
-    rem x y =
-      invEq e (x ·N y) ≡⟨ (λ i → invEq e (retEq e x (~ i) ·N retEq e y (~ i))) ⟩
-      invEq e (equivFun e (invEq e x) ·N equivFun e (invEq e y)) ≡⟨ cong (invEq e) (sym (h2 _ _)) ⟩
-      invEq e (equivFun e (invEq e x ·M invEq e y)) ≡⟨ secEq e _ ⟩
-      invEq e x ·M invEq e y ∎
-
-    goal1 : (x : N) → εN ·N x ≡ x
-    goal1 x =
-      εN ·N x ≡⟨ sym (retEq e _) ⟩
-      equivFun e (invEq e (εN ·N x)) ≡⟨ cong (equivFun e) (rem _ _) ⟩
-      equivFun e (invEq e εN ·M invEq e x) ≡⟨ cong (λ a → equivFun e (a ·M _)) rem2 ⟩
-      equivFun e (εM ·M invEq e x) ≡⟨ cong (equivFun e) (H2 _ .snd) ⟩
-      equivFun e (invEq e x) ≡⟨ retEq e x ⟩
-      x ∎
-
-    goal2 : (x : N) → x ·N εN ≡ x
-    goal2 x =
-      x ·N εN ≡⟨ sym (retEq e _) ⟩
-      equivFun e (invEq e (x ·N εN)) ≡⟨ cong (equivFun e) (rem _ _) ⟩
-      equivFun e (invEq e x ·M invEq e εN) ≡⟨ cong (λ a → equivFun e (_ ·M a)) rem2 ⟩
-      equivFun e (invEq e x ·M εM) ≡⟨ cong (equivFun e) (H2 _ .fst) ⟩
-      equivFun e (invEq e x) ≡⟨ retEq e x ⟩
-      x ∎
-
-    goal3 : (x y z : N) → x ·N (y ·N z) ≡ (x ·N y) ·N z
-    goal3 x y z =
-      x ·N (y ·N z) ≡⟨ sym (retEq e _) ⟩
-      equivFun e (invEq e (x ·N (y ·N z))) ≡⟨ cong (equivFun e) (rem _ _) ⟩
-      equivFun e (invEq e x ·M invEq e (y ·N z)) ≡⟨ cong (λ a → equivFun e (_ ·M a)) (rem _ _) ⟩
-      equivFun e (invEq e x ·M (invEq e y ·M invEq e z)) ≡⟨ cong (equivFun e) (H12 _ _ _) ⟩
-      equivFun e ((invEq e x ·M invEq e y) ·M invEq e z) ≡⟨ h2 _ _ ⟩
-      equivFun e (invEq e x ·M invEq e y) ·N equivFun e (invEq e z) ≡⟨ cong (λ a → a ·N equivFun e (invEq e z)) (h2 _ _) ⟩
-      (equivFun e (invEq e x) ·N equivFun e (invEq e y)) ·N equivFun e (invEq e z) ≡⟨ (λ i → (retEq e x i ·N retEq e y i) ·N retEq e z i) ⟩
-      (x ·N y) ·N z ∎
-
-    goal : MonoidAxioms N HN
-    goal = issemigroup (isOfHLevelRespectEquiv 2 e H11) goal3 , λ x → goal2 x , goal1 x
+  InducedMonoidΣ (M , opsM , ax) (N , opsN) e r =
+    N , opsN , subst (uncurry MonoidAxioms) (sip rawMonoidUnivalentStr (M , opsM) (N , opsN) (e , r)) ax
 
   InducedMonoidΣPath : (M : MonoidΣ) (N : RawMonoidΣ) (e : M .fst ≃ N .fst)
                        (E : RawMonoidEquivStr (MonoidΣ→RawMonoidΣ M) N e)
