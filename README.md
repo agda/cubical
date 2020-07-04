@@ -45,7 +45,7 @@ This makes it possible to directly represent higher inductive types.
 Maintainers
 -----------
 
-* [Anders Mörtberg](http://www.cs.cmu.edu/~amoertbe/)
+* [Anders Mörtberg](https://staff.math.su.se/anders.mortberg/)
 
 * [Andrea Vezzosi](http://saizan.github.io/)
 

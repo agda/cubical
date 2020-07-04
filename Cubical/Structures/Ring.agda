@@ -8,10 +8,12 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Structures.Axioms
+open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid    hiding (⟨_⟩)
@@ -134,9 +136,9 @@ makeRing 0r 1r _+_ _·_ -_ is-setR assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-
        (makeIsRing is-setR assoc +-rid +-rinv +-comm
                    ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+ )
 
-record RingIso (R S : Ring {ℓ}) : Type ℓ where
+record RingEquiv (R S : Ring {ℓ}) : Type ℓ where
 
-  constructor groupiso
+  constructor ringequiv
 
   private
     module R = Ring R
@@ -148,73 +150,80 @@ record RingIso (R S : Ring {ℓ}) : Type ℓ where
     isHom+ : (x y : ⟨ R ⟩) → equivFun e (x R.+ y) ≡ equivFun e x S.+ equivFun e y
     isHom· : (x y : ⟨ R ⟩) → equivFun e (x R.· y) ≡ equivFun e x S.· equivFun e y
 
-module RingΣ-theory {ℓ} where
+module RingΣTheory {ℓ} where
 
-  open Macro ℓ (recvar (recvar var) , var , recvar (recvar var)) public renaming
-    ( structure to raw-ring-structure
-    ; iso       to raw-ring-iso
-    ; isSNS     to raw-ring-is-SNS )
+  RawRingStructure = λ (X : Type ℓ) → (X → X → X) × X × (X → X → X)
 
-  ring-axioms : (R : Type ℓ) (s : raw-ring-structure R) → Type ℓ
-  ring-axioms R (_+_ , 1r , _·_) = AbGroupΣ-theory.abgroup-axioms R _+_
-                                 × IsMonoid 1r _·_
-                                 × ((x y z : R) → (x · (y + z) ≡ (x · y) + (x · z))
-                                                × ((x + y) · z ≡ (x · z) + (y · z)))
+  RawRingEquivStr = AutoEquivStr RawRingStructure
 
-  ring-structure : Type ℓ → Type ℓ
-  ring-structure = add-to-structure raw-ring-structure ring-axioms
+  rawRingUnivalentStr : UnivalentStr _ RawRingEquivStr
+  rawRingUnivalentStr = autoUnivalentStr RawRingStructure
+
+  RingAxioms : (R : Type ℓ) (s : RawRingStructure R) → Type ℓ
+  RingAxioms R (_+_ , 1r , _·_) =
+    AbGroupΣTheory.AbGroupAxioms R _+_
+    × IsMonoid 1r _·_
+    × ((x y z : R) → (x · (y + z) ≡ (x · y) + (x · z)) × ((x + y) · z ≡ (x · z) + (y · z)))
+
+  RingStructure : Type ℓ → Type ℓ
+  RingStructure = AxiomsStructure RawRingStructure RingAxioms
 
   RingΣ : Type (ℓ-suc ℓ)
-  RingΣ = TypeWithStr ℓ ring-structure
+  RingΣ = TypeWithStr ℓ RingStructure
 
-  ring-iso : StrIso ring-structure ℓ
-  ring-iso = add-to-iso raw-ring-iso ring-axioms
+  RingEquivStr : StrEquiv RingStructure ℓ
+  RingEquivStr = AxiomsEquivStr RawRingEquivStr RingAxioms
 
-  isProp-ring-axioms : (R : Type ℓ) (s : raw-ring-structure R) → isProp (ring-axioms R s)
-  isProp-ring-axioms R (_+_ , 1r , _·_) =
-    isProp× (AbGroupΣ-theory.isProp-abgroup-axioms R _+_)
+  isPropRingAxioms : (R : Type ℓ) (s : RawRingStructure R) → isProp (RingAxioms R s)
+  isPropRingAxioms R (_+_ , 1r , _·_) =
+    isProp× (AbGroupΣTheory.isPropAbGroupAxioms R _+_)
             (isPropΣ (isPropIsMonoid 1r _·_)
                      λ R → isPropΠ3 λ _ _ _ →
-                             isProp× (IsSemigroup.is-set (R .IsMonoid.isSemigroup) _ _)
-                                     (IsSemigroup.is-set (R .IsMonoid.isSemigroup) _ _))
+                           isProp× (IsSemigroup.is-set (R .IsMonoid.isSemigroup) _ _)
+                                   (IsSemigroup.is-set (R .IsMonoid.isSemigroup) _ _))
 
   Ring→RingΣ : Ring → RingΣ
-  Ring→RingΣ (ring R 0r 1r _+_ _·_ -_ (isring +-isAbelianGroup ·-isMonoid dist)) = R , (_+_ , 1r , _·_) , AbGroupΣ-theory.AbGroup→AbGroupΣ (abgroup _ _ _ _ +-isAbelianGroup) .snd .snd , ·-isMonoid , dist
+  Ring→RingΣ (ring R 0r 1r _+_ _·_ -_ (isring +-isAbelianGroup ·-isMonoid dist)) =
+    ( R
+    , (_+_ , 1r , _·_)
+    , AbGroupΣTheory.AbGroup→AbGroupΣ (abgroup _ _ _ _ +-isAbelianGroup) .snd .snd
+    , ·-isMonoid , dist
+    )
 
   RingΣ→Ring : RingΣ → Ring
   RingΣ→Ring (_ , (y1 , y2 , y3) , z , w1 , w2) =
     ring _ _ y2 y1 y3 _
-      (isring (AbGroupΣ-theory.AbGroupΣ→AbGroup (_ , _ , z ) .AbGroup.isAbGroup)
+      (isring (AbGroupΣTheory.AbGroupΣ→AbGroup (_ , _ , z ) .AbGroup.isAbGroup)
               w1 w2)
 
   RingIsoRingΣ : Iso Ring RingΣ
   RingIsoRingΣ = iso Ring→RingΣ RingΣ→Ring (λ _ → refl) (λ _ → refl)
 
-  ring-is-SNS : SNS ring-structure ring-iso
-  ring-is-SNS = add-axioms-SNS _ isProp-ring-axioms raw-ring-is-SNS
+  ringUnivalentStr : UnivalentStr RingStructure RingEquivStr
+  ringUnivalentStr = axiomsUnivalentStr _ isPropRingAxioms rawRingUnivalentStr
 
-  RingΣPath : (R S : RingΣ) → (R ≃[ ring-iso ] S) ≃ (R ≡ S)
-  RingΣPath = SIP ring-is-SNS
+  RingΣPath : (R S : RingΣ) → (R ≃[ RingEquivStr ] S) ≃ (R ≡ S)
+  RingΣPath = SIP ringUnivalentStr
 
-  RingIsoΣ : (R S : Ring) → Type ℓ
-  RingIsoΣ R S = Ring→RingΣ R ≃[ ring-iso ] Ring→RingΣ S
+  RingEquivΣ : (R S : Ring) → Type ℓ
+  RingEquivΣ R S = Ring→RingΣ R ≃[ RingEquivStr ] Ring→RingΣ S
 
-  RingIsoΣPath : {R S : Ring} → Iso (RingIso R S) (RingIsoΣ R S)
-  fun RingIsoΣPath (groupiso e h1 h2 h3) = e , h2 , h1 , h3
-  inv RingIsoΣPath (e , h1 , h2 , h3)    = groupiso e h2 h1 h3
+  RingIsoΣPath : {R S : Ring} → Iso (RingEquiv R S) (RingEquivΣ R S)
+  fun RingIsoΣPath (ringequiv e h1 h2 h3) = e , h2 , h1 , h3
+  inv RingIsoΣPath (e , h1 , h2 , h3)    = ringequiv e h2 h1 h3
   rightInv RingIsoΣPath _                = refl
   leftInv RingIsoΣPath _                 = refl
 
-  RingPath : (R S : Ring) → (RingIso R S) ≃ (R ≡ S)
+  RingPath : (R S : Ring) → (RingEquiv R S) ≃ (R ≡ S)
   RingPath R S =
-    RingIso R S                 ≃⟨ isoToEquiv RingIsoΣPath ⟩
-    RingIsoΣ R S                ≃⟨ RingΣPath _ _ ⟩
+    RingEquiv R S               ≃⟨ isoToEquiv RingIsoΣPath ⟩
+    RingEquivΣ R S              ≃⟨ RingΣPath _ _ ⟩
     Ring→RingΣ R ≡ Ring→RingΣ S ≃⟨ isoToEquiv (invIso (congIso RingIsoRingΣ)) ⟩
     R ≡ S ■
 
 
-RingPath : (R S : Ring {ℓ}) → (RingIso R S) ≃ (R ≡ S)
-RingPath = RingΣ-theory.RingPath
+RingPath : (R S : Ring {ℓ}) → (RingEquiv R S) ≃ (R ≡ S)
+RingPath = RingΣTheory.RingPath
 
 isPropIsRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
              → isProp (IsRing 0r 1r _+_ _·_ -_)
@@ -245,7 +254,7 @@ Ring→Monoid (ring _ _ _ _ _ _ R) = monoid _ _ _ (IsRing.·-isMonoid R)
   that might should become obsolete or subject to change once we
   have a ring solver (see https://github.com/agda/cubical/issues/297)
 -}
-module theory (R : Ring {ℓ}) where
+module Theory (R : Ring {ℓ}) where
 
   open Ring R
 

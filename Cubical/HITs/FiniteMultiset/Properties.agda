@@ -105,7 +105,7 @@ module _(discA : Discrete A) where
  FMScount a = Rec.f isSetℕ 0 (FMScount-∷* a) (FMScount-comm* a)
 
 
- FMS-with-str : Multi-Set A (Discrete→isSet discA)
+ FMS-with-str : MultiSet A (Discrete→isSet discA)
  FMS-with-str = (FMSet A , [] , _∷_ , FMScount)
 
 

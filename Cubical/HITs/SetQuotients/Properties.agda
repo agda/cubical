@@ -30,12 +30,12 @@ open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂; ∣_∣₂
 
 private
   variable
-    ℓ ℓ' ℓ'' : Level
+    ℓ : Level
     A : Type ℓ
-    R : A → A → Type ℓ'
-    B : A / R → Type ℓ''
-    C : A / R → A / R → Type ℓ''
-    D : A / R → A / R → A / R → Type ℓ''
+    R : A → A → Type ℓ
+    B : A / R → Type ℓ
+    C : A / R → A / R → Type ℓ
+    D : A / R → A / R → A / R → Type ℓ
 
 elimEq/ : (Bprop : (x : A / R ) → isProp (B x))
           {x y : A / R}
@@ -46,10 +46,10 @@ elimEq/ : (Bprop : (x : A / R ) → isProp (B x))
 elimEq/ {B = B} Bprop {x = x} =
   J (λ y eq → ∀ bx by → PathP (λ i → B (eq i)) bx by) (λ bx by → Bprop x bx by)
 
-
-elimProp : ((x : A / R ) → isProp (B x)) →
-                       (f : (a : A) → B ( [ a ])) →
-                       (x : A / R) → B x
+elimProp : ((x : A / R ) → isProp (B x))
+         → ((a : A) → B ( [ a ]))
+         → (x : A / R)
+         → B x
 elimProp Bprop f [ x ] = f x
 elimProp Bprop f (squash/ x y p q i j) =
   isOfHLevel→isOfHLevelDep 2 (λ x → isProp→isSet (Bprop x))
@@ -58,30 +58,30 @@ elimProp Bprop f (squash/ x y p q i j) =
     g = elimProp Bprop f
 elimProp Bprop f (eq/ a b r i) = elimEq/ Bprop (eq/ a b r) (f a) (f b) i
 
-elimProp2 : ((x y : A / R ) → isProp (C x y)) →
-                       (f : (a b : A) → C [ a ] [ b ]) →
-                       (x y : A / R) → C x y
+elimProp2 : ((x y : A / R ) → isProp (C x y))
+          → ((a b : A) → C [ a ] [ b ])
+          → (x y : A / R)
+          → C x y
 elimProp2 Cprop f = elimProp (λ x → isPropΠ (λ y → Cprop x y))
-                             (λ x → elimProp (λ y → Cprop [ x ] y)
-                                             (f x))
+                             (λ x → elimProp (λ y → Cprop [ x ] y) (f x))
 
-elimProp3 : ((x y z : A / R ) → isProp (D x y z)) →
-                       (f : (a b c : A) → D [ a ] [ b ] [ c ]) →
-                       (x y z : A / R) → D x y z
+elimProp3 : ((x y z : A / R ) → isProp (D x y z))
+          → ((a b c : A) → D [ a ] [ b ] [ c ])
+          → (x y z : A / R)
+          → D x y z
 elimProp3 Dprop f = elimProp (λ x → isPropΠ2 (λ y z → Dprop x y z))
-                             (λ x → elimProp2 (λ y z → Dprop [ x ] y z)
-                                             (f x))
+                             (λ x → elimProp2 (λ y z → Dprop [ x ] y z) (f x))
 
 -- lemma 6.10.2 in hott book
 []surjective : (x : A / R) → ∃[ a ∈ A ] [ a ] ≡ x
 []surjective = elimProp (λ x → squash) (λ a → ∣ a , refl ∣)
 
-elim : {B : A / R → Type ℓ} →
-                   (Bset : (x : A / R) → isSet (B x)) →
-                   (f : (a : A) → (B [ a ])) →
-                   (feq : (a b : A) (r : R a b) →
-                          PathP (λ i → B (eq/ a b r i)) (f a) (f b)) →
-                   (x : A / R) → B x
+elim : {B : A / R → Type ℓ}
+     → ((x : A / R) → isSet (B x))
+     → (f : (a : A) → (B [ a ]))
+     → ((a b : A) (r : R a b) → PathP (λ i → B (eq/ a b r i)) (f a) (f b))
+     → (x : A / R)
+     → B x
 elim Bset f feq [ a ] = f a
 elim Bset f feq (eq/ a b r i) = feq a b r i
 elim Bset f feq (squash/ x y p q i j) =
@@ -90,6 +90,25 @@ elim Bset f feq (squash/ x y p q i j) =
     where
       g = elim Bset f feq
 
+rec : {B : Type ℓ}
+      (Bset : isSet B)
+      (f : A → B)
+      (feq : (a b : A) (r : R a b) → f a ≡ f b)
+    → A / R → B
+rec Bset f feq [ a ] = f a
+rec Bset f feq (eq/ a b r i) = feq a b r i
+rec Bset f feq (squash/ x y p q i j) = Bset (g x) (g y) (cong g p) (cong g q) i j
+  where
+  g = rec Bset f feq
+
+rec2 : {B : Type ℓ} (Bset : isSet B)
+       (f : A → A → B) (feql : (a b c : A) (r : R a b) → f a c ≡ f b c)
+                       (feqr : (a b c : A) (r : R b c) → f a b ≡ f a c)
+    → A / R → A / R → B
+rec2 Bset f feql feqr = rec (isSetΠ (λ _ → Bset))
+                            (λ a → rec Bset (f a) (feqr a))
+                            (λ a b r → funExt (elimProp (λ _ → Bset _ _)
+                                              (λ c → feql a b c r)))
 
 setQuotUniversal : {B : Type ℓ} (Bset : isSet B) →
                    (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
@@ -110,17 +129,17 @@ setQuotUniversal Bset = isoToEquiv (iso intro out outRightInv outLeftInv)
 open BinaryRelation
 
 effective : (Rprop : isPropValued R) (Requiv : isEquivRel R) (a b : A) → [ a ] ≡ [ b ] → R a b
-effective {A = A} {R = R} Rprop (EquivRel R/refl R/sym R/trans) a b p = transport aa≡ab (R/refl _)
+effective {A = A} {R = R} Rprop (equivRel R/refl R/sym R/trans) a b p = transport aa≡ab (R/refl _)
   where
     helper : A / R → hProp _
     helper =
-      elim (λ _ → isSetHProp) (λ c → (R a c , Rprop a c))
-                              (λ c d cd → Σ≡Prop (λ _ → isPropIsProp)
-                                                 (ua (isPropEquiv→Equiv (Rprop a c) (Rprop a d)
-                                                                      (λ ac → R/trans _ _ _ ac cd) (λ ad → R/trans _ _ _ ad (R/sym _ _ cd)))))
+      rec isSetHProp (λ c → (R a c , Rprop a c))
+                     (λ c d cd → Σ≡Prop (λ _ → isPropIsProp)
+                                        (hPropExt (Rprop a c) (Rprop a d)
+                                                  (λ ac → R/trans _ _ _ ac cd) (λ ad → R/trans _ _ _ ad (R/sym _ _ cd))))
 
     aa≡ab : R a a ≡ R a b
-    aa≡ab i = fst (helper (p i))
+    aa≡ab i = helper (p i) .fst
 
 isEquivRel→isEffective : isPropValued R → isEquivRel R → isEffective R
 isEquivRel→isEffective {R = R} Rprop Req a b = isoToIsEquiv (iso out intro out-intro intro-out)
@@ -143,7 +162,7 @@ discreteSetQuotients {A = A} {R = R} Adis Rprop Req Rdec =
     discreteSetQuotients' discreteSetQuotients'-eq
   where
     discreteSetQuotients' : (a : A) (y : A / R) → Dec ([ a ] ≡ y)
-    discreteSetQuotients' a₀ = elim ((λ a₁ → isProp→isSet (isPropDec (squash/ [ a₀ ] a₁)))) dis dis-eq
+    discreteSetQuotients' a₀ = elim (λ a₁ → isProp→isSet (isPropDec (squash/ [ a₀ ] a₁))) dis dis-eq
       where
         dis : (a₁ : A) → Dec ([ a₀ ] ≡ [ a₁ ])
         dis a₁ with Rdec a₀ a₁
