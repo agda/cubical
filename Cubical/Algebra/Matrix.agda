@@ -74,26 +74,112 @@ FinMatrix≃VecMatrix {_} {A} {m} {n} = isoToEquiv (FinMatrixIsoVecMatrix A m n)
 FinMatrix≡VecMatrix : (A : Type ℓ) (m n : ℕ) → FinMatrix A m n ≡ VecMatrix A m n
 FinMatrix≡VecMatrix _ _ _ = ua FinMatrix≃VecMatrix
 
+-- Define abelian group structure on matrices
+module FinMatrixAbGroup (G' : AbGroup {ℓ}) where
 
--- Define a ring structure on square matrices
+  open AbGroup G' renaming ( Carrier to G ; is-set to isSetG )
+
+  zeroFinMatrix : ∀ {m n} → FinMatrix G m n
+  zeroFinMatrix _ _ = 0g
+
+  negFinMatrix : ∀ {m n} → FinMatrix G m n → FinMatrix G m n
+  negFinMatrix M i j = - M i j
+
+  addFinMatrix : ∀ {m n} → FinMatrix G m n → FinMatrix G m n → FinMatrix G m n
+  addFinMatrix M N i j = M i j + N i j
+
+  isSetFinMatrix : ∀ {m n} → isSet (FinMatrix G m n)
+  isSetFinMatrix = isSetΠ2 λ _ _ → isSetG
+
+  addFinMatrixAssoc : ∀ {m n} → (M N K : FinMatrix G m n)
+                    → addFinMatrix M (addFinMatrix N K) ≡ addFinMatrix (addFinMatrix M N) K
+  addFinMatrixAssoc M N K i j k = assoc (M j k) (N j k) (K j k) i
+
+  addFinMatrix0r : ∀ {m n} → (M : FinMatrix G m n)
+                 → addFinMatrix M zeroFinMatrix ≡ M
+  addFinMatrix0r M i j k = rid (M j k) i
+
+  addFinMatrix0l : ∀ {m n} → (M : FinMatrix G m n)
+                 → addFinMatrix zeroFinMatrix M ≡ M
+  addFinMatrix0l M i j k = lid (M j k) i
+
+  addFinMatrixNegMatrixr : ∀ {m n} → (M : FinMatrix G m n)
+                         → addFinMatrix M (negFinMatrix M) ≡ zeroFinMatrix
+  addFinMatrixNegMatrixr M i j k = invr (M j k) i
+
+  addFinMatrixNegMatrixl : ∀ {m n} → (M : FinMatrix G m n)
+                         → addFinMatrix (negFinMatrix M) M ≡ zeroFinMatrix
+  addFinMatrixNegMatrixl M i j k = invl (M j k) i
+
+  addFinMatrixComm : ∀ {m n} → (M N : FinMatrix G m n)
+                   → addFinMatrix M N ≡ addFinMatrix N M
+  addFinMatrixComm M N i k l = comm (M k l) (N k l) i
+
+  FinMatrixAbGroup : (m n : ℕ) → AbGroup {ℓ}
+  FinMatrixAbGroup m n =
+    makeAbGroup {G = FinMatrix G m n} zeroFinMatrix addFinMatrix negFinMatrix
+                isSetFinMatrix addFinMatrixAssoc addFinMatrix0r
+                addFinMatrixNegMatrixr addFinMatrixComm
+
+
+-- Define a abelian group structure on vector matrices and prove that
+-- it is equal to FinMatrixAbGroup using the SIP
+module _ (G' : AbGroup {ℓ}) where
+
+  open AbGroup G' renaming ( Carrier to G )
+
+  zeroVecMatrix : ∀ {m n} → VecMatrix G m n
+  zeroVecMatrix = replicate (replicate 0g)
+
+  negVecMatrix : ∀ {m n} → VecMatrix G m n → VecMatrix G m n
+  negVecMatrix = map (map (λ x → - x))
+
+  addVec : ∀ {m} → Vec G m → Vec G m → Vec G m
+  addVec [] [] = []
+  addVec (x ∷ xs) (y ∷ ys) = x + y ∷ addVec xs ys
+
+  addVecMatrix : ∀ {m n} → VecMatrix G m n → VecMatrix G m n → VecMatrix G m n
+  addVecMatrix [] [] = []
+  addVecMatrix (M ∷ MS) (N ∷ NS) = addVec M N ∷ addVecMatrix MS NS
+
+  open FinMatrixAbGroup
+
+  -- Proof that FinMatrix→VecMatrix is a group homorphism
+  FinMatrix→VecMatrixHomAdd : (m n : ℕ) (M N : FinMatrix G m n)
+    → FinMatrix→VecMatrix (addFinMatrix G' M N) ≡
+      addVecMatrix (FinMatrix→VecMatrix M) (FinMatrix→VecMatrix N)
+  FinMatrix→VecMatrixHomAdd zero n M N = refl
+  FinMatrix→VecMatrixHomAdd (suc m) n M N =
+    λ i → lem n (M zero) (N zero) i
+        ∷ FinMatrix→VecMatrixHomAdd m n (λ i j → M (suc i) j) (λ i j → N (suc i) j) i
+     where
+     lem : (n : ℕ) (V W : FinVec G n)
+       → FinVec→Vec (λ j → V j + W j) ≡ addVec (FinVec→Vec V) (FinVec→Vec W)
+     lem zero V W = refl
+     lem (suc n) V W = λ i → V zero + W zero ∷ lem n (V ∘ suc) (W ∘ suc) i
+
+  -- Combine everything to get an induced abelian group structure of
+  -- VecMatrix that is equal to the one on FinMatrix
+  VecMatrixAbGroup : (m n : ℕ) → AbGroup
+  VecMatrixAbGroup m n =
+    InducedAbGroup (FinMatrixAbGroup G' m n) (_ , addVecMatrix)
+                    FinMatrix≃VecMatrix (FinMatrix→VecMatrixHomAdd m n)
+
+  FinMatrixAbGroup≡VecMatrixAbGroup : (m n : ℕ) → FinMatrixAbGroup G' m n ≡ VecMatrixAbGroup m n
+  FinMatrixAbGroup≡VecMatrixAbGroup m n =
+    InducedAbGroupPath (FinMatrixAbGroup G' m n) (_ , addVecMatrix)
+                        FinMatrix≃VecMatrix (FinMatrix→VecMatrixHomAdd m n)
+
 module _ (R' : Ring {ℓ}) where
 
   open Ring R' renaming ( Carrier to R ; is-set to isSetR )
   open Theory R'
-
-  zeroFinMatrix : ∀ {m n} → FinMatrix R m n
-  zeroFinMatrix _ _ = 0r
-
-  negFinMatrix : ∀ {m n} → FinMatrix R m n → FinMatrix R m n
-  negFinMatrix M i j = - M i j
-
-  addFinMatrix : ∀ {m n} → FinMatrix R m n → FinMatrix R m n → FinMatrix R m n
-  addFinMatrix M N i j = M i j + N i j
+  open FinMatrixAbGroup (abgroup R _ _ _ (R' .Ring.+-isAbGroup))
 
   oneFinMatrix : ∀ {n} → FinMatrix R n n
   oneFinMatrix i j = if i == j then 1r else 0r
 
-  -- TODO: upstream
+  -- TODO: upstream and state for monoids
   ∑ : ∀ {n} → FinVec R n → R
   ∑ = foldrFin _+_ 0r
 
@@ -102,7 +188,6 @@ module _ (R' : Ring {ℓ}) where
 
 
   -- Properties
-
   sumVecExt : ∀ {n} → {V W : FinVec R n} → ((i : Fin n) → V i ≡ W i) → ∑ V ≡ ∑ W
   sumVecExt {n = zero} _    = refl
   sumVecExt {n = suc n} h i = h zero i + sumVecExt (h ∘ suc) i
@@ -172,28 +257,6 @@ module _ (R' : Ring {ℓ}) where
     (λ i → 0-leftNullifies (V zero) i + ∑ (λ i → (if j == i then 1r else 0r) · V (suc i)))
     ∙∙ +-lid _ ∙∙ sumVecMul1r n (V ∘ suc) j
 
-  isSetFinMatrix : ∀ {m n} → isSet (FinMatrix R m n)
-  isSetFinMatrix = isSetΠ2 λ _ _ → isSetR
-
-  addFinMatrixAssoc : ∀ {m n} → (M N K : FinMatrix R m n)
-                    → addFinMatrix M (addFinMatrix N K) ≡ addFinMatrix (addFinMatrix M N) K
-  addFinMatrixAssoc M N K i j k = +-assoc (M j k) (N j k) (K j k) i
-
-  addFinMatrix0r : ∀ {m n} → (M : FinMatrix R m n) → addFinMatrix M zeroFinMatrix ≡ M
-  addFinMatrix0r M i j k = +-rid (M j k) i
-
-  addFinMatrix0l : ∀ {m n} → (M : FinMatrix R m n) → addFinMatrix zeroFinMatrix M ≡ M
-  addFinMatrix0l M i j k = +-lid (M j k) i
-
-  addFinMatrixNegMatrixr : ∀ {m n} → (M : FinMatrix R m n) → addFinMatrix M (negFinMatrix M) ≡ zeroFinMatrix
-  addFinMatrixNegMatrixr M i j k = +-rinv (M j k) i
-
-  addFinMatrixNegMatrixl : ∀ {m n} → (M : FinMatrix R m n) → addFinMatrix (negFinMatrix M) M ≡ zeroFinMatrix
-  addFinMatrixNegMatrixl M i j k = +-linv (M j k) i
-
-  addFinMatrixComm : ∀ {m n} → (M N : FinMatrix R m n) → addFinMatrix M N ≡ addFinMatrix N M
-  addFinMatrixComm M N i k l = +-comm (M k l) (N k l) i
-
   mulFinMatrixAssoc : ∀ {m n k l} → (M : FinMatrix R m n) → (N : FinMatrix R n k) → (K : FinMatrix R k l)
                    → mulFinMatrix M (mulFinMatrix N K) ≡ mulFinMatrix (mulFinMatrix M N) K
   mulFinMatrixAssoc M N K = funExt₂ λ i j →
@@ -225,65 +288,8 @@ module _ (R' : Ring {ℓ}) where
 
   FinMatrixRing : (n : ℕ) → Ring {ℓ}
   FinMatrixRing n =
-    makeRing {R = FinMatrix R n n} zeroFinMatrix oneFinMatrix addFinMatrix mulFinMatrix
-             negFinMatrix isSetFinMatrix addFinMatrixAssoc addFinMatrix0r addFinMatrixNegMatrixr addFinMatrixComm
-             mulFinMatrixAssoc mulFinMatrixr1 mulFinMatrix1r mulFinMatrixrDistrAddFinMatrix mulFinMatrixlDistrAddFinMatrix
-
-  FinMatrixMonoid : (m n : ℕ) → Monoid {ℓ}
-  FinMatrixMonoid m n =
-    makeMonoid {M = FinMatrix R m n} zeroFinMatrix addFinMatrix isSetFinMatrix addFinMatrixAssoc addFinMatrix0r addFinMatrix0l
-
--- Define a monoid structure on vectors and prove that it is equal to FinMatrixMonoid using the SIP
-module _ (R' : Ring {ℓ}) where
-
-  open Ring R' renaming ( Carrier to R )
-
-  -- Direct definitions of zero and addition for vectors
-  zeroVecMatrix : ∀ {m n} → VecMatrix R m n
-  zeroVecMatrix = replicate (replicate 0r)
-
-  addVec : ∀ {m} → Vec R m → Vec R m → Vec R m
-  addVec [] [] = []
-  addVec (x ∷ xs) (y ∷ ys) = x + y ∷ addVec xs ys
-
-  addVecMatrix : ∀ {m n} → VecMatrix R m n → VecMatrix R m n → VecMatrix R m n
-  addVecMatrix [] [] = []
-  addVecMatrix (M ∷ MS) (N ∷ NS) = addVec M N ∷ addVecMatrix MS NS
-
-  -- Proof that FinMatrix→VecMatrix is a monoid homorphism
-  FinMatrix→VecMatrixZero : (m n : ℕ) → FinMatrix→VecMatrix (zeroFinMatrix R' {m} {n}) ≡ zeroVecMatrix
-  FinMatrix→VecMatrixZero zero n = refl
-  FinMatrix→VecMatrixZero (suc m) n = λ i → lem n i ∷ FinMatrix→VecMatrixZero m n i
-    where
-    lem : (n : ℕ) → FinVec→Vec (λ _ → 0r) ≡ replicate {n = n} 0r
-    lem zero = refl
-    lem (suc n) = cong (0r ∷_) (lem n)
-
-  FinMatrix→VecMatrixHomAdd : (m n : ℕ) (M N : FinMatrix R m n)
-    → FinMatrix→VecMatrix (addFinMatrix R' M N) ≡
-      addVecMatrix (FinMatrix→VecMatrix M) (FinMatrix→VecMatrix N)
-  FinMatrix→VecMatrixHomAdd zero n M N = refl
-  FinMatrix→VecMatrixHomAdd (suc m) n M N =
-    λ i → lem n (M zero) (N zero) i
-        ∷ FinMatrix→VecMatrixHomAdd m n (λ i j → M (suc i) j) (λ i j → N (suc i) j) i
-     where
-     lem : (n : ℕ) (V W : FinVec R n)
-       → FinVec→Vec (λ j → V j + W j) ≡ addVec (FinVec→Vec V) (FinVec→Vec W)
-     lem zero V W = refl
-     lem (suc n) V W = λ i → V zero + W zero ∷ lem n (V ∘ suc) (W ∘ suc) i
-
-  -- Combine everything to get an induced monoid structure of
-  -- VecMatrix that is equal to the one on FinMatrix
-  VecMatrixMonoid : (m n : ℕ) → Monoid
-  VecMatrixMonoid m n =
-    InducedMonoid (FinMatrixMonoid R' m n) (_ , zeroVecMatrix , addVecMatrix)
-                  FinMatrix≃VecMatrix (FinMatrix→VecMatrixZero m n , FinMatrix→VecMatrixHomAdd m n)
-
-  FinMatrixMonoid≡VecMatrixMonoid : (m n : ℕ) → FinMatrixMonoid R' m n ≡ VecMatrixMonoid m n
-  FinMatrixMonoid≡VecMatrixMonoid m n =
-    InducedMonoidPath (FinMatrixMonoid R' m n) (_ , zeroVecMatrix , addVecMatrix)
-                      FinMatrix≃VecMatrix (FinMatrix→VecMatrixZero m n , FinMatrix→VecMatrixHomAdd m n)
-
-
--- TODO: extend this to the whole ring structure
-
+    makeRing {R = FinMatrix R n n} zeroFinMatrix oneFinMatrix addFinMatrix
+             mulFinMatrix negFinMatrix isSetFinMatrix addFinMatrixAssoc
+             addFinMatrix0r addFinMatrixNegMatrixr addFinMatrixComm
+             mulFinMatrixAssoc mulFinMatrixr1 mulFinMatrix1r
+             mulFinMatrixrDistrAddFinMatrix mulFinMatrixlDistrAddFinMatrix
