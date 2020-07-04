@@ -173,7 +173,7 @@ module MonoidΣTheory {ℓ} where
     M ≡ N ■
 
 
-  -- TODO: clean and genealize the following?
+  -- TODO: clean and generalize the following?
   RawMonoidΣ : Type (ℓ-suc ℓ)
   RawMonoidΣ = TypeWithStr ℓ RawMonoidStructure
 

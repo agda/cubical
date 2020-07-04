@@ -75,12 +75,7 @@ FinMatrix≡VecMatrix : (A : Type ℓ) (m n : ℕ) → FinMatrix A m n ≡ VecMa
 FinMatrix≡VecMatrix _ _ _ = ua FinMatrix≃VecMatrix
 
 
--- We could have constructed the above Path as follows, but that
--- doesn't reduce as nicely as ua isn't on the toplevel:
---
--- FinMatrix≡VecMatrix : (A : Type ℓ) (m n : ℕ) → FinMatrix A m n ≡ VecMatrix A m n
--- FinMatrix≡VecMatrix A m n i = FinVec≡Vec (FinVec≡Vec A n i) m i
-
+-- Define a ring structure on square matrices
 module _ (R' : Ring {ℓ}) where
 
   open Ring R' renaming ( Carrier to R ; is-set to isSetR )
@@ -102,6 +97,12 @@ module _ (R' : Ring {ℓ}) where
   ∑ : ∀ {n} → FinVec R n → R
   ∑ = foldrFin _+_ 0r
 
+  mulFinMatrix : ∀ {m1 m2 m3} → FinMatrix R m1 m2 → FinMatrix R m2 m3 → FinMatrix R m1 m3
+  mulFinMatrix M N i k = ∑ λ j → M i j · N j k
+
+
+  -- Properties
+
   sumVecExt : ∀ {n} → {V W : FinVec R n} → ((i : Fin n) → V i ≡ W i) → ∑ V ≡ ∑ W
   sumVecExt {n = zero} _    = refl
   sumVecExt {n = suc n} h i = h zero i + sumVecExt (h ∘ suc) i
@@ -115,7 +116,6 @@ module _ (R' : Ring {ℓ}) where
     V zero + (∑ (V ∘ suc) + (W zero + (∑ (W ∘ suc)))) ≡⟨ +-assoc _ _ _ ⟩
     V zero + ∑ (V ∘ suc) + (W zero + ∑ (W ∘ suc))     ∎
 
-  -- TODO: generalize to sum of n arbitrary elements
   sumVec0r : (n : ℕ) → ∑ (λ (i : Fin n) → 0r) ≡ 0r
   sumVec0r zero    = refl
   sumVec0r (suc n) = cong (λ x → 0r + x) (sumVec0r n) ∙ +-rid 0r
@@ -172,10 +172,6 @@ module _ (R' : Ring {ℓ}) where
     (λ i → 0-leftNullifies (V zero) i + ∑ (λ i → (if j == i then 1r else 0r) · V (suc i)))
     ∙∙ +-lid _ ∙∙ sumVecMul1r n (V ∘ suc) j
 
-  mulFinMatrix : ∀ {m1 m2 m3} → FinMatrix R m1 m2 → FinMatrix R m2 m3 → FinMatrix R m1 m3
-  mulFinMatrix M N i k = ∑ λ j → M i j · N j k
-
-  -- Properties
   isSetFinMatrix : ∀ {m n} → isSet (FinMatrix R m n)
   isSetFinMatrix = isSetΠ2 λ _ _ → isSetR
 
@@ -228,123 +224,64 @@ module _ (R' : Ring {ℓ}) where
     ∑ (λ k → M i k · K k j) + ∑ (λ k → N i k · K k j) ∎
 
   FinMatrixRing : (n : ℕ) → Ring {ℓ}
-  FinMatrixRing n = makeRing {R = FinMatrix R n n} zeroFinMatrix oneFinMatrix addFinMatrix mulFinMatrix
-                          negFinMatrix isSetFinMatrix addFinMatrixAssoc addFinMatrix0r addFinMatrixNegMatrixr addFinMatrixComm
-                          mulFinMatrixAssoc mulFinMatrixr1 mulFinMatrix1r mulFinMatrixrDistrAddFinMatrix mulFinMatrixlDistrAddFinMatrix
+  FinMatrixRing n =
+    makeRing {R = FinMatrix R n n} zeroFinMatrix oneFinMatrix addFinMatrix mulFinMatrix
+             negFinMatrix isSetFinMatrix addFinMatrixAssoc addFinMatrix0r addFinMatrixNegMatrixr addFinMatrixComm
+             mulFinMatrixAssoc mulFinMatrixr1 mulFinMatrix1r mulFinMatrixrDistrAddFinMatrix mulFinMatrixlDistrAddFinMatrix
 
   FinMatrixMonoid : (m n : ℕ) → Monoid {ℓ}
-  FinMatrixMonoid m n = makeMonoid {M = FinMatrix R m n} zeroFinMatrix addFinMatrix isSetFinMatrix addFinMatrixAssoc addFinMatrix0r addFinMatrix0l
+  FinMatrixMonoid m n =
+    makeMonoid {M = FinMatrix R m n} zeroFinMatrix addFinMatrix isSetFinMatrix addFinMatrixAssoc addFinMatrix0r addFinMatrix0l
 
--- Experiment using addition. Transport commutativity from one
--- representation to the the other and relate the transported
--- operation with a more direct definition.
+-- Define a monoid structure on vectors and prove that it is equal to FinMatrixMonoid using the SIP
 module _ (R' : Ring {ℓ}) where
 
   open Ring R' renaming ( Carrier to R )
 
-  -- foo : (m n : ℕ) → Monoid
-  -- foo m n = FinMatrixMonoid R' m n
-
-  -- In order to easier transport structures between types we should
-  -- use parametrized structures instead of fully packed ones?
-  -- record MyMonoid (Carrier : Type ℓ) : Type (ℓ-suc ℓ) where
-
-  --   constructor mymonoid
-
-  --   field
-  --     ε        : Carrier
-  --     _·_      : Carrier → Carrier → Carrier
-  --     isMonoid : IsMonoid ε _·_
-
-  -- bar : (m n : ℕ) → MyMonoid (FinMatrix R m n)
-  -- bar m n = mymonoid _ _ (foo m n .Monoid.isMonoid)
-
-  -- baz : (m n : ℕ) → MyMonoid (VecMatrix R m n)
-  -- baz m n = subst MyMonoid (FinMatrix≡VecMatrix R m n) (bar m n)
-
-  -- addVecMatrix : ∀ {m} {n} → VecMatrix R m n → VecMatrix R m n → VecMatrix R m n
-  -- addVecMatrix {m} {n} = baz m n .MyMonoid._·_
-  -- transport (λ i → FinMatrix≡VecMatrix R m n i
-  --                                       → FinMatrix≡VecMatrix R m n i
-  --                                       → FinMatrix≡VecMatrix R m n i)
-  --                                  (addFinMatrix R')
-
-  -- addMatrixPath : ∀ {m n} → PathP (λ i → FinMatrix≡VecMatrix R m n i
-  --                                      → FinMatrix≡VecMatrix R m n i
-  --                                      → FinMatrix≡VecMatrix R m n i)
-  --                                 (addFinMatrix R') addVecMatrix
-  -- addMatrixPath {m} {n} i = transp (λ j → FinMatrix≡VecMatrix R m n (i ∧ j)
-  --                                       → FinMatrix≡VecMatrix R m n (i ∧ j)
-  --                                       → FinMatrix≡VecMatrix R m n (i ∧ j))
-  --                                  (~ i) (addFinMatrix R')
-
-  -- addVecMatrixAssoc : ∀ {m n} → (M N K : VecMatrix R m n) → addVecMatrix M (addVecMatrix N K) ≡ addVecMatrix (addVecMatrix M N) K
-  -- addVecMatrixAssoc {m} {n} = baz m n .MyMonoid.isMonoid .IsMonoid.assoc
-  -- transport (λ i → (M N : FinMatrix≡VecMatrix R m n i)
-  --                                           → addMatrixPath i M N ≡ addMatrixPath i N M)
-  --                                      (addFinMatrixComm R')
-
-
-  -- More direct definition of zero and addition for VecMatrix:
-  zeroVecMatrix' : ∀ {m n} → VecMatrix R m n
-  zeroVecMatrix' = replicate (replicate 0r)
+  -- Direct definitions of zero and addition for vectors
+  zeroVecMatrix : ∀ {m n} → VecMatrix R m n
+  zeroVecMatrix = replicate (replicate 0r)
 
   addVec : ∀ {m} → Vec R m → Vec R m → Vec R m
   addVec [] [] = []
   addVec (x ∷ xs) (y ∷ ys) = x + y ∷ addVec xs ys
 
-  -- addVecLem : ∀ {m} → (M N : Vec R m)
-  --           → FinVec→Vec (λ l → lookup l M + lookup l N) ≡ addVec M N
-  -- addVecLem {zero} [] [] = refl
-  -- addVecLem {suc m} (x ∷ xs) (y ∷ ys) = cong (λ zs → x + y ∷ zs) (addVecLem xs ys)
+  addVecMatrix : ∀ {m n} → VecMatrix R m n → VecMatrix R m n → VecMatrix R m n
+  addVecMatrix [] [] = []
+  addVecMatrix (M ∷ MS) (N ∷ NS) = addVec M N ∷ addVecMatrix MS NS
 
-  addVecMatrix' : ∀ {m n} → VecMatrix R m n → VecMatrix R m n → VecMatrix R m n
-  addVecMatrix' [] [] = []
-  addVecMatrix' (M ∷ MS) (N ∷ NS) = addVec M N ∷ addVecMatrix' MS NS
-
-  -- -- The key lemma relating addVecMatrix and addVecMatrix'
-  -- addVecMatrixEq : ∀ {m n} → (M N : VecMatrix R m n) → addVecMatrix M N ≡ addVecMatrix' M N
-  -- addVecMatrixEq {zero} {n} [] [] j = transp (λ i → Vec (Vec R n) 0) j []
-  -- addVecMatrixEq {suc m} {n} (M ∷ MS) (N ∷ NS) =
-  --   addVecMatrix (M ∷ MS) (N ∷ NS)
-  --     ≡⟨ transportUAop₂ FinMatrix≃VecMatrix (addFinMatrix R') (M ∷ MS) (N ∷ NS) ⟩
-  --   FinVec→Vec (λ l → lookup l M + lookup l N) ∷ _
-  --     ≡⟨ (λ i → addVecLem M N i ∷ FinMatrix→VecMatrix (λ k l → lookup l (lookup k MS) + lookup l (lookup k NS))) ⟩
-  --   addVec M N ∷ _
-  --     ≡⟨ cong (λ X → addVec M N ∷ X) (sym (transportUAop₂ FinMatrix≃VecMatrix (addFinMatrix R') MS NS) ∙ addVecMatrixEq MS NS) ⟩
-  --   addVec M N ∷ addVecMatrix' MS NS ∎
-
-  -- -- By binary funext we get an equality as functions
-  -- addVecMatrixEqFun : ∀ {m} {n} → addVecMatrix {m} {n} ≡ addVecMatrix'
-  -- addVecMatrixEqFun i M N = addVecMatrixEq M N i
-
-  -- -- We then directly get the properties about addVecMatrix'
-  -- addVecMatrixAssoc' : ∀ {m n} → (M N K : VecMatrix R m n) → addVecMatrix' M (addVecMatrix' N K) ≡ addVecMatrix' (addVecMatrix' M N) K
-  -- addVecMatrixAssoc' M N K = (λ i → addVecMatrixEq M (addVecMatrixEq N K (~ i)) (~ i))
-  --                         ∙∙ addVecMatrixAssoc M N K
-  --                         ∙∙ (λ i → addVecMatrixEq (addVecMatrixEq M N i) K i)
-
-  foo1 : (m n : ℕ) → FinMatrix→VecMatrix (zeroFinMatrix R' {m} {n}) ≡ zeroVecMatrix'
-  foo1 zero n = refl
-  foo1 (suc m) n = λ i → lem n i ∷ foo1 m n i
+  -- Proof that FinMatrix→VecMatrix is a monoid homorphism
+  FinMatrix→VecMatrixZero : (m n : ℕ) → FinMatrix→VecMatrix (zeroFinMatrix R' {m} {n}) ≡ zeroVecMatrix
+  FinMatrix→VecMatrixZero zero n = refl
+  FinMatrix→VecMatrixZero (suc m) n = λ i → lem n i ∷ FinMatrix→VecMatrixZero m n i
     where
     lem : (n : ℕ) → FinVec→Vec (λ _ → 0r) ≡ replicate {n = n} 0r
     lem zero = refl
     lem (suc n) = cong (0r ∷_) (lem n)
 
-  foo2 : (m n : ℕ) (M N : FinMatrix R m n) → FinMatrix→VecMatrix (addFinMatrix R' M N) ≡ addVecMatrix' (FinMatrix→VecMatrix M) (FinMatrix→VecMatrix N)
-  foo2 zero n M N = refl
-  foo2 (suc m) n M N = λ i → lem n (M zero) (N zero) i ∷ ih i
+  FinMatrix→VecMatrixHomAdd : (m n : ℕ) (M N : FinMatrix R m n)
+    → FinMatrix→VecMatrix (addFinMatrix R' M N) ≡
+      addVecMatrix (FinMatrix→VecMatrix M) (FinMatrix→VecMatrix N)
+  FinMatrix→VecMatrixHomAdd zero n M N = refl
+  FinMatrix→VecMatrixHomAdd (suc m) n M N =
+    λ i → lem n (M zero) (N zero) i
+        ∷ FinMatrix→VecMatrixHomAdd m n (λ i j → M (suc i) j) (λ i j → N (suc i) j) i
      where
-    lem : (n : ℕ) (V W : FinVec R n) → FinVec→Vec (λ j → V j + W j) ≡ addVec (FinVec→Vec V) (FinVec→Vec W)
-    lem zero V W = refl
-    lem (suc n) V W = λ i → V zero + W zero ∷ lem n (V ∘ suc) (W ∘ suc) i
-    ih : FinVec→Vec (λ x → FinVec→Vec (λ j → M (suc x) j + N (suc x) j)) ≡
-         addVecMatrix' (FinVec→Vec (λ x → FinVec→Vec (M (suc x)))) (FinVec→Vec (λ x → FinVec→Vec (N (suc x))))
-    ih = foo2 m n (λ i j → M (suc i) j) (λ i j → N (suc i) j)
+     lem : (n : ℕ) (V W : FinVec R n)
+       → FinVec→Vec (λ j → V j + W j) ≡ addVec (FinVec→Vec V) (FinVec→Vec W)
+     lem zero V W = refl
+     lem (suc n) V W = λ i → V zero + W zero ∷ lem n (V ∘ suc) (W ∘ suc) i
 
+  -- Combine everything to get an induced monoid structure of VecMatrix that is equal to the one on FinMatrix
   VecMatrixMonoid : (m n : ℕ) → Monoid
-  VecMatrixMonoid m n = InducedMonoid (FinMatrixMonoid R' m n) (VecMatrix R m n , zeroVecMatrix' , addVecMatrix') FinMatrix≃VecMatrix (foo1 m n , foo2 m n)
+  VecMatrixMonoid m n = InducedMonoid (FinMatrixMonoid R' m n) (_ , zeroVecMatrix , addVecMatrix)
+                                      FinMatrix≃VecMatrix (FinMatrix→VecMatrixZero m n , FinMatrix→VecMatrixHomAdd m n)
 
-  Goal : (m n : ℕ) → FinMatrixMonoid R' m n ≡ VecMatrixMonoid m n
-  Goal m n = InducedMonoidPath (FinMatrixMonoid R' m n) (VecMatrix R m n , zeroVecMatrix' , addVecMatrix') FinMatrix≃VecMatrix (foo1 m n , foo2 m n)
+  FinMatrixMonoid≡VecMatrixMonoid : (m n : ℕ) → FinMatrixMonoid R' m n ≡ VecMatrixMonoid m n
+  FinMatrixMonoid≡VecMatrixMonoid m n =
+    InducedMonoidPath (FinMatrixMonoid R' m n) (_ , zeroVecMatrix , addVecMatrix)
+                      FinMatrix≃VecMatrix (FinMatrix→VecMatrixZero m n , FinMatrix→VecMatrixHomAdd m n)
+
+
+-- TODO: extend this to the whole ring structure
+
