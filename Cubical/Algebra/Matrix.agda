@@ -170,6 +170,9 @@ module _ (G' : AbGroup {ℓ}) where
     InducedAbGroupPath (FinMatrixAbGroup G' m n) (_ , addVecMatrix)
                         FinMatrix≃VecMatrix (FinMatrix→VecMatrixHomAdd m n)
 
+
+-- Define identity matrix and matrix multiplication for FinMatrix and
+-- prove that square matrices form a ring
 module _ (R' : Ring {ℓ}) where
 
   open Ring R' renaming ( Carrier to R ; is-set to isSetR )
