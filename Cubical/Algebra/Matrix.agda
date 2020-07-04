@@ -7,6 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Transport
 open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
@@ -231,6 +232,9 @@ module _ (R' : Ring {ℓ}) where
                           negFinMatrix isSetFinMatrix addFinMatrixAssoc addFinMatrix0r addFinMatrixNegMatrixr addFinMatrixComm
                           mulFinMatrixAssoc mulFinMatrixr1 mulFinMatrix1r mulFinMatrixrDistrAddFinMatrix mulFinMatrixlDistrAddFinMatrix
 
+  FinMatrixMonoid : (m n : ℕ) → Monoid {ℓ}
+  FinMatrixMonoid m n = makeMonoid {M = FinMatrix R m n} zeroFinMatrix addFinMatrix isSetFinMatrix addFinMatrixAssoc addFinMatrix0r addFinMatrix0l
+
 -- Experiment using addition. Transport commutativity from one
 -- representation to the the other and relate the transported
 -- operation with a more direct definition.
@@ -238,25 +242,47 @@ module _ (R' : Ring {ℓ}) where
 
   open Ring R' renaming ( Carrier to R )
 
-  addVecMatrix : ∀ {m n} → VecMatrix R m n → VecMatrix R m n → VecMatrix R m n
-  addVecMatrix {m} {n} = transport (λ i → FinMatrix≡VecMatrix R m n i
-                                        → FinMatrix≡VecMatrix R m n i
-                                        → FinMatrix≡VecMatrix R m n i)
-                                   (addFinMatrix R')
+  foo : (m n : ℕ) → Monoid
+  foo m n = FinMatrixMonoid R' m n
 
-  addMatrixPath : ∀ {m n} → PathP (λ i → FinMatrix≡VecMatrix R m n i
-                                       → FinMatrix≡VecMatrix R m n i
-                                       → FinMatrix≡VecMatrix R m n i)
-                                  (addFinMatrix R') addVecMatrix
-  addMatrixPath {m} {n} i = transp (λ j → FinMatrix≡VecMatrix R m n (i ∧ j)
-                                        → FinMatrix≡VecMatrix R m n (i ∧ j)
-                                        → FinMatrix≡VecMatrix R m n (i ∧ j))
-                                   (~ i) (addFinMatrix R')
+  -- In order to easier transport structures between types we should
+  -- use parametrized structures instead of fully packed ones?
+  record MyMonoid (Carrier : Type ℓ) : Type (ℓ-suc ℓ) where
 
-  addVecMatrixComm : ∀ {m n} → (M N : VecMatrix R m n) → addVecMatrix M N ≡ addVecMatrix N M
-  addVecMatrixComm {m} {n} = transport (λ i → (M N : FinMatrix≡VecMatrix R m n i)
-                                            → addMatrixPath i M N ≡ addMatrixPath i N M)
-                                       (addFinMatrixComm R')
+    constructor mymonoid
+
+    field
+      ε        : Carrier
+      _·_      : Carrier → Carrier → Carrier
+      isMonoid : IsMonoid ε _·_
+
+  bar : (m n : ℕ) → MyMonoid (FinMatrix R m n)
+  bar m n = mymonoid _ _ (foo m n .Monoid.isMonoid)
+
+  baz : (m n : ℕ) → MyMonoid (VecMatrix R m n)
+  baz m n = subst MyMonoid (FinMatrix≡VecMatrix R m n) (bar m n)
+
+  addVecMatrix : ∀ {m} {n} → VecMatrix R m n → VecMatrix R m n → VecMatrix R m n
+  addVecMatrix {m} {n} = baz m n .MyMonoid._·_
+  -- transport (λ i → FinMatrix≡VecMatrix R m n i
+  --                                       → FinMatrix≡VecMatrix R m n i
+  --                                       → FinMatrix≡VecMatrix R m n i)
+  --                                  (addFinMatrix R')
+
+  -- addMatrixPath : ∀ {m n} → PathP (λ i → FinMatrix≡VecMatrix R m n i
+  --                                      → FinMatrix≡VecMatrix R m n i
+  --                                      → FinMatrix≡VecMatrix R m n i)
+  --                                 (addFinMatrix R') addVecMatrix
+  -- addMatrixPath {m} {n} i = transp (λ j → FinMatrix≡VecMatrix R m n (i ∧ j)
+  --                                       → FinMatrix≡VecMatrix R m n (i ∧ j)
+  --                                       → FinMatrix≡VecMatrix R m n (i ∧ j))
+  --                                  (~ i) (addFinMatrix R')
+
+  addVecMatrixAssoc : ∀ {m n} → (M N K : VecMatrix R m n) → addVecMatrix M (addVecMatrix N K) ≡ addVecMatrix (addVecMatrix M N) K
+  addVecMatrixAssoc {m} {n} = baz m n .MyMonoid.isMonoid .IsMonoid.assoc
+  -- transport (λ i → (M N : FinMatrix≡VecMatrix R m n i)
+  --                                           → addMatrixPath i M N ≡ addMatrixPath i N M)
+  --                                      (addFinMatrixComm R')
 
 
   -- More direct definition of addition for VecMatrix:
@@ -291,5 +317,13 @@ module _ (R' : Ring {ℓ}) where
   addVecMatrixEqFun i M N = addVecMatrixEq M N i
 
   -- We then directly get the properties about addVecMatrix'
-  addVecMatrixComm' : ∀ {m n} → (M N : VecMatrix R m n) → addVecMatrix' M N ≡ addVecMatrix' N M
-  addVecMatrixComm' M N = sym (addVecMatrixEq M N) ∙∙ addVecMatrixComm M N ∙∙ addVecMatrixEq N M
+  addVecMatrixAssoc' : ∀ {m n} → (M N K : VecMatrix R m n) → addVecMatrix' M (addVecMatrix' N K) ≡ addVecMatrix' (addVecMatrix' M N) K
+  addVecMatrixAssoc' M N K = (λ i → addVecMatrixEq M (addVecMatrixEq N K (~ i)) (~ i))
+                          ∙∙ addVecMatrixAssoc M N K
+                          ∙∙ (λ i → addVecMatrixEq (addVecMatrixEq M N i) K i)
+
+  VecMatrixMonoid : (m n : ℕ) → Monoid
+  VecMatrixMonoid m n = makeMonoid {M = VecMatrix R m n} {!!} addVecMatrix' {!!} addVecMatrixAssoc' {!!} {!!}
+
+  FooMonoidEquiv : (m n : ℕ) → MonoidEquiv (FinMatrixMonoid R' m n) (VecMatrixMonoid m n)
+  FooMonoidEquiv m n = monoidiso FinMatrix≃VecMatrix {!!} {!!}
