@@ -10,6 +10,7 @@ module Cubical.Structures.Axioms where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
@@ -32,7 +33,7 @@ AxiomsEquivStr : {S : Type ℓ → Type ℓ₁} (ι : StrEquiv S ℓ₁')
 AxiomsEquivStr ι axioms (X , (s , a)) (Y , (t , b)) e = ι (X , s) (Y , t) e
 
 axiomsUnivalentStr : {S : Type ℓ → Type ℓ₁}
-  (ι : (A B : Σ[ X ∈ (Type ℓ) ] (S X)) → A .fst ≃ B .fst → Type ℓ₁')
+  (ι : (A B : TypeWithStr ℓ S) → A .fst ≃ B .fst → Type ℓ₁')
   {axioms : (X : Type ℓ) → S X → Type ℓ₂}
   (axioms-are-Props : (X : Type ℓ) (s : S X) → isProp (axioms X s))
   (θ : UnivalentStr S ι)
@@ -46,3 +47,13 @@ axiomsUnivalentStr {S = S} ι {axioms = axioms} axioms-are-Props θ {X , s , a} 
     ≃⟨ ΣPath≃PathΣ ⟩
   PathP (λ i → AxiomsStructure S axioms (ua e i)) (s , a) (t , b)
   ■
+
+transferAxioms : {S : Type ℓ → Type ℓ₁}
+  {ι : (A B : TypeWithStr ℓ S) → A .fst ≃ B .fst → Type ℓ₁'}
+  (θ : UnivalentStr S ι)
+  {axioms : (X : Type ℓ) → S X → Type ℓ₂}
+  (A : TypeWithStr ℓ (AxiomsStructure S axioms)) (B : TypeWithStr ℓ S)
+  → (typ A , str A .fst) ≃[ ι ] B
+  → TypeWithStr ℓ (AxiomsStructure S axioms)
+transferAxioms θ {axioms} A B eqv =
+  B .fst , B .snd , subst (uncurry axioms) (sip θ _ _ eqv) (A .snd .snd)

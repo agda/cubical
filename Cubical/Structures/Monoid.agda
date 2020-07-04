@@ -182,8 +182,8 @@ module MonoidΣTheory {ℓ} where
   MonoidΣ→RawMonoidΣ (X , Y , Z) = X , Y
 
   InducedMonoidΣ : (M : MonoidΣ) (N : RawMonoidΣ) (e : M .fst ≃ N .fst) → RawMonoidEquivStr (MonoidΣ→RawMonoidΣ M) N e → MonoidΣ
-  InducedMonoidΣ (M , opsM , ax) (N , opsN) e r =
-    N , opsN , subst (uncurry MonoidAxioms) (sip rawMonoidUnivalentStr (M , opsM) (N , opsN) (e , r)) ax
+  InducedMonoidΣ M N e r =
+    transferAxioms rawMonoidUnivalentStr M N (e , r)
 
   InducedMonoidΣPath : (M : MonoidΣ) (N : RawMonoidΣ) (e : M .fst ≃ N .fst)
                        (E : RawMonoidEquivStr (MonoidΣ→RawMonoidΣ M) N e)
