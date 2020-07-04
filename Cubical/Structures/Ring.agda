@@ -254,7 +254,7 @@ Ring→Monoid (ring _ _ _ _ _ _ R) = monoid _ _ _ (IsRing.·-isMonoid R)
   that might should become obsolete or subject to change once we
   have a ring solver (see https://github.com/agda/cubical/issues/297)
 -}
-module Theory (R : Ring {ℓ}) where
+module Theory (R' : Ring {ℓ}) where
 
   open Ring R' renaming ( Carrier to R )
 

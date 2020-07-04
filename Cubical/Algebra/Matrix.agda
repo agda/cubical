@@ -83,7 +83,7 @@ FinMatrix≡VecMatrix _ _ _ = ua FinMatrix≃VecMatrix
 module _ (R' : Ring {ℓ}) where
 
   open Ring R' renaming ( Carrier to R ; is-set to isSetR )
-  open theory R'
+  open Theory R'
 
   zeroFinMatrix : ∀ {m n} → FinMatrix R m n
   zeroFinMatrix _ _ = 0r
