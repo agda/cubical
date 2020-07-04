@@ -272,10 +272,12 @@ module _ (R' : Ring {ℓ}) where
      lem zero V W = refl
      lem (suc n) V W = λ i → V zero + W zero ∷ lem n (V ∘ suc) (W ∘ suc) i
 
-  -- Combine everything to get an induced monoid structure of VecMatrix that is equal to the one on FinMatrix
+  -- Combine everything to get an induced monoid structure of
+  -- VecMatrix that is equal to the one on FinMatrix
   VecMatrixMonoid : (m n : ℕ) → Monoid
-  VecMatrixMonoid m n = InducedMonoid (FinMatrixMonoid R' m n) (_ , zeroVecMatrix , addVecMatrix)
-                                      FinMatrix≃VecMatrix (FinMatrix→VecMatrixZero m n , FinMatrix→VecMatrixHomAdd m n)
+  VecMatrixMonoid m n =
+    InducedMonoid (FinMatrixMonoid R' m n) (_ , zeroVecMatrix , addVecMatrix)
+                  FinMatrix≃VecMatrix (FinMatrix→VecMatrixZero m n , FinMatrix→VecMatrixHomAdd m n)
 
   FinMatrixMonoid≡VecMatrixMonoid : (m n : ℕ) → FinMatrixMonoid R' m n ≡ VecMatrixMonoid m n
   FinMatrixMonoid≡VecMatrixMonoid m n =

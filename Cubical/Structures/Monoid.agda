@@ -173,22 +173,22 @@ module MonoidΣTheory {ℓ} where
     Monoid→MonoidΣ M ≡ Monoid→MonoidΣ N ≃⟨ isoToEquiv (invIso (congIso MonoidIsoMonoidΣ)) ⟩
     M ≡ N ■
 
-
-  -- TODO: clean and generalize the following?
   RawMonoidΣ : Type (ℓ-suc ℓ)
   RawMonoidΣ = TypeWithStr ℓ RawMonoidStructure
 
-  MonoidΣ→RawMonoidΣ : MonoidΣ → RawMonoidΣ
-  MonoidΣ→RawMonoidΣ (X , Y , Z) = X , Y
+  Monoid→RawMonoidΣ : Monoid → RawMonoidΣ
+  Monoid→RawMonoidΣ (monoid A ε _·_ _) = A , ε , _·_
 
-  InducedMonoidΣ : (M : MonoidΣ) (N : RawMonoidΣ) (e : M .fst ≃ N .fst) → RawMonoidEquivStr (MonoidΣ→RawMonoidΣ M) N e → MonoidΣ
-  InducedMonoidΣ M N e r =
-    transferAxioms rawMonoidUnivalentStr M N (e , r)
+  InducedMonoid : (M : Monoid) (N : RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+                 → RawMonoidEquivStr (Monoid→RawMonoidΣ M) N e → Monoid
+  InducedMonoid M N e r =
+    MonoidΣ→Monoid (transferAxioms rawMonoidUnivalentStr (Monoid→MonoidΣ M) N (e , r))
 
-  InducedMonoidΣPath : (M : MonoidΣ) (N : RawMonoidΣ) (e : M .fst ≃ N .fst)
-                       (E : RawMonoidEquivStr (MonoidΣ→RawMonoidΣ M) N e)
-                     → M ≡ InducedMonoidΣ M N e E
-  InducedMonoidΣPath M N e E = MonoidΣPath M (InducedMonoidΣ M N e E) .fst (e , E)
+  InducedMonoidPath : (M : Monoid {ℓ}) (N : RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+                      (E : RawMonoidEquivStr (Monoid→RawMonoidΣ M) N e)
+                    → M ≡ InducedMonoid M N e E
+  InducedMonoidPath M N e E =
+    MonoidPath M (InducedMonoid M N e E) .fst (monoidiso e (E .fst) (E .snd))
 
 -- We now extract the important results from the above module
 
@@ -201,14 +201,14 @@ MonoidPath : (M N : Monoid {ℓ}) → (MonoidEquiv M N) ≃ (M ≡ N)
 MonoidPath = MonoidΣTheory.MonoidPath
 
 InducedMonoid : (M : Monoid {ℓ}) (N : MonoidΣTheory.RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
-              → MonoidΣTheory.RawMonoidEquivStr (MonoidΣTheory.MonoidΣ→RawMonoidΣ (MonoidΣTheory.Monoid→MonoidΣ M)) N e
+              → MonoidΣTheory.RawMonoidEquivStr (MonoidΣTheory.Monoid→RawMonoidΣ M) N e
               → Monoid
-InducedMonoid M N e H = MonoidΣTheory.MonoidΣ→Monoid (MonoidΣTheory.InducedMonoidΣ (MonoidΣTheory.Monoid→MonoidΣ M) N e H)
+InducedMonoid = MonoidΣTheory.InducedMonoid
 
 InducedMonoidPath : (M : Monoid {ℓ}) (N : MonoidΣTheory.RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
-                    (E : MonoidΣTheory.RawMonoidEquivStr (MonoidΣTheory.MonoidΣ→RawMonoidΣ (MonoidΣTheory.Monoid→MonoidΣ M)) N e)
+                    (E : MonoidΣTheory.RawMonoidEquivStr (MonoidΣTheory.Monoid→RawMonoidΣ M) N e)
                   → M ≡ InducedMonoid M N e E
-InducedMonoidPath M N e E = cong MonoidΣTheory.MonoidΣ→Monoid (MonoidΣTheory.InducedMonoidΣPath (MonoidΣTheory.Monoid→MonoidΣ M) N e E)
+InducedMonoidPath = MonoidΣTheory.InducedMonoidPath
 
 
 module MonoidTheory {ℓ} (M' : Monoid {ℓ}) where
