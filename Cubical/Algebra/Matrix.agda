@@ -242,28 +242,28 @@ module _ (R' : Ring {ℓ}) where
 
   open Ring R' renaming ( Carrier to R )
 
-  foo : (m n : ℕ) → Monoid
-  foo m n = FinMatrixMonoid R' m n
+  -- foo : (m n : ℕ) → Monoid
+  -- foo m n = FinMatrixMonoid R' m n
 
   -- In order to easier transport structures between types we should
   -- use parametrized structures instead of fully packed ones?
-  record MyMonoid (Carrier : Type ℓ) : Type (ℓ-suc ℓ) where
+  -- record MyMonoid (Carrier : Type ℓ) : Type (ℓ-suc ℓ) where
 
-    constructor mymonoid
+  --   constructor mymonoid
 
-    field
-      ε        : Carrier
-      _·_      : Carrier → Carrier → Carrier
-      isMonoid : IsMonoid ε _·_
+  --   field
+  --     ε        : Carrier
+  --     _·_      : Carrier → Carrier → Carrier
+  --     isMonoid : IsMonoid ε _·_
 
-  bar : (m n : ℕ) → MyMonoid (FinMatrix R m n)
-  bar m n = mymonoid _ _ (foo m n .Monoid.isMonoid)
+  -- bar : (m n : ℕ) → MyMonoid (FinMatrix R m n)
+  -- bar m n = mymonoid _ _ (foo m n .Monoid.isMonoid)
 
-  baz : (m n : ℕ) → MyMonoid (VecMatrix R m n)
-  baz m n = subst MyMonoid (FinMatrix≡VecMatrix R m n) (bar m n)
+  -- baz : (m n : ℕ) → MyMonoid (VecMatrix R m n)
+  -- baz m n = subst MyMonoid (FinMatrix≡VecMatrix R m n) (bar m n)
 
-  addVecMatrix : ∀ {m} {n} → VecMatrix R m n → VecMatrix R m n → VecMatrix R m n
-  addVecMatrix {m} {n} = baz m n .MyMonoid._·_
+  -- addVecMatrix : ∀ {m} {n} → VecMatrix R m n → VecMatrix R m n → VecMatrix R m n
+  -- addVecMatrix {m} {n} = baz m n .MyMonoid._·_
   -- transport (λ i → FinMatrix≡VecMatrix R m n i
   --                                       → FinMatrix≡VecMatrix R m n i
   --                                       → FinMatrix≡VecMatrix R m n i)
@@ -278,52 +278,73 @@ module _ (R' : Ring {ℓ}) where
   --                                       → FinMatrix≡VecMatrix R m n (i ∧ j))
   --                                  (~ i) (addFinMatrix R')
 
-  addVecMatrixAssoc : ∀ {m n} → (M N K : VecMatrix R m n) → addVecMatrix M (addVecMatrix N K) ≡ addVecMatrix (addVecMatrix M N) K
-  addVecMatrixAssoc {m} {n} = baz m n .MyMonoid.isMonoid .IsMonoid.assoc
+  -- addVecMatrixAssoc : ∀ {m n} → (M N K : VecMatrix R m n) → addVecMatrix M (addVecMatrix N K) ≡ addVecMatrix (addVecMatrix M N) K
+  -- addVecMatrixAssoc {m} {n} = baz m n .MyMonoid.isMonoid .IsMonoid.assoc
   -- transport (λ i → (M N : FinMatrix≡VecMatrix R m n i)
   --                                           → addMatrixPath i M N ≡ addMatrixPath i N M)
   --                                      (addFinMatrixComm R')
 
 
-  -- More direct definition of addition for VecMatrix:
+  -- More direct definition of zero and addition for VecMatrix:
+  zeroVecMatrix' : ∀ {m n} → VecMatrix R m n
+  zeroVecMatrix' = replicate (replicate 0r)
 
   addVec : ∀ {m} → Vec R m → Vec R m → Vec R m
   addVec [] [] = []
   addVec (x ∷ xs) (y ∷ ys) = x + y ∷ addVec xs ys
 
-  addVecLem : ∀ {m} → (M N : Vec R m)
-            → FinVec→Vec (λ l → lookup l M + lookup l N) ≡ addVec M N
-  addVecLem {zero} [] [] = refl
-  addVecLem {suc m} (x ∷ xs) (y ∷ ys) = cong (λ zs → x + y ∷ zs) (addVecLem xs ys)
+  -- addVecLem : ∀ {m} → (M N : Vec R m)
+  --           → FinVec→Vec (λ l → lookup l M + lookup l N) ≡ addVec M N
+  -- addVecLem {zero} [] [] = refl
+  -- addVecLem {suc m} (x ∷ xs) (y ∷ ys) = cong (λ zs → x + y ∷ zs) (addVecLem xs ys)
 
   addVecMatrix' : ∀ {m n} → VecMatrix R m n → VecMatrix R m n → VecMatrix R m n
   addVecMatrix' [] [] = []
   addVecMatrix' (M ∷ MS) (N ∷ NS) = addVec M N ∷ addVecMatrix' MS NS
 
-  -- The key lemma relating addVecMatrix and addVecMatrix'
-  addVecMatrixEq : ∀ {m n} → (M N : VecMatrix R m n) → addVecMatrix M N ≡ addVecMatrix' M N
-  addVecMatrixEq {zero} {n} [] [] j = transp (λ i → Vec (Vec R n) 0) j []
-  addVecMatrixEq {suc m} {n} (M ∷ MS) (N ∷ NS) =
-    addVecMatrix (M ∷ MS) (N ∷ NS)
-      ≡⟨ transportUAop₂ FinMatrix≃VecMatrix (addFinMatrix R') (M ∷ MS) (N ∷ NS) ⟩
-    FinVec→Vec (λ l → lookup l M + lookup l N) ∷ _
-      ≡⟨ (λ i → addVecLem M N i ∷ FinMatrix→VecMatrix (λ k l → lookup l (lookup k MS) + lookup l (lookup k NS))) ⟩
-    addVec M N ∷ _
-      ≡⟨ cong (λ X → addVec M N ∷ X) (sym (transportUAop₂ FinMatrix≃VecMatrix (addFinMatrix R') MS NS) ∙ addVecMatrixEq MS NS) ⟩
-    addVec M N ∷ addVecMatrix' MS NS ∎
+  -- -- The key lemma relating addVecMatrix and addVecMatrix'
+  -- addVecMatrixEq : ∀ {m n} → (M N : VecMatrix R m n) → addVecMatrix M N ≡ addVecMatrix' M N
+  -- addVecMatrixEq {zero} {n} [] [] j = transp (λ i → Vec (Vec R n) 0) j []
+  -- addVecMatrixEq {suc m} {n} (M ∷ MS) (N ∷ NS) =
+  --   addVecMatrix (M ∷ MS) (N ∷ NS)
+  --     ≡⟨ transportUAop₂ FinMatrix≃VecMatrix (addFinMatrix R') (M ∷ MS) (N ∷ NS) ⟩
+  --   FinVec→Vec (λ l → lookup l M + lookup l N) ∷ _
+  --     ≡⟨ (λ i → addVecLem M N i ∷ FinMatrix→VecMatrix (λ k l → lookup l (lookup k MS) + lookup l (lookup k NS))) ⟩
+  --   addVec M N ∷ _
+  --     ≡⟨ cong (λ X → addVec M N ∷ X) (sym (transportUAop₂ FinMatrix≃VecMatrix (addFinMatrix R') MS NS) ∙ addVecMatrixEq MS NS) ⟩
+  --   addVec M N ∷ addVecMatrix' MS NS ∎
 
-  -- By binary funext we get an equality as functions
-  addVecMatrixEqFun : ∀ {m} {n} → addVecMatrix {m} {n} ≡ addVecMatrix'
-  addVecMatrixEqFun i M N = addVecMatrixEq M N i
+  -- -- By binary funext we get an equality as functions
+  -- addVecMatrixEqFun : ∀ {m} {n} → addVecMatrix {m} {n} ≡ addVecMatrix'
+  -- addVecMatrixEqFun i M N = addVecMatrixEq M N i
 
-  -- We then directly get the properties about addVecMatrix'
-  addVecMatrixAssoc' : ∀ {m n} → (M N K : VecMatrix R m n) → addVecMatrix' M (addVecMatrix' N K) ≡ addVecMatrix' (addVecMatrix' M N) K
-  addVecMatrixAssoc' M N K = (λ i → addVecMatrixEq M (addVecMatrixEq N K (~ i)) (~ i))
-                          ∙∙ addVecMatrixAssoc M N K
-                          ∙∙ (λ i → addVecMatrixEq (addVecMatrixEq M N i) K i)
+  -- -- We then directly get the properties about addVecMatrix'
+  -- addVecMatrixAssoc' : ∀ {m n} → (M N K : VecMatrix R m n) → addVecMatrix' M (addVecMatrix' N K) ≡ addVecMatrix' (addVecMatrix' M N) K
+  -- addVecMatrixAssoc' M N K = (λ i → addVecMatrixEq M (addVecMatrixEq N K (~ i)) (~ i))
+  --                         ∙∙ addVecMatrixAssoc M N K
+  --                         ∙∙ (λ i → addVecMatrixEq (addVecMatrixEq M N i) K i)
+
+  foo1 : (m n : ℕ) → FinMatrix→VecMatrix (zeroFinMatrix R' {m} {n}) ≡ zeroVecMatrix'
+  foo1 zero n = refl
+  foo1 (suc m) n = λ i → lem n i ∷ foo1 m n i
+    where
+    lem : (n : ℕ) → FinVec→Vec (λ _ → 0r) ≡ replicate {n = n} 0r
+    lem zero = refl
+    lem (suc n) = cong (0r ∷_) (lem n)
+
+  foo2 : (m n : ℕ) (M N : FinMatrix R m n) → FinMatrix→VecMatrix (addFinMatrix R' M N) ≡ addVecMatrix' (FinMatrix→VecMatrix M) (FinMatrix→VecMatrix N)
+  foo2 zero n M N = refl
+  foo2 (suc m) n M N = λ i → lem n (M zero) (N zero) i ∷ ih i
+     where
+    lem : (n : ℕ) (V W : FinVec R n) → FinVec→Vec (λ j → V j + W j) ≡ addVec (FinVec→Vec V) (FinVec→Vec W)
+    lem zero V W = refl
+    lem (suc n) V W = λ i → V zero + W zero ∷ lem n (V ∘ suc) (W ∘ suc) i
+    ih : FinVec→Vec (λ x → FinVec→Vec (λ j → M (suc x) j + N (suc x) j)) ≡
+         addVecMatrix' (FinVec→Vec (λ x → FinVec→Vec (M (suc x)))) (FinVec→Vec (λ x → FinVec→Vec (N (suc x))))
+    ih = foo2 m n (λ i j → M (suc i) j) (λ i j → N (suc i) j)
 
   VecMatrixMonoid : (m n : ℕ) → Monoid
-  VecMatrixMonoid m n = makeMonoid {M = VecMatrix R m n} {!!} addVecMatrix' {!!} addVecMatrixAssoc' {!!} {!!}
+  VecMatrixMonoid m n = InducedMonoid (FinMatrixMonoid R' m n) (VecMatrix R m n , zeroVecMatrix' , addVecMatrix') FinMatrix≃VecMatrix (foo1 m n , foo2 m n)
 
-  FooMonoidEquiv : (m n : ℕ) → MonoidEquiv (FinMatrixMonoid R' m n) (VecMatrixMonoid m n)
-  FooMonoidEquiv m n = monoidiso FinMatrix≃VecMatrix {!!} {!!}
+  Goal : (m n : ℕ) → FinMatrixMonoid R' m n ≡ VecMatrixMonoid m n
+  Goal m n = InducedMonoidPath (FinMatrixMonoid R' m n) (VecMatrix R m n , zeroVecMatrix' , addVecMatrix') FinMatrix≃VecMatrix (foo1 m n , foo2 m n)

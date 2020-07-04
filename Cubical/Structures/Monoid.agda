@@ -172,6 +172,8 @@ module MonoidΣTheory {ℓ} where
     Monoid→MonoidΣ M ≡ Monoid→MonoidΣ N ≃⟨ isoToEquiv (invIso (congIso MonoidIsoMonoidΣ)) ⟩
     M ≡ N ■
 
+
+  -- TODO: clean and genealize the following?
   RawMonoidΣ : Type (ℓ-suc ℓ)
   RawMonoidΣ = TypeWithStr ℓ RawMonoidStructure
 
@@ -226,9 +228,10 @@ module MonoidΣTheory {ℓ} where
     goal : MonoidAxioms N HN
     goal = issemigroup (isOfHLevelRespectEquiv 2 e H11) goal3 , λ x → goal2 x , goal1 x
 
-  InducedMonoidPath : (M : MonoidΣ) (N : RawMonoidΣ) (e : M .fst ≃ N .fst) (E : RawMonoidEquivStr (MonoidΣ→RawMonoidΣ M) N e)
-                    → (M ≡ InducedMonoidΣ M N e E)
-  InducedMonoidPath M N e E = MonoidΣPath M (InducedMonoidΣ M N e E) .fst (e , E)
+  InducedMonoidΣPath : (M : MonoidΣ) (N : RawMonoidΣ) (e : M .fst ≃ N .fst)
+                       (E : RawMonoidEquivStr (MonoidΣ→RawMonoidΣ M) N e)
+                     → M ≡ InducedMonoidΣ M N e E
+  InducedMonoidΣPath M N e E = MonoidΣPath M (InducedMonoidΣ M N e E) .fst (e , E)
 
 -- We now extract the important results from the above module
 
@@ -239,6 +242,16 @@ isPropIsMonoid ε _·_ =
 
 MonoidPath : (M N : Monoid {ℓ}) → (MonoidEquiv M N) ≃ (M ≡ N)
 MonoidPath = MonoidΣTheory.MonoidPath
+
+InducedMonoid : (M : Monoid {ℓ}) (N : MonoidΣTheory.RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+              → MonoidΣTheory.RawMonoidEquivStr (MonoidΣTheory.MonoidΣ→RawMonoidΣ (MonoidΣTheory.Monoid→MonoidΣ M)) N e
+              → Monoid
+InducedMonoid M N e H = MonoidΣTheory.MonoidΣ→Monoid (MonoidΣTheory.InducedMonoidΣ (MonoidΣTheory.Monoid→MonoidΣ M) N e H)
+
+InducedMonoidPath : (M : Monoid {ℓ}) (N : MonoidΣTheory.RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+                    (E : MonoidΣTheory.RawMonoidEquivStr (MonoidΣTheory.MonoidΣ→RawMonoidΣ (MonoidΣTheory.Monoid→MonoidΣ M)) N e)
+                  → M ≡ InducedMonoid M N e E
+InducedMonoidPath M N e E = cong MonoidΣTheory.MonoidΣ→Monoid (MonoidΣTheory.InducedMonoidΣPath (MonoidΣTheory.Monoid→MonoidΣ M) N e E)
 
 
 module MonoidTheory {ℓ} (M' : Monoid {ℓ}) where
