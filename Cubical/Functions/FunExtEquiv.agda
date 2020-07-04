@@ -2,7 +2,9 @@
 module Cubical.Functions.FunExtEquiv where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.CartesianKanOps
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
@@ -132,3 +134,85 @@ nAryFunExtEquiv n {X} {Y} fX fY = isoToEquiv (iso (nAryFunExt n fX fY) (nAryFunE
        → nAryFunExt⁻ n fX fY (nAryFunExt n fX fY p) ≡ p
   rinv zero fX fY p i []          = p []
   rinv (suc n) fX fY p i (x ∷ xs) = rinv n (fX x) (fY x) (λ ys i → p (x ∷ ys) i) i xs
+
+-- Funext when the domain also depends on the interval
+
+funExtDep : {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ₁}
+  {f : (x : A i0) → B i0 x} {g : (x : A i1) → B i1 x}
+  → ({x₀ : A i0} {x₁ : A i1} (p : PathP A x₀ x₁) → PathP (λ i → B i (p i)) (f x₀) (g x₁))
+  → PathP (λ i → (x : A i) → B i x) f g
+funExtDep {A = A} {B} {f} {g} h i x =
+  comp
+    (λ k → B i (coei→i A i x k))
+    (λ k → λ
+      { (i = i0) → f (coei→i A i0 x k)
+      ; (i = i1) → g (coei→i A i1 x k)
+      })
+    (h (λ j → coei→j A i j x) i)
+
+funExtDep⁻ : {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ₁}
+  {f : (x : A i0) → B i0 x} {g : (x : A i1) → B i1 x}
+  → PathP (λ i → (x : A i) → B i x) f g
+  → ({x₀ : A i0} {x₁ : A i1} (p : PathP A x₀ x₁) → PathP (λ i → B i (p i)) (f x₀) (g x₁))
+funExtDep⁻ q p i = q i (p i)
+
+funExtDepEquiv : {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ₁}
+  {f : (x : A i0) → B i0 x} {g : (x : A i1) → B i1 x}
+  → ({x₀ : A i0} {x₁ : A i1} (p : PathP A x₀ x₁) → PathP (λ i → B i (p i)) (f x₀) (g x₁))
+  ≃ PathP (λ i → (x : A i) → B i x) f g
+funExtDepEquiv {A = A} {B} {f} {g} = isoToEquiv isom
+  where
+  open Iso
+  isom : Iso _ _
+  isom .fun = funExtDep
+  isom .inv = funExtDep⁻
+  isom .rightInv q m i x =
+    comp
+      (λ k → B i (coei→i A i x (k ∨ m)))
+      (λ k → λ
+        { (i = i0) → f (coei→i A i0 x (k ∨ m))
+        ; (i = i1) → g (coei→i A i1 x (k ∨ m))
+        ; (m = i1) → q i x
+        })
+      (q i (coei→i A i x m))
+  isom .leftInv h m p i =
+    comp
+      (λ k → B i (lemi→i m k))
+      (λ k → λ
+        { (i = i0) → f (lemi→i m k)
+        ; (i = i1) → g (lemi→i m k)
+        ; (m = i1) → h p i
+        })
+      (h (λ j → lemi→j j m) i)
+    where
+    lemi→j : ∀ j → coei→j A i j (p i) ≡ p j
+    lemi→j j =
+      coei→j (λ k → coei→j A i k (p i) ≡ p k) i j (coei→i A i (p i))
+
+    lemi→i : PathP (λ m → lemi→j i m ≡ p i) (coei→i A i (p i)) refl
+    lemi→i =
+      sym (coei→i (λ k → coei→j A i k (p i) ≡ p k) i (coei→i A i (p i)))
+      ◁ λ m k → lemi→j i (m ∨ k)
+
+heteroHomotopy≃Homotopy : {A : I → Type ℓ} {B : (i : I) → Type ℓ₁}
+  {f : A i0 → B i0} {g : A i1 → B i1}
+  → ({x₀ : A i0} {x₁ : A i1} → PathP A x₀ x₁ → PathP B (f x₀) (g x₁))
+  ≃ ((x₀ : A i0) → PathP B (f x₀) (g (transport (λ i → A i) x₀)))
+heteroHomotopy≃Homotopy {A = A} {B} {f} {g} = isoToEquiv isom
+  where
+  open Iso
+  isom : Iso _ _
+  isom .fun h x₀ = h (isContrSinglP A x₀ .fst .snd)
+  isom .inv k {x₀} {x₁} p =
+    subst (λ fib → PathP B (f x₀) (g (fib .fst))) (isContrSinglP A x₀ .snd (x₁ , p)) (k x₀)
+  isom .rightInv k = funExt λ x₀ →
+    cong (λ α → subst (λ fib → PathP B (f x₀) (g (fib .fst))) α (k x₀))
+      (isProp→isSet (isContr→isProp (isContrSinglP A x₀)) (isContrSinglP A x₀ .fst) _
+        (isContrSinglP A x₀ .snd (isContrSinglP A x₀ .fst))
+        refl)
+    ∙ transportRefl (k x₀)
+  isom .leftInv h j {x₀} {x₁} p =
+    transp
+      (λ i → PathP B (f x₀) (g (isContrSinglP A x₀ .snd (x₁ , p) (i ∨ j) .fst)))
+      j
+      (h (isContrSinglP A x₀ .snd (x₁ , p) j .snd))

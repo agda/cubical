@@ -79,18 +79,19 @@ cong₂ f p q i = f (p i) (q i)
    `doubleCompPath-filler p q r` gives the whole square
 -}
 
+doubleComp-faces : {x y z w : A } (p : x ≡ y) (r : z ≡ w)
+                 → (i : I) (j : I) → Partial (i ∨ ~ i) A
+doubleComp-faces p r i j (i = i0) = p (~ j)
+doubleComp-faces p r i j (i = i1) = r j
+
 _∙∙_∙∙_ : w ≡ x → x ≡ y → y ≡ z → w ≡ z
 (p ∙∙ q ∙∙ r) i =
-  hcomp (λ j → λ { (i = i0) → p (~ j)
-                 ; (i = i1) → r j })
-        (q i)
+  hcomp (doubleComp-faces p r i) (q i)
 
 doubleCompPath-filler : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w)
                       → PathP (λ j → p (~ j) ≡ r j) q (p ∙∙ q ∙∙ r)
 doubleCompPath-filler p q r j i =
-  hfill (λ j → λ { (i = i0) → p (~ j)
-                 ; (i = i1) → r j })
-        (inS (q i)) j
+  hfill (doubleComp-faces p r i) (inS (q i)) j
 
 -- any two definitions of double composition are equal
 compPath-unique : ∀ (p : x ≡ y) (q : y ≡ z) (r : z ≡ w)
@@ -208,6 +209,12 @@ funExt : {B : A → I → Type ℓ'}
   → PathP (λ i → (x : A) → B x i) f g
 funExt p i x = p x i
 
+implicitFunExt : {B : A → I → Type ℓ'}
+  {f : {x : A} → B x i0} {g : {x : A} → B x i1}
+  → ({x : A} → PathP (B x) (f {x}) (g {x}))
+  → PathP (λ i → {x : A} → B x i) f g
+implicitFunExt p i {x} = p {x} i
+
 -- the inverse to funExt (see Functions.FunExtEquiv), converting paths
 -- between functions to homotopies; `funExt⁻` is called `happly` and
 -- defined by path induction in the HoTT book (see function 2.9.2 in
@@ -246,6 +253,17 @@ module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
   fromPathP : PathP A x y → transp A i0 x ≡ y
   fromPathP p i = transp (λ j → A (i ∨ j)) i (p i)
 
+-- Whiskering a dependent path by a path
+
+_◁_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ : A i1}
+  → a₀ ≡ a₀' → PathP A a₀' a₁ → PathP A a₀ a₁
+(p ◁ q) i =
+  hcomp (λ j → λ {(i = i0) → p (~ j); (i = i1) → q i1}) (q i)
+
+_▷_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ : A i0} {a₁ a₁' : A i1}
+  → PathP A a₀ a₁ → a₁ ≡ a₁' → PathP A a₀ a₁'
+(p ▷ q) i =
+  hcomp (λ j → λ {(i = i0) → p i0; (i = i1) → q j}) (p i)
 
 -- Direct definitions of lower h-levels
 
@@ -271,6 +289,11 @@ singl {A = A} a = Σ[ x ∈ A ] (a ≡ x)
 
 isContrSingl : (a : A) → isContr (singl a)
 isContrSingl a = (a , refl) , λ p i → p .snd i , λ j → p .snd (i ∧ j)
+
+isContrSinglP : (A : I → Type ℓ) (a : A i0) → isContr (Σ[ x ∈ A i1 ] PathP A a x)
+isContrSinglP A a .fst = _ , transport-filler (λ i → A i) a
+isContrSinglP A a .snd (x , p) i =
+  _ , λ j → fill A (λ j → λ {(i = i0) → transport-filler (λ i → A i) a j; (i = i1) → p j}) (inS a) j
 
 SquareP :
   (A : I → I → Type ℓ)
@@ -357,6 +380,13 @@ isProp→isSet h a b p q j i =
                  ; (i = i1) → h a b k
                  ; (j = i0) → h a (p i) k
                  ; (j = i1) → h a (q i) k }) a
+
+isProp→isSet' : isProp A → isSet' A
+isProp→isSet' h {a} p q r s i j =
+  hcomp (λ k → λ { (i = i0) → h a (p j) k
+                 ; (i = i1) → h a (q j) k
+                 ; (j = i0) → h a (r i) k
+                 ; (j = i1) → h a (s i) k}) a
 
 isPropIsProp : isProp (isProp A)
 isPropIsProp f g i a b = isProp→isSet f a b (f a b) (g a b) i

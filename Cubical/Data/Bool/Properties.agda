@@ -96,6 +96,15 @@ or-idem true  = refl
 ⊕-comm true  false = refl
 ⊕-comm true  true  = refl
 
+⊕-assoc : ∀ x y z → x ⊕ (y ⊕ z) ≡ (x ⊕ y) ⊕ z
+⊕-assoc false y z = refl
+⊕-assoc true false z = refl
+⊕-assoc true true z = notnot z
+
+not-⊕ˡ : ∀ x y → not (x ⊕ y) ≡ not x ⊕ y
+not-⊕ˡ false y = refl
+not-⊕ˡ true  y = notnot y
+
 ⊕-invol : ∀ x y → x ⊕ (x ⊕ y) ≡ y
 ⊕-invol false x = refl
 ⊕-invol true  x = notnot x

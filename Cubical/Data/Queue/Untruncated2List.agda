@@ -61,7 +61,7 @@ module Untruncated2List {ℓ} (A : Type ℓ) (Aset : isSet A) where
  Raw : RawQueue
  Raw = (Q , emp , enq , deq)
 
- -- We construct an equivalence Q₁≃Q and prove that this is a queue-iso
+ -- We construct an equivalence Q₁≃Q and prove that this is an equivalence of queue structures
 
  private
    module One = 1List A Aset
@@ -122,45 +122,45 @@ module Untruncated2List {ℓ} (A : Type ℓ) (Aset : isSet A) where
  quotEquiv : Q₁ ≃ Q
  quotEquiv = isoToEquiv (iso quot eval quot∘eval eval∘quot)
 
- -- Now it only remains to prove that this is a queue-iso
+ -- Now it only remains to prove that this is an equivalence of queue structures
  quot∘emp : quot emp₁ ≡ emp
  quot∘emp = refl
 
  quot∘enq : ∀ x xs → quot (enq₁ x xs) ≡ enq x (quot xs)
  quot∘enq x xs = refl
 
- quot∘deq : ∀ xs → deq-map quot (deq₁ xs) ≡ deq (quot xs)
+ quot∘deq : ∀ xs → deqMap quot (deq₁ xs) ≡ deq (quot xs)
  quot∘deq [] = refl
  quot∘deq (x ∷ []) = refl
  quot∘deq (x ∷ x' ∷ xs) =
-   deq-map-∘ quot (enq₁ x) (deq₁ (x' ∷ xs))
-   ∙ sym (deq-map-∘ (enq x) quot (deq₁ (x' ∷ xs)))
-   ∙ cong (deq-map (enq x)) (quot∘deq (x' ∷ xs))
+   deqMap-∘ quot (enq₁ x) (deq₁ (x' ∷ xs))
+   ∙ sym (deqMap-∘ (enq x) quot (deq₁ (x' ∷ xs)))
+   ∙ cong (deqMap (enq x)) (quot∘deq (x' ∷ xs))
    ∙ lemma x x' (rev xs)
    where
    lemma : ∀ x x' ys
-     → deq-map (enq x) (deqFlush (ys ++ [ x' ]))
+     → deqMap (enq x) (deqFlush (ys ++ [ x' ]))
        ≡ deqFlush ((ys ++ [ x' ]) ++ [ x ])
    lemma x x' [] i = just (tilt [] [] x i , x')
    lemma x x' (y ∷ ys) i = just (tilt [] (ys ++ [ x' ]) x i , y)
 
- quotEquiv-is-queue-iso : raw-queue-iso One.Raw Raw quotEquiv
- quotEquiv-is-queue-iso = quot∘emp , quot∘enq , quot∘deq
+ quotEquivHasQueueEquivStr : RawQueueEquivStr One.Raw Raw quotEquiv
+ quotEquivHasQueueEquivStr = quot∘emp , quot∘enq , quot∘deq
 
  -- And we get a path between the raw 1Lists and 2Lists
  Raw-1≡2 : One.Raw ≡ Raw
- Raw-1≡2 = sip RawQueue-is-SNS _ _ (quotEquiv , quotEquiv-is-queue-iso)
+ Raw-1≡2 = sip rawQueueUnivalentStr _ _ (quotEquiv , quotEquivHasQueueEquivStr)
 
  -- We derive the axioms for 2List from those for 1List
  WithLaws : Queue
- WithLaws = Q , str Raw , subst (uncurry queue-axioms) Raw-1≡2 (snd (str One.WithLaws))
+ WithLaws = Q , str Raw , subst (uncurry QueueAxioms) Raw-1≡2 (snd (str One.WithLaws))
 
  -- In particular, the untruncated queue type is a set
  isSetQ : isSet Q
  isSetQ = str WithLaws .snd .fst
 
  WithLaws-1≡2 : One.WithLaws ≡ WithLaws
- WithLaws-1≡2 = sip Queue-is-SNS _ _ (quotEquiv , quotEquiv-is-queue-iso)
+ WithLaws-1≡2 = sip queueUnivalentStr _ _ (quotEquiv , quotEquivHasQueueEquivStr)
 
  Finite : FiniteQueue
- Finite = Q , str WithLaws , subst (uncurry finite-queue-axioms) WithLaws-1≡2 (snd (str One.Finite))
+ Finite = Q , str WithLaws , subst (uncurry FiniteQueueAxioms) WithLaws-1≡2 (snd (str One.Finite))

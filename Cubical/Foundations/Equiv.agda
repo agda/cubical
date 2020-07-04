@@ -29,9 +29,6 @@ private
     ℓ ℓ' ℓ''  : Level
     A B C D : Type ℓ
 
-fiber : ∀ {A : Type ℓ} {B : Type ℓ'} (f : A → B) (y : B) → Type (ℓ-max ℓ ℓ')
-fiber {A = A} f y = Σ[ x ∈ A ] f x ≡ y
-
 equivIsEquiv : (e : A ≃ B) → isEquiv (equivFun e)
 equivIsEquiv e = snd e
 
@@ -67,15 +64,31 @@ equiv-proof (isPropIsEquiv f p q i) y =
 equivEq : (e f : A ≃ B) → (h : e .fst ≡ f .fst) → e ≡ f
 equivEq e f h = λ i → (h i) , isProp→PathP (λ i → isPropIsEquiv (h i)) (e .snd) (f .snd) i
 
+module _ {f : A → B} (equivF : isEquiv f) where
+  funIsEq : A → B
+  funIsEq = f
+
+  invIsEq : B → A
+  invIsEq y = equivF .equiv-proof y .fst .fst
+
+  secIsEq : section f invIsEq
+  secIsEq y = equivF .equiv-proof y .fst .snd
+
+  retIsEq : retract f invIsEq
+  retIsEq a i = equivF .equiv-proof (f a) .snd (a , refl) i .fst
+
+  commSqIsEq : ∀ a → Square (secIsEq (f a)) refl (cong f (retIsEq a)) refl
+  commSqIsEq a i = equivF .equiv-proof (f a) .snd (a , refl) i .snd
+
 module _ (w : A ≃ B) where
   invEq : B → A
-  invEq y = fst (fst (snd w .equiv-proof y))
+  invEq = invIsEq (snd w)
 
   secEq : section invEq (w .fst)
-  secEq x i = fst (snd (snd w .equiv-proof (fst w x)) (x , (λ j → fst w x)) i)
+  secEq = retIsEq (snd w)
 
   retEq : retract invEq (w .fst)
-  retEq y = snd (fst (snd w .equiv-proof y))
+  retEq = secIsEq (snd w)
 
 open Iso
 
@@ -133,20 +146,43 @@ isContr→Equiv : isContr A → isContr B → A ≃ B
 isContr→Equiv Actr Bctr = isoToEquiv (isContr→Iso Actr Bctr)
 
 isPropEquiv→Equiv : (Aprop : isProp A) (Bprop : isProp B) (f : A → B) (g : B → A) → A ≃ B
-isPropEquiv→Equiv Aprop Bprop f g = isoToEquiv (isProp→Iso Aprop Bprop f g)
+isPropEquiv→Equiv Aprop Bprop f g = f , hf
+  where
+  hf : isEquiv f
+  hf .equiv-proof y .fst          = (g y , Bprop (f (g y)) y)
+  hf .equiv-proof y .snd h i .fst = Aprop (g y) (h .fst) i
+  hf .equiv-proof y .snd h i .snd = isProp→isSet' Bprop (Bprop (f (g y)) y) (h .snd)
+                                                  (cong f (Aprop (g y) (h .fst))) refl i
 
-invEq≡→equivFun≡ : ∀ (e : A ≃ B) {x y} → invEq e x ≡ y → equivFun e y ≡ x
-invEq≡→equivFun≡ e {x} p = cong (equivFun e) (sym p) ∙ retEq e x
-
-equivPi : ∀ {F : A → Type ℓ} {G : A → Type ℓ'}
+equivΠCod : ∀ {F : A → Type ℓ} {G : A → Type ℓ'}
         → ((x : A) → F x ≃ G x) → ((x : A) → F x) ≃ ((x : A) → G x)
-equivPi k .fst f x = k x .fst (f x)
-equivPi k .snd .equiv-proof f .fst .fst x   = equivCtr (k x) (f x) .fst
-equivPi k .snd .equiv-proof f .fst .snd i x = equivCtr (k x) (f x) .snd i
-equivPi k .snd .equiv-proof f .snd (g , p) i .fst x =
+equivΠCod k .fst f x = k x .fst (f x)
+equivΠCod k .snd .equiv-proof f .fst .fst x   = equivCtr (k x) (f x) .fst
+equivΠCod k .snd .equiv-proof f .fst .snd i x = equivCtr (k x) (f x) .snd i
+equivΠCod k .snd .equiv-proof f .snd (g , p) i .fst x =
   equivCtrPath (k x) (f x) (g x , λ j → p j x) i .fst
-equivPi k .snd .equiv-proof f .snd (g , p) i .snd j x =
+equivΠCod k .snd .equiv-proof f .snd (g , p) i .snd j x =
   equivCtrPath (k x) (f x) (g x , λ k → p k x) i .snd j
+
+equivImplicitΠCod : ∀ {F : A → Type ℓ} {G : A → Type ℓ'}
+        → ({x : A} → F x ≃ G x) → ({x : A} → F x) ≃ ({x : A} → G x)
+equivImplicitΠCod k .fst f {x} = k {x} .fst (f {x})
+equivImplicitΠCod k .snd .equiv-proof f .fst .fst {x}   = equivCtr (k {x}) (f {x}) .fst
+equivImplicitΠCod k .snd .equiv-proof f .fst .snd i {x} = equivCtr (k {x}) (f {x}) .snd i
+equivImplicitΠCod k .snd .equiv-proof f .snd (g , p) i .fst {x} =
+  equivCtrPath (k {x}) (f {x}) (g {x} , λ j → p j {x}) i .fst
+equivImplicitΠCod k .snd .equiv-proof f .snd (g , p) i .snd j {x} =
+  equivCtrPath (k {x}) (f {x}) (g {x} , λ k → p k {x}) i .snd j
+
+equiv→ : (A ≃ B) → (C ≃ D) → (A → C) ≃ (B → D)
+equiv→ h k = isoToEquiv isom
+  where
+  open Iso
+  isom : Iso _ _
+  isom .fun f b = equivFun k (f (invEq h b))
+  isom .inv g a = invEq k (g (equivFun h a))
+  isom .rightInv g = funExt λ b → retEq k _ ∙ cong g (retEq h b)
+  isom .leftInv f = funExt λ a → secEq k _ ∙ cong f (secEq h a)
 
 -- Some helpful notation:
 _≃⟨_⟩_ : (X : Type ℓ) → (X ≃ B) → (B ≃ C) → (X ≃ C)
