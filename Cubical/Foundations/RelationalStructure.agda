@@ -217,12 +217,12 @@ record QERDescends (S : Type ℓ → Type ℓ') (ρ : StrRel S ℓ'')
 
 open QERDescends
 
-structuredQER→structuredEquiv : {S : Type ℓ → Type ℓ'} (ρ : StrRel S ℓ'')
+structuredQER→structuredEquiv : {S : Type ℓ → Type ℓ'} {ρ : StrRel S ℓ''}
   (θ : SuitableStrRel S ρ)
   (A B : TypeWithStr ℓ S) (R : QuasiEquivRel (typ A) (typ B) ℓ)
   → ρ (R .fst .fst) (A .snd) (B .snd)
   → QERDescends S ρ A B R
-structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴸ =
+structuredQER→structuredEquiv {ρ = ρ} θ (X , s) (Y , t) R r .quoᴸ =
   θ .quo (X , s) (QER→EquivRel R)
     (subst (λ R' → ρ R' s s) correction
       (θ .transitive (R .fst) (invPropRel (R .fst)) r (θ .symmetric (R .fst) r)))
@@ -235,7 +235,7 @@ structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴸ =
         (Trunc.rec (R .fst .snd _ _) (λ {(y , r , r') → R .snd .zigzag r r' (R .snd .fwdRel _)}))
         (λ r → ∣ _ , r , R .snd .fwdRel _ ∣))
 
-structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴿ =
+structuredQER→structuredEquiv {ρ = ρ} θ (X , s) (Y , t) R r .quoᴿ =
   θ .quo (Y , t) (QER→EquivRel (invQER R))
     (subst (λ R' → ρ R' t t) correction
       (θ .transitive (invPropRel (R .fst)) (R .fst) (θ .symmetric (R .fst) r) r))
@@ -248,7 +248,7 @@ structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴿ =
         (Trunc.rec (R .fst .snd _ _) (λ {(x , r , r') → R .snd .zigzag (R .snd .bwdRel _) r' r}))
         (λ r → ∣ _ , r , R .snd .bwdRel _ ∣))
 
-structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .rel =
+structuredQER→structuredEquiv {ρ = ρ} θ (X , s) (Y , t) R r .rel =
   subst (λ R' → ρ R' (quol .fst) (quor .fst)) correction
     (θ .transitive (compPropRel (invPropRel (quotientPropRel E.Rᴸ)) (R .fst)) (quotientPropRel E.Rᴿ)
       (θ .transitive (invPropRel (quotientPropRel E.Rᴸ)) (R .fst)
@@ -257,8 +257,8 @@ structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .rel =
       (quor .snd))
   where
   module E = QER→Equiv R
-  quol = structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴸ
-  quor = structuredQER→structuredEquiv ρ θ (X , s) (Y , t) R r .quoᴿ
+  quol = structuredQER→structuredEquiv {ρ = ρ} θ (X , s) (Y , t) R r .quoᴸ
+  quor = structuredQER→structuredEquiv {ρ = ρ} θ (X , s) (Y , t) R r .quoᴿ
   [R] = compPropRel (compPropRel (invPropRel (quotientPropRel E.Rᴸ)) (R .fst)) (quotientPropRel E.Rᴿ)
 
   correction : [R] .fst ≡ graphRel (E.Thm .fst)
