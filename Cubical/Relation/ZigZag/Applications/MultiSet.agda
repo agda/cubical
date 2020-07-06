@@ -253,19 +253,18 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
   List/Rᴸ≃FMSet : List/Rᴸ ≃ FMSet A
   List/Rᴸ≃FMSet = isoToEquiv (iso List/Rᴸ→FMSet FMSet→List/Rᴸ τ σ)
     where
+    σ' : (xs : List A) → FMSet→List/Rᴸ (List/Rᴸ→FMSet [ xs ]) ≡ [ xs ]
+    σ' [] = refl
+    σ' (x ∷ xs) = cong (x ∷/_) (σ' xs)
 
     σ : section FMSet→List/Rᴸ List/Rᴸ→FMSet
-    σ = elimProp (λ _ → squash/ _ _) θ
-     where
-     θ : (xs : List A) → FMSet→List/Rᴸ (List/Rᴸ→FMSet [ xs ]) ≡ [ xs ]
-     θ [] = refl
-     θ (x ∷ xs) = cong (x ∷/_) (θ xs)
+    σ = elimProp (λ _ → squash/ _ _) σ'
+
+    τ' : ∀ x {xs} → List/Rᴸ→FMSet (FMSet→List/Rᴸ xs) ≡ xs → List/Rᴸ→FMSet (FMSet→List/Rᴸ (x ∷ xs)) ≡ x ∷ xs
+    τ' x {xs} p = List/Rᴸ→FMSet-insert x (FMSet→List/Rᴸ xs) ∙ cong (x ∷_) p
 
     τ : retract FMSet→List/Rᴸ List/Rᴸ→FMSet
-    τ = FMS.ElimProp.f (FMS.trunc _ _) refl θ
-     where
-     θ : ∀ x {xs} → List/Rᴸ→FMSet (FMSet→List/Rᴸ xs) ≡ xs → List/Rᴸ→FMSet (FMSet→List/Rᴸ (x ∷ xs)) ≡ x ∷ xs
-     θ x {xs} p = List/Rᴸ→FMSet-insert x (FMSet→List/Rᴸ xs) ∙ cong (x ∷_) p
+    τ = FMS.ElimProp.f (FMS.trunc _ _) refl τ'
 
   List/Rᴸ≃FMSet-EquivStr : S.equiv (List/Rᴸ , LQstructure) (FMSet A , FMSstructure) List/Rᴸ≃FMSet
   List/Rᴸ≃FMSet-EquivStr .fst = refl
