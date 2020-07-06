@@ -73,7 +73,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
     insert : A → List A → List A
     insert x xs = x ∷ xs
-  
+
     count : A → List A → ℕ
     count a [] = zero
     count a (x ∷ xs) = addIfEq a x 1 (count a xs)
@@ -90,7 +90,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
     insert a (⟨ y , n ⟩∷ ys) with (discA a y)
     ... | yes _ = ⟨ y , suc n ⟩∷ ys
     ... | no _ = ⟨ y , n ⟩∷ insert a ys
-    
+
     count : A → AList A → ℕ
     count a ⟨⟩ = zero
     count a (⟨ y , n ⟩∷ ys) = addIfEq a y n (count a ys)
@@ -194,7 +194,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
       (E.Thm , S.matches (List/Rᴸ , LQstructure) (AList/Rᴬᴸ , ALQstructure) E.Thm .fst (main .rel))
 
   -- We now show that List/Rᴸ≃FMSet
-  
+
   _∷/_ : A → List/Rᴸ → List/Rᴸ
   _∷/_ = LQstructure .snd .fst
 
