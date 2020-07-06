@@ -23,6 +23,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.ZigZag.Base
 
 open import Cubical.Structures.MultiSet
+open import Cubical.Structures.Relational.Auto
 open import Cubical.Structures.Relational.Macro
 
 -- we define simple association lists without any higher constructors
@@ -40,9 +41,12 @@ private
 -- We have a CountStructure on List and AList and use these to get a QER between the two
 module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
- module S = RelMacro ℓ (param A (function+ var (constant (ℕ , isSetℕ))))
+ multisetShape : Type ℓ → Type ℓ
+ multisetShape X = A → X → Const[ ℕ , isSetℕ ]
 
- ι = CountEquivStr A (Discrete→isSet discA)
+ module S = RelMacro ℓ (autoRelDesc multisetShape)
+
+ ι = S.equiv
 
  -- the CountStructures
  aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ
