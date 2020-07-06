@@ -12,7 +12,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.SIP
 open import Cubical.Foundations.Univalence
 open import Cubical.Data.Unit
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
 open import Cubical.Data.List hiding ([_])
 open import Cubical.Data.Sigma
@@ -28,215 +28,269 @@ open import Cubical.Structures.Relational.Macro
 
 -- we define simple association lists without any higher constructors
 data AList {ℓ} (A : Type ℓ) : Type ℓ where
- ⟨⟩ : AList A
- ⟨_,_⟩∷_ : A → ℕ → AList A → AList A
+  ⟨⟩ : AList A
+  ⟨_,_⟩∷_ : A → ℕ → AList A → AList A
 
 infixr 5 ⟨_,_⟩∷_
 
 private
- variable
-  ℓ : Level
-  A : Type ℓ
+  variable
+    ℓ : Level
 
 -- We have a CountStructure on List and AList and use these to get a QER between the two
 module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
- multisetShape : Type ℓ → Type ℓ
- multisetShape X = A → X → Const[ ℕ , isSetℕ ]
+  multisetShape : Type ℓ → Type ℓ
+  multisetShape X = X × (A → X → X) × (A → X → Const[ ℕ , isSetℕ ])
 
- module S = RelMacro ℓ (autoRelDesc multisetShape)
+  module S = RelMacro ℓ (autoRelDesc multisetShape)
 
- ι = S.equiv
+  addIfEq : (a x : A) → ℕ → ℕ → ℕ
+  addIfEq a x m n with discA a x
+  ... | yes _ = m + n
+  ... | no _ = n
 
- -- the CountStructures
- aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ
- aux a x (yes a≡x) n = suc n
- aux a x (no  a≢x) n = n
+  module _ {a x : A} {n : ℕ} where
 
- Lcount : S.structure (List A)
- Lcount a [] = zero
- Lcount a (x ∷ xs) = aux a x (discA a x) (Lcount a xs)
+    addIfEq≡ : {m : ℕ} → a ≡ x → addIfEq a x m n ≡ m + n
+    addIfEq≡ a≡x with discA a x
+    ... | yes _ = refl
+    ... | no a≢x = ⊥.rec (a≢x a≡x)
 
- ALcount : S.structure (AList A)
- ALcount a ⟨⟩ = zero
- ALcount a (⟨ x , zero ⟩∷ xs) = ALcount a xs
- ALcount a (⟨ x , suc n ⟩∷ xs) = aux a x (discA a x) (ALcount a (⟨ x , n ⟩∷ xs))
+    addIfEq≢ : {m : ℕ} → ¬ (a ≡ x) → addIfEq a x m n ≡ n
+    addIfEq≢ a≢x with discA a x
+    ... | yes a≡x = ⊥.rec (a≢x a≡x)
+    ... | no _ = refl
 
- -- now for the QER between List and Alist
+    addIfEq0 : addIfEq a x 0 n ≡ n
+    addIfEq0 with discA a x
+    ... | yes _ = refl
+    ... | no _ = refl
 
- R : List A → AList A → Type ℓ
- R xs ys = ∀ a → Lcount a xs ≡ ALcount a ys
+  module L where
+    emp : List A
+    emp = []
 
- φ : List A → AList A
- φ [] = ⟨⟩
- φ (x ∷ xs) = ⟨ x , 1 ⟩∷ φ xs
+    insert : A → List A → List A
+    insert x xs = x ∷ xs
+  
+    count : A → List A → ℕ
+    count a [] = zero
+    count a (x ∷ xs) = addIfEq a x 1 (count a xs)
 
- ψ : AList A → List A
- ψ ⟨⟩ = []
- ψ (⟨ x , zero ⟩∷ xs) = ψ xs
- ψ (⟨ x , suc n ⟩∷ xs) = x ∷ ψ (⟨ x , n ⟩∷ xs)
+    structure : S.structure (List A)
+    structure = emp , insert , count
 
+  module AL where
+    emp : AList A
+    emp = ⟨⟩
 
- η : ∀ x → R x (φ x)
- η [] a = refl
- η (x ∷ xs) a with (discA a x)
- ...          | yes a≡x = cong suc (η xs a)
- ...          | no  a≢x = η xs a
+    insert : A → AList A → AList A
+    insert a ⟨⟩ = ⟨ a , 1 ⟩∷ ⟨⟩
+    insert a (⟨ y , n ⟩∷ ys) with (discA a y)
+    ... | yes _ = ⟨ y , suc n ⟩∷ ys
+    ... | no _ = ⟨ y , n ⟩∷ insert a ys
+    
+    count : A → AList A → ℕ
+    count a ⟨⟩ = zero
+    count a (⟨ y , n ⟩∷ ys) = addIfEq a y n (count a ys)
 
+    structure : S.structure (AList A)
+    structure = emp , insert , count
 
- -- for the other direction we need a little helper function
- ε : ∀ y → R (ψ y) y
- ε' : (x : A) (n : ℕ) (xs : AList A) (a : A)
-    → Lcount a (ψ (⟨ x , n ⟩∷ xs)) ≡ ALcount a (⟨ x , n ⟩∷ xs)
+    countInsert : ∀ a x ys → count a (insert x ys) ≡ addIfEq a x 1 (count a ys)
+    countInsert a x ⟨⟩ = refl
+    countInsert a x (⟨ y , n ⟩∷ ys) with discA a x | discA a y | discA x y
+    ... | yes a≡x | yes a≡y | yes x≡y = addIfEq≡ a≡y
+    ... | yes a≡x | yes a≡y | no x≢y = ⊥.rec (x≢y (sym a≡x ∙ a≡y))
+    ... | yes a≡x | no a≢y | yes x≡y = ⊥.rec (a≢y (a≡x ∙ x≡y))
+    ... | yes a≡x | no a≢y | no x≢y =  addIfEq≢ a≢y ∙ countInsert a x ys ∙ addIfEq≡ a≡x
+    ... | no a≢x | yes a≡y | yes x≡y = ⊥.rec (a≢x (a≡y ∙ sym x≡y))
+    ... | no a≢x | yes a≡y | no x≢y = addIfEq≡ a≡y ∙ cong (n +_) (countInsert a x ys ∙ addIfEq≢ a≢x)
+    ... | no a≢x | no a≢y | yes x≡y = addIfEq≢ a≢y
+    ... | no a≢x | no a≢y | no x≢y = addIfEq≢ a≢y ∙ countInsert a x ys ∙ addIfEq≢ a≢x
 
- ε ⟨⟩ a = refl
- ε (⟨ x , n ⟩∷ xs) a = ε' x n xs a
+  -- now for the QER between List and Alist
 
- ε' x zero xs a = ε xs a
- ε' x (suc n) xs a with discA a x
- ...                 | yes a≡x = cong suc (ε' x n xs a)
- ...                 | no  a≢x = ε' x n xs a
+  R : List A → AList A → Type ℓ
+  R xs ys = ∀ a → L.count a xs ≡ AL.count a ys
 
- -- Induced quotients and equivalence
+  φ : List A → AList A
+  φ [] = ⟨⟩
+  φ (x ∷ xs) = AL.insert x (φ xs)
 
- open isQuasiEquivRel
+  ψ : AList A → List A
+  ψ ⟨⟩ = []
+  ψ (⟨ x , zero ⟩∷ xs) = ψ xs
+  ψ (⟨ x , suc n ⟩∷ xs) = x ∷ ψ (⟨ x , n ⟩∷ xs)
 
- -- R is a QER
- QuasiR : QuasiEquivRel _ _ ℓ
- QuasiR .fst .fst = R
- QuasiR .fst .snd _ _ = isPropΠ λ _ → isSetℕ _ _
- QuasiR .snd .zigzag r r' r'' a = (r a) ∙∙ sym (r' a) ∙∙ (r'' a)
- QuasiR .snd .fwd = φ
- QuasiR .snd .fwdRel = η
- QuasiR .snd .bwd = ψ
- QuasiR .snd .bwdRel = ε
+  η : ∀ xs → R xs (φ xs)
+  η [] a = refl
+  η (x ∷ xs) a = cong (addIfEq a x 1) (η xs a) ∙ sym (AL.countInsert a x (φ xs))
 
- module E = QER→Equiv QuasiR
- open E renaming (Rᴸ to Rᴸ; Rᴿ to Rᴬᴸ)
+  -- for the other direction we need a little helper function
+  ε : ∀ y → R (ψ y) y
+  ε' : (x : A) (n : ℕ) (xs : AList A) (a : A)
+    → L.count a (ψ (⟨ x , n ⟩∷ xs)) ≡ AL.count a (⟨ x , n ⟩∷ xs)
 
- List/Rᴸ = (List A) / Rᴸ
- AList/Rᴬᴸ = (AList A) / Rᴬᴸ
+  ε ⟨⟩ a = refl
+  ε (⟨ x , n ⟩∷ xs) a = ε' x n xs a
 
- List/Rᴸ≃AList/Rᴬᴸ : List/Rᴸ ≃ AList/Rᴬᴸ
- List/Rᴸ≃AList/Rᴬᴸ = E.Thm
+  ε' x zero xs a = ε xs a ∙ sym addIfEq0
+  ε' x (suc n) xs a with discA a x
+  ... | yes a≡x = cong suc (ε' x n xs a ∙ addIfEq≡ a≡x)
+  ... | no  a≢x = ε' x n xs a ∙ addIfEq≢ a≢x
 
- main : QERDescends _ S.relation (List A , Lcount) (AList A , ALcount) QuasiR
- main = structuredQER→structuredEquiv _ S.suitable _ _ QuasiR (λ a r → r a)
+  -- -- Induced quotients and equivalence
 
- open QERDescends
+  open isQuasiEquivRel
 
- LQcount : S.structure List/Rᴸ
- LQcount = main .quoᴸ .fst
+  -- R is a QER
+  QuasiR : QuasiEquivRel _ _ ℓ
+  QuasiR .fst .fst = R
+  QuasiR .fst .snd _ _ = isPropΠ λ _ → isSetℕ _ _
+  QuasiR .snd .zigzag r r' r'' a = (r a) ∙∙ sym (r' a) ∙∙ (r'' a)
+  QuasiR .snd .fwd = φ
+  QuasiR .snd .fwdRel = η
+  QuasiR .snd .bwd = ψ
+  QuasiR .snd .bwdRel = ε
 
- ALQcount : S.structure AList/Rᴬᴸ
- ALQcount = main .quoᴿ .fst
+  isStructuredInsert : (x : A) {xs : List A} {ys : AList A}
+    → R xs ys → R (L.insert x xs) (AL.insert x ys)
+  isStructuredInsert x {xs} {ys} r a =
+    cong (addIfEq a x 1) (r a) ∙ sym (AL.countInsert a x ys)
 
- -- We get a path between CountStructures over the equivalence directly from the fact that the QER
- -- is structured
- List/Rᴸ≡AList/Rᴬᴸ :
-   Path (TypeWithStr ℓ S.structure) (List/Rᴸ , LQcount) (AList/Rᴬᴸ , ALQcount)
- List/Rᴸ≡AList/Rᴬᴸ =
-   sip S.univalent _ _ (E.Thm , (S.matches _ _ E.Thm .fst (main .rel)))
+  -- R is structured
+  isStructuredR : S.relation R L.structure AL.structure
+  isStructuredR .fst a = refl
+  isStructuredR .snd .fst = isStructuredInsert
+  isStructuredR .snd .snd a r = r a
 
- -- We now show that List/Rᴸ≃FMSet
- _∷/_ : A → List/Rᴸ → List/Rᴸ
- a ∷/ [ xs ] = [ a ∷ xs ]
- a ∷/ eq/ xs xs' r i = eq/ (a ∷ xs) (a ∷ xs') r' i
-  where
-  r' : Rᴸ (a ∷ xs) (a ∷ xs')
-  r' a' = cong (aux a' a (discA a' a)) (r a')
- a ∷/ squash/ xs xs₁ p q i j = squash/ (a ∷/ xs) (a ∷/ xs₁) (cong (a ∷/_) p) (cong (a ∷/_) q) i j
+  module E = QER→Equiv QuasiR
+  open E renaming (Rᴸ to Rᴸ; Rᴿ to Rᴬᴸ)
 
- infixr 5 _∷/_
+  List/Rᴸ = (List A) / Rᴸ
+  AList/Rᴬᴸ = (AList A) / Rᴬᴸ
 
- μ : FMSet A → List/Rᴸ
- μ = FMS.Rec.f squash/ [ [] ] _∷/_ β
-  where
-  β : ∀ a b [xs] → a ∷/ b ∷/ [xs] ≡ b ∷/ a ∷/ [xs]
-  β a b = elimProp (λ _ → squash/ _ _) (λ xs → eq/ _ _ (γ xs))
-   where
-     γ : ∀ xs → Rᴸ (a ∷ b ∷ xs) (b ∷ a ∷ xs)
-     γ xs c = δ c ∙ η (b ∷ a ∷ xs) c
-      where
-      δ : ∀ c → Lcount c (a ∷ b ∷ xs) ≡ Lcount c (b ∷ a ∷ xs)
-      δ c with discA c a | discA c b
-      δ c | yes _        | yes _ = refl
-      δ c | yes _        | no  _ = refl
-      δ c | no  _        | yes _ = refl
-      δ c | no  _        | no  _ = refl
+  List/Rᴸ≃AList/Rᴬᴸ : List/Rᴸ ≃ AList/Rᴬᴸ
+  List/Rᴸ≃AList/Rᴬᴸ = E.Thm
 
+  main : QERDescends _ S.relation (List A , L.structure) (AList A , AL.structure) QuasiR
+  main = structuredQER→structuredEquiv S.suitable _ _ QuasiR isStructuredR
 
- -- The inverse is induced by the standard projection of lists into finite multisets,
- -- which is a morphism of CountStructures
- -- Moreover, we need 'count-extensionality' for finite multisets
- List→FMSet : List A → FMSet A
- List→FMSet [] = []
- List→FMSet (x ∷ xs) = x ∷ List→FMSet xs
+  open QERDescends
 
- List→FMSet-count : ∀ a xs → Lcount a xs ≡ FMScount discA a (List→FMSet xs)
- List→FMSet-count a [] = refl
- List→FMSet-count a (x ∷ xs) with discA a x
- ...                         | yes _ = cong suc (List→FMSet-count a xs)
- ...                         | no  _ = List→FMSet-count a xs
+  LQstructure : S.structure List/Rᴸ
+  LQstructure = main .quoᴸ .fst
 
+  ALQstructure : S.structure AList/Rᴬᴸ
+  ALQstructure = main .quoᴿ .fst
 
- ν : List/Rᴸ → FMSet A
- ν [ xs ] = List→FMSet xs
- ν (eq/ xs ys r i) = path i
-  where
-   countsAgree : ∀ a → Lcount a xs ≡ Lcount a ys
-   countsAgree a = r a ∙ sym (η ys a)
+  -- We get a path between structure over the equivalence from the fact that the QER is structured
+  List/Rᴸ≡AList/Rᴬᴸ :
+    Path (TypeWithStr ℓ S.structure) (List/Rᴸ , LQstructure) (AList/Rᴬᴸ , ALQstructure)
+  List/Rᴸ≡AList/Rᴬᴸ =
+    sip S.univalent _ _
+      (E.Thm , S.matches (List/Rᴸ , LQstructure) (AList/Rᴬᴸ , ALQstructure) E.Thm .fst (main .rel))
 
-   θ : ∀ a → FMScount discA a (List→FMSet xs) ≡ FMScount discA a (List→FMSet ys)
-   θ a = sym (List→FMSet-count a xs) ∙∙ countsAgree a ∙∙ List→FMSet-count a ys
+  -- We now show that List/Rᴸ≃FMSet
+  
+  _∷/_ : A → List/Rᴸ → List/Rᴸ
+  _∷/_ = LQstructure .snd .fst
 
-   path : List→FMSet xs ≡ List→FMSet ys
-   path = FMScountExt.Thm discA _ _ θ
- ν (squash/ xs/ xs/' p q i j) = trunc (ν xs/) (ν xs/') (cong ν p) (cong ν q) i j
+  FMSstructure : S.structure (FMSet A)
+  FMSstructure = [] , _∷_ , FMScount discA
 
+  infixr 5 _∷/_
 
- σ : section μ ν
- σ = elimProp (λ _ → squash/ _ _) θ
-  where
-  θ : (xs : List A) → μ (ν [ xs ]) ≡ [ xs ]
-  θ [] = refl
-  θ (x ∷ xs) = cong (x ∷/_) (θ xs)
+  FMSet→List/Rᴸ : FMSet A → List/Rᴸ
+  FMSet→List/Rᴸ = FMS.Rec.f squash/ [ [] ] _∷/_ β
+    where
+    δ : ∀ c a b xs → L.count c (a ∷ b ∷ xs) ≡ L.count c (b ∷ a ∷ xs)
+    δ c a b xs with discA c a | discA c b
+    δ c a b xs | yes _        | yes _ = refl
+    δ c a b xs | yes _        | no  _ = refl
+    δ c a b xs | no  _        | yes _ = refl
+    δ c a b xs | no  _        | no  _ = refl
 
+    γ : ∀ a b xs → Rᴸ (a ∷ b ∷ xs) (b ∷ a ∷ xs)
+    γ a b xs c = δ c a b xs ∙ η (b ∷ a ∷ xs) c
 
- ν-∷/-commute : (x : A) (ys : List/Rᴸ) → ν (x ∷/ ys) ≡ x ∷ ν ys
- ν-∷/-commute x = elimProp (λ _ → FMS.trunc _ _) λ xs → refl
+    β : ∀ a b [xs] → a ∷/ b ∷/ [xs] ≡ b ∷/ a ∷/ [xs]
+    β a b = elimProp (λ _ → squash/ _ _) (λ xs → eq/ _ _ (γ a b xs))
 
- τ : retract μ ν
- τ = FMS.ElimProp.f (FMS.trunc _ _) refl θ
-  where
-  θ : ∀ x {xs} → ν (μ xs) ≡ xs → ν (μ (x ∷ xs)) ≡ x ∷ xs
-  θ x {xs} p = ν-∷/-commute x (μ xs) ∙ cong (x ∷_) p
+  -- The inverse is induced by the standard projection of lists into finite multisets,
+  -- which is a morphism of CountStructures
+  -- Moreover, we need 'count-extensionality' for finite multisets
+  List→FMSet : List A → FMSet A
+  List→FMSet [] = []
+  List→FMSet (x ∷ xs) = x ∷ List→FMSet xs
 
- List/Rᴸ≃FMSet : List/Rᴸ ≃ FMSet A
- List/Rᴸ≃FMSet = isoToEquiv (iso ν μ τ σ)
+  List→FMSet-count : ∀ a xs → L.count a xs ≡ FMScount discA a (List→FMSet xs)
+  List→FMSet-count a [] = refl
+  List→FMSet-count a (x ∷ xs) with discA a x
+  ...                         | yes _ = cong suc (List→FMSet-count a xs)
+  ...                         | no  _ = List→FMSet-count a xs
 
- List/Rᴸ≃FMSet-is-CountEquivStr : ι (List/Rᴸ , LQcount) (FMSet A , FMScount discA) List/Rᴸ≃FMSet
- List/Rᴸ≃FMSet-is-CountEquivStr a = elimProp (λ _ → isSetℕ _ _) (List→FMSet-count a)
+  List/Rᴸ→FMSet : List/Rᴸ → FMSet A
+  List/Rᴸ→FMSet [ xs ] = List→FMSet xs
+  List/Rᴸ→FMSet (eq/ xs ys r i) = path i
+    where
+    countsAgree : ∀ a → L.count a xs ≡ L.count a ys
+    countsAgree a = r a ∙ sym (η ys a)
 
- {-
- Putting everything together we get:
-               ≃
- List/Rᴸ ------------> AList/Rᴬᴸ
-   |
-   |≃
-   |
-   ∨
-               ≃
- FMSet A ------------> AssocList A
- We thus get that AList/Rᴬᴸ≃AssocList.
- Constructing such an equivalence directly requires count extensionality for association lists,
- which should be even harder to prove than for finite multisets.
- This strategy should work for all implementations of multisets with HITs.
- We just have to show that:
-  ∙ The HIT is equivalent to FMSet (like AssocList)
-  ∙ There is a QER between lists and the basic data type of the HIT
-    with the higher constructors removed (like AList)
- Then we get that this HIT is equivalent to the corresponding set quotient that identifies elements
- that give the same count on each a : A.
- TODO: Show that all the equivalences are indeed isomorphisms of multisets not only of CountStructures!
- -}
+    θ : ∀ a → FMScount discA a (List→FMSet xs) ≡ FMScount discA a (List→FMSet ys)
+    θ a = sym (List→FMSet-count a xs) ∙∙ countsAgree a ∙∙ List→FMSet-count a ys
+
+    path : List→FMSet xs ≡ List→FMSet ys
+    path = FMScountExt.Thm discA _ _ θ
+  List/Rᴸ→FMSet (squash/ xs/ xs/' p q i j) =
+    trunc (List/Rᴸ→FMSet xs/) (List/Rᴸ→FMSet xs/') (cong List/Rᴸ→FMSet p) (cong List/Rᴸ→FMSet q) i j
+
+  List/Rᴸ→FMSet-insert : (x : A) (ys : List/Rᴸ) → List/Rᴸ→FMSet (x ∷/ ys) ≡ x ∷ List/Rᴸ→FMSet ys
+  List/Rᴸ→FMSet-insert x = elimProp (λ _ → FMS.trunc _ _) λ xs → refl
+
+  List/Rᴸ≃FMSet : List/Rᴸ ≃ FMSet A
+  List/Rᴸ≃FMSet = isoToEquiv (iso List/Rᴸ→FMSet FMSet→List/Rᴸ τ σ)
+    where
+
+    σ : section FMSet→List/Rᴸ List/Rᴸ→FMSet
+    σ = elimProp (λ _ → squash/ _ _) θ
+     where
+     θ : (xs : List A) → FMSet→List/Rᴸ (List/Rᴸ→FMSet [ xs ]) ≡ [ xs ]
+     θ [] = refl
+     θ (x ∷ xs) = cong (x ∷/_) (θ xs)
+
+    τ : retract FMSet→List/Rᴸ List/Rᴸ→FMSet
+    τ = FMS.ElimProp.f (FMS.trunc _ _) refl θ
+     where
+     θ : ∀ x {xs} → List/Rᴸ→FMSet (FMSet→List/Rᴸ xs) ≡ xs → List/Rᴸ→FMSet (FMSet→List/Rᴸ (x ∷ xs)) ≡ x ∷ xs
+     θ x {xs} p = List/Rᴸ→FMSet-insert x (FMSet→List/Rᴸ xs) ∙ cong (x ∷_) p
+
+  List/Rᴸ≃FMSet-EquivStr : S.equiv (List/Rᴸ , LQstructure) (FMSet A , FMSstructure) List/Rᴸ≃FMSet
+  List/Rᴸ≃FMSet-EquivStr .fst = refl
+  List/Rᴸ≃FMSet-EquivStr .snd .fst a xs = List/Rᴸ→FMSet-insert a xs
+  List/Rᴸ≃FMSet-EquivStr .snd .snd a = elimProp (λ _ → isSetℕ _ _) (List→FMSet-count a)
+
+  {-
+  Putting everything together we get:
+                ≃
+  List/Rᴸ ------------> AList/Rᴬᴸ
+    |
+    |≃
+    |
+    ∨
+                ≃
+  FMSet A ------------> AssocList A
+  We thus get that AList/Rᴬᴸ≃AssocList.
+  Constructing such an equivalence directly requires count extensionality for association lists,
+  which should be even harder to prove than for finite multisets.
+  This strategy should work for all implementations of multisets with HITs.
+  We just have to show that:
+   ∙ The HIT is equivalent to FMSet (like AssocList)
+   ∙ There is a QER between lists and the basic data type of the HIT
+     with the higher constructors removed (like AList)
+  Then we get that this HIT is equivalent to the corresponding set quotient that identifies elements
+  that give the same count on each a : A.
+  TODO: Show that all the equivalences are indeed isomorphisms of multisets not only of CountStructures!
+  -}
