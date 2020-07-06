@@ -76,6 +76,10 @@ H¹-S²⋁S¹⋁S¹ = compGrIso (Hⁿ-⋁ 0)
                     (dirProdIso H¹-S²≅0 H¹-S¹⋁S¹)
                     lUnitGroupIso)
 
+test : Int × Int → Int × Int
+test x = morph.fun (grIso.fun H¹-S²⋁S¹⋁S¹) (morph.fun (grIso.inv H¹-S²⋁S¹⋁S¹) x)
+
+
 ------------- H²(S²⋁S¹⋁S¹) ---------
 H²-S²⋁S¹⋁S¹ : grIso (coHomGr 2 S²⋁S¹⋁S¹) intGroup
 H²-S²⋁S¹⋁S¹ = compGrIso (Hⁿ-⋁ 1)

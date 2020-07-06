@@ -31,7 +31,8 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Group.Base renaming (Iso to grIso ; compIso to compGrIso ; invIso to invGrIso ; idIso to idGrIso)
 open import Cubical.Data.Group.Properties
 
-
+open import Cubical.Homotopy.Connected
+open import Cubical.Foundations.Equiv
 
 H⁰-Sⁿ≅ℤ : (n : ℕ) → grIso (coHomGr 0 (S₊ (suc n))) intGroup
 H⁰-Sⁿ≅ℤ n =
@@ -413,10 +414,25 @@ coHom1S1≃ℤ =
                     base
                     base
                     (λ x → S¹map (trMap S1→S¹ (ΩKn+1→Kn x)))
-                    (λ x → Kn→ΩKn+1 1 (f (S¹→S1 x))) ((λ x → Kn→ΩKn+1 1 (g (S¹→S1 x))))
+                    (λ x → Kn→ΩKn+1 1 (f (S¹→S1 x)))
+                    ((λ x → Kn→ΩKn+1 1 (g (S¹→S1 x))))
                     (cong (Kn→ΩKn+1 1) reflf ∙ Kn→ΩKn+10ₖ 1)
                     (cong (Kn→ΩKn+1 1) reflg ∙ Kn→ΩKn+10ₖ 1))
                ∙ λ j → basechange2⁻ (S¹map (trMap S1→S¹ (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (f (S¹→S1 base)) j)))
                                      (λ i → S¹map (trMap S1→S¹ (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (f (S¹→S1 (loop i))) j)))
                       ∙ basechange2⁻ (S¹map (trMap S1→S¹ (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (g (S¹→S1 base)) j)))
                                      (λ i → S¹map (trMap S1→S¹ (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (g (S¹→S1 (loop i))) j))))
+
+
+
+
+
+-- --  grIso (coHomGr 1 (S₊ 1)) intGroup
+-- test : coHom 1 (S₊ 1) → Int
+-- test = morph.fun (grIso.fun coHom1S1≃ℤ)
+
+-- test2 : Int → Int
+-- test2 = morph.fun (grIso.fun coHom1S1≃ℤ) ∘ morph.fun (grIso.inv coHom1S1≃ℤ)
+
+-- test3 : Int → Int → Int
+-- test3 x y = test ((morph.fun (grIso.inv coHom1S1≃ℤ) x) +ₕ (morph.fun (grIso.inv coHom1S1≃ℤ) y))

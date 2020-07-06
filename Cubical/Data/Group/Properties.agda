@@ -80,7 +80,7 @@ diagonalIso1 A' B' C' ψ' ϕ' issurj ker→diag diag→ker =
 Given the following diagram
 
       ϕ
-A × A ⇉ B
+A × A ↠ B
   ^
   |
   | a ↦ (a , 0)

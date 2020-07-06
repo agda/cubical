@@ -292,3 +292,4 @@ Iso.fun (Iso3-Kn-ΩKn+1 n) = Kn→ΩKn+1 n
 Iso.inv (Iso3-Kn-ΩKn+1 n) = absInv n
 Iso.rightInv (Iso3-Kn-ΩKn+1 n) = absSect n
 Iso.leftInv (Iso3-Kn-ΩKn+1 n) = absRetr n
+

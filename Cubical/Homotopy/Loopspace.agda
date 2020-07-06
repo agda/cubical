@@ -26,8 +26,8 @@ open import Cubical.HITs.SetTruncation
 Ω→ (f , f∙) = (λ p → (sym f∙ ∙ cong f p) ∙ f∙) , cong (λ q → q ∙ f∙) (sym (rUnit (sym f∙))) ∙ lCancel f∙
 
 generalEH : {ℓ : Level} {A : Type ℓ} {a b c : A} {p q : a ≡ b} {r s : b ≡ c} (α : p ≡ q) (β : r ≡ s)
-         → (cong (λ x → x ∙ r) α) ∙ (cong (λ x → q ∙ x) β)
-          ≡ (cong (λ x → p ∙ x) β) ∙ (cong (λ x → x ∙ s) α)
+         → (cong (_∙ r) α) ∙ (cong (q ∙_) β)
+          ≡ (cong (p ∙_) β) ∙ (cong (_∙ s) α)
 generalEH {p = p} {r = r} α β j i =
    hcomp (λ k → λ { (i = i0) → p ∙ r
                    ; (i = i1) → α (k ∨ ~ j) ∙ β (k ∨ j) })

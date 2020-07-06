@@ -88,7 +88,7 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (n :
   isConnectedPrecompose : ((P : B → TypeOfHLevel (ℓ-max ℓ ℓ') n)
                                     → hasSection (λ(s : (b : B) → P b .fst) → s ∘ f))
                        → isConnectedFun n f
-  isConnectedPrecompose P→sect b = c n P→sect b , λ y →  sym (fun n P→sect b y) -- (c n P→sect b) , λ y → sym (fun n P→sect b y)
+  isConnectedPrecompose P→sect b = c n P→sect b , λ y →  sym (fun n P→sect b y)
     where
     P : (n : HLevel) → ((P : B → TypeOfHLevel ℓ n)
      → hasSection (λ(s : (b : B) → P b .fst) → s ∘ f))
@@ -183,7 +183,7 @@ isConnectedRetract : ∀ {ℓ ℓ'} (n : HLevel)
   (f : A → B) (g : B → A)
   (h : (x : A) → g (f x) ≡ x)
   → isConnected n B → isConnected n A
-isConnectedRetract n f g h =
+isConnectedRetract n f g h = 
   isContrRetract
     (Trunc.map f)
     (Trunc.map g)
@@ -198,7 +198,6 @@ isConnectedPoint n connA a₀ a =
   isConnectedRetract n
     snd (_ ,_) (λ _ → refl)
     (isConnectedPath n connA a₀ a)
-
 isConnectedPoint2 : ∀ {ℓ} (n : HLevel) {A : Type ℓ} (a : A)
    → isConnectedFun n (λ(_ : Unit) → a)
    → isConnected (suc n) A
@@ -231,6 +230,7 @@ connectedTruncIso {A = A} {B = B} (suc n) f con = g
   back : B → hLevelTrunc (suc n) A
   back y = map fst ((con y) .fst)
 
+
   backSection :  (b : B) → Path (hLevelTrunc (suc n) B)
                                  (Trunc.rec (isOfHLevelTrunc (suc n))
                                             (λ a → ∣ f a ∣)
@@ -249,9 +249,6 @@ connectedTruncIso {A = A} {B = B} (suc n) f con = g
            → (p : hLevelTrunc (suc n) (Σ A B))
            →  P (map fst p)
     helper P hlev pf = Trunc.elim hlev λ pair → pf (fst pair) (snd pair)
-
-  backRetract : (a : A) → map fst (con (f a) .fst) ≡ ∣ a ∣
-  backRetract a = cong (map fst) (con (f a) .snd ∣ a , refl ∣)
 
   g : Iso (hLevelTrunc (suc n) A) (hLevelTrunc (suc n) B)
   Iso.fun g = map f
@@ -281,7 +278,7 @@ inrConnected : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ
             → isConnectedFun n f
             → isConnectedFun n {A = B} {B = Pushout f g} inr
 inrConnected {A = A} {B = B} {C = C} n f g iscon =
-  elim.isConnectedPrecompose inr n λ P → (λ  l → k P l) , λ b → refl
+  elim.isConnectedPrecompose inr n λ P → (k P) , λ b → refl
   where
   module _ {ℓ : Level} (P : (Pushout f g) → TypeOfHLevel ℓ n)
                    (h : (b : B) → typ (P (inr b)))

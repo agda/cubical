@@ -55,7 +55,7 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
         .equiv-proof
         (λ _ → Trunc.elim
           (λ _ → isProp→isOfHLevelSuc (n + suc n) isPropIsContr)
-          (λ fib →
+         (λ fib →
             subst (λ k → isContr (fiber k ∣ fib ∣))
               (cong (Trunc.rec (isOfHLevelTrunc 2n+2) ∘ uncurry)
                 (funExt (WC.right p) ⁻¹))
@@ -63,7 +63,7 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
                 (funExt (Trunc.mapId) ⁻¹)
                 (idIsEquiv _)
                 .equiv-proof ∣ fib ∣)
-            ))
+             ))
         .fst .fst a
 
     interpolate : (a : typ A)
@@ -85,7 +85,7 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
   encode y = J Code ∣ pt A , rCancel' (merid (pt A)) ∣
 
   encodeMerid : (a : typ A) → encode south (merid a) ≡ ∣ a , refl ∣
-  encodeMerid a =
+  encodeMerid a = 
     cong (transport (λ i → gluePath i))
       (funExt⁻ (WC.left refl a) _ ∙ cong ∣_∣ (cong (a ,_) (lem _ _)))
     ∙ transport (PathP≡Path gluePath _ _)

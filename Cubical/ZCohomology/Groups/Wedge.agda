@@ -40,7 +40,7 @@ private
 private
   H¹-⋁'' : Iso'' (coHomGr 1 (A ⋁ B)) (×coHomGr 1 (typ A) (typ B))
   Iso''.ϕ (H¹-⋁'' {A = A} {B = B}) = (MV.i (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B) 1)
-  Iso''.inj (H¹-⋁'' {A = A} {B = B}) = -- Requires a "useless" elimination to terminate
+  Iso''.inj (H¹-⋁'' {A = A} {B = B}) = 
     sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
           λ f inker → helper ∣ f ∣₂ (MV.Ker-i⊂Im-d _ _ Unit (λ _ → pt A) (λ _ → pt B) 0 ∣ f ∣₂ inker)
     where
@@ -73,3 +73,16 @@ Hⁿ-⋁ {A = A} {B = B} (suc n) =
              (i {A = A} {B = B} (suc (suc n)))
              (MV.Ker-i⊂Im-d (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B) (suc n))
              (MV.Ker-Δ⊂Im-i (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B) (suc (suc n))))
+
+open import Cubical.Foundations.Isomorphism
+wedgetrunc : ((x : typ A) → ∥ pt A ≡ x ∥) → ((x : typ B) → ∥ pt B ≡ x ∥) → Iso (∥ (A ⋁ B) ∥₂) Unit
+Iso.fun (wedgetrunc {A = A , ptA} {B = B , ptB} conA conB) _ = _
+Iso.inv (wedgetrunc {A = A , ptA} {B = B , ptB} conA conB) _ = ∣ inl ptA ∣₂
+Iso.rightInv (wedgetrunc {A = A , ptA} {B = B , ptB} conA conB) _ = refl
+Iso.leftInv (wedgetrunc {A = A , ptA} {B = B , ptB} conA conB) =
+  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        (PushoutToProp (λ _ → setTruncIsSet _ _)
+          (λ a → pRec (setTruncIsSet _ _)
+          (cong (λ x → ∣ inl x ∣₂)) (conA a))
+          (λ b → pRec (setTruncIsSet _ _)
+          (λ p → cong ∣_∣₂ (push tt) ∙ cong (λ x → ∣ inr x ∣₂) p) (conB b)))

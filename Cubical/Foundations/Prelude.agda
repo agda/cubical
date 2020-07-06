@@ -181,6 +181,7 @@ compPathP-filler {A = A} {x = x} {B = B} p q j i =
        (inS (p i)) j
 
 
+
 compPathP'-filler : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y z : A} {x' : B x} {y' : B y} {z' : B z} {p : x ≡ y} {q : y ≡ z}
              (P : PathP (λ i → B (p i)) x' y') (Q : PathP (λ i → B (q i)) y' z')
           → PathP (λ j → PathP (λ i → B (compPath-filler p q j i)) x' (Q j)) P (compPathP' {x = x} {y = y} {x' = x'} {y' = y'} P Q)
