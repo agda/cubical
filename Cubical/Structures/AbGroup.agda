@@ -48,7 +48,7 @@ record AbGroup : Type (ℓ-suc ℓ) where
     isAbGroup : IsAbGroup 0g _+_ -_
 
   infix  8 -_
-  infixl 7 _+_
+  infixr 7 _+_
 
   open IsAbGroup isAbGroup public
 
