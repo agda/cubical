@@ -224,29 +224,13 @@ structuredQER→structuredEquiv : {S : Type ℓ → Type ℓ'} {ρ : StrRel S �
   → QERDescends S ρ A B R
 structuredQER→structuredEquiv {ρ = ρ} θ (X , s) (Y , t) R r .quoᴸ =
   θ .quo (X , s) (QER→EquivRel R)
-    (subst (λ R' → ρ R' s s) correction
-      (θ .transitive (R .fst) (invPropRel (R .fst)) r (θ .symmetric (R .fst) r)))
+    (θ .transitive (R .fst) (invPropRel (R .fst)) r (θ .symmetric (R .fst) r))
     .fst
-  where
-  correction : compPropRel (R .fst) (invPropRel (R .fst)) .fst ≡ QER→EquivRel R .fst .fst
-  correction =
-    funExt₂ λ x₀ x₁ →
-      (hPropExt squash (R .fst .snd _ _)
-        (Trunc.rec (R .fst .snd _ _) (λ {(y , r , r') → R .snd .zigzag r r' (R .snd .fwdRel _)}))
-        (λ r → ∣ _ , r , R .snd .fwdRel _ ∣))
 
 structuredQER→structuredEquiv {ρ = ρ} θ (X , s) (Y , t) R r .quoᴿ =
   θ .quo (Y , t) (QER→EquivRel (invQER R))
-    (subst (λ R' → ρ R' t t) correction
-      (θ .transitive (invPropRel (R .fst)) (R .fst) (θ .symmetric (R .fst) r) r))
+    (θ .transitive (invPropRel (R .fst)) (R .fst) (θ .symmetric (R .fst) r) r)
     .fst
-  where
-  correction : compPropRel (invPropRel (R .fst)) (R .fst) .fst ≡ QER→EquivRel (invQER R) .fst .fst
-  correction =
-    funExt₂ λ y₀ y₁ →
-      (hPropExt squash (R .fst .snd _ _)
-        (Trunc.rec (R .fst .snd _ _) (λ {(x , r , r') → R .snd .zigzag (R .snd .bwdRel _) r' r}))
-        (λ r → ∣ _ , r , R .snd .bwdRel _ ∣))
 
 structuredQER→structuredEquiv {ρ = ρ} θ (X , s) (Y , t) R r .rel =
   subst (λ R' → ρ R' (quol .fst) (quor .fst)) correction
@@ -270,14 +254,16 @@ structuredQER→structuredEquiv {ρ = ρ} θ (X , s) (Y , t) R r .rel =
             Trunc.rec
               (squash/ _ _)
               (λ {(x , px , r) →
-                cong (E.Thm .fst) (sym px)
-                ∙ eq/ (R .snd .fwd x) y (R .snd .zigzag (R .snd .bwdRel y) r (R .snd .fwdRel x))
+                (cong (E.Thm .fst) (sym px)
+                ∙ E.relToFwd≡ r)
                 ∙ py})
               qr}))
-        (elimProp
-          {B = λ qx →
-            E.Thm .fst qx ≡ qy → [R] .fst qx qy}
+        (elimProp {B = λ qx → E.Thm .fst qx ≡ qy → [R] .fst qx qy}
           (λ _ → isPropΠ λ _ → squash)
-          (λ x p → ∣ _ , ∣ _ , refl , R .snd .fwdRel x ∣ , p ∣)
+          (λ x →
+            elimProp {B = λ qy → E.Thm .fst [ x ] ≡ qy → [R] .fst [ x ] qy}
+              (λ _ → isPropΠ λ _ → squash)
+              (λ y p → ∣ _ , ∣ _ , refl , E.fwd≡ToRel p ∣ , refl ∣)
+              qy)
           qx))
 

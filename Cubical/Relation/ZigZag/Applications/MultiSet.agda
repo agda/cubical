@@ -19,6 +19,7 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.SetQuotients
 open import Cubical.HITs.FiniteMultiset as FMS hiding ([_])
 open import Cubical.HITs.FiniteMultiset.CountExtensionality
+open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.ZigZag.Base
 
@@ -150,10 +151,8 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
   QuasiR .fst .fst = R
   QuasiR .fst .snd _ _ = isPropΠ λ _ → isSetℕ _ _
   QuasiR .snd .zigzag r r' r'' a = (r a) ∙∙ sym (r' a) ∙∙ (r'' a)
-  QuasiR .snd .fwd = φ
-  QuasiR .snd .fwdRel = η
-  QuasiR .snd .bwd = ψ
-  QuasiR .snd .bwdRel = ε
+  QuasiR .snd .fwd a = ∣ φ a , η a ∣
+  QuasiR .snd .bwd b = ∣ ψ b , ε b ∣
 
   isStructuredInsert : (x : A) {xs : List A} {ys : AList A}
     → R xs ys → R (L.insert x xs) (AL.insert x ys)
@@ -214,7 +213,8 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
     δ c a b xs | no  _        | no  _ = refl
 
     γ : ∀ a b xs → Rᴸ (a ∷ b ∷ xs) (b ∷ a ∷ xs)
-    γ a b xs c = δ c a b xs ∙ η (b ∷ a ∷ xs) c
+    γ a b xs =
+      ∣ φ (a ∷ b ∷ xs) , η (a ∷ b ∷ xs) , (λ c → δ c b a xs ∙ η (a ∷ b ∷ xs) c) ∣
 
     β : ∀ a b [xs] → a ∷/ b ∷/ [xs] ≡ b ∷/ a ∷/ [xs]
     β a b = elimProp (λ _ → squash/ _ _) (λ xs → eq/ _ _ (γ a b xs))
@@ -237,7 +237,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
   List/Rᴸ→FMSet (eq/ xs ys r i) = path i
     where
     countsAgree : ∀ a → L.count a xs ≡ L.count a ys
-    countsAgree a = r a ∙ sym (η ys a)
+    countsAgree a = cong (LQstructure .snd .snd a) (eq/ xs ys r)
 
     θ : ∀ a → FMScount discA a (List→FMSet xs) ≡ FMScount discA a (List→FMSet ys)
     θ a = sym (List→FMSet-count a xs) ∙∙ countsAgree a ∙∙ List→FMSet-count a ys
