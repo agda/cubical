@@ -65,6 +65,12 @@ isEquivTransport {A = A} {B = B} p =
 transportEquiv : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B
 transportEquiv p = (transport p , isEquivTransport p)
 
+substEquiv : ∀ {ℓ ℓ'} {A B : Type ℓ} (P : Type ℓ → Type ℓ') (p : A ≡ B) → P A ≃ P B
+substEquiv P p = (subst P p , isEquivTransport (λ i → P (p i)))
+
+liftEquiv : ∀ {ℓ ℓ'} {A B : Type ℓ} (P : Type ℓ → Type ℓ') (e : A ≃ B) → P A ≃ P B
+liftEquiv P e = substEquiv P (ua e)
+
 transpEquiv : ∀ {ℓ} {A B : Type ℓ} (p : A ≡ B) → ∀ i → p i ≃ B
 transpEquiv P i .fst = transp (λ j → P (i ∨ j)) i
 transpEquiv P i .snd

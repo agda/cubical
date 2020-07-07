@@ -4,6 +4,7 @@ module Cubical.Structures.Monoid where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
@@ -172,6 +173,22 @@ module MonoidΣTheory {ℓ} where
     Monoid→MonoidΣ M ≡ Monoid→MonoidΣ N ≃⟨ isoToEquiv (invIso (congIso MonoidIsoMonoidΣ)) ⟩
     M ≡ N ■
 
+  RawMonoidΣ : Type (ℓ-suc ℓ)
+  RawMonoidΣ = TypeWithStr ℓ RawMonoidStructure
+
+  Monoid→RawMonoidΣ : Monoid → RawMonoidΣ
+  Monoid→RawMonoidΣ (monoid A ε _·_ _) = A , ε , _·_
+
+  InducedMonoid : (M : Monoid) (N : RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+                 → RawMonoidEquivStr (Monoid→RawMonoidΣ M) N e → Monoid
+  InducedMonoid M N e r =
+    MonoidΣ→Monoid (transferAxioms rawMonoidUnivalentStr (Monoid→MonoidΣ M) N (e , r))
+
+  InducedMonoidPath : (M : Monoid {ℓ}) (N : RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+                      (E : RawMonoidEquivStr (Monoid→RawMonoidΣ M) N e)
+                    → M ≡ InducedMonoid M N e E
+  InducedMonoidPath M N e E =
+    MonoidPath M (InducedMonoid M N e E) .fst (monoidiso e (E .fst) (E .snd))
 
 -- We now extract the important results from the above module
 
@@ -182,6 +199,16 @@ isPropIsMonoid ε _·_ =
 
 MonoidPath : (M N : Monoid {ℓ}) → (MonoidEquiv M N) ≃ (M ≡ N)
 MonoidPath = MonoidΣTheory.MonoidPath
+
+InducedMonoid : (M : Monoid {ℓ}) (N : MonoidΣTheory.RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+              → MonoidΣTheory.RawMonoidEquivStr (MonoidΣTheory.Monoid→RawMonoidΣ M) N e
+              → Monoid
+InducedMonoid = MonoidΣTheory.InducedMonoid
+
+InducedMonoidPath : (M : Monoid {ℓ}) (N : MonoidΣTheory.RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+                    (E : MonoidΣTheory.RawMonoidEquivStr (MonoidΣTheory.Monoid→RawMonoidΣ M) N e)
+                  → M ≡ InducedMonoid M N e E
+InducedMonoidPath = MonoidΣTheory.InducedMonoidPath
 
 
 module MonoidTheory {ℓ} (M' : Monoid {ℓ}) where

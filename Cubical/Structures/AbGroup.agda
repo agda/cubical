@@ -135,6 +135,21 @@ module AbGroupΣTheory {ℓ} where
     AbGroup→AbGroupΣ G ≡ AbGroup→AbGroupΣ H ≃⟨ isoToEquiv (invIso (congIso AbGroupIsoAbGroupΣ)) ⟩
     G ≡ H ■
 
+  AbGroup→RawGroupΣ : AbGroup {ℓ} → RawGroupΣ
+  AbGroup→RawGroupΣ (abgroup G _ _+_ _ _) = G , _+_
+
+  InducedAbGroup : (G : AbGroup) (H : RawGroupΣ) (e : G .AbGroup.Carrier ≃ H .fst)
+                 → RawGroupEquivStr (AbGroup→RawGroupΣ G) H e → AbGroup
+  InducedAbGroup G H e r =
+    AbGroupΣ→AbGroup (transferAxioms rawGroupUnivalentStr (AbGroup→AbGroupΣ G) H (e , r))
+
+  InducedAbGroupPath : (G : AbGroup {ℓ}) (H : RawGroupΣ) (e : G .AbGroup.Carrier ≃ H .fst)
+                       (E : RawGroupEquivStr (AbGroup→RawGroupΣ G) H e)
+                     → G ≡ InducedAbGroup G H e E
+  InducedAbGroupPath G H e E =
+    AbGroupPath G (InducedAbGroup G H e E) .fst (groupequiv e E)
+
+
 -- Extract the characterization of equality of groups
 AbGroupPath : (G H : AbGroup {ℓ}) → (AbGroupEquiv G H) ≃ (G ≡ H)
 AbGroupPath = AbGroupΣTheory.AbGroupPath
@@ -149,3 +164,13 @@ isPropIsAbGroup 0g _+_ -_ (isabgroup GG GC) (isabgroup HG HC) =
 
   isPropComm : isProp ((x y : _) → x + y ≡ y + x)
   isPropComm = isPropΠ2 λ _ _ → isSetG _ _
+
+InducedAbGroup : (G : AbGroup {ℓ}) (H : GroupΣTheory.RawGroupΣ) (e : G .AbGroup.Carrier ≃ H .fst)
+               → GroupΣTheory.RawGroupEquivStr (AbGroupΣTheory.AbGroup→RawGroupΣ G) H e
+               → AbGroup
+InducedAbGroup = AbGroupΣTheory.InducedAbGroup
+
+InducedAbGroupPath : (G : AbGroup {ℓ}) (H : GroupΣTheory.RawGroupΣ) (e : G .AbGroup.Carrier ≃ H .fst)
+                     (E : GroupΣTheory.RawGroupEquivStr (AbGroupΣTheory.AbGroup→RawGroupΣ G) H e)
+                   → G ≡ InducedAbGroup G H e E
+InducedAbGroupPath = AbGroupΣTheory.InducedAbGroupPath

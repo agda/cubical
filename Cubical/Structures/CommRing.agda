@@ -161,4 +161,3 @@ isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
 
   isPropComm : isProp ((x y : _) → x · y ≡ y · x)
   isPropComm = isPropΠ2 λ _ _ → isSetR _ _
-
