@@ -28,7 +28,7 @@ module _ (A : Type ℓ) (Aset : isSet A) where
  isContrFiniteQueue : isContr FiniteQueue
  isContrFiniteQueue .fst = One.Finite
  isContrFiniteQueue .snd (Q , (S@(emp , enq , deq) , _ , deq-emp , deq-enq , _) , fin) =
-   sip FiniteQueue-is-SNS _ _ ((f , fin) , f∘emp , f∘enq , sym ∘ f∘deq)
+   sip finiteQueueUnivalentStr _ _ ((f , fin) , f∘emp , f∘enq , sym ∘ f∘deq)
    where
    deq₁-enq₁ = str One.WithLaws .snd .snd .snd .fst
 
@@ -45,14 +45,14 @@ module _ (A : Type ℓ) (Aset : isSet A) where
    fA (q , a) = (f q , a)
 
    f∘returnOrEnq : (x : A) (xsr : Maybe (List A × A)) →
-     returnOrEnq S x (deq-map f xsr) ≡ fA (returnOrEnq (str One.Raw) x xsr)
+     returnOrEnq S x (deqMap f xsr) ≡ fA (returnOrEnq (str One.Raw) x xsr)
    f∘returnOrEnq _ nothing = refl
    f∘returnOrEnq _ (just _) = refl
 
-   f∘deq : ∀ xs → deq (f xs) ≡ deq-map f (deq₁ xs)
+   f∘deq : ∀ xs → deq (f xs) ≡ deqMap f (deq₁ xs)
    f∘deq [] = deq-emp
    f∘deq (x ∷ xs) =
      deq-enq x (f xs)
      ∙ cong (just ∘ returnOrEnq S x) (f∘deq xs)
      ∙ cong just (f∘returnOrEnq x (deq₁ xs))
-     ∙ cong (deq-map f) (sym (deq₁-enq₁ x xs))
+     ∙ cong (deqMap f) (sym (deq₁-enq₁ x xs))

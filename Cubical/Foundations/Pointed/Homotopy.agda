@@ -12,6 +12,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Fiberwise
 open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
@@ -25,6 +26,27 @@ open import Cubical.Data.Sigma
 private
   variable
     ℓ ℓ' : Level
+    A : Type ℓ
+
+  module _ where
+    -- sym induces an equivalence on identity types of paths
+    symIso : {a b : A} (p q : a ≡ b) → Iso (p ≡ q) (q ≡ p)
+    symIso p q = iso sym sym (λ _ → refl) λ _ → refl
+
+    -- composition on the right induces an equivalence of path types
+    compr≡Equiv : {A : Type ℓ} {a b c : A} (p q : a ≡ b) (r : b ≡ c) → (p ≡ q) ≃ (p ∙ r ≡ q ∙ r)
+    compr≡Equiv p q r = congEquiv ((λ s → s ∙ r) , compPathr-isEquiv r)
+
+    -- composition on the left induces an equivalence of path types
+    compl≡Equiv : {A : Type ℓ} {a b c : A} (p : a ≡ b) (q r : b ≡ c) → (q ≡ r) ≃ (p ∙ q ≡ p ∙ r)
+    compl≡Equiv p q r = congEquiv ((λ s → p ∙ s) , (compPathl-isEquiv p))
+
+    -- The type of fillers of a square is equivalent to the double composition identites
+    Square≃doubleComp : {a₀₀ a₀₁ a₁₀ a₁₁ : A}
+                        (a₀₋ : a₀₀ ≡ a₀₁) (a₁₋ : a₁₀ ≡ a₁₁)
+                        (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
+                        → Square a₀₋ a₁₋ a₋₀ a₋₁ ≃ (a₋₀ ⁻¹ ∙∙ a₀₋ ∙∙ a₋₁ ≡ a₁₋)
+    Square≃doubleComp a₀₋ a₁₋ a₋₀ a₋₁ = transportEquiv (PathP≡doubleCompPathˡ a₋₀ a₀₋ a₁₋ a₋₁)
 
 module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 

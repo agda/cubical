@@ -2,17 +2,16 @@
 module Cubical.Structures.LeftAction where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
-open import Cubical.Structures.Macro
+open import Cubical.Structures.Auto
 
 module _ {ℓ ℓ' : Level} (A : Type ℓ') where
 
-  left-action-desc : Desc ℓ
-  left-action-desc = param A (recvar var)
+  LeftActionStructure : Type ℓ → Type (ℓ-max ℓ ℓ')
+  LeftActionStructure X = A → X → X
 
-  open Macro ℓ left-action-desc public renaming
-    ( structure to left-action-structure
-    ; iso to left-action-iso
-    ; isSNS to Left-Action-is-SNS
-    )
+  LeftActionEquivStr = AutoEquivStr LeftActionStructure
+
+  leftActionUnivalentStr : UnivalentStr _ LeftActionEquivStr
+  leftActionUnivalentStr = autoUnivalentStr LeftActionStructure

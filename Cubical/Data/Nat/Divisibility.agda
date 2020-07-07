@@ -60,6 +60,12 @@ isProp∣' {suc m} {n} (c₁ , p₁) (c₂ , p₂) =
 ∣-trans = PropTrunc.map2 λ {
   (c₁ , p) (c₂ , q) → (c₂ * c₁ , sym (*-assoc c₂ c₁ _) ∙ cong (c₂ *_) p ∙ q) }
 
+∣-left : ∀ k → m ∣ (m * k)
+∣-left k = ∣ k , *-comm k _ ∣
+
+∣-right : ∀ k → m ∣ (k * m)
+∣-right k = ∣ k , refl ∣
+
 ∣-cancelʳ : ∀ k → (m * suc k) ∣ (n * suc k) → m ∣ n
 ∣-cancelʳ k = PropTrunc.map λ {
   (c , p) → (c , inj-*sm (sym (*-assoc c _ (suc k)) ∙ p)) }

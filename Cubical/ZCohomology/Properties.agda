@@ -26,7 +26,7 @@ open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
 open import Cubical.HITs.SmashProduct.Base
-open import Cubical.Data.Group.Base hiding (_≃_ ; Iso)
+open import Cubical.Structures.Group
 
 
 open import Cubical.HITs.Pushout
