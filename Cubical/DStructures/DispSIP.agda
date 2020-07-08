@@ -12,44 +12,20 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 
+open import Cubical.Relation.Binary
+open BinaryRelation
+
 private
   variable
     ℓ ℓ' ℓ₁ ℓ₁' ℓ₂ : Level
-
-module _ {A : Type ℓ} where
-  Rel→TotalSpace : (_≅_ : A → A → Type ℓ') (a : A) → Type (ℓ-max ℓ ℓ')
-  Rel→TotalSpace _≅_ a = Σ[ a' ∈ A ] (a ≅ a')
-
-  -- reflexive relations will be denoted by ≅
-  relIsReflexive : (_≅_ : A → A → Type ℓ') → Type (ℓ-max ℓ ℓ')
-  relIsReflexive _≅_ = (a : A) → a ≅ a
-
-  module _ {_≅_ : A → A → Type ℓ'} where
-    ≡→≅ : (ρ : relIsReflexive _≅_) → (a a' : A) → a ≡ a' → a ≅ a'
-    ≡→≅ ρ a a' p = subst (λ z → a ≅ z) p (ρ a)
-
-    relIsUnivalent : (ρ : relIsReflexive _≅_) → Type (ℓ-max ℓ ℓ')
-    relIsUnivalent ρ = (a a' : A) → isEquiv (≡→≅ ρ a a')
-
-
-  -- ≅→ContrTotalSpace→Identity :
-
 
 
 -- a univalent reflexive graph structure on a type
 record URGStr (A : Type ℓ) (ℓ₁ : Level) : Type (ℓ-max ℓ (ℓ-suc ℓ₁)) where
   field
-    _≅_ : A → A → Type ℓ₁
-    -- ρ    : (a : A) → a ≅ a
-    ρ    : relIsReflexive _≅_
-
-  -- ≡→≅ : (a a' : A) → a ≡ a' → a ≅ a'
-  -- ≡→≅ a a' p = subst (λ z → a ≅ z) p (ρ a)
-
-  field
-    uni : (a a' : A) → isEquiv (≡→≅ ρ a a')
-
-
+    _≅_ : Rel A A ℓ₁
+    ρ : isRefl _≅_
+    uni : isUnivalent _≅_ ρ
 
 -- makeURGStr : {A : Type ℓ} {ℓ₁ : Level}
 
@@ -57,18 +33,11 @@ record URGStr (A : Type ℓ) (ℓ₁ : Level) : Type (ℓ-max ℓ (ℓ-suc ℓ�
 record URGStrᴰ {A : Type ℓ} {ℓ₁} (StrA : URGStr A ℓ₁)
                   (B : A → Type ℓ') (ℓ₁' : Level) : Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓ₁) (ℓ-suc ℓ₁')) where
   open URGStr StrA
+
   field
-    -- DRel : {a a' : A} → a ≅ a' → B a → B a' → Type ℓ₁'
     _≅ᴰ⟨_⟩_ : {a a' : A} → B a → a ≅ a' → B a' → Type ℓ₁'
-    -- Dρ   : {a : A} → (b : B a) → DRel (ρ a) b b
-    ρᴰ : {a : A} → relIsReflexive _≅ᴰ⟨ ρ a ⟩_
-    -- ρᴰ : {a : A} → (b : B a) → b ≅ᴰ⟨ ρ a ⟩ b
-
-  ≡→≅ᴰ : {a : A} (b b' : B a) → b ≡ b' → b ≅ᴰ⟨ ρ a ⟩ b'
-  ≡→≅ᴰ {a} b b' p = subst (λ z → b ≅ᴰ⟨ ρ a ⟩ z) p (ρᴰ b)
-
-  field
-    uniᴰ : {a : A} (b b' : B a) → isEquiv (≡→≅ᴰ b b')
+    ρᴰ : {a : A} → isRefl _≅ᴰ⟨ ρ a ⟩_
+    uniᴰ : {a : A} → isUnivalent _≅ᴰ⟨ ρ a ⟩_ ρᴰ
 
 URGStrᴰ→URGStr : {A : Type ℓ} {ℓ₁ : Level} (StrA : URGStr A ℓ₁)
                  (B : A → Type ℓ') {ℓ₁' : Level} (DispStrB : URGStrᴰ StrA B ℓ₁')
