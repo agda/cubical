@@ -293,7 +293,7 @@ isContrSingl a = (a , refl) , λ p i → p .snd i , λ j → p .snd (i ∧ j)
 isContrSinglP : (A : I → Type ℓ) (a : A i0) → isContr (Σ[ x ∈ A i1 ] PathP A a x)
 isContrSinglP A a .fst = _ , transport-filler (λ i → A i) a
 isContrSinglP A a .snd (x , p) i =
-  _ , λ j → fill A (λ j → λ {(i = i0) → transport-filler (λ i → A i) a j; (i = i1) → p j}) (inS a) j
+  _ , λ j → fill (\ i → A i) (λ j → λ {(i = i0) → transport-filler (λ i → A i) a j; (i = i1) → p j}) (inS a) j
 
 SquareP :
   (A : I → I → Type ℓ)
