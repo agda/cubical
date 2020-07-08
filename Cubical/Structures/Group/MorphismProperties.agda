@@ -185,9 +185,38 @@ module GroupΣTheory {ℓ} where
     Group→GroupΣ G ≡ Group→GroupΣ H ≃⟨ isoToEquiv (invIso (congIso GroupIsoGroupΣ)) ⟩
     G ≡ H ■
 
+  RawGroupΣ : Type (ℓ-suc ℓ)
+  RawGroupΣ = TypeWithStr ℓ RawGroupStructure
+
+  Group→RawGroupΣ : Group → RawGroupΣ
+  Group→RawGroupΣ (group G _ _+_ _ _) = G , _+_
+
+  InducedGroup : (G : Group) (H : RawGroupΣ) (e : G .Group.Carrier ≃ H .fst)
+               → RawGroupEquivStr (Group→RawGroupΣ G) H e → Group
+  InducedGroup G H e r =
+    GroupΣ→Group (transferAxioms rawGroupUnivalentStr (Group→GroupΣ G) H (e , r))
+
+  InducedGroupPath : (G : Group {ℓ}) (H : RawGroupΣ) (e : G .Group.Carrier ≃ H .fst)
+                     (E : RawGroupEquivStr (Group→RawGroupΣ G) H e)
+                   → G ≡ InducedGroup G H e E
+  InducedGroupPath G H e E =
+    GroupPath G (InducedGroup G H e E) .fst (groupequiv e E)
+
+
 -- Extract the characterization of equality of groups
 GroupPath : (G H : Group {ℓ}) → (GroupEquiv G H) ≃ (G ≡ H)
 GroupPath = GroupΣTheory.GroupPath
+
+InducedGroup : (G : Group {ℓ}) (H : GroupΣTheory.RawGroupΣ) (e : G .Group.Carrier ≃ H .fst)
+             → GroupΣTheory.RawGroupEquivStr (GroupΣTheory.Group→RawGroupΣ G) H e
+             → Group
+InducedGroup = GroupΣTheory.InducedGroup
+
+InducedGroupPath : (G : Group {ℓ}) (H : GroupΣTheory.RawGroupΣ) (e : G .Group.Carrier ≃ H .fst)
+                   (E : GroupΣTheory.RawGroupEquivStr (GroupΣTheory.Group→RawGroupΣ G) H e)
+                 → G ≡ InducedGroup G H e E
+InducedGroupPath = GroupΣTheory.InducedGroupPath
+
 
 uaGroup : {G H : Group {ℓ}} → GroupEquiv G H → G ≡ H
 uaGroup {G = G} {H = H} = equivFun (GroupPath G H)

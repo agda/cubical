@@ -36,6 +36,10 @@ g ∘ f = λ x → g (f x)
 ∘-idʳ : (f : (a : A) → B a) → (λ {a} → idfun (B a)) ∘ f ≡ f
 ∘-idʳ f i x = f x
 
+flip : {B : Type ℓ'} {C : A → B → Type ℓ''} →
+       ((x : A) (y : B) → C x y) → ((y : B) (x : A) → C x y)
+flip f y x = f x y
+{-# INLINE flip #-}
 
 const : {B : Type ℓ} → A → B → A
 const x = λ _ → x

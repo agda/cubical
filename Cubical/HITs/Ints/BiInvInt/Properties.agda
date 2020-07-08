@@ -135,7 +135,7 @@ sgnᴮ n = sgn (bwd n)
 -- (for now we use abs and sgn, as in agda's stdlib)
 
 _*ᴮ_ : BiInvInt → BiInvInt → BiInvInt
-m *ᴮ n = caseBool posᴮ negᴮ (sgnᴮ m and sgnᴮ n) (absᴮ m * absᴮ n)
+m *ᴮ n = (if sgnᴮ m and sgnᴮ n then posᴮ else negᴮ) (absᴮ m * absᴮ n)
 -- m *ᴮ zero = zero
 -- m *ᴮ suc n = (m *ᴮ n) +ᴮ m
 -- m *ᴮ predr n = (m *ᴮ n) -ᴮ m
