@@ -219,29 +219,6 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
     ⋆-lassoc ,
     ⋆-rassoc
 
-{-
-  AlgebraΣ→Algebra : AlgebraΣ → Algebra R
-  AlgebraΣ→Algebra (A , (_+_ , _·_ , 1a , _⋆_) , isRing , isLeftModule , lassoc , rassoc) =
-    algebra A _ 1a _+_ _·_ _ _⋆_
-      (isalgebra (Ring.isRing (RingΣ→Ring (_ , (_ , isRing))))
-                 (LeftModule.isLeftModule (LeftModuleΣ→LeftModule ({!!} , ({!!} , isLeftModule))))
-                 lassoc
-                 rassoc)
-  AlgebraΣ→Algebra : AlgebraΣ → Algebra R
-  AlgebraΣ→Algebra (A , (_+_ , _·_ , 1a , _⋆_) , isRing , isLeftModule , lassoc , rassoc) =
-    let
-        isRing : IsRing _ 1a _+_ _·_ _
-        isRing = RingΣ→Ring (A , (_+_ , 1a , _·_) , isRing) .Ring.isRing
-        open Ring (ring _ _ _ _ _ _ isRing) using (-_)
-        0a : A
-        0a = {!!}
-        open LeftModule (LeftModuleΣ→LeftModule (_ , _ , isLeftModule))
-          using () renaming (isLeftModule to isLeftModule′)
-        isLeftModule″ : IsLeftModule R _ _+_ _ _⋆_
-        isLeftModule″ = isLeftModule′
-    in algebra A 0a 1a _+_ _·_ -_ _⋆_ (isalgebra isRing {!isLeftModule′!} lassoc rassoc)
--}
-
 module AlgebraTheory (R : Ring {ℓ}) (A : Algebra R) where
   open Ring R renaming (_+_ to _+r_)
   open Algebra A
