@@ -20,6 +20,7 @@ open import Cubical.Structures.CommRing
 open import Cubical.Structures.Ring        using ()
 open import Cubical.Structures.CommAlgebra renaming (⟨_⟩ to ⟨_⟩a)
 open import Cubical.Structures.Algebra     hiding (⟨_⟩)
+open import Cubical.HITs.SetTruncation
 
 private
   variable
@@ -97,7 +98,7 @@ R [ I ] = let open Construction R
 
 
 module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
-  open CommRing R using (0r; 1r) renaming (_·_ to _·r_; ·-comm to ·r-comm; ·-rid to ·r-rid)
+  open CommRing R using (0r; 1r) renaming (_·_ to _·r_; _+_ to _+r_; ·-comm to ·r-comm; ·-rid to ·r-rid)
 
   module _ (A : CommAlgebra R) (φ : I → ⟨ A ⟩a) where
     open CommAlgebra A
@@ -181,3 +182,217 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
     mapRetrievable : ∀ (φ : I → ⟨ A ⟩a)
                      → evaluateAt (inducedHom A φ) ≡ φ
     mapRetrievable φ = refl
+
+    proveEq : ∀ {X : Type ℓ} (isSetX : isSet X) (f g : ⟨ R [ I ] ⟩a → X)
+              → (var-eq : (x : I) → f (var x) ≡ g (var x))
+              → (const-eq : (r : ⟨ R ⟩) → f (const r) ≡ g (const r))
+              → (+-eq : (x y : ⟨ R [ I ] ⟩a) → (eq-x : f x ≡ g x) → (eq-y : f y ≡ g y)
+                        → f (x +c y) ≡ g (x +c y))
+              → (·-eq : (x y : ⟨ R [ I ] ⟩a) → (eq-x : f x ≡ g x) → (eq-y : f y ≡ g y)
+                        → f (x ·c y) ≡ g (x ·c y))
+              → (-eq : (x : ⟨ R [ I ] ⟩a) → (eq-x : f x ≡ g x)
+                        → f (-c x) ≡ g (-c x))
+              → f ≡ g
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (var x) = var-eq x i
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (const x) = const-eq x i
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (x +c y) =
+      +-eq x y
+           (λ i → proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i x)
+           (λ i → proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i y)
+           i
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (-c x) =
+      -eq x ((λ i → proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i x)) i
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (x ·c y) =
+      ·-eq x y
+           (λ i → proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i x)
+           (λ i → proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i y)
+           i
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (Construction.+-assoc x y z j) =
+       let
+        rec : (x : ⟨ R [ I ] ⟩a) → f x ≡ g x
+        rec x = (λ i → proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i x)
+        a₀₋ : f (x +c (y +c z)) ≡ g (x +c (y +c z))
+        a₀₋ = +-eq _ _ (rec x) (+-eq _ _ (rec y) (rec z))
+        a₁₋ : f ((x +c y) +c z) ≡ g ((x +c y) +c z)
+        a₁₋ = +-eq _ _ (+-eq _ _ (rec x) (rec y)) (rec z)
+        a₋₀ : f (x +c (y +c z)) ≡ f ((x +c y) +c z)
+        a₋₀ = cong f (Construction.+-assoc x y z)
+        a₋₁ : g (x +c (y +c z)) ≡ g ((x +c y) +c z)
+        a₋₁ = cong g (Construction.+-assoc x y z)
+      in isSet→isSet' isSetX a₀₋ a₁₋ a₋₀ a₋₁ j i
+
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (Construction.+-rid x j) =
+       let
+        rec : (x : ⟨ R [ I ] ⟩a) → f x ≡ g x
+        rec x = (λ i → proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i x)
+        a₀₋ : f (x +c (const 0r)) ≡ g (x +c (const 0r))
+        a₀₋ = +-eq _ _ (rec x) (const-eq 0r)
+        a₁₋ : f x ≡ g x
+        a₁₋ = rec x
+        a₋₀ : f (x +c (const 0r)) ≡ f x
+        a₋₀ = cong f (Construction.+-rid x)
+        a₋₁ : g (x +c (const 0r)) ≡ g x
+        a₋₁ = cong g (Construction.+-rid x)
+      in isSet→isSet' isSetX a₀₋ a₁₋ a₋₀ a₋₁ j i
+
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (Construction.+-rinv x j) =
+       let
+        rec : (x : ⟨ R [ I ] ⟩a) → f x ≡ g x
+        rec x = (λ i → proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i x)
+        a₀₋ : f (x +c (-c x)) ≡ g (x +c (-c x))
+        a₀₋ = +-eq x (-c x) (rec x) (-eq x (rec x))
+        a₁₋ : f (const 0r) ≡ g (const 0r)
+        a₁₋ = const-eq 0r
+        a₋₀ : f (x +c (-c x)) ≡ f (const 0r)
+        a₋₀ = cong f (Construction.+-rinv x)
+        a₋₁ : g (x +c (-c x)) ≡ g (const 0r)
+        a₋₁ = cong g (Construction.+-rinv x)
+      in isSet→isSet' isSetX a₀₋ a₁₋ a₋₀ a₋₁ j i
+
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (Construction.+-comm x y j) =
+      let
+        rec : (x : ⟨ R [ I ] ⟩a) → f x ≡ g x
+        rec x = (λ i → proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i x)
+        a₀₋ : f (x +c y) ≡ g (x +c y)
+        a₀₋ = +-eq x y (rec x) (rec y)
+        a₁₋ : f (y +c x) ≡ g (y +c x)
+        a₁₋ = +-eq y x (rec y) (rec x)
+        a₋₀ : f (x +c y) ≡ f (y +c x)
+        a₋₀ = cong f (Construction.+-comm x y)
+        a₋₁ : g (x +c y) ≡ g (y +c x)
+        a₋₁ = cong g (Construction.+-comm x y)
+      in isSet→isSet' isSetX a₀₋ a₁₋ a₋₀ a₋₁ j i
+
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (Construction.·-assoc x y z j) =
+       let
+        rec : (x : ⟨ R [ I ] ⟩a) → f x ≡ g x
+        rec x = (λ i → proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i x)
+        a₀₋ : f (x ·c (y ·c z)) ≡ g (x ·c (y ·c z))
+        a₀₋ = ·-eq _ _ (rec x) (·-eq _ _ (rec y) (rec z))
+        a₁₋ : f ((x ·c y) ·c z) ≡ g ((x ·c y) ·c z)
+        a₁₋ = ·-eq _ _ (·-eq _ _ (rec x) (rec y)) (rec z)
+        a₋₀ : f (x ·c (y ·c z)) ≡ f ((x ·c y) ·c z)
+        a₋₀ = cong f (Construction.·-assoc x y z)
+        a₋₁ : g (x ·c (y ·c z)) ≡ g ((x ·c y) ·c z)
+        a₋₁ = cong g (Construction.·-assoc x y z)
+      in isSet→isSet' isSetX a₀₋ a₁₋ a₋₀ a₋₁ j i
+
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (Construction.·-lid x j) =
+       let
+        rec : (x : ⟨ R [ I ] ⟩a) → f x ≡ g x
+        rec x = (λ i → proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i x)
+        a₀₋ : f ((const 1r) ·c x) ≡ g ((const 1r) ·c x)
+        a₀₋ = ·-eq _ _ (const-eq 1r) (rec x)
+        a₁₋ : f x ≡ g x
+        a₁₋ = rec x
+        a₋₀ : f ((const 1r) ·c x) ≡ f x
+        a₋₀ = cong f (Construction.·-lid x)
+        a₋₁ : g ((const 1r) ·c x) ≡ g x
+        a₋₁ = cong g (Construction.·-lid x)
+      in isSet→isSet' isSetX a₀₋ a₁₋ a₋₀ a₋₁ j i
+
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (Construction.·-comm x y j) =
+       let
+        rec : (x : ⟨ R [ I ] ⟩a) → f x ≡ g x
+        rec x = (λ i → proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i x)
+        a₀₋ : f (x ·c y) ≡ g (x ·c y)
+        a₀₋ = ·-eq _ _ (rec x) (rec y)
+        a₁₋ : f (y ·c x) ≡ g (y ·c x)
+        a₁₋ = ·-eq _ _ (rec y) (rec x)
+        a₋₀ : f (x ·c y) ≡ f (y ·c x)
+        a₋₀ = cong f (Construction.·-comm x y)
+        a₋₁ : g (x ·c y) ≡ g (y ·c x)
+        a₋₁ = cong g (Construction.·-comm x y)
+      in isSet→isSet' isSetX a₀₋ a₁₋ a₋₀ a₋₁ j i
+
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (Construction.ldist x y z j) =
+       let
+        rec : (x : ⟨ R [ I ] ⟩a) → f x ≡ g x
+        rec x = (λ i → proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i x)
+        a₀₋ : f ((x +c y) ·c z) ≡ g ((x +c y) ·c z)
+        a₀₋ = ·-eq (x +c y) z
+           (+-eq _ _ (rec x) (rec y))
+           (rec z)
+        a₁₋ : f ((x ·c z) +c (y ·c z)) ≡ g ((x ·c z) +c (y ·c z))
+        a₁₋ = +-eq _ _ (·-eq _ _ (rec x) (rec z)) (·-eq _ _ (rec y) (rec z))
+        a₋₀ : f ((x +c y) ·c z) ≡ f ((x ·c z) +c (y ·c z))
+        a₋₀ = cong f (Construction.ldist x y z)
+        a₋₁ : g ((x +c y) ·c z) ≡ g ((x ·c z) +c (y ·c z))
+        a₋₁ = cong g (Construction.ldist x y z)
+      in isSet→isSet' isSetX a₀₋ a₁₋ a₋₀ a₋₁ j i
+
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (Construction.+HomConst s t j) =
+       let
+        rec : (x : ⟨ R [ I ] ⟩a) → f x ≡ g x
+        rec x = (λ i → proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i x)
+        a₀₋ : f (const (s +r t)) ≡ g (const (s +r t))
+        a₀₋ = const-eq (s +r t)
+        a₁₋ : f (const s +c const t) ≡ g (const s +c const t)
+        a₁₋ = +-eq _ _ (const-eq s) (const-eq t)
+        a₋₀ : f (const (s +r t)) ≡ f (const s +c const t)
+        a₋₀ = cong f (Construction.+HomConst s t)
+        a₋₁ : g (const (s +r t)) ≡ g (const s +c const t)
+        a₋₁ = cong g (Construction.+HomConst s t)
+      in isSet→isSet' isSetX a₀₋ a₁₋ a₋₀ a₋₁ j i
+
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (Construction.·HomConst s t j) =
+       let
+        rec : (x : ⟨ R [ I ] ⟩a) → f x ≡ g x
+        rec x = (λ i → proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i x)
+        a₀₋ : f (const (s ·r t)) ≡ g (const (s ·r t))
+        a₀₋ = const-eq (s ·r t)
+        a₁₋ : f (const s ·c const t) ≡ g (const s ·c const t)
+        a₁₋ = ·-eq _ _ (const-eq s) (const-eq t)
+        a₋₀ : f (const (s ·r t)) ≡ f (const s ·c const t)
+        a₋₀ = cong f (Construction.·HomConst s t)
+        a₋₁ : g (const (s ·r t)) ≡ g (const s ·c const t)
+        a₋₁ = cong g (Construction.·HomConst s t)
+      in isSet→isSet' isSetX a₀₋ a₁₋ a₋₀ a₋₁ j i
+
+    proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i (Construction.0-trunc x y p q j k) =
+      let
+        P : (x : ⟨ R [ I ] ⟩a) → f x ≡ g x
+        P x i = proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i x
+        Q : (x : ⟨ R [ I ] ⟩a) → f x ≡ g x
+        Q x i = proveEq isSetX f g var-eq const-eq +-eq ·-eq -eq i x
+      in isOfHLevel→isOfHLevelDep 2
+           (λ z → isProp→isSet (isSetX (f z) (g z))) _ _
+           (cong P p)
+           (cong Q q)
+           (Construction.0-trunc x y p q) j k i
+
+
+    homRetrievable : ∀ (f : Hom)
+                     → inducedMap A (evaluateAt f) ≡ AlgebraHom.f f
+    homRetrievable f =
+      let
+        ι = inducedMap A (evaluateAt f)
+      in proveEq
+          (isSetAlgebra (CommAlgebra→Algebra A))
+          (inducedMap A (evaluateAt f))
+          (λ x → f $ x)
+          (λ x → refl)
+          (λ r → r ⋆ 1a                    ≡⟨ cong (λ u → r ⋆ u) (sym (pres1 f))  ⟩
+                 r ⋆ (f $ (const 1r))      ≡⟨ sym (comm⋆ f r _) ⟩
+                 f $ (const r ·c const 1r) ≡⟨ cong (λ u → f $ u) (sym (Construction.·HomConst r 1r))  ⟩
+                 f $ (const (r ·r 1r))     ≡⟨ cong (λ u → f $ (const u)) (·r-rid r) ⟩
+                 f $ (const r) ∎)
+
+          (λ x y eq-x eq-y →
+                ι (x +c y)          ≡⟨ refl ⟩
+                (ι x + ι y)         ≡⟨ cong (λ u → u + ι y) eq-x ⟩
+                ((f $ x) + ι y)     ≡⟨
+                                       cong (λ u → (f $ x) + u) eq-y ⟩
+                ((f $ x) + (f $ y)) ≡⟨ sym (isHom+ f _ _) ⟩ (f $ (x +c y)) ∎)
+
+          (λ x y eq-x eq-y →
+             ι (x ·c y)        ≡⟨ refl ⟩
+             ι x     · ι y     ≡⟨ cong (λ u → u · ι y) eq-x ⟩
+             (f $ x) · (ι y)   ≡⟨ cong (λ u → (f $ x) · u) eq-y ⟩
+             (f $ x) · (f $ y) ≡⟨ sym (isHom· f _ _) ⟩
+             f $ (x ·c y) ∎)
+         (λ x eq-x →
+             ι (-c x)   ≡⟨ refl ⟩
+             - ι x      ≡⟨ cong (λ u → - u) eq-x ⟩
+             - (f $ x)  ≡⟨ sym (isHom- f x) ⟩
+             f $ (-c x) ∎)
