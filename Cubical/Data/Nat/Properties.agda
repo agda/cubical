@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
 module Cubical.Data.Nat.Properties where
 
 open import Cubical.Core.Everything
@@ -100,6 +100,9 @@ m+n≡0→m≡0×n≡0 {suc m} p = ⊥.rec (snotz p)
 *-distribʳ : ∀ m n o → (m * o) + (n * o) ≡ (m + n) * o
 *-distribʳ zero _ _ = refl
 *-distribʳ (suc m) n o = sym (+-assoc o (m * o) (n * o)) ∙ cong (o +_) (*-distribʳ m n o)
+
+*-distribˡ : ∀ o m n → (o * m) + (o * n) ≡ o * (m + n)
+*-distribˡ o m n = (λ i → *-comm o m i + *-comm o n i) ∙ *-distribʳ m n o ∙ *-comm (m + n) o
 
 *-assoc : ∀ m n o → m * (n * o) ≡ (m * n) * o
 *-assoc zero _ _ = refl

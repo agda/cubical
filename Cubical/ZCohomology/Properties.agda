@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.ZCohomology.Properties where
 
 open import Cubical.ZCohomology.Base
@@ -12,7 +12,6 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
-open import Cubical.Data.NatMinusTwo.Base
 open import Cubical.Data.Empty
 open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.HITs.Susp
@@ -22,12 +21,12 @@ open import Cubical.HITs.Nullification
 open import Cubical.Data.Int hiding (_+_)
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod
-open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; recElim to trRec ; elim3 to trElim3)
+open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
 open import Cubical.HITs.SmashProduct.Base
-open import Cubical.Data.Group.Base hiding (_≃_ ; Iso)
+open import Cubical.Structures.Group
 
 
 open import Cubical.HITs.Pushout
@@ -47,9 +46,9 @@ private
 
 {- Equivalence between cohomology of A and reduced cohomology of (A + 1) -}
 coHomRed+1Equiv : (n : ℕ) →
-                 (A : Set ℓ) →
-                 (coHom n A) ≡ (coHomRed n ((A ⊎ Unit , inr (tt))))
-coHomRed+1Equiv zero A i = ∥ helpLemma {C = (Int , pos 0)} i ∥₀
+                  (A : Type ℓ) →
+                  (coHom n A) ≡ (coHomRed n ((A ⊎ Unit , inr (tt))))
+coHomRed+1Equiv zero A i = ∥ helpLemma {C = (Int , pos 0)} i ∥₂
   module coHomRed+1 where
   helpLemma : {C : Pointed ℓ} → ( (A → (typ C)) ≡  ((((A ⊎ Unit) , inr (tt)) →∙ C)))
   helpLemma {C = C} = isoToPath (iso map1
@@ -74,7 +73,7 @@ coHomRed+1Equiv zero A i = ∥ helpLemma {C = (Int , pos 0)} i ∥₀
       helper (inl x) = refl
       helper (inr tt) = sym snd
 
-coHomRed+1Equiv (suc n) A i = ∥ coHomRed+1.helpLemma A i {C = ((coHomK (suc n)) , ∣ north ∣)} i ∥₀
+coHomRed+1Equiv (suc n) A i = ∥ coHomRed+1.helpLemma A i {C = ((coHomK (suc n)) , ∣ north ∣)} i ∥₂
 
 -----------
 
@@ -150,11 +149,11 @@ assocₖ {n = n} x y z = (λ i → ΩKn+1→Kn (Kn→ΩKn+1 n (ΩKn+1→Kn (Kn�
 commₖ : {n : ℕ} (x y : coHomK n) → (x +ₖ y) ≡ (y +ₖ x)
 commₖ {n = n} x y i = ΩKn+1→Kn (EH-instance (Kn→ΩKn+1 n x) (Kn→ΩKn+1 n y) i)
   where
-  EH-instance : (p q : typ (Ω ((∥ S₊ (suc n) ∥ ℕ→ℕ₋₂ (suc n)) , ∣ north ∣))) → p ∙ q ≡ q ∙ p
+  EH-instance : (p q : typ (Ω ((∥ S₊ (suc n) ∥ (2 + (suc n))) , ∣ north ∣))) → p ∙ q ≡ q ∙ p
   EH-instance = transport (λ i → (p q : K-Id n (~ i)) → p ∙ q ≡ q ∙ p)
                           λ p q → Eckmann-Hilton 0 p q
     where
-    K-Id : (n : ℕ) → typ (Ω (hLevelTrunc (3 + n) (S₊ (1 + n)) , ∣ north ∣)) ≡ typ ((Ω^ 2) (hLevelTrunc (4 + n) (S₊ (2 + n)) , ∣  north ∣ ))
+    K-Id : (n : HLevel) → typ (Ω (hLevelTrunc (3 + n) (S₊ (1 + n)) , ∣ north ∣)) ≡ typ ((Ω^ 2) (hLevelTrunc (4 + n) (S₊ (2 + n)) , ∣  north ∣ ))
     K-Id n = (λ i → typ (Ω (isoToPath (Iso2-Kn-ΩKn+1 (suc n)) i , hcomp (λ k → λ { (i = i0) → ∣ north ∣
                                                                                   ;  (i = i1) → transportRefl (λ j → ∣ rCancel (merid north) k j ∣) k})
                                                                          (transp (λ j → isoToPath (Iso2-Kn-ΩKn+1 (suc n)) (i ∧ j)) (~ i)  ∣ north ∣))))
@@ -170,58 +169,58 @@ commₖ {n = n} x y i = ΩKn+1→Kn (EH-instance (Kn→ΩKn+1 n x) (Kn→ΩKn+1 
 ---- Group structure of cohomology groups ---
 
 private
-  § : isSet ∥ A ∥₀
+  § : isSet ∥ A ∥₂
   § = setTruncIsSet
 
 _+ₕ_ : {n : ℕ} → coHom n A → coHom n A → coHom n A
-_+ₕ_ = sElim2 (λ _ _ → §) λ a b → ∣ (λ x → a x +ₖ b x) ∣₀
+_+ₕ_ = sElim2 (λ _ _ → §) λ a b → ∣ (λ x → a x +ₖ b x) ∣₂
 
 -ₕ  : {n : ℕ} → coHom n A → coHom n A
--ₕ  = sRec § λ a → ∣ (λ x → -ₖ a x) ∣₀
+-ₕ  = sRec § λ a → ∣ (λ x → -ₖ a x) ∣₂
 
 0ₕ : {n : ℕ} → coHom n A
-0ₕ = ∣ (λ _ → 0ₖ) ∣₀
+0ₕ = ∣ (λ _ → 0ₖ) ∣₂
 
 rUnitₕ : {n : ℕ} (x : coHom n A) → x +ₕ 0ₕ ≡ x
 rUnitₕ  = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
-                λ a i → ∣ funExt (λ x → rUnitₖ (a x)) i ∣₀
+                λ a i → ∣ funExt (λ x → rUnitₖ (a x)) i ∣₂
 
 lUnitₕ : {n : ℕ} (x : coHom n A) → 0ₕ +ₕ x ≡ x
 lUnitₕ = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
-               λ a i → ∣ funExt (λ x → lUnitₖ (a x)) i ∣₀
+               λ a i → ∣ funExt (λ x → lUnitₖ (a x)) i ∣₂
 
 rCancelₕ : {n : ℕ} (x : coHom n A) → x +ₕ (-ₕ x) ≡ 0ₕ
 rCancelₕ = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
-                 λ a i → ∣ funExt (λ x → rCancelₖ (a x)) i ∣₀
+                 λ a i → ∣ funExt (λ x → rCancelₖ (a x)) i ∣₂
 
 lCancelₕ : {n : ℕ} (x : coHom n A) → (-ₕ x) +ₕ x  ≡ 0ₕ
 lCancelₕ = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
-                 λ a i → ∣ funExt (λ x → lCancelₖ (a x)) i ∣₀
+                 λ a i → ∣ funExt (λ x → lCancelₖ (a x)) i ∣₂
 
 assocₕ : {n : ℕ} (x y z : coHom n A) → ((x +ₕ y) +ₕ z) ≡ (x +ₕ (y +ₕ z))
 assocₕ = elim3 (λ _ _ _ → isOfHLevelPath 1 (§ _ _))
-               λ a b c i → ∣ funExt (λ x → assocₖ (a x) (b x) (c x)) i ∣₀
+               λ a b c i → ∣ funExt (λ x → assocₖ (a x) (b x) (c x)) i ∣₂
 
 commₕ : {n : ℕ} (x y : coHom n A) → (x +ₕ y) ≡ (y +ₕ x)
 commₕ {n = n} = sElim2 (λ _ _ → isOfHLevelPath 1 (§ _ _))
-                       λ a b i → ∣ funExt (λ x → commₖ (a x) (b x)) i ∣₀
+                       λ a b i → ∣ funExt (λ x → commₖ (a x) (b x)) i ∣₂
 
 
 
 ---- Group structure of reduced cohomology groups (in progress - might need K to compute properly first) ---
 
 +ₕ∙ : {A : Pointed ℓ} (n : ℕ) → coHomRed n A → coHomRed n A → coHomRed n A
-+ₕ∙ zero = sElim2 (λ _ _ → §) λ { (a , pa) (b , pb) → ∣ (λ x → a x +ₖ b x) , (λ i → (pa i +ₖ pb i)) ∣₀ }
-+ₕ∙ (suc n) = sElim2 (λ _ _ → §) λ { (a , pa) (b , pb) → ∣ (λ x → a x +ₖ b x) , (λ i → pa i +ₖ pb i) ∙ lUnitₖ 0ₖ ∣₀ }
++ₕ∙ zero = sElim2 (λ _ _ → §) λ { (a , pa) (b , pb) → ∣ (λ x → a x +ₖ b x) , (λ i → (pa i +ₖ pb i)) ∣₂ }
++ₕ∙ (suc n) = sElim2 (λ _ _ → §) λ { (a , pa) (b , pb) → ∣ (λ x → a x +ₖ b x) , (λ i → pa i +ₖ pb i) ∙ lUnitₖ 0ₖ ∣₂ }
 
 -ₕ∙  : {A : Pointed ℓ} (n : ℕ) → coHomRed n A → coHomRed n A
--ₕ∙ zero = sRec § λ {(a , pt) → ∣ (λ x → -ₖ a x ) , (λ i → -ₖ (pt i)) ∣₀}
--ₕ∙ (suc zero) = sRec § λ {(a , pt) → ∣ (λ x → -ₖ a x ) , (λ i → -ₖ (pt i)) ∙ (λ i → ΩKn+1→Kn (sym (Kn→ΩKn+10ₖ (suc zero) i))) ∣₀}
+-ₕ∙ zero = sRec § λ {(a , pt) → ∣ (λ x → -ₖ a x ) , (λ i → -ₖ (pt i)) ∣₂}
+-ₕ∙ (suc zero) = sRec § λ {(a , pt) → ∣ (λ x → -ₖ a x ) , (λ i → -ₖ (pt i)) ∙ (λ i → ΩKn+1→Kn (sym (Kn→ΩKn+10ₖ (suc zero) i))) ∣₂}
 -ₕ∙ (suc (suc n)) = sRec § λ {(a , pt) → ∣ (λ x → -ₖ a x ) , (λ i → -ₖ (pt i)) ∙
                                                               (λ i → ΩKn+1→Kn (sym (Kn→ΩKn+10ₖ (suc (suc n)) i))) ∙
                                                               (λ i → ΩKn+1→Kn (Kn→ΩKn+10ₖ (suc (suc n)) (~ i))) ∙
-                                                              Iso.leftInv (Iso2-Kn-ΩKn+1 (suc (suc n))) ∣ north ∣ ∣₀}
+                                                              Iso.leftInv (Iso2-Kn-ΩKn+1 (suc (suc n))) ∣ north ∣ ∣₂}
 
 0ₕ∙ : {A : Pointed ℓ} (n : ℕ) → coHomRed n A
-0ₕ∙ zero = ∣ (λ _ → 0ₖ) , refl ∣₀
-0ₕ∙ (suc n) = ∣ (λ _ → 0ₖ) , refl ∣₀
+0ₕ∙ zero = ∣ (λ _ → 0ₖ) , refl ∣₂
+0ₕ∙ (suc n) = ∣ (λ _ → 0ₖ) , refl ∣₂

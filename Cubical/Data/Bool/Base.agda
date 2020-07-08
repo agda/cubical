@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Data.Bool.Base where
 
 open import Cubical.Core.Everything
@@ -6,7 +6,7 @@ open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Empty
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum.Base
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
@@ -14,8 +14,14 @@ open import Cubical.Relation.Nullary.DecidableEq
 -- Obtain the booleans
 open import Agda.Builtin.Bool public
 
+private
+  variable
+    ℓ : Level
+    A : Type ℓ
+
 infixr 6 _and_
 infixr 5 _or_
+infix  0 if_then_else_
 
 not : Bool → Bool
 not true = false
@@ -38,20 +44,24 @@ _⊕_ : Bool → Bool → Bool
 false ⊕ x = x
 true  ⊕ x = not x
 
-caseBool : ∀ {ℓ} → {A : Type ℓ} → (a0 aS : A) → Bool → A
-caseBool att aff true  = att
-caseBool att aff false = aff
+if_then_else_ : Bool → A → A → A
+if true  then x else y = x
+if false then x else y = y
 
 _≟_ : Discrete Bool
 false ≟ false = yes refl
-false ≟ true  = no λ p → subst (caseBool ⊥ Bool) p true
-true  ≟ false = no λ p → subst (caseBool Bool ⊥) p true
+false ≟ true  = no λ p → subst (λ b → if b then ⊥ else Bool) p true
+true  ≟ false = no λ p → subst (λ b → if b then Bool else ⊥) p true
 true  ≟ true  = yes refl
 
-Dec→Bool : ∀ {ℓ} {A : Type ℓ} → Dec A → Bool
+Dec→Bool : Dec A → Bool
 Dec→Bool (yes p) = true
 Dec→Bool (no ¬p) = false
 
 dichotomyBool : (x : Bool) → (x ≡ true) ⊎ (x ≡ false)
 dichotomyBool true  = inl refl
 dichotomyBool false = inr refl
+
+-- TODO: this should be uncommented and implemented using instance arguments
+-- _==_ : {dA : Discrete A} → A → A → Bool
+-- _==_ {dA = dA} x y = Dec→Bool (dA x y)

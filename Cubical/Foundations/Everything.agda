@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Everything where
 
 -- Basic cubical prelude
@@ -39,6 +39,7 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels public
 open import Cubical.Foundations.Path public
 open import Cubical.Foundations.Pointed public
+open import Cubical.Foundations.RelationalStructure public
 open import Cubical.Foundations.Structure public
 open import Cubical.Foundations.Transport public
 open import Cubical.Foundations.Univalence public

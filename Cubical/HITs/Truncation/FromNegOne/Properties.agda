@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.Truncation.FromNegOne.Properties where
 
 open import Cubical.HITs.Truncation.FromNegOne.Base
@@ -15,9 +15,12 @@ open import Cubical.HITs.Susp
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
   renaming (∥_∥ to ∥_∥₋₁; ∣_∣ to ∣_∣₋₁; squash to squash₋₁) using ()
-open import Cubical.HITs.SetTruncation       as SetTrunc  using (∥_∥₀; ∣_∣₀; squash₀)
-open import Cubical.HITs.GroupoidTruncation  as GpdTrunc  using (∥_∥₁; ∣_∣₁; squash₁)
-open import Cubical.HITs.2GroupoidTruncation as 2GpdTrunc using (∥_∥₂; ∣_∣₂; squash₂)
+open import Cubical.HITs.SetTruncation       as SetTrunc
+  renaming (∥_∥₂ to ∥_∥₀; ∣_∣₂ to ∣_∣₀; squash₂ to squash₀) using ()
+open import Cubical.HITs.GroupoidTruncation  as GpdTrunc
+  renaming (∥_∥₃ to ∥_∥₁; ∣_∣₃ to ∣_∣₁; squash₃ to squash₁) using ()
+open import Cubical.HITs.2GroupoidTruncation as 2GpdTrunc
+  renaming (∥_∥₄ to ∥_∥₂; ∣_∣₄ to ∣_∣₂; squash₄ to squash₂) using ()
 
 private
   variable

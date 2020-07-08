@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Data.Prod.Properties where
 
 open import Cubical.Core.Everything
@@ -58,7 +58,7 @@ A×B≡A×ΣB : A × B ≡ A ×Σ B
 A×B≡A×ΣB = ua A×B≃A×ΣB
 
 -- truncation for products
-isOfHLevelProd : (n : ℕ) → isOfHLevel n A → isOfHLevel n B → isOfHLevel n (A × B)
+isOfHLevelProd : (n : HLevel) → isOfHLevel n A → isOfHLevel n B → isOfHLevel n (A × B)
 isOfHLevelProd {A = A} {B = B} n h1 h2 =
   let h : isOfHLevel n (A ×Σ B)
       h = isOfHLevelΣ n h1 (λ _ → h2)

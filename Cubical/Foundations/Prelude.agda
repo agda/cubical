@@ -20,7 +20,7 @@ This file proves a variety of basic results about paths:
 - Export universe lifting
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Prelude where
 
 open import Cubical.Core.Primitives public
@@ -79,18 +79,19 @@ cong₂ f p q i = f (p i) (q i)
    `doubleCompPath-filler p q r` gives the whole square
 -}
 
+doubleComp-faces : {x y z w : A } (p : x ≡ y) (r : z ≡ w)
+                 → (i : I) (j : I) → Partial (i ∨ ~ i) A
+doubleComp-faces p r i j (i = i0) = p (~ j)
+doubleComp-faces p r i j (i = i1) = r j
+
 _∙∙_∙∙_ : w ≡ x → x ≡ y → y ≡ z → w ≡ z
 (p ∙∙ q ∙∙ r) i =
-  hcomp (λ j → λ { (i = i0) → p (~ j)
-                 ; (i = i1) → r j })
-        (q i)
+  hcomp (doubleComp-faces p r i) (q i)
 
 doubleCompPath-filler : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w)
                       → PathP (λ j → p (~ j) ≡ r j) q (p ∙∙ q ∙∙ r)
 doubleCompPath-filler p q r j i =
-  hfill (λ j → λ { (i = i0) → p (~ j)
-                 ; (i = i1) → r j })
-        (inS (q i)) j
+  hfill (doubleComp-faces p r i) (inS (q i)) j
 
 -- any two definitions of double composition are equal
 compPath-unique : ∀ (p : x ≡ y) (q : y ≡ z) (r : z ≡ w)
@@ -202,14 +203,26 @@ subst B p pa = transport (λ i → B (p i)) pa
 substRefl : (px : B x) → subst B refl px ≡ px
 substRefl px = transportRefl px
 
-funExt : {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
+funExt : {B : A → I → Type ℓ'}
+  {f : (x : A) → B x i0} {g : (x : A) → B x i1}
+  → ((x : A) → PathP (B x) (f x) (g x))
+  → PathP (λ i → (x : A) → B x i) f g
 funExt p i x = p x i
+
+implicitFunExt : {B : A → I → Type ℓ'}
+  {f : {x : A} → B x i0} {g : {x : A} → B x i1}
+  → ({x : A} → PathP (B x) (f {x}) (g {x}))
+  → PathP (λ i → {x : A} → B x i) f g
+implicitFunExt p i {x} = p {x} i
 
 -- the inverse to funExt (see Functions.FunExtEquiv), converting paths
 -- between functions to homotopies; `funExt⁻` is called `happly` and
 -- defined by path induction in the HoTT book (see function 2.9.2 in
 -- section 2.9)
-funExt⁻ : ∀ {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
+funExt⁻ : {B : A → I → Type ℓ'}
+  {f : (x : A) → B x i0} {g : (x : A) → B x i1}
+  → PathP (λ i → (x : A) → B x i) f g
+  → ((x : A) → PathP (B x) (f x) (g x))
 funExt⁻ eq x i = eq i x
 
 -- J for paths and its computation rule
@@ -229,15 +242,6 @@ module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
       (λ j → compPath-filler p q (i ∨ ~ k) j)) (~ k)
       (J (λ j → compPath-filler p q (~ k) j))
 
--- Contractibility of singletons
-
-singl : (a : A) → Type _
-singl {A = A} a = Σ[ x ∈ A ] (a ≡ x)
-
-contrSingl : (p : x ≡ y) → Path (singl x) (x , refl) (y , p)
-contrSingl p i = (p i , λ j → p (i ∧ j))
-
-
 -- Converting to and from a PathP
 
 module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
@@ -249,6 +253,17 @@ module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
   fromPathP : PathP A x y → transp A i0 x ≡ y
   fromPathP p i = transp (λ j → A (i ∨ j)) i (p i)
 
+-- Whiskering a dependent path by a path
+
+_◁_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ : A i1}
+  → a₀ ≡ a₀' → PathP A a₀' a₁ → PathP A a₀ a₁
+(p ◁ q) i =
+  hcomp (λ j → λ {(i = i0) → p (~ j); (i = i1) → q i1}) (q i)
+
+_▷_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ : A i0} {a₁ a₁' : A i1}
+  → PathP A a₀ a₁ → a₁ ≡ a₁' → PathP A a₀ a₁'
+(p ▷ q) i =
+  hcomp (λ j → λ {(i = i0) → p i0; (i = i1) → q j}) (p i)
 
 -- Direct definitions of lower h-levels
 
@@ -260,6 +275,25 @@ isProp A = (x y : A) → x ≡ y
 
 isSet : Type ℓ → Type ℓ
 isSet A = (x y : A) → isProp (x ≡ y)
+
+isGroupoid : Type ℓ → Type ℓ
+isGroupoid A = ∀ a b → isSet (Path A a b)
+
+is2Groupoid : Type ℓ → Type ℓ
+is2Groupoid A = ∀ a b → isGroupoid (Path A a b)
+
+-- Contractibility of singletons
+
+singl : (a : A) → Type _
+singl {A = A} a = Σ[ x ∈ A ] (a ≡ x)
+
+isContrSingl : (a : A) → isContr (singl a)
+isContrSingl a = (a , refl) , λ p i → p .snd i , λ j → p .snd (i ∧ j)
+
+isContrSinglP : (A : I → Type ℓ) (a : A i0) → isContr (Σ[ x ∈ A i1 ] PathP A a x)
+isContrSinglP A a .fst = _ , transport-filler (λ i → A i) a
+isContrSinglP A a .snd (x , p) i =
+  _ , λ j → fill A (λ j → λ {(i = i0) → transport-filler (λ i → A i) a j; (i = i1) → p j}) (inS a) j
 
 SquareP :
   (A : I → I → Type ℓ)
@@ -283,9 +317,6 @@ isSet' A =
   (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
   → Square a₀₋ a₁₋ a₋₀ a₋₁
 
-isGroupoid : Type ℓ → Type ℓ
-isGroupoid A = ∀ a b → isSet (Path A a b)
-
 Cube :
   {a₀₀₀ a₀₀₁ : A} {a₀₀₋ : a₀₀₀ ≡ a₀₀₁}
   {a₀₁₀ a₀₁₁ : A} {a₀₁₋ : a₀₁₀ ≡ a₀₁₁}
@@ -305,7 +336,7 @@ Cube :
 Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ =
   PathP (λ i → Square (a₋₀₋ i) (a₋₁₋ i) (a₋₋₀ i) (a₋₋₁ i)) a₀₋₋ a₁₋₋
 
-isGroupoid' : Set ℓ → Set ℓ
+isGroupoid' : Type ℓ → Type ℓ
 isGroupoid' A =
   {a₀₀₀ a₀₀₁ : A} {a₀₀₋ : a₀₀₀ ≡ a₀₀₁}
   {a₀₁₀ a₀₁₁ : A} {a₀₁₋ : a₀₁₀ ≡ a₀₁₁}
@@ -322,9 +353,6 @@ isGroupoid' A =
   (a₋₋₀ : Square a₀₋₀ a₁₋₀ a₋₀₀ a₋₁₀)
   (a₋₋₁ : Square a₀₋₁ a₁₋₁ a₋₀₁ a₋₁₁)
   → Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁
-
-is2Groupoid : Type ℓ → Type ℓ
-is2Groupoid A = ∀ a b → isGroupoid (Path A a b)
 
 -- Essential consequences of isProp and isContr
 isProp→PathP : ∀ {B : I → Type ℓ} → ((i : I) → isProp (B i))
@@ -353,6 +381,13 @@ isProp→isSet h a b p q j i =
                  ; (j = i0) → h a (p i) k
                  ; (j = i1) → h a (q i) k }) a
 
+isProp→isSet' : isProp A → isSet' A
+isProp→isSet' h {a} p q r s i j =
+  hcomp (λ k → λ { (i = i0) → h a (p j) k
+                 ; (i = i1) → h a (q j) k
+                 ; (j = i0) → h a (r i) k
+                 ; (j = i1) → h a (s i) k}) a
+
 isPropIsProp : isProp (isProp A)
 isPropIsProp f g i a b = isProp→isSet f a b (f a b) (g a b) i
 
@@ -364,7 +399,6 @@ record Lift {i j} (A : Type i) : Type (ℓ-max i j) where
     lower : A
 
 open Lift public
-
 
 liftExt : ∀ {A : Type ℓ} {a b : Lift {ℓ} {ℓ'} A} → (lower a ≡ lower b) → a ≡ b
 liftExt x i = lift (x i)

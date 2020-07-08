@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
 
 {-
 
@@ -25,6 +25,7 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
   hiding (section)
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Nat.Base
 
@@ -222,9 +223,7 @@ module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (�
 
 isNatInductive≡isNatHInitial : {N : NatAlgebra ℓ'} (ℓ : Level)
                              → isNatInductive N (ℓ-max ℓ' ℓ) ≡ isNatHInitial N (ℓ-max ℓ' ℓ)
-isNatInductive≡isNatHInitial {ℓ'} {N} ℓ =
-  isoToPath (equivToIso (PropEquiv→Equiv isPropIsNatInductive isPropIsNatHInitial ind→init init→ind)) where
-  open import Cubical.Foundations.Equiv
+isNatInductive≡isNatHInitial {_} {N} ℓ = hPropExt isPropIsNatInductive isPropIsNatHInitial ind→init init→ind where
   open AlgebraPropositionality
   open AlgebraHInit→Ind N ℓ renaming (Fsection to init→ind)
   open AlgebraHInd→HInit renaming (isContrMorph to ind→init)

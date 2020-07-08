@@ -7,7 +7,7 @@ Basic theory about h-levels/n-types:
 - Hedberg's theorem can be found in Cubical/Relation/Nullary/DecidableEq
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.HLevels where
 
 open import Cubical.Foundations.Prelude
@@ -19,42 +19,44 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Equiv.HalfAdjoint  using (congEquiv)
-open import Cubical.Foundations.Univalence         using (ua; univalence)
+open import Cubical.Foundations.Univalence using (ua ; univalence)
 
-open import Cubical.Data.Sigma using (pathSigma≡sigmaPath; _Σ≡T_; ΣProp≡; _×_)
+open import Cubical.Data.Sigma
 open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)
+
+HLevel : Type₀
+HLevel = ℕ
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' ℓ''' : Level
     A : Type ℓ
     B : A → Type ℓ
     C : (x : A) → B x → Type ℓ
     D : (x : A) (y : B x) → C x y → Type ℓ
     x y : A
-    n : ℕ
+    n : HLevel
 
-isOfHLevel : ℕ → Type ℓ → Type ℓ
+isOfHLevel : HLevel → Type ℓ → Type ℓ
 isOfHLevel 0 A = isContr A
 isOfHLevel 1 A = isProp A
 isOfHLevel (suc (suc n)) A = (x y : A) → isOfHLevel (suc n) (x ≡ y)
 
-isOfHLevelFun : (n : ℕ) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
+isOfHLevelFun : (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
 isOfHLevelFun n f = ∀ b → isOfHLevel n (fiber f b)
 
-HLevel : ∀ ℓ → ℕ → Type (ℓ-suc ℓ)
-HLevel ℓ n = TypeWithStr ℓ (isOfHLevel n)
+TypeOfHLevel : ∀ ℓ → HLevel → Type (ℓ-suc ℓ)
+TypeOfHLevel ℓ n = TypeWithStr ℓ (isOfHLevel n)
 
 hProp hSet hGroupoid h2Groupoid : ∀ ℓ → Type (ℓ-suc ℓ)
-hProp      ℓ = HLevel ℓ 1
-hSet       ℓ = HLevel ℓ 2
-hGroupoid  ℓ = HLevel ℓ 3
-h2Groupoid ℓ = HLevel ℓ 4
+hProp      ℓ = TypeOfHLevel ℓ 1
+hSet       ℓ = TypeOfHLevel ℓ 2
+hGroupoid  ℓ = TypeOfHLevel ℓ 3
+h2Groupoid ℓ = TypeOfHLevel ℓ 4
 
 -- lower h-levels imply higher h-levels
 
-isOfHLevelSuc : (n : ℕ) → isOfHLevel n A → isOfHLevel (suc n) A
+isOfHLevelSuc : (n : HLevel) → isOfHLevel n A → isOfHLevel (suc n) A
 isOfHLevelSuc 0 = isContr→isProp
 isOfHLevelSuc 1 = isProp→isSet
 isOfHLevelSuc (suc (suc n)) h a b = isOfHLevelSuc (suc n) (h a b)
@@ -65,14 +67,14 @@ isSet→isGroupoid = isOfHLevelSuc 2
 isGroupoid→is2Groupoid : isGroupoid A → is2Groupoid A
 isGroupoid→is2Groupoid = isOfHLevelSuc 3
 
-isOfHLevelPlus : (m : ℕ) → isOfHLevel n A → isOfHLevel (m + n) A
+isOfHLevelPlus : (m : HLevel) → isOfHLevel n A → isOfHLevel (m + n) A
 isOfHLevelPlus zero hA = hA
 isOfHLevelPlus (suc m) hA = isOfHLevelSuc _ (isOfHLevelPlus m hA)
 
-isContr→isOfHLevel : (n : ℕ) → isContr A → isOfHLevel n A
+isContr→isOfHLevel : (n : HLevel) → isContr A → isOfHLevel n A
 isContr→isOfHLevel {A = A} n cA = subst (λ m → isOfHLevel m A) (+-zero n) (isOfHLevelPlus n cA)
 
-isProp→isOfHLevelSuc : (n : ℕ) → isProp A → isOfHLevel (suc n) A
+isProp→isOfHLevelSuc : (n : HLevel) → isProp A → isOfHLevel (suc n) A
 isProp→isOfHLevelSuc {A = A} n pA = subst (λ m → isOfHLevel m A) (+-comm n 1) (isOfHLevelPlus n pA)
 
 -- hlevel of path and dependent path types
@@ -83,37 +85,37 @@ isProp→isContrPath h x y = h x y , isProp→isSet h x y _
 isContr→isContrPath : isContr A → (x y : A) → isContr (x ≡ y)
 isContr→isContrPath cA = isProp→isContrPath (isContr→isProp cA)
 
-isOfHLevelPath' : (n : ℕ) → isOfHLevel (suc n) A → (x y : A) → isOfHLevel n (x ≡ y)
+isOfHLevelPath' : (n : HLevel) → isOfHLevel (suc n) A → (x y : A) → isOfHLevel n (x ≡ y)
 isOfHLevelPath' 0 = isProp→isContrPath
 isOfHLevelPath' (suc n) h x y = h x y
 
-isOfHLevelPath'⁻ : (n : ℕ) → ((x y : A) → isOfHLevel n (x ≡ y)) → isOfHLevel (suc n) A
+isOfHLevelPath'⁻ : (n : HLevel) → ((x y : A) → isOfHLevel n (x ≡ y)) → isOfHLevel (suc n) A
 isOfHLevelPath'⁻ zero h x y = h x y .fst
 isOfHLevelPath'⁻ (suc n) h = h
 
-isOfHLevelPath : (n : ℕ) → isOfHLevel n A → (x y : A) → isOfHLevel n (x ≡ y)
+isOfHLevelPath : (n : HLevel) → isOfHLevel n A → (x y : A) → isOfHLevel n (x ≡ y)
 isOfHLevelPath 0 h x y = isContr→isContrPath h x y
 isOfHLevelPath (suc n) h x y = isOfHLevelSuc n (isOfHLevelPath' n h x y)
 
-isOfHLevelPathP' : {A : I → Type ℓ} (n : ℕ)
-                   → (∀ i → isOfHLevel (suc n) (A i))
+isOfHLevelPathP' : {A : I → Type ℓ} (n : HLevel)
+                   → isOfHLevel (suc n) (A i1)
                    → (x : A i0) (y : A i1) → isOfHLevel n (PathP A x y)
 isOfHLevelPathP' {A = A} n h x y = transport⁻ (λ i → isOfHLevel n (PathP≡Path A x y i))
-                                              (isOfHLevelPath' n (h i1) _ _)
+                                              (isOfHLevelPath' n h _ _)
 
-isOfHLevelPathP : {A : I → Type ℓ} (n : ℕ)
-                  → (∀ i → isOfHLevel n (A i))
+isOfHLevelPathP : {A : I → Type ℓ} (n : HLevel)
+                  → isOfHLevel n (A i1)
                   → (x : A i0) (y : A i1) → isOfHLevel n (PathP A x y)
 isOfHLevelPathP {A = A} n h x y = transport⁻ (λ i → isOfHLevel n (PathP≡Path A x y i))
-                                             (isOfHLevelPath n (h i1) _ _)
+                                             (isOfHLevelPath n h _ _)
 
 isProp→isContrPathP : {A : I → Type ℓ} → (∀ i → isProp (A i))
                                        → (x : A i0) (y : A i1) → isContr (PathP A x y)
-isProp→isContrPathP h x y = isProp→PathP h x y , isOfHLevelPathP 1 h x y _
+isProp→isContrPathP h x y = isProp→PathP h x y , isOfHLevelPathP 1 (h i1) x y _
 
 -- h-level of isOfHLevel
 
-isPropIsOfHLevel : (n : ℕ) → isProp (isOfHLevel n A)
+isPropIsOfHLevel : (n : HLevel) → isProp (isOfHLevel n A)
 isPropIsOfHLevel 0 = isPropIsContr
 isPropIsOfHLevel 1 = isPropIsProp
 isPropIsOfHLevel (suc (suc n)) f g i a b =
@@ -177,7 +179,7 @@ isPropRetract f g h p x y i =
     (g (p (f x) (f y) i))
 
 isOfHLevelRetract
-  : (n : ℕ) {B : Type ℓ}
+  : (n : HLevel) {B : Type ℓ}
   (f : A → B) (g : B → A)
   (h : (x : A) → g (f x) ≡ x)
   → isOfHLevel n B → isOfHLevel n A
@@ -201,7 +203,7 @@ isOfHLevelRetract (suc (suc n)) f g h ofLevel x y =
         (h (p i) k))
     (ofLevel (f x) (f y))
 
-isOfHLevelRespectEquiv : {A : Type ℓ} {B : Type ℓ'} → (n : ℕ) → A ≃ B → isOfHLevel n A → isOfHLevel n B
+isOfHLevelRespectEquiv : {A : Type ℓ} {B : Type ℓ'} → (n : HLevel) → A ≃ B → isOfHLevel n A → isOfHLevel n B
 isOfHLevelRespectEquiv n eq = isOfHLevelRetract n (invEq eq) (eq .fst) (retEq eq)
 
 -- h-level of Σ-types
@@ -214,28 +216,28 @@ isContrΣ {A = A} {B = B} (a , p) q =
      , ( λ x i → p (x .fst) i
        , h (p (x .fst) i) (transp (λ j → B (p (x .fst) (i ∨ ~ j))) i (x .snd)) i))
 
-ΣProp≡-equiv
+Σ≡Prop-equiv
   : (pB : (x : A) → isProp (B x)) {u v : Σ[ a ∈ A ] B a}
-  → isEquiv (ΣProp≡ pB {u} {v})
-ΣProp≡-equiv {A = A} pB {u} {v} = isoToIsEquiv (iso (ΣProp≡ pB) (cong fst) sq (λ _ → refl))
-  where sq : (p : u ≡ v) → ΣProp≡ pB (cong fst p) ≡ p
+  → isEquiv (Σ≡Prop pB {u} {v})
+Σ≡Prop-equiv {A = A} pB {u} {v} = isoToIsEquiv (iso (Σ≡Prop pB) (cong fst) sq (λ _ → refl))
+  where sq : (p : u ≡ v) → Σ≡Prop pB (cong fst p) ≡ p
         sq p j i = (p i .fst) , isProp→PathP (λ i → isOfHLevelPath 1 (pB (fst (p i)))
-                                                       (ΣProp≡ pB {u} {v} (cong fst p) i .snd)
+                                                       (Σ≡Prop pB {u} {v} (cong fst p) i .snd)
                                                        (p i .snd) )
                                               refl refl i j
 
 isPropΣ : isProp A → ((x : A) → isProp (B x)) → isProp (Σ A B)
-isPropΣ pA pB t u = ΣProp≡ pB (pA (t .fst) (u .fst))
+isPropΣ pA pB t u = Σ≡Prop pB (pA (t .fst) (u .fst))
 
 isOfHLevelΣ : ∀ n → isOfHLevel n A → ((x : A) → isOfHLevel n (B x))
                   → isOfHLevel n (Σ A B)
 isOfHLevelΣ 0 = isContrΣ
 isOfHLevelΣ 1 = isPropΣ
 isOfHLevelΣ {B = B} (suc (suc n)) h1 h2 x y =
-  let h3 : isOfHLevel (suc n) (x Σ≡T y)
+  let h3 : isOfHLevel (suc n) (ΣPathTransport x y)
       h3 = isOfHLevelΣ (suc n) (h1 (fst x) (fst y)) λ p → h2 (p i1)
                        (subst B p (snd x)) (snd y)
-  in transport (λ i → isOfHLevel (suc n) (pathSigma≡sigmaPath x y (~ i))) h3
+  in transport (λ i → isOfHLevel (suc n) (ΣPathTransport≡PathΣ x y i)) h3
 
 isSetΣ : isSet A → ((x : A) → isSet (B x)) → isSet (Σ A B)
 isSetΣ = isOfHLevelΣ 2
@@ -248,8 +250,16 @@ is2GroupoidΣ = isOfHLevelΣ 4
 
 -- h-level of ×
 
-isProp× : ∀ {A : Type ℓ} {B : Type ℓ'} → isProp A → isProp B → isProp (A × B)
+isProp× : {A : Type ℓ} {B : Type ℓ'} → isProp A → isProp B → isProp (A × B)
 isProp× pA pB = isPropΣ pA (λ _ → pB)
+
+isProp×2 : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+         → isProp A → isProp B → isProp C → isProp (A × B × C)
+isProp×2 pA pB pC = isProp× pA (isProp× pB pC)
+
+isProp×3 : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
+         → isProp A → isProp B → isProp C → isProp D → isProp (A × B × C × D)
+isProp×3 pA pB pC pD = isProp×2 pA pB (isProp× pC pD)
 
 isOfHLevel× : ∀ {A : Type ℓ} {B : Type ℓ'} n → isOfHLevel n A → isOfHLevel n B
                                              → isOfHLevel n (A × B)
@@ -286,6 +296,12 @@ isPropΠ3 : (h : (x : A) (y : B x) (z : C x y) → isProp (D x y z))
          → isProp ((x : A) (y : B x) (z : C x y) → D x y z)
 isPropΠ3 h = isPropΠ λ x → isPropΠ λ y → isPropΠ λ z → h x y z
 
+isPropImplicitΠ : (h : (x : A) → isProp (B x)) → isProp ({x : A} → B x)
+isPropImplicitΠ h f g i {x} = h x (f {x}) (g {x}) i
+
+isProp→ : {A : Type ℓ} {B : Type ℓ'} → isProp B → isProp (A → B)
+isProp→ pB = isPropΠ λ _ → pB
+
 isSetΠ : ((x : A) → isSet (B x)) → isSet ((x : A) → B x)
 isSetΠ = isOfHLevelΠ 2
 
@@ -315,7 +331,7 @@ isOfHLevel≃ zero {A = A} {B = B} hA hB = A≃B , contr
   A≃B = isoToEquiv (iso (λ _ → fst hB) (λ _ → fst hA) (snd hB ) (snd hA))
 
   contr : (y : A ≃ B) → A≃B ≡ y
-  contr y = ΣProp≡ isPropIsEquiv (funExt (λ a → snd hB (fst y a)))
+  contr y = Σ≡Prop isPropIsEquiv (funExt (λ a → snd hB (fst y a)))
 
 isOfHLevel≃ (suc n) hA hB =
   isOfHLevelΣ (suc n) (isOfHLevelΠ (suc n) (λ _ → hB))
@@ -325,24 +341,24 @@ isOfHLevel≡ : ∀ n → {A B : Type ℓ} (hA : isOfHLevel n A) (hB : isOfHLeve
   isOfHLevel n (A ≡ B)
 isOfHLevel≡ n hA hB = isOfHLevelRespectEquiv n (invEquiv univalence) (isOfHLevel≃ n hA hB)
 
--- h-level of HLevel
+-- h-level of TypeOfHLevel
 
-isPropHContr : isProp (HLevel ℓ 0)
-isPropHContr x y = ΣProp≡ (λ _ → isPropIsContr) (isOfHLevel≡ 0 (x .snd) (y .snd) .fst)
+isPropHContr : isProp (TypeOfHLevel ℓ 0)
+isPropHContr x y = Σ≡Prop (λ _ → isPropIsContr) (isOfHLevel≡ 0 (x .snd) (y .snd) .fst)
 
-isOfHLevelHLevel : ∀ n → isOfHLevel (suc n) (HLevel ℓ n)
-isOfHLevelHLevel 0 = isPropHContr
-isOfHLevelHLevel (suc n) x y = subst (isOfHLevel (suc n)) eq (isOfHLevel≡ (suc n) (snd x) (snd y))
+isOfHLevelTypeOfHLevel : ∀ n → isOfHLevel (suc n) (TypeOfHLevel ℓ n)
+isOfHLevelTypeOfHLevel 0 = isPropHContr
+isOfHLevelTypeOfHLevel (suc n) x y = subst (isOfHLevel (suc n)) eq (isOfHLevel≡ (suc n) (snd x) (snd y))
   where eq : ∀ {A B : Type ℓ} {hA : isOfHLevel (suc n) A} {hB : isOfHLevel (suc n) B}
              → (A ≡ B) ≡ ((A , hA) ≡ (B , hB))
-        eq = ua (_ , ΣProp≡-equiv (λ _ → isPropIsOfHLevel (suc n)))
+        eq = ua (_ , Σ≡Prop-equiv (λ _ → isPropIsOfHLevel (suc n)))
 
 isSetHProp : isSet (hProp ℓ)
-isSetHProp = isOfHLevelHLevel 1
+isSetHProp = isOfHLevelTypeOfHLevel 1
 
 -- h-level of lifted type
 
-isOfHLevelLift : ∀ {ℓ ℓ'} (n : ℕ) {A : Type ℓ} → isOfHLevel n A → isOfHLevel n (Lift {j = ℓ'} A)
+isOfHLevelLift : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} → isOfHLevel n A → isOfHLevel n (Lift {j = ℓ'} A)
 isOfHLevelLift n = isOfHLevelRetract n lower lift λ _ → refl
 
 ----------------------------
@@ -370,12 +386,12 @@ isContrPartial→isContr {A = A} extend law
 
 -- Dependent h-level over a type
 
-isOfHLevelDep : ℕ → {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
+isOfHLevelDep : HLevel → {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
 isOfHLevelDep 0 {A = A} B = {a : A} → Σ[ b ∈ B a ] ({a' : A} (b' : B a') (p : a ≡ a') → PathP (λ i → B (p i)) b b')
 isOfHLevelDep 1 {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) (p : a0 ≡ a1)  → PathP (λ i → B (p i)) b0 b1
 isOfHLevelDep (suc (suc  n)) {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) → isOfHLevelDep (suc n) {A = a0 ≡ a1} (λ p → PathP (λ i → B (p i)) b0 b1)
 
-isOfHLevel→isOfHLevelDep : (n : ℕ)
+isOfHLevel→isOfHLevelDep : (n : HLevel)
   → {A : Type ℓ} {B : A → Type ℓ'} (h : (a : A) → isOfHLevel n (B a)) → isOfHLevelDep n {A = A} B
 isOfHLevel→isOfHLevelDep 0 h {a} =
   (h a .fst , λ b' p → isProp→PathP (λ i → isContr→isProp (h (p i))) (h a .fst) b')

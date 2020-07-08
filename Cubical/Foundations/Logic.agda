@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 module Cubical.Foundations.Logic where
 
@@ -54,6 +54,9 @@ private
 [_] : hProp ℓ → Type ℓ
 [_] = fst
 
+isProp[] : (A : hProp ℓ) → isProp [ A ]
+isProp[] = snd
+
 ∥_∥ₚ : Type ℓ → hProp ℓ
 ∥ A ∥ₚ = ∥ A ∥ , propTruncIsProp
 
@@ -61,17 +64,17 @@ _≡ₚ_ : (x y : A) → hProp _
 x ≡ₚ y = ∥ x ≡ y ∥ₚ
 
 hProp≡ : [ P ] ≡ [ Q ] → P ≡ Q
-hProp≡ p = ΣProp≡ (\ _ → isPropIsProp) p
+hProp≡ p = Σ≡Prop (\ _ → isPropIsProp) p
 
 --------------------------------------------------------------------------------
 -- Logical implication of mere propositions
 
 _⇒_ : (A : hProp ℓ) → (B : hProp ℓ') → hProp _
-A ⇒ B = ([ A ] → [ B ]) , isPropΠ λ _ → B .snd
+A ⇒ B = ([ A ] → [ B ]) , isPropΠ λ _ → isProp[] B
 
 ⇔toPath : [ P ⇒ Q ] → [ Q ⇒ P ] → P ≡ Q
 ⇔toPath {P = P} {Q = Q} P⇒Q Q⇒P = hProp≡ (isoToPath
-  (iso P⇒Q Q⇒P (λ b → Q .snd (P⇒Q (Q⇒P b)) b) λ a → P .snd (Q⇒P (P⇒Q a)) a))
+  (iso P⇒Q Q⇒P (λ b → isProp[] Q (P⇒Q (Q⇒P b)) b) λ a → isProp[] P (Q⇒P (P⇒Q a)) a))
 
 pathTo⇒ : P ≡ Q → [ P ⇒ Q ]
 pathTo⇒ p x = subst fst  p x
@@ -80,7 +83,7 @@ pathTo⇐ : P ≡ Q → [ Q ⇒ P ]
 pathTo⇐ p x = subst fst (sym p) x
 
 substₚ : {x y : A} (B : A → hProp ℓ) → [ x ≡ₚ y ⇒ B x ⇒ B y ]
-substₚ {x = x} {y = y} B = PropTrunc.elim (λ _ → isPropΠ λ _ → B y .snd) (subst (fst ∘ B))
+substₚ {x = x} {y = y} B = PropTrunc.elim (λ _ → isPropΠ λ _ → isProp[] (B y)) (subst (fst ∘ B))
 
 --------------------------------------------------------------------------------
 -- Mixfix notations for ⇔-toPath
@@ -134,7 +137,7 @@ _⊓′_ : Type ℓ → Type ℓ' → Type _
 A ⊓′ B = A × B
 
 _⊓_ : hProp ℓ → hProp ℓ' → hProp _
-A ⊓ B = [ A ] ⊓′ [ B ] , isOfHLevelΣ 1 (A .snd) (\ _ → B .snd)
+A ⊓ B = [ A ] ⊓′ [ B ] , isOfHLevelΣ 1 (isProp[] A) (\ _ → isProp[] B)
 
 ⊓-intro : (P : hProp ℓ) (Q : [ P ] → hProp ℓ') (R : [ P ] → hProp ℓ'')
        → (∀ a → [ Q a ]) → (∀ a → [ R a ]) → (∀ (a : [ P ]) → [ Q a ⊓ R a ] )
@@ -151,10 +154,10 @@ A ⇔ B = (A ⇒ B) ⊓ (B ⇒ A)
 
 
 ∀[∶]-syntax : (A → hProp ℓ) → hProp _
-∀[∶]-syntax {A = A} P = (∀ x → [ P x ]) , isPropΠ (snd ∘ P)
+∀[∶]-syntax {A = A} P = (∀ x → [ P x ]) , isPropΠ (isProp[] ∘ P)
 
 ∀[]-syntax : (A → hProp ℓ) → hProp _
-∀[]-syntax {A = A} P = (∀ x → [ P x ]) , isPropΠ (snd ∘ P)
+∀[]-syntax {A = A} P = (∀ x → [ P x ]) , isPropΠ (isProp[] ∘ P)
 
 syntax ∀[∶]-syntax {A = A} (λ a → P) = ∀[ a ∶ A ] P
 syntax ∀[]-syntax (λ a → P)          = ∀[ a ] P
@@ -163,10 +166,10 @@ syntax ∀[]-syntax (λ a → P)          = ∀[ a ] P
 
 
 ∃[]-syntax : (A → hProp ℓ) → hProp _
-∃[]-syntax {A = A} P = ∥ Σ A (fst ∘ P) ∥ₚ
+∃[]-syntax {A = A} P = ∥ Σ A ([_] ∘ P) ∥ₚ
 
 ∃[∶]-syntax : (A → hProp ℓ) → hProp _
-∃[∶]-syntax {A = A} P = ∥ Σ A (fst ∘ P) ∥ₚ
+∃[∶]-syntax {A = A} P = ∥ Σ A ([_] ∘ P) ∥ₚ
 
 syntax ∃[∶]-syntax {A = A} (λ x → P) = ∃[ x ∶ A ] P
 syntax ∃[]-syntax (λ x → P) = ∃[ x ] P
@@ -174,7 +177,7 @@ syntax ∃[]-syntax (λ x → P) = ∃[ x ] P
 -- Decidable mere proposition
 
 Decₚ : (P : hProp ℓ) → hProp ℓ
-Decₚ P = Dec [ P ] , isPropDec (snd P)
+Decₚ P = Dec [ P ] , isPropDec (isProp[] P)
 
 --------------------------------------------------------------------------------
 -- Negation commutes with truncation
@@ -285,6 +288,7 @@ Decₚ P = Dec [ P ] , isPropDec (snd P)
 ℙ : ∀ {ℓ} → Type ℓ → Type (ℓ-suc ℓ)
 ℙ {ℓ} X = X → hProp ℓ
 
+infix 5 _∈_
 _∈_ : {X : Type ℓ} → X → ℙ X → Type ℓ
 x ∈ A = [ A x ]
 
@@ -292,7 +296,7 @@ _⊆_ : {X : Type ℓ} → ℙ X → ℙ X → Type ℓ
 A ⊆ B = ∀ x → x ∈ A → x ∈ B
 
 ∈-isProp : {X : Type ℓ} (A : ℙ X) (x : X) → isProp (x ∈ A)
-∈-isProp A x = (A x) .snd
+∈-isProp A = isProp[] ∘ A
 
 ⊆-isProp : {X : Type ℓ} (A B : ℙ X) → isProp (A ⊆ B)
 ⊆-isProp A B = isPropΠ2 (λ x _ → ∈-isProp B x)
@@ -342,7 +346,7 @@ Subset→Embedding {X = X} A = D , f , ψ
     p = y≡x ∙ sym z≡x
 
     r : (y , y∈A) ≡ (z , z∈A)
-    r = ΣProp≡ (∈-isProp A) p
+    r = Σ≡Prop (∈-isProp A) p
 
     q : PathP (λ i → p i ≡ x) y≡x z≡x
     q i j = hcomp (λ k → λ { (j = i1) → x
@@ -352,15 +356,15 @@ Subset→Embedding {X = X} A = D , f , ψ
 
 
 Subset→Embedding→Subset : {X : Type ℓ} → section (Embedding→Subset {ℓ} {X}) (Subset→Embedding {ℓ} {X})
-Subset→Embedding→Subset _ = funExt λ x → ΣProp≡ (λ _ → FP.isPropIsProp) (ua (Fib.FiberIso.fiberEquiv _ x))
+Subset→Embedding→Subset _ = funExt λ x → Σ≡Prop (λ _ → FP.isPropIsProp) (ua (Fib.FiberIso.fiberEquiv _ x))
 
 Embedding→Subset→Embedding : {X : Type ℓ} → retract (Embedding→Subset {ℓ} {X}) (Subset→Embedding {ℓ} {X})
-Embedding→Subset→Embedding {ℓ = ℓ} {X = X} (A , f , ψ) = cong (assocΣ .fst) p
+Embedding→Subset→Embedding {ℓ = ℓ} {X = X} (A , f , ψ) = cong (Σ-assoc-≃ .fst) p
  where
  χ = Subset→Embedding (Embedding→Subset (A , f , ψ)) .snd .snd
 
  p : (((Σ[ x ∈ X ] fiber f x) , fst) , χ) ≡ ((A , f) , ψ)
- p = ΣProp≡ (λ _ → hasPropFibersIsProp) ((equivToIso (Fib.fibrationEquiv X ℓ)) .Iso.leftInv (A , f))
+ p = Σ≡Prop (λ _ → hasPropFibersIsProp) ((equivToIso (Fib.fibrationEquiv X ℓ)) .Iso.leftInv (A , f))
 
 
 

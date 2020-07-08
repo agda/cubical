@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Data.DiffInt.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -17,7 +17,7 @@ open import Cubical.HITs.SetQuotients
 open BinaryRelation
 
 relIsEquiv : isEquivRel rel
-relIsEquiv = EquivRel {A = ℕ × ℕ} relIsRefl relIsSym relIsTrans
+relIsEquiv = equivRel {A = ℕ × ℕ} relIsRefl relIsSym relIsTrans
   where
     relIsRefl : isRefl rel
     relIsRefl (a0 , a1) = refl
@@ -32,7 +32,7 @@ relIsEquiv = EquivRel {A = ℕ × ℕ} relIsRefl relIsSym relIsTrans
             ((b1 + b0) + a0) + c1 ≡[ i ]⟨ +-comm (b1 + b0) a0 i + c1 ⟩
             (a0 + (b1 + b0)) + c1 ≡[ i ]⟨ +-assoc a0 b1 b0 i    + c1 ⟩
             (a0 + b1) + b0 + c1 ≡⟨ sym (+-assoc (a0 + b1) b0 c1) ⟩
-            (a0 + b1) + (b0 + c1) ≡⟨ cong (λ p → p . fst + p .snd) (transport Σ≡ (p0 , p1))⟩
+            (a0 + b1) + (b0 + c1) ≡⟨ cong (λ p → p . fst + p .snd) (transport ΣPath≡PathΣ (p0 , p1))⟩
             (b0 + a1) + (c0 + b1) ≡⟨ sym (+-assoc b0 a1 (c0 + b1))⟩
             b0 + (a1 + (c0 + b1)) ≡[ i ]⟨ b0 + (a1 + +-comm c0 b1 i) ⟩
             b0 + (a1 + (b1 + c0)) ≡[ i ]⟨ b0 + +-comm a1 (b1 + c0) i ⟩

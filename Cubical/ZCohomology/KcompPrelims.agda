@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.ZCohomology.KcompPrelims where
 
 open import Cubical.ZCohomology.Base
@@ -7,7 +7,7 @@ open import Cubical.HITs.Hopf
 open import Cubical.Homotopy.Freudenthal hiding (encode)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
-open import Cubical.HITs.Truncation renaming (elim to trElim ; recElim to trRec ; map to trMap)
+open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; map to trMap)
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -21,7 +21,6 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 
 open import Cubical.Data.Int renaming (_+_ to +Int)
 open import Cubical.Data.Nat
-open import Cubical.Data.NatMinusTwo.Base
 
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Nullification
@@ -100,15 +99,13 @@ private
 
 
   isolooper2 : Iso Int (Path (S₊ 1) north north)
-  isolooper2 = compIso (iso intLoop winding (decodeEncode base) windingIntLoop)
-                       (compIso iso2
-                                iso1)
+  isolooper2 = compIso (invIso ΩS¹IsoInt) (compIso iso2 iso1)
     where
     iso1 : Iso (Path (Susp Bool) north north) (Path (S₊ 1) north north)
-    iso1 = congIso SuspBool≃S1
+    iso1 = congIso SuspBoolIsoS1
 
     iso2 : Iso ΩS¹ (Path (Susp Bool) north north)
-    iso2 = congIso (isoToEquiv (iso S¹→SuspBool SuspBool→S¹ SuspBool→S¹→SuspBool S¹→SuspBool→S¹))
+    iso2 = congIso S¹IsoSuspBool
 
   isolooper : Iso Int (Path (S₊ 1) north north)
   Iso.fun isolooper = looper
@@ -138,8 +135,8 @@ private
   S3≡SuspSuspS¹ : S₊ 3 ≡ Susp (Susp S¹)
   S3≡SuspSuspS¹ = (λ i → Susp (Susp (Susp (ua Bool≃Susp⊥ (~ i))))) ∙ λ i → Susp (Susp (S¹≡SuspBool (~ i)))
 
-  sphereConnectedSpecCase : isHLevelConnected 4 (Susp (Susp S¹))
-  sphereConnectedSpecCase = transport (λ i → isHLevelConnected 4 (S3≡SuspSuspS¹ i)) (sphereConnected 3)
+  sphereConnectedSpecCase : isConnected 4 (Susp (Susp S¹))
+  sphereConnectedSpecCase = transport (λ i → isConnected 4 (S3≡SuspSuspS¹ i)) (sphereConnected 3)
 
 
 
@@ -157,7 +154,7 @@ private
     rotLemma (loop i) = refl
 
   d-mapComp : fiber d-map base ≡ Path (Susp (Susp S¹)) north north
-  d-mapComp = sym (pathSigma≡sigmaPath {B = HopfSuspS¹} _ _) ∙ helper
+  d-mapComp = ΣPathTransport≡PathΣ {B = HopfSuspS¹} _ _ ∙ helper
     where
     helper : Path (Σ (Susp S¹) λ x → HopfSuspS¹ x) (north , base) (north , base) ≡ Path (Susp (Susp S¹)) north north
     helper = (λ i → (Path (S³≡TotalHopf (~ i))
@@ -166,32 +163,21 @@ private
              (λ i → Path (S³≡SuspSuspS¹ i) (transp (λ j → S³≡SuspSuspS¹ (i ∧ j)) (~ i) base) ((transp (λ j → S³≡SuspSuspS¹ (i ∧ j)) (~ i) base)))
 
 
-  is1Connected-dmap : isHLevelConnectedFun 3 d-map
-  is1Connected-dmap = toPropElim (λ s → isPropIsOfHLevel 0) (transport (λ j → isContr (∥ d-mapComp (~ j) ∥ ℕ→ℕ₋₂ 1))
-                                      (transport (λ i →  isContr (PathΩ {A = Susp (Susp S¹)} {a = north} (ℕ→ℕ₋₂ 1) i))
+  is1Connected-dmap : isConnectedFun 3 d-map
+  is1Connected-dmap = toPropElim (λ s → isPropIsOfHLevel 0) (transport (λ j → isContr (∥ d-mapComp (~ j) ∥ 3))
+                                      (transport (λ i →  isContr (PathΩ {A = Susp (Susp S¹)} {a = north} 3 i))
                                                  (refl , isOfHLevelSuc 1 (isOfHLevelSuc 0 sphereConnectedSpecCase) ∣ north ∣ ∣ north ∣ (λ _ → ∣ north ∣))))
 
 
   d-iso2 : Iso (hLevelTrunc 3 (typ (Ω (Susp S¹ , north)))) (hLevelTrunc 3 S¹)
   d-iso2 = connectedTruncIso _ d-map is1Connected-dmap
 
-  d-iso : isIso {A = ∥  typ (Ω (Susp S¹ , north)) ∥ (ℕ→ℕ₋₂ 1)} {B = ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)} (trElim (λ x → isOfHLevelTrunc 3) λ x → ∣ d-map x ∣ )
-  d-iso = (Iso.inv (connectedTruncIso _ d-map is1Connected-dmap)) , (Iso.rightInv (connectedTruncIso _ d-map is1Connected-dmap)
-                                                                  , Iso.leftInv (connectedTruncIso _ d-map is1Connected-dmap))
-
   {- We show that composing (λ a → ∣ ϕ base a ∣) and (λ x → ∣ d-map x ∣) gives us the identity function.  -}
 
-  d-mapId2 : (λ (x : hLevelTrunc 3 S¹) → (trRec {n = 3} {B = hLevelTrunc 3 S¹} (isOfHLevelTrunc 3) λ x → ∣ d-map x ∣)
-                                               (trRec (isOfHLevelTrunc 3) (λ a → ∣ ϕ base a ∣) x)) ≡ λ x → x
-  d-mapId2 = funExt (trElim (λ x → isOfHLevelSuc 2 (isOfHLevelTrunc 3 ((trElim {n = 3}
-                                                                                {B = λ _ → ∥ S¹ ∥ (ℕ→ℕ₋₂ 1)}
-                                                                                (λ x → isOfHLevelTrunc 3) λ x → ∣ d-map x ∣)
-                                                                                (trElim (λ _ → isOfHLevelTrunc 3)
-                                                                                        (λ a → ∣ ϕ base a ∣) x)) x))
-                            λ a i → ∣ d-mapId a i ∣)
+  d-mapId2 : Iso.fun d-iso2 ∘ trMap (ϕ base) ≡ idfun (hLevelTrunc 3 S¹)
+  d-mapId2 = funExt (trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) (λ a → cong ∣_∣ (d-mapId a)))
 
   {- This means that (λ a → ∣ ϕ base a ∣) is an equivalence -}
-
 
   Iso∣ϕ-base∣ : Iso (hLevelTrunc 3 S¹) (hLevelTrunc 3 (typ (Ω (Susp S¹ , north))))
   Iso∣ϕ-base∣ = composesToId→Iso d-iso2 (trMap (ϕ base)) d-mapId2
@@ -232,22 +218,22 @@ private
 
 -- We need ΩTrunc. It appears to compute better when restated for this particular case --
 
-decode-fun2 : (n : ℕ) → (x : A) → hLevelTrunc n (x ≡ x) → Path (hLevelTrunc (suc n) A) ∣ x ∣ ∣ x ∣
+decode-fun2 : (n : HLevel) → (x : A) → hLevelTrunc n (x ≡ x) → Path (hLevelTrunc (suc n) A) ∣ x ∣ ∣ x ∣
 decode-fun2 zero x = trElim (λ _ → isOfHLevelPath 0 (∣ x ∣ , isOfHLevelTrunc 1 ∣ x ∣) ∣ x ∣ ∣ x ∣) (λ p i → ∣ p i ∣)
 decode-fun2 (suc n) x = trElim (λ _ → isOfHLevelPath' (suc n) (isOfHLevelTrunc (suc (suc n))) ∣ x ∣ ∣ x ∣) (cong ∣_∣)
 
-funsAreSame : (n : ℕ) (x : A) (b : hLevelTrunc n (x ≡ x)) → (decode-fun2 n x b) ≡ (ΩTrunc.decode-fun ∣ x ∣ ∣ x ∣ b)
+funsAreSame : (n : HLevel) (x : A) (b : hLevelTrunc n (x ≡ x)) → (decode-fun2 n x b) ≡ (ΩTrunc.decode-fun ∣ x ∣ ∣ x ∣ b)
 funsAreSame zero x = trElim (λ a → isOfHLevelPath 0 (refl , (isOfHLevelSuc 1 (isOfHLevelTrunc 1) ∣ x ∣ ∣ x ∣ refl)) _ _) λ a → refl
 funsAreSame (suc n) x = trElim (λ a → isOfHLevelPath _ (isOfHLevelPath' (suc n) (isOfHLevelTrunc (suc (suc n))) ∣ x ∣ ∣ x ∣) _ _) λ a → refl
 
-decodeIso : (n : ℕ) (x : A) → Iso (hLevelTrunc n (x ≡ x)) (Path (hLevelTrunc (suc n) A) ∣ x ∣ ∣ x ∣)
+decodeIso : (n : HLevel) (x : A) → Iso (hLevelTrunc n (x ≡ x)) (Path (hLevelTrunc (suc n) A) ∣ x ∣ ∣ x ∣)
 Iso.fun (decodeIso n x) = decode-fun2 n x
 Iso.inv (decodeIso n x) = ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣
 Iso.rightInv (decodeIso n x) b = funsAreSame n x (ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣ b) ∙ ΩTrunc.P-rinv ∣ x ∣ ∣ x ∣ b
 Iso.leftInv (decodeIso n x) b = cong (ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣) (funsAreSame n x b) ∙ ΩTrunc.P-linv ∣ x ∣ ∣ x ∣ b
 
-Iso-Kn-ΩKn+1 : (n : ℕ) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
-Iso-Kn-ΩKn+1 zero = compIso isolooper (congIso (truncIdempotent≃ _ isOfHLevelS1))
+Iso-Kn-ΩKn+1 : (n : HLevel) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
+Iso-Kn-ΩKn+1 zero = compIso isolooper (congIso (truncIdempotentIso _ isOfHLevelS1))
 Iso-Kn-ΩKn+1 (suc zero) = compIso Iso∣ϕ∣ (decodeIso _ north)
 Iso-Kn-ΩKn+1 (suc (suc n)) = compIso (connectedTruncIso2 (4 + n) _ (ϕ north) (n , helper)
                                                                              (isConnectedσ (suc n) (sphereConnected _)))

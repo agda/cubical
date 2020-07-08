@@ -1,15 +1,25 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.Nullification.Properties where
 
-open import Cubical.Foundations.Everything
-open isPathSplitEquiv
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.PathSplit
+open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Foundations.Univalence
+
 open import Cubical.Modalities.Modality
-open Modality
+
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.HITs.Localization renaming (rec to Localize-rec)
 open import Cubical.Data.Unit
 
 open import Cubical.HITs.Nullification.Base
+
+open Modality
+open isPathSplitEquiv
 
 rec : ∀ {ℓ ℓ' ℓ''} {S : Type ℓ} {A : Type ℓ'} {B : Type ℓ''}
       → (nB : isNull S B) → (A → B) → Null S A → B

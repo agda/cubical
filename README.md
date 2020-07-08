@@ -15,6 +15,15 @@ can check out the tag `v0.1` of this library.
 If you want to use Agda 2.6.1 instead of the latest development version, you
 can check out the tag `v0.2` of this library.
 
+For an introduction to Cubical Agda, see [Cubical Agda: a dependently typed
+programming language with univalence and higher inductive
+types](https://dl.acm.org/doi/10.1145/3341691) by Andrea Vezzosi, Anders
+Mörtberg, and Andreas Abel.
+
+For an introduction to this library, see this [blog
+post](https://homotopytypetheory.org/2018/12/06/cubical-agda/). Note that many
+files and results have moved since this blog post was written.
+
 The type theory that Cubical Agda implements is a variation of the
 cubical type theory of:
 
@@ -33,16 +42,10 @@ Huber, Anders Mörtberg.
 
 This makes it possible to directly represent higher inductive types.
 
-For an introduction to Cubical Agda and this library see this
-[blog post](https://homotopytypetheory.org/2018/12/06/cubical-agda/). Note
-that many files and results have moved compared to state of the
-library described in the blog post.
-
-
 Maintainers
 -----------
 
-* [Anders Mörtberg](http://www.cs.cmu.edu/~amoertbe/)
+* [Anders Mörtberg](https://staff.math.su.se/anders.mortberg/)
 
 * [Andrea Vezzosi](http://saizan.github.io/)
 

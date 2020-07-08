@@ -3,7 +3,7 @@
   Homotopy colimits of graphs
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.Colimit.Base where
 
 open import Cubical.Foundations.Prelude
@@ -58,7 +58,7 @@ module _ {ℓ ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} {X : Type 
   isUniversalAt : ∀ ℓq → Cocone ℓ F X → Type (ℓ-max ℓ (ℓ-suc (ℓ-max ℓq (ℓ-max (ℓ-max ℓv ℓe) (ℓ-suc ℓd)))))
   isUniversalAt ℓq C = ∀ (Y : Type ℓq) → isEquiv {A = (X → Y)} {B = Cocone ℓq F Y} (postcomp C)
                   -- (unfolding isEquiv, this ^ is equivalent to what one might expect:)
-                  -- ∀ (Y : Type ℓ) (D : Cocone ℓ F Y) → isContr (Σ[ h ∈ (X → Y) ] (h *) C ≡ D)
+                  -- ∀ (Y : Type ℓ) (D : Cocone ℓ F Y) → ∃![ h ∈ (X → Y) ] (h *) C ≡ D
                   --                                  (≡ isContr (CoconeMor (X , C) (Y , D)))
 
   isPropIsUniversalAt : ∀ ℓq (C : Cocone ℓ F X) → isProp (isUniversalAt ℓq C)

@@ -1,9 +1,8 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.ZCohomology.Base where
 
 open import Cubical.Data.Int.Base
 open import Cubical.Data.Nat.Base
-open import Cubical.Data.NatMinusTwo.Base
 open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.Pointed.Base
@@ -25,11 +24,11 @@ private
 {- Types Kₙ from Brunerie 2016 -}
 coHomK : (n : ℕ) → Type₀
 coHomK zero = Int
-coHomK (suc n) = ∥ S₊ (suc n) ∥  (ℕ→ℕ₋₂ (suc n))
+coHomK (suc n) = ∥ S₊ (suc n) ∥  (2 + suc n)
 
 {- Cohomology -}
 coHom : (n : ℕ) → Type ℓ → Type ℓ
-coHom n A = ∥ (A → coHomK n) ∥₀
+coHom n A = ∥ (A → coHomK n) ∥₂
 
 
 --- Reduced cohomology ---
@@ -41,4 +40,4 @@ coHomK-ptd (suc n) = (coHomK (suc n) , ∣ north ∣)
 
 {- Reduced cohomology -}
 coHomRed : (n : ℕ) → (A : Pointed ℓ) → Type ℓ
-coHomRed n A = ∥  (A →∙ (coHomK-ptd n)) ∥₀
+coHomRed n A = ∥  (A →∙ (coHomK-ptd n)) ∥₂

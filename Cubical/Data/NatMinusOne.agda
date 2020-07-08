@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Data.NatMinusOne where
 
 open import Cubical.Data.NatMinusOne.Base public
