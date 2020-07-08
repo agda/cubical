@@ -56,14 +56,24 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
   isEffective =
     (a b : A) → isEquiv (eq/ {R = _R_} a b)
 
-  Rel→TotalSpace : (a : A) → Type (ℓ-max ℓ ℓ')
-  Rel→TotalSpace a = Σ[ a' ∈ A ] (a R a')
+  module _ (a : A) where
+    Rel→TotalSpace : Type (ℓ-max ℓ ℓ')
+    Rel→TotalSpace = Σ[ a' ∈ A ] (a R a')
+
+    contrTotalSpacePt : Type (ℓ-max ℓ ℓ')
+    contrTotalSpacePt = isContr (Rel→TotalSpace)
+
+  contrTotalSpace : Type (ℓ-max ℓ ℓ')
+  contrTotalSpace = (a : A) → contrTotalSpacePt a
 
   ≡→R : isRefl → {a a' : A} → a ≡ a' → a R a'
   ≡→R ρ {a} {a'} p = subst (λ z → a R z) p (ρ a)
 
   isUnivalent : isRefl → Type (ℓ-max ℓ ℓ')
   isUnivalent ρ = (a a' : A) → isEquiv (≡→R ρ {a} {a'})
+
+  contrTotalSpace→isUnivalent : (ρ : isRefl) → contrTotalSpace → isUnivalent ρ
+  contrTotalSpace→isUnivalent ρ c a a' = {!!}
 
 EquivRel : ∀ {ℓ} (A : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 EquivRel A ℓ' = Σ[ R ∈ Rel A A ℓ' ] BinaryRelation.isEquivRel R

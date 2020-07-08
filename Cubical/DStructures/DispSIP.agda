@@ -19,15 +19,16 @@ private
   variable
     ℓ ℓ' ℓ₁ ℓ₁' ℓ₂ : Level
 
-
 -- a univalent reflexive graph structure on a type
 record URGStr (A : Type ℓ) (ℓ₁ : Level) : Type (ℓ-max ℓ (ℓ-suc ℓ₁)) where
+  constructor urgstr
   field
     _≅_ : Rel A A ℓ₁
     ρ : isRefl _≅_
     uni : isUnivalent _≅_ ρ
 
--- makeURGStr : {A : Type ℓ} {ℓ₁ : Level}
+makeURGStr : {A : Type ℓ} {ℓ₁ : Level} {_≅_ : Rel A A ℓ₁} (ρ : isRefl _≅_) (contrTotal : contrTotalSpace _≅_) → URGStr A ℓ₁
+makeURGStr {A = A} {ℓ₁ = ℓ₁} {_≅_ = _≅_} ρ contrTotal = urgstr _≅_ ρ {!!}
 
 -- a displayed univalent reflexive graph structure over a URGStr on a type
 record URGStrᴰ {A : Type ℓ} {ℓ₁} (StrA : URGStr A ℓ₁)
