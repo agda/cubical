@@ -63,13 +63,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
     Rel→TotalSpace : Type (ℓ-max ℓ ℓ')
     Rel→TotalSpace = Σ[ a' ∈ A ] (a R a')
 
-    -- the statement that the total space is contractible at a
-    contrTotalSpacePt : Type (ℓ-max ℓ ℓ')
-    contrTotalSpacePt = isContr (Rel→TotalSpace)
-
   -- the statement that the total space is contractible at any a
   contrTotalSpace : Type (ℓ-max ℓ ℓ')
-  contrTotalSpace = (a : A) → contrTotalSpacePt a
+  contrTotalSpace = (a : A) → isContr (Rel→TotalSpace a)
 
   -- assume a reflexive binary relation
   module _ (ρ : isRefl) where
@@ -85,12 +81,12 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
     private
       module _ (a : A) where
         -- wrapper for ≡→R
-        fₐ = λ (a' : A) (p : a ≡ a') → ≡→R {a} {a'} p
+        f = λ (a' : A) (p : a ≡ a') → ≡→R {a} {a'} p
 
         -- the corresponding total map that univalence
         -- of R will be reduced to
-        totfₐ : singl a → Σ[ a' ∈ A ] (a R a')
-        totfₐ (a' , p) = (a' , fₐ a' p)
+        totf : singl a → Σ[ a' ∈ A ] (a R a')
+        totf (a' , p) = (a' , f a' p)
 
     -- if the total space corresponding to R is contractible
     -- then R is univalent
@@ -99,11 +95,24 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
     contrTotalSpace→isUnivalent c a
       = fiberEquiv (λ a' → a ≡ a')
                    (λ a' → a R a')
-                   (fₐ a)
+                   (f a)
                    (snd (isPropEquiv→Equiv (isContr→isProp (isContrSingl a))
                                            (isContr→isProp (c a))
-                                           (totfₐ a)
+                                           (totf a)
                                            (λ _ → fst (isContrSingl a))))
+
+    -- converse map. proof idea:
+    -- equivalences preserve contractability,
+    -- singletons are contractible
+    -- and by the univalence assumption the total map is an equivalence
+    isUnivalent→contrTotalSpace : isUnivalent → contrTotalSpace
+    isUnivalent→contrTotalSpace u a
+      = isOfHLevelRespectEquiv 0
+                               (totf a , totalEquiv (a ≡_)
+                                                    (a R_)
+                                                    (f a)
+                                                    λ a' → u a a')
+                               (isContrSingl a)
 
 
 EquivRel : ∀ {ℓ} (A : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
