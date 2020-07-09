@@ -114,6 +114,16 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
                                                     λ a' → u a a')
                                (isContrSingl a)
 
+    {-
+    open import Cubical.Foundations.Isomorphism
+    IsoIsUnivalentContrTotalSpace : Iso isUnivalent contrTotalSpace
+    IsoIsUnivalentContrTotalSpace
+      = iso isUnivalent→contrTotalSpace
+            contrTotalSpace→isUnivalent
+            (λ cts → {!!})
+            {!!}
+    -}
+
 
 EquivRel : ∀ {ℓ} (A : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 EquivRel A ℓ' = Σ[ R ∈ Rel A A ℓ' ] BinaryRelation.isEquivRel R
