@@ -8,6 +8,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.HITs.SetQuotients.Base
 open import Cubical.HITs.PropositionalTruncation.Base
+open import Cubical.Foundations.Equiv.Fiberwise
+open import Cubical.Foundations.Equiv
 
 Rel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 Rel A B ℓ' = A → B → Type ℓ'
@@ -57,23 +59,52 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
     (a b : A) → isEquiv (eq/ {R = _R_} a b)
 
   module _ (a : A) where
+    -- the total space corresponding to the binary relation w.r.t. a
     Rel→TotalSpace : Type (ℓ-max ℓ ℓ')
     Rel→TotalSpace = Σ[ a' ∈ A ] (a R a')
 
+    -- the statement that the total space is contractible at a
     contrTotalSpacePt : Type (ℓ-max ℓ ℓ')
     contrTotalSpacePt = isContr (Rel→TotalSpace)
 
+  -- the statement that the total space is contractible at any a
   contrTotalSpace : Type (ℓ-max ℓ ℓ')
   contrTotalSpace = (a : A) → contrTotalSpacePt a
 
-  ≡→R : isRefl → {a a' : A} → a ≡ a' → a R a'
-  ≡→R ρ {a} {a'} p = subst (λ z → a R z) p (ρ a)
+  -- assume a reflexive binary relation
+  module _ (ρ : isRefl) where
+    -- identity is the least reflexive relation
+    ≡→R : {a a' : A} → a ≡ a' → a R a'
+    ≡→R {a} {a'} p = subst (λ z → a R z) p (ρ a)
 
-  isUnivalent : isRefl → Type (ℓ-max ℓ ℓ')
-  isUnivalent ρ = (a a' : A) → isEquiv (≡→R ρ {a} {a'})
+    -- what it means for a reflexive binary relation to be univalent
+    isUnivalent : Type (ℓ-max ℓ ℓ')
+    isUnivalent = (a a' : A) → isEquiv (≡→R {a} {a'})
 
-  contrTotalSpace→isUnivalent : (ρ : isRefl) → contrTotalSpace → isUnivalent ρ
-  contrTotalSpace→isUnivalent ρ c a a' = {!!}
+    -- helpers for contrTotalSpace→isUnivalent
+    private
+      module _ (a : A) where
+        -- wrapper for ≡→R
+        fₐ = λ (a' : A) (p : a ≡ a') → ≡→R {a} {a'} p
+
+        -- the corresponding total map that univalence
+        -- of R will be reduced to
+        totfₐ : singl a → Σ[ a' ∈ A ] (a R a')
+        totfₐ (a' , p) = (a' , fₐ a' p)
+
+    -- if the total space corresponding to R is contractible
+    -- then R is univalent
+    -- because the singleton at a is also contractible
+    contrTotalSpace→isUnivalent : contrTotalSpace → isUnivalent
+    contrTotalSpace→isUnivalent c a
+      = fiberEquiv (λ a' → a ≡ a')
+                   (λ a' → a R a')
+                   (fₐ a)
+                   (snd (isPropEquiv→Equiv (isContr→isProp (isContrSingl a))
+                                           (isContr→isProp (c a))
+                                           (totfₐ a)
+                                           (λ _ → fst (isContrSingl a))))
+
 
 EquivRel : ∀ {ℓ} (A : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 EquivRel A ℓ' = Σ[ R ∈ Rel A A ℓ' ] BinaryRelation.isEquivRel R
