@@ -29,17 +29,17 @@ record URGStr (A : Type ℓ) (ℓ₁ : Level) : Type (ℓ-max ℓ (ℓ-suc ℓ�
     uni : isUnivalent _≅_ ρ
 
 -- wrapper to create instances of URGStr
-makeURGStr : {A : Type ℓ} {ℓ₁ : Level} {_≅_ : Rel A A ℓ₁}
+makeURGStr : {A : Type ℓ} {_≅_ : Rel A A ℓ₁}
              (ρ : isRefl _≅_) (contrTotal : contrTotalSpace _≅_)
              → URGStr A ℓ₁
-makeURGStr {A = A} {ℓ₁ = ℓ₁} {_≅_ = _≅_}
+makeURGStr {A = A} {_≅_ = _≅_}
            ρ contrTotal
            = urgstr _≅_
                     ρ
                     λ a a' → contrTotalSpace→isUnivalent _≅_ ρ contrTotal a a'
 
 -- a displayed univalent reflexive graph structure over a URGStr on a type
-record URGStrᴰ {A : Type ℓ} {ℓ₁} (StrA : URGStr A ℓ₁)
+record URGStrᴰ {A : Type ℓ} (StrA : URGStr A ℓ₁)
                   (B : A → Type ℓ') (ℓ₁' : Level) : Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓ₁) (ℓ-suc ℓ₁')) where
   open URGStr StrA
 
@@ -49,8 +49,8 @@ record URGStrᴰ {A : Type ℓ} {ℓ₁} (StrA : URGStr A ℓ₁)
     uniᴰ : {a : A} → isUnivalent _≅ᴰ⟨ ρ a ⟩_ ρᴰ
 
 -- the total space of a DURGS is a URGS
-URGStrᴰ→URGStr : {A : Type ℓ} {ℓ₁ : Level} (StrA : URGStr A ℓ₁)
-                 (B : A → Type ℓ') {ℓ₁' : Level} (DispStrB : URGStrᴰ StrA B ℓ₁')
+URGStrᴰ→URGStr : {A : Type ℓ} (StrA : URGStr A ℓ₁)
+                 (B : A → Type ℓ') (DispStrB : URGStrᴰ StrA B ℓ₁')
                  → URGStr (Σ A B) (ℓ-max ℓ₁ ℓ₁')
 URGStrᴰ→URGStr {A = A} StrA B DispStrB
   = makeURGStr {_≅_ = _≅Σ_} ρΣ contrTotalΣ
@@ -73,13 +73,16 @@ URGStrᴰ→URGStr {A = A} StrA B DispStrB
      contrTotalA = isUnivalent→contrTotalSpace _≅_ ρ uni a
      contrTotalB : isContr (Σ[ b' ∈ B a ] (b ≅ᴰ⟨ ρ a ⟩ b'))
      contrTotalB = isUnivalent→contrTotalSpace (_≅ᴰ⟨ ρ a ⟩_) ρᴰ uniᴰ b
+     r = ρ
+     p : fst contrTotalA ≡ (a , ρ a)
+     p = snd contrTotalA (a , ρ a)
+
      contrTotalΣ
        = isOfHLevelRespectEquiv 0
-                                -- Rel→TotalSpace (_≅ᴰ⟨ ρ a ⟩_) b ≃ Rel→TotalSpace _≅Σ_ x
                                 (Rel→TotalSpace (_≅ᴰ⟨ ρ a ⟩_) b
                                   ≃⟨ idEquiv (Rel→TotalSpace (_≅ᴰ⟨ ρ a ⟩_) b) ⟩
                                 Σ[ b' ∈ B a ] (b ≅ᴰ⟨ ρ a ⟩ b')
-                                  ≃⟨ pathToEquiv (cong (λ z → Σ[ b' ∈ B a ] (b ≅ᴰ⟨ z ⟩ b')) {!refl!}) ⟩
+                                  ≃⟨ pathToEquiv (cong (λ z → Σ[ b' ∈ B a ] (b ≅ᴰ⟨ z ⟩ b')) {!sym (cong snd p)!}) ⟩
                                 Σ[ b' ∈ B a ] (b ≅ᴰ⟨ snd (fst contrTotalA) ⟩ b')
                                   ≃⟨ invEquiv (Σ-contractFst contrTotalA) ⟩
                                 Σ[ (a' , e) ∈ (Σ[ a' ∈ A ] (a ≅ a')) ] Σ[ b' ∈ B a' ] (b ≅ᴰ⟨ e ⟩ b')
@@ -95,9 +98,26 @@ URGStrᴰ→URGStr {A = A} StrA B DispStrB
                                 Σ[ (a' , b') ∈ Σ A B ] Σ[ e ∈ (a ≅ a') ] (b ≅ᴰ⟨ e ⟩ b') ■)
                                 contrTotalB
 {- Stuff to do:
- * make the above more readable and fill hole
+ * fill hole
  * a family of props has a canonical URGStrᴰ with DRel = Unit
- * get URGStr from univalent 1- or bi-category
- * URGStr on Type with Equiv
- *
+ * get URGStr from univalent bi-category
 -}
+
+module Examples {ℓ ℓ' : Level} where
+  -- Universes and equivalences form a URGStr
+  UGRStrUniverse : URGStr (Type ℓ) ℓ
+  UGRStrUniverse
+    = makeURGStr {_≅_ = _≃_}
+                 idEquiv
+                 λ A → isOfHLevelRespectEquiv 0
+                                              (Σ-cong-equiv-snd (λ A' → isoToEquiv (iso invEquiv
+                                                                                        invEquiv
+                                                                                        (λ e → equivEq (invEquiv (invEquiv e)) e (funExt (λ x → refl)))
+                                                                                        λ e → equivEq (invEquiv (invEquiv e)) e (funExt (λ x → refl)))))
+                                              (EquivContr A)
+
+  -- every univalent 1-precategory gives a URGStr
+  open import Cubical.Categories.Category renaming (isUnivalent to isUnivalentCat)
+  Cat→URG : (𝒞 : Precategory ℓ ℓ') → (uni : isUnivalentCat 𝒞) → URGStr (𝒞 .ob) ℓ'
+  Cat→URG 𝒞 uni
+    = urgstr (CatIso {𝒞 = 𝒞}) idCatIso λ x y → isUnivalentCat.univ uni x y

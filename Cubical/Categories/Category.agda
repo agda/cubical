@@ -57,6 +57,9 @@ record CatIso {ℓ ℓ' : Level} {𝒞 : Precategory ℓ ℓ'} (x y : 𝒞 .ob) 
     sec : 𝒞 .seq h⁻¹ h ≡ 𝒞 .idn y
     ret : 𝒞 .seq h h⁻¹ ≡ 𝒞 .idn x
 
+idCatIso : {ℓ ℓ' : Level} {𝒞 : Precategory ℓ ℓ'} (x : 𝒞 .ob) → CatIso {𝒞 = 𝒞} x x
+idCatIso {𝒞 = 𝒞} x = catiso (𝒞 .idn x) (𝒞 .idn x) (𝒞 .seq-λ (𝒞 .idn x)) (𝒞 .seq-λ (𝒞 .idn x))
+
 pathToIso : {ℓ ℓ' : Level} {𝒞 : Precategory ℓ ℓ'} (x y : 𝒞 .ob) (p : x ≡ y) → CatIso {𝒞 = 𝒞} x y
 pathToIso {𝒞 = 𝒞} x y p = J (λ z _ → CatIso x z) (catiso (𝒞 .idn x) idx (𝒞 .seq-λ idx) (𝒞 .seq-λ idx)) p
   where
