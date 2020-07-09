@@ -6,12 +6,11 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
+open import Cubical.Structures.Axioms
 open import Cubical.Structures.Macro
-open import Cubical.Structures.LeftAction
-open import Cubical.Structures.Functorial
-open import Cubical.Structures.NAryOp
+open import Cubical.Structures.Auto
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Maybe as Maybe
@@ -35,54 +34,46 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
 
  -- deq as a structure
  -- First, a few preliminary results that we will need later
- deq-map : {X Y : Type ℓ} → (X → Y) → Maybe (X × A) → Maybe (Y × A)
- deq-map f nothing = nothing
- deq-map f (just (x , a)) = just (f x , a)
+ deqMap : {X Y : Type ℓ} → (X → Y) → Maybe (X × A) → Maybe (Y × A)
+ deqMap = map-Maybe ∘ map-fst
 
- deq-map-∘ :{B C D : Type ℓ}
+ deqMapId : {X : Type ℓ} → ∀ r → deqMap (idfun X) r ≡ r
+ deqMapId = map-Maybe-id
+
+ deqMap-∘ :{B C D : Type ℓ}
   (g : C → D) (f : B → C)
-  → ∀ r → deq-map {X = C} g (deq-map f r) ≡ deq-map (λ b → g (f b)) r
- deq-map-∘ g f nothing = refl
- deq-map-∘ g f (just (b , a)) = refl
-
- deq-map-id : {X : Type ℓ} → ∀ r → deq-map (idfun X) r ≡ r
- deq-map-id nothing = refl
- deq-map-id (just _) = refl
-
- open Macro ℓ (recvar (functorial deq-map deq-map-id)) public renaming
-   ( structure to deq-structure
-   ; iso to deq-iso
-   ; isSNS to Deq-is-SNS
-   )
-
- Deq : Type (ℓ-suc ℓ)
- Deq = TypeWithStr ℓ deq-structure
+  → ∀ r → deqMap {X = C} g (deqMap f r) ≡ deqMap (λ b → g (f b)) r
+ deqMap-∘ g f nothing = refl
+ deqMap-∘ g f (just (b , a)) = refl
 
  -- Now we can do Queues:
- open Macro ℓ (var , left-action-desc A , foreign deq-iso Deq-is-SNS) public renaming
-   ( structure to raw-queue-structure
-   ; iso to raw-queue-iso
-   ; isSNS to RawQueue-is-SNS
+ rawQueueDesc =
+   autoDesc (λ (X : Type ℓ) → X × (A → X → X) × (X → Transp[ Maybe (X × A) ]))
+
+ open Macro ℓ rawQueueDesc public renaming
+   ( structure to RawQueueStructure
+   ; equiv to RawQueueEquivStr
+   ; univalent to rawQueueUnivalentStr
    )
 
  RawQueue : Type (ℓ-suc ℓ)
- RawQueue = TypeWithStr ℓ raw-queue-structure
+ RawQueue = TypeWithStr ℓ RawQueueStructure
 
  returnOrEnq : {Q : Type ℓ}
-  → raw-queue-structure Q → A → Maybe (Q × A) → Q × A
+  → RawQueueStructure Q → A → Maybe (Q × A) → Q × A
  returnOrEnq (emp , enq , _) a qr =
    Maybe.rec (emp , a) (λ {(q , b) → enq a q , b}) qr
 
- queue-axioms : (Q : Type ℓ) → raw-queue-structure Q → Type ℓ
- queue-axioms Q S@(emp , enq , deq) =
+ QueueAxioms : (Q : Type ℓ) → RawQueueStructure Q → Type ℓ
+ QueueAxioms Q S@(emp , enq , deq) =
    (isSet Q)
    × (deq emp ≡ nothing)
    × (∀ a q → deq (enq a q) ≡ just (returnOrEnq S a (deq q)))
    × (∀ a a' q q' → enq a q ≡ enq a' q' → (a ≡ a') × (q ≡ q'))
    × (∀ q q' → deq q ≡ deq q' → q ≡ q')
 
- isProp-queue-axioms : ∀ Q S → isProp (queue-axioms Q S)
- isProp-queue-axioms Q S =
+ isPropQueueAxioms : ∀ Q S → isProp (QueueAxioms Q S)
+ isPropQueueAxioms Q S =
    isPropΣ isPropIsSet
            (λ Qset → isProp×3 (isOfHLevelDeq Qset _ _)
                               (isPropΠ2 λ _ _ → isOfHLevelDeq Qset _ _)
@@ -92,33 +83,33 @@ module Queues-on (A : Type ℓ) (Aset : isSet A) where
    isOfHLevelDeq : isSet Q → isOfHLevel 2 (Maybe (Q × A))
    isOfHLevelDeq Qset = isOfHLevelMaybe 0 (isSet× Qset Aset)
 
- queue-structure : Type ℓ → Type ℓ
- queue-structure = add-to-structure raw-queue-structure queue-axioms
+ QueueStructure : Type ℓ → Type ℓ
+ QueueStructure = AxiomsStructure RawQueueStructure QueueAxioms
 
  Queue : Type (ℓ-suc ℓ)
- Queue = TypeWithStr ℓ queue-structure
+ Queue = TypeWithStr ℓ QueueStructure
 
- queue-iso : StrIso queue-structure ℓ
- queue-iso = add-to-iso raw-queue-iso queue-axioms
+ QueueEquivStr : StrEquiv QueueStructure ℓ
+ QueueEquivStr = AxiomsEquivStr RawQueueEquivStr QueueAxioms
 
- Queue-is-SNS : SNS queue-structure queue-iso
- Queue-is-SNS = add-axioms-SNS raw-queue-iso isProp-queue-axioms RawQueue-is-SNS
+ queueUnivalentStr : UnivalentStr QueueStructure QueueEquivStr
+ queueUnivalentStr = axiomsUnivalentStr RawQueueEquivStr isPropQueueAxioms rawQueueUnivalentStr
 
 
- finite-queue-axioms : (Q : Type ℓ) → queue-structure Q → Type ℓ
- finite-queue-axioms Q ((emp , enq , _) , _) = isEquiv (foldr enq emp)
+ FiniteQueueAxioms : (Q : Type ℓ) → QueueStructure Q → Type ℓ
+ FiniteQueueAxioms Q ((emp , enq , _) , _) = isEquiv (foldr enq emp)
 
- isProp-finite-queue-axioms : ∀ Q S → isProp (finite-queue-axioms Q S)
- isProp-finite-queue-axioms Q S = isPropIsEquiv _
+ isPropFiniteQueueAxioms : ∀ Q S → isProp (FiniteQueueAxioms Q S)
+ isPropFiniteQueueAxioms Q S = isPropIsEquiv _
 
- finite-queue-structure : Type ℓ → Type ℓ
- finite-queue-structure = add-to-structure queue-structure finite-queue-axioms
+ FiniteQueueStructure : Type ℓ → Type ℓ
+ FiniteQueueStructure = AxiomsStructure QueueStructure FiniteQueueAxioms
 
  FiniteQueue : Type (ℓ-suc ℓ)
- FiniteQueue = TypeWithStr ℓ finite-queue-structure
+ FiniteQueue = TypeWithStr ℓ FiniteQueueStructure
 
- finite-queue-iso : StrIso finite-queue-structure ℓ
- finite-queue-iso = add-to-iso queue-iso finite-queue-axioms
+ FiniteQueueEquivStr : StrEquiv FiniteQueueStructure ℓ
+ FiniteQueueEquivStr = AxiomsEquivStr QueueEquivStr FiniteQueueAxioms
 
- FiniteQueue-is-SNS : SNS finite-queue-structure finite-queue-iso
- FiniteQueue-is-SNS = add-axioms-SNS queue-iso isProp-finite-queue-axioms Queue-is-SNS
+ finiteQueueUnivalentStr : UnivalentStr FiniteQueueStructure FiniteQueueEquivStr
+ finiteQueueUnivalentStr = axiomsUnivalentStr QueueEquivStr isPropFiniteQueueAxioms queueUnivalentStr

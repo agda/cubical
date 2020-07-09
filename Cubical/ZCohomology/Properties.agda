@@ -26,8 +26,8 @@ open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
 open import Cubical.HITs.SmashProduct.Base
-open import Cubical.Data.Group.Base hiding (_≃_ ; Iso ; invIso)
-
+open import Cubical.Structures.Group
+open import Cubical.Data.Group.Base hiding (_≃_ ; Iso ; invIso ; Group ; dirProd)
 open import Cubical.Foundations.Equiv.HalfAdjoint
 
 
@@ -270,20 +270,23 @@ rUnitlUnit0 {n = suc n} =
 0ₕ∙ zero = ∣ (λ _ → 0ₖ) , refl ∣₂
 0ₕ∙ (suc n) = ∣ (λ _ → 0ₖ) , refl ∣₂
 
-coHomGr : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group ℓ
-Group.type (coHomGr n A) = coHom n A
-Group.setStruc (coHomGr n A) = §
-isGroup.id (Group.groupStruc (coHomGr n A)) = 0ₕ
-isGroup.inv (Group.groupStruc (coHomGr n A)) = -ₕ
-isGroup.comp (Group.groupStruc (coHomGr n A)) = _+ₕ_
-isGroup.lUnit (Group.groupStruc (coHomGr n A)) = lUnitₕ
-isGroup.rUnit (Group.groupStruc (coHomGr n A)) = rUnitₕ
-isGroup.assoc (Group.groupStruc (coHomGr n A)) = assocₕ
-isGroup.lCancel (Group.groupStruc (coHomGr n A)) = lCancelₕ
-isGroup.rCancel (Group.groupStruc (coHomGr n A)) = rCancelₕ
 
-×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group (ℓ-max ℓ ℓ')
-×coHomGr n A B = dirProd (coHomGr n A) (coHomGr n B)
+coHomGr : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group
+Group.Carrier (coHomGr n A) = coHom n A
+Group.0g (coHomGr n A) = 0ₕ
+Group._+_ (coHomGr n A) = _+ₕ_
+Group.- coHomGr n A = -ₕ
+Group.isGroup (coHomGr n A) =
+  makeIsGroup
+    §
+    (λ x y z → sym (assocₕ x y z))
+    rUnitₕ
+    lUnitₕ
+    rCancelₕ
+    lCancelₕ
+
+×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group
+×coHomGr n A B = dirProd (coHomGr n A) (coHomGr n B) -- dirProd (coHomGr n A) (coHomGr n B)
 
 
 --- ΩKₙ is commutative

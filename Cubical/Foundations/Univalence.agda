@@ -38,6 +38,10 @@ ua {A = A} {B = B} e i = Glue B (λ { (i = i0) → (A , e)
 uaIdEquiv : {A : Type ℓ} → ua (idEquiv A) ≡ refl
 uaIdEquiv {A = A} i j = Glue A {φ = i ∨ ~ j ∨ j} (λ _ → A , idEquiv A)
 
+-- Propositional extensionality
+hPropExt : {A B : Type ℓ} → isProp A → isProp B → (A → B) → (B → A) → A ≡ B
+hPropExt Aprop Bprop f g = ua (isPropEquiv→Equiv Aprop Bprop f g)
+
 -- the unglue and glue primitives specialized to the case of ua
 
 ua-unglue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : ua e i)
@@ -231,6 +235,34 @@ uaβ e x = transportRefl (equivFun e x)
 
 uaη : ∀ {A B : Type ℓ} → (P : A ≡ B) → ua (pathToEquiv P) ≡ P
 uaη = J (λ _ q → ua (pathToEquiv q) ≡ q) (cong ua pathToEquivRefl ∙ uaIdEquiv)
+
+-- Lemmas for constructing and destructing dependent paths in a function type where the domain is ua.
+ua→ : ∀ {ℓ ℓ'} {A₀ A₁ : Type ℓ} {e : A₀ ≃ A₁} {B : (i : I) → Type ℓ'}
+  {f₀ : A₀ → B i0} {f₁ : A₁ → B i1}
+  → ((a : A₀) → PathP B (f₀ a) (f₁ (e .fst a)))
+  → PathP (λ i → ua e i → B i) f₀ f₁
+ua→ {e = e} {f₀ = f₀} {f₁} h i a =
+  hcomp
+    (λ j → λ
+      { (i = i0) → f₀ a
+      ; (i = i1) → f₁ (lem a j)
+      })
+    (h (transp (λ j → ua e (~ j ∧ i)) (~ i) a) i)
+  where
+  lem : ∀ a₁ → e .fst (transport (sym (ua e)) a₁) ≡ a₁
+  lem a₁ = retEq e _ ∙ transportRefl _
+
+ua→⁻ : ∀ {ℓ ℓ'} {A₀ A₁ : Type ℓ} {e : A₀ ≃ A₁} {B : (i : I) → Type ℓ'}
+  {f₀ : A₀ → B i0} {f₁ : A₁ → B i1}
+  → PathP (λ i → ua e i → B i) f₀ f₁
+  → ((a : A₀) → PathP B (f₀ a) (f₁ (e .fst a)))
+ua→⁻ {e = e} {f₀ = f₀} {f₁} p a i =
+  hcomp
+    (λ k → λ
+      { (i = i0) → f₀ a
+      ; (i = i1) → f₁ (uaβ e a k)
+      })
+    (p i (transp (λ j → ua e (j ∧ i)) (~ i) a))
 
 -- Useful lemma for unfolding a transported function over ua
 -- If we would have regularity this would be refl

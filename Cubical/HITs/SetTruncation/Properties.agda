@@ -16,8 +16,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
-open import Cubical.Data.Sigma hiding (_×_)
-open import Cubical.Data.Prod
+open import Cubical.Data.Sigma
 
 private
   variable
@@ -150,10 +149,10 @@ prodElim2 isset f = prodElim (λ _ → isOfHLevelΠ 2 λ _ → isset _ _)
 
 
 setTruncOfProdIso :  ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso ∥ A × B ∥₂ (∥ A ∥₂ × ∥ B ∥₂)
-Iso.fun setTruncOfProdIso = rec (isOfHLevelProd 2 setTruncIsSet setTruncIsSet) λ { (a , b) → ∣ a ∣₂ , ∣ b ∣₂ }
+Iso.fun setTruncOfProdIso = rec (isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet)) λ { (a , b) → ∣ a ∣₂ , ∣ b ∣₂ }
 Iso.inv setTruncOfProdIso = prodElim (λ _ → setTruncIsSet) λ a b → ∣ a , b ∣₂
 Iso.rightInv setTruncOfProdIso =
-  prodElim (λ _ → isOfHLevelPath 2 (isOfHLevelProd 2 setTruncIsSet setTruncIsSet) _ _)
+  prodElim (λ _ → isOfHLevelPath 2 (isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet)) _ _)
            λ _ _ → refl
 Iso.leftInv setTruncOfProdIso =
   elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)

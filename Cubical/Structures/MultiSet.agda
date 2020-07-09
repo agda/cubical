@@ -5,14 +5,11 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 open import Cubical.Functions.FunExtEquiv
 
-open import Cubical.Structures.Macro
-open import Cubical.Structures.LeftAction
+open import Cubical.Structures.Auto
 
-open import Cubical.Data.Unit
-open import Cubical.Data.Sum
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 
@@ -22,23 +19,24 @@ private
 
 module _ (A : Type ℓ) (Aset : isSet A) where
 
- count-desc : Desc ℓ
- count-desc = param A (recvar (constant ℕ))
+ CountStructure : Type ℓ → Type ℓ
+ CountStructure X = A → X → ℕ
 
- open Macro ℓ count-desc public renaming
-   ( structure to count-structure
-   ; iso to count-iso
-   ; isSNS to Count-is-SNS
-   )
+ CountEquivStr = AutoEquivStr CountStructure
+
+ countUnivalentStr : UnivalentStr _ CountEquivStr
+ countUnivalentStr = autoUnivalentStr CountStructure
 
  Count : Type (ℓ-suc ℓ)
- Count = TypeWithStr ℓ count-structure
+ Count = TypeWithStr ℓ CountStructure
 
- open Macro ℓ (var , (param A (recvar var)) , count-desc) public renaming
-   ( structure to multi-set-structure
-   ; iso to multi-set-iso
-   ; isSNS to Multi-Set-is-SNS
-   )
+ MultiSetStructure : Type ℓ → Type ℓ
+ MultiSetStructure X = X × (A → X → X) × (A → X → ℕ)
 
- Multi-Set : Type (ℓ-suc ℓ)
- Multi-Set = TypeWithStr ℓ multi-set-structure
+ MultiSetEquivStr = AutoEquivStr MultiSetStructure
+
+ multiSetUnivalentStr : UnivalentStr _ MultiSetEquivStr
+ multiSetUnivalentStr = autoUnivalentStr MultiSetStructure
+
+ MultiSet : Type (ℓ-suc ℓ)
+ MultiSet = TypeWithStr ℓ MultiSetStructure

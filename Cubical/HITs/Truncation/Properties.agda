@@ -16,6 +16,7 @@ open Modality
 open import Cubical.Data.Empty as ⊥ using (⊥)
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.NatMinusOne as ℕ₋₁
+open import Cubical.Data.Sigma
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Nullification as Null hiding (rec; elim)
@@ -258,6 +259,21 @@ Iso.leftInv 2GroupoidTrunc≃Trunc4Iso = 2GpdTrunc.elim (λ _ → isOfHLevelPath
 isContr→isContrTrunc : ∀ {ℓ} {A : Type ℓ} (n : ℕ) → isContr A → isContr (hLevelTrunc n A)
 isContr→isContrTrunc n contr = ∣ fst contr ∣ , (elim (λ _ → isOfHLevelPath n (isOfHLevelTrunc n) _ _) λ a → cong ∣_∣ (snd contr a))
 
+
+truncOfProdIso : (n : ℕ) → Iso (hLevelTrunc n (A × B)) (hLevelTrunc n A × hLevelTrunc n B)
+Iso.fun (truncOfProdIso n) = rec (isOfHLevelΣ n (isOfHLevelTrunc n) (λ _ → isOfHLevelTrunc n)) λ {(a , b) → ∣ a ∣ , ∣ b ∣}
+Iso.inv (truncOfProdIso n) (a , b) = rec (isOfHLevelTrunc n)
+                                          (λ a → rec (isOfHLevelTrunc n)
+                                                      (λ b → ∣ a , b ∣)
+                                                       b)
+                                          a
+Iso.rightInv (truncOfProdIso n) (a , b) =
+  elim {B = λ a → Iso.fun (truncOfProdIso n) (Iso.inv (truncOfProdIso n) (a , b)) ≡ (a , b)}
+       (λ _ → isOfHLevelPath n (isOfHLevelΣ n (isOfHLevelTrunc n) (λ _ → isOfHLevelTrunc n)) _ _)
+       (λ a → elim {B = λ b → Iso.fun (truncOfProdIso n) (Iso.inv (truncOfProdIso n) (∣ a ∣ , b)) ≡ (∣ a ∣ , b)}
+                    (λ _ → isOfHLevelPath n (isOfHLevelΣ n (isOfHLevelTrunc n) (λ _ → isOfHLevelTrunc n)) _ _)
+                    (λ b → refl) b) a
+Iso.leftInv (truncOfProdIso n) = elim (λ _ → isOfHLevelPath n (isOfHLevelTrunc n) _ _) λ a → refl
 
 ---- ∥ Ω A ∥ ₙ ≡ Ω ∥ A ∥ₙ₊₁  ----
 

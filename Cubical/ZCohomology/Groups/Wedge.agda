@@ -8,12 +8,13 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.HITs.Wedge
-open import Cubical.HITs.SetTruncation renaming (elim to sElim)
+open import Cubical.HITs.SetTruncation renaming (elim to sElim ; elim2 to sElim2)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∣_∣ to ∣_∣₋₁)
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod
 open import Cubical.Data.Unit
-open import Cubical.Data.Group.Base renaming (Iso to grIso ; compIso to compGrIso ; invIso to invGrIso ; idIso to idGrIso)
+-- open import Cubical.Data.Group.Base renaming (Iso to grIso ; compIso to compGrIso ; invIso to invGrIso ; idIso to idGrIso)
+open import Cubical.Structures.Group
 
 open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Sn
@@ -22,67 +23,49 @@ open import Cubical.HITs.Pushout
 
 --- This module contains a proof that Hⁿ(A ⋁ B) ≅ Hⁿ(A) × Hⁿ(B), n ≥ 1
 
-private
-  variable
-    ℓ : Level
-    A B : Pointed ℓ
+module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
+  module I = MV (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B) 
 
-private
-  Δ : (n : ℕ) → morph (×coHomGr n (typ A) (typ B)) (coHomGr n Unit)
-  Δ {A = A} {B = B} = MV.Δ (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B)
-  d : (n : ℕ) → morph (coHomGr n Unit) (coHomGr (suc n) (A ⋁ B))
-  d {A = A} {B = B} = MV.d (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B)
-  i : (n : ℕ) → morph (coHomGr n (A ⋁ B)) (×coHomGr n (typ A) (typ B))
-  i {A = A} {B = B} = MV.i (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B)
-
-
-
-private
-  H¹-⋁'' : Iso'' (coHomGr 1 (A ⋁ B)) (×coHomGr 1 (typ A) (typ B))
-  Iso''.ϕ (H¹-⋁'' {A = A} {B = B}) = (MV.i (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B) 1)
-  Iso''.inj (H¹-⋁'' {A = A} {B = B}) = 
-    sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-          λ f inker → helper ∣ f ∣₂ (MV.Ker-i⊂Im-d _ _ Unit (λ _ → pt A) (λ _ → pt B) 0 ∣ f ∣₂ inker)
+  Hⁿ-⋁ : (n : ℕ) → GroupEquiv (coHomGr (suc n) (A ⋁ B)) (×coHomGr (suc n) (typ A) (typ B))
+  Hⁿ-⋁ zero =
+    Iso'ToGroupEquiv
+      (iso'
+        (grouphom
+          (GroupHom.fun (I.i 1))
+          (sElim2 (λ _ _ → isOfHLevelPath 2 (isOfHLevelΣ 2 setTruncIsSet λ _ → setTruncIsSet) _ _)
+                  λ a b → GroupHom.isHom (I.i 1) ∣ a ∣₂ ∣ b ∣₂))
+        (sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+                λ f inker → helper ∣ f ∣₂ (I.Ker-i⊂Im-d 0 ∣ f ∣₂ inker))
+        (sigmaElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
+                   λ f g → I.Ker-Δ⊂Im-i 1 (∣ f ∣₂ , g) (isOfHLevelSuc 0 (isContrHⁿ-Unit 0) _ _)))
     where
     surj-helper : (x : coHom 0 Unit)
-            → isInIm (×coHomGr 0 (typ A) (typ B)) (coHomGr 0 Unit) (Δ {A = A} {B = B} 0) x
+            → isInIm _ _ (I.Δ 0) x
     surj-helper =
       sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
             λ f → ∣ (∣ (λ _ → f tt) ∣₂ , 0ₕ) , cong ∣_∣₂ (funExt (λ _ → cong ((f tt) +ₖ_) -0ₖ ∙ rUnitₖ (f tt))) ∣₋₁
 
-    helper : (x : coHom 1 (A ⋁ B)) → isInIm (coHomGr 0 Unit) (coHomGr 1 _) (d {A = A} {B = B} 0) x
+    helper : (x : coHom 1 (A ⋁ B)) → isInIm _ _ (I.d 0) x
                   → x ≡ 0ₕ
-    helper x inim =
+    helper x inim = 
       pRec (setTruncIsSet _ _)
            (λ p → sym (snd p) ∙
                        MV.Im-Δ⊂Ker-d _ _ Unit (λ _ → pt A) (λ _ → pt B) 0 (fst p) (surj-helper (fst p)))
              inim
-  Iso''.surj (H¹-⋁'' {A = A} {B = B}) x = MV.Ker-Δ⊂Im-i (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B) 1 x
-                                                        (isOfHLevelSuc 0 (isContrHⁿ-Unit 0) _ _)
+  Hⁿ-⋁ (suc n) =
+    vSES→GroupEquiv _ _
+      (ses (isOfHLevelSuc 0 (isContrHⁿ-Unit n))
+           (isOfHLevelSuc 0 (isContrHⁿ-Unit (suc n)))
+           (I.d (suc n))
+           (I.Δ (suc (suc n)))
+           (I.i (suc (suc n)))
+           (I.Ker-i⊂Im-d (suc n))
+           (I.Ker-Δ⊂Im-i (suc (suc n))))
 
-Hⁿ-⋁ : (n : ℕ) → grIso (coHomGr (suc n) (A ⋁ B)) (×coHomGr (suc n) (typ A) (typ B))
-Hⁿ-⋁ zero = Iso''→Iso H¹-⋁''
-Hⁿ-⋁ {A = A} {B = B} (suc n) =
-  SES→Iso (coHomGr (suc n) Unit)
-           (coHomGr (suc (suc n)) Unit)
-           (ses
-             (isOfHLevelSuc 0 (isContrHⁿ-Unit n))
-             (isOfHLevelSuc 0 (isContrHⁿ-Unit (suc n)))
-             (d (suc n))
-             (Δ {A = A} {B = B} (suc (suc n)))
-             (i {A = A} {B = B} (suc (suc n)))
-             (MV.Ker-i⊂Im-d (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B) (suc n))
-             (MV.Ker-Δ⊂Im-i (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B) (suc (suc n))))
 
-open import Cubical.Foundations.Isomorphism
-wedgetrunc : ((x : typ A) → ∥ pt A ≡ x ∥) → ((x : typ B) → ∥ pt B ≡ x ∥) → Iso (∥ (A ⋁ B) ∥₂) Unit
-Iso.fun (wedgetrunc {A = A , ptA} {B = B , ptB} conA conB) _ = _
-Iso.inv (wedgetrunc {A = A , ptA} {B = B , ptB} conA conB) _ = ∣ inl ptA ∣₂
-Iso.rightInv (wedgetrunc {A = A , ptA} {B = B , ptB} conA conB) _ = refl
-Iso.leftInv (wedgetrunc {A = A , ptA} {B = B , ptB} conA conB) =
-  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-        (PushoutToProp (λ _ → setTruncIsSet _ _)
-          (λ a → pRec (setTruncIsSet _ _)
-          (cong (λ x → ∣ inl x ∣₂)) (conA a))
-          (λ b → pRec (setTruncIsSet _ _)
-          (λ p → cong ∣_∣₂ (push tt) ∙ cong (λ x → ∣ inr x ∣₂) p) (conB b)))
+  open import Cubical.Foundations.Isomorphism
+  wedgeConnected : ((x : typ A) → ∥ pt A ≡ x ∥) → ((x : typ B) → ∥ pt B ≡ x ∥) → (x : A ⋁ B) → ∥ (inl (pt A)) ≡ x ∥
+  wedgeConnected conA conB =
+    PushoutToProp (λ _ → propTruncIsProp)
+                  (λ a → pRec propTruncIsProp (λ p → ∣ cong inl p ∣₋₁) (conA a))
+                  λ b → pRec propTruncIsProp (λ p → ∣ push tt ∙ cong inr p ∣₋₁) (conB b)
