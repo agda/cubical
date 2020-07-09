@@ -124,3 +124,23 @@ module _ {S : Type ℓ₁ → Type ℓ₂} {ι : StrEquiv S ℓ₃}
 
   sip⁻ : A ≡ B → A ≃[ ι ] B
   sip⁻ = invEq SIP
+
+transferWithHyp : {ℓ₂' ℓ₀ : Level} {S : Type ℓ → Type ℓ₁} {H : Type ℓ → Type ℓ₂}
+  (P : ∀ X → S X → H X → Type ℓ₀)
+  (α : EquivAction H) (τ : TransportStr α)
+  (ι : StrEquiv S ℓ₂') (θ : UnivalentStr S ι)
+  {X Y : Type ℓ} {s : S X} {t : S Y}
+  (e : (X , s) ≃[ ι ] (Y , t))
+  → (h : H Y) → P X s (invEq (α (e .fst)) h) → P Y t h
+transferWithHyp P α τ ι θ e h =
+  {!!}
+
+transferWithHyp⁻ : {ℓ₂' ℓ₀ : Level} {S : Type ℓ → Type ℓ₁} {H : Type ℓ → Type ℓ₂}
+  (P : ∀ X → S X → H X → Type ℓ₀)
+  (α : EquivAction H) (τ : TransportStr α)
+  (ι : StrEquiv S ℓ₂') (θ : UnivalentStr S ι)
+  {X Y : Type ℓ} {s : S X} {t : S Y}
+  (e : (X , s) ≃[ ι ] (Y , t))
+  → (h : H X) → P Y t (equivFun (α (e .fst)) h) → P X s h
+transferWithHyp⁻ P α τ ι θ e h =
+  {!!}
