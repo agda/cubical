@@ -86,7 +86,7 @@ makeMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
              (rid : (x : M) → x · ε ≡ x)
              (lid : (x : M) → ε · x ≡ x)
            → Monoid
-makeMonoid ε _·_ is-setM assoc rid lid = ?
+makeMonoid ε _·_ is-setM assoc rid lid =
   monoid _ ε _·_ (makeIsMonoid is-setM assoc rid lid)
 
 record MonoidEquiv (M N : Monoid {ℓ}) : Type ℓ where
