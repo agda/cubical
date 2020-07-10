@@ -41,12 +41,33 @@ makeURGStr {A = A} {_≅_ = _≅_}
 -- a displayed univalent reflexive graph structure over a URGStr on a type
 record URGStrᴰ {A : Type ℓ} (StrA : URGStr A ℓ₁)
                   (B : A → Type ℓ') (ℓ₁' : Level) : Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓ₁) (ℓ-suc ℓ₁')) where
+  constructor urgstrᴰ
   open URGStr StrA
 
   field
     _≅ᴰ⟨_⟩_ : {a a' : A} → B a → a ≅ a' → B a' → Type ℓ₁'
     ρᴰ : {a : A} → isRefl _≅ᴰ⟨ ρ a ⟩_
     uniᴰ : {a : A} → isUnivalent _≅ᴰ⟨ ρ a ⟩_ ρᴰ
+
+-- wrapper to create instances of URGStrᴰ
+module _ {A : Type ℓ} {StrA : URGStr A ℓ₁}
+         (B : A → Type ℓ') (ℓ₁' : Level)
+         where
+           open URGStr StrA
+
+           makeURGStrᴰ : {B : A → Type ℓ'} {ℓ₁' : Level}
+                         (_≅ᴰ⟨_⟩_ : {a a' : A} → B a → a ≅ a' → B a' → Type ℓ₁')
+                         (ρᴰ : {a : A} → isRefl _≅ᴰ⟨ ρ a ⟩_)
+                         (contrTotal : (a : A) → contrTotalSpace _≅ᴰ⟨ ρ a ⟩_)
+                         → URGStrᴰ StrA B ℓ₁'
+           makeURGStrᴰ _≅ᴰ⟨_⟩_ ρᴰ contrTotal
+             = urgstrᴰ _≅ᴰ⟨_⟩_
+                       ρᴰ
+                       λ {a : A} b b' → contrTotalSpace→isUnivalent (_≅ᴰ⟨ ρ a ⟩_)
+                                                                    (ρᴰ {a})
+                                                                    (contrTotal a)
+                                                                    b b'
+
 
 -- the total space of a DURGS is a URGS
 URGStrᴰ→URGStr : {A : Type ℓ} (StrA : URGStr A ℓ₁)
@@ -168,3 +189,19 @@ module Examples {ℓ ℓ' : Level} where
   Cat→URG : (𝒞 : Precategory ℓ ℓ') → (uni : isUnivalentCat 𝒞) → URGStr (𝒞 .ob) ℓ'
   Cat→URG 𝒞 uni
     = urgstr (CatIso {𝒞 = 𝒞}) idCatIso λ x y → isUnivalentCat.univ uni x y
+
+  -- a type is a URGStr with the relation given by its identity type
+  URGStrType : (A : Type ℓ) → URGStr A ℓ
+  URGStrType A = makeURGStr {_≅_ = _≡_} (λ _ → refl) isContrSingl
+
+  -- subtypes are displayed structures
+  open import Cubical.Data.Unit
+  URGStrᴰSubtype : {A : Type ℓ} (P : A → hProp ℓ') → URGStrᴰ (URGStrType A) (λ a → P a .fst) ℓ-zero
+  URGStrᴰSubtype P
+    = makeURGStrᴰ (λ a → P a .fst)
+                  ℓ-zero
+                  (λ _ _ _ → Unit)
+                  (λ _ → tt)
+                  λ a p → isOfHLevelRespectEquiv 0
+                                                 (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
+                                                 (inhProp→isContr p (P a .snd))
