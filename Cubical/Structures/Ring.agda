@@ -68,15 +68,6 @@ record IsRing {R : Type ℓ}
   ·-ldist-+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
   ·-ldist-+ x y z = dist x y z .snd
 
-  -- TODO: prove these somewhere
-  -- -> these are 0-rightNullifies and 0-leftNullifies below in theory
-
-  -- zero-lid : (x : R) → 0r · x ≡ 0r
-  -- zero-lid x = zero x .snd
-
-  -- zero-rid : (x : R) → x · 0r ≡ 0r
-  -- zero-rid x = zero x .fst
-
 record Ring : Type (ℓ-suc ℓ) where
 
   constructor ring

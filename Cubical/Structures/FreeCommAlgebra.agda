@@ -34,13 +34,13 @@ module Construction (R : CommRing {ℓ}) where
     const : ⟨ R ⟩ → R[ I ]
     _+_ : R[ I ] → R[ I ] → R[ I ]
     -_ : R[ I ] → R[ I ]
+    _·_ : R[ I ] → R[ I ] → R[ I ]            -- \cdot
 
     +-assoc : (x y z : R[ I ]) → x + (y + z) ≡ (x + y) + z
     +-rid : (x : R[ I ]) → x + (const 0r) ≡ x
     +-rinv : (x : R[ I ]) → x + (- x) ≡ (const 0r)
     +-comm : (x y : R[ I ]) → x + y ≡ y + x
 
-    _·_ : R[ I ] → R[ I ] → R[ I ]            -- \cdot
     ·-assoc : (x y z : R[ I ]) → x · (y · z) ≡ (x · y) · z
     ·-lid : (x : R[ I ]) → (const 1r) · x ≡ x
     ·-comm : (x y : R[ I ]) → x · y ≡ y · x
@@ -372,9 +372,9 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
           (inducedMap A (evaluateAt f))
           (λ x → f $ x)
           (λ x → refl)
-          (λ r → r ⋆ 1a                    ≡⟨ cong (λ u → r ⋆ u) (sym (pres1 f))  ⟩
+          (λ r → r ⋆ 1a                    ≡⟨ cong (λ u → r ⋆ u) (sym (pres1 f)) ⟩
                  r ⋆ (f $ (const 1r))      ≡⟨ sym (comm⋆ f r _) ⟩
-                 f $ (const r ·c const 1r) ≡⟨ cong (λ u → f $ u) (sym (Construction.·HomConst r 1r))  ⟩
+                 f $ (const r ·c const 1r) ≡⟨ cong (λ u → f $ u) (sym (Construction.·HomConst r 1r)) ⟩
                  f $ (const (r ·r 1r))     ≡⟨ cong (λ u → f $ (const u)) (·r-rid r) ⟩
                  f $ (const r) ∎)
 
