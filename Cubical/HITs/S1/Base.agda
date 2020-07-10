@@ -284,7 +284,7 @@ basechange2 (loop i) p =
         ((λ j → loop (~ j ∧ i)) ∙ p ∙ λ j → loop (j ∧ i))
 basechange2⁻ : (x : S¹) → (x ≡ x) → ΩS¹
 basechange2⁻ base p = p
-basechange2⁻ (loop i) p = 
+basechange2⁻ (loop i) p =
   hcomp (λ k → λ { (i = i0) → lUnit (rUnit p (~ k)) (~ k)
                   ; (i = i1) → (cong (loop ∙_) (comm-ΩS¹ p (sym loop))
                               ∙ assoc loop (sym loop) p
