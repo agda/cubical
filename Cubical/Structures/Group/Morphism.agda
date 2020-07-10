@@ -38,22 +38,23 @@ record GroupEquiv (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ')
   hom : GroupHom G H
   hom = grouphom (equivFun eq) isHom
 
+open GroupHom
+open GroupEquiv
+
 η-hom : {G : Group {ℓ}} {H : Group {ℓ'}} → (a  : GroupHom G H)
-      → grouphom (GroupHom.fun a) (GroupHom.isHom a) ≡ a
-GroupHom.fun (η-hom a i) = GroupHom.fun a
-GroupHom.isHom (η-hom a i) = GroupHom.isHom a
+      → grouphom (fun a) (isHom a) ≡ a
+fun (η-hom a i) = fun a
+isHom (η-hom a i) = isHom a
 
 η-equiv : {G : Group {ℓ}} {H : Group {ℓ'}} → (a  : GroupEquiv G H)
-       → groupequiv (GroupEquiv.eq a) (GroupEquiv.isHom a) ≡ a
-GroupEquiv.eq (η-equiv a i) = GroupEquiv.eq a
-GroupEquiv.isHom (η-equiv a i) = GroupEquiv.isHom a
-
-open GroupHom
+       → groupequiv (eq a) (isHom a) ≡ a
+eq (η-equiv a i) = eq a
+isHom (η-equiv a i) = isHom a
 
 ×hom : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Group {ℓ}} {B : Group {ℓ'}} {C : Group {ℓ''}} {D : Group {ℓ'''}}
     → GroupHom A C → GroupHom B D → GroupHom (dirProd A B) (dirProd C D)
-GroupHom.fun (×hom mf1 mf2) = map-× (fun mf1) (fun mf2)
-GroupHom.isHom (×hom mf1 mf2) a b = ≡-× (isHom mf1 _ _) (isHom mf2 _ _)
+fun (×hom mf1 mf2) = map-× (fun mf1) (fun mf2)
+isHom (×hom mf1 mf2) a b = ≡-× (isHom mf1 _ _) (isHom mf2 _ _)
 
 open Group
 
@@ -70,4 +71,3 @@ isSurjective G H ϕ = (x : ⟨ H ⟩) → isInIm G H ϕ x
 
 isInjective : ∀ {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) → GroupHom G H → Type (ℓ-max ℓ ℓ')
 isInjective G H ϕ = (x : ⟨ G ⟩) → isInKer G H ϕ x → x ≡ 0g G
-

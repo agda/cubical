@@ -20,17 +20,11 @@ open import Cubical.HITs.Nullification
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod hiding (_×_)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
--- open import Cubical.Data.Group.Base renaming (Iso to grIso)
-
 open import Cubical.Structures.Group
-open import Cubical.Structures.Group.Algebra
-
-coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → coHom n B → coHom n A
-coHomFun n f = sRec setTruncIsSet λ β → ∣ β ∘ f ∣₂
 
 module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : C → A) (g : C → B) where
-  ---- Proof from Brunerie 2016.
-  ---- We first define the three morphisms involved: i, Δ and d.
+  -- Proof from Brunerie 2016.
+  -- We first define the three morphisms involved: i, Δ and d.
 
   private
     i* : (n : ℕ) → coHom n (Pushout f g) → coHom n A × coHom n B
@@ -133,7 +127,7 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
                                 λ δ b → (λ i → sElim (λ _ → isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet))
                                                  (λ δ → ∣ (λ x → δ (inl x)) ∣₂ , ∣ (λ x → δ (inr x)) ∣₂ ) (b (~ i))))
 
-  
+
   Ker-i⊂Im-d : (n : ℕ) (x : ⟨ coHomGr (suc n) (Pushout f g) ⟩)
               → isInKer (coHomGr (suc n) (Pushout f g)) (×coHomGr (suc n) A B) (i (suc n)) x
               → isInIm (coHomGr n C) (coHomGr (suc n) (Pushout f g)) (d n) x
@@ -182,7 +176,7 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
                         ; (j = i1) → F (push a i)})
               (pushFiller (suc n) F p1 p2 a j i)
 
-  open GroupHom 
+  open GroupHom
 
   abstract
     Im-i⊂Ker-Δ : (n : ℕ) (x : ⟨ ×coHomGr n A B ⟩)

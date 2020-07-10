@@ -33,11 +33,11 @@ record IsGroup {G : Type ℓ}
   invr : (x : G) → x + (- x) ≡ 0g
   invr x = inverse x .fst
 
-η-isGroup : {G : Type ℓ} {0g 0g' : G} {_+_ _+'_  : G → G → G} { -_ -'_  : G → G} 
-        → 0g ≡ 0g'
-        → _+_ ≡ _+'_
-        → -_ ≡ -'_
-        → IsGroup 0g _+_ -_ ≡ IsGroup 0g' _+'_ -'_
+η-isGroup : {G : Type ℓ} {0g 0g' : G} {_+_ _+'_  : G → G → G} { -_ -'_  : G → G}
+         → 0g ≡ 0g'
+         → _+_ ≡ _+'_
+         → -_ ≡ -'_
+         → IsGroup 0g _+_ -_ ≡ IsGroup 0g' _+'_ -'_
 η-isGroup id1 id2 id3 i = IsGroup (id1 i) (id2 i) (id3 i)
 
 record Group : Type (ℓ-suc ℓ) where
@@ -72,8 +72,8 @@ makeIsGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
               (rinv : (x : G) → x + (- x) ≡ 0g)
               (linv : (x : G) → (- x) + x ≡ 0g)
             → IsGroup 0g _+_ -_
-makeIsGroup is-setG assoc rid lid rinv linv =
-   isgroup (makeIsMonoid is-setG assoc rid lid) λ x → rinv x , linv x
+IsGroup.isMonoid (makeIsGroup is-setG assoc rid lid rinv linv) = makeIsMonoid is-setG assoc rid lid
+IsGroup.inverse (makeIsGroup is-setG assoc rid lid rinv linv) = λ x → rinv x , linv x
 
 makeGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
             (is-setG : isSet G)
@@ -83,8 +83,11 @@ makeGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
             (rinv : (x : G) → x + (- x) ≡ 0g)
             (linv : (x : G) → (- x) + x ≡ 0g)
           → Group
-makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv =
-  group _ 0g _+_ -_ (makeIsGroup is-setG assoc rid lid rinv linv)
+Group.Carrier (makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv) = _
+Group.0g (makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv) = 0g
+Group._+_ (makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv) = _+_
+Group.- makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv = -_
+Group.isGroup (makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv) = makeIsGroup is-setG assoc rid lid rinv linv
 
 makeGroup-right : ∀ {ℓ} {A : Type ℓ}
   → (id : A)
@@ -199,68 +202,43 @@ isSetCarrier : ∀ {ℓ} → (G : Group {ℓ}) → isSet ⟨ G ⟩
 isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (isMonoid (isGroup G)))
 
 open import Cubical.Foundations.HLevels
-
+open IsMonoid
+open IsSemigroup
 dirProd : ∀ {ℓ ℓ'} → Group {ℓ} → Group {ℓ'} → Group
 Carrier (dirProd A B) = Carrier A × Carrier B
 0g (dirProd A B) = (0g A) , (0g B)
 _+_ (dirProd A B) a b = (_+_ A (fst a) (fst b)) , _+_ B (snd a) (snd b)
 -_ (dirProd A B) a = (-_ A (fst a)) , (-_ B (snd a))
-IsSemigroup.is-set (IsMonoid.isSemigroup (isMonoid (isGroup (dirProd A B)))) =
+is-set (isSemigroup (isMonoid (isGroup (dirProd A B)))) =
   isOfHLevelΣ 2 (isSetCarrier A) λ _ → isSetCarrier B
-IsSemigroup.assoc (IsMonoid.isSemigroup (isMonoid (isGroup (dirProd A B)))) x y z i =
+assoc (isSemigroup (isMonoid (isGroup (dirProd A B)))) x y z i =
   assoc (isGroup A) (fst x) (fst y) (fst z) i , assoc (isGroup B) (snd x) (snd y) (snd z) i
-IsMonoid.identity (isMonoid (isGroup (dirProd A B))) x =
+identity (isMonoid (isGroup (dirProd A B))) x =
    (λ i → IsGroup.rid (isGroup A) (fst x) i , IsGroup.rid (isGroup B) (snd x) i)
  , λ i → IsGroup.lid (isGroup A) (fst x) i , IsGroup.lid (isGroup B) (snd x) i
 inverse (isGroup (dirProd A B)) x =
     (λ i → (fst (inverse (isGroup A) (fst x)) i) , (fst (inverse (isGroup B) (snd x)) i))
   , λ i → (snd (inverse (isGroup A) (fst x)) i) , (snd (inverse (isGroup B) (snd x)) i)
-{-
-  makeGroup {G = Carrier A × Carrier B}
-            ((0g A) , (0g B))
-            (λ a b → (_+_ A (fst a) (fst b)) , _+_ B (snd a) (snd b))
-            (λ a → (-_ A (fst a)) , (-_ B (snd a)))
-            (isOfHLevelΣ 2 (isSetCarrier A) λ _ → isSetCarrier B)
-            (λ x y z i → assoc (isGroup A) (fst x) (fst y) (fst z) i , assoc (isGroup B) (snd x) (snd y) (snd z) i)
-            (λ x i → IsGroup.rid (isGroup A) (fst x) i , IsGroup.rid (isGroup B) (snd x) i)
-            (λ x i → IsGroup.lid (isGroup A) (fst x) i , IsGroup.lid (isGroup B) (snd x) i)
-            (λ x i → (fst (inverse (isGroup A) (fst x)) i) , (fst (inverse (isGroup B) (snd x)) i))
-            (λ x i → (snd (inverse (isGroup A) (fst x)) i) , (snd (inverse (isGroup B) (snd x)) i))
--}
---   makeGroup ((0g A) , (0g B))
---             (λ a b → (_+_ A (proj₁ a) (proj₂ b)) , _+_ B (proj₁ a) (proj₂ b))
---             (λ a → (-_ A (proj₂ a)) , (-_ B (proj₂ a)))
---             (isOfHLevelProd 2 (isSetCarrier A) (isSetCarrier B))
---             (λ x y z i → assoc (isGroup A) (proj₁ x) (proj₁ y) (proj₁ z) i , assoc (isGroup B) (proj₂ x) (proj₂ y) (proj₂ z) i)
---             (λ x i → IsGroup.rid (isGroup A) (proj₁ x) i , IsGroup.rid (isGroup B) (proj₂ x) i)
---             (λ x i → IsGroup.lid (isGroup A) (proj₁ x) i , IsGroup.lid (isGroup B) (proj₂ x) i)
---             (λ x i → (fst (inverse (isGroup A) (proj₁ x)) i) , (fst (inverse (isGroup B) (proj₂ x)) i))
---             (λ x i → (snd (inverse (isGroup A) (proj₁ x)) i) , (snd (inverse (isGroup B) (proj₂ x)) i))
 
 open import Cubical.Data.Unit
 trivialGroup : Group₀
-trivialGroup =
-  makeGroup {G = Unit}
-            _
-            (λ _ _ → _)
-            (λ _ → _)
-            isSetUnit
-            (λ _ _ _ → refl)
-            (λ _ → refl)
-            (λ _ → refl)
-            (λ _ → refl)
-            λ _ → refl
+Carrier trivialGroup = Unit
+0g trivialGroup = _
+_+_ trivialGroup _ _ = _
+-_ trivialGroup _ = _
+is-set (isSemigroup (isMonoid (isGroup trivialGroup))) = isSetUnit
+assoc (isSemigroup (isMonoid (isGroup trivialGroup))) _ _ _ = refl
+identity (isMonoid (isGroup trivialGroup)) _ = refl , refl
+inverse (isGroup trivialGroup) _ = refl , refl
+
 
 open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_)
 intGroup : Group₀
-intGroup =
-  makeGroup {G = Int}
-            0
-            _+Int_
-            (pos 0 -Int_)
-            isSetInt
-            +-assoc
-            (λ _ → refl)
-            (λ x → +-comm (pos 0) x)
-            (λ x → +-comm x (pos 0 -Int x) ∙ minusPlus x 0)
-            λ x → minusPlus x 0
+Carrier intGroup = Int
+0g intGroup = 0
+_+_ intGroup = _+Int_
+- intGroup = 0 -Int_
+is-set (isSemigroup (isMonoid (isGroup intGroup))) = isSetInt
+assoc (isSemigroup (isMonoid (isGroup intGroup))) = +-assoc
+identity (isMonoid (isGroup intGroup)) x = refl , (+-comm (pos 0) x)
+inverse (isGroup intGroup) x = +-comm x (pos 0 -Int x) ∙ minusPlus x 0 , (minusPlus x 0)

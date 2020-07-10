@@ -9,23 +9,12 @@ open import Cubical.ZCohomology.Groups.Wedge
 open import Cubical.ZCohomology.Groups.Connected
 
 open import Cubical.HITs.Sn
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.GroupoidLaws
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.Pushout
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
-open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; ∣_∣ to ∣_∣₋₁)
-open import Cubical.HITs.Nullification
-open import Cubical.Data.Int
-open import Cubical.Data.Sigma
 open import Cubical.HITs.Truncation renaming (elim to trElim)
--- open import Cubical.Data.Group.Base renaming (Iso to grIso ; compIso to compGrIso ; invIso to invGrIso ; idIso to idGrIso)
 open import Cubical.Structures.Group
-open import Cubical.Data.Unit
 
 S¹⋁S¹ : Type₀
 S¹⋁S¹ = S₊∙ 1 ⋁ S₊∙ 1
@@ -43,13 +32,12 @@ H¹-S¹⋁S¹ =  (Hⁿ-⋁ _ _ 0) □ dirProdEquiv coHom1S1≃ℤ coHom1S1≃ℤ
 
 ------------- H⁰(S²⋁S¹⋁S¹) ---------
 H⁰-S²⋁S¹⋁S¹ : GroupEquiv (coHomGr 0 S²⋁S¹⋁S¹) intGroup
-H⁰-S²⋁S¹⋁S¹ =
-  H⁰-connected (inl north)
-    (wedgeConnected _ _
-      (Sn-connected _)
-      (wedgeConnected _ _
-        (Sn-connected _)
-        (Sn-connected _)))
+H⁰-S²⋁S¹⋁S¹ = H⁰-connected (inl north)
+                  (wedgeConnected _ _
+                    (Sn-connected _)
+                    (wedgeConnected _ _
+                      (Sn-connected _)
+                      (Sn-connected _)))
 
 ------------- H¹(S²⋁S¹⋁S¹) ---------
 H¹-S²⋁S¹⋁S¹ : GroupEquiv (coHomGr 1 S²⋁S¹⋁S¹) (dirProd intGroup intGroup)

@@ -59,6 +59,7 @@ record Monoid : Type (ℓ-suc ℓ) where
 
   -- open Semigroup semigrp public
 
+
 -- Extractor for the carrier type
 ⟨_⟩ : Monoid → Type ℓ
 ⟨_⟩ = Monoid.Carrier
@@ -76,8 +77,8 @@ makeIsMonoid : {M : Type ℓ} {ε : M} {_·_ : M → M → M}
                (rid : (x : M) → x · ε ≡ x)
                (lid : (x : M) → ε · x ≡ x)
              → IsMonoid ε _·_
-makeIsMonoid is-setM assoc rid lid =
-  ismonoid (issemigroup is-setM assoc) λ x → rid x , lid x
+IsMonoid.isSemigroup (makeIsMonoid is-setM assoc rid lid) = issemigroup is-setM assoc
+IsMonoid.identity (makeIsMonoid is-setM assoc rid lid) = λ x → rid x , lid x
 
 makeMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
              (is-setM : isSet M)
@@ -85,7 +86,7 @@ makeMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
              (rid : (x : M) → x · ε ≡ x)
              (lid : (x : M) → ε · x ≡ x)
            → Monoid
-makeMonoid ε _·_ is-setM assoc rid lid =
+makeMonoid ε _·_ is-setM assoc rid lid = ?
   monoid _ ε _·_ (makeIsMonoid is-setM assoc rid lid)
 
 record MonoidEquiv (M N : Monoid {ℓ}) : Type ℓ where

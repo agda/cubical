@@ -430,16 +430,6 @@ open Lift public
 liftExt : ∀ {A : Type ℓ} {a b : Lift {ℓ} {ℓ'} A} → (lower a ≡ lower b) → a ≡ b
 liftExt x i = lift (x i)
 
-{- filler of
-           q⁻¹
-       z — — — > x
-       ^         ^
-     q |         | p⁻¹
-       |         |
-       x — — — > y
-            p
--}
-
 doubleCompPath-filler∙ : {a b c d : A} (p : a ≡ b) (q : b ≡ c) (r : c ≡ d)
                        → PathP (λ i → p i ≡ r (~ i)) (p ∙ q ∙ r) q
 doubleCompPath-filler∙ {A = A} {b = b} p q r j i =

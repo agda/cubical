@@ -19,7 +19,7 @@ open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
-open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
+open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁)
 open import Cubical.HITs.Nullification
 
 open import Cubical.Data.Sigma hiding (_×_)
@@ -42,25 +42,17 @@ private
     sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
           λ f → cong ∣_∣₂ (funExt λ x → trRec (isSetInt _ _) (cong f) (isConnectedPath 1 con a x .fst))
 
- 
--- H⁰-connected : ∀ {ℓ} {A : Type ℓ} (a : A) → isConnected 2 A → GroupEquiv (coHomGr 0 A) intGroup
--- H⁰-connected {A = A} a con = invGroupEquiv invEq'
---   where
---   invEq' : GroupEquiv intGroup (coHomGr 0 A)
---   GroupEquiv.eq invEq' = invEquiv (isoToEquiv (H⁰-connected-type a con))
---   GroupEquiv.isHom invEq' c d  = cong ∣_∣₂ (funExt λ _ → sym (addLemma c d))
+private
+  H⁰-connected' : ∀ {ℓ} {A : Type ℓ} (a : A) → ((x : A) → ∥ a ≡ x ∥₁) → GroupIso (coHomGr 0 A) intGroup
+  H⁰-connected' a con = invGroupIso Iso⁻
+    where
+    Iso⁻ : GroupIso _ _
+    GroupHom.fun (GroupIso.map Iso⁻) b = ∣ (λ _ → b) ∣₂
+    GroupHom.isHom (GroupIso.map Iso⁻) c d  = cong ∣_∣₂ (funExt λ _ → sym (addLemma c d))
+    GroupIso.inv Iso⁻ = sRec isSetInt (λ f → f a)
+    GroupIso.rightInv Iso⁻ = (sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+                                    λ f → cong ∣_∣₂ (funExt λ x → pRec (isSetInt _ _) (cong f) (con x)))
+    GroupIso.leftInv Iso⁻ _ = refl
 
-
-H⁰-connected' : ∀ {ℓ} {A : Type ℓ} (a : A) → ((x : A) → ∥ a ≡ x ∥₋₁) → GroupIso (coHomGr 0 A) intGroup
-H⁰-connected' a con = invGroupIso Iso⁻
-  where
-  Iso⁻ : GroupIso _ _
-  GroupHom.fun (GroupIso.map Iso⁻) b = ∣ (λ _ → b) ∣₂
-  GroupHom.isHom (GroupIso.map Iso⁻) c d  = cong ∣_∣₂ (funExt λ _ → sym (addLemma c d))
-  GroupIso.inv Iso⁻ = sRec isSetInt (λ f → f a)
-  GroupIso.rightInv Iso⁻ = (sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                                  λ f → cong ∣_∣₂ (funExt λ x → pRec (isSetInt _ _) (cong f) (con x)))
-  GroupIso.leftInv Iso⁻ _ = refl
-
-H⁰-connected : ∀ {ℓ} {A : Type ℓ} (a : A) → ((x : A) → ∥ a ≡ x ∥₋₁) → GroupEquiv (coHomGr 0 A) intGroup
+H⁰-connected : ∀ {ℓ} {A : Type ℓ} (a : A) → ((x : A) → ∥ a ≡ x ∥₁) → GroupEquiv (coHomGr 0 A) intGroup
 H⁰-connected a con = GrIsoToGrEquiv (H⁰-connected' a con)

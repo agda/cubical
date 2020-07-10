@@ -5,6 +5,7 @@ open import Cubical.ZCohomology.Base
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
@@ -20,7 +21,6 @@ open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; e
 open import Cubical.HITs.Nullification
 open import Cubical.Data.Int hiding (_+_)
 open import Cubical.Data.Nat
-open import Cubical.Data.Prod
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
@@ -110,8 +110,9 @@ Kn→ΩKn+10ₖ (suc n) = (λ i → cong ∣_∣ (rCancel (merid north) i)) -- c
             ∙∙ (λ i → ΩKn+1→Kn (Kn→ΩKn+10ₖ n (~ i)))
             ∙∙ Iso.leftInv (Iso3-Kn-ΩKn+1 n) 0ₖ
 
-+ₖ→∙ : (n : ℕ) (a b : coHomK n) → Kn→ΩKn+1 n (a +ₖ b) ≡ Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b
-+ₖ→∙ n a b = Iso.rightInv (Iso3-Kn-ΩKn+1 n) (Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b)
+abstract
+  +ₖ→∙ : (n : ℕ) (a b : coHomK n) → Kn→ΩKn+1 n (a +ₖ b) ≡ Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b
+  +ₖ→∙ n a b = Iso.rightInv (Iso3-Kn-ΩKn+1 n) (Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b)
 
 lUnitₖ : {n : ℕ} (x : coHomK n) → 0ₖ +ₖ x ≡ x
 lUnitₖ {n = zero} x = cong ΩKn+1→Kn (sym (lUnit (Kn→ΩKn+1 zero x))) ∙
@@ -270,24 +271,26 @@ rUnitlUnit0 {n = suc n} =
 0ₕ∙ zero = ∣ (λ _ → 0ₖ) , refl ∣₂
 0ₕ∙ (suc n) = ∣ (λ _ → 0ₖ) , refl ∣₂
 
-
+open import Cubical.Structures.Semigroup
+open import Cubical.Structures.Monoid
+open IsSemigroup
+open IsMonoid
+open Group
 coHomGr : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group
-Group.Carrier (coHomGr n A) = coHom n A
-Group.0g (coHomGr n A) = 0ₕ
+Carrier (coHomGr n A) = coHom n A
+0g (coHomGr n A) = 0ₕ
 Group._+_ (coHomGr n A) = _+ₕ_
 Group.- coHomGr n A = -ₕ
-Group.isGroup (coHomGr n A) =
-  makeIsGroup
-    §
-    (λ x y z → sym (assocₕ x y z))
-    rUnitₕ
-    lUnitₕ
-    rCancelₕ
-    lCancelₕ
+is-set (isSemigroup (IsGroup.isMonoid (Group.isGroup (coHomGr n A)))) = §
+IsSemigroup.assoc (isSemigroup (IsGroup.isMonoid (Group.isGroup (coHomGr n A)))) x y z = sym (assocₕ x y z)
+identity (IsGroup.isMonoid (Group.isGroup (coHomGr n A))) x = (rUnitₕ x) , (lUnitₕ x)
+IsGroup.inverse (Group.isGroup (coHomGr n A)) x = (rCancelₕ x) , (lCancelₕ x)
 
 ×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group
-×coHomGr n A B = dirProd (coHomGr n A) (coHomGr n B) -- dirProd (coHomGr n A) (coHomGr n B)
+×coHomGr n A B = dirProd (coHomGr n A) (coHomGr n B)
 
+coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → coHom n B → coHom n A
+coHomFun n f = sRec § λ β → ∣ β ∘ f ∣₂
 
 --- ΩKₙ is commutative
 isCommΩK : (n : ℕ) → (p q : typ (Ω (coHomK n , coHom-pt n))) → p ∙ q ≡ q ∙ p

@@ -17,6 +17,7 @@ open import Cubical.Structures.Auto
 
 open Iso
 
+
 private
   variable
     ℓ : Level
@@ -67,16 +68,19 @@ record SemigroupEquiv (M N : Semigroup {ℓ}) : Type ℓ where
     e     : ⟨ M ⟩ ≃ ⟨ N ⟩
     isHom : (x y : ⟨ M ⟩) → equivFun e (x M.· y) ≡ equivFun e x N.· equivFun e y
 
+open Semigroup
+open IsSemigroup
+open SemigroupEquiv
 
 η-isSemiGroup : {A : Type ℓ} {_·_ : A → A → A} (b : IsSemigroup _·_)
-             → issemigroup (IsSemigroup.is-set b) (IsSemigroup.assoc b) ≡ b
-IsSemigroup.is-set (η-isSemiGroup b i) = IsSemigroup.is-set b
-IsSemigroup.assoc (η-isSemiGroup b i) = IsSemigroup.assoc b
+             → issemigroup (is-set b) (assoc b) ≡ b
+is-set (η-isSemiGroup b i) = is-set b
+assoc (η-isSemiGroup b i) = assoc b
 
 η-SemigroupEquiv : {M N : Semigroup {ℓ}} (p : SemigroupEquiv M N)
-                 → semigroupequiv (SemigroupEquiv.e p) (SemigroupEquiv.isHom p) ≡ p
-SemigroupEquiv.e (η-SemigroupEquiv p i) = SemigroupEquiv.e p
-SemigroupEquiv.isHom (η-SemigroupEquiv p i) = SemigroupEquiv.isHom p
+                 → semigroupequiv (e p) (isHom p) ≡ p
+e (η-SemigroupEquiv p i) = e p
+isHom (η-SemigroupEquiv p i) = isHom p
 
 -- Develop some theory about Semigroups using various general results
 -- that are stated using Σ-types. For this we define Semigroup as a
@@ -109,8 +113,6 @@ module SemigroupΣTheory {ℓ} where
   SemigroupEquivStr : StrEquiv SemigroupStructure ℓ
   SemigroupEquivStr = AxiomsEquivStr RawSemigroupEquivStr SemigroupAxioms
 
-  open IsSemigroup
-
   SemigroupAxiomsIsoIsSemigroup : {A : Type ℓ} (_·_ : RawSemigroupStructure A)
                                 → Iso (SemigroupAxioms A _·_) (IsSemigroup _·_)
   fun (SemigroupAxiomsIsoIsSemigroup s) (x , y)           = issemigroup x y
@@ -135,9 +137,9 @@ module SemigroupΣTheory {ℓ} where
     iso Semigroup→SemigroupΣ SemigroupΣ→Semigroup (λ _ → refl) helper
     where
     helper : (a : Semigroup) → SemigroupΣ→Semigroup (Semigroup→SemigroupΣ a) ≡ a
-    Semigroup.Carrier (helper a i) = ⟨ a ⟩
-    Semigroup._·_ (helper a i) = Semigroup._·_ a
-    Semigroup.isSemigroup (helper a i) = η-isSemiGroup (Semigroup.isSemigroup a) i 
+    Carrier (helper a i) = ⟨ a ⟩
+    _·_ (helper a i) = _·_ a
+    isSemigroup (helper a i) = η-isSemiGroup (isSemigroup a) i
 
   semigroupUnivalentStr : UnivalentStr SemigroupStructure SemigroupEquivStr
   semigroupUnivalentStr = axiomsUnivalentStr _ isPropSemigroupAxioms rawSemigroupUnivalentStr

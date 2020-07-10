@@ -280,6 +280,6 @@ Iso.leftInv toProdIso b = funExt λ _ → refl
 curryIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
          → Iso (A × B → C) (A → B → C)
 Iso.fun curryIso f a b = f (a , b)
-Iso.inv curryIso f (a , b) = f a b
+Iso.inv curryIso f a = f (fst a) (snd a)
 Iso.rightInv curryIso a = refl
-Iso.leftInv curryIso f = funExt λ {(a , b) → refl}
+Iso.leftInv curryIso f = funExt λ _ → refl
