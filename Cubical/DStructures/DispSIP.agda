@@ -18,7 +18,7 @@ open BinaryRelation
 
 private
   variable
-    ℓ ℓ' ℓ₁ ℓ₁' ℓ₂ : Level
+    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₂ : Level
 
 -- a univalent reflexive graph structure on a type
 record URGStr (A : Type ℓ) (ℓ₁ : Level) : Type (ℓ-max ℓ (ℓ-suc ℓ₁)) where
@@ -71,20 +71,17 @@ URGStrᴰ→URGStr {A = A} StrA B DispStrB
      -- contractability of the corresponding total space
      contrTotalA : isContr (Σ[ a' ∈ A ] (a ≅ a'))
      contrTotalA = isUnivalent→contrTotalSpace _≅_ ρ uni a
+     contrTotalA' : isContr (Σ[ a' ∈ A ] (a ≅ a'))
+     contrTotalA' = (a , ρ a) , λ z → sym (snd contrTotalA (a , ρ a)) ∙ snd contrTotalA z
      contrTotalB : isContr (Σ[ b' ∈ B a ] (b ≅ᴰ⟨ ρ a ⟩ b'))
      contrTotalB = isUnivalent→contrTotalSpace (_≅ᴰ⟨ ρ a ⟩_) ρᴰ uniᴰ b
-     r = ρ
-     p : fst contrTotalA ≡ (a , ρ a)
-     p = snd contrTotalA (a , ρ a)
 
      contrTotalΣ
        = isOfHLevelRespectEquiv 0
                                 (Rel→TotalSpace (_≅ᴰ⟨ ρ a ⟩_) b
                                   ≃⟨ idEquiv (Rel→TotalSpace (_≅ᴰ⟨ ρ a ⟩_) b) ⟩
                                 Σ[ b' ∈ B a ] (b ≅ᴰ⟨ ρ a ⟩ b')
-                                  ≃⟨ pathToEquiv (cong (λ z → Σ[ b' ∈ B a ] (b ≅ᴰ⟨ z ⟩ b')) {!sym (cong snd p)!}) ⟩
-                                Σ[ b' ∈ B a ] (b ≅ᴰ⟨ snd (fst contrTotalA) ⟩ b')
-                                  ≃⟨ invEquiv (Σ-contractFst contrTotalA) ⟩
+                                  ≃⟨ invEquiv (Σ-contractFst contrTotalA') ⟩
                                 Σ[ (a' , e) ∈ (Σ[ a' ∈ A ] (a ≅ a')) ] Σ[ b' ∈ B a' ] (b ≅ᴰ⟨ e ⟩ b')
                                   ≃⟨ Σ-assoc-≃ ⟩
                                 Σ[ a' ∈ A ] Σ[ e ∈ (a ≅ a') ] Σ[ b' ∈ B a' ] (b ≅ᴰ⟨ e ⟩ b')
@@ -98,9 +95,11 @@ URGStrᴰ→URGStr {A = A} StrA B DispStrB
                                 Σ[ (a' , b') ∈ Σ A B ] Σ[ e ∈ (a ≅ a') ] (b ≅ᴰ⟨ e ⟩ b') ■)
                                 contrTotalB
 {- Stuff to do:
- * fill hole
- * a family of props has a canonical URGStrᴰ with DRel = Unit
+ * a family of props has a canonical URGStrᴰ with DRel = Unit?
  * get URGStr from univalent bi-category
+ * (Bonus: (A : Type ℓ) → isContr (URGStr A ℓ))
+ * functoriality for free for e : (a : A) → B a → B' a
+ * such e is a fiberwise equiv if it has inverse wrt⟨⟩ ≅ and ≅'⟨⟩
 -}
 
 module Examples {ℓ ℓ' : Level} where
