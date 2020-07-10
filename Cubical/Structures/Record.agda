@@ -31,7 +31,6 @@ private
 -- Some reflection utilities
 private
   _>>=_ = R.bindTC
-  _<|>_ = R.catchTC
     
   _$_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → A → B
   f $ a = f a
@@ -39,7 +38,7 @@ private
   _>>_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → R.TC A → R.TC B → R.TC B
   f >> g = f >>= λ _ → g
 
-  infixl 4 _>>=_ _>>_ _<|>_
+  infixl 4 _>>=_ _>>_
   infixr 3 _$_
 
   mapTC : ∀ {ℓ} {A : Type ℓ} → List (R.TC A) → R.TC (List A)
@@ -101,23 +100,38 @@ private
   pathPShape : (S : Type → Type) (A B : TypeWithStr ℓ-zero S) (e : typ A ≃ typ B) → Type
   pathPShape S A B e = PathP (λ i → S (ua e i)) (str A) (str B)
 
-  equivShape : (S : Type → Type) (ι : StrEquiv S ℓ-zero) → Type₁
-  equivShape S ι =
+  fwdShape : (S : Type → Type) (ι : StrEquiv S ℓ-zero) → Type₁
+  fwdShape S ι =
+    (A B : TypeWithStr ℓ-zero S) (e : typ A ≃ typ B) → ι A B e → PathP (λ i → S (ua e i)) (str A) (str B)
+
+  bwdShape : (S : Type → Type) (ι : StrEquiv S ℓ-zero) → Type₁
+  bwdShape S ι =
+    (A B : TypeWithStr ℓ-zero S) (e : typ A ≃ typ B) → PathP (λ i → S (ua e i)) (str A) (str B) → ι A B e
+
+  fwdBwdShape : (S : Type → Type) (ι : StrEquiv S ℓ-zero) → fwdShape S ι → bwdShape S ι → Type₁
+  fwdBwdShape S ι fwd bwd =
+    (A B : TypeWithStr ℓ-zero S) (e : typ A ≃ typ B) → ∀ p → fwd A B e (bwd A B e p) ≡ p
+
+  bwdFwdShape : (S : Type → Type) (ι : StrEquiv S ℓ-zero) → fwdShape S ι → bwdShape S ι → Type₁
+  bwdFwdShape S ι fwd bwd =
+    (A B : TypeWithStr ℓ-zero S) (e : typ A ≃ typ B) → ∀ r → bwd A B e (fwd A B e r) ≡ r
+
+  uStrShape : (S : Type → Type) (ι : StrEquiv S ℓ-zero) → Type₁
+  uStrShape S ι =
     (A B : TypeWithStr ℓ-zero S) (e : typ A ≃ typ B) → ι A B e ≃ PathP (λ i → S (ua e i)) (str A) (str B)
 
-  isoToEquivTemplate : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
-    (f : A → B) (g : B → A)
-    → (∀ b → f (g b) ≡ b)
-    → (∀ a → g (f a) ≡ a)
-    → A ≃ B
-  isoToEquivTemplate {A = A} {B = B} f g β α = isoToEquiv isom
+  mkUnivalentStr : (S : Type → Type) (ι : StrEquiv S ℓ-zero)
+    (fwd : fwdShape S ι) (bwd : bwdShape S ι)
+    → fwdBwdShape S ι fwd bwd → bwdFwdShape S ι fwd bwd
+    → uStrShape S ι
+  mkUnivalentStr S ι fwd bwd fwdBwd bwdFwd A B e = isoToEquiv isom
     where
     open Iso
-    isom : Iso A B
-    isom .fun = f
-    isom .inv = g
-    isom .rightInv = β
-    isom .leftInv = α
+    isom : Iso _ _
+    isom .fun = fwd A B e
+    isom .inv = bwd A B e
+    isom .rightInv = fwdBwd A B e
+    isom .leftInv = bwdFwd A B e
 
 private
   fieldDesc' : R.Name → R.Name → R.TC R.Term
@@ -141,10 +155,14 @@ module _ (srec erec : R.Name) where
 
   univalentRecordFwd : List (R.Name × R.Name × R.Term) → R.TC R.Term
   univalentRecordFwd fds =
-    bodyTC >>= λ body → R.returnTC (vlam "streq" (vlam "i" (R.pat-lam body [])))
+    bodyTC >>= λ body →
+    R.returnTC (vlam "A" (vlam "B" (vlam "e" (vlam "streq" (vlam "i" (R.pat-lam body []))))))
     where
     bodyTC : R.TC (List R.Clause)
     bodyTC =
+      R.extendContext (varg (tTypeWithStr (R.def srec []))) $
+      R.extendContext (varg (tTypeWithStr (R.def srec []))) $
+      R.extendContext (varg (R.def (quote _≃_) (varg (tTyp (R.var 1 [])) ∷ varg (tTyp (R.var 0 [])) ∷ []))) $
       R.extendContext (varg (R.def erec (varg (R.var 2 []) ∷ varg (R.var 1 []) ∷ varg (R.var 0 []) ∷ []))) $
       R.extendContext (varg tI) $
       mapTC (List.map (univalentRecordFwdClause (R.var 2 []) (R.var 1 []) (R.var 0 [])) fds)
@@ -161,12 +179,18 @@ module _ (srec erec : R.Name) where
 
   univalentRecordBwd : List (R.Name × R.Name × R.Term) → R.TC R.Term
   univalentRecordBwd fds =
-    bodyTC >>= λ body → R.returnTC (vlam "p" (R.pat-lam body []))
+    bodyTC >>= λ body →
+    R.returnTC (vlam "A" (vlam "B" (vlam "e" (vlam "p" (R.pat-lam body [])))))
     where
     bodyTC : R.TC (List R.Clause)
     bodyTC =
+      R.extendContext (varg (tTypeWithStr (R.def srec []))) $
+      R.extendContext (varg (tTypeWithStr (R.def srec []))) $
+      R.extendContext (varg (R.def (quote _≃_) (varg (tTyp (R.var 1 [])) ∷ varg (tTyp (R.var 0 [])) ∷ []))) $
       R.extendContext
-        (varg (R.def (quote pathPShape) (varg (R.def srec []) ∷ varg (R.var 2 []) ∷ varg (R.var 1 []) ∷ varg (R.var 0 []) ∷ []))) $
+        (varg
+          (R.def (quote pathPShape)
+            (varg (R.def srec []) ∷ varg (R.var 2 []) ∷ varg (R.var 1 []) ∷ varg (R.var 0 []) ∷ []))) $
       mapTC
         (List.map
           (univalentRecordBwdClause (R.var 1 []) (R.var 0 []))
@@ -178,7 +202,9 @@ module _ (srec erec : R.Name) where
       R.returnTC
       (R.clause [] [ varg (R.proj sfield) ]
         (R.def (quote retEq)
-          (varg (R.def (quote MacroUnivalentStr) (varg d ∷ harg (withStrProj A sfield) ∷ harg (withStrProj B sfield) ∷ varg e ∷ []))
+          (varg
+            (R.def (quote MacroUnivalentStr)
+              (varg d ∷ harg (withStrProj A sfield) ∷ harg (withStrProj B sfield) ∷ varg e ∷ []))
             ∷ varg (R.def (quote pathMap) (varg (R.def srec []) ∷ varg e ∷ varg (R.def sfield []) ∷ varg p ∷ []))
             ∷ varg k
             ∷ varg i
@@ -186,12 +212,18 @@ module _ (srec erec : R.Name) where
 
   univalentRecordFwdBwd : List (R.Name × R.Name × R.Term) → R.TC R.Term
   univalentRecordFwdBwd fds =
-    bodyTC >>= λ body → R.returnTC (vlam "p" (vlam "k" (vlam "i" (R.pat-lam body []))))
+    bodyTC >>= λ body →
+    R.returnTC (vlam "A" (vlam "B" (vlam "e" (vlam "p" (vlam "k" (vlam "i" (R.pat-lam body [])))))))
     where
     bodyTC : R.TC (List R.Clause)
     bodyTC =
+      R.extendContext (varg (tTypeWithStr (R.def srec []))) $
+      R.extendContext (varg (tTypeWithStr (R.def srec []))) $
+      R.extendContext (varg (R.def (quote _≃_) (varg (tTyp (R.var 1 [])) ∷ varg (tTyp (R.var 0 [])) ∷ []))) $
       R.extendContext
-        (varg (R.def (quote pathPShape) (varg (R.def srec []) ∷ varg (R.var 2 []) ∷ varg (R.var 1 []) ∷ varg (R.var 0 []) ∷ []))) $
+        (varg
+          (R.def (quote pathPShape)
+            (varg (R.def srec []) ∷ varg (R.var 2 []) ∷ varg (R.var 1 []) ∷ varg (R.var 0 []) ∷ []))) $
       R.extendContext (varg tI) $
       R.extendContext (varg tI) $
       mapTC
@@ -206,17 +238,23 @@ module _ (srec erec : R.Name) where
     R.returnTC
       (R.clause [] [ varg (R.proj efield) ]
         (R.def (quote secEq)
-          (varg (R.def (quote MacroUnivalentStr) (varg d ∷ harg (withStrProj A sfield) ∷ harg (withStrProj B sfield) ∷ varg e ∷ []))
+          (varg
+            (R.def (quote MacroUnivalentStr)
+              (varg d ∷ harg (withStrProj A sfield) ∷ harg (withStrProj B sfield) ∷ varg e ∷ []))
             ∷ varg (R.def efield [ varg streq ])
             ∷ varg k
             ∷ [])))
 
   univalentRecordBwdFwd : List (R.Name × R.Name × R.Term) → R.TC R.Term
   univalentRecordBwdFwd fds =
-    bodyTC >>= λ body → R.returnTC (vlam "streq" (vlam "k" (R.pat-lam body [])))
+    bodyTC >>= λ body →
+    R.returnTC (vlam "A" (vlam "B" (vlam "e" (vlam "streq" (vlam "k" (R.pat-lam body []))))))
     where
     bodyTC : R.TC (List R.Clause)
     bodyTC =
+      R.extendContext (varg (tTypeWithStr (R.def srec []))) $
+      R.extendContext (varg (tTypeWithStr (R.def srec []))) $
+      R.extendContext (varg (R.def (quote _≃_) (varg (tTyp (R.var 1 [])) ∷ varg (tTyp (R.var 0 [])) ∷ []))) $
       R.extendContext
         (varg (R.def erec (varg (R.var 2 []) ∷ varg (R.var 1 []) ∷ varg (R.var 0 []) ∷ []))) $
       R.extendContext (varg tI) $
@@ -225,30 +263,6 @@ module _ (srec erec : R.Name) where
           (univalentRecordBwdFwdClause
             (R.var 4 []) (R.var 3 []) (R.var 2 []) (R.var 1 []) (R.var 0 []))
           fds)
-
-  univalentRecordEquiv : List (R.Name × R.Name) → R.TC R.Term
-  univalentRecordEquiv fs =
-    bodyTC >>= λ body →
-    R.returnTC (vlam "A" (vlam "B" (vlam "e" body)))
-    where
-    addDesc : R.Name × R.Name → R.TC (R.Name × R.Name × R.Term)
-    addDesc (sfield , efield) = fieldDesc' srec sfield >>= λ d → R.returnTC (sfield , efield , d)
-
-    bodyTC : R.TC R.Term
-    bodyTC =
-      mapTC (List.map addDesc fs) >>= λ fds →
-      R.extendContext
-        (varg (tTypeWithStr (R.def srec []))) $
-      R.extendContext
-        (varg (tTypeWithStr (R.def srec []))) $
-      R.extendContext
-        (varg (R.def (quote _≃_) (varg (tTyp (R.var 1 [])) ∷ varg (tTyp (R.var 0 [])) ∷ []))) $
-      univalentRecordFwd fds >>= λ fwd →
-      univalentRecordBwd fds >>= λ bwd →
-      univalentRecordFwdBwd fds >>= λ fwdBwd →
-      univalentRecordBwdFwd fds >>= λ bwdFwd →
-      R.returnTC
-        (R.def (quote isoToEquivTemplate) (varg fwd ∷ varg bwd ∷ varg fwdBwd ∷ varg bwdFwd ∷ []))
 
 macro
   autoFieldEquiv : R.Name → R.Name → R.Term → R.Term → R.Term → R.TC Unit
@@ -262,14 +276,22 @@ macro
 
   autoUnivalentRecord : R.Name → R.Name → List (R.Name × R.Name) → R.Term → R.TC Unit
   autoUnivalentRecord srec erec fs hole =
-    newMeta (tStruct tℓ₀ tℓ₀) >>= λ S →
-    R.unify S (R.def srec []) >>
-    newMeta (tStrEquiv S) >>= λ ι →
-    R.unify ι (R.def erec []) >>
-    R.checkType hole (R.def (quote equivShape) (varg S ∷ varg ι ∷ [])) >>
-    univalentRecordEquiv srec erec fs >>=
-    R.unify hole
+    mapTC (List.map addDesc fs) >>= λ fds →
+    newMeta (R.def (quote fwdShape) (withRecs [])) >>= λ fwd →
+    newMeta (R.def (quote bwdShape) (withRecs [])) >>= λ bwd →
+    newMeta (R.def (quote fwdBwdShape) (withRecs (varg fwd ∷ varg bwd ∷ []))) >>= λ fwdBwd →
+    newMeta (R.def (quote bwdFwdShape) (withRecs (varg fwd ∷ varg bwd ∷ []))) >>= λ bwdFwd →
+    R.unify hole (R.def (quote mkUnivalentStr) (withRecs (varg fwd ∷ varg bwd ∷ varg fwdBwd ∷ varg bwdFwd ∷ []))) >>
+    (univalentRecordFwd srec erec fds >>= R.unify fwd) >>
+    (univalentRecordBwd srec erec fds >>= R.unify bwd) >>
+    (univalentRecordFwdBwd srec erec fds >>= R.unify fwdBwd) >>
+    (univalentRecordBwdFwd srec erec fds >>= R.unify bwdFwd)
+    where
+    addDesc : R.Name × R.Name → R.TC (R.Name × R.Name × R.Term)
+    addDesc (sfield , efield) = fieldDesc' srec sfield >>= λ d → R.returnTC (sfield , efield , d)
 
+    withRecs : List (R.Arg R.Term) → List (R.Arg R.Term)
+    withRecs l = varg (R.def srec []) ∷ varg (R.def erec []) ∷ l
 
 record Dog (X : Type) : Type where
   field
