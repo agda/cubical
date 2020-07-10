@@ -18,20 +18,20 @@ open BinaryRelation
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ : Level
+    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓ≅ᴰ : Level
 
 -- a univalent reflexive graph structure on a type
-record URGStr (A : Type ℓ) (ℓ₁ : Level) : Type (ℓ-max ℓ (ℓ-suc ℓ₁)) where
+record URGStr (A : Type ℓA) (ℓ≅A : Level) : Type (ℓ-max ℓA (ℓ-suc ℓ≅A)) where
   constructor urgstr
   field
-    _≅_ : Rel A A ℓ₁
+    _≅_ : Rel A A ℓ≅A
     ρ : isRefl _≅_
     uni : isUnivalent _≅_ ρ
 
 -- wrapper to create instances of URGStr
-makeURGStr : {A : Type ℓ} {_≅_ : Rel A A ℓ₁}
+makeURGStr : {A : Type ℓA} {_≅_ : Rel A A ℓ≅A}
              (ρ : isRefl _≅_) (contrTotal : contrTotalSpace _≅_)
-             → URGStr A ℓ₁
+             → URGStr A ℓ≅A
 makeURGStr {A = A} {_≅_ = _≅_}
            ρ contrTotal
            = urgstr _≅_
@@ -39,13 +39,13 @@ makeURGStr {A = A} {_≅_ = _≅_}
                     λ a a' → contrTotalSpace→isUnivalent _≅_ ρ contrTotal a a'
 
 -- a displayed univalent reflexive graph structure over a URGStr on a type
-record URGStrᴰ {A : Type ℓ} (StrA : URGStr A ℓ₁)
-                  (B : A → Type ℓ') (ℓ₁' : Level) : Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓ₁) (ℓ-suc ℓ₁')) where
+record URGStrᴰ {A : Type ℓA} (StrA : URGStr A ℓ≅A)
+                  (B : A → Type ℓB) (ℓ≅ᴰ : Level) : Type (ℓ-max (ℓ-max (ℓ-max ℓA ℓB) ℓ≅A) (ℓ-suc ℓ≅ᴰ)) where
   constructor urgstrᴰ
   open URGStr StrA
 
   field
-    _≅ᴰ⟨_⟩_ : {a a' : A} → B a → a ≅ a' → B a' → Type ℓ₁'
+    _≅ᴰ⟨_⟩_ : {a a' : A} → B a → a ≅ a' → B a' → Type ℓ≅ᴰ
     ρᴰ : {a : A} → isRefl _≅ᴰ⟨ ρ a ⟩_
     uniᴰ : {a : A} → isUnivalent _≅ᴰ⟨ ρ a ⟩_ ρᴰ
 
@@ -70,9 +70,9 @@ module _ {A : Type ℓ} {StrA : URGStr A ℓ₁}
 
 
 -- the total space of a DURGS is a URGS
-URGStrᴰ→URGStr : {A : Type ℓ} (StrA : URGStr A ℓ₁)
-                 (B : A → Type ℓ') (DispStrB : URGStrᴰ StrA B ℓ₁')
-                 → URGStr (Σ A B) (ℓ-max ℓ₁ ℓ₁')
+URGStrᴰ→URGStr : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
+                 (B : A → Type ℓB) (DispStrB : URGStrᴰ StrA B ℓ≅B)
+                 → URGStr (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
 URGStrᴰ→URGStr {A = A} StrA B DispStrB
   = makeURGStr {_≅_ = _≅Σ_} ρΣ contrTotalΣ
   where
@@ -81,9 +81,7 @@ URGStrᴰ→URGStr {A = A} StrA B DispStrB
    open URGStrᴰ DispStrB
 
    -- in the context of a fixed point (a , b)
-   module _ (x : Σ A B) where
-     a = fst x
-     b = snd x
+   module _ ((a , b) : Σ A B) where
      -- the graph relation on the total space
      _≅Σ_ = λ ((a' , b') : Σ A B)
               → Σ[ e ∈ a ≅ a' ] (b ≅ᴰ⟨ e ⟩ b')
@@ -116,7 +114,6 @@ URGStrᴰ→URGStr {A = A} StrA B DispStrB
                                 Σ[ (a' , b') ∈ Σ A B ] Σ[ e ∈ (a ≅ a') ] (b ≅ᴰ⟨ e ⟩ b') ■)
                                 contrTotalB
 {- Stuff to do:
- * a family of props has a canonical URGStrᴰ with DRel = Unit?
  * get URGStr from univalent bi-category
  * (Bonus: (A : Type ℓ) → isContr (URGStr A ℓ))
  * functoriality for free for e : (a : A) → B a → B' a
@@ -165,11 +162,6 @@ module Fiberwise {ℓB ℓC ℓ≅B ℓ≅C : Level} {A : Type ℓ} {B : A → T
             (G {a})
             (λ c → (invEquiv (uniC (F (G c)) c)) .fst (FG c))
             λ b → (invEquiv (uniB (G (F b)) b)) .fst (GF b)
-
-
-
-
-
 
 module Examples {ℓ ℓ' : Level} where
   -- Universes and equivalences form a URGStr
