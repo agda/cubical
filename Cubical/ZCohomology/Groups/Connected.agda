@@ -3,31 +3,21 @@ module Cubical.ZCohomology.Groups.Connected where
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.MayerVietorisUnreduced
 open import Cubical.ZCohomology.Groups.Unit
-open import Cubical.ZCohomology.KcompPrelims
 
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 
-open import Cubical.HITs.Pushout
-open import Cubical.HITs.Sn
-open import Cubical.HITs.S1
-open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
-open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁)
+open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁)
 open import Cubical.HITs.Nullification
 
 open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +-comm to +ℤ-comm ; +-assoc to +ℤ-assoc)
 open import Cubical.Data.Nat
-open import Cubical.Data.Prod
-open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec)
-open import Cubical.Data.Unit
+open import Cubical.HITs.Truncation renaming (rec to trRec)
 open import Cubical.Structures.Group
 
 open import Cubical.Homotopy.Connected

@@ -210,7 +210,7 @@ module RingΣTheory {ℓ} where
     Cubical.Structures.Group.Base.IsGroup.isMonoid (IsAbGroup.isGroup (IsRing.+-isAbGroup (Ring.isRing (helper a i)))) =
       η-isMonoid (Cubical.Structures.Group.Base.IsGroup.isMonoid (IsAbGroup.isGroup (IsRing.+-isAbGroup (Ring.isRing a)))) i
     Cubical.Structures.Group.Base.IsGroup.inverse (IsAbGroup.isGroup (IsRing.+-isAbGroup (Ring.isRing (helper a i)))) =
-      Cubical.Structures.Group.Base.IsGroup.inverse (IsAbGroup.isGroup (IsRing.+-isAbGroup (Ring.isRing a))) 
+      Cubical.Structures.Group.Base.IsGroup.inverse (IsAbGroup.isGroup (IsRing.+-isAbGroup (Ring.isRing a)))
     IsAbGroup.comm (IsRing.+-isAbGroup (Ring.isRing (helper a i))) = IsAbGroup.comm (IsRing.+-isAbGroup (Ring.isRing a))
     IsSemigroup.is-set (IsMonoid.isSemigroup (IsRing.·-isMonoid (Ring.isRing (helper a i))))
       = IsSemigroup.is-set (IsMonoid.isSemigroup (IsRing.·-isMonoid (Ring.isRing a)))

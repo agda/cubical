@@ -183,7 +183,7 @@ isConnectedRetract : ∀ {ℓ ℓ'} (n : HLevel)
   (f : A → B) (g : B → A)
   (h : (x : A) → g (f x) ≡ x)
   → isConnected n B → isConnected n A
-isConnectedRetract n f g h = 
+isConnectedRetract n f g h =
   isContrRetract
     (Trunc.map f)
     (Trunc.map g)

@@ -13,7 +13,6 @@ open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∣_∣
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod
 open import Cubical.Data.Unit
--- open import Cubical.Data.Group.Base renaming (Iso to grIso ; compIso to compGrIso ; invIso to invGrIso ; idIso to idGrIso)
 open import Cubical.Structures.Group
 
 open import Cubical.ZCohomology.Groups.Unit
@@ -24,7 +23,7 @@ open import Cubical.HITs.Pushout
 --- This module contains a proof that Hⁿ(A ⋁ B) ≅ Hⁿ(A) × Hⁿ(B), n ≥ 1
 
 module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
-  module I = MV (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B) 
+  module I = MV (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B)
 
   Hⁿ-⋁ : (n : ℕ) → GroupEquiv (coHomGr (suc n) (A ⋁ B)) (×coHomGr (suc n) (typ A) (typ B))
   Hⁿ-⋁ zero =
@@ -47,7 +46,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
 
     helper : (x : coHom 1 (A ⋁ B)) → isInIm _ _ (I.d 0) x
                   → x ≡ 0ₕ
-    helper x inim = 
+    helper x inim =
       pRec (setTruncIsSet _ _)
            (λ p → sym (snd p) ∙
                        MV.Im-Δ⊂Ker-d _ _ Unit (λ _ → pt A) (λ _ → pt B) 0 (fst p) (surj-helper (fst p)))

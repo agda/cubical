@@ -85,7 +85,7 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
   encode y = J Code ∣ pt A , rCancel' (merid (pt A)) ∣
 
   encodeMerid : (a : typ A) → encode south (merid a) ≡ ∣ a , refl ∣
-  encodeMerid a = 
+  encodeMerid a =
     cong (transport (λ i → gluePath i))
       (funExt⁻ (WC.left refl a) _ ∙ cong ∣_∣ (cong (a ,_) (lem _ _)))
     ∙ transport (PathP≡Path gluePath _ _)

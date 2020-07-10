@@ -52,6 +52,7 @@ record AbGroup : Type (ℓ-suc ℓ) where
 
   open IsAbGroup isAbGroup public
 
+
 -- Extractor for the carrier type
 ⟨_⟩ : AbGroup → Type ℓ
 ⟨_⟩ = AbGroup.Carrier
@@ -116,21 +117,27 @@ module AbGroupΣTheory {ℓ} where
   AbGroupΣ→AbGroup (_ , _ , G , C) =
     abgroup _ _ _ _ (isabgroup (GroupΣ→Group (_ , _ , G) .Group.isGroup) C)
 
+  open AbGroup
+  open IsAbGroup
+  open Monoid
+  open IsMonoid
+  open IsGroup
+
   AbGroupIsoAbGroupΣ : Iso AbGroup AbGroupΣ
-  AbGroupIsoAbGroupΣ = iso AbGroup→AbGroupΣ AbGroupΣ→AbGroup helper helper2 -- iso AbGroup→AbGroupΣ AbGroupΣ→AbGroup (λ _ → ?)
+  AbGroupIsoAbGroupΣ = iso AbGroup→AbGroupΣ AbGroupΣ→AbGroup helper helper2
     where
     helper : _
     fst (helper b i) = fst b
     snd (helper b i) = snd b
 
     helper2 : _
-    AbGroup.Carrier (helper2 a i) = ⟨ a ⟩
-    AbGroup.0g (helper2 a i) = AbGroup.0g a
-    AbGroup._+_ (helper2 a i) = AbGroup._+_ a
-    AbGroup.- helper2 a i = AbGroup.- a
-    IsGroup.isMonoid (IsAbGroup.isGroup (AbGroup.isAbGroup (helper2 a i))) = η-isMonoid (IsGroup.isMonoid (IsAbGroup.isGroup (AbGroup.isAbGroup a))) i
-    IsGroup.inverse (IsAbGroup.isGroup (AbGroup.isAbGroup (helper2 a i))) = IsGroup.inverse (IsAbGroup.isGroup (AbGroup.isAbGroup a))
-    IsAbGroup.comm (AbGroup.isAbGroup (helper2 a i)) = IsAbGroup.comm (AbGroup.isAbGroup a)
+    Carrier (helper2 a i) = ⟨ a ⟩
+    0g (helper2 a i) = 0g a
+    _+_ (helper2 a i) = _+_ a
+    - helper2 a i = - a
+    isMonoid (isGroup (isAbGroup (helper2 a i))) = η-isMonoid (isMonoid (isGroup (isAbGroup a))) i
+    inverse (isGroup (isAbGroup (helper2 a i))) = inverse (isGroup (isAbGroup a))
+    comm (isAbGroup (helper2 a i)) = comm (isAbGroup a)
 
   abGroupUnivalentStr : UnivalentStr AbGroupStructure AbGroupEquivStr
   abGroupUnivalentStr = axiomsUnivalentStr _ isPropAbGroupAxioms rawGroupUnivalentStr
@@ -151,12 +158,12 @@ module AbGroupΣTheory {ℓ} where
   AbGroup→RawGroupΣ : AbGroup {ℓ} → RawGroupΣ
   AbGroup→RawGroupΣ (abgroup G _ _+_ _ _) = G , _+_
 
-  InducedAbGroup : (G : AbGroup) (H : RawGroupΣ) (e : G .AbGroup.Carrier ≃ H .fst)
+  InducedAbGroup : (G : AbGroup) (H : RawGroupΣ) (e : G .Carrier ≃ H .fst)
                  → RawGroupEquivStr (AbGroup→RawGroupΣ G) H e → AbGroup
   InducedAbGroup G H e r =
     AbGroupΣ→AbGroup (transferAxioms rawGroupUnivalentStr (AbGroup→AbGroupΣ G) H (e , r))
 
-  InducedAbGroupPath : (G : AbGroup {ℓ}) (H : RawGroupΣ) (e : G .AbGroup.Carrier ≃ H .fst)
+  InducedAbGroupPath : (G : AbGroup {ℓ}) (H : RawGroupΣ) (e : G .Carrier ≃ H .fst)
                        (E : RawGroupEquivStr (AbGroup→RawGroupΣ G) H e)
                      → G ≡ InducedAbGroup G H e E
   InducedAbGroupPath G H e E =

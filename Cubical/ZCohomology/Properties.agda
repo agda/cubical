@@ -27,7 +27,6 @@ open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
 open import Cubical.HITs.SmashProduct.Base
 open import Cubical.Structures.Group
-open import Cubical.Data.Group.Base hiding (_≃_ ; Iso ; invIso ; Group ; dirProd)
 open import Cubical.Foundations.Equiv.HalfAdjoint
 
 

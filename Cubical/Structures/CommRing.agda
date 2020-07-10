@@ -131,27 +131,33 @@ module CommRingΣTheory {ℓ} where
 
     where
     open import Cubical.Structures.Group.Base hiding (⟨_⟩)
+    open CommRing
+    open IsCommRing
+    open IsGroup
+    open Group
+    open IsMonoid
+    open IsAbGroup
+    open IsRing
+
     helper : _
-    CommRing.Carrier (helper a i) = ⟨ a ⟩
-    CommRing.0r (helper a i) = CommRing.0r a
-    CommRing.1r (helper a i) = CommRing.1r a
-    CommRing._+_ (helper a i) = CommRing._+_ a
-    CommRing._·_ (helper a i) = CommRing._·_ a
-    CommRing.- helper a i = CommRing.- a
-    IsGroup.isMonoid (IsAbGroup.isGroup (IsRing.+-isAbGroup (IsCommRing.isRing (CommRing.isCommRing (helper a i))))) =
-      η-isMonoid (IsGroup.isMonoid (IsAbGroup.isGroup (IsRing.+-isAbGroup (IsCommRing.isRing (CommRing.isCommRing a))))) i
-    IsGroup.inverse (IsAbGroup.isGroup (IsRing.+-isAbGroup (IsCommRing.isRing (CommRing.isCommRing (helper a i))))) =
-      IsGroup.inverse (IsAbGroup.isGroup (IsRing.+-isAbGroup (IsCommRing.isRing (CommRing.isCommRing a))))
-    IsAbGroup.comm (IsRing.+-isAbGroup (IsCommRing.isRing (CommRing.isCommRing (helper a i)))) =
-      IsAbGroup.comm (IsRing.+-isAbGroup (IsCommRing.isRing (CommRing.isCommRing a)))
-    IsSemigroup.is-set (IsMonoid.isSemigroup (IsRing.·-isMonoid (IsCommRing.isRing (CommRing.isCommRing (helper a i))))) =
-      IsSemigroup.is-set (IsMonoid.isSemigroup (IsRing.·-isMonoid (IsCommRing.isRing (CommRing.isCommRing a))))
-    IsSemigroup.assoc (IsMonoid.isSemigroup (IsRing.·-isMonoid (IsCommRing.isRing (CommRing.isCommRing (helper a i))))) =
-      IsSemigroup.assoc (IsMonoid.isSemigroup (IsRing.·-isMonoid (IsCommRing.isRing (CommRing.isCommRing a)))) 
-    IsMonoid.identity (IsRing.·-isMonoid (IsCommRing.isRing (CommRing.isCommRing (helper a i)))) =
-      IsMonoid.identity (IsRing.·-isMonoid (IsCommRing.isRing (CommRing.isCommRing a)))
-    IsRing.dist (IsCommRing.isRing (CommRing.isCommRing (helper a i))) = IsRing.dist (IsCommRing.isRing (CommRing.isCommRing a))
-    IsCommRing.·-comm (CommRing.isCommRing (helper a i)) = IsCommRing.·-comm (CommRing.isCommRing a)
+    Carrier (helper a i) = ⟨ a ⟩
+    0r (helper a i) = 0r a
+    1r (helper a i) = 1r a
+    _+_ (helper a i) = CommRing._+_ a
+    _·_ (helper a i) = _·_ a
+    - helper a i = - a
+    isMonoid (isGroup (+-isAbGroup (isRing (isCommRing (helper a i))))) =
+      η-isMonoid (isMonoid (isGroup (+-isAbGroup (isRing (isCommRing a))))) i
+    inverse (isGroup (+-isAbGroup (isRing (isCommRing (helper a i))))) =
+      inverse (isGroup (+-isAbGroup (isRing (isCommRing a))))
+    comm (+-isAbGroup (isRing (isCommRing (helper a i)))) =
+      comm (+-isAbGroup (isRing (isCommRing a)))
+    isSemigroup (·-isMonoid (isRing (isCommRing (helper a i)))) =
+      isSemigroup (·-isMonoid (isRing (isCommRing a)))
+    identity (·-isMonoid (isRing (isCommRing (helper a i)))) =
+      identity (·-isMonoid (isRing (isCommRing a)))
+    dist (isRing (isCommRing (helper a i))) = dist (isRing (isCommRing a))
+    ·-comm (isCommRing (helper a i)) = ·-comm (isCommRing a)
 
   commRingUnivalentStr : UnivalentStr CommRingStructure CommRingEquivStr
   commRingUnivalentStr = axiomsUnivalentStr _ isPropCommRingAxioms rawRingUnivalentStr
