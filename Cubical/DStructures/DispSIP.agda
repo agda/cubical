@@ -131,7 +131,7 @@ module Fiberwise {ℓB ℓC ℓ≅B ℓ≅C : Level} {A : Type ℓ} {B : A → T
       inv : {a : A} → C a → B a
       sec : {a : A} → (c : C a) → fun (inv c) ≅C c
       ret : {a : A} → (b : B a) → inv (fun b) ≅B b
- 
+
   module _ {StrA : URGStr A ℓ} {StrBᴰ : URGStrᴰ StrA B ℓ≅B} {StrCᴰ : URGStrᴰ StrA C ℓ≅C} where
     -- maybe put this into separate module that exports useful notation
     module _ where
@@ -197,3 +197,11 @@ module Examples {ℓ ℓ' : Level} where
                   λ a p → isOfHLevelRespectEquiv 0
                                                  (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
                                                  (inhProp→isContr p (P a .snd))
+
+{-
+  Next steps:
+  - URGStr on Groups
+  - Two arms going up:
+  -+ 1. SectRetr over G, RGGp over that, Peiffer over that, Str2Gp over/equiv to that
+  -+ 2. GpAction over G, PreXMod over that, XMod over that
+-}
