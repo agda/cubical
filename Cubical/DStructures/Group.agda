@@ -46,25 +46,32 @@ module _ (ℓ ℓ' : Level) where
                     → groupTransp pH (g α h) ≡ (groupTransp pG g α' groupTransp pH h)))
                 -- reflexivity over idGroupEquiv is easy
                 (λ _ _ _ → refl)
+                -- contractibility of the total space
+                -- uses isPropIsGroupAction
                 λ (G , H) (_α_ , isAct) → {!!}
                 where
-
                   module _ {(G , H) : Group {ℓ = ℓ} × Group {ℓ = ℓ'}} where
                     -- the actions of G on H
                     ActGH = Σ[ _α_ ∈ LeftActionStructure ⟨ G ⟩ ⟨ H ⟩ ]
                                (IsGroupAction G H _α_)
 
 module _ (ℓ ℓ' : Level) where
+  -- sections and retractions over a pair of groups
   URGStrSecRetᴰ : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
-                         (λ (G , H) → Σ[ fun ∈ (⟨ G ⟩ → ⟨ H ⟩) ]
-                                         Σ[ inv ∈ (⟨ H ⟩ → ⟨ G ⟩) ]
-                                           section fun inv)
+                         (λ (G , H) → Σ[ f ∈ (GroupHom G H) ]
+                                         Σ[ g ∈ (GroupHom H G) ]
+                                           section (GroupHom.fun f) (GroupHom.fun g))
                          (ℓ-max ℓ ℓ')
   URGStrSecRetᴰ =
-    makeURGStrᴰ (λ (G , H) → Σ[ fun ∈ (⟨ G ⟩ → ⟨ H ⟩) ]
-                             Σ[ inv ∈ (⟨ H ⟩ → ⟨ G ⟩) ]
-                             section fun inv)
-                {!!}
-                {!!}
-                {!!}
-                {!!}
+    makeURGStrᴰ (λ (G , H) → Σ[ f ∈ (GroupHom G H) ]
+                                Σ[ g ∈ (GroupHom H G) ]
+                                  section (GroupHom.fun f) (GroupHom.fun g))
+                (ℓ-max ℓ ℓ')
+                (λ {(G , H)} {(G' , H')}
+                   ((grouphom f _) , (grouphom g _) , sec)
+                   (pG , pH)
+                   ((grouphom f' _) , (grouphom g' _) , sec')
+                  → ((x : ⟨ G ⟩) → f' (groupTransp pG x) ≡ groupTransp pH (f x))
+                    × ((y : ⟨ H ⟩) → g' (groupTransp pH y) ≡ groupTransp pG (g y)))
+                (λ (_ , _ , _) → (λ _ → refl) , λ _ → refl)
+                λ (G , H) (f , g , sec) → {!!}
