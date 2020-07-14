@@ -5,7 +5,7 @@ module Cubical.Foundations.CartesianKanOps where
 open import Cubical.Foundations.Prelude
 
 coe0→1 : ∀ {ℓ} (A : I → Type ℓ) → A i0 → A i1
-coe0→1 A a = transp A i0 a
+coe0→1 A a = transp (\ i → A i) i0 a
 
 -- "coe filler"
 coe0→i : ∀ {ℓ} (A : I → Type ℓ) (i : I) → A i0 → A i

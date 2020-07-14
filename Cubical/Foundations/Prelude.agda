@@ -245,12 +245,12 @@ module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
 -- Converting to and from a PathP
 
 module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
-  toPathP : transp A i0 x ≡ y → PathP A x y
+  toPathP : transp (\ i → A i) i0 x ≡ y → PathP A x y
   toPathP p i = hcomp (λ j → λ { (i = i0) → x
                                ; (i = i1) → p j })
                       (transp (λ j → A (i ∧ j)) (~ i) x)
 
-  fromPathP : PathP A x y → transp A i0 x ≡ y
+  fromPathP : PathP A x y → transp (\ i → A i) i0 x ≡ y
   fromPathP p i = transp (λ j → A (i ∨ j)) i (p i)
 
 -- Whiskering a dependent path by a path
