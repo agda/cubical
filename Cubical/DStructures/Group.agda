@@ -17,14 +17,19 @@ open import Cubical.Relation.Binary
 open BinaryRelation
 open import Cubical.Structures.Group
 
-private
-  variable
-    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓ≅ᴰ : Level
 
-URGStrGroup : URGStr (Group {ℓ = ℓ}) ℓ
--- URGStrGroup = makeURGStr {_≅_ = GroupEquiv} idGroupEquiv {!!}
-URGStrGroup = urgstr GroupEquiv
-                     idGroupEquiv
-                     (isUnivalent'→isUnivalent GroupEquiv
-                                               idGroupEquiv
-                                               λ G H → invEquiv (GroupPath G H))
+module _ (ℓ : Level) where
+  URGStrGroup : URGStr (Group {ℓ = ℓ}) ℓ
+  URGStrGroup = urgstr GroupEquiv
+                       idGroupEquiv
+                       (isUnivalent'→isUnivalent GroupEquiv
+                                                 idGroupEquiv
+                                                 λ G H → invEquiv (GroupPath G H))
+
+
+module _ (ℓ ℓ' : Level) where
+  URGStrAction : URGStrᴰ (URGStrGroup ℓ)
+                         (λ G → Σ[ H ∈ Group {ℓ = ℓ'} ] GroupHom G H)
+                         {!ℓ-max ℓ ℓ'!}
+
+  URGStrAction = {!!}
