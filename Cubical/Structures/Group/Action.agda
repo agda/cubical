@@ -7,6 +7,9 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Structures.Group.Base
 open import Cubical.Structures.Group.Morphism
 open import Cubical.Structures.LeftAction
+open import Cubical.Structures.Axioms
+open import Cubical.Structures.Macro
+open import Cubical.Structures.Auto
 
 private
   variable
@@ -26,8 +29,6 @@ record IsGroupAction (G : Group {ℓ = ℓ})
     identity : (h : ⟨ H ⟩) → 0ᴳ α h ≡ h
     assoc : (g g' : ⟨ G ⟩) → (h : ⟨ H ⟩) → ((g +G g') α h) ≡ g α (g' α h)
 
-record GroupAction' (G : Group {ℓ = ℓ'}) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
-
 record GroupAction : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
 
   constructor groupaction
@@ -37,3 +38,19 @@ record GroupAction : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
     H : Group {ℓ = ℓ'}
     _α_ : LeftActionStructure ⟨ G ⟩ ⟨ H ⟩
     isGroupAction : IsGroupAction G H _α_
+
+module ActionΣTheory {ℓ ℓ' : Level} where
+{-
+  IsGroupActionΣ : (G : Group {ℓ = ℓ})
+                   (H : Group {ℓ = ℓ'})
+                   (_α_ : LeftActionStructure ⟨ G ⟩ ⟨ H ⟩)
+                   → Type (ℓ-max ℓ ℓ')
+  IsGroupActionΣ G H _α_ = {!IsGroupAxioms!}
+
+
+  isPropIsGroupAction : (G : Group {ℓ = ℓ}) (H : Group {ℓ = ℓ'}) (_α_ : ⟨ G ⟩ →  ⟨ H ⟩ → ⟨ H ⟩)
+                        → isProp (IsGroupAction G H _α_)
+  isPropIsGroupAction G H _α_  p p' i = isgroupaction {!!} {!!} {!!}
+-}
+
+

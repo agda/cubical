@@ -20,7 +20,7 @@ URGStrConstᴰ {A = A} StrA {B} StrB
       open URGStr StrB
 
 -- the total structure of the constant structure gives nondependent product
-URGStrProduct : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
-                {B : Type ℓB} (StrB : URGStr B ℓ≅B)
-                → URGStr (A × B) (ℓ-max ℓ≅A ℓ≅B)
-URGStrProduct StrA {B} StrB = URGStrᴰ→URGStr StrA (λ _ → B) (URGStrConstᴰ StrA StrB)
+_×URG_ : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
+         {B : Type ℓB} (StrB : URGStr B ℓ≅B)
+         → URGStr (A × B) (ℓ-max ℓ≅A ℓ≅B)
+_×URG_ StrA {B} StrB = URGStrᴰ→URGStr StrA (λ _ → B) (URGStrConstᴰ StrA StrB)

@@ -20,6 +20,20 @@ private
   variable
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓ≅ᴰ : Level
 
+{- Stuff to do:
+ * get URGStr from univalent bi-category
+ * (Bonus: (A : Type ℓ) → isContr (URGStr A ℓ))
+ * functoriality for free for e : (a : A) → B a → B' a
+ * standard notion of structure
+ * associativity of URGStr towers
+
+  Next steps:
+  - URGStr on Groups
+  - Two arms going up:
+  -+ 1. SectRetr over G, RGGp over that, Peiffer over that, Str2Gp over/equiv to that
+  -+ 2. GpAction over G, PreXMod over that, XMod over that
+
+-}
 -- a univalent reflexive graph structure on a type
 record URGStr (A : Type ℓA) (ℓ≅A : Level) : Type (ℓ-max ℓA (ℓ-suc ℓ≅A)) where
   constructor urgstr
@@ -113,13 +127,37 @@ URGStrᴰ→URGStr {A = A} StrA B DispStrB
                                   ≃⟨ invEquiv Σ-assoc-≃ ⟩
                                 Σ[ (a' , b') ∈ Σ A B ] Σ[ e ∈ (a ≅ a') ] (b ≅ᴰ⟨ e ⟩ b') ■)
                                 contrTotalB
-{- Stuff to do:
- * get URGStr from univalent bi-category
- * (Bonus: (A : Type ℓ) → isContr (URGStr A ℓ))
- * functoriality for free for e : (a : A) → B a → B' a
- * standard notaiton of structure
 
--}
+-- integral notation like in the disp cats paper
+∫⟨_⟩_ : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
+                 {B : A → Type ℓB} (DispStrB : URGStrᴰ StrA B ℓ≅B)
+                 → URGStr (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
+∫⟨_⟩_ StrA {B} DispStrB = URGStrᴰ→URGStr StrA B DispStrB
+
+
+module Assoc {ℓA ℓB ℓC ℓ≅A ℓ≅B ℓ≅C : Level}
+             {A : Type ℓ} {B : A → Type ℓB} {C : {a : A} → B a → Type ℓC}
+             (StrA : URGStr A ℓ≅A) where
+
+  ℓ≅ABC = ℓ-max (ℓ-max ℓ≅A ℓ≅B) ℓ≅C
+
+  {-
+  -- the Σ-univalent reflexive graph structure of C over B
+  URGΣ : (StrB : URGStrᴰ StrA B (ℓ-max ℓ≅A ℓ≅B))
+         (StrC : URGStrᴰ (∫⟨ StrA ⟩ StrB) (λ (a , b) → C {a} b) (ℓ-max (ℓ-max ℓ≅A ℓ≅B) ℓ≅C))
+            → URGStrᴰ StrA (λ a → Σ[ b ∈ B a ] (C {a} b)) (ℓ-max (ℓ-max ℓ≅A ℓ≅B) ℓ≅C)
+  URGΣ StrA StrB = {!!}
+
+  -- taking the sigma graph and then integrating is the same as integrating twice
+  URGΣAssoc : (StrB : URGStrᴰ StrA B (ℓ-max ℓ≅A ℓ≅B))
+              (StrC : URGStrᴰ (∫⟨ StrA ⟩ StrB)
+                              (λ (a , b) → C {a} b)
+                              (ℓ-max (ℓ-max ℓ≅A ℓ≅B) ℓ≅C))
+              → PathP {!!}
+                      (URGStrᴰ→URGStr (URGStrᴰ→URGStr StrA B StrB) (λ (a , b) → C {a} b) StrC)
+                      (URGStrᴰ→URGStr StrA (λ a → Σ[ b ∈ B a ] (C {a} b)) (URGΣ StrB StrC))
+  URGΣAssoc StrB StrC = {!!}
+  -}
 
 module Fiberwise {ℓB ℓC ℓ≅B ℓ≅C : Level} {A : Type ℓ} {B : A → Type ℓB} {C : A → Type ℓC} where
 
@@ -164,11 +202,3 @@ module Fiberwise {ℓB ℓC ℓ≅B ℓ≅C : Level} {A : Type ℓ} {B : A → T
             (G {a})
             (λ c → (invEquiv (uniC (F (G c)) c)) .fst (FG c))
             λ b → (invEquiv (uniB (G (F b)) b)) .fst (GF b)
-
-{-
-  Next steps:
-  - URGStr on Groups
-  - Two arms going up:
-  -+ 1. SectRetr over G, RGGp over that, Peiffer over that, Str2Gp over/equiv to that
-  -+ 2. GpAction over G, PreXMod over that, XMod over that
--}

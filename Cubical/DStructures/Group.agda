@@ -13,9 +13,11 @@ open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 
 open import Cubical.DStructures.DispSIP
+open import Cubical.DStructures.Product
 open import Cubical.Relation.Binary
 open BinaryRelation
 open import Cubical.Structures.Group
+open import Cubical.Structures.LeftAction
 
 
 module _ (ℓ : Level) where
@@ -25,11 +27,44 @@ module _ (ℓ : Level) where
                        (isUnivalent'→isUnivalent GroupEquiv
                                                  idGroupEquiv
                                                  λ G H → invEquiv (GroupPath G H))
-
+private
+  module _ {ℓ : Level} {G G' : Group {ℓ = ℓ}} (e : GroupEquiv G G') where
+    groupTransp : ⟨ G ⟩ → ⟨ G' ⟩
+    groupTransp = GroupEquiv.eq e .fst
 
 module _ (ℓ ℓ' : Level) where
-  URGStrAction : URGStrᴰ (URGStrGroup ℓ)
-                         (λ G → Σ[ H ∈ Group {ℓ = ℓ'} ] GroupHom G H)
-                         {!ℓ-max ℓ ℓ'!}
+  URGStrActionᴰ : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
+                         (λ (G , H) → Σ[ _α_ ∈ LeftActionStructure ⟨ G ⟩ ⟨ H ⟩ ] (IsGroupAction G H _α_))
+                         (ℓ-max ℓ ℓ')
+  URGStrActionᴰ =
+    -- the type is over (G , H) is the actions of G on H
+    makeURGStrᴰ (λ GH → ActGH {GH})
+                (ℓ-max ℓ ℓ')
+                -- actions are related when they respect the relation of G, G' and H, H'
+                (λ {(G , H)} {(G' , H')} (_α_ , isAct) (pG , pH) (_α'_ , isAct')
+                  → ((g : ⟨ G ⟩) → (h : ⟨ H ⟩)
+                    → groupTransp pH (g α h) ≡ (groupTransp pG g α' groupTransp pH h)))
+                -- reflexivity over idGroupEquiv is easy
+                (λ _ _ _ → refl)
+                λ (G , H) (_α_ , isAct) → {!!}
+                where
 
-  URGStrAction = {!!}
+                  module _ {(G , H) : Group {ℓ = ℓ} × Group {ℓ = ℓ'}} where
+                    -- the actions of G on H
+                    ActGH = Σ[ _α_ ∈ LeftActionStructure ⟨ G ⟩ ⟨ H ⟩ ]
+                               (IsGroupAction G H _α_)
+
+module _ (ℓ ℓ' : Level) where
+  URGStrSecRetᴰ : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
+                         (λ (G , H) → Σ[ fun ∈ (⟨ G ⟩ → ⟨ H ⟩) ]
+                                         Σ[ inv ∈ (⟨ H ⟩ → ⟨ G ⟩) ]
+                                           section fun inv)
+                         (ℓ-max ℓ ℓ')
+  URGStrSecRetᴰ =
+    makeURGStrᴰ (λ (G , H) → Σ[ fun ∈ (⟨ G ⟩ → ⟨ H ⟩) ]
+                             Σ[ inv ∈ (⟨ H ⟩ → ⟨ G ⟩) ]
+                             section fun inv)
+                {!!}
+                {!!}
+                {!!}
+                {!!}
