@@ -114,6 +114,29 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
                                                     λ a' → u a a')
                                (isContrSingl a)
 
+    isUnivalent' : Type (ℓ-max ℓ ℓ')
+    isUnivalent' = (a a' : A) → (a ≡ a') ≃ a R a'
+
+    private
+      module _ (e : isUnivalent') (a : A) where
+        -- wrapper for ≡→R
+        g = λ (a' : A) (p : a ≡ a') → e a a' .fst p
+
+        -- the corresponding total map that univalence
+        -- of R will be reduced to
+        totg : singl a → Σ[ a' ∈ A ] (a R a')
+        totg (a' , p) = (a' , g a' p)
+
+      isUnivalent'→contrTotalSpace : isUnivalent' → contrTotalSpace
+      isUnivalent'→contrTotalSpace u a
+        = isOfHLevelRespectEquiv 0
+                                 (totg u a , totalEquiv (a ≡_) (a R_) (g u a) λ a' → u a a' .snd)
+                                 (isContrSingl a)
+
+
+    isUnivalent'→isUnivalent : isUnivalent' → isUnivalent
+    isUnivalent'→isUnivalent u = contrTotalSpace→isUnivalent (isUnivalent'→contrTotalSpace u)
+
 EquivRel : ∀ {ℓ} (A : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 EquivRel A ℓ' = Σ[ R ∈ Rel A A ℓ' ] BinaryRelation.isEquivRel R
 

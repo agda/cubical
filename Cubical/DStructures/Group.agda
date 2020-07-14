@@ -23,5 +23,8 @@ private
 
 URGStrGroup : URGStr (Group {ℓ = ℓ}) ℓ
 -- URGStrGroup = makeURGStr {_≅_ = GroupEquiv} idGroupEquiv {!!}
-URGStrGroup = urgstr GroupEquiv idGroupEquiv
-  (λ G H → record { equiv-proof = λ e → {!!} })
+URGStrGroup = urgstr GroupEquiv
+                     idGroupEquiv
+                     (isUnivalent'→isUnivalent GroupEquiv
+                                               idGroupEquiv
+                                               λ G H → invEquiv (GroupPath G H))
