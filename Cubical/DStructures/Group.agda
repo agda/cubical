@@ -22,4 +22,6 @@ private
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓ≅ᴰ : Level
 
 URGStrGroup : URGStr (Group {ℓ = ℓ}) ℓ
-URGStrGroup = makeURGStr {_≅_ = GroupEquiv} idGroupEquiv {!!}
+-- URGStrGroup = makeURGStr {_≅_ = GroupEquiv} idGroupEquiv {!!}
+URGStrGroup = urgstr GroupEquiv idGroupEquiv
+  (λ G H → record { equiv-proof = λ e → {!!} })
