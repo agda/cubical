@@ -195,3 +195,11 @@ isPropIsHAEquiv {f = f} ishaef = goal ishaef where
   goal = subst isProp (sym (ua characterization))
     (isPropΣ (isContr→isProp (isEquiv→isContrHasSection equivF))
              λ s → isPropΠ λ x → isProp→isSet (isContr→isProp (equivF .equiv-proof (f x))) _ _)
+
+-- composition on the right induces an equivalence of path types
+compr≡Equiv : {A : Type ℓ} {a b c : A} (p q : a ≡ b) (r : b ≡ c) → (p ≡ q) ≃ (p ∙ r ≡ q ∙ r)
+compr≡Equiv p q r = congEquiv ((λ s → s ∙ r) , compPathr-isEquiv r)
+
+-- composition on the left induces an equivalence of path types
+compl≡Equiv : {A : Type ℓ} {a b c : A} (p : a ≡ b) (q r : b ≡ c) → (q ≡ r) ≃ (p ∙ q ≡ p ∙ r)
+compl≡Equiv p q r = congEquiv ((λ s → p ∙ s) , (compPathl-isEquiv p))
