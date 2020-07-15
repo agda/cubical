@@ -63,9 +63,7 @@ module _ (ℓ ℓ' : Level) where
                                            section (GroupHom.fun f) (GroupHom.fun g))
                          (ℓ-max ℓ ℓ')
   URGStrSecRetᴰ =
-    makeURGStrᴰ (λ (G , H) → Σ[ f ∈ (GroupHom G H) ]
-                                Σ[ g ∈ (GroupHom H G) ]
-                                  section (GroupHom.fun f) (GroupHom.fun g))
+    makeURGStrᴰ (λ GH → fgsec {GH})
                 (ℓ-max ℓ ℓ')
                 (λ {(G , H)} {(G' , H')}
                    ((grouphom f _) , (grouphom g _) , sec)
@@ -74,4 +72,25 @@ module _ (ℓ ℓ' : Level) where
                   → ((x : ⟨ G ⟩) → f' (groupTransp pG x) ≡ groupTransp pH (f x))
                     × ((y : ⟨ H ⟩) → g' (groupTransp pH y) ≡ groupTransp pG (g y)))
                 (λ (_ , _ , _) → (λ _ → refl) , λ _ → refl)
-                λ (G , H) (f , g , sec) → isOfHLevelRespectEquiv 0 {!!} {!!}
+                λ (G , H) (f , g , sec) → isOfHLevelRespectEquiv 0 (sequence {(G , H)} (f , g , sec)) {!!}
+                where
+                  module _ {(G , H) : Group {ℓ = ℓ} × Group {ℓ = ℓ'}} where
+                    -- in the context of a pair of groups define the type of section triples
+                    fgsec = Σ[ f ∈ GroupHom G H ]
+                            Σ[ g ∈ GroupHom H G ]
+                            section (GroupHom.fun f) (GroupHom.fun g)
+                    module _ ((f , g , sec) : fgsec) where
+                      -- over one section triple deform the total space
+                      sequence = Σ[ f' ∈ GroupHom G H ] (GroupHom.fun f' ≡ f*)
+                                    ≃⟨ {!!} ⟩
+                                 Σ[ f' ∈ GroupHom G H ] Σ[ _ ∈ GroupHom.fun f' ≡ f* ] Σ[ g' ∈ GroupHom H G ] (GroupHom.fun g' ≡ g*)
+                                    ≃⟨ {!!} ⟩
+                                 Σ[ f' ∈ GroupHom G H ] Σ[ _ ∈ GroupHom.fun f' ≡ f* ] Σ[ g' ∈ GroupHom H G ] Σ[ _ ∈ GroupHom.fun g' ≡ g* ] (section (GroupHom.fun f') (GroupHom.fun g'))
+                                    ≃⟨ {!!} ⟩
+                                 Σ[ (f' , g' , sec') ∈ fgsec ] (GroupHom.fun f' ≡ f*) × (GroupHom.fun g' ≡ g*)
+                                    ≃⟨ {!!} ⟩
+                                 Σ[ (f' , g' , sec') ∈ fgsec ] ((x : ⟨ G ⟩) → (GroupHom.fun f' x) ≡ (f* x)) × ((y : ⟨ H ⟩) → (GroupHom.fun g' y) ≡ (g* y)) ■
+                                   where
+                                     ghf = GroupHom.fun
+                                     f* = ghf f
+                                     g* = ghf g

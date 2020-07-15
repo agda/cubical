@@ -35,4 +35,34 @@ URGStrᴰSubtype P
                                                (inhProp→isContr p (P a .snd))
 
 URGStrUnique : (A : Type ℓA) → isContr (URGStr A ℓA)
-URGStrUnique A = URGStrType A , λ StrA' → {!!}
+fst (URGStrUnique A) = URGStrType A
+snd (URGStrUnique A) StrA' = {!!}
+
+module Sigma {ℓA ℓB ℓ≅A ℓ≅B} {A : Type ℓA} {B : A → Type ℓB} where
+  ℓ≅AB = ℓ-max ℓ≅A ℓ≅B
+
+  -- structures on Σ A B
+  URGStrΣ = URGStr (Σ A B) ℓ≅AB
+  -- structures on A with a displayed structure on top
+  ΣURGStrᴰ = Σ[ StrA ∈ URGStr A ℓ≅A ] (URGStrᴰ StrA (λ a → B a) ℓ≅B)
+
+  Σ∫ : ΣURGStrᴰ → URGStrΣ
+  Σ∫ (StrA , StrBᴰ) = ∫⟨ StrA ⟩ StrBᴰ
+
+module Sigma' {ℓA ℓB ℓ≅B} {A : Type ℓA} {B : A → Type ℓA} where
+  open Sigma {ℓ≅A = ℓA} {ℓ≅B = ℓA} {A = A} {B = B}
+  -- inverse to Σ∫
+  ΣΔ : URGStrΣ → ΣURGStrᴰ
+  fst (ΣΔ StrBA) = URGStrType A
+  snd (ΣΔ StrBA) = makeURGStrᴰ B
+                               ℓA
+                               (λ {a} {a'} b p b' → (a , b) ≅ (a' , b'))
+                               (λ b → ρ (_ , b))
+                               λ a b → isOfHLevelRespectEquiv 0
+                                                              (Σ[ b' ∈ B a ] b ≡ b'
+                                                                ≃⟨ Σ-cong-equiv-snd (λ b' → compEquiv {!!}
+                                                                                                      ((≡→R _≅_ ρ) , (uni (a , b) (a , b')))) ⟩
+                                                              Σ[ b' ∈ B a ] (a , b) ≅ (a , b') ■)
+                                                              (isContrSingl b)
+                               where
+                                 open URGStr StrBA

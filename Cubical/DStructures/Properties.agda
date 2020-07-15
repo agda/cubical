@@ -68,23 +68,6 @@ URGStrᴰ→URGStr {A = A} StrA B DispStrB
                  → URGStr (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
 ∫⟨_⟩_ StrA {B} DispStrB = URGStrᴰ→URGStr StrA B DispStrB
 
-
-module Sigma {ℓ≅A ℓ≅B} {A : Type ℓA} {B : A → Type ℓB} where
-  ℓ≅AB = ℓ-max ℓ≅A ℓ≅B
-  URGStrΣ = URGStr (Σ A B) ℓ≅AB
-  ΣURGStrᴰ = Σ[ StrA ∈ URGStr A ℓ≅A ] (URGStrᴰ StrA (λ a → B a) ℓ≅B)
-
-  Σ∫ : ΣURGStrᴰ → URGStrΣ
-  Σ∫ (StrA , StrBᴰ) = ∫⟨ StrA ⟩ StrBᴰ
-
-{-
-  ΣΔ : URGStrΣ → ΣURGStrᴰ
-  fst (ΣΔ StrBA) = makeURGStr {_≅_ = λ a a' → {!!}}
-                              {!!}
-                              {!!}
-  snd (ΣΔ StrBA) = {!makeURGStrᴰ!}
--}
-
 -- associativity for towers
 module Assoc {ℓA ℓB ℓC ℓ≅A ℓ≅B ℓ≅C : Level}
              {A : Type ℓ} {B : A → Type ℓB} {C : {a : A} → B a → Type ℓC}
