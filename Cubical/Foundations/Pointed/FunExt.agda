@@ -25,16 +25,14 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 
   -- function extensionality is an isomorphism, PathP version
   funExt∙PIso : (f g : Π∙ A B ptB) → Iso (f ∙∼P g) (f ≡ g)
-  funExt∙PIso f g =
-    iso (funExt∙P {f = f} {g = g})
-        (funExt∙P⁻ {f = f} {g = g})
-        (λ p i j → (λ a → p j .fst a) , λ k → p j .snd k)
-        λ h _ → h
+  Iso.fun (funExt∙PIso f g)  = funExt∙P {f = f} {g = g}
+  Iso.inv (funExt∙PIso f g) = funExt∙P⁻ {f = f} {g = g}
+  Iso.rightInv (funExt∙PIso f g) = λ p i j → (λ a → p j .fst a) , λ k → p j .snd k
+  Iso.leftInv (funExt∙PIso f g) = λ h _ → h
 
   -- transformed to equivalence
   funExt∙P≃ : (f g : Π∙ A B ptB) → (f ∙∼P g) ≃ (f ≡ g)
   funExt∙P≃ f g = isoToEquiv (funExt∙PIso f g)
-
 
   -- funExt∙≃ using the other kind of pointed homotopy
   funExt∙≃ : (f g : Π∙ A B ptB) → (f ∙∼ g) ≃ (f ≡ g)

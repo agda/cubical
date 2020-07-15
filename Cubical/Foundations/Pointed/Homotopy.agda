@@ -11,42 +11,18 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Fiberwise
-open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Pointed.Base
 open import Cubical.Foundations.Pointed.Properties
-
 open import Cubical.Homotopy.Base
-
 open import Cubical.Data.Sigma
 
 private
   variable
     ℓ ℓ' : Level
-    A : Type ℓ
-
-  module _ where
-    -- sym induces an equivalence on identity types of paths
-    symIso : {a b : A} (p q : a ≡ b) → Iso (p ≡ q) (q ≡ p)
-    symIso p q = iso sym sym (λ _ → refl) λ _ → refl
-
-    -- composition on the right induces an equivalence of path types
-    compr≡Equiv : {A : Type ℓ} {a b c : A} (p q : a ≡ b) (r : b ≡ c) → (p ≡ q) ≃ (p ∙ r ≡ q ∙ r)
-    compr≡Equiv p q r = congEquiv ((λ s → s ∙ r) , compPathr-isEquiv r)
-
-    -- composition on the left induces an equivalence of path types
-    compl≡Equiv : {A : Type ℓ} {a b c : A} (p : a ≡ b) (q r : b ≡ c) → (q ≡ r) ≃ (p ∙ q ≡ p ∙ r)
-    compl≡Equiv p q r = congEquiv ((λ s → p ∙ s) , (compPathl-isEquiv p))
-
-    -- The type of fillers of a square is equivalent to the double composition identites
-    Square≃doubleComp : {a₀₀ a₀₁ a₁₀ a₁₁ : A}
-                        (a₀₋ : a₀₀ ≡ a₀₁) (a₁₋ : a₁₀ ≡ a₁₁)
-                        (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
-                        → Square a₀₋ a₁₋ a₋₀ a₋₁ ≃ (a₋₀ ⁻¹ ∙∙ a₀₋ ∙∙ a₋₁ ≡ a₁₋)
-    Square≃doubleComp a₀₋ a₁₋ a₋₀ a₋₁ = transportEquiv (PathP≡doubleCompPathˡ a₋₀ a₀₋ a₁₋ a₋₁)
 
 module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 
@@ -58,13 +34,10 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 
   -- pointed homotopy with PathP. Also a Σ-type, see ∙∼PΣ
   _∙∼P_ : (f g : Π∙ A B ptB) → Type (ℓ-max ℓ ℓ')
-  (f₁ , f₂) ∙∼P (g₁ , g₂) = Σ[ h ∈ f₁ ∼ g₁ ]
-               PathP (λ i → h ⋆ i ≡ ptB) f₂ g₂
+  (f₁ , f₂) ∙∼P (g₁ , g₂) = Σ[ h ∈ f₁ ∼ g₁ ] PathP (λ i → h ⋆ i ≡ ptB) f₂ g₂
 
-  {-
   -- Proof that f ∙∼ g ≃ f ∙∼P g
   -- using equivalence of the total map of φ
-  -}
   private
     module _ {f g : Π∙ A B ptB} (H : f .fst ∼ g .fst) where
       -- convenient notation
@@ -87,7 +60,8 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
       r = f₂
       s = g₂
       P≡Q : P ≡ Q
-      P≡Q = p ≡ r ∙ s ⁻¹ ≡⟨ isoToPath (symIso p (r ∙ s ⁻¹)) ⟩
+      P≡Q = p ≡ r ∙ s ⁻¹
+              ≡⟨ isoToPath (symIso p (r ∙ s ⁻¹)) ⟩
             r ∙ s ⁻¹ ≡ p
               ≡⟨ cong (r ∙ s ⁻¹ ≡_) (rUnit p ∙∙ cong (p ∙_) (sym (rCancel s)) ∙∙ assoc p s (s ⁻¹)) ⟩
             r ∙ s ⁻¹ ≡ (p ∙ s) ∙ s ⁻¹
@@ -108,7 +82,6 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
       -- φ is even a fiberwise equivalence by P≡Q
       φ : P → Q
       φ = transport P≡Q
-
 
     -- The total map corresponding to φ
     totφ : {f g : Π∙ A B ptB} → f ∙∼ g → f ∙∼P g
@@ -132,7 +105,6 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
   -- ∙∼≃∙∼P transformed to a path
   ∙∼≡∙∼P : (f g : Π∙ A B ptB) → (f ∙∼ g) ≡ (f ∙∼P g)
   ∙∼≡∙∼P f g = ua (∙∼≃∙∼P f g)
-
 
   -- Verifies that the pointed homotopies actually correspond
   -- to their Σ-type versions
