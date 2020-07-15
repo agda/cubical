@@ -1,88 +1,21 @@
--- Displayed SIP
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.DStructures.DispSIP where
+module Cubical.DStructures.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.Properties
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Path
-open import Cubical.Foundations.SIP
+
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary
 open BinaryRelation
 
+open import Cubical.DStructures.Base
+
 private
   variable
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C ℓ≅ᴰ : Level
-
-{- Stuff to do:
- * get URGStr from univalent bi-category
- * (Bonus: (A : Type ℓ) → isContr (URGStr A ℓ))
- * functoriality for free for e : (a : A) → B a → B' a
- * standard notion of structure
- * associativity of URGStr towers
-
-
-  Next steps:
-  - URGStr on Groups
-  - Two arms going up:
-  -+ 1. SectRetr over G, RGGp over that, Peiffer over that, Str2Gp over/equiv to that
-  -+ 2. GpAction over G, PreXMod over that, XMod over that
-
--}
--- a univalent reflexive graph structure on a type
-record URGStr (A : Type ℓA) (ℓ≅A : Level) : Type (ℓ-max ℓA (ℓ-suc ℓ≅A)) where
-  constructor urgstr
-  field
-    _≅_ : Rel A A ℓ≅A
-    ρ : isRefl _≅_
-    uni : isUnivalent _≅_ ρ
-
--- wrapper to create instances of URGStr
-makeURGStr : {A : Type ℓA} {_≅_ : Rel A A ℓ≅A}
-             (ρ : isRefl _≅_) (contrTotal : contrTotalSpace _≅_)
-             → URGStr A ℓ≅A
-makeURGStr {A = A} {_≅_ = _≅_}
-           ρ contrTotal
-           = urgstr _≅_
-                    ρ
-                    λ a a' → contrTotalSpace→isUnivalent _≅_ ρ contrTotal a a'
-
--- a displayed univalent reflexive graph structure over a URGStr on a type
-record URGStrᴰ {A : Type ℓA} (StrA : URGStr A ℓ≅A)
-                  (B : A → Type ℓB) (ℓ≅ᴰ : Level) : Type (ℓ-max (ℓ-max (ℓ-max ℓA ℓB) ℓ≅A) (ℓ-suc ℓ≅ᴰ)) where
-  constructor urgstrᴰ
-  open URGStr StrA
-
-  field
-    _≅ᴰ⟨_⟩_ : {a a' : A} → B a → a ≅ a' → B a' → Type ℓ≅ᴰ
-    ρᴰ : {a : A} → isRefl _≅ᴰ⟨ ρ a ⟩_
-    uniᴰ : {a : A} → isUnivalent _≅ᴰ⟨ ρ a ⟩_ ρᴰ
-
--- wrapper to create instances of URGStrᴰ
-module _ {A : Type ℓ} {StrA : URGStr A ℓ₁}
-         (B : A → Type ℓ') (ℓ₁' : Level)
-         where
-           open URGStr StrA
-
-           makeURGStrᴰ : {B : A → Type ℓ'} {ℓ₁' : Level}
-                         (_≅ᴰ⟨_⟩_ : {a a' : A} → B a → a ≅ a' → B a' → Type ℓ₁')
-                         (ρᴰ : {a : A} → isRefl _≅ᴰ⟨ ρ a ⟩_)
-                         (contrTotal : (a : A) → contrTotalSpace _≅ᴰ⟨ ρ a ⟩_)
-                         → URGStrᴰ StrA B ℓ₁'
-           makeURGStrᴰ _≅ᴰ⟨_⟩_ ρᴰ contrTotal
-             = urgstrᴰ _≅ᴰ⟨_⟩_
-                       ρᴰ
-                       λ {a : A} b b' → contrTotalSpace→isUnivalent (_≅ᴰ⟨ ρ a ⟩_)
-                                                                    (ρᴰ {a})
-                                                                    (contrTotal a)
-                                                                    b b'
-
 
 -- the total space of a DURGS is a URGS
 URGStrᴰ→URGStr : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
@@ -135,75 +68,45 @@ URGStrᴰ→URGStr {A = A} StrA B DispStrB
                  → URGStr (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
 ∫⟨_⟩_ StrA {B} DispStrB = URGStrᴰ→URGStr StrA B DispStrB
 
+
+module Sigma {ℓ≅A ℓ≅B} {A : Type ℓA} {B : A → Type ℓB} where
+  ℓ≅AB = ℓ-max ℓ≅A ℓ≅B
+  URGStrΣ = URGStr (Σ A B) ℓ≅AB
+  ΣURGStrᴰ = Σ[ StrA ∈ URGStr A ℓ≅A ] (URGStrᴰ StrA (λ a → B a) ℓ≅B)
+
+  Σ∫ : ΣURGStrᴰ → URGStrΣ
+  Σ∫ (StrA , StrBᴰ) = ∫⟨ StrA ⟩ StrBᴰ
+
+{-
+  ΣΔ : URGStrΣ → ΣURGStrᴰ
+  fst (ΣΔ StrBA) = makeURGStr {_≅_ = λ a a' → {!!}}
+                              {!!}
+                              {!!}
+  snd (ΣΔ StrBA) = {!makeURGStrᴰ!}
+-}
+
 -- associativity for towers
 module Assoc {ℓA ℓB ℓC ℓ≅A ℓ≅B ℓ≅C : Level}
              {A : Type ℓ} {B : A → Type ℓB} {C : {a : A} → B a → Type ℓC}
              (StrA : URGStr A ℓ≅A) where
 
   ℓ≅ABC = ℓ-max (ℓ-max ℓ≅A ℓ≅B) ℓ≅C
+  ℓ≅AB = ℓ-max ℓ≅A ℓ≅B
+  ℓ≅BC = ℓ-max ℓ≅B ℓ≅C
 
-  {-
-  -- the Σ-univalent reflexive graph structure of C over B
-  URGΣ : (StrB : URGStrᴰ StrA B (ℓ-max ℓ≅A ℓ≅B))
-         (StrC : URGStrᴰ (∫⟨ StrA ⟩ StrB) (λ (a , b) → C {a} b) (ℓ-max (ℓ-max ℓ≅A ℓ≅B) ℓ≅C))
-            → URGStrᴰ StrA (λ a → Σ[ b ∈ B a ] (C {a} b)) (ℓ-max (ℓ-max ℓ≅A ℓ≅B) ℓ≅C)
-  URGΣ StrA StrB = {!!}
+  StrCᴰB/A = Σ[ StrB/A ∈ URGStr (Σ A B) ℓ≅AB ] URGStrᴰ StrB/A (λ (a , b) → C b) ℓ≅C
+  StrCBᴰ/A = Σ[ StrA ∈ URGStr A ℓ≅A ] URGStrᴰ StrA (λ a → Σ[ b ∈ B a ] C b) ℓ≅BC
+  StrC/BA = URGStr (Σ[ a ∈ A ] Σ[ b ∈ B a ] C b) ℓ≅ABC
+  StrCB/A = URGStr (Σ[ (a , b) ∈ Σ[ a ∈ A ] B a ] C b) ℓ≅ABC
 
-  -- taking the sigma graph and then integrating is the same as integrating twice
-  URGΣAssoc : (StrB : URGStrᴰ StrA B (ℓ-max ℓ≅A ℓ≅B))
-              (StrC : URGStrᴰ (∫⟨ StrA ⟩ StrB)
-                              (λ (a , b) → C {a} b)
-                              (ℓ-max (ℓ-max ℓ≅A ℓ≅B) ℓ≅C))
-              → PathP {!!}
-                      (URGStrᴰ→URGStr (URGStrᴰ→URGStr StrA B StrB) (λ (a , b) → C {a} b) StrC)
-                      (URGStrᴰ→URGStr StrA (λ a → Σ[ b ∈ B a ] (C {a} b)) (URGΣ StrB StrC))
-  URGΣAssoc StrB StrC = {!!}
-  -}
- 
-module Fiberwise {ℓB ℓC ℓ≅B ℓ≅C : Level} {A : Type ℓ} {B : A → Type ℓB} {C : A → Type ℓC} where
+  f : StrCᴰB/A → StrCB/A
+  f (StrB/A , StrCᴰ) = ∫⟨ StrB/A ⟩ StrCᴰ
 
-  -- this belongs in Relation/Binary
-  -- the notion of a fiberwise isomorphism with respect to a binary relation
-  record FiberRelIso (_≅B_ : {a : A} → Rel (B a) (B a) ℓ≅B)
-                  (_≅C_ : {a : A} → Rel (C a) (C a) ℓ≅C) : Type (ℓ-max (ℓ-max ℓ (ℓ-max ℓB ℓC)) (ℓ-max ℓ≅B ℓ≅C)) where
-    constructor fiberRelIso
-    field
-      fun : {a : A} → B a → C a
-      inv : {a : A} → C a → B a
-      sec : {a : A} → (c : C a) → fun (inv c) ≅C c
-      ret : {a : A} → (b : B a) → inv (fun b) ≅B b
+  g : StrCBᴰ/A → StrC/BA
+  g (StrA , StrCBᴰ) = ∫⟨ StrA ⟩ StrCBᴰ
 
-  module _ {StrA : URGStr A ℓ} {StrBᴰ : URGStrᴰ StrA B ℓ≅B} {StrCᴰ : URGStrᴰ StrA C ℓ≅C} where
-    -- maybe put this into separate module that exports useful notation
-    module _ where
-      ρ = URGStr.ρ StrA
-      ρB = URGStrᴰ.ρᴰ StrBᴰ
-      ρC = URGStrᴰ.ρᴰ StrCᴰ
-
-      _≅B_ : {a : A} → Rel (B a) (B a) ℓ≅B
-      _≅B_ {a} b b' = URGStrᴰ._≅ᴰ⟨_⟩_ StrBᴰ b (ρ a) b'
-      _≅C_ : {a : A} → Rel (C a) (C a) ℓ≅C
-      _≅C_ {a} c c' = URGStrᴰ._≅ᴰ⟨_⟩_ StrCᴰ c (ρ a) c'
-
-      -- combine univalence map and proof that it is an equivalence
-      -- to be able to invert it
-      uniB : {a : A} (b b' : B a) → (b ≡ b') ≃ (b ≅B b')
-      uniB b b' = ≡→R _≅B_ ρB , URGStrᴰ.uniᴰ StrBᴰ b b'
-
-      uniC : {a : A} (c c' : C a) → (c ≡ c') ≃ (c ≅C c')
-      uniC c c' = ≡→R _≅C_ ρC , URGStrᴰ.uniᴰ StrCᴰ c c'
-
-    -- use univalence of the graph structure to show that
-    -- fiberwise relational isos are fiberwise isos
-    DispFiberIso→FiberEquiv : ((fiberRelIso F G FG GF) : FiberRelIso _≅B_ _≅C_)
-                              → (a : A)
-                              → Iso (B a) (C a)
-    DispFiberIso→FiberEquiv (fiberRelIso F G FG GF) a
-      = iso (F {a})
-            (G {a})
-            (λ c → (invEquiv (uniC (F (G c)) c)) .fst (FG c))
-            λ b → (invEquiv (uniB (G (F b)) b)) .fst (GF b)
-
+  URGΣAssoc : StrCB/A ≡ StrC/BA
+  URGΣAssoc = cong (λ z → URGStr z ℓ≅ABC) (isoToPath Σ-assoc-Iso)
 
 module Combine where
   -- combine two structures StrB and StrC over StrA to a structure StrB × StrC over A
