@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --safe --no-import-sorts #-}
 
 module Cubical.Structures.Algebra where
 
