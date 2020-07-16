@@ -33,10 +33,12 @@ open import Cubical.Data.Unit
 
 open import Cubical.Structures.Group
 
+infixr 31 _□_
+_□_ : _
+_□_ = compGroupEquiv
 
 open GroupEquiv
 open vSES
-
 
 Sn-connected : (n : ℕ) (x : S₊ (suc n)) → ∥ north ≡ x ∥₁
 Sn-connected n = suspToPropRec north (λ _ → propTruncIsProp) ∣ refl ∣₁
@@ -255,7 +257,7 @@ H¹-S²≅0 =
 -- we begin with some functions translating between H¹(S₊ 1) and ∥ S¹ → S¹ ∥₀.  The latter type is easy to characterise,
 -- by (S¹ → S¹) ≃ S¹ × ℤ (see Cubical.ZCohomology.Groups.Prelims). Truncating this leaves only ℤ, since S¹ is connected.
 
--- The translation mention above uses the basechange function. We use basechange-lemma (Cubical.ZCohomology.Groups.Prelims) to prove the basechange2⁻ preserves
+-- The translation mentioned above uses the basechange function. We use basechange-lemma (Cubical.ZCohomology.Groups.Prelims) to prove the basechange2⁻ preserves
 -- path composition (in a more general sense than what is proved in basechange2⁻-morph)
 
 -- We can now give the group equivalence. The first bit is just a big composition of our previously defined translations and is pretty uninteresting.

@@ -34,7 +34,7 @@ H⁰-Unit≅ℤ = GrIsoToGrEquiv H⁰-Unit≅ℤ'
 
 {- Hⁿ(Unit) for n ≥ 1 -}
 isContrHⁿ-Unit : (n : ℕ) → isContr (coHom (suc n) Unit)
-isContrHⁿ-Unit n = subst isContr (λ i → ∥ UnitToTypeId (coHomK (suc n)) (~ i) ∥₂) (helper' n)
+isContrHⁿ-Unit n = subst isContr (λ i → ∥ UnitToTypePath (coHomK (suc n)) (~ i) ∥₂) (helper' n)
   where
   helper' : (n : ℕ) → isContr (∥ coHomK (suc n) ∥₂)
   helper' n =
@@ -63,8 +63,8 @@ Hⁿ-Unit≅0 n = GrIsoToGrEquiv (Hⁿ-Unit≅0' n)
 private
   Hⁿ-contrTypeIso : ∀ {ℓ} {A : Type ℓ} (n : ℕ) → isContr A
                    → Iso (coHom (suc n) A) (coHom (suc n) Unit)
-  Hⁿ-contrTypeIso n contr = compIso (setTruncIso (ContrToTypeIso contr))
-                                    (setTruncIso (invIso (ContrToTypeIso isContrUnit)))
+  Hⁿ-contrTypeIso n contr = compIso (setTruncIso (isContr→Iso2 contr))
+                                    (setTruncIso (invIso (isContr→Iso2 isContrUnit)))
 
   Hⁿ-contrType≅0' : ∀ {ℓ} {A : Type ℓ} (n : ℕ) → isContr A
                 → GroupIso (coHomGr (suc n) A) trivialGroup

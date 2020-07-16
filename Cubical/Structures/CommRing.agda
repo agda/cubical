@@ -132,12 +132,11 @@ module CommRingΣTheory {ℓ} where
     where
     open import Cubical.Structures.Group.Base hiding (⟨_⟩)
     open CommRing
-    open IsCommRing
     open IsGroup
-    open Group
     open IsMonoid
     open IsAbGroup
     open IsRing
+    open IsCommRing
 
     helper : _
     Carrier (helper a i) = ⟨ a ⟩
@@ -147,17 +146,17 @@ module CommRingΣTheory {ℓ} where
     _·_ (helper a i) = _·_ a
     - helper a i = - a
     isMonoid (isGroup (+-isAbGroup (isRing (isCommRing (helper a i))))) =
-      η-isMonoid (isMonoid (isGroup (+-isAbGroup (isRing (isCommRing a))))) i
+      η-isMonoid (isMonoid (isGroup (+-isAbGroup a))) i
     inverse (isGroup (+-isAbGroup (isRing (isCommRing (helper a i))))) =
-      inverse (isGroup (+-isAbGroup (isRing (isCommRing a))))
+      inverse (isGroup (+-isAbGroup a))
     comm (+-isAbGroup (isRing (isCommRing (helper a i)))) =
-      comm (+-isAbGroup (isRing (isCommRing a)))
+      comm (+-isAbGroup a)
     isSemigroup (·-isMonoid (isRing (isCommRing (helper a i)))) =
-      isSemigroup (·-isMonoid (isRing (isCommRing a)))
+      isSemigroup (·-isMonoid a)
     identity (·-isMonoid (isRing (isCommRing (helper a i)))) =
-      identity (·-isMonoid (isRing (isCommRing a)))
-    dist (isRing (isCommRing (helper a i))) = dist (isRing (isCommRing a))
-    ·-comm (isCommRing (helper a i)) = ·-comm (isCommRing a)
+      identity (·-isMonoid a)
+    dist (isRing (isCommRing (helper a i))) = dist a
+    ·-comm (isCommRing (helper a i)) = ·-comm a
 
   commRingUnivalentStr : UnivalentStr CommRingStructure CommRingEquivStr
   commRingUnivalentStr = axiomsUnivalentStr _ isPropCommRingAxioms rawRingUnivalentStr

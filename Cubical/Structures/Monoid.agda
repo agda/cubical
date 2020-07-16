@@ -41,7 +41,6 @@ record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
 
 
 record Monoid : Type (ℓ-suc ℓ) where
-  no-eta-equality
   constructor monoid
 
   field

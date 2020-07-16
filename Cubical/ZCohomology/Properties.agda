@@ -19,7 +19,7 @@ open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2 ; setTruncIsSet to §)
 open import Cubical.HITs.Nullification
-open import Cubical.Data.Int hiding (_+_)
+open import Cubical.Data.Int renaming (_+_ to _ℤ+_)
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
 open import Cubical.Homotopy.Loopspace
@@ -27,6 +27,8 @@ open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
 open import Cubical.HITs.SmashProduct.Base
 open import Cubical.Structures.Group
+open import Cubical.Structures.Semigroup
+open import Cubical.Structures.Monoid
 open import Cubical.Foundations.Equiv.HalfAdjoint
 
 
@@ -109,9 +111,8 @@ Kn→ΩKn+10ₖ (suc n) = (λ i → cong ∣_∣ (rCancel (merid north) i)) -- c
             ∙∙ (λ i → ΩKn+1→Kn (Kn→ΩKn+10ₖ n (~ i)))
             ∙∙ Iso.leftInv (Iso3-Kn-ΩKn+1 n) 0ₖ
 
-abstract
-  +ₖ→∙ : (n : ℕ) (a b : coHomK n) → Kn→ΩKn+1 n (a +ₖ b) ≡ Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b
-  +ₖ→∙ n a b = Iso.rightInv (Iso3-Kn-ΩKn+1 n) (Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b)
++ₖ→∙ : (n : ℕ) (a b : coHomK n) → Kn→ΩKn+1 n (a +ₖ b) ≡ Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b
++ₖ→∙ n a b = Iso.rightInv (Iso3-Kn-ΩKn+1 n) (Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b)
 
 lUnitₖ : {n : ℕ} (x : coHomK n) → 0ₖ +ₖ x ≡ x
 lUnitₖ {n = zero} x = cong ΩKn+1→Kn (sym (lUnit (Kn→ΩKn+1 zero x))) ∙
@@ -270,8 +271,6 @@ rUnitlUnit0 {n = suc n} =
 0ₕ∙ zero = ∣ (λ _ → 0ₖ) , refl ∣₂
 0ₕ∙ (suc n) = ∣ (λ _ → 0ₖ) , refl ∣₂
 
-open import Cubical.Structures.Semigroup
-open import Cubical.Structures.Monoid
 open IsSemigroup
 open IsMonoid
 open Group
@@ -335,7 +334,6 @@ isCommΩK-based (suc n) x p q =
                    (sym (substComposite (λ x → x) (isoToPath ((congIso (invIso (congIsoHelper x))))) (λ i → rCancelₖ x i ≡ rCancelₖ x i) q))
 
 
-open import Cubical.Data.Int renaming (_+_ to _ℤ+_)
 addLemma : (a b : Int) → a +ₖ b ≡ (a ℤ+ b)
 addLemma a b = (cong ΩKn+1→Kn (sym (congFunct ∣_∣ (looper a) (looper b)))
               ∙∙ cong₂ (λ x y → ΩKn+1→Kn (cong ∣_∣ (x ∙ y))) (looper≡looper2 a) (looper≡looper2 b)

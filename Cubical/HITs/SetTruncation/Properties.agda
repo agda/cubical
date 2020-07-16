@@ -21,9 +21,9 @@ open import Cubical.Data.Sigma
 private
   variable
     ℓ : Level
-    A : Type ℓ
+    A B C D : Type ℓ
 
-rec : {B : Type ℓ} → isSet B → (A → B) → ∥ A ∥₂ → B
+rec : isSet B → (A → B) → ∥ A ∥₂ → B
 rec Bset f ∣ x ∣₂ = f x
 rec Bset f (squash₂ x y p q i j) =
   Bset _ _ (cong (rec Bset f) p) (cong (rec Bset f) q) i j
@@ -38,7 +38,7 @@ elim Bset g (squash₂ x y p q i j) =
   isOfHLevel→isOfHLevelDep 2 Bset _ _
     (cong (elim Bset g) p) (cong (elim Bset g) q) (squash₂ x y p q) i j
 
-setTruncUniversal : {B : Type ℓ} → isSet B → (∥ A ∥₂ → B) ≃ (A → B)
+setTruncUniversal : isSet B → (∥ A ∥₂ → B) ≃ (A → B)
 setTruncUniversal {B = B} Bset =
   isoToEquiv (iso (λ h x → h ∣ x ∣₂) (rec Bset) (λ _ → refl) rinv)
   where
@@ -76,13 +76,13 @@ setTruncIdempotent≃ {A = A} hA = isoToEquiv f
 setTruncIdempotent : isSet A → ∥ A ∥₂ ≡ A
 setTruncIdempotent hA = ua (setTruncIdempotent≃ hA)
 
-isContr→isContrSetTrunc : ∀ {ℓ} {A : Type ℓ} → isContr A → isContr (∥ A ∥₂)
+isContr→isContrSetTrunc : isContr A → isContr (∥ A ∥₂)
 isContr→isContrSetTrunc contr = ∣ fst contr ∣₂
                                 , elim (λ _ → isOfHLevelPath 2 (setTruncIsSet) _ _)
                                        λ a → cong ∣_∣₂ (snd contr a)
 
 
-setTruncIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso A B → Iso ∥ A ∥₂ ∥ B ∥₂
+setTruncIso : Iso A B → Iso ∥ A ∥₂ ∥ B ∥₂
 Iso.fun (setTruncIso is) = rec setTruncIsSet (λ x → ∣ Iso.fun is x ∣₂)
 Iso.inv (setTruncIso is) = rec setTruncIsSet (λ x → ∣ Iso.inv is x ∣₂)
 Iso.rightInv (setTruncIso is) =
@@ -116,7 +116,7 @@ sigmaElim {B = B} {C = C} set g (x , y) = elim {B = λ x → (y : B x) → C (x 
                                                (λ _ → isOfHLevelΠ 2 λ _ → set (_ , _))
                                                g x y
 
-sigmaProdElim : ∀ {ℓ ℓ' ℓ''} {B : Type ℓ} {C : ∥ A ∥₂ × ∥ B ∥₂ → Type ℓ'} {D : Σ (∥ A ∥₂ × ∥ B ∥₂) C  → Type ℓ''}
+sigmaProdElim : ∀ {ℓ ℓ'} {C : ∥ A ∥₂ × ∥ B ∥₂ → Type ℓ} {D : Σ (∥ A ∥₂ × ∥ B ∥₂) C  → Type ℓ'}
              (Bset : (x : Σ (∥ A ∥₂ × ∥ B ∥₂) C) → isSet (D x))
              (g : (a : A) (b : B) (c : C (∣ a ∣₂ , ∣ b ∣₂)) → D ((∣ a ∣₂ , ∣ b ∣₂) , c))
              (x : Σ (∥ A ∥₂ × ∥ B ∥₂) C) → D x
@@ -128,7 +128,7 @@ sigmaProdElim {B = B} {C = C} {D = D} set g ((x , y) , c) =
        x y c
 
 
-prodElim : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : ∥ A ∥₂ × ∥ B ∥₂ → Type ℓ''}
+prodElim : ∀ {ℓ} {C : ∥ A ∥₂ × ∥ B ∥₂ → Type ℓ}
         → ((x : ∥ A ∥₂ × ∥ B ∥₂) → isOfHLevel 2 (C x))
         → ((a : A) (b : B) → C (∣ a ∣₂ , ∣ b ∣₂))
         → (x : ∥ A ∥₂ × ∥ B ∥₂) → C x
@@ -138,8 +138,7 @@ prodElim {A = A} {B = B} {C = C} hlevel ind (a , b) = schonf a b
   schonf = elim (λ x → isOfHLevelΠ 2 λ y → hlevel (_ , _)) λ a → elim (λ x → hlevel (_ , _))
                  λ b → ind a b
 
-prodElim2 : ∀ {ℓ ℓ' ℓ'' ℓ''' ℓ''''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
-            {E : (∥ A ∥₂ × ∥ B ∥₂) → (∥ C ∥₂ × ∥ D ∥₂) → Type ℓ''''}
+prodElim2 : ∀ {ℓ} {E : (∥ A ∥₂ × ∥ B ∥₂) → (∥ C ∥₂ × ∥ D ∥₂) → Type ℓ}
          → ((x : ∥ A ∥₂ × ∥ B ∥₂) (y : ∥ C ∥₂ × ∥ D ∥₂) → isOfHLevel 2 (E x y))
          → ((a : A) (b : B) (c : C) (d : D) → E (∣ a ∣₂ , ∣ b ∣₂) (∣ c ∣₂ , ∣ d ∣₂))
          → ((x : ∥ A ∥₂ × ∥ B ∥₂) (y : ∥ C ∥₂ × ∥ D ∥₂) → (E x y))
@@ -148,7 +147,7 @@ prodElim2 isset f = prodElim (λ _ → isOfHLevelΠ 2 λ _ → isset _ _)
                                      λ c d → f a b c d
 
 
-setTruncOfProdIso :  ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso ∥ A × B ∥₂ (∥ A ∥₂ × ∥ B ∥₂)
+setTruncOfProdIso :  Iso ∥ A × B ∥₂ (∥ A ∥₂ × ∥ B ∥₂)
 Iso.fun setTruncOfProdIso = rec (isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet)) λ { (a , b) → ∣ a ∣₂ , ∣ b ∣₂ }
 Iso.inv setTruncOfProdIso = prodElim (λ _ → setTruncIsSet) λ a b → ∣ a , b ∣₂
 Iso.rightInv setTruncOfProdIso =

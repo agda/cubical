@@ -4,8 +4,12 @@ module Cubical.Structures.Group.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
 open import Cubical.Data.Prod renaming (_×_ to _×'_)
+open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_)
+open import Cubical.Data.Unit
+
 open import Cubical.Structures.Monoid hiding (⟨_⟩)
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
+open import Cubical.Foundations.HLevels
 
 private
   variable
@@ -41,9 +45,9 @@ record IsGroup {G : Type ℓ}
 η-isGroup id1 id2 id3 i = IsGroup (id1 i) (id2 i) (id3 i)
 
 record Group : Type (ℓ-suc ℓ) where
-  no-eta-equality
-  constructor group
 
+  constructor group
+  no-eta-equality
   field
     Carrier : Type ℓ
     0g      : Carrier
@@ -180,11 +184,9 @@ makeGroup-left {A = A} id comp inv set assoc lUnit lCancel =
         a
           ∎
 
-
 open Group
 open IsGroup
 
-open Group
 η-Group : {G H : Group {ℓ}}
        → (p : ⟨ G ⟩ ≡ ⟨ H ⟩)
        → (q : PathP (λ i → p i) (0g G) (0g H))
@@ -201,7 +203,6 @@ isGroup (η-Group _ _ _ _ t i) = t i
 isSetCarrier : ∀ {ℓ} → (G : Group {ℓ}) → isSet ⟨ G ⟩
 isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (isMonoid (isGroup G)))
 
-open import Cubical.Foundations.HLevels
 open IsMonoid
 open IsSemigroup
 dirProd : ∀ {ℓ ℓ'} → Group {ℓ} → Group {ℓ'} → Group
@@ -220,7 +221,6 @@ inverse (isGroup (dirProd A B)) x =
     (λ i → (fst (inverse (isGroup A) (fst x)) i) , (fst (inverse (isGroup B) (snd x)) i))
   , λ i → (snd (inverse (isGroup A) (fst x)) i) , (snd (inverse (isGroup B) (snd x)) i)
 
-open import Cubical.Data.Unit
 trivialGroup : Group₀
 Carrier trivialGroup = Unit
 0g trivialGroup = _
@@ -231,8 +231,6 @@ assoc (isSemigroup (isMonoid (isGroup trivialGroup))) _ _ _ = refl
 identity (isMonoid (isGroup trivialGroup)) _ = refl , refl
 inverse (isGroup trivialGroup) _ = refl , refl
 
-
-open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_)
 intGroup : Group₀
 Carrier intGroup = Int
 0g intGroup = 0
@@ -242,3 +240,16 @@ is-set (isSemigroup (isMonoid (isGroup intGroup))) = isSetInt
 assoc (isSemigroup (isMonoid (isGroup intGroup))) = +-assoc
 identity (isMonoid (isGroup intGroup)) x = refl , (+-comm (pos 0) x)
 inverse (isGroup intGroup) x = +-comm x (pos 0 -Int x) ∙ minusPlus x 0 , (minusPlus x 0)
+
+
+dirProd' : Group₀ → Group₀ → Group₀
+dirProd' G H =
+ makeGroup (0g G , 0g H)
+           (λ x y → (_+_ G) (fst x) (fst y) , (_+_ H) (snd x) (snd y))
+           (λ x → ((- G) (fst x)) , (- H) (snd x))
+           (isOfHLevelΣ 2 (isSetCarrier G) (λ _ → isSetCarrier H))
+           (λ x y z → ΣPathP ((assoc G _ _ _) , assoc H _ _ _))
+           (λ x → ΣPathP ((Group.rid G (fst x)) , (Group.rid H (snd x))))
+           (λ x → ΣPathP ((Group.lid G (fst x)) , (Group.lid H (snd x))))
+           (λ x → ΣPathP ((Group.invr G _) , (Group.invr H _)))
+           λ x →  ΣPathP ((Group.invl G _) , (Group.invl H _))

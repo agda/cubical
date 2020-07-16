@@ -118,10 +118,6 @@ module AbGroupΣTheory {ℓ} where
     abgroup _ _ _ _ (isabgroup (GroupΣ→Group (_ , _ , G) .Group.isGroup) C)
 
   open AbGroup
-  open IsAbGroup
-  open Monoid
-  open IsMonoid
-  open IsGroup
 
   AbGroupIsoAbGroupΣ : Iso AbGroup AbGroupΣ
   AbGroupIsoAbGroupΣ = iso AbGroup→AbGroupΣ AbGroupΣ→AbGroup helper helper2
@@ -135,9 +131,9 @@ module AbGroupΣTheory {ℓ} where
     0g (helper2 a i) = 0g a
     _+_ (helper2 a i) = _+_ a
     - helper2 a i = - a
-    isMonoid (isGroup (isAbGroup (helper2 a i))) = η-isMonoid (isMonoid (isGroup (isAbGroup a))) i
-    inverse (isGroup (isAbGroup (helper2 a i))) = inverse (isGroup (isAbGroup a))
-    comm (isAbGroup (helper2 a i)) = comm (isAbGroup a)
+    IsGroup.isMonoid (IsAbGroup.isGroup (isAbGroup (helper2 a i))) = η-isMonoid (isMonoid a) i
+    IsGroup.inverse (IsAbGroup.isGroup (isAbGroup (helper2 a i))) = inverse a
+    IsAbGroup.comm (isAbGroup (helper2 a i)) = comm a
 
   abGroupUnivalentStr : UnivalentStr AbGroupStructure AbGroupEquivStr
   abGroupUnivalentStr = axiomsUnivalentStr _ isPropAbGroupAxioms rawGroupUnivalentStr

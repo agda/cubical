@@ -248,16 +248,17 @@ PathΣ→ΣPathTransport a b = invEq (ΣPathTransport≃PathΣ a b)
     map-× (fst eq1) (fst eq2)
   , record
      { equiv-proof
-       = λ {(c , d) → ((equiv-proof (eq1 .snd) c .fst .fst
-                        , equiv-proof (eq2 .snd) d .fst .fst)
-                          , ≡-× (equiv-proof (eq1 .snd) c .fst .snd)
-                                (equiv-proof (eq2 .snd) d .fst .snd))
-                     , λ {((a , b) , p) → ΣPathP (≡-× (cong fst (equiv-proof (eq1 .snd) c .snd (a , cong fst p)))
-                                                       (cong fst (equiv-proof (eq2 .snd) d .snd (b , cong snd p)))
-                                                , λ i → ≡-× (snd ((equiv-proof (eq1 .snd) c .snd (a , cong fst p)) i))
-                                                             (snd ((equiv-proof (eq2 .snd) d .snd (b , cong snd p)) i)))}}}
-
-
+       = λ {(c , d) → ((eq1⁻ c .fst .fst
+                        , eq2⁻ d .fst .fst)
+                          , ≡-× (eq1⁻ c .fst .snd)
+                                (eq2⁻ d .fst .snd))
+                     , λ {((a , b) , p) → ΣPathP (≡-× (cong fst (eq1⁻ c .snd (a , cong fst p)))
+                                                       (cong fst (eq2⁻ d .snd (b , cong snd p)))
+                                                , λ i → ≡-× (snd ((eq1⁻ c .snd (a , cong fst p)) i))
+                                                             (snd ((eq2⁻ d .snd (b , cong snd p)) i)))}}}
+  where
+  eq1⁻ = equiv-proof (eq1 .snd)
+  eq2⁻ = equiv-proof (eq2 .snd)
 
 {- Some simple ismorphisms -}
 

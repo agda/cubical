@@ -6,6 +6,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.SIP
 open import Cubical.Foundations.Function using (_∘_)
@@ -22,19 +23,13 @@ open import Cubical.Structures.Group.Base
 open import Cubical.Structures.Group.Properties
 open import Cubical.Structures.Group.Morphism
 
-open Iso
-
 private
   variable
     ℓ ℓ' ℓ'' : Level
 
-infixr 31 _□_
-
+open Iso
 open Group
 open GroupHom
-open IsMonoid
-open IsSemigroup
-open IsGroup
 
 isPropIsGroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) {f : ⟨ G ⟩ → ⟨ H ⟩} → isProp (isGroupHom G H f)
 isPropIsGroupHom G H {f} = isPropΠ2 λ a b → Group.is-set H _ _
@@ -58,10 +53,6 @@ open GroupEquiv
 compGroupEquiv : {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} → GroupEquiv F G → GroupEquiv G H → GroupEquiv F H
 eq (compGroupEquiv f g) = compEquiv (eq f) (eq g)
 isHom (compGroupEquiv f g) = isHom (compGroupHom (hom f) (hom g))
-
-_□_ : _
-_□_ = compGroupEquiv
-
 
 idGroupEquiv : (G : Group {ℓ}) → GroupEquiv G G
 eq (idGroupEquiv G) = idEquiv ⟨ G ⟩
@@ -150,26 +141,26 @@ module GroupΣTheory {ℓ} where
         isProp (Σ[ e ∈ G ] ((x : G) → (x + e ≡ x) × (e + x ≡ x))
                          × ((x : G) → Σ[ x' ∈ G ] (x + x' ≡ e) × (x' + x ≡ e)))
     γ h (e , P , _) (e' , Q , _) =
-      Σ≡Prop (λ x → isPropΣ (isPropΠ λ _ → isProp× ((is-set h) _ _) ((is-set h) _ _)) (β x))
+      Σ≡Prop (λ x → isPropΣ (isPropΠ λ _ → isProp× ((IsSemigroup.is-set h) _ _) ((IsSemigroup.is-set h) _ _)) (β x))
              (sym (fst (Q e)) ∙ snd (P e'))
       where
       β : (e : G) → ((x : G) → (x + e ≡ x) × (e + x ≡ x))
         → isProp ((x : G) → Σ[ x' ∈ G ] (x + x' ≡ e) × (x' + x ≡ e))
       β e He =
         isPropΠ λ { x (x' , _ , P) (x'' , Q , _) →
-                Σ≡Prop (λ _ → isProp× ((is-set h) _ _) ((is-set h) _ _))
+                Σ≡Prop (λ _ → isProp× ((IsSemigroup.is-set h) _ _) ((IsSemigroup.is-set h) _ _))
                        (inv-lemma ℳ x x' x'' P Q) }
         where
         ℳ : Monoid
-        ℳ = makeMonoid e _+_ (is-set h) (IsSemigroup.assoc h) (λ x → He x .fst) (λ x → He x .snd)
+        ℳ = makeMonoid e _+_ (IsSemigroup.is-set h) (IsSemigroup.assoc h) (λ x → He x .fst) (λ x → He x .snd)
 
   Group→GroupΣ : Group → GroupΣ
   Group→GroupΣ G = _ , _ ,
-                  ((isSemigroup (isMonoid (isGroup G)))
+                  ((isSemigroup G)
                   , _
-                  , (identity (isMonoid (isGroup G)))
+                  , (identity G)
                   , λ x → (- G) x
-                    , inverse (isGroup G) x)
+                    , inverse G x)
 
   GroupΣ→Group : GroupΣ → Group
   GroupΣ→Group (G , _ , SG , _ , H0g , w ) =
@@ -180,15 +171,12 @@ module GroupΣTheory {ℓ} where
     where
     helper : retract (λ z → Group→GroupΣ z) GroupΣ→Group
     Carrier (helper a i) = ⟨ a ⟩
-    0g (helper a i) = Group.0g a
-    _+_ (helper a i) = Group._+_ a
-    - helper a i = Group.- a
-    isSemigroup (isMonoid (isGroup (helper a i))) =
-      isSemigroup (isMonoid (isGroup a))
-    IsMonoid.identity (isMonoid (isGroup (helper a i))) =
-      identity (isMonoid (Group.isGroup a))
-    inverse (isGroup (helper a i)) = inverse (Group.isGroup a)
-
+    0g (helper a i) = 0g a
+    _+_ (helper a i) = (_+_) a
+    - helper a i = - a
+    IsMonoid.isSemigroup (IsGroup.isMonoid (isGroup (helper a i))) = isSemigroup a
+    IsMonoid.identity (IsGroup.isMonoid (isGroup (helper a i))) = identity a
+    IsGroup.inverse (isGroup (helper a i)) = inverse a
 
   groupUnivalentStr : UnivalentStr GroupStructure GroupEquivStr
   groupUnivalentStr = axiomsUnivalentStr _ isPropGroupAxioms rawGroupUnivalentStr
@@ -279,8 +267,7 @@ Group≡ G H = isoToEquiv theIso
   isGroup (rightInv theIso a i i₁) = isGroup (a i₁)
   leftInv theIso _ = refl
 
-open import Cubical.Foundations.Transport
-caracGroup≡ : {G H : Group {ℓ}} (p q : G ≡ H) → cong Group.Carrier p ≡ cong Group.Carrier q → p ≡ q
+caracGroup≡ : {G H : Group {ℓ}} (p q : G ≡ H) → cong ⟨_⟩ p ≡ cong ⟨_⟩ q → p ≡ q
 caracGroup≡ {G = G} {H = H} p q P = sym (transportTransport⁻ (ua (Group≡ G H)) p)
                                  ∙∙ cong (transport (ua (Group≡ G H))) helper
                                  ∙∙ transportTransport⁻ (ua (Group≡ G H)) q

@@ -6,6 +6,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function using (_∘_)
 open import Cubical.Foundations.GroupoidLaws
+
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
@@ -24,7 +25,7 @@ open GroupHom
 
 private
   variable
-    ℓ ℓ' ℓ'' : Level
+    ℓ ℓ₁ ℓ₂ ℓ₃ : Level
 
 ------- elementary properties of morphisms --------
 
@@ -75,8 +76,6 @@ record GroupIso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max 
     rightInv : section (GroupHom.fun map) inv
     leftInv : retract (GroupHom.fun map) inv
 
-infixr 35 _◆_
-
 record BijectionIso {ℓ ℓ'} (A : Group {ℓ}) (B : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
   constructor bij-iso
   field
@@ -108,13 +107,13 @@ open BijectionIso
 open GroupIso
 open vSES
 
-compGroupIso : ∀ {ℓ''} {G : Group {ℓ}} {H : Group {ℓ'}} {A : Group {ℓ''}} → GroupIso G H → GroupIso H A → GroupIso G A
+compGroupIso : {G : Group {ℓ}} {H : Group {ℓ₁}} {A : Group {ℓ₂}} → GroupIso G H → GroupIso H A → GroupIso G A
 map (compGroupIso iso1 iso2) = compGroupHom (map iso1) (map iso2)
 inv (compGroupIso iso1 iso2) = inv iso1 ∘ inv iso2
 rightInv (compGroupIso iso1 iso2) a = cong (fun (map iso2)) (rightInv iso1 _) ∙ rightInv iso2 a
 leftInv (compGroupIso iso1 iso2) a = cong (inv iso1) (leftInv iso2 _) ∙ leftInv iso1 a
 
-isGroupHomInv' : {G : Group {ℓ}} {H : Group {ℓ'}} (f : GroupIso G H) → isGroupHom H G (inv f)
+isGroupHomInv' : {G : Group {ℓ}} {H : Group {ℓ₁}} (f : GroupIso G H) → isGroupHom H G (inv f)
 isGroupHomInv' {G = G} {H = H}  f h h' = isInj-f _ _ (
   f' (g (h ⋆² h')) ≡⟨ (rightInv f) _ ⟩
   (h ⋆² h') ≡⟨ sym (cong₂ _⋆²_ (rightInv f h) (rightInv f h')) ⟩
@@ -129,17 +128,14 @@ isGroupHomInv' {G = G} {H = H}  f h h' = isInj-f _ _ (
   isInj-f : (x y : ⟨ G ⟩) → f' x ≡ f' y → x ≡ y
   isInj-f x y p = sym (leftInv f _) ∙∙ cong g p ∙∙ leftInv f _
 
-invGroupIso : {G : Group {ℓ}} {H : Group {ℓ'}} → GroupIso G H → GroupIso H G
+invGroupIso : {G : Group {ℓ}} {H : Group {ℓ₁}} → GroupIso G H → GroupIso H G
 fun (map (invGroupIso iso1)) = inv iso1
 isHom (map (invGroupIso iso1)) = isGroupHomInv' iso1
 inv (invGroupIso iso1) = fun (map iso1)
 rightInv (invGroupIso iso1) = leftInv iso1
 leftInv (invGroupIso iso1) = rightInv iso1
 
-_◆_ : _
-_◆_ = compGroupIso
-
-dirProdGroupIso : ∀ {ℓ'' ℓ'''} {G : Group {ℓ}} {H : Group {ℓ'}} {A : Group {ℓ''}} {B : Group {ℓ'''}}
+dirProdGroupIso : {G : Group {ℓ}} {H : Group {ℓ₁}} {A : Group {ℓ₂}} {B : Group {ℓ₃}}
                → GroupIso G H → GroupIso A B → GroupIso (dirProd G A) (dirProd H B)
 fun (map (dirProdGroupIso iso1 iso2)) prod = fun (map iso1) (fst prod) , fun (map iso2) (snd prod)
 isHom (map (dirProdGroupIso iso1 iso2)) a b = ΣPathP (isHom (map iso1) (fst a) (fst b) , isHom (map iso2) (snd a) (snd b))
@@ -147,12 +143,12 @@ inv (dirProdGroupIso iso1 iso2) prod = (inv iso1) (fst prod) , (inv iso2) (snd p
 rightInv (dirProdGroupIso iso1 iso2) a = ΣPathP (rightInv iso1 (fst a) , (rightInv iso2 (snd a)))
 leftInv (dirProdGroupIso iso1 iso2) a = ΣPathP (leftInv iso1 (fst a) , (leftInv iso2 (snd a)))
 
-GrIsoToGrEquiv : {G : Group {ℓ}} {H : Group {ℓ'}} → GroupIso G H → GroupEquiv G H
+GrIsoToGrEquiv : {G : Group {ℓ}} {H : Group {ℓ₂}} → GroupIso G H → GroupEquiv G H
 GroupEquiv.eq (GrIsoToGrEquiv i) = isoToEquiv (iso (fun (map i)) (inv i) (rightInv i) (leftInv i))
 GroupEquiv.isHom (GrIsoToGrEquiv i) = isHom (map i)
 
 --- Proofs that BijectionIso and vSES both induce isomorphisms ---
-BijectionIsoToGroupIso : {A : Group {ℓ}} {B : Group {ℓ'}} → BijectionIso A B → GroupIso A B
+BijectionIsoToGroupIso : {A : Group {ℓ}} {B : Group {ℓ₂}} → BijectionIso A B → GroupIso A B
 BijectionIsoToGroupIso {A = A} {B = B} i = grIso
   where
   module A = Group A
@@ -183,7 +179,7 @@ BijectionIsoToGroupIso {A = A} {B = B} i = grIso
   rightInv grIso b = (rec (helper b) (λ a → a) (surj i b)) .snd
   leftInv grIso b j = rec (helper (f b)) (λ a → a) (propTruncIsProp (surj i (f b)) ∣ b , refl ∣ j) .fst
 
-BijectionIsoToGroupEquiv : {A : Group {ℓ}} {B : Group {ℓ'}} → BijectionIso A B → GroupEquiv A B
+BijectionIsoToGroupEquiv : {A : Group {ℓ}} {B : Group {ℓ₂}} → BijectionIso A B → GroupEquiv A B
 BijectionIsoToGroupEquiv i = GrIsoToGrEquiv (BijectionIsoToGroupIso i)
 
 vSES→GroupIso : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Group {ℓ}} {B : Group {ℓ'}} (leftGr : Group {ℓ''}) (rightGr : Group {ℓ'''})
@@ -200,13 +196,12 @@ vSES→GroupIso {A = A} lGr rGr vses = BijectionIsoToGroupIso theIso
                             (Ker-ϕ⊂Im-left vses a inker)
   surj theIso a = Ker-right⊂Im-ϕ vses a (isTrivialRight vses _ _)
 
-vSES→GroupEquiv : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Group {ℓ}} {B : Group {ℓ'}} (leftGr : Group {ℓ''}) (rightGr : Group {ℓ'''})
+vSES→GroupEquiv : {A : Group {ℓ}} {B : Group {ℓ₁}} (leftGr : Group {ℓ₂}) (rightGr : Group {ℓ₃})
         → vSES A B leftGr rightGr
         → GroupEquiv A B
 vSES→GroupEquiv {A = A} lGr rGr vses = GrIsoToGrEquiv (vSES→GroupIso lGr rGr vses)
 
 -- The trivial group is a unit.
-open import Cubical.Data.Unit
 lUnitGroupIso : ∀ {ℓ} {G : Group {ℓ}} → GroupEquiv (dirProd trivialGroup G) G
 lUnitGroupIso =
   GrIsoToGrEquiv

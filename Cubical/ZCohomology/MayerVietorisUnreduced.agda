@@ -15,7 +15,7 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
-open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
+open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁)
 open import Cubical.HITs.Nullification
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod hiding (_×_)
@@ -136,7 +136,7 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
                                        (λ p1 → pRec propTruncIsProp λ p2 → ∣ ∣ (λ c → ΩKn+1→Kn (sym (cong (λ F → F (f c)) p1)
                                                                                                  ∙∙ cong a (push c)
                                                                                                  ∙∙ cong (λ F → F (g c)) p2)) ∣₂
-                                                                             , cong ∣_∣₂ (funExt (λ δ → helper n a p1 p2 δ)) ∣₋₁)
+                                                                             , cong ∣_∣₂ (funExt (λ δ → helper n a p1 p2 δ)) ∣₁)
                                        (Iso.fun (PathIdTrunc₀Iso) (cong fst p))
                                        (Iso.fun (PathIdTrunc₀Iso) (cong snd p))
       where
@@ -214,7 +214,7 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
             (λ Fa → sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
                            λ Fb p → pRec propTruncIsProp
                                           (λ q → ∣ ∣ helpFun n Fa Fb (funExt⁻ q) ∣₂
-                                                  , anotherHelper n Fa Fb q ∣₋₁)
+                                                  , anotherHelper n Fa Fb q ∣₁)
                                           (helper n Fa Fb p))
             Fa
             Fb
@@ -222,7 +222,7 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
       where
       helper : (n : ℕ) (Fa : A → coHomK n) (Fb : B → coHomK n)
              → (fun (Δ n)) (∣ Fa ∣₂ , ∣ Fb ∣₂) ≡ 0ₕ
-             → ∥  (Path (_ → _) (λ c → Fa (f c)) (λ c → Fb (g c))) ∥₋₁
+             → ∥  (Path (_ → _) (λ c → Fa (f c)) (λ c → Fb (g c))) ∥₁
       helper zero Fa Fb p = Iso.fun (PathIdTrunc₀Iso)
                                      ((sym (rUnitₕ (coHomFun zero f ∣ Fa ∣₂))
                                    ∙∙ (λ i → coHomFun zero f ∣ Fa ∣₂ +ₕ (lCancelₕ (coHomFun zero g ∣ Fb ∣₂) (~ i)))
@@ -257,7 +257,7 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
     sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
           λ Fc p → pRec propTruncIsProp (λ p → ∣ (∣ (λ a → ΩKn+1→Kn (cong (λ f → f (inl a)) p)) ∣₂ ,
                                                      ∣ (λ b → ΩKn+1→Kn (cong (λ f → f (inr b)) p)) ∣₂) ,
-                                                  Iso.inv (PathIdTrunc₀Iso) ∣ funExt (λ c → helper2 n Fc p c) ∣₋₁ ∣₋₁)
+                                                  Iso.inv (PathIdTrunc₀Iso) ∣ funExt (λ c → helper2 n Fc p c) ∣₁ ∣₁)
                                          (Iso.fun (PathIdTrunc₀Iso) p)
 
     where

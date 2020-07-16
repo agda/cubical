@@ -125,11 +125,6 @@ rightInv (compIso (iso _ _ rightInv _) (iso g ginv rightInv' _)) b =
 leftInv (compIso (iso f finv _ leftInv) (iso _ _ _ leftInv')) a =
   cong finv (leftInv' (f a)) ∙ leftInv a
 
-infixr 33 _⋄_
-
-_⋄_ : _
-_⋄_ = compIso
-
 composesToId→Iso : (G : Iso A B) (g : B → A) → G .fun ∘ g ≡ idfun B → Iso B A
 fun (composesToId→Iso _ g _)             = g
 inv (composesToId→Iso (iso f _ _ _) _ _) = f

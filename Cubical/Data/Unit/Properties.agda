@@ -13,6 +13,7 @@ open import Cubical.Data.Prod.Base
 
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
 
 isContrUnit : isContr Unit
 isContrUnit = tt , λ {tt → refl}
@@ -26,14 +27,14 @@ isSetUnit = isProp→isSet isPropUnit
 isOfHLevelUnit : (n : HLevel) → isOfHLevel n Unit
 isOfHLevelUnit n = isContr→isOfHLevel n isContrUnit
 
-UnitToTypeId : ∀ {ℓ} (A : Type ℓ) → (Unit → A) ≡ A
-UnitToTypeId A = isoToPath (iso (λ f → f tt) (λ a _ → a) (λ _ → refl) λ _ → refl)
+UnitToTypePath : ∀ {ℓ} (A : Type ℓ) → (Unit → A) ≡ A
+UnitToTypePath A = isoToPath (iso (λ f → f tt) (λ a _ → a) (λ _ → refl) λ _ → refl)
 
-ContrToTypeIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isContr A → Iso (A → B) B
-Iso.fun (ContrToTypeIso iscontr) f = f (fst iscontr)
-Iso.inv (ContrToTypeIso iscontr) b _ = b
-Iso.rightInv (ContrToTypeIso iscontr) _ = refl
-Iso.leftInv (ContrToTypeIso iscontr) f = funExt λ x → cong f (snd iscontr x)
+isContr→Iso2 : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isContr A → Iso (A → B) B
+Iso.fun (isContr→Iso2 iscontr) f = f (fst iscontr)
+Iso.inv (isContr→Iso2 iscontr) b _ = b
+Iso.rightInv (isContr→Iso2 iscontr) _ = refl
+Iso.leftInv (isContr→Iso2 iscontr) f = funExt λ x → cong f (snd iscontr x)
 
 diagonal-unit : Unit ≡ Unit × Unit
 diagonal-unit = isoToPath (iso (λ x → tt , tt) (λ x → tt) (λ {(tt , tt) i → tt , tt}) λ {tt i → tt})
@@ -46,8 +47,9 @@ fibId A =
          (λ _ → refl)
          (λ a i → fst a
                  , isOfHLevelSuc 1 isPropUnit _ _ (snd a) refl i))
+
 isContr→≃Unit : ∀ {ℓ} {A : Type ℓ} → isContr A → A ≃ Unit
 isContr→≃Unit contr = isoToEquiv (iso (λ _ → tt) (λ _ → fst contr) (λ _ → refl) λ _ → snd contr _)
 
 isContr→≡Unit : {A : Type₀} → isContr A → A ≡ Unit
-isContr→≡Unit contr = isoToPath (iso (λ _ → tt) (λ _ → fst contr) (λ _ → refl) λ _ → snd contr _)
+isContr→≡Unit contr = ua (isContr→≃Unit contr)
