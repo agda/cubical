@@ -272,12 +272,12 @@ module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
 -- Converting to and from a PathP
 
 module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
-  toPathP : transp A i0 x ≡ y → PathP A x y
+  toPathP : transp (\ i → A i) i0 x ≡ y → PathP A x y
   toPathP p i = hcomp (λ j → λ { (i = i0) → x
                                ; (i = i1) → p j })
                       (transp (λ j → A (i ∧ j)) (~ i) x)
 
-  fromPathP : PathP A x y → transp A i0 x ≡ y
+  fromPathP : PathP A x y → transp (\ i → A i) i0 x ≡ y
   fromPathP p i = transp (λ j → A (i ∨ j)) i (p i)
 
 -- Whiskering a dependent path by a path
@@ -320,7 +320,7 @@ isContrSingl a = (a , refl) , λ p i → p .snd i , λ j → p .snd (i ∧ j)
 isContrSinglP : (A : I → Type ℓ) (a : A i0) → isContr (Σ[ x ∈ A i1 ] PathP A a x)
 isContrSinglP A a .fst = _ , transport-filler (λ i → A i) a
 isContrSinglP A a .snd (x , p) i =
-  _ , λ j → fill A (λ j → λ {(i = i0) → transport-filler (λ i → A i) a j; (i = i1) → p j}) (inS a) j
+  _ , λ j → fill (\ i → A i) (λ j → λ {(i = i0) → transport-filler (λ i → A i) a j; (i = i1) → p j}) (inS a) j
 
 SquareP :
   (A : I → I → Type ℓ)

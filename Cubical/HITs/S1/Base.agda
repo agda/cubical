@@ -29,7 +29,7 @@ module _ where
   transpS¹ φ u0 = refl
 
   compS1 : ∀ (φ : I) (u : ∀ i → Partial φ S¹) (u0 : S¹ [ φ ↦ u i0 ]) →
-    comp (λ _ → S¹) u (outS u0) ≡ hcomp u (outS u0)
+    comp (λ _ → S¹) (\ i → u i) (outS u0) ≡ hcomp u (outS u0)
   compS1 φ u u0 = refl
 
 -- ΩS¹ ≡ Int
