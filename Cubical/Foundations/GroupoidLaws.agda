@@ -258,7 +258,7 @@ congFunct-dep : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y z : A} 
          → PathP (λ i → PathP (λ j → B (compPath-filler p q i j)) (f x) (f (q i))) (cong f p) (cong f (p ∙ q))
 congFunct-dep {B = B} {x = x} f p q i j = f (compPath-filler p q i j)
 
-cong₂Funct : (f : A → A → A) →
+cong₂Funct : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} {B : Type ℓ'} (f : A → A → B) →
         (p : x ≡ y) →
         {u v : A} (q : u ≡ v) →
         cong₂ f p q ≡ cong (λ x → f x u) p ∙ cong (f y) q
