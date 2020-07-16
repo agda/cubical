@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Data.Sigma
 
@@ -18,9 +19,8 @@ open import Cubical.DStructures.Base
 open import Cubical.DStructures.Properties
 open import Cubical.DStructures.Product
 
-
-
 module _ (ℓ : Level) where
+  -- groups with group isomorphisms structure
   URGStrGroup : URGStr (Group {ℓ = ℓ}) ℓ
   URGStrGroup = urgstr GroupEquiv
                        idGroupEquiv
@@ -28,11 +28,13 @@ module _ (ℓ : Level) where
                                                  idGroupEquiv
                                                  λ G H → invEquiv (GroupPath G H))
 private
+  -- abbreviations
   module _ {ℓ : Level} {G G' : Group {ℓ = ℓ}} (e : GroupEquiv G G') where
     groupTransp : ⟨ G ⟩ → ⟨ G' ⟩
     groupTransp = GroupEquiv.eq e .fst
 
 module _ (ℓ ℓ' : Level) where
+  -- group actions displayed over pairs of groups
   URGStrActionᴰ : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
                          (λ (G , H) → Σ[ _α_ ∈ LeftActionStructure ⟨ G ⟩ ⟨ H ⟩ ] (IsGroupAction G H _α_))
                          (ℓ-max ℓ ℓ')
@@ -59,8 +61,8 @@ module _ (ℓ ℓ' : Level) where
   -- sections and retractions over a pair of groups
   URGStrSecRetᴰ : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
                          (λ (G , H) → Σ[ f ∈ (GroupHom G H) ]
-                                         Σ[ g ∈ (GroupHom H G) ]
-                                           section (GroupHom.fun f) (GroupHom.fun g))
+                                      Σ[ g ∈ (GroupHom H G) ]
+                                         section (GroupHom.fun f) (GroupHom.fun g))
                          (ℓ-max ℓ ℓ')
   URGStrSecRetᴰ =
     makeURGStrᴰ (λ GH → fgsec {GH})
@@ -82,15 +84,31 @@ module _ (ℓ ℓ' : Level) where
                     module _ ((f , g , sec) : fgsec) where
                       -- over one section triple deform the total space
                       sequence = Σ[ f' ∈ GroupHom G H ] (GroupHom.fun f' ≡ f*)
-                                    ≃⟨ {!!} ⟩
+                                    ≃⟨ Σ-cong-equiv-snd (λ f' → invEquiv (Σ-contractSnd {!!})) ⟩
                                  Σ[ f' ∈ GroupHom G H ] Σ[ _ ∈ GroupHom.fun f' ≡ f* ] Σ[ g' ∈ GroupHom H G ] (GroupHom.fun g' ≡ g*)
-                                    ≃⟨ {!!} ⟩
-                                 Σ[ f' ∈ GroupHom G H ] Σ[ _ ∈ GroupHom.fun f' ≡ f* ] Σ[ g' ∈ GroupHom H G ] Σ[ _ ∈ GroupHom.fun g' ≡ g* ] (section (GroupHom.fun f') (GroupHom.fun g'))
-                                    ≃⟨ {!!} ⟩
+                                    ≃⟨ Σ-cong-equiv-snd (λ f' → compEquiv (compEquiv (invEquiv Σ-assoc-≃) (Σ-cong-equiv-fst Σ-swap-≃)) Σ-assoc-≃) ⟩
+                                 Σ[ f' ∈ GroupHom G H ] Σ[ g' ∈ GroupHom H G ] Σ[ _ ∈ GroupHom.fun f' ≡ f* ] (GroupHom.fun g' ≡ g*)
+                                    ≃⟨ Σ-cong-equiv-snd (λ f' → Σ-cong-equiv-snd (λ g' → Σ-cong-equiv-snd (λ _ → invEquiv (Σ-contractSnd {!!})))) ⟩
+                                 Σ[ f' ∈ GroupHom G H ] Σ[ g' ∈ GroupHom H G ] (ghf f' ≡ f*) × (ghf g' ≡ g*) × section (ghf f') (ghf g')
+                                    ≃⟨ Σ-cong-equiv-snd (λ f' → Σ-cong-equiv-snd (λ g' → compEquiv (invEquiv Σ-assoc-≃) Σ-swap-≃)) ⟩
+                                 Σ[ f' ∈ GroupHom G H ] Σ[ g' ∈ GroupHom H G ] section (ghf f') (ghf g') × (ghf f' ≡ f*) × (ghf g' ≡ g*)
+                                    ≃⟨ Σ-cong-equiv-snd (λ f' → invEquiv Σ-assoc-≃) ⟩
+                                 Σ[ f' ∈ GroupHom G H ] Σ[ (g' , sec') ∈ Σ[ g' ∈ GroupHom H G ] (section (ghf f') (ghf g')) ] (GroupHom.fun f' ≡ f*) × (GroupHom.fun g' ≡ g*)
+                                    ≃⟨ invEquiv Σ-assoc-≃ ⟩
                                  Σ[ (f' , g' , sec') ∈ fgsec ] (GroupHom.fun f' ≡ f*) × (GroupHom.fun g' ≡ g*)
-                                    ≃⟨ {!!} ⟩
+                                    ≃⟨ Σ-cong-equiv-snd (λ (f' , g' , sec) → Σ-cong-equiv (invEquiv funExtEquiv) λ _ → invEquiv funExtEquiv) ⟩
                                  Σ[ (f' , g' , sec') ∈ fgsec ] ((x : ⟨ G ⟩) → (GroupHom.fun f' x) ≡ (f* x)) × ((y : ⟨ H ⟩) → (GroupHom.fun g' y) ≡ (g* y)) ■
                                    where
                                      ghf = GroupHom.fun
                                      f* = ghf f
                                      g* = ghf g
+
+module DoubleSec (ℓ ℓ' : Level) where
+  -- two groups with two sections/retractions
+  -- not what we need tho
+  open Combine
+  GroupsDoubleSec : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
+              (λ (G , H) → (Σ[ f ∈ (GroupHom G H) ] Σ[ g ∈ (GroupHom H G) ] section (GroupHom.fun f) (GroupHom.fun g))
+                          × (Σ[ f ∈ (GroupHom G H) ] Σ[ g ∈ (GroupHom H G) ] section (GroupHom.fun f) (GroupHom.fun g)))
+              (ℓ-max ℓ ℓ')
+  GroupsDoubleSec = combineURGStrᴰ (URGStrSecRetᴰ ℓ ℓ') (URGStrSecRetᴰ ℓ ℓ')
