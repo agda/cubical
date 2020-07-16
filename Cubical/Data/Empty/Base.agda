@@ -10,6 +10,3 @@ rec ()
 
 elim : ∀ {ℓ} {A : ⊥ → Type ℓ} → (x : ⊥) → A x
 elim ()
-
-nope : ∀ {ℓ} (A : Type ℓ) → Type ℓ
-nope A = A → ⊥

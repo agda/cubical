@@ -135,6 +135,8 @@ module AbGroupΣTheory {ℓ} where
     IsGroup.inverse (IsAbGroup.isGroup (isAbGroup (helper2 a i))) = inverse a
     IsAbGroup.comm (isAbGroup (helper2 a i)) = comm a
 
+    -- TODO: investigate why we need all of the qualified projections
+
   abGroupUnivalentStr : UnivalentStr AbGroupStructure AbGroupEquivStr
   abGroupUnivalentStr = axiomsUnivalentStr _ isPropAbGroupAxioms rawGroupUnivalentStr
 

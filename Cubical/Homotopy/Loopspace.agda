@@ -27,10 +27,11 @@ open import Cubical.HITs.SetTruncation
 
 generalEH : {ℓ : Level} {A : Type ℓ} {a b c : A} {p q : a ≡ b} {r s : b ≡ c} (α : p ≡ q) (β : r ≡ s)
          → (cong (_∙ r) α) ∙ (cong (q ∙_) β) ≡ (cong (p ∙_) β) ∙ (cong (_∙ s) α)
-generalEH {p = p} {r = r} α β j i = 
+generalEH {p = p} {r = r} α β j i =
    hcomp (λ k → λ { (i = i0) → p ∙ r
                    ; (i = i1) → α (k ∨ ~ j) ∙ β (k ∨ j) })
          (α (~ j ∧ i) ∙ β (j ∧ i))
+
 Eckmann-Hilton : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (α β : typ ((Ω^ (2 + n)) A))
               → α ∙ β ≡ β ∙ α
 Eckmann-Hilton {A = A} n α β i =

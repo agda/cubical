@@ -240,16 +240,3 @@ is-set (isSemigroup (isMonoid (isGroup intGroup))) = isSetInt
 assoc (isSemigroup (isMonoid (isGroup intGroup))) = +-assoc
 identity (isMonoid (isGroup intGroup)) x = refl , (+-comm (pos 0) x)
 inverse (isGroup intGroup) x = +-comm x (pos 0 -Int x) ∙ minusPlus x 0 , (minusPlus x 0)
-
-
-dirProd' : Group₀ → Group₀ → Group₀
-dirProd' G H =
- makeGroup (0g G , 0g H)
-           (λ x y → (_+_ G) (fst x) (fst y) , (_+_ H) (snd x) (snd y))
-           (λ x → ((- G) (fst x)) , (- H) (snd x))
-           (isOfHLevelΣ 2 (isSetCarrier G) (λ _ → isSetCarrier H))
-           (λ x y z → ΣPathP ((assoc G _ _ _) , assoc H _ _ _))
-           (λ x → ΣPathP ((Group.rid G (fst x)) , (Group.rid H (snd x))))
-           (λ x → ΣPathP ((Group.lid G (fst x)) , (Group.lid H (snd x))))
-           (λ x → ΣPathP ((Group.invr G _) , (Group.invr H _)))
-           λ x →  ΣPathP ((Group.invl G _) , (Group.invl H _))
