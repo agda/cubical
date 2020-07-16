@@ -16,8 +16,6 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.Properties renaming (cong≃ to _⋆_)
-open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.Structure public

@@ -127,7 +127,36 @@ module CommRingΣTheory {ℓ} where
 
   CommRingIsoCommRingΣ : Iso CommRing CommRingΣ
   CommRingIsoCommRingΣ =
-    iso CommRing→CommRingΣ CommRingΣ→CommRing (λ _ → refl) (λ _ → refl)
+    iso CommRing→CommRingΣ CommRingΣ→CommRing (λ _ → refl) helper
+
+    where
+    open import Cubical.Structures.Group.Base hiding (⟨_⟩)
+    open CommRing
+    open IsGroup
+    open IsMonoid
+    open IsAbGroup
+    open IsRing
+    open IsCommRing
+
+    helper : _
+    Carrier (helper a i) = ⟨ a ⟩
+    0r (helper a i) = 0r a
+    1r (helper a i) = 1r a
+    _+_ (helper a i) = CommRing._+_ a
+    _·_ (helper a i) = _·_ a
+    - helper a i = - a
+    isMonoid (isGroup (+-isAbGroup (isRing (isCommRing (helper a i))))) =
+      η-isMonoid (isMonoid (isGroup (+-isAbGroup a))) i
+    inverse (isGroup (+-isAbGroup (isRing (isCommRing (helper a i))))) =
+      inverse (isGroup (+-isAbGroup a))
+    comm (+-isAbGroup (isRing (isCommRing (helper a i)))) =
+      comm (+-isAbGroup a)
+    isSemigroup (·-isMonoid (isRing (isCommRing (helper a i)))) =
+      isSemigroup (·-isMonoid a)
+    identity (·-isMonoid (isRing (isCommRing (helper a i)))) =
+      identity (·-isMonoid a)
+    dist (isRing (isCommRing (helper a i))) = dist a
+    ·-comm (isCommRing (helper a i)) = ·-comm a
 
   commRingUnivalentStr : UnivalentStr CommRingStructure CommRingEquivStr
   commRingUnivalentStr = axiomsUnivalentStr _ isPropCommRingAxioms rawRingUnivalentStr

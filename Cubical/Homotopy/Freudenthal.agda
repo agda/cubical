@@ -12,7 +12,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Truncation as Trunc
+open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
 open import Cubical.Homotopy.Loopspace
@@ -55,7 +55,7 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
         .equiv-proof
         (λ _ → Trunc.elim
           (λ _ → isProp→isOfHLevelSuc (n + suc n) isPropIsContr)
-          (λ fib →
+         (λ fib →
             subst (λ k → isContr (fiber k ∣ fib ∣))
               (cong (Trunc.rec (isOfHLevelTrunc 2n+2) ∘ uncurry)
                 (funExt (WC.right p) ⁻¹))
@@ -63,7 +63,7 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
                 (funExt (Trunc.mapId) ⁻¹)
                 (idIsEquiv _)
                 .equiv-proof ∣ fib ∣)
-            ))
+             ))
         .fst .fst a
 
     interpolate : (a : typ A)

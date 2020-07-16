@@ -105,7 +105,7 @@ module _ {A : Type ℓ} {B : A → Type ℓ₁} {C : (x : A) → B x → Type �
 
 
 -- n-ary non-dependent funext
-nAryFunExt : (n : ℕ) {X : Type ℓ} {Y : I → Type ℓ₁} (fX : nAryOp n X (Y i0)) (fY : nAryOp n X (Y i1))
+nAryFunExt : {X : Type ℓ} {Y : I → Type ℓ₁} (n : ℕ) (fX : nAryOp n X (Y i0)) (fY : nAryOp n X (Y i1))
            → ((xs : Vec X n) → PathP Y (fX $ⁿ xs) (fY $ⁿ map (λ x → x) xs))
            → PathP (λ i → nAryOp n X (Y i)) fX fY
 nAryFunExt zero fX fY p        = p []

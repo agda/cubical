@@ -24,9 +24,7 @@ private
     ℓ : Level
 
 record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
-
-  -- TODO: add no-eta-equality for efficiency?
-
+  no-eta-equality
   constructor ismonoid
 
   field
@@ -43,7 +41,6 @@ record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
 
 
 record Monoid : Type (ℓ-suc ℓ) where
-
   constructor monoid
 
   field
@@ -61,9 +58,15 @@ record Monoid : Type (ℓ-suc ℓ) where
 
   -- open Semigroup semigrp public
 
+
 -- Extractor for the carrier type
 ⟨_⟩ : Monoid → Type ℓ
 ⟨_⟩ = Monoid.Carrier
+
+η-isMonoid : {A : Type ℓ} {ε : A} {_∙_ :  A → A → A} (b : IsMonoid ε _∙_)
+          → ismonoid (IsMonoid.isSemigroup b) (IsMonoid.identity b) ≡ b
+IsMonoid.isSemigroup (η-isMonoid b i) = IsMonoid.isSemigroup b
+IsMonoid.identity (η-isMonoid b i) = IsMonoid.identity b
 
 -- Easier to use constructors
 
@@ -73,8 +76,8 @@ makeIsMonoid : {M : Type ℓ} {ε : M} {_·_ : M → M → M}
                (rid : (x : M) → x · ε ≡ x)
                (lid : (x : M) → ε · x ≡ x)
              → IsMonoid ε _·_
-makeIsMonoid is-setM assoc rid lid =
-  ismonoid (issemigroup is-setM assoc) λ x → rid x , lid x
+IsMonoid.isSemigroup (makeIsMonoid is-setM assoc rid lid) = issemigroup is-setM assoc
+IsMonoid.identity (makeIsMonoid is-setM assoc rid lid) = λ x → rid x , lid x
 
 makeMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
              (is-setM : isSet M)
@@ -131,17 +134,17 @@ module MonoidΣTheory {ℓ} where
   MonoidAxiomsIsoIsMonoid : {M : Type ℓ} (s : RawMonoidStructure M)
     → Iso (MonoidAxioms M s) (IsMonoid (s .fst) (s .snd))
   fun (MonoidAxiomsIsoIsMonoid s) (x , y)        = ismonoid x y
-  inv (MonoidAxiomsIsoIsMonoid s) (ismonoid x y) = (x , y)
-  rightInv (MonoidAxiomsIsoIsMonoid s) _         = refl
+  inv (MonoidAxiomsIsoIsMonoid s) a = (IsMonoid.isSemigroup a) , IsMonoid.identity a
+  rightInv (MonoidAxiomsIsoIsMonoid s) b         = η-isMonoid b
   leftInv (MonoidAxiomsIsoIsMonoid s) _          = refl
 
   MonoidAxioms≡IsMonoid : {M : Type ℓ} (s : RawMonoidStructure M)
     → MonoidAxioms M s ≡ IsMonoid (s .fst) (s .snd)
   MonoidAxioms≡IsMonoid s = isoToPath (MonoidAxiomsIsoIsMonoid s)
-
+  open Monoid
   Monoid→MonoidΣ : Monoid → MonoidΣ
-  Monoid→MonoidΣ (monoid M ε _·_ isMonoid) =
-    M , (ε , _·_) , MonoidAxiomsIsoIsMonoid (ε , _·_) .inv isMonoid
+  Monoid→MonoidΣ M =
+    ⟨ M ⟩ , ((ε M) , _·_ M) , MonoidAxiomsIsoIsMonoid ((ε M) , _·_ M) .inv (isMonoid M)
 
   MonoidΣ→Monoid : MonoidΣ → Monoid
   MonoidΣ→Monoid (M , (ε , _·_) , isMonoidΣ) =
@@ -149,7 +152,13 @@ module MonoidΣTheory {ℓ} where
 
   MonoidIsoMonoidΣ : Iso Monoid MonoidΣ
   MonoidIsoMonoidΣ =
-    iso Monoid→MonoidΣ MonoidΣ→Monoid (λ _ → refl) (λ _ → refl)
+    iso Monoid→MonoidΣ MonoidΣ→Monoid (λ _ → refl) helper
+    where
+    helper : _
+    Carrier (helper a i) = ⟨ a ⟩
+    ε (helper a i) = ε a
+    _·_ (helper a i) = _·_ a
+    isMonoid (helper a i) = η-isMonoid (isMonoid a) i
 
   monoidUnivalentStr : UnivalentStr MonoidStructure MonoidEquivStr
   monoidUnivalentStr = axiomsUnivalentStr _ isPropMonoidAxioms rawMonoidUnivalentStr
@@ -177,7 +186,7 @@ module MonoidΣTheory {ℓ} where
   RawMonoidΣ = TypeWithStr ℓ RawMonoidStructure
 
   Monoid→RawMonoidΣ : Monoid → RawMonoidΣ
-  Monoid→RawMonoidΣ (monoid A ε _·_ _) = A , ε , _·_
+  Monoid→RawMonoidΣ A = ⟨ A ⟩ , (ε A) , (_·_ A)
 
   InducedMonoid : (M : Monoid) (N : RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
                  → RawMonoidEquivStr (Monoid→RawMonoidΣ M) N e → Monoid
