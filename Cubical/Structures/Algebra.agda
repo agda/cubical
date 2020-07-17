@@ -18,7 +18,7 @@ open import Cubical.Structures.Module    renaming (⟨_⟩ to ⟨_⟩m)
 open import Cubical.Structures.Ring      renaming (⟨_⟩ to ⟨_⟩r)
 open import Cubical.Structures.AbGroup   hiding (⟨_⟩)
 open import Cubical.Structures.Group     hiding (⟨_⟩)
-open import Cubical.Structures.Monoid    using (Monoid)
+open import Cubical.Structures.Monoid    hiding (⟨_⟩)
 
 open Iso
 
@@ -26,7 +26,7 @@ private
   variable
     ℓ : Level
 
-
+{-
 record IsAlgebra (R : Ring {ℓ}) {A : Type ℓ}
                  (0a 1a : A) (_+_ _·_ : A → A → A) (-_ : A → A)
                  (_⋆_ : ⟨ R ⟩r → A → A) : Type ℓ where
@@ -59,6 +59,45 @@ record Algebra (R : Ring {ℓ}) : Type (ℓ-suc ℓ) where
     isAlgebra      : IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_
 
   open IsAlgebra isAlgebra public
+-}
+
+record IsAlgebra (R : Ring {ℓ}) {A : Type ℓ}
+                 (0a 1a : A) (_+_ _·_ : A → A → A) (-_ : A → A)
+                 (_⋆_ : ⟨ R ⟩r → A → A) : Type ℓ where
+
+  constructor isalgebra
+
+  open Ring R using (1r) renaming (_+_ to _+r_; _·_ to _·r_)
+
+  field
+    isLeftModule : IsLeftModule R 0a _+_ -_ _⋆_
+    ·-isMonoid  : IsMonoid 1a _·_
+    dist        : (x y z : A) → (x · (y + z) ≡ (x · y) + (x · z))
+                              × ((x + y) · z ≡ (x · z) + (y · z))
+    ⋆-lassoc     : (r : ⟨ R ⟩r) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y)
+    ⋆-rassoc     : (r : ⟨ R ⟩r) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y)
+
+  open IsLeftModule isLeftModule public
+
+  isRing : IsRing _ _ _ _ _
+  isRing = isring (IsLeftModule.+-isAbGroup isLeftModule) ·-isMonoid dist
+  open IsRing isRing public hiding (_-_; +-assoc; +-lid; +-linv; +-rid; +-rinv; +-comm)
+
+record Algebra (R : Ring {ℓ}) : Type (ℓ-suc ℓ) where
+
+  constructor algebra
+
+  field
+    Carrier        : Type ℓ
+    0a             : Carrier
+    1a             : Carrier
+    _+_            : Carrier → Carrier → Carrier
+    _·_            : Carrier → Carrier → Carrier
+    -_             : Carrier → Carrier
+    _⋆_            : ⟨ R ⟩r → Carrier → Carrier
+    isAlgebra      : IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_
+
+  open IsAlgebra isAlgebra public
 
 
 module commonExtractors {R : Ring {ℓ}} where
@@ -66,15 +105,14 @@ module commonExtractors {R : Ring {ℓ}} where
   ⟨_⟩ = Algebra.Carrier
 
   Algebra→Module : (A : Algebra R) → LeftModule R
-  Algebra→Module (algebra A _ _ _ _ _ _ (isalgebra _ isLeftModule _ _)) =
+  Algebra→Module (algebra A _ _ _ _ _ _ (isalgebra isLeftModule _ _ _ _)) =
     leftmodule A _ _ _ _ isLeftModule
 
   Algebra→Ring : (A : Algebra R) → Ring {ℓ}
-  Algebra→Ring (algebra A _ _ _ _ _ _ (isalgebra isRing _ _ _)) =
-    ring A _ _ _ _ _ isRing
+  Algebra→Ring A = ring _ _ _ _ _ _ (IsAlgebra.isRing (Algebra.isAlgebra A))
 
   Algebra→AbGroup : (A : Algebra R) → AbGroup {ℓ}
-  Algebra→AbGroup A = Ring→AbGroup (Algebra→Ring A)
+  Algebra→AbGroup A = LeftModule→AbGroup (Algebra→Module A)
 
   Algebra→Monoid : (A : Algebra R) → Monoid {ℓ}
   Algebra→Monoid A = Ring→Monoid (Algebra→Ring A)
@@ -108,11 +146,11 @@ module commonExtractors {R : Ring {ℓ}} where
                 ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+
                 ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid ⋆-lassoc ⋆-rassoc =
                 isalgebra
-                  (makeIsRing isSet-A +-assoc +-rid +-rinv +-comm
-                              ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+)
                   (makeIsLeftModule isSet-A
                                     +-assoc +-rid +-rinv +-comm
                                     ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid)
+                  (makeIsMonoid isSet-A ·-assoc ·-rid ·-lid)
+                  (λ x y z → ·-rdist-+ x y z , ·-ldist-+ x y z)
                   ⋆-lassoc ⋆-rassoc
 
 
@@ -212,13 +250,13 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
 
   Algebra→AlgebraΣ : Algebra R → AlgebraΣ
   Algebra→AlgebraΣ (algebra A 0a 1a _+_ _·_ -_ _⋆_
-                            (isalgebra isRing isLeftModule ⋆-lassoc ⋆-rassoc)) =
+                            (isalgebra isLeftModule isMonoid dist ⋆-lassoc ⋆-rassoc)) =
     A , (_+_ , _·_ , 1a , _⋆_) ,
-    Ring→RingΣ (ring A 0a 1a _+_ _·_ -_ isRing) .snd .snd ,
+    Ring→RingΣ (ring A 0a 1a _+_ _·_ -_
+      (isring (IsLeftModule.+-isAbGroup isLeftModule) isMonoid dist)) .snd .snd ,
     (LeftModule→LeftModuleΣ (leftmodule A _ _ _ _ isLeftModule) .snd .snd) ,
     ⋆-lassoc ,
     ⋆-rassoc
-
 
 module AlgebraTheory (R : Ring {ℓ}) (A : Algebra R) where
   open Ring R renaming (_+_ to _+r_)

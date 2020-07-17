@@ -11,6 +11,7 @@ open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 
 open import Cubical.Structures.CommRing renaming (⟨_⟩ to ⟨_⟩r)
+open import Cubical.Structures.Ring hiding (⟨_⟩)
 open import Cubical.Structures.Algebra  hiding (⟨_⟩)
 
 private
@@ -58,8 +59,8 @@ module _ {R : CommRing {ℓ}} where
 
   CommAlgebra→CommRing : (A : CommAlgebra R) → CommRing {ℓ}
   CommAlgebra→CommRing (commalgebra Carrier _ _ _ _ _ _
-                          (iscommalgebra (isalgebra isRing _  _ _) ·-comm)) =
-    commring Carrier _ _ _ _ _ (iscommring isRing ·-comm)
+                          (iscommalgebra isAlgebra ·-comm)) =
+    commring Carrier _ _ _ _ _ (iscommring (IsAlgebra.isRing isAlgebra) ·-comm)
 
   makeIsCommAlgebra : {A : Type ℓ} {0a 1a : A}
                       {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩r → A → A}
