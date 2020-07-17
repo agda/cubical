@@ -219,6 +219,7 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
     ⋆-lassoc ,
     ⋆-rassoc
 
+
 module AlgebraTheory (R : Ring {ℓ}) (A : Algebra R) where
   open Ring R renaming (_+_ to _+r_)
   open Algebra A

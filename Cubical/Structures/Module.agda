@@ -175,8 +175,27 @@ module LeftModuleΣTheory (R : Ring {ℓ}) where
 
   LeftModuleEquivStrLeftModuleΣ : Iso (LeftModule R) LeftModuleΣ
   LeftModuleEquivStrLeftModuleΣ = iso LeftModule→LeftModuleΣ LeftModuleΣ→LeftModule
-                                 (λ _ → refl) (λ _ → refl)
+                                 (λ _ → refl) helper
+    where
+      open AbGroupΣTheory
+      abgroup-helper : retract (AbGroup→AbGroupΣ {ℓ}) AbGroupΣ→AbGroup
+      abgroup-helper = Iso.leftInv AbGroupIsoAbGroupΣ
 
+      open LeftModule
+      open IsLeftModule
+      helper : _
+      Carrier (helper M i) = Carrier M
+      0m (helper M i) = 0m M
+      _+_ (helper M i) = _+_ M
+      -_ (helper M i) =  -_ M
+      _⋆_ (helper M i) = _⋆_ M
+
+      +-isAbGroup (isLeftModule (helper M i)) =
+        AbGroup.isAbGroup (abgroup-helper (abgroup _ _ _ _ (+-isAbGroup M)) i)
+      ⋆-assoc (isLeftModule (helper M i)) = ⋆-assoc M
+      ⋆-ldist (isLeftModule (helper M i)) = ⋆-ldist M
+      ⋆-rdist (isLeftModule (helper M i)) = ⋆-rdist M
+      ⋆-lid (isLeftModule (helper M i)) = ⋆-lid M
 
   leftModuleUnivalentStr : UnivalentStr LeftModuleStructure LeftModuleEquivStr
   leftModuleUnivalentStr = axiomsUnivalentStr _ isPropLeftModuleAxioms RawLeftModuleUnivalentStr

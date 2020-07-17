@@ -126,22 +126,20 @@ module AbGroupΣTheory {ℓ} where
   open AbGroup
 
   AbGroupIsoAbGroupΣ : Iso AbGroup AbGroupΣ
-  AbGroupIsoAbGroupΣ = iso AbGroup→AbGroupΣ AbGroupΣ→AbGroup helper helper2
+  AbGroupIsoAbGroupΣ = iso AbGroup→AbGroupΣ AbGroupΣ→AbGroup (λ _ → refl) helper
     where
-    helper : _
-    fst (helper b i) = fst b
-    snd (helper b i) = snd b
+      open GroupΣTheory
+      group-helper : retract (Group→GroupΣ {ℓ}) GroupΣ→Group
+      group-helper = Iso.leftInv GroupIsoGroupΣ
 
-    helper2 : _
-    Carrier (helper2 a i) = ⟨ a ⟩
-    0g (helper2 a i) = 0g a
-    _+_ (helper2 a i) = _+_ a
-    - helper2 a i = - a
-    IsGroup.isMonoid (IsAbGroup.isGroup (isAbGroup (helper2 a i))) = η-isMonoid (isMonoid a) i
-    IsGroup.inverse (IsAbGroup.isGroup (isAbGroup (helper2 a i))) = inverse a
-    IsAbGroup.comm (isAbGroup (helper2 a i)) = comm a
-
-    -- TODO: investigate why we need all of the qualified projections
+      helper : _
+      Carrier (helper a i) = ⟨ a ⟩
+      0g (helper a i) = 0g a
+      _+_ (helper a i) = _+_ a
+      - helper a i = - a
+      IsAbGroup.isGroup (isAbGroup (helper a i)) =
+        Group.isGroup (group-helper (group (Carrier a) (0g a) (_+_ a) (- a) (isGroup a)) i)
+      IsAbGroup.comm (isAbGroup (helper a i)) = comm a
 
   abGroupUnivalentStr : UnivalentStr AbGroupStructure AbGroupEquivStr
   abGroupUnivalentStr = axiomsUnivalentStr _ isPropAbGroupAxioms rawGroupUnivalentStr

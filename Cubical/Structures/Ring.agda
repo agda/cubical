@@ -100,7 +100,7 @@ makeIsRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → 
              (+-rid : (x : R) → x + 0r ≡ x)
              (+-rinv : (x : R) → x + (- x) ≡ 0r)
              (+-comm : (x y : R) → x + y ≡ y + x)
-             (+-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
+             (r+-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
              (·-rid : (x : R) → x · 1r ≡ x)
              (·-lid : (x : R) → 1r · x ≡ x)
              (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
@@ -192,25 +192,25 @@ module RingΣTheory {ℓ} where
   RingIsoRingΣ : Iso Ring RingΣ
   RingIsoRingΣ = iso Ring→RingΣ RingΣ→Ring (λ _ → refl) helper
     where
-    helper : _
-    Ring.Carrier (helper a i) = ⟨ a ⟩
-    Ring.0r (helper a i) = Ring.0r a
-    Ring.1r (helper a i) = Ring.1r a
-    Ring._+_ (helper a i) = Ring._+_ a
-    Ring._·_ (helper a i) = Ring._·_ a
-    Ring.- helper a i = Ring.- a
-    Cubical.Structures.Group.Base.IsGroup.isMonoid (IsAbGroup.isGroup (IsRing.+-isAbGroup (Ring.isRing (helper a i)))) =
-      η-isMonoid (Cubical.Structures.Group.Base.IsGroup.isMonoid (IsAbGroup.isGroup (IsRing.+-isAbGroup (Ring.isRing a)))) i
-    Cubical.Structures.Group.Base.IsGroup.inverse (IsAbGroup.isGroup (IsRing.+-isAbGroup (Ring.isRing (helper a i)))) =
-      Cubical.Structures.Group.Base.IsGroup.inverse (IsAbGroup.isGroup (IsRing.+-isAbGroup (Ring.isRing a)))
-    IsAbGroup.comm (IsRing.+-isAbGroup (Ring.isRing (helper a i))) = IsAbGroup.comm (IsRing.+-isAbGroup (Ring.isRing a))
-    IsSemigroup.is-set (IsMonoid.isSemigroup (IsRing.·-isMonoid (Ring.isRing (helper a i))))
-      = IsSemigroup.is-set (IsMonoid.isSemigroup (IsRing.·-isMonoid (Ring.isRing a)))
-    IsSemigroup.assoc (IsMonoid.isSemigroup (IsRing.·-isMonoid (Ring.isRing (helper a i))))
-      = IsSemigroup.assoc (IsMonoid.isSemigroup (IsRing.·-isMonoid (Ring.isRing a)))
-    IsMonoid.identity (IsRing.·-isMonoid (Ring.isRing (helper a i))) = IsMonoid.identity (IsRing.·-isMonoid (Ring.isRing a))
-    IsRing.dist (Ring.isRing (helper a i)) = IsRing.dist (Ring.isRing a)
+      open MonoidΣTheory
+      monoid-helper : retract (Monoid→MonoidΣ {ℓ}) MonoidΣ→Monoid
+      monoid-helper = Iso.leftInv MonoidIsoMonoidΣ
+      open AbGroupΣTheory
+      abgroup-helper : retract (AbGroup→AbGroupΣ {ℓ}) AbGroupΣ→AbGroup
+      abgroup-helper = Iso.leftInv AbGroupIsoAbGroupΣ
 
+      helper : _
+      Ring.Carrier (helper a i) = ⟨ a ⟩
+      Ring.0r (helper a i) = Ring.0r a
+      Ring.1r (helper a i) = Ring.1r a
+      Ring._+_ (helper a i) = Ring._+_ a
+      Ring._·_ (helper a i) = Ring._·_ a
+      Ring.- helper a i = Ring.- a
+      IsRing.+-isAbGroup (Ring.isRing (helper a i)) =
+        AbGroup.isAbGroup (abgroup-helper (abgroup _ _ _ _ (Ring.+-isAbGroup a)) i)
+      IsRing.·-isMonoid (Ring.isRing (helper a i)) =
+        Monoid.isMonoid (monoid-helper (monoid _ _ _ (Ring.·-isMonoid a)) i)
+      IsRing.dist (Ring.isRing (helper a i)) = IsRing.dist (Ring.isRing a)
 
   ringUnivalentStr : UnivalentStr RingStructure RingEquivStr
   ringUnivalentStr = axiomsUnivalentStr _ isPropRingAxioms rawRingUnivalentStr
