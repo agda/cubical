@@ -124,8 +124,8 @@ module LeftModuleΣTheory (R : Ring {ℓ}) where
 
   RawLeftModuleEquivStr = AutoEquivStr RawLeftModuleStructure
 
-  RawLeftModuleUnivalentStr : UnivalentStr _ RawLeftModuleEquivStr
-  RawLeftModuleUnivalentStr = autoUnivalentStr RawLeftModuleStructure
+  rawLeftModuleUnivalentStr : UnivalentStr _ RawLeftModuleEquivStr
+  rawLeftModuleUnivalentStr = autoUnivalentStr RawLeftModuleStructure
 
   open Ring R using (_·_; 1r) renaming (_+_ to _+r_)
 
@@ -173,8 +173,8 @@ module LeftModuleΣTheory (R : Ring {ℓ}) where
     in leftmodule M _ _+_ _ _⋆_
        (ismodule isAbGroup ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid)
 
-  LeftModuleEquivStrLeftModuleΣ : Iso (LeftModule R) LeftModuleΣ
-  LeftModuleEquivStrLeftModuleΣ = iso LeftModule→LeftModuleΣ LeftModuleΣ→LeftModule
+  LeftModuleIsoLeftModuleΣ : Iso (LeftModule R) LeftModuleΣ
+  LeftModuleIsoLeftModuleΣ = iso LeftModule→LeftModuleΣ LeftModuleΣ→LeftModule
                                  (λ _ → refl) helper
     where
       open AbGroupΣTheory
@@ -198,7 +198,7 @@ module LeftModuleΣTheory (R : Ring {ℓ}) where
       ⋆-lid (isLeftModule (helper M i)) = ⋆-lid M
 
   leftModuleUnivalentStr : UnivalentStr LeftModuleStructure LeftModuleEquivStr
-  leftModuleUnivalentStr = axiomsUnivalentStr _ isPropLeftModuleAxioms RawLeftModuleUnivalentStr
+  leftModuleUnivalentStr = axiomsUnivalentStr _ isPropLeftModuleAxioms rawLeftModuleUnivalentStr
 
   LeftModuleΣPath : (M N : LeftModuleΣ) → (M ≃[ LeftModuleEquivStr ] N) ≃ (M ≡ N)
   LeftModuleΣPath = SIP leftModuleUnivalentStr
@@ -219,7 +219,7 @@ module LeftModuleΣTheory (R : Ring {ℓ}) where
     LeftModule→LeftModuleΣ M ≡ LeftModule→LeftModuleΣ N  ≃⟨ isoToEquiv
                                                              (invIso
                                                              (congIso
-                                                             LeftModuleEquivStrLeftModuleΣ))
+                                                             LeftModuleIsoLeftModuleΣ))
                                                            ⟩
     M ≡ N ■
 

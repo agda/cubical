@@ -26,41 +26,6 @@ private
   variable
     ℓ : Level
 
-{-
-record IsAlgebra (R : Ring {ℓ}) {A : Type ℓ}
-                 (0a 1a : A) (_+_ _·_ : A → A → A) (-_ : A → A)
-                 (_⋆_ : ⟨ R ⟩r → A → A) : Type ℓ where
-
-  constructor isalgebra
-
-  open Ring R using (1r) renaming (_+_ to _+r_; _·_ to _·r_)
-
-  field
-    isRing       : IsRing 0a 1a _+_ _·_ -_
-    isLeftModule : IsLeftModule R 0a _+_ -_ _⋆_
-    ⋆-lassoc     : (r : ⟨ R ⟩r) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y)
-    ⋆-rassoc     : (r : ⟨ R ⟩r) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y)
-
-  open IsLeftModule isLeftModule public
-  open IsRing isRing public hiding (_-_; +-assoc; +-lid; +-linv; +-rid; +-rinv; +-comm)
-
-record Algebra (R : Ring {ℓ}) : Type (ℓ-suc ℓ) where
-
-  constructor algebra
-
-  field
-    Carrier        : Type ℓ
-    0a             : Carrier
-    1a             : Carrier
-    _+_            : Carrier → Carrier → Carrier
-    _·_            : Carrier → Carrier → Carrier
-    -_             : Carrier → Carrier
-    _⋆_            : ⟨ R ⟩r → Carrier → Carrier
-    isAlgebra      : IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_
-
-  open IsAlgebra isAlgebra public
--}
-
 record IsAlgebra (R : Ring {ℓ}) {A : Type ℓ}
                  (0a 1a : A) (_+_ _·_ : A → A → A) (-_ : A → A)
                  (_⋆_ : ⟨ R ⟩r → A → A) : Type ℓ where
@@ -158,7 +123,7 @@ open commonExtractors public
 
 record AlgebraEquiv {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
 
-  constructor moduleiso
+  constructor algebraiso
 
   instance
     _ : Algebra R
@@ -219,11 +184,14 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
   open Ring R using (1r) renaming (_+_ to _+r_; _·_ to _·r_)
   open RingΣTheory
   open LeftModuleΣTheory R
+  open MonoidΣTheory
 
   AlgebraAxioms : (A : Type ℓ) (str : RawAlgebraStructure A) → Type ℓ
   AlgebraAxioms A (_+_ , _·_ , 1a , _⋆_) =
-               RingAxioms A (_+_ , 1a , _·_)
-               × LeftModuleAxioms A (_+_ , _⋆_)
+               LeftModuleAxioms A (_+_ , _⋆_)
+               × (MonoidAxioms A (1a , _·_))
+               × ((x y z : A) → (x · (y + z) ≡ (x · y) + (x · z))
+                              × ((x + y) · z ≡ (x · z) + (y · z)))
                × ((r : ⟨ R ⟩r) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
                × ((r : ⟨ R ⟩r) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y))
 
@@ -237,26 +205,93 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
   AlgebraEquivStr = AxiomsEquivStr RawAlgebraEquivStr AlgebraAxioms
 
   isSetAlgebraΣ : (A : AlgebraΣ) → isSet _
-  isSetAlgebraΣ (A , _ , (_ , isLeftModule , _) ) = isSetLeftModuleΣ (A , _ , isLeftModule)
+  isSetAlgebraΣ (A , _ , (isLeftModule , _ , _) ) = isSetLeftModuleΣ (A , _ , isLeftModule)
 
   isProp-AlgebraAxioms : (A : Type ℓ) (s : RawAlgebraStructure A)
                              → isProp (AlgebraAxioms A s)
   isProp-AlgebraAxioms A (_+_ , _·_ , 1a , _⋆_) =
-     isProp× (isPropRingAxioms A (_+_ , 1a , _·_ ))
-    (isPropΣ (isPropLeftModuleAxioms A (_+_ , _⋆_))
-      (λ isLeftModule →
-     isProp× (isPropΠ3 (λ _ _ _ → (isSetLeftModuleΣ (A , _ , isLeftModule)) _ _))
-             (isPropΠ3 (λ _ _ _ → (isSetLeftModuleΣ (A , _ , isLeftModule)) _ _))))
+    isPropΣ (isPropLeftModuleAxioms A (_+_ , _⋆_))
+    (λ isLeftModule →
+     isProp× (isPropMonoidAxioms A (1a , _·_))
+    (isProp× (isPropΠ3 (λ _ _ _ → isProp× ((isSetLeftModuleΣ (A , _ , isLeftModule)) _ _)
+                                          ((isSetLeftModuleΣ (A , _ , isLeftModule)) _ _)))
+    (isProp× (isPropΠ3 (λ _ _ _ → (isSetLeftModuleΣ (A , _ , isLeftModule)) _ _))
+             (isPropΠ3 (λ _ _ _ → (isSetLeftModuleΣ (A , _ , isLeftModule)) _ _)))))
 
   Algebra→AlgebraΣ : Algebra R → AlgebraΣ
   Algebra→AlgebraΣ (algebra A 0a 1a _+_ _·_ -_ _⋆_
                             (isalgebra isLeftModule isMonoid dist ⋆-lassoc ⋆-rassoc)) =
     A , (_+_ , _·_ , 1a , _⋆_) ,
-    Ring→RingΣ (ring A 0a 1a _+_ _·_ -_
-      (isring (IsLeftModule.+-isAbGroup isLeftModule) isMonoid dist)) .snd .snd ,
     (LeftModule→LeftModuleΣ (leftmodule A _ _ _ _ isLeftModule) .snd .snd) ,
+    Monoid→MonoidΣ (monoid A _ _ isMonoid) .snd .snd ,
+    dist ,
     ⋆-lassoc ,
     ⋆-rassoc
+
+  AlgebraΣ→Algebra : AlgebraΣ → Algebra R
+  AlgebraΣ→Algebra (A , (_+_ , _·_ , 1a , _⋆_) , isLeftModule , isMonoid , dist , lassoc , rassoc) =
+    algebra A _ 1a _+_ _·_ _ _⋆_
+    (isalgebra (LeftModule.isLeftModule (LeftModuleΣ→LeftModule (A , (_ , isLeftModule))))
+               (Monoid.isMonoid (MonoidΣ→Monoid (A , (_ , isMonoid))))
+               dist lassoc rassoc)
+
+  AlgebraIsoAlgebraΣ : Iso (Algebra R) AlgebraΣ
+  AlgebraIsoAlgebraΣ = iso Algebra→AlgebraΣ AlgebraΣ→Algebra (λ _ → refl) helper
+    where
+      open MonoidΣTheory
+      monoid-helper : retract (Monoid→MonoidΣ {ℓ}) MonoidΣ→Monoid
+      monoid-helper = Iso.leftInv MonoidIsoMonoidΣ
+      module-helper : retract (LeftModule→LeftModuleΣ) LeftModuleΣ→LeftModule
+      module-helper = Iso.leftInv LeftModuleIsoLeftModuleΣ
+
+      open Algebra
+      helper : _
+      Carrier (helper a i) = Carrier a
+      0a (helper a i) = 0a a
+      1a (helper a i) = 1a a
+      _+_ (helper a i) = _+_ a
+      _·_ (helper a i) = _·_ a
+      -_ (helper a i) = -_ a
+      _⋆_ (helper a i) = _⋆_ a
+      IsAlgebra.isLeftModule (isAlgebra (helper a i)) =
+        LeftModule.isLeftModule (module-helper
+        (leftmodule _ _ _ _ _ (isLeftModule a)) i)
+      IsAlgebra.·-isMonoid (isAlgebra (helper a i)) =
+        Monoid.isMonoid (monoid-helper (monoid _ _ _ (·-isMonoid a)) i)
+      IsAlgebra.dist (isAlgebra (helper a i)) = dist a
+      IsAlgebra.⋆-lassoc (isAlgebra (helper a i)) = ⋆-lassoc a
+      IsAlgebra.⋆-rassoc (isAlgebra (helper a i)) = ⋆-rassoc a
+
+  algebraUnivalentStr : UnivalentStr AlgebraStructure AlgebraEquivStr
+  algebraUnivalentStr = axiomsUnivalentStr _ isProp-AlgebraAxioms rawAlgebraUnivalentStr
+
+  AlgebraΣPath : (M N : AlgebraΣ) → (M ≃[ AlgebraEquivStr ] N) ≃ (M ≡ N)
+  AlgebraΣPath = SIP algebraUnivalentStr
+
+  AlgebraEquivStrΣ : (M N : Algebra R) → Type ℓ
+  AlgebraEquivStrΣ M N = Algebra→AlgebraΣ M ≃[ AlgebraEquivStr ] Algebra→AlgebraΣ N
+
+  AlgebraEquivStrΣPath : {M N : Algebra R} → Iso (AlgebraEquiv M N) (AlgebraEquivStrΣ M N)
+  fun AlgebraEquivStrΣPath (algebraiso e isHom+ isHom· pres1 comm⋆) =
+    e , isHom+ , (isHom· , (pres1 , comm⋆))
+  inv AlgebraEquivStrΣPath (f , isHom+ , isHom· , pres1 , comm⋆) =
+    algebraiso f isHom+ isHom· pres1 comm⋆
+  rightInv AlgebraEquivStrΣPath _ = refl
+  leftInv AlgebraEquivStrΣPath _ = refl
+
+  AlgebraPath : (M N : Algebra R) → (AlgebraEquiv M N) ≃ (M ≡ N)
+  AlgebraPath M N =
+    AlgebraEquiv M N                                    ≃⟨ isoToEquiv AlgebraEquivStrΣPath ⟩
+    AlgebraEquivStrΣ M N                                   ≃⟨ AlgebraΣPath _ _ ⟩
+    Algebra→AlgebraΣ M ≡ Algebra→AlgebraΣ N  ≃⟨ isoToEquiv
+                                                             (invIso
+                                                             (congIso
+                                                             AlgebraIsoAlgebraΣ))
+                                                           ⟩
+    M ≡ N ■
+
+AlgebraPath : {R : Ring {ℓ}} (M N : Algebra R) → (AlgebraEquiv M N) ≃ (M ≡ N)
+AlgebraPath {ℓ} {R} = AlgebraΣTheory.AlgebraPath R
 
 module AlgebraTheory (R : Ring {ℓ}) (A : Algebra R) where
   open Ring R renaming (_+_ to _+r_)
