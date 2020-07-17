@@ -21,7 +21,7 @@ private
     A : Type ℓ
 
 isFinSet : Type ℓ → Type ℓ
-isFinSet A = ∥ Σ[ n ∈ ℕ ] A ≃ Fin n ∥
+isFinSet A = ∃[ n ∈ ℕ ] A ≃ Fin n
 
 isProp-isFinSet : isProp (isFinSet A)
 isProp-isFinSet = propTruncIsProp
