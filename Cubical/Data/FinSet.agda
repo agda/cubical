@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 
-module Cubical.Foundations.FinSet where
+module Cubical.Data.FinSet where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Logic
@@ -14,20 +14,25 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Nat
 open import Cubical.Data.Fin
 
-isFinSet : Type₀ → Type₁
-isFinSet A = ∥ Σ[ n ∈ ℕ ] A ≡ Fin n ∥
+private
+  variable
+    ℓ : Level
+    A : Type ℓ
 
-isProp-isFinSet : ∀ {A} → isProp (isFinSet A)
+isFinSet : Type ℓ → Type ℓ
+isFinSet A = ∥ Σ[ n ∈ ℕ ] A ≃ Fin n ∥
+
+isProp-isFinSet : isProp (isFinSet A)
 isProp-isFinSet = propTruncIsProp
 
-FinSet : Type₁
-FinSet = TypeWithStr ℓ-zero isFinSet
+FinSet : Type (ℓ-suc ℓ)
+FinSet = TypeWithStr _ isFinSet
 
 isFinSetFin : ∀ {n} → isFinSet (Fin n)
-isFinSetFin = ∣ _ , refl ∣
+isFinSetFin = ∣ _ , pathToEquiv refl ∣
 
 isFinSetUnit : isFinSet Unit
-isFinSetUnit = ∣ 1 , Unit≡Fin1 ∣
+isFinSetUnit = ∣ 1 , Unit≃Fin1 ∣
   where
     Unit≃Fin1 : Unit ≃ Fin 1
     Unit≃Fin1 =
@@ -38,6 +43,3 @@ isFinSetUnit = ∣ 1 , Unit≡Fin1 ∣
           (isContrFin1 .snd)
           (isContrUnit .snd)
         )
-
-    Unit≡Fin1 : Unit ≡ Fin 1
-    Unit≡Fin1 = ua Unit≃Fin1
