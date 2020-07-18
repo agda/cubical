@@ -30,6 +30,7 @@ module _ (ℓ ℓ' : Level) where
   open Groups
   open Morphisms ℓ ℓ'
 
+
   -- displayed over pairs of groups, one morphism going forth and two going back
   GroupsMorphismFBBᴰ : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
                                (λ (G , H) → (GroupHom G H × GroupHom H G) × GroupHom H G)
@@ -40,5 +41,24 @@ module _ (ℓ ℓ' : Level) where
   GroupsMorphismFBB : URGStr (Σ[ (G , H) ∈ Group × Group ] (GroupHom G H × GroupHom H G) × GroupHom H G) (ℓ-max ℓ ℓ')
   GroupsMorphismFBB = ∫⟨ URGStrGroup ℓ ×URG URGStrGroup ℓ' ⟩ GroupsMorphismFBBᴰ
 
+  -- two groups, morphisms forth bback, sec/ret witness, morphism back
+  GroupsMorphismSecRetBᴰ : URGStrᴰ GroupsMorphismFBB
+                                    (λ ((G , H) , (f , b) , b') → isGroupHomRet f b)
+                                    ℓ-zero
+  GroupsMorphismSecRetBᴰ =
+    Subtype→SubURGᴰ (λ ((G , H) , (f , b) , b') → isGroupHomRet f b , isPropIsGroupHomRet f b)
+                    GroupsMorphismFBB
+
+  {-
+  This would be nice, but I stopped trying to load it after 5 minutes
+
   GroupsMorphismSecRetBᴰ : URGStrᴰ GroupsMorphismFBB (λ ((G , H) , (f , b) , b') → isGroupHomRet f b) (ℓ-max ℓ ℓ')
   GroupsMorphismSecRetBᴰ = HorizontalLiftᴰ GroupsMorphismFBᴰ GroupsMorphismBᴰ GroupsSecRetᴰ
+  -}
+
+  GroupsMorphismSecRetB : URGStr (Σ[ ((G , H) , (f , b) , b') ∈ Σ[ (G , H) ∈ Group × Group ] (GroupHom G H × GroupHom H G) × GroupHom H G ] isGroupHomRet f b)
+                                 (ℓ-max ℓ ℓ')
+  GroupsMorphismSecRetB = ∫⟨ GroupsMorphismFBB ⟩ GroupsMorphismSecRetBᴰ
+
+  GroupsMorphismSec2Retᴰ : URGStrᴰ GroupsMorphismSecRetB ? ?
+  GroupsMorphismSec2Retᴰ = ?

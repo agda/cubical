@@ -38,6 +38,17 @@ module Groups (ℓ : Level) where
 
 module Morphisms (ℓ ℓ' : Level) where
   open Groups
+
+  G² = Group {ℓ} × Group {ℓ'}
+  G²F = Σ[ (G , H) ∈ G² ] GroupHom G H
+  G²B = Σ[ (G , H) ∈ G² ] GroupHom H G
+  G²FB = Σ[ (G , H) ∈ G² ] GroupHom G H × GroupHom H G
+  G²FB² = Σ[ (G , H) ∈ G² ] (GroupHom G H × GroupHom H G) × GroupHom H G
+  G²SecRet = Σ[ (_ , f , b) ∈ G²FB ] isGroupHomRet f b
+  G²SecRetB = Σ[ (_ , (f , b) , _) ∈ G²FB² ] isGroupHomRet f b
+  G²SecRet² = Σ[ ((_ , (f , _) , b') , _) ∈ G²SecRetB ] isGroupHomRet f b'
+
+
   -- Group morphisms displayed over pairs of groups
   GroupsMorphismᴰ : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
                             (λ (G , H) → GroupHom G H)
@@ -54,7 +65,7 @@ module Morphisms (ℓ ℓ' : Level) where
                                                      (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
                                                      (isContrSingl f)
   -- Type of two groups with a group morphism
-  GroupsMorphism : URGStr (Σ[ (G , H) ∈ (Group {ℓ = ℓ} × Group {ℓ = ℓ'}) ] GroupHom G H) (ℓ-max ℓ ℓ')
+  GroupsMorphism : URGStr G²F (ℓ-max ℓ ℓ')
   GroupsMorphism = ∫⟨ URGStrGroup ℓ ×URG URGStrGroup ℓ' ⟩ GroupsMorphismᴰ
 
   -- Same as GroupsMorphism but with the morphism going the other way
@@ -72,7 +83,7 @@ module Morphisms (ℓ ℓ' : Level) where
                                                      (isContrSingl f)
 
   -- Type of two groups with a group morphism going back
-  GroupsMorphismB : URGStr (Σ[ (G , H) ∈ (Group {ℓ = ℓ} × Group {ℓ = ℓ'}) ] GroupHom H G) (ℓ-max ℓ ℓ')
+  GroupsMorphismB : URGStr G²B (ℓ-max ℓ ℓ')
   GroupsMorphismB = ∫⟨ URGStrGroup ℓ ×URG URGStrGroup ℓ' ⟩ GroupsMorphismBᴰ
 
   -- Morphisms going forth and back displayed over pairs of groups
@@ -82,8 +93,18 @@ module Morphisms (ℓ ℓ' : Level) where
   GroupsMorphismFBᴰ = combineURGStrᴰ GroupsMorphismᴰ GroupsMorphismBᴰ
 
   -- Type of pairs of groups with morphisms going forth and back
-  GroupsMorphismFB : URGStr (Σ[ (G , H) ∈ Group × Group ] GroupHom G H × GroupHom H G) (ℓ-max ℓ ℓ')
+  GroupsMorphismFB : URGStr G²FB (ℓ-max ℓ ℓ')
   GroupsMorphismFB = ∫⟨ URGStrGroup ℓ ×URG URGStrGroup ℓ' ⟩ GroupsMorphismFBᴰ
+
+  -- displayed over pairs of groups, one morphism going forth and two going back
+  GroupsMorphismFBBᴰ : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
+                               (λ (G , H) → (GroupHom G H × GroupHom H G) × GroupHom H G)
+                               (ℓ-max ℓ ℓ')
+  GroupsMorphismFBBᴰ = combineURGStrᴰ GroupsMorphismFBᴰ GroupsMorphismBᴰ
+
+  -- type of pairs of groups with one morphism going forth and two going back
+  GroupsMorphismFBB : URGStr G²FB² (ℓ-max ℓ ℓ')
+  GroupsMorphismFBB = ∫⟨ URGStrGroup ℓ ×URG URGStrGroup ℓ' ⟩ GroupsMorphismFBBᴰ
 
   -- section retraction pair displayed over pairs of groups
   GroupsSecRetᴰ : URGStrᴰ GroupsMorphismFB
@@ -94,9 +115,31 @@ module Morphisms (ℓ ℓ' : Level) where
                        GroupsMorphismFB
 
   -- type of group section retraction pairs
-  GroupsSecRet : URGStr (Σ[ (GH , f , g) ∈ Σ[ (G , H) ∈ Group × Group ] GroupHom G H × GroupHom H G ] isGroupHomRet f g)
+  GroupsSecRet : URGStr G²SecRet
                         (ℓ-max ℓ ℓ')
   GroupsSecRet = ∫⟨ GroupsMorphismFB ⟩ GroupsSecRetᴰ
+
+  -- two groups, morphisms forth bback, sec/ret witness, morphism back
+  GroupsMorphismSecRetBᴰ : URGStrᴰ GroupsMorphismFBB
+                                    (λ ((G , H) , (f , b) , b') → isGroupHomRet f b)
+                                    ℓ-zero
+  GroupsMorphismSecRetBᴰ =
+    Subtype→SubURGᴰ (λ ((G , H) , (f , b) , b') → isGroupHomRet f b , isPropIsGroupHomRet f b)
+                    GroupsMorphismFBB
+
+  {-
+  This would be nice, but I stopped trying to load it after 5 minutes
+
+  GroupsMorphismSecRetBᴰ : URGStrᴰ GroupsMorphismFBB (λ ((G , H) , (f , b) , b') → isGroupHomRet f b) (ℓ-max ℓ ℓ')
+  GroupsMorphismSecRetBᴰ = HorizontalLiftᴰ GroupsMorphismFBᴰ GroupsMorphismBᴰ GroupsSecRetᴰ
+  -}
+
+  GroupsMorphismSecRetB : URGStr G²SecRetB
+                                 (ℓ-max ℓ ℓ')
+  GroupsMorphismSecRetB = ∫⟨ GroupsMorphismFBB ⟩ GroupsMorphismSecRetBᴰ
+
+  GroupsMorphismSec2Retᴰ : URGStrᴰ GroupsMorphismSecRetB {!!} {!!}
+  GroupsMorphismSec2Retᴰ = {!!}
 
 
 {-
@@ -114,11 +157,11 @@ module Morphisms (ℓ ℓ' : Level) where
 module _ (ℓ ℓ' : Level) where
   URGStr×rev = URGStr-transport Σ-swap-≃ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
   GroupsMorphismBᴰ : URGStrᴰ URGStr×rev (λ (G , H) → GroupHom H G) (ℓ-max ℓ ℓ')
-  GroupsMorphismBᴰ =  ×URG-swap (GroupsMorphismᴰ ℓ ℓ') 
+  GroupsMorphismBᴰ =  ×URG-swap (GroupsMorphismᴰ ℓ ℓ')
 
   -- Type of two groups with a group morphism
   GroupsMorphismB : URGStr (Σ[ (G , H) ∈ (Group × Group) ] GroupHom H G) (ℓ-max ℓ ℓ')
-  GroupsMorphismB = ∫⟨ URGStr×rev ⟩ ? 
+  GroupsMorphismB = ∫⟨ URGStr×rev ⟩ ?
 
   -- Groups with back and forth morphisms
   GroupsMorphismsBFᴰ : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ') {!!} (ℓ-max ℓ ℓ')
