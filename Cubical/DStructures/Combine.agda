@@ -15,7 +15,7 @@ open import Cubical.DStructures.Properties
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C ℓ≅ᴰ : Level
+    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓD ℓ≅D : Level
 
 -- combine two structures StrB and StrC over StrA to a structure StrB × StrC over A
 combineURGStrᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
@@ -54,8 +54,26 @@ combineURGStrᴰ {ℓ≅B = ℓ≅B} {ℓ≅C = ℓ≅C} {A = A} {StrA = StrA} {
                                (Σ[ (b' , c') ∈ B a × C a ] (b B≅ᴰ⟨ ρ a ⟩ b' × c C≅ᴰ⟨ ρ a ⟩ c') ) ■)
                                (isUnivalent→contrTotalSpace (_B≅ᴰ⟨ ρ a ⟩_) Bρᴰ Buniᴰ b)
 
-{-
-Liftᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
+VerticalLiftᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
+        {B : A → Type ℓB}
+        (StrBᴰ : URGStrᴰ StrA B ℓ≅B)
+        {C : A → Type ℓC}
+        (StrCᴰ : URGStrᴰ StrA C ℓ≅C)
+        → URGStrᴰ (∫⟨ StrA ⟩ StrCᴰ) (λ (a , _) → B a) ℓ≅B
+VerticalLiftᴰ {ℓ≅B = ℓ≅B} {B = B} StrBᴰ StrCᴰ =
+  urgstrᴰ (λ b (pA , _) b' → b ≅ᴰ⟨ pA ⟩ b')
+          ρᴰ
+          uniᴰ
+  where open URGStrᴰ StrBᴰ
 
-Liftᴰ = ?
--}
+HorizontalLiftᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
+                 {B : A → Type ℓB} (StrBᴰ : URGStrᴰ StrA B ℓ≅B)
+                 {C : A → Type ℓC} (StrCᴰ : URGStrᴰ StrA C ℓ≅C)
+                 {D : (Σ A B) → Type ℓD} (StrDᴰ : URGStrᴰ (∫⟨ StrA ⟩ StrBᴰ) D ℓ≅D)
+                 → URGStrᴰ (∫⟨ StrA ⟩ combineURGStrᴰ StrBᴰ StrCᴰ)
+                           (λ (a , b , _) → D (a , b)) ℓ≅D
+HorizontalLiftᴰ {ℓ≅D = ℓ≅D} StrBᴰ StrCᴰ {D} StrDᴰ =
+  urgstrᴰ (λ d (p , q , r) d' → d ≅ᴰ⟨ p , q ⟩ d')
+          ρᴰ
+          uniᴰ
+    where open URGStrᴰ StrDᴰ

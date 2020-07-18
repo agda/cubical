@@ -27,16 +27,17 @@ private
   variable
     ℓ ℓ' : Level
 
-module _ (ℓ : Level) where
+module Groups (ℓ : Level) where
   -- groups with group isomorphisms structure
-  URGStrGroup : URGStr (Group {ℓ = ℓ}) ℓ
+  URGStrGroup : URGStr (Group {ℓ}) ℓ
   URGStrGroup = urgstr GroupEquiv
                        idGroupEquiv
                        (isUnivalent'→isUnivalent GroupEquiv
                                                  idGroupEquiv
                                                  λ G H → invEquiv (GroupPath G H))
 
-module _ (ℓ ℓ' : Level) where
+module Morphisms (ℓ ℓ' : Level) where
+  open Groups
   -- Group morphisms displayed over pairs of groups
   GroupsMorphismᴰ : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
                             (λ (G , H) → GroupHom G H)
@@ -84,30 +85,30 @@ module _ (ℓ ℓ' : Level) where
   GroupsMorphismFB : URGStr (Σ[ (G , H) ∈ Group × Group ] GroupHom G H × GroupHom H G) (ℓ-max ℓ ℓ')
   GroupsMorphismFB = ∫⟨ URGStrGroup ℓ ×URG URGStrGroup ℓ' ⟩ GroupsMorphismFBᴰ
 
-  -- displayed over pairs of groups, one morphism going forth and two going back
-  GroupsMorphismFBBᴰ : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
-                               (λ (G , H) → (GroupHom G H × GroupHom H G) × GroupHom H G)
-                               (ℓ-max ℓ ℓ')
-  GroupsMorphismFBBᴰ = combineURGStrᴰ GroupsMorphismFBᴰ GroupsMorphismBᴰ
-
-  -- type of pairs of groups with one morphism going forth and two going back
-  GroupsMorphismFBB : URGStr (Σ[ (G , H) ∈ Group × Group ] (GroupHom G H × GroupHom H G) × GroupHom H G) (ℓ-max ℓ ℓ')
-  GroupsMorphismFBB = ∫⟨ URGStrGroup ℓ ×URG URGStrGroup ℓ' ⟩ GroupsMorphismFBBᴰ
-
   -- section retraction pair displayed over pairs of groups
   GroupsSecRetᴰ : URGStrᴰ GroupsMorphismFB
                           (λ ((G , H) , (f , g)) → isGroupHomRet f g)
                           ℓ-zero
   GroupsSecRetᴰ =
     Subtype→SubURGᴰ (λ ((G , H) , (f , g)) → isGroupHomRet f g , isPropIsGroupHomRet f g)
-                    GroupsMorphismFB
+                       GroupsMorphismFB
+
+  -- type of group section retraction pairs
+  GroupsSecRet : URGStr (Σ[ (GH , f , g) ∈ Σ[ (G , H) ∈ Group × Group ] GroupHom G H × GroupHom H G ] isGroupHomRet f g)
+                        (ℓ-max ℓ ℓ')
+  GroupsSecRet = ∫⟨ GroupsMorphismFB ⟩ GroupsSecRetᴰ
+
+
+{-
+  GroupsFBBSecRetᴰ : URGStrᴰ {!!} (λ (a , _) → {!!}) {!!}
+  GroupsFBBSecRetᴰ = Liftᴰ GroupsSecRetᴰ {!GroupsMorphismFBBᴰ!}
 
   -- displayed over two groups with FBB morphisms, both B morphisms being retractions of F
   GroupsSecRetRetᴰ : URGStrᴰ GroupsMorphismFBB
                              (λ ((G , H) , (f , g) , g') → isGroupHomRet f g × isGroupHomRet f g')
                              ℓ-zero
-  GroupsSecRetRetᴰ = combineURGStrᴰ {!!} {!!}
-
+  GroupsSecRetRetᴰ = combineURGStrᴰ {!Liftᴰ GroupsMorphismFBᴰ GroupsSecRet!} {!!}
+  -}
 
 {-
 module _ (ℓ ℓ' : Level) where
