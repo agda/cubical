@@ -39,9 +39,6 @@ module Groups (ℓ : Level) where
 module Morphisms (ℓ ℓ' : Level) where
   open Groups
 
-  -- Naming convention:
-  -- G² stands for pair of groups
-  --
   G² = Group {ℓ} × Group {ℓ'}
   G²F = Σ[ (G , H) ∈ G² ] GroupHom G H
   G²B = Σ[ (G , H) ∈ G² ] GroupHom H G
@@ -50,7 +47,6 @@ module Morphisms (ℓ ℓ' : Level) where
   G²SecRet = Σ[ (_ , f , b) ∈ G²FB ] isGroupHomRet f b
   G²SecRetB = Σ[ (_ , (f , b) , _) ∈ G²FB² ] isGroupHomRet f b
   G²SecRet² = Σ[ ((_ , (f , _) , b') , _) ∈ G²SecRetB ] isGroupHomRet f b'
-
 
   -- Group morphisms displayed over pairs of groups
   SᴰG²F : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
@@ -146,6 +142,9 @@ module Morphisms (ℓ ℓ' : Level) where
                         ℓ-zero
   SᴰG²SecRet² = Subtype→SubURGᴰ (λ ((_ , (f , _) , b') , _) → isGroupHomRet f b' , isPropIsGroupHomRet f b')
                 SG²SecRetB
+
+  SG²SecRet² : URGStr G²SecRet² (ℓ-max ℓ ℓ')
+  SG²SecRet² = ∫⟨ SG²SecRetB ⟩ SᴰG²SecRet²
 
 
 {-
