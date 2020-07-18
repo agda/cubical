@@ -11,6 +11,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.GroupoidLaws
 
 -- Direct definition of transport filler, note that we have to
 -- explicitly tell Agda that the type is constant (like in CHM)
@@ -115,9 +116,18 @@ substComposite B p q Bx i =
 
 -- substitution commutes with morphisms in slices
 substCommSlice : ∀ {ℓ ℓ′} {A : Type ℓ}
-                 → (B C : A → Type ℓ′)
-                 → (F : ∀ i → B i → C i)
-                 → {x y : A} (p : x ≡ y) (u : B x)
-                 → subst C p (F x u) ≡ F y (subst B p u)
+                   → (B C : A → Type ℓ′)
+                   → (F : ∀ i → B i → C i)
+                   → {x y : A} (p : x ≡ y) (u : B x)
+                   → subst C p (F x u) ≡ F y (subst B p u)
 substCommSlice B C F p Bx i =
   transport-fillerExt⁻ (cong C p) i (F _ (transport-fillerExt (cong B p) i Bx))
+
+
+-- transports between loop spaces preserve path composition
+overPathFunct : ∀ {ℓ} {A : Type ℓ} {x y : A} (p q : x ≡ x) (P : x ≡ y)
+           → transport (λ i → P i ≡ P i) (p ∙ q)
+            ≡ transport (λ i → P i ≡ P i) p ∙ transport (λ i → P i ≡ P i) q
+overPathFunct p q =
+  J (λ y P → transport (λ i → P i ≡ P i) (p ∙ q) ≡ transport (λ i → P i ≡ P i) p ∙ transport (λ i → P i ≡ P i) q)
+    (transportRefl (p ∙ q) ∙ cong₂ _∙_ (sym (transportRefl p)) (sym (transportRefl q)))

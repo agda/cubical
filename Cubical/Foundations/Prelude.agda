@@ -28,6 +28,7 @@ open import Cubical.Core.Primitives public
 infixr 30 _∙_
 infix  3 _∎
 infixr 2 _≡⟨_⟩_
+infixr 2.5 _≡⟨_⟩≡⟨_⟩_
 
 -- Basic theory about paths. These proofs should typically be
 -- inlined. This module also makes equational reasoning work with
@@ -160,6 +161,17 @@ compPathP {A = A} {x = x} {B = B} p q i =
                   (i = i1) → q j })
        (p i)
 
+
+compPathP' : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y z : A} {x' : B x} {y' : B y} {z' : B z} {p : x ≡ y} {q : y ≡ z}
+             (P : PathP (λ i → B (p i)) x' y') (Q : PathP (λ i → B (q i)) y' z')
+          → PathP (λ i → B ((p ∙ q) i)) x' z'
+compPathP' {B = B} {x' = x'} {p = p} {q = q} P Q i =
+  comp (λ j → B (compPath-filler p q j i))
+       (λ j → λ { (i = i0) → x'  ;
+                  (i = i1) → Q j })
+       (P i)
+
+
 compPathP-filler : ∀ {A : I → Type ℓ} {x : A i0} {y : A i1} {B_i1 : Type ℓ} {B : A i1 ≡ B_i1} {z : B i1}
                    → (p : PathP A x y) (q : PathP (λ i → B i) y z)
                    → PathP (λ j → PathP (λ k → (compPath-filler (λ i → A i) B j k)) x (q j)) p (compPathP p q)
@@ -169,6 +181,18 @@ compPathP-filler {A = A} {x = x} {B = B} p q j i =
                   (i = i1) → q j })
        (inS (p i)) j
 
+
+
+compPathP'-filler : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y z : A} {x' : B x} {y' : B y} {z' : B z} {p : x ≡ y} {q : y ≡ z}
+             (P : PathP (λ i → B (p i)) x' y') (Q : PathP (λ i → B (q i)) y' z')
+          → PathP (λ j → PathP (λ i → B (compPath-filler p q j i)) x' (Q j)) P (compPathP' {x = x} {y = y} {x' = x'} {y' = y'} P Q)
+compPathP'-filler {B = B} {x' = x'} {p = p} {q = q} P Q j i =
+  fill (λ j → B (compPath-filler p q j i))
+       (λ j → λ { (i = i0) → x'  ;
+                  (i = i1) → Q j })
+       (inS (P i))
+       j
+
 _≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → x ≡ z
 _ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
 
@@ -176,6 +200,9 @@ _ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
 ≡⟨⟩-syntax = _≡⟨_⟩_
 infixr 2 ≡⟨⟩-syntax
 syntax ≡⟨⟩-syntax x (λ i → B) y = x ≡[ i ]⟨ B ⟩ y
+
+_≡⟨_⟩≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → z ≡ w → x ≡ w
+_ ≡⟨ x≡y ⟩≡⟨ y≡z ⟩ z≡w = x≡y ∙∙ y≡z ∙∙ z≡w
 
 _∎ : (x : A) → x ≡ x
 _ ∎ = refl
@@ -402,3 +429,61 @@ open Lift public
 
 liftExt : ∀ {A : Type ℓ} {a b : Lift {ℓ} {ℓ'} A} → (lower a ≡ lower b) → a ≡ b
 liftExt x i = lift (x i)
+
+doubleCompPath-filler∙ : {a b c d : A} (p : a ≡ b) (q : b ≡ c) (r : c ≡ d)
+                       → PathP (λ i → p i ≡ r (~ i)) (p ∙ q ∙ r) q
+doubleCompPath-filler∙ {A = A} {b = b} p q r j i =
+  hcomp (λ k → λ { (i = i0) → p j
+                  ; (i = i1) → side j k
+                  ; (j = i1) → q (i ∧ k)})
+        (p (j ∨ i))
+  where
+  side : I → I → A
+  side i j =
+    hcomp (λ k → λ { (i = i1) → q j
+                    ; (j = i0) → b
+                    ; (j = i1) → r (~ i ∧ k)})
+          (q j)
+
+PathP→compPathL : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+           → PathP (λ i → p i ≡ q i) r s
+           → sym p ∙ r ∙ q ≡ s
+PathP→compPathL {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (j ∨ k)
+                  ; (i = i1) → q (j ∨ k)
+                  ; (j = i0) → doubleCompPath-filler∙ (sym p) r q (~ k) i
+                  ; (j = i1) → s i })
+        (P j i)
+
+PathP→compPathR : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+           → PathP (λ i → p i ≡ q i) r s
+           → r ≡ p ∙ s ∙ sym q
+PathP→compPathR {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (j ∧ (~ k))
+                  ; (i = i1) → q (j ∧ (~ k))
+                  ; (j = i0) → r i
+                  ; (j = i1) → doubleCompPath-filler∙ p s (sym q) (~ k) i})
+        (P j i)
+
+
+-- otherdir
+
+compPathL→PathP : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+           → sym p ∙ r ∙ q ≡ s
+           → PathP (λ i → p i ≡ q i) r s
+compPathL→PathP {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (~ k ∨ j)
+                  ; (i = i1) → q (~ k ∨ j)
+                  ; (j = i0) → doubleCompPath-filler∙ (sym p) r q k i
+                  ; (j = i1) → s i})
+        (P j i)
+
+compPathR→PathP : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+                → r ≡ p ∙ s ∙ sym q
+                → PathP (λ i → p i ≡ q i) r s
+compPathR→PathP {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (k ∧ j)
+                  ; (i = i1) → q (k ∧ j)
+                  ; (j = i0) → r i
+                  ; (j = i1) → doubleCompPath-filler∙  p s (sym q) k i})
+        (P j i)

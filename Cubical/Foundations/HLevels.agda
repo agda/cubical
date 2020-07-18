@@ -34,6 +34,7 @@ private
     B : A → Type ℓ
     C : (x : A) → B x → Type ℓ
     D : (x : A) (y : B x) → C x y → Type ℓ
+    E : (x : A) (y : B x) → (z : C x y) → D x y z → Type ℓ
     x y : A
     n : HLevel
 
@@ -296,6 +297,10 @@ isPropΠ3 : (h : (x : A) (y : B x) (z : C x y) → isProp (D x y z))
          → isProp ((x : A) (y : B x) (z : C x y) → D x y z)
 isPropΠ3 h = isPropΠ λ x → isPropΠ λ y → isPropΠ λ z → h x y z
 
+isPropΠ4 : (h : (x : A) (y : B x) (z : C x y) (w : D x y z) → isProp (E x y z w))
+            → isProp ((x : A) (y : B x) (z : C x y) (w : D x y z) → E x y z w)
+isPropΠ4 h = isPropΠ λ _ → isPropΠ3 λ _ → h _ _
+
 isPropImplicitΠ : (h : (x : A) → isProp (B x)) → isProp ({x : A} → B x)
 isPropImplicitΠ h f g i {x} = h x (f {x}) (g {x}) i
 
@@ -311,6 +316,17 @@ isSetΠ2 h = isSetΠ λ x → isSetΠ λ y → h x y
 
 isGroupoidΠ : ((x : A) → isGroupoid (B x)) → isGroupoid ((x : A) → B x)
 isGroupoidΠ = isOfHLevelΠ 3
+
+isGroupoidΠ2 : (h : (x : A) (y : B x) → isGroupoid (C x y)) → isGroupoid ((x : A) (y : B x) → C x y)
+isGroupoidΠ2 h = isGroupoidΠ λ _ → isGroupoidΠ λ _ → h _ _
+
+isGroupoidΠ3 : (h : (x : A) (y : B x) (z : C x y) → isGroupoid (D x y z))
+            → isGroupoid ((x : A) (y : B x) (z : C x y) → D x y z)
+isGroupoidΠ3 h = isGroupoidΠ λ _ → isGroupoidΠ2 λ _ → h _ _
+
+isGroupoidΠ4 : (h : (x : A) (y : B x) (z : C x y) (w : D x y z) → isGroupoid (E x y z w))
+            → isGroupoid ((x : A) (y : B x) (z : C x y) (w : D x y z) → E x y z w)
+isGroupoidΠ4 h = isGroupoidΠ λ _ → isGroupoidΠ3 λ _ → h _ _
 
 is2GroupoidΠ : ((x : A) → is2Groupoid (B x)) → is2Groupoid ((x : A) → B x)
 is2GroupoidΠ = isOfHLevelΠ 4
