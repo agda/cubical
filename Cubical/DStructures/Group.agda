@@ -48,13 +48,9 @@ module _ (ℓ ℓ' : Level) where
                    → (g : ⟨ G ⟩) → GroupEquiv.eq eH .fst (f g) ≡ f' (GroupEquiv.eq eG  .fst g))
                 (λ _ _ → refl)
                 λ (G , H) f → isOfHLevelRespectEquiv 0
-                                                     (Σ-cong-equiv-snd (λ f' → {!!}))
-                                                     {-(Σ[ f' ∈ GroupHom G H ] (f ≡ f')
-                                                       ≃⟨ Σ-cong-equiv-snd (λ f' → {!!}) ⟩
-                                                     Σ[ (grouphom f' _) ∈ GroupHom G H ] (GroupHom.fun f ≡ f')
-                                                       ≃⟨ Σ-cong-equiv-snd (λ f' → invEquiv funExtEquiv) ⟩
-                                                     -- Σ[ (grouphom f' _) ∈ GroupHom G H ] ((g : ⟨ G ⟩) → GroupHom.fun f g ≡ f' g) ■)
-                                                     Σ[ (grouphom f' _) ∈ GroupHom G H ] (GroupHom.fun f ∼ f') ■) -}
+                                                     -- Σ[ f' ∈ GroupHom G H ] (f ≡ f')
+                                                     --  ≃ Σ[ (grouphom f' _) ∈ GroupHom G H ] ((g : ⟨ G ⟩) → GroupHom.fun f g ≡ f' g)
+                                                     (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
                                                      (isContrSingl f)
   -- Type of two groups with a group morphism
   GroupsMorphism : URGStr (Σ[ (G , H) ∈ (Group {ℓ = ℓ} × Group {ℓ = ℓ'}) ] GroupHom G H) (ℓ-max ℓ ℓ')
@@ -70,7 +66,9 @@ module _ (ℓ ℓ' : Level) where
                 (λ {(_ , H)} (grouphom f _) (eG , eH) (grouphom f' _)
                   → (h : ⟨ H ⟩) → GroupEquiv.eq eG .fst (f h) ≡ f' (GroupEquiv.eq eH .fst h))
                 (λ _ _ → refl)
-                λ (G , H) f → isOfHLevelRespectEquiv 0 {!!} (isContrSingl f)
+                λ (G , H) f → isOfHLevelRespectEquiv 0
+                                                     (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
+                                                     (isContrSingl f)
 
   -- Type of two groups with a group morphism going back
   GroupsMorphismB : URGStr (Σ[ (G , H) ∈ (Group {ℓ = ℓ} × Group {ℓ = ℓ'}) ] GroupHom H G) (ℓ-max ℓ ℓ')
