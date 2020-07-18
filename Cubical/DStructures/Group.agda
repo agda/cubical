@@ -44,8 +44,8 @@ module _ (ℓ ℓ' : Level) where
   GroupsMorphismᴰ =
     makeURGStrᴰ (λ (G , H) → GroupHom G H)
                 (ℓ-max ℓ ℓ')
-                (λ {(G , _)} (grouphom f _) (eG , eH) (grouphom f' _)
-                   → (g : ⟨ G ⟩) → GroupEquiv.eq eH .fst (f g) ≡ f' (GroupEquiv.eq eG  .fst g))
+                (λ {(G , _)} f (eG , eH) f'
+                   → (g : ⟨ G ⟩) → GroupEquiv.eq eH .fst (GroupHom.fun f g) ≡ GroupHom.fun f' (GroupEquiv.eq eG  .fst g))
                 (λ _ _ → refl)
                 λ (G , H) f → isOfHLevelRespectEquiv 0
                                                      -- Σ[ f' ∈ GroupHom G H ] (f ≡ f')
@@ -63,8 +63,8 @@ module _ (ℓ ℓ' : Level) where
   GroupsMorphismBᴰ =
     makeURGStrᴰ (λ (G , H) → GroupHom H G)
                 (ℓ-max ℓ ℓ')
-                (λ {(_ , H)} (grouphom f _) (eG , eH) (grouphom f' _)
-                  → (h : ⟨ H ⟩) → GroupEquiv.eq eG .fst (f h) ≡ f' (GroupEquiv.eq eH .fst h))
+                (λ {(_ , H)} f (eG , eH) f'
+                  → (h : ⟨ H ⟩) → GroupEquiv.eq eG .fst (GroupHom.fun f h) ≡ GroupHom.fun f' (GroupEquiv.eq eH .fst h))
                 (λ _ _ → refl)
                 λ (G , H) f → isOfHLevelRespectEquiv 0
                                                      (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
