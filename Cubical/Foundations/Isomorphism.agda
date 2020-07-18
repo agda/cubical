@@ -166,3 +166,10 @@ A ∎Iso = idIso {A = A}
 infixr  0 _Iso⟨_⟩_
 infix   1 _∎Iso
 
+codomainIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+           → Iso B C
+           → Iso (A → B) (A → C)
+Iso.fun (codomainIso is) f a = Iso.fun is (f a)
+Iso.inv (codomainIso is) f a = Iso.inv is (f a)
+Iso.rightInv (codomainIso is) f = funExt λ a → Iso.rightInv is (f a)
+Iso.leftInv (codomainIso is) f = funExt λ a → Iso.leftInv is (f a)

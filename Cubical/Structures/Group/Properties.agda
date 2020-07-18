@@ -66,12 +66,12 @@ module GroupLemmas (G : Group {ℓ}) where
           0g ∎
 
 isPropIsGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
-              → isProp (IsGroup 0g _+_ -_)
-isPropIsGroup 0g _+_ -_ (isgroup GM Ginv) (isgroup HM Hinv) =
-  λ i → isgroup (isPropIsMonoid _ _ GM HM i) (isPropInv Ginv Hinv i)
+             → isProp (IsGroup 0g _+_ -_)
+IsGroup.isMonoid (isPropIsGroup 0g _+_ -_ g1 g2 i) = isPropIsMonoid _ _ (IsGroup.isMonoid g1) (IsGroup.isMonoid g2) i
+IsGroup.inverse (isPropIsGroup 0g _+_ -_ g1 g2 i) = isPropInv (IsGroup.inverse g1) (IsGroup.inverse g2) i
   where
   isSetG : isSet _
-  isSetG = IsSemigroup.is-set (IsMonoid.isSemigroup GM)
+  isSetG = IsSemigroup.is-set (IsMonoid.isSemigroup (IsGroup.isMonoid g1))
 
   isPropInv : isProp ((x : _) → ((x + (- x)) ≡ 0g) × (((- x) + x) ≡ 0g))
   isPropInv = isPropΠ λ _ → isProp× (isSetG _ _) (isSetG _ _)

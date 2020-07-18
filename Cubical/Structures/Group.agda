@@ -6,3 +6,4 @@ open import Cubical.Structures.Group.Properties public
 open import Cubical.Structures.Group.Morphism public
 open import Cubical.Structures.Group.MorphismProperties public
 open import Cubical.Structures.Group.Action public
+open import Cubical.Structures.Group.Algebra public
