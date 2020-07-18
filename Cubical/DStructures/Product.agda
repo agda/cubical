@@ -36,9 +36,7 @@ _×URG_ StrA {B} StrB = ∫⟨ StrA ⟩ (URGStrConstᴰ StrA StrB)
                    (λ (b , a) → C (a , b))
                    ℓ≅ᴰ
 ×URG-swap {C = C} {ℓ≅ᴰ = ℓ≅ᴰ} {StrA×B = StrA×B} StrCᴰ =
-  makeURGStrᴰ (λ (b , a) → C (a , b))
-              ℓ≅ᴰ
-              (λ c p c' → c ≅ᴰ⟨ p ⟩ c')
+  makeURGStrᴰ (λ c p c' → c ≅ᴰ⟨ p ⟩ c')
               ρᴰ
               λ (b , a) c → isUnivalent→contrTotalSpace (λ c c' → c ≅ᴰ⟨ URGStr.ρ StrA×B (a , b) ⟩ c')
                                                         ρᴰ

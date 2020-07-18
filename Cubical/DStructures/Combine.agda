@@ -24,9 +24,7 @@ combineURGStrᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
                  (StrCᴰ : URGStrᴰ StrA C ℓ≅C)
                  → URGStrᴰ StrA (λ a → B a × C a) (ℓ-max ℓ≅B ℓ≅C)
 combineURGStrᴰ {ℓ≅B = ℓ≅B} {ℓ≅C = ℓ≅C} {A = A} {StrA = StrA} {B = B} {C = C} StrBᴰ StrCᴰ =
-  makeURGStrᴰ (λ a → B a × C a)
-              (ℓ-max ℓ≅B ℓ≅C)
-              -- equality in the combined structure is defined componentwise
+  makeURGStrᴰ -- equality in the combined structure is defined componentwise
               (λ (b , c) p (b' , c') → b B≅ᴰ⟨ p ⟩ b' × c C≅ᴰ⟨ p ⟩ c')
               -- reflexivity follows from B and C reflexivity
               (λ (b , c) → Bρᴰ b , Cρᴰ c)

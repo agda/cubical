@@ -26,9 +26,7 @@ URGStrType A = makeURGStr {_≅_ = _≡_} (λ _ → refl) isContrSingl
 -- subtypes are displayed structures
 URGStrᴰSubtype : {A : Type ℓ} (P : A → hProp ℓ') → URGStrᴰ (URGStrType A) (λ a → P a .fst) ℓ-zero
 URGStrᴰSubtype P
-  = makeURGStrᴰ (λ a → P a .fst)
-                ℓ-zero
-                (λ _ _ _ → Unit)
+  = makeURGStrᴰ (λ _ _ _ → Unit)
                 (λ _ → tt)
                 λ a p → isOfHLevelRespectEquiv 0
                                                (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
@@ -39,9 +37,7 @@ Subtype→SubURGᴰ : {A : Type ℓA} (P : A → hProp ℓP)
                 (StrA : URGStr A ℓ≅A)
                 → URGStrᴰ StrA (λ a → P a .fst) ℓ-zero
 Subtype→SubURGᴰ P StrA =
-  makeURGStrᴰ (λ a → P a .fst)
-              ℓ-zero
-              (λ _ _ _ → Unit)
+  makeURGStrᴰ (λ _ _ _ → Unit)
               (λ _ → tt)
               (λ a p → isOfHLevelRespectEquiv 0
                                               (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))

@@ -53,9 +53,7 @@ module Morphisms (ℓ ℓ' : Level) where
                             (λ (G , H) → GroupHom G H)
                             (ℓ-max ℓ ℓ')
   SᴰG²F =
-    makeURGStrᴰ (λ (G , H) → GroupHom G H)
-                (ℓ-max ℓ ℓ')
-                (λ {(G , _)} f (eG , eH) f'
+    makeURGStrᴰ (λ {(G , _)} f (eG , eH) f'
                    → (g : ⟨ G ⟩) → GroupEquiv.eq eH .fst (GroupHom.fun f g) ≡ GroupHom.fun f' (GroupEquiv.eq eG  .fst g))
                 (λ _ _ → refl)
                 λ (G , H) f → isOfHLevelRespectEquiv 0
@@ -72,9 +70,7 @@ module Morphisms (ℓ ℓ' : Level) where
                              (λ (G , H) → GroupHom H G)
                              (ℓ-max ℓ ℓ')
   SᴰG²B =
-    makeURGStrᴰ (λ (G , H) → GroupHom H G)
-                (ℓ-max ℓ ℓ')
-                (λ {(_ , H)} f (eG , eH) f'
+    makeURGStrᴰ (λ {(_ , H)} f (eG , eH) f'
                   → (h : ⟨ H ⟩) → GroupEquiv.eq eG .fst (GroupHom.fun f h) ≡ GroupHom.fun f' (GroupEquiv.eq eH .fst h))
                 (λ _ _ → refl)
                 λ (G , H) f → isOfHLevelRespectEquiv 0
@@ -137,6 +133,8 @@ module Morphisms (ℓ ℓ' : Level) where
                                  (ℓ-max ℓ ℓ')
   SG²SecRetB = ∫⟨ SG²FB² ⟩ SᴰG²SecRetB
 
+  -- two groups, one morphism forth, two sections of that
+  -- Also known as Internal Reflexive Graphs in Groups
   SᴰG²SecRet² : URGStrᴰ SG²SecRetB
                         (λ ((_ , (f , _) , b') , _) → isGroupHomRet f b')
                         ℓ-zero
@@ -146,6 +144,31 @@ module Morphisms (ℓ ℓ' : Level) where
   SG²SecRet² : URGStr G²SecRet² (ℓ-max ℓ ℓ')
   SG²SecRet² = ∫⟨ SG²SecRetB ⟩ SᴰG²SecRet²
 
+
+
+
+  -- group actions displayed over pairs of groups
+{-
+  SᴰAction : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
+                     (λ (G , H) → Σ[ _α_ ∈ LeftActionStructure ⟨ G ⟩ ⟨ H ⟩ ] (IsGroupAction G H _α_))
+                     (ℓ-max ℓ ℓ')
+  SᴰAction =
+    -- the type is over (G , H) is the actions of G on H
+    makeURGStrᴰ -- actions are related when they respect the relation of G, G' and H, H'
+                (λ {(G , H)} {(G' , H')} (_α_ , isAct) (pG , pH) (_α'_ , isAct')
+                  → ((g : ⟨ G ⟩) → (h : ⟨ H ⟩)
+                        → GroupEquiv.eq pH .fst (g α h) ≡ (GroupEquiv.eq pG .fst g α' GroupEquiv.eq pH .fst h)))
+                -- reflexivity over idGroupEquiv is easy
+                (λ _ _ _ → refl)
+                -- contractibility of the total space
+                -- uses isPropIsGroupAction
+                λ (G , H) (_α_ , isAct) → {!!}
+                where
+                  module _ {(G , H) : Group {ℓ = ℓ} × Group {ℓ = ℓ'}} where
+                    -- the actions of G on H
+                    ActGH = Σ[ _α_ ∈ LeftActionStructure ⟨ G ⟩ ⟨ H ⟩ ]
+                               (IsGroupAction G H _α_)
+-}
 
 {-
   GroupsFBBSecRetᴰ : URGStrᴰ {!!} (λ (a , _) → {!!}) {!!}
