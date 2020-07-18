@@ -53,6 +53,7 @@ makeURGStr {A = A} {_≅_ = _≅_}
                     ρ
                     λ a a' → contrTotalSpace→isUnivalent _≅_ ρ contrTotal a a'
 
+
 -- a displayed univalent reflexive graph structure over a URGStr on a type
 record URGStrᴰ {A : Type ℓA} (StrA : URGStr A ℓ≅A)
                   (B : A → Type ℓB) (ℓ≅ᴰ : Level) : Type (ℓ-max (ℓ-max (ℓ-max ℓA ℓB) ℓ≅A) (ℓ-suc ℓ≅ᴰ)) where
@@ -82,3 +83,8 @@ module _ {A : Type ℓ} {StrA : URGStr A ℓ₁}
                                                                     (ρᴰ {a})
                                                                     (contrTotal a)
                                                                     b b'
+
+-- abbreviation to obtain contractibility of total space
+URGStr→cTS : {A : Type ℓA} (StrA : URGStr A ℓ≅A) → contrTotalSpace (URGStr._≅_ StrA)
+URGStr→cTS StrA = isUnivalent→contrTotalSpace _≅_ ρ uni
+  where open URGStr StrA

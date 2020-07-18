@@ -18,6 +18,11 @@ open import Cubical.Structures.LeftAction
 open import Cubical.DStructures.Base
 open import Cubical.DStructures.Properties
 open import Cubical.DStructures.Product
+open import Cubical.DStructures.Combine
+
+private
+  variable
+    ℓ ℓ' : Level
 
 module _ (ℓ : Level) where
   -- groups with group isomorphisms structure
@@ -27,12 +32,45 @@ module _ (ℓ : Level) where
                        (isUnivalent'→isUnivalent GroupEquiv
                                                  idGroupEquiv
                                                  λ G H → invEquiv (GroupPath G H))
+
+module _ (ℓ ℓ' : Level) where
+  -- Group morphisms displayed over pairs of groups
+  GroupsMorphismᴰ : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
+                            (λ (G , H) → GroupHom G H)
+                            (ℓ-max ℓ ℓ')
+  GroupsMorphismᴰ =
+    makeURGStrᴰ (λ (G , H) → GroupHom G H)
+                (ℓ-max ℓ ℓ')
+                (λ {(G , _)} (grouphom f _) (eG , eH) (grouphom f' _)
+                   → (g : ⟨ G ⟩) → GroupEquiv.eq eH .fst (f g) ≡ f' (GroupEquiv.eq eG  .fst g))
+                (λ _ _ → refl)
+                λ (G , H) f → isOfHLevelRespectEquiv 0
+                                                     (Σ[ f' ∈ GroupHom G H ] (f ≡ f')
+                                                       ≃⟨ {!!} ⟩
+                                                     Σ[ (grouphom f' _) ∈ GroupHom G H ] (GroupHom.fun f ≡ f')
+                                                       ≃⟨ Σ-cong-equiv-snd (λ f' → invEquiv funExtEquiv) ⟩
+                                                     Σ[ (grouphom f' _) ∈ GroupHom G H ] ((g : ⟨ G ⟩) → GroupHom.fun f g ≡ f' g) ■)
+                                                     (isContrSingl f)
+  -- Type of two groups with a group morphism
+  GroupsMorphism : URGStr (Σ[ (G , H) ∈ (Group × Group) ] GroupHom G H) (ℓ-max ℓ ℓ')
+  GroupsMorphism = ∫⟨ URGStrGroup ℓ ×URG URGStrGroup ℓ' ⟩ GroupsMorphismᴰ
+
+  -- Type of two groups with a group morphism
+  GroupsMorphismB : URGStr (Σ[ (G , H) ∈ (Group × Group) ] GroupHom H G) (ℓ-max ℓ ℓ')
+  GroupsMorphismB = ∫⟨ URGStrGroup ℓ' ×URG URGStrGroup ℓ ⟩ {!GroupsMorphismᴰ!}
+
+  -- Groups with back and forth morphisms
+  GroupsMorphismsBFᴰ : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ') {!!} (ℓ-max ℓ ℓ')
+  GroupsMorphismsBFᴰ = combineURGStrᴰ {!!} {!!}
+
+
+
+{-
 private
   -- abbreviations
   module _ {ℓ : Level} {G G' : Group {ℓ = ℓ}} (e : GroupEquiv G G') where
     groupTransp : ⟨ G ⟩ → ⟨ G' ⟩
     groupTransp = GroupEquiv.eq e .fst
-
 module _ (ℓ ℓ' : Level) where
   -- group actions displayed over pairs of groups
   URGStrActionᴰ : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
@@ -112,3 +150,4 @@ module DoubleSec (ℓ ℓ' : Level) where
                           × (Σ[ f ∈ (GroupHom G H) ] Σ[ g ∈ (GroupHom H G) ] section (GroupHom.fun f) (GroupHom.fun g)))
               (ℓ-max ℓ ℓ')
   GroupsDoubleSec = combineURGStrᴰ (URGStrSecRetᴰ ℓ ℓ') (URGStrSecRetᴰ ℓ ℓ')
+-}

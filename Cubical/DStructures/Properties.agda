@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Sigma
 
@@ -15,7 +16,7 @@ open import Cubical.DStructures.Base
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C ℓ≅ᴰ : Level
+    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓA' ℓ≅A ℓ≅A' ℓB ℓB' ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓ≅ᴰ' : Level
 
 -- the total space of a DURGS is a URGS
 URGStrᴰ→URGStr : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
@@ -70,8 +71,7 @@ URGStrᴰ→URGStr {A = A} StrA B DispStrB
 
 -- associativity for towers
 module Assoc {ℓA ℓB ℓC ℓ≅A ℓ≅B ℓ≅C : Level}
-             {A : Type ℓ} {B : A → Type ℓB} {C : {a : A} → B a → Type ℓC}
-             (StrA : URGStr A ℓ≅A) where
+             {A : Type ℓ} {B : A → Type ℓB} {C : {a : A} → B a → Type ℓC} where
 
   ℓ≅ABC = ℓ-max (ℓ-max ℓ≅A ℓ≅B) ℓ≅C
   ℓ≅AB = ℓ-max ℓ≅A ℓ≅B
@@ -91,40 +91,38 @@ module Assoc {ℓA ℓB ℓC ℓ≅A ℓ≅B ℓ≅C : Level}
   URGΣAssoc : StrCB/A ≡ StrC/BA
   URGΣAssoc = cong (λ z → URGStr z ℓ≅ABC) (isoToPath Σ-assoc-Iso)
 
-module Combine where
-  -- combine two structures StrB and StrC over StrA to a structure StrB × StrC over A
-  combineURGStrᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
-                   {B : A → Type ℓB} {C : A → Type ℓC}
-                   (StrBᴰ : URGStrᴰ StrA B ℓ≅B)
-                   (StrCᴰ : URGStrᴰ StrA C ℓ≅C)
-                   → URGStrᴰ StrA (λ a → B a × C a) (ℓ-max ℓ≅B ℓ≅C)
-  combineURGStrᴰ {ℓ≅B = ℓ≅B} {ℓ≅C = ℓ≅C} {A = A} {StrA = StrA} {B = B} {C = C} StrBᴰ StrCᴰ =
-    makeURGStrᴰ (λ a → B a × C a)
-                (ℓ-max ℓ≅B ℓ≅C)
-                -- equality in the combined structure is defined componentwise
-                (λ (b , c) p (b' , c') → b B≅ᴰ⟨ p ⟩ b' × c C≅ᴰ⟨ p ⟩ c')
-                -- reflexivity follows from B and C reflexivity
-                (λ (b , c) → Bρᴰ b , Cρᴰ c)
-                -- so does univalence
-                contrTot
-    where
-      ρ = URGStr.ρ StrA
-      _B≅ᴰ⟨_⟩_ = URGStrᴰ._≅ᴰ⟨_⟩_ StrBᴰ
-      _C≅ᴰ⟨_⟩_ = URGStrᴰ._≅ᴰ⟨_⟩_ StrCᴰ
-      Bρᴰ = URGStrᴰ.ρᴰ StrBᴰ
-      Cρᴰ = URGStrᴰ.ρᴰ StrCᴰ
-      Buniᴰ = URGStrᴰ.uniᴰ StrBᴰ
-      Cuniᴰ = URGStrᴰ.uniᴰ StrCᴰ
-      contrTot : (a : A) ((b , c) : B a × C a) → isContr (Σ[ (b' , c') ∈ B a × C a ] (b B≅ᴰ⟨ ρ a ⟩ b' × c C≅ᴰ⟨ ρ a ⟩ c') )
-      contrTot = λ (a : A) ((b , c) : B a × C a)
-        → isOfHLevelRespectEquiv 0
-                                 (Σ[ b' ∈ B a ] (b B≅ᴰ⟨ ρ a ⟩ b')
-                                   ≃⟨ invEquiv (Σ-contractSnd (λ _ → isUnivalent→contrTotalSpace (_C≅ᴰ⟨ ρ a ⟩_) Cρᴰ Cuniᴰ c)) ⟩
-                                 (Σ[ b' ∈ B a ] (b B≅ᴰ⟨ ρ a ⟩ b')) × (Σ[ c' ∈ C a ] (c C≅ᴰ⟨ ρ a ⟩ c'))
-                                   ≃⟨ Σ-assoc-≃ ⟩
-                                 (Σ[ b' ∈ B a ] Σ[ _ ∈ b B≅ᴰ⟨ ρ a ⟩ b' ] Σ[ c' ∈ C a ] (c C≅ᴰ⟨ ρ a ⟩ c'))
-                                   ≃⟨ Σ-cong-equiv-snd (λ b' → compEquiv (invEquiv Σ-assoc-≃) (compEquiv (Σ-cong-equiv-fst Σ-swap-≃) Σ-assoc-≃)) ⟩
-                                 (Σ[ b' ∈ B a ] Σ[ c' ∈ C a ] Σ[ _ ∈ b B≅ᴰ⟨ ρ a ⟩ b' ] (c C≅ᴰ⟨ ρ a ⟩ c'))
-                                   ≃⟨ invEquiv Σ-assoc-≃ ⟩
-                                 (Σ[ (b' , c') ∈ B a × C a ] (b B≅ᴰ⟨ ρ a ⟩ b' × c C≅ᴰ⟨ ρ a ⟩ c') ) ■)
-                                 (isUnivalent→contrTotalSpace (_B≅ᴰ⟨ ρ a ⟩_) Bρᴰ Buniᴰ b)
+
+URGStr-transport : {A : Type ℓA} {A' : Type ℓA'}
+               (e : A ≃ A') (StrA : URGStr A ℓ≅A)
+               → URGStr A' ℓ≅A
+URGStr-transport {A = A} {A' = A'} e StrA =
+  makeURGStr {_≅_ = λ a a' → e- a ≅ e- a'}
+             (λ a → ρ (e- a))
+             λ a → isOfHLevelRespectEquiv 0
+                                          (Σ[ x ∈ A ] e- a ≅ x
+                                            ≃⟨ Σ-cong-equiv-snd (λ x → pathToEquiv (cong (e- a ≅_)
+                                                                                         (sym (Iso.leftInv (equivToIso e)
+                                                                                                           x)))) ⟩
+                                          Σ[ x ∈ A ] e- a ≅ e- (e* x)
+                                            ≃⟨ Σ-cong-equiv-fst e ⟩
+                                          Σ[ a' ∈ A' ] e- a ≅ e- a' ■)
+                                          (URGStr→cTS StrA (e- a))
+                                          where
+                                            open URGStr StrA
+                                            e⁻¹ = invEquiv e
+                                            e- = equivFun e⁻¹
+                                            e* = equivFun e
+
+
+
+-- transport of displayed structures along equivalences
+{-
+URGᴰtransp : {A : Type ℓA} {A' : Type ℓA'}
+    {B : A → Type ℓB}
+    (e : A ≃ A')
+    (StrA : URGStr A ℓ≅A)
+    (StrABᴰ : URGStrᴰ StrA B ℓ≅ᴰ)
+    → URGStrᴰ {!!} {!!} {!!}
+URGᴰtransp e StrA StrABᴰ =
+  makeURGStrᴰ {!!} {!!} {!!} {!!} {!!}
+-}
