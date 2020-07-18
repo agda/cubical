@@ -53,3 +53,9 @@ combineURGStrᴰ {ℓ≅B = ℓ≅B} {ℓ≅C = ℓ≅C} {A = A} {StrA = StrA} {
                                  ≃⟨ invEquiv Σ-assoc-≃ ⟩
                                (Σ[ (b' , c') ∈ B a × C a ] (b B≅ᴰ⟨ ρ a ⟩ b' × c C≅ᴰ⟨ ρ a ⟩ c') ) ■)
                                (isUnivalent→contrTotalSpace (_B≅ᴰ⟨ ρ a ⟩_) Bρᴰ Buniᴰ b)
+
+{-
+Liftᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
+
+Liftᴰ = ?
+-}

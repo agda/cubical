@@ -17,7 +17,7 @@ open import Cubical.DStructures.Properties
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓ≅ᴰ : Level
+    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓ≅ᴰ ℓP : Level
 
 -- a type is a URGStr with the relation given by its identity type
 URGStrType : (A : Type ℓ) → URGStr A ℓ
@@ -34,6 +34,20 @@ URGStrᴰSubtype P
                                                (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
                                                (inhProp→isContr p (P a .snd))
 
+-- a subtype induces a URG structure on itself
+Subtype→SubURGᴰ : {A : Type ℓA} (P : A → hProp ℓP)
+                (StrA : URGStr A ℓ≅A)
+                → URGStrᴰ StrA (λ a → P a .fst) ℓ-zero
+Subtype→SubURGᴰ P StrA =
+  makeURGStrᴰ (λ a → P a .fst)
+              ℓ-zero
+              (λ _ _ _ → Unit)
+              (λ _ → tt)
+              (λ a p → isOfHLevelRespectEquiv 0
+                                              (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
+                                              (inhProp→isContr p (P a .snd)))
+
+{-
 URGStrUnique : (A : Type ℓA) → isContr (URGStr A ℓA)
 fst (URGStrUnique A) = URGStrType A
 snd (URGStrUnique A) StrA' = {!!}
@@ -66,3 +80,5 @@ module Sigma' {ℓA ℓB ℓ≅B} {A : Type ℓA} {B : A → Type ℓA} where
                                                               (isContrSingl b)
                                where
                                  open URGStr StrBA
+
+-}

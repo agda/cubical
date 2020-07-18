@@ -52,6 +52,19 @@ compGroupEquiv {F = F} {G = G} {H = H} f g =
   module f = GroupEquiv f
   module g = GroupEquiv g
 
+idGroupHom : (G : Group {ℓ}) → GroupHom G G
+idGroupHom G = grouphom (λ g → g) λ _ _ → refl
+
+isGroupHomRet : {G : Group {ℓ}} {H : Group {ℓ'}}
+        (f : GroupHom G H) (g : GroupHom H G)
+        → Type ℓ
+isGroupHomRet {G = G} f g = compGroupHom f g ≡ idGroupHom G
+
+isPropIsGroupHomRet : {G : Group {ℓ}} {H : Group {ℓ'}}
+                      (f : GroupHom G H) (g : GroupHom H G)
+                      → isProp (isGroupHomRet f g)
+isPropIsGroupHomRet {G = G} f g = isSetGroupHom (compGroupHom f g) (idGroupHom G)
+
 idGroupEquiv : (G : Group {ℓ}) → GroupEquiv G G
 idGroupEquiv G = groupequiv (idEquiv (Group.Carrier G)) (λ _ _ → refl)
 
@@ -264,3 +277,28 @@ uaCompGroupEquiv f g = caracGroup≡ _ _ (
     ≡⟨ sym (cong-∙ Carrier (uaGroup f) (uaGroup g)) ⟩
   cong Carrier (uaGroup f ∙ uaGroup g) ∎) where
   open GroupEquiv
+
+-- paths between morphisms
+open import Cubical.Homotopy.Base
+GroupMorphismExt : {G : Group {ℓ}} {G' : Group {ℓ'}} {f g : GroupHom G G'}
+    (H : GroupHom.fun f ∼ GroupHom.fun g) → f ≡ g
+GroupMorphismExt {ℓ} {ℓ'} {G} {G'} {f} {g} H = λ i → grouphom (fun≡ i) (isHom≡ i)
+  where
+    fun≡ : GroupHom.fun f ≡ GroupHom.fun g
+    fun≡ = funExt∼ H
+
+    isHom≡ : PathP (λ i → isGroupHom G G' (fun≡ i)) (GroupHom.isHom f) (GroupHom.isHom g)
+    isHom≡ = toPathP (isPropIsGroupHom G G' (transp (λ i → isGroupHom G G' (fun≡ i)) i0 (GroupHom.isHom f)) (GroupHom.isHom g))
+
+GroupMorphismExtIso : {G : Group {ℓ}} {G' : Group {ℓ'}}
+                        (f g : GroupHom G G')
+                        → Iso (GroupHom.fun f ∼ GroupHom.fun g) (f ≡ g)
+Iso.fun (GroupMorphismExtIso f g) = GroupMorphismExt
+Iso.inv (GroupMorphismExtIso f g) p x = cong (λ h → GroupHom.fun h x) p
+Iso.leftInv (GroupMorphismExtIso {G' = G'} f g) H =
+  funExt (λ x → is-set G'
+                       (GroupHom.fun f x)
+                       (GroupHom.fun g x)
+                       (inv (GroupMorphismExtIso f g) (fun (GroupMorphismExtIso f g) H) x)
+                       (H x))
+Iso.rightInv (GroupMorphismExtIso f g) p = isSetGroupHom f g (fun (GroupMorphismExtIso f g) (inv (GroupMorphismExtIso f g) p)) p
