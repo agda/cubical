@@ -66,23 +66,6 @@ record URGStrᴰ {A : Type ℓA} (StrA : URGStr A ℓ≅A)
     uniᴰ : {a : A} → isUnivalent _≅ᴰ⟨ ρ a ⟩_ ρᴰ
 
 -- wrapper to create instances of URGStrᴰ
-module _ {A : Type ℓ} {StrA : URGStr A ℓ₁}
-         (B : A → Type ℓ') (ℓ₁' : Level)
-         where
-           open URGStr StrA
-
-           makeURGStrᴰ' : {B : A → Type ℓ'} {ℓ₁' : Level}
-                         (_≅ᴰ⟨_⟩_ : {a a' : A} → B a → a ≅ a' → B a' → Type ℓ₁')
-                         (ρᴰ : {a : A} → isRefl _≅ᴰ⟨ ρ a ⟩_)
-                         (contrTotal : (a : A) → contrTotalSpace _≅ᴰ⟨ ρ a ⟩_)
-                         → URGStrᴰ StrA B ℓ₁'
-           makeURGStrᴰ' _≅ᴰ⟨_⟩_ ρᴰ contrTotal
-             = urgstrᴰ _≅ᴰ⟨_⟩_
-                       ρᴰ
-                       λ {a : A} b b' → contrTotalSpace→isUnivalent (_≅ᴰ⟨ ρ a ⟩_)
-                                                                    (ρᴰ {a})
-                                                                    (contrTotal a)
-                                                                    b b'
 makeURGStrᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
                {B : A → Type ℓB}
                (_≅ᴰ⟨_⟩_ : {a a' : A} → B a → URGStr._≅_ StrA a a' → B a' → Type ℓ≅ᴰ)

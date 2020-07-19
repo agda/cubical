@@ -12,6 +12,7 @@ open BinaryRelation
 
 open import Cubical.DStructures.Base
 open import Cubical.DStructures.Properties
+open import Cubical.DStructures.Product
 
 private
   variable
@@ -52,6 +53,10 @@ combineURGStrᴰ {ℓ≅B = ℓ≅B} {ℓ≅C = ℓ≅C} {A = A} {StrA = StrA} {
                                (Σ[ (b' , c') ∈ B a × C a ] (b B≅ᴰ⟨ ρ a ⟩ b' × c C≅ᴰ⟨ ρ a ⟩ c') ) ■)
                                (isUnivalent→contrTotalSpace (_B≅ᴰ⟨ ρ a ⟩_) Bρᴰ Buniᴰ b)
 
+
+
+-- context: structure on A, B and C displayed over A
+-- then B can be lifted to be displayed over ∫⟨ StrA ⟩ StrCᴰ
 VerticalLiftᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
         {B : A → Type ℓB}
         (StrBᴰ : URGStrᴰ StrA B ℓ≅B)
@@ -64,6 +69,9 @@ VerticalLiftᴰ {ℓ≅B = ℓ≅B} {B = B} StrBᴰ StrCᴰ =
           uniᴰ
   where open URGStrᴰ StrBᴰ
 
+-- context: StrA on A, B and C displayed over StrA,
+--          D displayed over ∫⟨ StrA ⟩ StrBᴰ
+-- then D can be lifted to be displayed over ∫⟨ StrA ⟩ "B × C"
 HorizontalLiftᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
                  {B : A → Type ℓB} (StrBᴰ : URGStrᴰ StrA B ℓ≅B)
                  {C : A → Type ℓC} (StrCᴰ : URGStrᴰ StrA C ℓ≅C)
@@ -75,3 +83,41 @@ HorizontalLiftᴰ {ℓ≅D = ℓ≅D} StrBᴰ StrCᴰ {D} StrDᴰ =
           ρᴰ
           uniᴰ
     where open URGStrᴰ StrDᴰ
+
+-- context: StrA on A, StrB on B and C family over A × B
+-- then StrA and StrB induce ×URG-structure on A × B
+-- and any C displayed over StrA × StrB can be transformed
+-- to be displayed over StrA
+splitProductURGStrᴰ : {ℓ≅C : Level}
+                      {A : Type ℓA} {StrA : URGStr A ℓ≅A}
+                      {B : Type ℓB} {StrB : URGStr B ℓ≅B}
+                      {C : A × B → Type ℓC}
+                      (StrCᴰ/B×A : URGStrᴰ (StrA ×URG StrB) C ℓ≅C)
+                      → URGStrᴰ StrA (λ a → Σ[ b ∈ B ] C (a , b)) (ℓ-max ℓ≅B ℓ≅C)
+splitProductURGStrᴰ {A = A} {StrA = StrA} {B = B} {StrB = StrB} {C = C} StrCᴰ/B×A
+  = makeURGStrᴰ (λ (b , c) eA (b' , c') → Σ[ eB ∈ b B≅ b' ] (c ≅ᴰ⟨ eA , eB ⟩ c') )
+                (λ (b , c) → Bρ b , ρᴰ c)
+                λ a (b , c) → isOfHLevelRespectEquiv 0
+                                                     (Σ[ c' ∈ C (a , b) ] (c ≅ᴰ⟨ Aρ a , Bρ b  ⟩ c')
+                                                        ≃⟨ invEquiv (Σ-contractFst (contrTotalB' a b)) ⟩
+                                                     Σ[ (b' , eB) ∈ (Σ[ b' ∈ B ] b B≅ b') ] Σ[ c' ∈ C (a , b') ] (c ≅ᴰ⟨ Aρ a , eB  ⟩ c')
+                                                       ≃⟨ Σ-assoc-≃ ⟩
+                                                     Σ[ b' ∈ B ] Σ[ eB ∈ b B≅ b' ] Σ[ c' ∈ C (a , b') ] (c ≅ᴰ⟨ Aρ a , eB  ⟩ c')
+                                                       ≃⟨ Σ-cong-equiv-snd (λ b' → compEquiv (invEquiv Σ-assoc-≃) (compEquiv (Σ-cong-equiv-fst Σ-swap-≃) Σ-assoc-≃)) ⟩
+                                                     Σ[ b' ∈ B ] Σ[ c' ∈ C (a , b') ] Σ[ eB ∈ b B≅ b' ] (c ≅ᴰ⟨ Aρ a , eB  ⟩ c')
+                                                       ≃⟨ invEquiv Σ-assoc-≃ ⟩
+                                                     Σ[ (b' , c') ∈ (Σ[ b' ∈ B ] C (a , b')) ] Σ[ eB ∈ b B≅ b' ] (c ≅ᴰ⟨ Aρ a , eB  ⟩ c') ■)
+                                                     (isUnivalent→contrTotalSpace (λ c c' → c ≅ᴰ⟨ Aρ a , Bρ b ⟩ c') ρᴰ uniᴰ c)
+  where
+    open URGStrᴰ StrCᴰ/B×A
+    _B≅_ = URGStr._≅_ StrB
+    Bρ = URGStr.ρ StrB
+    Buni = URGStr.uni StrB
+    Aρ = URGStr.ρ StrA
+
+    module _ (a : A) (b : B) where
+      contrTotalB : isContr (Σ[ b' ∈ B ] b B≅ b')
+      contrTotalB = isUnivalent→contrTotalSpace _B≅_ Bρ Buni b
+
+      contrTotalB' : isContr (Σ[ b' ∈ B ] b B≅ b')
+      contrTotalB' = (b , Bρ b) , λ z → sym (snd contrTotalB (b , Bρ b)) ∙ snd contrTotalB z

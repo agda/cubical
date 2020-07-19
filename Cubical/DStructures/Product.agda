@@ -2,7 +2,11 @@
 module Cubical.DStructures.Product where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
+
 open import Cubical.Data.Sigma
+
 open import Cubical.DStructures.Base
 open import Cubical.DStructures.Properties
 
@@ -11,7 +15,7 @@ open BinaryRelation
 
 private
   variable
-    ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅A×B : Level
+    ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C ℓ≅A×B : Level
 
 -- The constant structure over a structure
 URGStrConstᴰ : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
