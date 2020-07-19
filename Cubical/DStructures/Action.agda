@@ -50,8 +50,10 @@ module _ (ℓ ℓ' : Level) where
   SActionStructure : URGStr G²Las (ℓ-max ℓ ℓ')
   SActionStructure = ∫⟨ URGStrGroup ℓ ×URG URGStrGroup ℓ' ⟩ SᴰActionStructure
 
+  open ActionΣTheory
+
   SᴰAction : URGStrᴰ SActionStructure
                      (λ ((G , H) , _α_) → IsGroupAction G H _α_)
                      ℓ-zero
-  SᴰAction = Subtype→SubURGᴰ (λ ((G , H) , _α_) → (IsGroupAction G H _α_) , {!!})
+  SᴰAction = Subtype→SubURGᴰ (λ ((G , H) , _α_) → IsGroupAction G H _α_ , isPropIsGroupAction G H _α_)
                              SActionStructure
