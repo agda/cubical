@@ -88,6 +88,7 @@ HorizontalLiftᴰ {ℓ≅D = ℓ≅D} StrBᴰ StrCᴰ {D} StrDᴰ =
 -- then StrA and StrB induce ×URG-structure on A × B
 -- and any C displayed over StrA × StrB can be transformed
 -- to be displayed over StrA
+-- TODO: Separate definition of fiberwise total space
 splitProductURGStrᴰ : {ℓ≅C : Level}
                       {A : Type ℓA} {StrA : URGStr A ℓ≅A}
                       {B : Type ℓB} {StrB : URGStr B ℓ≅B}
