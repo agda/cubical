@@ -59,13 +59,34 @@ module Morphisms (ℓ ℓ' : Level) where
   -- type of internal reflexive graphs in the category of groups
   G²SecRet² = Σ[ ((((G , H) , f , b) , isRet) , b') ∈ G²SecRetB ] isGroupHomRet f b'
 
+  module GroupDisplayHelper {G : Group {ℓ}} {H : Group {ℓ'}} where
+    BContr : (f : GroupHom H G) → isContr (Σ[ f' ∈ GroupHom H G ] (GroupHom.fun f ∼ GroupHom.fun f'))
+    BContr f =  isOfHLevelRespectEquiv 0 (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f')))) (isContrSingl f)
+
+    module Coherence {G' : Group {ℓ}} {H' : Group {ℓ'}}
+                     (eG : GroupEquiv G G') (eH : GroupEquiv H H') where
+           tr-eG = GroupEquiv.eq eG .fst
+           tr-eH = GroupEquiv.eq eH .fst
+           _* = GroupHom.fun
+
+           FCondition : (f : GroupHom G H) (f' : GroupHom G' H')
+                          → Type (ℓ-max ℓ ℓ')
+           FCondition f f' = (g : ⟨ G ⟩) → tr-eH ((f *) g) ≡ (f' *) (tr-eG g)
+
+           BCondition : (f : GroupHom H G) (f' : GroupHom H' G')
+                         → Type (ℓ-max ℓ ℓ')
+           BCondition f f' = (h : ⟨ H ⟩) → tr-eG ((f *) h) ≡ (f' *) (tr-eH h)
+
+  open GroupDisplayHelper
+
+
   -- Group morphisms displayed over pairs of groups
   SᴰG²F : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
                             (λ (G , H) → GroupHom G H)
                             (ℓ-max ℓ ℓ')
   SᴰG²F =
     makeURGStrᴰ (λ {(G , _)} f (eG , eH) f'
-                   → (g : ⟨ G ⟩) → GroupEquiv.eq eH .fst (GroupHom.fun f g) ≡ GroupHom.fun f' (GroupEquiv.eq eG  .fst g))
+                   → Coherence.FCondition eG eH f f')
                 (λ _ _ → refl)
                 λ (G , H) f → isOfHLevelRespectEquiv 0
                                                      -- Σ[ f' ∈ GroupHom G H ] (f ≡ f')
@@ -76,24 +97,7 @@ module Morphisms (ℓ ℓ' : Level) where
   SG²F : URGStr G²F (ℓ-max ℓ ℓ')
   SG²F = ∫⟨ URGStrGroup ℓ ×URG URGStrGroup ℓ' ⟩ SᴰG²F
 
-  module GroupCoherence {G G' : Group {ℓ}} {H H' : Group {ℓ'}}
-                        (eG : GroupEquiv G G') (eH : GroupEquiv H H') where
-    tr-eG = GroupEquiv.eq eG .fst
-    tr-eH = GroupEquiv.eq eH .fst
-    _* = GroupHom.fun
 
-    ForthCondition : (f : GroupHom G H) (f' : GroupHom G' H')
-                     → Type (ℓ-max ℓ ℓ')
-    ForthCondition f f' = (g : ⟨ G ⟩) → tr-eH ((f *) g) ≡ (f' *) (tr-eG g)
-
-    BackCondition : (f : GroupHom H G) (f' : GroupHom H' G')
-                    → Type (ℓ-max ℓ ℓ')
-    BackCondition f f' = (h : ⟨ H ⟩) → tr-eG ((f *) h) ≡ (f' *) (tr-eH h)
-
-
-  module GroupContr {G : Group {ℓ}} {H : Group {ℓ'}} where
-    Back : (f : GroupHom H G) → isContr (Σ[ f' ∈ GroupHom H G ] (GroupHom.fun f ∼ GroupHom.fun f'))
-    Back f =  isOfHLevelRespectEquiv 0 (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f')))) (isContrSingl f) 
 
 
   -- Same as SG²F but with the morphism going the other way
@@ -102,11 +106,13 @@ module Morphisms (ℓ ℓ' : Level) where
                              (ℓ-max ℓ ℓ')
   SᴰG²B =
     makeURGStrᴰ (λ {(_ , H)} f (eG , eH) f'
-                  → (h : ⟨ H ⟩) → GroupEquiv.eq eG .fst (GroupHom.fun f h) ≡ GroupHom.fun f' (GroupEquiv.eq eH .fst h))
+                  -- → (h : ⟨ H ⟩) → GroupEquiv.eq eG .fst (GroupHom.fun f h) ≡ GroupHom.fun f' (GroupEquiv.eq eH .fst h))
+                  → Coherence.BCondition eG eH f f')
                 (λ _ _ → refl)
-                λ (G , H) f → isOfHLevelRespectEquiv 0
+                λ _ f → BContr f
+                {- λ (G , H) f → isOfHLevelRespectEquiv 0
                                                      (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
-                                                     (isContrSingl f)
+                                                     (isContrSingl f) -}
 
   -- Type of two groups with a group morphism going back
   SG²B : URGStr G²B (ℓ-max ℓ ℓ')
@@ -143,9 +149,9 @@ module Morphisms (ℓ ℓ' : Level) where
                         (ℓ-max ℓ ℓ')
   SᴰG²SecRetB
     = makeURGStrᴰ (λ {(((G , H) , _) , _)} f (((eG , eH) , _) , _) f'
-                     → GroupCoherence.BackCondition eG eH f f')
+                     → Coherence.BCondition eG eH f f')
                   (λ _ _ → refl)
-                  λ (((G , H) , x) , isRet) f → GroupContr.Back f
+                  λ (((G , H) , x) , isRet) f → BContr f
 
   SG²SecRetB : URGStr G²SecRetB (ℓ-max ℓ ℓ')
   SG²SecRetB = ∫⟨ SG²SecRet ⟩ SᴰG²SecRetB
