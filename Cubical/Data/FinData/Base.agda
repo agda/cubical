@@ -54,6 +54,6 @@ elim P fz fs {suc k} zero = fz
 elim P fz fs {suc k} (suc fj) = fs (elim P fz fs fj)
 
 
-caseFin : ∀{k} → (a0 aS : A) → Fin k → A
-caseFin a0 aS zero = a0
-caseFin a0 aS (suc x) = aS
+rec : ∀{k} → (a0 aS : A) → Fin k → A
+rec a0 aS zero = a0
+rec a0 aS (suc x) = aS

@@ -1,6 +1,5 @@
 
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-
 module Cubical.Data.FinData.Properties where
 
 open import Cubical.Foundations.Function
@@ -9,20 +8,19 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.FinData.Base as Fin
 import Cubical.Data.Nat as ℕ
 open import Cubical.Data.Empty as Empty
-
 open import Cubical.Relation.Nullary
 
 private
  variable
-   a b ℓ : Level
-   A : Type a
+   ℓ : Level
+   A : Type ℓ
 
 
 znots : ∀{k} {m : Fin k} → ¬ (zero ≡ (suc m))
-znots {k} {m} x = subst (caseFin (Fin k) ⊥) x m
+znots {k} {m} x = subst (Fin.rec (Fin k) ⊥) x m
 
 snotz : ∀{k} {m : Fin k} → ¬ ((suc m) ≡ zero)
-snotz {k} {m} x = subst (caseFin ⊥ (Fin k)) x m
+snotz {k} {m} x = subst (Fin.rec ⊥ (Fin k)) x m
 
 isPropFin0 : isProp (Fin 0)
 isPropFin0 = Empty.rec ∘ ¬Fin0
