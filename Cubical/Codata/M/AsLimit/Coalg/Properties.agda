@@ -61,25 +61,25 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
   (Σ[ f ∈ (C → M S) ] (out-fun ∘ f ≡ step f))
     Iso⟨ comp-abstr'0 ⟩
   (Σ[ f ∈ (C → M S) ] (in-fun ∘ out-fun ∘ f ≡ in-fun ∘ step f))
-    Iso⟨ Σ-ap-iso₂ (λ f → pathToIso (cong (λ k → k ≡ in-fun ∘ step f) (computation-abstract'1 f))) ⟩
+    Iso⟨ Σ-cong-iso-snd (λ f → pathToIso (cong (λ k → k ≡ in-fun ∘ step f) (computation-abstract'1 f))) ⟩
   (Σ[ f ∈ (C → M S) ] (f ≡ in-fun ∘ step f))
     Iso⟨ idIso ⟩
   (Σ[ f ∈ (C → M S) ] (f ≡ Ψ f))
-    Iso⟨ Σ-ap-iso (lemma10-Iso C,γ) (λ _ → idIso) ⟩
+    Iso⟨ Σ-cong-iso (lemma10-Iso C,γ) (λ _ → idIso) ⟩
   (Σ[ c ∈ Cone C,γ ] (e c ≡ Ψ (e c)))
-    Iso⟨ Σ-ap-iso₂ (λ c → pathToIso λ i → e c ≡ funExt⁻ (commutivity) c i) ⟩
+    Iso⟨ Σ-cong-iso-snd (λ c → pathToIso λ i → e c ≡ funExt⁻ (commutivity) c i) ⟩
   (Σ[ c ∈ Cone C,γ ] (e c ≡ e (Φ c)))
-    Iso⟨ Σ-ap-iso₂ (λ c → e-inj-Iso) ⟩
+    Iso⟨ Σ-cong-iso-snd (λ c → e-inj-Iso) ⟩
   (Σ[ c ∈ Cone C,γ ] (c ≡ Φ c))
     Iso⟨ idIso ⟩
   (Σ[ (u , q) ∈ Cone C,γ ] ((u , q) ≡ (ϕ₀ u , ϕ₁ u q)))
-    Iso⟨ (Σ-ap-iso₂ λ {(u , q) → invIso (Σ-split-iso {x = (u , q)} {y = (ϕ₀ u , ϕ₁ u q)})}) ⟩
+    Iso⟨ (Σ-cong-iso-snd λ {(u , q) → invIso (ΣPathIsoPathΣ {x = (u , q)} {y = (ϕ₀ u , ϕ₁ u q)})}) ⟩
   (Σ[ (u , q) ∈ Cone C,γ ]
   (Σ[ p ∈ u ≡ ϕ₀ u ] (PathP (λ i → Cone₁ C,γ (p i)) q (ϕ₁ u q))))
     Iso⟨ (iso (λ {((u , p) , q , r) → (u , q) , p , r}) (λ {((u , q) , p , r) → (u , p) , (q , r)}) (λ _ → refl) λ _ → refl) ⟩
   (Σ[ (u , p) ∈ (Σ[ u ∈ Cone₀ C,γ ] (u ≡ ϕ₀ u)) ]
   (Σ[ q ∈ Cone₁ C,γ u ] (PathP (λ i → Cone₁ C,γ (p i)) q (ϕ₁ u q))))
-    Iso⟨ invIso (Σ-ap-iso (missing-0-Iso) λ x → missing-2-Iso) ⟩
+    Iso⟨ invIso (Σ-cong-iso (missing-0-Iso) λ x → missing-2-Iso) ⟩
   (Σ[ _ ∈ Lift {ℓ-zero} {ℓ} Unit ] (Lift {ℓ-zero} {ℓ} Unit))
     Iso⟨ (iso (λ x → lift tt) (λ _ → lift tt , lift tt) (λ b i → lift tt) (λ a i → lift tt , lift tt)) ⟩
   Lift {ℓ-zero} {ℓ} Unit ∎Iso
@@ -112,7 +112,7 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
     abstract
       comp-abstr'0 : Iso (Σ[ f ∈ (C → M S) ] (out-fun ∘ f ≡ step f))
                          (Σ[ f ∈ (C → M S) ] (in-fun ∘ out-fun ∘ f ≡ in-fun ∘ step f))
-      comp-abstr'0 = Σ-ap-iso₂ (λ f → invIso (computation-abstract'0 {f = out-fun ∘ f} {g = step f}))
+      comp-abstr'0 = Σ-cong-iso-snd (λ f → invIso (computation-abstract'0 {f = out-fun ∘ f} {g = step f}))
 
       computation-abstract'1 : (f : C → M S) → in-fun {S = S} ∘ out-fun ∘ f ≡ f
       computation-abstract'1 f =
@@ -143,12 +143,12 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
       (C → Lift Unit)
         Iso⟨ invIso (lemma11-Iso {S = S} (λ n → C → Wₙ S n) λ n u → P₁ u ∘ γ) ⟩
       Σ[ u ∈ (Cone₀ C,γ) ] ((n : ℕ) → u (suc n) ≡ ϕ₀ u (suc n))
-        Iso⟨ Σ-ap-iso₂ (λ _ → iso (λ {a 0 → refl ; a (suc n) → a n})
+        Iso⟨ Σ-cong-iso-snd (λ _ → iso (λ {a 0 → refl ; a (suc n) → a n})
                                    (λ b → b ∘ suc)
                                    (λ b → funExt λ {0 → refl ; (suc n) → refl})
                                    λ _ → refl) ⟩
       Σ[ u ∈ (Cone₀ C,γ) ] ((n : ℕ) → u n ≡ ϕ₀ u n)
-        Iso⟨ Σ-ap-iso₂ (λ _ → funExtIso) ⟩
+        Iso⟨ Σ-cong-iso-snd (λ _ → funExtIso) ⟩
       (Σ[ u ∈ (Cone₀ C,γ) ] (u ≡ ϕ₀ u)) ∎Iso
 
     private
@@ -167,17 +167,17 @@ U-is-Unit-Iso {ℓ = ℓ} {S = S} C,γ@(C , γ) =
       (πₙ S ∘ (mi .fst (suc 0)) ≡ mi .fst 0)
         Iso⟨ invIso (lemma11-Iso {S = S} (λ n → πₙ S ∘ mi .fst (suc n) ≡ mi .fst n) λ n g → cong step g) ⟩
       (Σ[ q ∈ (Cone₁ C,γ (mi .fst)) ] ((n : ℕ) → q (suc n) ≡ ϕ₁ (mi .fst) q (suc n)))
-        Iso⟨ Σ-ap-iso₂ (λ x → idIso) ⟩
+        Iso⟨ Σ-cong-iso-snd (λ x → idIso) ⟩
       (Σ[ q ∈ (Cone₁ C,γ (mi .fst)) ] ((n : ℕ) →
         PathP (λ x → πₙ S ∘ ((mi .snd x) (suc (suc n))) ≡ (mi .snd x) (suc n))
           (q (suc n))
           (ϕ₁ (mi .fst) q (suc n))))
-        Iso⟨ Σ-ap-iso₂ (λ x → funExtIso) ⟩
+        Iso⟨ Σ-cong-iso-snd (λ x → funExtIso) ⟩
       (Σ[ q ∈ (Cone₁ C,γ (mi .fst)) ] (
         PathP (λ x → (n : ℕ) → πₙ S ∘ ((mi .snd x) (suc (suc n))) ≡ (mi .snd x) (suc n))
           (q ∘ suc)
           (ϕ₁ (mi .fst) q ∘ suc)))
-        Iso⟨ Σ-ap-iso₂ (λ x →
+        Iso⟨ Σ-cong-iso-snd (λ x →
              iso (λ {a i 0 → refl ; a i (suc n) → a i n})
                  (λ a i n → a i (suc n))
                  (λ {_ _ _ 0 → refl ; a _ i (suc n) → a i (suc n)})
@@ -203,7 +203,7 @@ U-contr {ℓ} C,γ = inv (contr-is-ext-Iso {A = U C,γ} (U-is-Unit-Iso C,γ)) (l
 
     -- Can this be generalized to Iso A B → Iso (H A) (H B) , not just for H = isContr ?
     contr-is-ext-Iso : ∀ {ℓ} {A B : Type ℓ} → Iso A B → Iso (isContr A) (isContr B)
-    contr-is-ext-Iso {A = A} {B} p = Σ-ap-iso p (contr-is-ext-Iso-helper p)
+    contr-is-ext-Iso {A = A} {B} p = Σ-cong-iso p (contr-is-ext-Iso-helper p)
 
 ----------------------------------------------------
 -- Finality properties for bisimulation relations --
