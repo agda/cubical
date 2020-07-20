@@ -84,6 +84,51 @@ HorizontalLiftᴰ {ℓ≅D = ℓ≅D} StrBᴰ StrCᴰ {D} StrDᴰ =
           uniᴰ
     where open URGStrᴰ StrDᴰ
 
+
+
+-- context: StrA on A, StrBᴰ / A, StrCᴰ / ∫⟨StrA⟩ StrBᴰ
+-- then StrCᴰ can be rebased to StrA
+splitTotalURGStrᴰ : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
+                    {B : A → Type ℓB} (StrBᴰ : URGStrᴰ StrA B ℓ≅B)
+                    {C : Σ A B → Type ℓC} (StrCᴰ : URGStrᴰ (∫⟨ StrA ⟩ StrBᴰ) C ℓ≅C)
+                    → URGStrᴰ StrA
+                              (λ a → Σ[ b ∈ B a ] C (a , b))
+                              (ℓ-max ℓ≅B ℓ≅C)
+splitTotalURGStrᴰ {A = A} StrA {B} StrBᴰ {C} StrCᴰ
+  = makeURGStrᴰ (λ (b , c) eA (b' , c') → Σ[ eB ∈ b B≅ᴰ⟨ eA ⟩ b' ] c ≅ᴰ⟨ eA , eB ⟩ c')
+                (λ (b , c) → Bρᴰ b , ρᴰ c)
+                λ a (b , c) → isOfHLevelRespectEquiv 0
+                                                     (Σ[ c' ∈ C (a , b) ] c ≅ᴰ⟨ ρ a , Bρᴰ b ⟩ c'
+                                                       ≃⟨ invEquiv (Σ-contractFst (contrTotalB' a b)) ⟩
+                                                     Σ[ (b' , eB) ∈ Σ[ b' ∈ B a ] b B≅ᴰ⟨ ρ a ⟩ b' ] (Σ[ c' ∈ C (a , b') ] (c ≅ᴰ⟨ ρ a , eB ⟩ c'))
+                                                       ≃⟨ compEquiv Σ-assoc-≃
+                                                                    (compEquiv (Σ-cong-equiv-snd (λ b' → compEquiv (invEquiv Σ-assoc-≃)
+                                                                                                                   (compEquiv (Σ-cong-equiv-fst Σ-swap-≃)
+                                                                                                                              Σ-assoc-≃)))
+                                                                               (invEquiv Σ-assoc-≃)) ⟩
+                                                     Σ[ (b' , c') ∈ Σ[ b' ∈ B a ] C (a , b') ] (Σ[ eB ∈ b B≅ᴰ⟨ ρ a ⟩ b' ] (c ≅ᴰ⟨ ρ a , eB ⟩ c')) ■)
+                                                     (contrTotalC a b c)
+
+  where
+    open URGStrᴰ StrCᴰ
+    open URGStr StrA
+    _B≅ᴰ⟨_⟩_ = URGStrᴰ._≅ᴰ⟨_⟩_ StrBᴰ
+    Bρᴰ = URGStrᴰ.ρᴰ StrBᴰ
+    Buniᴰ = URGStrᴰ.uniᴰ StrBᴰ
+
+    module _ (a : A) (b : B a) where
+      contrTotalB : isContr (Σ[ b' ∈ B a ] b B≅ᴰ⟨ ρ a ⟩ b')
+      contrTotalB = isUnivalent→contrTotalSpace (_B≅ᴰ⟨ ρ a ⟩_) Bρᴰ Buniᴰ b
+
+      contrTotalB' : isContr (Σ[ b' ∈ B a ] b B≅ᴰ⟨ ρ a ⟩ b')
+      contrTotalB' = (b , Bρᴰ b) , λ z → sym (snd contrTotalB (b , Bρᴰ b)) ∙ snd contrTotalB z
+
+      contrTotalC : (c : C (a , b)) → isContr (Σ[ c' ∈ C (a , b) ] c ≅ᴰ⟨ ρ a , Bρᴰ b ⟩ c')
+      contrTotalC = isUnivalent→contrTotalSpace (λ c₁ c₂ → c₁ ≅ᴰ⟨ ρ a , Bρᴰ b ⟩ c₂) ρᴰ uniᴰ
+
+{-
+  this is obsolete as it is a special case of splitTotalURGStrᴰ
+
 -- context: StrA on A, StrB on B and C family over A × B
 -- then StrA and StrB induce ×URG-structure on A × B
 -- and any C displayed over StrA × StrB can be transformed
@@ -122,3 +167,5 @@ splitProductURGStrᴰ {A = A} {StrA = StrA} {B = B} {StrB = StrB} {C = C} StrC�
 
       contrTotalB' : isContr (Σ[ b' ∈ B ] b B≅ b')
       contrTotalB' = (b , Bρ b) , λ z → sym (snd contrTotalB (b , Bρ b)) ∙ snd contrTotalB z
+
+-}
