@@ -164,3 +164,6 @@ module Morphisms (ℓ ℓ' : Level) where
   SᴰG²SecRet² = Subtype→SubURGᴰ (λ ((((G , H) , f , b) , isRet) , b')
                                    → isGroupHomRet f b' , isPropIsGroupHomRet f b')
                                 SG²SecRetB
+
+  SG²SecRet² : URGStr G²SecRet² (ℓ-max ℓ ℓ')
+  SG²SecRet² = ∫⟨ SG²SecRetB ⟩ SᴰG²SecRet²

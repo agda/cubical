@@ -30,35 +30,28 @@ module _ (ℓ ℓ' : Level) where
   open Groups
   open Morphisms ℓ ℓ'
 
+  module _ {G₀ : Group {ℓ}} {G₁ : Group {ℓ'}}
+           {Id : GroupHom G₀ G₁} {Src : GroupHom G₁ G₀} {Tar : GroupHom G₁ G₀}
+           (retSrc : isGroupHomRet Id Src) (retTar : isGroupHomRet Id Tar) where
 
-  -- displayed over pairs of groups, one morphism going forth and two going back
-  GroupsMorphismFBBᴰ : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
-                               (λ (G , H) → (GroupHom G H × GroupHom H G) × GroupHom H G)
-                               (ℓ-max ℓ ℓ')
-  GroupsMorphismFBBᴰ = combineURGStrᴰ GroupsMorphismFBᴰ GroupsMorphismBᴰ
+         _⋆₁_ = Group._+_ G₁
+         inv₁ = Group.-_ G₁
+         id = GroupHom.fun Id
+         src = GroupHom.fun Src
+         tar = GroupHom.fun Tar
+         set₁ = Group.is-set G₁
 
-  -- type of pairs of groups with one morphism going forth and two going back
-  GroupsMorphismFBB : URGStr (Σ[ (G , H) ∈ Group × Group ] (GroupHom G H × GroupHom H G) × GroupHom H G) (ℓ-max ℓ ℓ')
-  GroupsMorphismFBB = ∫⟨ URGStrGroup ℓ ×URG URGStrGroup ℓ' ⟩ GroupsMorphismFBBᴰ
+         isPeifferGraph : Type ℓ'
+         isPeifferGraph = (g g' : ⟨ G₁ ⟩) → g ⋆₁ g' ≡ ((((((id (src g')) ⋆₁ g') ⋆₁ (inv₁ (id (tar g')))) ⋆₁ (inv₁ (id (src g)))) ⋆₁ g) ⋆₁ (id (tar g')) )
 
-  -- two groups, morphisms forth bback, sec/ret witness, morphism back
-  GroupsMorphismSecRetBᴰ : URGStrᴰ GroupsMorphismFBB
-                                    (λ ((G , H) , (f , b) , b') → isGroupHomRet f b)
-                                    ℓ-zero
-  GroupsMorphismSecRetBᴰ =
-    Subtype→SubURGᴰ (λ ((G , H) , (f , b) , b') → isGroupHomRet f b , isPropIsGroupHomRet f b)
-                    GroupsMorphismFBB
+         isPropIsPeifferGraph : isProp isPeifferGraph
+         isPropIsPeifferGraph = isPropΠ2 (λ g g' → set₁ (g ⋆₁ g')
+                                                        (((((((id (src g')) ⋆₁ g') ⋆₁ (inv₁ (id (tar g')))) ⋆₁ (inv₁ (id (src g)))) ⋆₁ g) ⋆₁ (id (tar g')) )))
 
-  {-
-  This would be nice, but I stopped trying to load it after 5 minutes
 
-  GroupsMorphismSecRetBᴰ : URGStrᴰ GroupsMorphismFBB (λ ((G , H) , (f , b) , b') → isGroupHomRet f b) (ℓ-max ℓ ℓ')
-  GroupsMorphismSecRetBᴰ = HorizontalLiftᴰ GroupsMorphismFBᴰ GroupsMorphismBᴰ GroupsSecRetᴰ
-  -}
-
-  GroupsMorphismSecRetB : URGStr (Σ[ ((G , H) , (f , b) , b') ∈ Σ[ (G , H) ∈ Group × Group ] (GroupHom G H × GroupHom H G) × GroupHom H G ] isGroupHomRet f b)
-                                 (ℓ-max ℓ ℓ')
-  GroupsMorphismSecRetB = ∫⟨ GroupsMorphismFBB ⟩ GroupsMorphismSecRetBᴰ
-
-  GroupsMorphismSec2Retᴰ : URGStrᴰ GroupsMorphismSecRetB ? ?
-  GroupsMorphismSec2Retᴰ = ?
+  SG²SecRet²Peif : URGStrᴰ SG²SecRet²
+                           (λ (((((G , H) , f , b) , isRet) , b') , isRet') → isPeifferGraph isRet isRet')
+                           ℓ-zero
+  SG²SecRet²Peif = Subtype→SubURGᴰ (λ (((((G , H) , f , b) , isRet) , b') , isRet')
+                                      → isPeifferGraph isRet isRet' , isPropIsPeifferGraph isRet isRet')
+                                   SG²SecRet²
