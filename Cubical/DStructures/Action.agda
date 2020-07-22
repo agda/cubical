@@ -30,10 +30,10 @@ module Action (ℓ ℓ' : Level) where
   G²Act = Σ[ ((G , H) , _α_) ∈ G²Las ] (IsGroupAction G H _α_)
 
   -- two groups with an action structure, i.e. a map ⟨ G ⟩ → ⟨ H ⟩ → ⟨ H ⟩
-  SᴰActionStr : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
+  𝒮ᴰ-G²\Las : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
                               (λ GH → Las GH)
                               (ℓ-max ℓ ℓ')
-  SᴰActionStr =
+  𝒮ᴰ-G²\Las =
     make-𝒮ᴰ (λ {(G , H)} _α_ (eG , eH) _β_
                    → (g : ⟨ G ⟩) (h : ⟨ H ⟩)
                      → GroupEquiv.eq eH .fst (g α h) ≡ (GroupEquiv.eq eG .fst g) β (GroupEquiv.eq eH .fst h))
@@ -43,16 +43,18 @@ module Action (ℓ ℓ' : Level) where
                                                        (Σ-cong-equiv-snd (λ _β_ → invEquiv funExt₂Equiv))
                                                        (isContrSingl _α_)
 
-  SActionStr : URGStr G²Las (ℓ-max ℓ ℓ')
-  SActionStr = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ SᴰActionStr
+  𝒮-G²Las : URGStr G²Las (ℓ-max ℓ ℓ')
+  𝒮-G²Las = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ 𝒮ᴰ-G²\Las
 
   open ActionΣTheory
 
-  SᴰAction : URGStrᴰ SActionStr
+  𝒮ᴰ-G²Las\Action : URGStrᴰ 𝒮-G²Las
                      (λ ((G , H) , _α_) → IsGroupAction G H _α_)
                      ℓ-zero
-  SᴰAction = Subtype→Sub-𝒮ᴰ (λ ((G , H) , _α_) → IsGroupAction G H _α_ , isPropIsGroupAction G H _α_)
-                             SActionStr
+  𝒮ᴰ-G²Las\Action = Subtype→Sub-𝒮ᴰ (λ ((G , H) , _α_) → IsGroupAction G H _α_ , isPropIsGroupAction G H _α_)
+                             𝒮-G²Las
 
-  SAction : URGStr G²Act (ℓ-max ℓ ℓ')
-  SAction = ∫⟨ SActionStr ⟩ SᴰAction
+  𝒮-G²LasAction : URGStr G²Act (ℓ-max ℓ ℓ')
+  𝒮-G²LasAction = ∫⟨ 𝒮-G²Las ⟩ 𝒮ᴰ-G²Las\Action
+
+  𝒮-Action = 𝒮-G²LasAction

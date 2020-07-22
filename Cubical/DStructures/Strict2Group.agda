@@ -49,9 +49,9 @@ module _ (ℓ ℓ' : Level) where
                                                         (((((((id (src g')) ⋆₁ g') ⋆₁ (inv₁ (id (tar g')))) ⋆₁ (inv₁ (id (src g)))) ⋆₁ g) ⋆₁ (id (tar g')) )))
 
 
-  SG²SecRet²Peif : URGStrᴰ SG²SecRet²
+  𝒮ᴰ-G²FBSplitBSplit\Peiffer : URGStrᴰ 𝒮-G²FBSplitBSplit
                            (λ (((((G , H) , f , b) , isRet) , b') , isRet') → isPeifferGraph isRet isRet')
                            ℓ-zero
-  SG²SecRet²Peif = Subtype→Sub-𝒮ᴰ (λ (((((G , H) , f , b) , isRet) , b') , isRet')
+  𝒮ᴰ-G²FBSplitBSplit\Peiffer = Subtype→Sub-𝒮ᴰ (λ (((((G , H) , f , b) , isRet) , b') , isRet')
                                       → isPeifferGraph isRet isRet' , isPropIsPeifferGraph isRet isRet')
-                                   SG²SecRet²
+                                   𝒮-G²FBSplitBSplit

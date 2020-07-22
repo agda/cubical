@@ -51,7 +51,7 @@ module Morphisms (ℓ ℓ' : Level) where
   G²B = Σ[ (G , H) ∈ G² ] GroupHom H G
   G²FB = Σ[ (G , H) ∈ G² ] GroupHom G H × GroupHom H G
 
-  -- type of split epimorphisms
+  -- type of Split epimorphisms
   G²SecRet = Σ[ ((G , H) , f , b) ∈ G²FB ] isGroupHomRet f b
 
   G²SecRetB = Σ[ (((G , H) , f , b) , isRet) ∈ G²SecRet ] GroupHom H G
@@ -78,13 +78,13 @@ module Morphisms (ℓ ℓ' : Level) where
            BCondition f f' = (h : ⟨ H ⟩) → tr-eG ((f *) h) ≡ (f' *) (tr-eH h)
 
   open GroupDisplayHelper
-
+--𝒮\
 
   -- Group morphisms displayed over pairs of groups
-  SᴰG²F : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
+  𝒮ᴰ-G²\F : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
                             (λ (G , H) → GroupHom G H)
                             (ℓ-max ℓ ℓ')
-  SᴰG²F =
+  𝒮ᴰ-G²\F =
     make-𝒮ᴰ (λ {(G , _)} f (eG , eH) f'
                    → Coherence.FCondition eG eH f f')
                 (λ _ _ → refl)
@@ -96,17 +96,17 @@ module Morphisms (ℓ ℓ' : Level) where
 
 
   -- Type of two groups with a group morphism
-  SG²F : URGStr G²F (ℓ-max ℓ ℓ')
-  SG²F = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ SᴰG²F
+  𝒮-G²F : URGStr G²F (ℓ-max ℓ ℓ')
+  𝒮-G²F = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ 𝒮ᴰ-G²\F
 
 
 
 
-  -- Same as SG²F but with the morphism going the other way
-  SᴰG²B : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
+  -- Same as 𝒮-G²F but with the morphism going the other way
+  𝒮ᴰ-G²\B : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
                              (λ (G , H) → GroupHom H G)
                              (ℓ-max ℓ ℓ')
-  SᴰG²B =
+  𝒮ᴰ-G²\B =
     make-𝒮ᴰ (λ {(_ , H)} f (eG , eH) f'
                   -- → (h : ⟨ H ⟩) → GroupEquiv.eq eG .fst (GroupHom.fun f h) ≡ GroupHom.fun f' (GroupEquiv.eq eH .fst h))
                   → Coherence.BCondition eG eH f f')
@@ -117,55 +117,55 @@ module Morphisms (ℓ ℓ' : Level) where
                                                      (isContrSingl f) -}
 
   -- Type of two groups with a group morphism going back
-  SG²B : URGStr G²B (ℓ-max ℓ ℓ')
-  SG²B = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ SᴰG²B
+  𝒮-G²B : URGStr G²B (ℓ-max ℓ ℓ')
+  𝒮-G²B = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ 𝒮ᴰ-G²\B
 
 
   -- Morphisms going forth and back displayed over pairs of groups
-  SᴰG²FB : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
+  𝒮ᴰ-G²\FB : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
                    (λ (G , H) → GroupHom G H × GroupHom H G)
                    (ℓ-max ℓ ℓ')
-  SᴰG²FB = combine-𝒮ᴰ SᴰG²F SᴰG²B
+  𝒮ᴰ-G²\FB = combine-𝒮ᴰ 𝒮ᴰ-G²\F 𝒮ᴰ-G²\B
 
   -- Type of pairs of groups with morphisms going forth and back
-  SG²FB : URGStr G²FB (ℓ-max ℓ ℓ')
-  SG²FB = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ SᴰG²FB
+  𝒮-G²FB : URGStr G²FB (ℓ-max ℓ ℓ')
+  𝒮-G²FB = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ 𝒮ᴰ-G²\FB
 
 
   -- section retraction pair displayed over pairs of groups
-  SᴰG²SecRet : URGStrᴰ SG²FB
+  𝒮ᴰ-G²FB\Split : URGStrᴰ 𝒮-G²FB
                           (λ ((G , H) , (f , g)) → isGroupHomRet f g)
                           ℓ-zero
-  SᴰG²SecRet =
+  𝒮ᴰ-G²FB\Split =
     Subtype→Sub-𝒮ᴰ (λ ((G , H) , (f , g)) → isGroupHomRet f g , isPropIsGroupHomRet f g)
-                       SG²FB
+                       𝒮-G²FB
 
   -- type of group section retraction pairs
-  SG²SecRet : URGStr G²SecRet (ℓ-max ℓ ℓ')
-  SG²SecRet = ∫⟨ SG²FB ⟩ SᴰG²SecRet
+  𝒮-G²FBSplit : URGStr G²SecRet (ℓ-max ℓ ℓ')
+  𝒮-G²FBSplit = ∫⟨ 𝒮-G²FB ⟩ 𝒮ᴰ-G²FB\Split
 
 
   -- section retraction pair + morphism back displayed over SG²Secre
-  SᴰG²SecRetB : URGStrᴰ SG²SecRet
+  𝒮ᴰ-G²FBSplit\B : URGStrᴰ 𝒮-G²FBSplit
                         (λ (((G , H) , _) , _) → GroupHom H G)
                         (ℓ-max ℓ ℓ')
-  SᴰG²SecRetB
+  𝒮ᴰ-G²FBSplit\B
     = make-𝒮ᴰ (λ {(((G , H) , _) , _)} f (((eG , eH) , _) , _) f'
                      → Coherence.BCondition eG eH f f')
                   (λ _ _ → refl)
                   λ (((G , H) , x) , isRet) f → BContr f
 
-  SG²SecRetB : URGStr G²SecRetB (ℓ-max ℓ ℓ')
-  SG²SecRetB = ∫⟨ SG²SecRet ⟩ SᴰG²SecRetB
+  𝒮-G²FBSplitB : URGStr G²SecRetB (ℓ-max ℓ ℓ')
+  𝒮-G²FBSplitB = ∫⟨ 𝒮-G²FBSplit ⟩ 𝒮ᴰ-G²FBSplit\B
 
 
-  SᴰG²SecRet² : URGStrᴰ SG²SecRetB
+  𝒮ᴰ-G²FBSplitB\Split : URGStrᴰ 𝒮-G²FBSplitB
                         (λ ((((G , H) , f , b) , isRet) , b')
                           → isGroupHomRet f b')
                         ℓ-zero
-  SᴰG²SecRet² = Subtype→Sub-𝒮ᴰ (λ ((((G , H) , f , b) , isRet) , b')
+  𝒮ᴰ-G²FBSplitB\Split = Subtype→Sub-𝒮ᴰ (λ ((((G , H) , f , b) , isRet) , b')
                                    → isGroupHomRet f b' , isPropIsGroupHomRet f b')
-                                SG²SecRetB
+                                𝒮-G²FBSplitB
 
-  SG²SecRet² : URGStr G²SecRet² (ℓ-max ℓ ℓ')
-  SG²SecRet² = ∫⟨ SG²SecRetB ⟩ SᴰG²SecRet²
+  𝒮-G²FBSplitBSplit : URGStr G²SecRet² (ℓ-max ℓ ℓ')
+  𝒮-G²FBSplitBSplit = ∫⟨ 𝒮-G²FBSplitB ⟩ 𝒮ᴰ-G²FBSplitB\Split

@@ -59,11 +59,11 @@ module _ (ℓ ℓ' : Level) where
   G²ActBEquiPeif = Σ[ ((((GH , _α_) , isAct) , f) , isEqui) ∈ G²ActBEqui ] (isPeiffer _α_ f)
   XModuleΣ = G²ActBEquiPeif
 
-  -- displayed over SAction, a morphism back
-  SᴰPreXModuleStr : URGStrᴰ SAction
+  -- displayed over 𝒮-Action, a morphism back
+  𝒮ᴰ-Action\PreXModuleStr : URGStrᴰ 𝒮-Action
                            (λ (((G , H) , _) , _) → GroupHom H G)
                            (ℓ-max ℓ ℓ')
-  SᴰPreXModuleStr = make-𝒮ᴰ (λ {(((G , H) , _α_) , isAct) } {_α'_} f (((eG , eH) , eLas) , eIsAct) f'
+  𝒮ᴰ-Action\PreXModuleStr = make-𝒮ᴰ (λ {(((G , H) , _α_) , isAct) } {_α'_} f (((eG , eH) , eLas) , eIsAct) f'
                                    → let trEG = GroupEquiv.eq eG .fst
                                          trEH = GroupEquiv.eq eH .fst
                                          f* = GroupHom.fun f
@@ -72,31 +72,31 @@ module _ (ℓ ℓ' : Level) where
                                 (λ _ _ → refl)
                                 λ (((G , H) , _α_) , isAct) f
                                   → isOfHLevelRespectEquiv 0
-                                                           (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
+                                  s                         (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
                                                            (isContrSingl f)
 
-  SPreXModuleStr : URGStr G²ActB (ℓ-max ℓ ℓ')
-  SPreXModuleStr = ∫⟨ SAction ⟩ SᴰPreXModuleStr
+  𝒮-PreXModuleStr : URGStr G²ActB (ℓ-max ℓ ℓ')
+  𝒮-PreXModuleStr = ∫⟨ 𝒮-Action ⟩ 𝒮ᴰ-Action\PreXModuleStr
 
 
   -- add equivariance condition
-  SᴰPreXModule : URGStrᴰ SPreXModuleStr
+  𝒮ᴰ-PreXModule : URGStrᴰ 𝒮-PreXModuleStr
                          (λ (((GH , _α_) , isAct) , f) → isEquivariant _α_ f)
                          ℓ-zero
-  SᴰPreXModule = Subtype→Sub-𝒮ᴰ (λ (((GH , _α_) , isAct) , f)
+  𝒮ᴰ-PreXModule = Subtype→Sub-𝒮ᴰ (λ (((GH , _α_) , isAct) , f)
                                     → isEquivariant _α_ f , isPropIsEquivariant _α_ f)
-                                 SPreXModuleStr
+                                 𝒮-PreXModuleStr
 
-  SPreXModule : URGStr G²ActBEqui (ℓ-max ℓ ℓ')
-  SPreXModule = ∫⟨ SPreXModuleStr ⟩ SᴰPreXModule
+  𝒮-PreXModule : URGStr G²ActBEqui (ℓ-max ℓ ℓ')
+  𝒮-PreXModule = ∫⟨ 𝒮-PreXModuleStr ⟩ 𝒮ᴰ-PreXModule
 
-  SᴰXModule : URGStrᴰ SPreXModule
+  𝒮ᴰ-XModule : URGStrᴰ 𝒮-PreXModule
                       (λ (((((G , H) , _α_) , isAct) , f) , isEqui)
                         → isPeiffer _α_ f)
                       ℓ-zero
-  SᴰXModule = Subtype→Sub-𝒮ᴰ (λ (((((G , H) , _α_) , isAct) , f) , isEqui)
+  𝒮ᴰ-XModule = Subtype→Sub-𝒮ᴰ (λ (((((G , H) , _α_) , isAct) , f) , isEqui)
                                  → isPeiffer _α_ f , isPropIsPeiffer _α_ f)
-                              SPreXModule
+                              𝒮-PreXModule
 
-  SXModule : URGStr G²ActBEquiPeif (ℓ-max ℓ ℓ')
-  SXModule = ∫⟨ SPreXModule ⟩ SᴰXModule
+  𝒮-XModule : URGStr G²ActBEquiPeif (ℓ-max ℓ ℓ')
+  𝒮-XModule = ∫⟨ 𝒮-PreXModule ⟩ 𝒮ᴰ-XModule
