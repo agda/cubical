@@ -14,6 +14,6 @@ private
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓ≅ᴰ : Level
 
 -- every univalent 1-precategory gives a URGStr
-Cat→URG : (𝒞 : Precategory ℓ ℓ') → (uni : isUnivalentCat 𝒞) → URGStr (𝒞 .ob) ℓ'
-Cat→URG 𝒞 uni
+Cat→𝒮 : (𝒞 : Precategory ℓ ℓ') → (uni : isUnivalentCat 𝒞) → URGStr (𝒞 .ob) ℓ'
+Cat→𝒮 𝒞 uni
   = urgstr (CatIso {𝒞 = 𝒞}) idCatIso λ x y → isUnivalentCat.univ uni x y

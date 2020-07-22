@@ -44,10 +44,10 @@ record URGStr (A : Type ℓA) (ℓ≅A : Level) : Type (ℓ-max ℓA (ℓ-suc �
     uni : isUnivalent _≅_ ρ
 
 -- wrapper to create instances of URGStr
-makeURGStr : {A : Type ℓA} {_≅_ : Rel A A ℓ≅A}
+make-𝒮 : {A : Type ℓA} {_≅_ : Rel A A ℓ≅A}
              (ρ : isRefl _≅_) (contrTotal : contrTotalSpace _≅_)
              → URGStr A ℓ≅A
-makeURGStr {A = A} {_≅_ = _≅_}
+make-𝒮 {A = A} {_≅_ = _≅_}
            ρ contrTotal
            = urgstr _≅_
                     ρ
@@ -66,18 +66,18 @@ record URGStrᴰ {A : Type ℓA} (StrA : URGStr A ℓ≅A)
     uniᴰ : {a : A} → isUnivalent _≅ᴰ⟨ ρ a ⟩_ ρᴰ
 
 -- wrapper to create instances of URGStrᴰ
-makeURGStrᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
+make-𝒮ᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
                {B : A → Type ℓB}
                (_≅ᴰ⟨_⟩_ : {a a' : A} → B a → URGStr._≅_ StrA a a' → B a' → Type ℓ≅ᴰ)
                (ρᴰ : {a : A} → isRefl _≅ᴰ⟨ URGStr.ρ StrA a ⟩_)
                (contrTotal : (a : A) → contrTotalSpace _≅ᴰ⟨ URGStr.ρ StrA a ⟩_)
                → URGStrᴰ StrA B ℓ≅ᴰ
-makeURGStrᴰ {A = A} {StrA = StrA} _≅ᴰ⟨_⟩_ ρᴰ contrTotal = urgstrᴰ _≅ᴰ⟨_⟩_
+make-𝒮ᴰ {A = A} {StrA = StrA} _≅ᴰ⟨_⟩_ ρᴰ contrTotal = urgstrᴰ _≅ᴰ⟨_⟩_
                                              ρᴰ
                                              λ {a : A} b b' → contrTotalSpace→isUnivalent (_≅ᴰ⟨ ρ a ⟩_) (ρᴰ {a}) (contrTotal a) b b'
                                              where open URGStr StrA
 
 -- abbreviation to obtain contractibility of total space
-URGStr→cTS : {A : Type ℓA} (StrA : URGStr A ℓ≅A) → contrTotalSpace (URGStr._≅_ StrA)
-URGStr→cTS StrA = isUnivalent→contrTotalSpace _≅_ ρ uni
+𝒮→cTS : {A : Type ℓA} (StrA : URGStr A ℓ≅A) → contrTotalSpace (URGStr._≅_ StrA)
+𝒮→cTS StrA = isUnivalent→contrTotalSpace _≅_ ρ uni
   where open URGStr StrA

@@ -19,13 +19,13 @@ private
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓD ℓ≅D : Level
 
 -- combine two structures StrB and StrC over StrA to a structure StrB × StrC over A
-combineURGStrᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
+combine-𝒮ᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
                  {B : A → Type ℓB} {C : A → Type ℓC}
                  (StrBᴰ : URGStrᴰ StrA B ℓ≅B)
                  (StrCᴰ : URGStrᴰ StrA C ℓ≅C)
                  → URGStrᴰ StrA (λ a → B a × C a) (ℓ-max ℓ≅B ℓ≅C)
-combineURGStrᴰ {ℓ≅B = ℓ≅B} {ℓ≅C = ℓ≅C} {A = A} {StrA = StrA} {B = B} {C = C} StrBᴰ StrCᴰ =
-  makeURGStrᴰ -- equality in the combined structure is defined componentwise
+combine-𝒮ᴰ {ℓ≅B = ℓ≅B} {ℓ≅C = ℓ≅C} {A = A} {StrA = StrA} {B = B} {C = C} StrBᴰ StrCᴰ =
+  make-𝒮ᴰ -- equality in the combined structure is defined componentwise
               (λ (b , c) p (b' , c') → b B≅ᴰ⟨ p ⟩ b' × c C≅ᴰ⟨ p ⟩ c')
               -- reflexivity follows from B and C reflexivity
               (λ (b , c) → Bρᴰ b , Cρᴰ c)
@@ -57,13 +57,13 @@ combineURGStrᴰ {ℓ≅B = ℓ≅B} {ℓ≅C = ℓ≅C} {A = A} {StrA = StrA} {
 
 -- context: structure on A, B and C displayed over A
 -- then B can be lifted to be displayed over ∫⟨ StrA ⟩ StrCᴰ
-VerticalLiftᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
+VerticalLift-𝒮ᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
         {B : A → Type ℓB}
         (StrBᴰ : URGStrᴰ StrA B ℓ≅B)
         {C : A → Type ℓC}
         (StrCᴰ : URGStrᴰ StrA C ℓ≅C)
         → URGStrᴰ (∫⟨ StrA ⟩ StrCᴰ) (λ (a , _) → B a) ℓ≅B
-VerticalLiftᴰ {ℓ≅B = ℓ≅B} {B = B} StrBᴰ StrCᴰ =
+VerticalLift-𝒮ᴰ {ℓ≅B = ℓ≅B} {B = B} StrBᴰ StrCᴰ =
   urgstrᴰ (λ b (pA , _) b' → b ≅ᴰ⟨ pA ⟩ b')
           ρᴰ
           uniᴰ
@@ -72,13 +72,13 @@ VerticalLiftᴰ {ℓ≅B = ℓ≅B} {B = B} StrBᴰ StrCᴰ =
 -- context: StrA on A, B and C displayed over StrA,
 --          D displayed over ∫⟨ StrA ⟩ StrBᴰ
 -- then D can be lifted to be displayed over ∫⟨ StrA ⟩ "B × C"
-HorizontalLiftᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
+HorizontalLift-𝒮ᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
                  {B : A → Type ℓB} (StrBᴰ : URGStrᴰ StrA B ℓ≅B)
                  {C : A → Type ℓC} (StrCᴰ : URGStrᴰ StrA C ℓ≅C)
                  {D : (Σ A B) → Type ℓD} (StrDᴰ : URGStrᴰ (∫⟨ StrA ⟩ StrBᴰ) D ℓ≅D)
-                 → URGStrᴰ (∫⟨ StrA ⟩ combineURGStrᴰ StrBᴰ StrCᴰ)
+                 → URGStrᴰ (∫⟨ StrA ⟩ combine-𝒮ᴰ StrBᴰ StrCᴰ)
                            (λ (a , b , _) → D (a , b)) ℓ≅D
-HorizontalLiftᴰ {ℓ≅D = ℓ≅D} StrBᴰ StrCᴰ {D} StrDᴰ =
+HorizontalLift-𝒮ᴰ {ℓ≅D = ℓ≅D} StrBᴰ StrCᴰ {D} StrDᴰ =
   urgstrᴰ (λ d (p , q , r) d' → d ≅ᴰ⟨ p , q ⟩ d')
           ρᴰ
           uniᴰ
@@ -88,14 +88,14 @@ HorizontalLiftᴰ {ℓ≅D = ℓ≅D} StrBᴰ StrCᴰ {D} StrDᴰ =
 
 -- context: StrA on A, StrBᴰ / A, StrCᴰ / ∫⟨StrA⟩ StrBᴰ
 -- then StrCᴰ can be rebased to StrA
-splitTotalURGStrᴰ : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
+splitTotal-𝒮ᴰ : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
                     {B : A → Type ℓB} (StrBᴰ : URGStrᴰ StrA B ℓ≅B)
                     {C : Σ A B → Type ℓC} (StrCᴰ : URGStrᴰ (∫⟨ StrA ⟩ StrBᴰ) C ℓ≅C)
                     → URGStrᴰ StrA
                               (λ a → Σ[ b ∈ B a ] C (a , b))
                               (ℓ-max ℓ≅B ℓ≅C)
-splitTotalURGStrᴰ {A = A} StrA {B} StrBᴰ {C} StrCᴰ
-  = makeURGStrᴰ (λ (b , c) eA (b' , c') → Σ[ eB ∈ b B≅ᴰ⟨ eA ⟩ b' ] c ≅ᴰ⟨ eA , eB ⟩ c')
+splitTotal-𝒮ᴰ {A = A} StrA {B} StrBᴰ {C} StrCᴰ
+  = make-𝒮ᴰ (λ (b , c) eA (b' , c') → Σ[ eB ∈ b B≅ᴰ⟨ eA ⟩ b' ] c ≅ᴰ⟨ eA , eB ⟩ c')
                 (λ (b , c) → Bρᴰ b , ρᴰ c)
                 λ a (b , c) → isOfHLevelRespectEquiv 0
                                                      (Σ[ c' ∈ C (a , b) ] c ≅ᴰ⟨ ρ a , Bρᴰ b ⟩ c'

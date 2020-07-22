@@ -32,7 +32,9 @@ module _ (ℓ ℓ' : Level) where
   open Groups
   open Morphisms ℓ ℓ'
 
+  S-Group = URGStrGroup
   Sᴰ-G²\F = SᴰG²F
+  Sᴰ-G²\SecRet = SᴰG²SecRet
 
   Sᴰ-G\GF : URGStrᴰ (URGStrGroup ℓ)
                     (λ G → Σ[ H ∈ Group {ℓ'} ] GroupHom G H)
@@ -42,11 +44,13 @@ module _ (ℓ ℓ' : Level) where
                                              (URGStrGroup ℓ'))
                                Sᴰ-G²\F
 
-  Sᴰ-G²\SecRet = SᴰG²SecRet
 
+
+{-
   Sᴰ-G\GSecRet : URGStrᴰ (URGStrGroup ℓ)
                          {!!}
                          {!!}
-  Sᴰ-G\GSecRet = splitTotalURGStrᴰ {!URGStrGroup ℓ!}
+  Sᴰ-G\GSecRet = splitTotalURGStrᴰ (URGStrGroup ℓ)
                                    {!!}
                                    {!!}
+-}

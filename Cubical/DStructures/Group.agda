@@ -29,8 +29,8 @@ private
 
 module Groups (ℓ : Level) where
   -- groups with group isomorphisms structure
-  URGStrGroup : URGStr (Group {ℓ}) ℓ
-  URGStrGroup = urgstr GroupEquiv
+  𝒮-group : URGStr (Group {ℓ}) ℓ
+  𝒮-group = urgstr GroupEquiv
                        idGroupEquiv
                        (isUnivalent'→isUnivalent GroupEquiv
                                                  idGroupEquiv
@@ -45,17 +45,17 @@ module Morphisms (ℓ ℓ' : Level) where
   -- F - morphism forth
   -- B - morphism back
   -- SecRet - two morphisms that are a section retraction pair
-  
+
   G² = Group {ℓ} × Group {ℓ'}
   G²F = Σ[ (G , H) ∈ G² ] GroupHom G H
   G²B = Σ[ (G , H) ∈ G² ] GroupHom H G
   G²FB = Σ[ (G , H) ∈ G² ] GroupHom G H × GroupHom H G
- 
+
   -- type of split epimorphisms
   G²SecRet = Σ[ ((G , H) , f , b) ∈ G²FB ] isGroupHomRet f b
-  
+
   G²SecRetB = Σ[ (((G , H) , f , b) , isRet) ∈ G²SecRet ] GroupHom H G
-  
+
   -- type of internal reflexive graphs in the category of groups
   G²SecRet² = Σ[ ((((G , H) , f , b) , isRet) , b') ∈ G²SecRetB ] isGroupHomRet f b'
 
@@ -81,11 +81,11 @@ module Morphisms (ℓ ℓ' : Level) where
 
 
   -- Group morphisms displayed over pairs of groups
-  SᴰG²F : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
+  SᴰG²F : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
                             (λ (G , H) → GroupHom G H)
                             (ℓ-max ℓ ℓ')
   SᴰG²F =
-    makeURGStrᴰ (λ {(G , _)} f (eG , eH) f'
+    make-𝒮ᴰ (λ {(G , _)} f (eG , eH) f'
                    → Coherence.FCondition eG eH f f')
                 (λ _ _ → refl)
                 λ (G , H) f → isOfHLevelRespectEquiv 0
@@ -97,17 +97,17 @@ module Morphisms (ℓ ℓ' : Level) where
 
   -- Type of two groups with a group morphism
   SG²F : URGStr G²F (ℓ-max ℓ ℓ')
-  SG²F = ∫⟨ URGStrGroup ℓ ×URG URGStrGroup ℓ' ⟩ SᴰG²F
+  SG²F = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ SᴰG²F
 
 
 
 
   -- Same as SG²F but with the morphism going the other way
-  SᴰG²B : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
+  SᴰG²B : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
                              (λ (G , H) → GroupHom H G)
                              (ℓ-max ℓ ℓ')
   SᴰG²B =
-    makeURGStrᴰ (λ {(_ , H)} f (eG , eH) f'
+    make-𝒮ᴰ (λ {(_ , H)} f (eG , eH) f'
                   -- → (h : ⟨ H ⟩) → GroupEquiv.eq eG .fst (GroupHom.fun f h) ≡ GroupHom.fun f' (GroupEquiv.eq eH .fst h))
                   → Coherence.BCondition eG eH f f')
                 (λ _ _ → refl)
@@ -118,18 +118,18 @@ module Morphisms (ℓ ℓ' : Level) where
 
   -- Type of two groups with a group morphism going back
   SG²B : URGStr G²B (ℓ-max ℓ ℓ')
-  SG²B = ∫⟨ URGStrGroup ℓ ×URG URGStrGroup ℓ' ⟩ SᴰG²B
+  SG²B = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ SᴰG²B
 
 
   -- Morphisms going forth and back displayed over pairs of groups
-  SᴰG²FB : URGStrᴰ (URGStrGroup ℓ ×URG URGStrGroup ℓ')
+  SᴰG²FB : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
                    (λ (G , H) → GroupHom G H × GroupHom H G)
                    (ℓ-max ℓ ℓ')
-  SᴰG²FB = combineURGStrᴰ SᴰG²F SᴰG²B
+  SᴰG²FB = combine-𝒮ᴰ SᴰG²F SᴰG²B
 
   -- Type of pairs of groups with morphisms going forth and back
   SG²FB : URGStr G²FB (ℓ-max ℓ ℓ')
-  SG²FB = ∫⟨ URGStrGroup ℓ ×URG URGStrGroup ℓ' ⟩ SᴰG²FB
+  SG²FB = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ SᴰG²FB
 
 
   -- section retraction pair displayed over pairs of groups
@@ -137,7 +137,7 @@ module Morphisms (ℓ ℓ' : Level) where
                           (λ ((G , H) , (f , g)) → isGroupHomRet f g)
                           ℓ-zero
   SᴰG²SecRet =
-    Subtype→SubURGᴰ (λ ((G , H) , (f , g)) → isGroupHomRet f g , isPropIsGroupHomRet f g)
+    Subtype→Sub-𝒮ᴰ (λ ((G , H) , (f , g)) → isGroupHomRet f g , isPropIsGroupHomRet f g)
                        SG²FB
 
   -- type of group section retraction pairs
@@ -150,7 +150,7 @@ module Morphisms (ℓ ℓ' : Level) where
                         (λ (((G , H) , _) , _) → GroupHom H G)
                         (ℓ-max ℓ ℓ')
   SᴰG²SecRetB
-    = makeURGStrᴰ (λ {(((G , H) , _) , _)} f (((eG , eH) , _) , _) f'
+    = make-𝒮ᴰ (λ {(((G , H) , _) , _)} f (((eG , eH) , _) , _) f'
                      → Coherence.BCondition eG eH f f')
                   (λ _ _ → refl)
                   λ (((G , H) , x) , isRet) f → BContr f
@@ -163,7 +163,7 @@ module Morphisms (ℓ ℓ' : Level) where
                         (λ ((((G , H) , f , b) , isRet) , b')
                           → isGroupHomRet f b')
                         ℓ-zero
-  SᴰG²SecRet² = Subtype→SubURGᴰ (λ ((((G , H) , f , b) , isRet) , b')
+  SᴰG²SecRet² = Subtype→Sub-𝒮ᴰ (λ ((((G , H) , f , b) , isRet) , b')
                                    → isGroupHomRet f b' , isPropIsGroupHomRet f b')
                                 SG²SecRetB
 

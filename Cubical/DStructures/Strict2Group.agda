@@ -52,6 +52,6 @@ module _ (ℓ ℓ' : Level) where
   SG²SecRet²Peif : URGStrᴰ SG²SecRet²
                            (λ (((((G , H) , f , b) , isRet) , b') , isRet') → isPeifferGraph isRet isRet')
                            ℓ-zero
-  SG²SecRet²Peif = Subtype→SubURGᴰ (λ (((((G , H) , f , b) , isRet) , b') , isRet')
+  SG²SecRet²Peif = Subtype→Sub-𝒮ᴰ (λ (((((G , H) , f , b) , isRet) , b') , isRet')
                                       → isPeifferGraph isRet isRet' , isPropIsPeifferGraph isRet isRet')
                                    SG²SecRet²

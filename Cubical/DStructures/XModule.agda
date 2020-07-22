@@ -63,7 +63,7 @@ module _ (ℓ ℓ' : Level) where
   SᴰPreXModuleStr : URGStrᴰ SAction
                            (λ (((G , H) , _) , _) → GroupHom H G)
                            (ℓ-max ℓ ℓ')
-  SᴰPreXModuleStr = makeURGStrᴰ (λ {(((G , H) , _α_) , isAct) } {_α'_} f (((eG , eH) , eLas) , eIsAct) f'
+  SᴰPreXModuleStr = make-𝒮ᴰ (λ {(((G , H) , _α_) , isAct) } {_α'_} f (((eG , eH) , eLas) , eIsAct) f'
                                    → let trEG = GroupEquiv.eq eG .fst
                                          trEH = GroupEquiv.eq eH .fst
                                          f* = GroupHom.fun f
@@ -83,7 +83,7 @@ module _ (ℓ ℓ' : Level) where
   SᴰPreXModule : URGStrᴰ SPreXModuleStr
                          (λ (((GH , _α_) , isAct) , f) → isEquivariant _α_ f)
                          ℓ-zero
-  SᴰPreXModule = Subtype→SubURGᴰ (λ (((GH , _α_) , isAct) , f)
+  SᴰPreXModule = Subtype→Sub-𝒮ᴰ (λ (((GH , _α_) , isAct) , f)
                                     → isEquivariant _α_ f , isPropIsEquivariant _α_ f)
                                  SPreXModuleStr
 
@@ -94,7 +94,7 @@ module _ (ℓ ℓ' : Level) where
                       (λ (((((G , H) , _α_) , isAct) , f) , isEqui)
                         → isPeiffer _α_ f)
                       ℓ-zero
-  SᴰXModule = Subtype→SubURGᴰ (λ (((((G , H) , _α_) , isAct) , f) , isEqui)
+  SᴰXModule = Subtype→Sub-𝒮ᴰ (λ (((((G , H) , _α_) , isAct) , f) , isEqui)
                                  → isPeiffer _α_ f , isPropIsPeiffer _α_ f)
                               SPreXModule
 

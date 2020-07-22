@@ -20,24 +20,24 @@ private
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓ≅ᴰ ℓP : Level
 
 -- a type is a URGStr with the relation given by its identity type
-URGStrType : (A : Type ℓ) → URGStr A ℓ
-URGStrType A = makeURGStr {_≅_ = _≡_} (λ _ → refl) isContrSingl
+𝒮-type : (A : Type ℓ) → URGStr A ℓ
+𝒮-type A = make-𝒮 {_≅_ = _≡_} (λ _ → refl) isContrSingl
 
 -- subtypes are displayed structures
-URGStrᴰSubtype : {A : Type ℓ} (P : A → hProp ℓ') → URGStrᴰ (URGStrType A) (λ a → P a .fst) ℓ-zero
-URGStrᴰSubtype P
-  = makeURGStrᴰ (λ _ _ _ → Unit)
+𝒮ᴰ-subtype : {A : Type ℓ} (P : A → hProp ℓ') → URGStrᴰ (𝒮-type A) (λ a → P a .fst) ℓ-zero
+𝒮ᴰ-subtype P
+  = make-𝒮ᴰ (λ _ _ _ → Unit)
                 (λ _ → tt)
                 λ a p → isOfHLevelRespectEquiv 0
                                                (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
                                                (inhProp→isContr p (P a .snd))
 
 -- a subtype induces a URG structure on itself
-Subtype→SubURGᴰ : {A : Type ℓA} (P : A → hProp ℓP)
+Subtype→Sub-𝒮ᴰ : {A : Type ℓA} (P : A → hProp ℓP)
                 (StrA : URGStr A ℓ≅A)
                 → URGStrᴰ StrA (λ a → P a .fst) ℓ-zero
-Subtype→SubURGᴰ P StrA =
-  makeURGStrᴰ (λ _ _ _ → Unit)
+Subtype→Sub-𝒮ᴰ P StrA =
+  make-𝒮ᴰ (λ _ _ _ → Unit)
               (λ _ → tt)
               (λ a p → isOfHLevelRespectEquiv 0
                                               (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))

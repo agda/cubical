@@ -19,11 +19,11 @@ private
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓA' ℓ≅A ℓ≅A' ℓB ℓB' ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓ≅ᴰ' : Level
 
 -- the total space of a DURGS is a URGS
-URGStrᴰ→URGStr : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
+𝒮ᴰ→𝒮 : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
                  (B : A → Type ℓB) (DispStrB : URGStrᴰ StrA B ℓ≅B)
                  → URGStr (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
-URGStrᴰ→URGStr {A = A} StrA B DispStrB
-  = makeURGStr {_≅_ = _≅Σ_} ρΣ contrTotalΣ
+𝒮ᴰ→𝒮 {A = A} StrA B DispStrB
+  = make-𝒮 {_≅_ = _≅Σ_} ρΣ contrTotalΣ
   where
    -- import notation: ≅ for StrA and ≅ᴰ for StrBᴰ
    open URGStr StrA
@@ -67,7 +67,7 @@ URGStrᴰ→URGStr {A = A} StrA B DispStrB
 ∫⟨_⟩_ : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
                  {B : A → Type ℓB} (DispStrB : URGStrᴰ StrA B ℓ≅B)
                  → URGStr (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
-∫⟨_⟩_ StrA {B} DispStrB = URGStrᴰ→URGStr StrA B DispStrB
+∫⟨_⟩_ StrA {B} DispStrB = 𝒮ᴰ→𝒮 StrA B DispStrB
 
 -- associativity for towers
 module Assoc {ℓA ℓB ℓC ℓ≅A ℓ≅B ℓ≅C : Level}
@@ -92,11 +92,11 @@ module Assoc {ℓA ℓB ℓC ℓ≅A ℓ≅B ℓ≅C : Level}
   URGΣAssoc = cong (λ z → URGStr z ℓ≅ABC) (isoToPath Σ-assoc-Iso)
 
 
-URGStr-transport : {A : Type ℓA} {A' : Type ℓA'}
+𝒮-transport : {A : Type ℓA} {A' : Type ℓA'}
                (e : A ≃ A') (StrA : URGStr A ℓ≅A)
                → URGStr A' ℓ≅A
-URGStr-transport {A = A} {A' = A'} e StrA =
-  makeURGStr {_≅_ = λ a a' → e- a ≅ e- a'}
+𝒮-transport {A = A} {A' = A'} e StrA =
+  make-𝒮 {_≅_ = λ a a' → e- a ≅ e- a'}
              (λ a → ρ (e- a))
              λ a → isOfHLevelRespectEquiv 0
                                           (Σ[ x ∈ A ] e- a ≅ x
@@ -106,7 +106,7 @@ URGStr-transport {A = A} {A' = A'} e StrA =
                                           Σ[ x ∈ A ] e- a ≅ e- (e* x)
                                             ≃⟨ Σ-cong-equiv-fst e ⟩
                                           Σ[ a' ∈ A' ] e- a ≅ e- a' ■)
-                                          (URGStr→cTS StrA (e- a))
+                                          (𝒮→cTS StrA (e- a))
                                           where
                                             open URGStr StrA
                                             e⁻¹ = invEquiv e

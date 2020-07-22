@@ -16,7 +16,7 @@ private
   variable
     ℓA ℓA' ℓB ℓB' ℓC ℓ≅A ℓ≅B ℓ≅C ℓ≅B' : Level
 
-module Fib1 {A : Type ℓA} {B : A → Type ℓB} {C : A → Type ℓC} where
+module _ {A : Type ℓA} {B : A → Type ℓB} {C : A → Type ℓC} where
 
   -- this belongs in Relation/Binary
   -- the notion of a fiberwise isomorphism with respect to a binary relation
@@ -60,7 +60,7 @@ module Fib1 {A : Type ℓA} {B : A → Type ℓB} {C : A → Type ℓC} where
             (λ c → (invEquiv (uniC (F (G c)) c)) .fst (FG c))
             λ b → (invEquiv (uniB (G (F b)) b)) .fst (GF b)
 
-module Fib2 {A : Type ℓA} {A' : Type ℓA'} (f : A → A')
+module _ {A : Type ℓA} {A' : Type ℓA'} (f : A → A')
             {B' : A' → Type ℓB'} where
 
   module _ {ℓ≅B' : Level} (_≅B'_ : {a : A'} → Rel (B' a) (B' a) ℓ≅B') where
@@ -75,8 +75,8 @@ module Fib2 {A : Type ℓA} {A' : Type ℓA'} (f : A → A')
 
     module _ {B : A → Type ℓB} where
       -- definition of fiberwise relational iso with respect to the map f
-      record FiberRelIso {ℓ≅B : Level} (_≅B_ : {a : A} → Rel (B a) (B a) ℓ≅B) : Type (ℓ-max (ℓ-max ℓ≅B ℓ≅B') (ℓ-max ℓA (ℓ-max ℓB ℓB'))) where
-        constructor fiberreliso
+      record FiberRelIsoOver {ℓ≅B : Level} (_≅B_ : {a : A} → Rel (B a) (B a) ℓ≅B) : Type (ℓ-max (ℓ-max ℓ≅B ℓ≅B') (ℓ-max ℓA (ℓ-max ℓB ℓB'))) where
+        constructor fiberrelisoover
         field
           fun : {a : A} → B a → ♭B' a
           inv : {a : A} → ♭B' a → B a

@@ -16,9 +16,9 @@ private
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓ≅ᴰ : Level
 
 -- Universes and equivalences form a URGStr
-UGRStrUniverse : URGStr (Type ℓ) ℓ
-UGRStrUniverse
-  = makeURGStr {_≅_ = _≃_}
+𝒮-universe : URGStr (Type ℓ) ℓ
+𝒮-universe
+  = make-𝒮 {_≅_ = _≃_}
                idEquiv
                λ A → isOfHLevelRespectEquiv 0
                                             (Σ-cong-equiv-snd (λ A' → isoToEquiv (iso invEquiv
