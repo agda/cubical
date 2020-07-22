@@ -93,6 +93,8 @@ module Morphisms (ℓ ℓ' : Level) where
                                                      --  ≃ Σ[ (grouphom f' _) ∈ GroupHom G H ] ((g : ⟨ G ⟩) → GroupHom.fun f g ≡ f' g)
                                                      (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
                                                      (isContrSingl f)
+
+
   -- Type of two groups with a group morphism
   SG²F : URGStr G²F (ℓ-max ℓ ℓ')
   SG²F = ∫⟨ URGStrGroup ℓ ×URG URGStrGroup ℓ' ⟩ SᴰG²F
