@@ -48,9 +48,10 @@ module _ {ℓ ℓ' : Level} where
 
 
 module _ (ℓ ℓ' : Level) where
-  𝒮ᴰ-G²FBSplitBSplit\Peiffer : URGStrᴰ (𝒮-G²FBSplitBSplit ℓ ℓ')
+  open MorphismTree ℓ ℓ'
+  𝒮ᴰ-G²FBSplitBSplit\Peiffer : URGStrᴰ 𝒮-G²FBSplitBSplit
                            (λ (((((G , H) , f , b) , isRet) , b') , isRet') → isPeifferGraph isRet isRet')
                            ℓ-zero
   𝒮ᴰ-G²FBSplitBSplit\Peiffer = Subtype→Sub-𝒮ᴰ (λ (((((G , H) , f , b) , isRet) , b') , isRet')
                                       → isPeifferGraph isRet isRet' , isPropIsPeifferGraph isRet isRet')
-                                   (𝒮-G²FBSplitBSplit ℓ ℓ')
+                                   𝒮-G²FBSplitBSplit

@@ -27,7 +27,7 @@ private
   variable
     ℓ ℓ' : Level
 
-module _ (ℓ : Level) where
+module GroupRoot (ℓ : Level) where
   -- groups with group isomorphisms structure
   𝒮-group : URGStr (Group {ℓ}) ℓ
   𝒮-group = urgstr GroupEquiv
@@ -35,9 +35,9 @@ module _ (ℓ : Level) where
                    (isUnivalent'→isUnivalent GroupEquiv
                                              idGroupEquiv
                                              λ G H → invEquiv (GroupPath G H))
+open GroupRoot public
 
 module _ {ℓ ℓ' : Level} where
-
   module GroupDisplayHelper {G : Group {ℓ}} {H : Group {ℓ'}} where
     BContr : (f : GroupHom H G) → isContr (Σ[ f' ∈ GroupHom H G ] (GroupHom.fun f ∼ GroupHom.fun f'))
     BContr f =  isOfHLevelRespectEquiv 0 (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f')))) (isContrSingl f)
@@ -58,7 +58,7 @@ module _ {ℓ ℓ' : Level} where
 
 open GroupDisplayHelper
 
-module _ (ℓ ℓ' : Level) where
+module MorphismTree (ℓ ℓ' : Level) where
   -- notation
   -- G - group
   -- G² - pair of groups

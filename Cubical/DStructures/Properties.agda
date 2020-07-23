@@ -115,6 +115,10 @@ module Assoc {ℓA ℓB ℓC ℓ≅A ℓ≅B ℓ≅C : Level}
 
 
 
+cong-𝒮 : {A : Type ℓ} {B : Type ℓ}
+      (p : A ≡ B)
+      → URGStr A ℓ' ≡ URGStr B ℓ'
+cong-𝒮 {ℓ' = ℓ'} p = cong (λ X → URGStr X ℓ') p
 -- transport of displayed structures along equivalences
 {-
 URGᴰtransp : {A : Type ℓA} {A' : Type ℓA'}
@@ -125,4 +129,20 @@ URGᴰtransp : {A : Type ℓA} {A' : Type ℓA'}
     → URGStrᴰ {!!} {!!} {!!}
 URGᴰtransp e StrA StrABᴰ =
   makeURGStrᴰ {!!} {!!} {!!} {!!} {!!}
+-}
+
+{-
+𝒮-transport' : {A : Type ℓA} {A' : Type ℓA}
+               (p : A ≡ A') (𝒮-A : URGStr A ℓ≅A)
+               → URGStr A' ℓ≅A
+𝒮-transport' {ℓ≅A = ℓ≅A} p 𝒮-A = subst (λ X → URGStr X ℓ≅A) p 𝒮-A
+
+𝒮ᴰ-transport : {A : Type ℓA} {A' : Type ℓA}
+               (p : A ≡ A') {𝒮-A : URGStr A ℓ≅A}
+               {B : A → Type ℓB}
+               (𝒮ᴰ-A\B : URGStrᴰ 𝒮-A B ℓ≅B)
+               → URGStrᴰ (𝒮-transport' p 𝒮-A)
+                         (λ a' → B (transport (sym p) a'))
+                         ℓ≅B
+𝒮ᴰ-transport e 𝒮ᴰ-A\B = {!!}
 -}

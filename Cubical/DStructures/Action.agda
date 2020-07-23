@@ -24,7 +24,9 @@ private
     Las (G , H) = LeftActionStructure ⟨ G ⟩ ⟨ H ⟩
 
 module _ (ℓ ℓ' : Level) where
-  G²Las = Σ[ GH ∈ G² ℓ ℓ' ] Las GH
+  open MorphismTree ℓ ℓ'
+
+  G²Las = Σ[ GH ∈ G² ] Las GH
   G²Act = Σ[ ((G , H) , _α_) ∈ G²Las ] (IsGroupAction G H _α_)
 
   -- two groups with an action structure, i.e. a map ⟨ G ⟩ → ⟨ H ⟩ → ⟨ H ⟩
