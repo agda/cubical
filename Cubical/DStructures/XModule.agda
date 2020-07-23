@@ -25,10 +25,7 @@ open import Cubical.DStructures.Type
 open import Cubical.DStructures.Group
 open import Cubical.DStructures.Action
 
-module _ (ℓ ℓ' : Level) where
-  open Groups
-  open Morphisms ℓ ℓ'
-  open Action ℓ ℓ'
+module _ {ℓ ℓ' : Level} where
 
   module _ {G : Group {ℓ}} {H : Group {ℓ'}}
            (_α_ : LeftActionStructure ⟨ G ⟩ ⟨ H ⟩)
@@ -72,7 +69,7 @@ module _ (ℓ ℓ' : Level) where
                                 (λ _ _ → refl)
                                 λ (((G , H) , _α_) , isAct) f
                                   → isOfHLevelRespectEquiv 0
-                                  s                         (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
+                                                           (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
                                                            (isContrSingl f)
 
   𝒮-PreXModuleStr : URGStr G²ActB (ℓ-max ℓ ℓ')

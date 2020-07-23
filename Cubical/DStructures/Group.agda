@@ -27,18 +27,16 @@ private
   variable
     ℓ ℓ' : Level
 
-module Groups (ℓ : Level) where
+module _ (ℓ : Level) where
   -- groups with group isomorphisms structure
   𝒮-group : URGStr (Group {ℓ}) ℓ
   𝒮-group = urgstr GroupEquiv
-                       idGroupEquiv
-                       (isUnivalent'→isUnivalent GroupEquiv
-                                                 idGroupEquiv
-                                                 λ G H → invEquiv (GroupPath G H))
+                   idGroupEquiv
+                   (isUnivalent'→isUnivalent GroupEquiv
+                                             idGroupEquiv
+                                             λ G H → invEquiv (GroupPath G H))
 
-module Morphisms (ℓ ℓ' : Level) where
-  open Groups
-
+module _ {ℓ ℓ' : Level} where
   -- notation
   -- G - group
   -- G² - pair of groups
@@ -78,10 +76,9 @@ module Morphisms (ℓ ℓ' : Level) where
            BCondition f f' = (h : ⟨ H ⟩) → tr-eG ((f *) h) ≡ (f' *) (tr-eH h)
 
   open GroupDisplayHelper
---𝒮\
 
   -- Group morphisms displayed over pairs of groups
-  𝒮ᴰ-G²\F : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
+  𝒮ᴰ-G²\F : URGStrᴰ (𝒮-group {ℓ} ×𝒮 𝒮-group {ℓ'})
                             (λ (G , H) → GroupHom G H)
                             (ℓ-max ℓ ℓ')
   𝒮ᴰ-G²\F =
@@ -97,40 +94,32 @@ module Morphisms (ℓ ℓ' : Level) where
 
   -- Type of two groups with a group morphism
   𝒮-G²F : URGStr G²F (ℓ-max ℓ ℓ')
-  𝒮-G²F = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ 𝒮ᴰ-G²\F
-
-
-
+  𝒮-G²F = ∫⟨ 𝒮-group {ℓ} ×𝒮 𝒮-group {ℓ'} ⟩ 𝒮ᴰ-G²\F
 
   -- Same as 𝒮-G²F but with the morphism going the other way
-  𝒮ᴰ-G²\B : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
+  𝒮ᴰ-G²\B : URGStrᴰ (𝒮-group {ℓ} ×𝒮 𝒮-group {ℓ'})
                              (λ (G , H) → GroupHom H G)
                              (ℓ-max ℓ ℓ')
   𝒮ᴰ-G²\B =
     make-𝒮ᴰ (λ {(_ , H)} f (eG , eH) f'
-                  -- → (h : ⟨ H ⟩) → GroupEquiv.eq eG .fst (GroupHom.fun f h) ≡ GroupHom.fun f' (GroupEquiv.eq eH .fst h))
                   → Coherence.BCondition eG eH f f')
                 (λ _ _ → refl)
                 λ _ f → BContr f
-                {- λ (G , H) f → isOfHLevelRespectEquiv 0
-                                                     (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
-                                                     (isContrSingl f) -}
 
   -- Type of two groups with a group morphism going back
   𝒮-G²B : URGStr G²B (ℓ-max ℓ ℓ')
-  𝒮-G²B = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ 𝒮ᴰ-G²\B
+  𝒮-G²B = ∫⟨ 𝒮-group {ℓ} ×𝒮 𝒮-group {ℓ'} ⟩ 𝒮ᴰ-G²\B
 
 
   -- Morphisms going forth and back displayed over pairs of groups
-  𝒮ᴰ-G²\FB : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
+  𝒮ᴰ-G²\FB : URGStrᴰ (𝒮-group {ℓ} ×𝒮 𝒮-group {ℓ'})
                    (λ (G , H) → GroupHom G H × GroupHom H G)
                    (ℓ-max ℓ ℓ')
   𝒮ᴰ-G²\FB = combine-𝒮ᴰ 𝒮ᴰ-G²\F 𝒮ᴰ-G²\B
 
   -- Type of pairs of groups with morphisms going forth and back
   𝒮-G²FB : URGStr G²FB (ℓ-max ℓ ℓ')
-  𝒮-G²FB = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ 𝒮ᴰ-G²\FB
-
+  𝒮-G²FB = ∫⟨ 𝒮-group {ℓ} ×𝒮 𝒮-group {ℓ'} ⟩ 𝒮ᴰ-G²\FB
 
   -- section retraction pair displayed over pairs of groups
   𝒮ᴰ-G²FB\Split : URGStrᴰ 𝒮-G²FB
