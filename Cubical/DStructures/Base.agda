@@ -37,6 +37,7 @@ private
 -}
 -- a univalent reflexive graph structure on a type
 record URGStr (A : Type ℓA) (ℓ≅A : Level) : Type (ℓ-max ℓA (ℓ-suc ℓ≅A)) where
+  no-eta-equality
   constructor urgstr
   field
     _≅_ : Rel A A ℓ≅A
@@ -57,6 +58,7 @@ make-𝒮 {A = A} {_≅_ = _≅_}
 -- a displayed univalent reflexive graph structure over a URGStr on a type
 record URGStrᴰ {A : Type ℓA} (StrA : URGStr A ℓ≅A)
                   (B : A → Type ℓB) (ℓ≅ᴰ : Level) : Type (ℓ-max (ℓ-max (ℓ-max ℓA ℓB) ℓ≅A) (ℓ-suc ℓ≅ᴰ)) where
+  no-eta-equality
   constructor urgstrᴰ
   open URGStr StrA
 
