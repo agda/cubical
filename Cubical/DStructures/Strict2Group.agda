@@ -26,9 +26,7 @@ open import Cubical.DStructures.Type
 open import Cubical.DStructures.Group
 
 
-module _ (ℓ ℓ' : Level) where
-  open Groups
-  open Morphisms ℓ ℓ'
+module _ {ℓ ℓ' : Level} where
 
   module _ {G₀ : Group {ℓ}} {G₁ : Group {ℓ'}}
            {Id : GroupHom G₀ G₁} {Src : GroupHom G₁ G₀} {Tar : GroupHom G₁ G₀}
@@ -49,9 +47,10 @@ module _ (ℓ ℓ' : Level) where
                                                         (((((((id (src g')) ⋆₁ g') ⋆₁ (inv₁ (id (tar g')))) ⋆₁ (inv₁ (id (src g)))) ⋆₁ g) ⋆₁ (id (tar g')) )))
 
 
-  𝒮ᴰ-G²FBSplitBSplit\Peiffer : URGStrᴰ 𝒮-G²FBSplitBSplit
+module _ (ℓ ℓ' : Level) where
+  𝒮ᴰ-G²FBSplitBSplit\Peiffer : URGStrᴰ (𝒮-G²FBSplitBSplit ℓ ℓ')
                            (λ (((((G , H) , f , b) , isRet) , b') , isRet') → isPeifferGraph isRet isRet')
                            ℓ-zero
   𝒮ᴰ-G²FBSplitBSplit\Peiffer = Subtype→Sub-𝒮ᴰ (λ (((((G , H) , f , b) , isRet) , b') , isRet')
                                       → isPeifferGraph isRet isRet' , isPropIsPeifferGraph isRet isRet')
-                                   𝒮-G²FBSplitBSplit
+                                   (𝒮-G²FBSplitBSplit ℓ ℓ')

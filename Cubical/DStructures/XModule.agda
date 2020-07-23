@@ -50,14 +50,16 @@ module _ {ℓ ℓ' : Level} where
     isPropIsPeiffer : isProp isPeiffer
     isPropIsPeiffer = isPropΠ2 (λ h h' → setH ((f* h) α h') ((h +H h') +H (-H h)))
 
-  G²ActB = Σ[ (((G , H) , _α_) , isAct) ∈ G²Act ] (GroupHom H G)
+module _ (ℓ ℓ' : Level) where
+
+  G²ActB = Σ[ (((G , H) , _α_) , isAct) ∈ G²Act ℓ ℓ' ] (GroupHom H G)
   G²ActBEqui = Σ[ (((GH , _α_) , isAct ) , f) ∈ G²ActB ] (isEquivariant _α_ f)
   PreXModuleΣ = G²ActBEqui
   G²ActBEquiPeif = Σ[ ((((GH , _α_) , isAct) , f) , isEqui) ∈ G²ActBEqui ] (isPeiffer _α_ f)
   XModuleΣ = G²ActBEquiPeif
 
   -- displayed over 𝒮-Action, a morphism back
-  𝒮ᴰ-Action\PreXModuleStr : URGStrᴰ 𝒮-Action
+  𝒮ᴰ-Action\PreXModuleStr : URGStrᴰ (𝒮-Action ℓ ℓ')
                            (λ (((G , H) , _) , _) → GroupHom H G)
                            (ℓ-max ℓ ℓ')
   𝒮ᴰ-Action\PreXModuleStr = make-𝒮ᴰ (λ {(((G , H) , _α_) , isAct) } {_α'_} f (((eG , eH) , eLas) , eIsAct) f'
@@ -73,7 +75,7 @@ module _ {ℓ ℓ' : Level} where
                                                            (isContrSingl f)
 
   𝒮-PreXModuleStr : URGStr G²ActB (ℓ-max ℓ ℓ')
-  𝒮-PreXModuleStr = ∫⟨ 𝒮-Action ⟩ 𝒮ᴰ-Action\PreXModuleStr
+  𝒮-PreXModuleStr = ∫⟨ 𝒮-Action ℓ ℓ' ⟩ 𝒮ᴰ-Action\PreXModuleStr
 
 
   -- add equivariance condition

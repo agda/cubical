@@ -24,18 +24,10 @@ open import Cubical.DStructures.Combine
 open import Cubical.DStructures.Type
 open import Cubical.DStructures.Group
 
-private
-  variable
-    ℓ ℓ' : Level
-
 module _ (ℓ ℓ' : Level) where
-  open Groups
-  open Morphisms ℓ ℓ'
 
-  S-Group = URGStrGroup
-  Sᴰ-G²\F = SᴰG²F
-  Sᴰ-G²\SecRet = SᴰG²SecRet
 
+{-
   Sᴰ-G\GF : URGStrᴰ (URGStrGroup ℓ)
                     (λ G → Σ[ H ∈ Group {ℓ'} ] GroupHom G H)
                     (ℓ-max ℓ ℓ')
@@ -43,6 +35,7 @@ module _ (ℓ ℓ' : Level) where
                                (URGStrConstᴰ (URGStrGroup ℓ)
                                              (URGStrGroup ℓ'))
                                Sᴰ-G²\F
+-}
 
 
 

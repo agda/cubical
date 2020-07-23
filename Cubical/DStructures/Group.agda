@@ -37,6 +37,28 @@ module _ (ℓ : Level) where
                                              λ G H → invEquiv (GroupPath G H))
 
 module _ {ℓ ℓ' : Level} where
+
+  module GroupDisplayHelper {G : Group {ℓ}} {H : Group {ℓ'}} where
+    BContr : (f : GroupHom H G) → isContr (Σ[ f' ∈ GroupHom H G ] (GroupHom.fun f ∼ GroupHom.fun f'))
+    BContr f =  isOfHLevelRespectEquiv 0 (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f')))) (isContrSingl f)
+
+    module Coherence {G' : Group {ℓ}} {H' : Group {ℓ'}}
+                     (eG : GroupEquiv G G') (eH : GroupEquiv H H') where
+           tr-eG = GroupEquiv.eq eG .fst
+           tr-eH = GroupEquiv.eq eH .fst
+           _* = GroupHom.fun
+
+           FCondition : (f : GroupHom G H) (f' : GroupHom G' H')
+                          → Type (ℓ-max ℓ ℓ')
+           FCondition f f' = (g : ⟨ G ⟩) → tr-eH ((f *) g) ≡ (f' *) (tr-eG g)
+
+           BCondition : (f : GroupHom H G) (f' : GroupHom H' G')
+                         → Type (ℓ-max ℓ ℓ')
+           BCondition f f' = (h : ⟨ H ⟩) → tr-eG ((f *) h) ≡ (f' *) (tr-eH h)
+
+open GroupDisplayHelper
+
+module _ (ℓ ℓ' : Level) where
   -- notation
   -- G - group
   -- G² - pair of groups
@@ -57,28 +79,8 @@ module _ {ℓ ℓ' : Level} where
   -- type of internal reflexive graphs in the category of groups
   G²SecRet² = Σ[ ((((G , H) , f , b) , isRet) , b') ∈ G²SecRetB ] isGroupHomRet f b'
 
-  module GroupDisplayHelper {G : Group {ℓ}} {H : Group {ℓ'}} where
-    BContr : (f : GroupHom H G) → isContr (Σ[ f' ∈ GroupHom H G ] (GroupHom.fun f ∼ GroupHom.fun f'))
-    BContr f =  isOfHLevelRespectEquiv 0 (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f')))) (isContrSingl f)
-
-    module Coherence {G' : Group {ℓ}} {H' : Group {ℓ'}}
-                     (eG : GroupEquiv G G') (eH : GroupEquiv H H') where
-           tr-eG = GroupEquiv.eq eG .fst
-           tr-eH = GroupEquiv.eq eH .fst
-           _* = GroupHom.fun
-
-           FCondition : (f : GroupHom G H) (f' : GroupHom G' H')
-                          → Type (ℓ-max ℓ ℓ')
-           FCondition f f' = (g : ⟨ G ⟩) → tr-eH ((f *) g) ≡ (f' *) (tr-eG g)
-
-           BCondition : (f : GroupHom H G) (f' : GroupHom H' G')
-                         → Type (ℓ-max ℓ ℓ')
-           BCondition f f' = (h : ⟨ H ⟩) → tr-eG ((f *) h) ≡ (f' *) (tr-eH h)
-
-  open GroupDisplayHelper
-
   -- Group morphisms displayed over pairs of groups
-  𝒮ᴰ-G²\F : URGStrᴰ (𝒮-group {ℓ} ×𝒮 𝒮-group {ℓ'})
+  𝒮ᴰ-G²\F : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
                             (λ (G , H) → GroupHom G H)
                             (ℓ-max ℓ ℓ')
   𝒮ᴰ-G²\F =
@@ -94,10 +96,10 @@ module _ {ℓ ℓ' : Level} where
 
   -- Type of two groups with a group morphism
   𝒮-G²F : URGStr G²F (ℓ-max ℓ ℓ')
-  𝒮-G²F = ∫⟨ 𝒮-group {ℓ} ×𝒮 𝒮-group {ℓ'} ⟩ 𝒮ᴰ-G²\F
+  𝒮-G²F = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ 𝒮ᴰ-G²\F
 
   -- Same as 𝒮-G²F but with the morphism going the other way
-  𝒮ᴰ-G²\B : URGStrᴰ (𝒮-group {ℓ} ×𝒮 𝒮-group {ℓ'})
+  𝒮ᴰ-G²\B : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
                              (λ (G , H) → GroupHom H G)
                              (ℓ-max ℓ ℓ')
   𝒮ᴰ-G²\B =
@@ -108,18 +110,18 @@ module _ {ℓ ℓ' : Level} where
 
   -- Type of two groups with a group morphism going back
   𝒮-G²B : URGStr G²B (ℓ-max ℓ ℓ')
-  𝒮-G²B = ∫⟨ 𝒮-group {ℓ} ×𝒮 𝒮-group {ℓ'} ⟩ 𝒮ᴰ-G²\B
+  𝒮-G²B = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ 𝒮ᴰ-G²\B
 
 
   -- Morphisms going forth and back displayed over pairs of groups
-  𝒮ᴰ-G²\FB : URGStrᴰ (𝒮-group {ℓ} ×𝒮 𝒮-group {ℓ'})
+  𝒮ᴰ-G²\FB : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
                    (λ (G , H) → GroupHom G H × GroupHom H G)
                    (ℓ-max ℓ ℓ')
   𝒮ᴰ-G²\FB = combine-𝒮ᴰ 𝒮ᴰ-G²\F 𝒮ᴰ-G²\B
 
   -- Type of pairs of groups with morphisms going forth and back
   𝒮-G²FB : URGStr G²FB (ℓ-max ℓ ℓ')
-  𝒮-G²FB = ∫⟨ 𝒮-group {ℓ} ×𝒮 𝒮-group {ℓ'} ⟩ 𝒮ᴰ-G²\FB
+  𝒮-G²FB = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ 𝒮ᴰ-G²\FB
 
   -- section retraction pair displayed over pairs of groups
   𝒮ᴰ-G²FB\Split : URGStrᴰ 𝒮-G²FB

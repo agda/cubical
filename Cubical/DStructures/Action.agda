@@ -18,16 +18,17 @@ open import Cubical.DStructures.Product
 open import Cubical.DStructures.Type
 open import Cubical.DStructures.Group
 
-module _ {ℓ ℓ' : Level} where
-  private
+private
+  module _ {ℓ ℓ' : Level} where
     Las : ((G , H) : Group {ℓ} × Group {ℓ'}) → Type (ℓ-max ℓ ℓ')
     Las (G , H) = LeftActionStructure ⟨ G ⟩ ⟨ H ⟩
 
-  G²Las = Σ[ GH ∈ G² ] Las GH
+module _ (ℓ ℓ' : Level) where
+  G²Las = Σ[ GH ∈ G² ℓ ℓ' ] Las GH
   G²Act = Σ[ ((G , H) , _α_) ∈ G²Las ] (IsGroupAction G H _α_)
 
   -- two groups with an action structure, i.e. a map ⟨ G ⟩ → ⟨ H ⟩ → ⟨ H ⟩
-  𝒮ᴰ-G²\Las : URGStrᴰ (𝒮-group {ℓ} ×𝒮 𝒮-group {ℓ'})
+  𝒮ᴰ-G²\Las : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
                               (λ GH → Las GH)
                               (ℓ-max ℓ ℓ')
   𝒮ᴰ-G²\Las =
@@ -41,7 +42,7 @@ module _ {ℓ ℓ' : Level} where
                                                        (isContrSingl _α_)
 
   𝒮-G²Las : URGStr G²Las (ℓ-max ℓ ℓ')
-  𝒮-G²Las = ∫⟨ 𝒮-group {ℓ} ×𝒮 𝒮-group {ℓ'} ⟩ 𝒮ᴰ-G²\Las
+  𝒮-G²Las = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ 𝒮ᴰ-G²\Las
 
   open ActionΣTheory
 
