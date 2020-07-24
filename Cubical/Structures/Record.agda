@@ -28,9 +28,25 @@ open import Agda.Builtin.String
 private
   FUEL = 10000
 
+data AutoRecordShape (S : Type → Type) (ι : StrEquiv S ℓ-zero) : Type₁ where
+  structure : {S' : Type → Type} {ι' : StrEquiv S ℓ-zero}
+    → ({X : Type} → S X → S' X)
+    → ({A B : TypeWithStr ℓ-zero S} {e : typ A ≃ typ B} → ι A B e → ι' A B e)
+    → AutoRecordShape S ι
+  property : {S' : Type → Type} {ι' : StrEquiv S ℓ-zero}
+    → ({X : Type} → S X → S' X)
+    → ({X : Type} → S X → isProp (S' X))
+    → AutoRecordShape S ι
+
+abstract
+  autoRecordSpec : (S : Type → Type) (ι : StrEquiv S ℓ-zero)
+    → List (AutoRecordShape S ι) → List (AutoRecordShape S ι )
+  autoRecordSpec _ _ = idfun _
+
 -- Some reflection utilities
 private
   _>>=_ = R.bindTC
+  _<|>_ = R.catchTC
     
   _$_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → A → B
   f $ a = f a
@@ -61,11 +77,8 @@ private
   v : ℕ → R.Term
   v n = R.var n []
 
-  varg : ∀ {ℓ} {A : Type ℓ} → A → R.Arg A
-  varg = R.arg (R.arg-info R.visible R.relevant)
-
-  harg : ∀ {ℓ} {A : Type ℓ} → A → R.Arg A
-  harg = R.arg (R.arg-info R.hidden R.relevant)
+  pattern varg t = R.arg (R.arg-info R.visible R.relevant) t
+  pattern harg t = R.arg (R.arg-info R.hidden R.relevant) t
 
   vlam : String → R.Term → R.Term
   vlam str t = R.lam R.visible (R.abs str t)
@@ -156,6 +169,31 @@ private
     newMeta (tStruct tℓ₀ tℓ₀) >>= λ S →
     R.unify (R.def (quote fieldShape) (varg (R.def srec []) ∷ varg S ∷ [])) A >>
     buildDesc FUEL tℓ₀ tℓ₀ S
+
+  parseSpec : R.Term → R.TC (R.Name × R.Name × List (R.Name × R.Name))
+  parseSpec (R.def (quote autoRecordSpec) (varg (R.def srec []) ∷ varg (R.def erec []) ∷ varg fs ∷ [])) =
+    liftTC (λ fs → srec , erec , fs) (parseFields fs)
+    where
+    findName : R.Term → R.TC R.Name
+    findName (R.def name _) = R.returnTC name
+    findName (R.lam R.hidden (R.abs _ t)) = findName t
+    findName t = R.typeError (R.strErr "Malformed autoRecord specification: " ∷ R.termErr t ∷ [])
+
+    parseField : R.Term → R.TC (R.Name × R.Name)
+    parseField (R.con (quote structure) (harg _ ∷ harg _ ∷ harg _ ∷ harg _ ∷ varg sterm ∷ varg eterm ∷ [])) =
+      findName sterm >>= λ sfield →
+      findName eterm >>= λ efield →
+      R.returnTC (sfield , efield)
+    parseField t = R.typeError (R.strErr "Malformed autoRecord specification: " ∷ R.termErr t ∷ [])
+
+    parseFields : R.Term → R.TC (List (R.Name × R.Name))
+    parseFields (R.con (quote _∷_) (harg _ ∷ harg _ ∷ varg f ∷ varg fs ∷ [])) =
+      parseField f >>= λ f' →
+      parseFields fs >>= λ fs' →
+      R.returnTC (f' ∷ fs')
+    parseFields (R.con (quote []) _) = R.returnTC []
+    parseFields t = R.typeError (R.strErr "Malformed autoRecord specification: " ∷ R.termErr t ∷ [])
+  parseSpec t = R.typeError (R.strErr "Malformed autoRecord specification: " ∷ R.termErr t ∷ [])
 
 module _ (srec erec : R.Name) where
 
@@ -305,13 +343,14 @@ macro
     fieldDesc' srec sfield >>=
     R.unify d
 
-  autoUnivalentRecord : R.Name → R.Name → List (R.Name × R.Name) → R.Term → R.TC Unit
-  autoUnivalentRecord srec erec fs hole =
-    univalentsTC >>= λ univalents →
+  autoUnivalentRecord : R.Term → R.Term → R.TC Unit
+  autoUnivalentRecord term hole =
+    parseSpec term >>= λ (srec , erec , fs) →
+    univalentsTC srec erec fs >>= λ univalents →
     R.getContext >>= λ ctx₀ →
-    contextTC fs >>= λ ctx₁ →
+    contextTC srec erec fs >>= λ ctx₁ →
     R.inContext (ctx₀ ++ ctx₁) (autoUnivalentRecord' srec erec (mapi _,_ fs)) >>= λ body →
-    innerTyTC fs (R.def (quote uStrShape) (varg (R.def srec []) ∷ varg (R.def erec []) ∷ [])) >>= λ innerTy →
+    innerTyTC srec erec fs (R.def (quote uStrShape) (varg (R.def srec []) ∷ varg (R.def erec []) ∷ [])) >>= λ innerTy →
     R.unify
     -- R.typeError ([_] (R.termErr (
       (R.def (quote idfun)
@@ -321,28 +360,29 @@ macro
       -- )))
       hole
     where
-    univalentsTC : R.TC (List R.Term)
-    univalentsTC =
-      mapTC
-        (List.map
-          (λ (sfield , _) →
-            fieldDesc' srec sfield >>= λ d →
-            R.returnTC (R.def (quote MacroUnivalentStr') [ varg d ]))
-          fs)
+    module _ (srec erec : R.Name) where
+      univalentsTC : List (R.Name × R.Name) → R.TC (List R.Term)
+      univalentsTC fs =
+        mapTC
+          (List.map
+            (λ (sfield , _) →
+              fieldDesc' srec sfield >>= λ d →
+              R.returnTC (R.def (quote MacroUnivalentStr') [ varg d ]))
+            fs)
 
-    contextTC : List (R.Name × R.Name) → R.TC (List (R.Arg R.Term))
-    contextTC [] = R.returnTC []
-    contextTC ((sfield , _) ∷ fs) =
-      fieldDesc' srec sfield >>= λ d →
-      let ty = R.def (quote uStrShape) (varg (R.def (quote MacroStructure) (harg tℓ₀ ∷ varg d ∷ [])) ∷ varg (R.def (quote MacroEquivStr) [ varg d ]) ∷ []) in
-      liftTC (varg ty ∷_) (contextTC fs)
+      contextTC : List (R.Name × R.Name) → R.TC (List (R.Arg R.Term))
+      contextTC [] = R.returnTC []
+      contextTC ((sfield , _) ∷ fs) =
+        fieldDesc' srec sfield >>= λ d →
+        let ty = R.def (quote uStrShape) (varg (R.def (quote MacroStructure) (harg tℓ₀ ∷ varg d ∷ [])) ∷ varg (R.def (quote MacroEquivStr) [ varg d ]) ∷ []) in
+        liftTC (varg ty ∷_) (contextTC fs)
 
-    innerTyTC : List (R.Name × R.Name) → R.Term → R.TC R.Term
-    innerTyTC [] acc = R.returnTC acc
-    innerTyTC ((sfield , _) ∷ fs) acc =
-      fieldDesc' srec sfield >>= λ d →
-      let ty = R.def (quote uStrShape) (varg (R.def (quote MacroStructure) (harg tℓ₀ ∷ varg d ∷ [])) ∷ varg (R.def (quote MacroEquivStr) [ varg d ]) ∷ []) in
-      innerTyTC fs (R.def (quote func) (varg ty ∷ varg acc ∷ []))
+      innerTyTC : List (R.Name × R.Name) → R.Term → R.TC R.Term
+      innerTyTC [] acc = R.returnTC acc
+      innerTyTC ((sfield , _) ∷ fs) acc =
+        fieldDesc' srec sfield >>= λ d →
+        let ty = R.def (quote uStrShape) (varg (R.def (quote MacroStructure) (harg tℓ₀ ∷ varg d ∷ [])) ∷ varg (R.def (quote MacroEquivStr) [ varg d ]) ∷ []) in
+        innerTyTC fs (R.def (quote func) (varg ty ∷ varg acc ∷ []))
 
 record Dog (X : Type) : Type where
   field
@@ -363,8 +403,9 @@ open DogEquiv
 test : (A B : TypeWithStr ℓ-zero Dog) (e : typ A ≃ typ B)
   → DogEquiv A B e ≃ PathP (λ i → Dog (ua e i)) (str A) (str B)
 test =
-  autoUnivalentRecord Dog DogEquiv
-    ((quote Dog.cat , quote DogEquiv.cat)
-      ∷ (quote Dog.adult , quote DogEquiv.adult)
-      ∷ (quote Dog.wolf , quote DogEquiv.wolf)
-      ∷ [])
+  autoUnivalentRecord
+    (autoRecordSpec Dog DogEquiv
+      (structure cat cat
+        ∷ structure adult adult
+        ∷ structure wolf wolf
+        ∷ []))
