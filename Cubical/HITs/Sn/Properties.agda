@@ -8,6 +8,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
@@ -20,6 +21,7 @@ open import Cubical.Data.Unit
 open import Cubical.HITs.Join
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.SmashProduct
+open import Cubical.HITs.PropositionalTruncation
 
 open Iso
 
@@ -39,6 +41,15 @@ isOfHLevelS1 = transport (λ i → isOfHLevel 3 (S¹≡S1 (~ i)))
                           λ x y → J (λ y p → (q : x ≡ y) → isProp (p ≡ q))
                                      (transport (λ i → isSet (basedΩS¹≡Int x (~ i))) isSetInt refl)
 
+isGroupoidS1 : isGroupoid (S₊ 1)
+isGroupoidS1 = transport (λ i → isGroupoid (S¹≡S1 (~ i))) isGroupoidS¹
+
+isConnectedS1 : (x : S₊ 1) → ∥ north ≡ x ∥
+isConnectedS1 x = rec propTruncIsProp
+                       (λ p → ∣ cong (transport (sym (S¹≡S1))) p ∙ transport⁻Transport (S¹≡S1) x ∣)
+                       (isConnectedS¹ (transport S¹≡S1 x))
+
+
 SuspBool→S1 : Susp Bool → S₊ 1
 SuspBool→S1 north           = north
 SuspBool→S1 south           = south
@@ -50,6 +61,34 @@ S1→SuspBool north           = north
 S1→SuspBool south           = south
 S1→SuspBool (merid north i) = merid true i
 S1→SuspBool (merid south i) = merid false i
+
+SuspBool→S1-sect : section SuspBool→S1 S1→SuspBool
+SuspBool→S1-sect north = refl
+SuspBool→S1-sect south = refl
+SuspBool→S1-sect (merid north i) = refl
+SuspBool→S1-sect (merid south i) = refl
+
+SuspBool→S1-retr : retract SuspBool→S1 S1→SuspBool
+SuspBool→S1-retr north = refl
+SuspBool→S1-retr south = refl
+SuspBool→S1-retr (merid false i) = refl
+SuspBool→S1-retr (merid true i) = refl
+
+S1→S¹ : S₊ 1 → S¹
+S1→S¹ x = SuspBool→S¹ (S1→SuspBool x)
+
+S¹→S1 : S¹ → S₊ 1
+S¹→S1 x = SuspBool→S1 (S¹→SuspBool x)
+
+S1→S¹-sect : section S1→S¹ S¹→S1
+S1→S¹-sect x =
+    cong SuspBool→S¹ (SuspBool→S1-retr (S¹→SuspBool x))
+  ∙ S¹→SuspBool→S¹ x
+
+S1→S¹-retr : retract S1→S¹ S¹→S1
+S1→S¹-retr x =
+    cong SuspBool→S1 (SuspBool→S¹→SuspBool (S1→SuspBool x))
+  ∙ SuspBool→S1-sect x
 
 SuspBoolIsoS1 : Iso (Susp Bool) (S₊ 1)
 fun SuspBoolIsoS1                      = SuspBool→S1

@@ -1,18 +1,19 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-
 module Cubical.Structures.Poset where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Logic
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv        renaming (_■ to _QED)
-open import Cubical.Foundations.SIP          renaming (SNS-≡ to SNS)
+open import Cubical.Foundations.SIP
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.Function
 open import Cubical.Core.Primitives
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.Properties
+
+open import Cubical.Structures.Axioms
 
 -- We will adopt the convention of denoting the level of the carrier
 -- set by ℓ₀ and the level of the relation result by ℓ₁.
@@ -52,8 +53,8 @@ isAnOrderPreservingEqv M N e@(f , _) =
   where
     g = equivFun (invEquiv e)
 
-Order-is-SNS : SNS {ℓ} (Order ℓ₁) isAnOrderPreservingEqv
-Order-is-SNS {ℓ = ℓ} {ℓ₁ = ℓ₁} {X = X}  _⊑₀_ _⊑₁_ =
+orderUnivalentStr : SNS {ℓ} (Order ℓ₁) isAnOrderPreservingEqv
+orderUnivalentStr {ℓ = ℓ} {ℓ₁ = ℓ₁} {X = X}  _⊑₀_ _⊑₁_ =
   f , record { equiv-proof = f-equiv }
   where
     f : isAnOrderPreservingEqv (X , _⊑₀_) (X , _⊑₁_) (idEquiv X) → _⊑₀_ ≡ _⊑₁_
@@ -127,17 +128,17 @@ satPosetAx {ℓ₀ = ℓ₀} ℓ₁ A _⊑_ = φ , φ-prop
     φ-prop    = isOfHLevelΣ 1 isPropIsSet (λ x → snd (isPartial x))
 
 -- The poset structure.
-PosetStr : (ℓ₁ : Level) → Type ℓ₀ → Type (ℓ-max ℓ₀ (ℓ-suc ℓ₁))
-PosetStr ℓ₁ = add-to-structure (Order ℓ₁) λ A _⊑_ → [ satPosetAx ℓ₁ A _⊑_ ]
+PosetStructure : (ℓ₁ : Level) → Type ℓ₀ → Type (ℓ-max ℓ₀ (ℓ-suc ℓ₁))
+PosetStructure ℓ₁ = AxiomsStructure (Order ℓ₁) λ A _⊑_ → [ satPosetAx ℓ₁ A _⊑_ ]
 
-PosetStr-set : (ℓ₁ : Level) (A : Type ℓ₀) → isSet (PosetStr ℓ₁ A)
-PosetStr-set ℓ₁ A =
+isSetPosetStructure : (ℓ₁ : Level) (A : Type ℓ₀) → isSet (PosetStructure ℓ₁ A)
+isSetPosetStructure ℓ₁ A =
   isSetΣ
     (isSetΠ2 λ _ _ → isSetHProp) λ _⊑_ →
       isProp→isSet (snd (satPosetAx ℓ₁ A _⊑_))
 
 Poset : (ℓ₀ ℓ₁ : Level) → Type (ℓ-max (ℓ-suc ℓ₀) (ℓ-suc ℓ₁))
-Poset ℓ₀ ℓ₁ = TypeWithStr ℓ₀ (PosetStr ℓ₁)
+Poset ℓ₀ ℓ₁ = TypeWithStr ℓ₀ (PosetStructure ℓ₁)
 
 -- Some projections for syntactic convenience.
 
@@ -145,7 +146,7 @@ Poset ℓ₀ ℓ₁ = TypeWithStr ℓ₀ (PosetStr ℓ₁)
 ∣_∣ₚ : Poset ℓ₀ ℓ₁ → Type ℓ₀
 ∣ X , _ ∣ₚ = X
 
-strₚ : (P : Poset ℓ₀ ℓ₁) → PosetStr ℓ₁ ∣ P ∣ₚ
+strₚ : (P : Poset ℓ₀ ℓ₁) → PosetStructure ℓ₁ ∣ P ∣ₚ
 strₚ (_ , s) = s
 
 rel : (P : Poset ℓ₀ ℓ₁) → ∣ P ∣ₚ → ∣ P ∣ₚ → hProp ℓ₁
@@ -235,18 +236,18 @@ _≃ₚ_ P Q = Σ[ i ∈ ∣ P ∣ₚ ≃ ∣ Q ∣ₚ ] isAMonotonicEqv P Q i
 -- From this, we can already establish that posets form an SNS and prove that
 -- the category of posets is univalent.
 
-poset-is-SNS : SNS {ℓ} (PosetStr ℓ₁) isAMonotonicEqv
-poset-is-SNS {ℓ₁ = ℓ₁} =
-  SNS-PathP→SNS-≡
-    (PosetStr ℓ₁)
+posetUnivalentStr : SNS {ℓ} (PosetStructure ℓ₁) isAMonotonicEqv
+posetUnivalentStr {ℓ₁ = ℓ₁} =
+  UnivalentStr→SNS
+    (PosetStructure ℓ₁)
     isAMonotonicEqv
-    (add-axioms-SNS _ NTS (SNS-≡→SNS-PathP isAnOrderPreservingEqv Order-is-SNS))
+    (axiomsUnivalentStr _ NTS (SNS→UnivalentStr isAnOrderPreservingEqv orderUnivalentStr))
   where
     NTS : (A : Type ℓ) (_⊑_ : Order ℓ₁ A) → isProp [ satPosetAx ℓ₁ A _⊑_ ]
     NTS A _⊑_ = snd (satPosetAx ℓ₁ A _⊑_)
 
 poset-univ₀ : (P Q : Poset ℓ₀ ℓ₁) → (P ≃ₚ Q) ≃ (P ≡ Q)
-poset-univ₀ = SIP (SNS-≡→SNS-PathP isAMonotonicEqv poset-is-SNS)
+poset-univ₀ = SIP (SNS→UnivalentStr isAMonotonicEqv posetUnivalentStr)
 
 -- This result is almost what we want but it is better talk directly about poset
 -- _isomorphisms_ rather than equivalences. In the case when types `A` and `B`

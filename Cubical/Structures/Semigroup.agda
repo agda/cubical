@@ -3,80 +3,179 @@ module Cubical.Structures.Semigroup where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Transport
+open import Cubical.Foundations.SIP
+
 open import Cubical.Data.Sigma
 
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
-open import Cubical.Structures.Pointed
-open import Cubical.Structures.NAryOp
+open import Cubical.Structures.Axioms
+open import Cubical.Structures.Auto
+
+open Iso
+
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ : Level
 
-raw-semigroup-structure : Type ℓ → Type ℓ
-raw-semigroup-structure X = X → X → X
+-- Semigroups as a record, inspired by the Agda standard library:
+--
+--  https://github.com/agda/agda-stdlib/blob/master/src/Algebra/Bundles.agda#L48
+--  https://github.com/agda/agda-stdlib/blob/master/src/Algebra/Structures.agda#L50
+--
+-- Note that as we are using Path for all equations the IsMagma record
+-- would only contain isSet A if we had it.
+record IsSemigroup {A : Type ℓ} (_·_ : A → A → A) : Type ℓ where
 
-raw-semigroup-is-SNS : SNS {ℓ} raw-semigroup-structure _
-raw-semigroup-is-SNS = binaryFunSNS pointed-iso pointed-is-SNS
+  -- no-eta-equality
+  constructor issemigroup
+  field
+    is-set : isSet A
+    assoc  : (x y z : A) → x · (y · z) ≡ (x · y) · z
 
-semigroup-axioms : (X : Type ℓ) → raw-semigroup-structure X → Type ℓ
-semigroup-axioms X _·_ = isSet X ×
-                         ((x y z : X) → (x · (y · z)) ≡ ((x · y) · z))
+record Semigroup : Type (ℓ-suc ℓ) where
 
-semigroup-structure : Type ℓ → Type ℓ
-semigroup-structure = add-to-structure (raw-semigroup-structure) semigroup-axioms
+  constructor semigroup
 
-Semigroup : Type (ℓ-suc ℓ)
-Semigroup {ℓ} = TypeWithStr ℓ semigroup-structure
+  field
+    Carrier     : Type ℓ
+    _·_         : Carrier → Carrier → Carrier
+    isSemigroup : IsSemigroup _·_
 
--- Operations for extracting components
+  infixl 7 _·_
 
+  open IsSemigroup isSemigroup public
+
+-- Extractor for the carrier type
 ⟨_⟩ : Semigroup → Type ℓ
-⟨ G , _ ⟩ = G
+⟨_⟩ = Semigroup.Carrier
 
-semigroup-operation : (G : Semigroup {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
-semigroup-operation (_ , f , _) = f
 
-module semigroup-operation-syntax where
+record SemigroupEquiv (M N : Semigroup {ℓ}) : Type ℓ where
+  no-eta-equality
+  constructor semigroupequiv
 
-  semigroup-operation-syntax : (G : Semigroup {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
-  semigroup-operation-syntax = semigroup-operation
+  -- Shorter qualified names
+  private
+    module M = Semigroup M
+    module N = Semigroup N
 
-  infixl 20 semigroup-operation-syntax
-  syntax semigroup-operation-syntax G x y = x ·⟨ G ⟩ y
+  field
+    e     : ⟨ M ⟩ ≃ ⟨ N ⟩
+    isHom : (x y : ⟨ M ⟩) → equivFun e (x M.· y) ≡ equivFun e x N.· equivFun e y
 
-open semigroup-operation-syntax
+open Semigroup
+open IsSemigroup
+open SemigroupEquiv
 
-semigroup-isSet : (G : Semigroup {ℓ}) → isSet ⟨ G ⟩
-semigroup-isSet (_ , _ , P , _) = P
+η-isSemiGroup : {A : Type ℓ} {_·_ : A → A → A} (b : IsSemigroup _·_)
+             → issemigroup (is-set b) (assoc b) ≡ b
+is-set (η-isSemiGroup b i) = is-set b
+assoc (η-isSemiGroup b i) = assoc b
 
-semigroup-assoc : (G : Semigroup {ℓ})
-                → (x y z : ⟨ G ⟩) → (x ·⟨ G ⟩ (y ·⟨ G ⟩ z)) ≡ ((x ·⟨ G ⟩ y) ·⟨ G ⟩ z)
-semigroup-assoc (_ , _ , _ , P) = P
+η-SemigroupEquiv : {M N : Semigroup {ℓ}} (p : SemigroupEquiv M N)
+                 → semigroupequiv (e p) (isHom p) ≡ p
+e (η-SemigroupEquiv p i) = e p
+isHom (η-SemigroupEquiv p i) = isHom p
 
--- Semigroup equivalences
+-- Develop some theory about Semigroups using various general results
+-- that are stated using Σ-types. For this we define Semigroup as a
+-- nested Σ-type, prove that it's equivalent to the above record
+-- definition and then transport results along this equivalence.
+module SemigroupΣTheory {ℓ} where
 
-semigroup-iso : StrIso semigroup-structure ℓ
-semigroup-iso = add-to-iso (binaryFunIso pointed-iso) semigroup-axioms
+  RawSemigroupStructure : Type ℓ → Type ℓ
+  RawSemigroupStructure X = X → X → X
 
-semigroup-axiom-isProp : (X : Type ℓ)
-                       → (s : raw-semigroup-structure X)
-                       → isProp (semigroup-axioms X s)
-semigroup-axiom-isProp X _·_ = isPropΣ isPropIsSet
-                               λ isSetX →  isPropΠ (λ x → isPropΠ (λ y → isPropΠ (λ z → isSetX _ _)))
+  RawSemigroupEquivStr = AutoEquivStr RawSemigroupStructure
 
-semigroup-is-SNS : SNS {ℓ} semigroup-structure semigroup-iso
-semigroup-is-SNS = add-axioms-SNS _ semigroup-axiom-isProp raw-semigroup-is-SNS
+  rawSemigroupUnivalentStr : UnivalentStr _ RawSemigroupEquivStr
+  rawSemigroupUnivalentStr = autoUnivalentStr RawSemigroupStructure
 
-SemigroupPath : (M N : Semigroup {ℓ}) → (M ≃[ semigroup-iso ] N) ≃ (M ≡ N)
-SemigroupPath = SIP semigroup-is-SNS
+  SemigroupAxioms : (A : Type ℓ) → RawSemigroupStructure A → Type ℓ
+  SemigroupAxioms A _·_ = isSet A
+                        × ((x y z : A) → x · (y · z) ≡ (x · y) · z)
 
--- Semigroup ·syntax
+  SemigroupStructure : Type ℓ → Type ℓ
+  SemigroupStructure = AxiomsStructure RawSemigroupStructure SemigroupAxioms
 
-module semigroup-·syntax (G : Semigroup {ℓ}) where
+  SemigroupΣ : Type (ℓ-suc ℓ)
+  SemigroupΣ = TypeWithStr ℓ SemigroupStructure
 
-  infixr 18 _·_
+  isPropSemigroupAxioms : (A : Type ℓ) (_·_ : RawSemigroupStructure A)
+                        → isProp (SemigroupAxioms A _·_)
+  isPropSemigroupAxioms _ _ = isPropΣ isPropIsSet λ isSetA → isPropΠ3 λ _ _ _ → isSetA _ _
 
-  _·_ : ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
-  _·_ = semigroup-operation G
+  SemigroupEquivStr : StrEquiv SemigroupStructure ℓ
+  SemigroupEquivStr = AxiomsEquivStr RawSemigroupEquivStr SemigroupAxioms
+
+  SemigroupAxiomsIsoIsSemigroup : {A : Type ℓ} (_·_ : RawSemigroupStructure A)
+                                → Iso (SemigroupAxioms A _·_) (IsSemigroup _·_)
+  fun (SemigroupAxiomsIsoIsSemigroup s) (x , y)           = issemigroup x y
+  inv (SemigroupAxiomsIsoIsSemigroup s) M                 = is-set M , assoc M
+  rightInv (SemigroupAxiomsIsoIsSemigroup s) M            = η-isSemiGroup M
+  leftInv (SemigroupAxiomsIsoIsSemigroup s) _             = refl
+
+  SemigroupAxioms≡IsSemigroup : {A : Type ℓ} (_·_ : RawSemigroupStructure A)
+                              → SemigroupAxioms _ _·_ ≡ IsSemigroup _·_
+  SemigroupAxioms≡IsSemigroup s = isoToPath (SemigroupAxiomsIsoIsSemigroup s)
+
+  Semigroup→SemigroupΣ : Semigroup → SemigroupΣ
+  Semigroup→SemigroupΣ (semigroup A _·_ isSemigroup) =
+    A , _·_ , SemigroupAxiomsIsoIsSemigroup _ .inv isSemigroup
+
+  SemigroupΣ→Semigroup : SemigroupΣ → Semigroup
+  SemigroupΣ→Semigroup (A , _·_ , isSemigroupΣ) =
+    semigroup A _·_ (SemigroupAxiomsIsoIsSemigroup _ .fun isSemigroupΣ)
+
+  SemigroupIsoSemigroupΣ : Iso Semigroup SemigroupΣ
+  SemigroupIsoSemigroupΣ =
+    iso Semigroup→SemigroupΣ SemigroupΣ→Semigroup (λ _ → refl) helper
+    where
+    helper : (a : Semigroup) → SemigroupΣ→Semigroup (Semigroup→SemigroupΣ a) ≡ a
+    Carrier (helper a i) = ⟨ a ⟩
+    _·_ (helper a i) = _·_ a
+    isSemigroup (helper a i) = η-isSemiGroup (isSemigroup a) i
+
+  semigroupUnivalentStr : UnivalentStr SemigroupStructure SemigroupEquivStr
+  semigroupUnivalentStr = axiomsUnivalentStr _ isPropSemigroupAxioms rawSemigroupUnivalentStr
+
+  SemigroupΣPath : (M N : SemigroupΣ) → (M ≃[ SemigroupEquivStr ] N) ≃ (M ≡ N)
+  SemigroupΣPath = SIP semigroupUnivalentStr
+
+  SemigroupEquivΣ : (M N : Semigroup) → Type ℓ
+  SemigroupEquivΣ M N = Semigroup→SemigroupΣ M ≃[ SemigroupEquivStr ] Semigroup→SemigroupΣ N
+
+  open SemigroupEquiv
+
+  SemigroupIsoΣPath : {M N : Semigroup} → Iso (SemigroupEquiv M N) (SemigroupEquivΣ M N)
+  fun SemigroupIsoΣPath x                 = e x , isHom x
+  inv SemigroupIsoΣPath (e , h)            = semigroupequiv e h
+  rightInv SemigroupIsoΣPath _             = refl
+  leftInv SemigroupIsoΣPath _              = η-SemigroupEquiv _
+
+  SemigroupPath : (M N : Semigroup) → (SemigroupEquiv M N) ≃ (M ≡ N)
+  SemigroupPath M N =
+    SemigroupEquiv M N                                ≃⟨ isoToEquiv SemigroupIsoΣPath ⟩
+    SemigroupEquivΣ M N                               ≃⟨ SemigroupΣPath _ _ ⟩
+    Semigroup→SemigroupΣ M ≡ Semigroup→SemigroupΣ N ≃⟨ isoToEquiv (invIso (congIso SemigroupIsoSemigroupΣ)) ⟩
+    M ≡ N ■
+
+-- We now extract the important results from the above module
+
+isPropIsSemigroup : {A : Type ℓ} (_·_ : A → A → A) → isProp (IsSemigroup _·_)
+isPropIsSemigroup _·_ =
+  subst isProp (SemigroupΣTheory.SemigroupAxioms≡IsSemigroup _·_)
+        (SemigroupΣTheory.isPropSemigroupAxioms _ _·_)
+
+SemigroupPath : (M N : Semigroup {ℓ}) → (SemigroupEquiv M N) ≃ (M ≡ N)
+SemigroupPath = SemigroupΣTheory.SemigroupPath
+
+
+-- To rename the fields when using a Semigroup use for example the following:
+--
+-- open Semigroup M renaming ( Carrier to M ; _·_ to _·M_ )

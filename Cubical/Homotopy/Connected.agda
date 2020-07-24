@@ -17,33 +17,32 @@ open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SmashProduct
-open import Cubical.HITs.Truncation as Trunc
+open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn.Base
 open import Cubical.Data.Unit
 
-open import Cubical.Data.NatMinusTwo.Base
+-- Note that relative to most sources, this notation is off by +2
+isConnected : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ
+isConnected n A = isContr (hLevelTrunc n A)
 
-isHLevelConnected : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Type ℓ
-isHLevelConnected n A = isContr (hLevelTrunc n A)
+isConnectedFun : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
+isConnectedFun n f = ∀ b → isConnected n (fiber f b)
 
-isHLevelConnectedFun : ∀ {ℓ ℓ'} (n : ℕ) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
-isHLevelConnectedFun n f = ∀ b → isHLevelConnected n (fiber f b)
+isTruncatedFun : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
+isTruncatedFun n f = ∀ b → isOfHLevel n (fiber f b)
 
-isHLevelTruncatedFun : ∀ {ℓ ℓ'} (n : ℕ) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
-isHLevelTruncatedFun n f = ∀ b → isOfHLevel n (fiber f b)
-
-isConnectedSubtr : ∀ {ℓ} {A : Type ℓ} (n m : ℕ)
-                → isHLevelConnected (m + n) A
-                → isHLevelConnected n A
+isConnectedSubtr : ∀ {ℓ} {A : Type ℓ} (n m : HLevel)
+                → isConnected (m + n) A
+                → isConnected n A
 isConnectedSubtr {A = A} n m iscon =
   transport (λ i → isContr (ua (truncOfTruncEq {A = A} n m) (~ i)))
              (∣ iscon .fst ∣ , Trunc.elim (λ _ → isOfHLevelPath n (isOfHLevelTrunc n) _ _) λ a → cong ∣_∣ (iscon .snd a))
 
-isConnectedFunSubtr : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n m : ℕ) (f : A → B)
-                → isHLevelConnectedFun (m + n) f
-                → isHLevelConnectedFun n f
+isConnectedFunSubtr : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n m : HLevel) (f : A → B)
+                → isConnectedFun (m + n) f
+                → isConnectedFun n f
 isConnectedFunSubtr n m f iscon b = isConnectedSubtr n m (iscon b)
 
 private
@@ -57,10 +56,10 @@ private
     Iso.leftInv typeToFiberIso a = refl
 
 
-module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (n : ℕ) where
+module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (n : HLevel) where
 
-  isIsoPrecompose : ∀ {ℓ'''} (P : B → HLevel ℓ''' n)
-                   → isHLevelConnectedFun n f
+  isIsoPrecompose : ∀ {ℓ'''} (P : B → TypeOfHLevel ℓ''' n)
+                   → isConnectedFun n f
                    → Iso ((b : B) → P b .fst) ((a : A) → P (f a) .fst)
   isIsoPrecompose P fConn =
       (iso (_∘ f)
@@ -81,28 +80,28 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (n :
         (P b .snd)
         (λ {(a , p) → subst (fst ∘ P) p (t a)})
 
-  isEquivPrecompose : ∀ {ℓ'''} (P : B → HLevel ℓ''' n)
-                   → isHLevelConnectedFun n f
+  isEquivPrecompose : ∀ {ℓ'''} (P : B → TypeOfHLevel ℓ''' n)
+                   → isConnectedFun n f
                    → isEquiv (λ(s : (b : B) → P b .fst) → s ∘ f)
   isEquivPrecompose P fConn = isoToIsEquiv (isIsoPrecompose P fConn)
 
-  isConnectedPrecompose : ((P : B → HLevel (ℓ-max ℓ ℓ') n)
+  isConnectedPrecompose : ((P : B → TypeOfHLevel (ℓ-max ℓ ℓ') n)
                                     → hasSection (λ(s : (b : B) → P b .fst) → s ∘ f))
-                       → isHLevelConnectedFun n f
-  isConnectedPrecompose P→sect b = c n P→sect b , λ y →  sym (fun n P→sect b y) -- (c n P→sect b) , λ y → sym (fun n P→sect b y)
+                       → isConnectedFun n f
+  isConnectedPrecompose P→sect b = c n P→sect b , λ y →  sym (fun n P→sect b y)
     where
-    P : (n : ℕ) → ((P : B → HLevel ℓ n)
+    P : (n : HLevel) → ((P : B → TypeOfHLevel ℓ n)
      → hasSection (λ(s : (b : B) → P b .fst) → s ∘ f))
      → B → Type _
     P n s b = hLevelTrunc n (fiber f b)
 
-    c : (n : ℕ) → ((P : B → HLevel (ℓ-max ℓ ℓ') n)
+    c : (n : HLevel) → ((P : B → TypeOfHLevel (ℓ-max ℓ ℓ') n)
      → hasSection (λ(s : (b : B) → P b .fst) → s ∘ f)) → (b : B)
      → hLevelTrunc n (fiber f b)
     c n s = (s λ b → (hLevelTrunc n (fiber f b) , isOfHLevelTrunc _)) .fst
               λ a → ∣ a , refl ∣
 
-    fun : (n : ℕ) (P→sect : ((P : B → HLevel (ℓ-max ℓ ℓ') n)
+    fun : (n : HLevel) (P→sect : ((P : B → TypeOfHLevel (ℓ-max ℓ ℓ') n)
                      → hasSection λ(s : (b : B) → P b .fst) → s ∘ f))
       → (b : B) (w : (hLevelTrunc n (fiber f b)))
       → w ≡ c n P→sect b
@@ -126,9 +125,9 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (n :
         c* : ((a : A) → ∣ (a , refl {x = f a}) ∣ ≡ c (suc n) P→sect (f a))
         c* a = sym (cong (λ x → x a) (P→sect (λ b → hLevelTrunc (suc n) (fiber f b) , isOfHLevelTrunc _) .snd λ a → ∣ a , refl ∣))
 
-isOfHLevelPrecomposeConnected : ∀ {ℓ ℓ' ℓ''} (k : ℕ) (n : ℕ)
-  {A : Type ℓ} {B : Type ℓ'} (P : B → HLevel ℓ'' (k + n)) (f : A → B)
-  → isHLevelConnectedFun n f
+isOfHLevelPrecomposeConnected : ∀ {ℓ ℓ' ℓ''} (k : HLevel) (n : HLevel)
+  {A : Type ℓ} {B : Type ℓ'} (P : B → TypeOfHLevel ℓ'' (k + n)) (f : A → B)
+  → isConnectedFun n f
   → isOfHLevelFun k (λ(s : (b : B) → P b .fst) → s ∘ f)
 isOfHLevelPrecomposeConnected zero n P f fConn =
   elim.isEquivPrecompose f n P fConn .equiv-proof
@@ -145,37 +144,46 @@ isOfHLevelPrecomposeConnected (suc k) n P f fConn t =
               f fConn
               (funExt⁻ (p₀ ∙∙ refl ∙∙ sym p₁))))})
 
-indMapEquiv→conType : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
-                   → ((B : HLevel ℓ n)
+indMapEquiv→conType : ∀ {ℓ} {A : Type ℓ} (n : HLevel)
+                   → ((B : TypeOfHLevel ℓ n)
                       → isEquiv (λ (b : (fst B)) → λ (a : A) → b))
-                   → isHLevelConnected n A
+                   → isConnected n A
 indMapEquiv→conType {A = A} n BEq =
   transport (λ i → isContr (hLevelTrunc n (typeToFiber A (~ i))))
             (elim.isConnectedPrecompose (λ _ → tt) n
-                                        (λ P → isEquiv-hasSection _ ((compEquiv ((λ Q → Q tt) , isoToIsEquiv (helper P))
-                                                                                 (_ , BEq (P tt)) .snd )))
+                                        (λ P → isEquiv→hasSection ((compEquiv ((λ Q → Q tt) , isoToIsEquiv (helper P))
+                                                                              (_ , BEq (P tt)) .snd )))
                                         tt)
   where
-  helper : ∀ {ℓ'} (P : Unit → HLevel ℓ' n)
+  helper : ∀ {ℓ'} (P : Unit → TypeOfHLevel ℓ' n)
          → Iso ((b : Unit) → fst (P b)) (fst (P tt))
   Iso.fun (helper P) = λ Q → Q tt
   Iso.inv (helper P) = λ a _ → a
   Iso.rightInv (helper P) b = refl
   Iso.leftInv (helper P) b = refl
 
-isHLevelConnectedPath : ∀ {ℓ} (n : ℕ) {A : Type ℓ}
-  → isHLevelConnected (suc n) A
-  → (a₀ a₁ : A) → isHLevelConnected n (a₀ ≡ a₁)
-isHLevelConnectedPath n connA a₀ a₁ =
+isConnectedPath : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
+  → isConnected (suc n) A
+  → (a₀ a₁ : A) → isConnected n (a₀ ≡ a₁)
+isConnectedPath n connA a₀ a₁ =
   subst isContr (PathIdTrunc _)
     (isContr→isContrPath connA _ _)
 
-isHLevelConnectedRetract : ∀ {ℓ ℓ'} (n : ℕ)
+isHLevelConnectedPath2 : ∀ {ℓ} (n : ℕ) {A : Type ℓ}
+  → isConnected (suc n) A
+  → (a₀ a₁ : A) → isConnected n (a₀ ≡ a₁)
+isHLevelConnectedPath2 n connA a₀ a₁ =
+  Iso.fun (ΩTrunc.IsoFinal _ ∣ a₀ ∣ ∣ a₁ ∣) (sym (connA .snd ∣ a₀ ∣) ∙ (connA .snd ∣ a₁ ∣))
+    , λ y → sym (subst isContr (PathIdTrunc _)
+    (isContr→isContrPath connA _ _) .snd _) ∙ (subst isContr (PathIdTrunc _)
+    (isContr→isContrPath connA _ _) .snd y)
+
+isConnectedRetract : ∀ {ℓ ℓ'} (n : HLevel)
   {A : Type ℓ} {B : Type ℓ'}
   (f : A → B) (g : B → A)
   (h : (x : A) → g (f x) ≡ x)
-  → isHLevelConnected n B → isHLevelConnected n A
-isHLevelConnectedRetract n f g h =
+  → isConnected n B → isConnected n A
+isConnectedRetract n f g h =
   isContrRetract
     (Trunc.map f)
     (Trunc.map g)
@@ -183,21 +191,19 @@ isHLevelConnectedRetract n f g h =
       (λ _ → isOfHLevelPath n (isOfHLevelTrunc n) _ _)
       (λ a → cong ∣_∣ (h a)))
 
-isHLevelConnectedPoint : ∀ {ℓ} (n : ℕ) {A : Type ℓ}
-  → isHLevelConnected (suc n) A
-  → (a : A) → isHLevelConnectedFun n (λ(_ : Unit) → a)
-isHLevelConnectedPoint n connA a₀ a =
-  isHLevelConnectedRetract n
+isConnectedPoint : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
+  → isConnected (suc n) A
+  → (a : A) → isConnectedFun n (λ(_ : Unit) → a)
+isConnectedPoint n connA a₀ a =
+  isConnectedRetract n
     snd (_ ,_) (λ _ → refl)
-    (isHLevelConnectedPath n connA a₀ a)
-
-
-isHLevelConnectedPoint2 : ∀ {ℓ} (n : ℕ) {A : Type ℓ} (a : A)
-   → isHLevelConnectedFun n (λ(_ : Unit) → a)
-   → isHLevelConnected (suc n) A
-isHLevelConnectedPoint2 n {A = A} a connMap = indMapEquiv→conType _ λ B → isoToIsEquiv (theIso B)
+    (isConnectedPath n connA a₀ a)
+isConnectedPoint2 : ∀ {ℓ} (n : HLevel) {A : Type ℓ} (a : A)
+   → isConnectedFun n (λ(_ : Unit) → a)
+   → isConnected (suc n) A
+isConnectedPoint2 n {A = A} a connMap = indMapEquiv→conType _ λ B → isoToIsEquiv (theIso B)
   where
-  module _  {ℓ' : Level} (B : HLevel ℓ' (suc n))
+  module _  {ℓ' : Level} (B : TypeOfHLevel ℓ' (suc n))
     where
     helper : (f : A → fst B) → (a2 : A) → f a2 ≡ f a
     helper f = equiv-proof (elim.isEquivPrecompose (λ _ → a) n (λ a2 → (f a2 ≡ f a) ,
@@ -209,8 +215,8 @@ isHLevelConnectedPoint2 n {A = A} a connMap = indMapEquiv→conType _ λ B → i
     Iso.rightInv theIso f = funExt λ y → sym (helper f y)
     Iso.leftInv theIso _ = refl
 
-connectedTruncIso : ∀ {ℓ} {A B : Type ℓ} (n : ℕ) (f : A → B)
-                   → isHLevelConnectedFun n f
+connectedTruncIso : ∀ {ℓ} {A B : Type ℓ} (n : HLevel) (f : A → B)
+                   → isConnectedFun n f
                    → Iso (hLevelTrunc n A) (hLevelTrunc n B)
 connectedTruncIso {A = A} {B = B} zero f con = g
   where
@@ -223,6 +229,7 @@ connectedTruncIso {A = A} {B = B} (suc n) f con = g
   where
   back : B → hLevelTrunc (suc n) A
   back y = map fst ((con y) .fst)
+
 
   backSection :  (b : B) → Path (hLevelTrunc (suc n) B)
                                  (Trunc.rec (isOfHLevelTrunc (suc n))
@@ -243,9 +250,6 @@ connectedTruncIso {A = A} {B = B} (suc n) f con = g
            →  P (map fst p)
     helper P hlev pf = Trunc.elim hlev λ pair → pf (fst pair) (snd pair)
 
-  backRetract : (a : A) → map fst (con (f a) .fst) ≡ ∣ a ∣
-  backRetract a = cong (map fst) (con (f a) .snd ∣ a , refl ∣)
-
   g : Iso (hLevelTrunc (suc n) A) (hLevelTrunc (suc n) B)
   Iso.fun g = map f
   Iso.inv g = Trunc.rec (isOfHLevelTrunc _) back
@@ -254,32 +258,32 @@ connectedTruncIso {A = A} {B = B} (suc n) f con = g
   Iso.rightInv g = Trunc.elim (λ x → isOfHLevelPath (suc n) (isOfHLevelTrunc _) _ _)
                               backSection
 
-connectedTruncIso2 : ∀ {ℓ} {A B : Type ℓ} (n m : ℕ) (f : A → B)
+connectedTruncIso2 : ∀ {ℓ} {A B : Type ℓ} (n m : HLevel) (f : A → B)
                    → Σ[ x ∈ ℕ ] x + n ≡ m
-                   → isHLevelConnectedFun m f
+                   → isConnectedFun m f
                    → Iso (hLevelTrunc n A) (hLevelTrunc n B)
 connectedTruncIso2 {A = A} {B = B} n m f (x , pf) con =
-  connectedTruncIso n f (isConnectedFunSubtr n x f (transport (λ i → isHLevelConnectedFun (pf (~ i)) f) con))
+  connectedTruncIso n f (isConnectedFunSubtr n x f (transport (λ i → isConnectedFun (pf (~ i)) f) con))
 
-connectedTruncEquiv : ∀ {ℓ} {A B : Type ℓ} (n : ℕ) (f : A → B)
-                   → isHLevelConnectedFun n f
+connectedTruncEquiv : ∀ {ℓ} {A B : Type ℓ} (n : HLevel) (f : A → B)
+                   → isConnectedFun n f
                    → hLevelTrunc n A ≃ hLevelTrunc n B
 connectedTruncEquiv {A = A} {B = B} n f con = isoToEquiv (connectedTruncIso n f con)
 
 
 -- TODO : Reorganise the following proofs.
 
-inrConnected : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} (n : ℕ)
+inrConnected : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} (n : HLevel)
             → (f : C → A) (g : C → B)
-            → isHLevelConnectedFun n f
-            → isHLevelConnectedFun n {A = B} {B = Pushout f g} inr
+            → isConnectedFun n f
+            → isConnectedFun n {A = B} {B = Pushout f g} inr
 inrConnected {A = A} {B = B} {C = C} n f g iscon =
-  elim.isConnectedPrecompose inr n λ P → (λ  l → k P l) , λ b → refl
+  elim.isConnectedPrecompose inr n λ P → (k P) , λ b → refl
   where
-  module _ {ℓ : Level} (P : (Pushout f g) → HLevel ℓ n)
+  module _ {ℓ : Level} (P : (Pushout f g) → TypeOfHLevel ℓ n)
                    (h : (b : B) → typ (P (inr b)))
     where
-    Q : A → HLevel _ n
+    Q : A → TypeOfHLevel _ n
     Q a = (P (inl a))
 
     fun : (c : C) → typ (Q (f c))
@@ -296,14 +300,14 @@ inrConnected {A = A} {B = B} {C = C} n f g iscon =
                     (equiv-proof (elim.isEquivPrecompose f n Q iscon)
                                  fun .fst .snd i a))
 
-sphereConnected : (n : ℕ) → isHLevelConnected (suc n) (S₊ n)
+sphereConnected : (n : HLevel) → isConnected (suc n) (S₊ n)
 sphereConnected zero = ∣ north ∣ , isOfHLevelTrunc 1 ∣ north ∣
 sphereConnected (suc n) =
-  transport (λ i → isHLevelConnected (2 + n) (PushoutSusp≡Susp {A = S₊ n} i))
-            (isHLevelConnectedPoint2 (suc n)
+  transport (λ i → isConnected (2 + n) (PushoutSusp≡Susp {A = S₊ n} i))
+            (isConnectedPoint2 (suc n)
                                      {A = Pushout {A = S₊ n} (λ _ → tt) λ _ → tt}
                                      (inr tt)
-                                     ((transport (λ i → isHLevelConnectedFun (suc n) (mapsAgree (~ i)))
+                                     ((transport (λ i → isConnectedFun (suc n) (mapsAgree (~ i)))
                                                  (inrConnected _ (λ _ → tt) (λ _ → tt)
                                                                λ {tt → transport (λ i → isContr (hLevelTrunc (suc n) (fibId (S₊ n) (~ i))))
                                                                                   (sphereConnected n)}))))

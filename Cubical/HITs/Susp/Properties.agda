@@ -2,6 +2,7 @@
 module Cubical.HITs.Susp.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 
@@ -46,15 +47,32 @@ Susp≡joinBool = isoToPath Susp-iso-joinBool
 congSuspEquiv : ∀ {ℓ} {A B : Type ℓ} → A ≃ B → Susp A ≃ Susp B
 congSuspEquiv {ℓ} {A} {B} h = isoToEquiv isom
   where isom : Iso (Susp A) (Susp B)
-        fun isom north = north
-        fun isom south = south
-        fun isom (merid a i) = merid (fst h a) i
-        inv isom north = north
-        inv isom south = south
-        inv isom (merid a i) = merid (invEq h a) i
-        rightInv isom north = refl
-        rightInv isom south = refl
-        rightInv isom (merid a i) j = merid (retEq h a j) i
-        leftInv isom north = refl
-        leftInv isom south = refl
-        leftInv isom (merid a i) j = merid (secEq h a j) i
+        Iso.fun isom north = north
+        Iso.fun isom south = south
+        Iso.fun isom (merid a i) = merid (fst h a) i
+        Iso.inv isom north = north
+        Iso.inv isom south = south
+        Iso.inv isom (merid a i) = merid (invEq h a) i
+        Iso.rightInv isom north = refl
+        Iso.rightInv isom south = refl
+        Iso.rightInv isom (merid a i) j = merid (retEq h a j) i
+        Iso.leftInv isom north = refl
+        Iso.leftInv isom south = refl
+        Iso.leftInv isom (merid a i) j = merid (secEq h a j) i
+
+suspToPropRec : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Susp A → Type ℓ'} (a : A)
+                 → ((x : Susp A) → isProp (B x))
+                 → B north
+                 → (x : Susp A) → B x
+suspToPropRec a isProp Bnorth north = Bnorth
+suspToPropRec {B = B} a isProp Bnorth south = subst B (merid a) Bnorth
+suspToPropRec {B = B} a isProp Bnorth (merid a₁ i) =
+  isOfHLevel→isOfHLevelDep 1 isProp Bnorth (subst B (merid a) Bnorth) (merid a₁) i
+
+suspToPropRec2 : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Susp A → Susp A → Type ℓ'} (a : A)
+                 → ((x y : Susp A) → isProp (B x y))
+                 → B north north
+                 → (x y : Susp A) → B x y
+suspToPropRec2 a isProp Bnorth =
+  suspToPropRec a (λ x → isOfHLevelΠ 1 λ y → isProp x y)
+                      (suspToPropRec a (λ x → isProp north x) Bnorth)

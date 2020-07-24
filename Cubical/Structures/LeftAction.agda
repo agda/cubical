@@ -1,29 +1,17 @@
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
 module Cubical.Structures.LeftAction where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
-open import Cubical.Structures.Pointed
-open import Cubical.Structures.NAryOp
-open import Cubical.Structures.Parameterized
+open import Cubical.Structures.Auto
 
-private
-  variable
-   ℓ ℓ' : Level
+module _ {ℓ ℓ' : Level} (A : Type ℓ') where
 
-module _ (A : Type ℓ) where
+  LeftActionStructure : Type ℓ → Type (ℓ-max ℓ ℓ')
+  LeftActionStructure X = A → X → X
 
-  left-action-structure : Type ℓ → Type ℓ
-  left-action-structure =
-   parameterized-structure A λ _ → nAryFun-structure 1 pointed-structure
+  LeftActionEquivStr = AutoEquivStr LeftActionStructure
 
-  left-action-iso : StrIso left-action-structure ℓ
-  left-action-iso =
-   parameterized-iso A λ _ → unaryFunIso pointed-iso
-
-  Left-Action-is-SNS : SNS {ℓ} left-action-structure left-action-iso
-  Left-Action-is-SNS =
-   Parameterized-is-SNS A
-     (λ _ → unaryFunIso pointed-iso)
-     (λ _ → unaryFunSNS pointed-iso pointed-is-SNS)
+  leftActionUnivalentStr : UnivalentStr _ LeftActionEquivStr
+  leftActionUnivalentStr = autoUnivalentStr LeftActionStructure

@@ -3,128 +3,234 @@ module Cubical.Structures.Monoid where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Transport
+open import Cubical.Foundations.SIP
+
 open import Cubical.Data.Sigma
 
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Structures.Axioms
+open import Cubical.Structures.Auto
+open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 
-open import Cubical.Structures.Pointed
-open import Cubical.Structures.NAryOp
+open Iso
 
 private
   variable
     ℓ : Level
 
--- Monoids
-raw-monoid-structure : Type ℓ → Type ℓ
-raw-monoid-structure X = X × (X → X → X)
+record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
+  no-eta-equality
+  constructor ismonoid
 
--- If we ignore the axioms we get a "raw" monoid
-raw-monoid-is-SNS : SNS {ℓ} raw-monoid-structure _
-raw-monoid-is-SNS =
-  join-SNS
-    pointed-iso pointed-is-SNS
-    (binaryFunIso pointed-iso) (binaryFunSNS pointed-iso pointed-is-SNS)
+  field
+    isSemigroup : IsSemigroup _·_
+    identity    : (x : A) → (x · ε ≡ x) × (ε · x ≡ x)
 
--- Monoid axioms
-monoid-axioms : (X : Type ℓ) → raw-monoid-structure X → Type ℓ
-monoid-axioms X (e , _·_ ) = isSet X
-                           × ((x y z : X) → x · (y · z) ≡ (x · y) · z)
-                           × ((x : X) → x · e ≡ x)
-                           × ((x : X) → e · x ≡ x)
+  open IsSemigroup isSemigroup public
 
-monoid-structure : Type ℓ → Type ℓ
-monoid-structure = add-to-structure raw-monoid-structure monoid-axioms
+  lid : (x : A) → ε · x ≡ x
+  lid x = identity x .snd
 
-Monoid : Type (ℓ-suc ℓ)
-Monoid {ℓ} = TypeWithStr ℓ monoid-structure
+  rid : (x : A) → x · ε ≡ x
+  rid x = identity x .fst
 
--- Monoid extractors
 
-⟨_⟩ : Monoid {ℓ} → Type ℓ
-⟨ G , _ ⟩ = G
+record Monoid : Type (ℓ-suc ℓ) where
+  constructor monoid
 
-monoid-id : (M : Monoid {ℓ}) → ⟨ M ⟩
-monoid-id (_ , (e , _) , _) = e
+  field
+    Carrier  : Type ℓ
+    ε        : Carrier
+    _·_      : Carrier → Carrier → Carrier
+    isMonoid : IsMonoid ε _·_
 
-monoid-operation : (M : Monoid {ℓ}) → ⟨ M ⟩ → ⟨ M ⟩ → ⟨ M ⟩
-monoid-operation (_ , (_ , f) , _) = f
+  infixl 7 _·_
 
--- Monoid syntax with explicit monoid
+  open IsMonoid isMonoid public
 
-module monoid-syntax where
-  id : (M : Monoid {ℓ}) → ⟨ M ⟩
-  id = monoid-id
+  -- semigrp : Semigroup
+  -- semigrp = record { isSemigroup = isSemigroup }
 
-  monoid-operation-syntax : (M : Monoid {ℓ}) → ⟨ M ⟩ → ⟨ M ⟩ → ⟨ M ⟩
-  monoid-operation-syntax = monoid-operation
+  -- open Semigroup semigrp public
 
-  infixr 18 monoid-operation-syntax
-  syntax monoid-operation-syntax M x y = x ·⟨ M ⟩ y
 
-open monoid-syntax
+-- Extractor for the carrier type
+⟨_⟩ : Monoid → Type ℓ
+⟨_⟩ = Monoid.Carrier
 
--- More Monoid extractors
+η-isMonoid : {A : Type ℓ} {ε : A} {_∙_ :  A → A → A} (b : IsMonoid ε _∙_)
+          → ismonoid (IsMonoid.isSemigroup b) (IsMonoid.identity b) ≡ b
+IsMonoid.isSemigroup (η-isMonoid b i) = IsMonoid.isSemigroup b
+IsMonoid.identity (η-isMonoid b i) = IsMonoid.identity b
 
-monoid-is-set : (M : Monoid {ℓ}) → isSet (⟨ M ⟩)
-monoid-is-set (_ , _ , P , _) = P
+-- Easier to use constructors
 
-monoid-assoc : (M : Monoid {ℓ})
-             → (x y z : ⟨ M ⟩) → x ·⟨ M ⟩ (y ·⟨ M ⟩ z) ≡ (x ·⟨ M ⟩ y) ·⟨ M ⟩ z
-monoid-assoc (_ , _ , _ , P , _) = P
+makeIsMonoid : {M : Type ℓ} {ε : M} {_·_ : M → M → M}
+               (is-setM : isSet M)
+               (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
+               (rid : (x : M) → x · ε ≡ x)
+               (lid : (x : M) → ε · x ≡ x)
+             → IsMonoid ε _·_
+IsMonoid.isSemigroup (makeIsMonoid is-setM assoc rid lid) = issemigroup is-setM assoc
+IsMonoid.identity (makeIsMonoid is-setM assoc rid lid) = λ x → rid x , lid x
 
-monoid-rid : (M : Monoid {ℓ})
-           → (x : ⟨ M ⟩) → x ·⟨ M ⟩ (id M) ≡ x
-monoid-rid (_ , _ , _ , _ , P , _) = P
+makeMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
+             (is-setM : isSet M)
+             (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
+             (rid : (x : M) → x · ε ≡ x)
+             (lid : (x : M) → ε · x ≡ x)
+           → Monoid
+makeMonoid ε _·_ is-setM assoc rid lid =
+  monoid _ ε _·_ (makeIsMonoid is-setM assoc rid lid)
 
-monoid-lid : (M : Monoid {ℓ})
-           → (x : ⟨ M ⟩) → (id M) ·⟨ M ⟩ x ≡ x
-monoid-lid (_ , _ , _ , _ , _ , P) = P
+record MonoidEquiv (M N : Monoid {ℓ}) : Type ℓ where
 
--- Monoid equivalence
-monoid-iso : StrIso monoid-structure ℓ
-monoid-iso = add-to-iso (join-iso pointed-iso (binaryFunIso pointed-iso)) monoid-axioms
+  constructor monoidiso
 
--- We have to show that the monoid axioms are indeed propositions
-monoid-axioms-are-Props : (X : Type ℓ) (s : raw-monoid-structure X) → isProp (monoid-axioms X s)
-monoid-axioms-are-Props X (e , _·_) s = β s
-   where
-   α = s .fst
-   β = isProp×3 isPropIsSet
-                (isPropΠ3 (λ x y z → α (x · (y · z)) ((x · y) · z)))
-                (isPropΠ (λ x → α (x · e) x))
-                (isPropΠ (λ x → α (e · x) x))
+  private
+    module M = Monoid M
+    module N = Monoid N
 
-monoid-is-SNS : SNS {ℓ} monoid-structure monoid-iso
-monoid-is-SNS = add-axioms-SNS _ monoid-axioms-are-Props raw-monoid-is-SNS
+  field
+    e     : ⟨ M ⟩ ≃ ⟨ N ⟩
+    presε : equivFun e M.ε ≡ N.ε
+    isHom : (x y : ⟨ M ⟩) → equivFun e (x M.· y) ≡ equivFun e x N.· equivFun e y
 
-MonoidPath : (M N : Monoid {ℓ}) → (M ≃[ monoid-iso ] N) ≃ (M ≡ N)
-MonoidPath = SIP monoid-is-SNS
 
--- Added for its use in groups
--- If there exists a inverse of an element it is unique
 
-inv-lemma : (M : Monoid {ℓ})
-          → (x y z : ⟨ M ⟩)
-          → y ·⟨ M ⟩ x ≡ id M
-          → x ·⟨ M ⟩ z ≡ id M
-          → y ≡ z
-inv-lemma M x y z left-inverse right-inverse =
-  y                     ≡⟨ sym (monoid-rid M y) ⟩
-  y ·⟨ M ⟩ id M         ≡⟨ cong (λ - → y ·⟨ M ⟩ -) (sym right-inverse) ⟩
-  y ·⟨ M ⟩ (x ·⟨ M ⟩ z) ≡⟨ monoid-assoc M y x z ⟩
-  (y ·⟨ M ⟩ x) ·⟨ M ⟩ z ≡⟨ cong (λ - → - ·⟨ M ⟩ z) left-inverse ⟩
-  id M ·⟨ M ⟩ z         ≡⟨ monoid-lid M z ⟩
-  z ∎
+module MonoidΣTheory {ℓ} where
 
--- Monoid ·syntax
+  RawMonoidStructure : Type ℓ → Type ℓ
+  RawMonoidStructure X = X × (X → X → X)
 
-module monoid-·syntax (M : Monoid {ℓ}) where
+  RawMonoidEquivStr = AutoEquivStr RawMonoidStructure
 
-  infixr 18 _·_
+  rawMonoidUnivalentStr : UnivalentStr _ RawMonoidEquivStr
+  rawMonoidUnivalentStr = autoUnivalentStr RawMonoidStructure
 
-  _·_ : ⟨ M ⟩ → ⟨ M ⟩ → ⟨ M ⟩
-  _·_ = monoid-operation M
+  MonoidAxioms : (M : Type ℓ) → RawMonoidStructure M → Type ℓ
+  MonoidAxioms M (e , _·_) = IsSemigroup _·_
+                            × ((x : M) → (x · e ≡ x) × (e · x ≡ x))
 
-  ₁ : ⟨ M ⟩
-  ₁ = monoid-id M
+  MonoidStructure : Type ℓ → Type ℓ
+  MonoidStructure = AxiomsStructure RawMonoidStructure MonoidAxioms
+
+  MonoidΣ : Type (ℓ-suc ℓ)
+  MonoidΣ = TypeWithStr ℓ MonoidStructure
+
+  isPropMonoidAxioms : (M : Type ℓ) (s : RawMonoidStructure M) → isProp (MonoidAxioms M s)
+  isPropMonoidAxioms M (e , _·_) =
+    isPropΣ (isPropIsSemigroup _·_)
+            λ α → isPropΠ λ _ → isProp× (IsSemigroup.is-set α _ _) (IsSemigroup.is-set α _ _)
+
+  MonoidEquivStr : StrEquiv MonoidStructure ℓ
+  MonoidEquivStr = AxiomsEquivStr RawMonoidEquivStr MonoidAxioms
+
+  MonoidAxiomsIsoIsMonoid : {M : Type ℓ} (s : RawMonoidStructure M)
+    → Iso (MonoidAxioms M s) (IsMonoid (s .fst) (s .snd))
+  fun (MonoidAxiomsIsoIsMonoid s) (x , y)        = ismonoid x y
+  inv (MonoidAxiomsIsoIsMonoid s) a = (IsMonoid.isSemigroup a) , IsMonoid.identity a
+  rightInv (MonoidAxiomsIsoIsMonoid s) b         = η-isMonoid b
+  leftInv (MonoidAxiomsIsoIsMonoid s) _          = refl
+
+  MonoidAxioms≡IsMonoid : {M : Type ℓ} (s : RawMonoidStructure M)
+    → MonoidAxioms M s ≡ IsMonoid (s .fst) (s .snd)
+  MonoidAxioms≡IsMonoid s = isoToPath (MonoidAxiomsIsoIsMonoid s)
+  open Monoid
+  Monoid→MonoidΣ : Monoid → MonoidΣ
+  Monoid→MonoidΣ M =
+    ⟨ M ⟩ , ((ε M) , _·_ M) , MonoidAxiomsIsoIsMonoid ((ε M) , _·_ M) .inv (isMonoid M)
+
+  MonoidΣ→Monoid : MonoidΣ → Monoid
+  MonoidΣ→Monoid (M , (ε , _·_) , isMonoidΣ) =
+    monoid M ε _·_ (MonoidAxiomsIsoIsMonoid (ε , _·_) .fun isMonoidΣ)
+
+  MonoidIsoMonoidΣ : Iso Monoid MonoidΣ
+  MonoidIsoMonoidΣ =
+    iso Monoid→MonoidΣ MonoidΣ→Monoid (λ _ → refl) helper
+    where
+    helper : _
+    Carrier (helper a i) = ⟨ a ⟩
+    ε (helper a i) = ε a
+    _·_ (helper a i) = _·_ a
+    isMonoid (helper a i) = η-isMonoid (isMonoid a) i
+
+  monoidUnivalentStr : UnivalentStr MonoidStructure MonoidEquivStr
+  monoidUnivalentStr = axiomsUnivalentStr _ isPropMonoidAxioms rawMonoidUnivalentStr
+
+  MonoidΣPath : (M N : MonoidΣ) → (M ≃[ MonoidEquivStr ] N) ≃ (M ≡ N)
+  MonoidΣPath = SIP monoidUnivalentStr
+
+  MonoidEquivΣ : (M N : Monoid) → Type ℓ
+  MonoidEquivΣ M N = Monoid→MonoidΣ M ≃[ MonoidEquivStr ] Monoid→MonoidΣ N
+
+  MonoidIsoΣPath : {M N : Monoid} → Iso (MonoidEquiv M N) (MonoidEquivΣ M N)
+  fun MonoidIsoΣPath (monoidiso e h1 h2) = (e , h1 , h2)
+  inv MonoidIsoΣPath (e , h1 , h2)       = monoidiso e h1 h2
+  rightInv MonoidIsoΣPath _              = refl
+  leftInv MonoidIsoΣPath _               = refl
+
+  MonoidPath : (M N : Monoid) → (MonoidEquiv M N) ≃ (M ≡ N)
+  MonoidPath M N =
+    MonoidEquiv M N                       ≃⟨ isoToEquiv MonoidIsoΣPath ⟩
+    MonoidEquivΣ M N                      ≃⟨ MonoidΣPath _ _ ⟩
+    Monoid→MonoidΣ M ≡ Monoid→MonoidΣ N ≃⟨ isoToEquiv (invIso (congIso MonoidIsoMonoidΣ)) ⟩
+    M ≡ N ■
+
+  RawMonoidΣ : Type (ℓ-suc ℓ)
+  RawMonoidΣ = TypeWithStr ℓ RawMonoidStructure
+
+  Monoid→RawMonoidΣ : Monoid → RawMonoidΣ
+  Monoid→RawMonoidΣ A = ⟨ A ⟩ , (ε A) , (_·_ A)
+
+  InducedMonoid : (M : Monoid) (N : RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+                 → RawMonoidEquivStr (Monoid→RawMonoidΣ M) N e → Monoid
+  InducedMonoid M N e r =
+    MonoidΣ→Monoid (transferAxioms rawMonoidUnivalentStr (Monoid→MonoidΣ M) N (e , r))
+
+  InducedMonoidPath : (M : Monoid {ℓ}) (N : RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+                      (E : RawMonoidEquivStr (Monoid→RawMonoidΣ M) N e)
+                    → M ≡ InducedMonoid M N e E
+  InducedMonoidPath M N e E =
+    MonoidPath M (InducedMonoid M N e E) .fst (monoidiso e (E .fst) (E .snd))
+
+-- We now extract the important results from the above module
+
+isPropIsMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M) → isProp (IsMonoid ε _·_)
+isPropIsMonoid ε _·_ =
+  subst isProp (MonoidΣTheory.MonoidAxioms≡IsMonoid (ε , _·_))
+        (MonoidΣTheory.isPropMonoidAxioms _ (ε , _·_))
+
+MonoidPath : (M N : Monoid {ℓ}) → (MonoidEquiv M N) ≃ (M ≡ N)
+MonoidPath = MonoidΣTheory.MonoidPath
+
+InducedMonoid : (M : Monoid {ℓ}) (N : MonoidΣTheory.RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+              → MonoidΣTheory.RawMonoidEquivStr (MonoidΣTheory.Monoid→RawMonoidΣ M) N e
+              → Monoid
+InducedMonoid = MonoidΣTheory.InducedMonoid
+
+InducedMonoidPath : (M : Monoid {ℓ}) (N : MonoidΣTheory.RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+                    (E : MonoidΣTheory.RawMonoidEquivStr (MonoidΣTheory.Monoid→RawMonoidΣ M) N e)
+                  → M ≡ InducedMonoid M N e E
+InducedMonoidPath = MonoidΣTheory.InducedMonoidPath
+
+
+module MonoidTheory {ℓ} (M' : Monoid {ℓ}) where
+
+  open Monoid M' renaming ( Carrier to M )
+
+  -- Added for its use in groups
+  -- If there exists a inverse of an element it is unique
+  inv-lemma : (x y z : M) → y · x ≡ ε → x · z ≡ ε → y ≡ z
+  inv-lemma x y z left-inverse right-inverse =
+    y           ≡⟨ sym (rid y) ⟩
+    y · ε       ≡⟨ cong (λ - → y · -) (sym right-inverse) ⟩
+    y · (x · z) ≡⟨ assoc y x z ⟩
+    (y · x) · z ≡⟨ cong (λ - → - · z) left-inverse ⟩
+    ε · z       ≡⟨ lid z ⟩
+    z ∎

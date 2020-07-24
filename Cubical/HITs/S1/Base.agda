@@ -8,9 +8,11 @@ module Cubical.HITs.S1.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Nat
@@ -27,9 +29,10 @@ module _ where
   transpS¹ φ u0 = refl
 
   compS1 : ∀ (φ : I) (u : ∀ i → Partial φ S¹) (u0 : S¹ [ φ ↦ u i0 ]) →
-    comp (λ _ → S¹) u (outS u0) ≡ hcomp u (outS u0)
+    comp (λ _ → S¹) (\ i → u i) (outS u0) ≡ hcomp u (outS u0)
   compS1 φ u u0 = refl
 
+-- ΩS¹ ≡ Int
 helix : S¹ → Type₀
 helix base     = Int
 helix (loop i) = sucPathInt i
@@ -133,6 +136,14 @@ winding-hom a b i =
                  ; (i = i1) → windingIntLoop (winding a + winding b) t })
         (winding (intLoop-hom (winding a) (winding b) i))
 
+-- Commutativity
+comm-ΩS¹ : (p q : ΩS¹) → p ∙ q ≡ q ∙ p
+comm-ΩS¹ p q = sym (cong₂ (_∙_) (decodeEncode base p) (decodeEncode base q))
+             ∙ intLoop-hom (winding p) (winding q)
+             ∙ cong intLoop (+-comm (winding p) (winding q))
+             ∙ sym (intLoop-hom (winding q) (winding p))
+             ∙ (cong₂ (_∙_) (decodeEncode base q) (decodeEncode base p))
+
 -- Based homotopy group
 
 basedΩS¹ : (x : S¹) → Type₀
@@ -154,42 +165,43 @@ private
                    ; (j = i1) → loop (i ∧ (~ t)) })
           (inS (x j)) l
 
-ΩS¹→basedΩS¹ : (i : I) → ΩS¹ → basedΩS¹ (loop i)
-ΩS¹→basedΩS¹ i x j = ΩS¹→basedΩS¹-filler i1 i x j
+  ΩS¹→basedΩS¹ : (i : I) → ΩS¹ → basedΩS¹ (loop i)
+  ΩS¹→basedΩS¹ i x j = ΩS¹→basedΩS¹-filler i1 i x j
 
-basedΩS¹→ΩS¹ : (i : I) → basedΩS¹ (loop i) → ΩS¹
-basedΩS¹→ΩS¹ i x j = basedΩS¹→ΩS¹-filler i1 i x j
-
-basedΩS¹→ΩS¹→basedΩS¹ : (i : I) → (x : basedΩS¹ (loop i))
-                        → ΩS¹→basedΩS¹ i (basedΩS¹→ΩS¹ i x) ≡ x
-basedΩS¹→ΩS¹→basedΩS¹ i x j k =
-  hcomp (λ t → λ { (j = i1) → basedΩS¹→ΩS¹-filler (~ t) i x k
-                 ; (j = i0) → ΩS¹→basedΩS¹ i (basedΩS¹→ΩS¹ i x) k
-                 ; (k = i0) → loop (i ∧ (t ∨ (~ j)))
-                 ; (k = i1) → loop (i ∧ (t ∨ (~ j))) })
-        (ΩS¹→basedΩS¹-filler (~ j) i (basedΩS¹→ΩS¹ i x) k)
-
-ΩS¹→basedΩS¹→ΩS¹ : (i : I) → (x : ΩS¹)
-                        → basedΩS¹→ΩS¹ i (ΩS¹→basedΩS¹ i x) ≡ x
-ΩS¹→basedΩS¹→ΩS¹ i x j k =
-  hcomp (λ t → λ { (j = i1) → ΩS¹→basedΩS¹-filler (~ t) i x k
-                 ; (j = i0) → basedΩS¹→ΩS¹ i (ΩS¹→basedΩS¹ i x) k
-                 ; (k = i0) → loop (i ∧ ((~ t) ∧ j))
-                 ; (k = i1) → loop (i ∧ ((~ t) ∧ j)) })
-        (basedΩS¹→ΩS¹-filler (~ j) i (ΩS¹→basedΩS¹ i x) k)
-
--- from the existence of our quasi-inverse, we deduce that the basechange is an equivalence
--- for all loop i
-
-basedΩS¹→ΩS¹-isequiv : (i : I) → isEquiv (basedΩS¹→ΩS¹ i)
-basedΩS¹→ΩS¹-isequiv i = isoToIsEquiv (iso (basedΩS¹→ΩS¹ i) (ΩS¹→basedΩS¹ i)
-                 (ΩS¹→basedΩS¹→ΩS¹ i) (basedΩS¹→ΩS¹→basedΩS¹ i))
+  basedΩS¹→ΩS¹ : (i : I) → basedΩS¹ (loop i) → ΩS¹
+  basedΩS¹→ΩS¹ i x j = basedΩS¹→ΩS¹-filler i1 i x j
 
 
--- now extend the basechange so that both ends match
--- (and therefore we get a basechange for any x : S¹)
 
-private
+  basedΩS¹→ΩS¹→basedΩS¹ : (i : I) → (x : basedΩS¹ (loop i))
+                          → ΩS¹→basedΩS¹ i (basedΩS¹→ΩS¹ i x) ≡ x
+  basedΩS¹→ΩS¹→basedΩS¹ i x j k =
+    hcomp (λ t → λ { (j = i1) → basedΩS¹→ΩS¹-filler (~ t) i x k
+                   ; (j = i0) → ΩS¹→basedΩS¹ i (basedΩS¹→ΩS¹ i x) k
+                   ; (k = i0) → loop (i ∧ (t ∨ (~ j)))
+                   ; (k = i1) → loop (i ∧ (t ∨ (~ j))) })
+          (ΩS¹→basedΩS¹-filler (~ j) i (basedΩS¹→ΩS¹ i x) k)
+
+  ΩS¹→basedΩS¹→ΩS¹ : (i : I) → (x : ΩS¹)
+                          → basedΩS¹→ΩS¹ i (ΩS¹→basedΩS¹ i x) ≡ x
+  ΩS¹→basedΩS¹→ΩS¹ i x j k =
+    hcomp (λ t → λ { (j = i1) → ΩS¹→basedΩS¹-filler (~ t) i x k
+                   ; (j = i0) → basedΩS¹→ΩS¹ i (ΩS¹→basedΩS¹ i x) k
+                   ; (k = i0) → loop (i ∧ ((~ t) ∧ j))
+                   ; (k = i1) → loop (i ∧ ((~ t) ∧ j)) })
+          (basedΩS¹→ΩS¹-filler (~ j) i (ΩS¹→basedΩS¹ i x) k)
+
+  -- from the existence of our quasi-inverse, we deduce that the basechange is an equivalence
+  -- for all loop i
+
+  basedΩS¹→ΩS¹-isequiv : (i : I) → isEquiv (basedΩS¹→ΩS¹ i)
+  basedΩS¹→ΩS¹-isequiv i = isoToIsEquiv (iso (basedΩS¹→ΩS¹ i) (ΩS¹→basedΩS¹ i)
+                   (ΩS¹→basedΩS¹→ΩS¹ i) (basedΩS¹→ΩS¹→basedΩS¹ i))
+
+
+  -- now extend the basechange so that both ends match
+  -- (and therefore we get a basechange for any x : S¹)
+
   loop-conjugation : basedΩS¹→ΩS¹ i1 ≡ λ x → x
   loop-conjugation i x =
     let p = (doubleCompPath-elim loop x (sym loop))
@@ -241,12 +253,71 @@ private
                                               (basechange-isequiv-aux i0) t })
           (basechange-isequiv-aux i)
 
-  basedΩS¹≡ΩS¹ : (x : S¹) → basedΩS¹ x ≡ ΩS¹
-  basedΩS¹≡ΩS¹ x = ua (basechange x , basechange-isequiv x)
+  basedΩS¹≡ΩS¹' : (x : S¹) → basedΩS¹ x ≡ ΩS¹
+  basedΩS¹≡ΩS¹' x = ua (basechange x , basechange-isequiv x)
+
+  basedΩS¹≡Int' : (x : S¹) → basedΩS¹ x ≡ Int
+  basedΩS¹≡Int' x = (basedΩS¹≡ΩS¹' x) ∙ ΩS¹≡Int
+
+
+---- Alternative proof of the same thing -----
+
+toPropElim : ∀ {ℓ} {B : S¹ → Type ℓ}
+             → ((s : S¹) → isProp (B s))
+             → B base
+             → (s : S¹) → B s
+toPropElim isprop b base = b
+toPropElim isprop b (loop i) =
+  isOfHLevel→isOfHLevelDep 1 isprop b b loop i
+
+isSetΩx : (x : S¹) → isSet (x ≡ x)
+isSetΩx = toPropElim (λ _ → isPropIsSet) isSetΩS¹
+
+basechange2 : (x : S¹) → ΩS¹ → (x ≡ x)
+basechange2 base p = p
+basechange2 (loop i) p =
+  hcomp (λ k → λ { (i = i0) → lUnit (rUnit p (~ k)) (~ k)
+                  ; (i = i1) → (cong ((sym loop) ∙_) (comm-ΩS¹ p loop)
+                              ∙ assoc (sym loop) loop p
+                              ∙ cong (_∙ p) (lCancel loop)
+                              ∙ sym (lUnit _)) k })
+        ((λ j → loop (~ j ∧ i)) ∙ p ∙ λ j → loop (j ∧ i))
+basechange2⁻ : (x : S¹) → (x ≡ x) → ΩS¹
+basechange2⁻ base p = p
+basechange2⁻ (loop i) p =
+  hcomp (λ k → λ { (i = i0) → lUnit (rUnit p (~ k)) (~ k)
+                  ; (i = i1) → (cong (loop ∙_) (comm-ΩS¹ p (sym loop))
+                              ∙ assoc loop (sym loop) p
+                              ∙ cong (_∙ p) (rCancel loop)
+                              ∙ sym (lUnit _)) k })
+        ((λ j → loop (i ∧ j)) ∙ p ∙ λ j → loop (i ∧ (~ j)))
+basechange2-sect : (x : S¹) → section (basechange2 x) (basechange2⁻ x)
+basechange2-sect =
+  toPropElim (λ _ → isOfHLevelΠ 1 λ _ → isSetΩx _ _ _ )
+             λ _ → refl
+
+basechange2-retr : (x : S¹) → retract (basechange2 x) (basechange2⁻ x)
+basechange2-retr =
+  toPropElim (λ s → isOfHLevelΠ 1 λ x → isSetΩx _ _ _)
+             λ _ → refl
+
+basedΩS¹≡ΩS¹ : (x : S¹) → basedΩS¹ x ≡ ΩS¹
+basedΩS¹≡ΩS¹ x = isoToPath (iso (basechange2⁻ x)
+                                 (basechange2 x)
+                                 (basechange2-retr x)
+                                 (basechange2-sect x))
 
 basedΩS¹≡Int : (x : S¹) → basedΩS¹ x ≡ Int
 basedΩS¹≡Int x = (basedΩS¹≡ΩS¹ x) ∙ ΩS¹≡Int
 
+-- baschange2⁻ is a morphism
+
+basechange2⁻-morph : (x : S¹) (p q : x ≡ x) →
+                     basechange2⁻ x (p ∙ q) ≡ basechange2⁻ x p ∙ basechange2⁻ x q
+basechange2⁻-morph =
+  toPropElim {B = λ x → (p q : x ≡ x) → basechange2⁻ x (p ∙ q) ≡ basechange2⁻ x p ∙ basechange2⁻ x q}
+             (λ _ → isPropΠ2 λ _ _ → isSetΩS¹ _ _)
+             λ _ _ → refl
 
 -- Some tests
 module _ where

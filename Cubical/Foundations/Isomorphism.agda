@@ -43,6 +43,12 @@ record Iso {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ ℓ') w
 isIso : (A → B) → Type _
 isIso {A = A} {B = B} f = Σ[ g ∈ (B → A) ] Σ[ _ ∈ section f g ] retract f g
 
+isoFunInjective : (f : Iso A B) → (x y : A) → Iso.fun f x ≡ Iso.fun f y → x ≡ y
+isoFunInjective f x y h = sym (Iso.leftInv f x) ∙∙ cong (Iso.inv f) h ∙∙ Iso.leftInv f y
+
+isoInvInjective : (f : Iso A B) → (x y : B) → Iso.inv f x ≡ Iso.inv f y → x ≡ y
+isoInvInjective f x y h = sym (Iso.rightInv f x) ∙∙ cong (Iso.fun f) h ∙∙ Iso.rightInv f y
+
 -- Any iso is an equivalence
 module _ (i : Iso A B) where
   open Iso i renaming ( fun to f
@@ -160,3 +166,10 @@ A ∎Iso = idIso {A = A}
 infixr  0 _Iso⟨_⟩_
 infix   1 _∎Iso
 
+codomainIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+           → Iso B C
+           → Iso (A → B) (A → C)
+Iso.fun (codomainIso is) f a = Iso.fun is (f a)
+Iso.inv (codomainIso is) f a = Iso.inv is (f a)
+Iso.rightInv (codomainIso is) f = funExt λ a → Iso.rightInv is (f a)
+Iso.leftInv (codomainIso is) f = funExt λ a → Iso.leftInv is (f a)
