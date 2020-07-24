@@ -63,7 +63,7 @@ module _ (ℓ ℓ' : Level) where
                                 where
                                   GGFB = Σ[ G ∈ Group {ℓ} ] Σ[ H ∈ Group {ℓ'} ] GroupHom G H × GroupHom H G
                                   e : G²FB ≃ GGFB
-                                  e = {!!}
+                                  e = compEquiv Σ-assoc-≃ {!!}
 
 {-
   Sᴰ-G\GF : URGStrᴰ (URGStrGroup ℓ)
@@ -73,6 +73,11 @@ module _ (ℓ ℓ' : Level) where
                                (URGStrConstᴰ (URGStrGroup ℓ)
                                              (URGStrGroup ℓ'))
                                Sᴰ-G²\F
+Σ Group
+(λ G → Σ Group (λ H → Σ (GroupHom G H) (λ _ → GroupHom H G)))
+Goal: Σ-syntax Group
+      (λ a → Σ-syntax Group (λ b → GroupHom a b × GroupHom b a))
+      ≃ GGFB
 -}
 
 
