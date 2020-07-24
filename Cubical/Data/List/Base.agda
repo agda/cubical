@@ -7,7 +7,8 @@ open import Cubical.Data.Nat
 
 module _ {ℓ} {A : Type ℓ} where
 
-  infixr 5 _++_ _∷ʳ_
+  infixr 5 _++_
+  infixl 5 _∷ʳ_
 
   [_] : A → List A
   [ a ] = a ∷ []
@@ -34,3 +35,7 @@ module _ {ℓ} {A : Type ℓ} where
   foldr : ∀ {ℓ'} {B : Type ℓ'} → (A → B → B) → B → List A → B
   foldr f b [] = b
   foldr f b (x ∷ xs) = f x (foldr f b xs)
+
+  foldl : ∀ {ℓ'} {B : Type ℓ'} → (B → A → B) → B → List A → B
+  foldl f b [] = b
+  foldl f b (x ∷ xs) = foldl f (f b x) xs
