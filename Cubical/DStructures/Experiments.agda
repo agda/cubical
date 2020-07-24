@@ -31,6 +31,7 @@ private
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓA' ℓ≅A ℓ≅A' ℓB ℓB' ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓ≅ᴰ' : Level
 
 
+{-
 transport-𝒮ᴰ : {A : Type ℓ} {A' : Type ℓ} (p : A ≡ A')
                 {𝒮-A : URGStr A ℓ≅A}
                 {𝒮-A' : URGStr A' ℓ≅A}
@@ -40,8 +41,9 @@ transport-𝒮ᴰ : {A : Type ℓ} {A' : Type ℓ} (p : A ≡ A')
                           (λ a' → B (transport (sym p) a'))
                           ℓ≅B
 transport-𝒮ᴰ p p-𝒮 = {!make-𝒮ᴰ!}
+-}
 
-
+{-
 module _ (ℓ ℓ' : Level) where
   open MorphismTree ℓ ℓ'
 
@@ -64,29 +66,35 @@ module _ (ℓ ℓ' : Level) where
                                   GGFB = Σ[ G ∈ Group {ℓ} ] Σ[ H ∈ Group {ℓ'} ] GroupHom G H × GroupHom H G
                                   e : G²FB ≃ GGFB
                                   e = compEquiv Σ-assoc-≃ {!!}
-
-{-
-  Sᴰ-G\GF : URGStrᴰ (URGStrGroup ℓ)
-                    (λ G → Σ[ H ∈ Group {ℓ'} ] GroupHom G H)
-                    (ℓ-max ℓ ℓ')
-  Sᴰ-G\GF = splitTotalURGStrᴰ (URGStrGroup ℓ)
-                               (URGStrConstᴰ (URGStrGroup ℓ)
-                                             (URGStrGroup ℓ'))
-                               Sᴰ-G²\F
-Σ Group
-(λ G → Σ Group (λ H → Σ (GroupHom G H) (λ _ → GroupHom H G)))
-Goal: Σ-syntax Group
-      (λ a → Σ-syntax Group (λ b → GroupHom a b × GroupHom b a))
-      ≃ GGFB
 -}
 
+module _ {ℓ : Level} (G : Group {ℓ}) (ℓ' : Level) where
+  ℓℓ' = ℓ-max ℓ ℓ'
 
+  SplitExt : Type (ℓ-suc ℓℓ')
+  SplitExt = Σ[ H ∈ Group {ℓℓ'} ] Σ[ s ∈ GroupHom G H ] Σ[ p ∈ GroupHom H G ] isGroupHomRet p s
 
-{-
-  Sᴰ-G\GSecRet : URGStrᴰ (URGStrGroup ℓ)
-                         {!!}
-                         {!!}
-  Sᴰ-G\GSecRet = splitTotalURGStrᴰ (URGStrGroup ℓ)
-                                   {!!}
-                                   {!!}
--}
+  GroupAct : Type (ℓ-suc ℓℓ')
+  GroupAct = Σ[ H ∈ Group {ℓℓ'} ] Σ[ _α_ ∈ LeftActionStructure ⟨ G ⟩ ⟨ H ⟩ ] (IsGroupAction G H _α_)
+
+  SplitExt→GroupAct : SplitExt → GroupAct
+  SplitExt→GroupAct (H , s , p , isSplit) = ker , _α_ , isAct
+    where
+      ker : Group {ℓℓ'}
+      ker = {!!}
+      _α_ : LeftActionStructure ⟨ G ⟩ ⟨ ker ⟩
+      _α_ = {!!}
+      isAct : IsGroupAction G ker _α_
+      isAct = {!!}
+
+  GroupAct→SplitExt : GroupAct → SplitExt
+  GroupAct→SplitExt (H , _α_ , isAct) = H⋊G , s , p , isSplit
+    where
+      H⋊G : Group {ℓℓ'}
+      H⋊G = {!!}
+      s : GroupHom G H⋊G
+      s = {!!}
+      p : GroupHom H⋊G G
+      p = {!!}
+      isSplit : isGroupHomRet p s
+      isSplit = {!!}
