@@ -33,8 +33,6 @@ open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim2 t
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Truncation renaming (elim to trElim ; elim2 to trElim2 ; map to trMap ; rec to trRec)
 
-
-
 --------- H⁰(T²) ------------
 H⁰-T²≅0 : GroupEquiv (coHomGr 0 (S₊ 1 × S₊ 1)) intGroup
 H⁰-T²≅0 =
@@ -173,3 +171,11 @@ H²-T²≅ℤ = invGroupEquiv ℤ≅H²-T²
                    ∙∙ λ i → assoc (lUnitₖ 0ₖ ∙ sym (rUnitₖ 0ₖ)) (symDistr ((lUnitₖ 0ₖ)) (sym (rUnitₖ 0ₖ)) (~ i)) (cong (_+ₖ 0ₖ) a) i)
                    ∙∙ cong (_∙ (cong (_+ₖ 0ₖ) a)) (rCancel (lUnitₖ 0ₖ ∙ sym (rUnitₖ 0ₖ)))
                    ∙∙ sym (lUnit (cong (_+ₖ 0ₖ) a))
+private
+  toℤ₂ : coHom 2 (S₊ 1 × S₊ 1) → Int
+  toℤ₂ = fst (GroupEquiv.eq H²-T²≅ℤ)
+
+  fromℤ₂ : Int → coHom 2 (S₊ 1 × S₊ 1)
+  fromℤ₂ = invEq (GroupEquiv.eq H²-T²≅ℤ)
+
+

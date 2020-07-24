@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --no-syntactic-equality --safe #-}
 module Cubical.Structures.Group.Base where
 
 open import Cubical.Foundations.Prelude
@@ -201,7 +201,7 @@ _+_ (η-Group _ _ r _ _ i) = r i
 isGroup (η-Group _ _ _ _ t i) = t i
 
 isSetCarrier : ∀ {ℓ} → (G : Group {ℓ}) → isSet ⟨ G ⟩
-isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (isMonoid (isGroup G)))
+isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (isMonoid G))
 
 open IsMonoid
 open IsSemigroup

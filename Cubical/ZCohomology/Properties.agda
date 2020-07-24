@@ -215,6 +215,7 @@ commₕ {n = n} = sElim2 (λ _ _ → isOfHLevelPath 1 (§ _ _))
 
 
 -- Proof that rUnitₖ and lUnitₖ agree on 0ₖ. Needed for Mayer-Vietoris.
+
 rUnitlUnit0 : {n : ℕ} → rUnitₖ {n = n} 0ₖ ≡ lUnitₖ 0ₖ
 rUnitlUnit0 {n = zero} = refl
 rUnitlUnit0 {n = suc n} =
