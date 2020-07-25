@@ -44,9 +44,9 @@ module _ {A : Type ℓA} {A' : Type ℓA'} (f : A ≃ A')
 
        ♭B' = ♭RelFamily B' (fst f)
 
-       RelFiberIsoOver→FiberIso : (a : A) (e≅♭ : RelIso (B .snd {a = a}) (♭B' .snd {a = a}))
+       RelFiberIsoOver→FiberIso : (e≅♭ : (a : A) → RelIso (B .snd {a = a}) (♭B' .snd {a = a}))
+                                  → (a : A)
                                   → Iso (B .fst a) (B' .fst (f .fst a))
-       RelFiberIsoOver→FiberIso a e≅♭ = iso fun inv (λ b' → invEquiv (≡→R (snd B') ρ' , uni' (fun (inv b')) b') .fst (rightInv b'))
-                                                    λ b → invEquiv (≡→R (snd B) ρ , uni (inv (fun b)) b) .fst (leftInv b)
+       RelFiberIsoOver→FiberIso e≅♭ a = RelIso→Iso (snd B {a = a}) (snd B' {a = f .fst a}) ρ ρ' uni uni' (e≅♭ a)
          where
-           open RelIso e≅♭
+           open RelIso (e≅♭ a)

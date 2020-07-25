@@ -10,6 +10,7 @@ open import Cubical.HITs.SetQuotients.Base
 open import Cubical.HITs.PropositionalTruncation.Base
 open import Cubical.Foundations.Equiv.Fiberwise
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 
 private
   variable
@@ -37,6 +38,7 @@ compPropRel R S .snd _ _ = squash
 
 graphRel : ∀ {ℓ} {A B : Type ℓ} → (A → B) → Rel A B ℓ
 graphRel f a b = f a ≡ b
+
 
 module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') where
   isRefl : Type (ℓ-max ℓ ℓ')
@@ -141,6 +143,7 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
     isUnivalent'→isUnivalent : isUnivalent' → isUnivalent
     isUnivalent'→isUnivalent u = contrTotalSpace→isUnivalent (isUnivalent'→contrTotalSpace u)
 
+
 record RelIso {A : Type ℓA} (_≅_ : Rel A A ℓ≅A)
               {A' : Type ℓA'} (_≅'_ : Rel A' A' ℓ≅A') : Type (ℓ-max (ℓ-max ℓA ℓA') (ℓ-max ℓ≅A ℓ≅A')) where
   constructor reliso
@@ -150,6 +153,16 @@ record RelIso {A : Type ℓA} (_≅_ : Rel A A ℓ≅A)
     rightInv : (a' : A') → fun (inv a') ≅' a'
     leftInv : (a : A) → inv (fun a) ≅ a
 
+RelIso→Iso : {A : Type ℓA} {A' : Type ℓA'}
+             (_≅_ : Rel A A ℓ≅A) (_≅'_ : Rel A' A' ℓ≅A')
+             (ρ : BinaryRelation.isRefl _≅_) (ρ' : BinaryRelation.isRefl _≅'_)
+             (uni : BinaryRelation.isUnivalent _≅_ ρ) (uni' : BinaryRelation.isUnivalent _≅'_ ρ')
+             (f : RelIso _≅_ _≅'_)
+             → Iso A A'
+Iso.fun (RelIso→Iso _ _ _ _ _ _ f) = RelIso.fun f
+Iso.inv (RelIso→Iso _ _ _ _ _ _ f) = RelIso.inv f
+Iso.rightInv (RelIso→Iso _ _≅'_ _ ρ' _ uni' f) a' = invEquiv (BinaryRelation.≡→R _≅'_ ρ' , uni' (RelIso.fun f (RelIso.inv f a')) a') .fst (RelIso.rightInv f a')
+Iso.leftInv (RelIso→Iso _≅_ _ ρ _ uni _ f) a = invEquiv (BinaryRelation.≡→R _≅_ ρ , uni (RelIso.inv f (RelIso.fun f a)) a) .fst (RelIso.leftInv f a)
              
 
 EquivRel : ∀ {ℓ} (A : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
