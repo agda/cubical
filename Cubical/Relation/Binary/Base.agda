@@ -11,6 +11,10 @@ open import Cubical.HITs.PropositionalTruncation.Base
 open import Cubical.Foundations.Equiv.Fiberwise
 open import Cubical.Foundations.Equiv
 
+private
+  variable
+    ℓA ℓA' ℓ ℓ' ℓ≅A ℓ≅A' : Level
+
 Rel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 Rel A B ℓ' = A → B → Type ℓ'
 
@@ -136,6 +140,17 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
 
     isUnivalent'→isUnivalent : isUnivalent' → isUnivalent
     isUnivalent'→isUnivalent u = contrTotalSpace→isUnivalent (isUnivalent'→contrTotalSpace u)
+
+record RelIso {A : Type ℓA} (_≅_ : Rel A A ℓ≅A)
+              {A' : Type ℓA'} (_≅'_ : Rel A' A' ℓ≅A') : Type (ℓ-max (ℓ-max ℓA ℓA') (ℓ-max ℓ≅A ℓ≅A')) where
+  constructor reliso
+  field
+    fun : A → A'
+    inv : A' → A
+    rightInv : (a' : A') → fun (inv a') ≅' a'
+    leftInv : (a : A) → inv (fun a) ≅ a
+
+             
 
 EquivRel : ∀ {ℓ} (A : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 EquivRel A ℓ' = Σ[ R ∈ Rel A A ℓ' ] BinaryRelation.isEquivRel R

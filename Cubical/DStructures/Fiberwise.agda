@@ -61,7 +61,7 @@ module _ {A : Type ℓA} {B : A → Type ℓB} {C : A → Type ℓC} where
             λ b → (invEquiv (uniB (G (F b)) b)) .fst (GF b)
 
 module _ {A : Type ℓA} {A' : Type ℓA'} (f : A → A')
-            {B' : A' → Type ℓB'} where
+         {B' : A' → Type ℓB'} where
 
   module _ {ℓ≅B' : Level} (_≅B'_ : {a : A'} → Rel (B' a) (B' a) ℓ≅B') where
     -- pull back fiber relation
@@ -73,12 +73,37 @@ module _ {A : Type ℓA} {A' : Type ℓA'} (f : A → A')
       ♭B' = fst ♭FiberRel
       _≅♭B'_ = snd ♭FiberRel
 
-    module _ {B : A → Type ℓB} where
+    module _ {B : A → Type ℓB} {ℓ≅B : Level} (_≅B_ : {a : A} → Rel (B a) (B a) ℓ≅B) where
       -- definition of fiberwise relational iso with respect to the map f
-      record FiberRelIsoOver {ℓ≅B : Level} (_≅B_ : {a : A} → Rel (B a) (B a) ℓ≅B) : Type (ℓ-max (ℓ-max ℓ≅B ℓ≅B') (ℓ-max ℓA (ℓ-max ℓB ℓB'))) where
+      record FiberRelIsoOver : Type (ℓ-max (ℓ-max ℓ≅B ℓ≅B') (ℓ-max ℓA (ℓ-max ℓB ℓB'))) where
         constructor fiberrelisoover
         field
           fun : {a : A} → B a → ♭B' a
           inv : {a : A} → ♭B' a → B a
           sec : {a : A} → (b' : ♭B' a) → fun (inv b') ≅♭B' b'
           ret : {a : A} → (b : B a) → inv (fun b) ≅B b
+
+      module _ (uniB : {a : A} → (b b' : B a) → (b ≡ b') ≃ (b ≅B b'))
+               (uniB' : {a : A'} → (b b' : B' a) → (b ≡ b') ≃ (b ≅B' b')) where
+
+             RelFiberIsoOver→♭FiberIso : ((fiberrelisoover fun inv sec ret) : FiberRelIsoOver)
+                                          → (a : A)
+                                          → Iso (B a) (♭B' a)
+             RelFiberIsoOver→♭FiberIso (fiberrelisoover fun inv sec ret) a =
+               iso fun
+                   inv
+                   (λ ♭b → invEquiv (uniB' (fun (inv ♭b)) ♭b) .fst (sec ♭b))
+                   λ b → invEquiv (uniB (inv (fun b)) b) .fst (ret b)
+
+
+-- relational fiberwise isomorphism over an equivalence f gives a fiberwise isomorphism
+RelFiberIsoOver→FiberIso : {A : Type ℓA} {A' : Type ℓA'} (f : A ≃ A')
+                           {B : A → Type ℓB} {ℓ≅B : Level} (_≅B_ : {a : A} → Rel (B a) (B a) ℓ≅B)
+                           {B' : A' → Type ℓB'} {ℓ≅B' : Level} (_≅B'_ : {a : A'} → Rel (B' a) (B' a) ℓ≅B')
+                           (uniB : {a : A} → (b b' : B a) → (b ≡ b') ≃ (b ≅B b'))
+                           (uniB' : {a : A'} → (b b' : B' a) → (b ≡ b') ≃ (b ≅B' b'))
+                           (a : A) → Iso (B a) (B' (f .fst a))
+RelFiberIsoOver→FiberIso f _≅B_ _≅B'_ uniB uniB' a =
+  iso (λ b → {!!}) {!!} {!!} {!!}
+  where
+    open Iso (RelFiberIsoOver→♭FiberIso ? ? ? ? ? ? ?)
