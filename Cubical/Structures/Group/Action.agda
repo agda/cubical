@@ -33,13 +33,11 @@ record IsGroupAction (G : Group {ℓ = ℓ})
     identity : (h : ⟨ H ⟩) → 0ᴳ α h ≡ h
     assoc : (g g' : ⟨ G ⟩) → (h : ⟨ H ⟩) → (g +G g') α h ≡ g α (g' α h)
 
-record GroupAction : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
+record GroupAction (G : Group {ℓ}) (H : Group {ℓ'}): Type (ℓ-suc (ℓ-max ℓ ℓ')) where
 
   constructor groupaction
 
   field
-    G : Group {ℓ = ℓ}
-    H : Group {ℓ = ℓ'}
     _α_ : LeftActionStructure ⟨ G ⟩ ⟨ H ⟩
     isGroupAction : IsGroupAction G H _α_
 
@@ -84,5 +82,39 @@ isPropIsGroupAction G H _α_ = isOfHLevelRespectEquiv 1
 
 
 module Semidirect where
+  open Group
+  -- open IsGroup
 
-  _⋊⟨_⟩_
+  semidirectProduct : (N : Group {ℓ}) (H : Group {ℓ'}) (Act : GroupAction H N)
+                      → Group {ℓ-max ℓ ℓ'}
+  semidirectProduct N H Act
+    = makeGroup-left {A = N .Carrier × H .Carrier} -- carrier
+                     -- identity
+                     (N .0g , H .0g)
+                     -- _+_
+                     (λ (n , h) (n' , h') → n +N (h α n') , h +H h')
+                     -- -_
+                     (λ (n , h) → (-H h) α (-N n) , -H h)
+                     -- set
+                     (isSetΣ (N .is-set) λ _ → H .is-set)
+                     -- assoc
+                     (λ (a , x) (b , y) (c , z)
+                       → ΣPathP ({!_∙∙_∙∙_!} , H .assoc x y z))
+                     -- lUnit
+                     (λ (n , h) → ΣPathP (lUnitN ((H .0g) α n) ∙ α-id n , lUnitH h))
+                     -- lCancel
+                     λ (n , h) → ΣPathP ((sym (α-hom (-H h) (-N n) n) ∙∙ cong ((-H h) α_) {!lCancelN n!} ∙∙ {!!}) ,  lCancelH h)
+                     where
+                       _+N_ = N ._+_
+                       _+H_ = H ._+_
+                       -N_ = N .-_
+                       -H_ = H .-_
+                       lUnitH = IsGroup.lid (H .isGroup)
+                       lUnitN = IsGroup.lid (N .isGroup)
+                       lCancelH = IsGroup.invl (H .isGroup)
+                       lCancelN = IsGroup.invl (N .isGroup)
+                       open GroupAction Act
+                       α-id = IsGroupAction.identity isGroupAction
+                       α-hom = IsGroupAction.isHom isGroupAction
+
+  syntax semidirectProduct N H α = N ⋊⟨ α ⟩ H
