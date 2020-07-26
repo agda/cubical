@@ -30,13 +30,14 @@ module _ {ℓ ℓ' : Level} where
   module _ {G : Group {ℓ}} {H : Group {ℓ'}}
            (_α_ : LeftActionStructure ⟨ G ⟩ ⟨ H ⟩)
            (f : GroupHom H G) where
-    f* = GroupHom.fun f
-    _+G_ = Group._+_ G
-    -G_  = Group.-_ G
-    setG = Group.is-set G
-    _+H_ = Group._+_ H
-    -H_  = Group.-_ H
-    setH = Group.is-set H
+    private
+      f* = GroupHom.fun f
+      _+G_ = Group._+_ G
+      -G_  = Group.-_ G
+      setG = Group.is-set G
+      _+H_ = Group._+_ H
+      -H_  = Group.-_ H
+      setH = Group.is-set H
 
     isEquivariant : Type (ℓ-max ℓ ℓ')
     isEquivariant = (g : ⟨ G ⟩) → (h : ⟨ H ⟩) → f* (g α h) ≡ (g +G (f* h)) +G (-G g)
