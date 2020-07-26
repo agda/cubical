@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe --guardedness #-}
 module Cubical.DStructures.Experiments where
 
 open import Cubical.Foundations.Prelude
@@ -26,6 +26,8 @@ open import Cubical.DStructures.Combine
 open import Cubical.DStructures.Type
 open import Cubical.DStructures.Group
 open import Cubical.DStructures.Isomorphism
+open import Cubical.DStructures.Strict2Group
+open import Cubical.DStructures.XModule
 
 private
   variable
@@ -80,13 +82,13 @@ module _ {ℓ : Level} (G₀ : Group {ℓ}) (ℓ' : Level) where
   GroupAct = Σ[ G₁ ∈ Group {ℓℓ'} ] Σ[ _α_ ∈ LeftActionStructure ⟨ G₀ ⟩ ⟨ G₁ ⟩ ] (IsGroupAction G₀ G₁ _α_)
 
   SplitExt→GroupAct : SplitExt → GroupAct
-  SplitExt→GroupAct (G₁ , ι , τ , isSplit) = ker , _α_ , isAct
+  SplitExt→GroupAct (G₁ , ι , τ , isSplit) = ker-τ , _α_ , isAct
     where
-      ker : Group {ℓℓ'}
-      ker = {!!}
-      _α_ : LeftActionStructure ⟨ G₀ ⟩ ⟨ ker ⟩
+      ker-τ : Group {ℓℓ'}
+      ker-τ = {!!}
+      _α_ : LeftActionStructure ⟨ G₀ ⟩ ⟨ ker-τ ⟩
       _α_ = {!!}
-      isAct : IsGroupAction G₀ ker _α_
+      isAct : IsGroupAction G₀ ker-τ _α_
       isAct = {!!}
 
   GroupAct→SplitExt : GroupAct → SplitExt
@@ -106,4 +108,28 @@ module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
 
-  ReflexiveGraph = Σ[ G₀ ∈ Group {ℓ} ] Σ[ (G₁ , ι , τ , split-τ) ∈ SplitExt G₀ ℓ' ] Σ[ σ ∈ GroupHom G₁ G₀ ] (isGroupHomRet σ ι)
+  ReflexiveGraph = Σ[ (G₀ , G₁ , ι , τ , split-τ) ∈ (Σ[ G₀ ∈ Group {ℓ} ] SplitExt G₀ ℓ') ] Σ[ σ ∈ GroupHom G₁ G₀ ] isGroupHomRet σ ι
+
+  PreCrossedModule = Σ[ (G₀ , G₁ , _α_ , isAct) ∈ (Σ[ G₀ ∈ Group {ℓ} ] GroupAct G₀ ℓ') ] (Σ[ φ ∈ GroupHom G₁ G₀ ] isEquivariant _α_ φ)
+
+
+module _ where
+
+{-
+  record Hierarchy {A : Type ℓ} (𝒮-A : URGStr A ℓ) : Type (ℓ-suc ℓ) where
+    coinductive
+    field
+      B : A → Type ℓ
+      𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ
+      ℋ : Hierarchy {A = Σ A B} (∫⟨ 𝒮-A ⟩ 𝒮ᴰ-B)
+-}
+
+{-
+  open import Cubical.Data.Maybe
+  record Hierarchy {A : Type ℓ} (𝒮-A : URGStr A ℓ) : Type (ℓ-suc ℓ) where
+    coinductive
+    field
+      B : A → Type ℓ
+      𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ
+      ℋ : Maybe (Hierarchy {A = Σ A B} (∫⟨ 𝒮-A ⟩ 𝒮ᴰ-B))
+-}

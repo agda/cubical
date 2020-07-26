@@ -81,3 +81,8 @@ isPropIsGroupAction : {ℓ ℓ' : Level }
 isPropIsGroupAction G H _α_ = isOfHLevelRespectEquiv 1
                                                      (invEquiv (isoToEquiv (IsGroupActionΣIso G H _α_)))
                                                      (isPropIsGroupActionΣ G H _α_)
+
+
+module Semidirect where
+
+  _⋊⟨_⟩_
