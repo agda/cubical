@@ -224,18 +224,17 @@ H²-S¹≅0 =
 
 --------------- H¹(S²) --------------------------------------------
 
-H¹-S²≅0 : GroupEquiv (coHomGr 1 (S₊ 2)) trivialGroup
-H¹-S²≅0 =
-    coHomPushout≅coHomSn 1 1
-  □ BijectionIsoToGroupEquiv
-      (bij-iso (I.i 1)
-               helper
-               λ x → ∣ 0ₕ , isOfHLevelSuc 0 (isOfHLevelΣ 0 (isContrHⁿ-Unit 0) (λ _ → isContrHⁿ-Unit 0)) _ x ∣₁)
-  □ dirProdEquiv (Hⁿ-Unit≅0 0) (Hⁿ-Unit≅0 0)
-  □ lUnitGroupIso
+H¹-Sⁿ≅0 : (n : ℕ) → GroupEquiv (coHomGr 1 (S₊ (2 + n))) trivialGroup
+H¹-Sⁿ≅0 n = coHomPushout≅coHomSn (1 + n) 1
+         □ BijectionIsoToGroupEquiv
+            (bij-iso (I.i 1)
+                     helper
+                     λ x → ∣ 0ₕ , isOfHLevelSuc 0 (isOfHLevelΣ 0 (isContrHⁿ-Unit zero) (λ _ → isContrHⁿ-Unit zero)) _ x ∣₁)
+         □ dirProdEquiv (Hⁿ-Unit≅0 zero) (Hⁿ-Unit≅0 zero)
+         □ lUnitGroupIso
   where
-    module I = MV Unit Unit (S₊ 1) (λ _ → tt) (λ _ → tt)
-    surj-helper : (x : ⟨ coHomGr 0 (S₊ 1) ⟩) → isInIm _ _ (I.Δ 0) x
+    module I = MV Unit Unit (S₊ (1 + n)) (λ _ → tt) (λ _ → tt)
+    surj-helper : (x : ⟨ coHomGr 0 (S₊ _) ⟩) → isInIm _ _ (I.Δ 0) x
     surj-helper =
       sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
              λ f → ∣ (∣ (λ _ → f north) ∣₂ , 0ₕ)
@@ -250,6 +249,47 @@ H¹-S²≅0 =
                                            λ a id → sym id ∙ I.Im-Δ⊂Ker-d 0 ∣ a ∣₂ (surj-helper _))
                                (I.Ker-i⊂Im-d 0 ∣ x ∣₂ inker)
 
+{-
+open import Cubical.Data.Sum
+open import Cubical.Data.Empty renaming (rec to ⊥-rec)
+Hᵐ-Sⁿ≅0 : (n m : ℕ) → (Σ[ x ∈ ℕ ] n + (suc x) ≡ m) ⊎ (Σ[ x ∈ ℕ ] m + (suc x) ≡ n)
+                     → GroupEquiv (coHomGr (suc m) (S₊ (suc n))) trivialGroup
+Hᵐ-Sⁿ≅0 n zero (inl (dif , id)) = ⊥-rec (snotz (sym (+-suc n dif) ∙ id))
+Hᵐ-Sⁿ≅0 zero (suc m) (inl (dif , id)) = {!!}
+  where
+  module I = MV Unit Unit (S₊ 1) (λ _ → tt) (λ _ → tt)
+Hᵐ-Sⁿ≅0 (suc n) (suc m) (inl (dif , id)) =
+    coHomPushout≅coHomSn (suc n) (2 + m)
+  □ invGroupEquiv (vSES→GroupEquiv _ _
+       (ses (isOfHLevelSuc 0 (isOfHLevelΣ 0 (isContrHⁿ-Unit m) λ _ → isContrHⁿ-Unit m))
+            (isOfHLevelSuc 0 (isOfHLevelΣ 0 (isContrHⁿ-Unit (suc m)) λ _ → isContrHⁿ-Unit (suc m)))
+            (I.Δ (suc m))
+            (I.i (suc (suc m)))
+            (I.d (suc m))
+            (I.Ker-d⊂Im-Δ (suc m))
+            (I.Ker-i⊂Im-d (suc m))))
+  □ Hᵐ-Sⁿ≅0 n m (inl (dif , (cong predℕ id)))
+
+  where
+  module I = MV Unit Unit (S₊ (suc n)) (λ _ → tt) (λ _ → tt)
+Hᵐ-Sⁿ≅0 n zero (inr (dif , id)) = transport (λ i → GroupEquiv (coHomGr 1 (S₊ (suc (id i)))) trivialGroup)
+                                            (H¹-Sⁿ≅0 dif)
+Hᵐ-Sⁿ≅0 n (suc m) (inr (dif , id)) =
+    coHomPushout≅coHomSn n (2 + m)
+  □ invGroupEquiv
+      (vSES→GroupEquiv _ _
+       (ses (isOfHLevelSuc 0 (isOfHLevelΣ 0 (isContrHⁿ-Unit m) λ _ → isContrHⁿ-Unit m))
+            (isOfHLevelSuc 0 (isOfHLevelΣ 0 (isContrHⁿ-Unit (suc m)) λ _ → isContrHⁿ-Unit (suc m)))
+            (I.Δ (suc m))
+            (I.i (suc (suc m)))
+            (I.d (suc m))
+            (I.Ker-d⊂Im-Δ (suc m))
+            (I.Ker-i⊂Im-d (suc m))))
+  □ transport (λ i → GroupEquiv (coHomGr (suc m) (S₊ ((id) i))) trivialGroup)
+              (Hᵐ-Sⁿ≅0 (m + suc dif) m (inr (dif , refl)))
+  where
+  module I = MV Unit Unit (S₊ n) (λ _ → tt) (λ _ → tt)
+-}
 
 --------- Direct proof of H¹(S¹) ≅ ℤ without Mayer-Vietoris -------
 

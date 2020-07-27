@@ -34,8 +34,8 @@ open import Cubical.HITs.Nullification
 open import Cubical.HITs.Truncation renaming (elim to trElim ; elim2 to trElim2 ; map to trMap ; rec to trRec)
 
 --------- H⁰(T²) ------------
-H⁰-T²≅0 : GroupEquiv (coHomGr 0 (S₊ 1 × S₊ 1)) intGroup
-H⁰-T²≅0 =
+H⁰-T²≅ℤ : GroupEquiv (coHomGr 0 (S₊ 1 × S₊ 1)) intGroup
+H⁰-T²≅ℤ =
   H⁰-connected (north , north)
     λ (a , b) → pRec propTruncIsProp
                      (λ id1 → pRec propTruncIsProp
@@ -172,10 +172,20 @@ H²-T²≅ℤ = invGroupEquiv ℤ≅H²-T²
                    ∙∙ cong (_∙ (cong (_+ₖ 0ₖ) a)) (rCancel (lUnitₖ 0ₖ ∙ sym (rUnitₖ 0ₖ)))
                    ∙∙ sym (lUnit (cong (_+ₖ 0ₖ) a))
 private
-  toℤ₂ : coHom 2 (S₊ 1 × S₊ 1) → Int
-  toℤ₂ = fst (GroupEquiv.eq H²-T²≅ℤ)
+  to₂ : coHom 2 (S₊ 1 × S₊ 1) → Int
+  to₂ = fst (GroupEquiv.eq H²-T²≅ℤ)
 
-  fromℤ₂ : Int → coHom 2 (S₊ 1 × S₊ 1)
-  fromℤ₂ = invEq (GroupEquiv.eq H²-T²≅ℤ)
+  from₂ : Int → coHom 2 (S₊ 1 × S₊ 1)
+  from₂ = invEq (GroupEquiv.eq H²-T²≅ℤ)
 
+  to₁ : coHom 1 (S₊ 1 × S₊ 1) → Int × Int
+  to₁ = fst (GroupEquiv.eq H¹-T²≅ℤ×ℤ)
 
+  from₁ : Int × Int → coHom 1 (S₊ 1 × S₊ 1)
+  from₁ = invEq (GroupEquiv.eq H¹-T²≅ℤ×ℤ)
+
+  to₀ : coHom 0 (S₊ 1 × S₊ 1) → Int
+  to₀ = fst (GroupEquiv.eq H⁰-T²≅ℤ)
+
+  from₀ : Int → coHom 0 (S₊ 1 × S₊ 1)
+  from₀ = invEq (GroupEquiv.eq H⁰-T²≅ℤ)
