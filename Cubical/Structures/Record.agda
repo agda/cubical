@@ -114,6 +114,9 @@ private
   tStrEquiv : R.Term → R.Term
   tStrEquiv S = R.def (quote StrEquiv) (S v∷ tℓ₀ v∷ [])
 
+  _t≃_ : R.Term → R.Term → R.Term
+  A t≃ B = R.def (quote _≃_) (A v∷ B v∷ [])
+
   newMeta = R.checkType R.unknown
 
 private
@@ -220,7 +223,7 @@ module _ (srec erec : R.Name) where
     bodyTC =
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
-      R.extendContext (varg (R.def (quote _≃_) (tTyp (v 1) v∷ tTyp (v 0) v∷ []))) $
+      R.extendContext (varg (tTyp (v 1) t≃ tTyp (v 0))) $
       R.extendContext (varg (R.def erec (v 2 v∷ v 1 v∷ v 0 v∷ []))) $
       R.extendContext (varg tI) $
       mapTC (List.map (univalentRecordFwdClause (v 4) (v 3) (v 2) (v 1) (v 0)) nfs)
@@ -244,7 +247,7 @@ module _ (srec erec : R.Name) where
     bodyTC =
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
-      R.extendContext (varg (R.def (quote _≃_) (tTyp (v 1) v∷ tTyp (v 0) v∷ []))) $
+      R.extendContext (varg (tTyp (v 1) t≃ tTyp (v 0))) $
       R.extendContext (varg (R.def (quote pathPShape) (R.def srec [] v∷ v 2 v∷ v 1 v∷ v 0 v∷ []))) $
       mapTC (List.map (univalentRecordBwdClause (v 3) (v 2) (v 1) (v 0)) nfs)
 
@@ -269,7 +272,7 @@ module _ (srec erec : R.Name) where
     bodyTC =
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
-      R.extendContext (varg (R.def (quote _≃_) (tTyp (v 1) v∷ tTyp (v 0) v∷ []))) $
+      R.extendContext (varg (tTyp (v 1) t≃ tTyp (v 0))) $
       R.extendContext (varg (R.def (quote pathPShape) (R.def srec [] v∷ v 2 v∷ v 1 v∷ v 0 v∷ []))) $
       R.extendContext (varg tI) $
       R.extendContext (varg tI) $
@@ -295,7 +298,7 @@ module _ (srec erec : R.Name) where
     bodyTC =
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
-      R.extendContext (varg (R.def (quote _≃_) (tTyp (v 1) v∷ tTyp (v 0) v∷ []))) $
+      R.extendContext (varg (tTyp (v 1) t≃ tTyp (v 0))) $
       R.extendContext (varg (R.def erec (v 2 v∷ v 1 v∷ v 0 v∷ []))) $
       R.extendContext (varg tI) $
       mapTC (List.map (univalentRecordBwdFwdClause (v 4) (v 3) (v 2) (v 1) (v 0)) nfs)
