@@ -3,6 +3,7 @@ module Cubical.Data.List.Base where
 
 open import Agda.Builtin.List        public
 open import Cubical.Core.Everything
+open import Cubical.Data.Maybe
 open import Cubical.Data.Nat
 
 module _ {ℓ} {A : Type ℓ} where
@@ -31,6 +32,12 @@ module _ {ℓ} {A : Type ℓ} where
   map : ∀ {ℓ'} {B : Type ℓ'} → (A → B) → List A → List B
   map f [] = []
   map f (x ∷ xs) = f x ∷ map f xs
+
+  filterMap : ∀ {ℓ'} {B : Type ℓ'} → (A → Maybe B) → List A → List B
+  filterMap f [] = []
+  filterMap f (x ∷ xs) with f x
+  ... | nothing = filterMap f xs
+  ... | just y = y ∷ filterMap f xs
 
   foldr : ∀ {ℓ'} {B : Type ℓ'} → (A → B → B) → B → List A → B
   foldr f b [] = b
