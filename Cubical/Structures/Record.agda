@@ -79,6 +79,10 @@ private
 
   pattern varg t = R.arg (R.arg-info R.visible R.relevant) t
   pattern harg t = R.arg (R.arg-info R.hidden R.relevant) t
+  pattern _v∷_ a l = varg a ∷ l
+  pattern _h∷_ a l = harg a ∷ l
+
+  infixr 5 _v∷_ _h∷_
 
   vlam : String → R.Term → R.Term
   vlam str t = R.lam R.visible (R.abs str t)
@@ -90,25 +94,25 @@ private
   tℓ₀ = R.def (quote ℓ-zero) []
 
   tType : R.Term → R.Term
-  tType ℓ = R.def (quote Type) [ varg ℓ ]
+  tType ℓ = R.def (quote Type) (ℓ v∷ [])
 
   tDesc : R.Term → R.Term
-  tDesc ℓ = R.def (quote Desc) [ varg ℓ ]
+  tDesc ℓ = R.def (quote Desc) (ℓ v∷ [])
 
   func : ∀ {ℓ ℓ'} → Type ℓ → Type ℓ' → Type (ℓ-max ℓ ℓ')
   func A B = A → B
 
   tStruct : R.Term → R.Term → R.Term
-  tStruct ℓ ℓ' = R.def (quote func) (varg (tType ℓ) ∷ varg (tType ℓ') ∷ [])
+  tStruct ℓ ℓ' = R.def (quote func) (tType ℓ v∷ tType ℓ' v∷ [])
 
   tTypeWithStr : R.Term → R.Term
-  tTypeWithStr S = R.def (quote TypeWithStr) (varg tℓ₀ ∷ varg S ∷ [])
+  tTypeWithStr S = R.def (quote TypeWithStr) (tℓ₀ v∷ S v∷ [])
 
   tTyp : R.Term → R.Term
   tTyp A = R.def (quote typ) (varg A ∷ [])
 
   tStrEquiv : R.Term → R.Term
-  tStrEquiv S = R.def (quote StrEquiv) (varg S ∷ varg tℓ₀ ∷ [])
+  tStrEquiv S = R.def (quote StrEquiv) (S v∷ tℓ₀ v∷ [])
 
   newMeta = R.checkType R.unknown
 
@@ -116,9 +120,9 @@ private
   fieldShape : (Type → Type) → (Type → Type) → Type₁
   fieldShape R S = {X : Type} → R X → S X
 
-  withStrProj : R.Term → R.Name → R.Term
-  withStrProj A sfield =
-    R.def (quote map-snd) (varg (R.def sfield []) ∷ varg A ∷ [])
+  strProj : R.Term → R.Name → R.Term
+  strProj A sfield =
+    R.def (quote map-snd) (R.def sfield [] v∷ A v∷ [])
 
   pathMap : (S : Type → Type) {T : Type → Type} {A B : Type}
     (e : A ≃ B) (f : {X : Type} → S X → T X) {x : S A} {y : S B}
@@ -167,11 +171,11 @@ private
   fieldDesc' srec sfield =
     R.getType sfield >>= λ A → 
     newMeta (tStruct tℓ₀ tℓ₀) >>= λ S →
-    R.unify (R.def (quote fieldShape) (varg (R.def srec []) ∷ varg S ∷ [])) A >>
+    R.unify (R.def (quote fieldShape) (R.def srec [] v∷ S v∷ [])) A >>
     buildDesc FUEL tℓ₀ tℓ₀ S
 
   parseSpec : R.Term → R.TC (R.Name × R.Name × List (R.Name × R.Name))
-  parseSpec (R.def (quote autoRecordSpec) (varg (R.def srec []) ∷ varg (R.def erec []) ∷ varg fs ∷ [])) =
+  parseSpec (R.def (quote autoRecordSpec) (R.def srec [] v∷ R.def erec [] v∷ fs v∷ [])) =
     liftTC (λ fs → srec , erec , fs) (parseFields fs)
     where
     findName : R.Term → R.TC R.Name
@@ -180,14 +184,14 @@ private
     findName t = R.typeError (R.strErr "Malformed autoRecord specification: " ∷ R.termErr t ∷ [])
 
     parseField : R.Term → R.TC (R.Name × R.Name)
-    parseField (R.con (quote structure) (harg _ ∷ harg _ ∷ harg _ ∷ harg _ ∷ varg sterm ∷ varg eterm ∷ [])) =
+    parseField (R.con (quote structure) (_ h∷ _ h∷ _ h∷ _ h∷ sterm v∷ eterm v∷ [])) =
       findName sterm >>= λ sfield →
       findName eterm >>= λ efield →
       R.returnTC (sfield , efield)
     parseField t = R.typeError (R.strErr "Malformed autoRecord specification: " ∷ R.termErr t ∷ [])
 
     parseFields : R.Term → R.TC (List (R.Name × R.Name))
-    parseFields (R.con (quote _∷_) (harg _ ∷ harg _ ∷ varg f ∷ varg fs ∷ [])) =
+    parseFields (R.con (quote _∷_) (_ h∷ _ h∷ f v∷ fs v∷ [])) =
       parseField f >>= λ f' →
       parseFields fs >>= λ fs' →
       R.returnTC (f' ∷ fs')
@@ -200,12 +204,12 @@ module _ (srec erec : R.Name) where
   univalentRecordFwdClause : (A B e streq i : R.Term) → ℕ × R.Name × R.Name → R.TC R.Clause
   univalentRecordFwdClause A B e streq i (n , sfield , efield) =
     R.returnTC
-      (R.clause [] [ varg (R.proj sfield) ]
+      (R.clause [] (R.proj sfield v∷ [])
         (R.def (quote equivFun)
-          (varg (R.def (quote idfun') (varg (v (5 + n)) ∷ varg (withStrProj A sfield) ∷ varg (withStrProj B sfield) ∷ varg e ∷ []))
-            ∷ varg (R.def efield [ varg streq ])
-            ∷ varg i
-            ∷ [])))
+          (R.def (quote idfun') (v (5 + n) v∷ strProj A sfield v∷ strProj B sfield v∷ e v∷ [])
+            v∷ R.def efield (streq v∷ [])
+            v∷ i
+            v∷ [])))
 
   univalentRecordFwd : List (ℕ × R.Name × R.Name) → R.TC R.Term
   univalentRecordFwd nfs =
@@ -216,8 +220,8 @@ module _ (srec erec : R.Name) where
     bodyTC =
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
-      R.extendContext (varg (R.def (quote _≃_) (varg (tTyp (v 1)) ∷ varg (tTyp (v 0)) ∷ []))) $
-      R.extendContext (varg (R.def erec (varg (v 2) ∷ varg (v 1) ∷ varg (v 0) ∷ []))) $
+      R.extendContext (varg (R.def (quote _≃_) (tTyp (v 1) v∷ tTyp (v 0) v∷ []))) $
+      R.extendContext (varg (R.def erec (v 2 v∷ v 1 v∷ v 0 v∷ []))) $
       R.extendContext (varg tI) $
       mapTC (List.map (univalentRecordFwdClause (v 4) (v 3) (v 2) (v 1) (v 0)) nfs)
 
@@ -225,11 +229,11 @@ module _ (srec erec : R.Name) where
     → ℕ × R.Name × R.Name → R.TC R.Clause
   univalentRecordBwdClause A B e p (n , sfield , efield) =
     R.returnTC
-      (R.clause [] [ varg (R.proj efield) ]
+      (R.clause [] (R.proj efield v∷ [])
         (R.def (quote invEq)
-          (varg (R.def (quote idfun') (varg (v (4 + n)) ∷ varg (withStrProj A sfield) ∷ varg (withStrProj B sfield) ∷ varg e ∷ []))
-            ∷ varg (R.def (quote pathMap) (varg (R.def srec []) ∷ varg e ∷ varg (R.def sfield []) ∷ varg p ∷ []))
-            ∷ [])))
+          (R.def (quote idfun') (v (4 + n) v∷ strProj A sfield v∷ strProj B sfield v∷ e v∷ [])
+            v∷ R.def (quote pathMap) (R.def srec [] v∷ e v∷ R.def sfield [] v∷ p v∷ [])
+            v∷ [])))
 
   univalentRecordBwd : List (ℕ × R.Name × R.Name) → R.TC R.Term
   univalentRecordBwd nfs =
@@ -240,29 +244,21 @@ module _ (srec erec : R.Name) where
     bodyTC =
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
-      R.extendContext (varg (R.def (quote _≃_) (varg (tTyp (v 1)) ∷ varg (tTyp (v 0)) ∷ []))) $
-      R.extendContext
-        (varg
-          (R.def (quote pathPShape)
-            (varg (R.def srec []) ∷ varg (v 2) ∷ varg (v 1) ∷ varg (v 0) ∷ []))) $
-      mapTC
-        (List.map
-          (univalentRecordBwdClause (v 3) (v 2) (v 1) (v 0))
-          nfs)
+      R.extendContext (varg (R.def (quote _≃_) (tTyp (v 1) v∷ tTyp (v 0) v∷ []))) $
+      R.extendContext (varg (R.def (quote pathPShape) (R.def srec [] v∷ v 2 v∷ v 1 v∷ v 0 v∷ []))) $
+      mapTC (List.map (univalentRecordBwdClause (v 3) (v 2) (v 1) (v 0)) nfs)
 
   univalentRecordFwdBwdClause : (A B e p k i : R.Term)
     → ℕ × R.Name × R.Name → R.TC R.Clause
   univalentRecordFwdBwdClause A B e p k i (n , sfield , efield) =
       R.returnTC
-      (R.clause [] [ varg (R.proj sfield) ]
+      (R.clause [] (R.proj sfield v∷ [])
         (R.def (quote retEq)
-          (varg
-            (R.def (quote idfun')
-              (varg (v (6 + n)) ∷ varg (withStrProj A sfield) ∷ varg (withStrProj B sfield) ∷ varg e ∷ []))
-            ∷ varg (R.def (quote pathMap) (varg (R.def srec []) ∷ varg e ∷ varg (R.def sfield []) ∷ varg p ∷ []))
-            ∷ varg k
-            ∷ varg i
-            ∷ [])))
+          (R.def (quote idfun') (v (6 + n) v∷ strProj A sfield v∷ strProj B sfield v∷ e v∷ [])
+            v∷ R.def (quote pathMap) (R.def srec [] v∷ e v∷ R.def sfield [] v∷ p v∷ [])
+            v∷ k
+            v∷ i
+            v∷ [])))
 
   univalentRecordFwdBwd : List (ℕ × R.Name × R.Name) → R.TC R.Term
   univalentRecordFwdBwd nfs =
@@ -273,31 +269,22 @@ module _ (srec erec : R.Name) where
     bodyTC =
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
-      R.extendContext (varg (R.def (quote _≃_) (varg (tTyp (v 1)) ∷ varg (tTyp (v 0)) ∷ []))) $
-      R.extendContext
-        (varg
-          (R.def (quote pathPShape)
-            (varg (R.def srec []) ∷ varg (v 2) ∷ varg (v 1) ∷ varg (v 0) ∷ []))) $
+      R.extendContext (varg (R.def (quote _≃_) (tTyp (v 1) v∷ tTyp (v 0) v∷ []))) $
+      R.extendContext (varg (R.def (quote pathPShape) (R.def srec [] v∷ v 2 v∷ v 1 v∷ v 0 v∷ []))) $
       R.extendContext (varg tI) $
       R.extendContext (varg tI) $
-      mapTC
-        (List.map
-          (univalentRecordFwdBwdClause
-            (v 5) (v 4) (v 3) (v 2) (v 1) (v 0))
-          nfs)
+      mapTC (List.map (univalentRecordFwdBwdClause (v 5) (v 4) (v 3) (v 2) (v 1) (v 0)) nfs)
 
   univalentRecordBwdFwdClause : (A B e streq k : R.Term)
     → ℕ × R.Name × R.Name → R.TC R.Clause
   univalentRecordBwdFwdClause A B e streq k (n , sfield , efield) =
     R.returnTC
-      (R.clause [] [ varg (R.proj efield) ]
+      (R.clause [] (R.proj efield v∷ [])
         (R.def (quote secEq)
-          (varg
-            (R.def (quote idfun')
-              (varg (v (5 + n)) ∷ varg (withStrProj A sfield) ∷ varg (withStrProj B sfield) ∷ varg e ∷ []))
-            ∷ varg (R.def efield [ varg streq ])
-            ∷ varg k
-            ∷ [])))
+          (R.def (quote idfun') (v (5 + n) v∷ strProj A sfield v∷ strProj B sfield v∷ e v∷ [])
+            v∷ R.def efield (streq v∷ [])
+            v∷ k
+            v∷ [])))
 
   univalentRecordBwdFwd : List (ℕ × R.Name × R.Name) → R.TC R.Term
   univalentRecordBwdFwd nfs =
@@ -308,15 +295,10 @@ module _ (srec erec : R.Name) where
     bodyTC =
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
       R.extendContext (varg (tTypeWithStr (R.def srec []))) $
-      R.extendContext (varg (R.def (quote _≃_) (varg (tTyp (v 1)) ∷ varg (tTyp (v 0)) ∷ []))) $
-      R.extendContext
-        (varg (R.def erec (varg (v 2) ∷ varg (v 1) ∷ varg (v 0) ∷ []))) $
+      R.extendContext (varg (R.def (quote _≃_) (tTyp (v 1) v∷ tTyp (v 0) v∷ []))) $
+      R.extendContext (varg (R.def erec (v 2 v∷ v 1 v∷ v 0 v∷ []))) $
       R.extendContext (varg tI) $
-      mapTC
-        (List.map
-          (univalentRecordBwdFwdClause
-            (v 4) (v 3) (v 2) (v 1) (v 0))
-          nfs)
+      mapTC (List.map (univalentRecordBwdFwdClause (v 4) (v 3) (v 2) (v 1) (v 0)) nfs)
 
   autoUnivalentRecord' : List (ℕ × R.Name × R.Name) → R.TC R.Term
   autoUnivalentRecord' nfs =
@@ -324,11 +306,10 @@ module _ (srec erec : R.Name) where
     univalentRecordBwd nfs >>= λ bwd →
     univalentRecordFwdBwd nfs >>= λ fwdBwd →
     univalentRecordBwdFwd nfs >>= λ bwdFwd →
-    R.returnTC
-      (R.def (quote mkUnivalentStr) (withRecs (varg fwd ∷ varg bwd ∷ varg fwdBwd ∷ varg bwdFwd ∷ [])))
+    R.returnTC (R.def (quote mkUnivalentStr) (withRecs (fwd v∷ bwd v∷ fwdBwd v∷ bwdFwd v∷ [])))
     where
     withRecs : List (R.Arg R.Term) → List (R.Arg R.Term)
-    withRecs l = varg (R.def srec []) ∷ varg (R.def erec []) ∷ l
+    withRecs l = R.def srec [] v∷ R.def erec [] v∷ l
 
 MacroUnivalentStr' : (d : Desc ℓ-zero) → uStrShape (MacroStructure d) (MacroEquivStr d)
 MacroUnivalentStr' d A B e = MacroUnivalentStr d e
@@ -338,8 +319,7 @@ macro
   autoFieldEquiv srec sfield A B hole =
     newMeta (tDesc tℓ₀) >>= λ d →
     R.unify hole
-      (R.def (quote MacroEquivStr)
-        (varg d ∷ varg (withStrProj A sfield) ∷ varg (withStrProj B sfield) ∷ [])) >>
+      (R.def (quote MacroEquivStr) (d v∷ strProj A sfield v∷ strProj B sfield v∷ [])) >>
     fieldDesc' srec sfield >>=
     R.unify d
 
@@ -350,13 +330,13 @@ macro
     R.getContext >>= λ ctx₀ →
     contextTC srec erec fs >>= λ ctx₁ →
     R.inContext (ctx₀ ++ ctx₁) (autoUnivalentRecord' srec erec (mapi _,_ fs)) >>= λ body →
-    innerTyTC srec erec fs (R.def (quote uStrShape) (varg (R.def srec []) ∷ varg (R.def erec []) ∷ [])) >>= λ innerTy →
+    innerTyTC srec erec fs (R.def (quote uStrShape) (R.def srec [] v∷ R.def erec [] v∷ [])) >>= λ innerTy →
     R.unify
     -- R.typeError ([_] (R.termErr (
       (R.def (quote idfun)
-        (varg innerTy
-          ∷ varg (List.foldl (λ body (sfield , _) → vlam "univa" body) body fs)
-          ∷ List.map varg (List.rev univalents)))
+        (innerTy
+          v∷ List.foldl (λ body (sfield , _) → vlam "univa" body) body fs
+          v∷ List.map varg (List.rev univalents)))
       -- )))
       hole
     where
@@ -367,22 +347,30 @@ macro
           (List.map
             (λ (sfield , _) →
               fieldDesc' srec sfield >>= λ d →
-              R.returnTC (R.def (quote MacroUnivalentStr') [ varg d ]))
+              R.returnTC (R.def (quote MacroUnivalentStr') (d v∷ [])))
             fs)
 
       contextTC : List (R.Name × R.Name) → R.TC (List (R.Arg R.Term))
       contextTC [] = R.returnTC []
       contextTC ((sfield , _) ∷ fs) =
         fieldDesc' srec sfield >>= λ d →
-        let ty = R.def (quote uStrShape) (varg (R.def (quote MacroStructure) (harg tℓ₀ ∷ varg d ∷ [])) ∷ varg (R.def (quote MacroEquivStr) [ varg d ]) ∷ []) in
-        liftTC (varg ty ∷_) (contextTC fs)
+        let
+          ty =
+            R.def (quote uStrShape)
+              (R.def (quote MacroStructure) (tℓ₀ h∷ d v∷ []) v∷ R.def (quote MacroEquivStr) (d v∷ []) v∷ [])
+        in
+        liftTC (ty v∷_) (contextTC fs)
 
       innerTyTC : List (R.Name × R.Name) → R.Term → R.TC R.Term
       innerTyTC [] acc = R.returnTC acc
       innerTyTC ((sfield , _) ∷ fs) acc =
         fieldDesc' srec sfield >>= λ d →
-        let ty = R.def (quote uStrShape) (varg (R.def (quote MacroStructure) (harg tℓ₀ ∷ varg d ∷ [])) ∷ varg (R.def (quote MacroEquivStr) [ varg d ]) ∷ []) in
-        innerTyTC fs (R.def (quote func) (varg ty ∷ varg acc ∷ []))
+        let
+          ty =
+            R.def (quote uStrShape)
+              (R.def (quote MacroStructure) (tℓ₀ h∷ d v∷ []) v∷ R.def (quote MacroEquivStr) (d v∷ []) v∷ [])
+        in
+        innerTyTC fs (R.def (quote func) (ty v∷ acc v∷ []))
 
 record Dog (X : Type) : Type where
   field
