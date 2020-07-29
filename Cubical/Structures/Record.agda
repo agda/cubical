@@ -29,6 +29,11 @@ open import Agda.Builtin.String
 private
   FUEL = 10000
 
+data AutoFieldSpec : Typeω where
+  autoFieldSpec : ∀ {ℓ ℓ₁ ℓ₂} (R : Type ℓ → Type ℓ₁) {S : Type ℓ → Type ℓ₂}
+    → ({X : Type ℓ} → R X → S X)
+    → AutoFieldSpec
+
 module _ {ℓ ℓ₁ ℓ₁'} where
 
   data AutoDataFields (R : Type ℓ → Type ℓ₁) (ι : StrEquiv R ℓ₁')
@@ -140,8 +145,11 @@ private
   tApply : R.Term → List (R.Arg R.Term) → R.Term
   tApply t l = R.def (quote idfun) (R.unknown v∷ t v∷ l)
 
+  tStrMap : R.Term → R.Term → R.Term
+  tStrMap A f = R.def (quote map-snd) (f v∷ A v∷ [])
+
   tStrProj : R.Term → R.Name → R.Term
-  tStrProj A sfield = R.def (quote map-snd) (R.def sfield [] v∷ A v∷ [])
+  tStrProj A sfield = tStrMap A (R.def sfield [])
 
   newMeta = R.checkType R.unknown
 
@@ -149,6 +157,10 @@ private
 private
   fieldShape : ∀ ℓ {ℓ₁} ℓ₂ → (Type ℓ → Type ℓ₁) → (Type ℓ → Type ℓ₂) → Type _
   fieldShape ℓ _ R S = {X : Type ℓ} → R X → S X
+
+  pathMap : ∀ {ℓ ℓ'} {S : I → Type ℓ} {T : I → Type ℓ'} (f : {i : I} → S i → T i)
+    {x : S i0} {y : S i1} → PathP S x y → PathP T (f x) (f y)
+  pathMap f p i = f (p i)
 
   -- Property fields
   module _
@@ -190,10 +202,7 @@ private
     derivePropHelper propP .snd A B e q p =
       isOfHLevelPathP' 0 (isOfHLevelPathP 1 (propP _) _ _) _ _ .fst
 
-  pathMap : ∀ {ℓ ℓ'} {S : I → Type ℓ} {T : I → Type ℓ'} (f : {i : I} → S i → T i) {x : S i0} {y : S i1}
-    → PathP S x y → PathP T (f x) (f y)
-  pathMap f p i = f (p i)
-
+  -- Build proof of univalence from an isomorphism
   module _ {ℓ ℓ₁ ℓ₁'} (S : Type ℓ → Type ℓ₁) (ι : StrEquiv S ℓ₁') where
 
     fwdShape : Type _
@@ -212,6 +221,7 @@ private
     bwdFwdShape fwd bwd =
       (A B : TypeWithStr ℓ S) (e : typ A ≃ typ B) → ∀ r → bwd A B e (fwd A B e r) ≡ r
 
+    -- The implicit arguments A,B in UnivalentStr create issues so let's avoid them
     ExplicitUnivalentStr : Type _
     ExplicitUnivalentStr =
       (A B : TypeWithStr _ S) (e : typ A ≃ typ B) → ι A B e ≃ PathP (λ i → S (ua e i)) (str A) (str B)
@@ -235,20 +245,19 @@ private
   explicitUnivalentDesc : ∀ ℓ → (d : Desc ℓ) → ExplicitUnivalentDesc ℓ d
   explicitUnivalentDesc _ d A B e = MacroUnivalentStr d e
 
-
--- Derive a structure descriptor for a field of a record
 private
-  fieldStructure : R.Term → R.Term → R.Name → R.Name → R.TC R.Term
-  fieldStructure ℓ ℓ₂ srec sfield =
-    R.getType sfield >>= λ A →
-    newMeta (tStruct ℓ ℓ₂) >>= λ S →
-    R.unify (R.def (quote fieldShape) (ℓ v∷ ℓ₂ v∷ R.def srec [] v∷ S v∷ [])) A >>
-    R.returnTC S
+  findName : R.Term → R.TC R.Name
+  findName (R.def name _) = R.returnTC name
+  findName (R.lam R.hidden (R.abs _ t)) = findName t
+  findName t = R.typeError (R.strErr "Not a name + spine: " ∷ R.termErr t ∷ [])
 
-  fieldDesc : R.Term → R.Name → R.Name → R.TC R.Term
-  fieldDesc ℓ srec sfield =
-    newMeta tLevel >>= λ ℓ₂ →
-    fieldStructure ℓ ℓ₂ srec sfield >>= buildDesc FUEL ℓ ℓ₂
+private
+  parseFieldSpec : R.Term → R.TC (R.Term × R.Term × R.Term × R.Term)
+  parseFieldSpec (R.con (quote autoFieldSpec) (ℓ h∷ ℓ₁ h∷ ℓ₂ h∷ R v∷ S h∷ f v∷ [])) =
+    R.reduce ℓ >>= λ ℓ →
+    R.returnTC (ℓ , ℓ₂ , S , f)
+  parseFieldSpec t =
+    R.typeError (R.strErr "Malformed field specification: " ∷ R.termErr t ∷ [])
 
 -- Internal record specification type
 private
@@ -270,8 +279,8 @@ private
 
   record InternalSpec (A : Type) : Type where
     field
-      srec : R.Name
-      erec : R.Name
+      srec : R.Term
+      erec : R.Term
       datums : List (InternalDatumField A)
       props : List (InternalPropField A)
 
@@ -291,17 +300,12 @@ private
 -- Parse an AutoRecordSpec and derive an InternalSpec
 private
   parseSpec : R.Term → R.TC (InternalSpec TypedTerm)
-  parseSpec (R.con (quote autoRecordSpec) (ℓ h∷ ℓ₁ h∷ ℓ₁' h∷ R.def sr [] v∷ R.def er [] v∷ fs v∷ ps v∷ [])) =
+  parseSpec (R.con (quote autoRecordSpec) (ℓ h∷ ℓ₁ h∷ ℓ₁' h∷ srecTerm v∷ erecTerm v∷ fs v∷ ps v∷ [])) =
     parseData fs >>= λ fs' →
     parseProperties ps >>= λ ps' →
-    R.returnTC λ { .srec → sr ; .erec → er ; .datums → fs' ; .props → ps' }
+    R.returnTC λ { .srec → srecTerm ; .erec → erecTerm ; .datums → fs' ; .props → ps' }
     where
     open InternalSpec
-
-    findName : R.Term → R.TC R.Name
-    findName (R.def name _) = R.returnTC name
-    findName (R.lam R.hidden (R.abs _ t)) = findName t
-    findName t = R.typeError (R.strErr "Malformed autoRecord specification (0): " ∷ R.termErr t ∷ [])
 
     parseData : R.Term → R.TC (List (InternalDatumField TypedTerm))
     parseData (R.con (quote AutoDataFields.[]) _) = R.returnTC []
@@ -335,9 +339,9 @@ private
         p = λ
           { .sfield → fieldName
           ; .helper .type →
-            R.def (quote PropHelperType) (R.def sr [] v∷ R.def er [] v∷ fs v∷ P v∷ fieldTerm v∷ [])
+            R.def (quote PropHelperType) (srecTerm v∷ erecTerm v∷ fs v∷ P v∷ fieldTerm v∷ [])
           ; .helper .term →
-            R.def (quote derivePropHelper) (R.def sr [] v∷ R.def er [] v∷ fs v∷ P v∷ fieldTerm v∷ prop v∷ [])
+            R.def (quote derivePropHelper) (srecTerm v∷ erecTerm v∷ fs v∷ P v∷ fieldTerm v∷ prop v∷ [])
           }
       in
       liftTC (p ∷_) (parseProperties ps)
@@ -486,17 +490,14 @@ module _ (spec : InternalSpec ℕ) where
   univalentRecord : R.Term
   univalentRecord =
     R.def (quote explicitUnivalentStr)
-      (R.def srec [] v∷ R.def erec [] v∷ fwd v∷ bwd v∷ fwdBwd v∷ bwdFwd v∷ [])
+      (R.unknown v∷ R.unknown v∷ fwd v∷ bwd v∷ fwdBwd v∷ bwdFwd v∷ [])
 
 macro
-  autoFieldEquiv : R.Name → R.Name → R.Term → R.Term → R.Term → R.TC Unit
-  autoFieldEquiv srec sfield A B hole =
-    newMeta tLevel >>= λ ℓ →
-    newMeta (tDesc ℓ) >>= λ d →
-    R.unify hole
-      (R.def (quote MacroEquivStr) (d v∷ tStrProj A sfield v∷ tStrProj B sfield v∷ [])) >>
-    fieldDesc ℓ srec sfield >>=
-    R.unify d
+  autoFieldEquiv : R.Term → R.Term → R.Term → R.Term → R.TC Unit
+  autoFieldEquiv spec A B hole =
+    (R.reduce spec >>= parseFieldSpec) >>= λ (ℓ , ℓ₂ , S , f) →
+    buildDesc FUEL ℓ ℓ₂ S >>= λ d →
+    R.unify hole (R.def (quote MacroEquivStr) (d v∷ tStrMap A f v∷ tStrMap B f v∷ []))
 
   autoUnivalentRecord : R.Term → R.Term → R.TC Unit
   autoUnivalentRecord t hole =
@@ -530,13 +531,13 @@ macro
       closureTy =
         List.foldr
           (λ ty cod → R.def (quote func) (ty v∷ cod v∷ []))
-          (R.def (quote ExplicitUnivalentStr) (R.def srec [] v∷ R.def erec [] v∷ []))
+          (R.def (quote ExplicitUnivalentStr) (srec v∷ erec v∷ []))
           (List.map (type ∘ univalent) datums ++ List.map (type ∘ helper) props)
 
       main : R.Term
       main = R.def (quote idfun) (closureTy v∷ closure v∷ env)
 
-record MonoidStr (X : Type₁) : Type₁ where
+record MonoidStr ℓ (X : Type ℓ) : Type ℓ where
   field
     unit : X
     mult : X → X → X
@@ -547,17 +548,17 @@ record MonoidStr (X : Type₁) : Type₁ where
 
 open MonoidStr
 
-record MonoidEquiv (A B : TypeWithStr (ℓ-suc ℓ-zero) MonoidStr) (e : typ A ≃ typ B) : Type₁ where
+record MonoidEquiv {ℓ} (A B : TypeWithStr ℓ (MonoidStr ℓ)) (e : typ A ≃ typ B) : Type ℓ where
   field
-    unit : autoFieldEquiv MonoidStr unit A B e
-    mult : autoFieldEquiv MonoidStr mult A B e
+    unit : autoFieldEquiv (autoFieldSpec (MonoidStr ℓ) unit) A B e
+    mult : autoFieldEquiv (autoFieldSpec (MonoidStr ℓ) mult) A B e
 
 open MonoidEquiv
 
-test : UnivalentStr MonoidStr MonoidEquiv
-test =
+test : {ℓ : Level} → UnivalentStr (MonoidStr ℓ) MonoidEquiv
+test {ℓ = ℓ} =
   autoUnivalentRecord
-    (autoRecordSpec MonoidStr MonoidEquiv
+    (autoRecordSpec (MonoidStr ℓ) MonoidEquiv
       ( data[ unit ∣ unit ]∷
         data[ mult ∣ mult ]∷
         []
