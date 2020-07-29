@@ -247,6 +247,7 @@ module GroupNotationG {ℓ : Level} (G : Group {ℓ}) where
   _+ᴳ_ = G ._+_
   -ᴳ_ = G .-_
   lIdᴳ = IsGroup.lid (G .isGroup)
+  rIdᴳ = IsGroup.rid (G .isGroup)
   lCancelᴳ = IsGroup.invl (G .isGroup)
   rCancelᴳ = IsGroup.invr (G .isGroup)
   assocᴳ = G .assoc
@@ -263,3 +264,27 @@ module GroupNotationH {ℓ : Level} (G : Group {ℓ}) where
   rCancelᴴ = IsGroup.invr (G .isGroup)
   setᴴ = Group.is-set G
   assocᴴ = G .assoc
+
+module GroupNotation₀ {ℓ : Level} (G : Group {ℓ}) where
+  open Group
+  0₀ = G .0g
+  _+₀_ = G ._+_
+  -₀_ = G .-_
+  lId₀ = IsGroup.lid (G .isGroup)
+  rId₀ = IsGroup.rid (G .isGroup)
+  lCancel₀ = IsGroup.invl (G .isGroup)
+  rCancel₀ = IsGroup.invr (G .isGroup)
+  assoc₀ = G .assoc
+  set₀ = Group.is-set G
+
+module GroupNotation₁ {ℓ : Level} (G : Group {ℓ}) where
+  open Group
+  0₁ = G .0g
+  _+₁_ = G ._+_
+  -₁_ = G .-_
+  lId₁ = IsGroup.lid (G .isGroup)
+  rId₁ = IsGroup.rid (G .isGroup)
+  lCancel₁ = IsGroup.invl (G .isGroup)
+  rCancel₁ = IsGroup.invr (G .isGroup)
+  assoc₁ = G .assoc
+  set₁ = Group.is-set G

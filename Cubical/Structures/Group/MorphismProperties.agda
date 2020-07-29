@@ -18,6 +18,7 @@ open import Cubical.Structures.Axioms
 open import Cubical.Structures.Pointed
 open import Cubical.Structures.Semigroup hiding (⟨_⟩)
 open import Cubical.Structures.Monoid hiding (⟨_⟩)
+open import Cubical.Structures.Subtype
 
 open import Cubical.Structures.Group.Base
 open import Cubical.Structures.Group.Properties
@@ -363,9 +364,17 @@ module MorphismLemmas {G : Group {ℓ}} {H : Group {ℓ'}} (F : GroupHom G H) wh
                cong (_+ᴴ -ᴴ (f g)) (sym (F .isHom (-ᴳ g) g) ∙ cong f (lCancelᴳ g) ∙ mapId) ∙∙
                lIdᴴ (-ᴴ (f g))
 
-module Kernel {ℓ' : Level} where
-  ker : {G : Group {ℓ}} {H : Group {ℓ'}} (F : GroupHom G H) → Group {ℓ-max ℓ ℓ'}
-  ker {G = G} {H = H} F =
+module Kernel {ℓ' : Level} {G : Group {ℓ}} {H : Group {ℓ'}} (F : GroupHom G H) where
+  private
+    open GroupNotationH H
+    f = GroupHom.fun F
+    -- sg stands for subgroup
+  sg-typeProp : Subtype ℓ' ⟨ G ⟩
+  sg-typeProp g = (f g ≡ 0ᴴ) , setᴴ (f g) 0ᴴ
+  sg-type = Subtype→Type sg-typeProp
+
+  ker : Group {ℓ-max ℓ ℓ'}
+  ker =
     makeGroup-left {A = sg-type}
                    sg-0
                    _+sg_
@@ -379,15 +388,8 @@ module Kernel {ℓ' : Level} where
       open GroupHom
       open MorphismLemmas F
       open GroupNotationG G
-      open GroupNotationH H
       open GroupLemmas
-      open import Cubical.Structures.Subtype
-      f = GroupHom.fun F
 
-      -- sg stands for subgroup
-      sg-typeProp : Subtype ℓ' ⟨ G ⟩
-      sg-typeProp g = (f g ≡ 0ᴴ) , setᴴ (f g) 0ᴴ
-      sg-type = Subtype→Type sg-typeProp
 
       sg-0 = 0ᴳ , mapId
 

@@ -97,3 +97,6 @@ module ActionLemmas {G : Group {ℓ}} {H : Group {ℓ'}} (Act : GroupAction G H)
   abstract
     actOnUnit : (g : ⟨ G ⟩) → g α 0ᴴ ≡ 0ᴴ
     actOnUnit g = mapId (grouphom (g α_) (α-hom g))
+
+-- Examples
+-- left adjoint action of a group on a normal subgroup
