@@ -81,3 +81,19 @@ isPropIsGroupAction G H _α_ = isOfHLevelRespectEquiv 1
                                                      (isPropIsGroupActionΣ G H _α_)
 
 
+module ActionNotationα {N : Group {ℓ}} {H : Group {ℓ'}} (Act : GroupAction H N) where
+  _α_ = GroupAction._α_ Act
+  private
+    isGroupAction = GroupAction.isGroupAction Act
+  α-id = IsGroupAction.identity isGroupAction
+  α-hom = IsGroupAction.isHom isGroupAction
+  α-assoc = IsGroupAction.assoc isGroupAction
+
+module ActionLemmas {G : Group {ℓ}} {H : Group {ℓ'}} (Act : GroupAction G H) where
+  open ActionNotationα {N = H} {H = G} Act
+  open GroupNotationH H
+  open MorphismLemmas {G = H} {H = H}
+
+  abstract
+    actOnUnit : (g : ⟨ G ⟩) → g α 0ᴴ ≡ 0ᴴ
+    actOnUnit g = mapId (grouphom (g α_) (α-hom g))

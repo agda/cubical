@@ -33,20 +33,13 @@ private
   variable
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓA' ℓ≅A ℓ≅A' ℓB ℓB' ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓ≅ᴰ' : Level
 
-module ActionNotationα {N : Group {ℓ}} {H : Group {ℓ'}} (Act : GroupAction H N) where
-  _α_ = GroupAction._α_ Act
-  private
-    isGroupAction = GroupAction.isGroupAction Act
-  α-id = IsGroupAction.identity isGroupAction
-  α-hom = IsGroupAction.isHom isGroupAction
-  α-assoc = IsGroupAction.assoc isGroupAction
-
 module Semidirect where
   semidirectProd : (G : Group {ℓ}) (H : Group {ℓ'}) (Act : GroupAction H G)
                    → Group {ℓ-max ℓ ℓ'}
   semidirectProd G H Act = makeGroup-left {A = sd-carrier} sd-0 _+sd_ -sd_ sd-set sd-assoc sd-lId sd-lCancel
     where
       open ActionNotationα Act
+      open ActionLemmas Act
       open GroupNotationG G
       open GroupNotationH H
 
@@ -62,7 +55,8 @@ module Semidirect where
       abstract
         sd-set = isSetΣ setᴳ (λ _ → setᴴ)
         sd-lId = λ ((g , h) : sd-carrier) → ΣPathP (lIdᴳ (0ᴴ α g) ∙ (α-id g) , lIdᴴ h)
-        sd-lCancel = λ ((g , h) : sd-carrier) → ΣPathP ({!sym (α-hom (-ᴴ h) (-ᴳ g) g) ∙∙ cong ((-ᴴ h) α_) (lCancelᴳ g) ∙∙ ?!} , lCancelᴴ h)
+        sd-lCancel = λ ((g , h) : sd-carrier) → ΣPathP ((sym (α-hom (-ᴴ h) (-ᴳ g) g) ∙∙ cong ((-ᴴ h) α_) (lCancelᴳ g) ∙∙ actOnUnit (-ᴴ h)) , lCancelᴴ h)
+
 
         sd-assoc = λ (a , x) (b , y) (c , z) → ΣPathP ((a +ᴳ (x α (b  +ᴳ (y α c)))
                                     ≡⟨ cong (a +ᴳ_) (α-hom x b (y α c)) ⟩
@@ -72,50 +66,7 @@ module Semidirect where
                                     ≡⟨ cong ((a +ᴳ (x α b)) +ᴳ_) (sym (α-assoc x y c)) ⟩
                                 (a +ᴳ (x α b)) +ᴳ ((x +ᴴ y) α c) ∎) , assocᴴ x y z)
 
-
-{-
-  semidirectProduct : (N : Group {ℓ}) (H : Group {ℓ'}) (Act : GroupAction H N)
-                      → Group {ℓ-max ℓ ℓ'}
-  semidirectProduct N H Act
-    = makeGroup-left {A = N .Carrier × H .Carrier} -- carrier
-                     -- identity
-                     (N .0g , H .0g)
-                     -- _+_
-                     (λ (n , h) (n' , h') → n +N (h α n') , h +H h')
-                     -- -_
-                     (λ (n , h) → (-H h) α (-N n) , -H h)
-                     -- set
-                     (isSetΣ (N .is-set) λ _ → H .is-set)
-                     -- assoc
-                     (λ (a , x) (b , y) (c , z)
-                       → ΣPathP ((a +N (x α (b  +N (y α c)))
-                                    ≡⟨ cong (a +N_) (α-hom x b (y α c)) ⟩
-                                a +N ((x α b) +N (x α (y α c)))
-                                    ≡⟨ assocN a (x α b) (x α (y α c)) ⟩
-                                (a +N (x α b)) +N (x α (y α c))
-                                    ≡⟨ cong ((a +N (x α b)) +N_) (sym (α-assoc x y c)) ⟩
-                                (a +N (x α b)) +N ((x +H y) α c) ∎) , H .assoc x y z))
-                     -- lUnit
-                     (λ (n , h) → ΣPathP (lUnitN ((H .0g) α n) ∙ α-id n , lUnitH h))
-                     -- lCancel
-                     λ (n , h) → ΣPathP ((sym (α-hom (-H h) (-N n) n) ∙∙ cong ((-H h) α_) (lCancelN n) ∙∙ {!actg1≡1!}) ,  lCancelH h)
-                     where
-                       open GroupAction Act
-                       open Group
-                       _+N_ = N ._+_
-                       _+H_ = H ._+_
-                       -N_ = N .-_
-                       -H_ = H .-_
-                       lUnitH = IsGroup.lid (H .isGroup)
-                       lUnitN = IsGroup.lid (N .isGroup)
-                       lCancelH = IsGroup.invl (H .isGroup)
-                       lCancelN = IsGroup.invl (N .isGroup)
-                       assocN = IsGroup.assoc (N .isGroup)
-                       α-id = IsGroupAction.identity isGroupAction
-                       α-hom = IsGroupAction.isHom isGroupAction
-                       α-assoc = IsGroupAction.assoc isGroupAction
-
-  syntax semidirectProduct N H α = N ⋊⟨ α ⟩ H
+  syntax semidirectProd N H α = N ⋊⟨ α ⟩ H
 
   module Projections {N : Group {ℓ}} {H : Group {ℓ'}} (α : GroupAction H N) where
     π₁ : ⟨ N ⋊⟨ α ⟩ H ⟩ → ⟨ N ⟩
@@ -171,7 +122,6 @@ module _ (ℓ ℓ' : Level) where
   ReflexiveGraph = Σ[ (G₀ , G₁ , ι , σ , split-σ) ∈ (Σ[ G₀ ∈ Group {ℓ} ] SplitExt G₀ ℓ') ] Σ[ τ ∈ GroupHom G₁ G₀ ] isGroupHomRet ι τ
 
   PreCrossedModule = Σ[ (G₀ , G₁ , _α_ , isAct) ∈ (Σ[ G₀ ∈ Group {ℓ} ] GroupAct G₀ ℓ') ] (Σ[ φ ∈ GroupHom G₁ G₀ ] isEquivariant _α_ φ)
--}
 {-
 module _ where
   open import Cubical.Data.Maybe
