@@ -501,11 +501,7 @@ macro
 
   autoUnivalentRecord : R.Term → R.Term → R.TC Unit
   autoUnivalentRecord t hole =
-    (R.reduce t >>= parseSpec) >>= λ spec →
-    caseBool
-      (R.typeError [ R.termErr (main spec) ])
-      (R.unify (main spec) hole)
-      false -- DEBUG
+    (R.reduce t >>= parseSpec) >>= λ spec → R.unify (main spec) hole
     where
     module _ (spec : InternalSpec TypedTerm) where
       open InternalSpec spec
