@@ -150,24 +150,6 @@ private
   fieldShape : ∀ ℓ {ℓ₁} ℓ₂ → (Type ℓ → Type ℓ₁) → (Type ℓ → Type ℓ₂) → Type _
   fieldShape ℓ _ R S = {X : Type ℓ} → R X → S X
 
-  -- Data fields
-  module _
-    {ℓ ℓ₁ ℓ₁' ℓ₂ ℓ₂'}
-    (R : Type ℓ → Type ℓ₁) -- Structure record
-    (ι : StrEquiv R ℓ₁') -- Equivalence record
-    (S : Type ℓ → Type ℓ₂) -- Data type
-    (ι' : StrEquiv S ℓ₂') -- Structured equivalence for data
-    where
-
-    record DataHelperType : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ₁) ℓ₁') ℓ₂) ℓ₂') where
-      field
-        projStr : {X : Type ℓ} → R X → S X
-        projEquiv : ∀ A B e → ι A B e → ι' (map-snd projStr A) (map-snd projStr B) e
-        fwd : ∀ A B e → ι' A B e → PathP (λ i → S (ua e i)) (A .snd) (B .snd)
-        bwd : ∀ A B e → PathP (λ i → S (ua e i)) (A .snd) (B .snd) → ι' A B e
-        fwdBwd : ∀ A B e q → fwd A B e (bwd A B e q) ≡ q
-        bwdFwd : ∀ A B e q → bwd A B e (fwd A B e q) ≡ q
-
   -- Property fields
   module _
     {ℓ ℓ₁ ℓ₁' ℓ₂}
