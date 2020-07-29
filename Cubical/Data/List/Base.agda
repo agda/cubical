@@ -33,11 +33,11 @@ module _ {ℓ} {A : Type ℓ} where
   map f [] = []
   map f (x ∷ xs) = f x ∷ map f xs
 
-  filterMap : ∀ {ℓ'} {B : Type ℓ'} → (A → Maybe B) → List A → List B
-  filterMap f [] = []
-  filterMap f (x ∷ xs) with f x
-  ... | nothing = filterMap f xs
-  ... | just y = y ∷ filterMap f xs
+  map2 : ∀ {ℓ' ℓ''} {B : Type ℓ'} {C : Type ℓ''}
+    → (A → B → C) → List A → List B → List C
+  map2 f [] _ = []
+  map2 f _ [] = []
+  map2 f (x ∷ xs) (y ∷ ys) = f x y ∷ map2 f xs ys
 
   foldr : ∀ {ℓ'} {B : Type ℓ'} → (A → B → B) → B → List A → B
   foldr f b [] = b
