@@ -145,10 +145,30 @@ private
 
   newMeta = R.checkType R.unknown
 
+-- Helper functions used in the generated univalence proof
 private
   fieldShape : ∀ ℓ {ℓ₁} ℓ₂ → (Type ℓ → Type ℓ₁) → (Type ℓ → Type ℓ₂) → Type _
   fieldShape ℓ _ R S = {X : Type ℓ} → R X → S X
 
+  -- Data fields
+  module _
+    {ℓ ℓ₁ ℓ₁' ℓ₂ ℓ₂'}
+    (R : Type ℓ → Type ℓ₁) -- Structure record
+    (ι : StrEquiv R ℓ₁') -- Equivalence record
+    (S : Type ℓ → Type ℓ₂) -- Data type
+    (ι' : StrEquiv S ℓ₂') -- Structured equivalence for data
+    where
+
+    record DataHelperType : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ₁) ℓ₁') ℓ₂) ℓ₂') where
+      field
+        projStr : {X : Type ℓ} → R X → S X
+        projEquiv : ∀ A B e → ι A B e → ι' (map-snd projStr A) (map-snd projStr B) e
+        fwd : ∀ A B e → ι' A B e → PathP (λ i → S (ua e i)) (A .snd) (B .snd)
+        bwd : ∀ A B e → PathP (λ i → S (ua e i)) (A .snd) (B .snd) → ι' A B e
+        fwdBwd : ∀ A B e q → fwd A B e (bwd A B e q) ≡ q
+        bwdFwd : ∀ A B e q → bwd A B e (fwd A B e q) ≡ q
+
+  -- Property fields
   module _
     {ℓ ℓ₁ ℓ₁' ℓ₂}
     (R : Type ℓ → Type ℓ₁) -- Structure record
@@ -162,14 +182,14 @@ private
       dat = projectDataFields fs
       Dat = GatherDataFields fs
 
-    PropFieldCenterType : Type _
-    PropFieldCenterType =
+    PropHelperCenterType : Type _
+    PropHelperCenterType =
       (A B : TypeWithStr ℓ R) (e : A .fst ≃ B .fst)
       (p : PathP (λ i → Dat (ua e i)) (dat (A .snd)) (dat (B .snd)))
       → PathP (λ i → P (ua e i) (p i)) (f (A .snd)) (f (B .snd))
 
-    PropFieldContractType : PropFieldCenterType → Type _
-    PropFieldContractType c =
+    PropHelperContractType : PropHelperCenterType → Type _
+    PropHelperContractType c =
       (A B : TypeWithStr ℓ R) (e : A .fst ≃ B .fst)
       {p₀ : PathP (λ i → Dat (ua e i)) (dat (A .snd)) (dat (B .snd))}
       (q : PathP (λ i → R (ua e i)) (A .snd) (B .snd))
@@ -178,21 +198,19 @@ private
         (c A B e p₀)
         (λ i → f (q i))
 
-    PropFieldHelperType : Type _
-    PropFieldHelperType =
-      Σ PropFieldCenterType PropFieldContractType
+    PropHelperType : Type _
+    PropHelperType =
+      Σ PropHelperCenterType PropHelperContractType
 
-    derivePropHelper : isPropProperty R ι fs P → PropFieldHelperType
+    derivePropHelper : isPropProperty R ι fs P → PropHelperType
     derivePropHelper propP .fst A B e p =
       isOfHLevelPathP' 0 (propP _) (f (A .snd)) (f (B .snd)) .fst
     derivePropHelper propP .snd A B e q p =
       isOfHLevelPathP' 0 (isOfHLevelPathP 1 (propP _) _ _) _ _ .fst
 
-  pathMap : ∀ {ℓ ℓ₁ ℓ₂} (S : Type ℓ → Type ℓ₁) {T : Type ℓ → Type ℓ₂} {X Y : Type ℓ}
-    (e : X ≃ Y) (f : {X : Type ℓ} → S X → T X) {x : S X} {y : S Y}
-    → PathP (λ i → S (ua e i)) x y
-    → PathP (λ i → T (ua e i)) (f x) (f y)
-  pathMap S e f p i = f (p i)
+  pathMap : ∀ {ℓ ℓ'} {S : I → Type ℓ} {T : I → Type ℓ'} (f : {i : I} → S i → T i) {x : S i0} {y : S i1}
+    → PathP S x y → PathP T (f x) (f y)
+  pathMap f p i = f (p i)
 
   module _ {ℓ ℓ₁ ℓ₁'} (S : Type ℓ → Type ℓ₁) (ι : StrEquiv S ℓ₁') where
 
@@ -335,7 +353,7 @@ private
         p = λ
           { .sfield → fieldName
           ; .helper .type →
-            R.def (quote PropFieldHelperType) (R.def sr [] v∷ R.def er [] v∷ fs v∷ P v∷ fieldTerm v∷ [])
+            R.def (quote PropHelperType) (R.def sr [] v∷ R.def er [] v∷ fs v∷ P v∷ fieldTerm v∷ [])
           ; .helper .term →
             R.def (quote derivePropHelper) (R.def sr [] v∷ R.def er [] v∷ fs v∷ P v∷ fieldTerm v∷ prop v∷ [])
           }
@@ -370,7 +388,7 @@ module _ (spec : InternalSpec ℕ) where
           (tApply
             (v (dat .univalent))
             (tStrProj A (dat .sfield) v∷ tStrProj B (dat .sfield) v∷ e v∷ [])
-            v∷ R.def (quote pathMap) (R.def srec [] v∷ e v∷ R.def (dat .sfield) [] v∷ q v∷ [])
+            v∷ R.def (quote pathMap) (R.def (dat .sfield) [] v∷ q v∷ [])
             v∷ []))
 
     fwdBwdDatum : (A B e q k i : R.Term) → InternalDatumField ℕ → R.Term
@@ -379,7 +397,7 @@ module _ (spec : InternalSpec ℕ) where
         (tApply
           (v (dat .univalent))
           (tStrProj A (dat .sfield) v∷ tStrProj B (dat .sfield) v∷ e v∷ [])
-          v∷ R.def (quote pathMap) (R.def srec [] v∷ e v∷ R.def (dat .sfield) [] v∷ q v∷ [])
+          v∷ R.def (quote pathMap) (R.def (dat .sfield) [] v∷ q v∷ [])
           v∷ k v∷ i
           v∷ [])
 
