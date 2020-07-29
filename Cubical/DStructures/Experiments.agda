@@ -33,68 +33,47 @@ private
   variable
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓA' ℓ≅A ℓ≅A' ℓB ℓB' ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓ≅ᴰ' : Level
 
-
-{-
-transport-𝒮ᴰ : {A : Type ℓ} {A' : Type ℓ} (p : A ≡ A')
-                {𝒮-A : URGStr A ℓ≅A}
-                {𝒮-A' : URGStr A' ℓ≅A}
-                (p-𝒮 : PathP (λ i → URGStr (p i) ℓ≅A) 𝒮-A 𝒮-A')
-                {B : A → Type ℓB} (𝒮ᴰ-A\B : URGStrᴰ 𝒮-A B ℓ≅B)
-                → URGStrᴰ 𝒮-A'
-                          (λ a' → B (transport (sym p) a'))
-                          ℓ≅B
-transport-𝒮ᴰ p p-𝒮 = {!make-𝒮ᴰ!}
--}
-
-{-
-module _ (ℓ ℓ' : Level) where
-  open MorphismTree ℓ ℓ'
-
-  𝒮ᴰ-G\GFB : URGStrᴰ (𝒮-group ℓ)
-                     (λ G → Σ[ H ∈ Group {ℓ'} ] GroupHom G H × GroupHom H G)
-                     (ℓ-max ℓ ℓ')
-  𝒮ᴰ-G\GFB = splitTotal-𝒮ᴰ (𝒮-group ℓ)
-                           (𝒮ᴰ-const (𝒮-group ℓ) (𝒮-group ℓ'))
-                           𝒮ᴰ-G²\FB
-
-  𝒮-G\GFB = ∫⟨ 𝒮-group ℓ ⟩ 𝒮ᴰ-G\GFB
-
-  𝒮ᴰ-G\GFBSplit : URGStrᴰ (𝒮-group ℓ)
-                          (λ G → Σ[ (H , f , b) ∈ Σ[ H ∈ Group {ℓ'} ] GroupHom G H × GroupHom H G ] isGroupHomRet f b)
-                          (ℓ-max ℓ ℓ')
-  𝒮ᴰ-G\GFBSplit = splitTotal-𝒮ᴰ (𝒮-group ℓ)
-                                𝒮ᴰ-G\GFB
-                                (transport-𝒮ᴰ (ua e) {!!} 𝒮ᴰ-G²FB\Split)
-                                where
-                                  GGFB = Σ[ G ∈ Group {ℓ} ] Σ[ H ∈ Group {ℓ'} ] GroupHom G H × GroupHom H G
-                                  e : G²FB ≃ GGFB
-                                  e = compEquiv Σ-assoc-≃ {!!}
--}
-
-module Kernel where
-  ker : {G : Group {ℓ}} {H : Group {ℓ'}} (f : GroupHom G H) → Group {ℓ-max ℓ ℓ'}
-  ker {G = G} {H = H} f* =
-    makeGroup-left {A = Σ[ g ∈ ⟨ G ⟩ ] f g ≡ 0ᴴ }
-                   (0ᴳ , {!!})
-                   (λ (g , p) (g' , p') → g +ᴳ g , {!!})
-                   (λ (g , p) → -ᴳ g , {!!})
-                   {!!}
-                   {!!}
-                   {!!}
-                   {!!}
-    where
-      f = GroupHom.fun f*
-      f-hom = GroupHom.isHom f*
-
-      open Group
-      0ᴴ = H .0g
-      0ᴳ = G .0g
-      _+ᴴ_ = H ._+_
-      _+ᴳ_ = G ._+_
-      -ᴳ_ = G .-_
+module ActionNotationα {N : Group {ℓ}} {H : Group {ℓ'}} (Act : GroupAction H N) where
+  _α_ = GroupAction._α_ Act
+  private
+    isGroupAction = GroupAction.isGroupAction Act
+  α-id = IsGroupAction.identity isGroupAction
+  α-hom = IsGroupAction.isHom isGroupAction
+  α-assoc = IsGroupAction.assoc isGroupAction
 
 module Semidirect where
+  semidirectProd : (G : Group {ℓ}) (H : Group {ℓ'}) (Act : GroupAction H G)
+                   → Group {ℓ-max ℓ ℓ'}
+  semidirectProd G H Act = makeGroup-left {A = sd-carrier} sd-0 _+sd_ -sd_ sd-set sd-assoc sd-lId sd-lCancel
+    where
+      open ActionNotationα Act
+      open GroupNotationG G
+      open GroupNotationH H
 
+      -- sd stands for semidirect
+      sd-carrier = ⟨ G ⟩ × ⟨ H ⟩
+      sd-0 = 0ᴳ , 0ᴴ
+
+      module _ ((g , h) : sd-carrier) where
+        -sd_ = (-ᴴ h) α (-ᴳ g) , -ᴴ h
+
+        _+sd_ = λ (g' , h') → g +ᴳ (h α g') , h +ᴴ h'
+
+      abstract
+        sd-set = isSetΣ setᴳ (λ _ → setᴴ)
+        sd-lId = λ ((g , h) : sd-carrier) → ΣPathP (lIdᴳ (0ᴴ α g) ∙ (α-id g) , lIdᴴ h)
+        sd-lCancel = λ ((g , h) : sd-carrier) → ΣPathP ({!sym (α-hom (-ᴴ h) (-ᴳ g) g) ∙∙ cong ((-ᴴ h) α_) (lCancelᴳ g) ∙∙ ?!} , lCancelᴴ h)
+
+        sd-assoc = λ (a , x) (b , y) (c , z) → ΣPathP ((a +ᴳ (x α (b  +ᴳ (y α c)))
+                                    ≡⟨ cong (a +ᴳ_) (α-hom x b (y α c)) ⟩
+                                a +ᴳ ((x α b) +ᴳ (x α (y α c)))
+                                    ≡⟨ assocᴳ a (x α b) (x α (y α c)) ⟩
+                                (a +ᴳ (x α b)) +ᴳ (x α (y α c))
+                                    ≡⟨ cong ((a +ᴳ (x α b)) +ᴳ_) (sym (α-assoc x y c)) ⟩
+                                (a +ᴳ (x α b)) +ᴳ ((x +ᴴ y) α c) ∎) , assocᴴ x y z)
+
+
+{-
   semidirectProduct : (N : Group {ℓ}) (H : Group {ℓ'}) (Act : GroupAction H N)
                       → Group {ℓ-max ℓ ℓ'}
   semidirectProduct N H Act
@@ -192,8 +171,7 @@ module _ (ℓ ℓ' : Level) where
   ReflexiveGraph = Σ[ (G₀ , G₁ , ι , σ , split-σ) ∈ (Σ[ G₀ ∈ Group {ℓ} ] SplitExt G₀ ℓ') ] Σ[ τ ∈ GroupHom G₁ G₀ ] isGroupHomRet ι τ
 
   PreCrossedModule = Σ[ (G₀ , G₁ , _α_ , isAct) ∈ (Σ[ G₀ ∈ Group {ℓ} ] GroupAct G₀ ℓ') ] (Σ[ φ ∈ GroupHom G₁ G₀ ] isEquivariant _α_ φ)
-
-
+-}
 {-
 module _ where
   open import Cubical.Data.Maybe

@@ -337,3 +337,92 @@ Iso.leftInv (GroupMorphismExtIso {G' = G'} f g) H =
                        (inv (GroupMorphismExtIso f g) (fun (GroupMorphismExtIso f g) H) x)
                        (H x))
 Iso.rightInv (GroupMorphismExtIso f g) p = isSetGroupHom f g (fun (GroupMorphismExtIso f g) (inv (GroupMorphismExtIso f g) p)) p
+
+
+module MorphismLemmas {G : Group {ℓ}} {H : Group {ℓ'}} (F : GroupHom G H) where
+  open Group
+  open GroupHom
+  open GroupNotationG G
+  open GroupNotationH H
+
+  private
+    f = F .fun
+
+  abstract
+    mapId : f 0ᴳ ≡ 0ᴴ
+    mapId = sym (rIdᴴ (f 0ᴳ)) ∙∙
+            sym (cong ((f 0ᴳ) +ᴴ_) (rCancelᴴ (f 0ᴳ))) ∙∙
+            assocᴴ (f 0ᴳ) (f 0ᴳ) (-ᴴ (f 0ᴳ)) ∙∙
+            cong (_+ᴴ (-ᴴ (f 0ᴳ))) (sym (F .isHom 0ᴳ 0ᴳ) ∙ cong f (lIdᴳ 0ᴳ)) ∙∙
+            rCancelᴴ (f 0ᴳ)
+
+    mapInv : (g : ⟨ G ⟩) → f (-ᴳ g) ≡ -ᴴ (f g)
+    mapInv g = sym (rIdᴴ (f (-ᴳ g))) ∙∙
+               cong (f (-ᴳ g) +ᴴ_) (sym (rCancelᴴ (f g))) ∙∙
+               assocᴴ (f (-ᴳ g)) (f g) (-ᴴ (f g)) ∙∙
+               cong (_+ᴴ -ᴴ (f g)) (sym (F .isHom (-ᴳ g) g) ∙ cong f (lCancelᴳ g) ∙ mapId) ∙∙
+               lIdᴴ (-ᴴ (f g))
+
+module Kernel {ℓ' : Level} where
+  ker : {G : Group {ℓ}} {H : Group {ℓ'}} (F : GroupHom G H) → Group {ℓ-max ℓ ℓ'}
+  ker {G = G} {H = H} F =
+    makeGroup-left {A = sg-type}
+                   sg-0
+                   _+sg_
+                   -sg_
+                   sg-set
+                   sg-assoc
+                   sg-lId
+                   sg-lCancel
+    where
+      open Group
+      open GroupHom
+      open MorphismLemmas F
+      open GroupNotationG G
+      open GroupNotationH H
+      open GroupLemmas
+      open import Cubical.Structures.Subtype
+      f = GroupHom.fun F
+
+      -- sg stands for subgroup
+      sg-typeProp : Subtype ℓ' ⟨ G ⟩
+      sg-typeProp g = (f g ≡ 0ᴴ) , setᴴ (f g) 0ᴴ
+      sg-type = Subtype→Type sg-typeProp
+
+      sg-0 = 0ᴳ , mapId
+
+
+      module _ ((g , p) : sg-type) where
+        -sg_ = -ᴳ g , q
+          where
+            abstract
+              q = mapInv g ∙ cong -ᴴ_ p ∙ invId H
+
+        _+sg_ : sg-type → sg-type
+        _+sg_ (g' , p') = g +ᴳ g' , q
+          where
+            abstract
+              q = F .isHom g g' ∙
+                  cong (f g +ᴴ_) p' ∙
+                  cong (_+ᴴ 0ᴴ) p ∙
+                  lIdᴴ 0ᴴ
+
+      abstract
+        sg-set : isSet sg-type
+        sg-set = isOfHLevelΣ 2 setᴳ λ g → isProp→isSet (setᴴ (f g) 0ᴴ)
+        module _ ((g , p) : sg-type) where
+          sg-lId : sg-0 +sg (g , p) ≡ (g , p)
+          sg-lId = ΣPathP (lIdᴳ g , isProp→PathP (λ i → snd (sg-typeProp (lIdᴳ g i)))
+                                                 (snd (sg-0 +sg (g , p)))
+                                                 p)
+
+          sg-lCancel : (-sg (g , p)) +sg (g , p) ≡ sg-0
+          sg-lCancel = ΣPathP (lCancelᴳ g , isProp→PathP (λ i → snd (sg-typeProp (lCancelᴳ g i)))
+                                                         (snd ((-sg (g , p)) +sg (g , p)))
+                                                         (snd sg-0))
+
+          sg-assoc : (b : sg-type) → (c : sg-type) → (g , p) +sg (b +sg c) ≡ ((g , p) +sg b) +sg c
+          sg-assoc (g' , p') (g'' , p'')
+            = ΣPathP (assocᴳ g g' g'' , isProp→PathP (λ i → snd (sg-typeProp (assocᴳ g g' g'' i)))
+                                                     (snd ((g , p) +sg ((g' , p') +sg (g'' , p''))))
+                                                     (snd (((g , p) +sg (g' , p')) +sg (g'' , p''))))

@@ -240,3 +240,26 @@ is-set (isSemigroup (isMonoid (isGroup intGroup))) = isSetInt
 assoc (isSemigroup (isMonoid (isGroup intGroup))) = +-assoc
 identity (isMonoid (isGroup intGroup)) x = refl , (+-comm (pos 0) x)
 inverse (isGroup intGroup) x = +-comm x (pos 0 -Int x) ∙ minusPlus x 0 , (minusPlus x 0)
+
+module GroupNotationG {ℓ : Level} (G : Group {ℓ}) where
+  open Group
+  0ᴳ = G .0g
+  _+ᴳ_ = G ._+_
+  -ᴳ_ = G .-_
+  lIdᴳ = IsGroup.lid (G .isGroup)
+  lCancelᴳ = IsGroup.invl (G .isGroup)
+  rCancelᴳ = IsGroup.invr (G .isGroup)
+  assocᴳ = G .assoc
+  setᴳ = Group.is-set G
+
+module GroupNotationH {ℓ : Level} (G : Group {ℓ}) where
+  open Group
+  0ᴴ = G .0g
+  _+ᴴ_ = G ._+_
+  -ᴴ_ = G .-_
+  lIdᴴ = IsGroup.lid (G .isGroup)
+  rIdᴴ = IsGroup.rid (G .isGroup)
+  lCancelᴴ = IsGroup.invl (G .isGroup)
+  rCancelᴴ = IsGroup.invr (G .isGroup)
+  setᴴ = Group.is-set G
+  assocᴴ = G .assoc
