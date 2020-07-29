@@ -18,6 +18,7 @@ open BinaryRelation
 
 open import Cubical.Structures.Group
 open import Cubical.Structures.LeftAction
+open import Cubical.Structures.Group.Semidirect
 
 open import Cubical.DStructures.Base
 open import Cubical.DStructures.Properties
@@ -33,56 +34,6 @@ private
   variable
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓA' ℓ≅A ℓ≅A' ℓB ℓB' ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓ≅ᴰ' : Level
 
-module Semidirect where
-  semidirectProd : (G : Group {ℓ}) (H : Group {ℓ'}) (Act : GroupAction H G)
-                   → Group {ℓ-max ℓ ℓ'}
-  semidirectProd G H Act = makeGroup-left {A = sd-carrier} sd-0 _+sd_ -sd_ sd-set sd-assoc sd-lId sd-lCancel
-    where
-      open ActionNotationα Act
-      open ActionLemmas Act
-      open GroupNotationG G
-      open GroupNotationH H
-
-      -- sd stands for semidirect
-      sd-carrier = ⟨ G ⟩ × ⟨ H ⟩
-      sd-0 = 0ᴳ , 0ᴴ
-
-      module _ ((g , h) : sd-carrier) where
-        -sd_ = (-ᴴ h) α (-ᴳ g) , -ᴴ h
-
-        _+sd_ = λ (g' , h') → g +ᴳ (h α g') , h +ᴴ h'
-
-      abstract
-        sd-set = isSetΣ setᴳ (λ _ → setᴴ)
-        sd-lId = λ ((g , h) : sd-carrier) → ΣPathP (lIdᴳ (0ᴴ α g) ∙ (α-id g) , lIdᴴ h)
-        sd-lCancel = λ ((g , h) : sd-carrier) → ΣPathP ((sym (α-hom (-ᴴ h) (-ᴳ g) g) ∙∙ cong ((-ᴴ h) α_) (lCancelᴳ g) ∙∙ actOnUnit (-ᴴ h)) , lCancelᴴ h)
-
-
-        sd-assoc = λ (a , x) (b , y) (c , z) → ΣPathP ((a +ᴳ (x α (b  +ᴳ (y α c)))
-                                    ≡⟨ cong (a +ᴳ_) (α-hom x b (y α c)) ⟩
-                                a +ᴳ ((x α b) +ᴳ (x α (y α c)))
-                                    ≡⟨ assocᴳ a (x α b) (x α (y α c)) ⟩
-                                (a +ᴳ (x α b)) +ᴳ (x α (y α c))
-                                    ≡⟨ cong ((a +ᴳ (x α b)) +ᴳ_) (sym (α-assoc x y c)) ⟩
-                                (a +ᴳ (x α b)) +ᴳ ((x +ᴴ y) α c) ∎) , assocᴴ x y z)
-
-  syntax semidirectProd N H α = N ⋊⟨ α ⟩ H
-
-  module Projections {N : Group {ℓ}} {H : Group {ℓ'}} (α : GroupAction H N) where
-    π₁ : ⟨ N ⋊⟨ α ⟩ H ⟩ → ⟨ N ⟩
-    π₁ = fst
-
-    ι₁ : GroupHom N (N ⋊⟨ α ⟩ H)
-    ι₁ = grouphom (λ n → n , Group.0g H) λ n n' → ΣPathP {!!}
-
-    π₂ : GroupHom (N ⋊⟨ α ⟩ H) H
-    π₂ = grouphom snd λ _ _ → refl
-
-    ι₂ : GroupHom H (N ⋊⟨ α ⟩ H)
-    ι₂ = grouphom (λ h → Group.0g N , h) λ h h' → ΣPathP ({!!} , refl)
-
-    π₂-hasSec : isGroupHomRet ι₂ π₂
-    π₂-hasSec = GroupMorphismExt (λ _ → refl)
 
 
 module _ {ℓ : Level} (G₀ : Group {ℓ}) (ℓ' : Level) where
@@ -109,8 +60,6 @@ module _ {ℓ : Level} (G₀ : Group {ℓ}) (ℓ' : Level) where
   GroupAct→SplitExt : GroupAct → SplitExt
   GroupAct→SplitExt (G₁ , _α_ , isAct) = G₁⋊G₀ , ι₂ α , π₂ α , π₂-hasSec α
     where
-      open Semidirect
-      open Projections
       α = groupaction _α_ isAct
       G₁⋊G₀ : Group {ℓℓ'}
       G₁⋊G₀ = G₁ ⋊⟨ α ⟩ G₀
