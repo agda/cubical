@@ -29,57 +29,61 @@ open import Agda.Builtin.String
 private
   FUEL = 10000
 
-data AutoFieldDatum (R : Type → Type) (ι : StrEquiv R ℓ-zero) : Type₁ where
-  datum : {S : Type → Type} {ι' : StrEquiv S ℓ-zero}
-    → (f : {X : Type} → R X → S X)
-    → ({A B : TypeWithStr ℓ-zero R} {e : typ A ≃ typ B} → ι A B e → ι' (map-snd f A) (map-snd f B) e)
-    → AutoFieldDatum R ι
+module _ {ℓ ℓ₁ ℓ₁'} where
 
-private
-  GatherDataFields : {R : Type → Type} {ι : StrEquiv R ℓ-zero}
-    → List (AutoFieldDatum R ι)
-    → Type → Type
+  data AutoDataFields (R : Type ℓ → Type ℓ₁) (ι : StrEquiv R ℓ₁')
+    : Typeω
+    where
+    [] : AutoDataFields R ι
+    data[_∣_]∷_ : ∀ {ℓ₂ ℓ₂'} {S : Type ℓ → Type ℓ₂} {ι' : StrEquiv S ℓ₂'}
+      → (f : {X : Type ℓ} → R X → S X)
+      → ({A B : TypeWithStr ℓ R} {e : typ A ≃ typ B} → ι A B e → ι' (map-snd f A) (map-snd f B) e)
+      → AutoDataFields R ι
+      → AutoDataFields R ι
+
+  GatherDataFieldsLevel : {R : Type ℓ → Type ℓ₁} {ι : StrEquiv R ℓ₁'}
+    → AutoDataFields R ι
+    → Level
+  GatherDataFieldsLevel [] = ℓ-zero
+  GatherDataFieldsLevel (data[_∣_]∷_ {ℓ₂ = ℓ₂} _ _ fs) = ℓ-max ℓ₂ (GatherDataFieldsLevel fs)
+
+  GatherDataFields : {R : Type ℓ → Type ℓ₁} {ι : StrEquiv R ℓ₁'}
+    (dat : AutoDataFields R ι)
+    → Type ℓ → Type (GatherDataFieldsLevel dat)
   GatherDataFields [] X = Unit
-  GatherDataFields (datum {S = S} _ _ ∷ fs) X =
-    S X × GatherDataFields fs X
+  GatherDataFields (data[_∣_]∷_ {S = S} _ _ fs) X = S X × GatherDataFields fs X
 
-  projectDataFieldsTy : (R : Type → Type) (ι : StrEquiv R ℓ-zero)
-    (fs : List (AutoFieldDatum R ι))
-    → Type₁
-  projectDataFieldsTy R ι fs =
-    {X : Type} → R X → GatherDataFields fs X
-
-  projectDataFields : {R : Type → Type} {ι : StrEquiv R ℓ-zero}
-    (fs : List (AutoFieldDatum R ι))
-    → {X : Type} → R X → GatherDataFields fs X
+  projectDataFields : {R : Type ℓ → Type ℓ₁} {ι : StrEquiv R ℓ₁'}
+    (fs : AutoDataFields R ι)
+    → {X : Type ℓ} → R X → GatherDataFields fs X
   projectDataFields [] = _
-  projectDataFields (datum f _ ∷ fs) r =
+  projectDataFields (data[ f ∣ _ ]∷ fs) r =
     f r , projectDataFields fs r
 
-  isPropProperty : (R : Type → Type)
-    (ι : StrEquiv R ℓ-zero)
-    (fs : List (AutoFieldDatum R ι))
-    (P : (X : Type) → GatherDataFields fs X → Type)
-    → Type₁
+  isPropProperty : ∀ {ℓ₂} (R : Type ℓ → Type ℓ₁)
+    (ι : StrEquiv R ℓ₁')
+    (fs : AutoDataFields R ι)
+    (P : (X : Type ℓ) → GatherDataFields fs X → Type ℓ₂)
+    → Type (ℓ-max (ℓ-suc ℓ) (ℓ-max ℓ₁ ℓ₂))
   isPropProperty R ι fs P =
-    {X : Type} (r : R X) → isProp (P X (projectDataFields fs r))
+    {X : Type ℓ} (r : R X) → isProp (P X (projectDataFields fs r))
 
-data AutoFieldProperty
-  (R : Type → Type)
-  (ι : StrEquiv R ℓ-zero)
-  (fs : List (AutoFieldDatum R ι))
-  : Type₁
-  where
-  property : {P : (X : Type) → GatherDataFields fs X → Type}
-    → ({X : Type} (r : R X) → P X (projectDataFields fs r))
-    → isPropProperty R ι fs P
-    → AutoFieldProperty R ι fs
+  data AutoPropertyFields (R : Type ℓ → Type ℓ₁) (ι : StrEquiv R ℓ₁')
+    (fs : AutoDataFields R ι)
+    : Typeω
+    where
+    [] : AutoPropertyFields R ι fs
+    prop[_∣_]∷_ : ∀ {ℓ₂} {P : (X : Type ℓ) → GatherDataFields fs X → Type ℓ₂}
+      → ({X : Type ℓ} (r : R X) → P X (projectDataFields fs r))
+      → isPropProperty R ι fs P
+      → AutoPropertyFields R ι fs
+      → AutoPropertyFields R ι fs
 
-data AutoRecordSpec : Type₁ where
-  autoRecordSpec : (R : Type → Type) (ι : StrEquiv R ℓ-zero)
-    (fs : List (AutoFieldDatum R ι))
-    → List (AutoFieldProperty R ι fs)
-    → AutoRecordSpec
+  data AutoRecordSpec : Typeω where
+    autoRecordSpec : (R : Type ℓ → Type ℓ₁) (ι : StrEquiv R ℓ₁')
+      (fs : AutoDataFields R ι)
+      → AutoPropertyFields R ι fs
+      → AutoRecordSpec
 
 -- Some reflection utilities
 private
@@ -135,15 +139,6 @@ private
   tStruct : R.Term → R.Term → R.Term
   tStruct ℓ ℓ' = R.def (quote func) (tType ℓ v∷ tType ℓ' v∷ [])
 
-  tTypeWithStr : R.Term → R.Term
-  tTypeWithStr S = R.def (quote TypeWithStr) (tℓ₀ v∷ S v∷ [])
-
-  tTyp : R.Term → R.Term
-  tTyp A = R.def (quote typ) (varg A ∷ [])
-
-  tStrEquiv : R.Term → R.Term
-  tStrEquiv S = R.def (quote StrEquiv) (S v∷ tℓ₀ v∷ [])
-
   idfun' : ∀ {ℓ} {A : Type ℓ} → A → A
   idfun' x = x
 
@@ -156,40 +151,31 @@ private
   newMeta = R.checkType R.unknown
 
 private
-  fieldShape : (Type → Type) → (Type → Type) → Type₁
-  fieldShape R S = {X : Type} → R X → S X
-
-  propFieldShape : (R R' : Type → Type) (proj : {X : Type} → R X → R' X)
-    → (P : (X : Type) → R' X → Type) → Type₁
-  propFieldShape R R' proj P =
-    {X : Type} → (r : R X) → P X (proj r)
-
-  isPropFieldShape : (R R' : Type → Type) (proj : {X : Type} → R X → R' X)
-    → (P : (X : Type) → R' X → Type) → Type₁
-  isPropFieldShape R R' proj P =
-    {X : Type} → (r : R X) → isProp (P X (proj r))
+  fieldShape : ∀ ℓ {ℓ₁} ℓ₂ → (Type ℓ → Type ℓ₁) → (Type ℓ → Type ℓ₂) → Type _
+  fieldShape ℓ _ R S = {X : Type ℓ} → R X → S X
 
   module _
-    (R : Type → Type) -- Structure record
-    (ι : StrEquiv R ℓ-zero) -- Equivalence record
-    (fs : List (AutoFieldDatum R ι)) -- Data fields
-    (P : (X : Type) → GatherDataFields fs X → Type) -- Property type
-    (f : {X : Type} (r : R X) → P X (projectDataFields fs r)) -- Property projection
+    {ℓ ℓ₁ ℓ₁' ℓ₂}
+    (R : Type ℓ → Type ℓ₁) -- Structure record
+    (ι : StrEquiv R ℓ₁') -- Equivalence record
+    (fs : AutoDataFields R ι) -- Data fields
+    (P : (X : Type ℓ) → GatherDataFields fs X → Type ℓ₂) -- Property type
+    (f : {X : Type ℓ} (r : R X) → P X (projectDataFields fs r)) -- Property projection
     where
 
     private
       dat = projectDataFields fs
       Dat = GatherDataFields fs
 
-    PropFieldCenterType : Type₁
+    PropFieldCenterType : Type _
     PropFieldCenterType =
-      (A B : TypeWithStr ℓ-zero R) (e : A .fst ≃ B .fst)
+      (A B : TypeWithStr ℓ R) (e : A .fst ≃ B .fst)
       (p : PathP (λ i → Dat (ua e i)) (dat (A .snd)) (dat (B .snd)))
       → PathP (λ i → P (ua e i) (p i)) (f (A .snd)) (f (B .snd))
 
-    PropFieldContractType : PropFieldCenterType → Type₁
+    PropFieldContractType : PropFieldCenterType → Type _
     PropFieldContractType c =
-      (A B : TypeWithStr ℓ-zero R) (e : A .fst ≃ B .fst)
+      (A B : TypeWithStr ℓ R) (e : A .fst ≃ B .fst)
       {p₀ : PathP (λ i → Dat (ua e i)) (dat (A .snd)) (dat (B .snd))}
       (q : PathP (λ i → R (ua e i)) (A .snd) (B .snd))
       (p : p₀ ≡ (λ i → projectDataFields fs (q i)))
@@ -197,7 +183,7 @@ private
         (c A B e p₀)
         (λ i → f (q i))
 
-    PropFieldHelperType : Type₁
+    PropFieldHelperType : Type _
     PropFieldHelperType =
       Σ PropFieldCenterType PropFieldContractType
 
@@ -207,34 +193,45 @@ private
     derivePropHelper propP .snd A B e q p =
       isOfHLevelPathP' 0 (isOfHLevelPathP 1 (propP _) _ _) _ _ .fst
 
-  pathMap : (S : Type → Type) {T : Type → Type} {A B : Type}
-    (e : A ≃ B) (f : {X : Type} → S X → T X) {x : S A} {y : S B}
+  pathMap : ∀ {ℓ ℓ₁ ℓ₂} (S : Type ℓ → Type ℓ₁) {T : Type ℓ → Type ℓ₂} {X Y : Type ℓ}
+    (e : X ≃ Y) (f : {X : Type ℓ} → S X → T X) {x : S X} {y : S Y}
     → PathP (λ i → S (ua e i)) x y
     → PathP (λ i → T (ua e i)) (f x) (f y)
   pathMap S e f p i = f (p i)
 
-  pathPShape : (S : Type → Type) (A B : TypeWithStr ℓ-zero S) (e : typ A ≃ typ B) → Type
-  pathPShape S A B e = PathP (λ i → S (ua e i)) (str A) (str B)
+  module _ {ℓ ℓ₁ ℓ₁'} (S : Type ℓ → Type ℓ₁) (ι : StrEquiv S ℓ₁') where
 
-  fwdShape : (S : Type → Type) (ι : StrEquiv S ℓ-zero) → Type₁
-  fwdShape S ι =
-    (A B : TypeWithStr ℓ-zero S) (e : typ A ≃ typ B) → ι A B e → PathP (λ i → S (ua e i)) (str A) (str B)
+    fwdShape : Type _
+    fwdShape =
+      (A B : TypeWithStr ℓ S) (e : typ A ≃ typ B) → ι A B e → PathP (λ i → S (ua e i)) (str A) (str B)
 
-  bwdShape : (S : Type → Type) (ι : StrEquiv S ℓ-zero) → Type₁
-  bwdShape S ι =
-    (A B : TypeWithStr ℓ-zero S) (e : typ A ≃ typ B) → PathP (λ i → S (ua e i)) (str A) (str B) → ι A B e
+    bwdShape : Type _
+    bwdShape =
+      (A B : TypeWithStr ℓ S) (e : typ A ≃ typ B) → PathP (λ i → S (ua e i)) (str A) (str B) → ι A B e
 
-  fwdBwdShape : (S : Type → Type) (ι : StrEquiv S ℓ-zero) → fwdShape S ι → bwdShape S ι → Type₁
-  fwdBwdShape S ι fwd bwd =
-    (A B : TypeWithStr ℓ-zero S) (e : typ A ≃ typ B) → ∀ p → fwd A B e (bwd A B e p) ≡ p
+    fwdBwdShape : fwdShape → bwdShape → Type _
+    fwdBwdShape fwd bwd =
+      (A B : TypeWithStr ℓ S) (e : typ A ≃ typ B) → ∀ p → fwd A B e (bwd A B e p) ≡ p
 
-  bwdFwdShape : (S : Type → Type) (ι : StrEquiv S ℓ-zero) → fwdShape S ι → bwdShape S ι → Type₁
-  bwdFwdShape S ι fwd bwd =
-    (A B : TypeWithStr ℓ-zero S) (e : typ A ≃ typ B) → ∀ r → bwd A B e (fwd A B e r) ≡ r
+    bwdFwdShape : fwdShape → bwdShape → Type _
+    bwdFwdShape fwd bwd =
+      (A B : TypeWithStr ℓ S) (e : typ A ≃ typ B) → ∀ r → bwd A B e (fwd A B e r) ≡ r
 
-  ExplicitUnivalentStr : ∀ {ℓ ℓ₁ ℓ₁'} (S : Type ℓ → Type ℓ₁) (ι : StrEquiv S ℓ₁') → Type _
-  ExplicitUnivalentStr S ι =
-    (A B : TypeWithStr _ S) (e : typ A ≃ typ B) → ι A B e ≃ PathP (λ i → S (ua e i)) (str A) (str B)
+    ExplicitUnivalentStr : Type _
+    ExplicitUnivalentStr =
+      (A B : TypeWithStr _ S) (e : typ A ≃ typ B) → ι A B e ≃ PathP (λ i → S (ua e i)) (str A) (str B)
+
+    explicitUnivalentStr : (fwd : fwdShape) (bwd : bwdShape)
+      → fwdBwdShape fwd bwd → bwdFwdShape fwd bwd
+      → ExplicitUnivalentStr
+    explicitUnivalentStr fwd bwd fwdBwd bwdFwd A B e = isoToEquiv isom
+      where
+      open Iso
+      isom : Iso _ _
+      isom .fun = fwd A B e
+      isom .inv = bwd A B e
+      isom .rightInv = fwdBwd A B e
+      isom .leftInv = bwdFwd A B e
 
   ExplicitUnivalentDesc : ∀ {ℓ} (d : Desc ℓ) → Type _
   ExplicitUnivalentDesc d =
@@ -243,31 +240,20 @@ private
   explicitUnivalentDesc : ∀ {ℓ} (d : Desc ℓ) → ExplicitUnivalentDesc d
   explicitUnivalentDesc d A B e = MacroUnivalentStr d e
 
-  mkUnivalentStr : (S : Type → Type) (ι : StrEquiv S ℓ-zero)
-    (fwd : fwdShape S ι) (bwd : bwdShape S ι)
-    → fwdBwdShape S ι fwd bwd → bwdFwdShape S ι fwd bwd
-    → ExplicitUnivalentStr S ι
-  mkUnivalentStr S ι fwd bwd fwdBwd bwdFwd A B e = isoToEquiv isom
-    where
-    open Iso
-    isom : Iso _ _
-    isom .fun = fwd A B e
-    isom .inv = bwd A B e
-    isom .rightInv = fwdBwd A B e
-    isom .leftInv = bwdFwd A B e
 
 -- Derive a structure descriptor for a field of a record
 private
-  fieldStructure : R.Name → R.Name → R.TC R.Term
-  fieldStructure srec sfield =
+  fieldStructure : R.Term → R.Term → R.Name → R.Name → R.TC R.Term
+  fieldStructure ℓ ℓ₂ srec sfield =
     R.getType sfield >>= λ A →
-    newMeta (tStruct tℓ₀ tℓ₀) >>= λ S →
-    R.unify (R.def (quote fieldShape) (R.def srec [] v∷ S v∷ [])) A >>
+    newMeta (tStruct ℓ ℓ₂) >>= λ S →
+    R.unify (R.def (quote fieldShape) (ℓ v∷ ℓ₂ v∷ R.def srec [] v∷ S v∷ [])) A >>
     R.returnTC S
 
-  fieldDesc : R.Name → R.Name → R.TC R.Term
-  fieldDesc srec sfield =
-    fieldStructure srec sfield >>= buildDesc FUEL tℓ₀ tℓ₀
+  fieldDesc : R.Term → R.Name → R.Name → R.TC R.Term
+  fieldDesc ℓ srec sfield =
+    newMeta tLevel >>= λ ℓ₂ →
+    fieldStructure ℓ ℓ₂ srec sfield >>= buildDesc FUEL ℓ ℓ₂
 
 -- Internal record specification type
 private
@@ -310,9 +296,9 @@ private
 -- Parse an AutoRecordSpec and derive an InternalSpec
 private
   parseSpec : R.Term → R.TC (InternalSpec TypedTerm)
-  parseSpec (R.con (quote autoRecordSpec) (R.def sr [] v∷ R.def er [] v∷ fs v∷ ps v∷ [])) =
-    parseList parseDatum fs >>= λ fs' →
-    parseList parseProp ps >>= λ ps' →
+  parseSpec (R.con (quote autoRecordSpec) (ℓ h∷ ℓ₁ h∷ ℓ₁' h∷ R.def sr [] v∷ R.def er [] v∷ fs v∷ ps v∷ [])) =
+    parseData fs >>= λ fs' →
+    parseProperties ps >>= λ ps' →
     R.returnTC λ { .srec → sr ; .erec → er ; .datums → fs' ; .props → ps' }
     where
     open InternalSpec
@@ -322,46 +308,46 @@ private
     findName (R.lam R.hidden (R.abs _ t)) = findName t
     findName t = R.typeError (R.strErr "Malformed autoRecord specification (0): " ∷ R.termErr t ∷ [])
 
-    projData : R.Term
-    projData = R.def (quote projectDataFields) (fs v∷ [])
-
-    projDataTy : R.Term
-    projDataTy = R.def (quote projectDataFieldsTy) (R.def sr [] v∷ R.def er [] v∷ fs v∷ [])
-
-    parseDatum : R.Term → R.TC (InternalDatumField TypedTerm)
-    parseDatum (R.con (quote datum) (_ h∷ _ h∷ S h∷ _ h∷ sfieldTerm v∷ efieldTerm v∷ [])) =
+    parseData : R.Term → R.TC (List (InternalDatumField TypedTerm))
+    parseData (R.con (quote AutoDataFields.[]) _) = R.returnTC []
+    parseData (R.con (quote data[_∣_]∷_)
+      (ℓ h∷ ℓ₁ h∷ ℓ₁' h∷ R h∷ ι h∷ ℓ₂ h∷ ℓ₂' h∷ S h∷ ι' h∷ sfieldTerm v∷ efieldTerm v∷ fs v∷ []))
+      =
       findName sfieldTerm >>= λ sfieldName →
       findName efieldTerm >>= λ efieldName →
       buildDesc FUEL tℓ₀ tℓ₀ S >>= λ d →
-      R.returnTC λ
-      { .sfield → sfieldName
-      ; .efield → efieldName
-      ; .univalent .type → R.def (quote ExplicitUnivalentDesc) (d v∷ [])
-      ; .univalent .term → R.def (quote explicitUnivalentDesc) (d v∷ [])
-      }
-    parseDatum t = R.typeError (R.strErr "Malformed autoRecord specification (1): " ∷ R.termErr t ∷ [])
+      let
+        f : InternalDatumField TypedTerm
+        f = λ
+          { .sfield → sfieldName
+          ; .efield → efieldName
+          ; .univalent .type → R.def (quote ExplicitUnivalentDesc) (d v∷ [])
+          ; .univalent .term → R.def (quote explicitUnivalentDesc) (d v∷ [])
+          }
+      in
+      liftTC (f ∷_) (parseData fs)
+    parseData t = R.typeError (R.strErr "Malformed autoRecord specification (1): " ∷ R.termErr t ∷ [])
 
-    parseProp : R.Term → R.TC (InternalPropField TypedTerm)
-    parseProp (R.con (quote property) (_ h∷ _ h∷ _ h∷ P h∷ fieldTerm v∷ prop v∷ [])) =
+    parseProperties : R.Term → R.TC (List (InternalPropField TypedTerm))
+    parseProperties (R.con (quote AutoPropertyFields.[]) _) = R.returnTC []
+    parseProperties (R.con (quote prop[_∣_]∷_)
+      (ℓ h∷ ℓ₁ h∷ ℓ₁' h∷ R h∷ ι h∷ _ h∷ ℓ₂ h∷ P h∷ fieldTerm v∷ prop v∷ ps v∷ []))
+      =
       findName fieldTerm >>= λ fieldName →
-      R.returnTC λ
-      { .sfield → fieldName
-      ; .helper .type →
-        R.def (quote PropFieldHelperType) (R.def sr [] v∷ R.def er [] v∷ fs v∷ P v∷ fieldTerm v∷ [])
-      ; .helper .term →
-        R.def (quote derivePropHelper) (R.def sr [] v∷ R.def er [] v∷ fs v∷ P v∷ fieldTerm v∷ prop v∷ [])
-      }
-    parseProp t = R.typeError (R.strErr "Malformed autoRecord specification (2): " ∷ R.termErr t ∷ [])
+      let
+        p : InternalPropField TypedTerm
+        p = λ
+          { .sfield → fieldName
+          ; .helper .type →
+            R.def (quote PropFieldHelperType) (R.def sr [] v∷ R.def er [] v∷ fs v∷ P v∷ fieldTerm v∷ [])
+          ; .helper .term →
+            R.def (quote derivePropHelper) (R.def sr [] v∷ R.def er [] v∷ fs v∷ P v∷ fieldTerm v∷ prop v∷ [])
+          }
+      in
+      liftTC (p ∷_) (parseProperties ps)
+    parseProperties t = R.typeError (R.strErr "Malformed autoRecord specification (2): " ∷ R.termErr t ∷ [])
 
-    parseList : {A : Type} → (R.Term → R.TC A) → R.Term → R.TC (List A)
-    parseList f (R.con (quote _∷_) (_ h∷ _ h∷ t v∷ ts v∷ [])) =
-      f t >>= λ t' →
-      parseList f ts >>= λ ts' →
-      R.returnTC (t' ∷ ts')
-    parseList f (R.con (quote []) _) = R.returnTC []
-    parseList f t = R.typeError (R.strErr "Malformed autoRecord specification (3): " ∷ R.termErr t ∷ [])
-
-  parseSpec t = R.typeError (R.strErr "Malformed autoRecord specification (4): " ∷ R.termErr t ∷ [])
+  parseSpec t = R.typeError (R.strErr "Malformed autoRecord specification (3): " ∷ R.termErr t ∷ [])
 
 -- Build a proof of univalence from an InternalSpec
 module _ (spec : InternalSpec ℕ) where
@@ -503,16 +489,17 @@ module _ (spec : InternalSpec ℕ) where
 
   univalentRecord : R.Term
   univalentRecord =
-    R.def (quote mkUnivalentStr)
+    R.def (quote explicitUnivalentStr)
       (R.def srec [] v∷ R.def erec [] v∷ fwd v∷ bwd v∷ fwdBwd v∷ bwdFwd v∷ [])
 
 macro
   autoFieldEquiv : R.Name → R.Name → R.Term → R.Term → R.Term → R.TC Unit
   autoFieldEquiv srec sfield A B hole =
-    newMeta (tDesc tℓ₀) >>= λ d →
+    newMeta tLevel >>= λ ℓ →
+    newMeta (tDesc ℓ) >>= λ d →
     R.unify hole
       (R.def (quote MacroEquivStr) (d v∷ tStrProj A sfield v∷ tStrProj B sfield v∷ [])) >>
-    fieldDesc srec sfield >>=
+    fieldDesc ℓ srec sfield >>=
     R.unify d
 
   autoUnivalentRecord : R.Term → R.Term → R.TC Unit
@@ -553,7 +540,7 @@ macro
       main : R.Term
       main = R.def (quote idfun) (closureTy v∷ closure v∷ env)
 
-record Monoid (X : Type) : Type where
+record Monoid (X : Type₁) : Type₁ where
   field
     unit : X
     mult : X → X → X
@@ -564,7 +551,7 @@ record Monoid (X : Type) : Type where
 
 open Monoid
 
-record MonoidEquiv (A B : TypeWithStr ℓ-zero Monoid) (e : typ A ≃ typ B) : Type where
+record MonoidEquiv (A B : TypeWithStr (ℓ-suc ℓ-zero) Monoid) (e : typ A ≃ typ B) : Type₁ where
   field
     unit : autoFieldEquiv Monoid unit A B e
     mult : autoFieldEquiv Monoid mult A B e
@@ -575,14 +562,14 @@ test : UnivalentStr Monoid MonoidEquiv
 test =
   autoUnivalentRecord
     (autoRecordSpec Monoid MonoidEquiv
-      ( datum unit unit
-      ∷ datum mult mult
-      ∷ []
+      ( data[ unit ∣ unit ]∷
+        data[ mult ∣ mult ]∷
+        []
       )
-      ( property is-set (λ _ → isPropIsSet)
-      ∷ property unitl (λ m → isPropΠ λ _ → m .is-set _ _)
-      ∷ property unitr (λ m → isPropΠ λ _ → m .is-set _ _)
-      ∷ property assoc (λ m → isPropΠ3 λ _ _ _ → m .is-set _ _)
-      ∷ []
+      ( prop[ is-set ∣ (λ _ → isPropIsSet) ]∷
+        prop[ unitl ∣ (λ m → isPropΠ λ _ → m .is-set _ _) ]∷
+        prop[ unitr ∣ (λ m → isPropΠ λ _ → m .is-set _ _) ]∷
+        prop[ assoc ∣ (λ m → isPropΠ3 λ _ _ _ → m .is-set _ _) ]∷
+        []
       ))
     _ _
