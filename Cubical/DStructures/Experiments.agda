@@ -109,7 +109,13 @@ module Semidirect where
                      (isSetΣ (N .is-set) λ _ → H .is-set)
                      -- assoc
                      (λ (a , x) (b , y) (c , z)
-                       → ΣPathP ({!_∙∙_∙∙_!} , H .assoc x y z))
+                       → ΣPathP ((a +N (x α (b  +N (y α c)))
+                                    ≡⟨ cong (a +N_) (α-hom x b (y α c)) ⟩
+                                a +N ((x α b) +N (x α (y α c)))
+                                    ≡⟨ assocN a (x α b) (x α (y α c)) ⟩
+                                (a +N (x α b)) +N (x α (y α c))
+                                    ≡⟨ cong ((a +N (x α b)) +N_) (sym (α-assoc x y c)) ⟩
+                                (a +N (x α b)) +N ((x +H y) α c) ∎) , H .assoc x y z))
                      -- lUnit
                      (λ (n , h) → ΣPathP (lUnitN ((H .0g) α n) ∙ α-id n , lUnitH h))
                      -- lCancel
@@ -125,8 +131,10 @@ module Semidirect where
                        lUnitN = IsGroup.lid (N .isGroup)
                        lCancelH = IsGroup.invl (H .isGroup)
                        lCancelN = IsGroup.invl (N .isGroup)
+                       assocN = IsGroup.assoc (N .isGroup)
                        α-id = IsGroupAction.identity isGroupAction
                        α-hom = IsGroupAction.isHom isGroupAction
+                       α-assoc = IsGroupAction.assoc isGroupAction
 
   syntax semidirectProduct N H α = N ⋊⟨ α ⟩ H
 
