@@ -123,9 +123,7 @@ private
   vlam : String → R.Term → R.Term
   vlam str t = R.lam R.visible (R.abs str t)
 
-  tI = R.def (quote I) []
   tLevel = R.def (quote Level) []
-  tℓ₀ = R.def (quote ℓ-zero) []
 
   tType : R.Term → R.Term
   tType ℓ = R.def (quote Type) (ℓ v∷ [])
@@ -139,11 +137,8 @@ private
   tStruct : R.Term → R.Term → R.Term
   tStruct ℓ ℓ' = R.def (quote func) (tType ℓ v∷ tType ℓ' v∷ [])
 
-  idfun' : ∀ {ℓ} {A : Type ℓ} → A → A
-  idfun' x = x
-
   tApply : R.Term → List (R.Arg R.Term) → R.Term
-  tApply t l = R.def (quote idfun') (varg t ∷ l)
+  tApply t l = R.def (quote idfun) (R.unknown v∷ t v∷ l)
 
   tStrProj : R.Term → R.Name → R.Term
   tStrProj A sfield = R.def (quote map-snd) (R.def sfield [] v∷ A v∷ [])
@@ -233,12 +228,12 @@ private
       isom .rightInv = fwdBwd A B e
       isom .leftInv = bwdFwd A B e
 
-  ExplicitUnivalentDesc : ∀ {ℓ} (d : Desc ℓ) → Type _
-  ExplicitUnivalentDesc d =
+  ExplicitUnivalentDesc : ∀ ℓ → (d : Desc ℓ) → Type _
+  ExplicitUnivalentDesc _ d =
     ExplicitUnivalentStr (MacroStructure d) (MacroEquivStr d)
 
-  explicitUnivalentDesc : ∀ {ℓ} (d : Desc ℓ) → ExplicitUnivalentDesc d
-  explicitUnivalentDesc d A B e = MacroUnivalentStr d e
+  explicitUnivalentDesc : ∀ ℓ → (d : Desc ℓ) → ExplicitUnivalentDesc ℓ d
+  explicitUnivalentDesc _ d A B e = MacroUnivalentStr d e
 
 
 -- Derive a structure descriptor for a field of a record
@@ -313,16 +308,17 @@ private
     parseData (R.con (quote data[_∣_]∷_)
       (ℓ h∷ ℓ₁ h∷ ℓ₁' h∷ R h∷ ι h∷ ℓ₂ h∷ ℓ₂' h∷ S h∷ ι' h∷ sfieldTerm v∷ efieldTerm v∷ fs v∷ []))
       =
+      R.reduce ℓ >>= λ ℓ →
       findName sfieldTerm >>= λ sfieldName →
       findName efieldTerm >>= λ efieldName →
-      buildDesc FUEL tℓ₀ tℓ₀ S >>= λ d →
+      buildDesc FUEL ℓ ℓ₂ S >>= λ d →
       let
         f : InternalDatumField TypedTerm
         f = λ
           { .sfield → sfieldName
           ; .efield → efieldName
-          ; .univalent .type → R.def (quote ExplicitUnivalentDesc) (d v∷ [])
-          ; .univalent .term → R.def (quote explicitUnivalentDesc) (d v∷ [])
+          ; .univalent .type → R.def (quote ExplicitUnivalentDesc) (ℓ v∷ d v∷ [])
+          ; .univalent .term → R.def (quote explicitUnivalentDesc) (ℓ v∷ d v∷ [])
           }
       in
       liftTC (f ∷_) (parseData fs)
@@ -540,7 +536,7 @@ macro
       main : R.Term
       main = R.def (quote idfun) (closureTy v∷ closure v∷ env)
 
-record Monoid (X : Type₁) : Type₁ where
+record MonoidStr (X : Type₁) : Type₁ where
   field
     unit : X
     mult : X → X → X
@@ -549,19 +545,19 @@ record Monoid (X : Type₁) : Type₁ where
     unitr : ∀ x → mult x unit ≡ x
     assoc : ∀ x y z → mult x (mult y z) ≡ mult (mult x y) z
 
-open Monoid
+open MonoidStr
 
-record MonoidEquiv (A B : TypeWithStr (ℓ-suc ℓ-zero) Monoid) (e : typ A ≃ typ B) : Type₁ where
+record MonoidEquiv (A B : TypeWithStr (ℓ-suc ℓ-zero) MonoidStr) (e : typ A ≃ typ B) : Type₁ where
   field
-    unit : autoFieldEquiv Monoid unit A B e
-    mult : autoFieldEquiv Monoid mult A B e
+    unit : autoFieldEquiv MonoidStr unit A B e
+    mult : autoFieldEquiv MonoidStr mult A B e
 
 open MonoidEquiv
 
-test : UnivalentStr Monoid MonoidEquiv
+test : UnivalentStr MonoidStr MonoidEquiv
 test =
   autoUnivalentRecord
-    (autoRecordSpec Monoid MonoidEquiv
+    (autoRecordSpec MonoidStr MonoidEquiv
       ( data[ unit ∣ unit ]∷
         data[ mult ∣ mult ]∷
         []
