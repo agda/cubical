@@ -28,4 +28,5 @@ subtypePreservesHLevel {n = 1+ (suc n)} p B = isOfHLevelΣ (suc (suc n)) p λ a 
 -- if two terms x and y of the original type A are equal by q, and p and p' witness that x , y are in
 -- the subtype then p ≡ p' over q
 subtypeWitnessIrrelevance : {A : Type ℓ} (B : Subtype ℓ' A) {xp yp : Subtype→Type B} (q : fst xp ≡ fst yp) → xp ≡ yp
-subtypeWitnessIrrelevance B {xp} {yp} q = ΣPathP (q , isProp→PathP (λ i → snd (B (q i))) (snd xp) (snd yp))
+subtypeWitnessIrrelevance B q = Σ≡Prop (λ a → B a .snd) q
+
