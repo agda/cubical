@@ -390,9 +390,7 @@ module Kernel {ℓ' : Level} {G : Group {ℓ}} {H : Group {ℓ'}} (F : GroupHom 
       open GroupNotationG G
       open GroupLemmas
 
-
       sg-0 = 0ᴳ , mapId
-
 
       module _ ((g , p) : sg-type) where
         -sg_ = -ᴳ g , q

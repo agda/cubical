@@ -28,6 +28,7 @@ open import Cubical.DStructures.Combine
 open import Cubical.DStructures.Type
 open import Cubical.DStructures.Group
 open import Cubical.DStructures.Isomorphism
+open import Cubical.DStructures.Action
 open import Cubical.DStructures.Strict2Group
 open import Cubical.DStructures.XModule
 
@@ -142,6 +143,89 @@ module _ {ℓ : Level} (G₀ : Group {ℓ}) (ℓ' : Level) where
       G₁⋊G₀ : Group {ℓℓ'}
       G₁⋊G₀ = G₁ ⋊⟨ α ⟩ G₀
 
+module _ {ℓ ℓ' : Level} where
+  open MorphismTree
+
+  𝒮-Iso-GroupAct-SplitEpi : 𝒮-iso (𝒮-Action ℓ (ℓ-max ℓ ℓ')) (𝒮-G²FBSplit ℓ (ℓ-max ℓ ℓ'))
+
+  RelIso.fun 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , _α_) , isAct) =
+    ((G₀ , fst se) , (fst (snd se)) , (fst (snd (snd se)))) , snd (snd (snd se))
+    where
+      se = GroupAct→SplitExt G₀ ℓ' (G₁ , _α_ , isAct)
+
+  RelIso.inv 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , (ι , σ)) , isSplit) =
+    ((G₀ , fst ga) , fst (snd ga)) , snd (snd ga)
+    where
+      ga = SplitExt→GroupAct G₀ ℓ' (G₁ , ι , σ , isSplit)
+
+  RelIso.rightInv 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , (ι , σ)) , isSplit) = ((G₀-≅ , G₁-≅) , ι-≅ , σ-≅) , isSplit-≅
+    where
+      -- get our hands dirty with shameless reference to what we're constructing
+      -- TODO: Maybe, just maybe, define a ton of separate maps instead of GroupAct→SplitExt
+      -- and the reverse map
+      ga = RelIso.inv 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , (ι , σ)) , isSplit)
+      se' = RelIso.fun 𝒮-Iso-GroupAct-SplitEpi ga
+
+      -- get specific parts of the above
+      kσ⋊G₀ = snd (fst (fst se'))
+      _α_ = snd (fst ga)
+      isAct = snd ga
+
+      -- import notation
+      open GroupNotation₀ G₀
+      open GroupNotation₁ G₁
+      open GroupHom -- such .fun!
+      open MorphismLemmas
+
+      -- notational convention:
+      -- g : ⟨ G₀ ⟩
+      -- h : ⟨ G₁ ⟩
+      -- p : witness that g is in ker σ
+
+      𝓈 = σ .fun
+      𝒾 = ι .fun
+
+      -- G₀ ≃ G₀
+      G₀-≅ = idGroupEquiv G₀
+
+      -- (ker σ) ⋊⟨ Adᵢ ⟩ G₀ ≃ G₁
+      G₁-≅ : GroupEquiv kσ⋊G₀ G₁
+      GroupEquiv.eq G₁-≅ = isoToEquiv isom
+        where
+
+          isom : Iso ⟨ kσ⋊G₀ ⟩ ⟨ G₁ ⟩
+          -- map forth is straight forward
+          Iso.fun isom ((h , p) , g) = h +₁ ι .fun g
+
+          -- map back
+          -- G₁ part of the map
+          fst (fst (Iso.inv isom h)) = h +₁ 𝒾 (𝓈 (-₁ h))
+          -- proof that G₁ part is in ker σ
+          snd (fst (Iso.inv isom h)) = 𝓈 (h +₁ 𝒾 (𝓈 (-₁ h)))
+                                         ≡⟨ σ .isHom h (𝒾 (𝓈 (-₁ h))) ⟩
+                                       𝓈 h +₀ 𝓈 (𝒾 (𝓈 (-₁ h)))
+                                         -- ≡⟨ cong (λ z → 𝓈 h +₀ 𝓈 z) (funExt⁻ (cong GroupHom.fun {!isSplit!}) (-₁ h)) ⟩
+                                         ≡⟨ cong (𝓈 h +₀_) (funExt⁻ (cong GroupHom.fun isSplit) (𝓈 (-₁ h))) ⟩
+                                       𝓈 h +₀ (𝓈 (-₁ h))
+                                         ≡⟨ cong (𝓈 h +₀_) (mapInv σ h) ⟩
+                                       𝓈 h +₀ (-₀ (𝓈 h))
+                                         ≡⟨ rCancel₀ (𝓈 h) ⟩
+                                       0₀ ∎
+          -- G₀ part of the map
+          snd (Iso.inv isom h) = σ .fun h
+
+          Iso.leftInv isom = {!!}
+          Iso.rightInv isom = {!!}
+
+      GroupEquiv.isHom G₁-≅ = {!!}
+
+      ι-≅ = {!!}
+      σ-≅ = {!!}
+      isSplit-≅ = {!!}
+ 
+  RelIso.leftInv 𝒮-Iso-GroupAct-SplitEpi = {!!}
+
+{-
 module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
@@ -149,7 +233,7 @@ module _ (ℓ ℓ' : Level) where
   ReflexiveGraph = Σ[ (G₀ , G₁ , ι , σ , split-σ) ∈ (Σ[ G₀ ∈ Group {ℓ} ] SplitExt G₀ ℓ') ] Σ[ τ ∈ GroupHom G₁ G₀ ] isGroupHomRet ι τ
 
   PreCrossedModule = Σ[ (G₀ , G₁ , _α_ , isAct) ∈ (Σ[ G₀ ∈ Group {ℓ} ] GroupAct G₀ ℓ') ] (Σ[ φ ∈ GroupHom G₁ G₀ ] isEquivariant _α_ φ)
-
+-}
 
 
 -- Older Experiments --
