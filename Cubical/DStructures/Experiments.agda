@@ -175,6 +175,7 @@ module _ {ℓ ℓ' : Level} where
       open GroupNotation₀ G₀
       open GroupNotation₁ G₁
       open GroupHom -- such .fun!
+      open GroupLemmas
       open MorphismLemmas
 
       -- notational convention:
@@ -201,22 +202,68 @@ module _ {ℓ ℓ' : Level} where
           -- G₁ part of the map
           fst (fst (Iso.inv isom h)) = h +₁ 𝒾 (𝓈 (-₁ h))
           -- proof that G₁ part is in ker σ
-          snd (fst (Iso.inv isom h)) = 𝓈 (h +₁ 𝒾 (𝓈 (-₁ h)))
-                                         ≡⟨ σ .isHom h (𝒾 (𝓈 (-₁ h))) ⟩
-                                       𝓈 h +₀ 𝓈 (𝒾 (𝓈 (-₁ h)))
-                                         ≡⟨ cong (𝓈 h +₀_) (funExt⁻ (cong GroupHom.fun isSplit) (𝓈 (-₁ h))) ⟩
-                                       𝓈 h +₀ (𝓈 (-₁ h))
-                                         ≡⟨ cong (𝓈 h +₀_) (mapInv σ h) ⟩
-                                       𝓈 h +₀ (-₀ (𝓈 h))
-                                         ≡⟨ rCancel₀ (𝓈 h) ⟩
-                                       0₀ ∎
+          snd (fst (Iso.inv isom h)) = q
+            where
+              abstract
+                q = 𝓈 (h +₁ 𝒾 (𝓈 (-₁ h)))
+                      ≡⟨ σ .isHom h (𝒾 (𝓈 (-₁ h))) ⟩
+                    𝓈 h +₀ 𝓈 (𝒾 (𝓈 (-₁ h)))
+                      ≡⟨ cong (𝓈 h +₀_) (funExt⁻ (cong GroupHom.fun isSplit) (𝓈 (-₁ h))) ⟩
+                    𝓈 h +₀ (𝓈 (-₁ h))
+                      ≡⟨ cong (𝓈 h +₀_) (mapInv σ h) ⟩
+                    𝓈 h +₀ (-₀ (𝓈 h))
+                      ≡⟨ rCancel₀ (𝓈 h) ⟩
+                    0₀ ∎
           -- G₀ part of the map
           snd (Iso.inv isom h) = 𝓈 h
 
-          Iso.leftInv isom ((h , p) , g) = ΣPathP (subtypeWitnessIrrelevance {!!} q₁ , {!!})
+          Iso.leftInv isom ((h , p) , g) = ΣPathP (subtypeWitnessIrrelevance (sg-typeProp σ) q , q')
             where
-              q₁ = {!!}
-          Iso.rightInv isom h = {!!}
+              open Kernel
+              abstract
+                q = (h +₁ 𝒾 g) +₁ 𝒾 (𝓈 (-₁ (h +₁ 𝒾 g)))
+                       ≡⟨ cong (λ z → (h +₁ 𝒾 g) +₁ 𝒾 (𝓈 z)) (invDistr G₁ h (𝒾 g)) ⟩
+                    (h +₁ 𝒾 g) +₁ 𝒾 (𝓈 ((-₁ (𝒾 g)) +₁ (-₁ h)))
+                      ≡⟨ cong (λ z → (h +₁ 𝒾 g) +₁ 𝒾 z) (σ .isHom (-₁ (𝒾 g)) (-₁ h)) ⟩
+                    (h +₁ 𝒾 g) +₁ 𝒾 ((𝓈 (-₁ (𝒾 g))) +₀ (𝓈 (-₁ h)))
+                      ≡⟨ cong (λ z → (h +₁ 𝒾 g) +₁ 𝒾 ((𝓈 (-₁ (𝒾 g))) +₀ z)) (mapInv σ h ∙∙ cong -₀_ p ∙∙ invId G₀) ⟩
+                    (h +₁ 𝒾 g) +₁ 𝒾 ((𝓈 (-₁ (𝒾 g))) +₀ 0₀)
+                      ≡⟨ cong (λ z → (h +₁ 𝒾 g) +₁ 𝒾 z) (rId₀ (𝓈 (-₁ (𝒾 g)))) ⟩
+                    (h +₁ 𝒾 g) +₁ 𝒾 (𝓈 (-₁ (𝒾 g)))
+                      ≡⟨ cong (λ z → (h +₁ 𝒾 g) +₁ 𝒾 z ) (mapInv σ (𝒾 g)) ⟩
+                    (h +₁ 𝒾 g) +₁ 𝒾 (-₀ (𝓈 (𝒾 g)))
+                      ≡⟨ cong ((h +₁ 𝒾 g) +₁_) (mapInv ι (𝓈 (𝒾 g))) ⟩
+                    (h +₁ 𝒾 g) +₁ (-₁ (𝒾 (𝓈 (𝒾 g))))
+                      ≡⟨ cong (λ z → (h +₁ 𝒾 g) +₁ (-₁ (𝒾 z))) (funExt⁻ (cong GroupHom.fun isSplit) g ) ⟩
+                    (h +₁ 𝒾 g) +₁ (-₁ (𝒾 g))
+                      ≡⟨ sym (assoc₁ h (𝒾 g) (-₁ (𝒾 g))) ⟩
+                    h +₁ (𝒾 g +₁ (-₁ (𝒾 g)))
+                      ≡⟨ cong (h +₁_) (rCancel₁ (𝒾 g)) ⟩
+                    h +₁ 0₁
+                      ≡⟨ rId₁ h ⟩
+                    h ∎
+
+                q' = 𝓈 (h +₁ 𝒾 g)
+                       ≡⟨ σ .isHom h (𝒾 g) ⟩
+                     𝓈 h +₀ 𝓈 (𝒾 g)
+                       ≡⟨ cong (_+₀ 𝓈 (𝒾 g)) p ⟩
+                     0₀ +₀ 𝓈 (𝒾 g)
+                       ≡⟨ lId₀ (𝓈 (𝒾 g)) ⟩
+                     𝓈 (𝒾 g)
+                       ≡⟨ funExt⁻ (cong GroupHom.fun isSplit) g ⟩
+                     g ∎
+
+          Iso.rightInv isom h = q
+            where
+              ish = 𝒾 (𝓈 h)
+              abstract
+                q = (h +₁ 𝒾 (𝓈 (-₁ h))) +₁ ish
+                       ≡⟨ cong (λ z → (h +₁ z) +₁ ish) (cong 𝒾 (mapInv σ h) ∙ mapInv ι (𝓈 h)) ⟩
+                    (h +₁ (-₁ ish)) +₁ ish
+                       ≡⟨ sym (assoc₁ h (-₁ ish) ish) ⟩
+                    h +₁ ((-₁ ish) +₁ ish)
+                       ≡⟨ (cong (h +₁_) (lCancel₁ ish)) ∙ (rId₁ h) ⟩
+                    h ∎
 
       GroupEquiv.isHom G₁-≅ = {!!}
 
