@@ -420,3 +420,24 @@ isOfHLevel→isOfHLevelDep (suc (suc n)) {A = A} {B} h {a0} {a1} b0 b1 =
   helper a1 p b1 = J
                      (λ a1 p → ∀ b1 → isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1))
                      (λ _ → h _ _ _) p b1
+
+isSetDep : {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
+isSetDep {A = A} B = {a₀₀ a₀₁ : A} (a₀₋ : a₀₀ ≡ a₀₁)
+  {a₁₀ a₁₁ : A} (a₁₋ : a₁₀ ≡ a₁₁)
+  (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁) (s : Square a₀₋ a₁₋ a₋₀ a₋₁)
+  {b₀₀ : B a₀₀} {b₀₁ : B a₀₁} (b₀₋ : PathP (λ j → B (a₀₋ j)) b₀₀ b₀₁)
+  {b₁₀ : B a₁₀} {b₁₁ : B a₁₁} (b₁₋ : PathP (λ j → B (a₁₋ j)) b₁₀ b₁₁)
+  (b₋₀ : PathP (λ i → B (a₋₀ i)) b₀₀ b₁₀)
+  (b₋₁ : PathP (λ i → B (a₋₁ i)) b₀₁ b₁₁)
+  → SquareP (λ i j → B (s i j)) b₀₋ b₁₋ b₋₀ b₋₁
+
+isSet→isSetDep : {A : Type ℓ} {B : A → Type ℓ'}
+                 (h : (a : A) → isSet (B a))
+                 → isSetDep {A = A} B
+isSet→isSetDep {A = A} {B = B} h {a₀₀} a₀₋ a₁₋ a₋₀ a₋₁ s b₀₋ b₁₋ b₋₀ b₋₁ =
+  J-square (λ a₀₋ a₁₋ a₋₀ a₋₁ s
+    → ∀ {b₀₀} {b₀₁} (b₀₋ : PathP (λ j → B (a₀₋ j)) b₀₀ b₀₁)
+    → ∀ {b₁₀} {b₁₁} (b₁₋ : PathP (λ j → B (a₁₋ j)) b₁₀ b₁₁)
+      (b₋₀ : PathP (λ i → B (a₋₀ i)) b₀₀ b₁₀)
+      (b₋₁ : PathP (λ i → B (a₋₁ i)) b₀₁ b₁₁) → SquareP (λ i j → B (s i j)) b₀₋ b₁₋ b₋₀ b₋₁)
+    (isSet→isSet' (h a₀₀)) a₀₋ a₁₋ a₋₀ a₋₁ s b₀₋ b₁₋ b₋₀ b₋₁
