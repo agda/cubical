@@ -16,6 +16,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Relation.Binary
 open BinaryRelation
 
+open import Cubical.Structures.Subtype
 open import Cubical.Structures.Group
 open import Cubical.Structures.LeftAction
 open import Cubical.Structures.Group.Semidirect
@@ -82,29 +83,57 @@ module _ {ℓ : Level} (G₀ : Group {ℓ}) (ℓ' : Level) where
 
       isAct : IsGroupAction G₀ ker-σ _α_
       abstract
-        -- TODO: 2nd part of these proofs is always the same - abstract away
         -- (g α (ker-σ Group.+ h) h') ≡ (ker-σ Group.+ (g α h)) (g α h')
-        isAct .isHom g (h , p) (h' , p') =
-          ΣPathP (q , isProp→PathP (λ i → snd (sg-typeProp σ (q i)))
-                                   (snd (g α ((h , p) +ₖ (h' , p'))))
-                                   (snd ((g α (h , p)) +ₖ (g α (h' , p')))))
+        isAct .isHom g (h , p) (h' , p') = subtypeWitnessIrrelevance (sg-typeProp σ) q
           where
-            q = fst (g α ((h , p) +ₖ (h' , p')))
-                    ≡⟨ {!!} ⟩
-                fst ((g α (h , p)) +ₖ (g α (h' , p'))) ∎
-        isAct .identity (h , p) = ΣPathP (q , isProp→PathP (λ i → snd (sg-typeProp σ (q i)))
-                                                           (snd (0₀ α (h , p)))
-                                                           p)
-                                         where
-                                           q = fst (0₀ α (h , p))
-                                                   ≡⟨ cong (λ z → (z +₁ h) +₁ (-₁ z)) (mapId ι) ⟩
-                                               (0₁ +₁ h) +₁ (-₁ 0₁)
-                                                 ≡⟨ (cong ((0₁ +₁ h) +₁_) (invId G₁)) ∙∙ rId₁ (0₁ +₁ h) ∙∙ lId₁ h ⟩
-                                               h ∎
-        -- ((G₀ Group.+ g) g' α h) ≡ (g α (g' α h))
-        isAct .assoc g g' h = ΣPathP (q , {!!})
+            ig = ι .fun g
+            -ig = -₁ ig
+            s = σ .fun
+            abstract
+              q = fst (g α ((h , p) +ₖ (h' , p')))
+                      ≡⟨ refl ⟩
+                  (ig +₁ (h +₁ h')) +₁ (-₁ ig)
+                      ≡⟨ cong (λ z → (ig +₁ (z +₁ h')) +₁ (-₁ ig)) ((sym (rId₁ h)) ∙ (cong (h +₁_) (sym (lCancel₁ ig)))) ⟩
+                  (ig +₁ ((h +₁ (-ig +₁ ig)) +₁ h')) +₁ -ig
+                      ≡⟨ cong (λ z → (ig +₁ (z +₁ h')) +₁ -ig) (assoc₁ h -ig ig) ⟩
+                  (ig +₁ (((h +₁ -ig) +₁ ig) +₁ h')) +₁ -ig
+                      ≡⟨ cong (λ z → (ig +₁ z) +₁ -ig) (sym (assoc₁ (h +₁ -ig) ig h')) ⟩
+                  (ig +₁ ((h +₁ -ig) +₁ (ig +₁ h'))) +₁ -ig
+                      ≡⟨ cong (_+₁ -ig) (assoc₁ ig (h +₁ -ig) (ig +₁ h')) ⟩
+                  ((ig +₁ (h +₁ -ig)) +₁ (ig +₁ h')) +₁ -ig
+                      ≡⟨ cong (λ z → (z +₁ (ig +₁ h')) +₁ -ig) (assoc₁ ig h -ig) ⟩
+                  (((ig +₁ h) +₁ -ig) +₁ (ig +₁ h')) +₁ -ig
+                      ≡⟨ sym (assoc₁ ((ig +₁ h) +₁ -ig) (ig +₁ h') -ig) ⟩
+                  ((ig +₁ h) +₁ -ig) +₁ ((ig +₁ h') +₁ -ig)
+                      ≡⟨ refl ⟩
+                  fst ((g α (h , p)) +ₖ (g α (h' , p'))) ∎
+        isAct .identity (h , p) = subtypeWitnessIrrelevance (sg-typeProp σ) q
           where
-            q = {!!}
+            abstract
+              q = fst (0₀ α (h , p))
+                    ≡⟨ cong (λ z → (z +₁ h) +₁ (-₁ z)) (mapId ι) ⟩
+                  (0₁ +₁ h) +₁ (-₁ 0₁)
+                    ≡⟨ (cong ((0₁ +₁ h) +₁_) (invId G₁)) ∙∙ rId₁ (0₁ +₁ h) ∙∙ lId₁ h ⟩
+                  h ∎
+        -- (g +₀ g') α h ≡ g α (g' α h)
+        isAct .assoc g g' (h , p) = subtypeWitnessIrrelevance (sg-typeProp σ) q
+          where
+            ig = ι .fun g
+            ig' = ι .fun g'
+            -ig = -₁ ig
+            -ig' = -₁ ig'
+            abstract
+              q = (ι .fun (g +₀ g') +₁ h) +₁ (-₁ (ι .fun (g +₀ g')))
+                     ≡⟨ cong (λ z → (z +₁ h) +₁ (-₁ z)) (ι .isHom g g') ⟩
+                  ((ig +₁ ig') +₁ h) +₁ (-₁ (ig +₁ ig'))
+                     ≡⟨ cong (((ig +₁ ig') +₁ h) +₁_) (invDistr G₁ ig ig') ⟩
+                  ((ig +₁ ig') +₁ h) +₁ (-ig' +₁ -ig)
+                    ≡⟨ cong (_+₁ (-ig' +₁ -ig)) (sym (assoc₁ ig ig' h)) ⟩
+                  (ig +₁ (ig' +₁ h)) +₁ (-ig' +₁ -ig)
+                    ≡⟨ assoc₁ (ig +₁ (ig' +₁ h)) -ig' -ig ⟩
+                  ((ig +₁ (ig' +₁ h)) +₁ -ig') +₁ -ig
+                    ≡⟨ cong (_+₁ -ig) (sym (assoc₁ ig (ig' +₁ h) -ig')) ⟩
+                  fst (g α (g' α (h , p))) ∎
 
   GroupAct→SplitExt : GroupAct → SplitExt
   GroupAct→SplitExt (G₁ , _α_ , isAct) = G₁⋊G₀ , ι₂ α , π₂ α , π₂-hasSec α
