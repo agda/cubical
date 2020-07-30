@@ -195,7 +195,7 @@ module _ {ℓ ℓ' : Level} where
 
           isom : Iso ⟨ kσ⋊G₀ ⟩ ⟨ G₁ ⟩
           -- map forth is straight forward
-          Iso.fun isom ((h , p) , g) = h +₁ ι .fun g
+          Iso.fun isom ((h , p) , g) = h +₁ 𝒾 g
 
           -- map back
           -- G₁ part of the map
@@ -204,7 +204,6 @@ module _ {ℓ ℓ' : Level} where
           snd (fst (Iso.inv isom h)) = 𝓈 (h +₁ 𝒾 (𝓈 (-₁ h)))
                                          ≡⟨ σ .isHom h (𝒾 (𝓈 (-₁ h))) ⟩
                                        𝓈 h +₀ 𝓈 (𝒾 (𝓈 (-₁ h)))
-                                         -- ≡⟨ cong (λ z → 𝓈 h +₀ 𝓈 z) (funExt⁻ (cong GroupHom.fun {!isSplit!}) (-₁ h)) ⟩
                                          ≡⟨ cong (𝓈 h +₀_) (funExt⁻ (cong GroupHom.fun isSplit) (𝓈 (-₁ h))) ⟩
                                        𝓈 h +₀ (𝓈 (-₁ h))
                                          ≡⟨ cong (𝓈 h +₀_) (mapInv σ h) ⟩
@@ -212,10 +211,12 @@ module _ {ℓ ℓ' : Level} where
                                          ≡⟨ rCancel₀ (𝓈 h) ⟩
                                        0₀ ∎
           -- G₀ part of the map
-          snd (Iso.inv isom h) = σ .fun h
+          snd (Iso.inv isom h) = 𝓈 h
 
-          Iso.leftInv isom = {!!}
-          Iso.rightInv isom = {!!}
+          Iso.leftInv isom ((h , p) , g) = ΣPathP (subtypeWitnessIrrelevance {!!} q₁ , {!!})
+            where
+              q₁ = {!!}
+          Iso.rightInv isom h = {!!}
 
       GroupEquiv.isHom G₁-≅ = {!!}
 
