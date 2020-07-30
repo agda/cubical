@@ -22,39 +22,22 @@ open import Cubical.Structures.Group.Properties
 open import Cubical.Homotopy.Connected
 open import Cubical.HITs.Nullification as Null hiding (rec; elim)
 open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec; elim to trElim)
-open import Cubical.HITs.GroupoidQuotients
+open import Cubical.HITs.EilenbergMacLane1
 
 private
   variable ℓ : Level
+
 module _ (G : Group {ℓ}) where
 
   open Group G
-
-  EM₁R : Unit → Unit → Type ℓ
-  EM₁R x y = Carrier
-
-  EM₁Rt : BinaryRelation.isTrans EM₁R
-  EM₁Rt a b c g h = g + h
-
-  EM₁ : Type ℓ
-  EM₁ = Unit // EM₁Rt
-
-  embase : EM₁
-  embase = [ tt ]
-
-  emloop : ⟨ G ⟩ → embase ≡ embase
-  emloop g = eq// g
-
-  emloop-comp : (g h : Carrier) → emloop (g + h) ≡ emloop g ∙ emloop h
-  emloop-comp g h = comp'// Unit EM₁Rt g h
 
   emloop-id : emloop 0g ≡ refl
   emloop-id =
     emloop 0g ≡⟨ rUnit (emloop 0g) ⟩
     emloop 0g ∙ refl ≡⟨ cong (emloop 0g ∙_) (rCancel (emloop 0g) ⁻¹) ⟩
     emloop 0g ∙ (emloop 0g ∙ (emloop 0g) ⁻¹) ≡⟨ ∙assoc _ _ _ ⟩
-    (emloop 0g ∙ emloop 0g) ∙ (emloop 0g) ⁻¹ ≡⟨ cong (_∙ emloop 0g ⁻¹) ((emloop-comp 0g 0g) ⁻¹) ⟩
-    emloop (0g + 0g) ∙ (emloop 0g) ⁻¹ ≡⟨ cong (λ g → emloop g ∙ (emloop 0g) ⁻¹) (lid 0g) ⟩
+    (emloop 0g ∙ emloop 0g) ∙ (emloop 0g) ⁻¹ ≡⟨ cong (_∙ emloop 0g ⁻¹) ((emloop-comp G 0g 0g) ⁻¹) ⟩
+    emloop (0g + 0g) ∙ (emloop 0g) ⁻¹ ≡⟨ cong (λ g → emloop {G = G} g ∙ (emloop 0g) ⁻¹)  (rid 0g) ⟩
     emloop 0g ∙ (emloop 0g) ⁻¹ ≡⟨ rCancel (emloop 0g) ⟩
     refl ∎
 
@@ -63,22 +46,21 @@ module _ (G : Group {ℓ}) where
     emloop (- g) ≡⟨ rUnit (emloop (- g)) ⟩
     emloop (- g) ∙ refl ≡⟨ cong (emloop (- g) ∙_) (rCancel (emloop g) ⁻¹) ⟩
     emloop (- g) ∙ (emloop g ∙ (emloop g) ⁻¹) ≡⟨ ∙assoc _ _ _ ⟩
-    (emloop (- g) ∙ emloop g) ∙ (emloop g) ⁻¹ ≡⟨ cong (_∙ emloop g ⁻¹) ((emloop-comp (- g) g) ⁻¹) ⟩
-    emloop (- g + g) ∙ (emloop g) ⁻¹ ≡⟨ cong (λ h → emloop h ∙ (emloop g) ⁻¹) (invl g) ⟩
+    (emloop (- g) ∙ emloop g) ∙ (emloop g) ⁻¹ ≡⟨ cong (_∙ emloop g ⁻¹) ((emloop-comp G (- g) g) ⁻¹) ⟩
+    emloop (- g + g) ∙ (emloop g) ⁻¹ ≡⟨ cong (λ h → emloop {G = G} h ∙ (emloop g) ⁻¹) (invl g) ⟩
     emloop 0g ∙ (emloop g) ⁻¹ ≡⟨ cong (_∙ (emloop g) ⁻¹) emloop-id ⟩
     refl ∙ (emloop g) ⁻¹ ≡⟨ (lUnit ((emloop g) ⁻¹)) ⁻¹ ⟩
     (emloop g) ⁻¹ ∎
 
-  EM₁Groupoid : isGroupoid EM₁
-  EM₁Groupoid = squash//
+  EM₁Groupoid : isGroupoid (EM₁ G)
+  EM₁Groupoid = emsquash
 
-  EM₁Connected : isConnected 2 EM₁
+  EM₁Connected : isConnected 2 (EM₁ G)
   EM₁Connected = ∣ embase ∣ , h
     where
-      h : (y : hLevelTrunc 2 EM₁) → ∣ embase ∣ ≡ y
+      h : (y : hLevelTrunc 2 (EM₁ G)) → ∣ embase ∣ ≡ y
       h = trElim (λ y → isOfHLevelSuc 1 (isOfHLevelTrunc 2 ∣ embase ∣ y))
-            (elimProp EM₁Rt (λ x → isOfHLevelTrunc 2 ∣ embase ∣ ∣ x ∣)
-              (λ { tt → refl }))
+            (elimProp G (λ x → isOfHLevelTrunc 2 ∣ embase ∣ ∣ x ∣) refl)
 
   {- since we write composition in diagrammatic order,
      and function composition in the other order,
@@ -96,9 +78,8 @@ module _ (G : Group {ℓ}) where
     → compEquiv (rightEquiv g) (rightEquiv h) ≡ rightEquiv (g + h)
   compRightEquiv g h = equivEq _ _ (funExt (λ x → (assoc x g h) ⁻¹))
 
-  Codes : EM₁ → hSet ℓ
-  Codes = rec EM₁Rt (isOfHLevelTypeOfHLevel 2)
-    (λ _ → Carrier , is-set) RE REComp
+  CodesSet : EM₁ G → hSet ℓ
+  CodesSet = rec G (isOfHLevelTypeOfHLevel 2) (Carrier , is-set) RE REComp
     where
       RE : (g : Carrier) → Path (hSet ℓ) (Carrier , is-set) (Carrier , is-set)
       RE g = Σ≡Prop (λ X → isPropIsOfHLevel {A = X} 2) (ua (rightEquiv g))
@@ -128,3 +109,36 @@ module _ (G : Group {ℓ}) where
 
       REComp : (g h : Carrier) → Square (RE g) (RE (g + h)) refl (RE h)
       REComp g h = lemma₂ (RE g) (RE (g + h)) refl (RE h) (lemma₁ g h)
+
+
+  Codes : EM₁ G → Type ℓ
+  Codes x = CodesSet x .fst
+
+  encode : (x : EM₁ G) → embase ≡ x → Codes x
+  encode x p = subst Codes p 0g
+
+  decode : (x : EM₁ G) → Codes x → embase ≡ x
+  decode = elimSet G (λ x → isOfHLevelΠ 2 (λ c → EM₁Groupoid (embase) x))
+    emloop λ g → ua→ λ h → emcomp h g
+
+  decode-encode : (x : EM₁ G) (p : embase ≡ x) → decode x (encode x p) ≡ p
+  decode-encode x p = J (λ y q → decode y (encode y q) ≡ q)
+    (emloop (transport refl 0g) ≡⟨ cong emloop (transportRefl 0g) ⟩
+     emloop 0g ≡⟨ emloop-id ⟩ refl ∎) p
+
+  encode-decode : (x : EM₁ G) (c : Codes x) → encode x (decode x c) ≡ c
+  encode-decode = elimProp G (λ x → isOfHLevelΠ 1 (λ c → CodesSet x .snd _ _))
+    λ g → encode embase (decode embase g) ≡⟨ refl ⟩
+          encode embase (emloop g) ≡⟨ refl ⟩
+          transport (ua (rightEquiv g)) 0g ≡⟨ uaβ (rightEquiv g) 0g ⟩
+          0g + g ≡⟨ lid g ⟩
+          g ∎
+
+  ΩEM₁Iso : Iso (Path (EM₁ G) embase embase) Carrier
+  Iso.fun ΩEM₁Iso = encode embase
+  Iso.inv ΩEM₁Iso = emloop
+  Iso.rightInv ΩEM₁Iso = encode-decode embase
+  Iso.leftInv ΩEM₁Iso = decode-encode embase
+
+  ΩEM₁≡ : (Path (EM₁ G) embase embase) ≡ Carrier
+  ΩEM₁≡ = isoToPath ΩEM₁Iso
