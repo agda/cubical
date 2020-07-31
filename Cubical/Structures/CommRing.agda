@@ -137,6 +137,9 @@ module CommRingΣTheory {ℓ} where
     open IsAbGroup
     open IsRing
     open IsCommRing
+    open RingΣTheory
+    ring-helper : retract (Ring→RingΣ {ℓ}) RingΣ→Ring
+    ring-helper = Iso.leftInv RingIsoRingΣ
 
     helper : _
     Carrier (helper a i) = ⟨ a ⟩
@@ -145,18 +148,9 @@ module CommRingΣTheory {ℓ} where
     _+_ (helper a i) = CommRing._+_ a
     _·_ (helper a i) = _·_ a
     - helper a i = - a
-    isMonoid (isGroup (+-isAbGroup (isRing (isCommRing (helper a i))))) =
-      η-isMonoid (isMonoid (isGroup (+-isAbGroup a))) i
-    inverse (isGroup (+-isAbGroup (isRing (isCommRing (helper a i))))) =
-      inverse (isGroup (+-isAbGroup a))
-    comm (+-isAbGroup (isRing (isCommRing (helper a i)))) =
-      comm (+-isAbGroup a)
-    isSemigroup (·-isMonoid (isRing (isCommRing (helper a i)))) =
-      isSemigroup (·-isMonoid a)
-    identity (·-isMonoid (isRing (isCommRing (helper a i)))) =
-      identity (·-isMonoid a)
-    dist (isRing (isCommRing (helper a i))) = dist a
-    ·-comm (isCommRing (helper a i)) = ·-comm a
+    IsCommRing.isRing (isCommRing (helper a i)) =
+      Ring.isRing (ring-helper (ring _ _ _ _ _ _ ( IsCommRing.isRing (isCommRing a))) i)
+    IsCommRing.·-comm (isCommRing (helper a i)) = IsCommRing.·-comm (CommRing.isCommRing a)
 
   commRingUnivalentStr : UnivalentStr CommRingStructure CommRingEquivStr
   commRingUnivalentStr = axiomsUnivalentStr _ isPropCommRingAxioms rawRingUnivalentStr
