@@ -7,6 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
@@ -171,6 +172,34 @@ record AlgebraHom {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
              f (x - x)         ≡⟨ cong f (+-rinv _) ⟩
              f 0a              ≡⟨ pres0 ⟩
              0a ∎)
+
+_∘a_ : {R : Ring {ℓ}} {A B C : Algebra R}
+       → AlgebraHom B C → AlgebraHom A B → AlgebraHom A C
+_∘a_ {ℓ} {R} {A} {B} {C}
+  (algebrahom f isHom+f isHom·f pres1f comm⋆f)
+  (algebrahom g isHom+g isHom·g pres1g comm⋆g)
+  =
+  let
+    open Algebra ⦃...⦄
+    instance
+      _ : Algebra R
+      _ = A
+      _ : Algebra R
+      _ = B
+      _ : Algebra R
+      _ = C
+  in algebrahom (f ∘ g)
+    (λ x y → f (g (x + y))      ≡⟨ cong f (isHom+g x y) ⟩
+             f (g x + g y)      ≡⟨ isHom+f _ _  ⟩
+             f (g x) + f (g y)  ∎)
+    (λ x y → f (g (x · y))      ≡⟨ cong f (isHom·g x y) ⟩
+             f (g x · g y)      ≡⟨ isHom·f _ _  ⟩
+             f (g x) · f (g y)  ∎)
+    (f (g 1a) ≡⟨ cong f pres1g ⟩ f 1a ≡⟨ pres1f ⟩ 1a ∎)
+    λ r x → f (g (r ⋆ x))  ≡⟨ cong f (comm⋆g _ _) ⟩
+            f (r ⋆ (g x))  ≡⟨ comm⋆f _ _ ⟩
+            r ⋆ (f (g x))  ∎
+
 
 module AlgebraΣTheory (R : Ring {ℓ}) where
 
