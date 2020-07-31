@@ -30,7 +30,7 @@ module _ {ℓ ℓ' : Level} where
 
   module _ {G₀ : Group {ℓ}} {G₁ : Group {ℓ'}}
            {Id : GroupHom G₀ G₁} {Src : GroupHom G₁ G₀} {Tar : GroupHom G₁ G₀}
-           (retSrc : isGroupHomRet Id Src) (retTar : isGroupHomRet Id Tar) where
+           (retSrc : isGroupSplitEpi Id Src) (retTar : isGroupSplitEpi Id Tar) where
 
          _⋆₁_ = Group._+_ G₁
          inv₁ = Group.-_ G₁

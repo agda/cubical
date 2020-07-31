@@ -41,14 +41,14 @@ module _ {ℓ : Level} (G₀ : Group {ℓ}) (ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
 
-  SplitExt : Type (ℓ-suc ℓℓ')
-  SplitExt = Σ[ G₁ ∈ Group {ℓℓ'} ] Σ[ ι ∈ GroupHom G₀ G₁ ] Σ[ σ ∈ GroupHom G₁ G₀ ] isGroupHomRet ι σ
+  GroupSplitEpi : Type (ℓ-suc ℓℓ')
+  GroupSplitEpi = Σ[ G₁ ∈ Group {ℓℓ'} ] Σ[ ι ∈ GroupHom G₀ G₁ ] Σ[ σ ∈ GroupHom G₁ G₀ ] isGroupSplitEpi ι σ
 
   GroupAct : Type (ℓ-suc ℓℓ')
   GroupAct = Σ[ G₁ ∈ Group {ℓℓ'} ] Σ[ _α_ ∈ LeftActionStructure ⟨ G₀ ⟩ ⟨ G₁ ⟩ ] (IsGroupAction G₀ G₁ _α_)
 
-  SplitExt→GroupAct : SplitExt → GroupAct
-  SplitExt→GroupAct (G₁ , ι , σ , isSplit) = ker-σ , _α_ , isAct
+  GroupSplitEpi→GroupAct : GroupSplitEpi → GroupAct
+  GroupSplitEpi→GroupAct (G₁ , ι , σ , isSplit) = ker-σ , _α_ , isAct
     where
       open Kernel
       open GroupNotation₀ G₀
@@ -137,8 +137,8 @@ module _ {ℓ : Level} (G₀ : Group {ℓ}) (ℓ' : Level) where
                     ≡⟨ cong (_+₁ -ig) (sym (assoc₁ ig (ig' +₁ h) -ig')) ⟩
                   fst (g α (g' α (h , p))) ∎
 
-  GroupAct→SplitExt : GroupAct → SplitExt
-  GroupAct→SplitExt (G₁ , _α_ , isAct) = G₁⋊G₀ , ι₂ α , π₂ α , π₂-hasSec α
+  GroupAct→GroupSplitEpi : GroupAct → GroupSplitEpi
+  GroupAct→GroupSplitEpi (G₁ , _α_ , isAct) = G₁⋊G₀ , ι₂ α , π₂ α , π₂-hasSec α
     where
       α = groupaction _α_ isAct
       G₁⋊G₀ : Group {ℓℓ'}
@@ -152,17 +152,17 @@ module _ {ℓ ℓ' : Level} where
   RelIso.fun 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , _α_) , isAct) =
     ((G₀ , fst se) , (fst (snd se)) , (fst (snd (snd se)))) , snd (snd (snd se))
     where
-      se = GroupAct→SplitExt G₀ ℓ' (G₁ , _α_ , isAct)
+      se = GroupAct→GroupSplitEpi G₀ ℓ' (G₁ , _α_ , isAct)
 
   RelIso.inv 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , (ι , σ)) , isSplit) =
     ((G₀ , fst ga) , fst (snd ga)) , snd (snd ga)
     where
-      ga = SplitExt→GroupAct G₀ ℓ' (G₁ , ι , σ , isSplit)
+      ga = GroupSplitEpi→GroupAct G₀ ℓ' (G₁ , ι , σ , isSplit)
 
   RelIso.rightInv 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , (ι , σ)) , isSplit) = ((G₀-≅ , G₁-≅) , ι-≅ , σ-≅) , isSplit-≅
     where
       -- get our hands dirty with shameless reference to what we're constructing
-      -- TODO: Maybe, just maybe, define a ton of separate maps instead of GroupAct→SplitExt
+      -- TODO: Maybe, just maybe, define a ton of separate maps instead of GroupAct→GroupSplitEpi
       -- and the reverse map
       ga = RelIso.inv 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , (ι , σ)) , isSplit)
       se' = RelIso.fun 𝒮-Iso-GroupAct-SplitEpi ga
@@ -309,7 +309,7 @@ module _ {ℓ ℓ' : Level} where
         where
           abstract
             q = tt
- 
+
   RelIso.leftInv 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , _α_) , isAct) = ((G₀-≅ , G₁-≅) , α-≅) , isAct-≅
     where
       -- import notation
@@ -387,7 +387,7 @@ module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
 
-  ReflexiveGraph = Σ[ (G₀ , G₁ , ι , σ , split-σ) ∈ (Σ[ G₀ ∈ Group {ℓ} ] SplitExt G₀ ℓ') ] Σ[ τ ∈ GroupHom G₁ G₀ ] isGroupHomRet ι τ
+  ReflexiveGraph = Σ[ (G₀ , G₁ , ι , σ , split-σ) ∈ (Σ[ G₀ ∈ Group {ℓ} ] GroupSplitEpi G₀ ℓ') ] Σ[ τ ∈ GroupHom G₁ G₀ ] isGroupSplitEpi ι τ
 
   PreCrossedModule = Σ[ (G₀ , G₁ , _α_ , isAct) ∈ (Σ[ G₀ ∈ Group {ℓ} ] GroupAct G₀ ℓ') ] (Σ[ φ ∈ GroupHom G₁ G₀ ] isEquivariant _α_ φ)
 -}

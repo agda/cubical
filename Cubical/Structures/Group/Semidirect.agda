@@ -68,5 +68,5 @@ module _ {G : Group {ℓ}} {H : Group {ℓ'}} (Act : GroupAction H G) where
   ι₂ : GroupHom H (G ⋊⟨ Act ⟩ H)
   ι₂ = grouphom (λ h → 0ᴳ , h) λ h h' → ΣPathP (sym (actOnUnit h) ∙ sym (lIdᴳ (h α 0ᴳ)) , refl)
 
-  π₂-hasSec : isGroupHomRet ι₂ π₂
+  π₂-hasSec : isGroupSplitEpi ι₂ π₂
   π₂-hasSec = GroupMorphismExt (λ _ → refl)

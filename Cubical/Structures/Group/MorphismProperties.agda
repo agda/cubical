@@ -58,14 +58,14 @@ isHom (compGroupEquiv f g) = isHom (compGroupHom (hom f) (hom g))
 idGroupHom : (G : Group {ℓ}) → GroupHom G G
 idGroupHom G = grouphom (λ g → g) λ _ _ → refl
 
-isGroupHomRet : {G : Group {ℓ}} {H : Group {ℓ'}}
+isGroupSplitEpi : {G : Group {ℓ}} {H : Group {ℓ'}}
         (f : GroupHom G H) (g : GroupHom H G)
         → Type ℓ
-isGroupHomRet {G = G} f g = compGroupHom f g ≡ idGroupHom G
+isGroupSplitEpi {G = G} f g = compGroupHom f g ≡ idGroupHom G
 
 isPropIsGroupHomRet : {G : Group {ℓ}} {H : Group {ℓ'}}
                       (f : GroupHom G H) (g : GroupHom H G)
-                      → isProp (isGroupHomRet f g)
+                      → isProp (isGroupSplitEpi f g)
 isPropIsGroupHomRet {G = G} f g = isSetGroupHom (compGroupHom f g) (idGroupHom G)
 
 idGroupEquiv : (G : Group {ℓ}) → GroupEquiv G G

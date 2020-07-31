@@ -72,12 +72,12 @@ module MorphismTree (ℓ ℓ' : Level) where
   G²FB = Σ[ (G , H) ∈ G² ] GroupHom G H × GroupHom H G
 
   -- type of Split epimorphisms
-  G²SecRet = Σ[ ((G , H) , f , b) ∈ G²FB ] isGroupHomRet f b
+  G²SecRet = Σ[ ((G , H) , f , b) ∈ G²FB ] isGroupSplitEpi f b
 
   G²SecRetB = Σ[ (((G , H) , f , b) , isRet) ∈ G²SecRet ] GroupHom H G
 
   -- type of internal reflexive graphs in the category of groups
-  G²SecRet² = Σ[ ((((G , H) , f , b) , isRet) , b') ∈ G²SecRetB ] isGroupHomRet f b'
+  G²SecRet² = Σ[ ((((G , H) , f , b) , isRet) , b') ∈ G²SecRetB ] isGroupSplitEpi f b'
 
   -- Group morphisms displayed over pairs of groups
   𝒮ᴰ-G²\F : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
@@ -125,10 +125,10 @@ module MorphismTree (ℓ ℓ' : Level) where
 
   -- section retraction pair displayed over pairs of groups
   𝒮ᴰ-G²FB\Split : URGStrᴰ 𝒮-G²FB
-                          (λ ((G , H) , (f , g)) → isGroupHomRet f g)
+                          (λ ((G , H) , (f , g)) → isGroupSplitEpi f g)
                           ℓ-zero
   𝒮ᴰ-G²FB\Split =
-    Subtype→Sub-𝒮ᴰ (λ ((G , H) , (f , g)) → isGroupHomRet f g , isPropIsGroupHomRet f g)
+    Subtype→Sub-𝒮ᴰ (λ ((G , H) , (f , g)) → isGroupSplitEpi f g , isPropIsGroupHomRet f g)
                        𝒮-G²FB
 
   -- type of group section retraction pairs
@@ -152,10 +152,10 @@ module MorphismTree (ℓ ℓ' : Level) where
 
   𝒮ᴰ-G²FBSplitB\Split : URGStrᴰ 𝒮-G²FBSplitB
                         (λ ((((G , H) , f , b) , isRet) , b')
-                          → isGroupHomRet f b')
+                          → isGroupSplitEpi f b')
                         ℓ-zero
   𝒮ᴰ-G²FBSplitB\Split = Subtype→Sub-𝒮ᴰ (λ ((((G , H) , f , b) , isRet) , b')
-                                   → isGroupHomRet f b' , isPropIsGroupHomRet f b')
+                                   → isGroupSplitEpi f b' , isPropIsGroupHomRet f b')
                                 𝒮-G²FBSplitB
 
   𝒮-G²FBSplitBSplit : URGStr G²SecRet² (ℓ-max ℓ ℓ')
