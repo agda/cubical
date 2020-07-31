@@ -67,17 +67,16 @@ FunctionEquivStr+ : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂
 FunctionEquivStr+ {S = S} {T} α₁ ι₂ (X , f) (Y , g) e =
   (s : S X) → ι₂ (X , f s) (Y , g (equivFun (α₁ e) s)) e
 
-abstract
-  functionUnivalentStr+ : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
-    (α₁ : EquivAction S) (τ₁ : TransportStr α₁)
-    (ι₂ : StrEquiv T ℓ₂') (θ₂ : UnivalentStr T ι₂)
-    → UnivalentStr (FunctionStructure S T) (FunctionEquivStr+ α₁ ι₂)
-  functionUnivalentStr+ {S = S} {T} α₁ τ₁ ι₂ θ₂ {X , f} {Y , g} e =
-    compEquiv
-      (compEquiv
-        (equivΠCod λ s →
-          compEquiv
-            (θ₂ e)
-            (pathToEquiv (cong (PathP (λ i → T (ua e i)) (f s) ∘ g) (τ₁ e s))))
-        (invEquiv heteroHomotopy≃Homotopy))
-      funExtDepEquiv
+functionUnivalentStr+ : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
+  (α₁ : EquivAction S) (τ₁ : TransportStr α₁)
+  (ι₂ : StrEquiv T ℓ₂') (θ₂ : UnivalentStr T ι₂)
+  → UnivalentStr (FunctionStructure S T) (FunctionEquivStr+ α₁ ι₂)
+functionUnivalentStr+ {S = S} {T} α₁ τ₁ ι₂ θ₂ {X , f} {Y , g} e =
+  compEquiv
+    (compEquiv
+      (equivΠCod λ s →
+        compEquiv
+          (θ₂ e)
+          (pathToEquiv (cong (PathP (λ i → T (ua e i)) (f s) ∘ g) (τ₁ e s))))
+      (invEquiv heteroHomotopy≃Homotopy))
+    funExtDepEquiv
