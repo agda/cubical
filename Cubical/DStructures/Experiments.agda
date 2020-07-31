@@ -12,6 +12,7 @@ open import Cubical.Functions.FunExtEquiv
 open import Cubical.Homotopy.Base
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 
 open import Cubical.Relation.Binary
 open BinaryRelation
@@ -265,11 +266,49 @@ module _ {ℓ ℓ' : Level} where
                        ≡⟨ (cong (h +₁_) (lCancel₁ ish)) ∙ (rId₁ h) ⟩
                     h ∎
 
-      GroupEquiv.isHom G₁-≅ = {!!}
+      GroupEquiv.isHom G₁-≅ ((h , p) , g) ((h' , p') , g') = q
+        where
+          abstract
+            q = (h +₁ ((𝒾 g +₁ h') +₁ (-₁ 𝒾 g))) +₁ 𝒾 (g +₀ g')
+                   ≡⟨ cong ((h +₁ ((𝒾 g +₁ h') +₁ (-₁ 𝒾 g))) +₁_) (ι .isHom g g') ⟩
+                (h +₁ ((𝒾 g +₁ h') +₁ (-₁ 𝒾 g))) +₁ (𝒾 g +₁ 𝒾 g')
+                   ≡⟨ sym (assoc₁ h ((𝒾 g +₁ h') +₁ (-₁ 𝒾 g)) (𝒾 g +₁ 𝒾 g')) ⟩
+                h +₁ (((𝒾 g +₁ h') +₁ (-₁ 𝒾 g)) +₁ (𝒾 g +₁ 𝒾 g'))
+                   ≡⟨ cong (h +₁_) (sym (assoc₁ (𝒾 g +₁ h') (-₁ 𝒾 g) (𝒾 g +₁ 𝒾 g'))) ⟩
+                h +₁ ((𝒾 g +₁ h') +₁ ((-₁ 𝒾 g) +₁ (𝒾 g +₁ 𝒾 g')))
+                   ≡⟨ cong (λ z → h +₁ ((𝒾 g +₁ h') +₁ z)) (assoc₁ (-₁ 𝒾 g) (𝒾 g) (𝒾 g')) ⟩
+                h +₁ ((𝒾 g +₁ h') +₁ (((-₁ 𝒾 g) +₁ 𝒾 g) +₁ 𝒾 g'))
+                   ≡⟨ cong (λ z → h +₁ ((𝒾 g +₁ h') +₁ (z +₁ 𝒾 g'))) (lCancel₁ (𝒾 g)) ⟩
+                h +₁ ((𝒾 g +₁ h') +₁ (0₁ +₁ 𝒾 g'))
+                   ≡⟨ cong (λ z → h +₁ ((𝒾 g +₁ h') +₁ z)) (lId₁ (𝒾 g')) ⟩
+                h +₁ ((𝒾 g +₁ h') +₁ 𝒾 g')
+                   ≡⟨ cong (h +₁_) (sym (assoc₁ (𝒾 g) h' (𝒾 g'))) ⟩
+                h +₁ (𝒾 g +₁ (h' +₁ 𝒾 g'))
+                   ≡⟨ assoc₁ h (𝒾 g) (h' +₁ 𝒾 g') ⟩
+                (h +₁ 𝒾 g) +₁ (h' +₁ 𝒾 g') ∎
 
-      ι-≅ = {!!}
-      σ-≅ = {!!}
-      isSplit-≅ = {!!}
+      ι-≅ : (g : ⟨ G₀ ⟩) → 0₁ +₁ (𝒾 g) ≡ 𝒾 g
+      ι-≅ g = lId₁ (𝒾 g)
+
+      σ-≅ : (((h , _) , g) : ⟨ kσ⋊G₀ ⟩) → g ≡ 𝓈 (h +₁ 𝒾 g)
+      σ-≅ ((h , p) , g) = q
+        where
+          abstract
+            q = g
+                  ≡⟨ funExt⁻ (cong fun (sym isSplit)) g ⟩
+                𝓈 (𝒾 g)
+                  ≡⟨ sym (lId₀ (𝓈 (𝒾 g))) ⟩
+                0₀ +₀ 𝓈 (𝒾 g)
+                  ≡⟨ cong (_+₀ 𝓈 (𝒾 g)) (sym p) ⟩
+                𝓈 h +₀ 𝓈 (𝒾 g)
+                  ≡⟨ sym (σ .isHom h (𝒾 g)) ⟩
+                𝓈 (h +₁ 𝒾 g) ∎
+
+      isSplit-≅ : Unit
+      isSplit-≅ = q
+        where
+          abstract
+            q = tt
  
   RelIso.leftInv 𝒮-Iso-GroupAct-SplitEpi = {!!}
 
