@@ -11,10 +11,26 @@ module Cubical.Structures.FreeCommAlgebra where
   I learned about this (and other) definition(s) from David Jaz Myers.
   You can watch him talk about these things here:
   https://www.youtube.com/watch?v=VNp-f_9MnVk
+
+  This file contains
+  * the definition of the free commutative algebra on a type I over a commutative ring R as a HIT
+    (let us call that R[I])
+  * a prove that the construction is an commutative R-algebra
+  * definitions of the induced maps appearing in the universal property of R[I],
+    that is:  * for any map I → A, where A is a commutative R-algebra,
+                the induced algebra homomorphism R[I] → A
+                ('inducedHom')
+              * for any hom R[I] → A, the 'restricttion to variables' I → A
+                ('evaluateAt')
+  * a proof that the two constructions are inverse to each other
+    ('homRetrievable' and 'mapRetrievable')
+  * a proof, that the corresponding pointwise equivalence of functors is natural
+    ('naturalR', 'naturalL')
 -}
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Function hiding (const)
 
 open import Cubical.Structures.CommRing
 open import Cubical.Structures.Ring        using ()
@@ -171,9 +187,6 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
 
     Hom = AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
     open AlgebraHom
-
-    _$_ : Hom → ⟨ R [ I ] ⟩a → ⟨ A ⟩a
-    f $ x = AlgebraHom.f f x
 
     evaluateAt : Hom
                  → I → ⟨ A ⟩a
@@ -370,29 +383,67 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
       in proveEq
           (isSetAlgebra (CommAlgebra→Algebra A))
           (inducedMap A (evaluateAt f))
-          (λ x → f $ x)
+          (λ x → f $a x)
           (λ x → refl)
-          (λ r → r ⋆ 1a                    ≡⟨ cong (λ u → r ⋆ u) (sym (pres1 f)) ⟩
-                 r ⋆ (f $ (const 1r))      ≡⟨ sym (comm⋆ f r _) ⟩
-                 f $ (const r ·c const 1r) ≡⟨ cong (λ u → f $ u) (sym (Construction.·HomConst r 1r)) ⟩
-                 f $ (const (r ·r 1r))     ≡⟨ cong (λ u → f $ (const u)) (·r-rid r) ⟩
-                 f $ (const r) ∎)
+          (λ r → r ⋆ 1a                     ≡⟨ cong (λ u → r ⋆ u) (sym (pres1 f)) ⟩
+                 r ⋆ (f $a (const 1r))      ≡⟨ sym (comm⋆ f r _) ⟩
+                 f $a (const r ·c const 1r) ≡⟨ cong (λ u → f $a u) (sym (Construction.·HomConst r 1r)) ⟩
+                 f $a (const (r ·r 1r))     ≡⟨ cong (λ u → f $a (const u)) (·r-rid r) ⟩
+                 f $a (const r) ∎)
 
           (λ x y eq-x eq-y →
-                ι (x +c y)          ≡⟨ refl ⟩
-                (ι x + ι y)         ≡⟨ cong (λ u → u + ι y) eq-x ⟩
-                ((f $ x) + ι y)     ≡⟨
-                                       cong (λ u → (f $ x) + u) eq-y ⟩
-                ((f $ x) + (f $ y)) ≡⟨ sym (isHom+ f _ _) ⟩ (f $ (x +c y)) ∎)
+                ι (x +c y)            ≡⟨ refl ⟩
+                (ι x + ι y)           ≡⟨ cong (λ u → u + ι y) eq-x ⟩
+                ((f $a x) + ι y)      ≡⟨
+                                       cong (λ u → (f $a x) + u) eq-y ⟩
+                ((f $a x) + (f $a y)) ≡⟨ sym (isHom+ f _ _) ⟩ (f $a (x +c y)) ∎)
 
           (λ x y eq-x eq-y →
-             ι (x ·c y)        ≡⟨ refl ⟩
-             ι x     · ι y     ≡⟨ cong (λ u → u · ι y) eq-x ⟩
-             (f $ x) · (ι y)   ≡⟨ cong (λ u → (f $ x) · u) eq-y ⟩
-             (f $ x) · (f $ y) ≡⟨ sym (isHom· f _ _) ⟩
-             f $ (x ·c y) ∎)
+             ι (x ·c y)          ≡⟨ refl ⟩
+             ι x     · ι y       ≡⟨ cong (λ u → u · ι y) eq-x ⟩
+             (f $a x) · (ι y)    ≡⟨ cong (λ u → (f $a x) · u) eq-y ⟩
+             (f $a x) · (f $a y) ≡⟨ sym (isHom· f _ _) ⟩
+             f $a (x ·c y) ∎)
          (λ x eq-x →
-             ι (-c x)   ≡⟨ refl ⟩
-             - ι x      ≡⟨ cong (λ u → - u) eq-x ⟩
-             - (f $ x)  ≡⟨ sym (isHom- f x) ⟩
-             f $ (-c x) ∎)
+             ι (-c x)    ≡⟨ refl ⟩
+             - ι x       ≡⟨ cong (λ u → - u) eq-x ⟩
+             - (f $a x)  ≡⟨ sym (isHom- f x) ⟩
+             f $a (-c x) ∎)
+
+evaluateAt : {R : CommRing {ℓ}} {I : Type ℓ} (A : CommAlgebra R)
+             (f : AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A))
+             → (I → ⟨ A ⟩a)
+evaluateAt A f x = f $a (Construction.var x)
+
+inducedHom : {R : CommRing {ℓ}} {I : Type ℓ} (A : CommAlgebra R)
+             (φ : I → ⟨ A ⟩a)
+             → AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
+inducedHom A φ = Theory.inducedHom A φ
+
+module _ {R : CommRing {ℓ}} {A B : CommAlgebra R} where
+  A′ = CommAlgebra→Algebra A
+  B′ = CommAlgebra→Algebra B
+  R′ = (CommRing→Ring R)
+  ν : AlgebraHom A′ B′ → (⟨ A ⟩a → ⟨ B ⟩a)
+  ν (algebrahom f _ _ _ _) = f
+
+  {-
+    Hom(R[I],A) → (I → A)
+         ↓          ↓
+    Hom(R[I],B) → (I → B)
+  -}
+  naturalR : {I : Type ℓ} (ψ : AlgebraHom A′ B′)
+             (f : AlgebraHom (CommAlgebra→Algebra (R [ I ])) A′)
+             → (ν ψ) ∘ evaluateAt A f ≡ evaluateAt B (ψ ∘a f)
+  naturalR ψ f = refl
+
+  {-
+    Hom(R[I],A) → (I → A)
+         ↓          ↓
+    Hom(R[J],A) → (J → A)
+  -}
+  naturalL : {I J : Type ℓ} (φ : J → I)
+             (f : AlgebraHom (CommAlgebra→Algebra (R [ I ])) A′)
+             → (evaluateAt A f) ∘ φ
+               ≡ evaluateAt A (f ∘a (inducedHom (R [ I ]) (λ x → Construction.var (φ x))))
+  naturalL φ f = refl

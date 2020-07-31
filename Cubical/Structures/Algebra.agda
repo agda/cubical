@@ -173,6 +173,12 @@ record AlgebraHom {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
              f 0a              ≡⟨ pres0 ⟩
              0a ∎)
 
+_$a_ : {R : Ring {ℓ}} {A B : Algebra R}
+       → AlgebraHom A B
+       → ⟨ A ⟩ → ⟨ B ⟩
+f $a x = AlgebraHom.f f x
+
+
 _∘a_ : {R : Ring {ℓ}} {A B C : Algebra R}
        → AlgebraHom B C → AlgebraHom A B → AlgebraHom A C
 _∘a_ {ℓ} {R} {A} {B} {C}
