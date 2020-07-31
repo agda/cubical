@@ -96,7 +96,7 @@ module _ {ℓ ℓ₁ ℓ₁'} where
 private
   _>>=_ = R.bindTC
   _<|>_ = R.catchTC
-    
+
   _$_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → A → B
   f $ a = f a
 
