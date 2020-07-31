@@ -132,9 +132,6 @@ module CommRingΣTheory {ℓ} where
     where
     open import Cubical.Structures.Group.Base hiding (⟨_⟩)
     open CommRing
-    open IsGroup
-    open IsMonoid
-    open IsAbGroup
     open IsRing
     open IsCommRing
     open RingΣTheory
@@ -148,9 +145,9 @@ module CommRingΣTheory {ℓ} where
     _+_ (helper a i) = CommRing._+_ a
     _·_ (helper a i) = _·_ a
     - helper a i = - a
-    IsCommRing.isRing (isCommRing (helper a i)) =
-      Ring.isRing (ring-helper (ring _ _ _ _ _ _ ( IsCommRing.isRing (isCommRing a))) i)
-    IsCommRing.·-comm (isCommRing (helper a i)) = IsCommRing.·-comm (CommRing.isCommRing a)
+    isRing (isCommRing (helper a i)) =
+      Ring.isRing (ring-helper (ring _ _ _ _ _ _ (isRing (isCommRing a))) i)
+    ·-comm (isCommRing (helper a i)) = ·-comm (isCommRing a)
 
   commRingUnivalentStr : UnivalentStr CommRingStructure CommRingEquivStr
   commRingUnivalentStr = axiomsUnivalentStr _ isPropCommRingAxioms rawRingUnivalentStr

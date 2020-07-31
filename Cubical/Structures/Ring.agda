@@ -193,6 +193,7 @@ module RingΣTheory {ℓ} where
   RingIsoRingΣ = iso Ring→RingΣ RingΣ→Ring (λ _ → refl) helper
     where
       -- helper will be refl, if eta-equality is activated for all structure-records
+      open IsRing
       open MonoidΣTheory
       monoid-helper : retract (Monoid→MonoidΣ {ℓ}) MonoidΣ→Monoid
       monoid-helper = Iso.leftInv MonoidIsoMonoidΣ
@@ -207,11 +208,11 @@ module RingΣTheory {ℓ} where
       Ring._+_ (helper a i) = Ring._+_ a
       Ring._·_ (helper a i) = Ring._·_ a
       Ring.- helper a i = Ring.- a
-      IsRing.+-isAbGroup (Ring.isRing (helper a i)) =
+      +-isAbGroup (Ring.isRing (helper a i)) =
         AbGroup.isAbGroup (abgroup-helper (abgroup _ _ _ _ (Ring.+-isAbGroup a)) i)
-      IsRing.·-isMonoid (Ring.isRing (helper a i)) =
+      ·-isMonoid (Ring.isRing (helper a i)) =
         Monoid.isMonoid (monoid-helper (monoid _ _ _ (Ring.·-isMonoid a)) i)
-      IsRing.dist (Ring.isRing (helper a i)) = IsRing.dist (Ring.isRing a)
+      dist (Ring.isRing (helper a i)) = dist (Ring.isRing a)
 
   ringUnivalentStr : UnivalentStr RingStructure RingEquivStr
   ringUnivalentStr = axiomsUnivalentStr _ isPropRingAxioms rawRingUnivalentStr
