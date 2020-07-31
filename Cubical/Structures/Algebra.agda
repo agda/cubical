@@ -269,22 +269,22 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
   AlgebraΣPath : (M N : AlgebraΣ) → (M ≃[ AlgebraEquivStr ] N) ≃ (M ≡ N)
   AlgebraΣPath = SIP algebraUnivalentStr
 
-  AlgebraEquivStrΣ : (M N : Algebra R) → Type ℓ
-  AlgebraEquivStrΣ M N = Algebra→AlgebraΣ M ≃[ AlgebraEquivStr ] Algebra→AlgebraΣ N
+  AlgebraEquivΣ : (M N : Algebra R) → Type ℓ
+  AlgebraEquivΣ M N = Algebra→AlgebraΣ M ≃[ AlgebraEquivStr ] Algebra→AlgebraΣ N
 
-  AlgebraEquivStrΣPath : {M N : Algebra R} → Iso (AlgebraEquiv M N) (AlgebraEquivStrΣ M N)
-  fun AlgebraEquivStrΣPath (algebraiso e isHom+ isHom· pres1 comm⋆) =
+  AlgebraEquivΣPath : {M N : Algebra R} → Iso (AlgebraEquiv M N) (AlgebraEquivΣ M N)
+  fun AlgebraEquivΣPath (algebraiso e isHom+ isHom· pres1 comm⋆) =
     e , isHom+ , (isHom· , (pres1 , comm⋆))
-  inv AlgebraEquivStrΣPath (f , isHom+ , isHom· , pres1 , comm⋆) =
+  inv AlgebraEquivΣPath (f , isHom+ , isHom· , pres1 , comm⋆) =
     algebraiso f isHom+ isHom· pres1 comm⋆
-  rightInv AlgebraEquivStrΣPath _ = refl
-  leftInv AlgebraEquivStrΣPath _ = refl
+  rightInv AlgebraEquivΣPath _ = refl
+  leftInv AlgebraEquivΣPath _ = refl
 
   AlgebraPath : (M N : Algebra R) → (AlgebraEquiv M N) ≃ (M ≡ N)
   AlgebraPath M N =
-    AlgebraEquiv M N                                    ≃⟨ isoToEquiv AlgebraEquivStrΣPath ⟩
-    AlgebraEquivStrΣ M N                                   ≃⟨ AlgebraΣPath _ _ ⟩
-    Algebra→AlgebraΣ M ≡ Algebra→AlgebraΣ N  ≃⟨ isoToEquiv
+    AlgebraEquiv M N                                    ≃⟨ isoToEquiv AlgebraEquivΣPath ⟩
+    AlgebraEquivΣ M N                                   ≃⟨ AlgebraΣPath _ _ ⟩
+    Algebra→AlgebraΣ M ≡ Algebra→AlgebraΣ N             ≃⟨ isoToEquiv
                                                              (invIso
                                                              (congIso
                                                              AlgebraIsoAlgebraΣ))

@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
@@ -64,6 +65,9 @@ module _ {R : CommRing {ℓ}} where
   CommAlgebra→CommRing (commalgebra Carrier _ _ _ _ _ _
                           (iscommalgebra isAlgebra ·-comm)) =
     commring Carrier _ _ _ _ _ (iscommring (IsAlgebra.isRing isAlgebra) ·-comm)
+
+  CommAlgebraEquiv : (R S : CommAlgebra R) → Type ℓ
+  CommAlgebraEquiv R S = AlgebraEquiv (CommAlgebra→Algebra R) (CommAlgebra→Algebra S)
 
   makeIsCommAlgebra : {A : Type ℓ} {0a 1a : A}
                       {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩r → A → A}
@@ -132,3 +136,55 @@ module CommAlgebraΣTheory (R : CommRing {ℓ}) where
   isPropCommAlgebraAxioms A (_+_ , _·_ , 1a , _⋆_) =
     isPropΣ (isPropAlgebraAxioms A (_+_ , _·_ , 1a , _⋆_))
            λ isAlgebra → isPropΠ2 λ _ _ → (isSetAlgebraΣ (A , _ , isAlgebra)) _ _
+
+  CommAlgebra→CommAlgebraΣ : CommAlgebra R → CommAlgebraΣ
+  CommAlgebra→CommAlgebraΣ (commalgebra _ _ _ _ _ _ _ (iscommalgebra G C)) =
+    _ , _ , Algebra→AlgebraΣ (algebra _ _ _ _ _ _ _ G) .snd .snd , C
+
+  CommAlgebraΣ→CommAlgebra : CommAlgebraΣ → CommAlgebra R
+  CommAlgebraΣ→CommAlgebra (_ , _ , G , C) =
+    commalgebra _ _ _ _ _ _ _ (iscommalgebra (AlgebraΣ→Algebra (_ , _ , G) .Algebra.isAlgebra) C)
+
+  CommAlgebraIsoCommAlgebraΣ : Iso (CommAlgebra R) CommAlgebraΣ
+  CommAlgebraIsoCommAlgebraΣ =
+    iso CommAlgebra→CommAlgebraΣ CommAlgebraΣ→CommAlgebra (λ _ → refl) helper
+
+    where
+    open import Cubical.Structures.Group.Base hiding (⟨_⟩)
+    open CommAlgebra
+    open IsAlgebra
+    open IsCommAlgebra
+    algebra-helper : retract Algebra→AlgebraΣ AlgebraΣ→Algebra
+    algebra-helper = Iso.leftInv AlgebraIsoAlgebraΣ
+
+    helper : retract CommAlgebra→CommAlgebraΣ CommAlgebraΣ→CommAlgebra
+    Carrier (helper a i) = Carrier a
+    0a (helper a i) = 0a a
+    1a (helper a i) = 1a a
+    _+_ (helper a i) = _+_ a
+    _·_ (helper a i) = _·_ a
+    - helper a i =  -_ a
+    _⋆_ (helper a i) = _⋆_ a
+    isAlgebra (isCommAlgebra (helper a i)) =
+      Algebra.isAlgebra (algebra-helper (algebra _ _ _ _ _ _ _ (isAlgebra (isCommAlgebra a))) i)
+    ·-comm (isCommAlgebra (helper a i)) = ·-comm (isCommAlgebra a)
+
+  commAlgebraUnivalentStr : UnivalentStr CommAlgebraStructure CommAlgebraEquivStr
+  commAlgebraUnivalentStr = axiomsUnivalentStr _ isPropCommAlgebraAxioms rawAlgebraUnivalentStr
+
+  CommAlgebraΣPath : (A B : CommAlgebraΣ) → (A ≃[ CommAlgebraEquivStr ] B) ≃ (A ≡ B)
+  CommAlgebraΣPath = SIP commAlgebraUnivalentStr
+
+  CommAlgebraEquivΣ : (A B : CommAlgebra R) → Type ℓ
+  CommAlgebraEquivΣ A B = CommAlgebra→CommAlgebraΣ A ≃[ CommAlgebraEquivStr ] CommAlgebra→CommAlgebraΣ B
+
+  CommAlgebraPath : (A B : CommAlgebra R) → (CommAlgebraEquiv A B) ≃ (A ≡ B)
+  CommAlgebraPath A B =
+    CommAlgebraEquiv A B   ≃⟨ isoToEquiv AlgebraEquivΣPath ⟩
+    CommAlgebraEquivΣ A B  ≃⟨ CommAlgebraΣPath _ _ ⟩
+    CommAlgebra→CommAlgebraΣ A ≡ CommAlgebra→CommAlgebraΣ B
+      ≃⟨ isoToEquiv (invIso (congIso CommAlgebraIsoCommAlgebraΣ)) ⟩
+    A ≡ B ■
+
+CommAlgebraPath : (R : CommRing {ℓ}) → (A B : CommAlgebra R) → (CommAlgebraEquiv A B) ≃ (A ≡ B)
+CommAlgebraPath = CommAlgebraΣTheory.CommAlgebraPath

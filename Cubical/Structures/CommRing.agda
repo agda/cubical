@@ -166,7 +166,6 @@ module CommRingΣTheory {ℓ} where
       ≃⟨ isoToEquiv (invIso (congIso CommRingIsoCommRingΣ)) ⟩
     R ≡ S ■
 
--- Extract the characterization of equality of groups
 CommRingPath : (R S : CommRing {ℓ}) → (CommRingEquiv R S) ≃ (R ≡ S)
 CommRingPath = CommRingΣTheory.CommRingPath
 
