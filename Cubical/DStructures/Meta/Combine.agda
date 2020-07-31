@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.DStructures.Combine where
+module Cubical.DStructures.Meta.Combine where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -11,8 +11,8 @@ open import Cubical.Relation.Binary
 open BinaryRelation
 
 open import Cubical.DStructures.Base
-open import Cubical.DStructures.Properties
-open import Cubical.DStructures.Product
+open import Cubical.DStructures.Meta.Properties
+open import Cubical.DStructures.Structures.Constant
 
 private
   variable

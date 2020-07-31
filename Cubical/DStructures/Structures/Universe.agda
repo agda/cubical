@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.DStructures.Universe where
+module Cubical.DStructures.Structures.Universe where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -9,7 +9,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Data.Sigma
 
 open import Cubical.DStructures.Base
-open import Cubical.DStructures.Properties
+open import Cubical.DStructures.Meta.Properties
 
 private
   variable

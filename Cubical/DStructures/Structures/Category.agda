@@ -1,11 +1,11 @@
 
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.DStructures.Category where
+module Cubical.DStructures.Structures.Category where
 
 open import Cubical.Foundations.Prelude
 
 open import Cubical.DStructures.Base
-open import Cubical.DStructures.Properties
+open import Cubical.DStructures.Meta.Properties
 
 open import Cubical.Categories.Category renaming (isUnivalent to isUnivalentCat)
 

@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.DStructures.Isomorphism where
+module Cubical.DStructures.Meta.Isomorphism where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -20,11 +20,11 @@ open import Cubical.Structures.Group
 open import Cubical.Structures.LeftAction
 
 open import Cubical.DStructures.Base
-open import Cubical.DStructures.Properties
-open import Cubical.DStructures.Product
-open import Cubical.DStructures.Combine
-open import Cubical.DStructures.Type
-open import Cubical.DStructures.Group
+open import Cubical.DStructures.Meta.Properties
+open import Cubical.DStructures.Structures.Constant
+open import Cubical.DStructures.Meta.Combine
+open import Cubical.DStructures.Structures.Type
+open import Cubical.DStructures.Structures.Group
 
 private
   variable

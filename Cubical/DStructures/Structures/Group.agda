@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.DStructures.Group where
+module Cubical.DStructures.Structures.Group where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -18,10 +18,10 @@ open import Cubical.Structures.Group
 open import Cubical.Structures.LeftAction
 
 open import Cubical.DStructures.Base
-open import Cubical.DStructures.Properties
-open import Cubical.DStructures.Product
-open import Cubical.DStructures.Combine
-open import Cubical.DStructures.Type
+open import Cubical.DStructures.Meta.Properties
+open import Cubical.DStructures.Structures.Constant
+open import Cubical.DStructures.Meta.Combine
+open import Cubical.DStructures.Structures.Type
 
 private
   variable

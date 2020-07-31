@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.DStructures.Properties where
+module Cubical.DStructures.Meta.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
