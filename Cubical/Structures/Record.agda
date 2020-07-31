@@ -1,6 +1,6 @@
 {-
 
-Generating univalent structures for records
+Automatically generating proofs of UnivalentStr for records
 
 -}
 {-# OPTIONS --cubical --no-exact-split --safe #-}
@@ -28,6 +28,8 @@ open import Agda.Builtin.String
 -- Magic number
 private
   FUEL = 10000
+
+-- Types for specifying inputs to the tactics
 
 data AutoFieldSpec : Typeω where
   autoFieldSpec : ∀ {ℓ ℓ₁ ℓ₂} (R : Type ℓ → Type ℓ₁) {S : Type ℓ → Type ℓ₂}
@@ -101,16 +103,8 @@ private
   _>>_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → R.TC A → R.TC B → R.TC B
   f >> g = f >>= λ _ → g
 
-  mapDown : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (ℕ → A → B) → ℕ → List A → List B
-  mapDown f _ [] = []
-  mapDown f n (x ∷ xs) = f (predℕ n) x ∷ mapDown f (predℕ n) xs
-
   infixl 4 _>>=_ _>>_
   infixr 3 _$_
-
-  mapTC : ∀ {ℓ} {A : Type ℓ} → List (R.TC A) → R.TC (List A)
-  mapTC [] = R.returnTC []
-  mapTC (r ∷ rs) = r >>= λ x → mapTC rs >>= λ xs → R.returnTC (x ∷ xs)
 
   liftTC : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → R.TC A → R.TC B
   liftTC f ta = ta >>= λ a → R.returnTC (f a)
@@ -128,20 +122,6 @@ private
   vlam : String → R.Term → R.Term
   vlam str t = R.lam R.visible (R.abs str t)
 
-  tLevel = R.def (quote Level) []
-
-  tType : R.Term → R.Term
-  tType ℓ = R.def (quote Type) (ℓ v∷ [])
-
-  tDesc : R.Term → R.Term
-  tDesc ℓ = R.def (quote Desc) (ℓ v∷ [])
-
-  func : ∀ {ℓ ℓ'} → Type ℓ → Type ℓ' → Type (ℓ-max ℓ ℓ')
-  func A B = A → B
-
-  tStruct : R.Term → R.Term → R.Term
-  tStruct ℓ ℓ' = R.def (quote func) (tType ℓ v∷ tType ℓ' v∷ [])
-
   tApply : R.Term → List (R.Arg R.Term) → R.Term
   tApply t l = R.def (quote idfun) (R.unknown v∷ t v∷ l)
 
@@ -151,13 +131,11 @@ private
   tStrProj : R.Term → R.Name → R.Term
   tStrProj A sfield = tStrMap A (R.def sfield [])
 
-  newMeta = R.checkType R.unknown
+  Fun : ∀ {ℓ ℓ'} → Type ℓ → Type ℓ' → Type (ℓ-max ℓ ℓ')
+  Fun A B = A → B
 
 -- Helper functions used in the generated univalence proof
 private
-  fieldShape : ∀ ℓ {ℓ₁} ℓ₂ → (Type ℓ → Type ℓ₁) → (Type ℓ → Type ℓ₂) → Type _
-  fieldShape ℓ _ R S = {X : Type ℓ} → R X → S X
-
   pathMap : ∀ {ℓ ℓ'} {S : I → Type ℓ} {T : I → Type ℓ'} (f : {i : I} → S i → T i)
     {x : S i0} {y : S i1} → PathP S x y → PathP T (f x) (f y)
   pathMap f p i = f (p i)
@@ -172,9 +150,8 @@ private
     (f : {X : Type ℓ} (r : R X) → P X (projectDataFields fs r)) -- Property projection
     where
 
-    private
-      dat = projectDataFields fs
-      Dat = GatherDataFields fs
+    dat = projectDataFields fs
+    Dat = GatherDataFields fs
 
     PropHelperCenterType : Type _
     PropHelperCenterType =
@@ -221,7 +198,7 @@ private
     bwdFwdShape fwd bwd =
       (A B : TypeWithStr ℓ S) (e : typ A ≃ typ B) → ∀ r → bwd A B e (fwd A B e r) ≡ r
 
-    -- The implicit arguments A,B in UnivalentStr create issues so let's avoid them
+    -- The implicit arguments A,B in UnivalentStr make some things annoying so let's avoid them
     ExplicitUnivalentStr : Type _
     ExplicitUnivalentStr =
       (A B : TypeWithStr _ S) (e : typ A ≃ typ B) → ι A B e ≃ PathP (λ i → S (ua e i)) (str A) (str B)
@@ -245,20 +222,6 @@ private
   explicitUnivalentDesc : ∀ ℓ → (d : Desc ℓ) → ExplicitUnivalentDesc ℓ d
   explicitUnivalentDesc _ d A B e = MacroUnivalentStr d e
 
-private
-  findName : R.Term → R.TC R.Name
-  findName (R.def name _) = R.returnTC name
-  findName (R.lam R.hidden (R.abs _ t)) = findName t
-  findName t = R.typeError (R.strErr "Not a name + spine: " ∷ R.termErr t ∷ [])
-
-private
-  parseFieldSpec : R.Term → R.TC (R.Term × R.Term × R.Term × R.Term)
-  parseFieldSpec (R.con (quote autoFieldSpec) (ℓ h∷ ℓ₁ h∷ ℓ₂ h∷ R v∷ S h∷ f v∷ [])) =
-    R.reduce ℓ >>= λ ℓ →
-    R.returnTC (ℓ , ℓ₂ , S , f)
-  parseFieldSpec t =
-    R.typeError (R.strErr "Malformed field specification: " ∷ R.termErr t ∷ [])
-
 -- Internal record specification type
 private
   record TypedTerm : Type where
@@ -268,19 +231,19 @@ private
 
   record InternalDatumField (A : Type) : Type where
     field
-      sfield : R.Name
-      efield : R.Name
-      univalent : A
+      sfield : R.Name -- name of structure field
+      efield : R.Name -- name of equivalence field
+      payload : A
 
   record InternalPropField (A : Type) : Type where
     field
-      sfield : R.Name
-      helper : A
+      sfield : R.Name -- name of structure field
+      payload : A
 
   record InternalSpec (A : Type) : Type where
     field
-      srec : R.Term
-      erec : R.Term
+      srec : R.Term -- structure record type
+      erec : R.Term -- equivalence record type
       datums : List (InternalDatumField A)
       props : List (InternalPropField A)
 
@@ -291,14 +254,26 @@ private
   mapDatumField : ∀ {A B : Type} → (A → B) → InternalDatumField A → InternalDatumField B
   mapDatumField f dat .sfield = dat .sfield
   mapDatumField f dat .efield = dat .efield
-  mapDatumField f dat .univalent = f (dat .univalent)
+  mapDatumField f dat .payload = f (dat .payload)
 
   mapPropField : ∀ {A B : Type} → (A → B) → InternalPropField A → InternalPropField B
   mapPropField f prop .sfield = prop .sfield
-  mapPropField f prop .helper = f (prop .helper)
+  mapPropField f prop .payload = f (prop .payload)
 
--- Parse an AutoRecordSpec and derive an InternalSpec
+-- Parse a field and record specifications
 private
+  findName : R.Term → R.TC R.Name
+  findName (R.def name _) = R.returnTC name
+  findName (R.lam R.hidden (R.abs _ t)) = findName t
+  findName t = R.typeError (R.strErr "Not a name + spine: " ∷ R.termErr t ∷ [])
+
+  parseFieldSpec : R.Term → R.TC (R.Term × R.Term × R.Term × R.Term)
+  parseFieldSpec (R.con (quote autoFieldSpec) (ℓ h∷ ℓ₁ h∷ ℓ₂ h∷ R v∷ S h∷ f v∷ [])) =
+    R.reduce ℓ >>= λ ℓ →
+    R.returnTC (ℓ , ℓ₂ , S , f)
+  parseFieldSpec t =
+    R.typeError (R.strErr "Malformed field specification: " ∷ R.termErr t ∷ [])
+
   parseSpec : R.Term → R.TC (InternalSpec TypedTerm)
   parseSpec (R.con (quote autoRecordSpec) (ℓ h∷ ℓ₁ h∷ ℓ₁' h∷ srecTerm v∷ erecTerm v∷ fs v∷ ps v∷ [])) =
     parseData fs >>= λ fs' →
@@ -321,8 +296,8 @@ private
         f = λ
           { .sfield → sfieldName
           ; .efield → efieldName
-          ; .univalent .type → R.def (quote ExplicitUnivalentDesc) (ℓ v∷ d v∷ [])
-          ; .univalent .term → R.def (quote explicitUnivalentDesc) (ℓ v∷ d v∷ [])
+          ; .payload .type → R.def (quote ExplicitUnivalentDesc) (ℓ v∷ d v∷ [])
+          ; .payload .term → R.def (quote explicitUnivalentDesc) (ℓ v∷ d v∷ [])
           }
       in
       liftTC (f ∷_) (parseData fs)
@@ -338,9 +313,9 @@ private
         p : InternalPropField TypedTerm
         p = λ
           { .sfield → fieldName
-          ; .helper .type →
+          ; .payload .type →
             R.def (quote PropHelperType) (srecTerm v∷ erecTerm v∷ fs v∷ P v∷ fieldTerm v∷ [])
-          ; .helper .term →
+          ; .payload .term →
             R.def (quote derivePropHelper) (srecTerm v∷ erecTerm v∷ fs v∷ P v∷ fieldTerm v∷ prop v∷ [])
           }
       in
@@ -357,7 +332,7 @@ module _ (spec : InternalSpec ℕ) where
     fwdDatum : (A B e streq i : R.Term) → InternalDatumField ℕ → R.Term
     fwdDatum A B e streq i dat =
       R.def (quote equivFun)
-        (tApply (v (dat .univalent)) (tStrProj A (dat .sfield) v∷ tStrProj B (dat .sfield) v∷ e v∷ [])
+        (tApply (v (dat .payload)) (tStrProj A (dat .sfield) v∷ tStrProj B (dat .sfield) v∷ e v∷ [])
           v∷ R.def (dat .efield) (streq v∷ [])
           v∷ i
           v∷ [])
@@ -365,14 +340,14 @@ module _ (spec : InternalSpec ℕ) where
     fwdProperty : (dataPath A B e streq i : R.Term) → InternalPropField ℕ → R.Clause
     fwdProperty dataPath A B e streq i prop =
       R.clause [] (R.proj (prop .sfield) v∷ [])
-        (R.def (quote fst) (v (prop .helper) v∷ A v∷ B v∷ e v∷ dataPath v∷ i v∷ []))
+        (R.def (quote fst) (v (prop .payload) v∷ A v∷ B v∷ e v∷ dataPath v∷ i v∷ []))
 
     bwdDatum : (A B e q : R.Term) → InternalDatumField ℕ → R.Clause
     bwdDatum A B e q dat =
       R.clause [] (R.proj (dat .efield) v∷ [])
         (R.def (quote invEq)
           (tApply
-            (v (dat .univalent))
+            (v (dat .payload))
             (tStrProj A (dat .sfield) v∷ tStrProj B (dat .sfield) v∷ e v∷ [])
             v∷ R.def (quote pathMap) (R.def (dat .sfield) [] v∷ q v∷ [])
             v∷ []))
@@ -381,7 +356,7 @@ module _ (spec : InternalSpec ℕ) where
     fwdBwdDatum A B e q k i dat =
       R.def (quote retEq)
         (tApply
-          (v (dat .univalent))
+          (v (dat .payload))
           (tStrProj A (dat .sfield) v∷ tStrProj B (dat .sfield) v∷ e v∷ [])
           v∷ R.def (quote pathMap) (R.def (dat .sfield) [] v∷ q v∷ [])
           v∷ k v∷ i
@@ -390,14 +365,14 @@ module _ (spec : InternalSpec ℕ) where
     fwdBwdProperty : (dataPath A B e q k i : R.Term) → InternalPropField ℕ → R.Clause
     fwdBwdProperty dataPath A B e q k i prop =
       R.clause [] (R.proj (prop .sfield) v∷ [])
-        (R.def (quote snd) (v (prop .helper) v∷ A v∷ B v∷ e v∷ q v∷ dataPath v∷ k v∷ i v∷ []))
+        (R.def (quote snd) (v (prop .payload) v∷ A v∷ B v∷ e v∷ q v∷ dataPath v∷ k v∷ i v∷ []))
 
     bwdFwdDatum : (A B e streq k : R.Term) → InternalDatumField ℕ → R.Clause
     bwdFwdDatum A B e streq k dat =
       R.clause [] (R.proj (dat .efield) v∷ [])
         (R.def (quote secEq)
           (tApply
-            (v (dat .univalent))
+            (v (dat .payload))
             (tStrProj A (dat .sfield) v∷ tStrProj B (dat .sfield) v∷ e v∷ [])
             v∷ R.def (dat .efield) (streq v∷ [])
             v∷ k
@@ -506,6 +481,10 @@ macro
     module _ (spec : InternalSpec TypedTerm) where
       open InternalSpec spec
 
+      mapDown : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (ℕ → A → B) → ℕ → List A → List B
+      mapDown f _ [] = []
+      mapDown f n (x ∷ xs) = f (predℕ n) x ∷ mapDown f (predℕ n) xs
+
       closureSpec : InternalSpec ℕ
       closureSpec .InternalSpec.srec = srec
       closureSpec .InternalSpec.erec = erec
@@ -516,27 +495,29 @@ macro
 
       closure : R.Term
       closure =
-        iter (List.length datums + List.length props) (vlam "arg") (univalentRecord closureSpec)
+        iter (List.length datums + List.length props) (vlam "") (univalentRecord closureSpec)
 
       env : List (R.Arg R.Term)
-      env =
-        List.map (varg ∘ term ∘ univalent) datums
-        ++ List.map (varg ∘ term ∘ helper) props
+      env = List.map (varg ∘ term ∘ payload) datums ++ List.map (varg ∘ term ∘ payload) props
 
       closureTy : R.Term
       closureTy =
         List.foldr
-          (λ ty cod → R.def (quote func) (ty v∷ cod v∷ []))
+          (λ ty cod → R.def (quote Fun) (ty v∷ cod v∷ []))
           (R.def (quote ExplicitUnivalentStr) (srec v∷ erec v∷ []))
-          (List.map (type ∘ univalent) datums ++ List.map (type ∘ helper) props)
+          (List.map (type ∘ payload) datums ++ List.map (type ∘ payload) props)
 
       main : R.Term
       main = R.def (quote idfun) (closureTy v∷ closure v∷ env)
 
+-- Example
+
 record MonoidStr ℓ (X : Type ℓ) : Type ℓ where
   field
+    -- Dependencies between data fields are not supported
     unit : X
     mult : X → X → X
+    -- Property fields can depend on data fields (but not other property fields)
     is-set : isSet X
     unitl : ∀ x → mult unit x ≡ x
     unitr : ∀ x → mult x unit ≡ x
@@ -546,19 +527,24 @@ open MonoidStr
 
 record MonoidEquiv {ℓ} (A B : TypeWithStr ℓ (MonoidStr ℓ)) (e : typ A ≃ typ B) : Type ℓ where
   field
+    -- Notion of structured equivalence can be automatically generated for each structure field
+    -- (though it may be more readable to write the definitions explicitly)
     unit : autoFieldEquiv (autoFieldSpec (MonoidStr ℓ) unit) A B e
     mult : autoFieldEquiv (autoFieldSpec (MonoidStr ℓ) mult) A B e
 
 open MonoidEquiv
 
+-- Generate a proof of univalence for MonoidStr and MonoidEquiv
 test : {ℓ : Level} → UnivalentStr (MonoidStr ℓ) MonoidEquiv
 test {ℓ = ℓ} =
   autoUnivalentRecord
     (autoRecordSpec (MonoidStr ℓ) MonoidEquiv
+      -- Pair each "data" field in MonoidStr with its corresponding field in MonoidEquiv
       ( data[ unit ∣ unit ]∷
         data[ mult ∣ mult ]∷
         []
       )
+      -- Pair each "property" field in MonoidStr with a proof it is propositional
       ( prop[ is-set ∣ (λ _ → isPropIsSet) ]∷
         prop[ unitl ∣ (λ m → isPropΠ λ _ → m .is-set _ _) ]∷
         prop[ unitr ∣ (λ m → isPropΠ λ _ → m .is-set _ _) ]∷
