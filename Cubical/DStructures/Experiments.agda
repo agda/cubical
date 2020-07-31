@@ -30,7 +30,7 @@ open import Cubical.DStructures.Type
 open import Cubical.DStructures.Group
 open import Cubical.DStructures.Isomorphism
 open import Cubical.DStructures.Action
-open import Cubical.DStructures.Strict2Group
+-- open import Cubical.DStructures.Strict2Group
 open import Cubical.DStructures.XModule
 
 private
@@ -310,7 +310,77 @@ module _ {ℓ ℓ' : Level} where
           abstract
             q = tt
  
-  RelIso.leftInv 𝒮-Iso-GroupAct-SplitEpi = {!!}
+  RelIso.leftInv 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , _α_) , isAct) = ((G₀-≅ , G₁-≅) , α-≅) , isAct-≅
+    where
+      -- import notation
+      open GroupNotation₀ G₀
+      open GroupNotation₁ G₁
+      open GroupHom -- such .fun!
+      open GroupLemmas
+      open MorphismLemmas
+      open ActionNotationα (groupaction _α_ isAct) using (α-id)
+
+      se = RelIso.fun 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , _α_) , isAct)
+      ga' = RelIso.inv 𝒮-Iso-GroupAct-SplitEpi se
+
+      -- G₁ under fun and then inv
+      ker-π₂ = snd (fst (fst ga'))
+      -- the adjoint action w.t.r. ι₂
+      _β_ = snd (fst ga')
+      β-isAct = snd ga'
+      -- inclusion of G₀ into G₁ ⋊⟨ α ⟩ G₀
+      ι = ι₂ (groupaction _α_ isAct)
+      𝒾 = ι .fun
+
+
+      G₀-≅ : GroupEquiv G₀ G₀
+      G₀-≅ = idGroupEquiv G₀
+
+      G₁-≅ : GroupEquiv ker-π₂ G₁
+      GroupEquiv.eq G₁-≅ = isoToEquiv isom
+        where
+          isom : Iso ⟨ ker-π₂ ⟩ ⟨ G₁ ⟩
+          Iso.fun isom ((h , g) , p) = h
+          Iso.inv isom h = (h , 0₀) , refl
+          Iso.leftInv isom ((h , g) , p) = q
+            where
+              abstract
+                r = ΣPathP (refl , sym p)
+                q = ΣPathP (r , isProp→PathP (λ i → set₀ (snd (r i)) 0₀) refl p)
+                -- q = subtypeWitnessIrrelevance (sg-typeProp {!π₂ (groupaction _α_ isAct)!}) {!!}
+                -- q = Σ≡Prop (λ (h , g) → {!set₀g 0₀ !}) {!!}
+          Iso.rightInv isom h = refl
+
+      GroupEquiv.isHom G₁-≅ ((h , g) , p) ((h' , g') , p') = q
+        where
+          abstract
+            q : h +₁ (g α h') ≡ h +₁ h'
+            q = h +₁ (g α h')
+                  ≡⟨ cong (λ z → h +₁ (z α h')) p ⟩
+                h +₁ (0₀ α h')
+                  ≡⟨ cong (h +₁_) (α-id h') ⟩
+                h +₁ h' ∎
+
+      α-≅ : (g : ⟨ G₀ ⟩) (((h , g') , p) : ⟨ ker-π₂ ⟩)
+            → GroupEquiv.eq G₁-≅ .fst (g β ((h , g') , p)) ≡ g α h
+      α-≅ g ((h , g') , p) = q
+        where
+          open ActionLemmas (groupaction _α_ isAct)
+          abstract
+            q = (0₁ +₁ (g α h)) +₁ ((g +₀ g') α ((-₀ g) α (-₁ 0₁)))
+                  ≡⟨ cong (_+₁ ((g +₀ g') α ((-₀ g) α (-₁ 0₁)))) (lId₁ (g α h)) ⟩
+                (g α h) +₁ ((g +₀ g') α ((-₀ g) α (-₁ 0₁)))
+                  ≡⟨ cong (λ z → (g α h) +₁ ((g +₀ g') α ((-₀ g) α z))) (invId G₁) ⟩
+                (g α h) +₁ ((g +₀ g') α ((-₀ g) α 0₁))
+                  ≡⟨ cong (λ z → (g α h) +₁ ((g +₀ g') α z)) (actOnUnit (-₀ g)) ⟩
+                (g α h) +₁ ((g +₀ g') α 0₁)
+                  ≡⟨ cong ((g α h) +₁_) (actOnUnit (g +₀ g')) ⟩
+                (g α h) +₁ 0₁
+                  ≡⟨ rId₁ (g α h) ⟩
+                g α h ∎
+
+      isAct-≅ : Unit
+      isAct-≅ = tt
 
 {-
 module _ (ℓ ℓ' : Level) where
