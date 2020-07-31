@@ -10,6 +10,9 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Structures.Axioms
+open import Cubical.Structures.Semigroup hiding (⟨_⟩)
+open import Cubical.Structures.Monoid    hiding (⟨_⟩)
 open import Cubical.Structures.CommRing renaming (⟨_⟩ to ⟨_⟩r)
 open import Cubical.Structures.Ring hiding (⟨_⟩)
 open import Cubical.Structures.Algebra  hiding (⟨_⟩)
@@ -107,3 +110,25 @@ module _ {R : CommRing {ℓ}} where
                    x · (r ⋆ y) ∎)
      ·-comm
 
+module CommAlgebraΣTheory (R : CommRing {ℓ}) where
+
+  open AlgebraΣTheory (CommRing→Ring R)
+
+  CommAlgebraAxioms : (A : Type ℓ) (s : RawAlgebraStructure A) → Type ℓ
+  CommAlgebraAxioms A (_+_ , _·_ , 1a , _⋆_) = AlgebraAxioms A (_+_ , _·_ , 1a , _⋆_)
+                                      × ((x y : A) → x · y ≡ y · x)
+
+  CommAlgebraStructure : Type ℓ → Type ℓ
+  CommAlgebraStructure = AxiomsStructure RawAlgebraStructure CommAlgebraAxioms
+
+  CommAlgebraΣ : Type (ℓ-suc ℓ)
+  CommAlgebraΣ = TypeWithStr ℓ CommAlgebraStructure
+
+  CommAlgebraEquivStr : StrEquiv CommAlgebraStructure ℓ
+  CommAlgebraEquivStr = AxiomsEquivStr RawAlgebraEquivStr CommAlgebraAxioms
+
+  isPropCommAlgebraAxioms : (A : Type ℓ) (s : RawAlgebraStructure A)
+                       → isProp (CommAlgebraAxioms A s)
+  isPropCommAlgebraAxioms A (_+_ , _·_ , 1a , _⋆_) =
+    isPropΣ (isPropAlgebraAxioms A (_+_ , _·_ , 1a , _⋆_))
+           λ isAlgebra → isPropΠ2 λ _ _ → (isSetAlgebraΣ (A , _ , isAlgebra)) _ _

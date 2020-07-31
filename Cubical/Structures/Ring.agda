@@ -192,6 +192,7 @@ module RingΣTheory {ℓ} where
   RingIsoRingΣ : Iso Ring RingΣ
   RingIsoRingΣ = iso Ring→RingΣ RingΣ→Ring (λ _ → refl) helper
     where
+      -- helper will be refl, if eta-equality is activated for all structure-records
       open MonoidΣTheory
       monoid-helper : retract (Monoid→MonoidΣ {ℓ}) MonoidΣ→Monoid
       monoid-helper = Iso.leftInv MonoidIsoMonoidΣ

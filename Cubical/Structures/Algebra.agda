@@ -207,9 +207,9 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
   isSetAlgebraΣ : (A : AlgebraΣ) → isSet _
   isSetAlgebraΣ (A , _ , (isLeftModule , _ , _) ) = isSetLeftModuleΣ (A , _ , isLeftModule)
 
-  isProp-AlgebraAxioms : (A : Type ℓ) (s : RawAlgebraStructure A)
+  isPropAlgebraAxioms : (A : Type ℓ) (s : RawAlgebraStructure A)
                              → isProp (AlgebraAxioms A s)
-  isProp-AlgebraAxioms A (_+_ , _·_ , 1a , _⋆_) =
+  isPropAlgebraAxioms A (_+_ , _·_ , 1a , _⋆_) =
     isPropΣ (isPropLeftModuleAxioms A (_+_ , _⋆_))
     (λ isLeftModule →
      isProp× (isPropMonoidAxioms A (1a , _·_))
@@ -238,6 +238,7 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
   AlgebraIsoAlgebraΣ : Iso (Algebra R) AlgebraΣ
   AlgebraIsoAlgebraΣ = iso Algebra→AlgebraΣ AlgebraΣ→Algebra (λ _ → refl) helper
     where
+      -- helper will be refl, if eta-equality is activated for all structure-records
       open MonoidΣTheory
       monoid-helper : retract (Monoid→MonoidΣ {ℓ}) MonoidΣ→Monoid
       monoid-helper = Iso.leftInv MonoidIsoMonoidΣ
@@ -263,7 +264,7 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
       IsAlgebra.⋆-rassoc (isAlgebra (helper a i)) = ⋆-rassoc a
 
   algebraUnivalentStr : UnivalentStr AlgebraStructure AlgebraEquivStr
-  algebraUnivalentStr = axiomsUnivalentStr _ isProp-AlgebraAxioms rawAlgebraUnivalentStr
+  algebraUnivalentStr = axiomsUnivalentStr _ isPropAlgebraAxioms rawAlgebraUnivalentStr
 
   AlgebraΣPath : (M N : AlgebraΣ) → (M ≃[ AlgebraEquivStr ] N) ≃ (M ≡ N)
   AlgebraΣPath = SIP algebraUnivalentStr
