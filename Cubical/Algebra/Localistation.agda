@@ -167,18 +167,18 @@ module _(RX : CommRing {ℓ}) (S : ℙ ⟨ RX ⟩) (SsubMonoid : isSubMonoid RX 
   g  r s r' s' {a} {b} = (r ·ᴿ s' +ᴿ r' ·ᴿ s / s ·ᴿ s') {SsubMonoid .multClosed a b}
 
   θ : (r₁ r₂ s s₁ s₂ : R) {c : s ∈ S} {a : s₁ ∈ S} {b : s₂ ∈ S}
-       → (p : s ·ᴿ ((r₁ ·ᴿ s₂) -ᴿ (r₂ ·ᴿ s₁)) ≡ 0ᴿ)
-       → (r'₁ r'₂ s' s'₁ s'₂ : R) {c' : s' ∈ S} {a' : s'₁ ∈ S} {b' : s'₂ ∈ S}
-       → (p' : s' ·ᴿ ((r'₁ ·ᴿ s'₂) -ᴿ (r'₂ ·ᴿ s'₁)) ≡ 0ᴿ)
-       → (r₁ ·ᴿ s'₁ +ᴿ r'₁ ·ᴿ s₁ / s₁ ·ᴿ s'₁) {SsubMonoid .multClosed a a'}
-       ≡ (r₂ ·ᴿ s'₂ +ᴿ r'₂ ·ᴿ s₂ / s₂ ·ᴿ s'₂) {SsubMonoid .multClosed b b'}
+    → (p : s ·ᴿ ((r₁ ·ᴿ s₂) -ᴿ (r₂ ·ᴿ s₁)) ≡ 0ᴿ)
+    → (r'₁ r'₂ s' s'₁ s'₂ : R) {c' : s' ∈ S} {a' : s'₁ ∈ S} {b' : s'₂ ∈ S}
+    → (p' : s' ·ᴿ ((r'₁ ·ᴿ s'₂) -ᴿ (r'₂ ·ᴿ s'₁)) ≡ 0ᴿ)
+    → (r₁ ·ᴿ s'₁ +ᴿ r'₁ ·ᴿ s₁ / s₁ ·ᴿ s'₁) {SsubMonoid .multClosed a a'}
+    ≡ (r₂ ·ᴿ s'₂ +ᴿ r'₂ ·ᴿ s₂ / s₂ ·ᴿ s'₂) {SsubMonoid .multClosed b b'}
   θ r₁ r₂ s s₁ s₂ {c} {a} {b} p r'₁ r'₂ s' s'₁ s'₂ {c'} {a'} {b'} p' =
     zd _ _ (s ·ᴿ s') _ _ {SsubMonoid .multClosed c c'} path
     where
     eq : (r₁ ·ᴿ s'₁ +ᴿ r'₁ ·ᴿ s₁) ·ᴿ s₂ ·ᴿ s'₂ -ᴿ (r₂ ·ᴿ s'₂ +ᴿ r'₂ ·ᴿ s₂) ·ᴿ s₁ ·ᴿ s'₁
        ≡ (r₁ ·ᴿ s₂ -ᴿ r₂ ·ᴿ s₁) ·ᴿ s'₁ ·ᴿ s'₂ +ᴿ (r'₁ ·ᴿ s'₂ -ᴿ r'₂ ·ᴿ s'₁) ·ᴿ s₁ ·ᴿ s₂
     eq = {!!}
-    
+
     path : (s ·ᴿ s') ·ᴿ
            ((r₁ ·ᴿ s'₁ +ᴿ r'₁ ·ᴿ s₁) ·ᴿ s₂ ·ᴿ s'₂ -ᴿ (r₂ ·ᴿ s'₂ +ᴿ r'₂ ·ᴿ s₂) ·ᴿ s₁ ·ᴿ s'₁)
          ≡ 0ᴿ
@@ -190,3 +190,19 @@ module _(RX : CommRing {ℓ}) (S : ℙ ⟨ RX ⟩) (SsubMonoid : isSubMonoid RX 
      -- (s ·ᴿ s') ·ᴿ ((r₁ ·ᴿ s₂ -ᴿ r₂ ·ᴿ s₁) ·ᴿ s'₁ ·ᴿ s'₂ +ᴿ (s ·ᴿ s') ·ᴿ (r'₁ ·ᴿ s'₂ -ᴿ r'₂ ·ᴿ s'₁) ·ᴿ s₁ ·ᴿ s₂
      --  ≡⟨ ? ⟩
      -- 0ᴿ ∎
+
+
+ _·ₗ_ : S⁻¹R → S⁻¹R → S⁻¹R
+ _·ₗ_ = BinRec.f trunc g θ
+  where
+  g : (r s r' s' : R) {a : s ∈ S} {b : s' ∈ S} → S⁻¹R
+  g  r s r' s' {a} {b} = (r ·ᴿ r' / s ·ᴿ s') {SsubMonoid .multClosed a b}
+
+  θ : (r₁ r₂ s s₁ s₂ : R) {c : s ∈ S} {a : s₁ ∈ S} {b : s₂ ∈ S}
+    → (p : s ·ᴿ ((r₁ ·ᴿ s₂) -ᴿ (r₂ ·ᴿ s₁)) ≡ 0ᴿ)
+    → (r'₁ r'₂ s' s'₁ s'₂ : R) {c' : s' ∈ S} {a' : s'₁ ∈ S} {b' : s'₂ ∈ S}
+    → (p' : s' ·ᴿ ((r'₁ ·ᴿ s'₂) -ᴿ (r'₂ ·ᴿ s'₁)) ≡ 0ᴿ)
+    → (r₁ ·ᴿ r'₁ / s₁ ·ᴿ s'₁) {SsubMonoid .multClosed a a'}
+    ≡ (r₂ ·ᴿ r'₂ / s₂ ·ᴿ s'₂) {SsubMonoid .multClosed b b'}
+  θ r₁ r₂ s s₁ s₂ {c} {a} {b} p r'₁ r'₂ s' s'₁ s'₂ {c'} {a'} {b'} p' =
+    zd _ _ (s ·ᴿ s') _ _ {SsubMonoid .multClosed c c'} {!!}
