@@ -24,18 +24,59 @@ open import Cubical.Structures.Group.Semidirect
 
 open import Cubical.DStructures.Base
 open import Cubical.DStructures.Meta.Properties
-open import Cubical.DStructures.Structures.Constant
 open import Cubical.DStructures.Meta.Combine
+open import Cubical.DStructures.Meta.Isomorphism
+open import Cubical.DStructures.Structures.Constant
 open import Cubical.DStructures.Structures.Type
 open import Cubical.DStructures.Structures.Group
-open import Cubical.DStructures.Meta.Isomorphism
 open import Cubical.DStructures.Structures.Action
 -- open import Cubical.DStructures.Structures.Strict2Group
 open import Cubical.DStructures.Structures.XModule
+open import Cubical.DStructures.Equivalences.GroupSplitEpiAction
+
 
 private
   variable
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓA' ℓ≅A ℓ≅A' ℓB ℓB' ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓ≅ᴰ' : Level
+
+open Kernel
+open GroupHom -- such .fun!
+open GroupLemmas
+open MorphismLemmas
+open MorphismTree
+
+module _ {ℓ ℓ' : Level} where
+  private
+    ℓℓ' = ℓ-max ℓ ℓ'
+
+  -- give more suitable names
+  SplitEpi = G²SecRet ℓ ℓℓ'
+  𝒮-SplitEpi = 𝒮-G²FBSplit ℓ ℓℓ'
+
+  Act = G²Act ℓ ℓℓ'
+  𝒮-Act = 𝒮-Action ℓ ℓℓ'
+
+  ReflGraph = Σ[ (((G₀ , G₁) , (ι , σ)) , split-σ) ∈ SplitEpi ] Σ[ τ ∈ GroupHom G₁ G₀ ] isGroupSplitEpi ι τ
+  -- this is on a different Σ type
+  𝒮-ReflGraph = 𝒮-G²FBSplitBSplit ℓ ℓℓ'
+
+  PreXMod = Σ[ (((G₀ , G₁) , _α_) , isAct) ∈ Act ] Σ[ φ ∈ GroupHom G₁ G₀ ] (isEquivariant _α_ φ)
+  𝒮-PreXMod = 𝒮-PreXModule ℓ ℓℓ'
+
+  ℱ-RelIso : 𝒮-iso 𝒮-Act 𝒮-SplitEpi
+  ℱ-RelIso = 𝒮-Iso-GroupAct-SplitEpi ℓ ℓℓ'
+
+  ℱ : Act ≃ SplitEpi
+  ℱ = isoToEquiv (𝒮-iso→Iso 𝒮-Act 𝒮-SplitEpi ℱ-RelIso)
+
+  ReflGraph→PreXMod : ReflGraph → PreXMod
+  ReflGraph→PreXMod = {!!}
+
+  PreXMod→ReflGraph : PreXMod → ReflGraph
+  PreXMod→ReflGraph  = {!!}
+
+  𝒢 : 𝒮-iso 𝒮-ReflGraph 𝒮-PreXMod
+  𝒢 = RelFiberIsoOver→RelFiberIso ℱ {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!}
 
 
 {-

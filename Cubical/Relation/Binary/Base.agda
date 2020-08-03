@@ -14,10 +14,13 @@ open import Cubical.Foundations.Isomorphism
 
 private
   variable
-    ℓA ℓA' ℓ ℓ' ℓ≅A ℓ≅A' : Level
+    ℓA ℓA' ℓ ℓ' ℓ≅A ℓ≅A' ℓB : Level
 
-Rel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
-Rel A B ℓ' = A → B → Type ℓ'
+-- Rel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+-- Rel A B ℓ' = A → B → Type ℓ'
+
+Rel : (A : Type ℓA) (B : Type ℓB) (ℓ : Level) → Type (ℓ-max (ℓ-suc ℓ) (ℓ-max ℓA ℓB))
+Rel A B ℓ = A → B → Type ℓ
 
 PropRel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 PropRel A B ℓ' = Σ[ R ∈ Rel A B ℓ' ] ∀ a b → isProp (R a b)

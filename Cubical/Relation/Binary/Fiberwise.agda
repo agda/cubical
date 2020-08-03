@@ -11,7 +11,7 @@ open BinaryRelation
 
 private
   variable
-    ℓA ℓA' ℓB ℓ≅B ℓ≅B' ℓB' : Level
+    ℓA ℓA' ℓ≅A ℓ≅A' ℓB ℓ≅B ℓ≅B' ℓB' : Level
 
 -- given a type A, this is the type of relational families on A
 RelFamily : (A : Type ℓA) (ℓB ℓ≅B : Level) → Type (ℓ-max (ℓ-max ℓA (ℓ-suc ℓB)) (ℓ-suc ℓ≅B))
@@ -38,15 +38,34 @@ isFiberwiseUnivalent {A = A} (B , _≅_) ρ = {a : A} → isUnivalent (_≅_ {a 
 ♭RelFamily (B , _) f .fst a = B (f a)
 ♭RelFamily (_ , _≅_) f .snd = _≅_
 
+-- the type of relational isomorphisms over f
+♭RelFiberIsoOver : {A : Type ℓA} {A' : Type ℓA'}
+                  (f : A → A')
+                  (B : RelFamily A ℓB ℓ≅B)
+                  (B' : RelFamily A' ℓB' ℓ≅B')
+                  → Type (ℓ-max ℓA (ℓ-max (ℓ-max ℓB ℓB') (ℓ-max ℓ≅B ℓ≅B')))
+♭RelFiberIsoOver {A = A} f B B' = (a : A) → RelIso (B .snd {a = a}) (♭B' .snd {a = a})
+  where
+    ♭B' = ♭RelFamily B' f
+
+
+
+{-
 module _ {A : Type ℓA} {A' : Type ℓA'} (f : A ≃ A')
          (B : RelFamily A ℓB ℓ≅B) (ρ : isFiberwiseReflexive B) (uni : isFiberwiseUnivalent B ρ)
          (B' : RelFamily A' ℓB' ℓ≅B') (ρ' : isFiberwiseReflexive B') (uni' : isFiberwiseUnivalent B' ρ') where
 
        ♭B' = ♭RelFamily B' (fst f)
 
+       open RelIso
+
+       RelFiberIsoOver→RelFiberIso : (e≅♭ : (a : A) → RelIso (B .snd {a = a}) (♭B' .snd {a = a}))
+                                  → (a : A)
+                                  → RelIso (B .snd {a = a}) (B' .snd {a = f .fst a})
+       RelFiberIsoOver→RelFiberIso e≅♭ = e≅♭
+
        RelFiberIsoOver→FiberIso : (e≅♭ : (a : A) → RelIso (B .snd {a = a}) (♭B' .snd {a = a}))
                                   → (a : A)
                                   → Iso (B .fst a) (B' .fst (f .fst a))
        RelFiberIsoOver→FiberIso e≅♭ a = RelIso→Iso (snd B {a = a}) (snd B' {a = f .fst a}) ρ ρ' uni uni' (e≅♭ a)
-         where
-           open RelIso (e≅♭ a)
+-}

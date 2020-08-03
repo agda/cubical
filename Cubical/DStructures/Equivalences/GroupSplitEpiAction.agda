@@ -140,7 +140,7 @@ private
         G₁⋊G₀ : Group {ℓℓ'}
         G₁⋊G₀ = G₁ ⋊⟨ α ⟩ G₀
 
-module _ {ℓ ℓ' : Level} where
+module _ (ℓ ℓ' : Level) where
 
   -- the 𝒮-iso of the 𝒮-structures on the total space of split epis
   -- and that of group actions
