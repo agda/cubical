@@ -45,18 +45,22 @@ module _ {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
 module _ {A : Type ℓA} {_≅A_ : Rel A A ℓ≅A}
          {A' : Type ℓA'} {_≅A'_ : Rel A' A' ℓ≅A'}
          (ℱ : RelIso _≅A_ _≅A'_)
-         (B : RelFamily A ℓB ℓ≅B) (ρ : isFiberwiseReflexive B) (uni : isFiberwiseUnivalent B ρ)
-         (B' : RelFamily A' ℓB' ℓ≅B') (ρ' : isFiberwiseReflexive B') (uni' : isFiberwiseUnivalent B' ρ') where
+         (B : RelFamily A ℓB ℓ≅B)
+         (B' : RelFamily A' ℓB' ℓ≅B') where
 
          f = RelIso.fun ℱ
          ♭B' = ♭RelFamily B' f
          ΣB = Σ[ a ∈ A ] (B .fst a)
          ΣB' = Σ[ a ∈ A' ] (B' .fst a)
-         _≅ΣB_ : Rel ΣB ΣB' ?
-         _≅ΣB_ = ?
+         _≅ΣB_ : Rel ΣB ΣB {!!}
+         _≅ΣB_ (a , b) (a' , b') = {!!}
+         _≅ΣB'_ : Rel ΣB' ΣB' {!!}
+         _≅ΣB'_ (a , b) (a' , b') = {!!}
 
-         RelFiberIsoOver→TotalFiberIso : (𝒢 : ♭RelFiberIsoOver f B B')
-                                         → RelIso {!!} {!!}
+         RelFiberIsoOver→TotalFiberIso : (ρ : isFiberwiseReflexive B) (uni : isFiberwiseUnivalent B ρ)
+                                         (ρ' : isFiberwiseReflexive B') (uni' : isFiberwiseUnivalent B' ρ')
+                                         (𝒢 : ♭RelFiberIsoOver f B B')
+                                         → RelIso _≅ΣB_ _≅ΣB'_
          RelFiberIsoOver→TotalFiberIso 𝒢 = {!!}
 
 module _ where
@@ -88,6 +92,6 @@ module _ where
                       (ℱ : 𝒮-iso 𝒮-A 𝒮-A')
                       {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
                       {B' : A' → Type ℓB'} (𝒮ᴰ-B' : URGStrᴰ 𝒮-A' B' ℓ≅B')
-                      (B≅B' : 𝒮ᴰ-iso (RelIso.fun ℱ) 𝒮ᴰ-B 𝒮ᴰ-B')
+                      (𝒢 : 𝒮ᴰ-iso (RelIso.fun ℱ) 𝒮ᴰ-B 𝒮ᴰ-B')
                       → 𝒮-iso (∫⟨ 𝒮-A ⟩ 𝒮ᴰ-B) (∫⟨ 𝒮-A' ⟩ 𝒮ᴰ-B')
-  𝒮ᴰ-isoOver→𝒮-iso-1 = {!!}
+  𝒮ᴰ-isoOver→𝒮-iso-1 ℱ 𝒮ᴰ-B 𝒮ᴰ-B' 𝒢 = {!RelFiberIsoOver→TotalFiberIso!}
