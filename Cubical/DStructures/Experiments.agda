@@ -37,7 +37,7 @@ open import Cubical.DStructures.Equivalences.GroupSplitEpiAction
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓA' ℓ≅A ℓ≅A' ℓB ℓB' ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓ≅ᴰ' : Level
+    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓA' ℓ≅A ℓ≅A' ℓB ℓB' ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓ≅ᴰ' ℓ≅B' : Level
 
 open Kernel
 open GroupHom -- such .fun!
@@ -75,9 +75,50 @@ module _ {ℓ ℓ' : Level} where
   PreXMod→ReflGraph : PreXMod → ReflGraph
   PreXMod→ReflGraph  = {!!}
 
-  𝒢 : 𝒮-iso 𝒮-ReflGraph 𝒮-PreXMod
-  𝒢 = RelFiberIsoOver→RelFiberIso ℱ {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!}
+ --  𝒢 : 𝒮-iso 𝒮-ReflGraph 𝒮-PreXMod
+ --  𝒢 = RelFiberIsoOver→RelFiberIso ℱ {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!}
 
+module _ where
+  -- for a displayed structure, extract the relational family
+  𝒮ᴰ-relFamily : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
+                 {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
+                 → RelFamily A ℓB ℓ≅B
+  𝒮ᴰ-relFamily {B = B} 𝒮ᴰ-B .fst = B
+  𝒮ᴰ-relFamily {𝒮-A = 𝒮-A} {B = B} 𝒮ᴰ-B .snd {a = a} b b' = b ≅ᴰ⟨ ρ a ⟩ b'
+    where
+      open URGStr 𝒮-A
+      open URGStrᴰ 𝒮ᴰ-B
+
+  -- the type of isos between the relational family extracted
+  -- from the displayed structure over A and the
+  -- relational family pulled back from the one extracted
+  -- from the displayed structure over A'
+  𝒮ᴰ-iso : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
+           {A' : Type ℓA'} {𝒮-A' : URGStr A' ℓ≅A'}
+           (ℱ : A → A')
+           {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
+           {B' : A' → Type ℓB'} (𝒮ᴰ-B' : URGStrᴰ 𝒮-A' B' ℓ≅B')
+           → Type (ℓ-max ℓA (ℓ-max (ℓ-max ℓB ℓB') (ℓ-max ℓ≅B ℓ≅B')))
+  𝒮ᴰ-iso ℱ 𝒮ᴰ-B 𝒮ᴰ-B'
+    = ♭RelFiberIsoOver ℱ (𝒮ᴰ-relFamily 𝒮ᴰ-B) (𝒮ᴰ-relFamily 𝒮ᴰ-B')
+
+  𝒮ᴰ-isoOver→𝒮-iso-1 : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
+                      {A' : Type ℓA'} {𝒮-A' : URGStr A' ℓ≅A'}
+                      (ℱ : 𝒮-iso 𝒮-A 𝒮-A')
+                      {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
+                      {B' : A' → Type ℓB'} (𝒮ᴰ-B' : URGStrᴰ 𝒮-A' B' ℓ≅B')
+                      (𝒢 : 𝒮ᴰ-iso (RelIso.fun ℱ) 𝒮ᴰ-B 𝒮ᴰ-B')
+                      → 𝒮-iso (∫⟨ 𝒮-A ⟩ 𝒮ᴰ-B) (∫⟨ 𝒮-A' ⟩ 𝒮ᴰ-B')
+  𝒮ᴰ-isoOver→𝒮-iso-1 {A = A} {A' = A'} ℱ 𝒮ᴰ-B 𝒮ᴰ-B' 𝒢 =
+    reliso (λ (a , b) → f a , g a b)
+           (λ (a' , b') → f- a' , {!g- a' b'!})
+           {!!}
+           {!!}
+    where
+      f = RelIso.fun ℱ
+      f- = RelIso.inv ℱ
+      g = λ (a : A) → RelIso.fun (𝒢 a)
+      g- = λ (a' : A') → RelIso.inv (𝒢 (f- a'))
 
 {-
 module _ (ℓ ℓ' : Level) where

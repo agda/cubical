@@ -51,6 +51,29 @@ isFiberwiseUnivalent {A = A} (B , _≅_) ρ = {a : A} → isUnivalent (_≅_ {a 
 
 
 {-
+module _ {A : Type ℓA} {_≅A_ : Rel A A ℓ≅A}
+         {A' : Type ℓA'} {_≅A'_ : Rel A' A' ℓ≅A'}
+         (ℱ : RelIso _≅A_ _≅A'_)
+         (B : RelFamily A ℓB ℓ≅B)
+         (B' : RelFamily A' ℓB' ℓ≅B') where
+
+         f = RelIso.fun ℱ
+         ♭B' = ♭RelFamily B' f
+         ΣB = Σ[ a ∈ A ] (B .fst a)
+         ΣB' = Σ[ a ∈ A' ] (B' .fst a)
+         _≅ΣB_ : Rel ΣB ΣB {!!}
+         _≅ΣB_ (a , b) (a' , b') = a ≅A a' × {!B .snd !}
+         _≅ΣB'_ : Rel ΣB' ΣB' {!!}
+         _≅ΣB'_ (a , b) (a' , b') = {!!}
+
+         RelFiberIsoOver→TotalFiberIso : (ρ : isFiberwiseReflexive B) (uni : isFiberwiseUnivalent B ρ)
+                                         (ρ' : isFiberwiseReflexive B') (uni' : isFiberwiseUnivalent B' ρ')
+                                         (𝒢 : ♭RelFiberIsoOver f B B')
+                                         → RelIso _≅ΣB_ _≅ΣB'_
+         RelFiberIsoOver→TotalFiberIso 𝒢 = {!!}
+-}
+
+{-
 module _ {A : Type ℓA} {A' : Type ℓA'} (f : A ≃ A')
          (B : RelFamily A ℓB ℓ≅B) (ρ : isFiberwiseReflexive B) (uni : isFiberwiseUnivalent B ρ)
          (B' : RelFamily A' ℓB' ℓ≅B') (ρ' : isFiberwiseReflexive B') (uni' : isFiberwiseUnivalent B' ρ') where
