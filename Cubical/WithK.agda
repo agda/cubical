@@ -35,7 +35,7 @@ transport-not : transport (ptoc (ctop notEq)) true ≡c false
 transport-not = cong (λ a → transport a true) (ptoc-ctop notEq)
 
 false-true : false ≡c true
-false-true = sym transport-not ∙ transport-uip (ctop notEq)
+false-true = sym transport-not ∙ transport-uip {x = true} (ctop notEq)
 
 absurd : (X : Type) → X
 absurd X = transport (cong sel false-true) true
