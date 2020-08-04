@@ -146,3 +146,9 @@ URGᴰtransp e StrA StrABᴰ =
                          ℓ≅B
 𝒮ᴰ-transport e 𝒮ᴰ-A\B = {!!}
 -}
+
+
+𝒮-≅≃≡ : {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A) (a a' : A) → (URGStr._≅_ 𝒮-A a a') ≃ (a ≡ a')
+𝒮-≅≃≡ 𝒮-A a a' = invEquiv (≡→R _≅_ ρ , uni a a')
+  where
+    open URGStr 𝒮-A

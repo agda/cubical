@@ -48,7 +48,12 @@ isFiberwiseUnivalent {A = A} (B , _≅_) ρ = {a : A} → isUnivalent (_≅_ {a 
   where
     ♭B' = ♭RelFamily B' f
 
-
+RelFiberIsoOver : {A : Type ℓA} {A' : Type ℓA'}
+                  (f : A → A')
+                  (B : RelFamily A ℓB ℓ≅B)
+                  (B' : RelFamily A' ℓB' ℓ≅B')
+                  → Type (ℓ-max ℓA (ℓ-max (ℓ-max ℓB ℓB') (ℓ-max ℓ≅B ℓ≅B')))
+RelFiberIsoOver {A = A} f B B' = (a : A) → RelIso (B .snd {a = a}) (B' .snd {a = f a})
 
 {-
 module _ {A : Type ℓA} {_≅A_ : Rel A A ℓ≅A}

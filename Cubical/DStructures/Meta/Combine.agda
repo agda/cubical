@@ -97,7 +97,28 @@ splitTotal-𝒮ᴰ : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
 splitTotal-𝒮ᴰ {A = A} StrA {B} StrBᴰ {C} StrCᴰ
   = make-𝒮ᴰ (λ (b , c) eA (b' , c') → Σ[ eB ∈ b B≅ᴰ⟨ eA ⟩ b' ] c ≅ᴰ⟨ eA , eB ⟩ c')
                 (λ (b , c) → Bρᴰ b , ρᴰ c)
-                λ a (b , c) → isOfHLevelRespectEquiv 0
+                q
+
+  where
+    open URGStrᴰ StrCᴰ
+    open URGStr StrA
+    _B≅ᴰ⟨_⟩_ = URGStrᴰ._≅ᴰ⟨_⟩_ StrBᴰ
+    Bρᴰ = URGStrᴰ.ρᴰ StrBᴰ
+    Buniᴰ = URGStrᴰ.uniᴰ StrBᴰ
+
+    module _ (a : A) (b : B a) where
+      abstract
+        contrTotalB : isContr (Σ[ b' ∈ B a ] b B≅ᴰ⟨ ρ a ⟩ b')
+        contrTotalB = isUnivalent→contrTotalSpace (_B≅ᴰ⟨ ρ a ⟩_) Bρᴰ Buniᴰ b
+
+        contrTotalB' : isContr (Σ[ b' ∈ B a ] b B≅ᴰ⟨ ρ a ⟩ b')
+        contrTotalB' = (b , Bρᴰ b) , λ z → sym (snd contrTotalB (b , Bρᴰ b)) ∙ snd contrTotalB z
+
+        contrTotalC : (c : C (a , b)) → isContr (Σ[ c' ∈ C (a , b) ] c ≅ᴰ⟨ ρ a , Bρᴰ b ⟩ c')
+        contrTotalC = isUnivalent→contrTotalSpace (λ c₁ c₂ → c₁ ≅ᴰ⟨ ρ a , Bρᴰ b ⟩ c₂) ρᴰ uniᴰ
+
+    abstract
+      q = λ a (b , c) → isOfHLevelRespectEquiv 0
                                                      (Σ[ c' ∈ C (a , b) ] c ≅ᴰ⟨ ρ a , Bρᴰ b ⟩ c'
                                                        ≃⟨ invEquiv (Σ-contractFst (contrTotalB' a b)) ⟩
                                                      Σ[ (b' , eB) ∈ Σ[ b' ∈ B a ] b B≅ᴰ⟨ ρ a ⟩ b' ] (Σ[ c' ∈ C (a , b') ] (c ≅ᴰ⟨ ρ a , eB ⟩ c'))
@@ -108,23 +129,6 @@ splitTotal-𝒮ᴰ {A = A} StrA {B} StrBᴰ {C} StrCᴰ
                                                                                (invEquiv Σ-assoc-≃)) ⟩
                                                      Σ[ (b' , c') ∈ Σ[ b' ∈ B a ] C (a , b') ] (Σ[ eB ∈ b B≅ᴰ⟨ ρ a ⟩ b' ] (c ≅ᴰ⟨ ρ a , eB ⟩ c')) ■)
                                                      (contrTotalC a b c)
-
-  where
-    open URGStrᴰ StrCᴰ
-    open URGStr StrA
-    _B≅ᴰ⟨_⟩_ = URGStrᴰ._≅ᴰ⟨_⟩_ StrBᴰ
-    Bρᴰ = URGStrᴰ.ρᴰ StrBᴰ
-    Buniᴰ = URGStrᴰ.uniᴰ StrBᴰ
-
-    module _ (a : A) (b : B a) where
-      contrTotalB : isContr (Σ[ b' ∈ B a ] b B≅ᴰ⟨ ρ a ⟩ b')
-      contrTotalB = isUnivalent→contrTotalSpace (_B≅ᴰ⟨ ρ a ⟩_) Bρᴰ Buniᴰ b
-
-      contrTotalB' : isContr (Σ[ b' ∈ B a ] b B≅ᴰ⟨ ρ a ⟩ b')
-      contrTotalB' = (b , Bρᴰ b) , λ z → sym (snd contrTotalB (b , Bρᴰ b)) ∙ snd contrTotalB z
-
-      contrTotalC : (c : C (a , b)) → isContr (Σ[ c' ∈ C (a , b) ] c ≅ᴰ⟨ ρ a , Bρᴰ b ⟩ c')
-      contrTotalC = isUnivalent→contrTotalSpace (λ c₁ c₂ → c₁ ≅ᴰ⟨ ρ a , Bρᴰ b ⟩ c₂) ρᴰ uniᴰ
 
 {-
   this is obsolete as it is a special case of splitTotalURGStrᴰ

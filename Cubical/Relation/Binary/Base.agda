@@ -115,8 +115,10 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
     -- singletons are contractible
     -- and by the univalence assumption the total map is an equivalence
     isUnivalent→contrTotalSpace : isUnivalent → contrTotalSpace
-    isUnivalent→contrTotalSpace u a
-      = isOfHLevelRespectEquiv 0
+    isUnivalent→contrTotalSpace u a = q
+      where
+        abstract
+          q = isOfHLevelRespectEquiv 0
                                (totf a , totalEquiv (a ≡_)
                                                     (a R_)
                                                     (f a)

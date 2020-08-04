@@ -367,6 +367,7 @@ module MorphismLemmas {G : Group {ℓ}} {H : Group {ℓ'}} (F : GroupHom G H) wh
 module Kernel {ℓ' : Level} {G : Group {ℓ}} {H : Group {ℓ'}} (F : GroupHom G H) where
   private
     open GroupNotationH H
+    open GroupHom
     f = GroupHom.fun F
     -- sg stands for subgroup
   sg-typeProp : Subtype ℓ' ⟨ G ⟩
@@ -385,7 +386,6 @@ module Kernel {ℓ' : Level} {G : Group {ℓ}} {H : Group {ℓ'}} (F : GroupHom 
                    sg-lCancel
     where
       open Group
-      open GroupHom
       open MorphismLemmas F
       open GroupNotationG G
       open GroupLemmas
@@ -426,3 +426,12 @@ module Kernel {ℓ' : Level} {G : Group {ℓ}} {H : Group {ℓ'}} (F : GroupHom 
             = ΣPathP (assocᴳ g g' g'' , isProp→PathP (λ i → snd (sg-typeProp (assocᴳ g g' g'' i)))
                                                      (snd ((g , p) +sg ((g' , p') +sg (g'' , p''))))
                                                      (snd (((g , p) +sg (g' , p')) +sg (g'' , p''))))
+
+
+  module _ (F' : GroupHom G H) where
+    restrictToKer : GroupHom ker H
+    restrictToKer .fun = λ (g , p) → F' .fun g
+    restrictToKer .isHom (g , p) (g' , p') = q
+      where
+        abstract
+          q = F' .isHom g g'
