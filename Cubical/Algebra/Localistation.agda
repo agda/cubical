@@ -175,9 +175,21 @@ module _(RX : CommRing {ℓ}) (S : ℙ ⟨ RX ⟩) (SsubMonoid : isSubMonoid RX 
   θ r₁ r₂ s s₁ s₂ {c} {a} {b} p r'₁ r'₂ s' s'₁ s'₂ {c'} {a'} {b'} p' =
     zd _ _ (s ·ᴿ s') _ _ {SsubMonoid .multClosed c c'} path
     where
-    eq : (r₁ ·ᴿ s'₁ +ᴿ r'₁ ·ᴿ s₁) ·ᴿ s₂ ·ᴿ s'₂ -ᴿ (r₂ ·ᴿ s'₂ +ᴿ r'₂ ·ᴿ s₂) ·ᴿ s₁ ·ᴿ s'₁
-       ≡ (r₁ ·ᴿ s₂ -ᴿ r₂ ·ᴿ s₁) ·ᴿ s'₁ ·ᴿ s'₂ +ᴿ (r'₁ ·ᴿ s'₂ -ᴿ r'₂ ·ᴿ s'₁) ·ᴿ s₁ ·ᴿ s₂
-    eq = {!!}
+    open IsCommRing
+    open IsRing
+    open IsMonoid
+    open IsAbGroup
+    open IsGroup
+
+    -- eq : (r₁ ·ᴿ s'₁ +ᴿ r'₁ ·ᴿ s₁) ·ᴿ s₂ ·ᴿ s'₂ -ᴿ (r₂ ·ᴿ s'₂ +ᴿ r'₂ ·ᴿ s₂) ·ᴿ s₁ ·ᴿ s'₁
+    --    ≡ (r₁ ·ᴿ s₂ -ᴿ r₂ ·ᴿ s₁) ·ᴿ s'₁ ·ᴿ s'₂ +ᴿ (r'₁ ·ᴿ s'₂ -ᴿ r'₂ ·ᴿ s'₁) ·ᴿ s₁ ·ᴿ s₂
+    -- eq =
+    --   (r₁ ·ᴿ s'₁ +ᴿ r'₁ ·ᴿ s₁) ·ᴿ s₂ ·ᴿ s'₂ -ᴿ (r₂ ·ᴿ s'₂ +ᴿ r'₂ ·ᴿ s₂) ·ᴿ s₁ ·ᴿ s'₁
+    --  ≡⟨ cong (_-ᴿ(r₂ ·ᴿ s'₂ +ᴿ r'₂ ·ᴿ s₂) ·ᴿ s₁ ·ᴿ s'₁) (RX .isCommRing .isRing .dist _ _ _ .snd) ⟩
+    --   ((r₁ ·ᴿ s'₁) ·ᴿ s₂ ·ᴿ s'₂ +ᴿ (r'₁ ·ᴿ s₁) ·ᴿ s₂ ·ᴿ s'₂) -ᴿ (r₂ ·ᴿ s'₂ +ᴿ r'₂ ·ᴿ s₂) ·ᴿ s₁ ·ᴿ s'₁
+    --  ≡⟨ {!!} ⟩
+    --   (r₁ ·ᴿ s₂ -ᴿ r₂ ·ᴿ s₁) ·ᴿ s'₁ ·ᴿ s'₂ +ᴿ (r'₁ ·ᴿ s'₂ -ᴿ r'₂ ·ᴿ s'₁) ·ᴿ s₁ ·ᴿ s₂
+    --  ∎
 
     path : (s ·ᴿ s') ·ᴿ
            ((r₁ ·ᴿ s'₁ +ᴿ r'₁ ·ᴿ s₁) ·ᴿ s₂ ·ᴿ s'₂ -ᴿ (r₂ ·ᴿ s'₂ +ᴿ r'₂ ·ᴿ s₂) ·ᴿ s₁ ·ᴿ s'₁)
@@ -191,18 +203,48 @@ module _(RX : CommRing {ℓ}) (S : ℙ ⟨ RX ⟩) (SsubMonoid : isSubMonoid RX 
      --  ≡⟨ ? ⟩
      -- 0ᴿ ∎
 
+ 0ₗ = (0ᴿ / 1ᴿ) {SsubMonoid .containsOne}
 
- _·ₗ_ : S⁻¹R → S⁻¹R → S⁻¹R
- _·ₗ_ = BinRec.f trunc g θ
+ LocLeftIdentity : (x : S⁻¹R) → 0ₗ +ₗ x ≡ x
+ LocLeftIdentity = ElimProp.f (trunc _ _) θ
   where
-  g : (r s r' s' : R) {a : s ∈ S} {b : s' ∈ S} → S⁻¹R
-  g  r s r' s' {a} {b} = (r ·ᴿ r' / s ·ᴿ s') {SsubMonoid .multClosed a b}
+  θ : (r s : R) {a : s ∈ S}
+    → (0ᴿ ·ᴿ s +ᴿ r ·ᴿ 1ᴿ / 1ᴿ ·ᴿ s) {SsubMonoid .multClosed (SsubMonoid .containsOne) a}
+    ≡ (r / s) {a}
+  θ r s {a} = zd _ _ 1ᴿ _ _ {SsubMonoid .containsOne} {!!}
+   where
+   open IsCommRing
+   open IsRing
+   open IsMonoid
+   open IsAbGroup
+   open IsGroup
 
-  θ : (r₁ r₂ s s₁ s₂ : R) {c : s ∈ S} {a : s₁ ∈ S} {b : s₂ ∈ S}
-    → (p : s ·ᴿ ((r₁ ·ᴿ s₂) -ᴿ (r₂ ·ᴿ s₁)) ≡ 0ᴿ)
-    → (r'₁ r'₂ s' s'₁ s'₂ : R) {c' : s' ∈ S} {a' : s'₁ ∈ S} {b' : s'₂ ∈ S}
-    → (p' : s' ·ᴿ ((r'₁ ·ᴿ s'₂) -ᴿ (r'₂ ·ᴿ s'₁)) ≡ 0ᴿ)
-    → (r₁ ·ᴿ r'₁ / s₁ ·ᴿ s'₁) {SsubMonoid .multClosed a a'}
-    ≡ (r₂ ·ᴿ r'₂ / s₂ ·ᴿ s'₂) {SsubMonoid .multClosed b b'}
-  θ r₁ r₂ s s₁ s₂ {c} {a} {b} p r'₁ r'₂ s' s'₁ s'₂ {c'} {a'} {b'} p' =
-    zd _ _ (s ·ᴿ s') _ _ {SsubMonoid .multClosed c c'} {!!}
+   -- p : 0ᴿ ·ᴿ s +ᴿ r ·ᴿ 1ᴿ ≡ r
+   -- p = 0ᴿ ·ᴿ s +ᴿ r ·ᴿ 1ᴿ
+   --   ≡⟨ cong (_+ᴿ r ·ᴿ 1ᴿ) {!!} ⟩
+   --     0ᴿ +ᴿ r ·ᴿ 1ᴿ
+   --   ≡⟨ {!!} ⟩
+   --     r ·ᴿ 1ᴿ
+   --   ≡⟨ {!!} ⟩
+   --     r
+   --   ∎
+
+   q : 1ᴿ ·ᴿ s ≡ s
+   q = RX .isCommRing .isRing .·-isMonoid .identity _ .snd
+
+
+
+ -- _·ₗ_ : S⁻¹R → S⁻¹R → S⁻¹R
+ -- _·ₗ_ = BinRec.f trunc g θ
+ --  where
+ --  g : (r s r' s' : R) {a : s ∈ S} {b : s' ∈ S} → S⁻¹R
+ --  g  r s r' s' {a} {b} = (r ·ᴿ r' / s ·ᴿ s') {SsubMonoid .multClosed a b}
+
+ --  θ : (r₁ r₂ s s₁ s₂ : R) {c : s ∈ S} {a : s₁ ∈ S} {b : s₂ ∈ S}
+ --    → (p : s ·ᴿ ((r₁ ·ᴿ s₂) -ᴿ (r₂ ·ᴿ s₁)) ≡ 0ᴿ)
+ --    → (r'₁ r'₂ s' s'₁ s'₂ : R) {c' : s' ∈ S} {a' : s'₁ ∈ S} {b' : s'₂ ∈ S}
+ --    → (p' : s' ·ᴿ ((r'₁ ·ᴿ s'₂) -ᴿ (r'₂ ·ᴿ s'₁)) ≡ 0ᴿ)
+ --    → (r₁ ·ᴿ r'₁ / s₁ ·ᴿ s'₁) {SsubMonoid .multClosed a a'}
+ --    ≡ (r₂ ·ᴿ r'₂ / s₂ ·ᴿ s'₂) {SsubMonoid .multClosed b b'}
+ --  θ r₁ r₂ s s₁ s₂ {c} {a} {b} p r'₁ r'₂ s' s'₁ s'₂ {c'} {a'} {b'} p' =
+ --    zd _ _ (s ·ᴿ s') _ _ {SsubMonoid .multClosed c c'} {!!}
