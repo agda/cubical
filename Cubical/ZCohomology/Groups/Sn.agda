@@ -222,7 +222,7 @@ H²-S¹≅0 =
   Ker-right⊂Im-ϕ vSES-helper = sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp) -- doesn't terminate without elimination
                                           λ a → I.Ker-i⊂Im-d 1 ∣ a ∣₂
 
---------------- H¹(S²) --------------------------------------------
+--------------- H¹(Sⁿ), n ≥ 1 --------------------------------------------
 
 H¹-Sⁿ≅0 : (n : ℕ) → GroupEquiv (coHomGr 1 (S₊ (2 + n))) trivialGroup
 H¹-Sⁿ≅0 n = coHomPushout≅coHomSn (1 + n) 1
@@ -249,48 +249,6 @@ H¹-Sⁿ≅0 n = coHomPushout≅coHomSn (1 + n) 1
                                            λ a id → sym id ∙ I.Im-Δ⊂Ker-d 0 ∣ a ∣₂ (surj-helper _))
                                (I.Ker-i⊂Im-d 0 ∣ x ∣₂ inker)
 
-{-
-open import Cubical.Data.Sum
-open import Cubical.Data.Empty renaming (rec to ⊥-rec)
-Hᵐ-Sⁿ≅0 : (n m : ℕ) → (Σ[ x ∈ ℕ ] n + (suc x) ≡ m) ⊎ (Σ[ x ∈ ℕ ] m + (suc x) ≡ n)
-                     → GroupEquiv (coHomGr (suc m) (S₊ (suc n))) trivialGroup
-Hᵐ-Sⁿ≅0 n zero (inl (dif , id)) = ⊥-rec (snotz (sym (+-suc n dif) ∙ id))
-Hᵐ-Sⁿ≅0 zero (suc m) (inl (dif , id)) = {!!}
-  where
-  module I = MV Unit Unit (S₊ 1) (λ _ → tt) (λ _ → tt)
-Hᵐ-Sⁿ≅0 (suc n) (suc m) (inl (dif , id)) =
-    coHomPushout≅coHomSn (suc n) (2 + m)
-  □ invGroupEquiv (vSES→GroupEquiv _ _
-       (ses (isOfHLevelSuc 0 (isOfHLevelΣ 0 (isContrHⁿ-Unit m) λ _ → isContrHⁿ-Unit m))
-            (isOfHLevelSuc 0 (isOfHLevelΣ 0 (isContrHⁿ-Unit (suc m)) λ _ → isContrHⁿ-Unit (suc m)))
-            (I.Δ (suc m))
-            (I.i (suc (suc m)))
-            (I.d (suc m))
-            (I.Ker-d⊂Im-Δ (suc m))
-            (I.Ker-i⊂Im-d (suc m))))
-  □ Hᵐ-Sⁿ≅0 n m (inl (dif , (cong predℕ id)))
-
-  where
-  module I = MV Unit Unit (S₊ (suc n)) (λ _ → tt) (λ _ → tt)
-Hᵐ-Sⁿ≅0 n zero (inr (dif , id)) = transport (λ i → GroupEquiv (coHomGr 1 (S₊ (suc (id i)))) trivialGroup)
-                                            (H¹-Sⁿ≅0 dif)
-Hᵐ-Sⁿ≅0 n (suc m) (inr (dif , id)) =
-    coHomPushout≅coHomSn n (2 + m)
-  □ invGroupEquiv
-      (vSES→GroupEquiv _ _
-       (ses (isOfHLevelSuc 0 (isOfHLevelΣ 0 (isContrHⁿ-Unit m) λ _ → isContrHⁿ-Unit m))
-            (isOfHLevelSuc 0 (isOfHLevelΣ 0 (isContrHⁿ-Unit (suc m)) λ _ → isContrHⁿ-Unit (suc m)))
-            (I.Δ (suc m))
-            (I.i (suc (suc m)))
-            (I.d (suc m))
-            (I.Ker-d⊂Im-Δ (suc m))
-            (I.Ker-i⊂Im-d (suc m))))
-  □ transport (λ i → GroupEquiv (coHomGr (suc m) (S₊ ((id) i))) trivialGroup)
-              (Hᵐ-Sⁿ≅0 (m + suc dif) m (inr (dif , refl)))
-  where
-  module I = MV Unit Unit (S₊ n) (λ _ → tt) (λ _ → tt)
--}
-
 --------- Direct proof of H¹(S¹) ≅ ℤ without Mayer-Vietoris -------
 
 -- The strategy is to use the proof that ΩS¹ ≃ ℤ. Since we only have this for S¹ with the base/loop definition
@@ -305,24 +263,28 @@ Hᵐ-Sⁿ≅0 n (suc m) (inr (dif , id)) =
 -- application of cong₂, which allows us to use basechange-lemma.
 
 coHom1S1≃ℤ : GroupEquiv (coHomGr 1 (S₊ 1)) intGroup
-eq coHom1S1≃ℤ =
-  isoToEquiv
-    (iso (sRec isSetInt (λ f → snd (Iso.fun S¹→S¹≡S¹×Int (Iso.fun S1→S1≡S¹→S¹ f))))                                                 -- fun
-         (λ a → ∣ Iso.inv S1→S1≡S¹→S¹ (Iso.inv S¹→S¹≡S¹×Int (base , a)) ∣₂)                                                           -- inv
-         (λ a → (λ i → snd (Iso.fun S¹→S¹≡S¹×Int (Iso.fun S1→S1≡S¹→S¹ (Iso.inv S1→S1≡S¹→S¹ (Iso.inv S¹→S¹≡S¹×Int (base , a)))))) -- rInv
-              ∙ (λ i → snd (Iso.fun S¹→S¹≡S¹×Int (Iso.rightInv S1→S1≡S¹→S¹ (Iso.inv S¹→S¹≡S¹×Int (base , a)) i)))
-              ∙ λ i → snd (Iso.rightInv S¹→S¹≡S¹×Int (base , a) i))
-         ((sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)                                                                            -- lInv
-                 λ f → (λ i → ∣ Iso.inv S1→S1≡S¹→S¹ (Iso.inv S¹→S¹≡S¹×Int (base , snd (Iso.fun S¹→S¹≡S¹×Int (Iso.fun S1→S1≡S¹→S¹ f)))) ∣₂)
-                      ∙∙ ((λ i → sRec setTruncIsSet
-                                    (λ x → ∣ Iso.inv S1→S1≡S¹→S¹ x ∣₂)
-                                    (sRec setTruncIsSet
-                                          (λ x → ∣ Iso.inv S¹→S¹≡S¹×Int (x , (snd (Iso.fun S¹→S¹≡S¹×Int (Iso.fun S1→S1≡S¹→S¹ f)))) ∣₂)
-                                          (Iso.inv PathIdTrunc₀Iso (isConnectedS¹ (fst (Iso.fun S¹→S¹≡S¹×Int (Iso.fun S1→S1≡S¹→S¹ f)))) i)))
-                       ∙ (λ i → ∣ Iso.inv S1→S1≡S¹→S¹ (Iso.leftInv S¹→S¹≡S¹×Int (Iso.fun S1→S1≡S¹→S¹ f) i) ∣₂))
-                      ∙∙ (λ i → ∣ Iso.leftInv S1→S1≡S¹→S¹ f i ∣₂))))
+eq coHom1S1≃ℤ = isoToEquiv theIso
+  where
+  F = Iso.fun S¹→S¹≡S¹×Int
+  F⁻ = Iso.inv S¹→S¹≡S¹×Int
+  G = Iso.fun S1→S1≡S¹→S¹
+  G⁻ = Iso.inv S1→S1≡S¹→S¹
+
+  theIso : Iso ⟨ coHomGr 1 (S₊ 1) ⟩ ⟨ intGroup ⟩
+  Iso.fun theIso = sRec isSetInt (λ f → snd (F (G f)))
+  Iso.inv theIso a = ∣ G⁻ (F⁻ (base , a)) ∣₂
+  Iso.rightInv theIso a =
+      (cong (snd ∘ F) (Iso.rightInv S1→S1≡S¹→S¹ (F⁻ (base , a)))
+     ∙ cong snd (Iso.rightInv S¹→S¹≡S¹×Int (base , a)))
+  Iso.leftInv theIso =
+    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+          λ f → cong ((sRec setTruncIsSet (λ x → ∣ G⁻ x ∣₂))
+                        ∘ sRec setTruncIsSet λ x → ∣ F⁻ (x , (snd (F (G f)))) ∣₂)
+                      (Iso.inv PathIdTrunc₀Iso (isConnectedS¹ (fst (F (G f)))))
+               ∙∙ cong (∣_∣₂ ∘ G⁻) (Iso.leftInv S¹→S¹≡S¹×Int (G f))
+               ∙∙ cong ∣_∣₂ (Iso.leftInv S1→S1≡S¹→S¹ f)
 isHom coHom1S1≃ℤ =
-  sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _)                                                                                       -- isMorph
+  sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _)
            λ f g → (λ i → winding (guy (ΩKn+1→Kn (Kn→ΩKn+1 1 (f (S¹→S1 base)) ∙ Kn→ΩKn+1 1 (g (S¹→S1 base))))
                                     (λ i → pre-guy (ΩKn+1→Kn (Kn→ΩKn+1 1 (f (S¹→S1 (loop i))) ∙ Kn→ΩKn+1 1 (g (S¹→S1 (loop i))))))))
                  ∙∙ cong winding (helper (f (S¹→S1 base)) (g (S¹→S1 base)) f g refl refl)
@@ -333,6 +295,8 @@ isHom coHom1S1≃ℤ =
   where
   pre-guy = S¹map ∘ trMap S1→S¹
   guy = basechange2⁻ ∘ pre-guy
+
+
 
   helper : (x y : coHomK 1) (f g : S₊ 1 → coHomK 1)
         → (f (S¹→S1 base)) ≡ x
