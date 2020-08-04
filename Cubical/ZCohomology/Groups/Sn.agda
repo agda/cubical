@@ -296,8 +296,6 @@ isHom coHom1S1≃ℤ =
   pre-guy = S¹map ∘ trMap S1→S¹
   guy = basechange2⁻ ∘ pre-guy
 
-
-
   helper : (x y : coHomK 1) (f g : S₊ 1 → coHomK 1)
         → (f (S¹→S1 base)) ≡ x
         → (g (S¹→S1 base)) ≡ y
