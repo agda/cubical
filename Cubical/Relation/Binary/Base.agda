@@ -101,8 +101,10 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
     -- then R is univalent
     -- because the singleton at a is also contractible
     contrTotalSpace→isUnivalent : contrTotalSpace → isUnivalent
-    contrTotalSpace→isUnivalent c a
-      = fiberEquiv (λ a' → a ≡ a')
+    contrTotalSpace→isUnivalent c a = q
+      where
+        abstract
+          q = fiberEquiv (λ a' → a ≡ a')
                    (λ a' → a R a')
                    (f a)
                    (snd (isPropEquiv→Equiv (isContr→isProp (isContrSingl a))
@@ -139,8 +141,10 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
         totg (a' , p) = (a' , g a' p)
 
       isUnivalent'→contrTotalSpace : isUnivalent' → contrTotalSpace
-      isUnivalent'→contrTotalSpace u a
-        = isOfHLevelRespectEquiv 0
+      isUnivalent'→contrTotalSpace u a = q
+        where
+          abstract
+            q = isOfHLevelRespectEquiv 0
                                  (totg u a , totalEquiv (a ≡_) (a R_) (g u a) λ a' → u a a' .snd)
                                  (isContrSingl a)
 
