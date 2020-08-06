@@ -130,6 +130,44 @@ splitTotal-𝒮ᴰ {A = A} StrA {B} StrBᴰ {C} StrCᴰ
                                                      Σ[ (b' , c') ∈ Σ[ b' ∈ B a ] C (a , b') ] (Σ[ eB ∈ b B≅ᴰ⟨ ρ a ⟩ b' ] (c ≅ᴰ⟨ ρ a , eB ⟩ c')) ■)
                                                      (contrTotalC a b c)
 
+
+SplitTotal-𝒮ᴰ→RelFamily : {ℓ≅A ℓ≅B ℓ≅C : Level}
+                          {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
+                          {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
+                          {C : Σ A B → Type ℓC} (𝒮ᴰ-C : URGStrᴰ (∫⟨ 𝒮-A ⟩ 𝒮ᴰ-B) C ℓ≅C)
+                          → Σ[ _≅_ ∈ Rel A A ℓ≅A ]
+                               ({a a' : A} ((b , c) : Σ[ b ∈ B a ] C (a , b)) (e : a ≅ a') ((b' , c') : (Σ[ b' ∈ B a' ] C (a' , b'))) → Type (ℓ-max ℓ≅B ℓ≅C))
+SplitTotal-𝒮ᴰ→RelFamily 𝒮-A {B = B} 𝒮ᴰ-B {C = C} 𝒮ᴰ-C .fst = _≅_
+  where
+    open URGStr 𝒮-A
+SplitTotal-𝒮ᴰ→RelFamily 𝒮-A {B = B} 𝒮ᴰ-B {C = C} 𝒮ᴰ-C .snd (b , c) e (b' , c') = Σ[ eB ∈ b B≅ᴰ⟨ e ⟩ b' ] (c ≅ᴰ⟨ e , eB ⟩ c')
+  where
+    open URGStr 𝒮-A
+    _B≅ᴰ⟨_⟩_ = URGStrᴰ._≅ᴰ⟨_⟩_ 𝒮ᴰ-B
+    open URGStrᴰ 𝒮ᴰ-C
+
+SplitTotal-𝒮ᴰ→RelFamily' : {ℓ≅A ℓ≅B ℓ≅C : Level}
+                          {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
+                          {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
+                          {C : Σ A B → Type ℓC} (𝒮ᴰ-C : URGStrᴰ (∫⟨ 𝒮-A ⟩ 𝒮ᴰ-B) C ℓ≅C)
+                          → RelFamily A (ℓ-max ℓB ℓC) (ℓ-max ℓ≅B ℓ≅C)
+SplitTotal-𝒮ᴰ→RelFamily' 𝒮-A {B = B} 𝒮ᴰ-B {C = C} 𝒮ᴰ-C .fst a = Σ[ b ∈ B a ] C (a , b)
+SplitTotal-𝒮ᴰ→RelFamily' 𝒮-A {B = B} 𝒮ᴰ-B {C = C} 𝒮ᴰ-C .snd {a = a} (b , c) (b' , c') = Σ[ p ∈ b B≅ᴰ⟨ ρ a ⟩ b' ] (c C≅ᴰ⟨ ρ a , p ⟩ c')
+  where
+    open URGStr 𝒮-A
+    _B≅ᴰ⟨_⟩_ = URGStrᴰ._≅ᴰ⟨_⟩_ 𝒮ᴰ-B
+    _C≅ᴰ⟨_⟩_ = URGStrᴰ._≅ᴰ⟨_⟩_ 𝒮ᴰ-C
+
+
+
+
+
+
+
+
+
+-- old stuff
+
 {-
   this is obsolete as it is a special case of splitTotalURGStrᴰ
 

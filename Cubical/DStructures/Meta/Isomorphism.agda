@@ -67,6 +67,7 @@ module _ where
   𝒮ᴰ-♭iso ℱ 𝒮ᴰ-B 𝒮ᴰ-B'
     = ♭RelFiberIsoOver ℱ (𝒮ᴰ→relFamily 𝒮ᴰ-B) (𝒮ᴰ→relFamily 𝒮ᴰ-B')
 
+  {-
   𝒮ᴰ-iso : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
            {A' : Type ℓA'} {𝒮-A' : URGStr A' ℓ≅A'}
            (ℱ : A → A')
@@ -74,6 +75,7 @@ module _ where
            {B' : A' → Type ℓB'} (𝒮ᴰ-B' : URGStrᴰ 𝒮-A' B' ℓ≅B')
            → Type (ℓ-max ℓA (ℓ-max (ℓ-max ℓB ℓB') (ℓ-max ℓ≅B ℓ≅B')))
   𝒮ᴰ-iso ℱ 𝒮ᴰ-B 𝒮ᴰ-B' = RelFiberIsoOver ℱ (𝒮ᴰ→relFamily 𝒮ᴰ-B) (𝒮ᴰ→relFamily 𝒮ᴰ-B')
+  -}
 
   𝒮ᴰ-isoOver→𝒮-♭iso : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
                       {A' : Type ℓA'} {𝒮-A' : URGStr A' ℓ≅A'}

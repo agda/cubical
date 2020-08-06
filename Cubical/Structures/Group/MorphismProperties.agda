@@ -364,6 +364,12 @@ module MorphismLemmas {G : Group {ℓ}} {H : Group {ℓ'}} (F : GroupHom G H) wh
                cong (_+ᴴ -ᴴ (f g)) (sym (F .isHom (-ᴳ g) g) ∙ cong f (lCancelᴳ g) ∙ mapId) ∙∙
                lIdᴴ (-ᴴ (f g))
 
+    hom-homl : (a b c : ⟨ G ⟩) → f ((a +ᴳ b) +ᴳ c) ≡ (f a +ᴴ f b) +ᴴ f c
+    hom-homl a b c = F .isHom (a +ᴳ b) c ∙ cong (_+ᴴ f c) (F .isHom a b)
+
+    hom-homr : (a b c : ⟨ G ⟩) → f (a +ᴳ (b +ᴳ c)) ≡ f a +ᴴ (f b +ᴴ f c)
+    hom-homr a b c = F .isHom a (b +ᴳ c) ∙ cong (f a +ᴴ_) (F .isHom b c)
+
 module Kernel {ℓ' : Level} {G : Group {ℓ}} {H : Group {ℓ'}} (F : GroupHom G H) where
   private
     open GroupNotationH H

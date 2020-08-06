@@ -48,6 +48,15 @@ isFiberwiseUnivalent {A = A} (B , _≅_) ρ = {a : A} → isUnivalent (_≅_ {a 
   where
     ♭B' = ♭RelFamily B' f
 
+{-
+SplitFamily : {A : Type ℓA}
+              {ℓB ℓ≅B : Level} (B : RelFamily A ℓB ℓ≅B)
+              {ℓC ℓ≅C : Level} (C : RelFamily (Σ[ a ∈ A ] (B .fst a)) ℓC ℓ≅C)
+              → RelFamily A (ℓ-max ℓB ℓC) (ℓ-max ℓ≅B ℓ≅C)
+SplitFamily B C .fst a = Σ[ b ∈ B .fst a ] (C .fst (a , b))
+SplitFamily B C .snd (b , c) (b' , c') = {!!}
+-}
+{-
 RelFiberIsoOver : {A : Type ℓA} {A' : Type ℓA'}
                   (f : A → A')
                   (B : RelFamily A ℓB ℓ≅B)
@@ -55,6 +64,24 @@ RelFiberIsoOver : {A : Type ℓA} {A' : Type ℓA'}
                   → Type (ℓ-max ℓA (ℓ-max (ℓ-max ℓB ℓB') (ℓ-max ℓ≅B ℓ≅B')))
 RelFiberIsoOver {A = A} f B B' = (a : A) → RelIso (B .snd {a = a}) (B' .snd {a = f a})
 
+record RelIsoOver {A : Type ℓA} {_≅A_ : Rel A A ℓ≅A}
+                  {A' : Type ℓA'} {_≅A'_ : Rel A' A' ℓ≅A'}
+                  (ℱ : RelIso _≅A_ _≅A'_)
+                  (ℬ : RelFamily A ℓB ℓ≅B)
+                  (ℬ' : RelFamily A' ℓB' ℓ≅B') : Type {!!} where
+
+  private
+    F = RelIso.fun ℱ
+    F- = RelIso.inv ℱ
+    B = λ (a : A) → ℬ .fst a
+    B' = λ (a' : A') → ℬ' .fst a'
+
+  field
+    fun : {a : A} (b : B a) → B' (F a)
+    inv : {a' : A'} (b' : B' a') → B (F- a')
+    -- leftInv : {a : A} (b : B a) → inv (fun b) = b
+    -- rightInv : {a' : A'} (b' : B' a') → fun (inv b') = b'
+-}
 
 {-
 module _ {A : Type ℓA} {_≅A_ : Rel A A ℓ≅A}
