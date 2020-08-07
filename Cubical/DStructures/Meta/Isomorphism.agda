@@ -73,7 +73,6 @@ private
                    {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
                    {B' : A' → Type ℓB'} (𝒮ᴰ-B' : URGStrᴰ 𝒮-A' B' ℓ≅B')
                    (𝒢 : 𝒮ᴰ-♭iso (RelIso.fun ℱ) 𝒮ᴰ-B 𝒮ᴰ-B')
-                   -- (𝒢 : ♭RelFiberIsoOver (RelIso.fun ℱ) (𝒮ᴰ→relFamily 𝒮ᴰ-B) (𝒮ᴰ→relFamily 𝒮ᴰ-B'))
                    → Iso (Σ A B) (Σ A' B')
 𝒮ᴰ-♭Iso→TotalIso {A = A} {𝒮-A = 𝒮-A} {A' = A'} {𝒮-A' = 𝒮-A'} ℱ 𝒮ᴰ-B 𝒮ᴰ-B' 𝒢
   = RelFiberIsoOver→Iso (𝒮-iso→Iso 𝒮-A 𝒮-A' ℱ)
@@ -82,6 +81,22 @@ private
                         𝒢
   where
     open URGStrᴰ
+
+Iso→TotalIso : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
+                   {A' : Type ℓA'} {𝒮-A' : URGStr A' ℓ≅A'}
+                   (ℱ : Iso A A')
+                   {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
+                   {B' : A' → Type ℓB'} (𝒮ᴰ-B' : URGStrᴰ 𝒮-A' B' ℓ≅B')
+                   (𝒢 : 𝒮ᴰ-♭iso (Iso.fun ℱ) 𝒮ᴰ-B 𝒮ᴰ-B')
+                   → Iso (Σ A B) (Σ A' B')
+Iso→TotalIso {A = A} {𝒮-A = 𝒮-A} {A' = A'} {𝒮-A' = 𝒮-A'} ℱ 𝒮ᴰ-B 𝒮ᴰ-B' 𝒢
+  = RelFiberIsoOver→Iso ℱ
+                        (𝒮ᴰ→relFamily 𝒮ᴰ-B) (𝒮ᴰ-B .uniᴰ)
+                        (𝒮ᴰ→relFamily 𝒮ᴰ-B') (𝒮ᴰ-B' .uniᴰ)
+                        𝒢
+  where
+    open URGStrᴰ
+
 
 -- old stuff
 
