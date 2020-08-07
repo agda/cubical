@@ -43,9 +43,10 @@ open Kernel
 open GroupHom -- such .fun!
 open GroupLemmas
 open MorphismLemmas
+open ActionLemmas
 open MorphismTree
 
-module _ {ℓ ℓ' : Level} where
+module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
 
@@ -56,47 +57,26 @@ module _ {ℓ ℓ' : Level} where
   Act = G²Act ℓ ℓℓ'
   𝒮-Act = 𝒮-Action ℓ ℓℓ'
 
-  -- ReflGraph = Σ[ (((G₀ , G₁) , (ι , σ)) , split-σ) ∈ SplitEpi ] Σ[ τ ∈ GroupHom G₁ G₀ ] isGroupSplitEpi ι τ
-  -- this is on a different Σ type
   𝒮-ReflGraph = 𝒮-G²FBSplitBSplit ℓ ℓℓ'
 
-
-  -- PreXMod = Σ[ (((G₀ , G₁) , _α_) , isAct) ∈ Act ] Σ[ φ ∈ GroupHom G₁ G₀ ] (isEquivariant _α_ φ)
   𝒮-PreXMod = 𝒮-PreXModule ℓ ℓℓ'
-  ℱ-RelIso : 𝒮-iso 𝒮-Act 𝒮-SplitEpi
-  ℱ-RelIso = 𝒮-Iso-GroupAct-SplitEpi ℓ ℓℓ'
 
-  γ : Act → Type ℓℓ'
-  γ (((G₀ , G₁) , _α_) , isAct) = Σ[ φ ∈ GroupHom G₁ G₀ ] (isEquivariant _α_ φ)
+  ℱ : 𝒮-iso 𝒮-Act 𝒮-SplitEpi
+  ℱ = 𝒮-Iso-GroupAct-SplitEpi ℓ ℓℓ'
+  F = RelIso.fun ℱ
 
-  𝒮ᴰ-ReflGraph' : URGStrᴰ 𝒮-SplitEpi (λ (((G₀ , G₁) , (ι , σ)) , split-σ) → Σ[ τ ∈ GroupHom G₁ G₀ ] isGroupSplitEpi ι τ) ℓℓ'
-  𝒮ᴰ-ReflGraph' = splitTotal-𝒮ᴰ 𝒮-SplitEpi (𝒮ᴰ-G²FBSplit\B ℓ ℓℓ') {!𝒮ᴰ-G²FBSplitB\Split ℓ ℓℓ'!}
+  𝒮ᴰ-ReflGraph : URGStrᴰ 𝒮-SplitEpi (λ (((G₀ , G₁) , (ι , σ)) , split-σ) → Σ[ τ ∈ GroupHom G₁ G₀ ] isGroupSplitEpi ι τ) ℓℓ'
+  𝒮ᴰ-ReflGraph = splitTotal-𝒮ᴰ 𝒮-SplitEpi (𝒮ᴰ-G²FBSplit\B ℓ ℓℓ') (𝒮ᴰ-G²FBSplitB\Split ℓ ℓℓ')
 
-  𝒮ᴰ-ReflGraph'' : {!!}
-  𝒮ᴰ-ReflGraph'' = SplitTotal-𝒮ᴰ→RelFamily 𝒮-SplitEpi (𝒮ᴰ-G²FBSplit\B ℓ ℓℓ') {!𝒮ᴰ-G²FBSplitB\Split ℓ ℓℓ'!}
-
-  𝒮ᴰ-ReflGraph''' : RelFamily SplitEpi ℓℓ' ℓℓ'
-  𝒮ᴰ-ReflGraph''' = SplitTotal-𝒮ᴰ→RelFamily' 𝒮-SplitEpi (𝒮ᴰ-G²FBSplit\B ℓ ℓℓ') {!𝒮ᴰ-G²FBSplitB\Split ℓ ℓℓ'!}
-
-  𝒮ᴰ-PreXMod' : URGStrᴰ 𝒮-Act (λ (((G₀ , G₁) , _α_) , isAct) → Σ[ φ ∈ GroupHom G₁ G₀ ] (isEquivariant _α_ φ)) ℓℓ'
-  -- 𝒮ᴰ-PreXMod' : URGStrᴰ 𝒮-Act γ ℓℓ'
-  -- 𝒮ᴰ-PreXMod' = splitTotal-𝒮ᴰ 𝒮-Act (𝒮ᴰ-Action\PreXModuleStr ℓ ℓℓ') (𝒮ᴰ-PreXModule ℓ ℓℓ')
-  𝒮ᴰ-PreXMod' = {!!}
+  𝒮ᴰ-PreXMod : URGStrᴰ 𝒮-Act (λ (((G₀ , G₁) , _α_) , isAct) → Σ[ φ ∈ GroupHom G₁ G₀ ] (isEquivariant _α_ φ)) ℓℓ'
+  𝒮ᴰ-PreXMod = splitTotal-𝒮ᴰ 𝒮-Act (𝒮ᴰ-Action\PreXModuleStr ℓ ℓℓ') (𝒮ᴰ-PreXModule ℓ ℓℓ')
 
 
-
-
-
-
-
-
-{-
-  𝒢 : 𝒮ᴰ-♭iso (RelIso.fun ℱ-RelIso) 𝒮ᴰ-PreXMod' 𝒮ᴰ-ReflGraph'
+  𝒢 : 𝒮ᴰ-♭iso F 𝒮ᴰ-PreXMod 𝒮ᴰ-ReflGraph
   RelIso.fun (𝒢 (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .fst = τ
     where
       open GroupNotation₀ G₀
       open GroupNotation₁ G₁
-      open MorphismLemmas
       𝒻 = GroupHom.fun φ
       τ = grouphom (λ (h , g) → GroupHom.fun φ h +₀ g) q
           where
@@ -124,7 +104,6 @@ module _ {ℓ ℓ' : Level} where
     where
       open GroupNotation₀ G₀
       open GroupNotation₁ G₁
-      open MorphismLemmas
       𝒻 = GroupHom.fun φ
       abstract
         q = GroupMorphismExt λ g → 𝒻 0₁ +₀ g
@@ -134,7 +113,7 @@ module _ {ℓ ℓ' : Level} where
                                            g ∎
   RelIso.inv (𝒢 (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) = φ , isEqui
     where
-      ℬ = RelIso.fun ℱ-RelIso (((G₀ , G₁) , _α_) , isAct)
+      ℬ = F (((G₀ , G₁) , _α_) , isAct)
       A = groupaction _α_ isAct
 
       -- σ = snd (snd (fst ℬ))
@@ -176,20 +155,57 @@ module _ {ℓ ℓ' : Level} where
 
             open GroupNotation₁ G₁
             open GroupNotation₀ G₀
-            open MorphismLemmas
-            open ActionLemmas
 
 
-  RelIso.leftInv (𝒢 (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) = φ-≅ , isEqui-≅
+  RelIso.leftInv (𝒢 (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .fst = φ-≅
     where
-      φ-≅ : {!!}
-      φ-≅ = {!!}
+      open GroupNotation₀ G₀
 
-      isEqui-≅ : Unit
-      isEqui-≅ = tt
-  RelIso.rightInv (𝒢 (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) = {!!}
+      abstract
+        -- φ ≅ inv (fun φ) ≡ τ ∘ ι₁
+        φ-≅ : (h : ⟨ G₁ ⟩) → φ .fun h +₀ 0₀ ≡ φ .fun h
+        φ-≅ h = rId₀ (φ .fun h)
 
--}
+  RelIso.leftInv (𝒢 (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .snd = isEqui-≅
+    where
+      abstract
+        isEqui-≅ : Unit
+        isEqui-≅ = tt
+
+  RelIso.rightInv (𝒢 (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) .fst = τ-≅
+    where
+      A = groupaction _α_ isAct
+      G₁⋊G₀ = G₁ ⋊⟨ A ⟩ G₀
+      t = τ .fun
+      open GroupNotation₀ G₀
+      open GroupNotation₁ G₁
+
+      abstract
+        τ-≅ : ((h , g) : ⟨ G₁⋊G₀ ⟩) → t (h , 0₀) +₀ g ≡ t (h , g)
+        τ-≅ (h , g) = t (h , 0₀) +₀ g
+                        ≡⟨ cong (t (h , 0₀) +₀_) (sym (funExt⁻ (cong GroupHom.fun split-τ) g)) ⟩
+                      t (h , 0₀) +₀ t (0₁ , g)
+                        ≡⟨ sym (τ .isHom (h , 0₀) (0₁ , g)) ⟩
+                      t (h +₁ (0₀ α 0₁) , 0₀ +₀ g)
+                        ≡⟨ cong t (ΣPathP (cong (h +₁_) (actOnUnit A 0₀) ∙ rId₁ h , lId₀ g)) ⟩
+                      t (h , g) ∎
+
+  RelIso.rightInv (𝒢 (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) .snd = split-τ-≅
+    where
+      abstract
+        split-τ-≅ : Unit
+        split-τ-≅ = tt
+
+
+
+
+
+
+
+
+
+-- old stuff
+
 {-
   module _ (((((G₀ , G₁) , (ι , σ)) , split-σ) , τ , split-τ) : ReflGraph) where
     𝒜 : Act

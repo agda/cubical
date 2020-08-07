@@ -64,11 +64,13 @@ private
                                 contrTotalB
 
 -- integral notation like in the disp cats paper
+
 ∫⟨_⟩_ : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
                  {B : A → Type ℓB} (DispStrB : URGStrᴰ StrA B ℓ≅B)
                  → URGStr (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
-∫⟨_⟩_ StrA {B} DispStrB = 𝒮ᴰ→𝒮 StrA B DispStrB
-
+∫⟨_⟩_ StrA {B} DispStrB .URGStr._≅_ = 𝒮ᴰ→𝒮 StrA B DispStrB .URGStr._≅_
+∫⟨_⟩_ StrA {B} DispStrB .URGStr.ρ = 𝒮ᴰ→𝒮 StrA B DispStrB .URGStr.ρ
+∫⟨_⟩_ StrA {B} DispStrB .URGStr.uni = 𝒮ᴰ→𝒮 StrA B DispStrB .URGStr.uni
 -- associativity for towers
 module Assoc {ℓA ℓB ℓC ℓ≅A ℓ≅B ℓ≅C : Level}
              {A : Type ℓ} {B : A → Type ℓB} {C : {a : A} → B a → Type ℓC} where
@@ -115,10 +117,12 @@ module Assoc {ℓA ℓB ℓC ℓ≅A ℓ≅B ℓ≅C : Level}
 
 
 
+{-
 cong-𝒮 : {A : Type ℓ} {B : Type ℓ}
       (p : A ≡ B)
       → URGStr A ℓ' ≡ URGStr B ℓ'
 cong-𝒮 {ℓ' = ℓ'} p = cong (λ X → URGStr X ℓ') p
+-}
 -- transport of displayed structures along equivalences
 {-
 URGᴰtransp : {A : Type ℓA} {A' : Type ℓA'}
@@ -145,10 +149,18 @@ URGᴰtransp e StrA StrABᴰ =
                          (λ a' → B (transport (sym p) a'))
                          ℓ≅B
 𝒮ᴰ-transport e 𝒮ᴰ-A\B = {!!}
+{-
+∫⟨_⟩_ : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
+                 {B : A → Type ℓB} (DispStrB : URGStrᴰ StrA B ℓ≅B)
+                 → URGStr (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
+∫⟨_⟩_ StrA {B} DispStrB = 𝒮ᴰ→𝒮 StrA B DispStrB
+-}
 -}
 
 
+{-
 𝒮-≅≃≡ : {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A) (a a' : A) → (URGStr._≅_ 𝒮-A a a') ≃ (a ≡ a')
 𝒮-≅≃≡ 𝒮-A a a' = invEquiv (≡→R _≅_ ρ , uni a a')
   where
     open URGStr 𝒮-A
+-}
