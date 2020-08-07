@@ -164,14 +164,14 @@ record RelIso {A : Type ℓA} (_≅_ : Rel A A ℓ≅A)
 
 RelIso→Iso : {A : Type ℓA} {A' : Type ℓA'}
              (_≅_ : Rel A A ℓ≅A) (_≅'_ : Rel A' A' ℓ≅A')
-             (ρ : BinaryRelation.isRefl _≅_) (ρ' : BinaryRelation.isRefl _≅'_)
+             {ρ : BinaryRelation.isRefl _≅_} {ρ' : BinaryRelation.isRefl _≅'_}
              (uni : BinaryRelation.isUnivalent _≅_ ρ) (uni' : BinaryRelation.isUnivalent _≅'_ ρ')
              (f : RelIso _≅_ _≅'_)
              → Iso A A'
-Iso.fun (RelIso→Iso _ _ _ _ _ _ f) = RelIso.fun f
-Iso.inv (RelIso→Iso _ _ _ _ _ _ f) = RelIso.inv f
-Iso.rightInv (RelIso→Iso _ _≅'_ _ ρ' _ uni' f) a' = invEquiv (BinaryRelation.≡→R _≅'_ ρ' , uni' (RelIso.fun f (RelIso.inv f a')) a') .fst (RelIso.rightInv f a')
-Iso.leftInv (RelIso→Iso _≅_ _ ρ _ uni _ f) a = invEquiv (BinaryRelation.≡→R _≅_ ρ , uni (RelIso.inv f (RelIso.fun f a)) a) .fst (RelIso.leftInv f a)
+Iso.fun (RelIso→Iso _ _ _ _ f) = RelIso.fun f
+Iso.inv (RelIso→Iso _ _ _ _ f) = RelIso.inv f
+Iso.rightInv (RelIso→Iso _ _≅'_ {ρ' = ρ'} _ uni' f) a' = invEquiv (BinaryRelation.≡→R _≅'_ ρ' , uni' (RelIso.fun f (RelIso.inv f a')) a') .fst (RelIso.rightInv f a')
+Iso.leftInv (RelIso→Iso _≅_ _ {ρ = ρ} uni _ f) a = invEquiv (BinaryRelation.≡→R _≅_ ρ , uni (RelIso.inv f (RelIso.fun f a)) a) .fst (RelIso.leftInv f a)
              
 
 EquivRel : ∀ {ℓ} (A : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
