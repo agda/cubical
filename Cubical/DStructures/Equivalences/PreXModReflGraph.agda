@@ -54,10 +54,14 @@ module _ (ℓ ℓ' : Level) where
     F = Iso.fun ℱ
 
   -- reassociate
+  ReflGraph' = Σ[ (((G₀ , G₁) , (ι , σ)) , split-σ) ∈ SplitEpi ℓ ℓℓ' ] Σ[ τ ∈ GroupHom G₁ G₀ ] isGroupSplitEpi ι τ
+
   𝒮ᴰ-ReflGraph' : URGStrᴰ (𝒮-SplitEpi ℓ ℓℓ')
                          (λ (((G₀ , G₁) , (ι , σ)) , split-σ) → Σ[ τ ∈ GroupHom G₁ G₀ ] isGroupSplitEpi ι τ)
                          ℓℓ'
   𝒮ᴰ-ReflGraph' = splitTotal-𝒮ᴰ (𝒮-SplitEpi ℓ ℓℓ') (𝒮ᴰ-G²FBSplit\B ℓ ℓℓ') (𝒮ᴰ-ReflGraph ℓ ℓℓ')
+
+  PreXModule' = Σ[ (((G₀ , G₁) , _α_) , isAct) ∈ Action ℓ ℓℓ' ] Σ[ φ ∈ GroupHom G₁ G₀ ] (isEquivariant _α_ φ)
 
   𝒮ᴰ-PreXModule' : URGStrᴰ (𝒮-Action ℓ ℓℓ')
                        (λ (((G₀ , G₁) , _α_) , isAct) → Σ[ φ ∈ GroupHom G₁ G₀ ] (isEquivariant _α_ φ))
@@ -188,9 +192,13 @@ module _ (ℓ ℓ' : Level) where
         split-τ-≅ : Unit
         split-τ-≅ = tt
 
-  -- IsoPreXModuleReflGraph : Iso (PreXModule' ℓ ℓℓ') (ReflGraph' ℓ ℓℓ')
-  -- IsoPreXModuleReflGraph = Iso→TotalIso {!!} {!!} {!!} {!!}
+  IsoPreXModuleReflGraph' : Iso PreXModule' ReflGraph'
+  IsoPreXModuleReflGraph' = Iso→TotalIso (IsoActionSplitEpi ℓ ℓℓ') 𝒮ᴰ-PreXModule' 𝒮ᴰ-ReflGraph' 𝒢
 
+  IsoPreXModuleReflGraph : Iso (PreXModule ℓ ℓℓ') (ReflGraph ℓ ℓℓ')
+  IsoPreXModuleReflGraph = compIso (compIso Σ-assoc-Iso
+                                            IsoPreXModuleReflGraph')
+                                   (invIso Σ-assoc-Iso)
 
 
 

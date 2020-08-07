@@ -31,6 +31,7 @@ open import Cubical.DStructures.Structures.Type
 open import Cubical.DStructures.Structures.Group
 open import Cubical.DStructures.Structures.Action
 open import Cubical.DStructures.Structures.XModule
+open import Cubical.DStructures.Structures.Strict2Group
 open import Cubical.DStructures.Equivalences.GroupSplitEpiAction
 open import Cubical.DStructures.Equivalences.PreXModReflGraph
 
@@ -49,5 +50,10 @@ module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
 
-    -- ℱ : Iso (PreXModule ℓ ℓℓ') (ReflGraph ℓ ℓℓ')
-    -- ℱ = Iso→TotalIso {!!} {!!} {!!} {!!}
+    ℱ = IsoPreXModuleReflGraph ℓ ℓℓ'
+    F = Iso.fun ℱ
+
+    𝒮ᴰ-S2G = 𝒮ᴰ-ReflGraph\Peiffer
+
+  -- ℋ : 𝒮ᴰ-♭iso F (𝒮ᴰ-XModule ℓ ℓℓ') (𝒮ᴰ-S2G ℓ ℓℓ')
+  -- ℋ = {!!}
