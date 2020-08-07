@@ -142,6 +142,20 @@ record RingEquiv (R S : Ring {ℓ}) : Type ℓ where
     isHom+ : (x y : ⟨ R ⟩) → equivFun e (x R.+ y) ≡ equivFun e x S.+ equivFun e y
     isHom· : (x y : ⟨ R ⟩) → equivFun e (x R.· y) ≡ equivFun e x S.· equivFun e y
 
+record RingHom (R S : Ring {ℓ}) : Type ℓ where
+
+  constructor ringhom
+
+  private
+    module R = Ring R
+    module S = Ring S
+
+  field
+    f : ⟨ R ⟩ → ⟨ S ⟩
+    pres1 : f R.1r ≡ S.1r
+    isHom+ : (x y : ⟨ R ⟩) → f (x R.+ y) ≡ f x S.+ f y
+    isHom· : (x y : ⟨ R ⟩) → f (x R.· y) ≡ f x S.· f y
+
 module RingΣTheory {ℓ} where
 
   RawRingStructure = λ (X : Type ℓ) → (X → X → X) × X × (X → X → X)
@@ -269,11 +283,11 @@ Ring→Monoid (ring _ _ _ _ _ _ R) = monoid _ _ _ (IsRing.·-isMonoid R)
   that should become obsolete or subject to change once we have a
   ring solver (see https://github.com/agda/cubical/issues/297)
 -}
-module Theory (R' : Ring {ℓ}) where
+module Theory (R : Ring {ℓ}) where
 
-  open Ring R' renaming ( Carrier to R )
+  open Ring R
 
-  implicitInverse : (x y : R)
+  implicitInverse : (x y : ⟨ R ⟩)
                  → x + y ≡ 0r
                  → y ≡ - x
   implicitInverse x y p =
@@ -290,34 +304,34 @@ module Theory (R' : Ring {ℓ}) where
   0-idempotent : 0r + 0r ≡ 0r
   0-idempotent = +-lid 0r
 
-  +-idempotency→0 : (x : R) → x ≡ x + x → 0r ≡ x
+  +-idempotency→0 : (x : ⟨ R ⟩) → x ≡ x + x → x ≡ 0r
   +-idempotency→0 x p =
-    0r              ≡⟨ sym (+-rinv _) ⟩
-    x + (- x)       ≡⟨ cong (λ u → u + (- x)) p ⟩
-    (x + x) + (- x) ≡⟨ sym (+-assoc _ _ _) ⟩
-    x + (x + (- x)) ≡⟨ cong (λ u → x + u) (+-rinv _) ⟩
-    x + 0r          ≡⟨ +-rid x ⟩
-    x               ∎
+    x               ≡⟨ sym (+-rid x) ⟩
+    x + 0r          ≡⟨ cong (λ u → x + u) (sym (+-rinv _)) ⟩
+    x + (x + (- x)) ≡⟨ +-assoc _ _ _ ⟩
+    (x + x) + (- x) ≡⟨ cong (λ u → u + (- x)) (sym p) ⟩
+    x + (- x)       ≡⟨ +-rinv _ ⟩
+    0r              ∎
 
-  0-rightNullifies : (x : R) → x · 0r ≡ 0r
+  0-rightNullifies : (x : ⟨ R ⟩) → x · 0r ≡ 0r
   0-rightNullifies x =
               let x·0-is-idempotent : x · 0r ≡ x · 0r + x · 0r
                   x·0-is-idempotent =
                     x · 0r               ≡⟨ cong (λ u → x · u) (sym 0-idempotent) ⟩
                     x · (0r + 0r)        ≡⟨ ·-rdist-+ _ _ _ ⟩
                     (x · 0r) + (x · 0r)  ∎
-              in sym (+-idempotency→0 _ x·0-is-idempotent)
+              in (+-idempotency→0 _ x·0-is-idempotent)
 
-  0-leftNullifies : (x : R) → 0r · x ≡ 0r
+  0-leftNullifies : (x : ⟨ R ⟩) → 0r · x ≡ 0r
   0-leftNullifies x =
               let 0·x-is-idempotent : 0r · x ≡ 0r · x + 0r · x
                   0·x-is-idempotent =
                     0r · x               ≡⟨ cong (λ u → u · x) (sym 0-idempotent) ⟩
                     (0r + 0r) · x        ≡⟨ ·-ldist-+ _ _ _ ⟩
                     (0r · x) + (0r · x)  ∎
-              in sym (+-idempotency→0 _ 0·x-is-idempotent)
+              in +-idempotency→0 _ 0·x-is-idempotent
 
-  -commutesWithRight-· : (x y : R) →  x · (- y) ≡ - (x · y)
+  -commutesWithRight-· : (x y : ⟨ R ⟩) →  x · (- y) ≡ - (x · y)
   -commutesWithRight-· x y = implicitInverse (x · y) (x · (- y))
 
                                (x · y + x · (- y)     ≡⟨ sym (·-rdist-+ _ _ _) ⟩
@@ -325,7 +339,7 @@ module Theory (R' : Ring {ℓ}) where
                                x · 0r                 ≡⟨ 0-rightNullifies x ⟩
                                0r ∎)
 
-  -commutesWithLeft-· : (x y : R) →  (- x) · y ≡ - (x · y)
+  -commutesWithLeft-· : (x y : ⟨ R ⟩) →  (- x) · y ≡ - (x · y)
   -commutesWithLeft-· x y = implicitInverse (x · y) ((- x) · y)
 
                               (x · y + (- x) · y     ≡⟨ sym (·-ldist-+ _ _ _) ⟩
@@ -333,7 +347,7 @@ module Theory (R' : Ring {ℓ}) where
                               0r · y                 ≡⟨ 0-leftNullifies y ⟩
                               0r ∎)
 
-  -isDistributive : (x y : R) → (- x) + (- y) ≡ - (x + y)
+  -isDistributive : (x y : ⟨ R ⟩) → (- x) + (- y) ≡ - (x + y)
   -isDistributive x y =
     implicitInverse _ _
          ((x + y) + ((- x) + (- y)) ≡⟨ sym (+-assoc _ _ _) ⟩
@@ -347,7 +361,7 @@ module Theory (R' : Ring {ℓ}) where
           x + (- x)                 ≡⟨ +-rinv _ ⟩
           0r ∎)
 
-  translatedDifference : (x a b : R) → a - b ≡ (x + a) - (x + b)
+  translatedDifference : (x a b : ⟨ R ⟩) → a - b ≡ (x + a) - (x + b)
   translatedDifference x a b =
               a - b                       ≡⟨ cong (λ u → a + u)
                                                   (sym (+-lid _)) ⟩
@@ -362,8 +376,30 @@ module Theory (R' : Ring {ℓ}) where
                                                   (-isDistributive _ _) ⟩
               ((x + a) - (x + b)) ∎
 
-  +-assoc-comm1 : (x y z : R) → x + (y + z) ≡ y + (x + z)
+  +-assoc-comm1 : (x y z : ⟨ R ⟩) → x + (y + z) ≡ y + (x + z)
   +-assoc-comm1 x y z = +-assoc x y z ∙∙ cong (λ x → x + z) (+-comm x y) ∙∙ sym (+-assoc y x z)
 
-  +-assoc-comm2 : (x y z : R) → x + (y + z) ≡ z + (y + x)
+  +-assoc-comm2 : (x y z : ⟨ R ⟩) → x + (y + z) ≡ z + (y + x)
   +-assoc-comm2 x y z = +-assoc-comm1 x y z ∙∙ cong (λ x → y + x) (+-comm x z) ∙∙ +-assoc-comm1 y z x
+
+module HomTheory {R S : Ring {ℓ}} (f′ : RingHom  R S) where
+  open Theory ⦃...⦄
+  open Ring ⦃...⦄
+  open RingHom f′
+  private
+    instance
+      _ = R
+      _ = S
+
+  homPres0 : f 0r ≡ 0r
+  homPres0 = +-idempotency→0 (f 0r)
+               (f 0r        ≡⟨ sym (cong f 0-idempotent) ⟩
+                f (0r + 0r) ≡⟨ isHom+ _ _ ⟩
+                f 0r + f 0r ∎)
+
+  -commutesWithHom : (x : ⟨ R ⟩) → f (- x) ≡ - (f x)
+  -commutesWithHom x = implicitInverse _ _
+                         (f x + f (- x)   ≡⟨ sym (isHom+ _ _) ⟩
+                          f (x + (- x))   ≡⟨ cong f (+-rinv x) ⟩
+                          f 0r            ≡⟨ homPres0 ⟩
+                          0r ∎)
