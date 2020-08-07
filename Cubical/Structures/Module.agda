@@ -105,11 +105,12 @@ record LeftModuleEquiv {R : Ring {ℓ}} (M N : LeftModule R) : Type ℓ where
 
   constructor moduleiso
 
-  instance
-    _ : LeftModule R
-    _ = M
-    _ : LeftModule R
-    _ = N
+  private
+    instance
+      _ : LeftModule R
+      _ = M
+      _ : LeftModule R
+      _ = N
 
   open LeftModule {{...}}
 

@@ -145,11 +145,12 @@ record AlgebraHom {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
 
   constructor algebrahom
 
-  instance
-    _ : Algebra R
-    _ = A
-    _ : Algebra R
-    _ = B
+  private
+    instance
+      _ : Algebra R
+      _ = A
+      _ : Algebra R
+      _ = B
 
   open Algebra {{...}}
 
