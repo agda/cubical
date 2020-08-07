@@ -49,5 +49,5 @@ module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
 
-    -- ℱ : Iso {!!} {!!}
+    -- ℱ : Iso (PreXModule ℓ ℓℓ') (ReflGraph ℓ ℓℓ')
     -- ℱ = Iso→TotalIso {!!} {!!} {!!} {!!}

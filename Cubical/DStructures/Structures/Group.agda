@@ -77,7 +77,7 @@ module _ (ℓ ℓ' : Level) where
   SplitEpiB = Σ[ (((G , H) , f , b) , isRet) ∈ SplitEpi ] GroupHom H G
 
   -- type of internal reflexive graphs in the category of groups
-  G²SecRet² = Σ[ ((((G , H) , f , b) , isRet) , b') ∈ SplitEpiB ] isGroupSplitEpi f b'
+  ReflGraph = Σ[ ((((G , H) , f , b) , isRet) , b') ∈ SplitEpiB ] isGroupSplitEpi f b'
 
   -- Group morphisms displayed over pairs of groups
   𝒮ᴰ-G²\F : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
@@ -158,5 +158,5 @@ module _ (ℓ ℓ' : Level) where
                                    → isGroupSplitEpi f b' , isPropIsGroupHomRet f b')
                                 𝒮-SplitEpiB
 
-  𝒮-ReflGraph : URGStr G²SecRet² (ℓ-max ℓ ℓ')
+  𝒮-ReflGraph : URGStr ReflGraph (ℓ-max ℓ ℓ')
   𝒮-ReflGraph = ∫⟨ 𝒮-SplitEpiB ⟩ 𝒮ᴰ-ReflGraph

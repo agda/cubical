@@ -140,6 +140,8 @@ private
         G₁⋊G₀ = G₁ ⋊⟨ α ⟩ G₀
 
 module _ (ℓ ℓ' : Level) where
+  private
+    ℓℓ' = ℓ-max ℓ ℓ'
 
   -- the 𝒮-iso of the 𝒮-structures on the total space of split epis
   -- and that of group actions
@@ -367,3 +369,6 @@ module _ (ℓ ℓ' : Level) where
 
       isAct-≅ : Unit
       isAct-≅ = tt
+
+  IsoActionSplitEpi : Iso (Action ℓ ℓℓ') (SplitEpi ℓ ℓℓ')
+  IsoActionSplitEpi = 𝒮-iso→Iso (𝒮-Action ℓ ℓℓ') (𝒮-SplitEpi ℓ ℓℓ') 𝒮-Iso-GroupAct-SplitEpi

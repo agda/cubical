@@ -50,9 +50,10 @@ module _ (ℓ ℓ' : Level) where
     ℓℓ' = ℓ-max ℓ ℓ'
 
     ℱ : Iso (Action ℓ ℓℓ') (SplitEpi ℓ ℓℓ')
-    ℱ = 𝒮-iso→Iso (𝒮-Action ℓ ℓℓ') (𝒮-SplitEpi ℓ ℓℓ') (𝒮-Iso-GroupAct-SplitEpi ℓ ℓℓ')
+    ℱ = IsoActionSplitEpi ℓ ℓℓ'
     F = Iso.fun ℱ
 
+  -- reassociate
   𝒮ᴰ-ReflGraph' : URGStrᴰ (𝒮-SplitEpi ℓ ℓℓ')
                          (λ (((G₀ , G₁) , (ι , σ)) , split-σ) → Σ[ τ ∈ GroupHom G₁ G₀ ] isGroupSplitEpi ι τ)
                          ℓℓ'
@@ -187,6 +188,8 @@ module _ (ℓ ℓ' : Level) where
         split-τ-≅ : Unit
         split-τ-≅ = tt
 
+  -- IsoPreXModuleReflGraph : Iso (PreXModule' ℓ ℓℓ') (ReflGraph' ℓ ℓℓ')
+  -- IsoPreXModuleReflGraph = Iso→TotalIso {!!} {!!} {!!} {!!}
 
 
 

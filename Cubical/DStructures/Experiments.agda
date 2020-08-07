@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe --guardedness #-}
 module Cubical.DStructures.Experiments where
 
 open import Cubical.Foundations.Prelude
@@ -13,6 +13,7 @@ open import Cubical.Homotopy.Base
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
+open import Cubical.Data.Maybe
 
 open import Cubical.Relation.Binary
 open BinaryRelation
@@ -55,15 +56,12 @@ open MorphismLemmas
 
 -- Older Experiments --
 
-{-
 -- needs --guardedness flag
 
 module _ where
-  open import Cubical.Data.Maybe
   record Hierarchy {A : Type ℓ} (𝒮-A : URGStr A ℓ) : Type (ℓ-suc ℓ) where
     coinductive
     field
       B : A → Type ℓ
       𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ
       ℋ : Maybe (Hierarchy {A = Σ A B} (∫⟨ 𝒮-A ⟩ 𝒮ᴰ-B))
--}
