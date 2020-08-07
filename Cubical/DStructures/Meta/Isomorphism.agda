@@ -30,6 +30,9 @@ private
   variable
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓA' ℓ≅A ℓ≅A' ℓB ℓB' ℓ≅B ℓ≅B' ℓC ℓ≅C ℓ≅ᴰ ℓ≅ᴰ' : Level
 
+open URGStr
+open URGStrᴰ
+
 𝒮-iso : {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
         {A' : Type ℓA'} (𝒮-A' : URGStr A' ℓ≅A')
         → Type (ℓ-max (ℓ-max ℓA ℓA') (ℓ-max ℓ≅A ℓ≅A'))
@@ -41,18 +44,13 @@ private
             → Iso A A'
 𝒮-iso→Iso 𝒮-A 𝒮-A' ℱ
   = RelIso→Iso (_≅_ 𝒮-A) (_≅_ 𝒮-A') (uni 𝒮-A) (uni 𝒮-A') ℱ
-  where
-    open URGStr
 
 -- for a displayed structure, extract the relational family
 𝒮ᴰ→relFamily : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
                {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
                → RelFamily A ℓB ℓ≅B
 𝒮ᴰ→relFamily {B = B} 𝒮ᴰ-B .fst = B
-𝒮ᴰ→relFamily {𝒮-A = 𝒮-A} {B = B} 𝒮ᴰ-B .snd {a = a} b b' = b ≅ᴰ⟨ ρ a ⟩ b'
-  where
-    open URGStr 𝒮-A
-    open URGStrᴰ 𝒮ᴰ-B
+𝒮ᴰ→relFamily {𝒮-A = 𝒮-A} {B = B} 𝒮ᴰ-B .snd {a = a} b b' = 𝒮ᴰ-B ._≅ᴰ⟨_⟩_ b (𝒮-A .ρ a) b'
 
 -- the type of isos between the relational family extracted
 -- from the displayed structure over A and the
@@ -79,8 +77,6 @@ private
                         (𝒮ᴰ→relFamily 𝒮ᴰ-B) (𝒮ᴰ-B .uniᴰ)
                         (𝒮ᴰ→relFamily 𝒮ᴰ-B') (𝒮ᴰ-B' .uniᴰ)
                         𝒢
-  where
-    open URGStrᴰ
 
 Iso→TotalIso : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
                    {A' : Type ℓA'} {𝒮-A' : URGStr A' ℓ≅A'}
@@ -94,9 +90,6 @@ Iso→TotalIso {A = A} {𝒮-A = 𝒮-A} {A' = A'} {𝒮-A' = 𝒮-A'} ℱ 𝒮
                         (𝒮ᴰ→relFamily 𝒮ᴰ-B) (𝒮ᴰ-B .uniᴰ)
                         (𝒮ᴰ→relFamily 𝒮ᴰ-B') (𝒮ᴰ-B' .uniᴰ)
                         𝒢
-  where
-    open URGStrᴰ
-
 
 -- old stuff
 

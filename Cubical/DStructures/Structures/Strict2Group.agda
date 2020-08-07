@@ -31,13 +31,14 @@ module _ {ℓ ℓ' : Level} where
   module _ {G₀ : Group {ℓ}} {G₁ : Group {ℓ'}}
            {Id : GroupHom G₀ G₁} {Src : GroupHom G₁ G₀} {Tar : GroupHom G₁ G₀}
            (retSrc : isGroupSplitEpi Id Src) (retTar : isGroupSplitEpi Id Tar) where
+         open GroupNotation₁ G₁
 
-         _⋆₁_ = Group._+_ G₁
-         inv₁ = Group.-_ G₁
-         id = GroupHom.fun Id
-         src = GroupHom.fun Src
-         tar = GroupHom.fun Tar
-         set₁ = Group.is-set G₁
+         private
+           _⋆₁_ = Group._+_ G₁
+           inv₁ = Group.-_ G₁
+           id = GroupHom.fun Id
+           src = GroupHom.fun Src
+           tar = GroupHom.fun Tar
 
          isPeifferGraph : Type ℓ'
          isPeifferGraph = (g g' : ⟨ G₁ ⟩) → g ⋆₁ g' ≡ ((((((id (src g')) ⋆₁ g') ⋆₁ (inv₁ (id (tar g')))) ⋆₁ (inv₁ (id (src g)))) ⋆₁ g) ⋆₁ (id (tar g')) )
@@ -48,10 +49,11 @@ module _ {ℓ ℓ' : Level} where
 
 
 module _ (ℓ ℓ' : Level) where
-  open MorphismTree ℓ ℓ'
-  𝒮ᴰ-G²FBSplitBSplit\Peiffer : URGStrᴰ 𝒮-G²FBSplitBSplit
+  private
+    ℓℓ' = ℓ-max ℓ ℓ'
+  𝒮ᴰ-ReflGraph\Peiffer : URGStrᴰ (𝒮-ReflGraph ℓ ℓℓ')
                            (λ (((((G , H) , f , b) , isRet) , b') , isRet') → isPeifferGraph isRet isRet')
                            ℓ-zero
-  𝒮ᴰ-G²FBSplitBSplit\Peiffer = Subtype→Sub-𝒮ᴰ (λ (((((G , H) , f , b) , isRet) , b') , isRet')
+  𝒮ᴰ-ReflGraph\Peiffer = Subtype→Sub-𝒮ᴰ (λ (((((G , H) , f , b) , isRet) , b') , isRet')
                                       → isPeifferGraph isRet isRet' , isPropIsPeifferGraph isRet isRet')
-                                   𝒮-G²FBSplitBSplit
+                                   (𝒮-ReflGraph ℓ ℓℓ')

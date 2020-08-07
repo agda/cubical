@@ -44,22 +44,10 @@ open GroupHom -- such .fun!
 open GroupLemmas
 open MorphismLemmas
 open ActionLemmas
-open MorphismTree
 
 module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
 
-    SplitEpi = G²SecRet ℓ ℓℓ'
-    𝒮-SplitEpi = 𝒮-G²FBSplit ℓ ℓℓ'
-
-    Act = G²Act ℓ ℓℓ'
-    𝒮-Act = 𝒮-Action ℓ ℓℓ'
-
-    ReflGraph = G²FBSplitBSplit ℓ ℓℓ'
-
-    𝒮-ReflGraph = 𝒮-G²FBSplitBSplit ℓ ℓℓ'
-    𝒮-PreXMod = 𝒮-PreXModule ℓ ℓℓ'
-
-    ℱ : Iso {!!} {!!}
-    ℱ = Iso→TotalIso {!!} {!!} {!!} {!!}
+    -- ℱ : Iso {!!} {!!}
+    -- ℱ = Iso→TotalIso {!!} {!!} {!!} {!!}

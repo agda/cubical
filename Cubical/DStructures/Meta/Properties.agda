@@ -19,15 +19,14 @@ private
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓA' ℓ≅A ℓ≅A' ℓB ℓB' ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓ≅ᴰ' : Level
 
 -- the total space of a DURGS is a URGS
-𝒮ᴰ→𝒮 : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
-                 (B : A → Type ℓB) (DispStrB : URGStrᴰ StrA B ℓ≅B)
+𝒮ᴰ→𝒮 : {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
+                 {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
                  → URGStr (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
-𝒮ᴰ→𝒮 {A = A} StrA B DispStrB
+𝒮ᴰ→𝒮 {A = A} 𝒮-A {B = B} 𝒮ᴰ-B
   = make-𝒮 {_≅_ = _≅Σ_} ρΣ contrTotalΣ
   where
-   -- import notation: ≅ for StrA and ≅ᴰ for StrBᴰ
-   open URGStr StrA
-   open URGStrᴰ DispStrB
+   open URGStr 𝒮-A
+   open URGStrᴰ 𝒮ᴰ-B
 
    -- in the context of a fixed point (a , b)
    module _ ((a , b) : Σ A B) where
@@ -64,34 +63,12 @@ private
                                 contrTotalB
 
 -- integral notation like in the disp cats paper
-
-∫⟨_⟩_ : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
-                 {B : A → Type ℓB} (DispStrB : URGStrᴰ StrA B ℓ≅B)
+∫⟨_⟩_ : {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
+                 {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
                  → URGStr (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
-∫⟨_⟩_ StrA {B} DispStrB .URGStr._≅_ = 𝒮ᴰ→𝒮 StrA B DispStrB .URGStr._≅_
-∫⟨_⟩_ StrA {B} DispStrB .URGStr.ρ = 𝒮ᴰ→𝒮 StrA B DispStrB .URGStr.ρ
-∫⟨_⟩_ StrA {B} DispStrB .URGStr.uni = 𝒮ᴰ→𝒮 StrA B DispStrB .URGStr.uni
--- associativity for towers
-module Assoc {ℓA ℓB ℓC ℓ≅A ℓ≅B ℓ≅C : Level}
-             {A : Type ℓ} {B : A → Type ℓB} {C : {a : A} → B a → Type ℓC} where
-
-  ℓ≅ABC = ℓ-max (ℓ-max ℓ≅A ℓ≅B) ℓ≅C
-  ℓ≅AB = ℓ-max ℓ≅A ℓ≅B
-  ℓ≅BC = ℓ-max ℓ≅B ℓ≅C
-
-  StrCᴰB/A = Σ[ StrB/A ∈ URGStr (Σ A B) ℓ≅AB ] URGStrᴰ StrB/A (λ (a , b) → C b) ℓ≅C
-  StrCBᴰ/A = Σ[ StrA ∈ URGStr A ℓ≅A ] URGStrᴰ StrA (λ a → Σ[ b ∈ B a ] C b) ℓ≅BC
-  StrC/BA = URGStr (Σ[ a ∈ A ] Σ[ b ∈ B a ] C b) ℓ≅ABC
-  StrCB/A = URGStr (Σ[ (a , b) ∈ Σ[ a ∈ A ] B a ] C b) ℓ≅ABC
-
-  f : StrCᴰB/A → StrCB/A
-  f (StrB/A , StrCᴰ) = ∫⟨ StrB/A ⟩ StrCᴰ
-
-  g : StrCBᴰ/A → StrC/BA
-  g (StrA , StrCBᴰ) = ∫⟨ StrA ⟩ StrCBᴰ
-
-  URGΣAssoc : StrCB/A ≡ StrC/BA
-  URGΣAssoc = cong (λ z → URGStr z ℓ≅ABC) (isoToPath Σ-assoc-Iso)
+∫⟨_⟩_ 𝒮-A {B} DispStrB .URGStr._≅_ = 𝒮ᴰ→𝒮 𝒮-A DispStrB .URGStr._≅_
+∫⟨_⟩_ 𝒮-A {B} DispStrB .URGStr.ρ = 𝒮ᴰ→𝒮 𝒮-A DispStrB .URGStr.ρ
+∫⟨_⟩_ 𝒮-A {B} DispStrB .URGStr.uni = 𝒮ᴰ→𝒮 𝒮-A DispStrB .URGStr.uni
 
 
 𝒮-transport : {A : Type ℓA} {A' : Type ℓA'}
@@ -118,6 +95,27 @@ module Assoc {ℓA ℓB ℓC ℓ≅A ℓ≅B ℓ≅C : Level}
 
 
 {-
+-- associativity for towers
+module Assoc {ℓA ℓB ℓC ℓ≅A ℓ≅B ℓ≅C : Level}
+             {A : Type ℓ} {B : A → Type ℓB} {C : {a : A} → B a → Type ℓC} where
+
+  ℓ≅ABC = ℓ-max (ℓ-max ℓ≅A ℓ≅B) ℓ≅C
+  ℓ≅AB = ℓ-max ℓ≅A ℓ≅B
+  ℓ≅BC = ℓ-max ℓ≅B ℓ≅C
+
+  StrCᴰB/A = Σ[ StrB/A ∈ URGStr (Σ A B) ℓ≅AB ] URGStrᴰ StrB/A (λ (a , b) → C b) ℓ≅C
+  StrCBᴰ/A = Σ[ StrA ∈ URGStr A ℓ≅A ] URGStrᴰ StrA (λ a → Σ[ b ∈ B a ] C b) ℓ≅BC
+  StrC/BA = URGStr (Σ[ a ∈ A ] Σ[ b ∈ B a ] C b) ℓ≅ABC
+  StrCB/A = URGStr (Σ[ (a , b) ∈ Σ[ a ∈ A ] B a ] C b) ℓ≅ABC
+
+  f : StrCᴰB/A → StrCB/A
+  f (StrB/A , StrCᴰ) = ∫⟨ StrB/A ⟩ StrCᴰ
+
+  g : StrCBᴰ/A → StrC/BA
+  g (StrA , StrCBᴰ) = ∫⟨ StrA ⟩ StrCBᴰ
+
+  URGΣAssoc : StrCB/A ≡ StrC/BA
+  URGΣAssoc = cong (λ z → URGStr z ℓ≅ABC) (isoToPath Σ-assoc-Iso)
 cong-𝒮 : {A : Type ℓ} {B : Type ℓ}
       (p : A ≡ B)
       → URGStr A ℓ' ≡ URGStr B ℓ'
