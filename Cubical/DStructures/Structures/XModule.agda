@@ -53,11 +53,9 @@ module _ {ℓ ℓ' : Level} where
 
 module _ (ℓ ℓ' : Level) where
 
-  G²ActB = Σ[ (((G , H) , _α_) , isAct) ∈ G²Act ℓ ℓ' ] (GroupHom H G)
-  G²ActBEqui = Σ[ (((GH , _α_) , isAct ) , f) ∈ G²ActB ] (isEquivariant _α_ f)
-  PreXModuleΣ = G²ActBEqui
-  G²ActBEquiPeif = Σ[ ((((GH , _α_) , isAct) , f) , isEqui) ∈ G²ActBEqui ] (isPeiffer _α_ f)
-  XModuleΣ = G²ActBEquiPeif
+  ActionB = Σ[ (((G , H) , _α_) , isAct) ∈ Action ℓ ℓ' ] (GroupHom H G)
+  PreXModule = Σ[ (((GH , _α_) , isAct ) , f) ∈ ActionB ] (isEquivariant _α_ f)
+  XModule = Σ[ ((((GH , _α_) , isAct) , f) , isEqui) ∈ PreXModule ] (isPeiffer _α_ f)
 
   -- displayed over 𝒮-Action, a morphism back
   𝒮ᴰ-Action\PreXModuleStr : URGStrᴰ (𝒮-Action ℓ ℓ')
@@ -75,7 +73,7 @@ module _ (ℓ ℓ' : Level) where
                                                            (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
                                                            (isContrSingl f)
 
-  𝒮-PreXModuleStr : URGStr G²ActB (ℓ-max ℓ ℓ')
+  𝒮-PreXModuleStr : URGStr ActionB (ℓ-max ℓ ℓ')
   𝒮-PreXModuleStr = ∫⟨ 𝒮-Action ℓ ℓ' ⟩ 𝒮ᴰ-Action\PreXModuleStr
 
 
@@ -87,7 +85,7 @@ module _ (ℓ ℓ' : Level) where
                                     → isEquivariant _α_ f , isPropIsEquivariant _α_ f)
                                  𝒮-PreXModuleStr
 
-  𝒮-PreXModule : URGStr G²ActBEqui (ℓ-max ℓ ℓ')
+  𝒮-PreXModule : URGStr PreXModule (ℓ-max ℓ ℓ')
   𝒮-PreXModule = ∫⟨ 𝒮-PreXModuleStr ⟩ 𝒮ᴰ-PreXModule
 
   𝒮ᴰ-XModule : URGStrᴰ 𝒮-PreXModule
@@ -98,5 +96,5 @@ module _ (ℓ ℓ' : Level) where
                                  → isPeiffer _α_ f , isPropIsPeiffer _α_ f)
                               𝒮-PreXModule
 
-  𝒮-XModule : URGStr G²ActBEquiPeif (ℓ-max ℓ ℓ')
+  𝒮-XModule : URGStr XModule (ℓ-max ℓ ℓ')
   𝒮-XModule = ∫⟨ 𝒮-PreXModule ⟩ 𝒮ᴰ-XModule

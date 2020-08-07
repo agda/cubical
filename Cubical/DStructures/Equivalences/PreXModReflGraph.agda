@@ -44,41 +44,26 @@ open GroupHom -- such .fun!
 open GroupLemmas
 open MorphismLemmas
 open ActionLemmas
-open MorphismTree
 
 module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
-    -- give more suitable names
-    SplitEpi = G²SecRet ℓ ℓℓ'
-    𝒮-SplitEpi = 𝒮-G²FBSplit ℓ ℓℓ'
 
-    Act = G²Act ℓ ℓℓ'
-    𝒮-Act = 𝒮-Action ℓ ℓℓ'
-
-    𝒮-ReflGraph = 𝒮-G²FBSplitBSplit ℓ ℓℓ'
-    𝒮-PreXMod = 𝒮-PreXModule ℓ ℓℓ'
-
-{-
-    ℱ : 𝒮-iso 𝒮-Act 𝒮-SplitEpi
-    ℱ = 𝒮-Iso-GroupAct-SplitEpi ℓ ℓℓ'
-    F = RelIso.fun ℱ
--}
-    ℱ : Iso Act SplitEpi
-    ℱ = 𝒮-iso→Iso 𝒮-Act 𝒮-SplitEpi (𝒮-Iso-GroupAct-SplitEpi ℓ ℓℓ')
+    ℱ : Iso (Action ℓ ℓℓ') (SplitEpi ℓ ℓℓ')
+    ℱ = 𝒮-iso→Iso (𝒮-Action ℓ ℓℓ') (𝒮-SplitEpi ℓ ℓℓ') (𝒮-Iso-GroupAct-SplitEpi ℓ ℓℓ')
     F = Iso.fun ℱ
 
-  𝒮ᴰ-ReflGraph : URGStrᴰ 𝒮-SplitEpi
+  𝒮ᴰ-ReflGraph' : URGStrᴰ (𝒮-SplitEpi ℓ ℓℓ')
                          (λ (((G₀ , G₁) , (ι , σ)) , split-σ) → Σ[ τ ∈ GroupHom G₁ G₀ ] isGroupSplitEpi ι τ)
                          ℓℓ'
-  𝒮ᴰ-ReflGraph = splitTotal-𝒮ᴰ 𝒮-SplitEpi (𝒮ᴰ-G²FBSplit\B ℓ ℓℓ') (𝒮ᴰ-G²FBSplitB\Split ℓ ℓℓ')
+  𝒮ᴰ-ReflGraph' = splitTotal-𝒮ᴰ (𝒮-SplitEpi ℓ ℓℓ') (𝒮ᴰ-G²FBSplit\B ℓ ℓℓ') (𝒮ᴰ-ReflGraph ℓ ℓℓ')
 
-  𝒮ᴰ-PreXMod : URGStrᴰ 𝒮-Act
+  𝒮ᴰ-PreXModule' : URGStrᴰ (𝒮-Action ℓ ℓℓ')
                        (λ (((G₀ , G₁) , _α_) , isAct) → Σ[ φ ∈ GroupHom G₁ G₀ ] (isEquivariant _α_ φ))
                        ℓℓ'
-  𝒮ᴰ-PreXMod = splitTotal-𝒮ᴰ 𝒮-Act (𝒮ᴰ-Action\PreXModuleStr ℓ ℓℓ') (𝒮ᴰ-PreXModule ℓ ℓℓ')
+  𝒮ᴰ-PreXModule' = splitTotal-𝒮ᴰ (𝒮-Action ℓ ℓℓ') (𝒮ᴰ-Action\PreXModuleStr ℓ ℓℓ') (𝒮ᴰ-PreXModule ℓ ℓℓ')
 
-  𝒢 : 𝒮ᴰ-♭iso F 𝒮ᴰ-PreXMod 𝒮ᴰ-ReflGraph
+  𝒢 : 𝒮ᴰ-♭iso F 𝒮ᴰ-PreXModule' 𝒮ᴰ-ReflGraph'
   RelIso.fun (𝒢 (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .fst = τ
     where
       open GroupNotation₀ G₀

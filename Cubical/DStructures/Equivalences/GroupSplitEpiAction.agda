@@ -26,7 +26,6 @@ open Kernel
 open GroupHom -- such .fun!
 open GroupLemmas
 open MorphismLemmas
-open MorphismTree
 
 private
   variable
@@ -144,7 +143,7 @@ module _ (ℓ ℓ' : Level) where
 
   -- the 𝒮-iso of the 𝒮-structures on the total space of split epis
   -- and that of group actions
-  𝒮-Iso-GroupAct-SplitEpi : 𝒮-iso (𝒮-Action ℓ (ℓ-max ℓ ℓ')) (𝒮-G²FBSplit ℓ (ℓ-max ℓ ℓ'))
+  𝒮-Iso-GroupAct-SplitEpi : 𝒮-iso (𝒮-Action ℓ (ℓ-max ℓ ℓ')) (𝒮-SplitEpi ℓ (ℓ-max ℓ ℓ'))
 
   RelIso.fun 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , _α_) , isAct) =
     ((G₀ , fst se) , (fst (snd se)) , (fst (snd (snd se)))) , snd (snd (snd se))
