@@ -65,6 +65,15 @@ module GroupLemmas (G : Group {ℓ}) where
             ≡⟨ cong (a +_) (lid (- a)) ∙ invr a ⟩
           0g ∎
 
+    assoc-rCancel : (a b : Carrier) → a + ((- a) + b) ≡ b
+    assoc-rCancel a b = (assoc a (- a) b) ∙∙ (cong (_+ b) (invr a)) ∙∙ (lid b)
+
+    assoc-assoc : (a b c d : Carrier) → a + ((b + c) + d) ≡ ((a + b) + c) + d
+    assoc-assoc a b c d = assoc a (b + c) d ∙ cong (_+ d) (assoc a b c)
+
+    rCancel-lId : (a b : Carrier) → (a - a) + b ≡ b
+    rCancel-lId a b = cong (_+ b) (invr a) ∙ lid b
+
 isPropIsGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
              → isProp (IsGroup 0g _+_ -_)
 IsGroup.isMonoid (isPropIsGroup 0g _+_ -_ g1 g2 i) = isPropIsMonoid _ _ (IsGroup.isMonoid g1) (IsGroup.isMonoid g2) i

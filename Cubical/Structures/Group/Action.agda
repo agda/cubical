@@ -8,6 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Structures.Group.Base
 open import Cubical.Structures.Group.Morphism
+open import Cubical.Structures.Group.Properties
 open import Cubical.Structures.Group.MorphismProperties
 open import Cubical.Structures.LeftAction
 open import Cubical.Structures.Axioms
@@ -93,10 +94,17 @@ module ActionLemmas {G : Group {ℓ}} {H : Group {ℓ'}} (Act : GroupAction G H)
   open ActionNotationα {N = H} {H = G} Act
   open GroupNotationH H
   open MorphismLemmas {G = H} {H = H}
+  open GroupLemmas
 
   abstract
     actOnUnit : (g : ⟨ G ⟩) → g α 0ᴴ ≡ 0ᴴ
     actOnUnit g = mapId (grouphom (g α_) (α-hom g))
+
+    actOn-Unit : (g : ⟨ G ⟩) → g α (-ᴴ 0ᴴ) ≡ 0ᴴ
+    actOn-Unit g = (cong (g α_) (invId H)) ∙ actOnUnit g
+
+    actOn- : (g : ⟨ G ⟩) (h : ⟨ H ⟩) → g α (-ᴴ h) ≡ -ᴴ (g α h)
+    actOn- g h = mapInv (grouphom (g α_) (α-hom g)) h
 
 -- Examples
 -- left adjoint action of a group on a normal subgroup

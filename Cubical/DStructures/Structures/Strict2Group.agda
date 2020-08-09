@@ -29,31 +29,34 @@ open import Cubical.DStructures.Structures.Group
 module _ {ℓ ℓ' : Level} where
 
   module _ {G₀ : Group {ℓ}} {G₁ : Group {ℓ'}}
-           {Id : GroupHom G₀ G₁} {Src : GroupHom G₁ G₀} {Tar : GroupHom G₁ G₀}
-           (retSrc : isGroupSplitEpi Id Src) (retTar : isGroupSplitEpi Id Tar) where
+           (ι : GroupHom G₀ G₁) (σ : GroupHom G₁ G₀) (τ : GroupHom G₁ G₀) where
          open GroupNotation₁ G₁
 
          private
-           _⋆₁_ = Group._+_ G₁
-           inv₁ = Group.-_ G₁
-           id = GroupHom.fun Id
-           src = GroupHom.fun Src
-           tar = GroupHom.fun Tar
+           𝒾 = GroupHom.fun ι
+           s = GroupHom.fun σ
+           t = GroupHom.fun τ
+           is = λ (h : ⟨ G₁ ⟩) → 𝒾 (s h)
+           -is = λ (h : ⟨ G₁ ⟩) → -₁ 𝒾 (s h)
+           it = λ (h : ⟨ G₁ ⟩) → 𝒾 (t h)
+           -it = λ (h : ⟨ G₁ ⟩) → -₁ 𝒾 (t h)
 
          isPeifferGraph : Type ℓ'
-         isPeifferGraph = (g g' : ⟨ G₁ ⟩) → g ⋆₁ g' ≡ ((((((id (src g')) ⋆₁ g') ⋆₁ (inv₁ (id (tar g')))) ⋆₁ (inv₁ (id (src g)))) ⋆₁ g) ⋆₁ (id (tar g')) )
+         -- isPeifferGraph = (g g' : ⟨ G₁ ⟩) → g +₁ g' ≡ ((𝒾 (s g') +₁ g') +₁ (-₁ (𝒾 (t g')))) +₁ (-₁ (𝒾 (s g)))
+         isPeifferGraph = (a b : ⟨ G₁ ⟩) → (((is b) +₁ (a +₁ (-it a))) +₁ ((-is b) +₁ b)) +₁ (it a) ≡ b +₁ a
+         -- isPeifferGraph = (g g' : ⟨ G₁ ⟩) → g +₁ g' ≡ ((((((id (src g')) ⋆₁ g') ⋆₁ (inv₁ (id (τ g')))) ⋆₁ (inv₁ (id (src g)))) ⋆₁ g) ⋆₁ (id (τ g')) )
+
 
          isPropIsPeifferGraph : isProp isPeifferGraph
-         isPropIsPeifferGraph = isPropΠ2 (λ g g' → set₁ (g ⋆₁ g')
-                                                        (((((((id (src g')) ⋆₁ g') ⋆₁ (inv₁ (id (tar g')))) ⋆₁ (inv₁ (id (src g)))) ⋆₁ g) ⋆₁ (id (tar g')) )))
+         isPropIsPeifferGraph = isPropΠ2 (λ a b → set₁ ((((is b) +₁ (a +₁ (-it a))) +₁ ((-is b) +₁ b)) +₁ (it a)) (b +₁ a))
 
 
 module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
   𝒮ᴰ-ReflGraph\Peiffer : URGStrᴰ (𝒮-ReflGraph ℓ ℓℓ')
-                           (λ (((((G , H) , f , b) , isRet) , b') , isRet') → isPeifferGraph isRet isRet')
+                           (λ (((((G , H) , f , b) , isRet) , b') , isRet') → isPeifferGraph f b b')
                            ℓ-zero
   𝒮ᴰ-ReflGraph\Peiffer = Subtype→Sub-𝒮ᴰ (λ (((((G , H) , f , b) , isRet) , b') , isRet')
-                                      → isPeifferGraph isRet isRet' , isPropIsPeifferGraph isRet isRet')
-                                   (𝒮-ReflGraph ℓ ℓℓ')
+                                           → isPeifferGraph f b b' , isPropIsPeifferGraph f b b')
+                                        (𝒮-ReflGraph ℓ ℓℓ')
