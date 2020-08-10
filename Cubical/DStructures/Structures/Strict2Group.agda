@@ -1,4 +1,3 @@
-
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.DStructures.Structures.Strict2Group where
 
@@ -26,44 +25,57 @@ open import Cubical.DStructures.Structures.Type
 open import Cubical.DStructures.Structures.Group
 
 module _ {ℓ ℓ' : Level} where
-  module _ {G₀ : Group {ℓ}} {G₁ : Group {ℓ'}}
-           (ι : GroupHom G₀ G₁) (σ : GroupHom G₁ G₀) (τ : GroupHom G₁ G₀) where
-         open GroupNotation₁ G₁
-
-         private
-           𝒾 = GroupHom.fun ι
-           s = GroupHom.fun σ
-           t = GroupHom.fun τ
-           is = λ (h : ⟨ G₁ ⟩) → 𝒾 (s h)
-           -is = λ (h : ⟨ G₁ ⟩) → -₁ 𝒾 (s h)
-           it = λ (h : ⟨ G₁ ⟩) → 𝒾 (t h)
-           -it = λ (h : ⟨ G₁ ⟩) → -₁ 𝒾 (t h)
-
-         isPeifferGraph : Type ℓ'
-         isPeifferGraph = (a b : ⟨ G₁ ⟩) → (((is b) +₁ (a +₁ (-it a))) +₁ ((-is b) +₁ b)) +₁ (it a) ≡ b +₁ a
-
-         isPropIsPeifferGraph : isProp isPeifferGraph
-         isPropIsPeifferGraph = isPropΠ2 (λ a b → set₁ ((((is b) +₁ (a +₁ (-it a))) +₁ ((-is b) +₁ b)) +₁ (it a)) (b +₁ a))
-
-
-         compositons : Type (ℓ-max ℓ ℓ')
-         compositons = (a b : ⟨ G₁ ⟩) → (p : s a ≡ t b) → ⟨ G₁ ⟩
-
-
-
-module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
 
-  𝒮ᴰ-ReflGraph\Peiffer : URGStrᴰ (𝒮-ReflGraph ℓ ℓℓ')
-                           (λ (((((G , H) , f , b) , isRet) , b') , isRet') → isPeifferGraph f b b')
-                           ℓ-zero
-  𝒮ᴰ-ReflGraph\Peiffer = Subtype→Sub-𝒮ᴰ (λ (((((G , H) , f , b) , isRet) , b') , isRet')
-                                           → isPeifferGraph f b b' , isPropIsPeifferGraph f b b')
-                                        (𝒮-ReflGraph ℓ ℓℓ')
+  -- type of composition operations on the reflexive graph 𝒢
+  record Comp (𝒢 : ReflGraph ℓ ℓ') : Type ℓℓ' where
 
-  PeifferGraph : Type (ℓ-suc ℓℓ')
-  PeifferGraph = Σ[ (((((G₀ , G₁) , ι , σ) , split-σ) , τ) , split-τ) ∈ ReflGraph ℓ ℓℓ' ] isPeifferGraph ι σ τ 
+    private
+      G₁ = snd (fst (fst (fst (fst 𝒢))))
+      G₀ = fst (fst (fst (fst (fst 𝒢))))
+      σ = snd (snd (fst (fst (fst 𝒢))))
+      τ = snd (fst 𝒢)
+      ι = fst (snd (fst (fst (fst 𝒢))))
+      s = GroupHom.fun σ
+      t = GroupHom.fun τ
+      𝒾 = GroupHom.fun ι
+      split-τ = snd 𝒢
+      split-σ = snd (fst (fst 𝒢))
 
-  𝒮-PeifferGraph : URGStr PeifferGraph ℓℓ'
-  𝒮-PeifferGraph = ∫⟨ 𝒮-ReflGraph ℓ ℓℓ' ⟩ 𝒮ᴰ-ReflGraph\Peiffer
+      σι-≡-fun = λ (g : ⟨ G₀ ⟩) → funExt⁻ (cong GroupHom.fun split-σ) g
+      τι-≡-fun = λ (g : ⟨ G₀ ⟩) → funExt⁻ (cong GroupHom.fun split-τ) g
+
+      open GroupNotation₁ G₁
+      open GroupNotation₀ G₀
+      open GroupHom
+
+      isComposable : (g f : ⟨ G₁ ⟩) → Type ℓ
+      isComposable g f = s g ≡ t f
+
+      +-c : (g f : ⟨ G₁ ⟩) (c : isComposable g f)
+            (g' f' : ⟨ G₁ ⟩) (c' : isComposable g' f')
+            → isComposable (g +₁ g') (f +₁ f')
+      +-c g f c g' f' c' = σ .isHom g g'
+                           ∙∙ cong (_+₀ s g') c
+                           ∙∙ cong (t f +₀_) c'
+                           ∙ sym (τ .isHom f f')
+
+    field
+      ∘ : (g f : ⟨ G₁ ⟩) → (isComposable g f) → ⟨ G₁ ⟩
+
+    syntax ∘ g f p = g ∘⟨ p ⟩ f
+
+    field
+      σ-∘ : (g f : ⟨ G₁ ⟩) (c : isComposable g f) → s (g ∘⟨ c ⟩ f) ≡ s f
+      τ-∘ : (g f : ⟨ G₁ ⟩) (c : isComposable g f) → t (g ∘⟨ c ⟩ f) ≡ t g
+      isHom-∘ : (g f : ⟨ G₁ ⟩) (c : isComposable g f)
+                (g' f' : ⟨ G₁ ⟩) (c' : isComposable g' f')
+                → (g +₁ g') ∘⟨ +-c g f c g' f' c' ⟩ (f +₁ f') ≡ (g ∘⟨ c ⟩ f) +₁ (g' ∘⟨ c' ⟩ f')
+      assoc-∘ : (h g f : ⟨ G₁ ⟩) (c : isComposable h g) (c' : isComposable g f)
+                → h ∘⟨ c ∙ sym (τ-∘ g f c') ⟩ (g ∘⟨ c' ⟩ f) ≡ (h ∘⟨ c ⟩ g) ∘⟨ σ-∘ h g c ∙ c' ⟩ f
+      lid-∘ : (f : ⟨ G₁ ⟩) → 𝒾 (t f) ∘⟨ σι-≡-fun (t f) ⟩ f ≡ f
+      rid-∘ : (g : ⟨ G₁ ⟩) → g ∘⟨ sym (τι-≡-fun (s g)) ⟩ 𝒾 (s g) ≡ g
+
+  isPropComp : (𝒢 : ReflGraph ℓ ℓ') → isProp (Comp 𝒢)
+  isPropComp 𝒢 𝒞 𝒞' = {!!}
