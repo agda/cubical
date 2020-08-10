@@ -45,8 +45,10 @@ record GroupAction (G : Group {ℓ}) (H : Group {ℓ'}): Type (ℓ-suc (ℓ-max 
 module ActionΣTheory {ℓ ℓ' : Level} where
 
   module _ (G : Group {ℓ}) (H : Group {ℓ'}) (_α_ : LeftActionStructure ⟨ G ⟩ ⟨ H ⟩) where
-    0ᴳ = Group.0g G
-    _+G_ = Group._+_ G
+
+    private
+      0ᴳ = Group.0g G
+      _+G_ = Group._+_ G
     IsGroupActionΣ : Type (ℓ-max ℓ ℓ')
     IsGroupActionΣ = ((g : ⟨ G ⟩) → isGroupHom H H (g α_))
                          × ((h : ⟨ H ⟩) → 0ᴳ α h ≡ h)
@@ -93,6 +95,7 @@ module ActionNotationα {N : Group {ℓ}} {H : Group {ℓ'}} (Act : GroupAction 
 module ActionLemmas {G : Group {ℓ}} {H : Group {ℓ'}} (Act : GroupAction G H) where
   open ActionNotationα {N = H} {H = G} Act
   open GroupNotationH H
+  open GroupNotationG G
   open MorphismLemmas {G = H} {H = H}
   open GroupLemmas
 
@@ -105,6 +108,9 @@ module ActionLemmas {G : Group {ℓ}} {H : Group {ℓ'}} (Act : GroupAction G H)
 
     actOn- : (g : ⟨ G ⟩) (h : ⟨ H ⟩) → g α (-ᴴ h) ≡ -ᴴ (g α h)
     actOn- g h = mapInv (grouphom (g α_) (α-hom g)) h
+
+    -idAct : (h : ⟨ H ⟩) → (-ᴳ 0ᴳ) α h ≡ h
+    -idAct h = (cong (_α h) (invId G)) ∙ (α-id h)
 
 -- Examples
 -- left adjoint action of a group on a normal subgroup
