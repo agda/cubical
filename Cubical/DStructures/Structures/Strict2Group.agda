@@ -28,10 +28,7 @@ module _ {ℓ ℓ' : Level} where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
 
-  -- type of composition operations on the reflexive graph 𝒢
-  record VertComps (𝒢 : ReflGraph ℓ ℓ') : Type ℓℓ' where
-
-    private
+  module VertCompNotation (𝒢 : ReflGraph ℓ ℓ') where
       G₁ = snd (fst (fst (fst (fst 𝒢))))
       G₀ = fst (fst (fst (fst (fst 𝒢))))
       σ = snd (snd (fst (fst (fst 𝒢))))
@@ -46,9 +43,9 @@ module _ {ℓ ℓ' : Level} where
       σι-≡-fun = λ (g : ⟨ G₀ ⟩) → funExt⁻ (cong GroupHom.fun split-σ) g
       τι-≡-fun = λ (g : ⟨ G₀ ⟩) → funExt⁻ (cong GroupHom.fun split-τ) g
 
-      open GroupNotation₁ G₁
-      open GroupNotation₀ G₀
-      open GroupHom
+      open GroupNotation₁ G₁ public
+      open GroupNotation₀ G₀ public
+      open GroupHom public
 
       isComposable : (g f : ⟨ G₁ ⟩) → Type ℓ
       isComposable g f = s g ≡ t f
@@ -60,6 +57,13 @@ module _ {ℓ ℓ' : Level} where
                            ∙∙ cong (_+₀ s g') c
                            ∙∙ cong (t f +₀_) c'
                            ∙ sym (τ .isHom f f')
+
+
+  -- type of composition operations on the reflexive graph 𝒢
+  record VertComp (𝒢 : ReflGraph ℓ ℓ') : Type ℓℓ' where
+    no-eta-equality
+    constructor vertcomp
+    open VertCompNotation 𝒢
 
     field
       ∘ : (g f : ⟨ G₁ ⟩) → (isComposable g f) → ⟨ G₁ ⟩
@@ -77,5 +81,24 @@ module _ {ℓ ℓ' : Level} where
       lid-∘ : (f : ⟨ G₁ ⟩) → 𝒾 (t f) ∘⟨ σι-≡-fun (t f) ⟩ f ≡ f
       rid-∘ : (g : ⟨ G₁ ⟩) → g ∘⟨ sym (τι-≡-fun (s g)) ⟩ 𝒾 (s g) ≡ g
 
-  isPropComp : (𝒢 : ReflGraph ℓ ℓ') → isProp (Comp 𝒢)
-  isPropComp 𝒢 𝒞 𝒞' = {!!}
+
+  module _ (𝒢 : ReflGraph ℓ ℓ') where
+
+    -- open VertCompNotation 𝒢
+    -- open VertComp
+
+    -- VertComp-≡ :
+    -- VertComp-≡ = ?
+
+    abstract
+      isPropVertComp : isProp (VertComp 𝒢)
+      isPropVertComp 𝒞 𝒞' = {!!}
+
+  𝒮ᴰ-Strict2Group : URGStrᴰ (𝒮-ReflGraph ℓ ℓ')
+                            VertComp
+                            ℓ-zero
+  𝒮ᴰ-Strict2Group = Subtype→Sub-𝒮ᴰ (λ 𝒢 → VertComp 𝒢 , isPropVertComp 𝒢)
+                                   (𝒮-ReflGraph ℓ ℓ')
+
+  Strict2Group : Type (ℓ-suc ℓℓ')
+  Strict2Group = Σ[ 𝒢 ∈ ReflGraph ℓ ℓ' ] VertComp 𝒢
