@@ -42,10 +42,7 @@ module _ {ℓ ℓ' : Level} where
            -it = λ (h : ⟨ G₁ ⟩) → -₁ 𝒾 (t h)
 
          isPeifferGraph : Type ℓ'
-         -- isPeifferGraph = (g g' : ⟨ G₁ ⟩) → g +₁ g' ≡ ((𝒾 (s g') +₁ g') +₁ (-₁ (𝒾 (t g')))) +₁ (-₁ (𝒾 (s g)))
          isPeifferGraph = (a b : ⟨ G₁ ⟩) → (((is b) +₁ (a +₁ (-it a))) +₁ ((-is b) +₁ b)) +₁ (it a) ≡ b +₁ a
-         -- isPeifferGraph = (g g' : ⟨ G₁ ⟩) → g +₁ g' ≡ ((((((id (src g')) ⋆₁ g') ⋆₁ (inv₁ (id (τ g')))) ⋆₁ (inv₁ (id (src g)))) ⋆₁ g) ⋆₁ (id (τ g')) )
-
 
          isPropIsPeifferGraph : isProp isPeifferGraph
          isPropIsPeifferGraph = isPropΠ2 (λ a b → set₁ ((((is b) +₁ (a +₁ (-it a))) +₁ ((-is b) +₁ b)) +₁ (it a)) (b +₁ a))
@@ -54,9 +51,16 @@ module _ {ℓ ℓ' : Level} where
 module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
+
   𝒮ᴰ-ReflGraph\Peiffer : URGStrᴰ (𝒮-ReflGraph ℓ ℓℓ')
                            (λ (((((G , H) , f , b) , isRet) , b') , isRet') → isPeifferGraph f b b')
                            ℓ-zero
   𝒮ᴰ-ReflGraph\Peiffer = Subtype→Sub-𝒮ᴰ (λ (((((G , H) , f , b) , isRet) , b') , isRet')
                                            → isPeifferGraph f b b' , isPropIsPeifferGraph f b b')
                                         (𝒮-ReflGraph ℓ ℓℓ')
+
+  PeifferGraph : Type (ℓ-suc ℓℓ')
+  PeifferGraph = Σ[ (((((G₀ , G₁) , ι , σ) , split-σ) , τ) , split-τ) ∈ ReflGraph ℓ ℓℓ' ] isPeifferGraph ι σ τ 
+
+  𝒮-PeifferGraph : URGStr PeifferGraph ℓℓ'
+  𝒮-PeifferGraph = ∫⟨ 𝒮-ReflGraph ℓ ℓℓ' ⟩ 𝒮ᴰ-ReflGraph\Peiffer

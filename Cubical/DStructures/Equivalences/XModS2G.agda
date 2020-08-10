@@ -229,3 +229,7 @@ module _ (ℓ ℓ' : Level) where
 
     RelIso.leftInv (ℋ _) _ = tt
     RelIso.rightInv (ℋ _) _ = tt
+
+
+  IsoXModulePeifferGraph : Iso (XModule ℓ ℓℓ') (PeifferGraph ℓ ℓℓ')
+  IsoXModulePeifferGraph = Iso→TotalIso ℱ (𝒮ᴰ-XModule ℓ ℓℓ') (𝒮ᴰ-S2G ℓ ℓℓ') ℋ
