@@ -29,7 +29,7 @@ module _ {ℓ ℓ' : Level} where
     ℓℓ' = ℓ-max ℓ ℓ'
 
   -- type of composition operations on the reflexive graph 𝒢
-  record Comp (𝒢 : ReflGraph ℓ ℓ') : Type ℓℓ' where
+  record VertComps (𝒢 : ReflGraph ℓ ℓ') : Type ℓℓ' where
 
     private
       G₁ = snd (fst (fst (fst (fst 𝒢))))
