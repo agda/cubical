@@ -25,9 +25,7 @@ open import Cubical.DStructures.Meta.Combine
 open import Cubical.DStructures.Structures.Type
 open import Cubical.DStructures.Structures.Group
 
-
 module _ {ℓ ℓ' : Level} where
-
   module _ {G₀ : Group {ℓ}} {G₁ : Group {ℓ'}}
            (ι : GroupHom G₀ G₁) (σ : GroupHom G₁ G₀) (τ : GroupHom G₁ G₀) where
          open GroupNotation₁ G₁
@@ -46,6 +44,11 @@ module _ {ℓ ℓ' : Level} where
 
          isPropIsPeifferGraph : isProp isPeifferGraph
          isPropIsPeifferGraph = isPropΠ2 (λ a b → set₁ ((((is b) +₁ (a +₁ (-it a))) +₁ ((-is b) +₁ b)) +₁ (it a)) (b +₁ a))
+
+
+         compositons : Type (ℓ-max ℓ ℓ')
+         compositons = (a b : ⟨ G₁ ⟩) → (p : s a ≡ t b) → ⟨ G₁ ⟩
+
 
 
 module _ (ℓ ℓ' : Level) where
