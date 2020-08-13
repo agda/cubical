@@ -28,7 +28,7 @@ module _ {ℓ ℓ' : Level} where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
 
-  module VertCompNotation (𝒢 : ReflGraph ℓ ℓ') where
+  module ReflGraphNotation (𝒢 : ReflGraph ℓ ℓ') where
       G₁ = snd (fst (fst (fst (fst 𝒢))))
       G₀ = fst (fst (fst (fst (fst 𝒢))))
       σ = snd (snd (fst (fst (fst 𝒢))))
@@ -79,7 +79,7 @@ module _ {ℓ ℓ' : Level} where
   record VertComp (𝒢 : ReflGraph ℓ ℓ') : Type ℓℓ' where
     no-eta-equality
     constructor vertcomp
-    open VertCompNotation 𝒢
+    open ReflGraphNotation 𝒢
 
     field
       vcomp : (g f : ⟨ G₁ ⟩) → (isComposable g f) → ⟨ G₁ ⟩
@@ -90,20 +90,28 @@ module _ {ℓ ℓ' : Level} where
     field
       σ-∘ : (g f : ⟨ G₁ ⟩) (c : isComposable g f) → s (g ∘⟨ c ⟩ f) ≡ s f
       τ-∘ : (g f : ⟨ G₁ ⟩) (c : isComposable g f) → t (g ∘⟨ c ⟩ f) ≡ t g
-      isHom-∘ : {g f : ⟨ G₁ ⟩} (c : isComposable g f)
-                {g' f' : ⟨ G₁ ⟩} (c' : isComposable g' f')
+      isHom-∘ : (g f : ⟨ G₁ ⟩) (c : isComposable g f)
+                (g' f' : ⟨ G₁ ⟩) (c' : isComposable g' f')
                 (c'' : isComposable (g +₁ g') (f +₁ f'))
                 → (g +₁ g') ∘⟨ c'' ⟩ (f +₁ f') ≡ (g ∘⟨ c ⟩ f) +₁ (g' ∘⟨ c' ⟩ f')
-      assoc-∘ : (h g f : ⟨ G₁ ⟩) (c : isComposable h g) (c' : isComposable g f)
-                → h ∘⟨ c ∙ sym (τ-∘ g f c') ⟩ (g ∘⟨ c' ⟩ f) ≡ (h ∘⟨ c ⟩ g) ∘⟨ σ-∘ h g c ∙ c' ⟩ f
+      assoc-∘ : (h g f : ⟨ G₁ ⟩)
+                (c-hg : isComposable h g)
+                (c-gf  : isComposable g f)
+                (c-h-gf : isComposable h (g ∘⟨ c-gf ⟩ f))
+                (c-hg-f : isComposable (h ∘⟨ c-hg ⟩ g) f)
+                → h ∘⟨ c-h-gf ⟩ (g ∘⟨ c-gf ⟩ f) ≡ (h ∘⟨ c-hg ⟩ g) ∘⟨ c-hg-f ⟩ f
       lid-∘ : (f : ⟨ G₁ ⟩) (c : isComposable (𝒾 (t f)) f)
               → 𝒾 (t f) ∘⟨ c ⟩ f ≡ f
       rid-∘ : (g : ⟨ G₁ ⟩) (c : isComposable g (𝒾 (s g))) → g ∘⟨ c ⟩ 𝒾 (s g) ≡ g
 
       -- alternative lid/rid definition, but taking paramter c is more flexible
       -- lid-∘ : (f : ⟨ G₁ ⟩) → 𝒾 (t f) ∘⟨ σι-≡-fun (t f) ⟩ f ≡ f
+      -- assoc-∘ : (h g f : ⟨ G₁ ⟩) (c : isComposable h g) (c' : isComposable g f)
+      --         → h ∘⟨ c ∙ sym (τ-∘ g f c') ⟩ (g ∘⟨ c' ⟩ f) ≡ (h ∘⟨ c ⟩ g) ∘⟨ σ-∘ h g c ∙ c' ⟩ f
+                 -- → h ∘⟨ c-hg ∙ sym (τ-∘ g f c-gf) ⟩ (g ∘⟨ c-gf ⟩ f)
+                 --  ≡ (h ∘⟨ c-hg ⟩ g) ∘⟨ σ-∘ h g c-hg ∙ c-gf ⟩ f
   module _ (𝒢 : ReflGraph ℓ ℓ') where
-    open VertCompNotation 𝒢
+    open ReflGraphNotation 𝒢
 
     module _ (𝒞 : VertComp 𝒢) where
       open VertComp 𝒞
@@ -175,10 +183,12 @@ module _ {ℓ ℓ' : Level} where
                             (g +₁ (-isg +₁ isg)) ∘⟨ c₁ ⟩ ((isg -₁ isg) +₁ f)
                               ≡⟨ ∘-cong-l c₁ (assoc₁ g -isg isg) ⟩
                             ((g -₁ isg) +₁ isg) ∘⟨ c₂ ⟩ ((isg -₁ isg) +₁ f)
-                              ≡⟨ isHom-∘ c₄ c₃ c₂ ⟩
+                              ≡⟨ isHom-∘ (g -₁ isg) (isg -₁ isg) c₄
+                                         isg f c₃
+                                         c₂ ⟩
                             ((g +₁ -isg) ∘⟨ c₄ ⟩ (isg +₁ -isg)) +₁ (isg ∘⟨ c₃ ⟩ f)
                               ≡⟨ cong (_+₁ (isg ∘⟨ c₃ ⟩ f))
-                                      (isHom-∘ {g = g} {f = isg} c₅ {g' = -isg} {f' = -isg} c₆ c₄) ⟩
+                                      (isHom-∘ g isg c₅ -isg -isg c₆ c₄) ⟩
                             ((g ∘⟨ c₅ ⟩ isg) +₁ (-isg ∘⟨ c₆ ⟩ -isg)) +₁ (isg ∘⟨ c₃ ⟩ f)
                               ≡⟨ cong (λ z → (z +₁ (-isg ∘⟨ c₆ ⟩ -isg)) +₁ (isg ∘⟨ c₃ ⟩ f))
                                        (rid-∘ g (isComp-g-isg g)) ⟩
@@ -201,7 +211,6 @@ module _ {ℓ ℓ' : Level} where
                               isg = 𝒾s g
                               -isg = -₁ isg
                               itf = 𝒾t f
-
                               --
                               c₁ = ∘-cong-c c
                                             (sym (rId₁ g) ∙ cong (g +₁_) (sym (lCancel₁ isg)))
@@ -250,15 +259,31 @@ module _ {ℓ ℓ' : Level} where
         where
           P : (g f : ⟨ G₁ ⟩) (c : isComposable g f) → PathP (λ j → t (vcomp (isPropVertComp 𝒞 𝒞' j) g f c) ≡ t g) (τ-∘ 𝒞 g f c) (τ-∘ 𝒞' g f c)
           P g f c = isProp→PathP (λ j → set₀ (t (vcomp (isPropVertComp 𝒞 𝒞' j) g f c)) (t g)) (τ-∘ 𝒞 g f c) (τ-∘ 𝒞' g f c)
-      isHom-∘ (isPropVertComp 𝒞 𝒞' i) = {!funExt₃!}
-      assoc-∘ (isPropVertComp 𝒞 𝒞' i) = {!!}
-      {-
-      assoc-∘ (isPropVertComp 𝒞 𝒞' i) = funExt₃ (λ h g f → funExt₂ (λ c c' → P h g f c c')) i
+      isHom-∘ (isPropVertComp 𝒞 𝒞' i) = funExt₃ (λ g f c → funExt₃ (λ g' f' c' → funExt (λ c+ → P g f c g' f' c' c+))) i
         where
-          P : (h g f : ⟨ G₁ ⟩) (c : isComposable h g) (c' : isComposable g f)
-              → PathP {!!} {!!} {!!}
-          P h g f c c' = {!!}
-      -}
+          P : (g f : ⟨ G₁ ⟩) (c : isComposable g f)
+              (g' f' : ⟨ G₁ ⟩) (c' : isComposable g' f')
+              (c+ : isComposable (g +₁ g') (f +₁ f'))
+              → PathP (λ j → vcomp (isPropVertComp 𝒞 𝒞' j) (g +₁ g') (f +₁ f') c+
+                             ≡ (vcomp (isPropVertComp 𝒞 𝒞' j) g f c) +₁ (vcomp (isPropVertComp 𝒞 𝒞' j) g' f' c'))
+                      (isHom-∘ 𝒞 g f c g' f' c' c+)
+                      (isHom-∘ 𝒞' g f c g' f' c' c+)
+          P g f c g' f' c' c+ = isProp→PathP (λ j → set₁ (vcomp (isPropVertComp 𝒞 𝒞' j) (g +₁ g') (f +₁ f') c+)
+                                                         ((vcomp (isPropVertComp 𝒞 𝒞' j) g f c) +₁ (vcomp (isPropVertComp 𝒞 𝒞' j) g' f' c')))
+                                             (isHom-∘ 𝒞 g f c g' f' c' c+)
+                                             (isHom-∘ 𝒞' g f c g' f' c' c+)
+      assoc-∘ (isPropVertComp 𝒞 𝒞' i) = funExt₃ (λ h g f → funExt₂ (λ c-hg c-gf → funExt₂ (λ c-h-gf c-hg-f → P h g f c-hg c-gf c-h-gf c-hg-f))) i
+        where
+          ∘ = λ (j : I) → vcomp (isPropVertComp 𝒞 𝒞' j)
+          P : (h g f : ⟨ G₁ ⟩)
+              → (c-hg : isComposable h g)
+              → (c-gf  : isComposable g f)
+              → (c-h-gf : isComposable h (vcomp (isPropVertComp 𝒞 𝒞' i) g f c-gf))
+              → (c-hg-f : isComposable (vcomp (isPropVertComp 𝒞 𝒞' i) h g c-hg) f)
+              → PathP (λ j → ∘ j h (∘ j g f c-gf) {!!} ≡ {!!})
+                      (assoc-∘ 𝒞 h g f c-hg c-gf {!!} {!!})
+                      (assoc-∘ 𝒞' h g f c-hg c-gf {!!} {!!})
+          P h g f c-hg c-gf c-h-gf c-hg-f = {!!}
       lid-∘ (isPropVertComp 𝒞 𝒞' i) = funExt₂ P i
         where
           P : (f : ⟨ G₁ ⟩) (c : isComposable (𝒾 (t f)) f)
@@ -267,8 +292,8 @@ module _ {ℓ ℓ' : Level} where
       rid-∘ (isPropVertComp 𝒞 𝒞' i) = funExt₂ P i
         where
           P : (g : ⟨ G₁ ⟩) (c : isComposable g (𝒾 (s g)))
-              → PathP {!!} {!!} {!!}
-          P g c = {!!}
+              → PathP (λ j → vcomp (isPropVertComp 𝒞 𝒞' j) g (𝒾 (s g)) c ≡ g) (rid-∘ 𝒞 g c) (rid-∘ 𝒞' g c)
+          P g c = isProp→PathP (λ j → set₁ (vcomp (isPropVertComp 𝒞 𝒞' j) g (𝒾 (s g)) c) g) (rid-∘ 𝒞 g c) (rid-∘ 𝒞' g c)
 
 
   𝒮ᴰ-Strict2Group : URGStrᴰ (𝒮-ReflGraph ℓ ℓ')
@@ -281,7 +306,6 @@ module _ {ℓ ℓ' : Level} where
   Strict2Group = Σ[ 𝒢 ∈ ReflGraph ℓ ℓ' ] VertComp 𝒢
 
 {-
-
     η-VertComp : (𝒱 : VertComp 𝒢) → vertcomp (vcomp 𝒱) (σ-∘ 𝒱) (τ-∘ 𝒱) (isHom-∘ 𝒱) (assoc-∘ 𝒱) (lid-∘ 𝒱) (rid-∘ 𝒱) ≡ 𝒱
     vcomp (η-VertComp 𝒱 i) = vcomp 𝒱
     σ-∘ (η-VertComp 𝒱 i) = σ-∘ 𝒱
