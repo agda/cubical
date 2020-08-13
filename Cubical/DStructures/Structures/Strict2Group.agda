@@ -245,10 +245,36 @@ module _ {ℓ ℓ' : Level} where
 
     open VertComp
 
+    η-VertComp : (𝒱 : VertComp 𝒢) → vertcomp (vcomp 𝒱) (σ-∘ 𝒱) (τ-∘ 𝒱) (isHom-∘ 𝒱) (assoc-∘ 𝒱) (lid-∘ 𝒱) (rid-∘ 𝒱) ≡ 𝒱
+    vcomp (η-VertComp 𝒱 i) = vcomp 𝒱
+    σ-∘ (η-VertComp 𝒱 i) = σ-∘ 𝒱
+    τ-∘ (η-VertComp 𝒱 i) = τ-∘ 𝒱
+    isHom-∘ (η-VertComp 𝒱 i) = isHom-∘ 𝒱
+    assoc-∘ (η-VertComp 𝒱 i) = assoc-∘ 𝒱
+    lid-∘(η-VertComp 𝒱 i) = lid-∘ 𝒱
+    rid-∘ (η-VertComp 𝒱 i) = rid-∘ 𝒱
+
+
+    module _ (𝒞 𝒞' : VertComp 𝒢) where
+      p∘ : vcomp 𝒞 ≡ vcomp 𝒞'
+      p∘ = funExt₃ (λ g f c → VertComp→+₁ 𝒞 g f c ∙ sym (VertComp→+₁ 𝒞' g f c))
+
+      pσ : PathP (λ j → (g f : ⟨ G₁ ⟩) (c : isComposable g f) → s (p∘ j g f c) ≡ s f) (σ-∘ 𝒞) (σ-∘ 𝒞')
+      pσ = isProp→PathP (λ i → isPropΠ3 (λ g f c → set₀ (s (p∘ i g f c)) (s f))) (σ-∘ 𝒞) (σ-∘ 𝒞')
+
+      passoc : PathP (λ i → (h g f : ⟨ G₁ ⟩)
+                            (c-hg : isComposable h g)
+                            (c-gf : isComposable g f)
+                            (c-h-gf : isComposable h (p∘ i g f c-gf))
+                            (c-hg-f : isComposable (p∘ i h g c-hg) f) →
+                            p∘ i h (p∘ i g f c-gf) c-h-gf ≡ p∘ i (p∘ i h g c-hg) f c-hg-f) (assoc-∘ 𝒞) (assoc-∘ 𝒞')
+      passoc = isProp→PathP (λ j → isPropΠ4 (λ h g f c-hg → isPropΠ3 (λ c-gf c-h-gf c-hg-f → set₁ (p∘ j h (p∘ j g f c-gf) c-h-gf) (p∘ j (p∘ j h g c-hg) f c-hg-f)))) (assoc-∘ 𝒞) (assoc-∘ 𝒞')
+      -- (p∘ j h (p∘ j g f c-gf) c-h-gf ≡ p∘ j (p∘ j h g c-hg) f c-hg-f)
     module _ where
       isPropVertComp : isProp (VertComp 𝒢)
       vcomp (isPropVertComp 𝒞 𝒞' i) = funExt₃ (λ g f c → VertComp→+₁ 𝒞 g f c ∙ sym (VertComp→+₁ 𝒞' g f c)) i
-      σ-∘ (isPropVertComp 𝒞 𝒞' i) = funExt₃ P i
+      -- σ-∘ (isPropVertComp 𝒞 𝒞' i) = funExt₃ P i
+      σ-∘ (isPropVertComp 𝒞 𝒞' i) = pσ 𝒞 𝒞' i
         where
           P : (g f : ⟨ G₁ ⟩) (c : isComposable g f)
               → PathP (λ j → s (vcomp (isPropVertComp 𝒞 𝒞' j) g f c) ≡ s f)
@@ -272,18 +298,8 @@ module _ {ℓ ℓ' : Level} where
                                                          ((vcomp (isPropVertComp 𝒞 𝒞' j) g f c) +₁ (vcomp (isPropVertComp 𝒞 𝒞' j) g' f' c')))
                                              (isHom-∘ 𝒞 g f c g' f' c' c+)
                                              (isHom-∘ 𝒞' g f c g' f' c' c+)
-      assoc-∘ (isPropVertComp 𝒞 𝒞' i) = funExt₃ (λ h g f → funExt₂ (λ c-hg c-gf → funExt₂ (λ c-h-gf c-hg-f → P h g f c-hg c-gf c-h-gf c-hg-f))) i
-        where
-          ∘ = λ (j : I) → vcomp (isPropVertComp 𝒞 𝒞' j)
-          P : (h g f : ⟨ G₁ ⟩)
-              → (c-hg : isComposable h g)
-              → (c-gf  : isComposable g f)
-              → (c-h-gf : isComposable h (vcomp (isPropVertComp 𝒞 𝒞' i) g f c-gf))
-              → (c-hg-f : isComposable (vcomp (isPropVertComp 𝒞 𝒞' i) h g c-hg) f)
-              → PathP (λ j → ∘ j h (∘ j g f c-gf) {!!} ≡ {!!})
-                      (assoc-∘ 𝒞 h g f c-hg c-gf {!!} {!!})
-                      (assoc-∘ 𝒞' h g f c-hg c-gf {!!} {!!})
-          P h g f c-hg c-gf c-h-gf c-hg-f = {!!}
+      -- assoc-∘ (isPropVertComp 𝒞 𝒞' i) = funExt₃ (λ h g f → funExt₂ (λ c-hg c-gf → funExt₂ (λ c-h-gf c-hg-f → P h g f c-hg c-gf c-h-gf c-hg-f))) i
+      assoc-∘ (isPropVertComp 𝒞 𝒞' i) = passoc 𝒞 𝒞' i
       lid-∘ (isPropVertComp 𝒞 𝒞' i) = funExt₂ P i
         where
           P : (f : ⟨ G₁ ⟩) (c : isComposable (𝒾 (t f)) f)
@@ -296,6 +312,7 @@ module _ {ℓ ℓ' : Level} where
           P g c = isProp→PathP (λ j → set₁ (vcomp (isPropVertComp 𝒞 𝒞' j) g (𝒾 (s g)) c) g) (rid-∘ 𝒞 g c) (rid-∘ 𝒞' g c)
 
 
+
   𝒮ᴰ-Strict2Group : URGStrᴰ (𝒮-ReflGraph ℓ ℓ')
                             VertComp
                             ℓ-zero
@@ -304,14 +321,3 @@ module _ {ℓ ℓ' : Level} where
 
   Strict2Group : Type (ℓ-suc ℓℓ')
   Strict2Group = Σ[ 𝒢 ∈ ReflGraph ℓ ℓ' ] VertComp 𝒢
-
-{-
-    η-VertComp : (𝒱 : VertComp 𝒢) → vertcomp (vcomp 𝒱) (σ-∘ 𝒱) (τ-∘ 𝒱) (isHom-∘ 𝒱) (assoc-∘ 𝒱) (lid-∘ 𝒱) (rid-∘ 𝒱) ≡ 𝒱
-    vcomp (η-VertComp 𝒱 i) = vcomp 𝒱
-    σ-∘ (η-VertComp 𝒱 i) = σ-∘ 𝒱
-    τ-∘ (η-VertComp 𝒱 i) = τ-∘ 𝒱
-    isHom-∘ (η-VertComp 𝒱 i) = isHom-∘ 𝒱
-    assoc-∘ (η-VertComp 𝒱 i) = assoc-∘ 𝒱
-    lid-∘(η-VertComp 𝒱 i) = lid-∘ 𝒱
-    rid-∘ (η-VertComp 𝒱 i) = rid-∘ 𝒱
--}
