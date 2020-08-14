@@ -65,6 +65,12 @@ module GroupLemmas (G : Group {ℓ}) where
             ≡⟨ cong (a +_) (lid (- a)) ∙ invr a ⟩
           0g ∎
 
+    invDistr₃ : (a b c : Carrier) → - ((a + b) + c) ≡ (- c) + ((- b) - a)
+    invDistr₃ a b c = (invDistr (a + b) c) ∙ (cong ((- c) +_) (invDistr a b))
+
+    invDistr₄ : (a b c d : Carrier) → - (((a + b) + c) + d) ≡ (- d) + ((- c) + ((- b) - a))
+    invDistr₄ a b c d = (invDistr₃ (a + b) c d) ∙ (cong (λ x → (- d) + ((- c) + x)) (invDistr a b))
+
     assoc-rCancel : (a b : Carrier) → a + ((- a) + b) ≡ b
     assoc-rCancel a b = (assoc a (- a) b) ∙∙ (cong (_+ b) (invr a)) ∙∙ (lid b)
 

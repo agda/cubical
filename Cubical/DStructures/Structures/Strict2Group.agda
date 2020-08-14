@@ -24,7 +24,7 @@ open import Cubical.DStructures.Meta.Combine
 open import Cubical.DStructures.Structures.Type
 open import Cubical.DStructures.Structures.Group
 
-module _ {ℓ ℓ' : Level} where
+module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
 
@@ -39,6 +39,8 @@ module _ {ℓ ℓ' : Level} where
       𝒾 = GroupHom.fun ι
       𝒾s = λ (g : ⟨ G₁ ⟩) → 𝒾 (s g)
       𝒾t = λ (g : ⟨ G₁ ⟩) → 𝒾 (t g)
+      ι∘σ : GroupHom G₁ G₁
+      ι∘σ = compGroupHom σ ι
       split-τ = snd 𝒢
       split-σ = snd (fst (fst 𝒢))
 
@@ -73,6 +75,9 @@ module _ {ℓ ℓ' : Level} where
 
         isComp-g-isg : (g : ⟨ G₁ ⟩) → isComposable g (𝒾s g)
         isComp-g-isg g = sym (τι-≡-fun (s g))
+
+        ισ-ι : (g : ⟨ G₀ ⟩) → 𝒾s (-₁ (𝒾 g)) ≡ -₁ (𝒾 g)
+        ισ-ι g = mapInv ι∘σ (𝒾 g) ∙ cong (λ z → -₁ (𝒾 z)) (σι-≡-fun g)
 
 
   -- type of composition operations on the reflexive graph 𝒢

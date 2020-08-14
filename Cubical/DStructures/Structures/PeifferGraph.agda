@@ -46,6 +46,9 @@ module _ {ℓ ℓ' : Level} where
          isPropIsPeifferGraph : isProp isPeifferGraph
          isPropIsPeifferGraph = isPropΠ2 (λ a b → set₁ ((((is b) +₁ (a +₁ (-it a))) +₁ ((-is b) +₁ b)) +₁ (it a)) (b +₁ a))
 
+         -- peiffer graph lemmas
+         isPeifferGraph' : (a b : ⟨ G₁ ⟩)
+
 module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'

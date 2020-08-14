@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.DStructures.Equivalences.XModS2G where
+module Cubical.DStructures.Equivalences.XModPeifferGraph where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv

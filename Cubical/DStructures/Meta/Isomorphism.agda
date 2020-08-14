@@ -91,6 +91,17 @@ Iso→TotalIso {A = A} {𝒮-A = 𝒮-A} {A' = A'} {𝒮-A' = 𝒮-A'} ℱ 𝒮
                         (𝒮ᴰ→relFamily 𝒮ᴰ-B') (𝒮ᴰ-B' .uniᴰ)
                         𝒢
 
+
+{-
+
+𝒮ᴰ-FiberwiseIso : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
+                  {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
+                  {B' : A → Type ℓB'} (𝒮ᴰ-B' : URGStrᴰ 𝒮-A B' ℓ≅B')
+                  (a : A)
+                  → Iso (B a) (B' a)
+𝒮ᴰ-FiberwiseIso 𝒮ᴰ-B 𝒮ᴰ-B' a = {!o!}
+-}
+
 -- old stuff
 
   {-
