@@ -83,6 +83,9 @@ module GroupLemmas (G : Group {ℓ}) where
     rCancel-lId : (a b : Carrier) → (a - a) + b ≡ b
     rCancel-lId a b = cong (_+ b) (invr a) ∙ lid b
 
+    lCancel-lId : (a b : Carrier) → ((- a) + a) + b ≡ b
+    lCancel-lId a b = cong (_+ b) (invl a) ∙ lid b
+
     rCancel-rId : (a b : Carrier) → a + (b - b) ≡ a
     rCancel-rId a b = (cong (a +_) (invr b)) ∙ (rid a)
 

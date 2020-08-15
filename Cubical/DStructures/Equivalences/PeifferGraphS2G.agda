@@ -100,7 +100,11 @@ module _ (ℓ ℓ' : Level) where
       isHom-∘ q g f _ g' f' _ _ = r
         where
           isg = 𝒾s g
+          -isg = -₁ (𝒾s g)
           isg' = 𝒾s g'
+          -isg' = -₁ (𝒾s g')
+          itf = 𝒾t f
+          -itf = -₁ (𝒾t f)
           abstract
             r = (g +₁ g') ⊙ (f +₁ f')
                   ≡⟨ assoc₁ ((g +₁ g') -₁ 𝒾s (g +₁ g')) f f' ⟩
@@ -112,8 +116,22 @@ module _ (ℓ ℓ' : Level) where
                           (sym (assoc₁ g (g' -₁ (𝒾s (g +₁ g'))) f)) ⟩
                 (g +₁ ((g' -₁ (𝒾s (g +₁ g'))) +₁ f)) +₁ f'
                   ≡⟨ cong (λ z → (g +₁ z) +₁ f')
-                          {!!} ⟩
-                (g +₁ {!!}) +₁ f'
+                          ((g' -₁ (𝒾s (g +₁ g'))) +₁ f
+                            ≡⟨ cong (λ z → (g' -₁ z) +₁ f)
+                                    (ι∘σ .isHom g g') ⟩
+                          (g' -₁ (isg +₁ isg')) +₁ f
+                            ≡⟨ cong (λ z → (g' +₁ z) +₁ f)
+                                    (invDistr G₁ isg isg') ⟩
+                          (g' +₁ (-isg' +₁ -isg)) +₁ f
+                            ≡⟨ {!assoc!} ⟩
+                          g' +₁ (-isg' +₁ (-isg +₁ f))
+                            ≡⟨ {!c!} ⟩
+                          g' +₁ (-isg' +₁ (-itf +₁ f))
+                            ≡⟨ {!Peiffer4!} ⟩
+                          -itf +₁ (f +₁ (g' +₁ -isg'))
+                            ≡⟨ {!c!} ⟩
+                          -isg +₁ (f +₁ (g' +₁ -isg')) ∎) ⟩
+                (g +₁ (-isg +₁ (f +₁ (g' +₁ -isg')))) +₁ f'
                   ≡⟨ {!assoc...!} ⟩
                 ((g -₁ isg) +₁ f) +₁ ((g' -₁ isg') +₁ f')
                   ≡⟨ refl ⟩
