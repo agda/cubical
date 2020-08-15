@@ -97,7 +97,7 @@ module _ (ℓ ℓ' : Level) where
                 t g +₀ 0₀
                   ≡⟨ rId₀ (t g) ⟩
                 t g ∎
-      isHom-∘ q g f _ g' f' _ _ = r
+      isHom-∘ q g f c-gf g' f' _ _ = r
         where
           isg = 𝒾s g
           -isg = -₁ (𝒾s g)
@@ -123,16 +123,23 @@ module _ (ℓ ℓ' : Level) where
                             ≡⟨ cong (λ z → (g' +₁ z) +₁ f)
                                     (invDistr G₁ isg isg') ⟩
                           (g' +₁ (-isg' +₁ -isg)) +₁ f
-                            ≡⟨ {!assoc!} ⟩
+                            ≡⟨ assoc-c--r- G₁ g' -isg' -isg f ⟩
                           g' +₁ (-isg' +₁ (-isg +₁ f))
-                            ≡⟨ {!c!} ⟩
+                            ≡⟨ cong (λ z → g' +₁ (-isg' +₁ ((-₁ (𝒾 z)) +₁ f)))
+                                    c-gf ⟩
                           g' +₁ (-isg' +₁ (-itf +₁ f))
-                            ≡⟨ {!Peiffer4!} ⟩
+                            ≡⟨ isPeifferGraph4 ι σ τ isPeifferGraph f g' ⟩
                           -itf +₁ (f +₁ (g' +₁ -isg'))
-                            ≡⟨ {!c!} ⟩
+                            ≡⟨ cong (λ z → (-₁ (𝒾 z)) +₁ (f +₁ (g' +₁ -isg')))
+                                    (sym c-gf) ⟩
                           -isg +₁ (f +₁ (g' +₁ -isg')) ∎) ⟩
                 (g +₁ (-isg +₁ (f +₁ (g' +₁ -isg')))) +₁ f'
-                  ≡⟨ {!assoc...!} ⟩
+                  ≡⟨ cong (_+₁ f')
+                          (assoc₁ g -isg (f +₁ (g' -₁ isg'))) ⟩
+                ((g +₁ -isg) +₁ (f +₁ (g' +₁ -isg'))) +₁ f'
+                  ≡⟨ cong (_+₁ f') (assoc₁ (g -₁ isg) f (g' -₁ isg')) ⟩
+                (((g -₁ isg) +₁ f) +₁ (g' -₁ isg')) +₁ f'
+                  ≡⟨ sym (assoc₁ ((g -₁ isg) +₁ f) (g' -₁ isg') f') ⟩
                 ((g -₁ isg) +₁ f) +₁ ((g' -₁ isg') +₁ f')
                   ≡⟨ refl ⟩
                 (g ⊙ f) +₁ (g' ⊙ f') ∎

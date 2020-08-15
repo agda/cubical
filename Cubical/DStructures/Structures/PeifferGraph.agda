@@ -25,6 +25,7 @@ open import Cubical.DStructures.Structures.Type
 open import Cubical.DStructures.Structures.Group
 
 open GroupLemmas
+open MorphismLemmas
 
 module _ {ℓ ℓ' : Level} where
   private
@@ -37,6 +38,10 @@ module _ {ℓ ℓ' : Level} where
            𝒾 = GroupHom.fun ι
            s = GroupHom.fun σ
            t = GroupHom.fun τ
+           ι∘σ : GroupHom G₁ G₁
+           ι∘σ = compGroupHom σ ι
+           ι∘τ : GroupHom G₁ G₁
+           ι∘τ = compGroupHom τ ι
            is = λ (h : ⟨ G₁ ⟩) → 𝒾 (s h)
            -is = λ (h : ⟨ G₁ ⟩) → -₁ 𝒾 (s h)
            it = λ (h : ⟨ G₁ ⟩) → 𝒾 (t h)
@@ -111,11 +116,29 @@ module _ {ℓ ℓ' : Level} where
 
            isPeifferGraph4 : (a b : ⟨ G₁ ⟩) → b +₁ ((-₁ (is b)) +₁ ((-₁ (it a)) +₁ a)) ≡ (-₁ (it a)) +₁ (a +₁ (b -₁ (is b)))
            isPeifferGraph4 a b = b +₁ (-isb +₁ (-ita +₁ a))
-                                   ≡⟨ {!!} ⟩
+                                   ≡⟨ cong (_+₁ (-isb +₁ (-ita +₁ a)))
+                                           (sym (invInvo G₁ b)) ⟩
+                                 (-₁ -b) +₁ (-isb +₁ (-ita +₁ a))
+                                   ≡⟨ cong (λ z → (-₁ -b) +₁ (-isb +₁ (-ita +₁ z)))
+                                           (sym (invInvo G₁ a)) ⟩
+                                 (-₁ -b) +₁ (-isb +₁ (-ita -₁ -a))
+                                   ≡⟨ cong (λ z → (-₁ -b) +₁ (-isb +₁ (z -₁ -a))) (sym (mapInv ι∘τ a)) ⟩
+                                 (-₁ -b) +₁ (-isb +₁ ((it -a) -₁ -a))
+                                   ≡⟨ cong (λ z → (-₁ -b) +₁ (z +₁ ((it -a) -₁ -a))) (sym (mapInv ι∘σ b)) ⟩
                                  (-₁ -b) +₁ (is -b +₁ ((it -a) -₁ -a))
                                    ≡⟨ isPeifferGraph3 -a -b ⟩
                                  it -a +₁ ((-₁ -a) +₁ ((-₁ -b) +₁ is -b))
-                                   ≡⟨ {!!} ⟩
+                                   ≡⟨ cong (_+₁ ((-₁ -a) +₁ ((-₁ -b) +₁ is -b)))
+                                           (mapInv ι∘τ a) ⟩
+                                 -ita +₁ ((-₁ -a) +₁ ((-₁ -b) +₁ is -b))
+                                   ≡⟨ cong (λ z → -ita +₁ (z +₁ ((-₁ -b) +₁ is -b)))
+                                           (invInvo G₁ a) ⟩
+                                 -ita +₁ (a +₁ ((-₁ -b) +₁ is -b))
+                                   ≡⟨ cong (λ z → -ita +₁ (a +₁ (z +₁ is -b)))
+                                           (invInvo G₁ b) ⟩
+                                 -ita +₁ (a +₁ (b +₁ is -b))
+                                   ≡⟨ cong (λ z → -ita +₁ (a +₁ (b +₁ z)))
+                                           (mapInv ι∘σ b) ⟩
                                  -ita +₁ (a +₁ (b -₁ isb)) ∎
                                  where
                                    -a = -₁ a

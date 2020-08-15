@@ -80,6 +80,10 @@ module GroupLemmas (G : Group {ℓ}) where
     assoc-assoc : (a b c d : Carrier) → a + ((b + c) + d) ≡ ((a + b) + c) + d
     assoc-assoc a b c d = assoc a (b + c) d ∙ cong (_+ d) (assoc a b c)
 
+    assoc-c--r- : (a b c d : Carrier) → (a + (b + c)) + d ≡ a + (b + (c + d))
+    assoc-c--r- a b c d = sym (assoc a (b + c) d) ∙ cong (a +_) (sym (assoc b c d))
+   
+
     rCancel-lId : (a b : Carrier) → (a - a) + b ≡ b
     rCancel-lId a b = cong (_+ b) (invr a) ∙ lid b
 
