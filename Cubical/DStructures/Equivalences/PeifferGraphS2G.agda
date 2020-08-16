@@ -152,7 +152,6 @@ module _ (ℓ ℓ' : Level) where
           -ish = -₁ 𝒾s h
           abstract
             r = (h ⊙ g) ⊙ f
-                  -- ≡⟨ cong (λ z → (((h -₁ ish) +₁ g) -₁ 𝒾s ((h -₁ ish) +₁ g)) +₁ f) {!!} ⟩
                   ≡⟨ cong (λ z → (((h -₁ ish) +₁ g) -₁ z) +₁ f)
                           (ι∘σ .isHom (h -₁ ish) g) ⟩
                 (((h -₁ ish) +₁ g) -₁ (𝒾s (h -₁ ish) +₁ 𝒾s g)) +₁ f
@@ -187,14 +186,20 @@ module _ (ℓ ℓ' : Level) where
                   ≡⟨ lCancel-rId G₁ g isg ⟩
                 g ∎
 
-  RelIso.inv (𝒮-Iso-PG-S2G 𝒢) VComp = q
+  RelIso.inv (𝒮-Iso-PG-S2G 𝒢) 𝒞 = q
     where
       open ReflGraphNotation ℓ ℓℓ' 𝒢
+      open VertComp 𝒞
 
       abstract
         q : isPeifferGraph ι σ τ
         q f g = ((isg +₁ (f -₁ itf)) +₁ (-isg +₁ g)) +₁ itf
-                  ≡⟨ {!!} ⟩
+                  ≡⟨ {!assoc!} ⟩
+                (isg +₁ ((f -₁ itf) +₁ (-isg +₁ g))) +₁ itf
+                  ≡⟨ cong (λ z → (isg +₁ z) +₁ itf)
+                          {!!} ⟩
+                (isg +₁ ((g +₁ f) -₁ itf)) +₁ itf
+                  ≡⟨ {!cancel!} ⟩
                 g +₁ f ∎
           where
             isg = 𝒾s g

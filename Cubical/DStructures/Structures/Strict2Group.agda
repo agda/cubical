@@ -216,15 +216,15 @@ module _ (ℓ ℓ' : Level) where
                               isg = 𝒾s g
                               -isg = -₁ isg
                               itf = 𝒾t f
-                              --
+                              c₁ : isComposable (g +₁ (-isg +₁ isg)) ((isg -₁ isg) +₁ f)
                               c₁ = ∘-cong-c c
                                             (sym (rId₁ g) ∙ cong (g +₁_) (sym (lCancel₁ isg)))
                                             (sym (lId₁ f) ∙ cong (_+₁ f) (sym (rCancel₁ isg)))
-                              --
+                              c₂ : isComposable ((g -₁ isg) +₁ isg) ((isg -₁ isg) +₁ f)
                               c₂ = ∘-cong-l-c c₁ (assoc₁ g -isg isg)
-                              -- isg comp with f
+                              c₃ : isComposable isg f
                               c₃ = σι-≡-fun (s g) ∙ c
-                              -- (g -₁ isg) comp. with (isg -₁ isg)
+                              c₄ : isComposable (g -₁ isg) (isg -₁ isg)
                               c₄ = s (g -₁ isg)
                                      ≡⟨ σ-g--isg g ⟩
                                    0₀
@@ -247,6 +247,89 @@ module _ (ℓ ℓ' : Level) where
                                               (sym (cong 𝒾s (sym (mapInv ι (s g)))
                                                 ∙∙ cong 𝒾 (σι-≡-fun (-₀ s g))
                                                 ∙∙ mapInv ι (s g)))
+
+        -- properties of the interchange law
+        IC2 : (g g' f : ⟨ G₁ ⟩) (c-gf : isComposable g f)
+              →  (g' +₁ ((-₁ (𝒾s g')) +₁ (-₁ (𝒾s g)))) +₁ f ≡ ((-₁ (𝒾s g)) +₁ f) +₁ (g' -₁ (𝒾s g'))
+        IC2 g g' f c-gf =
+          (g' +₁ (-isg' +₁ -isg)) +₁ f
+            ≡⟨ cong ((g' +₁ (-isg' +₁ -isg)) +₁_)
+                    (sym (rCancel-rId G₁ f f') ∙ assoc₁ f f' -f') ⟩
+          (g' +₁ (-isg' +₁ -isg)) +₁ ((f +₁ f') -₁ f')
+            ≡⟨ assoc₁ (g' +₁ (-isg' +₁ -isg)) (f +₁ f') (-₁ f') ⟩
+          ((g' +₁ (-isg' +₁ -isg)) +₁ (f +₁ f')) -₁ f'
+            ≡⟨ cong (_-₁ f')
+               (sym (lCancel-lId G₁ g _)) ⟩
+          ((-g +₁ g) +₁ ((g' +₁ (-isg' +₁ -isg)) +₁ (f +₁ f'))) -₁ f'
+            ≡⟨ cong (_-₁ f')
+                    (sym (assoc₁ -g g _)) ⟩
+          (-g +₁ (g +₁ ((g' +₁ (-isg' +₁ -isg)) +₁ (f +₁ f')))) -₁ f'
+            ≡⟨ cong (λ z → (-g +₁ z) -₁ f')
+                    (assoc₁ g _ (f +₁ f')) ⟩
+          (-g +₁ ((g +₁ (g' +₁ (-isg' +₁ -isg))) +₁ (f +₁ f'))) -₁ f'
+            ≡⟨ cong (λ z → (-g +₁ (z +₁ (f +₁ f'))) -₁ f')
+                    (assoc₁ g g' (-isg' -₁ isg)) ⟩
+          (-g +₁ (((g +₁ g') +₁ (-isg' +₁ -isg)) +₁ (f +₁ f'))) -₁ f'
+            ≡⟨ cong (λ z → (-g +₁ z) -₁ f')
+                    (sym q) ⟩
+          (-g +₁ ((g +₁ g') ∘⟨ c-gf'+ ⟩ (f +₁ f'))) -₁ f'
+            ≡⟨ cong (λ z → (-g +₁ z) -₁ f')
+                    (isHom-∘ g f c-gf
+                             g' f' c-gf'
+                             c-gf'+) ⟩
+          (-g +₁ ((g ∘⟨ c-gf ⟩ f) +₁ (g' ∘⟨ c-gf' ⟩ f'))) -₁ f'
+            ≡⟨ cong (λ z → (-g +₁ ((g ∘⟨ c-gf ⟩ f) +₁ z)) -₁ f')
+                    (VertComp→+₁ g' f' c-gf') ⟩
+          (-g +₁ ((g ∘⟨ c-gf ⟩ f) +₁ ((g' -₁ isg') +₁ f'))) -₁ f'
+            ≡⟨ cong (λ z → (-g +₁ (z +₁ ((g' -₁ isg') +₁ f'))) -₁ f')
+                    (VertComp→+₁ g f c-gf) ⟩
+          (-g +₁ (((g -₁ isg) +₁ f) +₁ ((g' -₁ isg') +₁ f'))) -₁ f'
+            ≡⟨ cong (λ z → (-g +₁ (z +₁ ((g' -₁ isg') +₁ f'))) -₁ f')
+                    (sym (assoc₁ g -isg f)) ⟩
+          (-g +₁ ((g +₁ (-isg +₁ f)) +₁ ((g' -₁ isg') +₁ f'))) -₁ f'
+            ≡⟨ cong (λ z → (-g +₁ z) -₁ f')
+                    (sym (assoc₁ g (-isg +₁ f) _)) ⟩
+          (-g +₁ (g +₁ ((-isg +₁ f) +₁ ((g' -₁ isg') +₁ f')))) -₁ f'
+            ≡⟨ cong (_-₁ f')
+                    (assoc₁ -g g _) ⟩
+          ((-g +₁ g) +₁ ((-isg +₁ f) +₁ ((g' -₁ isg') +₁ f'))) -₁ f'
+            ≡⟨ cong (_-₁ f')
+               (lCancel-lId G₁ g _) ⟩
+          ((-isg +₁ f) +₁ ((g' -₁ isg') +₁ f')) -₁ f'
+            ≡⟨ sym (assoc₁ (-isg +₁ f) _ -f') ⟩
+          (-isg +₁ f) +₁ (((g' -₁ isg') +₁ f') -₁ f')
+            ≡⟨ cong ((-isg +₁ f) +₁_)
+                    (sym (assoc₁ (g' -₁ isg') f' -f')) ⟩
+          (-isg +₁ f) +₁ ((g' -₁ isg') +₁ (f' -₁ f'))
+            ≡⟨ cong ((-isg +₁ f) +₁_ )
+                    (rCancel-rId G₁ (g' -₁ isg') f') ⟩
+          (-isg +₁ f) +₁ (g' -₁ isg') ∎
+          where
+            -g = -₁ g
+            isg = 𝒾s g
+            isg' = 𝒾s g'
+            -isg = -₁ isg
+            -isg' = -₁ isg'
+            f' = isg'
+            -f' = -₁ f'
+            c-gf' = isComp-g-isg g'
+            c-gf'+ = +-c g f c-gf g' f' c-gf'
+            open GroupLemmas
+            q = (g +₁ g') ∘⟨ c-gf'+ ⟩ (f +₁ f')
+                  ≡⟨ VertComp→+₁ (g +₁ g') (f +₁ f') c-gf'+ ⟩
+                ((g +₁ g') -₁ (𝒾s (g +₁ g'))) +₁ (f +₁ f')
+                  ≡⟨ cong (λ z → ((g +₁ g') -₁ z) +₁ (f +₁ f'))
+                          (ι∘σ .isHom g g') ⟩
+                ((g +₁ g') -₁ (isg +₁ isg')) +₁ (f +₁ f')
+                  ≡⟨ cong (λ z → ((g +₁ g') +₁ z) +₁ (f +₁ f'))
+                          (invDistr G₁ isg isg') ⟩
+                ((g +₁ g') +₁ (-isg' +₁ -isg)) +₁ (f +₁ f') ∎
+
+        IC3 : (g g' f : ⟨ G₁ ⟩) (c-gf : isComposable g f)
+              → {!!} ≡ {!!}
+        IC3 g g' f c-gf = {!!}
+
+
 
     open VertComp
 
