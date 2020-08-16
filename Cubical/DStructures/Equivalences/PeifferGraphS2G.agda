@@ -33,6 +33,8 @@ open import Cubical.DStructures.Structures.Type
 open import Cubical.DStructures.Structures.Group
 open import Cubical.DStructures.Structures.Action
 open import Cubical.DStructures.Structures.XModule
+open import Cubical.DStructures.Structures.ReflGraph
+open import Cubical.DStructures.Structures.VertComp
 open import Cubical.DStructures.Structures.PeifferGraph
 open import Cubical.DStructures.Structures.Strict2Group
 open import Cubical.DStructures.Equivalences.GroupSplitEpiAction
@@ -56,11 +58,11 @@ module _ (ℓ ℓ' : Level) where
 
   RelIso.fun (𝒮-Iso-PG-S2G 𝒢) isPeifferGraph = q
     where
-      open ReflGraphNotation ℓ ℓℓ' 𝒢
+      open ReflGraphNotation 𝒢
       open VertComp
       _⊙_ = λ (g f : ⟨ G₁ ⟩) → (g -₁ (𝒾s g)) +₁ f
 
-      q : VertComp ℓ ℓℓ' 𝒢
+      q : VertComp 𝒢
       vcomp q g f _ = g ⊙ f
       σ-∘ q g f c = r
         where
@@ -188,7 +190,7 @@ module _ (ℓ ℓ' : Level) where
 
   RelIso.inv (𝒮-Iso-PG-S2G 𝒢) 𝒞 = q
     where
-      open ReflGraphNotation ℓ ℓℓ' 𝒢
+      open ReflGraphNotation 𝒢
       open VertComp 𝒞
 
       abstract
