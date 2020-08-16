@@ -196,19 +196,40 @@ module _ (ℓ ℓ' : Level) where
       abstract
         q : isPeifferGraph ι σ τ
         q f g = ((isg +₁ (f -₁ itf)) +₁ (-isg +₁ g)) +₁ itf
-                  ≡⟨ {!assoc!} ⟩
+                  ≡⟨ cong (_+₁ itf)
+                          (sym (assoc₁ isg (f -₁ itf) (-isg +₁ g))) ⟩
                 (isg +₁ ((f -₁ itf) +₁ (-isg +₁ g))) +₁ itf
                   ≡⟨ cong (λ z → (isg +₁ z) +₁ itf)
-                          {!!} ⟩
-                (isg +₁ ((g +₁ f) -₁ itf)) +₁ itf
-                  ≡⟨ {!cancel!} ⟩
+                          (sym (assoc₁ f -itf (-isg +₁ g))) ⟩
+                (isg +₁ (f +₁ (-itf +₁ (-isg +₁ g)))) +₁ itf
+                  ≡⟨ cong (λ z → (isg +₁ (f +₁ z)) +₁ itf)
+                          (assoc₁ -itf -isg g) ⟩
+                (isg +₁ (f +₁ ((-itf -₁ isg) +₁ g))) +₁ itf
+                  ≡⟨ cong (λ z → (isg +₁ z) +₁ itf)
+                          (IC5 𝒞 g f) ⟩
+                (isg +₁ ((-isg +₁ g) +₁ (f -₁ itf))) +₁ itf
+                  ≡⟨ cong (_+₁ itf)
+                          (assoc₁ isg (-isg +₁ g) (f -₁ itf)) ⟩
+                ((isg +₁ (-isg +₁ g)) +₁ (f -₁ itf)) +₁ itf
+                  ≡⟨ cong (λ z → (z +₁ (f -₁ itf)) +₁ itf)
+                          (assoc₁ isg -isg g ∙ rCancel-lId G₁ isg g) ⟩
+                (g +₁ (f -₁ itf)) +₁ itf
+                  ≡⟨ sym (assoc₁ g (f -₁ itf) itf) ⟩
+                g +₁ ((f -₁ itf) +₁ itf)
+                  ≡⟨ cong (g +₁_) ((sym (assoc₁ _ _ _)) ∙ (lCancel-rId G₁ f itf)) ⟩
                 g +₁ f ∎
           where
             isg = 𝒾s g
             -isg = -₁ (𝒾s g)
             itf = 𝒾t f
-
-
+            -itf = -it f
 
   RelIso.leftInv (𝒮-Iso-PG-S2G _) _ = tt
   RelIso.rightInv (𝒮-Iso-PG-S2G _) _ = tt
+
+  IsoPeifferGraphStrict2Group : Iso (PeifferGraph ℓ ℓℓ') (Strict2Group ℓ ℓℓ')
+  IsoPeifferGraphStrict2Group = Iso→TotalIso idIso (𝒮ᴰ-ReflGraph\Peiffer ℓ ℓℓ') (𝒮ᴰ-Strict2Group ℓ ℓℓ') 𝒮-Iso-PG-S2G
+
+  open import Cubical.DStructures.Equivalences.XModPeifferGraph
+  Iso-XModule-Strict2Group : Iso (XModule ℓ ℓℓ') (Strict2Group ℓ ℓℓ')
+  Iso-XModule-Strict2Group = compIso (IsoXModulePeifferGraph ℓ ℓℓ') IsoPeifferGraphStrict2Group

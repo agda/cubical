@@ -43,6 +43,8 @@ module ReflGraphNotation (𝒢 : ReflGraph ℓ ℓ') where
     𝒾 = GroupHom.fun ι
     𝒾s = λ (g : ⟨ G₁ ⟩) → 𝒾 (s g)
     𝒾t = λ (g : ⟨ G₁ ⟩) → 𝒾 (t g)
+    is = λ (g : ⟨ G₁ ⟩) → 𝒾 (s g)
+    it = λ (g : ⟨ G₁ ⟩) → 𝒾 (t g)
     ι∘σ : GroupHom G₁ G₁
     ι∘σ = compGroupHom σ ι
     split-τ = snd 𝒢
@@ -54,6 +56,11 @@ module ReflGraphNotation (𝒢 : ReflGraph ℓ ℓ') where
     open GroupNotation₁ G₁ public
     open GroupNotation₀ G₀ public
     open GroupHom public
+
+    is- = λ (x : ⟨ G₁ ⟩) → 𝒾s (-₁ x)
+    -is = λ (x : ⟨ G₁ ⟩) → -₁ (𝒾s x)
+    -it = λ (x : ⟨ G₁ ⟩) → -₁ (𝒾t x)
+    it- = λ (x : ⟨ G₁ ⟩) →  𝒾t (-₁ x)
 
     isComposable : (g f : ⟨ G₁ ⟩) → Type ℓ
     isComposable g f = s g ≡ t f
@@ -78,6 +85,9 @@ module ReflGraphNotation (𝒢 : ReflGraph ℓ ℓ') where
 
       isComp-g-isg : (g : ⟨ G₁ ⟩) → isComposable g (𝒾s g)
       isComp-g-isg g = sym (τι-≡-fun (s g))
+
+      isComp-itf-f : (f : ⟨ G₁ ⟩) → isComposable (it f) f
+      isComp-itf-f f = σι-≡-fun (t f)
 
       ισ-ι : (g : ⟨ G₀ ⟩) → 𝒾s (-₁ (𝒾 g)) ≡ -₁ (𝒾 g)
       ισ-ι g = mapInv ι∘σ (𝒾 g) ∙ cong (λ z → -₁ (𝒾 z)) (σι-≡-fun g)

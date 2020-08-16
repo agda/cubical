@@ -277,10 +277,121 @@ module _ {𝒢 : ReflGraph ℓ ℓ'} where
                        (invDistr G₁ isg isg') ⟩
              ((g +₁ g') +₁ (-isg' +₁ -isg)) +₁ (f +₁ f') ∎
 
-      -- IC3 : (g g' f : ⟨ G₁ ⟩) (c-gf : isComposable g f)
-        --    → {!!} ≡ {!!}
-    --  IC3 g g' f c-gf = {!!}
-  -- type of composition operations on the reflexive graph 𝒢
+      IC3 : (g g' f : ⟨ G₁ ⟩) (c-gf : isComposable g f)
+            → (-₁ f) +₁ (((𝒾s g) +₁ (𝒾s g')) -₁ g') ≡ ((𝒾s g') -₁ g') +₁ ((-₁ f) +₁ (𝒾s g))
+      IC3 g g' f c-gf =
+        -f +₁ ((isg +₁ isg') -₁ g')
+          ≡⟨ cong (λ z → -f +₁ ((isg +₁ z) -₁ g'))
+                  (sym (invInvo G₁ isg')) ⟩
+        -f +₁ ((isg -₁ -isg') -₁ g')
+          ≡⟨ cong (λ z → -f +₁ ((z -₁ -isg') -₁ g'))
+                  (sym (invInvo G₁ isg)) ⟩
+        -f +₁ (((-₁ -isg) -₁ -isg') -₁ g')
+          ≡⟨ cong (λ z → -f +₁ (z -₁ g'))
+                  (sym (invDistr G₁ -isg' -isg)) ⟩
+        -f +₁ ((-₁ (-isg' +₁ -isg)) -₁ g')
+          ≡⟨ cong (λ z → -f +₁ z)
+                  (sym (invDistr G₁ g' (-isg' +₁ -isg))) ⟩
+        -f -₁ (g' +₁ (-isg' +₁ -isg))
+          ≡⟨ sym (invDistr G₁ _ f) ⟩
+        -₁ ((g' +₁ (-isg' +₁ -isg)) +₁ f)
+          ≡⟨ cong -₁_
+                  (IC2 g g' f c-gf) ⟩
+        -₁ ((-isg +₁ f) +₁ (g' -₁ isg'))
+          ≡⟨ invDistr G₁ (-isg +₁ f) (g' -₁ isg') ⟩
+        (-₁ (g' -₁ isg')) +₁ (-₁ (-isg +₁ f))
+          ≡⟨ cong ((-₁ (g' -₁ isg')) +₁_)
+                  (invDistr G₁ -isg f) ⟩
+        (-₁ (g' -₁ isg')) +₁ (-f -₁ -isg)
+          ≡⟨ cong (_+₁ (-f -₁ -isg))
+                  (invDistr G₁ g' -isg') ⟩
+        ((-₁ -isg') -₁ g') +₁ (-f -₁ -isg)
+          ≡⟨ cong (λ z → (z -₁ g') +₁ (-f -₁ -isg))
+                  (invInvo G₁ isg') ⟩
+        (isg' -₁ g') +₁ (-f -₁ -isg)
+          ≡⟨ cong (λ z → (isg' -₁ g') +₁ (-f +₁ z))
+                  (invInvo G₁ isg) ⟩
+        (isg' -₁ g') +₁ (-f +₁ isg) ∎
+        where
+          -f = -₁ f
+          -g = -₁ g
+          isg = 𝒾s g
+          isg' = 𝒾s g'
+          -isg = -₁ isg
+          -isg' = -₁ isg'
+
+
+      IC4 : (g g' f : ⟨ G₁ ⟩) (c-gf : isComposable g f)
+            → f +₁ (((-is g) -₁ (is g')) +₁ g') ≡ ((-is g') +₁ g') +₁ (f -₁ (is g))
+      IC4 g g' f c-gf =
+        f +₁ ((-isg -₁ isg') +₁ g')
+          ≡⟨ cong (λ z → f +₁ ((-isg -₁ isg') +₁ z))
+                  (sym (invInvo G₁ g')) ⟩
+        (f +₁ ((-isg -₁ isg') -₁ -g'))
+          ≡⟨ cong (λ z → f +₁ ((-isg +₁ z) -₁ -g'))
+                  (sym (mapInv ι∘σ g')) ⟩
+        f +₁ ((-isg +₁ (is- g')) -₁ -g')
+          ≡⟨ cong (λ z → f +₁ ((z +₁ (is- g')) -₁ -g'))
+                  (sym (mapInv ι∘σ g)) ⟩
+        f +₁ (((is- g) +₁ (is- g')) -₁ -g')
+          ≡⟨ cong (_+₁ ((is- g +₁ is- g') -₁ -g'))
+                  (sym (invInvo G₁ f)) ⟩
+        (-₁ -f) +₁ (((is- g) +₁ (is- g')) -₁ -g')
+          ≡⟨ IC3 -g -g' -f c--gf ⟩
+        ((is- g') -₁ -g') +₁ ((-₁ -f) +₁ (is- g))
+          ≡⟨ cong (λ z → (z -₁ -g') +₁ ((-₁ -f) +₁ (is- g)))
+                  (mapInv ι∘σ g') ⟩
+        (-isg' -₁ -g') +₁ ((-₁ -f) +₁ (is- g))
+          ≡⟨ cong (λ z → (-isg' +₁ z) +₁ ((-₁ -f) +₁ (is- g)))
+                  (invInvo G₁ g') ⟩
+        (-isg' +₁ g') +₁ ((-₁ -f) +₁ (is- g))
+          ≡⟨ cong (λ z → (-isg' +₁ g') +₁ (z +₁ (is- g)))
+                  (invInvo G₁ f) ⟩
+        (-isg' +₁ g') +₁ (f +₁ (is- g))
+          ≡⟨ cong (λ z → (-isg' +₁ g') +₁ (f +₁ z))
+                  (mapInv ι∘σ g) ⟩
+        (-isg' +₁ g') +₁ (f -₁ isg) ∎
+        where
+          -f = -₁ f
+          -g = -₁ g
+          -g' = -₁ g'
+          isg = 𝒾s g
+          isg' = 𝒾s g'
+          -isg = -₁ isg
+          -isg' = -₁ isg'
+          c--gf = s -g
+                    ≡⟨ mapInv σ g ⟩
+                  -₀ (s g)
+                    ≡⟨ cong -₀_ c-gf ⟩
+                  -₀ (t f)
+                    ≡⟨ sym (mapInv τ f) ⟩
+                  t -f ∎
+      -- g = itf
+      IC5 : (g' f : ⟨ G₁ ⟩)
+            → f +₁ (((-it f) -₁ (is g')) +₁ g') ≡ ((-is g') +₁ g') +₁ (f -₁ (it f))
+      IC5 g' f =
+        f +₁ ((-itf -₁ isg') +₁ g')
+          ≡⟨ cong (λ z → f +₁ (((-₁ (𝒾 z)) -₁ isg') +₁ g'))
+                  (sym c-gf) ⟩
+        f +₁ ((-isg -₁ isg') +₁ g')
+          ≡⟨ IC4 g g' f c-gf ⟩
+        (-isg' +₁ g') +₁ (f -₁ isg)
+          ≡⟨ cong (λ z → (-isg' +₁ g') +₁ (f -₁ (𝒾 z)))
+                  c-gf ⟩
+        (-isg' +₁ g') +₁ (f -₁ itf) ∎
+        where
+          -f = -₁ f
+          -itf = -it f
+          itf = it f
+          g = it f
+          -g = -₁ g
+          -g' = -₁ g'
+          isg = 𝒾s g
+          isg' = 𝒾s g'
+          -isg = -₁ isg
+          -isg' = -₁ isg'
+          c-gf : isComposable g f
+          c-gf = isComp-itf-f f
 
   open VertComp
 
