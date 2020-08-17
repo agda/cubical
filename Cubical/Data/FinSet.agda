@@ -1,3 +1,14 @@
+{-
+
+Definition of finite sets
+
+A set is finite if it is merely equivalent to `Fin n` for some `n`. We
+can translate this to code in two ways: a truncated sigma of a nat and
+an equivalence, or a sigma of a nat and a truncated equivalence. We
+prove that both formulations are equivalent.
+
+-}
+
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 module Cubical.Data.FinSet where
@@ -34,25 +45,15 @@ isFinSetFin = ∣ _ , pathToEquiv refl ∣
 
 isFinSetUnit : isFinSet Unit
 isFinSetUnit = ∣ 1 , Unit≃Fin1 ∣
-  where
-    Unit≃Fin1 : Unit ≃ Fin 1
-    Unit≃Fin1 =
-      isoToEquiv
-        (iso
-          (const fzero)
-          (const tt)
-          (isContrFin1 .snd)
-          (isContrUnit .snd)
-        )
 
-isFinSet′ : Type ℓ → Type ℓ
-isFinSet′ A = Σ[ n ∈ ℕ ] ∥ A ≃ Fin n ∥
+isFinSetΣ : Type ℓ → Type ℓ
+isFinSetΣ A = Σ[ n ∈ ℕ ] ∥ A ≃ Fin n ∥
 
-FinSet′ : Type (ℓ-suc ℓ)
-FinSet′ = TypeWithStr _ isFinSet′
+FinSetΣ : Type (ℓ-suc ℓ)
+FinSetΣ = TypeWithStr _ isFinSetΣ
 
-isProp-isFinSet′ : isProp (isFinSet′ A)
-isProp-isFinSet′ {A = A} (n , equivn) (m , equivm) =
+isProp-isFinSetΣ : isProp (isFinSetΣ A)
+isProp-isFinSetΣ {A = A} (n , equivn) (m , equivm) =
   Σ≡Prop (λ _ → propTruncIsProp) n≡m
   where
     Fin-n≃Fin-m : ∥ Fin n ≃ Fin m ∥
@@ -74,37 +75,31 @@ isProp-isFinSet′ {A = A} (n , equivn) (m , equivm) =
     n≡m : n ≡ m
     n≡m = rec (isSetℕ n m) (λ p → p) ∥n≡m∥
 
-isFinSet≡isFinSet′ : isFinSet A ≡ isFinSet′ A
-isFinSet≡isFinSet′ {A = A} = ua (isoToEquiv (iso to from to-from from-to))
+isFinSet≡isFinSetΣ : isFinSet A ≡ isFinSetΣ A
+isFinSet≡isFinSetΣ {A = A} = hPropExt isProp-isFinSet isProp-isFinSetΣ to from
   where
-    to : isFinSet A → isFinSet′ A
+    to : isFinSet A → isFinSetΣ A
     to ∣ n , equiv ∣ = n , ∣ equiv ∣
-    to (squash p q i) = isProp-isFinSet′ (to p) (to q) i
+    to (squash p q i) = isProp-isFinSetΣ (to p) (to q) i
 
-    from : isFinSet′ A → isFinSet A
+    from : isFinSetΣ A → isFinSet A
     from (n , ∣ isFinSet-A ∣) = ∣ n , isFinSet-A ∣
     from (n , squash p q i) = isProp-isFinSet (from (n , p)) (from (n , q)) i
 
-    to-from : ∀ isFinSet-A → to (from isFinSet-A) ≡ isFinSet-A
-    to-from isFinSet′-A = isProp-isFinSet′ (to (from isFinSet′-A)) isFinSet′-A
-
-    from-to : ∀ isFinSet′-A → from (to isFinSet′-A) ≡ isFinSet′-A
-    from-to isFinSet-A = isProp-isFinSet (from (to isFinSet-A)) isFinSet-A
-
-FinSet≡FinSet′ : FinSet {ℓ} ≡ FinSet′
-FinSet≡FinSet′ = ua (isoToEquiv (iso to from to-from from-to))
+FinSet≡FinSetΣ : FinSet {ℓ} ≡ FinSetΣ
+FinSet≡FinSetΣ = ua (isoToEquiv (iso to from to-from from-to))
   where
-    to : FinSet → FinSet′
-    to (A , isFinSetA) = A , transport isFinSet≡isFinSet′ isFinSetA
+    to : FinSet → FinSetΣ
+    to (A , isFinSetA) = A , transport isFinSet≡isFinSetΣ isFinSetA
 
-    from : FinSet′ → FinSet
-    from (A , isFinSet′A) = A , transport (sym isFinSet≡isFinSet′) isFinSet′A
+    from : FinSetΣ → FinSet
+    from (A , isFinSetΣA) = A , transport (sym isFinSet≡isFinSetΣ) isFinSetΣA
 
     to-from : ∀ A → to (from A) ≡ A
-    to-from A = Σ≡Prop (λ _ → isProp-isFinSet′) refl
+    to-from A = Σ≡Prop (λ _ → isProp-isFinSetΣ) refl
 
     from-to : ∀ A → from (to A) ≡ A
     from-to A = Σ≡Prop (λ _ → isProp-isFinSet) refl
 
 card : FinSet {ℓ} → ℕ
-card = fst ∘ snd ∘ transport FinSet≡FinSet′
+card = fst ∘ snd ∘ transport FinSet≡FinSetΣ

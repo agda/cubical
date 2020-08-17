@@ -42,6 +42,16 @@ isContrFin1
   ; (suc k , sk<1) → Empty.rec (¬-<-zero (pred-≤-pred sk<1))
   }
 
+Unit≃Fin1 : Unit ≃ Fin 1
+Unit≃Fin1 =
+  isoToEquiv
+    (iso
+      (const fzero)
+      (const tt)
+      (isContrFin1 .snd)
+      (isContrUnit .snd)
+    )
+
 -- Regardless of k, Fin k is a set.
 isSetFin : ∀{k} → isSet (Fin k)
 isSetFin {k} = isSetΣ isSetℕ (λ _ → isProp→isSet m≤n-isProp)
@@ -49,12 +59,7 @@ isSetFin {k} = isSetΣ isSetℕ (λ _ → isProp→isSet m≤n-isProp)
 discreteFin : ∀ {n} → Discrete (Fin n)
 discreteFin {n} (x , hx) (y , hy) with discreteℕ x y
 ... | yes prf = yes (Σ≡Prop (λ _ → m≤n-isProp) prf)
-... | no prf = no (λ h → prf (
-    x ≡⟨ refl ⟩
-    fst {B = _< n} (x , hx) ≡⟨ cong fst h ⟩
-    fst {B = _< n} (y , hy) ≡⟨ refl ⟩
-    y ∎
-  ))
+... | no prf = no λ h → prf (cong fst h)
 
 inject<-ne : ∀ {n} (i : Fin n) → ¬ inject< ≤-refl i ≡ (n , ≤-refl)
 inject<-ne {n} (k , k<n) p = <→≢ k<n (cong fst p)

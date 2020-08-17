@@ -72,10 +72,7 @@ elim P fz fs {suc k} fj
   ; (inr (fk , p)) → subst P p (fs (elim P fz fs fk))
   }
 
-any?
-  : ∀ {n} {P : Fin n → Type ℓ}
-  → (∀ i → Dec (P i))
-  → Dec (Σ (Fin n) P)
+any? : ∀ {n} {P : Fin n → Type ℓ} → (∀ i → Dec (P i)) → Dec (Σ (Fin n) P)
 any? {n = zero}  {P = _} P? = no (λ (x , _) → ¬Fin0 x)
 any? {n = suc n} {P = P} P? =
   mapDec
@@ -87,9 +84,7 @@ any? {n = suc n} {P = P} P? =
     (λ n h → n (helper h))
     (P? fzero ⊎? any? (P? ∘ fsuc))
   where
-    helper
-      : Σ (Fin (suc n)) P
-      → (P fzero ⊎ Σ (Fin n) (λ z → P (fsuc z)))
+    helper : Σ (Fin (suc n)) P → P fzero ⊎ Σ (Fin n) λ z → P (fsuc z)
     helper (x , Px) with fsplit x
     ... | inl x≡0 = inl (subst P (sym x≡0) Px)
     ... | inr (k , x≡sk) = inr (k , subst P (sym x≡sk) Px)
