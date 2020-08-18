@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Algebra.Localistation where
+module Cubical.Algebra.Localisation where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
