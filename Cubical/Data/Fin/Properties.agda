@@ -10,13 +10,18 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Fin.Base as Fin
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty as Empty
+open import Cubical.Data.Unit
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
+
+open import Cubical.Relation.Nullary
+open import Cubical.Relation.Nullary.DecidableEq
 
 open import Cubical.Induction.WellFounded
 
@@ -37,9 +42,30 @@ isContrFin1
   ; (suc k , sk<1) → Empty.rec (¬-<-zero (pred-≤-pred sk<1))
   }
 
+Unit≃Fin1 : Unit ≃ Fin 1
+Unit≃Fin1 =
+  isoToEquiv
+    (iso
+      (const fzero)
+      (const tt)
+      (isContrFin1 .snd)
+      (isContrUnit .snd)
+    )
+
 -- Regardless of k, Fin k is a set.
 isSetFin : ∀{k} → isSet (Fin k)
 isSetFin {k} = isSetΣ isSetℕ (λ _ → isProp→isSet m≤n-isProp)
+
+discreteFin : ∀ {n} → Discrete (Fin n)
+discreteFin {n} (x , hx) (y , hy) with discreteℕ x y
+... | yes prf = yes (Σ≡Prop (λ _ → m≤n-isProp) prf)
+... | no prf = no λ h → prf (cong fst h)
+
+inject<-ne : ∀ {n} (i : Fin n) → ¬ inject< ≤-refl i ≡ (n , ≤-refl)
+inject<-ne {n} (k , k<n) p = <→≢ k<n (cong fst p)
+
+Fin-fst-≡ : ∀ {n} {i j : Fin n} → fst i ≡ fst j → i ≡ j
+Fin-fst-≡ = Σ≡Prop (λ _ → m≤n-isProp)
 
 private
   subst-app : (B : A → Type b) (f : (x : A) → B x) {x y : A} (x≡y : x ≡ y) →
@@ -213,3 +239,204 @@ n%k≡n[modk] n (suc k) = o , sym (expand≡ _ _ o) ∙ reduce k n .snd
 
 n%sk<sk : (n k : ℕ) → (n % suc k) < suc k
 n%sk<sk n k = extract (reduce k n) .snd
+
+fznotfs : ∀ {m : ℕ} {k : Fin m} → ¬ fzero ≡ fsuc k
+fznotfs {m} p = subst F p tt
+  where
+    F : Fin (suc m) → Type₀
+    F (zero , _) = Unit
+    F (suc _ , _) = ⊥
+
+fsuc-inj
+  : ∀ {m} {i j : Fin m}
+  → fsuc i ≡ fsuc j
+  → i ≡ j
+fsuc-inj {m} {i} p =
+  transport
+    (cong₂
+      (λ h₁ h₂ → h₁ ≡ h₂)
+      (Σ≡Prop (λ _ → m≤n-isProp) refl)
+      (Σ≡Prop (λ _ → m≤n-isProp) refl)
+    )
+    (cong pred′ p)
+  where
+    pred′ : Fin (suc m) → Fin m
+    pred′ n with fsplit n
+    ... | inl _ = i
+    ... | inr (n′ , prf) = n′
+
+punchOut : ∀ {m} {i j : Fin (suc m)} → (¬ i ≡ j) → Fin m
+punchOut {_} {i} {j} p with fsplit i | fsplit j
+punchOut {_} {i} {j} p | inl prfi | inl prfj =
+  Empty.elim (p (i ≡⟨ sym prfi ⟩ fzero ≡⟨ prfj ⟩ j ∎))
+punchOut {_} {i} {j} p | inl prfi | inr (kj , prfj) =
+  kj
+punchOut {zero} {i} {j} p  | inr (ki , prfi) | inl prfj =
+  Empty.elim (p (
+    i ≡⟨ sym (isContrFin1 .snd i) ⟩
+    c ≡⟨ isContrFin1 .snd j ⟩
+    j ∎
+  ))
+  where c = isContrFin1 .fst
+punchOut {suc _} {i} {j} p | inr (ki , prfi) | inl prfj =
+  fzero
+punchOut {zero} {i} {j} p | inr (ki , prfi) | inr (kj , prfj) =
+  Empty.elim ((p (
+    i ≡⟨ sym (isContrFin1 .snd i) ⟩
+    c ≡⟨ isContrFin1 .snd j ⟩
+    j ∎)
+  ))
+  where c = isContrFin1 .fst
+punchOut {suc _} {i} {j} p | inr (ki , prfi) | inr (kj , prfj) =
+  fsuc (punchOut {i = ki} {j = kj}
+    (λ q → p (i ≡⟨ sym prfi ⟩ fsuc ki ≡⟨ cong fsuc q ⟩ fsuc kj ≡⟨ prfj ⟩ j ∎))
+  )
+
+punchOut-inj
+  : ∀ {m} {i j k : Fin (suc m)} (i≢j : ¬ i ≡ j) (i≢k : ¬ i ≡ k)
+  → punchOut i≢j ≡ punchOut i≢k → j ≡ k
+punchOut-inj {_} {i} {j} {k} i≢j i≢k p with fsplit i | fsplit j | fsplit k
+punchOut-inj {zero} {i} {j} {k} i≢j i≢k p | _ | _ | _ =
+  Empty.elim (i≢j (i ≡⟨ sym (isContrFin1 .snd i) ⟩ c ≡⟨ isContrFin1 .snd j ⟩ j ∎))
+    where c = isContrFin1 .fst
+punchOut-inj {suc _} {i} {j} {k} i≢j i≢k p | inl prfi | inl prfj | _ =
+  Empty.elim (i≢j (i ≡⟨ sym prfi ⟩ fzero ≡⟨ prfj ⟩ j ∎))
+punchOut-inj {suc _} {i} {j} {k} i≢j i≢k p | inl prfi | _ | inl prfk =
+  Empty.elim (i≢k (i ≡⟨ sym prfi ⟩ fzero ≡⟨ prfk ⟩ k ∎))
+punchOut-inj {suc _} {i} {j} {k} i≢j i≢k p | inl prfi | inr (kj , prfj) | inr (kk , prfk) =
+  j       ≡⟨ sym prfj ⟩
+  fsuc kj ≡⟨ cong fsuc p ⟩
+  fsuc kk ≡⟨ prfk ⟩
+  k       ∎
+punchOut-inj {suc _} {i} {j} {k} i≢j i≢k p | inr (ki , prfi) | inl prfj | inl prfk =
+  j     ≡⟨ sym prfj ⟩
+  fzero ≡⟨ prfk ⟩
+  k     ∎
+punchOut-inj {suc _} {i} {j} {k} i≢j i≢k p | inr (ki , prfi) | inr (kj , prfj) | inr (kk , prfk) =
+  j ≡⟨ sym prfj ⟩
+  fsuc kj ≡⟨ cong fsuc lemma4 ⟩
+  fsuc kk ≡⟨ prfk ⟩
+  k ∎
+  where
+    lemma1 = λ q → i≢j (i ≡⟨ sym prfi ⟩ fsuc ki ≡⟨ cong fsuc q ⟩ fsuc kj ≡⟨ prfj ⟩ j ∎)
+    lemma2 = λ q → i≢k (i ≡⟨ sym prfi ⟩ fsuc ki ≡⟨ cong fsuc q ⟩ fsuc kk ≡⟨ prfk ⟩ k ∎)
+    lemma3 = fsuc-inj p
+    lemma4 = punchOut-inj lemma1 lemma2 lemma3
+punchOut-inj {suc m} {i} {j} {k} i≢j i≢k p | inr (ki , prfi) | inl prfj | inr (kk , prfk) =
+  Empty.rec (fznotfs p)
+punchOut-inj {suc _} {i} {j} {k} i≢j i≢k p | inr (ki , prfi) | inr (kj , prfj) | inl prfk =
+  Empty.rec (fznotfs (sym p))
+
+pigeonhole-special
+  : ∀ {n}
+  → (f : Fin (suc n) → Fin n)
+  → Σ[ i ∈ Fin (suc n) ] Σ[ j ∈ Fin (suc n) ] (¬ i ≡ j) × (f i ≡ f j)
+pigeonhole-special {zero} f = Empty.rec (¬Fin0 (f fzero))
+pigeonhole-special {suc n} f =
+  proof (any?
+    (λ (i : Fin (suc n)) →
+      discreteFin (f (inject< ≤-refl i)) (f (suc n , ≤-refl))
+    ))
+  where
+    proof
+      : Dec (Σ (Fin (suc n)) (λ z → f (inject< ≤-refl z) ≡ f (suc n , ≤-refl)))
+      → Σ[ i ∈ Fin (suc (suc n)) ] Σ[ j ∈ Fin (suc (suc n)) ] (¬ i ≡ j) × (f i ≡ f j)
+    proof (yes (i , prf)) = inject< ≤-refl i , (suc n , ≤-refl) , inject<-ne i , prf
+    proof (no h) =
+      let
+        g : Fin (suc n) → Fin n
+        g k = punchOut
+          {i = f (suc n , ≤-refl)}
+          {j = f (inject< ≤-refl k)}
+          (λ p → h (k , Fin-fst-≡ (sym (cong fst p))))
+        i , j , i≢j , p = pigeonhole-special g
+      in
+        inject< ≤-refl i
+      , inject< ≤-refl j
+      , (λ q → i≢j (Fin-fst-≡ (cong fst q)))
+      , punchOut-inj
+          {i = f (suc n , ≤-refl)}
+          {j = f (inject< ≤-refl i)}
+          {k = f (inject< ≤-refl j)}
+          (λ q → h (i , Fin-fst-≡ (sym (cong fst q))))
+          (λ q → h (j , Fin-fst-≡ (sym (cong fst q))))
+          (Fin-fst-≡ (cong fst p))
+
+pigeonhole
+  : ∀ {m n}
+  → m < n
+  → (f : Fin n → Fin m)
+  → Σ[ i ∈ Fin n ] Σ[ j ∈ Fin n ] (¬ i ≡ j) × (f i ≡ f j)
+pigeonhole {m} {n} (zero , sm≡n) f =
+  transport transport-prf (pigeonhole-special f′)
+  where
+    f′ : Fin (suc m) → Fin m
+    f′ = subst (λ h → Fin h → Fin m) (sym sm≡n) f
+
+    f′≡f : PathP (λ i → Fin (sm≡n i) → Fin m) f′ f
+    f′≡f i = transport-fillerExt (cong (λ h → Fin h → Fin m) (sym sm≡n)) (~ i) f
+
+    transport-prf
+      : (Σ[ i ∈ Fin (suc m) ] Σ[ j ∈ Fin (suc m) ] (¬ i ≡ j) × (f′ i ≡ f′ j))
+      ≡ (Σ[ i ∈ Fin n ] Σ[ j ∈ Fin n ] (¬ i ≡ j) × (f i ≡ f j))
+    transport-prf φ =
+      Σ[ i ∈ Fin (sm≡n φ) ] Σ[ j ∈ Fin (sm≡n φ) ]
+        (¬ i ≡ j) × (f′≡f φ i ≡ f′≡f φ j)
+pigeonhole {m} {n′} (suc k , prf) f =
+  let
+    g : Fin (suc n) → Fin n
+    g k = fst (f′ k) , <-trans (snd (f′ k)) m<n
+    i , j , ¬q , r = pigeonhole-special g
+  in transport transport-prf (i , j , ¬q , Σ≡Prop (λ _ → m≤n-isProp) (cong fst r))
+  where
+    n : ℕ
+    n = k + suc m
+
+    n′≡sn : n′ ≡ suc n
+    n′≡sn =
+      n′ ≡⟨ sym prf ⟩
+      suc (k + suc m) ≡⟨ refl ⟩
+      suc n ∎
+
+    m<n : m < n
+    m<n = k , injSuc (suc (k + suc m) ≡⟨ prf ⟩ n′ ≡⟨ n′≡sn ⟩ suc n ∎)
+
+    f′ : Fin (suc n) → Fin m
+    f′ = subst (λ h → Fin h → Fin m) n′≡sn f
+
+    f′≡f : PathP (λ i → Fin (n′≡sn (~ i)) → Fin m) f′ f
+    f′≡f i = transport-fillerExt (cong (λ h → Fin h → Fin m) n′≡sn) (~ i) f
+
+    transport-prf
+      : (Σ[ i ∈ Fin (suc n) ] Σ[ j ∈ Fin (suc n) ] (¬ i ≡ j) × (f′ i ≡ f′ j))
+      ≡ (Σ[ i ∈ Fin n′ ] Σ[ j ∈ Fin n′ ] (¬ i ≡ j) × (f i ≡ f j))
+    transport-prf φ =
+      Σ[ i ∈ Fin (n′≡sn (~ φ)) ] Σ[ j ∈ Fin (n′≡sn (~ φ)) ]
+        (¬ i ≡ j) × (f′≡f φ i ≡ f′≡f φ j)
+
+Fin-inj′ : {n m : ℕ} → n < m → ¬ Fin m ≡ Fin n
+Fin-inj′ n<m p =
+  let
+    i , j , i≢j , q = pigeonhole n<m (transport p)
+  in i≢j (
+    i ≡⟨ refl ⟩
+    fst (pigeonhole n<m (transport p)) ≡⟨ transport-p-inj {p = p} q ⟩
+    fst (snd (pigeonhole n<m (transport p))) ≡⟨ refl ⟩
+    j ∎
+  )
+  where
+    transport-p-inj
+      : ∀ {A B : Type ℓ} {x y : A} {p : A ≡ B}
+      → transport p x ≡ transport p y
+      → x ≡ y
+    transport-p-inj {x = x} {y = y} {p = p} q =
+      x ≡⟨ sym (transport⁻Transport p x) ⟩
+      transport (sym p) (transport p x) ≡⟨ cong (transport (sym p)) q ⟩
+      transport (sym p) (transport p y) ≡⟨ transport⁻Transport p y ⟩
+      y ∎
+
+Fin-inj : (n m : ℕ) → Fin n ≡ Fin m → n ≡ m
+Fin-inj n m p with n ≟ m
+... | eq prf = prf
+... | lt n<m = Empty.rec (Fin-inj′ n<m (sym p))
+... | gt n>m = Empty.rec (Fin-inj′ n>m p)
