@@ -54,17 +54,17 @@ open ActionLemmas
 module _ (ℓ ℓ' : Level) where
   ℓℓ' = ℓ-max ℓ ℓ'
 
-  𝒮-Iso-PG-S2G : 𝒮ᴰ-♭iso (idfun (ReflGraph ℓ ℓℓ')) (𝒮ᴰ-ReflGraph\Peiffer ℓ ℓℓ') (𝒮ᴰ-Strict2Group ℓ ℓℓ')
+  𝒮ᴰ-♭iso-PeifferGraph-Strict2Group : 𝒮ᴰ-♭iso (idfun (ReflGraph ℓ ℓℓ')) (𝒮ᴰ-ReflGraph\Peiffer ℓ ℓℓ') (𝒮ᴰ-Strict2Group ℓ ℓℓ')
 
-  RelIso.fun (𝒮-Iso-PG-S2G 𝒢) isPeifferGraph = q
+  RelIso.fun (𝒮ᴰ-♭iso-PeifferGraph-Strict2Group 𝒢) isPeifferGraph = 𝒱
     where
       open ReflGraphNotation 𝒢
       open VertComp
       _⊙_ = λ (g f : ⟨ G₁ ⟩) → (g -₁ (𝒾s g)) +₁ f
 
-      q : VertComp 𝒢
-      vcomp q g f _ = g ⊙ f
-      σ-∘ q g f c = r
+      𝒱 : VertComp 𝒢
+      vcomp 𝒱 g f _ = g ⊙ f
+      σ-∘ 𝒱 g f c = r
         where
           isg = 𝒾s g
           abstract
@@ -75,7 +75,7 @@ module _ (ℓ ℓ' : Level) where
                 0₀ +₀ s f
                   ≡⟨ lId₀ (s f) ⟩
                 s f ∎
-      τ-∘ q g f c = r
+      τ-∘ 𝒱 g f c = r
         where
           isg = 𝒾s g
           -isg = -₁ (𝒾s g)
@@ -99,7 +99,7 @@ module _ (ℓ ℓ' : Level) where
                 t g +₀ 0₀
                   ≡⟨ rId₀ (t g) ⟩
                 t g ∎
-      isHom-∘ q g f c-gf g' f' _ _ = r
+      isHom-∘ 𝒱 g f c-gf g' f' _ _ = r
         where
           isg = 𝒾s g
           -isg = -₁ (𝒾s g)
@@ -147,7 +147,7 @@ module _ (ℓ ℓ' : Level) where
                 (g ⊙ f) +₁ (g' ⊙ f') ∎
       -- behold! use of symmetry is lurking around the corner
       -- (in stark contrast to composability proofs)
-      assoc-∘ q h g f _ _ _ _ = sym r
+      assoc-∘ 𝒱 h g f _ _ _ _ = sym r
         where
           isg = 𝒾s g
           ish = 𝒾s h
@@ -168,7 +168,7 @@ module _ (ℓ ℓ' : Level) where
                 (((h -₁ ish) +₁ g) -₁ isg) +₁ f
                   ≡⟨ (cong (_+₁ f) (sym (assoc₁ (h -₁ ish) g (-₁ isg)))) ∙ (sym (assoc₁ (h -₁ ish) (g -₁ isg) f)) ⟩
                 h ⊙ (g ⊙ f) ∎
-      lid-∘ q f _ = r
+      lid-∘ 𝒱 f _ = r
         where
           itf = 𝒾t f
           abstract
@@ -177,7 +177,7 @@ module _ (ℓ ℓ' : Level) where
                 (itf -₁ itf) +₁ f
                   ≡⟨ rCancel-lId G₁ itf f ⟩
                 f ∎
-      rid-∘ q g _ = r
+      rid-∘ 𝒱 g _ = r
         where
           isg = 𝒾s g
           -isg = -₁ (𝒾s g)
@@ -188,14 +188,14 @@ module _ (ℓ ℓ' : Level) where
                   ≡⟨ lCancel-rId G₁ g isg ⟩
                 g ∎
 
-  RelIso.inv (𝒮-Iso-PG-S2G 𝒢) 𝒞 = q
+  RelIso.inv (𝒮ᴰ-♭iso-PeifferGraph-Strict2Group 𝒢) 𝒞 = isPf
     where
       open ReflGraphNotation 𝒢
       open VertComp 𝒞
 
       abstract
-        q : isPeifferGraph ι σ τ
-        q f g = ((isg +₁ (f -₁ itf)) +₁ (-isg +₁ g)) +₁ itf
+        isPf : isPeifferGraph ι σ τ
+        isPf f g = ((isg +₁ (f -₁ itf)) +₁ (-isg +₁ g)) +₁ itf
                   ≡⟨ cong (_+₁ itf)
                           (sym (assoc₁ isg (f -₁ itf) (-isg +₁ g))) ⟩
                 (isg +₁ ((f -₁ itf) +₁ (-isg +₁ g))) +₁ itf
@@ -224,11 +224,11 @@ module _ (ℓ ℓ' : Level) where
             itf = 𝒾t f
             -itf = -it f
 
-  RelIso.leftInv (𝒮-Iso-PG-S2G _) _ = tt
-  RelIso.rightInv (𝒮-Iso-PG-S2G _) _ = tt
+  RelIso.leftInv (𝒮ᴰ-♭iso-PeifferGraph-Strict2Group _) _ = tt
+  RelIso.rightInv (𝒮ᴰ-♭iso-PeifferGraph-Strict2Group _) _ = tt
 
   IsoPeifferGraphStrict2Group : Iso (PeifferGraph ℓ ℓℓ') (Strict2Group ℓ ℓℓ')
-  IsoPeifferGraphStrict2Group = Iso→TotalIso idIso (𝒮ᴰ-ReflGraph\Peiffer ℓ ℓℓ') (𝒮ᴰ-Strict2Group ℓ ℓℓ') 𝒮-Iso-PG-S2G
+  IsoPeifferGraphStrict2Group = Iso→TotalIso idIso (𝒮ᴰ-ReflGraph\Peiffer ℓ ℓℓ') (𝒮ᴰ-Strict2Group ℓ ℓℓ') 𝒮ᴰ-♭iso-PeifferGraph-Strict2Group
 
   open import Cubical.DStructures.Equivalences.XModPeifferGraph
   Iso-XModule-Strict2Group : Iso (XModule ℓ ℓℓ') (Strict2Group ℓ ℓℓ')

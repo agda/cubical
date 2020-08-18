@@ -49,9 +49,7 @@ module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
 
-    ℱ : Iso (Action ℓ ℓℓ') (SplitEpi ℓ ℓℓ')
-    ℱ = IsoActionSplitEpi ℓ ℓℓ'
-    F = Iso.fun ℱ
+    F = Iso.fun (IsoActionSplitEpi ℓ ℓℓ')
 
   -- reassociate
   ReflGraph' = Σ[ (((G₀ , G₁) , (ι , σ)) , split-σ) ∈ SplitEpi ℓ ℓℓ' ] Σ[ τ ∈ GroupHom G₁ G₀ ] isGroupSplitEpi ι τ
@@ -68,8 +66,8 @@ module _ (ℓ ℓ' : Level) where
                        ℓℓ'
   𝒮ᴰ-PreXModule' = splitTotal-𝒮ᴰ (𝒮-Action ℓ ℓℓ') (𝒮ᴰ-Action\PreXModuleStr ℓ ℓℓ') (𝒮ᴰ-PreXModule ℓ ℓℓ')
 
-  𝒢 : 𝒮ᴰ-♭iso F 𝒮ᴰ-PreXModule' 𝒮ᴰ-ReflGraph'
-  RelIso.fun (𝒢 (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .fst = τ
+  𝒮ᴰ-♭iso-PreXModule'-ReflGraph' : 𝒮ᴰ-♭iso F 𝒮ᴰ-PreXModule' 𝒮ᴰ-ReflGraph'
+  RelIso.fun (𝒮ᴰ-♭iso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .fst = τ
     where
       open GroupNotation₀ G₀
       open GroupNotation₁ G₁
@@ -96,7 +94,7 @@ module _ (ℓ ℓ' : Level) where
                                                           ∙∙ lId₀ g')))⟩
                                         (𝒻 h +₀ g) +₀ (𝒻  h' +₀ g') ∎
 
-  RelIso.fun (𝒢 (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .snd = q
+  RelIso.fun (𝒮ᴰ-♭iso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .snd = q
     where
       open GroupNotation₀ G₀
       open GroupNotation₁ G₁
@@ -107,7 +105,7 @@ module _ (ℓ ℓ' : Level) where
                                            0₀ +₀ g
                                              ≡⟨ lId₀ g ⟩
                                            g ∎
-  RelIso.inv (𝒢 (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) = φ , isEqui
+  RelIso.inv (𝒮ᴰ-♭iso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) = φ , isEqui
     where
       ℬ = F (((G₀ , G₁) , _α_) , isAct)
       A = groupaction _α_ isAct
@@ -153,7 +151,7 @@ module _ (ℓ ℓ' : Level) where
             open GroupNotation₀ G₀
 
 
-  RelIso.leftInv (𝒢 (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .fst = φ-≅
+  RelIso.leftInv (𝒮ᴰ-♭iso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .fst = φ-≅
     where
       open GroupNotation₀ G₀
 
@@ -162,13 +160,13 @@ module _ (ℓ ℓ' : Level) where
         φ-≅ : (h : ⟨ G₁ ⟩) → φ .fun h +₀ 0₀ ≡ φ .fun h
         φ-≅ h = rId₀ (φ .fun h)
 
-  RelIso.leftInv (𝒢 (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .snd = isEqui-≅
+  RelIso.leftInv (𝒮ᴰ-♭iso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .snd = isEqui-≅
     where
       abstract
         isEqui-≅ : Unit
         isEqui-≅ = tt
 
-  RelIso.rightInv (𝒢 (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) .fst = τ-≅
+  RelIso.rightInv (𝒮ᴰ-♭iso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) .fst = τ-≅
     where
       A = groupaction _α_ isAct
       G₁⋊G₀ = G₁ ⋊⟨ A ⟩ G₀
@@ -186,14 +184,14 @@ module _ (ℓ ℓ' : Level) where
                         ≡⟨ cong t (ΣPathP (cong (h +₁_) (actOnUnit A 0₀) ∙ rId₁ h , lId₀ g)) ⟩
                       t (h , g) ∎
 
-  RelIso.rightInv (𝒢 (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) .snd = split-τ-≅
+  RelIso.rightInv (𝒮ᴰ-♭iso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) .snd = split-τ-≅
     where
       abstract
         split-τ-≅ : Unit
         split-τ-≅ = tt
 
   IsoPreXModuleReflGraph' : Iso PreXModule' ReflGraph'
-  IsoPreXModuleReflGraph' = Iso→TotalIso (IsoActionSplitEpi ℓ ℓℓ') 𝒮ᴰ-PreXModule' 𝒮ᴰ-ReflGraph' 𝒢
+  IsoPreXModuleReflGraph' = Iso→TotalIso (IsoActionSplitEpi ℓ ℓℓ') 𝒮ᴰ-PreXModule' 𝒮ᴰ-ReflGraph' 𝒮ᴰ-♭iso-PreXModule'-ReflGraph'
 
   IsoPreXModuleReflGraph : Iso (PreXModule ℓ ℓℓ') (ReflGraph ℓ ℓℓ')
   IsoPreXModuleReflGraph = compIso (compIso Σ-assoc-Iso
@@ -211,7 +209,7 @@ module _ (ℓ ℓ' : Level) where
 {-
   module _ (((((G₀ , G₁) , (ι , σ)) , split-σ) , τ , split-τ) : ReflGraph) where
     𝒜 : Act
-    𝒜 = RelIso.inv ℱ-RelIso (((G₀ , G₁) , (ι , σ)) , split-σ)
+    𝒜 = RelIso.inv IsoActionSplitEpi ℓ ℓℓ'-RelIso (((G₀ , G₁) , (ι , σ)) , split-σ)
     _α_ =  snd (fst 𝒜)
 
     get-φ : GroupHom (snd (fst (fst 𝒜))) G₀
@@ -238,7 +236,7 @@ module _ (ℓ ℓ' : Level) where
 
   module _ (((((G₀ , G₁) , _α_) , isAct) , φ , isEqui) : PreXMod) where
     ℬ : SplitEpi
-    ℬ = RelIso.fun ℱ-RelIso (((G₀ , G₁) , _α_) , isAct)
+    ℬ = RelIso.fun IsoActionSplitEpi ℓ ℓℓ'-RelIso (((G₀ , G₁) , _α_) , isAct)
 
     open GroupNotation₀ G₀
     open GroupNotation₁ G₁

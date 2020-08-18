@@ -55,8 +55,8 @@ module _ (ℓ ℓ' : Level) where
 
     𝒮ᴰ-S2G = 𝒮ᴰ-ReflGraph\Peiffer
 
-    ℋ : 𝒮ᴰ-♭iso F (𝒮ᴰ-XModule ℓ ℓℓ') (𝒮ᴰ-S2G ℓ ℓℓ')
-    RelIso.fun (ℋ (((((G₀ , H) , _α_) , isAct) , φ) , isEqui)) isPeif a b = q
+    𝒮ᴰ-♭iso-XModule-Strict2Group : 𝒮ᴰ-♭iso F (𝒮ᴰ-XModule ℓ ℓℓ') (𝒮ᴰ-S2G ℓ ℓℓ')
+    RelIso.fun (𝒮ᴰ-♭iso-XModule-Strict2Group (((((G₀ , H) , _α_) , isAct) , φ) , isEqui)) isPeif a b = q
       where
         open GroupNotationH H
         open GroupNotation₀ G₀
@@ -143,7 +143,7 @@ module _ (ℓ ℓ' : Level) where
               x +ᴴ (y α u) , y +₀ v
                 ≡⟨ refl ⟩
               b +₁ a ∎
-    RelIso.inv (ℋ (((((G₀ , H) , _α_) , isAct) , φ) , isEqui)) ♭isPeif h h' = q
+    RelIso.inv (𝒮ᴰ-♭iso-XModule-Strict2Group (((((G₀ , H) , _α_) , isAct) , φ) , isEqui)) ♭isPeif h h' = q
       where
         open GroupNotationH H
         open GroupNotation₀ G₀
@@ -227,9 +227,9 @@ module _ (ℓ ℓ' : Level) where
                 ≡⟨ assocᴴ h h' -h ⟩
               (h +ᴴ h') +ᴴ (-ᴴ h) ∎
 
-    RelIso.leftInv (ℋ _) _ = tt
-    RelIso.rightInv (ℋ _) _ = tt
+    RelIso.leftInv (𝒮ᴰ-♭iso-XModule-Strict2Group _) _ = tt
+    RelIso.rightInv (𝒮ᴰ-♭iso-XModule-Strict2Group _) _ = tt
 
 
   IsoXModulePeifferGraph : Iso (XModule ℓ ℓℓ') (PeifferGraph ℓ ℓℓ')
-  IsoXModulePeifferGraph = Iso→TotalIso ℱ (𝒮ᴰ-XModule ℓ ℓℓ') (𝒮ᴰ-S2G ℓ ℓℓ') ℋ
+  IsoXModulePeifferGraph = Iso→TotalIso ℱ (𝒮ᴰ-XModule ℓ ℓℓ') (𝒮ᴰ-S2G ℓ ℓℓ') 𝒮ᴰ-♭iso-XModule-Strict2Group
