@@ -25,15 +25,6 @@ private
  * (Bonus: (A : Type ℓ) → isContr (URGStr A ℓ))
  * functoriality for free for e : (a : A) → B a → B' a
  * standard notion of structure
- * associativity of URGStr towers
-
-
-  Next steps:
-  - URGStr on Groups
-  - Two arms going up:
-  -+ 1. SectRetr over G, RGGp over that, Peiffer over that, Str2Gp over/equiv to that
-  -+ 2. GpAction over G, PreXMod over that, XMod over that
-
 -}
 -- a univalent reflexive graph structure on a type
 record URGStr (A : Type ℓA) (ℓ≅A : Level) : Type (ℓ-max ℓA (ℓ-suc ℓ≅A)) where
