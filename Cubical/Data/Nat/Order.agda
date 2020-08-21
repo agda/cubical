@@ -183,6 +183,9 @@ private
 <-wellfounded zero = acc λ _ → ⊥.rec ∘ ¬-<-zero
 <-wellfounded (suc n) = acc-suc (<-wellfounded n)
 
+<→≢ : n < m → ¬ n ≡ m
+<→≢ {n} {m} p q = ¬m<m (subst (_< m) q p)
+
 module _
     (b₀ : ℕ)
     (P : ℕ → Type₀)
