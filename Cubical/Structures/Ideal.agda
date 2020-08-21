@@ -69,3 +69,6 @@ module _ (R' : Ring {ℓ}) where
 
   zeroIdeal : Ideal
   zeroIdeal = zeroSubset , isIdealZeroIdeal
+
+IdealsIn : (R : Ring {ℓ}) → Type _
+IdealsIn {ℓ} R = Σ[ I ∈ (⟨ R ⟩ → hProp ℓ) ] isIdeal R I

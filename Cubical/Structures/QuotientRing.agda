@@ -4,11 +4,12 @@ module Cubical.Structures.QuotientRing where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Logic using (_∈_)
-open import Cubical.HITs.SetQuotients.Base
+open import Cubical.Foundations.Logic using (_∈_; _⊆_) -- \in, \sub=
+open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/ₛ_)
 open import Cubical.HITs.SetQuotients.Properties
 open import Cubical.Structures.Ring
 open import Cubical.Structures.Ideal
+open import Cubical.Structures.Kernel
 
 private
   variable
@@ -20,7 +21,7 @@ module _ (R' : Ring {ℓ}) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal 
   open Theory R'
 
   R/I : Type ℓ
-  R/I = R / (λ x y → x - y ∈ I)
+  R/I = R /ₛ (λ x y → x - y ∈ I)
 
   private
     homogeneity : ∀ (x a b : R)
@@ -174,3 +175,41 @@ module _ (R' : Ring {ℓ}) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal 
   asRing = makeRing 0/I 1/I _+/I_ _·/I_ -/I isSetR/I
                     +/I-assoc +/I-rid +/I-rinv +/I-comm
                     ·/I-assoc ·/I-rid ·/I-lid /I-rdist /I-ldist
+
+_/_ : (R : Ring {ℓ}) → (I : IdealsIn R) → Ring {ℓ}
+R / (I , IisIdeal) = asRing R I IisIdeal
+
+[_]/I : {R : Ring {ℓ}} {I : IdealsIn R} → (a : ⟨ R ⟩) → ⟨ R / I ⟩
+[ a ]/I = [ a ]
+
+
+module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
+  open Ring ⦃...⦄
+  open Theory ⦃...⦄
+  Iₛ = fst I
+  private
+    instance
+      _ = R
+
+  module _ {S : Ring {ℓ}} (φ : RingHom R S) where
+    open RingHom φ
+    open HomTheory φ
+    private
+      instance
+        _ = S
+
+    inducedMap : Iₛ ⊆ kernel φ → RingHom (R / I) S
+    f (inducedMap Iₛ⊆kernel) = elim
+                                 (λ _ → isSetRing S)
+                                 f
+                                 λ r₁ r₂ r₁-r₂∈I → equalByDifference (f r₁) (f r₂)
+                                   (f r₁ - f r₂     ≡⟨ cong (λ u → f r₁ + u) (sym (-commutesWithHom _)) ⟩
+                                    f r₁ + f (- r₂) ≡⟨ sym (isHom+ _ _) ⟩
+                                    f (r₁ - r₂)     ≡⟨ Iₛ⊆kernel (r₁ - r₂) r₁-r₂∈I ⟩
+                                    0r ∎)
+    pres1 (inducedMap Iₛ⊆kernel) = pres1
+    isHom+ (inducedMap Iₛ⊆kernel) =
+      elimProp2 (λ _ _ → isSetRing S _ _) isHom+
+    isHom· (inducedMap Iₛ⊆kernel) =
+      elimProp2 (λ _ _ → isSetRing S _ _) isHom·
+

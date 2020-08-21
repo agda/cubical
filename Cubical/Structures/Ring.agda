@@ -298,6 +298,17 @@ module Theory (R : Ring {ℓ}) where
     (- x) + 0r      ≡⟨ +-rid _ ⟩
     - x             ∎
 
+  equalByDifference : (x y : ⟨ R ⟩)
+                      → x - y ≡ 0r
+                      → x ≡ y
+  equalByDifference x y p =
+    x               ≡⟨ sym (+-rid _) ⟩
+    x + 0r          ≡⟨ cong (λ u → x + u) (sym (+-linv y)) ⟩
+    x + ((- y) + y) ≡⟨ +-assoc _ _ _ ⟩
+    (x - y) + y     ≡⟨ cong (λ u → u + y) p ⟩
+    0r + y          ≡⟨ +-lid _ ⟩
+    y               ∎
+
   0-selfinverse : - 0r ≡ 0r
   0-selfinverse = sym (implicitInverse _ _ (+-rid 0r))
 
