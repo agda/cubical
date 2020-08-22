@@ -8,7 +8,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary.Base
-open BinaryRelation
+
 
 
 private

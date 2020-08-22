@@ -126,7 +126,7 @@ setQuotUniversal Bset = isoToEquiv (iso intro out outRightInv outLeftInv)
     (λ sur → cong (out (intro g)) (sym (snd sur)) ∙ (cong g (snd sur))) ([]surjective x)
     )
 
-open BinaryRelation
+
 
 effective : (Rprop : isPropValued R) (Requiv : isEquivRel R) (a b : A) → [ a ] ≡ [ b ] → R a b
 effective {A = A} {R = R} Rprop (equivRel R/refl R/sym R/trans) a b p = transport aa≡ab (R/refl _)

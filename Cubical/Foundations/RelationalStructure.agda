@@ -19,7 +19,7 @@ open import Cubical.HITs.SetQuotients
 open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.ZigZag.Base
 
-open BinaryRelation
+
 open isEquivRel
 open isQuasiEquivRel
 

@@ -12,7 +12,7 @@ open import Cubical.Homotopy.Base
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary
-open BinaryRelation
+
 
 open import Cubical.Structures.Group
 open import Cubical.Structures.LeftAction

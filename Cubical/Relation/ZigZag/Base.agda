@@ -13,7 +13,7 @@ open import Cubical.HITs.SetQuotients
 open import Cubical.HITs.PropositionalTruncation as Trunc
 open import Cubical.Relation.Binary.Base
 
-open BinaryRelation
+
 open isEquivRel
 
 private

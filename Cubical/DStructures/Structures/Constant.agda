@@ -11,7 +11,7 @@ open import Cubical.DStructures.Base
 open import Cubical.DStructures.Meta.Properties
 
 open import Cubical.Relation.Binary
-open BinaryRelation
+
 
 private
   variable
@@ -42,7 +42,7 @@ _×𝒮_ StrA {B} StrB = ∫⟨ StrA ⟩ (𝒮ᴰ-const StrA StrB)
 ×𝒮-swap {C = C} {ℓ≅ᴰ = ℓ≅ᴰ} {StrA×B = StrA×B} StrCᴰ =
   make-𝒮ᴰ (λ c p c' → c ≅ᴰ⟨ p ⟩ c')
               ρᴰ
-              λ (b , a) c → isUnivalent→contrTotalSpace (λ c c' → c ≅ᴰ⟨ URGStr.ρ StrA×B (a , b) ⟩ c')
+              λ (b , a) c → isUnivalent→contrRelSingl (λ c c' → c ≅ᴰ⟨ URGStr.ρ StrA×B (a , b) ⟩ c')
                                                         ρᴰ
                                                         uniᴰ
                                                         c

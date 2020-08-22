@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary
-open BinaryRelation
+
 
 open import Cubical.DStructures.Base
 open import Cubical.DStructures.Meta.Properties
@@ -43,7 +43,7 @@ combine-𝒮ᴰ {ℓ≅B = ℓ≅B} {ℓ≅C = ℓ≅C} {A = A} {StrA = StrA} {B
     contrTot = λ (a : A) ((b , c) : B a × C a)
       → isOfHLevelRespectEquiv 0
                                (Σ[ b' ∈ B a ] (b B≅ᴰ⟨ ρ a ⟩ b')
-                                 ≃⟨ invEquiv (Σ-contractSnd (λ _ → isUnivalent→contrTotalSpace (_C≅ᴰ⟨ ρ a ⟩_) Cρᴰ Cuniᴰ c)) ⟩
+                                 ≃⟨ invEquiv (Σ-contractSnd (λ _ → isUnivalent→contrRelSingl (_C≅ᴰ⟨ ρ a ⟩_) Cρᴰ Cuniᴰ c)) ⟩
                                (Σ[ b' ∈ B a ] (b B≅ᴰ⟨ ρ a ⟩ b')) × (Σ[ c' ∈ C a ] (c C≅ᴰ⟨ ρ a ⟩ c'))
                                  ≃⟨ Σ-assoc-≃ ⟩
                                (Σ[ b' ∈ B a ] Σ[ _ ∈ b B≅ᴰ⟨ ρ a ⟩ b' ] Σ[ c' ∈ C a ] (c C≅ᴰ⟨ ρ a ⟩ c'))
@@ -51,7 +51,7 @@ combine-𝒮ᴰ {ℓ≅B = ℓ≅B} {ℓ≅C = ℓ≅C} {A = A} {StrA = StrA} {B
                                (Σ[ b' ∈ B a ] Σ[ c' ∈ C a ] Σ[ _ ∈ b B≅ᴰ⟨ ρ a ⟩ b' ] (c C≅ᴰ⟨ ρ a ⟩ c'))
                                  ≃⟨ invEquiv Σ-assoc-≃ ⟩
                                (Σ[ (b' , c') ∈ B a × C a ] (b B≅ᴰ⟨ ρ a ⟩ b' × c C≅ᴰ⟨ ρ a ⟩ c') ) ■)
-                               (isUnivalent→contrTotalSpace (_B≅ᴰ⟨ ρ a ⟩_) Bρᴰ Buniᴰ b)
+                               (isUnivalent→contrRelSingl (_B≅ᴰ⟨ ρ a ⟩_) Bρᴰ Buniᴰ b)
 
 
 
@@ -109,13 +109,13 @@ splitTotal-𝒮ᴰ {A = A} StrA {B} StrBᴰ {C} StrCᴰ
     module _ (a : A) (b : B a) where
       abstract
         contrTotalB : isContr (Σ[ b' ∈ B a ] b B≅ᴰ⟨ ρ a ⟩ b')
-        contrTotalB = isUnivalent→contrTotalSpace (_B≅ᴰ⟨ ρ a ⟩_) Bρᴰ Buniᴰ b
+        contrTotalB = isUnivalent→contrRelSingl (_B≅ᴰ⟨ ρ a ⟩_) Bρᴰ Buniᴰ b
 
         contrTotalB' : isContr (Σ[ b' ∈ B a ] b B≅ᴰ⟨ ρ a ⟩ b')
         contrTotalB' = (b , Bρᴰ b) , λ z → sym (snd contrTotalB (b , Bρᴰ b)) ∙ snd contrTotalB z
 
         contrTotalC : (c : C (a , b)) → isContr (Σ[ c' ∈ C (a , b) ] c ≅ᴰ⟨ ρ a , Bρᴰ b ⟩ c')
-        contrTotalC = isUnivalent→contrTotalSpace (λ c₁ c₂ → c₁ ≅ᴰ⟨ ρ a , Bρᴰ b ⟩ c₂) ρᴰ uniᴰ
+        contrTotalC = isUnivalent→contrRelSingl (λ c₁ c₂ → c₁ ≅ᴰ⟨ ρ a , Bρᴰ b ⟩ c₂) ρᴰ uniᴰ
 
     abstract
       q = λ a (b , c) → isOfHLevelRespectEquiv 0
@@ -195,7 +195,7 @@ splitProductURGStrᴰ {A = A} {StrA = StrA} {B = B} {StrB = StrB} {C = C} StrC�
                                                      Σ[ b' ∈ B ] Σ[ c' ∈ C (a , b') ] Σ[ eB ∈ b B≅ b' ] (c ≅ᴰ⟨ Aρ a , eB  ⟩ c')
                                                        ≃⟨ invEquiv Σ-assoc-≃ ⟩
                                                      Σ[ (b' , c') ∈ (Σ[ b' ∈ B ] C (a , b')) ] Σ[ eB ∈ b B≅ b' ] (c ≅ᴰ⟨ Aρ a , eB  ⟩ c') ■)
-                                                     (isUnivalent→contrTotalSpace (λ c c' → c ≅ᴰ⟨ Aρ a , Bρ b ⟩ c') ρᴰ uniᴰ c)
+                                                     (isUnivalent→contrRelSingl (λ c c' → c ≅ᴰ⟨ Aρ a , Bρ b ⟩ c') ρᴰ uniᴰ c)
   where
     open URGStrᴰ StrCᴰ/B×A
     _B≅_ = URGStr._≅_ StrB
@@ -205,7 +205,7 @@ splitProductURGStrᴰ {A = A} {StrA = StrA} {B = B} {StrB = StrB} {C = C} StrC�
 
     module _ (a : A) (b : B) where
       contrTotalB : isContr (Σ[ b' ∈ B ] b B≅ b')
-      contrTotalB = isUnivalent→contrTotalSpace _B≅_ Bρ Buni b
+      contrTotalB = isUnivalent→contrRelSingl _B≅_ Bρ Buni b
 
       contrTotalB' : isContr (Σ[ b' ∈ B ] b B≅ b')
       contrTotalB' = (b , Bρ b) , λ z → sym (snd contrTotalB (b , Bρ b)) ∙ snd contrTotalB z

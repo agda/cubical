@@ -32,7 +32,7 @@ FunctionRelStr : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
 FunctionRelStr ρ₁ ρ₂ R f g =
   ∀ {x y} → ρ₁ R x y → ρ₂ R (f x) (g y)
 
-open BinaryRelation
+
 open isEquivRel
 
 private

@@ -16,7 +16,7 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Maybe
 
 open import Cubical.Relation.Binary
-open BinaryRelation
+
 
 open import Cubical.Structures.Subtype
 open import Cubical.Structures.Group
@@ -34,12 +34,16 @@ open import Cubical.DStructures.Structures.Type
 open import Cubical.DStructures.Structures.Group
 open import Cubical.DStructures.Structures.Action
 open import Cubical.DStructures.Structures.Strict2Group
+open import Cubical.DStructures.Structures.ReflGraph
+open import Cubical.DStructures.Structures.PeifferGraph
+open import Cubical.DStructures.Structures.VertComp
 open import Cubical.DStructures.Structures.Type
 open import Cubical.DStructures.Structures.Universe
 open import Cubical.DStructures.Structures.XModule
 open import Cubical.DStructures.Equivalences.GroupSplitEpiAction
 open import Cubical.DStructures.Equivalences.PreXModReflGraph
-open import Cubical.DStructures.Equivalences.XModS2G
+open import Cubical.DStructures.Equivalences.XModPeifferGraph
+open import Cubical.DStructures.Equivalences.PeifferGraphS2G
 
 
 private

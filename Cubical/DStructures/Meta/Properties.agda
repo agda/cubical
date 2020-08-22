@@ -10,7 +10,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary
-open BinaryRelation
+
 
 open import Cubical.DStructures.Base
 
@@ -37,16 +37,16 @@ private
      ρΣ = ρ a , ρᴰ b
      -- contractability of the corresponding total space
      contrTotalA : isContr (Σ[ a' ∈ A ] (a ≅ a'))
-     contrTotalA = isUnivalent→contrTotalSpace _≅_ ρ uni a
+     contrTotalA = isUnivalent→contrRelSingl _≅_ ρ uni a
      contrTotalA' : isContr (Σ[ a' ∈ A ] (a ≅ a'))
      contrTotalA' = (a , ρ a) , λ z → sym (snd contrTotalA (a , ρ a)) ∙ snd contrTotalA z
      contrTotalB : isContr (Σ[ b' ∈ B a ] (b ≅ᴰ⟨ ρ a ⟩ b'))
-     contrTotalB = isUnivalent→contrTotalSpace (_≅ᴰ⟨ ρ a ⟩_) ρᴰ uniᴰ b
+     contrTotalB = isUnivalent→contrRelSingl (_≅ᴰ⟨ ρ a ⟩_) ρᴰ uniᴰ b
 
      contrTotalΣ
        = isOfHLevelRespectEquiv 0
-                                (Rel→TotalSpace (_≅ᴰ⟨ ρ a ⟩_) b
-                                  ≃⟨ idEquiv (Rel→TotalSpace (_≅ᴰ⟨ ρ a ⟩_) b) ⟩
+                                (relSinglAt (_≅ᴰ⟨ ρ a ⟩_) b
+                                  ≃⟨ idEquiv (relSinglAt (_≅ᴰ⟨ ρ a ⟩_) b) ⟩
                                 Σ[ b' ∈ B a ] (b ≅ᴰ⟨ ρ a ⟩ b')
                                   ≃⟨ invEquiv (Σ-contractFst contrTotalA') ⟩
                                 Σ[ (a' , e) ∈ (Σ[ a' ∈ A ] (a ≅ a')) ] Σ[ b' ∈ B a' ] (b ≅ᴰ⟨ e ⟩ b')

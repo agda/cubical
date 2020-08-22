@@ -43,13 +43,16 @@ graphRel : ∀ {ℓ} {A B : Type ℓ} → (A → B) → Rel A B ℓ
 graphRel f a b = f a ≡ b
 
 
-module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') where
+module _ {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') where
+  -- R is reflexive
   isRefl : Type (ℓ-max ℓ ℓ')
   isRefl = (a : A) → a R a
 
+  -- R is symmetric
   isSym : Type (ℓ-max ℓ ℓ')
   isSym = (a b : A) → a R b → b R a
 
+  -- R is transitive
   isTrans : Type (ℓ-max ℓ ℓ')
   isTrans = (a b c : A)  → a R b → b R c → a R c
 
@@ -67,14 +70,13 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
   isEffective =
     (a b : A) → isEquiv (eq/ {R = _R_} a b)
 
-  module _ (a : A) where
-    -- the total space corresponding to the binary relation w.r.t. a
-    Rel→TotalSpace : Type (ℓ-max ℓ ℓ')
-    Rel→TotalSpace = Σ[ a' ∈ A ] (a R a')
+  -- the total space corresponding to the binary relation w.r.t. a
+  relSinglAt : (a : A) → Type (ℓ-max ℓ ℓ')
+  relSinglAt a = Σ[ a' ∈ A ] (a R a')
 
   -- the statement that the total space is contractible at any a
-  contrTotalSpace : Type (ℓ-max ℓ ℓ')
-  contrTotalSpace = (a : A) → isContr (Rel→TotalSpace a)
+  contrRelSingl : Type (ℓ-max ℓ ℓ')
+  contrRelSingl = (a : A) → isContr (relSinglAt a)
 
   -- assume a reflexive binary relation
   module _ (ρ : isRefl) where
@@ -86,7 +88,7 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
     isUnivalent : Type (ℓ-max ℓ ℓ')
     isUnivalent = (a a' : A) → isEquiv (≡→R {a} {a'})
 
-    -- helpers for contrTotalSpace→isUnivalent
+    -- helpers for contrRelSingl→isUnivalent
     private
       module _ (a : A) where
         -- wrapper for ≡→R
@@ -100,8 +102,8 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
     -- if the total space corresponding to R is contractible
     -- then R is univalent
     -- because the singleton at a is also contractible
-    contrTotalSpace→isUnivalent : contrTotalSpace → isUnivalent
-    contrTotalSpace→isUnivalent c a = q
+    contrRelSingl→isUnivalent : contrRelSingl → isUnivalent
+    contrRelSingl→isUnivalent c a = q
       where
         abstract
           q = fiberEquiv (λ a' → a ≡ a')
@@ -116,8 +118,8 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
     -- equivalences preserve contractability,
     -- singletons are contractible
     -- and by the univalence assumption the total map is an equivalence
-    isUnivalent→contrTotalSpace : isUnivalent → contrTotalSpace
-    isUnivalent→contrTotalSpace u a = q
+    isUnivalent→contrRelSingl : isUnivalent → contrRelSingl
+    isUnivalent→contrRelSingl u a = q
       where
         abstract
           q = isOfHLevelRespectEquiv 0
@@ -140,8 +142,8 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
         totg : singl a → Σ[ a' ∈ A ] (a R a')
         totg (a' , p) = (a' , g a' p)
 
-      isUnivalent'→contrTotalSpace : isUnivalent' → contrTotalSpace
-      isUnivalent'→contrTotalSpace u a = q
+      isUnivalent'→contrRelSingl : isUnivalent' → contrRelSingl
+      isUnivalent'→contrRelSingl u a = q
         where
           abstract
             q = isOfHLevelRespectEquiv 0
@@ -150,7 +152,7 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') whe
 
 
     isUnivalent'→isUnivalent : isUnivalent' → isUnivalent
-    isUnivalent'→isUnivalent u = contrTotalSpace→isUnivalent (isUnivalent'→contrTotalSpace u)
+    isUnivalent'→isUnivalent u = contrRelSingl→isUnivalent (isUnivalent'→contrRelSingl u)
 
 
 record RelIso {A : Type ℓA} (_≅_ : Rel A A ℓ≅A)
@@ -164,19 +166,18 @@ record RelIso {A : Type ℓA} (_≅_ : Rel A A ℓ≅A)
 
 RelIso→Iso : {A : Type ℓA} {A' : Type ℓA'}
              (_≅_ : Rel A A ℓ≅A) (_≅'_ : Rel A' A' ℓ≅A')
-             {ρ : BinaryRelation.isRefl _≅_} {ρ' : BinaryRelation.isRefl _≅'_}
-             (uni : BinaryRelation.isUnivalent _≅_ ρ) (uni' : BinaryRelation.isUnivalent _≅'_ ρ')
+             {ρ : isRefl _≅_} {ρ' : isRefl _≅'_}
+             (uni : isUnivalent _≅_ ρ) (uni' : isUnivalent _≅'_ ρ')
              (f : RelIso _≅_ _≅'_)
              → Iso A A'
 Iso.fun (RelIso→Iso _ _ _ _ f) = RelIso.fun f
 Iso.inv (RelIso→Iso _ _ _ _ f) = RelIso.inv f
-Iso.rightInv (RelIso→Iso _ _≅'_ {ρ' = ρ'} _ uni' f) a' = invEquiv (BinaryRelation.≡→R _≅'_ ρ' , uni' (RelIso.fun f (RelIso.inv f a')) a') .fst (RelIso.rightInv f a')
-Iso.leftInv (RelIso→Iso _≅_ _ {ρ = ρ} uni _ f) a = invEquiv (BinaryRelation.≡→R _≅_ ρ , uni (RelIso.inv f (RelIso.fun f a)) a) .fst (RelIso.leftInv f a)
-             
+Iso.rightInv (RelIso→Iso _ _≅'_ {ρ' = ρ'} _ uni' f) a' = invEquiv (≡→R _≅'_ ρ' , uni' (RelIso.fun f (RelIso.inv f a')) a') .fst (RelIso.rightInv f a')
+Iso.leftInv (RelIso→Iso _≅_ _ {ρ = ρ} uni _ f) a = invEquiv (≡→R _≅_ ρ , uni (RelIso.inv f (RelIso.fun f a)) a) .fst (RelIso.leftInv f a)
+
 
 EquivRel : ∀ {ℓ} (A : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
-EquivRel A ℓ' = Σ[ R ∈ Rel A A ℓ' ] BinaryRelation.isEquivRel R
+EquivRel A ℓ' = Σ[ R ∈ Rel A A ℓ' ] isEquivRel R
 
 EquivPropRel : ∀ {ℓ} (A : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
-EquivPropRel A ℓ' = Σ[ R ∈ PropRel A A ℓ' ] BinaryRelation.isEquivRel (R .fst)
-
+EquivPropRel A ℓ' = Σ[ R ∈ PropRel A A ℓ' ] isEquivRel (R .fst)

@@ -14,7 +14,7 @@ open import Cubical.HITs.SetQuotients as SetQuotient
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
-open BinaryRelation
+
 
 ℕ₊₁→ℤ : ℕ₊₁ → ℤ
 ℕ₊₁→ℤ n = pos (ℕ₊₁→ℕ n)

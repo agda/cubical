@@ -15,7 +15,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Relation.Binary
-open BinaryRelation
+
 
 open import Cubical.Structures.Subtype
 open import Cubical.Structures.Group

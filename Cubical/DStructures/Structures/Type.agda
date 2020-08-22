@@ -10,7 +10,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Relation.Binary
-open BinaryRelation
+
 
 open import Cubical.DStructures.Base
 open import Cubical.DStructures.Meta.Properties
