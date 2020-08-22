@@ -3,9 +3,10 @@ module Cubical.Data.DiffInt.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.DiffInt.Base
-open import Cubical.Data.Nat
+open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Bool
 
@@ -52,3 +53,64 @@ private
 
   _ : Dec→Bool (discreteℤ [ (3 , 5) ] [ (4 , 7) ]) ≡ false
   _ = refl
+
+
+module _ where
+  isSetℤ : isSet ℤ
+  isSetℤ = squash/
+
+  isSetℤ→ℤ : isSet (ℤ → ℤ)
+  isSetℤ→ℤ = isOfHLevelΠ 2 λ _ → isSetℤ
+
+  _+ℤ_ : ℤ → ℤ → ℤ
+  _+ℤ_ = rec2 isSetℤ
+              (λ {(n , k) (m , l) → [ (n + m , k + l) ]})
+              (λ {a b c a₁+b₂≡b₁+a₂ →
+                eq/ _ _
+                    (p a b c a₁+b₂≡b₁+a₂)})
+              λ {a b c b₁+c₂≡c₁+b₂ →
+                eq/ _ _
+                    (q a b c b₁+c₂≡c₁+b₂)}
+            where
+              p : ((a₁ , a₂) : ℕ × ℕ) → ((b₁ , b₂) : ℕ × ℕ) → ((c₁ , c₂) : ℕ × ℕ) → _ ≡ _
+                  → (a₁ + c₁) + (b₂ + c₂) ≡ (b₁ + c₁) + (a₂ + c₂)
+              p (a₁ , a₂) (b₁ , b₂) (c₁ , c₂) a₁+b₂≡b₁+a₂
+                = (a₁ + c₁) + (b₂ + c₂) ≡⟨ cong (λ u → u + (b₂ + c₂)) (+-comm a₁ c₁) ⟩
+                  (c₁ + a₁) + (b₂ + c₂) ≡⟨ sym (+-assoc c₁ _ _) ⟩
+                  c₁ + (a₁ + (b₂ + c₂)) ≡⟨ cong (λ u → c₁ + u) (+-assoc a₁ _ _) ⟩
+                  c₁ + ((a₁ + b₂) + c₂) ≡⟨ cong (λ u → c₁ + (u + c₂)) a₁+b₂≡b₁+a₂ ⟩
+                  c₁ + ((b₁ + a₂) + c₂) ≡⟨ cong (λ u → c₁ + u) (sym (+-assoc b₁ _ _)) ⟩
+                  c₁ + (b₁ + (a₂ + c₂)) ≡⟨ +-assoc c₁ _ _ ⟩
+                  (c₁ + b₁) + (a₂ + c₂) ≡⟨ cong (λ u → u + (a₂ + c₂)) (+-comm c₁ b₁) ⟩
+                  (b₁ + c₁) + (a₂ + c₂) ∎
+              q : ((a₁ , a₂) : ℕ × ℕ) → ((b₁ , b₂) : ℕ × ℕ) → ((c₁ , c₂) : ℕ × ℕ) → _ ≡ _
+                  → (a₁ + b₁) + (a₂ + c₂) ≡ (a₁ + c₁) + (a₂ + b₂)
+              q (a₁ , a₂) (b₁ , b₂) (c₁ , c₂) b₁+c₂≡c₁+b₂
+                = (a₁ + b₁) + (a₂ + c₂) ≡⟨ cong (λ u → u + (a₂ + c₂)) (+-comm a₁ b₁) ⟩
+                  (b₁ + a₁) + (a₂ + c₂) ≡⟨ cong (λ u → (b₁ + a₁) + u) (+-comm a₂ _)  ⟩
+                  (b₁ + a₁) + (c₂ + a₂) ≡⟨ p (b₁ , b₂) _ _ b₁+c₂≡c₁+b₂ ⟩
+                  (c₁ + a₁) + (b₂ + a₂) ≡⟨ cong (λ u → (c₁ + a₁) + u) (+-comm b₂ _) ⟩
+                  (c₁ + a₁) + (a₂ + b₂) ≡⟨ cong (λ u → u + (a₂ + b₂)) (+-comm c₁ a₁) ⟩
+                  (a₁ + c₁) + (a₂ + b₂) ∎
+
+  +ℤ-assoc : (a b c : ℤ)
+             → a +ℤ (b +ℤ c) ≡ (a +ℤ b) +ℤ c
+  +ℤ-assoc = elimProp3 (λ _ _ _ → isSetℤ _ _)
+                       λ {(a₁ , a₂) (b₁ , b₂) (c₁ , c₂) i
+                        → [ +-assoc a₁ b₁ c₁ i , +-assoc a₂ b₂ c₂ i ]}
+
+  +ℤ-comm : (a b : ℤ)
+             → a +ℤ b ≡ b +ℤ a
+  +ℤ-comm = elimProp2 (λ _ _ → isSetℤ _ _)
+                       λ {(a₁ , a₂) (b₁ , b₂) i
+                       → [ +-comm a₁ b₁ i , +-comm a₂ b₂ i ]}
+
+  0ℤ : ℤ
+  0ℤ = [ (0 , 0) ]
+
+  1ℤ : ℤ
+  1ℤ = [ (1 , 0) ]
+
+  +ℤ-rid : (a : ℤ) → a +ℤ 0ℤ ≡ a
+  +ℤ-rid = elimProp (λ _ → isSetℤ _ _)
+                    λ {(a₁ , a₂) i → [ +-zero a₁ i , +-zero a₂ i ]}
