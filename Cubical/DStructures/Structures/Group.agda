@@ -160,3 +160,19 @@ module _ (ℓ ℓ' : Level) where
 
   𝒮-ReflGraph : URGStr ReflGraph (ℓ-max ℓ ℓ')
   𝒮-ReflGraph = ∫⟨ 𝒮-SplitEpiB ⟩ 𝒮ᴰ-ReflGraph
+
+module SplitEpiNotation {G₀ : Group {ℓ}} {G₁ : Group {ℓ'}}
+                        (ι : GroupHom G₀ G₁) (σ : GroupHom G₁ G₀)
+                        (split : isGroupSplitEpi ι σ) where
+  open GroupNotation₀ G₀
+  open GroupNotation₁ G₁
+  s = GroupHom.fun σ
+  -- i is reserved for an interval variable (i : I) so we use 𝒾 instead
+  𝒾 = GroupHom.fun ι
+  -i = λ (x : ⟨ G₀ ⟩) → -₁ (𝒾 x)
+  si = λ (x : ⟨ G₀ ⟩) → s (𝒾 x)
+  is = λ (x : ⟨ G₁ ⟩) → 𝒾 (s x)
+  -si = λ (x : ⟨ G₀ ⟩) → -₀ (si x)
+  -is = λ (x : ⟨ G₁ ⟩) → -₁ (is x)
+  si- = λ (x : ⟨ G₀ ⟩) → si (-₀ x)
+  is- = λ (x : ⟨ G₁ ⟩) → is (-₁ x)

@@ -44,6 +44,7 @@ module _ (ℓ ℓ' : Level) where
       where
         open GroupNotation₀ G₀
         open GroupNotation₁ G₁
+        open SplitEpiNotation ι σ isSplit
         open IsGroupAction
 
         -- G₀ will act on ker σ
@@ -59,27 +60,26 @@ module _ (ℓ ℓ' : Level) where
         _α_ : LeftActionStructure ⟨ G₀ ⟩ ⟨ ker-σ ⟩
         g α (h , p) = (ig +₁ h) -₁ ig , q
           where
-            ig = ι .fun g
-            s = σ .fun
+            ig = 𝒾 g
             abstract
               -- proof that (ig +₁ h) -₁ ig
               -- lies in ker-σ
               q = s ((ig +₁ h) -₁ ig)
                     ≡⟨ σ .isHom (ig +₁ h) (-₁ ig) ⟩
-                  (s (ig +₁ h)) +₀ s (-₁ ig)
+                  s (ig +₁ h) +₀ s (-₁ ig)
                      ≡⟨ cong (s (ig +₁ h) +₀_)
                              (mapInv σ ig) ⟩
-                  (s (ig +₁ h)) +₀ (-₀ (s ig))
+                  s (ig +₁ h) -₀ si g
                      ≡⟨ cong (_+₀ -₀ (s ig))
                              (σ .isHom ig h) ⟩
-                  ((s ig) +₀ (s h)) +₀ (-₀ (s ig))
-                      ≡⟨ cong (λ z → ((s ig) +₀ z) +₀ (-₀ (s ig)))
+                  (si g +₀ s h) -₀ si g
+                      ≡⟨ cong (λ z → ((si g) +₀ z) -₀ (si g))
                               p ⟩
-                  ((s ig) +₀ 0₀) +₀ (-₀ (s ig))
+                  ((si g) +₀ 0₀) -₀ (si g)
                       ≡⟨ cong (_+₀ -₀ (s ig))
                               (rId₀ (s ig)) ⟩
-                  (s ig) +₀ (-₀ (s ig))
-                     ≡⟨ rCancel₀ (s ig) ⟩
+                  (si g) -₀ (si g)
+                     ≡⟨ rCancel₀ (si g) ⟩
                   0₀ ∎
 
         -- proof that the left action structure α
@@ -92,7 +92,6 @@ module _ (ℓ ℓ' : Level) where
             where
               ig = ι .fun g
               -ig = -₁ ig
-              s = σ .fun
               q = fst (g α ((h , p) +ₖ (h' , p')))
                       ≡⟨ refl ⟩
                   (ig +₁ (h +₁ h')) -₁ ig
