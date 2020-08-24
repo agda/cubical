@@ -18,6 +18,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Univalence
 
+open import Cubical.Functions.FunExtEquiv
+
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Nullary
@@ -126,7 +128,48 @@ setQuotUniversal Bset = isoToEquiv (iso intro out outRightInv outLeftInv)
     (λ sur → cong (out (intro g)) (sym (snd sur)) ∙ (cong g (snd sur))) ([]surjective x)
     )
 
+
 open BinaryRelation
+
+-- characterisation of binary functions/operations on set-quotients
+setQuotUniversal2 : {B : Type ℓ} (Bset : isSet B) → isRefl R
+                  → (A / R → A / R → B)
+                  ≃ (Σ[ _∗_ ∈ (A → A → B) ] ((a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'))
+setQuotUniversal2 {A = A} {R = R} {B = B} Bset isReflR =
+                                          isoToEquiv (iso intro out outRightInv outLeftInv)
+  where
+  intro : (A / R → A / R → B)
+        → (Σ[ _∗_ ∈ (A → A → B) ] ((a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'))
+  intro _∗̂_ = _∗_ , h
+   where
+   _∗_ = λ a b → [ a ] ∗̂ [ b ]
+   h : (a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'
+   h a a' b b' ra rb = cong (_∗̂ [ b ]) (eq/ _ _ ra) ∙ cong ([ a' ] ∗̂_) (eq/ _ _ rb)
+
+  out : (Σ[ _∗_ ∈ (A → A → B) ] ((a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'))
+      → (A / R → A / R → B)
+  out (_∗_ , h) = rec2 Bset _∗_ hleft hright
+   where
+   hleft : ∀ a b c → R a b → (a ∗ c) ≡ (b ∗ c)
+   hleft _ _ c r = h _ _ _ _ r (isReflR c)
+   hright : ∀ a b c → R b c → (a ∗ b) ≡ (a ∗ c)
+   hright a _ _ r = h _ _ _ _ (isReflR a) r
+
+  outRightInv : ∀ x → intro (out x) ≡ x
+  outRightInv (_∗_ , h) = Σ≡Prop (λ _ → isPropΠ4 λ _ _ _ _ → isPropΠ2 λ _ _ → Bset _ _) refl
+
+  outLeftInv = λ _∗̂_ → funExt₂ (elimProp2 (λ _ _ → Bset _ _) λ _ _ → refl)
+
+-- corollary for binary operations
+-- TODO prove truncated inverse for effective relations
+setQuotBinOp : isRefl R
+                 → Σ[ _∗_ ∈ (A → A → A) ] (∀ a a' b b' → R a a' → R b b' → R (a ∗ b) (a' ∗ b'))
+                 → (A / R → A / R → A / R)
+setQuotBinOp {A = A} {R = R} isReflR (_∗_ , h) =
+                 equivFun (invEquiv (setQuotUniversal2 squash/ isReflR))
+                          ((λ a b → [ a ∗ b ]) , λ _ _ _ _ ra rb → eq/ _ _ (h _ _ _ _ ra rb))
+
+
 
 effective : (Rprop : isPropValued R) (Requiv : isEquivRel R) (a b : A) → [ a ] ≡ [ b ] → R a b
 effective {A = A} {R = R} Rprop (equivRel R/refl R/sym R/trans) a b p = transport aa≡ab (R/refl _)
