@@ -35,6 +35,7 @@ private
     ℓ ℓ' : Level
     A : Type ℓ
 
+
 record isSubMonoid (R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) : Type ℓ where
  constructor
    submonoid
@@ -51,17 +52,17 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
 
  -- adapted HIT definition
  data S⁻¹R : Type ℓ where
-  _/l_ : R → S → S⁻¹R
+  _/ₗ_ : R → S → S⁻¹R
   zd : (r₁ r₂ : R) (s s₁ s₂ : S)
      → fst s · r₁ · fst s₂ ≡ fst s · r₂ · fst s₁
-     → r₁ /l s₁ ≡ r₂ /l s₂
+     → r₁ /ₗ s₁ ≡ r₂ /ₗ s₂
   trunc : isSet S⁻¹R
 
- infixr 5 _/l_
+ infixr 5 _/ₗ_
 
 
  module Elim {ℓ'} {B : S⁻¹R → Type ℓ'}
-     (_/*_ : (r : R) (s : S) → B (r /l s))
+     (_/*_ : (r : R) (s : S) → B (r /ₗ s))
      (zd* : (r₁ r₂ : R) (s s₁ s₂  : S)
           → (p : fst s · r₁ · fst s₂ ≡ fst s · r₂ · fst s₁)
           → PathP (λ i → B (zd r₁ r₂ s s₁ s₂ p i))  (r₁ /* s₁) (r₂ /* s₂))
@@ -69,14 +70,14 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
 
 
   f : (q : S⁻¹R) → B q
-  f (r /l s) = r /* s
+  f (r /ₗ s) = r /* s
   f (zd r₁ r₂ s s₁ s₂ p i) = zd* r₁ r₂ s s₁ s₂ p i
   f (trunc q₁ q₂ x y i j) = isOfHLevel→isOfHLevelDep 2 trunc*  (f q₁) (f q₂) (cong f x) (cong f y)
                                                       (trunc q₁ q₂ x y) i j
 
 
  module ElimProp {ℓ'} {B : S⁻¹R → Type ℓ'} (Bprop : {q : S⁻¹R} → isProp (B q))
-                 (_/*_ : (r : R) → (s : S) → B (r /l s)) where
+                 (_/*_ : (r : R) → (s : S) → B (r /ₗ s)) where
 
 
   f : (q : S⁻¹R) → B q
@@ -105,18 +106,18 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
 
  -- proving equivalence of the two types
  φ : S⁻¹R/ → S⁻¹R
- φ = SQ.rec trunc (λ (r , s) → r /l s) β
+ φ = SQ.rec trunc (λ (r , s) → r /ₗ s) β
   where
   α : ((r₁ , s₁) (r₂ , s₂) : R × S) → Σ[ s ∈ S ] (fst s · r₁ · fst s₂ ≡ fst s · r₂ · fst s₁)
-    → r₁ /l s₁ ≡ r₂ /l s₂
+    → r₁ /ₗ s₁ ≡ r₂ /ₗ s₂
   α _ _ (s , p) = zd _ _ s _ _ p
 
   β : ((r₁ , s₁) (r₂ , s₂) : R × S) → ∃[ s ∈ S ] (fst s · r₁ · fst s₂ ≡ fst s · r₂ · fst s₁)
-    → r₁ /l s₁ ≡ r₂ /l s₂
+    → r₁ /ₗ s₁ ≡ r₂ /ₗ s₂
   β _ _ = PT.rec (trunc _ _) (α _ _)
 
  ψ : S⁻¹R → S⁻¹R/
- ψ (r /l s) = [ r , s ]
+ ψ (r /ₗ s) = [ r , s ]
  ψ (zd r₁ r₂ s s₁ s₂ p i) = eq/ (r₁ , s₁) (r₂ , s₂) ∣ s , p ∣ i
  ψ (trunc x y p q i j) = squash/ (ψ x) (ψ y) (cong ψ p) (cong ψ q) i j
 
