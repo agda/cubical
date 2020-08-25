@@ -12,10 +12,10 @@ open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
-open import Cubical.Structures.Semigroup hiding (⟨_⟩)
-open import Cubical.Structures.Monoid    hiding (⟨_⟩)
+open import Cubical.Algebra.Semigroup   hiding (⟨_⟩)
+open import Cubical.Algebra.Monoid      hiding (⟨_⟩)
 open import Cubical.Structures.CommRing renaming (⟨_⟩ to ⟨_⟩r)
-open import Cubical.Structures.Ring hiding (⟨_⟩)
+open import Cubical.Structures.Ring     hiding (⟨_⟩)
 open import Cubical.Structures.Algebra  hiding (⟨_⟩)
 
 private
