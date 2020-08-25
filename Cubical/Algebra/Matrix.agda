@@ -20,7 +20,7 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.Structures.Group hiding (⟨_⟩)
 open import Cubical.Structures.AbGroup hiding (⟨_⟩)
-open import Cubical.Structures.Monoid hiding (⟨_⟩)
+open import Cubical.Algebra.Monoid hiding (⟨_⟩)
 open import Cubical.Structures.Ring
 
 open Iso
