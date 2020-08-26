@@ -24,7 +24,6 @@ private
     ℓ : Level
 
 record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
-  no-eta-equality
   constructor ismonoid
 
   field
