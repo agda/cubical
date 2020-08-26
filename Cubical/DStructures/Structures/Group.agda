@@ -81,8 +81,8 @@ module _ (ℓ ℓ' : Level) where
 
   -- Group morphisms displayed over pairs of groups
   𝒮ᴰ-G²\F : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
-                            (λ (G , H) → GroupHom G H)
-                            (ℓ-max ℓ ℓ')
+                    (λ (G , H) → GroupHom G H)
+                    (ℓ-max ℓ ℓ')
   𝒮ᴰ-G²\F =
     make-𝒮ᴰ (λ {(G , _)} f (eG , eH) f'
                    → Coherence.FCondition eG eH f f')
@@ -94,7 +94,7 @@ module _ (ℓ ℓ' : Level) where
                                                      (isContrSingl f)
 
 
-  -- Type of two groups with a group morphism
+  -- URG structure on type of two groups with a group morphism
   𝒮-G²F : URGStr G²F (ℓ-max ℓ ℓ')
   𝒮-G²F = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ 𝒮ᴰ-G²\F
 
@@ -119,32 +119,40 @@ module _ (ℓ ℓ' : Level) where
                    (ℓ-max ℓ ℓ')
   𝒮ᴰ-G²\FB = combine-𝒮ᴰ 𝒮ᴰ-G²\F 𝒮ᴰ-G²\B
 
-  -- Type of pairs of groups with morphisms going forth and back
+  -- URG structure on type of pairs of groups with morphisms going forth and back
   𝒮-G²FB : URGStr G²FB (ℓ-max ℓ ℓ')
   𝒮-G²FB = ∫⟨ 𝒮-group ℓ ×𝒮 𝒮-group ℓ' ⟩ 𝒮ᴰ-G²\FB
 
-  -- section retraction pair displayed over pairs of groups
+  -- split epimorphisms displayed over pairs of groups
   𝒮ᴰ-SplitEpi : URGStrᴰ 𝒮-G²FB
-                          (λ ((G , H) , (f , g)) → isGroupSplitEpi f g)
-                          ℓ-zero
+                        (λ ((G , H) , (f , g)) → isGroupSplitEpi f g)
+                        ℓ-zero
   𝒮ᴰ-SplitEpi =
     Subtype→Sub-𝒮ᴰ (λ ((G , H) , (f , g)) → isGroupSplitEpi f g , isPropIsGroupHomRet f g)
-                       𝒮-G²FB
+                   𝒮-G²FB
 
-  -- type of group section retraction pairs
+  -- URG structure on type of split epimorphisms
   𝒮-SplitEpi : URGStr SplitEpi (ℓ-max ℓ ℓ')
   𝒮-SplitEpi = ∫⟨ 𝒮-G²FB ⟩ 𝒮ᴰ-SplitEpi
 
-
   -- section retraction pair + morphism back displayed over SG²Secre
-  𝒮ᴰ-G²FBSplit\B : URGStrᴰ 𝒮-SplitEpi
-                        (λ (((G , H) , _) , _) → GroupHom H G)
-                        (ℓ-max ℓ ℓ')
-  𝒮ᴰ-G²FBSplit\B
+  𝒮ᴰ-G²FBSplit\B' : URGStrᴰ 𝒮-SplitEpi
+                           (λ (((G , H) , _) , _) → GroupHom H G)
+                           (ℓ-max ℓ ℓ')
+  𝒮ᴰ-G²FBSplit\B'
     = make-𝒮ᴰ (λ {(((G , H) , _) , _)} f (((eG , eH) , _) , _) f'
-                     → Coherence.BCondition eG eH f f')
-                  (λ _ _ → refl)
-                  λ (((G , H) , x) , isRet) f → BContr f
+                  → Coherence.BCondition eG eH f f')
+              (λ _ _ → refl)
+               λ (((G , H) , x) , isRet) f → BContr f
+
+  𝒮ᴰ-G²FBSplit\B : URGStrᴰ 𝒮-SplitEpi
+                           (λ (((G , H) , _) , _) → GroupHom H G)
+                           (ℓ-max ℓ ℓ')
+  𝒮ᴰ-G²FBSplit\B =
+    VerticalLift2-𝒮ᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
+                     𝒮ᴰ-G²\B
+                     𝒮ᴰ-G²\FB
+                     𝒮ᴰ-SplitEpi
 
   𝒮-SplitEpiB : URGStr SplitEpiB (ℓ-max ℓ ℓ')
   𝒮-SplitEpiB = ∫⟨ 𝒮-SplitEpi ⟩ 𝒮ᴰ-G²FBSplit\B

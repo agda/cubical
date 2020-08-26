@@ -16,7 +16,7 @@ open import Cubical.DStructures.Structures.Constant
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓD ℓ≅D : Level
+    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓD ℓ≅D ℓ≅X ℓX : Level
 
 -- combine two structures StrB and StrC over StrA to a structure StrB × StrC over A
 combine-𝒮ᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
@@ -57,17 +57,29 @@ combine-𝒮ᴰ {ℓ≅B = ℓ≅B} {ℓ≅C = ℓ≅C} {A = A} {StrA = StrA} {B
 
 -- context: structure on A, B and C displayed over A
 -- then B can be lifted to be displayed over ∫⟨ StrA ⟩ StrCᴰ
-VerticalLift-𝒮ᴰ : {A : Type ℓA} {StrA : URGStr A ℓ≅A}
+VerticalLift-𝒮ᴰ : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
         {B : A → Type ℓB}
         (StrBᴰ : URGStrᴰ StrA B ℓ≅B)
         {C : A → Type ℓC}
         (StrCᴰ : URGStrᴰ StrA C ℓ≅C)
         → URGStrᴰ (∫⟨ StrA ⟩ StrCᴰ) (λ (a , _) → B a) ℓ≅B
-VerticalLift-𝒮ᴰ {ℓ≅B = ℓ≅B} {B = B} StrBᴰ StrCᴰ =
+VerticalLift-𝒮ᴰ {ℓ≅B = ℓ≅B} StrA {B = B} StrBᴰ StrCᴰ =
   urgstrᴰ (λ b (pA , _) b' → b ≅ᴰ⟨ pA ⟩ b')
           ρᴰ
           uniᴰ
   where open URGStrᴰ StrBᴰ
+
+VerticalLift2-𝒮ᴰ : {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
+                   {X : A → Type ℓX} (𝒮ᴰ-X : URGStrᴰ 𝒮-A X ℓ≅X)
+                   {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
+                   {C : Σ A B → Type ℓC} (𝒮ᴰ-C : URGStrᴰ (∫⟨ 𝒮-A ⟩ 𝒮ᴰ-B) C ℓ≅C)
+                   → URGStrᴰ (∫⟨ ∫⟨ 𝒮-A ⟩ 𝒮ᴰ-B ⟩ 𝒮ᴰ-C)
+                             (λ ((a , b) , c) → X a)
+                             ℓ≅X
+VerticalLift2-𝒮ᴰ 𝒮-A 𝒮ᴰ-X 𝒮ᴰ-B 𝒮ᴰ-C =
+  VerticalLift-𝒮ᴰ (∫⟨ 𝒮-A ⟩ 𝒮ᴰ-B)
+                  (VerticalLift-𝒮ᴰ 𝒮-A 𝒮ᴰ-X 𝒮ᴰ-B)
+                  𝒮ᴰ-C
 
 -- context: StrA on A, B and C displayed over StrA,
 --          D displayed over ∫⟨ StrA ⟩ StrBᴰ
