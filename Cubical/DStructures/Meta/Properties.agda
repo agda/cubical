@@ -44,7 +44,7 @@ private
      contrTotalB = isUnivalent→contrRelSingl (_≅ᴰ⟨ ρ a ⟩_) ρᴰ uniᴰ b
 
      contrTotalΣ
-       = isOfHLevelRespectEquiv 0
+       = isContrRespectEquiv
                                 (relSinglAt (_≅ᴰ⟨ ρ a ⟩_) b
                                   ≃⟨ idEquiv (relSinglAt (_≅ᴰ⟨ ρ a ⟩_) b) ⟩
                                 Σ[ b' ∈ B a ] (b ≅ᴰ⟨ ρ a ⟩ b')
@@ -77,7 +77,7 @@ private
 𝒮-transport {A = A} {A' = A'} e StrA =
   make-𝒮 {_≅_ = λ a a' → e- a ≅ e- a'}
              (λ a → ρ (e- a))
-             λ a → isOfHLevelRespectEquiv 0
+             λ a → isContrRespectEquiv
                                           (Σ[ x ∈ A ] e- a ≅ x
                                             ≃⟨ Σ-cong-equiv-snd (λ x → pathToEquiv (cong (e- a ≅_)
                                                                                          (sym (Iso.leftInv (equivToIso e)

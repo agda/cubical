@@ -36,6 +36,7 @@ record VertComp (𝒢 : ReflGraph ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   no-eta-equality
   constructor vertcomp
   open ReflGraphNotation 𝒢
+  open ReflGraphLemmas 𝒢
 
   field
     vcomp : (g f : ⟨ G₁ ⟩) → (isComposable g f) → ⟨ G₁ ⟩
@@ -70,6 +71,7 @@ record VertComp (𝒢 : ReflGraph ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
 
 module _ {𝒢 : ReflGraph ℓ ℓ'} where
   open ReflGraphNotation 𝒢
+  open ReflGraphLemmas 𝒢
   module _ (𝒞 : VertComp 𝒢) where
 
     open VertComp 𝒞
@@ -423,6 +425,7 @@ module _ {𝒢 : ReflGraph ℓ ℓ'} where
 
 module _ (𝒢 : ReflGraph ℓ ℓ') where
   open ReflGraphNotation 𝒢
+  open ReflGraphLemmas 𝒢
   open VertComp
   isPropVertComp : isProp (VertComp 𝒢)
   vcomp (isPropVertComp 𝒞 𝒞' i) = funExt₃ (λ g f c → VertComp→+₁ 𝒞 g f c ∙ sym (VertComp→+₁ 𝒞' g f c)) i

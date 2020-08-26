@@ -30,6 +30,8 @@ open import Cubical.DStructures.Meta.Isomorphism
 open import Cubical.DStructures.Structures.Constant
 open import Cubical.DStructures.Structures.Type
 open import Cubical.DStructures.Structures.Group
+open import Cubical.DStructures.Structures.SplitEpi
+open import Cubical.DStructures.Structures.ReflGraph
 open import Cubical.DStructures.Structures.Action
 open import Cubical.DStructures.Structures.XModule
 open import Cubical.DStructures.Equivalences.GroupSplitEpiAction

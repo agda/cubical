@@ -207,6 +207,9 @@ isOfHLevelRetract (suc (suc n)) f g h ofLevel x y =
 isOfHLevelRespectEquiv : {A : Type ℓ} {B : Type ℓ'} → (n : HLevel) → A ≃ B → isOfHLevel n A → isOfHLevel n B
 isOfHLevelRespectEquiv n eq = isOfHLevelRetract n (invEq eq) (eq .fst) (retEq eq)
 
+isContrRespectEquiv : {A : Type ℓ} {B : Type ℓ'} → A ≃ B → isContr A → isContr B
+isContrRespectEquiv = isOfHLevelRespectEquiv 0
+
 -- h-level of Σ-types
 
 isContrΣ : isContr A → ((x : A) → isContr (B x)) → isContr (Σ A B)

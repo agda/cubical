@@ -20,7 +20,7 @@ private
 𝒮-universe
   = make-𝒮 {_≅_ = _≃_}
                idEquiv
-               λ A → isOfHLevelRespectEquiv 0
+               λ A → isContrRespectEquiv
                                             (Σ-cong-equiv-snd (λ A' → isoToEquiv (iso invEquiv
                                                                                       invEquiv
                                                                                       (λ e → equivEq (invEquiv (invEquiv e)) e (funExt (λ x → refl)))

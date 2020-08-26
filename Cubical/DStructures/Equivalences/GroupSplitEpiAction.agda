@@ -17,6 +17,7 @@ open import Cubical.Structures.Group.Semidirect
 open import Cubical.DStructures.Base
 open import Cubical.DStructures.Meta.Isomorphism
 open import Cubical.DStructures.Structures.Group
+open import Cubical.DStructures.Structures.SplitEpi
 open import Cubical.DStructures.Structures.Action
 
 open Kernel

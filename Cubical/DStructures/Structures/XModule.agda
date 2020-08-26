@@ -69,7 +69,7 @@ module _ (ℓ ℓ' : Level) where
                                      in (h : ⟨ H ⟩) → trEG (f* h) ≡ f'* (trEH h))
                                 (λ _ _ → refl)
                                 λ (((G , H) , _α_) , isAct) f
-                                  → isOfHLevelRespectEquiv 0
+                                  → isContrRespectEquiv
                                                            (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
                                                            (isContrSingl f)
 

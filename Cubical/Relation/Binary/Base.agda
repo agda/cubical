@@ -122,7 +122,7 @@ module _ {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') where
     isUnivalent→contrRelSingl u a = q
       where
         abstract
-          q = isOfHLevelRespectEquiv 0
+          q = isContrRespectEquiv
                                (totf a , totalEquiv (a ≡_)
                                                     (a R_)
                                                     (f a)
@@ -146,7 +146,7 @@ module _ {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') where
       isUnivalent'→contrRelSingl u a = q
         where
           abstract
-            q = isOfHLevelRespectEquiv 0
+            q = isContrRespectEquiv
                                  (totg u a , totalEquiv (a ≡_) (a R_) (g u a) λ a' → u a a' .snd)
                                  (isContrSingl a)
 

@@ -41,7 +41,7 @@ combine-𝒮ᴰ {ℓ≅B = ℓ≅B} {ℓ≅C = ℓ≅C} {A = A} {StrA = StrA} {B
     Cuniᴰ = URGStrᴰ.uniᴰ StrCᴰ
     contrTot : (a : A) ((b , c) : B a × C a) → isContr (Σ[ (b' , c') ∈ B a × C a ] (b B≅ᴰ⟨ ρ a ⟩ b' × c C≅ᴰ⟨ ρ a ⟩ c') )
     contrTot = λ (a : A) ((b , c) : B a × C a)
-      → isOfHLevelRespectEquiv 0
+      → isContrRespectEquiv
                                (Σ[ b' ∈ B a ] (b B≅ᴰ⟨ ρ a ⟩ b')
                                  ≃⟨ invEquiv (Σ-contractSnd (λ _ → isUnivalent→contrRelSingl (_C≅ᴰ⟨ ρ a ⟩_) Cρᴰ Cuniᴰ c)) ⟩
                                (Σ[ b' ∈ B a ] (b B≅ᴰ⟨ ρ a ⟩ b')) × (Σ[ c' ∈ C a ] (c C≅ᴰ⟨ ρ a ⟩ c'))
@@ -130,7 +130,7 @@ splitTotal-𝒮ᴰ {A = A} StrA {B} StrBᴰ {C} StrCᴰ
         contrTotalC = isUnivalent→contrRelSingl (λ c₁ c₂ → c₁ ≅ᴰ⟨ ρ a , Bρᴰ b ⟩ c₂) ρᴰ uniᴰ
 
     abstract
-      q = λ a (b , c) → isOfHLevelRespectEquiv 0
+      q = λ a (b , c) → isContrRespectEquiv
                                                      (Σ[ c' ∈ C (a , b) ] c ≅ᴰ⟨ ρ a , Bρᴰ b ⟩ c'
                                                        ≃⟨ invEquiv (Σ-contractFst (contrTotalB' a b)) ⟩
                                                      Σ[ (b' , eB) ∈ Σ[ b' ∈ B a ] b B≅ᴰ⟨ ρ a ⟩ b' ] (Σ[ c' ∈ C (a , b') ] (c ≅ᴰ⟨ ρ a , eB ⟩ c'))
@@ -197,7 +197,7 @@ splitProductURGStrᴰ : {ℓ≅C : Level}
 splitProductURGStrᴰ {A = A} {StrA = StrA} {B = B} {StrB = StrB} {C = C} StrCᴰ/B×A
   = makeURGStrᴰ (λ (b , c) eA (b' , c') → Σ[ eB ∈ b B≅ b' ] (c ≅ᴰ⟨ eA , eB ⟩ c') )
                 (λ (b , c) → Bρ b , ρᴰ c)
-                λ a (b , c) → isOfHLevelRespectEquiv 0
+                λ a (b , c) → isContrRespectEquiv
                                                      (Σ[ c' ∈ C (a , b) ] (c ≅ᴰ⟨ Aρ a , Bρ b  ⟩ c')
                                                         ≃⟨ invEquiv (Σ-contractFst (contrTotalB' a b)) ⟩
                                                      Σ[ (b' , eB) ∈ (Σ[ b' ∈ B ] b B≅ b') ] Σ[ c' ∈ C (a , b') ] (c ≅ᴰ⟨ Aρ a , eB  ⟩ c')

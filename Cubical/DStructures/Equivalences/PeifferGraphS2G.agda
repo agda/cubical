@@ -59,6 +59,7 @@ module _ (ℓ ℓ' : Level) where
   RelIso.fun (𝒮ᴰ-♭iso-PeifferGraph-Strict2Group 𝒢) isPeifferGraph = 𝒱
     where
       open ReflGraphNotation 𝒢
+      open ReflGraphLemmas 𝒢
       open VertComp
       _⊙_ = λ (g f : ⟨ G₁ ⟩) → (g -₁ (𝒾s g)) +₁ f
 
@@ -130,7 +131,7 @@ module _ (ℓ ℓ' : Level) where
                             ≡⟨ cong (λ z → g' +₁ (-isg' +₁ ((-₁ (𝒾 z)) +₁ f)))
                                     c-gf ⟩
                           g' +₁ (-isg' +₁ (-itf +₁ f))
-                            ≡⟨ isPeifferGraph4 ι σ τ isPeifferGraph f g' ⟩
+                            ≡⟨ isPeifferGraph4 𝒢 isPeifferGraph f g' ⟩
                           -itf +₁ (f +₁ (g' +₁ -isg'))
                             ≡⟨ cong (λ z → (-₁ (𝒾 z)) +₁ (f +₁ (g' +₁ -isg')))
                                     (sym c-gf) ⟩
@@ -194,7 +195,7 @@ module _ (ℓ ℓ' : Level) where
       open VertComp 𝒞
 
       abstract
-        isPf : isPeifferGraph ι σ τ
+        isPf : isPeifferGraph 𝒢
         isPf f g = ((isg +₁ (f -₁ itf)) +₁ (-isg +₁ g)) +₁ itf
                   ≡⟨ cong (_+₁ itf)
                           (sym (assoc₁ isg (f -₁ itf) (-isg +₁ g))) ⟩

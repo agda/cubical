@@ -36,7 +36,7 @@ module _ (ℓ ℓ' : Level) where
                    → (g : ⟨ G ⟩) (h : ⟨ H ⟩)
                      → GroupEquiv.eq eH .fst (g α h) ≡ (GroupEquiv.eq eG .fst g) β (GroupEquiv.eq eH .fst h))
                 (λ _ _ _ → refl)
-                λ (G , H) _α_ → isOfHLevelRespectEquiv 0
+                λ (G , H) _α_ → isContrRespectEquiv
                                                        -- (Σ[ _β_ ∈ Las (G , H) ] (_α_ ≡ _β_)
                                                        (Σ-cong-equiv-snd (λ _β_ → invEquiv funExt₂Equiv))
                                                        (isContrSingl _α_)

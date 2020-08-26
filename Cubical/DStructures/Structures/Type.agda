@@ -28,7 +28,7 @@ private
 𝒮ᴰ-subtype P
   = make-𝒮ᴰ (λ _ _ _ → Unit)
                 (λ _ → tt)
-                λ a p → isOfHLevelRespectEquiv 0
+                λ a p → isContrRespectEquiv
                                                (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
                                                (inhProp→isContr p (P a .snd))
 
@@ -39,7 +39,7 @@ Subtype→Sub-𝒮ᴰ : {A : Type ℓA} (P : A → hProp ℓP)
 Subtype→Sub-𝒮ᴰ P StrA =
   make-𝒮ᴰ (λ _ _ _ → Unit)
               (λ _ → tt)
-              (λ a p → isOfHLevelRespectEquiv 0
+              (λ a p → isContrRespectEquiv
                                               (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
                                               (inhProp→isContr p (P a .snd)))
 
@@ -68,7 +68,7 @@ module Sigma' {ℓA ℓB ℓ≅B} {A : Type ℓA} {B : A → Type ℓA} where
                                ℓA
                                (λ {a} {a'} b p b' → (a , b) ≅ (a' , b'))
                                (λ b → ρ (_ , b))
-                               λ a b → isOfHLevelRespectEquiv 0
+                               λ a b → isContrRespectEquiv
                                                               (Σ[ b' ∈ B a ] b ≡ b'
                                                                 ≃⟨ Σ-cong-equiv-snd (λ b' → compEquiv {!!}
                                                                                                       ((≡→R _≅_ ρ) , (uni (a , b) (a , b')))) ⟩
