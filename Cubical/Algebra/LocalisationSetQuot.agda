@@ -18,6 +18,7 @@ open import Cubical.Data.Vec
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
+open import Cubical.Relation.Binary
 
 open import Cubical.Structures.Group hiding (⟨_⟩)
 open import Cubical.Structures.AbGroup hiding (⟨_⟩)
@@ -129,3 +130,31 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
 
  S⁻¹R/≃S⁻¹R : S⁻¹R/ ≃ S⁻¹R
  S⁻¹R/≃S⁻¹R = isoToEquiv (iso φ ψ η ε)
+
+
+ -- try to develop theory with set-quotients
+ open BinaryRelation
+
+ _+ₗ_ : S⁻¹R/ → S⁻¹R/ → S⁻¹R/
+ _+ₗ_ = setQuotBinOp locRefl (_+ₚ_ , θ)
+  where
+  locRefl : isRefl _≈_
+  locRefl _ = ∣ (1r , SsubMonoid .containsOne) , refl ∣
+
+  _+ₚ_ : R × S → R × S → R × S
+  (r₁ , s₁ , s₁∈S) +ₚ (r₂ , s₂ , s₂∈S) =
+                      (r₁ · s₂ + r₂ · s₁) , (s₁ · s₂) , SsubMonoid .multClosed s₁∈S s₂∈S
+
+  θ : (a a' b b' : R × S) → a ≈ a' → b ≈ b' → (a +ₚ b) ≈ (a' +ₚ b')
+  θ a a' b b' = PT.rec (isPropΠ (λ _ →  propTruncIsProp)) (θ' a a' b b')
+    where
+    θ' : (a a' b b' : R × S) → Σ[ s ∈ S ] (fst s · fst a · fst (snd a') ≡ fst s · fst a' · fst (snd a))
+                             → b ≈ b' → (a +ₚ b) ≈ (a' +ₚ b')
+    θ' a a' b b' p = PT.rec propTruncIsProp (θ'' a a' b b' p)
+       where
+       θ'' : (a a' b b' : R × S)
+           → Σ[ s ∈ S ] (fst s · fst a · fst (snd a') ≡ fst s · fst a' · fst (snd a))
+           → Σ[ s ∈ S ] (fst s · fst b · fst (snd b') ≡ fst s · fst b' · fst (snd b))
+           → (a +ₚ b) ≈ (a' +ₚ b')
+       θ'' (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) (r'₂ , s'₂ , s'₂∈S) (s , p) (s' , q) =
+        ∣ ((fst s · fst s') , SsubMonoid .multClosed (s .snd) (s' .snd)) , {!!} ∣
