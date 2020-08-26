@@ -170,9 +170,12 @@ module SplitEpiNotation {G₀ : Group {ℓ}} {G₁ : Group {ℓ'}}
   -- i is reserved for an interval variable (i : I) so we use 𝒾 instead
   𝒾 = GroupHom.fun ι
   -i = λ (x : ⟨ G₀ ⟩) → -₁ (𝒾 x)
+  s- = λ (x : ⟨ G₁ ⟩) → s (-₁ x)
   si = λ (x : ⟨ G₀ ⟩) → s (𝒾 x)
   is = λ (x : ⟨ G₁ ⟩) → 𝒾 (s x)
   -si = λ (x : ⟨ G₀ ⟩) → -₀ (si x)
   -is = λ (x : ⟨ G₁ ⟩) → -₁ (is x)
   si- = λ (x : ⟨ G₀ ⟩) → si (-₀ x)
   is- = λ (x : ⟨ G₁ ⟩) → is (-₁ x)
+  s-i = λ (x : ⟨ G₀ ⟩) → s (-₁ (𝒾 x))
+  isi = λ (x : ⟨ G₀ ⟩) → 𝒾 (s (𝒾 x))

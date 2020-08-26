@@ -30,14 +30,17 @@ module _ (ℓ ℓ' : Level) where
   𝒮-Iso-GroupAct-SplitEpi : 𝒮-iso (𝒮-Action ℓ (ℓ-max ℓ ℓ')) (𝒮-SplitEpi ℓ (ℓ-max ℓ ℓ'))
 
   -- GroupAction → Split Epimorphism
-  RelIso.fun 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , _α_) , isAct) = ((G₀ , G₁⋊G₀) , (ι₂ α , π₂ α)) , π₂-hasSec α
+  -- Given the action α, form the semidirect product attached to α,
+  -- and show that the second projection out of H ⋊⟨ α ⟩ G₀
+  -- is a split epi with section the right inclusion of G₀
+  RelIso.fun 𝒮-Iso-GroupAct-SplitEpi (((G₀ , H) , _α_) , isAct) = ((G₀ , H⋊G₀) , (ι₂ α , π₂ α)) , π₂-hasSec α
       where
         -- combine the action structure and axioms
         α = groupaction _α_ isAct
         -- semidirect product induced by the action α
-        G₁⋊G₀ : Group {ℓ-max ℓ ℓ'}
-        G₁⋊G₀ = G₁ ⋊⟨ α ⟩ G₀
-  -- end of RelIso.fun 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , _α_) , isAct)
+        H⋊G₀ : Group {ℓ-max ℓ ℓ'}
+        H⋊G₀ = H ⋊⟨ α ⟩ G₀
+  -- end of RelIso.fun 𝒮-Iso-GroupAct-SplitEpi (((G₀ , H) , _α_) , isAct)
 
   -- split epimorphism → group action
   RelIso.inv 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , (ι , σ)) , isSplit) = ((G₀ , ker-σ) , _α_) , isAct
@@ -179,8 +182,7 @@ module _ (ℓ ℓ' : Level) where
       -- h : ⟨ G₁ ⟩
       -- p : witness that g is in ker σ
 
-      𝓈 = σ .fun
-      𝒾 = ι .fun
+      open SplitEpiNotation ι σ isSplit
 
       -- G₀ ≃ G₀
       G₀-≅ = idGroupEquiv G₀
@@ -196,22 +198,24 @@ module _ (ℓ ℓ' : Level) where
           -- beginning of Iso.inv isom h
 
           -- G₁ part of the map
-          fst (fst (Iso.inv isom h)) = h +₁ 𝒾 (𝓈 (-₁ h))
+          fst (fst (Iso.inv isom h)) = h +₁ (is- h)
           -- proof that G₁ part is in ker σ
           snd (fst (Iso.inv isom h)) = q
             where
               abstract
-                q = 𝓈 (h +₁ 𝒾 (𝓈 (-₁ h)))
-                      ≡⟨ σ .isHom h (𝒾 (𝓈 (-₁ h))) ⟩
-                    𝓈 h +₀ 𝓈 (𝒾 (𝓈 (-₁ h)))
-                      ≡⟨ cong (𝓈 h +₀_) (funExt⁻ (cong GroupHom.fun isSplit) (𝓈 (-₁ h))) ⟩
-                    𝓈 h +₀ (𝓈 (-₁ h))
-                      ≡⟨ cong (𝓈 h +₀_) (mapInv σ h) ⟩
-                    𝓈 h +₀ (-₀ (𝓈 h))
-                      ≡⟨ rCancel₀ (𝓈 h) ⟩
+                q = s (h +₁ is- h)
+                      ≡⟨ σ .isHom h (is- h) ⟩
+                    s h +₀ s (is- h)
+                      ≡⟨ cong (s h +₀_)
+                              (funExt⁻ (cong GroupHom.fun isSplit) (s- h)) ⟩
+                    s h +₀ (s- h)
+                      ≡⟨ cong (s h +₀_)
+                              (mapInv σ h) ⟩
+                    s h -₀ (s h)
+                      ≡⟨ rCancel₀ (s h) ⟩
                     0₀ ∎
           -- G₀ part of the map
-          snd (Iso.inv isom h) = 𝓈 h
+          snd (Iso.inv isom h) = s h
 
           -- end of Iso.inv isom h
 
@@ -220,45 +224,45 @@ module _ (ℓ ℓ' : Level) where
           Iso.leftInv isom ((h , p) , g) = ΣPathP (subtypeWitnessIrrelevance (sg-typeProp σ) q , q')
             where
               abstract
-                q = (h +₁ 𝒾 g) +₁ 𝒾 (𝓈 (-₁ (h +₁ 𝒾 g)))
-                       ≡⟨ cong (λ z → (h +₁ 𝒾 g) +₁ 𝒾 (𝓈 z))
+                q = (h +₁ 𝒾 g) +₁ is- (h +₁ 𝒾 g)
+                       ≡⟨ cong (λ z → (h +₁ 𝒾 g) +₁ is z)
                                (invDistr G₁ h (𝒾 g)) ⟩
-                    (h +₁ 𝒾 g) +₁ 𝒾 (𝓈 ((-₁ (𝒾 g)) -₁ h))
+                    (h +₁ 𝒾 g) +₁ is ((-i g) -₁ h)
                       ≡⟨ cong (λ z → (h +₁ 𝒾 g) +₁ 𝒾 z)
-                              (σ .isHom (-₁ (𝒾 g)) (-₁ h)) ⟩
-                    (h +₁ 𝒾 g) +₁ 𝒾 ((𝓈 (-₁ (𝒾 g))) +₀ (𝓈 (-₁ h)))
-                      ≡⟨ cong (λ z → (h +₁ 𝒾 g) +₁ 𝒾 ((𝓈 (-₁ (𝒾 g))) +₀ z))
+                              (σ .isHom (-i g) (-₁ h)) ⟩
+                    (h +₁ 𝒾 g) +₁ 𝒾 ((s-i g) +₀ (s- h))
+                      ≡⟨ cong (λ z → (h +₁ 𝒾 g) +₁ 𝒾 ((s-i g) +₀ z))
                               (mapInv σ h ∙∙
                                cong -₀_ p ∙∙
                                invId G₀) ⟩
-                    (h +₁ 𝒾 g) +₁ 𝒾 ((𝓈 (-₁ (𝒾 g))) +₀ 0₀)
+                    (h +₁ 𝒾 g) +₁ 𝒾 ((s-i g) +₀ 0₀)
                       ≡⟨ cong (λ z → (h +₁ 𝒾 g) +₁ 𝒾 z)
-                              (rId₀ (𝓈 (-₁ (𝒾 g)))) ⟩
-                    (h +₁ 𝒾 g) +₁ 𝒾 (𝓈 (-₁ (𝒾 g)))
+                              (rId₀ (s-i g)) ⟩
+                    (h +₁ 𝒾 g) +₁ 𝒾 (s-i g)
                       ≡⟨ cong (λ z → (h +₁ 𝒾 g) +₁ 𝒾 z )
                               (mapInv σ (𝒾 g)) ⟩
-                    (h +₁ 𝒾 g) +₁ 𝒾 (-₀ (𝓈 (𝒾 g)))
+                    (h +₁ 𝒾 g) +₁ 𝒾 (-si g)
                       ≡⟨ cong ((h +₁ 𝒾 g) +₁_)
-                              (mapInv ι (𝓈 (𝒾 g))) ⟩
-                    (h +₁ 𝒾 g) +₁ (-₁ (𝒾 (𝓈 (𝒾 g))))
-                      ≡⟨ cong (λ z → (h +₁ 𝒾 g) +₁ (-₁ (𝒾 z)))
+                              (mapInv ι (si g)) ⟩
+                    (h +₁ 𝒾 g) -₁ (isi g)
+                      ≡⟨ cong (λ z → (h +₁ 𝒾 g) -₁ (𝒾 z))
                               (funExt⁻ (cong GroupHom.fun isSplit) g ) ⟩
-                    (h +₁ 𝒾 g) +₁ (-₁ (𝒾 g))
-                      ≡⟨ sym (assoc₁ h (𝒾 g) (-₁ (𝒾 g))) ⟩
-                    h +₁ (𝒾 g +₁ (-₁ (𝒾 g)))
+                    (h +₁ 𝒾 g) -₁ (𝒾 g)
+                      ≡⟨ sym (assoc₁ h (𝒾 g) (-i g)) ⟩
+                    h +₁ (𝒾 g -₁ (𝒾 g))
                       ≡⟨ cong (h +₁_)
                               (rCancel₁ (𝒾 g)) ⟩
                     h +₁ 0₁
                       ≡⟨ rId₁ h ⟩
                     h ∎
 
-                q' = 𝓈 (h +₁ 𝒾 g)
+                q' = s (h +₁ 𝒾 g)
                        ≡⟨ σ .isHom h (𝒾 g) ⟩
-                     𝓈 h +₀ 𝓈 (𝒾 g)
-                       ≡⟨ cong (_+₀ 𝓈 (𝒾 g)) p ⟩
-                     0₀ +₀ 𝓈 (𝒾 g)
-                       ≡⟨ lId₀ (𝓈 (𝒾 g)) ⟩
-                     𝓈 (𝒾 g)
+                     s h +₀ si g
+                       ≡⟨ cong (_+₀ si g) p ⟩
+                     0₀ +₀ si g
+                       ≡⟨ lId₀ (si g) ⟩
+                     si g
                        ≡⟨ funExt⁻ (cong GroupHom.fun isSplit) g ⟩
                      g ∎
 
@@ -266,10 +270,10 @@ module _ (ℓ ℓ' : Level) where
 
           Iso.rightInv isom h = q
             where
-              ish = 𝒾 (𝓈 h)
+              ish = 𝒾 (s h)
               abstract
-                q = (h +₁ 𝒾 (𝓈 (-₁ h))) +₁ ish
-                       ≡⟨ cong (λ z → (h +₁ z) +₁ ish) (cong 𝒾 (mapInv σ h) ∙ mapInv ι (𝓈 h)) ⟩
+                q = (h +₁ 𝒾 (s (-₁ h))) +₁ ish
+                       ≡⟨ cong (λ z → (h +₁ z) +₁ ish) (cong 𝒾 (mapInv σ h) ∙ mapInv ι (s h)) ⟩
                     (h +₁ (-₁ ish)) +₁ ish
                        ≡⟨ sym (assoc₁ h (-₁ ish) ish) ⟩
                     h +₁ ((-₁ ish) +₁ ish)
@@ -312,19 +316,19 @@ module _ (ℓ ℓ' : Level) where
       ι-≅ : (g : ⟨ G₀ ⟩) → 0₁ +₁ (𝒾 g) ≡ 𝒾 g
       ι-≅ g = lId₁ (𝒾 g)
 
-      σ-≅ : (((h , _) , g) : ⟨ kσ⋊G₀ ⟩) → g ≡ 𝓈 (h +₁ 𝒾 g)
+      σ-≅ : (((h , _) , g) : ⟨ kσ⋊G₀ ⟩) → g ≡ s (h +₁ 𝒾 g)
       σ-≅ ((h , p) , g) = q
         where
           abstract
             q = g
                   ≡⟨ funExt⁻ (cong fun (sym isSplit)) g ⟩
-                𝓈 (𝒾 g)
-                  ≡⟨ sym (lId₀ (𝓈 (𝒾 g))) ⟩
-                0₀ +₀ 𝓈 (𝒾 g)
-                  ≡⟨ cong (_+₀ 𝓈 (𝒾 g)) (sym p) ⟩
-                𝓈 h +₀ 𝓈 (𝒾 g)
+                s (𝒾 g)
+                  ≡⟨ sym (lId₀ (s (𝒾 g))) ⟩
+                0₀ +₀ s (𝒾 g)
+                  ≡⟨ cong (_+₀ s (𝒾 g)) (sym p) ⟩
+                s h +₀ s (𝒾 g)
                   ≡⟨ sym (σ .isHom h (𝒾 g)) ⟩
-                𝓈 (h +₁ 𝒾 g) ∎
+                s (h +₁ 𝒾 g) ∎
 
       isSplit-≅ : Unit
       isSplit-≅ = tt
@@ -332,79 +336,78 @@ module _ (ℓ ℓ' : Level) where
   -- end of RelIso.rightInv 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , (ι , σ)) , isSplit)
 
 
-  RelIso.leftInv 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , _α_) , isAct) = ((G₀-≅ , G₁-≅) , α-≅) , isAct-≅
+  RelIso.leftInv 𝒮-Iso-GroupAct-SplitEpi (((G₀ , H) , _α_) , isAct) = ((G₀-≅ , H-≅) , α-≅) , isAct-≅
     where
       -- import notation
       open GroupNotation₀ G₀
-      open GroupNotation₁ G₁
+      open GroupNotationH H
       open ActionNotationα (groupaction _α_ isAct) using (α-id)
 
-      se = RelIso.fun 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , _α_) , isAct)
+      se = RelIso.fun 𝒮-Iso-GroupAct-SplitEpi (((G₀ , H) , _α_) , isAct)
       ga' = RelIso.inv 𝒮-Iso-GroupAct-SplitEpi se
 
-      -- G₁ under fun and then inv
+      -- H under fun and then inv
       ker-π₂ = snd (fst (fst ga'))
       -- the adjoint action w.t.r. ι₂
       _β_ = snd (fst ga')
       β-isAct = snd ga'
-      -- inclusion of G₀ into G₁ ⋊⟨ α ⟩ G₀
+      -- inclusion of G₀ into H ⋊⟨ α ⟩ G₀
       ι = ι₂ (groupaction _α_ isAct)
       𝒾 = ι .fun
-
 
       G₀-≅ : GroupEquiv G₀ G₀
       G₀-≅ = idGroupEquiv G₀
 
-      G₁-≅ : GroupEquiv ker-π₂ G₁
-      GroupEquiv.eq G₁-≅ = isoToEquiv isom
+      H-≅ : GroupEquiv ker-π₂ H
+      GroupEquiv.eq H-≅ = isoToEquiv isom
         where
-          isom : Iso ⟨ ker-π₂ ⟩ ⟨ G₁ ⟩
+          isom : Iso ⟨ ker-π₂ ⟩ ⟨ H ⟩
           Iso.fun isom ((h , g) , p) = h
           Iso.inv isom h = (h , 0₀) , refl
           Iso.leftInv isom ((h , g) , p) = q
             where
               abstract
+                r : (h , 0₀) ≡ (h , g)
                 r = ΣPathP (refl , sym p)
+                q : ((h , 0₀) , refl) ≡ ((h , g) , p)
                 q = ΣPathP (r , isProp→PathP (λ i → set₀ (snd (r i)) 0₀) refl p)
-                -- q = subtypeWitnessIrrelevance (sg-typeProp {!π₂ (groupaction _α_ isAct)!}) {!!}
-                -- q = Σ≡Prop (λ (h , g) → {!set₀g 0₀ !}) {!!}
           Iso.rightInv isom h = refl
 
-      GroupEquiv.isHom G₁-≅ ((h , g) , p) ((h' , g') , p') = q
+      GroupEquiv.isHom H-≅ ((h , g) , p) ((h' , g') , p') = q
         where
           abstract
-            q : h +₁ (g α h') ≡ h +₁ h'
-            q = h +₁ (g α h')
-                  ≡⟨ cong (λ z → h +₁ (z α h')) p ⟩
-                h +₁ (0₀ α h')
-                  ≡⟨ cong (h +₁_) (α-id h') ⟩
-                h +₁ h' ∎
+            q : h +ᴴ (g α h') ≡ h +ᴴ h'
+            q = h +ᴴ (g α h')
+                  ≡⟨ cong (λ z → h +ᴴ (z α h')) p ⟩
+                h +ᴴ (0₀ α h')
+                  ≡⟨ cong (h +ᴴ_) (α-id h') ⟩
+                h +ᴴ h' ∎
 
       α-≅ : (g : ⟨ G₀ ⟩) (((h , g') , p) : ⟨ ker-π₂ ⟩)
-            → GroupEquiv.eq G₁-≅ .fst (g β ((h , g') , p)) ≡ g α h
+            → GroupEquiv.eq H-≅ .fst (g β ((h , g') , p)) ≡ g α h
       α-≅ g ((h , g') , p) = q
         where
           open ActionLemmas (groupaction _α_ isAct)
           abstract
-            q = (0₁ +₁ (g α h)) +₁ ((g +₀ g') α ((-₀ g) α (-₁ 0₁)))
-                  ≡⟨ cong (_+₁ ((g +₀ g') α ((-₀ g) α (-₁ 0₁))))
-                          (lId₁ (g α h)) ⟩
-                (g α h) +₁ ((g +₀ g') α ((-₀ g) α (-₁ 0₁)))
-                  ≡⟨ cong (λ z → (g α h) +₁ ((g +₀ g') α ((-₀ g) α z)))
-                          (invId G₁) ⟩
-                (g α h) +₁ ((g +₀ g') α ((-₀ g) α 0₁))
-                  ≡⟨ cong (λ z → (g α h) +₁ ((g +₀ g') α z))
+            q = (0ᴴ +ᴴ (g α h)) +ᴴ ((g +₀ g') α ((-₀ g) α (-ᴴ 0ᴴ)))
+                  ≡⟨ cong (_+ᴴ ((g +₀ g') α ((-₀ g) α (-ᴴ 0ᴴ))))
+                          (lIdᴴ (g α h)) ⟩
+                (g α h) +ᴴ ((g +₀ g') α ((-₀ g) α (-ᴴ 0ᴴ)))
+                  ≡⟨ cong (λ z → (g α h) +ᴴ ((g +₀ g') α ((-₀ g) α z)))
+                          (invId H) ⟩
+                (g α h) +ᴴ ((g +₀ g') α ((-₀ g) α 0ᴴ))
+                  ≡⟨ cong (λ z → (g α h) +ᴴ ((g +₀ g') α z))
                           (actOnUnit (-₀ g)) ⟩
-                (g α h) +₁ ((g +₀ g') α 0₁)
-                  ≡⟨ cong ((g α h) +₁_)
+                (g α h) +ᴴ ((g +₀ g') α 0ᴴ)
+                  ≡⟨ cong ((g α h) +ᴴ_)
                           (actOnUnit (g +₀ g')) ⟩
-                (g α h) +₁ 0₁
-                  ≡⟨ rId₁ (g α h) ⟩
+                (g α h) +ᴴ 0ᴴ
+                  ≡⟨ rIdᴴ (g α h) ⟩
                 g α h ∎
 
       isAct-≅ : Unit
       isAct-≅ = tt
-  -- end of RelIso.leftInv 𝒮-Iso-GroupAct-SplitEpi (((G₀ , G₁) , _α_) , isAct)
+  -- end of RelIso.leftInv 𝒮-Iso-GroupAct-SplitEpi (((G₀ , H) , _α_) , isAct)
 
   IsoActionSplitEpi : Iso (Action ℓ (ℓ-max ℓ ℓ')) (SplitEpi ℓ (ℓ-max ℓ ℓ'))
   IsoActionSplitEpi = 𝒮-iso→Iso (𝒮-Action ℓ (ℓ-max ℓ ℓ')) (𝒮-SplitEpi ℓ (ℓ-max ℓ ℓ')) 𝒮-Iso-GroupAct-SplitEpi
