@@ -33,7 +33,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function hiding (const)
 
 open import Cubical.Structures.CommRing
-open import Cubical.Structures.Ring        using ()
+open import Cubical.Algebra.Ring        using ()
 open import Cubical.Structures.CommAlgebra renaming (⟨_⟩ to ⟨_⟩a)
 open import Cubical.Structures.Algebra     hiding (⟨_⟩)
 open import Cubical.HITs.SetTruncation

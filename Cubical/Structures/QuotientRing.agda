@@ -7,7 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Logic using (_∈_)
 open import Cubical.HITs.SetQuotients.Base
 open import Cubical.HITs.SetQuotients.Properties
-open import Cubical.Structures.Ring
+open import Cubical.Algebra.Ring
 open import Cubical.Structures.Ideal
 
 private

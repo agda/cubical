@@ -6,7 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Logic using ([_]; _∈_)
 
-open import Cubical.Structures.Ring
+open import Cubical.Algebra.Ring
 
 private
   variable

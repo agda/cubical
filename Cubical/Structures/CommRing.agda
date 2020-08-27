@@ -16,7 +16,7 @@ open import Cubical.Structures.Axioms
 open import Cubical.Algebra.Semigroup    hiding (⟨_⟩)
 open import Cubical.Algebra.Monoid       hiding (⟨_⟩)
 open import Cubical.Algebra.AbGroup   hiding (⟨_⟩)
-open import Cubical.Structures.Ring      hiding (⟨_⟩)
+open import Cubical.Algebra.Ring      hiding (⟨_⟩)
 
 open Iso
 

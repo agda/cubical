@@ -16,7 +16,7 @@ open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Module    renaming (⟨_⟩ to ⟨_⟩m)
-open import Cubical.Structures.Ring      renaming (⟨_⟩ to ⟨_⟩r)
+open import Cubical.Algebra.Ring      renaming (⟨_⟩ to ⟨_⟩r)
 open import Cubical.Algebra.AbGroup   hiding (⟨_⟩)
 open import Cubical.Algebra.Group     hiding (⟨_⟩)
 open import Cubical.Algebra.Monoid       hiding (⟨_⟩)

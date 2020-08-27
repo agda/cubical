@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Structures.Ring where
+module Cubical.Algebra.Ring.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
