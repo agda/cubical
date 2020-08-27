@@ -1,6 +1,5 @@
 {-# OPTIONS --cubical --safe --no-import-sorts #-}
-
-module Cubical.Structures.CommAlgebra where
+module Cubical.Algebra.CommAlgebra.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -14,9 +13,9 @@ open import Cubical.Data.Sigma
 open import Cubical.Structures.Axioms
 open import Cubical.Algebra.Semigroup   hiding (⟨_⟩)
 open import Cubical.Algebra.Monoid      hiding (⟨_⟩)
-open import Cubical.Structures.CommRing renaming (⟨_⟩ to ⟨_⟩r)
+open import Cubical.Algebra.CommRing renaming (⟨_⟩ to ⟨_⟩r)
 open import Cubical.Algebra.Ring     hiding (⟨_⟩)
-open import Cubical.Structures.Algebra  hiding (⟨_⟩)
+open import Cubical.Algebra.Algebra  hiding (⟨_⟩)
 
 private
   variable

@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Structures.CommRing where
+module Cubical.Algebra.CommRing.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv

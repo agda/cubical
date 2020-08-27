@@ -1,6 +1,5 @@
 {-# OPTIONS --cubical --safe --no-import-sorts #-}
-
-module Cubical.Structures.Module where
+module Cubical.Algebra.Module.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
