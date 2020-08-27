@@ -145,6 +145,9 @@ leftInv Σ-Π-Iso _     = refl
 Σ-Π-≃ : ((a : A) → Σ[ b ∈ B a ] C a b) ≃ (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
 Σ-Π-≃ = isoToEquiv Σ-Π-Iso
 
+Π-Σ-≃ : (∀ a → (b : B a) → C a b) ≃ (((a , b) : Σ A B) → C a b)
+Π-Σ-≃ = isoToEquiv (iso (λ f (a , b) → f a b) (λ f a b → f (a , b)) (λ f → refl) (λ f → refl))
+
 Σ-cong-iso-fst : (isom : Iso A A') → Iso (Σ A (B ∘ fun isom)) (Σ A' B)
 fun (Σ-cong-iso-fst isom) x = fun isom (x .fst) , x .snd
 inv (Σ-cong-iso-fst {B = B} isom) x = inv isom (x .fst) , subst B (sym (ε (x .fst))) (x .snd)

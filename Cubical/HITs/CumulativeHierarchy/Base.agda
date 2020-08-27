@@ -1,5 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts #-}
-{- Notably not --safe, since a TERMINATING pragma is used once. Not sure how to get rid of that -}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 {-
 This file models "ZF - powerset" in cubical agda, via a cumulative hierarchy, in the sense given
 in the HoTT book §10.5 "The cumulative hierarchy".
@@ -43,10 +42,6 @@ private
 ------------
 
 module _ where
-  propRec2 : ∀{a b c} {X : Type a} {Y : Type b} {Z : Type c}
-           → (X → Y → Z) → ∥ X ∥ → ∥ Y ∥ → ∥ Z ∥
-  propRec2 f x y = P.rec squash (λ x → P.rec squash (λ y → ∣ f x y ∣) y) x
-
   isProp→PathPP : ∀ {B : I → I → Type ℓ} → ((i j : I) → isProp (B i j))
                → {a : B i0 i0} {b : B i0 i1} {c : B i1 i0} {d : B i1 i1}
                → (r : PathP (λ j → B j i0) a c) (s : PathP (λ j → B j i1) b d)
@@ -55,9 +50,6 @@ module _ where
   isProp→PathPP {B = B} isPropB r s t u = isProp→PathP isPropPathP t u where
     isPropPathP : (i : I) → isProp (PathP (λ j → B i j) (r i) (s i))
     isPropPathP i = isProp→isSet-PathP (λ j → isPropB i j) (r i) (s i)
-
-  transport⁻ua : ∀ {A B : Type ℓ} (e : A ≃ B) → transport⁻ (ua e) ≡ transport (ua (invEquiv e))
-  transport⁻ua e = EquivJ (λ _ e → transport⁻ (ua e) ≡ transport (ua (invEquiv e))) refl e
 
 module EmbeddingsExt a {b} (B : Type b) where
   open import Cubical.Functions.Fibration as Fibr
@@ -85,7 +77,7 @@ module EmbeddingsExt a {b} (B : Type b) where
     F≡G = f .fst            ≃⟨ Fibr.totalEquiv _ ⟩
           Σ B (fiber (f ↪)) ≃⟨ FiberEquiv ⟩
           Σ B (fiber (g ↪)) ≃⟨ invEquiv (Fibr.totalEquiv _) ⟩
-          g .fst ■
+          g .fst             ■
     f≡g : PathP (λ i → ua F≡G i → B) (f ↪) (g ↪)
     f≡g = toPathP (funExt λ x → λ i → transportRefl (invEquiv FiberEquiv .fst (Fibr.totalEquiv (g ↪) .fst (transportRefl x i)) .snd .snd i) i)
     ef≡eg : PathP (λ i → isEmbedding (f≡g i)) (f .snd .snd) (g .snd .snd)
@@ -94,10 +86,6 @@ module EmbeddingsExt a {b} (B : Type b) where
 isEmbeddingLiftsIsProp : ∀ {a b} {A : Type a} {B : Type b} {f : A → B} → isEmbedding f
                        → isProp B → isProp A
 isEmbeddingLiftsIsProp {f = f} embeds isPropB x y = invEquiv (cong f , embeds x y) .fst (isPropB (f x) (f y))
-
-expandΣinΠ : ∀ {a b c}{A : Type a}{B : A → Type b}{C : ∀ a → B a → Type c}
-           → (∀ a → (b : B a) → C a b) ≃ (((a , b) : Σ A B) → C a b)
-expandΣinΠ = isoToEquiv (iso (λ f (a , b) → f a b) (λ f a b → f (a , b)) (λ f → refl) (λ f → refl))
 
 ------------
 -- Start implementation of V
@@ -108,7 +96,7 @@ data V (ℓ : Level) : Type (ℓ-suc ℓ)
 _∈_ : (S T : V ℓ) → hProp (ℓ-suc ℓ)
 
 eqImage : {X Y : Type ℓ} (ix : X → V ℓ) (iy : Y → V ℓ) → Type (ℓ-suc ℓ)
-eqImage {X = X} {Y = Y} ix iy = (∀ (a : X) → ∥ Σ[ b ∈ Y ] (iy b) ≡ (ix a) ∥) ⊓′ (∀ (b : Y) → ∥ Σ[ a ∈ X ] (ix a) ≡ (iy b) ∥)
+eqImage {X = X} {Y = Y} ix iy = (∀ (a : X) → ∃[ b ∈ Y ] iy b ≡ ix a) ⊓′ (∀ (b : Y) → ∃[ a ∈ X ] ix a ≡ iy b)
 
 data V ℓ where
   sett : (X : Type ℓ) → (X → V ℓ) → V ℓ
@@ -122,6 +110,7 @@ A ∈ seteq X Y ix iy (f , g) i =
     (λ ay → do (y , ya) ← ay ; (x , xa) ← g y ; ∣ x , xa ∙ ya ∣) i
   where open PropMonad
 A ∈ setIsSet a b p q i j = isSetHProp (A ∈ a) (A ∈ b) (λ j → A ∈ p j) (λ j → A ∈ q j) i j
+{-# INLINE _∈_ #-}
 
 -- a provisional definition of equality, we will show that this is actually equivalent to an hProp in universe ℓ
 infix 4 _≡ₛ_
@@ -140,23 +129,27 @@ record ElimSet {Z : (s : V ℓ) → Type ℓ'} (isSetZ : ∀ s → isSet (Z s)) 
              -- ^ the structural parts of the seteq path
              → (rec₁ : ∀ x₁ → Z (ix₁ x₁)) (rec₂ : ∀ x₂ → Z (ix₂ x₂))
              -- ^ recursors into the elements
-             → ((x₁ : X₁) → ∥ Σ[ x₂ ∈ X₂ ] (Σ[ p ∈ (ix₂ x₂ ≡ ix₁ x₁) ] PathP (λ i → Z (p i)) (rec₂ x₂) (rec₁ x₁)) ∥)
-             → ((x₂ : X₂) → ∥ Σ[ x₁ ∈ X₁ ] (Σ[ p ∈ (ix₁ x₁ ≡ ix₂ x₂) ] PathP (λ i → Z (p i)) (rec₁ x₁) (rec₂ x₂)) ∥)
+             → ((x₁ : X₁) → ∃[ x₂ ∈ X₂ ] Σ[ p ∈ (ix₂ x₂ ≡ ix₁ x₁) ] PathP (λ i → Z (p i)) (rec₂ x₂) (rec₁ x₁))
+             → ((x₂ : X₂) → ∃[ x₁ ∈ X₁ ] Σ[ p ∈ (ix₁ x₁ ≡ ix₂ x₂) ] PathP (λ i → Z (p i)) (rec₁ x₁) (rec₂ x₂))
              -- ^ proofs that the recursors have equal images
              → PathP (λ i → Z (seteq X₁ X₂ ix₁ ix₂ eq i)) (ElimSett X₁ ix₁ rec₁) (ElimSett X₂ ix₂ rec₂)
 
 module _ {Z : (s : V ℓ) → Type ℓ'} {isSetZ : ∀ s → isSet (Z s)} (E : ElimSet isSetZ) where
   open ElimSet E
   elim : (s : V ℓ) → Z s
-  {-# TERMINATING #-} -- TODO: remove terminating ???
   elim (sett X ix) = ElimSett X ix (elim ∘ ix)
-  elim (seteq Y₁ Y₂ iy₁ iy₂ eq i) = ElimEq Y₁ Y₂ iy₁ iy₂ eq (elim ∘ iy₁) (elim ∘ iy₂) rec₁→₂ rec₂→₁ i where
-    open PropMonad
-    rec₁→₂ : (y₁ : Y₁) → ∥ Σ[ y₂ ∈ Y₂ ] (Σ[ p ∈ (iy₂ y₂ ≡ iy₁ y₁) ] PathP (λ i → Z (p i)) (elim (iy₂ y₂)) (elim (iy₁ y₁))) ∥
-    rec₂→₁ : (y₂ : Y₂) → ∥ Σ[ y₁ ∈ Y₁ ] (Σ[ p ∈ (iy₁ y₁ ≡ iy₂ y₂) ] PathP (λ i → Z (p i)) (elim (iy₁ y₁)) (elim (iy₂ y₂))) ∥
-                                                        --v-------v-- the problematic part for the termination checker
-    rec₁→₂ y₁ = do (y₂ , yy) ← eq .fst y₁ ; ∣ y₂ , yy , cong elim yy ∣
-    rec₂→₁ y₂ = do (y₁ , yy) ← eq .snd y₂ ; ∣ y₁ , yy , cong elim yy ∣
+  elim (seteq X₁ X₂ ix₁ ix₂ eq i) = ElimEq X₁ X₂ ix₁ ix₂ eq (elim ∘ ix₁) (elim ∘ ix₂) rec₁→₂ rec₂→₁ i where
+    rec₁→₂ : (x₁ : X₁) → ∃[ x₂ ∈ X₂ ] Σ[ p ∈ (ix₂ x₂ ≡ ix₁ x₁) ] PathP (λ i → Z (p i)) (elim (ix₂ x₂)) (elim (ix₁ x₁))
+    rec₂→₁ : (x₂ : X₂) → ∃[ x₁ ∈ X₁ ] Σ[ p ∈ (ix₁ x₁ ≡ ix₂ x₂) ] PathP (λ i → Z (p i)) (elim (ix₁ x₁)) (elim (ix₂ x₂))
+
+    rec₁→₂ x₁ = localRec₁ (eq .fst x₁) where
+      localRec₁ : ∃[ x₂ ∈ X₂ ] (ix₂ x₂ ≡ ix₁ x₁) → ∃[ x₂ ∈ X₂ ] Σ[ p ∈ (ix₂ x₂ ≡ ix₁ x₁) ] PathP (λ i → Z (p i)) (elim (ix₂ x₂)) (elim (ix₁ x₁))
+      localRec₁ ∣ x₂ , xx ∣ = ∣ x₂ , xx , (λ i → elim (xx i)) ∣
+      localRec₁ (squash x y i) = squash (localRec₁ x) (localRec₁ y) i
+    rec₂→₁ x₂ = localRec₂ (eq .snd x₂) where
+      localRec₂ : ∃[ x₁ ∈ X₁ ] (ix₁ x₁ ≡ ix₂ x₂) → ∃[ x₁ ∈ X₁ ] Σ[ p ∈ (ix₁ x₁ ≡ ix₂ x₂) ] PathP (λ i → Z (p i)) (elim (ix₁ x₁)) (elim (ix₂ x₂))
+      localRec₂ ∣ x₁ , xx ∣ = ∣ x₁ , xx , (λ i → elim (xx i)) ∣
+      localRec₂ (squash x y i) = squash (localRec₂ x) (localRec₂ y) i
   elim (setIsSet S T x y i j) = isProp→PathP propPathP (cong elim x) (cong elim y) i j where
     propPathP : (i : I) → isProp (PathP (λ j → Z (setIsSet S T x y i j)) (elim S) (elim T))
     propPathP _ = subst isProp (sym (PathP≡Path _ _ _)) (isSetZ _ _ _)
@@ -190,8 +183,8 @@ record Elim2Set {Z : (s t : V ℓ) → Type ℓ'} (isSetZ : ∀ s t → isSet (Z
               -- ^ the structural parts of the seteq path
               → (rec₁ : ∀ x₁ y → Z (ix₁ x₁) (iy y)) (rec₂ : ∀ x₂ y → Z (ix₂ x₂) (iy y))
               -- ^ recursors into the elements
-              → (rec₁→₂ : (x₁ : X₁) → ∥ Σ[ x₂ ∈ X₂ ] (Σ[ p ∈ (ix₂ x₂ ≡ ix₁ x₁) ] PathP (λ i → ∀ y → Z (p i) (iy y)) (λ y → rec₂ x₂ y) (λ y → rec₁ x₁ y)) ∥)
-              → (rec₂→₁ : (x₂ : X₂) → ∥ Σ[ x₁ ∈ X₁ ] (Σ[ p ∈ (ix₁ x₁ ≡ ix₂ x₂) ] PathP (λ i → ∀ y → Z (p i) (iy y)) (λ y → rec₁ x₁ y) (λ y → rec₂ x₂ y)) ∥)
+              → (rec₁→₂ : (x₁ : X₁) → ∃[ x₂ ∈ X₂ ] Σ[ p ∈ (ix₂ x₂ ≡ ix₁ x₁) ] PathP (λ i → ∀ y → Z (p i) (iy y)) (λ y → rec₂ x₂ y) (λ y → rec₁ x₁ y))
+              → (rec₂→₁ : (x₂ : X₂) → ∃[ x₁ ∈ X₁ ] Σ[ p ∈ (ix₁ x₁ ≡ ix₂ x₂) ] PathP (λ i → ∀ y → Z (p i) (iy y)) (λ y → rec₁ x₁ y) (λ y → rec₂ x₂ y))
               -- ^ proofs that the recursors have equal images
               → PathP (λ i → Z (seteq X₁ X₂ ix₁ ix₂ eq i) (sett Y iy)) (ElimSett2 X₁ ix₁ Y iy rec₁) (ElimSett2 X₂ ix₂ Y iy rec₂)
     -- path when the the second argument deforms along seteq and the first argument is held constant
@@ -199,8 +192,8 @@ record Elim2Set {Z : (s t : V ℓ) → Type ℓ'} (isSetZ : ∀ s t → isSet (Z
               -- ^ the structural parts of the seteq path
               → (rec₁ : ∀ x y₁ → Z (ix x) (iy₁ y₁)) (rec₂ : ∀ x y₂ → Z (ix x) (iy₂ y₂))
               -- ^ recursors into the elements
-              → (rec₁→₂ : (y₁ : Y₁) → ∥ Σ[ y₂ ∈ Y₂ ] (Σ[ p ∈ (iy₂ y₂ ≡ iy₁ y₁) ] PathP (λ i → ∀ x → Z (ix x) (p i)) (λ x → rec₂ x y₂) (λ x → rec₁ x y₁)) ∥)
-              → (rec₂→₁ : (y₂ : Y₂) → ∥ Σ[ y₁ ∈ Y₁ ] (Σ[ p ∈ (iy₁ y₁ ≡ iy₂ y₂) ] PathP (λ i → ∀ x → Z (ix x) (p i)) (λ x → rec₁ x y₁) (λ x → rec₂ x y₂)) ∥)
+              → (rec₁→₂ : (y₁ : Y₁) → ∃[ y₂ ∈ Y₂ ] Σ[ p ∈ (iy₂ y₂ ≡ iy₁ y₁) ] PathP (λ i → ∀ x → Z (ix x) (p i)) (λ x → rec₂ x y₂) (λ x → rec₁ x y₁))
+              → (rec₂→₁ : (y₂ : Y₂) → ∃[ y₁ ∈ Y₁ ] Σ[ p ∈ (iy₁ y₁ ≡ iy₂ y₂) ] PathP (λ i → ∀ x → Z (ix x) (p i)) (λ x → rec₁ x y₁) (λ x → rec₂ x y₂))
               -- ^ proofs that the recursors have equal images
               → PathP (λ i → Z (sett X ix) (seteq Y₁ Y₂ iy₁ iy₂ eq i)) (ElimSett2 X ix Y₁ iy₁ rec₁) (ElimSett2 X ix Y₂ iy₂ rec₂)
 
@@ -223,8 +216,8 @@ module _ {Z : (s t : V ℓ) → Type ℓ'} {isSetZ : ∀ s t → isSet (Z s t)} 
     ElimEq (eliminatorImplX X ix rec) Y₁ Y₂ iy₁ iy₂ eq _ _ _ _ =
       ElimEqSnd X ix Y₁ Y₂ iy₁ iy₂ eq (λ x → rec x ∘ iy₁) (λ x → rec x ∘ iy₂) rec₁→₂ rec₂→₁
       where
-      rec₁→₂ : (y₁ : Y₁) → ∥ Σ[ y₂ ∈ Y₂ ] Σ[ p ∈ (iy₂ y₂ ≡ iy₁ y₁) ] PathP (λ i → ∀ x → Z (ix x) (p i)) (λ x → rec x (iy₂ y₂)) (λ x → rec x (iy₁ y₁)) ∥
-      rec₂→₁ : (y₂ : Y₂) → ∥ Σ[ y₁ ∈ Y₁ ] Σ[ p ∈ (iy₁ y₁ ≡ iy₂ y₂) ] PathP (λ i → ∀ x → Z (ix x) (p i)) (λ x → rec x (iy₁ y₁)) (λ x → rec x (iy₂ y₂)) ∥
+      rec₁→₂ : (y₁ : Y₁) → ∃[ y₂ ∈ Y₂ ] Σ[ p ∈ (iy₂ y₂ ≡ iy₁ y₁) ] PathP (λ i → ∀ x → Z (ix x) (p i)) (λ x → rec x (iy₂ y₂)) (λ x → rec x (iy₁ y₁))
+      rec₂→₁ : (y₂ : Y₂) → ∃[ y₁ ∈ Y₁ ] Σ[ p ∈ (iy₁ y₁ ≡ iy₂ y₂) ] PathP (λ i → ∀ x → Z (ix x) (p i)) (λ x → rec x (iy₁ y₁)) (λ x → rec x (iy₂ y₂))
       rec₁→₂ y₁ = do (y₂ , yy) ← fst eq y₁ ; ∣ y₂ , yy , (λ i x → rec x (yy i)) ∣
       rec₂→₁ y₂ = do (y₁ , yy) ← snd eq y₂ ; ∣ y₁ , yy , (λ i x → rec x (yy i)) ∣
 
@@ -235,8 +228,8 @@ module _ {Z : (s t : V ℓ) → Type ℓ'} {isSetZ : ∀ s t → isSet (Z s t)} 
 
     elimImplSExt : (X₁ X₂ : Type ℓ) (ix₁ : X₁ → V ℓ) (ix₂ : X₂ → V ℓ) → (eq : eqImage ix₁ ix₂)
                  → (rec₁ : ∀ x₁ t₂ → Z (ix₁ x₁) t₂) (rec₂ : ∀ x₂ t₂ → Z (ix₂ x₂) t₂)
-                 → ((x₁ : X₁) → ∥ Σ[ x₂ ∈ X₂ ] Σ[ p ∈ (ix₂ x₂ ≡ ix₁ x₁) ] PathP (λ i → ∀ t → Z (p i) t) (rec₂ x₂) (rec₁ x₁) ∥)
-                 → ((x₂ : X₂) → ∥ Σ[ x₁ ∈ X₁ ] Σ[ p ∈ (ix₁ x₁ ≡ ix₂ x₂) ] PathP (λ i → ∀ t → Z (p i) t) (rec₁ x₁) (rec₂ x₂) ∥)
+                 → ((x₁ : X₁) → ∃[ x₂ ∈ X₂ ] Σ[ p ∈ (ix₂ x₂ ≡ ix₁ x₁) ] PathP (λ i → ∀ t → Z (p i) t) (rec₂ x₂) (rec₁ x₁))
+                 → ((x₂ : X₂) → ∃[ x₁ ∈ X₁ ] Σ[ p ∈ (ix₁ x₁ ≡ ix₂ x₂) ] PathP (λ i → ∀ t → Z (p i) t) (rec₁ x₁) (rec₂ x₂))
                  → (t : V ℓ) → PathP (λ i → Z (seteq X₁ X₂ ix₁ ix₂ eq i) t) (elimImplS X₁ ix₁ rec₁ t) (elimImplS X₂ ix₂ rec₂ t)
     elimImplSExt X₁ X₂ ix₁ ix₂ eq rec₁ rec₂ rec₁→₂ rec₂→₁ =
       elimProp propPathP (λ Y iy _ → elimImplSExtT Y iy)
@@ -248,8 +241,8 @@ module _ {Z : (s t : V ℓ) → Type ℓ'} {isSetZ : ∀ s t → isSet (Z s t)} 
       elimImplSExtT Y iy =
         ElimEqFst X₁ X₂ ix₁ ix₂ eq Y iy (λ x₁ y → rec₁ x₁ (iy y)) (λ x₂ y → rec₂ x₂ (iy y)) rec₁→₂Impl rec₂→₁Impl
         where
-        rec₁→₂Impl : (x₁ : X₁) → ∥ Σ[ x₂ ∈ X₂ ] (Σ[ p ∈ (ix₂ x₂ ≡ ix₁ x₁) ] PathP (λ i → ∀ y → Z (p i) (iy y)) (λ y → rec₂ x₂ (iy y)) (λ y → rec₁ x₁ (iy y))) ∥
-        rec₂→₁Impl : (x₂ : X₂) → ∥ Σ[ x₁ ∈ X₁ ] (Σ[ p ∈ (ix₁ x₁ ≡ ix₂ x₂) ] PathP (λ i → ∀ y → Z (p i) (iy y)) (λ y → rec₁ x₁ (iy y)) (λ y → rec₂ x₂ (iy y))) ∥
+        rec₁→₂Impl : (x₁ : X₁) → ∃[ x₂ ∈ X₂ ] Σ[ p ∈ (ix₂ x₂ ≡ ix₁ x₁) ] PathP (λ i → ∀ y → Z (p i) (iy y)) (λ y → rec₂ x₂ (iy y)) (λ y → rec₁ x₁ (iy y))
+        rec₂→₁Impl : (x₂ : X₂) → ∃[ x₁ ∈ X₁ ] Σ[ p ∈ (ix₁ x₁ ≡ ix₂ x₂) ] PathP (λ i → ∀ y → Z (p i) (iy y)) (λ y → rec₁ x₁ (iy y)) (λ y → rec₂ x₂ (iy y))
         rec₁→₂Impl x₁ = do (x₂ , xx , rx) ← rec₁→₂ x₁ ; ∣ x₂ , xx , (λ i y → rx i (iy y)) ∣
         rec₂→₁Impl x₂ = do (x₁ , xx , rx) ← rec₂→₁ x₂ ; ∣ x₁ , xx , (λ i y → rx i (iy y)) ∣
 
@@ -275,8 +268,8 @@ _∼_ = elim2 eliminator where
 
   open PropMonad
   lemma : {X₁ X₂ Y : Type ℓ} {ix₁ : X₁ → V ℓ} {ix₂ : X₂ → V ℓ} (iy : Y → V ℓ) {rec₁ : X₁ → Y → hProp ℓ} {rec₂ : X₂ → Y → hProp ℓ}
-        → (rec₁→₂ : (x₁ : X₁) → ∥ Σ[ x₂ ∈ X₂ ] Σ[ p ∈ (ix₂ x₂ ≡ ix₁ x₁) ] rec₂ x₂ ≡ rec₁ x₁ ∥)
-        → (rec₂→₁ : (x₂ : X₂) → ∥ Σ[ x₁ ∈ X₁ ] Σ[ p ∈ (ix₁ x₁ ≡ ix₂ x₂) ] rec₁ x₁ ≡ rec₂ x₂ ∥)
+        → (rec₁→₂ : (x₁ : X₁) → ∃[ x₂ ∈ X₂ ] Σ[ p ∈ (ix₂ x₂ ≡ ix₁ x₁) ] rec₂ x₂ ≡ rec₁ x₁)
+        → (rec₂→₁ : (x₂ : X₂) → ∃[ x₁ ∈ X₁ ] Σ[ p ∈ (ix₁ x₁ ≡ ix₂ x₂) ] rec₁ x₁ ≡ rec₂ x₂)
         → [ goalProp X₁ ix₁ Y iy rec₁ ⇒ goalProp X₂ ix₂ Y iy rec₂ ]
   lemma _ rec₁→₂ rec₂→₁ (X₁→Y , Y→X₁) =
     (λ x₂ → do (x₁ , _ , xr₁) ← rec₂→₁ x₂
@@ -374,7 +367,7 @@ isPropMonicPresentation a (X₁ , ix₁ , isEmb₁ , p) (X₂ , ix₂ , isEmb₂
   ix₁≡ix₂ : PathP (λ i → X₁≡X₂ i → V _) ix₁ ix₂
   ix₁≡ix₂ = toPathP (
     transport refl ∘ ix₁ ∘ transport⁻ X₁≡X₂
-      ≡[ i ]⟨ (λ x → transportRefl x i) ∘ ix₁ ∘ transport⁻ua X₁≃X₂ i ⟩
+      ≡[ i ]⟨ (λ x → transportRefl x i) ∘ ix₁ ∘ transportUaInv X₁≃X₂ (~ i) ⟩
     ix₁ ∘ transport (ua (invEquiv X₁≃X₂))
       ≡[ i ]⟨ ix₁ ∘ (λ x → uaβ (invEquiv X₁≃X₂) x i) ⟩
     ix₁ ∘ hom2
@@ -472,8 +465,8 @@ _⊆ₛ_ : (a b : V ℓ) → hProp ℓ
 a ⊆ₛ b = ∀[ x ∶ ⟪ a ⟫ ] ⟪ a ⟫↪ x ∈ₛ b
 
 ⊆⊆ₛ : (a b : V ℓ) → [ a ⊆ b ⇔ a ⊆ₛ b ]
-⊆⊆ₛ a b = (λ s x → expandΣinΠ .fst s (invEquiv (presentation a) .fst x))
-         , (λ s x xa → subst (λ x → [ x ∈ₛ b ]) (V∼-≡ .fst (xa .snd)) (s (xa .fst)))
+⊆⊆ₛ a b = (λ s → equivFun Π-Σ-≃ s ∘ invEq (presentation a))
+         , (λ s x xa → subst (λ x → [ x ∈ₛ b ]) (equivFun V∼-≡ (xa .snd)) (s (xa .fst)))
 
 ------------
 -- Structures for building specific sets by giving encodings and decodings for their membership
