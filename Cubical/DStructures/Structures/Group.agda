@@ -76,7 +76,7 @@ module _ (ℓ ℓ' : Level) where
                     (λ (G , H) → GroupHom G H)
                     (ℓ-max ℓ ℓ')
   𝒮ᴰ-G²\F =
-    make-𝒮ᴰ (λ {(G , _)} f (eG , eH) f' → (g : ⟨ G ⟩) → GroupEquiv.eq eH .fst ((f .fun) g) ≡ (f' .fun) (GroupEquiv.eq eG .fst g))
+    make-𝒮ᴰ (λ {(G , H)} {(G' , H')} f (eG , eH) f' → (g : ⟨ G ⟩) → GroupEquiv.eq eH .fst ((f .fun) g) ≡ (f' .fun) (GroupEquiv.eq eG .fst g))
             (λ _ _ → refl)
             λ (G , H) f → isContrRespectEquiv (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
                                               (isContrSingl f)

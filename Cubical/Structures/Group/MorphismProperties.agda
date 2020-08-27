@@ -63,10 +63,10 @@ isGroupSplitEpi : {G : Group {ℓ}} {H : Group {ℓ'}}
         → Type ℓ
 isGroupSplitEpi {G = G} f g = compGroupHom f g ≡ idGroupHom G
 
-isPropIsGroupHomRet : {G : Group {ℓ}} {H : Group {ℓ'}}
+isPropIsGroupSplitEpi : {G : Group {ℓ}} {H : Group {ℓ'}}
                       (f : GroupHom G H) (g : GroupHom H G)
                       → isProp (isGroupSplitEpi f g)
-isPropIsGroupHomRet {G = G} f g = isSetGroupHom (compGroupHom f g) (idGroupHom G)
+isPropIsGroupSplitEpi {G = G} f g = isSetGroupHom (compGroupHom f g) (idGroupHom G)
 
 idGroupEquiv : (G : Group {ℓ}) → GroupEquiv G G
 eq (idGroupEquiv G) = idEquiv ⟨ G ⟩

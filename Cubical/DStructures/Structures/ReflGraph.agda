@@ -51,7 +51,7 @@ module _ (ℓ ℓ' : Level) where
                           → isGroupSplitEpi f b')
                         ℓ-zero
   𝒮ᴰ-ReflGraph = Subtype→Sub-𝒮ᴰ (λ ((((G , H) , f , b) , isRet) , b')
-                                   → isGroupSplitEpi f b' , isPropIsGroupHomRet f b')
+                                   → isGroupSplitEpi f b' , isPropIsGroupSplitEpi f b')
                                 (𝒮-SplitEpiB ℓ ℓ')
 
   -- the URG structure on the type of reflexive graphs

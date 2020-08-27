@@ -50,10 +50,10 @@ module _ (ℓ ℓ' : Level) where
 
   -- split epimorphisms displayed over pairs of groups
   𝒮ᴰ-SplitEpi : URGStrᴰ (𝒮-G²FB ℓ ℓ')
-                        (λ ((G , H) , (f , g)) → isGroupSplitEpi f g)
+                        (λ ((G , H) , (f , b)) → isGroupSplitEpi f b)
                         ℓ-zero
   𝒮ᴰ-SplitEpi =
-    Subtype→Sub-𝒮ᴰ (λ ((G , H) , (f , g)) → isGroupSplitEpi f g , isPropIsGroupHomRet f g)
+    Subtype→Sub-𝒮ᴰ (λ ((G , H) , (f , b)) → isGroupSplitEpi f b , isPropIsGroupSplitEpi f b)
                    (𝒮-G²FB ℓ ℓ')
 
   -- URG structure on type of split epimorphisms
