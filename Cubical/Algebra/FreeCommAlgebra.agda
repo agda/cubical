@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --no-import-sorts #-}
 
-module Cubical.Structures.FreeCommAlgebra where
+module Cubical.Algebra.FreeCommAlgebra where
 {-
   The free commutative algebra over a commutative ring,
   or in other words the ring of polynomials with coefficients in a given ring.
