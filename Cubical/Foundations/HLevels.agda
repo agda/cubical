@@ -160,6 +160,12 @@ isGroupoid'→isGroupoid Agpd' x y p q r s = Agpd' r s refl refl refl refl
 
 -- hlevels are preserved by retracts (and consequently equivalences)
 
+recenterContraction : {A : Type ℓ} (c : isContr A) (x : A) → isContr A
+recenterContraction (c , p) x = x , λ a → sym (p x) ∙ p a
+
+Σ-contractFst-recenter : (c : isContr A) (a : A) → Σ A B ≃ B a
+Σ-contractFst-recenter {B = B} c a = Σ-contractFst (recenterContraction c a)
+
 isContrRetract
   : ∀ {B : Type ℓ}
   → (f : A → B) (g : B → A)

@@ -24,13 +24,15 @@ private
 𝒮-type A = make-𝒮 {_≅_ = _≡_} (λ _ → refl) isContrSingl
 
 -- subtypes are displayed structures
-𝒮ᴰ-subtype : {A : Type ℓ} (P : A → hProp ℓ') → URGStrᴰ (𝒮-type A) (λ a → P a .fst) ℓ-zero
+𝒮ᴰ-subtype : {A : Type ℓ} (P : A → hProp ℓ')
+             → URGStrᴰ (𝒮-type A)
+                       (λ a → P a .fst)
+                       ℓ-zero
 𝒮ᴰ-subtype P
   = make-𝒮ᴰ (λ _ _ _ → Unit)
-                (λ _ → tt)
-                λ a p → isContrRespectEquiv
-                                               (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
-                                               (inhProp→isContr p (P a .snd))
+            (λ _ → tt)
+            λ a p → isContrRespectEquiv (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
+                                        (inhProp→isContr p (P a .snd))
 
 -- a subtype induces a URG structure on itself
 Subtype→Sub-𝒮ᴰ : {A : Type ℓA} (P : A → hProp ℓP)
