@@ -17,7 +17,7 @@ open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
 open import Cubical.Algebra.Semigroup    hiding (⟨_⟩)
 open import Cubical.Algebra.Monoid       hiding (⟨_⟩)
-open import Cubical.Structures.AbGroup   hiding (⟨_⟩)
+open import Cubical.Algebra.AbGroup   hiding (⟨_⟩)
 
 open Iso
 
