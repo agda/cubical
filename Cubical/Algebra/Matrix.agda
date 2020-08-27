@@ -18,7 +18,7 @@ open import Cubical.Data.Sigma.Base
 open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
 
-open import Cubical.Structures.Group hiding (⟨_⟩)
+open import Cubical.Algebra.Group hiding (⟨_⟩)
 open import Cubical.Structures.AbGroup hiding (⟨_⟩)
 open import Cubical.Algebra.Monoid hiding (⟨_⟩)
 open import Cubical.Structures.Ring

@@ -1,10 +1,10 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 
-module Cubical.Structures.Group.Morphism where
+module Cubical.Algebra.Group.Morphism where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
-open import Cubical.Structures.Group.Base
+open import Cubical.Algebra.Group.Base
 open import Cubical.HITs.PropositionalTruncation hiding (map)
 open import Cubical.Data.Sigma
 

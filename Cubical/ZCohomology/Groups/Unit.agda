@@ -16,7 +16,7 @@ open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation
 open import Cubical.Homotopy.Connected
 open import Cubical.Data.Unit
-open import Cubical.Structures.Group
+open import Cubical.Algebra.Group
 
 -- H⁰(Unit)
 open GroupHom

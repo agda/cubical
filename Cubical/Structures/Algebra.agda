@@ -18,7 +18,7 @@ open import Cubical.Structures.Macro
 open import Cubical.Structures.Module    renaming (⟨_⟩ to ⟨_⟩m)
 open import Cubical.Structures.Ring      renaming (⟨_⟩ to ⟨_⟩r)
 open import Cubical.Structures.AbGroup   hiding (⟨_⟩)
-open import Cubical.Structures.Group     hiding (⟨_⟩)
+open import Cubical.Algebra.Group     hiding (⟨_⟩)
 open import Cubical.Algebra.Monoid       hiding (⟨_⟩)
 
 open Iso

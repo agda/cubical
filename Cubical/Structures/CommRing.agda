@@ -130,7 +130,7 @@ module CommRingΣTheory {ℓ} where
     iso CommRing→CommRingΣ CommRingΣ→CommRing (λ _ → refl) helper
 
     where
-    open import Cubical.Structures.Group.Base hiding (⟨_⟩)
+    open import Cubical.Algebra.Group.Base hiding (⟨_⟩)
     open CommRing
     open IsRing
     open IsCommRing

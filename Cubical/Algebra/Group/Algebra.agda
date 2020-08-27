@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Structures.Group.Algebra where
+module Cubical.Algebra.Group.Algebra where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -10,10 +10,10 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
-open import Cubical.Structures.Group.Base
-open import Cubical.Structures.Group.Properties
-open import Cubical.Structures.Group.Morphism
-open import Cubical.Structures.Group.MorphismProperties
+open import Cubical.Algebra.Group.Base
+open import Cubical.Algebra.Group.Properties
+open import Cubical.Algebra.Group.Morphism
+open import Cubical.Algebra.Group.MorphismProperties
 
 open import Cubical.HITs.PropositionalTruncation hiding (map)
 

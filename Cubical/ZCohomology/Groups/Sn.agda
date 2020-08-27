@@ -31,7 +31,7 @@ open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec)
 open import Cubical.Data.Unit
 
-open import Cubical.Structures.Group
+open import Cubical.Algebra.Group
 
 infixr 31 _□_
 _□_ : _

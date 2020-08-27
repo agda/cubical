@@ -150,7 +150,7 @@ module CommAlgebraΣTheory (R : CommRing {ℓ}) where
     iso CommAlgebra→CommAlgebraΣ CommAlgebraΣ→CommAlgebra (λ _ → refl) helper
 
     where
-    open import Cubical.Structures.Group.Base hiding (⟨_⟩)
+    open import Cubical.Algebra.Group.Base hiding (⟨_⟩)
     open CommAlgebra
     open IsAlgebra
     open IsCommAlgebra

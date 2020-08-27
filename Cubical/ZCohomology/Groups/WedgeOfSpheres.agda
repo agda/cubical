@@ -14,7 +14,7 @@ open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Truncation renaming (elim to trElim)
-open import Cubical.Structures.Group
+open import Cubical.Algebra.Group
 
 S¹⋁S¹ : Type₀
 S¹⋁S¹ = S₊∙ 1 ⋁ S₊∙ 1

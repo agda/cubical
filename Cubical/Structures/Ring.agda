@@ -188,7 +188,7 @@ module RingΣTheory {ℓ} where
       (isring (AbGroupΣTheory.AbGroupΣ→AbGroup (_ , _ , z ) .AbGroup.isAbGroup)
               w1 w2)
 
-  open import Cubical.Structures.Group.Base hiding (⟨_⟩)
+  open import Cubical.Algebra.Group.Base hiding (⟨_⟩)
   RingIsoRingΣ : Iso Ring RingΣ
   RingIsoRingΣ = iso Ring→RingΣ RingΣ→Ring (λ _ → refl) helper
     where

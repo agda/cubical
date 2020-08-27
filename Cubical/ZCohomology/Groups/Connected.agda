@@ -18,7 +18,7 @@ open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +-comm to +ℤ-comm ; +-assoc to +ℤ-assoc)
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (rec to trRec)
-open import Cubical.Structures.Group
+open import Cubical.Algebra.Group
 
 open import Cubical.Homotopy.Connected
 open import Cubical.Foundations.Equiv

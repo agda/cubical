@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Structures.Group.Base where
+module Cubical.Algebra.Group.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
