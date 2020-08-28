@@ -4,6 +4,7 @@ module Cubical.Algebra.RingSolver.AlmostRing where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Nat using (ℕ)
 
 open import Cubical.Algebra.Semigroup    hiding (⟨_⟩)
 open import Cubical.Algebra.Monoid       hiding (⟨_⟩)
@@ -64,6 +65,11 @@ record AlmostRing : Type (ℓ-suc ℓ) where
   infixl 6 _+_
 
   open IsAlmostRing isAlmostRing public
+
+  _^_ : Carrier → ℕ → Carrier
+  x ^ 0 = 1r
+  x ^ 1 = x
+  x ^ ℕ.suc k = x · (x ^ k)
 
 -- Extractor for the carrier type
 ⟨_⟩ : AlmostRing → Type ℓ
