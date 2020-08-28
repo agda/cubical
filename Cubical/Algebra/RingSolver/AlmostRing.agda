@@ -21,6 +21,8 @@ record IsAlmostRing {R : Type ℓ}
   field
     +IsMonoid : IsMonoid 0r _+_
     ·IsMonoid : IsMonoid 1r _·_
+    +Comm : (x y : R) → x + y ≡ y + x
+    ·Comm : (x y : R) → x · y ≡ y · x
     RightDist : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
     LeftDist :  (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
     -Comm· : (x y : R) → - (x · y) ≡ (- x) · y
