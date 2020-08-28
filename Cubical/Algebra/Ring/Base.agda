@@ -262,5 +262,3 @@ Ring→AbGroup (ring _ _ _ _ _ _ R) = abgroup _ _ _ _ (IsRing.+-isAbGroup R)
 
 Ring→Monoid : Ring {ℓ} → Monoid {ℓ}
 Ring→Monoid (ring _ _ _ _ _ _ R) = monoid _ _ _ (IsRing.·-isMonoid R)
-
-
