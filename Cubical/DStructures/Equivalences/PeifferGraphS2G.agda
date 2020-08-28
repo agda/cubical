@@ -54,9 +54,9 @@ open ActionLemmas
 module _ (ℓ ℓ' : Level) where
   ℓℓ' = ℓ-max ℓ ℓ'
 
-  𝒮ᴰ-♭iso-PeifferGraph-Strict2Group : 𝒮ᴰ-♭iso (idfun (ReflGraph ℓ ℓℓ')) (𝒮ᴰ-ReflGraph\Peiffer ℓ ℓℓ') (𝒮ᴰ-Strict2Group ℓ ℓℓ')
+  𝒮ᴰ-♭PIso-PeifferGraph-Strict2Group : 𝒮ᴰ-♭PIso (idfun (ReflGraph ℓ ℓℓ')) (𝒮ᴰ-ReflGraph\Peiffer ℓ ℓℓ') (𝒮ᴰ-Strict2Group ℓ ℓℓ')
 
-  RelIso.fun (𝒮ᴰ-♭iso-PeifferGraph-Strict2Group 𝒢) isPeifferGraph = 𝒱
+  RelIso.fun (𝒮ᴰ-♭PIso-PeifferGraph-Strict2Group 𝒢) isPeifferGraph = 𝒱
     where
       open ReflGraphNotation 𝒢
       open ReflGraphLemmas 𝒢
@@ -189,7 +189,7 @@ module _ (ℓ ℓ' : Level) where
                   ≡⟨ lCancel-rId G₁ g isg ⟩
                 g ∎
 
-  RelIso.inv (𝒮ᴰ-♭iso-PeifferGraph-Strict2Group 𝒢) 𝒞 = isPf
+  RelIso.inv (𝒮ᴰ-♭PIso-PeifferGraph-Strict2Group 𝒢) 𝒞 = isPf
     where
       open ReflGraphNotation 𝒢
       open VertComp 𝒞
@@ -225,12 +225,12 @@ module _ (ℓ ℓ' : Level) where
             itf = 𝒾t f
             -itf = -it f
 
-  RelIso.leftInv (𝒮ᴰ-♭iso-PeifferGraph-Strict2Group _) _ = tt
-  RelIso.rightInv (𝒮ᴰ-♭iso-PeifferGraph-Strict2Group _) _ = tt
+  RelIso.leftInv (𝒮ᴰ-♭PIso-PeifferGraph-Strict2Group _) _ = tt
+  RelIso.rightInv (𝒮ᴰ-♭PIso-PeifferGraph-Strict2Group _) _ = tt
 
-  IsoPeifferGraphStrict2Group : Iso (PeifferGraph ℓ ℓℓ') (Strict2Group ℓ ℓℓ')
-  IsoPeifferGraphStrict2Group = Iso→TotalIso idIso (𝒮ᴰ-ReflGraph\Peiffer ℓ ℓℓ') (𝒮ᴰ-Strict2Group ℓ ℓℓ') 𝒮ᴰ-♭iso-PeifferGraph-Strict2Group
+  Iso-PeifferGraph-Strict2Group : Iso (PeifferGraph ℓ ℓℓ') (Strict2Group ℓ ℓℓ')
+  Iso-PeifferGraph-Strict2Group = 𝒮ᴰ-♭PIso-Over→TotalIso idIso (𝒮ᴰ-ReflGraph\Peiffer ℓ ℓℓ') (𝒮ᴰ-Strict2Group ℓ ℓℓ') 𝒮ᴰ-♭PIso-PeifferGraph-Strict2Group
 
   open import Cubical.DStructures.Equivalences.XModPeifferGraph
   Iso-XModule-Strict2Group : Iso (XModule ℓ ℓℓ') (Strict2Group ℓ ℓℓ')
-  Iso-XModule-Strict2Group = compIso (IsoXModulePeifferGraph ℓ ℓℓ') IsoPeifferGraphStrict2Group
+  Iso-XModule-Strict2Group = compIso (Iso-XModule-PeifferGraph ℓ ℓℓ') Iso-PeifferGraph-Strict2Group

@@ -266,6 +266,7 @@ module GroupNotationH {ℓ : Level} (G : Group {ℓ}) where
   rCancelᴴ = IsGroup.invr (G .isGroup)
   setᴴ = Group.is-set G
   assocᴴ = G .assoc
+  _-ᴴ_ = λ (x y : ⟨ G ⟩) → x +ᴴ (-ᴴ y)
 
 module GroupNotation₀ {ℓ : Level} (G : Group {ℓ}) where
   open Group

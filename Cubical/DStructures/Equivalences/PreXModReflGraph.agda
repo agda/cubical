@@ -61,15 +61,15 @@ module _ (ℓ ℓ' : Level) where
                          ℓℓ'
   𝒮ᴰ-ReflGraph' = splitTotal-𝒮ᴰ (𝒮-SplitEpi ℓ ℓℓ') (𝒮ᴰ-G²FBSplit\B ℓ ℓℓ') (𝒮ᴰ-ReflGraph ℓ ℓℓ')
 
-  PreXModule' = Σ[ (((G₀ , G₁) , _α_) , isAct) ∈ Action ℓ ℓℓ' ] Σ[ φ ∈ GroupHom G₁ G₀ ] (isEquivariant _α_ φ)
+  PreXModule' = Σ[ (((G₀ , H) , _α_) , isAct) ∈ Action ℓ ℓℓ' ] Σ[ φ ∈ GroupHom H G₀ ] (isEquivariant (((G₀ , H) , _α_) , isAct) φ)
 
   𝒮ᴰ-PreXModule' : URGStrᴰ (𝒮-Action ℓ ℓℓ')
-                       (λ (((G₀ , G₁) , _α_) , isAct) → Σ[ φ ∈ GroupHom G₁ G₀ ] (isEquivariant _α_ φ))
+                       (λ (((G₀ , H) , _α_) , isAct) → Σ[ φ ∈ GroupHom H G₀ ] (isEquivariant (((G₀ , H) , _α_) , isAct) φ))
                        ℓℓ'
   𝒮ᴰ-PreXModule' = splitTotal-𝒮ᴰ (𝒮-Action ℓ ℓℓ') (𝒮ᴰ-Action\PreXModuleStr ℓ ℓℓ') (𝒮ᴰ-PreXModule ℓ ℓℓ')
 
-  𝒮ᴰ-♭iso-PreXModule'-ReflGraph' : 𝒮ᴰ-♭iso F 𝒮ᴰ-PreXModule' 𝒮ᴰ-ReflGraph'
-  RelIso.fun (𝒮ᴰ-♭iso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .fst = τ
+  𝒮ᴰ-♭PIso-PreXModule'-ReflGraph' : 𝒮ᴰ-♭PIso F 𝒮ᴰ-PreXModule' 𝒮ᴰ-ReflGraph'
+  RelIso.fun (𝒮ᴰ-♭PIso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .fst = τ
     where
       open GroupNotation₀ G₀
       open GroupNotation₁ G₁
@@ -96,7 +96,7 @@ module _ (ℓ ℓ' : Level) where
                                                           ∙∙ lId₀ g')))⟩
                                         (𝒻 h +₀ g) +₀ (𝒻  h' +₀ g') ∎
 
-  RelIso.fun (𝒮ᴰ-♭iso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .snd = q
+  RelIso.fun (𝒮ᴰ-♭PIso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .snd = q
     where
       open GroupNotation₀ G₀
       open GroupNotation₁ G₁
@@ -107,7 +107,7 @@ module _ (ℓ ℓ' : Level) where
                                            0₀ +₀ g
                                              ≡⟨ lId₀ g ⟩
                                            g ∎
-  RelIso.inv (𝒮ᴰ-♭iso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) = φ , isEqui
+  RelIso.inv (𝒮ᴰ-♭PIso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) = φ , isEqui
     where
       ℬ = F (((G₀ , G₁) , _α_) , isAct)
       A = groupaction _α_ isAct
@@ -122,7 +122,7 @@ module _ (ℓ ℓ' : Level) where
       φ = compGroupHom ι1 τ
 
       abstract
-        isEqui : isEquivariant _α_ φ
+        isEqui : isEquivariant (((G₀ , G₁) , _α_) , isAct) φ
         isEqui g h = 𝒻 (g α h)
                        ≡⟨ refl ⟩
                      t (g α h , 0₀)
@@ -153,7 +153,7 @@ module _ (ℓ ℓ' : Level) where
             open GroupNotation₀ G₀
 
 
-  RelIso.leftInv (𝒮ᴰ-♭iso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .fst = φ-≅
+  RelIso.leftInv (𝒮ᴰ-♭PIso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .fst = φ-≅
     where
       open GroupNotation₀ G₀
 
@@ -162,13 +162,13 @@ module _ (ℓ ℓ' : Level) where
         φ-≅ : (h : ⟨ G₁ ⟩) → φ .fun h +₀ 0₀ ≡ φ .fun h
         φ-≅ h = rId₀ (φ .fun h)
 
-  RelIso.leftInv (𝒮ᴰ-♭iso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .snd = isEqui-≅
+  RelIso.leftInv (𝒮ᴰ-♭PIso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (φ , isEqui) .snd = isEqui-≅
     where
       abstract
         isEqui-≅ : Unit
         isEqui-≅ = tt
 
-  RelIso.rightInv (𝒮ᴰ-♭iso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) .fst = τ-≅
+  RelIso.rightInv (𝒮ᴰ-♭PIso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) .fst = τ-≅
     where
       A = groupaction _α_ isAct
       G₁⋊G₀ = G₁ ⋊⟨ A ⟩ G₀
@@ -186,18 +186,18 @@ module _ (ℓ ℓ' : Level) where
                         ≡⟨ cong t (ΣPathP (cong (h +₁_) (actOnUnit A 0₀) ∙ rId₁ h , lId₀ g)) ⟩
                       t (h , g) ∎
 
-  RelIso.rightInv (𝒮ᴰ-♭iso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) .snd = split-τ-≅
+  RelIso.rightInv (𝒮ᴰ-♭PIso-PreXModule'-ReflGraph' (((G₀ , G₁) , _α_) , isAct)) (τ , split-τ) .snd = split-τ-≅
     where
       abstract
         split-τ-≅ : Unit
         split-τ-≅ = tt
 
-  IsoPreXModuleReflGraph' : Iso PreXModule' ReflGraph'
-  IsoPreXModuleReflGraph' = Iso→TotalIso (IsoActionSplitEpi ℓ ℓℓ') 𝒮ᴰ-PreXModule' 𝒮ᴰ-ReflGraph' 𝒮ᴰ-♭iso-PreXModule'-ReflGraph'
+  Iso-PreXModule-ReflGraph' : Iso PreXModule' ReflGraph'
+  Iso-PreXModule-ReflGraph' = 𝒮ᴰ-♭PIso-Over→TotalIso (IsoActionSplitEpi ℓ ℓℓ') 𝒮ᴰ-PreXModule' 𝒮ᴰ-ReflGraph' 𝒮ᴰ-♭PIso-PreXModule'-ReflGraph'
 
-  IsoPreXModuleReflGraph : Iso (PreXModule ℓ ℓℓ') (ReflGraph ℓ ℓℓ')
-  IsoPreXModuleReflGraph = compIso (compIso Σ-assoc-Iso
-                                            IsoPreXModuleReflGraph')
+  Iso-PreXModule-ReflGraph : Iso (PreXModule ℓ ℓℓ') (ReflGraph ℓ ℓℓ')
+  Iso-PreXModule-ReflGraph = compIso (compIso Σ-assoc-Iso
+                                            Iso-PreXModule-ReflGraph')
                                    (invIso Σ-assoc-Iso)
 
 

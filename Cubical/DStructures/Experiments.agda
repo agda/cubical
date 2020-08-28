@@ -37,6 +37,7 @@ open import Cubical.DStructures.Structures.Strict2Group
 open import Cubical.DStructures.Structures.ReflGraph
 open import Cubical.DStructures.Structures.PeifferGraph
 open import Cubical.DStructures.Structures.VertComp
+open import Cubical.DStructures.Structures.SplitEpi
 open import Cubical.DStructures.Structures.Type
 open import Cubical.DStructures.Structures.Universe
 open import Cubical.DStructures.Structures.XModule

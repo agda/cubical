@@ -16,7 +16,6 @@ open import Cubical.Data.Unit
 
 open import Cubical.Relation.Binary
 
-
 open import Cubical.Structures.Subtype
 open import Cubical.Structures.Group
 open import Cubical.Structures.LeftAction
@@ -31,6 +30,7 @@ open import Cubical.DStructures.Structures.Type
 open import Cubical.DStructures.Structures.Group
 open import Cubical.DStructures.Structures.Action
 open import Cubical.DStructures.Structures.XModule
+open import Cubical.DStructures.Structures.ReflGraph
 open import Cubical.DStructures.Structures.PeifferGraph
 open import Cubical.DStructures.Equivalences.GroupSplitEpiAction
 open import Cubical.DStructures.Equivalences.PreXModReflGraph
@@ -50,37 +50,29 @@ module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'
 
-    ℱ = IsoPreXModuleReflGraph ℓ ℓℓ'
+    ℱ = Iso-PreXModule-ReflGraph ℓ ℓℓ'
     F = Iso.fun ℱ
 
     𝒮ᴰ-S2G = 𝒮ᴰ-ReflGraph\Peiffer
 
-    𝒮ᴰ-♭iso-XModule-Strict2Group : 𝒮ᴰ-♭iso F (𝒮ᴰ-XModule ℓ ℓℓ') (𝒮ᴰ-S2G ℓ ℓℓ')
-    RelIso.fun (𝒮ᴰ-♭iso-XModule-Strict2Group (((((G₀ , H) , _α_) , isAct) , φ) , isEqui)) isPeif a b = q
+    𝒮ᴰ-♭PIso-XModule-Strict2Group : 𝒮ᴰ-♭PIso F (𝒮ᴰ-XModule ℓ ℓℓ') (𝒮ᴰ-S2G ℓ ℓℓ')
+    RelIso.fun (𝒮ᴰ-♭PIso-XModule-Strict2Group (((((G₀' , H) , _α_) , isAct) , φ) , isEqui)) isPeif a b = q
       where
+        -- G₀ = G₀', but the former is introduced in ReflGraphNotation as well
         open GroupNotationH H
-        open GroupNotation₀ G₀
+        -- open GroupNotation₀ G₀
         f = GroupHom.fun φ
         A = groupaction _α_ isAct
         open ActionNotationα A using (α-assoc ; α-hom)
 
-        SG = F (((((G₀ , H) , _α_) , isAct) , φ) , isEqui)
+        SG = F (((((G₀' , H) , _α_) , isAct) , φ) , isEqui)
         -- H⋊G : Group {ℓℓ'}
         H⋊G = snd (fst (fst (fst (fst SG))))
-        open GroupNotation₁ H⋊G
+        -- open GroupNotation₁ H⋊G
+        open ReflGraphNotation SG
         -- σ : GroupHom H⋊G G₀
-        σ = snd (snd (fst (fst (fst SG))))
         -- ι : GroupHom G₀ H⋊G
-        ι = fst (snd (fst (fst (fst SG))))
         -- τ : GroupHom H⋊G G₀
-        τ = snd (fst SG)
-        t = GroupHom.fun τ
-        s = GroupHom.fun σ
-        𝒾 = GroupHom.fun ι
-        is = λ (h : ⟨ H⋊G ⟩) → 𝒾 (s h)
-        -is = λ (h : ⟨ H⋊G ⟩) → -₁ 𝒾 (s h)
-        it = λ (h : ⟨ H⋊G ⟩) → 𝒾 (t h)
-        -it = λ (h : ⟨ H⋊G ⟩) → -₁ 𝒾 (t h)
         u = fst a
         v = snd a
         x = fst b
@@ -143,31 +135,21 @@ module _ (ℓ ℓ' : Level) where
               x +ᴴ (y α u) , y +₀ v
                 ≡⟨ refl ⟩
               b +₁ a ∎
-    RelIso.inv (𝒮ᴰ-♭iso-XModule-Strict2Group (((((G₀ , H) , _α_) , isAct) , φ) , isEqui)) ♭isPeif h h' = q
+    RelIso.inv (𝒮ᴰ-♭PIso-XModule-Strict2Group (((((G₀' , H) , _α_) , isAct) , φ) , isEqui)) ♭isPeif h h' = q
       where
         open GroupNotationH H
-        open GroupNotation₀ G₀
         f = GroupHom.fun φ
         A = groupaction _α_ isAct
         open ActionNotationα A using (α-assoc ; α-hom ; α-id)
 
-        SG = F (((((G₀ , H) , _α_) , isAct) , φ) , isEqui)
+        SG = F (((((G₀' , H) , _α_) , isAct) , φ) , isEqui)
         -- H⋊G : Group {ℓℓ'}
         H⋊G = snd (fst (fst (fst (fst SG))))
-        open GroupNotation₁ H⋊G
+        -- open GroupNotation₁ H⋊G
+        open ReflGraphNotation SG
         -- σ : GroupHom H⋊G G₀
-        σ = snd (snd (fst (fst (fst SG))))
         -- ι : GroupHom G₀ H⋊G
-        ι = fst (snd (fst (fst (fst SG))))
         -- τ : GroupHom H⋊G G₀
-        τ = snd (fst SG)
-        t = GroupHom.fun τ
-        s = GroupHom.fun σ
-        𝒾 = GroupHom.fun ι
-        is = λ (h : ⟨ H⋊G ⟩) → 𝒾 (s h)
-        -is = λ (h : ⟨ H⋊G ⟩) → -₁ 𝒾 (s h)
-        it = λ (h : ⟨ H⋊G ⟩) → 𝒾 (t h)
-        -it = λ (h : ⟨ H⋊G ⟩) → -₁ 𝒾 (t h)
         -h = -ᴴ h
         abstract
           r₁ = ((0ᴴ +ᴴ (0₀ α (-h +ᴴ (0₀ α ((-₀ ((f -h) +₀ 0₀)) α (-ᴴ 0ᴴ)))))) +ᴴ ((0₀ +₀ (0₀ +₀ (-₀ (f -h +₀ 0₀)))) α (((-₀ 0₀) α (-ᴴ 0ᴴ)) +ᴴ ((-₀ 0₀) α h')))) +ᴴ (((0₀ +₀ (0₀ +₀ (-₀ ((f -h) +₀ 0₀)))) +₀ ((-₀ 0₀) +₀ 0₀)) α 0ᴴ)
@@ -227,9 +209,9 @@ module _ (ℓ ℓ' : Level) where
                 ≡⟨ assocᴴ h h' -h ⟩
               (h +ᴴ h') +ᴴ (-ᴴ h) ∎
 
-    RelIso.leftInv (𝒮ᴰ-♭iso-XModule-Strict2Group _) _ = tt
-    RelIso.rightInv (𝒮ᴰ-♭iso-XModule-Strict2Group _) _ = tt
+    RelIso.leftInv (𝒮ᴰ-♭PIso-XModule-Strict2Group _) _ = tt
+    RelIso.rightInv (𝒮ᴰ-♭PIso-XModule-Strict2Group _) _ = tt
 
 
-  IsoXModulePeifferGraph : Iso (XModule ℓ ℓℓ') (PeifferGraph ℓ ℓℓ')
-  IsoXModulePeifferGraph = Iso→TotalIso ℱ (𝒮ᴰ-XModule ℓ ℓℓ') (𝒮ᴰ-S2G ℓ ℓℓ') 𝒮ᴰ-♭iso-XModule-Strict2Group
+  Iso-XModule-PeifferGraph : Iso (XModule ℓ ℓℓ') (PeifferGraph ℓ ℓℓ')
+  Iso-XModule-PeifferGraph = 𝒮ᴰ-♭PIso-Over→TotalIso ℱ (𝒮ᴰ-XModule ℓ ℓℓ') (𝒮ᴰ-S2G ℓ ℓℓ') 𝒮ᴰ-♭PIso-XModule-Strict2Group

@@ -27,35 +27,33 @@ open import Cubical.DStructures.Structures.Action
 
 module _ {ℓ ℓ' : Level} where
 
-  module _ {G : Group {ℓ}} {H : Group {ℓ'}}
-           (_α_ : LeftActionStructure ⟨ G ⟩ ⟨ H ⟩)
-           (f : GroupHom H G) where
-    private
-      f* = GroupHom.fun f
-      _+G_ = Group._+_ G
-      -G_  = Group.-_ G
-      setG = Group.is-set G
-      _+H_ = Group._+_ H
-      -H_  = Group.-_ H
-      setH = Group.is-set H
+  module _ ((((G₀ , H) , _α_) , isAct) : Action ℓ ℓ') where
+    open GroupNotation₀ G₀
+    open GroupNotationH H
 
-    isEquivariant : Type (ℓ-max ℓ ℓ')
-    isEquivariant = (g : ⟨ G ⟩) → (h : ⟨ H ⟩) → f* (g α h) ≡ (g +G (f* h)) +G (-G g)
+    module _ (φ : GroupHom H G₀) where
+      private
+        f = GroupHom.fun φ
+      isEquivariant : Type (ℓ-max ℓ ℓ')
+      isEquivariant = (g : ⟨ G₀ ⟩) → (h : ⟨ H ⟩) → f (g α h) ≡ (g +₀ f h) -₀ g
 
-    isPropIsEquivariant : isProp isEquivariant
-    isPropIsEquivariant = isPropΠ2 (λ g h → setG (f* (g α h)) ((g +G (f* h)) +G (-G g)))
+      isPropIsEquivariant : isProp isEquivariant
+      isPropIsEquivariant = isPropΠ2 (λ g h → set₀ (f (g α h)) ((g +₀ f h) -₀ g))
 
-    isPeiffer : Type _
-    isPeiffer = (h h' : ⟨ H ⟩) → (f* h) α h' ≡ (h +H h') +H (-H h)
+      isPeiffer : Type ℓ'
+      isPeiffer = (h h' : ⟨ H ⟩) → (f h) α h' ≡ (h +ᴴ h') -ᴴ h
 
-    isPropIsPeiffer : isProp isPeiffer
-    isPropIsPeiffer = isPropΠ2 (λ h h' → setH ((f* h) α h') ((h +H h') +H (-H h)))
+      isPropIsPeiffer : isProp isPeiffer
+      isPropIsPeiffer = isPropΠ2 (λ h h' → setᴴ ((f h) α h') ((h +ᴴ h') -ᴴ h))
+
+
+
 
 module _ (ℓ ℓ' : Level) where
 
-  ActionB = Σ[ (((G , H) , _α_) , isAct) ∈ Action ℓ ℓ' ] (GroupHom H G)
-  PreXModule = Σ[ (((GH , _α_) , isAct ) , f) ∈ ActionB ] (isEquivariant _α_ f)
-  XModule = Σ[ ((((GH , _α_) , isAct) , f) , isEqui) ∈ PreXModule ] (isPeiffer _α_ f)
+  ActionB = Σ[ (((G₀ , H) , _α_) , isAct) ∈ Action ℓ ℓ' ] (GroupHom H G₀)
+  PreXModule = Σ[ (α , φ) ∈ ActionB ] (isEquivariant α φ)
+  XModule = Σ[ ((α , φ) , isEqui) ∈ PreXModule ] (isPeiffer α φ)
 
   -- displayed over 𝒮-Action, a morphism back
   𝒮ᴰ-Action\PreXModuleStr : URGStrᴰ (𝒮-Action ℓ ℓ')
@@ -79,22 +77,47 @@ module _ (ℓ ℓ' : Level) where
 
   -- add equivariance condition
   𝒮ᴰ-PreXModule : URGStrᴰ 𝒮-PreXModuleStr
-                         (λ (((GH , _α_) , isAct) , f) → isEquivariant _α_ f)
+                         (λ (α , φ) → isEquivariant α φ)
                          ℓ-zero
-  𝒮ᴰ-PreXModule = Subtype→Sub-𝒮ᴰ (λ (((GH , _α_) , isAct) , f)
-                                    → isEquivariant _α_ f , isPropIsEquivariant _α_ f)
+  𝒮ᴰ-PreXModule = Subtype→Sub-𝒮ᴰ (λ (α , φ) → isEquivariant α φ , isPropIsEquivariant α φ)
                                  𝒮-PreXModuleStr
 
   𝒮-PreXModule : URGStr PreXModule (ℓ-max ℓ ℓ')
   𝒮-PreXModule = ∫⟨ 𝒮-PreXModuleStr ⟩ 𝒮ᴰ-PreXModule
 
   𝒮ᴰ-XModule : URGStrᴰ 𝒮-PreXModule
-                      (λ (((((G , H) , _α_) , isAct) , f) , isEqui)
-                        → isPeiffer _α_ f)
-                      ℓ-zero
-  𝒮ᴰ-XModule = Subtype→Sub-𝒮ᴰ (λ (((((G , H) , _α_) , isAct) , f) , isEqui)
-                                 → isPeiffer _α_ f , isPropIsPeiffer _α_ f)
+                       (λ ((α , φ) , isEqui) → isPeiffer α φ)
+                       ℓ-zero
+  𝒮ᴰ-XModule = Subtype→Sub-𝒮ᴰ (λ ((α , φ) , isEqui) → isPeiffer α φ , isPropIsPeiffer α φ)
                               𝒮-PreXModule
 
   𝒮-XModule : URGStr XModule (ℓ-max ℓ ℓ')
   𝒮-XModule = ∫⟨ 𝒮-PreXModule ⟩ 𝒮ᴰ-XModule
+
+
+{-
+
+  module _ {G : Group {ℓ}} {H : Group {ℓ'}}
+           (_α_ : LeftActionStructure ⟨ G ⟩ ⟨ H ⟩)
+           (f : GroupHom H G) where
+    private
+      f* = GroupHom.fun f
+      _+G_ = Group._+_ G
+      -G_  = Group.-_ G
+      setG = Group.is-set G
+      _+H_ = Group._+_ H
+      -H_  = Group.-_ H
+      setH = Group.is-set H
+
+    isEquivariant : Type (ℓ-max ℓ ℓ')
+    isEquivariant = (g : ⟨ G ⟩) → (h : ⟨ H ⟩) → f* (g α h) ≡ (g +G (f* h)) +G (-G g)
+
+    isPropIsEquivariant : isProp isEquivariant
+    isPropIsEquivariant = isPropΠ2 (λ g h → setG (f* (g α h)) ((g +G (f* h)) +G (-G g)))
+
+    isPeiffer : Type _
+    isPeiffer = (h h' : ⟨ H ⟩) → (f* h) α h' ≡ (h +H h') +H (-H h)
+
+    isPropIsPeiffer : isProp isPeiffer
+    isPropIsPeiffer = isPropΠ2 (λ h h' → setH ((f* h) α h') ((h +H h') +H (-H h)))
+-}

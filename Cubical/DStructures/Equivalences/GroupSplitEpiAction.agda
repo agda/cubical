@@ -26,9 +26,9 @@ open GroupLemmas
 open MorphismLemmas
 
 module _ (ℓ ℓ' : Level) where
-  -- the 𝒮-iso of the 𝒮-structures on the type of
+  -- the 𝒮-PIso of the 𝒮-structures on the type of
   -- group actions and that of split epis
-  𝒮-Iso-GroupAct-SplitEpi : 𝒮-iso (𝒮-Action ℓ (ℓ-max ℓ ℓ')) (𝒮-SplitEpi ℓ (ℓ-max ℓ ℓ'))
+  𝒮-Iso-GroupAct-SplitEpi : 𝒮-PIso (𝒮-Action ℓ (ℓ-max ℓ ℓ')) (𝒮-SplitEpi ℓ (ℓ-max ℓ ℓ'))
 
   -- GroupAction → Split Epimorphism
   -- Given the action α, form the semidirect product attached to α,
@@ -411,4 +411,4 @@ module _ (ℓ ℓ' : Level) where
   -- end of RelIso.leftInv 𝒮-Iso-GroupAct-SplitEpi (((G₀ , H) , _α_) , isAct)
 
   IsoActionSplitEpi : Iso (Action ℓ (ℓ-max ℓ ℓ')) (SplitEpi ℓ (ℓ-max ℓ ℓ'))
-  IsoActionSplitEpi = 𝒮-iso→Iso (𝒮-Action ℓ (ℓ-max ℓ ℓ')) (𝒮-SplitEpi ℓ (ℓ-max ℓ ℓ')) 𝒮-Iso-GroupAct-SplitEpi
+  IsoActionSplitEpi = 𝒮-PIso→Iso (𝒮-Action ℓ (ℓ-max ℓ ℓ')) (𝒮-SplitEpi ℓ (ℓ-max ℓ ℓ')) 𝒮-Iso-GroupAct-SplitEpi
