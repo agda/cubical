@@ -1,3 +1,10 @@
+{-
+This module contains
+- the type of vertical composition operations
+  that can be defined on a reflexive graph
+
+
+-}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.DStructures.Structures.VertComp where
 
@@ -12,7 +19,6 @@ open import Cubical.Homotopy.Base
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary
-
 
 open import Cubical.Structures.Group
 open import Cubical.Structures.LeftAction
@@ -32,31 +38,45 @@ private
   variable
     ℓ ℓ' : Level
 
+{-
+-- The type of vertical composition operations
+-- that can be defined over a reflexive graph 𝒢
+--
+
+-- we use the property isComposable instead of defining
+-- a type of composable morphisms of G₁, because
+-- otherwise it would be difficult to formulate
+-- properties involving an odd number of composable morphisms
+-- in a uniform and clean way.
+-}
 record VertComp (𝒢 : ReflGraph ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   no-eta-equality
   constructor vertcomp
   open ReflGraphNotation 𝒢
   open ReflGraphLemmas 𝒢
 
+  -- the vertical composition operation with convenient syntax
   field
-    vcomp : (g f : ⟨ G₁ ⟩) → (isComposable g f) → ⟨ G₁ ⟩
-
+    vcomp : (g f : ⟨ G₁ ⟩) → isComposable g f → ⟨ G₁ ⟩
   syntax vcomp g f p = g ∘⟨ p ⟩ f
-  -- infix 9 vcomp
 
   field
+    -- vcomp preserves source and target
     σ-∘ : (g f : ⟨ G₁ ⟩) (c : isComposable g f) → s (g ∘⟨ c ⟩ f) ≡ s f
     τ-∘ : (g f : ⟨ G₁ ⟩) (c : isComposable g f) → t (g ∘⟨ c ⟩ f) ≡ t g
+    -- vcomp is a homomorphism, also known as interchange law
     isHom-∘ : (g f : ⟨ G₁ ⟩) (c : isComposable g f)
               (g' f' : ⟨ G₁ ⟩) (c' : isComposable g' f')
               (c'' : isComposable (g +₁ g') (f +₁ f'))
               → (g +₁ g') ∘⟨ c'' ⟩ (f +₁ f') ≡ (g ∘⟨ c ⟩ f) +₁ (g' ∘⟨ c' ⟩ f')
+    -- vcomp is associative
     assoc-∘ : (h g f : ⟨ G₁ ⟩)
               (c-hg : isComposable h g)
               (c-gf  : isComposable g f)
               (c-h-gf : isComposable h (g ∘⟨ c-gf ⟩ f))
               (c-hg-f : isComposable (h ∘⟨ c-hg ⟩ g) f)
               → h ∘⟨ c-h-gf ⟩ (g ∘⟨ c-gf ⟩ f) ≡ (h ∘⟨ c-hg ⟩ g) ∘⟨ c-hg-f ⟩ f
+    -- composing with identity arrows does nothing
     lid-∘ : (f : ⟨ G₁ ⟩) (c : isComposable (𝒾 (t f)) f)
             → 𝒾 (t f) ∘⟨ c ⟩ f ≡ f
     rid-∘ : (g : ⟨ G₁ ⟩) (c : isComposable g (𝒾 (s g))) → g ∘⟨ c ⟩ 𝒾 (s g) ≡ g
@@ -72,11 +92,18 @@ record VertComp (𝒢 : ReflGraph ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
 module _ {𝒢 : ReflGraph ℓ ℓ'} where
   open ReflGraphNotation 𝒢
   open ReflGraphLemmas 𝒢
+
+  -- lemmas about a given vertical composition
   module _ (𝒞 : VertComp 𝒢) where
 
     open VertComp 𝒞
 
+    -- These are all propositions, so we use abstract.
+    -- Most of these lemmas are nontrivial, because we need to keep a
+    -- proof of composability at hand.
     abstract
+      -- if (g, f), and (g', f') are composable,
+      -- then so is (g + g', f + f')
       +-c : (g f : ⟨ G₁ ⟩) (c : isComposable g f)
            (g' f' : ⟨ G₁ ⟩) (c' : isComposable g' f')
            → isComposable (g +₁ g') (f +₁ f')
@@ -84,21 +111,31 @@ module _ {𝒢 : ReflGraph ℓ ℓ'} where
                           ∙∙ cong (_+₀ s g') c
                           ∙∙ cong (t f +₀_) c'
                           ∙ sym (τ .isHom f f')
+
+      -- if (g, f) is composable, and g ≡ g',
+      -- then (g', f) is composable
       ∘-cong-l-c : {g f : ⟨ G₁ ⟩} (c : isComposable g f)
                   {g' : ⟨ G₁ ⟩} (p : g ≡ g')
                   → isComposable g' f
       ∘-cong-l-c c p = cong s (sym p) ∙ c
 
+      -- if (g, f) is composable, and f ≡ f',
+      -- then (g, f') is composable
       ∘-cong-r-c : {g f : ⟨ G₁ ⟩} (c : isComposable g f)
                   {f' : ⟨ G₁ ⟩} (p : f ≡ f')
                   → isComposable g f'
       ∘-cong-r-c c p = c ∙ cong t p
 
+      -- if (g, f) are composable, and (g, f) ≡ (g', f'),
+      -- then (g', f') is composable
+      -- by combining the two lemmas above
       ∘-cong-c : {g f : ⟨ G₁ ⟩} (c : isComposable g f)
                 {g' f' : ⟨ G₁ ⟩} (p : g ≡ g') (q : f ≡ f')
                   → isComposable g' f'
       ∘-cong-c c p q = ∘-cong-l-c c p ∙ cong t q
 
+      -- if (g, f) is composable, and g ≡ g',
+      -- then g ∘ f ≡ g' ∘ f
       ∘-cong-l : {g f : ⟨ G₁ ⟩} (c : isComposable g f)
                 {g' : ⟨ G₁ ⟩} (p : g ≡ g')
                 → g ∘⟨ c ⟩ f ≡ g' ∘⟨ ∘-cong-l-c c p ⟩ f
@@ -109,6 +146,8 @@ module _ {𝒢 : ReflGraph ℓ ℓ'} where
                                                                             (transp (λ i → isComposable (p i) f) i0 c)
                                                                             (∘-cong-l-c c p)))
 
+      -- if (g, f) is composable, and f ≡ f',
+      -- then g ∘ f ≡ g ∘ f'
       ∘-cong-r : {g f : ⟨ G₁ ⟩} (c : isComposable g f)
                 {f' : ⟨ G₁ ⟩} (p : f ≡ f')
                 → g ∘⟨ c ⟩ f ≡ g ∘⟨ ∘-cong-r-c c p ⟩ f'
@@ -119,12 +158,17 @@ module _ {𝒢 : ReflGraph ℓ ℓ'} where
                                                                (transp (λ i → isComposable g (p i)) i0 c)
                                                                (∘-cong-r-c c p)))
 
+      -- if (g, f) are composable, and (g, f) ≡ (g', f'),
+      -- then g ∘ f ≡ g' ∘ f'
       ∘-cong : {g f : ⟨ G₁ ⟩} (c : isComposable g f)
                 {g' f' : ⟨ G₁ ⟩} (p : g ≡ g') (q : f ≡ f')
                 → g ∘⟨ c ⟩ f ≡ g' ∘⟨ ∘-cong-c c p q ⟩ f'
       ∘-cong c p q = ∘-cong-l c p
                     ∙ ∘-cong-r (∘-cong-l-c c p) q
 
+      -- an alternate version of lid-∘
+      -- where a composable g is assumed and ι (σ g)
+      -- instead of ι (τ f) is used
       ∘-lid' : {g f : ⟨ G₁ ⟩} (c : isComposable g f)
               (c' : isComposable (𝒾s g) f)
               → (𝒾s g) ∘⟨ c' ⟩ f ≡ f
@@ -134,6 +178,10 @@ module _ {𝒢 : ReflGraph ℓ ℓ'} where
                                ≡⟨ lid-∘ f (∘-cong-l-c c' (cong 𝒾 c)) ⟩
                            f ∎
 
+      -- Fundamental theorem:
+      -- Any vertical composition is necessarily of the form
+      -- g ∘⟨ _ ⟩ f  ≡ g - ι (σ g) + f
+      -- This implies contractibility of VertComp 𝒢
       VertComp→+₁ : (g f : ⟨ G₁ ⟩) (c : isComposable g f)
                    → g ∘⟨ c ⟩ f ≡ (g -₁ 𝒾s g) +₁ f
       VertComp→+₁ g f c = g ∘⟨ c ⟩ f
@@ -168,9 +216,12 @@ module _ {𝒢 : ReflGraph ℓ ℓ'} where
                                    -isg ∎) ⟩
                          (g -₁ isg) +₁ f ∎
                          where
+                           -- abbreviations to reduce the amount of parentheses
                            isg = 𝒾s g
                            -isg = -₁ isg
                            itf = 𝒾t f
+                           -- composability proofs,
+                           -- none of which are really interesting.
                            c₁ : isComposable (g +₁ (-isg +₁ isg)) ((isg -₁ isg) +₁ f)
                            c₁ = ∘-cong-c c
                                          (sym (rId₁ g) ∙ cong (g +₁_) (sym (lCancel₁ isg)))
@@ -260,6 +311,7 @@ module _ {𝒢 : ReflGraph ℓ ℓ'} where
                  (rCancel-rId G₁ (g' -₁ isg') f') ⟩
        (-isg +₁ f) +₁ (g' -₁ isg') ∎
        where
+         -- abbreviations to reduce the number of parentheses
          -g = -₁ g
          isg = 𝒾s g
          isg' = 𝒾s g'
@@ -267,8 +319,10 @@ module _ {𝒢 : ReflGraph ℓ ℓ'} where
          -isg' = -₁ isg'
          f' = isg'
          -f' = -₁ f'
+         -- composability proofs
          c-gf' = isComp-g-isg g'
          c-gf'+ = +-c g f c-gf g' f' c-gf'
+         --
          q = (g +₁ g') ∘⟨ c-gf'+ ⟩ (f +₁ f')
                ≡⟨ VertComp→+₁ (g +₁ g') (f +₁ f') c-gf'+ ⟩
              ((g +₁ g') -₁ (𝒾s (g +₁ g'))) +₁ (f +₁ f')
@@ -397,6 +451,8 @@ module _ {𝒢 : ReflGraph ℓ ℓ'} where
 
   open VertComp
 
+  -- the record VertComp has no eta equality, so this can be used to
+  -- construct paths between vertical compositions
   η-VertComp : (𝒱 : VertComp 𝒢) → vertcomp (vcomp 𝒱) (σ-∘ 𝒱) (τ-∘ 𝒱) (isHom-∘ 𝒱) (assoc-∘ 𝒱) (lid-∘ 𝒱) (rid-∘ 𝒱) ≡ 𝒱
   vcomp (η-VertComp 𝒱 i) = vcomp 𝒱
   σ-∘ (η-VertComp 𝒱 i) = σ-∘ 𝒱
@@ -407,6 +463,7 @@ module _ {𝒢 : ReflGraph ℓ ℓ'} where
   rid-∘ (η-VertComp 𝒱 i) = rid-∘ 𝒱
 
 
+  -- this is just a helper for the module below
   module _ (𝒞 𝒞' : VertComp 𝒢) where
     p∘ : vcomp 𝒞 ≡ vcomp 𝒞'
     p∘ = funExt₃ (λ g f c → VertComp→+₁ 𝒞 g f c ∙ sym (VertComp→+₁ 𝒞' g f c))
@@ -423,6 +480,7 @@ module _ {𝒢 : ReflGraph ℓ ℓ'} where
     passoc = isProp→PathP (λ j → isPropΠ4 (λ h g f c-hg → isPropΠ3 (λ c-gf c-h-gf c-hg-f → set₁ (p∘ j h (p∘ j g f c-gf) c-h-gf) (p∘ j (p∘ j h g c-hg) f c-hg-f)))) (assoc-∘ 𝒞) (assoc-∘ 𝒞')
     -- (p∘ j h (p∘ j g f c-gf) c-h-gf ≡ p∘ j (p∘ j h g c-hg) f c-hg-f)
 
+-- proof that there is at most one vertical composition on a reflexive graph
 module _ (𝒢 : ReflGraph ℓ ℓ') where
   open ReflGraphNotation 𝒢
   open ReflGraphLemmas 𝒢
@@ -454,7 +512,6 @@ module _ (𝒢 : ReflGraph ℓ ℓ') where
                                                      ((vcomp (isPropVertComp 𝒞 𝒞' j) g f c) +₁ (vcomp (isPropVertComp 𝒞 𝒞' j) g' f' c')))
                                          (isHom-∘ 𝒞 g f c g' f' c' c+)
                                          (isHom-∘ 𝒞' g f c g' f' c' c+)
-  -- assoc-∘ (isPropVertComp 𝒞 𝒞' i) = funExt₃ (λ h g f → funExt₂ (λ c-hg c-gf → funExt₂ (λ c-h-gf c-hg-f → P h g f c-hg c-gf c-h-gf c-hg-f))) i
   assoc-∘ (isPropVertComp 𝒞 𝒞' i) = passoc 𝒞 𝒞' i
   lid-∘ (isPropVertComp 𝒞 𝒞' i) = funExt₂ P i
     where

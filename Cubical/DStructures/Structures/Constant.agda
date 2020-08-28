@@ -1,3 +1,8 @@
+{-
+This module contains:
+- constant displayed structures of URG structures
+- products of URG structures
+-}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.DStructures.Structures.Constant where
 
@@ -12,26 +17,29 @@ open import Cubical.DStructures.Meta.Properties
 
 open import Cubical.Relation.Binary
 
-
 private
   variable
     ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C ℓ≅A×B : Level
 
--- The constant structure over a structure
-𝒮ᴰ-const : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
-               {B : Type ℓB} (StrB : URGStr B ℓ≅B)
-               → URGStrᴰ StrA (λ _ → B) ℓ≅B
-𝒮ᴰ-const {A = A} StrA {B} StrB
+-- The constant displayed structure of a URG structure 𝒮-B over 𝒮-A
+𝒮ᴰ-const : {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
+               {B : Type ℓB} (𝒮-B : URGStr B ℓ≅B)
+               → URGStrᴰ 𝒮-A (λ _ → B) ℓ≅B
+𝒮ᴰ-const {A = A} 𝒮-A {B} 𝒮-B
   = urgstrᴰ (λ b _ b' → b ≅ b') ρ uni
     where
-      open URGStr StrB
+      open URGStr 𝒮-B
 
--- the total structure of the constant structure gives nondependent product
+-- the total structure of the constant structure gives
+-- nondependent product of URG structures
 _×𝒮_ : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
          {B : Type ℓB} (StrB : URGStr B ℓ≅B)
          → URGStr (A × B) (ℓ-max ℓ≅A ℓ≅B)
 _×𝒮_ StrA {B} StrB = ∫⟨ StrA ⟩ (𝒮ᴰ-const StrA StrB)
 
+-- any displayed structure defined over a
+-- structure on a product can also be defined
+-- over the swapped product
 ×𝒮-swap :  {A : Type ℓA} {B : Type ℓB} {C : A × B → Type ℓC}
          {ℓ≅A×B ℓ≅ᴰ : Level}
          {StrA×B : URGStr (A × B) ℓ≅A×B}
