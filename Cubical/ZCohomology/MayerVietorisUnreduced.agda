@@ -20,7 +20,7 @@ open import Cubical.HITs.Nullification
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod hiding (_×_)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
-open import Cubical.Structures.Group
+open import Cubical.Algebra.Group
 
 module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : C → A) (g : C → B) where
   -- Proof from Brunerie 2016.
