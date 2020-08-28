@@ -59,17 +59,10 @@ module _ (ℓ ℓ' : Level) where
   𝒮ᴰ-Action\PreXModuleStr : URGStrᴰ (𝒮-Action ℓ ℓ')
                            (λ (((G , H) , _) , _) → GroupHom H G)
                            (ℓ-max ℓ ℓ')
-  𝒮ᴰ-Action\PreXModuleStr = make-𝒮ᴰ (λ {(((G , H) , _α_) , isAct) } {_α'_} f (((eG , eH) , eLas) , eIsAct) f'
-                                   → let trEG = GroupEquiv.eq eG .fst
-                                         trEH = GroupEquiv.eq eH .fst
-                                         f* = GroupHom.fun f
-                                         f'* = GroupHom.fun f'
-                                     in (h : ⟨ H ⟩) → trEG (f* h) ≡ f'* (trEH h))
-                                (λ _ _ → refl)
-                                λ (((G , H) , _α_) , isAct) f
-                                  → isContrRespectEquiv
-                                                           (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
-                                                           (isContrSingl f)
+  𝒮ᴰ-Action\PreXModuleStr = VerticalLift2-𝒮ᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
+                                               (𝒮ᴰ-G²\B ℓ ℓ')
+                                               (𝒮ᴰ-G²\Las ℓ ℓ')
+                                               (𝒮ᴰ-G²Las\Action ℓ ℓ')
 
   𝒮-PreXModuleStr : URGStr ActionB (ℓ-max ℓ ℓ')
   𝒮-PreXModuleStr = ∫⟨ 𝒮-Action ℓ ℓ' ⟩ 𝒮ᴰ-Action\PreXModuleStr
