@@ -23,11 +23,8 @@ data Expr {ℓ} (A : Type ℓ) (n : ℕ) : Type ℓ where
   ∣ : Fin n → Expr A n
   _⊕_ : Expr A n → Expr A n → Expr A n
   _⊗_ : Expr A n → Expr A n → Expr A n
-  _⊛_ : Expr A n → ℕ → Expr A n    -- exponentiation
+--  _⊛_ : Expr A n → ℕ → Expr A n    -- exponentiation
   ⊝_ : Expr A n → Expr A n
-
-_ : Expr ℕ 1
-_ = K 5
 
 -- there are probably things I don't get yet...
 module Eval (R : AlmostRing {ℓ}) where
@@ -39,6 +36,19 @@ module Eval (R : AlmostRing {ℓ}) where
   ⟦ ∣ k ⟧ v = lookup k v
   ⟦ x ⊕ y ⟧ v =  ⟦ x ⟧ v + ⟦ y ⟧ v
   ⟦ x ⊗ y ⟧ v = ⟦ x ⟧ v · ⟦ y ⟧ v
-  ⟦ x ⊛ l ⟧ v =  ⟦ x ⟧ v ^ l
+--  ⟦ x ⊛ l ⟧ v =  ⟦ x ⟧ v ^ l
   ⟦ ⊝ x ⟧ v = - ⟦ x ⟧ v
 
+module Normalize (R : AlmostRing {ℓ}) where
+  open AlmostRing R
+
+  data HornerPolynomial (R : AlmostRing {ℓ}) : Type ℓ where
+    zero : HornerPolynomial R
+    _·X+_ : HornerPolynomial R → ⟨ R ⟩ → HornerPolynomial R
+
+  ⟦⇓_⟧ : ∀ {n} → Expr ⟨ R ⟩ n → Expr ⟨ HornerPolynomial R ⟩
+  ⟦⇓ K r ⟧ = zero ·X+ 0r
+  ⟦⇓ ∣ k ⟧ = {!!}
+  ⟦⇓ x ⊕ y ⟧ = {!!}
+  ⟦⇓ x ⊗ y ⟧ = {!!}
+  ⟦⇓ ⊝ x ⟧ = {! - ⟦⇓ x ⟧!}
