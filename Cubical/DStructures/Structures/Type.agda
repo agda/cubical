@@ -6,6 +6,9 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 
+open import Cubical.Functions.FunExtEquiv
+open import Cubical.Foundations.Univalence
+
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
@@ -45,10 +48,37 @@ Subtype→Sub-𝒮ᴰ P StrA =
                                               (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
                                               (inhProp→isContr p (P a .snd)))
 
+
+
+module _ {A : Type ℓA} (𝒮 : URGStr A ℓA) where
+  open URGStr
+  𝒮' = 𝒮-type A
+
+  ≅-≡ : _≅_ 𝒮' ≡ _≅_ 𝒮
+  ≅-≡ = funExt₂ (λ a a' → ua (isUnivalent→isUnivalent' (_≅_ 𝒮) (ρ 𝒮) (uni 𝒮) a a'))
+
+  ρ-≡ : PathP (λ i → isRefl (≅-≡ i)) (ρ 𝒮') (ρ 𝒮)
+  ρ-≡ = funExt (λ a → toPathP (p a))
+    where
+      p : (a : A) → transp (λ i → ≅-≡ i a a) i0 refl ≡ (ρ 𝒮 a)
+      p a = {!!}
+  -- transp (λ i → ≅-≡ i a a) i0 refl ≡ ρ 𝒮
+
+  uni-≡ : PathP (λ i → isUnivalent (≅-≡ i) (ρ-≡ i)) (uni 𝒮') (uni 𝒮)
+  uni-≡ = isProp→PathP (λ i → isPropΠ2 (λ a a' → isPropIsEquiv (≡→R (≅-≡ i) (ρ-≡ i)))) (uni 𝒮') (uni 𝒮)
+
 {-
-URGStrUnique : (A : Type ℓA) → isContr (URGStr A ℓA)
-fst (URGStrUnique A) = URGStrType A
-snd (URGStrUnique A) StrA' = {!!}
+𝒮-contr : (A : Type ℓA) → isContr (URGStr A ℓA)
+fst (𝒮-contr A) = 𝒮-type A
+snd (𝒮-contr A) 𝒮-A' i ._≅_ = {!!}
+snd (𝒮-contr A) 𝒮-A' i .ρ = {!!}
+snd (𝒮-contr A) 𝒮-A' i .uni = {!!}
+-}
+
+{-
+
+
+?1 : isProp (isEquiv (≡→R (≅-≡ i) (ρ-≡ i)))
 
 module Sigma {ℓA ℓB ℓ≅A ℓ≅B} {A : Type ℓA} {B : A → Type ℓB} where
   ℓ≅AB = ℓ-max ℓ≅A ℓ≅B

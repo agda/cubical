@@ -154,6 +154,9 @@ module _ {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') where
     isUnivalent'→isUnivalent : isUnivalent' → isUnivalent
     isUnivalent'→isUnivalent u = contrRelSingl→isUnivalent (isUnivalent'→contrRelSingl u)
 
+    isUnivalent→isUnivalent' : isUnivalent → isUnivalent'
+    isUnivalent→isUnivalent' u a a' = ≡→R {a} {a'} , u a a'
+
 
 record RelIso {A : Type ℓA} (_≅_ : Rel A A ℓ≅A)
               {A' : Type ℓA'} (_≅'_ : Rel A' A' ℓ≅A') : Type (ℓ-max (ℓ-max ℓA ℓA') (ℓ-max ℓ≅A ℓ≅A')) where
