@@ -81,10 +81,6 @@ module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
 ×≡Prop : isProp A' → {u v : A × A'} → u .fst ≡ v .fst → u ≡ v
 ×≡Prop pB {u} {v} p i = (p i) , (pB (u .snd) (v .snd) i)
 
-Σ≡Prop : ((x : A) → isProp (B x)) → {u v : Σ A B}
-       → (p : u .fst ≡ v .fst) → u ≡ v
-Σ≡Prop pB {u} {v} p i = (p i) , isProp→PathP (λ i → pB (p i)) (u .snd) (v .snd) i
-
 -- Characterization of dependent paths in Σ
 
 module _ {A : I → Type ℓ} {B : (i : I) → (a : A i) → Type ℓ'}
@@ -144,9 +140,6 @@ leftInv Σ-Π-Iso _     = refl
 
 Σ-Π-≃ : ((a : A) → Σ[ b ∈ B a ] C a b) ≃ (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
 Σ-Π-≃ = isoToEquiv Σ-Π-Iso
-
-Π-Σ-≃ : (∀ a → (b : B a) → C a b) ≃ (((a , b) : Σ A B) → C a b)
-Π-Σ-≃ = isoToEquiv (iso (λ f (a , b) → f a b) (λ f a b → f (a , b)) (λ f → refl) (λ f → refl))
 
 Σ-cong-iso-fst : (isom : Iso A A') → Iso (Σ A (B ∘ fun isom)) (Σ A' B)
 fun (Σ-cong-iso-fst isom) x = fun isom (x .fst) , x .snd
@@ -249,6 +242,13 @@ PathΣ→ΣPathTransport a b = Iso.inv (IsoΣPathTransportPathΣ a b)
   isom .rightInv _ = refl
   isom .leftInv (a , b) = cong (a ,_) (c a .snd b)
 
+Σ≡PropEquiv : ((x : A) → isProp (B x)) → {u v : Σ A B}
+            → (u .fst ≡ v .fst) ≃ (u ≡ v)
+Σ≡PropEquiv pB = compEquiv (invEquiv (Σ-contractSnd λ _ → isProp→isContrPathPB (λ _ → pB _) _ _)) ΣPath≃PathΣ
+
+Σ≡Prop : ((x : A) → isProp (B x)) → {u v : Σ A B}
+       → (p : u .fst ≡ v .fst) → u ≡ v
+Σ≡Prop pB p = equivFun (Σ≡PropEquiv pB) p
 
 ≃-× : ∀ {ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''} → A ≃ C → B ≃ D → A × B ≃ C × D
 ≃-× eq1 eq2 =
@@ -278,16 +278,18 @@ Iso.inv (prodIso iAC iBD) (c , d) = (Iso.inv iAC c) , Iso.inv iBD d
 Iso.rightInv (prodIso iAC iBD) (c , d) = ΣPathP ((Iso.rightInv iAC c) , (Iso.rightInv iBD d))
 Iso.leftInv (prodIso iAC iBD) (a , b) = ΣPathP ((Iso.leftInv iAC a) , (Iso.leftInv iBD b))
 
-toProdIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
-         → Iso (A → B × C) ((A → B) × (A → C))
+toProdIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : A → Type ℓ'} {C : A → Type ℓ''}
+         → Iso ((a : A) → B a × C a) (((a : A) → B a) × ((a : A) → C a))
 Iso.fun toProdIso = λ f → (λ a → fst (f a)) , (λ a → snd (f a))
 Iso.inv toProdIso (f , g) = λ a → (f a) , (g a)
 Iso.rightInv toProdIso (f , g) = refl
 Iso.leftInv toProdIso b = funExt λ _ → refl
 
-curryIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
-         → Iso (A × B → C) (A → B → C)
+curryIso : Iso (((a , b) : Σ A B) → C a b) ((a : A) → (b : B a) → C a b)
 Iso.fun curryIso f a b = f (a , b)
 Iso.inv curryIso f a = f (fst a) (snd a)
 Iso.rightInv curryIso a = refl
 Iso.leftInv curryIso f = funExt λ _ → refl
+
+curryEquiv : (((a , b) : Σ A B) → C a b) ≃ (∀ a → (b : B a) → C a b)
+curryEquiv = isoToEquiv curryIso

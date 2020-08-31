@@ -38,56 +38,6 @@ private
     ℓ ℓ' : Level
 
 ------------
--- Helper functions. TODO: move these into their respective modules
-------------
-
-module _ where
-  isProp→PathPP : ∀ {B : I → I → Type ℓ} → ((i j : I) → isProp (B i j))
-               → {a : B i0 i0} {b : B i0 i1} {c : B i1 i0} {d : B i1 i1}
-               → (r : PathP (λ j → B j i0) a c) (s : PathP (λ j → B j i1) b d)
-               → (t : PathP (λ j → B i0 j) a b) (u : PathP (λ j → B i1 j) c d)
-               → PathP (λ i → PathP (λ j → B i j) (r i) (s i)) t u
-  isProp→PathPP {B = B} isPropB r s t u = isProp→PathP isPropPathP t u where
-    isPropPathP : (i : I) → isProp (PathP (λ j → B i j) (r i) (s i))
-    isPropPathP i = isProp→isSet-PathP (λ j → isPropB i j) (r i) (s i)
-
-module EmbeddingsExt a {b} (B : Type b) where
-  open import Cubical.Functions.Fibration as Fibr
-  open import Cubical.Foundations.Equiv.Fiberwise as Fiber
-  -- an embedding from some type into B
-  AnEmbedding : Type (ℓ-max (ℓ-suc a) b)
-  AnEmbedding = Σ[ A ∈ Type a ] Σ[ f ∈ (A → B) ] isEmbedding f
-  _↪ : (e : AnEmbedding) → e .fst → B
-  _↪ = fst ∘ snd
-
-  Fiberwise→Path : (f g : AnEmbedding)
-                 → (∀ b → fiber (f ↪) b → fiber (g ↪) b)
-                 → (∀ b → fiber (g ↪) b → fiber (f ↪) b)
-                 → f ≡ g
-  Fiberwise→Path f g f→g g→f = λ i → ua F≡G i , f≡g i , ef≡eg i where
-    propFibersF : {b : B} → isProp (fiber (f ↪) b)
-    propFibersF = isEmbedding→hasPropFibers (f .snd .snd) _
-    propFibersG : {b : B} → isProp (fiber (g ↪) b)
-    propFibersG = isEmbedding→hasPropFibers (g .snd .snd) _
-    fiberIso : (b : B) → fiber (f ↪) b ≃ fiber (g ↪) b
-    fiberIso _ = isoToEquiv (iso (f→g _) (g→f _) (λ _ → propFibersG _ _) (λ _ → propFibersF _ _))
-    FiberEquiv : Σ B (fiber (f ↪)) ≃ Σ B (fiber (g ↪))
-    FiberEquiv = _ , Fiber.totalEquiv (fiber (f ↪)) (fiber (g ↪)) (fst ∘ fiberIso) (snd ∘ fiberIso)
-    F≡G : f .fst ≃ g .fst
-    F≡G = f .fst            ≃⟨ Fibr.totalEquiv _ ⟩
-          Σ B (fiber (f ↪)) ≃⟨ FiberEquiv ⟩
-          Σ B (fiber (g ↪)) ≃⟨ invEquiv (Fibr.totalEquiv _) ⟩
-          g .fst             ■
-    f≡g : PathP (λ i → ua F≡G i → B) (f ↪) (g ↪)
-    f≡g = toPathP (funExt λ x → λ i → transportRefl (invEquiv FiberEquiv .fst (Fibr.totalEquiv (g ↪) .fst (transportRefl x i)) .snd .snd i) i)
-    ef≡eg : PathP (λ i → isEmbedding (f≡g i)) (f .snd .snd) (g .snd .snd)
-    ef≡eg = isProp→PathP (λ i → isEmbeddingIsProp {f = f≡g i}) _ _
-
-isEmbeddingLiftsIsProp : ∀ {a b} {A : Type a} {B : Type b} {f : A → B} → isEmbedding f
-                       → isProp B → isProp A
-isEmbeddingLiftsIsProp {f = f} embeds isPropB x y = invEquiv (cong f , embeds x y) .fst (isPropB (f x) (f y))
-
-------------
 -- Start implementation of V
 ------------
 
@@ -164,11 +114,11 @@ elimProp isPropZ algz (seteq X Y ix iy eq i) =
                (algz X ix (elimProp isPropZ algz ∘ ix))
                (algz Y iy (elimProp isPropZ algz ∘ iy)) i
 elimProp isPropZ algz (setIsSet S T x y i j) =
-  isProp→PathPP (λ i j → isPropZ (setIsSet S T x y i j))
-                (λ _ → elimProp isPropZ algz S)
-                (λ _ → elimProp isPropZ algz T)
-                (cong (elimProp isPropZ algz) x)
-                (cong (elimProp isPropZ algz) y) i j
+  isProp→SquareP (λ i j → isPropZ (setIsSet S T x y i j))
+                 (λ _ → elimProp isPropZ algz S)
+                 (λ _ → elimProp isPropZ algz T)
+                 (cong (elimProp isPropZ algz) x)
+                 (cong (elimProp isPropZ algz) y) i j
 
 -- eliminator for two sets at once
 record Elim2Set {Z : (s t : V ℓ) → Type ℓ'} (isSetZ : ∀ s t → isSet (Z s t)) : Type (ℓ-max ℓ' (ℓ-suc ℓ)) where
@@ -421,7 +371,8 @@ isEmb⟪ X ⟫↪ = V-repr X .snd .snd .fst
 ⟪ X ⟫-represents = V-repr X .snd .snd .snd
 
 isPropRepFiber : (a b : V ℓ) → isProp (repFiber ⟪ a ⟫↪ b)
-isPropRepFiber a b = isEmbeddingLiftsIsProp (isEquiv→isEmbedding (repFiber≃fiber ⟪ a ⟫↪ b .snd)) (isEmbedding→hasPropFibers isEmb⟪ a ⟫↪ b)
+isPropRepFiber a b = embedIsProp (isEquiv→isEmbedding (repFiber≃fiber ⟪ a ⟫↪ b .snd))
+                                 (isEmbedding→hasPropFibers isEmb⟪ a ⟫↪ b)
 
 -- while ∈ is hProp (ℓ-suc ℓ), ∈ₛ is in ℓ
 _∈ₛ_ : (a b : V ℓ) → hProp ℓ
@@ -465,7 +416,7 @@ _⊆ₛ_ : (a b : V ℓ) → hProp ℓ
 a ⊆ₛ b = ∀[ x ∶ ⟪ a ⟫ ] ⟪ a ⟫↪ x ∈ₛ b
 
 ⊆⊆ₛ : (a b : V ℓ) → [ a ⊆ b ⇔ a ⊆ₛ b ]
-⊆⊆ₛ a b = (λ s → equivFun Π-Σ-≃ s ∘ invEq (presentation a))
+⊆⊆ₛ a b = (λ s → invEq curryEquiv s ∘ invEq (presentation a))
          , (λ s x xa → subst (λ x → [ x ∈ₛ b ]) (equivFun V∼-≡ (xa .snd)) (s (xa .fst)))
 
 ------------
@@ -498,10 +449,11 @@ record SetPackage (S : SetStructure ℓ) ℓ' : Type (ℓ-max (ℓ-suc ℓ) (ℓ
 -- extensionality
 extensionality : [ ∀[ a ∶ V ℓ ] ∀[ b ] (a ⊆ b) ⊓ (b ⊆ a) ⇒ (a ≡ₛ b) ]
 extensionality {ℓ = ℓ} a b imeq = ⟪ a ⟫-represents ∙∙ settab ∙∙ sym ⟪ b ⟫-represents where
-  open EmbeddingsExt ℓ (V ℓ)
-  abpth : Path AnEmbedding (⟪ a ⟫ , ⟪ a ⟫↪ , isEmb⟪ a ⟫↪) (⟪ b ⟫ , ⟪ b ⟫↪ , isEmb⟪ b ⟫↪)
-  abpth = Fiberwise→Path _ _ (λ p → equivFun (repFiber≃fiber ⟪ b ⟫↪ p) ∘ imeq .fst p ∘ invEq (repFiber≃fiber ⟪ a ⟫↪ p))
-                             (λ p → equivFun (repFiber≃fiber ⟪ a ⟫↪ p) ∘ imeq .snd p ∘ invEq (repFiber≃fiber ⟪ b ⟫↪ p))
+  abpth : Path (Embedding _ _) (⟪ a ⟫ , ⟪ a ⟫↪ , isEmb⟪ a ⟫↪) (⟪ b ⟫ , ⟪ b ⟫↪ , isEmb⟪ b ⟫↪)
+  abpth = equivFun (EmbeddingIP _ _)
+    ( (λ p → equivFun (repFiber≃fiber ⟪ b ⟫↪ p) ∘ imeq .fst p ∘ invEq (repFiber≃fiber ⟪ a ⟫↪ p))
+    , (λ p → equivFun (repFiber≃fiber ⟪ a ⟫↪ p) ∘ imeq .snd p ∘ invEq (repFiber≃fiber ⟪ b ⟫↪ p))
+    )
   settab : sett ⟪ a ⟫ ⟪ a ⟫↪ ≡ sett ⟪ b ⟫ ⟪ b ⟫↪
   settab i = sett (abpth i .fst) (abpth i .snd .fst)
 

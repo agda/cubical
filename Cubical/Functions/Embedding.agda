@@ -11,9 +11,14 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Powerset
-open import Cubical.Foundations.Univalence using (ua)
+open import Cubical.Foundations.Univalence using (ua; univalence)
 open import Cubical.Functions.Fibration
+
+open import Cubical.Data.Sigma
+open import Cubical.Functions.Fibration
+open import Cubical.Functions.FunExtEquiv
 open import Cubical.Relation.Nullary using (Discrete; yes; no)
+open import Cubical.Structures.Axioms
 
 open import Cubical.Data.Nat using (ℕ; zero; suc)
 open import Cubical.Data.Sigma
@@ -84,10 +89,13 @@ private
 hasPropFibers : (A → B) → Type _
 hasPropFibers f = ∀ y → isProp (fiber f y)
 
+-- This can be relaxed to having all prop fibers over the image, see [hasPropFibersOfImage→isEmbedding]
+hasPropFibersOfImage : (A → B) → Type _
+hasPropFibersOfImage f = ∀ x → isProp (fiber f (f x))
+
 -- some notation
 _↪_ : Type ℓ₁ → Type ℓ₂ → Type (ℓ-max ℓ₁ ℓ₂)
 A ↪ B = Σ[ f ∈ (A → B) ] hasPropFibers f
-
 
 hasPropFibersIsProp : isProp (hasPropFibers f)
 hasPropFibersIsProp = isPropΠ (λ _ → isPropIsProp)
@@ -127,6 +135,11 @@ hasPropFibers→isEmbedding {f = f} iP w x .equiv-proof p
 
   fx : fiber f (f x)
   fx = (x , refl)
+
+hasPropFibersOfImage→isEmbedding : hasPropFibersOfImage f → isEmbedding f
+hasPropFibersOfImage→isEmbedding {f = f} iP = hasPropFibers→isEmbedding pf where
+  pf : hasPropFibers f
+  pf y a b = subst (λ y → isProp (fiber f y)) (snd a) (iP (fst a)) a b
 
 isEmbedding≡hasPropFibers : isEmbedding f ≡ hasPropFibers f
 isEmbedding≡hasPropFibers
@@ -251,3 +264,137 @@ Subset≃Embedding = isoToEquiv (iso Subset→Embedding Embedding→Subset
 
 Subset≡Embedding : {X : Type ℓ} → ℙ X ≡ (Σ[ A ∈ Type ℓ ] (A ↪ X))
 Subset≡Embedding = ua Subset≃Embedding
+
+embedIsProp : {f : A → B}
+            → isEmbedding f
+            → isProp B
+            → isProp A
+embedIsProp isEmb isPropB a b = equivFun (invEquiv (_ , isEmb a b)) (isPropB _ _)
+
+universeEmbedding :
+  ∀ {ℓ ℓ₁ : Level}
+  → (F : Type ℓ → Type ℓ₁)
+  → (∀ X → F X ≃ X)
+  → isEmbedding F
+universeEmbedding F liftingEquiv = hasPropFibersOfImage→isEmbedding propFibersF where
+  lemma : ∀ A B → (F A ≡ F B) ≃ (B ≡ A)
+  lemma A B = (F A ≡ F B)  ≃⟨ univalence ⟩
+              (F A ≃ F B) ≃⟨ equivComp (liftingEquiv A) (liftingEquiv B) ⟩
+              (A ≃ B)     ≃⟨ invEquivEquiv ⟩
+              (B ≃ A)     ≃⟨ invEquiv univalence ⟩
+              (B ≡ A)      ■
+  fiberSingl : ∀ X → fiber F (F X) ≃ singl X
+  fiberSingl X = Σ-cong-equiv-snd (λ _ → lemma _ _)
+  propFibersF : hasPropFibersOfImage F
+  propFibersF X = embedIsProp (isEquiv→isEmbedding (fiberSingl X .snd)) (isContr→isProp (isContrSingl X))
+
+liftEmbedding : (ℓ ℓ₁ : Level)
+              → isEmbedding (Lift {i = ℓ} {j = ℓ₁})
+liftEmbedding ℓ ℓ₁ = universeEmbedding (Lift {j = ℓ₁}) (λ _ → invEquiv LiftEquiv)
+
+module FibrationIdentityPrinciple {B : Type ℓ} {ℓ₁} where
+  -- note that fibrationEquiv (for good reason) uses ℓ₁ = ℓ-max ℓ ℓ₁, so we have to work
+  -- some universe magic to achieve good universe polymorphism
+
+  -- First, prove it for the case that's deal with in fibrationEquiv
+  Fibration′ = Fibration B (ℓ-max ℓ ℓ₁)
+
+  module Lifted (f g : Fibration′) where
+    f≃g′ : Type (ℓ-max ℓ ℓ₁)
+    f≃g′ = ∀ b → fiber (f .snd) b ≃ fiber (g .snd) b
+
+    Fibration′IP : f≃g′ ≃ (f ≡ g)
+    Fibration′IP =
+        f≃g′
+      ≃⟨ equivΠCod (λ _ → invEquiv univalence) ⟩
+        (∀ b → fiber (f .snd) b ≡ fiber (g .snd) b)
+      ≃⟨ funExtEquiv ⟩
+        fiber (f .snd) ≡ fiber (g .snd)
+      ≃⟨ invEquiv (congEquiv (fibrationEquiv B ℓ₁)) ⟩
+        f ≡ g
+      ■
+
+  -- Then embed into the above case by lifting the type
+  L : Type _ → Type _ -- local synonym fixing the levels of Lift
+  L = Lift {i = ℓ₁} {j = ℓ}
+
+  liftFibration : Fibration B ℓ₁ → Fibration′
+  liftFibration (A , f) = L A , f ∘ lower
+
+  hasPropFibersLiftFibration : hasPropFibers liftFibration
+  hasPropFibersLiftFibration (A , f) =
+    embedIsProp (isEquiv→isEmbedding (snd fiberChar))
+      (isPropΣ (isEmbedding→hasPropFibers (liftEmbedding _ _) A)
+               λ _ → isEquiv→hasPropFibers (snd (invEquiv (preCompEquiv LiftEquiv))) _)
+    where
+    fiberChar : fiber liftFibration (A , f)
+              ≃ (Σ[ (E , eq) ∈ fiber L A ] fiber (_∘ lower) (transport⁻ (λ i → eq i → B) f))
+    fiberChar =
+        fiber liftFibration (A , f)
+      ≃⟨ Σ-cong-equiv-snd (λ _ → invEquiv ΣPath≃PathΣ) ⟩
+        (Σ[ (E , g) ∈ Fibration B ℓ₁ ] Σ[ eq ∈ (L E ≡ A) ] PathP (λ i → eq i → B) (g ∘ lower) f)
+      ≃⟨ boringSwap ⟩
+        (Σ[ (E , eq) ∈ fiber L A ] Σ[ g ∈ (E → B) ] PathP (λ i → eq i → B) (g ∘ lower) f)
+      ≃⟨ Σ-cong-equiv-snd (λ _ → Σ-cong-equiv-snd λ _ → transportEquiv (PathP≡Path⁻ _ _ _)) ⟩
+        (Σ[ (E , eq) ∈ fiber L A ] fiber (_∘ lower) (transport⁻ (λ i → eq i → B) f))
+      ■ where
+      boringSwap : _
+      boringSwap = isoToEquiv (iso (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p)))
+                                   (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p))) (λ _ → refl) (λ _ → refl))
+
+  isEmbeddingLiftFibration : isEmbedding liftFibration
+  isEmbeddingLiftFibration = hasPropFibers→isEmbedding hasPropFibersLiftFibration
+
+  -- and finish off
+  module _ (f g : Fibration B ℓ₁) where
+    open Lifted (liftFibration f) (liftFibration g)
+    f≃g : Type (ℓ-max ℓ ℓ₁)
+    f≃g = ∀ b → fiber (f .snd) b ≃ fiber (g .snd) b
+
+    FibrationIP : f≃g ≃ (f ≡ g)
+    FibrationIP =
+      f≃g  ≃⟨ equivΠCod (λ b → equivComp (Σ-cong-equiv-fst LiftEquiv)
+                                          (Σ-cong-equiv-fst LiftEquiv)) ⟩
+      f≃g′ ≃⟨ Fibration′IP ⟩
+      (liftFibration f ≡ liftFibration g) ≃⟨ invEquiv (_ , isEmbeddingLiftFibration _ _) ⟩
+      (f ≡ g) ■
+open FibrationIdentityPrinciple renaming (f≃g to _≃Fib_) using (FibrationIP) public
+
+EmbeddingStr : Type ℓ₁ → Type ℓ → Type (ℓ-max ℓ ℓ₁)
+EmbeddingStr B = AxiomsStructure (λ A → A → B) (λ _ → isEmbedding)
+
+Embedding : (B : Type ℓ₁) → (ℓ : Level) → Type (ℓ-max ℓ₁ (ℓ-suc ℓ))
+Embedding B ℓ = Σ[ A ∈ Type ℓ ] EmbeddingStr B A
+
+module EmbeddingIdentityPrinciple {B : Type ℓ} {ℓ₁} (f g : Embedding B ℓ₁) where
+  module _ where
+    open Σ f renaming (fst to F) public
+    open Σ g renaming (fst to G) public
+    open Σ (f .snd) renaming (fst to ffun; snd to isEmbF) public
+    open Σ (g .snd) renaming (fst to gfun; snd to isEmbG) public
+  f≃g : Type _
+  f≃g = (∀ b → fiber ffun b → fiber gfun b) ×
+         (∀ b → fiber gfun b → fiber ffun b)
+  toFibr : Embedding B ℓ₁ → Fibration B ℓ₁
+  toFibr (A , (f , _)) = (A , f)
+
+  isEmbeddingToFibr : isEmbedding toFibr
+  isEmbeddingToFibr w x = fullEquiv .snd where
+    -- carefully managed such that (cong toFibr) is the equivalence
+    fullEquiv : (w ≡ x) ≃ (toFibr w ≡ toFibr x)
+    fullEquiv = compEquiv (congEquiv (invEquiv Σ-assoc-≃)) (invEquiv (Σ≡PropEquiv (λ _ → isEmbeddingIsProp)))
+
+  EmbeddingIP : f≃g ≃ (f ≡ g)
+  EmbeddingIP =
+      f≃g
+    ≃⟨ isoToEquiv (invIso toProdIso) ⟩
+      (∀ b → (fiber ffun b → fiber gfun b) × (fiber gfun b → fiber ffun b))
+    ≃⟨ equivΠCod (λ _ → isEquivPropBiimpl→Equiv (isEmbedding→hasPropFibers isEmbF _)
+                                                 (isEmbedding→hasPropFibers isEmbG _)) ⟩
+      (∀ b → (fiber (f .snd .fst) b) ≃ (fiber (g .snd .fst) b))
+    ≃⟨ FibrationIP (toFibr f) (toFibr g) ⟩
+      (toFibr f ≡ toFibr g)
+    ≃⟨ invEquiv (_ , isEmbeddingToFibr _ _) ⟩
+      f ≡ g
+    ■
+open EmbeddingIdentityPrinciple renaming (f≃g to _≃Emb_) using (EmbeddingIP) public
