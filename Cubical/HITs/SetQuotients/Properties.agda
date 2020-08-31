@@ -224,3 +224,23 @@ discreteSetQuotients {A = A} {R = R} Adis Rprop Req Rdec =
       J (λ b ab → ∀ k → PathP (λ i → (y : A / R) → Dec (ab i ≡ y))
                               (discreteSetQuotients' a) k)
         (λ k → funExt (λ x → isPropDec (squash/ _ _) _ _)) (eq/ a b ab) (discreteSetQuotients' b)
+
+
+
+-- Quotienting by the truncated relation is equivalent to quotienting by untruncated relation
+truncRelEquiv : A / R ≃ A / (λ a b → ∥ R a b ∥)
+truncRelEquiv = isoToEquiv (iso φ ψ η ε)
+ where
+ φ : A / R → A / (λ a b → ∥ R a b ∥)
+ φ [ a ] = [ a ]
+ φ (eq/ a b r i) = eq/ a b ∣ r ∣ i
+ φ (squash/ x y p q i j) = squash/ (φ x) (φ y) (cong φ p) (cong φ q) i j
+
+ ψ : A / (λ a b → ∥ R a b ∥) → A / R
+ ψ = rec squash/ [_] λ _ _ → PropTrunc.rec (squash/ _ _) λ r → eq/ _ _ r
+
+ η : section φ ψ
+ η = elimProp (λ _ → squash/ _ _) λ _ → refl
+
+ ε : retract φ ψ
+ ε = elimProp (λ _ → squash/ _ _) λ _ → refl
