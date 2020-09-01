@@ -203,7 +203,7 @@ _+_ (η-Group _ _ r _ _ i) = r i
 isGroup (η-Group _ _ _ _ t i) = t i
 
 isSetCarrier : ∀ {ℓ} → (G : Group {ℓ}) → isSet ⟨ G ⟩
-isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (isMonoid (isGroup G)))
+isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (isMonoid G))
 
 open IsMonoid
 open IsSemigroup
