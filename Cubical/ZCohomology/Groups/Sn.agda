@@ -245,9 +245,9 @@ H¹-Sⁿ≅0 n = coHomPushout≅coHomSn (1 + n) 1
     helper =
       sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 (setTruncIsSet _ _))  -- useless elimination speeds things up significantly
              λ x inker → pRec (setTruncIsSet _ _)
-                               (sigmaElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                                           λ a id → sym id ∙ I.Im-Δ⊂Ker-d 0 ∣ a ∣₂ (surj-helper _))
-                               (I.Ker-i⊂Im-d 0 ∣ x ∣₂ inker)
+                              (sigmaElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+                                          λ a id → sym id ∙ I.Im-Δ⊂Ker-d 0 ∣ a ∣₂ (surj-helper _))
+                              (I.Ker-i⊂Im-d 0 ∣ x ∣₂ inker)
 
 --------- Direct proof of H¹(S¹) ≅ ℤ without Mayer-Vietoris -------
 
@@ -319,8 +319,8 @@ isHom coHom1S1≃ℤ =
                         (cong (Kn→ΩKn+1 1) reflg ∙ Kn→ΩKn+10ₖ 1))
                    ∙ λ j → guy (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (f (S¹→S1 base)) j)
                                 (λ i → pre-guy (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (f (S¹→S1 (loop i))) j))
-                          ∙ guy (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (g (S¹→S1 base)) j)
-                                (λ i → pre-guy (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (g (S¹→S1 (loop i))) j)))
+                         ∙ guy (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (g (S¹→S1 base)) j)
+                               (λ i → pre-guy (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (g (S¹→S1 (loop i))) j)))
 
 
 
