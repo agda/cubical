@@ -48,7 +48,7 @@ Subtype→Sub-𝒮ᴰ P StrA =
                                               (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
                                               (inhProp→isContr p (P a .snd)))
 
-
+{-
 
 module _ {A : Type ℓA} (𝒮 : URGStr A ℓA) where
   open URGStr
@@ -62,23 +62,18 @@ module _ {A : Type ℓA} (𝒮 : URGStr A ℓA) where
     where
       p : (a : A) → transp (λ i → ≅-≡ i a a) i0 refl ≡ (ρ 𝒮 a)
       p a = {!!}
-  -- transp (λ i → ≅-≡ i a a) i0 refl ≡ ρ 𝒮
+      q₁ : (a : A) → ≡→R (_≅_ 𝒮) (ρ 𝒮) refl ≡ subst ((_≅_ 𝒮) a) refl (ρ 𝒮 a)
+      q₁ a = refl
+      q₂ : (a : A) → subst (λ a' → (_≅_ 𝒮) a a') refl (ρ 𝒮 a) ≡ ρ 𝒮 a
+      q₂ a = transportRefl (ρ 𝒮 a)
 
   uni-≡ : PathP (λ i → isUnivalent (≅-≡ i) (ρ-≡ i)) (uni 𝒮') (uni 𝒮)
   uni-≡ = isProp→PathP (λ i → isPropΠ2 (λ a a' → isPropIsEquiv (≡→R (≅-≡ i) (ρ-≡ i)))) (uni 𝒮') (uni 𝒮)
 
-{-
-𝒮-contr : (A : Type ℓA) → isContr (URGStr A ℓA)
-fst (𝒮-contr A) = 𝒮-type A
-snd (𝒮-contr A) 𝒮-A' i ._≅_ = {!!}
-snd (𝒮-contr A) 𝒮-A' i .ρ = {!!}
-snd (𝒮-contr A) 𝒮-A' i .uni = {!!}
 -}
 
 {-
 
-
-?1 : isProp (isEquiv (≡→R (≅-≡ i) (ρ-≡ i)))
 
 module Sigma {ℓA ℓB ℓ≅A ℓ≅B} {A : Type ℓA} {B : A → Type ℓB} where
   ℓ≅AB = ℓ-max ℓ≅A ℓ≅B

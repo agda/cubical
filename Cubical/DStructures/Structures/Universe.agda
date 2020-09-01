@@ -19,10 +19,9 @@ private
 𝒮-universe : URGStr (Type ℓ) ℓ
 𝒮-universe
   = make-𝒮 {_≅_ = _≃_}
-               idEquiv
-               λ A → isContrRespectEquiv
-                                            (Σ-cong-equiv-snd (λ A' → isoToEquiv (iso invEquiv
-                                                                                      invEquiv
-                                                                                      (λ e → equivEq (invEquiv (invEquiv e)) e (funExt (λ x → refl)))
-                                                                                      λ e → equivEq (invEquiv (invEquiv e)) e (funExt (λ x → refl)))))
-                                            (EquivContr A)
+            idEquiv
+            λ A → isContrRespectEquiv (Σ-cong-equiv-snd (λ A' → isoToEquiv (iso invEquiv
+                                                                                  invEquiv
+                                                                                  (λ e → equivEq (invEquiv (invEquiv e)) e (funExt (λ x → refl)))
+                                                                                  λ e → equivEq (invEquiv (invEquiv e)) e (funExt (λ x → refl)))))
+                                       (EquivContr A)
