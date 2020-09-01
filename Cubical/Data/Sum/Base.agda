@@ -1,6 +1,8 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Data.Sum.Base where
 
+open import Cubical.Relation.Nullary
+
 open import Cubical.Core.Everything
 
 private
@@ -24,3 +26,12 @@ elim _ g (inr y) = g y
 map : (A → C) → (B → D) → A ⊎ B → C ⊎ D
 map f _ (inl x) = inl (f x)
 map _ g (inr y) = inr (g y)
+
+_⊎?_ : {P Q : Type ℓ} → Dec P → Dec Q → Dec (P ⊎ Q)
+P? ⊎? Q? with P? | Q?
+... | yes p | _ = yes (inl p)
+... | no _  | yes q = yes (inr q)
+... | no ¬p | no ¬q  = no λ
+  { (inl p) → ¬p p
+  ; (inr q) → ¬q q
+  }

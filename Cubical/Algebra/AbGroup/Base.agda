@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Structures.AbGroup where
+module Cubical.Algebra.AbGroup.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -15,9 +15,9 @@ open import Cubical.Data.Sigma
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Pointed
-open import Cubical.Structures.Semigroup hiding (⟨_⟩)
-open import Cubical.Structures.Monoid hiding (⟨_⟩)
-open import Cubical.Structures.Group hiding (⟨_⟩)
+open import Cubical.Algebra.Semigroup hiding (⟨_⟩)
+open import Cubical.Algebra.Monoid    hiding (⟨_⟩)
+open import Cubical.Algebra.Group  hiding (⟨_⟩)
 
 open Iso
 
@@ -81,6 +81,9 @@ makeAbGroup 0g _+_ -_ is-setG assoc rid rinv comm =
 AbGroup→Group : AbGroup {ℓ} → Group
 AbGroup→Group (abgroup _ _ _ _ H) = group _ _ _ _ (IsAbGroup.isGroup H)
 
+isSetAbGroup : (A : AbGroup {ℓ}) → isSet ⟨ A ⟩
+isSetAbGroup A = isSetGroup (AbGroup→Group A)
+
 AbGroupHom : (G : AbGroup {ℓ}) (H : AbGroup {ℓ'}) → Type (ℓ-max ℓ ℓ')
 AbGroupHom G H = GroupHom (AbGroup→Group G) (AbGroup→Group H)
 
@@ -99,6 +102,9 @@ module AbGroupΣTheory {ℓ} where
 
   AbGroupΣ : Type (ℓ-suc ℓ)
   AbGroupΣ = TypeWithStr ℓ AbGroupStructure
+
+  isSetAbGroupΣ : (A : AbGroupΣ) → isSet _
+  isSetAbGroupΣ (A , _+_ , (isGroup-A , _)) = isSetGroupΣ (A , _+_ , isGroup-A)
 
   AbGroupEquivStr : StrEquiv AbGroupStructure ℓ
   AbGroupEquivStr = AxiomsEquivStr RawGroupEquivStr AbGroupAxioms
@@ -120,22 +126,20 @@ module AbGroupΣTheory {ℓ} where
   open AbGroup
 
   AbGroupIsoAbGroupΣ : Iso AbGroup AbGroupΣ
-  AbGroupIsoAbGroupΣ = iso AbGroup→AbGroupΣ AbGroupΣ→AbGroup helper helper2
+  AbGroupIsoAbGroupΣ = iso AbGroup→AbGroupΣ AbGroupΣ→AbGroup (λ _ → refl) helper
     where
-    helper : _
-    fst (helper b i) = fst b
-    snd (helper b i) = snd b
+      open GroupΣTheory
+      group-helper : retract (Group→GroupΣ {ℓ}) GroupΣ→Group
+      group-helper = Iso.leftInv GroupIsoGroupΣ
 
-    helper2 : _
-    Carrier (helper2 a i) = ⟨ a ⟩
-    0g (helper2 a i) = 0g a
-    _+_ (helper2 a i) = _+_ a
-    - helper2 a i = - a
-    IsGroup.isMonoid (IsAbGroup.isGroup (isAbGroup (helper2 a i))) = η-isMonoid (isMonoid a) i
-    IsGroup.inverse (IsAbGroup.isGroup (isAbGroup (helper2 a i))) = inverse a
-    IsAbGroup.comm (isAbGroup (helper2 a i)) = comm a
-
-    -- TODO: investigate why we need all of the qualified projections
+      helper : _
+      Carrier (helper a i) = ⟨ a ⟩
+      0g (helper a i) = 0g a
+      _+_ (helper a i) = _+_ a
+      - helper a i = - a
+      IsAbGroup.isGroup (isAbGroup (helper a i)) =
+        Group.isGroup (group-helper (group (Carrier a) (0g a) (_+_ a) (- a) (isGroup a)) i)
+      IsAbGroup.comm (isAbGroup (helper a i)) = comm a
 
   abGroupUnivalentStr : UnivalentStr AbGroupStructure AbGroupEquivStr
   abGroupUnivalentStr = axiomsUnivalentStr _ isPropAbGroupAxioms rawGroupUnivalentStr

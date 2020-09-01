@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Structures.Group.MorphismProperties where
+module Cubical.Algebra.Group.MorphismProperties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -16,12 +16,12 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Pointed
-open import Cubical.Structures.Semigroup hiding (⟨_⟩)
-open import Cubical.Structures.Monoid hiding (⟨_⟩)
+open import Cubical.Algebra.Semigroup hiding (⟨_⟩)
+open import Cubical.Algebra.Monoid    hiding (⟨_⟩)
 
-open import Cubical.Structures.Group.Base
-open import Cubical.Structures.Group.Properties
-open import Cubical.Structures.Group.Morphism
+open import Cubical.Algebra.Group.Base
+open import Cubical.Algebra.Group.Properties
+open import Cubical.Algebra.Group.Morphism
 
 private
   variable
@@ -132,6 +132,11 @@ module GroupΣTheory {ℓ} where
   GroupEquivStr = AxiomsEquivStr RawGroupEquivStr GroupAxioms
 
   open MonoidTheory
+
+  isSetGroupΣ : (G : GroupΣ)
+               → isSet _
+  isSetGroupΣ (_ , _ , (isSemigroup-G , _ , _)) = IsSemigroup.is-set isSemigroup-G
+
   isPropGroupAxioms : (G : Type ℓ)
                       → (s : RawGroupStructure G)
                       → isProp (GroupAxioms G s)
@@ -163,19 +168,23 @@ module GroupΣTheory {ℓ} where
                     , inverse G x)
 
   GroupΣ→Group : GroupΣ → Group
-  GroupΣ→Group (G , _ , SG , _ , H0g , w ) =
-     group _ _ _ (λ x → w x .fst) (isgroup (ismonoid SG H0g) λ x → w x .snd)
+  GroupΣ→Group (G , _ , SG , _ , H0g , invertible ) =
+     group _ _ _ (λ x → invertible x .fst) (isgroup (ismonoid SG H0g) λ x → invertible x .snd)
 
   GroupIsoGroupΣ : Iso Group GroupΣ
   GroupIsoGroupΣ = iso Group→GroupΣ GroupΣ→Group (λ _ → refl) helper
     where
+    open MonoidΣTheory
+    monoid-helper : retract (Monoid→MonoidΣ {ℓ}) MonoidΣ→Monoid
+    monoid-helper = Iso.leftInv MonoidIsoMonoidΣ
+
     helper : retract (λ z → Group→GroupΣ z) GroupΣ→Group
     Carrier (helper a i) = ⟨ a ⟩
     0g (helper a i) = 0g a
     _+_ (helper a i) = (_+_) a
     - helper a i = - a
-    IsMonoid.isSemigroup (IsGroup.isMonoid (isGroup (helper a i))) = isSemigroup a
-    IsMonoid.identity (IsGroup.isMonoid (isGroup (helper a i))) = identity a
+    IsGroup.isMonoid (isGroup (helper a i)) =
+      Monoid.isMonoid (monoid-helper (monoid (Carrier a) (0g a) (_+_ a) (isMonoid a)) i)
     IsGroup.inverse (isGroup (helper a i)) = inverse a
 
   groupUnivalentStr : UnivalentStr GroupStructure GroupEquivStr
