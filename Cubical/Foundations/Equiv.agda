@@ -145,8 +145,8 @@ Lift≃Lift e .snd .equiv-proof b .snd (a , p) i .snd j .lower =
 isContr→Equiv : isContr A → isContr B → A ≃ B
 isContr→Equiv Actr Bctr = isoToEquiv (isContr→Iso Actr Bctr)
 
-isPropEquiv→Equiv : (Aprop : isProp A) (Bprop : isProp B) (f : A → B) (g : B → A) → A ≃ B
-isPropEquiv→Equiv Aprop Bprop f g = f , hf
+propBiimpl→Equiv : (Aprop : isProp A) (Bprop : isProp B) (f : A → B) (g : B → A) → A ≃ B
+propBiimpl→Equiv Aprop Bprop f g = f , hf
   where
   hf : isEquiv f
   hf .equiv-proof y .fst          = (g y , Bprop (f (g y)) y)
@@ -158,7 +158,7 @@ isEquivPropBiimpl→Equiv : isProp A → isProp B
                        → (Σ (A → B) (λ _ → B → A)) ≃ (A ≃ B)
 isEquivPropBiimpl→Equiv {A = A} {B = B} Aprop Bprop = isoToEquiv isom where
   isom : Iso (Σ (A → B) (λ _ → B → A)) (A ≃ B)
-  isom .fun (f , g) = isPropEquiv→Equiv Aprop Bprop f g
+  isom .fun (f , g) = propBiimpl→Equiv Aprop Bprop f g
   isom .inv e = equivFun e , invEq e
   isom .rightInv e = equivEq refl
   isom .leftInv _ = refl

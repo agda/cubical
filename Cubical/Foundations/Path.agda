@@ -123,10 +123,10 @@ isProp→isSet-PathP : ∀ {ℓ} {B : I → Type ℓ} → ((i : I) → isProp (B
 isProp→isSet-PathP {B = B} hB b0 b1 =
   transport (λ i → isProp (PathP≡Path B b0 b1 (~ i))) (isProp→isSet (hB i1) _ _)
 
-isProp→isContrPathPB : ∀ {ℓ} {B : I → Type ℓ} → ((i : I) → isProp (B i))
-                     → (b0 : B i0) (b1 : B i1)
-                     → isContr (PathP (λ i → B i) b0 b1)
-isProp→isContrPathPB pB b0 b1 =
+isProp→isContrPathP : ∀ {ℓ} {B : I → Type ℓ} → ((i : I) → isProp (B i))
+                    → (b0 : B i0) (b1 : B i1)
+                    → isContr (PathP (λ i → B i) b0 b1)
+isProp→isContrPathP pB b0 b1 =
   isProp→PathP pB b0 b1 , isProp→isSet-PathP pB b0 b1 _
 
 isProp→SquareP : ∀ {B : I → I → Type ℓ} → ((i j : I) → isProp (B i j))

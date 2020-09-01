@@ -244,7 +244,7 @@ PathΣ→ΣPathTransport a b = Iso.inv (IsoΣPathTransportPathΣ a b)
 
 Σ≡PropEquiv : ((x : A) → isProp (B x)) → {u v : Σ A B}
             → (u .fst ≡ v .fst) ≃ (u ≡ v)
-Σ≡PropEquiv pB = compEquiv (invEquiv (Σ-contractSnd λ _ → isProp→isContrPathPB (λ _ → pB _) _ _)) ΣPath≃PathΣ
+Σ≡PropEquiv pB = compEquiv (invEquiv (Σ-contractSnd λ _ → isProp→isContrPathP (λ _ → pB _) _ _)) ΣPath≃PathΣ
 
 Σ≡Prop : ((x : A) → isProp (B x)) → {u v : Σ A B}
        → (p : u .fst ≡ v .fst) → u ≡ v
@@ -278,8 +278,8 @@ Iso.inv (prodIso iAC iBD) (c , d) = (Iso.inv iAC c) , Iso.inv iBD d
 Iso.rightInv (prodIso iAC iBD) (c , d) = ΣPathP ((Iso.rightInv iAC c) , (Iso.rightInv iBD d))
 Iso.leftInv (prodIso iAC iBD) (a , b) = ΣPathP ((Iso.leftInv iAC a) , (Iso.leftInv iBD b))
 
-toProdIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : A → Type ℓ'} {C : A → Type ℓ''}
-         → Iso ((a : A) → B a × C a) (((a : A) → B a) × ((a : A) → C a))
+toProdIso : {B C : A → Type ℓ}
+          → Iso ((a : A) → B a × C a) (((a : A) → B a) × ((a : A) → C a))
 Iso.fun toProdIso = λ f → (λ a → fst (f a)) , (λ a → snd (f a))
 Iso.inv toProdIso (f , g) = λ a → (f a) , (g a)
 Iso.rightInv toProdIso (f , g) = refl
