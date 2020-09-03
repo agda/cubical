@@ -17,11 +17,6 @@ open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
 open import Cubical.Homotopy.Loopspace
 
-apΩ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} → (i : Iso (typ A) (typ B)) → Iso.fun i (pt A) ≡ pt B → Iso (typ (Ω A)) (typ (Ω B)) 
-apΩ i id = {!!}
-
-
-
 module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n)) (typ A)) where
 
   σ : typ A → typ (Ω (∙Susp (typ A)))
@@ -130,116 +125,116 @@ FreudenthalIso : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
                       (hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north))))
 FreudenthalIso n A iscon = connectedTruncIso _ (σ n {A = A} iscon) (isConnectedσ _ iscon)
 
--- Tests
-open import Cubical.Homotopy.Loopspace
-open import Cubical.HITs.Sn
+-- -- Tests
+-- open import Cubical.Homotopy.Loopspace
+-- open import Cubical.HITs.Sn
 
-truncIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : HLevel)
-         → Iso A B
-         → Iso (hLevelTrunc n A) (hLevelTrunc n B)
-Iso.fun (truncIso n i) = map (Iso.fun i)
-Iso.inv (truncIso n i) = map (Iso.inv i)
-Iso.rightInv (truncIso n i) = Trunc.elim (λ _ → isOfHLevelPath n (isOfHLevelTrunc n) _ _) λ a → cong ∣_∣ (Iso.rightInv i a)
-Iso.leftInv (truncIso n i) = Trunc.elim (λ _ → isOfHLevelPath n (isOfHLevelTrunc n) _ _) λ a → cong ∣_∣ (Iso.leftInv i a)
+-- truncIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : HLevel)
+--          → Iso A B
+--          → Iso (hLevelTrunc n A) (hLevelTrunc n B)
+-- Iso.fun (truncIso n i) = map (Iso.fun i)
+-- Iso.inv (truncIso n i) = map (Iso.inv i)
+-- Iso.rightInv (truncIso n i) = Trunc.elim (λ _ → isOfHLevelPath n (isOfHLevelTrunc n) _ _) λ a → cong ∣_∣ (Iso.rightInv i a)
+-- Iso.leftInv (truncIso n i) = Trunc.elim (λ _ → isOfHLevelPath n (isOfHLevelTrunc n) _ _) λ a → cong ∣_∣ (Iso.leftInv i a)
 
-π₀-S¹ : Iso (hLevelTrunc 2 (S₊ 1)) {!!}
-π₀-S¹ = {!!}
+-- π₀-S¹ : Iso (hLevelTrunc 2 (S₊ 1)) {!!}
+-- π₀-S¹ = {!!}
 
-LoopSpaceIso : {!!}
-LoopSpaceIso = {!!}
-open import Cubical.Foundations.Equiv.HalfAdjoint
-
-
-base-change : (x : ∥ S₊ 2 ∥ 4) →  Iso (typ ((Ω^ 2) (∥ S₊ 2 ∥ 4 , x))) (typ ((Ω^ 2) (∥ S₊ 2 ∥ 4 , ∣ north ∣)))
-Iso.fun (base-change x) =
-  Trunc.elim {B = λ x → (typ ((Ω^ 2) (∥ S₊ 2 ∥ 4 , x))) → (typ ((Ω^ 2) (∥ S₊ 2 ∥ 4 , ∣ north ∣)))}
-             (λ _ → isOfHLevelΠ 4 {!!})
-             (λ {north → idfun _
-               ; south → transport (λ i → typ ((Ω^ 2) ((∥ S₊ 2 ∥ 4) , ∣ merid north (~ i) ∣)))
-               ; (merid north i) → {!!}
-               ; (merid south i) → {!!}
-               ; (merid (merid a j) i) → {!isOfHLevelDep!}}) x
-Iso.inv (base-change x) = {!!}
-Iso.rightInv (base-change x) = {!!}
-Iso.leftInv (base-change x) = {!!}
-
-FreudTest-2 : (π 3 (S₊ 3 , north)) ≡ (typ ((Ω^ 2) (∥ S₊ 2 ∥ 4 , ∣ north ∣)))
-FreudTest-2 = isoToPath (compIso (invIso (ΩTrunc.IsoFinal 2 ∣ refl ∣ ∣ refl ∣))
-                (compIso
-                  (congIso (invIso (ΩTrunc.IsoFinal 3 ∣ refl ∣ ∣ refl ∣)))
-                  (congIso (congIso helper))))
-           ∙∙ isoToPath {!!}
-           ∙∙ {!!}
-  where
-  helper : Iso (∥ typ (Ω (S₊ 3 , north)) ∥ 4) (∥ S₊ 2 ∥ 4)
-  helper = invIso (FreudenthalIso 1 (S₊ 2 , north) (sphereConnected 2))
-
-  test2 : Iso.inv helper ∣ north ∣ ≡ ∣ refl ∣
-  test2 = cong ∣_∣ (rCancel (merid north))
-
-  test4 : ΩTrunc.decode-fun {B = Path (S₊ 3) north north} {n = 4} (∣ refl {x = north} ∣) (∣ refl {x = north} ∣) (∣ (λ _ → snd (Ω (S₊ 3 , north))) ∣) ≡ refl
-  test4 = refl
-
-  test : Iso.fun helper ∣ refl ∣ ≡ ∣ north ∣ -- cannot normalise LHS (or very slow/big)
-  test = cong (Iso.fun helper) (sym test2) ∙ Iso.rightInv helper _
-
-  test5 : (Iso.fun (congIso helper) (ΩTrunc.decode-fun (∣ (λ _ → north) ∣) ∣ (λ _ → north) ∣
-        ∣ (λ _ → snd (Ω (S₊ 3 , north))) ∣)) ≡ {!!}
-  test5 = refl
-
-FreudTest-1 : Iso (π 3 (S₊ 3 , north)) (typ ((Ω^ 2) (∥ S₊ 2 ∥ 4 , ∣ north ∣)))
-FreudTest-1 = compIso (invIso (ΩTrunc.IsoFinal 2 ∣ refl ∣ ∣ refl ∣))
-                (compIso
-                  (congIso (invIso (ΩTrunc.IsoFinal 3 ∣ refl ∣ ∣ refl ∣)))
-                  (compIso (congIso (congIso helper))
-                  (compIso
-                    (pathToIso {!λ i → typ ((Ω^ 2) (∥ S₊ 2 ∥ 4 , test i))!})
-                    (compIso {!!} {!!}))))
-  where
-  helper : Iso (∥ typ (Ω (S₊ 3 , north)) ∥ 4) (∥ S₊ 2 ∥ 4)
-  helper = invIso (FreudenthalIso 1 (S₊ 2 , north) (sphereConnected 2))
-
-  test2 : Iso.inv helper ∣ north ∣ ≡ ∣ refl ∣
-  test2 = cong ∣_∣ (rCancel (merid north))
-
-  test4 : ΩTrunc.decode-fun {B = Path (S₊ 3) north north} {n = 4} (∣ refl {x = north} ∣) (∣ refl {x = north} ∣) (∣ (λ _ → snd (Ω (S₊ 3 , north))) ∣) ≡ refl
-  test4 = refl
-
-  test : Iso.fun helper ∣ refl ∣ ≡ ∣ north ∣ -- cannot normalise LHS (or very slow/big)
-  test = cong (Iso.fun helper) (sym test2) ∙ Iso.rightInv helper _
-
-  test5 : (Iso.fun (congIso helper) (ΩTrunc.decode-fun (∣ (λ _ → north) ∣) ∣ (λ _ → north) ∣
-        ∣ (λ _ → snd (Ω (S₊ 3 , north))) ∣)) ≡ {!!}
-  test5 = refl
+-- LoopSpaceIso : {!!}
+-- LoopSpaceIso = {!!}
+-- open import Cubical.Foundations.Equiv.HalfAdjoint
 
 
+-- base-change : (x : ∥ S₊ 2 ∥ 4) →  Iso (typ ((Ω^ 2) (∥ S₊ 2 ∥ 4 , x))) (typ ((Ω^ 2) (∥ S₊ 2 ∥ 4 , ∣ north ∣)))
+-- Iso.fun (base-change x) =
+--   Trunc.elim {B = λ x → (typ ((Ω^ 2) (∥ S₊ 2 ∥ 4 , x))) → (typ ((Ω^ 2) (∥ S₊ 2 ∥ 4 , ∣ north ∣)))}
+--              (λ _ → isOfHLevelΠ 4 {!!})
+--              (λ {north → idfun _
+--                ; south → transport (λ i → typ ((Ω^ 2) ((∥ S₊ 2 ∥ 4) , ∣ merid north (~ i) ∣)))
+--                ; (merid north i) → {!!}
+--                ; (merid south i) → {!!}
+--                ; (merid (merid a j) i) → {!isOfHLevelDep!}}) x
+-- Iso.inv (base-change x) = {!!}
+-- Iso.rightInv (base-change x) = {!!}
+-- Iso.leftInv (base-change x) = {!!}
 
-
--- testIso : Iso (hLevelTrunc 2 (typ (Ω (S₊ 2 , north)))) (hLevelTrunc 2 (S₊ 1))
--- testIso = invIso (FreudenthalIso 0 (S₊ 1 , north) (sphereConnected 1))
-
-
--- stabSpheres : Iso (π 2 (S₊ 2 , north)) (π 1 (S₊ 1 , north)) 
--- stabSpheres =
---   compIso (invIso (ΩTrunc.IsoFinal 2 ∣ refl ∣ ∣ refl ∣))
---       (compIso helper
---                (ΩTrunc.IsoFinal 2 ∣ north ∣ ∣ north ∣))
+-- FreudTest-2 : (π 3 (S₊ 3 , north)) ≡ (typ ((Ω^ 2) (∥ S₊ 2 ∥ 4 , ∣ north ∣)))
+-- FreudTest-2 = isoToPath (compIso (invIso (ΩTrunc.IsoFinal 2 ∣ refl ∣ ∣ refl ∣))
+--                 (compIso
+--                   (congIso (invIso (ΩTrunc.IsoFinal 3 ∣ refl ∣ ∣ refl ∣)))
+--                   (congIso (congIso helper))))
+--            ∙∙ isoToPath {!!}
+--            ∙∙ {!!}
 --   where
---   helper1 : Iso (∥ typ (Ω ((S₊ 2) , north)) ∥ 3) (∥ S₊ 1 ∥ 3)
---   helper1 = {!FreudenthalIso 1!}
+--   helper : Iso (∥ typ (Ω (S₊ 3 , north)) ∥ 4) (∥ S₊ 2 ∥ 4)
+--   helper = invIso (FreudenthalIso 1 (S₊ 2 , north) (sphereConnected 2))
+
+--   test2 : Iso.inv helper ∣ north ∣ ≡ ∣ refl ∣
+--   test2 = cong ∣_∣ (rCancel (merid north))
+
+--   test4 : ΩTrunc.decode-fun {B = Path (S₊ 3) north north} {n = 4} (∣ refl {x = north} ∣) (∣ refl {x = north} ∣) (∣ (λ _ → snd (Ω (S₊ 3 , north))) ∣) ≡ refl
+--   test4 = refl
+
+--   test : Iso.fun helper ∣ refl ∣ ≡ ∣ north ∣ -- cannot normalise LHS (or very slow/big)
+--   test = cong (Iso.fun helper) (sym test2) ∙ Iso.rightInv helper _
+
+--   test5 : (Iso.fun (congIso helper) (ΩTrunc.decode-fun (∣ (λ _ → north) ∣) ∣ (λ _ → north) ∣
+--         ∣ (λ _ → snd (Ω (S₊ 3 , north))) ∣)) ≡ {!!}
+--   test5 = refl
+
+-- FreudTest-1 : Iso (π 3 (S₊ 3 , north)) (typ ((Ω^ 2) (∥ S₊ 2 ∥ 4 , ∣ north ∣)))
+-- FreudTest-1 = compIso (invIso (ΩTrunc.IsoFinal 2 ∣ refl ∣ ∣ refl ∣))
+--                 (compIso
+--                   (congIso (invIso (ΩTrunc.IsoFinal 3 ∣ refl ∣ ∣ refl ∣)))
+--                   (compIso (congIso (congIso helper))
+--                   (compIso
+--                     (pathToIso {!λ i → typ ((Ω^ 2) (∥ S₊ 2 ∥ 4 , test i))!})
+--                     (compIso {!!} {!!}))))
+--   where
+--   helper : Iso (∥ typ (Ω (S₊ 3 , north)) ∥ 4) (∥ S₊ 2 ∥ 4)
+--   helper = invIso (FreudenthalIso 1 (S₊ 2 , north) (sphereConnected 2))
+
+--   test2 : Iso.inv helper ∣ north ∣ ≡ ∣ refl ∣
+--   test2 = cong ∣_∣ (rCancel (merid north))
+
+--   test4 : ΩTrunc.decode-fun {B = Path (S₊ 3) north north} {n = 4} (∣ refl {x = north} ∣) (∣ refl {x = north} ∣) (∣ (λ _ → snd (Ω (S₊ 3 , north))) ∣) ≡ refl
+--   test4 = refl
+
+--   test : Iso.fun helper ∣ refl ∣ ≡ ∣ north ∣ -- cannot normalise LHS (or very slow/big)
+--   test = cong (Iso.fun helper) (sym test2) ∙ Iso.rightInv helper _
+
+--   test5 : (Iso.fun (congIso helper) (ΩTrunc.decode-fun (∣ (λ _ → north) ∣) ∣ (λ _ → north) ∣
+--         ∣ (λ _ → snd (Ω (S₊ 3 , north))) ∣)) ≡ {!!}
+--   test5 = refl
+
+
+
+
+-- -- testIso : Iso (hLevelTrunc 2 (typ (Ω (S₊ 2 , north)))) (hLevelTrunc 2 (S₊ 1))
+-- -- testIso = invIso (FreudenthalIso 0 (S₊ 1 , north) (sphereConnected 1))
+
+
+-- -- stabSpheres : Iso (π 2 (S₊ 2 , north)) (π 1 (S₊ 1 , north)) 
+-- -- stabSpheres =
+-- --   compIso (invIso (ΩTrunc.IsoFinal 2 ∣ refl ∣ ∣ refl ∣))
+-- --       (compIso helper
+-- --                (ΩTrunc.IsoFinal 2 ∣ north ∣ ∣ north ∣))
+-- --   where
+-- --   helper1 : Iso (∥ typ (Ω ((S₊ 2) , north)) ∥ 3) (∥ S₊ 1 ∥ 3)
+-- --   helper1 = {!FreudenthalIso 1!}
 
   
 
---   helper : Iso (typ (Ω ((∥ typ (Ω ((S₊ 2) , north)) ∥ 3) , ∣ refl ∣))) (typ (Ω ((∥ (S₊ 1) ∥ 3) , ∣ north ∣)))
---   helper =
---     compIso (congIso (truncOfTruncIso 3 1))
---       (compIso {!truncIso 3 ?!} {!!})
---       where
---       test2 : Iso.fun (truncOfTruncIso {A = typ (Ω (S₊ 2 , north))} 3 1) ∣ refl ∣ ≡ ∣ ∣ refl ∣ ∣
---       test2 = refl
+-- --   helper : Iso (typ (Ω ((∥ typ (Ω ((S₊ 2) , north)) ∥ 3) , ∣ refl ∣))) (typ (Ω ((∥ (S₊ 1) ∥ 3) , ∣ north ∣)))
+-- --   helper =
+-- --     compIso (congIso (truncOfTruncIso 3 1))
+-- --       (compIso {!truncIso 3 ?!} {!!})
+-- --       where
+-- --       test2 : Iso.fun (truncOfTruncIso {A = typ (Ω (S₊ 2 , north))} 3 1) ∣ refl ∣ ≡ ∣ ∣ refl ∣ ∣
+-- --       test2 = refl
 
---       test : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) → Iso (p ∙ sym p ≡ p ∙ sym p) (refl {x = x} ≡ refl {x = x}) 
---       test = {!!}
+-- --       test : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) → Iso (p ∙ sym p ≡ p ∙ sym p) (refl {x = x} ≡ refl {x = x}) 
+-- --       test = {!!}
 
 
 
