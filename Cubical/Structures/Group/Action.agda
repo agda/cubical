@@ -94,7 +94,7 @@ module ActionNotationα {N : Group {ℓ}} {H : Group {ℓ'}} (Act : GroupAction 
 
 module ActionLemmas {G : Group {ℓ}} {H : Group {ℓ'}} (Act : GroupAction G H) where
   open ActionNotationα {N = H} {H = G} Act
-  open GroupNotationH H
+  open GroupNotationᴴ H
   open GroupNotationG G
   open MorphismLemmas {G = H} {H = H}
   open GroupLemmas

@@ -341,7 +341,7 @@ module _ (ℓ ℓ' : Level) where
     where
       -- import notation
       open GroupNotation₀ G₀
-      open GroupNotationH H
+      open GroupNotationᴴ H
       open ActionNotationα (groupaction _α_ isAct) using (α-id)
 
       se = RelIso.fun 𝒮-Iso-GroupAct-SplitEpi (((G₀ , H) , _α_) , isAct)

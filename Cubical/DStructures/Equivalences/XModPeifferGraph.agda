@@ -59,7 +59,7 @@ module _ (ℓ ℓ' : Level) where
     RelIso.fun (𝒮ᴰ-♭PIso-XModule-Strict2Group (((((G₀' , H) , _α_) , isAct) , φ) , isEqui)) isPeif a b = q
       where
         -- G₀ = G₀', but the former is introduced in ReflGraphNotation as well
-        open GroupNotationH H
+        open GroupNotationᴴ H
         -- open GroupNotation₀ G₀
         f = GroupHom.fun φ
         A = groupaction _α_ isAct
@@ -137,7 +137,7 @@ module _ (ℓ ℓ' : Level) where
               b +₁ a ∎
     RelIso.inv (𝒮ᴰ-♭PIso-XModule-Strict2Group (((((G₀' , H) , _α_) , isAct) , φ) , isEqui)) ♭isPeif h h' = q
       where
-        open GroupNotationH H
+        open GroupNotationᴴ H
         f = GroupHom.fun φ
         A = groupaction _α_ isAct
         open ActionNotationα A using (α-assoc ; α-hom ; α-id)

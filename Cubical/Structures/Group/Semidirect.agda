@@ -22,7 +22,7 @@ module _  where
       open ActionNotationα Act
       open ActionLemmas Act
       open GroupNotationG G
-      open GroupNotationH H
+      open GroupNotationᴴ H
       -- sd stands for semidirect
       sd-carrier = ⟨ G ⟩ × ⟨ H ⟩
       sd-0 = 0ᴳ , 0ᴴ
@@ -54,7 +54,7 @@ module _ {G : Group {ℓ}} {H : Group {ℓ'}} (Act : GroupAction H G) where
   open ActionNotationα Act
   open ActionLemmas Act
   open GroupNotationG G
-  open GroupNotationH H
+  open GroupNotationᴴ H
 
   π₁ : ⟨ G ⋊⟨ Act ⟩ H ⟩ → ⟨ G ⟩
   π₁ = fst

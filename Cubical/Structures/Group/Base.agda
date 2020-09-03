@@ -255,7 +255,7 @@ module GroupNotationG {ℓ : Level} (G : Group {ℓ}) where
   assocᴳ = G .assoc
   setᴳ = Group.is-set G
 
-module GroupNotationH {ℓ : Level} (G : Group {ℓ}) where
+module GroupNotationᴴ {ℓ : Level} (G : Group {ℓ}) where
   open Group
   0ᴴ = G .0g
   _+ᴴ_ = G ._+_

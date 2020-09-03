@@ -36,7 +36,7 @@ private
 module _ ((((G₀ , H) , _α_) , isAct) : Action ℓ ℓ') (φ : GroupHom H G₀) where
 
   open GroupNotation₀ G₀
-  open GroupNotationH H
+  open GroupNotationᴴ H
 
   private
     f = GroupHom.fun φ

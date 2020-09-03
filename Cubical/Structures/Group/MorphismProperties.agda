@@ -353,7 +353,7 @@ module MorphismLemmas {G : Group {ℓ}} {H : Group {ℓ'}} (F : GroupHom G H) wh
   open Group
   open GroupHom
   open GroupNotationG G
-  open GroupNotationH H
+  open GroupNotationᴴ H
 
   private
     f = F .fun
@@ -381,7 +381,7 @@ module MorphismLemmas {G : Group {ℓ}} {H : Group {ℓ'}} (F : GroupHom G H) wh
 
 module Kernel {ℓ' : Level} {G : Group {ℓ}} {H : Group {ℓ'}} (F : GroupHom G H) where
   private
-    open GroupNotationH H
+    open GroupNotationᴴ H
     open GroupHom
     f = GroupHom.fun F
     -- sg stands for subgroup
