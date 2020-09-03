@@ -102,6 +102,9 @@ leftInv (equivToIso e)  = secEq e
 invEquiv : A ≃ B → B ≃ A
 invEquiv e = isoToEquiv (invIso (equivToIso e))
 
+invEquiv2 : {f : A → B} → (isEquiv f) → B → A
+invEquiv2 eq b = equiv-proof eq b .fst .fst
+
 invEquivIdEquiv : (A : Type ℓ) → invEquiv (idEquiv A) ≡ idEquiv A
 invEquivIdEquiv _ = equivEq _ _ refl
 

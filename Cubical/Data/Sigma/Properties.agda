@@ -78,6 +78,9 @@ module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
               ≡ (PathP (λ i → Σ (A i) (B i)) x y)
   ΣPath≡PathΣ = ua ΣPath≃PathΣ
 
+×≡Prop : isProp A' → {u v : A × A'} → (u .fst ≡ v .fst) → u ≡ v
+×≡Prop pB {u} {v} p i = (p i) , (pB (u .snd) (v .snd) i)
+
 Σ≡Prop : ((x : A) → isProp (B x)) → {u v : Σ A B}
        → (p : u .fst ≡ v .fst) → u ≡ v
 Σ≡Prop pB {u} {v} p i = (p i) , isProp→PathP (λ i → pB (p i)) (u .snd) (v .snd) i
