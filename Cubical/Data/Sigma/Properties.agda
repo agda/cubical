@@ -203,17 +203,25 @@ leftInv (Σ-cong-iso-snd isom) (x , y') = ΣPathP (refl , leftInv (isom x) y')
 ΣPathTransport : (a b : Σ A B) → Type _
 ΣPathTransport {B = B} a b = Σ[ p ∈ (fst a ≡ fst b) ] transport (λ i → B (p i)) (snd a) ≡ snd b
 
+IsoΣPathTransportPathΣ : (a b : Σ A B) → Iso (ΣPathTransport a b) (a ≡ b)
+IsoΣPathTransportPathΣ {B = B} a b = compIso (Σ-cong-iso-snd (λ p → invIso (equivToIso (PathP≃Path (λ i → B (p i)) _ _))))
+         ΣPathIsoPathΣ
+
+-- fun (IsoΣPathTransportPathΣ {B = B} a b) (p , q) i = (p i) , (toPathP {A = λ i → B (p i)} q i)
+-- inv (IsoΣPathTransportPathΣ {B = B} a b) p = (cong fst p) , (fromPathP (cong snd p))
+-- rightInv (IsoΣPathTransportPathΣ {B = B} a b) p i j = {!!} , {!!}
+-- leftInv (IsoΣPathTransportPathΣ {B = B} a b) = {!!}
+
+
+
 ΣPathTransport≃PathΣ : (a b : Σ A B) → ΣPathTransport a b ≃ (a ≡ b)
-ΣPathTransport≃PathΣ {B = B} a b =
-  compEquiv
-    (isoToEquiv (Σ-cong-iso-snd λ p → invIso (equivToIso (PathP≃Path (λ i → B (p i)) _ _))))
-    ΣPath≃PathΣ
+ΣPathTransport≃PathΣ {B = B} a b = isoToEquiv (IsoΣPathTransportPathΣ a b)
 
 ΣPathTransport→PathΣ : (a b : Σ A B) → ΣPathTransport a b → (a ≡ b)
-ΣPathTransport→PathΣ a b = ΣPathTransport≃PathΣ a b .fst
+ΣPathTransport→PathΣ a b = Iso.fun (IsoΣPathTransportPathΣ a b)
 
 PathΣ→ΣPathTransport : (a b : Σ A B) → (a ≡ b) → ΣPathTransport a b
-PathΣ→ΣPathTransport a b = invEq (ΣPathTransport≃PathΣ a b)
+PathΣ→ΣPathTransport a b = Iso.inv (IsoΣPathTransportPathΣ a b)
 
 ΣPathTransport≡PathΣ : (a b : Σ A B) → ΣPathTransport a b ≡ (a ≡ b)
 ΣPathTransport≡PathΣ a b = ua (ΣPathTransport≃PathΣ a b)

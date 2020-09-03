@@ -11,6 +11,7 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.HITs.SetTruncation
+open import Cubical.HITs.Truncation hiding (elim2)
 
 {- loop space of a pointed type -}
 Ω : {ℓ : Level} → Pointed ℓ → Pointed ℓ
@@ -20,6 +21,10 @@ open import Cubical.HITs.SetTruncation
 Ω^_ : ∀ {ℓ} → ℕ → Pointed ℓ → Pointed ℓ
 (Ω^ 0) p = p
 (Ω^ (suc n)) p = Ω ((Ω^ n) p)
+
+{- homotopy Group -}
+π : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → Type ℓ
+π n A = ∥ typ ((Ω^ n) A) ∥ 2
 
 {- loop space map -}
 Ω→ : ∀ {ℓA ℓB} {A : Pointed ℓA} {B : Pointed ℓB} (f : A →∙ B) → (Ω A →∙ Ω B)
@@ -42,3 +47,5 @@ Eckmann-Hilton-π : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p q : ∥ typ ((Ω^ (
                → π-comp (1 + n) p q ≡ π-comp (1 + n) q p
 Eckmann-Hilton-π  n = elim2 (λ x y → isOfHLevelPath 2 setTruncIsSet _ _)
                              λ p q → cong ∣_∣₂ (Eckmann-Hilton n p q)
+
+

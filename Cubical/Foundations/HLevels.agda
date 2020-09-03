@@ -220,15 +220,19 @@ isContrΣ {A = A} {B = B} (a , p) q =
 isContrΣ′ : (ca : isContr A) → isContr (B (fst ca)) → isContr (Σ A B)
 isContrΣ′ ca cb = isContrΣ ca (λ x → subst _ (snd ca x) cb)
 
+Σ≡Prop-sect
+  : (pB : (x : A) → isProp (B x)) {u v : Σ A B}
+  → section (Σ≡Prop pB {u} {v}) (cong fst)
+Σ≡Prop-sect {A = A} pB {u} {v} p j i =
+  (p i .fst) , isProp→PathP (λ i → isOfHLevelPath 1 (pB (fst (p i)))
+                                       (Σ≡Prop pB {u} {v} (cong fst p) i .snd)
+                                       (p i .snd) )
+                                       refl refl i j
+
 Σ≡Prop-equiv
-  : (pB : (x : A) → isProp (B x)) {u v : Σ[ a ∈ A ] B a}
+  : (pB : (x : A) → isProp (B x)) {u v : Σ A B}
   → isEquiv (Σ≡Prop pB {u} {v})
-Σ≡Prop-equiv {A = A} pB {u} {v} = isoToIsEquiv (iso (Σ≡Prop pB) (cong fst) sq (λ _ → refl))
-  where sq : (p : u ≡ v) → Σ≡Prop pB (cong fst p) ≡ p
-        sq p j i = (p i .fst) , isProp→PathP (λ i → isOfHLevelPath 1 (pB (fst (p i)))
-                                                       (Σ≡Prop pB {u} {v} (cong fst p) i .snd)
-                                                       (p i .snd) )
-                                              refl refl i j
+Σ≡Prop-equiv {A = A} pB {u} {v} = isoToIsEquiv (iso (Σ≡Prop pB) (cong fst) (Σ≡Prop-sect pB) (λ _ → refl))
 
 isPropΣ : isProp A → ((x : A) → isProp (B x)) → isProp (Σ A B)
 isPropΣ pA pB t u = Σ≡Prop pB (pA (t .fst) (u .fst))
@@ -237,11 +241,12 @@ isOfHLevelΣ : ∀ n → isOfHLevel n A → ((x : A) → isOfHLevel n (B x))
                   → isOfHLevel n (Σ A B)
 isOfHLevelΣ 0 = isContrΣ
 isOfHLevelΣ 1 = isPropΣ
-isOfHLevelΣ {B = B} (suc (suc n)) h1 h2 x y =
-  let h3 : isOfHLevel (suc n) (ΣPathTransport x y)
-      h3 = isOfHLevelΣ (suc n) (h1 (fst x) (fst y)) λ p → h2 (p i1)
-                       (subst B p (snd x)) (snd y)
-  in transport (λ i → isOfHLevel (suc n) (ΣPathTransport≡PathΣ x y i)) h3
+isOfHLevelΣ (suc (suc n)) h1 h2 x y =
+  isOfHLevelRetract (suc n)
+    (Iso.inv (IsoΣPathTransportPathΣ x y))
+    (Iso.fun (IsoΣPathTransportPathΣ x y))
+    (Iso.rightInv (IsoΣPathTransportPathΣ x y))
+    (isOfHLevelΣ (suc n) (h1 (fst x) (fst y)) λ x → h2 _ _ _)
 
 isSetΣ : isSet A → ((x : A) → isSet (B x)) → isSet (Σ A B)
 isSetΣ = isOfHLevelΣ 2
@@ -281,13 +286,13 @@ is2Groupoid× : ∀ {A : Type ℓ} {B : Type ℓ'} → is2Groupoid A → is2Grou
 is2Groupoid× = isOfHLevel× 4
 
 -- h-level of Π-types
-
 isOfHLevelΠ : ∀ n → ((x : A) → isOfHLevel n (B x))
                   → isOfHLevel n ((x : A) → B x)
 isOfHLevelΠ 0 h = (λ x → fst (h x)) , λ f i y → snd (h y) (f y) i
-isOfHLevelΠ 1 h f g i x = (h x) (f x) (g x) i
+isOfHLevelΠ 1 h f g i x = h x (f x) (g x) i
 isOfHLevelΠ (suc (suc n)) h f g =
-  subst (isOfHLevel (suc n)) funExtPath (isOfHLevelΠ (suc n) λ x → h x (f x) (g x))
+  isOfHLevelRetract (suc n) funExt⁻ funExt (λ _ → refl)
+                    (isOfHLevelΠ (suc n) λ x → h x (f x) (g x))
 
 isPropΠ : (h : (x : A) → isProp (B x)) → isProp ((x : A) → B x)
 isPropΠ = isOfHLevelΠ 1
@@ -365,12 +370,16 @@ isOfHLevel≡ n hA hB = isOfHLevelRespectEquiv n (invEquiv univalence) (isOfHLev
 isPropHContr : isProp (TypeOfHLevel ℓ 0)
 isPropHContr x y = Σ≡Prop (λ _ → isPropIsContr) (isOfHLevel≡ 0 (x .snd) (y .snd) .fst)
 
+-- test : ∀ {ℓ ℓ' ℓ''} → {A : Type ℓ} {B : A → Type ℓ'} {x y : Σ A B} →  → {!!}
+-- test = {!!}
+
+
 isOfHLevelTypeOfHLevel : ∀ n → isOfHLevel (suc n) (TypeOfHLevel ℓ n)
-isOfHLevelTypeOfHLevel 0 = isPropHContr
-isOfHLevelTypeOfHLevel (suc n) x y = subst (isOfHLevel (suc n)) eq (isOfHLevel≡ (suc n) (snd x) (snd y))
-  where eq : ∀ {A B : Type ℓ} {hA : isOfHLevel (suc n) A} {hB : isOfHLevel (suc n) B}
-             → (A ≡ B) ≡ ((A , hA) ≡ (B , hB))
-        eq = ua (_ , Σ≡Prop-equiv (λ _ → isPropIsOfHLevel (suc n)))
+isOfHLevelTypeOfHLevel zero = isPropHContr
+isOfHLevelTypeOfHLevel (suc n) (X , a) (Y , b) =
+  isOfHLevelRetract (suc n) (cong fst) (Σ≡Prop λ _ → isPropIsOfHLevel (suc n))
+    (Σ≡Prop-sect λ _ → isPropIsOfHLevel (suc n))
+    (isOfHLevel≡ (suc n) a b)
 
 isSetHProp : isSet (hProp ℓ)
 isSetHProp = isOfHLevelTypeOfHLevel 1
