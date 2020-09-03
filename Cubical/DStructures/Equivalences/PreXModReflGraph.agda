@@ -74,6 +74,10 @@ module _ (ℓ ℓ' : Level) where
       open GroupNotation₀ G₀
       open GroupNotation₁ G₁
       𝒻 = GroupHom.fun φ
+      A = groupaction _α_ isAct
+      H⋊G₀ : Group {ℓ-max ℓ ℓ'}
+      H⋊G₀ = G₁ ⋊⟨ A ⟩ G₀
+      τ : GroupHom H⋊G₀ G₀
       τ = grouphom (λ (h , g) → GroupHom.fun φ h +₀ g) q
           where
             abstract
