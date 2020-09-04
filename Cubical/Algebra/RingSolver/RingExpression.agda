@@ -39,16 +39,44 @@ module Eval (R : AlmostRing {ℓ}) where
 --  ⟦ x ⊛ l ⟧ v =  ⟦ x ⟧ v ^ l
   ⟦ ⊝ x ⟧ v = - ⟦ x ⟧ v
 
-module Normalize (R : AlmostRing {ℓ}) where
+data RawHornerPolynomial (R : AlmostRing {ℓ}) : Type ℓ where
+  0H : RawHornerPolynomial R
+  _·X+_ : RawHornerPolynomial R → ⟨ R ⟩ → RawHornerPolynomial R
+
+
+module Horner (R : AlmostRing {ℓ}) where
   open AlmostRing R
 
-  data HornerPolynomial (R : AlmostRing {ℓ}) : Type ℓ where
-    zero : HornerPolynomial R
-    _·X+_ : HornerPolynomial R → ⟨ R ⟩ → HornerPolynomial R
+  1H : RawHornerPolynomial R
+  1H = 0H ·X+ 1r
 
-  ⟦⇓_⟧ : ∀ {n} → Expr ⟨ R ⟩ n → Expr ⟨ HornerPolynomial R ⟩
-  ⟦⇓ K r ⟧ = zero ·X+ 0r
-  ⟦⇓ ∣ k ⟧ = {!!}
-  ⟦⇓ x ⊕ y ⟧ = {!!}
-  ⟦⇓ x ⊗ y ⟧ = {!!}
-  ⟦⇓ ⊝ x ⟧ = {! - ⟦⇓ x ⟧!}
+  X : RawHornerPolynomial R
+  X = 1H ·X+ 0r
+
+  _+H_ : RawHornerPolynomial R → RawHornerPolynomial R → RawHornerPolynomial R
+  0H +H Q = Q
+  (P ·X+ r) +H 0H = P ·X+ r
+  (P ·X+ r) +H (Q ·X+ s) = (P +H Q) ·X+ (r + s)
+
+  _⋆_ : ⟨ R ⟩ → RawHornerPolynomial R → RawHornerPolynomial R
+  r ⋆ 0H = 0H
+  r ⋆ (P ·X+ s) = (r ⋆ P) ·X+ (s · r)
+
+  _·H_ : RawHornerPolynomial R → RawHornerPolynomial R → RawHornerPolynomial R
+  0H ·H _ = 0H
+  (P ·X+ r) ·H Q = (P ·H Q) +H (r ⋆ Q)
+
+  -H_ : RawHornerPolynomial R → RawHornerPolynomial R
+  -H 0H = 0H
+  -H (P ·X+ r) = (-H P) ·X+ (- r)
+
+module Normalize (R : AlmostRing {ℓ}) where
+  open AlmostRing R
+  open Horner R
+
+  ⟦_⇓⟧ : Expr ⟨ R ⟩ 1 → RawHornerPolynomial R
+  ⟦ K r ⇓⟧ = 0H ·X+ 0r
+  ⟦ ∣ k ⇓⟧ = X
+  ⟦ x ⊕ y ⇓⟧ = ⟦ x ⇓⟧ +H ⟦ y ⇓⟧
+  ⟦ x ⊗ y ⇓⟧ = ⟦ x ⇓⟧ ·H ⟦ y ⇓⟧
+  ⟦ ⊝ x ⇓⟧ =  -H ⟦ x ⇓⟧
