@@ -80,49 +80,70 @@ module _ (ℓ ℓ' : Level) where
         abstract
           -- alright folks, let's do some simple arithmetic with a `twist`, that is Peiffer identities and equivariance
           r = ((0ᴴ +ᴴ (y α (u +ᴴ (v α ((-₀ ((f u) +₀ v)) α (-ᴴ 0ᴴ)))))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α (((-₀ y) α (-ᴴ 0ᴴ)) +ᴴ ((-₀ y) α x)))) +ᴴ (((y +₀ (v +₀ (-₀ (f u +₀ v)))) +₀ ((-₀ y) +₀ y)) α 0ᴴ)
-                ≡⟨ cong (((0ᴴ +ᴴ (y α (u +ᴴ (v α ((-₀ ((f u) +₀ v)) α (-ᴴ 0ᴴ)))))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α (((-₀ y) α (-ᴴ 0ᴴ)) +ᴴ ((-₀ y) α x)))) +ᴴ_) (actOnUnit A ((y +₀ (v +₀ (-₀ (f u +₀ v)))) +₀ ((-₀ y) +₀ y))) ⟩
+                ≡⟨ cong (((0ᴴ +ᴴ (y α (u +ᴴ (v α ((-₀ ((f u) +₀ v)) α (-ᴴ 0ᴴ)))))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α (((-₀ y) α (-ᴴ 0ᴴ)) +ᴴ ((-₀ y) α x)))) +ᴴ_)
+                        (actOnUnit A ((y +₀ (v +₀ (-₀ (f u +₀ v)))) +₀ ((-₀ y) +₀ y))) ⟩
               ((0ᴴ +ᴴ (y α (u +ᴴ (v α ((-₀ ((f u) +₀ v)) α (-ᴴ 0ᴴ)))))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α (((-₀ y) α (-ᴴ 0ᴴ)) +ᴴ ((-₀ y) α x)))) +ᴴ 0ᴴ
                 ≡⟨ rIdᴴ ((0ᴴ +ᴴ (y α (u +ᴴ (v α ((-₀ ((f u) +₀ v)) α (-ᴴ 0ᴴ)))))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α (((-₀ y) α (-ᴴ 0ᴴ)) +ᴴ ((-₀ y) α x)))) ⟩
               (0ᴴ +ᴴ (y α (u +ᴴ (v α ((-₀ ((f u) +₀ v)) α (-ᴴ 0ᴴ)))))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α (((-₀ y) α (-ᴴ 0ᴴ)) +ᴴ ((-₀ y) α x)))
-                ≡⟨ cong (_+ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α (((-₀ y) α (-ᴴ 0ᴴ)) +ᴴ ((-₀ y) α x)))) (lIdᴴ (y α (u +ᴴ (v α ((-₀ ((f u) +₀ v)) α (-ᴴ 0ᴴ)))))) ⟩
+                ≡⟨ cong (_+ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α (((-₀ y) α (-ᴴ 0ᴴ)) +ᴴ ((-₀ y) α x))))
+                        (lIdᴴ (y α (u +ᴴ (v α ((-₀ ((f u) +₀ v)) α (-ᴴ 0ᴴ)))))) ⟩
               (y α (u +ᴴ (v α ((-₀ ((f u) +₀ v)) α (-ᴴ 0ᴴ))))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α (((-₀ y) α (-ᴴ 0ᴴ)) +ᴴ ((-₀ y) α x)))
-                ≡⟨ cong (λ z → (y α (u +ᴴ (v α ((-₀ ((f u) +₀ v)) α (-ᴴ 0ᴴ))))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α (z +ᴴ ((-₀ y) α x)))) (actOn-Unit A (-₀ y)) ⟩
+                ≡⟨ cong (λ z → (y α (u +ᴴ (v α ((-₀ ((f u) +₀ v)) α (-ᴴ 0ᴴ))))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α (z +ᴴ ((-₀ y) α x))))
+                        (actOn-Unit A (-₀ y)) ⟩
               (y α (u +ᴴ (v α ((-₀ ((f u) +₀ v)) α (-ᴴ 0ᴴ))))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α (0ᴴ +ᴴ ((-₀ y) α x)))
-                ≡⟨ cong (λ z → (y α (u +ᴴ (v α ((-₀ ((f u) +₀ v)) α (-ᴴ 0ᴴ))))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α z)) (lIdᴴ ((-₀ y) α x)) ⟩
+                ≡⟨ cong (λ z → (y α (u +ᴴ (v α ((-₀ ((f u) +₀ v)) α (-ᴴ 0ᴴ))))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α z))
+                        (lIdᴴ ((-₀ y) α x)) ⟩
               (y α (u +ᴴ (v α ((-₀ ((f u) +₀ v)) α (-ᴴ 0ᴴ))))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α ((-₀ y) α x))
-                ≡⟨ cong (λ z → (y α (u +ᴴ (v α z))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α ((-₀ y) α x))) (actOn-Unit A (-₀ ((f u) +₀ v))) ⟩
+                ≡⟨ cong (λ z → (y α (u +ᴴ (v α z))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α ((-₀ y) α x)))
+                        (actOn-Unit A (-₀ ((f u) +₀ v))) ⟩
               (y α (u +ᴴ (v α 0ᴴ))) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α ((-₀ y) α x))
-                ≡⟨ cong (λ z → (y α (u +ᴴ z)) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α ((-₀ y) α x))) (actOnUnit A v) ⟩
+                ≡⟨ cong (λ z → (y α (u +ᴴ z)) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α ((-₀ y) α x)))
+                        (actOnUnit A v) ⟩
               (y α (u +ᴴ 0ᴴ)) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α ((-₀ y) α x))
-                ≡⟨ cong (λ z → (y α z) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α ((-₀ y) α x))) (rIdᴴ u) ⟩
+                ≡⟨ cong (λ z → (y α z) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α ((-₀ y) α x)))
+                        (rIdᴴ u) ⟩
               (y α u) +ᴴ ((y +₀ (v +₀ (-₀ (f u +₀ v)))) α ((-₀ y) α x))
-                ≡⟨ cong (λ z → (y α u) +ᴴ ((y +₀ (v +₀ z)) α ((-₀ y) α x))) (invDistr G₀ (f u) v) ⟩
+                ≡⟨ cong (λ z → (y α u) +ᴴ ((y +₀ (v +₀ z)) α ((-₀ y) α x)))
+                        (invDistr G₀ (f u) v) ⟩
               (y α u) +ᴴ ((y +₀ (v +₀ ((-₀ v) +₀ (-₀ (f u))))) α ((-₀ y) α x))
-                ≡⟨ cong (λ z → (y α u) +ᴴ ((y +₀ z) α ((-₀ y) α x))) (assoc-rCancel G₀ v (-₀ f u)) ⟩
+                ≡⟨ cong (λ z → (y α u) +ᴴ ((y +₀ z) α ((-₀ y) α x)))
+                        (assoc-rCancel G₀ v (-₀ f u)) ⟩
               (y α u) +ᴴ ((y +₀ (-₀ (f u))) α ((-₀ y) α x))
-                ≡⟨ cong ((y α u) +ᴴ_) (sym (α-assoc (y +₀ (-₀ f u)) (-₀ y) x)) ⟩
+                ≡⟨ cong ((y α u) +ᴴ_)
+                        (sym (α-assoc (y +₀ (-₀ f u)) (-₀ y) x)) ⟩
               (y α u) +ᴴ (((y +₀ (-₀ (f u))) +₀ (-₀ y)) α x)
-                ≡⟨ cong (λ z → (y α u) +ᴴ (((y +₀ z) +₀ (-₀ y)) α x)) (sym (mapInv φ u)) ⟩
-              (y α u) +ᴴ (((y +₀ (f (-ᴴ u))) +₀ (-₀ y)) α x)
-                ≡⟨ cong (λ z → (y α u) +ᴴ (z α x)) (sym (isEqui y (-ᴴ u))) ⟩
+                ≡⟨ cong (λ z → (y α u) +ᴴ (((y +₀ z) +₀ (-₀ y)) α x))
+                        (sym (mapInv φ u)) ⟩
+              (y α u) +ᴴ (((y +₀ (f (-ᴴ u))) -₀ y) α x)
+              -- apply equivariance here
+                ≡⟨ cong (λ z → (y α u) +ᴴ (z α x))
+                        (sym (isEqui y (-ᴴ u))) ⟩
               (y α u) +ᴴ ((f (y α (-ᴴ u))) α x)
-                ≡⟨ cong ((y α u) +ᴴ_) (isPeif (y α (-ᴴ u)) x) ⟩
+              -- apply peiffer condition here
+                ≡⟨ cong ((y α u) +ᴴ_)
+                        (isPeif (y α (-ᴴ u)) x) ⟩
               (y α u) +ᴴ (((y α (-ᴴ u)) +ᴴ x) +ᴴ (-ᴴ (y α (-ᴴ u))))
-                ≡⟨ cong (λ z → (y α u) +ᴴ ((z +ᴴ x) +ᴴ (-ᴴ z))) (actOn- A y u) ⟩
+                ≡⟨ cong (λ z → (y α u) +ᴴ ((z +ᴴ x) +ᴴ (-ᴴ z)))
+                        (actOn- A y u) ⟩
               (y α u) +ᴴ (((-ᴴ (y α u)) +ᴴ x) +ᴴ (-ᴴ (-ᴴ (y α u))))
-                ≡⟨ cong (λ z → (y α u) +ᴴ (((-ᴴ (y α u)) +ᴴ x) +ᴴ z)) (invInvo H (y α u)) ⟩
+                ≡⟨ cong (λ z → (y α u) +ᴴ (((-ᴴ (y α u)) +ᴴ x) +ᴴ z))
+                        (invInvo H (y α u)) ⟩
               (y α u) +ᴴ (((-ᴴ (y α u)) +ᴴ x) +ᴴ (y α u))
                 ≡⟨ assoc-assoc H (y α u) (-ᴴ (y α u)) x (y α u) ⟩
               (((y α u) +ᴴ (-ᴴ (y α u))) +ᴴ x) +ᴴ (y α u)
-                ≡⟨ cong (_+ᴴ (y α u)) (rCancel-lId H (y α u) x) ⟩
+                ≡⟨ cong (_+ᴴ (y α u))
+                        (rCancel-lId H (y α u) x) ⟩
               x +ᴴ (y α u) ∎
 
           r' = ((y +₀ (v +₀ (-₀ (f u +₀ v)))) +₀ ((-₀ y) +₀ y)) +₀ (f u +₀ v)
-                 ≡⟨ cong (_+₀ (f u +₀ v)) (lCancel-rId G₀ (y +₀ (v +₀ (-₀ (f u +₀ v)))) y) ⟩
+                 ≡⟨ cong (_+₀ (f u +₀ v))
+                         (lCancel-rId G₀ (y +₀ (v +₀ (-₀ (f u +₀ v)))) y) ⟩
                (y +₀ (v +₀ (-₀ (f u +₀ v)))) +₀ (f u +₀ v)
-                 ≡⟨ cong (λ z → (y +₀ (v +₀ z)) +₀ (f u +₀ v)) (invDistr G₀ (f u) v) ⟩
+                 ≡⟨ cong (λ z → (y +₀ (v +₀ z)) +₀ (f u +₀ v))
+                         (invDistr G₀ (f u) v) ⟩
                (y +₀ (v +₀ ((-₀ v) +₀ (-₀ f u)))) +₀ (f u +₀ v)
-                 ≡⟨ cong (λ z → (y +₀ z) +₀ (f u +₀ v)) (assoc-rCancel G₀ v (-₀ f u)) ⟩
+                 ≡⟨ cong (λ z → (y +₀ z) +₀ (f u +₀ v))
+                         (assoc-rCancel G₀ v (-₀ f u)) ⟩
                (y +₀ (-₀ f u)) +₀ (f u +₀ v)
                  ≡⟨ assoc⁻-assocr-lCancel-lId G₀ y (f u) v ⟩
                y +₀ v ∎
@@ -153,9 +174,11 @@ module _ (ℓ ℓ' : Level) where
         -h = -ᴴ h
         abstract
           r₁ = ((0ᴴ +ᴴ (0₀ α (-h +ᴴ (0₀ α ((-₀ ((f -h) +₀ 0₀)) α (-ᴴ 0ᴴ)))))) +ᴴ ((0₀ +₀ (0₀ +₀ (-₀ (f -h +₀ 0₀)))) α (((-₀ 0₀) α (-ᴴ 0ᴴ)) +ᴴ ((-₀ 0₀) α h')))) +ᴴ (((0₀ +₀ (0₀ +₀ (-₀ ((f -h) +₀ 0₀)))) +₀ ((-₀ 0₀) +₀ 0₀)) α 0ᴴ)
-                 ≡⟨ cong fst (♭isPeif (-h , 0₀) (h' , 0₀)) ⟩
+                 ≡⟨ cong fst
+                         (♭isPeif (-h , 0₀) (h' , 0₀)) ⟩
                h' +ᴴ (0₀ α -h)
-                 ≡⟨ cong (h' +ᴴ_) (α-id -h) ⟩
+                 ≡⟨ cong (h' +ᴴ_)
+                         (α-id -h) ⟩
                h' +ᴴ -h ∎
 
           r₂ = ((0ᴴ +ᴴ (0₀ α (-h +ᴴ (0₀ α ((-₀ ((f -h) +₀ 0₀)) α (-ᴴ 0ᴴ)))))) +ᴴ ((0₀ +₀ (0₀ +₀ (-₀ (f -h +₀ 0₀)))) α (((-₀ 0₀) α (-ᴴ 0ᴴ)) +ᴴ ((-₀ 0₀) α h'))))
