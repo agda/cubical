@@ -15,7 +15,6 @@ private
 
 infixl 6 _⊕_
 infixl 7 _⊗_
-infixr 8 _⊛_
 
 -- Expression in an almost ring on A with n variables
 data Expr {ℓ} (A : Type ℓ) (n : ℕ) : Type ℓ where
@@ -74,9 +73,9 @@ module Normalize (R : AlmostRing {ℓ}) where
   open AlmostRing R
   open Horner R
 
-  ⟦_⇓⟧ : Expr ⟨ R ⟩ 1 → RawHornerPolynomial R
-  ⟦ K r ⇓⟧ = 0H ·X+ 0r
-  ⟦ ∣ k ⇓⟧ = X
-  ⟦ x ⊕ y ⇓⟧ = ⟦ x ⇓⟧ +H ⟦ y ⇓⟧
-  ⟦ x ⊗ y ⇓⟧ = ⟦ x ⇓⟧ ·H ⟦ y ⇓⟧
-  ⟦ ⊝ x ⇓⟧ =  -H ⟦ x ⇓⟧
+  Reify : Expr ⟨ R ⟩ 1 → RawHornerPolynomial R
+  Reify (K r) = 0H ·X+ r
+  Reify (∣ k) = X
+  Reify (x ⊕ y) = (Reify x) +H (Reify y)
+  Reify (x ⊗ y) = (Reify x) ·H (Reify y)
+  Reify (⊝ x) =  -H (Reify x)
