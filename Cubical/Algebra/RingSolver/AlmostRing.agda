@@ -7,7 +7,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Nat using (ℕ)
 
 open import Cubical.Algebra.Semigroup    hiding (⟨_⟩)
-open import Cubical.Algebra.Monoid       hiding (⟨_⟩)
+open import Cubical.Algebra.Monoid    hiding (⟨_⟩)
 open import Cubical.Algebra.AbGroup   hiding (⟨_⟩)
 
 private
@@ -28,6 +28,8 @@ record IsAlmostRing {R : Type ℓ}
     ·DistL+ :  (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
     -Comm· : (x y : R) → - (x · y) ≡ (- x) · y
     -Dist+ : (x y : R) → - (x + y) ≡ (- x) + (- y)
+    0LeftAnnihilates : (x : R) → 0r · x ≡ 0r
+    0RightAnnihilates : (x : R) → x · 0r ≡ 0r
 
   open IsMonoid +IsMonoid public
     renaming
