@@ -165,7 +165,8 @@ isContrRetract
   → (f : A → B) (g : B → A)
   → (h : retract f g)
   → (v : isContr B) → isContr A
-isContrRetract f g h (b , p) = (g b , λ x → (cong g (p (f x))) ∙ (h x))
+fst (isContrRetract f g h (b , p)) = g b
+snd (isContrRetract f g h (b , p)) x = (cong g (p (f x))) ∙ (h x)
 
 isPropRetract
   : {B : Type ℓ}

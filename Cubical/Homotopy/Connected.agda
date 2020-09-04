@@ -131,18 +131,20 @@ isOfHLevelPrecomposeConnected zero n P f fConn =
 isOfHLevelPrecomposeConnected (suc k) n P f fConn t =
   isOfHLevelPath'⁻ k
     λ {(s₀ , p₀) (s₁ , p₁) →
-       isOfHLevelRetract k
-         (Iso.fun (fiberIso (s₀ , p₀) (s₁ , p₁)))
-         (Iso.inv (fiberIso (s₀ , p₀) (s₁ , p₁)))
-         (Iso.leftInv (fiberIso (s₀ , p₀) (s₁ , p₁)))
-         (isOfHLevelRetract k
+      isOfHLevelRetract k
+         (Iso.inv ΣPathIsoPathΣ)
+         (Iso.fun ΣPathIsoPathΣ)
+         (Iso.rightInv ΣPathIsoPathΣ)
+         (subst (isOfHLevel k)
+           (sym (fiberPath (s₀ , p₀) (s₁ , p₁)))
+           (isOfHLevelRetract k
             (λ {(q , α) → (funExt⁻ q) , (cong funExt⁻ α)})
             (λ {(h , β) → (funExt h) , (cong funExt β)})
             (λ _ → refl)
             (isOfHLevelPrecomposeConnected k n
               (λ b → (s₀ b ≡ s₁ b) , isOfHLevelPath' (k + n) (P b .snd) _ _)
               f fConn
-              (funExt⁻ (p₀ ∙∙ refl ∙∙ sym p₁))))}
+              (funExt⁻ (p₀ ∙∙ refl ∙∙ sym p₁)))))}
 
 indMapEquiv→conType : ∀ {ℓ} {A : Type ℓ} (n : HLevel)
                    → ((B : TypeOfHLevel ℓ n)

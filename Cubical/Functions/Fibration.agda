@@ -67,21 +67,22 @@ module _ {ℓb} (B : Type ℓb) (ℓ : Level) where
             where e = totalEquiv p
 
 -- The path type in a fiber of f is equivalent to a fiber of (cong f)
-private
-  thePath : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {f : A → B} {b : B} (h h' : fiber f b) →
-               (Σ[ p ∈ (fst h ≡ fst h') ] (PathP (λ i → f (p i) ≡ b) (snd h) (snd h')))
-             ≡ fiber (cong f) (h .snd ∙∙ refl ∙∙ sym (h' .snd))
-  thePath h h' = cong (Σ (h .fst ≡ h' .fst)) (funExt λ p → flipSquarePath ∙ PathP≡doubleCompPathʳ _ _ _ _)
+open import Cubical.Foundations.Function
+
+fiberPath : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {f : A → B} {b : B} (h h' : fiber f b) →
+             (Σ[ p ∈ (fst h ≡ fst h') ] (PathP (λ i → f (p i) ≡ b) (snd h) (snd h')))
+           ≡ fiber (cong f) (h .snd ∙∙ refl ∙∙ sym (h' .snd))
+fiberPath h h' = cong (Σ (h .fst ≡ h' .fst)) (funExt λ p → flipSquarePath ∙ PathP≡doubleCompPathʳ _ _ _ _)
 
 fiber≡ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {f : A → B} {b : B} (h h' : fiber f b)
   → (h ≡ h') ≡ fiber (cong f) (h .snd ∙∙ refl ∙∙ sym (h' .snd))
 fiber≡ {f = f} {b = b} h h' =
   ΣPath≡PathΣ ⁻¹ ∙
-  thePath h h'
+  fiberPath h h'
 
-fiberIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {f : A → B} {b : B} (h h' : fiber f b)
-  → Iso (h ≡ h') (fiber (cong f) (h .snd ∙∙ refl ∙∙ sym (h' .snd)))
-Iso.fun (fiberIso {f = f} {b = b} h h') =  transport (thePath h h') ∘ Iso.inv ΣPathIsoPathΣ
-Iso.inv (fiberIso {f = f} {b = b} h h') = Iso.fun ΣPathIsoPathΣ ∘ transport (sym (thePath h h'))
-Iso.rightInv (fiberIso {f = f} {b = b} h h') (p , q) = transportTransport⁻ (thePath h h') _
-Iso.leftInv (fiberIso {f = f} {b = b} h h') p = cong ΣPathP (transport⁻Transport (thePath h h') _)
+-- fiberIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {f : A → B} {b : B} (h h' : fiber f b)
+--   → Iso (h ≡ h') (fiber (cong f) (h .snd ∙∙ refl ∙∙ sym (h' .snd)))
+-- Iso.fun (fiberIso {f = f} {b = b} h h') =  transport (thePath h h') ∘ Iso.inv ΣPathIsoPathΣ
+-- Iso.inv (fiberIso {f = f} {b = b} h h') = Iso.fun ΣPathIsoPathΣ ∘ transport (sym (thePath h h'))
+-- Iso.rightInv (fiberIso {f = f} {b = b} h h') (p , q) = transportTransport⁻ (thePath h h') _
+-- Iso.leftInv (fiberIso {f = f} {b = b} h h') p = cong ΣPathP (transport⁻Transport (thePath h h') _)
