@@ -6,8 +6,9 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.FinData
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Nat.Order using (zero-≤)
-
+open import Cubical.Data.Vec.Base
 open import Cubical.Algebra.RingSolver.AlmostRing
+open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 
 private
   variable
@@ -26,11 +27,11 @@ data Expr {ℓ} (A : Type ℓ) (n : ℕ) : Type ℓ where
   ⊝_ : Expr A n → Expr A n
 
 -- there are probably things I don't get yet...
-module Eval (R : AlmostRing {ℓ}) where
+module Eval (R : RawRing {ℓ}) where
   open import Cubical.Data.Vec
-  open AlmostRing R
+  open RawRing R
 
-  ⟦_⟧ : ∀ {n} → Expr ⟨ R ⟩ n → Vec ⟨ R ⟩ n → ⟨ R ⟩
+  ⟦_⟧ : ∀ {n} → Expr ⟨ R ⟩ᵣ n → Vec ⟨ R ⟩ᵣ n → ⟨ R ⟩ᵣ
   ⟦ K r ⟧ v = r
   ⟦ ∣ k ⟧ v = lookup k v
   ⟦ x ⊕ y ⟧ v =  ⟦ x ⟧ v + ⟦ y ⟧ v
@@ -38,13 +39,13 @@ module Eval (R : AlmostRing {ℓ}) where
 --  ⟦ x ⊛ l ⟧ v =  ⟦ x ⟧ v ^ l
   ⟦ ⊝ x ⟧ v = - ⟦ x ⟧ v
 
-data RawHornerPolynomial (R : AlmostRing {ℓ}) : Type ℓ where
+data RawHornerPolynomial (R : RawRing {ℓ}) : Type ℓ where
   0H : RawHornerPolynomial R
-  _·X+_ : RawHornerPolynomial R → ⟨ R ⟩ → RawHornerPolynomial R
+  _·X+_ : RawHornerPolynomial R → ⟨ R ⟩ᵣ → RawHornerPolynomial R
 
 
-module Horner (R : AlmostRing {ℓ}) where
-  open AlmostRing R
+module Horner (R : RawRing {ℓ}) where
+  open RawRing R
 
   1H : RawHornerPolynomial R
   1H = 0H ·X+ 1r
@@ -57,7 +58,7 @@ module Horner (R : AlmostRing {ℓ}) where
   (P ·X+ r) +H 0H = P ·X+ r
   (P ·X+ r) +H (Q ·X+ s) = (P +H Q) ·X+ (r + s)
 
-  _⋆_ : ⟨ R ⟩ → RawHornerPolynomial R → RawHornerPolynomial R
+  _⋆_ : ⟨ R ⟩ᵣ → RawHornerPolynomial R → RawHornerPolynomial R
   r ⋆ 0H = 0H
   r ⋆ (P ·X+ s) = (r ⋆ P) ·X+ (s · r)
 
@@ -69,11 +70,17 @@ module Horner (R : AlmostRing {ℓ}) where
   -H 0H = 0H
   -H (P ·X+ r) = (-H P) ·X+ (- r)
 
-module Normalize (R : AlmostRing {ℓ}) where
-  open AlmostRing R
-  open Horner R
+  evalH : RawHornerPolynomial R → ⟨ R ⟩ᵣ → ⟨ R ⟩ᵣ
+  evalH 0H x₀ = 0r
+  evalH (P ·X+ r) x₀ = (evalH P x₀) · x₀ + r
 
-  Reify : Expr ⟨ R ⟩ 1 → RawHornerPolynomial R
+module Normalize (R : AlmostRing {ℓ}) where
+  νR = AlmostRing→RawRing R
+  open AlmostRing R
+  open Horner νR
+  open Eval νR
+
+  Reify : Expr ⟨ R ⟩ 1 → RawHornerPolynomial νR
   Reify (K r) = 0H ·X+ r
   Reify (∣ k) = X
   Reify (x ⊕ y) = (Reify x) +H (Reify y)

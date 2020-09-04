@@ -18,4 +18,5 @@ open import Cubical.Algebra.AbGroup   hiding (⟨_⟩)
                   *-comm
                   (λ k l n → sym (*-distribˡ k l n) )
                   (λ k l n → sym (*-distribʳ k l n))
-                  (λ _ _ → refl) λ _ _ → refl)
+                  (λ _ _ → refl) (λ _ _ → refl)
+                  (λ _ → refl) λ x → sym (0≡m*0 x))
