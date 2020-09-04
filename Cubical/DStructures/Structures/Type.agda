@@ -48,8 +48,6 @@ Subtype→Sub-𝒮ᴰ P StrA =
                                               (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
                                               (inhProp→isContr p (P a .snd)))
 
-{-
-
 module _ {A : Type ℓA} (𝒮 : URGStr A ℓA) where
   open URGStr
   𝒮' = 𝒮-type A
@@ -60,8 +58,9 @@ module _ {A : Type ℓA} (𝒮 : URGStr A ℓA) where
   ρ-≡ : PathP (λ i → isRefl (≅-≡ i)) (ρ 𝒮') (ρ 𝒮)
   ρ-≡ = funExt (λ a → toPathP (p a))
     where
-      p : (a : A) → transp (λ i → ≅-≡ i a a) i0 refl ≡ (ρ 𝒮 a)
-      p a = {!!}
+      p : (a : A) → transport (λ i → ≅-≡ i a a) refl ≡ (ρ 𝒮 a)
+      p a = uaβ (isUnivalent→isUnivalent' (_≅_ 𝒮) (ρ 𝒮) (uni 𝒮) a a) refl ∙ transportRefl (ρ 𝒮 a)
+
       q₁ : (a : A) → ≡→R (_≅_ 𝒮) (ρ 𝒮) refl ≡ subst ((_≅_ 𝒮) a) refl (ρ 𝒮 a)
       q₁ a = refl
       q₂ : (a : A) → subst (λ a' → (_≅_ 𝒮) a a') refl (ρ 𝒮 a) ≡ ρ 𝒮 a
@@ -70,7 +69,7 @@ module _ {A : Type ℓA} (𝒮 : URGStr A ℓA) where
   uni-≡ : PathP (λ i → isUnivalent (≅-≡ i) (ρ-≡ i)) (uni 𝒮') (uni 𝒮)
   uni-≡ = isProp→PathP (λ i → isPropΠ2 (λ a a' → isPropIsEquiv (≡→R (≅-≡ i) (ρ-≡ i)))) (uni 𝒮') (uni 𝒮)
 
--}
+
 
 {-
 
