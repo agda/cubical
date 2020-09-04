@@ -174,4 +174,3 @@ Square≃doubleComp a₀₋ a₁₋ a₋₀ a₋₁ = transportEquiv (PathP≡do
 -- sym induces an equivalence on identity types of paths
 symIso : {a b : A} (p q : a ≡ b) → Iso (p ≡ q) (q ≡ p)
 symIso p q = iso sym sym (λ _ → refl) λ _ → refl
-
