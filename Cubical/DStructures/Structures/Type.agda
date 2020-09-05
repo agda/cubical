@@ -48,7 +48,6 @@ Subtype→Sub-𝒮ᴰ P StrA =
                                               (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
                                               (inhProp→isContr p (P a .snd)))
 
-
 module _ {A : Type ℓA} (𝒮 : URGStr A ℓA) where
   open URGStr
   𝒮' = 𝒮-type A
@@ -59,22 +58,27 @@ module _ {A : Type ℓA} (𝒮 : URGStr A ℓA) where
   ρ-≡ : PathP (λ i → isRefl (≅-≡ i)) (ρ 𝒮') (ρ 𝒮)
   ρ-≡ = funExt (λ a → toPathP (p a))
     where
-      -- p : (a : A) → transp (λ i → ≅-≡ i a a) i0 refl ≡ (ρ 𝒮 a)
-      module _ (a : A) where
-        p : transport (λ i → ≅-≡ i a a) refl ≡ (ρ 𝒮 a)
-        p a = uaβ {!!} refl
-        p2 : transport (λ i → ≅-≡ i a a) refl ≡ {!!}
-        p2 a = transportRefl {!!}
+      p : (a : A) → transport (λ i → ≅-≡ i a a) refl ≡ (ρ 𝒮 a)
+      p a = uaβ (isUnivalent→isUnivalent' (_≅_ 𝒮) (ρ 𝒮) (uni 𝒮) a a) refl ∙ transportRefl (ρ 𝒮 a)
 
+      u : (a : A) → (transport (λ i → ≅-≡ i a a) refl) ≡ (subst (λ a' → (_≅_ 𝒮) a a') refl (ρ 𝒮 a))
+      u a =  uaβ (isUnivalent→isUnivalent' (_≅_ 𝒮) (ρ 𝒮) (uni 𝒮) a a) refl 
 
+{-
       q₁ : (a : A) → ≡→R (_≅_ 𝒮) (ρ 𝒮) refl ≡ subst ((_≅_ 𝒮) a) refl (ρ 𝒮 a)
       q₁ a = refl
       q₂ : (a : A) → subst (λ a' → (_≅_ 𝒮) a a') refl (ρ 𝒮 a) ≡ ρ 𝒮 a
       q₂ a = transportRefl (ρ 𝒮 a)
+-}
 
   uni-≡ : PathP (λ i → isUnivalent (≅-≡ i) (ρ-≡ i)) (uni 𝒮') (uni 𝒮)
   uni-≡ = isProp→PathP (λ i → isPropΠ2 (λ a a' → isPropIsEquiv (≡→R (≅-≡ i) (ρ-≡ i)))) (uni 𝒮') (uni 𝒮)
 
+𝒮-uniqueness : (A : Type ℓA) → isContr (URGStr A ℓA)
+𝒮-uniqueness A .fst = 𝒮-type A
+𝒮-uniqueness A .snd 𝒮 = sym (η-URGStr (𝒮-type A)) ∙∙ (λ i → p i) ∙∙ η-URGStr 𝒮
+  where
+    p = λ (i : I) → urgstr (≅-≡ 𝒮 i) (ρ-≡ 𝒮 i) (uni-≡ 𝒮 i)
 
 {-
 

@@ -45,6 +45,15 @@ make-𝒮 {_≅_ = _≅_} _ _ .URGStr._≅_ = _≅_
 make-𝒮 ρ _ .URGStr.ρ = ρ
 make-𝒮 {_≅_ = _≅_} ρ contrTotal .URGStr.uni = contrRelSingl→isUnivalent _≅_ ρ contrTotal
 
+module _ where
+  open URGStr
+  η-URGStr : {A : Type ℓA} {ℓ≅A : Level}
+             (𝒮-A : URGStr A ℓ≅A) → urgstr (_≅_ 𝒮-A) (ρ 𝒮-A) (uni 𝒮-A) ≡ 𝒮-A
+  _≅_ (η-URGStr 𝒮-A i) = _≅_ 𝒮-A
+  ρ (η-URGStr 𝒮-A i) = ρ 𝒮-A
+  uni (η-URGStr 𝒮-A i) = uni 𝒮-A
+
+
 -- a displayed univalent reflexive graph structure over a URGStr on a type
 record URGStrᴰ {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
                (B : A → Type ℓB) (ℓ≅ᴰ : Level) : Type (ℓ-max (ℓ-max (ℓ-max ℓA ℓB) ℓ≅A) (ℓ-suc ℓ≅ᴰ)) where

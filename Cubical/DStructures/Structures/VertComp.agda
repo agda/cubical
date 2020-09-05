@@ -256,7 +256,7 @@ module _ {𝒢 : ReflGraph ℓ ℓ'} where
 
       -- properties of the interchange law
       IC2 : (g g' f : ⟨ G₁ ⟩) (c-gf : isComposable g f)
-           →  (g' +₁ ((-₁ (𝒾s g')) +₁ (-₁ (𝒾s g)))) +₁ f ≡ ((-₁ (𝒾s g)) +₁ f) +₁ (g' -₁ (𝒾s g'))
+           →  (g' +₁ (-is g' -₁ is g)) +₁ f ≡ (-is g +₁ f) +₁ (g' -₁ is g')
       IC2 g g' f c-gf =
        (g' +₁ (-isg' +₁ -isg)) +₁ f
          ≡⟨ cong ((g' +₁ (-isg' +₁ -isg)) +₁_)
@@ -334,7 +334,7 @@ module _ {𝒢 : ReflGraph ℓ ℓ'} where
              ((g +₁ g') +₁ (-isg' +₁ -isg)) +₁ (f +₁ f') ∎
 
       IC3 : (g g' f : ⟨ G₁ ⟩) (c-gf : isComposable g f)
-            → (-₁ f) +₁ (((𝒾s g) +₁ (𝒾s g')) -₁ g') ≡ ((𝒾s g') -₁ g') +₁ ((-₁ f) +₁ (𝒾s g))
+            → (-₁ f) +₁ ((is g +₁ is g') -₁ g') ≡ (is g' -₁ g') +₁ ((-₁ f) +₁ is g)
       IC3 g g' f c-gf =
         -f +₁ ((isg +₁ isg') -₁ g')
           ≡⟨ cong (λ z → -f +₁ ((isg +₁ z) -₁ g'))
