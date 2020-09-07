@@ -22,7 +22,8 @@ module _ (G : Group {ℓ}) where
     emloop : Carrier → embase ≡ embase
     emcomp : (g h : Carrier)
            → PathP (λ j → embase ≡ emloop h j) (emloop g) (emloop (g + h))
-    emsquash : ∀ (x y : EM₁) (p q : x ≡ y) (r s : p ≡ q) → r ≡ s
+    -- emsquash : ∀ (x y : EM₁) (p q : x ≡ y) (r s : p ≡ q) → r ≡ s
+    emsquash : isGroupoid EM₁
 
   {- The comp// constructor fills the square:
 
