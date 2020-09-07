@@ -7,7 +7,7 @@ open import Cubical.HITs.Hopf
 open import Cubical.Homotopy.Freudenthal hiding (encode)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
-open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; map to trMap)
+open import Cubical.HITs.Truncation.FromNegOne renaming (elim to trElim ; rec to trRec ; map to trMap)
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -62,7 +62,7 @@ private
   Kn→ΩKn+1 : (n : ℕ) → coHomK n → typ (Ω (coHomK-ptd (suc n)))
   Kn→ΩKn+1 zero x = cong ∣_∣ (looper x)
   Kn→ΩKn+1 (suc n) = trRec (isOfHLevelTrunc (2 + (suc (suc n))) ∣ north ∣ ∣ north ∣)
-                             λ a → cong ∣_∣ ((merid a) ∙ (sym (merid north)))
+                             λ a i → ∣((merid a) ∙ (sym (merid north))) i ∣
 
   {- We show that looper is a composition of intLoop with two other maps, all three being isos -}
   sndcomp : ΩS¹ → Path (Susp Bool) north north
@@ -171,7 +171,7 @@ private
   {- We show that composing (λ a → ∣ ϕ base a ∣) and (λ x → ∣ d-map x ∣) gives us the identity function.  -}
 
   d-mapId2 : Iso.fun d-iso2 ∘ trMap (ϕ base) ≡ idfun (hLevelTrunc 3 S¹)
-  d-mapId2 = funExt (trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) (λ a → cong ∣_∣ (d-mapId a)))
+  d-mapId2 = funExt (trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) (λ a i → ∣ (d-mapId a i)∣))
 
   {- This means that (λ a → ∣ ϕ base a ∣) is an equivalence -}
 
@@ -215,81 +215,81 @@ private
 -- We need ΩTrunc. It appears to compute better when restated for this particular case --
 
 decode-fun2 : (n : HLevel) → (x : A) → hLevelTrunc n (x ≡ x) → Path (hLevelTrunc (suc n) A) ∣ x ∣ ∣ x ∣
-decode-fun2 zero x = trElim (λ _ → isOfHLevelPath 0 (∣ x ∣ , isOfHLevelTrunc 1 ∣ x ∣) ∣ x ∣ ∣ x ∣) (λ p i → ∣ p i ∣)
+decode-fun2 zero x _ = isOfHLevelTrunc 1 _ _
 decode-fun2 (suc n) x = trElim (λ _ → isOfHLevelPath' (suc n) (isOfHLevelTrunc (suc (suc n))) ∣ x ∣ ∣ x ∣) (cong ∣_∣)
 
-funsAreSame : (n : HLevel) (x : A) (b : hLevelTrunc n (x ≡ x)) → (decode-fun2 n x b) ≡ (ΩTrunc.decode-fun ∣ x ∣ ∣ x ∣ b)
-funsAreSame zero x = trElim (λ a → isOfHLevelPath 0 (refl , (isOfHLevelSuc 1 (isOfHLevelTrunc 1) ∣ x ∣ ∣ x ∣ refl)) _ _) λ a → refl
+funsAreSame : (n : HLevel) (x : A) (b : hLevelTrunc n (x ≡ x)) → (decode-fun2 n x b) ≡ {!!} -- (ΩTrunc.decode-fun ∣ x ∣ ∣ x ∣ ?)
+funsAreSame zero x = {!!} -- trElim (λ a → isOfHLevelPath 0 (refl , (isOfHLevelSuc 1 (isOfHLevelTrunc 1) ∣ x ∣ ∣ x ∣ refl)) _ _) λ a → refl
 funsAreSame (suc n) x = trElim (λ a → isOfHLevelPath _ (isOfHLevelPath' (suc n) (isOfHLevelTrunc (suc (suc n))) ∣ x ∣ ∣ x ∣) _ _) λ a → refl
 
-decodeIso : (n : HLevel) (x : A) → Iso (hLevelTrunc n (x ≡ x)) (Path (hLevelTrunc (suc n) A) ∣ x ∣ ∣ x ∣)
-Iso.fun (decodeIso n x) = decode-fun2 n x
-Iso.inv (decodeIso n x) = ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣
-Iso.rightInv (decodeIso n x) b = funsAreSame n x (ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣ b) ∙ ΩTrunc.P-rinv ∣ x ∣ ∣ x ∣ b
-Iso.leftInv (decodeIso n x) b = cong (ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣) (funsAreSame n x b) ∙ ΩTrunc.P-linv ∣ x ∣ ∣ x ∣ b
+-- decodeIso : (n : HLevel) (x : A) → Iso (hLevelTrunc n (x ≡ x)) (Path (hLevelTrunc (suc n) A) ∣ x ∣ ∣ x ∣)
+-- Iso.fun (decodeIso n x) = decode-fun2 n x
+-- Iso.inv (decodeIso n x) = ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣
+-- Iso.rightInv (decodeIso n x) b = funsAreSame n x (ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣ b) ∙ ΩTrunc.P-rinv ∣ x ∣ ∣ x ∣ b
+-- Iso.leftInv (decodeIso n x) b = cong (ΩTrunc.encode-fun ∣ x ∣ ∣ x ∣) (funsAreSame n x b) ∙ ΩTrunc.P-linv ∣ x ∣ ∣ x ∣ b
 
-Iso-Kn-ΩKn+1 : (n : HLevel) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
-Iso-Kn-ΩKn+1 zero = compIso isolooper (congIso (truncIdempotentIso _ isOfHLevelS1))
-Iso-Kn-ΩKn+1 (suc zero) = compIso Iso∣ϕ∣ (decodeIso _ north)
-Iso-Kn-ΩKn+1 (suc (suc n)) = compIso (connectedTruncIso2 (4 + n) _ (ϕ north) (n , helper)
-                                                                             (isConnectedσ (suc n) (sphereConnected _)))
-                                     (decodeIso _ north)
-  where
-  helper : n + (4 + n) ≡ 2 + (n + (2 + n))
-  helper = +-suc n (3 + n) ∙ (λ i → suc (+-suc n (2 + n) i))
+-- Iso-Kn-ΩKn+1 : (n : HLevel) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
+-- Iso-Kn-ΩKn+1 zero = compIso isolooper (congIso (truncIdempotentIso _ isOfHLevelS1))
+-- Iso-Kn-ΩKn+1 (suc zero) = compIso Iso∣ϕ∣ (decodeIso _ north)
+-- Iso-Kn-ΩKn+1 (suc (suc n)) = compIso (connectedTruncIso2 (4 + n) _ (ϕ north) (n , helper)
+--                                                                              (isConnectedσ (suc n) (sphereConnected _)))
+--                                      (decodeIso _ north)
+--   where
+--   helper : n + (4 + n) ≡ 2 + (n + (2 + n))
+--   helper = +-suc n (3 + n) ∙ (λ i → suc (+-suc n (2 + n) i))
 
-mapId2 : (n : ℕ) →  Kn→ΩKn+1 n ≡ Iso.fun (Iso-Kn-ΩKn+1 n)
-mapId2 zero = refl
-mapId2 (suc zero) = funExt (trElim (λ x → isOfHLevelPath 3 (isOfHLevelTrunc 4 ∣ north ∣ ∣ north ∣) _ _) λ a → refl)
-mapId2 (suc (suc n)) = funExt (trElim (λ x → isOfHLevelPath (4 + n) (isOfHLevelTrunc (5 + n) ∣ north ∣ ∣ north ∣) _ _) λ a → refl)
-
-
+-- mapId2 : (n : ℕ) →  Kn→ΩKn+1 n ≡ Iso.fun (Iso-Kn-ΩKn+1 n)
+-- mapId2 zero = refl
+-- mapId2 (suc zero) = funExt (trElim (λ x → isOfHLevelPath 3 (isOfHLevelTrunc 4 ∣ north ∣ ∣ north ∣) _ _) λ a → refl)
+-- mapId2 (suc (suc n)) = funExt (trElim (λ x → isOfHLevelPath (4 + n) (isOfHLevelTrunc (5 + n) ∣ north ∣ ∣ north ∣) _ _) λ a → refl)
 
 
--- Experiments with abstract definitions
-
-Iso2-Kn-ΩKn+1 : (n : ℕ) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
-Iso.fun (Iso2-Kn-ΩKn+1 n) = Kn→ΩKn+1 n
-Iso.inv (Iso2-Kn-ΩKn+1 n) = Iso.inv (Iso-Kn-ΩKn+1 n)
-Iso.rightInv (Iso2-Kn-ΩKn+1 n) a = rinv
-  where
-  abstract
-    rinv : Kn→ΩKn+1 n (Iso.inv (Iso-Kn-ΩKn+1 n) a) ≡ a
-    rinv = funExt⁻ (mapId2 n) _ ∙ Iso.rightInv (Iso-Kn-ΩKn+1 n) a
-Iso.leftInv (Iso2-Kn-ΩKn+1 n) a = linv
-  where
-  abstract
-    linv : Iso.inv (Iso-Kn-ΩKn+1 n) (Kn→ΩKn+1 n a) ≡ a
-    linv = cong (Iso.inv (Iso-Kn-ΩKn+1 n)) (funExt⁻ (mapId2 n) a) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 n) a
-
---- even more abstract
-
-abstract
-  absInv' : (n : ℕ) → typ (Ω (coHomK-ptd (2 + n))) → coHomK (1 + n)
-  absInv' n = Iso.inv (Iso-Kn-ΩKn+1 (1 + n))
-
-  absSect' : (n : ℕ) (a : typ (Ω (coHomK-ptd (2 + n)))) → Kn→ΩKn+1 (1 + n) (absInv' n a) ≡ a
-  absSect' n a = funExt⁻ (mapId2 (1 + n)) _ ∙ Iso.rightInv (Iso-Kn-ΩKn+1 (1 + n)) a
-
-  absRetr' : (n : ℕ) (a : coHomK (1 + n)) → absInv' n (Kn→ΩKn+1 (1 + n) a) ≡ a
-  absRetr' n a = cong (Iso.inv (Iso-Kn-ΩKn+1 (1 + n))) (funExt⁻ (mapId2 (1 + n)) a) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 (1 + n)) a
 
 
-absInv : (n : ℕ) → typ (Ω (coHomK-ptd (1 + n))) → coHomK n
-absInv zero = Iso.inv (Iso-Kn-ΩKn+1 zero)
-absInv (suc n) = absInv' n
+-- -- Experiments with abstract definitions
 
-absSect : (n : ℕ) → section (Kn→ΩKn+1 n) (absInv n)
-absSect zero a = funExt⁻ (mapId2 zero) (Iso.inv isolooper2 (Iso.inv (congIso (truncIdempotentIso _ isOfHLevelS1)) a)) ∙ Iso.rightInv (Iso-Kn-ΩKn+1 zero) a
-absSect (suc n) = absSect' n
+-- Iso2-Kn-ΩKn+1 : (n : ℕ) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
+-- Iso.fun (Iso2-Kn-ΩKn+1 n) = Kn→ΩKn+1 n
+-- Iso.inv (Iso2-Kn-ΩKn+1 n) = Iso.inv (Iso-Kn-ΩKn+1 n)
+-- Iso.rightInv (Iso2-Kn-ΩKn+1 n) a = rinv
+--   where
+--   abstract
+--     rinv : Kn→ΩKn+1 n (Iso.inv (Iso-Kn-ΩKn+1 n) a) ≡ a
+--     rinv = funExt⁻ (mapId2 n) _ ∙ Iso.rightInv (Iso-Kn-ΩKn+1 n) a
+-- Iso.leftInv (Iso2-Kn-ΩKn+1 n) a = linv
+--   where
+--   abstract
+--     linv : Iso.inv (Iso-Kn-ΩKn+1 n) (Kn→ΩKn+1 n a) ≡ a
+--     linv = cong (Iso.inv (Iso-Kn-ΩKn+1 n)) (funExt⁻ (mapId2 n) a) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 n) a
 
-absRetr : (n : ℕ) → retract (Kn→ΩKn+1 n) (absInv n)
-absRetr zero a = cong (Iso.inv (Iso-Kn-ΩKn+1 zero)) (funExt⁻ (mapId2 zero) a) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 zero) a
-absRetr (suc n) = absRetr' n
+-- --- even more abstract
 
-Iso3-Kn-ΩKn+1 : (n : ℕ) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
-Iso.fun (Iso3-Kn-ΩKn+1 n) = Kn→ΩKn+1 n
-Iso.inv (Iso3-Kn-ΩKn+1 n) = absInv n
-Iso.rightInv (Iso3-Kn-ΩKn+1 n) = absSect n
-Iso.leftInv (Iso3-Kn-ΩKn+1 n) = absRetr n
+-- abstract
+--   absInv' : (n : ℕ) → typ (Ω (coHomK-ptd (2 + n))) → coHomK (1 + n)
+--   absInv' n = Iso.inv (Iso-Kn-ΩKn+1 (1 + n))
+
+--   absSect' : (n : ℕ) (a : typ (Ω (coHomK-ptd (2 + n)))) → Kn→ΩKn+1 (1 + n) (absInv' n a) ≡ a
+--   absSect' n a = funExt⁻ (mapId2 (1 + n)) _ ∙ Iso.rightInv (Iso-Kn-ΩKn+1 (1 + n)) a
+
+--   absRetr' : (n : ℕ) (a : coHomK (1 + n)) → absInv' n (Kn→ΩKn+1 (1 + n) a) ≡ a
+--   absRetr' n a = cong (Iso.inv (Iso-Kn-ΩKn+1 (1 + n))) (funExt⁻ (mapId2 (1 + n)) a) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 (1 + n)) a
+
+
+-- absInv : (n : ℕ) → typ (Ω (coHomK-ptd (1 + n))) → coHomK n
+-- absInv zero = Iso.inv (Iso-Kn-ΩKn+1 zero)
+-- absInv (suc n) = absInv' n
+
+-- absSect : (n : ℕ) → section (Kn→ΩKn+1 n) (absInv n)
+-- absSect zero a = funExt⁻ (mapId2 zero) (Iso.inv isolooper2 (Iso.inv (congIso (truncIdempotentIso _ isOfHLevelS1)) a)) ∙ Iso.rightInv (Iso-Kn-ΩKn+1 zero) a
+-- absSect (suc n) = absSect' n
+
+-- absRetr : (n : ℕ) → retract (Kn→ΩKn+1 n) (absInv n)
+-- absRetr zero a = cong (Iso.inv (Iso-Kn-ΩKn+1 zero)) (funExt⁻ (mapId2 zero) a) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 zero) a
+-- absRetr (suc n) = absRetr' n
+
+-- Iso3-Kn-ΩKn+1 : (n : ℕ) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
+-- Iso.fun (Iso3-Kn-ΩKn+1 n) = Kn→ΩKn+1 n
+-- Iso.inv (Iso3-Kn-ΩKn+1 n) = absInv n
+-- Iso.rightInv (Iso3-Kn-ΩKn+1 n) = absSect n
+-- Iso.leftInv (Iso3-Kn-ΩKn+1 n) = absRetr n
 

@@ -53,3 +53,16 @@ isContr→≃Unit contr = isoToEquiv (iso (λ _ → tt) (λ _ → fst contr) (λ
 
 isContr→≡Unit : {A : Type₀} → isContr A → A ≡ Unit
 isContr→≡Unit contr = ua (isContr→≃Unit contr)
+
+
+---
+isContrUnit* : ∀ {ℓ} → isContr (Unit* {ℓ})
+fst isContrUnit* = tt*
+snd isContrUnit* tt* = refl
+
+isPropUnit* : ∀ {ℓ} → isProp (Unit* {ℓ})
+isPropUnit* = isOfHLevelSuc 0 isContrUnit*
+
+isOfHLevelUnit* : ∀ {ℓ} (n : HLevel) → isOfHLevel n (Unit* {ℓ})
+isOfHLevelUnit* zero = tt* , λ {tt* → refl}
+isOfHLevelUnit* (suc n) = isOfHLevelPlus 1 (isOfHLevelUnit* n)

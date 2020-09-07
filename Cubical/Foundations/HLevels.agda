@@ -241,24 +241,24 @@ isOfHLevelRetract (suc (suc (suc (suc (suc n))))) f g h ofLevel x y p q P Q R S 
   isOfHLevelRetract (suc n) (cong (cong (cong (cong f))))
                     (λ s i j k l →
                       hcomp (λ r → λ { (i = i0) → h (R j k l) r
-                                      ; (i = i1) → h (S j k l) r
-                                      ; (j = i0) → h (P k l) r
-                                      ; (j = i1) → h (Q k l) r
-                                      ; (k = i0) → h (p l) r
-                                      ; (k = i1) → h (q l) r
-                                      ; (l = i0) → h x r
-                                      ; (l = i1) → h y r})
+                                     ; (i = i1) → h (S j k l) r
+                                     ; (j = i0) → h (P k l) r
+                                     ; (j = i1) → h (Q k l) r
+                                     ; (k = i0) → h (p l) r
+                                     ; (k = i1) → h (q l) r
+                                     ; (l = i0) → h x r
+                                     ; (l = i1) → h y r})
                             (g (s i j k l)))
                     (λ s i j k l m → 
                     hcomp (λ n → λ { (i = i1) → s j k l m
-                                    ; (j = i0) → h (R k l m) (i ∨ n)
-                                    ; (j = i1) → h (S k l m) (i ∨ n)
-                                    ; (k = i0) → h (P l m) (i ∨ n)
-                                    ; (k = i1) → h (Q l m) (i ∨ n)
-                                    ; (l = i0) → h (p m) (i ∨ n)
-                                    ; (l = i1) → h (q m) (i ∨ n)
-                                    ; (m = i0) → h x (i ∨ n)
-                                    ; (m = i1) → h y (i ∨ n) })
+                                   ; (j = i0) → h (R k l m) (i ∨ n)
+                                   ; (j = i1) → h (S k l m) (i ∨ n)
+                                   ; (k = i0) → h (P l m) (i ∨ n)
+                                   ; (k = i1) → h (Q l m) (i ∨ n)
+                                   ; (l = i0) → h (p m) (i ∨ n)
+                                   ; (l = i1) → h (q m) (i ∨ n)
+                                   ; (m = i0) → h x (i ∨ n)
+                                   ; (m = i1) → h y (i ∨ n) })
                           (h (s j k l m) i))
                     (ofLevel (f x) (f y)
                              (cong f p) (cong f q)
@@ -436,7 +436,7 @@ isOfHLevel≃ (suc n) {A = A} {B = B} hA hB =
 
 isOfHLevel≡ : ∀ n → {A B : Type ℓ} (hA : isOfHLevel n A) (hB : isOfHLevel n B) →
   isOfHLevel n (A ≡ B)
-isOfHLevel≡ n hA hB = isOfHLevelRespectEquiv n (invEquiv univalence) (isOfHLevel≃ n hA hB)
+isOfHLevel≡ n hA hB = isOfHLevelRetract n (fst univalence) ua (secEq univalence) (isOfHLevel≃ n hA hB)
 
 -- h-level of TypeOfHLevel
 

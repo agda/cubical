@@ -12,7 +12,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
+open import Cubical.HITs.Truncation.FromNegOne as Trunc renaming (rec to trRec)
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
 open import Cubical.Homotopy.Loopspace
@@ -87,7 +87,7 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
   encodeMerid : (a : typ A) → encode south (merid a) ≡ ∣ a , refl ∣
   encodeMerid a =
     cong (transport (λ i → gluePath i))
-      (funExt⁻ (WC.left refl a) _ ∙ cong ∣_∣ (cong (a ,_) (lem _ _)))
+      (funExt⁻ (WC.left refl a) _ ∙ λ i → ∣ a , (lem (rCancel' (merid a)) (rCancel' (merid (pt A)))) i ∣)
     ∙ transport (PathP≡Path gluePath _ _)
       (λ i → ∣ a , (λ j k → rCancel-filler' (merid a) i j k) ∣)
     where

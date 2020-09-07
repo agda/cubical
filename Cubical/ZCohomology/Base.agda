@@ -11,7 +11,7 @@ open import Cubical.HITs.Nullification.Base
 open import Cubical.HITs.SetTruncation.Base
 open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.Susp.Base
-open import Cubical.HITs.Truncation.Base
+open import Cubical.HITs.Truncation.FromNegOne.Base
 
 private
   variable
@@ -21,7 +21,7 @@ private
 
 --- Cohomology ---
 
-{- Types Kₙ from Brunerie 2016 -}
+{- EM-spaces Kₙ from Brunerie 2016 -}
 coHomK : (n : ℕ) → Type₀
 coHomK zero = Int
 coHomK (suc n) = ∥ S₊ (suc n) ∥  (2 + suc n)
