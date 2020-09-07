@@ -33,6 +33,7 @@ module _ (G : Group {ℓ}) where
 
   emloop-id : emloop 0g ≡ refl
   emloop-id =
+    -- emloop 0g ≡⟨ rUnit (emloop 0g) ⟩
     emloop 0g ≡⟨ rUnit (emloop 0g) ⟩
     emloop 0g ∙ refl ≡⟨ cong (emloop 0g ∙_) (rCancel (emloop 0g) ⁻¹) ⟩
     emloop 0g ∙ (emloop 0g ∙ (emloop 0g) ⁻¹) ≡⟨ ∙assoc _ _ _ ⟩
