@@ -1,6 +1,5 @@
 {-# OPTIONS --cubical --safe --no-import-sorts #-}
-
-module Cubical.Structures.Module where
+module Cubical.Algebra.Module.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -14,9 +13,9 @@ open import Cubical.Data.Sigma
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
-open import Cubical.Structures.Ring      renaming (⟨_⟩ to ⟨_⟩r)
-open import Cubical.Structures.AbGroup   hiding (⟨_⟩)
-open import Cubical.Structures.Group     hiding (⟨_⟩)
+open import Cubical.Algebra.Ring      renaming (⟨_⟩ to ⟨_⟩r)
+open import Cubical.Algebra.AbGroup   hiding (⟨_⟩)
+open import Cubical.Algebra.Group     hiding (⟨_⟩)
 
 open Iso
 

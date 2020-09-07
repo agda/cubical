@@ -13,7 +13,7 @@ open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∣_∣
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod
 open import Cubical.Data.Unit
-open import Cubical.Structures.Group
+open import Cubical.Algebra.Group
 
 open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Sn

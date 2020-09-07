@@ -92,3 +92,15 @@ isGroupoidSum = isOfHLevelSum 1
 
 is2GroupoidSum : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → is2Groupoid A → is2Groupoid B → is2Groupoid (A ⊎ B)
 is2GroupoidSum = isOfHLevelSum 2
+
+sumIso : ∀ {ℓa ℓb ℓc ℓd} {A : Type ℓa} {B : Type ℓb} {C : Type ℓc} {D : Type ℓd}
+       → Iso A C → Iso B D
+       → Iso (A ⊎ B) (C ⊎ D)
+Iso.fun (sumIso iac ibd) (inl x) = inl (iac .Iso.fun x)
+Iso.fun (sumIso iac ibd) (inr x) = inr (ibd .Iso.fun x)
+Iso.inv (sumIso iac ibd) (inl x) = inl (iac .Iso.inv x)
+Iso.inv (sumIso iac ibd) (inr x) = inr (ibd .Iso.inv x)
+Iso.rightInv (sumIso iac ibd) (inl x) = cong inl (iac .Iso.rightInv x)
+Iso.rightInv (sumIso iac ibd) (inr x) = cong inr (ibd .Iso.rightInv x)
+Iso.leftInv (sumIso iac ibd) (inl x) = cong inl (iac .Iso.leftInv x)
+Iso.leftInv (sumIso iac ibd) (inr x) = cong inr (ibd .Iso.leftInv x)
