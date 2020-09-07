@@ -26,6 +26,14 @@ private
 𝒮-type : (A : Type ℓ) → URGStr A ℓ
 𝒮-type A = make-𝒮 {_≅_ = _≡_} (λ _ → refl) isContrSingl
 
+
+𝒮ᴰ-type : {A : Type ℓA} (B : A → Type ℓB)
+          → URGStrᴰ (𝒮-type A) B ℓB
+𝒮ᴰ-type {A = A} B = make-𝒮ᴰ (λ b p b' → PathP (λ i → B (p i)) b b')
+                    (λ _ → refl)
+                    λ _ b → isContrSingl b
+
+
 -- subtypes are displayed structures
 𝒮ᴰ-subtype : {A : Type ℓ} (P : A → hProp ℓ')
              → URGStrᴰ (𝒮-type A)

@@ -56,7 +56,34 @@ open GroupHom -- such .fun!
 open GroupLemmas
 open MorphismLemmas
 
+record Hom-𝒮 {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : URGStr A ℓ≅A)
+             {B : Type ℓB} {ℓ≅B : Level} (𝒮-B : URGStr B ℓ≅B)
+             : Type (ℓ-max (ℓ-max ℓA ℓB) (ℓ-max ℓ≅A ℓ≅B)) where
+  constructor hom-𝒮
+  open URGStr
+  field
+    fun : A → B
+    fun-≅ : {a a' : A} → (p : _≅_ 𝒮-A a a') → _≅_ 𝒮-B (fun a) (fun a')
+    fun-ρ : {a : A} → fun-≅ (ρ 𝒮-A a) ≡ ρ 𝒮-B (fun a)
 
+∫𝒮ᴰ-π₁ : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
+         {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
+         → Hom-𝒮 (∫⟨ 𝒮-A ⟩ 𝒮ᴰ-B) 𝒮-A
+Hom-𝒮.fun (∫𝒮ᴰ-π₁ 𝒮ᴰ-B) = fst
+Hom-𝒮.fun-≅ (∫𝒮ᴰ-π₁ 𝒮ᴰ-B) = fst
+Hom-𝒮.fun-ρ (∫𝒮ᴰ-π₁ 𝒮ᴰ-B) = refl
+
+module _ {ℓ : Level} {A : Type ℓ} (𝒮-A : URGStr A ℓ) where
+  𝒮ᴰ-toHom : Iso (Σ[ B ∈ (A → Type ℓ) ] (URGStrᴰ 𝒮-A B ℓ)) (Σ[ B ∈ (Type ℓ) ] Σ[ 𝒮-B ∈ (URGStr B ℓ) ] (Hom-𝒮 𝒮-B 𝒮-A))
+  Iso.fun 𝒮ᴰ-toHom (B , 𝒮ᴰ-B) = (Σ[ a ∈ A ] B a) , {!!} , {!!}
+  Iso.inv 𝒮ᴰ-toHom (B , 𝒮ᴰ-B , F) = (λ a → Σ[ b ∈ B ] F .fun b ≡ a) , {!!}
+    where
+      open Hom-𝒮
+  Iso.leftInv 𝒮ᴰ-toHom (B , 𝒮ᴰ-B) = ΣPathP ((funExt (λ a → {!!})) , {!!})
+  Iso.rightInv 𝒮ᴰ-toHom (B , 𝒮ᴰ-B , F) = {!!}
+
+
+ 
 
 
 -- Older Experiments --

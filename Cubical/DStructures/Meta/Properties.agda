@@ -71,6 +71,8 @@ private
 ∫⟨_⟩_ 𝒮-A {B} DispStrB .URGStr.uni = 𝒮ᴰ→𝒮 𝒮-A DispStrB .URGStr.uni
 
 
+
+
 𝒮-transport : {A : Type ℓA} {A' : Type ℓA'}
                (e : A ≃ A') (StrA : URGStr A ℓ≅A)
                → URGStr A' ℓ≅A
@@ -93,6 +95,13 @@ private
                                             e* = equivFun e
 
 
+
+𝒮-≅→≡ : {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
+              {a a' : A} (p : URGStr._≅_ 𝒮-A a a')
+              → a ≡ a'
+𝒮-≅→≡ 𝒮-A {a} {a'} p = equivFun (invEquiv (isUnivalent→isUnivalent' _≅_ ρ uni a a')) p
+  where
+    open URGStr 𝒮-A
 
 {-
 -- associativity for towers
