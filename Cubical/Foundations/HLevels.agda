@@ -72,11 +72,14 @@ isOfHLevelPlus : (m : HLevel) → isOfHLevel n A → isOfHLevel (m + n) A
 isOfHLevelPlus zero hA = hA
 isOfHLevelPlus (suc m) hA = isOfHLevelSuc _ (isOfHLevelPlus m hA)
 
+isOfHLevelPlus' : (m : HLevel) → isOfHLevel m A → isOfHLevel (m + n) A
+isOfHLevelPlus' {A = A} {n = n} m hA = subst (λ m → isOfHLevel m A) (+-comm n m) (isOfHLevelPlus n hA )
+
 isContr→isOfHLevel : (n : HLevel) → isContr A → isOfHLevel n A
-isContr→isOfHLevel {A = A} n cA = subst (λ m → isOfHLevel m A) (+-zero n) (isOfHLevelPlus n cA)
+isContr→isOfHLevel {A = A} n cA = isOfHLevelPlus' 0 cA
 
 isProp→isOfHLevelSuc : (n : HLevel) → isProp A → isOfHLevel (suc n) A
-isProp→isOfHLevelSuc {A = A} n pA = subst (λ m → isOfHLevel m A) (+-comm n 1) (isOfHLevelPlus n pA)
+isProp→isOfHLevelSuc {A = A} n pA = isOfHLevelPlus' 1 pA
 
 -- hlevel of path and dependent path types
 
@@ -180,6 +183,50 @@ isPropRetract f g h p x y i =
       ; (i = i1) → h y j})
     (g (p (f x) (f y) i))
 
+isSetRetract
+  : {B : Type ℓ}
+  (f : A → B) (g : B → A)
+  (h : (x : A) → g (f x) ≡ x)
+  → isSet B → isSet A
+isSetRetract f g h set x y p q i j =
+  hcomp (λ k → λ {(i = i0) → h (p j) k
+                 ; (i = i1) → h (q j) k
+                 ; (j = i0) → h x k
+                 ; (j = i1) → h y k})
+        (g (set (f x) (f y) (cong f p) (cong f q) i j))
+
+isGroupoidRetract
+  : {B : Type ℓ}
+  (f : A → B) (g : B → A)
+  (h : (x : A) → g (f x) ≡ x)
+  → isGroupoid B → isGroupoid A
+isGroupoidRetract f g h grp x y p q P Q i j k =
+  hcomp ((λ l → λ { (i = i0) → h (P j k) l
+                   ; (i = i1) → h (Q j k) l
+                   ; (j = i0) → h (p k) l
+                   ; (j = i1) → h (q k) l
+                   ; (k = i0) → h x l
+                   ; (k = i1) → h y l}))
+        (g (grp (f x) (f y) (cong f p) (cong f q) (cong (cong f) P) (cong (cong f) Q) i j k))
+
+is2GroupoidRetract
+  : {B : Type ℓ}
+  (f : A → B) (g : B → A)
+  (h : (x : A) → g (f x) ≡ x)
+  → is2Groupoid B → is2Groupoid A
+is2GroupoidRetract f g h grp x y p q P Q R S i j k l =
+  hcomp (λ r → λ { (i = i0) → h (R j k l) r
+                  ; (i = i1) → h (S j k l) r
+                  ; (j = i0) → h (P k l) r
+                  ; (j = i1) → h (Q k l) r
+                  ; (k = i0) → h (p l) r
+                  ; (k = i1) → h (q l) r
+                  ; (l = i0) → h x r
+                  ; (l = i1) → h y r})
+        (g (grp (f x) (f y) (cong f p) (cong f q)
+                (cong (cong f) P) (cong (cong f) Q)
+                (cong (cong (cong f)) R) (cong (cong (cong f)) S) i j k l))
+
 isOfHLevelRetract
   : (n : HLevel) {B : Type ℓ}
   (f : A → B) (g : B → A)
@@ -187,23 +234,36 @@ isOfHLevelRetract
   → isOfHLevel n B → isOfHLevel n A
 isOfHLevelRetract 0 = isContrRetract
 isOfHLevelRetract 1 = isPropRetract
-isOfHLevelRetract (suc (suc n)) f g h ofLevel x y =
-  isOfHLevelRetract (suc n)
-    (cong f)
-    (λ q i →
-      hcomp
-        (λ j → λ
-          { (i = i0) → h x j
-          ; (i = i1) → h y j})
-        (g (q i)))
-    (λ p k i →
-      hcomp
-        (λ j → λ
-          { (i = i0) → h x (j ∨ k)
-          ; (i = i1) → h y (j ∨ k)
-          ; (k = i1) → p i})
-        (h (p i) k))
-    (ofLevel (f x) (f y))
+isOfHLevelRetract 2 = isSetRetract
+isOfHLevelRetract 3 = isGroupoidRetract
+isOfHLevelRetract 4 = is2GroupoidRetract
+isOfHLevelRetract (suc (suc (suc (suc (suc n))))) f g h ofLevel x y p q P Q R S =
+  isOfHLevelRetract (suc n) (cong (cong (cong (cong f))))
+                    (λ s i j k l →
+                      hcomp (λ r → λ { (i = i0) → h (R j k l) r
+                                      ; (i = i1) → h (S j k l) r
+                                      ; (j = i0) → h (P k l) r
+                                      ; (j = i1) → h (Q k l) r
+                                      ; (k = i0) → h (p l) r
+                                      ; (k = i1) → h (q l) r
+                                      ; (l = i0) → h x r
+                                      ; (l = i1) → h y r})
+                            (g (s i j k l)))
+                    (λ s i j k l m → 
+                    hcomp (λ n → λ { (i = i1) → s j k l m
+                                    ; (j = i0) → h (R k l m) (i ∨ n)
+                                    ; (j = i1) → h (S k l m) (i ∨ n)
+                                    ; (k = i0) → h (P l m) (i ∨ n)
+                                    ; (k = i1) → h (Q l m) (i ∨ n)
+                                    ; (l = i0) → h (p m) (i ∨ n)
+                                    ; (l = i1) → h (q m) (i ∨ n)
+                                    ; (m = i0) → h x (i ∨ n)
+                                    ; (m = i1) → h y (i ∨ n) })
+                          (h (s j k l m) i))
+                    (ofLevel (f x) (f y)
+                             (cong f p) (cong f q)
+                             (cong (cong f) P) (cong (cong f) Q)
+                             (cong (cong (cong f)) R) (cong (cong (cong f)) S))
 
 isOfHLevelRespectEquiv : {A : Type ℓ} {B : Type ℓ'} → (n : HLevel) → A ≃ B → isOfHLevel n A → isOfHLevel n B
 isOfHLevelRespectEquiv n eq = isOfHLevelRetract n (invEq eq) (eq .fst) (retEq eq)
@@ -242,7 +302,7 @@ isOfHLevelΣ : ∀ n → isOfHLevel n A → ((x : A) → isOfHLevel n (B x))
                   → isOfHLevel n (Σ A B)
 isOfHLevelΣ 0 = isContrΣ
 isOfHLevelΣ 1 = isPropΣ
-isOfHLevelΣ (suc (suc n)) h1 h2 x y =
+isOfHLevelΣ {B = B} (suc (suc n)) h1 h2 x y =
   isOfHLevelRetract (suc n)
     (Iso.inv (IsoΣPathTransportPathΣ x y))
     (Iso.fun (IsoΣPathTransportPathΣ x y))
@@ -287,13 +347,28 @@ is2Groupoid× : ∀ {A : Type ℓ} {B : Type ℓ'} → is2Groupoid A → is2Grou
 is2Groupoid× = isOfHLevel× 4
 
 -- h-level of Π-types
+
 isOfHLevelΠ : ∀ n → ((x : A) → isOfHLevel n (B x))
                   → isOfHLevel n ((x : A) → B x)
 isOfHLevelΠ 0 h = (λ x → fst (h x)) , λ f i y → snd (h y) (f y) i
-isOfHLevelΠ 1 h f g i x = h x (f x) (g x) i
-isOfHLevelΠ (suc (suc n)) h f g =
-  isOfHLevelRetract (suc n) funExt⁻ funExt (λ _ → refl)
-                    (isOfHLevelΠ (suc n) λ x → h x (f x) (g x))
+isOfHLevelΠ 1 h f g i x = (h x) (f x) (g x) i
+isOfHLevelΠ 2 h f g F G i j z = h z (f z) (g z) (funExt⁻ F z) (funExt⁻ G z) i j
+isOfHLevelΠ 3 h f g p q P Q i j k z =
+  h z (f z) (g z)
+      (funExt⁻ p z) (funExt⁻ q z)
+      (cong (λ f → funExt⁻ f z) P) (cong (λ f → funExt⁻ f z) Q) i j k
+isOfHLevelΠ 4 h f g p q P Q R S i j k l z =
+  h z (f z) (g z)
+      (funExt⁻ p z) (funExt⁻ q z)
+      (cong (λ f → funExt⁻ f z) P) (cong (λ f → funExt⁻ f z) Q)
+      (cong (cong (λ f → funExt⁻ f z)) R) (cong (cong (λ f → funExt⁻ f z)) S) i j k l
+isOfHLevelΠ (suc (suc (suc (suc (suc n))))) h f g p q P Q R S =
+  isOfHLevelRetract (suc n)
+    (cong (cong (cong funExt⁻))) (cong (cong (cong funExt))) (λ _ → refl)
+    (isOfHLevelΠ (suc (suc (suc (suc n)))) (λ x → h x (f x) (g x))
+                  (funExt⁻ p) (funExt⁻ q)
+                  (cong funExt⁻ P) (cong funExt⁻ Q)
+                  (cong (cong funExt⁻) R) (cong (cong funExt⁻) S))
 
 isPropΠ : (h : (x : A) → isProp (B x)) → isProp ((x : A) → B x)
 isPropΠ = isOfHLevelΠ 1
@@ -350,17 +425,14 @@ isOfHLevelΠ⁻ (suc (suc n)) h x y z =
 -- h-level of A ≃ B and A ≡ B
 
 isOfHLevel≃ : ∀ n → {A B : Type ℓ} (hA : isOfHLevel n A) (hB : isOfHLevel n B) → isOfHLevel n (A ≃ B)
-isOfHLevel≃ zero {A = A} {B = B} hA hB = A≃B , contr
+isOfHLevel≃ zero {A = A} {B = B} hA hB = isContr→Equiv hA hB , contr
   where
-  A≃B : A ≃ B
-  A≃B = isoToEquiv (iso (λ _ → fst hB) (λ _ → fst hA) (snd hB ) (snd hA))
-
-  contr : (y : A ≃ B) → A≃B ≡ y
+  contr : (y : A ≃ B) → isContr→Equiv hA hB ≡ y
   contr y = Σ≡Prop isPropIsEquiv (funExt (λ a → snd hB (fst y a)))
 
-isOfHLevel≃ (suc n) hA hB =
-  isOfHLevelΣ (suc n) (isOfHLevelΠ (suc n) (λ _ → hB))
-              (λ a → subst (λ n → isOfHLevel n (isEquiv a)) (+-comm n 1) (isOfHLevelPlus n (isPropIsEquiv a)))
+isOfHLevel≃ (suc n) {A = A} {B = B} hA hB =
+  isOfHLevelΣ (suc n) (isOfHLevelΠ _ λ _ → hB)
+              λ a → isOfHLevelPlus' 1 (isPropIsEquiv a)
 
 isOfHLevel≡ : ∀ n → {A B : Type ℓ} (hA : isOfHLevel n A) (hB : isOfHLevel n B) →
   isOfHLevel n (A ≡ B)
@@ -370,10 +442,6 @@ isOfHLevel≡ n hA hB = isOfHLevelRespectEquiv n (invEquiv univalence) (isOfHLev
 
 isPropHContr : isProp (TypeOfHLevel ℓ 0)
 isPropHContr x y = Σ≡Prop (λ _ → isPropIsContr) (isOfHLevel≡ 0 (x .snd) (y .snd) .fst)
-
--- test : ∀ {ℓ ℓ' ℓ''} → {A : Type ℓ} {B : A → Type ℓ'} {x y : Σ A B} →  → {!!}
--- test = {!!}
-
 
 isOfHLevelTypeOfHLevel : ∀ n → isOfHLevel (suc n) (TypeOfHLevel ℓ n)
 isOfHLevelTypeOfHLevel zero = isPropHContr
@@ -430,6 +498,5 @@ isOfHLevel→isOfHLevelDep (suc (suc n)) {A = A} {B} h {a0} {a1} b0 b1 =
   where
   helper : (a1 : A) (p : a0 ≡ a1) (b1 : B a1) →
     isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1)
-  helper a1 p b1 = J
-                     (λ a1 p → ∀ b1 → isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1))
+  helper a1 p b1 = J (λ a1 p → ∀ b1 → isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1))
                      (λ _ → h _ _ _) p b1
