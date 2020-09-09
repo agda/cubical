@@ -202,23 +202,32 @@ vSES→GroupEquiv : {A : Group {ℓ}} {B : Group {ℓ₁}} (leftGr : Group {ℓ�
 vSES→GroupEquiv {A = A} lGr rGr vses = GrIsoToGrEquiv (vSES→GroupIso lGr rGr vses)
 
 -- The trivial group is a unit.
-lUnitGroupIso : ∀ {ℓ} {G : Group {ℓ}} → GroupEquiv (dirProd trivialGroup G) G
-lUnitGroupIso =
-  GrIsoToGrEquiv
-    (iso (grouphom snd (λ a b → refl))
-         (λ g → tt , g)
-         (λ _ → refl)
-         λ _ → refl)
+lUnitGroupIso : ∀ {ℓ} {G : Group {ℓ}} → GroupIso (dirProd trivialGroup G) G
+fun (map lUnitGroupIso) = snd
+isHom (map lUnitGroupIso) _ _ = refl
+inv lUnitGroupIso g = tt , g
+rightInv lUnitGroupIso _ = refl
+leftInv lUnitGroupIso _ = refl
 
-rUnitGroupIso : ∀ {ℓ} {G : Group {ℓ}} → GroupEquiv (dirProd G trivialGroup) G
-rUnitGroupIso =
-  GrIsoToGrEquiv
-    (iso
-      (grouphom fst λ _ _ → refl)
-      (λ g → g , tt)
-      (λ _ → refl)
-      λ _ → refl)
+rUnitGroupIso : ∀ {ℓ} {G : Group {ℓ}} → GroupIso (dirProd G trivialGroup) G
+fun (map rUnitGroupIso) = fst
+isHom (map rUnitGroupIso) _ _ = refl
+inv rUnitGroupIso g = g , tt
+rightInv rUnitGroupIso _ = refl
+leftInv rUnitGroupIso _ = refl
+
+lUnitGroupEquiv : ∀ {ℓ} {G : Group {ℓ}} → GroupEquiv (dirProd trivialGroup G) G
+lUnitGroupEquiv = GrIsoToGrEquiv lUnitGroupIso
+
+rUnitGroupEquiv : ∀ {ℓ} {G : Group {ℓ}} → GroupEquiv (dirProd G trivialGroup) G
+rUnitGroupEquiv = GrIsoToGrEquiv rUnitGroupIso
+
+IsoContrGroupTrivialGroup : {G : Group {ℓ}} → isContr ⟨ G ⟩ → GroupIso G trivialGroup
+fun (map (IsoContrGroupTrivialGroup contr)) _ = tt
+isHom (map (IsoContrGroupTrivialGroup contr)) _ _ = refl
+inv (IsoContrGroupTrivialGroup contr) x = fst contr
+rightInv (IsoContrGroupTrivialGroup contr) x = refl
+leftInv (IsoContrGroupTrivialGroup contr) x = snd contr x
 
 contrGroup≅trivialGroup : {G : Group {ℓ}} → isContr ⟨ G ⟩ → GroupEquiv G trivialGroup
-GroupEquiv.eq (contrGroup≅trivialGroup contr) = isContr→≃Unit contr
-GroupEquiv.isHom (contrGroup≅trivialGroup contr) _ _ = refl
+contrGroup≅trivialGroup contr = GrIsoToGrEquiv (IsoContrGroupTrivialGroup contr)
