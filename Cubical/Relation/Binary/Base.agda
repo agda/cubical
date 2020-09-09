@@ -82,7 +82,8 @@ module _ {ℓ ℓ' : Level} {A : Type ℓ} (_R_ : Rel A A ℓ') where
   module _ (ρ : isRefl) where
     -- identity is the least reflexive relation
     ≡→R : {a a' : A} → a ≡ a' → a R a'
-    ≡→R {a} {a'} p = subst (λ z → a R z) p (ρ a)
+    -- ≡→R {a} {a'} p = subst (λ z → a R z) p (ρ a)
+    ≡→R {a} {a'} p = J (λ z q → a R z) (ρ a) p
 
     -- what it means for a reflexive binary relation to be univalent
     isUnivalent : Type (ℓ-max ℓ ℓ')

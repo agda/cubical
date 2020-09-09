@@ -38,17 +38,15 @@ private
      -- contractability of the corresponding total space
      contrTotalA : isContr (Σ[ a' ∈ A ] (a ≅ a'))
      contrTotalA = isUnivalent→contrRelSingl _≅_ ρ uni a
-     contrTotalA' : isContr (Σ[ a' ∈ A ] (a ≅ a'))
-     contrTotalA' = (a , ρ a) , λ z → sym (snd contrTotalA (a , ρ a)) ∙ snd contrTotalA z
      contrTotalB : isContr (Σ[ b' ∈ B a ] (b ≅ᴰ⟨ ρ a ⟩ b'))
      contrTotalB = isUnivalent→contrRelSingl (_≅ᴰ⟨ ρ a ⟩_) ρᴰ uniᴰ b
 
      contrTotalΣ
-       = isContrRespectEquiv
-                                (relSinglAt (_≅ᴰ⟨ ρ a ⟩_) b
+       = isContrRespectEquiv (relSinglAt (_≅ᴰ⟨ ρ a ⟩_) b
                                   ≃⟨ idEquiv (relSinglAt (_≅ᴰ⟨ ρ a ⟩_) b) ⟩
                                 Σ[ b' ∈ B a ] (b ≅ᴰ⟨ ρ a ⟩ b')
-                                  ≃⟨ invEquiv (Σ-contractFst contrTotalA') ⟩
+                                  -- ≃⟨ invEquiv (Σ-contractFst contrTotalA') ⟩
+                                  ≃⟨ invEquiv (Σ-contractFst-recenter contrTotalA (a , ρ a)) ⟩
                                 Σ[ (a' , e) ∈ (Σ[ a' ∈ A ] (a ≅ a')) ] Σ[ b' ∈ B a' ] (b ≅ᴰ⟨ e ⟩ b')
                                   ≃⟨ Σ-assoc-≃ ⟩
                                 Σ[ a' ∈ A ] Σ[ e ∈ (a ≅ a') ] Σ[ b' ∈ B a' ] (b ≅ᴰ⟨ e ⟩ b')

@@ -19,12 +19,12 @@ private
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓD ℓ≅D ℓ≅X ℓX : Level
 
 -- combine two structures 𝒮-B and 𝒮-C over 𝒮-A to a structure 𝒮-B × 𝒮-C over A
-combine-𝒮ᴰ : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
+combine'-𝒮ᴰ : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
                  {B : A → Type ℓB} {C : A → Type ℓC}
                  (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
                  (𝒮ᴰ-C : URGStrᴰ 𝒮-A C ℓ≅C)
                  → URGStrᴰ 𝒮-A (λ a → B a × C a) (ℓ-max ℓ≅B ℓ≅C)
-combine-𝒮ᴰ {ℓ≅B = ℓ≅B} {ℓ≅C = ℓ≅C} {A = A} {𝒮-A = 𝒮-A} {B = B} {C = C} 𝒮ᴰ-B 𝒮ᴰ-C =
+combine'-𝒮ᴰ {ℓ≅B = ℓ≅B} {ℓ≅C = ℓ≅C} {A = A} {𝒮-A = 𝒮-A} {B = B} {C = C} 𝒮ᴰ-B 𝒮ᴰ-C =
   make-𝒮ᴰ -- equality in the combined structure is defined componentwise
               (λ (b , c) p (b' , c') → b B≅ᴰ⟨ p ⟩ b' × c C≅ᴰ⟨ p ⟩ c')
               -- reflexivity follows from B and C reflexivity
@@ -41,8 +41,7 @@ combine-𝒮ᴰ {ℓ≅B = ℓ≅B} {ℓ≅C = ℓ≅C} {A = A} {𝒮-A = 𝒮-A
     Cuniᴰ = URGStrᴰ.uniᴰ 𝒮ᴰ-C
     contrTot : (a : A) ((b , c) : B a × C a) → isContr (Σ[ (b' , c') ∈ B a × C a ] (b B≅ᴰ⟨ ρ a ⟩ b' × c C≅ᴰ⟨ ρ a ⟩ c') )
     contrTot = λ (a : A) ((b , c) : B a × C a)
-      → isContrRespectEquiv
-                               (Σ[ b' ∈ B a ] (b B≅ᴰ⟨ ρ a ⟩ b')
+      → isContrRespectEquiv (Σ[ b' ∈ B a ] (b B≅ᴰ⟨ ρ a ⟩ b')
                                  ≃⟨ invEquiv (Σ-contractSnd (λ _ → isUnivalent→contrRelSingl (_C≅ᴰ⟨ ρ a ⟩_) Cρᴰ Cuniᴰ c)) ⟩
                                (Σ[ b' ∈ B a ] (b B≅ᴰ⟨ ρ a ⟩ b')) × (Σ[ c' ∈ C a ] (c C≅ᴰ⟨ ρ a ⟩ c'))
                                  ≃⟨ Σ-assoc-≃ ⟩
@@ -81,20 +80,6 @@ VerticalLift2-𝒮ᴰ 𝒮-A 𝒮ᴰ-X 𝒮ᴰ-B 𝒮ᴰ-C =
                   (VerticalLift-𝒮ᴰ 𝒮-A 𝒮ᴰ-X 𝒮ᴰ-B)
                   𝒮ᴰ-C
 
--- context: 𝒮-A on A, B and C displayed over 𝒮-A,
---          D displayed over ∫⟨ 𝒮-A ⟩ 𝒮ᴰ-B
--- then D can be lifted to be displayed over ∫⟨ 𝒮-A ⟩ "B × C"
-HorizontalLift-𝒮ᴰ : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
-                 {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
-                 {C : A → Type ℓC} (𝒮ᴰ-C : URGStrᴰ 𝒮-A C ℓ≅C)
-                 {D : (Σ A B) → Type ℓD} (StrDᴰ : URGStrᴰ (∫⟨ 𝒮-A ⟩ 𝒮ᴰ-B) D ℓ≅D)
-                 → URGStrᴰ (∫⟨ 𝒮-A ⟩ combine-𝒮ᴰ 𝒮ᴰ-B 𝒮ᴰ-C)
-                           (λ (a , b , _) → D (a , b)) ℓ≅D
-HorizontalLift-𝒮ᴰ {ℓ≅D = ℓ≅D} 𝒮ᴰ-B 𝒮ᴰ-C {D} StrDᴰ =
-  urgstrᴰ (λ d (p , q , r) d' → d ≅ᴰ⟨ p , q ⟩ d')
-          ρᴰ
-          uniᴰ
-    where open URGStrᴰ StrDᴰ
 
 
 -- context: 𝒮-A on A, 𝒮ᴰ-B / A, 𝒮ᴰ-C / ∫⟨𝒮-A⟩ 𝒮ᴰ-B
@@ -127,8 +112,8 @@ splitTotal-𝒮ᴰ {A = A} 𝒮-A {B} 𝒮ᴰ-B {C} 𝒮ᴰ-C
 
     abstract
       q = λ a (b , c) → isContrRespectEquiv (Σ[ c' ∈ C (a , b) ] c ≅ᴰ⟨ ρ a , Bρᴰ b ⟩ c'
-                                                       ≃⟨ invEquiv (Σ-contractFst-recenter (contrTotalB a b) (b , Bρᴰ b)) ⟩
-                                                     Σ[ (b' , eB) ∈ Σ[ b' ∈ B a ] b B≅ᴰ⟨ ρ a ⟩ b' ] (Σ[ c' ∈ C (a , b') ] (c ≅ᴰ⟨ ρ a , eB ⟩ c'))
+                                                ≃⟨ invEquiv (Σ-contractFst-recenter (contrTotalB a b) (b , Bρᴰ b)) ⟩
+                                            Σ[ (b' , eB) ∈ Σ[ b' ∈ B a ] b B≅ᴰ⟨ ρ a ⟩ b' ] (Σ[ c' ∈ C (a , b') ] (c ≅ᴰ⟨ ρ a , eB ⟩ c'))
                                                        ≃⟨ compEquiv Σ-assoc-≃
                                                                     (compEquiv (Σ-cong-equiv-snd (λ b' → compEquiv (invEquiv Σ-assoc-≃)
                                                                                                                    (compEquiv (Σ-cong-equiv-fst Σ-swap-≃)
@@ -137,6 +122,12 @@ splitTotal-𝒮ᴰ {A = A} 𝒮-A {B} 𝒮ᴰ-B {C} 𝒮ᴰ-C
                                                      Σ[ (b' , c') ∈ Σ[ b' ∈ B a ] C (a , b') ] (Σ[ eB ∈ b B≅ᴰ⟨ ρ a ⟩ b' ] (c ≅ᴰ⟨ ρ a , eB ⟩ c')) ■)
                                                      (contrTotalC a b c)
 
+combine-𝒮ᴰ : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
+                 {B : A → Type ℓB} {C : A → Type ℓC}
+                 (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
+                 (𝒮ᴰ-C : URGStrᴰ 𝒮-A C ℓ≅C)
+                 → URGStrᴰ 𝒮-A (λ a → B a × C a) (ℓ-max ℓ≅B ℓ≅C)
+combine-𝒮ᴰ {𝒮-A = 𝒮-A} 𝒮ᴰ-B 𝒮ᴰ-C = splitTotal-𝒮ᴰ 𝒮-A 𝒮ᴰ-B (VerticalLift-𝒮ᴰ 𝒮-A 𝒮ᴰ-C 𝒮ᴰ-B)
 
 SplitTotal-𝒮ᴰ→RelFamily : {ℓ≅A ℓ≅B ℓ≅C : Level}
                           {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
