@@ -324,6 +324,8 @@ uaCompGroupEquiv f g = caracGroup≡ _ _ (
 
 -- paths between morphisms
 open import Cubical.Homotopy.Base
+
+-- Extensionality for group homomorphisms
 GroupMorphismExt : {G : Group {ℓ}} {G' : Group {ℓ'}} {f g : GroupHom G G'}
                    (H : GroupHom.fun f ∼ GroupHom.fun g)
                    → f ≡ g
@@ -336,8 +338,8 @@ GroupMorphismExt {ℓ} {ℓ'} {G} {G'} {f} {g} H = sym (η-hom f) ∙∙ (λ i �
     isHom≡ = toPathP (isPropIsGroupHom G G' (transp (λ i → isGroupHom G G' (fun≡ i)) i0 (GroupHom.isHom f)) (GroupHom.isHom g))
 
 GroupMorphismExtIso : {G : Group {ℓ}} {G' : Group {ℓ'}}
-                        (f g : GroupHom G G')
-                        → Iso (GroupHom.fun f ∼ GroupHom.fun g) (f ≡ g)
+                      (f g : GroupHom G G')
+                      → Iso (GroupHom.fun f ∼ GroupHom.fun g) (f ≡ g)
 Iso.fun (GroupMorphismExtIso f g) = GroupMorphismExt
 Iso.inv (GroupMorphismExtIso f g) p x = cong (λ h → GroupHom.fun h x) p
 Iso.leftInv (GroupMorphismExtIso {G' = G'} f g) H =
