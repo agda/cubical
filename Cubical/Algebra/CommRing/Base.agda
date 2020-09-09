@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Structures.CommRing where
+module Cubical.Algebra.CommRing.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -13,10 +13,10 @@ open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
-open import Cubical.Structures.Semigroup hiding (⟨_⟩)
-open import Cubical.Structures.Monoid    hiding (⟨_⟩)
-open import Cubical.Structures.AbGroup   hiding (⟨_⟩)
-open import Cubical.Structures.Ring      hiding (⟨_⟩)
+open import Cubical.Algebra.Semigroup    hiding (⟨_⟩)
+open import Cubical.Algebra.Monoid       hiding (⟨_⟩)
+open import Cubical.Algebra.AbGroup   hiding (⟨_⟩)
+open import Cubical.Algebra.Ring      hiding (⟨_⟩)
 
 open Iso
 
@@ -130,7 +130,7 @@ module CommRingΣTheory {ℓ} where
     iso CommRing→CommRingΣ CommRingΣ→CommRing (λ _ → refl) helper
 
     where
-    open import Cubical.Structures.Group.Base hiding (⟨_⟩)
+    open import Cubical.Algebra.Group.Base hiding (⟨_⟩)
     open CommRing
     open IsRing
     open IsCommRing

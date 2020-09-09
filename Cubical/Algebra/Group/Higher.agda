@@ -1,7 +1,7 @@
 
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 
-module Cubical.Structures.Group.Higher where
+module Cubical.Algebra.Group.Higher where
 
 open import Cubical.Core.Everything
 open import Cubical.Data.Nat
@@ -11,8 +11,8 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
-open import Cubical.Structures.Group.Base
-open import Cubical.Structures.Group.EilenbergMacLane1
+open import Cubical.Algebra.Group.Base
+open import Cubical.Algebra.Group.EilenbergMacLane1
 open import Cubical.HITs.EilenbergMacLane1
 
 

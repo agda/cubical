@@ -122,7 +122,6 @@ S1→K₁≡S1×Int = helper2 ⋄ S¹→S¹≡S¹×Int ⋄ helper
     helper3 = trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
                      λ a → cong ∣_∣ (S1→S¹-retr a)
 
-
 {- Proof that S¹→K2 is isomorphic to K2×K1 (as types). Needed for H²(T²)  -}
 S1→K2≡K2×K1 : Iso (S₊ 1 → coHomK 2) (coHomK 2 × coHomK 1)
 Iso.fun S1→K2≡K2×K1 f = f north , ΩKn+1→Kn (sym (rCancelₖ (f north))

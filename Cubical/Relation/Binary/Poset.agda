@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Structures.Poset where
+module Cubical.Relation.Binary.Poset where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Logic

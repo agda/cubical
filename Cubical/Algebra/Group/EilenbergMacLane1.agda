@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 
-module Cubical.Structures.Group.EilenbergMacLane1 where
+module Cubical.Algebra.Group.EilenbergMacLane1 where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -17,8 +17,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Relation.Binary.Base
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
-open import Cubical.Structures.Group.Base
-open import Cubical.Structures.Group.Properties
+open import Cubical.Algebra.Group.Base
+open import Cubical.Algebra.Group.Properties
 open import Cubical.Homotopy.Connected
 open import Cubical.HITs.Nullification as Null hiding (rec; elim)
 open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec; elim to trElim)

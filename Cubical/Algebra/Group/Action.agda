@@ -1,15 +1,15 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 
-module Cubical.Structures.Group.Action where
+module Cubical.Algebra.Group.Action where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Structures.Group.Base
-open import Cubical.Structures.Group.Morphism
-open import Cubical.Structures.Group.Properties
-open import Cubical.Structures.Group.MorphismProperties
+open import Cubical.Algebra.Group.Base
+open import Cubical.Algebra.Group.Morphism
+open import Cubical.Algebra.Group.Properties
+open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Structures.LeftAction
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Macro

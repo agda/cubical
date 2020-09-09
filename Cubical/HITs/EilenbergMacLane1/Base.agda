@@ -9,7 +9,7 @@ This file contains:
 module Cubical.HITs.EilenbergMacLane1.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Structures.Group.Base
+open import Cubical.Algebra.Group.Base
 
 private
   variable ℓ : Level

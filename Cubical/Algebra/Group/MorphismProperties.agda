@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Structures.Group.MorphismProperties where
+module Cubical.Algebra.Group.MorphismProperties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -16,13 +16,13 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Pointed
-open import Cubical.Structures.Semigroup hiding (⟨_⟩)
-open import Cubical.Structures.Monoid hiding (⟨_⟩)
 open import Cubical.Structures.Subtype
+open import Cubical.Algebra.Semigroup hiding (⟨_⟩)
+open import Cubical.Algebra.Monoid    hiding (⟨_⟩)
 
-open import Cubical.Structures.Group.Base
-open import Cubical.Structures.Group.Properties
-open import Cubical.Structures.Group.Morphism
+open import Cubical.Algebra.Group.Base
+open import Cubical.Algebra.Group.Properties
+open import Cubical.Algebra.Group.Morphism
 
 private
   variable

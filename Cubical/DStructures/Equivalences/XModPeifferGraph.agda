@@ -17,9 +17,9 @@ open import Cubical.Data.Unit
 open import Cubical.Relation.Binary
 
 open import Cubical.Structures.Subtype
-open import Cubical.Structures.Group
+open import Cubical.Algebra.Group
 open import Cubical.Structures.LeftAction
-open import Cubical.Structures.Group.Semidirect
+open import Cubical.Algebra.Group.Semidirect
 
 open import Cubical.DStructures.Base
 open import Cubical.DStructures.Meta.Properties

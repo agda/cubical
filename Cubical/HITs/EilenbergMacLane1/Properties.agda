@@ -20,7 +20,7 @@ open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Structures.Group.Base
+open import Cubical.Algebra.Group.Base
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
 open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂; ∣_∣₂; squash₂)

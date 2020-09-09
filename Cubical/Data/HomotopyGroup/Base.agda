@@ -7,7 +7,7 @@ import Cubical.Foundations.GroupoidLaws as GL
 open import Cubical.Foundations.Pointed
 
 open import Cubical.Data.Nat
-open import Cubical.Structures.Group
+open import Cubical.Algebra.Group
 
 open import Cubical.Homotopy.Loopspace
 

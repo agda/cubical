@@ -1,13 +1,13 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 
-module Cubical.Structures.Group.Semidirect where
+module Cubical.Algebra.Group.Semidirect where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Structures.Group.Base
-open import Cubical.Structures.Group.Morphism
-open import Cubical.Structures.Group.MorphismProperties
-open import Cubical.Structures.Group.Action
+open import Cubical.Algebra.Group.Base
+open import Cubical.Algebra.Group.Morphism
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Action
 open import Cubical.Data.Sigma
 
 private

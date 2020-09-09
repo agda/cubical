@@ -22,7 +22,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +-comm to +ℤ-comm ; +-assoc to +ℤ-assoc)
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit
-open import Cubical.Structures.Group
+open import Cubical.Algebra.Group
 
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.S1
@@ -33,11 +33,9 @@ open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim2 t
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Truncation renaming (elim to trElim ; elim2 to trElim2 ; map to trMap ; rec to trRec)
 
-
-
 --------- H⁰(T²) ------------
-H⁰-T²≅0 : GroupEquiv (coHomGr 0 (S₊ 1 × S₊ 1)) intGroup
-H⁰-T²≅0 =
+H⁰-T²≅ℤ : GroupEquiv (coHomGr 0 (S₊ 1 × S₊ 1)) intGroup
+H⁰-T²≅ℤ =
   H⁰-connected (north , north)
     λ (a , b) → pRec propTruncIsProp
                      (λ id1 → pRec propTruncIsProp
@@ -173,3 +171,21 @@ H²-T²≅ℤ = invGroupEquiv ℤ≅H²-T²
                    ∙∙ λ i → assoc (lUnitₖ 0ₖ ∙ sym (rUnitₖ 0ₖ)) (symDistr ((lUnitₖ 0ₖ)) (sym (rUnitₖ 0ₖ)) (~ i)) (cong (_+ₖ 0ₖ) a) i)
                    ∙∙ cong (_∙ (cong (_+ₖ 0ₖ) a)) (rCancel (lUnitₖ 0ₖ ∙ sym (rUnitₖ 0ₖ)))
                    ∙∙ sym (lUnit (cong (_+ₖ 0ₖ) a))
+private
+  to₂ : coHom 2 (S₊ 1 × S₊ 1) → Int
+  to₂ = fst (GroupEquiv.eq H²-T²≅ℤ)
+
+  from₂ : Int → coHom 2 (S₊ 1 × S₊ 1)
+  from₂ = invEq (GroupEquiv.eq H²-T²≅ℤ)
+
+  to₁ : coHom 1 (S₊ 1 × S₊ 1) → Int × Int
+  to₁ = fst (GroupEquiv.eq H¹-T²≅ℤ×ℤ)
+
+  from₁ : Int × Int → coHom 1 (S₊ 1 × S₊ 1)
+  from₁ = invEq (GroupEquiv.eq H¹-T²≅ℤ×ℤ)
+
+  to₀ : coHom 0 (S₊ 1 × S₊ 1) → Int
+  to₀ = fst (GroupEquiv.eq H⁰-T²≅ℤ)
+
+  from₀ : Int → coHom 0 (S₊ 1 × S₊ 1)
+  from₀ = invEq (GroupEquiv.eq H⁰-T²≅ℤ)
