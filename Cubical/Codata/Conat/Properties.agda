@@ -83,11 +83,11 @@ n+′∞≡∞′ (suc n) = λ i → suc (n+∞≡∞ n i)
 ∞+∞≡∞ : ∞ + ∞ ≡ ∞
 force (∞+∞≡∞ i) = suc (∞+∞≡∞ i)
 
-+-zeroˡ : ∀ n → conat zero + n ≡ n
++-zeroˡ : ∀ n → 𝟘 + n ≡ n
 force (+-zeroˡ n _) = force n
 
-+-zeroʳ : ∀ n → n + conat zero ≡ n
-+′-zeroʳ : ∀ n → n +′ conat zero ≡ n
++-zeroʳ : ∀ n → n + 𝟘 ≡ n
++′-zeroʳ : ∀ n → n +′ 𝟘 ≡ n
 
 force (+-zeroʳ n i) = +′-zeroʳ (force n) i
 +′-zeroʳ zero _ = zero
