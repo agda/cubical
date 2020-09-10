@@ -17,11 +17,15 @@ open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SmashProduct
-open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
+open import Cubical.HITs.Truncation as Trunc
 open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn.Base
 open import Cubical.Data.Unit
+
+private
+  variable
+    ℓ ℓ' : Level
 
 -- Note that relative to most sources, this notation is off by +2
 isConnected : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ
@@ -88,7 +92,7 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (n :
   isConnectedPrecompose : ((P : B → TypeOfHLevel (ℓ-max ℓ ℓ') n)
                                     → hasSection (λ(s : (b : B) → P b .fst) → s ∘ f))
                        → isConnectedFun n f
-  isConnectedPrecompose P→sect b = c n P→sect b , λ y →  sym (fun n P→sect b y)
+  isConnectedPrecompose P→sect b = c n P→sect b , λ y →  sym (fun n P→sect b y) -- (c n P→sect b) , λ y → sym (fun n P→sect b y)
     where
     P : (n : HLevel) → ((P : B → TypeOfHLevel ℓ n)
      → hasSection (λ(s : (b : B) → P b .fst) → s ∘ f))
@@ -169,15 +173,6 @@ isConnectedPath n connA a₀ a₁ =
   subst isContr (PathIdTrunc _)
     (isContr→isContrPath connA _ _)
 
-isHLevelConnectedPath2 : ∀ {ℓ} (n : ℕ) {A : Type ℓ}
-  → isConnected (suc n) A
-  → (a₀ a₁ : A) → isConnected n (a₀ ≡ a₁)
-isHLevelConnectedPath2 n connA a₀ a₁ =
-  Iso.fun (ΩTrunc.IsoFinal _ ∣ a₀ ∣ ∣ a₁ ∣) (sym (connA .snd ∣ a₀ ∣) ∙ (connA .snd ∣ a₁ ∣))
-    , λ y → sym (subst isContr (PathIdTrunc _)
-    (isContr→isContrPath connA _ _) .snd _) ∙ (subst isContr (PathIdTrunc _)
-    (isContr→isContrPath connA _ _) .snd y)
-
 isConnectedRetract : ∀ {ℓ ℓ'} (n : HLevel)
   {A : Type ℓ} {B : Type ℓ'}
   (f : A → B) (g : B → A)
@@ -198,6 +193,8 @@ isConnectedPoint n connA a₀ a =
   isConnectedRetract n
     snd (_ ,_) (λ _ → refl)
     (isConnectedPath n connA a₀ a)
+
+
 isConnectedPoint2 : ∀ {ℓ} (n : HLevel) {A : Type ℓ} (a : A)
    → isConnectedFun n (λ(_ : Unit) → a)
    → isConnected (suc n) A
@@ -230,7 +227,6 @@ connectedTruncIso {A = A} {B = B} (suc n) f con = g
   back : B → hLevelTrunc (suc n) A
   back y = map fst ((con y) .fst)
 
-
   backSection :  (b : B) → Path (hLevelTrunc (suc n) B)
                                  (Trunc.rec (isOfHLevelTrunc (suc n))
                                             (λ a → ∣ f a ∣)
@@ -249,6 +245,9 @@ connectedTruncIso {A = A} {B = B} (suc n) f con = g
            → (p : hLevelTrunc (suc n) (Σ A B))
            →  P (map fst p)
     helper P hlev pf = Trunc.elim hlev λ pair → pf (fst pair) (snd pair)
+
+  backRetract : (a : A) → map fst (con (f a) .fst) ≡ ∣ a ∣
+  backRetract a = cong (map fst) (con (f a) .snd ∣ a , refl ∣)
 
   g : Iso (hLevelTrunc (suc n) A) (hLevelTrunc (suc n) B)
   Iso.fun g = map f
@@ -278,7 +277,7 @@ inrConnected : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ
             → isConnectedFun n f
             → isConnectedFun n {A = B} {B = Pushout f g} inr
 inrConnected {A = A} {B = B} {C = C} n f g iscon =
-  elim.isConnectedPrecompose inr n λ P → (k P) , λ b → refl
+  elim.isConnectedPrecompose inr n λ P → (λ  l → k P l) , λ b → refl
   where
   module _ {ℓ : Level} (P : (Pushout f g) → TypeOfHLevel ℓ n)
                    (h : (b : B) → typ (P (inr b)))
@@ -316,3 +315,30 @@ sphereConnected (suc n) =
                    (λ (x : Unit) → inr tt)
                    inr
   mapsAgree = funExt λ _ → refl
+
+module _ where
+  contrConnectedFunElim : {X : Type ℓ} (contr : isContr X)
+                          {Y : Type ℓ'} {n : ℕ} (conn : isConnected (suc n) Y)
+                          (f : X → Y)
+                          → isConnectedFun n f
+  contrConnectedFunElim contr {n = n} conn f y = isConnectedRetract n s r sec (isConnectedPath n conn y₀ y)
+    where
+      x₀ = contr .fst
+      y₀ = f x₀
+
+      s : fiber f y → (y₀ ≡ y)
+      s (x , p) = cong f (contr .snd x) ∙ p
+
+      r : (y₀ ≡ y) → fiber f y
+      fst (r q) = x₀
+      snd (r q) = q
+
+      sec : (z : fiber f y) → r (s z) ≡ z
+      fst (sec (x , p) i) = contr .snd x i
+      snd (sec (x , p) i) j = compPath-filler' (cong f (contr .snd x)) p (~ i) j
+
+  UnitConnectedFunElim : {Y : Type ℓ} {n : ℕ} (conn : isConnected (n + 1) Y)
+                      (f : Unit → Y) → isConnectedFun n f
+  UnitConnectedFunElim {Y = Y} {n = n} conn f =
+    contrConnectedFunElim isContrUnit
+                          (subst (λ m → isConnected m Y) (sym (+-comm 1 n)) conn) f
