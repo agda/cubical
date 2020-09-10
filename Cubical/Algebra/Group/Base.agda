@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Structures.Group.Base where
+module Cubical.Algebra.Group.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
@@ -7,8 +7,8 @@ open import Cubical.Data.Prod renaming (_×_ to _×'_)
 open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_)
 open import Cubical.Data.Unit
 
-open import Cubical.Structures.Monoid hiding (⟨_⟩)
-open import Cubical.Structures.Semigroup hiding (⟨_⟩)
+open import Cubical.Algebra.Monoid hiding (⟨_⟩)
+open import Cubical.Algebra.Semigroup hiding (⟨_⟩)
 open import Cubical.Foundations.HLevels
 
 private
@@ -17,6 +17,7 @@ private
 
 record IsGroup {G : Type ℓ}
                (0g : G) (_+_ : G → G → G) (-_ : G → G) : Type ℓ where
+
   no-eta-equality
   constructor isgroup
 
@@ -45,9 +46,8 @@ record IsGroup {G : Type ℓ}
 η-isGroup id1 id2 id3 i = IsGroup (id1 i) (id2 i) (id3 i)
 
 record Group : Type (ℓ-suc ℓ) where
-
-  constructor group
   no-eta-equality
+  constructor group
   field
     Carrier : Type ℓ
     0g      : Carrier
@@ -67,6 +67,8 @@ Group₀ = Group {ℓ-zero}
 ⟨_⟩ : Group → Type ℓ
 ⟨_⟩ = Group.Carrier
 
+isSetGroup : (G : Group {ℓ}) → isSet ⟨ G ⟩
+isSetGroup G = Group.isGroup G .IsGroup.isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
 makeIsGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
               (is-setG : isSet G)
@@ -201,7 +203,7 @@ _+_ (η-Group _ _ r _ _ i) = r i
 isGroup (η-Group _ _ _ _ t i) = t i
 
 isSetCarrier : ∀ {ℓ} → (G : Group {ℓ}) → isSet ⟨ G ⟩
-isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (isMonoid (isGroup G)))
+isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (isMonoid G))
 
 open IsMonoid
 open IsSemigroup

@@ -31,7 +31,7 @@ open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec)
 open import Cubical.Data.Unit
 
-open import Cubical.Structures.Group
+open import Cubical.Algebra.Group
 
 infixr 31 _□_
 _□_ : _
@@ -222,20 +222,19 @@ H²-S¹≅0 =
   Ker-right⊂Im-ϕ vSES-helper = sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp) -- doesn't terminate without elimination
                                           λ a → I.Ker-i⊂Im-d 1 ∣ a ∣₂
 
---------------- H¹(S²) --------------------------------------------
+--------------- H¹(Sⁿ), n ≥ 1 --------------------------------------------
 
-H¹-S²≅0 : GroupEquiv (coHomGr 1 (S₊ 2)) trivialGroup
-H¹-S²≅0 =
-    coHomPushout≅coHomSn 1 1
-  □ BijectionIsoToGroupEquiv
-      (bij-iso (I.i 1)
-               helper
-               λ x → ∣ 0ₕ , isOfHLevelSuc 0 (isOfHLevelΣ 0 (isContrHⁿ-Unit 0) (λ _ → isContrHⁿ-Unit 0)) _ x ∣₁)
-  □ dirProdEquiv (Hⁿ-Unit≅0 0) (Hⁿ-Unit≅0 0)
-  □ lUnitGroupIso
+H¹-Sⁿ≅0 : (n : ℕ) → GroupEquiv (coHomGr 1 (S₊ (2 + n))) trivialGroup
+H¹-Sⁿ≅0 n = coHomPushout≅coHomSn (1 + n) 1
+         □ BijectionIsoToGroupEquiv
+            (bij-iso (I.i 1)
+                     helper
+                     λ x → ∣ 0ₕ , isOfHLevelSuc 0 (isOfHLevelΣ 0 (isContrHⁿ-Unit zero) (λ _ → isContrHⁿ-Unit zero)) _ x ∣₁)
+         □ dirProdEquiv (Hⁿ-Unit≅0 zero) (Hⁿ-Unit≅0 zero)
+         □ lUnitGroupIso
   where
-    module I = MV Unit Unit (S₊ 1) (λ _ → tt) (λ _ → tt)
-    surj-helper : (x : ⟨ coHomGr 0 (S₊ 1) ⟩) → isInIm _ _ (I.Δ 0) x
+    module I = MV Unit Unit (S₊ (1 + n)) (λ _ → tt) (λ _ → tt)
+    surj-helper : (x : ⟨ coHomGr 0 (S₊ _) ⟩) → isInIm _ _ (I.Δ 0) x
     surj-helper =
       sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
              λ f → ∣ (∣ (λ _ → f north) ∣₂ , 0ₕ)
@@ -246,10 +245,9 @@ H¹-S²≅0 =
     helper =
       sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 (setTruncIsSet _ _))  -- useless elimination speeds things up significantly
              λ x inker → pRec (setTruncIsSet _ _)
-                               (sigmaElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                                           λ a id → sym id ∙ I.Im-Δ⊂Ker-d 0 ∣ a ∣₂ (surj-helper _))
-                               (I.Ker-i⊂Im-d 0 ∣ x ∣₂ inker)
-
+                              (sigmaElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+                                          λ a id → sym id ∙ I.Im-Δ⊂Ker-d 0 ∣ a ∣₂ (surj-helper _))
+                              (I.Ker-i⊂Im-d 0 ∣ x ∣₂ inker)
 
 --------- Direct proof of H¹(S¹) ≅ ℤ without Mayer-Vietoris -------
 
@@ -265,24 +263,28 @@ H¹-S²≅0 =
 -- application of cong₂, which allows us to use basechange-lemma.
 
 coHom1S1≃ℤ : GroupEquiv (coHomGr 1 (S₊ 1)) intGroup
-eq coHom1S1≃ℤ =
-  isoToEquiv
-    (iso (sRec isSetInt (λ f → snd (Iso.fun S¹→S¹≡S¹×Int (Iso.fun S1→S1≡S¹→S¹ f))))                                                 -- fun
-         (λ a → ∣ Iso.inv S1→S1≡S¹→S¹ (Iso.inv S¹→S¹≡S¹×Int (base , a)) ∣₂)                                                           -- inv
-         (λ a → (λ i → snd (Iso.fun S¹→S¹≡S¹×Int (Iso.fun S1→S1≡S¹→S¹ (Iso.inv S1→S1≡S¹→S¹ (Iso.inv S¹→S¹≡S¹×Int (base , a)))))) -- rInv
-              ∙ (λ i → snd (Iso.fun S¹→S¹≡S¹×Int (Iso.rightInv S1→S1≡S¹→S¹ (Iso.inv S¹→S¹≡S¹×Int (base , a)) i)))
-              ∙ λ i → snd (Iso.rightInv S¹→S¹≡S¹×Int (base , a) i))
-         ((sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)                                                                            -- lInv
-                 λ f → (λ i → ∣ Iso.inv S1→S1≡S¹→S¹ (Iso.inv S¹→S¹≡S¹×Int (base , snd (Iso.fun S¹→S¹≡S¹×Int (Iso.fun S1→S1≡S¹→S¹ f)))) ∣₂)
-                      ∙∙ ((λ i → sRec setTruncIsSet
-                                    (λ x → ∣ Iso.inv S1→S1≡S¹→S¹ x ∣₂)
-                                    (sRec setTruncIsSet
-                                          (λ x → ∣ Iso.inv S¹→S¹≡S¹×Int (x , (snd (Iso.fun S¹→S¹≡S¹×Int (Iso.fun S1→S1≡S¹→S¹ f)))) ∣₂)
-                                          (Iso.inv PathIdTrunc₀Iso (isConnectedS¹ (fst (Iso.fun S¹→S¹≡S¹×Int (Iso.fun S1→S1≡S¹→S¹ f)))) i)))
-                       ∙ (λ i → ∣ Iso.inv S1→S1≡S¹→S¹ (Iso.leftInv S¹→S¹≡S¹×Int (Iso.fun S1→S1≡S¹→S¹ f) i) ∣₂))
-                      ∙∙ (λ i → ∣ Iso.leftInv S1→S1≡S¹→S¹ f i ∣₂))))
+eq coHom1S1≃ℤ = isoToEquiv theIso
+  where
+  F = Iso.fun S¹→S¹≡S¹×Int
+  F⁻ = Iso.inv S¹→S¹≡S¹×Int
+  G = Iso.fun S1→S1≡S¹→S¹
+  G⁻ = Iso.inv S1→S1≡S¹→S¹
+
+  theIso : Iso ⟨ coHomGr 1 (S₊ 1) ⟩ ⟨ intGroup ⟩
+  Iso.fun theIso = sRec isSetInt (λ f → snd (F (G f)))
+  Iso.inv theIso a = ∣ G⁻ (F⁻ (base , a)) ∣₂
+  Iso.rightInv theIso a =
+      (cong (snd ∘ F) (Iso.rightInv S1→S1≡S¹→S¹ (F⁻ (base , a)))
+     ∙ cong snd (Iso.rightInv S¹→S¹≡S¹×Int (base , a)))
+  Iso.leftInv theIso =
+    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+          λ f → cong ((sRec setTruncIsSet (λ x → ∣ G⁻ x ∣₂))
+                        ∘ sRec setTruncIsSet λ x → ∣ F⁻ (x , (snd (F (G f)))) ∣₂)
+                      (Iso.inv PathIdTrunc₀Iso (isConnectedS¹ (fst (F (G f)))))
+               ∙∙ cong (∣_∣₂ ∘ G⁻) (Iso.leftInv S¹→S¹≡S¹×Int (G f))
+               ∙∙ cong ∣_∣₂ (Iso.leftInv S1→S1≡S¹→S¹ f)
 isHom coHom1S1≃ℤ =
-  sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _)                                                                                       -- isMorph
+  sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _)
            λ f g → (λ i → winding (guy (ΩKn+1→Kn (Kn→ΩKn+1 1 (f (S¹→S1 base)) ∙ Kn→ΩKn+1 1 (g (S¹→S1 base))))
                                     (λ i → pre-guy (ΩKn+1→Kn (Kn→ΩKn+1 1 (f (S¹→S1 (loop i))) ∙ Kn→ΩKn+1 1 (g (S¹→S1 (loop i))))))))
                  ∙∙ cong winding (helper (f (S¹→S1 base)) (g (S¹→S1 base)) f g refl refl)
@@ -317,8 +319,8 @@ isHom coHom1S1≃ℤ =
                         (cong (Kn→ΩKn+1 1) reflg ∙ Kn→ΩKn+10ₖ 1))
                    ∙ λ j → guy (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (f (S¹→S1 base)) j)
                                 (λ i → pre-guy (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (f (S¹→S1 (loop i))) j))
-                          ∙ guy (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (g (S¹→S1 base)) j)
-                                (λ i → pre-guy (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (g (S¹→S1 (loop i))) j)))
+                         ∙ guy (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (g (S¹→S1 base)) j)
+                               (λ i → pre-guy (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (g (S¹→S1 (loop i))) j)))
 
 
 

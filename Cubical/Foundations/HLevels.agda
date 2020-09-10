@@ -217,6 +217,9 @@ isContrΣ {A = A} {B = B} (a , p) q =
      , ( λ x i → p (x .fst) i
        , h (p (x .fst) i) (transp (λ j → B (p (x .fst) (i ∨ ~ j))) i (x .snd)) i))
 
+isContrΣ′ : (ca : isContr A) → isContr (B (fst ca)) → isContr (Σ A B)
+isContrΣ′ ca cb = isContrΣ ca (λ x → subst _ (snd ca x) cb)
+
 Σ≡Prop-equiv
   : (pB : (x : A) → isProp (B x)) {u v : Σ[ a ∈ A ] B a}
   → isEquiv (Σ≡Prop pB {u} {v})

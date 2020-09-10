@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Structures.Ring where
+module Cubical.Algebra.Ring.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -15,9 +15,9 @@ open import Cubical.Data.Sigma
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
-open import Cubical.Structures.Semigroup hiding (⟨_⟩)
-open import Cubical.Structures.Monoid    hiding (⟨_⟩)
-open import Cubical.Structures.AbGroup   hiding (⟨_⟩)
+open import Cubical.Algebra.Semigroup    hiding (⟨_⟩)
+open import Cubical.Algebra.Monoid       hiding (⟨_⟩)
+open import Cubical.Algebra.AbGroup   hiding (⟨_⟩)
 
 open Iso
 
@@ -68,14 +68,6 @@ record IsRing {R : Type ℓ}
   ·-ldist-+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
   ·-ldist-+ x y z = dist x y z .snd
 
-  -- TODO: prove these somewhere
-
-  -- zero-lid : (x : R) → 0r · x ≡ 0r
-  -- zero-lid x = zero x .snd
-
-  -- zero-rid : (x : R) → x · 0r ≡ 0r
-  -- zero-rid x = zero x .fst
-
 record Ring : Type (ℓ-suc ℓ) where
 
   constructor ring
@@ -108,7 +100,7 @@ makeIsRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → 
              (+-rid : (x : R) → x + 0r ≡ x)
              (+-rinv : (x : R) → x + (- x) ≡ 0r)
              (+-comm : (x y : R) → x + y ≡ y + x)
-             (+-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
+             (r+-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
              (·-rid : (x : R) → x · 1r ≡ x)
              (·-lid : (x : R) → 1r · x ≡ x)
              (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
@@ -196,29 +188,31 @@ module RingΣTheory {ℓ} where
       (isring (AbGroupΣTheory.AbGroupΣ→AbGroup (_ , _ , z ) .AbGroup.isAbGroup)
               w1 w2)
 
-  open import Cubical.Structures.Group.Base hiding (⟨_⟩)
+  open import Cubical.Algebra.Group.Base hiding (⟨_⟩)
   RingIsoRingΣ : Iso Ring RingΣ
   RingIsoRingΣ = iso Ring→RingΣ RingΣ→Ring (λ _ → refl) helper
     where
-    helper : _
-    Ring.Carrier (helper a i) = ⟨ a ⟩
-    Ring.0r (helper a i) = Ring.0r a
-    Ring.1r (helper a i) = Ring.1r a
-    Ring._+_ (helper a i) = Ring._+_ a
-    Ring._·_ (helper a i) = Ring._·_ a
-    Ring.- helper a i = Ring.- a
-    Cubical.Structures.Group.Base.IsGroup.isMonoid (IsAbGroup.isGroup (IsRing.+-isAbGroup (Ring.isRing (helper a i)))) =
-      η-isMonoid (Cubical.Structures.Group.Base.IsGroup.isMonoid (IsAbGroup.isGroup (IsRing.+-isAbGroup (Ring.isRing a)))) i
-    Cubical.Structures.Group.Base.IsGroup.inverse (IsAbGroup.isGroup (IsRing.+-isAbGroup (Ring.isRing (helper a i)))) =
-      Cubical.Structures.Group.Base.IsGroup.inverse (IsAbGroup.isGroup (IsRing.+-isAbGroup (Ring.isRing a)))
-    IsAbGroup.comm (IsRing.+-isAbGroup (Ring.isRing (helper a i))) = IsAbGroup.comm (IsRing.+-isAbGroup (Ring.isRing a))
-    IsSemigroup.is-set (IsMonoid.isSemigroup (IsRing.·-isMonoid (Ring.isRing (helper a i))))
-      = IsSemigroup.is-set (IsMonoid.isSemigroup (IsRing.·-isMonoid (Ring.isRing a)))
-    IsSemigroup.assoc (IsMonoid.isSemigroup (IsRing.·-isMonoid (Ring.isRing (helper a i))))
-      = IsSemigroup.assoc (IsMonoid.isSemigroup (IsRing.·-isMonoid (Ring.isRing a)))
-    IsMonoid.identity (IsRing.·-isMonoid (Ring.isRing (helper a i))) = IsMonoid.identity (IsRing.·-isMonoid (Ring.isRing a))
-    IsRing.dist (Ring.isRing (helper a i)) = IsRing.dist (Ring.isRing a)
+      -- helper will be refl, if eta-equality is activated for all structure-records
+      open IsRing
+      open MonoidΣTheory
+      monoid-helper : retract (Monoid→MonoidΣ {ℓ}) MonoidΣ→Monoid
+      monoid-helper = Iso.leftInv MonoidIsoMonoidΣ
+      open AbGroupΣTheory
+      abgroup-helper : retract (AbGroup→AbGroupΣ {ℓ}) AbGroupΣ→AbGroup
+      abgroup-helper = Iso.leftInv AbGroupIsoAbGroupΣ
 
+      helper : _
+      Ring.Carrier (helper a i) = ⟨ a ⟩
+      Ring.0r (helper a i) = Ring.0r a
+      Ring.1r (helper a i) = Ring.1r a
+      Ring._+_ (helper a i) = Ring._+_ a
+      Ring._·_ (helper a i) = Ring._·_ a
+      Ring.- helper a i = Ring.- a
+      +-isAbGroup (Ring.isRing (helper a i)) =
+        AbGroup.isAbGroup (abgroup-helper (abgroup _ _ _ _ (Ring.+-isAbGroup a)) i)
+      ·-isMonoid (Ring.isRing (helper a i)) =
+        Monoid.isMonoid (monoid-helper (monoid _ _ _ (Ring.·-isMonoid a)) i)
+      dist (Ring.isRing (helper a i)) = dist (Ring.isRing a)
 
   ringUnivalentStr : UnivalentStr RingStructure RingEquivStr
   ringUnivalentStr = axiomsUnivalentStr _ isPropRingAxioms rawRingUnivalentStr
@@ -268,108 +262,3 @@ Ring→AbGroup (ring _ _ _ _ _ _ R) = abgroup _ _ _ _ (IsRing.+-isAbGroup R)
 
 Ring→Monoid : Ring {ℓ} → Monoid {ℓ}
 Ring→Monoid (ring _ _ _ _ _ _ R) = monoid _ _ _ (IsRing.·-isMonoid R)
-
-
-{-
-  some basic calculations (used for example in QuotientRing.agda),
-  that might should become obsolete or subject to change once we
-  have a ring solver (see https://github.com/agda/cubical/issues/297)
--}
-module Theory (R' : Ring {ℓ}) where
-
-  open Ring R' renaming ( Carrier to R )
-
-  implicitInverse : (x y : R)
-                 → x + y ≡ 0r
-                 → y ≡ - x
-  implicitInverse x y p =
-    y               ≡⟨ sym (+-lid y) ⟩
-    0r + y          ≡⟨ cong (λ u → u + y) (sym (+-linv x)) ⟩
-    (- x + x) + y   ≡⟨ sym (+-assoc _ _ _) ⟩
-    (- x) + (x + y) ≡⟨ cong (λ u → (- x) + u) p ⟩
-    (- x) + 0r      ≡⟨ +-rid _ ⟩
-    - x             ∎
-
-  0-selfinverse : - 0r ≡ 0r
-  0-selfinverse = sym (implicitInverse _ _ (+-rid 0r))
-
-  0-idempotent : 0r + 0r ≡ 0r
-  0-idempotent = +-lid 0r
-
-  +-idempotency→0 : (x : R) → x ≡ x + x → 0r ≡ x
-  +-idempotency→0 x p =
-    0r              ≡⟨ sym (+-rinv _) ⟩
-    x + (- x)       ≡⟨ cong (λ u → u + (- x)) p ⟩
-    (x + x) + (- x) ≡⟨ sym (+-assoc _ _ _) ⟩
-    x + (x + (- x)) ≡⟨ cong (λ u → x + u) (+-rinv _) ⟩
-    x + 0r          ≡⟨ +-rid x ⟩
-    x               ∎
-
-  0-rightNullifies : (x : R) → x · 0r ≡ 0r
-  0-rightNullifies x =
-              let x·0-is-idempotent : x · 0r ≡ x · 0r + x · 0r
-                  x·0-is-idempotent =
-                    x · 0r               ≡⟨ cong (λ u → x · u) (sym 0-idempotent) ⟩
-                    x · (0r + 0r)        ≡⟨ ·-rdist-+ _ _ _ ⟩
-                    (x · 0r) + (x · 0r)  ∎
-              in sym (+-idempotency→0 _ x·0-is-idempotent)
-
-  0-leftNullifies : (x : R) → 0r · x ≡ 0r
-  0-leftNullifies x =
-              let 0·x-is-idempotent : 0r · x ≡ 0r · x + 0r · x
-                  0·x-is-idempotent =
-                    0r · x               ≡⟨ cong (λ u → u · x) (sym 0-idempotent) ⟩
-                    (0r + 0r) · x        ≡⟨ ·-ldist-+ _ _ _ ⟩
-                    (0r · x) + (0r · x)  ∎
-              in sym (+-idempotency→0 _ 0·x-is-idempotent)
-
-  -commutesWithRight-· : (x y : R) →  x · (- y) ≡ - (x · y)
-  -commutesWithRight-· x y = implicitInverse (x · y) (x · (- y))
-
-                               (x · y + x · (- y)     ≡⟨ sym (·-rdist-+ _ _ _) ⟩
-                               x · (y + (- y))        ≡⟨ cong (λ u → x · u) (+-rinv y) ⟩
-                               x · 0r                 ≡⟨ 0-rightNullifies x ⟩
-                               0r ∎)
-
-  -commutesWithLeft-· : (x y : R) →  (- x) · y ≡ - (x · y)
-  -commutesWithLeft-· x y = implicitInverse (x · y) ((- x) · y)
-
-                              (x · y + (- x) · y     ≡⟨ sym (·-ldist-+ _ _ _) ⟩
-                              (x - x) · y            ≡⟨ cong (λ u → u · y) (+-rinv x) ⟩
-                              0r · y                 ≡⟨ 0-leftNullifies y ⟩
-                              0r ∎)
-
-  -isDistributive : (x y : R) → (- x) + (- y) ≡ - (x + y)
-  -isDistributive x y =
-    implicitInverse _ _
-         ((x + y) + ((- x) + (- y)) ≡⟨ sym (+-assoc _ _ _) ⟩
-          x + (y + ((- x) + (- y))) ≡⟨ cong
-                                         (λ u → x + (y + u))
-                                         (+-comm _ _) ⟩
-          x + (y + ((- y) + (- x))) ≡⟨ cong (λ u → x + u) (+-assoc _ _ _) ⟩
-          x + ((y + (- y)) + (- x)) ≡⟨ cong (λ u → x + (u + (- x)))
-                                            (+-rinv _) ⟩
-          x + (0r + (- x))           ≡⟨ cong (λ u → x + u) (+-lid _) ⟩
-          x + (- x)                 ≡⟨ +-rinv _ ⟩
-          0r ∎)
-
-  translatedDifference : (x a b : R) → a - b ≡ (x + a) - (x + b)
-  translatedDifference x a b =
-              a - b                       ≡⟨ cong (λ u → a + u)
-                                                  (sym (+-lid _)) ⟩
-              (a + (0r + (- b)))          ≡⟨ cong (λ u → a + (u + (- b)))
-                                                  (sym (+-rinv _)) ⟩
-              (a + ((x + (- x)) + (- b))) ≡⟨ cong (λ u → a + u)
-                                                  (sym (+-assoc _ _ _)) ⟩
-              (a + (x + ((- x) + (- b)))) ≡⟨ (+-assoc _ _ _) ⟩
-              ((a + x) + ((- x) + (- b))) ≡⟨ cong (λ u → u + ((- x) + (- b)))
-                                                  (+-comm _ _) ⟩
-              ((x + a) + ((- x) + (- b))) ≡⟨ cong (λ u → (x + a) + u)
-                                                  (-isDistributive _ _) ⟩
-              ((x + a) - (x + b)) ∎
-
-  +-assoc-comm1 : (x y z : R) → x + (y + z) ≡ y + (x + z)
-  +-assoc-comm1 x y z = +-assoc x y z ∙∙ cong (λ x → x + z) (+-comm x y) ∙∙ sym (+-assoc y x z)
-
-  +-assoc-comm2 : (x y z : R) → x + (y + z) ≡ z + (y + x)
-  +-assoc-comm2 x y z = +-assoc-comm1 x y z ∙∙ cong (λ x → y + x) (+-comm x z) ∙∙ +-assoc-comm1 y z x
