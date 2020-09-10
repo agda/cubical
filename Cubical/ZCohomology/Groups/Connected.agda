@@ -32,17 +32,13 @@ private
     sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
            λ f → cong ∣_∣₂ (funExt λ x → trRec (isSetInt _ _) (cong f) (isConnectedPath 1 con a x .fst))
 
-private
-  H⁰-connected' : ∀ {ℓ} {A : Type ℓ} (a : A) → ((x : A) → ∥ a ≡ x ∥₁) → GroupIso (coHomGr 0 A) intGroup
-  H⁰-connected' a con = invGroupIso Iso⁻
-    where
-    Iso⁻ : GroupIso _ _
-    GroupHom.fun (GroupIso.map Iso⁻) b = ∣ (λ _ → b) ∣₂
-    GroupHom.isHom (GroupIso.map Iso⁻) c d  = cong ∣_∣₂ (funExt λ _ → sym (addLemma c d))
-    GroupIso.inv Iso⁻ = sRec isSetInt (λ f → f a)
-    GroupIso.rightInv Iso⁻ = (sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                                    λ f → cong ∣_∣₂ (funExt λ x → pRec (isSetInt _ _) (cong f) (con x)))
-    GroupIso.leftInv Iso⁻ _ = refl
-
-H⁰-connected : ∀ {ℓ} {A : Type ℓ} (a : A) → ((x : A) → ∥ a ≡ x ∥₁) → GroupEquiv (coHomGr 0 A) intGroup
-H⁰-connected a con = GrIsoToGrEquiv (H⁰-connected' a con)
+H⁰-connected : ∀ {ℓ} {A : Type ℓ} (a : A) → ((x : A) → ∥ a ≡ x ∥₁) → GroupIso (coHomGr 0 A) intGroup
+H⁰-connected a con = invGroupIso Iso⁻
+  where
+  Iso⁻ : GroupIso _ _
+  GroupHom.fun (GroupIso.map Iso⁻) b = ∣ (λ _ → b) ∣₂
+  GroupHom.isHom (GroupIso.map Iso⁻) c d  = cong ∣_∣₂ (funExt λ _ → sym (addLemma c d))
+  GroupIso.inv Iso⁻ = sRec isSetInt (λ f → f a)
+  GroupIso.rightInv Iso⁻ = (sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+                                  λ f → cong ∣_∣₂ (funExt λ x → pRec (isSetInt _ _) (cong f) (con x)))
+  GroupIso.leftInv Iso⁻ _ = refl

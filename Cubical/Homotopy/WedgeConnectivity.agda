@@ -1,3 +1,4 @@
+
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Homotopy.WedgeConnectivity where
 
@@ -37,13 +38,14 @@ module WedgeConnectivity {ℓ ℓ' ℓ''} (n m : ℕ)
         (isConnectedPoint n connA (pt A))
         .equiv-proof (λ _ → g , p ⁻¹)
 
-  extension : ∀ a b → P a b .fst
-  extension a b = main .fst .fst a .fst b
+  abstract
+    extension : ∀ a b → P a b .fst
+    extension a b = main .fst .fst a .fst b
 
-  left : ∀ a → extension a (pt B) ≡ f a
-  left a = main .fst .fst a .snd
+    left : ∀ a → extension a (pt B) ≡ f a
+    left a = main .fst .fst a .snd
 
-  right : ∀ b → extension (pt A) b ≡ g b
-  right = funExt⁻ (cong fst (funExt⁻ (main .fst .snd) _))
+    right : ∀ b → extension (pt A) b ≡ g b
+    right = funExt⁻ (cong fst (funExt⁻ (main .fst .snd) _))
 
-    -- TODO: left (pt A) ⁻¹ ∙ right (pt B) ≡ p
+      -- TODO: left (pt A) ⁻¹ ∙ right (pt B) ≡ p

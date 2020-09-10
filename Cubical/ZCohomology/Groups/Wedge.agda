@@ -25,34 +25,34 @@ open import Cubical.HITs.Pushout
 module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
   module I = MV (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B)
 
-  Hⁿ-⋁ : (n : ℕ) → GroupEquiv (coHomGr (suc n) (A ⋁ B)) (×coHomGr (suc n) (typ A) (typ B))
-  Hⁿ-⋁ zero =
-    BijectionIsoToGroupEquiv
-      (bij-iso
-        (grouphom
-          (GroupHom.fun (I.i 1))
-          (sElim2 (λ _ _ → isOfHLevelPath 2 (isOfHLevelΣ 2 setTruncIsSet λ _ → setTruncIsSet) _ _)
-                  λ a b → GroupHom.isHom (I.i 1) ∣ a ∣₂ ∣ b ∣₂))
-        (sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                λ f inker → helper ∣ f ∣₂ (I.Ker-i⊂Im-d 0 ∣ f ∣₂ inker))
-        (sigmaElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
-                   λ f g → I.Ker-Δ⊂Im-i 1 (∣ f ∣₂ , g) (isOfHLevelSuc 0 (isContrHⁿ-Unit 0) _ _)))
+  Hⁿ-⋁ : (n : ℕ) → GroupIso (coHomGr (suc n) (A ⋁ B)) (×coHomGr (suc n) (typ A) (typ B))
+  Hⁿ-⋁ zero = BijectionIsoToGroupIso bijIso
     where
     surj-helper : (x : coHom 0 Unit)
             → isInIm _ _ (I.Δ 0) x
     surj-helper =
       sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
-            λ f → ∣ (∣ (λ _ → f tt) ∣₂ , 0ₕ) , cong ∣_∣₂ (funExt (λ _ → cong ((f tt) +ₖ_) -0ₖ ∙ rUnitₖ (f tt))) ∣₁
+            λ f → ∣ (∣ (λ _ → f tt) ∣₂ , 0ₕ 0) , cong ∣_∣₂ (funExt (λ _ → cong (λ x → (f tt) +[ 0 ]ₖ x) (-0ₖ {n = 0}) ∙ rUnitₖ 0 (f tt))) ∣₁
 
     helper : (x : coHom 1 (A ⋁ B)) → isInIm _ _ (I.d 0) x
-                  → x ≡ 0ₕ
+                  → x ≡ 0ₕ 1
     helper x inim =
       pRec (setTruncIsSet _ _)
            (λ p → sym (snd p) ∙
                        MV.Im-Δ⊂Ker-d _ _ Unit (λ _ → pt A) (λ _ → pt B) 0 (fst p) (surj-helper (fst p)))
              inim
+
+    bijIso : BijectionIso (coHomGr 1 (A ⋁ B)) (×coHomGr 1 (typ A) (typ B))
+    BijectionIso.map' bijIso = I.i 1
+    BijectionIso.inj bijIso =
+       sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+              λ f inker → helper ∣ f ∣₂ (I.Ker-i⊂Im-d 0 ∣ f ∣₂ inker)
+    BijectionIso.surj bijIso =
+      sigmaElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
+                 λ f g → I.Ker-Δ⊂Im-i 1 (∣ f ∣₂ , g) (isOfHLevelSuc 0 (isContrHⁿ-Unit 0) _ _)
+
   Hⁿ-⋁ (suc n) =
-    vSES→GroupEquiv _ _
+    vSES→GroupIso _ _
       (ses (isOfHLevelSuc 0 (isContrHⁿ-Unit n))
            (isOfHLevelSuc 0 (isContrHⁿ-Unit (suc n)))
            (I.d (suc n))

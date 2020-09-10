@@ -77,6 +77,7 @@ record GroupIso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max 
     leftInv : retract (GroupHom.fun map) inv
 
 record BijectionIso {ℓ ℓ'} (A : Group {ℓ}) (B : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
+  no-eta-equality
   constructor bij-iso
   field
     map' : GroupHom A B
@@ -87,6 +88,7 @@ record BijectionIso {ℓ ℓ'} (A : Group {ℓ}) (B : Group {ℓ'}) : Type (ℓ-
 -- i.e. an exact sequence A → B → C → D where A and D are trivial
 record vSES {ℓ ℓ' ℓ'' ℓ'''} (A : Group {ℓ}) (B : Group {ℓ'}) (leftGr : Group {ℓ''}) (rightGr : Group {ℓ'''})
            : Type (ℓ-suc (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓ''')))) where
+  no-eta-equality
   constructor ses
   field
     isTrivialLeft : isProp ⟨ leftGr ⟩
@@ -231,3 +233,23 @@ leftInv (IsoContrGroupTrivialGroup contr) x = snd contr x
 
 contrGroup≅trivialGroup : {G : Group {ℓ}} → isContr ⟨ G ⟩ → GroupEquiv G trivialGroup
 contrGroup≅trivialGroup contr = GrIsoToGrEquiv (IsoContrGroupTrivialGroup contr)
+
+GroupIso→Iso : {A : Group {ℓ}} {B : Group {ℓ₁}} → GroupIso A B → Iso ⟨ A ⟩ ⟨ B ⟩
+fun (GroupIso→Iso i) = fun (map i)
+inv (GroupIso→Iso i) = inv i
+rightInv (GroupIso→Iso i) = rightInv i
+leftInv (GroupIso→Iso i) = leftInv i
+
+congLemma : ∀ {ℓ} {A : Type ℓ} (_+A_ : A → A → A) (-A_ : A → A)
+            (0A : A)
+            (rUnitA : (x : A) → x +A 0A ≡ x)
+            (lUnitA : (x : A) → 0A +A x ≡ x)
+         → (r≡l : rUnitA 0A ≡ lUnitA 0A)
+         → (p : 0A ≡ 0A) →
+            cong (0A +A_) p ≡ cong (_+A 0A) p
+congLemma _+A_ -A_ 0A rUnitA lUnitA r≡l p =
+     rUnit (cong (0A +A_) p)
+  ∙∙ ((λ i → (λ j → lUnitA 0A (i ∧ j)) ∙∙ cong (λ x → lUnitA x i) p ∙∙ λ j → lUnitA 0A (i ∧ ~ j))
+  ∙∙ cong₂ (λ x y → x ∙∙ p ∙∙ y) (sym r≡l) (cong sym (sym r≡l))
+  ∙∙ λ i → (λ j → rUnitA 0A (~ i ∧ j)) ∙∙ cong (λ x → rUnitA x (~ i)) p ∙∙ λ j → rUnitA 0A (~ i ∧ ~ j))
+  ∙∙ sym (rUnit (cong (_+A 0A) p))

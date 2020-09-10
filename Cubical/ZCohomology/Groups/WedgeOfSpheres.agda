@@ -23,15 +23,15 @@ S²⋁S¹⋁S¹ : Type₀
 S²⋁S¹⋁S¹ = S₊∙ 2 ⋁ (S¹⋁S¹ , inl north)
 
 ------------- H⁰(S¹⋁S¹) ------------
-H⁰-S¹⋁S¹ : GroupEquiv (coHomGr 0 S¹⋁S¹) intGroup
+H⁰-S¹⋁S¹ : GroupIso (coHomGr 0 S¹⋁S¹) intGroup
 H⁰-S¹⋁S¹ = H⁰-connected (inl north) (wedgeConnected _ _  (Sn-connected _) (Sn-connected _))
 
 ------------- H¹(S¹⋁S¹) ------------
-H¹-S¹⋁S¹ : GroupEquiv (coHomGr 1 S¹⋁S¹) (dirProd intGroup intGroup)
-H¹-S¹⋁S¹ =  (Hⁿ-⋁ _ _ 0) □ dirProdEquiv coHom1S1≃ℤ coHom1S1≃ℤ
+H¹-S¹⋁S¹ : GroupIso (coHomGr 1 S¹⋁S¹) (dirProd intGroup intGroup)
+H¹-S¹⋁S¹ =  (Hⁿ-⋁ _ _ 0) □ dirProdGroupIso coHom1S1≃ℤ coHom1S1≃ℤ
 
 ------------- H⁰(S²⋁S¹⋁S¹) ---------
-H⁰-S²⋁S¹⋁S¹ : GroupEquiv (coHomGr 0 S²⋁S¹⋁S¹) intGroup
+H⁰-S²⋁S¹⋁S¹ : GroupIso (coHomGr 0 S²⋁S¹⋁S¹) intGroup
 H⁰-S²⋁S¹⋁S¹ = H⁰-connected (inl north)
                   (wedgeConnected _ _
                     (Sn-connected _)
@@ -40,20 +40,20 @@ H⁰-S²⋁S¹⋁S¹ = H⁰-connected (inl north)
                       (Sn-connected _)))
 
 ------------- H¹(S²⋁S¹⋁S¹) ---------
-H¹-S²⋁S¹⋁S¹ : GroupEquiv (coHomGr 1 S²⋁S¹⋁S¹) (dirProd intGroup intGroup)
+H¹-S²⋁S¹⋁S¹ : GroupIso (coHomGr 1 S²⋁S¹⋁S¹) (dirProd intGroup intGroup)
 H¹-S²⋁S¹⋁S¹ =
     Hⁿ-⋁ (S₊∙ 2) (S¹⋁S¹ , inl north) 0
-  □ dirProdEquiv (H¹-Sⁿ≅0 0) H¹-S¹⋁S¹
+  □ dirProdGroupIso (H¹-Sⁿ≅0 0) H¹-S¹⋁S¹
   □ lUnitGroupIso
 
 ------------- H²(S²⋁S¹⋁S¹) ---------
-H²-S²⋁S¹⋁S¹ : GroupEquiv (coHomGr 2 S²⋁S¹⋁S¹) intGroup
+H²-S²⋁S¹⋁S¹ : GroupIso (coHomGr 2 S²⋁S¹⋁S¹) intGroup
 H²-S²⋁S¹⋁S¹ =
-  compGroupEquiv
+  compGroupIso
   (Hⁿ-⋁ _ _ 1)
-  (dirProdEquiv (invGroupEquiv (Hⁿ-Sⁿ≅ℤ 1))
+  (dirProdGroupIso (invGroupIso (Hⁿ-Sⁿ≅ℤ 1))
                   ((Hⁿ-⋁ _ _ 1)
-                 □ dirProdEquiv H²-S¹≅0 H²-S¹≅0
+                 □ dirProdGroupIso H²-S¹≅0 H²-S¹≅0
                  □ rUnitGroupIso)
   □ rUnitGroupIso)
 
@@ -62,16 +62,16 @@ private
   open import Cubical.Foundations.Equiv
   open import Cubical.Data.Sigma
   to₂ : coHom 2 S²⋁S¹⋁S¹ → Int
-  to₂ = fst (GroupEquiv.eq H²-S²⋁S¹⋁S¹)
+  to₂ = GroupHom.fun (GroupIso.map H²-S²⋁S¹⋁S¹)
   from₂ : Int → coHom 2 S²⋁S¹⋁S¹
-  from₂ = invEq (GroupEquiv.eq H²-S²⋁S¹⋁S¹)
+  from₂ = GroupIso.inv H²-S²⋁S¹⋁S¹
 
   to₁ : coHom 1 S²⋁S¹⋁S¹ → Int × Int
-  to₁ = fst (GroupEquiv.eq H¹-S²⋁S¹⋁S¹)
+  to₁ = GroupHom.fun (GroupIso.map H¹-S²⋁S¹⋁S¹)
   from₁ : Int × Int → coHom 1 S²⋁S¹⋁S¹
-  from₁ = invEq (GroupEquiv.eq H¹-S²⋁S¹⋁S¹)
+  from₁ = GroupIso.inv H¹-S²⋁S¹⋁S¹
 
   to₀ : coHom 0 S²⋁S¹⋁S¹ → Int
-  to₀ = fst (GroupEquiv.eq H⁰-S²⋁S¹⋁S¹)
+  to₀ = GroupHom.fun (GroupIso.map H⁰-S²⋁S¹⋁S¹)
   from₀ : Int → coHom 0 S²⋁S¹⋁S¹
-  from₀ = invEq (GroupEquiv.eq H⁰-S²⋁S¹⋁S¹)
+  from₀ = GroupIso.inv H⁰-S²⋁S¹⋁S¹
