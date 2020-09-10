@@ -17,6 +17,10 @@ open import Cubical.Induction.WellFounded
 
 open import Cubical.Relation.Nullary
 
+private
+  variable
+    ℓ : Level
+
 infix 4 _≤_ _<_
 
 _≤_ : ℕ → ℕ → Type₀
@@ -283,3 +287,24 @@ module <-Reasoning where
 
   _<≡⟨_⟩_ : ∀ k → k < l → l ≡ m → k < m
   _ <≡⟨ p ⟩ q = _ ≤≡⟨ p ⟩ q
+
+
+module LowerBoundedInduction where
+-- given k, if X holds for every r + k,
+-- then X holds for all k ≥ r
++Type→≤Type : (k : ℕ) → (X : ℕ → Type ℓ) → ((r : ℕ) → X (r + k))
+            → (n : ℕ) → k ≤ n → X n
++Type→≤Type k X Xk+ n p = subst (λ n → X n) (snd p) (Xk+ (fst p))
+
+-- same as above, but with arity 2
++Type→≤Type2 : (k k' : ℕ) → (X : ℕ → ℕ → Type ℓ) → ((r r' : ℕ) → X (r + k) (r' + k'))
+             → (n n' : ℕ) → k ≤ n → k' ≤ n' → X n n'
++Type→≤Type2 k k' X Xk'+ n n' p p' = +Type→≤Type k
+                           (λ n → X n n')
+                           (λ r → +Type→≤Type k'
+                                              (λ n' → X (r + k) n')
+                                              (λ r' → Xk'+ r r')
+                                              n'
+                                              p')
+                           n
+                           p
