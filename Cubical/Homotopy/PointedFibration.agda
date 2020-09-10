@@ -17,7 +17,7 @@ open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
-open LowerBoundedInduction
+-- open LowerBoundedInduction
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Foundations.HLevels'

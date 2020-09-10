@@ -23,6 +23,10 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn.Base
 open import Cubical.Data.Unit
 
+private
+  variable
+    ℓ ℓ' : Level
+
 -- Note that relative to most sources, this notation is off by +2
 isConnected : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ
 isConnected n A = isContr (hLevelTrunc n A)
@@ -316,3 +320,30 @@ sphereConnected (suc n) =
                    (λ (x : Unit) → inr tt)
                    inr
   mapsAgree = funExt λ _ → refl
+
+
+contrConnectedFunElim : {X : Type ℓ} (contr : isContr X)
+                        {Y : Type ℓ'} {n : ℕ} (conn : isConnected (suc n) Y)
+                        (f : X → Y)
+                        → isConnectedFun n f
+contrConnectedFunElim contr {n = n} conn f y = isConnectedRetract n s r sec (isConnectedPath n conn y₀ y)
+  where
+    x₀ = contr .fst
+    y₀ = f x₀
+
+    s : fiber f y → (y₀ ≡ y)
+    s (x , p) = cong f (contr .snd x) ∙ p
+
+    r : (y₀ ≡ y) → fiber f y
+    fst (r q) = x₀
+    snd (r q) = q
+
+    sec : (z : fiber f y) → r (s z) ≡ z
+    fst (sec (x , p) i) = contr .snd x i
+    snd (sec (x , p) i) j = compPath-filler' (cong f (contr .snd x)) p (~ i) j
+
+UnitConnectedFunElim : {Y : Type ℓ} {n : ℕ} (conn : isConnected (n + 1) Y)
+                    (f : Unit → Y) → isConnectedFun n f
+UnitConnectedFunElim {Y = Y} {n = n} conn f =
+  contrConnectedFunElim isContrUnit
+                        (subst (λ m → isConnected m Y) (sym (+-comm 1 n)) conn) f

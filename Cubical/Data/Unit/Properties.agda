@@ -15,6 +15,10 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 
+private
+  variable
+    ℓ : Level
+
 isContrUnit : isContr Unit
 isContrUnit = tt , λ {tt → refl}
 
