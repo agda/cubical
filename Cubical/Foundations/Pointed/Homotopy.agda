@@ -26,7 +26,8 @@ private
 
 module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 
-  ⋆ = pt A
+  private
+    ⋆ = pt A
 
   -- pointed homotopy as pointed Π. This is just a Σ-type, see ∙∼Σ
   _∙∼_ : (f g : Π∙ A B ptB) → Type (ℓ-max ℓ ℓ')
