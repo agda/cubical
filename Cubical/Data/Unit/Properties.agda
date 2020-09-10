@@ -53,3 +53,6 @@ isContr→≃Unit contr = isoToEquiv (iso (λ _ → tt) (λ _ → fst contr) (λ
 
 isContr→≡Unit : {A : Type₀} → isContr A → A ≡ Unit
 isContr→≡Unit contr = ua (isContr→≃Unit contr)
+
+𝟙-universal : (X : Type ℓ) → Iso (Unit → X) X
+𝟙-universal X = iso (λ f → f tt) (λ x _ → x) (λ _ → refl) λ _ → refl
