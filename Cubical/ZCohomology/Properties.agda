@@ -25,7 +25,7 @@ open import Cubical.HITs.Truncation.FromNegOne renaming (elim to trElim ; map to
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
-open import Cubical.HITs.SmashProduct.Base
+-- open import Cubical.HITs.SmashProduct.Base
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
@@ -244,24 +244,25 @@ rUnitlUnit0 (suc n) =
           ∙ (cong ΩKn+1→Kn (sym (rUnit (Kn→ΩKn+1 (suc n) (0ₖ (suc n))))))
           ≡ (λ i → ΩKn+1→Kn (Kn→ΩKn+10ₖ (suc n) i ∙ Kn→ΩKn+1 (suc n) (0ₖ (suc n))))
           ∙ (cong ΩKn+1→Kn (sym (lUnit (Kn→ΩKn+1 (suc n) (0ₖ (suc n))))))
-  helper = ((λ j → lUnit (rUnit ((λ i → ΩKn+1→Kn (Kn→ΩKn+1 (suc n) (0ₖ (suc n)) ∙ Kn→ΩKn+10ₖ (suc n) i))) j) j
-                   ∙ rUnit (cong ΩKn+1→Kn (sym (rUnit (Kn→ΩKn+1 (suc n) (0ₖ (suc n)))))) j)
-         ∙∙ (λ j → ((λ z → ΩKn+1→Kn (Kn→ΩKn+1 (suc n) ∣ north ∣ ∙ (λ i → ∣ rCancel (merid north) (z ∧ j) i ∣)))
-                 ∙ (λ i → ΩKn+1→Kn (Kn→ΩKn+1 (suc n) (0ₖ (suc n)) ∙ Kn→ΩKn+10ₖ (suc n) (i ∨ j)))
-                 ∙ λ z → ΩKn+1→Kn (((λ i → ∣ rCancel (merid north) (z ∧ j) i ∣)) ∙ refl))
-                 ∙ cong ΩKn+1→Kn (sym (rUnit (Kn→ΩKn+10ₖ (suc n) j)))
-                 ∙ λ z → ΩKn+1→Kn (λ i → ∣ rCancel (merid north) ((~ z) ∧ j) i ∣))
-         ∙∙ (λ j → (((λ z → ΩKn+1→Kn (Kn→ΩKn+1 (suc n) ∣ north ∣ ∙ (λ i → ∣ rCancel (merid north) z i ∣))))
-                  ∙ (λ i → ΩKn+1→Kn (Kn→ΩKn+1 (suc n) (0ₖ (suc n)) ∙ refl))
-                  ∙ λ z → ΩKn+1→Kn ((λ i → ∣ rCancel (merid north) z i ∣) ∙ λ i → ∣ rCancel (merid north) ((~ z) ∨ (~ j)) i ∣))
-                 ∙ cong ΩKn+1→Kn (sym (lUnit (Kn→ΩKn+10ₖ (suc n) (~ j))))
-                 ∙ λ z → ΩKn+1→Kn (λ i → ∣ rCancel (merid north) (~ z ∧ (~ j)) i ∣)))
-         ∙∙ (λ j → ((λ z → ΩKn+1→Kn (Kn→ΩKn+1 (suc n) ∣ north ∣  ∙ λ i → ∣ rCancel (merid north) (z ∧ (~ j)) i ∣))
-                  ∙ (λ i → ΩKn+1→Kn (Kn→ΩKn+10ₖ (suc n) (i ∧ j) ∙ Kn→ΩKn+10ₖ (suc n) (~ j)))
-                  ∙ λ z → ΩKn+1→Kn ((λ i → ∣ rCancel (merid north) (z ∨ j) i ∣) ∙ λ i → ∣ rCancel (merid north) (~ z ∧ ~ j) i ∣))
-                 ∙ rUnit (cong ΩKn+1→Kn (sym (lUnit (Kn→ΩKn+1 (suc n) (0ₖ (suc n)))))) (~ j))
-         ∙∙ (λ j → lUnit (rUnit (λ i → ΩKn+1→Kn (Kn→ΩKn+10ₖ (suc n) i ∙ Kn→ΩKn+1 (suc n) (0ₖ (suc n)))) (~ j)) (~ j)
-                 ∙ cong ΩKn+1→Kn (sym (lUnit (Kn→ΩKn+1 (suc n) (0ₖ (suc n))))))
+  helper =
+    ((λ j → lUnit (rUnit ((λ i → ΩKn+1→Kn (Kn→ΩKn+1 (suc n) (0ₖ (suc n)) ∙ Kn→ΩKn+10ₖ (suc n) i))) j) j
+                     ∙ rUnit (cong ΩKn+1→Kn (sym (rUnit (Kn→ΩKn+1 (suc n) (0ₖ (suc n)))))) j)
+           ∙∙ (λ j → ((λ z → ΩKn+1→Kn (Kn→ΩKn+1 (suc n) ∣ north ∣ ∙ (λ i → ∣ rCancel (merid north) (z ∧ j) i ∣)))
+                   ∙ (λ i → ΩKn+1→Kn (Kn→ΩKn+1 (suc n) (0ₖ (suc n)) ∙ Kn→ΩKn+10ₖ (suc n) (i ∨ j)))
+                   ∙ λ z → ΩKn+1→Kn (((λ i → ∣ rCancel (merid north) (z ∧ j) i ∣)) ∙ refl))
+                   ∙ cong ΩKn+1→Kn (sym (rUnit (Kn→ΩKn+10ₖ (suc n) j)))
+                   ∙ λ z → ΩKn+1→Kn (λ i → ∣ rCancel (merid north) ((~ z) ∧ j) i ∣))
+           ∙∙ (λ j → (((λ z → ΩKn+1→Kn (Kn→ΩKn+1 (suc n) ∣ north ∣ ∙ (λ i → ∣ rCancel (merid north) z i ∣))))
+                    ∙ (λ i → ΩKn+1→Kn (Kn→ΩKn+1 (suc n) (0ₖ (suc n)) ∙ refl))
+                    ∙ λ z → ΩKn+1→Kn ((λ i → ∣ rCancel (merid north) z i ∣) ∙ λ i → ∣ rCancel (merid north) ((~ z) ∨ (~ j)) i ∣))
+                   ∙ cong ΩKn+1→Kn (sym (lUnit (Kn→ΩKn+10ₖ (suc n) (~ j))))
+                   ∙ λ z → ΩKn+1→Kn (λ i → ∣ rCancel (merid north) (~ z ∧ (~ j)) i ∣)))
+           ∙∙ (λ j → ((λ z → ΩKn+1→Kn (Kn→ΩKn+1 (suc n) ∣ north ∣  ∙ λ i → ∣ rCancel (merid north) (z ∧ (~ j)) i ∣))
+                    ∙ (λ i → ΩKn+1→Kn (Kn→ΩKn+10ₖ (suc n) (i ∧ j) ∙ Kn→ΩKn+10ₖ (suc n) (~ j)))
+                    ∙ λ z → ΩKn+1→Kn ((λ i → ∣ rCancel (merid north) (z ∨ j) i ∣) ∙ λ i → ∣ rCancel (merid north) (~ z ∧ ~ j) i ∣))
+                   ∙ rUnit (cong ΩKn+1→Kn (sym (lUnit (Kn→ΩKn+1 (suc n) (0ₖ (suc n)))))) (~ j))
+           ∙∙ (λ j → lUnit (rUnit (λ i → ΩKn+1→Kn (Kn→ΩKn+10ₖ (suc n) i ∙ Kn→ΩKn+1 (suc n) (0ₖ (suc n)))) (~ j)) (~ j)
+                   ∙ cong ΩKn+1→Kn (sym (lUnit (Kn→ΩKn+1 (suc n) (0ₖ (suc n))))))
 
 ---- Group structure of reduced cohomology groups (in progress - might need K to compute properly first) ---
 
@@ -352,3 +353,61 @@ addLemma a b = (cong ΩKn+1→Kn (sym (congFunct ∣_∣ (looper a) (looper b)))
               ∙∙ cong (λ x → ΩKn+1→Kn (cong ∣_∣ (cong SuspBool→S1 (cong S¹→SuspBool x)))) (intLoop-hom a b))
               ∙∙ (cong (λ x → ΩKn+1→Kn (λ i → ∣ x i ∣)) (sym (looper≡looper2 (a ℤ+ b)))
                 ∙ Iso.leftInv (Iso3-Kn-ΩKn+1 zero) (a ℤ+ b))
+
+
+
+
+---
+-- hidden versions of cohom stuff using the "lock" hack. The locked versions can be used when proving things. Swapping "key" for "tt*" will then give computing functions. 
+
+Unit' : Type₀
+Unit' = Unit* {ℓ-zero}
+
+lock : ∀ {ℓ} {A : Type ℓ} → Unit' → A → A 
+lock tt* = λ x → x
+
+unlock : ∀ {ℓ} {A : Type ℓ} {x y : A} (t : Unit') → x ≡ y → lock t x ≡ y
+unlock tt* p = p
+
+module lockedCohom (key : Unit') where
+  +K : (n : ℕ) → coHomK n → coHomK n → coHomK n
+  +K n = lock key (_+ₖ_ {n = n})
+
+  -K : (n : ℕ) → coHomK n → coHomK n
+  -K n = lock key (-ₖ_ {n = n})
+
+  rUnitK : (n : ℕ) (x : coHomK n) → +K n x (0ₖ n) ≡ x
+  rUnitK n x = pm key
+    where
+    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) x (0ₖ n) ≡ x
+    pm tt* = rUnitₖ n x
+
+  lUnitK : (n : ℕ) (x : coHomK n) → +K n (0ₖ n) x ≡ x
+  lUnitK n x = pm key
+    where
+    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) (0ₖ n) x ≡ x
+    pm tt* = lUnitₖ n x
+
+  rCancelK : (n : ℕ) (x : coHomK n) → +K n x (-K n x) ≡ 0ₖ n
+  rCancelK n x = pm key
+    where
+    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) x (lock t (-ₖ_ {n = n}) x) ≡ 0ₖ n
+    pm tt* = rCancelₖ n x
+
+  lCancelK : (n : ℕ) (x : coHomK n) → +K n (-K n x) x ≡ 0ₖ n
+  lCancelK n x = pm key
+    where
+    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) (lock t (-ₖ_ {n = n}) x) x ≡ 0ₖ n
+    pm tt* = lCancelₖ n x
+
+  assocK : (n : ℕ) (x y z : coHomK n) → +K n (+K n x y) z ≡ +K n x (+K n y z)
+  assocK n x y z = pm key
+    where
+    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) (lock t (_+ₖ_ {n = n}) x y) z ≡ lock t (_+ₖ_ {n = n}) x (lock t (_+ₖ_ {n = n}) y z)
+    pm tt* = assocₖ n x y z
+
+  commK : (n : ℕ) (x y : coHomK n) → +K n x y ≡ +K n y x
+  commK n x y = pm key 
+    where
+    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) x y ≡ lock t (_+ₖ_ {n = n}) y x
+    pm tt* = commₖ n x y

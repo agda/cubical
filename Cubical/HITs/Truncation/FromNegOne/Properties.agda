@@ -154,6 +154,32 @@ elim3 : {n : ℕ}
 elim3 {n = n} hB g = elim2 (λ _ _ → isOfHLevelΠ (suc n) (hB _ _)) λ a b →
                     elim (λ _ → hB _ _ _) (λ c → g a b c)
 
+minΣ : (n m : ℕ) → Σ[ x ∈ ℕ ] x + min n m ≡ n
+minΣ zero m = 0 , refl
+minΣ (suc n) zero = (suc n) , cong suc (+-zero n)
+minΣ (suc n) (suc m) = (minΣ n m .fst) , +-suc _ _ ∙ cong suc (minΣ n m .snd)
+
+minComm : (n m : ℕ) → min n m ≡ min m n
+minComm zero zero = refl
+minComm zero (suc m) = refl
+minComm (suc n) zero = refl
+minComm (suc n) (suc m) = cong suc (minComm n m)
+
+isOfHLevelMin→isOfHLevel : {n m : ℕ} → isOfHLevel (min n m) A → isOfHLevel n A × isOfHLevel m A
+isOfHLevelMin→isOfHLevel {n = zero} {m = m} h = h , isContr→isOfHLevel m h
+isOfHLevelMin→isOfHLevel {n = suc n} {m = zero} h = (isContr→isOfHLevel (suc n) h) , h
+isOfHLevelMin→isOfHLevel {A = A} {n = suc n} {m = suc m} h = (subst (λ x → isOfHLevel x A) (minΣ (suc n) (suc m) .snd) (isOfHLevelPlus _ h))
+                                                           , subst (λ x → isOfHLevel x A) (cong (λ y → minΣ m n .fst + suc y) (minComm n m) ∙ minΣ (suc m) (suc n) .snd) (isOfHLevelPlus _ h)
+
+open import Cubical.Data.Nat hiding (elim )
+ΣTruncElim : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {n m : ℕ}
+              {B : (x : ∥ A ∥ (suc n)) → Type ℓ'}
+              {C : (Σ[ a ∈ (∥ A ∥ (suc n)) ] (∥ B a ∥ (suc m))) → Type ℓ''}
+              → ((x : (Σ[ a ∈ (∥ A ∥ (suc n)) ] (∥ B a ∥ (suc m)))) → isOfHLevel (min (suc n) (suc m)) (C x))
+              → ((a : A) (b : B (∣ a ∣)) → C (∣ a ∣ , ∣ b ∣))
+              → (x : (Σ[ a ∈ (∥ A ∥ (suc n)) ] (∥ B a ∥ (suc m)))) → (C x)
+ΣTruncElim {n = n} {m = m} {B = B} {C = C} hB g (a , b) = (elim {B = λ a → (b :  (∥ B a ∥ (suc m))) → C (a , b)} (λ x → isOfHLevelΠ (suc n) λ b → isOfHLevelMin→isOfHLevel (hB (x , b)) .fst ) (λ a → elim (λ _ → isOfHLevelMin→isOfHLevel (hB (∣ a ∣ , _)) .snd) λ b → g a b) a) b
+
 truncIdempotentIso : (n : ℕ) → isOfHLevel n A → Iso (∥ A ∥ n) A
 truncIdempotentIso zero hA = isContr→Iso (isOfHLevelUnit* 0) hA
 Iso.fun (truncIdempotentIso (suc n) hA) = rec hA λ a → a

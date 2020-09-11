@@ -123,7 +123,12 @@ FreudenthalIso : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
                 → isConnected (2 + n) (typ A)
                 → Iso (hLevelTrunc ((suc n) + (suc n)) (typ A))
                       (hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north))))
-FreudenthalIso n A iscon = connectedTruncIso _ (σ n {A = A} iscon) (isConnectedσ _ iscon)
+FreudenthalIso zero A iscon = connectedTruncIso _ (σ 0 {A = A} iscon) (isConnectedσ _ iscon) -- pattern matching to prevent Agda from expanding
+FreudenthalIso (suc zero) A iscon = connectedTruncIso _ (σ 1 {A = A} iscon) (isConnectedσ _ iscon)
+FreudenthalIso (suc (suc zero)) A iscon = connectedTruncIso _ (σ 2 {A = A} iscon) (isConnectedσ _ iscon)
+FreudenthalIso (suc (suc (suc zero))) A iscon = connectedTruncIso _ (σ 3 {A = A} iscon) (isConnectedσ _ iscon)
+FreudenthalIso (suc (suc (suc (suc zero)))) A iscon = connectedTruncIso _ (σ 4 {A = A} iscon) (isConnectedσ _ iscon)
+FreudenthalIso (suc (suc (suc (suc (suc n))))) A iscon = connectedTruncIso _ (σ (5 + n) {A = A} iscon) (isConnectedσ _ iscon)
 
 -- -- Tests
 -- open import Cubical.Homotopy.Loopspace

@@ -21,7 +21,6 @@ open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +-comm to +ℤ-comm ; +-as
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation.FromNegOne renaming (elim to trElim ; map to trMap ; rec to trRec)
 
-
 infixr 33 _⋄_
 
 _⋄_ : _
@@ -32,8 +31,6 @@ _⋄_ = compIso
 0₂ = 0ₖ 2
 0₃ = 0ₖ 3
 0₄ = 0ₖ 4
-
-
 
 S¹map : hLevelTrunc 3 S¹ → S¹
 S¹map = trRec isGroupoidS¹ (idfun _)
@@ -127,149 +124,144 @@ S1→K₁≡S1×Int = helper2 ⋄ S¹→S¹≡S¹×Int ⋄ helper
     helper3 = trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
                      λ a i → ∣ (S1→S¹-retr a) i ∣
 
-{- Proof that S¹→K2 is isomorphic to K2×K1 (as types). Needed for H²(T²)  -}
-S1→K2≡K2×K1 : Iso (S₊ 1 → coHomK 2) (coHomK 2 × coHomK 1)
-Iso.fun S1→K2≡K2×K1 f = f north , ΩKn+1→Kn (sym (rCancelₖ 2 (f north))
-                                           ∙ (λ i → f (merid south i) +ₖ (-ₖ f (merid north i)))
-                                           ∙ rCancelₖ 2 (f south))
-Iso.inv S1→K2≡K2×K1 (a , b) north = a +ₖ 0₂
-Iso.inv S1→K2≡K2×K1 (a , b) south = a +ₖ 0₂
-Iso.inv S1→K2≡K2×K1 (a , b) (merid south i) = a +ₖ (Kn→ΩKn+1 1 b i)
-Iso.inv S1→K2≡K2×K1 (a , b) (merid north i) = a +ₖ 0₂
-Iso.rightInv S1→K2≡K2×K1 (a , b) =
-  ΣPathP ((rUnitₖ 2 a) ,
-     ((cong ΩKn+1→Kn (congHelper2 (Kn→ΩKn+1 1 b) (λ x → (a +ₖ x) +ₖ (-ₖ (a +ₖ 0₂))) (funExt (λ x → sym (cancelHelper a x))) (rCancelₖ 2 (a +ₖ 0₂))))
-    ∙ Iso.leftInv (Iso3-Kn-ΩKn+1 1) b))
-    module _ where
 
-    cancelHelper : (a b : coHomK 2) → (a +ₖ b) +ₖ (-ₖ (a +ₖ 0₂)) ≡ b
-    cancelHelper a b =
-      (a +ₖ b) +ₖ (-ₖ (a +ₖ (0ₖ _)))      ≡⟨ (λ i → (a +ₖ b) +ₖ (-ₖ (rUnitₖ _ a i))) ⟩≡⟨ cong (_+ₖ (-ₖ a)) (commₖ _ a b) ⟩
-      (b +ₖ a) +ₖ (-ₖ a)             ≡⟨ assocₖ _ b a (-ₖ a) ⟩≡⟨ cong (b +ₖ_) (rCancelₖ _ a) ⟩
-      (b +ₖ 0₂                       ≡⟨ rUnitₖ _ b ⟩
-      b ∎)
+module _ (key : Unit') where
+  module P = lockedCohom key
+  _+K_ : {n : ℕ} → coHomK n → coHomK n → coHomK n
+  _+K_ {n = n} = P.+K n
 
-    congHelper2 : (p : 0₂ ≡ 0₂) (f : coHomK 2 → coHomK 2) (id : (λ x → x) ≡ f) → (q : (f 0₂) ≡ 0₂)
-                → (sym q) ∙ cong f p ∙ q ≡ p
-    congHelper2 p f = J (λ f _ → (q : (f 0₂) ≡ 0₂) → (sym q) ∙ cong f p ∙ q ≡ p)
-                       λ q → (cong (sym q ∙_) (isCommΩK 2 p _) ∙∙ assoc _ _ _ ∙∙ cong (_∙ p) (lCancel q))
-                            ∙ sym (lUnit p)
+  -K_ : {n : ℕ} → coHomK n → coHomK n
+  -K_ {n = n} = P.-K n
 
-Iso.leftInv S1→K2≡K2×K1 a =
-  funExt λ {north → rUnitₖ _ (a north)
-          ; south → rUnitₖ _ (a north) ∙ cong a (merid north)
-          ; (merid south i) → m-south i
-          ; (merid north i) → m-north i}
-  where
+  infixr 55 _+K_
+  infixr 55 -K_
 
-  m-north : PathP (λ i → a north +ₖ ∣ north ∣ ≡ a (merid north i))
-                (rUnitₖ _ (a north)) (rUnitₖ _ (a north) ∙ cong a (merid north))
-  m-north i j =
-    hcomp (λ k → λ { (i = i0) → rUnitₖ _ (a north) j
-                   ; (j = i1) → a (merid north (i ∧ k))
-                   ; (j = i0) → a north +ₖ ∣ north ∣})
-          (rUnitₖ _ (a north) j)
+  {- Proof that S¹→K2 is isomorphic to K2×K1 (as types). Needed for H²(T²)  -}
+  S1→K2≡K2×K1' : Iso (S₊ 1 → coHomK 2) (coHomK 2 × coHomK 1)
+  Iso.fun S1→K2≡K2×K1' f = (f north , ΩKn+1→Kn (sym (P.rCancelK 2 (f north))
+                                                          ∙ (λ i → f (merid south i) +K (-K f (merid north i)))
+                                                          ∙ P.rCancelK 2 (f south)))
+  Iso.inv S1→K2≡K2×K1' (a , b) north = a +K 0₂ -- a +ₖ 0₂
+  Iso.inv S1→K2≡K2×K1' (a , b) south = a +K 0₂ -- a +ₖ 0₂
+  Iso.inv S1→K2≡K2×K1' (a , b) (merid south i) = a +K (Kn→ΩKn+1 1 b i)
+  Iso.inv S1→K2≡K2×K1' (a , b) (merid north i) = a +K 0₂
+  Iso.rightInv S1→K2≡K2×K1' (a , b) = ΣPathP ((P.rUnitK 2 a) , cong ΩKn+1→Kn (congHelper2 (Kn→ΩKn+1 1 b) (λ x → (a +K x) +K (-K (a +K 0₂))) (funExt (λ x → sym (cancelHelper a x))) (P.rCancelK 2 (a +K 0₂))) ∙ Iso.leftInv (Iso3-Kn-ΩKn+1 1) b)
+      module _ where
+      cancelHelper : (a b : coHomK 2) → (a +K b) +K (-K (a +K 0₂)) ≡ b
+      cancelHelper a b =
+        (a +K b) +K (-K (a +K (0ₖ _)))      ≡⟨ (λ i → (a +K b) +K (-K (P.rUnitK _ a i))) ⟩≡⟨ cong (_+K (-K a)) (P.commK _ a b) ⟩
+        (b +K a) +K (-K a)             ≡⟨ P.assocK _ b a (-K a) ⟩≡⟨ cong (b +K_) (P.rCancelK _ a) ⟩
+        (b +K 0₂                       ≡⟨ P.rUnitK _ b ⟩
+        b ∎)
 
-  m-south : PathP (λ i → a north +ₖ Kn→ΩKn+1 1 (ΩKn+1→Kn (sym (rCancelₖ _ (a north))
-                         ∙ (λ i → a (merid south i) +ₖ (-ₖ a (merid north i)))
-                         ∙ rCancelₖ _ (a south))) i ≡ a (merid south i)) (rUnitₖ _ (a north)) (rUnitₖ _ (a north) ∙ cong a (merid north))
-  m-south j i =
-    hcomp (λ k → λ { (i = i0) → (helper ∙∙ together ∙∙ congFunct (_+ₖ 0₂) (cong a (merid south)) (cong a (sym (merid north)))) (~ k) j
-                   ; (i = i1) → a (merid south j)
-                   ; (j = i0) → rUnitₖ _ (a north) i
-                   ; (j = i1) → ((λ j → rUnitₖ _ (a (merid north ((~ k) ∧ j))) (j ∧ k)) ∙ λ j → rUnitₖ _ (a (merid north ((~ k) ∨ j))) (k ∨ j)) i })
-         (hcomp (λ k → λ { (i = i1) → a (merid south j)
-                          ; (i = i0) → compPath-filler ((cong (λ x → a x +ₖ 0₂) (merid south))) (cong (λ x → a x +ₖ 0₂) (sym (merid north))) k j
-                          ; (j = i0) → rUnitₖ _ (a north) i
-                          ; (j = i1) → pathFiller2 (cong (_+ₖ 0₂) (cong a (merid north))) (rUnitₖ _ (a south)) k i})
-                 (rUnitₖ _ (a (merid south j)) i))
+      congHelper2 : (p : 0₂ ≡ 0₂) (f : coHomK 2 → coHomK 2) (id : (λ x → x) ≡ f) → (q : (f 0₂) ≡ 0₂)
+                  → (sym q) ∙ cong f p ∙ q ≡ p
+      congHelper2 p f = J (λ f _ → (q : (f 0₂) ≡ 0₂) → (sym q) ∙ cong f p ∙ q ≡ p)
+                         λ q → (cong (sym q ∙_) (isCommΩK 2 p _) ∙∙ assoc _ _ _ ∙∙ cong (_∙ p) (lCancel q))
+                              ∙ sym (lUnit p)
 
-
+  Iso.leftInv S1→K2≡K2×K1' a =
+    funExt λ {north → P.rUnitK _ (a north)
+            ; south → P.rUnitK _ (a north) ∙ cong a (merid north)
+            ; (merid south i) → m-south i
+            ; (merid north i) → m-north i}
     where
-    pathFiller : (rUnitₖ _ (a north) ∙ cong a (merid north)) ≡ cong (_+ₖ 0₂) (cong a (merid north)) ∙ rUnitₖ _ (a south)
-    pathFiller = (λ i → (λ j → rUnitₖ _ (a (merid north (i ∧ j))) (j ∧ (~ i)))
-                ∙ λ j → rUnitₖ _ (a (merid north (i ∨ j))) (~ i ∨ j))
 
-    pathFiller2 : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → PathP (λ i → p (~ i) ≡ z) q (p ∙ q)
-    pathFiller2 p q i =
-      hcomp (λ k → λ { (i = i0) → lUnit q (~ k)
-                     ; (i = i1) → p ∙ q})
-            ((λ j → p (~ i ∨ j)) ∙ q)
+    m-north : PathP (λ i → a north +K ∣ north ∣ ≡ a (merid north i))
+                  (P.rUnitK _ (a north)) (P.rUnitK _ (a north) ∙ cong a (merid north))
+    m-north i j =
+      hcomp (λ k → λ { (i = i0) → P.rUnitK _ (a north) j
+                     ; (j = i1) → a (merid north (i ∧ k))
+                     ; (j = i0) → a north +K ∣ north ∣})
+            (P.rUnitK _ (a north) j)
 
-    helper : Path (_ ≡ _) (λ i → a north +ₖ Kn→ΩKn+1 1 (ΩKn+1→Kn (sym (rCancelₖ _ (a north))
-                         ∙ (λ i → a (merid south i) +ₖ (-ₖ a (merid north i)))
-                         ∙ rCancelₖ _ (a south))) i)
-                          ---
-                          (cong (a north +ₖ_) (sym (rCancelₖ _ (a north)))
-                         ∙ ((λ j → a north +ₖ a (merid south j) +ₖ (-ₖ (a north)))
-                           ∙ λ j → a north +ₖ a (merid north (~ j)) +ₖ (-ₖ (a north)))
-                         ∙ cong (a north +ₖ_) (rCancelₖ _ (a north)))
-    helper =
-        ((λ j i → a north +ₖ Iso.rightInv (Iso3-Kn-ΩKn+1 1) ((sym (rCancelₖ _ (a north))
-                         ∙ (λ i → a (merid south i) +ₖ (-ₖ a (merid north i)))
-                         ∙ rCancelₖ _ (a south))) j i)
-     ∙∙ congFunct (λ x → a north +ₖ x) (sym (rCancelₖ _ (a north))) ((λ i → a (merid south i) +ₖ (-ₖ a (merid north i))) ∙ rCancelₖ _ (a south))
-     ∙∙ (λ j → cong (a north +ₖ_) (sym (rCancelₖ _ (a north)))
-              ∙ congFunct (λ x → a north +ₖ x) ((λ i → a (merid south i) +ₖ (-ₖ a (merid north i)))) (rCancelₖ _ (a south)) j))
-     ∙∙ (λ j → cong (a north +ₖ_) (sym (rCancelₖ _ (a north)))
-              ∙ cong₂Funct (λ x y → a north +ₖ a x +ₖ (-ₖ (a y))) (merid south) (merid north) j ∙ cong (λ x → a north +ₖ x) ((rCancelₖ _ (a south))))
-     ∙∙ (λ i → cong (a north +ₖ_) (sym (rCancelₖ _ (a north)))
-               ∙ ((λ j → a north +ₖ a (merid south j) +ₖ (-ₖ (a north)))
-               ∙ λ j → a north +ₖ a (merid north (~ i ∨ (~ j))) +ₖ (-ₖ (a (merid north (j ∧ (~ i))))))
-               ∙ cong (a north +ₖ_) ((rCancelₖ _ (a (merid north (~ i))))))
-    abstract
-      pathHelper : (a b : hLevelTrunc 4 (S₊ 2)) → a +ₖ b +ₖ (-ₖ a) ≡ b +ₖ 0₂
+
+    m-south : PathP (λ i → a north +K Kn→ΩKn+1 1 (ΩKn+1→Kn ((sym (P.rCancelK _ (a north))
+                           ∙ (λ i → a (merid south i) +K (-K a (merid north i)))
+                           ∙ P.rCancelK _ (a south)))) i ≡ a (merid south i)) (P.rUnitK _ (a north)) (P.rUnitK _ (a north) ∙ cong a (merid north))
+    m-south j i =
+      hcomp (λ k → λ { (i = i0) → (helper ∙∙ together ∙∙ congFunct (_+K 0₂) (cong a (merid south)) (cong a (sym (merid north)))) (~ k) j
+                     ; (i = i1) → a (merid south j)
+                     ; (j = i0) → P.rUnitK _ (a north) i
+                     ; (j = i1) → ((λ j → P.rUnitK _ (a (merid north ((~ k) ∧ j))) (j ∧ k)) ∙ λ j → P.rUnitK _ (a (merid north ((~ k) ∨ j))) (k ∨ j)) i })
+           (hcomp (λ k → λ { (i = i1) → a (merid south j)
+                            ; (i = i0) → compPath-filler ((cong (λ x → a x +K 0₂) (merid south))) (cong (λ x → a x +K 0₂) (sym (merid north))) k j
+                            ; (j = i0) → P.rUnitK _ (a north) i
+                            ; (j = i1) → pathFiller2 (cong (_+K 0₂) (cong a (merid north))) (P.rUnitK _ (a south)) k i})
+                   (P.rUnitK _ (a (merid south j)) i))
+
+
+      where
+      pathFiller : (P.rUnitK _ (a north) ∙ cong a (merid north)) ≡ cong (_+K 0₂) (cong a (merid north)) ∙ P.rUnitK _ (a south)
+      pathFiller = (λ i → (λ j → P.rUnitK _ (a (merid north (i ∧ j))) (j ∧ (~ i)))
+                  ∙ λ j → P.rUnitK _ (a (merid north (i ∨ j))) (~ i ∨ j))
+
+      pathFiller2 : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → PathP (λ i → p (~ i) ≡ z) q (p ∙ q)
+      pathFiller2 p q i =
+        hcomp (λ k → λ { (i = i0) → lUnit q (~ k)
+                       ; (i = i1) → p ∙ q})
+              ((λ j → p (~ i ∨ j)) ∙ q)
+
+      helper : Path (_ ≡ _) (λ i → a north +K Kn→ΩKn+1 1 (ΩKn+1→Kn ((sym (P.rCancelK _ (a north))
+                           ∙ (λ i → a (merid south i) +K (-K a (merid north i)))
+                           ∙ P.rCancelK _ (a south)))) i)
+                            ---
+                            (cong (a north +K_) (sym (P.rCancelK _ (a north)))
+                           ∙ ((λ j → (a north) +K (a (merid south j)) +K (-K (a north)))
+                             ∙ λ j → a north +K a (merid north (~ j)) +K (-K (a north)))
+                           ∙ cong (a north +K_) (P.rCancelK _ (a north)))
+      helper = (λ j i → a north +K Iso.rightInv (Iso3-Kn-ΩKn+1 1) (sym (P.rCancelK _ (a north))
+                           ∙ (λ i → a (merid south i) +K (-K a (merid north i)))
+                           ∙ P.rCancelK _ (a south)) j i)
+            ∙∙ congFunct (λ x → a north +K x) (sym (P.rCancelK _ (a north))) ((λ i → a (merid south i) +K (-K a (merid north i))) ∙ P.rCancelK _ (a south))
+            ∙∙ ((λ j → cong (a north +K_) (sym (P.rCancelK _ (a north)))
+                ∙ congFunct (λ x → a north +K x) ((λ i → a (merid south i) +K (-K a (merid north i)))) (P.rCancelK _ (a south)) j)
+            ∙∙ ((λ j → cong (a north +K_) (sym (P.rCancelK _ (a north)))
+                ∙ cong₂Funct (λ x y → a north +K a x +K (-K (a y))) (merid south) (merid north) j ∙ cong (λ x → a north +K x) ((P.rCancelK _ (a south)))))
+            ∙∙ (λ i → cong (a north +K_) (sym (P.rCancelK _ (a north)))
+                 ∙ ((λ j → a north +K a (merid south j) +K (-K (a north)))
+                 ∙ λ j → a north +K a (merid north (~ i ∨ (~ j))) +K (-K (a (merid north (j ∧ (~ i))))))
+                 ∙ cong (a north +K_) ((P.rCancelK _ (a (merid north (~ i)))))))
+
+      pathHelper : (a b : hLevelTrunc 4 (S₊ 2)) → a +K b +K (-K a) ≡ b +K 0₂
       pathHelper a b =
-          a +ₖ b +ₖ (-ₖ a)     ≡⟨ commₖ _ a (b +ₖ (-ₖ a)) ⟩≡⟨ assocₖ _ b (-ₖ a) a ⟩
-          (b +ₖ (-ₖ a) +ₖ a     ≡⟨ cong (b +ₖ_) (lCancelₖ _ a) ⟩
-           b +ₖ 0₂ ∎)
+          a +K b +K (-K a)     ≡⟨ P.commK _ a (b +K (-K a)) ⟩≡⟨ P.assocK _ b (-K a) a ⟩
+          (b +K (-K a) +K a     ≡⟨ cong (b +K_) (P.lCancelK _ a) ⟩
+           b +K 0₂ ∎)
 
-    helperFun : ∀ {ℓ} {A : Type ℓ} {a b : A} (p' p : a ≡ b) (q q' : b ≡ b) (r : a ≡ a)
-             → ((p q : a ≡ a) → p ∙ q ≡ q ∙ p)
-             → q ≡ q'
-             → PathP (λ i → p' (~ i) ≡ p' (~ i)) q' r
-             → p ∙ q ∙ sym p ≡ r
-    helperFun {a = a} {- p p' q q' r comm qid dep -} =
-      J (λ b p' → (p : a ≡ b) → (q q' : b ≡ b) → (r : a ≡ a) -- (p p' : a ≡ b) (q q' : b ≡ b) (r : a ≡ a)
-                 → ((p q : a ≡ a) → p ∙ q ≡ q ∙ p)
-                 → q ≡ q'
-                 → PathP (λ i → p' (~ i) ≡ p' (~ i)) q' r
-                 → p ∙ q ∙ sym p ≡ r)
-         λ p q q' r comm id id2 → (cong (λ x → p ∙ x ∙ (sym p)) (id ∙ id2)
-                                 ∙∙ cong (p ∙_) (comm _ _)
-                                 ∙∙ assoc _ _ _)
-                                 ∙∙ cong (_∙ r) (rCancel _)
-                                 ∙∙ sym (lUnit r)
-    {-
-      p ∙ q ∙ sym p                           ≡⟨ cong (λ x → p ∙ x ∙ sym p) qid
-                                              ⟩≡⟨ cong (λ x → p ∙ x ∙ sym p) (λ i → lUnit (rUnit q' i) i) ⟩
-      p ∙ (refl ∙ q' ∙ refl) ∙ sym p          ≡⟨ cong (λ x → p ∙ x ∙ sym p) (λ i → (λ j → p' (~ i ∨ ~ j)) ∙ dep i ∙ λ j → p' (~ i ∨ j))
-                                              ⟩≡⟨ assoc p (sym p' ∙ r ∙ p') (sym p) ⟩
-      (p ∙ sym p' ∙ r ∙ p') ∙ sym p           ≡⟨ cong (_∙ sym p) (assoc p (sym p') (r ∙ p'))
-                                              ⟩≡⟨ sym (assoc (p ∙ sym p') (r ∙ p') (sym p)) ⟩
-      (p ∙ sym p') ∙ (r ∙ p') ∙ sym p         ≡⟨ cong ((p ∙ sym p') ∙_) (sym (assoc r p' (sym p)))
-                                              ⟩≡⟨ cong (λ x → (p ∙ sym p') ∙ r ∙ x) (sym (symDistr p (sym p'))) ⟩
-      (p ∙ sym p') ∙ r ∙ sym (p ∙ sym p')     ≡⟨ cong ((p ∙ sym p') ∙_) (comm r (sym (p ∙ sym p')))
-                                              ⟩≡⟨ assoc (p ∙ sym p') (sym (p ∙ sym p')) r ⟩
-      ((p ∙ sym p') ∙ sym (p ∙ sym p')) ∙ r   ≡⟨ cong (_∙ r) (rCancel (p ∙ sym p')) ⟩≡⟨ sym (lUnit r) ⟩
-      r ∎ -}
+      helperFun : ∀ {ℓ} {A : Type ℓ} {a b : A} (p' p : a ≡ b) (q q' : b ≡ b) (r : a ≡ a)
+               → ((p q : a ≡ a) → p ∙ q ≡ q ∙ p)
+               → q ≡ q'
+               → PathP (λ i → p' (~ i) ≡ p' (~ i)) q' r
+               → p ∙ q ∙ sym p ≡ r
+      helperFun {a = a} {- p p' q q' r comm qid dep -} =
+        J (λ b p' → (p : a ≡ b) → (q q' : b ≡ b) → (r : a ≡ a) -- (p p' : a ≡ b) (q q' : b ≡ b) (r : a ≡ a)
+                   → ((p q : a ≡ a) → p ∙ q ≡ q ∙ p)
+                   → q ≡ q'
+                   → PathP (λ i → p' (~ i) ≡ p' (~ i)) q' r
+                   → p ∙ q ∙ sym p ≡ r)
+           λ p q q' r comm id id2 → (cong (λ x → p ∙ x ∙ (sym p)) (id ∙ id2)
+                                   ∙∙ cong (p ∙_) (comm _ _)
+                                   ∙∙ assoc _ _ _)
+                                   ∙∙ cong (_∙ r) (rCancel _)
+                                   ∙∙ sym (lUnit r)
 
-    together : Path (_ ≡ _) (cong (λ x → a north +ₖ x) (sym (rCancelₖ _ (a north)))
-                           ∙ ((λ j → a north +ₖ ((a (merid south j)) +ₖ (-ₖ (a north)))) ∙ λ j → a north +ₖ ((a (merid north (~ j))) +ₖ (-ₖ (a north))))
-                           ∙ cong (λ x → a north +ₖ x) (rCancelₖ _ (a north)))
-                            (cong(λ y → y +ₖ 0₂) (cong a (merid south) ∙ cong a (sym (merid north))))
-    together =
-      helperFun (λ i → pathHelper (a north) (a north) (~ i))
-                (cong (a north +ₖ_) (sym (rCancelₖ _ (a north))))
-                ((λ j → a north +ₖ a (merid south j) +ₖ (-ₖ (a north))) ∙ λ j → a north +ₖ a (merid north (~ j)) +ₖ (-ₖ (a north)))
-                (((λ j → a north +ₖ a (merid south j) +ₖ (-ₖ (a north))) ∙ λ j → a north +ₖ a (merid north (~ j)) +ₖ (-ₖ (a north))))
-                (cong(_+ₖ 0₂) (cong a (merid south) ∙ cong a (sym (merid north))))
-                (isCommΩK-based 2 _)
-                refl
-                λ i → hcomp (λ k → λ {(i = i0) → (λ j → a north +ₖ a (merid south j) +ₖ (-ₖ (a north)))
-                                                  ∙ λ j → a north +ₖ a (merid north (~ j)) +ₖ (-ₖ (a north))
-                                      ; (i = i1) → congFunct (_+ₖ 0₂) (cong a (merid south)) (cong a (sym (merid north))) (~ k)})
-                             ((λ j → pathHelper (a north) (a (merid south j)) i) ∙ (λ j → pathHelper (a north) (a (merid north (~ j))) i))
+      together : Path (_ ≡ _) (cong (λ x → a north +K x) (sym (P.rCancelK _ (a north)))
+                             ∙ ((λ j → a north +K ((a (merid south j)) +K (-K (a north)))) ∙ λ j → a north +K ((a (merid north (~ j))) +K (-K (a north))))
+                             ∙ cong (λ x → a north +K x) (P.rCancelK _ (a north)))
+                              (cong(λ y → y +K 0₂) (cong a (merid south) ∙ cong a (sym (merid north))))
+      together =
+        helperFun (λ i → pathHelper (a north) (a north) (~ i))
+                  (cong (a north +K_) (sym (P.rCancelK _ (a north))))
+                  ((λ j → a north +K a (merid south j) +K (-K (a north))) ∙ λ j → a north +K a (merid north (~ j)) +K (-K (a north)))
+                  (((λ j → a north +K a (merid south j) +K (-K (a north))) ∙ λ j → a north +K a (merid north (~ j)) +K (-K (a north))))
+                  (cong(_+K 0₂) (cong a (merid south) ∙ cong a (sym (merid north))))
+                  (isCommΩK-based 2 _)
+                  refl
+                  λ i → hcomp (λ k → λ {(i = i0) → (λ j → a north +K a (merid south j) +K (-K (a north)))
+                                                    ∙ λ j → a north +K a (merid north (~ j)) +K (-K (a north))
+                                        ; (i = i1) → congFunct (_+K 0₂) (cong a (merid south)) (cong a (sym (merid north))) (~ k)})
+                               ((λ j → pathHelper (a north) (a (merid south j)) i) ∙ (λ j → pathHelper (a north) (a (merid north (~ j))) i))
 
 
 -- The translation mention above uses the basechange function.
@@ -320,3 +312,6 @@ basechange-lemma2 f g F = coInd (f base) (g base) refl refl
                                                             (cong (λ x → F (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (f x) j)) loop) i)
                                      λ j i → basechange2⁻ (F (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (g base) j))
                                                               (cong (λ x → F (Iso.leftInv (Iso3-Kn-ΩKn+1 1) (g x) j)) loop) i)
+
+S1→K2≡K2×K1 : Iso (S₊ 1 → coHomK 2) (coHomK 2 × coHomK 1)
+S1→K2≡K2×K1 = S1→K2≡K2×K1' tt*
