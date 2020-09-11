@@ -79,3 +79,12 @@ record AlmostRing : Type (ℓ-suc ℓ) where
 
 isSetAlmostRing : (R : AlmostRing {ℓ}) → isSet ⟨ R ⟩
 isSetAlmostRing R = R .AlmostRing.isAlmostRing .IsAlmostRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+
+module Theory (R : AlmostRing {ℓ}) where
+  open AlmostRing R
+
+  0IsSelfinverse : - 0r ≡ 0r
+  0IsSelfinverse = - 0r          ≡⟨ cong -_ (sym (·Lid 0r))  ⟩
+                   - (1r · 0r)   ≡⟨ -Comm· 1r 0r ⟩
+                   (- 1r) · 0r   ≡⟨ 0RightAnnihilates (- 1r) ⟩
+                   0r ∎

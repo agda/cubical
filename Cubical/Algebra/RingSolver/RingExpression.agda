@@ -77,8 +77,22 @@ module Horner (R : RawRing {ℓ}) where
 module Normalize (R : AlmostRing {ℓ}) where
   νR = AlmostRing→RawRing R
   open AlmostRing R
+  open Theory R
   open Horner νR
   open Eval νR
+
+  -EvalDist :
+    (P : RawHornerPolynomial νR) (x : ⟨ R ⟩)
+    → evalH (-H P) x ≡ - evalH P x
+  -EvalDist 0H x = 0r ≡⟨ sym 0IsSelfinverse ⟩ - 0r ∎
+  -EvalDist (P ·X+ r) x =
+         evalH (-H (P ·X+ r)) x        ≡⟨ refl ⟩
+         evalH ((-H P) ·X+ (- r)) x    ≡⟨ refl ⟩
+         (evalH (-H P) x) · x + (- r)  ≡⟨ cong (λ u → (u · x) + (- r)) (-EvalDist P x) ⟩
+         (- evalH P x) · x + (- r)     ≡⟨ cong (λ u → u + (- r)) (sym (-Comm· _ _)) ⟩
+         - (evalH P x) · x + (- r)     ≡⟨ sym (-Dist+ _ _) ⟩
+         - ((evalH P x) · x + r)       ≡⟨ refl ⟩
+         - evalH (P ·X+ r) x ∎
 
   Reify : Expr ⟨ R ⟩ 1 → RawHornerPolynomial νR
   Reify (K r) = 0H ·X+ r
