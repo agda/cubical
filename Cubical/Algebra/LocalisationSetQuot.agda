@@ -20,11 +20,11 @@ open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
 
-open import Cubical.Structures.Group hiding (⟨_⟩)
-open import Cubical.Structures.AbGroup hiding (⟨_⟩)
-open import Cubical.Structures.Monoid hiding (⟨_⟩)
-open import Cubical.Structures.Ring hiding (⟨_⟩)
-open import Cubical.Structures.CommRing
+open import Cubical.Algebra.Group hiding (⟨_⟩)
+open import Cubical.Algebra.AbGroup hiding (⟨_⟩)
+open import Cubical.Algebra.Monoid hiding (⟨_⟩)
+open import Cubical.Algebra.Ring hiding (⟨_⟩)
+open import Cubical.Algebra.CommRing
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -132,29 +132,76 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
  S⁻¹R/≃S⁻¹R = isoToEquiv (iso φ ψ η ε)
 
 
- -- try to develop theory with set-quotients
+ -- try to develop theory with set-quotients, for this
+ -- define a third type:
+ _≈'_ : R × S → R × S → Type ℓ
+ (r₁ , s₁) ≈' (r₂ , s₂) = Σ[ s ∈ S ] (fst s · r₁ · fst s₂ ≡ fst s · r₂ · fst s₁)
+
+ Rₛ = (R × S) / _≈'_
+
+ Rₛ≃S⁻¹R/ : Rₛ ≃ S⁻¹R/
+ Rₛ≃S⁻¹R/ = SQ.truncRelEquiv
+
+ -- now define operations for Rₛ
  open BinaryRelation
 
- _+ₗ_ : S⁻¹R/ → S⁻¹R/ → S⁻¹R/
+ _+ₗ_ : Rₛ → Rₛ → Rₛ
  _+ₗ_ = setQuotBinOp locRefl (_+ₚ_ , θ)
   where
-  locRefl : isRefl _≈_
-  locRefl _ = ∣ (1r , SsubMonoid .containsOne) , refl ∣
+  locRefl : isRefl _≈'_
+  locRefl _ = (1r , SsubMonoid .containsOne) , refl
 
   _+ₚ_ : R × S → R × S → R × S
   (r₁ , s₁ , s₁∈S) +ₚ (r₂ , s₂ , s₂∈S) =
                       (r₁ · s₂ + r₂ · s₁) , (s₁ · s₂) , SsubMonoid .multClosed s₁∈S s₂∈S
 
-  θ : (a a' b b' : R × S) → a ≈ a' → b ≈ b' → (a +ₚ b) ≈ (a' +ₚ b')
-  θ a a' b b' = PT.rec (isPropΠ (λ _ →  propTruncIsProp)) (θ' a a' b b')
+  θ : (a a' b b' : R × S) → a ≈' a' → b ≈' b' → (a +ₚ b) ≈' (a' +ₚ b')
+  θ (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) (r'₂ , s'₂ , s'₂∈S) (s , p) (s' , q) =
+    ((fst s · fst s') , SsubMonoid .multClosed (s .snd) (s' .snd)) , path
     where
-    θ' : (a a' b b' : R × S) → Σ[ s ∈ S ] (fst s · fst a · fst (snd a') ≡ fst s · fst a' · fst (snd a))
-                             → b ≈ b' → (a +ₚ b) ≈ (a' +ₚ b')
-    θ' a a' b b' p = PT.rec propTruncIsProp (θ'' a a' b b' p)
-       where
-       θ'' : (a a' b b' : R × S)
-           → Σ[ s ∈ S ] (fst s · fst a · fst (snd a') ≡ fst s · fst a' · fst (snd a))
-           → Σ[ s ∈ S ] (fst s · fst b · fst (snd b') ≡ fst s · fst b' · fst (snd b))
-           → (a +ₚ b) ≈ (a' +ₚ b')
-       θ'' (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) (r'₂ , s'₂ , s'₂∈S) (s , p) (s' , q) =
-        ∣ ((fst s · fst s') , SsubMonoid .multClosed (s .snd) (s' .snd)) , {!!} ∣
+    path : fst s · fst s' · (r₁ · s₂ + r₂ · s₁) · (s'₁ · s'₂)
+         ≡ fst s · fst s' · (r'₁ · s'₂ + r'₂ · s'₁) · (s₁ · s₂)
+    path = fst s · fst s' · (r₁ · s₂ + r₂ · s₁) · (s'₁ · s'₂)
+         ≡⟨ cong (_· (s'₁ · s'₂)) (·-rdist-+ _ _ _) ⟩
+           (fst s · fst s' · (r₁ · s₂) + fst s · fst s' · (r₂ · s₁)) · (s'₁ · s'₂)
+         ≡⟨ ·-ldist-+ _ _ _ ⟩
+           fst s · fst s' · (r₁ · s₂) · (s'₁ · s'₂) + fst s · fst s' · (r₂ · s₁) · (s'₁ · s'₂)
+         ≡⟨ (λ i → ·-assoc (fst s · fst s') r₁ s₂ i · (s'₁ · s'₂)
+                 + ·-assoc (fst s · fst s') r₂ s₁ i · (s'₁ · s'₂)) ⟩
+           fst s · fst s' · r₁ · s₂ · (s'₁ · s'₂) + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
+         ≡⟨ {!!} ⟩
+           fst s · fst s' · r'₁ · s'₂ · (s₁ · s₂) + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
+         ≡⟨ (λ i → ·-assoc (fst s · fst s') r'₁ s'₂ (~ i) · (s₁ · s₂)
+                 + ·-assoc (fst s · fst s') r'₂ s'₁ (~ i) · (s₁ · s₂)) ⟩
+           fst s · fst s' · (r'₁ · s'₂) · (s₁ · s₂) + fst s · fst s' · (r'₂ · s'₁) · (s₁ · s₂)
+         ≡⟨ sym (·-ldist-+ _ _ _) ⟩
+           (fst s · fst s' · (r'₁ · s'₂)  + fst s · fst s' · (r'₂ · s'₁)) · (s₁ · s₂)
+         ≡⟨ cong (_· (s₁ · s₂)) (sym (·-rdist-+ _ _ _)) ⟩
+           fst s · fst s' · (r'₁ · s'₂ + r'₂ · s'₁) · (s₁ · s₂) ∎
+
+
+
+ -- defining addition for truncated version is much more tedious:
+ -- _+ₗ_ : S⁻¹R/ → S⁻¹R/ → S⁻¹R/
+ -- _+ₗ_ = setQuotBinOp locRefl (_+ₚ_ , θ)
+ --  where
+ --  locRefl : isRefl _≈_
+ --  locRefl _ = ∣ (1r , SsubMonoid .containsOne) , refl ∣
+
+ --  _+ₚ_ : R × S → R × S → R × S
+ --  (r₁ , s₁ , s₁∈S) +ₚ (r₂ , s₂ , s₂∈S) =
+ --                      (r₁ · s₂ + r₂ · s₁) , (s₁ · s₂) , SsubMonoid .multClosed s₁∈S s₂∈S
+
+ --  θ : (a a' b b' : R × S) → a ≈ a' → b ≈ b' → (a +ₚ b) ≈ (a' +ₚ b')
+ --  θ a a' b b' = PT.rec (isPropΠ (λ _ →  propTruncIsProp)) (θ' a a' b b')
+ --    where
+ --    θ' : (a a' b b' : R × S) → Σ[ s ∈ S ] (fst s · fst a · fst (snd a') ≡ fst s · fst a' · fst (snd a))
+ --                             → b ≈ b' → (a +ₚ b) ≈ (a' +ₚ b')
+ --    θ' a a' b b' p = PT.rec propTruncIsProp (θ'' a a' b b' p)
+ --       where
+ --       θ'' : (a a' b b' : R × S)
+ --           → Σ[ s ∈ S ] (fst s · fst a · fst (snd a') ≡ fst s · fst a' · fst (snd a))
+ --           → Σ[ s ∈ S ] (fst s · fst b · fst (snd b') ≡ fst s · fst b' · fst (snd b))
+ --           → (a +ₚ b) ≈ (a' +ₚ b')
+ --       θ'' (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) (r'₂ , s'₂ , s'₂∈S) (s , p) (s' , q) =
+ --        ∣ ((fst s · fst s') , SsubMonoid .multClosed (s .snd) (s' .snd)) , {!!} ∣
