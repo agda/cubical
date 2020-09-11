@@ -46,7 +46,9 @@ BiInvInt-ind-prop {P = P} P-isProp P-zero P-suc P-pred = φ
   φ (predl n) = P-predl n (φ n)
   φ (predl-suc n i) = P-isProp' (predl-suc n) (P-predl (suc n) (P-suc n (φ n))) (φ n) i
 
--- A function BiInvInt → A is the same as a point in A and an equivalence A → A
+-- To define a function BiInvInt → A, we need:
+-- * a point z : A for zero
+-- * an equivalence s : A ≃ A for suc/pred
 BiInvInt-rec : ∀ {ℓ} {A : Type ℓ} → A → A ≃ A → BiInvInt → A
 BiInvInt-rec {A = A} z e = φ
   where
