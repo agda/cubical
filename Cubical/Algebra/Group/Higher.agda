@@ -87,8 +87,10 @@ BGroup.base (Group→1BGroup G) .snd = embase
 BGroup.isConn (Group→1BGroup G) = EM₁Connected G
 BGroup.isTrun (Group→1BGroup G) = EM₁Groupoid G
 
+{-
 IsoGroup1BGroup : (ℓ : Level) → Iso (Group {ℓ}) (1BGroup ℓ)
 Iso.fun (IsoGroup1BGroup ℓ) = Group→1BGroup
 Iso.inv (IsoGroup1BGroup ℓ) = 1BGroup→Group
 Iso.leftInv (IsoGroup1BGroup ℓ) G = η-Group (ΩEM₁≡ G) {!!} {!!} {!!} {!!}
 Iso.rightInv (IsoGroup1BGroup ℓ) BG = η-BGroup {!!} {!!}
+-}
