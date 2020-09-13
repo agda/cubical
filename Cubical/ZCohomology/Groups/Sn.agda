@@ -138,19 +138,19 @@ H¹-S¹≅ℤ : GroupIso intGroup (coHomGr 1 (S₊ 1))
 H¹-S¹≅ℤ =
     diagonalIso (coHomGr 0 (S₊ 0))
                 (invGroupIso H⁰-S⁰≅ℤ×ℤ)
-                (I.d 0)
-                (λ x → I.Ker-i⊂Im-d 0 x
+                (K.d 0)
+                (λ x → K.Ker-i⊂Im-d 0 x
                                      (ΣPathP (isOfHLevelSuc 0 (isContrHⁿ-Unit 0) _ _
                                             , isOfHLevelSuc 0 (isContrHⁿ-Unit 0) _ _)))
                 ((sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
                         (λ x inker
                             → pRec propTruncIsProp
                                     (λ {((f , g) , id') → helper x f g id' inker})
-                                    ((I.Ker-d⊂Im-Δ 0 ∣ x ∣₂ inker)))))
+                                    ((K.Ker-d⊂Im-Δ 0 ∣ x ∣₂ inker)))))
                 ((sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
                          λ F surj
                            → pRec (setTruncIsSet _ _)
-                                   (λ { (x , id) → I.Im-Δ⊂Ker-d 0 ∣ F ∣₂
+                                   (λ { (x , id) → K.Im-Δ⊂Ker-d 0 ∣ F ∣₂
                                                       ∣ (∣ (λ _ → x) ∣₂ , ∣ (λ _ → 0) ∣₂) ,
                                                        (cong ∣_∣₂ (funExt (surjHelper x))) ∙ sym id ∣₁ })
                                    surj) )
@@ -221,12 +221,12 @@ H²-S¹≅0 =
                      _ _
   isTrivialLeft vSES-helper = isOfHLevelSuc 0 (isOfHLevelΣ 0 (isContrHⁿ-Unit 0) (λ _ → isContrHⁿ-Unit 0))
   isTrivialRight vSES-helper = isOfHLevelSuc 0 (isOfHLevelΣ 0 (isContrHⁿ-Unit 1) (λ _ → isContrHⁿ-Unit 1))
-  left vSES-helper = K.Δ 1
-  right vSES-helper = K.i 2
-  vSES.ϕ vSES-helper = K.d 1
-  Ker-ϕ⊂Im-left vSES-helper = K.Ker-d⊂Im-Δ 1
+  left vSES-helper = I.Δ 1
+  right vSES-helper = I.i 2
+  vSES.ϕ vSES-helper = I.d 1
+  Ker-ϕ⊂Im-left vSES-helper = I.Ker-d⊂Im-Δ 1
   Ker-right⊂Im-ϕ vSES-helper = sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp) -- doesn't terminate without elimination
-                                          λ a → K.Ker-i⊂Im-d 1 ∣ a ∣₂
+                                          λ a → I.Ker-i⊂Im-d 1 ∣ a ∣₂
 
 -- --------------- H¹(Sⁿ), n ≥ 1 --------------------------------------------
 
@@ -236,7 +236,7 @@ H¹-Sⁿ≅0 n = coHomPushout≅coHomSn (1 + n) 1
          □ dirProdGroupIso (Hⁿ-Unit≅0 0) (Hⁿ-Unit≅0 0)
          □ lUnitGroupIso
   where  
-  module I = MV Unit Unit (S₊ (1 + n)) (λ _ → tt) (λ _ → tt)
+  module K = MV Unit Unit (S₊ (1 + n)) (λ _ → tt) (λ _ → tt)
   surj-helper : (x : ⟨ coHomGr 0 (S₊ _) ⟩) → isInIm _ _ (K.Δ 0) x
   surj-helper =
     sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
@@ -338,7 +338,7 @@ Hⁿ-Sⁿ≅ℤ (suc n) =
   □ vSES→GroupIso _ _ theIso
   □ invGroupIso (coHomPushout≅coHomSn (suc n) (suc (suc n)))
   where
-  module I = MV Unit Unit (S₊ (suc n)) (λ _ → tt) (λ _ → tt)
+  module K = MV Unit Unit (S₊ (suc n)) (λ _ → tt) (λ _ → tt)
   theIso : vSES (coHomGr (suc n) (S₊ (suc n))) (coHomGr (suc (suc n))
                 (Pushout {A = S₊ (suc n)} (λ _ → tt) (λ _ → tt)))
                 _

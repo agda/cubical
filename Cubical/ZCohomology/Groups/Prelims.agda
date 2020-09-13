@@ -127,11 +127,12 @@ S1→K₁≡S1×Int = helper2 ⋄ S¹→S¹≡S¹×Int ⋄ helper
 
 module _ (key : Unit') where
   module P = lockedCohom key
-  _+K_ : {n : ℕ} → coHomK n → coHomK n → coHomK n
-  _+K_ {n = n} = P.+K n
+  private
+    _+K_ : {n : ℕ} → coHomK n → coHomK n → coHomK n
+    _+K_ {n = n} = P.+K n
 
-  -K_ : {n : ℕ} → coHomK n → coHomK n
-  -K_ {n = n} = P.-K n
+    -K_ : {n : ℕ} → coHomK n → coHomK n
+    -K_ {n = n} = P.-K n
 
   infixr 55 _+K_
   infixr 55 -K_
