@@ -6,6 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Path
 
 open import Cubical.Functions.FunExtEquiv
 
@@ -56,6 +57,63 @@ open GroupHom -- such .fun!
 open GroupLemmas
 open MorphismLemmas
 
+
+module _ {C : Type ℓ} where
+  dispTypeIso : Iso (C → Type ℓ) (Σ[ X ∈ Type ℓ ] (X → C))
+  Iso.fun dispTypeIso D .fst = Σ[ c ∈ C ] D c
+  Iso.fun dispTypeIso D .snd = fst
+  Iso.inv dispTypeIso (X , F) c = Σ[ x ∈ X ] F x ≡ c
+  Iso.leftInv dispTypeIso D = funExt (λ c → ua (e c))
+    where
+      module _ (c : C) where
+        x : isContr (Σ[ c' ∈ C ] (c ≡ c'))
+        x = isContrSingl c
+        e =
+          Σ[ (c' , d) ∈ (Σ[ c' ∈ C ] D c') ] c' ≡ c
+            ≃⟨ Σ-assoc-≃ ⟩
+          Σ[ c' ∈ C ] (D c') × (c' ≡ c)
+            ≃⟨ Σ-cong-equiv-snd (λ _ → Σ-swap-≃) ⟩
+          Σ[ c' ∈ C ] (c' ≡ c) × (D c')
+            ≃⟨ invEquiv Σ-assoc-≃ ⟩
+          Σ[ (c' , _) ∈ Σ[ c' ∈ C ] (c' ≡ c) ] D c'
+            ≃⟨ Σ-cong-equiv-fst (Σ-cong-equiv-snd (λ c' → isoToEquiv (iso sym sym (λ _ → refl) (λ _ → refl)))) ⟩
+          Σ[ (c' , _) ∈ Σ[ c' ∈ C ] (c ≡ c') ] D c'
+            ≃⟨ Σ-contractFst (isContrSingl c) ⟩
+          D c ■
+
+  Iso.rightInv dispTypeIso (X , F) = ΣPathP (p₁ , p₂)
+    where
+      p₁' =
+        Σ[ c ∈ C ] (Σ[ x ∈ X ] F x ≡ c)
+           ≃⟨ invEquiv Σ-assoc-≃ ⟩
+        Σ[ (c , x) ∈ C × X ] (F x ≡ c)
+           ≃⟨ Σ-cong-equiv-fst Σ-swap-≃ ⟩
+        Σ[ (x , c) ∈ X × C ] (F x ≡ c)
+           ≃⟨ Σ-assoc-≃ ⟩
+        Σ[ x ∈ X ] Σ[ c ∈ C ] (F x ≡ c)
+           ≃⟨ Σ-contractSnd (λ x → isContrSingl (F x)) ⟩
+        X ■
+      p₁ : (Σ[ c ∈ C ] (Σ[ x ∈ X ] F x ≡ c)) ≡ X
+      p₁ = ua p₁'
+
+      p₂ : PathP (λ i → p₁ i → C) fst F
+      p₂ = funExtDep p₂'
+        where
+          module _ {(c , x , p) : Σ[ c ∈ C ] (Σ[ x ∈ X ] F x ≡ c)} {y : X} (q : PathP (λ i → p₁ i) (c , x , p) y) where
+            p₂' : c ≡ F y
+            p₂' = sym p ∙ cong F p₂''
+              where
+                p₂'' =
+                  x
+                    ≡⟨ sym (uaβ p₁' (c , x , p)) ⟩
+                  transp (λ i → p₁ i) i0 (c , x , p)
+                    ≡⟨ fromPathP q ⟩
+                  y ∎
+
+
+
+{-
+
 record Hom-𝒮 {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : URGStr A ℓ≅A)
              {B : Type ℓB} {ℓ≅B : Level} (𝒮-B : URGStr B ℓ≅B)
              : Type (ℓ-max (ℓ-max ℓA ℓB) (ℓ-max ℓ≅A ℓ≅B)) where
@@ -81,6 +139,7 @@ module _ {ℓ : Level} {A : Type ℓ} (𝒮-A : URGStr A ℓ) where
       open Hom-𝒮
   Iso.leftInv 𝒮ᴰ-toHom (B , 𝒮ᴰ-B) = ΣPathP ((funExt (λ a → {!!})) , {!!})
   Iso.rightInv 𝒮ᴰ-toHom (B , 𝒮ᴰ-B , F) = {!!}
+-}
 
 
  
