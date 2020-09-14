@@ -1,3 +1,16 @@
+{-
+
+Definition of finitely indexed types
+
+A type is finitely indexed if, for some `n`, there merely exists a
+surjective function from `Fin n` to it. Note that a type doesn't need
+to be a set in order for it to be finitely indexed. For example, the
+circle is finitely indexed.
+
+This definition is weaker than `isFinSet`.
+
+-}
+
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 module Cubical.Data.FinInd where

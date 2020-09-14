@@ -1,3 +1,15 @@
+{-
+
+Definition of subfinite sets
+
+A set is subfinite if it is merely a subset of `Fin n` for some `n`. This
+definition is weaker than `isFinSet` if we don't assume LEM, but they
+are equivalent if we do.
+
+Every subfinite set is guaranteed to be a set and discrete.
+
+-}
+
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 module Cubical.Data.SubFinSet where
