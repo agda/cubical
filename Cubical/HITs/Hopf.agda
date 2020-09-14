@@ -12,7 +12,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.S2
-open import Cubical.HITs.S3
+open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Join
 open import Cubical.HITs.Interval
@@ -318,5 +318,5 @@ JoinS¹S¹≡TotalHopf = isoToPath (iso JoinS¹S¹→TotalHopf
                                     TotalHopf→JoinS¹S¹→TotalHopf
                                     JoinS¹S¹→TotalHopf→JoinS¹S¹)
 
-S³≡TotalHopf : S³ ≡ TotalHopf
-S³≡TotalHopf = S³≡joinS¹S¹ ∙ JoinS¹S¹≡TotalHopf
+S³≡TotalHopf : S₊ 3 ≡ TotalHopf
+S³≡TotalHopf = {!!} ∙ JoinS¹S¹≡TotalHopf

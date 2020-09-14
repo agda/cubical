@@ -46,82 +46,39 @@ private
 ϕ : (pt a : A) → typ (Ω (Susp A , north))
 ϕ pt a = (merid a) ∙ sym (merid pt)
 
-  {- To define the map for n=0 we use the λ k → loopᵏ map for S₊ 1. The loop is given by ϕ north south -}
-
-loop* : Path (S₊ 1) north north
-loop* = ϕ north south
-
-looper : Int → Path (S₊ 1) north north
-looper (pos zero) = refl
-looper (pos (suc n)) = looper (pos n) ∙ loop*
-looper (negsuc zero) = sym loop*
-looper (negsuc (suc n)) = looper (negsuc n) ∙ sym loop*
-
+Kn→ΩKn+1 : (n : ℕ) → coHomK n → typ (Ω (coHomK-ptd (suc n)))
+Kn→ΩKn+1 zero x i = ∣ intLoop x i ∣
+Kn→ΩKn+1 (suc zero) = trRec (isOfHLevelTrunc 4 ∣ north ∣ ∣ north ∣)
+                             λ a i → ∣ ϕ base a i ∣
+Kn→ΩKn+1 (suc (suc n)) = trRec (isOfHLevelTrunc (2 + (3 + n)) ∣ north ∣ ∣ north ∣)
+                                λ a i → ∣ ϕ north a i ∣
 private
+  d-map : typ (Ω ((Susp S¹) , north)) → S¹
+  d-map p = subst HopfSuspS¹ p base
 
-  {- The map of Kn≃ΩKn+1 is given as follows. -}
-  Kn→ΩKn+1 : (n : ℕ) → coHomK n → typ (Ω (coHomK-ptd (suc n)))
-  Kn→ΩKn+1 zero x = cong ∣_∣ (looper x)
-  Kn→ΩKn+1 (suc n) = trRec (isOfHLevelTrunc (2 + (suc (suc n))) ∣ north ∣ ∣ north ∣)
-                             λ a i → ∣((merid a) ∙ (sym (merid north))) i ∣
-
-  {- We show that looper is a composition of intLoop with two other maps, all three being isos -}
-  sndcomp : ΩS¹ → Path (Susp Bool) north north
-  sndcomp = cong S¹→SuspBool
-
-  thrdcomp : Path (Susp Bool) north north → Path (S₊ 1) north north
-  thrdcomp = cong SuspBool→S1
-
-
-looper2 : Int → Path (S₊ 1) north north
-looper2 a = thrdcomp (sndcomp (intLoop a))
-
-looper≡looper2 : (x : Int) → looper x ≡ looper2 x
-looper≡looper2 (pos zero) = refl
-looper≡looper2 (pos (suc n)) =
-       looper (pos n) ∙ loop*                                       ≡⟨ (λ i → looper≡looper2 (pos n) i ∙ congFunct SuspBool→S1 (merid false)  (sym (merid true)) (~ i)) ⟩
-       looper2 (pos n) ∙ cong SuspBool→S1 (ϕ true false)           ≡⟨ sym (congFunct SuspBool→S1 (sndcomp (intLoop (pos n))) (ϕ true false)) ⟩
-       cong SuspBool→S1 (sndcomp (intLoop (pos n)) ∙ ϕ true false) ≡⟨ cong thrdcomp (sym (congFunct S¹→SuspBool (intLoop (pos n)) loop)) ⟩
-       looper2 (pos (suc n)) ∎
-looper≡looper2 (negsuc zero) =
-       sym loop*                                                    ≡⟨ symDistr (merid south) (sym (merid north)) ⟩
-       merid north ∙ sym (merid south)                              ≡⟨ sym (congFunct SuspBool→S1 (merid true) (sym (merid false))) ⟩
-       cong SuspBool→S1 (merid true ∙ sym (merid false))           ≡⟨ cong thrdcomp (sym (symDistr (merid false) (sym (merid true)))) ⟩
-       looper2 (negsuc zero) ∎
-looper≡looper2 (negsuc (suc n)) =
-       looper (negsuc n) ∙ sym loop*                                                    ≡⟨ ((λ i → looper≡looper2 (negsuc n) i ∙ symDistr (merid south) (sym (merid north)) i)) ⟩
-       looper2 (negsuc n) ∙ merid north ∙ sym (merid south)                             ≡⟨ cong (λ x → looper2 (negsuc n) ∙ x) (sym (congFunct SuspBool→S1 (merid true) (sym (merid false)))) ⟩
-       looper2 (negsuc n) ∙ cong SuspBool→S1 (ϕ false true)                            ≡⟨ cong (λ x → looper2 (negsuc n) ∙ x) (cong thrdcomp (sym (symDistr (merid false) (sym (merid true))))) ⟩
-       looper2 (negsuc n) ∙ cong SuspBool→S1 (sym (ϕ true false))                      ≡⟨ sym (congFunct SuspBool→S1 (sndcomp (intLoop (negsuc n))) (sym (ϕ true false))) ⟩
-       thrdcomp (cong S¹→SuspBool (intLoop (negsuc n)) ∙ cong S¹→SuspBool (sym loop)) ≡⟨ cong thrdcomp (sym (congFunct S¹→SuspBool (intLoop (negsuc n)) (sym loop))) ⟩
-       looper2 (negsuc (suc n)) ∎
-
-private
-  isolooper2 : Iso Int (Path (S₊ 1) north north)
-  isolooper2 = compIso (invIso ΩS¹IsoInt) (compIso iso2 iso1)
+  d-mapId : (r : S¹) → d-map (ϕ base r) ≡ r
+  d-mapId r = substComposite HopfSuspS¹ (merid r) (sym (merid base)) base ∙
+              rotLemma r
     where
-    iso1 : Iso (Path (Susp Bool) north north) (Path (S₊ 1) north north)
-    iso1 = congIso SuspBoolIsoS1
+    rotLemma : (r : S¹) → rot r base ≡ r
+    rotLemma base = refl
+    rotLemma (loop i) = refl
 
-    iso2 : Iso ΩS¹ (Path (Susp Bool) north north)
-    iso2 = congIso S¹IsoSuspBool
+sphereConnectedSpecCase : isConnected 4 (Susp (Susp S¹))
+sphereConnectedSpecCase = sphereConnected 3
 
-  isolooper : Iso Int (Path (S₊ 1) north north)
-  Iso.fun isolooper = looper
-  Iso.inv isolooper = Iso.inv isolooper2
-  Iso.rightInv isolooper a = (looper≡looper2 (Iso.inv isolooper2 a)) ∙ Iso.rightInv isolooper2 a
-  Iso.leftInv isolooper a = cong (Iso.inv isolooper2) (looper≡looper2 a) ∙ Iso.leftInv isolooper2 a
+d-mapComp : fiber d-map base ≡ Path (Susp (Susp S¹)) north north
+d-mapComp = ΣPathTransport≡PathΣ {B = HopfSuspS¹} _ _ ∙ helper
+  where
+  helper : Path (Σ (Susp S¹) λ x → HopfSuspS¹ x) (north , base) (north , base) ≡ Path (Susp (Susp S¹)) north north
+  helper = (λ i → (Path (S³≡TotalHopf (~ i))
+                        (transp (λ j → S³≡TotalHopf (~ i ∨ ~ j)) (~ i) (north , base))
+                        ((transp (λ j → S³≡TotalHopf (~ i ∨ ~ j)) (~ i) (north , base)))))
+         ∙ {!!}
+           {-
+           (λ i → Path (S³≡SuspSuspS¹ i) (transp (λ j → S³≡SuspSuspS¹ (i ∧ j)) (~ i) base) ((transp (λ j → S³≡SuspSuspS¹ (i ∧ j)) (~ i) base)))-}
 
-
-  {- We want to show that this map is an equivalence. n ≥ 2 follows from Freudenthal, and  -}
-
-  {-
-  We want to show that the function (looper : Int → S₊ 1) defined by λ k → loopᵏ is an equivalece. We already know that the corresponding function (intLoop : Int → S¹ is) an equivalence,
-  so the idea is to show that when intLoop is transported along a suitable path S₊ 1 ≡ S¹ we get looper. Instead of using S₊ 1 straight away, we begin by showing this for the equivalent Susp Bool.
-  -}
-
-
-
+{-
   ----------------------------------- n = 1 -----------------------------------------------------
 
   {- We begin by stating some useful lemmas -}
@@ -143,13 +100,7 @@ private
   d-map : typ (Ω ((Susp S¹) , north)) → S¹
   d-map p = subst HopfSuspS¹ p base
 
-  d-mapId : (r : S¹) → d-map (ϕ base r) ≡ r
-  d-mapId r = substComposite HopfSuspS¹ (merid r) (sym (merid base)) base ∙
-              rotLemma r
-    where
-    rotLemma : (r : S¹) → rot r base ≡ r
-    rotLemma base = refl
-    rotLemma (loop i) = refl
+
 
   d-mapComp : fiber d-map base ≡ Path (Susp (Susp S¹)) north north
   d-mapComp = ΣPathTransport≡PathΣ {B = HopfSuspS¹} _ _ ∙ helper
@@ -301,3 +252,4 @@ Iso.inv (Iso3-Kn-ΩKn+1 n) = absInv n
 Iso.rightInv (Iso3-Kn-ΩKn+1 n) = absSect n
 Iso.leftInv (Iso3-Kn-ΩKn+1 n) = absRetr n
 
+-}

@@ -20,7 +20,9 @@ open import Cubical.HITs.SmashProduct
 open import Cubical.HITs.Truncation.FromNegOne as Trunc renaming (rec to trRec)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.Pushout
-open import Cubical.HITs.Sn.Base
+open import Cubical.HITs.Sn
+open import Cubical.HITs.S1 hiding (inv)
+open import Cubical.Data.Bool
 open import Cubical.Data.Unit
 
 -- Note that relative to most sources, this notation is off by +2
@@ -299,17 +301,19 @@ inrConnected {A = A} {B = B} {C = C} n f g iscon =
                                  fun .fst .snd i a))
 
 sphereConnected : (n : HLevel) → isConnected (suc n) (S₊ n)
-sphereConnected zero = ∣ north ∣ , isOfHLevelTrunc 1 ∣ north ∣
-sphereConnected (suc n) =
+sphereConnected zero = ∣ true ∣ , isOfHLevelTrunc 1 _ -- ∣ north ∣ , isOfHLevelTrunc 1 ∣ north ∣
+sphereConnected (suc zero) = ∣ base ∣ , Trunc.elim (λ _ _ _ → isOfHLevelPath 1 (isOfHLevelTrunc 2 _ _) _ _)
+                                                  (toPropElim (λ s → isOfHLevelTrunc 2 _ _) refl)
+sphereConnected (suc (suc n)) = 
   isContrRetract
     (map Susp→PushoutSusp)
     (map PushoutSusp→Susp)
-    (Trunc.elim (λ _ → isOfHLevelPath (2 + n) (isOfHLevelTrunc (2 + n)) _ _)
+    (Trunc.elim (λ _ → isOfHLevelPath (3 + n) (isOfHLevelTrunc (3 + n)) _ _)
                  λ p → cong ∣_∣ (Susp→PushoutSusp→Susp p))
-    (isConnectedPoint2 (suc n) {A = Pushout {A = S₊ n} (λ _ → tt) λ _ → tt}
+    (isConnectedPoint2 (2 + n) {A = Pushout {A = S₊ (suc n)} (λ _ → tt) λ _ → tt}
        (inr tt)
-       (inrConnected (suc n) (λ _ → tt) (λ _ → tt)
+       (inrConnected (2 + n) (λ _ → tt) (λ _ → tt)
           (λ _ → isContrRetract (map fst) (map (λ a → a , refl))
-                     (Trunc.elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc _) _ _)
+                     (Trunc.elim (λ x → isOfHLevelPath (2 + n) (isOfHLevelTrunc (2 + n)) _ _)
                                  (λ a i → ∣ fst a , isSetUnit _ _ (snd a) refl i ∣))
-                     (sphereConnected n))))
+                     (sphereConnected (suc n)))))
