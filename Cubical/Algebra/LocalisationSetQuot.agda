@@ -169,7 +169,109 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
          ≡⟨ (λ i → ·-assoc (fst s · fst s') r₁ s₂ i · (s'₁ · s'₂)
                  + ·-assoc (fst s · fst s') r₂ s₁ i · (s'₁ · s'₂)) ⟩
            fst s · fst s' · r₁ · s₂ · (s'₁ · s'₂) + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
-         ≡⟨ {!!} ⟩
+         ≡⟨ (λ i → ·-comm (fst s) (fst s') i
+                   · r₁ · s₂ · (s'₁ · s'₂) + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
+           fst s' · fst s · r₁ · s₂ · (s'₁ · s'₂) + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
+         ≡⟨ (λ i → ·-assoc (fst s') (fst s) r₁ (~ i)
+                   · s₂ · (s'₁ · s'₂) + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
+           fst s' · (fst s · r₁) · s₂ · (s'₁ · s'₂) + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
+         ≡⟨ (λ i → ·-assoc (fst s' · (fst s · r₁) · s₂) s'₁ s'₂ i
+                   + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
+           fst s' · (fst s · r₁) · s₂ · s'₁ · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
+         ≡⟨ (λ i → ·-assoc (fst s' · (fst s · r₁)) s₂ s'₁ (~ i)
+                   · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
+           fst s' · (fst s · r₁) · (s₂ · s'₁) · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
+         ≡⟨ (λ i → fst s' · (fst s · r₁) · (·-comm s₂ s'₁ i) · s'₂
+                   + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
+           fst s' · (fst s · r₁) · (s'₁ · s₂) · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
+         ≡⟨ (λ i → ·-assoc (fst s' · (fst s · r₁)) s'₁ s₂ i
+                   · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
+           fst s' · (fst s · r₁) · s'₁ · s₂ · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
+         ≡⟨ (λ i → ·-assoc (fst s') (fst s · r₁) s'₁ (~ i)
+                   · s₂ · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
+           fst s' · (fst s · r₁ · s'₁) · s₂ · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
+         ≡⟨ (λ i → fst s' · (p i) · s₂ · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
+           fst s' · (fst s · r'₁ · s₁) · s₂ · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
+         ≡⟨ (λ i → ·-assoc (fst s' · (fst s · r'₁ · s₁)) s₂ s'₂ (~ i)
+                   + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s₂ · s'₂) + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (·-comm s₂ s'₂ i)
+                   + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + fst s · fst s' · r₂ · s₁ · ·-comm s'₁ s'₂ i) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · fst s' · r₂ · s₁ · (s'₂ · s'₁)
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + ·-assoc (fst s) (fst s') r₂ (~ i) · s₁ · (s'₂ · s'₁)) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r₂) · s₁ · (s'₂ · s'₁)
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + ·-assoc (fst s · (fst s' · r₂) · s₁) s'₂ s'₁ i) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r₂) · s₁ · s'₂ · s'₁
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + ·-assoc (fst s · (fst s' · r₂)) s₁ s'₂ (~ i) · s'₁) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r₂) · (s₁ · s'₂) · s'₁
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + fst s · (fst s' · r₂) · (·-comm s₁ s'₂ i) · s'₁) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r₂) · (s'₂ · s₁) · s'₁
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + ·-assoc (fst s · (fst s' · r₂)) s'₂ s₁ i · s'₁) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r₂) · s'₂ · s₁ · s'₁
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                  + ·-assoc (fst s) (fst s' · r₂) s'₂ (~ i) · s₁ · s'₁) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r₂ · s'₂) · s₁ · s'₁
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + ·-assoc (fst s · (fst s' · r₂ · s'₂)) s₁ s'₁ (~ i)) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r₂ · s'₂) · (s₁ · s'₁)
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + fst s · (q i) · (·-comm s₁ s'₁ i)) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r'₂ · s₂) · (s'₁ · s₁)
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + ·-assoc (fst s · (fst s' · r'₂ · s₂)) s'₁ s₁ i) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r'₂ · s₂) · s'₁ · s₁
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + ·-assoc (fst s) (fst s' · r'₂) s₂ i · s'₁ · s₁) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r'₂) · s₂ · s'₁ · s₁
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + ·-assoc (fst s · (fst s' · r'₂)) s₂ s'₁ (~ i) · s₁) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r'₂) · (s₂ · s'₁) · s₁
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + fst s · (fst s' · r'₂) · (·-comm s₂ s'₁ i) · s₁) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r'₂) · (s'₁ · s₂) · s₁
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + ·-assoc (fst s · (fst s' · r'₂)) s'₁ s₂ i · s₁) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r'₂) · s'₁ · s₂ · s₁
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + ·-assoc (fst s · (fst s' · r'₂) · s'₁) s₂ s₁ (~ i)) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r'₂) · s'₁ · (s₂ · s₁)
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + ·-assoc (fst s) (fst s') r'₂ i · s'₁ · (s₂ · s₁)) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · fst s' · r'₂ · s'₁ · (s₂ · s₁)
+         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
+                   + fst s · fst s' · r'₂ · s'₁ · ·-comm s₂ s₁ i) ⟩
+           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
+         ≡⟨ (λ i → ·-assoc (fst s' · (fst s · r'₁ · s₁)) s'₂ s₂ i
+                   + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
+           fst s' · (fst s · r'₁ · s₁) · s'₂ · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
+         ≡⟨ (λ i → ·-assoc (fst s') (fst s · r'₁) s₁ i
+                   · s'₂ · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
+           fst s' · (fst s · r'₁) · s₁ · s'₂ · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
+         ≡⟨ (λ i → ·-assoc (fst s' · (fst s · r'₁)) s₁ s'₂ (~ i)
+                   · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
+           fst s' · (fst s · r'₁) · (s₁ · s'₂) · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
+         ≡⟨ (λ i → fst s' · (fst s · r'₁) · (·-comm s₁ s'₂ i) · s₂
+                   + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
+           fst s' · (fst s · r'₁) · (s'₂ · s₁) · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
+         ≡⟨ (λ i → ·-assoc (fst s' · (fst s · r'₁)) s'₂ s₁ i
+                   · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
+           fst s' · (fst s · r'₁) · s'₂ · s₁ · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
+         ≡⟨ (λ i → ·-assoc (fst s' · (fst s · r'₁) · s'₂) s₁ s₂ (~ i)
+                   + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
+           fst s' · (fst s · r'₁) · s'₂ · (s₁ · s₂) + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
+         ≡⟨ (λ i → ·-assoc (fst s') (fst s) r'₁ i
+                   · s'₂ · (s₁ · s₂) + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
+           fst s' · fst s · r'₁ · s'₂ · (s₁ · s₂) + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
+         ≡⟨ (λ i → ·-comm (fst s') (fst s) i
+                   · r'₁ · s'₂ · (s₁ · s₂) + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
            fst s · fst s' · r'₁ · s'₂ · (s₁ · s₂) + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
          ≡⟨ (λ i → ·-assoc (fst s · fst s') r'₁ s'₂ (~ i) · (s₁ · s₂)
                  + ·-assoc (fst s · fst s') r'₂ s'₁ (~ i) · (s₁ · s₂)) ⟩
