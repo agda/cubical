@@ -411,3 +411,42 @@ module lockedCohom (key : Unit') where
     where
     pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) x y ≡ lock t (_+ₖ_ {n = n}) y x
     pm tt* = commₖ n x y
+
+  +H : (n : ℕ) (x y : coHom n A) → coHom n A
+  +H n = sElim2 (λ _ _ → §) λ a b → ∣ (λ x → +K n (a x) (b x)) ∣₂
+
+  -H : (n : ℕ) (x : coHom n A) → coHom n A
+  -H n = sElim (λ _ → §) λ a → ∣ (λ x → -K n (a x)) ∣₂
+
+  rUnitH : (n : ℕ) (x : coHom n A) → +H n x (0ₕ n) ≡ x
+  rUnitH n = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
+                  λ a i → ∣ funExt (λ x → rUnitK n (a x)) i ∣₂
+
+  lUnitH : (n : ℕ) (x : coHom n A) → +H n (0ₕ n) x ≡ x
+  lUnitH n = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
+                    λ a i → ∣ funExt (λ x → lUnitK n (a x)) i ∣₂
+
+  rCancelH : (n : ℕ) (x : coHom n A) → +H n x (-H n x) ≡ 0ₕ n
+  rCancelH n = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
+                   λ a i → ∣ funExt (λ x → rCancelK n (a x)) i ∣₂
+
+  lCancelH : (n : ℕ) (x : coHom n A) → +H n (-H n x) x  ≡ 0ₕ n
+  lCancelH n = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
+                   λ a i → ∣ funExt (λ x → lCancelK n (a x)) i ∣₂
+
+  assocH : (n : ℕ) (x y z : coHom n A) → (+H n (+H n x y) z) ≡ (+H n x (+H n y z))
+  assocH n = elim3 (λ _ _ _ → isOfHLevelPath 1 (§ _ _))
+                 λ a b c i → ∣ funExt (λ x → assocK n (a x) (b x) (c x)) i ∣₂
+
+  commH : (n : ℕ) (x y : coHom n A) → (+H n x y) ≡ (+H n y x)
+  commH n = sElim2 (λ _ _ → isOfHLevelPath 1 (§ _ _))
+                          λ a b i → ∣ funExt (λ x → commK n (a x) (b x)) i ∣₂
+
++K→∙ : (key : Unit') (n : ℕ) (a b : coHomK n) → Kn→ΩKn+1 n (lockedCohom.+K key n a b) ≡ Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b
++K→∙ tt* = +ₖ→∙
+
++H≡+ₕ : (key : Unit') (n : ℕ) → lockedCohom.+H key {A = A} n ≡ _+ₕ_ {n = n}
++H≡+ₕ tt* _ = refl
+
+rUnitlUnit0K : (key : Unit') (n : ℕ) → lockedCohom.rUnitK key n (0ₖ n) ≡ lockedCohom.lUnitK key n (0ₖ n)
+rUnitlUnit0K tt* = rUnitlUnit0
