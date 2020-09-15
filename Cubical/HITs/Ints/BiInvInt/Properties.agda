@@ -63,8 +63,14 @@ BiInvInt-rec {A = A} z e = φ
   φ (predl n) = Iso.inv e-Iso (φ n)
   φ (predl-suc n i) = Iso.leftInv e-Iso (φ n) i
 
+sucIso : Iso BiInvInt BiInvInt
+Iso.fun sucIso = suc
+Iso.inv sucIso = pred
+Iso.rightInv sucIso = suc-predl
+Iso.leftInv sucIso = predl-suc
+
 sucEquiv : BiInvInt ≃ BiInvInt
-sucEquiv = isoToEquiv (iso suc pred suc-predl predl-suc)
+sucEquiv = isoToEquiv sucIso
 
 -- addition
 
@@ -157,14 +163,14 @@ abs n = Int.abs (bwd n)
 sgn : BiInvInt → Bool
 sgn n = Int.sgn (bwd n)
 
-isEquiv-n+ : ∀ n → isEquiv (n +_)
-isEquiv-n+ n = isoToIsEquiv (iso (n +_) ((- n) +_) sec ret)
-  where
-  sec : ∀ m → n + ((- n) + m) ≡ m
-  sec m = +-assoc n (- n) m ∙ cong (_+ m) (+-invʳ n)
+Iso-n+ : (n : BiInvInt) → Iso BiInvInt BiInvInt
+Iso.fun (Iso-n+ n) = n +_
+Iso.inv (Iso-n+ n) = - n +_
+Iso.rightInv (Iso-n+ n) m = +-assoc n (- n) m ∙ cong (_+ m) (+-invʳ n)
+Iso.leftInv (Iso-n+ n) m = +-assoc (- n) n m ∙ cong (_+ m) (+-invˡ n)
 
-  ret : ∀ m → (- n) + (n + m) ≡ m
-  ret m = +-assoc (- n) n m ∙ cong (_+ m) (+-invˡ n)
+isEquiv-n+ : ∀ n → isEquiv (n +_)
+isEquiv-n+ n = isoToIsEquiv (Iso-n+ n)
 
 -- multiplication
 
