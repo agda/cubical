@@ -45,36 +45,7 @@ isConnectedS1 x = rec propTruncIsProp
                        ∣_∣
                        (isConnectedS¹ (transport S¹≡S1 x))
 
-joinBool : ∀ {ℓ} {A : Type ℓ}(pt : A) → Iso (Susp A) (join A A)
-fun (joinBool pt) north = inl pt
-fun (joinBool pt) south = inr pt
-fun (joinBool pt) (merid a i) = {!!}
-inv (joinBool pt) = {!!}
-rightInv (joinBool pt) = {!!}
-leftInv (joinBool pt) = {!!}
 
-IsoS3-join : Iso (S₊ 3) (join S¹ S¹)
-fun IsoS3-join = fun'
-  where
-  fun' : S₊ 3 → join S¹ S¹
-  fun' north = inl base
-  fun' south = inr base
-  fun' (merid north i) = (refl ∙∙ (λ j → inl (loop j)) ∙∙ push base base) i --
-  fun' (merid south i) = ((push base base) ∙∙ (λ j → inr (loop j)) ∙∙ refl) i -- push  (loop i) base i
-  fun' (merid (merid base j) i) = ((λ k → push base base (k ∧ j)) ∙∙ (λ k → push (loop k) (loop k) j) ∙∙ λ k → push base base (k ∨ j)) i
-  fun' (merid (merid (loop k) j) i) = ({!!} ∙∙ (λ l → push (loop l) (loop l) j) ∙∙ {!λ k → ?!}) i
-inv IsoS3-join = {!!}
-  where
-  fun' : join S¹ S¹ → Susp (Susp S¹)
-  fun' (inl base) = north
-  fun' (inl (loop i)) = {!!}
-  fun' (inr x) = north
-  fun' (push base base i) = north
-  fun' (push base (loop j) i) = north -- merid (merid base j) i
-  fun' (push (loop i₁) base i) = north
-  fun' (push (loop z) (loop j) i) = {!!}
-rightInv IsoS3-join = {!!}
-leftInv IsoS3-join = {!!}
 
 -- SuspBool→S1 : Susp Bool → S₊ 1
 -- SuspBool→S1 north           = north

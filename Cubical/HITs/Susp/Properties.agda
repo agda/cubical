@@ -27,15 +27,15 @@ rightInv Susp-iso-joinBool (inl a) = sym (push a true)
 rightInv Susp-iso-joinBool (push a true  i) j = push a true (i ∨ ~ j)
 rightInv Susp-iso-joinBool (push a false i) j
   = hcomp (λ k → λ { (i = i0) → push a true (~ j)
-                   ; (i = i1) → push a false k
-                   ; (j = i1) → push a false (i ∧ k) })
+                    ; (i = i1) → push a false k
+                    ; (j = i1) → push a false (i ∧ k) })
           (push a true (~ i ∧ ~ j))
 leftInv Susp-iso-joinBool north = refl
 leftInv Susp-iso-joinBool south = refl
 leftInv (Susp-iso-joinBool {A = A}) (merid a i) j
   = hcomp (λ k → λ { (i = i0) → transp (λ _ → Susp A) (k ∨ j) north
-                   ; (i = i1) → transp (λ _ → Susp A) (k ∨ j) (merid a k)
-                   ; (j = i1) → merid a (i ∧ k) })
+                    ; (i = i1) → transp (λ _ → Susp A) (k ∨ j) (merid a k)
+                    ; (j = i1) → merid a (i ∧ k) })
           (transp (λ _ → Susp A) j north)
 
 Susp≃joinBool : ∀ {ℓ} {A : Type ℓ} → Susp A ≃ join A Bool

@@ -9,9 +9,11 @@ open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Int
 open import Cubical.Data.Sigma
+open import Cubical.Foundations.Function
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.S2
+open import Cubical.HITs.S3
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Join
@@ -318,5 +320,22 @@ JoinS¹S¹≡TotalHopf = isoToPath (iso JoinS¹S¹→TotalHopf
                                     TotalHopf→JoinS¹S¹→TotalHopf
                                     JoinS¹S¹→TotalHopf→JoinS¹S¹)
 
-S³≡TotalHopf : S₊ 3 ≡ TotalHopf
-S³≡TotalHopf = {!!} ∙ JoinS¹S¹≡TotalHopf
+S³≡TotalHopf : S³ ≡ TotalHopf
+S³≡TotalHopf = S³≡joinS¹S¹ ∙ JoinS¹S¹≡TotalHopf
+
+open Iso renaming (inv to inv')
+IsoS³TotalHopf : Iso (S₊ 3) TotalHopf
+fun IsoS³TotalHopf x = JoinS¹S¹→TotalHopf (S³→joinS¹S¹ (inv' IsoS³S3 x))
+inv' IsoS³TotalHopf x = fun IsoS³S3 (joinS¹S¹→S³ (TotalHopf→JoinS¹S¹ x))
+rightInv IsoS³TotalHopf x =
+     cong (JoinS¹S¹→TotalHopf ∘ S³→joinS¹S¹)
+          (leftInv IsoS³S3 (joinS¹S¹→S³ (TotalHopf→JoinS¹S¹ x)))
+  ∙∙ cong JoinS¹S¹→TotalHopf
+          (joinS¹S¹→S³→joinS¹S¹ (TotalHopf→JoinS¹S¹ x))
+  ∙∙ TotalHopf→JoinS¹S¹→TotalHopf x
+leftInv IsoS³TotalHopf x =
+     cong (fun IsoS³S3 ∘ joinS¹S¹→S³)
+          (JoinS¹S¹→TotalHopf→JoinS¹S¹ (S³→joinS¹S¹ (inv' IsoS³S3 x)))
+  ∙∙ cong (fun IsoS³S3) (S³→joinS¹S¹→S³ (inv' IsoS³S3 x))
+  ∙∙ Iso.rightInv IsoS³S3 x
+

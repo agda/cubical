@@ -46,13 +46,14 @@ private
 ϕ : (pt a : A) → typ (Ω (Susp A , north))
 ϕ pt a = (merid a) ∙ sym (merid pt)
 
-Kn→ΩKn+1 : (n : ℕ) → coHomK n → typ (Ω (coHomK-ptd (suc n)))
-Kn→ΩKn+1 zero x i = ∣ intLoop x i ∣
-Kn→ΩKn+1 (suc zero) = trRec (isOfHLevelTrunc 4 ∣ north ∣ ∣ north ∣)
-                             λ a i → ∣ ϕ base a i ∣
-Kn→ΩKn+1 (suc (suc n)) = trRec (isOfHLevelTrunc (2 + (3 + n)) ∣ north ∣ ∣ north ∣)
-                                λ a i → ∣ ϕ north a i ∣
 private
+  Kn→ΩKn+1 : (n : ℕ) → coHomK n → typ (Ω (coHomK-ptd (suc n)))
+  Kn→ΩKn+1 zero x i = ∣ intLoop x i ∣
+  Kn→ΩKn+1 (suc zero) = trRec (isOfHLevelTrunc 4 ∣ north ∣ ∣ north ∣)
+                               λ a i → ∣ ϕ base a i ∣
+  Kn→ΩKn+1 (suc (suc n)) = trRec (isOfHLevelTrunc (2 + (3 + n)) ∣ north ∣ ∣ north ∣)
+                                  λ a i → ∣ ϕ north a i ∣
+
   d-map : typ (Ω ((Susp S¹) , north)) → S¹
   d-map p = subst HopfSuspS¹ p base
 
@@ -67,100 +68,50 @@ private
 sphereConnectedSpecCase : isConnected 4 (Susp (Susp S¹))
 sphereConnectedSpecCase = sphereConnected 3
 
-d-mapComp : fiber d-map base ≡ Path (Susp (Susp S¹)) north north
-d-mapComp = ΣPathTransport≡PathΣ {B = HopfSuspS¹} _ _ ∙ helper
+-- IsoS³TotalHopf
+
+d-mapComp2 : Iso (fiber d-map base) (Path (S₊ 3) north north)
+d-mapComp2 = compIso (IsoΣPathTransportPathΣ {B = HopfSuspS¹} _ _)
+                     (congIso (invIso IsoS³TotalHopf))
+
+isContrIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso A B → isContr A → isContr B
+isContrIso is cA = isContrRetract (Iso.inv is) (Iso.fun is) (Iso.rightInv is) cA
+
+is1Connected-dmap : isConnectedFun 3 d-map
+is1Connected-dmap = toPropElim (λ _ → isPropIsOfHLevel 0)
+                               (isConnectedRetract 3
+                                 (Iso.fun d-mapComp2)
+                                 (Iso.inv d-mapComp2)
+                                 (Iso.leftInv d-mapComp2)
+                                 (isContrIso (PathIdTruncIso 3)
+                                             contrHelper))
   where
-  helper : Path (Σ (Susp S¹) λ x → HopfSuspS¹ x) (north , base) (north , base) ≡ Path (Susp (Susp S¹)) north north
-  helper = (λ i → (Path (S³≡TotalHopf (~ i))
-                        (transp (λ j → S³≡TotalHopf (~ i ∨ ~ j)) (~ i) (north , base))
-                        ((transp (λ j → S³≡TotalHopf (~ i ∨ ~ j)) (~ i) (north , base)))))
-         ∙ {!!}
-           {-
-           (λ i → Path (S³≡SuspSuspS¹ i) (transp (λ j → S³≡SuspSuspS¹ (i ∧ j)) (~ i) base) ((transp (λ j → S³≡SuspSuspS¹ (i ∧ j)) (~ i) base)))-}
+  contrHelper : isContr (Path (∥ Susp (Susp S¹) ∥ 4) ∣ north ∣ ∣ north ∣)
+  fst contrHelper = refl
+  snd contrHelper = isOfHLevelPlus {n = 0} 2 (sphereConnected 3) ∣ north ∣ ∣ north ∣ refl
+
+d-Iso : Iso (∥ Path (S₊ 2) north north ∥ 3) (coHomK 1)
+d-Iso = connectedTruncIso _ d-map is1Connected-dmap
+
+d-mapId2 : Iso.fun d-Iso ∘ trMap (ϕ base) ≡ idfun (coHomK 1)
+d-mapId2 = funExt (trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) λ a i → ∣ d-mapId a i ∣)
+
+Iso∥ϕ₁∥ : Iso (coHomK 1) (∥ Path (S₊ 2) north north ∥ 3)
+Iso∥ϕ₁∥ = composesToId→Iso d-Iso (trMap (ϕ base)) d-mapId2
+
+
+Iso-Kn-ΩKn+1 : (n : HLevel) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
+Iso-Kn-ΩKn+1 zero = invIso (compIso (congIso (truncIdempotentIso _ isGroupoidS1)) ΩS¹IsoInt)
+Iso-Kn-ΩKn+1 (suc zero) = compIso Iso∥ϕ₁∥ (invIso (PathIdTruncIso 3))
+Iso-Kn-ΩKn+1 (suc (suc n)) = compIso (connectedTruncIso2 (4 + n) _ (ϕ north) (n , helper)
+                                                                             (isConnectedσ (suc n) (sphereConnected _)))
+                                     (invIso (PathIdTruncIso (4 + n)))
+ where
+  helper : n + (4 + n) ≡ 2 + (n + (2 + n))
+  helper = +-suc n (3 + n) ∙ (λ i → suc (+-suc n (2 + n) i))
+
 
 {-
-  ----------------------------------- n = 1 -----------------------------------------------------
-
-  {- We begin by stating some useful lemmas -}
-
-
-
-  S³≡SuspSuspS¹ : S³ ≡ Susp (Susp S¹)
-  S³≡SuspSuspS¹ = S³≡SuspS² ∙ λ i → Susp (S²≡SuspS¹ i)
-
-  S3≡SuspSuspS¹ : S₊ 3 ≡ Susp (Susp S¹)
-  S3≡SuspSuspS¹ = (λ i → Susp (Susp (Susp (ua Bool≃Susp⊥ (~ i))))) ∙ λ i → Susp (Susp (S¹≡SuspBool (~ i)))
-
-  sphereConnectedSpecCase : isConnected 4 (Susp (Susp S¹))
-  sphereConnectedSpecCase = transport (λ i → isConnected 4 (S3≡SuspSuspS¹ i)) (sphereConnected 3)
-
-
-  {- We give the following map and show that its truncation is an equivalence -}
-
-  d-map : typ (Ω ((Susp S¹) , north)) → S¹
-  d-map p = subst HopfSuspS¹ p base
-
-
-
-  d-mapComp : fiber d-map base ≡ Path (Susp (Susp S¹)) north north
-  d-mapComp = ΣPathTransport≡PathΣ {B = HopfSuspS¹} _ _ ∙ helper
-    where
-    helper : Path (Σ (Susp S¹) λ x → HopfSuspS¹ x) (north , base) (north , base) ≡ Path (Susp (Susp S¹)) north north
-    helper = (λ i → (Path (S³≡TotalHopf (~ i))
-                          (transp (λ j → S³≡TotalHopf (~ i ∨ ~ j)) (~ i) (north , base))
-                          ((transp (λ j → S³≡TotalHopf (~ i ∨ ~ j)) (~ i) (north , base))))) ∙
-             (λ i → Path (S³≡SuspSuspS¹ i) (transp (λ j → S³≡SuspSuspS¹ (i ∧ j)) (~ i) base) ((transp (λ j → S³≡SuspSuspS¹ (i ∧ j)) (~ i) base)))
-
-
-  is1Connected-dmap : isConnectedFun 3 d-map
-  is1Connected-dmap = toPropElim (λ s → isPropIsOfHLevel 0) (transport (λ j → isContr (∥ d-mapComp (~ j) ∥ 3))
-                                      (transport (λ i →  isContr (PathΩ {A = Susp (Susp S¹)} {a = north} 3 i))
-                                                 (refl , isOfHLevelSuc 1 (isOfHLevelSuc 0 sphereConnectedSpecCase) ∣ north ∣ ∣ north ∣ (λ _ → ∣ north ∣))))
-
-  d-iso2 : Iso (hLevelTrunc 3 (typ (Ω (Susp S¹ , north)))) (hLevelTrunc 3 S¹)
-  d-iso2 = connectedTruncIso _ d-map is1Connected-dmap
-
-  {- We show that composing (λ a → ∣ ϕ base a ∣) and (λ x → ∣ d-map x ∣) gives us the identity function.  -}
-
-  d-mapId2 : Iso.fun d-iso2 ∘ trMap (ϕ base) ≡ idfun (hLevelTrunc 3 S¹)
-  d-mapId2 = funExt (trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) (λ a i → ∣ (d-mapId a i)∣))
-
-  {- This means that (λ a → ∣ ϕ base a ∣) is an equivalence -}
-
-  Iso∣ϕ-base∣ : Iso (hLevelTrunc 3 S¹) (hLevelTrunc 3 (typ (Ω (Susp S¹ , north))))
-  Iso∣ϕ-base∣ = composesToId→Iso d-iso2 (trMap (ϕ base)) d-mapId2
-
-
-  ---------------------------------
-  -- We cheat when n = 1 and use J to prove the following lemmma.  There is an obvious dependent path between ϕ base and ϕ north. Since the first one is an iso, so is the other.
-  -- So far this hasn't been an issue.
-
-
-  pointFunIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ} {C : (A : Type ℓ) (a1 : A) → Type ℓ'} (p : A ≡ B) (a : A) (b : B) →
-              (transport p a ≡ b) →
-              (f : (A : Type ℓ) →
-              (a1 : A) (a2 : hLevelTrunc 3 A)  → C A a1) →
-              isIso (f A a) →
-              isIso (f B b)
-  pointFunIso {ℓ = ℓ}{A = A} {B = B} {C = C} =
-           J (λ B p → (a : A) (b : B) →
-                        (transport p a ≡ b) →
-                        (f : (A : Type ℓ) →
-                        (a1 : A) (a2 : hLevelTrunc 3 A)  → C A a1) →
-                        isIso (f A a) →
-                        isIso (f B b))
-             λ a b trefl f is → transport (λ i → isIso (f A ((sym (transportRefl a) ∙ trefl) i))) is
-
-  {- By pointFunIso, this gives that λ a → ∣ ϕ north a ∣ is an iso -}
-
-  isIso∣ϕ∣ : isIso {A = hLevelTrunc 3 (S₊ 1)} {B = hLevelTrunc 3 (typ (Ω (S₊ 2 , north)))} (trMap (ϕ north))
-  isIso∣ϕ∣ = pointFunIso {A = S¹} (λ i → S¹≡S1 (~ i)) base north refl (λ A a1 → trMap (ϕ a1)) ((Iso.inv Iso∣ϕ-base∣) , ((Iso.rightInv Iso∣ϕ-base∣) , (Iso.leftInv Iso∣ϕ-base∣)))
-
-  Iso∣ϕ∣ : Iso (hLevelTrunc 3 (S₊ 1)) (hLevelTrunc 3 (typ (Ω (S₊ 2 , north))))
-  Iso.fun Iso∣ϕ∣ = trMap (ϕ north)
-  Iso.inv Iso∣ϕ∣ = isIso∣ϕ∣ .fst
-  Iso.rightInv Iso∣ϕ∣ = isIso∣ϕ∣ .snd .fst
-  Iso.leftInv Iso∣ϕ∣ = isIso∣ϕ∣ .snd .snd
 
 ---------------------------------------------------- Finishing up ---------------------------------
 

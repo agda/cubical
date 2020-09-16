@@ -118,8 +118,8 @@ rightInv (invIso f) = leftInv f
 leftInv (invIso f)  = rightInv f
 
 compIso : Iso A B → Iso B C → Iso A C
-fun (compIso (iso f _ _ _) (iso g _ _ _))       = g ∘ f
-inv (compIso (iso _ finv _ _) (iso _ ginv _ _)) = finv ∘ ginv
+fun (compIso i j)       = fun j ∘ fun i
+inv (compIso i j) = inv i ∘ inv j
 rightInv (compIso (iso _ _ rightInv _) (iso g ginv rightInv' _)) b =
   cong g (rightInv (ginv b)) ∙ rightInv' b
 leftInv (compIso (iso f finv _ leftInv) (iso _ _ _ leftInv')) a =
@@ -127,7 +127,7 @@ leftInv (compIso (iso f finv _ leftInv) (iso _ _ _ leftInv')) a =
 
 composesToId→Iso : (G : Iso A B) (g : B → A) → G .fun ∘ g ≡ idfun B → Iso B A
 fun (composesToId→Iso _ g _)             = g
-inv (composesToId→Iso (iso f _ _ _) _ _) = f
+inv (composesToId→Iso j _ _) = fun j
 rightInv (composesToId→Iso (iso f finv _ leftInv) g path) b =
   sym (leftInv (g (f b))) ∙∙ cong (λ g → finv (g (f b))) path ∙∙ leftInv b
 leftInv (composesToId→Iso _ _ path) b i = path i b

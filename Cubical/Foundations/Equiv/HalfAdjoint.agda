@@ -24,6 +24,34 @@ private
     A : Type ℓ
     B : Type ℓ'
 
+{-
+
+congIso2 : {x y : A} (e : Iso A B) → Iso (x ≡ y) (Iso.fun e x ≡ Iso.fun e y)
+Iso.fun (congIso2 {x = x} {y = y} e) = cong (Iso.fun e)
+Iso.inv (congIso2 {B = B} {x = x} {y = y} e) p = {!p!}
+
+{- J (λ y q → (p : Iso.fun e x ≡ Iso.fun e y) → x ≡ y) (λ p → {!cong (Iso.inv e) p!}) (sym (Iso.leftInv e x) ∙∙ (cong (Iso.inv e) p) ∙∙ (Iso.leftInv e y)) p ? ? -- sym (Iso.leftInv e x) ∙∙ (cong (Iso.inv e) p) ∙∙ (Iso.leftInv e y) -}
+Iso.rightInv (congIso2 {A = A}{B = B} {x = x} {y = y} e) p =
+  J (λ y q → (p : Iso.fun e x ≡ Iso.fun e y) → Iso.fun (congIso2 e) (Iso.inv (congIso2 e) p) ≡ p)
+    (λ p → {!!})
+    (Iso.inv (congIso2 {x = x} {y = y} e) p)
+    p
+  where
+
+  helper : (x : A) (a b : B) (p : a ≡ b) (Q : Iso.inv e b ≡ x) (R : x ≡ Iso.inv e a)
+           (S : b ≡ Iso.fun e x) (T : Iso.fun e x ≡ a)
+        → PathP (λ i → x ≡ Iso.inv e (p i)) R (sym Q)
+        → {!J ? ?!}
+        → cong (Iso.fun e) (R ∙∙ cong (Iso.inv e) p ∙∙ Q) ≡ (T ∙∙ p ∙∙ S)
+  helper x a b = {!!}
+  helper2 : (a b c : B) → (p : a ≡ b) → {!!}
+  helper2 = {!!}
+Iso.leftInv (congIso2 {x = x} {y = y} e) = {!!}
+{-
+  J (λ y p → sym (Iso.leftInv e x) ∙∙ (cong (Iso.inv e ∘ (Iso.fun e)) p) ∙∙ Iso.leftInv e y ≡ p)
+    {!!}
+-}
+-}
 record isHAEquiv {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type (ℓ-max ℓ ℓ') where
   field
     g : B → A
