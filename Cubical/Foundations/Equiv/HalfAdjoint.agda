@@ -172,3 +172,15 @@ congIso {x = x} {y} e = goal
                    ; (j = i0) → Iso.leftInv e x (i ∨ k)
                    ; (j = i1) → Iso.leftInv e y (i ∨ k) })
           (Iso.leftInv e (p j) i)
+
+invCongFunct : {x : A} (e : Iso A B) (p : Iso.fun e x ≡ Iso.fun e x) (q : Iso.fun e x ≡ Iso.fun e x)
+             → Iso.inv (congIso e) (p ∙ q) ≡ Iso.inv (congIso e) p ∙ Iso.inv (congIso e) q
+invCongFunct {x = x} e p q =
+     (lUnit (Iso.inv (congIso e) (p ∙ q))
+  ∙∙ (λ i → (λ j → Iso.leftInv e x (~ j ∨ ~ i)) ∙ ((λ j → Iso.leftInv e x (~ j ∧ ~ i)) ∙∙ cong (Iso.inv e) (p ∙ q) ∙∙ Iso.leftInv e x))
+  ∙∙ (cong (λ y → sym (Iso.leftInv e x) ∙ y ∙ Iso.leftInv e x) (congFunct (Iso.inv e) p q)))
+  ∙∙ (cong (sym (Iso.leftInv e x) ∙_) (sym (assoc (cong (Iso.inv e) p) (cong (Iso.inv e) q) (Iso.leftInv e x)))
+  ∙∙ assoc (sym (Iso.leftInv e x)) (cong (Iso.inv e) p) (cong (Iso.inv e) q ∙ Iso.leftInv e x)
+  ∙∙  (λ i → compPath≡compPath' (sym (Iso.leftInv e x)) (cong (Iso.inv e) p) i ∙ cong (Iso.inv e) q ∙ Iso.leftInv e x))
+  ∙∙ (λ i → (sym (Iso.leftInv e x) ∙∙ cong (Iso.inv e) p ∙∙ (λ j → Iso.leftInv e x (j ∧ i)))
+          ∙ ((λ j → Iso.leftInv e x (~ j ∧ i)) ∙∙ cong (Iso.inv e) q ∙∙ Iso.leftInv e x))
