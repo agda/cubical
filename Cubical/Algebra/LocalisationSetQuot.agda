@@ -16,6 +16,7 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Nat hiding (_+_ ; +-comm ; +-assoc)
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma.Base
+open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
@@ -145,12 +146,12 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
  -- now define operations for Rₛ
  open BinaryRelation
 
+ locRefl : isRefl _≈'_
+ locRefl _ = (1r , SsubMonoid .containsOne) , refl
+
  _+ₗ_ : Rₛ → Rₛ → Rₛ
  _+ₗ_ = setQuotBinOp locRefl (_+ₚ_ , θ)
   where
-  locRefl : isRefl _≈'_
-  locRefl _ = (1r , SsubMonoid .containsOne) , refl
-
   _+ₚ_ : R × S → R × S → R × S
   (r₁ , s₁ , s₁∈S) +ₚ (r₂ , s₂ , s₂∈S) =
                       (r₁ · s₂ + r₂ · s₁) , (s₁ · s₂) , SsubMonoid .multClosed s₁∈S s₂∈S
@@ -282,6 +283,56 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
            fst s · fst s' · (r'₁ · s'₂ + r'₂ · s'₁) · (s₁ · s₂) ∎
 
 
+ -- check group-laws for addition
+ 0ₗ : Rₛ
+ 0ₗ = [ 0r , 1r , SsubMonoid .containsOne ]
+
+ +ₗ-rid : (x : Rₛ) → x +ₗ 0ₗ ≡ x
+ +ₗ-rid = SQ.elimProp (λ _ → squash/ _ _) +ₗ-rid[]
+  where
+  +ₗ-rid[] : (a : R × S) → [ a ] +ₗ 0ₗ ≡ [ a ]
+  +ₗ-rid[] (r , s , s∈S) = path
+   where
+   eq1 : r · 1r + 0r · s ≡ r
+   eq1 = cong (r · 1r +_) (0-leftNullifies _) ∙∙ +-rid _ ∙∙ ·-rid _
+
+   path : [ r · 1r + 0r · s , s · 1r , SsubMonoid .multClosed s∈S (SsubMonoid .containsOne) ]
+        ≡ [ r , s , s∈S ]
+   path = cong [_] (ΣPathP (eq1 , Σ≡Prop (λ x → ∈-isProp S' x) (·-rid _)))
+
+ -ₗ_ : Rₛ → Rₛ
+ -ₗ_ = SQ.rec squash/ -ₗ[] -ₗWellDef
+  where
+  -ₗ[] : R × S → Rₛ
+  -ₗ[] (r , s) = [ - r , s ]
+
+  -ₗWellDef : (a b : R × S) → a ≈' b → -ₗ[] a ≡ -ₗ[] b
+  -ₗWellDef (r , s , _) (r' , s' , _) (u , p) = eq/ _ _ (u , path)
+   where
+   path : fst u · - r · s' ≡ fst u · - r' · s
+   path = fst u · - r · s'   ≡⟨ cong (_· s') (-commutesWithRight-· _ _) ⟩
+          - (fst u · r) · s' ≡⟨ -commutesWithLeft-· _ _ ⟩
+          - (fst u · r · s') ≡⟨ cong -_ p ⟩
+          - (fst u · r' · s) ≡⟨ sym (-commutesWithLeft-· _ _) ⟩
+          - (fst u · r') · s ≡⟨ cong (_· s) (sym (-commutesWithRight-· _ _)) ⟩
+          fst u · - r' · s   ∎
+
+ +ₗ-rinv : (x : Rₛ) → x +ₗ (-ₗ x) ≡ 0ₗ
+ +ₗ-rinv = SQ.elimProp (λ _ → squash/ _ _) +ₗ-rinv[]
+  where
+  +ₗ-rinv[] : (a : R × S) → ([ a ] +ₗ (-ₗ [ a ])) ≡ 0ₗ
+  +ₗ-rinv[] (r , s , s∈S) = eq/ _ _ ((1r , SsubMonoid .containsOne) , path)
+   where
+   path : 1r · (r · s + - r · s) · 1r ≡ 1r · 0r · (s · s)
+   path = 1r · (r · s + - r · s) · 1r   ≡⟨ cong (λ x → 1r · (r · s + x) · 1r) (-commutesWithLeft-· _ _) ⟩
+          1r · (r · s + - (r · s)) · 1r ≡⟨ cong (λ x → 1r · x · 1r) (+-rinv _) ⟩
+          1r · 0r · 1r                  ≡⟨ ·-rid _ ⟩
+          1r · 0r                       ≡⟨ ·-lid _ ⟩
+          0r                            ≡⟨ sym (0-leftNullifies _) ⟩
+          0r · (s · s)                  ≡⟨ cong (_· (s · s)) (sym (·-lid _)) ⟩
+          1r · 0r · (s · s)             ∎
+
+
 
  -- defining addition for truncated version is much more tedious:
  -- _+ₗ_ : S⁻¹R/ → S⁻¹R/ → S⁻¹R/
@@ -307,3 +358,21 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
  --           → (a +ₚ b) ≈ (a' +ₚ b')
  --       θ'' (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) (r'₂ , s'₂ , s'₂∈S) (s , p) (s' , q) =
  --        ∣ ((fst s · fst s') , SsubMonoid .multClosed (s .snd) (s' .snd)) , {!!} ∣
+
+
+ -- -- Now for multiplication
+ -- _·ₗ_ : Rₛ → Rₛ → Rₛ
+ -- _·ₗ_ = setQuotBinOp locRefl (_·ₚ_ , θ)
+ --  where
+ --  _·ₚ_ : R × S → R × S → R × S
+ --  (r₁ , s₁ , s₁∈S) ·ₚ (r₂ , s₂ , s₂∈S) =
+ --                      (r₁ · s₂ · r₂ · s₁) , (s₁ · s₂) , SsubMonoid .multClosed s₁∈S s₂∈S
+
+ --  θ : (a a' b b' : R × S) → a ≈' a' → b ≈' b' → (a ·ₚ b) ≈' (a' ·ₚ b')
+ --  θ (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) (r'₂ , s'₂ , s'₂∈S) (s , p) (s' , q) =
+ --    ((fst s · fst s') , SsubMonoid .multClosed (s .snd) (s' .snd)) , path
+ --    where
+ --    path : fst s · fst s' · (r₁ · s₂ · r₂ · s₁) · (s'₁ · s'₂)
+ --         ≡ fst s · fst s' · (r'₁ · s'₂ · r'₂ · s'₁) · (s₁ · s₂)
+ --    path = {!!}
+ --    -- is that true even?
