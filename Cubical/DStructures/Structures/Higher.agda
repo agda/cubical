@@ -25,11 +25,13 @@ open import Cubical.DStructures.Structures.Type
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓA ℓ≅A : Level
 
+{-
 module _ (ℓ : Level) where
   𝒮-BGroup : (n k : ℕ) → URGStr (BGroup ℓ n k) ℓ
   𝒮-BGroup n k =
     make-𝒮 {_≅_ = λ BG BH → {!!}}
            {!!}
            {!!}
+-}

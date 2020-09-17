@@ -20,7 +20,7 @@ import Cubical.Foundations.GroupoidLaws as GL
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 
 record HigherGroup ℓ : Type (ℓ-suc ℓ) where
@@ -94,3 +94,6 @@ Iso.inv (IsoGroup1BGroup ℓ) = 1BGroup→Group
 Iso.leftInv (IsoGroup1BGroup ℓ) G = η-Group (ΩEM₁≡ G) {!!} {!!} {!!} {!!}
 Iso.rightInv (IsoGroup1BGroup ℓ) BG = η-BGroup {!!} {!!}
 -}
+
+
+module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where

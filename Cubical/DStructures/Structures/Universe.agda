@@ -25,3 +25,6 @@ private
                                                                                   (λ e → equivEq (invEquiv (invEquiv e)) e (funExt (λ x → refl)))
                                                                                   λ e → equivEq (invEquiv (invEquiv e)) e (funExt (λ x → refl)))))
                                        (EquivContr A)
+
+𝒮ᴰ-pointed : {ℓ : Level} → URGStrᴰ (𝒮-universe {ℓ}) (λ A → A) _
+𝒮ᴰ-pointed = make-𝒮ᴰ (λ a e b → equivFun e a ≡ b) (λ a → refl) {!!}
