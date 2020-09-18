@@ -3,6 +3,10 @@ module Cubical.Foundations.Pointed.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
+
+open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Structure using (typ) public
@@ -38,3 +42,12 @@ A ≃∙ B = Σ[ (f , p) ∈ A →∙ B ] isEquiv f
        (f : A ≃∙ B)
        → typ A ≃ typ B
 ≃∙→≃ f = fst (fst f) , snd f
+
+idEquiv∙ : (A : Pointed ℓ) → A ≃∙ A
+idEquiv∙ (A , ⋆) =
+  (idfun∙ (A , ⋆)) ,
+  record { equiv-proof = λ a → p a }
+    where
+      module _ (a : A) where
+        p : isContr (Σ[ a' ∈ A ] a' ≡ a)
+        p = isContrRespectEquiv (Σ-cong-equiv-snd (λ a₁ → isoToEquiv (iso sym sym (λ _ → refl) λ _ → refl))) (isContrSingl a)

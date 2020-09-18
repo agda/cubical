@@ -23,7 +23,7 @@ open import Cubical.HITs.PropositionalTruncation.Base
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A B C : Type ℓ
 
 rec : ∀ {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥ → P
@@ -82,6 +82,15 @@ map f = rec squash (∣_∣ ∘ f)
 map2 : (A → B → C) → (∥ A ∥ → ∥ B ∥ → ∥ C ∥)
 map2 f = rec (isPropΠ λ _ → squash) (map ∘ f)
 
+propTruncΣ← : {A : Type ℓ} (B : A → Type ℓ') → ∥ Σ[ a ∈ A ] ∥ B a ∥ ∥ → ∥ Σ[ a ∈ A ] B a ∥
+propTruncΣ← {A = A} B =
+  rec propTruncIsProp
+          λ (a , b) → s a b
+  where
+    module _ (a : A) where
+      s : ∥ B a ∥ → ∥ Σ[ a ∈ A ] B a ∥
+      s = rec propTruncIsProp (λ b → ∣ a , b ∣)
+     
 -- The propositional truncation can be eliminated into non-propositional
 -- types as long as the function used in the eliminator is 'coherently
 -- constant.' The details of this can be found in the following paper:

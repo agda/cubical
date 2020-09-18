@@ -1,5 +1,5 @@
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --allow-unsolved-metas #-}
 
 module Cubical.Algebra.Group.Higher where
 
@@ -17,6 +17,15 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.EilenbergMacLane1
 open import Cubical.HITs.EilenbergMacLane1
 
+open import Cubical.Algebra.Group.Base
+open import Cubical.Algebra.Group.Morphism
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Equiv
+open import Cubical.HITs.PropositionalTruncation renaming (rec to propRec)
+open import Cubical.HITs.Truncation
+open import Cubical.Functions.Surjection
+open import Cubical.Functions.Embedding
 
 import Cubical.Foundations.GroupoidLaws as GL
 
@@ -57,16 +66,20 @@ module _ where
       s = isProp→PathP (λ i → isPropIsOfHLevel (n + k + 2)) (isTrun BG) (isTrun BH)
 
 
-BGroupHom :  {n k : ℕ} (G : BGroup ℓ n k) (H : BGroup ℓ' n k) → Type (ℓ-max ℓ ℓ')
+BGroupHom : {n k : ℕ} (G : BGroup ℓ n k) (H : BGroup ℓ' n k) → Type (ℓ-max ℓ ℓ')
 BGroupHom G H = (BGroup.base G) →∙ (BGroup.base H)
 
-BGroupIso :  {n k : ℕ} (G : BGroup ℓ n k) (H : BGroup ℓ' n k) → Type (ℓ-max ℓ ℓ')
+BGroupIso : {n k : ℕ} (G : BGroup ℓ n k) (H : BGroup ℓ' n k) → Type (ℓ-max ℓ ℓ')
 BGroupIso G H = (BGroup.base G) ≃∙ (BGroup.base H)
+
+BGroupIdIso : {n k : ℕ} (BG : BGroup ℓ n k) → BGroupIso BG BG
+BGroupIdIso BG = idEquiv∙ (BGroup.base BG)
 
 BGroupIso→≡ : {n k : ℕ} {BG BH : BGroup ℓ n k}
                 (f : BGroupIso BG BH)
                 → BG ≡ BH
 BGroupIso→≡ {BG = BG} {BH = BH} f = η-BGroup (ua (≃∙→≃ f)) (toPathP ((uaβ ((≃∙→≃ f)) (pt (BGroup.base BG))) ∙ f .fst .snd))
+
 
 -- getters
 carrier : {ℓ : Level} {n k : ℕ} (G : BGroup ℓ n k) → Pointed ℓ
@@ -84,8 +97,9 @@ basepoint BG = pt (BGroup.base BG)
 1BGroup : (ℓ : Level) → Type (ℓ-suc ℓ)
 1BGroup ℓ = BGroup ℓ 0 1
 
-1BGroup→Group : {ℓ : Level} (BG : 1BGroup ℓ) → Group {ℓ}
-1BGroup→Group BG =
+-- first fundamental group of 1BGroups
+π₁-1BGroup : {ℓ : Level} (BG : 1BGroup ℓ) → Group {ℓ}
+π₁-1BGroup BG =
   makeGroup {G = (pt base) ≡ (pt base)}
             refl
             _∙_
@@ -106,26 +120,15 @@ BGroup.base (Group→1BGroup G) .snd = embase
 BGroup.isConn (Group→1BGroup G) = EM₁Connected G
 BGroup.isTrun (Group→1BGroup G) = EM₁Groupoid G
 
-
-
-open import Cubical.Algebra.Group.Base
-open import Cubical.Algebra.Group.Morphism
-open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Equiv
-open import Cubical.HITs.PropositionalTruncation renaming (rec to propRec)
-open import Cubical.HITs.Truncation
-open import Cubical.Functions.Surjection
-open import Cubical.Functions.Embedding
-
+-- functoriality of π₁ on 1BGroups
 module _ (BG : 1BGroup ℓ) (BH : 1BGroup ℓ') where
   private
-    π₁BG = 1BGroup→Group BG
-    π₁BH = 1BGroup→Group BH
-  -- π₁ functorial action for 1BGroups
-  π₁→ : BGroupHom BG BH → GroupHom π₁BG π₁BH
-  GroupHom.fun (π₁→ f) g = sym (snd f) ∙∙ cong (fst f) g ∙∙ snd f
-  GroupHom.isHom (π₁→ f) g g' = q
+    π₁BG = π₁-1BGroup BG
+    π₁BH = π₁-1BGroup BH
+
+  π₁-1BGroup-functor : BGroupHom BG BH → GroupHom π₁BG π₁BH
+  GroupHom.fun (π₁-1BGroup-functor f) g = sym (snd f) ∙∙ cong (fst f) g ∙∙ snd f
+  GroupHom.isHom (π₁-1BGroup-functor f) g g' = q
     where
       f₁ = fst f
       f₂ = snd f
@@ -164,45 +167,47 @@ module _ (BG : 1BGroup ℓ) (BH : 1BGroup ℓ') where
                       (sym (doubleCompPath-elim' f₂- (cong f₁ g') f₂)) ⟩
             (f₂- ∙∙ cong f₁ g ∙∙ f₂) ∙ (f₂- ∙∙ cong f₁ g' ∙∙ f₂) ∎
 
-propTruncΣ← : {A : Type ℓ} (B : A → Type ℓ') → ∥ Σ[ a ∈ A ] ∥ B a ∥ ∥ → ∥ Σ[ a ∈ A ] B a ∥
-propTruncΣ← {A = A} B =
-  propRec propTruncIsProp
-          λ (a , b) → s a b
-  where
-    module _ (a : A) where
-      s : ∥ B a ∥ → ∥ Σ[ a ∈ A ] B a ∥
-      s = propRec propTruncIsProp (λ b → ∣ a , b ∣)
-
+-- the functorial action of EM₁ on groups
+-- is a left inverse to the functorial action of π₁
+-- on 1BGroups.
 module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
   private
     EM₁H = Group→1BGroup H
-    π₁EM₁H = 1BGroup→Group EM₁H
-    π₁BG = 1BGroup→Group BG
-    π₁→' : BGroupHom EM₁H BG → GroupHom π₁EM₁H π₁BG
-    π₁→' = π₁→ EM₁H BG
+    π₁EM₁H = π₁-1BGroup EM₁H
+    π₁BG = π₁-1BGroup BG
 
+  -- from the EM construction it follows
+  -- that there is a homomorphism H → π₁ (EM₁ H)
   H→π₁EM₁H : GroupHom H π₁EM₁H
   GroupHom.fun H→π₁EM₁H = Iso.inv (ΩEM₁Iso H)
   GroupHom.isHom H→π₁EM₁H = {!!}
 
-  π₁← : GroupHom π₁EM₁H π₁BG → BGroupHom EM₁H BG
-  π₁← f .fst =
+  -- the promised functorial left inverse
+  EM₁-functor-lInv : GroupHom π₁EM₁H π₁BG → BGroupHom EM₁H BG
+  -- on objects
+  EM₁-functor-lInv f .fst =
     rec' H
         (BGroup.isTrun BG)
         (basepoint BG)
         (GroupHom.fun (compGroupHom H→π₁EM₁H f))
         λ g h → sym (GroupHom.isHom (compGroupHom H→π₁EM₁H f) g h)
-  π₁← f .snd =
-    (π₁← f) .fst (basepoint EM₁H)
+  -- pointedness is trivial
+  EM₁-functor-lInv f .snd =
+    (EM₁-functor-lInv f) .fst (basepoint EM₁H)
       ≡⟨ refl ⟩
     pt (BGroup.base BG) ∎
 
-  π₁←-onIso : GroupEquiv π₁EM₁H π₁BG → BGroupIso EM₁H BG
-  π₁←-onIso f .fst = π₁← (GroupEquiv.hom f)
-  π₁←-onIso f .snd = isEmbedding×isSurjection→isEquiv (isEmbedding-φ , isSurjection-φ)
+  -- this left inverse respects isomorphisms,
+  -- first direction
+  EM₁-functor-lInv-onIso : GroupEquiv π₁EM₁H π₁BG → BGroupIso EM₁H BG
+  -- the underlying pointed map / BGroup homomorphism stays the same
+  EM₁-functor-lInv-onIso f .fst = EM₁-functor-lInv (GroupEquiv.hom f)
+  -- if f is an iso then the image of f is an embedding and surjective,
+  -- all in all we have a pointed equivalence
+  EM₁-functor-lInv-onIso f .snd = isEmbedding×isSurjection→isEquiv (isEmbedding-φ , isSurjection-φ)
     where
       φ : BGroupHom EM₁H BG
-      φ = π₁← (GroupEquiv.hom f)
+      φ = EM₁-functor-lInv (GroupEquiv.hom f)
       abstract
         isEmbedding-φ : isEmbedding (fst φ)
         isEmbedding-φ = {!!}
@@ -220,18 +225,24 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
 -- left inverse of below iso, used also in the right inverse proof
 private
   module _ (G : Group {ℓ}) where
-    leftInv : 1BGroup→Group (Group→1BGroup G) ≡ G
+    leftInv : π₁-1BGroup (Group→1BGroup G) ≡ G
     leftInv = η-Group (ΩEM₁≡ G) {!!} {!!} {!!} {!!}
 
+-- Isomorphism of the type of groups and the type of
+-- pointed connected 1-types.
 IsoGroup1BGroup : (ℓ : Level) → Iso (Group {ℓ}) (1BGroup ℓ)
 Iso.fun (IsoGroup1BGroup ℓ) = Group→1BGroup
-Iso.inv (IsoGroup1BGroup ℓ) = 1BGroup→Group
+Iso.inv (IsoGroup1BGroup ℓ) = π₁-1BGroup
 Iso.leftInv (IsoGroup1BGroup ℓ) = leftInv
-Iso.rightInv (IsoGroup1BGroup ℓ) BG = BGroupIso→≡ (π₁←-onIso π₁BG BG φ)
+-- For the right inverse we construct a pointed equivalence
+-- which induces a path
+-- (maybe we should use the URG structure to highlight this)
+-- The pointed equivalence comes from the adjunction above with H:=π₁BG.
+Iso.rightInv (IsoGroup1BGroup ℓ) BG = BGroupIso→≡ (EM₁-functor-lInv-onIso π₁BG BG φ)
   where
-    π₁BG = 1BGroup→Group BG
+    π₁BG = π₁-1BGroup BG
     EM₁π₁BG = Group→1BGroup π₁BG
-    π₁EM₁π₁BG = 1BGroup→Group EM₁π₁BG
+    π₁EM₁π₁BG = π₁-1BGroup EM₁π₁BG
 
     φ : GroupEquiv π₁EM₁π₁BG π₁BG
     φ = equivFun (invEquiv (GroupPath π₁EM₁π₁BG π₁BG)) (leftInv π₁BG)
