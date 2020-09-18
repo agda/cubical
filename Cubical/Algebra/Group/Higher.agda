@@ -68,11 +68,19 @@ BGroupIso→≡ : {n k : ℕ} {BG BH : BGroup ℓ n k}
                 → BG ≡ BH
 BGroupIso→≡ {BG = BG} {BH = BH} f = η-BGroup (ua (≃∙→≃ f)) (toPathP ((uaβ ((≃∙→≃ f)) (pt (BGroup.base BG))) ∙ f .fst .snd))
 
+-- getters
 carrier : {ℓ : Level} {n k : ℕ} (G : BGroup ℓ n k) → Pointed ℓ
 carrier {k = k} BG = (Ω^ k) base
   where
     open BGroup BG
 
+basetype : {ℓ : Level} {n k : ℕ} (BG : BGroup ℓ n k) → Type ℓ
+basetype BG = typ (BGroup.base BG)
+
+basepoint : {ℓ : Level} {n k : ℕ} (BG : BGroup ℓ n k) → basetype BG
+basepoint BG = pt (BGroup.base BG)
+
+-- special cases
 1BGroup : (ℓ : Level) → Type (ℓ-suc ℓ)
 1BGroup ℓ = BGroup ℓ 0 1
 
@@ -91,6 +99,7 @@ carrier {k = k} BG = (Ω^ k) base
     where
       open BGroup BG
 
+-- coercions
 Group→1BGroup : (G : Group {ℓ}) → 1BGroup ℓ
 BGroup.base (Group→1BGroup G) .fst = EM₁ G
 BGroup.base (Group→1BGroup G) .snd = embase
@@ -104,6 +113,8 @@ open import Cubical.Algebra.Group.Morphism
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
+open import Cubical.HITs.PropositionalTruncation renaming (rec to propRec)
+open import Cubical.HITs.Truncation
 open import Cubical.Functions.Surjection
 open import Cubical.Functions.Embedding
 
@@ -114,25 +125,53 @@ module _ (BG : 1BGroup ℓ) (BH : 1BGroup ℓ') where
   -- π₁ functorial action for 1BGroups
   π₁→ : BGroupHom BG BH → GroupHom π₁BG π₁BH
   GroupHom.fun (π₁→ f) g = sym (snd f) ∙∙ cong (fst f) g ∙∙ snd f
-  GroupHom.isHom (π₁→ f) g g' =
-    (f₂- ∙∙ cong f₁ (g ∙ g') ∙∙ f₂)
-      ≡⟨ doubleCompPath-elim' f₂- (cong f₁ (g ∙ g')) f₂ ⟩
-    (f₂- ∙ cong f₁ (g ∙ g') ∙ f₂)
-      ≡⟨ {!!} ⟩
-    (f₂- ∙ (cong f₁ g ∙ cong f₁ g') ∙ f₂)
-      ≡⟨ {!!} ⟩
-    (f₂- ∙ (cong f₁ g ∙ refl ∙ cong f₁ g') ∙ f₂)
-      ≡⟨ {!!} ⟩
-    (f₂- ∙ (cong f₁ g ∙ (f₂ ∙ f₂-) ∙ cong f₁ g') ∙ f₂)
-      ≡⟨ {!!} ⟩
-    (f₂- ∙ cong f₁ g ∙ f₂) ∙ (f₂- ∙ cong f₁ g' ∙ f₂)
-      ≡⟨ {!!} ⟩
-    (f₂- ∙∙ cong f₁ g ∙∙ f₂) ∙ (f₂- ∙∙ cong f₁ g' ∙∙ f₂) ∎
+  GroupHom.isHom (π₁→ f) g g' = q
     where
       f₁ = fst f
       f₂ = snd f
       f₂- = sym (snd f)
+      abstract
+        q = (f₂- ∙∙ cong f₁ (g ∙ g') ∙∙ f₂)
+                 ≡⟨ doubleCompPath-elim' f₂- (cong f₁ (g ∙ g')) f₂ ⟩
+            f₂- ∙ cong f₁ (g ∙ g') ∙ f₂
+              ≡⟨ cong (λ z → (f₂- ∙ z ∙ f₂))
+                      (congFunct f₁ g g') ⟩
+            f₂- ∙ (cong f₁ g ∙ cong f₁ g') ∙ f₂
+              ≡⟨ cong (λ z → (f₂- ∙ (cong f₁ g ∙ z) ∙ f₂))
+                      (lUnit (cong f₁ g')) ⟩
+            f₂- ∙ (cong f₁ g ∙ refl ∙ cong f₁ g') ∙ f₂
+              ≡⟨ cong (λ z → (f₂- ∙ (cong f₁ g ∙ z ∙ cong f₁ g') ∙ f₂))
+                      (sym (rCancel f₂)) ⟩
+            f₂- ∙ (cong f₁ g ∙ (f₂ ∙ f₂-) ∙ cong f₁ g') ∙ f₂
+              ≡⟨ cong (λ z → (f₂- ∙ (cong f₁ g ∙ z) ∙ f₂))
+                      (sym (assoc _ _ _)) ⟩
+            f₂- ∙ (cong f₁ g ∙ (f₂ ∙ (f₂- ∙ cong f₁ g'))) ∙ f₂
+              ≡⟨ cong (λ z → (f₂- ∙ z ∙ f₂))
+                      (assoc _ _ _) ⟩
+            (f₂- ∙ ((cong f₁ g ∙ f₂) ∙ (f₂- ∙ cong f₁ g')) ∙ f₂)
+              ≡⟨ cong (f₂- ∙_)
+                      (sym (assoc _ _ _)) ⟩
+            (f₂- ∙ ((cong f₁ g ∙ f₂) ∙ ((f₂- ∙ cong f₁ g') ∙ f₂)))
+              ≡⟨ cong (λ z → (f₂- ∙ ((cong f₁ g ∙ f₂) ∙ z)))
+                      (sym (assoc _ _ _)) ⟩
+            (f₂- ∙ ((cong f₁ g ∙ f₂) ∙ (f₂- ∙ cong f₁ g' ∙ f₂)))
+              ≡⟨ assoc _ _ _ ⟩
+            (f₂- ∙ cong f₁ g ∙ f₂) ∙ (f₂- ∙ cong f₁ g' ∙ f₂)
+              ≡⟨ cong (_∙ (f₂- ∙ cong f₁ g' ∙ f₂))
+                      (sym (doubleCompPath-elim' f₂- (cong f₁ g) f₂)) ⟩
+            (f₂- ∙∙ cong f₁ g ∙∙ f₂) ∙ (f₂- ∙ cong f₁ g' ∙ f₂)
+              ≡⟨ cong ((f₂- ∙∙ cong f₁ g ∙∙ f₂) ∙_)
+                      (sym (doubleCompPath-elim' f₂- (cong f₁ g') f₂)) ⟩
+            (f₂- ∙∙ cong f₁ g ∙∙ f₂) ∙ (f₂- ∙∙ cong f₁ g' ∙∙ f₂) ∎
 
+propTruncΣ← : {A : Type ℓ} (B : A → Type ℓ') → ∥ Σ[ a ∈ A ] ∥ B a ∥ ∥ → ∥ Σ[ a ∈ A ] B a ∥
+propTruncΣ← {A = A} B =
+  propRec propTruncIsProp
+          λ (a , b) → s a b
+  where
+    module _ (a : A) where
+      s : ∥ B a ∥ → ∥ Σ[ a ∈ A ] B a ∥
+      s = propRec propTruncIsProp (λ b → ∣ a , b ∣)
 
 module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
   private
@@ -150,11 +189,11 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
   π₁← f .fst =
     rec' H
         (BGroup.isTrun BG)
-        (BGroup.base BG .snd)
+        (basepoint BG)
         (GroupHom.fun (compGroupHom H→π₁EM₁H f))
         λ g h → sym (GroupHom.isHom (compGroupHom H→π₁EM₁H f) g h)
   π₁← f .snd =
-    (π₁← f) .fst (pt (BGroup.base EM₁H))
+    (π₁← f) .fst (basepoint EM₁H)
       ≡⟨ refl ⟩
     pt (BGroup.base BG) ∎
 
@@ -164,16 +203,30 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
     where
       φ : BGroupHom EM₁H BG
       φ = π₁← (GroupEquiv.hom f)
-      isEmbedding-φ : isEmbedding (fst φ)
-      isEmbedding-φ = {!!}
+      abstract
+        isEmbedding-φ : isEmbedding (fst φ)
+        isEmbedding-φ = {!!}
 
-      isSurjection-φ : isSurjection (fst φ)
-      isSurjection-φ = {!!}
+        isSurjection-φ : isSurjection (fst φ)
+        isSurjection-φ g = propTruncΣ← (λ x → φ .fst x ≡ g) ∣ basepoint EM₁H , fst r ∣
+          where
+            r : isContr ∥ φ .fst (basepoint EM₁H) ≡ g ∥
+            r = isContrRespectEquiv (invEquiv propTrunc≃Trunc1)
+                                    (isConnectedPath 1
+                                                     (BGroup.isConn BG)
+                                                     (φ .fst (basepoint EM₁H))
+                                                     g)
+
+-- left inverse of below iso, used also in the right inverse proof
+private
+  module _ (G : Group {ℓ}) where
+    leftInv : 1BGroup→Group (Group→1BGroup G) ≡ G
+    leftInv = η-Group (ΩEM₁≡ G) {!!} {!!} {!!} {!!}
 
 IsoGroup1BGroup : (ℓ : Level) → Iso (Group {ℓ}) (1BGroup ℓ)
 Iso.fun (IsoGroup1BGroup ℓ) = Group→1BGroup
 Iso.inv (IsoGroup1BGroup ℓ) = 1BGroup→Group
-Iso.leftInv (IsoGroup1BGroup ℓ) G = η-Group (ΩEM₁≡ G) {!!} {!!} {!!} {!!}
+Iso.leftInv (IsoGroup1BGroup ℓ) = leftInv
 Iso.rightInv (IsoGroup1BGroup ℓ) BG = BGroupIso→≡ (π₁←-onIso π₁BG BG φ)
   where
     π₁BG = 1BGroup→Group BG
@@ -181,4 +234,4 @@ Iso.rightInv (IsoGroup1BGroup ℓ) BG = BGroupIso→≡ (π₁←-onIso π₁BG 
     π₁EM₁π₁BG = 1BGroup→Group EM₁π₁BG
 
     φ : GroupEquiv π₁EM₁π₁BG π₁BG
-    φ = equivFun (invEquiv (GroupPath π₁EM₁π₁BG π₁BG)) (η-Group (ΩEM₁≡ π₁BG) {!!} {!!} {!!} {!!})
+    φ = equivFun (invEquiv (GroupPath π₁EM₁π₁BG π₁BG)) (leftInv π₁BG)
