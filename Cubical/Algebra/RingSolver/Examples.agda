@@ -16,9 +16,9 @@ open import Cubical.Algebra.RingSolver.Solver
 
 module _ where
   open AlmostRing ℕAsAlmostRing
-  open Normalize ℕAsAlmostRing
   open HornerOperations (AlmostRing→RawRing ℕAsAlmostRing)
   open Eval (AlmostRing→RawRing ℕAsAlmostRing)
+  open SolverFor ℕAsAlmostRing
 
   ExprX : Expr ℕ 1
   ExprX = ∣ (fromℕ 0)
@@ -58,3 +58,17 @@ module _ where
                   evalH (Reify lhs) x ≡⟨ refl ⟩
                   evalH (Reify rhs) x ≡⟨ isEqualToNormalForm rhs x ⟩
                   ⟦ rhs ⟧ (x ∷ [])    ∎)
+  {-
+    Parts of that can be automated easily:
+  -}
+  _ : (x : ℕ) → 3 + x + x ≡ 1 + 2 · x + 1 + 1
+  _ = λ x → let
+              lhs = (K 3) ⊕ ExprX ⊕ ExprX
+              rhs = (K 1) ⊕ (K 2) ⊗ ExprX ⊕ (K 1) ⊕ (K 1)
+             in SolveExplicit lhs rhs x refl
+
+  _ : (x : ℕ) → (x + 2) · (x + x) ≡ 2 · x · x + 4 · x
+  _ = λ x → let
+              lhs = (ExprX ⊕ (K 2)) ⊗ (ExprX ⊕ ExprX)
+              rhs = ((K 2) ⊗ ExprX ⊗ ExprX) ⊕ ((K 4) ⊗ ExprX)
+             in SolveExplicit lhs rhs x refl

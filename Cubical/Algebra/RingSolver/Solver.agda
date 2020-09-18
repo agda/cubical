@@ -16,7 +16,7 @@ private
   variable
     ℓ : Level
 
-module Normalize (R : AlmostRing {ℓ}) where
+module EqualityToNormalForm (R : AlmostRing {ℓ}) where
   νR = AlmostRing→RawRing R
   open AlmostRing R
   open Theory R
@@ -121,3 +121,23 @@ module Normalize (R : AlmostRing {ℓ}) where
     evalH (Reify e) x · evalH (Reify e₁) x ≡⟨ cong (λ u → evalH (Reify e) x · u) (isEqualToNormalForm  e₁ x) ⟩
     evalH (Reify e) x · ⟦ e₁ ⟧ (x ∷ [])    ≡⟨ cong (λ u → u · ⟦ e₁ ⟧ (x ∷ [])) (isEqualToNormalForm e x) ⟩
     ⟦ e ⟧ (x ∷ []) · ⟦ e₁ ⟧ (x ∷ []) ∎
+
+module SolverFor (R : AlmostRing {ℓ}) where
+  νR = AlmostRing→RawRing R
+  open HornerOperations νR
+  open Eval νR
+
+  Reify : (e : Expr ⟨ R ⟩ 1) → RawHornerPolynomial (AlmostRing→RawRing R)
+  Reify e = EqualityToNormalForm.Reify R e
+
+  isEqualToNormalForm : (e : Expr ⟨ R ⟩ 1) (x : ⟨ R ⟩)
+            → evalH (Reify e) x ≡ ⟦ e ⟧ (x ∷ [])
+  isEqualToNormalForm e x = EqualityToNormalForm.isEqualToNormalForm R e x
+
+  SolveExplicit : (e₁ e₂ : Expr ⟨ R ⟩ 1) (x : ⟨ R ⟩) (p : evalH (Reify e₁) x ≡ evalH (Reify e₂) x)
+        → ⟦ e₁ ⟧ (x ∷ []) ≡ ⟦ e₂ ⟧ (x ∷ [])
+  SolveExplicit e₁ e₂ x p =  ⟦ e₁ ⟧ (x ∷ [])    ≡⟨ sym (isEqualToNormalForm e₁ x) ⟩
+                             evalH (Reify e₁) x ≡⟨ p ⟩
+                             evalH (Reify e₂) x ≡⟨ isEqualToNormalForm e₂ x ⟩
+                             ⟦ e₂ ⟧ (x ∷ []) ∎
+
