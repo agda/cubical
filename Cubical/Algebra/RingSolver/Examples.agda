@@ -12,6 +12,7 @@ open import Cubical.Algebra.RingSolver.NatAsAlmostRing
 open import Cubical.Algebra.RingSolver.RingExpression
 open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.RingSolver.HornerNormalForm
+open import Cubical.Algebra.RingSolver.Solver
 
 module _ where
   open AlmostRing ℕAsAlmostRing
