@@ -9,6 +9,7 @@ open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.Vec.Base
 open import Cubical.Algebra.RingSolver.AlmostRing
 open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
+open import Cubical.Algebra.RingSolver.HornerNormalForm
 
 private
   variable
@@ -17,7 +18,7 @@ private
 infixl 6 _⊕_
 infixl 7 _⊗_
 
--- Expression in an almost ring on A with n variables
+-- Expression in a ring on A with n variables
 data Expr {ℓ} (A : Type ℓ) (n : ℕ) : Type ℓ where
   K : A → Expr A n
   ∣ : Fin n → Expr A n
@@ -26,7 +27,6 @@ data Expr {ℓ} (A : Type ℓ) (n : ℕ) : Type ℓ where
 --  _⊛_ : Expr A n → ℕ → Expr A n    -- exponentiation
   ⊝_ : Expr A n → Expr A n
 
--- there are probably things I don't get yet...
 module Eval (R : RawRing {ℓ}) where
   open import Cubical.Data.Vec
   open RawRing R
@@ -39,46 +39,11 @@ module Eval (R : RawRing {ℓ}) where
 --  ⟦ x ⊛ l ⟧ v =  ⟦ x ⟧ v ^ l
   ⟦ ⊝ x ⟧ v = - ⟦ x ⟧ v
 
-data RawHornerPolynomial (R : RawRing {ℓ}) : Type ℓ where
-  0H : RawHornerPolynomial R
-  _·X+_ : RawHornerPolynomial R → ⟨ R ⟩ᵣ → RawHornerPolynomial R
-
-
-module Horner (R : RawRing {ℓ}) where
-  open RawRing R
-
-  1H : RawHornerPolynomial R
-  1H = 0H ·X+ 1r
-
-  X : RawHornerPolynomial R
-  X = 1H ·X+ 0r
-
-  _+H_ : RawHornerPolynomial R → RawHornerPolynomial R → RawHornerPolynomial R
-  0H +H Q = Q
-  (P ·X+ r) +H 0H = P ·X+ r
-  (P ·X+ r) +H (Q ·X+ s) = (P +H Q) ·X+ (r + s)
-
-  _⋆_ : ⟨ R ⟩ᵣ → RawHornerPolynomial R → RawHornerPolynomial R
-  r ⋆ 0H = 0H
-  r ⋆ (P ·X+ s) = (r ⋆ P) ·X+ (r · s)
-
-  _·H_ : RawHornerPolynomial R → RawHornerPolynomial R → RawHornerPolynomial R
-  0H ·H _ = 0H
-  (P ·X+ r) ·H Q = ((P ·H Q) ·X+ 0r) +H (r ⋆ Q)
-
-  -H_ : RawHornerPolynomial R → RawHornerPolynomial R
-  -H 0H = 0H
-  -H (P ·X+ r) = (-H P) ·X+ (- r)
-
-  evalH : RawHornerPolynomial R → ⟨ R ⟩ᵣ → ⟨ R ⟩ᵣ
-  evalH 0H x₀ = 0r
-  evalH (P ·X+ r) x₀ = (evalH P x₀) · x₀ + r
-
 module Normalize (R : AlmostRing {ℓ}) where
   νR = AlmostRing→RawRing R
   open AlmostRing R
   open Theory R
-  open Horner νR
+  open HornerOperations νR
   open Eval νR
 
   -EvalDist :
@@ -134,12 +99,12 @@ module Normalize (R : AlmostRing {ℓ}) where
     evalH (((P ·H Q) ·X+ 0r) +H (r ⋆ Q)) x           ≡⟨ +HomEval ((P ·H Q) ·X+ 0r) (r ⋆ Q) x ⟩
     evalH ((P ·H Q) ·X+ 0r) x + evalH (r ⋆ Q) x      ≡⟨ cong (λ u → u + evalH (r ⋆ Q) x) (+Rid _) ⟩
     (evalH (P ·H Q) x) · x + evalH (r ⋆ Q) x         ≡⟨ cong (λ u → (u · x) + evalH (r ⋆ Q) x)
-                                                             (·HomEval P Q x) ⟩ 
+                                                             (·HomEval P Q x) ⟩
     (evalH P x) · (evalH Q x) · x + evalH (r ⋆ Q) x  ≡⟨ cong (λ u → u + evalH (r ⋆ Q) x)
-                                                             (sym (·CommRight _ _ _)) ⟩ 
+                                                             (sym (·CommRight _ _ _)) ⟩
     (evalH P x) · x · (evalH Q x) + evalH (r ⋆ Q) x  ≡⟨ cong (λ u → ((evalH P x · x) · evalH Q x) + u)
-                                                             (⋆HomEval r Q x) ⟩ 
-    (evalH P x) · x · (evalH Q x) + r · evalH Q x    ≡⟨ sym (·DistL+ _ _ _) ⟩ 
+                                                             (⋆HomEval r Q x) ⟩
+    (evalH P x) · x · (evalH Q x) + r · evalH Q x    ≡⟨ sym (·DistL+ _ _ _) ⟩
     ((evalH P x) · x + r) · evalH Q x                ≡⟨ refl ⟩
     evalH (P ·X+ r) x · evalH Q x ∎
 
@@ -150,32 +115,32 @@ module Normalize (R : AlmostRing {ℓ}) where
   Reify (x ⊗ y) = (Reify x) ·H (Reify y)
   Reify (⊝ x) =  -H (Reify x)
 
-  sound : (e : Expr ⟨ R ⟩ 1) (x : ⟨ R ⟩)
+  isEqualToNormalForm : (e : Expr ⟨ R ⟩ 1) (x : ⟨ R ⟩)
           → evalH (Reify e) x ≡ ⟦ e ⟧ (x ∷ [])
-  sound (K r) x = 0r · x + r ≡⟨ cong (λ u → u + r) (0LeftAnnihilates x) ⟩
+  isEqualToNormalForm (K r) x = 0r · x + r ≡⟨ cong (λ u → u + r) (0LeftAnnihilates x) ⟩
                       0r + r ≡⟨ +Lid r ⟩
                            r ∎
-  sound (∣ zero) x = (0r · x + 1r) · x + 0r ≡⟨ +Rid _ ⟩
+  isEqualToNormalForm (∣ zero) x = (0r · x + 1r) · x + 0r ≡⟨ +Rid _ ⟩
                           (0r · x + 1r) · x ≡⟨ cong (λ u → (u + 1r) · x)
                                                     (0LeftAnnihilates x) ⟩
                               (0r + 1r) · x ≡⟨ cong (λ u → u · x) (+Lid _) ⟩
                                      1r · x ≡⟨ ·Lid _ ⟩
                                           x ∎
-  sound (⊝ e) x = evalH (-H (Reify e)) x ≡⟨ -EvalDist (Reify e) x ⟩
-                  - evalH (Reify e) x ≡⟨ cong (λ u → - u) (sound e x) ⟩
+  isEqualToNormalForm (⊝ e) x = evalH (-H (Reify e)) x ≡⟨ -EvalDist (Reify e) x ⟩
+                  - evalH (Reify e) x ≡⟨ cong (λ u → - u) (isEqualToNormalForm e x) ⟩
                   - ⟦ e ⟧ (x ∷ []) ∎
-  sound (e ⊕ e₁) x =
+  isEqualToNormalForm (e ⊕ e₁) x =
         evalH (Reify e +H Reify e₁) x                ≡⟨ +HomEval (Reify e) (Reify e₁) x ⟩
         (evalH (Reify e) x) + (evalH (Reify e₁) x)   ≡⟨
                                                         cong
                                                          (λ u → evalH (Reify e) x + u)
-                                                         (sound e₁ x) ⟩
+                                                         (isEqualToNormalForm e₁ x) ⟩
         (evalH (Reify e) x) + (⟦ e₁ ⟧ (x ∷ []))      ≡⟨ cong
                                                           (λ u → u + ⟦ e₁ ⟧ (x ∷ []))
-                                                          (sound e x) ⟩
+                                                          (isEqualToNormalForm e x) ⟩
         (⟦ e ⟧ (x ∷ [])) + (⟦ e₁ ⟧ (x ∷ [])) ∎
-  sound (e ⊗ e₁) x =
+  isEqualToNormalForm (e ⊗ e₁) x =
     evalH (Reify e ·H Reify e₁) x          ≡⟨ ·HomEval (Reify e) (Reify e₁) x ⟩
-    evalH (Reify e) x · evalH (Reify e₁) x ≡⟨ cong (λ u → evalH (Reify e) x · u) (sound  e₁ x) ⟩
-    evalH (Reify e) x · ⟦ e₁ ⟧ (x ∷ [])    ≡⟨ cong (λ u → u · ⟦ e₁ ⟧ (x ∷ [])) (sound e x) ⟩
+    evalH (Reify e) x · evalH (Reify e₁) x ≡⟨ cong (λ u → evalH (Reify e) x · u) (isEqualToNormalForm  e₁ x) ⟩
+    evalH (Reify e) x · ⟦ e₁ ⟧ (x ∷ [])    ≡⟨ cong (λ u → u · ⟦ e₁ ⟧ (x ∷ [])) (isEqualToNormalForm e x) ⟩
     ⟦ e ⟧ (x ∷ []) · ⟦ e₁ ⟧ (x ∷ []) ∎
