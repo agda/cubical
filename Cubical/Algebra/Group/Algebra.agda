@@ -109,6 +109,13 @@ open BijectionIso
 open GroupIso
 open vSES
 
+Iso+Hom→GrIso : {G : Group {ℓ}} {H : Group {ℓ₁}} → (e : Iso ⟨ G ⟩ ⟨ H ⟩) → isGroupHom G H (Iso.fun e) → GroupIso G H
+fun (map (Iso+Hom→GrIso e hom)) = Iso.fun e
+isHom (map (Iso+Hom→GrIso e hom)) = hom
+inv (Iso+Hom→GrIso e hom) = Iso.inv e 
+rightInv (Iso+Hom→GrIso e hom) = Iso.rightInv e
+leftInv (Iso+Hom→GrIso e hom) = Iso.leftInv e
+
 compGroupIso : {G : Group {ℓ}} {H : Group {ℓ₁}} {A : Group {ℓ₂}} → GroupIso G H → GroupIso H A → GroupIso G A
 map (compGroupIso iso1 iso2) = compGroupHom (map iso1) (map iso2)
 inv (compGroupIso iso1 iso2) = inv iso1 ∘ inv iso2

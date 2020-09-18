@@ -156,6 +156,12 @@ inv (isProp→Iso _ _ _ g) = g
 rightInv (isProp→Iso _ Bprop f g) b = Bprop (f (g b)) b
 leftInv (isProp→Iso Aprop _ f g) a  = Aprop (g (f a)) a
 
+domIso : ∀ {ℓ} {C : Type ℓ} → Iso A B → Iso (A → C) (B → C)
+fun (domIso e) f b = f (inv e b)
+inv (domIso e) f a = f (fun e a)
+rightInv (domIso e) f i x = f (rightInv e x i)
+leftInv (domIso e) f i x = f (leftInv e x i)
+
 -- Helpful notation
 _Iso⟨_⟩_ : ∀ {ℓ ℓ' ℓ''} {B : Type ℓ'} {C : Type ℓ''} (X : Type ℓ) → Iso X B → Iso B C → Iso X C
 _ Iso⟨ f ⟩ g = compIso f g

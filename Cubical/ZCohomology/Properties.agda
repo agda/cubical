@@ -320,148 +320,121 @@ coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B)
 coHomFun n f = sRec § λ β → ∣ β ∘ f ∣₂
 
 --- the loopspace of Kₙ is commutative regardless of base
-subtrIso : (n : ℕ) (x : coHomK n) → Iso (coHomK n) (coHomK n)
-fun (subtrIso n x) y = -[ n ]ₖ y
-inv' (subtrIso n x) y = -[ n ]ₖ y
-rightInv (subtrIso n x) = -ₖ-ₖ n
-leftInv (subtrIso n x) = -ₖ-ₖ n
 
-isCommΩK-based : (n : ℕ) (x : coHomK n) (p q : x ≡ x) → p ∙ q ≡ q ∙ p
+addIso : (n : ℕ) (x : coHomK n) → Iso (coHomK n) (coHomK n)
+fun (addIso n x) y = y +[ n ]ₖ x
+inv' (addIso n x) y = y +[ n ]ₖ (-[ n ]ₖ x)
+rightInv (addIso n x) y =
+  assocₖ n y (-[ n ]ₖ x) x ∙∙ cong (λ x → y +[ n ]ₖ x) (lCancelₖ n x) ∙∙ rUnitₖ n y
+leftInv (addIso n x) y =
+  assocₖ n y x (-[ n ]ₖ x) ∙∙ cong (λ x → y +[ n ]ₖ x) (rCancelₖ n x) ∙∙ rUnitₖ n y
+
+isCommΩK-based : (n : ℕ) (x : coHomK n) → isComm∙ (coHomK n , x)
 isCommΩK-based zero x p q = isSetInt _ _ (p ∙ q) (q ∙ p)
-isCommΩK-based (suc zero) x p q = {!!}
-isCommΩK-based (suc (suc n)) x p q = {!!}
-{-
-      sym (transport⁻Transport (typId x) (p ∙ q))
-  ∙∙ (cong (transport (λ i → typId x (~ i))) (transpTypId p q)
-  ∙∙  (λ i → transport (λ i → typId x (~ i)) (isCommΩK (suc n) (transport (λ i → typId x i) p) (transport (λ i → typId x i) q) i))
-  ∙∙  cong (transport (λ i → typId x (~ i))) (sym (transpTypId q p)))
-  ∙∙  transport⁻Transport (typId x) (q ∙ p)
-  where
-  congIsoHelper : (x : coHomK (suc n)) → Iso (coHomK (suc n)) (coHomK (suc n))
-  Iso.fun (congIsoHelper x) = λ y → y +[ (suc n) ]ₖ x
-  Iso.inv (congIsoHelper x) = λ y → y +[ (suc n) ]ₖ (-[ (suc n) ]ₖ x)
-  Iso.rightInv (congIsoHelper x) a = assocₖ (suc n) a (-[ (suc n) ]ₖ x) x ∙∙ cong (λ x → a +[ _ ]ₖ x) (lCancelₖ (suc n) x) ∙∙ rUnitₖ (suc n) a
-  Iso.leftInv (congIsoHelper x) a = assocₖ (suc n) a x (-[ (suc n) ]ₖ x) ∙∙ cong (λ x → a +[ (suc n) ]ₖ x) (rCancelₖ (suc n) x) ∙∙ rUnitₖ (suc n) a
+isCommΩK-based (suc zero) x =
+  subst isComm∙ (λ i → coHomK 1 , lUnitₖ 1 x i)
+                (ptdIso→comm {A = (_ , 0ₖ 1)} (addIso 1 x)
+                              (isCommΩK 1))
+isCommΩK-based (suc (suc n)) x = 
+  subst isComm∙ (λ i → coHomK (suc (suc n)) , lUnitₖ (suc (suc n)) x i)
+                (ptdIso→comm {A = (_ , 0ₖ (suc (suc n)))} (addIso (suc (suc n)) x)
+                              (isCommΩK (suc (suc n))))
 
-  typId : (x : coHomK (suc n)) → (x ≡ x) ≡ Path (coHomK (suc n)) (0ₖ _) (0ₖ _)
-  typId x = isoToPath (congIso (invIso (congIsoHelper x))) ∙ λ i → rCancelₖ (suc n) x i ≡ rCancelₖ (suc n) x i
+addLemma : (a b : Int) → a +[ 0 ]ₖ b ≡ (a ℤ+ b)
+addLemma a b = (cong (ΩKn+1→Kn 0) (sym (congFunct ∣_∣ (intLoop a) (intLoop b))))
+            ∙∙ (λ i → ΩKn+1→Kn 0 (cong ∣_∣ (intLoop-hom a b i)))
+            ∙∙ Iso.leftInv (Iso-Kn-ΩKn+1 0) (a ℤ+ b)
 
-  transpTypId : (p q : (x ≡ x)) → transport (λ i → typId x i) (p ∙ q) ≡ transport (λ i → typId x i) p ∙ transport (λ i → typId x i) q
-  transpTypId p q =
-      ((substComposite (λ x → x) (isoToPath ((congIso (invIso (congIsoHelper x)))))
-                                 (λ i → rCancelₖ (suc n) x i ≡ rCancelₖ (suc n) x i) (p ∙ q))
-    ∙∙ (λ i → transport (λ i → rCancelₖ (suc n) x i ≡ rCancelₖ (suc n) x i) (transportRefl (congFunct (λ y → y +[ (suc n) ]ₖ (-[ (suc n) ]ₖ x)) p q i) i))
-    ∙∙ overPathFunct (cong (λ y → y +[ (suc n) ]ₖ (-[ (suc n) ]ₖ x)) p) (cong (λ y → y +[ (suc n) ]ₖ (-[ (suc n) ]ₖ x)) q) (rCancelₖ (suc n) x))
-    ∙∙ cong₂ (λ y z → transport (λ i → rCancelₖ (suc n) x i ≡ rCancelₖ (suc n) x i) y ∙ transport (λ i → rCancelₖ (suc n) x i ≡ rCancelₖ (suc n) x i) z)
-             (sym (transportRefl (cong (λ y → y +[ (suc n) ]ₖ (-[ (suc n) ]ₖ x)) p)))
-             (sym (transportRefl (cong (λ y → y +[ (suc n) ]ₖ (-[ (suc n) ]ₖ x)) q)))
-    ∙∙ cong₂ (_∙_) (sym (substComposite (λ x → x) (isoToPath ((congIso (invIso (congIsoHelper x))))) (λ i → rCancelₖ (suc n) x i ≡ rCancelₖ (suc n) x i) p))
-                   (sym (substComposite (λ x → x) (isoToPath ((congIso (invIso (congIsoHelper x))))) (λ i → rCancelₖ (suc n) x i ≡ rCancelₖ (suc n) x i) q))
--}
+---
+-- hidden versions of cohom stuff using the "lock" hack. The locked versions can be used when proving things. Swapping "key" for "tt*" will then give computing functions. 
 
--- addLemma : (a b : Int) → a +[ 0 ]ₖ b ≡ (a ℤ+ b)
--- addLemma a b = (cong ΩKn+1→Kn (sym (congFunct ∣_∣ (winding a) (looper b)))
---               ∙∙ cong₂ (λ x y → ΩKn+1→Kn (λ i → ∣ (x ∙ y) i ∣)) (looper≡looper2 a) (looper≡looper2 b)
---               ∙∙ (λ i → ΩKn+1→Kn (λ i → ∣ (cong SuspBool→S1 (cong S¹→SuspBool (intLoop a)) ∙ cong SuspBool→S1 (cong S¹→SuspBool (intLoop b))) i ∣ )))
---               ∙∙ (cong (λ x → ΩKn+1→Kn (λ i → ∣ x i ∣)) (sym (congFunct SuspBool→S1 (cong S¹→SuspBool (intLoop a)) (cong S¹→SuspBool (intLoop b))))
---               ∙∙ cong (λ x → ΩKn+1→Kn (cong ∣_∣ (cong SuspBool→S1 x))) (sym (congFunct S¹→SuspBool (intLoop a) (intLoop b)))
---               ∙∙ cong (λ x → ΩKn+1→Kn (cong ∣_∣ (cong SuspBool→S1 (cong S¹→SuspBool x)))) (intLoop-hom a b))
---               ∙∙ (cong (λ x → ΩKn+1→Kn (λ i → ∣ x i ∣)) (sym (looper≡looper2 (a ℤ+ b)))
---                 ∙ Iso.leftInv (Iso-Kn-ΩKn+1 zero) (a ℤ+ b))
+Unit' : Type₀
+Unit' = Unit* {ℓ-zero}
 
+lock : ∀ {ℓ} {A : Type ℓ} → Unit' → A → A 
+lock tt* = λ x → x
 
+unlock : ∀ {ℓ} {A : Type ℓ} {x y : A} (t : Unit') → x ≡ y → lock t x ≡ y
+unlock tt* p = p
 
+module lockedCohom (key : Unit') where
+  +K : (n : ℕ) → coHomK n → coHomK n → coHomK n
+  +K n = lock key (_+ₖ_ {n = n})
 
--- ---
--- -- hidden versions of cohom stuff using the "lock" hack. The locked versions can be used when proving things. Swapping "key" for "tt*" will then give computing functions. 
+  -K : (n : ℕ) → coHomK n → coHomK n
+  -K n = lock key (-ₖ_ {n = n})
 
--- Unit' : Type₀
--- Unit' = Unit* {ℓ-zero}
+  rUnitK : (n : ℕ) (x : coHomK n) → +K n x (0ₖ n) ≡ x
+  rUnitK n x = pm key
+    where
+    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) x (0ₖ n) ≡ x
+    pm tt* = rUnitₖ n x
 
--- lock : ∀ {ℓ} {A : Type ℓ} → Unit' → A → A 
--- lock tt* = λ x → x
+  lUnitK : (n : ℕ) (x : coHomK n) → +K n (0ₖ n) x ≡ x
+  lUnitK n x = pm key
+    where
+    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) (0ₖ n) x ≡ x
+    pm tt* = lUnitₖ n x
 
--- unlock : ∀ {ℓ} {A : Type ℓ} {x y : A} (t : Unit') → x ≡ y → lock t x ≡ y
--- unlock tt* p = p
+  rCancelK : (n : ℕ) (x : coHomK n) → +K n x (-K n x) ≡ 0ₖ n
+  rCancelK n x = pm key
+    where
+    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) x (lock t (-ₖ_ {n = n}) x) ≡ 0ₖ n
+    pm tt* = rCancelₖ n x
 
--- module lockedCohom (key : Unit') where
---   +K : (n : ℕ) → coHomK n → coHomK n → coHomK n
---   +K n = lock key (_+ₖ_ {n = n})
+  lCancelK : (n : ℕ) (x : coHomK n) → +K n (-K n x) x ≡ 0ₖ n
+  lCancelK n x = pm key
+    where
+    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) (lock t (-ₖ_ {n = n}) x) x ≡ 0ₖ n
+    pm tt* = lCancelₖ n x
 
---   -K : (n : ℕ) → coHomK n → coHomK n
---   -K n = lock key (-ₖ_ {n = n})
+  assocK : (n : ℕ) (x y z : coHomK n) → +K n (+K n x y) z ≡ +K n x (+K n y z)
+  assocK n x y z = pm key
+    where
+    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) (lock t (_+ₖ_ {n = n}) x y) z ≡ lock t (_+ₖ_ {n = n}) x (lock t (_+ₖ_ {n = n}) y z)
+    pm tt* = assocₖ n x y z
 
---   rUnitK : (n : ℕ) (x : coHomK n) → +K n x (0ₖ n) ≡ x
---   rUnitK n x = pm key
---     where
---     pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) x (0ₖ n) ≡ x
---     pm tt* = rUnitₖ n x
+  commK : (n : ℕ) (x y : coHomK n) → +K n x y ≡ +K n y x
+  commK n x y = pm key 
+    where
+    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) x y ≡ lock t (_+ₖ_ {n = n}) y x
+    pm tt* = commₖ n x y
 
---   lUnitK : (n : ℕ) (x : coHomK n) → +K n (0ₖ n) x ≡ x
---   lUnitK n x = pm key
---     where
---     pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) (0ₖ n) x ≡ x
---     pm tt* = lUnitₖ n x
+  +H : (n : ℕ) (x y : coHom n A) → coHom n A
+  +H n = sElim2 (λ _ _ → §) λ a b → ∣ (λ x → +K n (a x) (b x)) ∣₂
 
---   rCancelK : (n : ℕ) (x : coHomK n) → +K n x (-K n x) ≡ 0ₖ n
---   rCancelK n x = pm key
---     where
---     pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) x (lock t (-ₖ_ {n = n}) x) ≡ 0ₖ n
---     pm tt* = rCancelₖ n x
+  -H : (n : ℕ) (x : coHom n A) → coHom n A
+  -H n = sElim (λ _ → §) λ a → ∣ (λ x → -K n (a x)) ∣₂
 
---   lCancelK : (n : ℕ) (x : coHomK n) → +K n (-K n x) x ≡ 0ₖ n
---   lCancelK n x = pm key
---     where
---     pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) (lock t (-ₖ_ {n = n}) x) x ≡ 0ₖ n
---     pm tt* = lCancelₖ n x
+  rUnitH : (n : ℕ) (x : coHom n A) → +H n x (0ₕ n) ≡ x
+  rUnitH n = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
+                  λ a i → ∣ funExt (λ x → rUnitK n (a x)) i ∣₂
 
---   assocK : (n : ℕ) (x y z : coHomK n) → +K n (+K n x y) z ≡ +K n x (+K n y z)
---   assocK n x y z = pm key
---     where
---     pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) (lock t (_+ₖ_ {n = n}) x y) z ≡ lock t (_+ₖ_ {n = n}) x (lock t (_+ₖ_ {n = n}) y z)
---     pm tt* = assocₖ n x y z
+  lUnitH : (n : ℕ) (x : coHom n A) → +H n (0ₕ n) x ≡ x
+  lUnitH n = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
+                    λ a i → ∣ funExt (λ x → lUnitK n (a x)) i ∣₂
 
---   commK : (n : ℕ) (x y : coHomK n) → +K n x y ≡ +K n y x
---   commK n x y = pm key 
---     where
---     pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) x y ≡ lock t (_+ₖ_ {n = n}) y x
---     pm tt* = commₖ n x y
+  rCancelH : (n : ℕ) (x : coHom n A) → +H n x (-H n x) ≡ 0ₕ n
+  rCancelH n = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
+                   λ a i → ∣ funExt (λ x → rCancelK n (a x)) i ∣₂
 
---   +H : (n : ℕ) (x y : coHom n A) → coHom n A
---   +H n = sElim2 (λ _ _ → §) λ a b → ∣ (λ x → +K n (a x) (b x)) ∣₂
+  lCancelH : (n : ℕ) (x : coHom n A) → +H n (-H n x) x  ≡ 0ₕ n
+  lCancelH n = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
+                   λ a i → ∣ funExt (λ x → lCancelK n (a x)) i ∣₂
 
---   -H : (n : ℕ) (x : coHom n A) → coHom n A
---   -H n = sElim (λ _ → §) λ a → ∣ (λ x → -K n (a x)) ∣₂
+  assocH : (n : ℕ) (x y z : coHom n A) → (+H n (+H n x y) z) ≡ (+H n x (+H n y z))
+  assocH n = elim3 (λ _ _ _ → isOfHLevelPath 1 (§ _ _))
+                 λ a b c i → ∣ funExt (λ x → assocK n (a x) (b x) (c x)) i ∣₂
 
---   rUnitH : (n : ℕ) (x : coHom n A) → +H n x (0ₕ n) ≡ x
---   rUnitH n = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
---                   λ a i → ∣ funExt (λ x → rUnitK n (a x)) i ∣₂
+  commH : (n : ℕ) (x y : coHom n A) → (+H n x y) ≡ (+H n y x)
+  commH n = sElim2 (λ _ _ → isOfHLevelPath 1 (§ _ _))
+                          λ a b i → ∣ funExt (λ x → commK n (a x) (b x)) i ∣₂
 
---   lUnitH : (n : ℕ) (x : coHom n A) → +H n (0ₕ n) x ≡ x
---   lUnitH n = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
---                     λ a i → ∣ funExt (λ x → lUnitK n (a x)) i ∣₂
++K→∙ : (key : Unit') (n : ℕ) (a b : coHomK n) → Kn→ΩKn+1 n (lockedCohom.+K key n a b) ≡ Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b
++K→∙ tt* = +ₖ→∙
 
---   rCancelH : (n : ℕ) (x : coHom n A) → +H n x (-H n x) ≡ 0ₕ n
---   rCancelH n = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
---                    λ a i → ∣ funExt (λ x → rCancelK n (a x)) i ∣₂
++H≡+ₕ : (key : Unit') (n : ℕ) → lockedCohom.+H key {A = A} n ≡ _+ₕ_ {n = n}
++H≡+ₕ tt* _ = refl
 
---   lCancelH : (n : ℕ) (x : coHom n A) → +H n (-H n x) x  ≡ 0ₕ n
---   lCancelH n = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
---                    λ a i → ∣ funExt (λ x → lCancelK n (a x)) i ∣₂
-
---   assocH : (n : ℕ) (x y z : coHom n A) → (+H n (+H n x y) z) ≡ (+H n x (+H n y z))
---   assocH n = elim3 (λ _ _ _ → isOfHLevelPath 1 (§ _ _))
---                  λ a b c i → ∣ funExt (λ x → assocK n (a x) (b x) (c x)) i ∣₂
-
---   commH : (n : ℕ) (x y : coHom n A) → (+H n x y) ≡ (+H n y x)
---   commH n = sElim2 (λ _ _ → isOfHLevelPath 1 (§ _ _))
---                           λ a b i → ∣ funExt (λ x → commK n (a x) (b x)) i ∣₂
-
--- +K→∙ : (key : Unit') (n : ℕ) (a b : coHomK n) → Kn→ΩKn+1 n (lockedCohom.+K key n a b) ≡ Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b
--- +K→∙ tt* = +ₖ→∙
-
--- +H≡+ₕ : (key : Unit') (n : ℕ) → lockedCohom.+H key {A = A} n ≡ _+ₕ_ {n = n}
--- +H≡+ₕ tt* _ = refl
-
--- rUnitlUnit0K : (key : Unit') (n : ℕ) → lockedCohom.rUnitK key n (0ₖ n) ≡ lockedCohom.lUnitK key n (0ₖ n)
--- rUnitlUnit0K tt* = rUnitlUnit0
+rUnitlUnit0K : (key : Unit') (n : ℕ) → lockedCohom.rUnitK key n (0ₖ n) ≡ lockedCohom.lUnitK key n (0ₖ n)
+rUnitlUnit0K tt* = rUnitlUnit0

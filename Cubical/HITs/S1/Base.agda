@@ -270,6 +270,13 @@ toPropElim isprop b base = b
 toPropElim isprop b (loop i) =
   isOfHLevel→isOfHLevelDep 1 isprop b b loop i
 
+toPropElim2 : ∀ {ℓ} {B : S¹ → S¹ → Type ℓ}
+             → ((s t : S¹) → isProp (B s t))
+             → B base base
+             → (s t : S¹) → B s t
+toPropElim2 isprop b = toPropElim (λ _ → isOfHLevelΠ 1 λ _ → isprop _ _)
+                                  (toPropElim (isprop base) b)
+
 isSetΩx : (x : S¹) → isSet (x ≡ x)
 isSetΩx = toPropElim (λ _ → isPropIsSet) isSetΩS¹
 
