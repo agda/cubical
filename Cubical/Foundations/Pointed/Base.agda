@@ -33,3 +33,8 @@ idfun∙ A = (λ x → x) , refl
 -- Pointed equivalences
 _≃∙_ : (A : Pointed ℓ) (B : Pointed ℓ') → Type (ℓ-max ℓ ℓ')
 A ≃∙ B = Σ[ (f , p) ∈ A →∙ B ] isEquiv f
+
+≃∙→≃ : {A : Pointed ℓ} {B : Pointed ℓ'}
+       (f : A ≃∙ B)
+       → typ A ≃ typ B
+≃∙→≃ f = fst (fst f) , snd f

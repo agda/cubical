@@ -17,6 +17,8 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Path
+open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Sigma
 
@@ -114,3 +116,26 @@ module _ (G : Group {ℓG}) where
       → (x : EM₁ G)
       → B
   rec Bgpd = elim (λ _ → Bgpd)
+
+
+  rec' : {B : Type ℓ}
+      → isGroupoid B
+      → (b : B)
+      → (bloop : Carrier → b ≡ b)
+      → ((g h : Carrier) → (bloop g) ∙ (bloop h) ≡ bloop (g + h))
+      → (x : EM₁ G)
+      → B
+  rec' Bgpd b bloop p = rec Bgpd b bloop sq
+    where
+      module _ (g h : Carrier) where
+        abstract
+          sq : Square (bloop g) (bloop (g + h)) refl (bloop h)
+          sq =
+            transport (sym (Square≡doubleComp (bloop g) (bloop (g + h)) refl (bloop h)))
+                      (refl ∙∙ bloop g ∙∙ bloop h
+                        ≡⟨ doubleCompPath-elim refl (bloop g) (bloop h) ⟩
+                      (refl ∙ bloop g) ∙ bloop h
+                        ≡⟨ cong (_∙ bloop h) (sym (lUnit (bloop g))) ⟩
+                      bloop g ∙ bloop h
+                        ≡⟨ p g h ⟩
+                      bloop (g + h) ∎)

@@ -6,6 +6,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Univalence
 
 private
   variable
@@ -170,6 +171,13 @@ Square≃doubleComp : {a₀₀ a₀₁ a₁₀ a₁₁ : A}
                     (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
                     → Square a₀₋ a₁₋ a₋₀ a₋₁ ≃ (a₋₀ ⁻¹ ∙∙ a₀₋ ∙∙ a₋₁ ≡ a₁₋)
 Square≃doubleComp a₀₋ a₁₋ a₋₀ a₋₁ = transportEquiv (PathP≡doubleCompPathˡ a₋₀ a₀₋ a₁₋ a₋₁)
+
+Square≡doubleComp : {a₀₀ a₀₁ a₁₀ a₁₁ : A}
+                    (a₀₋ : a₀₀ ≡ a₀₁) (a₁₋ : a₁₀ ≡ a₁₁)
+                    (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
+                    → Square a₀₋ a₁₋ a₋₀ a₋₁ ≡ (a₋₀ ⁻¹ ∙∙ a₀₋ ∙∙ a₋₁ ≡ a₁₋)
+Square≡doubleComp a₀₋ a₁₋ a₋₀ a₋₁ = ua (Square≃doubleComp a₀₋ a₁₋ a₋₀ a₋₁)
+
 
 -- sym induces an equivalence on identity types of paths
 symIso : {a b : A} (p q : a ≡ b) → Iso (p ≡ q) (q ≡ p)
