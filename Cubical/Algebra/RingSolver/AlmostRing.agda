@@ -88,3 +88,20 @@ module Theory (R : AlmostRing {ℓ}) where
                    - (1r · 0r)   ≡⟨ -Comm· 1r 0r ⟩
                    (- 1r) · 0r   ≡⟨ 0RightAnnihilates (- 1r) ⟩
                    0r ∎
+
+  ·CommRight : (x y z : ⟨ R ⟩)
+               → x · y · z ≡ x · z · y
+  ·CommRight x y z = x · y · z   ≡⟨ sym (·Assoc _ _ _) ⟩
+                     x · (y · z) ≡⟨ cong (λ u → x · u) (·Comm _ _) ⟩
+                     x · (z · y) ≡⟨ ·Assoc _ _ _ ⟩
+                     x · z · y ∎
+
+  +ShufflePairs : (a b c d : ⟨ R ⟩)
+                → (a + b) + (c + d) ≡ (a + c) + (b + d)
+  +ShufflePairs a b c d =
+    (a + b) + (c + d) ≡⟨ +Assoc _ _ _ ⟩
+    ((a + b) + c) + d ≡⟨ cong (λ u → u + d) (sym (+Assoc _ _ _)) ⟩
+    (a + (b + c)) + d ≡⟨ cong (λ u → (a + u) + d) (+Comm _ _) ⟩
+    (a + (c + b)) + d ≡⟨ cong (λ u → u + d) (+Assoc _ _ _) ⟩
+    ((a + c) + b) + d ≡⟨ sym (+Assoc _ _ _) ⟩
+    (a + c) + (b + d) ∎

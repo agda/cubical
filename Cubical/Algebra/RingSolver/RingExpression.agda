@@ -70,11 +70,6 @@ module Horner (R : RawRing {ℓ}) where
   -H 0H = 0H
   -H (P ·X+ r) = (-H P) ·X+ (- r)
 
-  reduceH : RawHornerPolynomial R → RawHornerPolynomial R
-  reduceH 0H = 0H
-  reduceH (0H ·X+ x) = ?
-  reduceH ((P ·X+ x₁) ·X+ x) = ?
-
   evalH : RawHornerPolynomial R → ⟨ R ⟩ᵣ → ⟨ R ⟩ᵣ
   evalH 0H x₀ = 0r
   evalH (P ·X+ r) x₀ = (evalH P x₀) · x₀ + r
@@ -105,34 +100,47 @@ module Normalize (R : AlmostRing {ℓ}) where
   +HomEval (P ·X+ r) 0H x = sym (+Rid _)
   +HomEval (P ·X+ r) (Q ·X+ s) x =
     evalH ((P +H Q) ·X+ (r + s)) x              ≡⟨ refl ⟩
-    evalH (P +H Q) x · x + (r + s)              ≡⟨ {!!} ⟩
-    (evalH P x + evalH Q x) · x + (r + s)       ≡⟨ {!!} ⟩
-    (evalH P x) · x + (evalH Q x) · x + (r + s) ≡⟨ {!!} ⟩
+    evalH (P +H Q) x · x + (r + s)              ≡⟨ cong (λ u → (u · x) + (r + s)) (+HomEval P Q x) ⟩
+    (evalH P x + evalH Q x) · x + (r + s)       ≡⟨ cong (λ u → u + (r + s)) (·DistL+ _ _ _) ⟩
+    (evalH P x) · x + (evalH Q x) · x + (r + s) ≡⟨ +ShufflePairs _ _ _ _ ⟩
     evalH (P ·X+ r) x + evalH (Q ·X+ s) x ∎
 
-  ⋆0LeftAnnihilates : (P : RawHornerPolynomial νR)
-    → 0r ⋆ P ≡ 0H
-  ⋆0LeftAnnihilates 0H = refl
-  ⋆0LeftAnnihilates (P ·X+ r) =
-    (0r ⋆ P) ·X+ (0r · r) ≡⟨ cong (λ u → (0r ⋆ P) ·X+ u) (0LeftAnnihilates _) ⟩
-    (0r ⋆ P) ·X+ 0r       ≡⟨ {!!} ⟩
-    0H ·X+ 0r             ≡⟨ {!!} ⟩
-    0H ∎
+  ⋆0LeftAnnihilates : (P : RawHornerPolynomial νR) (x : ⟨ R ⟩)
+    → evalH (0r ⋆ P) x ≡ 0r
+  ⋆0LeftAnnihilates 0H x = cong (λ u → evalH u x) (λ _ → 0H)
+  ⋆0LeftAnnihilates (P ·X+ r) x =
+    evalH ((0r ⋆ P) ·X+ (0r · r)) x ≡⟨ cong (λ u → evalH ((0r ⋆ P) ·X+ u) x) (0LeftAnnihilates _) ⟩
+    evalH ((0r ⋆ P) ·X+ 0r) x       ≡⟨ refl ⟩
+    (evalH (0r ⋆ P) x) · x + 0r     ≡⟨ +Rid _ ⟩
+    (evalH (0r ⋆ P) x) · x          ≡⟨ cong (λ u → u · x)
+                                            (⋆0LeftAnnihilates P x) ⟩
+    0r · x                          ≡⟨ 0LeftAnnihilates _ ⟩
+    0r ∎
 
-  CommX : (P Q : RawHornerPolynomial νR)
-          → (P ·H Q) ·X+ 0r ≡ (P ·X+ 0r) ·H Q
-  CommX P Q = (P ·H Q) ·X+ 0r               ≡⟨ {!!} ⟩
-              ((P ·H Q) ·X+ 0r) +H (0r ⋆ Q) ∎
+  ⋆HomEval :  (r : ⟨ R ⟩) (P : RawHornerPolynomial νR) (x : ⟨ R ⟩)
+           → evalH (r ⋆ P) x ≡ r · evalH P x
+  ⋆HomEval r 0H x = 0r ≡⟨ sym (0RightAnnihilates _) ⟩ r · 0r ∎
+  ⋆HomEval r (P ·X+ s) x =
+    (evalH (r ⋆ P) x) · x + (r · s) ≡⟨ cong (λ u → (u · x) + (r · s)) (⋆HomEval r P x) ⟩
+    r · (evalH P x) · x + (r · s)   ≡⟨ cong (λ u → u + (r · s)) (sym (·Assoc _ _ _)) ⟩
+    r · ((evalH P x) · x) + (r · s) ≡⟨ sym (·DistR+ r _ _) ⟩
+    r · ((evalH P x) · x + s)       ≡⟨ refl ⟩
+    r · evalH (P ·X+ s) x ∎
 
   ·HomEval : (P Q : RawHornerPolynomial νR) (x : ⟨ R ⟩)
     → evalH (P ·H Q) x ≡ (evalH P x) · (evalH Q x)
   ·HomEval 0H Q x = 0r ≡⟨ sym (0LeftAnnihilates _) ⟩ 0r · evalH Q x ∎
   ·HomEval (P ·X+ r) Q x =
-    evalH (((P ·H Q) ·X+ 0r) +H (r ⋆ Q)) x        ≡⟨ +HomEval ((P ·H Q) ·X+ 0r) (r ⋆ Q) x ⟩
-    evalH ((P ·H Q) ·X+ 0r) x + evalH (r ⋆ Q) x   ≡⟨ {!!} ⟩
-    evalH P x · evalH Q x + evalH (r ⋆ Q) x       ≡⟨ {!!} ⟩
-    evalH P x · evalH Q x + r · evalH Q x         ≡⟨ sym (·DistL+ _ _ _) ⟩
-    (evalH P x + r) · evalH Q x                   ≡⟨ {!!} ⟩
+    evalH (((P ·H Q) ·X+ 0r) +H (r ⋆ Q)) x           ≡⟨ +HomEval ((P ·H Q) ·X+ 0r) (r ⋆ Q) x ⟩
+    evalH ((P ·H Q) ·X+ 0r) x + evalH (r ⋆ Q) x      ≡⟨ cong (λ u → u + evalH (r ⋆ Q) x) (+Rid _) ⟩
+    (evalH (P ·H Q) x) · x + evalH (r ⋆ Q) x         ≡⟨ cong (λ u → (u · x) + evalH (r ⋆ Q) x)
+                                                             (·HomEval P Q x) ⟩ 
+    (evalH P x) · (evalH Q x) · x + evalH (r ⋆ Q) x  ≡⟨ cong (λ u → u + evalH (r ⋆ Q) x)
+                                                             (sym (·CommRight _ _ _)) ⟩ 
+    (evalH P x) · x · (evalH Q x) + evalH (r ⋆ Q) x  ≡⟨ cong (λ u → ((evalH P x · x) · evalH Q x) + u)
+                                                             (⋆HomEval r Q x) ⟩ 
+    (evalH P x) · x · (evalH Q x) + r · evalH Q x    ≡⟨ sym (·DistL+ _ _ _) ⟩ 
+    ((evalH P x) · x + r) · evalH Q x                ≡⟨ refl ⟩
     evalH (P ·X+ r) x · evalH Q x ∎
 
   Reify : Expr ⟨ R ⟩ 1 → RawHornerPolynomial νR
