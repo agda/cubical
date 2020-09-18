@@ -56,21 +56,21 @@ module congLemma (key : Unit') where
 --------- H⁰(T²) ------------
 H⁰-T²≅ℤ : GroupIso (coHomGr 0 (S₊ 1 × S₊ 1)) intGroup
 H⁰-T²≅ℤ =
-  H⁰-connected (north , north)
+  H⁰-connected (base , base)
     λ (a , b) → pRec propTruncIsProp
                      (λ id1 → pRec propTruncIsProp
                                    (λ id2 → ∣ ΣPathP (id1 , id2) ∣₁)
                                    (Sn-connected 0 b) )
                      (Sn-connected 0 a)
 
------------------- H¹(T²) -------------------------------
+--------- H¹(T²) -------------------------------
 
 H¹-T²≅ℤ×ℤ : GroupIso (coHomGr 1 ((S₊ 1) × (S₊ 1))) (dirProd intGroup intGroup)
 H¹-T²≅ℤ×ℤ = theIso □ dirProdGroupIso (invGroupIso (Hⁿ-Sⁿ≅ℤ 0)) (H⁰-Sⁿ≅ℤ 0)
   where
-  helper : (x : hLevelTrunc 3 (S₊ 1)) → ∣ S¹→S1 (S¹map (trMap S1→S¹ x)) ∣ ≡ x
+  helper : (x : hLevelTrunc 3 (S₊ 1)) → ∣ (S¹map x) ∣ ≡ x
   helper = trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
-                  λ a i → ∣ (S1→S¹-retr a) i ∣
+                  λ a → refl
 
   typIso : Iso _ _
   typIso = setTruncIso (curryIso ⋄ codomainIso S1→K₁≡S1×Int ⋄ toProdIso)
@@ -81,42 +81,40 @@ H¹-T²≅ℤ×ℤ = theIso □ dirProdGroupIso (invGroupIso (Hⁿ-Sⁿ≅ℤ 0)
   isHom (map theIso) =
     sElim2 (λ _ _ → isOfHLevelPath 2 (isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet)) _ _)
             λ f g → ΣPathP ((cong ∣_∣₂
-                             (funExt (λ x → helper (f (x , S¹→S1 base) +ₖ g (x , S¹→S1 base))
+                             (funExt (λ x → helper (f (x , base) +ₖ g (x , base))
                                            ∙ sym (cong₂ (λ x y → x +ₖ y)
-                                                        (helper (f (x , S¹→S1 base)))
-                                                        (helper (g (x , S¹→S1 base))))))) ,
+                                                        (helper (f (x , base)))
+                                                        (helper (g (x , base))))))) ,
                            (cong ∣_∣₂
                               (funExt
-                                (suspToPropRec
-                                   north
+                                (toPropElim
                                    (λ _ → isSetInt _ _)
                                    (cong winding
                                          (basechange-lemma2
-                                           (λ x → f (north , S¹→S1 x))
-                                           (λ x → g (north , S¹→S1 x))
-                                           λ x → S¹map (trMap S1→S¹ x))
+                                           (λ x → f (base , x))
+                                           (λ x → g (base , x))
+                                           λ x → S¹map x)
                                   ∙∙ winding-hom
                                       (basechange2⁻
-                                          (S¹map (trMap S1→S¹ (f (north , S¹→S1 base))))
-                                          (λ i → S¹map (trMap S1→S¹ (f (north , S¹→S1 (loop i))))))
+                                          (S¹map (f (base , base)))
+                                          (λ i → S¹map (f (base , (loop i)))))
                                       (basechange2⁻
-                                          (S¹map (trMap S1→S¹ (g (north , S¹→S1 base))))
-                                          (λ i → S¹map (trMap S1→S¹ (g (north , S¹→S1 (loop i))))))
+                                          (S¹map (g (base , base)))
+                                          (λ i → S¹map (g (base , (loop i)))))
                                   ∙∙ sym (addLemma
                                           (winding
                                             (basechange2⁻
-                                              (S¹map (trMap S1→S¹ (f (north , S¹→S1 base))))
-                                              (λ i → S¹map (trMap S1→S¹ (f (north , S¹→S1 (loop i)))))))
+                                              (S¹map (f (base , base)))
+                                              (λ i → S¹map (f (base , (loop i))))))
                                           (winding
                                             (basechange2⁻
-                                              (S¹map (trMap S1→S¹ (g (north , S¹→S1 base))))
-                                              (λ i → S¹map (trMap S1→S¹ (g (north , S¹→S1 (loop i)))))))))))))
+                                              (S¹map  (g (base , base)))
+                                              (λ i → S¹map (g (base , (loop i))))))))))))
   inv theIso = Iso.inv typIso
   rightInv theIso = Iso.rightInv typIso
   leftInv theIso = Iso.leftInv typIso
 
 -------------------------------------------------------------
-
 
 ----------------------- H²(T²) ------------------------------
 open import Cubical.Foundations.Equiv
@@ -184,16 +182,13 @@ H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² tt*)
                  → Iso.inv (S1→K2≡K2×K1' key) (0ₖ 2 , x +K y) s ≡ (Iso.inv (S1→K2≡K2×K1' key) (0ₖ 2 , x)) s +K (Iso.inv (S1→K2≡K2×K1' key) (0ₖ 2 , y)) s
           helper2 =
             trElim2 (λ _ _ → isOfHLevelΠ 3 λ _ → isOfHLevelTrunc 4 _ _)
-                    λ a b → λ {north → cong₂ (_+K_) (sym (K.lUnitK _ 0₂)) (sym (K.lUnitK _ 0₂))
-                               ; south → cong₂ (_+K_) (sym (K.lUnitK _ 0₂)) (sym (K.lUnitK _ 0₂))
-                               ; (merid south i) j →
-                                 hcomp (λ k → λ { (i = i0) → cong₂ (_+K_) (sym (K.lUnitK _ 0₂)) (sym (K.lUnitK _ 0₂)) (j ∧ k)
-                                                  ; (i = i1) → cong₂ (_+K_) (sym (K.lUnitK _ 0₂)) (sym (K.lUnitK _ 0₂)) (j ∧ k)
-                                                  ; (j = i0) → 0₂ +K (Kn→ΩKn+1 1 (∣ a ∣ +K ∣ b ∣) i)
-                                                  ; (j = i1) →  cong₂ (_+K_) (sym (K.lUnitK _ (Kn→ΩKn+1 1 ∣ a ∣ i)))
+                    λ a b → λ {base → cong₂ (_+K_) (sym (K.lUnitK _ 0₂)) (sym (K.lUnitK _ 0₂))
+                            ; (loop i) j → hcomp (λ k → λ{ (i = i0) → cong₂ (_+K_) (sym (K.lUnitK _ 0₂)) (sym (K.lUnitK _ 0₂)) (j ∧ k)
+                                                         ; (i = i1) → cong₂ (_+K_) (sym (K.lUnitK _ 0₂)) (sym (K.lUnitK _ 0₂)) (j ∧ k)
+                                                         ; (j = i0) → 0₂ +K (Kn→ΩKn+1 1 (∣ a ∣ +K ∣ b ∣) i)
+                                                         ; (j = i1) → cong₂ (_+K_) (sym (K.lUnitK _ (Kn→ΩKn+1 1 ∣ a ∣ i)))
                                                                             (sym (K.lUnitK _ (Kn→ΩKn+1 1 ∣ b ∣ i))) k})
-                                       (helper3 ∣ a ∣ ∣ b ∣ j i)
-                               ; (merid north i) → cong₂ (_+K_) (sym (K.lUnitK _ 0₂)) (sym (K.lUnitK _ 0₂))}
+                                               (helper3 ∣ a ∣ ∣ b ∣ j i)}
             where
             helper3 : (a b : coHomK 1) → cong (0₂ +K_) (Kn→ΩKn+1 1 (a +K b)) ≡ cong₂ (_+K_) (Kn→ΩKn+1 1 a) (Kn→ΩKn+1 1 b)
             helper3 a b = cong (cong (0₂ +K_)) (+K→∙ key 1 a b)

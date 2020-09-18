@@ -9,6 +9,7 @@ open import Cubical.ZCohomology.Groups.Wedge
 open import Cubical.ZCohomology.Groups.Connected
 
 open import Cubical.HITs.Sn
+open import Cubical.HITs.S1
 open import Cubical.Foundations.Prelude
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
@@ -20,11 +21,11 @@ S¹⋁S¹ : Type₀
 S¹⋁S¹ = S₊∙ 1 ⋁ S₊∙ 1
 
 S²⋁S¹⋁S¹ : Type₀
-S²⋁S¹⋁S¹ = S₊∙ 2 ⋁ (S¹⋁S¹ , inl north)
+S²⋁S¹⋁S¹ = S₊∙ 2 ⋁ (S¹⋁S¹ , inl base)
 
 ------------- H⁰(S¹⋁S¹) ------------
 H⁰-S¹⋁S¹ : GroupIso (coHomGr 0 S¹⋁S¹) intGroup
-H⁰-S¹⋁S¹ = H⁰-connected (inl north) (wedgeConnected _ _  (Sn-connected _) (Sn-connected _))
+H⁰-S¹⋁S¹ = H⁰-connected (inl base) (wedgeConnected _ _ (Sn-connected 0) (Sn-connected 0))
 
 ------------- H¹(S¹⋁S¹) ------------
 H¹-S¹⋁S¹ : GroupIso (coHomGr 1 S¹⋁S¹) (dirProd intGroup intGroup)
@@ -34,15 +35,15 @@ H¹-S¹⋁S¹ =  (Hⁿ-⋁ _ _ 0) □ dirProdGroupIso coHom1S1≃ℤ coHom1S1≃
 H⁰-S²⋁S¹⋁S¹ : GroupIso (coHomGr 0 S²⋁S¹⋁S¹) intGroup
 H⁰-S²⋁S¹⋁S¹ = H⁰-connected (inl north)
                   (wedgeConnected _ _
-                    (Sn-connected _)
+                    (Sn-connected 1)
                     (wedgeConnected _ _
-                      (Sn-connected _)
-                      (Sn-connected _)))
+                      (Sn-connected 0)
+                      (Sn-connected 0)))
 
 ------------- H¹(S²⋁S¹⋁S¹) ---------
 H¹-S²⋁S¹⋁S¹ : GroupIso (coHomGr 1 S²⋁S¹⋁S¹) (dirProd intGroup intGroup)
 H¹-S²⋁S¹⋁S¹ =
-    Hⁿ-⋁ (S₊∙ 2) (S¹⋁S¹ , inl north) 0
+    Hⁿ-⋁ (S₊∙ 2) (S¹⋁S¹ , inl base) 0
   □ dirProdGroupIso (H¹-Sⁿ≅0 0) H¹-S¹⋁S¹
   □ lUnitGroupIso
 
