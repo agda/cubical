@@ -76,7 +76,6 @@ S1map = trRec isGroupoidS1 (idfun _)
 -- Given a map f : S¹ → S¹, the idea is to send this to (f(base) , winding (f(loop))). For this to be
 -- well-typed, we need to translate f(loop) into an element in Ω(S¹,base).
 
-
 S¹→S¹≡S¹×Int : Iso (S¹ → hLevelTrunc 3 S¹) (S¹ × Int)
 Iso.fun S¹→S¹≡S¹×Int f = S¹map (f base)
                  , winding (basechange2⁻ (S¹map (f base)) λ i → S¹map (f (loop i)))
@@ -168,7 +167,7 @@ module _ (key : Unit') where
                             λ q → (cong (sym q ∙_) (isCommΩK-based 2 x p _) ∙∙ assoc _ _ _ ∙∙ cong (_∙ p) (lCancel q))
                                       ∙  sym (lUnit p) 
 
-  Iso.leftInv S1→K2≡K2×K1' a = funExt λ {base → P.rUnitK _ (a base)
+  Iso.leftInv S1→K2≡K2×K1' a = funExt λ { base → P.rUnitK _ (a base)
                                        ; (loop i) j → loopcase j i}
     where
     loopcase : PathP (λ i → P.rUnitK _ (a base) i ≡ P.rUnitK _ (a base) i)
@@ -185,16 +184,6 @@ module _ (key : Unit') where
                                             pathPHelper
                                             helper
                                             (isCommΩK-based 2 (a base)))
-
-{- λ { (i = i0) → ({!!}
-                                  ∙ {!cong (a base +K_) (sym (Iso.leftInv (Iso-Kn-ΩKn+1 2)
-                                                          ((sym (P.rCancelK 2 (a base))
-                                                        ∙ (λ i₁ → a (loop i₁) +K -K a base)
-                                                        ∙ P.rCancelK 2 (a base)) j)))!}) k
-                      ; (i = i1) → {!!}
-                      ; (j = i0) → {!!}
-                      ; (j = i1) → {!!}})
-            {!!} -}
        where
        stupidAgda : (x : coHomK 2) (p : x ≡ x) (q : 0₂ ≡ x) → Kn→ΩKn+1 1 (ΩKn+1→Kn 1 (q ∙ p ∙ sym q)) ≡ q ∙ p ∙ sym q
        stupidAgda x p q = Iso.rightInv (Iso-Kn-ΩKn+1 1) (q ∙ p ∙ sym q)

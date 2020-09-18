@@ -169,9 +169,9 @@ H¹-S¹≅ℤ =
   where
   module K = MV Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt)
 
-  surjHelper :  (x : Int) (x₁ : S₊ 0) → x +[ 0 ]ₖ (-[ 0 ]ₖ (pos 0)) ≡ S0→Int (x , x) x₁
-  surjHelper x true = cong (λ y → x +[ 0 ]ₖ y) (-0ₖ {n = 0}) ∙ rUnitₖ 0 x
-  surjHelper x false = cong (λ y → x +[ 0 ]ₖ y) (-0ₖ {n = 0}) ∙ rUnitₖ 0 x
+  surjHelper :  (x : Int) (x₁ : S₊ 0) → x -[ 0 ]ₖ (pos 0) ≡ S0→Int (x , x) x₁
+  surjHelper x true = Iso.leftInv (Iso-Kn-ΩKn+1 0) x
+  surjHelper x false = Iso.leftInv (Iso-Kn-ΩKn+1 0) x
 
   helper : (F : S₊ 0 → Int) (f g : ∥ (Unit → Int) ∥₂)
            (id : GroupHom.fun (K.Δ 0) (f , g) ≡ ∣ F ∣₂)
@@ -194,7 +194,7 @@ H¹-S¹≅ℤ =
     helper2 : (f g : Unit → Int)
             → Σ[ x ∈ Int ] (inv H⁰-S⁰≅ℤ×ℤ (x , x))
              ≡ GroupHom.fun (K.Δ 0) (∣ f ∣₂ , ∣ g ∣₂)
-    helper2 f g = (f _ +[ 0 ]ₖ (-[ 0 ]ₖ g _) ) , cong ∣_∣₂ (funExt (λ {true → refl ; false → refl}))
+    helper2 f g = (f _ -[ 0 ]ₖ g _) , cong ∣_∣₂ (funExt λ {true → refl ; false → refl})
 
 ------------------------- H¹(S⁰) ≅ 0 -------------------------------
 

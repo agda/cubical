@@ -164,7 +164,10 @@ H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² tt*)
         g = GroupIso.inv (invGroupIso (Hⁿ-Sⁿ≅ℤ 0))
 
         isPropH²-S¹ : isProp (coHom 2 (S₊ 1))
-        isPropH²-S¹ = transport (λ i → isProp (isoToPath (GroupIso→Iso H²-S¹≅0) (~ i))) isPropUnit
+        isPropH²-S¹ = isPropRetract (fun (map (H²-S¹≅0)))
+                                    (inv H²-S¹≅0)
+                                    (leftInv H²-S¹≅0)
+                                    isPropUnit
 
         guyId : ∣ _ ∣₂ ≡ 0ₕ 2
         guyId = isPropH²-S¹ _ _
@@ -227,6 +230,3 @@ private
 
   from₀ : Int → coHom 0 (S₊ 1 × S₊ 1)
   from₀ = inv H⁰-T²≅ℤ
-
-test : to₂ (from₂ 0) ≡ 0
-test = refl

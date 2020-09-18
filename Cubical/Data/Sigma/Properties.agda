@@ -157,16 +157,16 @@ rightInv (Σ-cong-iso-fst {B = B} isom) (x , y) = ΣPathP (ε x , toPathP goal)
   goal = sym (substComposite B (sym (ε x)) (ε x) y)
       ∙∙ cong (λ x → subst B x y) (lCancel (ε x))
       ∙∙ substRefl {B = B} y
-leftInv (Σ-cong-iso-fst {A = A} {B = B} isom@(iso f _ _ η)) (x , y) = ΣPathP (η x , toPathP goal)
+leftInv (Σ-cong-iso-fst {A = A} {B = B} isom) (x , y) = ΣPathP (leftInv isom x , toPathP goal)
   where
   ε = isHAEquiv.ret (snd (iso→HAEquiv isom))
   γ = isHAEquiv.com (snd (iso→HAEquiv isom))
 
-  lem : (x : A) → sym (ε (f x)) ∙ cong f (η x) ≡ refl
-  lem x = cong (λ a → sym (ε (f x)) ∙ a) (γ x) ∙ lCancel (ε (f x))
+  lem : (x : A) → sym (ε (fun isom x)) ∙ cong (fun isom) (leftInv isom x) ≡ refl
+  lem x = cong (λ a → sym (ε (fun isom x)) ∙ a) (γ x) ∙ lCancel (ε (fun isom x))
 
-  goal : subst B (cong f (η x)) (subst B (sym (ε (f x))) y) ≡ y
-  goal = sym (substComposite B (sym (ε (f x))) (cong f (η x)) y)
+  goal : subst B (cong (fun isom) (leftInv isom x)) (subst B (sym (ε (fun isom x))) y) ≡ y
+  goal = sym (substComposite B (sym (ε (fun isom x))) (cong (fun isom) (leftInv isom x)) y)
       ∙∙ cong (λ a → subst B a y) (lem x)
       ∙∙ substRefl {B = B} y
 

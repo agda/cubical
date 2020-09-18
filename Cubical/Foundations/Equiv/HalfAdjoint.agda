@@ -124,8 +124,13 @@ HAEquiv A B = Σ[ f ∈ (A → B) ] isHAEquiv f
 
 -- vogt's lemma (https://ncatlab.org/nlab/show/homotopy+equivalence#vogts_lemma)
 iso→HAEquiv : Iso A B → HAEquiv A B
-iso→HAEquiv (iso f g ε η) = f , isHAEquivf
+iso→HAEquiv e = f , isHAEquivf
   where
+    f = Iso.fun e
+    g = Iso.inv e
+    ε = Iso.rightInv e
+    η = Iso.leftInv e
+
     Hfa≡fHa : (f : A → A) → (H : ∀ a → f a ≡ a) → ∀ a → H (f a) ≡ cong f (H a)
     Hfa≡fHa f H = J (λ f p → ∀ a → funExt⁻ (sym p) (f a) ≡ cong f (funExt⁻ (sym p) a))
                     (λ a → refl)

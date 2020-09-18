@@ -32,7 +32,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
             → isInIm _ _ (I.Δ 0) x
     surj-helper =
       sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
-            λ f → ∣ (∣ (λ _ → f tt) ∣₂ , 0ₕ 0) , cong ∣_∣₂ (funExt (λ _ → cong (λ x → (f tt) +[ 0 ]ₖ x) (-0ₖ {n = 0}) ∙ rUnitₖ 0 (f tt))) ∣₁
+            λ f → ∣ (∣ (λ _ → f tt) ∣₂ , 0ₕ 0) , cong ∣_∣₂ (funExt λ _ → -rUnitₖ 0 (f tt)) ∣₁
 
     helper : (x : coHom 1 (A ⋁ B)) → isInIm _ _ (I.d 0) x
                   → x ≡ 0ₕ 1
