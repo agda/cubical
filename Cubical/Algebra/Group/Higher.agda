@@ -193,33 +193,20 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
 
   -- the promised functorial left inverse
 
-  EM₁-functor-lInv : GroupHom π₁EM₁H π₁BG → BGroupHom EM₁H BG
-  -- on objects
-  EM₁-functor-lInv f .fst =
+  EM₁-functor-lInv-function : GroupHom π₁EM₁H π₁BG → basetype EM₁H → basetype BG
+  EM₁-functor-lInv-function f =
     rec' H
         (BGroup.isTrun BG)
         (basepoint BG)
         (GroupHom.fun (compGroupHom H→π₁EM₁H f))
         λ g h → sym (GroupHom.isHom (compGroupHom H→π₁EM₁H f) g h)
-  -- pointedness is trivial
-  EM₁-functor-lInv f .snd =
-    (EM₁-functor-lInv f) .fst (basepoint EM₁H)
-      ≡⟨ refl ⟩
-    pt (BGroup.base BG) ∎
 
-  -- this left inverse respects isomorphisms,
-  -- first direction
-  EM₁-functor-lInv-onIso : GroupEquiv π₁EM₁H π₁BG → BGroupIso EM₁H BG
-  -- the underlying pointed map / BGroup homomorphism stays the same
-  EM₁-functor-lInv-onIso f .fst = EM₁-functor-lInv (GroupEquiv.hom f)
-  -- if f is an iso then the image of f is an embedding and surjective,
-  -- all in all we have a pointed equivalence
-  EM₁-functor-lInv-onIso f .snd = isEmbedding×isSurjection→isEquiv (isEmbedding-φ , isSurjection-φ)
+  EM₁-functor-lInv-onIso-isEquiv : (f : GroupEquiv π₁EM₁H π₁BG)
+                                 → isEquiv (EM₁-functor-lInv-function (GroupEquiv.hom f))
+  EM₁-functor-lInv-onIso-isEquiv f =
+    isEmbedding×isSurjection→isEquiv (isEmbedding-φ , isSurjection-φ)
     where
-      φ : BGroupHom EM₁H BG
-      φ = EM₁-functor-lInv (GroupEquiv.hom f)
-      φ₁ = fst φ
-      φ₂ = snd φ
+      φ₁ = EM₁-functor-lInv-function (GroupEquiv.hom f)
       abstract
         isEmbedding-φ : isEmbedding φ₁
         isEmbedding-φ = {!!}
@@ -237,16 +224,33 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
             P : X → X → Type (ℓ-max ℓ ℓ')
             P = {!!}
 
-        isSurjection-φ : isSurjection (fst φ)
-        isSurjection-φ g = propTruncΣ← (λ x → φ .fst x ≡ g) ∣ basepoint EM₁H , fst r ∣
+        isSurjection-φ : isSurjection φ₁
+        isSurjection-φ g = propTruncΣ← (λ x → φ₁ x ≡ g) ∣ basepoint EM₁H , fst r ∣
           where
-            r : isContr ∥ φ .fst (basepoint EM₁H) ≡ g ∥
+            r : isContr ∥ φ₁ (basepoint EM₁H) ≡ g ∥
             r = isContrRespectEquiv (invEquiv propTrunc≃Trunc1)
                                     (isConnectedPath 1
                                                      (BGroup.isConn BG)
-                                                     (φ .fst (basepoint EM₁H))
+                                                     (φ₁ (basepoint EM₁H))
                                                      g)
 
+  EM₁-functor-lInv : GroupHom π₁EM₁H π₁BG → BGroupHom EM₁H BG
+  -- on objects
+  EM₁-functor-lInv f .fst = EM₁-functor-lInv-function f
+  -- pointedness is trivial
+  EM₁-functor-lInv f .snd =
+    (EM₁-functor-lInv f) .fst (basepoint EM₁H)
+      ≡⟨ refl ⟩
+    pt (BGroup.base BG) ∎
+
+  -- this left inverse respects isomorphisms,
+  -- first direction
+  EM₁-functor-lInv-onIso : GroupEquiv π₁EM₁H π₁BG → BGroupIso EM₁H BG
+  -- the underlying pointed map / BGroup homomorphism stays the same
+  EM₁-functor-lInv-onIso f .fst = EM₁-functor-lInv (GroupEquiv.hom f)
+  -- if f is an iso then the image of f is an embedding and surjective,
+  -- all in all we have a pointed equivalence
+  EM₁-functor-lInv-onIso f .snd = EM₁-functor-lInv-onIso-isEquiv f
 -- left inverse of below iso, used also in the right inverse proof
 private
   module _ (G : Group {ℓ}) where

@@ -79,6 +79,7 @@ RelIso.rightInv 𝒮-Iso-BGroup-Group BG = basetype-≅ , basepoint-≅ , (tt , 
     pt = fst (snd BG)
     conn = fst (snd (snd BG))
     trunc = snd (snd (snd BG))
+    BG' = (bgroup (type , pt) conn trunc)
 
     π₁BG : Group
     π₁BG = π₁-1BGroupΣ BG
@@ -92,10 +93,11 @@ RelIso.rightInv 𝒮-Iso-BGroup-Group BG = basetype-≅ , basepoint-≅ , (tt , 
     φ : GroupEquiv π₁EM₁π₁BG π₁BG
     φ = equivFun (invEquiv (GroupPath π₁EM₁π₁BG π₁BG)) (η-Group (ΩEM₁≡ π₁BG) {!!} {!!} {!!} {!!})
 
-
     -- equivalences
     basetype-≅ : EM₁ π₁BG ≃ type
-    fst basetype-≅ = {!!}
-    snd basetype-≅ = {!!}
-    basepoint-≅ : {!!} ≡ {!!}
-    basepoint-≅ = {!!}
+    fst basetype-≅ = EM₁-functor-lInv-function π₁BG BG' (GroupEquiv.hom φ)
+    snd basetype-≅ = EM₁-functor-lInv-onIso-isEquiv π₁BG BG' φ
+
+
+    basepoint-≅ : pt ≡ pt
+    basepoint-≅ = refl
