@@ -48,6 +48,9 @@ record BGroup ℓ (n k : ℕ) : Type (ℓ-suc ℓ) where
     isConn : isConnected (k + 1) (typ base)
     isTrun : isOfHLevel (n + k + 2) (typ base)
 
+BGroupΣ : {ℓ : Level} (n k : ℕ) → Type (ℓ-suc ℓ)
+BGroupΣ {ℓ} n k = Σ[ A ∈ Type ℓ ] A × (isConnected (k + 1) A) × (isOfHLevel (n + k + 2) A)
+
 module _ where
   open BGroup
   η-BGroup : {n k : ℕ} {BG BH : BGroup ℓ n k}
@@ -97,6 +100,9 @@ basepoint BG = pt (BGroup.base BG)
 1BGroup : (ℓ : Level) → Type (ℓ-suc ℓ)
 1BGroup ℓ = BGroup ℓ 0 1
 
+1BGroupΣ : {ℓ : Level} → Type (ℓ-suc ℓ)
+1BGroupΣ {ℓ} = BGroupΣ {ℓ} 0 1
+
 -- first fundamental group of 1BGroups
 π₁-1BGroup : {ℓ : Level} (BG : 1BGroup ℓ) → Group {ℓ}
 π₁-1BGroup BG =
@@ -112,6 +118,9 @@ basepoint BG = pt (BGroup.base BG)
             GL.lCancel
     where
       open BGroup BG
+
+π₁-1BGroupΣ : {ℓ : Level} (BG : BGroupΣ {ℓ} 0 1) → Group {ℓ}
+π₁-1BGroupΣ (BG , pt , conn , trunc) = π₁-1BGroup (bgroup (BG , pt) conn trunc)
 
 -- coercions
 Group→1BGroup : (G : Group {ℓ}) → 1BGroup ℓ
@@ -183,6 +192,7 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
   GroupHom.isHom H→π₁EM₁H = {!!}
 
   -- the promised functorial left inverse
+
   EM₁-functor-lInv : GroupHom π₁EM₁H π₁BG → BGroupHom EM₁H BG
   -- on objects
   EM₁-functor-lInv f .fst =
@@ -208,9 +218,24 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
     where
       φ : BGroupHom EM₁H BG
       φ = EM₁-functor-lInv (GroupEquiv.hom f)
+      φ₁ = fst φ
+      φ₂ = snd φ
       abstract
-        isEmbedding-φ : isEmbedding (fst φ)
+        isEmbedding-φ : isEmbedding φ₁
         isEmbedding-φ = {!!}
+          where
+            isEmb : (x y : basetype EM₁H) → Type (ℓ-max ℓ ℓ')
+            isEmb x y = isEquiv (cong {x = x} {y = y} φ₁)
+
+            isPropIsEmb : (x y : basetype EM₁H) → isProp (isEmb x y)
+            isPropIsEmb x y = isPropIsEquiv (cong {x = x} {y = y} φ₁)
+
+            p : isEmb (basepoint EM₁H) (basepoint EM₁H)
+            p = {!!}
+
+            X = hLevelTrunc 2 (basetype EM₁H)
+            P : X → X → Type (ℓ-max ℓ ℓ')
+            P = {!!}
 
         isSurjection-φ : isSurjection (fst φ)
         isSurjection-φ g = propTruncΣ← (λ x → φ .fst x ≡ g) ∣ basepoint EM₁H , fst r ∣
@@ -246,3 +271,4 @@ Iso.rightInv (IsoGroup1BGroup ℓ) BG = BGroupIso→≡ (EM₁-functor-lInv-onIs
 
     φ : GroupEquiv π₁EM₁π₁BG π₁BG
     φ = equivFun (invEquiv (GroupPath π₁EM₁π₁BG π₁BG)) (leftInv π₁BG)
+

@@ -26,5 +26,15 @@ private
                                                                                   λ e → equivEq (invEquiv (invEquiv e)) e (funExt (λ x → refl)))))
                                        (EquivContr A)
 
-𝒮ᴰ-pointed : {ℓ : Level} → URGStrᴰ (𝒮-universe {ℓ}) (λ A → A) _
-𝒮ᴰ-pointed = make-𝒮ᴰ (λ a e b → equivFun e a ≡ b) (λ a → refl) {!!}
+𝒮ᴰ-pointed : {ℓ : Level} → URGStrᴰ (𝒮-universe {ℓ}) (λ A → A) ℓ
+𝒮ᴰ-pointed {ℓ} =
+  make-𝒮ᴰ (λ a e b → equivFun e a ≡ b)
+          (λ _ → refl)
+          p
+          where
+            p : (A : Type ℓ) (a : A) → isContr (Σ[ b ∈ A ] a ≡ b)
+            p _ a = isContrSingl a
+
+𝒮-pointed : {ℓ : Level} → URGStr (Σ[ A ∈ Type ℓ ] A) ℓ
+𝒮-pointed = ∫⟨ 𝒮-universe ⟩ 𝒮ᴰ-pointed
+
