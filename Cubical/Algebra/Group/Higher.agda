@@ -68,6 +68,7 @@ module _ where
       s : PathP (λ i → isOfHLevel (n + k + 2) (p i)) (isTrun BG) (isTrun BH)
       s = isProp→PathP (λ i → isPropIsOfHLevel (n + k + 2)) (isTrun BG) (isTrun BH)
 
+-- morphisms
 
 BGroupHom : {n k : ℕ} (G : BGroup ℓ n k) (H : BGroup ℓ' n k) → Type (ℓ-max ℓ ℓ')
 BGroupHom G H = (BGroup.base G) →∙ (BGroup.base H)
@@ -176,6 +177,13 @@ module _ (BG : 1BGroup ℓ) (BH : 1BGroup ℓ') where
                       (sym (doubleCompPath-elim' f₂- (cong f₁ g') f₂)) ⟩
             (f₂- ∙∙ cong f₁ g ∙∙ f₂) ∙ (f₂- ∙∙ cong f₁ g' ∙∙ f₂) ∎
 
+
+-- π₁ is a left inverse to EM₁
+π₁EM₁≃ : (G : Group {ℓ}) → GroupEquiv (π₁-1BGroup (Group→1BGroup G)) G
+GroupEquiv.eq (π₁EM₁≃ G) = isoToEquiv (ΩEM₁Iso G)
+GroupEquiv.isHom (π₁EM₁≃ G) = {!!}
+
+
 -- the functorial action of EM₁ on groups
 -- is a left inverse to the functorial action of π₁
 -- on 1BGroups.
@@ -188,11 +196,14 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
   -- from the EM construction it follows
   -- that there is a homomorphism H → π₁ (EM₁ H)
   H→π₁EM₁H : GroupHom H π₁EM₁H
-  GroupHom.fun H→π₁EM₁H = Iso.inv (ΩEM₁Iso H)
-  GroupHom.isHom H→π₁EM₁H = {!!}
+  H→π₁EM₁H = GroupEquiv.hom (invGroupEquiv (π₁EM₁≃ H))
 
   -- the promised functorial left inverse
+  -- split up into the three components:
+  -- function, is equivalence and pointedness.
+  -- pointedness component is trivial
 
+  -- on the object level
   EM₁-functor-lInv-function : GroupHom π₁EM₁H π₁BG → basetype EM₁H → basetype BG
   EM₁-functor-lInv-function f =
     rec' H
@@ -201,6 +212,7 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
         (GroupHom.fun (compGroupHom H→π₁EM₁H f))
         λ g h → sym (GroupHom.isHom (compGroupHom H→π₁EM₁H f) g h)
 
+  -- produces an equivalence proof when given a group iso
   EM₁-functor-lInv-onIso-isEquiv : (f : GroupEquiv π₁EM₁H π₁BG)
                                  → isEquiv (EM₁-functor-lInv-function (GroupEquiv.hom f))
   EM₁-functor-lInv-onIso-isEquiv f =
@@ -217,13 +229,6 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
             isPropIsEmb : (x y : basetype EM₁H) → isProp (isEmb x y)
             isPropIsEmb x y = isPropIsEquiv (cong {x = x} {y = y} φ₁)
 
-            p : isEmb (basepoint EM₁H) (basepoint EM₁H)
-            p = {!!}
-
-            X = hLevelTrunc 2 (basetype EM₁H)
-            P : X → X → Type (ℓ-max ℓ ℓ')
-            P = {!!}
-
         isSurjection-φ : isSurjection φ₁
         isSurjection-φ g = propTruncΣ← (λ x → φ₁ x ≡ g) ∣ basepoint EM₁H , fst r ∣
           where
@@ -233,6 +238,9 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
                                                      (BGroup.isConn BG)
                                                      (φ₁ (basepoint EM₁H))
                                                      g)
+-------------------------------------
+-- the rest can be forgotten since it is redone in the DURG version
+-------------------------------------
 
   EM₁-functor-lInv : GroupHom π₁EM₁H π₁BG → BGroupHom EM₁H BG
   -- on objects
@@ -252,27 +260,25 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
   -- all in all we have a pointed equivalence
   EM₁-functor-lInv-onIso f .snd = EM₁-functor-lInv-onIso-isEquiv f
 -- left inverse of below iso, used also in the right inverse proof
-private
-  module _ (G : Group {ℓ}) where
-    leftInv : π₁-1BGroup (Group→1BGroup G) ≡ G
-    leftInv = η-Group (ΩEM₁≡ G) {!!} {!!} {!!} {!!}
+
 
 -- Isomorphism of the type of groups and the type of
 -- pointed connected 1-types.
 IsoGroup1BGroup : (ℓ : Level) → Iso (Group {ℓ}) (1BGroup ℓ)
 Iso.fun (IsoGroup1BGroup ℓ) = Group→1BGroup
 Iso.inv (IsoGroup1BGroup ℓ) = π₁-1BGroup
-Iso.leftInv (IsoGroup1BGroup ℓ) = leftInv
+Iso.leftInv (IsoGroup1BGroup ℓ) G = p
+  where
+    p : π₁-1BGroup (Group→1BGroup G) ≡ G
+    p = equivFun (GroupPath (π₁-1BGroup (Group→1BGroup G)) G) (π₁EM₁≃ G)
+
 -- For the right inverse we construct a pointed equivalence
 -- which induces a path
 -- (maybe we should use the URG structure to highlight this)
 -- The pointed equivalence comes from the adjunction above with H:=π₁BG.
-Iso.rightInv (IsoGroup1BGroup ℓ) BG = BGroupIso→≡ (EM₁-functor-lInv-onIso π₁BG BG φ)
+Iso.rightInv (IsoGroup1BGroup ℓ) BG = BGroupIso→≡ (EM₁-functor-lInv-onIso π₁BG BG (π₁EM₁≃ π₁BG))
   where
     π₁BG = π₁-1BGroup BG
     EM₁π₁BG = Group→1BGroup π₁BG
     π₁EM₁π₁BG = π₁-1BGroup EM₁π₁BG
-
-    φ : GroupEquiv π₁EM₁π₁BG π₁BG
-    φ = equivFun (invEquiv (GroupPath π₁EM₁π₁BG π₁BG)) (leftInv π₁BG)
 

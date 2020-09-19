@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+
 open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Homotopy.Base
@@ -17,19 +18,9 @@ open import Cubical.Relation.Binary
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Higher
-open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.EilenbergMacLane1
-open import Cubical.HITs.EilenbergMacLane1
 
-open import Cubical.Algebra.Group.Base
-open import Cubical.Algebra.Group.Morphism
-open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Equiv
-open import Cubical.HITs.PropositionalTruncation renaming (rec to propRec)
-open import Cubical.HITs.Truncation
-open import Cubical.Functions.Surjection
-open import Cubical.Functions.Embedding
+open import Cubical.HITs.EilenbergMacLane1
 
 open import Cubical.DStructures.Base
 open import Cubical.DStructures.Meta.Properties
@@ -41,7 +32,7 @@ open import Cubical.DStructures.Structures.Group
 
 private
   variable
-    ℓ ℓ' ℓA ℓ≅A : Level
+    ℓ : Level
 
 𝒮ᴰ-connected : {ℓ : Level} (k : ℕ) → URGStrᴰ (𝒮-universe {ℓ}) (isConnected k) ℓ-zero
 𝒮ᴰ-connected k =
@@ -71,8 +62,8 @@ private
 𝒮-Iso-BGroup-Group : {ℓ : Level} → 𝒮-PIso (𝒮-group ℓ) 𝒮-1BGroup
 RelIso.fun 𝒮-Iso-BGroup-Group G = EM₁ G , embase , EM₁Connected G , EM₁Groupoid G
 RelIso.inv 𝒮-Iso-BGroup-Group = π₁-1BGroupΣ
-RelIso.leftInv 𝒮-Iso-BGroup-Group G = {!!}
-RelIso.rightInv 𝒮-Iso-BGroup-Group BG = basetype-≅ , basepoint-≅ , (tt , tt)
+RelIso.leftInv 𝒮-Iso-BGroup-Group = π₁EM₁≃
+RelIso.rightInv 𝒮-Iso-BGroup-Group BG = basetype-≅ , basepoint-≅ , tt , tt
   where
     -- notation
     type = fst BG
@@ -87,17 +78,10 @@ RelIso.rightInv 𝒮-Iso-BGroup-Group BG = basetype-≅ , basepoint-≅ , (tt , 
     EM₁π₁BG : 1BGroupΣ
     EM₁π₁BG = EM₁ π₁BG , embase , EM₁Connected π₁BG , EM₁Groupoid π₁BG
 
-    π₁EM₁π₁BG : Group
-    π₁EM₁π₁BG = π₁-1BGroupΣ EM₁π₁BG
-
-    φ : GroupEquiv π₁EM₁π₁BG π₁BG
-    φ = equivFun (invEquiv (GroupPath π₁EM₁π₁BG π₁BG)) (η-Group (ΩEM₁≡ π₁BG) {!!} {!!} {!!} {!!})
-
     -- equivalences
     basetype-≅ : EM₁ π₁BG ≃ type
-    fst basetype-≅ = EM₁-functor-lInv-function π₁BG BG' (GroupEquiv.hom φ)
-    snd basetype-≅ = EM₁-functor-lInv-onIso-isEquiv π₁BG BG' φ
-
+    fst basetype-≅ = EM₁-functor-lInv-function π₁BG BG' (GroupEquiv.hom (π₁EM₁≃ π₁BG))
+    snd basetype-≅ = EM₁-functor-lInv-onIso-isEquiv π₁BG BG' (π₁EM₁≃ π₁BG)
 
     basepoint-≅ : pt ≡ pt
     basepoint-≅ = refl
