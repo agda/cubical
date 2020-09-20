@@ -13,6 +13,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
+open import Cubical.Homotopy.Base
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.EilenbergMacLane1
 open import Cubical.HITs.EilenbergMacLane1
@@ -24,6 +25,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.HITs.PropositionalTruncation renaming (rec to propRec)
 open import Cubical.HITs.Truncation
+open import Cubical.HITs.SetTruncation
 open import Cubical.Functions.Surjection
 open import Cubical.Functions.Embedding
 
@@ -73,6 +75,10 @@ module _ where
 BGroupHom : {n k : ℕ} (G : BGroup ℓ n k) (H : BGroup ℓ' n k) → Type (ℓ-max ℓ ℓ')
 BGroupHom G H = (BGroup.base G) →∙ (BGroup.base H)
 
+BGroupHomΣ : {n k : ℕ} (BG : BGroupΣ {ℓ} n k) (BH : BGroupΣ {ℓ'} n k) → Type (ℓ-max ℓ ℓ')
+BGroupHomΣ (base , pt , _) (base' , pt' , _) = (base , pt) →∙ (base' , pt')
+
+
 BGroupIso : {n k : ℕ} (G : BGroup ℓ n k) (H : BGroup ℓ' n k) → Type (ℓ-max ℓ ℓ')
 BGroupIso G H = (BGroup.base G) ≃∙ (BGroup.base H)
 
@@ -96,6 +102,9 @@ basetype BG = typ (BGroup.base BG)
 
 basepoint : {ℓ : Level} {n k : ℕ} (BG : BGroup ℓ n k) → basetype BG
 basepoint BG = pt (BGroup.base BG)
+
+baseΣ : {ℓ : Level} {n k : ℕ} (BG : BGroupΣ {ℓ} n k) → Σ[ A ∈ Type ℓ ] A
+baseΣ (base , * , _ , _) = (base , *)
 
 -- special cases
 1BGroup : (ℓ : Level) → Type (ℓ-suc ℓ)
@@ -212,6 +221,10 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
         (GroupHom.fun (compGroupHom H→π₁EM₁H f))
         λ g h → sym (GroupHom.isHom (compGroupHom H→π₁EM₁H f) g h)
 
+  EM₁-functor-lInv-pointed : (f : GroupHom π₁EM₁H π₁BG)
+                             → EM₁-functor-lInv-function f (basepoint EM₁H) ≡ basepoint BG
+  EM₁-functor-lInv-pointed f = refl
+
   -- produces an equivalence proof when given a group iso
   EM₁-functor-lInv-onIso-isEquiv : (f : GroupEquiv π₁EM₁H π₁BG)
                                  → isEquiv (EM₁-functor-lInv-function (GroupEquiv.hom f))
@@ -228,6 +241,15 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
 
             isPropIsEmb : (x y : basetype EM₁H) → isProp (isEmb x y)
             isPropIsEmb x y = isPropIsEquiv (cong {x = x} {y = y} φ₁)
+
+            x : (basepoint EM₁H ≡ basepoint EM₁H) ≃ (basepoint BG ≡ basepoint BG)
+            x =  GroupEquiv.eq f
+
+            isEmbPt : isEmb (basepoint EM₁H) (basepoint EM₁H)
+            isEmbPt = {!!}
+
+
+
 
         isSurjection-φ : isSurjection φ₁
         isSurjection-φ g = propTruncΣ← (λ x → φ₁ x ≡ g) ∣ basepoint EM₁H , fst r ∣
@@ -246,10 +268,7 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
   -- on objects
   EM₁-functor-lInv f .fst = EM₁-functor-lInv-function f
   -- pointedness is trivial
-  EM₁-functor-lInv f .snd =
-    (EM₁-functor-lInv f) .fst (basepoint EM₁H)
-      ≡⟨ refl ⟩
-    pt (BGroup.base BG) ∎
+  EM₁-functor-lInv f .snd = EM₁-functor-lInv-pointed f
 
   -- this left inverse respects isomorphisms,
   -- first direction
