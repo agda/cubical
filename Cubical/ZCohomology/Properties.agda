@@ -205,32 +205,33 @@ isComm∙ : ∀ {ℓ} (A : Pointed ℓ) → Type ℓ
 isComm∙ A = (p q : typ (Ω A)) → p ∙ q ≡ q ∙ p
 
 -- not proved as a special case of isCommΩKn, in order to avoid congIso
-isCommA→isCommTrunc : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ A → isOfHLevel (suc n) (typ A) → isComm∙ (∥ typ A ∥ (suc n) , ∣ pt A ∣)
-isCommA→isCommTrunc {A = (A , a)} n comm hlev p q =
-    ((λ i j → (Iso.leftInv (truncIdempotentIso (suc n) hlev) ((p ∙ q) j) (~ i)))
- ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (cong (trRec hlev (λ x → x)) (p ∙ q)))
- ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (congFunct {A = ∥ A ∥ (suc n)} {B = A} (trRec hlev (λ x → x)) p q i)))
- ∙ ((λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (comm (cong (trRec hlev (λ x → x)) p) (cong (trRec hlev (λ x → x)) q) i))
- ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (congFunct {A = ∥ A ∥ (suc n)} {B = A} (trRec hlev (λ x → x)) q p (~ i)))
- ∙∙ (λ i j → (Iso.leftInv (truncIdempotentIso (suc n) hlev) ((q ∙ p) j) i)))
+abstract
+  isCommA→isCommTrunc : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ A → isOfHLevel (suc n) (typ A) → isComm∙ (∥ typ A ∥ (suc n) , ∣ pt A ∣)
+  isCommA→isCommTrunc {A = (A , a)} n comm hlev p q =
+      ((λ i j → (Iso.leftInv (truncIdempotentIso (suc n) hlev) ((p ∙ q) j) (~ i)))
+   ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (cong (trRec hlev (λ x → x)) (p ∙ q)))
+   ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (congFunct {A = ∥ A ∥ (suc n)} {B = A} (trRec hlev (λ x → x)) p q i)))
+   ∙ ((λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (comm (cong (trRec hlev (λ x → x)) p) (cong (trRec hlev (λ x → x)) q) i))
+   ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (congFunct {A = ∥ A ∥ (suc n)} {B = A} (trRec hlev (λ x → x)) q p (~ i)))
+   ∙∙ (λ i j → (Iso.leftInv (truncIdempotentIso (suc n) hlev) ((q ∙ p) j) i)))
 
-isCommΩK1 : (n : ℕ) → isComm∙ ((Ω^ n) (coHomK-ptd 1)) -- (p q : typ ((Ω^ (suc n)) (coHomK-ptd 1))) → p ∙ q ≡ q ∙ p
-isCommΩK1 zero = isCommA→isCommTrunc 2 comm-ΩS¹ isGroupoidS¹
-isCommΩK1 (suc n) = Eckmann-Hilton n
+  isCommΩK1 : (n : ℕ) → isComm∙ ((Ω^ n) (coHomK-ptd 1)) -- (p q : typ ((Ω^ (suc n)) (coHomK-ptd 1))) → p ∙ q ≡ q ∙ p
+  isCommΩK1 zero = isCommA→isCommTrunc 2 comm-ΩS¹ isGroupoidS¹
+  isCommΩK1 (suc n) = Eckmann-Hilton n
 
-open Iso renaming (inv to inv')
-ptdIso→comm : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Type ℓ'} (e : Iso (typ A) B) → isComm∙ A → isComm∙ (B , Iso.fun e (pt A))
-ptdIso→comm {A = (A , a)} {B = B} e comm p q =
-       sym (rightInv (congIso e) (p ∙ q))
-    ∙∙ (cong (fun (congIso e)) ((invCongFunct e p q)
-                            ∙∙ (comm (inv' (congIso e) p) (inv' (congIso e) q))
-                            ∙∙ (sym (invCongFunct e q p))))
-    ∙∙ rightInv (congIso e) (q ∙ p)
+  open Iso renaming (inv to inv')
+  ptdIso→comm : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Type ℓ'} (e : Iso (typ A) B) → isComm∙ A → isComm∙ (B , Iso.fun e (pt A))
+  ptdIso→comm {A = (A , a)} {B = B} e comm p q =
+         sym (rightInv (congIso e) (p ∙ q))
+      ∙∙ (cong (fun (congIso e)) ((invCongFunct e p q)
+                              ∙∙ (comm (inv' (congIso e) p) (inv' (congIso e) q))
+                              ∙∙ (sym (invCongFunct e q p))))
+      ∙∙ rightInv (congIso e) (q ∙ p)
 
-isCommΩK : (n : ℕ) → isComm∙ (coHomK-ptd n)
-isCommΩK zero p q = isSetInt _ _ (p ∙ q) (q ∙ p)
-isCommΩK (suc zero) = isCommA→isCommTrunc 2 comm-ΩS¹ isGroupoidS¹
-isCommΩK (suc (suc n)) = subst isComm∙ (λ i → coHomK (2 + n) , ΩKn+1→Kn-refl (2 + n) i) (ptdIso→comm {A = (_ , _)} (invIso (Iso-Kn-ΩKn+1 (2 + n))) (Eckmann-Hilton 0))
+  isCommΩK : (n : ℕ) → isComm∙ (coHomK-ptd n)
+  isCommΩK zero p q = isSetInt _ _ (p ∙ q) (q ∙ p)
+  isCommΩK (suc zero) = isCommA→isCommTrunc 2 comm-ΩS¹ isGroupoidS¹
+  isCommΩK (suc (suc n)) = subst isComm∙ (λ i → coHomK (2 + n) , ΩKn+1→Kn-refl (2 + n) i) (ptdIso→comm {A = (_ , _)} (invIso (Iso-Kn-ΩKn+1 (2 + n))) (Eckmann-Hilton 0))
 
 commₖ : (n : ℕ) (x y : coHomK n) → (x +[ n ]ₖ y) ≡ (y +[ n ]ₖ x)
 commₖ zero x y = cong (ΩKn+1→Kn 0) (isCommΩK1 0 (Kn→ΩKn+1 0 x) (Kn→ΩKn+1 0 y))
@@ -478,6 +479,12 @@ module lockedCohom (key : Unit') where
     where
     pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) (lock t (_-ₖ_ {n = n}) x y) y ≡ x
     pm tt* = -+cancelₖ n x y
+
+  cancelK : (n : ℕ) (x : coHomK n) → -Kbin n x x ≡ 0ₖ n
+  cancelK n x = pm key
+    where
+    pm : (t : Unit*) → (lock t (_-ₖ_ {n = n}) x x) ≡ 0ₖ n
+    pm tt* = cancelₖ n x
 
   assocK : (n : ℕ) (x y z : coHomK n) → +K n (+K n x y) z ≡ +K n x (+K n y z)
   assocK n x y z = pm key

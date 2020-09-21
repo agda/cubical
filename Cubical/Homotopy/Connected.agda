@@ -98,9 +98,13 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) wher
   isEquivPrecompose : ∀ {ℓ'''} (n : ℕ) (P : B → TypeOfHLevel ℓ''' n)
                    → isConnectedFun n f
                    → isEquiv (λ(s : (b : B) → P b .fst) → s ∘ f)
-  isEquivPrecompose zero P fConn = isoToIsEquiv (iso (λ s → s ∘ f) (λ _ b → P b .snd .fst)
-                                                (λ _ → isOfHLevelΠ 1 (λ x → isOfHLevelSuc _ (P (f x) .snd)) _ _)
-                                                λ _ → isOfHLevelΠ 1 (λ b → isOfHLevelSuc _ (P b .snd)) _ _)
+  isEquivPrecompose zero P fConn = isoToIsEquiv theIso
+    where
+    theIso : Iso ((b : B) → P b .fst) ((a : A) → P (f a) .fst)
+    Iso.fun theIso = λ(s : (b : B) → P b .fst) → s ∘ f
+    Iso.inv theIso = λ _ b → P b .snd .fst
+    Iso.rightInv theIso g = funExt λ x → P (f x) .snd .snd (g x)
+    Iso.leftInv theIso g = funExt λ x → P x .snd .snd (g x)
   isEquivPrecompose (suc n) P fConn = isoToIsEquiv (isIsoPrecompose (suc n) P fConn)
 
   isConnectedPrecompose : (n : ℕ) → ((P : B → TypeOfHLevel (ℓ-max ℓ ℓ') n)

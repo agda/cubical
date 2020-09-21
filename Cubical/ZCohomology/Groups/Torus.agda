@@ -230,3 +230,6 @@ private
 
   from₀ : Int → coHom 0 (S₊ 1 × S₊ 1)
   from₀ = inv H⁰-T²≅ℤ
+
+test : to₂ (from₂ 0) ≡ 0
+test = {!refl!}
