@@ -16,9 +16,115 @@ open import Cubical.HITs.Truncation.FromNegOne as Trunc renaming (rec to trRec ;
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
 open import Cubical.Homotopy.Loopspace
+open import Cubical.HITs.SmashProduct
 
 open import Cubical.HITs.S1 hiding (encode)
 open import Cubical.HITs.Sn
+open import Cubical.HITs.S2
+open import Cubical.Foundations.Equiv.HalfAdjoint
+
+private
+  variable
+    ℓ : Level
+    ℓ' : Level
+
+module BL where
+  pointedIso : {A : Pointed ℓ} {B : Type ℓ'} {b : B} (e : Iso (typ A) B) → Iso.fun e (pt A) ≡ b → Iso (typ (Ω A)) (typ (Ω (B , b)))
+  pointedIso {A = A} {B = B} {b = b} e id = compIso (congIso e) (transport (λ i → Iso (id (~ i) ≡ id (~ i)) (b ≡ b)) idIso)
+
+  typPathCharac : {A : Type ℓ} → Iso (typ ((Ω^ 2) (Type ℓ , A))) (typ (Ω ((A ≃ A) , idEquiv (A))))
+  typPathCharac = pointedIso (equivToIso univalence) (Σ≡Prop isPropIsEquiv (funExt transportRefl))
+
+  equivPathCharac : ∀ {ℓ } {A : Type ℓ} → Iso (typ (Ω ((A ≃ A) , idEquiv A))) (typ (Ω ((A → A) , idfun A)))
+  Iso.fun equivPathCharac p = cong fst p
+  Iso.inv equivPathCharac p = Σ≡Prop isPropIsEquiv p
+  Iso.rightInv equivPathCharac p = refl
+  Iso.leftInv (equivPathCharac {A = A}) p i j =
+    (fst (p j)) , (hcomp (λ k → λ {(i = i0) → isPropIsEquiv (fst (p j)) (transp (λ z → isEquiv (fst (p (z ∧ j)))) (~ j) (snd (idEquiv A)))
+                                                                        ((snd (Iso.inv equivPathCharac (Iso.fun equivPathCharac p) j))) k
+                                 ; (i = i1) → isPropIsEquiv (fst (p j)) (transp (λ z → isEquiv (fst (p j))) (~ j) (snd (p j)))
+                                                                        (snd (p j)) k
+                                 ; (j = i0) → isPropIsEquiv (idfun A) (snd (idEquiv A))
+                                                                      (snd (idEquiv A)) k
+                                 ; (j = i1) → isPropIsEquiv (idfun A) (transport (λ z → isEquiv (fst (p (z ∨ i)))) (snd (p i)))
+                                                                      (snd (idEquiv A)) k })
+                          (transp (λ z → isEquiv (fst (p ((z ∨ i) ∧ j)))) (~ j)
+                                  (snd (p (i ∧ j)))))
+
+
+  test3 : ∀ {ℓ} {A : Type ℓ} → Iso (typ ((Ω^ 2) ((A → A) , idfun A))) ((x : A) → typ ((Ω^ 2) (A , x)))
+  Iso.fun test3 f = funExt⁻ (cong funExt⁻ f)
+  Iso.inv test3 f = cong funExt (funExt f)
+  Iso.rightInv test3 f = refl
+  Iso.leftInv test3 f = refl
+
+  testHelper : ∀{ℓ} {A : Type ℓ} {x y : A} {p : x ≡ y} → transport (λ i → p i ≡ p i) refl ≡ refl
+  testHelper {p = p} = J (λ y p → transport (λ i → p i ≡ p i) refl ≡ refl) (transportRefl refl) p
+
+  mainIso : Iso (typ ((Ω^ 3) (Type₀ , (hLevelTrunc 4 (S²))))) ((x : (hLevelTrunc 4 (S²))) → typ ((Ω^ 2) (hLevelTrunc 4 (S²) , x)))
+  mainIso = compIso (pointedIso {b = refl} typPathCharac (transportRefl _ ∙ testHelper)) (compIso (pointedIso equivPathCharac refl) test3)
+
+  cons : ((x : (hLevelTrunc 4 (S²))) → typ ((Ω^ 2) (hLevelTrunc 4 (S²) , x)))
+  cons = trElim (λ _ → isOfHLevelPath 4 (isOfHLevelPath 4 (isOfHLevelTrunc 4) _ _) _ _)
+                λ {base → λ i j → ∣ surf i j ∣
+                ; (surf i j) k l → {!!}}
+
+  code : S₊ 3 → Type₀
+  code north = hLevelTrunc 4 (S₊ 2)
+  code south = hLevelTrunc 4 (S₊ 2)
+  code (merid north i) = hLevelTrunc 4 (S₊ 2)
+  code (merid south i) = hLevelTrunc 4 (S₊ 2)
+  code (merid (merid base i₁) i) = hLevelTrunc 4 (S₊ 2)
+  code (merid (merid (loop i) j) k) = {!!}
+
+cong^ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Type ℓ'} (n : ℕ) (f : typ A → B) → typ ((Ω^ n) A) → typ ((Ω^ n) (B , (f (pt A))))
+cong^ {A = (A , pt)}zero f p = f pt
+cong^ {A = A , pt} (suc zero) f p = cong f p
+cong^ {A = A , pt} (suc (suc zero)) f p = cong (cong f) p
+cong^ {A = A , pt} (suc (suc (suc n))) f p i j k = {!!}
+
+cong^3 : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Type ℓ'} (n : ℕ) (f : typ A → B) → typ ((Ω^ 3) A) → typ ((Ω^ 3) (B , (f (pt A))))
+cong^3 n f p = cong (cong (cong f)) p
+
+
+
+
+
+
+test : {!!}
+test = {!!}
+
+loopSpaceCharacSpecLem1 : Iso (typ ((Ω^ 3) (Type₀ , (hLevelTrunc 4 (S₊ 2))))) (typ ((Ω^ 2) ((hLevelTrunc 4 (S₊ 2) → (hLevelTrunc 4 (S₊ 2))) , (idfun (hLevelTrunc 4 (S₊ 2))))))
+Iso.fun loopSpaceCharacSpecLem1 p = {!!}
+Iso.inv loopSpaceCharacSpecLem1 = {!!}
+Iso.rightInv loopSpaceCharacSpecLem1 = {!!}
+Iso.leftInv loopSpaceCharacSpecLem1 = {!!}
+
+loopSpaceCharacSpec : Iso (typ ((Ω^ 3) (Type₀ , (hLevelTrunc 4 (S₊ 2))))) ((x : (hLevelTrunc 4 (S₊ 2))) → typ ((Ω^ 2) (hLevelTrunc 4 (S₊ 2) , x)))
+Iso.fun loopSpaceCharacSpec p x = {!!}
+Iso.inv loopSpaceCharacSpec = {!!}
+Iso.rightInv loopSpaceCharacSpec = {!!}
+Iso.leftInv loopSpaceCharacSpec = {!!}
+
+dirProof : (y : ∥ S² ∥ 4) (p : ∣ base ∣ ≡ y) → Iso (∥ S₊ 1 ∥ 3) (Path (∥ S² ∥ 4) ∣ base ∣ y)
+Iso.fun (dirProof y p) = trRec (isOfHLevelTrunc 4 ∣ base ∣ y) (J (λ y p → (a : S¹) → Path (∥ S² ∥ 4) ∣ base ∣ y) (λ {base → refl ; (loop i) → λ j → ∣ surf (i ∧ j) (i ∨ j) ∣}) p)
+Iso.inv (dirProof y p) = J (λ z p → (Path (∥ S² ∥ 4) ∣ base ∣ z) → ∥ S₊ 1 ∥ 3) (λ _ → ∣ base ∣) p
+Iso.rightInv (dirProof y p) q = J (λ y q → (p : ∣ base ∣ ≡ y) → Iso.fun (dirProof y p) (Iso.inv (dirProof y p) q) ≡ q) (Iso.inv (elim.isIsoPrecompose {A = Unit} {B = (Path (∥ S² ∥ 4) ∣ base ∣ ∣ base ∣)} (λ _ → refl) 2 (λ p → (Iso.fun (dirProof ∣ base ∣ p) (Iso.inv (dirProof ∣ base ∣ p) refl) ≡ refl) , isOfHLevelTrunc 4 _ _ _ _) (isConnectedPoint 2 (isConnectedPath 3 {!sphereConnected 2!} _ _) refl)) λ _ → transportRefl refl) q p -- elim.isIsoPrecompose {A = Unit} {B = (Path (∥ S² ∥ 4) ∣ base ∣ ∣ base ∣)} (λ _ → refl) ? (λ p → (Iso.fun (dirProof ∣ base ∣ p) (Iso.inv (dirProof ∣ base ∣ p) refl) ≡ refl) , ?) ? ) q p
+Iso.leftInv (dirProof y p) = {!elim.isIsoPrecompose {A = Unit} {B = (Path (∥ S² ∥ 4) ∣ base ∣ ∣ base ∣)} (λ _ → refl) {!!} (λ p → (Iso.fun (dirProof ∣ base ∣ p) (Iso.inv (dirProof ∣ base ∣ p) refl) ≡ refl) , ?)!}
+
+
+testfun : (x : S¹) (y : ∥ S₊ 3 ∥ 5) (p : ∣ north ∣ ≡ y) → Smash (S¹ , x) (S¹ , base) → Path (∥ S₊ 3 ∥ 5) ∣ north ∣ y
+testfun x y p basel = p
+testfun x y p baser = p
+testfun x y p (proj a b) = (({!!} ∙ {!!}) ∙ sym {!λ i → ∣ !}) ∙ p
+testfun x y p (gluel a i) = {!λ {base → ? ; (loop j) → ?}!}
+testfun x y p (gluer b i) = {!!}
+
+suspLoopComm : Iso (∥  Smash (S₊∙ 1) (S₊∙ 1)  ∥ 4) (typ (Ω ((∥ S₊ 3 ∥ 5) , ∣ north ∣)))
+Iso.fun suspLoopComm = trRec {!!} {!!}
+Iso.inv suspLoopComm = {!!}
+Iso.rightInv suspLoopComm = {!!}
+Iso.leftInv suspLoopComm = {!!}
 
 test15 : (n : ℕ) → Iso (∥ Σ[ f ∈ ( S₊ 1  → S₊ (suc (suc n))) ] f base ≡ north ∥ (3 + n)) (Σ[ f ∈ ∥ (S₊ 1 → S₊ (suc (suc n))) ∥ (3 + n) ] (∥ Trunc.map (λ g → g base) f ≡ ∣ north ∣  ∥ (3 + n)))
 Iso.fun (test15 zero) = trElim (λ x → isOfHLevelΣ 3 (isOfHLevelTrunc 3) λ _ → isOfHLevelTrunc 3) λ {(f , pt) → ∣ f ∣ , ∣ (λ i → ∣ pt i ∣) ∣}
@@ -50,13 +156,6 @@ higherPath zero (suc m) x = {!!}
 higherPath (suc n) (suc m) north = north
 higherPath (suc n) (suc m) south = south
 higherPath (suc n) (suc m) (merid a i) = {!merid (higherPath _ _ a) i!}
-
-test : (n : ℕ) (A : Type₀) → Iso (∥ S₊ (2 + n) ∥ (4 + n)) (Ω (hLevelTrunc 4 (S₊ 2) , ∣ north ∣) →∙ ((hLevelTrunc (5 + n) (S₊ (3 + n))) , ∣ north ∣))
-test zero A = {!!}
-Iso.fun (test (suc n) A) = trRec {!!} λ {north → (λ _ → ∣ north ∣) , refl ; south → (λ _ → ∣ south ∣) , λ i → ∣ merid north (~ i) ∣ ; (merid a i) → (λ x → {!!}) , {!!}}
-Iso.inv (test (suc n) A) = {!!}
-Iso.rightInv (test (suc n) A) = {!!}
-Iso.leftInv (test (suc n) A) = {!!}
 
 -- test2 : (n : ℕ) (x y : Susp (S₊ ((suc n + suc n)))) → (q : south ≡ x) → (p : Path (Susp (S₊ (suc n + suc n))) north x)  → Σ[ a ∈ (S₊ (suc n + suc n)) ] p ≡ merid a ∙ q 
 -- test2 n x = {!!}
