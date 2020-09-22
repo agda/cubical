@@ -140,11 +140,11 @@ setQuotUniversal2 {A = A} {R = R} {B = B} Bset isReflR =
   where
   intro : (A / R → A / R → B)
         → (Σ[ _∗_ ∈ (A → A → B) ] ((a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'))
-  intro _∗̂_ = _∗_ , h
+  intro _∗/_ = _∗_ , h
    where
-   _∗_ = λ a b → [ a ] ∗̂ [ b ]
+   _∗_ = λ a b → [ a ] ∗/ [ b ]
    h : (a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'
-   h a a' b b' ra rb = cong (_∗̂ [ b ]) (eq/ _ _ ra) ∙ cong ([ a' ] ∗̂_) (eq/ _ _ rb)
+   h a a' b b' ra rb = cong (_∗/ [ b ]) (eq/ _ _ ra) ∙ cong ([ a' ] ∗/_) (eq/ _ _ rb)
 
   out : (Σ[ _∗_ ∈ (A → A → B) ] ((a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'))
       → (A / R → A / R → B)
@@ -158,17 +158,28 @@ setQuotUniversal2 {A = A} {R = R} {B = B} Bset isReflR =
   outRightInv : ∀ x → intro (out x) ≡ x
   outRightInv (_∗_ , h) = Σ≡Prop (λ _ → isPropΠ4 λ _ _ _ _ → isPropΠ2 λ _ _ → Bset _ _) refl
 
-  outLeftInv = λ _∗̂_ → funExt₂ (elimProp2 (λ _ _ → Bset _ _) λ _ _ → refl)
+  outLeftInv = λ _∗/_ → funExt₂ (elimProp2 (λ _ _ → Bset _ _) λ _ _ → refl)
 
 -- corollary for binary operations
 -- TODO prove truncated inverse for effective relations
 setQuotBinOp : isRefl R
-                 → Σ[ _∗_ ∈ (A → A → A) ] (∀ a a' b b' → R a a' → R b b' → R (a ∗ b) (a' ∗ b'))
-                 → (A / R → A / R → A / R)
-setQuotBinOp {A = A} {R = R} isReflR (_∗_ , h) =
+             → (_∗_ : A → A → A)
+             → (∀ a a' b b' → R a a' → R b b' → R (a ∗ b) (a' ∗ b'))
+             → (A / R → A / R → A / R)
+setQuotBinOp {A = A} {R = R} isReflR _∗_ h =
                  equivFun (invEquiv (setQuotUniversal2 squash/ isReflR))
                           ((λ a b → [ a ∗ b ]) , λ _ _ _ _ ra rb → eq/ _ _ (h _ _ _ _ ra rb))
 
+setQuotSymmBinOp : isRefl R → isTrans R
+                 → (_∗_ : A → A → A)
+                 → (∀ a b → a ∗ b ≡ b ∗ a)
+                 → (∀ a a' b → R a a' → R (a ∗ b) (a' ∗ b))
+                 → (A / R → A / R → A / R)
+setQuotSymmBinOp {A = A} {R = R} isReflR isTransR _∗_ ∗-symm h = setQuotBinOp isReflR _∗_ h'
+  where
+  h' : ∀ a a' b b' → R a a' → R b b' → R (a ∗ b) (a' ∗ b')
+  h' a a' b b' ra rb = isTransR _ _ _ (h a a' b ra)
+                                      (transport (λ i → R (∗-symm b a' i) (∗-symm b' a' i)) (h b b' a' rb))
 
 
 effective : (Rprop : isPropValued R) (Requiv : isEquivRel R) (a b : A) → [ a ] ≡ [ b ] → R a b

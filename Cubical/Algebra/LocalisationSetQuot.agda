@@ -150,7 +150,7 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
  locRefl _ = (1r , SsubMonoid .containsOne) , refl
 
  _+ₗ_ : Rₛ → Rₛ → Rₛ
- _+ₗ_ = setQuotBinOp locRefl (_+ₚ_ , θ)
+ _+ₗ_ = setQuotBinOp locRefl _+ₚ_ θ
   where
   _+ₚ_ : R × S → R × S → R × S
   (r₁ , s₁ , s₁∈S) +ₚ (r₂ , s₂ , s₂∈S) =
