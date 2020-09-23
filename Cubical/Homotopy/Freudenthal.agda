@@ -20,12 +20,62 @@ open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.S1 hiding (encode)
 open import Cubical.HITs.Sn
 
+
+incP : ∀ n m → S₊ (suc n) → typ (Ω (S₊∙ (suc (suc (m + n)))))
+incP zero zero x = merid x ∙ sym (merid base)
+incP zero (suc m) x = (λ i → merid (incP zero m x i) i) ∙ sym (merid north)
+incP (suc n) zero x = merid x ∙ sym (merid north)
+incP (suc n) (suc m) x = (λ i → merid (incP (suc n) m x i) i) ∙ sym (merid north)
+
 test15 : (n : ℕ) → Iso (∥ Σ[ f ∈ ( S₊ 1  → S₊ (suc (suc n))) ] f base ≡ north ∥ (3 + n)) (Σ[ f ∈ ∥ (S₊ 1 → S₊ (suc (suc n))) ∥ (3 + n) ] (∥ Trunc.map (λ g → g base) f ≡ ∣ north ∣  ∥ (3 + n)))
 Iso.fun (test15 zero) = trElim (λ x → isOfHLevelΣ 3 (isOfHLevelTrunc 3) λ _ → isOfHLevelTrunc 3) λ {(f , pt) → ∣ f ∣ , ∣ (λ i → ∣ pt i ∣) ∣}
 Iso.inv (test15 zero) = uncurry (trElim (λ _ → isOfHLevelΠ 3 λ _ → isOfHLevelTrunc 3) λ f → trElim (λ _ → isOfHLevelTrunc 3) λ a → trRec {!!} (λ p → ∣ f , p ∣) (Iso.fun (PathIdTruncIso 2) a) )
 Iso.rightInv (test15 zero) = uncurry (trElim {!!} λ f → trElim {!!} λ p → ΣPathP ({!!} , {!!}))
 Iso.leftInv (test15 zero) = {!!}
 test15 (suc n) = {!!}
+
+typId : ∀ n → Iso (typ ((Ω^ (suc (suc n))) (Type₀ , hLevelTrunc (3 + n) (S₊ (suc n)))))
+                    ((x : hLevelTrunc (3 + n) (S₊ (suc n))) → typ ((Ω^ (suc n)) (_ , x)))
+typId zero = {!!}
+typId (suc zero) = {!!}
+Iso.fun (typId (suc (suc n))) p = {! !}
+Iso.inv (typId (suc (suc n))) = {!!}
+Iso.rightInv (typId (suc (suc n))) = {!!}
+Iso.leftInv (typId (suc (suc n))) = {!!}
+
+CoDeS : ∀ n → S₊ (suc (suc n)) → Type
+simul : ∀ n → (CoDeS n north ≡ hLevelTrunc (3 + n) (S₊ (suc n))) × (CoDeS n north ≡ hLevelTrunc (3 + n) (S₊ (suc n)))
+
+CoDeS zero north = (hLevelTrunc 3 (S₊ 1))
+CoDeS zero south = (hLevelTrunc 3 (S₊ 1))
+CoDeS zero (merid base i) = (hLevelTrunc 3 (S₊ 1))
+CoDeS zero (merid (loop j) i) = {!!}
+CoDeS (suc zero) north = (hLevelTrunc 4 (S₊ 2))
+CoDeS (suc zero) south = (hLevelTrunc 4 (S₊ 2))
+CoDeS (suc zero) (merid north i) = (hLevelTrunc 4 (S₊ 2))
+CoDeS (suc zero) (merid south i) = (hLevelTrunc 4 (S₊ 2))
+CoDeS (suc zero) (merid (merid a i₁) i) = {!!}
+CoDeS (suc (suc n)) north = hLevelTrunc (5 + n) (S₊ (3 + n))
+CoDeS (suc (suc n)) south = hLevelTrunc (5 + n) (S₊ (3 + n))
+CoDeS (suc (suc n)) (merid a i) = {!!}
+simul zero = refl , refl
+simul (suc zero) = refl , refl
+simul (suc (suc n)) = refl , refl
+
+iso? : ∀ n m → {!!}
+iso? = {!!}
+
+open import Cubical.Data.Bool
+incS : ∀ n m → S₊ n → S₊ (n + m)
+incS zero zero x = x
+incS zero (suc zero) false = base
+incS zero (suc zero) true = base
+incS zero (suc (suc m)) false = north
+incS zero (suc (suc m)) true = south
+incS (suc n) zero x = subst S₊ (cong suc (sym (+-zero n))) x
+incS (suc zero) (suc m) base = north
+incS (suc zero) (suc m) (loop i) = {!!}
+incS (suc (suc n)) (suc m) x = {!!}
 
 isCommSusp : (A : Type₀) → ((x : A) (p q : x ≡ x) → p ∙ q ≡ q ∙ p) → (x : Susp A) (p q : x ≡ x ) → p ∙ q ≡ q ∙ p
 isCommSusp A comm x p q = {!!}
