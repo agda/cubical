@@ -443,3 +443,21 @@ Iso.leftInv (truncOfTruncIso (suc n) (suc m)) = elim (λ x → isOfHLevelPath (s
 
 truncOfTruncEq : (n m : ℕ) → (hLevelTrunc n A) ≃ (hLevelTrunc n (hLevelTrunc (m + n) A))
 truncOfTruncEq n m = isoToEquiv (truncOfTruncIso n m)
+
+
+---
+
+open import Cubical.HITs.S3
+open import Cubical.HITs.S2
+
+Code :  S³ → Type
+Code = {!!}
+
+test : isGroupoid {!Ω !}
+test = {!!}
+
+tet3 : Iso {!typ ((Ω^ 3) ?)!} {!!}
+Iso.fun tet3 = {!!}
+Iso.inv tet3 = {!!}
+Iso.rightInv tet3 = {!!}
+Iso.leftInv tet3 = {!!}
