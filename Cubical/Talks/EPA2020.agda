@@ -13,8 +13,8 @@ Link to video: https://vimeo.com/459020971
 -}
 
 -- To make Agda cubical add the following options
-{-# OPTIONS --cubical #-}
-module EPA where
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
+module Cubical.Talks.EPA2020 where
 
 -- The "Foundations" package contain a lot of important results (in
 -- particular the univalence theorem)
