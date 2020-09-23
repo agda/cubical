@@ -272,12 +272,13 @@ module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
 -- Converting to and from a PathP
 
 module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
-  toPathP : transp (\ i → A i) i0 x ≡ y → PathP A x y
+  -- toPathP : transp (\ i → A i) i0 x ≡ y → PathP A x y
+  toPathP : transport (\ i → A i) x ≡ y → PathP A x y
   toPathP p i = hcomp (λ j → λ { (i = i0) → x
                                ; (i = i1) → p j })
                       (transp (λ j → A (i ∧ j)) (~ i) x)
 
-  fromPathP : PathP A x y → transp (\ i → A i) i0 x ≡ y
+  fromPathP : PathP A x y → transport (\ i → A i) x ≡ y
   fromPathP p i = transp (λ j → A (i ∨ j)) i (p i)
 
 -- Whiskering a dependent path by a path
@@ -315,7 +316,8 @@ singl : (a : A) → Type _
 singl {A = A} a = Σ[ x ∈ A ] (a ≡ x)
 
 isContrSingl : (a : A) → isContr (singl a)
-isContrSingl a = (a , refl) , λ p i → p .snd i , λ j → p .snd (i ∧ j)
+-- isContrSingl a = (a , refl) , λ p i → p .snd i , λ j → p .snd (i ∧ j)
+isContrSingl a = (a , refl) , λ (b , C) i → C i , λ j → C (i ∧ j)
 
 isContrSinglP : (A : I → Type ℓ) (a : A i0) → isContr (Σ[ x ∈ A i1 ] PathP A a x)
 isContrSinglP A a .fst = _ , transport-filler (λ i → A i) a
