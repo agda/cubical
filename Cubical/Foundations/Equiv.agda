@@ -64,6 +64,10 @@ equiv-proof (isPropIsEquiv f p q i) y =
 equivEq : (e f : A ≃ B) → (h : e .fst ≡ f .fst) → e ≡ f
 equivEq e f h = λ i → (h i) , isProp→PathP (λ i → isPropIsEquiv (h i)) (e .snd) (f .snd) i
 
+equivFun≡→isEquiv : (e : A ≃ B) (f : A → B) (p : (a : A) → equivFun e a ≡ f a) → isEquiv f
+equivFun≡→isEquiv e f p = subst (λ g → isEquiv g) (funExt (λ a → p a)) (e .snd)
+
+
 module _ {f : A → B} (equivF : isEquiv f) where
   funIsEq : A → B
   funIsEq = f

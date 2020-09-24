@@ -139,3 +139,22 @@ module _ (G : Group {ℓG}) where
                       bloop g ∙ bloop h
                         ≡⟨ p g h ⟩
                       bloop (g + h) ∎)
+{-
+  rec-≃ : {B : Type ℓ}
+      → isGroupoid B
+      → (b : B)
+      → (bloop : Carrier ≃ (b ≡ b))
+      → ((g h : Carrier) → (bloop .fst g) ∙ (bloop .fst h) ≡ bloop .fst (g + h))
+      → EM₁ G ≃ B
+  rec-≃ isGrp b bloop hom  .fst = rec' isGrp b (fst bloop) hom
+  rec-≃ isGrp b bloop hom  .snd = {!!}
+
+  rec'-≡ : {B : Type ℓ}
+           → (isGrpd : isGroupoid B)
+           → (b : B)
+           → (bloop : Carrier → b ≡ b)
+           → (isHom : (g h : Carrier) → (bloop g) ∙ (bloop h) ≡ bloop (g + h))
+           → (c : Carrier)
+           → bloop c ≡ cong (rec' isGrpd b bloop isHom) (emloop c)
+  rec'-≡ = λ isGrpd b bloop isHom c → refl
+-}

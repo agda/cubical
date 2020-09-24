@@ -6,6 +6,7 @@ module Cubical.Algebra.Group.Higher where
 open import Cubical.Core.Everything
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude hiding (comp)
 open import Cubical.Foundations.Pointed
@@ -23,6 +24,7 @@ open import Cubical.Algebra.Group.Morphism
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
 open import Cubical.HITs.PropositionalTruncation renaming (rec to propRec)
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.SetTruncation
@@ -231,10 +233,11 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
   EM₁-functor-lInv-onIso-isEquiv f =
     isEmbedding×isSurjection→isEquiv (isEmbedding-φ , isSurjection-φ)
     where
+      φ₁ : basetype EM₁H → basetype BG
       φ₁ = EM₁-functor-lInv-function (GroupEquiv.hom f)
       abstract
         isEmbedding-φ : isEmbedding φ₁
-        isEmbedding-φ = {!!}
+        isEmbedding-φ = reduceToBp isEmbPt
           where
             isEmb : (x y : basetype EM₁H) → Type (ℓ-max ℓ ℓ')
             isEmb x y = isEquiv (cong {x = x} {y = y} φ₁)
@@ -242,14 +245,59 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
             isPropIsEmb : (x y : basetype EM₁H) → isProp (isEmb x y)
             isPropIsEmb x y = isPropIsEquiv (cong {x = x} {y = y} φ₁)
 
-            x : (basepoint EM₁H ≡ basepoint EM₁H) ≃ (basepoint BG ≡ basepoint BG)
-            x =  GroupEquiv.eq f
+            f-equiv : (basepoint EM₁H ≡ basepoint EM₁H) ≃ (basepoint BG ≡ basepoint BG)
+            f-equiv =  GroupEquiv.eq f
+            f₁ = fst f-equiv
+
+            γ : ⟨ H ⟩ ≃ ⟨ π₁EM₁H ⟩
+            γ = GroupEquiv.eq (invGroupEquiv (π₁EM₁≃ H))
+            β : ⟨ π₁EM₁H ⟩ ≃ typ (carrier BG)
+            β = f-equiv
+            δ : ⟨ H ⟩ ≃ typ (carrier BG)
+            δ = compEquiv γ β
+            p : equivFun δ ≡ (λ h → cong φ₁ (equivFun γ h))
+            p = refl
+            η = (λ (h : ⟨ H ⟩) → cong φ₁ (equivFun γ h))
+            isEquiv-η : isEquiv η
+            isEquiv-η = equivFun≡→isEquiv δ η λ _ → refl
+            congφ∼f : (h : ⟨ H ⟩) → f₁ (GroupHom.fun H→π₁EM₁H h) ≡ cong φ₁ (GroupHom.fun H→π₁EM₁H h)
+            congφ∼f p = refl
 
             isEmbPt : isEmb (basepoint EM₁H) (basepoint EM₁H)
-            isEmbPt = {!!}
+            isEmbPt = equivCompLCancel γ (cong φ₁) isEquiv-η
+
+            g : Unit → basetype EM₁H
+            g _ = basepoint EM₁H
+
+            isConn-g : isConnectedFun 1 g
+            isConn-g = isConnectedPoint 1 (BGroup.isConn EM₁H) (basepoint EM₁H)
+
+            reduceToBp1 : ((a : Unit) → isEmb (basepoint EM₁H) (g a))
+                         → (h' : basetype EM₁H) → isEmb (basepoint EM₁H) h'
+            reduceToBp1 =
+              Iso.inv (elim.isIsoPrecompose g
+                                            1
+                                            (λ h' → (isEmb (basepoint EM₁H) h') , isPropIsEmb (basepoint EM₁H) h')
+                                            isConn-g)
+            reduceToBp1' : isEmb (basepoint EM₁H) (basepoint EM₁H)
+                         → (h' : basetype EM₁H) → isEmb (basepoint EM₁H) h'
+            reduceToBp1' p = reduceToBp1 λ _ → p
 
 
+            reduceToBp2 : (h' : basetype EM₁H) → isEmb (basepoint EM₁H) h'
+                          → ((a : Unit) → isEmb (g a) h') → (h : basetype EM₁H) → isEmb h h'
+            reduceToBp2 h' p =
+              Iso.inv (elim.isIsoPrecompose g
+                                            1
+                                            (λ h → (isEmb h h') , (isPropIsEmb h h'))
+                                            isConn-g)
+            reduceToBp2' : ((h' : basetype EM₁H) → isEmb (basepoint EM₁H) h')
+                           → (h h' : basetype EM₁H) → isEmb h h'
+            reduceToBp2' Q h h' = reduceToBp2 h' (Q h') (λ _ → Q h') h
 
+
+            reduceToBp : isEmb (basepoint EM₁H) (basepoint EM₁H) → (h h' : basetype EM₁H) → isEmb h h'
+            reduceToBp p = reduceToBp2' (reduceToBp1' p)
 
         isSurjection-φ : isSurjection φ₁
         isSurjection-φ g = propTruncΣ← (λ x → φ₁ x ≡ g) ∣ basepoint EM₁H , fst r ∣

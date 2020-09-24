@@ -29,7 +29,7 @@ open import Cubical.Functions.FunExtEquiv
 
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ′ ℓ' ℓ'' : Level
     A B C : Type ℓ
 
 isEquivCong : {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → cong (e .fst) p)
@@ -53,6 +53,32 @@ isEquivPreComp {A = A} {B} {C} e = EquivJ
 preCompEquiv : {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
              → (B → C) ≃ (A → C)
 preCompEquiv e = (λ φ → φ ∘ fst e) , isEquivPreComp e
+
+equivCompLCancel : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+                   → (f : A ≃ B) (g : B → C)
+                   → (isEquiv-g∘f : isEquiv (g ∘ fst f))
+                   → isEquiv g
+equivCompLCancel {A = A} {B = B} {C = C} f g p =
+  equivFun≡→isEquiv gff- g (funExt⁻ gff-≡g)
+  where
+    gf : A ≃ C
+    gf = g ∘ fst f , p
+    f- = invEquiv f
+    gff- = compEquiv f- gf
+    gff-' = g ∘ (equivFun f ∘ equivFun f-)
+    asso : equivFun gff- ≡ gff-'
+    asso = ∘-assoc g (fst f) (fst f-)
+    gff-'-isEquiv : isEquiv gff-'
+    gff-'-isEquiv = equivFun≡→isEquiv gff- gff-' (funExt⁻ asso)
+    ff-≡id : equivFun (compEquiv f- f) ≡ (λ (b : B) → b)
+    ff-≡id = cong equivFun (invEquiv-is-linv f)
+    gff-'≡g : (b : B) → gff-' b ≡ g b
+    gff-'≡g b = cong g (funExt⁻ ff-≡id b)
+    gff-≡g : equivFun gff- ≡ g
+    gff-≡g = asso ∙ (funExt gff-'≡g)
+
+
+
 
 depPostCompEquiv : {A : C → Type ℓ} {B : C → Type ℓ′} (e : ∀ c → A c ≃ B c)
                  → (∀ c → A c) ≃ (∀ c → B c)

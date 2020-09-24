@@ -60,3 +60,6 @@ isContr→≡Unit contr = ua (isContr→≃Unit contr)
 
 𝟙-universal : (X : Type ℓ) → Iso (Unit → X) X
 𝟙-universal X = iso (λ f → f tt) (λ x _ → x) (λ _ → refl) λ _ → refl
+
+ForAllUnit : (X : Unit → Type ℓ) → X tt → (a : Unit) → X a
+ForAllUnit X p a = p
