@@ -64,22 +64,63 @@ unglue φ = prim^unglue {φ = φ}
 -- Cyril Cohen, Thierry Coquand, Simon Huber, Anders Mörtberg
 private
 
-  Glue-S : (A : Type ℓ) {φ : I}
-         → (Te : Partial φ (Σ[ T ∈ Type ℓ' ] T ≃ A))
-         → Sub (Type ℓ') φ (λ { (φ = i1) → Te 1=1 .fst })
-  Glue-S A Te = inS (Glue A Te)
+  module GluePrims (A : Type ℓ) {φ : I} (Te : Partial φ (Σ[ T ∈ Type ℓ' ] T ≃ A)) where
+    T : Partial φ (Type ℓ')
+    T φ = Te φ .fst
+    e : PartialP φ (λ φ → T φ ≃ A)
+    e φ = Te φ .snd
 
-  glue-S :
-   ∀ {A : Type ℓ} {φ : I}
-   → {T : Partial φ (Type ℓ')} {e : PartialP φ (λ o → T o ≃ A)}
-   → (t : PartialP φ T)
-   → Sub A φ (λ { (φ = i1) → e 1=1 .fst (t 1=1) })
-   → Sub (primGlue A T e) φ (λ { (φ = i1) → t 1=1 })
-  glue-S t s = inS (glue t (outS s))
+    -- Glue is a partial element of Type that is definitionally equal to the left type
+    -- of the given equivalences where it is defined.
+    Glue-S : Type ℓ' [ φ ↦ T ]
+    Glue-S = inS (Glue A Te)
 
-  unglue-S :
-    ∀ {A : Type ℓ} (φ : I)
-    {T : Partial φ (Type ℓ')} {e : PartialP φ (λ o → T o ≃ A)}
-    → (x : primGlue A T e)
-    → Sub A φ (λ { (φ = i1) → e 1=1 .fst x })
-  unglue-S φ x = inS (prim^unglue {φ = φ} x)
+    -- Which means partial elements of T are partial elements of Glue
+    coeT→G : PartialP φ T
+           → Partial φ (Glue A Te)
+    coeT→G t (φ = i1) = t 1=1
+
+    -- What about elements that are applied to the equivalences?
+    trans-1 : PartialP φ T
+            → Partial φ A
+    trans-1 t ϕ1 = e ϕ1 .fst (t ϕ1)
+
+    -- glue gives a partial element of Glue given an element of A. Note that it "undoes"
+    -- the application of the equivalences!
+    glue-S :
+      ∀ (t : PartialP φ T)
+      → A [ φ ↦ trans-1 t ]
+      → Glue A Te [ φ ↦ coeT→G t ]
+    glue-S t s = inS (glue t (outS s))
+
+    -- typechecking glue enforces that this is possible. E.g. you can not write
+    -- glue-bad : (t : PartialP φ T) → A → Glue A Te
+    -- glue-bad t s = glue t s
+
+    -- unglue does the inverse:
+    unglue-S :
+      ∀ (t : PartialP φ T)
+      → Glue A Te [ φ ↦ coeT→G t ]
+      → A [ φ ↦ trans-1 t ]
+    unglue-S t x = inS (prim^unglue {φ = φ} (outS x))
+
+  module GlueTransp (A : I → Type ℓ) (Te : (i : I) → Partial (i ∨ ~ i) (Σ[ T ∈ Type ℓ' ] T ≃ A i)) where
+    A0 A1 : Type ℓ
+    A0 = A i0
+    A1 = A i1
+    T : (i : I) → Partial (i ∨ ~ i) (Type ℓ')
+    T i φ = Te i φ .fst
+    e : (i : I) → PartialP (i ∨ ~ i) (λ φ → T i φ ≃ A i)
+    e i φ = Te i φ .snd
+    T0 T1 : Type ℓ'
+    T0 = T i0 1=1
+    T1 = T i1 1=1
+    e0 : T0 ≃ A0
+    e0 = e i0 1=1
+    e1 : T1 ≃ A1
+    e1 = e i1 1=1
+
+    -- equivFun and invEq are not in scope, otherwise we could write
+    -- transp-S : (a : T0) → T1 [ i1 ↦ (λ _ →  invEq e1 (transp (λ i → A i) i0 (equivFun e0 a))) ]
+    transp-S : (a : T0) → T1 [ i1 ↦ (λ _ →  e1 .snd .equiv-proof (transp (λ i → A i) i0 (e0 .fst a)) .fst .fst) ]
+    transp-S a = inS (transp (λ i → Glue (A i) (Te i)) i0 a)
