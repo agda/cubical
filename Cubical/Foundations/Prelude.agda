@@ -408,6 +408,7 @@ isProp→PathP : ∀ {B : I → Type ℓ} → ((i : I) → isProp (B i))
                → (b0 : B i0) (b1 : B i1)
                → PathP (λ i → B i) b0 b1
 isProp→PathP hB b0 b1 = toPathP (hB _ _ _)
+-- isProp→PathP hB b0 b1 = toPathP (hB i1 _ b1)
 
 isPropIsContr : isProp (isContr A)
 isPropIsContr z0 z1 j =
