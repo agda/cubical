@@ -57,6 +57,7 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 
       -- simplify the notation even more to see that P≡Q
       -- is just a jingle of paths
+      open import Cubical.Foundations.Filler
       p = H ⋆
       r = f₂
       s = g₂
@@ -64,17 +65,21 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
       P≡Q = p ≡ r ∙ s ⁻¹
               ≡⟨ isoToPath (symIso p (r ∙ s ⁻¹)) ⟩
             r ∙ s ⁻¹ ≡ p
-              ≡⟨ cong (r ∙ s ⁻¹ ≡_) (rUnit p ∙∙ cong (p ∙_) (sym (rCancel s)) ∙∙ assoc p s (s ⁻¹)) ⟩
+              -- ≡⟨ cong (r ∙ s ⁻¹ ≡_) (rUnit p ∙∙ cong (p ∙_) (sym (rCancel s)) ∙∙ assoc p s (s ⁻¹)) ⟩
+              ≡⟨ cube-cong refl (rUnit p ∙∙ cong (p ∙_) (sym (rCancel s)) ∙∙ assoc p s (s ⁻¹)) ⟩
             r ∙ s ⁻¹ ≡ (p ∙ s) ∙ s ⁻¹
               ≡⟨ sym (ua (compr≡Equiv r (p ∙ s) (s ⁻¹))) ⟩
             r ≡ p ∙ s
               ≡⟨ ua (compl≡Equiv (p ⁻¹) r (p ∙ s)) ⟩
             p ⁻¹ ∙ r ≡ p ⁻¹ ∙ (p ∙ s)
-              ≡⟨ cong (p ⁻¹ ∙ r ≡_ ) (assoc (p ⁻¹) p s ∙∙ (cong (_∙ s) (lCancel p)) ∙∙ sym (lUnit s)) ⟩
+              -- ≡⟨ cong (p ⁻¹ ∙ r ≡_ ) (assoc (p ⁻¹) p s ∙∙ (cong (_∙ s) (lCancel p)) ∙∙ sym (lUnit s)) ⟩
+              ≡⟨ cube-cong refl (assoc (p ⁻¹) p s ∙∙ (cong (_∙ s) (lCancel p)) ∙∙ sym (lUnit s)) ⟩
             p ⁻¹ ∙ r ≡ s
-              ≡⟨ cong (λ z → p ⁻¹ ∙ z ≡ s) (rUnit r) ⟩
+              ≡⟨ cube-cong (cong (p ⁻¹ ∙_) (rUnit r)) refl ⟩
+              -- ≡⟨ cong (λ z → p ⁻¹ ∙ z ≡ s) (rUnit r) ⟩
             p ⁻¹ ∙ (r ∙ refl) ≡ s
-              ≡⟨ cong (_≡ s) (sym (doubleCompPath-elim' (p ⁻¹) r refl)) ⟩
+              -- ≡⟨ cong (_≡ s) (sym (doubleCompPath-elim' (p ⁻¹) r refl)) ⟩
+              ≡⟨ cube-cong (sym (doubleCompPath-elim' (p ⁻¹) r refl)) refl ⟩
             p ⁻¹ ∙∙ r ∙∙ refl ≡ s
               ≡⟨ sym (ua (Square≃doubleComp r s p refl)) ⟩
             PathP (λ i → p i ≡ ptB) r s ∎
