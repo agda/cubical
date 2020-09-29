@@ -171,7 +171,7 @@ indMapEquiv→conType {A = A} (suc n) BEq =
     (map (Iso.inv (typeToFiberIso A)))
     (Trunc.elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) (λ _ → refl))
     (elim.isConnectedPrecompose (λ _ → tt) (suc n)
-                                (λ P → ((λ a _ → a) ∘ invEquiv2 (BEq (P tt)))
+                                (λ P → ((λ a _ → a) ∘ invIsEq (BEq (P tt)))
                                , λ a → equiv-proof (BEq (P tt)) a .fst .snd)
                                 tt)
 
@@ -306,7 +306,7 @@ inrConnected {A = A} {B = B} {C = C} n f g iscon =
 
 open import Cubical.HITs.S3
 sphereConnected : (n : HLevel) → isConnected (suc n) (S₊ n)
-sphereConnected zero = ∣ true ∣ , isOfHLevelTrunc 1 _ -- ∣ north ∣ , isOfHLevelTrunc 1 ∣ north ∣
+sphereConnected zero = ∣ true ∣ , isOfHLevelTrunc 1 _
 sphereConnected (suc zero) = ∣ base ∣ , Trunc.elim (λ _ _ _ → isOfHLevelPath 1 (isOfHLevelTrunc 2 _ _) _ _)
                                                   (toPropElim (λ s → isOfHLevelTrunc 2 _ _) refl)
 sphereConnected (suc (suc zero)) = ∣ north ∣ , Trunc.elim (λ _ _ _ → isOfHLevelPath 2 (isOfHLevelTrunc 3 _ _) _ _)

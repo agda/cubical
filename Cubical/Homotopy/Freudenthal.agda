@@ -49,6 +49,7 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
       → hLevelTrunc 2n+2 (fiber σ p)
       → hLevelTrunc 2n+2 (fiber (λ x → merid x ∙ merid a ⁻¹) p)
     fwd p a = Trunc.rec (isOfHLevelTrunc 2n+2) (uncurry (WC.extension p a))
+
     isEquivFwd : (p : north ≡ north) (a : typ A) → isEquiv (fwd p a)
     isEquivFwd p a .equiv-proof =
       elim.isEquivPrecompose (λ _ → pt A) (suc n)
@@ -123,18 +124,6 @@ open import Cubical.Data.Bool
 isConn→isConnSusp : ∀ {ℓ} {A : Pointed ℓ} → isConnected 2 (typ A) → isConnected 2 (Susp (typ A))
 isConn→isConnSusp {A = A} iscon = ∣ north ∣ , (trElim (λ _ → isOfHLevelSuc 1 (isOfHLevelTrunc 2 _ _)) (suspToPropRec (pt A) (λ _ → isOfHLevelTrunc 2 _ _) refl))
 
-{-
-FreudenthalIso1 : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
-                → isConnected (2 + n) (typ A)
-                → Iso (hLevelTrunc ((suc n) + (suc n)) (typ A))
-                      (hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north))))
-FreudenthalIso1 zero A iscon = isContr→Iso iscon isConnΩ
-  where
-  isConnΩ : isContr (hLevelTrunc 2 (typ (Ω (Susp (typ A) , north))))
-  isConnΩ = {!Iso.inv (Trunc.PathIdTruncIso {A = Susp (typ A)} {a = north} {b = north} 2) !}
-FreudenthalIso1 (suc n) A iscon = {!!}
--}
-
 FreudenthalEquiv : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
                 → isConnected (2 + n) (typ A)
                 → hLevelTrunc ((suc n) + (suc n)) (typ A)
@@ -147,7 +136,3 @@ FreudenthalIso : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
                 → Iso (hLevelTrunc ((suc n) + (suc n)) (typ A))
                       (hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north))))
 FreudenthalIso n A iscon = connectedTruncIso _ (σ n {A = A} iscon) (isConnectedσ _ iscon)
-
--- FreudenthalIso (suc zero) A iscon = connectedTruncIso _ (σ 1 {A = A} iscon) (isConnectedσ _ iscon)
--- FreudenthalIso (suc (suc zero)) A iscon = connectedTruncIso _ (σ 2 {A = A} iscon) (isConnectedσ _ iscon)
--- FreudenthalIso (suc (suc (suc n))) A iscon = connectedTruncIso _ (σ (3 + n) {A = A} iscon) (isConnectedσ _ iscon)
