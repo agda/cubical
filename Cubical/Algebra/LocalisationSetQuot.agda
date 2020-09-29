@@ -149,6 +149,10 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
  locRefl : isRefl _≈'_
  locRefl _ = (1r , SsubMonoid .containsOne) , refl
 
+ -- quite tedious as well
+ -- locTrans : isTrans _≈'_
+ -- locTrans = {!!}
+
  _+ₗ_ : Rₛ → Rₛ → Rₛ
  _+ₗ_ = setQuotBinOp locRefl _+ₚ_ θ
   where
@@ -360,19 +364,107 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
  --        ∣ ((fst s · fst s') , SsubMonoid .multClosed (s .snd) (s' .snd)) , {!!} ∣
 
 
- -- -- Now for multiplication
- -- _·ₗ_ : Rₛ → Rₛ → Rₛ
- -- _·ₗ_ = setQuotBinOp locRefl (_·ₚ_ , θ)
- --  where
- --  _·ₚ_ : R × S → R × S → R × S
- --  (r₁ , s₁ , s₁∈S) ·ₚ (r₂ , s₂ , s₂∈S) =
- --                      (r₁ · s₂ · r₂ · s₁) , (s₁ · s₂) , SsubMonoid .multClosed s₁∈S s₂∈S
+ -- Now for multiplication
+ _·ₗ_ : Rₛ → Rₛ → Rₛ
+ _·ₗ_ = setQuotBinOp locRefl _·ₚ_ θ
+  where
+  _·ₚ_ : R × S → R × S → R × S
+  (r₁ , s₁ , s₁∈S) ·ₚ (r₂ , s₂ , s₂∈S) =
+                      (r₁ · r₂) , ((s₁ · s₂) , SsubMonoid .multClosed s₁∈S s₂∈S)
 
- --  θ : (a a' b b' : R × S) → a ≈' a' → b ≈' b' → (a ·ₚ b) ≈' (a' ·ₚ b')
- --  θ (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) (r'₂ , s'₂ , s'₂∈S) (s , p) (s' , q) =
- --    ((fst s · fst s') , SsubMonoid .multClosed (s .snd) (s' .snd)) , path
- --    where
- --    path : fst s · fst s' · (r₁ · s₂ · r₂ · s₁) · (s'₁ · s'₂)
- --         ≡ fst s · fst s' · (r'₁ · s'₂ · r'₂ · s'₁) · (s₁ · s₂)
- --    path = {!!}
- --    -- is that true even?
+  θ : (a a' b b' : R × S) → a ≈' a' → b ≈' b' → (a ·ₚ b) ≈' (a' ·ₚ b')
+  θ (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) (r'₂ , s'₂ , s'₂∈S) (s , p) (s' , q) =
+    ((fst s · fst s') , SsubMonoid .multClosed (s .snd) (s' .snd)) , path
+    where
+    path : fst s · fst s' · (r₁ · r₂) · (s'₁ · s'₂)
+         ≡ fst s · fst s' · (r'₁ · r'₂) · (s₁ · s₂)
+    path = fst s · fst s' · (r₁ · r₂) · (s'₁ · s'₂)
+         ≡⟨ (λ i → ·-assoc (fst s · fst s') r₁ r₂ i · (s'₁ · s'₂)) ⟩
+           fst s · fst s' · r₁ · r₂ · (s'₁ · s'₂)
+         ≡⟨ (λ i → ·-assoc (fst s · fst s' · r₁ · r₂) s'₁ s'₂ i) ⟩
+           fst s · fst s' · r₁ · r₂ · s'₁ · s'₂
+         ≡⟨ (λ i → ·-assoc (fst s) (fst s') r₁ (~ i) · r₂ · s'₁ · s'₂) ⟩
+           fst s · (fst s' · r₁) · r₂ · s'₁ · s'₂
+         ≡⟨ (λ i → fst s · (·-comm (fst s') r₁ i) · r₂ · s'₁ · s'₂) ⟩
+           fst s · (r₁ · fst s') · r₂ · s'₁ · s'₂
+         ≡⟨ (λ i → ·-assoc (fst s) r₁  (fst s') i · r₂ · s'₁ · s'₂) ⟩
+           fst s · r₁ · fst s' · r₂ · s'₁ · s'₂
+         ≡⟨ (λ i → ·-assoc (fst s · r₁ · fst s') r₂ s'₁ (~ i) · s'₂) ⟩
+           fst s · r₁ · fst s' · (r₂ · s'₁) · s'₂
+         ≡⟨ (λ i → fst s · r₁ · fst s' · (·-comm r₂ s'₁ i) · s'₂) ⟩
+           fst s · r₁ · fst s' · (s'₁ · r₂) · s'₂
+         ≡⟨ (λ i → ·-assoc (fst s · r₁ · fst s') s'₁ r₂ i · s'₂) ⟩
+           fst s · r₁ · fst s' · s'₁ · r₂ · s'₂
+         ≡⟨ (λ i → ·-assoc (fst s · r₁) (fst s') s'₁ (~ i) · r₂ · s'₂) ⟩
+           fst s · r₁ · (fst s' · s'₁) · r₂ · s'₂
+         ≡⟨ (λ i → fst s · r₁ · (·-comm (fst s') s'₁ i) · r₂ · s'₂) ⟩
+           fst s · r₁ · (s'₁ · fst s') · r₂ · s'₂
+         ≡⟨ (λ i → ·-assoc (fst s · r₁) s'₁ (fst s') i · r₂ · s'₂) ⟩
+           fst s · r₁ · s'₁ · fst s' · r₂ · s'₂
+         ≡⟨ (λ i → ·-assoc (fst s · r₁ · s'₁) (fst s') r₂ (~ i) · s'₂) ⟩
+           fst s · r₁ · s'₁ · (fst s' · r₂) · s'₂
+         ≡⟨ (λ i → ·-assoc (fst s · r₁ · s'₁) (fst s' · r₂) s'₂ (~ i)) ⟩
+           fst s · r₁ · s'₁ · (fst s' · r₂ · s'₂)
+         ≡⟨ (λ i → (p i) · (q i)) ⟩
+           fst s · r'₁ · s₁ · (fst s' · r'₂ · s₂)
+         ≡⟨ (λ i → ·-assoc (fst s · r'₁ · s₁) (fst s' · r'₂) s₂ i) ⟩
+           fst s · r'₁ · s₁ · (fst s' · r'₂) · s₂
+         ≡⟨ (λ i → ·-assoc (fst s · r'₁ · s₁) (fst s') r'₂ i · s₂) ⟩
+           fst s · r'₁ · s₁ · fst s' · r'₂ · s₂
+         ≡⟨ (λ i → ·-assoc (fst s · r'₁) s₁ (fst s') (~ i) · r'₂ · s₂) ⟩
+           fst s · r'₁ · (s₁ · fst s') · r'₂ · s₂
+         ≡⟨ (λ i → fst s · r'₁ · (·-comm s₁ (fst s') i) · r'₂ · s₂) ⟩
+           fst s · r'₁ · (fst s' · s₁) · r'₂ · s₂
+         ≡⟨ (λ i → ·-assoc (fst s · r'₁) (fst s') s₁ i · r'₂ · s₂) ⟩
+           fst s · r'₁ · fst s' · s₁ · r'₂ · s₂
+         ≡⟨ (λ i → ·-assoc (fst s · r'₁ · fst s') s₁ r'₂ (~ i) · s₂) ⟩
+           fst s · r'₁ · fst s' · (s₁ · r'₂) · s₂
+         ≡⟨ (λ i → fst s · r'₁ · fst s' · (·-comm s₁ r'₂ i) · s₂) ⟩
+           fst s · r'₁ · fst s' · (r'₂ · s₁) · s₂
+         ≡⟨ (λ i → ·-assoc (fst s · r'₁ · fst s') r'₂ s₁ i · s₂) ⟩
+           fst s · r'₁ · fst s' · r'₂ · s₁ · s₂
+         ≡⟨ (λ i → ·-assoc (fst s) r'₁ (fst s') (~ i) · r'₂ · s₁ · s₂) ⟩
+           fst s · (r'₁ · fst s') · r'₂ · s₁ · s₂
+         ≡⟨ (λ i → fst s · (·-comm r'₁ (fst s') i) · r'₂ · s₁ · s₂) ⟩
+           fst s · (fst s' · r'₁) · r'₂ · s₁ · s₂
+         ≡⟨ (λ i → ·-assoc (fst s) (fst s') r'₁ i · r'₂ · s₁ · s₂) ⟩
+           fst s · fst s' · r'₁ · r'₂ · s₁ · s₂
+         ≡⟨ (λ i → ·-assoc (fst s · fst s' · r'₁ · r'₂) s₁ s₂ (~ i)) ⟩
+           fst s · fst s' · r'₁ · r'₂ · (s₁ · s₂)
+         ≡⟨ (λ i → ·-assoc (fst s · fst s') r'₁ r'₂ (~ i) · (s₁ · s₂)) ⟩
+           fst s · fst s' · (r'₁ · r'₂) · (s₁ · s₂) ∎
+
+
+
+
+ -- checking laws for multiplication
+ 1ₗ : Rₛ
+ 1ₗ = [ 1r , 1r , SsubMonoid .containsOne ]
+
+ ·ₗ-assoc : (x y z : Rₛ) → x ·ₗ (y ·ₗ z) ≡ (x ·ₗ y) ·ₗ z
+ ·ₗ-assoc = SQ.elimProp3 (λ _ _ _ → squash/ _ _) ·ₗ-assoc[]
+   where
+   ·ₗ-assoc[] : (a b c : R × S) → [ a ] ·ₗ ([ b ] ·ₗ [ c ]) ≡ ([ a ] ·ₗ [ b ]) ·ₗ [ c ]
+   ·ₗ-assoc[] (r , s , s∈S) (r' , s' , s'∈S) (r'' , s'' , s''∈S) =
+              cong [_] (ΣPathP ((·-assoc _ _ _) , Σ≡Prop (λ x → ∈-isProp S' x) (·-assoc _ _ _)))
+
+ ·ₗ-rid : (x : Rₛ) → x ·ₗ 1ₗ ≡ x
+ ·ₗ-rid = SQ.elimProp (λ _ → squash/ _ _) ·ₗ-rid[]
+   where
+   ·ₗ-rid[] : (a : R × S) → ([ a ] ·ₗ 1ₗ) ≡ [ a ]
+   ·ₗ-rid[] (r , s , s∈S) = cong [_] (ΣPathP ((·-rid _) , Σ≡Prop (λ x → ∈-isProp S' x) (·-rid _)))
+
+
+ ·ₗ-rdist-+ₗ : (x y z : Rₛ) → x ·ₗ (y +ₗ z) ≡ (x ·ₗ y) +ₗ (x ·ₗ z)
+ ·ₗ-rdist-+ₗ = SQ.elimProp3 (λ _ _ _ → squash/ _ _) ·ₗ-rdist-+ₗ[]
+   where
+   ·ₗ-rdist-+ₗ[] : (a b c : R × S) → [ a ] ·ₗ ([ b ] +ₗ [ c ]) ≡ ([ a ] ·ₗ [ b ]) +ₗ ([ a ] ·ₗ [ c ])
+   ·ₗ-rdist-+ₗ[] (r , s , s∈S) (r' , s' , s'∈S) (r'' , s'' , s''∈S) = {!!}
+
+
+ ·ₗ-comm : (x y : Rₛ) → x ·ₗ y ≡ y ·ₗ x
+ ·ₗ-comm = SQ.elimProp2 (λ _ _ → squash/ _ _) ·ₗ-comm[]
+   where
+   ·ₗ-comm[] : (a b : R × S) → [ a ] ·ₗ [ b ] ≡ [ b ] ·ₗ [ a ]
+   ·ₗ-comm[] (r , s , s∈S) (r' , s' , s'∈S) =
+             cong [_] (ΣPathP ((·-comm _ _) , Σ≡Prop (λ x → ∈-isProp S' x) (·-comm _ _)))
