@@ -142,7 +142,9 @@ Kn→ΩKn+10ₖ (suc (suc n)) i j = ∣ (rCancel (merid north) i j) ∣
 ΩKn+1→Kn-refl zero = refl
 ΩKn+1→Kn-refl (suc zero) = refl
 ΩKn+1→Kn-refl (suc (suc zero)) = refl
-ΩKn+1→Kn-refl (suc (suc (suc n))) = refl
+ΩKn+1→Kn-refl (suc (suc (suc zero))) = refl
+ΩKn+1→Kn-refl (suc (suc (suc (suc zero)))) = refl
+ΩKn+1→Kn-refl (suc (suc (suc (suc (suc n))))) = refl
 
 -0ₖ : {n : ℕ} → -[ n ]ₖ (0ₖ n) ≡ (0ₖ n)
 -0ₖ {n = n} = (λ i → ΩKn+1→Kn n (sym (Kn→ΩKn+10ₖ n i)))
@@ -193,7 +195,9 @@ cancelₖ : (n : ℕ) (x : coHomK n) → x -[ n ]ₖ x ≡ (0ₖ n)
 cancelₖ zero x = cong (ΩKn+1→Kn 0) (rCancel (Kn→ΩKn+1 zero x))
 cancelₖ (suc zero) x = cong (ΩKn+1→Kn 1) (rCancel (Kn→ΩKn+1 1 x))
 cancelₖ (suc (suc zero)) x = cong (ΩKn+1→Kn 2) (rCancel (Kn→ΩKn+1 2 x))
-cancelₖ (suc (suc (suc n))) x = cong (ΩKn+1→Kn (3 + n)) (rCancel (Kn→ΩKn+1 (3 + n) x))
+cancelₖ (suc (suc (suc zero))) x = cong (ΩKn+1→Kn 3) (rCancel (Kn→ΩKn+1 3 x))
+cancelₖ (suc (suc (suc (suc zero)))) x = cong (ΩKn+1→Kn 4) (rCancel (Kn→ΩKn+1 4 x))
+cancelₖ (suc (suc (suc (suc (suc n))))) x = cong (ΩKn+1→Kn (5 + n)) (rCancel (Kn→ΩKn+1 (5 + n) x))
 
 -rUnitₖ : (n : ℕ) (x : coHomK n) → x -[ n ]ₖ 0ₖ n ≡ x
 -rUnitₖ zero x = rUnitₖ zero x
@@ -236,7 +240,9 @@ abstract
 commₖ : (n : ℕ) (x y : coHomK n) → (x +[ n ]ₖ y) ≡ (y +[ n ]ₖ x)
 commₖ zero x y = cong (ΩKn+1→Kn 0) (isCommΩK1 0 (Kn→ΩKn+1 0 x) (Kn→ΩKn+1 0 y))
 commₖ (suc zero) x y = cong (ΩKn+1→Kn 1) (ptdIso→comm {A = (_ , _)} (invIso (Iso-Kn-ΩKn+1 2)) (Eckmann-Hilton 0) (Kn→ΩKn+1 1 x) (Kn→ΩKn+1 1 y))
-commₖ (suc (suc n)) x y = cong (ΩKn+1→Kn (2 + n)) (ptdIso→comm {A = (_ , _)} (invIso (Iso-Kn-ΩKn+1 (3 + n))) (Eckmann-Hilton 0) (Kn→ΩKn+1 (2 + n) x) (Kn→ΩKn+1 (2 + n) y))
+commₖ (suc (suc zero)) x y = cong (ΩKn+1→Kn 2) (ptdIso→comm {A = (_ , _)} (invIso (Iso-Kn-ΩKn+1 3)) (Eckmann-Hilton 0) (Kn→ΩKn+1 2 x) (Kn→ΩKn+1 2 y))
+commₖ (suc (suc (suc zero))) x y = cong (ΩKn+1→Kn 3) (ptdIso→comm {A = (_ , _)} (invIso (Iso-Kn-ΩKn+1 4)) (Eckmann-Hilton 0) (Kn→ΩKn+1 3 x) (Kn→ΩKn+1 3 y))
+commₖ (suc (suc (suc (suc n)))) x y = cong (ΩKn+1→Kn (4 + n)) (ptdIso→comm {A = (_ , _)} (invIso (Iso-Kn-ΩKn+1 (5 + n))) (Eckmann-Hilton 0) (Kn→ΩKn+1 (4 + n) x) (Kn→ΩKn+1 (4 + n) y))
 
 
 rUnitₖ' : (n : ℕ) (x : coHomK n) → x +[ n ]ₖ (0ₖ n) ≡ x

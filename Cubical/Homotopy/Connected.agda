@@ -304,20 +304,54 @@ inrConnected {A = A} {B = B} {C = C} n f g iscon =
                     (equiv-proof (elim.isEquivPrecompose f n Q iscon)
                                  fun .fst .snd i a))
 
+open import Cubical.HITs.S3
 sphereConnected : (n : HLevel) → isConnected (suc n) (S₊ n)
 sphereConnected zero = ∣ true ∣ , isOfHLevelTrunc 1 _ -- ∣ north ∣ , isOfHLevelTrunc 1 ∣ north ∣
 sphereConnected (suc zero) = ∣ base ∣ , Trunc.elim (λ _ _ _ → isOfHLevelPath 1 (isOfHLevelTrunc 2 _ _) _ _)
                                                   (toPropElim (λ s → isOfHLevelTrunc 2 _ _) refl)
-sphereConnected (suc (suc n)) = 
+sphereConnected (suc (suc zero)) = ∣ north ∣ , Trunc.elim (λ _ _ _ → isOfHLevelPath 2 (isOfHLevelTrunc 3 _ _) _ _)
+                                                         λ a → Trunc.rec (isOfHLevelTrunc 3 _ _)
+                                                                (λ p i → ∣ p i ∣)
+                                                                (is2GroupoidS2 a)
+  where
+  is2GroupoidS2 : (x : S₊ 2) → hLevelTrunc 2 (north ≡ x)  
+  is2GroupoidS2 north = ∣ refl ∣
+  is2GroupoidS2 south = ∣ merid base ∣
+  is2GroupoidS2 (merid base i) = ∣ (λ k → merid base (i ∧ k)) ∣
+  is2GroupoidS2 (merid (loop j) i) =
+    isOfHLevel→isOfHLevelDep 2
+      {B = λ x → hLevelTrunc 2 (north ≡ x)}
+      (λ x → isOfHLevelTrunc 2)
+      ∣ refl ∣ ∣ merid base ∣
+      (λ i → ∣ (λ k → merid base (i ∧ k)) ∣) ((λ i → ∣ (λ k → merid base (i ∧ k)) ∣))
+      (cong merid loop) j i
+sphereConnected (suc (suc (suc zero))) =
+  isConnectedRetract 4
+                     (Iso.inv IsoS³S3)
+                     (Iso.fun IsoS³S3)
+                     (Iso.rightInv IsoS³S3)
+                     conS³
+    where
+    conS³ : isConnected 4 S³
+    conS³ = ∣ base ∣ , (Trunc.elim
+                       (λ _ → isOfHLevelPath 4 (isOfHLevelTrunc 4) _ _)
+                       (λ {base → refl
+                        ; (surf i j k)
+                       → isOfHLevel→isOfHLevelDep 3
+                            {A = S³} {B = λ x → Path (hLevelTrunc 4 S³) ∣ base ∣  ∣ x ∣}
+                            (λ _ → isOfHLevelTrunc 4 _ _)
+                            refl refl refl refl refl refl
+                            surf i j k}))
+sphereConnected (suc (suc (suc (suc n)))) =
   isContrRetract
     (map Susp→PushoutSusp)
     (map PushoutSusp→Susp)
-    (Trunc.elim (λ _ → isOfHLevelPath (3 + n) (isOfHLevelTrunc (3 + n)) _ _)
+    (Trunc.elim (λ _ → isOfHLevelPath (5 + n) (isOfHLevelTrunc (5 + n)) _ _)
                  λ p → cong ∣_∣ (Susp→PushoutSusp→Susp p))
-    (isConnectedPoint2 (2 + n) {A = Pushout {A = S₊ (suc n)} (λ _ → tt) λ _ → tt}
+    (isConnectedPoint2 (4 + n) {A = Pushout {A = S₊ (3 + n)} (λ _ → tt) λ _ → tt}
        (inr tt)
-       (inrConnected (2 + n) (λ _ → tt) (λ _ → tt)
+       (inrConnected (4 + n) (λ _ → tt) (λ _ → tt)
           (λ _ → isContrRetract (map fst) (map (λ a → a , refl))
-                     (Trunc.elim (λ x → isOfHLevelPath (2 + n) (isOfHLevelTrunc (2 + n)) _ _)
+                     (Trunc.elim (λ x → isOfHLevelPath (4 + n) (isOfHLevelTrunc (4 + n)) _ _)
                                  (λ a i → ∣ fst a , isSetUnit _ _ (snd a) refl i ∣))
-                     (sphereConnected (suc n)))))
+                     (sphereConnected (suc (suc (suc n)))))))
