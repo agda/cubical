@@ -231,5 +231,17 @@ private
   from₀ : Int → coHom 0 (S₊ 1 × S₊ 1)
   from₀ = inv H⁰-T²≅ℤ
 
-test : to₂ (from₂ 0) ≡ 0
-test = {!refl!}
+
+{-
+-- Compute fast:
+test : to₁ (from₁ (0 , 1) +ₕ from₁ (1 , 0)) ≡ (1 , 1)
+test = refl
+
+test2 : to₁ (from₁ (5 , 1) +ₕ from₁ (-2 , 3)) ≡ (3 , 4)
+test2 = refl
+
+-- Will not compute:
+test3 : to₁ (from₁ 0) ≡ 0
+test3 = refl
+
+-}
