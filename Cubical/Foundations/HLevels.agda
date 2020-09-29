@@ -464,3 +464,15 @@ isPropDep→isSetDep' {B = B} Bprp {p} {q} {r} {s} {tw} sq tp tq tr ts i j
         (j = i0) → Bprp tw (tr i) (λ k → r (k ∧ i)) k
         (j = i1) → Bprp tw (ts i) (λ k → sq (k ∧ i) (j ∧ k)) k)
       tw
+
+isOfHLevelΣ' : ∀ n → isOfHLevel n A → isOfHLevelDep n B → isOfHLevel n (Σ A B)
+isOfHLevelΣ' 0 Actr Bctr .fst = (Actr .fst , Bctr .fst)
+isOfHLevelΣ' 0 Actr Bctr .snd (x , y) i
+  = Actr .snd x i , Bctr .snd y (Actr .snd x) i
+isOfHLevelΣ' 1 Alvl Blvl (w , y) (x , z) i .fst = Alvl w x i
+isOfHLevelΣ' 1 Alvl Blvl (w , y) (x , z) i .snd = Blvl y z (Alvl w x) i
+isOfHLevelΣ' {A = A} {B = B} (suc (suc n)) Alvl Blvl (w , y) (x , z)
+  = transport (λ i → isOfHLevel (suc n) (ΣP≡PΣ i))
+      (isOfHLevelΣ' (suc n) (Alvl w x) (Blvl y z))
+  where
+  ΣP≡PΣ = ΣPath≡PathΣ {A = λ _ → A} {B = λ _ → B} {x = (w , y)} {y = (x , z)}
