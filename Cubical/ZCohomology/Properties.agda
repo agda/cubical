@@ -157,7 +157,7 @@ Kn→ΩKn+10ₖ (suc (suc n)) i j = ∣ (rCancel (merid north) i j) ∣
 lUnitₖ : (n : ℕ) (x : coHomK n) → (0ₖ n) +[ n ]ₖ x ≡ x
 lUnitₖ 0 x = Iso.leftInv (Iso-Kn-ΩKn+1 zero) x
 lUnitₖ (suc zero) = trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) λ x → Iso.leftInv (Iso-Kn-ΩKn+1 1) ∣ x ∣
-lUnitₖ (suc (suc n)) x = 
+lUnitₖ (suc (suc n)) x =
   (λ i → ΩKn+1→Kn (2 + n) (Kn→ΩKn+10ₖ (2 + n) i ∙ Kn→ΩKn+1 (2 + n) x)) ∙∙
                        (cong (ΩKn+1→Kn (2 + n)) (sym (lUnit (Kn→ΩKn+1 (2 + n) x)))) ∙∙
                        Iso.leftInv (Iso-Kn-ΩKn+1 (2 + n)) x
@@ -256,11 +256,11 @@ rUnitₖ' n x = commₖ n x (0ₖ n) ∙ lUnitₖ n x
                       commₖ n (-[ n ]ₖ y) (-[ n ]ₖ x)
 
 private
-  rCancelLem : (n : ℕ) (x : coHomK n) → ΩKn+1→Kn n ((Kn→ΩKn+1 n x) ∙ refl) ≡ ΩKn+1→Kn n (Kn→ΩKn+1 n x) 
+  rCancelLem : (n : ℕ) (x : coHomK n) → ΩKn+1→Kn n ((Kn→ΩKn+1 n x) ∙ refl) ≡ ΩKn+1→Kn n (Kn→ΩKn+1 n x)
   rCancelLem zero x = refl
   rCancelLem (suc n) x = cong (ΩKn+1→Kn (suc n)) (sym (rUnit (Kn→ΩKn+1 (suc n) x)))
 
-  lCancelLem : (n : ℕ) (x : coHomK n) → ΩKn+1→Kn n (refl ∙ (Kn→ΩKn+1 n x)) ≡ ΩKn+1→Kn n (Kn→ΩKn+1 n x) 
+  lCancelLem : (n : ℕ) (x : coHomK n) → ΩKn+1→Kn n (refl ∙ (Kn→ΩKn+1 n x)) ≡ ΩKn+1→Kn n (Kn→ΩKn+1 n x)
   lCancelLem zero x = refl
   lCancelLem (suc n) x = cong (ΩKn+1→Kn (suc n)) (sym (lUnit (Kn→ΩKn+1 (suc n) x)))
 
@@ -411,7 +411,7 @@ isCommΩK-based (suc zero) x =
   subst isComm∙ (λ i → coHomK 1 , lUnitₖ 1 x i)
                 (ptdIso→comm {A = (_ , 0ₖ 1)} (addIso 1 x)
                               (isCommΩK 1))
-isCommΩK-based (suc (suc n)) x = 
+isCommΩK-based (suc (suc n)) x =
   subst isComm∙ (λ i → coHomK (suc (suc n)) , lUnitₖ (suc (suc n)) x i)
                 (ptdIso→comm {A = (_ , 0ₖ (suc (suc n)))} (addIso (suc (suc n)) x)
                               (isCommΩK (suc (suc n))))
@@ -423,12 +423,12 @@ addLemma a b = (cong (ΩKn+1→Kn 0) (sym (congFunct ∣_∣ (intLoop a) (intLoo
 
 ---
 -- hidden versions of cohom stuff using the "lock" hack. The locked versions can be used when proving things.
--- Swapping "key" for "tt*" will then give computing functions. 
+-- Swapping "key" for "tt*" will then give computing functions.
 
 Unit' : Type₀
 Unit' = Unit* {ℓ-zero}
 
-lock : ∀ {ℓ} {A : Type ℓ} → Unit' → A → A 
+lock : ∀ {ℓ} {A : Type ℓ} → Unit' → A → A
 lock tt* = λ x → x
 
 unlock : ∀ {ℓ} {A : Type ℓ} {x y : A} (t : Unit') → x ≡ y → lock t x ≡ y
@@ -500,7 +500,7 @@ module lockedCohom (key : Unit') where
     pm tt* = assocₖ n x y z
 
   commK : (n : ℕ) (x y : coHomK n) → +K n x y ≡ +K n y x
-  commK n x y = pm key 
+  commK n x y = pm key
     where
     pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) x y ≡ lock t (_+ₖ_ {n = n}) y x
     pm tt* = commₖ n x y

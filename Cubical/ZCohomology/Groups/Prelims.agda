@@ -107,7 +107,7 @@ module _ (key : Unit') where
   infixr 55 _+K_
   infixr 55 -K_
   infixr 56 _-K_
- 
+
   {- Proof that S¹→K2 is isomorphic to K2×K1 (as types). Needed for H²(T²)  -}
   S1→K2≡K2×K1' : Iso (S₊ 1 → coHomK 2) (coHomK 2 × coHomK 1)
   Iso.fun S1→K2≡K2×K1' f = f base , ΩKn+1→Kn 1 (sym (P.cancelK 2 (f base))
@@ -158,7 +158,7 @@ module _ (key : Unit') where
                                   ; (i = i1) → cong a loop j
                                   ; (j = i0) → P.rUnitK 2 (a base) i
                                   ; (j = i1) → P.rUnitK 2 (a base) i})
-                         (loopcase2 i j)   
+                         (loopcase2 i j)
 
        where
 
@@ -174,7 +174,7 @@ module _ (key : Unit') where
        pathPHelper i j = pathHelper (a base) (a (loop j)) i
 
        abstract
-         helperFun2 : {A : Type₀} {0A a b : A} (main : 0A ≡ 0A) (start : b ≡ b) (p : a ≡ a) (q : a ≡ b) (r : b ≡ 0A) (Q : a ≡ 0A) 
+         helperFun2 : {A : Type₀} {0A a b : A} (main : 0A ≡ 0A) (start : b ≡ b) (p : a ≡ a) (q : a ≡ b) (r : b ≡ 0A) (Q : a ≡ 0A)
                       (R : PathP (λ i → Q i ≡ Q i) p main)
                       → start ≡ sym q ∙ p ∙ q
                       → isComm∙ (A , 0A)
@@ -191,7 +191,7 @@ module _ (key : Unit') where
              ((sym r ∙ sym q) ∙ Q) ∙ sym ((sym r ∙ sym q) ∙ Q) ∙ main ≡⟨ assoc ((sym r ∙ sym q) ∙ Q) (sym ((sym r ∙ sym q) ∙ Q)) main  ⟩
              (((sym r ∙ sym q) ∙ Q) ∙ sym ((sym r ∙ sym q) ∙ Q)) ∙ main ≡[ i ]⟨ rCancel (((sym r ∙ sym q) ∙ Q)) i ∙ main ⟩
              refl ∙ main ≡⟨ sym (lUnit main) ⟩
-             main ∎ 
+             main ∎
 
 
        helper : cong (a base +K_)

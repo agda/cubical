@@ -249,7 +249,7 @@ isOfHLevelRetract (suc (suc (suc (suc (suc n))))) f g h ofLevel x y p q P Q R S 
                                      ; (l = i0) → h x r
                                      ; (l = i1) → h y r})
                             (g (s i j k l)))
-                    (λ s i j k l m → 
+                    (λ s i j k l m →
                     hcomp (λ n → λ { (i = i1) → s j k l m
                                    ; (j = i0) → h (R k l m) (i ∨ n)
                                    ; (j = i1) → h (S k l m) (i ∨ n)

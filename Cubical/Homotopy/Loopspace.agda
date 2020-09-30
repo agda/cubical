@@ -47,5 +47,3 @@ Eckmann-Hilton-π : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p q : ∥ typ ((Ω^ (
                → π-comp (1 + n) p q ≡ π-comp (1 + n) q p
 Eckmann-Hilton-π  n = elim2 (λ x y → isOfHLevelPath 2 setTruncIsSet _ _)
                              λ p q → cong ∣_∣₂ (Eckmann-Hilton n p q)
-
-

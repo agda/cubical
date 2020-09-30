@@ -61,7 +61,7 @@ private
   Iso.inv (typeToFiberIso A) = fst
   Iso.rightInv (typeToFiberIso A) b i = fst b , (isOfHLevelSuc 1 (isPropUnit) tt tt (snd b) refl) i
   Iso.leftInv (typeToFiberIso A) a = refl
-  
+
   typeToFiber : ∀ {ℓ} (A : Type ℓ) → A ≡ fiber (λ (x : A) → tt) tt
   typeToFiber A = isoToPath (typeToFiberIso A)
 
@@ -73,7 +73,7 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) wher
         → ((a : A) → P (f a) .fst)
         → (b : B)
         → hLevelTrunc (suc n) (fiber f b) → P b .fst
-    inv n P t b = 
+    inv n P t b =
       Trunc.rec
         (P b .snd)
         (λ {(a , p) → subst (fst ∘ P) p (t a)})
@@ -203,7 +203,7 @@ isConnectedRetract (suc n) f g h =
 isConnectedPoint : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isConnected (suc n) A
   → (a : A) → isConnectedFun n (λ(_ : Unit) → a)
-isConnectedPoint n connA a₀ a = 
+isConnectedPoint n connA a₀ a =
   isConnectedRetract n
     snd (_ ,_) (λ _ → refl)
     (isConnectedPath n connA a₀ a)
@@ -314,7 +314,7 @@ sphereConnected (suc (suc zero)) = ∣ north ∣ , Trunc.elim (λ _ _ _ → isOf
                                                                 (λ p i → ∣ p i ∣)
                                                                 (is2GroupoidS2 a)
   where
-  is2GroupoidS2 : (x : S₊ 2) → hLevelTrunc 2 (north ≡ x)  
+  is2GroupoidS2 : (x : S₊ 2) → hLevelTrunc 2 (north ≡ x)
   is2GroupoidS2 north = ∣ refl ∣
   is2GroupoidS2 south = ∣ merid base ∣
   is2GroupoidS2 (merid base i) = ∣ (λ k → merid base (i ∧ k)) ∣
