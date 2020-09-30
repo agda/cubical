@@ -288,6 +288,29 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
 
 
  -- check group-laws for addition
+ +ₗ-assoc : (x y z : Rₛ) → x +ₗ (y +ₗ z) ≡ (x +ₗ y) +ₗ z
+ +ₗ-assoc = SQ.elimProp3 (λ _ _ _ → squash/ _ _) +ₗ-assoc[]
+  where
+  +ₗ-assoc[] : (a b c : R × S) → [ a ] +ₗ ([ b ] +ₗ [ c ]) ≡ ([ a ] +ₗ [ b ]) +ₗ [ c ]
+  +ₗ-assoc[] (r , s , s∈S) (r' , s' , s'∈S) (r'' , s'' , s''∈S) =
+             cong [_] (ΣPathP (path , Σ≡Prop (λ x → ∈-isProp S' x) (·-assoc _ _ _)))
+   where
+   path : r · (s' · s'') + (r' · s'' + r'' · s') · s
+        ≡ (r · s' + r' · s) · s'' + r'' · (s · s')
+   path = r · (s' · s'') + (r' · s'' + r'' · s') · s
+        ≡⟨ (λ i → ·-assoc r s' s'' i + ·-ldist-+ (r' · s'') (r'' · s') s i) ⟩
+          r · s' · s'' + (r' · s'' · s + r'' · s' · s)
+        ≡⟨ +-assoc _ _ _ ⟩
+          r · s' · s'' + r' · s'' · s + r'' · s' · s
+        ≡⟨ (λ i → r · s' · s'' + ·-assoc r' s'' s (~ i) + ·-assoc r'' s' s (~ i)) ⟩
+          r · s' · s'' + r' · (s'' · s) + r'' · (s' · s)
+        ≡⟨ (λ i → r · s' · s'' + r' · (·-comm s'' s i) + r'' · (·-comm s' s i)) ⟩
+          r · s' · s'' + r' · (s · s'') + r'' · (s · s')
+        ≡⟨ (λ i → r · s' · s'' + ·-assoc r' s  s'' i + r'' · (s · s')) ⟩
+          r · s' · s'' + r' · s · s'' + r'' · (s · s')
+        ≡⟨ (λ i → ·-ldist-+ (r · s') (r' · s) s'' (~ i) + r'' · (s · s')) ⟩
+          (r · s' + r' · s) · s'' + r'' · (s · s') ∎
+
  0ₗ : Rₛ
  0ₗ = [ 0r , 1r , SsubMonoid .containsOne ]
 
@@ -337,6 +360,12 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
           1r · 0r · (s · s)             ∎
 
 
+ +ₗ-comm : (x y : Rₛ) → x +ₗ y ≡ y +ₗ x
+ +ₗ-comm = SQ.elimProp2 (λ _ _ → squash/ _ _) +ₗ-comm[]
+  where
+  +ₗ-comm[] : (a b : R × S) → ([ a ] +ₗ [ b ]) ≡ ([ b ] +ₗ [ a ])
+  +ₗ-comm[] (r , s , s∈S) (r' , s' , s'∈S) =
+            cong [_] (ΣPathP ((+-comm _ _) , Σ≡Prop (λ x → ∈-isProp S' x) (·-comm _ _)))
 
  -- defining addition for truncated version is much more tedious:
  -- _+ₗ_ : S⁻¹R/ → S⁻¹R/ → S⁻¹R/
@@ -459,7 +488,30 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
  ·ₗ-rdist-+ₗ = SQ.elimProp3 (λ _ _ _ → squash/ _ _) ·ₗ-rdist-+ₗ[]
    where
    ·ₗ-rdist-+ₗ[] : (a b c : R × S) → [ a ] ·ₗ ([ b ] +ₗ [ c ]) ≡ ([ a ] ·ₗ [ b ]) +ₗ ([ a ] ·ₗ [ c ])
-   ·ₗ-rdist-+ₗ[] (r , s , s∈S) (r' , s' , s'∈S) (r'' , s'' , s''∈S) = {!!}
+   ·ₗ-rdist-+ₗ[] (r , s , s∈S) (r' , s' , s'∈S) (r'' , s'' , s''∈S) =
+      eq/ _ _ ((1r , (SsubMonoid .containsOne)) , path)
+      where
+      path : 1r · (r · (r' · s'' + r'' · s')) · (s · s' · (s · s''))
+           ≡ 1r · (r · r' · (s · s'') + r · r'' · (s · s')) · (s · (s' · s''))
+      path = 1r · (r · (r' · s'' + r'' · s')) · (s · s' · (s · s''))
+           ≡⟨ (λ i → ·-lid (r · (r' · s'' + r'' · s')) i · (s · s' · (s · s''))) ⟩
+             r · (r' · s'' + r'' · s') · (s · s' · (s · s''))
+           ≡⟨ (λ i → ·-rdist-+ r (r' · s'') (r'' · s') i · (s · s' · (s · s''))) ⟩
+             (r · (r' · s'') + r · (r'' · s')) · (s · s' · (s · s''))
+           ≡⟨ (λ i → (·-assoc r r' s'' i + ·-assoc r r'' s' i) · (s · s' · (s · s''))) ⟩
+             (r · r' · s'' + r · r'' · s') · (s · s' · (s · s''))
+           ≡⟨ (λ i → (r · r' · s'' + r · r'' · s') · (·-assoc s s' (s · s'') (~ i))) ⟩
+             (r · r' · s'' + r · r'' · s') · (s · (s' · (s · s'')))
+           ≡⟨ (λ i → ·-assoc (r · r' · s'' + r · r'' · s') s (s' · (s · s'')) i) ⟩
+             (r · r' · s'' + r · r'' · s') · s · (s' · (s · s''))
+           ≡⟨ (λ i → ·-ldist-+ (r · r' · s'') (r · r'' · s') s i · (·-assoc s' s s'' i)) ⟩
+             (r · r' · s'' · s + r · r'' · s' · s) · (s' · s · s'')
+           ≡⟨ (λ i → (·-assoc (r · r') s'' s (~ i) + ·-assoc (r · r'') s' s (~ i)) · ((·-comm s' s i) · s'')) ⟩
+             (r · r' · (s'' · s) + r · r'' · (s' · s)) · (s · s' · s'')
+           ≡⟨ (λ i → (r · r' · (·-comm s'' s i) + r · r'' · (·-comm s' s i)) · (·-assoc s s' s'' (~ i))) ⟩
+             (r · r' · (s · s'') + r · r'' · (s · s')) · (s · (s' · s''))
+           ≡⟨ (λ i → ·-lid (r · r' · (s · s'') + r · r'' · (s · s')) (~ i) · (s · (s' · s''))) ⟩
+             1r · (r · r' · (s · s'') + r · r'' · (s · s')) · (s · (s' · s'')) ∎
 
 
  ·ₗ-comm : (x y : Rₛ) → x ·ₗ y ≡ y ·ₗ x
@@ -468,3 +520,10 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
    ·ₗ-comm[] : (a b : R × S) → [ a ] ·ₗ [ b ] ≡ [ b ] ·ₗ [ a ]
    ·ₗ-comm[] (r , s , s∈S) (r' , s' , s'∈S) =
              cong [_] (ΣPathP ((·-comm _ _) , Σ≡Prop (λ x → ∈-isProp S' x) (·-comm _ _)))
+
+
+
+ -- Commutative ring structure on Rₛ
+ RₛCommRing : CommRing
+ RₛCommRing = makeCommRing 0ₗ 1ₗ _+ₗ_ _·ₗ_ -ₗ_ squash/ +ₗ-assoc +ₗ-rid +ₗ-rinv +ₗ-comm
+                                                       ·ₗ-assoc ·ₗ-rid ·ₗ-rdist-+ₗ ·ₗ-comm
