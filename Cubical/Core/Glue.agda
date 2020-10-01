@@ -91,7 +91,7 @@ private
     trans-e :
       ∀ (t : PartialP φ T)
       → Partial φ A
-    trans-e t ϕ1 = e ϕ1 .fst (t ϕ1)
+    trans-e t ϕ1 = equivFun (e ϕ1) (t ϕ1)
 
     -- glue gives a partial element of Glue given an element of A. Note that it "undoes"
     -- the application of the equivalences!
@@ -126,8 +126,14 @@ private
     e0 = e i0 1=1
     e1 : T1 ≃ A1
     e1 = e i1 1=1
+    transportA : A0 → A1
+    transportA = transp (λ i → A i) i0
 
-    -- equivFun and invEq are not in scope, otherwise we could write
-    -- transp-S : (t0 : T0) → T1 [ i1 ↦ (λ _ →  invEq e1 (transp (λ i → A i) i0 (equivFun e0 t0))) ]
-    transp-S : (t0 : T0) → T1 [ i1 ↦ (λ _ →  e1 .snd .equiv-proof (transp (λ i → A i) i0 (e0 .fst t0)) .fst .fst) ]
+    -- copied over from Foundations/Equiv for readability
+    invEq : ∀ {X : Type ℓ'} {ℓ''} {Y : Type ℓ''} (w : X ≃ Y) → Y → X
+    invEq w y = w .snd .equiv-proof y .fst .fst
+
+    -- transport in Glue reduces to transport in A + the application of the equivalences in forward and backward
+    -- direction.
+    transp-S : (t0 : T0) → T1 [ i1 ↦ (λ _ → invEq e1 (transportA (equivFun e0 t0))) ]
     transp-S t0 = inS (transp (λ i → Glue (A i) (Te i)) i0 t0)
