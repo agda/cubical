@@ -26,9 +26,9 @@ open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
 open import Cubical.HITs.SmashProduct.Base
-open import Cubical.Structures.Group
-open import Cubical.Structures.Semigroup
-open import Cubical.Structures.Monoid
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Semigroup
+open import Cubical.Algebra.Monoid
 open import Cubical.Foundations.Equiv.HalfAdjoint
 
 

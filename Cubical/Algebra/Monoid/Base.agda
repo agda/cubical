@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Structures.Monoid where
+module Cubical.Algebra.Monoid.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -15,7 +15,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
-open import Cubical.Structures.Semigroup hiding (⟨_⟩)
+open import Cubical.Algebra.Semigroup hiding (⟨_⟩)
 
 open Iso
 

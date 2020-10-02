@@ -20,7 +20,7 @@ open import Cubical.HITs.Nullification
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod hiding (_×_)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
-open import Cubical.Structures.Group
+open import Cubical.Algebra.Group
 
 module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : C → A) (g : C → B) where
   -- Proof from Brunerie 2016.
@@ -140,15 +140,6 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
                                        (Iso.fun (PathIdTrunc₀Iso) (cong fst p))
                                        (Iso.fun (PathIdTrunc₀Iso) (cong snd p))
       where
-      pushFiller : (n : ℕ) (F : (Pushout f g) → hLevelTrunc (3 + n) (S₊ (suc n)))
-                (p1 : Path (_ → hLevelTrunc (3 + n) (S₊ (suc n))) (λ a₁ → F (inl a₁)) (λ _ → ∣ north ∣))
-                (p2 : Path (_ → hLevelTrunc (3 + n) (S₊ (suc n))) (λ a₁ → F (inr a₁)) (λ _ → ∣ north ∣)) →
-                (c : C) → I → I → hLevelTrunc (3 + n) (S₊ (suc n))
-      pushFiller n F p1 p2 c i j =
-        hcomp (λ k → λ { (i = i1) → F (push c j)
-                        ; (j = i0) → p1 (~ i ∧ k) (f c)
-                        ; (j = i1) → p2 (~ i ∧ k) (g c)})
-              (F (push c j))
       helper : (n : ℕ) (F : (Pushout f g) → hLevelTrunc (3 + n) (S₊ (suc n)))
                (p1 : Path (_ → hLevelTrunc (3 + n) (S₊ (suc n))) (λ a₁ → F (inl a₁)) (λ _ → ∣ north ∣))
                (p2 : Path (_ → hLevelTrunc (3 + n) (S₊ (suc n))) (λ a₁ → F (inr a₁)) (λ _ → ∣ north ∣))
@@ -166,7 +157,7 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
                                                                        ∙∙ cong F (push a)
                                                                        ∙∙ cong (λ F₁ → F₁ (g a)) p2) (~ k) i
                         ; (j = i1) → F (push a i)})
-              (pushFiller zero F p1 p2 a j i)
+              (doubleCompPath-filler (sym (cong (λ F → F (f a)) p1)) (cong F (push a)) (cong (λ F → F (g a)) p2) (~ j) i)
       helper (suc n) F p1 p2 (push a i) j =
         hcomp (λ k → λ { (i = i0) → p1 (~ j) (f a)
                         ; (i = i1) → p2 (~ j) (g a)
@@ -174,7 +165,7 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
                                                                            ∙∙ cong F (push a)
                                                                            ∙∙ cong (λ F₁ → F₁ (g a)) p2) (~ k) i
                         ; (j = i1) → F (push a i)})
-              (pushFiller (suc n) F p1 p2 a j i)
+              (doubleCompPath-filler (sym (cong (λ F → F (f a)) p1)) (cong F (push a)) (cong (λ F → F (g a)) p2) (~ j) i)
 
   open GroupHom
 
