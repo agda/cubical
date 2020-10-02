@@ -42,3 +42,13 @@ module HornerOperations (R : RawRing {ℓ}) where
   evalH : RawHornerPolynomial R → ⟨ R ⟩ → ⟨ R ⟩
   evalH 0H x₀ = 0r
   evalH (P ·X+ r) x₀ = (evalH P x₀) · x₀ + r
+
+  asRawRing : RawRing {ℓ}
+  RawRing.Carrier asRawRing = RawHornerPolynomial R
+  RawRing.0r asRawRing = 0H
+  RawRing.1r asRawRing = 0H ·X+ 1r
+  RawRing._+_ asRawRing = _+H_
+  RawRing._·_ asRawRing = _·H_
+  RawRing.- asRawRing =  -H_
+
+-- IteratedHornerPolynomials : Type 
