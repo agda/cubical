@@ -13,7 +13,7 @@ open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat hiding (_+_ ; +-comm ; +-assoc)
+open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc)
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.Sigma.Properties
@@ -45,7 +45,7 @@ record isSubMonoid (R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) : Type ℓ where
    containsOne : (R' .CommRing.1r) ∈ S'
    multClosed : ∀ {s t} → s ∈ S' → t ∈ S' → (R' .CommRing._·_ s t) ∈ S'
 
-module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R' S') where
+module Loc (R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R' S') where
  open isSubMonoid
  open CommRing R' renaming (Carrier to R)
  open Theory (CommRing→Ring R')
@@ -527,3 +527,36 @@ module _(R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R'
  RₛCommRing : CommRing
  RₛCommRing = makeCommRing 0ₗ 1ₗ _+ₗ_ _·ₗ_ -ₗ_ squash/ +ₗ-assoc +ₗ-rid +ₗ-rinv +ₗ-comm
                                                        ·ₗ-assoc ·ₗ-rid ·ₗ-rdist-+ₗ ·ₗ-comm
+
+
+-- Test: (R[1/f])[1/g] ≡ R[1/fg]
+module invertEl (R' : CommRing {ℓ}) where
+ open isSubMonoid
+ open CommRing R' renaming (Carrier to R)
+ open Theory (CommRing→Ring R')
+
+
+ _^_ : R → ℕ → R
+ f ^ zero = 1r
+ f ^ suc n = f · (f ^ n)
+
+ ·-of-^-is-^-of-+ : (f : R) (m n : ℕ) → (f ^ m) · (f ^ n) ≡ f ^ (m +ℕ n)
+ ·-of-^-is-^-of-+ f zero n = ·-lid _
+ ·-of-^-is-^-of-+ f (suc m) n = sym (·-assoc _ _ _) ∙ cong (f ·_) (·-of-^-is-^-of-+ f m n)
+
+ [_ⁿ|n≥0] : R → ℙ R
+ [ f ⁿ|n≥0] g = (∃[ n ∈ ℕ ] g ≡ f ^ n) , propTruncIsProp
+
+ powersFormSubMonoid : (f : R) → isSubMonoid R' [ f ⁿ|n≥0]
+ powersFormSubMonoid f .containsOne = ∣ zero , refl ∣
+ powersFormSubMonoid f .multClosed =
+             PT.map2 λ (m , p) (n , q) → (m +ℕ n) , (λ i → (p i) · (q i)) ∙ ·-of-^-is-^-of-+ f m n
+
+
+ R[1/_] : R → Type ℓ
+ R[1/ f ] = Loc.Rₛ R' [ f ⁿ|n≥0] (powersFormSubMonoid f)
+
+
+ R[1/_]CommRing : R → CommRing {ℓ}
+ R[1/ f ]CommRing = Loc.RₛCommRing R' [ f ⁿ|n≥0] (powersFormSubMonoid f)
+
