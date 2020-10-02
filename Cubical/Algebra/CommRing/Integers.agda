@@ -3,9 +3,6 @@ module Cubical.Algebra.CommRing.Integers where
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Algebra.AbGroup hiding (⟨_⟩)
-open import Cubical.Algebra.Monoid hiding (⟨_⟩)
-open import Cubical.Algebra.Ring hiding (⟨_⟩)
 open import Cubical.Algebra.CommRing
 open import Cubical.HITs.Ints.BiInvInt
   renaming (
@@ -14,10 +11,6 @@ open import Cubical.HITs.Ints.BiInvInt
     +-assoc to +ℤ-assoc;
     +-comm to +ℤ-comm
   )
-
-open CommRing
-open IsCommRing
-open IsRing
 
 BiInvIntAsCommRing : CommRing {ℓ-zero}
 BiInvIntAsCommRing =
