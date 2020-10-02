@@ -41,24 +41,28 @@ infix 7 _∈ₛ_ _⊆_ _⊆ₛ_
 
 _∼_ : (s t : V ℓ) → hProp ℓ
 _∼_ = elim2 eliminator where
-  goalProp : (X : Type ℓ) (ix : X → V ℓ) (Y : Type ℓ) (iy : Y → V ℓ) (rec : X → Y → hProp ℓ) → hProp ℓ
+  goalProp : (X : Type ℓ) (ix : X → V ℓ)
+           → (Y : Type ℓ) (iy : Y → V ℓ)
+           → (rec : X → Y → hProp ℓ)
+           → hProp ℓ
   goalProp X ix Y iy rec = (∀[ a ∶ X ] ∃[ b ∶ Y ] rec a b) ⊓ (∀[ b ∶ Y ] ∃[ a ∶ X ] rec a b)
 
   ⇔-swap : X ⊓′ Y → Y ⊓′ X
   ⇔-swap (p , q) = (q , p)
 
   open PropMonad
-  lemma : {X₁ X₂ Y : Type ℓ} {ix₁ : X₁ → V ℓ} {ix₂ : X₂ → V ℓ} (iy : Y → V ℓ) {rec₁ : X₁ → Y → hProp ℓ} {rec₂ : X₂ → Y → hProp ℓ}
-        → (rec₁→₂ : (x₁ : X₁) → ∃[ x₂ ∈ X₂ ] Σ[ p ∈ (ix₂ x₂ ≡ ix₁ x₁) ] rec₂ x₂ ≡ rec₁ x₁)
-        → (rec₂→₁ : (x₂ : X₂) → ∃[ x₁ ∈ X₁ ] Σ[ p ∈ (ix₁ x₁ ≡ ix₂ x₂) ] rec₁ x₁ ≡ rec₂ x₂)
+  lemma : {X₁ X₂ Y : Type ℓ} {ix₁ : X₁ → V ℓ} {ix₂ : X₂ → V ℓ} (iy : Y → V ℓ)
+        → {rec₁ : X₁ → Y → hProp ℓ} {rec₂ : X₂ → Y → hProp ℓ}
+        → (rec₁→₂ : (x₁ : X₁) → ∃[ (x₂ , p) ∈ fiber ix₂ (ix₁ x₁) ] rec₂ x₂ ≡ rec₁ x₁)
+        → (rec₂→₁ : (x₂ : X₂) → ∃[ (x₁ , p) ∈ fiber ix₁ (ix₂ x₂) ] rec₁ x₁ ≡ rec₂ x₂)
         → [ goalProp X₁ ix₁ Y iy rec₁ ⇒ goalProp X₂ ix₂ Y iy rec₂ ]
   lemma _ rec₁→₂ rec₂→₁ (X₁→Y , Y→X₁) =
-    (λ x₂ → do (x₁ , _ , xr₁) ← rec₂→₁ x₂
+    (λ x₂ → do ((x₁ , c_) , xr₁) ← rec₂→₁ x₂
                (y , yr) ← X₁→Y x₁
                ∣ y , subst fst (λ i → xr₁ i y) yr ∣
     ) ,
     (λ y → do (x₁ , xr₁) ← Y→X₁ y
-              (x₂ , _ , xr₂) ← rec₁→₂ x₁
+              ((x₂ , _) , xr₂) ← rec₁→₂ x₁
               ∣ x₂ , subst fst (λ i → xr₂ (~ i) y) xr₁ ∣
     )
 
@@ -66,19 +70,24 @@ _∼_ = elim2 eliminator where
   eliminator : Elim2Set (λ _ _ → isSetHProp)
   ElimSett2 eliminator = goalProp
   ElimEqSnd eliminator X ix Y₁ Y₂ iy₁ iy₂ eq rec₁ rec₂ rec₁→₂ rec₂→₁ =
-    ⇔toPath (⇔-swap ∘ lemma ix rec₁→₂ rec₂→₁ ∘ ⇔-swap) (⇔-swap ∘ lemma ix rec₂→₁ rec₁→₂ ∘ ⇔-swap)
+    ⇔toPath (⇔-swap ∘ lemma ix rec₁→₂ rec₂→₁ ∘ ⇔-swap)
+            (⇔-swap ∘ lemma ix rec₂→₁ rec₁→₂ ∘ ⇔-swap)
   ElimEqFst eliminator X₁ X₂ ix₁ ix₂ eq Y iy rec₁ rec₂ rec₁→₂ rec₂→₁ =
-    ⇔toPath (lemma iy rec₁→₂ rec₂→₁) (lemma iy rec₂→₁ rec₁→₂)
+    ⇔toPath (lemma iy rec₁→₂ rec₂→₁)
+            (lemma iy rec₂→₁ rec₁→₂)
 
 _≊_ : (s t : V ℓ) → Type ℓ
 s ≊ t = [ s ∼ t ]
 
 ∼refl : (a : V ℓ) → a ≊ a
-∼refl = elimProp (λ a → isProp[] (a ∼ a)) (λ X ix rec → (λ x → ∣ x , rec x ∣) , (λ x → ∣ x , rec x ∣))
+∼refl = elimProp (λ a → isProp[] (a ∼ a))
+                 (λ X ix rec → (λ x → ∣ x , rec x ∣) , (λ x → ∣ x , rec x ∣))
 
 -- keep in mind that the left and right side here live in different universes
 identityPrinciple : (a ≊ b) ≃ (a ≡ b)
-identityPrinciple {a = a} {b = b} = isoToEquiv (iso from into (λ _ → setIsSet _ _ _ _) (λ _ → isProp[] (a ∼ b) _ _)) where
+identityPrinciple {a = a} {b = b} =
+  isoToEquiv (iso from into (λ _ → setIsSet _ _ _ _) (λ _ → isProp[] (a ∼ b) _ _))
+  where
   open PropMonad
 
   eqImageXY : {X Y : Type ℓ} {ix : X → V ℓ} {iy : Y → V ℓ} → (∀ x y → [ ix x ∼ iy y ] → ix x ≡ iy y)
@@ -87,11 +96,17 @@ identityPrinciple {a = a} {b = b} = isoToEquiv (iso from into (λ _ → setIsSet
                     , (λ y → do (x , x∼y) ← snd rel y ; ∣ x ,      rec _ _ x∼y  ∣)
 
   from : a ≊ b → a ≡ b
-  from = elimProp propB (λ X ix rec → elimProp prop∼ λ Y iy _ → seteq X Y ix iy ∘ eqImageXY (λ x y → rec x (iy y))) a b where
+  from = elimProp propB eliminator a b where
     prop∼ : {a : V ℓ} → ∀ b → isProp (a ≊ b → a ≡ b)
     prop∼ {a = a} b = isPropΠ λ _ → setIsSet a b
     propB : (a : V ℓ) → isProp (∀ b → a ≊ b → a ≡ b)
     propB a = isPropΠ prop∼
+    eliminator :
+      ∀ (X : Type _) (ix : X → V _)
+      → ((x : X) (b₁ : V _) → ix x ≊ b₁ → ix x ≡ b₁)
+      → (b₁ : V _) → sett X ix ≊ b₁ → sett X ix ≡ b₁
+    eliminator X ix rec =
+      elimProp prop∼ λ Y iy _ → seteq X Y ix iy ∘ eqImageXY (λ x y → rec x (iy y))
 
   into : a ≡ b → a ≊ b
   into = J (λ b _ → a ≊ b) (∼refl a)
@@ -112,7 +127,9 @@ MonicPresentation : (a : V ℓ) → Type (ℓ-suc ℓ)
 MonicPresentation {ℓ} a =  Σ[ X ∈ Type ℓ ] Σ[ ix ∈ (X → V ℓ) ] (isEmbedding ix) × (a ≡ sett X ix)
 
 isPropMonicPresentation : (a : V ℓ) → isProp (MonicPresentation a)
-isPropMonicPresentation a (X₁ , ix₁ , isEmb₁ , p) (X₂ , ix₂ , isEmb₂ , q) = λ i → (X₁≡X₂ i , ix₁≡ix₂ i , isEmbix i , a≡sett i) where
+isPropMonicPresentation a (X₁ , ix₁ , isEmb₁ , p) (X₂ , ix₂ , isEmb₂ , q) =
+  (λ i → (X₁≡X₂ i , ix₁≡ix₂ i , isEmbix i , a≡sett i))
+  where
   fib1 : (x₁ : X₁) → fiber ix₂ (ix₁ x₁)
   fib1 x₁ = Σx₂ where
     x₁∈X₂ : [ ix₁ x₁ ∈ sett X₂ ix₂ ]
@@ -173,15 +190,17 @@ sett-repr {ℓ} X ix = Rep , ixRep , isEmbIxRep , seteq X Rep ix ixRep eqImIxRep
   isEmbIxRep : isEmbedding ixRep
   isEmbIxRep = hasPropFibers→isEmbedding propFibers where
     propFibers : ∀ y → (a b : Σ[ p ∈ Rep ] (ixRep p ≡ y)) → a ≡ b
-    propFibers y (p₁ , m) (p₂ , n) = ΣPathP {B = λ _ p → ixRep p ≡ y} (base , isProp→PathP (λ _ → setIsSet _ _) _ _) where
+    propFibers y (p₁ , m) (p₂ , n) =
+      ΣPathP {B = λ _ p → ixRep p ≡ y} (goal , isProp→PathP (λ _ → setIsSet _ _) _ _)
+      where
       lemma : ∀ {p₁ p₂} → (p : ixRep Q.[ p₁ ] ≡ y) (q : ixRep Q.[ p₂ ] ≡ y) → Kernel p₁ p₂
       lemma m n = invEquiv identityPrinciple .fst (m ∙ sym n)
-      propP₁ : ∀ p₁ → isProp ((ixRep p₁ ≡ y) → p₁ ≡ p₂)
-      propP₁ p₁ = isPropΠ λ eq → squash/ p₁ p₂
-      propP₂ : ∀ {p₁} p₂ → isProp ((ixRep p₂ ≡ y) → Q.[ p₁ ] ≡ p₂)
-      propP₂ {p₁} p₂ = isPropΠ λ eq → squash/ Q.[ p₁ ] p₂
-      base : p₁ ≡ p₂
-      base = Q.elimProp propP₁ (λ p₁ m → Q.elimProp propP₂ (λ p₂ n → eq/ p₁ p₂ (lemma m n)) p₂ n) p₁ m
+      prop₁ : ∀ p₁ → isProp ((ixRep p₁ ≡ y) → p₁ ≡ p₂)
+      prop₁ p₁ = isPropΠ λ eq → squash/ p₁ p₂
+      prop₂ : ∀ {p₁} p₂ → isProp ((ixRep p₂ ≡ y) → Q.[ p₁ ] ≡ p₂)
+      prop₂ {p₁} p₂ = isPropΠ λ eq → squash/ Q.[ p₁ ] p₂
+      goal : p₁ ≡ p₂
+      goal = Q.elimProp prop₁ (λ p₁ m → Q.elimProp prop₂ (λ p₂ n → eq/ p₁ p₂ (lemma m n)) p₂ n) p₁ m
 
   eqImIxRep : eqImage ix ixRep
   eqImIxRep = (λ x → ∣ Q.[ x ] , refl ∣) , Q.elimProp (λ _ → P.squash) (λ b → ∣ b , refl ∣)
@@ -210,14 +229,22 @@ _∈ₛ_ : (a b : V ℓ) → hProp ℓ
 a ∈ₛ b = repFiber ⟪ b ⟫↪ a , isPropRepFiber b a
 
 ∈-asFiber : {a b : V ℓ} → [ a ∈ b ] → fiber ⟪ b ⟫↪ a
-∈-asFiber {a = a} {b = b} = subst (λ br → [ a ∈ br ] → fiber ⟪ b ⟫↪ a) (sym ⟪ b ⟫-represents) asRep where
+∈-asFiber {a = a} {b = b} =
+  subst (λ br → [ a ∈ br ] → fiber ⟪ b ⟫↪ a) (sym ⟪ b ⟫-represents) asRep
+  where
   asRep : [ a ∈ sett ⟪ b ⟫ ⟪ b ⟫↪ ] → fiber ⟪ b ⟫↪ a
   asRep = P.propTruncIdempotent≃ (isEmbedding→hasPropFibers isEmb⟪ b ⟫↪ a) .fst
 ∈-fromFiber : {a b : V ℓ} → fiber ⟪ b ⟫↪ a → [ a ∈ b ]
 ∈-fromFiber {a = a} {b = b} = subst (λ br → [ a ∈ br ]) (sym ⟪ b ⟫-represents) ∘ ∣_∣
 
 ∈∈ₛ : {a b : V ℓ} → [ a ∈ b ⇔ a ∈ₛ b ]
-∈∈ₛ {a = a} {b = b} = invEquiv (repFiber≃fiber ⟪ b ⟫↪ a) .fst ∘ ∈-asFiber {b = b} , ∈-fromFiber {b = b} ∘ repFiber≃fiber ⟪ b ⟫↪ a .fst
+∈∈ₛ {a = a} {b = b} = leftToRight , rightToLeft where
+  repEquiv : repFiber ⟪ b ⟫↪ a ≃ fiber ⟪ b ⟫↪ a
+  repEquiv = repFiber≃fiber ⟪ b ⟫↪ a
+  leftToRight : [ (a ∈ b) ⇒ a ∈ₛ b ]
+  leftToRight a∈b = invEq repEquiv (∈-asFiber {b = b} a∈b)
+  rightToLeft : [ a ∈ₛ b ⇒ (a ∈ b) ]
+  rightToLeft a∈ₛb = ∈-fromFiber {b = b} (equivFun repEquiv a∈ₛb)
 
 ix∈ₛ : {X : Type ℓ} {ix : X → V ℓ}
      → (x : X) → [ ix x ∈ₛ sett X ix ]
@@ -228,11 +255,13 @@ ix∈ₛ {X = X} {ix = ix} x = ∈∈ₛ {a = ix x} {b = sett X ix} .fst ∣ x ,
 
 -- also here, the left side is in level (ℓ-suc ℓ) while the right is in ℓ
 presentation : (a : V ℓ) → (Σ[ v ∈ V ℓ ] [ v ∈ₛ a ]) ≃ ⟪ a ⟫
-presentation a = isoToEquiv (iso into from (λ _ → refl) (λ s → Σ≡Prop (λ v → (v ∈ₛ a) .snd) (equivFun identityPrinciple (s .snd .snd)))) where
+presentation a = isoToEquiv (iso into from (λ _ → refl) retr) where
   into : Σ[ v ∈ V _ ] [ v ∈ₛ a ] → ⟪ a ⟫
   into = fst ∘ snd
   from : ⟪ a ⟫ → Σ[ v ∈ V _ ] [ v ∈ₛ a ]
   from ⟪a⟫ = ⟪ a ⟫↪ ⟪a⟫ , ∈ₛ⟪ a ⟫↪ ⟪a⟫
+  retr : retract into from
+  retr s = Σ≡Prop (λ v → (v ∈ₛ a) .snd) (equivFun identityPrinciple (s .snd .snd))
 
 -- subset relation, once in level (ℓ-suc ℓ) and once in ℓ
 _⊆_ : (a b : V ℓ) → hProp (ℓ-suc ℓ)
@@ -245,8 +274,9 @@ _⊆ₛ_ : (a b : V ℓ) → hProp ℓ
 a ⊆ₛ b = ∀[ x ] ⟪ a ⟫↪ x ∈ₛ b
 
 ⊆⇔⊆ₛ : (a b : V ℓ) → [ a ⊆ b ⇔ a ⊆ₛ b ]
-⊆⇔⊆ₛ a b = (λ s → invEq curryEquiv s ∘ invEq (presentation a))
-           , (λ s x xa → subst (λ x → [ x ∈ₛ b ]) (equivFun identityPrinciple (xa .snd)) (s (xa .fst)))
+⊆⇔⊆ₛ a b =
+    (λ s → invEq curryEquiv s ∘ invEq (presentation a))
+  , (λ s x xa → subst (λ x → [ x ∈ₛ b ]) (equivFun identityPrinciple (xa .snd)) (s (xa .fst)))
 
 -- the homotopy definition of equality as an hProp, we know this is equivalent to bisimulation
 infix 4 _≡ₕ_

@@ -52,14 +52,15 @@ record SetPackage ℓ ℓ' : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
     unpack : (x : X) → [ ∈-rep (ix x) ]
     repack : {y : V ℓ} → [ ∈-rep y ] → ∥ fiber ix y ∥
 
+  open PropMonad
   classification : [ ∀[ y ] (y ∈ₛ resSet ⇔ ∈-rep y) ]
   classification y = intoClassifier , fromClassifier where
     intoClassifier : [ y ∈ₛ resSet ] → [ ∈-rep y ]
-    intoClassifier (yi , yr) = P.rec (∈-rep y .snd) (λ { (x , ix) → subst (fst ∘ ∈-rep) ix (unpack x) }) y∈ where
-      y∈ : [ y ∈ resSet ]
-      y∈ = ∈∈ₛ {a = y} {b = resSet} .snd (yi , yr)
+    intoClassifier (yi , yr) = proof (∈-rep y) by do
+      (x , ix) ← ∈∈ₛ {b = resSet} .snd (yi , yr)
+      return (subst (fst ∘ ∈-rep) ix (unpack x))
     fromClassifier : [ ∈-rep y ] → [ y ∈ₛ resSet ]
-    fromClassifier yr = ∈∈ₛ {a = y} {b = resSet} .fst (repack {y = y} yr)
+    fromClassifier yr = ∈∈ₛ {b = resSet} .fst (repack {y = y} yr)
 
 ------------
 -- Specific constructions
@@ -115,12 +116,15 @@ module PairingSet (a b : V ℓ) where
   SetStructure.ix PairingStructure (lift false) = a
   SetStructure.ix PairingStructure (lift true) = b
 
+  open PropMonad
   PairingPackage : SetPackage _ (ℓ-suc ℓ)
   structure PairingPackage = PairingStructure
   ∈-rep PairingPackage d = (d ≡ₕ a) ⊔ (d ≡ₕ b)
   unpack PairingPackage (lift false) = L.inl refl
   unpack PairingPackage (lift true) = L.inr refl
-  repack PairingPackage {y = y} = P.rec squash λ { (_⊎_.inl ya) → ∣ lift false , sym ya ∣ ; (_⊎_.inr yb) → ∣ lift true , sym yb ∣ }
+  repack PairingPackage {y = y} = _>>= λ where
+    (_⊎_.inl ya) → ∣ lift false , sym ya ∣
+    (_⊎_.inr yb) → ∣ lift true , sym yb ∣
 
   PAIR : V ℓ
   PAIR = SetStructure.resSet PairingStructure
@@ -213,7 +217,9 @@ module SeparationSet (a : V ℓ) (ϕ : V ℓ → hProp ℓ) where
   structure SeparationPackage = SeparationStructure
   ∈-rep SeparationPackage y = (y ∈ₛ a) ⊓ ϕ y
   unpack SeparationPackage (⟪a⟫ , phi) = (∈ₛ⟪ a ⟫↪ ⟪a⟫) , phi
-  repack SeparationPackage ((⟪a⟫ , ya) , phi) = ∣ (⟪a⟫ , subst (fst ∘ ϕ) (sym (equivFun identityPrinciple ya)) phi) , equivFun identityPrinciple ya ∣
+  repack SeparationPackage ((⟪a⟫ , ya) , phi) =
+    ∣ (⟪a⟫ , subst (fst ∘ ϕ) (sym (equivFun identityPrinciple ya)) phi)
+      , equivFun identityPrinciple ya ∣
 
   SEPAREE : V ℓ
   SEPAREE = SetStructure.resSet SeparationStructure
