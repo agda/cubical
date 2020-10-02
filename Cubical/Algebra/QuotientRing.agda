@@ -7,9 +7,9 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Logic using (_∈_; _⊆_) -- \in, \sub=
 open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/ₛ_)
 open import Cubical.HITs.SetQuotients.Properties
-open import Cubical.Structures.Ring
-open import Cubical.Structures.Ideal
-open import Cubical.Structures.Kernel
+open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ideal
+open import Cubical.Algebra.Kernel
 
 private
   variable
