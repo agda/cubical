@@ -72,3 +72,45 @@ module _ where
               lhs = (ExprX ⊕ (K 2)) ⊗ (ExprX ⊕ ExprX)
               rhs = ((K 2) ⊗ ExprX ⊗ ExprX) ⊕ ((K 4) ⊗ ExprX)
              in SolveExplicit lhs rhs x refl
+
+  _ : (x : ℕ) → (x + 2) · (x + x) · (x · x + x + 1) ≡
+                2 · x · x · x · x + 6 · x · x · x + 6 · x · x + 4 · x
+  _ = λ x → let
+              lhs = (ExprX ⊕ (K 2)) ⊗ (ExprX ⊕ ExprX)
+                    ⊗ (ExprX ⊗ ExprX ⊕ ExprX ⊕ (K 1))
+              rhs = ((K 2) ⊗ ExprX ⊗ ExprX ⊗ ExprX ⊗ ExprX)
+                  ⊕ ((K 6) ⊗ ExprX ⊗ ExprX ⊗ ExprX)
+                  ⊕ ((K 6) ⊗ ExprX ⊗ ExprX)
+                  ⊕ ((K 4) ⊗ ExprX)
+             in SolveExplicit lhs rhs x refl
+
+  {-
+     This one could take some time to check if it did
+     but somehow it doesn't...
+  -}
+  _ : (x : ℕ) → (x + x) · (x + x) · (x + x)
+              · (x + x) · (x + x) · (x + x)
+              · (x + x) · (x + x) · (x + x)
+              · (x + x) · (x + x) · (x + x)
+              ≡ 4096 · x · x · x
+                     · x · x · x
+                     · x · x · x
+                     · x · x · x
+  _ = λ x → let
+              lhs = (ExprX ⊕ ExprX)
+                  ⊗ (ExprX ⊕ ExprX)
+                  ⊗ (ExprX ⊕ ExprX)
+                  ⊗ (ExprX ⊕ ExprX)
+                  ⊗ (ExprX ⊕ ExprX)
+                  ⊗ (ExprX ⊕ ExprX)
+                  ⊗ (ExprX ⊕ ExprX)
+                  ⊗ (ExprX ⊕ ExprX)
+                  ⊗ (ExprX ⊕ ExprX)
+                  ⊗ (ExprX ⊕ ExprX)
+                  ⊗ (ExprX ⊕ ExprX)
+                  ⊗ (ExprX ⊕ ExprX)
+              rhs = ((K 4096) ⊗ ExprX ⊗ ExprX ⊗ ExprX
+                              ⊗ ExprX ⊗ ExprX ⊗ ExprX
+                              ⊗ ExprX ⊗ ExprX ⊗ ExprX
+                              ⊗ ExprX ⊗ ExprX ⊗ ExprX)
+             in SolveExplicit lhs rhs x refl
