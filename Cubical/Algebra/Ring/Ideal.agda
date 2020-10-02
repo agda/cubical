@@ -1,12 +1,14 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Algebra.Ideal where
+module Cubical.Algebra.Ring.Ideal where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Logic using ([_]; _∈_)
 
-open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.Base
+open import Cubical.Algebra.Ring.Properties
+
 
 private
   variable

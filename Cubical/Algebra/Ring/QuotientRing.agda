@@ -1,15 +1,15 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Algebra.QuotientRing where
+module Cubical.Algebra.Ring.QuotientRing where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Logic using (_∈_; _⊆_) -- \in, \sub=
+
 open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/ₛ_)
 open import Cubical.HITs.SetQuotients.Properties
+
 open import Cubical.Algebra.Ring
-open import Cubical.Algebra.Ideal
-open import Cubical.Algebra.Kernel
 
 private
   variable
