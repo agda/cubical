@@ -44,6 +44,11 @@ module _ (ℓ ℓ' : Level) where
 
   -- type of Split epimorphisms
   SplitEpi = Σ[ ((G , H) , f , b) ∈ G²FB ℓ ℓ' ] isGroupSplitEpi f b
+  SplitEpi' = Σ[ G ∈ Group {ℓ} ] Σ[ H ∈ Group {ℓ'} ] Σ[ (f , b) ∈ (GroupHom G H) × (GroupHom H G) ] isGroupSplitEpi f b
+
+  IsoSplitEpi' : Iso SplitEpi' SplitEpi
+  IsoSplitEpi' = compIso (invIso Σ-assoc-Iso)
+                         (invIso Σ-assoc-Iso)
 
   -- split epimorphisms + a map back
   SplitEpiB = Σ[ (((G , H) , f , b) , isRet) ∈ SplitEpi ] GroupHom H G
@@ -76,6 +81,16 @@ module _ (ℓ ℓ' : Level) where
   -- morphism back
   𝒮-SplitEpiB : URGStr SplitEpiB (ℓ-max ℓ ℓ')
   𝒮-SplitEpiB = ∫⟨ 𝒮-SplitEpi ⟩ 𝒮ᴰ-G²FBSplit\B
+
+  𝒮ᴰ-G\GFBSplitEpi : URGStrᴰ (𝒮-group ℓ)
+                             (λ G → Σ[ H ∈ Group {ℓ'} ] Σ[ (f , b) ∈ (GroupHom G H) × (GroupHom H G) ] isGroupSplitEpi f b )
+                             (ℓ-max ℓ ℓ')
+  𝒮ᴰ-G\GFBSplitEpi =
+    splitTotal-𝒮ᴰ (𝒮-group ℓ)
+                  (𝒮ᴰ-const (𝒮-group ℓ) (𝒮-group ℓ'))
+                  (splitTotal-𝒮ᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
+                                 (𝒮ᴰ-G²\FB ℓ ℓ')
+                                 𝒮ᴰ-SplitEpi)
 
 --------------------------------------------------
 -- This module introduces convenient notation
