@@ -73,9 +73,9 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
               ≡⟨ ua (compl≡Equiv (p ⁻¹) r (p ∙ s)) ⟩
             p ⁻¹ ∙ r ≡ p ⁻¹ ∙ (p ∙ s)
               -- ≡⟨ cong (p ⁻¹ ∙ r ≡_ ) (assoc (p ⁻¹) p s ∙∙ (cong (_∙ s) (lCancel p)) ∙∙ sym (lUnit s)) ⟩
-              ≡⟨ cube-cong refl (assoc (p ⁻¹) p s ∙∙ (cong (_∙ s) (lCancel p)) ∙∙ sym (lUnit s)) ⟩
-            p ⁻¹ ∙ r ≡ s
-              ≡⟨ cube-cong (cong (p ⁻¹ ∙_) (rUnit r)) refl ⟩
+              ≡⟨ cube-cong (cong (p ⁻¹ ∙_) (rUnit r)) (assoc (p ⁻¹) p s ∙∙ (cong (_∙ s) (lCancel p)) ∙∙ sym (lUnit s)) ⟩
+            -- p ⁻¹ ∙ r ≡ s
+              -- ≡⟨ cube-cong (cong (p ⁻¹ ∙_) (rUnit r)) refl ⟩
               -- ≡⟨ cong (λ z → p ⁻¹ ∙ z ≡ s) (rUnit r) ⟩
             p ⁻¹ ∙ (r ∙ refl) ≡ s
               -- ≡⟨ cong (_≡ s) (sym (doubleCompPath-elim' (p ⁻¹) r refl)) ⟩
