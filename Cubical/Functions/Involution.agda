@@ -30,11 +30,11 @@ module _ {ℓ} {A : Type ℓ} {f : A → A} (invol : isInvolution f) where
 
   involEquivComp : compEquiv involEquiv involEquiv ≡ idEquiv A
   involEquivComp
-    = equivEq (compEquiv involEquiv involEquiv) (idEquiv A) (λ i x → invol x i)
+    = equivEq _ _ (λ i x → invol x i)
 
   involPathComp : involPath ∙ involPath ≡ refl
   involPathComp
-    = sym (uaCompEquiv involEquiv involEquiv) ∙ cong ua involEquivComp ∙ uaIdEquiv
+    = sym (uaCompEquiv involEquiv involEquiv) ∙∙ cong ua involEquivComp ∙∙ uaIdEquiv
 
   involPath² : Square involPath refl refl involPath
   involPath²
