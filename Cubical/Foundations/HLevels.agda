@@ -472,7 +472,8 @@ isOfHLevelΣ' 0 Actr Bctr .snd (x , y) i
 isOfHLevelΣ' 1 Alvl Blvl (w , y) (x , z) i .fst = Alvl w x i
 isOfHLevelΣ' 1 Alvl Blvl (w , y) (x , z) i .snd = Blvl y z (Alvl w x) i
 isOfHLevelΣ' {A = A} {B = B} (suc (suc n)) Alvl Blvl (w , y) (x , z)
-  = transport (λ i → isOfHLevel (suc n) (ΣP≡PΣ i))
+  = isOfHLevelRetract (suc n)
+      (λ p → (λ i → p i .fst) , λ i → p i .snd)
+      ΣPathP
+      (λ x → refl)
       (isOfHLevelΣ' (suc n) (Alvl w x) (Blvl y z))
-  where
-  ΣP≡PΣ = ΣPath≡PathΣ {A = λ _ → A} {B = λ _ → B} {x = (w , y)} {y = (x , z)}
