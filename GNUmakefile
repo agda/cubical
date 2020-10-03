@@ -38,17 +38,21 @@ gen-and-check-everythings:
 check-README:
 	$(EVERYTHINGS) check-README
 
-# typechecking and generating listings for all files imported in in README
+# typechecking and generating listings for all files imported in README
 
 .PHONY : check
-check: $(wildcard Cubical/**/*.agda)
-	$(foreach f, $(shell $(EVERYTHINGS) get-imports-README), $(AGDA) "$(f)" && ) true
+check:
+	$(AGDA) Cubical/README.agda
 	$(AGDA) Cubical/WithK.agda
 
-.PHONY: listings
+.PHONY : timings
+timings: clean
+	$(AGDA) -v profile.modules:10 Cubical/README.agda
+
+.PHONY : listings
 listings: $(wildcard Cubical/**/*.agda)
 	$(AGDA) -i. -isrc --html Cubical/README.agda -v0
 
 .PHONY : clean
-clean :
+clean:
 	find . -type f -name '*.agdai' -delete
