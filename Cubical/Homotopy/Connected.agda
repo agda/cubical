@@ -21,7 +21,7 @@ open import Cubical.HITs.Truncation.FromNegOne as Trunc renaming (rec to trRec)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn
-open import Cubical.HITs.S1 hiding (inv)
+open import Cubical.HITs.S1
 open import Cubical.Data.Bool
 open import Cubical.Data.Unit
 
@@ -39,11 +39,7 @@ isConnectedSubtr : ∀ {ℓ} {A : Type ℓ} (n m : HLevel)
                 → isConnected (m + n) A
                 → isConnected n A
 isConnectedSubtr {A = A} n m iscon =
-  isContrRetract
-    (Iso.fun (truncOfTruncIso n m))
-    (Iso.inv (truncOfTruncIso n m))
-    (Iso.leftInv (truncOfTruncIso n m))
-    (helper n iscon)
+  isOfHLevelRetractFromIso 0 (truncOfTruncIso n m) (helper n iscon)
   where
   helper : (n : ℕ) → isConnected (m + n) A → isContr (hLevelTrunc n (hLevelTrunc (m + n) A))
   helper zero iscon = isContrUnit*
@@ -145,10 +141,7 @@ isOfHLevelPrecomposeConnected zero n P f fConn =
 isOfHLevelPrecomposeConnected (suc k) n P f fConn t =
   isOfHLevelPath'⁻ k
     λ {(s₀ , p₀) (s₁ , p₁) →
-      isOfHLevelRetract k
-         (Iso.inv ΣPathIsoPathΣ)
-         (Iso.fun ΣPathIsoPathΣ)
-         (Iso.rightInv ΣPathIsoPathΣ)
+      isOfHLevelRetractFromIso k (invIso ΣPathIsoPathΣ)
          (subst (isOfHLevel k)
            (sym (fiberPath (s₀ , p₀) (s₁ , p₁)))
            (isOfHLevelRetract k
@@ -166,10 +159,7 @@ indMapEquiv→conType : ∀ {ℓ} {A : Type ℓ} (n : HLevel)
                    → isConnected n A
 indMapEquiv→conType {A = A} zero BEq = isContrUnit*
 indMapEquiv→conType {A = A} (suc n) BEq =
-  isContrRetract
-    (map {n = (suc n)} (Iso.fun (typeToFiberIso A)))
-    (map (Iso.inv (typeToFiberIso A)))
-    (Trunc.elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) (λ _ → refl))
+  isOfHLevelRetractFromIso 0 (mapCompIso {n = (suc n)} (typeToFiberIso A))
     (elim.isConnectedPrecompose (λ _ → tt) (suc n)
                                 (λ P → ((λ a _ → a) ∘ invIsEq (BEq (P tt)))
                                , λ a → equiv-proof (BEq (P tt)) a .fst .snd)
@@ -180,10 +170,8 @@ isConnectedPath : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → (a₀ a₁ : A) → isConnected n (a₀ ≡ a₁)
 isConnectedPath zero connA a₀ a₁ = isContrUnit*
 isConnectedPath (suc n) connA a₀ a₁ =
-  isContrRetract
-    (Iso.inv (PathIdTruncIso (suc n)))
-    (Iso.fun (PathIdTruncIso (suc n)))
-    (Iso.rightInv (PathIdTruncIso (suc n)))
+  isOfHLevelRetractFromIso 0
+    (invIso (PathIdTruncIso (suc n)))
     (isContr→isContrPath connA _ _)
 
 isConnectedRetract : ∀ {ℓ ℓ'} (n : HLevel)
@@ -199,6 +187,16 @@ isConnectedRetract (suc n) f g h =
     (Trunc.elim
       (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
       (λ a → cong ∣_∣ (h a)))
+
+isConnectedRetractFromIso :  ∀ {ℓ ℓ'} (n : HLevel)
+    {A : Type ℓ} {B : Type ℓ'}
+  → Iso A B
+  → isConnected n B → isConnected n A
+isConnectedRetractFromIso n e =
+  isConnectedRetract n
+    (Iso.fun e)
+    (Iso.inv e)
+    (Iso.leftInv e)
 
 isConnectedPoint : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isConnected (suc n) A
@@ -325,12 +323,7 @@ sphereConnected (suc (suc zero)) = ∣ north ∣ , Trunc.elim (λ _ _ _ → isOf
       ∣ refl ∣ ∣ merid base ∣
       (λ i → ∣ (λ k → merid base (i ∧ k)) ∣) ((λ i → ∣ (λ k → merid base (i ∧ k)) ∣))
       (cong merid loop) j i
-sphereConnected (suc (suc (suc zero))) =
-  isConnectedRetract 4
-                     (Iso.inv IsoS³S3)
-                     (Iso.fun IsoS³S3)
-                     (Iso.rightInv IsoS³S3)
-                     conS³
+sphereConnected (suc (suc (suc zero))) = isConnectedRetractFromIso 4 (invIso IsoS³S3) conS³
     where
     conS³ : isConnected 4 S³
     conS³ = ∣ base ∣ , (Trunc.elim
@@ -343,11 +336,7 @@ sphereConnected (suc (suc (suc zero))) =
                             refl refl refl refl refl refl
                             surf i j k}))
 sphereConnected (suc (suc (suc (suc n)))) =
-  isContrRetract
-    (map Susp→PushoutSusp)
-    (map PushoutSusp→Susp)
-    (Trunc.elim (λ _ → isOfHLevelPath (5 + n) (isOfHLevelTrunc (5 + n)) _ _)
-                 λ p → cong ∣_∣ (Susp→PushoutSusp→Susp p))
+  isOfHLevelRetractFromIso 0 (mapCompIso (invIso PushoutSuspIsoSusp))
     (isConnectedPoint2 (4 + n) {A = Pushout {A = S₊ (3 + n)} (λ _ → tt) λ _ → tt}
        (inr tt)
        (inrConnected (4 + n) (λ _ → tt) (λ _ → tt)

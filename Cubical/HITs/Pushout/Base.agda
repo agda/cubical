@@ -15,7 +15,6 @@ data Pushout {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
   inr : C → Pushout f g
   push : (a : A) → inl (f a) ≡ inr (g a)
 
-
 -- Suspension defined as a pushout
 
 PushoutSusp : ∀ {ℓ} (A : Type ℓ) → Type ℓ

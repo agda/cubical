@@ -21,6 +21,12 @@ min zero m = zero
 min (suc n) zero = zero
 min (suc n) (suc m) = suc (min n m)
 
+minComm : (n m : ℕ) → min n m ≡ min m n
+minComm zero zero = refl
+minComm zero (suc m) = refl
+minComm (suc n) zero = refl
+minComm (suc n) (suc m) = cong suc (minComm n m)
+
 znots : ¬ (0 ≡ suc n)
 znots eq = subst (caseNat ℕ ⊥) eq 0
 

@@ -337,7 +337,6 @@ cancelₕ : (n : ℕ) (x : coHom n A) → x -[ n ]ₕ x ≡ 0ₕ n
 cancelₕ n = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
                    λ a i → ∣ funExt (λ x → cancelₖ n (a x)) i ∣₂
 
----
 -ₖ-ₖ : (n : ℕ) (x : coHomK n) → (-[ n ]ₖ (-[ n ]ₖ x)) ≡ x
 -ₖ-ₖ n x = cong ((ΩKn+1→Kn n) ∘ sym) (Iso.rightInv (Iso-Kn-ΩKn+1 n) (sym (Kn→ΩKn+1 n x))) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 n) x
 
@@ -367,20 +366,10 @@ rUnitlUnit0 (suc (suc n)) = sym (rUnitlUnitGen (Iso-Kn-ΩKn+1 (2 + n)) (0ₖ (2 
 +ₕ∙ (suc zero) = sElim2 (λ _ _ → §) λ { (a , pa) (b , pb) → ∣ (λ x → a x +[ 1 ]ₖ b x) , (λ i → pa i +[ 1 ]ₖ pb i) ∙ lUnitₖ 1 (0ₖ 1) ∣₂ }
 +ₕ∙ (suc (suc n)) = sElim2 (λ _ _ → §) λ { (a , pa) (b , pb) → ∣ (λ x → a x +[ (2 + n) ]ₖ b x) , (λ i → pa i +[ (2 + n) ]ₖ pb i) ∙ lUnitₖ (2 + n) (0ₖ (2 + n)) ∣₂ }
 
--- -ₕ∙  : {A : Pointed ℓ} (n : ℕ) → coHomRed n A → coHomRed n A
--- -ₕ∙ zero = sRec § λ {(a , pt) → ∣ (λ x → -[ zero ]ₖ a x ) , (λ i → -[ zero ]ₖ (pt i)) ∣₂}
--- -ₕ∙ (suc n) = sRec § λ {(a , pt) → ∣ (λ x → -[ (suc n) ]ₖ a x ) , (λ i → -[ (suc n) ]ₖ (pt i)) ∙
---                                                               (λ i → ΩKn+1→Kn (sym (Kn→ΩKn+10ₖ (suc n) i))) ∙
---                                                               (λ i → ΩKn+1→Kn (Kn→ΩKn+10ₖ (suc n) (~ i))) ∙
---                                                               Iso.leftInv (Iso-Kn-ΩKn+1 (suc n)) ∣ north ∣ ∣₂}
-
--- 0ₕ∙ : {A : Pointed ℓ} (n : ℕ) → coHomRed n A
--- 0ₕ∙ zero = ∣ (λ _ → (0ₖ 0)) , refl ∣₂
--- 0ₕ∙ (suc n) = ∣ (λ _ → (0ₖ (suc n))) , refl ∣₂
-
 open IsSemigroup
 open IsMonoid
 open Group
+open GroupHom
 coHomGr : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group
 Carrier (coHomGr n A) = coHom n A
 0g (coHomGr n A) = 0ₕ n
@@ -396,6 +385,15 @@ IsGroup.inverse (Group.isGroup (coHomGr n A)) x = (rCancelₕ n x) , (lCancelₕ
 
 coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → coHom n B → coHom n A
 coHomFun n f = sRec § λ β → ∣ β ∘ f ∣₂
+
+-distrLemma : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n m : ℕ) (f : GroupHom (coHomGr n A) (coHomGr m B))
+              (x y : coHom n A)
+            → fun f (x -[ n ]ₕ y) ≡ fun f x -[ m ]ₕ fun f y
+-distrLemma n m f' x y = sym (-cancelRₕ m (f y) (f (x -[ n ]ₕ y)))
+                     ∙∙ cong (λ x → x -[ m ]ₕ f y) (sym (isHom f' (x -[ n ]ₕ y) y))
+                     ∙∙ cong (λ x → x -[ m ]ₕ f y) ( cong f (-+cancelₕ n _ _))
+  where
+  f = fun f'
 
 --- the loopspace of Kₙ is commutative regardless of base
 
@@ -426,13 +424,10 @@ addLemma a b = (cong (ΩKn+1→Kn 0) (sym (congFunct ∣_∣ (intLoop a) (intLoo
 -- Swapping "key" for "tt*" will then give computing functions.
 
 Unit' : Type₀
-Unit' = Unit* {ℓ-zero}
+Unit' = lockUnit {ℓ-zero}
 
 lock : ∀ {ℓ} {A : Type ℓ} → Unit' → A → A
-lock tt* = λ x → x
-
-unlock : ∀ {ℓ} {A : Type ℓ} {x y : A} (t : Unit') → x ≡ y → lock t x ≡ y
-unlock tt* p = p
+lock unlock = λ x → x
 
 module lockedCohom (key : Unit') where
   +K : (n : ℕ) → coHomK n → coHomK n → coHomK n
@@ -447,63 +442,63 @@ module lockedCohom (key : Unit') where
   rUnitK : (n : ℕ) (x : coHomK n) → +K n x (0ₖ n) ≡ x
   rUnitK n x = pm key
     where
-    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) x (0ₖ n) ≡ x
-    pm tt* = rUnitₖ n x
+    pm : (t : Unit') → lock t (_+ₖ_ {n = n}) x (0ₖ n) ≡ x
+    pm unlock = rUnitₖ n x
 
   lUnitK : (n : ℕ) (x : coHomK n) → +K n (0ₖ n) x ≡ x
   lUnitK n x = pm key
     where
-    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) (0ₖ n) x ≡ x
-    pm tt* = lUnitₖ n x
+    pm : (t : Unit') → lock t (_+ₖ_ {n = n}) (0ₖ n) x ≡ x
+    pm unlock = lUnitₖ n x
 
   rCancelK : (n : ℕ) (x : coHomK n) → +K n x (-K n x) ≡ 0ₖ n
   rCancelK n x = pm key
     where
-    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) x (lock t (-ₖ_ {n = n}) x) ≡ 0ₖ n
-    pm tt* = rCancelₖ n x
+    pm : (t : Unit') → lock t (_+ₖ_ {n = n}) x (lock t (-ₖ_ {n = n}) x) ≡ 0ₖ n
+    pm unlock = rCancelₖ n x
 
   lCancelK : (n : ℕ) (x : coHomK n) → +K n (-K n x) x ≡ 0ₖ n
   lCancelK n x = pm key
     where
-    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) (lock t (-ₖ_ {n = n}) x) x ≡ 0ₖ n
-    pm tt* = lCancelₖ n x
+    pm : (t : Unit') → lock t (_+ₖ_ {n = n}) (lock t (-ₖ_ {n = n}) x) x ≡ 0ₖ n
+    pm unlock = lCancelₖ n x
 
   -cancelRK : (n : ℕ) (x y : coHomK n) → -Kbin n (+K n y x) x ≡ y
   -cancelRK n x y = pm key
     where
-    pm : (t : Unit*) → lock t (_-ₖ_ {n = n}) (lock t (_+ₖ_ {n = n}) y x) x ≡ y
-    pm tt* = -cancelRₖ n x y
+    pm : (t : Unit') → lock t (_-ₖ_ {n = n}) (lock t (_+ₖ_ {n = n}) y x) x ≡ y
+    pm unlock = -cancelRₖ n x y
 
   -cancelLK : (n : ℕ) (x y : coHomK n) → -Kbin n (+K n x y) x ≡ y
   -cancelLK n x y = pm key
     where
-    pm : (t : Unit*) → lock t (_-ₖ_ {n = n}) (lock t (_+ₖ_ {n = n}) x y) x ≡ y
-    pm tt* = -cancelLₖ n x y
+    pm : (t : Unit') → lock t (_-ₖ_ {n = n}) (lock t (_+ₖ_ {n = n}) x y) x ≡ y
+    pm unlock = -cancelLₖ n x y
 
   -+cancelK : (n : ℕ) (x y : coHomK n) → +K n (-Kbin n x y) y ≡ x
   -+cancelK n x y = pm key
     where
-    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) (lock t (_-ₖ_ {n = n}) x y) y ≡ x
-    pm tt* = -+cancelₖ n x y
+    pm : (t : Unit') → lock t (_+ₖ_ {n = n}) (lock t (_-ₖ_ {n = n}) x y) y ≡ x
+    pm unlock = -+cancelₖ n x y
 
   cancelK : (n : ℕ) (x : coHomK n) → -Kbin n x x ≡ 0ₖ n
   cancelK n x = pm key
     where
-    pm : (t : Unit*) → (lock t (_-ₖ_ {n = n}) x x) ≡ 0ₖ n
-    pm tt* = cancelₖ n x
+    pm : (t : Unit') → (lock t (_-ₖ_ {n = n}) x x) ≡ 0ₖ n
+    pm unlock = cancelₖ n x
 
   assocK : (n : ℕ) (x y z : coHomK n) → +K n (+K n x y) z ≡ +K n x (+K n y z)
   assocK n x y z = pm key
     where
-    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) (lock t (_+ₖ_ {n = n}) x y) z
+    pm : (t : Unit') → lock t (_+ₖ_ {n = n}) (lock t (_+ₖ_ {n = n}) x y) z
                      ≡ lock t (_+ₖ_ {n = n}) x (lock t (_+ₖ_ {n = n}) y z)
-    pm tt* = assocₖ n x y z
+    pm unlock = assocₖ n x y z
 
   commK : (n : ℕ) (x y : coHomK n) → +K n x y ≡ +K n y x
   commK n x y = pm key
     where
-    pm : (t : Unit*) → lock t (_+ₖ_ {n = n}) x y ≡ lock t (_+ₖ_ {n = n}) y x
-    pm tt* = commₖ n x y
+    pm : (t : Unit') → lock t (_+ₖ_ {n = n}) x y ≡ lock t (_+ₖ_ {n = n}) y x
+    pm unlock = commₖ n x y
 
   -- cohom
 
@@ -553,10 +548,10 @@ module lockedCohom (key : Unit') where
 
 
 +K→∙ : (key : Unit') (n : ℕ) (a b : coHomK n) → Kn→ΩKn+1 n (lockedCohom.+K key n a b) ≡ Kn→ΩKn+1 n a ∙ Kn→ΩKn+1 n b
-+K→∙ tt* = +ₖ→∙
++K→∙ unlock = +ₖ→∙
 
 +H≡+ₕ : (key : Unit') (n : ℕ) → lockedCohom.+H key {A = A} n ≡ _+ₕ_ {n = n}
-+H≡+ₕ tt* _ = refl
++H≡+ₕ unlock _ = refl
 
 rUnitlUnit0K : (key : Unit') (n : ℕ) → lockedCohom.rUnitK key n (0ₖ n) ≡ lockedCohom.lUnitK key n (0ₖ n)
-rUnitlUnit0K tt* = rUnitlUnit0
+rUnitlUnit0K unlock = rUnitlUnit0

@@ -15,12 +15,12 @@ S neg1 = ⊥
 S (ℕ→ℕ₋₁ n) = Susp (S (-1+ n))
 
 S₊ : ℕ → Type₀
-S₊ zero = Bool
-S₊ (suc zero) = S¹
+S₊ 0 = Bool
+S₊ 1 = S¹
 S₊ (suc (suc n)) = Susp (S₊ (suc n))
 
 -- Pointed version
 S₊∙ : (n : ℕ) → Pointed₀
-S₊∙ zero = (S₊ zero) , true
-S₊∙ (suc zero) = S¹ , base
+S₊∙ 0 = (S₊ zero) , true
+S₊∙ 1 = S¹ , base
 S₊∙ (suc (suc n)) = (S₊ (suc (suc n))) , north

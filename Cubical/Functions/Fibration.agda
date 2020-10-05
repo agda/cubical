@@ -79,10 +79,3 @@ fiber≡ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {f : A → B} {b : B} (
 fiber≡ {f = f} {b = b} h h' =
   ΣPath≡PathΣ ⁻¹ ∙
   fiberPath h h'
-
--- fiberIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {f : A → B} {b : B} (h h' : fiber f b)
---   → Iso (h ≡ h') (fiber (cong f) (h .snd ∙∙ refl ∙∙ sym (h' .snd)))
--- Iso.fun (fiberIso {f = f} {b = b} h h') =  transport (thePath h h') ∘ Iso.inv ΣPathIsoPathΣ
--- Iso.inv (fiberIso {f = f} {b = b} h h') = Iso.fun ΣPathIsoPathΣ ∘ transport (sym (thePath h h'))
--- Iso.rightInv (fiberIso {f = f} {b = b} h h') (p , q) = transportTransport⁻ (thePath h h') _
--- Iso.leftInv (fiberIso {f = f} {b = b} h h') p = cong ΣPathP (transport⁻Transport (thePath h h') _)

@@ -10,7 +10,7 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Data.Bool
 open import Cubical.Data.Empty
 
-open import Cubical.HITs.S1 hiding (inv)
+open import Cubical.HITs.S1
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3
 

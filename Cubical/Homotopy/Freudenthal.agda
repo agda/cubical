@@ -94,7 +94,7 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
   encodeMerid : (a : typ A) → encode south (merid a) ≡ ∣ a , refl ∣
   encodeMerid a =
     cong (transport (λ i → gluePath i))
-      (funExt⁻ (WC.left refl a) _ ∙ λ i → ∣ a , (lem (rCancel' (merid a)) (rCancel' (merid (pt A)))) i ∣)
+      (funExt⁻ (WC.left refl a) _ ∙ λ i → ∣ a , lem (rCancel' (merid a)) (rCancel' (merid (pt A))) i ∣)
     ∙ transport (PathP≡Path gluePath _ _)
       (λ i → ∣ a , (λ j k → rCancel-filler' (merid a) i j k) ∣)
     where
@@ -118,11 +118,11 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
   isConnectedσ =
     transport (λ i → isConnectedFun 2n+2 (interpolate (pt A) (~ i))) isConnectedMerid
 
-open import Cubical.Foundations.Pointed
-open import Cubical.Data.Bool
-
 isConn→isConnSusp : ∀ {ℓ} {A : Pointed ℓ} → isConnected 2 (typ A) → isConnected 2 (Susp (typ A))
-isConn→isConnSusp {A = A} iscon = ∣ north ∣ , (trElim (λ _ → isOfHLevelSuc 1 (isOfHLevelTrunc 2 _ _)) (suspToPropRec (pt A) (λ _ → isOfHLevelTrunc 2 _ _) refl))
+isConn→isConnSusp {A = A} iscon = ∣ north ∣
+                                , trElim (λ _ → isOfHLevelSuc 1 (isOfHLevelTrunc 2 _ _))
+                                         (suspToPropRec (pt A) (λ _ → isOfHLevelTrunc 2 _ _)
+                                         refl)
 
 FreudenthalEquiv : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
                 → isConnected (2 + n) (typ A)

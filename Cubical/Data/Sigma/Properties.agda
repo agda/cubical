@@ -78,7 +78,7 @@ module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
               ≡ (PathP (λ i → Σ (A i) (B i)) x y)
   ΣPath≡PathΣ = ua ΣPath≃PathΣ
 
-×≡Prop : isProp A' → {u v : A × A'} → (u .fst ≡ v .fst) → u ≡ v
+×≡Prop : isProp A' → {u v : A × A'} → u .fst ≡ v .fst → u ≡ v
 ×≡Prop pB {u} {v} p i = (p i) , (pB (u .snd) (v .snd) i)
 
 Σ≡Prop : ((x : A) → isProp (B x)) → {u v : Σ A B}
@@ -209,13 +209,6 @@ leftInv (Σ-cong-iso-snd isom) (x , y') = ΣPathP (refl , leftInv (isom x) y')
 IsoΣPathTransportPathΣ : (a b : Σ A B) → Iso (ΣPathTransport a b) (a ≡ b)
 IsoΣPathTransportPathΣ {B = B} a b = compIso (Σ-cong-iso-snd (λ p → invIso (equivToIso (PathP≃Path (λ i → B (p i)) _ _))))
          ΣPathIsoPathΣ
-
--- fun (IsoΣPathTransportPathΣ {B = B} a b) (p , q) i = (p i) , (toPathP {A = λ i → B (p i)} q i)
--- inv (IsoΣPathTransportPathΣ {B = B} a b) p = (cong fst p) , (fromPathP (cong snd p))
--- rightInv (IsoΣPathTransportPathΣ {B = B} a b) p i j = {!!} , {!!}
--- leftInv (IsoΣPathTransportPathΣ {B = B} a b) = {!!}
-
-
 
 ΣPathTransport≃PathΣ : (a b : Σ A B) → ΣPathTransport a b ≃ (a ≡ b)
 ΣPathTransport≃PathΣ {B = B} a b = isoToEquiv (IsoΣPathTransportPathΣ a b)

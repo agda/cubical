@@ -12,7 +12,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
-open import Cubical.HITs.S1 hiding (inv)
+open import Cubical.HITs.S1
 open import Cubical.HITs.S3
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod

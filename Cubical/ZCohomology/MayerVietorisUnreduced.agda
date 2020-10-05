@@ -25,15 +25,6 @@ open import Cubical.Algebra.Group
 
 open GroupHom
 
--distrLemma : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n m : ℕ) (f : GroupHom (coHomGr n A) (coHomGr m B))
-              (x y : coHom n A)
-            → fun f (x -[ n ]ₕ y) ≡ fun f x -[ m ]ₕ fun f y
--distrLemma n m f' x y = sym (-cancelRₕ m (f y) (f (x -[ n ]ₕ y)))
-                     ∙∙ cong (λ x → x -[ m ]ₕ f y) (sym (isHom f' (x -[ n ]ₕ y) y))
-                     ∙∙ cong (λ x → x -[ m ]ₕ f y) ( cong f (-+cancelₕ n _ _))
-  where
-  f = fun f'
-
 module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : C → A) (g : C → B) where
   -- Proof from Brunerie 2016.
   -- We first define the three morphisms involved: i, Δ and d.

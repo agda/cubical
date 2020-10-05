@@ -279,4 +279,4 @@ basechange-lemma2 f g F = coInd (f base) (g base) refl refl
                                                               (cong (λ x → F (Iso.leftInv (Iso-Kn-ΩKn+1 1) (g x) j)) loop) i)
 
 S1→K2≡K2×K1 : Iso (S₊ 1 → coHomK 2) (coHomK 2 × coHomK 1)
-S1→K2≡K2×K1 = S1→K2≡K2×K1' tt*
+S1→K2≡K2×K1 = S1→K2≡K2×K1' unlock

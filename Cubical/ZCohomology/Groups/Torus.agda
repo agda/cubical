@@ -25,7 +25,7 @@ open import Cubical.Data.Unit
 open import Cubical.Algebra.Group
 
 open import Cubical.HITs.Pushout
-open import Cubical.HITs.S1 hiding (inv)
+open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
@@ -36,22 +36,14 @@ open import Cubical.HITs.Truncation.FromNegOne renaming (elim to trElim ; elim2 
 open GroupHom
 open GroupIso
 
-congLemma2 : (n : ℕ) (p : Path (coHomK n) (0ₖ n) (0ₖ n))
-          → Path (0ₖ n +[ n ]ₖ 0ₖ n ≡ 0ₖ n +[ n ]ₖ 0ₖ n)
-                  (cong (λ x → 0ₖ n +[ n ]ₖ x) p) (cong (λ x → x +[ n ]ₖ 0ₖ n) p)
-congLemma2 n p = congLemma (λ x y → x +[ n ]ₖ y) (λ x → -[ n ]ₖ x)
-                           (0ₖ n)
-                           (rUnitₖ n) (lUnitₖ n)
-                           (rUnitlUnit0 n)
-                           p
+private
+  module congLemma (key : Unit') where
+    module K = lockedCohom key
 
-module congLemma (key : Unit') where
-  module K = lockedCohom key
-
-  main : (n : ℕ) (p : Path (coHomK n) (0ₖ n) (0ₖ n))
-            → Path (K.+K n (0ₖ n) (0ₖ n) ≡ K.+K n (0ₖ n) (0ₖ n))
-                    (cong (K.+K n (0ₖ n)) p) (cong (λ x → K.+K n x (0ₖ n)) p)
-  main n = congLemma (K.+K n) (K.-K n) (0ₖ n) (K.rUnitK n) (K.lUnitK n) (rUnitlUnit0K key n)
+    main : (n : ℕ) (p : Path (coHomK n) (0ₖ n) (0ₖ n))
+              → Path (K.+K n (0ₖ n) (0ₖ n) ≡ K.+K n (0ₖ n) (0ₖ n))
+                      (cong (K.+K n (0ₖ n)) p) (cong (λ x → K.+K n x (0ₖ n)) p)
+    main n = congIdLeft≡congIdRight (K.+K n) (K.-K n) (0ₖ n) (K.rUnitK n) (K.lUnitK n) (rUnitlUnit0K key n)
 
 --------- H⁰(T²) ------------
 H⁰-T²≅ℤ : GroupIso (coHomGr 0 (S₊ 1 × S₊ 1)) intGroup
@@ -114,12 +106,10 @@ H¹-T²≅ℤ×ℤ = theIso □ dirProdGroupIso (invGroupIso (Hⁿ-Sⁿ≅ℤ 0)
   rightInv theIso = Iso.rightInv typIso
   leftInv theIso = Iso.leftInv typIso
 
--------------------------------------------------------------
-
 ----------------------- H²(T²) ------------------------------
 open import Cubical.Foundations.Equiv
 H²-T²≅ℤ : GroupIso (coHomGr 2 (S₊ 1 × S₊ 1)) intGroup
-H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² tt*)
+H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² unlock)
   where
     module _ (key : Unit') where
       module K = lockedCohom key
@@ -137,7 +127,7 @@ H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² tt*)
         _+H_ {n = n} = K.+H n
 
       typIso : Iso _ _
-      typIso = helper'
+      typIso = helper
             ⋄ (invIso (prodIso (GroupIso→Iso H²-S¹≅0)
                                (invIso (GroupIso→Iso (Hⁿ-Sⁿ≅ℤ 0))))
             ⋄ ((invIso setTruncOfProdIso)
@@ -145,11 +135,11 @@ H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² tt*)
                                   ⋄ codomainIso (S1→K2≡K2×K1' key)
                                   ⋄ toProdIso)))))
         where
-        helper' : Iso Int (Unit × Int)
-        Iso.inv helper' = snd
-        Iso.fun helper' x = tt , x
-        Iso.leftInv helper' _ = refl
-        Iso.rightInv helper' _ = refl
+        helper : Iso Int (Unit × Int)
+        Iso.inv helper = snd
+        Iso.fun helper x = tt , x
+        Iso.leftInv helper _ = refl
+        Iso.rightInv helper _ = refl
 
       mapIsHom : (x y : Group.Carrier intGroup)
               → Iso.fun typIso (x +ℤ y) ≡ ((Iso.fun typIso x) +H Iso.fun typIso y)
@@ -207,7 +197,7 @@ H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² tt*)
           → ((x y : Group.Carrier intGroup)
                 → Iso.fun typIso (x +ℤ y) ≡ (lockedCohom.+H t _ (Iso.fun typIso x) (Iso.fun typIso y)))
           → isGroupHom intGroup (coHomGr 2 (S₊ 1 × S₊ 1)) (Iso.fun typIso)
-        pm tt* p = p
+        pm unlock p = p
       inv ℤ≅H²-T² = Iso.inv typIso
       rightInv ℤ≅H²-T² = Iso.rightInv typIso
       leftInv ℤ≅H²-T² = Iso.leftInv typIso
@@ -241,7 +231,8 @@ test2 : to₁ (from₁ (5 , 1) +ₕ from₁ (-2 , 3)) ≡ (3 , 4)
 test2 = refl
 
 -- Will not compute:
-test3 : to₁ (from₁ 0) ≡ 0
+
+test3 : to₂ (from₂ 0) ≡ 0
 test3 = refl
 
 -}

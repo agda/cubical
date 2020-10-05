@@ -84,4 +84,4 @@ Iso.leftInv S³IsojoinS¹S¹ = S³→joinS¹S¹→S³
 
 
 S³≡joinS¹S¹ : S³ ≡ join S¹ S¹
-S³≡joinS¹S¹ = isoToPath (S³IsojoinS¹S¹)
+S³≡joinS¹S¹ = isoToPath S³IsojoinS¹S¹

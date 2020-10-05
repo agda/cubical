@@ -38,7 +38,7 @@ private
 
 open import Cubical.HITs.Truncation.Properties using (sphereFill; isSphereFilled)
 
-isSphereFilled∥∥ : {n : ℕ₋₁} → isSphereFilled (suc₋₁ n) (∥ A ∥⁻¹ n)
+isSphereFilled∥∥ : {n : ℕ₋₁} → isSphereFilled (suc₋₁ n) (HubAndSpoke A n)
 isSphereFilled∥∥ f = (hub f) , (spoke f)
 
 isSphereFilled→isOfHLevel : (n : ℕ₋₁) → isSphereFilled (suc₋₁ n) A → isOfHLevel (1 + 1+ n) A
@@ -154,31 +154,32 @@ elim3 : {n : ℕ}
 elim3 {n = n} hB g = elim2 (λ _ _ → isOfHLevelΠ (suc n) (hB _ _)) λ a b →
                     elim (λ _ → hB _ _ _) (λ c → g a b c)
 
-minΣ : (n m : ℕ) → Σ[ x ∈ ℕ ] x + min n m ≡ n
-minΣ zero m = 0 , refl
-minΣ (suc n) zero = (suc n) , cong suc (+-zero n)
-minΣ (suc n) (suc m) = (minΣ n m .fst) , +-suc _ _ ∙ cong suc (minΣ n m .snd)
-
-minComm : (n m : ℕ) → min n m ≡ min m n
-minComm zero zero = refl
-minComm zero (suc m) = refl
-minComm (suc n) zero = refl
-minComm (suc n) (suc m) = cong suc (minComm n m)
-
 isOfHLevelMin→isOfHLevel : {n m : ℕ} → isOfHLevel (min n m) A → isOfHLevel n A × isOfHLevel m A
 isOfHLevelMin→isOfHLevel {n = zero} {m = m} h = h , isContr→isOfHLevel m h
 isOfHLevelMin→isOfHLevel {n = suc n} {m = zero} h = (isContr→isOfHLevel (suc n) h) , h
-isOfHLevelMin→isOfHLevel {A = A} {n = suc n} {m = suc m} h = (subst (λ x → isOfHLevel x A) (minΣ (suc n) (suc m) .snd) (isOfHLevelPlus _ h))
-                                                           , subst (λ x → isOfHLevel x A) (cong (λ y → minΣ m n .fst + suc y) (minComm n m) ∙ minΣ (suc m) (suc n) .snd) (isOfHLevelPlus _ h)
+isOfHLevelMin→isOfHLevel {A = A} {n = suc n} {m = suc m} h =
+    subst (λ x → isOfHLevel x A) (helper n m)
+          (isOfHLevelPlus (suc n ∸ (suc (min n m))) h)
+  , subst (λ x → isOfHLevel x A) ((λ i → m ∸ (minComm n m i) + suc (minComm n m i)) ∙ helper m n)
+          (isOfHLevelPlus (suc m ∸ (suc (min n m))) h)
+  where
+  helper : (n m : ℕ) → n ∸ min n m + suc (min n m) ≡ suc n
+  helper zero zero = refl
+  helper zero (suc m) = refl
+  helper (suc n) zero = cong suc (+-comm n 1)
+  helper (suc n) (suc m) = +-suc _ _ ∙ cong suc (helper n m)
 
-open import Cubical.Data.Nat hiding (elim )
 ΣTruncElim : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {n m : ℕ}
               {B : (x : ∥ A ∥ (suc n)) → Type ℓ'}
               {C : (Σ[ a ∈ (∥ A ∥ (suc n)) ] (∥ B a ∥ (suc m))) → Type ℓ''}
-              → ((x : (Σ[ a ∈ (∥ A ∥ (suc n)) ] (∥ B a ∥ (suc m)))) → isOfHLevel (min (suc n) (suc m)) (C x))
-              → ((a : A) (b : B (∣ a ∣)) → C (∣ a ∣ , ∣ b ∣))
-              → (x : (Σ[ a ∈ (∥ A ∥ (suc n)) ] (∥ B a ∥ (suc m)))) → (C x)
-ΣTruncElim {n = n} {m = m} {B = B} {C = C} hB g (a , b) = (elim {B = λ a → (b :  (∥ B a ∥ (suc m))) → C (a , b)} (λ x → isOfHLevelΠ (suc n) λ b → isOfHLevelMin→isOfHLevel (hB (x , b)) .fst ) (λ a → elim (λ _ → isOfHLevelMin→isOfHLevel (hB (∣ a ∣ , _)) .snd) λ b → g a b) a) b
+            → ((x : (Σ[ a ∈ (∥ A ∥ (suc n)) ] (∥ B a ∥ (suc m)))) → isOfHLevel (min (suc n) (suc m)) (C x))
+            → ((a : A) (b : B (∣ a ∣)) → C (∣ a ∣ , ∣ b ∣))
+            → (x : (Σ[ a ∈ (∥ A ∥ (suc n)) ] (∥ B a ∥ (suc m)))) → (C x)
+ΣTruncElim {n = n} {m = m} {B = B} {C = C} hB g (a , b) =
+  elim {B = λ a → (b :  (∥ B a ∥ (suc m))) → C (a , b)}
+       (λ x → isOfHLevelΠ (suc n) λ b → isOfHLevelMin→isOfHLevel (hB (x , b)) .fst )
+       (λ a → elim (λ _ → isOfHLevelMin→isOfHLevel (hB (∣ a ∣ , _)) .snd) λ b → g a b)
+       a b
 
 truncIdempotentIso : (n : ℕ) → isOfHLevel n A → Iso (∥ A ∥ n) A
 truncIdempotentIso zero hA = isContr→Iso (isOfHLevelUnit* 0) hA
@@ -239,8 +240,8 @@ mapId {n = (suc n)} =
 -- equivalences to prop/set/groupoid truncations
 
 propTruncTrunc1Iso : Iso ∥ A ∥₁ (∥ A ∥ 1)
-Iso.fun propTruncTrunc1Iso = PropTrunc.elim (λ _ → isOfHLevelTrunc 1) ∣_∣
-Iso.inv propTruncTrunc1Iso = elim (λ _ → squash₁) ∣_∣₁
+Iso.fun propTruncTrunc1Iso = PropTrunc.rec (isOfHLevelTrunc 1) ∣_∣
+Iso.inv propTruncTrunc1Iso = rec squash₁ ∣_∣₁
 Iso.rightInv propTruncTrunc1Iso = elim (λ _ → isOfHLevelPath 1 (isOfHLevelTrunc 1) _ _) (λ _ → refl)
 Iso.leftInv propTruncTrunc1Iso = PropTrunc.elim (λ _ → isOfHLevelPath 1 squash₁ _ _) (λ _ → refl)
 
@@ -252,8 +253,8 @@ propTrunc≡Trunc1 = ua propTrunc≃Trunc1
 
 
 setTruncTrunc2Iso : Iso ∥ A ∥₂ (∥ A ∥ 2)
-Iso.fun setTruncTrunc2Iso = SetTrunc.elim (λ _ → isOfHLevelTrunc 2) ∣_∣
-Iso.inv setTruncTrunc2Iso = elim (λ _ → squash₂) ∣_∣₂
+Iso.fun setTruncTrunc2Iso = SetTrunc.rec (isOfHLevelTrunc 2) ∣_∣
+Iso.inv setTruncTrunc2Iso = rec squash₂ ∣_∣₂
 Iso.rightInv setTruncTrunc2Iso = elim (λ _ → isOfHLevelPath 2 (isOfHLevelTrunc 2) _ _) (λ _ → refl)
 Iso.leftInv setTruncTrunc2Iso = SetTrunc.elim (λ _ → isOfHLevelPath 2 squash₂ _ _) (λ _ → refl)
 
@@ -263,33 +264,26 @@ setTrunc≃Trunc2 = isoToEquiv setTruncTrunc2Iso
 propTrunc≡Trunc2 : ∥ A ∥₂ ≡ ∥ A ∥ 2
 propTrunc≡Trunc2 = ua setTrunc≃Trunc2
 
-groupoidTrunc≃Trunc3Iso : Iso ∥ A ∥₃ (∥ A ∥ 3)
-Iso.fun groupoidTrunc≃Trunc3Iso = GpdTrunc.elim (λ _ → isOfHLevelTrunc 3) ∣_∣
-Iso.inv groupoidTrunc≃Trunc3Iso = elim (λ _ → squash₃) ∣_∣₃
-Iso.rightInv groupoidTrunc≃Trunc3Iso = elim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) (λ _ → refl)
-Iso.leftInv groupoidTrunc≃Trunc3Iso = GpdTrunc.elim (λ _ → isOfHLevelPath 3 squash₃ _ _) (λ _ → refl)
+groupoidTruncTrunc3Iso : Iso ∥ A ∥₃ (∥ A ∥ 3)
+Iso.fun groupoidTruncTrunc3Iso = GpdTrunc.rec (isOfHLevelTrunc 3) ∣_∣
+Iso.inv groupoidTruncTrunc3Iso = rec squash₃ ∣_∣₃
+Iso.rightInv groupoidTruncTrunc3Iso = elim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) (λ _ → refl)
+Iso.leftInv groupoidTruncTrunc3Iso = GpdTrunc.elim (λ _ → isOfHLevelPath 3 squash₃ _ _) (λ _ → refl)
 
 groupoidTrunc≃Trunc3 : ∥ A ∥₃ ≃ ∥ A ∥ 3
-groupoidTrunc≃Trunc3 = isoToEquiv groupoidTrunc≃Trunc3Iso
+groupoidTrunc≃Trunc3 = isoToEquiv groupoidTruncTrunc3Iso
 
 groupoidTrunc≡Trunc3 : ∥ A ∥₃ ≡ ∥ A ∥ 3
 groupoidTrunc≡Trunc3 = ua groupoidTrunc≃Trunc3
 
-
-2GroupoidTrunc≃Trunc4Iso : Iso ∥ A ∥₄ (∥ A ∥ 4)
-Iso.fun 2GroupoidTrunc≃Trunc4Iso = 2GpdTrunc.elim (λ _ → isOfHLevelTrunc 4) ∣_∣
-Iso.inv 2GroupoidTrunc≃Trunc4Iso = elim (λ _ → squash₄) ∣_∣₄
-Iso.rightInv 2GroupoidTrunc≃Trunc4Iso = elim (λ _ → isOfHLevelPath 4 (isOfHLevelTrunc 4) _ _) (λ _ → refl)
-Iso.leftInv 2GroupoidTrunc≃Trunc4Iso = 2GpdTrunc.elim (λ _ → isOfHLevelPath 4 squash₄ _ _) (λ _ → refl)
+2GroupoidTruncTrunc4Iso : Iso ∥ A ∥₄ (∥ A ∥ 4)
+Iso.fun 2GroupoidTruncTrunc4Iso = 2GpdTrunc.rec (isOfHLevelTrunc 4) ∣_∣
+Iso.inv 2GroupoidTruncTrunc4Iso = rec squash₄ ∣_∣₄
+Iso.rightInv 2GroupoidTruncTrunc4Iso = elim (λ _ → isOfHLevelPath 4 (isOfHLevelTrunc 4) _ _) (λ _ → refl)
+Iso.leftInv 2GroupoidTruncTrunc4Iso = 2GpdTrunc.elim (λ _ → isOfHLevelPath 4 squash₄ _ _) (λ _ → refl)
 
 2GroupoidTrunc≃Trunc4 : ∥ A ∥₄ ≃ ∥ A ∥ 4
-2GroupoidTrunc≃Trunc4 =
-  isoToEquiv
-    (iso
-      (2GpdTrunc.elim (λ _ → isOfHLevelTrunc 4) ∣_∣)
-      (elim (λ _ → squash₄) ∣_∣₄)
-      (elim (λ _ → isOfHLevelPath 4 (isOfHLevelTrunc 4) _ _) (λ _ → refl))
-      (2GpdTrunc.elim (λ _ → isOfHLevelPath 4 squash₄ _ _) (λ _ → refl)))
+2GroupoidTrunc≃Trunc4 = isoToEquiv 2GroupoidTruncTrunc4Iso
 
 2GroupoidTrunc≡Trunc4 : ∥ A ∥₄ ≡ ∥ A ∥ 4
 2GroupoidTrunc≡Trunc4 = ua 2GroupoidTrunc≃Trunc4
