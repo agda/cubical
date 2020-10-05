@@ -560,3 +560,23 @@ module invertEl (R' : CommRing {ℓ}) where
  R[1/_]CommRing : R → CommRing {ℓ}
  R[1/ f ]CommRing = Loc.RₛCommRing R' [ f ⁿ|n≥0] (powersFormSubMonoid f)
 
+
+module check (R' : CommRing {ℓ}) (f g : ⟨ R' ⟩) where
+ open isSubMonoid
+ open CommRing R' renaming (Carrier to R)
+ open Theory (CommRing→Ring R')
+ open invertEl R'
+
+ R[1/fg] = invertEl.R[1/_] R' (f · g)
+ R[1/f][1/g] = invertEl.R[1/_] (invertEl.R[1/_]CommRing R' f)
+                               [ g , 1r , powersFormSubMonoid f .containsOne ]
+
+ -- prove R[1/fg] ≃ R[1/f][1/g] and then check ringhom
+ φ : R[1/fg] → R[1/f][1/g]
+ φ = SQ.rec squash/ ϕ {!!}
+   where
+   S[fg] = Loc.S R' [ (f · g) ⁿ|n≥0] (powersFormSubMonoid (f · g))
+
+   ϕ : R × S[fg] → R[1/f][1/g]
+   ϕ (r , s , |n,s≡f^n| ) = [ [ {!!} , {!!} , {!!} ] , [ {!!} , {!!} , {!!} ] , {!!} ]
+   --                            r     fⁿ   |n,refl|     gⁿ     1r   |0,refl| [gⁿ,1]≡[g,1]ⁿ
