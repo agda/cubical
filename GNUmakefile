@@ -4,7 +4,7 @@ AGDA=$(AGDA_EXEC) $(RTS_OPTIONS)
 EVERYTHINGS=runhaskell ./Everythings.hs
 
 .PHONY : all
-all : gen-everythings check
+all : check
 
 .PHONY : test
 test: check-whitespace gen-and-check-everythings check-README check
@@ -41,12 +41,12 @@ check-README:
 # typechecking and generating listings for all files imported in README
 
 .PHONY : check
-check:
+check: gen-everythings
 	$(AGDA) Cubical/README.agda
 	$(AGDA) Cubical/WithK.agda
 
 .PHONY : timings
-timings: clean
+timings: clean gen-everythings
 	$(AGDA) -v profile.modules:10 Cubical/README.agda
 
 .PHONY : listings
