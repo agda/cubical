@@ -58,7 +58,7 @@ isContrUnit* : ∀ {ℓ} → isContr (Unit* {ℓ})
 isContrUnit* = tt* , λ _ → refl
 
 isPropUnit* : ∀ {ℓ} → isProp (Unit* {ℓ})
-isPropUnit* _ _ = refl 
+isPropUnit* _ _ = refl
 
 isOfHLevelUnit* : ∀ {ℓ} (n : HLevel) → isOfHLevel n (Unit* {ℓ})
 isOfHLevelUnit* zero = tt* , λ _ → refl
