@@ -267,7 +267,7 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
   AlgebraΣ→Algebra (A , (_+_ , _·_ , 1a , _⋆_) , isLeftModule , isMonoid , dist , lassoc , rassoc) =
     algebra A _ 1a _+_ _·_ _ _⋆_
     (isalgebra (LeftModule.isLeftModule (LeftModuleΣ→LeftModule (A , (_ , isLeftModule))))
-               (Monoid.isMonoid (MonoidΣ→Monoid (A , (_ , isMonoid))))
+               (MonoidStr.isMonoid (MonoidΣ→Monoid (A , (_ , isMonoid)) .snd))
                dist lassoc rassoc)
 
   AlgebraIsoAlgebraΣ : Iso (Algebra R) AlgebraΣ
@@ -293,7 +293,7 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
         LeftModule.isLeftModule (module-helper
         (leftmodule _ _ _ _ _ (isLeftModule a)) i)
       IsAlgebra.·-isMonoid (isAlgebra (helper a i)) =
-        Monoid.isMonoid (monoid-helper (monoid _ _ _ (·-isMonoid a)) i)
+        MonoidStr.isMonoid (monoid-helper (monoid _ _ _ (·-isMonoid a)) i .snd)
       IsAlgebra.dist (isAlgebra (helper a i)) = dist a
       IsAlgebra.⋆-lassoc (isAlgebra (helper a i)) = ⋆-lassoc a
       IsAlgebra.⋆-rassoc (isAlgebra (helper a i)) = ⋆-rassoc a

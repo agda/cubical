@@ -228,7 +228,7 @@ module RingΣTheory {ℓ} where
       +-isAbGroup (Ring.isRing (helper a i)) =
         AbGroup.isAbGroup (abgroup-helper (abgroup _ _ _ _ (Ring.+-isAbGroup a)) i)
       ·-isMonoid (Ring.isRing (helper a i)) =
-        Monoid.isMonoid (monoid-helper (monoid _ _ _ (Ring.·-isMonoid a)) i)
+        MonoidStr.isMonoid (monoid-helper (monoid _ _ _ (Ring.·-isMonoid a)) i .snd)
       dist (Ring.isRing (helper a i)) = dist (Ring.isRing a)
 
   ringUnivalentStr : UnivalentStr RingStructure RingEquivStr
