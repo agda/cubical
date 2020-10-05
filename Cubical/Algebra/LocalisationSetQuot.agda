@@ -580,3 +580,6 @@ module check (R' : CommRing {ℓ}) (f g : ⟨ R' ⟩) where
    ϕ : R × S[fg] → R[1/f][1/g]
    ϕ (r , s , |n,s≡f^n| ) = [ [ {!!} , {!!} , {!!} ] , [ {!!} , {!!} , {!!} ] , {!!} ]
    --                            r     fⁿ   |n,refl|     gⁿ     1r   |0,refl| [gⁿ,1]≡[g,1]ⁿ
+   -- λ (r / (fg)ⁿ) → ((r / fⁿ) /gⁿ)
+   -- Σ[ n ∈ ℕ ] (s ≡ f ^ n) × (∀ m → s ≡ f ^ m → n ≤ m)
+   -- (n,s≡fⁿ,p) (m,s≡fᵐ,q) then n≤m by p and  m≤n by q => n≡m
