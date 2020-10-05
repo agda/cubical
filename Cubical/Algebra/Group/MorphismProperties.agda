@@ -178,13 +178,13 @@ module GroupΣTheory {ℓ} where
     monoid-helper : retract (Monoid→MonoidΣ {ℓ}) MonoidΣ→Monoid
     monoid-helper = Iso.leftInv MonoidIsoMonoidΣ
 
-    helper : retract (λ z → Group→GroupΣ z) GroupΣ→Group
+    helper : retract Group→GroupΣ GroupΣ→Group
     Carrier (helper a i) = ⟨ a ⟩
     0g (helper a i) = 0g a
     _+_ (helper a i) = (_+_) a
     - helper a i = - a
     IsGroup.isMonoid (isGroup (helper a i)) =
-      Monoid.isMonoid (monoid-helper (monoid (Carrier a) (0g a) (_+_ a) (isMonoid a)) i)
+      MonoidStr.isMonoid (monoid-helper (monoid (Carrier a) (0g a) (_+_ a) (isMonoid a)) i .snd)
     IsGroup.inverse (isGroup (helper a i)) = inverse a
 
   groupUnivalentStr : UnivalentStr GroupStructure GroupEquivStr

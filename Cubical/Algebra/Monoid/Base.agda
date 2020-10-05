@@ -39,13 +39,11 @@ record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
   rid x = identity x .fst
 
 
-record Monoid : Type (ℓ-suc ℓ) where
-  constructor monoid
-
+record MonoidStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
+  constructor monoidstr
   field
-    Carrier  : Type ℓ
-    ε        : Carrier
-    _·_      : Carrier → Carrier → Carrier
+    ε        : A
+    _·_      : A → A → A
     isMonoid : IsMonoid ε _·_
 
   infixl 7 _·_
@@ -57,10 +55,15 @@ record Monoid : Type (ℓ-suc ℓ) where
 
   -- open Semigroup semigrp public
 
+Monoid : Type (ℓ-suc ℓ)
+Monoid = TypeWithStr _ MonoidStr
+
+monoid : (A : Type ℓ) (ε : A) (_·_ : A → A → A) (h : IsMonoid ε _·_) → Monoid
+monoid A ε _·_ h = A , monoidstr ε _·_ h
 
 -- Extractor for the carrier type
 ⟨_⟩ : Monoid → Type ℓ
-⟨_⟩ = Monoid.Carrier
+⟨_⟩ = typ
 
 η-isMonoid : {A : Type ℓ} {ε : A} {_∙_ :  A → A → A} (b : IsMonoid ε _∙_)
           → ismonoid (IsMonoid.isSemigroup b) (IsMonoid.identity b) ≡ b
@@ -92,8 +95,8 @@ record MonoidEquiv (M N : Monoid {ℓ}) : Type ℓ where
   constructor monoidiso
 
   private
-    module M = Monoid M
-    module N = Monoid N
+    module M = MonoidStr (snd M)
+    module N = MonoidStr (snd N)
 
   field
     e     : ⟨ M ⟩ ≃ ⟨ N ⟩
@@ -140,10 +143,10 @@ module MonoidΣTheory {ℓ} where
   MonoidAxioms≡IsMonoid : {M : Type ℓ} (s : RawMonoidStructure M)
     → MonoidAxioms M s ≡ IsMonoid (s .fst) (s .snd)
   MonoidAxioms≡IsMonoid s = isoToPath (MonoidAxiomsIsoIsMonoid s)
-  open Monoid
+  open MonoidStr
   Monoid→MonoidΣ : Monoid → MonoidΣ
-  Monoid→MonoidΣ M =
-    ⟨ M ⟩ , ((ε M) , _·_ M) , MonoidAxiomsIsoIsMonoid ((ε M) , _·_ M) .inv (isMonoid M)
+  Monoid→MonoidΣ (A , M) =
+    A , (ε M , _·_ M) , MonoidAxiomsIsoIsMonoid (ε M , _·_ M) .inv (isMonoid M)
 
   MonoidΣ→Monoid : MonoidΣ → Monoid
   MonoidΣ→Monoid (M , (ε , _·_) , isMonoidΣ) =
@@ -151,13 +154,7 @@ module MonoidΣTheory {ℓ} where
 
   MonoidIsoMonoidΣ : Iso Monoid MonoidΣ
   MonoidIsoMonoidΣ =
-    iso Monoid→MonoidΣ MonoidΣ→Monoid (λ _ → refl) helper
-    where
-    helper : _
-    Carrier (helper a i) = ⟨ a ⟩
-    ε (helper a i) = ε a
-    _·_ (helper a i) = _·_ a
-    isMonoid (helper a i) = η-isMonoid (isMonoid a) i
+    iso Monoid→MonoidΣ MonoidΣ→Monoid (λ _ → refl) (λ _ → refl)
 
   monoidUnivalentStr : UnivalentStr MonoidStructure MonoidEquivStr
   monoidUnivalentStr = axiomsUnivalentStr _ isPropMonoidAxioms rawMonoidUnivalentStr
@@ -185,14 +182,14 @@ module MonoidΣTheory {ℓ} where
   RawMonoidΣ = TypeWithStr ℓ RawMonoidStructure
 
   Monoid→RawMonoidΣ : Monoid → RawMonoidΣ
-  Monoid→RawMonoidΣ A = ⟨ A ⟩ , (ε A) , (_·_ A)
+  Monoid→RawMonoidΣ (A , M) = A , (ε M) , (_·_ M)
 
-  InducedMonoid : (M : Monoid) (N : RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+  InducedMonoid : (M : Monoid) (N : RawMonoidΣ) (e : M .fst ≃ N .fst)
                  → RawMonoidEquivStr (Monoid→RawMonoidΣ M) N e → Monoid
   InducedMonoid M N e r =
     MonoidΣ→Monoid (transferAxioms rawMonoidUnivalentStr (Monoid→MonoidΣ M) N (e , r))
 
-  InducedMonoidPath : (M : Monoid {ℓ}) (N : RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+  InducedMonoidPath : (M : Monoid {ℓ}) (N : RawMonoidΣ) (e : M .fst ≃ N .fst)
                       (E : RawMonoidEquivStr (Monoid→RawMonoidΣ M) N e)
                     → M ≡ InducedMonoid M N e E
   InducedMonoidPath M N e E =
@@ -208,24 +205,23 @@ isPropIsMonoid ε _·_ =
 MonoidPath : (M N : Monoid {ℓ}) → (MonoidEquiv M N) ≃ (M ≡ N)
 MonoidPath = MonoidΣTheory.MonoidPath
 
-InducedMonoid : (M : Monoid {ℓ}) (N : MonoidΣTheory.RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+InducedMonoid : (M : Monoid {ℓ}) (N : MonoidΣTheory.RawMonoidΣ) (e : M .fst ≃ N .fst)
               → MonoidΣTheory.RawMonoidEquivStr (MonoidΣTheory.Monoid→RawMonoidΣ M) N e
               → Monoid
 InducedMonoid = MonoidΣTheory.InducedMonoid
 
-InducedMonoidPath : (M : Monoid {ℓ}) (N : MonoidΣTheory.RawMonoidΣ) (e : M .Monoid.Carrier ≃ N .fst)
+InducedMonoidPath : (M : Monoid {ℓ}) (N : MonoidΣTheory.RawMonoidΣ) (e : M .fst ≃ N .fst)
                     (E : MonoidΣTheory.RawMonoidEquivStr (MonoidΣTheory.Monoid→RawMonoidΣ M) N e)
                   → M ≡ InducedMonoid M N e E
 InducedMonoidPath = MonoidΣTheory.InducedMonoidPath
 
+module MonoidTheory {ℓ} (M : Monoid {ℓ}) where
 
-module MonoidTheory {ℓ} (M' : Monoid {ℓ}) where
-
-  open Monoid M' renaming ( Carrier to M )
+  open MonoidStr (snd M)
 
   -- Added for its use in groups
   -- If there exists a inverse of an element it is unique
-  inv-lemma : (x y z : M) → y · x ≡ ε → x · z ≡ ε → y ≡ z
+  inv-lemma : (x y z : ⟨ M ⟩) → y · x ≡ ε → x · z ≡ ε → y ≡ z
   inv-lemma x y z left-inverse right-inverse =
     y           ≡⟨ sym (rid y) ⟩
     y · ε       ≡⟨ cong (λ - → y · -) (sym right-inverse) ⟩
@@ -233,3 +229,4 @@ module MonoidTheory {ℓ} (M' : Monoid {ℓ}) where
     (y · x) · z ≡⟨ cong (λ - → - · z) left-inverse ⟩
     ε · z       ≡⟨ lid z ⟩
     z ∎
+
