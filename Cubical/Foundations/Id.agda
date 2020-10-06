@@ -262,10 +262,10 @@ equivToEquiv (f , p) i =
 EquivContr : ∀ (A : Type ℓ) → isContr (Σ[ T ∈ Type ℓ ] (T ≃ A))
 EquivContr {ℓ = ℓ} A = helper1 f1 f2 f12 (EquivContrPath A)
   where
-  f1 : ∀ {ℓ} {A : Type ℓ} → Σ[ T ∈ Type ℓ ] (EquivPath T A) → Σ[ T ∈ Type ℓ ] (T ≃ A)
+  f1 : {A : Type ℓ} → Σ[ T ∈ Type ℓ ] (EquivPath T A) → Σ[ T ∈ Type ℓ ] (T ≃ A)
   f1 (x , p) = x , equivPathToEquiv p
 
-  f2 : ∀ {ℓ} {A : Type ℓ} → Σ[ T ∈ Type ℓ ] (T ≃ A) → Σ[ T ∈ Type ℓ ] (EquivPath T A)
+  f2 : {A : Type ℓ} → Σ[ T ∈ Type ℓ ] (T ≃ A) → Σ[ T ∈ Type ℓ ] (EquivPath T A)
   f2 (x , p) = x , equivToEquivPath p
 
   f12 : (y : Σ[ T ∈ Type ℓ ] (T ≃ A)) → Path (Σ[ T ∈ Type ℓ ] (T ≃ A)) (f1 (f2 y)) y
