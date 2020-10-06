@@ -10,7 +10,7 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Data.Bool
 open import Cubical.Data.Empty
 
-open import Cubical.HITs.S1 hiding (inv)
+open import Cubical.HITs.S1
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3
 
@@ -162,3 +162,23 @@ S³≃SuspS² = isoToEquiv S³IsoSuspS²
 
 S³≡SuspS² : S³ ≡ SuspS²
 S³≡SuspS² = ua S³≃SuspS²
+
+IsoType→IsoSusp : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → Iso A B → Iso (Susp A) (Susp B)
+fun (IsoType→IsoSusp is) north = north
+fun (IsoType→IsoSusp is) south = south
+fun (IsoType→IsoSusp is) (merid a i) = merid (fun is a) i
+inv (IsoType→IsoSusp is) north = north
+inv (IsoType→IsoSusp is) south = south
+inv (IsoType→IsoSusp is) (merid a i) = merid (inv is a) i
+rightInv (IsoType→IsoSusp is) north = refl
+rightInv (IsoType→IsoSusp is) south = refl
+rightInv (IsoType→IsoSusp is) (merid a i) j = merid (rightInv is a j) i
+leftInv (IsoType→IsoSusp is) north = refl
+leftInv (IsoType→IsoSusp is) south = refl
+leftInv (IsoType→IsoSusp is) (merid a i) j = merid (leftInv is a j) i
+
+IsoSuspS²SuspSuspS¹ : Iso (Susp S²) (Susp (Susp S¹))
+IsoSuspS²SuspSuspS¹ = IsoType→IsoSusp S²IsoSuspS¹
+
+IsoS³S3 : Iso S³ (Susp (Susp S¹))
+IsoS³S3 = compIso S³IsoSuspS² IsoSuspS²SuspSuspS¹
