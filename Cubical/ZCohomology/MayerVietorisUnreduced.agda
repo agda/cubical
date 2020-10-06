@@ -83,45 +83,47 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
   dHomHelperPath : (n : ℕ) (h l : C → coHomK n) (a : C) → I → I → coHomK (suc n)
   dHomHelperPath zero h l a i j =
     hcomp (λ k → λ { (i = i0) → lUnitₖ 1 (0ₖ 1) (~ j)
-                    ; (i = i1) → lUnitₖ 1 (0ₖ 1) (~ j)
-                    ; (j = i0) → +ₖ→∙ 0 (h a) (l a) (~ k) i
-                    ; (j = i1) → cong₂Funct (λ x y → x +[ 1 ]ₖ y) (Kn→ΩKn+1 0 (h a)) (Kn→ΩKn+1 0 (l a)) (~ k) i})
+                   ; (i = i1) → lUnitₖ 1 (0ₖ 1) (~ j)
+                   ; (j = i0) → +ₖ→∙ 0 (h a) (l a) (~ k) i
+                   ; (j = i1) → cong₂Funct (λ x y → x +[ 1 ]ₖ y)
+                                           (Kn→ΩKn+1 0 (h a)) (Kn→ΩKn+1 0 (l a)) (~ k) i})
           (bottom i j)
        where
        bottom : I → I → coHomK 1
        bottom i j = hcomp (λ k → λ { (i = i0) → lUnitₖ 1 (0ₖ 1) (~ j)
-                                   ; (i = i1) → cong (λ x → lUnitₖ 1 x (~ j)) (Kn→ΩKn+1 0 (l a)) k})
+                                   ; (i = i1) → lUnitₖ 1 (Kn→ΩKn+1 0 (l a) k) (~ j) })
                           (anotherbottom i j)
 
          where
          anotherbottom : I → I → coHomK 1
          anotherbottom i j =  hcomp (λ k → λ { (i = i0) → rUnitlUnit0 1 k (~ j)
-                                            ; (i = i1) → rUnitlUnit0 1 k (~ j)
-                                            ; (j = i0) → Kn→ΩKn+1 0 (h a) i
-                                            ; (j = i1) → cong (λ x → x +[ 1 ]ₖ (0ₖ 1)) (Kn→ΩKn+1 0 (h a)) i})
-                                  (cong (λ x → rUnitₖ 1 x (~ j)) (Kn→ΩKn+1 0 (h a)) i)
+                                             ; (i = i1) → rUnitlUnit0 1 k (~ j)
+                                             ; (j = i0) → Kn→ΩKn+1 0 (h a) i
+                                             ; (j = i1) → Kn→ΩKn+1 0 (h a) i +[ 1 ]ₖ 0ₖ 1 })
+                                    (rUnitₖ 1 (Kn→ΩKn+1 0 (h a) i) (~ j))
   dHomHelperPath (suc n) h l a i j =
-    hcomp (λ k → λ { (i = i0) → lUnitₖ (suc (suc n)) (0ₖ (suc (suc n))) (~ j)
-                   ; (i = i1) → lUnitₖ (suc (suc n)) (0ₖ (suc (suc n))) (~ j)
+    hcomp (λ k → λ { (i = i0) → lUnitₖ (2 + n) (0ₖ (2 + n)) (~ j)
+                   ; (i = i1) → lUnitₖ (2 + n) (0ₖ (2 + n)) (~ j)
                    ; (j = i0) → +ₖ→∙ (suc n) (h a) (l a) (~ k) i
-                   ; (j = i1) → cong₂Funct (λ x y → x +[ (suc (suc n)) ]ₖ y) (Kn→ΩKn+1 (suc n) (h a)) (Kn→ΩKn+1 (suc n) (l a)) (~ k) i})
-         (bottom i j)
+                   ; (j = i1) → cong₂Funct (λ x y → x +[ 2 + n ]ₖ y)
+                                           (Kn→ΩKn+1 (suc n) (h a)) (Kn→ΩKn+1 (suc n) (l a)) (~ k) i})
+          (bottom i j)
       where
-      bottom : I → I → coHomK (suc (suc n))
-      bottom i j = hcomp (λ k → λ { (i = i0) → lUnitₖ (suc (suc n)) (0ₖ (suc (suc n))) (~ j)
-                                  ; (i = i1) → cong (λ x → lUnitₖ (suc (suc n)) x (~ j)) (Kn→ΩKn+1 (suc n) (l a)) k})
+      bottom : I → I → coHomK (2 + n)
+      bottom i j = hcomp (λ k → λ { (i = i0) → lUnitₖ (2 + n) (0ₖ (2 + n)) (~ j)
+                                  ; (i = i1) → lUnitₖ (2 + n) (Kn→ΩKn+1 (suc n) (l a) k) (~ j) })
                          (anotherbottom i j)
 
         where
-        anotherbottom : I → I → coHomK (suc (suc n))
-        anotherbottom i j =  hcomp (λ k → λ { (i = i0) → rUnitlUnit0 (suc (suc n)) k (~ j)
-                                           ; (i = i1) → rUnitlUnit0 (suc (suc n)) k (~ j)
+        anotherbottom : I → I → coHomK (2 + n)
+        anotherbottom i j = hcomp (λ k → λ { (i = i0) → rUnitlUnit0 (2 + n) k (~ j)
+                                           ; (i = i1) → rUnitlUnit0 (2 + n) k (~ j)
                                            ; (j = i0) → Kn→ΩKn+1 (suc n) (h a) i
-                                           ; (j = i1) → cong (λ x → x +[ (suc (suc n)) ]ₖ (0ₖ (suc (suc n)))) (Kn→ΩKn+1 (suc n) (h a)) i})
-                                 (cong (λ x → rUnitₖ (suc (suc n)) x (~ j)) (Kn→ΩKn+1 (suc n) (h a)) i)
+                                           ; (j = i1) → Kn→ΩKn+1 (suc n) (h a) i +[ 2 + n ]ₖ (0ₖ (2 + n)) })
+                                  (rUnitₖ (2 + n) (Kn→ΩKn+1 (suc n) (h a) i) (~ j))
 
   dHomHelper : (n : ℕ) (h l : C → coHomK n) (x : Pushout f g)
-             → d-pre n (λ x → h x +[ n ]ₖ l x) x ≡ d-pre n h x +[ (suc n) ]ₖ d-pre n l x
+             → d-pre n (λ x → h x +[ n ]ₖ l x) x ≡ d-pre n h x +[ suc n ]ₖ d-pre n l x
   dHomHelper n h l (inl x) = sym (lUnitₖ (suc n) (0ₖ (suc n))) -- sym (suc n) (lUnitₖ (suc n) (0ₖ (suc n)))
   dHomHelper n h l (inr x) = sym (lUnitₖ (suc n) (0ₖ (suc n)))
   dHomHelper zero h l (push a i) j = dHomHelperPath zero h l a i j
@@ -174,15 +176,15 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
       helper F p1 p2 (inr x) = sym (cong (λ f → f x) p2)
       helper F p1 p2 (push a i) j =
         hcomp (λ k → λ { (i = i0) → p1 (~ j) (f a)
-                        ; (i = i1) → p2 (~ j) (g a)
-                        ; (j = i0) → Iso.rightInv (Iso-Kn-ΩKn+1 zero) ((λ i₁ → p1 (~ i₁) (f a))
+                       ; (i = i1) → p2 (~ j) (g a)
+                       ; (j = i0) → Iso.rightInv (Iso-Kn-ΩKn+1 zero) ((λ i₁ → p1 (~ i₁) (f a))
                                                                        ∙∙ cong F (push a)
                                                                        ∙∙ cong (λ F₁ → F₁ (g a)) p2) (~ k) i
                         ; (j = i1) → F (push a i)})
               (doubleCompPath-filler (sym (cong (λ F → F (f a)) p1)) (cong F (push a)) (cong (λ F → F (g a)) p2) (~ j) i)
   Ker-i⊂Im-d (suc n) =
    sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
-                         λ a p → pRec {A = (λ x → a (inl x)) ≡ λ _ → (0ₖ (suc (suc n)))} (isOfHLevelΠ 1 (λ _ → propTruncIsProp))
+                         λ a p → pRec {A = (λ x → a (inl x)) ≡ λ _ → (0ₖ (2 + n))} (isOfHLevelΠ 1 (λ _ → propTruncIsProp))
                                        (λ p1 → pRec propTruncIsProp λ p2 → ∣ ∣ (λ c → ΩKn+1→Kn (suc n) (sym (cong (λ F → F (f c)) p1)
                                                                                                  ∙∙ cong a (push c)
                                                                                                  ∙∙ cong (λ F → F (g c)) p2)) ∣₂
@@ -191,9 +193,9 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
                                        (Iso.fun (PathIdTrunc₀Iso) (cong snd p))
 
       where
-      helper : (F : (Pushout f g) → hLevelTrunc (4 + n) (S₊ (suc (suc n))))
-               (p1 : Path (_ → hLevelTrunc (4 + n) (S₊ (suc (suc n)))) (λ a₁ → F (inl a₁)) (λ _ → ∣ north ∣))
-               (p2 : Path (_ → hLevelTrunc (4 + n) (S₊ (suc (suc n)))) (λ a₁ → F (inr a₁)) (λ _ → ∣ north ∣))
+      helper : (F : (Pushout f g) → hLevelTrunc (4 + n) (S₊ (2 + n)))
+               (p1 : Path (_ → hLevelTrunc (4 + n) (S₊ (2 + n))) (λ a₁ → F (inl a₁)) (λ _ → ∣ north ∣))
+               (p2 : Path (_ → hLevelTrunc (4 + n) (S₊ (2 + n))) (λ a₁ → F (inr a₁)) (λ _ → ∣ north ∣))
              → (δ : (Pushout f g))
              → d-pre (suc n) (λ c → ΩKn+1→Kn (suc n) ((λ i₁ → p1 (~ i₁) (f c))
                                                      ∙∙ cong F (push c)
