@@ -5,13 +5,7 @@ open import Cubical.Foundations.Everything renaming (J to J')
 open import Cubical.HITs.S1
 open import Cubical.HITs.Truncation.FromNegOne
 
-private
-  variable
-    ℓ : Level
-    A B : Type ℓ
-    A∙ : Pointed ℓ
-
-data J (A : Pointed ℓ) : Type ℓ where
+data J {ℓ : Level} (A : Pointed ℓ) : Type ℓ where
   εJ : J A
   αJ : typ A → J A → J A
   δJ : (x : J A) → x ≡ αJ (pt A) x
@@ -21,7 +15,7 @@ test εJ = ∣ base ∣
 test (αJ base x) = test x
 test (αJ (loop i) εJ) = ∣ loop i ∣
 test (αJ (loop i) (αJ base y)) = test (αJ (loop i) y)
-test (αJ (loop i) (αJ (loop j) y)) =  {! SquareHelp i j !} 
+test (αJ (loop i) (αJ (loop j) y)) = {! SquareHelp i j !}
   where
   SquareHelp : Square (λ j → test (αJ (loop j) y)) (λ j → test (αJ (loop j) y))
                       (λ j → test (αJ (loop j) y)) λ j → test (αJ (loop j) y)
