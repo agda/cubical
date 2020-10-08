@@ -240,7 +240,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
     ∀ xs ys zs → (xs ⊔ ys) ⊔ zs ≡ xs ⊔ (ys ⊔ zs)
 
   LQassoc : hasAssociativeUnion (List/Rᴸ , LQstructure)
-  LQassoc = elimProp3 (λ _ _ _ → squash/ _ _) (λ xs ys zs → cong [_] (++-assoc xs ys zs))
+  LQassoc = elimProp3 (λ _ _ _ → squash/ _ _) (λ xs ys zs i → [ ++-assoc xs ys zs i ])
 
   ALQassoc : hasAssociativeUnion (AList/Rᴬᴸ , ALQstructure)
   ALQassoc = subst hasAssociativeUnion List/Rᴸ≡AList/Rᴬᴸ LQassoc
