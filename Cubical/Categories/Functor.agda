@@ -1,9 +1,9 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 module Cubical.Categories.Functor where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 
 private

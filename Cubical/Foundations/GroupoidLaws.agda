@@ -4,7 +4,7 @@ This file proves the higher groupoid structure of types
 for homogeneous and heterogeneous paths
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.GroupoidLaws where
 
 open import Cubical.Foundations.Prelude
@@ -124,18 +124,18 @@ assocP : {A : I → Type ℓ} {x : A i0} {y : A i1} {B_i1 : Type ℓ} {B : (A i1
   {C_i1 : Type ℓ} {C : (B i1) ≡ C_i1} {w : C i1} (p : PathP A x y) (q : PathP (λ i → B i) y z) (r : PathP (λ i → C i) z w) →
   PathP (λ j → PathP (λ i → assoc (λ i → A i) B C j i) x w) (compPathP p (compPathP q r)) (compPathP (compPathP p q) r)
 assocP {A = A} {B = B} {C = C} p q r k i =
-    comp (hfill  (λ j → λ {
+    comp (\ j' → hfill  (λ j → λ {
                      (i = i0) → A i0
                    ; (i = i1) → compPath-filler' (λ i₁ → B i₁) (λ i₁ → C i₁) (~ k) j })
-                     (inS (compPath-filler (λ i₁ → A i₁) (λ i₁ → B i₁) k i)) )
+                     (inS (compPath-filler (λ i₁ → A i₁) (λ i₁ → B i₁) k i)) j')
      (λ j → λ
       { (i = i0) → p i0
       ; (i = i1) →
-        comp (hfill ((λ l → λ
+        comp (\ j' → hfill ((λ l → λ
             { (j = i0) → B k
             ; (j = i1) → C l
             ; (k = i1) → C (j ∧ l)
-            })) (inS (B ( j ∨ k)) ) )
+            })) (inS (B ( j ∨ k)) ) j')
           (λ l → λ
             { (j = i0) → q k
             ; (j = i1) → r l
@@ -151,20 +151,20 @@ assocP {A = A} {B = B} {C = C} p q r k i =
 
 -- some exchange law for doubleCompPath and refl
 
-rhombus-filler : {ℓ : Level} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → I → I → A
-rhombus-filler p q i j =
-  hcomp (λ t → λ { (i = i0) → p (~ t ∨ j)
-                 ; (i = i1) → q (t ∧ j)
-                 ; (j = i0) → p (~ t ∨ i)
-                 ; (j = i1) → q (t ∧ i) })
-        (p i1)
+invSides-filler : {x y z : A} (p : x ≡ y) (q : x ≡ z) → Square p (sym q) q (sym p)
+invSides-filler {x = x} p q i j =
+  hcomp (λ k → λ { (i = i0) → p (k ∧ j)
+                 ; (i = i1) → q (~ j ∧ k)
+                 ; (j = i0) → q (i ∧ k)
+                 ; (j = i1) → p (~ i ∧ k)})
+        x
 
 leftright : {ℓ : Level} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) →
             (refl ∙∙ p ∙∙ q) ≡ (p ∙∙ q ∙∙ refl)
 leftright p q i j =
   hcomp (λ t → λ { (j = i0) → p (i ∧ (~ t))
                  ; (j = i1) → q (t ∨ i) })
-        (rhombus-filler p q i j)
+        (invSides-filler q (sym p) (~ i) j)
 
 -- equating doubleCompPath and a succession of two compPath
 
@@ -190,14 +190,6 @@ doubleCompPath-elim' : {ℓ : Level} {A : Type ℓ} {w x y z : A} (p : w ≡ x) 
                        (r : y ≡ z) → (p ∙∙ q ∙∙ r) ≡ p ∙ (q ∙ r)
 doubleCompPath-elim' p q r = (split-leftright' p q r) ∙ (sym (leftright p (q ∙ r)))
 
-
-cong-∙ : ∀ {B : Type ℓ} (f : A → B) (p : x ≡ y) (q : y ≡ z)
-         → cong f (p ∙ q) ≡ (cong f p) ∙ (cong f q)
-cong-∙ f p q j i = hcomp (λ k → λ { (j = i0) → f (compPath-filler p q k i)
-                                  ; (i = i0) → f (p i0)
-                                  ; (i = i1) → f (q k) })
-                         (f (p i))
-
 cong-∙∙ : ∀ {B : Type ℓ} (f : A → B) (p : w ≡ x) (q : x ≡ y) (r : y ≡ z)
           → cong f (p ∙∙ q ∙∙ r) ≡ (cong f p) ∙∙ (cong f q) ∙∙ (cong f r)
 cong-∙∙ f p q r j i = hcomp (λ k → λ { (j = i0) → f (doubleCompPath-filler p q r k i)
@@ -205,7 +197,11 @@ cong-∙∙ f p q r j i = hcomp (λ k → λ { (j = i0) → f (doubleCompPath-fi
                                      ; (i = i1) → f (r k) })
                             (f (q i))
 
-hcomp-unique : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
+cong-∙ : ∀ {B : Type ℓ} (f : A → B) (p : x ≡ y) (q : y ≡ z)
+         → cong f (p ∙ q) ≡ (cong f p) ∙ (cong f q)
+cong-∙ f p q = cong-∙∙ f refl p q
+
+hcomp-unique : ∀ {ℓ} {A : Type ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
                (h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
                → (hcomp u (outS u0) ≡ outS (h2 i1)) [ φ ↦ (\ { (φ = i1) → (\ i → u i1 1=1)}) ]
 hcomp-unique {φ = φ} u u0 h2 = inS (\ i → hcomp (\ k → \ { (φ = i1) → u k 1=1
@@ -213,7 +209,7 @@ hcomp-unique {φ = φ} u u0 h2 = inS (\ i → hcomp (\ k → \ { (φ = i1) → u
                                                    (outS u0))
 
 
-lid-unique : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
+lid-unique : ∀ {ℓ} {A : Type ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
                (h1 h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
                → (outS (h1 i1) ≡ outS (h2 i1)) [ φ ↦ (\ { (φ = i1) → (\ i → u i1 1=1)}) ]
 lid-unique {φ = φ} u u0 h1 h2 = inS (\ i → hcomp (\ k → \ { (φ = i1) → u k 1=1
@@ -222,42 +218,32 @@ lid-unique {φ = φ} u u0 h1 h2 = inS (\ i → hcomp (\ k → \ { (φ = i1) → 
                                                    (outS u0))
 
 
-transp-hcomp : ∀ {ℓ} (φ : I) {A' : Set ℓ}
-                     (A : (i : I) → Set ℓ [ φ ↦ (λ _ → A') ]) (let B = \ (i : I) → outS (A i))
+transp-hcomp : ∀ {ℓ} (φ : I) {A' : Type ℓ}
+                     (A : (i : I) → Type ℓ [ φ ↦ (λ _ → A') ]) (let B = \ (i : I) → outS (A i))
                  → ∀ {ψ} (u : I → Partial ψ (B i0)) → (u0 : B i0 [ ψ ↦ u i0 ]) →
-                 (transp B φ (hcomp u (outS u0)) ≡ hcomp (\ i o → transp B φ (u i o)) (transp B φ (outS u0)))
-                   [ ψ ↦ (\ { (ψ = i1) → (\ i → transp B φ (u i1 1=1))}) ]
+                 (transp (\ i → B i) φ (hcomp u (outS u0)) ≡ hcomp (\ i o → transp (\ i → B i) φ (u i o)) (transp (\ i → B i) φ (outS u0)))
+                   [ ψ ↦ (\ { (ψ = i1) → (\ i → transp (\ i → B i) φ (u i1 1=1))}) ]
 transp-hcomp φ A u u0 = inS (sym (outS (hcomp-unique
-               ((\ i o → transp B φ (u i o))) (inS (transp B φ (outS u0)))
-                 \ i → inS (transp B φ (hfill u u0 i)))))
+               ((\ i o → transp (\ i → B i) φ (u i o))) (inS (transp (\ i → B i) φ (outS u0)))
+                 \ i → inS (transp (\ i → B i) φ (hfill u u0 i)))))
   where
     B = \ (i : I) → outS (A i)
 
 
-hcomp-cong : ∀ {ℓ} {A : Set ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
-                                    (u' : I → Partial φ A) → (u0' : A [ φ ↦ u' i0 ]) →
-
+hcomp-cong : ∀ {ℓ} {A : Type ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
+                                     (u' : I → Partial φ A) → (u0' : A [ φ ↦ u' i0 ]) →
              (ueq : ∀ i → PartialP φ (\ o → u i o ≡ u' i o)) → (outS u0 ≡ outS u0') [ φ ↦ (\ { (φ = i1) → ueq i0 1=1}) ]
              → (hcomp u (outS u0) ≡ hcomp u' (outS u0')) [ φ ↦ (\ { (φ = i1) → ueq i1 1=1 }) ]
 hcomp-cong u u0 u' u0' ueq 0eq = inS (\ j → hcomp (\ i o → ueq i o j) (outS 0eq j))
-
-
-invSides-filler : {x y z : A} (p : x ≡ y) (q : x ≡ z) → PathP (λ j → q j ≡ p (~ j)) p (sym q)
-invSides-filler {A = A} {x = x} p q i j =
-  hcomp (λ k → λ { (i = i0) → p (k ∧ j)
-                  ; (i = i1) → q (~ j ∧ k)
-                  ; (j = i0) → q (i ∧ k)
-                  ; (j = i1) → p (~ i ∧ k)})
-        x
 
 congFunct-filler : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y z : A} (f : A → B) (p : x ≡ y) (q : y ≡ z)
                 → I → I → I → B
 congFunct-filler {x = x} f p q i j z =
   hfill (λ k → λ { (i = i0) → f x
-                  ; (i = i1) → f (q k)
-                  ; (j = i0) → f (compPath-filler p q k i)})
-        (inS (f (p i)))
-        z
+                 ; (i = i1) → f (q k)
+                 ; (j = i0) → f (compPath-filler p q k i)})
+       (inS (f (p i)))
+       z
 
 congFunct : ∀ {ℓ} {B : Type ℓ} (f : A → B) (p : x ≡ y) (q : y ≡ z) → cong f (p ∙ q) ≡ cong f p ∙ cong f q
 congFunct f p q j i = congFunct-filler f p q i j i1
@@ -268,7 +254,7 @@ congFunct-dep : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y z : A} 
          → PathP (λ i → PathP (λ j → B (compPath-filler p q i j)) (f x) (f (q i))) (cong f p) (cong f (p ∙ q))
 congFunct-dep {B = B} {x = x} f p q i j = f (compPath-filler p q i j)
 
-cong₂Funct : (f : A → A → A) →
+cong₂Funct : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} {B : Type ℓ'} (f : A → A → B) →
         (p : x ≡ y) →
         {u v : A} (q : u ≡ v) →
         cong₂ f p q ≡ cong (λ x → f x u) p ∙ cong (f y) q
@@ -278,18 +264,32 @@ cong₂Funct {x = x} {y = y} f p {u = u} {v = v} q j i =
                   ; (j = i0) → f (p i) (q (i ∧ k))})
        (f (p i) u)
 
-
 symDistr-filler : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → I → I → I → A
 symDistr-filler {A = A} {z = z} p q i j k =
   hfill (λ k → λ { (i = i0) → q (k ∨ j)
-                  ; (i = i1) → p (~ k ∧ j) })
-        (inS (invSides-filler q (sym p) i j))
-        k
+                 ; (i = i1) → p (~ k ∧ j) })
+       (inS (invSides-filler q (sym p) i j))
+       k
 
 symDistr : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → sym (p ∙ q) ≡ sym q ∙ sym p
 symDistr p q i j = symDistr-filler p q j i i1
 
+-- we can not write hcomp-isEquiv : {ϕ : I} → (p : I → Partial ϕ A) → isEquiv (λ (a : A [ ϕ ↦ p i0 ]) → hcomp p a)
+-- due to size issues. But what we can write (compare to hfill) is:
+hcomp-equivFillerSub : {ϕ : I} → (p : I → Partial ϕ A) → (a : A [ ϕ ↦ p i0 ])
+                     → (i : I)
+                     → A [ ϕ ∨ i ∨ ~ i ↦ (λ { (i = i0) → outS a
+                                            ; (i = i1) → hcomp (λ i → p (~ i)) (hcomp p (outS a))
+                                            ; (ϕ = i1) → p i0 1=1 }) ]
+hcomp-equivFillerSub {ϕ = ϕ} p a i =
+  inS (hcomp (λ k → λ { (i = i1) → hfill (λ j → p (~ j)) (inS (hcomp p (outS a))) k
+                      ; (i = i0) → outS a
+                      ; (ϕ = i1) → p (~ k ∧ i) 1=1 })
+             (hfill p a i))
 
+hcomp-equivFiller : {ϕ : I} → (p : I → Partial ϕ A) → (a : A [ ϕ ↦ p i0 ])
+                  → (i : I) → A
+hcomp-equivFiller p a i = outS (hcomp-equivFillerSub p a i)
 
 
 pentagonIdentity : (p : x ≡ y) → (q : y ≡ z) → (r : z ≡ w) → (s : w ≡ v)

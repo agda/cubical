@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.Pushout.Base where
 
 open import Cubical.Foundations.Prelude
@@ -14,7 +14,6 @@ data Pushout {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
   inl : B → Pushout f g
   inr : C → Pushout f g
   push : (a : A) → inl (f a) ≡ inr (g a)
-
 
 -- Suspension defined as a pushout
 
@@ -43,8 +42,15 @@ PushoutSusp→Susp→PushoutSusp (inl _) = refl
 PushoutSusp→Susp→PushoutSusp (inr _) = refl
 PushoutSusp→Susp→PushoutSusp (push _ _) = refl
 
+PushoutSuspIsoSusp : ∀ {ℓ} {A : Type ℓ} → Iso (PushoutSusp A) (Susp A)
+Iso.fun PushoutSuspIsoSusp = PushoutSusp→Susp
+Iso.inv PushoutSuspIsoSusp = Susp→PushoutSusp
+Iso.rightInv PushoutSuspIsoSusp = Susp→PushoutSusp→Susp
+Iso.leftInv PushoutSuspIsoSusp = PushoutSusp→Susp→PushoutSusp
+
+
 PushoutSusp≃Susp : ∀ {ℓ} {A : Type ℓ} → PushoutSusp A ≃ Susp A
-PushoutSusp≃Susp = isoToEquiv (iso PushoutSusp→Susp Susp→PushoutSusp Susp→PushoutSusp→Susp PushoutSusp→Susp→PushoutSusp)
+PushoutSusp≃Susp = isoToEquiv PushoutSuspIsoSusp
 
 PushoutSusp≡Susp : ∀ {ℓ} {A : Type ℓ} → PushoutSusp A ≡ Susp A
-PushoutSusp≡Susp = isoToPath (iso PushoutSusp→Susp Susp→PushoutSusp Susp→PushoutSusp→Susp PushoutSusp→Susp→PushoutSusp)
+PushoutSusp≡Susp = isoToPath PushoutSuspIsoSusp

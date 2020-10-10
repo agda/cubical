@@ -6,7 +6,7 @@ Portions of this file adapted from Nicolai Kraus' code here:
   https://bitbucket.org/nicolaikraus/agda/src/e30d70c72c6af8e62b72eefabcc57623dd921f04/trunc-inverse.lagda
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Pointed.Homogeneous where
 
 open import Cubical.Foundations.Prelude
@@ -27,7 +27,7 @@ isHomogeneous {ℓ} (A , x) = ∀ y → Path (Pointed ℓ) (A , x) (A , y)
 
 
 isHomogeneousPi : ∀ {ℓ ℓ'} {A : Type ℓ} {B∙ : A → Pointed ℓ'}
-                 → (∀ a → isHomogeneous (B∙ a)) → isHomogeneous (Π∙ A B∙)
+                 → (∀ a → isHomogeneous (B∙ a)) → isHomogeneous (Πᵘ∙ A B∙)
 isHomogeneousPi h f i = (∀ a → typ (h a (f a) i)) , (λ a → pt (h a (f a) i))
 
 isHomogeneousProd : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'}
@@ -38,7 +38,7 @@ isHomogeneousPath : ∀ {ℓ} (A : Type ℓ) {x y : A} (p : x ≡ y) → isHomog
 isHomogeneousPath A {x} {y} p q
   = pointed-sip ((x ≡ y) , p) ((x ≡ y) , q) (eqv , compPathr-cancel p q)
   where eqv : (x ≡ y) ≃ (x ≡ y)
-        eqv = ((q ∙ sym p) ∙_) , compPathl-isEquiv (q ∙ sym p)
+        eqv = compPathlEquiv (q ∙ sym p)
 
 module HomogeneousDiscrete {ℓ} {A∙ : Pointed ℓ} (dA : Discrete (typ A∙)) (y : typ A∙) where
 

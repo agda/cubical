@@ -5,10 +5,7 @@ https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html#s
 All the needed preliminary results from the lecture notes are stated and proven in this file.
 It would be interesting to compare the proves with the one in Cubical.Foundations.SIP
 -}
-
-
-
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Experiments.EscardoSIP where
 
 open import Cubical.Core.Everything
@@ -16,12 +13,10 @@ open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Data.Sigma.Properties
 
-
 private
   variable
     ℓ ℓ' ℓ'' : Level
     S : Type ℓ → Type ℓ'
-
 
 -- We prove several useful equalities and equivalences between Σ-types all the proofs are taken from
 -- Martin Hötzel-Escardó's lecture notes.
@@ -123,28 +118,6 @@ NatΣ τ (x , a) = (x , τ x a)
                       isoToEquiv (Σ-change-of-variable-Iso f (equiv→HAEquiv (f , isEquivf) .snd))
 
 
-
-
-Σ-assoc-Iso : (X : Type ℓ) (A : X → Type ℓ') (P : Σ X A → Type ℓ'')
-         → (Iso (Σ (Σ X A) P) (Σ[ x ∈ X ] (Σ[ a ∈ A x ] P (x , a))))
-Σ-assoc-Iso X A P = iso f g ε η
-   where
-    f : (Σ (Σ X A) P) → (Σ[ x ∈ X ] (Σ[ a ∈ A x ] P (x , a)))
-    f ((x , a) , p) = (x , (a , p))
-    g : (Σ[ x ∈ X ] (Σ[ a ∈ A x ] P (x , a))) →  (Σ (Σ X A) P)
-    g (x , (a , p)) = ((x , a) , p)
-    ε : section f g
-    ε n = refl
-    η : retract f g
-    η m = refl
-
-Σ-assoc-≃ : (X : Type ℓ) (A : X → Type ℓ') (P : Σ X A → Type ℓ'')
-         → (Σ (Σ X A) P) ≃ (Σ[ x ∈ X ] (Σ[ a ∈ A x ] P (x , a)))
-Σ-assoc-≃ X A P = isoToEquiv (Σ-assoc-Iso X A P)
-
-
-
-
 -- A structure is a type-family S : Type ℓ → Type ℓ', i.e. for X : Type ℓ and s : S X, the pair (X , s)
 -- means that X is equipped with a S-structure, which is witnessed by s.
 -- An S-structure should have a notion of S-homomorphism, or rather S-isomorphism.
@@ -156,28 +129,28 @@ NatΣ τ (x , a) = (x , τ x a)
 -- as S-structures. This we call a standard notion of structure.
 
 
-SNS : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') → Type (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ') ℓ'')
+SNS : (S : Type ℓ → Type ℓ') (ι : StrEquiv S ℓ'') → Type (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ') ℓ'')
 SNS  {ℓ = ℓ} S ι = ∀ {X : (Type ℓ)} (s t : S X) → ((s ≡ t) ≃ ι (X , s) (X , t) (idEquiv X))
 
 
 -- Escardo's ρ can actually be  defined from this:
-ρ :  {ι : StrIso S ℓ''} (θ : SNS S ι) (A : TypeWithStr ℓ S) → (ι A A (idEquiv (typ A)))
+ρ :  {ι : StrEquiv S ℓ''} (θ : SNS S ι) (A : TypeWithStr ℓ S) → (ι A A (idEquiv (typ A)))
 ρ θ A = equivFun (θ (str A) (str A)) refl
 
 -- We introduce the notation a bit differently:
-_≃[_]_ : (A : TypeWithStr ℓ S) (ι : StrIso S ℓ'') (B : TypeWithStr ℓ S) → (Type (ℓ-max ℓ ℓ''))
+_≃[_]_ : (A : TypeWithStr ℓ S) (ι : StrEquiv S ℓ'') (B : TypeWithStr ℓ S) → (Type (ℓ-max ℓ ℓ''))
 A ≃[ ι ] B = Σ[ f ∈ ((typ A) ≃ (typ B)) ] (ι A B f)
 
 
 
-Id→homEq : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'')
+Id→homEq : (S : Type ℓ → Type ℓ') (ι : StrEquiv S ℓ'')
           → (ρ : (A : TypeWithStr ℓ S) → ι A A (idEquiv (typ A)))
           → (A B : TypeWithStr ℓ S) → A ≡ B → (A ≃[ ι ] B)
 Id→homEq S ι ρ A B p = J (λ y x → A ≃[ ι ] y) (idEquiv (typ A) , ρ A) p
 
 
 -- Use a PathP version of Escardó's homomorphism-lemma
-hom-lemma-dep : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') (θ : SNS S ι)
+hom-lemma-dep : (S : Type ℓ → Type ℓ') (ι : StrEquiv S ℓ'') (θ : SNS S ι)
                → (A B : TypeWithStr ℓ S)
                → (p : (typ A) ≡ (typ B))
                → (PathP (λ i → S (p i)) (str A) (str B)) ≃ (ι A B (pathToEquiv p))
@@ -196,7 +169,7 @@ ua-lemma A B e = EquivJ (λ A f → (pathToEquiv (ua f)) ≡ f)
                         e
 
 
-homEq→Id : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') (θ : SNS S ι)
+homEq→Id : (S : Type ℓ → Type ℓ') (ι : StrEquiv S ℓ'') (θ : SNS S ι)
           → (A B : TypeWithStr ℓ S) → (A ≃[ ι ] B) → A ≡ B
 homEq→Id S ι θ A B (f , φ) = ΣPathP (p , q)
         where
@@ -210,7 +183,7 @@ homEq→Id S ι θ A B (f , φ) = ΣPathP (p , q)
 
 
 -- Proof of the SIP:
-SIP : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') (θ : SNS S ι)
+SIP : (S : Type ℓ → Type ℓ') (ι : StrEquiv S ℓ'') (θ : SNS S ι)
      → (A B : TypeWithStr ℓ S) → ((A ≡ B) ≃ (A ≃[ ι ] B))
 SIP S ι θ A B =
             (A ≡ B)                                                             ≃⟨ i ⟩

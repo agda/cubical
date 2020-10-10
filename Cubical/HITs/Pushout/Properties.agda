@@ -10,13 +10,14 @@ This file contains:
 
 -}
 
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 module Cubical.HITs.Pushout.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
@@ -312,3 +313,16 @@ record 3x3-span : Type₁ where
                        ; (k = i0) → A○□→A□○ (forward-filler a i j t)
                        ; (k = i1) → backward-filler a j i (~ t) })
               (backward-filler a j i i1)
+
+
+
+PushoutToProp : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {f : A → B} {g : A → C}
+                {D : Pushout f g → Type ℓ'''}
+              → ((x : Pushout f g) → isProp (D x))
+              → ((a : B) → D (inl a))
+              → ((c : C) → D (inr c))
+              → (x : Pushout f g) → D x
+PushoutToProp isset baseB baseC (inl x) = baseB x
+PushoutToProp isset baseB baseC (inr x) = baseC x
+PushoutToProp {f = f} {g = g} isset baseB baseC (push a i) =
+  isOfHLevel→isOfHLevelDep 1 isset (baseB (f a)) (baseC (g a)) (push a) i

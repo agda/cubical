@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Data.DiffInt.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -17,7 +17,7 @@ open import Cubical.HITs.SetQuotients
 open BinaryRelation
 
 relIsEquiv : isEquivRel rel
-relIsEquiv = EquivRel {A = ℕ × ℕ} relIsRefl relIsSym relIsTrans
+relIsEquiv = equivRel {A = ℕ × ℕ} relIsRefl relIsSym relIsTrans
   where
     relIsRefl : isRefl rel
     relIsRefl (a0 , a1) = refl

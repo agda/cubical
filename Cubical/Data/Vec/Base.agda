@@ -1,6 +1,6 @@
 {- Definition of vectors. Inspired by the Agda Standard Library -}
 
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Data.Vec.Base where
 
 open import Cubical.Foundations.Prelude
@@ -36,6 +36,9 @@ map : ∀ {A : Type ℓ} {B : Type ℓ'} {n} → (A → B) → Vec A n → Vec B
 map f []       = []
 map f (x ∷ xs) = f x ∷ map f xs
 
+replicate : ∀ {n} {A : Type ℓ} → A → Vec A n
+replicate {n = zero}  x = []
+replicate {n = suc n} x = x ∷ replicate x
 
 -- Concatenation
 

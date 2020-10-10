@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Functions.Surjection where
 
 open import Cubical.Core.Everything
@@ -19,6 +19,9 @@ private
 
 isSurjection : (A → B) → Type _
 isSurjection f = ∀ b → ∥ fiber f b ∥
+
+_↠_ : Type ℓ → Type ℓ' → Type (ℓ-max ℓ ℓ')
+A ↠ B = Σ[ f ∈ (A → B) ] isSurjection f
 
 section→isSurjection : {g : B → A} → section f g → isSurjection f
 section→isSurjection {g = g} s b = ∣ g b , s b ∣

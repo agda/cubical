@@ -1,5 +1,5 @@
 -- An example of something where normalization is surprisingly slow
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Experiments.Problem where
 
 open import Cubical.Foundations.Prelude

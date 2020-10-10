@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Foundations.Equiv.Base where
 
 open import Cubical.Foundations.Function
@@ -6,6 +6,9 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Core.Glue public
   using ( isEquiv ; equiv-proof ; _≃_ ; equivFun ; equivProof )
+
+fiber : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (y : B) → Type (ℓ-max ℓ ℓ')
+fiber {A = A} f y = Σ[ x ∈ A ] f x ≡ y
 
 -- The identity equivalence
 idIsEquiv : ∀ {ℓ} (A : Type ℓ) → isEquiv (idfun A)

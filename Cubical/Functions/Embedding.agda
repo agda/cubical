@@ -1,18 +1,22 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 module Cubical.Functions.Embedding where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Univalence using (ua)
+open import Cubical.Relation.Nullary using (Discrete; yes; no)
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ₁ ℓ₂ : Level
     A B : Type ℓ
     f : A → B
     w x : A
@@ -77,7 +81,7 @@ hasPropFibers : (A → B) → Type _
 hasPropFibers f = ∀ y → isProp (fiber f y)
 
 -- some notation
-_↪_ : Type ℓ → Type ℓ → Type ℓ
+_↪_ : Type ℓ₁ → Type ℓ₂ → Type (ℓ-max ℓ₁ ℓ₂)
 A ↪ B = Σ[ f ∈ (A → B) ] hasPropFibers f
 
 
@@ -132,7 +136,7 @@ isEquiv→hasPropFibers : isEquiv f → hasPropFibers f
 isEquiv→hasPropFibers e b = isContr→isProp (equiv-proof e b)
 
 isEquiv→isEmbedding : isEquiv f → isEmbedding f
-isEquiv→isEmbedding e = hasPropFibers→isEmbedding (isEquiv→hasPropFibers e)
+isEquiv→isEmbedding e = λ _ _ → congEquiv (_ , e) .snd
 
 iso→isEmbedding : ∀ {ℓ} {A B : Type ℓ}
   → (isom : Iso A B)
@@ -149,3 +153,36 @@ isEmbedding→Injection :
   ∀ x → (a (f x) ≡ a (g x)) ≡ (f x ≡ g x)
 isEmbedding→Injection a e {f = f} {g} x = sym (ua (cong a , e (f x) (g x)))
 
+-- if `f` has a retract, then `cong f` has, as well. If `B` is a set, then `cong f`
+-- further has a section, making `f` an embedding.
+module _ {f : A → B} (retf : hasRetract f) where
+  open Σ retf renaming (fst to g ; snd to ϕ)
+
+  congRetract : f w ≡ f x → w ≡ x
+  congRetract {w = w} {x = x} p = sym (ϕ w) ∙∙ cong g p ∙∙ ϕ x
+
+  isRetractCongRetract : retract (cong {x = w} {y = x} f) congRetract
+  isRetractCongRetract p = transport (PathP≡doubleCompPathˡ _ _ _ _) (λ i j → ϕ (p j) i)
+
+  hasRetract→hasRetractCong : hasRetract (cong {x = w} {y = x} f)
+  hasRetract→hasRetractCong = congRetract , isRetractCongRetract
+
+  retractableIntoSet→isEmbedding : isSet B → isEmbedding f
+  retractableIntoSet→isEmbedding setB w x =
+    isoToIsEquiv (iso (cong f) congRetract (λ _ → setB _ _ _ _) (hasRetract→hasRetractCong .snd))
+
+Embedding-into-Discrete→Discrete : A ↪ B → Discrete B → Discrete A
+Embedding-into-Discrete→Discrete (f , propFibers) _≟_ x y with f x ≟ f y
+... | yes p = yes (cong fst (propFibers (f y) (x , p) (y , refl)))
+... | no ¬p = no (¬p ∘ cong f)
+
+Embedding-into-isSet→isSet : A ↪ B → isSet B → isSet A
+Embedding-into-isSet→isSet (f , hasPropFibers-f) isSet-B x y p q =
+  p ≡⟨ sym (retIsEq isEquiv-cong-f p) ⟩
+  cong-f⁻¹ (cong f p) ≡⟨ cong cong-f⁻¹ cong-f-p≡cong-f-q ⟩
+  cong-f⁻¹ (cong f q) ≡⟨ retIsEq isEquiv-cong-f q ⟩
+  q ∎
+  where
+    cong-f-p≡cong-f-q = isSet-B (f x) (f y) (cong f p) (cong f q)
+    isEquiv-cong-f = hasPropFibers→isEmbedding hasPropFibers-f x y
+    cong-f⁻¹ = invIsEq isEquiv-cong-f
