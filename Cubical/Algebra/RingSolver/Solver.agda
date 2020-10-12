@@ -10,6 +10,7 @@ open import Cubical.Data.Vec.Base
 open import Cubical.Algebra.RingSolver.AlmostRing
 open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.RingSolver.HornerNormalForm
+open import Cubical.Algebra.RingSolver.MultivariatePolynomials
 open import Cubical.Algebra.RingSolver.RingExpression
 open import Cubical.Algebra.RingSolver.EvaluationHomomorphism
 
@@ -63,6 +64,34 @@ module EqualityToNormalForm (R : AlmostRing {ℓ}) where
     evalH (Reify e) x · ⟦ e₁ ⟧ (x ∷ [])    ≡⟨ cong (λ u → u · ⟦ e₁ ⟧ (x ∷ []))
                                                    (isEqualToNormalForm e x) ⟩
     ⟦ e ⟧ (x ∷ []) · ⟦ e₁ ⟧ (x ∷ []) ∎
+
+module MultivariateReification (R : AlmostRing {ℓ}) where
+  open ToBaseRing R
+  νR = AlmostRing→RawRing R
+  open AlmostRing R
+  open Theory R
+  open Eval νR
+
+  ReifyMultivariate : (n : ℕ) → Expr ⟨ R ⟩ n → ⟨ IteratedHornerForms n νR ⟩ᵣ
+  ReifyMultivariate n (K r) = Constant n νR r
+  ReifyMultivariate n (∣ k) = Variable n νR k
+  ReifyMultivariate (ℕ.suc n) (x ⊕ y) =
+    (ReifyMultivariate (ℕ.suc n) x) +H (ReifyMultivariate (ℕ.suc n) y)
+    where
+      _+H_ : ⟨ IteratedHornerForms (ℕ.suc n) νR ⟩ᵣ → ⟨ IteratedHornerForms (ℕ.suc n) νR ⟩ᵣ → _
+      x +H y = HornerOperations._+H_ (IteratedHornerForms n νR) x y
+  ReifyMultivariate (ℕ.suc n) (x ⊗ y) =
+    (ReifyMultivariate (ℕ.suc n) x) ·H (ReifyMultivariate (ℕ.suc n) y)
+    where
+      _·H_ : ⟨ IteratedHornerForms (ℕ.suc n) νR ⟩ᵣ → ⟨ IteratedHornerForms (ℕ.suc n) νR ⟩ᵣ → _
+      x ·H y = HornerOperations._·H_ (IteratedHornerForms n νR) x y
+  ReifyMultivariate (ℕ.suc n) (⊝ x) =  -H (ReifyMultivariate (ℕ.suc n) x)
+    where
+      -H_ : ⟨ IteratedHornerForms (ℕ.suc n) νR ⟩ᵣ → _
+      -H x = HornerOperations.-H_ (IteratedHornerForms n νR) x
+  ReifyMultivariate ℕ.zero (x ⊕ y) = ReifyMultivariate ℕ.zero x + ReifyMultivariate ℕ.zero y
+  ReifyMultivariate ℕ.zero (x ⊗ y) = ReifyMultivariate ℕ.zero x · ReifyMultivariate ℕ.zero y
+  ReifyMultivariate ℕ.zero (⊝ x) =  - ReifyMultivariate ℕ.zero x
 
 module SolverFor (R : AlmostRing {ℓ}) where
   νR = AlmostRing→RawRing R
