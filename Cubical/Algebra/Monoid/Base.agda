@@ -90,7 +90,7 @@ makeMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
 makeMonoid ε _·_ is-setM assoc rid lid =
   monoid _ ε _·_ (makeIsMonoid is-setM assoc rid lid)
 
-record MonoidEquiv (M N : Monoid {ℓ}) : Type ℓ where
+record MonoidEquiv (M N : Monoid {ℓ}) (e : ⟨ M ⟩ ≃ ⟨ N ⟩) : Type ℓ where
 
   constructor monoidiso
 
@@ -99,11 +99,8 @@ record MonoidEquiv (M N : Monoid {ℓ}) : Type ℓ where
     module N = MonoidStr (snd N)
 
   field
-    e     : ⟨ M ⟩ ≃ ⟨ N ⟩
     presε : equivFun e M.ε ≡ N.ε
     isHom : (x y : ⟨ M ⟩) → equivFun e (x M.· y) ≡ equivFun e x N.· equivFun e y
-
-
 
 module MonoidΣTheory {ℓ} where
 
@@ -165,15 +162,15 @@ module MonoidΣTheory {ℓ} where
   MonoidEquivΣ : (M N : Monoid) → Type ℓ
   MonoidEquivΣ M N = Monoid→MonoidΣ M ≃[ MonoidEquivStr ] Monoid→MonoidΣ N
 
-  MonoidIsoΣPath : {M N : Monoid} → Iso (MonoidEquiv M N) (MonoidEquivΣ M N)
-  fun MonoidIsoΣPath (monoidiso e h1 h2) = (e , h1 , h2)
-  inv MonoidIsoΣPath (e , h1 , h2)       = monoidiso e h1 h2
-  rightInv MonoidIsoΣPath _              = refl
-  leftInv MonoidIsoΣPath _               = refl
+  MonoidIsoΣPath : {M N : Monoid} → Iso (Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] (MonoidEquiv M N e)) (MonoidEquivΣ M N)
+  fun MonoidIsoΣPath (e , monoidiso h1 h2) = (e , h1 , h2)
+  inv MonoidIsoΣPath (e , h1 , h2)         = (e , monoidiso h1 h2)
+  rightInv MonoidIsoΣPath _                = refl
+  leftInv MonoidIsoΣPath _                 = refl
 
-  MonoidPath : (M N : Monoid) → (MonoidEquiv M N) ≃ (M ≡ N)
+  MonoidPath : (M N : Monoid {ℓ}) → (Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] (MonoidEquiv M N e)) ≃ (M ≡ N)
   MonoidPath M N =
-    MonoidEquiv M N                       ≃⟨ isoToEquiv MonoidIsoΣPath ⟩
+    Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] MonoidEquiv M N e ≃⟨ isoToEquiv MonoidIsoΣPath ⟩
     MonoidEquivΣ M N                      ≃⟨ MonoidΣPath _ _ ⟩
     Monoid→MonoidΣ M ≡ Monoid→MonoidΣ N ≃⟨ isoToEquiv (invIso (congIso MonoidIsoMonoidΣ)) ⟩
     M ≡ N ■
@@ -193,7 +190,7 @@ module MonoidΣTheory {ℓ} where
                       (E : RawMonoidEquivStr (Monoid→RawMonoidΣ M) N e)
                     → M ≡ InducedMonoid M N e E
   InducedMonoidPath M N e E =
-    MonoidPath M (InducedMonoid M N e E) .fst (monoidiso e (E .fst) (E .snd))
+    MonoidPath M (InducedMonoid M N e E) .fst (e , monoidiso (E .fst) (E .snd))
 
 -- We now extract the important results from the above module
 
@@ -202,7 +199,8 @@ isPropIsMonoid ε _·_ =
   subst isProp (MonoidΣTheory.MonoidAxioms≡IsMonoid (ε , _·_))
         (MonoidΣTheory.isPropMonoidAxioms _ (ε , _·_))
 
-MonoidPath : (M N : Monoid {ℓ}) → (MonoidEquiv M N) ≃ (M ≡ N)
+MonoidPath : (M N : Monoid {ℓ}) →
+             (Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] (MonoidEquiv M N e)) ≃ (M ≡ N)
 MonoidPath = MonoidΣTheory.MonoidPath
 
 InducedMonoid : (M : Monoid {ℓ}) (N : MonoidΣTheory.RawMonoidΣ) (e : M .fst ≃ N .fst)
