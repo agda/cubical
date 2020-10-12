@@ -33,6 +33,7 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
   retract f g = ∀ a → g (f a) ≡ a
 
 record Iso {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ ℓ') where
+  no-eta-equality
   constructor iso
   field
     fun : A → B
@@ -118,18 +119,16 @@ rightInv (invIso f) = leftInv f
 leftInv (invIso f)  = rightInv f
 
 compIso : Iso A B → Iso B C → Iso A C
-fun (compIso (iso f _ _ _) (iso g _ _ _))       = g ∘ f
-inv (compIso (iso _ finv _ _) (iso _ ginv _ _)) = finv ∘ ginv
-rightInv (compIso (iso _ _ rightInv _) (iso g ginv rightInv' _)) b =
-  cong g (rightInv (ginv b)) ∙ rightInv' b
-leftInv (compIso (iso f finv _ leftInv) (iso _ _ _ leftInv')) a =
-  cong finv (leftInv' (f a)) ∙ leftInv a
+fun (compIso i j)       = fun j ∘ fun i
+inv (compIso i j) = inv i ∘ inv j
+rightInv (compIso i j) b = cong (fun j) (rightInv i (inv j b)) ∙ rightInv j b
+leftInv (compIso i j) a = cong (inv i) (leftInv j (fun i a)) ∙ leftInv i a
 
 composesToId→Iso : (G : Iso A B) (g : B → A) → G .fun ∘ g ≡ idfun B → Iso B A
 fun (composesToId→Iso _ g _)             = g
-inv (composesToId→Iso (iso f _ _ _) _ _) = f
-rightInv (composesToId→Iso (iso f finv _ leftInv) g path) b =
-  sym (leftInv (g (f b))) ∙∙ cong (λ g → finv (g (f b))) path ∙∙ leftInv b
+inv (composesToId→Iso j _ _) = fun j
+rightInv (composesToId→Iso i g path) b =
+  sym (leftInv i (g (fun i b))) ∙∙ cong (λ g → inv i (g (fun i b))) path ∙∙ leftInv i b
 leftInv (composesToId→Iso _ _ path) b i = path i b
 
 idIso : Iso A A
@@ -155,6 +154,12 @@ fun (isProp→Iso _ _ f _) = f
 inv (isProp→Iso _ _ _ g) = g
 rightInv (isProp→Iso _ Bprop f g) b = Bprop (f (g b)) b
 leftInv (isProp→Iso Aprop _ f g) a  = Aprop (g (f a)) a
+
+domIso : ∀ {ℓ} {C : Type ℓ} → Iso A B → Iso (A → C) (B → C)
+fun (domIso e) f b = f (inv e b)
+inv (domIso e) f a = f (fun e a)
+rightInv (domIso e) f i x = f (rightInv e x i)
+leftInv (domIso e) f i x = f (leftInv e x i)
 
 -- Helpful notation
 _Iso⟨_⟩_ : ∀ {ℓ ℓ' ℓ''} {B : Type ℓ'} {C : Type ℓ''} (X : Type ℓ) → Iso X B → Iso B C → Iso X C

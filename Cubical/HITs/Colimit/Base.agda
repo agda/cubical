@@ -14,7 +14,6 @@ open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Graph
 
-
 -- Cones under a diagram
 
 record Cocone ℓ {ℓd ℓv ℓe} {I : Graph ℓv ℓe} (F : Diag ℓd I) (X : Type ℓ)
@@ -131,4 +130,3 @@ module _ {ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} where
     where eq : ∀ h (x : colim _) → rec (postcomp colimCone h) x ≡ h x
           eq h (colim-leg j A)   = refl
           eq h (colim-com f i A) = refl
-

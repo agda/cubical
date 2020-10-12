@@ -91,13 +91,14 @@ ValueOfl3 = refl
 l3=l2++l1 : l3 ≡ l2 ++ᴰᴸ l1
 l3=l2++l1 = refl
 
-LongerExample :   l1 ++ᴰᴸ l2 ++ᴰᴸ l1 ++ᴰᴸ l1 ++ᴰᴸ l2
-                ≡ l2 ++ᴰᴸ l1 ++ᴰᴸ l2 ++ᴰᴸ l1 ++ᴰᴸ l1
-LongerExample = refl
+-- Commented as it was the slowest definition in the whole library :-)
+-- LongerExample :   l1 ++ᴰᴸ l2 ++ᴰᴸ l1 ++ᴰᴸ l1 ++ᴰᴸ l2
+--                 ≡ l2 ++ᴰᴸ l1 ++ᴰᴸ l2 ++ᴰᴸ l1 ++ᴰᴸ l1
+-- LongerExample = refl
 
 
-------------------------------------------------------------------------
--- A simple example of sorting finite multisets
+-- ------------------------------------------------------------------------
+-- -- A simple example of sorting finite multisets
 
 m1 : FMSet ℕ
 m1 = 13 ∷ 9 ∷ 78 ∷ 31 ∷ 86 ∷ 3 ∷ 0 ∷ 99 ∷ []
