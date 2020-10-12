@@ -12,6 +12,7 @@ open import Cubical.Algebra.RingSolver.NatAsAlmostRing
 open import Cubical.Algebra.RingSolver.RingExpression
 open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.RingSolver.HornerNormalForm
+open import Cubical.Algebra.RingSolver.MultivariatePolynomials
 open import Cubical.Algebra.RingSolver.Solver
 
 module _ where
@@ -114,3 +115,27 @@ module _ where
                               ⊗ ExprX ⊗ ExprX ⊗ ExprX
                               ⊗ ExprX ⊗ ExprX ⊗ ExprX)
              in SolveExplicit lhs rhs x refl
+
+module Multivariate where
+  ℕAsRawRing = AlmostRing→RawRing ℕAsAlmostRing
+
+  ℕ[X₀,X₁] = IteratedHornerForms 2 ℕAsRawRing
+  open RawRing ℕ[X₀,X₁]
+
+  X₀ : ⟨ ℕ[X₀,X₁] ⟩ᵣ
+  X₀ = Variable 2 ℕAsRawRing (Fin.zero)
+
+  X₁ : ⟨ ℕ[X₀,X₁] ⟩ᵣ
+  X₁ = Variable 2 ℕAsRawRing (fromℕ 1)
+
+  Two : ⟨ ℕ[X₀,X₁] ⟩ᵣ
+  Two = Constant 2 ℕAsRawRing 2
+
+  _ : Evaluate X₀ (1 ∷ 0 ∷ []) ≡ 1
+  _ = refl
+
+  _ : Evaluate X₁ (0 ∷ 1 ∷ []) ≡ 1
+  _ = refl
+
+  _ : Evaluate (X₀ · X₁ + X₀ + X₁ · X₁ + Two) (2 ∷ 3 ∷ []) ≡ 19
+  _ = refl
