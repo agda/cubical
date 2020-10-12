@@ -4,6 +4,7 @@ module Cubical.Algebra.RingSolver.HornerNormalForm where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.FinData
 
 open import Cubical.Algebra.RingSolver.RawRing
 
@@ -17,6 +18,9 @@ data RawHornerPolynomial (R : RawRing {ℓ}) : Type ℓ where
 
 module HornerOperations (R : RawRing {ℓ}) where
   open RawRing R
+
+  Const : (x : ⟨ R ⟩) → RawHornerPolynomial R
+  Const x = 0H ·X+ x
 
   1H : RawHornerPolynomial R
   1H = 0H ·X+ 1r
@@ -52,8 +56,3 @@ module HornerOperations (R : RawRing {ℓ}) where
   RawRing._+_ asRawRing = _+H_
   RawRing._·_ asRawRing = _·H_
   RawRing.- asRawRing =  -H_
-
-{-
-IteratedHornerPolynomials : (n : ℕ) (R : RawRing {ℓ}) → Type ℓ
-IteratedHornerPolynomials = {!!}
--}
