@@ -142,6 +142,23 @@ record RingEquiv (R S : Ring {ℓ}) : Type ℓ where
     isHom+ : (x y : ⟨ R ⟩) → equivFun e (x R.+ y) ≡ equivFun e x S.+ equivFun e y
     isHom· : (x y : ⟨ R ⟩) → equivFun e (x R.· y) ≡ equivFun e x S.· equivFun e y
 
+record RingHom (R S : Ring {ℓ}) : Type ℓ where
+
+  constructor ringhom
+
+  private
+    module R = Ring R
+    module S = Ring S
+
+  field
+    f : ⟨ R ⟩ → ⟨ S ⟩
+    pres1 : f R.1r ≡ S.1r
+    isHom+ : (x y : ⟨ R ⟩) → f (x R.+ y) ≡ f x S.+ f y
+    isHom· : (x y : ⟨ R ⟩) → f (x R.· y) ≡ f x S.· f y
+
+_$_ : {R S : Ring {ℓ}} → (φ : RingHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
+φ $ x = RingHom.f φ x
+
 module RingΣTheory {ℓ} where
 
   RawRingStructure = λ (X : Type ℓ) → (X → X → X) × X × (X → X → X)

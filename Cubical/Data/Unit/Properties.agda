@@ -63,3 +63,14 @@ isContr→≡Unit contr = ua (isContr→≃Unit contr)
 
 ForAllUnit : (X : Unit → Type ℓ) → X tt → (a : Unit) → X a
 ForAllUnit X p a = p
+isContrUnit* : ∀ {ℓ} → isContr (Unit* {ℓ})
+isContrUnit* = tt* , λ _ → refl
+
+isPropUnit* : ∀ {ℓ} → isProp (Unit* {ℓ})
+isPropUnit* _ _ = refl
+
+isOfHLevelUnit* : ∀ {ℓ} (n : HLevel) → isOfHLevel n (Unit* {ℓ})
+isOfHLevelUnit* zero = tt* , λ _ → refl
+isOfHLevelUnit* (suc zero) _ _ = refl
+isOfHLevelUnit* (suc (suc zero)) _ _ _ _ _ _ = tt*
+isOfHLevelUnit* (suc (suc (suc n))) = isOfHLevelPlus 3 (isOfHLevelUnit* n)

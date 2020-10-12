@@ -203,7 +203,7 @@ isPropIsHAEquiv {f = f} ishaef = goal ishaef where
       ≃⟨ isoToEquiv (iso (λ e → (e .g , e .ret) , (e .sec , e .com))
                          (λ e → record { g = e .fst .fst ; ret = e .fst .snd
                                        ; sec = e .snd .fst ; com = e .snd .snd })
-                         (λ _ → refl) (λ _ → refl)) ⟩
+                         (λ _ → refl) λ _ → refl) ⟩
     Σ _ rCoh1
       -- secondly, convert the path into a dependent path for later convenience
       ≃⟨  Σ-cong-equiv-snd (λ s → Σ-cong-equiv-snd

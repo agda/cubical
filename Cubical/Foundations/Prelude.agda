@@ -201,6 +201,11 @@ _ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
 infixr 2 ≡⟨⟩-syntax
 syntax ≡⟨⟩-syntax x (λ i → B) y = x ≡[ i ]⟨ B ⟩ y
 
+≡⟨⟩⟨⟩-syntax : (x y : A) → x ≡ y → y ≡ z → z ≡ w → x ≡ w
+≡⟨⟩⟨⟩-syntax x y p q r = p ∙∙ q ∙∙ r
+infixr 3 ≡⟨⟩⟨⟩-syntax
+syntax ≡⟨⟩⟨⟩-syntax x y B C = x ≡⟨ B ⟩≡ y ≡⟨ C ⟩≡
+
 _≡⟨_⟩≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → z ≡ w → x ≡ w
 _ ≡⟨ x≡y ⟩≡⟨ y≡z ⟩ z≡w = x≡y ∙∙ y≡z ∙∙ z≡w
 
