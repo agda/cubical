@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP hiding (⟨_⟩)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
@@ -17,7 +17,7 @@ open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.AbGroup hiding (⟨_⟩)
+open import Cubical.Algebra.AbGroup
 
 open Iso
 
@@ -68,17 +68,16 @@ record IsRing {R : Type ℓ}
   ·-ldist-+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
   ·-ldist-+ x y z = dist x y z .snd
 
-record Ring : Type (ℓ-suc ℓ) where
+record RingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
-  constructor ring
+  constructor ringstr
 
   field
-    Carrier : Type ℓ
-    0r      : Carrier
-    1r      : Carrier
-    _+_     : Carrier → Carrier → Carrier
-    _·_     : Carrier → Carrier → Carrier
-    -_      : Carrier → Carrier
+    0r      : A
+    1r      : A
+    _+_     : A → A → A
+    _·_     : A → A → A
+    -_      : A → A
     isRing  : IsRing 0r 1r _+_ _·_ -_
 
   infix  8 -_
@@ -87,12 +86,11 @@ record Ring : Type (ℓ-suc ℓ) where
 
   open IsRing isRing public
 
--- Extractor for the carrier type
-⟨_⟩ : Ring → Type ℓ
-⟨_⟩ = Ring.Carrier
+Ring : Type (ℓ-suc ℓ)
+Ring = TypeWithStr _ RingStr
 
 isSetRing : (R : Ring {ℓ}) → isSet ⟨ R ⟩
-isSetRing R = R .Ring.isRing .IsRing.·-isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+isSetRing R = R .snd .RingStr.isRing .IsRing.·-isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
 makeIsRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
              (is-setR : isSet R)
@@ -124,7 +122,7 @@ makeRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
            (·-ldist-+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
          → Ring
 makeRing 0r 1r _+_ _·_ -_ is-setR assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+ =
-  ring _ 0r 1r _+_ _·_ -_
+  _ , ringstr 0r 1r _+_ _·_ -_
        (makeIsRing is-setR assoc +-rid +-rinv +-comm
                    ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+ )
 
@@ -133,8 +131,8 @@ record RingEquiv (R S : Ring {ℓ}) : Type ℓ where
   constructor ringequiv
 
   private
-    module R = Ring R
-    module S = Ring S
+    module R = RingStr (snd R)
+    module S = RingStr (snd S)
 
   field
     e : ⟨ R ⟩ ≃ ⟨ S ⟩
@@ -147,8 +145,8 @@ record RingHom (R S : Ring {ℓ}) : Type ℓ where
   constructor ringhom
 
   private
-    module R = Ring R
-    module S = Ring S
+    module R = RingStr (snd R)
+    module S = RingStr (snd S)
 
   field
     f : ⟨ R ⟩ → ⟨ S ⟩
@@ -192,44 +190,21 @@ module RingΣTheory {ℓ} where
                                    (IsSemigroup.is-set (R .IsMonoid.isSemigroup) _ _))
 
   Ring→RingΣ : Ring → RingΣ
-  Ring→RingΣ (ring R 0r 1r _+_ _·_ -_ (isring +-isAbelianGroup ·-isMonoid dist)) =
+  Ring→RingΣ (R , ringstr 0r 1r _+_ _·_ -_ (isring +-isAbelianGroup ·-isMonoid dist)) =
     ( R
     , (_+_ , 1r , _·_)
-    , AbGroupΣTheory.AbGroup→AbGroupΣ (abgroup _ _ _ _ +-isAbelianGroup) .snd .snd
+    , AbGroupΣTheory.AbGroup→AbGroupΣ (_ , abgroupstr _ _ _ +-isAbelianGroup) .snd .snd
     , ·-isMonoid , dist
     )
 
   RingΣ→Ring : RingΣ → Ring
   RingΣ→Ring (_ , (y1 , y2 , y3) , z , w1 , w2) =
-    ring _ _ y2 y1 y3 _
-      (isring (AbGroupΣTheory.AbGroupΣ→AbGroup (_ , _ , z ) .AbGroup.isAbGroup)
+    _ , ringstr _ y2 y1 y3 _
+      (isring (AbGroupΣTheory.AbGroupΣ→AbGroup (_ , _ , z ) .snd .AbGroupStr.isAbGroup)
               w1 w2)
 
-  open import Cubical.Algebra.Group.Base hiding (⟨_⟩)
   RingIsoRingΣ : Iso Ring RingΣ
-  RingIsoRingΣ = iso Ring→RingΣ RingΣ→Ring (λ _ → refl) helper
-    where
-      -- helper will be refl, if eta-equality is activated for all structure-records
-      open IsRing
-      open MonoidΣTheory
-      monoid-helper : retract (Monoid→MonoidΣ {ℓ}) MonoidΣ→Monoid
-      monoid-helper = Iso.leftInv MonoidIsoMonoidΣ
-      open AbGroupΣTheory
-      abgroup-helper : retract (AbGroup→AbGroupΣ {ℓ}) AbGroupΣ→AbGroup
-      abgroup-helper = Iso.leftInv AbGroupIsoAbGroupΣ
-
-      helper : _
-      Ring.Carrier (helper a i) = ⟨ a ⟩
-      Ring.0r (helper a i) = Ring.0r a
-      Ring.1r (helper a i) = Ring.1r a
-      Ring._+_ (helper a i) = Ring._+_ a
-      Ring._·_ (helper a i) = Ring._·_ a
-      Ring.- helper a i = Ring.- a
-      +-isAbGroup (Ring.isRing (helper a i)) =
-        AbGroup.isAbGroup (abgroup-helper (abgroup _ _ _ _ (Ring.+-isAbGroup a)) i)
-      ·-isMonoid (Ring.isRing (helper a i)) =
-        MonoidStr.isMonoid (monoid-helper (monoid _ _ _ (Ring.·-isMonoid a)) i .snd)
-      dist (Ring.isRing (helper a i)) = dist (Ring.isRing a)
+  RingIsoRingΣ = iso Ring→RingΣ RingΣ→Ring (λ _ → refl) (λ _ → refl)
 
   ringUnivalentStr : UnivalentStr RingStructure RingEquivStr
   ringUnivalentStr = axiomsUnivalentStr _ isPropRingAxioms rawRingUnivalentStr
@@ -275,7 +250,7 @@ isPropIsRing 0r 1r _+_ _·_ -_ (isring RG RM RD) (isring SG SM SD) =
 -- Rings have an abelian group and a monoid
 
 Ring→AbGroup : Ring {ℓ} → AbGroup {ℓ}
-Ring→AbGroup (ring _ _ _ _ _ _ R) = abgroup _ _ _ _ (IsRing.+-isAbGroup R)
+Ring→AbGroup (A , ringstr _ _ _ _ _ R) = A , abgroupstr _ _ _ (IsRing.+-isAbGroup R)
 
 Ring→Monoid : Ring {ℓ} → Monoid {ℓ}
-Ring→Monoid (ring _ _ _ _ _ _ R) = monoid _ _ _ (IsRing.·-isMonoid R)
+Ring→Monoid (A , ringstr _ _ _ _ _ R) = monoid _ _ _ (IsRing.·-isMonoid R)

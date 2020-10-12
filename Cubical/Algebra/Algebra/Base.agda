@@ -7,17 +7,17 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.SIP    hiding (⟨_⟩)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
-open import Cubical.Algebra.Module    renaming (⟨_⟩ to ⟨_⟩m)
-open import Cubical.Algebra.Ring      renaming (⟨_⟩ to ⟨_⟩r)
-open import Cubical.Algebra.AbGroup   hiding (⟨_⟩)
-open import Cubical.Algebra.Group     hiding (⟨_⟩)
+open import Cubical.Algebra.Module
+open import Cubical.Algebra.Ring
+open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.Group hiding (_+_ ; -_)
 open import Cubical.Algebra.Monoid
 
 open Iso
@@ -28,19 +28,19 @@ private
 
 record IsAlgebra (R : Ring {ℓ}) {A : Type ℓ}
                  (0a 1a : A) (_+_ _·_ : A → A → A) (-_ : A → A)
-                 (_⋆_ : ⟨ R ⟩r → A → A) : Type ℓ where
+                 (_⋆_ : ⟨ R ⟩ → A → A) : Type ℓ where
 
   constructor isalgebra
 
-  open Ring R using (1r) renaming (_+_ to _+r_; _·_ to _·r_)
+  open RingStr (snd R) using (1r) renaming (_+_ to _+r_; _·_ to _·r_)
 
   field
     isLeftModule : IsLeftModule R 0a _+_ -_ _⋆_
     ·-isMonoid  : IsMonoid 1a _·_
     dist        : (x y z : A) → (x · (y + z) ≡ (x · y) + (x · z))
                               × ((x + y) · z ≡ (x · z) + (y · z))
-    ⋆-lassoc     : (r : ⟨ R ⟩r) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y)
-    ⋆-rassoc     : (r : ⟨ R ⟩r) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y)
+    ⋆-lassoc     : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y)
+    ⋆-rassoc     : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y)
 
   open IsLeftModule isLeftModule public
 
@@ -59,22 +59,22 @@ record Algebra (R : Ring {ℓ}) : Type (ℓ-suc ℓ) where
     _+_            : Carrier → Carrier → Carrier
     _·_            : Carrier → Carrier → Carrier
     -_             : Carrier → Carrier
-    _⋆_            : ⟨ R ⟩r → Carrier → Carrier
+    _⋆_            : ⟨ R ⟩ → Carrier → Carrier
     isAlgebra      : IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_
 
   open IsAlgebra isAlgebra public
 
 
 module commonExtractors {R : Ring {ℓ}} where
-  ⟨_⟩ : Algebra R → Type ℓ
-  ⟨_⟩ = Algebra.Carrier
+  ⟨_⟩a : Algebra R → Type ℓ
+  ⟨_⟩a = Algebra.Carrier
 
   Algebra→Module : (A : Algebra R) → LeftModule R
   Algebra→Module (algebra A _ _ _ _ _ _ (isalgebra isLeftModule _ _ _ _)) =
     leftmodule A _ _ _ _ isLeftModule
 
   Algebra→Ring : (A : Algebra R) → Ring {ℓ}
-  Algebra→Ring A = ring _ _ _ _ _ _ (IsAlgebra.isRing (Algebra.isAlgebra A))
+  Algebra→Ring A = _ , ringstr _ _ _ _ _ (IsAlgebra.isRing (Algebra.isAlgebra A))
 
   Algebra→AbGroup : (A : Algebra R) → AbGroup {ℓ}
   Algebra→AbGroup A = LeftModule→AbGroup (Algebra→Module A)
@@ -82,13 +82,13 @@ module commonExtractors {R : Ring {ℓ}} where
   Algebra→Monoid : (A : Algebra R) → Monoid {ℓ}
   Algebra→Monoid A = Ring→Monoid (Algebra→Ring A)
 
-  isSetAlgebra : (A : Algebra R) → isSet ⟨ A ⟩
+  isSetAlgebra : (A : Algebra R) → isSet ⟨ A ⟩a
   isSetAlgebra A = isSetAbGroup (Algebra→AbGroup A)
 
-  open Ring R using (1r; ·-ldist-+) renaming (_+_ to _+r_; _·_ to _·s_)
+  open RingStr (snd R) using (1r; ·-ldist-+) renaming (_+_ to _+r_; _·_ to _·s_)
 
   makeIsAlgebra : {A : Type ℓ} {0a 1a : A}
-                  {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩r → A → A}
+                  {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
                   (isSet-A : isSet A)
                   (+-assoc :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
                   (+-rid : (x : A) → x + 0a ≡ x)
@@ -99,12 +99,12 @@ module commonExtractors {R : Ring {ℓ}} where
                   (·-lid : (x : A) → 1a · x ≡ x)
                   (·-rdist-+ : (x y z : A) → x · (y + z) ≡ (x · y) + (x · z))
                   (·-ldist-+ : (x y z : A) → (x + y) · z ≡ (x · z) + (y · z))
-                  (⋆-assoc : (r s : ⟨ R ⟩r) (x : A) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
-                  (⋆-ldist : (r s : ⟨ R ⟩r) (x : A) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
-                  (⋆-rdist : (r : ⟨ R ⟩r) (x y : A) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
+                  (⋆-assoc : (r s : ⟨ R ⟩) (x : A) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
+                  (⋆-ldist : (r s : ⟨ R ⟩) (x : A) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
+                  (⋆-rdist : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
                   (⋆-lid   : (x : A) → 1r ⋆ x ≡ x)
-                  (⋆-lassoc : (r : ⟨ R ⟩r) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
-                  (⋆-rassoc : (r : ⟨ R ⟩r) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y))
+                  (⋆-lassoc : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
+                  (⋆-rassoc : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y))
                 → IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_
   makeIsAlgebra isSet-A
                 +-assoc +-rid +-rinv +-comm
@@ -134,11 +134,11 @@ record AlgebraEquiv {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
   open Algebra {{...}}
 
   field
-    e      : ⟨ A ⟩ ≃ ⟨ B ⟩
-    isHom+ : (x y : ⟨ A ⟩) → equivFun e (x + y) ≡ equivFun e x + equivFun e y
-    isHom· : (x y : ⟨ A ⟩) → equivFun e (x · y) ≡ equivFun e x · equivFun e y
+    e      : ⟨ A ⟩a ≃ ⟨ B ⟩a
+    isHom+ : (x y : ⟨ A ⟩a) → equivFun e (x + y) ≡ equivFun e x + equivFun e y
+    isHom· : (x y : ⟨ A ⟩a) → equivFun e (x · y) ≡ equivFun e x · equivFun e y
     pres1  : equivFun e 1a ≡ 1a
-    comm⋆  : (r : ⟨ R ⟩r) (x : ⟨ A ⟩) → equivFun e (r ⋆ x) ≡ r ⋆ equivFun e x
+    comm⋆  : (r : ⟨ R ⟩) (x : ⟨ A ⟩a) → equivFun e (r ⋆ x) ≡ r ⋆ equivFun e x
 
 record AlgebraHom {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
 
@@ -154,11 +154,11 @@ record AlgebraHom {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
   open Algebra {{...}}
 
   field
-    f      : ⟨ A ⟩ → ⟨ B ⟩
-    isHom+ : (x y : ⟨ A ⟩) → f (x + y) ≡ f x + f y
-    isHom· : (x y : ⟨ A ⟩) → f (x · y) ≡ f x · f y
+    f      : ⟨ A ⟩a → ⟨ B ⟩a
+    isHom+ : (x y : ⟨ A ⟩a) → f (x + y) ≡ f x + f y
+    isHom· : (x y : ⟨ A ⟩a) → f (x · y) ≡ f x · f y
     pres1  : f 1a ≡ 1a
-    comm⋆  : (r : ⟨ R ⟩r) (x : ⟨ A ⟩) → f (r ⋆ x) ≡ r ⋆ f x
+    comm⋆  : (r : ⟨ R ⟩) (x : ⟨ A ⟩a) → f (r ⋆ x) ≡ r ⋆ f x
 
   pres0 : f 0a ≡ 0a
   pres0 = Theory.+-idempotency→0 (Algebra→Ring B) (f 0a)
@@ -166,16 +166,14 @@ record AlgebraHom {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
            f (0a + 0a) ≡⟨ isHom+ _ _ ⟩
            f 0a + f 0a ∎)
 
-  isHom- : (x : ⟨ A ⟩) → f (- x) ≡ - f x
+  isHom- : (x : ⟨ A ⟩a) → f (- x) ≡ - f x
   isHom- x = Theory.implicitInverse (Algebra→Ring B) (f x) (f (- x))
              (f (x) + f (- x)  ≡⟨ sym (isHom+ _ _) ⟩
              f (x - x)         ≡⟨ cong f (+-rinv _) ⟩
              f 0a              ≡⟨ pres0 ⟩
              0a ∎)
 
-_$a_ : {R : Ring {ℓ}} {A B : Algebra R}
-       → AlgebraHom A B
-       → ⟨ A ⟩ → ⟨ B ⟩
+_$a_ : {R : Ring {ℓ}} {A B : Algebra R} → AlgebraHom A B → ⟨ A ⟩a → ⟨ B ⟩a
 f $a x = AlgebraHom.f f x
 
 
@@ -209,14 +207,14 @@ _∘a_ {ℓ} {R} {A} {B} {C}
 
 module AlgebraΣTheory (R : Ring {ℓ}) where
 
-  RawAlgebraStructure = λ (A : Type ℓ) → (A → A → A) × (A → A → A) × A × (⟨ R ⟩r → A → A)
+  RawAlgebraStructure = λ (A : Type ℓ) → (A → A → A) × (A → A → A) × A × (⟨ R ⟩ → A → A)
 
   RawAlgebraEquivStr = AutoEquivStr RawAlgebraStructure
 
   rawAlgebraUnivalentStr : UnivalentStr _ RawAlgebraEquivStr
   rawAlgebraUnivalentStr = autoUnivalentStr RawAlgebraStructure
 
-  open Ring R using (1r) renaming (_+_ to _+r_; _·_ to _·r_)
+  open RingStr (snd R) using (1r) renaming (_+_ to _+r_; _·_ to _·r_)
   open RingΣTheory
   open LeftModuleΣTheory R
   open MonoidΣTheory
@@ -227,8 +225,8 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
                × (MonoidAxioms A (1a , _·_))
                × ((x y z : A) → (x · (y + z) ≡ (x · y) + (x · z))
                               × ((x + y) · z ≡ (x · z) + (y · z)))
-               × ((r : ⟨ R ⟩r) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
-               × ((r : ⟨ R ⟩r) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y))
+               × ((r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
+               × ((r : ⟨ R ⟩) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y))
 
   AlgebraStructure : Type ℓ → Type ℓ
   AlgebraStructure = AxiomsStructure RawAlgebraStructure AlgebraAxioms
@@ -330,10 +328,10 @@ AlgebraPath : {R : Ring {ℓ}} (M N : Algebra R) → (AlgebraEquiv M N) ≃ (M �
 AlgebraPath {ℓ} {R} = AlgebraΣTheory.AlgebraPath R
 
 module AlgebraTheory (R : Ring {ℓ}) (A : Algebra R) where
-  open Ring R renaming (_+_ to _+r_)
+  open RingStr (snd R) renaming (_+_ to _+r_)
   open Algebra A
 
-  0-actsNullifying : (x : ⟨ A ⟩) → 0r ⋆ x ≡ 0a
+  0-actsNullifying : (x : ⟨ A ⟩a) → 0r ⋆ x ≡ 0a
   0-actsNullifying x =
     let idempotent-+ = 0r ⋆ x              ≡⟨ cong (λ u → u ⋆ x) (sym (Theory.0-idempotent R)) ⟩
                        (0r +r 0r) ⋆ x      ≡⟨ ⋆-ldist 0r 0r x ⟩

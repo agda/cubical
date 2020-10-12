@@ -13,6 +13,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
@@ -31,7 +32,7 @@ open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec)
 open import Cubical.Data.Unit
 
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group hiding (0g ; _+_ ; -_)
 
 infixr 31 _□_
 _□_ : _
@@ -94,39 +95,39 @@ diagonalIso {A = A} B {C = C} ψ ϕ issurj ker→diag diag→ker =
     (bij-iso (compGroupHom fstProj (compGroupHom (grouphom (fst (eq ψ)) (isHom ψ)) ϕ))
           (λ a inker
            → pRec (isSetCarrier A _ _)
-                   (λ {(a' , id) → cong fst (sym (secEq (eq ψ) (a , 0g A)) ∙∙ cong (invEq (eq ψ)) id ∙∙ secEq (eq ψ) (a' , a'))
-                                  ∙ cong snd (sym (secEq (eq ψ) (a' , a')) ∙∙ cong (invEq (eq ψ)) (sym id) ∙∙ secEq (eq ψ) (a , 0g A))})
+                   (λ {(a' , id) → cong fst (sym (secEq (eq ψ) (a , 0g (snd A))) ∙∙ cong (invEq (eq ψ)) id ∙∙ secEq (eq ψ) (a' , a'))
+                                  ∙ cong snd (sym (secEq (eq ψ) (a' , a')) ∙∙ cong (invEq (eq ψ)) (sym id) ∙∙ secEq (eq ψ) (a , 0g (snd A)))})
                    (ker→diag _ inker))
           λ c → pRec propTruncIsProp
                      (λ { (b , id) → ∣ (fst (ψ⁻ b) A.+ (A.- snd (ψ⁻ b))) -- (fst (ψ⁻ b) A.+ (A.- snd (ψ⁻ b)))
-                                     , (sym (Group.rid C _)
-                                     ∙∙ cong ((fun ϕ) (equivFun (eq ψ) (fst (ψ⁻ b) A.+ (A.- snd (ψ⁻ b)) , 0g A)) C.+_)
+                                     , (sym (GroupStr.rid (snd C) _)
+                                     ∙∙ cong ((fun ϕ) (equivFun (eq ψ) (fst (ψ⁻ b) A.+ (A.- snd (ψ⁻ b)) , 0g (snd A))) C.+_)
                                             (sym (diag→ker (equivFun (eq ψ) ((snd (ψ⁻ b)) , (snd (ψ⁻ b))))
                                                             ∣ (snd (ψ⁻ b)) , refl ∣₁))
                                      ∙∙ sym ((isHom ϕ) _ _))
                                      ∙∙ cong (fun ϕ) (sym ((isHom ψ) _ _)
-                                                  ∙∙ cong (equivFun (eq ψ)) (ΣPathP (sym (Group.assoc A _ _ _)
-                                                                                     ∙∙ cong (fst (ψ⁻ b) A.+_) (Group.invl A _)
-                                                                                     ∙∙ Group.rid A _
-                                                                                  , (Group.lid A _)))
+                                                  ∙∙ cong (equivFun (eq ψ)) (ΣPathP (sym (GroupStr.assoc (snd A) _ _ _)
+                                                                                     ∙∙ cong (fst (ψ⁻ b) A.+_) (GroupStr.invl (snd A) _)
+                                                                                     ∙∙ GroupStr.rid (snd A) _
+                                                                                  , (GroupStr.lid (snd A) _)))
                                                   ∙∙ retEq (eq ψ) b)
                                      ∙∙ id ∣₁ })
                      (issurj c))
   where
-  open Group
+  open GroupStr
   open IsGroup
   open GroupHom
-  module A = Group A
-  module B = Group B
-  module C = Group C
-  module A×A = Group (dirProd A A)
+  module A = GroupStr (snd A)
+  module B = GroupStr (snd B)
+  module C = GroupStr (snd C)
+  module A×A = GroupStr (snd (dirProd A A))
   module ψ = GroupEquiv ψ
   module ϕ = GroupHom ϕ
   ψ⁻ = fst (invEquiv (eq ψ))
 
   fstProj : GroupHom A (dirProd A A)
-  fun fstProj a = a , 0g A
-  isHom fstProj g0 g1 i = (g0 A.+ g1) , Group.lid A (0g A) (~ i)
+  fun fstProj a = a , 0g (snd A)
+  isHom fstProj g0 g1 i = (g0 A.+ g1) , GroupStr.lid (snd A) (0g (snd A)) (~ i)
 
 
 H¹-S¹≅ℤ : GroupEquiv intGroup (coHomGr 1 (S₊ 1))

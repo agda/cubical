@@ -14,8 +14,8 @@ open import Cubical.Structures.Axioms
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.CommRing renaming (⟨_⟩ to ⟨_⟩r)
-open import Cubical.Algebra.Ring     hiding (⟨_⟩)
-open import Cubical.Algebra.Algebra  hiding (⟨_⟩)
+open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Algebra
 
 private
   variable
@@ -146,27 +146,7 @@ module CommAlgebraΣTheory (R : CommRing {ℓ}) where
 
   CommAlgebraIsoCommAlgebraΣ : Iso (CommAlgebra R) CommAlgebraΣ
   CommAlgebraIsoCommAlgebraΣ =
-    iso CommAlgebra→CommAlgebraΣ CommAlgebraΣ→CommAlgebra (λ _ → refl) helper
-
-    where
-    open import Cubical.Algebra.Group.Base hiding (⟨_⟩)
-    open CommAlgebra
-    open IsAlgebra
-    open IsCommAlgebra
-    algebra-helper : retract Algebra→AlgebraΣ AlgebraΣ→Algebra
-    algebra-helper = Iso.leftInv AlgebraIsoAlgebraΣ
-
-    helper : retract CommAlgebra→CommAlgebraΣ CommAlgebraΣ→CommAlgebra
-    Carrier (helper a i) = Carrier a
-    0a (helper a i) = 0a a
-    1a (helper a i) = 1a a
-    _+_ (helper a i) = _+_ a
-    _·_ (helper a i) = _·_ a
-    - helper a i =  -_ a
-    _⋆_ (helper a i) = _⋆_ a
-    isAlgebra (isCommAlgebra (helper a i)) =
-      Algebra.isAlgebra (algebra-helper (algebra _ _ _ _ _ _ _ (isAlgebra (isCommAlgebra a))) i)
-    ·-comm (isCommAlgebra (helper a i)) = ·-comm (isCommAlgebra a)
+    iso CommAlgebra→CommAlgebraΣ CommAlgebraΣ→CommAlgebra (λ _ → refl) (λ _ → refl)
 
   commAlgebraUnivalentStr : UnivalentStr CommAlgebraStructure CommAlgebraEquivStr
   commAlgebraUnivalentStr = axiomsUnivalentStr _ isPropCommAlgebraAxioms rawAlgebraUnivalentStr

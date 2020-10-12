@@ -15,8 +15,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Structures.Axioms
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.AbGroup   hiding (⟨_⟩)
-open import Cubical.Algebra.Ring      hiding (⟨_⟩)
+open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.Ring
 
 open Iso
 
@@ -89,7 +89,7 @@ makeCommRing 0r 1r _+_ _·_ -_ is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-r
   commring _ _ _ _ _ _ (makeIsCommRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm)
 
 CommRing→Ring : CommRing {ℓ} → Ring
-CommRing→Ring (commring _ _ _ _ _ _ H) = ring _ _ _ _ _ _ (IsCommRing.isRing H)
+CommRing→Ring (commring _ _ _ _ _ _ H) = _ , ringstr _ _ _ _ _ (IsCommRing.isRing H)
 
 CommRingEquiv : (R S : CommRing) → Type ℓ
 CommRingEquiv R S = RingEquiv (CommRing→Ring R) (CommRing→Ring S)
@@ -119,35 +119,15 @@ module CommRingΣTheory {ℓ} where
 
   CommRing→CommRingΣ : CommRing → CommRingΣ
   CommRing→CommRingΣ (commring _ _ _ _ _ _ (iscommring G C)) =
-    _ , _ , Ring→RingΣ (ring _ _ _ _ _ _ G) .snd .snd , C
+    _ , _ , Ring→RingΣ (_ , ringstr _ _ _ _ _ G) .snd .snd , C
 
   CommRingΣ→CommRing : CommRingΣ → CommRing
   CommRingΣ→CommRing (_ , _ , G , C) =
-    commring _ _ _ _ _ _ (iscommring (RingΣ→Ring (_ , _ , G) .Ring.isRing) C)
+    commring _ _ _ _ _ _ (iscommring (RingΣ→Ring (_ , _ , G) .snd .RingStr.isRing) C)
 
   CommRingIsoCommRingΣ : Iso CommRing CommRingΣ
   CommRingIsoCommRingΣ =
-    iso CommRing→CommRingΣ CommRingΣ→CommRing (λ _ → refl) helper
-
-    where
-    open import Cubical.Algebra.Group.Base hiding (⟨_⟩)
-    open CommRing
-    open IsRing
-    open IsCommRing
-    open RingΣTheory
-    ring-helper : retract (Ring→RingΣ {ℓ}) RingΣ→Ring
-    ring-helper = Iso.leftInv RingIsoRingΣ
-
-    helper : _
-    Carrier (helper a i) = ⟨ a ⟩
-    0r (helper a i) = 0r a
-    1r (helper a i) = 1r a
-    _+_ (helper a i) = CommRing._+_ a
-    _·_ (helper a i) = _·_ a
-    - helper a i = - a
-    isRing (isCommRing (helper a i)) =
-      Ring.isRing (ring-helper (ring _ _ _ _ _ _ (isRing (isCommRing a))) i)
-    ·-comm (isCommRing (helper a i)) = ·-comm (isCommRing a)
+    iso CommRing→CommRingΣ CommRingΣ→CommRing (λ _ → refl) (λ _ → refl)
 
   commRingUnivalentStr : UnivalentStr CommRingStructure CommRingEquivStr
   commRingUnivalentStr = axiomsUnivalentStr _ isPropCommRingAxioms rawRingUnivalentStr

@@ -4,6 +4,7 @@ module Cubical.Algebra.Group.Morphism where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Structure
 open import Cubical.Algebra.Group.Base
 open import Cubical.HITs.PropositionalTruncation hiding (map)
 open import Cubical.Data.Sigma
@@ -18,8 +19,8 @@ private
 
 isGroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) (f : ⟨ G ⟩ → ⟨ H ⟩) → Type _
 isGroupHom G H f = (x y : ⟨ G ⟩) → f (x G.+ y) ≡ (f x H.+ f y) where
-  module G = Group G
-  module H = Group H
+  module G = GroupStr (snd G)
+  module H = GroupStr (snd H)
 
 record GroupHom (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
   constructor grouphom
@@ -55,8 +56,6 @@ isHom (η-equiv a i) = isHom a
     → GroupHom A C → GroupHom B D → GroupHom (dirProd A B) (dirProd C D)
 fun (×hom mf1 mf2) = map-× (fun mf1) (fun mf2)
 isHom (×hom mf1 mf2) a b = ≡-× (isHom mf1 _ _) (isHom mf2 _ _)
-
-open Group
 
 isInIm : ∀ {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) → (GroupHom G H)
        → ⟨ H ⟩ → Type (ℓ-max ℓ ℓ')

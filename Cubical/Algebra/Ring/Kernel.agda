@@ -3,6 +3,7 @@ module Cubical.Algebra.Ring.Kernel where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Logic using ([_]; _∈_)
 
@@ -17,9 +18,15 @@ private
 module _ {{R S : Ring {ℓ}}} (f′ : RingHom R S) where
   open RingHom f′
   open HomTheory f′
-  open Ring ⦃...⦄
+  open RingStr ⦃...⦄
   open isIdeal
   open Theory
+  private
+    instance
+      _ = R
+      _ = S
+      _ = snd R
+      _ = snd S
 
   kernel : ⟨ R ⟩ → hProp ℓ
   kernel x = (f x ≡ 0r) , isSetRing S _ _

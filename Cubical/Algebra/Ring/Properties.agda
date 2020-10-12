@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP hiding (⟨_⟩)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
@@ -17,7 +17,7 @@ open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.AbGroup hiding (⟨_⟩)
+open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring.Base
 
 private
@@ -31,8 +31,8 @@ private
 -}
 module Theory (R' : Ring {ℓ}) where
 
-  open Ring R' renaming (Carrier to R)
-
+  open RingStr (snd R')
+  private R = ⟨ R' ⟩
   implicitInverse : (x y : R)
                  → x + y ≡ 0r
                  → y ≡ - x
@@ -141,12 +141,14 @@ module Theory (R' : Ring {ℓ}) where
 
 module HomTheory {R S : Ring {ℓ}} (f′ : RingHom  R S) where
   open Theory ⦃...⦄
-  open Ring ⦃...⦄
+  open RingStr ⦃...⦄
   open RingHom f′
   private
     instance
       _ = R
       _ = S
+      _ = snd R
+      _ = snd S
 
   homPres0 : f 0r ≡ 0r
   homPres0 = +-idempotency→0 (f 0r)

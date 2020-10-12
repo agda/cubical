@@ -35,7 +35,7 @@ open import Cubical.Foundations.Function hiding (const)
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring        using ()
 open import Cubical.Algebra.CommAlgebra renaming (⟨_⟩ to ⟨_⟩a)
-open import Cubical.Algebra.Algebra     hiding (⟨_⟩)
+open import Cubical.Algebra.Algebra     hiding (⟨_⟩a)
 open import Cubical.HITs.SetTruncation
 
 private

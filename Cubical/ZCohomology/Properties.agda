@@ -26,7 +26,7 @@ open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
 open import Cubical.HITs.SmashProduct.Base
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group hiding (0g ; _+_ ; -_)
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Foundations.Equiv.HalfAdjoint
@@ -273,16 +273,20 @@ rUnitlUnit0 {n = suc n} =
 
 open IsSemigroup
 open IsMonoid
-open Group
-coHomGr : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group
-Carrier (coHomGr n A) = coHom n A
-0g (coHomGr n A) = 0ₕ
-Group._+_ (coHomGr n A) = _+ₕ_
-Group.- coHomGr n A = -ₕ
-is-set (isSemigroup (IsGroup.isMonoid (Group.isGroup (coHomGr n A)))) = §
-IsSemigroup.assoc (isSemigroup (IsGroup.isMonoid (Group.isGroup (coHomGr n A)))) x y z = sym (assocₕ x y z)
-identity (IsGroup.isMonoid (Group.isGroup (coHomGr n A))) x = (rUnitₕ x) , (lUnitₕ x)
-IsGroup.inverse (Group.isGroup (coHomGr n A)) x = (rCancelₕ x) , (lCancelₕ x)
+open GroupStr
+
+coHomGr : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group {ℓ}
+coHomGr n A = coHom n A , coHomGrnA
+  where
+  coHomGrnA : GroupStr _
+  0g coHomGrnA = 0ₕ
+  GroupStr._+_ coHomGrnA = _+ₕ_
+  - coHomGrnA = -ₕ
+  GroupStr.isGroup coHomGrnA = helper
+    where
+    abstract
+      helper : IsGroup 0ₕ _+ₕ_ -ₕ
+      helper = makeIsGroup § (λ x y z → sym (assocₕ x y z)) rUnitₕ lUnitₕ rCancelₕ lCancelₕ
 
 ×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group
 ×coHomGr n A B = dirProd (coHomGr n A) (coHomGr n B)
