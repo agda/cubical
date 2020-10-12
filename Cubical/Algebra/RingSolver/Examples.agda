@@ -139,3 +139,19 @@ module Multivariate where
 
   _ : Evaluate (X₀ · X₁ + X₀ + X₁ · X₁ + Two) (2 ∷ 3 ∷ []) ≡ 19
   _ = refl
+
+  open MultivariateReification ℕAsAlmostRing
+
+  X₀Expr : Expr ℕ 2
+  X₀Expr = ∣ Fin.zero
+
+  X₁Expr : Expr ℕ 2
+  X₁Expr = ∣ (fromℕ 1)
+
+  _ : ReifyMultivariate 2 (X₀Expr ⊕ X₁Expr) ≡ X₀ + X₁
+  _ = refl
+
+  five = Constant 2 ℕAsRawRing 5
+  _ : ReifyMultivariate 2 (X₀Expr ⊗ X₀Expr ⊕ X₁Expr ⊗ X₀Expr ⊕ (K 5))
+                        ≡ X₀ · X₀ + X₁ · X₀ + five
+  _ = refl
