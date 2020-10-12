@@ -42,7 +42,8 @@ module EqualityToNormalForm (R : AlmostRing {ℓ}) where
   +HomEval (P ·X+ r) 0H x = sym (+Rid _)
   +HomEval (P ·X+ r) (Q ·X+ s) x =
     evalH ((P +H Q) ·X+ (r + s)) x              ≡⟨ refl ⟩
-    evalH (P +H Q) x · x + (r + s)              ≡⟨ cong (λ u → (u · x) + (r + s)) (+HomEval P Q x) ⟩
+    evalH (P +H Q) x · x + (r + s)              ≡⟨ cong (λ u → (u · x) + (r + s))
+                                                        (+HomEval P Q x) ⟩
     (evalH P x + evalH Q x) · x + (r + s)       ≡⟨ cong (λ u → u + (r + s)) (·DistL+ _ _ _) ⟩
     (evalH P x) · x + (evalH Q x) · x + (r + s) ≡⟨ +ShufflePairs _ _ _ _ ⟩
     evalH (P ·X+ r) x + evalH (Q ·X+ s) x ∎
@@ -51,7 +52,8 @@ module EqualityToNormalForm (R : AlmostRing {ℓ}) where
     → evalH (0r ⋆ P) x ≡ 0r
   ⋆0LeftAnnihilates 0H x = cong (λ u → evalH u x) (λ _ → 0H)
   ⋆0LeftAnnihilates (P ·X+ r) x =
-    evalH ((0r ⋆ P) ·X+ (0r · r)) x ≡⟨ cong (λ u → evalH ((0r ⋆ P) ·X+ u) x) (0LeftAnnihilates _) ⟩
+    evalH ((0r ⋆ P) ·X+ (0r · r)) x ≡⟨ cong (λ u → evalH ((0r ⋆ P) ·X+ u) x)
+                                            (0LeftAnnihilates _) ⟩
     evalH ((0r ⋆ P) ·X+ 0r) x       ≡⟨ refl ⟩
     (evalH (0r ⋆ P) x) · x + 0r     ≡⟨ +Rid _ ⟩
     (evalH (0r ⋆ P) x) · x          ≡⟨ cong (λ u → u · x)
@@ -74,13 +76,16 @@ module EqualityToNormalForm (R : AlmostRing {ℓ}) where
   ·HomEval 0H Q x = 0r ≡⟨ sym (0LeftAnnihilates _) ⟩ 0r · evalH Q x ∎
   ·HomEval (P ·X+ r) Q x =
     evalH (((P ·H Q) ·X+ 0r) +H (r ⋆ Q)) x           ≡⟨ +HomEval ((P ·H Q) ·X+ 0r) (r ⋆ Q) x ⟩
-    evalH ((P ·H Q) ·X+ 0r) x + evalH (r ⋆ Q) x      ≡⟨ cong (λ u → u + evalH (r ⋆ Q) x) (+Rid _) ⟩
+    evalH ((P ·H Q) ·X+ 0r) x + evalH (r ⋆ Q) x      ≡⟨ cong (λ u → u + evalH (r ⋆ Q) x)
+                                                             (+Rid _) ⟩
     (evalH (P ·H Q) x) · x + evalH (r ⋆ Q) x         ≡⟨ cong (λ u → (u · x) + evalH (r ⋆ Q) x)
                                                              (·HomEval P Q x) ⟩
     (evalH P x) · (evalH Q x) · x + evalH (r ⋆ Q) x  ≡⟨ cong (λ u → u + evalH (r ⋆ Q) x)
                                                              (sym (·CommRight _ _ _)) ⟩
-    (evalH P x) · x · (evalH Q x) + evalH (r ⋆ Q) x  ≡⟨ cong (λ u → ((evalH P x · x) · evalH Q x) + u)
-                                                             (⋆HomEval r Q x) ⟩
+    (evalH P x) · x · (evalH Q x) + evalH (r ⋆ Q) x  ≡⟨ cong
+                                                         (λ u →
+                                                           ((evalH P x · x) · evalH Q x) + u)
+                                                         (⋆HomEval r Q x) ⟩
     (evalH P x) · x · (evalH Q x) + r · evalH Q x    ≡⟨ sym (·DistL+ _ _ _) ⟩
     ((evalH P x) · x + r) · evalH Q x                ≡⟨ refl ⟩
     evalH (P ·X+ r) x · evalH Q x ∎
@@ -118,8 +123,10 @@ module EqualityToNormalForm (R : AlmostRing {ℓ}) where
         (⟦ e ⟧ (x ∷ [])) + (⟦ e₁ ⟧ (x ∷ [])) ∎
   isEqualToNormalForm (e ⊗ e₁) x =
     evalH (Reify e ·H Reify e₁) x          ≡⟨ ·HomEval (Reify e) (Reify e₁) x ⟩
-    evalH (Reify e) x · evalH (Reify e₁) x ≡⟨ cong (λ u → evalH (Reify e) x · u) (isEqualToNormalForm  e₁ x) ⟩
-    evalH (Reify e) x · ⟦ e₁ ⟧ (x ∷ [])    ≡⟨ cong (λ u → u · ⟦ e₁ ⟧ (x ∷ [])) (isEqualToNormalForm e x) ⟩
+    evalH (Reify e) x · evalH (Reify e₁) x ≡⟨ cong (λ u → evalH (Reify e) x · u)
+                                                   (isEqualToNormalForm  e₁ x) ⟩
+    evalH (Reify e) x · ⟦ e₁ ⟧ (x ∷ [])    ≡⟨ cong (λ u → u · ⟦ e₁ ⟧ (x ∷ []))
+                                                   (isEqualToNormalForm e x) ⟩
     ⟦ e ⟧ (x ∷ []) · ⟦ e₁ ⟧ (x ∷ []) ∎
 
 module SolverFor (R : AlmostRing {ℓ}) where
@@ -134,10 +141,11 @@ module SolverFor (R : AlmostRing {ℓ}) where
             → evalH (Reify e) x ≡ ⟦ e ⟧ (x ∷ [])
   isEqualToNormalForm e x = EqualityToNormalForm.isEqualToNormalForm R e x
 
-  SolveExplicit : (e₁ e₂ : Expr ⟨ R ⟩ 1) (x : ⟨ R ⟩) (p : evalH (Reify e₁) x ≡ evalH (Reify e₂) x)
-        → ⟦ e₁ ⟧ (x ∷ []) ≡ ⟦ e₂ ⟧ (x ∷ [])
+  SolveExplicit :
+    (e₁ e₂ : Expr ⟨ R ⟩ 1) (x : ⟨ R ⟩)
+    (p : evalH (Reify e₁) x ≡ evalH (Reify e₂) x)
+    → ⟦ e₁ ⟧ (x ∷ []) ≡ ⟦ e₂ ⟧ (x ∷ [])
   SolveExplicit e₁ e₂ x p =  ⟦ e₁ ⟧ (x ∷ [])    ≡⟨ sym (isEqualToNormalForm e₁ x) ⟩
                              evalH (Reify e₁) x ≡⟨ p ⟩
                              evalH (Reify e₂) x ≡⟨ isEqualToNormalForm e₂ x ⟩
                              ⟦ e₂ ⟧ (x ∷ []) ∎
-
