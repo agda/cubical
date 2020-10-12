@@ -15,7 +15,7 @@ open import Cubical.Algebra.RingSolver.HornerNormalForm
 open import Cubical.Algebra.RingSolver.MultivariatePolynomials
 open import Cubical.Algebra.RingSolver.Solver
 
-module _ where
+module RingSolvingInOneVariable where
   open AlmostRing ℕAsAlmostRing
   open HornerOperations (AlmostRing→RawRing ℕAsAlmostRing)
   open Eval (AlmostRing→RawRing ℕAsAlmostRing)
