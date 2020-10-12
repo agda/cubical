@@ -15,6 +15,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Base
+open import Cubical.Homotopy.PointedFibration
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.EilenbergMacLane1
 open import Cubical.HITs.EilenbergMacLane1
@@ -80,9 +81,28 @@ BGroupHom G H = (BGroup.base G) →∙ (BGroup.base H)
 BGroupHomΣ : {n k : ℕ} (BG : BGroupΣ {ℓ} n k) (BH : BGroupΣ {ℓ'} n k) → Type (ℓ-max ℓ ℓ')
 BGroupHomΣ (base , pt , _) (base' , pt' , _) = (base , pt) →∙ (base' , pt')
 
+isOfHLevel-BGroupHomΣ : {n k : ℕ} (BG : BGroupΣ {ℓ} n k) (BH : BGroupΣ {ℓ'} n k)
+                        → isOfHLevel (n + 2) (BGroupHomΣ BG BH)
+isOfHLevel-BGroupHomΣ {n = n} {k = k} BG BH = x'
+  where
+    z : isOfHLevel (n + k + 2) (fst BH)
+    z = snd (snd (snd BH))
+    z' : isOfHLevel (n + 1 + 1 + k) (fst BH)
+    z' = subst (λ m → isOfHLevel m (fst BH))
+               (n + k + 2 ≡⟨ sym (+-assoc n k 2) ⟩
+               n + (k + 2) ≡⟨ cong (n +_) (+-comm k 2) ⟩
+               n + (2 + k) ≡⟨ +-assoc n 2 k ⟩
+               (n + 2) + k ≡⟨ cong (_+ k) (+-assoc n 1 1) ⟩
+               n + 1 + 1 + k ∎)
+               z
+    x : isOfHLevel (n + 1 + 1) (BGroupHomΣ BG BH)
+    x = sec∙Trunc (fst BG , fst (snd BG)) (fst (snd (snd BG))) λ _ → (fst BH , fst (snd BH)) , z'
+    x' : isOfHLevel (n + 2) (BGroupHomΣ BG BH)
+    x' = subst (λ m → isOfHLevel m (BGroupHomΣ BG BH)) (sym (+-assoc n 1 1)) x
 
 BGroupIso : {n k : ℕ} (G : BGroup ℓ n k) (H : BGroup ℓ' n k) → Type (ℓ-max ℓ ℓ')
 BGroupIso G H = (BGroup.base G) ≃∙ (BGroup.base H)
+
 
 BGroupIdIso : {n k : ℕ} (BG : BGroup ℓ n k) → BGroupIso BG BG
 BGroupIdIso BG = idEquiv∙ (BGroup.base BG)

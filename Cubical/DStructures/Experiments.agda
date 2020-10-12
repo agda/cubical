@@ -58,6 +58,10 @@ open GroupLemmas
 open MorphismLemmas
 
 
+
+
+{-
+
 module _ {C : Type ℓ} where
   dispTypeIso : Iso (C → Type ℓ) (Σ[ X ∈ Type ℓ ] (X → C))
   Iso.fun dispTypeIso D .fst = Σ[ c ∈ C ] D c
@@ -110,7 +114,7 @@ module _ {C : Type ℓ} where
                     ≡⟨ fromPathP q ⟩
                   y ∎
 
-
+-}
 
 {-
 

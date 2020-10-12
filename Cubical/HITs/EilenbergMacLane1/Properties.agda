@@ -103,8 +103,8 @@ module _ (G : Group {ℓG}) where
   elim Bgpd b bloop bcomp (emloop g i) = bloop g i
   elim Bgpd b bloop bcomp (emcomp g h i j) = bcomp g h i j
   elim Bgpd b bloop bcomp (emsquash x y p q r s i j k) =
-    isOfHLevel→isOfHLevelDep 3 Bgpd
-      _ _ _ _ (λ j k → g (r j k)) (λ j k → g (s j k)) (emsquash x y p q r s) i j k
+     isOfHLevel→isOfHLevelDep 3 Bgpd
+      _ _ _ _ (λ j k → g (r j k)) (λ j k → g (s j k)) (emsquash x y p q r s) i j k 
     where
       g = elim Bgpd b bloop bcomp
 

@@ -142,3 +142,13 @@ module _ {ℓ' : Level} (X : Pointed ℓ) where
   sec∙Trunc' : {n k : ℕ} (1≤n : 1 ≤ n) → A n k
   sec∙Trunc' {n = n} {k = k} 1≤n
     = +Type→≤Type 1 (λ n → A n k) (λ r isConnX Y → sec∙Trunc {n = r} {k = k} isConnX Y) n 1≤n
+
+
+module _ (X : Pointed ℓ) (Y : Pointed ℓ') where
+  pointed-maps-truncated : {n k : ℕ}
+                           → 1 ≤ n
+                           → isConnected (k + 1) (typ X)
+                           → isOfHLevel (n + k) (typ Y)
+                           → isOfHLevel (n) (X →∙ Y)
+  pointed-maps-truncated {n = n} 1≤n connX truncY =
+    sec∙Trunc' X 1≤n connX λ _ → Y , truncY
