@@ -185,7 +185,7 @@ H¹-S¹≅ℤ =
            λ f g id inker
              → pRec propTruncIsProp
                      (λ ((a , b) , id2)
-                        → sElim2 {B = λ f g → GroupHom.fun (K.Δ 0) (f , g) ≡ ∣ F ∣₂ → _ }
+                        → sElim2 {C = λ f g → GroupHom.fun (K.Δ 0) (f , g) ≡ ∣ F ∣₂ → _ }
                                   (λ _ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
                                   (λ f g id → ∣ (helper2 f g .fst) , (sym id ∙ sym (helper2 f g .snd)) ∣₁)
                                   a b id2)
@@ -195,6 +195,7 @@ H¹-S¹≅ℤ =
             → Σ[ x ∈ Int ] (inv H⁰-S⁰≅ℤ×ℤ (x , x))
              ≡ GroupHom.fun (K.Δ 0) (∣ f ∣₂ , ∣ g ∣₂)
     helper2 f g = (f _ -[ 0 ]ₖ g _) , cong ∣_∣₂ (funExt λ {true → refl ; false → refl})
+
 
 ------------------------- H¹(S⁰) ≅ 0 -------------------------------
 

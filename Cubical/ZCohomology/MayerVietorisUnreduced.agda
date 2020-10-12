@@ -15,9 +15,8 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
 open import Cubical.HITs.Susp
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
+open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁)
-open import Cubical.HITs.Nullification
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod hiding (_×_)
 open import Cubical.HITs.Truncation.FromNegOne renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
@@ -30,17 +29,14 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
   -- We first define the three morphisms involved: i, Δ and d.
 
   private
+    -- setTruncIsSet2 : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isSet (∥ A ∥₂ × ∥ B ∥₂)
+    -- setTruncIsSet2 = isSet× setTruncIsSet setTruncIsSet
+
     i* : (n : ℕ) → coHom n (Pushout f g) → coHom n A × coHom n B
-    i* zero = sRec (isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet))
-                    λ δ →  ∣ (λ x → δ (inl x)) ∣₂ , ∣ (λ x → δ (inr x)) ∣₂
-    i* (suc n) = sRec (isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet))
-                      λ δ →  ∣ (λ x → δ (inl x)) ∣₂ , ∣ (λ x → δ (inr x)) ∣₂
+    i* _ = sRec (isSet× setTruncIsSet setTruncIsSet) λ δ → ∣ (λ x → δ (inl x)) ∣₂ , ∣ (λ x → δ (inr x)) ∣₂
 
   iIsHom : (n : ℕ) → isGroupHom (coHomGr n (Pushout f g)) (×coHomGr n A B) (i* n)
-  iIsHom zero = sElim2 (λ _ _ → isOfHLevelPath 2 (isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet)) _ _)
-                         λ f g → refl
-  iIsHom (suc n) = sElim2 (λ _ _ → isOfHLevelPath 2 (isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet)) _ _)
-                         λ f g → refl
+  iIsHom _ = sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _) λ _ _ → refl
 
   i : (n : ℕ) → GroupHom (coHomGr n (Pushout f g)) (×coHomGr n A B)
   GroupHom.fun (i n) = i* n
@@ -61,20 +57,18 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
 
 
     Δ' : (n : ℕ) → ⟨ ×coHomGr n A B ⟩ → ⟨ coHomGr n C ⟩
-    Δ' n (α , β) = (coHomFun n f α) -[ n ]ₕ (coHomFun n g β)
+    Δ' n (α , β) = coHomFun n f α -[ n ]ₕ coHomFun n g β
+
     Δ'-isMorph : (n : ℕ) → isGroupHom (×coHomGr n A B) (coHomGr n C) (Δ' n)
-    Δ'-isMorph zero =
+    Δ'-isMorph n =
       prodElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _ )
-        λ f' x1 g' x2 i → ∣ (λ x → distrLem 0 (f' (f x)) (g' (f x)) (x1 (g x)) (x2 (g x)) i) ∣₂
-    Δ'-isMorph (suc n) =
-      prodElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _ )
-        λ f' x1 g' x2 i → ∣ (λ x → distrLem (suc n) (f' (f x)) (g' (f x)) (x1 (g x)) (x2 (g x)) i) ∣₂
+        λ f' x1 g' x2 i → ∣ (λ x → distrLem n (f' (f x)) (g' (f x)) (x1 (g x)) (x2 (g x)) i) ∣₂
 
   Δ : (n : ℕ) → GroupHom (×coHomGr n A B) (coHomGr n C)
   GroupHom.fun (Δ n) = Δ' n
   GroupHom.isHom (Δ n) = Δ'-isMorph n
 
-  d-pre : (n : ℕ) → (C → coHomK n) → (Pushout f g) → coHomK (suc n)
+  d-pre : (n : ℕ) → (C → coHomK n) → Pushout f g → coHomK (suc n)
   d-pre n γ (inl x) = 0ₖ (suc n)
   d-pre n γ (inr x) = 0ₖ (suc n)
   d-pre zero γ (push a i) = Kn→ΩKn+1 zero (γ a) i
@@ -124,7 +118,7 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
 
   dHomHelper : (n : ℕ) (h l : C → coHomK n) (x : Pushout f g)
              → d-pre n (λ x → h x +[ n ]ₖ l x) x ≡ d-pre n h x +[ suc n ]ₖ d-pre n l x
-  dHomHelper n h l (inl x) = sym (lUnitₖ (suc n) (0ₖ (suc n))) -- sym (suc n) (lUnitₖ (suc n) (0ₖ (suc n)))
+  dHomHelper n h l (inl x) = sym (lUnitₖ (suc n) (0ₖ (suc n)))
   dHomHelper n h l (inr x) = sym (lUnitₖ (suc n) (0ₖ (suc n)))
   dHomHelper zero h l (push a i) j = dHomHelperPath zero h l a i j
   dHomHelper (suc n) h l (push a i) j = dHomHelperPath (suc n) h l a i j
@@ -139,16 +133,18 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
   GroupHom.fun (d n) = sRec setTruncIsSet λ a → ∣ d-pre n a ∣₂
   GroupHom.isHom (d n) = dIsHom n
 
-
   -- The long exact sequence
   Im-d⊂Ker-i : (n : ℕ) (x : ⟨ (coHomGr (suc n) (Pushout f g)) ⟩)
             → isInIm (coHomGr n C) (coHomGr (suc n) (Pushout f g)) (d n) x
             → isInKer (coHomGr (suc n) (Pushout f g)) (×coHomGr (suc n) A B) (i (suc n)) x
-  Im-d⊂Ker-i n = sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 (isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet)) _ _)
-                       λ a → pElim (λ _ → isOfHLevelPath' 1 (isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet)) _ _)
-                               (sigmaElim (λ _ → isOfHLevelPath 2 (isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet)) _ _)
-                                λ δ b → (λ i → sElim (λ _ → isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet))
-                                                 (λ δ → ∣ (λ x → δ (inl x)) ∣₂ , ∣ (λ x → δ (inr x)) ∣₂ ) (b (~ i))))
+  Im-d⊂Ker-i n = sElim (λ _ → isSetΠ λ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
+                       λ a → pRec (isOfHLevelPath' 1 (isSet× setTruncIsSet setTruncIsSet) _ _)
+                               (sigmaElim (λ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
+                                λ δ b i → sRec (isSet× setTruncIsSet setTruncIsSet)
+                                               (λ δ → ∣ (λ x → δ (inl x)) ∣₂ , ∣ (λ x → δ (inr x)) ∣₂ ) (b (~ i)))
+
+
+  -- TODO: simplify the rest
 
   Ker-i⊂Im-d : (n : ℕ) (x : ⟨ coHomGr (suc n) (Pushout f g) ⟩)
               → isInKer (coHomGr (suc n) (Pushout f g)) (×coHomGr (suc n) A B) (i (suc n)) x

@@ -28,6 +28,9 @@ rec Bset f ∣ x ∣₂ = f x
 rec Bset f (squash₂ x y p q i j) =
   Bset _ _ (cong (rec Bset f) p) (cong (rec Bset f) q) i j
 
+rec2 : isSet C → (A → B → C) → ∥ A ∥₂ → ∥ B ∥₂ → C
+rec2 Cset f = rec (isSetΠ λ _ → Cset) λ x → rec Cset (f x)
+
 -- lemma 6.9.1 in HoTT book
 elim : {B : ∥ A ∥₂ → Type ℓ}
        (Bset : (x : ∥ A ∥₂) → isSet (B x))
@@ -38,6 +41,21 @@ elim Bset g (squash₂ x y p q i j) =
   isOfHLevel→isOfHLevelDep 2 Bset _ _
     (cong (elim Bset g) p) (cong (elim Bset g) q) (squash₂ x y p q) i j
 
+elim2 : {C : ∥ A ∥₂ → ∥ B ∥₂ → Type ℓ}
+        (Cset : ((x : ∥ A ∥₂) (y : ∥ B ∥₂) → isSet (C x y)))
+        (g : (a : A) (b : B) → C ∣ a ∣₂ ∣ b ∣₂)
+        (x : ∥ A ∥₂) (y : ∥ B ∥₂) → C x y
+elim2 Cset f = elim (λ _ → isSetΠ (λ _ → Cset _ _))
+                    (λ a → elim (λ _ → Cset _ _) (f a))
+
+-- TODO: generalize
+elim3 : {B : (x y z : ∥ A ∥₂) → Type ℓ}
+        (Bset : ((x y z : ∥ A ∥₂) → isSet (B x y z)))
+        (g : (a b c : A) → B ∣ a ∣₂ ∣ b ∣₂ ∣ c ∣₂)
+        (x y z : ∥ A ∥₂) → B x y z
+elim3 Bset g = elim2 (λ _ _ → isSetΠ (λ _ → Bset _ _ _))
+                     (λ a b → elim (λ _ → Bset _ _ _) (g a b))
+
 setTruncUniversal : isSet B → (∥ A ∥₂ → B) ≃ (A → B)
 setTruncUniversal {B = B} Bset =
   isoToEquiv (iso (λ h x → h ∣ x ∣₂) (rec Bset) (λ _ → refl) rinv)
@@ -46,20 +64,6 @@ setTruncUniversal {B = B} Bset =
   rinv f i x =
     elim (λ x → isProp→isSet (Bset (rec Bset (λ x → f ∣ x ∣₂) x) (f x)))
          (λ _ → refl) x i
-
-elim2 : {B : ∥ A ∥₂ → ∥ A ∥₂ → Type ℓ}
-        (Bset : ((x y : ∥ A ∥₂) → isSet (B x y)))
-        (g : (a b : A) → B ∣ a ∣₂ ∣ b ∣₂)
-        (x y : ∥ A ∥₂) → B x y
-elim2 Bset g = elim (λ _ → isSetΠ (λ _ → Bset _ _))
-                    (λ a → elim (λ _ → Bset _ _) (g a))
-
-elim3 : {B : (x y z : ∥ A ∥₂) → Type ℓ}
-        (Bset : ((x y z : ∥ A ∥₂) → isSet (B x y z)))
-        (g : (a b c : A) → B ∣ a ∣₂ ∣ b ∣₂ ∣ c ∣₂)
-        (x y z : ∥ A ∥₂) → B x y z
-elim3 Bset g = elim2 (λ _ _ → isSetΠ (λ _ → Bset _ _ _))
-                     (λ a b → elim (λ _ → Bset _ _ _) (g a b))
 
 setTruncIsSet : isSet ∥ A ∥₂
 setTruncIsSet a b p q = squash₂ a b p q
@@ -122,37 +126,31 @@ sigmaProdElim : ∀ {ℓ ℓ'} {C : ∥ A ∥₂ × ∥ B ∥₂ → Type ℓ} {
              (x : Σ (∥ A ∥₂ × ∥ B ∥₂) C) → D x
 sigmaProdElim {B = B} {C = C} {D = D} set g ((x , y) , c) =
   elim {B = λ x → (y : ∥ B ∥₂) (c : C (x , y)) → D ((x , y) , c)}
-       (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelΠ 2 λ _ → set _)
-       (λ x → elim (λ _ → isOfHLevelΠ 2 λ _ → set _)
-                    λ y c → g x y c)
+       (λ _ → isSetΠ λ _ → isSetΠ λ _ → set _)
+       (λ x → elim (λ _ → isSetΠ λ _ → set _) (g x))
        x y c
 
+prodElim : {C : ∥ A ∥₂ × ∥ B ∥₂ → Type ℓ}
+         → ((x : ∥ A ∥₂ × ∥ B ∥₂) → isSet (C x))
+         → ((a : A) (b : B) → C (∣ a ∣₂ , ∣ b ∣₂))
+         → (x : ∥ A ∥₂ × ∥ B ∥₂) → C x
+prodElim setC f (a , b) = elim2 (λ x y → setC (x , y)) f a b
 
-prodElim : ∀ {ℓ} {C : ∥ A ∥₂ × ∥ B ∥₂ → Type ℓ}
-        → ((x : ∥ A ∥₂ × ∥ B ∥₂) → isOfHLevel 2 (C x))
-        → ((a : A) (b : B) → C (∣ a ∣₂ , ∣ b ∣₂))
-        → (x : ∥ A ∥₂ × ∥ B ∥₂) → C x
-prodElim {A = A} {B = B} {C = C} hlevel ind (a , b) = schonf a b
-  where
-  schonf : (a : ∥ A ∥₂) (b : ∥ B ∥₂) → C (a , b)
-  schonf = elim (λ x → isOfHLevelΠ 2 λ y → hlevel (_ , _)) λ a → elim (λ x → hlevel (_ , _))
-                 λ b → ind a b
+prodRec : ∀ {ℓ} {C : Type ℓ} → isSet C → (A → B → C) → ∥ A ∥₂ × ∥ B ∥₂ → C
+prodRec setC f (a , b) = rec2 setC f a b
 
 prodElim2 : ∀ {ℓ} {E : (∥ A ∥₂ × ∥ B ∥₂) → (∥ C ∥₂ × ∥ D ∥₂) → Type ℓ}
-         → ((x : ∥ A ∥₂ × ∥ B ∥₂) (y : ∥ C ∥₂ × ∥ D ∥₂) → isOfHLevel 2 (E x y))
+         → ((x : ∥ A ∥₂ × ∥ B ∥₂) (y : ∥ C ∥₂ × ∥ D ∥₂) → isSet (E x y))
          → ((a : A) (b : B) (c : C) (d : D) → E (∣ a ∣₂ , ∣ b ∣₂) (∣ c ∣₂ , ∣ d ∣₂))
          → ((x : ∥ A ∥₂ × ∥ B ∥₂) (y : ∥ C ∥₂ × ∥ D ∥₂) → (E x y))
-prodElim2 isset f = prodElim (λ _ → isOfHLevelΠ 2 λ _ → isset _ _)
+prodElim2 isset f = prodElim (λ _ → isSetΠ λ _ → isset _ _)
                              λ a b → prodElim (λ _ → isset _ _)
                                      λ c d → f a b c d
 
-
 setTruncOfProdIso :  Iso ∥ A × B ∥₂ (∥ A ∥₂ × ∥ B ∥₂)
-Iso.fun setTruncOfProdIso = rec (isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet)) λ { (a , b) → ∣ a ∣₂ , ∣ b ∣₂ }
-Iso.inv setTruncOfProdIso = prodElim (λ _ → setTruncIsSet) λ a b → ∣ a , b ∣₂
+Iso.fun setTruncOfProdIso = rec (isSet× setTruncIsSet setTruncIsSet) λ { (a , b) → ∣ a ∣₂ , ∣ b ∣₂ }
+Iso.inv setTruncOfProdIso = prodRec setTruncIsSet λ a b → ∣ a , b ∣₂
 Iso.rightInv setTruncOfProdIso =
-  prodElim (λ _ → isOfHLevelPath 2 (isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet)) _ _)
-           λ _ _ → refl
+  prodElim (λ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _) λ _ _ → refl
 Iso.leftInv setTruncOfProdIso =
-  elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-        λ {(a , b) → refl}
+  elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _) λ {(a , b) → refl}
