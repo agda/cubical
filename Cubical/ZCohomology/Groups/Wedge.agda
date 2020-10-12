@@ -31,8 +31,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
       sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
             λ f → ∣ (∣ (λ _ → f tt) ∣₂ , 0ₕ 0) , cong ∣_∣₂ (funExt λ _ → -rUnitₖ 0 (f tt)) ∣₁
 
-    helper : (x : coHom 1 (A ⋁ B)) → isInIm _ _ (I.d 0) x
-                  → x ≡ 0ₕ 1
+    helper : (x : coHom 1 (A ⋁ B)) → isInIm _ _ (I.d 0) x → x ≡ 0ₕ 1
     helper x inim =
       pRec (setTruncIsSet _ _)
            (λ p → sym (snd p) ∙
@@ -45,8 +44,8 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
       sElim (λ _ → isSetΠ λ _ → isProp→isSet (setTruncIsSet _ _))
             λ f inker → helper ∣ f ∣₂ (I.Ker-i⊂Im-d 0 ∣ f ∣₂ inker)
     BijectionIso.surj bijIso =
-      sigmaElim (λ _ → isProp→isSet propTruncIsProp)
-                 λ f g → I.Ker-Δ⊂Im-i 1 (∣ f ∣₂ , g) (isContr→isProp (isContrHⁿ-Unit 0) _ _)
+      prodElim (λ _ → isProp→isSet propTruncIsProp)
+                λ f g → I.Ker-Δ⊂Im-i 1 ((∣ f ∣₂ , ∣ g ∣₂)) (isContr→isProp (isContrHⁿ-Unit 0) _ _)
 
   Hⁿ-⋁ (suc n) =
     vSES→GroupIso _ _

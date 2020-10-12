@@ -116,9 +116,8 @@ sigmaElim : ∀ {ℓ ℓ'} {B : ∥ A ∥₂ → Type ℓ} {C : Σ ∥ A ∥₂ 
             (Bset : (x : Σ ∥ A ∥₂ B) → isSet (C x))
             (g : (a : A) (b : B ∣ a ∣₂) → C (∣ a ∣₂ , b))
             (x : Σ ∥ A ∥₂ B) → C x
-sigmaElim {B = B} {C = C} set g (x , y) = elim {B = λ x → (y : B x) → C (x , y)}
-                                               (λ _ → isOfHLevelΠ 2 λ _ → set (_ , _))
-                                               g x y
+sigmaElim {B = B} {C = C} set g (x , y) =
+  elim {B = λ x → (y : B x) → C (x , y)} (λ _ → isSetΠ λ _ → set _) g x y
 
 sigmaProdElim : ∀ {ℓ ℓ'} {C : ∥ A ∥₂ × ∥ B ∥₂ → Type ℓ} {D : Σ (∥ A ∥₂ × ∥ B ∥₂) C  → Type ℓ'}
              (Bset : (x : Σ (∥ A ∥₂ × ∥ B ∥₂) C) → isSet (D x))
