@@ -144,26 +144,25 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
                                                (λ δ → ∣ (λ x → δ (inl x)) ∣₂ , ∣ (λ x → δ (inr x)) ∣₂ ) (b (~ i)))
 
 
-  -- TODO: simplify the rest
-
   Ker-i⊂Im-d : (n : ℕ) (x : ⟨ coHomGr (suc n) (Pushout f g) ⟩)
-              → isInKer (coHomGr (suc n) (Pushout f g)) (×coHomGr (suc n) A B) (i (suc n)) x
-              → isInIm (coHomGr n C) (coHomGr (suc n) (Pushout f g)) (d n) x
+             → isInKer (coHomGr (suc n) (Pushout f g)) (×coHomGr (suc n) A B) (i (suc n)) x
+             → isInIm (coHomGr n C) (coHomGr (suc n) (Pushout f g)) (d n) x
   Ker-i⊂Im-d zero =
-     sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
-                         λ a p → pRec {A = (λ x → a (inl x)) ≡ λ _ → (0ₖ (suc 0))} (isOfHLevelΠ 1 (λ _ → propTruncIsProp))
-                                       (λ p1 → pRec propTruncIsProp λ p2 → ∣ ∣ (λ c → ΩKn+1→Kn 0 (sym (cong (λ F → F (f c)) p1)
-                                                                                                 ∙∙ cong a (push c)
-                                                                                                 ∙∙ cong (λ F → F (g c)) p2)) ∣₂
+     sElim (λ _ → isSetΠ λ _ → isProp→isSet propTruncIsProp)
+           λ a p → pRec {A = (λ x → a (inl x)) ≡ λ _ → 0ₖ 1}
+                        (isProp→ propTruncIsProp)
+                        (λ p1 → pRec propTruncIsProp λ p2 → ∣ ∣ (λ c → ΩKn+1→Kn 0 (sym (cong (λ F → F (f c)) p1)
+                                                                                     ∙∙ cong a (push c)
+                                                                                     ∙∙ cong (λ F → F (g c)) p2)) ∣₂
                                                                              , cong ∣_∣₂ (funExt (λ δ → helper a p1 p2 δ)) ∣₁)
-                                       (Iso.fun (PathIdTrunc₀Iso) (cong fst p))
-                                       (Iso.fun (PathIdTrunc₀Iso) (cong snd p))
+                                       (Iso.fun PathIdTrunc₀Iso (cong fst p))
+                                       (Iso.fun PathIdTrunc₀Iso (cong snd p))
 
       where
       helper : (F : (Pushout f g) → hLevelTrunc 3 (S₊ 1))
                (p1 : Path (_ → hLevelTrunc 3 (S₊ 1)) (λ a₁ → F (inl a₁)) (λ _ → ∣ base ∣))
                (p2 : Path (_ → hLevelTrunc 3 (S₊ 1)) (λ a₁ → F (inr a₁)) (λ _ → ∣ base ∣))
-             → (δ : (Pushout f g))
+             → (δ : Pushout f g)
              → d-pre 0 (λ c → ΩKn+1→Kn 0 ((λ i₁ → p1 (~ i₁) (f c))
                                                      ∙∙ cong F (push c)
                                                      ∙∙ cong (λ F → F (g c)) p2)) δ
@@ -173,20 +172,20 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
       helper F p1 p2 (push a i) j =
         hcomp (λ k → λ { (i = i0) → p1 (~ j) (f a)
                        ; (i = i1) → p2 (~ j) (g a)
-                       ; (j = i0) → Iso.rightInv (Iso-Kn-ΩKn+1 zero) ((λ i₁ → p1 (~ i₁) (f a))
+                       ; (j = i0) → Iso.rightInv (Iso-Kn-ΩKn+1 0) ((λ i₁ → p1 (~ i₁) (f a))
                                                                        ∙∙ cong F (push a)
                                                                        ∙∙ cong (λ F₁ → F₁ (g a)) p2) (~ k) i
                         ; (j = i1) → F (push a i)})
               (doubleCompPath-filler (sym (cong (λ F → F (f a)) p1)) (cong F (push a)) (cong (λ F → F (g a)) p2) (~ j) i)
   Ker-i⊂Im-d (suc n) =
-   sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
-                         λ a p → pRec {A = (λ x → a (inl x)) ≡ λ _ → (0ₖ (2 + n))} (isOfHLevelΠ 1 (λ _ → propTruncIsProp))
-                                       (λ p1 → pRec propTruncIsProp λ p2 → ∣ ∣ (λ c → ΩKn+1→Kn (suc n) (sym (cong (λ F → F (f c)) p1)
-                                                                                                 ∙∙ cong a (push c)
-                                                                                                 ∙∙ cong (λ F → F (g c)) p2)) ∣₂
+    sElim (λ _ → isSetΠ λ _ → isProp→isSet propTruncIsProp)
+           λ a p → pRec {A = (λ x → a (inl x)) ≡ λ _ → 0ₖ (2 + n)} (isProp→ propTruncIsProp)
+                        (λ p1 → pRec propTruncIsProp λ p2 → ∣ ∣ (λ c → ΩKn+1→Kn (suc n) (sym (cong (λ F → F (f c)) p1)
+                                                                                           ∙∙ cong a (push c)
+                                                                                           ∙∙ cong (λ F → F (g c)) p2)) ∣₂
                                                                              , cong ∣_∣₂ (funExt (λ δ → helper a p1 p2 δ)) ∣₁)
-                                       (Iso.fun (PathIdTrunc₀Iso) (cong fst p))
-                                       (Iso.fun (PathIdTrunc₀Iso) (cong snd p))
+                                       (Iso.fun PathIdTrunc₀Iso (cong fst p))
+                                       (Iso.fun PathIdTrunc₀Iso (cong snd p))
 
       where
       helper : (F : (Pushout f g) → hLevelTrunc (4 + n) (S₊ (2 + n)))
@@ -216,10 +215,10 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
   Im-i⊂Ker-Δ n (Fa , Fb) =
     sElim {B = λ Fa → (Fb : _) → isInIm (coHomGr n (Pushout f g)) (×coHomGr n A B) (i n) (Fa , Fb)
                                → isInKer (×coHomGr n A B) (coHomGr n C) (Δ n) (Fa , Fb)}
-          (λ _ → isOfHLevelΠ 2 λ _ → (isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 setTruncIsSet _ _))
-          (λ Fa → sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+          (λ _ → isSetΠ2 λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+          (λ Fa → sElim (λ _ → isSetΠ λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
                         λ Fb → pRec (setTruncIsSet _ _)
-                                     (sigmaElim (λ x → isOfHLevelSuc 1 (setTruncIsSet _ _))
+                                     (sigmaElim (λ x → isProp→isSet (setTruncIsSet _ _))
                                                 λ Fd p → helper n Fa Fb Fd p))
           Fa
           Fb
@@ -228,7 +227,7 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
           → (fun (i n) ∣ Fd ∣₂ ≡ (∣ Fa ∣₂ , ∣ Fb ∣₂))
           → (fun (Δ n)) (∣ Fa ∣₂ , ∣ Fb ∣₂) ≡ 0ₕ n
     helper zero Fa Fb Fd p = cong (fun (Δ zero)) (sym p)
-                           ∙∙ (λ i → ∣ (λ x → Fd (inl (f x))) ∣₂ -[ 0 ]ₕ ∣ (λ x → Fd (push x (~ i))) ∣₂ ) -- (λ i → ∣ (λ x → Fd (inl (f x))) ∣₂ +[ 0 ]ₕ (-[ 0 ]ₕ ∣ (λ x → Fd (push x (~ i))) ∣₂))
+                           ∙∙ (λ i → ∣ (λ x → Fd (inl (f x))) ∣₂ -[ 0 ]ₕ ∣ (λ x → Fd (push x (~ i))) ∣₂ )
                            ∙∙ cancelₕ 0 ∣ (λ x → Fd (inl (f x))) ∣₂
     helper (suc n) Fa Fb Fd p = cong (fun (Δ (suc n))) (sym p)
                               ∙∙ (λ i → ∣ (λ x → Fd (inl (f x))) ∣₂ -[ (suc n) ]ₕ ∣ (λ x → Fd (push x (~ i))) ∣₂)
@@ -237,43 +236,26 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
   Ker-Δ⊂Im-i : (n : ℕ) (a : ⟨ ×coHomGr n A B ⟩)
             → isInKer (×coHomGr n A B) (coHomGr n C) (Δ n) a
             → isInIm (coHomGr n (Pushout f g)) (×coHomGr n A B) (i n) a
-  Ker-Δ⊂Im-i n (Fa , Fb) =
-    sElim {B = λ Fa → (Fb : _) → isInKer (×coHomGr n A B) (coHomGr n C) (Δ n) (Fa , Fb)
-                                → isInIm (coHomGr n (Pushout f g)) (×coHomGr n A B) (i n) (Fa , Fb)}
-          (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
-          (λ Fa → sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
-                         λ Fb p → pRec propTruncIsProp
-                                        (λ q → ∣ ∣ helpFun n Fa Fb (funExt⁻ q) ∣₂
-                                                , anotherHelper n Fa Fb q ∣₁)
-                                        (helper n Fa Fb p))
-          Fa
-          Fb
-
+  Ker-Δ⊂Im-i n = prodElim (λ _ → isSetΠ (λ _ → isProp→isSet propTruncIsProp))
+                          (λ Fa Fb p → pRec propTruncIsProp
+                                            (λ q → ∣ ∣ helpFun Fa Fb q ∣₂ , refl ∣₁)
+                                            (helper Fa Fb p))
     where
-    helper : (n : ℕ) (Fa : A → coHomK n) (Fb : B → coHomK n)
-           → (fun (Δ n)) (∣ Fa ∣₂ , ∣ Fb ∣₂) ≡ 0ₕ n
-           → ∥  (Path (_ → _) (λ c → Fa (f c)) (λ c → Fb (g c))) ∥₁
-    helper zero Fa Fb p = Iso.fun (PathIdTrunc₀Iso)
-                                   (sym (-+cancelₕ 0 ∣ (λ c → Fa (f c)) ∣₂ ∣ (λ c → Fb (g c)) ∣₂)
-                                 ∙∙ cong (λ x → x +[ 0 ]ₕ ∣ (λ c → Fb (g c)) ∣₂) p
-                                 ∙∙ lUnitₕ 0 _)
-    helper (suc n) Fa Fb p = Iso.fun (PathIdTrunc₀Iso)
-                                      (sym (-+cancelₕ (suc n) ∣ (λ c → Fa (f c)) ∣₂ ∣ (λ c → Fb (g c)) ∣₂)
-                                    ∙∙ cong (λ x → x +[ (suc n) ]ₕ ∣ (λ c → Fb (g c)) ∣₂) p
-                                    ∙∙ lUnitₕ (suc n) _)
+    helper : (Fa : A → coHomK n) (Fb : B → coHomK n)
+           → fun (Δ n) (∣ Fa ∣₂ , ∣ Fb ∣₂) ≡ 0ₕ n
+           → ∥ Path (_ → _) (λ c → Fa (f c)) (λ c → Fb (g c)) ∥₁
+    helper Fa Fb p = Iso.fun PathIdTrunc₀Iso
+                               (sym (-+cancelₕ n ∣ (λ c → Fa (f c)) ∣₂ ∣ (λ c → Fb (g c)) ∣₂)
+                               ∙∙ cong (λ x → x +[ n ]ₕ ∣ (λ c → Fb (g c)) ∣₂) p
+                               ∙∙ lUnitₕ n _)
 
-    helpFun : (n : ℕ) (Fa : A → coHomK n) (Fb : B → coHomK n)
-            → ((c : C) → Fa (f c) ≡ Fb (g c))
-            → (Pushout f g) → coHomK n
-    helpFun n Fa Fb p (inl x) = Fa x
-    helpFun n Fa Fb p (inr x) = Fb x
-    helpFun n Fa Fb p (push a i) = p a i
+    helpFun : (Fa : A → coHomK n) (Fb : B → coHomK n)
+            → ((λ c → Fa (f c)) ≡ (λ c → Fb (g c)))
+            → Pushout f g → coHomK n
+    helpFun Fa Fb p (inl x) = Fa x
+    helpFun Fa Fb p (inr x) = Fb x
+    helpFun Fa Fb p (push a i) = p i a
 
-    anotherHelper : (n : ℕ) (Fa : A → coHomK n) (Fb : B → coHomK n)
-                 → (q : Path (C → coHomK n) (λ c → Fa (f c)) (λ c → Fb (g c)))
-                 → fun (i n) ∣ helpFun n Fa Fb (λ x i₁ → q i₁ x) ∣₂ ≡ (∣ Fa ∣₂ , ∣ Fb ∣₂)
-    anotherHelper zero Fa Fb q = refl
-    anotherHelper (suc n) Fa Fb q = refl
 
   private
     distrHelper : (n : ℕ) (p q : _)
@@ -281,7 +263,6 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
     distrHelper n p q i =
         ΩKn+1→Kn n (Iso.rightInv (Iso-Kn-ΩKn+1 n) p i
       ∙ Iso.rightInv (Iso-Kn-ΩKn+1 n) (sym (Iso.rightInv (Iso-Kn-ΩKn+1 n) q i)) i)
-
 
   Ker-d⊂Im-Δ : (n : ℕ) (a : coHom n C)
              → isInKer (coHomGr n C) (coHomGr (suc n) (Pushout f g)) (d n) a
