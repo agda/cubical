@@ -7,7 +7,7 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.SIP
+open import Cubical.Foundations.SIP    hiding (⟨_⟩)
 
 open import Cubical.Data.Sigma
 
@@ -18,7 +18,7 @@ open import Cubical.Algebra.Module    renaming (⟨_⟩ to ⟨_⟩m)
 open import Cubical.Algebra.Ring      renaming (⟨_⟩ to ⟨_⟩r)
 open import Cubical.Algebra.AbGroup   hiding (⟨_⟩)
 open import Cubical.Algebra.Group     hiding (⟨_⟩)
-open import Cubical.Algebra.Monoid       hiding (⟨_⟩)
+open import Cubical.Algebra.Monoid
 
 open Iso
 

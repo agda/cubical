@@ -7,8 +7,8 @@ open import Cubical.Data.Prod renaming (_×_ to _×'_)
 open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_)
 open import Cubical.Data.Unit
 
-open import Cubical.Algebra.Monoid hiding (⟨_⟩)
-open import Cubical.Algebra.Semigroup hiding (⟨_⟩)
+open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.Semigroup
 open import Cubical.Foundations.HLevels
 
 private

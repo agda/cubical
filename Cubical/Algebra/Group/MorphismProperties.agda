@@ -8,7 +8,7 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.SIP
+open import Cubical.Foundations.SIP hiding (⟨_⟩)
 open import Cubical.Foundations.Function using (_∘_)
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Functions.Embedding
@@ -16,8 +16,8 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Pointed
-open import Cubical.Algebra.Semigroup hiding (⟨_⟩)
-open import Cubical.Algebra.Monoid    hiding (⟨_⟩)
+open import Cubical.Algebra.Semigroup
+open import Cubical.Algebra.Monoid
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
