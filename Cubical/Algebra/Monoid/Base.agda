@@ -61,10 +61,6 @@ Monoid = TypeWithStr _ MonoidStr
 monoid : (A : Type ℓ) (ε : A) (_·_ : A → A → A) (h : IsMonoid ε _·_) → Monoid
 monoid A ε _·_ h = A , monoidstr ε _·_ h
 
--- Extractor for the carrier type
-⟨_⟩ : Monoid → Type ℓ
-⟨_⟩ = typ
-
 η-isMonoid : {A : Type ℓ} {ε : A} {_∙_ :  A → A → A} (b : IsMonoid ε _∙_)
           → ismonoid (IsMonoid.isSemigroup b) (IsMonoid.identity b) ≡ b
 IsMonoid.isSemigroup (η-isMonoid b i) = IsMonoid.isSemigroup b
