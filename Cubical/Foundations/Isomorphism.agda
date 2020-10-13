@@ -100,14 +100,18 @@ module _ (i : Iso A B) where
   isoToIsEquiv .equiv-proof y .fst .snd = s y
   isoToIsEquiv .equiv-proof y .snd z = lemIso y (g y) (fst z) (s y) (snd z)
 
-
-isoToEquiv : Iso A B → A ≃ B
-isoToEquiv i .fst = _
-isoToEquiv i .snd = isoToIsEquiv i
+isoToEquiv : (f : A → B) (g : B → A) → ((b : B) → f (g b) ≡ b) → ((a : A) → g (f a) ≡ a) → A ≃ B
+isoToEquiv {A = A} {B = B} f g fg gf = f , isoToIsEquiv i
+  where
+  i : Iso A B
+  Iso.fun i      = f
+  Iso.inv i      = g
+  Iso.rightInv i = fg
+  Iso.leftInv i  = gf
 
 isoToPath : Iso A B → A ≡ B
 isoToPath {A = A} {B = B} f i =
-  Glue B (λ { (i = i0) → (A , isoToEquiv f)
+  Glue B (λ { (i = i0) → (A , isoToEquiv (Iso.fun f) (Iso.inv f) (Iso.rightInv f) (Iso.leftInv f))
             ; (i = i1) → (B , idEquiv B) })
 
 open Iso
