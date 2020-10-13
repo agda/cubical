@@ -129,7 +129,7 @@ module FinMatrixAbGroup (G' : AbGroup {ℓ}) where
 module _ (G' : AbGroup {ℓ}) where
 
   open AbGroupStr (snd G')
-  private G = ⟨ G' ⟩ 
+  private G = ⟨ G' ⟩
   zeroVecMatrix : ∀ {m n} → VecMatrix G m n
   zeroVecMatrix = replicate (replicate 0g)
 
