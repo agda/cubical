@@ -122,6 +122,20 @@ inv (compGroupIso iso1 iso2) = inv iso1 ∘ inv iso2
 rightInv (compGroupIso iso1 iso2) a = cong (fun (map iso2)) (rightInv iso1 _) ∙ rightInv iso2 a
 leftInv (compGroupIso iso1 iso2) a = cong (inv iso1) (leftInv iso2 _) ∙ leftInv iso1 a
 
+doubleCompGroupIso : {G : Group {ℓ}} {H : Group {ℓ₁}} {A : Group {ℓ₂}} {B : Group {ℓ₂}} → GroupIso G H → GroupIso H A → GroupIso A B → GroupIso G B
+fun (map (doubleCompGroupIso iso1 iso2 iso3)) = fun (map iso3) ∘ fun (map iso2) ∘ fun (map iso1)
+isHom (map (doubleCompGroupIso iso1 iso2 iso3)) = isGroupHomDoubleComp (map iso1) (map iso2) (map iso3)
+inv (doubleCompGroupIso iso1 iso2 iso3) = inv iso1 ∘ inv iso2 ∘ inv iso3
+rightInv (doubleCompGroupIso iso1 iso2 iso3) a =
+  cong (fun (map iso3) ∘ fun (map iso2)) (rightInv iso1 _) ∙∙ cong (fun (map iso3)) (rightInv iso2 _) ∙∙ rightInv iso3 _
+leftInv (doubleCompGroupIso iso1 iso2 iso3) a =
+  cong (inv iso1 ∘ inv iso2) (leftInv iso3 _) ∙∙ cong (inv iso1) (leftInv iso2 _) ∙∙ leftInv iso1 _
+
+≅⟨⟩⟨⟩-syntax : (G : Group {ℓ}) (H : Group {ℓ₁}) (A : Group {ℓ₂}) (B : Group {ℓ₂}) → GroupIso G H → GroupIso H A → GroupIso A B → GroupIso G B
+≅⟨⟩⟨⟩-syntax G H A B is1 is2 is3 = {!!}
+-- infixr 3 ≅⟨⟩⟨⟩-syntax
+-- syntax ≅⟨⟩⟨⟩-syntax x y B C = x ≡⟨ B ⟩≡ y ≡⟨ C ⟩≡
+
 isGroupHomInv' : {G : Group {ℓ}} {H : Group {ℓ₁}} (f : GroupIso G H) → isGroupHom H G (inv f)
 isGroupHomInv' {G = G} {H = H}  f h h' = isInj-f _ _ (
   f' (g (h ⋆² h')) ≡⟨ (rightInv f) _ ⟩
