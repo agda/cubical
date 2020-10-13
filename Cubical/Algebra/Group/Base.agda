@@ -47,6 +47,7 @@ record IsGroup {G : Type ℓ}
 record GroupStr (G : Type ℓ) : Type (ℓ-suc ℓ) where
 
   constructor groupstr
+
   field
     0g      : G
     _+_     : G → G → G
@@ -98,11 +99,13 @@ makeGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
             (rinv : (x : G) → x + (- x) ≡ 0g)
             (linv : (x : G) → (- x) + x ≡ 0g)
           → Group
-Group.Carrier (makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv) = _
-Group.0g (makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv) = 0g
-Group._+_ (makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv) = _+_
-Group.- makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv = -_
-Group.isGroup (makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv) = makeIsGroup is-setG assoc rid lid rinv linv
+makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv = _ , helper
+  where
+  helper : GroupStr _
+  GroupStr.0g helper = 0g
+  GroupStr._+_ helper = _+_
+  GroupStr.- helper = -_
+  GroupStr.isGroup helper = makeIsGroup is-setG assoc rid lid rinv linv
 
 makeGroup-right : ∀ {ℓ} {A : Type ℓ}
   → (id : A)
@@ -113,7 +116,7 @@ makeGroup-right : ∀ {ℓ} {A : Type ℓ}
   → (rUnit : ∀ a → comp a id ≡ a)
   → (rCancel : ∀ a → comp a (inv a) ≡ id)
   → Group
-makeGroup-right {A = A} id comp inv set assoc rUnit rCancel =
+makeGroup-right id comp inv set assoc rUnit rCancel =
   makeGroup id comp inv set assoc rUnit lUnit rCancel lCancel
   where
     _⨀_ = comp
@@ -159,7 +162,7 @@ makeGroup-left : ∀ {ℓ} {A : Type ℓ}
   → (lUnit : ∀ a → comp id a ≡ a)
   → (lCancel : ∀ a → comp (inv a) a ≡ id)
   → Group
-makeGroup-left {A = A} id comp inv set assoc lUnit lCancel =
+makeGroup-left id comp inv set assoc lUnit lCancel =
   makeGroup id comp inv set assoc rUnit lUnit rCancel lCancel
   where
     abstract

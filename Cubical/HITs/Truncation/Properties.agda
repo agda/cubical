@@ -178,7 +178,7 @@ Iso.fun (univTrunc n {B , lev}) g a = g ∣ a ∣
 Iso.inv (univTrunc n {B , lev}) = elim λ _ → lev
 Iso.rightInv (univTrunc n {B , lev}) b = refl
 Iso.leftInv (univTrunc n {B , lev}) b = funExt (elim (λ x → isOfHLevelPath _ lev _ _)
-                                                     λ a → refl)
+                                                      λ a → refl)
 
 -- functorial action
 
@@ -277,9 +277,9 @@ Iso.leftInv (truncOfProdIso n) = elim (λ _ → isOfHLevelPath n (isOfHLevelTrun
 
 ---- ∥ Ω A ∥ ₙ ≡ Ω ∥ A ∥ₙ₊₁  ----
 
-abstract
-  isOfHLevelTypeOfHLevel2 : ∀ n → isOfHLevel (suc n) (TypeOfHLevel ℓ n)
-  isOfHLevelTypeOfHLevel2 n = isOfHLevelTypeOfHLevel n
+
+isOfHLevelTypeOfHLevel2 : ∀ n → isOfHLevel (suc n) (TypeOfHLevel ℓ n)
+isOfHLevelTypeOfHLevel2 n = isOfHLevelTypeOfHLevel n
 
   {- Proofs of Theorem 7.3.12. and Corollary 7.3.13. in the HoTT book  -}
 

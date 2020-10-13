@@ -56,7 +56,7 @@ semigroup : (A : Type ℓ) (_·_ : A → A → A) (h : IsSemigroup _·_) → Sem
 semigroup A _·_ h = A , semigroupstr _·_ h
 
 record SemigroupEquiv (M N : Semigroup {ℓ}) (e : ⟨ M ⟩ ≃ ⟨ N ⟩) : Type ℓ where
-  no-eta-equality
+
   constructor semigroupequiv
 
   -- Shorter qualified names
