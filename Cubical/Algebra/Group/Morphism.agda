@@ -23,14 +23,14 @@ isGroupHom G H f = (x y : ⟨ G ⟩) → f (x G.+ y) ≡ (f x H.+ f y) where
 
 record GroupHom (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
   constructor grouphom
-  no-eta-equality
+
   field
     fun : ⟨ G ⟩ → ⟨ H ⟩
     isHom : isGroupHom G H fun
 
 record GroupEquiv (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
   constructor groupequiv
-  no-eta-equality
+
   field
     eq : ⟨ G ⟩ ≃ ⟨ H ⟩
     isHom : isGroupHom G H (equivFun eq)
