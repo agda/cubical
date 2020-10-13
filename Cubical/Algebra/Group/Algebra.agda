@@ -126,13 +126,13 @@ isGroupHomInv' : {G : Group {ℓ}} {H : Group {ℓ₁}} (f : GroupIso G H) → i
 isGroupHomInv' {G = G} {H = H}  f h h' = isInj-f _ _ (
   f' (g (h ⋆² h')) ≡⟨ (rightInv f) _ ⟩
   (h ⋆² h') ≡⟨ sym (cong₂ _⋆²_ (rightInv f h) (rightInv f h')) ⟩
-  (f' (g h) ⋆² f' (g h')) ≡⟨ sym (isHom (map f) _ _) ⟩ -- sym (isHom (hom f) _ _) ⟩
+  (f' (g h) ⋆² f' (g h')) ≡⟨ sym (isHom (map f) _ _) ⟩
   f' (g h ⋆¹ g h') ∎)
   where
   f' = fun (map f)
   _⋆¹_ = Group._+_ G
   _⋆²_ = Group._+_ H
-  g = inv f -- invEq (eq f)
+  g = inv f
 
   isInj-f : (x y : ⟨ G ⟩) → f' x ≡ f' y → x ≡ y
   isInj-f x y p = sym (leftInv f _) ∙∙ cong g p ∙∙ leftInv f _

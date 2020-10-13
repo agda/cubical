@@ -104,3 +104,8 @@ suspToPropElim2 {B = B} a isprop Bnorth (merid x i) (merid y j) =
      (isProp→PathP (λ i₁ → isprop (merid x i₁) south)
                    (subst (B north) (merid a) Bnorth)
                    (subst (λ x₁ → B x₁ x₁) (merid a) Bnorth)) i j
+{- Clever proof:
+suspToPropElim2 a isProp Bnorth =
+  suspToPropElim a (λ x → isOfHLevelΠ 1 λ y → isProp x y)
+                   (suspToPropElim a (λ x → isProp north x) Bnorth)
+-}
