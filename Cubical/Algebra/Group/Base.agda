@@ -46,7 +46,7 @@ record IsGroup {G : Type ℓ}
 η-isGroup id1 id2 id3 i = IsGroup (id1 i) (id2 i) (id3 i)
 
 record Group : Type (ℓ-suc ℓ) where
-  no-eta-equality
+
   constructor group
   field
     Carrier : Type ℓ

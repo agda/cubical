@@ -23,8 +23,8 @@ open import Cubical.HITs.S1
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁) hiding (map)
-open import Cubical.HITs.Nullification
 
+open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +-comm to +ℤ-comm ; +-assoc to +ℤ-assoc)
 open import Cubical.Data.Nat
@@ -56,7 +56,7 @@ H⁰-Sⁿ≅ℤ (suc n) = H⁰-connected north (Sn-connected (suc n))
 
 --- We will need to switch between Sⁿ defined using suspensions and using pushouts
 --- in order to apply Mayer Vietoris.
-open import Cubical.Data.Bool
+
 
 S1Iso : Iso S¹ (Pushout {A = Bool} (λ _ → tt) λ _ → tt)
 S1Iso = S¹IsoSuspBool ⋄ invIso PushoutSuspIsoSusp
@@ -64,16 +64,10 @@ S1Iso = S¹IsoSuspBool ⋄ invIso PushoutSuspIsoSusp
 coHomPushout≅coHomSn : (n m : ℕ) → GroupIso (coHomGr m (S₊ (suc n))) (coHomGr m (Pushout {A = S₊ n} (λ _ → tt) λ _ → tt))
 coHomPushout≅coHomSn zero m =
   Iso+Hom→GrIso (setTruncIso (domIso S1Iso))
-                 (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                         λ f g → cong ∣_∣₂ (funExt λ { (inl tt) → refl
-                                                      ; (inr tt) → refl
-                                                      ; (push a i) → refl}))
+                (sElim2 (λ _ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ _ → refl))
 coHomPushout≅coHomSn (suc n) m =
   Iso+Hom→GrIso (setTruncIso (domIso (invIso PushoutSuspIsoSusp)))
-                 (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                         λ f g → cong ∣_∣₂ (funExt λ { (inl tt) → refl
-                                                      ; (inr tt) → refl
-                                                      ; (push a i) → refl}))
+                (sElim2 (λ _ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ _ → refl))
 
 -------------------------- H⁰(S⁰) -----------------------------
 S0→Int : (a : Int × Int) → S₊ 0 → Int
@@ -81,12 +75,12 @@ S0→Int a true = fst a
 S0→Int a false = snd a
 
 H⁰-S⁰≅ℤ×ℤ : GroupIso (coHomGr 0 (S₊ 0)) (dirProd intGroup intGroup)
-fun (map H⁰-S⁰≅ℤ×ℤ) = sRec (isOfHLevelΣ 2 isSetInt λ _ → isSetInt) λ f → (f true) , (f false)
-isHom (map H⁰-S⁰≅ℤ×ℤ) = sElim2 (λ _ _ → isOfHLevelPath 2 (isOfHLevelΣ 2 isSetInt (λ _ → isSetInt)) _ _)
+fun (map H⁰-S⁰≅ℤ×ℤ) = sRec (isSet× isSetInt isSetInt) λ f → (f true) , (f false)
+isHom (map H⁰-S⁰≅ℤ×ℤ) = sElim2 (λ _ _ → isSet→isGroupoid (isSet× isSetInt isSetInt) _ _)
                                 λ a b i → addLemma (a true) (b true) i , addLemma (a false) (b false) i
 inv H⁰-S⁰≅ℤ×ℤ a = ∣ S0→Int a ∣₂
 rightInv H⁰-S⁰≅ℤ×ℤ _ = refl
-leftInv H⁰-S⁰≅ℤ×ℤ = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+leftInv H⁰-S⁰≅ℤ×ℤ = sElim (λ _ → isSet→isGroupoid setTruncIsSet _ _)
                            λ f → cong ∣_∣₂ (funExt (λ {true → refl ; false → refl}))
 
 
@@ -169,7 +163,7 @@ H¹-S¹≅ℤ =
   where
   module K = MV Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt)
 
-  surjHelper :  (x : Int) (x₁ : S₊ 0) → x -[ 0 ]ₖ (pos 0) ≡ S0→Int (x , x) x₁
+  surjHelper :  (x : Int) (x₁ : S₊ 0) → x -[ 0 ]ₖ 0 ≡ S0→Int (x , x) x₁
   surjHelper x true = Iso.leftInv (Iso-Kn-ΩKn+1 0) x
   surjHelper x false = Iso.leftInv (Iso-Kn-ΩKn+1 0) x
 
@@ -185,7 +179,7 @@ H¹-S¹≅ℤ =
            λ f g id inker
              → pRec propTruncIsProp
                      (λ ((a , b) , id2)
-                        → sElim2 {B = λ f g → GroupHom.fun (K.Δ 0) (f , g) ≡ ∣ F ∣₂ → _ }
+                        → sElim2 {C = λ f g → GroupHom.fun (K.Δ 0) (f , g) ≡ ∣ F ∣₂ → _ }
                                   (λ _ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
                                   (λ f g id → ∣ (helper2 f g .fst) , (sym id ∙ sym (helper2 f g .snd)) ∣₁)
                                   a b id2)
@@ -195,6 +189,7 @@ H¹-S¹≅ℤ =
             → Σ[ x ∈ Int ] (inv H⁰-S⁰≅ℤ×ℤ (x , x))
              ≡ GroupHom.fun (K.Δ 0) (∣ f ∣₂ , ∣ g ∣₂)
     helper2 f g = (f _ -[ 0 ]ₖ g _) , cong ∣_∣₂ (funExt λ {true → refl ; false → refl})
+
 
 ------------------------- H¹(S⁰) ≅ 0 -------------------------------
 
@@ -313,6 +308,7 @@ H¹-Sⁿ≅0 (suc n) = coHomPushout≅coHomSn (2 + n) 1
   inj bijIso = helper
   surj bijIso x = ∣ 0ₕ _ , isOfHLevelSuc 0 (isOfHLevelΣ 0 (isContrHⁿ-Unit zero) (λ _ → isContrHⁿ-Unit 0)) _ x ∣₁
 
+
 --------- Direct proof of H¹(S¹) ≅ ℤ without Mayer-Vietoris -------
 
 -- The strategy is to use the proof that ΩS¹ ≃ ℤ. Since we only have this for S¹ with the base/loop definition
@@ -396,3 +392,4 @@ Hⁿ-Sⁿ≅ℤ (suc n) =
   vSES.ϕ theIso = K.d (suc n)
   Ker-ϕ⊂Im-left theIso = K.Ker-d⊂Im-Δ  (suc n)
   Ker-right⊂Im-ϕ theIso = K.Ker-i⊂Im-d (suc n)
+

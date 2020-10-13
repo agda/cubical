@@ -31,7 +31,6 @@ private
 -- would only contain isSet A if we had it.
 record IsSemigroup {A : Type ℓ} (_·_ : A → A → A) : Type ℓ where
 
-  -- no-eta-equality
   constructor issemigroup
   field
     is-set : isSet A
@@ -56,7 +55,7 @@ record Semigroup : Type (ℓ-suc ℓ) where
 
 
 record SemigroupEquiv (M N : Semigroup {ℓ}) : Type ℓ where
-  no-eta-equality
+
   constructor semigroupequiv
 
   -- Shorter qualified names
