@@ -54,7 +54,7 @@ module SumPath {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
 
   Cover≃Path : ∀ c c' → Cover c c' ≃ (c ≡ c')
   Cover≃Path c c' =
-    isoToEquiv (iso (decode c c') (encode c c') (decodeEncode c c') (encodeDecode c c'))
+    isoToEquiv (decode c c') (encode c c') (decodeEncode c c') (encodeDecode c c')
 
   isOfHLevelCover : (n : HLevel)
     → isOfHLevel (suc (suc n)) A

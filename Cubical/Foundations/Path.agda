@@ -134,7 +134,7 @@ flipSquareEquiv :
   {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
   {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁}
   → Square a₀₋ a₁₋ a₋₀ a₋₁ ≃ Square a₋₀ a₋₁ a₀₋ a₁₋
-flipSquareEquiv = isoToEquiv (iso flipSquare flipSquare (λ _ → refl) (λ _ → refl))
+flipSquareEquiv = isoToEquiv flipSquare flipSquare (λ _ → refl) (λ _ → refl)
 
 flipSquarePath :
   {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
@@ -156,7 +156,7 @@ module _ {a₀₀ a₁₁ : A} {a₋ : a₀₀ ≡ a₁₁}
   slideSquare sq i j = hcomp (slideSquareFaces i j) (sq i j)
 
   slideSquareEquiv : (Square a₋ a₁₋ a₋₀ refl) ≃ (Square refl a₁₋ a₋₀ a₋)
-  slideSquareEquiv = isoToEquiv (iso slideSquare slideSquareInv fillerTo fillerFrom) where
+  slideSquareEquiv = isoToEquiv slideSquare slideSquareInv fillerTo fillerFrom where
     slideSquareInv : Square refl a₁₋ a₋₀ a₋ → Square a₋ a₁₋ a₋₀ refl
     slideSquareInv sq i j = hcomp (λ k → slideSquareFaces i j (~ k)) (sq i j)
     fillerTo : ∀ p → slideSquare (slideSquareInv p) ≡ p

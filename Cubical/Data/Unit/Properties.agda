@@ -49,7 +49,7 @@ fibId A =
                  , isOfHLevelSuc 1 isPropUnit _ _ (snd a) refl i))
 
 isContr→≃Unit : ∀ {ℓ} {A : Type ℓ} → isContr A → A ≃ Unit
-isContr→≃Unit contr = isoToEquiv (iso (λ _ → tt) (λ _ → fst contr) (λ _ → refl) λ _ → snd contr _)
+isContr→≃Unit contr = isoToEquiv (λ _ → tt) (λ _ → fst contr) (λ _ → refl) (λ _ → snd contr _)
 
 isContr→≡Unit : {A : Type₀} → isContr A → A ≡ Unit
 isContr→≡Unit contr = ua (isContr→≃Unit contr)

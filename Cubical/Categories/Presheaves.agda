@@ -63,7 +63,8 @@ module Yoneda (𝒞 : Precategory ℓ ℓ) ⦃ 𝒞-cat : isCategory 𝒞 ⦄ wh
             ∎
 
     yo-equiv : NatTrans (yo x) F ≃ F .F-ob x .fst
-    yo-equiv = isoToEquiv yo-iso
+    yo-equiv = isoToEquiv (Iso.fun isom) (Iso.inv isom) (Iso.rightInv isom) (Iso.leftInv isom)
+      where isom = yo-iso
 
 
   YO-full : is-full YO

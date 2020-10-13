@@ -84,7 +84,7 @@ maybePositiveRel {S = S} {ρ = ρ} {θ = θ} σ .quo {X} R =
     (funExt
       (elimProp (λ _ → maybeSuitableRel θ .set squash/ _ _)
         (λ {nothing → refl; (just _) → refl})))
-    (compEquiv (isoToEquiv isom) (congMaybeEquiv (_ , σ .quo R)) .snd)
+    (compEquiv (isoToEquiv (Iso.fun isom) (Iso.inv isom) (Iso.rightInv isom) (Iso.leftInv isom)) (congMaybeEquiv (_ , σ .quo R)) .snd)
   where
   fwd : Maybe (S X) / MaybeRel (ρ (R .fst .fst)) → Maybe (S X / ρ (R .fst .fst))
   fwd [ nothing ] = nothing

@@ -176,10 +176,13 @@ module MonoidΣTheory {ℓ} where
 
   MonoidPath : (M N : Monoid) → (MonoidEquiv M N) ≃ (M ≡ N)
   MonoidPath M N =
-    MonoidEquiv M N                       ≃⟨ isoToEquiv MonoidIsoΣPath ⟩
-    MonoidEquivΣ M N                      ≃⟨ MonoidΣPath _ _ ⟩
-    Monoid→MonoidΣ M ≡ Monoid→MonoidΣ N ≃⟨ isoToEquiv (invIso (congIso MonoidIsoMonoidΣ)) ⟩
+    MonoidEquiv M N                     ≃⟨ isoToEquiv (Iso.fun iso₁) (Iso.inv iso₁) (Iso.rightInv iso₁) (Iso.leftInv iso₁) ⟩
+    MonoidEquivΣ M N                    ≃⟨ MonoidΣPath _ _ ⟩
+    Monoid→MonoidΣ M ≡ Monoid→MonoidΣ N ≃⟨ isoToEquiv (Iso.fun iso₂) (Iso.inv iso₂) (Iso.rightInv iso₂) (Iso.leftInv iso₂) ⟩
     M ≡ N ■
+    where
+    iso₁ = MonoidIsoΣPath {M = M} {N = N}
+    iso₂ = invIso (congIso MonoidIsoMonoidΣ)
 
   RawMonoidΣ : Type (ℓ-suc ℓ)
   RawMonoidΣ = TypeWithStr ℓ RawMonoidStructure

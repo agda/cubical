@@ -72,7 +72,8 @@ Iso.rightInv Quoℚ-iso-Sigmaℚ = reduce-[]
 Iso.leftInv  Quoℚ-iso-Sigmaℚ = []-reduce
 
 Quoℚ≃Sigmaℚ : Quo.ℚ ≃ Sigma.ℚ
-Quoℚ≃Sigmaℚ = isoToEquiv Quoℚ-iso-Sigmaℚ
+Quoℚ≃Sigmaℚ = isoToEquiv (Iso.fun isom) (Iso.inv isom) (Iso.rightInv isom) (Iso.leftInv isom)
+  where isom = Quoℚ-iso-Sigmaℚ
 
 Quoℚ≡Sigmaℚ : Quo.ℚ ≡ Sigma.ℚ
 Quoℚ≡Sigmaℚ = isoToPath Quoℚ-iso-Sigmaℚ

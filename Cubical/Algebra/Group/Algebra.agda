@@ -153,7 +153,7 @@ rightInv (dirProdGroupIso iso1 iso2) a = ΣPathP (rightInv iso1 (fst a) , (right
 leftInv (dirProdGroupIso iso1 iso2) a = ΣPathP (leftInv iso1 (fst a) , (leftInv iso2 (snd a)))
 
 GrIsoToGrEquiv : {G : Group {ℓ}} {H : Group {ℓ₂}} → GroupIso G H → GroupEquiv G H
-GroupEquiv.eq (GrIsoToGrEquiv i) = isoToEquiv (iso (fun (map i)) (inv i) (rightInv i) (leftInv i))
+GroupEquiv.eq (GrIsoToGrEquiv i) = isoToEquiv (fun (map i)) (inv i) (rightInv i) (leftInv i)
 GroupEquiv.isHom (GrIsoToGrEquiv i) = isHom (map i)
 
 --- Proofs that BijectionIso and vSES both induce isomorphisms ---

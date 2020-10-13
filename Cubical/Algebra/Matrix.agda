@@ -69,7 +69,8 @@ rightInv (FinMatrixIsoVecMatrix A m n) = VecMatrix→FinMatrix→VecMatrix
 leftInv (FinMatrixIsoVecMatrix A m n)  = FinMatrix→VecMatrix→FinMatrix
 
 FinMatrix≃VecMatrix : {m n : ℕ} → FinMatrix A m n ≃ VecMatrix A m n
-FinMatrix≃VecMatrix {_} {A} {m} {n} = isoToEquiv (FinMatrixIsoVecMatrix A m n)
+FinMatrix≃VecMatrix {_} {A} {m} {n} = isoToEquiv (Iso.fun isom) (Iso.inv isom) (Iso.rightInv isom) (Iso.leftInv isom)
+ where isom = FinMatrixIsoVecMatrix A m n
 
 FinMatrix≡VecMatrix : (A : Type ℓ) (m n : ℕ) → FinMatrix A m n ≡ VecMatrix A m n
 FinMatrix≡VecMatrix _ _ _ = ua FinMatrix≃VecMatrix

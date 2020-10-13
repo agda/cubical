@@ -99,7 +99,8 @@ Kn→ΩKn+1 n = Iso.fun (Iso-Kn-ΩKn+1 n)
 ΩKn+1→Kn n = Iso.inv (Iso-Kn-ΩKn+1 n)
 
 Kn≃ΩKn+1 : {n : ℕ} → coHomK n ≃ typ (Ω (coHomK-ptd (suc n)))
-Kn≃ΩKn+1 {n = n} = isoToEquiv (Iso-Kn-ΩKn+1 n)
+Kn≃ΩKn+1 {n = n} = isoToEquiv (Iso.fun isom) (Iso.inv isom) (Iso.rightInv isom) (Iso.leftInv isom)
+  where isom = Iso-Kn-ΩKn+1 n
 
 ---------- Algebra/Group stuff --------
 

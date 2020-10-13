@@ -159,10 +159,13 @@ module SemigroupΣTheory {ℓ} where
 
   SemigroupPath : (M N : Semigroup) → (SemigroupEquiv M N) ≃ (M ≡ N)
   SemigroupPath M N =
-    SemigroupEquiv M N                                ≃⟨ isoToEquiv SemigroupIsoΣPath ⟩
-    SemigroupEquivΣ M N                               ≃⟨ SemigroupΣPath _ _ ⟩
-    Semigroup→SemigroupΣ M ≡ Semigroup→SemigroupΣ N ≃⟨ isoToEquiv (invIso (congIso SemigroupIsoSemigroupΣ)) ⟩
+    SemigroupEquiv M N                              ≃⟨ isoToEquiv (Iso.fun iso₁) (Iso.inv iso₁) (Iso.rightInv iso₁) (Iso.leftInv iso₁) ⟩
+    SemigroupEquivΣ M N                             ≃⟨ SemigroupΣPath _ _ ⟩
+    Semigroup→SemigroupΣ M ≡ Semigroup→SemigroupΣ N ≃⟨ isoToEquiv (Iso.fun iso₂) (Iso.inv iso₂) (Iso.rightInv iso₂) (Iso.leftInv iso₂) ⟩
     M ≡ N ■
+    where
+    iso₁ = SemigroupIsoΣPath {M = M} {N = N}
+    iso₂ = invIso (congIso SemigroupIsoSemigroupΣ)
 
 -- We now extract the important results from the above module
 

@@ -46,7 +46,7 @@ NatΣ τ (x , a) = (x , τ x a)
 
 Σ-cong-≃ :  {X : Type ℓ} {A : X → Type ℓ'} {B : X → Type ℓ''} →
          ((x : X) → (A x ≃ B x)) → (Σ X A ≃ Σ X B)
-Σ-cong-≃ {X = X} {A = A} {B = B} φ = isoToEquiv (iso (NatΣ f) (NatΣ g) NatΣ-ε NatΣ-η)
+Σ-cong-≃ {X = X} {A = A} {B = B} φ = isoToEquiv (NatΣ f) (NatΣ g) NatΣ-ε NatΣ-η
  where
   f : (x : X) → (A x) → (B x)
   f x = equivFun (φ x)
@@ -115,7 +115,8 @@ NatΣ τ (x , a) = (x , τ x a)
 Σ-change-of-variable-≃ : {X : Type ℓ} {Y : Type ℓ'} {A : Y → Type ℓ''} (f : X → Y)
                       → (isEquiv f) → ((Σ X (A ∘ f)) ≃ (Σ Y A))
 Σ-change-of-variable-≃ f isEquivf =
-                      isoToEquiv (Σ-change-of-variable-Iso f (equiv→HAEquiv (f , isEquivf) .snd))
+                      isoToEquiv (Iso.fun isom) (Iso.inv isom) (Iso.rightInv isom) (Iso.leftInv isom)
+                      where isom = Σ-change-of-variable-Iso f (equiv→HAEquiv (f , isEquivf) .snd)
 
 
 -- A structure is a type-family S : Type ℓ → Type ℓ', i.e. for X : Type ℓ and s : S X, the pair (X , s)

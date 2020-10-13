@@ -179,7 +179,7 @@ module Bisimulation where
   osi p = isSetConat _ _ _ p
 
   path≃bisim : ∀ {x y} → (x ≡ y) ≃ (x ≈ y)
-  path≃bisim = isoToEquiv (iso misib bisim iso″ osi)
+  path≃bisim = isoToEquiv misib bisim iso″ osi
 
   path≡bisim : ∀ {x y} → (x ≡ y) ≡ (x ≈ y)
   path≡bisim = ua path≃bisim

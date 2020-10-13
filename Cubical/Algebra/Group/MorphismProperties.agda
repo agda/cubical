@@ -37,7 +37,7 @@ isPropIsGroupHom G H {f} = isPropΠ2 λ a b → Group.is-set H _ _
 isSetGroupHom : {G : Group {ℓ}} {H : Group {ℓ'}} → isSet (GroupHom G H)
 isSetGroupHom {G = G} {H = H} = isOfHLevelRespectEquiv 2 equiv (isSetΣ (isSetΠ λ _ → is-set H) λ _ → isProp→isSet (isPropIsGroupHom G H)) where
   equiv : (Σ[ g ∈ (Carrier G → Carrier H) ] (isGroupHom G H g)) ≃ (GroupHom G H)
-  equiv =  isoToEquiv (iso (λ (g , m) → grouphom g m) (λ hom → fun hom , isHom hom) (λ a → η-hom _) λ _ → refl)
+  equiv =  isoToEquiv (λ (g , m) → grouphom g m) (λ hom → fun hom , isHom hom) (λ a → η-hom _) (λ _ → refl)
 
 -- Morphism composition
 isGroupHomComp : {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} →
@@ -205,10 +205,13 @@ module GroupΣTheory {ℓ} where
 
   GroupPath : (G H : Group) → (GroupEquiv G H) ≃ (G ≡ H)
   GroupPath G H =
-    GroupEquiv G H                    ≃⟨ isoToEquiv GroupIsoΣPath ⟩
-    GroupEquivΣ G H                   ≃⟨ GroupΣPath _ _ ⟩
-    Group→GroupΣ G ≡ Group→GroupΣ H ≃⟨ isoToEquiv (invIso (congIso GroupIsoGroupΣ)) ⟩
+    GroupEquiv G H                  ≃⟨ isoToEquiv (Iso.fun iso₁) (Iso.inv iso₁) (Iso.rightInv iso₁) (Iso.leftInv iso₁) ⟩
+    GroupEquivΣ G H                 ≃⟨ GroupΣPath _ _ ⟩
+    Group→GroupΣ G ≡ Group→GroupΣ H ≃⟨ isoToEquiv (Iso.fun iso₂) (Iso.inv iso₂) (Iso.rightInv iso₂) (Iso.leftInv iso₂) ⟩
     G ≡ H ■
+    where
+    iso₁ = GroupIsoΣPath {G} {H}
+    iso₂ = invIso (congIso GroupIsoGroupΣ)
 
   RawGroupΣ : Type (ℓ-suc ℓ)
   RawGroupΣ = TypeWithStr ℓ RawGroupStructure
@@ -260,21 +263,25 @@ Group≡ : (G H : Group {ℓ}) → (
   Σ[ s ∈ PathP (λ i → p i → p i) (-_ G) (-_ H) ]
   PathP (λ i → IsGroup (q i) (r i) (s i)) (isGroup G) (isGroup H))
   ≃ (G ≡ H)
-Group≡ G H = isoToEquiv theIso
-  where
-  theIso : Iso _ _
-  Carrier (fun theIso (p , q , r , s , t) i) = p i
-  0g (fun theIso (p , q , r , s , t) i) = q i
-  _+_ (fun theIso (p , q , r , s , t) i) = r i
-  - fun theIso (p , q , r , s , t) i = s i
-  isGroup (fun theIso (p , q , r , s , t) i) = t i
-  inv theIso p = cong ⟨_⟩ p , cong 0g p , cong _+_ p , cong -_ p , cong isGroup p
-  Carrier (rightInv theIso a i i₁) = ⟨ a i₁ ⟩
-  0g (rightInv theIso a i i₁) = 0g (a i₁)
-  _+_ (rightInv theIso a i i₁) = _+_ (a i₁)
-  - rightInv theIso a i i₁ = -_ (a i₁)
-  isGroup (rightInv theIso a i i₁) = isGroup (a i₁)
-  leftInv theIso _ = refl
+Group≡ G H = isoToEquiv
+  (λ{ (p , q , r , s , t) i → record
+      { Carrier = p i
+      ; 0g      = q i
+      ; _+_     = r i
+      ; -_      = s i
+      ; isGroup = t i
+      }
+  } )
+  (λ p → cong ⟨_⟩ p , cong 0g p , cong _+_ p , cong -_ p , cong isGroup p)
+  (λ a i i₁ → record
+      { Carrier =        ⟨ a i₁ ⟩
+      ; 0g      = 0g      (a i₁)
+      ; _+_     = _+_     (a i₁)
+      ; -_      = -_      (a i₁)
+      ; isGroup = isGroup (a i₁)
+      }
+  )
+  (λ _ → refl)
 
 caracGroup≡ : {G H : Group {ℓ}} (p q : G ≡ H) → cong ⟨_⟩ p ≡ cong ⟨_⟩ q → p ≡ q
 caracGroup≡ {G = G} {H = H} p q P = sym (transportTransport⁻ (ua (Group≡ G H)) p)

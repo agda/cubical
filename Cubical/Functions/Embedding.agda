@@ -142,7 +142,8 @@ iso→isEmbedding : ∀ {ℓ} {A B : Type ℓ}
   → (isom : Iso A B)
   -------------------------------
   → isEmbedding (Iso.fun isom)
-iso→isEmbedding {A = A} {B} isom = (isEquiv→isEmbedding (equivIsEquiv (isoToEquiv isom)))
+iso→isEmbedding {A = A} {B} isom = isEquiv→isEmbedding (equivIsEquiv (isoToEquiv
+  (Iso.fun isom) (Iso.inv isom) (Iso.rightInv isom) (Iso.leftInv isom)))
 
 isEmbedding→Injection :
   ∀ {ℓ} {A B C : Type ℓ}

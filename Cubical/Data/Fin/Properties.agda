@@ -50,12 +50,10 @@ isContrFin1
 Unit≃Fin1 : Unit ≃ Fin 1
 Unit≃Fin1 =
   isoToEquiv
-    (iso
-      (const fzero)
-      (const tt)
-      (isContrFin1 .snd)
-      (isContrUnit .snd)
-    )
+    (const fzero)
+    (const tt)
+    (isContrFin1 .snd)
+    (isContrUnit .snd)
 
 -- Regardless of k, Fin k is a set.
 isSetFin : ∀{k} → isSet (Fin k)

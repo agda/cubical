@@ -80,7 +80,7 @@ module Equality≅Bisimulation where
   ≈tail (iso2 p i) = iso2 (≈tail p) i
 
   path≃bisim : {A : Type₀} → {x y : Stream A} → (x ≡ y) ≃ (x ≈ y)
-  path≃bisim = isoToEquiv (iso misib bisim iso2 iso1)
+  path≃bisim = isoToEquiv misib bisim iso2 iso1
 
   path≡bisim : {A : Type₀} → {x y : Stream A} → (x ≡ y) ≡ (x ≈ y)
   path≡bisim = ua path≃bisim

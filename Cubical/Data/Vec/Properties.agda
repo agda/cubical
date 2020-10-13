@@ -51,11 +51,8 @@ Vec→FinVec→Vec : {n : ℕ} (xs : Vec A n) → FinVec→Vec (Vec→FinVec xs)
 Vec→FinVec→Vec {n = zero}  [] = refl
 Vec→FinVec→Vec {n = suc n} (x ∷ xs) i = x ∷ Vec→FinVec→Vec xs i
 
-FinVecIsoVec : (n : ℕ) → Iso (FinVec A n) (Vec A n)
-FinVecIsoVec n = iso FinVec→Vec Vec→FinVec Vec→FinVec→Vec FinVec→Vec→FinVec
-
 FinVec≃Vec : (n : ℕ) → FinVec A n ≃ Vec A n
-FinVec≃Vec n = isoToEquiv (FinVecIsoVec n)
+FinVec≃Vec n = isoToEquiv FinVec→Vec Vec→FinVec Vec→FinVec→Vec FinVec→Vec→FinVec
 
 FinVec≡Vec : (n : ℕ) → FinVec A n ≡ Vec A n
 FinVec≡Vec n = ua (FinVec≃Vec n)

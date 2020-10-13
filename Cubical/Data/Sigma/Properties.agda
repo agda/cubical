@@ -65,14 +65,15 @@ module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
 
   ΣPathIsoPathΣ : Iso (Σ[ p ∈ PathP A (fst x) (fst y) ] (PathP (λ i → B i (p i)) (snd x) (snd y)))
                       (PathP (λ i → Σ (A i) (B i)) x y)
-  fun ΣPathIsoPathΣ        = ΣPathP
-  inv ΣPathIsoPathΣ eq     = (λ i → fst (eq i)) , (λ i → snd (eq i))
-  rightInv ΣPathIsoPathΣ _ = refl
-  leftInv ΣPathIsoPathΣ _  = refl
+  ΣPathIsoPathΣ = iso
+    ΣPathP
+    (λ eq → (λ i → fst (eq i)) , (λ i → snd (eq i)))
+    (λ _  → refl)
+    (λ _  → refl)
 
   ΣPath≃PathΣ : (Σ[ p ∈ PathP A (fst x) (fst y) ] (PathP (λ i → B i (p i)) (snd x) (snd y)))
               ≃ (PathP (λ i → Σ (A i) (B i)) x y)
-  ΣPath≃PathΣ = isoToEquiv ΣPathIsoPathΣ
+  ΣPath≃PathΣ = let iso = ΣPathIsoPathΣ in isoToEquiv (Iso.fun iso) (Iso.inv iso) (Iso.rightInv iso) (Iso.leftInv iso)
 
   ΣPath≡PathΣ : (Σ[ p ∈ PathP A (fst x) (fst y) ] (PathP (λ i → B i (p i)) (snd x) (snd y)))
               ≡ (PathP (λ i → Σ (A i) (B i)) x y)
@@ -91,16 +92,12 @@ module _ {A : I → Type ℓ} {B : (i : I) → (a : A i) → Type ℓ'}
   {x : Σ (A i0) (B i0)} {y : Σ (A i1) (B i1)}
   where
 
-  ΣPathPIsoPathPΣ :
-    Iso (Σ[ p ∈ PathP A (x .fst) (y .fst) ] PathP (λ i → B i (p i)) (x .snd) (y .snd))
-        (PathP (λ i → Σ (A i) (B i)) x y)
-  ΣPathPIsoPathPΣ .fun (p , q) i = p i , q i
-  ΣPathPIsoPathPΣ .inv pq .fst i = pq i .fst
-  ΣPathPIsoPathPΣ .inv pq .snd i = pq i .snd
-  ΣPathPIsoPathPΣ .rightInv _ = refl
-  ΣPathPIsoPathPΣ .leftInv _ = refl
-
-  ΣPathP≃PathPΣ = isoToEquiv ΣPathPIsoPathPΣ
+  ΣPathP≃PathPΣ : (Σ[ p ∈ PathP A (x .fst) (y .fst) ] PathP (λ i → B i (p i)) (x .snd) (y .snd))
+                ≃ (PathP (λ i → Σ (A i) (B i)) x y)
+  ΣPathP≃PathPΣ = isoToEquiv (λ{ (p , q) i → p i , q i }) g (λ _ → refl) (λ _ → refl) where
+    g : PathP (λ i → Σ (A i) (B i)) x y → Σ[ p ∈ _ ] _
+    g pq .fst i = pq i .fst
+    g pq .snd i = pq i .snd
 
   ΣPathP≡PathPΣ = ua ΣPathP≃PathPΣ
 
@@ -118,32 +115,26 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
         ... | (no ¬q) = no (λ r → ¬q (subst (λ X → PathP (λ i → B (X i)) b0 b1) (Discrete→isSet Adis a0 a0 (cong fst r) refl) (cong snd r)))
     discreteΣ' (no ¬p) = no (λ r → ¬p (cong fst r))
 
-Σ-swap-Iso : Iso (A × A') (A' × A)
-fun Σ-swap-Iso (x , y) = (y , x)
-inv Σ-swap-Iso (x , y) = (y , x)
-rightInv Σ-swap-Iso _ = refl
-leftInv Σ-swap-Iso _  = refl
-
 Σ-swap-≃ : A × A' ≃ A' × A
-Σ-swap-≃ = isoToEquiv Σ-swap-Iso
-
-Σ-assoc-Iso : Iso (Σ[ (a , b) ∈ Σ A B ] C a b) (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
-fun Σ-assoc-Iso ((x , y) , z) = (x , (y , z))
-inv Σ-assoc-Iso (x , (y , z)) = ((x , y) , z)
-rightInv Σ-assoc-Iso _ = refl
-leftInv Σ-assoc-Iso _  = refl
+Σ-swap-≃ = isoToEquiv
+  (λ{ (x , y) → (y , x) })
+  (λ{ (x , y) → (y , x) })
+  (λ _ → refl)
+  (λ _ → refl)
 
 Σ-assoc-≃ : (Σ[ (a , b) ∈ Σ A B ] C a b) ≃ (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
-Σ-assoc-≃ = isoToEquiv Σ-assoc-Iso
-
-Σ-Π-Iso : Iso ((a : A) → Σ[ b ∈ B a ] C a b) (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
-fun Σ-Π-Iso f         = (fst ∘ f , snd ∘ f)
-inv Σ-Π-Iso (f , g) x = (f x , g x)
-rightInv Σ-Π-Iso _    = refl
-leftInv Σ-Π-Iso _     = refl
+Σ-assoc-≃ {A = A} {B = B} {C = C} = isoToEquiv
+  (λ{ ((x , y) , z) → (x , (y , z)) })
+  (λ{ (x , (y , z)) → ((x , y) , z) })
+  (λ _ → refl)
+  (λ _ → refl)
 
 Σ-Π-≃ : ((a : A) → Σ[ b ∈ B a ] C a b) ≃ (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
-Σ-Π-≃ = isoToEquiv Σ-Π-Iso
+Σ-Π-≃ {A = A} {B = B} {C = C} = isoToEquiv
+  (λ  f        → (fst ∘ f , snd ∘ f))
+  (λ{(f , g) x → (f x , g x)})
+  (λ _ → refl)
+  (λ _ → refl)
 
 Σ-cong-iso-fst : (isom : Iso A A') → Iso (Σ A (B ∘ fun isom)) (Σ A' B)
 fun (Σ-cong-iso-fst isom) x = fun isom (x .fst) , x .snd
@@ -171,19 +162,21 @@ leftInv (Σ-cong-iso-fst {A = A} {B = B} isom) (x , y) = ΣPathP (leftInv isom x
       ∙∙ substRefl {B = B} y
 
 Σ-cong-equiv-fst : (e : A ≃ A') → Σ A (B ∘ equivFun e) ≃ Σ A' B
-Σ-cong-equiv-fst e = isoToEquiv (Σ-cong-iso-fst (equivToIso e))
+Σ-cong-equiv-fst e = let iso = Σ-cong-iso-fst (equivToIso e)
+                     in isoToEquiv (Iso.fun iso) (Iso.inv iso) (Iso.rightInv iso) (Iso.leftInv iso)
 
 Σ-cong-fst : (p : A ≡ A') → Σ A (B ∘ transport p) ≡ Σ A' B
 Σ-cong-fst {B = B} p i = Σ (p i) (B ∘ transp (λ j → p (i ∨ j)) i)
 
 Σ-cong-iso-snd : ((x : A) → Iso (B x) (B' x)) → Iso (Σ A B) (Σ A B')
-fun (Σ-cong-iso-snd isom) (x , y) = x , fun (isom x) y
-inv (Σ-cong-iso-snd isom) (x , y') = x , inv (isom x) y'
-rightInv (Σ-cong-iso-snd isom) (x , y) = ΣPathP (refl , rightInv (isom x) y)
-leftInv (Σ-cong-iso-snd isom) (x , y') = ΣPathP (refl , leftInv (isom x) y')
+Σ-cong-iso-snd isom .fun      (x , y ) = x , fun (isom x) y
+Σ-cong-iso-snd isom .inv      (x , y') = x , inv (isom x) y'
+Σ-cong-iso-snd isom .rightInv (x , y ) = ΣPathP (refl , rightInv (isom x) y)
+Σ-cong-iso-snd isom .leftInv  (x , y') = ΣPathP (refl , leftInv (isom x) y')
 
 Σ-cong-equiv-snd : (∀ a → B a ≃ B' a) → Σ A B ≃ Σ A B'
-Σ-cong-equiv-snd h = isoToEquiv (Σ-cong-iso-snd (equivToIso ∘ h))
+Σ-cong-equiv-snd h = let iso = (Σ-cong-iso-snd (equivToIso ∘ h))
+                     in isoToEquiv (Iso.fun iso) (Iso.inv iso) (Iso.rightInv iso) (Iso.leftInv iso)
 
 Σ-cong-snd : ((x : A) → B x ≡ B' x) → Σ A B ≡ Σ A B'
 Σ-cong-snd {A = A} p i = Σ[ x ∈ A ] (p x i)
@@ -196,7 +189,8 @@ leftInv (Σ-cong-iso-snd isom) (x , y') = ΣPathP (refl , leftInv (isom x) y')
 Σ-cong-equiv : (e : A ≃ A')
              → ((x : A) → B x ≃ B' (equivFun e x))
              → Σ A B ≃ Σ A' B'
-Σ-cong-equiv e e' = isoToEquiv (Σ-cong-iso (equivToIso e) (equivToIso ∘ e'))
+Σ-cong-equiv e e' = let iso = (Σ-cong-iso (equivToIso e) (equivToIso ∘ e'))
+                    in isoToEquiv (Iso.fun iso) (Iso.inv iso) (Iso.rightInv iso) (Iso.leftInv iso)
 
 Σ-cong' : (p : A ≡ A') → PathP (λ i → p i → Type ℓ') B B' → Σ A B ≡ Σ A' B'
 Σ-cong' p p' = cong₂ (λ (A : Type _) (B : A → Type _) → Σ A B) p p'
@@ -211,7 +205,8 @@ IsoΣPathTransportPathΣ {B = B} a b = compIso (Σ-cong-iso-snd (λ p → invIso
          ΣPathIsoPathΣ
 
 ΣPathTransport≃PathΣ : (a b : Σ A B) → ΣPathTransport a b ≃ (a ≡ b)
-ΣPathTransport≃PathΣ {B = B} a b = isoToEquiv (IsoΣPathTransportPathΣ a b)
+ΣPathTransport≃PathΣ {B = B} a b = let iso = (IsoΣPathTransportPathΣ a b)
+                                   in isoToEquiv (Iso.fun iso) (Iso.inv iso) (Iso.rightInv iso) (Iso.leftInv iso)
 
 ΣPathTransport→PathΣ : (a b : Σ A B) → ΣPathTransport a b → (a ≡ b)
 ΣPathTransport→PathΣ a b = Iso.fun (IsoΣPathTransportPathΣ a b)
@@ -223,28 +218,22 @@ PathΣ→ΣPathTransport a b = Iso.inv (IsoΣPathTransportPathΣ a b)
 ΣPathTransport≡PathΣ a b = ua (ΣPathTransport≃PathΣ a b)
 
 Σ-contractFst : (c : isContr A) → Σ A B ≃ B (c .fst)
-Σ-contractFst {B = B} c = isoToEquiv isom
-  where
-  isom : Iso _ _
-  isom .fun (a , b) = subst B (sym (c .snd a)) b
-  isom .inv b = (c .fst , b)
-  isom .rightInv b =
-    cong (λ p → subst B p b) (isProp→isSet (isContr→isProp c) _ _ _ _) ∙ transportRefl _
-  isom .leftInv (a , b) =
-    ΣPathTransport≃PathΣ _ _ .fst (c .snd a , transportTransport⁻ (cong B (c .snd a)) _)
+Σ-contractFst {B = B} c = isoToEquiv
+  (λ{ (a , b) → subst B (sym (c .snd a)) b })
+  (λ b → (c .fst , b))
+  (λ b →  cong (λ p → subst B p b) (isProp→isSet (isContr→isProp c) _ _ _ _) ∙ transportRefl _)
+  (λ{ (a , b) → ΣPathTransport≃PathΣ _ _ .fst (c .snd a , transportTransport⁻ (cong B (c .snd a)) _)})
 
 -- a special case of the above
 ΣUnit : ∀ {ℓ} (A : Unit → Type ℓ) → Σ Unit A ≃ A tt
-ΣUnit A = isoToEquiv (iso snd (λ { x → (tt , x) }) (λ _ → refl) (λ _ → refl))
+ΣUnit A = isoToEquiv snd (λ { x → (tt , x) }) (λ _ → refl) (λ _ → refl)
 
 Σ-contractSnd : ((a : A) → isContr (B a)) → Σ A B ≃ A
-Σ-contractSnd c = isoToEquiv isom
-  where
-  isom : Iso _ _
-  isom .fun = fst
-  isom .inv a = a , c a .fst
-  isom .rightInv _ = refl
-  isom .leftInv (a , b) = cong (a ,_) (c a .snd b)
+Σ-contractSnd c = isoToEquiv
+  fst
+  (λ a → a , c a .fst)
+  (λ _ → refl)
+  (λ{ (a , b) → cong (a ,_) (c a .snd b) })
 
 
 ≃-× : ∀ {ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''} → A ≃ C → B ≃ D → A × B ≃ C × D

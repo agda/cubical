@@ -32,7 +32,8 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 
   -- transformed to equivalence
   funExt∙P≃ : (f g : Π∙ A B ptB) → (f ∙∼P g) ≃ (f ≡ g)
-  funExt∙P≃ f g = isoToEquiv (funExt∙PIso f g)
+  funExt∙P≃ f g = let iso = (funExt∙PIso f g)
+                  in isoToEquiv (Iso.fun iso) (Iso.inv iso) (Iso.rightInv iso) (Iso.leftInv iso)
 
   -- funExt∙≃ using the other kind of pointed homotopy
   funExt∙≃ : (f g : Π∙ A B ptB) → (f ∙∼ g) ≃ (f ≡ g)

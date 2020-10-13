@@ -31,7 +31,7 @@ rightInv BoolIsoSusp⊥ = λ {north → refl;  south → refl}
 leftInv BoolIsoSusp⊥  = λ {true  → refl;  false → refl}
 
 Bool≃Susp⊥ : Bool ≃ Susp ⊥
-Bool≃Susp⊥ = isoToEquiv BoolIsoSusp⊥
+Bool≃Susp⊥ = isoToEquiv (Iso.fun BoolIsoSusp⊥) (Iso.inv BoolIsoSusp⊥) (Iso.rightInv BoolIsoSusp⊥) (Iso.leftInv BoolIsoSusp⊥)
 
 SuspBool : Type₀
 SuspBool = Susp Bool
@@ -61,14 +61,8 @@ S¹→SuspBool→S¹ (loop i) j = hfill (λ k → λ { (i = i0) → base
                                            ; (i = i1) → base })
                                   (inS (loop i)) (~ j)
 
-S¹IsoSuspBool : Iso S¹ SuspBool
-fun S¹IsoSuspBool      = S¹→SuspBool
-inv S¹IsoSuspBool      = SuspBool→S¹
-rightInv S¹IsoSuspBool = SuspBool→S¹→SuspBool
-leftInv S¹IsoSuspBool  = S¹→SuspBool→S¹
-
 S¹≃SuspBool : S¹ ≃ SuspBool
-S¹≃SuspBool = isoToEquiv S¹IsoSuspBool
+S¹≃SuspBool = isoToEquiv S¹→SuspBool SuspBool→S¹ SuspBool→S¹→SuspBool S¹→SuspBool→S¹
 
 S¹≡SuspBool : S¹ ≡ SuspBool
 S¹≡SuspBool = ua S¹≃SuspBool
@@ -106,13 +100,13 @@ SuspS¹→S²→SuspS¹ (merid base j) k = merid base (k ∧ j)
 SuspS¹→S²→SuspS¹ (merid (loop j) i) k = meridian-contraction i j (~ k)
 
 S²IsoSuspS¹ : Iso S² SuspS¹
-fun S²IsoSuspS¹      = S²→SuspS¹
-inv S²IsoSuspS¹      = SuspS¹→S²
-rightInv S²IsoSuspS¹ = SuspS¹→S²→SuspS¹
-leftInv S²IsoSuspS¹  = S²→SuspS¹→S²
+S²IsoSuspS¹ .fun      = S²→SuspS¹
+S²IsoSuspS¹ .inv      = SuspS¹→S²
+S²IsoSuspS¹ .rightInv = SuspS¹→S²→SuspS¹
+S²IsoSuspS¹ .leftInv  = S²→SuspS¹→S²
 
 S²≃SuspS¹ : S² ≃ SuspS¹
-S²≃SuspS¹ = isoToEquiv S²IsoSuspS¹
+S²≃SuspS¹ = isoToEquiv S²→SuspS¹ SuspS¹→S² SuspS¹→S²→SuspS¹ S²→SuspS¹→S²
 
 S²≡SuspS¹ : S² ≡ SuspS¹
 S²≡SuspS¹ = ua S²≃SuspS¹
@@ -152,13 +146,13 @@ SuspS²→S³→SuspS² (merid base j) l = merid base (l ∧ j)
 SuspS²→S³→SuspS² (merid (surf j k) i) l = meridian-contraction-2 i j k (~ l)
 
 S³IsoSuspS² : Iso S³ SuspS²
-fun S³IsoSuspS²      = S³→SuspS²
-inv S³IsoSuspS²      = SuspS²→S³
-rightInv S³IsoSuspS² = SuspS²→S³→SuspS²
-leftInv S³IsoSuspS²  = S³→SuspS²→S³
+S³IsoSuspS² .fun      = S³→SuspS²
+S³IsoSuspS² .inv      = SuspS²→S³
+S³IsoSuspS² .rightInv = SuspS²→S³→SuspS²
+S³IsoSuspS² .leftInv  = S³→SuspS²→S³
 
 S³≃SuspS² : S³ ≃ SuspS²
-S³≃SuspS² = isoToEquiv S³IsoSuspS²
+S³≃SuspS² = isoToEquiv S³→SuspS² SuspS²→S³ SuspS²→S³→SuspS² S³→SuspS²→S³
 
 S³≡SuspS² : S³ ≡ SuspS²
 S³≡SuspS² = ua S³≃SuspS²

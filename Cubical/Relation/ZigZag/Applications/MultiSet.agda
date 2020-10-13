@@ -251,7 +251,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
   List/Rᴸ→FMSet-insert x = elimProp (λ _ → FMS.trunc _ _) λ xs → refl
 
   List/Rᴸ≃FMSet : List/Rᴸ ≃ FMSet A
-  List/Rᴸ≃FMSet = isoToEquiv (iso List/Rᴸ→FMSet FMSet→List/Rᴸ τ σ)
+  List/Rᴸ≃FMSet = isoToEquiv List/Rᴸ→FMSet FMSet→List/Rᴸ τ σ
     where
     σ' : (xs : List A) → FMSet→List/Rᴸ (List/Rᴸ→FMSet [ xs ]) ≡ [ xs ]
     σ' [] = refl

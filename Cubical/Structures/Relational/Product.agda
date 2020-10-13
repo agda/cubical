@@ -91,7 +91,7 @@ productPositiveRel {S₁ = S₁} {ρ₁} {θ₁} {S₂} {ρ₂} {θ₂} σ₁ σ
   subst isEquiv
     (funExt (elimProp (λ _ → productSuitableRel θ₁ θ₂ .set squash/ _ _) (λ _ → refl)))
     (compEquiv
-      (isoToEquiv isom)
+      (isoToEquiv (Iso.fun isom) (Iso.inv isom) (Iso.rightInv isom) (Iso.leftInv isom))
       (Σ-cong-equiv (_ , σ₁ .quo R) (λ _ → _ , σ₂ .quo R)) .snd)
   where
   fwd :

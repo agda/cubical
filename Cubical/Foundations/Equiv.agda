@@ -100,14 +100,14 @@ leftInv (equivToIso e)  = secEq e
 
 -- TODO: there should be a direct proof of this that doesn't use equivToIso
 invEquiv : A ≃ B → B ≃ A
-invEquiv e = isoToEquiv (invIso (equivToIso e))
+invEquiv e = let iso = invIso (equivToIso e) in isoToEquiv (fun iso) (inv iso) (rightInv iso) (leftInv iso)
 
 invEquivIdEquiv : (A : Type ℓ) → invEquiv (idEquiv A) ≡ idEquiv A
 invEquivIdEquiv _ = equivEq refl
 
 -- TODO: there should be a direct proof of this that doesn't use equivToIso
 compEquiv : A ≃ B → B ≃ C → A ≃ C
-compEquiv f g = isoToEquiv (compIso (equivToIso f) (equivToIso g))
+compEquiv f g = let iso = compIso (equivToIso f) (equivToIso g) in isoToEquiv (fun iso) (inv iso) (rightInv iso) (leftInv iso)
 
 compEquivIdEquiv : (e : A ≃ B) → compEquiv (idEquiv A) e ≡ e
 compEquivIdEquiv e = equivEq refl
@@ -143,7 +143,7 @@ Lift≃Lift e .snd .equiv-proof b .snd (a , p) i .snd j .lower =
   e .snd .equiv-proof (b .lower) .snd (a .lower , cong lower p) i .snd j
 
 isContr→Equiv : isContr A → isContr B → A ≃ B
-isContr→Equiv Actr Bctr = isoToEquiv (isContr→Iso Actr Bctr)
+isContr→Equiv Actr Bctr = let iso = isContr→Iso Actr Bctr in isoToEquiv (fun iso) (inv iso) (rightInv iso) (leftInv iso)
 
 isPropEquiv→Equiv : (Aprop : isProp A) (Bprop : isProp B) (f : A → B) (g : B → A) → A ≃ B
 isPropEquiv→Equiv Aprop Bprop f g = f , hf
@@ -175,14 +175,11 @@ equivImplicitΠCod k .snd .equiv-proof f .snd (g , p) i .snd j {x} =
   equivCtrPath (k {x}) (f {x}) (g {x} , λ k → p k {x}) i .snd j
 
 equiv→ : (A ≃ B) → (C ≃ D) → (A → C) ≃ (B → D)
-equiv→ h k = isoToEquiv isom
-  where
-  open Iso
-  isom : Iso _ _
-  isom .fun f b = equivFun k (f (invEq h b))
-  isom .inv g a = invEq k (g (equivFun h a))
-  isom .rightInv g = funExt λ b → retEq k _ ∙ cong g (retEq h b)
-  isom .leftInv f = funExt λ a → secEq k _ ∙ cong f (secEq h a)
+equiv→ h k = isoToEquiv
+  (λ f b → equivFun k (f (invEq h b)))
+  (λ g a → invEq k (g (equivFun h a)))
+  (λ g   → funExt λ b → retEq k _ ∙ cong g (retEq h b))
+  (λ f   → funExt λ a → secEq k _ ∙ cong f (secEq h a))
 
 -- Some helpful notation:
 _≃⟨_⟩_ : (X : Type ℓ) → (X ≃ B) → (B ≃ C) → (X ≃ C)

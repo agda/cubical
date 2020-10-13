@@ -41,13 +41,7 @@ curryⁿ-$ⁿ {n = zero} f  = refl
 curryⁿ-$ⁿ {n = suc n} f = funExt λ x → curryⁿ-$ⁿ {n = n} (f x)
 
 nAryOp≃VecFun : ∀ {n} → nAryOp n A B ≃ (Vec A n → B)
-nAryOp≃VecFun {n = n} = isoToEquiv f
-  where
-  f : Iso (nAryOp n A B) (Vec A n → B)
-  Iso.fun f      = _$ⁿ_
-  Iso.inv f      = curryⁿ
-  Iso.rightInv f = $ⁿ-curryⁿ
-  Iso.leftInv f  = curryⁿ-$ⁿ {n = n}
+nAryOp≃VecFun {n = n} = isoToEquiv _$ⁿ_ curryⁿ $ⁿ-curryⁿ (curryⁿ-$ⁿ {n = n})
 
 -- In order to apply ua to nAryOp≃VecFun we probably need to change
 -- the base-case of nAryLevel to "ℓ-max ℓ₁ ℓ₂". This will make it

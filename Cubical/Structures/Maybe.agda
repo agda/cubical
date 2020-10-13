@@ -74,13 +74,11 @@ module MaybePathP where
       (transportRefl _)
 
   Code≃PathP : {A : I → Type ℓ} → ∀ ox oy → Code A ox oy ≃ PathP (λ i → Maybe (A i)) ox oy
-  Code≃PathP {A = A} ox oy = isoToEquiv isom
-    where
-    isom : Iso _ _
-    isom .Iso.fun = decode ox oy
-    isom .Iso.inv = encode _ ox oy
-    isom .Iso.rightInv = decodeEncode ox oy
-    isom .Iso.leftInv = encodeDecode A ox oy
+  Code≃PathP {A = A} ox oy = isoToEquiv
+    (decode         ox oy)
+    (encode _       ox oy)
+    (decodeEncode   ox oy)
+    (encodeDecode A ox oy)
 
 -- Structured isomorphisms
 

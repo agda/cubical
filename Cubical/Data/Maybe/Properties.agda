@@ -58,7 +58,7 @@ module MaybePath {ℓ} {A : Type ℓ} where
 
   Cover≃Path : ∀ c c' → Cover c c' ≃ (c ≡ c')
   Cover≃Path c c' = isoToEquiv
-    (iso (decode c c') (encode c c') (decodeEncode c c') (encodeDecode c c'))
+    (decode c c') (encode c c') (decodeEncode c c') (encodeDecode c c')
 
   Cover≡Path : ∀ c c' → Cover c c' ≡ (c ≡ c')
   Cover≡Path c c' = isoToPath
@@ -146,13 +146,10 @@ Maybe≡SumUnit = isoToPath (iso SumUnit.Maybe→SumUnit SumUnit.SumUnit→Maybe
 
 congMaybeEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
   → A ≃ B → Maybe A ≃ Maybe B
-congMaybeEquiv e = isoToEquiv isom
-  where
-  open Iso
-  isom : Iso _ _
-  isom .fun = map-Maybe (equivFun e)
-  isom .inv = map-Maybe (invEq e)
-  isom .rightInv nothing = refl
-  isom .rightInv (just b) = cong just (retEq e b)
-  isom .leftInv nothing = refl
-  isom .leftInv (just a) = cong just (secEq e a)
+congMaybeEquiv {A = A} {B = B} e = isoToEquiv (map-Maybe (equivFun e)) (map-Maybe (invEq e)) fg gf where
+  fg : (b : Maybe B) → _
+  fg nothing = refl
+  fg (just b) = cong just (retEq e b)
+  gf : (a : Maybe A) → _
+  gf nothing = refl
+  gf (just a) = cong just (secEq e a)

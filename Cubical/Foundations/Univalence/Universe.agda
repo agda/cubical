@@ -99,10 +99,12 @@ pathIso s t .rightInv = cong-un-te s t
 pathIso s t .leftInv = un-nu s t
 
 minivalence : ∀{s t} → (s ≡ t) ≃ (El s ≃ El t)
-minivalence {s} {t} = isoToEquiv (equivIso s t)
+minivalence {s} {t} = let iso = equivIso s t
+                      in isoToEquiv (Iso.fun iso) (Iso.inv iso) (Iso.rightInv iso) (Iso.leftInv iso)
 
 path-reflection : ∀{s t} → (s ≡ t) ≃ (El s ≡ El t)
-path-reflection {s} {t} = isoToEquiv (pathIso s t)
+path-reflection {s} {t} = let iso = pathIso s t
+                          in isoToEquiv (Iso.fun iso) (Iso.inv iso) (Iso.rightInv iso) (Iso.leftInv iso)
 
 isEmbeddingEl : isEmbedding El
 isEmbeddingEl s t = snd path-reflection

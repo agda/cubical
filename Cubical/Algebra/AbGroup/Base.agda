@@ -152,10 +152,13 @@ module AbGroupΣTheory {ℓ} where
 
   AbGroupPath : (G H : AbGroup) → (AbGroupEquiv G H) ≃ (G ≡ H)
   AbGroupPath G H =
-    AbGroupEquiv G H                        ≃⟨ isoToEquiv GroupIsoΣPath ⟩
+    AbGroupEquiv G H                        ≃⟨ isoToEquiv (Iso.fun iso₁) (Iso.inv iso₁) (Iso.rightInv iso₁) (Iso.leftInv iso₁) ⟩
     AbGroupEquivΣ G H                       ≃⟨ AbGroupΣPath _ _ ⟩
-    AbGroup→AbGroupΣ G ≡ AbGroup→AbGroupΣ H ≃⟨ isoToEquiv (invIso (congIso AbGroupIsoAbGroupΣ)) ⟩
+    AbGroup→AbGroupΣ G ≡ AbGroup→AbGroupΣ H ≃⟨ isoToEquiv (Iso.fun iso₂) (Iso.inv iso₂) (Iso.rightInv iso₂) (Iso.leftInv iso₂) ⟩
     G ≡ H ■
+    where
+    iso₁ = GroupIsoΣPath {G = AbGroup→Group G} {H = AbGroup→Group H}
+    iso₂ = invIso (congIso AbGroupIsoAbGroupΣ)
 
   AbGroup→RawGroupΣ : AbGroup {ℓ} → RawGroupΣ
   AbGroup→RawGroupΣ (abgroup G _ _+_ _ _) = G , _+_

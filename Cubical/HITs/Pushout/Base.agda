@@ -50,7 +50,7 @@ Iso.leftInv PushoutSuspIsoSusp = PushoutSusp→Susp→PushoutSusp
 
 
 PushoutSusp≃Susp : ∀ {ℓ} {A : Type ℓ} → PushoutSusp A ≃ Susp A
-PushoutSusp≃Susp = isoToEquiv PushoutSuspIsoSusp
+PushoutSusp≃Susp = isoToEquiv PushoutSusp→Susp Susp→PushoutSusp Susp→PushoutSusp→Susp PushoutSusp→Susp→PushoutSusp
 
 PushoutSusp≡Susp : ∀ {ℓ} {A : Type ℓ} → PushoutSusp A ≡ Susp A
 PushoutSusp≡Susp = isoToPath PushoutSuspIsoSusp

@@ -56,13 +56,11 @@ elim3 gB g = elim2 (λ _ _ → is2GroupoidΠ (λ _ → gB _ _ _))
 2GroupoidTruncIs2Groupoid a b p q r s = squash₄ a b p q r s
 
 2GroupoidTruncIdempotent≃ : is2Groupoid A → ∥ A ∥₄ ≃ A
-2GroupoidTruncIdempotent≃ {A = A} hA = isoToEquiv f
-  where
-  f : Iso ∥ A ∥₄ A
-  Iso.fun f = rec hA (idfun A)
-  Iso.inv f x = ∣ x ∣₄
-  Iso.rightInv f _ = refl
-  Iso.leftInv f = elim (λ _ → isOfHLevelSuc 4 2GroupoidTruncIs2Groupoid _ _) (λ _ → refl)
+2GroupoidTruncIdempotent≃ {A = A} hA = isoToEquiv
+  (rec hA (idfun A))
+  (λ x → ∣ x ∣₄)
+  (λ _ → refl)
+  (elim (λ _ → isOfHLevelSuc 4 2GroupoidTruncIs2Groupoid _ _) (λ _ → refl))
 
 2GroupoidTruncIdempotent : is2Groupoid A → ∥ A ∥₄ ≡ A
 2GroupoidTruncIdempotent hA = ua (2GroupoidTruncIdempotent≃ hA)

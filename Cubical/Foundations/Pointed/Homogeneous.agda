@@ -75,7 +75,7 @@ module HomogeneousDiscrete {ℓ} {A∙ : Pointed ℓ} (dA : Discrete (typ A∙))
   switch-idp x | no ¬p | no ¬q | no  _ | no  _ = refl
 
   switch-eqv : typ A∙ ≃ typ A∙
-  switch-eqv = isoToEquiv (iso switch switch switch-idp switch-idp)
+  switch-eqv = isoToEquiv switch switch switch-idp switch-idp
 
 isHomogeneousDiscrete : ∀ {ℓ} {A∙ : Pointed ℓ} (dA : Discrete (typ A∙)) → isHomogeneous A∙
 isHomogeneousDiscrete {ℓ} {A∙} dA y

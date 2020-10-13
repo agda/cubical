@@ -74,7 +74,7 @@ elim3 Bset g = elim2 (λ _ _ → isSetΠ (λ _ → Bset _ _ _))
 
 setTruncUniversal : isSet B → (∥ A ∥₂ → B) ≃ (A → B)
 setTruncUniversal {B = B} Bset =
-  isoToEquiv (iso (λ h x → h ∣ x ∣₂) (rec Bset) (λ _ → refl) rinv)
+  isoToEquiv (λ h x → h ∣ x ∣₂) (rec Bset) (λ _ → refl) rinv
   where
   rinv : (f : ∥ A ∥₂ → B) → rec Bset (λ x → f ∣ x ∣₂) ≡ f
   rinv f i x =
@@ -85,13 +85,11 @@ setTruncIsSet : isSet ∥ A ∥₂
 setTruncIsSet a b p q = squash₂ a b p q
 
 setTruncIdempotent≃ : isSet A → ∥ A ∥₂ ≃ A
-setTruncIdempotent≃ {A = A} hA = isoToEquiv f
-  where
-  f : Iso ∥ A ∥₂ A
-  Iso.fun f = rec hA (idfun A)
-  Iso.inv f x = ∣ x ∣₂
-  Iso.rightInv f _ = refl
-  Iso.leftInv f = elim (λ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ → refl)
+setTruncIdempotent≃ {A = A} hA = isoToEquiv
+  (rec hA (idfun A))
+  (λ x → ∣ x ∣₂)
+  (λ _ → refl)
+  (elim (λ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ → refl))
 
 setTruncIdempotent : isSet A → ∥ A ∥₂ ≡ A
 setTruncIdempotent hA = ua (setTruncIdempotent≃ hA)

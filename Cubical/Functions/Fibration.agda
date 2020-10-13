@@ -37,7 +37,7 @@ module FiberIso {ℓb} {B : Type ℓb} {ℓ} (p⁻¹ : B → Type ℓ) (x : B) w
 
   -- HoTT Lemma 4.8.1
   fiberEquiv : fiber p x ≃ p⁻¹ x
-  fiberEquiv = isoToEquiv (iso fwd bwd fwd-bwd bwd-fwd)
+  fiberEquiv = isoToEquiv fwd bwd fwd-bwd bwd-fwd
 
 open FiberIso using (fiberEquiv) public
 
@@ -45,12 +45,11 @@ module _ {ℓb} {B : Type ℓb} {ℓ} {E : Type ℓ} (p : E → B) where
 
   -- HoTT Lemma 4.8.2
   totalEquiv : E ≃ Σ B (fiber p)
-  totalEquiv = isoToEquiv isom
-    where isom : Iso E (Σ B (fiber p))
-          Iso.fun isom x           = p x , x , refl
-          Iso.inv isom (b , x , q) = x
-          Iso.leftInv  isom x           i = x
-          Iso.rightInv isom (b , x , q) i = q i , x , λ j → q (i ∧ j)
+  totalEquiv = isoToEquiv
+    (λ       x        → p x , x , refl)
+    (λ{ (b , x , q)   → x })
+    (λ{ (b , x , q) i → q i , x , λ j → q (i ∧ j) })
+    (λ       x      i → x  )
 
 module _ {ℓb} (B : Type ℓb) (ℓ : Level) where
   private
@@ -58,13 +57,11 @@ module _ {ℓb} (B : Type ℓb) (ℓ : Level) where
 
   -- HoTT Theorem 4.8.3
   fibrationEquiv : (Σ[ E ∈ Type ℓ' ] (E → B)) ≃ (B → Type ℓ')
-  fibrationEquiv = isoToEquiv isom
-    where isom : Iso (Σ[ E ∈ Type ℓ' ] (E → B)) (B → Type ℓ')
-          Iso.fun isom (E , p) = fiber p
-          Iso.inv isom p⁻¹     = Σ B p⁻¹ , fst
-          Iso.rightInv isom p⁻¹ i x = ua (fiberEquiv p⁻¹ x) i
-          Iso.leftInv  isom (E , p) i = ua e (~ i) , fst ∘ ua-unglue e (~ i)
-            where e = totalEquiv p
+  fibrationEquiv = isoToEquiv
+    (λ{ (E , p)   → fiber {ℓ'} {ℓb} p })
+    (λ p⁻¹        → Σ B p⁻¹ , fst {ℓb})
+    (λ p⁻¹ i x    → ua (fiberEquiv p⁻¹ x) i)
+    (λ{ (E , p) i → let e = totalEquiv p in ua e (~ i) , fst ∘ ua-unglue e (~ i) })
 
 -- The path type in a fiber of f is equivalent to a fiber of (cong f)
 open import Cubical.Foundations.Function

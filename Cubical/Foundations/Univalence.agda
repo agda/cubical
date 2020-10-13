@@ -68,7 +68,7 @@ ua-gluePath e {x} p i = ua-glue e i (λ { (i = i0) → x }) (inS (p i))
 -- ua-ungluePath and ua-gluePath are definitional inverses
 ua-ungluePath-Equiv : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
                       → (PathP (λ i → ua e i) x y) ≃ (e .fst x ≡ y)
-ua-ungluePath-Equiv e = isoToEquiv (iso (ua-ungluePath e) (ua-gluePath e) (λ _ → refl) (λ _ → refl))
+ua-ungluePath-Equiv e = isoToEquiv (ua-ungluePath e) (ua-gluePath e) (λ _ → refl) (λ _ → refl)
 
 -- ua-unglue and ua-glue are also definitional inverses, in a way
 -- strengthening the types of ua-unglue and ua-glue gives a nicer formulation of this, see below

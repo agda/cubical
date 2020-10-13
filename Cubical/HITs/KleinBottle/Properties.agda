@@ -43,7 +43,7 @@ twistBaseLoop base = base
 twistBaseLoop (loop i) = twist base i
 
 kleinBottle≃Σ : KleinBottle ≃ Σ S¹ invS¹Loop
-kleinBottle≃Σ = isoToEquiv (iso fro to froTo toFro)
+kleinBottle≃Σ = isoToEquiv fro to froTo toFro
   where
   fro : KleinBottle → Σ S¹ invS¹Loop
   fro point = (base , base)

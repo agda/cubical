@@ -17,11 +17,8 @@ snd isContr⊥→A f i ()
 
 uninhabEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
   → (A → ⊥) → (B → ⊥) → A ≃ B
-uninhabEquiv ¬a ¬b = isoToEquiv isom
-  where
-  open Iso
-  isom : Iso _ _
-  isom .fun a = rec (¬a a)
-  isom .inv b = rec (¬b b)
-  isom .rightInv b = rec (¬b b)
-  isom .leftInv a = rec (¬a a)
+uninhabEquiv ¬a ¬b = isoToEquiv
+  (λ a → rec (¬a a))
+  (λ b → rec (¬b b))
+  (λ b → rec (¬b b))
+  (λ a → rec (¬a a))

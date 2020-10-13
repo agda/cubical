@@ -120,8 +120,8 @@ nAryFunExt⁻ (suc n) fX fY p (x ∷ xs) = nAryFunExt⁻ n (fX x) (fY x) (λ i �
 
 nAryFunExtEquiv : (n : ℕ) {X : Type ℓ} {Y : I → Type ℓ₁} (fX : nAryOp n X (Y i0)) (fY : nAryOp n X (Y i1))
   → ((xs : Vec X n) → PathP Y (fX $ⁿ xs) (fY $ⁿ map (λ x → x) xs)) ≃ PathP (λ i → nAryOp n X (Y i)) fX fY
-nAryFunExtEquiv n {X} {Y} fX fY = isoToEquiv (iso (nAryFunExt n fX fY) (nAryFunExt⁻ n fX fY)
-                                              (linv n fX fY) (rinv n fX fY))
+nAryFunExtEquiv n {X} {Y} fX fY = isoToEquiv (nAryFunExt n fX fY) (nAryFunExt⁻ n fX fY)
+                                              (linv n fX fY) (rinv n fX fY)
   where
   linv : (n : ℕ) (fX : nAryOp n X (Y i0)) (fY : nAryOp n X (Y i1))
     (p : PathP (λ i → nAryOp n X (Y i)) fX fY)
@@ -160,13 +160,10 @@ funExtDepEquiv : {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ₁}
   {f : (x : A i0) → B i0 x} {g : (x : A i1) → B i1 x}
   → ({x₀ : A i0} {x₁ : A i1} (p : PathP A x₀ x₁) → PathP (λ i → B i (p i)) (f x₀) (g x₁))
   ≃ PathP (λ i → (x : A i) → B i x) f g
-funExtDepEquiv {A = A} {B} {f} {g} = isoToEquiv isom
+funExtDepEquiv {A = A} {B} {f} {g} = isoToEquiv funExtDep funExtDep⁻ fg gf
   where
-  open Iso
-  isom : Iso _ _
-  isom .fun = funExtDep
-  isom .inv = funExtDep⁻
-  isom .rightInv q m i x =
+  fg : (b : PathP (λ i → (x : A i) → B i x) (λ x → f x) (λ x → g x)) → funExtDep (funExtDep⁻ b) ≡ b
+  fg q m i x =
     comp
       (λ k → B i (coei→i A i x (k ∨ m)))
       (λ k → λ
@@ -175,7 +172,8 @@ funExtDepEquiv {A = A} {B} {f} {g} = isoToEquiv isom
         ; (m = i1) → q i x
         })
       (q i (coei→i A i x m))
-  isom .leftInv h m p i =
+  gf : (a : {x₀ : A i0} {x₁ : A i1} (p : PathP A x₀ x₁) → PathP (λ i → B i (p i)) (f x₀) (g x₁)) → _
+  gf h m p i =
     comp
       (λ k → B i (lemi→i m k))
       (λ k → λ
@@ -198,20 +196,21 @@ heteroHomotopy≃Homotopy : {A : I → Type ℓ} {B : (i : I) → Type ℓ₁}
   {f : A i0 → B i0} {g : A i1 → B i1}
   → ({x₀ : A i0} {x₁ : A i1} → PathP A x₀ x₁ → PathP B (f x₀) (g x₁))
   ≃ ((x₀ : A i0) → PathP B (f x₀) (g (transport (λ i → A i) x₀)))
-heteroHomotopy≃Homotopy {A = A} {B} {f} {g} = isoToEquiv isom
+heteroHomotopy≃Homotopy {A = A} {B} {f} {g} = isoToEquiv
+  (λ h x₀ → h (isContrSinglP A x₀ .fst .snd))
+  (λ k {x₀} {x₁} p →
+    subst (λ fib → PathP B (f x₀) (g (fib .fst))) (isContrSinglP A x₀ .snd (x₁ , p)) (k x₀))
+  fg
+  gf
   where
-  open Iso
-  isom : Iso _ _
-  isom .fun h x₀ = h (isContrSinglP A x₀ .fst .snd)
-  isom .inv k {x₀} {x₁} p =
-    subst (λ fib → PathP B (f x₀) (g (fib .fst))) (isContrSinglP A x₀ .snd (x₁ , p)) (k x₀)
-  isom .rightInv k = funExt λ x₀ →
+  fg = λ k → funExt λ x₀ →
     cong (λ α → subst (λ fib → PathP B (f x₀) (g (fib .fst))) α (k x₀))
       (isProp→isSet (isContr→isProp (isContrSinglP A x₀)) (isContrSinglP A x₀ .fst) _
         (isContrSinglP A x₀ .snd (isContrSinglP A x₀ .fst))
         refl)
     ∙ transportRefl (k x₀)
-  isom .leftInv h j {x₀} {x₁} p =
+  gf : (a : {x₀ : A i0} {x₁ : A i1} → PathP A x₀ x₁ → PathP B (f x₀) (g x₁)) → _
+  gf h j {x₀} {x₁} p =
     transp
       (λ i → PathP B (f x₀) (g (isContrSinglP A x₀ .snd (x₁ , p) (i ∨ j) .fst)))
       j

@@ -270,7 +270,8 @@ connectedTruncIso2 {A = A} {B = B} n m f (x , pf) con =
 connectedTruncEquiv : ∀ {ℓ} {A B : Type ℓ} (n : HLevel) (f : A → B)
                    → isConnectedFun n f
                    → hLevelTrunc n A ≃ hLevelTrunc n B
-connectedTruncEquiv {A = A} {B = B} n f con = isoToEquiv (connectedTruncIso n f con)
+connectedTruncEquiv {A = A} {B = B} n f con = isoToEquiv (Iso.fun isom) (Iso.inv isom) (Iso.rightInv isom) (Iso.leftInv isom)
+  where isom = connectedTruncIso n f con
 
 
 -- TODO : Reorganise the following proofs.

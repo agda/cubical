@@ -117,7 +117,7 @@ negate-invol (signed s n) i = signed (notnot s i) n
 negate-invol (posneg i)   _ = posneg i
 
 negateEquiv : ℤ ≃ ℤ
-negateEquiv = isoToEquiv (iso -_ -_ negate-invol negate-invol)
+negateEquiv = isoToEquiv -_ -_ negate-invol negate-invol
 
 negateEq : ℤ ≡ ℤ
 negateEq = ua negateEquiv

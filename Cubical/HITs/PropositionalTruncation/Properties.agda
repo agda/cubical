@@ -64,13 +64,11 @@ propTruncIsProp : isProp ∥ A ∥
 propTruncIsProp x y = squash x y
 
 propTruncIdempotent≃ : isProp A → ∥ A ∥ ≃ A
-propTruncIdempotent≃ {A = A} hA = isoToEquiv f
-  where
-  f : Iso ∥ A ∥ A
-  Iso.fun f        = rec hA (idfun A)
-  Iso.inv f x      = ∣ x ∣
-  Iso.rightInv f _ = refl
-  Iso.leftInv f    = elim (λ _ → isProp→isSet propTruncIsProp _ _) (λ _ → refl)
+propTruncIdempotent≃ {A = A} hA = isoToEquiv
+  (rec hA (idfun A))
+  (λ x → ∣ x ∣)
+  (λ _ → refl)
+  (elim (λ _ → isProp→isSet propTruncIsProp _ _) (λ _ → refl))
 
 propTruncIdempotent : isProp A → ∥ A ∥ ≡ A
 propTruncIdempotent hA = ua (propTruncIdempotent≃ hA)
@@ -160,7 +158,7 @@ module SetElim (Bset : isSet B) where
   preEquiv₁ t = e , rec (isPropIsEquiv e) e-isEquiv t
 
   preEquiv₂ : (∥ A ∥ → Σ (A → B) 2-Constant) ≃ Σ (A → B) 2-Constant
-  preEquiv₂ = isoToEquiv (iso to const (λ _ → refl) retr)
+  preEquiv₂ = isoToEquiv to const (λ _ → refl) retr
     where
     to : (∥ A ∥ → Σ (A → B) 2-Constant) → Σ (A → B) 2-Constant
     to f .fst x = f ∣ x ∣ .fst x
@@ -281,7 +279,7 @@ module GpdElim (Bgpd : isGroupoid B) where
           i
 
   preEquiv₁ : (∥ A ∥ → Σ (A → B) 3-Constant) ≃ Σ (A → B) 3-Constant
-  preEquiv₁ = isoToEquiv (iso fn const (λ _ → refl) retr)
+  preEquiv₁ = isoToEquiv fn const (λ _ → refl) retr
     where
     open 3-Constant
 

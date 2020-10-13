@@ -392,4 +392,3 @@ Hⁿ-Sⁿ≅ℤ (suc n) =
   vSES.ϕ theIso = K.d (suc n)
   Ker-ϕ⊂Im-left theIso = K.Ker-d⊂Im-Δ  (suc n)
   Ker-right⊂Im-ϕ theIso = K.Ker-i⊂Im-d (suc n)
-

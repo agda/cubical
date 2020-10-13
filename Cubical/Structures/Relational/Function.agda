@@ -173,19 +173,15 @@ functionRelMatchesEquiv+ : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type
 functionRelMatchesEquiv+ ρ₁ α₁ ρ₂ ι₂ μ₁ μ₂ (X , f) (Y , g) e =
   compEquiv
     (functionRelMatchesEquiv ρ₁ ρ₂ μ₁ μ₂ (X , f) (Y , g) e)
-    (isoToEquiv isom)
+    (isoToEquiv a b ab ba)
   where
-  open Iso
-  isom : Iso
-    (FunctionEquivStr (EquivAction→StrEquiv α₁) ι₂ (X , f) (Y , g) e)
-    (FunctionEquivStr+ α₁ ι₂ (X , f) (Y , g) e)
-  isom .fun h s = h refl
-  isom .inv k {x} = J (λ y _ → ι₂ (X , f x) (Y , g y) e) (k x)
-  isom .rightInv k i x = JRefl (λ y _ → ι₂ (X , f x) (Y , g y) e) (k x) i
-  isom .leftInv h =
-    implicitFunExt λ {x} →
-    implicitFunExt λ {y} →
-    funExt λ p →
-    J (λ y p → isom .inv (isom .fun h) p ≡ h p)
-      (funExt⁻ (isom .rightInv (isom .fun h)) x)
-      p
+  a : FunctionEquivStr (λ A B z → EquivAction→StrEquiv α₁ A B z) (λ A B z → ι₂ A B z) (X , f) (Y , g) e → _
+  a h s = h refl
+  b : FunctionEquivStr+ α₁ ι₂ (X , f) (Y , g) e → _
+  b k {x} = J (λ y _ → ι₂ (X , f x) (Y , g y) e) (k x)
+  ab : ∀ k → _
+  ab = λ k i x → JRefl (λ y _ → ι₂ (X , f x) (Y , g y) e) (k x) i
+  ba : ∀ h → _
+  ba h = implicitFunExt λ {x} →
+         implicitFunExt λ {y} →
+         funExt λ p → J (λ y p → b (a (h {s = _})) p ≡ h p) (funExt⁻ (ab (a (h {s = _}))) x) p

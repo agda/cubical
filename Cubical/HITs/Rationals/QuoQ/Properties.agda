@@ -221,7 +221,7 @@ negate-invol : ∀ x → - - x ≡ x
 negate-invol x = *-assoc -1 -1 x ∙ *-identityˡ x
 
 negateEquiv : ℚ ≃ ℚ
-negateEquiv = isoToEquiv (iso -_ -_ negate-invol negate-invol)
+negateEquiv = isoToEquiv -_ -_ negate-invol negate-invol
 
 negateEq : ℚ ≡ ℚ
 negateEq = ua negateEquiv
@@ -242,4 +242,3 @@ x - y = x + (- y)
 
 +-injʳ : ∀ x y z → x + y ≡ z + y → x ≡ z
 +-injʳ x y z p = +-injˡ y x z (+-comm y x ∙ p ∙ +-comm z y)
-

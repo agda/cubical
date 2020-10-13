@@ -137,4 +137,5 @@ module Null-iso-Localize {ℓ ℓ'} (S : Type ℓ) (A : Type ℓ') where
   isom = iso to from to-from from-to
 
 Null≃Localize : ∀ {ℓ ℓ'} (S : Type ℓ) (A : Type ℓ') → Null S A ≃ Localize (λ _ → const tt) A
-Null≃Localize S A = isoToEquiv (Null-iso-Localize.isom S A)
+Null≃Localize S A = isoToEquiv (Iso.fun isom) (Iso.inv isom) (Iso.rightInv isom) (Iso.leftInv isom)
+  where isom = Null-iso-Localize.isom S A

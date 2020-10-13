@@ -39,26 +39,31 @@ leftInv (Susp-iso-joinBool {A = A}) (merid a i) j
           (transp (λ _ → Susp A) j north)
 
 Susp≃joinBool : ∀ {ℓ} {A : Type ℓ} → Susp A ≃ join A Bool
-Susp≃joinBool = isoToEquiv Susp-iso-joinBool
+Susp≃joinBool = isoToEquiv (Iso.fun isom) (Iso.inv isom) (Iso.rightInv isom) (Iso.leftInv isom)
+  where isom = Susp-iso-joinBool
 
 Susp≡joinBool : ∀ {ℓ} {A : Type ℓ} → Susp A ≡ join A Bool
 Susp≡joinBool = isoToPath Susp-iso-joinBool
 
 congSuspEquiv : ∀ {ℓ} {A B : Type ℓ} → A ≃ B → Susp A ≃ Susp B
-congSuspEquiv {ℓ} {A} {B} h = isoToEquiv isom
-  where isom : Iso (Susp A) (Susp B)
-        Iso.fun isom north = north
-        Iso.fun isom south = south
-        Iso.fun isom (merid a i) = merid (fst h a) i
-        Iso.inv isom north = north
-        Iso.inv isom south = south
-        Iso.inv isom (merid a i) = merid (invEq h a) i
-        Iso.rightInv isom north = refl
-        Iso.rightInv isom south = refl
-        Iso.rightInv isom (merid a i) j = merid (retEq h a j) i
-        Iso.leftInv isom north = refl
-        Iso.leftInv isom south = refl
-        Iso.leftInv isom (merid a i) j = merid (secEq h a j) i
+congSuspEquiv {ℓ} {A} {B} h = isoToEquiv f g fg gf
+  where
+  f : Susp A → _
+  f north = north
+  f south = south
+  f (merid a i) = merid (fst h a) i
+  g : Susp B → _
+  g north = north
+  g south = south
+  g (merid a i) = merid (invEq h a) i
+  fg : (b : Susp B) → _
+  fg north = refl
+  fg south = refl
+  fg (merid a i) j = merid (retEq h a j) i
+  gf : (a : Susp A) → _
+  gf north = refl
+  gf south = refl
+  gf (merid a i) j = merid (secEq h a j) i
 
 suspToPropRec : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Susp A → Type ℓ'} (a : A)
                  → ((x : Susp A) → isProp (B x))

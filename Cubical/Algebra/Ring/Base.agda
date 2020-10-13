@@ -248,10 +248,13 @@ module RingΣTheory {ℓ} where
 
   RingPath : (R S : Ring) → (RingEquiv R S) ≃ (R ≡ S)
   RingPath R S =
-    RingEquiv R S               ≃⟨ isoToEquiv RingIsoΣPath ⟩
+    RingEquiv R S               ≃⟨ isoToEquiv (Iso.fun iso₁) (Iso.inv iso₁) (Iso.rightInv iso₁) (Iso.leftInv iso₁) ⟩
     RingEquivΣ R S              ≃⟨ RingΣPath _ _ ⟩
-    Ring→RingΣ R ≡ Ring→RingΣ S ≃⟨ isoToEquiv (invIso (congIso RingIsoRingΣ)) ⟩
+    Ring→RingΣ R ≡ Ring→RingΣ S ≃⟨ isoToEquiv (Iso.fun iso₂) (Iso.inv iso₂) (Iso.rightInv iso₂) (Iso.leftInv iso₂) ⟩
     R ≡ S ■
+    where
+    iso₁ = RingIsoΣPath {R} {S}
+    iso₂ = invIso (congIso RingIsoRingΣ)
 
 
 RingPath : (R S : Ring {ℓ}) → (RingEquiv R S) ≃ (R ≡ S)

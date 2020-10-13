@@ -36,7 +36,7 @@ isEquivCong : {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → cong (e 
 isEquivCong e = isoToIsEquiv (congIso (equivToIso e))
 
 congEquiv : {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
-congEquiv e = isoToEquiv (congIso (equivToIso e))
+congEquiv e = let iso = congIso (equivToIso e) in isoToEquiv (Iso.fun iso) (Iso.inv iso) (Iso.rightInv iso) (Iso.leftInv iso)
 
 equivAdjointEquiv : (e : A ≃ B) → ∀ {a b} → (a ≡ invEq e b) ≃ (equivFun e a ≡ b)
 equivAdjointEquiv e = compEquiv (congEquiv e) (compPathrEquiv (retEq e _))
@@ -56,15 +56,14 @@ preCompEquiv e = (λ φ → φ ∘ fst e) , isEquivPreComp e
 
 depPostCompEquiv : {A : C → Type ℓ} {B : C → Type ℓ′} (e : ∀ c → A c ≃ B c)
                  → (∀ c → A c) ≃ (∀ c → B c)
-depPostCompEquiv {A = A} {B} e = isoToEquiv pcIso where
+depPostCompEquiv {A = A} {B} e = isoToEquiv
+  (λ f c   → Iso.fun      (eIso c) (f c))
+  (λ g c   → Iso.inv      (eIso c) (g c))
+  (λ f i c → Iso.rightInv (eIso c) (f c) i)
+  (λ g i c → Iso.leftInv  (eIso c) (g c) i)
+  where
   eIso : ∀ c → Iso (A c) (B c)
   eIso c = equivToIso (e c)
-
-  pcIso : Iso (∀ c → A c) (∀ c → B c)
-  Iso.fun pcIso f c = Iso.fun (eIso c) (f c)
-  Iso.inv pcIso g c = Iso.inv (eIso c) (g c)
-  Iso.rightInv pcIso f i c = Iso.rightInv (eIso c) (f c) i
-  Iso.leftInv pcIso g i c = Iso.leftInv (eIso c) (g c) i
 
 isEquivPostComp :(e : A ≃ B) → isEquiv (λ (φ : C → A) → e .fst ∘ φ)
 isEquivPostComp {A = A} {B} {C} e = snd (depPostCompEquiv (λ _ → e))
@@ -174,10 +173,10 @@ isPropIsHAEquiv {f = f} ishaef = goal ishaef where
   characterization =
     isHAEquiv f
       -- first convert between Σ and record
-      ≃⟨ isoToEquiv (iso (λ e → (e .g , e .ret) , (e .sec , e .com))
-                         (λ e → record { g = e .fst .fst ; ret = e .fst .snd
-                                       ; sec = e .snd .fst ; com = e .snd .snd })
-                         (λ _ → refl) λ _ → refl) ⟩
+      ≃⟨ isoToEquiv (λ e → (e .g , e .ret) , (e .sec , e .com))
+                    (λ e → record { g = e .fst .fst ; ret = e .fst .snd
+                                  ; sec = e .snd .fst ; com = e .snd .snd })
+                    (λ _ → refl) (λ _ → refl) ⟩
     Σ _ rCoh1
       -- secondly, convert the path into a dependent path for later convenience
       ≃⟨  Σ-cong-equiv-snd (λ s → Σ-cong-equiv-snd

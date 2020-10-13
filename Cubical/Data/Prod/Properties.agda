@@ -52,10 +52,10 @@ private
 
 -- equivalence between the sigma-based definition and the inductive one
 A×B≃A×ΣB : A × B ≃ A ×Σ B
-A×B≃A×ΣB = isoToEquiv (iso (λ { (a , b) → (a , b)})
-                          (λ { (a , b) → (a , b)})
-                          (λ _ → refl)
-                          (λ { (a , b) → refl }))
+A×B≃A×ΣB = isoToEquiv (λ { (a , b) → (a , b)})
+                      (λ { (a , b) → (a , b)})
+                      (λ _ → refl)
+                      (λ { (a , b) → refl })
 
 A×B≡A×ΣB : A × B ≡ A ×Σ B
 A×B≡A×ΣB = ua A×B≃A×ΣB
@@ -70,7 +70,7 @@ isOfHLevelProd {A = A} {B = B} n h1 h2 =
 
 ×-≃ : ∀ {ℓ₁ ℓ₂ ℓ₃ ℓ₄} {A : Type ℓ₁} {B : Type ℓ₂} {C : Type ℓ₃} {D : Type ℓ₄}
     → A ≃ C → B ≃ D → A × B ≃ C × D
-×-≃ {A = A} {B = B} {C = C} {D = D} f g = isoToEquiv (iso φ ψ η ε)
+×-≃ {A = A} {B = B} {C = C} {D = D} f g = isoToEquiv φ ψ η ε
    where
     φ : A × B → C × D
     φ (a , b) = equivFun f a , equivFun g b

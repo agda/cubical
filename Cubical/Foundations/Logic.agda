@@ -320,10 +320,10 @@ powersets-are-sets {X = X} = isSetΠ (λ _ → isSetHProp)
 
 ⊆-extensionalityEquiv : {X : Type ℓ} (A B : ℙ X)
                       → (A ⊆ B) × (B ⊆ A) ≃ (A ≡ B)
-⊆-extensionalityEquiv A B = isoToEquiv (iso (⊆-extensionality A B)
-                                            (⊆-refl-consequence A B)
-                                            (λ _ → powersets-are-sets A B _ _)
-                                            (λ _ → isPropΣ (⊆-isProp A B) (λ _ → ⊆-isProp B A) _ _))
+⊆-extensionalityEquiv A B = isoToEquiv (⊆-extensionality A B)
+                                       (⊆-refl-consequence A B)
+                                       (λ _ → powersets-are-sets A B _ _)
+                                       (λ _ → isPropΣ (⊆-isProp A B) (λ _ → ⊆-isProp B A) _ _)
 
 
 -- We show that the powerset is the subtype classifier
@@ -370,7 +370,7 @@ Embedding→Subset→Embedding {ℓ = ℓ} {X = X} (A , f , ψ) = cong (Σ-assoc
 
 
 Subset≃Embedding : {X : Type ℓ} → ℙ X ≃ (Σ[ A ∈ Type ℓ ] (A ↪ X))
-Subset≃Embedding = isoToEquiv (iso Subset→Embedding Embedding→Subset Embedding→Subset→Embedding Subset→Embedding→Subset)
+Subset≃Embedding = isoToEquiv Subset→Embedding Embedding→Subset Embedding→Subset→Embedding Subset→Embedding→Subset
 
 Subset≡Embedding : {X : Type ℓ} → ℙ X ≡ (Σ[ A ∈ Type ℓ ] (A ↪ X))
 Subset≡Embedding = ua Subset≃Embedding

@@ -346,13 +346,11 @@ invInvolutive base = refl
 invInvolutive (loop i) = refl
 
 invS¹Equiv : S¹ ≃ S¹
-invS¹Equiv = isoToEquiv theIso
-  where
-  theIso : Iso S¹ S¹
-  Iso.fun theIso = invLooper
-  Iso.inv theIso = invLooper
-  Iso.rightInv theIso = invInvolutive
-  Iso.leftInv theIso = invInvolutive
+invS¹Equiv = isoToEquiv
+  invLooper
+  invLooper
+  invInvolutive
+  invInvolutive
 
 invS¹Path : S¹ ≡ S¹
 invS¹Path = ua invS¹Equiv
@@ -403,10 +401,10 @@ rotLoopInv a i j = homotopySymInv rotLoop a j i
 rotLoopEquiv : (i : I) → S¹ ≃ S¹
 rotLoopEquiv i =
   isoToEquiv
-    (iso (λ a → rotLoop a i)
-         (λ a → rotLoop a (~ i))
-         (λ a → rotLoopInv a i)
-         (λ a → rotLoopInv a (~ i)))
+    (λ a → rotLoop a i)
+    (λ a → rotLoop a (~ i))
+    (λ a → rotLoopInv a i)
+    (λ a → rotLoopInv a (~ i))
 
 -- some cancellation laws, used in the Hopf fibration
 private

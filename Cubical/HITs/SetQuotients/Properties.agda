@@ -112,7 +112,7 @@ rec2 Bset f feql feqr = rec (isSetΠ (λ _ → Bset))
 
 setQuotUniversal : {B : Type ℓ} (Bset : isSet B) →
                    (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
-setQuotUniversal Bset = isoToEquiv (iso intro out outRightInv outLeftInv)
+setQuotUniversal Bset = isoToEquiv intro out outRightInv outLeftInv
   where
   intro = λ g →  (λ a → g [ a ]) , λ a b r i → g (eq/ a b r i)
   out = λ h → elim (λ x → Bset) (fst h) (snd h)

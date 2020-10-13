@@ -158,4 +158,4 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
   bwd≡ToRel {a} {b} p = fwd≡ToRel (cong φ (sym p) ∙ η [ b ])
 
   Thm : (A / Rᴸ) ≃ (B / Rᴿ)
-  Thm = isoToEquiv (iso φ ψ η ε)
+  Thm = isoToEquiv φ ψ η ε

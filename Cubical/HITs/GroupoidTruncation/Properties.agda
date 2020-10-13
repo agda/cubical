@@ -55,13 +55,11 @@ groupoidTruncIsGroupoid : isGroupoid ∥ A ∥₃
 groupoidTruncIsGroupoid a b p q r s = squash₃ a b p q r s
 
 groupoidTruncIdempotent≃ : isGroupoid A → ∥ A ∥₃ ≃ A
-groupoidTruncIdempotent≃ {A = A} hA = isoToEquiv f
-  where
-  f : Iso ∥ A ∥₃ A
-  Iso.fun f = rec hA (idfun A)
-  Iso.inv f x = ∣ x ∣₃
-  Iso.rightInv f _ = refl
-  Iso.leftInv f = elim (λ _ → isGroupoid→is2Groupoid groupoidTruncIsGroupoid _ _) (λ _ → refl)
+groupoidTruncIdempotent≃ {A = A} hA = isoToEquiv
+  (rec hA (idfun A))
+  (λ x → ∣ x ∣₃)
+  (λ _ → refl)
+  (elim (λ _ → isGroupoid→is2Groupoid groupoidTruncIsGroupoid _ _) (λ _ → refl))
 
 groupoidTruncIdempotent : isGroupoid A → ∥ A ∥₃ ≡ A
 groupoidTruncIdempotent hA = ua (groupoidTruncIdempotent≃ hA)

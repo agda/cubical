@@ -58,7 +58,8 @@ joinPushout-iso-join A B = iso joinPushout→join join→joinPushout join→join
 
 -- We will need both the equivalence and path version
 joinPushout≃join : (A : Type ℓ) → (B : Type ℓ') → joinPushout A B ≃ join A B
-joinPushout≃join A B = isoToEquiv (joinPushout-iso-join A B)
+joinPushout≃join A B = isoToEquiv (Iso.fun isom) (Iso.inv isom) (Iso.rightInv isom) (Iso.leftInv isom)
+  where isom = joinPushout-iso-join A B
 
 joinPushout≡join : (A : Type ℓ) → (B : Type ℓ') → joinPushout A B ≡ join A B
 joinPushout≡join A B = isoToPath (joinPushout-iso-join A B)
@@ -155,7 +156,7 @@ join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
         A□2→A×join→A□2 (a , push b c i) = refl
 
         A□2≃A×join : 3x3-span.A□2 span ≃ A×join
-        A□2≃A×join = isoToEquiv (iso A□2→A×join A×join→A□2 A□2→A×join→A□2 A×join→A□2→A×join)
+        A□2≃A×join = isoToEquiv A□2→A×join A×join→A□2 A□2→A×join→A□2 A×join→A□2→A×join
 
         A→A□0 : A → 3x3-span.A□0 span
         A→A□0 b = inl b
@@ -174,7 +175,7 @@ join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
         A□0→A→A□0 (push a i) j = push a (j ∧ i)
 
         A□0≃A :  3x3-span.A□0 span ≃ A
-        A□0≃A = isoToEquiv (iso A□0→A A→A□0 A→A□0→A A□0→A→A□0)
+        A□0≃A = isoToEquiv A□0→A A→A□0 A→A□0→A A□0→A→A□0
 
         H1 : (x : 3x3-span.A□2 span) → proj₁ (A□2→A×join x) ≡ A□0→A (3x3-span.f□1 span x)
         H1 (inl (a , b)) = refl
@@ -237,7 +238,7 @@ join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
         A2□→join×C→A2□ (push a b i , c) = refl
 
         A2□≃join×C : 3x3-span.A2□ span ≃ join×C
-        A2□≃join×C = isoToEquiv (iso A2□→join×C join×C→A2□ A2□→join×C→A2□ join×C→A2□→join×C)
+        A2□≃join×C = isoToEquiv A2□→join×C join×C→A2□ A2□→join×C→A2□ join×C→A2□→join×C
 
         C→A4□ : C → 3x3-span.A4□ span
         C→A4□ b = inr b
@@ -256,7 +257,7 @@ join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
         A4□→C→A4□ (push x i) j = push x (~ j ∨ i)
 
         A4□≃C :  3x3-span.A4□ span ≃ C
-        A4□≃C = isoToEquiv (iso A4□→C C→A4□ C→A4□→C A4□→C→A4□)
+        A4□≃C = isoToEquiv A4□→C C→A4□ C→A4□→C A4□→C→A4□
 
         H3 : (x : 3x3-span.A2□ span) → proj₂ (A2□→join×C x) ≡ A4□→C (3x3-span.f3□ span x)
         H3 (inl (a , c)) = refl
@@ -274,7 +275,7 @@ join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
 -}
 joinSwitch : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
   → join (join A B) C ≃ join (join C B) A
-joinSwitch = isoToEquiv (iso switch switch invol invol)
+joinSwitch = isoToEquiv switch switch invol invol
   where
   switch : ∀ {ℓ ℓ' ℓ''}  {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
     → join (join A B) C → join (join C B) A
@@ -328,7 +329,7 @@ joinSwitch = isoToEquiv (iso switch switch invol invol)
 joinAssocDirect : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
   → join (join A B) C ≃ join A (join B C)
 joinAssocDirect {A = A} {B} {C} =
-  isoToEquiv (iso forward back forwardBack backForward)
+  isoToEquiv forward back forwardBack backForward
   where
   forward : join (join A B) C → join A (join B C)
   forward (inl (inl a)) = inl a
