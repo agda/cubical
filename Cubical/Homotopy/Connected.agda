@@ -273,7 +273,7 @@ connectedTruncEquiv : ∀ {ℓ} {A B : Type ℓ} (n : HLevel) (f : A → B)
 connectedTruncEquiv {A = A} {B = B} n f con = isoToEquiv (connectedTruncIso n f con)
 
 
--- TODO : Reorganise the following proof.
+-- TODO : Reorganise the following proofs.
 
 inrConnected : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} (n : HLevel)
             → (f : C → A) (g : C → B)
