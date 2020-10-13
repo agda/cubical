@@ -81,7 +81,7 @@ module _ {ℓ ℓ₁ ℓ₁'} where
       (P : (X : Type ℓ) → GatherFields fs X → Type ℓ₂)
       → Type (ℓ-max (ℓ-suc ℓ) (ℓ-max ℓ₁ ℓ₂))
     isPropProperty R ι fs P =
-      {X : Type ℓ} (r : R X) → isProp (P X (projectFields fs r))
+      {X : Type ℓ} (r  : R X) → isProp (P X (projectFields fs r))
 
   data AutoRecordSpec : Typeω where
     autoRecordSpec : (R : Type ℓ → Type ℓ₁) (ι : StrEquiv R ℓ₁')
@@ -357,7 +357,7 @@ module _ (spec : InternalSpec ℕ) where
 
       body =
         List.map (λ (n , t) → R.clause [] [ varg (R.proj n) ] t) (fwdClauses 1 fields)
-      
+
     bwd : R.Term
     bwd =
       vlam "A" (vlam "B" (vlam "e" (vlam "q" (R.pat-lam (bwdClauses fields) []))))
