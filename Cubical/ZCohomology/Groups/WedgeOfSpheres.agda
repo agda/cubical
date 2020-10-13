@@ -43,13 +43,8 @@ H⁰-S²⋁S¹⋁S¹ = H⁰-connected (inl north)
 ------------- H¹(S²⋁S¹⋁S¹) ---------
 H¹-S²⋁S¹⋁S¹ : GroupIso (coHomGr 1 S²⋁S¹⋁S¹) (dirProd intGroup intGroup)
 H¹-S²⋁S¹⋁S¹ =
-<<<<<<< HEAD
-    Hⁿ-⋁ (S₊∙ 2) (S¹⋁S¹ , inl north) 0
-  □ dirProdEquiv (H¹-Sⁿ≅0 0) H¹-S¹⋁S¹
-=======
     Hⁿ-⋁ (S₊∙ 2) (S¹⋁S¹ , inl base) 0
   □ dirProdGroupIso (H¹-Sⁿ≅0 0) H¹-S¹⋁S¹
->>>>>>> d560d04bd3d4197d32bf9023eb1474262fddaf75
   □ lUnitGroupIso
 
 ------------- H²(S²⋁S¹⋁S¹) ---------
@@ -68,21 +63,6 @@ private
   open import Cubical.Foundations.Equiv
   open import Cubical.Data.Sigma
   to₂ : coHom 2 S²⋁S¹⋁S¹ → Int
-<<<<<<< HEAD
-  to₂ = fst (GroupEquiv.eq H²-S²⋁S¹⋁S¹)
-  from₂ : Int → coHom 2 S²⋁S¹⋁S¹
-  from₂ = invEq (GroupEquiv.eq H²-S²⋁S¹⋁S¹)
-
-  to₁ : coHom 1 S²⋁S¹⋁S¹ → Int × Int
-  to₁ = fst (GroupEquiv.eq H¹-S²⋁S¹⋁S¹)
-  from₁ : Int × Int → coHom 1 S²⋁S¹⋁S¹
-  from₁ = invEq (GroupEquiv.eq H¹-S²⋁S¹⋁S¹)
-
-  to₀ : coHom 0 S²⋁S¹⋁S¹ → Int
-  to₀ = fst (GroupEquiv.eq H⁰-S²⋁S¹⋁S¹)
-  from₀ : Int → coHom 0 S²⋁S¹⋁S¹
-  from₀ = invEq (GroupEquiv.eq H⁰-S²⋁S¹⋁S¹)
-=======
   to₂ = GroupHom.fun (GroupIso.map H²-S²⋁S¹⋁S¹)
   from₂ : Int → coHom 2 S²⋁S¹⋁S¹
   from₂ = GroupIso.inv H²-S²⋁S¹⋁S¹
@@ -107,4 +87,3 @@ test = refl
 test2 : to₂ (from₂ 0) ≡ 0
 test2 = refl
 -}
->>>>>>> d560d04bd3d4197d32bf9023eb1474262fddaf75

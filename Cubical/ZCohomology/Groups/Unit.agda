@@ -13,7 +13,7 @@ open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to
 open import Cubical.HITs.Nullification
 open import Cubical.Data.Int hiding (_+_ ; +-comm)
 open import Cubical.Data.Nat
-open import Cubical.HITs.Truncation.FromNegOne
+open import Cubical.HITs.Truncation
 open import Cubical.Homotopy.Connected
 open import Cubical.Data.Unit
 open import Cubical.Algebra.Group

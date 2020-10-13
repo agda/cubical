@@ -12,7 +12,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Truncation.FromNegOne as Trunc renaming (rec to trRec ; elim to trElim)
+open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec ; elim to trElim)
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
 open import Cubical.Homotopy.Loopspace
