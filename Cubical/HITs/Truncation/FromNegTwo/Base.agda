@@ -9,11 +9,11 @@ open import Cubical.HITs.Nullification
 open import Cubical.HITs.Sn
 
 -- For the hub-and-spoke construction discussed in the HoTT book, which doesn't work in the base case
---  of contractibility, see `HITs.Truncation.FromNegOne`. The definition of truncation here contains
+--  of contractibility, see `HITs.Truncation.Base`. The definition of truncation here contains
 --  two more constructors which are redundant when n ≥ 1 but give contractibility when n = 0.
 
 -- data hLevelTrunc {ℓ} (n : HLevel) (A : Type ℓ) : Type (ℓ-max ℓ ℓ') where
---   -- the hub-and-spoke definition in `Truncation.FromNegOne`
+--   -- the hub-and-spoke definition in `Truncation.Base`
 --   ∣_∣ : A → hLevelTrunc n A
 --   hub   : (f : S (-1+ n) → hLevelTrunc n A) → hLevelTrunc n A
 --   spoke : (f : S (-1+ n) → hLevelTrunc n A) (s : S) → hub f ≡ f s
