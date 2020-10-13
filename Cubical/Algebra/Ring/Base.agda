@@ -23,7 +23,7 @@ open Iso
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 record IsRing {R : Type ℓ}
               (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R) : Type ℓ where
@@ -126,7 +126,7 @@ makeRing 0r 1r _+_ _·_ -_ is-setR assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-
        (makeIsRing is-setR assoc +-rid +-rinv +-comm
                    ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+ )
 
-record RingEquiv (R S : Ring {ℓ}) : Type ℓ where
+record RingEquiv (R : Ring {ℓ}) (S : Ring {ℓ'}) (e : ⟨ R ⟩ ≃ ⟨ S ⟩) : Type (ℓ-max ℓ ℓ') where
 
   constructor ringequiv
 
@@ -135,10 +135,10 @@ record RingEquiv (R S : Ring {ℓ}) : Type ℓ where
     module S = RingStr (snd S)
 
   field
-    e : ⟨ R ⟩ ≃ ⟨ S ⟩
     pres1 : equivFun e R.1r ≡ S.1r
     isHom+ : (x y : ⟨ R ⟩) → equivFun e (x R.+ y) ≡ equivFun e x S.+ equivFun e y
     isHom· : (x y : ⟨ R ⟩) → equivFun e (x R.· y) ≡ equivFun e x S.· equivFun e y
+
 
 record RingHom (R S : Ring {ℓ}) : Type ℓ where
 
@@ -215,21 +215,21 @@ module RingΣTheory {ℓ} where
   RingEquivΣ : (R S : Ring) → Type ℓ
   RingEquivΣ R S = Ring→RingΣ R ≃[ RingEquivStr ] Ring→RingΣ S
 
-  RingIsoΣPath : {R S : Ring} → Iso (RingEquiv R S) (RingEquivΣ R S)
-  fun RingIsoΣPath (ringequiv e h1 h2 h3) = e , h2 , h1 , h3
-  inv RingIsoΣPath (e , h1 , h2 , h3)    = ringequiv e h2 h1 h3
-  rightInv RingIsoΣPath _                = refl
-  leftInv RingIsoΣPath _                 = refl
+  RingIsoΣPath : {R S : Ring} → Iso (Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] RingEquiv R S e) (RingEquivΣ R S)
+  fun RingIsoΣPath (e , ringequiv h1 h2 h3) = e , h2 , h1 , h3
+  inv RingIsoΣPath (e , h1 , h2 , h3)       = e , ringequiv h2 h1 h3
+  rightInv RingIsoΣPath _                   = refl
+  leftInv RingIsoΣPath _                    = refl
 
-  RingPath : (R S : Ring) → (RingEquiv R S) ≃ (R ≡ S)
+  RingPath : (R S : Ring) → (Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] RingEquiv R S e) ≃ (R ≡ S)
   RingPath R S =
-    RingEquiv R S               ≃⟨ isoToEquiv RingIsoΣPath ⟩
+    Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] RingEquiv R S e ≃⟨ isoToEquiv RingIsoΣPath ⟩
     RingEquivΣ R S              ≃⟨ RingΣPath _ _ ⟩
     Ring→RingΣ R ≡ Ring→RingΣ S ≃⟨ isoToEquiv (invIso (congIso RingIsoRingΣ)) ⟩
     R ≡ S ■
 
 
-RingPath : (R S : Ring {ℓ}) → (RingEquiv R S) ≃ (R ≡ S)
+RingPath : (R S : Ring {ℓ}) → (Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] RingEquiv R S e) ≃ (R ≡ S)
 RingPath = RingΣTheory.RingPath
 
 isPropIsRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)

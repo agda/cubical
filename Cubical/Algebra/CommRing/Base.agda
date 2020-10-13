@@ -89,8 +89,8 @@ makeCommRing 0r 1r _+_ _·_ -_ is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-r
 CommRing→Ring : CommRing {ℓ} → Ring
 CommRing→Ring (_ , commringstr _ _ _ _ _ H) = _ , ringstr _ _ _ _ _ (IsCommRing.isRing H)
 
-CommRingEquiv : (R S : CommRing) → Type ℓ
-CommRingEquiv R S = RingEquiv (CommRing→Ring R) (CommRing→Ring S)
+CommRingEquiv : (R S : CommRing) (e : ⟨ R ⟩ ≃ ⟨ S ⟩) → Type ℓ
+CommRingEquiv R S e = RingEquiv (CommRing→Ring R) (CommRing→Ring S) e
 
 module CommRingΣTheory {ℓ} where
 
@@ -136,15 +136,15 @@ module CommRingΣTheory {ℓ} where
   CommRingEquivΣ : (R S : CommRing) → Type ℓ
   CommRingEquivΣ R S = CommRing→CommRingΣ R ≃[ CommRingEquivStr ] CommRing→CommRingΣ S
 
-  CommRingPath : (R S : CommRing) → (CommRingEquiv R S) ≃ (R ≡ S)
+  CommRingPath : (R S : CommRing) → (Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] CommRingEquiv R S e) ≃ (R ≡ S)
   CommRingPath R S =
-    CommRingEquiv R S   ≃⟨ isoToEquiv RingIsoΣPath ⟩
+    Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] CommRingEquiv R S e ≃⟨ isoToEquiv RingIsoΣPath ⟩
     CommRingEquivΣ R S  ≃⟨ CommRingΣPath _ _ ⟩
     CommRing→CommRingΣ R ≡ CommRing→CommRingΣ S
       ≃⟨ isoToEquiv (invIso (congIso CommRingIsoCommRingΣ)) ⟩
     R ≡ S ■
 
-CommRingPath : (R S : CommRing {ℓ}) → (CommRingEquiv R S) ≃ (R ≡ S)
+CommRingPath : (R S : CommRing {ℓ}) → (Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] CommRingEquiv R S e) ≃ (R ≡ S)
 CommRingPath = CommRingΣTheory.CommRingPath
 
 isPropIsCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
