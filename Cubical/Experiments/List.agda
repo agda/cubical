@@ -115,9 +115,6 @@ module transport where
   rev-++-distr' = T-List' .snd .snd
 
 
-
-
-
 -- To connect this with the Cubical Agda paper consider the following
 -- (painfully) manual transport. This is really what the above code
 -- unfolds to.
@@ -142,12 +139,11 @@ module manualtransport where
 
 
 
--- The above operations are derived by going back and forth. With the
--- SIP we can do better and transport properties for user defined
--- operations (assuming that the operations are well-defined wrt to
--- the forward direction of the equivalence).
+-- The above operations for List' are derived by going back and
+-- forth. With the SIP we can do better and transport properties for
+-- user defined operations (assuming that the operations are
+-- well-defined wrt to the forward direction of the equivalence).
 open import Cubical.Foundations.SIP
-
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
 
@@ -169,12 +165,12 @@ module SIP (A : Type) where
   P : (X : Type) → RawStruct X → Type
   P X (_++_ , rev) = ((xs ys : X) → rev (xs ++ ys) ≡ rev ys ++ rev xs)
 
+  -- Package things up for List
   List-Struct : Σ[ X ∈ Type ] (Σ[ s ∈ RawStruct X ] (P X s))
   List-Struct = List A , (_++_ , rev) , rev-++-distr
 
 
   -- We now give direct definitions of ++' and rev' for List'
-
   _++'_ : List' A → List' A → List' A
   [] ++' ys        = ys
   (xs ∷' x) ++' ys = (xs ++' ys) ∷' x
@@ -183,13 +179,13 @@ module SIP (A : Type) where
   rev' [] = []
   rev' (xs ∷' x) = rev' xs ++' ([] ∷' x)
 
-  -- We then package this up into a raw structure.
+  -- We then package this up into a raw structure on List'
   List'-RawStruct : Σ[ X ∈ Type ] (RawStruct X)
   List'-RawStruct = List' A , (_++'_ , rev')
 
   -- Finally we prove that toList' commutes with _++_ and rev. Note
-  -- that this could a lot more complex, see for example the Matrix
-  -- example.
+  -- that this could be a lot more complex, see for example the Matrix
+  -- example (Cubical.Algebra.Matrix).
   toList'-++ : (xs ys : List A) → toList' (xs ++ ys) ≡ toList' xs ++' toList' ys
   toList'-++ [] ys = refl
   toList'-++ (x ∷ xs) ys i = toList'-++ xs ys i ∷' x
@@ -206,4 +202,3 @@ module SIP (A : Type) where
   -- Note that "goal" is really talking about the direct definitions
   -- of ++' and rev', not the transported operations as in the
   -- previous attempt.
-
