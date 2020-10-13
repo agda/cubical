@@ -32,7 +32,7 @@ open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation.FromNegOne renaming (elim to trElim ; map to trMap ; rec to trRec)
 open import Cubical.Data.Unit
 
-open import Cubical.Algebra.Group hiding (0g ; _+_ ; -_)
+open import Cubical.Algebra.Group
 
 infixr 31 _□_
 _□_ : _

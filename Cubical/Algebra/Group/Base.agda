@@ -55,15 +55,6 @@ record GroupStr (G : Type ℓ) : Type (ℓ-suc ℓ) where
 Group : Type (ℓ-suc ℓ)
 Group = TypeWithStr _ GroupStr
 
-0g : (G : Group {ℓ}) → ⟨ G ⟩
-0g x = GroupStr.0g (snd x)
-
-_+_ : (G : Group {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩ → ⟨ G ⟩
-_+_ x = GroupStr._+_ (snd x)
-
--_ : (G : Group {ℓ}) → ⟨ G ⟩ → ⟨ G ⟩
--_ x = GroupStr.-_ (snd x)
-
 Group₀ : Type₁
 Group₀ = Group {ℓ-zero}
 
@@ -196,18 +187,20 @@ open GroupStr hiding (0g ; _+_ ; -_)
 isSetCarrier : ∀ {ℓ} → (G : Group {ℓ}) → isSet ⟨ G ⟩
 isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (GroupStr.isMonoid (snd G)))
 
+open GroupStr
+
 dirProd : ∀ {ℓ ℓ'} → Group {ℓ} → Group {ℓ'} → Group
-dirProd G H =
+dirProd (GC , G) (HC , H) =
   makeGroup (0g G , 0g H)
             (λ { (x1 , x2) (y1 , y2) → _+_ G x1 y1 , _+_ H x2 y2 })
             (λ { (x1 , x2) → -_ G x1 , -_ H x2 })
-            (isSet× (isSetCarrier G) (isSetCarrier H))
+            (isSet× (isSetCarrier (GC , G)) (isSetCarrier (HC , H)))
             (λ { (x1 , x2) (y1 , y2) (z1 , z2) i →
-               assoc (snd G) x1 y1 z1 i , assoc (snd H) x2 y2 z2 i })
-            (λ { (x1 , x2) i → GroupStr.rid (snd G) x1 i , GroupStr.rid (snd H) x2 i })
-            (λ { (x1 , x2) i → GroupStr.lid (snd G) x1 i , GroupStr.lid (snd H) x2 i })
-            (λ { (x1 , x2) i → GroupStr.invr (snd G) x1 i , GroupStr.invr (snd H) x2 i })
-            (λ { (x1 , x2) i → GroupStr.invl (snd G) x1 i , GroupStr.invl (snd H) x2 i })
+               assoc G x1 y1 z1 i , assoc H x2 y2 z2 i })
+            (λ { (x1 , x2) i → GroupStr.rid G x1 i , GroupStr.rid H x2 i })
+            (λ { (x1 , x2) i → GroupStr.lid G x1 i , GroupStr.lid H x2 i })
+            (λ { (x1 , x2) i → GroupStr.invr G x1 i , GroupStr.invr H x2 i })
+            (λ { (x1 , x2) i → GroupStr.invl G x1 i , GroupStr.invl H x2 i })
 
 trivialGroup : Group₀
 trivialGroup = Unit , groupstr tt (λ _ _ → tt) (λ _ → tt)

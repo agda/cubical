@@ -18,54 +18,47 @@ open import Cubical.Algebra.Group.MorphismProperties
 
 open import Cubical.HITs.PropositionalTruncation hiding (map)
 
--- open import Cubical.Data.Group.Base
-
 open Iso
-open GroupStr hiding (0g ; _+_ ; -_)
 open GroupHom
 
 private
   variable
-    ℓ ℓ₁ ℓ₂ ℓ₃ : Level
+    ℓ ℓ' ℓ₁ ℓ₂ ℓ₃ : Level
 
 ------- elementary properties of morphisms --------
 
--- (- 0) = 0
--0≡0 : ∀ {ℓ} {G : Group {ℓ}} → (- G) (0g G) ≡ (0g G) --  - 0 ≡ 0
--0≡0 {G = G} =  sym (IsGroup.lid (isGroup (snd G)) _) ∙ fst (IsGroup.inverse (isGroup (snd G)) _)
+module _ (G : Group {ℓ}) (H : Group {ℓ'}) where
 
-
--- ϕ(0) ≡ 0
-morph0→0 : ∀ {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) (f : GroupHom G H)
-           → fun f (0g G) ≡ 0g H
-morph0→0 G H f =
-  (fun f) (0g G)                                        ≡⟨ sym (IsGroup.rid (isGroup (snd H)) _) ⟩
-  (f' (0g G) H.+ 0g H)                                  ≡⟨ (λ i → f' (0g G) H.+ invr (snd H) (f' (0g G)) (~ i)) ⟩
-  (f' (0g G) H.+ (f' (0g G) H.+ (H.- f' (0g G))))       ≡⟨ (GroupStr.assoc (snd H) (f' (0g G)) (f' (0g G)) (H.- (f' (0g G)))) ⟩
-  ((f' (0g G) H.+ f' (0g G)) H.+ (H.- f' (0g G)))       ≡⟨ sym (cong (λ x → x H.+ (H.- f' (0g G))) (sym (cong f' (IsGroup.lid (isGroup (snd G)) _)) ∙ isHom f (0g G) (0g G))) ⟩
-  (f' (0g G)) H.+ (H.- (f' (0g G)))                     ≡⟨ invr (snd H) (f' (0g G)) ⟩
-  0g H ∎
-  where
   module G = GroupStr (snd G)
   module H = GroupStr (snd H)
-  f' = fun f
 
--- ϕ(- x) = - ϕ(x)
-morphMinus : ∀ {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) → (ϕ : GroupHom G H)
-            → (g : ⟨ G ⟩) → fun ϕ ((- G) g) ≡ (- H) (fun ϕ g)
-morphMinus G H ϕ g =
-  f (G.- g)                             ≡⟨ sym (IsGroup.rid (isGroup (snd H)) (f (G.- g))) ⟩
-  (f (G.- g) H.+ 0g H)                  ≡⟨ cong (f (G.- g) H.+_) (sym (invr (snd H) (f g))) ⟩
-  (f (G.- g) H.+ (f g H.+ (H.- f g)))   ≡⟨ GroupStr.assoc (snd H) (f (G.- g)) (f g) (H.- f g) ⟩
-  ((f (G.- g) H.+ f g) H.+ (H.- f g))   ≡⟨ cong (H._+ (H.- f g)) helper ⟩
-  (0g H H.+ (H.- f g))                  ≡⟨ IsGroup.lid (isGroup (snd H)) (H.- (f g))⟩
-  H.- (f g) ∎
-  where
-  module G = GroupStr (snd G)
-  module H = GroupStr (snd H)
-  f = fun ϕ
-  helper : (f (G.- g) H.+ f g) ≡ 0g H
-  helper = sym (isHom ϕ (G.- g) g) ∙∙ cong f (invl (snd G) g) ∙∙ morph0→0 G H ϕ
+  -0≡0 : G.- G.0g ≡ G.0g
+  -0≡0 = sym (G.lid _) ∙ G.invr _
+
+  -- ϕ(0) ≡ 0
+  morph0→0 : (f : GroupHom G H) → f .fun G.0g ≡ H.0g
+  morph0→0 fh@(grouphom f _) =
+    f G.0g                         ≡⟨ sym (H.rid _) ⟩
+    f G.0g H.+ H.0g                ≡⟨ (λ i → f G.0g H.+ H.invr (f G.0g) (~ i)) ⟩
+    f G.0g H.+ (f G.0g H.- f G.0g) ≡⟨ H.assoc _ _ _ ⟩
+    (f G.0g H.+ f G.0g) H.- f G.0g ≡⟨ sym (cong (λ x → x H.+ (H.- f G.0g))
+                                                (sym (cong f (G.lid _)) ∙ isHom fh G.0g G.0g)) ⟩
+    f G.0g H.- f G.0g              ≡⟨ H.invr _ ⟩
+    H.0g ∎
+
+  -- ϕ(- x) = - ϕ(x)
+  morphMinus : (f : GroupHom G H) → (g : ⟨ G ⟩) → f .fun (G.- g) ≡ H.- (f .fun g)
+  morphMinus fc@(grouphom f fh) g =
+    f (G.- g)                   ≡⟨ sym (H.rid _) ⟩
+    f (G.- g) H.+ H.0g          ≡⟨ cong (f (G.- g) H.+_) (sym (H.invr _)) ⟩
+    f (G.- g) H.+ (f g H.- f g) ≡⟨ H.assoc _ _ _ ⟩
+    (f (G.- g) H.+ f g) H.- f g ≡⟨ cong (H._+ (H.- f g)) helper ⟩
+    H.0g H.- f g                ≡⟨ H.lid _ ⟩
+    H.- f g ∎
+    where
+    helper : f (G.- g) H.+ f g ≡ H.0g
+    helper = sym (fh (G.- g) g) ∙∙ cong f (G.invl g) ∙∙ morph0→0 fc
+
 
 -- ----------- Alternative notions of isomorphisms --------------
 record GroupIso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
@@ -158,7 +151,7 @@ GroupEquiv.eq (GrIsoToGrEquiv i) = isoToEquiv (iso (fun (map i)) (inv i) (rightI
 GroupEquiv.isHom (GrIsoToGrEquiv i) = isHom (map i)
 
 --- Proofs that BijectionIso and vSES both induce isomorphisms ---
-BijectionIsoToGroupIso : {A : Group {ℓ}} {B : Group {ℓ₂}} → BijectionIso A B → GroupIso A B
+BijectionIsoToGroupIso : {A : Group {ℓ}} {B : Group {ℓ'}} → BijectionIso A B → GroupIso A B
 BijectionIsoToGroupIso {A = A} {B = B} i = grIso
   where
   module A = GroupStr (snd A)
@@ -168,20 +161,20 @@ BijectionIsoToGroupIso {A = A} {B = B} i = grIso
   helper : (b : _) → isProp (Σ[ a ∈ ⟨ A ⟩ ] f a ≡ b)
   helper _ a b =
     Σ≡Prop (λ _ → isSetCarrier B _ _)
-           (fst a ≡⟨ sym (IsGroup.rid (isGroup (snd A)) (fst a)) ⟩
-           ((fst a) A.+ 0g A) ≡⟨ cong ((fst a) A.+_) (sym (invl (snd A) (fst b))) ⟩
-           ((fst a) A.+ ((A.- fst b) A.+ fst b)) ≡⟨ GroupStr.assoc (snd A) _ _ _ ⟩
-           (((fst a) A.+ (A.- fst b)) A.+ fst b) ≡⟨ cong (A._+ fst b) idHelper ⟩
-           (0g A A.+ fst b) ≡⟨ IsGroup.lid (isGroup (snd A)) (fst b) ⟩
-           fst b ∎)
+           (fst a                             ≡⟨ sym (A.rid _) ⟩
+            fst a A.+ A.0g                    ≡⟨ cong (fst a A.+_) (sym (A.invl _)) ⟩
+            fst a A.+ ((A.- fst b) A.+ fst b) ≡⟨ A.assoc _ _ _ ⟩
+            (fst a A.- fst b) A.+ fst b       ≡⟨ cong (A._+ fst b) idHelper ⟩
+            A.0g A.+ fst b                    ≡⟨ A.lid _ ⟩
+            fst b ∎)
     where
-    idHelper : fst a A.+ (A.- fst b) ≡ 0g A
+    idHelper : fst a A.- fst b ≡ A.0g
     idHelper =
       inj i _
            (isHom (map' i) (fst a) (A.- (fst b))
          ∙ (cong (f (fst a) B.+_) (morphMinus A B (map' i) (fst b))
          ∙∙ cong (B._+ (B.- f (fst b))) (snd a ∙ sym (snd b))
-         ∙∙ invr (snd B) (f (fst b))))
+         ∙∙ B.invr (f (fst b))))
 
   grIso : GroupIso A B
   map grIso = map' i
@@ -248,7 +241,7 @@ inv (GroupIso→Iso i) = inv i
 rightInv (GroupIso→Iso i) = rightInv i
 leftInv (GroupIso→Iso i) = leftInv i
 
-congIdLeft≡congIdRight : ∀ {ℓ} {A : Type ℓ} (_+A_ : A → A → A) (-A_ : A → A)
+congIdLeft≡congIdRight : {A : Type ℓ} (_+A_ : A → A → A) (-A_ : A → A)
             (0A : A)
             (rUnitA : (x : A) → x +A 0A ≡ x)
             (lUnitA : (x : A) → 0A +A x ≡ x)

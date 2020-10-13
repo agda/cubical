@@ -8,14 +8,14 @@ open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.Group.Base hiding (0g ; _+_ ; -_)
+open import Cubical.Algebra.Group.Base
 
 private
   variable
     ℓ ℓ' ℓ'' : Level
 
 module GroupLemmas (G : Group {ℓ}) where
-  open GroupStr (snd G) public
+  open GroupStr (snd G)
   abstract
     simplL : (a : ⟨ G ⟩) {b c : ⟨ G ⟩} → a + b ≡ a + c → b ≡ c
     simplL a {b} {c} p =

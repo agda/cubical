@@ -19,7 +19,7 @@ open import Cubical.Structures.Pointed
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 
-open import Cubical.Algebra.Group.Base hiding (0g ; _+_ ; -_)
+open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphism
 

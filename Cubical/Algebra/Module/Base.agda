@@ -15,7 +15,7 @@ open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.Group hiding (_+_ ; -_)
+open import Cubical.Algebra.Group
 
 open Iso
 

@@ -19,7 +19,7 @@ open import Cubical.Data.Sigma.Base
 open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
 
-open import Cubical.Algebra.Group hiding (0g ; _+_ ; -_)
+open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring

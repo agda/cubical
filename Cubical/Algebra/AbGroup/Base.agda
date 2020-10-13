@@ -17,7 +17,7 @@ open import Cubical.Structures.Macro
 open import Cubical.Structures.Pointed
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.Group hiding (0g ; _+_ ; -_)
+open import Cubical.Algebra.Group
 
 open Iso
 
