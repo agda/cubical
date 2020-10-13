@@ -87,7 +87,7 @@ isFinSet≡isFinSetΣ {A = A} = hPropExt isProp-isFinSet isProp-isFinSetΣ to fr
     from (n , squash p q i) = isProp-isFinSet (from (n , p)) (from (n , q)) i
 
 FinSet≡FinSetΣ : FinSet {ℓ} ≡ FinSetΣ
-FinSet≡FinSetΣ = ua (isoToEquiv (iso to from to-from from-to))
+FinSet≡FinSetΣ = ua (isoToEquiv to from to-from from-to)
   where
     to : FinSet → FinSetΣ
     to (A , isFinSetA) = A , transport isFinSet≡isFinSetΣ isFinSetA

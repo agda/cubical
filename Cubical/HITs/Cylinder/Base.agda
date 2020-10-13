@@ -74,7 +74,7 @@ module _ {ℓ} {A : Type ℓ} where
 
   -- The second part of the factorization above.
   CylinderA≃A : Cylinder A ≃ A
-  CylinderA≃A = isoToEquiv (iso out inl out-inl inl-out)
+  CylinderA≃A = isoToEquiv out inl out-inl inl-out
 
   -- The cocylinder has a similar equivalence that is part
   -- of factorizing the diagonal mapping.
@@ -95,7 +95,7 @@ module _ {ℓ} {A : Type ℓ} where
 
   A≃CocylinderA : A ≃ Cocylinder A
   A≃CocylinderA =
-    isoToEquiv (iso inco outco CocylinderA→A→CocylinderA A→CocylinderA→A)
+    isoToEquiv inco outco CocylinderA→A→CocylinderA A→CocylinderA→A
 
   project : Cocylinder A → A × A
   project c = c zero , c one
@@ -185,7 +185,7 @@ module IntervalEquiv where
 
   CylinderUnit≃Interval : Cylinder Unit ≃ Interval
   CylinderUnit≃Interval =
-    isoToEquiv (iso CylinderUnit→Interval Interval→CylinderUnit Interval→CylinderUnit→Interval CylinderUnit→Interval→CylinderUnit)
+    isoToEquiv CylinderUnit→Interval Interval→CylinderUnit Interval→CylinderUnit→Interval CylinderUnit→Interval→CylinderUnit
 
 
   -- More generally, there is an equivalence between the cylinder
@@ -220,10 +220,10 @@ module IntervalEquiv where
     CylinderA≃A×Interval : Cylinder A ≃ Cyl
     CylinderA≃A×Interval =
       isoToEquiv
-        (iso CylinderA→A×Interval
-             A×Interval→CylinderA
-             A×Interval→CylinderA→A×Interval
-             CylinderA→A×Interval→CylinderA)
+        CylinderA→A×Interval
+        A×Interval→CylinderA
+        A×Interval→CylinderA→A×Interval
+        CylinderA→A×Interval→CylinderA
 
 -- The cylinder is also the pushout of the identity on A with itself.
 module Push {ℓ} {A : Type ℓ} where
@@ -259,7 +259,7 @@ module Push {ℓ} {A : Type ℓ} where
   Pushout≃Cylinder : Push ≃ Cyl
   Pushout≃Cylinder =
     isoToEquiv
-      (iso Pushout→Cylinder
-           Cylinder→Pushout
-           Cylinder→Pushout→Cylinder
-           Pushout→Cylinder→Pushout)
+      Pushout→Cylinder
+      Cylinder→Pushout
+      Cylinder→Pushout→Cylinder
+      Pushout→Cylinder→Pushout

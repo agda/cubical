@@ -219,4 +219,4 @@ module IsoToLFSet
   SDL-LFSet-iso = (iso unsort sort unsort∘sort sort∘unsort)
 
   SDL≡LFSet : SDL ≡ LFSet A
-  SDL≡LFSet = ua (isoToEquiv SDL-LFSet-iso)
+  SDL≡LFSet = ua (isoToEquiv unsort sort unsort∘sort sort∘unsort)

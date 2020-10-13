@@ -171,7 +171,7 @@ Binℕ→ℕ→Binℕ binℕ0 = refl
 Binℕ→ℕ→Binℕ (binℕpos p) = cong binℕpos (Pos⇒ℕ⇒Pos p)
 
 Binℕ≃ℕ : Binℕ ≃ ℕ
-Binℕ≃ℕ = isoToEquiv (iso Binℕ→ℕ ℕ→Binℕ ℕ→Binℕ→ℕ Binℕ→ℕ→Binℕ)
+Binℕ≃ℕ = isoToEquiv Binℕ→ℕ ℕ→Binℕ ℕ→Binℕ→ℕ Binℕ→ℕ→Binℕ
 
 -- Use univalence (in fact only "ua") to get an equality from the
 -- above equivalence
@@ -442,7 +442,7 @@ binnat→ℕ→binnat (consEven n) =
            (λ i → suc-binnat (suc-ℕ→binnat-double (binnat→ℕ n) i)) ∙ (cong consEven (binnat→ℕ→binnat n))
 
 ℕ≃binnat : ℕ ≃ binnat
-ℕ≃binnat = isoToEquiv (iso ℕ→binnat binnat→ℕ binnat→ℕ→binnat ℕ→binnat→ℕ)
+ℕ≃binnat = isoToEquiv ℕ→binnat binnat→ℕ binnat→ℕ→binnat ℕ→binnat→ℕ
 
 ℕ≡binnat : ℕ ≡ binnat
 ℕ≡binnat = ua ℕ≃binnat

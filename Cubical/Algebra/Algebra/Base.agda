@@ -317,14 +317,13 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
 
   AlgebraPath : (M N : Algebra R) → (AlgebraEquiv M N) ≃ (M ≡ N)
   AlgebraPath M N =
-    AlgebraEquiv M N                                    ≃⟨ isoToEquiv AlgebraEquivΣPath ⟩
+    AlgebraEquiv M N                                    ≃⟨ isoToEquiv (Iso.fun iso₁) (Iso.inv iso₁) (Iso.rightInv iso₁) (Iso.leftInv iso₁) ⟩
     AlgebraEquivΣ M N                                   ≃⟨ AlgebraΣPath _ _ ⟩
-    Algebra→AlgebraΣ M ≡ Algebra→AlgebraΣ N             ≃⟨ isoToEquiv
-                                                             (invIso
-                                                             (congIso
-                                                             AlgebraIsoAlgebraΣ))
-                                                           ⟩
+    Algebra→AlgebraΣ M ≡ Algebra→AlgebraΣ N             ≃⟨ isoToEquiv (Iso.fun iso₂) (Iso.inv iso₂) (Iso.rightInv iso₂) (Iso.leftInv iso₂) ⟩
     M ≡ N ■
+    where
+    iso₁ = AlgebraEquivΣPath {M} {N}
+    iso₂ = invIso (congIso AlgebraIsoAlgebraΣ)
 
 AlgebraPath : {R : Ring {ℓ}} (M N : Algebra R) → (AlgebraEquiv M N) ≃ (M ≡ N)
 AlgebraPath {ℓ} {R} = AlgebraΣTheory.AlgebraPath R

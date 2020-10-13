@@ -285,7 +285,7 @@ P ≅ₚ Q = Σ[ f ∈ P ─m→ Q ] isPosetIso P Q f
 -- ≅ₚ is equivalent to ≃ₚ.
 
 ≃ₚ≃≅ₚ : (P Q : Poset ℓ₀ ℓ₁) → (P ≅ₚ Q) ≃ (P ≃ₚ Q)
-≃ₚ≃≅ₚ P Q = isoToEquiv (iso from to ret sec)
+≃ₚ≃≅ₚ P Q = isoToEquiv from to ret sec
   where
     to : P ≃ₚ Q → P ≅ₚ Q
     to (e@(f , _) , (f-mono , g-mono)) =
@@ -302,10 +302,7 @@ P ≅ₚ Q = Σ[ f ∈ P ─m→ Q ] isPosetIso P Q f
 
     from : P ≅ₚ Q → P ≃ₚ Q
     from ((f , f-mono) , ((g , g-mono) , sec , ret)) =
-      isoToEquiv is , f-mono , g-mono
-      where
-        is : Iso ∣ P ∣ₚ ∣ Q ∣ₚ
-        is = iso f g sec ret
+      isoToEquiv f g sec ret , f-mono , g-mono
 
     sec : section to from
     sec (f , _) = Σ≡Prop (isPosetIso-prop P Q) refl

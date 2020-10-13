@@ -92,13 +92,13 @@ module _ {ℓ ℓ' ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} {X : 
 
   uniqColimit : isColimit F X → isColimit F Y → X ≃ Y
   uniqColimit cl cl'
-    = isoToEquiv (iso (fst fwd) (fst bwd)
-                      (λ x i → fst (isContr→isProp (equiv-proof (univ cl' ℓ' Y) (cone cl'))
-                                                   (compCoconeMor fwd bwd)
-                                                   (idCoconeMor (Y , cone cl')) i) x)
-                      (λ x i → fst (isContr→isProp (equiv-proof (univ cl ℓ  X) (cone cl))
-                                                   (compCoconeMor bwd fwd)
-                                                   (idCoconeMor (X , cone cl)) i) x))
+    = isoToEquiv (fst fwd) (fst bwd)
+                 (λ x i → fst (isContr→isProp (equiv-proof (univ cl' ℓ' Y) (cone cl'))
+                                              (compCoconeMor fwd bwd)
+                                              (idCoconeMor (Y , cone cl')) i) x)
+                 (λ x i → fst (isContr→isProp (equiv-proof (univ cl ℓ  X) (cone cl))
+                                              (compCoconeMor bwd fwd)
+                                              (idCoconeMor (X , cone cl)) i) x)
     where fwd : CoconeMor (X , cone cl ) (Y , cone cl')
           bwd : CoconeMor (Y , cone cl') (X , cone cl )
           fwd = postcomp⁻¹-mor cl (cone cl')

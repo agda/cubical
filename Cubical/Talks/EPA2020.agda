@@ -93,13 +93,15 @@ J' P d p = transport (λ i → P (p i) (λ j → p (i ∧ j))) d
 ua' : {A B : Type} → A ≃ B → A ≡ B
 ua' = ua
 
--- Any isomorphism of types gives rise to an equivalence
-isoToEquiv' : {A B : Type} → Iso A B → A ≃ B
-isoToEquiv' = isoToEquiv
-
--- And hence to a path
-isoToPath' : {A B : Type} → Iso A B → A ≡ B
-isoToPath' e = ua' (isoToEquiv' e)
+-- NOTE: the definition of `isoToEquiv` was changed such that the following is not that idiomatic any longer
+--
+-- -- Any isomorphism of types gives rise to an equivalence
+-- isoToEquiv' : {A B : Type} → Iso A B → A ≃ B
+-- isoToEquiv' = isoToEquiv
+--
+-- -- And hence to a path
+-- isoToPath' : {A B : Type} → Iso A B → A ≡ B
+-- isoToPath' e = ua' (isoToEquiv' e)
 
 -- ua satisfies the following computation rule
 -- This suffices to be able to prove the standard formulation of univalence.
@@ -120,7 +122,7 @@ not false = true
 not true  = false
 
 notPath : Bool ≡ Bool
-notPath = isoToPath' (iso not not rem rem)
+notPath = isoToPath (iso not not rem rem)
   where
   rem : (b : Bool) → not (not b) ≡ b
   rem false = refl
@@ -133,7 +135,7 @@ _ = refl
 -- Another example, integers:
 
 sucPath : Int ≡ Int
-sucPath = isoToPath' (iso sucInt predInt sucPred predSuc)
+sucPath = isoToPath (iso sucInt predInt sucPred predSuc)
 
 _ : transport sucPath (pos 0) ≡ pos 1
 _ = refl
@@ -250,7 +252,7 @@ t2c-c2t (loop _ , loop _) = refl
 
 -- Using univalence we get the following equality:
 Torus≡S¹×S¹ : Torus ≡ S¹ × S¹
-Torus≡S¹×S¹ = isoToPath' (iso t2c c2t t2c-c2t c2t-t2c)
+Torus≡S¹×S¹ = isoToPath (iso t2c c2t t2c-c2t c2t-t2c)
 
 
 windingTorus : point ≡ point → Int × Int

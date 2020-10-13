@@ -42,7 +42,7 @@ Fin→SumFin→Fin = Fin.elim (λ fk → SumFin→Fin (Fin→SumFin fk) ≡ fk)
 
 SumFin≃Fin : ∀ k → Fin k ≃ Fin.Fin k
 SumFin≃Fin _ =
-  isoToEquiv (iso SumFin→Fin Fin→SumFin Fin→SumFin→Fin SumFin→Fin→SumFin)
+  isoToEquiv SumFin→Fin Fin→SumFin Fin→SumFin→Fin SumFin→Fin→SumFin
 
 SumFin≡Fin : ∀ k → Fin k ≡ Fin.Fin k
 SumFin≡Fin k = ua (SumFin≃Fin k)

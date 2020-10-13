@@ -174,7 +174,7 @@ cov⁻¹ (ℕ→ℕ₋₁ n) (push (x , y) i) = ua ((λ z → y ⊕* z) , ⊕*.i
 -}
 
 TotalCov≃Sn : ∀ n → Total (cov⁻¹ n) ≃ S n
-TotalCov≃Sn neg1 = isoToEquiv (iso (λ { () }) (λ { () }) (λ { () }) (λ { () }))
+TotalCov≃Sn neg1 = isoToEquiv (λ { () }) (λ { () }) (λ { () }) (λ { () })
 TotalCov≃Sn (ℕ→ℕ₋₁ n) =
   Total (cov⁻¹ (ℕ→ℕ₋₁ n))           ≃⟨ i ⟩
   Pushout Σf Σg                      ≃⟨ ii ⟩
@@ -300,7 +300,7 @@ fibcov≡cov⁻¹ n x =
 -- Finally, we state the trivial equivalences for RP 0 and RP 1 (Example III.3 in [BR17])
 
 RP0≃Unit : RP 0 ≃ Unit
-RP0≃Unit = isoToEquiv (iso (λ _ → tt) (λ _ → inr tt) (λ _ → refl) (λ { (inr tt) → refl }))
+RP0≃Unit = isoToEquiv (λ _ → tt) (λ _ → inr tt) (λ _ → refl) (λ { (inr tt) → refl })
 
 RP1≡S1 : RP 1 ≡ S 1
 RP1≡S1 = Pushout {A = Total (cov⁻¹ 0)} {B = RP 0} (pr (cov⁻¹ 0)) (λ _ → tt) ≡⟨ i ⟩

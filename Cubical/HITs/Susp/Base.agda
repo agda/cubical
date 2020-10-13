@@ -61,6 +61,12 @@ S¹→SuspBool→S¹ (loop i) j = hfill (λ k → λ { (i = i0) → base
                                            ; (i = i1) → base })
                                   (inS (loop i)) (~ j)
 
+S¹IsoSuspBool : Iso S¹ SuspBool
+S¹IsoSuspBool .fun      = S¹→SuspBool
+S¹IsoSuspBool .inv      = SuspBool→S¹
+S¹IsoSuspBool .rightInv = SuspBool→S¹→SuspBool
+S¹IsoSuspBool .leftInv  = S¹→SuspBool→S¹
+
 S¹≃SuspBool : S¹ ≃ SuspBool
 S¹≃SuspBool = isoToEquiv S¹→SuspBool SuspBool→S¹ SuspBool→S¹→SuspBool S¹→SuspBool→S¹
 

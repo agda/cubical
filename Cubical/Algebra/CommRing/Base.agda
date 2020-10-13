@@ -160,11 +160,14 @@ module CommRingΣTheory {ℓ} where
 
   CommRingPath : (R S : CommRing) → (CommRingEquiv R S) ≃ (R ≡ S)
   CommRingPath R S =
-    CommRingEquiv R S   ≃⟨ isoToEquiv RingIsoΣPath ⟩
+    CommRingEquiv R S   ≃⟨ isoToEquiv (Iso.fun iso₁) (Iso.inv iso₁) (Iso.rightInv iso₁) (Iso.leftInv iso₁) ⟩
     CommRingEquivΣ R S  ≃⟨ CommRingΣPath _ _ ⟩
     CommRing→CommRingΣ R ≡ CommRing→CommRingΣ S
-      ≃⟨ isoToEquiv (invIso (congIso CommRingIsoCommRingΣ)) ⟩
+      ≃⟨ isoToEquiv (Iso.fun iso₂) (Iso.inv iso₂) (Iso.rightInv iso₂) (Iso.leftInv iso₂) ⟩
     R ≡ S ■
+    where
+    iso₁ = RingIsoΣPath {R = CommRing→Ring R} {S = CommRing→Ring S}
+    iso₂ = invIso (congIso CommRingIsoCommRingΣ)
 
 CommRingPath : (R S : CommRing {ℓ}) → (CommRingEquiv R S) ≃ (R ≡ S)
 CommRingPath = CommRingΣTheory.CommRingPath

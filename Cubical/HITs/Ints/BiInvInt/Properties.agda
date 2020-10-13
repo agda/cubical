@@ -70,7 +70,7 @@ Iso.rightInv sucIso = suc-predl
 Iso.leftInv sucIso = predl-suc
 
 sucEquiv : BiInvInt ≃ BiInvInt
-sucEquiv = isoToEquiv sucIso
+sucEquiv = isoToEquiv suc pred suc-predl predl-suc
 
 -- addition
 

@@ -179,11 +179,14 @@ module CommAlgebraΣTheory (R : CommRing {ℓ}) where
 
   CommAlgebraPath : (A B : CommAlgebra R) → (CommAlgebraEquiv A B) ≃ (A ≡ B)
   CommAlgebraPath A B =
-    CommAlgebraEquiv A B   ≃⟨ isoToEquiv AlgebraEquivΣPath ⟩
+    CommAlgebraEquiv A B   ≃⟨ isoToEquiv (Iso.fun iso₁) (Iso.inv iso₁) (Iso.rightInv iso₁) (Iso.leftInv iso₁) ⟩
     CommAlgebraEquivΣ A B  ≃⟨ CommAlgebraΣPath _ _ ⟩
     CommAlgebra→CommAlgebraΣ A ≡ CommAlgebra→CommAlgebraΣ B
-      ≃⟨ isoToEquiv (invIso (congIso CommAlgebraIsoCommAlgebraΣ)) ⟩
+      ≃⟨ isoToEquiv (Iso.fun iso₂) (Iso.inv iso₂) (Iso.rightInv iso₂) (Iso.leftInv iso₂) ⟩
     A ≡ B ■
+    where
+    iso₁ = AlgebraEquivΣPath {CommAlgebra→Algebra A} {CommAlgebra→Algebra B}
+    iso₂ = invIso (congIso CommAlgebraIsoCommAlgebraΣ)
 
 CommAlgebraPath : (R : CommRing {ℓ}) → (A B : CommAlgebra R) → (CommAlgebraEquiv A B) ≃ (A ≡ B)
 CommAlgebraPath = CommAlgebraΣTheory.CommAlgebraPath

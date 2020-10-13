@@ -88,4 +88,4 @@ module FlatteningLemma {ℓa ℓb ℓc} {A : Type ℓa} {B : Type ℓb} {C : Typ
     isom = iso bwd fwd bwd-fwd fwd-bwd
 
   flatten : Σ (Pushout f g) E ≃ Pushout Σf Σg
-  flatten = isoToEquiv FlattenIso.isom
+  flatten = let open FlattenIso in isoToEquiv bwd fwd bwd-fwd fwd-bwd

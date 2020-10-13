@@ -120,7 +120,7 @@ module Untruncated2List {ℓ} (A : Type ℓ) (Aset : isSet A) where
 
  -- We get our desired equivalence
  quotEquiv : Q₁ ≃ Q
- quotEquiv = isoToEquiv (iso quot eval quot∘eval eval∘quot)
+ quotEquiv = isoToEquiv quot eval quot∘eval eval∘quot
 
  -- Now it only remains to prove that this is an equivalence of queue structures
  quot∘emp : quot emp₁ ≡ emp

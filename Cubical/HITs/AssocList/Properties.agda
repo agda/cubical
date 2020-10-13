@@ -74,10 +74,10 @@ FMS→AL∘AL→FMS≡id = AL.ElimProp.f (AL.trunc _ _) refl (λ x n {xs} p → 
 
 
 AssocList≃FMSet : AssocList A ≃ FMSet A
-AssocList≃FMSet = isoToEquiv (iso AL→FMS FMS→AL AL→FMS∘FMS→AL≡id FMS→AL∘AL→FMS≡id)
+AssocList≃FMSet = isoToEquiv AL→FMS FMS→AL AL→FMS∘FMS→AL≡id FMS→AL∘AL→FMS≡id
 
 FMSet≃AssocList : FMSet A ≃ AssocList A
-FMSet≃AssocList = isoToEquiv (iso FMS→AL AL→FMS FMS→AL∘AL→FMS≡id AL→FMS∘FMS→AL≡id)
+FMSet≃AssocList = isoToEquiv FMS→AL AL→FMS FMS→AL∘AL→FMS≡id AL→FMS∘FMS→AL≡id
 
 
 AssocList≡FMSet : AssocList A ≡ FMSet A

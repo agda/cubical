@@ -214,15 +214,13 @@ module LeftModuleΣTheory (R : Ring {ℓ}) where
 
   LeftModulePath : (M N : LeftModule R) → (LeftModuleEquiv M N) ≃ (M ≡ N)
   LeftModulePath M N =
-    LeftModuleEquiv M N                                    ≃⟨ isoToEquiv LeftModuleEquivStrΣPath ⟩
+    LeftModuleEquiv M N                                    ≃⟨ isoToEquiv (Iso.fun iso₁) (Iso.inv iso₁) (Iso.rightInv iso₁) (Iso.leftInv iso₁) ⟩
     LeftModuleEquivStrΣ M N                                   ≃⟨ LeftModuleΣPath _ _ ⟩
-    LeftModule→LeftModuleΣ M ≡ LeftModule→LeftModuleΣ N  ≃⟨ isoToEquiv
-                                                             (invIso
-                                                             (congIso
-                                                             LeftModuleIsoLeftModuleΣ))
-                                                           ⟩
+    LeftModule→LeftModuleΣ M ≡ LeftModule→LeftModuleΣ N  ≃⟨ isoToEquiv (Iso.fun iso₂) (Iso.inv iso₂) (Iso.rightInv iso₂) (Iso.leftInv iso₂) ⟩
     M ≡ N ■
+    where
+    iso₁ = LeftModuleEquivStrΣPath {M} {N}
+    iso₂ = invIso (congIso LeftModuleIsoLeftModuleΣ)
 
 LeftModulePath : {R : Ring {ℓ}} (M N : LeftModule R) → (LeftModuleEquiv M N) ≃ (M ≡ N)
 LeftModulePath {ℓ} {R} = LeftModuleΣTheory.LeftModulePath R
-
