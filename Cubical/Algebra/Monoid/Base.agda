@@ -199,13 +199,10 @@ MonoidPath {ℓ = ℓ} =
   SIP
     (autoUnivalentRecord
       (autoRecordSpec (MonoidStr {ℓ}) MonoidEquiv
-        ( data[ ε ∣ presε ]∷
-          data[ _·_ ∣ isHom ]∷
-          []
-        )
-        ( prop[ isMonoid ∣ (λ _ → isPropIsMonoid _ _) ]∷
-          []
-        ))
+        (fields:
+          data[ ε ∣ presε ]
+          data[ _·_ ∣ isHom ]
+          prop[ isMonoid ∣ (λ _ → isPropIsMonoid _ _) ]))
       _ _)
   where
   open MonoidStr

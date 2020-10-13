@@ -160,10 +160,7 @@ SemigroupPath {ℓ = ℓ} =
   SIP
     (autoUnivalentRecord
       (autoRecordSpec (SemigroupStr {ℓ}) SemigroupEquiv
-        ( data[ _·_ ∣ isHom ]∷
-          []
-        )
-        ( prop[ isSemigroup ∣ (λ _ → isPropIsSemigroup _) ]∷
-          []
-        ))
+        (fields:
+          data[ _·_ ∣ isHom ]
+          prop[ isSemigroup ∣ (λ _ → isPropIsSemigroup _) ]))
       _ _)
