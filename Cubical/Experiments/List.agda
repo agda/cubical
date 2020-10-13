@@ -1,6 +1,6 @@
 {-
 
-An experiment of transporting ++-rev-distr from lists to lists where
+An experiment of transporting rev-++-distr from lists to lists where
 the arguments to cons have been flipped inspired by section 2 of
 https://arxiv.org/abs/2010.00774
 
