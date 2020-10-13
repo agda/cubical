@@ -61,8 +61,8 @@ equiv-proof (isPropIsEquiv f p q i) y =
                             ; (j = i1) → w })
                    (p2 w (i ∨ j))
 
-equivEq : (e f : A ≃ B) → (h : e .fst ≡ f .fst) → e ≡ f
-equivEq e f h = λ i → (h i) , isProp→PathP (λ i → isPropIsEquiv (h i)) (e .snd) (f .snd) i
+equivEq : {e f : A ≃ B} → (h : e .fst ≡ f .fst) → e ≡ f
+equivEq {e = e} {f = f} h = λ i → (h i) , isProp→PathP (λ i → isPropIsEquiv (h i)) (e .snd) (f .snd) i
 
 module _ {f : A → B} (equivF : isEquiv f) where
   funIsEq : A → B
@@ -103,27 +103,27 @@ invEquiv : A ≃ B → B ≃ A
 invEquiv e = isoToEquiv (invIso (equivToIso e))
 
 invEquivIdEquiv : (A : Type ℓ) → invEquiv (idEquiv A) ≡ idEquiv A
-invEquivIdEquiv _ = equivEq _ _ refl
+invEquivIdEquiv _ = equivEq refl
 
 -- TODO: there should be a direct proof of this that doesn't use equivToIso
 compEquiv : A ≃ B → B ≃ C → A ≃ C
 compEquiv f g = isoToEquiv (compIso (equivToIso f) (equivToIso g))
 
 compEquivIdEquiv : (e : A ≃ B) → compEquiv (idEquiv A) e ≡ e
-compEquivIdEquiv e = equivEq _ _ refl
+compEquivIdEquiv e = equivEq refl
 
 compEquivEquivId : (e : A ≃ B) → compEquiv e (idEquiv B) ≡ e
-compEquivEquivId e = equivEq _ _ refl
+compEquivEquivId e = equivEq refl
 
 invEquiv-is-rinv : (e : A ≃ B) → compEquiv e (invEquiv e) ≡ idEquiv A
-invEquiv-is-rinv e = equivEq _ _ (funExt (secEq e))
+invEquiv-is-rinv e = equivEq (funExt (secEq e))
 
 invEquiv-is-linv : (e : A ≃ B) → compEquiv (invEquiv e) e ≡ idEquiv B
-invEquiv-is-linv e = equivEq _ _ (funExt (retEq e))
+invEquiv-is-linv e = equivEq (funExt (retEq e))
 
 compEquiv-assoc : (f : A ≃ B) (g : B ≃ C) (h : C ≃ D)
                 → compEquiv f (compEquiv g h) ≡ compEquiv (compEquiv f g) h
-compEquiv-assoc f g h = equivEq _ _ refl
+compEquiv-assoc f g h = equivEq refl
 
 LiftEquiv : A ≃ Lift {i = ℓ} {j = ℓ'} A
 LiftEquiv .fst a .lower = a

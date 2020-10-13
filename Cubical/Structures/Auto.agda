@@ -82,10 +82,6 @@ private
     → (Type ℓ → Type ℓ₀) → (Type ℓ → Type ℓ₁) → Type ℓ → Type (ℓ-max ℓ₀ ℓ₁)
   productShape _ A₀ A₁ X = A₀ X × A₁ X
 
-  paramShape : ∀ {ℓ₀ ℓ'} (ℓ : Level)
-    → Type ℓ' → (Type ℓ → Type ℓ₀) → Type ℓ → Type (ℓ-max ℓ' ℓ₀)
-  paramShape _ A A₀ X = A → A₀ X
-
   functionShape :  ∀ {ℓ₀ ℓ₁} (ℓ : Level)
     → (Type ℓ → Type ℓ₀) → (Type ℓ → Type ℓ₁) → Type ℓ → Type (ℓ-max ℓ₀ ℓ₁)
   functionShape _ A₀ A₁ X = A₀ X → A₁ X

@@ -12,10 +12,11 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Univalence using (ua)
+open import Cubical.Relation.Nullary using (Discrete; yes; no)
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ₁ ℓ₂ : Level
     A B : Type ℓ
     f : A → B
     w x : A
@@ -80,7 +81,7 @@ hasPropFibers : (A → B) → Type _
 hasPropFibers f = ∀ y → isProp (fiber f y)
 
 -- some notation
-_↪_ : Type ℓ → Type ℓ → Type ℓ
+_↪_ : Type ℓ₁ → Type ℓ₂ → Type (ℓ-max ℓ₁ ℓ₂)
 A ↪ B = Σ[ f ∈ (A → B) ] hasPropFibers f
 
 
@@ -169,3 +170,19 @@ module _ {f : A → B} (retf : hasRetract f) where
   retractableIntoSet→isEmbedding : isSet B → isEmbedding f
   retractableIntoSet→isEmbedding setB w x =
     isoToIsEquiv (iso (cong f) congRetract (λ _ → setB _ _ _ _) (hasRetract→hasRetractCong .snd))
+
+Embedding-into-Discrete→Discrete : A ↪ B → Discrete B → Discrete A
+Embedding-into-Discrete→Discrete (f , propFibers) _≟_ x y with f x ≟ f y
+... | yes p = yes (cong fst (propFibers (f y) (x , p) (y , refl)))
+... | no ¬p = no (¬p ∘ cong f)
+
+Embedding-into-isSet→isSet : A ↪ B → isSet B → isSet A
+Embedding-into-isSet→isSet (f , hasPropFibers-f) isSet-B x y p q =
+  p ≡⟨ sym (retIsEq isEquiv-cong-f p) ⟩
+  cong-f⁻¹ (cong f p) ≡⟨ cong cong-f⁻¹ cong-f-p≡cong-f-q ⟩
+  cong-f⁻¹ (cong f q) ≡⟨ retIsEq isEquiv-cong-f q ⟩
+  q ∎
+  where
+    cong-f-p≡cong-f-q = isSet-B (f x) (f y) (cong f p) (cong f q)
+    isEquiv-cong-f = hasPropFibers→isEmbedding hasPropFibers-f x y
+    cong-f⁻¹ = invIsEq isEquiv-cong-f

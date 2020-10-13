@@ -120,7 +120,7 @@ private
 -- * There are cubical subtypes as in CCHM. Note that these are not
 -- fibrant (hence in Typeω):
 
-_[_↦_] : ∀ {ℓ} (A : Type ℓ) (φ : I) (u : Partial φ A) → Typeω
+_[_↦_] : ∀ {ℓ} (A : Type ℓ) (φ : I) (u : Partial φ A) → _
 A [ φ ↦ u ] = Sub A φ u
 
 infix 4 _[_↦_]

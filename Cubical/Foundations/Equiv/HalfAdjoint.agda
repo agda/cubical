@@ -96,8 +96,13 @@ HAEquiv A B = Σ[ f ∈ (A → B) ] isHAEquiv f
 
 -- vogt's lemma (https://ncatlab.org/nlab/show/homotopy+equivalence#vogts_lemma)
 iso→HAEquiv : Iso A B → HAEquiv A B
-iso→HAEquiv (iso f g ε η) = f , isHAEquivf
+iso→HAEquiv e = f , isHAEquivf
   where
+    f = Iso.fun e
+    g = Iso.inv e
+    ε = Iso.rightInv e
+    η = Iso.leftInv e
+
     Hfa≡fHa : (f : A → A) → (H : ∀ a → f a ≡ a) → ∀ a → H (f a) ≡ cong f (H a)
     Hfa≡fHa f H = J (λ f p → ∀ a → funExt⁻ (sym p) (f a) ≡ cong f (funExt⁻ (sym p) a))
                     (λ a → refl)
@@ -144,3 +149,15 @@ congIso {x = x} {y} e = goal
                    ; (j = i0) → Iso.leftInv e x (i ∨ k)
                    ; (j = i1) → Iso.leftInv e y (i ∨ k) })
           (Iso.leftInv e (p j) i)
+
+invCongFunct : {x : A} (e : Iso A B) (p : Iso.fun e x ≡ Iso.fun e x) (q : Iso.fun e x ≡ Iso.fun e x)
+             → Iso.inv (congIso e) (p ∙ q) ≡ Iso.inv (congIso e) p ∙ Iso.inv (congIso e) q
+invCongFunct {x = x} e p q = helper (Iso.inv e) _ _ _
+  where
+  helper : {x : A} {y : B} (f : A → B) (r : f x ≡ y) (p q : x ≡ x)
+         → (sym r ∙∙ cong f (p ∙ q) ∙∙ r) ≡ (sym r ∙∙ cong f p ∙∙ r) ∙ (sym r ∙∙ cong f q ∙∙ r)
+  helper {x = x} f =
+    J (λ y r → (p q : x ≡ x)
+    → (sym r ∙∙ cong f (p ∙ q) ∙∙ r) ≡ (sym r ∙∙ cong f p ∙∙ r) ∙ (sym r ∙∙ cong f q ∙∙ r))
+      λ p q → (λ i → rUnit (congFunct f p q i) (~ i))
+             ∙ λ i → rUnit (cong f p) i ∙ rUnit (cong f q) i

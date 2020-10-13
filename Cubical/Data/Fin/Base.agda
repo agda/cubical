@@ -10,7 +10,7 @@ import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat using (ℕ; zero; suc)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sigma
-open import Cubical.Data.Sum using (_⊎_; inl; inr)
+open import Cubical.Data.Sum using (_⊎_; _⊎?_; inl; inr)
 
 open import Cubical.Relation.Nullary
 
@@ -52,6 +52,9 @@ fsplit
 fsplit (0 , k<sn) = inl (toℕ-injective refl)
 fsplit (suc k , k<sn) = inr ((k , pred-≤-pred k<sn) , toℕ-injective refl)
 
+inject< : ∀ {m n} (m<n : m < n) → Fin m → Fin n
+inject< m<n (k , k<m) = k , <-trans k<m m<n
+
 -- Fin 0 is empty
 ¬Fin0 : ¬ Fin 0
 ¬Fin0 (k , k<0) = ¬-<-zero k<0
@@ -69,3 +72,19 @@ elim P fz fs {suc k} fj
   ; (inr (fk , p)) → subst P p (fs (elim P fz fs fk))
   }
 
+any? : ∀ {n} {P : Fin n → Type ℓ} → (∀ i → Dec (P i)) → Dec (Σ (Fin n) P)
+any? {n = zero}  {P = _} P? = no (λ (x , _) → ¬Fin0 x)
+any? {n = suc n} {P = P} P? =
+  mapDec
+    (λ
+      { (inl P0) → fzero , P0
+      ; (inr (x , Px)) → fsuc x , Px
+      }
+    )
+    (λ n h → n (helper h))
+    (P? fzero ⊎? any? (P? ∘ fsuc))
+  where
+    helper : Σ (Fin (suc n)) P → P fzero ⊎ Σ (Fin n) λ z → P (fsuc z)
+    helper (x , Px) with fsplit x
+    ... | inl x≡0 = inl (subst P (sym x≡0) Px)
+    ... | inr (k , x≡sk) = inr (k , subst P (sym x≡sk) Px)

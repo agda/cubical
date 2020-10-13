@@ -1,7 +1,9 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.AssocList.Base where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
+
 open import Cubical.Data.Nat   using (ℕ; _+_)
 
 private
@@ -10,9 +12,6 @@ private
     A : Type ℓ
 
 infixr 5 ⟨_,_⟩∷_
-
-
-
 
 data AssocList (A : Type ℓ) : Type ℓ where
  ⟨⟩ : AssocList A
@@ -27,10 +26,7 @@ data AssocList (A : Type ℓ) : Type ℓ where
 pattern ⟨_⟩ a = ⟨ a , 1 ⟩∷ ⟨⟩
 
 
-
-
-
---Elimination and recursion principle for association lists
+-- Elimination and recursion principle for association lists
 module Elim {ℓ'} {B : AssocList A → Type ℓ'}
        (⟨⟩* : B ⟨⟩) (⟨_,_⟩∷*_ : (x : A) (n : ℕ) {xs : AssocList A} → B xs → B (⟨ x , n ⟩∷ xs))
        (per* :  (x y : A) {xs : AssocList A} (b : B xs)

@@ -10,7 +10,7 @@ open import Cubical.Data.Fin using (Fin ; isSetFin)
 open import Cubical.Data.Empty
 open import Cubical.Relation.Nullary using (¬_)
 
-open import Cubical.Structures.Group
+open import Cubical.Algebra.Group
 
 private
   variable
