@@ -90,6 +90,58 @@ coHomRed+1Equiv zero A i = ∥ helpLemma {C = (Int , pos 0)} i ∥₂
 coHomRed+1Equiv (suc zero) A i = ∥ coHomRed+1.helpLemma A i {C = (coHomK 1 , ∣ base ∣)} i ∥₂
 coHomRed+1Equiv (suc (suc n)) A i = ∥ coHomRed+1.helpLemma A i {C = (coHomK (2 + n) , ∣ north ∣)} i ∥₂
 
+
+-- Induction principles for cohomology groups
+-- If we want to show a proposition about some x : Hⁿ(A), it suffices to show it under the
+-- assumption that x = ∣f∣₂ and that f is pointed
+
+coHomPointedElim : {A : Type ℓ} (n : ℕ) (a : A) {B : coHom (suc n) A → Type ℓ'}
+                 → ((x : coHom (suc n) A) → isProp (B x))
+                 → ((f : A → coHomK (suc n)) → f a ≡ coHom-pt (suc n) → B ∣ f ∣₂)
+                 → (x : coHom (suc n) A) → B x
+coHomPointedElim {A = A} n a isprop indp =
+  sElim (λ _ → isOfHLevelSuc 1 (isprop _))
+         λ f → helper n isprop indp f (f a) refl
+  where
+  helper : ∀ {ℓ} (n : ℕ) {B : coHom (suc n) A → Type ℓ}
+         → ((x : coHom (suc n) A) → isProp (B x))
+         → ((f : A → coHomK (suc n)) → f a ≡ coHom-pt (suc n) → B ∣ f ∣₂)
+         → (f : A → coHomK (suc n))
+         → (x : coHomK (suc n))
+         → f a ≡ x → B ∣ f ∣₂
+  -- pattern matching a bit extra to avoid isOfHLevelPlus'
+  helper zero isprop ind f =
+    trElim (λ _ → isOfHLevelPlus {n = 1} 2 (isPropΠ λ _ → isprop _)) (toPropElim (λ _ → isPropΠ λ _ → isprop _) (ind f))
+  helper (suc zero) isprop ind f =
+    trElim (λ _ → isOfHLevelPlus {n = 1} 3 (isPropΠ λ _ → isprop _)) (suspToPropElim base (λ _ → isPropΠ λ _ → isprop _) (ind f))
+  helper (suc (suc zero)) isprop ind f =
+    trElim (λ _ → isOfHLevelPlus {n = 1} 4 (isPropΠ λ _ → isprop _)) (suspToPropElim north (λ _ → isPropΠ λ _ → isprop _) (ind f))
+  helper (suc (suc (suc n))) isprop ind f =
+    trElim (λ _ → isOfHLevelPlus' {n = 5 + n} 1 (isPropΠ λ _ → isprop _)) (suspToPropElim north (λ _ → isPropΠ λ _ → isprop _) (ind f))
+
+coHomPointedElim2 : {A : Type ℓ} (n : ℕ) (a : A) {B : coHom (suc n) A → coHom (suc n) A → Type ℓ'}
+                 → ((x y : coHom (suc n) A) → isProp (B x y))
+                 → ((f g : A → coHomK (suc n)) → f a ≡ coHom-pt (suc n) → g a ≡ coHom-pt (suc n) → B ∣ f ∣₂ ∣ g ∣₂)
+                 → (x y : coHom (suc n) A) → B x y
+coHomPointedElim2 {A = A} n a isprop indp = sElim2 (λ _ _ → isOfHLevelSuc 1 (isprop _ _))
+                                                   λ f g → helper n a isprop indp f g (f a) (g a) refl refl
+  where
+  helper : ∀ {ℓ} (n : ℕ) (a : A) {B : coHom (suc n) A → coHom (suc n) A → Type ℓ}
+                 → ((x y : coHom (suc n) A) → isProp (B x y))
+                 → ((f g : A → coHomK (suc n)) → f a ≡ coHom-pt (suc n) → g a ≡ coHom-pt (suc n) → B ∣ f ∣₂ ∣ g ∣₂)
+                 → (f g : A → coHomK (suc n))
+                 → (x y : coHomK (suc n))
+                 → f a ≡ x → g a ≡ y
+                 → B ∣ f ∣₂ ∣ g ∣₂
+  helper zero a isprop indp f g =
+    elim2 (λ _ _ → isOfHLevelPlus {n = 1} 2 (isPropΠ2 λ _ _ → isprop _ _)) (toPropElim2 (λ _ _ → isPropΠ2 λ _ _ → isprop _ _) (indp f g))
+  helper (suc zero) a isprop indp f g =
+    elim2 (λ _ _ → isOfHLevelPlus {n = 1} 3 (isPropΠ2 λ _ _ → isprop _ _)) (suspToPropElim2 base (λ _ _ → isPropΠ2 λ _ _ → isprop _ _) (indp f g))
+  helper (suc (suc zero)) a isprop indp f g =
+    elim2 (λ _ _ → isOfHLevelPlus {n = 1} 4 (isPropΠ2 λ _ _ → isprop _ _)) (suspToPropElim2 north (λ _ _ → isPropΠ2 λ _ _ → isprop _ _) (indp f g))
+  helper (suc (suc (suc n))) a isprop indp f g =
+    elim2 (λ _ _ → isOfHLevelPlus' {n = 5 + n} 1 (isPropΠ2 λ _ _ → isprop _ _)) (suspToPropElim2 north (λ _ _ → isPropΠ2 λ _ _ → isprop _ _) (indp f g))
+
 -----------
 
 Kn→ΩKn+1 : (n : ℕ) → coHomK n → typ (Ω (coHomK-ptd (suc n)))

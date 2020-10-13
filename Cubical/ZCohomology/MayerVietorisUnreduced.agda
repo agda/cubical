@@ -29,8 +29,6 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
   -- We first define the three morphisms involved: i, Δ and d.
 
   private
-    -- setTruncIsSet2 : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isSet (∥ A ∥₂ × ∥ B ∥₂)
-    -- setTruncIsSet2 = isSet× setTruncIsSet setTruncIsSet
 
     i* : (n : ℕ) → coHom n (Pushout f g) → coHom n A × coHom n B
     i* _ = sRec (isSet× setTruncIsSet setTruncIsSet) λ δ → ∣ (λ x → δ (inl x)) ∣₂ , ∣ (λ x → δ (inr x)) ∣₂
@@ -41,7 +39,6 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
   i : (n : ℕ) → GroupHom (coHomGr n (Pushout f g)) (×coHomGr n A B)
   GroupHom.fun (i n) = i* n
   GroupHom.isHom (i n) = iIsHom n
-
 
   private
     distrLem : (n : ℕ) (x y z w : coHomK n) → (x +[ n ]ₖ y) -[ n ]ₖ (z +[ n ]ₖ w) ≡ (x -[ n ]ₖ z) +[ n ]ₖ (y -[ n ]ₖ w)

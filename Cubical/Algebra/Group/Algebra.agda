@@ -131,10 +131,26 @@ rightInv (doubleCompGroupIso iso1 iso2 iso3) a =
 leftInv (doubleCompGroupIso iso1 iso2 iso3) a =
   cong (inv iso1 ∘ inv iso2) (leftInv iso3 _) ∙∙ cong (inv iso1) (leftInv iso2 _) ∙∙ leftInv iso1 _
 
-≅⟨⟩⟨⟩-syntax : (G : Group {ℓ}) (H : Group {ℓ₁}) (A : Group {ℓ₂}) (B : Group {ℓ₂}) → GroupIso G H → GroupIso H A → GroupIso A B → GroupIso G B
-≅⟨⟩⟨⟩-syntax G H A B is1 is2 is3 = {!!}
--- infixr 3 ≅⟨⟩⟨⟩-syntax
--- syntax ≅⟨⟩⟨⟩-syntax x y B C = x ≡⟨ B ⟩≡ y ≡⟨ C ⟩≡
+-- equational reasoning --
+infixr 4 ≅⟨⟩-syntax
+syntax ≅⟨⟩-syntax G is1 is2 = G ≅⟨ is1 ⟩ is2
+infixr 4.5 ≅⟨⟩⟨⟩-syntax
+syntax ≅⟨⟩⟨⟩-syntax G H is1 is2 is3 = G ≅⟨ is1 ⟩≅ H ≅⟨ is2 ⟩≅ is3
+
+≅⟨⟩-syntax : (G : Group {ℓ}) {H : Group {ℓ₁}} {A : Group {ℓ₂}} → GroupIso G H → GroupIso H A → GroupIso G A
+≅⟨⟩-syntax G is1 is2 = compGroupIso is1 is2
+
+≅⟨⟩⟨⟩-syntax : (G : Group {ℓ}) (H : Group {ℓ₁}) {A : Group {ℓ₂}} {B : Group {ℓ₂}} → GroupIso G H → GroupIso H A → GroupIso A B → GroupIso G B
+≅⟨⟩⟨⟩-syntax G H is1 is2 is3 = doubleCompGroupIso is1 is2 is3
+
+_□ : (G : Group {ℓ}) → GroupIso G G
+fun (map (G □)) x = x
+isHom (map (G □)) _ _ = refl
+inv (G □) x = x
+rightInv (G □) _ = refl
+leftInv (G □) _ = refl
+
+---------------------------
 
 isGroupHomInv' : {G : Group {ℓ}} {H : Group {ℓ₁}} (f : GroupIso G H) → isGroupHom H G (inv f)
 isGroupHomInv' {G = G} {H = H}  f h h' = isInj-f _ _ (
@@ -167,7 +183,13 @@ rightInv (dirProdGroupIso iso1 iso2) a = ΣPathP (rightInv iso1 (fst a) , (right
 leftInv (dirProdGroupIso iso1 iso2) a = ΣPathP (leftInv iso1 (fst a) , (leftInv iso2 (snd a)))
 
 GrIsoToGrEquiv : {G : Group {ℓ}} {H : Group {ℓ₂}} → GroupIso G H → GroupEquiv G H
-GroupEquiv.eq (GrIsoToGrEquiv i) = isoToEquiv (iso (fun (map i)) (inv i) (rightInv i) (leftInv i))
+GroupEquiv.eq (GrIsoToGrEquiv {G = G} {H = H} i) = isoToEquiv theIso
+  where
+  theIso : Iso ⟨ G ⟩ ⟨ H ⟩
+  fun theIso = fun (map i)
+  inv theIso = inv i
+  rightInv theIso = rightInv i
+  leftInv theIso = leftInv i
 GroupEquiv.isHom (GrIsoToGrEquiv i) = isHom (map i)
 
 --- Proofs that BijectionIso and vSES both induce isomorphisms ---
