@@ -13,6 +13,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
@@ -93,6 +94,7 @@ Given the following diagram
 If ψ is an isomorphism and ϕ is surjective with ker ϕ ≡ {ψ (a , a) ∣ a ∈ A}, then C ≅ B
 -}
 
+
 diagonalIso : ∀ {ℓ ℓ' ℓ''} {A : Group {ℓ}} (B : Group {ℓ'}) {C : Group {ℓ''}}
                (ψ : GroupIso (dirProd A A) B) (ϕ : GroupHom B C)
              → isSurjective _ _ ϕ
@@ -103,38 +105,38 @@ diagonalIso : ∀ {ℓ ℓ' ℓ''} {A : Group {ℓ}} (B : Group {ℓ'}) {C : Gro
              → GroupIso A C
 diagonalIso {A = A} B {C = C} ψ ϕ issurj ker→diag diag→ker = BijectionIsoToGroupIso bijIso
   where
-  open Group
-  module A = Group A
-  module B = Group B
-  module C = Group C
-  module A×A = Group (dirProd A A)
+  open GroupStr
+  module A = GroupStr (snd A)
+  module B = GroupStr (snd B)
+  module C = GroupStr (snd C)
+  module A×A = GroupStr (snd (dirProd A A))
   module ψ = GroupIso ψ
   module ϕ = GroupHom ϕ
   ψ⁻ = inv ψ
 
   fstProj : GroupHom A (dirProd A A)
-  fun fstProj a = a , 0g A
-  isHom fstProj g0 g1 i = (g0 A.+ g1) , Group.lid A (0g A) (~ i)
+  fun fstProj a = a , GroupStr.0g (snd A)
+  isHom fstProj g0 g1 i = (g0 A.+ g1) , GroupStr.lid (snd A) (GroupStr.0g (snd A)) (~ i)
 
   bijIso : BijectionIso A C
   map' bijIso = compGroupHom fstProj (compGroupHom (map ψ) ϕ)
   inj bijIso a inker = pRec (isSetCarrier A _ _)
-                             (λ {(a' , id) → (cong fst (sym (leftInv ψ (a , 0g A)) ∙∙ cong ψ⁻ id ∙∙ leftInv ψ (a' , a')))
-                                           ∙ cong snd (sym (leftInv ψ (a' , a')) ∙∙ cong ψ⁻ (sym id) ∙∙ leftInv ψ (a , 0g A))})
+                             (λ {(a' , id) → (cong fst (sym (leftInv ψ (a , GroupStr.0g (snd A))) ∙∙ cong ψ⁻ id ∙∙ leftInv ψ (a' , a')))
+                                           ∙ cong snd (sym (leftInv ψ (a' , a')) ∙∙ cong ψ⁻ (sym id) ∙∙ leftInv ψ (a , GroupStr.0g (snd A)))})
                              (ker→diag _ inker)
   surj bijIso c =
     pRec propTruncIsProp
          (λ { (b , id) → ∣ (fst (ψ⁻ b) A.+ (A.- snd (ψ⁻ b)))
-                          , ((sym (Group.rid C _)
-                           ∙∙ cong ((fun ϕ) ((fun (map ψ)) (fst (ψ⁻ b) A.+ (A.- snd (ψ⁻ b)) , 0g A)) C.+_)
+                          , ((sym (GroupStr.rid (snd C) _)
+                           ∙∙ cong ((fun ϕ) ((fun (map ψ)) (fst (ψ⁻ b) A.+ (A.- snd (ψ⁻ b)) , GroupStr.0g (snd A))) C.+_)
                                   (sym (diag→ker (fun (map ψ) ((snd (ψ⁻ b)) , (snd (ψ⁻ b))))
                                                   ∣ (snd (ψ⁻ b)) , refl ∣₁))
                            ∙∙ sym ((isHom ϕ) _ _))
                            ∙∙ cong (fun ϕ) (sym ((isHom (map ψ)) _ _)
-                                        ∙∙ cong (fun (map ψ)) (ΣPathP (sym (Group.assoc A _ _ _)
-                                                                           ∙∙ cong (fst (ψ⁻ b) A.+_) (Group.invl A _)
-                                                                           ∙∙ Group.rid A _
-                                                                        , (Group.lid A _)))
+                                        ∙∙ cong (fun (map ψ)) (ΣPathP (sym (GroupStr.assoc (snd A) _ _ _)
+                                                                           ∙∙ cong (fst (ψ⁻ b) A.+_) (GroupStr.invl (snd A) _)
+                                                                           ∙∙ GroupStr.rid (snd A) _
+                                                                        , (GroupStr.lid (snd A) _)))
                                         ∙∙ rightInv ψ b)
                            ∙∙ id) ∣₁ })
          (issurj c)
