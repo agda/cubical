@@ -4,7 +4,7 @@ CONTRIBUTING
 We very much appreciate contributions in the form of pull requests (PRs).
 When preparing a PR here are some general guidelines:
 
-- To test your change before submission, run `make` at the top level,
+- To test your changes before submission, run `make` at the top level,
   which will generate all required `Everything` files in
   `Cubical/README.agda` and then typecheck the latter file.
 
