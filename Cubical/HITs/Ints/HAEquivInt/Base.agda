@@ -17,7 +17,7 @@ data HAEquivInt : Type₀ where
 
 
 suc-haequiv : HAEquiv HAEquivInt HAEquivInt
-suc-haequiv = suc , record { g = pred ; sec = pred-suc ; ret = suc-pred ; com = coh }
+suc-haequiv = suc , record { g = pred ; linv = pred-suc ; rinv = suc-pred ; com = coh }
 
 
 -- OPEN: prove HAEquivInt ≃ Int! See Experiments/HInt.agda
