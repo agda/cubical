@@ -15,7 +15,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
-open import Cubical.Algebra.Semigroup hiding (⟨_⟩)
+open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.AbGroup
 
 private

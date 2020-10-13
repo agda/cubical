@@ -141,7 +141,7 @@ H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² unlock)
         Iso.leftInv helper _ = refl
         Iso.rightInv helper _ = refl
 
-      mapIsHom : (x y : Group.Carrier intGroup)
+      mapIsHom : (x y : Int)
               → Iso.fun typIso (x +ℤ y) ≡ ((Iso.fun typIso x) +H Iso.fun typIso y)
       mapIsHom a b =
           (cong f ((GroupHom.isHom (GroupIso.map (invGroupIso (dirProdGroupIso H²-S¹≅0 (invGroupIso (Hⁿ-Sⁿ≅ℤ 0)))))
@@ -194,7 +194,7 @@ H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² unlock)
       isHom (map ℤ≅H²-T²) = pm key mapIsHom
         where
         pm : (t : Unit')
-          → ((x y : Group.Carrier intGroup)
+          → ((x y : Int)
                 → Iso.fun typIso (x +ℤ y) ≡ (lockedCohom.+H t _ (Iso.fun typIso x) (Iso.fun typIso y)))
           → isGroupHom intGroup (coHomGr 2 (S₊ 1 × S₊ 1)) (Iso.fun typIso)
         pm unlock p = p
