@@ -6,16 +6,16 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.SIP hiding (⟨_⟩)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.CommRing renaming (⟨_⟩ to ⟨_⟩r)
+open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
-open import Cubical.Algebra.Algebra
+open import Cubical.Algebra.Algebra hiding (⟨_⟩a)
 
 private
   variable
@@ -24,13 +24,13 @@ private
 record IsCommAlgebra (R : CommRing {ℓ}) {A : Type ℓ}
                      (0a : A) (1a : A)
                      (_+_ : A → A → A) (_·_ : A → A → A) (-_ : A → A)
-                     (_⋆_ : ⟨ R ⟩r → A → A) : Type ℓ where
+                     (_⋆_ : ⟨ R ⟩ → A → A) : Type ℓ where
 
   constructor iscommalgebra
 
   field
     isAlgebra : IsAlgebra (CommRing→Ring R) 0a 1a _+_ _·_ -_ _⋆_
-    ·-comm      : (x y : A) → x · y ≡ y · x
+    ·-comm    : (x y : A) → x · y ≡ y · x
 
   open IsAlgebra isAlgebra public
 
@@ -45,16 +45,16 @@ record CommAlgebra (R : CommRing {ℓ}) : Type (ℓ-suc ℓ) where
     _+_            : Carrier → Carrier → Carrier
     _·_            : Carrier → Carrier → Carrier
     -_             : Carrier → Carrier
-    _⋆_            : ⟨ R ⟩r → Carrier → Carrier
+    _⋆_            : ⟨ R ⟩ → Carrier → Carrier
     isCommAlgebra  : IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_
 
   open IsCommAlgebra isCommAlgebra public
 
 module _ {R : CommRing {ℓ}} where
-  open CommRing R using (1r) renaming (_+_ to _+r_; _·_ to _·s_)
+  open CommRingStr (snd R) using (1r) renaming (_+_ to _+r_; _·_ to _·s_)
 
-  ⟨_⟩ : CommAlgebra R → Type ℓ
-  ⟨_⟩ = CommAlgebra.Carrier
+  ⟨_⟩a : CommAlgebra R → Type ℓ
+  ⟨_⟩a = CommAlgebra.Carrier
 
   CommAlgebra→Algebra : (A : CommAlgebra R) → Algebra (CommRing→Ring R)
   CommAlgebra→Algebra (commalgebra Carrier _ _ _ _ _ _ (iscommalgebra isAlgebra ·-comm)) =
@@ -63,13 +63,13 @@ module _ {R : CommRing {ℓ}} where
   CommAlgebra→CommRing : (A : CommAlgebra R) → CommRing {ℓ}
   CommAlgebra→CommRing (commalgebra Carrier _ _ _ _ _ _
                           (iscommalgebra isAlgebra ·-comm)) =
-    commring Carrier _ _ _ _ _ (iscommring (IsAlgebra.isRing isAlgebra) ·-comm)
+    _ , commringstr _ _ _ _ _ (iscommring (IsAlgebra.isRing isAlgebra) ·-comm)
 
   CommAlgebraEquiv : (R S : CommAlgebra R) → Type ℓ
   CommAlgebraEquiv R S = AlgebraEquiv (CommAlgebra→Algebra R) (CommAlgebra→Algebra S)
 
   makeIsCommAlgebra : {A : Type ℓ} {0a 1a : A}
-                      {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩r → A → A}
+                      {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
                       (isSet-A : isSet A)
                       (+-assoc :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
                       (+-rid : (x : A) → x + 0a ≡ x)
@@ -79,11 +79,11 @@ module _ {R : CommRing {ℓ}} where
                       (·-lid : (x : A) → 1a · x ≡ x)
                       (·-ldist-+ : (x y z : A) → (x + y) · z ≡ (x · z) + (y · z))
                       (·-comm : (x y : A) → x · y ≡ y · x)
-                      (⋆-assoc : (r s : ⟨ R ⟩r) (x : A) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
-                      (⋆-ldist : (r s : ⟨ R ⟩r) (x : A) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
-                      (⋆-rdist : (r : ⟨ R ⟩r) (x y : A) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
+                      (⋆-assoc : (r s : ⟨ R ⟩) (x : A) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
+                      (⋆-ldist : (r s : ⟨ R ⟩) (x : A) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
+                      (⋆-rdist : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
                       (⋆-lid   : (x : A) → 1r ⋆ x ≡ x)
-                      (⋆-lassoc : (r : ⟨ R ⟩r) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
+                      (⋆-lassoc : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
                     → IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_
   makeIsCommAlgebra {A} {0a} {1a} {_+_} {_·_} { -_} {_⋆_} isSet-A
                     +-assoc +-rid +-rinv +-comm

@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP hiding (⟨_⟩)
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
@@ -35,17 +35,16 @@ record IsCommRing {R : Type ℓ}
 
   open IsRing isRing public
 
-record CommRing : Type (ℓ-suc ℓ) where
+record CommRingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
-  constructor commring
+  constructor commringstr
 
   field
-    Carrier    : Type ℓ
-    0r         : Carrier
-    1r         : Carrier
-    _+_        : Carrier → Carrier → Carrier
-    _·_        : Carrier → Carrier → Carrier
-    -_         : Carrier → Carrier
+    0r         : A
+    1r         : A
+    _+_        : A → A → A
+    _·_        : A → A → A
+    -_         : A → A
     isCommRing : IsCommRing 0r 1r _+_ _·_ -_
 
   infix  8 -_
@@ -54,9 +53,8 @@ record CommRing : Type (ℓ-suc ℓ) where
 
   open IsCommRing isCommRing public
 
--- Extractor for the carrier type
-⟨_⟩ : CommRing → Type ℓ
-⟨_⟩ = CommRing.Carrier
+CommRing : Type (ℓ-suc ℓ)
+CommRing = TypeWithStr _ CommRingStr
 
 makeIsCommRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
                  (is-setR : isSet R)
@@ -86,10 +84,10 @@ makeCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R →
                (·-comm : (x y : R) → x · y ≡ y · x)
              → CommRing
 makeCommRing 0r 1r _+_ _·_ -_ is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm =
-  commring _ _ _ _ _ _ (makeIsCommRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm)
+  _ , commringstr _ _ _ _ _ (makeIsCommRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm)
 
 CommRing→Ring : CommRing {ℓ} → Ring
-CommRing→Ring (commring _ _ _ _ _ _ H) = _ , ringstr _ _ _ _ _ (IsCommRing.isRing H)
+CommRing→Ring (_ , commringstr _ _ _ _ _ H) = _ , ringstr _ _ _ _ _ (IsCommRing.isRing H)
 
 CommRingEquiv : (R S : CommRing) → Type ℓ
 CommRingEquiv R S = RingEquiv (CommRing→Ring R) (CommRing→Ring S)
@@ -118,12 +116,12 @@ module CommRingΣTheory {ℓ} where
                   x .IsMonoid.isSemigroup .IsSemigroup.is-set _ _}
 
   CommRing→CommRingΣ : CommRing → CommRingΣ
-  CommRing→CommRingΣ (commring _ _ _ _ _ _ (iscommring G C)) =
+  CommRing→CommRingΣ (_ , commringstr _ _ _ _ _ (iscommring G C)) =
     _ , _ , Ring→RingΣ (_ , ringstr _ _ _ _ _ G) .snd .snd , C
 
   CommRingΣ→CommRing : CommRingΣ → CommRing
   CommRingΣ→CommRing (_ , _ , G , C) =
-    commring _ _ _ _ _ _ (iscommring (RingΣ→Ring (_ , _ , G) .snd .RingStr.isRing) C)
+    _ , commringstr _ _ _ _ _ (iscommring (RingΣ→Ring (_ , _ , G) .snd .RingStr.isRing) C)
 
   CommRingIsoCommRingΣ : Iso CommRing CommRingΣ
   CommRingIsoCommRingΣ =

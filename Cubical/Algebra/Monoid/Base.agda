@@ -41,6 +41,7 @@ record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
 
 record MonoidStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
   constructor monoidstr
+
   field
     ε        : A
     _·_      : A → A → A
