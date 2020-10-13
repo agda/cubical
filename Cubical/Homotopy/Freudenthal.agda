@@ -121,7 +121,7 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
 isConn→isConnSusp : ∀ {ℓ} {A : Pointed ℓ} → isConnected 2 (typ A) → isConnected 2 (Susp (typ A))
 isConn→isConnSusp {A = A} iscon = ∣ north ∣
                                 , trElim (λ _ → isOfHLevelSuc 1 (isOfHLevelTrunc 2 _ _))
-                                         (suspToPropRec (pt A) (λ _ → isOfHLevelTrunc 2 _ _)
+                                         (suspToPropElim (pt A) (λ _ → isOfHLevelTrunc 2 _ _)
                                          refl)
 
 FreudenthalEquiv : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)

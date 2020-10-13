@@ -9,6 +9,7 @@ module Cubical.HITs.S1.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
@@ -274,8 +275,29 @@ toPropElim2 : ∀ {ℓ} {B : S¹ → S¹ → Type ℓ}
              → ((s t : S¹) → isProp (B s t))
              → B base base
              → (s t : S¹) → B s t
-toPropElim2 isprop b = toPropElim (λ _ → isOfHLevelΠ 1 λ _ → isprop _ _)
-                                  (toPropElim (isprop base) b)
+toPropElim2 isprop b base base = b
+toPropElim2 isprop b base (loop i) =
+  isProp→PathP (λ i → isprop base (loop i)) b b i
+toPropElim2 isprop b (loop i) base =
+  isProp→PathP (λ i → isprop (loop i) base) b b i
+toPropElim2 {B = B} isprop b (loop i) (loop j) =
+  isSet→SquareP (λ _ _ → isOfHLevelSuc 1 (isprop _ _))
+    (isProp→PathP (λ i₁ → isprop base (loop i₁)) b b)
+    (isProp→PathP (λ i₁ → isprop base (loop i₁)) b b)
+    (isProp→PathP (λ i₁ → isprop (loop i₁) base) b b)
+    (isProp→PathP (λ i₁ → isprop (loop i₁) base) b b) i j
+
+toSetElim2 : ∀ {ℓ} {B : S¹ → S¹ → Type ℓ}
+             → ((s t : S¹) → isSet (B s t))
+             → (x : B base base)
+             → PathP (λ i → B base (loop i)) x x
+             → PathP (λ i → B (loop i) base) x x
+             → (s t : S¹) → B s t
+toSetElim2 isset b right left base base = b
+toSetElim2 isset b right left base (loop i) = right i
+toSetElim2 isset b right left (loop i) base = left i
+toSetElim2 isset b right left (loop i) (loop j) =
+  isSet→SquareP (λ _ _ → isset _ _) right right left left i j
 
 isSetΩx : (x : S¹) → isSet (x ≡ x)
 isSetΩx = toPropElim (λ _ → isPropIsSet) isSetΩS¹
@@ -284,19 +306,19 @@ basechange2 : (x : S¹) → ΩS¹ → (x ≡ x)
 basechange2 base p = p
 basechange2 (loop i) p =
   hcomp (λ k → λ { (i = i0) → lUnit (rUnit p (~ k)) (~ k)
-                  ; (i = i1) → (cong ((sym loop) ∙_) (comm-ΩS¹ p loop)
-                              ∙ assoc (sym loop) loop p
-                              ∙ cong (_∙ p) (lCancel loop)
-                              ∙ sym (lUnit _)) k })
+                 ; (i = i1) → (cong ((sym loop) ∙_) (comm-ΩS¹ p loop)
+                             ∙ assoc (sym loop) loop p
+                             ∙ cong (_∙ p) (lCancel loop)
+                             ∙ sym (lUnit _)) k })
         ((λ j → loop (~ j ∧ i)) ∙ p ∙ λ j → loop (j ∧ i))
 basechange2⁻ : (x : S¹) → (x ≡ x) → ΩS¹
 basechange2⁻ base p = p
 basechange2⁻ (loop i) p =
   hcomp (λ k → λ { (i = i0) → lUnit (rUnit p (~ k)) (~ k)
-                  ; (i = i1) → (cong (loop ∙_) (comm-ΩS¹ p (sym loop))
-                              ∙ assoc loop (sym loop) p
-                              ∙ cong (_∙ p) (rCancel loop)
-                              ∙ sym (lUnit _)) k })
+                 ; (i = i1) → (cong (loop ∙_) (comm-ΩS¹ p (sym loop))
+                             ∙ assoc loop (sym loop) p
+                             ∙ cong (_∙ p) (rCancel loop)
+                             ∙ sym (lUnit _)) k })
         ((λ j → loop (i ∧ j)) ∙ p ∙ λ j → loop (i ∧ (~ j)))
 basechange2-sect : (x : S¹) → section (basechange2 x) (basechange2⁻ x)
 basechange2-sect =
@@ -310,9 +332,9 @@ basechange2-retr =
 
 basedΩS¹≡ΩS¹ : (x : S¹) → basedΩS¹ x ≡ ΩS¹
 basedΩS¹≡ΩS¹ x = isoToPath (iso (basechange2⁻ x)
-                                 (basechange2 x)
-                                 (basechange2-retr x)
-                                 (basechange2-sect x))
+                                (basechange2 x)
+                                (basechange2-retr x)
+                                (basechange2-sect x))
 
 basedΩS¹≡Int : (x : S¹) → basedΩS¹ x ≡ Int
 basedΩS¹≡Int x = (basedΩS¹≡ΩS¹ x) ∙ ΩS¹≡Int

@@ -72,38 +72,21 @@ isSphereFilled→isOfHLevel {A = A} (ℕ→ℕ₋₁ (suc n)) h x y =
   isSphereFilled→isOfHLevel (ℕ→ℕ₋₁ n) (helper h x y)
   where
     helper : {n : ℕ} → isSphereFilled (suc₋₁ (ℕ→ℕ₋₁ (suc n))) A → (x y : A) → isSphereFilled (suc₋₁ (ℕ→ℕ₋₁ n)) (x ≡ y)
-    helper {n = n} h x y f = l , r
-
+    helper {n = n} h x y f = sym (snd (h f') north) ∙ (snd (h f') south) , r
       where
         f' : Susp (S₊ (suc n)) → A
         f' north = x
         f' south = y
         f' (merid u i) = f u i
 
-        u : sphereFill _ f'
-        u = h f'
-
-        z : A
-        z = fst u
-
-        p : z ≡ x
-        p = snd u north
-
-        q : z ≡ y
-        q = snd u south
-
-        l : x ≡ y
-        l = sym p ∙ q
-
-        r : (s : S₊ (suc n)) → l ≡ f s
+        r : (s : S₊ (suc n)) → sym (snd (h f') north) ∙ (snd (h f') south) ≡ f s
         r s i j = hcomp
                     (λ k →
-                       λ { (i = i0) → compPath-filler (sym p) q k j
-                         ; (i = i1) → snd u (merid s j) k
-                         ; (j = i0) → p (k ∨ (~ i))
-                         ; (j = i1) → q k
+                       λ { (i = i1) → snd (h f') (merid s j) k
+                         ; (j = i0) → snd (h f') north (k ∨ (~ i))
+                         ; (j = i1) → snd (h f') south k
                          })
-                  (p ((~ i) ∧ (~ j)))
+                  (snd (h f') north (~ i ∧ ~ j))
 
 isOfHLevel→isSphereFilled : (n : ℕ₋₁) → isOfHLevel (1 + 1+ n) A → isSphereFilled (suc₋₁ n) A
 isOfHLevel→isSphereFilled neg1 h f = (f true) , (λ _ → h _ _)
@@ -238,7 +221,7 @@ isModalIsProp (HLevelTruncModality n) = isPropIsOfHLevel n
 univTrunc : ∀ {ℓ} (n : HLevel) {B : TypeOfHLevel ℓ n} → Iso (hLevelTrunc n A → B .fst) (A → B .fst)
 univTrunc zero {B , lev} = isContr→Iso (isOfHLevelΠ 0 (λ _ → lev)) (isOfHLevelΠ 0 λ _ → lev)
 Iso.fun (univTrunc (suc n) {B , lev}) g a = g ∣ a ∣
-Iso.inv (univTrunc (suc n) {B , lev}) = elim λ _ → lev
+Iso.inv (univTrunc (suc n) {B , lev}) = rec lev
 Iso.rightInv (univTrunc (suc n) {B , lev}) b = refl
 Iso.leftInv (univTrunc (suc n) {B , lev}) b = funExt (elim (λ x → isOfHLevelPath _ lev _ _)
                                                             λ a → refl)
@@ -313,12 +296,10 @@ Iso.leftInv 2GroupoidTruncTrunc4Iso = 2GpdTrunc.elim (λ _ → isOfHLevelPath 4 
 2GroupoidTrunc≡Trunc4 : ∥ A ∥₄ ≡ ∥ A ∥ 4
 2GroupoidTrunc≡Trunc4 = ua 2GroupoidTrunc≃Trunc4
 
-
 isContr→isContrTrunc : ∀ {ℓ} {A : Type ℓ} (n : ℕ) → isContr A → isContr (hLevelTrunc n A)
 isContr→isContrTrunc zero contr = isOfHLevelUnit* 0
 isContr→isContrTrunc (suc n) contr =
   ∣ fst contr ∣ , (elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) λ a → cong ∣_∣ (snd contr a))
-
 
 truncOfProdIso : (n : ℕ) → Iso (hLevelTrunc n (A × B)) (hLevelTrunc n A × hLevelTrunc n B)
 truncOfProdIso 0 = isContr→Iso (isOfHLevelUnit* 0) (isOfHLevel× 0 (isOfHLevelUnit* 0) (isOfHLevelUnit* 0))
@@ -441,13 +422,13 @@ PathIdTrunc₀Iso = compIso (congIso setTruncTrunc2Iso)
 
 truncOfTruncIso : (n m : HLevel) → Iso (hLevelTrunc n A) (hLevelTrunc n (hLevelTrunc (m + n) A))
 truncOfTruncIso zero m = isContr→Iso (isOfHLevelUnit* 0) (isOfHLevelUnit* 0)
-Iso.fun (truncOfTruncIso (suc n) zero) = elim (λ _ → isOfHLevelTrunc (suc n)) λ a → ∣ ∣ a ∣ ∣
-Iso.fun (truncOfTruncIso (suc n) (suc m)) = elim (λ _ → isOfHLevelTrunc (suc n)) λ a → ∣ ∣ a ∣ ∣
-Iso.inv (truncOfTruncIso (suc n) zero) =  elim (λ _ → isOfHLevelTrunc (suc n))
-                                               (elim (λ _ → (isOfHLevelTrunc (suc n)))
+Iso.fun (truncOfTruncIso (suc n) zero) = rec (isOfHLevelTrunc (suc n)) λ a → ∣ ∣ a ∣ ∣
+Iso.fun (truncOfTruncIso (suc n) (suc m)) = rec (isOfHLevelTrunc (suc n)) λ a → ∣ ∣ a ∣ ∣
+Iso.inv (truncOfTruncIso (suc n) zero) =  rec (isOfHLevelTrunc (suc n))
+                                               (rec (isOfHLevelTrunc (suc n))
                                                      λ a → ∣ a ∣)
-Iso.inv (truncOfTruncIso (suc n) (suc m)) =  elim (λ _ → isOfHLevelTrunc (suc n))
-                                                  (elim (λ _ → (isOfHLevelPlus (suc m) (isOfHLevelTrunc (suc n))))
+Iso.inv (truncOfTruncIso (suc n) (suc m)) =  rec (isOfHLevelTrunc (suc n))
+                                                  (rec (isOfHLevelPlus (suc m) (isOfHLevelTrunc (suc n)))
                                                         λ a → ∣ a ∣)
 Iso.rightInv (truncOfTruncIso (suc n) zero) =
   elim (λ x → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _ )
