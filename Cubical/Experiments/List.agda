@@ -1,7 +1,8 @@
 {-
 
-An experiment of transporting ++-rev-distr from lists to snoc-lists
-inspired by section 2 of https://arxiv.org/abs/2010.00774
+An experiment of transporting ++-rev-distr from lists to lists where
+the arguments to cons have been flipped inspired by section 2 of
+https://arxiv.org/abs/2010.00774
 
 Note that Agda doesn't care about the order of constructors so we
 can't do exactly the same example.
@@ -17,7 +18,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Data.Sigma
 
 infixr 5 _∷_
-infixl 5 _∷ʳ_
+infixl 5 _∷'_
 infixr 5 _++_
 
 -- Normal lists
@@ -25,10 +26,10 @@ data List (A : Type) : Type where
   []  : List A
   _∷_ : (x : A) (xs : List A) → List A
 
--- Snoc lists
+-- Lists where the arguments to cons have been flipped
 data List' (A : Type) : Type where
   []  : List' A
-  _∷ʳ_ : (xs : List' A) (x : A) → List' A
+  _∷'_ : (xs : List' A) (x : A) → List' A
 
 variable
   A : Type
@@ -67,15 +68,15 @@ rev-++-distr (x ∷ xs) ys = cong (λ zs → zs ++ [ x ]) (rev-++-distr xs ys)
 
 toList' : List A → List' A
 toList' []       = []
-toList' (x ∷ xs) = toList' xs ∷ʳ x
+toList' (x ∷ xs) = toList' xs ∷' x
 
 fromList' : List' A → List A
 fromList' []        = []
-fromList' (xs ∷ʳ x) =  x ∷ fromList' xs
+fromList' (xs ∷' x) =  x ∷ fromList' xs
 
 toFrom : (xs : List' A) → toList' (fromList' xs) ≡ xs
 toFrom []          = refl
-toFrom (xs ∷ʳ x) i = toFrom xs i ∷ʳ x
+toFrom (xs ∷' x) i = toFrom xs i ∷' x
 
 fromTo : (xs : List A) → fromList' (toList' xs) ≡ xs
 fromTo []          = refl
