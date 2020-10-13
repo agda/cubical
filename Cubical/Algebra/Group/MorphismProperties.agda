@@ -37,7 +37,7 @@ isPropIsGroupHom G H {f} = isPropΠ2 λ a b → GroupStr.is-set (snd H) _ _
 isSetGroupHom : {G : Group {ℓ}} {H : Group {ℓ'}} → isSet (GroupHom G H)
 isSetGroupHom {G = G} {H = H} = isOfHLevelRespectEquiv 2 equiv (isSetΣ (isSetΠ λ _ → is-set (snd H)) λ _ → isProp→isSet (isPropIsGroupHom G H)) where
   equiv : (Σ[ g ∈ (⟨ G ⟩ → ⟨ H ⟩) ] (isGroupHom G H g)) ≃ (GroupHom G H)
-  equiv =  isoToEquiv (iso (λ (g , m) → grouphom g m) (λ hom → fun hom , isHom hom) (λ a → η-hom _) λ _ → refl)
+  equiv =  isoToEquiv (iso (λ (g , m) → grouphom g m) (λ hom → fun hom , isHom hom) (λ _ → refl) λ _ → refl)
 
 -- Morphism composition
 isGroupHomComp : {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} →
@@ -160,27 +160,14 @@ module GroupΣTheory {ℓ} where
         ℳ = makeMonoid e _+_ (IsSemigroup.is-set h) (IsSemigroup.assoc h) (λ x → He x .fst) (λ x → He x .snd)
 
   Group→GroupΣ : Group → GroupΣ
-  Group→GroupΣ (G , GS) = _ , _ ,
-                  (isSemigroup GS
-                  , _
-                  , identity GS
-                  , λ x → (- GS) x
-                    , inverse GS x)
+  Group→GroupΣ (G , GS) = _ , _ , (isSemigroup GS , _ , identity GS , λ x → (- GS) x , inverse GS x)
 
   GroupΣ→Group : GroupΣ → Group
   GroupΣ→Group (G , _ , SG , _ , H0g , invertible ) =
      group _ _ _ (λ x → invertible x .fst) (isgroup (ismonoid SG H0g) λ x → invertible x .snd)
 
   GroupIsoGroupΣ : Iso Group GroupΣ
-  GroupIsoGroupΣ = iso Group→GroupΣ GroupΣ→Group (λ _ → refl) helper
-    where
-    open MonoidΣTheory
-    monoid-helper : retract (Monoid→MonoidΣ {ℓ}) MonoidΣ→Monoid
-    monoid-helper = Iso.leftInv MonoidIsoMonoidΣ
-
-    helper : retract Group→GroupΣ GroupΣ→Group
-    helper (G , GS) i = G , groupstr (0g GS) (_+_ GS) (-_ GS)
-        (isgroup (MonoidStr.isMonoid (monoid-helper (monoid G (0g GS) (_+_ GS) (isMonoid GS)) i .snd)) (inverse GS))
+  GroupIsoGroupΣ = iso Group→GroupΣ GroupΣ→Group (λ _ → refl) (λ _ → refl)
 
   groupUnivalentStr : UnivalentStr GroupStructure GroupEquivStr
   groupUnivalentStr = axiomsUnivalentStr _ isPropGroupAxioms rawGroupUnivalentStr
@@ -192,23 +179,21 @@ module GroupΣTheory {ℓ} where
   GroupEquivΣ G H = Group→GroupΣ G ≃[ GroupEquivStr ] Group→GroupΣ H
 
   GroupIsoΣPath : {G H : Group} → Iso (GroupEquiv G H) (GroupEquivΣ G H)
-  fun GroupIsoΣPath f = (eq f) , isHom f
+  fun GroupIsoΣPath f       = (eq f) , isHom f
   inv GroupIsoΣPath (e , h) = groupequiv e h
-  rightInv GroupIsoΣPath _ = refl
-  leftInv GroupIsoΣPath _ = η-equiv _
-
+  rightInv GroupIsoΣPath _  = refl
+  leftInv GroupIsoΣPath _   = refl
 
   GroupPath : (G H : Group) → (GroupEquiv G H) ≃ (G ≡ H)
   GroupPath G H =
-    GroupEquiv G H                    ≃⟨ isoToEquiv GroupIsoΣPath ⟩
-    GroupEquivΣ G H                   ≃⟨ GroupΣPath _ _ ⟩
+    GroupEquiv G H                  ≃⟨ isoToEquiv GroupIsoΣPath ⟩
+    GroupEquivΣ G H                 ≃⟨ GroupΣPath _ _ ⟩
     Group→GroupΣ G ≡ Group→GroupΣ H ≃⟨ isoToEquiv (invIso (congIso GroupIsoGroupΣ)) ⟩
     G ≡ H ■
 
   RawGroupΣ : Type (ℓ-suc ℓ)
   RawGroupΣ = TypeWithStr ℓ RawGroupStructure
 
-  open GroupStr
   Group→RawGroupΣ : Group → RawGroupΣ
   Group→RawGroupΣ (G , GS) = G , _+_ GS
 

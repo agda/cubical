@@ -71,16 +71,6 @@ open SemigroupStr
 open IsSemigroup
 open SemigroupEquiv
 
-η-isSemiGroup : {A : Type ℓ} {_·_ : A → A → A} (b : IsSemigroup _·_)
-             → issemigroup (is-set b) (assoc b) ≡ b
-is-set (η-isSemiGroup b i) = is-set b
-assoc (η-isSemiGroup b i) = assoc b
-
-η-SemigroupEquiv : {M N : Semigroup {ℓ}} (e : ⟨ M ⟩ ≃ ⟨ N ⟩)
-                   (p : SemigroupEquiv M N e)
-                 → semigroupequiv (isHom p) ≡ p
-isHom (η-SemigroupEquiv e p i) = isHom p
-
 -- Develop some theory about Semigroups using various general results
 -- that are stated using Σ-types. For this we define Semigroup as a
 -- nested Σ-type, prove that it's equivalent to the above record
@@ -116,7 +106,7 @@ module SemigroupΣTheory {ℓ} where
                                 → Iso (SemigroupAxioms A _·_) (IsSemigroup _·_)
   fun (SemigroupAxiomsIsoIsSemigroup s) (x , y)           = issemigroup x y
   inv (SemigroupAxiomsIsoIsSemigroup s) M                 = is-set M , assoc M
-  rightInv (SemigroupAxiomsIsoIsSemigroup s) M            = η-isSemiGroup M
+  rightInv (SemigroupAxiomsIsoIsSemigroup s) _            = refl
   leftInv (SemigroupAxiomsIsoIsSemigroup s) _             = refl
 
   SemigroupAxioms≡IsSemigroup : {A : Type ℓ} (_·_ : RawSemigroupStructure A)
@@ -144,13 +134,11 @@ module SemigroupΣTheory {ℓ} where
   SemigroupEquivΣ : (M N : Semigroup) → Type ℓ
   SemigroupEquivΣ M N = Semigroup→SemigroupΣ M ≃[ SemigroupEquivStr ] Semigroup→SemigroupΣ N
 
-  open SemigroupEquiv
-
   SemigroupIsoΣPath : {M N : Semigroup} → Iso (Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] SemigroupEquiv M N e) (SemigroupEquivΣ M N)
   fun SemigroupIsoΣPath (e , x) = e , isHom x
   inv SemigroupIsoΣPath (e , h) = e , semigroupequiv h
   rightInv SemigroupIsoΣPath _  = refl
-  leftInv SemigroupIsoΣPath (e , h) = λ i → e , η-SemigroupEquiv e h i
+  leftInv SemigroupIsoΣPath _   = refl
 
   SemigroupPath : (M N : Semigroup) → (Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] SemigroupEquiv M N e) ≃ (M ≡ N)
   SemigroupPath M N =

@@ -40,17 +40,6 @@ record GroupEquiv (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ')
   hom = grouphom (equivFun eq) isHom
 
 open GroupHom
-open GroupEquiv
-
-η-hom : {G : Group {ℓ}} {H : Group {ℓ'}} → (a  : GroupHom G H)
-      → grouphom (fun a) (isHom a) ≡ a
-fun (η-hom a i) = fun a
-isHom (η-hom a i) = isHom a
-
-η-equiv : {G : Group {ℓ}} {H : Group {ℓ'}} → (a  : GroupEquiv G H)
-       → groupequiv (eq a) (isHom a) ≡ a
-eq (η-equiv a i) = eq a
-isHom (η-equiv a i) = isHom a
 
 ×hom : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Group {ℓ}} {B : Group {ℓ'}} {C : Group {ℓ''}} {D : Group {ℓ'''}}
     → GroupHom A C → GroupHom B D → GroupHom (dirProd A B) (dirProd C D)

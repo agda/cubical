@@ -37,13 +37,6 @@ record IsGroup {G : Type ℓ}
   invr : (x : G) → x + (- x) ≡ 0g
   invr x = inverse x .fst
 
-η-isGroup : {G : Type ℓ} {0g 0g' : G} {_+_ _+'_  : G → G → G} { -_ -'_  : G → G}
-         → 0g ≡ 0g'
-         → _+_ ≡ _+'_
-         → -_ ≡ -'_
-         → IsGroup 0g _+_ -_ ≡ IsGroup 0g' _+'_ -'_
-η-isGroup id1 id2 id3 i = IsGroup (id1 i) (id2 i) (id3 i)
-
 record GroupStr (G : Type ℓ) : Type (ℓ-suc ℓ) where
 
   constructor groupstr
@@ -199,27 +192,9 @@ makeGroup-left id comp inv set assoc lUnit lCancel =
           ∎
 
 open GroupStr hiding (0g ; _+_ ; -_)
-open IsGroup
-
--- TODO: is this needed?
--- η-Group : {G H : Group {ℓ}}
---         → (p : ⟨ G ⟩ ≡ ⟨ H ⟩)
---         → (q : PathP (λ i → p i) (0g G) (0g H))
---         → (r : PathP (λ i → (p i) → (p i) → (p i)) (_+_ G) (_+_ H))
---         → (s : PathP (λ i → p i → p i) (-_ G) (-_ H))
---         → PathP (λ i → IsGroup (q i) (r i) (s i)) (isGroup G) (isGroup H)
---         → G ≡ H
--- Carrier (η-Group p _ _ _ _ i) = p i
--- 0g (η-Group _ q _ _ _ i) = q i
--- _+_ (η-Group _ _ r _ _ i) = r i
--- - η-Group _ _ _ s t i = s i
--- isGroup (η-Group _ _ _ _ t i) = t i
 
 isSetCarrier : ∀ {ℓ} → (G : Group {ℓ}) → isSet ⟨ G ⟩
 isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (GroupStr.isMonoid (snd G)))
-
-open IsMonoid
-open IsSemigroup
 
 dirProd : ∀ {ℓ ℓ'} → Group {ℓ} → Group {ℓ'} → Group
 dirProd G H =

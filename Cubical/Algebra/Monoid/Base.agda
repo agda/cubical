@@ -61,11 +61,6 @@ Monoid = TypeWithStr _ MonoidStr
 monoid : (A : Type ℓ) (ε : A) (_·_ : A → A → A) (h : IsMonoid ε _·_) → Monoid
 monoid A ε _·_ h = A , monoidstr ε _·_ h
 
-η-isMonoid : {A : Type ℓ} {ε : A} {_∙_ :  A → A → A} (b : IsMonoid ε _∙_)
-          → ismonoid (IsMonoid.isSemigroup b) (IsMonoid.identity b) ≡ b
-IsMonoid.isSemigroup (η-isMonoid b i) = IsMonoid.isSemigroup b
-IsMonoid.identity (η-isMonoid b i) = IsMonoid.identity b
-
 -- Easier to use constructors
 
 makeIsMonoid : {M : Type ℓ} {ε : M} {_·_ : M → M → M}
@@ -130,13 +125,15 @@ module MonoidΣTheory {ℓ} where
     → Iso (MonoidAxioms M s) (IsMonoid (s .fst) (s .snd))
   fun (MonoidAxiomsIsoIsMonoid s) (x , y)        = ismonoid x y
   inv (MonoidAxiomsIsoIsMonoid s) a = (IsMonoid.isSemigroup a) , IsMonoid.identity a
-  rightInv (MonoidAxiomsIsoIsMonoid s) b         = η-isMonoid b
+  rightInv (MonoidAxiomsIsoIsMonoid s) _         = refl
   leftInv (MonoidAxiomsIsoIsMonoid s) _          = refl
 
   MonoidAxioms≡IsMonoid : {M : Type ℓ} (s : RawMonoidStructure M)
     → MonoidAxioms M s ≡ IsMonoid (s .fst) (s .snd)
   MonoidAxioms≡IsMonoid s = isoToPath (MonoidAxiomsIsoIsMonoid s)
+
   open MonoidStr
+
   Monoid→MonoidΣ : Monoid → MonoidΣ
   Monoid→MonoidΣ (A , M) =
     A , (ε M , _·_ M) , MonoidAxiomsIsoIsMonoid (ε M , _·_ M) .inv (isMonoid M)
