@@ -43,21 +43,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
     BijectionIso.inj bijIso =
       sElim (λ _ → isSetΠ λ _ → isProp→isSet (setTruncIsSet _ _))
             λ f inker → helper ∣ f ∣₂ (I.Ker-i⊂Im-d 0 ∣ f ∣₂ inker)
-    BijectionIso.surj bijIso =
-      prodElim (λ _ → isProp→isSet propTruncIsProp)
-                λ f g → I.Ker-Δ⊂Im-i 1 ((∣ f ∣₂ , ∣ g ∣₂)) (isContr→isProp (isContrHⁿ-Unit 0) _ _)
-
-      --           λ f g → ∣ ∣ helpFun f g (bla f g) ∣₂ , refl ∣₁
-
-      -- where
-      -- postulate bla : (f : fst A → coHomK 1) (g : fst B → coHomK 1) → (Path (Unit → coHomK 1) (λ _ → f (pt A)) (λ _ → g (pt B)))
-      -- helpFun : (f : fst A → coHomK 1) (g : fst B → coHomK 1)
-      --         → (Path (Unit → coHomK 1) (λ _ → f (pt A)) (λ _ → g (pt B)))
-      --         → Pushout (λ _ → pt A) (λ _ → pt B) → coHomK 1
-      -- helpFun f _ _ (inl x) = f x
-      -- helpFun _ g _ (inr x) = g x
-      -- helpFun f g h (push tt i) = h i tt
-
+    BijectionIso.surj bijIso p = I.Ker-Δ⊂Im-i 1 p (isContr→isProp (isContrHⁿ-Unit 0) _ _)
 
   Hⁿ-⋁ (suc n) =
     vSES→GroupIso _ _
