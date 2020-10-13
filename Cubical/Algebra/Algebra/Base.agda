@@ -269,32 +269,7 @@ module AlgebraΣTheory (R : Ring {ℓ}) where
                dist lassoc rassoc)
 
   AlgebraIsoAlgebraΣ : Iso (Algebra R) AlgebraΣ
-  AlgebraIsoAlgebraΣ = iso Algebra→AlgebraΣ AlgebraΣ→Algebra (λ _ → refl) helper
-    where
-      -- helper will be refl, if eta-equality is activated for all structure-records
-      open MonoidΣTheory
-      monoid-helper : retract (Monoid→MonoidΣ {ℓ}) MonoidΣ→Monoid
-      monoid-helper = Iso.leftInv MonoidIsoMonoidΣ
-      module-helper : retract (LeftModule→LeftModuleΣ) LeftModuleΣ→LeftModule
-      module-helper = Iso.leftInv LeftModuleIsoLeftModuleΣ
-
-      open Algebra
-      helper : _
-      Carrier (helper a i) = Carrier a
-      0a (helper a i) = 0a a
-      1a (helper a i) = 1a a
-      _+_ (helper a i) = _+_ a
-      _·_ (helper a i) = _·_ a
-      -_ (helper a i) = -_ a
-      _⋆_ (helper a i) = _⋆_ a
-      IsAlgebra.isLeftModule (isAlgebra (helper a i)) =
-        LeftModule.isLeftModule (module-helper
-        (leftmodule _ _ _ _ _ (isLeftModule a)) i)
-      IsAlgebra.·-isMonoid (isAlgebra (helper a i)) =
-        MonoidStr.isMonoid (monoid-helper (monoid _ _ _ (·-isMonoid a)) i .snd)
-      IsAlgebra.dist (isAlgebra (helper a i)) = dist a
-      IsAlgebra.⋆-lassoc (isAlgebra (helper a i)) = ⋆-lassoc a
-      IsAlgebra.⋆-rassoc (isAlgebra (helper a i)) = ⋆-rassoc a
+  AlgebraIsoAlgebraΣ = iso Algebra→AlgebraΣ AlgebraΣ→Algebra (λ _ → refl) (λ _ → refl)
 
   algebraUnivalentStr : UnivalentStr AlgebraStructure AlgebraEquivStr
   algebraUnivalentStr = axiomsUnivalentStr _ isPropAlgebraAxioms rawAlgebraUnivalentStr
