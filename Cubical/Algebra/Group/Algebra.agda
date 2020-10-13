@@ -68,7 +68,7 @@ morphMinus G H ϕ g =
 
 -- ----------- Alternative notions of isomorphisms --------------
 record GroupIso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
-  no-eta-equality
+
   constructor iso
   field
     map : GroupHom G H
@@ -77,7 +77,7 @@ record GroupIso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max 
     leftInv : retract (GroupHom.fun map) inv
 
 record BijectionIso {ℓ ℓ'} (A : Group {ℓ}) (B : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
-  no-eta-equality
+
   constructor bij-iso
   field
     map' : GroupHom A B
@@ -88,7 +88,7 @@ record BijectionIso {ℓ ℓ'} (A : Group {ℓ}) (B : Group {ℓ'}) : Type (ℓ-
 -- i.e. an exact sequence A → B → C → D where A and D are trivial
 record vSES {ℓ ℓ' ℓ'' ℓ'''} (A : Group {ℓ}) (B : Group {ℓ'}) (leftGr : Group {ℓ''}) (rightGr : Group {ℓ'''})
            : Type (ℓ-suc (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓ''')))) where
-  no-eta-equality
+
   constructor ses
   field
     isTrivialLeft : isProp ⟨ leftGr ⟩
