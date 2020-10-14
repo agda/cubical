@@ -23,7 +23,7 @@ private
   variable
     ℓ : Level
     X : Type ℓ
-    
+
 ℙ : Type ℓ → Type (ℓ-suc ℓ)
 ℙ X = X → hProp _
 
