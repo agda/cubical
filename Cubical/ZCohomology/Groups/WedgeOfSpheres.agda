@@ -29,7 +29,10 @@ H⁰-S¹⋁S¹ = H⁰-connected (inl base) (wedgeConnected _ _ (Sn-connected 0) 
 
 ------------- H¹(S¹⋁S¹) ------------
 H¹-S¹⋁S¹ : GroupIso (coHomGr 1 S¹⋁S¹) (dirProd intGroup intGroup)
-H¹-S¹⋁S¹ =  (Hⁿ-⋁ _ _ 0) □ dirProdGroupIso coHom1S1≃ℤ coHom1S1≃ℤ
+H¹-S¹⋁S¹ =
+   coHomGr 1 S¹⋁S¹                         ≅⟨ Hⁿ-⋁ (S¹ , base) (S¹ , base) 0 ⟩≅
+   dirProd (coHomGr 1 S¹) (coHomGr 1 S¹)    ≅⟨ dirProdGroupIso coHom1S1≃ℤ coHom1S1≃ℤ ⟩≅
+  (dirProd intGroup intGroup) □
 
 ------------- H⁰(S²⋁S¹⋁S¹) ---------
 H⁰-S²⋁S¹⋁S¹ : GroupIso (coHomGr 0 S²⋁S¹⋁S¹) intGroup
@@ -43,19 +46,25 @@ H⁰-S²⋁S¹⋁S¹ = H⁰-connected (inl north)
 ------------- H¹(S²⋁S¹⋁S¹) ---------
 H¹-S²⋁S¹⋁S¹ : GroupIso (coHomGr 1 S²⋁S¹⋁S¹) (dirProd intGroup intGroup)
 H¹-S²⋁S¹⋁S¹ =
-    Hⁿ-⋁ (S₊∙ 2) (S¹⋁S¹ , inl base) 0
-  □ dirProdGroupIso (H¹-Sⁿ≅0 0) H¹-S¹⋁S¹
-  □ lUnitGroupIso
+   coHomGr 1 S²⋁S¹⋁S¹                               ≅⟨ Hⁿ-⋁ (S₊∙ 2) (S¹⋁S¹ , inl base) 0 ⟩≅
+   dirProd (coHomGr 1 (S₊ 2)) (coHomGr 1 S¹⋁S¹)      ≅⟨ dirProdGroupIso (H¹-Sⁿ≅0 0) H¹-S¹⋁S¹ ⟩≅
+  (dirProd trivialGroup (dirProd intGroup intGroup)  ≅⟨ lUnitGroupIso ⟩
+  (dirProd intGroup intGroup) □)
 
 ------------- H²(S²⋁S¹⋁S¹) ---------
 H²-S²⋁S¹⋁S¹ : GroupIso (coHomGr 2 S²⋁S¹⋁S¹) intGroup
 H²-S²⋁S¹⋁S¹ =
-  compGroupIso
-  (Hⁿ-⋁ _ _ 1)
-  (dirProdGroupIso {B = trivialGroup}
-    (invGroupIso (Hⁿ-Sⁿ≅ℤ 1))
-    ((Hⁿ-⋁ _ _ 1)  □ dirProdGroupIso H²-S¹≅0 H²-S¹≅0 □ rUnitGroupIso)
-  □ rUnitGroupIso)
+   coHomGr 2 S²⋁S¹⋁S¹                               ≅⟨ Hⁿ-⋁ (S₊∙ 2) (S¹⋁S¹ , inl base) 1 ⟩≅
+   dirProd (coHomGr 2 (S₊ 2)) (coHomGr 2 S¹⋁S¹)      ≅⟨ dirProdGroupIso (invGroupIso (Hⁿ-Sⁿ≅ℤ 1)) H²-S¹∨S¹≅0 ⟩≅
+  (dirProd intGroup trivialGroup  ≅⟨ rUnitGroupIso ⟩
+   intGroup □)
+  where
+  H²-S¹∨S¹≅0 : GroupIso (coHomGr 2 S¹⋁S¹) trivialGroup
+  H²-S¹∨S¹≅0 =
+    coHomGr 2 S¹⋁S¹                                ≅⟨ Hⁿ-⋁ (S¹ , base) (S¹ , base) 1 ⟩≅
+    dirProd (coHomGr 2 S¹) (coHomGr 2 S¹)           ≅⟨ dirProdGroupIso H²-S¹≅0 H²-S¹≅0 ⟩≅
+   (dirProd trivialGroup trivialGroup               ≅⟨ rUnitGroupIso ⟩
+    trivialGroup □)
 
 private
   open import Cubical.Data.Int

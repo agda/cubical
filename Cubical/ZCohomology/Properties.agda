@@ -347,6 +347,29 @@ private
                    ∙∙ rCancelLem n x
                    ∙∙ Iso.leftInv (Iso-Kn-ΩKn+1 n) x
 
+--
+abstract
+  isoΩK-ΩKbased : (n : ℕ) → (x : coHomK n) → Iso (x ≡ x) (0ₖ n ≡ 0ₖ n)
+  isoΩK-ΩKbased n x = compIso (congIso IsoHelper) IsoHelper2
+    where
+    IsoHelper : Iso (coHomK n) (coHomK n)
+    fun IsoHelper y = y -[ n ]ₖ x
+    inv' IsoHelper y = y +[ n ]ₖ x
+    rightInv IsoHelper y = -cancelRₖ n x y
+    leftInv IsoHelper y = -+cancelₖ n y x
+
+    IsoHelper2 : Iso (x -[ n ]ₖ x ≡ x -[ n ]ₖ x) (0ₖ n ≡ 0ₖ n)
+    fun IsoHelper2 p = sym (cancelₖ n x) ∙∙ p ∙∙ cancelₖ n x
+    inv' IsoHelper2 p = cancelₖ n x ∙∙ p ∙∙ sym (cancelₖ n x)
+    rightInv IsoHelper2 p =
+        (λ i → ((λ j → cancelₖ n x (i ∨ ~ j)) ∙∙ (λ j → cancelₖ n x (i ∨ j)) ∙∙ p
+             ∙∙ (λ j → cancelₖ n x (~ j ∨ i)) ∙∙ (λ j → cancelₖ n x (j ∨ i))))
+      ∙ (λ i → rUnit (rUnit p (~ i)) (~ i))
+    leftInv IsoHelper2 p =
+        (λ i → ((λ j → cancelₖ n x (~ i ∧ j)) ∙∙ (λ j → cancelₖ n x (~ i ∧ ~ j)) ∙∙ p
+             ∙∙ (λ j → cancelₖ n x (~ i ∧ j)) ∙∙ (λ j → cancelₖ n x (~ j ∧ ~ i))))
+      ∙ λ i → rUnit (rUnit p (~ i)) (~ i)
+
 ---- Group structure of cohomology groups ---
 
 _+ₕ_ : {n : ℕ} → coHom n A → coHom n A → coHom n A
