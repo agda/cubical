@@ -29,7 +29,7 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +-comm to +ℤ-comm ; +-assoc to +ℤ-assoc)
 open import Cubical.Data.Nat
-open import Cubical.HITs.Truncation.FromNegOne renaming (elim to trElim ; map to trMap ; rec to trRec)
+open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec)
 open import Cubical.Data.Unit
 
 open import Cubical.Algebra.Group
@@ -46,8 +46,8 @@ open BijectionIso
 
 Sn-connected : (n : ℕ) (x : typ (S₊∙ (suc n))) → ∥ pt (S₊∙ (suc n)) ≡ x ∥₁
 Sn-connected zero = toPropElim (λ _ → propTruncIsProp) ∣ refl ∣₁
-Sn-connected (suc zero) = suspToPropRec base (λ _ → propTruncIsProp) ∣ refl ∣₁
-Sn-connected (suc (suc n)) = suspToPropRec north (λ _ → propTruncIsProp) ∣ refl ∣₁
+Sn-connected (suc zero) = suspToPropElim base (λ _ → propTruncIsProp) ∣ refl ∣₁
+Sn-connected (suc (suc n)) = suspToPropElim north (λ _ → propTruncIsProp) ∣ refl ∣₁
 
 H⁰-Sⁿ≅ℤ : (n : ℕ) → GroupIso (coHomGr 0 (S₊ (suc n))) intGroup
 H⁰-Sⁿ≅ℤ zero = H⁰-connected base (Sn-connected 0)
@@ -220,12 +220,12 @@ private
                           , sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
                                   λ y → elim2 {B = λ x y → ∣ (0₂ , 0₂) ∣₂ ≡ ∣(x , y) ∣₂ }
                                   (λ _ _ → isOfHLevelPlus {n = 2} 3 setTruncIsSet _ _)
-                                  (suspToPropRec2 base (λ _ _ → setTruncIsSet _ _) refl) (fst y) (snd y)
+                                  (suspToPropElim2 base (λ _ _ → setTruncIsSet _ _) refl) (fst y) (snd y)
     isContrHelper (suc (suc n)) = ∣ (0ₖ (3 + n) , 0ₖ (3 + n)) ∣₂
                           , sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
                                   λ y → elim2 {B = λ x y → ∣ (0ₖ (3 + n) , 0ₖ (3 + n)) ∣₂ ≡ ∣(x , y) ∣₂ }
                                   (λ _ _ → isProp→isOfHLevelSuc (4 + n) (setTruncIsSet _ _))
-                                  (suspToPropRec2 north (λ _ _ → setTruncIsSet _ _) refl) (fst y) (snd y)
+                                  (suspToPropElim2 north (λ _ _ → setTruncIsSet _ _) refl) (fst y) (snd y)
 
 H¹-S⁰≅0 : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ 0)) trivialGroup
 H¹-S⁰≅0 n = IsoContrGroupTrivialGroup (isContrHⁿ-S0 n)
@@ -289,14 +289,10 @@ H¹-Sⁿ≅0 (suc n) = coHomPushout≅coHomSn (2 + n) 1
   surj-helper =
     sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
            λ f → ∣ (∣ (λ _ → f north) ∣₂ , 0ₕ 0)
-                 , cong ∣_∣₂ (funExt (suspToPropRec
-                                        (masterTheorem n)
+                 , cong ∣_∣₂ (funExt (suspToPropElim
+                                        (ptSn (suc n))
                                         (λ _ → isSetInt _ _)
                                         (cong (λ x → f north +[ 0 ]ₖ x) (-0ₖ {n = 0})  ∙ rUnitₖ 0 (f north)))) ∣₁
-    where
-    masterTheorem : (n : ℕ) → S₊ (suc n)
-    masterTheorem zero = base
-    masterTheorem (suc n) = north
   helper : isInjective _ _ (K.i 1)
   helper =
     sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 (setTruncIsSet _ _))

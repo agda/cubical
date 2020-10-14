@@ -12,7 +12,7 @@ open import Cubical.HITs.SetTruncation.Base
 open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.S1.Base
 open import Cubical.HITs.Susp.Base
-open import Cubical.HITs.Truncation.FromNegOne.Base
+open import Cubical.HITs.Truncation.Base
 
 private
   variable

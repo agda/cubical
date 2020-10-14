@@ -31,7 +31,8 @@ open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim2 to pElim2 ; ∣_∣ to ∣_∣₁) hiding (map)
 open import Cubical.HITs.Nullification
-open import Cubical.HITs.Truncation.FromNegOne renaming (elim to trElim ; elim2 to trElim2 ; map to trMap ; rec to trRec)
+open import Cubical.HITs.Truncation renaming (elim to trElim ; elim2 to trElim2 ; map to trMap ; rec to trRec)
+
 
 open GroupHom
 open GroupIso

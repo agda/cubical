@@ -21,7 +21,7 @@ open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod hiding (_×_)
 open import Cubical.Algebra.Group
-open import Cubical.HITs.Truncation.FromNegOne renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
+open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
 
 open GroupHom
 
@@ -30,9 +30,6 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
   -- We first define the three morphisms involved: i, Δ and d.
 
   private
-    -- setTruncIsSet2 : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isSet (∥ A ∥₂ × ∥ B ∥₂)
-    -- setTruncIsSet2 = isSet× setTruncIsSet setTruncIsSet
-
     i* : (n : ℕ) → coHom n (Pushout f g) → coHom n A × coHom n B
     i* _ = sRec (isSet× setTruncIsSet setTruncIsSet) λ δ → ∣ (λ x → δ (inl x)) ∣₂ , ∣ (λ x → δ (inr x)) ∣₂
 
@@ -201,11 +198,11 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
       helper F p1 p2 (inr x) = sym (cong (λ f → f x) p2)
       helper F p1 p2 (push a i) j =
         hcomp (λ k → λ { (i = i0) → p1 (~ j) (f a)
-                        ; (i = i1) → p2 (~ j) (g a)
-                        ; (j = i0) → Iso.rightInv (Iso-Kn-ΩKn+1 (suc n)) ((λ i₁ → p1 (~ i₁) (f a))
+                       ; (i = i1) → p2 (~ j) (g a)
+                       ; (j = i0) → Iso.rightInv (Iso-Kn-ΩKn+1 (suc n)) ((λ i₁ → p1 (~ i₁) (f a))
                                                                            ∙∙ cong F (push a)
                                                                            ∙∙ cong (λ F₁ → F₁ (g a)) p2) (~ k) i
-                        ; (j = i1) → F (push a i)})
+                       ; (j = i1) → F (push a i)})
               (doubleCompPath-filler (sym (cong (λ F → F (f a)) p1)) (cong F (push a)) (cong (λ F → F (g a)) p2) (~ j) i)
 
   open GroupHom
