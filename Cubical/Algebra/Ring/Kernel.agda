@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Logic using ([_]; _∈_)
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Algebra.Ring.Base
 open import Cubical.Algebra.Ring.Properties
