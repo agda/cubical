@@ -111,13 +111,17 @@ coHomPointedElim {A = A} n a isprop indp =
          → f a ≡ x → B ∣ f ∣₂
   -- pattern matching a bit extra to avoid isOfHLevelPlus'
   helper zero isprop ind f =
-    trElim (λ _ → isOfHLevelPlus {n = 1} 2 (isPropΠ λ _ → isprop _)) (toPropElim (λ _ → isPropΠ λ _ → isprop _) (ind f))
+    trElim (λ _ → isOfHLevelPlus {n = 1} 2 (isPropΠ λ _ → isprop _))
+           (toPropElim (λ _ → isPropΠ λ _ → isprop _) (ind f))
   helper (suc zero) isprop ind f =
-    trElim (λ _ → isOfHLevelPlus {n = 1} 3 (isPropΠ λ _ → isprop _)) (suspToPropElim base (λ _ → isPropΠ λ _ → isprop _) (ind f))
+    trElim (λ _ → isOfHLevelPlus {n = 1} 3 (isPropΠ λ _ → isprop _))
+           (suspToPropElim base (λ _ → isPropΠ λ _ → isprop _) (ind f))
   helper (suc (suc zero)) isprop ind f =
-    trElim (λ _ → isOfHLevelPlus {n = 1} 4 (isPropΠ λ _ → isprop _)) (suspToPropElim north (λ _ → isPropΠ λ _ → isprop _) (ind f))
+    trElim (λ _ → isOfHLevelPlus {n = 1} 4 (isPropΠ λ _ → isprop _))
+           (suspToPropElim north (λ _ → isPropΠ λ _ → isprop _) (ind f))
   helper (suc (suc (suc n))) isprop ind f =
-    trElim (λ _ → isOfHLevelPlus' {n = 5 + n} 1 (isPropΠ λ _ → isprop _)) (suspToPropElim north (λ _ → isPropΠ λ _ → isprop _) (ind f))
+    trElim (λ _ → isOfHLevelPlus' {n = 5 + n} 1 (isPropΠ λ _ → isprop _))
+           (suspToPropElim north (λ _ → isPropΠ λ _ → isprop _) (ind f))
 
 coHomPointedElim2 : {A : Type ℓ} (n : ℕ) (a : A) {B : coHom (suc n) A → coHom (suc n) A → Type ℓ'}
                  → ((x y : coHom (suc n) A) → isProp (B x y))
@@ -134,13 +138,17 @@ coHomPointedElim2 {A = A} n a isprop indp = sElim2 (λ _ _ → isOfHLevelSuc 1 (
                  → f a ≡ x → g a ≡ y
                  → B ∣ f ∣₂ ∣ g ∣₂
   helper zero a isprop indp f g =
-    elim2 (λ _ _ → isOfHLevelPlus {n = 1} 2 (isPropΠ2 λ _ _ → isprop _ _)) (toPropElim2 (λ _ _ → isPropΠ2 λ _ _ → isprop _ _) (indp f g))
+    elim2 (λ _ _ → isOfHLevelPlus {n = 1} 2 (isPropΠ2 λ _ _ → isprop _ _))
+          (toPropElim2 (λ _ _ → isPropΠ2 λ _ _ → isprop _ _) (indp f g))
   helper (suc zero) a isprop indp f g =
-    elim2 (λ _ _ → isOfHLevelPlus {n = 1} 3 (isPropΠ2 λ _ _ → isprop _ _)) (suspToPropElim2 base (λ _ _ → isPropΠ2 λ _ _ → isprop _ _) (indp f g))
+    elim2 (λ _ _ → isOfHLevelPlus {n = 1} 3 (isPropΠ2 λ _ _ → isprop _ _))
+          (suspToPropElim2 base (λ _ _ → isPropΠ2 λ _ _ → isprop _ _) (indp f g))
   helper (suc (suc zero)) a isprop indp f g =
-    elim2 (λ _ _ → isOfHLevelPlus {n = 1} 4 (isPropΠ2 λ _ _ → isprop _ _)) (suspToPropElim2 north (λ _ _ → isPropΠ2 λ _ _ → isprop _ _) (indp f g))
+    elim2 (λ _ _ → isOfHLevelPlus {n = 1} 4 (isPropΠ2 λ _ _ → isprop _ _))
+          (suspToPropElim2 north (λ _ _ → isPropΠ2 λ _ _ → isprop _ _) (indp f g))
   helper (suc (suc (suc n))) a isprop indp f g =
-    elim2 (λ _ _ → isOfHLevelPlus' {n = 5 + n} 1 (isPropΠ2 λ _ _ → isprop _ _)) (suspToPropElim2 north (λ _ _ → isPropΠ2 λ _ _ → isprop _ _) (indp f g))
+    elim2 (λ _ _ → isOfHLevelPlus' {n = 5 + n} 1 (isPropΠ2 λ _ _ → isprop _ _))
+          (suspToPropElim2 north (λ _ _ → isPropΠ2 λ _ _ → isprop _ _) (indp f g))
 
 -----------
 

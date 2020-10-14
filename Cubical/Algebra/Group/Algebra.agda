@@ -143,6 +143,8 @@ syntax ≅⟨⟩⟨⟩-syntax G H is1 is2 is3 = G ≅⟨ is1 ⟩≅ H ≅⟨ is2
 ≅⟨⟩⟨⟩-syntax : (G : Group {ℓ}) (H : Group {ℓ₁}) {A : Group {ℓ₂}} {B : Group {ℓ₂}} → GroupIso G H → GroupIso H A → GroupIso A B → GroupIso G B
 ≅⟨⟩⟨⟩-syntax G H is1 is2 is3 = doubleCompGroupIso is1 is2 is3
 
+infixl 5 _□ 
+
 _□ : (G : Group {ℓ}) → GroupIso G G
 fun (map (G □)) x = x
 isHom (map (G □)) _ _ = refl
