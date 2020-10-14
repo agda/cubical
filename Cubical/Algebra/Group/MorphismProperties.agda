@@ -46,7 +46,7 @@ isGroupHomComp f g x y = cong (fun g) (isHom f _ _) ∙ isHom g _ _
 
 isGroupHomDoubleComp : ∀ {ℓ'''} {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} {K : Group {ℓ'''}} →
   (f : GroupHom F G) → (g : GroupHom G H) (h : GroupHom H K) → isGroupHom F K (fun h ∘ fun g ∘ fun f)
-isGroupHomDoubleComp f g h x y = cong (fun h ∘ fun g) (isHom f _ _) ∙∙ cong (fun h) (isHom g _ _) ∙∙ isHom h _ _ 
+isGroupHomDoubleComp f g h x y = cong (fun h ∘ fun g) (isHom f _ _) ∙∙ cong (fun h) (isHom g _ _) ∙∙ isHom h _ _
 
 compGroupHom : {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} → GroupHom F G → GroupHom G H → GroupHom F H
 fun (compGroupHom f g) = fun g ∘ fun f

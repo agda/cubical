@@ -46,5 +46,3 @@ coHomK-ptd n = coHomK n , coHom-pt n
 {- Reduced cohomology -}
 coHomRed : (n : ℕ) → (A : Pointed ℓ) → Type ℓ
 coHomRed n A = ∥ A →∙ coHomK-ptd n ∥₂
-
-
