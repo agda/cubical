@@ -8,6 +8,7 @@ open import Cubical.ZCohomology.KcompPrelims
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Data.Sigma
@@ -19,8 +20,8 @@ open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; e
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁)
 open import Cubical.Data.Nat
 open import Cubical.Data.Prod hiding (_×_)
-open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
 open import Cubical.Algebra.Group
+open import Cubical.HITs.Truncation.FromNegOne renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
 
 open GroupHom
 

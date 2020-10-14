@@ -433,19 +433,21 @@ rUnitlUnit0 (suc (suc n)) = sym (rUnitlUnitGen (Iso-Kn-ΩKn+1 (2 + n)) (0ₖ (2 
 
 open IsSemigroup
 open IsMonoid
-open Group
+open GroupStr
 open GroupHom
 
-coHomGr : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group
-Carrier (coHomGr n A) = coHom n A
-0g (coHomGr n A) = 0ₕ n
-Group._+_ (coHomGr n A) x y = x +[ n ]ₕ y
-Group.- (coHomGr n A) = λ x → -[ n ]ₕ x
-isGroup (coHomGr n A) = helper
+coHomGr : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group {ℓ}
+coHomGr n A = coHom n A , coHomGrnA
   where
-  abstract
-    helper : IsGroup (0ₕ n) (λ x y → x +[ n ]ₕ y) (λ x → -[ n ]ₕ x)
-    helper = makeIsGroup § (λ x y z → sym (assocₕ n x y z)) (rUnitₕ n) (lUnitₕ n) (rCancelₕ n) (lCancelₕ n)
+  coHomGrnA : GroupStr (coHom n A)
+  0g coHomGrnA = 0ₕ n
+  GroupStr._+_ coHomGrnA = λ x y → x +[ n ]ₕ y
+  - coHomGrnA = λ x → -[ n ]ₕ x
+  isGroup coHomGrnA = helper
+    where
+    abstract
+      helper : IsGroup (0ₕ n) (λ x y → x +[ n ]ₕ y) (λ x → -[ n ]ₕ x)
+      helper = makeIsGroup § (λ x y z → sym (assocₕ n x y z)) (rUnitₕ n) (lUnitₕ n) (rCancelₕ n) (lCancelₕ n)
 
 ×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group
 ×coHomGr n A B = dirProd (coHomGr n A) (coHomGr n B)
