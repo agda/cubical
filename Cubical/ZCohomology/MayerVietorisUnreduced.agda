@@ -30,7 +30,6 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
   -- We first define the three morphisms involved: i, Δ and d.
 
   private
-
     i* : (n : ℕ) → coHom n (Pushout f g) → coHom n A × coHom n B
     i* _ = sRec (isSet× setTruncIsSet setTruncIsSet) λ δ → ∣ (λ x → δ (inl x)) ∣₂ , ∣ (λ x → δ (inr x)) ∣₂
 
