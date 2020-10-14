@@ -1,6 +1,6 @@
 {-
 
-Some basic tilities for reflection
+Some basic utilities for reflection
 
 -}
 {-# OPTIONS --cubical --no-exact-split --safe #-}
