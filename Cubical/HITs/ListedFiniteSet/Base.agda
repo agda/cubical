@@ -1,17 +1,17 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.ListedFiniteSet.Base where
 
-open import Cubical.Core.Everything
-open import Cubical.Foundations.Logic hiding (_∈_)
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
+
+open import Cubical.Functions.Logic
 
 private
   variable
     A : Type₀
 
 infixr 20 _∷_
-infix 30 _∈_
-
+-- infix 30 _∈_
 
 data LFSet (A : Type₀) : Type₀ where
   []    : LFSet A
@@ -42,7 +42,6 @@ z ∈ comm x y xs i       = proof i
             (z ≡ₚ x ⊔ z ≡ₚ y) ⊔ z ∈ xs  ≡⟨ cong (_⊔ (z ∈ xs)) (⊔-comm (z ≡ₚ x) (z ≡ₚ y)) ⟩
             (z ≡ₚ y ⊔ z ≡ₚ x) ⊔ z ∈ xs  ≡⟨ sym (⊔-assoc (z ≡ₚ y) (z ≡ₚ x) (z ∈ xs)) ⟩
             z ≡ₚ y  ⊔ (z ≡ₚ x ⊔ z ∈ xs) ∎
-
 x ∈ trunc xs ys p q i j = isSetHProp (x ∈ xs) (x ∈ ys) (cong (x ∈_) p) (cong (x ∈_) q) i j
 
 module Elim {ℓ}

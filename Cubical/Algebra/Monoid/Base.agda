@@ -15,6 +15,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
+open import Cubical.Structures.Record
 open import Cubical.Algebra.Semigroup
 
 open Iso
@@ -193,9 +194,19 @@ isPropIsMonoid ε _·_ =
   subst isProp (MonoidΣTheory.MonoidAxioms≡IsMonoid (ε , _·_))
         (MonoidΣTheory.isPropMonoidAxioms _ (ε , _·_))
 
-MonoidPath : (M N : Monoid {ℓ}) →
-             (Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] (MonoidEquiv M N e)) ≃ (M ≡ N)
-MonoidPath = MonoidΣTheory.MonoidPath
+MonoidPath : (M N : Monoid {ℓ}) → (Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] MonoidEquiv M N e) ≃ (M ≡ N)
+MonoidPath {ℓ = ℓ} =
+  SIP
+    (autoUnivalentRecord
+      (autoRecordSpec (MonoidStr {ℓ}) MonoidEquiv
+        (fields:
+          data[ ε ∣ presε ]
+          data[ _·_ ∣ isHom ]
+          prop[ isMonoid ∣ (λ _ → isPropIsMonoid _ _) ]))
+      _ _)
+  where
+  open MonoidStr
+  open MonoidEquiv
 
 InducedMonoid : (M : Monoid {ℓ}) (N : MonoidΣTheory.RawMonoidΣ) (e : M .fst ≃ N .fst)
               → MonoidΣTheory.RawMonoidEquivStr (MonoidΣTheory.Monoid→RawMonoidΣ M) N e

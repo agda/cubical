@@ -134,6 +134,10 @@ isPropIsGroupoid = isPropIsOfHLevel 3
 isPropIs2Groupoid : isProp (is2Groupoid A)
 isPropIs2Groupoid = isPropIsOfHLevel 4
 
+TypeOfHLevel≡ : (n : HLevel) {X Y : TypeOfHLevel ℓ n} → ⟨ X ⟩ ≡ ⟨ Y ⟩ → X ≡ Y
+TypeOfHLevel≡ n = Σ≡Prop (λ _ → isPropIsOfHLevel n)
+
+
 -- Fillers for cubes from h-level
 
 isSet→isSet' : isSet A → isSet' A
