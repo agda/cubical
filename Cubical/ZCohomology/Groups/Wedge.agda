@@ -45,10 +45,9 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
             λ f inker → helper ∣ f ∣₂ (I.Ker-i⊂Im-d 0 ∣ f ∣₂ inker)
     BijectionIso.surj bijIso p = I.Ker-Δ⊂Im-i 1 p (isContr→isProp (isContrHⁿ-Unit 0) _ _)
 
-  Hⁿ-⋁ (suc n) = vSES→GroupIso (coHomGr (1 + n) Unit) (coHomGr (2 + n) Unit) helper
+  Hⁿ-⋁ (suc n) = vSES→GroupIso {A = coHomGr (2 + n) (A ⋁ B)} {B = ×coHomGr (2 + n) (typ A) (typ B)} _ _ helper
     where
-    helper : vSES (coHomGr (2 + n) (A ⋁ B)) (×coHomGr (2 + n) (typ A) (typ B))
-                  (coHomGr (1 + n) Unit) (coHomGr (2 + n) Unit)
+    helper : vSES _ _ _ _
     vSES.isTrivialLeft helper = isOfHLevelSuc 0 (isContrHⁿ-Unit n)
     vSES.isTrivialRight helper = isOfHLevelSuc 0 (isContrHⁿ-Unit (suc n))
     vSES.left helper = I.d (suc n)
