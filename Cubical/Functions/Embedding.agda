@@ -14,6 +14,8 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Univalence using (ua)
 open import Cubical.Relation.Nullary using (Discrete; yes; no)
 
+open import Cubical.Data.Nat using (ℕ; zero; suc)
+
 private
   variable
     ℓ ℓ₁ ℓ₂ : Level
@@ -176,6 +178,10 @@ Embedding-into-Discrete→Discrete (f , propFibers) _≟_ x y with f x ≟ f y
 ... | yes p = yes (cong fst (propFibers (f y) (x , p) (y , refl)))
 ... | no ¬p = no (¬p ∘ cong f)
 
+Embedding-into-isProp→isProp : A ↪ B → isProp B → isProp A
+Embedding-into-isProp→isProp (f , hasPropFibers-f) isProp-B x y
+  = invIsEq (hasPropFibers→isEmbedding hasPropFibers-f x y) (isProp-B (f x) (f y))
+
 Embedding-into-isSet→isSet : A ↪ B → isSet B → isSet A
 Embedding-into-isSet→isSet (f , hasPropFibers-f) isSet-B x y p q =
   p ≡⟨ sym (retIsEq isEquiv-cong-f p) ⟩
@@ -186,3 +192,15 @@ Embedding-into-isSet→isSet (f , hasPropFibers-f) isSet-B x y p q =
     cong-f-p≡cong-f-q = isSet-B (f x) (f y) (cong f p) (cong f q)
     isEquiv-cong-f = hasPropFibers→isEmbedding hasPropFibers-f x y
     cong-f⁻¹ = invIsEq isEquiv-cong-f
+
+Embedding-into-hLevel→hLevel
+  : ∀ n → A ↪ B → isOfHLevel (suc n) B → isOfHLevel (suc n) A
+Embedding-into-hLevel→hLevel zero = Embedding-into-isProp→isProp
+Embedding-into-hLevel→hLevel (suc n) (f , hasPropFibers-f) Blvl x y
+  = isOfHLevelRespectEquiv (suc n) (invEquiv equiv) subLvl
+  where
+  equiv : (x ≡ y) ≃ (f x ≡ f y)
+  equiv .fst = cong f
+  equiv .snd = hasPropFibers→isEmbedding hasPropFibers-f x y
+  subLvl : isOfHLevel (suc n) (f x ≡ f y)
+  subLvl = Blvl (f x) (f y)
