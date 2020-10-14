@@ -145,9 +145,90 @@ module manualtransport where
 -- well-defined wrt to the forward direction of the equivalence).
 open import Cubical.Foundations.SIP
 open import Cubical.Structures.Axioms
+open import Cubical.Structures.Product
+open import Cubical.Structures.Pointed
+open import Cubical.Structures.Function
+
+
+-- For illustrative purposes we first apply the SIP manually. This
+-- requires quite a bit of boilerplate code which is automated in the
+-- next module.
+module manualSIP (A : Type) where
+
+  -- First define the raw structure without axioms. This is just the
+  -- signature of _++_ and rev.
+  RawStruct : Type → Type
+  RawStruct X = (X → X → X) × (X → X)
+
+  -- Some boilerplate code which can be automated
+  e1 : StrEquiv (λ x → x → x → x) ℓ-zero
+  e1 = FunctionEquivStr+ pointedEquivAction
+                         (FunctionEquivStr+ pointedEquivAction PointedEquivStr)
+
+  e2 : StrEquiv (λ x → x → x) ℓ-zero
+  e2 = FunctionEquivStr+ pointedEquivAction PointedEquivStr
+
+  RawEquivStr : StrEquiv RawStruct _
+  RawEquivStr = ProductEquivStr e1 e2
+
+  rawUnivalentStr : UnivalentStr _ RawEquivStr
+  rawUnivalentStr = productUnivalentStr e1 he1 e2 he2
+    where
+    he2 : UnivalentStr (λ z → z → z) e2
+    he2 = functionUnivalentStr+ pointedEquivAction pointedTransportStr
+                                PointedEquivStr pointedUnivalentStr
+
+    he1 : UnivalentStr (λ z → z → z → z) e1
+    he1 = functionUnivalentStr+ pointedEquivAction pointedTransportStr e2 he2
+
+  -- Now the property that we want to transport
+  P : (X : Type) → RawStruct X → Type
+  P X (_++_ , rev) = ((xs ys : X) → rev (xs ++ ys) ≡ rev ys ++ rev xs)
+
+  -- Package things up for List
+  List-Struct : Σ[ X ∈ Type ] (Σ[ s ∈ RawStruct X ] (P X s))
+  List-Struct = List A , (_++_ , rev) , rev-++-distr
+
+
+  -- We now give direct definitions of ++' and rev' for List'
+  _++'_ : List' A → List' A → List' A
+  [] ++' ys        = ys
+  (xs ∷' x) ++' ys = (xs ++' ys) ∷' x
+
+  rev' : List' A → List' A
+  rev' [] = []
+  rev' (xs ∷' x) = rev' xs ++' ([] ∷' x)
+
+  -- We then package this up into a raw structure on List'
+  List'-RawStruct : Σ[ X ∈ Type ] (RawStruct X)
+  List'-RawStruct = List' A , (_++'_ , rev')
+
+  -- Finally we prove that toList' commutes with _++_ and rev. Note
+  -- that this could be a lot more complex, see for example the Matrix
+  -- example (Cubical.Algebra.Matrix).
+  toList'-++ : (xs ys : List A) → toList' (xs ++ ys) ≡ toList' xs ++' toList' ys
+  toList'-++ [] ys = refl
+  toList'-++ (x ∷ xs) ys i = toList'-++ xs ys i ∷' x
+
+  toList'-rev : (xs : List A) → toList' (rev xs) ≡ rev' (toList' xs)
+  toList'-rev [] = refl
+  toList'-rev (x ∷ xs) = toList'-++ (rev xs) (x ∷ []) ∙ cong (_++' ([] ∷' x)) (toList'-rev xs)
+
+  -- We can now get the property for ++' and rev' via the SIP
+  rev-++-distr' : (xs ys : List' A) → rev' (xs ++' ys) ≡ rev' ys ++' rev' xs
+  rev-++-distr' = transferAxioms rawUnivalentStr List-Struct List'-RawStruct
+                        (ListEquiv , toList'-++ , toList'-rev) .snd .snd
+
+  -- Note that rev-++-distr' is really talking about the direct
+  -- definitions of ++' and rev', not the transported operations as in
+  -- the previous attempt.
+
+
+
+-- We now automate parts of the above construction
 open import Cubical.Structures.Auto
 
-module SIP (A : Type) where
+module SIP-auto (A : Type) where
 
   -- First define the raw structure without axioms. This is just the
   -- signature of _++_ and rev.
@@ -195,10 +276,10 @@ module SIP (A : Type) where
   toList'-rev (x ∷ xs) = toList'-++ (rev xs) (x ∷ []) ∙ cong (_++' ([] ∷' x)) (toList'-rev xs)
 
   -- We can now get the property for ++' and rev' via the SIP
-  goal : (xs ys : List' A) → rev' (xs ++' ys) ≡ rev' ys ++' rev' xs
-  goal = transferAxioms rawUnivalentStr List-Struct List'-RawStruct
+  rev-++-distr' : (xs ys : List' A) → rev' (xs ++' ys) ≡ rev' ys ++' rev' xs
+  rev-++-distr' = transferAxioms rawUnivalentStr List-Struct List'-RawStruct
                         (ListEquiv , toList'-++ , toList'-rev) .snd .snd
 
-  -- Note that "goal" is really talking about the direct definitions
-  -- of ++' and rev', not the transported operations as in the
-  -- previous attempt.
+  -- Note that rev-++-distr' is really talking about the direct
+  -- definitions of ++' and rev', not the transported operations as in
+  -- the previous attempt.
