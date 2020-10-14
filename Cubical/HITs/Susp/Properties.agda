@@ -78,7 +78,7 @@ suspToPropElim2 _ _ Bnorth north north = Bnorth
 suspToPropElim2 {B = B} a _ Bnorth north south = subst (B north) (merid a) Bnorth
 suspToPropElim2 {B = B} a isprop Bnorth north (merid x i) =
   isProp→PathP (λ i → isprop north (merid x i))
-               Bnorth (subst (B north) (merid a) Bnorth) i 
+               Bnorth (subst (B north) (merid a) Bnorth) i
 suspToPropElim2 {B = B} a _ Bnorth south north = subst (λ x → B x north) (merid a) Bnorth
 suspToPropElim2 {B = B} a _ Bnorth south south = subst (λ x → B x x) (merid a) Bnorth
 suspToPropElim2 {B = B} a isprop Bnorth south (merid x i) =

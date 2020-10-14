@@ -18,7 +18,6 @@ open Modality
 
 open import Cubical.Data.Empty.Base as ⊥ renaming (rec to ⊥rec ; elim to ⊥elim)
 open import Cubical.Data.Nat hiding (elim)
-open import Cubical.Data.NatMinusOne as ℕ₋₁
 open import Cubical.Data.Sigma
 open import Cubical.Data.Bool
 open import Cubical.Data.Unit
@@ -39,22 +38,22 @@ private
     A : Type ℓ
     B : Type ℓ'
 
-sphereFill : (n : ℕ₋₁) (f : S' n → A) → Type _
-sphereFill {A = A} n f = Σ[ top ∈ A ] ((x : S' n) → top ≡ f x)
+sphereFill : (n : ℕ) (f : S₊ n → A) → Type _
+sphereFill {A = A} n f = Σ[ top ∈ A ] ((x : S₊ n) → top ≡ f x)
 
-isSphereFilled : ℕ₋₁ → Type ℓ → Type ℓ
-isSphereFilled n A = (f : S' n → A) → sphereFill n f
+isSphereFilled : ℕ → Type ℓ → Type ℓ
+isSphereFilled n A = (f : S₊ n → A) → sphereFill n f
 
-isSphereFilled∥∥ : {n : ℕ₋₁} → isSphereFilled (suc₋₁ n) (HubAndSpoke A n)
+isSphereFilled∥∥ : {n : ℕ} → isSphereFilled n (HubAndSpoke A n)
 isSphereFilled∥∥ f = (hub f) , (spoke f)
 
-isSphereFilled→isOfHLevel : (n : ℕ₋₁) → isSphereFilled (suc₋₁ n) A → isOfHLevel (1 + 1+ n) A
-isSphereFilled→isOfHLevel {A = A} neg1 h x y = sym (snd (h f) true) ∙ snd (h f) false
+isSphereFilled→isOfHLevel : (n : ℕ) → isSphereFilled n A → isOfHLevel (suc n) A
+isSphereFilled→isOfHLevel {A = A} zero h x y = sym (snd (h f) true) ∙ snd (h f) false
   where
     f : Bool → A
     f true = x
     f false = y
-isSphereFilled→isOfHLevel {A = A} (ℕ→ℕ₋₁ zero) h x y =
+isSphereFilled→isOfHLevel {A = A} (suc zero) h x y =
   J (λ y q → (p : x ≡ y) → q ≡ p) (helper x)
   where
   helper : (x : A) (p : x ≡ x) → refl ≡ p
@@ -68,10 +67,10 @@ isSphereFilled→isOfHLevel {A = A} (ℕ→ℕ₋₁ zero) h x y =
     S¹→A : S¹ → A
     S¹→A base = x
     S¹→A (loop i) = p i
-isSphereFilled→isOfHLevel {A = A} (ℕ→ℕ₋₁ (suc n)) h x y =
-  isSphereFilled→isOfHLevel (ℕ→ℕ₋₁ n) (helper h x y)
+isSphereFilled→isOfHLevel {A = A} (suc (suc n)) h x y =
+  isSphereFilled→isOfHLevel (suc n) (helper h x y)
   where
-    helper : {n : ℕ} → isSphereFilled (suc₋₁ (ℕ→ℕ₋₁ (suc n))) A → (x y : A) → isSphereFilled (suc₋₁ (ℕ→ℕ₋₁ n)) (x ≡ y)
+    helper : {n : ℕ} → isSphereFilled (suc (suc n)) A → (x y : A) → isSphereFilled (suc n) (x ≡ y)
     helper {n = n} h x y f = sym (snd (h f') north) ∙ (snd (h f') south) , r
       where
         f' : Susp (S₊ (suc n)) → A
@@ -88,36 +87,27 @@ isSphereFilled→isOfHLevel {A = A} (ℕ→ℕ₋₁ (suc n)) h x y =
                          })
                   (snd (h f') north (~ i ∧ ~ j))
 
-isOfHLevel→isSphereFilled : (n : ℕ₋₁) → isOfHLevel (1 + 1+ n) A → isSphereFilled (suc₋₁ n) A
-isOfHLevel→isSphereFilled neg1 h f = (f true) , (λ _ → h _ _)
-isOfHLevel→isSphereFilled {A = A} (ℕ→ℕ₋₁ zero) h f = (f base) , toPropElim (λ _ → h _ _) refl
-isOfHLevel→isSphereFilled {A = A} (ℕ→ℕ₋₁ (suc n)) h =
-  helper λ x y → isOfHLevel→isSphereFilled (ℕ→ℕ₋₁ n) (h x y)
+isOfHLevel→isSphereFilled : (n : ℕ) → isOfHLevel (suc n) A → isSphereFilled n A
+isOfHLevel→isSphereFilled zero h f = (f true) , (λ _ → h _ _)
+isOfHLevel→isSphereFilled {A = A} (suc zero) h f = (f base) , toPropElim (λ _ → h _ _) refl
+isOfHLevel→isSphereFilled {A = A} (suc (suc n)) h =
+  helper λ x y → isOfHLevel→isSphereFilled (suc n) (h x y)
   where
-    helper : {n : ℕ} → ((x y : A) → isSphereFilled (ℕ→ℕ₋₁ (suc n)) (x ≡ y))
-                     → isSphereFilled (ℕ→ℕ₋₁ (suc (suc n))) A
-    helper {n = n} h f = l , r
+    helper : {n : ℕ} → ((x y : A) → isSphereFilled (suc n) (x ≡ y))
+                     → isSphereFilled (suc (suc n)) A
+    helper {n = n} h f = f north , r
       where
-      l : A
-      l = f north
-
-      f' : S₊ (suc n) → f north ≡ f south
-      f' x i = f (merid x i)
-
-      h' : sphereFill (ℕ→ℕ₋₁ (suc n)) f'
-      h' = h (f north) (f south) f'
-
-      r : (x : S₊ (suc (suc n))) → l ≡ f x
+      r : (x : S₊ (suc (suc n))) → f north ≡ f x
       r north = refl
-      r south = h' .fst
+      r south = h (f north) (f south) (λ x → cong f (merid x)) .fst
       r (merid x i) j = hcomp (λ k → λ { (i = i0) → f north
-                                       ; (i = i1) → h' .snd x (~ k) j
+                                       ; (i = i1) → h (f north) (f south) (λ x → cong f (merid x)) .snd x (~ k) j
                                        ; (j = i0) → f north
                                        ; (j = i1) → f (merid x i) }) (f (merid x (i ∧ j)))
 
 isOfHLevelTrunc : (n : ℕ) → isOfHLevel n (∥ A ∥ n)
 isOfHLevelTrunc zero = isOfHLevelUnit* 0
-isOfHLevelTrunc (suc n) = isSphereFilled→isOfHLevel (-1+ n) isSphereFilled∥∥
+isOfHLevelTrunc (suc n) = isSphereFilled→isOfHLevel n isSphereFilled∥∥
 
 rec : {n : HLevel}
       {B : Type ℓ'} →
@@ -126,9 +116,9 @@ rec : {n : HLevel}
       hLevelTrunc (suc n) A →
       B
 rec h g ∣ x ∣ = g x
-rec {n = n} {B = B} hB g (hub f) = isOfHLevel→isSphereFilled (-1+ n) hB (λ x → rec hB g (f x)) .fst
+rec {n = n} {B = B} hB g (hub f) = isOfHLevel→isSphereFilled n hB (λ x → rec hB g (f x)) .fst
 rec {n = n} hB g (spoke f x i) =
-  isOfHLevel→isSphereFilled (-1+ n) hB (λ x → rec hB g (f x)) .snd x i
+  isOfHLevel→isSphereFilled n hB (λ x → rec hB g (f x)) .snd x i
 
 elim : {n : ℕ}
       {B : ∥ A ∥ (suc n) → Type ℓ'}
