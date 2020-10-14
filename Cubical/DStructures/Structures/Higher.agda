@@ -27,7 +27,7 @@ open import Cubical.HITs.EilenbergMacLane1
 
 open import Cubical.DStructures.Base
 open import Cubical.DStructures.Meta.Properties
-open import Cubical.DStructures.Meta.Combine
+
 open import Cubical.DStructures.Meta.Isomorphism
 open import Cubical.DStructures.Structures.Universe
 open import Cubical.DStructures.Structures.Type

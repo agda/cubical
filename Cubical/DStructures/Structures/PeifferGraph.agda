@@ -19,7 +19,7 @@ open import Cubical.Structures.LeftAction
 open import Cubical.DStructures.Base
 open import Cubical.DStructures.Meta.Properties
 open import Cubical.DStructures.Structures.Constant
-open import Cubical.DStructures.Meta.Combine
+
 open import Cubical.DStructures.Structures.Type
 open import Cubical.DStructures.Structures.Group
 open import Cubical.DStructures.Structures.ReflGraph

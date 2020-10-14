@@ -25,7 +25,7 @@ open import Cubical.Algebra.Group.Semidirect
 
 open import Cubical.DStructures.Base
 open import Cubical.DStructures.Meta.Properties
-open import Cubical.DStructures.Meta.Combine
+
 open import Cubical.DStructures.Meta.Isomorphism
 open import Cubical.DStructures.Structures.Constant
 open import Cubical.DStructures.Structures.Type

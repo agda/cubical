@@ -20,13 +20,6 @@ private
   variable
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C ℓ≅ᴰ : Level
 
-{- Stuff to do:
- * get URGStr from univalent bi-category
- * (Bonus: (A : Type ℓ) → isContr (URGStr A ℓ))
- * functoriality for free for e : (a : A) → B a → B' a
- * standard notion of structure
--}
-
 -- a univalent reflexive graph structure on a type
 record URGStr (A : Type ℓA) (ℓ≅A : Level) : Type (ℓ-max ℓA (ℓ-suc ℓ≅A)) where
   no-eta-equality

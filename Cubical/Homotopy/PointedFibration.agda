@@ -13,7 +13,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Homotopy.Base
-open import Cubical.Homotopy.Connected
+open import Cubical.Homotopy.ConnectedOld
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
@@ -97,7 +97,7 @@ module _ {ℓ' : Level} (X : Pointed ℓ) where
         fkconn = UnitConnectedFunElim isConnX f
 
         -- use the elimnation principle of the k-connected map f
-        open elim f k
+        open elim f
 
         -- notation
         module _ (s : sec∙) where
@@ -108,7 +108,7 @@ module _ {ℓ' : Level} (X : Pointed ℓ) where
           -- identity type s₀₁ ⋆ ≡ s₁ ⋆
           -- the Unit type will be eliminated in the next step
           IsoHtpy𝟙Idpt : Iso (s₀₁ ∼ s₁) (Unit → s₀₁ ⋆ ≡ s₁ ⋆)
-          IsoHtpy𝟙Idpt = isIsoPrecompose (λ (x : typ X) → (s₀₁ x ≡ s₁ x) , HL← (HL→ (snd (Y x)) (s₀₁ x) (s₁ x))) fkconn
+          IsoHtpy𝟙Idpt = isIsoPrecompose k (λ (x : typ X) → (s₀₁ x ≡ s₁ x) , HL← (HL→ (snd (Y x)) (s₀₁ x) (s₁ x))) fkconn
           -- IsoHtpy𝟙Idpt = isIsoPrecompose (λ (x : typ X) → (s₀₁ x ≡ s₁ x) , HL← ((HL→ (snd (Y x))) (s₀₁ x) (s₁ x))) fkconn
 
           IsoHtpyIdpt : Iso (s₀₁ ∼ s₁) (s₀₁ ⋆ ≡ s₁ ⋆)
@@ -118,7 +118,13 @@ module _ {ℓ' : Level} (X : Pointed ℓ) where
           -- (s₀ ∙∼ s) ≡ (Σ[ h ∈ (s₀₁ ∼ s₁) ] (h ⋆ ≡ (snd s₀) ∙ s₂ ⁻¹))
           -- The right inverse of IsoHtpyIdpt gives such a pointed homotopy
           s₀∙∼s : s₀ ∙∼ s
-          s₀∙∼s = (Iso.inv IsoHtpyIdpt (refl ∙ s₂ ⁻¹)) , (Iso.rightInv IsoHtpyIdpt (refl ∙ s₂ ⁻¹))
+          fst s₀∙∼s = Iso.inv IsoHtpyIdpt (refl ∙ s₂ ⁻¹)
+          snd s₀∙∼s =
+            Iso.inv IsoHtpyIdpt (refl ∙ s₂ ⁻¹) ⋆
+              ≡⟨ refl ⟩
+            Iso.fun IsoHtpyIdpt (Iso.inv IsoHtpyIdpt (refl ∙ s₂ ⁻¹))
+              ≡⟨ Iso.rightInv IsoHtpyIdpt (refl ∙ s₂ ⁻¹) ⟩
+            refl ∙ s₂ ⁻¹ ∎
          
 
   sec∙Trunc {n = 1} {k} isConnX Y = truncSelfId→truncId {n = 0} (λ s → EquivPresHLevel {n = 1} (sec≃ s) (sec∙Trunc {n = 0} {k} isConnX λ x → ((s .fst x ≡ s .fst x) , refl) , (snd (Y x) (s .fst x) (s .fst x))))

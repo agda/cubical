@@ -18,31 +18,31 @@ open import Cubical.Data.Maybe
 
 open import Cubical.Relation.Binary
 
-
 open import Cubical.Structures.Subtype
-open import Cubical.Algebra.Group
 open import Cubical.Structures.LeftAction
+
+open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Semidirect
 
 -- this file also serves as Everything.agda
 open import Cubical.DStructures.Base
+
 open import Cubical.DStructures.Meta.Properties
-open import Cubical.DStructures.Meta.Combine
 open import Cubical.DStructures.Meta.Isomorphism
-open import Cubical.DStructures.Structures.Constant
-open import Cubical.DStructures.Structures.Category
-open import Cubical.DStructures.Structures.Type
-open import Cubical.DStructures.Structures.Group
+
 open import Cubical.DStructures.Structures.Action
-open import Cubical.DStructures.Structures.Strict2Group
-open import Cubical.DStructures.Structures.ReflGraph
-open import Cubical.DStructures.Structures.PeifferGraph
-open import Cubical.DStructures.Structures.VertComp
-open import Cubical.DStructures.Structures.SplitEpi
-open import Cubical.DStructures.Structures.Type
+open import Cubical.DStructures.Structures.Category
+open import Cubical.DStructures.Structures.Constant
+open import Cubical.DStructures.Structures.Group
+-- open import Cubical.DStructures.Structures.Higher
 open import Cubical.DStructures.Structures.Nat
-open import Cubical.DStructures.Structures.Higher
+open import Cubical.DStructures.Structures.PeifferGraph
+open import Cubical.DStructures.Structures.ReflGraph
+open import Cubical.DStructures.Structures.SplitEpi
+open import Cubical.DStructures.Structures.Strict2Group
+open import Cubical.DStructures.Structures.Type
 open import Cubical.DStructures.Structures.Universe
+open import Cubical.DStructures.Structures.VertComp
 open import Cubical.DStructures.Structures.XModule
 open import Cubical.DStructures.Equivalences.GroupSplitEpiAction
 open import Cubical.DStructures.Equivalences.PreXModReflGraph
@@ -61,8 +61,6 @@ open MorphismLemmas
 
 
 
-
-{-
 
 module _ {C : Type ℓ} where
   dispTypeIso : Iso (C → Type ℓ) (Σ[ X ∈ Type ℓ ] (X → C))
@@ -116,7 +114,6 @@ module _ {C : Type ℓ} where
                     ≡⟨ fromPathP q ⟩
                   y ∎
 
--}
 
 {-
 
