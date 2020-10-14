@@ -25,3 +25,9 @@ isGroupoidS¹ s t =
           (λ q → subst (λ t → isSet (base ≡ t)) q isSetΩS¹)
           (isConnectedS¹ t)))
     (isConnectedS¹ s)
+
+characFunSpaceS¹ : ∀ {ℓ} {A : Type ℓ} → Iso (S¹ → A) (Σ[ x ∈ A ] x ≡ x)
+Iso.fun characFunSpaceS¹ = {!!}
+Iso.inv characFunSpaceS¹ = {!!}
+Iso.rightInv characFunSpaceS¹ = {!!}
+Iso.leftInv characFunSpaceS¹ = {!!}

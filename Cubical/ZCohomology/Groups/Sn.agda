@@ -125,30 +125,12 @@ H¹-S⁰≅0 n = IsoContrGroupTrivialGroup (isContrHⁿ-S0 n)
 H²-S¹≅0 : GroupIso (coHomGr 2 (S₊ 1)) trivialGroup
 H²-S¹≅0 = coHomGr 2 (S₊ 1)                                        ≅⟨ coHomPushout≅coHomSn 0 2 ⟩≅
            coHomGr 2 (Pushout {A = S₊ 0} (λ _ → tt) (λ _ → tt))    ≅⟨ invGroupIso (vSES→GroupIso _ _ vSES-helper) ⟩≅
-           (coHomGr 1 (S₊ 0)                                       ≅⟨ H¹-S⁰≅0 0 ⟩
-           (trivialGroup □))
+          (coHomGr 1 (S₊ 0)                                        ≅⟨ H¹-S⁰≅0 0 ⟩
+           trivialGroup □)
 
   where
-  test : (x : ⟨ coHomGr 2 (Susp Bool) ⟩) → x ≡ (0ₕ 2)
-  test = coHomPointedElim 1 north (λ _ → setTruncIsSet _ _)
-           λ f p → cong ∣_∣₂ (funExt (λ {north → p ; south → {!!} ; (merid a i) → {!!}}))
-  helper : (f : Susp Bool → coHomK 2 )
-         → (x y : coHomK 2) → (p : x ≡ y)
-         → (fn : f north ≡ x)
-         → (fs : f south ≡ y)
-         → cong f (merid true) ≡ (fn ∙∙ p ∙∙ sym fs)
-         → ∣ f ∣₂ ≡ 0ₕ 2
-  helper f x y = J (λ y p → (fn : f north ≡ x)
-                                (fs : f south ≡ y)
-                              → cong f (merid true) ≡ (fn ∙∙ p ∙∙ sym fs)
-                              → ∣ f ∣₂ ≡ 0ₕ 2)
-                   (trElim {B = λ x → (fn : f north ≡ x) (fs : f south ≡ x) →
-      (λ i → f (merid true i)) ≡ (fn ∙∙ refl ∙∙ (λ i → fs (~ i))) →
-      ∣ f ∣₂ ≡ ∣ (λ _ → 0ₖ 2) ∣₂} {!!}
-                    (suspToPropElim base
-                      {!!} (λ fn fs congId
-                             → cong ∣_∣₂ (funExt (λ {north → fn ; south → fs ; (merid true i) → {!!} ; (merid false i) → {!!}})))) x)
-          -- → cong ∣_∣₂ (funExt (λ {north → {!!} ; south → {!!} ; (merid true i) → {!!} ; (merid false i) → {!!}})))
+  test : Iso ⟨ coHomGr 2 (S₊ 1) ⟩ ∥ Σ [ x ∈ (coHomK 2 × {!!}) ∥₂
+  test = {!!}
   module I = MV Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt)
   vSES-helper : vSES (coHomGr 1 (S₊ 0)) (coHomGr 2 (Pushout (λ _ → tt) (λ _ → tt)))
                      (×coHomGr 1 Unit Unit)
@@ -197,7 +179,6 @@ H¹-Sⁿ≅0 (suc n) = IsoContrGroupTrivialGroup isContrH¹S³⁺ⁿ
       anIso
       (∣ (λ _ → ∣ ∣ base ∣ ∣) ∣₂
       , sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _) isContrH¹S³⁺ⁿ-ish)
-
 
 --------- Direct proof of H¹(S¹) ≅ ℤ without Mayer-Vietoris -------
 
