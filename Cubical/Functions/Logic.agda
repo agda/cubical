@@ -1,3 +1,5 @@
+-- Various functions for manipulating hProps.
+--
 -- This file used to be part of Foundations, but it turned out to be
 -- not very useful so moved here. Feel free to upstream content.
 --
@@ -7,14 +9,15 @@
 -- of having them bundled up with the type.
 --
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Experiments.Logic where
+module Cubical.Functions.Logic where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.HLevels using (hProp; isPropΠ; isPropΠ2; isOfHLevelΣ)
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Univalence using (hPropExt)
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sum as ⊎ using (_⊎_)
@@ -63,7 +66,7 @@ _≡ₚ_ : (x y : A) → hProp _
 x ≡ₚ y = ∥ x ≡ y ∥ₚ
 
 hProp≡ : ⟨ P ⟩ ≡ ⟨ Q ⟩ → P ≡ Q
-hProp≡ p = Σ≡Prop (\ _ → isPropIsProp) p
+hProp≡ = TypeOfHLevel≡ 1
 
 isProp⟨⟩ : (A : hProp ℓ) → isProp ⟨ A ⟩
 isProp⟨⟩ = snd
@@ -75,8 +78,7 @@ _⇒_ : (A : hProp ℓ) → (B : hProp ℓ') → hProp _
 A ⇒ B = (⟨ A ⟩ → ⟨ B ⟩) , isPropΠ λ _ → isProp⟨⟩ B
 
 ⇔toPath : ⟨ P ⇒ Q ⟩ → ⟨ Q ⇒ P ⟩ → P ≡ Q
-⇔toPath {P = P} {Q = Q} P⇒Q Q⇒P = hProp≡ (isoToPath
-  (iso P⇒Q Q⇒P (λ b → isProp⟨⟩ Q (P⇒Q (Q⇒P b)) b) λ a → isProp⟨⟩ P (Q⇒P (P⇒Q a)) a))
+⇔toPath {P = P} {Q = Q} P⇒Q Q⇒P = hProp≡ (hPropExt (isProp⟨⟩ P) (isProp⟨⟩ Q) P⇒Q Q⇒P)
 
 pathTo⇒ : P ≡ Q → ⟨ P ⇒ Q ⟩
 pathTo⇒ p x = subst fst  p x
