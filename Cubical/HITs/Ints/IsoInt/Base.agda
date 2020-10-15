@@ -13,7 +13,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 
-open import Cubical.Data.Int
+open import Cubical.Data.Int hiding (eq)
 open import Cubical.Data.Nat
 open import Cubical.Data.Empty
 
