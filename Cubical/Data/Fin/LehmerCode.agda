@@ -194,7 +194,7 @@ decode = invEq lehmerEquiv
 
 factorial : ℕ → ℕ
 factorial zero = 1
-factorial (suc n) = suc n * factorial n
+factorial (suc n) = suc n · factorial n
 
 lehmerFinEquiv : LehmerCode n ≃ Fin (factorial n)
 lehmerFinEquiv {zero} = isContr→Equiv isContrLehmerZero isContrFin1
