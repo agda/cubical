@@ -23,8 +23,8 @@ private
 
 -- The constant displayed structure of a URG structure 𝒮-B over 𝒮-A
 𝒮ᴰ-const : {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
-               {B : Type ℓB} (𝒮-B : URGStr B ℓ≅B)
-               → URGStrᴰ 𝒮-A (λ _ → B) ℓ≅B
+           {B : Type ℓB} (𝒮-B : URGStr B ℓ≅B)
+           → URGStrᴰ 𝒮-A (λ _ → B) ℓ≅B
 𝒮ᴰ-const {A = A} 𝒮-A {B} 𝒮-B
   = urgstrᴰ (λ b _ b' → b ≅ b') ρ uni
     where
@@ -36,6 +36,10 @@ _×𝒮_ : {A : Type ℓA} (StrA : URGStr A ℓ≅A)
          {B : Type ℓB} (StrB : URGStr B ℓ≅B)
          → URGStr (A × B) (ℓ-max ℓ≅A ℓ≅B)
 _×𝒮_ StrA {B} StrB = ∫⟨ StrA ⟩ (𝒮ᴰ-const StrA StrB)
+
+
+
+
 
 -- any displayed structure defined over a
 -- structure on a product can also be defined

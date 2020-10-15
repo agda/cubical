@@ -47,40 +47,34 @@ private
 
 -- a subtype induces a URG structure on itself
 Subtype→Sub-𝒮ᴰ : {A : Type ℓA} (P : A → hProp ℓP)
-                (StrA : URGStr A ℓ≅A)
-                → URGStrᴰ StrA (λ a → P a .fst) ℓ-zero
+                 (StrA : URGStr A ℓ≅A)
+                 → URGStrᴰ StrA (λ a → P a .fst) ℓ-zero
 Subtype→Sub-𝒮ᴰ P StrA =
   make-𝒮ᴰ (λ _ _ _ → Unit)
-              (λ _ → tt)
-              (λ a p → isContrRespectEquiv
-                                              (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
-                                              (inhProp→isContr p (P a .snd)))
+          (λ _ → tt)
+          (λ a p → isContrRespectEquiv (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
+                                        (inhProp→isContr p (P a .snd)))
 
-module _ {A : Type ℓA} (𝒮 : URGStr A ℓA) where
-  open URGStr
-  𝒮' = 𝒮-type A
+-- uniqueness of small URG structures
+private
+  module _ {A : Type ℓA} (𝒮 : URGStr A ℓA) where
+    open URGStr
+    𝒮' = 𝒮-type A
 
-  ≅-≡ : _≅_ 𝒮' ≡ _≅_ 𝒮
-  ≅-≡ = funExt₂ (λ a a' → ua (isUnivalent→isUnivalent' (_≅_ 𝒮) (ρ 𝒮) (uni 𝒮) a a'))
+    ≅-≡ : _≅_ 𝒮' ≡ _≅_ 𝒮
+    ≅-≡ = funExt₂ (λ a a' → ua (isUnivalent→isUnivalent' (_≅_ 𝒮) (ρ 𝒮) (uni 𝒮) a a'))
 
-  ρ-≡ : PathP (λ i → isRefl (≅-≡ i)) (ρ 𝒮') (ρ 𝒮)
-  ρ-≡ = funExt (λ a → toPathP (p a))
-    where
-      p : (a : A) → transport (λ i → ≅-≡ i a a) refl ≡ (ρ 𝒮 a)
-      p a = uaβ (isUnivalent→isUnivalent' (_≅_ 𝒮) (ρ 𝒮) (uni 𝒮) a a) refl ∙ transportRefl (ρ 𝒮 a)
+    ρ-≡ : PathP (λ i → isRefl (≅-≡ i)) (ρ 𝒮') (ρ 𝒮)
+    ρ-≡ = funExt (λ a → toPathP (p a))
+      where
+        p : (a : A) → transport (λ i → ≅-≡ i a a) refl ≡ (ρ 𝒮 a)
+        p a = uaβ (isUnivalent→isUnivalent' (_≅_ 𝒮) (ρ 𝒮) (uni 𝒮) a a) refl ∙ transportRefl (ρ 𝒮 a)
 
-      u : (a : A) → (transport (λ i → ≅-≡ i a a) refl) ≡ (subst (λ a' → (_≅_ 𝒮) a a') refl (ρ 𝒮 a))
-      u a =  uaβ (isUnivalent→isUnivalent' (_≅_ 𝒮) (ρ 𝒮) (uni 𝒮) a a) refl 
+        u : (a : A) → (transport (λ i → ≅-≡ i a a) refl) ≡ (subst (λ a' → (_≅_ 𝒮) a a') refl (ρ 𝒮 a))
+        u a =  uaβ (isUnivalent→isUnivalent' (_≅_ 𝒮) (ρ 𝒮) (uni 𝒮) a a) refl
 
-{-
-      q₁ : (a : A) → ≡→R (_≅_ 𝒮) (ρ 𝒮) refl ≡ subst ((_≅_ 𝒮) a) refl (ρ 𝒮 a)
-      q₁ a = refl
-      q₂ : (a : A) → subst (λ a' → (_≅_ 𝒮) a a') refl (ρ 𝒮 a) ≡ ρ 𝒮 a
-      q₂ a = transportRefl (ρ 𝒮 a)
--}
-
-  uni-≡ : PathP (λ i → isUnivalent (≅-≡ i) (ρ-≡ i)) (uni 𝒮') (uni 𝒮)
-  uni-≡ = isProp→PathP (λ i → isPropΠ2 (λ a a' → isPropIsEquiv (≡→R (≅-≡ i) (ρ-≡ i)))) (uni 𝒮') (uni 𝒮)
+    uni-≡ : PathP (λ i → isUnivalent (≅-≡ i) (ρ-≡ i)) (uni 𝒮') (uni 𝒮)
+    uni-≡ = isProp→PathP (λ i → isPropΠ2 (λ a a' → isPropIsEquiv (≡→R (≅-≡ i) (ρ-≡ i)))) (uni 𝒮') (uni 𝒮)
 
 𝒮-uniqueness : (A : Type ℓA) → isContr (URGStr A ℓA)
 𝒮-uniqueness A .fst = 𝒮-type A

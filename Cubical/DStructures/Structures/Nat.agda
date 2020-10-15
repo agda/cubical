@@ -50,6 +50,7 @@ private
 
 -- This module contains the first half of the proof of
 -- theorem 10.2.3 of Egbert Rijkes Intro to Hott
+-- TODO: privatize
 module _ {A : Type ℓA}
          (_≅_ : A → A → Type ℓ≅A)
          (ρ : (a : A) → a ≅ a)

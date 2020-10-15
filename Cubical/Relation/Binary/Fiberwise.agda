@@ -72,26 +72,3 @@ module _ {A : Type ℓA} {A' : Type ℓA'} (F : Iso A A')
        RelFiberIsoOver→Iso e≅♭ = Σ-cong-iso F (RelFiberIsoOver→♭FiberIso e≅♭)
 
 
-
-
--- old stuff
-
-{-
-record RelIsoOver {A : Type ℓA} {_≅A_ : Rel A A ℓ≅A}
-                  {A' : Type ℓA'} {_≅A'_ : Rel A' A' ℓ≅A'}
-                  (ℱ : RelIso _≅A_ _≅A'_)
-                  (ℬ : RelFamily A ℓB ℓ≅B)
-                  (ℬ' : RelFamily A' ℓB' ℓ≅B') : Type {!!} where
-
-  private
-    F = RelIso.fun ℱ
-    F- = RelIso.inv ℱ
-    B = λ (a : A) → ℬ .fst a
-    B' = λ (a' : A') → ℬ' .fst a'
-
-  field
-    fun : {a : A} (b : B a) → B' (F a)
-    inv : {a' : A'} (b' : B' a') → B (F- a')
-    -- leftInv : {a : A} (b : B a) → inv (fun b) = b
-    -- rightInv : {a' : A'} (b' : B' a') → fun (inv b') = b'
--}
