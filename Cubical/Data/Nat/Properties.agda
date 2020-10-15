@@ -16,16 +16,27 @@ private
   variable
     l m n : ℕ
 
-min : ℕ → ℕ → ℕ
-min zero m = zero
-min (suc n) zero = zero
-min (suc n) (suc m) = suc (min n m)
+_⊓_ : ℕ → ℕ → ℕ
+_⊓_ zero m = zero
+_⊓_ (suc n) zero = zero
+_⊓_ (suc n) (suc m) = suc (n ⊓ m)
 
-minComm : (n m : ℕ) → min n m ≡ min m n
-minComm zero zero = refl
-minComm zero (suc m) = refl
-minComm (suc n) zero = refl
-minComm (suc n) (suc m) = cong suc (minComm n m)
+_⊔_ : ℕ → ℕ → ℕ
+_⊔_ zero m = m
+_⊔_ (suc n) zero = suc n
+_⊔_ (suc n) (suc m) = suc (n ⊔ m)
+
+⊓-comm : (n m : ℕ) → n ⊓ m ≡ m ⊓ n
+⊓-comm zero zero = refl
+⊓-comm zero (suc m) = refl
+⊓-comm (suc n) zero = refl
+⊓-comm (suc n) (suc m) = cong suc (⊓-comm n m)
+
+⊔-comm : (n m : ℕ) → n ⊔ m ≡ m ⊔ n
+⊔-comm zero zero = refl
+⊔-comm zero (suc m) = refl
+⊔-comm (suc n) zero = refl
+⊔-comm (suc n) (suc m) = cong suc (⊔-comm n m)
 
 znots : ¬ (0 ≡ suc n)
 znots eq = subst (caseNat ℕ ⊥) eq 0
@@ -55,7 +66,7 @@ suc-predℕ (suc n) p = refl
 
 -- Arithmetic facts about +
 
-+-zero : ∀ m → m + 0 ≡ m
++-zero : ∀ m → m + 0 ≡ m -- TODO: name this +-identityʳ ?
 +-zero zero = refl
 +-zero (suc m) = cong suc (+-zero m)
 
@@ -125,6 +136,13 @@ m+n≡0→m≡0×n≡0 {suc m} p = ⊥.rec (snotz p)
 ·-identityʳ : ∀ m → m · 1 ≡ m
 ·-identityʳ zero = refl
 ·-identityʳ (suc m) = cong suc (·-identityʳ m)
+
+·-nullifiesˡ : ∀ x → 0 · x ≡ 0
+·-nullifiesˡ x = refl
+
+·-nullifiesʳ : ∀ x → x · 0 ≡ 0
+·-nullifiesʳ zero = refl
+·-nullifiesʳ (suc x) = ·-nullifiesʳ x
 
 0≡n·sm→0≡n : 0 ≡ n · suc m → 0 ≡ n
 0≡n·sm→0≡n {n = zero} p = refl

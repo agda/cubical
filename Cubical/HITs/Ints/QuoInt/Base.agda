@@ -37,7 +37,7 @@ pattern pos n = signed spos n
 pattern neg n = signed sneg n
 
 
-sign : ℤ → Sign
+sign : ℤ → Sign -- TODO: this is named `sgn` in Cubical.Data.Int
 sign (signed _ zero) = spos
 sign (signed s (suc _)) = s
 sign (posneg i) = spos
