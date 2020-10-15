@@ -353,36 +353,6 @@ ind-assoc _·_ f g p q base m n (suc o) =
 ·-identityˡ : ∀ x → 1 · x ≡ x
 ·-identityˡ x = (λ i → signed (sgn x) (ℕ.+-comm (abs x) 0 i)) ∙ signed-inv x
 
--- predInt· : ∀ m n → predInt (m · n) ≡ (predInt m) · n
--- predInt· m (pos n) = {! predInt·pos n m !}
--- predInt· m (negsuc n) = {! predInt·negsuc n m !}
---
--- ·predInt : ∀ m n → predInt (m · n) ≡ m · (predInt n)
--- ·predInt m (pos zero) = {! refl !}
--- ·predInt m (pos (suc n)) = {! (predSuc (m · pos n)) ∙ (cong (_·_ m) (sym (predSuc (pos n)))) !}
--- ·predInt m (negsuc n) = {! refl !}
---
--- sucInt· : ∀ m n → n + m · n ≡ (sucInt m) · n
--- sucInt· m (pos n) = {! sucInt·pos n m !}
--- sucInt· m (negsuc n) = {! sucInt·negsuc n m !}
---
--- ·sucInt : ∀ m n → m + m · n ≡  m · (sucInt n)
--- ·sucInt m (pos n) = {! refl !}
--- ·sucInt m (negsuc zero) = {! sucPred _ !}
--- ·sucInt m (negsuc (suc n)) = {! (sucPred (m ·negsuc n)) ∙ (cong (_·_ m) (sym (sucPred (negsuc n)))) !}
---
--- pos0· : ∀ z → z · pos 0 ≡ pos 0 · z
--- pos0· (pos zero) = refl
--- pos0· (pos (suc n)) = pos0· (pos n)
--- pos0· (negsuc zero) = refl
--- pos0· (negsuc (suc n)) = pos0· (negsuc n)
---
--- negsuc0· : ∀ z → z · negsuc 0 ≡ negsuc 0 · z
--- negsuc0· (pos zero) = refl
--- negsuc0· (pos (suc n)) = cong negsuc $ ℕ.·-identityʳ n ∙ sym (ℕ.+-zero n)
--- negsuc0· (negsuc zero) = refl
--- negsuc0· (negsuc (suc n)) = cong (pos ∘ suc ∘ suc) (ℕ.·-identityʳ n ∙ sym (ℕ.+-zero n))
-
 ·-comm : ∀ m n → m · n ≡ n · m
 ·-comm (pos m) n = cong₂ signed (⊕-comm spos (sgn n)) (ℕ.·-comm m (abs n))
 ·-comm (negsuc m) n = cong₂ signed (⊕-comm sneg (sgn n)) (ℕ.·-comm (suc m) (abs n))
@@ -434,14 +404,6 @@ signed-distrib sneg (suc m) (suc n) = (λ i → negsuc (ℕ.+-suc m n i)) ∙  s
 
 ·-pos-suc : ∀ m n → pos (suc m) · n ≡ n + pos m · n
 ·-pos-suc m n = signed-distrib (sgn n) (abs n) (m ℕ.· abs n) ∙ λ i → signed-inv n i + signed (sgn n) (m ·ⁿ abs n)
-
--- ·-sucIntˡ : ∀ m n → (sucInt m · n) ≡ (n + (m · n))
--- -- ·-sucIntˡ m n = ·-comm (sucInt m) n ∙ {!   !} ∙ λ i → n + ·-comm n m i
--- ·-sucIntˡ m (pos n) = {!   !}
--- ·-sucIntˡ m (negsuc n) = {!   !}
-
--- private
---   lem : ∀ s₁ s₂ n → signed s₁ n ≡ signed s₂ n →
 
 -- this is a similar proof to the one in Cubical.HITs.QuoInt.Properties
 --   but we have less definitional equalities

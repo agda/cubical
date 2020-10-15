@@ -24,8 +24,6 @@ module _ where
       (λ x y z → sym (·-distribˡ x y z))
       ·-comm
 
--- makeCommRing ? ? ? ? ? ? ? ? ? ? ? ? ? ?
-
 module _ where
   open import Cubical.Data.Int
 

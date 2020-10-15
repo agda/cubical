@@ -17,7 +17,7 @@ open import Cubical.Modalities.Modality
 open Modality
 
 open import Cubical.Data.Empty.Base as ⊥ renaming (rec to ⊥rec ; elim to ⊥elim)
-open import Cubical.Data.Nat hiding (elim)
+open import Cubical.Data.Nat hiding (elim) renaming (_⊓_ to min; ⊓-comm to minComm)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Bool
 open import Cubical.Data.Unit

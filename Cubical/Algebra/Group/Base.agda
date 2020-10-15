@@ -4,7 +4,7 @@ module Cubical.Algebra.Group.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
-open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_)
+open import Cubical.Data.Int hiding (-_) renaming (_+_ to _+Int_ ; _-_ to _-Int_)
 open import Cubical.Data.Unit
 
 open import Cubical.Algebra.Monoid
