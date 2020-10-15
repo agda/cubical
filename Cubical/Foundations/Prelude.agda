@@ -213,6 +213,22 @@ _∎ : (x : A) → x ≡ x
 _ ∎ = refl
 
 
+-- BEGIN: what is the idiom to do this kind of implicational reasoning?
+
+infix  3 _◼
+infixr 2 _→⟨_⟩_ _→⟨⟩_
+
+_→⟨_⟩_ : ∀{ℓ ℓ' ℓ''} {Q : Type ℓ'} {R : Type ℓ''} → (P : Type ℓ) → (P → Q) → (Q → R) → (P → R)
+_ →⟨ p→q ⟩ q→r = λ x → q→r (p→q x)
+
+_→⟨⟩_ : ∀{ℓ ℓ'} {Q : Type ℓ'} → (P : Type ℓ) → (P → Q) → (P → Q)
+_ →⟨⟩ p→q = p→q
+
+_◼ : ∀{ℓ} (A : Type ℓ) → A → A
+_ ◼ = λ x → x
+
+-- END
+
 -- Transport, subst and functional extensionality
 
 -- transport is a special case of transp
