@@ -20,7 +20,7 @@ open import Cubical.HITs.Nullification
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +-comm to +ℤ-comm ; +-assoc to +ℤ-assoc)
 open import Cubical.Data.Nat
-open import Cubical.HITs.Truncation.FromNegOne renaming (elim to trElim ; map to trMap ; rec to trRec)
+open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec)
 
 infixr 33 _⋄_
 
@@ -89,9 +89,6 @@ Iso.leftInv S¹→S¹≡S¹×Int f = funExt λ { base → S¹map-id (f base)
 {- Proof that (S¹ → K₁) ≃ K₁ × ℤ. Needed for H¹(T²) -}
 S1→K₁≡S1×Int : Iso ((S₊ 1) → coHomK 1) (coHomK 1 × Int)
 S1→K₁≡S1×Int = S¹→S¹≡S¹×Int ⋄ prodIso (invIso (truncIdempotentIso 3 (isGroupoidS¹))) idIso
-
-
-
 module _ (key : Unit') where
   module P = lockedCohom key
   private

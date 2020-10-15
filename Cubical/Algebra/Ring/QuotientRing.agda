@@ -4,7 +4,8 @@ module Cubical.Algebra.Ring.QuotientRing where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Logic using (_∈_; _⊆_) -- \in, \sub=
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Powerset using (_∈_; _⊆_) -- \in, \sub=
 
 open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/ₛ_)
 open import Cubical.HITs.SetQuotients.Properties
@@ -16,7 +17,8 @@ private
     ℓ : Level
 
 module _ (R' : Ring {ℓ}) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R' I) where
-  open Ring R' renaming (Carrier to R)
+  open RingStr (snd R')
+  private R = ⟨ R' ⟩
   open isIdeal I-isIdeal
   open Theory R'
 
@@ -184,12 +186,13 @@ R / (I , IisIdeal) = asRing R I IisIdeal
 
 
 module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
-  open Ring ⦃...⦄
+  open RingStr ⦃...⦄
   open Theory ⦃...⦄
   Iₛ = fst I
   private
     instance
       _ = R
+      _ = snd R
 
   module _ {S : Ring {ℓ}} (φ : RingHom R S) where
     open RingHom φ
@@ -197,6 +200,8 @@ module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
     private
       instance
         _ = S
+        _ = snd S
+
 
     inducedHom : Iₛ ⊆ kernel φ → RingHom (R / I) S
     f (inducedHom Iₛ⊆kernel) = elim
