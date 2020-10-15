@@ -179,7 +179,7 @@ module MonoidΣTheory {ℓ} where
   InducedMonoid : (M : Monoid) (N : RawMonoidΣ) (e : M .fst ≃ N .fst)
                  → RawMonoidEquivStr (Monoid→RawMonoidΣ M) N e → Monoid
   InducedMonoid M N e r =
-    MonoidΣ→Monoid (transferAxioms rawMonoidUnivalentStr (Monoid→MonoidΣ M) N (e , r))
+    MonoidΣ→Monoid (inducedStructure rawMonoidUnivalentStr (Monoid→MonoidΣ M) N (e , r))
 
   InducedMonoidPath : (M : Monoid {ℓ}) (N : RawMonoidΣ) (e : M .fst ≃ N .fst)
                       (E : RawMonoidEquivStr (Monoid→RawMonoidΣ M) N e)

@@ -217,7 +217,7 @@ module manualSIP (A : Type) where
   -- We can now get the property for ++' and rev' via the SIP
   rev-++-distr' : (xs ys : List' A) → rev' (xs ++' ys) ≡ rev' ys ++' rev' xs
   rev-++-distr' = transferAxioms rawUnivalentStr List-Struct List'-RawStruct
-                        (ListEquiv , toList'-++ , toList'-rev) .snd .snd
+                        (ListEquiv , toList'-++ , toList'-rev)
 
   -- Note that rev-++-distr' is really talking about the direct
   -- definitions of ++' and rev', not the transported operations as in
@@ -278,7 +278,7 @@ module SIP-auto (A : Type) where
   -- We can now get the property for ++' and rev' via the SIP
   rev-++-distr' : (xs ys : List' A) → rev' (xs ++' ys) ≡ rev' ys ++' rev' xs
   rev-++-distr' = transferAxioms rawUnivalentStr List-Struct List'-RawStruct
-                        (ListEquiv , toList'-++ , toList'-rev) .snd .snd
+                        (ListEquiv , toList'-++ , toList'-rev)
 
   -- Note that rev-++-distr' is really talking about the direct
   -- definitions of ++' and rev', not the transported operations as in

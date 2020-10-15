@@ -147,7 +147,7 @@ module AbGroupΣTheory {ℓ} where
   InducedAbGroup : (G : AbGroup) (H : RawGroupΣ) (e : ⟨ G ⟩ ≃ H .fst)
                  → RawGroupEquivStr (AbGroup→RawGroupΣ G) H e → AbGroup
   InducedAbGroup G H e r =
-    AbGroupΣ→AbGroup (transferAxioms rawGroupUnivalentStr (AbGroup→AbGroupΣ G) H (e , r))
+    AbGroupΣ→AbGroup (inducedStructure rawGroupUnivalentStr (AbGroup→AbGroupΣ G) H (e , r))
 
   InducedAbGroupPath : (G : AbGroup {ℓ}) (H : RawGroupΣ) (e : ⟨ G ⟩ ≃ H .fst)
                        (E : RawGroupEquivStr (AbGroup→RawGroupΣ G) H e)
