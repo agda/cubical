@@ -253,10 +253,8 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
   multisetShape' : Type ℓ → Type ℓ
   multisetShape' X = X × (A → X → X) × (A → X → Const[ ℕ , isSetℕ ])
 
-  module S' = RelMacro ℓ (autoRelDesc multisetShape')
-
-  FMSstructure : S'.structure (FMSet A)
-  FMSstructure = [] , _∷_ , FMScount discA
+  FMSstructure : S.structure (FMSet A)
+  FMSstructure = [] , _∷_ , FMS._++_ , FMScount discA
 
   infixr 5 _∷/_
 
@@ -308,6 +306,11 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
   List/Rᴸ→FMSet-insert : (x : A) (ys : List/Rᴸ) → List/Rᴸ→FMSet (x ∷/ ys) ≡ x ∷ List/Rᴸ→FMSet ys
   List/Rᴸ→FMSet-insert x = elimProp (λ _ → FMS.trunc _ _) λ xs → refl
 
+  List→FMSet-union : (xs ys : List A)
+    → List→FMSet (xs ++ ys) ≡ FMS._++_ (List→FMSet xs) (List→FMSet ys)
+  List→FMSet-union [] ys = refl
+  List→FMSet-union (x ∷ xs) ys = cong (x ∷_) (List→FMSet-union xs ys)
+
   List/Rᴸ≃FMSet : List/Rᴸ ≃ FMSet A
   List/Rᴸ≃FMSet = isoToEquiv (iso List/Rᴸ→FMSet FMSet→List/Rᴸ τ σ)
     where
@@ -324,32 +327,32 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
     τ : retract FMSet→List/Rᴸ List/Rᴸ→FMSet
     τ = FMS.ElimProp.f (FMS.trunc _ _) refl τ'
 
-  -- I don't want to write union for FMSet
+  List/Rᴸ≃FMSet-EquivStr : S.equiv (List/Rᴸ , LQstructure) (FMSet A , FMSstructure) List/Rᴸ≃FMSet
+  List/Rᴸ≃FMSet-EquivStr .fst = refl
+  List/Rᴸ≃FMSet-EquivStr .snd .fst a xs = List/Rᴸ→FMSet-insert a xs
+  List/Rᴸ≃FMSet-EquivStr .snd .snd .fst = elimProp2 (λ _ _ → trunc _ _) List→FMSet-union
+  List/Rᴸ≃FMSet-EquivStr .snd .snd .snd a =
+    elimProp (λ _ → isSetℕ _ _) (List→FMSet-count a)
 
-  -- List/Rᴸ≃FMSet-EquivStr : S.equiv (List/Rᴸ , LQstructure) (FMSet A , FMSstructure) List/Rᴸ≃FMSet
-  -- List/Rᴸ≃FMSet-EquivStr .fst = refl
-  -- List/Rᴸ≃FMSet-EquivStr .snd .fst a xs = List/Rᴸ→FMSet-insert a xs
-  -- List/Rᴸ≃FMSet-EquivStr .snd .snd a = elimProp (λ _ → isSetℕ _ _) (List→FMSet-count a)
-
-  -- {-
-  -- Putting everything together we get:
-  --               ≃
-  -- List/Rᴸ ------------> AList/Rᴬᴸ
-  --   |
-  --   |≃
-  --   |
-  --   ∨
-  --               ≃
-  -- FMSet A ------------> AssocList A
-  -- We thus get that AList/Rᴬᴸ≃AssocList.
-  -- Constructing such an equivalence directly requires count extensionality for association lists,
-  -- which should be even harder to prove than for finite multisets.
-  -- This strategy should work for all implementations of multisets with HITs.
-  -- We just have to show that:
-  --  ∙ The HIT is equivalent to FMSet (like AssocList)
-  --  ∙ There is a QER between lists and the basic data type of the HIT
-  --    with the higher constructors removed (like AList)
-  -- Then we get that this HIT is equivalent to the corresponding set quotient that identifies elements
-  -- that give the same count on each a : A.
-  -- TODO: Show that all the equivalences are indeed isomorphisms of multisets not only of CountStructures!
-  -- -}
+  {-
+  Putting everything together we get:
+                ≃
+  List/Rᴸ ------------> AList/Rᴬᴸ
+    |
+    |≃
+    |
+    ∨
+                ≃
+  FMSet A ------------> AssocList A
+  We thus get that AList/Rᴬᴸ≃AssocList.
+  Constructing such an equivalence directly requires count extensionality for association lists,
+  which should be even harder to prove than for finite multisets.
+  This strategy should work for all implementations of multisets with HITs.
+  We just have to show that:
+   ∙ The HIT is equivalent to FMSet (like AssocList)
+   ∙ There is a QER between lists and the basic data type of the HIT
+     with the higher constructors removed (like AList)
+  Then we get that this HIT is equivalent to the corresponding set quotient that identifies elements
+  that give the same count on each a : A.
+  TODO: Show that all the equivalences are indeed isomorphisms of multisets not only of CountStructures!
+  -}
