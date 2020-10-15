@@ -4,6 +4,7 @@ module Cubical.Data.Nat.Order where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.HITs.PropositionalTruncation as PropTrunc using (propTruncIsProp)
 
 
 open import Cubical.Data.Empty as ⊥
@@ -117,6 +118,9 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
 ¬-<-zero : ¬ m < 0
 ¬-<-zero (k , p) = snotz ((sym (+-suc k _)) ∙ p)
 
+zero-<-suc : ∀ m → 0 < suc m
+zero-<-suc m = m , +-comm m 1
+
 ¬m<m : ¬ m < m
 ¬m<m {m} = ¬-<-zero ∘ ≤-+k-cancel {k = m}
 
@@ -144,6 +148,31 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 
 <-trans : l < m → m < n → l < n
 <-trans p = ≤<-trans (<-weaken p)
+
+private
+  a<x→a<sx : ∀ a x → a < x → a < suc x
+  a<x→a<sx a x (k , p) = suc k , λ i → suc (p i)
+
+suc-reflects-< : ∀ a b → suc a < suc b → a < b
+suc-reflects-< a b (k , p) = k , inj-+m {m = 1} (+-comm (k + suc a) 1 ∙ sym (+-suc k (suc a)) ∙ p ∙ +-comm 1 b)
+
+suc-preserves-< : ∀ a b → a < b → suc a < suc b
+suc-preserves-< a b (k , p) = k , +-suc k (suc a) ∙ (λ i → suc (p i))
+
+<-irrefl : ∀ a → ¬ (a < a)
+<-irrefl zero = ¬-<-zero
+<-irrefl (suc a) q = <-irrefl a (suc-reflects-< a a q)
+
+<-cotrans : ∀ a b x → a < b → ∥ (a < x) ⊎ (x < b) ∥
+<-cotrans  zero        b   zero        p  = ∣ inr p ∣
+<-cotrans (suc a)      b   zero   (k , p) = ∣ inr (suc a + k , (λ i → 1 + +-comm (a + k) 1 i) ∙ +-comm (2 + a) k ∙ p) ∣
+<-cotrans      a   zero   (suc x)      p  = ⊥.elim {A = λ _ → ∥ (a < suc x) ⊎ (suc x < zero) ∥} (¬-<-zero p)
+<-cotrans  zero   (suc b) (suc x)      p  = ∣ inl (zero-<-suc x) ∣
+<-cotrans (suc a) (suc b) (suc x)      p  =
+  PropTrunc.elim (λ _ → propTruncIsProp) γ (<-cotrans a b x (suc-reflects-< a b p))
+  where γ : _ ⊎ _ → _
+        γ (inl q) = ∣ inl (suc-preserves-< a x q) ∣
+        γ (inr q) = ∣ inr (suc-preserves-< x b q) ∣
 
 <-asym : m < n → ¬ n ≤ m
 <-asym m<n = ¬m<m ∘ <≤-trans m<n
