@@ -48,7 +48,7 @@ _++_ : ∀ {m n} → Vec A m → Vec A n → Vec A (m + n)
 []       ++ ys = ys
 (x ∷ xs) ++ ys = x ∷ (xs ++ ys)
 
-concat : ∀ {m n} → Vec (Vec A m) n → Vec A (n * m)
+concat : ∀ {m n} → Vec (Vec A m) n → Vec A (n · m)
 concat []         = []
 concat (xs ∷ xss) = xs ++ concat xss
 

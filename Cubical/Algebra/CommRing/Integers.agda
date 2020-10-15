@@ -15,9 +15,9 @@ open import Cubical.HITs.Ints.BiInvInt
 BiInvIntAsCommRing : CommRing {ℓ-zero}
 BiInvIntAsCommRing =
   makeCommRing
-    zero (suc zero) _+ℤ_ _*_ _-ℤ_
+    zero (suc zero) _+ℤ_ _·_ _-ℤ_
     isSetBiInvInt
     +ℤ-assoc +-zero +-invʳ +ℤ-comm
-    *-assoc *-identityʳ
-    (λ x y z → sym (*-distribˡ x y z))
-    *-comm
+    ·-assoc ·-identityʳ
+    (λ x y z → sym (·-distribˡ x y z))
+    ·-comm

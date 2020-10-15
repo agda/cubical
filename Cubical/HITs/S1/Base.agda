@@ -17,7 +17,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Nat
-  hiding (_+_ ; _*_ ; +-assoc ; +-comm)
+  hiding (_+_ ; _·_ ; +-assoc ; +-comm)
 open import Cubical.Data.Int
 
 data S¹ : Type₀ where

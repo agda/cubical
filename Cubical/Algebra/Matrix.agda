@@ -13,7 +13,7 @@ open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat hiding (_+_ ; +-comm ; +-assoc)
+open import Cubical.Data.Nat hiding (_+_ ; _·_; +-comm ; +-assoc; ·-assoc)
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.FinData
