@@ -6,7 +6,7 @@ When preparing a PR here are some general guidelines:
 
 - To test your changes before submission, run `make` at the top level,
   which will generate all required `Everything` files in
-  `Cubical/README.agda` and then typecheck the latter file.
+  `Cubical/README.agda` and then typecheck it.
 
 - Please read through and clean your code before making a PR. Clean
   code has reasonable line length (<100 characters), good indentation,
@@ -22,8 +22,8 @@ When preparing a PR here are some general guidelines:
   instead have informative names and put pointers to the theorems and
   lemmas in comments above the definition.
 
-- At the moment there is no global naming scheme for the library, so
-  just use your best judgment when naming things.
+- For guidelines how to name things see
+  [NAMING.md](https://github.com/agda/cubical/blob/master/NAMING.md).
 
 - Use `private variable` to quantify over universe levels at the top
   of the file. All definitions should be maximally universe
