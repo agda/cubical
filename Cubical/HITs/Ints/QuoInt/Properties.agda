@@ -59,6 +59,18 @@ predℤ-+ʳ (pos (suc m)) n =
   sym (sucPredℤ (pos m + n)) ∙∙
   cong sucℤ (predℤ-+ʳ (pos m) n)
 
++-inverseʳ : ∀ a → a + (- a) ≡ 0
++-inverseʳ (pos zero) j = posneg (  i1 ∧ ~ j)
++-inverseʳ (neg zero) j = posneg (  i0 ∧ ~ j)
++-inverseʳ (posneg i) j = posneg (~ i  ∧ ~ j)
++-inverseʳ (signed s (suc n)) = lem s (suc n)
+  where
+  lem : ∀ s n → signed s n + signed (not s) n ≡ 0
+  lem spos zero = sym posneg
+  lem spos (suc n) = (λ i → sucℤ (predℤ-+ʳ (pos n) (neg n) (~ i))) ∙ (λ i → sucℤ (predℤ (lem spos n i))) ∙ sym posneg
+  lem sneg zero = refl
+  lem sneg (suc n) = (λ i → predℤ (sucℤ-+ʳ (neg n) (pos n) (~ i))) ∙ (λ i → predℤ (sucℤ (lem sneg n i)))
+
 +-comm : ∀ m n → m + n ≡ n + m
 +-comm (signed s zero) n = sym (+-zeroʳ s n)
 +-comm (pos (suc m)) n = cong sucℤ  (+-comm (pos m) n) ∙ sucℤ-+ʳ  n (pos m)

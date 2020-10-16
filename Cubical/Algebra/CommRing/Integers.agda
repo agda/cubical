@@ -30,5 +30,14 @@ module _ where
   open import Cubical.Data.Int
 
   IntAsCommRing : CommRing {ℓ-zero}
-  IntAsCommRing = makeCommRing {R = Int} 0 (pos 1) _+_ _·_ -_ isSetInt
-    +-assoc +-identityʳ +-inverseʳ +-comm (λ x y z → sym (·-assoc x y z)) ·-identityʳ (λ x y z → sym (·-distribˡ x y z)) ·-comm
+  IntAsCommRing = makeCommRing {R = Int} 0 1 _+_ _·_ -_ isSetInt
+    +-assoc +-identityʳ +-inverseʳ +-comm (λ x y z → sym (·-assoc x y z)) ·-identityʳ
+    (λ x y z → sym (·-distribˡ x y z)) ·-comm
+
+module _ where
+  open import Cubical.HITs.Ints.QuoInt
+  
+  QuoIntAsCommRing : CommRing {ℓ-zero}
+  QuoIntAsCommRing = makeCommRing {R = ℤ} 0 1 _+_ _·_ -_ isSetℤ
+    +-assoc +-identityʳ +-inverseʳ +-comm ·-assoc ·-identityʳ
+    (λ x y z → sym (·-distribˡ x y z)) ·-comm
