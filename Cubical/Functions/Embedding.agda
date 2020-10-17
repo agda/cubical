@@ -12,6 +12,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Univalence using (ua)
+open import Cubical.Foundations.Prelude
 open import Cubical.Functions.Fibration
 open import Cubical.Relation.Nullary using (Discrete; yes; no)
 
@@ -22,7 +23,7 @@ private
   variable
     ℓ ℓ₁ ℓ₂ : Level
     A B : Type ℓ
-    f : A → B
+    f h : A → B
     w x : A
     y z : B
 
@@ -251,3 +252,15 @@ Subset≃Embedding = isoToEquiv (iso Subset→Embedding Embedding→Subset
 
 Subset≡Embedding : {X : Type ℓ} → ℙ X ≡ (Σ[ A ∈ Type ℓ ] (A ↪ X))
 Subset≡Embedding = ua Subset≃Embedding
+
+isEmbedding-∘ : isEmbedding f → isEmbedding h → isEmbedding (f ∘ h)
+isEmbedding-∘ {f = f} {h = h} Embf Embh w x
+  = compEquiv (cong h , Embh w x) (cong f , Embf (h w) (h x)) .snd
+
+isEmbedding-lift : isEmbedding {B = Lift {j = ℓ₁} A} lift
+isEmbedding-lift w x .equiv-proof p = λ where
+  .fst .fst → cong lower p
+  .fst .snd → refl
+  .snd (q , r) i → λ where
+    .fst → cong lower (r (~ i))
+    .snd j → r (~ i ∨ j)

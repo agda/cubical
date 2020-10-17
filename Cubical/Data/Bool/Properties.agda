@@ -28,6 +28,9 @@ notEq : Bool ≡ Bool
 notEq = ua notEquiv
 
 private
+  variable
+    ℓ : Level
+
   -- This computes to false as expected
   nfalse : Bool
   nfalse = transp (λ i → notEq i) i0 true
@@ -36,8 +39,19 @@ private
   nfalsepath : nfalse ≡ false
   nfalsepath = refl
 
+K-Bool
+  : (P : {b : Bool} → b ≡ b → Type ℓ)
+  → (∀{b} → P {b} refl)
+  → ∀{b} → (q : b ≡ b) → P q
+K-Bool P Pr {false} = J (λ{ false q → P q ; true _ → Lift ⊥ }) Pr
+K-Bool P Pr {true}  = J (λ{ true q → P q ; false _ → Lift ⊥ }) Pr
+
 isSetBool : isSet Bool
-isSetBool = Discrete→isSet _≟_
+isSetBool a b = J (λ _ p → ∀ q → p ≡ q) (K-Bool (refl ≡_) refl)
+  where
+  bk : (c : Bool) → (q : c ≡ c) → refl ≡ q
+  bk false = J (λ{ false q → refl ≡ q ; true  _ → ⊥ }) refl
+  bk true  = J (λ{ true  q → refl ≡ q ; false _ → ⊥ }) refl
 
 true≢false : ¬ true ≡ false
 true≢false p = subst (λ b → if b then Bool else ⊥) p true

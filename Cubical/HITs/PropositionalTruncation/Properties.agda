@@ -26,6 +26,9 @@ private
     ℓ : Level
     A B C : Type ℓ
 
+∥∥-isPropDep : (P : A → Type ℓ) → isOfHLevelDep 1 (λ x → ∥ P x ∥)
+∥∥-isPropDep P = isOfHLevel→isOfHLevelDep 1 (λ _ → squash)
+
 rec : {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥ → P
 rec Pprop f ∣ x ∣ = f x
 rec Pprop f (squash x y i) = Pprop (rec Pprop f x) (rec Pprop f y) i
