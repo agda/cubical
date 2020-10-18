@@ -10,9 +10,11 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Functions.Embedding
+open import Cubical.Functions.Involution
 
 open import Cubical.Data.Sigma
 
+open import Cubical.HITs.Delooping.Two.Base
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Universe.Binary.Base
@@ -44,7 +46,22 @@ isBinaryEl' ℓ (un b c e i)
       (transp (λ j → ∥ Bool ≃ Lift {j = ℓ} (ua e (i ∨ ~ j)) ∥) i (isBinaryEl' ℓ c))
       i
 
-module Internal where
+isPropIsSetEl : isOfHLevelDep 1 (λ b → isSet (El b))
+isPropIsSetEl = isOfHLevel→isOfHLevelDep 1 (λ b → isPropIsSet)
+
+isSetEl : ∀ b → isSet (El b)
+isSetEl ℕ₂ = isSetBool
+isSetEl (un b c e i)
+  = isPropIsSetEl (isSetEl b) (isSetEl c) (un b c e) i
+
+isGroupoidBinary : isGroupoid Binary
+isGroupoidBinary b c = isOfHLevelRetract 2 fun inv leftInv sub
+  where
+  open Iso (pathIso b c)
+  sub : isSet (El b ≡ El c)
+  sub = isOfHLevel≡ 2 (isSetEl b) (isSetEl c)
+
+module Reflection where
   bigger : Binary → FS.Binary _
   bigger b = El b , isBinaryEl b
 
@@ -80,4 +97,5 @@ module Internal where
   reflectIso .leftInv = smaller-bigger
 
 reflect : Binary ≃ FS.Binary ℓ-zero
-reflect = isoToEquiv Internal.reflectIso
+reflect = isoToEquiv Reflection.reflectIso
+

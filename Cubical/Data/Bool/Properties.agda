@@ -139,7 +139,7 @@ isEquiv-⊕ x = involIsEquiv (⊕-invol x)
   sub = subst {A = Bool → Bool} (λ f → f (not b) ≡ f b)
           (λ i c → transport⁻Transport P c i) (cong (transport⁻ P) eq)
 
-module Reflection where
+module BoolReflection where
   data Table (A : Type₀) (P : Bool ≡ A) : Type₀ where
     inspect : (b c : A)
             → transport P false ≡ b

@@ -3,6 +3,7 @@
 module Cubical.Data.FinSet.Binary where
 
 open import Cubical.Functions.Embedding
+open import Cubical.Functions.Involution
 
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
@@ -55,6 +56,24 @@ BinaryEmbedding w x = isoToIsEquiv theIso
     = Σ≡Prop² (isOfHLevel→isOfHLevelDep 1 (λ _ → isPropIsSet)) _ p refl
   theIso .leftInv p
     = Σ≡Prop² (∥∥-isPropDep (Bool ≃_)) _ p refl
+
+Base : Binary _
+Base .fst = Bool
+Base .snd = ∣ idEquiv Bool ∣
+
+Loop : Base ≡ Base
+Loop i .fst = notEq i
+Loop i .snd = ∥∥-isPropDep (Bool ≃_) (Base .snd) (Base .snd) notEq i
+
+private
+  notEq² : Square notEq refl refl notEq
+  notEq² = involPath² {f = not} notnot
+
+Loop² : Square Loop refl refl Loop
+Loop² i j .fst = notEq² i j
+Loop² i j .snd
+  = isPropDep→isSetDep' (∥∥-isPropDep (Bool ≃_))
+      notEq² (cong snd Loop) refl refl (cong snd Loop) i j
 
 isGroupoidBinary : isGroupoid (Binary ℓ)
 isGroupoidBinary
