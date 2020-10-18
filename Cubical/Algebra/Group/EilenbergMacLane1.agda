@@ -21,7 +21,7 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Homotopy.Connected
 open import Cubical.HITs.Nullification as Null hiding (rec; elim)
-open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec; elim to trElim)
+open import Cubical.HITs.Truncation.FromNegOne as Trunc renaming (rec to trRec; elim to trElim)
 open import Cubical.HITs.EilenbergMacLane1
 
 private

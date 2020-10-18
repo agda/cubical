@@ -78,15 +78,19 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) wher
         (P b .snd)
         (λ {(a , p) → subst (fst ∘ P) p (t a)})
 
+  -- we need the Iso.fun projection to reduce even for variable n
+  -- hence we inline the n = zero case, where the fibers are contractible
   isIsoPrecompose : ∀ {ℓ'''} (n : ℕ) (P : B → TypeOfHLevel ℓ''' n)
                    → isConnectedFun n f
                    → Iso ((b : B) → P b .fst) ((a : A) → P (f a) .fst)
-  isIsoPrecompose zero P fConn = isContr→Iso (isOfHLevelΠ _ (λ b → P b .snd)) (isOfHLevelΠ _ λ a → P (f a) .snd)
-  Iso.fun (isIsoPrecompose (suc n) P fConn) = _∘ f
+  Iso.fun (isIsoPrecompose n P fConn) = _∘ f
+  Iso.inv (isIsoPrecompose zero P fConn) t b = fst (snd (P b))
   Iso.inv (isIsoPrecompose (suc n) P fConn) t b = inv n P t b (fConn b .fst)
+  Iso.rightInv (isIsoPrecompose zero P fConn) g i a = snd (snd (P (f a))) (g a) i
   Iso.rightInv (isIsoPrecompose (suc n) P fConn) t =
     funExt λ a → cong (inv n P t (f a)) (fConn (f a) .snd ∣ a , refl ∣)
                ∙ substRefl {B = fst ∘ P} (t a)
+  Iso.leftInv (isIsoPrecompose zero P fConn) h i b = snd (snd (P b)) (h b) i
   Iso.leftInv (isIsoPrecompose (suc n) P fConn) s =
     funExt λ b →
           Trunc.elim

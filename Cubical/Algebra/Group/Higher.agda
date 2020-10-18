@@ -27,7 +27,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.HITs.PropositionalTruncation renaming (rec to propRec)
-open import Cubical.HITs.Truncation
+open import Cubical.HITs.Truncation.FromNegOne as Trunc renaming (rec to trRec)
 open import Cubical.HITs.SetTruncation
 open import Cubical.Functions.Surjection
 open import Cubical.Functions.Embedding
