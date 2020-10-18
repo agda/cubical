@@ -31,12 +31,12 @@ invS¹Loop : S¹ → Type
 invS¹Loop base = S¹
 invS¹Loop (loop i) = invS¹Path i
 
-loop1Inv : (s : S¹) → loop1 (inv s) ≡ loop1 s
+loop1Inv : (s : S¹) → loop1 (invLooper s) ≡ loop1 s
 loop1Inv base = line2
 loop1Inv (loop i) = square i
 
-twist : (s : S¹) → PathP (λ i → invS¹Path i) s (inv s)
-twist s i = glue (λ {(i = i0) → s; (i = i1) → inv s}) (inv s)
+twist : (s : S¹) → PathP (λ i → invS¹Path i) s (invLooper s)
+twist s i = glue (λ {(i = i0) → s; (i = i1) → invLooper s}) (invLooper s)
 
 twistBaseLoop : (s : S¹) → invS¹Loop s
 twistBaseLoop base = base
@@ -76,7 +76,7 @@ kleinBottle≃Σ = isoToEquiv (iso fro to froTo toFro)
   froLoop1 (loop i) = refl
 
   froLoop1Inv :
-    PathP (λ k → (s : S¹) → froLoop1 (inv s) k ≡ froLoop1 s k)
+    PathP (λ k → (s : S¹) → froLoop1 (invLooper s) k ≡ froLoop1 s k)
       (λ s l → fro (loop1Inv s l))
       (λ s l → loop (~ l) , twist s (~ l))
   froLoop1Inv k base l = loop (~ l) , twist base (~ l)

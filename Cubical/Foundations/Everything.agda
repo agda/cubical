@@ -39,6 +39,7 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels public
 open import Cubical.Foundations.Path public
 open import Cubical.Foundations.Pointed public
+open import Cubical.Foundations.RelationalStructure public
 open import Cubical.Foundations.Structure public
 open import Cubical.Foundations.Transport public
 open import Cubical.Foundations.Univalence public
@@ -46,5 +47,5 @@ open import Cubical.Foundations.Univalence.Universe
 open import Cubical.Foundations.GroupoidLaws public
 open import Cubical.Foundations.Isomorphism public
 open import Cubical.Foundations.CartesianKanOps
-open import Cubical.Foundations.Logic
+open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.SIP

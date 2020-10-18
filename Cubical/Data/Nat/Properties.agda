@@ -16,6 +16,17 @@ private
   variable
     l m n : ℕ
 
+min : ℕ → ℕ → ℕ
+min zero m = zero
+min (suc n) zero = zero
+min (suc n) (suc m) = suc (min n m)
+
+minComm : (n m : ℕ) → min n m ≡ min m n
+minComm zero zero = refl
+minComm zero (suc m) = refl
+minComm (suc n) zero = refl
+minComm (suc n) (suc m) = cong suc (minComm n m)
+
 znots : ¬ (0 ≡ suc n)
 znots eq = subst (caseNat ℕ ⊥) eq 0
 
@@ -100,6 +111,9 @@ m+n≡0→m≡0×n≡0 {suc m} p = ⊥.rec (snotz p)
 *-distribʳ : ∀ m n o → (m * o) + (n * o) ≡ (m + n) * o
 *-distribʳ zero _ _ = refl
 *-distribʳ (suc m) n o = sym (+-assoc o (m * o) (n * o)) ∙ cong (o +_) (*-distribʳ m n o)
+
+*-distribˡ : ∀ o m n → (o * m) + (o * n) ≡ o * (m + n)
+*-distribˡ o m n = (λ i → *-comm o m i + *-comm o n i) ∙ *-distribʳ m n o ∙ *-comm (m + n) o
 
 *-assoc : ∀ m n o → m * (n * o) ≡ (m * n) * o
 *-assoc zero _ _ = refl

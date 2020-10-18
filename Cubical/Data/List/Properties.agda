@@ -50,6 +50,17 @@ module _ {ℓ} {A : Type ℓ} where
         })
       (rev-snoc (rev-snoc xs y i) x j)
 
+  data SnocView : List A → Type ℓ where
+    nil : SnocView []
+    snoc : (x : A) → (xs : List A) → (sx : SnocView xs) → SnocView (xs ∷ʳ x)
+
+  snocView : (xs : List A) → SnocView xs
+  snocView xs = helper nil xs
+    where
+    helper : {l : List A} -> SnocView l -> (r : List A) -> SnocView (l ++ r)
+    helper {l} sl [] = subst SnocView (sym (++-unit-r l)) sl
+    helper {l} sl (x ∷ r) = subst SnocView (++-assoc l (x ∷ []) r) (helper (snoc x l sl) r)
+
 -- Path space of list type
 module ListPath {ℓ} {A : Type ℓ} where
 
@@ -84,7 +95,7 @@ module ListPath {ℓ} {A : Type ℓ} where
     J (λ ys p → decode xs ys (encode xs ys p) ≡ p)
       (cong (decode xs xs) (encodeRefl xs) ∙ decodeRefl xs)
 
-  isOfHLevelCover : (n : ℕ) (p : isOfHLevel (suc (suc n)) A)
+  isOfHLevelCover : (n : HLevel) (p : isOfHLevel (suc (suc n)) A)
     (xs ys : List A) → isOfHLevel (suc n) (Cover xs ys)
   isOfHLevelCover n p [] [] =
     isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isPropUnit)
@@ -95,7 +106,7 @@ module ListPath {ℓ} {A : Type ℓ} where
   isOfHLevelCover n p (x ∷ xs) (y ∷ ys) =
     isOfHLevelΣ (suc n) (p x y) (\ _ → isOfHLevelCover n p xs ys)
 
-isOfHLevelList : ∀ {ℓ} (n : ℕ) {A : Type ℓ}
+isOfHLevelList : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isOfHLevel (suc (suc n)) A → isOfHLevel (suc (suc n)) (List A)
 isOfHLevelList n ofLevel xs ys =
   isOfHLevelRetract (suc n)
@@ -144,12 +155,12 @@ cons≡rev-snoc : (x : A) → (xs : List A) → x ∷ rev xs ≡ rev (xs ∷ʳ x
 cons≡rev-snoc _ [] = refl
 cons≡rev-snoc x (y ∷ ys) = λ i → cons≡rev-snoc x ys i ++ y ∷ []
 
-nil≡nil-isContr : isContr (Path (List A) [] [])
-nil≡nil-isContr = refl , ListPath.decodeEncode [] []
+isContr[]≡[] : isContr (Path (List A) [] [])
+isContr[]≡[] = refl , ListPath.decodeEncode [] []
 
-list≡nil-isProp : {xs : List A} → isProp (xs ≡ [])
-list≡nil-isProp {xs = []} = isOfHLevelSuc 0 nil≡nil-isContr
-list≡nil-isProp {xs = x ∷ xs} = λ p _ → ⊥.rec (¬cons≡nil p)
+isPropXs≡[] : {xs : List A} → isProp (xs ≡ [])
+isPropXs≡[] {xs = []} = isOfHLevelSuc 0 isContr[]≡[]
+isPropXs≡[] {xs = x ∷ xs} = λ p _ → ⊥.rec (¬cons≡nil p)
 
 discreteList : Discrete A → Discrete (List A)
 discreteList eqA []       []       = yes refl

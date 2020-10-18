@@ -1,9 +1,7 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.HITs.ListedFiniteSet.Properties where
 
-open import Cubical.Core.Everything
-open import Cubical.Foundations.Logic
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
 
 open import Cubical.HITs.ListedFiniteSet.Base
 

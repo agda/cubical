@@ -26,15 +26,20 @@ private
     ℓ : Level
     A B C : Type ℓ
 
-rec : ∀ {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥ → P
+rec : {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥ → P
 rec Pprop f ∣ x ∣ = f x
 rec Pprop f (squash x y i) = Pprop (rec Pprop f x) (rec Pprop f y) i
 
-rec2 : ∀ {P : Type ℓ} → isProp P → (A → A → P) → ∥ A ∥ → ∥ A ∥ → P
-rec2 Pprop f = rec (isPropΠ (λ _ → Pprop))
-                   (λ a → rec Pprop (f a))
+rec2 : {P : Type ℓ} → isProp P → (A → A → P) → ∥ A ∥ → ∥ A ∥ → P
+rec2 Pprop f ∣ x ∣ ∣ y ∣ = f x y
+rec2 Pprop f ∣ x ∣ (squash y z i) = Pprop (rec2 Pprop f ∣ x ∣ y) (rec2 Pprop f ∣ x ∣ z) i
+rec2 Pprop f (squash x y i) z = Pprop (rec2 Pprop f x z) (rec2 Pprop f y z) i
 
-elim : ∀ {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a))
+-- Old version
+-- rec2 : ∀ {P : Type ℓ} → isProp P → (A → A → P) → ∥ A ∥ → ∥ A ∥ → P
+-- rec2 Pprop f = rec (isProp→ Pprop) (λ a → rec Pprop (f a))
+
+elim : {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a))
      → ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
 elim Pprop f ∣ x ∣ = f x
 elim Pprop f (squash x y i) =
@@ -43,10 +48,10 @@ elim Pprop f (squash x y i) =
 
 elim2 : {P : ∥ A ∥ → ∥ A ∥ → Type ℓ}
         (Bset : ((x y : ∥ A ∥) → isProp (P x y)))
-        (g : (a b : A) → P ∣ a ∣ ∣ b ∣)
+        (f : (a b : A) → P ∣ a ∣ ∣ b ∣)
         (x y : ∥ A ∥) → P x y
-elim2 Pprop g = elim (λ _ → isPropΠ (λ _ → Pprop _ _))
-                     (λ a → elim (λ _ → Pprop _ _) (g a))
+elim2 Pprop f = elim (λ _ → isPropΠ (λ _ → Pprop _ _))
+                     (λ a → elim (λ _ → Pprop _ _) (f a))
 
 elim3 : {P : ∥ A ∥ → ∥ A ∥ → ∥ A ∥ → Type ℓ}
         (Bset : ((x y z : ∥ A ∥) → isProp (P x y z)))
@@ -71,8 +76,8 @@ propTruncIdempotent : isProp A → ∥ A ∥ ≡ A
 propTruncIdempotent hA = ua (propTruncIdempotent≃ hA)
 
 -- We could also define the eliminator using the recursor
-elim' : ∀ {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
-          ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
+elim' : {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
+        ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
 elim' {P = P} Pprop f a =
   rec (Pprop a) (λ x → transp (λ i → P (squash ∣ x ∣ a i)) i0 (f x)) a
 
@@ -104,7 +109,7 @@ module SetElim (Bset : isSet B) where
   helper f kf t (squash u v i)
     = Bset' (helper f kf t u) (helper f kf t v) refl (helper f kf u v) i
 
-  kcomp : ∀(f : ∥ A ∥ → B) → 2-Constant (f ∘ ∣_∣)
+  kcomp : (f : ∥ A ∥ → B) → 2-Constant (f ∘ ∣_∣)
   kcomp f x y = cong f (squash ∣ x ∣ ∣ y ∣)
 
   Fset : isSet (A → B)
@@ -126,8 +131,7 @@ module SetElim (Bset : isSet B) where
   fib : (g : Σ (A → B) 2-Constant) → fiber mkKmap g
   fib (g , kg) = rec→Set g kg , refl
 
-  eqv : (g : Σ (A → B) 2-Constant)
-      → ∀ fi → fib g ≡ fi
+  eqv : (g : Σ (A → B) 2-Constant) → ∀ fi → fib g ≡ fi
   eqv g (f , p) =
     Σ≡Prop (λ f → isOfHLevelΣ 2 Fset Kset _ _)
       (cong (uncurry rec→Set) (sym p) ∙ setRecLemma f)
@@ -173,7 +177,7 @@ module SetElim (Bset : isSet B) where
           i
 
   trunc→Set≃₂ : (∥ A ∥ → B) ≃ Σ (A → B) 2-Constant
-  trunc→Set≃₂ = compEquiv (equivPi preEquiv₁) preEquiv₂
+  trunc→Set≃₂ = compEquiv (equivΠCod preEquiv₁) preEquiv₂
 
 open SetElim public using (rec→Set; trunc→Set≃)
 
@@ -336,9 +340,9 @@ module GpdElim (Bgpd : isGroupoid B) where
   preEquiv₂ t = e , rec (isPropIsEquiv e) e-isEquiv t
 
   trunc→Gpd≃ : (∥ A ∥ → B) ≃ Σ (A → B) 3-Constant
-  trunc→Gpd≃ = compEquiv (equivPi preEquiv₂) preEquiv₁
+  trunc→Gpd≃ = compEquiv (equivΠCod preEquiv₂) preEquiv₁
 
 open GpdElim using (rec→Gpd; trunc→Gpd≃) public
 
-RecHSet : (P : A → HLevel ℓ 2) → 3-Constant P → ∥ A ∥ → HLevel ℓ 2
-RecHSet P 3kP = rec→Gpd (isOfHLevelHLevel 2) P 3kP
+RecHSet : (P : A → TypeOfHLevel ℓ 2) → 3-Constant P → ∥ A ∥ → TypeOfHLevel ℓ 2
+RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP

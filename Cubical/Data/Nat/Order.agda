@@ -104,6 +104,13 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
  cancelled : l + m ≡ n
  cancelled = inj-+m (sym (+-assoc l m k) ∙ p)
 
+≤-*k : m ≤ n → m * k ≤ n * k
+≤-*k {m} {n} {k} (d , r) = d * k , reason where
+  reason : d * k + m * k ≡ n * k
+  reason = d * k + m * k ≡⟨ *-distribʳ d m k ⟩
+           (d + m) * k   ≡⟨ cong (_* k) r ⟩
+           n * k         ∎
+
 <-k+-cancel : k + m < k + n → m < n
 <-k+-cancel {k} {m} {n} = ≤-k+-cancel ∘ subst (_≤ k + n) (sym (+-suc k m))
 
@@ -130,29 +137,31 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 <-weaken (k , p) = suc k , sym (+-suc k _) ∙ p
 
 ≤<-trans : l ≤ m → m < n → l < n
-≤<-trans {l} {m} {n} (i , p) (j , q) = (j + i) , reason
-  where
-  reason : j + i + suc l ≡ n
-  reason = j + i + suc l ≡⟨ sym (+-assoc j i (suc l)) ⟩
-           j + (i + suc l) ≡⟨ cong (j +_) (+-suc i l) ⟩
-           j + (suc (i + l)) ≡⟨ cong (_+_ j ∘ suc) p ⟩
-           j + suc m ≡⟨ q ⟩
-           n ∎
+≤<-trans p = ≤-trans (suc-≤-suc p)
 
 <≤-trans : l < m → m ≤ n → l < n
-<≤-trans {l} {m} {n} (i , p) (j , q) = j + i , reason
-  where
-  reason : j + i + suc l ≡ n
-  reason = j + i + suc l ≡⟨ sym (+-assoc j i (suc l)) ⟩
-           j + (i + suc l) ≡⟨ cong (j +_) p ⟩
-           j + m ≡⟨ q ⟩
-           n ∎
+<≤-trans = ≤-trans
 
 <-trans : l < m → m < n → l < n
 <-trans p = ≤<-trans (<-weaken p)
 
 <-asym : m < n → ¬ n ≤ m
 <-asym m<n = ¬m<m ∘ <≤-trans m<n
+
+<-+k : m < n → m + k < n + k
+<-+k p = ≤-+k p
+
+<-k+ : m < n → k + m < k + n
+<-k+ {m} {n} {k} p = subst (λ km → km ≤ k + n) (+-suc k m) (≤-k+ p)
+
+<-*sk : m < n → m * suc k < n * suc k
+<-*sk {m} {n} {k} (d , r) = (d * suc k + k) , reason where
+  reason : (d * suc k + k) + suc (m * suc k) ≡ n * suc k
+  reason = (d * suc k + k) + suc (m * suc k) ≡⟨ sym (+-assoc (d * suc k) k _) ⟩
+           d * suc k + (k + suc (m * suc k)) ≡[ i ]⟨ d * suc k + +-suc k (m * suc k) i ⟩
+           d * suc k + suc m * suc k         ≡⟨ *-distribʳ d (suc m) (suc k) ⟩
+           (d + suc m) * suc k               ≡⟨ cong (_* suc k) r ⟩
+           n * suc k                         ∎
 
 Trichotomy-suc : Trichotomy m n → Trichotomy (suc m) (suc n)
 Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)
@@ -182,6 +191,9 @@ private
 <-wellfounded : WellFounded _<_
 <-wellfounded zero = acc λ _ → ⊥.rec ∘ ¬-<-zero
 <-wellfounded (suc n) = acc-suc (<-wellfounded n)
+
+<→≢ : n < m → ¬ n ≡ m
+<→≢ {n} {m} p q = ¬m<m (subst (_< m) q p)
 
 module _
     (b₀ : ℕ)
@@ -244,3 +256,30 @@ module _
 
   +inductionStep : ∀ n → +induction (b + n) ≡ step n (+induction n)
   +inductionStep n = induction-compute wfStep (b + n) ∙ wfStepLemma₁ n _
+
+module <-Reasoning where
+  -- TODO: would it be better to mirror the way it is done in the agda-stdlib?
+  infixr 2 _<⟨_⟩_ _≤<⟨_⟩_ _≤⟨_⟩_ _<≤⟨_⟩_ _≡<⟨_⟩_ _≡≤⟨_⟩_ _<≡⟨_⟩_ _≤≡⟨_⟩_
+  _<⟨_⟩_ : ∀ k → k < n → n < m → k < m
+  _ <⟨ p ⟩ q = <-trans p q
+
+  _≤<⟨_⟩_ : ∀ k → k ≤ n → n < m → k < m
+  _ ≤<⟨ p ⟩ q = ≤<-trans p q
+
+  _≤⟨_⟩_ : ∀ k → k ≤ n → n ≤ m → k ≤ m
+  _ ≤⟨ p ⟩ q = ≤-trans p q
+
+  _<≤⟨_⟩_ : ∀ k → k < n → n ≤ m → k < m
+  _ <≤⟨ p ⟩ q = <≤-trans p q
+
+  _≡≤⟨_⟩_ : ∀ k → k ≡ l → l ≤ m → k ≤ m
+  _ ≡≤⟨ p ⟩ q = subst (λ k → k ≤ _) (sym p) q
+
+  _≡<⟨_⟩_ : ∀ k → k ≡ l → l < m → k < m
+  _ ≡<⟨ p ⟩ q = _ ≡≤⟨ cong suc p ⟩ q
+
+  _≤≡⟨_⟩_ : ∀ k → k ≤ l → l ≡ m → k ≤ m
+  _ ≤≡⟨ p ⟩ q = subst (λ l → _ ≤ l) q p
+
+  _<≡⟨_⟩_ : ∀ k → k < l → l ≡ m → k < m
+  _ <≡⟨ p ⟩ q = _ ≤≡⟨ p ⟩ q

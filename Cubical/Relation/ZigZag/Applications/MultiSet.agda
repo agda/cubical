@@ -1,264 +1,358 @@
--- We apply the theory of zigzag complete relations to finite multisets and association lists.
--- See discussion at the end of the file.
+-- We apply the theory of quasi equivalence relations (QERs) to finite multisets and association lists.
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Relation.ZigZag.Applications.MultiSet where
 
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.RelationalStructure
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.SIP
+open import Cubical.Foundations.Univalence
+open import Cubical.Data.Unit
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
 open import Cubical.Data.List hiding ([_])
-open import Cubical.Structures.MultiSet
-open import Cubical.HITs.SetQuotients.Base
-open import Cubical.HITs.SetQuotients.Properties
-open import Cubical.HITs.FiniteMultiset as FMS hiding ([_])
+open import Cubical.Data.Sigma
+open import Cubical.HITs.SetQuotients
+open import Cubical.HITs.FiniteMultiset as FMS hiding ([_] ; _++_)
 open import Cubical.HITs.FiniteMultiset.CountExtensionality
+open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
-open import Cubical.Relation.ZigZag.Base as ZigZag
+open import Cubical.Relation.ZigZag.Base
 
-private
- variable
-  ℓ : Level
-  A : Type ℓ
-
+open import Cubical.Structures.MultiSet
+open import Cubical.Structures.Relational.Auto
+open import Cubical.Structures.Relational.Macro
 
 -- we define simple association lists without any higher constructors
-data AList (A : Type ℓ) : Type ℓ where
- ⟨⟩ : AList A
- ⟨_,_⟩∷_ : A → ℕ → AList A → AList A
+data AList {ℓ} (A : Type ℓ) : Type ℓ where
+  ⟨⟩ : AList A
+  ⟨_,_⟩∷_ : A → ℕ → AList A → AList A
 
 infixr 5 ⟨_,_⟩∷_
 
+private
+  variable
+    ℓ : Level
 
--- We have a count-structure on List and AList and use these to get a bisimulation between the two
+-- We have a CountStructure on List and AList and use these to get a QER between the two
 module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
- -- the relation we're interested in
- S = count-structure A (Discrete→isSet discA)
- R : {A B : TypeWithStr ℓ S} → (A .fst) → (B .fst) → Type ℓ
- R {X , count₁} {Y , count₂} x y = ∀ a → count₁ a x ≡ count₂ a y
 
- -- relation between R and ι
- ι = count-iso A (Discrete→isSet discA)
- ι-R-char : {X Y : TypeWithStr ℓ S} (e : (X .fst) ≃ (Y .fst))
-          → (∀ x → R {X} {Y} x (e .fst x)) ≃ (ι X Y e)
- ι-R-char e = isoToEquiv (iso (λ f → λ a x → f x a) (λ g → λ x a → g a x) (λ _ → refl) λ _ → refl)
+  multisetShape : Type ℓ → Type ℓ
+  multisetShape X = X × (A → X → X) × (X → X → X) × (A → X → Const[ ℕ , isSetℕ ])
 
+  module S = RelMacro ℓ (autoRelDesc multisetShape)
 
- aux : (a x : A) → Dec (a ≡ x) → ℕ → ℕ
- aux a x (yes a≡x) n = suc n
- aux a x (no  a≢x) n = n
+  addIfEq : (a x : A) → ℕ → ℕ → ℕ
+  addIfEq a x m n with discA a x
+  ... | yes _ = m + n
+  ... | no _ = n
 
+  module _ {a x : A} {n : ℕ} where
 
- -- the count-structures
- Lcount : S (List A)
- Lcount a [] = zero
- Lcount a (x ∷ xs) = aux a x (discA a x) (Lcount a xs)
+    addIfEq≡ : {m : ℕ} → a ≡ x → addIfEq a x m n ≡ m + n
+    addIfEq≡ a≡x with discA a x
+    ... | yes _ = refl
+    ... | no a≢x = ⊥.rec (a≢x a≡x)
 
- ALcount : S (AList A)
- ALcount a ⟨⟩ = zero
- ALcount a (⟨ x , zero ⟩∷ xs) = ALcount a xs
- ALcount a (⟨ x , suc n ⟩∷ xs) = aux a x (discA a x) (ALcount a (⟨ x , n ⟩∷ xs))
+    addIfEq≢ : {m : ℕ} → ¬ (a ≡ x) → addIfEq a x m n ≡ n
+    addIfEq≢ a≢x with discA a x
+    ... | yes a≡x = ⊥.rec (a≢x a≡x)
+    ... | no _ = refl
 
+    addIfEq0 : addIfEq a x 0 n ≡ n
+    addIfEq0 with discA a x
+    ... | yes _ = refl
+    ... | no _ = refl
 
- -- now for the bisimulation between List and Alist
- φ : List A → AList A
- φ [] = ⟨⟩
- φ (x ∷ xs) = ⟨ x , 1 ⟩∷ φ xs
+    addIfEq+ : {m : ℕ} (n' : ℕ) → addIfEq a x m (n + n') ≡ addIfEq a x m n + n'
+    addIfEq+ n' with discA a x
+    ... | yes _ = +-assoc _ n n'
+    ... | no _ = refl
 
- ψ : AList A → List A
- ψ ⟨⟩ = []
- ψ (⟨ x , zero ⟩∷ xs) = ψ xs
- ψ (⟨ x , suc n ⟩∷ xs) = x ∷ ψ (⟨ x , n ⟩∷ xs)
+  module L where
+    emp : List A
+    emp = []
 
+    insert : A → List A → List A
+    insert x xs = x ∷ xs
 
- η : ∀ x → R {List A , Lcount} {AList A , ALcount} x (φ x)
- η [] a = refl
- η (x ∷ xs) a  with (discA a x)
- ...           | yes a≡x = cong suc (η xs a)
- ...           | no  a≢x = η xs a
+    union : List A → List A → List A
+    union xs ys = xs ++ ys
 
+    count : A → List A → ℕ
+    count a [] = zero
+    count a (x ∷ xs) = addIfEq a x 1 (count a xs)
 
- -- for the other direction we need a little helper function
- ε : ∀ y → R {List A , Lcount} {AList A , ALcount} (ψ y) y
- ε' : (x : A) (n : ℕ) (xs : AList A) (a : A)
-    → Lcount a (ψ (⟨ x , n ⟩∷ xs)) ≡ ALcount a (⟨ x , n ⟩∷ xs)
+    structure : S.structure (List A)
+    structure = emp , insert , union , count
 
- ε ⟨⟩ a = refl
- ε (⟨ x , n ⟩∷ xs) a = ε' x n xs a
+    countUnion : ∀ a xs ys → count a (union xs ys) ≡ count a xs + count a ys
+    countUnion a [] ys = refl
+    countUnion a (x ∷ xs) ys =
+      cong (addIfEq a x 1) (countUnion a xs ys)
+      ∙ addIfEq+ (count a ys)
 
- ε' x zero xs a = ε xs a
- ε' x (suc n) xs a with discA a x
- ...                 | yes a≡x = cong suc (ε' x n xs a)
- ...                 | no  a≢x = ε' x n xs a
+  module AL where
+    emp : AList A
+    emp = ⟨⟩
 
+    insert* : ℕ → A → AList A → AList A
+    insert* m a ⟨⟩ = ⟨ a , m ⟩∷ ⟨⟩
+    insert* m a (⟨ y , n ⟩∷ ys) with (discA a y)
+    ... | yes _ = ⟨ y , m + n ⟩∷ ys
+    ... | no _ = ⟨ y , n ⟩∷ insert* m a ys
 
- -- R {List A , Lcount} {AList A , ALcount} is zigzag-complete
- zigzagR : isZigZagComplete (R {List A , Lcount} {AList A , ALcount})
- zigzagR _ _ _ _ r r' r'' a = (r a) ∙∙ sym (r' a) ∙∙ (r'' a)
+    insert : A → AList A → AList A
+    insert = insert* 1
 
+    union : AList A → AList A → AList A
+    union ⟨⟩ ys = ys
+    union (⟨ x , n ⟩∷ xs) ys = insert* n x (union xs ys)
 
- -- now we can apply the main result about zigzag-complete relations:
- Rᴸ  = ZigZag.Bisimulation→Equiv.Rᴬ (List A) (AList A) (R {List A , Lcount} {AList A , ALcount}) φ ψ (zigzagR , η , ε)
- Rᴬᴸ = ZigZag.Bisimulation→Equiv.Rᴮ (List A) (AList A) (R {List A , Lcount} {AList A , ALcount}) φ ψ (zigzagR , η , ε)
+    count : A → AList A → ℕ
+    count a ⟨⟩ = zero
+    count a (⟨ y , n ⟩∷ ys) = addIfEq a y n (count a ys)
 
- List/Rᴸ = (List A) / Rᴸ
- AList/Rᴬᴸ = (AList A) / Rᴬᴸ
+    structure : S.structure (AList A)
+    structure = emp , insert , union , count
 
- List/Rᴸ≃AList/Rᴬᴸ : List/Rᴸ ≃ AList/Rᴬᴸ
- List/Rᴸ≃AList/Rᴬᴸ = ZigZag.Bisimulation→Equiv.Thm (List A) (AList A)
-                                                   (R {List A , Lcount} {AList A , ALcount}) φ ψ (zigzagR , η , ε)
+    countInsert* : ∀ m a x ys → count a (insert* m x ys) ≡ addIfEq a x m (count a ys)
+    countInsert* m a x ⟨⟩ = refl
+    countInsert* m a x (⟨ y , n ⟩∷ ys) with discA a x | discA a y | discA x y
+    ... | yes a≡x | yes a≡y | yes x≡y = addIfEq≡ a≡y ∙ sym (+-assoc m n _)
+    ... | yes a≡x | yes a≡y | no x≢y = ⊥.rec (x≢y (sym a≡x ∙ a≡y))
+    ... | yes a≡x | no a≢y | yes x≡y = ⊥.rec (a≢y (a≡x ∙ x≡y))
+    ... | yes a≡x | no a≢y | no x≢y =  addIfEq≢ a≢y ∙ countInsert* m a x ys ∙ addIfEq≡ a≡x
+    ... | no a≢x | yes a≡y | yes x≡y = ⊥.rec (a≢x (a≡y ∙ sym x≡y))
+    ... | no a≢x | yes a≡y | no x≢y = addIfEq≡ a≡y ∙ cong (n +_) (countInsert* m a x ys ∙ addIfEq≢ a≢x)
+    ... | no a≢x | no a≢y | yes x≡y = addIfEq≢ a≢y
+    ... | no a≢x | no a≢y | no x≢y = addIfEq≢ a≢y ∙ countInsert* m a x ys ∙ addIfEq≢ a≢x
 
- --We want to show that this is an isomorphism of count-structures.
- --For this we first have to define the count-functions
- LQcount : A → List/Rᴸ → ℕ
- LQcount a [ xs ] = Lcount a xs
- LQcount a (eq/ xs ys r i) = ρ a i
-  where
-  ρ : ∀ a → Lcount a xs ≡ Lcount a ys
-  ρ a = (r .snd .fst a) ∙ sym (r .snd .snd a)
- LQcount a (squash/ xs/ xs/₁ p q i j) =
-         isSetℕ (LQcount a xs/) (LQcount a xs/₁) (cong (LQcount a) p) (cong (LQcount a) q) i j
+    countInsert = countInsert* 1
 
+    countUnion : ∀ a xs ys → count a (union xs ys) ≡ count a xs + count a ys
+    countUnion a ⟨⟩ ys = refl
+    countUnion a (⟨ x , n ⟩∷ xs) ys =
+      countInsert* n a x (union xs ys)
+      ∙ cong (addIfEq a x n) (countUnion a xs ys)
+      ∙ addIfEq+ (count a ys)
 
- ALQcount : A → AList/Rᴬᴸ → ℕ
- ALQcount a [ xs ] = ALcount a xs
- ALQcount a (eq/ xs ys r i) = ρ a i
-  where
-  ρ : ∀ a → ALcount a xs ≡ ALcount a ys
-  ρ a = sym (r .snd .fst a) ∙ (r .snd .snd a)
- ALQcount a (squash/ xs/ xs/₁ p q i j) =
-          isSetℕ (ALQcount a xs/) (ALQcount a xs/₁) (cong (ALQcount a) p) (cong (ALQcount a) q) i j
+  -- now for the QER between List and Alist
 
- -- We get that the equivalence is an isomorphism directly from the fact that is induced by a bisimulation
- -- and the fact that we can characterize ι (count-iso) in terms of R through the following observation
- -- ξ = List/Rᴸ≃AList/Rᴬᴸ .fst
- -- observation : (xs : List A) → R {List/Rᴸ , LQcount} {AList/Rᴬᴸ , ALQcount} [ xs ] (ξ [ xs ])
- -- observation = η
+  R : List A → AList A → Type ℓ
+  R xs ys = ∀ a → L.count a xs ≡ AL.count a ys
 
- List/Rᴸ≃AList/Rᴬᴸ-is-count-iso : ι (List/Rᴸ , LQcount) (AList/Rᴬᴸ , ALQcount) List/Rᴸ≃AList/Rᴬᴸ
- List/Rᴸ≃AList/Rᴬᴸ-is-count-iso = ι-R-char {Y = (AList/Rᴬᴸ , ALQcount)} List/Rᴸ≃AList/Rᴬᴸ .fst
-                                  (elimProp (λ _ → isPropΠ (λ _ → isSetℕ _ _)) η)
+  φ : List A → AList A
+  φ [] = ⟨⟩
+  φ (x ∷ xs) = AL.insert x (φ xs)
 
+  ψ : AList A → List A
+  ψ ⟨⟩ = []
+  ψ (⟨ x , zero ⟩∷ xs) = ψ xs
+  ψ (⟨ x , suc n ⟩∷ xs) = x ∷ ψ (⟨ x , n ⟩∷ xs)
 
- -- We now show that List/Rᴸ≃FMSet
- _∷/_ : A → List/Rᴸ → List/Rᴸ
- a ∷/ [ xs ] = [ a ∷ xs ]
- a ∷/ eq/ xs xs' r i = eq/ (a ∷ xs) (a ∷ xs') r' i
-  where
-  r' : Rᴸ (a ∷ xs) (a ∷ xs')
-  r' =  ⟨ a , 1 ⟩∷ (r .fst)
-      , (λ a' → cong (aux a' a (discA a' a)) (r .snd .fst a'))
-      , (λ a' → cong (aux a' a (discA a' a)) (r .snd .snd a'))
- a ∷/ squash/ xs xs₁ p q i j = squash/ (a ∷/ xs) (a ∷/ xs₁) (cong (a ∷/_) p) (cong (a ∷/_) q) i j
+  η : ∀ xs → R xs (φ xs)
+  η [] a = refl
+  η (x ∷ xs) a = cong (addIfEq a x 1) (η xs a) ∙ sym (AL.countInsert a x (φ xs))
 
- infixr 5 _∷/_
+  -- for the other direction we need a little helper function
+  ε : ∀ y → R (ψ y) y
+  ε' : (x : A) (n : ℕ) (xs : AList A) (a : A)
+    → L.count a (ψ (⟨ x , n ⟩∷ xs)) ≡ AL.count a (⟨ x , n ⟩∷ xs)
 
- μ : FMSet A → List/Rᴸ
- μ = FMS.Rec.f squash/ [ [] ] _∷/_ β
-  where
-  β : ∀ a b [xs] → a ∷/ b ∷/ [xs] ≡ b ∷/ a ∷/ [xs]
-  β a b = elimProp (λ _ → squash/ _ _) (λ xs → eq/ _ _ (γ xs))
-   where
-     γ : ∀ xs → Rᴸ (a ∷ b ∷ xs) (b ∷ a ∷ xs)
-     γ xs = φ (a ∷ b ∷ xs) , η (a ∷ b ∷ xs) , λ c → sym (δ c) ∙ η (a ∷ b ∷ xs) c
-      where
-      δ : ∀ c → Lcount c (a ∷ b ∷ xs) ≡ Lcount c (b ∷ a ∷ xs)
-      δ c with discA c a | discA c b
-      δ c | yes _        | yes _ = refl
-      δ c | yes _        | no  _ = refl
-      δ c | no  _        | yes _ = refl
-      δ c | no  _        | no  _ = refl
+  ε ⟨⟩ a = refl
+  ε (⟨ x , n ⟩∷ xs) a = ε' x n xs a
 
+  ε' x zero xs a = ε xs a ∙ sym addIfEq0
+  ε' x (suc n) xs a with discA a x
+  ... | yes a≡x = cong suc (ε' x n xs a ∙ addIfEq≡ a≡x)
+  ... | no  a≢x = ε' x n xs a ∙ addIfEq≢ a≢x
 
- -- The inverse is induced by the standard projection of lists into finite multisets,
- -- which is a morphism of count-structures
- -- Moreover, we need 'count-extensionality' for finite multisets
- List→FMSet : List A → FMSet A
- List→FMSet [] = []
- List→FMSet (x ∷ xs) = x ∷ List→FMSet xs
+  -- Induced quotients and equivalence
 
- List→FMSet-count : ∀ a xs → Lcount a xs ≡ FMScount discA a (List→FMSet xs)
- List→FMSet-count a [] = refl
- List→FMSet-count a (x ∷ xs) with discA a x
- ...                         | yes _ = cong suc (List→FMSet-count a xs)
- ...                         | no  _ = List→FMSet-count a xs
+  open isQuasiEquivRel
 
+  -- R is a QER
+  QuasiR : QuasiEquivRel _ _ ℓ
+  QuasiR .fst .fst = R
+  QuasiR .fst .snd _ _ = isPropΠ λ _ → isSetℕ _ _
+  QuasiR .snd .zigzag r r' r'' a = (r a) ∙∙ sym (r' a) ∙∙ (r'' a)
+  QuasiR .snd .fwd a = ∣ φ a , η a ∣
+  QuasiR .snd .bwd b = ∣ ψ b , ε b ∣
 
- ν : List/Rᴸ → FMSet A
- ν [ xs ] = List→FMSet xs
- ν (eq/ xs ys r i) = path i
-  where
-   ρ : ∀ a → Lcount a xs ≡ Lcount a ys
-   ρ = λ a → (r .snd .fst a) ∙ sym (r .snd .snd a)
+  isStructuredInsert : (x : A) {xs : List A} {ys : AList A}
+    → R xs ys → R (L.insert x xs) (AL.insert x ys)
+  isStructuredInsert x {xs} {ys} r a =
+    cong (addIfEq a x 1) (r a) ∙ sym (AL.countInsert a x ys)
 
-   θ : ∀ a → FMScount discA a (List→FMSet xs) ≡ FMScount discA a (List→FMSet ys)
-   θ a = sym (List→FMSet-count a xs) ∙∙ ρ a ∙∙ List→FMSet-count a ys
+  isStructuredUnion :
+    {xs : List A} {ys : AList A} (r : R xs ys)
+    {xs' : List A} {ys' : AList A} (r' : R xs' ys')
+    → R (L.union xs xs') (AL.union ys ys')
+  isStructuredUnion {xs} {ys} r {xs'} {ys'} r' a =
+    L.countUnion a xs xs' ∙ cong₂ _+_ (r a) (r' a) ∙ sym (AL.countUnion a ys ys')
 
-   path : List→FMSet xs ≡ List→FMSet ys
-   path = FMScountExt.Thm discA _ _ θ
- ν (squash/ xs/ xs/' p q i j) = trunc (ν xs/) (ν xs/') (cong ν p) (cong ν q) i j
+  -- R is structured
+  isStructuredR : S.relation R L.structure AL.structure
+  isStructuredR .fst a = refl
+  isStructuredR .snd .fst = isStructuredInsert
+  isStructuredR .snd .snd .fst {xs} {ys} = isStructuredUnion {xs} {ys}
+  isStructuredR .snd .snd .snd a r = r a
 
+  module E = QER→Equiv QuasiR
+  open E renaming (Rᴸ to Rᴸ; Rᴿ to Rᴬᴸ)
 
- σ : section μ ν
- σ = elimProp (λ _ → squash/ _ _) θ
-  where
-  θ : (xs : List A) → μ (ν [ xs ]) ≡ [ xs ]
-  θ [] = refl
-  θ (x ∷ xs) = cong (x ∷/_) (θ xs)
+  List/Rᴸ = (List A) / Rᴸ
+  AList/Rᴬᴸ = (AList A) / Rᴬᴸ
 
+  List/Rᴸ≃AList/Rᴬᴸ : List/Rᴸ ≃ AList/Rᴬᴸ
+  List/Rᴸ≃AList/Rᴬᴸ = E.Thm
 
- ν-∷/-commute : (x : A) (ys : List/Rᴸ) → ν (x ∷/ ys) ≡ x ∷ ν ys
- ν-∷/-commute x = elimProp (λ _ → FMS.trunc _ _) λ xs → refl
+  main : QERDescends _ S.relation (List A , L.structure) (AList A , AL.structure) QuasiR
+  main = structuredQER→structuredEquiv S.suitable _ _ QuasiR isStructuredR
 
- τ : retract μ ν
- τ = FMS.ElimProp.f (FMS.trunc _ _) refl θ
-  where
-  θ : ∀ x {xs} → ν (μ xs) ≡ xs → ν (μ (x ∷ xs)) ≡ x ∷ xs
-  θ x {xs} p = ν-∷/-commute x (μ xs) ∙ cong (x ∷_) p
+  open QERDescends
 
+  LQstructure : S.structure List/Rᴸ
+  LQstructure = main .quoᴸ .fst
 
- FMSet≃List/Rᴸ : FMSet A ≃ List/Rᴸ
- FMSet≃List/Rᴸ = isoToEquiv (iso μ ν σ τ)
+  ALQstructure : S.structure AList/Rᴬᴸ
+  ALQstructure = main .quoᴿ .fst
 
- --and this is a count-isomorphism, which is easier to prove for the inverse equiv
- List/Rᴸ≃FMSet : List/Rᴸ ≃ FMSet A
- List/Rᴸ≃FMSet = isoToEquiv (iso ν μ τ σ)
+  -- We get a path between structure over the equivalence from the fact that the QER is structured
+  List/Rᴸ≡AList/Rᴬᴸ :
+    Path (TypeWithStr ℓ S.structure) (List/Rᴸ , LQstructure) (AList/Rᴬᴸ , ALQstructure)
+  List/Rᴸ≡AList/Rᴬᴸ =
+    sip S.univalent _ _
+      (E.Thm , S.matches (List/Rᴸ , LQstructure) (AList/Rᴬᴸ , ALQstructure) E.Thm .fst (main .rel))
 
- List/Rᴸ≃FMSet-is-count-iso : ι (List/Rᴸ , LQcount) (FMSet A , FMScount discA) List/Rᴸ≃FMSet
- List/Rᴸ≃FMSet-is-count-iso = ι-R-char {Y = (FMSet A , FMScount discA)} List/Rᴸ≃FMSet .fst
-                              (elimProp (λ _ → isPropΠ (λ _ → isSetℕ _ _)) λ xs a → List→FMSet-count a xs)
+  -- Deriving associativity of union for association list multisets
 
+  LQunion = LQstructure .snd .snd .fst
+  ALQunion = ALQstructure .snd .snd .fst
 
- {-
- Putting everything together we get:
+  hasAssociativeUnion : TypeWithStr ℓ S.structure → Type ℓ
+  hasAssociativeUnion (_ , _ , _ , _⊔_ , _) =
+    ∀ xs ys zs → (xs ⊔ ys) ⊔ zs ≡ xs ⊔ (ys ⊔ zs)
 
-               ≃
- List/Rᴸ ------------> AList/Rᴬᴸ
+  LQassoc : hasAssociativeUnion (List/Rᴸ , LQstructure)
+  LQassoc = elimProp3 (λ _ _ _ → squash/ _ _) (λ xs ys zs i → [ ++-assoc xs ys zs i ])
 
-   |
-   |≃
-   |
-   ∨
-               ≃
- FMSet A ------------> AssocList A
+  ALQassoc : hasAssociativeUnion (AList/Rᴬᴸ , ALQstructure)
+  ALQassoc = subst hasAssociativeUnion List/Rᴸ≡AList/Rᴬᴸ LQassoc
 
+  -- We now show that List/Rᴸ≃FMSet
 
- We thus get that AList/Rᴬᴸ≃AssocList.
- Constructing such an equivalence directly requires count extensionality for association lists,
- which should be even harder to prove than for finite multisets.
+  _∷/_ : A → List/Rᴸ → List/Rᴸ
+  _∷/_ = LQstructure .snd .fst
 
- This strategy should work for all implementations of multisets with HITs.
- We just have to show that:
+  multisetShape' : Type ℓ → Type ℓ
+  multisetShape' X = X × (A → X → X) × (A → X → Const[ ℕ , isSetℕ ])
 
-  ∙ The HIT is equivalent to FMSet (like AssocList)
-  ∙ There is a bisimulation between lists and the basic data type of the HIT
-    with the higher constructors removed (like AList)
+  FMSstructure : S.structure (FMSet A)
+  FMSstructure = [] , _∷_ , FMS._++_ , FMScount discA
 
- Then we get that this HIT is equivalent to the corresponding set quotient that identifies elements
- that give the same count on each a : A.
+  infixr 5 _∷/_
 
- TODO: Show that all the equivalences are indeed isomorphisms of multisets not only of count-structures!
- -}
+  FMSet→List/Rᴸ : FMSet A → List/Rᴸ
+  FMSet→List/Rᴸ = FMS.Rec.f squash/ [ [] ] _∷/_ β
+    where
+    δ : ∀ c a b xs → L.count c (a ∷ b ∷ xs) ≡ L.count c (b ∷ a ∷ xs)
+    δ c a b xs with discA c a | discA c b
+    δ c a b xs | yes _        | yes _ = refl
+    δ c a b xs | yes _        | no  _ = refl
+    δ c a b xs | no  _        | yes _ = refl
+    δ c a b xs | no  _        | no  _ = refl
+
+    γ : ∀ a b xs → Rᴸ (a ∷ b ∷ xs) (b ∷ a ∷ xs)
+    γ a b xs =
+      ∣ φ (a ∷ b ∷ xs) , η (a ∷ b ∷ xs) , (λ c → δ c b a xs ∙ η (a ∷ b ∷ xs) c) ∣
+
+    β : ∀ a b [xs] → a ∷/ b ∷/ [xs] ≡ b ∷/ a ∷/ [xs]
+    β a b = elimProp (λ _ → squash/ _ _) (λ xs → eq/ _ _ (γ a b xs))
+
+  -- The inverse is induced by the standard projection of lists into finite multisets,
+  -- which is a morphism of CountStructures
+  -- Moreover, we need 'count-extensionality' for finite multisets
+  List→FMSet : List A → FMSet A
+  List→FMSet [] = []
+  List→FMSet (x ∷ xs) = x ∷ List→FMSet xs
+
+  List→FMSet-count : ∀ a xs → L.count a xs ≡ FMScount discA a (List→FMSet xs)
+  List→FMSet-count a [] = refl
+  List→FMSet-count a (x ∷ xs) with discA a x
+  ...                         | yes _ = cong suc (List→FMSet-count a xs)
+  ...                         | no  _ = List→FMSet-count a xs
+
+  List/Rᴸ→FMSet : List/Rᴸ → FMSet A
+  List/Rᴸ→FMSet [ xs ] = List→FMSet xs
+  List/Rᴸ→FMSet (eq/ xs ys r i) = path i
+    where
+    countsAgree : ∀ a → L.count a xs ≡ L.count a ys
+    countsAgree a = cong (LQstructure .snd .snd .snd a) (eq/ xs ys r)
+
+    θ : ∀ a → FMScount discA a (List→FMSet xs) ≡ FMScount discA a (List→FMSet ys)
+    θ a = sym (List→FMSet-count a xs) ∙∙ countsAgree a ∙∙ List→FMSet-count a ys
+
+    path : List→FMSet xs ≡ List→FMSet ys
+    path = FMScountExt.Thm discA _ _ θ
+  List/Rᴸ→FMSet (squash/ xs/ xs/' p q i j) =
+    trunc (List/Rᴸ→FMSet xs/) (List/Rᴸ→FMSet xs/') (cong List/Rᴸ→FMSet p) (cong List/Rᴸ→FMSet q) i j
+
+  List/Rᴸ→FMSet-insert : (x : A) (ys : List/Rᴸ) → List/Rᴸ→FMSet (x ∷/ ys) ≡ x ∷ List/Rᴸ→FMSet ys
+  List/Rᴸ→FMSet-insert x = elimProp (λ _ → FMS.trunc _ _) λ xs → refl
+
+  List→FMSet-union : (xs ys : List A)
+    → List→FMSet (xs ++ ys) ≡ FMS._++_ (List→FMSet xs) (List→FMSet ys)
+  List→FMSet-union [] ys = refl
+  List→FMSet-union (x ∷ xs) ys = cong (x ∷_) (List→FMSet-union xs ys)
+
+  List/Rᴸ≃FMSet : List/Rᴸ ≃ FMSet A
+  List/Rᴸ≃FMSet = isoToEquiv (iso List/Rᴸ→FMSet FMSet→List/Rᴸ τ σ)
+    where
+    σ' : (xs : List A) → FMSet→List/Rᴸ (List/Rᴸ→FMSet [ xs ]) ≡ [ xs ]
+    σ' [] = refl
+    σ' (x ∷ xs) = cong (x ∷/_) (σ' xs)
+
+    σ : section FMSet→List/Rᴸ List/Rᴸ→FMSet
+    σ = elimProp (λ _ → squash/ _ _) σ'
+
+    τ' : ∀ x {xs} → List/Rᴸ→FMSet (FMSet→List/Rᴸ xs) ≡ xs → List/Rᴸ→FMSet (FMSet→List/Rᴸ (x ∷ xs)) ≡ x ∷ xs
+    τ' x {xs} p = List/Rᴸ→FMSet-insert x (FMSet→List/Rᴸ xs) ∙ cong (x ∷_) p
+
+    τ : retract FMSet→List/Rᴸ List/Rᴸ→FMSet
+    τ = FMS.ElimProp.f (FMS.trunc _ _) refl τ'
+
+  List/Rᴸ≃FMSet-EquivStr : S.equiv (List/Rᴸ , LQstructure) (FMSet A , FMSstructure) List/Rᴸ≃FMSet
+  List/Rᴸ≃FMSet-EquivStr .fst = refl
+  List/Rᴸ≃FMSet-EquivStr .snd .fst a xs = List/Rᴸ→FMSet-insert a xs
+  List/Rᴸ≃FMSet-EquivStr .snd .snd .fst = elimProp2 (λ _ _ → trunc _ _) List→FMSet-union
+  List/Rᴸ≃FMSet-EquivStr .snd .snd .snd a =
+    elimProp (λ _ → isSetℕ _ _) (List→FMSet-count a)
+
+  {-
+  Putting everything together we get:
+                ≃
+  List/Rᴸ ------------> AList/Rᴬᴸ
+    |
+    |≃
+    |
+    ∨
+                ≃
+  FMSet A ------------> AssocList A
+  We thus get that AList/Rᴬᴸ≃AssocList.
+  Constructing such an equivalence directly requires count extensionality for association lists,
+  which should be even harder to prove than for finite multisets.
+  This strategy should work for all implementations of multisets with HITs.
+  We just have to show that:
+   ∙ The HIT is equivalent to FMSet (like AssocList)
+   ∙ There is a QER between lists and the basic data type of the HIT
+     with the higher constructors removed (like AList)
+  Then we get that this HIT is equivalent to the corresponding set quotient that identifies elements
+  that give the same count on each a : A.
+  TODO: Show that all the equivalences are indeed isomorphisms of multisets not only of CountStructures!
+  -}

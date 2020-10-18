@@ -33,6 +33,9 @@ import Cubical.HITs.Everything
 -- Coinductive data types and properties
 import Cubical.Codata.Everything
 
+-- Papers
+import Cubical.Papers.Everything
+
 -- Properties and proofs about relations
 import Cubical.Relation.Everything
 
@@ -55,3 +58,9 @@ import Cubical.ZCohomology.Everything
 
 -- Algebra library (in development)
 import Cubical.Algebra.Everything
+
+-- Various talks
+import Cubical.Talks.Everything
+
+-- Reflection
+import Cubical.Reflection.Everything
