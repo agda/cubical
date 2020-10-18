@@ -44,7 +44,7 @@ iso-Π-Π' B = iso (λ x {y} → x y) (λ x y → x {y}) (λ b → refl) (λ b �
                → Bool
                → (B : A → Type ℓ')
                → Type (ℓ-max ℓ ℓ')
-Π-u = caseBool Π' Π
+Π-u b = if b then Π' else Π
 
 
 iso-Π-u : ∀ {ℓ ℓ'} {A : Type ℓ}
@@ -264,7 +264,7 @@ n-exp-imp-≃ {n = 0} v₁ v₂ s = idEquiv _
 n-exp-imp-≃ {n = 1} v₁ v₂ s = isoToEquiv (iso-Π-u _ (head v₁) (head v₂) )
 n-exp-imp-≃ {n = (suc (suc n))} v₁ v₂ s =
     _ ≃⟨ isoToEquiv (iso-Π-u _ (head v₁) false) ⟩
-    _ ≃⟨ (equivPi λ x → n-exp-imp-≃ (tail v₁) (tail v₂) (snd s x) ) ⟩
+    _ ≃⟨ (equivΠCod λ x → n-exp-imp-≃ (tail v₁) (tail v₂) (snd s x) ) ⟩
     _ ≃⟨ isoToEquiv (iso-Π-u _ false (head v₂)) ⟩ _ ■
 
 
