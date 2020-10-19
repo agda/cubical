@@ -1,5 +1,5 @@
 
-{-# OPTIONS --cubical --no-import-sorts --allow-unsolved-metas #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 module Cubical.Algebra.Group.Higher where
 
@@ -331,44 +331,3 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
                                                      (BGroup.isConn BG)
                                                      (φ₁ (basepoint EM₁H))
                                                      g)
--------------------------------------
--- the rest can be forgotten since it is redone in the DURG version
--------------------------------------
-
-  EM₁-functor-lInv : GroupHom π₁EM₁H π₁BG → BGroupHom EM₁H BG
-  -- on objects
-  EM₁-functor-lInv f .fst = EM₁-functor-lInv-function f
-  -- pointedness is trivial
-  EM₁-functor-lInv f .snd = EM₁-functor-lInv-pointed f
-
-  -- this left inverse respects isomorphisms,
-  -- first direction
-  EM₁-functor-lInv-onIso : GroupEquiv π₁EM₁H π₁BG → BGroupIso EM₁H BG
-  -- the underlying pointed map / BGroup homomorphism stays the same
-  EM₁-functor-lInv-onIso f .fst = EM₁-functor-lInv (GroupEquiv.hom f)
-  -- if f is an iso then the image of f is an embedding and surjective,
-  -- all in all we have a pointed equivalence
-  EM₁-functor-lInv-onIso f .snd = EM₁-functor-lInv-onIso-isEquiv f
--- left inverse of below iso, used also in the right inverse proof
-
-
--- Isomorphism of the type of groups and the type of
--- pointed connected 1-types.
-IsoGroup1BGroup : (ℓ : Level) → Iso (Group {ℓ}) (1BGroup ℓ)
-Iso.fun (IsoGroup1BGroup ℓ) = Group→1BGroup
-Iso.inv (IsoGroup1BGroup ℓ) = π₁-1BGroup
-Iso.leftInv (IsoGroup1BGroup ℓ) G = p
-  where
-    p : π₁-1BGroup (Group→1BGroup G) ≡ G
-    p = equivFun (GroupPath (π₁-1BGroup (Group→1BGroup G)) G) (π₁EM₁≃ G)
-
--- For the right inverse we construct a pointed equivalence
--- which induces a path
--- (maybe we should use the URG structure to highlight this)
--- The pointed equivalence comes from the adjunction above with H:=π₁BG.
-Iso.rightInv (IsoGroup1BGroup ℓ) BG = BGroupIso→≡ (EM₁-functor-lInv-onIso π₁BG BG (π₁EM₁≃ π₁BG))
-  where
-    π₁BG = π₁-1BGroup BG
-    EM₁π₁BG = Group→1BGroup π₁BG
-    π₁EM₁π₁BG = π₁-1BGroup EM₁π₁BG
-

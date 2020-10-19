@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.DStructures.Structures.Higher where
 
 open import Cubical.Foundations.Prelude

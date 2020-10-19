@@ -34,7 +34,7 @@ open import Cubical.DStructures.Structures.Action
 open import Cubical.DStructures.Structures.Category
 open import Cubical.DStructures.Structures.Constant
 open import Cubical.DStructures.Structures.Group
--- open import Cubical.DStructures.Structures.Higher
+open import Cubical.DStructures.Structures.Higher
 open import Cubical.DStructures.Structures.Nat
 open import Cubical.DStructures.Structures.PeifferGraph
 open import Cubical.DStructures.Structures.ReflGraph
