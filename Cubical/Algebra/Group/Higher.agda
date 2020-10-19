@@ -210,9 +210,12 @@ module _ (BG : 1BGroup ℓ) (BH : 1BGroup ℓ') where
 
 
 -- π₁ is a left inverse to EM₁
+π₁EM₁≃inv : (G : Group {ℓ}) → GroupEquiv G (π₁-1BGroup (Group→1BGroup G))
+GroupEquiv.eq (π₁EM₁≃inv G) = isoToEquiv (invIso (ΩEM₁Iso G))
+GroupEquiv.isHom (π₁EM₁≃inv G) g g' = emloop-comp G g g'
+
 π₁EM₁≃ : (G : Group {ℓ}) → GroupEquiv (π₁-1BGroup (Group→1BGroup G)) G
-GroupEquiv.eq (π₁EM₁≃ G) = isoToEquiv (ΩEM₁Iso G)
-GroupEquiv.isHom (π₁EM₁≃ G) = {!!}
+π₁EM₁≃ G = invGroupEquiv (π₁EM₁≃inv G)
 
 
 -- the functorial action of EM₁ on groups
@@ -227,7 +230,7 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
   -- from the EM construction it follows
   -- that there is a homomorphism H → π₁ (EM₁ H)
   H→π₁EM₁H : GroupHom H π₁EM₁H
-  H→π₁EM₁H = GroupEquiv.hom (invGroupEquiv (π₁EM₁≃ H))
+  H→π₁EM₁H = GroupEquiv.hom (π₁EM₁≃inv H)
 
   -- the promised functorial left inverse
   -- split up into the three components:
@@ -270,7 +273,7 @@ module _ (H : Group {ℓ}) (BG : 1BGroup ℓ') where
             f₁ = fst f-equiv
 
             γ : ⟨ H ⟩ ≃ ⟨ π₁EM₁H ⟩
-            γ = GroupEquiv.eq (invGroupEquiv (π₁EM₁≃ H))
+            γ = GroupEquiv.eq (π₁EM₁≃inv H)
             β : ⟨ π₁EM₁H ⟩ ≃ typ (carrier BG)
             β = f-equiv
             δ : ⟨ H ⟩ ≃ typ (carrier BG)
