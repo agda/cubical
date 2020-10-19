@@ -180,6 +180,9 @@ module BoolReflection where
   ⊕-complete : ∀ P → P ≡ ⊕-Path (transport P false)
   ⊕-complete P = isInjectiveTransport (categorize P)
 
+  ⊕-comp : ∀ p q → ⊕-Path p ∙ ⊕-Path q ≡ ⊕-Path (q ⊕ p)
+  ⊕-comp p q = isInjectiveTransport (λ i x → ⊕-assoc q p x i)
+
   open Iso
 
   reflectIso : Iso Bool (Bool ≡ Bool)
