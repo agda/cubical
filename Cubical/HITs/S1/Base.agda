@@ -380,7 +380,7 @@ invS¹Path : S¹ ≡ S¹
 invS¹Path = ua invS¹Equiv
 
 -- rot, used in the Hopf fibration
--- we will denote rot by _·_
+-- we will denote rotation by _·_
 -- it is called μ in the HoTT-book in "8.5.2 The Hopf construction"
 
 rotLoop : (a : S¹) → a ≡ a

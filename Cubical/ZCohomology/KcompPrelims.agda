@@ -57,11 +57,11 @@ private
 
   d-mapId : (r : S¹) → d-map (ϕ base r) ≡ r
   d-mapId r = substComposite HopfSuspS¹ (merid r) (sym (merid base)) base ∙
-              ·Lemma r
+              rotLemma r
     where
-    ·Lemma : (r : S¹) → r · base ≡ r
-    ·Lemma base = refl
-    ·Lemma (loop i) = refl
+    rotLemma : (r : S¹) → r · base ≡ r
+    rotLemma base = refl
+    rotLemma (loop i) = refl
 
 sphereConnectedSpecCase : isConnected 4 (Susp (Susp S¹))
 sphereConnectedSpecCase = sphereConnected 3
