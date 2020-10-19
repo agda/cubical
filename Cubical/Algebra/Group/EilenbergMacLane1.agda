@@ -120,7 +120,13 @@ module _ (G : Group {ℓ}) where
 
   decode : (x : EM₁ G) → Codes x → embase ≡ x
   decode = elimSet G (λ x → isOfHLevelΠ 2 (λ c → EM₁Groupoid (embase) x))
-    emloop λ g → ua→ λ h → emcomp h g
+    emloop lem₂
+    where
+      module _ (g : Carrier) where
+        lem₁ : (h : Carrier) → PathP (λ i → embase ≡ emloop g i) (emloop h) (emloop (h + g))
+        lem₁ h = emcomp h g
+        lem₂ : PathP (λ i → Codes (emloop g i) → embase ≡ emloop g i) emloop emloop
+        lem₂ = ua→ {A₀ = Carrier} {A₁ = Carrier} {e = rightEquiv g} lem₁
 
   decode-encode : (x : EM₁ G) (p : embase ≡ x) → decode x (encode x p) ≡ p
   decode-encode x p = J (λ y q → decode y (encode y q) ≡ q)

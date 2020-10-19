@@ -264,6 +264,7 @@ ua→⁻ {e = e} {f₀ = f₀} {f₁} p a i =
       })
     (p i (transp (λ j → ua e (j ∧ i)) (~ i) a))
 
+
 -- Useful lemma for unfolding a transported function over ua
 -- If we would have regularity this would be refl
 transportUAop₁ : ∀ {A B : Type ℓ} → (e : A ≃ B) (f : A → A) (x : B)
