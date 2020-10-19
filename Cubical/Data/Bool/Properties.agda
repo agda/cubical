@@ -132,6 +132,9 @@ isEquiv-⊕ x = involIsEquiv (⊕-invol x)
 ⊕-Path : ∀ x → Bool ≡ Bool
 ⊕-Path x = involPath {f = x ⊕_} (⊕-invol x)
 
+⊕-Path-refl : ⊕-Path false ≡ refl
+⊕-Path-refl = isInjectiveTransport refl
+
 ¬transportNot : ∀(P : Bool ≡ Bool) b → ¬ (transport P (not b) ≡ transport P b)
 ¬transportNot P b eq = not≢const b sub
   where
