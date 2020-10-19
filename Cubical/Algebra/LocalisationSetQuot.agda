@@ -540,12 +540,29 @@ module invertEl (R' : CommRing {ℓ}) where
  f ^ zero = 1r
  f ^ suc n = f · (f ^ n)
 
+ infix 9 _^_
+
  ·-of-^-is-^-of-+ : (f : R) (m n : ℕ) → (f ^ m) · (f ^ n) ≡ f ^ (m +ℕ n)
  ·-of-^-is-^-of-+ f zero n = ·-lid _
  ·-of-^-is-^-of-+ f (suc m) n = sym (·-assoc _ _ _) ∙ cong (f ·_) (·-of-^-is-^-of-+ f m n)
 
+ ^-ldist-· : (f g : R) (n : ℕ) → (f · g) ^ n ≡ (f ^ n) · (g ^ n)
+ ^-ldist-· f g zero = sym (·-lid 1r)
+ ^-ldist-· f g (suc n) = path
+  where
+  path : f · g · ((f · g) ^ n) ≡ f · (f ^ n) · (g · (g ^ n))
+  path = f · g · ((f · g) ^ n) ≡⟨ cong (f · g ·_) (^-ldist-· f g n) ⟩
+         f · g · ((f ^ n) · (g ^ n)) ≡⟨ ·-assoc _ _ _ ⟩
+         f · g · (f ^ n) · (g ^ n) ≡⟨ cong (_· (g ^ n)) (sym (·-assoc _ _ _)) ⟩
+         f · (g · (f ^ n)) · (g ^ n) ≡⟨ cong (λ r → (f · r) · (g ^ n)) (·-comm _ _) ⟩
+         f · ((f ^ n) · g) · (g ^ n) ≡⟨ cong (_· (g ^ n)) (·-assoc _ _ _) ⟩
+         f · (f ^ n) · g · (g ^ n) ≡⟨ sym (·-assoc _ _ _) ⟩
+         f · (f ^ n) · (g · (g ^ n)) ∎
+
  [_ⁿ|n≥0] : R → ℙ R
  [ f ⁿ|n≥0] g = (∃[ n ∈ ℕ ] g ≡ f ^ n) , propTruncIsProp
+ -- Σ[ n ∈ ℕ ] (s ≡ f ^ n) × (∀ m → s ≡ f ^ m → n ≤ m) maybe better, this isProp:
+ -- (n,s≡fⁿ,p) (m,s≡fᵐ,q) then n≤m by p and  m≤n by q => n≡m
 
  powersFormSubMonoid : (f : R) → isSubMonoid R' [ f ⁿ|n≥0]
  powersFormSubMonoid f .containsOne = ∣ zero , refl ∣
@@ -570,16 +587,127 @@ module check (R' : CommRing {ℓ}) (f g : ⟨ R' ⟩) where
  R[1/fg] = invertEl.R[1/_] R' (f · g)
  R[1/f][1/g] = invertEl.R[1/_] (invertEl.R[1/_]CommRing R' f)
                                [ g , 1r , powersFormSubMonoid f .containsOne ]
+ R[1/f][1/g]CommRing = invertEl.R[1/_]CommRing (invertEl.R[1/_]CommRing R' f)
+                               [ g , 1r , powersFormSubMonoid f .containsOne ]
 
  -- prove R[1/fg] ≃ R[1/f][1/g] and then check ringhom
  φ : R[1/fg] → R[1/f][1/g]
- φ = SQ.rec squash/ ϕ {!!}
+ φ = SQ.rec squash/ ϕ ϕcoh
    where
-   S[fg] = Loc.S R' [ (f · g) ⁿ|n≥0] (powersFormSubMonoid (f · g))
+   open Loc R' [ (f · g) ⁿ|n≥0] (powersFormSubMonoid (f · g))
+   open CommRing R[1/ f ]CommRing renaming (_·_ to _·ᶠ_ ; 1r to 1ᶠ)
+                                  hiding (_+_ ; ·-lid ; ·-rid ; ·-assoc ; ·-comm)
+   --S = Loc.S R' [ (f · g) ⁿ|n≥0] (powersFormSubMonoid (f · g))
 
-   ϕ : R × S[fg] → R[1/f][1/g]
-   ϕ (r , s , |n,s≡f^n| ) = [ [ {!!} , {!!} , {!!} ] , [ {!!} , {!!} , {!!} ] , {!!} ]
-   --                            r     fⁿ   |n,refl|     gⁿ     1r   |0,refl| [gⁿ,1]≡[g,1]ⁿ
+   curriedϕΣ : (r s : R) → Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n → R[1/f][1/g]
+   curriedϕΣ r s (n , s≡fg^n) =
+    [ [ r , (f ^ n) , ∣ n , refl ∣ ] , [ (g ^ n) , 1r , ∣ 0 , refl ∣ ] , ∣ n , indhelper n ∣ ]
+    where
+    indhelper : ∀ n → [ (g ^ n) , 1r , ∣ 0 , (λ _ → 1r) ∣ ] ≡
+     (R[1/ f ]CommRing invertEl.^ [ g , 1r , powersFormSubMonoid f .containsOne ]) n
+    indhelper zero = refl
+    indhelper (suc n) =
+       eq/ _ _ ((1r , powersFormSubMonoid f .containsOne) , cong (1r · (g · (g ^ n)) ·_) (·-lid 1r))
+     ∙ cong ([ g , 1r , powersFormSubMonoid f .containsOne ] ·ᶠ_) (indhelper n)
+
+   curriedϕ : (r s : R) → ∃[ n ∈ ℕ ] s ≡ (f · g) ^ n → R[1/f][1/g]
+   curriedϕ r s = elim→Set (λ _ → squash/) (curriedϕΣ r s) coh
+    where
+    coh : (x y : Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n) → curriedϕΣ r s x ≡ curriedϕΣ r s y
+    coh (n , s≡fg^n) (m , s≡fg^m) = eq/ _ _ ((1ᶠ , ∣ 0 , refl ∣) ,
+                                    eq/ _ _ ((1r , powersFormSubMonoid f .containsOne) , path))
+     where
+     path : 1r · (1r · r · (g ^ m)) · (1r · (f ^ m) · 1r)
+          ≡ 1r · (1r · r · (g ^ n)) · (1r · (f ^ n) · 1r)
+     path = 1r · (1r · r · (g ^ m)) · (1r · (f ^ m) · 1r)
+          ≡⟨ (λ i → ·-lid ((·-lid r i) · (g ^ m)) i · (·-rid (·-lid (f ^ m) i) i)) ⟩
+            r · g ^ m · f ^ m
+          ≡⟨ sym (·-assoc _ _ _) ⟩
+            r · (g ^ m · f ^ m)
+          ≡⟨ cong (r ·_) (sym (^-ldist-· g f m)) ⟩
+            r · ((g · f) ^ m)
+          ≡⟨ cong (λ x → r · (x ^ m)) (·-comm _ _) ⟩
+            r · ((f · g) ^ m)
+          ≡⟨ cong (r ·_) ((sym s≡fg^m) ∙ s≡fg^n) ⟩
+            r · ((f · g) ^ n)
+          ≡⟨ cong (λ x → r · (x ^ n)) (·-comm _ _) ⟩
+            r · ((g · f) ^ n)
+          ≡⟨ cong (r ·_) (^-ldist-· g f n) ⟩
+            r · (g ^ n · f ^ n)
+          ≡⟨ ·-assoc _ _ _ ⟩
+            r · g ^ n · f ^ n
+          ≡⟨ (λ i → ·-lid ((·-lid r (~ i)) · (g ^ n)) (~ i) · (·-rid (·-lid (f ^ n) (~ i)) (~ i))) ⟩
+            1r · (1r · r · (g ^ n)) · (1r · (f ^ n) · 1r) ∎
+
+   ϕ : R × S → R[1/f][1/g]
+   ϕ (r , s , |n,s≡fg^n|) = curriedϕ r s |n,s≡fg^n|
    -- λ (r / (fg)ⁿ) → ((r / fⁿ) /gⁿ)
-   -- Σ[ n ∈ ℕ ] (s ≡ f ^ n) × (∀ m → s ≡ f ^ m → n ≤ m)
-   -- (n,s≡fⁿ,p) (m,s≡fᵐ,q) then n≤m by p and  m≤n by q => n≡m
+
+   curriedϕcohΣ : (r s r' s' u : R) → (p : u · r · s' ≡ u · r' · s)
+                                    → (α : Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n)
+                                    → (β : Σ[ m ∈ ℕ ] s' ≡ (f · g) ^ m)
+                                    → (γ : Σ[ l ∈ ℕ ] u ≡ (f · g) ^ l)
+                                    → ϕ (r , s , ∣ α ∣) ≡ ϕ (r' , s' , ∣ β ∣)
+   curriedϕcohΣ r s r' s' u p (n , s≡fgⁿ) (m , s'≡fgᵐ) (l , u≡fgˡ) =
+    eq/ _ _ (([ (g ^ l) , 1r , powersFormSubMonoid f .containsOne ] , ∣ l , indhelper l ∣) ,
+    eq/ _ _ ((f ^ l , ∣ l , refl ∣) , path))
+    where
+    indhelper : ∀ n → [ (g ^ n) , 1r , ∣ 0 , (λ _ → 1r) ∣ ] ≡
+     (R[1/ f ]CommRing invertEl.^ [ g , 1r , powersFormSubMonoid f .containsOne ]) n
+    indhelper zero = refl
+    indhelper (suc n) =
+       eq/ _ _ ((1r , powersFormSubMonoid f .containsOne) , cong (1r · (g · (g ^ n)) ·_) (·-lid 1r))
+     ∙ cong ([ g , 1r , powersFormSubMonoid f .containsOne ] ·ᶠ_) (indhelper n)
+
+    path : f ^ l · (g ^ l · transp (λ i → R) i0 r · transp (λ i → R) i0 (g ^ m))
+                 · (1r · transp (λ i → R) i0 (f ^ m) · transp (λ i → R) i0 1r)
+         ≡ f ^ l · (g ^ l · transp (λ i → R) i0 r' · transp (λ i → R) i0 (g ^ n))
+                 · (1r · transp (λ i → R) i0 (f ^ n) · transp (λ i → R) i0 1r)
+    path = f ^ l · (g ^ l · transp (λ i → R) i0 r · transp (λ i → R) i0 (g ^ m))
+                 · (1r · transp (λ i → R) i0 (f ^ m) · transp (λ i → R) i0 1r)
+         ≡⟨ (λ i → f ^ l · (g ^ l · transportRefl r i · transportRefl (g ^ m) i)
+                         · (1r · transportRefl (f ^ m) i · transportRefl 1r i)) ⟩
+           f ^ l · (g ^ l · r · g ^ m) · (1r · f ^ m · 1r)
+         ≡⟨ (λ i → ·-assoc (f ^ l) ((g ^ l) · r) (g ^ m) i · ·-rid (1r · (f ^ m)) i) ⟩
+           f ^ l · (g ^ l · r) · g ^ m · (1r · f ^ m)
+         ≡⟨ (λ i → ·-assoc (f ^ l) (g ^ l) r i · g ^ m ·  ·-lid (f ^ m) i) ⟩
+           f ^ l · g ^ l · r · g ^ m · f ^ m
+         ≡⟨ sym (·-assoc _ _ _) ⟩
+           f ^ l · g ^ l · r · (g ^ m · f ^ m)
+         ≡⟨ (λ i → ^-ldist-· f g l (~ i) · r · ^-ldist-· g f m (~ i)) ⟩
+           (f · g) ^ l · r · (g · f) ^ m
+         ≡⟨ cong (λ x → (f · g) ^ l · r · x ^ m) (·-comm _ _) ⟩
+           (f · g) ^ l · r · (f · g) ^ m
+         ≡⟨ (λ i → u≡fgˡ (~ i) · r · s'≡fgᵐ (~ i)) ⟩
+           u · r · s'
+         ≡⟨ p ⟩
+           u · r' · s
+         ≡⟨ (λ i → u≡fgˡ i · r' · s≡fgⁿ i) ⟩
+           (f · g) ^ l · r' · (f · g) ^ n
+         ≡⟨ cong (λ x → (f · g) ^ l · r' · x ^ n) (·-comm _ _) ⟩
+           (f · g) ^ l · r' · (g · f) ^ n
+         ≡⟨ (λ i → ^-ldist-· f g l i · r' · ^-ldist-· g f n i) ⟩
+           f ^ l · g ^ l · r' · (g ^ n · f ^ n)
+         ≡⟨ ·-assoc _ _ _ ⟩
+           f ^ l · g ^ l · r' · g ^ n · f ^ n
+         ≡⟨ (λ i → ·-assoc (f ^ l) (g ^ l) r' (~ i) · g ^ n ·  ·-lid (f ^ n) (~ i)) ⟩
+           f ^ l · (g ^ l · r') · g ^ n · (1r · f ^ n)
+         ≡⟨ (λ i → ·-assoc (f ^ l) ((g ^ l) · r') (g ^ n) (~ i) · ·-rid (1r · (f ^ n)) (~ i)) ⟩
+           f ^ l · (g ^ l · r' · g ^ n) · (1r · f ^ n · 1r)
+         ≡⟨ (λ i → f ^ l · (g ^ l · transportRefl r' (~ i) · transportRefl (g ^ n) (~ i))
+                         · (1r · transportRefl (f ^ n) (~ i) · transportRefl 1r (~ i))) ⟩
+           f ^ l · (g ^ l · transp (λ i → R) i0 r' · transp (λ i → R) i0 (g ^ n))
+                 · (1r · transp (λ i → R) i0 (f ^ n) · transp (λ i → R) i0 1r) ∎
+
+   curriedϕcoh : (r s r' s' u : R) → (p : u · r · s' ≡ u · r' · s)
+                                   → (α : ∃[ n ∈ ℕ ] s ≡ (f · g) ^ n)
+                                   → (β : ∃[ m ∈ ℕ ] s' ≡ (f · g) ^ m)
+                                   → (γ : ∃[ l ∈ ℕ ] u ≡ (f · g) ^ l)
+                                   → ϕ (r , s , α) ≡ ϕ (r' , s' , β)
+   curriedϕcoh r s r' s' u p = PT.elim (λ _ → isPropΠ2 (λ _ _ → squash/ _ _))
+                         λ α → PT.elim (λ _ → isPropΠ (λ _ → squash/ _ _))
+                         λ β → PT.rec (squash/ _ _)
+                         λ γ →  curriedϕcohΣ r s r' s' u p α β γ
+
+   ϕcoh : (a b : R × S) → a ≈' b → ϕ a ≡ ϕ b
+   ϕcoh (r , s , α) (r' , s' , β) ((u , γ) , p) =  curriedϕcoh r s r' s' u p α β γ
