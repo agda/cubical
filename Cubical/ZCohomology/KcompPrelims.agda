@@ -20,7 +20,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv.HalfAdjoint
 
 open import Cubical.Data.Int renaming (_+_ to +Int)
-open import Cubical.Data.Nat
+open import Cubical.Data.Nat hiding (_·_)
 open import Cubical.Data.Unit
 
 open import Cubical.HITs.Susp
@@ -57,11 +57,11 @@ private
 
   d-mapId : (r : S¹) → d-map (ϕ base r) ≡ r
   d-mapId r = substComposite HopfSuspS¹ (merid r) (sym (merid base)) base ∙
-              rotLemma r
+              ·Lemma r
     where
-    rotLemma : (r : S¹) → rot r base ≡ r
-    rotLemma base = refl
-    rotLemma (loop i) = refl
+    ·Lemma : (r : S¹) → r · base ≡ r
+    ·Lemma base = refl
+    ·Lemma (loop i) = refl
 
 sphereConnectedSpecCase : isConnected 4 (Susp (Susp S¹))
 sphereConnectedSpecCase = sphereConnected 3

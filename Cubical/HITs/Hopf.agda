@@ -21,7 +21,7 @@ open import Cubical.HITs.Interval
   renaming ( zero to I0 ; one to I1 )
 
 Border : (x : S¹) → (j : I) → Partial (j ∨ ~ j) (Σ Type₀ (λ T → T ≃ S¹))
-Border x j (j = i0) = S¹ , rot x , rotIsEquiv x
+Border x j (j = i0) = S¹ , (x ·_) , rotIsEquiv x
 Border x j (j = i1) = S¹ , idEquiv S¹
 
 -- Hopf fibration using SuspS¹
@@ -56,7 +56,7 @@ TotalHopf = Σ SuspS¹ HopfSuspS¹
 filler-1 : I → (j : I) → (y : S¹) → Glue S¹ (Border y j) → join S¹ S¹
 filler-1 i j y x = hfill (λ t → λ { (j = i0) → inl (rotInv-1 x y t)
                                   ; (j = i1) → inr x })
-                         (inS (push ((unglue (j ∨ ~ j) x) * invLooper y) (unglue (j ∨ ~ j) x) j)) i
+                         (inS (push ((unglue (j ∨ ~ j) x) · invLooper y) (unglue (j ∨ ~ j) x) j)) i
 
 TotalHopf→JoinS¹S¹ : TotalHopf → join S¹ S¹
 TotalHopf→JoinS¹S¹ (north , x) = inl x
@@ -68,7 +68,7 @@ JoinS¹S¹→TotalHopf : join S¹ S¹ → TotalHopf
 JoinS¹S¹→TotalHopf (inl x) = (north , x)
 JoinS¹S¹→TotalHopf (inr x) = (south , x)
 JoinS¹S¹→TotalHopf (push y x j) =
-  (merid (invLooper y * x) j
+  (merid (invLooper y · x) j
   , glue (λ { (j = i0) → y ; (j = i1) → x }) (rotInv-2 x y j))
 
 -- Now for the homotopies, we will need to fill squares indexed by x y : S¹ with value in S¹
@@ -123,13 +123,13 @@ discretefib-fibInt a b h x y i =
 
 assocFiller-3-aux : I → I → I → I → S¹
 assocFiller-3-aux x y j i =
-  hfill (λ t → λ { (i = i0) → rotInv-1 (loop y) (loop (~ y) * loop x) t
+  hfill (λ t → λ { (i = i0) → rotInv-1 (loop y) (loop (~ y) · loop x) t
                  ; (i = i1) → rotInv-3 (loop y) (loop x) t
                  ; (x = i0) (y = i0) → base
                  ; (x = i0) (y = i1) → base
                  ; (x = i1) (y = i0) → base
                  ; (x = i1) (y = i1) → base })
-        (inS ((rotInv-2 (loop x) (loop y) i) * (invLooper (loop (~ y) * loop x)))) j
+        (inS ((rotInv-2 (loop x) (loop y) i) · (invLooper (loop (~ y) · loop x)))) j
 
 -- assocFiller-3-endpoint is used only in the type of the next function, to specify the
 -- second endpoint.
@@ -142,8 +142,8 @@ assocFiller-3-endpoint base (loop y) i = assocFiller-3-aux i0 y i1 i
 assocFiller-3-endpoint (loop x) (loop y) i = assocFiller-3-aux x y i1 i
 
 assocFiller-3 : (x : S¹) → (y : S¹) →
-                PathP (λ j → rotInv-1 y (invLooper y * x) j ≡ rotInv-3 y x j)
-                      (λ i → ((rotInv-2 x y i) * (invLooper (invLooper y * x))))
+                PathP (λ j → rotInv-1 y (invLooper y · x) j ≡ rotInv-3 y x j)
+                      (λ i → ((rotInv-2 x y i) · (invLooper (invLooper y · x))))
                       (assocFiller-3-endpoint x y)
 assocFiller-3 base base j i = base
 assocFiller-3 (loop x) base j i = assocFiller-3-aux x i0 j i
@@ -172,13 +172,13 @@ assocSquare-3 i j x y = hcomp (λ t → λ { (i = i0) → assocFiller-3 x y j i0
 
 filler-3 : I → I → S¹ → S¹ → join S¹ S¹
 filler-3 i j y x =
-  hcomp (λ t → λ { (i = i0) → filler-1 t j (invLooper y * x)
+  hcomp (λ t → λ { (i = i0) → filler-1 t j (invLooper y · x)
                                            (glue (λ { (j = i0) → y ; (j = i1) → x })
                                                  (rotInv-2 x y j))
                  ; (i = i1) → push (rotInv-3 y x t) x j
                  ; (j = i0) → inl (assocSquare-3 i t x y)
                  ; (j = i1) → inr x })
-        (push ((rotInv-2 x y (i ∨ j)) * (invLooper (invLooper y * x))) (rotInv-2 x y (i ∨ j)) j)
+        (push ((rotInv-2 x y (i ∨ j)) · (invLooper (invLooper y · x))) (rotInv-2 x y (i ∨ j)) j)
 
 JoinS¹S¹→TotalHopf→JoinS¹S¹ : ∀ x → TotalHopf→JoinS¹S¹ (JoinS¹S¹→TotalHopf x) ≡ x
 JoinS¹S¹→TotalHopf→JoinS¹S¹ (inl x) i = inl x
@@ -203,39 +203,39 @@ PseudoHopf-π2 (_ , x) = x
 
 assocFiller-4-aux : I → I → I → I → S¹
 assocFiller-4-aux x y j i =
-  hfill (λ t → λ { (i = i0) → ((invLooper (loop y * loop x * loop (~ y))) * (loop y * loop x))
-                              * (rotInv-1 (loop x) (loop y) t)
-                 ; (i = i1) → (rotInv-4 (loop y) (loop y * loop x) (~ t)) * loop x
+  hfill (λ t → λ { (i = i0) → ((invLooper (loop y · loop x · loop (~ y))) · (loop y · loop x))
+                              · (rotInv-1 (loop x) (loop y) t)
+                 ; (i = i1) → (rotInv-4 (loop y) (loop y · loop x) (~ t)) · loop x
                  ; (x = i0) (y = i0) → base
                  ; (x = i0) (y = i1) → base
                  ; (x = i1) (y = i0) → base
                  ; (x = i1) (y = i1) → base })
-        (inS (rotInv-2 (loop y * loop x) (loop y * loop x * loop (~ y)) i)) j
+        (inS (rotInv-2 (loop y · loop x) (loop y · loop x · loop (~ y)) i)) j
 
 -- See assocFiller-3-endpoint
 -- TODO : use cubical extension types when available to remove assocFiller-4-endpoint
-assocFiller-4-endpoint : (x y : S¹) → basedΩS¹ (((invLooper (y * x * invLooper y)) * (y * x)) * x)
+assocFiller-4-endpoint : (x y : S¹) → basedΩS¹ (((invLooper (y · x · invLooper y)) · (y · x)) · x)
 assocFiller-4-endpoint base base i = base
 assocFiller-4-endpoint (loop x) base i = assocFiller-4-aux x i0 i1 i
 assocFiller-4-endpoint base (loop y) i = assocFiller-4-aux i0 y i1 i
 assocFiller-4-endpoint (loop x) (loop y) i = assocFiller-4-aux x y i1 i
 
 assocFiller-4 : (x y : S¹) →
-                PathP (λ j → ((invLooper (y * x * invLooper y)) * (y * x)) * (rotInv-1 x y j) ≡ (rotInv-4 y (y * x) (~ j)) * x)
-                      (λ i → (rotInv-2 (y * x) (y * x * invLooper y) i))
+                PathP (λ j → ((invLooper (y · x · invLooper y)) · (y · x)) · (rotInv-1 x y j) ≡ (rotInv-4 y (y · x) (~ j)) · x)
+                      (λ i → (rotInv-2 (y · x) (y · x · invLooper y) i))
                       (assocFiller-4-endpoint x y)
 assocFiller-4 base base j i = base
 assocFiller-4 (loop x) base j i = assocFiller-4-aux x i0 j i
 assocFiller-4 base (loop y) j i = assocFiller-4-aux i0 y j i
 assocFiller-4 (loop x) (loop y) j i = assocFiller-4-aux x y j i
 
-assoc-4 : (x y : S¹) → basedΩS¹ (((invLooper (y * x * invLooper y)) * (y * x)) * x)
+assoc-4 : (x y : S¹) → basedΩS¹ (((invLooper (y · x · invLooper y)) · (y · x)) · x)
 assoc-4 x y i = assocFiller-4 x y i1 i
 
-fibInt≡fibAssoc-4 : fibInt ≡ (λ x y → basedΩS¹ (((invLooper (y * x * invLooper y)) * (y * x)) * x))
-fibInt≡fibAssoc-4 i = λ x y → basedΩS¹≡Int (((invLooper (y * x * invLooper y)) * (y * x)) * x) (~ i)
+fibInt≡fibAssoc-4 : fibInt ≡ (λ x y → basedΩS¹ (((invLooper (y · x · invLooper y)) · (y · x)) · x))
+fibInt≡fibAssoc-4 i = λ x y → basedΩS¹≡Int (((invLooper (y · x · invLooper y)) · (y · x)) · x) (~ i)
 
-discretefib-fibAssoc-4 : discretefib (λ x y → basedΩS¹ (((invLooper (y * x * invLooper y)) * (y * x)) * x))
+discretefib-fibAssoc-4 : discretefib (λ x y → basedΩS¹ (((invLooper (y · x · invLooper y)) · (y · x)) · x))
 discretefib-fibAssoc-4 =
   transp (λ i → discretefib (fibInt≡fibAssoc-4 i)) i0 discretefib-fibInt
 
@@ -253,18 +253,18 @@ assocSquare-4 i j x y =
 filler-4-0 : (_ j : I) → (y : S¹) → Glue S¹ (Border y j) → PseudoHopf
 filler-4-0 i j y x =
   let x' = unglue (j ∨ ~ j) x in
-  hfill (λ t → λ { (j = i0) → ((invLooper (y * x * invLooper y) * (y * x) , I0)
-                              , invLooper (y * x * invLooper y) * (y * x) * (rotInv-1 x y t))
-                 ; (j = i1) → ((invLooper (x * invLooper y) * x , I1) , x) })
-        (inS ((invLooper (x' * invLooper y) * x' , seg j) , rotInv-2 x' (x' * invLooper y) j)) i
+  hfill (λ t → λ { (j = i0) → ((invLooper (y · x · invLooper y) · (y · x) , I0)
+                              , invLooper (y · x · invLooper y) · (y · x) · (rotInv-1 x y t))
+                 ; (j = i1) → ((invLooper (x · invLooper y) · x , I1) , x) })
+        (inS ((invLooper (x' · invLooper y) · x' , seg j) , rotInv-2 x' (x' · invLooper y) j)) i
 
 filler-4-1 : (_ j : I) → (y : S¹) → Glue S¹ (Border y j) → PseudoHopf
 filler-4-1 i j y x =
   let x' = unglue (j ∨ ~ j) x in
-  hfill (λ t → λ { (j = i0) → ((invLooper (y * x * invLooper y) * (y * x) , I0)
-                              , (rotInv-4 y (y * x) (~ t)) * x)
-                 ; (j = i1) → ((invLooper (x * invLooper y) * x , I1) , x) })
-        (inS ((invLooper (x' * invLooper y) * x' , seg j) , unglue (j ∨ ~ j) x)) i
+  hfill (λ t → λ { (j = i0) → ((invLooper (y · x · invLooper y) · (y · x) , I0)
+                              , (rotInv-4 y (y · x) (~ t)) · x)
+                 ; (j = i1) → ((invLooper (x · invLooper y) · x , I1) , x) })
+        (inS ((invLooper (x' · invLooper y) · x' , seg j) , unglue (j ∨ ~ j) x)) i
 
 filler-4-2 : (_ j : I) → (y : S¹) → Glue S¹ (Border y j) → TotalHopf
 filler-4-2 i j y x =
@@ -275,25 +275,25 @@ filler-4-2 i j y x =
                                      (PseudoHopf-π2 (filler-4-0 t j y x)))
                  ; (j = i0) → (north , rotInv-1 x y t)
                  ; (j = i1) → (south , x) })
-        (merid (invLooper (x' * invLooper y) * x') j
-        , glue (λ { (j = i0) → y * x * invLooper y ; (j = i1) → x }) (rotInv-2 x' (x' * invLooper y) j))
+        (merid (invLooper (x' · invLooper y) · x') j
+        , glue (λ { (j = i0) → y · x · invLooper y ; (j = i1) → x }) (rotInv-2 x' (x' · invLooper y) j))
 
 filler-4-3 : (_ j : I) → (y : S¹) → Glue S¹ (Border y j) → PseudoHopf
 filler-4-3 i j y x =
   let x' = unglue (j ∨ ~ j) x in
   hcomp (λ t → λ { (i = i0) → filler-4-0 t j y x
                  ; (i = i1) → filler-4-1 t j y x
-                 ; (j = i0) → ((invLooper (y * x * invLooper y) * (y * x) , I0) , assocSquare-4 i t x y)
-                 ; (j = i1) → ((invLooper (x * invLooper y) * x , I1) , x) })
-        ((invLooper (x' * invLooper y) * x' , seg j) , rotInv-2 x' (x' * invLooper y) (i ∨ j))
+                 ; (j = i0) → ((invLooper (y · x · invLooper y) · (y · x) , I0) , assocSquare-4 i t x y)
+                 ; (j = i1) → ((invLooper (x · invLooper y) · x , I1) , x) })
+        ((invLooper (x' · invLooper y) · x' , seg j) , rotInv-2 x' (x' · invLooper y) (i ∨ j))
 
 filler-4-4 : (_ j : I) → (y : S¹) → Glue S¹ (Border y j) → PseudoHopf
 filler-4-4 i j y x =
   let x' = unglue (j ∨ ~ j) x in
   hcomp (λ t → λ { (i = i0) → filler-4-1 t j y x
                  ; (i = i1) → ((y , seg j) , unglue (j ∨ ~ j) x)
-                 ; (j = i0) → ((rotInv-4 y (y * x) i , I0)
-                              , (rotInv-4 y (y * x) (i ∨ ~ t)) * x)
+                 ; (j = i0) → ((rotInv-4 y (y · x) i , I0)
+                              , (rotInv-4 y (y · x) (i ∨ ~ t)) · x)
                  ; (j = i1) → ((rotInv-4 y x i , I1) , x) })
         ((rotInv-4 y x' i , seg j) , x')
 
