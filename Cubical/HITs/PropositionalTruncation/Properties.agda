@@ -347,5 +347,31 @@ module GpdElim (Bgpd : isGroupoid B) where
 
 open GpdElim using (rec→Gpd; trunc→Gpd≃) public
 
+squashᵗ
+  : ∀(x y z : A)
+  → Square (squash ∣ x ∣ ∣ y ∣) (squash ∣ x ∣ ∣ z ∣) refl (squash ∣ y ∣ ∣ z ∣)
+squashᵗ x y z i = squash ∣ x ∣ (squash ∣ y ∣ ∣ z ∣ i)
+
+elim→Gpd
+  : (P : ∥ A ∥ → Type ℓ)
+  → (∀ t → isGroupoid (P t))
+  → (f : (x : A) → P ∣ x ∣)
+  → (kf : ∀ x y → PathP (λ i → P (squash ∣ x ∣ ∣ y ∣ i)) (f x) (f y))
+  → (3kf : ∀ x y z
+         → SquareP (λ i j → P (squashᵗ x y z i j)) (kf x y) (kf x z) refl (kf y z))
+  → (t : ∥ A ∥) → P t
+elim→Gpd {A = A} P Pgpd f kf 3kf t = rec→Gpd (Pgpd t) g 3kg t
+  where
+  g : A → P t
+  g x = transp (λ i → P (squash ∣ x ∣ t i)) i0 (f x)
+
+  open 3-Constant
+
+  3kg : 3-Constant g
+  3kg .link x y i
+    = transp (λ j → P (squash (squash ∣ x ∣ ∣ y ∣ i) t j)) i0 (kf x y i)
+  3kg .coh₁ x y z i j
+    = transp (λ k → P (squash (squashᵗ x y z i j) t k)) i0 (3kf x y z i j)
+
 RecHSet : (P : A → TypeOfHLevel ℓ 2) → 3-Constant P → ∥ A ∥ → TypeOfHLevel ℓ 2
 RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP
