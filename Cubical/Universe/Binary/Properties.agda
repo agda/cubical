@@ -7,6 +7,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Functions.Embedding
@@ -14,7 +15,6 @@ open import Cubical.Functions.Involution
 
 open import Cubical.Data.Sigma
 
-open import Cubical.HITs.Delooping.Two.Base
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Universe.Binary.Base
@@ -99,3 +99,17 @@ module Reflection where
 reflect : Binary ≃ FS.Binary ℓ-zero
 reflect = isoToEquiv Reflection.reflectIso
 
+structureᵤ : FS.BinStructure Binary
+structureᵤ = λ where
+    .base → bs .base .lower
+    .loop i → bs .loop i .lower
+    .loop² i j → bs .loop² i j .lower
+    .trunc → isGroupoidBinary
+  where
+  open FS.BinStructure
+
+  path : Lift Binary ≡ FS.Binary _
+  path = ua (compEquiv (invEquiv LiftEquiv) reflect)
+
+  bs : FS.BinStructure (Lift Binary)
+  bs = subst⁻ FS.BinStructure path FS.structure₀
