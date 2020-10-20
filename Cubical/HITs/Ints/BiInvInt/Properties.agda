@@ -17,7 +17,7 @@ open import Cubical.Data.Bool
 open import Cubical.HITs.Ints.BiInvInt.Base
 
 infixl 6 _+_ _-_
-infixl 7 _*_
+infixl 7 _·_
 
 -- To prove a property P about BiInvInt, we need to show:
 -- * P zero
@@ -47,8 +47,8 @@ BiInvInt-ind-prop {P = P} P-isProp P-zero P-suc P-pred = φ
   φ (predl-suc n i) = P-isProp' (predl-suc n) (P-predl (suc n) (P-suc n (φ n))) (φ n) i
 
 -- To define a function BiInvInt → A, we need:
--- * a point z : A for zero
--- * an equivalence s : A ≃ A for suc/pred
+-- · a point z : A for zero
+-- · an equivalence s : A ≃ A for suc/pred
 BiInvInt-rec : ∀ {ℓ} {A : Type ℓ} → A → A ≃ A → BiInvInt → A
 BiInvInt-rec {A = A} z e = φ
   where
@@ -175,74 +175,74 @@ isEquiv-n+ n = isoToIsEquiv (Iso-n+ n)
 -- multiplication
 
 -- the following equalities hold definitionally:
---   zero   * n ≡ zero
---   suc m  * n ≡ n + m * n
---   pred m * n ≡ (- n) + m * n
-_*_ : BiInvInt → BiInvInt → BiInvInt
-m * n = BiInvInt-rec zero (n +_ , isEquiv-n+ n) m
+--   zero   · n ≡ zero
+--   suc m  · n ≡ n + m · n
+--   pred m · n ≡ (- n) + m · n
+_·_ : BiInvInt → BiInvInt → BiInvInt
+m · n = BiInvInt-rec zero (n +_ , isEquiv-n+ n) m
 
 -- properties of multiplication
 
-*-zero : ∀ n → n * zero ≡ zero
-*-zero = BiInvInt-ind-prop (λ _ → isSetBiInvInt _ _) refl (λ n p → p) (λ n p → p)
+·-zero : ∀ n → n · zero ≡ zero
+·-zero = BiInvInt-ind-prop (λ _ → isSetBiInvInt _ _) refl (λ n p → p) (λ n p → p)
 
-*-suc : ∀ m n → m * suc n ≡ m + m * n
-*-suc = BiInvInt-ind-prop (λ _ → isPropΠ λ _ → isSetBiInvInt _ _)
+·-suc : ∀ m n → m · suc n ≡ m + m · n
+·-suc = BiInvInt-ind-prop (λ _ → isPropΠ λ _ → isSetBiInvInt _ _)
   (λ n → refl)
   (λ m p n → cong suc
-    (cong (n +_) (p n) ∙ +-assoc n m (m * n) ∙
-     cong (_+ m * n) (+-comm n m) ∙ sym (+-assoc m n (m * n))))
+    (cong (n +_) (p n) ∙ +-assoc n m (m · n) ∙
+     cong (_+ m · n) (+-comm n m) ∙ sym (+-assoc m n (m · n))))
   (λ m p n → cong pred
-    (cong (- n +_) (p n) ∙ +-assoc (- n) m (m * n) ∙
-     cong (_+ m * n) (+-comm (- n) m) ∙ sym (+-assoc m (- n) (m * n))))
+    (cong (- n +_) (p n) ∙ +-assoc (- n) m (m · n) ∙
+     cong (_+ m · n) (+-comm (- n) m) ∙ sym (+-assoc m (- n) (m · n))))
 
-*-pred : ∀ m n → m * pred n ≡ (- m) + m * n
-*-pred = BiInvInt-ind-prop (λ _ → isPropΠ λ _ → isSetBiInvInt _ _)
+·-pred : ∀ m n → m · pred n ≡ (- m) + m · n
+·-pred = BiInvInt-ind-prop (λ _ → isPropΠ λ _ → isSetBiInvInt _ _)
   (λ n → refl)
   (λ m p n → cong pred
-    (cong (n +_) (p n) ∙ +-assoc n (- m) (m * n) ∙
-     cong (_+ m * n) (+-comm n (- m)) ∙ sym (+-assoc (- m) n (m * n))))
+    (cong (n +_) (p n) ∙ +-assoc n (- m) (m · n) ∙
+     cong (_+ m · n) (+-comm n (- m)) ∙ sym (+-assoc (- m) n (m · n))))
   (λ m p n → cong suc
-    (cong (- n +_) (p n) ∙ +-assoc (- n) (- m) (m * n) ∙
-     cong (_+ m * n) (+-comm (- n) (- m)) ∙ sym (+-assoc (- m) (- n) (m * n))))
+    (cong (- n +_) (p n) ∙ +-assoc (- n) (- m) (m · n) ∙
+     cong (_+ m · n) (+-comm (- n) (- m)) ∙ sym (+-assoc (- m) (- n) (m · n))))
 
-*-comm : ∀ m n → m * n ≡ n * m
-*-comm = BiInvInt-ind-prop (λ _ → isPropΠ λ _ → isSetBiInvInt _ _)
-  (λ n → sym (*-zero n))
-  (λ m p n → cong (n +_) (p n) ∙ sym (*-suc n m))
-  (λ m p n → cong (- n +_) (p n) ∙ sym (*-pred n m))
+·-comm : ∀ m n → m · n ≡ n · m
+·-comm = BiInvInt-ind-prop (λ _ → isPropΠ λ _ → isSetBiInvInt _ _)
+  (λ n → sym (·-zero n))
+  (λ m p n → cong (n +_) (p n) ∙ sym (·-suc n m))
+  (λ m p n → cong (- n +_) (p n) ∙ sym (·-pred n m))
 
-*-identityˡ : ∀ m → suc zero * m ≡ m
-*-identityˡ = +-zero
+·-identityˡ : ∀ m → suc zero · m ≡ m
+·-identityˡ = +-zero
 
-*-identityʳ : ∀ m → m * suc zero ≡ m
-*-identityʳ m = *-comm m (suc zero) ∙ *-identityˡ m
+·-identityʳ : ∀ m → m · suc zero ≡ m
+·-identityʳ m = ·-comm m (suc zero) ∙ ·-identityˡ m
 
-*-distribʳ : ∀ m n o → (m * o) + (n * o) ≡ (m + n) * o
-*-distribʳ = BiInvInt-ind-prop (λ _ → isPropΠ2 λ _ _ → isSetBiInvInt _ _)
+·-distribʳ : ∀ m n o → (m · o) + (n · o) ≡ (m + n) · o
+·-distribʳ = BiInvInt-ind-prop (λ _ → isPropΠ2 λ _ _ → isSetBiInvInt _ _)
   (λ n o → refl)
-  (λ m p n o → sym (+-assoc o (m * o) (n * o)) ∙ cong (o +_) (p n o))
-  (λ m p n o → sym (+-assoc (- o) (m * o) (n * o)) ∙ cong (- o +_) (p n o))
+  (λ m p n o → sym (+-assoc o (m · o) (n · o)) ∙ cong (o +_) (p n o))
+  (λ m p n o → sym (+-assoc (- o) (m · o) (n · o)) ∙ cong (- o +_) (p n o))
 
-*-distribˡ : ∀ o m n → (o * m) + (o * n) ≡ o * (m + n)
-*-distribˡ o m n =
-  cong (_+ o * n) (*-comm o m) ∙ cong (m * o +_) (*-comm o n) ∙
-  *-distribʳ m n o ∙ *-comm (m + n) o
+·-distribˡ : ∀ o m n → (o · m) + (o · n) ≡ o · (m + n)
+·-distribˡ o m n =
+  cong (_+ o · n) (·-comm o m) ∙ cong (m · o +_) (·-comm o n) ∙
+  ·-distribʳ m n o ∙ ·-comm (m + n) o
 
-*-inv : ∀ m n → m * (- n) ≡ - (m * n)
-*-inv = BiInvInt-ind-prop (λ _ → isPropΠ λ _ → isSetBiInvInt _ _)
+·-inv : ∀ m n → m · (- n) ≡ - (m · n)
+·-inv = BiInvInt-ind-prop (λ _ → isPropΠ λ _ → isSetBiInvInt _ _)
   (λ n → refl)
-  (λ m p n → cong (- n +_) (p n) ∙ sym (inv-hom n (m * n)))
-  (λ m p n → cong (- (- n) +_) (p n) ∙ sym (inv-hom (- n) (m * n)))
+  (λ m p n → cong (- n +_) (p n) ∙ sym (inv-hom n (m · n)))
+  (λ m p n → cong (- (- n) +_) (p n) ∙ sym (inv-hom (- n) (m · n)))
 
-inv-* : ∀ m n → (- m) * n ≡ - (m * n)
-inv-* m n = *-comm (- m) n ∙ *-inv n m ∙ cong (-_) (*-comm n m)
+inv-· : ∀ m n → (- m) · n ≡ - (m · n)
+inv-· m n = ·-comm (- m) n ∙ ·-inv n m ∙ cong (-_) (·-comm n m)
 
-*-assoc : ∀ m n o → m * (n * o) ≡ (m * n) * o
-*-assoc = BiInvInt-ind-prop (λ _ → isPropΠ2 λ _ _ → isSetBiInvInt _ _)
+·-assoc : ∀ m n o → m · (n · o) ≡ (m · n) · o
+·-assoc = BiInvInt-ind-prop (λ _ → isPropΠ2 λ _ _ → isSetBiInvInt _ _)
   (λ n o → refl)
   (λ m p n o →
-    cong (n * o +_) (p n o) ∙ *-distribʳ n (m * n) o)
+    cong (n · o +_) (p n o) ∙ ·-distribʳ n (m · n) o)
   (λ m p n o →
-    cong (- (n * o) +_) (p n o) ∙ cong (_+ m * n * o) (sym (inv-* n o)) ∙
-    *-distribʳ (- n) (m * n) o)
+    cong (- (n · o) +_) (p n o) ∙ cong (_+ m · n · o) (sym (inv-· n o)) ∙
+    ·-distribʳ (- n) (m · n) o)
