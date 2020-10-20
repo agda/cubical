@@ -200,7 +200,7 @@ module GroupΣTheory {ℓ} where
   InducedGroup : (G : Group) (H : RawGroupΣ) (e : ⟨ G ⟩ ≃ H .fst)
                → RawGroupEquivStr (Group→RawGroupΣ G) H e → Group
   InducedGroup G H e r =
-    GroupΣ→Group (transferAxioms rawGroupUnivalentStr (Group→GroupΣ G) H (e , r))
+    GroupΣ→Group (inducedStructure rawGroupUnivalentStr (Group→GroupΣ G) H (e , r))
 
   InducedGroupPath : (G : Group {ℓ}) (H : RawGroupΣ) (e : ⟨ G ⟩ ≃ H .fst)
                      (E : RawGroupEquivStr (Group→RawGroupΣ G) H e)
