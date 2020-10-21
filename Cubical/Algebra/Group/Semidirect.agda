@@ -63,7 +63,8 @@ module _ {G : Group {ℓ}} {H : Group {ℓ'}} (Act : GroupAction H G) where
   ι₁ = grouphom (λ g → g , 0ᴴ) λ g g' → ΣPathP (cong (g +ᴳ_) (sym (α-id g')), sym (lIdᴴ 0ᴴ))
 
   π₂ : GroupHom (G ⋊⟨ Act ⟩ H) H
-  π₂ = grouphom snd λ _ _ → refl
+  -- π₂ = grouphom snd λ _ _ → refl
+  π₂ = grouphom snd λ (g , h) (g' , h') → refl {x = h +ᴴ h'}
 
   ι₂ : GroupHom H (G ⋊⟨ Act ⟩ H)
   ι₂ = grouphom (λ h → 0ᴳ , h) λ h h' → ΣPathP (sym (actOnUnit h) ∙ sym (lIdᴳ (h α 0ᴳ)) , refl)

@@ -20,11 +20,17 @@ private
 𝒮-universe
   = make-𝒮 {_≅_ = _≃_}
             idEquiv
-            λ A → isContrRespectEquiv (Σ-cong-equiv-snd (λ A' → isoToEquiv (iso invEquiv
-                                                                                  invEquiv
-                                                                                  (λ e → equivEq (invEquiv (invEquiv e)) e (funExt (λ x → refl)))
-                                                                                  λ e → equivEq (invEquiv (invEquiv e)) e (funExt (λ x → refl)))))
-                                       (EquivContr A)
+            λ A → isContrRespectEquiv (Σ-cong-equiv-snd (λ A' → isoToEquiv (equivInv A' A)))
+                                       (equivContr' A)
+  where
+    module _ (A : Type ℓ) where
+      equivInv : (A' : Type ℓ) → Iso (A ≃ A') (A' ≃ A)
+      Iso.fun (equivInv A') = invEquiv
+      Iso.inv (equivInv A') = invEquiv
+      Iso.leftInv (equivInv A') = λ e → equivEq (invEquiv (invEquiv e)) e (funExt (λ x → refl))
+      Iso.rightInv (equivInv A') = λ e → equivEq (invEquiv (invEquiv e)) e (funExt (λ x → refl))
+      equivContr' : isContr (Σ[ A' ∈ Type ℓ ] A' ≃ A)
+      equivContr' = EquivContr A
 
 𝒮ᴰ-pointed : {ℓ : Level} → URGStrᴰ (𝒮-universe {ℓ}) (λ A → A) ℓ
 𝒮ᴰ-pointed {ℓ} =
