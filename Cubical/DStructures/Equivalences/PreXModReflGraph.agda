@@ -47,6 +47,46 @@ open GroupLemmas
 open MorphismLemmas
 open ActionLemmas
 
+
+{-
+After associating, we have
+
+
+  B × isEqui   - B × isSecRet
+    |        /      |
+    |      /        |
+  Action    ≃    SplitMono
+
+
+Fix any action and its
+corresponding split mono
+    α             π₂
+G₀ --> H   ↦  G₀ ↔ H ⋊⟨ α ⟩ G₀
+                  ι₂
+
+
+Precrossed module gives internal refl. graph:
+
+α : G₀ --> H
+φ : G₀ ← H
++ equivariance
+
+
+
+
+
+
+
+Split mono gives Action:
+
+   σ            Ad∘ι
+G₀ ↔ G₁   ↦ G₀ --> ker σ
+   ι
+
+-}
+
+
+
 module _ (ℓ ℓ' : Level) where
   private
     ℓℓ' = ℓ-max ℓ ℓ'

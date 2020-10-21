@@ -16,10 +16,12 @@ open import Cubical.Relation.Binary
 
 open import Cubical.DStructures.Base
 open import Cubical.DStructures.Meta.Properties
+open import Cubical.DStructures.Meta.Isomorphism
+open import Cubical.DStructures.Structures.XModule
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓP : Level
+    ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓA' ℓ≅A' ℓB ℓB' ℓ≅B' ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓP : Level
 
 -- NOTES
 -- Top-Level presentation possible, but code is going to be used
@@ -48,7 +50,6 @@ private
       identity types of the total space
     - Avoid equality on objects in proofs
     - Modular and abstract
-
 -}
 
 
@@ -232,8 +233,8 @@ record URGStrᴰ' {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
 ∫⟨_⟩'_ = {!!}
 
 {-
-  B
-  |  ↦ A × B
+  B   ∫
+  |   ↦   A × B
   A
 -}
 
@@ -241,8 +242,6 @@ record URGStrᴰ' {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
 -- A characterization of the identity types of pointed types
 𝒮-pointed : {ℓ : Level} → URGStr (Σ[ A ∈ Type ℓ ] A) ℓ
 𝒮-pointed = ∫⟨ 𝒮-universe ⟩ 𝒮ᴰ-pointed
-
-
 
 
 -- EXAMPLE
@@ -265,9 +264,9 @@ _×𝒮_ 𝒮-A 𝒮-B = ∫⟨ 𝒮-A ⟩ (𝒮ᴰ-const 𝒮-A 𝒮-B)
 
 
 {-
-            B
-  A, B  ↦  |   ↦ A × B
-            A
+        const   B    ∫
+  A, B   ↦     |    ↦ A × B
+                A
 -}
 
 -- EXAMPLE
@@ -277,7 +276,9 @@ _×𝒮_ 𝒮-A 𝒮-B = ∫⟨ 𝒮-A ⟩ (𝒮ᴰ-const 𝒮-A 𝒮-B)
                   (λ (G , H) → GroupHom G H)
                   (ℓ-max ℓ ℓ')
 𝒮ᴰ-G²\F' =
-    make-𝒮ᴰ (λ {(G , H)} {(G' , H')} f (eG , eH) f' → (g : ⟨ G ⟩) → GroupEquiv.eq eH .fst ((f .fun) g) ≡ (f' .fun) (GroupEquiv.eq eG .fst g))
+    make-𝒮ᴰ (λ {(G , H)} {(G' , H')} f (eG , eH) f'
+               → (g : ⟨ G ⟩)
+               → GroupEquiv.eq eH .fst ((f .fun) g) ≡ (f' .fun) (GroupEquiv.eq eG .fst g))
             (λ _ _ → refl)
             λ (G , H) f → isContrRespectEquiv (Σ-cong-equiv-snd (λ f' → isoToEquiv (invIso (GroupMorphismExtIso f f'))))
                                               (isContrSingl f)
@@ -303,96 +304,57 @@ Univalence follows from contractibility of
 for all (f , _) ∈ GroupHom G H
 -}
 
+
+
+
 {-
   Overview of Crossed Modules and Strict 2-Groups
 
-  Crossed module
+  Definition: Crossed module
+    - group action α of G₀ on H
+    - homomorphism φ : H → G₀
+    - equivariance condition
+      (g : G₀) → (h : H) → φ (g α h) ≡ g + (φ h) - g
+    - peiffer condition
+      (h h' : ⟨ H ⟩) → (φ h) α h' ≡ h + h' - h
 
-  α : Action G₀ H
-  φ : G₀ ← H
+  Definition: Strict 2-Group
+    - internal category in the category of groups
+    This means
+    - split mono ι with two retractions
+      ι : G₀ ↔ G : σ τ₁
+    - vertical composition operation which satisfies the interchange law
+      _∘⟨_⟩_ : (g f : G₁) → isComposable g f → G₁
+    - equivalent to type of vertical compositions on internal reflexive graph: PFG
+      (a b :  G₁) → ι(σ b) + a - ι(τ a) - ι(σ b) + b + ι(τ a) ≡ b + a
 
-  Strict 2-Group
-  internal category in the category of groups
+  Produce this tree of displayed structures:
 
-  diagrams
-  maps
-  levels
-
-
-
-  PFXM
-  |
-  |
-  Equivar.
-  |
-  |
-  B
-  |
-  |
-  isAction
-  |
-  |
+  PFXM                    PFG     VertComp
+  |                       |      /
+  |                       |     /
+  isEquivar               isSecRet
+  |                       |
+  |                       |
+  B                       B
+  |                       |
+  |                       |
+  isAction                isSecRet
+  |                       |
+  |                       |
   LAS       F      B      F×B
+  \         |      |      /
+    \       |      |    /
+      \     |      /   /
+        \   |     /  /
+            Grp
+            |
+            |
+             Grp
 
 
-              Grp
-               |
-               |
-               Grp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+use the next result to display propositions like isAction, isEquivariant and isSecRet
 -}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 -- THEOREM
 -- Subtypes have a simple DURG structure given by 𝟙
@@ -401,8 +363,207 @@ Subtype→Sub-𝒮ᴰ : {A : Type ℓA}
                  → (P : A → hProp ℓP)
                  → (𝒮-A : URGStr A ℓ≅A)
                  → URGStrᴰ 𝒮-A (λ a → P a .fst) ℓ-zero
-Subtype→Sub-𝒮ᴰ P StrA =
+Subtype→Sub-𝒮ᴰ P 𝒮-A =
   make-𝒮ᴰ (λ _ _ _ → Unit)
           (λ _ → tt)
           (λ a p → isContrRespectEquiv (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
                                         (inhProp→isContr p (P a .snd)))
+
+-- EXAMPLE
+-- isAction axioms on pairs of groups together with a left action structure
+module _ (ℓ ℓ' : Level) where
+  ℓℓ' = ℓ-max ℓ ℓ'
+
+  open import Cubical.DStructures.Structures.Action
+  𝒮ᴰ-G²Las\Action' : URGStrᴰ (𝒮-G²Las ℓ ℓ')
+                     (λ ((G , H) , _α_) → IsGroupAction G H _α_)
+                     ℓ-zero
+  𝒮ᴰ-G²Las\Action' = Subtype→Sub-𝒮ᴰ (λ ((G , H) , _α_) → IsGroupAction G H _α_ , isPropIsGroupAction G H _α_)
+                                    (𝒮-G²Las ℓ ℓ')
+  𝒮-G²LasAction' : URGStr (Action ℓ ℓ') (ℓ-max ℓ ℓ')
+  𝒮-G²LasAction' = ∫⟨ 𝒮-G²Las ℓ ℓ' ⟩ 𝒮ᴰ-G²Las\Action'
+
+
+{-
+-- THEOREM
+-- DURGs can be lifted to be displayed over the total space of
+-- another DURG on the same base URG
+
+                 B
+                 |
+  B   C   Lift   C
+   \ /     ↦    |
+    A            A
+-}
+
+
+VerticalLift-𝒮ᴰ' : {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
+                   {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
+                   {C : A → Type ℓC} (𝒮ᴰ-C : URGStrᴰ 𝒮-A C ℓ≅C)
+                   → URGStrᴰ (∫⟨ 𝒮-A ⟩ 𝒮ᴰ-C) (λ (a , _) → B a) ℓ≅B
+VerticalLift-𝒮ᴰ' {ℓ≅B = ℓ≅B} 𝒮-A {B = B} 𝒮ᴰ-B 𝒮ᴰ-C =
+  urgstrᴰ (λ b (pA , _) b' → b ≅ᴰ⟨ pA ⟩ b')
+          ρᴰ
+          uniᴰ
+  where open URGStrᴰ 𝒮ᴰ-B
+
+{-
+-- THEOREM
+-- A tower of two DURGs can be reassociated
+
+   C
+   |
+   B  split  B × C
+   |   ↦      |
+   A           A
+(but C depends on B)
+
+
+-}
+splitTotal-𝒮ᴰ' : {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
+                {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
+                {C : Σ A B → Type ℓC} (𝒮ᴰ-C : URGStrᴰ (∫⟨ 𝒮-A ⟩ 𝒮ᴰ-B) C ℓ≅C)
+                → URGStrᴰ 𝒮-A
+                          (λ a → Σ[ b ∈ B a ] C (a , b))
+                          (ℓ-max ℓ≅B ℓ≅C)
+splitTotal-𝒮ᴰ' {A = A} 𝒮-A {B} 𝒮ᴰ-B {C} 𝒮ᴰ-C
+  = make-𝒮ᴰ (λ (b , c) eA (b' , c') → Σ[ eB ∈ b B≅ᴰ⟨ eA ⟩ b' ] c ≅ᴰ⟨ eA , eB ⟩ c')
+            (λ (b , c) → Bρᴰ b , ρᴰ c)
+            {!!}
+  where
+    open URGStrᴰ 𝒮ᴰ-C
+    open URGStr 𝒮-A
+    _B≅ᴰ⟨_⟩_ = URGStrᴰ._≅ᴰ⟨_⟩_ 𝒮ᴰ-B
+    Bρᴰ = URGStrᴰ.ρᴰ 𝒮ᴰ-B
+    Buniᴰ = URGStrᴰ.uniᴰ 𝒮ᴰ-B
+
+{-
+-- THEOREM
+-- two DURGs over the same URGs can be combined
+
+                 B
+                 |
+  B   C   Lift   C   split  B × C
+   \ /     ↦    |     ↦     |
+    A            A           A
+-}
+combine-𝒮ᴰ' : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
+             {B : A → Type ℓB} {C : A → Type ℓC}
+             (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
+             (𝒮ᴰ-C : URGStrᴰ 𝒮-A C ℓ≅C)
+             → URGStrᴰ 𝒮-A (λ a → B a × C a) (ℓ-max ℓ≅B ℓ≅C)
+combine-𝒮ᴰ' {𝒮-A = 𝒮-A} 𝒮ᴰ-B 𝒮ᴰ-C = splitTotal-𝒮ᴰ 𝒮-A 𝒮ᴰ-B (VerticalLift-𝒮ᴰ 𝒮-A 𝒮ᴰ-C 𝒮ᴰ-B)
+
+
+-- REMARK: DURG is equivalent to URG + morphism of URG via fibrant replacement
+
+module _ (C : Type ℓ) where
+  dispTypeIso :  Iso (C → Type ℓ) (Σ[ X ∈ Type ℓ ] (X → C))
+  Iso.fun dispTypeIso D = (Σ[ c ∈ C ] D c) , fst
+  Iso.inv dispTypeIso (X , F) c = Σ[ x ∈ X ] F x ≡ c
+  Iso.leftInv dispTypeIso = {!!}
+  Iso.rightInv dispTypeIso = {!!}
+
+-- → combine is pullback in the (∞,1)-topos of DURGs
+
+{-
+With these operations we can construct the entire tree, but how
+to get equivalences?
+
+
+  PFXM                    PFG     VertComp
+  |                       |      /
+  |                       |     /
+  isEquivar               isSecRet
+  |                       |
+  |                       |
+  B                       B
+  |                       |
+  |                       |
+  isAction                isSecRet
+  |                       |
+  |                       |
+  LAS       F      B      F×B
+  \         |      |      /
+    \       |      |    /
+      \     |      /   /
+        \   |     /  /
+            Grp
+            |
+            |
+            Grp
+
+-- For URGs: relational isomorphisms
+-}
+
+record RelIso' {A : Type ℓA} (_≅_ : Rel A A ℓ≅A)
+              {A' : Type ℓA'} (_≅'_ : Rel A' A' ℓ≅A') : Type (ℓ-max (ℓ-max ℓA ℓA') (ℓ-max ℓ≅A ℓ≅A')) where
+  constructor reliso'
+  field
+    fun : A → A'
+    inv : A' → A
+    rightInv : (a' : A') → fun (inv a') ≅' a'
+    leftInv : (a : A) → inv (fun a) ≅ a
+
+RelIso→Iso' : {A : Type ℓA} {A' : Type ℓA'}
+             (_≅_ : Rel A A ℓ≅A) (_≅'_ : Rel A' A' ℓ≅A')
+             {ρ : isRefl _≅_} {ρ' : isRefl _≅'_}
+             (uni : isUnivalent _≅_ ρ) (uni' : isUnivalent _≅'_ ρ')
+             (f : RelIso _≅_ _≅'_)
+             → Iso A A'
+Iso.fun (RelIso→Iso' _ _ _ _ f) = RelIso.fun f
+Iso.inv (RelIso→Iso' _ _ _ _ f) = RelIso.inv f
+Iso.rightInv (RelIso→Iso' _ _≅'_ {ρ' = ρ'} _ uni' f) a'
+  = invEquiv (≡→R _≅'_ ρ' , uni' (RelIso.fun f (RelIso.inv f a')) a') .fst (RelIso.rightInv f a')
+Iso.leftInv (RelIso→Iso' _≅_ _ {ρ = ρ} uni _ f) a
+  = invEquiv (≡→R _≅_ ρ , uni (RelIso.inv f (RelIso.fun f a)) a) .fst (RelIso.leftInv f a)
+
+{-
+  For DURGs:
+  pull back one of the DURGs
+  along an equivalence and show that
+  there is a fiberwise relational isomorphism
+  between B and f*B'
+
+  B   f*B' B'
+  |  /     |
+  | /      |
+  A   ≃   A'
+      f
+-}
+𝒮ᴰ-*-Iso-Over→TotalIso : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
+                         {A' : Type ℓA'} {𝒮-A' : URGStr A' ℓ≅A'}
+                         (ℱ : Iso A A')
+                         {B : A → Type ℓB} (𝒮ᴰ-B : URGStrᴰ 𝒮-A B ℓ≅B)
+                         {B' : A' → Type ℓB'} (𝒮ᴰ-B' : URGStrᴰ 𝒮-A' B' ℓ≅B')
+                         (𝒢 : 𝒮ᴰ-♭PIso (Iso.fun ℱ) 𝒮ᴰ-B 𝒮ᴰ-B')
+                         → Iso (Σ A B) (Σ A' B')
+𝒮ᴰ-*-Iso-Over→TotalIso  ℱ 𝒮ᴰ-B 𝒮ᴰ-B' 𝒢
+  = RelFiberIsoOver→Iso ℱ
+                        (𝒮ᴰ→relFamily 𝒮ᴰ-B) (𝒮ᴰ-B .uniᴰ)
+                        (𝒮ᴰ→relFamily 𝒮ᴰ-B') (𝒮ᴰ-B' .uniᴰ)
+                        𝒢
+  where open URGStrᴰ
+
+
+
+{-
+  Let's apply this machinery to our tower of DURGs.
+-}
+
+import Cubical.DStructures.Equivalences.GroupSplitEpiAction
+import Cubical.DStructures.Equivalences.PreXModReflGraph
+import Cubical.DStructures.Equivalences.XModPeifferGraph
+import Cubical.DStructures.Equivalences.PeifferGraphS2G
+
+{-
+ Grp × LAS × isAction   Grp × (F × B) × isSecRet
+                 |     |
+                  \    /
+                   Grp
+
+
+
+-}
+
+

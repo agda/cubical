@@ -15,7 +15,6 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary
 
-
 open import Cubical.Algebra.Group
 open import Cubical.Structures.LeftAction
 

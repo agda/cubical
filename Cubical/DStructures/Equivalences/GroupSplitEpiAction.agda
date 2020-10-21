@@ -26,6 +26,28 @@ open GroupHom -- such .fun!
 open GroupLemmas
 open MorphismLemmas
 
+{-
+After associating, we have two DURGs over Grp
+
+ Grp × LAS × isAction   Grp × (F × B) × isSecRet
+                 |     |
+                  \    /
+                   Grp
+
+Action gives split mono:
+
+    α             π₂
+G₀ --> H   ↦  G₀ ↔ H ⋊⟨ α ⟩ G₀
+                  ι₂
+
+Split mono gives Action:
+
+   σ            Ad∘ι
+G₀ ↔ G₁   ↦ G₀ --> ker σ
+   ι
+
+-}
+
 module _ (ℓ ℓ' : Level) where
 
   𝒮ᴰ-Iso-GroupAct-SplitEpi-* : 𝒮ᴰ-♭PIso (idfun (Group {ℓ}))
