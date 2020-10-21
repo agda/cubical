@@ -187,7 +187,7 @@ open Matrices using (VecMatrix ; FinMatrix ; FinMatrix≡VecMatrix
 open Matrices.FinMatrixAbGroup using (addFinMatrix ; addFinMatrixComm) public
 
 -- example (not in the library)
-open import Cubical.Data.Int renaming (Int to ℤ ; isSetInt to isSetℤ)
+open import Cubical.Data.Int hiding (-_) renaming (Int to ℤ ; isSetInt to isSetℤ)
 
 ℤ-AbGroup : AbGroup
 ℤ-AbGroup = makeAbGroup {G = ℤ} 0 _+_ -_ isSetℤ +-assoc (λ x _ → x) rem +-comm
