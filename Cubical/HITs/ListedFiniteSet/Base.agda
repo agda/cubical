@@ -3,31 +3,33 @@ module Cubical.HITs.ListedFiniteSet.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Sum as ⊎ using (_⊎_; inl; inr)
 
 open import Cubical.Functions.Logic
 
 private
   variable
-    A : Type₀
+    ℓ : Level
+    A B : Type ℓ
 
 infixr 20 _∷_
 -- infix 30 _∈_
 
-data LFSet (A : Type₀) : Type₀ where
+data LFSet (A : Type ℓ) : Type ℓ where
   []    : LFSet A
   _∷_   : (x : A) → (xs : LFSet A) → LFSet A
   dup   : ∀ x xs   → x ∷ x ∷ xs ≡ x ∷ xs
   comm  : ∀ x y xs → x ∷ y ∷ xs ≡ y ∷ x ∷ xs
   trunc : isSet (LFSet A)
 
-
 -- Membership.
 --
 -- Doing some proofs with equational reasoning adds an extra "_∙ refl"
 -- at the end.
 -- We might want to avoid it, or come up with a more clever equational reasoning.
-_∈_ : A → LFSet A → hProp _
-z ∈ []                  = ⊥
+_∈_ : {A : Type ℓ} → A → LFSet A → hProp ℓ
+z ∈ []                  = Lift ⊥.⊥ , isOfHLevelLift 1 isProp⊥
 z ∈ (y ∷ xs)            = (z ≡ₚ y) ⊔ (z ∈ xs)
 z ∈ dup x xs i          = proof i
   where
@@ -89,3 +91,27 @@ module PropElim {ℓ}
     (λ _ _ _ → isOfHLevel→isOfHLevelDep 1 trunc* _ _ _)
     (λ _ _ → isOfHLevel→isOfHLevelDep 1 trunc* _ _ _)
     λ xs → isProp→isSet (trunc* xs)
+
+_++_ : ∀ (xs ys : LFSet A) → LFSet A
+[]                  ++ ys = ys
+(x ∷ xs)            ++ ys = x ∷ (xs ++ ys)
+dup x xs i          ++ ys = dup x (xs ++ ys) i
+comm x y xs i       ++ ys = comm x y (xs ++ ys) i
+trunc xs zs p q i j ++ ys = trunc
+  (xs ++ ys) (zs ++ ys) (cong (_++ ys) p) (cong (_++ ys) q) i j
+
+map : (A → B) → LFSet A → LFSet B
+map f [] = []
+map f (x ∷ xs) = f x ∷ map f xs
+map f (dup x xs i) = dup (f x) (map f xs) i
+map f (comm x y xs i) = comm (f x) (f y) (map f xs) i
+map f (trunc xs ys p q i j) = trunc
+  (map f xs)
+  (map f ys)
+  (cong (map f) p)
+  (cong (map f) q)
+  i
+  j
+
+disj-union : LFSet A → LFSet B → LFSet (A ⊎ B)
+disj-union xs ys = map ⊎.inl xs ++ map ⊎.inr ys
