@@ -64,26 +64,43 @@ corresponding split mono
 G₀ --> H   ↦  G₀ ↔ H ⋊⟨ α ⟩ G₀
                   ι₂
 
-
-Precrossed module gives internal refl. graph:
-
+Precrossed module
 α : G₀ --> H
 φ : G₀ ← H
-+ equivariance
+isEquivariant (α , φ)
+
+gives internal reflexive graph
+ι₂ : G₀ → H⋊⟨ α ⟩ G₀
+     G₀ ← H⋊⟨ α ⟩ G₀ : π₂
+     G₀ ← H⋊⟨ α ⟩ G₀ : τ_φ
+τ_φ (h , g) := φ h + g
+isSecRet (ι₂ , π₂)
+isSecRet (ι₂ , τ_φ)
 
 
 
+Conversely, a internal reflexive graph
 
+ι₂ : G₀ → H⋊⟨ α ⟩ G₀
+     G₀ ← H⋊⟨ α ⟩ G₀ : π₂
+     G₀ ← H⋊⟨ α ⟩ G₀ : τ
+isSecRet (ι₂ , π₂)
+isSecRet (ι₂ , τ)
 
-
-
-Split mono gives Action:
-
-   σ            Ad∘ι
-G₀ ↔ G₁   ↦ G₀ --> ker σ
-   ι
+Then
+ι₁ : H ≃ ker σ ↪ H ⋊⟨ α ⟩ G₀
+α : G₀ --> H
+    G₀ ← H : φ
+φ := τ ∘ ι₁ is equivariant
 
 -}
+
+
+
+
+
+
+
 
 
 

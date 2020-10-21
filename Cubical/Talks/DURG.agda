@@ -23,10 +23,11 @@ private
   variable
     ℓ ℓ' ℓ'' ℓ₁ ℓ₁' ℓ₁'' ℓ₂ ℓA ℓ≅A ℓA' ℓ≅A' ℓB ℓB' ℓ≅B' ℓ≅B ℓC ℓ≅C ℓ≅ᴰ ℓP : Level
 
--- NOTES
--- Top-Level presentation possible, but code is going to be used
--- interrupt any time, especially when I'm going too fast
--- split screen so URGStr always visible
+
+
+
+
+
 
 {-
   Goals of the project:
@@ -51,9 +52,6 @@ private
     - Avoid equality on objects in proofs
     - Modular and abstract
 -}
-
-
-
 
 
 -- DEFINITION
@@ -167,19 +165,14 @@ Cat→𝒮 𝒞 uni
       equivContr' : isContr (Σ[ A' ∈ Type ℓ ] A' ≃ A)
       equivContr' = EquivContr A
 
--- trivially, a type is a URGStr with the relation given by its identity type
+-- trivially, a type is a URGStr with the relation given by its identity types
 𝒮-type : (A : Type ℓ) → URGStr A ℓ
 𝒮-type A = make-𝒮 {_≅_ = _≡_}
                   (λ _ → refl)
                   isContrSingl
 
-
-
-
-
-
 -- THEOREM:
--- - uniqueness of small URGs
+-- uniqueness of small URGs
 
 𝒮-uniqueness' : (A : Type ℓA) → isContr (URGStr A ℓA)
 𝒮-uniqueness' = {!!}
@@ -208,6 +201,10 @@ record URGStrᴰ' {A : Type ℓA} (𝒮-A : URGStr A ℓ≅A)
   -- Of course, this also has the alternative constructor make-𝒮ᴰ
   -- using that the uniᴰ field follows from
   uniᴰ' = {a : A} → (b : B a) → isContr (Σ[ b' ∈ B a ] b ≅ᴰ⟨ ρ a ⟩ b')
+
+
+
+
 
 
 -- EXAMPLE
@@ -531,6 +528,7 @@ Iso.leftInv (RelIso→Iso' _≅_ _ {ρ = ρ} uni _ f) a
   A   ≃   A'
       f
 -}
+
 𝒮ᴰ-*-Iso-Over→TotalIso : {A : Type ℓA} {𝒮-A : URGStr A ℓ≅A}
                          {A' : Type ℓA'} {𝒮-A' : URGStr A' ℓ≅A'}
                          (ℱ : Iso A A')
@@ -545,8 +543,6 @@ Iso.leftInv (RelIso→Iso' _≅_ _ {ρ = ρ} uni _ f) a
                         𝒢
   where open URGStrᴰ
 
-
-
 {-
   Let's apply this machinery to our tower of DURGs.
 -}
@@ -557,13 +553,28 @@ import Cubical.DStructures.Equivalences.XModPeifferGraph
 import Cubical.DStructures.Equivalences.PeifferGraphS2G
 
 {-
- Grp × LAS × isAction   Grp × (F × B) × isSecRet
-                 |     |
-                  \    /
-                   Grp
+DISCUSSION
+- alternate definition of URGs
+- how to layer the cake
+- uniformity, abstraction, no equality on objects,
+  results transferrable across proof assistants
+  and type theories
+- unlike displayed categories not limited to
+  1-truncated types and type families
+- easy to set up
+- associates the other way compared to SNS
+- every SNS gives DURG on the URG of the universe (not implemented)
 
+OTHER THINGS WE DID
+- Define (n,k)-groups
+- Display homomorphisms of (n,k)-groups over pairs of such groups
+- prove the equivalence of (0,1)-groups and axiomatic groups via EM-spaces
 
-
+FUTURE WORK
+- construct more operations
+- use reflection to automate steps
+- construct URG on the type of URG or even DURG structures
+  - meta-theory
+  - model of type theory
+- more higher group theory ...
 -}
-
-
