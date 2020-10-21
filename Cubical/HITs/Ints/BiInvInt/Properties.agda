@@ -153,6 +153,18 @@ neg : ℕ → BiInvInt
 neg ℕ.zero = zero
 neg (ℕ.suc n) = pred (neg n)
 
+-- Natural number and negative integer literals for BiInvInt
+
+open import Cubical.Data.Nat.Literals public
+
+instance
+  fromNatBiInvInt : HasFromNat BiInvInt
+  fromNatBiInvInt = record { Constraint = λ _ → Unit ; fromNat = λ n → pos n }
+
+instance
+  fromNegBiInvInt : HasFromNeg BiInvInt
+  fromNegBiInvInt = record { Constraint = λ _ → Unit ; fromNeg = λ n → neg n }
+
 -- absolute value and sign
 -- (Note that there doesn't appear to be any way around using
 --  bwd here! Any direct proof ends up doing the same work...)
@@ -246,3 +258,9 @@ inv-· m n = ·-comm (- m) n ∙ ·-inv n m ∙ cong (-_) (·-comm n m)
   (λ m p n o →
     cong (- (n · o) +_) (p n o) ∙ cong (_+ m · n · o) (sym (inv-· n o)) ∙
     ·-distribʳ (- n) (m · n) o)
+
+·-neg1 : ∀ x → -1 · x ≡ - x
+·-neg1 x = inv-· 1 x ∙ cong -_ (·-identityˡ x)
+
+pred-suc-inj : ∀ a b → pred (suc a) ≡ pred (suc b) → a ≡ b
+pred-suc-inj a b p = sym (pred-suc a) ∙∙ p ∙∙ pred-suc b

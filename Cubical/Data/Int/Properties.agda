@@ -35,10 +35,12 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Empty
-open import Cubical.Data.Nat hiding (_+_ ; +-assoc ; +-comm)
+open import Cubical.Data.Nat  as ℕ using (ℕ; zero; suc; discreteℕ) renaming ( _·_ to _·ⁿ_ ; _+_ to _+ⁿ_ )
 open import Cubical.Data.Bool
 open import Cubical.Data.Sum
 open import Cubical.Data.Int.Base
+
+open import Cubical.Reflection.Base using (_$_) -- TODO: add this to Foundation.Function
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
@@ -47,9 +49,31 @@ abs : Int → ℕ
 abs (pos n) = n
 abs (negsuc n) = suc n
 
+Sign : Type₀
+Sign = Bool
+
+pattern spos = Bool.false
+pattern sneg = Bool.true
+
+_·ˢ_ : Sign → Sign → Sign
+_·ˢ_ = _⊕_
+
 sgn : Int → Bool
-sgn (pos n) = true
-sgn (negsuc n) = false
+sgn (pos    n) = spos
+sgn (negsuc n) = sneg
+
+signed : Sign → ℕ → Int
+signed spos      x  = pos x
+signed sneg  zero   = pos 0
+signed sneg (suc x) = neg (suc x)
+
+signed-zero : ∀ s → signed s 0 ≡ 0
+signed-zero spos = refl
+signed-zero sneg = refl
+
+signed-inv : ∀ a → signed (sgn a) (abs a) ≡ a
+signed-inv (pos    n) = refl
+signed-inv (negsuc n) = refl
 
 sucPred : ∀ i → sucInt (predInt i) ≡ i
 sucPred (pos zero)    = refl
@@ -117,14 +141,30 @@ _+negsuc_ : Int → ℕ → Int
 z +negsuc 0 = predInt z
 z +negsuc (suc n) = predInt (z +negsuc n)
 
+infix  8 -_
+infixl 7 _·_
+infixl 6 _+_ _-_
+
 _+_ : Int → Int → Int
 m + pos n = m +pos n
 m + negsuc n = m +negsuc n
 
+-_ : Int → Int
+- pos  zero   = pos zero
+- pos (suc n) = negsuc n
+- negsuc   n  = pos (suc n)
+
 _-_ : Int → Int → Int
-m - pos zero    = m
-m - pos (suc n) = m + negsuc n
-m - negsuc n    = m + pos (suc n)
+m - n = m + (- n)
+
+_·_ : Int → Int → Int
+x · y  = signed (sgn x ⊕ sgn y) (abs x ·ⁿ abs y)
+
+neg-signed-not : ∀ s n → - signed s n ≡ signed (not s) n
+neg-signed-not spos  zero   = refl
+neg-signed-not sneg  zero   = refl
+neg-signed-not spos (suc n) = refl
+neg-signed-not sneg (suc n) = refl
 
 sucInt+pos : ∀ n m → sucInt (m +pos n) ≡ (sucInt m) +pos n
 sucInt+pos zero m = refl
@@ -220,6 +260,49 @@ ind-assoc _·_ f g p q base m n (suc o) =
 +-assoc : ∀ m n o → m + (n + o) ≡ (m + n) + o
 +-assoc m n (pos o) = ind-assoc _+_ pos sucInt +sucInt refl (λ _ _ → refl) m n o
 +-assoc m n (negsuc o) = ind-assoc _+_ negsuc predInt +predInt refl +predInt m n o
+
++-identityʳ : ∀ x → x + 0 ≡ x
++-identityʳ x = refl
+
++-identityˡ : ∀ x → 0 + x ≡ x
++-identityˡ x = +-comm 0 x
+
+negsuc+negsuc : ∀ a x → (negsuc a +negsuc x) ≡ negsuc (suc (a +ⁿ x))
+negsuc+negsuc a zero = λ i → negsuc $ suc $ ℕ.+-comm 0 a i
+negsuc+negsuc a (suc x) = let r = negsuc+negsuc a x in
+  predInt (negsuc a +negsuc x)    ≡⟨ (λ i → predInt (r i)) ⟩
+  predInt (negsuc (suc (a +ⁿ x))) ≡⟨ refl ⟩
+  negsuc (suc (suc (a +ⁿ x)))     ≡⟨ (λ i → negsuc $ suc $ ℕ.+-suc a x (~ i)) ⟩
+  negsuc (suc (a +ⁿ suc x))       ∎
+
+signed-distrib : ∀ s m n → signed s (m +ⁿ n) ≡ signed s m + signed s n
+signed-distrib s zero n = (sym $ +-identityˡ (signed s n)) ∙ λ i → signed-zero s (~ i) + signed s n
+signed-distrib spos (suc m) n = cong sucInt (signed-distrib spos m n) ∙ sucInt+pos n (pos m)
+signed-distrib sneg (suc m) zero i = negsuc (ℕ.+-comm m 0 i)
+signed-distrib sneg (suc m) (suc n) = (λ i → negsuc (ℕ.+-suc m n i)) ∙  sym (negsuc+negsuc m n)
+
+·-pos-suc : ∀ m n → pos (suc m) · n ≡ n + pos m · n
+·-pos-suc m n = signed-distrib (sgn n) (abs n) (m ℕ.· abs n) ∙ λ i → signed-inv n i + signed (sgn n) (m ·ⁿ abs n)
+
+·-negsuc-suc : ∀ m n → negsuc (suc m) · n ≡ - n + negsuc m · n
+·-negsuc-suc m n = signed-distrib (not (sgn n)) (abs n) (suc m ℕ.· abs n) ∙ λ i → γ i + negsuc m · n
+  where γ = sym (neg-signed-not (sgn n) (abs n)) ∙ cong -_ (signed-inv n)
+
+predInt-neg : ∀ a → predInt (- a) ≡ - (sucInt a)
+predInt-neg (pos     zero  ) = refl
+predInt-neg (pos    (suc n)) = refl
+predInt-neg (negsuc  zero  ) = refl
+predInt-neg (negsuc (suc n)) = refl
+
+sucInt-neg : ∀ a → sucInt (- a) ≡ - (predInt a)
+sucInt-neg (pos     zero        ) = refl
+sucInt-neg (pos    (suc zero)   ) = refl
+sucInt-neg (pos    (suc (suc n))) = refl
+sucInt-neg (negsuc  zero        ) = refl
+sucInt-neg (negsuc (suc n)      ) = refl
+
+·-neg1 : ∀ x → -1 · x ≡ - x
+·-neg1 x = sym (neg-signed-not (sgn x) (abs x +ⁿ 0)) ∙ (λ i → - signed (sgn x) (ℕ.+-comm (abs x) 0 i)) ∙ cong -_ (signed-inv x)
 
 -- Compose sucPathInt with itself n times. Transporting along this
 -- will be addition, transporting with it backwards will be subtraction.

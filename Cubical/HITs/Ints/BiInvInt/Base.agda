@@ -307,4 +307,3 @@ private
 
   predl'-suc : ∀ z → predl' (suc z) ≡ z
   predl'-suc z = refl
-
