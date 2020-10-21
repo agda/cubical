@@ -17,7 +17,6 @@ open import Cubical.Data.Unit
 
 open import Cubical.Relation.Binary
 
-
 open import Cubical.Structures.Subtype
 open import Cubical.Algebra.Group
 open import Cubical.Structures.LeftAction
@@ -35,7 +34,6 @@ open import Cubical.DStructures.Structures.ReflGraph
 open import Cubical.DStructures.Structures.Action
 open import Cubical.DStructures.Structures.XModule
 open import Cubical.DStructures.Equivalences.GroupSplitEpiAction
-
 
 private
   variable
@@ -94,13 +92,6 @@ Then
 φ := τ ∘ ι₁ is equivariant
 
 -}
-
-
-
-
-
-
-
 
 
 

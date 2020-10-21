@@ -37,8 +37,8 @@ module _ (ℓ ℓ' : Level) where
 
   -- two groups with an action structure, i.e. a map ⟨ G ⟩ → ⟨ H ⟩ → ⟨ H ⟩
   𝒮ᴰ-G²\Las : URGStrᴰ (𝒮-group ℓ ×𝒮 𝒮-group ℓ')
-                              (λ GH → Las GH)
-                              (ℓ-max ℓ ℓ')
+                      (λ GH → Las GH)
+                      (ℓ-max ℓ ℓ')
   𝒮ᴰ-G²\Las =
     make-𝒮ᴰ (λ {(G , H)} _α_ (eG , eH) _β_
                    → (g : ⟨ G ⟩) (h : ⟨ H ⟩)
