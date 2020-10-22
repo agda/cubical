@@ -14,12 +14,14 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation as P hiding (elim; elim2)
 open import Cubical.HITs.Pushout as Pu
 open import Cubical.HITs.SetQuotients as Q using (_/_; setQuotUniversal; eq/; squash/)
 
 open import Cubical.HITs.CumulativeHierarchy.Base
+  renaming (elim to elimInternal)
 import Cubical.HITs.PropositionalTruncation.Monad as PropMonad
 
 private
@@ -124,63 +126,26 @@ repFiber≃fiber f b = Σ-cong-equiv (idEquiv _) (λ _ → identityPrinciple)
 
 -- projecting out a representing type together with the embedding
 MonicPresentation : (a : V ℓ) → Type (ℓ-suc ℓ)
-MonicPresentation {ℓ} a =  Σ[ X ∈ Type ℓ ] Σ[ ix ∈ (X → V ℓ) ] (isEmbedding ix) × (a ≡ sett X ix)
+MonicPresentation {ℓ} a =  Σ[ (X , ix , _) ∈ Embedding (V ℓ) ℓ ] (a ≡ sett X ix)
 
 isPropMonicPresentation : (a : V ℓ) → isProp (MonicPresentation a)
-isPropMonicPresentation a (X₁ , ix₁ , isEmb₁ , p) (X₂ , ix₂ , isEmb₂ , q) =
-  (λ i → (X₁≡X₂ i , ix₁≡ix₂ i , isEmbix i , a≡sett i))
+isPropMonicPresentation a ((X₁ , ix₁ , isEmb₁) , p) ((X₂ , ix₂ , isEmb₂) , q) =
+  ΣPathP ( equivFun (EmbeddingIP _ _) (fiberwise1 , fiberwise2)
+         , isProp→PathP (λ i → setIsSet a _) p q)
   where
-  fib1 : (x₁ : X₁) → fiber ix₂ (ix₁ x₁)
-  fib1 x₁ = Σx₂ where
-    x₁∈X₂ : [ ix₁ x₁ ∈ sett X₂ ix₂ ]
-    x₁∈X₂ = subst (λ A → [ ix₁ x₁ ∈ A ]) (sym p ∙ q) ∣ x₁ , refl ∣
-    Σx₂ : fiber ix₂ (ix₁ x₁)
-    Σx₂ = P.rec (isEmbedding→hasPropFibers isEmb₂ (ix₁ x₁)) (λ (x₂ , p) → (x₂ , p)) x₁∈X₂
-  hom1 : X₁ → X₂
-  hom1 x₁ = fst (fib1 x₁)
+  open PropMonad
+  fiberwise1 : ∀ b → fiber ix₁ b → fiber ix₂ b
+  fiberwise1 b fbx₁ =
+    proof (_ , isEmbedding→hasPropFibers isEmb₂ b)
+    by subst (λ A → [ b ∈ A ]) (sym p ∙ q) ∣ fbx₁ ∣
 
-  fib2 : (x₂ : X₂) → fiber ix₁ (ix₂ x₂)
-  fib2 x₂ = Σx₁ where
-    x₂∈X₁ : [ ix₂ x₂ ∈ sett X₁ ix₁ ]
-    x₂∈X₁ = subst (λ A → [ ix₂ x₂ ∈ A ]) (sym q ∙ p) ∣ x₂ , refl ∣
-    Σx₁ : fiber ix₁ (ix₂ x₂)
-    Σx₁ = P.rec (isEmbedding→hasPropFibers isEmb₁ (ix₂ x₂)) (λ (x₁ , p) → (x₁ , p)) x₂∈X₁
-  hom2 : X₂ → X₁
-  hom2 x₂ = fst (fib2 x₂)
-
-  X₁≃X₂ : X₁ ≃ X₂
-  X₁≃X₂ = isoToEquiv (iso hom1 hom2 sec1 sec2) where
-    sec1 : section hom1 hom2
-    sec1 x = isEmb₂ (hom1 (hom2 x)) x .equiv-proof h2x≡x .fst .fst where
-      h2x≡x : ix₂ (hom1 (hom2 x)) ≡ ix₂ x
-      h2x≡x = fib1 (hom2 x) .snd ∙ fib2 x .snd
-    sec2 : section hom2 hom1
-    sec2 x = isEmb₁ (hom2 (hom1 x)) x .equiv-proof h1x≡x .fst .fst where
-      h1x≡x : ix₁ (hom2 (hom1 x)) ≡ ix₁ x
-      h1x≡x = fib2 (hom1 x) .snd ∙ fib1 x .snd
-
-  X₁≡X₂ : X₁ ≡ X₂
-  X₁≡X₂ = ua X₁≃X₂
-
-  ix₁≡ix₂ : PathP (λ i → X₁≡X₂ i → _) ix₁ ix₂
-  ix₁≡ix₂ = toPathP (
-    transport refl ∘ ix₁ ∘ transport⁻ X₁≡X₂
-      ≡[ i ]⟨ (λ x → transportRefl x i) ∘ ix₁ ∘ transportUaInv X₁≃X₂ (~ i) ⟩
-    ix₁ ∘ transport (ua (invEquiv X₁≃X₂))
-      ≡[ i ]⟨ ix₁ ∘ (λ x → uaβ (invEquiv X₁≃X₂) x i) ⟩
-    ix₁ ∘ hom2
-      ≡⟨ (λ i x → fib2 x .snd i) ⟩
-    ix₂
-      ∎ )
-
-  isEmbix : PathP (λ i → isEmbedding (ix₁≡ix₂ i)) isEmb₁ isEmb₂
-  isEmbix = isProp→PathP (λ i → isEmbeddingIsProp) isEmb₁ isEmb₂
-
-  a≡sett : PathP (λ i → a ≡ sett (X₁≡X₂ i) (ix₁≡ix₂ i)) p q
-  a≡sett = isProp→PathP (λ i → setIsSet a _) p q
+  fiberwise2 : ∀ b → fiber ix₂ b → fiber ix₁ b
+  fiberwise2 b fbx₂ =
+    proof (_ , isEmbedding→hasPropFibers isEmb₁ b)
+    by subst (λ A → [ b ∈ A ]) (sym q ∙ p) ∣ fbx₂ ∣
 
 sett-repr : (X : Type ℓ) (ix : X → V ℓ) → MonicPresentation (sett X ix)
-sett-repr {ℓ} X ix = Rep , ixRep , isEmbIxRep , seteq X Rep ix ixRep eqImIxRep where
+sett-repr {ℓ} X ix = (Rep , ixRep , isEmbIxRep) , seteq X Rep ix ixRep eqImIxRep where
   Kernel : X → X → Type ℓ
   Kernel x y = ix x ≊ ix y
   Rep : Type ℓ
@@ -205,20 +170,65 @@ sett-repr {ℓ} X ix = Rep , ixRep , isEmbIxRep , seteq X Rep ix ixRep eqImIxRep
   eqImIxRep : eqImage ix ixRep
   eqImIxRep = (λ x → ∣ Q.[ x ] , refl ∣) , Q.elimProp (λ _ → P.squash) (λ b → ∣ b , refl ∣)
 
+data DeepMonicPresentation (a : V ℓ) : Type (ℓ-suc ℓ) where
+  dmp : (mp@((_ , ix , _) , _) : MonicPresentation a)
+      → (rec : ∀ x → DeepMonicPresentation (ix x))
+      → DeepMonicPresentation a
+
+isPropDeepMonicPresentation : (a : V ℓ) → isProp (DeepMonicPresentation a)
+isPropDeepMonicPresentation a (dmp mx rx) (dmp my ry) i = dmp (mx≡my i) (recprop i) where
+  mx≡my : mx ≡ my
+  mx≡my = isPropMonicPresentation a mx my
+  recprop : PathP (λ i → (x : mx≡my i .fst .fst) → DeepMonicPresentation (mx≡my i .fst .snd .fst x)) rx ry
+  recprop = toPathP (funExt λ x → isPropDeepMonicPresentation _ _ _)
+
+V-deeprepr : (a : V ℓ) → DeepMonicPresentation a
+V-deeprepr = elimProp isPropDeepMonicPresentation λ X ix rec → dmp (sett-repr X ix) (Q.elimProp (λ _ → isPropDeepMonicPresentation _) rec)
+
 V-repr : (a : V ℓ) → MonicPresentation a
-V-repr = elimProp isPropMonicPresentation λ X ix _ → sett-repr X ix
+-- "Cannot eliminate fibrant type DeepMonicPresentation a
+--  unless target type is also fibrant"
+-- V-repr = let (dmp mp _) = (V-deeprepr a) in mp
+V-repr a = case (V-deeprepr a) return (λ _ → MonicPresentation a) of λ { (dmp mp _) → mp }
+
+private
+  MonicDataF : Type (ℓ-suc ℓ) → Type (ℓ-suc ℓ)
+  MonicDataF {ℓ} T = Embedding T ℓ
+
+  V-fixpoint : V ℓ ≃ MonicDataF (V ℓ)
+  V-fixpoint {ℓ} =
+    V ℓ ≃⟨ invEquiv (Σ-contractSnd λ a → inhProp→isContr (V-repr a) (isPropMonicPresentation a)) ⟩
+    (Σ[ a ∈ V ℓ ] MonicPresentation a) ≃⟨ boringswap ⟩
+    (Σ[ (X , ix , _) ∈ MonicDataF (V ℓ) ] singl (sett X ix)) ≃⟨ Σ-contractSnd (λ _ → isContrSingl _) ⟩
+    MonicDataF (V ℓ) ■ where
+    boringswap : (Σ[ a ∈ V ℓ ] MonicPresentation a) ≃ (Σ[ (X , ix , _) ∈ MonicDataF (V ℓ) ] singl (sett X ix))
+    boringswap = isoToEquiv (iso
+      (λ (a , (X , ix , emb) , p) → (X , ix , emb) , a , sym p)
+      (λ ((X , ix , emb) , a , p) → a , (X , ix , emb) , sym p)
+      (λ _ → refl)
+      λ _ → refl)
+
+  -- note the problem of making this a datatype directly: MonicDataF is *not* strictly positive!
+
+-- an elimination principle based on the monic presentation
+elim : (B : V ℓ → Type ℓ')
+     → ((X : Type ℓ) (ix : X → V ℓ) (emb : isEmbedding ix) (rec : ∀ x → B (ix x)) → B (sett X ix))
+     → (a : V ℓ) → B a
+elim B alg = elimDMP ∘ V-deeprepr where
+  elimDMP : ∀ {a} → DeepMonicPresentation a → B a
+  elimDMP (dmp ((X , ix , emb) , p) rec) = subst B (sym p) (alg X ix emb (λ x → elimDMP (rec x)))
 
 ⟪_⟫ : (s : V ℓ) → Type ℓ
-⟪ X ⟫ = V-repr X .fst
+⟪ X ⟫ = V-repr X .fst .fst
 
 ⟪_⟫↪ : (s : V ℓ) → ⟪ s ⟫ → V ℓ
-⟪ X ⟫↪ = V-repr X .snd .fst
+⟪ X ⟫↪ = V-repr X .fst .snd .fst
 
 isEmb⟪_⟫↪ : (s : V ℓ) → isEmbedding ⟪ s ⟫↪
-isEmb⟪ X ⟫↪ = V-repr X .snd .snd .fst
+isEmb⟪ X ⟫↪ = V-repr X .fst .snd .snd
 
 ⟪_⟫-represents : (s : V ℓ) → s ≡ sett ⟪ s ⟫ ⟪ s ⟫↪
-⟪ X ⟫-represents = V-repr X .snd .snd .snd
+⟪ X ⟫-represents = V-repr X .snd
 
 isPropRepFiber : (a b : V ℓ) → isProp (repFiber ⟪ a ⟫↪ b)
 isPropRepFiber a b = embedIsProp (isEquiv→isEmbedding (repFiber≃fiber ⟪ a ⟫↪ b .snd))
