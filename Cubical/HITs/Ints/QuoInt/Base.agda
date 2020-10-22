@@ -25,8 +25,8 @@ Sign = Bool
 pattern spos = Bool.false
 pattern sneg = Bool.true
 
-_*S_ : Sign → Sign → Sign
-_*S_ = Bool._⊕_
+_·S_ : Sign → Sign → Sign
+_·S_ = Bool._⊕_
 
 
 data ℤ : Type₀ where
@@ -124,7 +124,7 @@ negateEq = ua negateEquiv
 
 
 infixl 6 _+_
-infixl 7 _*_
+infixl 7 _·_
 
 sucℤ : ℤ → ℤ
 sucℤ (pos n)       = pos (suc n)
@@ -194,12 +194,12 @@ isEquiv+ℤ : (m : ℤ) → isEquiv (m +_)
 isEquiv+ℤ = subst (λ _+_ → (m : ℤ) → isEquiv (m +_)) addℤ≡+ℤ isEquivAddℤ
 
 
-_*_ : ℤ → ℤ → ℤ
-m * n = signed (sign m *S sign n) (abs m ℕ.* abs n)
+_·_ : ℤ → ℤ → ℤ
+m · n = signed (sign m ·S sign n) (abs m ℕ.· abs n)
 
 private
-  *-abs : ∀ m n → abs (m * n) ≡ abs m ℕ.* abs n
-  *-abs m n = refl
+  ·-abs : ∀ m n → abs (m · n) ≡ abs m ℕ.· abs n
+  ·-abs m n = refl
 
 
 -- Natural number and negative integer literals for ℤ

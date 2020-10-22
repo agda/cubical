@@ -15,9 +15,9 @@ open import Cubical.Data.Sigma
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
-open import Cubical.Algebra.Semigroup    hiding (⟨_⟩)
-open import Cubical.Algebra.Monoid       hiding (⟨_⟩)
-open import Cubical.Algebra.AbGroup   hiding (⟨_⟩)
+open import Cubical.Algebra.Semigroup
+open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring.Base
 
 private
@@ -31,8 +31,8 @@ private
 -}
 module Theory (R' : Ring {ℓ}) where
 
-  open Ring R' renaming ( Carrier to R )
-
+  open RingStr (snd R')
+  private R = ⟨ R' ⟩
   implicitInverse : (x y : R)
                  → x + y ≡ 0r
                  → y ≡ - x
@@ -44,20 +44,31 @@ module Theory (R' : Ring {ℓ}) where
     (- x) + 0r      ≡⟨ +-rid _ ⟩
     - x             ∎
 
+  equalByDifference : (x y : R)
+                      → x - y ≡ 0r
+                      → x ≡ y
+  equalByDifference x y p =
+    x               ≡⟨ sym (+-rid _) ⟩
+    x + 0r          ≡⟨ cong (λ u → x + u) (sym (+-linv y)) ⟩
+    x + ((- y) + y) ≡⟨ +-assoc _ _ _ ⟩
+    (x - y) + y     ≡⟨ cong (λ u → u + y) p ⟩
+    0r + y          ≡⟨ +-lid _ ⟩
+    y               ∎
+
   0-selfinverse : - 0r ≡ 0r
   0-selfinverse = sym (implicitInverse _ _ (+-rid 0r))
 
   0-idempotent : 0r + 0r ≡ 0r
   0-idempotent = +-lid 0r
 
-  +-idempotency→0 : (x : R) → x ≡ x + x → 0r ≡ x
+  +-idempotency→0 : (x : R) → x ≡ x + x → x ≡ 0r
   +-idempotency→0 x p =
-    0r              ≡⟨ sym (+-rinv _) ⟩
-    x + (- x)       ≡⟨ cong (λ u → u + (- x)) p ⟩
-    (x + x) + (- x) ≡⟨ sym (+-assoc _ _ _) ⟩
-    x + (x + (- x)) ≡⟨ cong (λ u → x + u) (+-rinv _) ⟩
-    x + 0r          ≡⟨ +-rid x ⟩
-    x               ∎
+    x               ≡⟨ sym (+-rid x) ⟩
+    x + 0r          ≡⟨ cong (λ u → x + u) (sym (+-rinv _)) ⟩
+    x + (x + (- x)) ≡⟨ +-assoc _ _ _ ⟩
+    (x + x) + (- x) ≡⟨ cong (λ u → u + (- x)) (sym p) ⟩
+    x + (- x)       ≡⟨ +-rinv _ ⟩
+    0r              ∎
 
   0-rightNullifies : (x : R) → x · 0r ≡ 0r
   0-rightNullifies x =
@@ -66,7 +77,7 @@ module Theory (R' : Ring {ℓ}) where
                     x · 0r               ≡⟨ cong (λ u → x · u) (sym 0-idempotent) ⟩
                     x · (0r + 0r)        ≡⟨ ·-rdist-+ _ _ _ ⟩
                     (x · 0r) + (x · 0r)  ∎
-              in sym (+-idempotency→0 _ x·0-is-idempotent)
+              in (+-idempotency→0 _ x·0-is-idempotent)
 
   0-leftNullifies : (x : R) → 0r · x ≡ 0r
   0-leftNullifies x =
@@ -75,7 +86,7 @@ module Theory (R' : Ring {ℓ}) where
                     0r · x               ≡⟨ cong (λ u → u · x) (sym 0-idempotent) ⟩
                     (0r + 0r) · x        ≡⟨ ·-ldist-+ _ _ _ ⟩
                     (0r · x) + (0r · x)  ∎
-              in sym (+-idempotency→0 _ 0·x-is-idempotent)
+              in +-idempotency→0 _ 0·x-is-idempotent
 
   -commutesWithRight-· : (x y : R) →  x · (- y) ≡ - (x · y)
   -commutesWithRight-· x y = implicitInverse (x · y) (x · (- y))
@@ -127,3 +138,27 @@ module Theory (R' : Ring {ℓ}) where
 
   +-assoc-comm2 : (x y z : R) → x + (y + z) ≡ z + (y + x)
   +-assoc-comm2 x y z = +-assoc-comm1 x y z ∙∙ cong (λ x → y + x) (+-comm x z) ∙∙ +-assoc-comm1 y z x
+
+module HomTheory {R S : Ring {ℓ}} (f′ : RingHom  R S) where
+  open Theory ⦃...⦄
+  open RingStr ⦃...⦄
+  open RingHom f′
+  private
+    instance
+      _ = R
+      _ = S
+      _ = snd R
+      _ = snd S
+
+  homPres0 : f 0r ≡ 0r
+  homPres0 = +-idempotency→0 (f 0r)
+               (f 0r        ≡⟨ sym (cong f 0-idempotent) ⟩
+                f (0r + 0r) ≡⟨ isHom+ _ _ ⟩
+                f 0r + f 0r ∎)
+
+  -commutesWithHom : (x : ⟨ R ⟩) → f (- x) ≡ - (f x)
+  -commutesWithHom x = implicitInverse _ _
+                         (f x + f (- x)   ≡⟨ sym (isHom+ _ _) ⟩
+                          f (x + (- x))   ≡⟨ cong f (+-rinv x) ⟩
+                          f 0r            ≡⟨ homPres0 ⟩
+                          0r ∎)

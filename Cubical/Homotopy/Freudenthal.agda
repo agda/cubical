@@ -7,15 +7,22 @@ Freudenthal suspension theorem
 module Cubical.Homotopy.Freudenthal where
 
 open import Cubical.Foundations.Everything
-open import Cubical.Data.HomotopyGroup
+-- open import Cubical.Data.HomotopyGroup
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
+open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec ; elim to trElim)
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
 open import Cubical.Homotopy.Loopspace
+open import Cubical.HITs.SmashProduct
+
+open import Cubical.HITs.S1 hiding (encode)
+open import Cubical.HITs.Sn
+open import Cubical.HITs.S2
+open import Cubical.HITs.S3
+open import Cubical.Foundations.Equiv.HalfAdjoint
 
 module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n)) (typ A)) where
 
@@ -87,7 +94,7 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
   encodeMerid : (a : typ A) → encode south (merid a) ≡ ∣ a , refl ∣
   encodeMerid a =
     cong (transport (λ i → gluePath i))
-      (funExt⁻ (WC.left refl a) _ ∙ cong ∣_∣ (cong (a ,_) (lem _ _)))
+      (funExt⁻ (WC.left refl a) _ ∙ λ i → ∣ a , lem (rCancel' (merid a)) (rCancel' (merid (pt A))) i ∣)
     ∙ transport (PathP≡Path gluePath _ _)
       (λ i → ∣ a , (λ j k → rCancel-filler' (merid a) i j k) ∣)
     where
@@ -111,6 +118,11 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
   isConnectedσ =
     transport (λ i → isConnectedFun 2n+2 (interpolate (pt A) (~ i))) isConnectedMerid
 
+isConn→isConnSusp : ∀ {ℓ} {A : Pointed ℓ} → isConnected 2 (typ A) → isConnected 2 (Susp (typ A))
+isConn→isConnSusp {A = A} iscon = ∣ north ∣
+                                , trElim (λ _ → isOfHLevelSuc 1 (isOfHLevelTrunc 2 _ _))
+                                         (suspToPropElim (pt A) (λ _ → isOfHLevelTrunc 2 _ _)
+                                         refl)
 
 FreudenthalEquiv : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
                 → isConnected (2 + n) (typ A)
@@ -122,5 +134,5 @@ FreudenthalEquiv n A iscon = connectedTruncEquiv _
 FreudenthalIso : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
                 → isConnected (2 + n) (typ A)
                 → Iso (hLevelTrunc ((suc n) + (suc n)) (typ A))
-                       (hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north))))
+                      (hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north))))
 FreudenthalIso n A iscon = connectedTruncIso _ (σ n {A = A} iscon) (isConnectedσ _ iscon)

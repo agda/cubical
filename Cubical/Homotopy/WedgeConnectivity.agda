@@ -37,14 +37,14 @@ module WedgeConnectivity {ℓ ℓ' ℓ''} (n m : ℕ)
         (isConnectedPoint n connA (pt A))
         .equiv-proof (λ _ → g , p ⁻¹)
 
-  abstract
-    extension : ∀ a b → P a b .fst
-    extension a b = main .fst .fst a .fst b
 
-    left : ∀ a → extension a (pt B) ≡ f a
-    left a = main .fst .fst a .snd
+  extension : ∀ a b → P a b .fst
+  extension a b = main .fst .fst a .fst b
 
-    right : ∀ b → extension (pt A) b ≡ g b
-    right = funExt⁻ (cong fst (funExt⁻ (main .fst .snd) _))
+  left : ∀ a → extension a (pt B) ≡ f a
+  left a = main .fst .fst a .snd
+
+  right : ∀ b → extension (pt A) b ≡ g b
+  right = funExt⁻ (cong fst (funExt⁻ (main .fst .snd) _))
 
     -- TODO: left (pt A) ⁻¹ ∙ right (pt B) ≡ p

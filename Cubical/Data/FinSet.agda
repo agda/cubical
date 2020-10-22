@@ -14,7 +14,7 @@ prove that both formulations are equivalent.
 module Cubical.Data.FinSet where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Logic
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Isomorphism

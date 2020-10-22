@@ -1,12 +1,15 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Algebra.Ideal where
+module Cubical.Algebra.Ring.Ideal where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Logic using ([_]; _∈_)
+open import Cubical.Foundations.Powerset
 
-open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.Base
+open import Cubical.Algebra.Ring.Properties
+
 
 private
   variable
@@ -14,7 +17,8 @@ private
 
 module _ (R' : Ring {ℓ}) where
 
-  open Ring R' renaming (Carrier to R)
+  open RingStr (snd R')
+  private R = ⟨ R' ⟩
 
   {- by default, 'ideal' means two-sided ideal -}
   record isIdeal (I : R → hProp ℓ) : Type ℓ where
@@ -69,3 +73,6 @@ module _ (R' : Ring {ℓ}) where
 
   zeroIdeal : Ideal
   zeroIdeal = zeroSubset , isIdealZeroIdeal
+
+IdealsIn : (R : Ring {ℓ}) → Type _
+IdealsIn {ℓ} R = Σ[ I ∈ (⟨ R ⟩ → hProp ℓ) ] isIdeal R I

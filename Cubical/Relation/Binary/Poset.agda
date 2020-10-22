@@ -2,7 +2,7 @@
 module Cubical.Relation.Binary.Poset where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Logic
+open import Cubical.Functions.Logic
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv        renaming (_■ to _QED)
 open import Cubical.Foundations.SIP
@@ -33,7 +33,7 @@ isSetOrder ℓ₁ A = isSetΠ2 λ _ _ → isSetHProp
 isOrderPreserving : (M : TypeWithStr ℓ₀ (Order ℓ₁)) (N : TypeWithStr ℓ₀′ (Order ℓ₁′))
                   → (fst M → fst N) → Type _
 isOrderPreserving (A , _⊑₀_) (B , _⊑₁_) f =
-  (x y : A) → [ x ⊑₀ y ] → [ f x ⊑₁ f y ]
+  (x y : A) → ⟨ x ⊑₀ y ⟩ → ⟨ f x ⊑₁ f y ⟩
 
 isPropIsOrderPreserving : (M : TypeWithStr ℓ₀  (Order ℓ₁))
                           (N : TypeWithStr ℓ₀′ (Order ℓ₁′))
@@ -78,10 +78,10 @@ orderUnivalentStr {ℓ = ℓ} {ℓ₁ = ℓ₁} {X = X}  _⊑₀_ _⊑₁_ =
     f-equiv p = ((to , from) , eq) , NTS
       where
         to : isOrderPreserving (X , _⊑₀_) (X , _⊑₁_) (idfun _)
-        to x y = subst (λ _⊑_ → [ x ⊑₀ y ] → [ x ⊑ y ]) p (idfun _)
+        to x y = subst (λ _⊑_ → ⟨ x ⊑₀ y ⟩ → ⟨ x ⊑ y ⟩) p (idfun _)
 
         from : isOrderPreserving (X , _⊑₁_) (X , _⊑₀_) (idfun _)
-        from x y = subst (λ _⊑_ → [ x ⊑ y ] → [ x ⊑₀ y ]) p (idfun _)
+        from x y = subst (λ _⊑_ → ⟨ x ⊑ y ⟩ → ⟨ x ⊑₀ y ⟩) p (idfun _)
 
         eq : f (to , from) ≡ p
         eq = isSetOrder ℓ₁ X _⊑₀_ _⊑₁_ (f (to , from)) p
@@ -98,13 +98,13 @@ orderUnivalentStr {ℓ = ℓ} {ℓ₁ = ℓ₁} {X = X}  _⊑₀_ _⊑₁_ =
 -- raw ordered structures.
 
 isReflexive : {A : Type ℓ₀} → Order ℓ₁ A → hProp (ℓ-max ℓ₀ ℓ₁)
-isReflexive {A = X} _⊑_ = ((x : X) → [ x ⊑ x ]) , isPropΠ λ x → snd (x ⊑ x)
+isReflexive {A = X} _⊑_ = ((x : X) → ⟨ x ⊑ x ⟩) , isPropΠ λ x → snd (x ⊑ x)
 
 isTransitive : {A : Type ℓ₀} → Order ℓ₁ A → hProp (ℓ-max ℓ₀ ℓ₁)
 isTransitive {ℓ₀ = ℓ₀} {ℓ₁ = ℓ₁} {A = X} _⊑_ = φ , φ-prop
   where
     φ      : Type (ℓ-max ℓ₀ ℓ₁)
-    φ      = ((x y z : X) → [ x ⊑ y ⇒ y ⊑ z ⇒ x ⊑ z ])
+    φ      = ((x y z : X) → ⟨ x ⊑ y ⇒ y ⊑ z ⇒ x ⊑ z ⟩)
     φ-prop : isProp φ
     φ-prop = isPropΠ3 λ x y z → snd (x ⊑ y ⇒ y ⊑ z ⇒ x ⊑ z)
 
@@ -112,7 +112,7 @@ isAntisym : {A : Type ℓ₀} → isSet A → Order ℓ₁ A → hProp (ℓ-max 
 isAntisym {ℓ₀ = ℓ₀} {ℓ₁ = ℓ₁} {A = X} A-set _⊑_ = φ , φ-prop
   where
     φ      : Type (ℓ-max ℓ₀ ℓ₁)
-    φ      = ((x y : X) → [ x ⊑ y ] → [ y ⊑ x ] → x ≡ y)
+    φ      = ((x y : X) → ⟨ x ⊑ y ⟩ → ⟨ y ⊑ x ⟩ → x ≡ y)
     φ-prop : isProp φ
     φ-prop = isPropΠ3 λ x y z → isPropΠ λ _ → A-set x y
 
@@ -124,12 +124,12 @@ satPosetAx {ℓ₀ = ℓ₀} ℓ₁ A _⊑_ = φ , φ-prop
     isPartial : isSet A → hProp (ℓ-max ℓ₀ ℓ₁)
     isPartial A-set = isReflexive _⊑_ ⊓ isTransitive _⊑_ ⊓ isAntisym A-set _⊑_
 
-    φ         = Σ[ A-set ∈ isSet A ] [ isPartial A-set ]
+    φ         = Σ[ A-set ∈ isSet A ] ⟨ isPartial A-set ⟩
     φ-prop    = isOfHLevelΣ 1 isPropIsSet (λ x → snd (isPartial x))
 
 -- The poset structure.
 PosetStructure : (ℓ₁ : Level) → Type ℓ₀ → Type (ℓ-max ℓ₀ (ℓ-suc ℓ₁))
-PosetStructure ℓ₁ = AxiomsStructure (Order ℓ₁) λ A _⊑_ → [ satPosetAx ℓ₁ A _⊑_ ]
+PosetStructure ℓ₁ = AxiomsStructure (Order ℓ₁) λ A _⊑_ → ⟨ satPosetAx ℓ₁ A _⊑_ ⟩
 
 isSetPosetStructure : (ℓ₁ : Level) (A : Type ℓ₀) → isSet (PosetStructure ℓ₁ A)
 isSetPosetStructure ℓ₁ A =
@@ -154,15 +154,15 @@ rel (_ , _⊑_ , _) = _⊑_
 
 syntax rel P x y = x ⊑[ P ] y
 
-⊑[_]-refl : (P : Poset ℓ₀ ℓ₁) → (x : ∣ P ∣ₚ) → [ x ⊑[ P ] x ]
+⊑[_]-refl : (P : Poset ℓ₀ ℓ₁) → (x : ∣ P ∣ₚ) → ⟨ x ⊑[ P ] x ⟩
 ⊑[_]-refl (_ , _ , _ , ⊑-refl , _) = ⊑-refl
 
 ⊑[_]-trans : (P : Poset ℓ₀ ℓ₁) (x y z : ∣ P ∣ₚ)
-           → [ x ⊑[ P ] y ] → [ y ⊑[ P ] z ] → [ x ⊑[ P ] z ]
+           → ⟨ x ⊑[ P ] y ⟩ → ⟨ y ⊑[ P ] z ⟩ → ⟨ x ⊑[ P ] z ⟩
 ⊑[_]-trans (_ , _ , _ , _ , ⊑-trans , _) = ⊑-trans
 
 ⊑[_]-antisym : (P : Poset ℓ₀ ℓ₁) (x y : ∣ P ∣ₚ)
-             → [ x ⊑[ P ] y ] → [ y ⊑[ P ] x ] → x ≡ y
+             → ⟨ x ⊑[ P ] y ⟩ → ⟨ y ⊑[ P ] x ⟩ → x ≡ y
 ⊑[_]-antisym (_ , _ , _ , _ , _ , ⊑-antisym) = ⊑-antisym
 
 carrier-is-set : (P : Poset ℓ₀ ℓ₁) → isSet ∣ P ∣ₚ
@@ -204,10 +204,10 @@ forget-mono P Q (f , f-mono) (g , g-mono) =
 module PosetReasoning (P : Poset ℓ₀ ℓ₁) where
 
   _⊑⟨_⟩_ : (x : ∣ P ∣ₚ) {y z : ∣ P ∣ₚ}
-         → [ x ⊑[ P ] y ] → [ y ⊑[ P ] z ] → [ x ⊑[ P ] z ]
+         → ⟨ x ⊑[ P ] y ⟩ → ⟨ y ⊑[ P ] z ⟩ → ⟨ x ⊑[ P ] z ⟩
   _ ⊑⟨ p ⟩ q = ⊑[ P ]-trans _ _ _ p q
 
-  _■ : (x : ∣ P ∣ₚ) → [ x ⊑[ P ] x ]
+  _■ : (x : ∣ P ∣ₚ) → ⟨ x ⊑[ P ] x ⟩
   _■ = ⊑[ P ]-refl
 
   infixr 0 _⊑⟨_⟩_
@@ -243,7 +243,7 @@ posetUnivalentStr {ℓ₁ = ℓ₁} =
     isAMonotonicEqv
     (axiomsUnivalentStr _ NTS (SNS→UnivalentStr isAnOrderPreservingEqv orderUnivalentStr))
   where
-    NTS : (A : Type ℓ) (_⊑_ : Order ℓ₁ A) → isProp [ satPosetAx ℓ₁ A _⊑_ ]
+    NTS : (A : Type ℓ) (_⊑_ : Order ℓ₁ A) → isProp ⟨ satPosetAx ℓ₁ A _⊑_ ⟩
     NTS A _⊑_ = snd (satPosetAx ℓ₁ A _⊑_)
 
 poset-univ₀ : (P Q : Poset ℓ₀ ℓ₁) → (P ≃ₚ Q) ≃ (P ≡ Q)

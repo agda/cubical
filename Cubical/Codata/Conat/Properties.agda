@@ -83,6 +83,24 @@ n+′∞≡∞′ (suc n) = λ i → suc (n+∞≡∞ n i)
 ∞+∞≡∞ : ∞ + ∞ ≡ ∞
 force (∞+∞≡∞ i) = suc (∞+∞≡∞ i)
 
++-zeroˡ : ∀ n → 𝟘 + n ≡ n
+force (+-zeroˡ n _) = force n
+
++-zeroʳ : ∀ n → n + 𝟘 ≡ n
++′-zeroʳ : ∀ n → n +′ 𝟘 ≡ n
+
+force (+-zeroʳ n i) = +′-zeroʳ (force n) i
++′-zeroʳ zero _ = zero
++′-zeroʳ (suc n) i = suc (+-zeroʳ n i)
+
++-assoc : ∀ m n p → (m + n) + p ≡ m + (n + p)
++′-assoc : ∀ m n p → (m +′ n) +′ p ≡ m +′ (n + p)
+
+force (+-assoc m n p i) = +′-assoc (force m) n p i
++′-assoc zero _ _ = refl
++′-assoc (suc m) n p i = suc (+-assoc m n p i)
+
+
 conat-absurd : ∀ {y : Conat} {ℓ} {Whatever : Type ℓ} → zero ≡ suc y → Whatever
 conat-absurd eq = ⊥.rec (transport (cong diag eq) tt)
   where
