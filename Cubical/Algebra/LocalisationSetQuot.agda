@@ -26,7 +26,9 @@ open import Cubical.Algebra.AbGroup hiding (⟨_⟩)
 open import Cubical.Algebra.Monoid hiding (⟨_⟩)
 open import Cubical.Algebra.Ring hiding (⟨_⟩)
 open import Cubical.Algebra.CommRing
+--open import Cubical.Algebra.CommRing.Integers
 
+--open import Cubical.HITs.Ints.BiInvInt
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
 
@@ -711,3 +713,10 @@ module check (R' : CommRing {ℓ}) (f g : ⟨ R' ⟩) where
 
    ϕcoh : (a b : R × S) → a ≈' b → ϕ a ≡ ϕ b
    ϕcoh (r , s , α) (r' , s' , β) ((u , γ) , p) =  curriedϕcoh r s r' s' u p α β γ
+
+
+-- module φtestℤ where
+
+
+ -- ψ : R[1/f][1/g] → R[1/fg]
+ -- ψ = SQ.rec squash/ {!!} {!!}
