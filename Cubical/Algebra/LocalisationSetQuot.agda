@@ -7,13 +7,13 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Logic hiding ([_])
+open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Transport
 open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc)
+open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_ ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.Sigma.Properties
@@ -21,14 +21,14 @@ open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
 
-open import Cubical.Algebra.Group hiding (⟨_⟩)
-open import Cubical.Algebra.AbGroup hiding (⟨_⟩)
-open import Cubical.Algebra.Monoid hiding (⟨_⟩)
-open import Cubical.Algebra.Ring hiding (⟨_⟩)
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
---open import Cubical.Algebra.CommRing.Integers
+open import Cubical.Algebra.CommRing.Integers renaming (BiInvIntAsCommRing to ℤAsCommRing)
 
---open import Cubical.HITs.Ints.BiInvInt
+open import Cubical.HITs.Ints.BiInvInt renaming (BiInvInt to ℤ ; _+_ to _+ℤ_ ; _·_ to _·ℤ_ ; -_ to -ℤ_ ; +-assoc to +ℤ-assoc ; +-comm to +ℤ-comm ; ·-assoc to ·ℤ-assoc ; ·-comm to ·ℤ-comm)
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
 
@@ -40,16 +40,17 @@ private
     A : Type ℓ
 
 
-record isSubMonoid (R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) : Type ℓ where
+record isSubMonoid (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) : Type ℓ where
  constructor
    submonoid
  field
-   containsOne : (R' .CommRing.1r) ∈ S'
-   multClosed : ∀ {s t} → s ∈ S' → t ∈ S' → (R' .CommRing._·_ s t) ∈ S'
+   containsOne : (R' .snd .CommRingStr.1r) ∈ S'
+   multClosed : ∀ {s t} → s ∈ S' → t ∈ S' → (R' .snd .CommRingStr._·_ s t) ∈ S'
 
-module Loc (R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid R' S') where
+module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SsubMonoid : isSubMonoid R' S') where
  open isSubMonoid
- open CommRing R' renaming (Carrier to R)
+ R = R' .fst
+ open CommRingStr (R' .snd)
  open Theory (CommRing→Ring R')
 
  S = Σ[ s ∈ R ] (s ∈ S')
@@ -526,15 +527,16 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ ⟨ R' ⟩) (SsubMonoid : isSubMonoid
 
 
  -- Commutative ring structure on Rₛ
- RₛCommRing : CommRing
- RₛCommRing = makeCommRing 0ₗ 1ₗ _+ₗ_ _·ₗ_ -ₗ_ squash/ +ₗ-assoc +ₗ-rid +ₗ-rinv +ₗ-comm
-                                                       ·ₗ-assoc ·ₗ-rid ·ₗ-rdist-+ₗ ·ₗ-comm
+ RₛAsCommRing : CommRing
+ RₛAsCommRing = makeCommRing 0ₗ 1ₗ _+ₗ_ _·ₗ_ -ₗ_ squash/ +ₗ-assoc +ₗ-rid +ₗ-rinv +ₗ-comm
+                                                         ·ₗ-assoc ·ₗ-rid ·ₗ-rdist-+ₗ ·ₗ-comm
 
 
 -- Test: (R[1/f])[1/g] ≡ R[1/fg]
 module invertEl (R' : CommRing {ℓ}) where
  open isSubMonoid
- open CommRing R' renaming (Carrier to R)
+ R = R' .fst
+ open CommRingStr (R' .snd)
  open Theory (CommRing→Ring R')
 
 
@@ -576,41 +578,42 @@ module invertEl (R' : CommRing {ℓ}) where
  R[1/ f ] = Loc.Rₛ R' [ f ⁿ|n≥0] (powersFormSubMonoid f)
 
 
- R[1/_]CommRing : R → CommRing {ℓ}
- R[1/ f ]CommRing = Loc.RₛCommRing R' [ f ⁿ|n≥0] (powersFormSubMonoid f)
+ R[1/_]AsCommRing : R → CommRing {ℓ}
+ R[1/ f ]AsCommRing = Loc.RₛAsCommRing R' [ f ⁿ|n≥0] (powersFormSubMonoid f)
 
 
-module check (R' : CommRing {ℓ}) (f g : ⟨ R' ⟩) where
+module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
  open isSubMonoid
- open CommRing R' renaming (Carrier to R)
+ open CommRingStr (R' .snd)
  open Theory (CommRing→Ring R')
- open invertEl R'
+ open invertEl R' hiding (R)
+ open CommRingStr (R[1/ f ]AsCommRing .snd) renaming (_·_ to _·ᶠ_ ; 1r to 1ᶠ)
+                                            hiding (_+_ ; ·-lid ; ·-rid ; ·-assoc ; ·-comm)
 
+
+ R = R' .fst
  R[1/fg] = invertEl.R[1/_] R' (f · g)
- R[1/f][1/g] = invertEl.R[1/_] (invertEl.R[1/_]CommRing R' f)
+ R[1/f][1/g] = invertEl.R[1/_] (invertEl.R[1/_]AsCommRing R' f)
                                [ g , 1r , powersFormSubMonoid f .containsOne ]
- R[1/f][1/g]CommRing = invertEl.R[1/_]CommRing (invertEl.R[1/_]CommRing R' f)
+ R[1/f][1/g]AsCommRing = invertEl.R[1/_]AsCommRing (invertEl.R[1/_]AsCommRing R' f)
                                [ g , 1r , powersFormSubMonoid f .containsOne ]
 
  -- prove R[1/fg] ≃ R[1/f][1/g] and then check ringhom
+ indhelper : ∀ n → [ (g ^ n) , 1r , ∣ 0 , (λ _ → 1r) ∣ ] ≡
+     (R[1/ f ]AsCommRing invertEl.^ [ g , 1r , powersFormSubMonoid f .containsOne ]) n
+ indhelper zero = refl
+ indhelper (suc n) =
+       eq/ _ _ ((1r , powersFormSubMonoid f .containsOne) , cong (1r · (g · (g ^ n)) ·_) (·-lid 1r))
+     ∙ cong ([ g , 1r , powersFormSubMonoid f .containsOne ] ·ᶠ_) (indhelper n)
+
  φ : R[1/fg] → R[1/f][1/g]
  φ = SQ.rec squash/ ϕ ϕcoh
    where
-   open Loc R' [ (f · g) ⁿ|n≥0] (powersFormSubMonoid (f · g))
-   open CommRing R[1/ f ]CommRing renaming (_·_ to _·ᶠ_ ; 1r to 1ᶠ)
-                                  hiding (_+_ ; ·-lid ; ·-rid ; ·-assoc ; ·-comm)
-   --S = Loc.S R' [ (f · g) ⁿ|n≥0] (powersFormSubMonoid (f · g))
+   open Loc R' [ (f · g) ⁿ|n≥0] (powersFormSubMonoid (f · g)) hiding (R ; φ)
 
    curriedϕΣ : (r s : R) → Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n → R[1/f][1/g]
    curriedϕΣ r s (n , s≡fg^n) =
     [ [ r , (f ^ n) , ∣ n , refl ∣ ] , [ (g ^ n) , 1r , ∣ 0 , refl ∣ ] , ∣ n , indhelper n ∣ ]
-    where
-    indhelper : ∀ n → [ (g ^ n) , 1r , ∣ 0 , (λ _ → 1r) ∣ ] ≡
-     (R[1/ f ]CommRing invertEl.^ [ g , 1r , powersFormSubMonoid f .containsOne ]) n
-    indhelper zero = refl
-    indhelper (suc n) =
-       eq/ _ _ ((1r , powersFormSubMonoid f .containsOne) , cong (1r · (g · (g ^ n)) ·_) (·-lid 1r))
-     ∙ cong ([ g , 1r , powersFormSubMonoid f .containsOne ] ·ᶠ_) (indhelper n)
 
    curriedϕ : (r s : R) → ∃[ n ∈ ℕ ] s ≡ (f · g) ^ n → R[1/f][1/g]
    curriedϕ r s = elim→Set (λ _ → squash/) (curriedϕΣ r s) coh
@@ -654,13 +657,6 @@ module check (R' : CommRing {ℓ}) (f g : ⟨ R' ⟩) where
     eq/ _ _ (([ (g ^ l) , 1r , powersFormSubMonoid f .containsOne ] , ∣ l , indhelper l ∣) ,
     eq/ _ _ ((f ^ l , ∣ l , refl ∣) , path))
     where
-    indhelper : ∀ n → [ (g ^ n) , 1r , ∣ 0 , (λ _ → 1r) ∣ ] ≡
-     (R[1/ f ]CommRing invertEl.^ [ g , 1r , powersFormSubMonoid f .containsOne ]) n
-    indhelper zero = refl
-    indhelper (suc n) =
-       eq/ _ _ ((1r , powersFormSubMonoid f .containsOne) , cong (1r · (g · (g ^ n)) ·_) (·-lid 1r))
-     ∙ cong ([ g , 1r , powersFormSubMonoid f .containsOne ] ·ᶠ_) (indhelper n)
-
     path : f ^ l · (g ^ l · transp (λ i → R) i0 r · transp (λ i → R) i0 (g ^ m))
                  · (1r · transp (λ i → R) i0 (f ^ m) · transp (λ i → R) i0 1r)
          ≡ f ^ l · (g ^ l · transp (λ i → R) i0 r' · transp (λ i → R) i0 (g ^ n))
@@ -715,8 +711,52 @@ module check (R' : CommRing {ℓ}) (f g : ⟨ R' ⟩) where
    ϕcoh (r , s , α) (r' , s' , β) ((u , γ) , p) =  curriedϕcoh r s r' s' u p α β γ
 
 
--- module φtestℤ where
-
-
+ -- TODO:
  -- ψ : R[1/f][1/g] → R[1/fg]
- -- ψ = SQ.rec squash/ {!!} {!!}
+ -- η : section φ ψ
+ -- ε : retract φ ψ
+ -- prove that φ is ring hom
+
+
+
+
+module φtestℤ where
+ 1z : ℤ
+ 1z = suc zero
+
+ 2z : ℤ
+ 2z = suc (suc zero)
+
+ 3z : ℤ
+ 3z = suc (suc (suc zero))
+
+ 4z = 2z ·ℤ 2z
+
+ 5z : ℤ
+ 5z = suc ( suc (suc (suc (suc zero))))
+
+ 9z = 3z ·ℤ 3z
+
+ 6z = 2z ·ℤ 3z
+ 36z = 6z ·ℤ 6z
+
+
+ open isSubMonoid
+ open invertEl ℤAsCommRing
+ open check ℤAsCommRing 2z 3z
+
+ ℤ[1/6] = R[1/fg]
+ ℤ[1/2][1/3] = R[1/f][1/g]
+
+ 5/36 : ℤ[1/6]
+ 5/36 = [ 5z , 36z , ∣ 2 , refl ∣ ]
+ -- ∣ 2 , refl ∣ is proof that 36 is in the set of powers of 6
+
+ test :  ℤ[1/2][1/3]
+ test = [ [ 5z , 4z , ∣ 2 , refl ∣ ] ,
+          [ 9z , 1z , powersFormSubMonoid 2z .containsOne ] , ∣ 2 , indhelper 2 ∣ ]
+
+ -- not true !!!
+ -- _ : test ≡ φ 5/36
+ -- _ = refl
+
