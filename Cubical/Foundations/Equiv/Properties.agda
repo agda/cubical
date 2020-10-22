@@ -54,23 +54,21 @@ equivAdjointEquiv : (e : A ≃ B) → ∀ {a b} → (a ≡ invEq e b) ≃ (equiv
 equivAdjointEquiv e = compEquiv (congEquiv e) (compPathrEquiv (retEq e _))
 
 invEq≡→equivFun≡ : (e : A ≃ B) → ∀ {a b} → invEq e b ≡ a → equivFun e a ≡ b
-invEq≡→equivFun≡ e = equivAdjointEquiv e .fst ∘ sym
+invEq≡→equivFun≡ e = equivFun (equivAdjointEquiv e) ∘ sym
 
-isEquivPreComp : (e : A ≃ B)
-               → isEquiv (λ (φ : B → C) → φ ∘ equivFun e)
+isEquivPreComp : (e : A ≃ B) → isEquiv (λ (φ : B → C) → φ ∘ equivFun e)
 isEquivPreComp e = snd (equiv→ (invEquiv e) (idEquiv _))
 
-preCompEquiv : (e : A ≃ B)
-             → (B → C) ≃ (A → C)
+preCompEquiv : (e : A ≃ B) → (B → C) ≃ (A → C)
 preCompEquiv e = (λ φ → φ ∘ fst e) , isEquivPreComp e
 
--- see also: equivΠCod
-
-isEquivPostComp :(e : A ≃ B) → isEquiv (λ (φ : C → A) → e .fst ∘ φ)
+isEquivPostComp : (e : A ≃ B) → isEquiv (λ (φ : C → A) → e .fst ∘ φ)
 isEquivPostComp e = snd (equivΠCod (λ _ → e))
 
 postCompEquiv : (e : A ≃ B) → (C → A) ≃ (C → B)
 postCompEquiv e = _ , isEquivPostComp e
+
+-- see also: equivΠCod for a dependent version of postCompEquiv
 
 hasSection : (A → B) → Type _
 hasSection {A = A} {B = B} f = Σ[ g ∈ (B → A) ] section f g
@@ -127,20 +125,6 @@ isEquiv→hasRetract = fst ∘ isEquiv→isContrHasRetract
 
 isContr-hasRetract : (e : A ≃ B) → isContr (hasRetract (fst e))
 isContr-hasRetract e = isEquiv→isContrHasRetract (snd e)
-
--- there is a (much slower) alternate proof that also works for retract
-
-isContr-hasSection' : {A B : Type ℓ} (e : A ≃ B) → isContr (hasSection (fst e))
-isContr-hasSection' {_} {A} {B} e = transport (λ i → ∃![ g ∈ (B → A) ] eq g i)
-                                              (equiv-proof (isEquivPostComp e) (idfun _))
-  where eq : ∀ (g : B → A) → ((fst e) ∘ g ≡ idfun _) ≡ (section (fst e) g)
-        eq g = sym (funExtPath {f = (fst e) ∘ g} {g = idfun _})
-
-isContr-hasRetract' : {A B : Type ℓ} (e : A ≃ B) → isContr (hasRetract (fst e))
-isContr-hasRetract' {_} {A} {B} e = transport (λ i → ∃![ g ∈ (B → A) ] eq g i)
-                                              (equiv-proof (isEquivPreComp e) (idfun _))
-  where eq : ∀ (g : B → A) → (g ∘ (fst e) ≡ idfun _) ≡ (retract (fst e) g)
-        eq g = sym (funExtPath {f = g ∘ (fst e)} {g = idfun _})
 
 cong≃ : (F : Type ℓ → Type ℓ′) → (A ≃ B) → F A ≃ F B
 cong≃ F e = pathToEquiv (cong F (ua e))

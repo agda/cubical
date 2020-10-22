@@ -153,8 +153,8 @@ A ⊓ B = ⟨ A ⟩ ⊓′ ⟨ B ⟩ , isOfHLevelΣ 1 (isProp⟨⟩ A) (\ _ → 
 _⇔_ : hProp ℓ → hProp ℓ' → hProp _
 A ⇔ B = (A ⇒ B) ⊓ (B ⇒ A)
 
-⇔-id : (P : hProp ℓ) → [ P ⇔ P ]
-⇔-id P = (idfun [ P ]) , (idfun [ P ])
+⇔-id : (P : hProp ℓ) → ⟨ P ⇔ P ⟩
+⇔-id P = (idfun ⟨ P ⟩) , (idfun ⟨ P ⟩)
 
 --------------------------------------------------------------------------------
 -- Universal Quantifier

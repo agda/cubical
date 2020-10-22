@@ -242,9 +242,26 @@ PathΣ→ΣPathTransport a b = Iso.inv (IsoΣPathTransportPathΣ a b)
   isom .rightInv _ = refl
   isom .leftInv (a , b) = cong (a ,_) (c a .snd b)
 
+isEmbeddingFstΣProp : ((x : A) → isProp (B x))
+                    → {u v : Σ A B}
+                    → isEquiv (λ (p : u ≡ v) → cong fst p)
+isEmbeddingFstΣProp {B = B} pB {u = u} {v = v} .equiv-proof x = ctr , isCtr
+  where
+  ctr : fiber (λ (p : u ≡ v) → cong fst p) x
+  ctr = (ΣPathP (x , isProp→PathP (λ _ → pB _) _ _)) , refl
+
+  isCtr : ∀ z → ctr ≡ z
+  isCtr (z , p) = ΣPathP (ctrFst , cong (sym ∘ snd) fzsingl) where
+    fzsingl : Path (singl x) (x , refl) (cong fst z , sym p)
+    fzsingl = isContrSingl x .snd (cong fst z , sym p)
+    ctrSnd : PathP (λ j → PathP (λ i → B (fzsingl j .fst i)) (snd u) (snd v)) (cong snd (fst ctr)) (cong snd z)
+    ctrSnd = isProp→SquareP (λ _ _ → pB _) _ _ _ _
+    ctrFst : fst ctr ≡ z
+    ctrFst i = ΣPathP (fzsingl i .fst , ctrSnd i)
+
 Σ≡PropEquiv : ((x : A) → isProp (B x)) → {u v : Σ A B}
             → (u .fst ≡ v .fst) ≃ (u ≡ v)
-Σ≡PropEquiv pB = compEquiv (invEquiv (Σ-contractSnd λ _ → isProp→isContrPathP (λ _ → pB _) _ _)) ΣPath≃PathΣ
+Σ≡PropEquiv pB = invEquiv (_ , isEmbeddingFstΣProp pB)
 
 Σ≡Prop : ((x : A) → isProp (B x)) → {u v : Σ A B}
        → (p : u .fst ≡ v .fst) → u ≡ v

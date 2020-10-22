@@ -6,7 +6,9 @@ Implements the monadic interface of propositional truncation, for reasoning in d
 module Cubical.HITs.PropositionalTruncation.Monad where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Logic
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure
+open import Cubical.Functions.Logic
 open import Cubical.HITs.PropositionalTruncation
 
 private
@@ -15,8 +17,8 @@ private
     P Q : Type ℓ
 
 infix 1 proof_by_
-proof_by_ : (P : hProp ℓ) → ∥ [ P ] ∥ → [ P ]
-proof P by p = rec (isProp[] P) (λ p → p) p
+proof_by_ : (P : hProp ℓ) → ∥ ⟨ P ⟩ ∥ → ⟨ P ⟩
+proof P by p = rec (isProp⟨⟩ P) (λ p → p) p
 
 return : P → ∥ P ∥
 return p = ∣ p ∣

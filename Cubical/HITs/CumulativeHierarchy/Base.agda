@@ -11,10 +11,11 @@ https://github.com/jledent/vset
 module Cubical.HITs.CumulativeHierarchy.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Logic hiding (_∈_)
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv using (fiber)
+open import Cubical.Functions.Logic
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation as P hiding (elim; elim2)
 

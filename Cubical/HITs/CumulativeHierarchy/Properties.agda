@@ -7,14 +7,15 @@ is equivalent to equality though it lives in a lower universe.
 module Cubical.HITs.CumulativeHierarchy.Properties where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Logic as L hiding (_∈_; _⊆_; ⊆-refl)
 open import Cubical.Foundations.Univalence
-open import Cubical.Functions.Embedding
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure
+open import Cubical.Functions.Embedding
+open import Cubical.Functions.Logic as L
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation as P hiding (elim; elim2)
 open import Cubical.HITs.Pushout as Pu
@@ -57,7 +58,7 @@ _∼_ = elim2 eliminator where
         → {rec₁ : X₁ → Y → hProp ℓ} {rec₂ : X₂ → Y → hProp ℓ}
         → (rec₁→₂ : (x₁ : X₁) → ∃[ (x₂ , p) ∈ fiber ix₂ (ix₁ x₁) ] rec₂ x₂ ≡ rec₁ x₁)
         → (rec₂→₁ : (x₂ : X₂) → ∃[ (x₁ , p) ∈ fiber ix₁ (ix₂ x₂) ] rec₁ x₁ ≡ rec₂ x₂)
-        → [ goalProp X₁ ix₁ Y iy rec₁ ⇒ goalProp X₂ ix₂ Y iy rec₂ ]
+        → ⟨ goalProp X₁ ix₁ Y iy rec₁ ⇒ goalProp X₂ ix₂ Y iy rec₂ ⟩
   lemma _ rec₁→₂ rec₂→₁ (X₁→Y , Y→X₁) =
     (λ x₂ → do ((x₁ , c_) , xr₁) ← rec₂→₁ x₂
                (y , yr) ← X₁→Y x₁
@@ -79,21 +80,21 @@ _∼_ = elim2 eliminator where
             (lemma iy rec₂→₁ rec₁→₂)
 
 _≊_ : (s t : V ℓ) → Type ℓ
-s ≊ t = [ s ∼ t ]
+s ≊ t = ⟨ s ∼ t ⟩
 
 ∼refl : (a : V ℓ) → a ≊ a
-∼refl = elimProp (λ a → isProp[] (a ∼ a))
+∼refl = elimProp (λ a → isProp⟨⟩ (a ∼ a))
                  (λ X ix rec → (λ x → ∣ x , rec x ∣) , (λ x → ∣ x , rec x ∣))
 
 -- keep in mind that the left and right side here live in different universes
 identityPrinciple : (a ≊ b) ≃ (a ≡ b)
 identityPrinciple {a = a} {b = b} =
-  isoToEquiv (iso from into (λ _ → setIsSet _ _ _ _) (λ _ → isProp[] (a ∼ b) _ _))
+  isoToEquiv (iso from into (λ _ → setIsSet _ _ _ _) (λ _ → isProp⟨⟩ (a ∼ b) _ _))
   where
   open PropMonad
 
-  eqImageXY : {X Y : Type ℓ} {ix : X → V ℓ} {iy : Y → V ℓ} → (∀ x y → [ ix x ∼ iy y ] → ix x ≡ iy y)
-            → [ sett X ix ∼ sett Y iy ] → eqImage ix iy
+  eqImageXY : {X Y : Type ℓ} {ix : X → V ℓ} {iy : Y → V ℓ} → (∀ x y → ⟨ ix x ∼ iy y ⟩ → ix x ≡ iy y)
+            → ⟨ sett X ix ∼ sett Y iy ⟩ → eqImage ix iy
   eqImageXY rec rel = (λ x → do (y , y∼x) ← fst rel x ; ∣ y , sym (rec _ _ y∼x) ∣)
                     , (λ y → do (x , x∼y) ← snd rel y ; ∣ x ,      rec _ _ x∼y  ∣)
 
@@ -137,12 +138,12 @@ isPropMonicPresentation a ((X₁ , ix₁ , isEmb₁) , p) ((X₂ , ix₂ , isEmb
   fiberwise1 : ∀ b → fiber ix₁ b → fiber ix₂ b
   fiberwise1 b fbx₁ =
     proof (_ , isEmbedding→hasPropFibers isEmb₂ b)
-    by subst (λ A → [ b ∈ A ]) (sym p ∙ q) ∣ fbx₁ ∣
+    by subst (λ A → ⟨ b ∈ A ⟩) (sym p ∙ q) ∣ fbx₁ ∣
 
   fiberwise2 : ∀ b → fiber ix₂ b → fiber ix₁ b
   fiberwise2 b fbx₂ =
     proof (_ , isEmbedding→hasPropFibers isEmb₁ b)
-    by subst (λ A → [ b ∈ A ]) (sym q ∙ p) ∣ fbx₂ ∣
+    by subst (λ A → ⟨ b ∈ A ⟩) (sym q ∙ p) ∣ fbx₂ ∣
 
 sett-repr : (X : Type ℓ) (ix : X → V ℓ) → MonicPresentation (sett X ix)
 sett-repr {ℓ} X ix = (Rep , ixRep , isEmbIxRep) , seteq X Rep ix ixRep eqImIxRep where
@@ -238,37 +239,37 @@ isPropRepFiber a b = embedIsProp (isEquiv→isEmbedding (repFiber≃fiber ⟪ a 
 _∈ₛ_ : (a b : V ℓ) → hProp ℓ
 a ∈ₛ b = repFiber ⟪ b ⟫↪ a , isPropRepFiber b a
 
-∈-asFiber : {a b : V ℓ} → [ a ∈ b ] → fiber ⟪ b ⟫↪ a
+∈-asFiber : {a b : V ℓ} → ⟨ a ∈ b ⟩ → fiber ⟪ b ⟫↪ a
 ∈-asFiber {a = a} {b = b} =
-  subst (λ br → [ a ∈ br ] → fiber ⟪ b ⟫↪ a) (sym ⟪ b ⟫-represents) asRep
+  subst (λ br → ⟨ a ∈ br ⟩ → fiber ⟪ b ⟫↪ a) (sym ⟪ b ⟫-represents) asRep
   where
-  asRep : [ a ∈ sett ⟪ b ⟫ ⟪ b ⟫↪ ] → fiber ⟪ b ⟫↪ a
+  asRep : ⟨ a ∈ sett ⟪ b ⟫ ⟪ b ⟫↪ ⟩ → fiber ⟪ b ⟫↪ a
   asRep = P.propTruncIdempotent≃ (isEmbedding→hasPropFibers isEmb⟪ b ⟫↪ a) .fst
-∈-fromFiber : {a b : V ℓ} → fiber ⟪ b ⟫↪ a → [ a ∈ b ]
-∈-fromFiber {a = a} {b = b} = subst (λ br → [ a ∈ br ]) (sym ⟪ b ⟫-represents) ∘ ∣_∣
+∈-fromFiber : {a b : V ℓ} → fiber ⟪ b ⟫↪ a → ⟨ a ∈ b ⟩
+∈-fromFiber {a = a} {b = b} = subst (λ br → ⟨ a ∈ br ⟩) (sym ⟪ b ⟫-represents) ∘ ∣_∣
 
-∈∈ₛ : {a b : V ℓ} → [ a ∈ b ⇔ a ∈ₛ b ]
+∈∈ₛ : {a b : V ℓ} → ⟨ a ∈ b ⇔ a ∈ₛ b ⟩
 ∈∈ₛ {a = a} {b = b} = leftToRight , rightToLeft where
   repEquiv : repFiber ⟪ b ⟫↪ a ≃ fiber ⟪ b ⟫↪ a
   repEquiv = repFiber≃fiber ⟪ b ⟫↪ a
-  leftToRight : [ (a ∈ b) ⇒ a ∈ₛ b ]
+  leftToRight : ⟨ (a ∈ b) ⇒ a ∈ₛ b ⟩
   leftToRight a∈b = invEq repEquiv (∈-asFiber {b = b} a∈b)
-  rightToLeft : [ a ∈ₛ b ⇒ (a ∈ b) ]
+  rightToLeft : ⟨ a ∈ₛ b ⇒ (a ∈ b) ⟩
   rightToLeft a∈ₛb = ∈-fromFiber {b = b} (equivFun repEquiv a∈ₛb)
 
 ix∈ₛ : {X : Type ℓ} {ix : X → V ℓ}
-     → (x : X) → [ ix x ∈ₛ sett X ix ]
+     → (x : X) → ⟨ ix x ∈ₛ sett X ix ⟩
 ix∈ₛ {X = X} {ix = ix} x = ∈∈ₛ {a = ix x} {b = sett X ix} .fst ∣ x , refl ∣
 
-∈ₛ⟪_⟫↪_ : (a : V ℓ) (ix : ⟪ a ⟫) → [ ⟪ a ⟫↪ ix ∈ₛ a ]
+∈ₛ⟪_⟫↪_ : (a : V ℓ) (ix : ⟪ a ⟫) → ⟨ ⟪ a ⟫↪ ix ∈ₛ a ⟩
 ∈ₛ⟪ a ⟫↪ ix = ix , ∼refl (⟪ a ⟫↪ ix)
 
 -- also here, the left side is in level (ℓ-suc ℓ) while the right is in ℓ
-presentation : (a : V ℓ) → (Σ[ v ∈ V ℓ ] [ v ∈ₛ a ]) ≃ ⟪ a ⟫
+presentation : (a : V ℓ) → (Σ[ v ∈ V ℓ ] ⟨ v ∈ₛ a ⟩) ≃ ⟪ a ⟫
 presentation a = isoToEquiv (iso into from (λ _ → refl) retr) where
-  into : Σ[ v ∈ V _ ] [ v ∈ₛ a ] → ⟪ a ⟫
+  into : Σ[ v ∈ V _ ] ⟨ v ∈ₛ a ⟩ → ⟪ a ⟫
   into = fst ∘ snd
-  from : ⟪ a ⟫ → Σ[ v ∈ V _ ] [ v ∈ₛ a ]
+  from : ⟪ a ⟫ → Σ[ v ∈ V _ ] ⟨ v ∈ₛ a ⟩
   from ⟪a⟫ = ⟪ a ⟫↪ ⟪a⟫ , ∈ₛ⟪ a ⟫↪ ⟪a⟫
   retr : retract into from
   retr s = Σ≡Prop (λ v → (v ∈ₛ a) .snd) (equivFun identityPrinciple (s .snd .snd))
@@ -277,16 +278,16 @@ presentation a = isoToEquiv (iso into from (λ _ → refl) retr) where
 _⊆_ : (a b : V ℓ) → hProp (ℓ-suc ℓ)
 a ⊆ b = ∀[ x ] x ∈ₛ a ⇒ x ∈ₛ b
 
-⊆-refl : (a : V ℓ) → [ a ⊆ a ]
+⊆-refl : (a : V ℓ) → ⟨ a ⊆ a ⟩
 ⊆-refl a = λ _ xa → xa
 
 _⊆ₛ_ : (a b : V ℓ) → hProp ℓ
 a ⊆ₛ b = ∀[ x ] ⟪ a ⟫↪ x ∈ₛ b
 
-⊆⇔⊆ₛ : (a b : V ℓ) → [ a ⊆ b ⇔ a ⊆ₛ b ]
+⊆⇔⊆ₛ : (a b : V ℓ) → ⟨ a ⊆ b ⇔ a ⊆ₛ b ⟩
 ⊆⇔⊆ₛ a b =
     (λ s → invEq curryEquiv s ∘ invEq (presentation a))
-  , (λ s x xa → subst (λ x → [ x ∈ₛ b ]) (equivFun identityPrinciple (xa .snd)) (s (xa .fst)))
+  , (λ s x xa → subst (λ x → ⟨ x ∈ₛ b ⟩) (equivFun identityPrinciple (xa .snd)) (s (xa .fst)))
 
 -- the homotopy definition of equality as an hProp, we know this is equivalent to bisimulation
 infix 4 _≡ₕ_
@@ -294,7 +295,7 @@ _≡ₕ_ : (a b : V ℓ) → hProp (ℓ-suc ℓ)
 _≡ₕ_ a b = (a ≡ b) , setIsSet a b
 
 -- extensionality
-extensionality : [ ∀[ a ∶ V ℓ ] ∀[ b ] (a ⊆ b) ⊓ (b ⊆ a) ⇒ (a ≡ₕ b) ]
+extensionality : ⟨ ∀[ a ∶ V ℓ ] ∀[ b ] (a ⊆ b) ⊓ (b ⊆ a) ⇒ (a ≡ₕ b) ⟩
 extensionality {ℓ = ℓ} a b imeq = ⟪ a ⟫-represents ∙∙ settab ∙∙ sym ⟪ b ⟫-represents where
   abpth : Path (Embedding _ _) (⟪ a ⟫ , ⟪ a ⟫↪ , isEmb⟪ a ⟫↪) (⟪ b ⟫ , ⟪ b ⟫↪ , isEmb⟪ b ⟫↪)
   abpth = equivFun (EmbeddingIP _ _)
@@ -304,8 +305,8 @@ extensionality {ℓ = ℓ} a b imeq = ⟪ a ⟫-represents ∙∙ settab ∙∙ 
   settab : sett ⟪ a ⟫ ⟪ a ⟫↪ ≡ sett ⟪ b ⟫ ⟪ b ⟫↪
   settab i = sett (abpth i .fst) (abpth i .snd .fst)
 
-extInverse : [ ∀[ a ∶ V ℓ ] ∀[ b ] (a ≡ₕ b) ⇒ (a ⊆ b) ⊓ (b ⊆ a) ]
-extInverse a b a≡b = subst (λ b → [ (a ⊆ b) ⊓ (b ⊆ a) ]) a≡b (⊆-refl a , ⊆-refl a)
+extInverse : ⟨ ∀[ a ∶ V ℓ ] ∀[ b ] (a ≡ₕ b) ⇒ (a ⊆ b) ⊓ (b ⊆ a) ⟩
+extInverse a b a≡b = subst (λ b → ⟨ (a ⊆ b) ⊓ (b ⊆ a) ⟩) a≡b (⊆-refl a , ⊆-refl a)
 
 set≡-characterization : {a b : V ℓ} → (a ≡ₕ b) ≡ (a ⊆ b) ⊓ (b ⊆ a)
 set≡-characterization = ⇔toPath (extInverse _ _) (extensionality _ _)

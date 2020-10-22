@@ -42,7 +42,7 @@ isProp∣' {suc m} {n} (c₁ , p₁) (c₂ , p₂) =
 
 ∣≃∣' : (m ∣ n) ≃ (m ∣' n)
 ∣≃∣' {zero} = propBiimpl→Equiv isProp∣ isProp∣'
-                              (PropTrunc.rec (isSetℕ _ _) λ { (c , p) → 0≡m*0 c ∙ p })
+                              (PropTrunc.rec (isSetℕ _ _) λ { (c , p) → 0≡m·0 c ∙ p })
                               (λ p → ∣ zero , p ∣)
 ∣≃∣' {suc m} = propTruncIdempotent≃ isProp∣'
 
