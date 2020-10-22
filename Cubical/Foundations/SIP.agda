@@ -122,3 +122,8 @@ module _ {S : Type ℓ₁ → Type ℓ₂} {ι : StrEquiv S ℓ₃}
 
   sip⁻ : A ≡ B → A ≃[ ι ] B
   sip⁻ = invEq SIP
+
+≃[]-swap : {S : Type ℓ₁ → Type ℓ₂} {ι : StrEquiv S ℓ₂}
+         → (θ : UnivalentStr S ι) → (A B : TypeWithStr ℓ₁ S)
+         → A ≃[ ι ] B → B ≃[ ι ] A
+≃[]-swap θ A B A≃[ι]B = sip⁻ θ B A (sym (sip θ A B A≃[ι]B))
