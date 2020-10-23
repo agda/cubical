@@ -318,7 +318,7 @@ module FibrationIdentityPrinciple {B : Type ℓ} {ℓ₁} where
   -- note that fibrationEquiv (for good reason) uses ℓ₁ = ℓ-max ℓ ℓ₁, so we have to work
   -- some universe magic to achieve good universe polymorphism
 
-  -- First, prove it for the case that's deal with in fibrationEquiv
+  -- First, prove it for the case that's dealt with in fibrationEquiv
   Fibration′ = Fibration B (ℓ-max ℓ ℓ₁)
 
   module Lifted (f g : Fibration′) where
