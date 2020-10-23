@@ -49,22 +49,22 @@ record TypeWithUARel (A : Type ℓ) (ℓ' : Level) : Type (ℓ-max ℓ (ℓ-suc 
 
 open TypeWithUARel
 
-StrEquivD : {A : Type ℓ} (R : TypeWithUARel A ℓ₁) (S : A → Type ℓ₂) (ℓ₃ : Level)
+StrEquivD : {X : Type ℓ} (R : TypeWithUARel X ℓ₁) (S : X → Type ℓ₂) (ℓ₃ : Level)
           → Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ₁) ℓ₂) (ℓ-suc ℓ₃))
-StrEquivD {A = A} R S ℓ₃ = {a a' : A} → S a → S a' → _≅_ R a a' → Type ℓ₃
+StrEquivD {X = X} R S ℓ₃ = (A : Σ[ a ∈ X ] S a) (B : Σ[ b ∈ X ] S b) → _≅_ R (fst A) (fst B) → Type ℓ₃
 
 UnivalentStrD : {X : Type ℓ} (R : TypeWithUARel X ℓ₁) (S : X → Type ℓ₂) (ι : StrEquivD R S ℓ₃)
               → Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ₁) ℓ₂) ℓ₃)
 UnivalentStrD {X = X} R S ι =
   {A : Σ[ a ∈ X ] S a} {B : Σ[ b ∈ X ] S b} →
   (e : _≅_ R (fst A) (fst B)) →
-  ι (snd A) (snd B) e ≃ PathP (λ i → S (uaR R e i)) (snd A) (snd B)
+  ι A B e ≃ PathP (λ i → S (uaR R e i)) (snd A) (snd B)
 
 TypeWithUARelType : TypeWithUARel (Type ℓ) ℓ
 TypeWithUARelType = typewithuarel _≃_ ua
 
 UnivalentStr : (S : Type ℓ₁ → Type ℓ₂) (ι : StrEquiv S ℓ₃) → Type (ℓ-max (ℓ-max (ℓ-suc ℓ₁) ℓ₂) ℓ₃)
-UnivalentStr {ℓ₁ = ℓ₁} S ι = UnivalentStrD TypeWithUARelType S (λ x y → ι (_ , x) (_ , y))
+UnivalentStr {ℓ₁ = ℓ₁} S ι = UnivalentStrD TypeWithUARelType S ι
 
 -- A quick sanity-check that our definition is interchangeable with
 -- Escardó's. The direction SNS→UnivalentStr corresponds more or less
