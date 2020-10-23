@@ -101,8 +101,8 @@ private
       }
 
 isEmbedding→hasPropFibers : isEmbedding f → hasPropFibers f
-isEmbedding→hasPropFibers iE y xp
-  = subst (λ f → isProp f) (lemma₀ (snd xp)) (isContr→isProp (lemma₁ iE (fst xp))) xp
+isEmbedding→hasPropFibers iE y (x , p)
+  = subst (λ f → isProp f) (lemma₀ p) (isContr→isProp (lemma₁ iE x)) (x , p)
 
 private
   fibCong→PathP
@@ -136,10 +136,12 @@ hasPropFibers→isEmbedding {f = f} iP w x .equiv-proof p
   fx : fiber f (f x)
   fx = (x , refl)
 
+hasPropFibersOfImage→hasPropFibers : hasPropFibersOfImage f → hasPropFibers f
+hasPropFibersOfImage→hasPropFibers {f = f} fibImg y a b =
+  subst (λ y → isProp (fiber f y)) (snd a) (fibImg (fst a)) a b
+
 hasPropFibersOfImage→isEmbedding : hasPropFibersOfImage f → isEmbedding f
-hasPropFibersOfImage→isEmbedding {f = f} iP = hasPropFibers→isEmbedding pf where
-  pf : hasPropFibers f
-  pf y a b = subst (λ y → isProp (fiber f y)) (snd a) (iP (fst a)) a b
+hasPropFibersOfImage→isEmbedding = hasPropFibers→isEmbedding ∘ hasPropFibersOfImage→hasPropFibers
 
 isEmbedding≡hasPropFibers : isEmbedding f ≡ hasPropFibers f
 isEmbedding≡hasPropFibers
@@ -154,6 +156,9 @@ isEquiv→hasPropFibers e b = isContr→isProp (equiv-proof e b)
 
 isEquiv→isEmbedding : isEquiv f → isEmbedding f
 isEquiv→isEmbedding e = λ _ _ → congEquiv (_ , e) .snd
+
+Equiv→Embedding : A ≃ B → A ↪ B
+Equiv→Embedding (f , isEquivF) = (f , isEquiv→isEmbedding isEquivF)
 
 iso→isEmbedding : ∀ {ℓ} {A B : Type ℓ}
   → (isom : Iso A B)
@@ -237,14 +242,8 @@ Subset→Embedding→Subset : {X : Type ℓ} → section (Embedding→Subset {�
 Subset→Embedding→Subset _ = funExt λ x → Σ≡Prop (λ _ → isPropIsProp) (ua (FiberIso.fiberEquiv _ x))
 
 Embedding→Subset→Embedding : {X : Type ℓ} → retract (Embedding→Subset {ℓ} {X}) (Subset→Embedding {ℓ} {X})
-Embedding→Subset→Embedding {ℓ = ℓ} {X = X} (A , f , ψ) = cong (equivFun Σ-assoc-≃) p
- where
-  𝒜 = Subset→Embedding (Embedding→Subset (A , f , ψ)) .fst
-  𝒻 = Subset→Embedding (Embedding→Subset (A , f , ψ)) .snd .fst
-  χ = Subset→Embedding (Embedding→Subset (A , f , ψ)) .snd .snd
-
-  p : ((𝒜 , 𝒻) , χ) ≡ ((A , f) , ψ)
-  p = Σ≡Prop (λ _ → isEmbeddingIsProp) (secEq (fibrationEquiv X ℓ) (A , f))
+Embedding→Subset→Embedding {ℓ = ℓ} {X = X} (A , f , ψ) =
+  cong (equivFun Σ-assoc-≃) (Σ≡Prop (λ _ → isEmbeddingIsProp) (secEq (fibrationEquiv X ℓ) (A , f)))
 
 Subset≃Embedding : {X : Type ℓ} → ℙ X ≃ (Σ[ A ∈ Type ℓ ] (A ↪ X))
 Subset≃Embedding = isoToEquiv (iso Subset→Embedding Embedding→Subset
@@ -262,11 +261,11 @@ isEmbedding→embedsFibersIntoSingl {f = f} isE z = e , isEmbE where
 
   isEmbE : isEmbedding e
   isEmbE u v = goal where
-    -- we adjust ΣeqCf by trivial equivalences that hold judgementally, which saves compositions
+    -- "adjust" ΣeqCf by trivial equivalences that hold judgementally, which should save compositions
     Dom′ : ∀ u v → Type _
-    Dom′ u v = Σ[ p ∈ (fst u ≡ fst v) ] PathP (λ i → f (p i) ≡ z) (snd u) (snd v)
+    Dom′ u v = Σ[ p ∈    fst u  ≡    fst v  ] PathP (λ i → f (p i) ≡ z) (snd u) (snd v)
     Cod′ : ∀ u v → Type _
-    Cod′ u v = Σ[ p ∈ (f (fst u) ≡ f (fst v)) ] PathP (λ i → p i ≡ z) (snd u) (snd v)
+    Cod′ u v = Σ[ p ∈ f (fst u) ≡ f (fst v) ] PathP (λ i →    p i  ≡ z) (snd u) (snd v)
     ΣeqCf : Dom′ u v ≃ Cod′ u v
     ΣeqCf = Σ-cong-equiv-fst (_ , isE _ _)
 
@@ -280,7 +279,7 @@ isEmbedding→embedsFibersIntoSingl {f = f} isE z = e , isEmbE where
     cod← : Cod′ u v → e u ≡ e v
     cod← p i = p .fst i , sym (p .snd i)
 
-    goal : isEquiv _
+    goal : isEquiv (cong e)
     goal .equiv-proof x .fst .fst =
       dom← (equivCtr ΣeqCf (cod→ x) .fst)
     goal .equiv-proof x .fst .snd j =
@@ -292,13 +291,7 @@ isEmbedding→embedsFibersIntoSingl {f = f} isE z = e , isEmbE where
 
 isEmbedding→hasPropFibers′ : isEmbedding f → hasPropFibers f
 isEmbedding→hasPropFibers′ {f = f} iE z =
-  Embedding-into-isProp→isProp (isEmbedding→embedsFibersIntoSingl iE z) (isContr→isProp (isContrSingl _))
-
-embedIsProp : {f : A → B}
-            → isEmbedding f
-            → isProp B
-            → isProp A
-embedIsProp isEmb isPropB a b = equivFun (invEquiv (_ , isEmb a b)) (isPropB _ _)
+  Embedding-into-isProp→isProp (isEmbedding→embedsFibersIntoSingl iE z) isPropSingl
 
 universeEmbedding :
   ∀ {ℓ ℓ₁ : Level}
@@ -315,7 +308,7 @@ universeEmbedding F liftingEquiv = hasPropFibersOfImage→isEmbedding propFibers
   fiberSingl : ∀ X → fiber F (F X) ≃ singl X
   fiberSingl X = Σ-cong-equiv-snd (λ _ → lemma _ _)
   propFibersF : hasPropFibersOfImage F
-  propFibersF X = embedIsProp (isEquiv→isEmbedding (fiberSingl X .snd)) (isContr→isProp (isContrSingl X))
+  propFibersF X = Embedding-into-isProp→isProp (Equiv→Embedding (fiberSingl X)) isPropSingl
 
 liftEmbedding : (ℓ ℓ₁ : Level)
               → isEmbedding (Lift {i = ℓ} {j = ℓ₁})
@@ -352,7 +345,7 @@ module FibrationIdentityPrinciple {B : Type ℓ} {ℓ₁} where
 
   hasPropFibersLiftFibration : hasPropFibers liftFibration
   hasPropFibersLiftFibration (A , f) =
-    embedIsProp (isEquiv→isEmbedding (snd fiberChar))
+    Embedding-into-isProp→isProp (Equiv→Embedding fiberChar)
       (isPropΣ (isEmbedding→hasPropFibers (liftEmbedding _ _) A)
                λ _ → isEquiv→hasPropFibers (snd (invEquiv (preCompEquiv LiftEquiv))) _)
     where
