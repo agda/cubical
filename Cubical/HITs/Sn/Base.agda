@@ -19,8 +19,11 @@ S₊ 0 = Bool
 S₊ 1 = S¹
 S₊ (suc (suc n)) = Susp (S₊ (suc n))
 
+ptSn : (n : ℕ) → S₊ n
+ptSn zero = true
+ptSn (suc zero) = base
+ptSn (suc (suc n)) = north
+
 -- Pointed version
 S₊∙ : (n : ℕ) → Pointed₀
-S₊∙ 0 = (S₊ zero) , true
-S₊∙ 1 = S¹ , base
-S₊∙ (suc (suc n)) = (S₊ (suc (suc n))) , north
+S₊∙ n = (S₊ n) , ptSn n

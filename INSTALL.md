@@ -221,7 +221,16 @@ or
 > source ~/.bash_profile
 ```
 
-or restart the terminal. You should now be able to run:
+or restart the terminal.
+
+You can also run
+
+```
+> stack install
+```
+
+which will copy `agda` and `agda-mode` to your `~/.local/bin` folder.
+Once these executables are in your PATH you should be able to run:
 
 ```
 > agda --version

@@ -205,8 +205,8 @@ open JoinProp using (join-assoc) public
 -- 5.  The Hopf Fibration
 --------------------------------------------------------------------------------
 
--- rot in the paper is substituted by a rot and rotLoop in S1
-open S1 using (rot ; rotLoop) public
+-- rot (denoted by _·_ here) in the paper is substituted by a rot and rotLoop in S1
+open S1 using (_·_ ; rotLoop) public
 open Hopf renaming ( HopfSuspS¹ to Hopf
                    ; JoinS¹S¹→TotalHopf to j2h
                    ; TotalHopf→JoinS¹S¹ to h2j)

@@ -1,12 +1,17 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 
-open import Cubical.Core.Everything
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
 
 module Cubical.Data.DescendingList.Strict.Properties
  (A : Type₀)
  (_>_ : A → A → Type₀)
  where
+
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.DescendingList.Strict A _>_
 open import Cubical.HITs.ListedFiniteSet as LFSet renaming (_∈_ to _∈ʰ_)
@@ -38,8 +43,8 @@ module IsoToLFSet
   Tri' : A → A → Type
   Tri' x y = Tri (y > x) (x ≡ y) (x > y)
 
-  open import Cubical.Foundations.Logic
   open import Cubical.HITs.PropositionalTruncation as PropTrunc
+  open import Cubical.Functions.Logic
 
   -- Membership is defined via `LFSet`.
   -- This computes just as well as a direct inductive definition,
@@ -58,17 +63,17 @@ module IsoToLFSet
   >ᴴ-trans x y [] x>y y>zs = >ᴴ[]
   >ᴴ-trans x y (cons z zs _) x>y (>ᴴcons y>z) = >ᴴcons (>-trans x>y y>z)
 
-  ≡ₚ-sym : ∀ {A : Type} {x y : A} → [ x ≡ₚ y ] → [ y ≡ₚ x ]
+  ≡ₚ-sym : ∀ {A : Type} {x y : A} → ⟨ x ≡ₚ y ⟩ → ⟨ y ≡ₚ x ⟩
   ≡ₚ-sym p = PropTrunc.rec squash (λ p → ∣ sym p ∣) p
 
-  >-all : ∀ x l → x >ᴴ l → ∀ a → [ a ∈ˡ l ] → x > a
+  >-all : ∀ x l → x >ᴴ l → ∀ a → ⟨ a ∈ˡ l ⟩ → x > a
   >-all x (cons y zs y>zs) (>ᴴcons x>y) a a∈l =
      ⊔-elim (a ≡ₚ y) (a ∈ˡ zs) (λ _ → (x > a) , >-isProp {x} {a})
        (λ a≡ₚy → substₚ (λ q → x > q , >-isProp) (≡ₚ-sym a≡ₚy) x>y)
        (λ a∈zs → >-all x zs (>ᴴ-trans x y zs x>y y>zs) a a∈zs)
        a∈l
 
-  >-absent : ∀ x l → x >ᴴ l → [ ¬ (x ∈ˡ l) ]
+  >-absent : ∀ x l → x >ᴴ l → ⟨ ¬ (x ∈ˡ l) ⟩
   >-absent x l x>l x∈l = ⊥.rec (>-irreflexive (>-all x l x>l x x∈l))
 
   >ᴴ-isProp : ∀ x xs → isProp (x >ᴴ xs)
@@ -119,12 +124,12 @@ module IsoToLFSet
      import Cubical.Data.Sigma as D
      import Cubical.Data.Sum   as D
 
-     from : ∀ a → [ a ∈ˡ xs ] → [ ¬ a ≡ₚ x ⊓ (a ≡ₚ x ⊔ a ∈ˡ xs) ]
+     from : ∀ a → ⟨ a ∈ˡ xs ⟩ → ⟨ ¬ a ≡ₚ x ⊓ (a ≡ₚ x ⊔ a ∈ˡ xs) ⟩
      from a a∈xs = (PropTrunc.rec (snd ⊥) a≢x) D., inr a∈xs where
        a≢x : Type¬ (a ≡ x)
-       a≢x = λ a≡x → (>-absent x xs x>xs (transport (λ i → [ a≡x i ∈ˡ xs ]) a∈xs ))
+       a≢x = λ a≡x → (>-absent x xs x>xs (transport (λ i → ⟨ a≡x i ∈ˡ xs ⟩) a∈xs ))
 
-     to : ∀ a → [ ¬ a ≡ₚ x ⊓ (a ≡ₚ x ⊔ a ∈ˡ xs) ] → [ a ∈ˡ xs ]
+     to : ∀ a → ⟨ ¬ a ≡ₚ x ⊓ (a ≡ₚ x ⊔ a ∈ˡ xs) ⟩ → ⟨ a ∈ˡ xs ⟩
      to a (a≢x D., x) = PropTrunc.rec (snd (a ∈ˡ xs)) (λ {
        (D.inl a≡x) → ⊥.rec (a≢x a≡x);
        (D.inr x) → x }) x
@@ -148,24 +153,24 @@ module IsoToLFSet
 
   Memˡ-inj : ∀ l₁ l₂ → Memˡ l₁ ≡ Memˡ l₂ → l₁ ≡ l₂
   Memˡ-inj [] [] eq = refl
-  Memˡ-inj [] (cons y ys y>ys) eq = ⊥.rec (transport (λ i → [ eq (~ i) y ]) (inl ∣ refl ∣))
-  Memˡ-inj (cons y ys y>ys) [] eq = ⊥.rec (transport (λ i → [ eq i y ]) (inl ∣ refl ∣))
+  Memˡ-inj [] (cons y ys y>ys) eq = ⊥.rec (transport (λ i → ⟨ eq (~ i) y ⟩) (inl ∣ refl ∣))
+  Memˡ-inj (cons y ys y>ys) [] eq = ⊥.rec (transport (λ i → ⟨ eq i y ⟩) (inl ∣ refl ∣))
   Memˡ-inj (cons x xs x>xs) (cons y ys y>ys) e =
      ⊔-elim (x ≡ₚ y) (x ∈ʰ unsort ys)
        (λ _ → ((cons x xs x>xs) ≡ (cons y ys y>ys)) , SDL-isSet _ _)
        (PropTrunc.rec (SDL-isSet _ _) with-x≡y)
        (⊥.rec ∘ x∉ys)
-       (transport (λ i → [ e i x ]) (inl ∣ refl ∣)) where
+       (transport (λ i → ⟨ e i x ⟩) (inl ∣ refl ∣)) where
 
     xxs = cons x xs x>xs
 
-    x∉ys : [ ¬ x ∈ˡ ys ]
+    x∉ys : ⟨ ¬ x ∈ˡ ys ⟩
     x∉ys x∈ys = ⊥.rec (>-irreflexive y>y) where
         y>x : y > x
         y>x = (>-all y ys y>ys x x∈ys)
 
-        y∈xxs : [ y ∈ˡ (cons x xs x>xs) ]
-        y∈xxs = (transport (λ i → [ e (~ i) y ]) (inl ∣ refl ∣))
+        y∈xxs : ⟨ y ∈ˡ (cons x xs x>xs) ⟩
+        y∈xxs = (transport (λ i → ⟨ e (~ i) y ⟩) (inl ∣ refl ∣))
 
         y>y : y > y
         y>y = >-all y xxs (>ᴴcons y>x) y y∈xxs

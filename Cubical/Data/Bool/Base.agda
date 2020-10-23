@@ -7,6 +7,7 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Empty
 open import Cubical.Data.Sum.Base
+open import Cubical.Data.Unit.Base
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
@@ -57,6 +58,23 @@ true  ≟ true  = yes refl
 Dec→Bool : Dec A → Bool
 Dec→Bool (yes p) = true
 Dec→Bool (no ¬p) = false
+
+-- Helpers for automatic proof
+Bool→Type : Bool → Type₀
+Bool→Type true = Unit
+Bool→Type false = ⊥
+
+True : Dec A → Type₀
+True Q = Bool→Type (Dec→Bool Q)
+
+False : Dec A → Type₀
+False Q = Bool→Type (not (Dec→Bool Q))
+
+toWitness : {Q : Dec A} → True Q → A
+toWitness {Q = yes p} _ = p
+
+toWitnessFalse : {Q : Dec A} → False Q → ¬ A
+toWitnessFalse {Q = no ¬p} _ = ¬p
 
 dichotomyBool : (x : Bool) → (x ≡ true) ⊎ (x ≡ false)
 dichotomyBool true  = inl refl

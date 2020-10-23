@@ -130,7 +130,7 @@ lehmerSucEquiv = isoToEquiv (iso (λ (e , c) → e ∷ c)
 lehmerEquiv : (Fin n ≃ Fin n) ≃ LehmerCode n
 lehmerEquiv {zero} = isContr→Equiv contrFF isContrLehmerZero where
   contrFF : isContr (Fin zero ≃ Fin zero)
-  contrFF = idEquiv _ , λ y → equivEq _ _ (funExt λ f → ⊥.rec (¬Fin0 f))
+  contrFF = idEquiv _ , λ y → equivEq (funExt λ f → ⊥.rec (¬Fin0 f))
 
 lehmerEquiv {suc n} =
   (Fin (suc n) ≃ Fin (suc n))                            ≃⟨ isoToEquiv i ⟩
@@ -172,9 +172,9 @@ lehmerEquiv {suc n} =
             (Σ[ k ∈ Fin (suc n) ] (FinExcept (fzero {k = n}) ≃ FinExcept k))
     Iso.fun i f = equivFun f fzero , equivIn f
     Iso.inv i (k , f) = equivOut f
-    Iso.rightInv i (k , f) = ΣPathP (refl , equivEq _ _ (funExt λ x →
+    Iso.rightInv i (k , f) = ΣPathP (refl , equivEq (funExt λ x →
        toℕExc-injective (cong toℕ (equivOutChar {f = f} x))))
-    Iso.leftInv i f = equivEq _ _ (funExt goal) where
+    Iso.leftInv i f = equivEq (funExt goal) where
       goal : ∀ x → equivFun (equivOut (equivIn f)) x ≡ equivFun f x
       goal x = case fsplit x return (λ _ → equivFun (equivOut (equivIn f)) x ≡ equivFun f x) of λ
         { (inl xz) → subst (λ x → equivFun (equivOut (equivIn f)) x ≡ equivFun f x) xz refl
@@ -194,7 +194,7 @@ decode = invEq lehmerEquiv
 
 factorial : ℕ → ℕ
 factorial zero = 1
-factorial (suc n) = suc n * factorial n
+factorial (suc n) = suc n · factorial n
 
 lehmerFinEquiv : LehmerCode n ≃ Fin (factorial n)
 lehmerFinEquiv {zero} = isContr→Equiv isContrLehmerZero isContrFin1

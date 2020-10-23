@@ -149,17 +149,17 @@ leftInv Σ-Π-Iso _     = refl
 fun (Σ-cong-iso-fst isom) x = fun isom (x .fst) , x .snd
 inv (Σ-cong-iso-fst {B = B} isom) x = inv isom (x .fst) , subst B (sym (ε (x .fst))) (x .snd)
   where
-  ε = isHAEquiv.ret (snd (iso→HAEquiv isom))
+  ε = isHAEquiv.rinv (snd (iso→HAEquiv isom))
 rightInv (Σ-cong-iso-fst {B = B} isom) (x , y) = ΣPathP (ε x , toPathP goal)
   where
-  ε = isHAEquiv.ret (snd (iso→HAEquiv isom))
+  ε = isHAEquiv.rinv (snd (iso→HAEquiv isom))
   goal : subst B (ε x) (subst B (sym (ε x)) y) ≡ y
   goal = sym (substComposite B (sym (ε x)) (ε x) y)
       ∙∙ cong (λ x → subst B x y) (lCancel (ε x))
       ∙∙ substRefl {B = B} y
 leftInv (Σ-cong-iso-fst {A = A} {B = B} isom) (x , y) = ΣPathP (leftInv isom x , toPathP goal)
   where
-  ε = isHAEquiv.ret (snd (iso→HAEquiv isom))
+  ε = isHAEquiv.rinv (snd (iso→HAEquiv isom))
   γ = isHAEquiv.com (snd (iso→HAEquiv isom))
 
   lem : (x : A) → sym (ε (fun isom x)) ∙ cong (fun isom) (leftInv isom x) ≡ refl

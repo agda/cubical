@@ -26,11 +26,11 @@ _+_ : ℕ+∞ → ℕ+∞ → ℕ+∞
 fin n + ∞     = ∞
 fin n + fin m = fin (n ℕ.+ m)
 
-infixl 7 _*_
-_*_ : ℕ+∞ → ℕ+∞ → ℕ+∞
-fin m         * fin n         = fin (m ℕ.* n)
-∞             * fin ℕ.zero    = zero
-fin ℕ.zero    * ∞             = zero
-∞             * ∞             = ∞
-∞             * fin (ℕ.suc _) = ∞
-fin (ℕ.suc _) * ∞             = ∞
+infixl 7 _·_
+_·_ : ℕ+∞ → ℕ+∞ → ℕ+∞
+fin m         · fin n         = fin (m ℕ.· n)
+∞             · fin ℕ.zero    = zero
+fin ℕ.zero    · ∞             = zero
+∞             · ∞             = ∞
+∞             · fin (ℕ.suc _) = ∞
+fin (ℕ.suc _) · ∞             = ∞

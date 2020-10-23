@@ -196,7 +196,7 @@ pathToEquiv : {A B : Type ℓ} → A ≡ B → A ≃ B
 pathToEquiv p = lineToEquiv (λ i → p i)
 
 pathToEquivRefl : {A : Type ℓ} → pathToEquiv refl ≡ idEquiv A
-pathToEquivRefl {A = A} = equivEq _ _ (λ i x → transp (λ _ → A) i x)
+pathToEquivRefl {A = A} = equivEq (λ i x → transp (λ _ → A) i x)
 
 pathToEquiv-ua : {A B : Type ℓ} (e : A ≃ B) → pathToEquiv (ua e) ≡ e
 pathToEquiv-ua = Univalence.au-ua pathToEquiv pathToEquivRefl
