@@ -4,6 +4,10 @@ CONTRIBUTING
 We very much appreciate contributions in the form of pull requests (PRs).
 When preparing a PR here are some general guidelines:
 
+- To test your changes before submission, run `make` at the top level,
+  which will generate all required `Everything` files in
+  `Cubical/README.agda` and then typecheck the latter file.
+
 - Please read through and clean your code before making a PR. Clean
   code has reasonable line length (<100 characters), good indentation,
   appropriate amounts of comments and consistent naming.

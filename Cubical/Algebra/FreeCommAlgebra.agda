@@ -30,12 +30,13 @@ module Cubical.Algebra.FreeCommAlgebra where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function hiding (const)
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring        using ()
-open import Cubical.Algebra.CommAlgebra renaming (⟨_⟩ to ⟨_⟩a)
-open import Cubical.Algebra.Algebra     hiding (⟨_⟩)
+open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.Algebra     hiding (⟨_⟩a)
 open import Cubical.HITs.SetTruncation
 
 private
@@ -43,7 +44,7 @@ private
     ℓ ℓ′ : Level
 
 module Construction (R : CommRing {ℓ}) where
-  open CommRing R using (1r; 0r) renaming (_+_ to _+r_; _·_ to _·r_)
+  open CommRingStr (snd R) using (1r; 0r) renaming (_+_ to _+r_; _·_ to _·r_)
 
   data R[_] (I : Type ℓ′) : Type (ℓ-max ℓ ℓ′) where
     var : I → R[ I ]
@@ -114,7 +115,9 @@ R [ I ] = let open Construction R
 
 
 module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
-  open CommRing R using (0r; 1r) renaming (_·_ to _·r_; _+_ to _+r_; ·-comm to ·r-comm; ·-rid to ·r-rid)
+  open CommRingStr (snd R)
+         using (0r; 1r)
+         renaming (_·_ to _·r_; _+_ to _+r_; ·-comm to ·r-comm; ·-rid to ·r-rid)
 
   module _ (A : CommAlgebra R) (φ : I → ⟨ A ⟩a) where
     open CommAlgebra A

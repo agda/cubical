@@ -17,21 +17,18 @@ open import Cubical.Data.Empty
 open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2 ; setTruncIsSet to §)
-open import Cubical.HITs.Nullification
+open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; setTruncIsSet to §)
 open import Cubical.Data.Int renaming (_+_ to _ℤ+_)
 open import Cubical.Data.Nat
-open import Cubical.HITs.Truncation.FromNegOne renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
+open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
--- open import Cubical.HITs.SmashProduct.Base
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Data.NatMinusOne
-
 
 open import Cubical.HITs.Pushout
 open import Cubical.Data.Sum.Base
@@ -107,9 +104,7 @@ Kn≃ΩKn+1 {n = n} = isoToEquiv (Iso-Kn-ΩKn+1 n)
 ---------- Algebra/Group stuff --------
 
 0ₖ : (n : ℕ) → coHomK n
-0ₖ zero = pt (coHomK-ptd 0)
-0ₖ (suc zero) = pt (coHomK-ptd 1)
-0ₖ (suc (suc n)) = pt (coHomK-ptd (2 + n))
+0ₖ = coHom-pt
 
 _+ₖ_ : {n : ℕ} → coHomK n → coHomK n → coHomK n
 _+ₖ_ {n = n} x y  = ΩKn+1→Kn n (Kn→ΩKn+1 n x ∙ Kn→ΩKn+1 n y)
@@ -119,7 +114,7 @@ _+ₖ_ {n = n} x y  = ΩKn+1→Kn n (Kn→ΩKn+1 n x ∙ Kn→ΩKn+1 n y)
 
 -- subtraction as a binary operator
 _-ₖ_ : {n : ℕ} → coHomK n → coHomK n → coHomK n
-_-ₖ_  {n = n} x y  = ΩKn+1→Kn n (Kn→ΩKn+1 n x ∙ sym (Kn→ΩKn+1 n y))
+_-ₖ_ {n = n} x y = ΩKn+1→Kn n (Kn→ΩKn+1 n x ∙ sym (Kn→ΩKn+1 n y))
 
 +ₖ-syntax : (n : ℕ) → coHomK n → coHomK n → coHomK n
 +ₖ-syntax n = _+ₖ_ {n = n}
@@ -240,17 +235,17 @@ abstract
 
 commₖ : (n : ℕ) (x y : coHomK n) → (x +[ n ]ₖ y) ≡ (y +[ n ]ₖ x)
 commₖ 0 x y i = ΩKn+1→Kn 0 (isCommΩK1 0 (Kn→ΩKn+1 0 x) (Kn→ΩKn+1 0 y) i)
-commₖ 1 x y i = ΩKn+1→Kn 1 (ptdIso→comm {A = ((∣ north ∣ ≡ ∣ north ∣) , snd ((Ω^ 1) (HubAndSpoke (S₊ 3) 3 , ∣ north ∣)))}
+commₖ 1 x y i = ΩKn+1→Kn 1 (ptdIso→comm {A = ((∣ north ∣ ≡ ∣ north ∣) , snd ((Ω^ 1) (coHomK 3 , ∣ north ∣)))}
                                         {B = coHomK 2}
                                         (invIso (Iso-Kn-ΩKn+1 2)) (Eckmann-Hilton 0) (Kn→ΩKn+1 1 x) (Kn→ΩKn+1 1 y) i)
-commₖ 2 x y i = ΩKn+1→Kn 2 (ptdIso→comm {A = (∣ north ∣ ≡ ∣ north ∣) , snd ((Ω^ 1) (HubAndSpoke (S₊ 4) 4 , ∣ north ∣))}
+commₖ 2 x y i = ΩKn+1→Kn 2 (ptdIso→comm {A = (∣ north ∣ ≡ ∣ north ∣) , snd ((Ω^ 1) (coHomK 4 , ∣ north ∣))}
                                         {B = coHomK 3}
                                         (invIso (Iso-Kn-ΩKn+1 3)) (Eckmann-Hilton 0) (Kn→ΩKn+1 2 x) (Kn→ΩKn+1 2 y) i)
-commₖ 3 x y i = ΩKn+1→Kn 3 (ptdIso→comm {A = (∣ north ∣ ≡ ∣ north ∣) , snd ((Ω^ 1) (HubAndSpoke (S₊ 5) 5 , ∣ north ∣))}
+commₖ 3 x y i = ΩKn+1→Kn 3 (ptdIso→comm {A = (∣ north ∣ ≡ ∣ north ∣) , snd ((Ω^ 1) (coHomK 5 , ∣ north ∣))}
                                         {B = coHomK 4}
                                         (invIso (Iso-Kn-ΩKn+1 4)) (Eckmann-Hilton 0) (Kn→ΩKn+1 3 x) (Kn→ΩKn+1 3 y) i)
 commₖ (suc (suc (suc (suc n)))) x y i =
-  ΩKn+1→Kn (4 + n) (ptdIso→comm {A = (∣ north ∣ ≡ ∣ north ∣) , snd ((Ω^ 1) (HubAndSpoke (S₊ (6 + n)) (ℕ→ℕ₋₁ (6 + n)) , ∣ north ∣))}
+  ΩKn+1→Kn (4 + n) (ptdIso→comm {A = (∣ north ∣ ≡ ∣ north ∣) , snd ((Ω^ 1) (coHomK (6 + n) , ∣ north ∣))}
                                 {B = coHomK (5 + n)}
                                 (invIso (Iso-Kn-ΩKn+1 (5 + n))) (Eckmann-Hilton 0) (Kn→ΩKn+1 (4 + n) x) (Kn→ΩKn+1 (4 + n) y) i)
 
@@ -295,13 +290,13 @@ private
 ---- Group structure of cohomology groups ---
 
 _+ₕ_ : {n : ℕ} → coHom n A → coHom n A → coHom n A
-_+ₕ_ {n = n} = sElim2 (λ _ _ → §) λ a b → ∣ (λ x → a x +[ n ]ₖ b x) ∣₂
+_+ₕ_ {n = n} = sRec2 § λ a b → ∣ (λ x → a x +[ n ]ₖ b x) ∣₂
 
 -ₕ_  : {n : ℕ} → coHom n A → coHom n A
 -ₕ_  {n = n} = sRec § λ a → ∣ (λ x → -[ n ]ₖ a x) ∣₂
 
 _-ₕ_  : {n : ℕ} → coHom n A → coHom n A → coHom n A
-_-ₕ_  {n = n} = sElim2 (λ _ _ → §) λ a b → ∣ (λ x → a x -[ n ]ₖ b x) ∣₂
+_-ₕ_  {n = n} = sRec2 § λ a b → ∣ (λ x → a x -[ n ]ₖ b x) ∣₂
 
 +ₕ-syntax : (n : ℕ) → coHom n A → coHom n A → coHom n A
 +ₕ-syntax n = _+ₕ_ {n = n}
@@ -372,23 +367,27 @@ rUnitlUnit0 (suc (suc n)) = sym (rUnitlUnitGen (Iso-Kn-ΩKn+1 (2 + n)) (0ₖ (2 
 -- Group structure of reduced cohomology groups (in progress - might need K to compute properly first) ---
 
 +ₕ∙ : {A : Pointed ℓ} (n : ℕ) → coHomRed n A → coHomRed n A → coHomRed n A
-+ₕ∙ zero = sElim2 (λ _ _ → §) λ { (a , pa) (b , pb) → ∣ (λ x → a x +[ zero ]ₖ b x) , (λ i → (pa i +[ zero ]ₖ pb i)) ∣₂ }
-+ₕ∙ (suc zero) = sElim2 (λ _ _ → §) λ { (a , pa) (b , pb) → ∣ (λ x → a x +[ 1 ]ₖ b x) , (λ i → pa i +[ 1 ]ₖ pb i) ∙ lUnitₖ 1 (0ₖ 1) ∣₂ }
-+ₕ∙ (suc (suc n)) = sElim2 (λ _ _ → §) λ { (a , pa) (b , pb) → ∣ (λ x → a x +[ (2 + n) ]ₖ b x) , (λ i → pa i +[ (2 + n) ]ₖ pb i) ∙ lUnitₖ (2 + n) (0ₖ (2 + n)) ∣₂ }
++ₕ∙ zero = sRec2 § λ { (a , pa) (b , pb) → ∣ (λ x → a x +[ zero ]ₖ b x) , (λ i → (pa i +[ zero ]ₖ pb i)) ∣₂ }
++ₕ∙ (suc zero) = sRec2 § λ { (a , pa) (b , pb) → ∣ (λ x → a x +[ 1 ]ₖ b x) , (λ i → pa i +[ 1 ]ₖ pb i) ∙ lUnitₖ 1 (0ₖ 1) ∣₂ }
++ₕ∙ (suc (suc n)) = sRec2 § λ { (a , pa) (b , pb) → ∣ (λ x → a x +[ (2 + n) ]ₖ b x) , (λ i → pa i +[ (2 + n) ]ₖ pb i) ∙ lUnitₖ (2 + n) (0ₖ (2 + n)) ∣₂ }
 
 open IsSemigroup
 open IsMonoid
-open Group
+open GroupStr
 open GroupHom
-coHomGr : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group
-Carrier (coHomGr n A) = coHom n A
-0g (coHomGr n A) = 0ₕ n
-Group._+_ (coHomGr n A) x y = x +[ n ]ₕ y
-Group.- (coHomGr n A) = λ x → -[ n ]ₕ x
-is-set (isSemigroup (IsGroup.isMonoid (Group.isGroup (coHomGr n A)))) = §
-IsSemigroup.assoc (isSemigroup (IsGroup.isMonoid (Group.isGroup (coHomGr n A)))) x y z = sym (assocₕ n x y z)
-identity (IsGroup.isMonoid (Group.isGroup (coHomGr n A))) x = (rUnitₕ n x) , (lUnitₕ n x)
-IsGroup.inverse (Group.isGroup (coHomGr n A)) x = (rCancelₕ n x) , (lCancelₕ n x)
+
+coHomGr : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group {ℓ}
+coHomGr n A = coHom n A , coHomGrnA
+  where
+  coHomGrnA : GroupStr (coHom n A)
+  0g coHomGrnA = 0ₕ n
+  GroupStr._+_ coHomGrnA = λ x y → x +[ n ]ₕ y
+  - coHomGrnA = λ x → -[ n ]ₕ x
+  isGroup coHomGrnA = helper
+    where
+    abstract
+      helper : IsGroup (0ₕ n) (λ x y → x +[ n ]ₕ y) (λ x → -[ n ]ₕ x)
+      helper = makeIsGroup § (λ x y z → sym (assocₕ n x y z)) (rUnitₕ n) (lUnitₕ n) (rCancelₕ n) (lCancelₕ n)
 
 ×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group
 ×coHomGr n A B = dirProd (coHomGr n A) (coHomGr n B)
@@ -513,13 +512,13 @@ module lockedCohom (key : Unit') where
   -- cohom
 
   +H : (n : ℕ) (x y : coHom n A) → coHom n A
-  +H n = sElim2 (λ _ _ → §) λ a b → ∣ (λ x → +K n (a x) (b x)) ∣₂
+  +H n = sRec2 § λ a b → ∣ (λ x → +K n (a x) (b x)) ∣₂
 
   -H : (n : ℕ) (x : coHom n A) → coHom n A
-  -H n = sElim (λ _ → §) λ a → ∣ (λ x → -K n (a x)) ∣₂
+  -H n = sRec § λ a → ∣ (λ x → -K n (a x)) ∣₂
 
   -Hbin : (n : ℕ) → coHom n A → coHom n A → coHom n A
-  -Hbin n = sElim2 (λ _ _ → §) (λ a b → ∣ (λ x → -Kbin n (a x) (b x)) ∣₂)
+  -Hbin n = sRec2 § λ a b → ∣ (λ x → -Kbin n (a x) (b x)) ∣₂
 
   rUnitH : (n : ℕ) (x : coHom n A) → +H n x (0ₕ n) ≡ x
   rUnitH n = sElim (λ _ → isOfHLevelPath 1 (§ _ _))
@@ -552,6 +551,7 @@ module lockedCohom (key : Unit') where
   -cancelLH : (n : ℕ) (x y : coHom n A) → -Hbin n (+H n x y) x ≡ y
   -cancelLH n = sElim2 (λ _ _ → isOfHLevelPath 1 (§ _ _))
                         λ a b i → ∣ (λ x → -cancelLK n (a x) (b x) i) ∣₂
+
   -+cancelH : (n : ℕ) (x y : coHom n A) → +H n (-Hbin n x y) y ≡ x
   -+cancelH n = sElim2 (λ _ _ → isOfHLevelPath 1 (§ _ _))
                         λ a b i → ∣ (λ x → -+cancelK n (a x) (b x) i) ∣₂

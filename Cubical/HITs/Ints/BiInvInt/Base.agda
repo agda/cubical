@@ -59,7 +59,7 @@ suc-haequiv : HAEquiv BiInvInt BiInvInt
 suc-haequiv = biInvEquiv→HAEquiv suc-biinvequiv
 
 suc-predl : ∀ z -> suc (predl z) ≡ z
-suc-predl = isHAEquiv.ret (snd suc-haequiv)
+suc-predl = isHAEquiv.rinv (snd suc-haequiv)
 
 -- predr and predl (as well as suc-predr and suc-predl - up to a path) are indistinguishable,
 --  so we can safely define 'pred' to just be predl

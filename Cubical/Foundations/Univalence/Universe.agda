@@ -54,7 +54,7 @@ module UU-Lemmas where
 
   nu-un : ∀ x y (e : El x ≃ El y) → nu x y (un x y e) ≡ e
   nu-un x y e
-    = equivEq (nu x y (un x y e)) e λ i z
+    = equivEq {e = nu x y (un x y e)} {f = e} λ i z
         → (cong (λ p → transport p z) (comp e) ∙ uaβ e z) i
 
   El-un-equiv : ∀ x i → El (un x x (idEquiv _) i) ≃ El x
@@ -77,7 +77,7 @@ module UU-Lemmas where
         (un (un x x (idEquiv (El x)) (~ i)) x (El-un-equiv x (~ i)) j)
 
   nu-refl : ∀ x → nu x x refl ≡ idEquiv (El x)
-  nu-refl x = equivEq (nu x x refl) (idEquiv (El x)) reg
+  nu-refl x = equivEq {e = nu x x refl} {f = idEquiv (El x)} reg
 
   un-nu : ∀ x y (p : x ≡ y) → un x y (nu x y p) ≡ p
   un-nu x y p

@@ -4,6 +4,7 @@ module Cubical.Algebra.Matrix where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
@@ -12,15 +13,15 @@ open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat hiding (_+_ ; +-comm ; +-assoc)
+open import Cubical.Data.Nat hiding (_+_ ; _·_; +-comm ; +-assoc; ·-assoc)
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
 
-open import Cubical.Algebra.Group hiding (⟨_⟩)
-open import Cubical.Algebra.AbGroup hiding (⟨_⟩)
-open import Cubical.Algebra.Monoid hiding (⟨_⟩)
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
 
 open Iso
@@ -77,7 +78,8 @@ FinMatrix≡VecMatrix _ _ _ = ua FinMatrix≃VecMatrix
 -- Define abelian group structure on matrices
 module FinMatrixAbGroup (G' : AbGroup {ℓ}) where
 
-  open AbGroup G' renaming ( Carrier to G ; is-set to isSetG )
+  open AbGroupStr (snd G') renaming ( is-set to isSetG )
+  private G = ⟨ G' ⟩
 
   zeroFinMatrix : ∀ {m n} → FinMatrix G m n
   zeroFinMatrix _ _ = 0g
@@ -126,8 +128,8 @@ module FinMatrixAbGroup (G' : AbGroup {ℓ}) where
 -- it is equal to FinMatrixAbGroup using the SIP
 module _ (G' : AbGroup {ℓ}) where
 
-  open AbGroup G' renaming ( Carrier to G )
-
+  open AbGroupStr (snd G')
+  private G = ⟨ G' ⟩
   zeroVecMatrix : ∀ {m n} → VecMatrix G m n
   zeroVecMatrix = replicate (replicate 0g)
 
@@ -175,9 +177,11 @@ module _ (G' : AbGroup {ℓ}) where
 -- prove that square matrices form a ring
 module _ (R' : Ring {ℓ}) where
 
-  open Ring R' renaming ( Carrier to R ; is-set to isSetR )
+  open RingStr (snd R') renaming ( is-set to isSetR )
   open Theory R'
-  open FinMatrixAbGroup (abgroup R _ _ _ (R' .Ring.+-isAbGroup))
+  open FinMatrixAbGroup (_ , abgroupstr _ _ _ (snd R' .RingStr.+-isAbGroup))
+
+  private R = ⟨ R' ⟩
 
   oneFinMatrix : ∀ {n} → FinMatrix R n n
   oneFinMatrix i j = if i == j then 1r else 0r

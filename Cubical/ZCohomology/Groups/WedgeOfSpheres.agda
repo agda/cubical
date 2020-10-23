@@ -52,10 +52,9 @@ H²-S²⋁S¹⋁S¹ : GroupIso (coHomGr 2 S²⋁S¹⋁S¹) intGroup
 H²-S²⋁S¹⋁S¹ =
   compGroupIso
   (Hⁿ-⋁ _ _ 1)
-  (dirProdGroupIso (invGroupIso (Hⁿ-Sⁿ≅ℤ 1))
-                  ((Hⁿ-⋁ _ _ 1)
-                 □ dirProdGroupIso H²-S¹≅0 H²-S¹≅0
-                 □ rUnitGroupIso)
+  (dirProdGroupIso {B = trivialGroup}
+    (invGroupIso (Hⁿ-Sⁿ≅ℤ 1))
+    ((Hⁿ-⋁ _ _ 1)  □ dirProdGroupIso H²-S¹≅0 H²-S¹≅0 □ rUnitGroupIso)
   □ rUnitGroupIso)
 
 private

@@ -2,13 +2,13 @@
 module Cubical.Algebra.Group.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
-open import Cubical.Data.Prod renaming (_×_ to _×'_)
 open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_)
 open import Cubical.Data.Unit
 
-open import Cubical.Algebra.Monoid hiding (⟨_⟩)
-open import Cubical.Algebra.Semigroup hiding (⟨_⟩)
+open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.Semigroup
 open import Cubical.Foundations.HLevels
 
 private
@@ -18,7 +18,6 @@ private
 record IsGroup {G : Type ℓ}
                (0g : G) (_+_ : G → G → G) (-_ : G → G) : Type ℓ where
 
-  no-eta-equality
   constructor isgroup
 
   field
@@ -38,21 +37,14 @@ record IsGroup {G : Type ℓ}
   invr : (x : G) → x + (- x) ≡ 0g
   invr x = inverse x .fst
 
-η-isGroup : {G : Type ℓ} {0g 0g' : G} {_+_ _+'_  : G → G → G} { -_ -'_  : G → G}
-         → 0g ≡ 0g'
-         → _+_ ≡ _+'_
-         → -_ ≡ -'_
-         → IsGroup 0g _+_ -_ ≡ IsGroup 0g' _+'_ -'_
-η-isGroup id1 id2 id3 i = IsGroup (id1 i) (id2 i) (id3 i)
+record GroupStr (G : Type ℓ) : Type (ℓ-suc ℓ) where
 
-record Group : Type (ℓ-suc ℓ) where
-  no-eta-equality
-  constructor group
+  constructor groupstr
+
   field
-    Carrier : Type ℓ
-    0g      : Carrier
-    _+_     : Carrier → Carrier → Carrier
-    -_      : Carrier → Carrier
+    0g      : G
+    _+_     : G → G → G
+    -_      : G → G
     isGroup : IsGroup 0g _+_ -_
 
   infix  8 -_
@@ -60,15 +52,17 @@ record Group : Type (ℓ-suc ℓ) where
 
   open IsGroup isGroup public
 
+Group : Type (ℓ-suc ℓ)
+Group = TypeWithStr _ GroupStr
+
 Group₀ : Type₁
 Group₀ = Group {ℓ-zero}
 
--- Extractor for the carrier type
-⟨_⟩ : Group → Type ℓ
-⟨_⟩ = Group.Carrier
+group : (G : Type ℓ) (0g : G) (_+_ : G → G → G) (-_ : G → G) (h : IsGroup 0g _+_ -_) → Group
+group G 0g _+_ -_ h = G , groupstr 0g _+_ -_ h
 
 isSetGroup : (G : Group {ℓ}) → isSet ⟨ G ⟩
-isSetGroup G = Group.isGroup G .IsGroup.isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+isSetGroup G = GroupStr.isGroup (snd G) .IsGroup.isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
 makeIsGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
               (is-setG : isSet G)
@@ -89,11 +83,13 @@ makeGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
             (rinv : (x : G) → x + (- x) ≡ 0g)
             (linv : (x : G) → (- x) + x ≡ 0g)
           → Group
-Group.Carrier (makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv) = _
-Group.0g (makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv) = 0g
-Group._+_ (makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv) = _+_
-Group.- makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv = -_
-Group.isGroup (makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv) = makeIsGroup is-setG assoc rid lid rinv linv
+makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv = _ , helper
+  where
+  helper : GroupStr _
+  GroupStr.0g helper = 0g
+  GroupStr._+_ helper = _+_
+  GroupStr.- helper = -_
+  GroupStr.isGroup helper = makeIsGroup is-setG assoc rid lid rinv linv
 
 makeGroup-right : ∀ {ℓ} {A : Type ℓ}
   → (id : A)
@@ -104,7 +100,7 @@ makeGroup-right : ∀ {ℓ} {A : Type ℓ}
   → (rUnit : ∀ a → comp a id ≡ a)
   → (rCancel : ∀ a → comp a (inv a) ≡ id)
   → Group
-makeGroup-right {A = A} id comp inv set assoc rUnit rCancel =
+makeGroup-right id comp inv set assoc rUnit rCancel =
   makeGroup id comp inv set assoc rUnit lUnit rCancel lCancel
   where
     _⨀_ = comp
@@ -150,7 +146,7 @@ makeGroup-left : ∀ {ℓ} {A : Type ℓ}
   → (lUnit : ∀ a → comp id a ≡ a)
   → (lCancel : ∀ a → comp (inv a) a ≡ id)
   → Group
-makeGroup-left {A = A} id comp inv set assoc lUnit lCancel =
+makeGroup-left id comp inv set assoc lUnit lCancel =
   makeGroup id comp inv set assoc rUnit lUnit rCancel lCancel
   where
     abstract
@@ -186,59 +182,32 @@ makeGroup-left {A = A} id comp inv set assoc lUnit lCancel =
         a
           ∎
 
-open Group
-open IsGroup
-
-η-Group : {G H : Group {ℓ}}
-       → (p : ⟨ G ⟩ ≡ ⟨ H ⟩)
-       → (q : PathP (λ i → p i) (0g G) (0g H))
-       → (r : PathP (λ i → (p i) → (p i) → (p i)) (_+_ G) (_+_ H))
-       → (s : PathP (λ i → p i → p i) (-_ G) (-_ H))
-       → PathP (λ i → IsGroup (q i) (r i) (s i)) (isGroup G) (isGroup H)
-       → G ≡ H
-Carrier (η-Group p _ _ _ _ i) = p i
-0g (η-Group _ q _ _ _ i) = q i
-_+_ (η-Group _ _ r _ _ i) = r i
-- η-Group _ _ _ s t i = s i
-isGroup (η-Group _ _ _ _ t i) = t i
+open GroupStr hiding (0g ; _+_ ; -_)
 
 isSetCarrier : ∀ {ℓ} → (G : Group {ℓ}) → isSet ⟨ G ⟩
-isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (isMonoid G))
+isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (GroupStr.isMonoid (snd G)))
 
-open IsMonoid
-open IsSemigroup
+open GroupStr
+
 dirProd : ∀ {ℓ ℓ'} → Group {ℓ} → Group {ℓ'} → Group
-Carrier (dirProd A B) = Carrier A × Carrier B
-0g (dirProd A B) = (0g A) , (0g B)
-_+_ (dirProd A B) a b = (_+_ A (fst a) (fst b)) , _+_ B (snd a) (snd b)
--_ (dirProd A B) a = (-_ A (fst a)) , (-_ B (snd a))
-is-set (isSemigroup (isMonoid (isGroup (dirProd A B)))) =
-  isOfHLevelΣ 2 (isSetCarrier A) λ _ → isSetCarrier B
-assoc (isSemigroup (isMonoid (isGroup (dirProd A B)))) x y z i =
-  assoc (isGroup A) (fst x) (fst y) (fst z) i , assoc (isGroup B) (snd x) (snd y) (snd z) i
-identity (isMonoid (isGroup (dirProd A B))) x =
-   (λ i → IsGroup.rid (isGroup A) (fst x) i , IsGroup.rid (isGroup B) (snd x) i)
- , λ i → IsGroup.lid (isGroup A) (fst x) i , IsGroup.lid (isGroup B) (snd x) i
-inverse (isGroup (dirProd A B)) x =
-    (λ i → (fst (inverse (isGroup A) (fst x)) i) , (fst (inverse (isGroup B) (snd x)) i))
-  , λ i → (snd (inverse (isGroup A) (fst x)) i) , (snd (inverse (isGroup B) (snd x)) i)
+dirProd (GC , G) (HC , H) =
+  makeGroup (0g G , 0g H)
+            (λ { (x1 , x2) (y1 , y2) → _+_ G x1 y1 , _+_ H x2 y2 })
+            (λ { (x1 , x2) → -_ G x1 , -_ H x2 })
+            (isSet× (isSetCarrier (GC , G)) (isSetCarrier (HC , H)))
+            (λ { (x1 , x2) (y1 , y2) (z1 , z2) i →
+               assoc G x1 y1 z1 i , assoc H x2 y2 z2 i })
+            (λ { (x1 , x2) i → GroupStr.rid G x1 i , GroupStr.rid H x2 i })
+            (λ { (x1 , x2) i → GroupStr.lid G x1 i , GroupStr.lid H x2 i })
+            (λ { (x1 , x2) i → GroupStr.invr G x1 i , GroupStr.invr H x2 i })
+            (λ { (x1 , x2) i → GroupStr.invl G x1 i , GroupStr.invl H x2 i })
 
 trivialGroup : Group₀
-Carrier trivialGroup = Unit
-0g trivialGroup = _
-_+_ trivialGroup _ _ = _
--_ trivialGroup _ = _
-is-set (isSemigroup (isMonoid (isGroup trivialGroup))) = isSetUnit
-assoc (isSemigroup (isMonoid (isGroup trivialGroup))) _ _ _ = refl
-identity (isMonoid (isGroup trivialGroup)) _ = refl , refl
-inverse (isGroup trivialGroup) _ = refl , refl
+trivialGroup = Unit , groupstr tt (λ _ _ → tt) (λ _ → tt)
+                      (makeIsGroup isSetUnit (λ _ _ _ → refl) (λ _ → refl) (λ _ → refl)
+                                   (λ _ → refl) (λ _ → refl))
 
 intGroup : Group₀
-Carrier intGroup = Int
-0g intGroup = 0
-_+_ intGroup = _+Int_
-- intGroup = 0 -Int_
-is-set (isSemigroup (isMonoid (isGroup intGroup))) = isSetInt
-assoc (isSemigroup (isMonoid (isGroup intGroup))) = +-assoc
-identity (isMonoid (isGroup intGroup)) x = refl , (+-comm (pos 0) x)
-inverse (isGroup intGroup) x = +-comm x (pos 0 -Int x) ∙ minusPlus x 0 , (minusPlus x 0)
+intGroup = Int , groupstr 0 _+Int_ (0 -Int_)
+                 (makeIsGroup isSetInt +-assoc (λ x → refl) (λ x → +-comm 0 x)
+                              (λ x → +-comm x (pos 0 -Int x) ∙ minusPlus x 0) (λ x → minusPlus x 0))

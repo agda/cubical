@@ -31,7 +31,8 @@ open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim2 to pElim2 ; ∣_∣ to ∣_∣₁) hiding (map)
 open import Cubical.HITs.Nullification
-open import Cubical.HITs.Truncation.FromNegOne renaming (elim to trElim ; elim2 to trElim2 ; map to trMap ; rec to trRec)
+open import Cubical.HITs.Truncation renaming (elim to trElim ; elim2 to trElim2 ; map to trMap ; rec to trRec)
+
 
 open GroupHom
 open GroupIso
@@ -141,7 +142,7 @@ H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² unlock)
         Iso.leftInv helper _ = refl
         Iso.rightInv helper _ = refl
 
-      mapIsHom : (x y : Group.Carrier intGroup)
+      mapIsHom : (x y : Int)
               → Iso.fun typIso (x +ℤ y) ≡ ((Iso.fun typIso x) +H Iso.fun typIso y)
       mapIsHom a b =
           (cong f ((GroupHom.isHom (GroupIso.map (invGroupIso (dirProdGroupIso H²-S¹≅0 (invGroupIso (Hⁿ-Sⁿ≅ℤ 0)))))
@@ -194,7 +195,7 @@ H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² unlock)
       isHom (map ℤ≅H²-T²) = pm key mapIsHom
         where
         pm : (t : Unit')
-          → ((x y : Group.Carrier intGroup)
+          → ((x y : Int)
                 → Iso.fun typIso (x +ℤ y) ≡ (lockedCohom.+H t _ (Iso.fun typIso x) (Iso.fun typIso y)))
           → isGroupHom intGroup (coHomGr 2 (S₊ 1 × S₊ 1)) (Iso.fun typIso)
         pm unlock p = p

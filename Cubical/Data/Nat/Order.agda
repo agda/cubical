@@ -104,12 +104,12 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
  cancelled : l + m ≡ n
  cancelled = inj-+m (sym (+-assoc l m k) ∙ p)
 
-≤-*k : m ≤ n → m * k ≤ n * k
-≤-*k {m} {n} {k} (d , r) = d * k , reason where
-  reason : d * k + m * k ≡ n * k
-  reason = d * k + m * k ≡⟨ *-distribʳ d m k ⟩
-           (d + m) * k   ≡⟨ cong (_* k) r ⟩
-           n * k         ∎
+≤-·k : m ≤ n → m · k ≤ n · k
+≤-·k {m} {n} {k} (d , r) = d · k , reason where
+  reason : d · k + m · k ≡ n · k
+  reason = d · k + m · k ≡⟨ ·-distribʳ d m k ⟩
+           (d + m) · k   ≡⟨ cong (_· k) r ⟩
+           n · k         ∎
 
 <-k+-cancel : k + m < k + n → m < n
 <-k+-cancel {k} {m} {n} = ≤-k+-cancel ∘ subst (_≤ k + n) (sym (+-suc k m))
@@ -154,14 +154,14 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 <-k+ : m < n → k + m < k + n
 <-k+ {m} {n} {k} p = subst (λ km → km ≤ k + n) (+-suc k m) (≤-k+ p)
 
-<-*sk : m < n → m * suc k < n * suc k
-<-*sk {m} {n} {k} (d , r) = (d * suc k + k) , reason where
-  reason : (d * suc k + k) + suc (m * suc k) ≡ n * suc k
-  reason = (d * suc k + k) + suc (m * suc k) ≡⟨ sym (+-assoc (d * suc k) k _) ⟩
-           d * suc k + (k + suc (m * suc k)) ≡[ i ]⟨ d * suc k + +-suc k (m * suc k) i ⟩
-           d * suc k + suc m * suc k         ≡⟨ *-distribʳ d (suc m) (suc k) ⟩
-           (d + suc m) * suc k               ≡⟨ cong (_* suc k) r ⟩
-           n * suc k                         ∎
+<-·sk : m < n → m · suc k < n · suc k
+<-·sk {m} {n} {k} (d , r) = (d · suc k + k) , reason where
+  reason : (d · suc k + k) + suc (m · suc k) ≡ n · suc k
+  reason = (d · suc k + k) + suc (m · suc k) ≡⟨ sym (+-assoc (d · suc k) k _) ⟩
+           d · suc k + (k + suc (m · suc k)) ≡[ i ]⟨ d · suc k + +-suc k (m · suc k) i ⟩
+           d · suc k + suc m · suc k         ≡⟨ ·-distribʳ d (suc m) (suc k) ⟩
+           (d + suc m) · suc k               ≡⟨ cong (_· suc k) r ⟩
+           n · suc k                         ∎
 
 Trichotomy-suc : Trichotomy m n → Trichotomy (suc m) (suc n)
 Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)

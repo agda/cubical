@@ -5,9 +5,9 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Algebra.Semigroup    hiding (⟨_⟩)
-open import Cubical.Algebra.Monoid       hiding (⟨_⟩)
-open import Cubical.Algebra.AbGroup   hiding (⟨_⟩)
+open import Cubical.Algebra.Semigroup
+open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.AbGroup
 
 private
   variable

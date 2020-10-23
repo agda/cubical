@@ -9,6 +9,7 @@ module Cubical.HITs.S1.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
@@ -16,7 +17,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Nat
-  hiding (_+_ ; _*_ ; +-assoc ; +-comm)
+  hiding (_+_ ; _·_ ; +-assoc ; +-comm)
 open import Cubical.Data.Int
 
 data S¹ : Type₀ where
@@ -274,8 +275,29 @@ toPropElim2 : ∀ {ℓ} {B : S¹ → S¹ → Type ℓ}
              → ((s t : S¹) → isProp (B s t))
              → B base base
              → (s t : S¹) → B s t
-toPropElim2 isprop b = toPropElim (λ _ → isOfHLevelΠ 1 λ _ → isprop _ _)
-                                  (toPropElim (isprop base) b)
+toPropElim2 isprop b base base = b
+toPropElim2 isprop b base (loop i) =
+  isProp→PathP (λ i → isprop base (loop i)) b b i
+toPropElim2 isprop b (loop i) base =
+  isProp→PathP (λ i → isprop (loop i) base) b b i
+toPropElim2 {B = B} isprop b (loop i) (loop j) =
+  isSet→SquareP (λ _ _ → isOfHLevelSuc 1 (isprop _ _))
+    (isProp→PathP (λ i₁ → isprop base (loop i₁)) b b)
+    (isProp→PathP (λ i₁ → isprop base (loop i₁)) b b)
+    (isProp→PathP (λ i₁ → isprop (loop i₁) base) b b)
+    (isProp→PathP (λ i₁ → isprop (loop i₁) base) b b) i j
+
+toSetElim2 : ∀ {ℓ} {B : S¹ → S¹ → Type ℓ}
+             → ((s t : S¹) → isSet (B s t))
+             → (x : B base base)
+             → PathP (λ i → B base (loop i)) x x
+             → PathP (λ i → B (loop i) base) x x
+             → (s t : S¹) → B s t
+toSetElim2 isset b right left base base = b
+toSetElim2 isset b right left base (loop i) = right i
+toSetElim2 isset b right left (loop i) base = left i
+toSetElim2 isset b right left (loop i) (loop j) =
+  isSet→SquareP (λ _ _ → isset _ _) right right left left i j
 
 isSetΩx : (x : S¹) → isSet (x ≡ x)
 isSetΩx = toPropElim (λ _ → isPropIsSet) isSetΩS¹
@@ -284,19 +306,19 @@ basechange2 : (x : S¹) → ΩS¹ → (x ≡ x)
 basechange2 base p = p
 basechange2 (loop i) p =
   hcomp (λ k → λ { (i = i0) → lUnit (rUnit p (~ k)) (~ k)
-                  ; (i = i1) → (cong ((sym loop) ∙_) (comm-ΩS¹ p loop)
-                              ∙ assoc (sym loop) loop p
-                              ∙ cong (_∙ p) (lCancel loop)
-                              ∙ sym (lUnit _)) k })
+                 ; (i = i1) → (cong ((sym loop) ∙_) (comm-ΩS¹ p loop)
+                             ∙ assoc (sym loop) loop p
+                             ∙ cong (_∙ p) (lCancel loop)
+                             ∙ sym (lUnit _)) k })
         ((λ j → loop (~ j ∧ i)) ∙ p ∙ λ j → loop (j ∧ i))
 basechange2⁻ : (x : S¹) → (x ≡ x) → ΩS¹
 basechange2⁻ base p = p
 basechange2⁻ (loop i) p =
   hcomp (λ k → λ { (i = i0) → lUnit (rUnit p (~ k)) (~ k)
-                  ; (i = i1) → (cong (loop ∙_) (comm-ΩS¹ p (sym loop))
-                              ∙ assoc loop (sym loop) p
-                              ∙ cong (_∙ p) (rCancel loop)
-                              ∙ sym (lUnit _)) k })
+                 ; (i = i1) → (cong (loop ∙_) (comm-ΩS¹ p (sym loop))
+                             ∙ assoc loop (sym loop) p
+                             ∙ cong (_∙ p) (rCancel loop)
+                             ∙ sym (lUnit _)) k })
         ((λ j → loop (i ∧ j)) ∙ p ∙ λ j → loop (i ∧ (~ j)))
 basechange2-sect : (x : S¹) → section (basechange2 x) (basechange2⁻ x)
 basechange2-sect =
@@ -310,9 +332,9 @@ basechange2-retr =
 
 basedΩS¹≡ΩS¹ : (x : S¹) → basedΩS¹ x ≡ ΩS¹
 basedΩS¹≡ΩS¹ x = isoToPath (iso (basechange2⁻ x)
-                                 (basechange2 x)
-                                 (basechange2-retr x)
-                                 (basechange2-sect x))
+                                (basechange2 x)
+                                (basechange2-retr x)
+                                (basechange2-sect x))
 
 basedΩS¹≡Int : (x : S¹) → basedΩS¹ x ≡ Int
 basedΩS¹≡Int x = (basedΩS¹≡ΩS¹ x) ∙ ΩS¹≡Int
@@ -358,6 +380,8 @@ invS¹Path : S¹ ≡ S¹
 invS¹Path = ua invS¹Equiv
 
 -- rot, used in the Hopf fibration
+-- we will denote rotation by _·_
+-- it is called μ in the HoTT-book in "8.5.2 The Hopf construction"
 
 rotLoop : (a : S¹) → a ≡ a
 rotLoop base       = loop
@@ -367,14 +391,11 @@ rotLoop (loop i) j =
                  ; (j = i0) → loop (i ∨ ~ k)
                  ; (j = i1) → loop (i ∧ k)}) base
 
-rot : S¹ → S¹ → S¹
-rot base x     = x
-rot (loop i) x = rotLoop x i
+_·_ : S¹ → S¹ → S¹
+base     · x = x
+(loop i) · x = rotLoop x i
 
-_*_ : S¹ → S¹ → S¹
-a * b = rot a b
-
-infixl 30 _*_
+infixl 30 _·_
 
 
 -- rot i j = filler-rot i j i1
@@ -389,10 +410,10 @@ isPropFamS¹ : ∀ {ℓ} (P : S¹ → Type ℓ) (pP : (x : S¹) → isProp (P x)
 isPropFamS¹ P pP b0 i = pP (loop i) (transp (λ j → P (loop (i ∧ j))) (~ i) b0)
                                     (transp (λ j → P (loop (i ∨ ~ j))) i b0) i
 
-rotIsEquiv : (a : S¹) → isEquiv (rot a)
+rotIsEquiv : (a : S¹) → isEquiv (a ·_)
 rotIsEquiv base = idIsEquiv S¹
-rotIsEquiv (loop i) = isPropFamS¹ (λ x → isEquiv (rot x))
-                                  (λ x → isPropIsEquiv (rot x))
+rotIsEquiv (loop i) = isPropFamS¹ (λ x → isEquiv (x ·_))
+                                  (λ x → isPropIsEquiv (x ·_))
                                   (idIsEquiv _) i
 
 -- more direct definition of the rot (loop i) equivalence
@@ -412,11 +433,11 @@ rotLoopEquiv i =
 private
   rotInv-aux-1 : I → I → I → I → S¹
   rotInv-aux-1 j k i =
-    hfill (λ l → λ { (k = i0) → (loop (i ∧ ~ l)) * loop j
+    hfill (λ l → λ { (k = i0) → (loop (i ∧ ~ l)) · loop j
                    ; (k = i1) → loop j
-                   ; (i = i0) → (loop k * loop j) * loop (~ k)
-                   ; (i = i1) → loop (~ k ∧ ~ l) * loop j })
-          (inS ((loop (k ∨ i) * loop j) * loop (~ k)))
+                   ; (i = i0) → (loop k · loop j) · loop (~ k)
+                   ; (i = i1) → loop (~ k ∧ ~ l) · loop j })
+          (inS ((loop (k ∨ i) · loop j) · loop (~ k)))
 
   rotInv-aux-2 : I → I → I → S¹
   rotInv-aux-2 i j k =
@@ -432,37 +453,37 @@ private
   rotInv-aux-3 j k i =
     hfill (λ l → λ { (k = i0) → rotInv-aux-2 i j l
                    ; (k = i1) → loop j
-                   ; (i = i0) → loop (k ∨ l) * loop j
-                   ; (i = i1) → loop k * (invLooper (loop (~ j) * loop k)) })
-          (inS (loop k * (invLooper (loop (~ j) * loop (k ∨ ~ i)))))
+                   ; (i = i0) → loop (k ∨ l) · loop j
+                   ; (i = i1) → loop k · (invLooper (loop (~ j) · loop k)) })
+          (inS (loop k · (invLooper (loop (~ j) · loop (k ∨ ~ i)))))
 
   rotInv-aux-4 : I → I → I → I → S¹
   rotInv-aux-4 j k i =
     hfill (λ l → λ { (k = i0) → rotInv-aux-2 i j l
                    ; (k = i1) → loop j
-                   ; (i = i0) → loop j * loop (k ∨ l)
-                   ; (i = i1) → (invLooper (loop (~ j) * loop k)) * loop k })
-          (inS ((invLooper (loop (~ j) * loop (k ∨ ~ i))) * loop k))
+                   ; (i = i0) → loop j · loop (k ∨ l)
+                   ; (i = i1) → (invLooper (loop (~ j) · loop k)) · loop k })
+          (inS ((invLooper (loop (~ j) · loop (k ∨ ~ i))) · loop k))
 
-rotInv-1 : (a b : S¹) → b * a * invLooper b ≡ a
+rotInv-1 : (a b : S¹) → b · a · invLooper b ≡ a
 rotInv-1 base base i = base
 rotInv-1 base (loop k) i = rotInv-aux-1 i0 k i i1
 rotInv-1 (loop j) base i = loop j
 rotInv-1 (loop j) (loop k) i = rotInv-aux-1 j k i i1
 
-rotInv-2 : (a b : S¹) → invLooper b * a * b ≡ a
+rotInv-2 : (a b : S¹) → invLooper b · a · b ≡ a
 rotInv-2 base base i = base
 rotInv-2 base (loop k) i = rotInv-aux-1 i0 (~ k) i i1
 rotInv-2 (loop j) base i = loop j
 rotInv-2 (loop j) (loop k) i = rotInv-aux-1 j (~ k) i i1
 
-rotInv-3 : (a b : S¹) → b * (invLooper (invLooper a * b)) ≡ a
+rotInv-3 : (a b : S¹) → b · (invLooper (invLooper a · b)) ≡ a
 rotInv-3 base base i = base
 rotInv-3 base (loop k) i = rotInv-aux-3 i0 k (~ i) i1
 rotInv-3 (loop j) base i = loop j
 rotInv-3 (loop j) (loop k) i = rotInv-aux-3 j k (~ i) i1
 
-rotInv-4 : (a b : S¹) → invLooper (b * invLooper a) * b ≡ a
+rotInv-4 : (a b : S¹) → invLooper (b · invLooper a) · b ≡ a
 rotInv-4 base base i = base
 rotInv-4 base (loop k) i = rotInv-aux-4 i0 k (~ i) i1
 rotInv-4 (loop j) base i = loop j
