@@ -7,7 +7,7 @@ EVERYTHINGS=runhaskell ./Everythings.hs
 all : check
 
 .PHONY : test
-test: check-whitespace check-longfiles gen-and-check-everythings check-README check
+test: check-whitespace gen-and-check-everythings check-README check
 
 # checking and fixing whitespace
 
@@ -18,19 +18,6 @@ fix-whitespace:
 .PHONY : check-whitespace
 check-whitespace:
 	cabal exec -- fix-whitespace --check
-
-# checking for files with long lines
-
-.PHONY : check-longfiles
-check-longfiles:
-# Limit is set to 100 characters. Due to a lot of files actually hitting that, currently this is
-# not a hard error, but simply a warning
-	@long_files=$$(rg -n --color always '.{101,}' -g "**/*.agda" -g "!**/Everything.agda") ; \
-	if [ -n "$$long_files" ] ; then \
-	  printf "%s\n%s\n" \
-	        "Warning! The following source files contain lines longer than 100 characters:" \
-	        "$$long_files" ; \
-	fi
 
 # checking and generating Everything files
 

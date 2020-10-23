@@ -4,7 +4,7 @@ branches:
   - master
   - travis
 
-dist: focal
+dist: xenial
 
 cache:
   directories:
@@ -20,7 +20,6 @@ matrix:
             - cabal-install-2.2
             - ghc-8.4.4
             - happy-1.19.5
-            - ripgrep
           sources:
             - hvr-ghc
 
