@@ -1,4 +1,4 @@
-AGDA_EXEC=agda
+AGDA_EXEC=agda -W error
 RTS_OPTIONS=+RTS -H3G -RTS
 AGDA=$(AGDA_EXEC) $(RTS_OPTIONS)
 EVERYTHINGS=runhaskell ./Everythings.hs
