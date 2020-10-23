@@ -98,21 +98,16 @@ _++_ : ∀ (xs ys : LFSet A) → LFSet A
 (x ∷ xs)            ++ ys = x ∷ (xs ++ ys)
 dup x xs i          ++ ys = dup x (xs ++ ys) i
 comm x y xs i       ++ ys = comm x y (xs ++ ys) i
-trunc xs zs p q i j ++ ys = trunc
-  (xs ++ ys) (zs ++ ys) (cong (_++ ys) p) (cong (_++ ys) q) i j
+trunc xs zs p q i j ++ ys =
+  trunc (xs ++ ys) (zs ++ ys) (cong (_++ ys) p) (cong (_++ ys) q) i j
 
 map : (A → B) → LFSet A → LFSet B
 map f [] = []
 map f (x ∷ xs) = f x ∷ map f xs
 map f (dup x xs i) = dup (f x) (map f xs) i
 map f (comm x y xs i) = comm (f x) (f y) (map f xs) i
-map f (trunc xs ys p q i j) = trunc
-  (map f xs)
-  (map f ys)
-  (cong (map f) p)
-  (cong (map f) q)
-  i
-  j
+map f (trunc xs ys p q i j) =
+  trunc (map f xs) (map f ys) (cong (map f) p) (cong (map f) q) i j
 
 disj-union : LFSet A → LFSet B → LFSet (A ⊎ B)
 disj-union xs ys = map ⊎.inl xs ++ map ⊎.inr ys

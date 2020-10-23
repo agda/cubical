@@ -17,12 +17,9 @@ assoc-++ (x ∷ xs) ys zs = cong (x ∷_) (assoc-++ xs ys zs)
 assoc-++ (dup x xs i) ys zs j = dup x (assoc-++ xs ys zs j) i
 assoc-++ (comm x y xs i) ys zs j = comm x y (assoc-++ xs ys zs j) i
 assoc-++ (trunc xs xs' p q i k) ys zs j = trunc
-  (assoc-++ xs ys zs j)
-  (assoc-++ xs' ys zs j)
-  (cong (λ xs -> assoc-++ xs ys zs j) p)
-  (cong (λ xs -> assoc-++ xs ys zs j) q)
-  i
-  k
+  (assoc-++ xs ys zs j) (assoc-++ xs' ys zs j)
+  (cong (λ xs → assoc-++ xs ys zs j) p) (cong (λ xs → assoc-++ xs ys zs j) q)
+  i k
 
 comm-++-[] : ∀ (xs : LFSet A) → xs ++ [] ≡ [] ++ xs
 comm-++-[] xs = PropElim.f
@@ -102,9 +99,6 @@ cart-product (comm x y xs i) ys =
       ∎
   ) i
 cart-product (trunc xs xs′ p q i j) ys = trunc
-  (cart-product xs ys)
-  (cart-product xs′ ys)
-  (λ k → cart-product (p k) ys)
-  (λ k → cart-product (q k) ys)
-  i
-  j
+  (cart-product xs ys) (cart-product xs′ ys)
+  (λ k → cart-product (p k) ys) (λ k → cart-product (q k) ys)
+  i j
