@@ -15,6 +15,7 @@ private
 
 infixr 20 _∷_
 -- infix 30 _∈_
+infixr 5 _++_
 
 data LFSet (A : Type ℓ) : Type ℓ where
   []    : LFSet A
