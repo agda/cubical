@@ -30,7 +30,7 @@ module Recover {ℓ} (A∙ : Pointed ℓ) (h : isHomogeneous A∙) where
     a = pt A∙
 
   toEquivPtd : ∥ A ∥ → Σ[ B∙ ∈ Pointed ℓ ] (A , a) ≡ B∙
-  toEquivPtd = rec (isContr→isProp (isContrSingl _)) (λ x → (A , x) , h x)
+  toEquivPtd = rec isPropSingl (λ x → (A , x) , h x)
   private
     B∙ : ∥ A ∥ → Pointed ℓ
     B∙ tx = fst (toEquivPtd tx)

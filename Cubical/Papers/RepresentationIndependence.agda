@@ -88,7 +88,7 @@ open Prelude using (isContr) public
 open Equivalences using (isEquiv ; _≃_) public
 open Equivalences renaming (fiber to preim) public
 open Sigma using (ΣPath≃PathΣ) public
-open Equivalences renaming (isPropEquiv→Equiv to prop≃) public
+open Equivalences renaming (propBiimpl→Equiv to prop≃) public
 
 
 -- 2.3 Higher Inductive Types
