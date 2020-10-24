@@ -116,18 +116,7 @@ compPathr-isEquiv p = isoToIsEquiv (iso (_∙ p) (_∙ sym p) (compPathr-cancel 
 compPathrEquiv : {x y z : A} (p : y ≡ z) → (x ≡ y) ≃ (x ≡ z)
 compPathrEquiv p = (_∙ p) , compPathr-isEquiv p
 
--- Variation of isProp→isSet for PathP
-isProp→isSet-PathP : ∀ {ℓ} {B : I → Type ℓ} → ((i : I) → isProp (B i))
-                   → (b0 : B i0) (b1 : B i1)
-                   → isProp (PathP (λ i → B i) b0 b1)
-isProp→isSet-PathP {B = B} hB b0 b1 =
-  transport (λ i → isProp (PathP≡Path B b0 b1 (~ i))) (isProp→isSet (hB i1) _ _)
-
-isProp→isContrPathP : {A : I → Type ℓ} → (∀ i → isProp (A i))
-                    → (x : A i0) (y : A i1)
-                    → isContr (PathP A x y)
-isProp→isContrPathP h x y = isProp→PathP h x y , isProp→isSet-PathP h x y _
-
+-- Variations of isProp→isSet for PathP
 isProp→SquareP : ∀ {B : I → I → Type ℓ} → ((i j : I) → isProp (B i j))
              → {a : B i0 i0} {b : B i0 i1} {c : B i1 i0} {d : B i1 i1}
              → (r : PathP (λ j → B j i0) a c) (s : PathP (λ j → B j i1) b d)
@@ -141,6 +130,16 @@ isProp→SquareP {B = B} isPropB {a = a} r s t u i j =
         }) (base i j) where
     base : (i j : I) → B i j
     base i j = transport (λ k → B (i ∧ k) (j ∧ k)) a
+
+isProp→isPropPathP : ∀ {ℓ} {B : I → Type ℓ} → ((i : I) → isProp (B i))
+                   → (b0 : B i0) (b1 : B i1)
+                   → isProp (PathP (λ i → B i) b0 b1)
+isProp→isPropPathP {B = B} hB b0 b1 = isProp→SquareP (λ _ → hB) refl refl
+
+isProp→isContrPathP : {A : I → Type ℓ} → (∀ i → isProp (A i))
+                    → (x : A i0) (y : A i1)
+                    → isContr (PathP A x y)
+isProp→isContrPathP h x y = isProp→PathP h x y , isProp→isPropPathP h x y _
 
 -- Flipping a square along its diagonal
 

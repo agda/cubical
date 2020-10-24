@@ -232,8 +232,10 @@ isEmb⟪ X ⟫↪ = V-repr X .fst .snd .snd
 ⟪ X ⟫-represents = V-repr X .snd
 
 isPropRepFiber : (a b : V ℓ) → isProp (repFiber ⟪ a ⟫↪ b)
-isPropRepFiber a b = embedIsProp (isEquiv→isEmbedding (repFiber≃fiber ⟪ a ⟫↪ b .snd))
-                                 (isEmbedding→hasPropFibers isEmb⟪ a ⟫↪ b)
+isPropRepFiber a b =
+  Embedding-into-isProp→isProp
+    (Equiv→Embedding (repFiber≃fiber ⟪ a ⟫↪ b))
+    (isEmbedding→hasPropFibers isEmb⟪ a ⟫↪ b)
 
 -- while ∈ is hProp (ℓ-suc ℓ), ∈ₛ is in ℓ
 _∈ₛ_ : (a b : V ℓ) → hProp ℓ

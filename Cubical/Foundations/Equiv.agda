@@ -23,6 +23,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Foundations.Equiv.Base public
+open import Cubical.Data.Sigma.Base
 
 private
   variable
@@ -155,7 +156,7 @@ propBiimpl→Equiv Aprop Bprop f g = f , hf
                                                   (cong f (Aprop (g y) (h .fst))) refl i
 
 isEquivPropBiimpl→Equiv : isProp A → isProp B
-                       → (Σ (A → B) (λ _ → B → A)) ≃ (A ≃ B)
+                        → ((A → B) × (B → A)) ≃ (A ≃ B)
 isEquivPropBiimpl→Equiv {A = A} {B = B} Aprop Bprop = isoToEquiv isom where
   isom : Iso (Σ (A → B) (λ _ → B → A)) (A ≃ B)
   isom .fun (f , g) = propBiimpl→Equiv Aprop Bprop f g
