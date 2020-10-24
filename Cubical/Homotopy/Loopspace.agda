@@ -28,14 +28,12 @@ open import Cubical.HITs.Truncation hiding (elim2)
 
 {- loop space map -}
 Ω→ : ∀ {ℓA ℓB} {A : Pointed ℓA} {B : Pointed ℓB} (f : A →∙ B) → (Ω A →∙ Ω B)
-Ω→ (f , f∙) = (λ p → (sym f∙ ∙ cong f p) ∙ f∙)
-              , cong (λ q → q ∙ f∙) (sym (rUnit (sym f∙))) ∙ lCancel f∙
+Ω→ (f , f∙) = (λ p → (sym f∙ ∙ cong f p) ∙ f∙) , cong (λ q → q ∙ f∙) (sym (rUnit (sym f∙))) ∙ lCancel f∙
 
 Eckmann-Hilton : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (α β : typ ((Ω^ (2 + n)) A))
               → α ∙ β ≡ β ∙ α
 Eckmann-Hilton {A = A} n α β i =
-  comp      -- note : rUnit refl := lUnit refl
-       (λ k → rUnit (snd ((Ω^ (1 + n)) A)) (~ k) ≡ rUnit (snd ((Ω^ (1 + n)) A)) (~ k))
+  comp (λ k → rUnit (snd ((Ω^ (1 + n)) A)) (~ k) ≡ rUnit (snd ((Ω^ (1 + n)) A)) (~ k)) -- note : rUnit refl := lUnit refl
        (λ k → λ { (i = i0) → (cong (λ x → rUnit x (~ k)) α) ∙ cong (λ x → lUnit x (~ k)) β
                ;  (i = i1) → (cong (λ x → lUnit x (~ k)) β) ∙ cong (λ x → rUnit x (~ k)) α})
        ((λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j))
