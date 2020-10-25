@@ -72,6 +72,10 @@ elim3 : {B : (x y z : ∥ A ∥₂) → Type ℓ}
 elim3 Bset g = elim2 (λ _ _ → isSetΠ (λ _ → Bset _ _ _))
                      (λ a b → elim (λ _ → Bset _ _ _) (g a b))
 
+
+map∥₂ : (A → B) → ∥ A ∥₂ → ∥ B ∥₂
+map∥₂ f = rec squash₂ λ x → ∣ f x ∣₂
+
 setTruncUniversal : isSet B → (∥ A ∥₂ → B) ≃ (A → B)
 setTruncUniversal {B = B} Bset =
   isoToEquiv (iso (λ h x → h ∣ x ∣₂) (rec Bset) (λ _ → refl) rinv)
@@ -169,3 +173,14 @@ Iso.rightInv setTruncOfProdIso =
   prodElim (λ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _) λ _ _ → refl
 Iso.leftInv setTruncOfProdIso =
   elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _) λ {(a , b) → refl}
+
+moveSetTruncΣ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} → Iso ∥ Σ A B ∥₂ ∥ Σ A (λ x → ∥ B x ∥₂) ∥₂ 
+Iso.fun moveSetTruncΣ = map∥₂ λ a → (fst a) , ∣ snd a ∣₂
+Iso.inv moveSetTruncΣ = rec setTruncIsSet (uncurry λ x → map∥₂ λ b → x , b)
+Iso.rightInv moveSetTruncΣ =
+  elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        (uncurry λ a → elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        λ _ → refl)
+Iso.leftInv moveSetTruncΣ =
+  elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+         λ _ → refl

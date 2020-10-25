@@ -25,3 +25,10 @@ isGroupoidS¹ s t =
           (λ q → subst (λ t → isSet (base ≡ t)) q isSetΩS¹)
           (isConnectedS¹ t)))
     (isConnectedS¹ s)
+
+characFunSpaceS¹ : ∀ {ℓ} {A : Type ℓ} → Iso (S¹ → A) (Σ[ x ∈ A ] x ≡ x)
+Iso.fun characFunSpaceS¹ f = (f base) , (cong f loop)
+Iso.inv characFunSpaceS¹ (x , p) base = x
+Iso.inv characFunSpaceS¹ (x , p) (loop i) = p i
+Iso.rightInv characFunSpaceS¹ (x , p) = refl
+Iso.leftInv characFunSpaceS¹ f = funExt λ {base → refl ; (loop i) → refl}

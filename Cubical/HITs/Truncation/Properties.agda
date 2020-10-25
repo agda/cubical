@@ -21,7 +21,7 @@ open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Bool
 open import Cubical.Data.Unit
-open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.S1
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Nullification as Null hiding (rec; elim)
@@ -151,6 +151,11 @@ elim3 : {n : ℕ}
        B x y z
 elim3 {n = n} hB g = elim2 (λ _ _ → isOfHLevelΠ (suc n) (hB _ _)) λ a b →
                     elim (λ _ → hB _ _ _) (λ c → g a b c)
+
+isContr→isContr∥ : (n : ℕ) → isContr A → isContr (∥ A ∥ n)
+isContr→isContr∥ zero _ = tt* , (λ _ _ → tt*)
+isContr→isContr∥ (suc n) contr = ∣ fst contr ∣ , (elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
+                                                      (λ a i → ∣ snd contr a i ∣))
 
 isOfHLevelMin→isOfHLevel : {n m : ℕ} → isOfHLevel (min n m) A → isOfHLevel n A × isOfHLevel m A
 isOfHLevelMin→isOfHLevel {n = zero} {m = m} h = h , isContr→isOfHLevel m h
@@ -433,6 +438,9 @@ Iso.leftInv (truncOfTruncIso (suc n) (suc m)) = elim (λ x → isOfHLevelPath (s
 
 truncOfTruncEq : (n m : ℕ) → (hLevelTrunc n A) ≃ (hLevelTrunc n (hLevelTrunc (m + n) A))
 truncOfTruncEq n m = isoToEquiv (truncOfTruncIso n m)
+
+truncOfTruncIso2 : (n m : HLevel) → Iso (hLevelTrunc (m + n) (hLevelTrunc n A)) (hLevelTrunc n A)
+truncOfTruncIso2 n m = truncIdempotentIso (m + n) (isOfHLevelPlus m (isOfHLevelTrunc n))
 
 truncOfΣIso : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} {B : A → Type ℓ'}
        → Iso (hLevelTrunc n (Σ A B)) (hLevelTrunc n (Σ A λ x → hLevelTrunc n (B x)))

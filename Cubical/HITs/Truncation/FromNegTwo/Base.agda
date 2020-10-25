@@ -6,7 +6,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Nat
 open import Cubical.Data.NatMinusOne
 open import Cubical.HITs.Nullification
-open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Base
 
 -- For the hub-and-spoke construction discussed in the HoTT book, which doesn't work in the base case
 --  of contractibility, see `HITs.Truncation.Base`. The definition of truncation here contains

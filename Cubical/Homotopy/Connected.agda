@@ -20,7 +20,7 @@ open import Cubical.HITs.SmashProduct
 open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.Pushout
-open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.S1
 open import Cubical.Data.Bool
 open import Cubical.Data.Unit
@@ -174,6 +174,13 @@ isConnectedPath (suc n) connA a₀ a₁ =
     (invIso (PathIdTruncIso (suc n)))
     (isContr→isContrPath connA _ _)
 
+isConnectedPathP : ∀ {ℓ} (n : HLevel) {A : I → Type ℓ}
+  → isConnected (suc n) (A i1)
+  → (a₀ : A i0) (a₁ : A i1) → isConnected n (PathP A a₀ a₁)
+isConnectedPathP n con a₀ a₁ =
+  subst (isConnected n) (sym (PathP≡Path _ _ _))
+        (isConnectedPath n con _ _)
+
 isConnectedRetract : ∀ {ℓ ℓ'} (n : HLevel)
   {A : Type ℓ} {B : Type ℓ'}
   (f : A → B) (g : B → A)
@@ -301,7 +308,3 @@ inrConnected {A = A} {B = B} {C = C} n f g iscon =
                     (~ i)
                     (equiv-proof (elim.isEquivPrecompose f n Q iscon)
                                  fun .fst .snd i a))
-
-sphereConnected : (n : HLevel) → isConnected (suc n) (S₊ n)
-sphereConnected n = ∣ ptSn n ∣ , (Trunc.elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
-                                               (λ a → sym (spoke ∣_∣ (ptSn n)) ∙ spoke ∣_∣ a))

@@ -30,20 +30,19 @@ coHomK (suc n) = ∥ S₊ (suc n) ∥ (2 + suc n)
 coHom : (n : ℕ) → Type ℓ → Type ℓ
 coHom n A = ∥ (A → coHomK n) ∥₂
 
-
 --- Reduced cohomology ---
-
-{- Pointed version of Kₙ  -}
-coHomK-ptd : (n : ℕ) → Pointed (ℓ-zero)
-coHomK-ptd 0 = coHomK 0 , 0
-coHomK-ptd 1 = coHomK 1 , ∣ base ∣
-coHomK-ptd (suc (suc n)) = coHomK (2 + n) , ∣ north ∣
-
-{- Reduced cohomology -}
-coHomRed : (n : ℕ) → (A : Pointed ℓ) → Type ℓ
-coHomRed n A = ∥ A →∙ coHomK-ptd n ∥₂
 
 coHom-pt : (n : ℕ) → coHomK n
 coHom-pt 0 = 0
 coHom-pt 1 = ∣ base ∣
 coHom-pt (suc (suc n)) = ∣ north ∣
+
+{- Pointed version of Kₙ  -}
+coHomK-ptd : (n : ℕ) → Pointed (ℓ-zero)
+coHomK-ptd n = coHomK n , coHom-pt n
+
+{- Reduced cohomology -}
+coHomRed : (n : ℕ) → (A : Pointed ℓ) → Type ℓ
+coHomRed n A = ∥ A →∙ coHomK-ptd n ∥₂
+
+
