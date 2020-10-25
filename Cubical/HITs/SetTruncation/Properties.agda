@@ -174,7 +174,7 @@ Iso.rightInv setTruncOfProdIso =
 Iso.leftInv setTruncOfProdIso =
   elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _) λ {(a , b) → refl}
 
-moveSetTruncΣ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} → Iso ∥ Σ A B ∥₂ ∥ Σ A (λ x → ∥ B x ∥₂) ∥₂ 
+moveSetTruncΣ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} → Iso ∥ Σ A B ∥₂ ∥ Σ A (λ x → ∥ B x ∥₂) ∥₂
 Iso.fun moveSetTruncΣ = map∥₂ λ a → (fst a) , ∣ snd a ∣₂
 Iso.inv moveSetTruncΣ = rec setTruncIsSet (uncurry λ x → map∥₂ λ b → x , b)
 Iso.rightInv moveSetTruncΣ =

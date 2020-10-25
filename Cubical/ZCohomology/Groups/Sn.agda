@@ -132,7 +132,7 @@ Hⁿ-S¹≅0 n = IsoContrGroupTrivialGroup
             (isOfHLevelRetractFromIso 0 helper
               (_ , helper2))
   where
-  helper : Iso ⟨ coHomGr (2 + n) (S₊ 1)⟩ ∥ Σ (hLevelTrunc (4 + n) (S₊ (2 + n))) (λ x → ∥ x ≡ x ∥₂) ∥₂ 
+  helper : Iso ⟨ coHomGr (2 + n) (S₊ 1)⟩ ∥ Σ (hLevelTrunc (4 + n) (S₊ (2 + n))) (λ x → ∥ x ≡ x ∥₂) ∥₂
   helper = compIso (setTruncIso characFunSpaceS¹) moveSetTruncΣ
 
   helper2 : (x : ∥ Σ (hLevelTrunc (4 + n) (S₊ (2 + n))) (λ x → ∥ x ≡ x ∥₂) ∥₂) → ∣ ∣ north ∣ , ∣ refl ∣₂ ∣₂ ≡ x
@@ -275,8 +275,8 @@ Hⁿ-Sⁿ≅ℤ (suc n) =
 
 
 
-{- More standard proof of H¹(S¹) ≅ ℤ using Mayer-Vietoris. 
-This is much slower than the direct proof, but let's keep it here for completeness.  
+{- More standard proof of H¹(S¹) ≅ ℤ using Mayer-Vietoris.
+This is much slower than the direct proof, but let's keep it here for completeness.
 
 -- --------------------------H¹(S¹) -----------------------------------
 {-

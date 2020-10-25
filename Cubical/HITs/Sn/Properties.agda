@@ -179,7 +179,7 @@ wedgeConSn (suc n) m {A = A} hlev f g hom = F , ((λ _ → refl) , right)
 
   guyId : guy (ptSn (suc n)) ≡ λ i → transp (λ i₁ → A (merid (ptSn (suc n)) (i₁ ∧ i)) (ptSn (suc m))) (~ i)
                                                      (f (ptSn (suc m)))
-  guyId = 
+  guyId =
         (λ j i → hcomp (λ k → λ { (i = i0) → f (ptSn (suc m))
                                   ; (i = i1) → rCancel (transpLemma (ptSn (suc n))) j k })
                         (transp (λ i₁ → A (merid (ptSn (suc n)) (i₁ ∧ i)) (ptSn (suc m))) (~ i)
