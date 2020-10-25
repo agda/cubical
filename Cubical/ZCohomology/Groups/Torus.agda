@@ -129,7 +129,7 @@ H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² unlock)
 
       typIso : Iso _ _
       typIso = helper
-            ⋄ (invIso (prodIso (GroupIso→Iso H²-S¹≅0)
+            ⋄ (invIso (prodIso (GroupIso→Iso (Hⁿ-S¹≅0 0))
                                (invIso (GroupIso→Iso (Hⁿ-Sⁿ≅ℤ 0))))
             ⋄ ((invIso setTruncOfProdIso)
             ⋄ (invIso (setTruncIso (curryIso
@@ -145,7 +145,7 @@ H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² unlock)
       mapIsHom : (x y : Int)
               → Iso.fun typIso (x +ℤ y) ≡ ((Iso.fun typIso x) +H Iso.fun typIso y)
       mapIsHom a b =
-          (cong f ((GroupHom.isHom (GroupIso.map (invGroupIso (dirProdGroupIso H²-S¹≅0 (invGroupIso (Hⁿ-Sⁿ≅ℤ 0)))))
+          (cong f ((GroupHom.isHom (GroupIso.map (invGroupIso (dirProdGroupIso (Hⁿ-S¹≅0 0) (invGroupIso (Hⁿ-Sⁿ≅ℤ 0)))))
                                                               (_ , a) (_ , b))
                 ∙ λ i → guyId i , +H≡+ₕ key _ (~ i) (g a) (g b)))
         ∙∙ helper (g a) (g b)
@@ -155,9 +155,9 @@ H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² unlock)
         g = GroupIso.inv (invGroupIso (Hⁿ-Sⁿ≅ℤ 0))
 
         isPropH²-S¹ : isProp (coHom 2 (S₊ 1))
-        isPropH²-S¹ = isPropRetract (fun (map (H²-S¹≅0)))
-                                    (inv H²-S¹≅0)
-                                    (leftInv H²-S¹≅0)
+        isPropH²-S¹ = isPropRetract (fun (map (Hⁿ-S¹≅0 0)))
+                                    (inv (Hⁿ-S¹≅0 0))
+                                    (leftInv (Hⁿ-S¹≅0 0))
                                     isPropUnit
 
         guyId : ∣ _ ∣₂ ≡ 0ₕ 2
