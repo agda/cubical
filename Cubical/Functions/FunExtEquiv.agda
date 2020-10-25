@@ -207,7 +207,7 @@ heteroHomotopy≃Homotopy {A = A} {B} {f} {g} = isoToEquiv isom
     subst (λ fib → PathP B (f x₀) (g (fib .fst))) (isContrSinglP A x₀ .snd (x₁ , p)) (k x₀)
   isom .rightInv k = funExt λ x₀ →
     cong (λ α → subst (λ fib → PathP B (f x₀) (g (fib .fst))) α (k x₀))
-      (isProp→isSet (isContr→isProp (isContrSinglP A x₀)) (isContrSinglP A x₀ .fst) _
+      (isProp→isSet isPropSinglP (isContrSinglP A x₀ .fst) _
         (isContrSinglP A x₀ .snd (isContrSinglP A x₀ .fst))
         refl)
     ∙ transportRefl (k x₀)

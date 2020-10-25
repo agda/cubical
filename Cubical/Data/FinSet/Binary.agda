@@ -79,7 +79,7 @@ Loop² i j .snd
 isGroupoidBinary : isGroupoid (Binary ℓ)
 isGroupoidBinary
   = Embedding-into-hLevel→hLevel 2
-      (map-snd isBinary→isSet , isEmbedding→hasPropFibers BinaryEmbedding)
+      (map-snd isBinary→isSet , BinaryEmbedding)
       (isOfHLevelTypeOfHLevel 2)
 
 record BinStructure (B : Type ℓ) : Type ℓ where

@@ -113,10 +113,6 @@ isOfHLevelPathP : {A : I → Type ℓ} (n : HLevel)
 isOfHLevelPathP {A = A} n h x y = transport⁻ (λ i → isOfHLevel n (PathP≡Path A x y i))
                                              (isOfHLevelPath n h _ _)
 
-isProp→isContrPathP : {A : I → Type ℓ} → (∀ i → isProp (A i))
-                                       → (x : A i0) (y : A i1) → isContr (PathP A x y)
-isProp→isContrPathP h x y = isProp→PathP h x y , isOfHLevelPathP 1 (h i1) x y _
-
 -- h-level of isOfHLevel
 
 isPropIsOfHLevel : (n : HLevel) → isProp (isOfHLevel n A)

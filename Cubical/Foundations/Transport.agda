@@ -101,6 +101,12 @@ isInjectiveTransport {p = p} {q} α i =
   t : PathP (λ i → isEquiv (λ a → α i a)) (pathToEquiv p .snd) (pathToEquiv q .snd)
   t = isProp→PathP (λ i → isPropIsEquiv (λ a → α i a)) _ _
 
+transportUaInv : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B) → transport (ua (invEquiv e)) ≡ transport (sym (ua e))
+transportUaInv e = cong transport (uaInvEquiv e)
+-- notice that transport (ua e) would reduce, thus an alternative definition using EquivJ can give
+-- refl for the case of idEquiv:
+-- transportUaInv e = EquivJ (λ _ e → transport (ua (invEquiv e)) ≡ transport (sym (ua e))) refl e
+
 isSet-subst : ∀ {ℓ ℓ′} {A : Type ℓ} {B : A → Type ℓ′}
                 → (isSet-A : isSet A)
                 → ∀ {a : A}

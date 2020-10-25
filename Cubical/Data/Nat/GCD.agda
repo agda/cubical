@@ -67,23 +67,23 @@ zeroGCD m = divsGCD (∣-zeroʳ m)
 
 private
   lem₁ : prediv d (suc n) → prediv d (m % suc n) → prediv d m
-  lem₁ {d} {n} {m} (c₁ , p₁) (c₂ , p₂) = (q * c₁ + c₂) , p
+  lem₁ {d} {n} {m} (c₁ , p₁) (c₂ , p₂) = (q · c₁ + c₂) , p
     where r = m % suc n; q = n%k≡n[modk] m (suc n) .fst
-          p = (q * c₁ + c₂) * d     ≡⟨ sym (*-distribʳ (q * c₁) c₂ d) ⟩
-              (q * c₁) * d + c₂ * d ≡⟨ cong (_+ c₂ * d) (sym (*-assoc q c₁ d))  ⟩
-              q * (c₁ * d) + c₂ * d ≡[ i ]⟨ q * (p₁ i) + (p₂ i) ⟩
-              q * (suc n)  + r      ≡⟨ n%k≡n[modk] m (suc n) .snd ⟩
+          p = (q · c₁ + c₂) · d     ≡⟨ sym (·-distribʳ (q · c₁) c₂ d) ⟩
+              (q · c₁) · d + c₂ · d ≡⟨ cong (_+ c₂ · d) (sym (·-assoc q c₁ d))  ⟩
+              q · (c₁ · d) + c₂ · d ≡[ i ]⟨ q · (p₁ i) + (p₂ i) ⟩
+              q · (suc n)  + r      ≡⟨ n%k≡n[modk] m (suc n) .snd ⟩
               m                     ∎
 
   lem₂ : prediv d (suc n) → prediv d m → prediv d (m % suc n)
-  lem₂ {d} {n} {m} (c₁ , p₁) (c₂ , p₂) = c₂ ∸ q * c₁ , p
+  lem₂ {d} {n} {m} (c₁ , p₁) (c₂ , p₂) = c₂ ∸ q · c₁ , p
     where r = m % suc n; q = n%k≡n[modk] m (suc n) .fst
-          p = (c₂ ∸ q * c₁) * d               ≡⟨ ∸-distribʳ c₂ (q * c₁) d ⟩
-              c₂ * d ∸ (q * c₁) * d           ≡⟨ cong (c₂ * d ∸_) (sym (*-assoc q c₁ d)) ⟩
-              c₂ * d ∸ q * (c₁ * d)           ≡[ i ]⟨ p₂ i ∸ q * (p₁ i) ⟩
-              m      ∸ q * (suc n)            ≡⟨ cong (_∸ q * (suc n)) (sym (n%k≡n[modk] m (suc n) .snd)) ⟩
-              (q * (suc n) + r) ∸ q * (suc n) ≡⟨ cong (_∸ q * (suc n)) (+-comm (q * (suc n)) r) ⟩
-              (r + q * (suc n)) ∸ q * (suc n) ≡⟨ ∸-cancelʳ r zero (q * (suc n)) ⟩
+          p = (c₂ ∸ q · c₁) · d               ≡⟨ ∸-distribʳ c₂ (q · c₁) d ⟩
+              c₂ · d ∸ (q · c₁) · d           ≡⟨ cong (c₂ · d ∸_) (sym (·-assoc q c₁ d)) ⟩
+              c₂ · d ∸ q · (c₁ · d)           ≡[ i ]⟨ p₂ i ∸ q · (p₁ i) ⟩
+              m      ∸ q · (suc n)            ≡⟨ cong (_∸ q · (suc n)) (sym (n%k≡n[modk] m (suc n) .snd)) ⟩
+              (q · (suc n) + r) ∸ q · (suc n) ≡⟨ cong (_∸ q · (suc n)) (+-comm (q · (suc n)) r) ⟩
+              (r + q · (suc n)) ∸ q · (suc n) ≡⟨ ∸-cancelʳ r zero (q · (suc n)) ⟩
               r ∎
 
 -- The inductive step of the Euclidean algorithm
@@ -126,36 +126,36 @@ gcd≡→isGCD p = subst (isGCD _ _) p (gcdIsGCD _ _)
 
 -- multiplicative properties of the gcd
 
-isCD-cancelʳ : ∀ k → isCD (m * suc k) (n * suc k) (d * suc k)
+isCD-cancelʳ : ∀ k → isCD (m · suc k) (n · suc k) (d · suc k)
                    → isCD m n d
 isCD-cancelʳ k (dk∣mk , dk∣nk) = (∣-cancelʳ k dk∣mk , ∣-cancelʳ k dk∣nk)
 
 isCD-multʳ : ∀ k → isCD m n d
-                 → isCD (m * k) (n * k) (d * k)
+                 → isCD (m · k) (n · k) (d · k)
 isCD-multʳ k (d∣m , d∣n) = (∣-multʳ k d∣m , ∣-multʳ k d∣n)
 
-isGCD-cancelʳ : ∀ k → isGCD (m * suc k) (n * suc k) (d * suc k)
+isGCD-cancelʳ : ∀ k → isGCD (m · suc k) (n · suc k) (d · suc k)
                     → isGCD m n d
 isGCD-cancelʳ {m} {n} {d} k (dCD , gr) =
-  isCD-cancelʳ k dCD ,  λ d' d'CD → ∣-cancelʳ k (gr (d' * suc k) (isCD-multʳ (suc k) d'CD))
+  isCD-cancelʳ k dCD ,  λ d' d'CD → ∣-cancelʳ k (gr (d' · suc k) (isCD-multʳ (suc k) d'CD))
 
-gcd-factorʳ : ∀ m n k → gcd (m * k) (n * k) ≡ gcd m n * k
-gcd-factorʳ m n zero = (λ i → gcd (0≡m*0 m (~ i)) (0≡m*0 n (~ i))) ∙ 0≡m*0 (gcd m n)
-gcd-factorʳ m n (suc k) = sym p ∙ cong (_* suc k) (sym q)
-  where k∣gcd : suc k ∣ gcd (m * suc k) (n * suc k)
-        k∣gcd = gcdIsGCD (m * suc k) (n * suc k) .snd (suc k) (∣-right m , ∣-right n)
+gcd-factorʳ : ∀ m n k → gcd (m · k) (n · k) ≡ gcd m n · k
+gcd-factorʳ m n zero = (λ i → gcd (0≡m·0 m (~ i)) (0≡m·0 n (~ i))) ∙ 0≡m·0 (gcd m n)
+gcd-factorʳ m n (suc k) = sym p ∙ cong (_· suc k) (sym q)
+  where k∣gcd : suc k ∣ gcd (m · suc k) (n · suc k)
+        k∣gcd = gcdIsGCD (m · suc k) (n · suc k) .snd (suc k) (∣-right m , ∣-right n)
         d' = ∣-untrunc k∣gcd .fst
-        p : d' * suc k ≡ gcd (m * suc k) (n * suc k)
+        p : d' · suc k ≡ gcd (m · suc k) (n · suc k)
         p = ∣-untrunc k∣gcd .snd
 
         d'GCD : isGCD m n d'
-        d'GCD = isGCD-cancelʳ _ (subst (isGCD _ _) (sym p) (gcdIsGCD (m * suc k) (n * suc k)))
+        d'GCD = isGCD-cancelʳ _ (subst (isGCD _ _) (sym p) (gcdIsGCD (m · suc k) (n · suc k)))
         q : gcd m n ≡ d'
         q = isGCD→gcd≡ d'GCD
 
 -- Q: Can this be proved directly? (i.e. without a transport)
 isGCD-multʳ : ∀ k → isGCD m n d
-                  → isGCD (m * k) (n * k) (d * k)
-isGCD-multʳ {m} {n} {d} k dGCD = gcd≡→isGCD (gcd-factorʳ m n k ∙ cong (_* k) r)
+                  → isGCD (m · k) (n · k) (d · k)
+isGCD-multʳ {m} {n} {d} k dGCD = gcd≡→isGCD (gcd-factorʳ m n k ∙ cong (_· k) r)
   where r : gcd m n ≡ d
         r = isGCD→gcd≡ dGCD

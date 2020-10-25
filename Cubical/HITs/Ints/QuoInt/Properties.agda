@@ -15,14 +15,14 @@ open import Cubical.Data.Unit renaming (Unit to ⊤)
 
 open import Cubical.HITs.Ints.QuoInt.Base
 
-*S-comm : ∀ x y → x *S y ≡ y *S x
-*S-comm = Bool.⊕-comm
+·S-comm : ∀ x y → x ·S y ≡ y ·S x
+·S-comm = Bool.⊕-comm
 
-*S-assoc : ∀ x y z → x *S (y *S z) ≡ (x *S y) *S z
-*S-assoc = Bool.⊕-assoc
+·S-assoc : ∀ x y z → x ·S (y ·S z) ≡ (x ·S y) ·S z
+·S-assoc = Bool.⊕-assoc
 
-not-*Sˡ : ∀ x y → not (x *S y) ≡ not x *S y
-not-*Sˡ = Bool.not-⊕ˡ
+not-·Sˡ : ∀ x y → not (x ·S y) ≡ not x ·S y
+not-·Sˡ = Bool.not-⊕ˡ
 
 
 snotz : ∀ s n s' → ¬ (signed s (suc n) ≡ signed s' zero)
@@ -111,49 +111,49 @@ predℤ-inj m n p = sym (sucPredℤ m) ∙ cong sucℤ p ∙ sucPredℤ n
 +-injʳ m n o p = +-injˡ o m n (+-comm o m ∙ p ∙ +-comm n o)
 
 
-*-comm : ∀ m n → m * n ≡ n * m
-*-comm m n i = signed (*S-comm (sign m) (sign n) i) (ℕ.*-comm (abs m) (abs n) i)
+·-comm : ∀ m n → m · n ≡ n · m
+·-comm m n i = signed (·S-comm (sign m) (sign n) i) (ℕ.·-comm (abs m) (abs n) i)
 
-*-identityˡ : ∀ n → pos 1 * n ≡ n
-*-identityˡ n = cong (signed (sign n)) (ℕ.+-zero (abs n)) ∙ signed-inv n
+·-identityˡ : ∀ n → pos 1 · n ≡ n
+·-identityˡ n = cong (signed (sign n)) (ℕ.+-zero (abs n)) ∙ signed-inv n
 
-*-identityʳ : ∀ n → n * pos 1 ≡ n
-*-identityʳ n = *-comm n (pos 1) ∙ *-identityˡ n
+·-identityʳ : ∀ n → n · pos 1 ≡ n
+·-identityʳ n = ·-comm n (pos 1) ∙ ·-identityˡ n
 
-*-zeroˡ : ∀ {s} n → signed s zero * n ≡ signed s zero
-*-zeroˡ _ = signed-zero _ _
+·-zeroˡ : ∀ {s} n → signed s zero · n ≡ signed s zero
+·-zeroˡ _ = signed-zero _ _
 
-*-zeroʳ : ∀ {s} n → n * signed s zero ≡ signed s zero
-*-zeroʳ n = cong (signed _) (sym (ℕ.0≡m*0 (abs n))) ∙ signed-zero _ _
+·-zeroʳ : ∀ {s} n → n · signed s zero ≡ signed s zero
+·-zeroʳ n = cong (signed _) (sym (ℕ.0≡m·0 (abs n))) ∙ signed-zero _ _
 
-*-signed-pos : ∀ {s} m n → signed s m * pos n ≡ signed s (m ℕ.* n)
-*-signed-pos {s} zero n = *-zeroˡ {s} (pos n)
-*-signed-pos {s} (suc m) n i = signed (*S-comm s (sign-pos n i) i) (suc m ℕ.* n)
+·-signed-pos : ∀ {s} m n → signed s m · pos n ≡ signed s (m ℕ.· n)
+·-signed-pos {s} zero n = ·-zeroˡ {s} (pos n)
+·-signed-pos {s} (suc m) n i = signed (·S-comm s (sign-pos n i) i) (suc m ℕ.· n)
 
 
 -- this proof is why we defined ℤ using `signed` instead of `pos` and `neg`
 -- based on that in: https://github.com/danr/Agda-Numerics
-*-assoc : ∀ m n o → m * (n * o) ≡ m * n * o
+·-assoc : ∀ m n o → m · (n · o) ≡ m · n · o
 
-*-assoc (signed s zero) n o =
-  *-zeroˡ (n * o)
-*-assoc m@(signed _ (suc _)) (signed s zero) o =
-  *-zeroʳ {sign o} m ∙ signed-zero _ _ ∙ cong (_* o) (sym (*-zeroʳ {s} m))
-*-assoc m@(signed _ (suc _)) n@(signed _ (suc _)) (signed s zero) =
-  cong (m *_) (*-zeroʳ {s} n) ∙ *-zeroʳ {s} m ∙ sym (*-zeroʳ {s} (m * n))
+·-assoc (signed s zero) n o =
+  ·-zeroˡ (n · o)
+·-assoc m@(signed _ (suc _)) (signed s zero) o =
+  ·-zeroʳ {sign o} m ∙ signed-zero _ _ ∙ cong (_· o) (sym (·-zeroʳ {s} m))
+·-assoc m@(signed _ (suc _)) n@(signed _ (suc _)) (signed s zero) =
+  cong (m ·_) (·-zeroʳ {s} n) ∙ ·-zeroʳ {s} m ∙ sym (·-zeroʳ {s} (m · n))
 
-*-assoc (signed sm (suc m)) (signed sn (suc n)) (signed so (suc o)) i =
-  signed (*S-assoc sm sn so i) (ℕ.*-assoc (suc m) (suc n) (suc o) i)
+·-assoc (signed sm (suc m)) (signed sn (suc n)) (signed so (suc o)) i =
+  signed (·S-assoc sm sn so i) (ℕ.·-assoc (suc m) (suc n) (suc o) i)
 
-*-assoc (posneg i) n o j =
-  isSet→isSet' isSetℤ (*-assoc (pos zero) n o) (*-assoc (neg zero) n o)
-                      (λ i → posneg i * (n * o)) (λ i → posneg i * n * o) i j
-*-assoc m@(signed _ (suc _)) (posneg i) o j =
-  isSet→isSet' isSetℤ (*-assoc m (pos zero) o) (*-assoc m (neg zero) o)
-                      (λ i → m * (posneg i * o)) (λ i → m * posneg i * o) i j
-*-assoc m@(signed _ (suc _)) n@(signed _ (suc _)) (posneg i) j =
-  isSet→isSet' isSetℤ (*-assoc m n (pos zero)) (*-assoc m n (neg zero))
-                      (λ i → m * (n * posneg i)) (λ i → m * n * posneg i) i j
+·-assoc (posneg i) n o j =
+  isSet→isSet' isSetℤ (·-assoc (pos zero) n o) (·-assoc (neg zero) n o)
+                      (λ i → posneg i · (n · o)) (λ i → posneg i · n · o) i j
+·-assoc m@(signed _ (suc _)) (posneg i) o j =
+  isSet→isSet' isSetℤ (·-assoc m (pos zero) o) (·-assoc m (neg zero) o)
+                      (λ i → m · (posneg i · o)) (λ i → m · posneg i · o) i j
+·-assoc m@(signed _ (suc _)) n@(signed _ (suc _)) (posneg i) j =
+  isSet→isSet' isSetℤ (·-assoc m n (pos zero)) (·-assoc m n (neg zero))
+                      (λ i → m · (n · posneg i)) (λ i → m · n · posneg i) i j
 
 
 negateSuc : ∀ n → - sucℤ n ≡ predℤ (- n)
@@ -169,12 +169,12 @@ negate-+ (pos (suc m))   n = negateSuc  (pos m + n) ∙ cong predℤ (negate-+ (
 negate-+ (neg (suc m))   n = negatePred (neg m + n) ∙ cong sucℤ  (negate-+ (neg m) n)
 
 
-negate-*ˡ : ∀ m n → - (m * n) ≡ (- m) * n
-negate-*ˡ (signed _ zero) n = signed-zero (not (sign n)) (sign n)
-negate-*ˡ (signed ss (suc m)) n i = signed (not-*Sˡ ss (sign n) i) (suc m ℕ.* abs n)
-negate-*ˡ (posneg i) n j =
+negate-·ˡ : ∀ m n → - (m · n) ≡ (- m) · n
+negate-·ˡ (signed _ zero) n = signed-zero (not (sign n)) (sign n)
+negate-·ˡ (signed ss (suc m)) n i = signed (not-·Sˡ ss (sign n) i) (suc m ℕ.· abs n)
+negate-·ˡ (posneg i) n j =
   isSet→isSet' isSetℤ (signed-zero (not (sign n)) _) (signed-zero _ _)
-                      refl (λ i → posneg (~ i) * n) i j
+                      refl (λ i → posneg (~ i) · n) i j
 
 
 signed-distrib : ∀ s m n → signed s (m ℕ.+ n) ≡ signed s m + signed s n
@@ -182,54 +182,54 @@ signed-distrib s zero n = refl
 signed-distrib spos (suc m) n = cong sucℤ  (signed-distrib spos m n)
 signed-distrib sneg (suc m) n = cong predℤ (signed-distrib sneg m n)
 
-*-pos-suc : ∀ m n → pos (suc m) * n ≡ n + pos m * n
-*-pos-suc m n = signed-distrib (sign n) (abs n) (m ℕ.* abs n)
-                ∙ (λ i → signed-inv n i + signed (sign-pos m (~ i) *S sign n) (m ℕ.* abs n))
+·-pos-suc : ∀ m n → pos (suc m) · n ≡ n + pos m · n
+·-pos-suc m n = signed-distrib (sign n) (abs n) (m ℕ.· abs n)
+                ∙ (λ i → signed-inv n i + signed (sign-pos m (~ i) ·S sign n) (m ℕ.· abs n))
 
 
 -- the below is based on that in: https://github.com/danr/Agda-Numerics
 
-*-distribˡ-pos : ∀ o m n → (pos o * m) + (pos o * n) ≡ pos o * (m + n)
-*-distribˡ-pos zero m n = signed-zero (sign n) (sign (m + n))
-*-distribˡ-pos (suc o) m n =
-  pos (suc o) * m + pos (suc o) * n ≡[ i ]⟨ *-pos-suc o m i + *-pos-suc o n i ⟩
-  m + pos o * m + (n + pos o * n)   ≡⟨ +-assoc (m + pos o * m) n (pos o * n) ⟩
-  m + pos o * m + n + pos o * n     ≡[ i ]⟨ +-assoc m (pos o * m) n (~ i) + pos o * n ⟩
-  m + (pos o * m + n) + pos o * n   ≡[ i ]⟨ m + +-comm (pos o * m) n i + pos o * n ⟩
-  m + (n + pos o * m) + pos o * n   ≡[ i ]⟨ +-assoc m n (pos o * m) i + pos o * n ⟩
-  m + n + pos o * m + pos o * n     ≡⟨ sym (+-assoc (m + n) (pos o * m) (pos o * n)) ⟩
-  m + n + (pos o * m + pos o * n)   ≡⟨ cong ((m + n) +_) (*-distribˡ-pos o m n) ⟩
-  m + n + pos o * (m + n)           ≡⟨ sym (*-pos-suc o (m + n)) ⟩
-  pos (suc o) * (m + n) ∎
+·-distribˡ-pos : ∀ o m n → (pos o · m) + (pos o · n) ≡ pos o · (m + n)
+·-distribˡ-pos zero m n = signed-zero (sign n) (sign (m + n))
+·-distribˡ-pos (suc o) m n =
+  pos (suc o) · m + pos (suc o) · n ≡[ i ]⟨ ·-pos-suc o m i + ·-pos-suc o n i ⟩
+  m + pos o · m + (n + pos o · n)   ≡⟨ +-assoc (m + pos o · m) n (pos o · n) ⟩
+  m + pos o · m + n + pos o · n     ≡[ i ]⟨ +-assoc m (pos o · m) n (~ i) + pos o · n ⟩
+  m + (pos o · m + n) + pos o · n   ≡[ i ]⟨ m + +-comm (pos o · m) n i + pos o · n ⟩
+  m + (n + pos o · m) + pos o · n   ≡[ i ]⟨ +-assoc m n (pos o · m) i + pos o · n ⟩
+  m + n + pos o · m + pos o · n     ≡⟨ sym (+-assoc (m + n) (pos o · m) (pos o · n)) ⟩
+  m + n + (pos o · m + pos o · n)   ≡⟨ cong ((m + n) +_) (·-distribˡ-pos o m n) ⟩
+  m + n + pos o · (m + n)           ≡⟨ sym (·-pos-suc o (m + n)) ⟩
+  pos (suc o) · (m + n) ∎
 
-*-distribˡ-neg : ∀ o m n → (neg o * m) + (neg o * n) ≡ neg o * (m + n)
-*-distribˡ-neg o m n =
-     neg o * m  +    neg o * n  ≡[ i ]⟨ negate-*ˡ (pos o) m (~ i) + negate-*ˡ (pos o) n (~ i) ⟩
-  - (pos o * m) + - (pos o * n) ≡⟨ sym (negate-+ (pos o * m) (pos o * n)) ⟩
-  - (pos o * m + pos o * n)     ≡⟨ cong -_ (*-distribˡ-pos o m n) ⟩
-  - (pos o * (m + n))           ≡⟨ negate-*ˡ (pos o) (m + n) ⟩
-     neg o * (m + n)            ∎
+·-distribˡ-neg : ∀ o m n → (neg o · m) + (neg o · n) ≡ neg o · (m + n)
+·-distribˡ-neg o m n =
+     neg o · m  +    neg o · n  ≡[ i ]⟨ negate-·ˡ (pos o) m (~ i) + negate-·ˡ (pos o) n (~ i) ⟩
+  - (pos o · m) + - (pos o · n) ≡⟨ sym (negate-+ (pos o · m) (pos o · n)) ⟩
+  - (pos o · m + pos o · n)     ≡⟨ cong -_ (·-distribˡ-pos o m n) ⟩
+  - (pos o · (m + n))           ≡⟨ negate-·ˡ (pos o) (m + n) ⟩
+     neg o · (m + n)            ∎
 
-*-distribˡ : ∀ o m n → (o * m) + (o * n) ≡ o * (m + n)
-*-distribˡ (pos o) m n = *-distribˡ-pos o m n
-*-distribˡ (neg o) m n = *-distribˡ-neg o m n
-*-distribˡ (posneg i) m n j =
-  isSet→isSet' isSetℤ (*-distribˡ-pos zero m n) (*-distribˡ-neg zero m n)
-                      (λ i → posneg i * n) (λ i → posneg i * (m + n)) i j
+·-distribˡ : ∀ o m n → (o · m) + (o · n) ≡ o · (m + n)
+·-distribˡ (pos o) m n = ·-distribˡ-pos o m n
+·-distribˡ (neg o) m n = ·-distribˡ-neg o m n
+·-distribˡ (posneg i) m n j =
+  isSet→isSet' isSetℤ (·-distribˡ-pos zero m n) (·-distribˡ-neg zero m n)
+                      (λ i → posneg i · n) (λ i → posneg i · (m + n)) i j
 
-*-distribʳ : ∀ m n o → (m * o) + (n * o) ≡ (m + n) * o
-*-distribʳ m n o = (λ i → *-comm m o i + *-comm n o i) ∙ *-distribˡ o m n ∙ *-comm o (m + n)
+·-distribʳ : ∀ m n o → (m · o) + (n · o) ≡ (m + n) · o
+·-distribʳ m n o = (λ i → ·-comm m o i + ·-comm n o i) ∙ ·-distribˡ o m n ∙ ·-comm o (m + n)
 
 
-sign-pos-suc-* : ∀ m n → sign (pos (suc m) * n) ≡ sign n
-sign-pos-suc-* m (signed s zero) = sign-pos (suc m ℕ.* zero)
-sign-pos-suc-* m (posneg i)      = sign-pos (suc m ℕ.* zero)
-sign-pos-suc-* m (signed s (suc n)) = refl
+sign-pos-suc-· : ∀ m n → sign (pos (suc m) · n) ≡ sign n
+sign-pos-suc-· m (signed s zero) = sign-pos (suc m ℕ.· zero)
+sign-pos-suc-· m (posneg i)      = sign-pos (suc m ℕ.· zero)
+sign-pos-suc-· m (signed s (suc n)) = refl
 
-*-injˡ : ∀ o m n → pos (suc o) * m ≡ pos (suc o) * n → m ≡ n
-*-injˡ o m n p = sym (signed-inv m) ∙ (λ i → signed (sign-eq i) (abs-eq i)) ∙ signed-inv n
-  where sign-eq = sym (sign-pos-suc-* o m) ∙ cong sign p ∙ sign-pos-suc-* o n
-        abs-eq = ℕ.inj-sm* {o} (cong abs p)
+·-injˡ : ∀ o m n → pos (suc o) · m ≡ pos (suc o) · n → m ≡ n
+·-injˡ o m n p = sym (signed-inv m) ∙ (λ i → signed (sign-eq i) (abs-eq i)) ∙ signed-inv n
+  where sign-eq = sym (sign-pos-suc-· o m) ∙ cong sign p ∙ sign-pos-suc-· o n
+        abs-eq = ℕ.inj-sm· {o} (cong abs p)
 
-*-injʳ : ∀ m n o → m * pos (suc o) ≡ n * pos (suc o) → m ≡ n
-*-injʳ m n o p = *-injˡ o m n (*-comm (pos (suc o)) m ∙ p ∙ *-comm n (pos (suc o)))
+·-injʳ : ∀ m n o → m · pos (suc o) ≡ n · pos (suc o) → m ≡ n
+·-injʳ m n o p = ·-injˡ o m n (·-comm (pos (suc o)) m ∙ p ∙ ·-comm n (pos (suc o)))
