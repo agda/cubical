@@ -25,7 +25,6 @@ assoc-++ (trunc xs xs' p q i k) ys zs j =
 comm-++-[] : ∀ (xs : LFSet A) → xs ++ [] ≡ [] ++ xs
 comm-++-[] xs =
   PropElim.f
-    (λ xs → xs ++ [] ≡ [] ++ xs)
     refl
     (λ x {xs} ind →
       (x ∷ xs) ++ [] ≡⟨ refl ⟩
@@ -41,7 +40,6 @@ comm-++-∷
   → xs ++ (z ∷ ys) ≡ (z ∷ xs) ++ ys
 comm-++-∷ z xs ys =
   PropElim.f
-    (λ xs → xs ++ (z ∷ ys) ≡ (z ∷ xs) ++ ys)
     refl
     (λ x {xs} ind →
       x ∷ (xs ++ (z ∷ ys)) ≡⟨ cong (x ∷_) ind ⟩
@@ -54,7 +52,6 @@ comm-++-∷ z xs ys =
 comm-++ : (xs ys : LFSet A) → xs ++ ys ≡ ys ++ xs
 comm-++ xs ys =
   PropElim.f
-    (λ ys → xs ++ ys ≡ ys ++ xs)
     (comm-++-[] xs)
     (λ y {ys} ind →
       xs ++ (y ∷ ys) ≡⟨ comm-++-∷ y xs ys ⟩
@@ -68,7 +65,6 @@ comm-++ xs ys =
 idem-++ : (xs : LFSet A) → xs ++ xs ≡ xs
 idem-++ =
   PropElim.f
-    (λ xs → xs ++ xs ≡ xs)
     refl
     (λ x {xs} ind →
       (x ∷ xs) ++ (x ∷ xs) ≡⟨ refl ⟩

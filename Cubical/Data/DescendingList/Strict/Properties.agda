@@ -212,7 +212,7 @@ module IsoToLFSet
 
   unsort∘sort : ∀ x → unsort (sort x) ≡ x
   unsort∘sort =
-     LFSet.PropElim.f (λ x → unsort (sort x) ≡ x)
+     LFSet.PropElim.f
        refl
        (λ x {ys} ys-hyp → insert-correct x (sort ys) ∙ cong (λ q → x ∷ q) ys-hyp)
        (λ xs → trunc (unsort (sort xs)) xs)

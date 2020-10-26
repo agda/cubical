@@ -48,7 +48,7 @@ z ∈ comm x y xs i       = proof i
 x ∈ trunc xs ys p q i j = isSetHProp (x ∈ xs) (x ∈ ys) (cong (x ∈_) p) (cong (x ∈_) q) i j
 
 module Elim {ℓ}
-  (B : LFSet A → Type ℓ)
+  {B : LFSet A → Type ℓ}
   ([]* : B [])
   (_∷*_ : (x : A) {xs : LFSet A} → B xs → B (x ∷ xs))
   (comm* : (x y : A) {xs : LFSet A} (b : B xs)
@@ -78,20 +78,18 @@ module Rec {ℓ} {B : Type ℓ}
   f : LFSet A → B
   f =
     Elim.f
-      _
       []* (λ x xs → x ∷* xs)
       (λ x y b → comm* x y b) (λ x b → dup* x b)
       λ _ → trunc*
 
 module PropElim {ℓ}
-  (B : LFSet A → Type ℓ)
+  {B : LFSet A → Type ℓ}
   ([]* : B []) (_∷*_ : (x : A) {xs : LFSet A} → B xs → B (x ∷ xs))
   (trunc* : (xs : LFSet A) → isProp (B xs)) where
 
   f : ∀ x → B x
   f =
     Elim.f
-      _
       []* _∷*_
       (λ _ _ _ → isOfHLevel→isOfHLevelDep 1 trunc* _ _ _)
       (λ _ _ → isOfHLevel→isOfHLevelDep 1 trunc* _ _ _)
