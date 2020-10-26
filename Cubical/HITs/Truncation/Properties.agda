@@ -228,6 +228,12 @@ map : {n : HLevel} {B : Type ℓ'} (g : A → B)
 map {n = zero} g = λ _ → tt*
 map {n = suc n} g = rec (isOfHLevelTrunc _) (λ a → ∣ g a ∣)
 
+map2 : ∀ {ℓ''} {n : HLevel} {B : Type ℓ'} {C : Type ℓ''} (g : A → B → C)
+  → hLevelTrunc n A → hLevelTrunc n B → hLevelTrunc n C
+map2 {n = zero} g = λ _ _ → tt*
+map2 {n = suc n} g = rec (isOfHLevelΠ (suc n) λ _ → isOfHLevelTrunc _)
+                         (λ a → rec (isOfHLevelTrunc _) λ b → ∣ g a b ∣)
+
 mapCompIso : {n : HLevel} {B : Type ℓ'} → (Iso A B) → Iso (hLevelTrunc n A) (hLevelTrunc n B)
 mapCompIso {n = zero} {B} _ = isContr→Iso (isOfHLevelUnit* 0) (isOfHLevelUnit* 0)
 Iso.fun (mapCompIso {n = (suc n)} g) = map (Iso.fun g)
