@@ -255,11 +255,7 @@ module miniFreudenthal (n : HLevel) where
     rightFun b r = ∣ b , r ∣
 
     funsAgree : leftFun north ≡ rightFun north
-    funsAgree =
-      funExt λ r →
-        cong′ (λ w → ∣ north , w ∣)
-          (cong (_∙ r) (rCancel' (rCancel' (merid north)))
-           ∙ lUnit r ⁻¹)
+    funsAgree i r = ∣ north , ((cong (_∙ r) (rCancel' (rCancel' (merid north))) ∙ lUnit r ⁻¹) i) ∣
 
     totalFun : (a b : S2+n) → P a b
     totalFun =  wedgeConSn (suc n) (suc n) hLevelP rightFun leftFun funsAgree .fst
