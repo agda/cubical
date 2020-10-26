@@ -416,5 +416,3 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SsubMonoid : isSubMonoid R'
  S⁻¹RAsCommRing : CommRing
  S⁻¹RAsCommRing = makeCommRing 0ₗ 1ₗ _+ₗ_ _·ₗ_ -ₗ_ squash/ +ₗ-assoc +ₗ-rid +ₗ-rinv +ₗ-comm
                                                            ·ₗ-assoc ·ₗ-rid ·ₗ-rdist-+ₗ ·ₗ-comm
-
-

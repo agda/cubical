@@ -201,4 +201,3 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
  -- η : section φ ψ
  -- ε : retract φ ψ
  -- prove that φ is ring hom
-
