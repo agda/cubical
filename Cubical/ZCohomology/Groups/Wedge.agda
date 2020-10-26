@@ -52,8 +52,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
     BijectionIso.inj bijIso =
       sElim (λ _ → isSetΠ λ _ → isProp→isSet (setTruncIsSet _ _))
             λ f inker → helper ∣ f ∣₂ (I.Ker-i⊂Im-d 0 ∣ f ∣₂ inker)
-    BijectionIso.surj bijIso p =
-      I.Ker-Δ⊂Im-i 1 p (isContr→isProp (isContrHⁿ-Unit 0) _ _)
+    BijectionIso.surj bijIso p = I.Ker-Δ⊂Im-i 1 p (isContr→isProp (isContrHⁿ-Unit 0) _ _)
 
   Hⁿ-⋁ (suc n) = Iso+Hom→GrIso mainIso
                                 (sElim2 (λ _ _ → isOfHLevelPath 2 (isOfHLevel× 2 setTruncIsSet setTruncIsSet) _ _)
