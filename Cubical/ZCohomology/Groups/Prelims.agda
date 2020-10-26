@@ -42,7 +42,7 @@ S¹map-id = trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
                   λ a → refl
 
 S1map : hLevelTrunc 3 (S₊ 1) → (S₊ 1)
-S1map = trRec isGroupoidS1 (idfun _)
+S1map = trRec isGroupoidS¹ (idfun _)
 
 
 {- Proof that (S¹ → ∥ S¹ ∥₁) ≃ S¹ × ℤ. Needed for H¹(S¹)) -}

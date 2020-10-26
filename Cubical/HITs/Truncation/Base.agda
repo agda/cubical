@@ -12,7 +12,7 @@ module Cubical.HITs.Truncation.Base where
 open import Cubical.Data.NatMinusOne renaming (suc₋₁ to suc)
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Base
 open import Cubical.Data.Nat.Base renaming (suc to sucℕ)
 open import Cubical.Data.Unit.Base
 open import Cubical.Data.Empty
