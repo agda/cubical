@@ -316,13 +316,16 @@ is2Groupoid A = ∀ a b → isGroupoid (Path A a b)
 
 -- Contractibility of singletons
 
+singlP : (A : I → Type ℓ) (a : A i0) → Type _
+singlP A a = Σ[ x ∈ A i1 ] PathP A a x
+
 singl : (a : A) → Type _
-singl {A = A} a = Σ[ x ∈ A ] (a ≡ x)
+singl {A = A} a = singlP (λ _ → A) a
 
 isContrSingl : (a : A) → isContr (singl a)
 isContrSingl a = (a , refl) , λ p i → p .snd i , λ j → p .snd (i ∧ j)
 
-isContrSinglP : (A : I → Type ℓ) (a : A i0) → isContr (Σ[ x ∈ A i1 ] PathP A a x)
+isContrSinglP : (A : I → Type ℓ) (a : A i0) → isContr (singlP A a)
 isContrSinglP A a .fst = _ , transport-filler (λ i → A i) a
 isContrSinglP A a .snd (x , p) i =
   _ , λ j → fill (\ i → A i) (λ j → λ {(i = i0) → transport-filler (λ i → A i) a j; (i = i1) → p j}) (inS a) j
@@ -422,6 +425,12 @@ isProp→isSet' h {a} p q r s i j =
 
 isPropIsProp : isProp (isProp A)
 isPropIsProp f g i a b = isProp→isSet f a b (f a b) (g a b) i
+
+isPropSingl : {a : A} → isProp (singl a)
+isPropSingl = isContr→isProp (isContrSingl _)
+
+isPropSinglP : {A : I → Type ℓ} {a : A i0} → isProp (singlP A a)
+isPropSinglP = isContr→isProp (isContrSinglP _ _)
 
 -- Universe lifting
 

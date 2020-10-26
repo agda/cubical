@@ -40,7 +40,7 @@ uaIdEquiv {A = A} i j = Glue A {φ = i ∨ ~ j ∨ j} (λ _ → A , idEquiv A)
 
 -- Propositional extensionality
 hPropExt : {A B : Type ℓ} → isProp A → isProp B → (A → B) → (B → A) → A ≡ B
-hPropExt Aprop Bprop f g = ua (isPropEquiv→Equiv Aprop Bprop f g)
+hPropExt Aprop Bprop f g = ua (propBiimpl→Equiv Aprop Bprop f g)
 
 -- the unglue and glue primitives specialized to the case of ua
 
