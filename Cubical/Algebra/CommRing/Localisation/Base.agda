@@ -49,7 +49,7 @@ record isSubMonoid (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) : Type ℓ where
 
 module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SsubMonoid : isSubMonoid R' S') where
  open isSubMonoid
- R = R' .fst
+ private R = R' .fst
  open CommRingStr (R' .snd)
  open Theory (CommRing→Ring R')
 
