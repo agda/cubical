@@ -37,7 +37,7 @@ module _ (G : Group {ℓ}) (H : Group {ℓ'}) where
 
   -- ϕ(0) ≡ 0
   morph0→0 : (f : GroupHom G H) → f .fun G.0g ≡ H.0g
-  morph0→0 fh@(grouphom f _) =
+  morph0→0 fh =
     f G.0g                         ≡⟨ sym (H.rid _) ⟩
     f G.0g H.+ H.0g                ≡⟨ (λ i → f G.0g H.+ H.invr (f G.0g) (~ i)) ⟩
     f G.0g H.+ (f G.0g H.- f G.0g) ≡⟨ H.assoc _ _ _ ⟩
@@ -45,10 +45,12 @@ module _ (G : Group {ℓ}) (H : Group {ℓ'}) where
                                                 (sym (cong f (G.lid _)) ∙ isHom fh G.0g G.0g)) ⟩
     f G.0g H.- f G.0g              ≡⟨ H.invr _ ⟩
     H.0g ∎
+    where
+    f = fun fh
 
   -- ϕ(- x) = - ϕ(x)
   morphMinus : (f : GroupHom G H) → (g : ⟨ G ⟩) → f .fun (G.- g) ≡ H.- (f .fun g)
-  morphMinus fc@(grouphom f fh) g =
+  morphMinus fh g =
     f (G.- g)                   ≡⟨ sym (H.rid _) ⟩
     f (G.- g) H.+ H.0g          ≡⟨ cong (f (G.- g) H.+_) (sym (H.invr _)) ⟩
     f (G.- g) H.+ (f g H.- f g) ≡⟨ H.assoc _ _ _ ⟩
@@ -56,13 +58,15 @@ module _ (G : Group {ℓ}) (H : Group {ℓ'}) where
     H.0g H.- f g                ≡⟨ H.lid _ ⟩
     H.- f g ∎
     where
+    f = fun fh
+
     helper : f (G.- g) H.+ f g ≡ H.0g
-    helper = sym (fh (G.- g) g) ∙∙ cong f (G.invl g) ∙∙ morph0→0 fc
+    helper = sym (isHom fh (G.- g) g) ∙∙ cong f (G.invl g) ∙∙ morph0→0 fh
 
 
 -- ----------- Alternative notions of isomorphisms --------------
 record GroupIso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
-
+  no-eta-equality
   constructor iso
   field
     map : GroupHom G H
@@ -71,7 +75,7 @@ record GroupIso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max 
     leftInv : retract (GroupHom.fun map) inv
 
 record BijectionIso {ℓ ℓ'} (A : Group {ℓ}) (B : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
-
+  no-eta-equality
   constructor bij-iso
   field
     map' : GroupHom A B

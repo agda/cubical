@@ -35,9 +35,16 @@ isPropIsGroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) {f : ⟨ G ⟩ → ⟨ H
 isPropIsGroupHom G H {f} = isPropΠ2 λ a b → GroupStr.is-set (snd H) _ _
 
 isSetGroupHom : {G : Group {ℓ}} {H : Group {ℓ'}} → isSet (GroupHom G H)
-isSetGroupHom {G = G} {H = H} = isOfHLevelRespectEquiv 2 equiv (isSetΣ (isSetΠ λ _ → is-set (snd H)) λ _ → isProp→isSet (isPropIsGroupHom G H)) where
-  equiv : (Σ[ g ∈ (⟨ G ⟩ → ⟨ H ⟩) ] (isGroupHom G H g)) ≃ (GroupHom G H)
-  equiv =  isoToEquiv (iso (λ (g , m) → grouphom g m) (λ hom → fun hom , isHom hom) (λ _ → refl) λ _ → refl)
+isSetGroupHom {G = G} {H = H} = isSetRetract (λ hom → fun hom , isHom hom) aFun equiv (isSetΣ (isSetΠ λ _ → is-set (snd H)) λ _ → isProp→isSet (isPropIsGroupHom G H))
+  where
+  aFun : _  → _
+  aFun = λ {(g , m) → grouphom g m}
+
+  equiv : (x : GroupHom (fst G , snd G)
+         (fst H , groupstr (0g (snd H)) (_+_ (snd H)) (- snd H) (isGroup (snd H)))) →
+      aFun (fun x , isHom x) ≡ x
+  fun (equiv x i) = fun x
+  isHom (equiv x i) = isHom x
 
 -- Morphism composition
 isGroupHomComp : {F : Group {ℓ}} {G : Group {ℓ'}} {H : Group {ℓ''}} →

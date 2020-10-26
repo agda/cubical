@@ -21,6 +21,7 @@ isGroupHom G H f = (x y : ⟨ G ⟩) → f (x G.+ y) ≡ (f x H.+ f y) where
   module H = GroupStr (snd H)
 
 record GroupHom (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
+  no-eta-equality
   constructor grouphom
 
   field

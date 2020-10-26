@@ -190,17 +190,18 @@ isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (GroupStr.isMonoid (sn
 open GroupStr
 
 dirProd : ∀ {ℓ ℓ'} → Group {ℓ} → Group {ℓ'} → Group
-dirProd (GC , G) (HC , H) =
-  makeGroup (0g G , 0g H)
-            (λ { (x1 , x2) (y1 , y2) → _+_ G x1 y1 , _+_ H x2 y2 })
-            (λ { (x1 , x2) → -_ G x1 , -_ H x2 })
-            (isSet× (isSetCarrier (GC , G)) (isSetCarrier (HC , H)))
-            (λ { (x1 , x2) (y1 , y2) (z1 , z2) i →
-               assoc G x1 y1 z1 i , assoc H x2 y2 z2 i })
-            (λ { (x1 , x2) i → GroupStr.rid G x1 i , GroupStr.rid H x2 i })
-            (λ { (x1 , x2) i → GroupStr.lid G x1 i , GroupStr.lid H x2 i })
-            (λ { (x1 , x2) i → GroupStr.invr G x1 i , GroupStr.invr H x2 i })
-            (λ { (x1 , x2) i → GroupStr.invl G x1 i , GroupStr.invl H x2 i })
+fst (dirProd (GC , G) (HC , H)) = GC × HC
+0g (snd (dirProd (GC , G) (HC , H))) = (0g G) , (0g H)
+_+_ (snd (dirProd (GC , G) (HC , H))) x y = (_+_ G (fst x) (fst y)) , (_+_ H (snd x) (snd y))
+(- snd (dirProd (GC , G) (HC , H))) x = (-_ G (fst x)) , (-_ H (snd x))
+IsSemigroup.is-set (IsMonoid.isSemigroup (IsGroup.isMonoid (isGroup (snd (dirProd (GC , G) (HC , H)))))) =
+  isSet× (isSetCarrier (GC , G)) (isSetCarrier (HC , H))
+IsSemigroup.assoc (IsMonoid.isSemigroup (IsGroup.isMonoid (isGroup (snd (dirProd (GC , G) (HC , H)))))) x y z =
+  ΣPathP ((assoc G (fst x) (fst y) (fst z)) , (assoc H (snd x) (snd y) (snd z)))
+IsMonoid.identity (IsGroup.isMonoid (isGroup (snd (dirProd (GC , G) (HC , H))))) x =
+  (ΣPathP ((GroupStr.rid G (fst x)) , (GroupStr.rid H (snd x)))) , ΣPathP ((GroupStr.lid G (fst x)) , (GroupStr.lid H (snd x)))
+IsGroup.inverse (isGroup (snd (dirProd (GC , G) (HC , H)))) x =
+  (ΣPathP ((GroupStr.invr G (fst x)) , (GroupStr.invr H (snd x)))) , ΣPathP ((GroupStr.invl G (fst x)) , (GroupStr.invl H (snd x)))
 
 trivialGroup : Group₀
 trivialGroup = Unit , groupstr tt (λ _ _ → tt) (λ _ → tt)
