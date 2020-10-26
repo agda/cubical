@@ -189,6 +189,7 @@ isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (GroupStr.isMonoid (sn
 
 open GroupStr
 
+-- Could be proved using makeGroup but this leads to problems with copatterns.
 dirProd : ∀ {ℓ ℓ'} → Group {ℓ} → Group {ℓ'} → Group
 fst (dirProd (GC , G) (HC , H)) = GC × HC
 0g (snd (dirProd (GC , G) (HC , H))) = (0g G) , (0g H)
