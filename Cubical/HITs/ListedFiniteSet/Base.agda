@@ -76,10 +76,12 @@ module Rec {ℓ} {B : Type ℓ}
   (trunc* : isSet B) where
 
   f : LFSet A → B
-  f = Elim.f _
-    []* (λ x xs → x ∷* xs)
-    (λ x y b → comm* x y b) (λ x b → dup* x b)
-    λ _ → trunc*
+  f =
+    Elim.f
+      _
+      []* (λ x xs → x ∷* xs)
+      (λ x y b → comm* x y b) (λ x b → dup* x b)
+      λ _ → trunc*
 
 module PropElim {ℓ}
   (B : LFSet A → Type ℓ)
@@ -87,11 +89,13 @@ module PropElim {ℓ}
   (trunc* : (xs : LFSet A) → isProp (B xs)) where
 
   f : ∀ x → B x
-  f = Elim.f _
-    []* _∷*_
-    (λ _ _ _ → isOfHLevel→isOfHLevelDep 1 trunc* _ _ _)
-    (λ _ _ → isOfHLevel→isOfHLevelDep 1 trunc* _ _ _)
-    λ xs → isProp→isSet (trunc* xs)
+  f =
+    Elim.f
+      _
+      []* _∷*_
+      (λ _ _ _ → isOfHLevel→isOfHLevelDep 1 trunc* _ _ _)
+      (λ _ _ → isOfHLevel→isOfHLevelDep 1 trunc* _ _ _)
+      λ xs → isProp→isSet (trunc* xs)
 
 _++_ : ∀ (xs ys : LFSet A) → LFSet A
 []                  ++ ys = ys
