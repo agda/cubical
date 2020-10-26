@@ -73,8 +73,8 @@ elim3 Bset g = elim2 (λ _ _ → isSetΠ (λ _ → Bset _ _ _))
                      (λ a b → elim (λ _ → Bset _ _ _) (g a b))
 
 
-map∥₂ : (A → B) → ∥ A ∥₂ → ∥ B ∥₂
-map∥₂ f = rec squash₂ λ x → ∣ f x ∣₂
+map : (A → B) → ∥ A ∥₂ → ∥ B ∥₂
+map f = rec squash₂ λ x → ∣ f x ∣₂
 
 setTruncUniversal : isSet B → (∥ A ∥₂ → B) ≃ (A → B)
 setTruncUniversal {B = B} Bset =
@@ -174,13 +174,13 @@ Iso.rightInv setTruncOfProdIso =
 Iso.leftInv setTruncOfProdIso =
   elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _) λ {(a , b) → refl}
 
-moveSetTruncΣ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} → Iso ∥ Σ A B ∥₂ ∥ Σ A (λ x → ∥ B x ∥₂) ∥₂
-Iso.fun moveSetTruncΣ = map∥₂ λ a → (fst a) , ∣ snd a ∣₂
-Iso.inv moveSetTruncΣ = rec setTruncIsSet (uncurry λ x → map∥₂ λ b → x , b)
-Iso.rightInv moveSetTruncΣ =
+IsoSetTruncateSndΣ : {A : Type ℓ} {B : A → Type ℓ'} → Iso ∥ Σ A B ∥₂ ∥ Σ A (λ x → ∥ B x ∥₂) ∥₂
+Iso.fun IsoSetTruncateSndΣ = map λ a → (fst a) , ∣ snd a ∣₂
+Iso.inv IsoSetTruncateSndΣ = rec setTruncIsSet (uncurry λ x → map λ b → x , b)
+Iso.rightInv IsoSetTruncateSndΣ =
   elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
         (uncurry λ a → elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
         λ _ → refl)
-Iso.leftInv moveSetTruncΣ =
+Iso.leftInv IsoSetTruncateSndΣ =
   elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
          λ _ → refl

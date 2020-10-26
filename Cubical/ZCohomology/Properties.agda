@@ -69,11 +69,11 @@ coHomPointedElim : {A : Type ℓ} (n : ℕ) (a : A) {B : coHom (suc n) A → Typ
                  → ((x : coHom (suc n) A) → isProp (B x))
                  → ((f : A → coHomK (suc n)) → f a ≡ coHom-pt (suc n) → B ∣ f ∣₂)
                  → (x : coHom (suc n) A) → B x
-coHomPointedElim {A = A} n a isprop indp =
+coHomPointedElim {ℓ' = ℓ'} {A = A} n a isprop indp =
   sElim (λ _ → isOfHLevelSuc 1 (isprop _))
          λ f → helper n isprop indp f (f a) refl
   where
-  helper : ∀ {ℓ} (n : ℕ) {B : coHom (suc n) A → Type ℓ}
+  helper :  (n : ℕ) {B : coHom (suc n) A → Type ℓ'}
          → ((x : coHom (suc n) A) → isProp (B x))
          → ((f : A → coHomK (suc n)) → f a ≡ coHom-pt (suc n) → B ∣ f ∣₂)
          → (f : A → coHomK (suc n))
@@ -97,10 +97,10 @@ coHomPointedElim2 : {A : Type ℓ} (n : ℕ) (a : A) {B : coHom (suc n) A → co
                  → ((x y : coHom (suc n) A) → isProp (B x y))
                  → ((f g : A → coHomK (suc n)) → f a ≡ coHom-pt (suc n) → g a ≡ coHom-pt (suc n) → B ∣ f ∣₂ ∣ g ∣₂)
                  → (x y : coHom (suc n) A) → B x y
-coHomPointedElim2 {A = A} n a isprop indp = sElim2 (λ _ _ → isOfHLevelSuc 1 (isprop _ _))
+coHomPointedElim2 {ℓ' = ℓ'} {A = A} n a isprop indp = sElim2 (λ _ _ → isOfHLevelSuc 1 (isprop _ _))
                                                    λ f g → helper n a isprop indp f g (f a) (g a) refl refl
   where
-  helper : ∀ {ℓ} (n : ℕ) (a : A) {B : coHom (suc n) A → coHom (suc n) A → Type ℓ}
+  helper : (n : ℕ) (a : A) {B : coHom (suc n) A → coHom (suc n) A → Type ℓ'}
                  → ((x y : coHom (suc n) A) → isProp (B x y))
                  → ((f g : A → coHomK (suc n)) → f a ≡ coHom-pt (suc n) → g a ≡ coHom-pt (suc n) → B ∣ f ∣₂ ∣ g ∣₂)
                  → (f g : A → coHomK (suc n))

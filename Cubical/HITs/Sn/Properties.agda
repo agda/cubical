@@ -20,24 +20,26 @@ open import Cubical.HITs.Truncation
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 
+private
+  variable
+    ℓ : Level
+
 sphereConnected : (n : HLevel) → isConnected (suc n) (S₊ n)
-sphereConnected n = ∣ ptSn n ∣ , (elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
-                                      (λ a → sym (spoke ∣_∣ (ptSn n)) ∙ spoke ∣_∣ a))
+sphereConnected n = ∣ ptSn n ∣ , elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
+                                     (λ a → sym (spoke ∣_∣ (ptSn n)) ∙ spoke ∣_∣ a)
 
 -- Elimination principles for spheres
-sphereElim : ∀ {ℓ} (n : ℕ) {A : (S₊ (suc n)) → Type ℓ} → ((x : S₊ (suc n)) → isOfHLevel (suc n) (A x))
+sphereElim : (n : ℕ) {A : (S₊ (suc n)) → Type ℓ} → ((x : S₊ (suc n)) → isOfHLevel (suc n) (A x))
           → A (ptSn (suc n))
           → (x : S₊ (suc n)) → A x
 sphereElim zero hlev pt = toPropElim hlev pt
 sphereElim (suc n) hlev pt north = pt
 sphereElim (suc n) {A = A} hlev pt south = subst A (merid (ptSn (suc n))) pt
-sphereElim (suc n) {A = A} hlev pt (merid a i) = helper i
-  where
-  helper : PathP (λ i → A (merid a i)) pt (subst A (merid (ptSn (suc n))) pt)
-  helper = sphereElim n {A = λ a → PathP (λ i → A (merid a i)) pt (subst A (merid (ptSn (suc n))) pt)}
-                        (λ a → isOfHLevelPathP' (suc n) (hlev south) _ _)
-                        (λ i → transp (λ j → A (merid (ptSn (suc n)) (i ∧ j))) (~ i) pt)
-                        a
+sphereElim (suc n) {A = A} hlev pt (merid a i) =
+  sphereElim n {A = λ a → PathP (λ i → A (merid a i)) pt (subst A (merid (ptSn (suc n))) pt)}
+               (λ a → isOfHLevelPathP' (suc n) (hlev south) _ _)
+               (λ i → transp (λ j → A (merid (ptSn (suc n)) (i ∧ j))) (~ i) pt)
+               a i
 
 sphereElim2 : ∀ {ℓ} (n : ℕ) {A : (S₊ (suc n)) → (S₊ (suc n)) → Type ℓ}
           → ((x y : S₊ (suc n)) → isOfHLevel (suc n) (A x y))
@@ -102,18 +104,18 @@ wedgeConSn zero (suc m) {A = A} hlev f g hom = F , left , (λ _ → refl)
               ∙ (λ i → transp (λ j → A base (merid x (i ∨ j))) i
                                (f (merid x i)))
 
-  guy : (x : S₊ (suc m)) → PathP (λ i₁ → A base (merid x i₁))
-                                  (g base)
-                                  (transport (λ i₁ → A base (merid (ptSn (suc m)) i₁))
-                                             (g base))
-  guy x i = hcomp (λ k → λ { (i = i0) → g base
-                            ; (i = i1) → (transpLemma x ∙ sym (transpLemma (ptSn (suc m)))) k})
-                  (transp (λ i₁ → A base (merid x (i₁ ∧ i))) (~ i)
-                          (g base))
+  pathOverMerid : (x : S₊ (suc m)) → PathP (λ i₁ → A base (merid x i₁))
+                                            (g base)
+                                            (transport (λ i₁ → A base (merid (ptSn (suc m)) i₁))
+                                                       (g base))
+  pathOverMerid x i = hcomp (λ k → λ { (i = i0) → g base
+                                      ; (i = i1) → (transpLemma x ∙ sym (transpLemma (ptSn (suc m)))) k})
+                            (transp (λ i₁ → A base (merid x (i₁ ∧ i))) (~ i)
+                                    (g base))
 
-  guyId : guy (ptSn (suc m)) ≡ λ i → transp (λ i₁ → A base (merid (ptSn (suc m)) (i₁ ∧ i))) (~ i)
-                                             (g base)
-  guyId =
+  pathOverMeridId : pathOverMerid (ptSn (suc m)) ≡ λ i → transp (λ i₁ → A base (merid (ptSn (suc m)) (i₁ ∧ i))) (~ i)
+                                                                 (g base)
+  pathOverMeridId  =
        (λ j i → hcomp (λ k → λ {(i = i0) → g base
                                ; (i = i1) → rCancel (transpLemma (ptSn (suc m))) j k})
                       (transp (λ i₁ → A base (merid (ptSn (suc m)) (i₁ ∧ i))) (~ i)
@@ -129,10 +131,10 @@ wedgeConSn zero (suc m) {A = A} hlev f g hom = F , left , (λ _ → refl)
                                              (subst (λ y → A x y) (merid (ptSn (suc m)))
                                                     (g x))) ] _
   indStep = wedgeConSn zero m (λ _ _ → isOfHLevelPathP' (2 + m) (hlev _ _) _ _)
-                              guy
+                              pathOverMerid
                               (λ a i → transp (λ i₁ → A a (merid (ptSn (suc m)) (i₁ ∧ i))) (~ i)
                                                (g a))
-                              (sym guyId)
+                              (sym pathOverMeridId)
 
   F : (x : S¹) (y : Susp (S₊ (suc m))) → A x y
   F x north = g x
@@ -168,18 +170,18 @@ wedgeConSn (suc n) m {A = A} hlev f g hom = F , ((λ _ → refl) , right)
                 ∙ (λ i → transp (λ j → A (merid x (i ∨ j)) (ptSn (suc m))) i
                                  (g (merid x i)))
 
-  guy : (x : S₊ (suc n)) → PathP (λ i₁ → A (merid x i₁) (ptSn (suc m)))
-                                      (f (ptSn (suc m)))
-                                      (transport (λ i₁ → A (merid (ptSn (suc n)) i₁) (ptSn (suc m)))
-                                                 (f (ptSn (suc m))))
-  guy x i = hcomp (λ k → λ { (i = i0) → f (ptSn (suc m))
-                                ; (i = i1) → (transpLemma x ∙ sym (transpLemma (ptSn (suc n)))) k })
-                      (transp (λ i₁ → A (merid x (i₁ ∧ i)) (ptSn (suc m))) (~ i)
-                              (f (ptSn (suc m))))
+  pathOverMerid : (x : S₊ (suc n)) → PathP (λ i₁ → A (merid x i₁) (ptSn (suc m)))
+                                            (f (ptSn (suc m)))
+                                            (transport (λ i₁ → A (merid (ptSn (suc n)) i₁) (ptSn (suc m)))
+                                                       (f (ptSn (suc m))))
+  pathOverMerid x i = hcomp (λ k → λ { (i = i0) → f (ptSn (suc m))
+                                      ; (i = i1) → (transpLemma x ∙ sym (transpLemma (ptSn (suc n)))) k })
+                            (transp (λ i₁ → A (merid x (i₁ ∧ i)) (ptSn (suc m))) (~ i)
+                                    (f (ptSn (suc m))))
 
-  guyId : guy (ptSn (suc n)) ≡ λ i → transp (λ i₁ → A (merid (ptSn (suc n)) (i₁ ∧ i)) (ptSn (suc m))) (~ i)
-                                                     (f (ptSn (suc m)))
-  guyId =
+  pathOverMeridId : pathOverMerid (ptSn (suc n)) ≡ λ i → transp (λ i₁ → A (merid (ptSn (suc n)) (i₁ ∧ i)) (ptSn (suc m))) (~ i)
+                                                                 (f (ptSn (suc m)))
+  pathOverMeridId =
         (λ j i → hcomp (λ k → λ { (i = i0) → f (ptSn (suc m))
                                   ; (i = i1) → rCancel (transpLemma (ptSn (suc n))) j k })
                         (transp (λ i₁ → A (merid (ptSn (suc n)) (i₁ ∧ i)) (ptSn (suc m))) (~ i)
@@ -197,8 +199,8 @@ wedgeConSn (suc n) m {A = A} hlev f g hom = F , ((λ _ → refl) , right)
   indStep = wedgeConSn n m (λ _ _ → isOfHLevelPathP' (suc (n + suc m)) (hlev _ _) _ _)
                            (λ a i → transp (λ i₁ → A (merid (ptSn (suc n)) (i₁ ∧ i)) a) (~ i)
                                             (f a))
-                           guy
-                           guyId
+                           pathOverMerid
+                           pathOverMeridId
 
   F : (x : Susp (S₊ (suc n))) (y : S₊ (suc m))  → A x y
   right : (x : Susp (S₊ (suc n))) → F x (ptSn (suc m)) ≡ g x
@@ -240,16 +242,16 @@ module miniFreudenthal (n : HLevel) where
   4n+2 = (2 + n) + (2 + n)
 
   module WC-S (p : north ≡ north) where
-    P : (a b : S₊ (2 + n)) → Type₀
+    P : (a b : S2+n) → Type₀
     P a b = σ b ≡ p → hLevelTrunc 4n+2 (fiber (λ x → merid x ∙ merid a ⁻¹) p)
 
-    hLevelP : (a b : S₊ (2 + n)) → isOfHLevel 4n+2 (P a b)
+    hLevelP : (a b : S2+n) → isOfHLevel 4n+2 (P a b)
     hLevelP _ _ = isOfHLevelΠ 4n+2 λ _ → isOfHLevelTrunc 4n+2
 
-    leftFun : (a : S₊ (2 + n)) → P a north
+    leftFun : (a : S2+n) → P a north
     leftFun a r = ∣ a , (rCancel' (merid a) ∙ rCancel' (merid north) ⁻¹) ∙ r ∣
 
-    rightFun : (b : S₊ (2 + n)) → P north b
+    rightFun : (b : S2+n) → P north b
     rightFun b r = ∣ b , r ∣
 
     funsAgree : leftFun north ≡ rightFun north
@@ -312,16 +314,16 @@ module miniFreudenthal (n : HLevel) where
     gluePath i = hLevelTrunc 4n+2 (fiber (interpolate a i) (λ j → merid a (i ∧ j)))
 
     lem : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : z ≡ y) → (p ∙ q ⁻¹) ∙ q ≡ p
-    lem p q = assoc p (q ⁻¹) q ⁻¹ ∙ cong (p ∙_) (lCancel q) ∙ rUnit p ⁻¹
+    lem p q = assoc p (q ⁻¹) q ⁻¹ ∙∙ cong (p ∙_) (lCancel q) ∙∙ rUnit p ⁻¹
 
   contractCodeNorth : (p : north ≡ north) (c : Code north p) → encode' north p ≡ c
   contractCodeNorth =
     transport (λ i → (p : north ≡ merid north (~ i))
                       (c : Code (merid north (~ i)) p)
                    → encode' (merid north (~ i)) p ≡ c)
-              λ p → elim (λ _ → isOfHLevelPath 4n+2 (isOfHLevelTrunc 4n+2) _ _)
-                          (uncurry λ a → J (λ p r → encode' south p ≡ ∣ a , r ∣)
-                                            (encodeMerid a))
+               λ p → elim (λ _ → isOfHLevelPath 4n+2 (isOfHLevelTrunc 4n+2) _ _)
+                           (uncurry λ a → J (λ p r → encode' south p ≡ ∣ a , r ∣)
+                                             (encodeMerid a))
 
   isConnectedσ : isConnectedFun 4n+2 σ
   fst (isConnectedσ p) = encode' north p

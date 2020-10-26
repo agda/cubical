@@ -9,7 +9,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Function
 open import Cubical.HITs.Wedge
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to pRec2 ; elim to sElim ; elim2 to sElim2)
+open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to pRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∣_∣ to ∣_∣₁)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; elim2 to trElim2)
 open import Cubical.Data.Nat
@@ -72,7 +72,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
       where
       forget :  ∥ (Σ[ f ∈ (typ A → coHomK (2 + n)) × (typ B → coHomK (2 + n)) ] (fst f) (pt A) ≡ (snd f) (pt B)) ∥₂
                      → ∥ (typ A → coHomK (2 + n)) × (typ B → coHomK (2 + n)) ∥₂
-      forget = map∥₂ (λ {((f , g) , _) → f , g})
+      forget = sMap (λ {((f , g) , _) → f , g})
 
       isEq :  (f :  ∥ (typ A → coHomK (2 + n)) × (typ B → coHomK (2 + n)) ∥₂) → isContr (fiber forget f)
       isEq = sElim (λ _ → isOfHLevelSuc 1 isPropIsContr) (uncurry λ f g → helper f g (f (pt A)) (g (pt B)) refl refl)
@@ -83,9 +83,9 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
                → isContr (fiber forget ∣ f , g ∣₂)
         helper f g = trElim2 (λ _ _ → isProp→isOfHLevelSuc (3 + n)
                                (isPropΠ2 λ _ _ → isPropIsContr))
-                          (suspToPropElim2 (ptSn (suc n))
-                                           (λ _ _ → isPropΠ2 λ _ _ → isPropIsContr)
-                                           λ p q → (∣ (f , g) , (p ∙ sym q) ∣₂
+                             (suspToPropElim2 (ptSn (suc n))
+                                              (λ _ _ → isPropΠ2 λ _ _ → isPropIsContr)
+                                              λ p q → (∣ (f , g) , (p ∙ sym q) ∣₂
                          , refl)
                          , uncurry (sElim (λ _ → isSetΠ λ _ → isOfHLevelPath 2 (isOfHLevelΣ 2 setTruncIsSet λ _ → isOfHLevelPath 2 setTruncIsSet _ _) _ _)
                                λ { ((f' , g') , id1) y →

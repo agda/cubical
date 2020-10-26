@@ -22,7 +22,7 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
 open import Cubical.HITs.Susp
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
+open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁) hiding (map)
 
 open import Cubical.Data.Bool
@@ -133,7 +133,7 @@ Hⁿ-S¹≅0 n = IsoContrGroupTrivialGroup
               (_ , helper2))
   where
   helper : Iso ⟨ coHomGr (2 + n) (S₊ 1)⟩ ∥ Σ (hLevelTrunc (4 + n) (S₊ (2 + n))) (λ x → ∥ x ≡ x ∥₂) ∥₂
-  helper = compIso (setTruncIso characFunSpaceS¹) moveSetTruncΣ
+  helper = compIso (setTruncIso IsoFunSpaceS¹) IsoSetTruncateSndΣ
 
   helper2 : (x : ∥ Σ (hLevelTrunc (4 + n) (S₊ (2 + n))) (λ x → ∥ x ≡ x ∥₂) ∥₂) → ∣ ∣ north ∣ , ∣ refl ∣₂ ∣₂ ≡ x
   helper2 =
