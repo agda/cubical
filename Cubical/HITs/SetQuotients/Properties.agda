@@ -112,52 +112,50 @@ rec2 Bset f feql feqr = rec (isSetΠ (λ _ → Bset))
                             (λ a b r → funExt (elimProp (λ _ → Bset _ _)
                                               (λ c → feql a b c r)))
 
+setQuotUniversalIso : {B : Type ℓ} (Bset : isSet B)
+                    → Iso (A / R → B) (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
+Iso.fun (setQuotUniversalIso Bset) g = (λ a → g [ a ]) , λ a b r i → g (eq/ a b r i)
+Iso.inv (setQuotUniversalIso Bset) h = elim (λ x → Bset) (fst h) (snd h)
+Iso.rightInv (setQuotUniversalIso Bset) h = refl
+Iso.leftInv (setQuotUniversalIso Bset) g =
+ funExt (λ x → PropTrunc.elim (λ sur → Bset (out (intro g) x) (g x))
+        (λ sur → cong (out (intro g)) (sym (snd sur)) ∙ (cong g (snd sur))) ([]surjective x))
+     where
+     intro = Iso.fun (setQuotUniversalIso Bset)
+     out = Iso.inv (setQuotUniversalIso Bset)
+
 setQuotUniversal : {B : Type ℓ} (Bset : isSet B) →
                    (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
-setQuotUniversal Bset = isoToEquiv (iso intro out outRightInv outLeftInv)
-  where
-  intro = λ g →  (λ a → g [ a ]) , λ a b r i → g (eq/ a b r i)
-  out = λ h → elim (λ x → Bset) (fst h) (snd h)
+setQuotUniversal Bset = isoToEquiv (setQuotUniversalIso Bset)
 
-  outRightInv : ∀ h → intro (out h) ≡ h
-  outRightInv h = refl
-
-  outLeftInv : ∀ g → out (intro g) ≡ g
-  outLeftInv = λ g → funExt (λ x → PropTrunc.elim {P = λ sur → out (intro g) x ≡ g x}
-    (λ sur → Bset (out (intro g) x) (g x))
-    (λ sur → cong (out (intro g)) (sym (snd sur)) ∙ (cong g (snd sur))) ([]surjective x)
-    )
 
 open BinaryRelation
 
 -- characterisation of binary functions/operations on set-quotients
-setQuotUniversal2 : {B : Type ℓ} (Bset : isSet B) → isRefl R
-                  → (A / R → A / R → B)
-                  ≃ (Σ[ _∗_ ∈ (A → A → B) ] ((a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'))
-setQuotUniversal2 {A = A} {R = R} {B = B} Bset isReflR =
-                                          isoToEquiv (iso intro out outRightInv outLeftInv)
-  where
-  intro : (A / R → A / R → B)
-        → (Σ[ _∗_ ∈ (A → A → B) ] ((a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'))
-  intro _∗/_ = _∗_ , h
+setQuotUniversal2Iso : {B : Type ℓ} (Bset : isSet B) → isRefl R
+                 → Iso (A / R → A / R → B)
+                       (Σ[ _∗_ ∈ (A → A → B) ] ((a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'))
+Iso.fun (setQuotUniversal2Iso {A = A} {R = R} {B = B} Bset isReflR) _∗/_ = _∗_ , h
    where
    _∗_ = λ a b → [ a ] ∗/ [ b ]
    h : (a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'
    h a a' b b' ra rb = cong (_∗/ [ b ]) (eq/ _ _ ra) ∙ cong ([ a' ] ∗/_) (eq/ _ _ rb)
+Iso.inv (setQuotUniversal2Iso {A = A} {R = R} {B = B} Bset isReflR) (_∗_ , h) =
+   rec2 Bset _∗_ hleft hright
+        where
+        hleft : ∀ a b c → R a b → (a ∗ c) ≡ (b ∗ c)
+        hleft _ _ c r = h _ _ _ _ r (isReflR c)
+        hright : ∀ a b c → R b c → (a ∗ b) ≡ (a ∗ c)
+        hright a _ _ r = h _ _ _ _ (isReflR a) r
+Iso.rightInv (setQuotUniversal2Iso {A = A} {R = R} {B = B} Bset isReflR) (_∗_ , h) =
+   Σ≡Prop (λ _ → isPropΠ4 λ _ _ _ _ → isPropΠ2 λ _ _ → Bset _ _) refl
+Iso.leftInv (setQuotUniversal2Iso {A = A} {R = R} {B = B} Bset isReflR) _∗/_ =
+   funExt₂ (elimProp2 (λ _ _ → Bset _ _) λ _ _ → refl)
 
-  out : (Σ[ _∗_ ∈ (A → A → B) ] ((a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'))
-      → (A / R → A / R → B)
-  out (_∗_ , h) = rec2 Bset _∗_ hleft hright
-   where
-   hleft : ∀ a b c → R a b → (a ∗ c) ≡ (b ∗ c)
-   hleft _ _ c r = h _ _ _ _ r (isReflR c)
-   hright : ∀ a b c → R b c → (a ∗ b) ≡ (a ∗ c)
-   hright a _ _ r = h _ _ _ _ (isReflR a) r
-
-  outRightInv : ∀ x → intro (out x) ≡ x
-  outRightInv (_∗_ , h) = Σ≡Prop (λ _ → isPropΠ4 λ _ _ _ _ → isPropΠ2 λ _ _ → Bset _ _) refl
-
-  outLeftInv = λ _∗/_ → funExt₂ (elimProp2 (λ _ _ → Bset _ _) λ _ _ → refl)
+setQuotUniversal2 : {B : Type ℓ} (Bset : isSet B) → isRefl R
+                  → (A / R → A / R → B)
+                  ≃ (Σ[ _∗_ ∈ (A → A → B) ] ((a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'))
+setQuotUniversal2 Bset isReflR = isoToEquiv (setQuotUniversal2Iso Bset isReflR)
 
 -- corollary for binary operations
 -- TODO: prove truncated inverse for effective relations
@@ -165,9 +163,8 @@ setQuotBinOp : isRefl R
              → (_∗_ : A → A → A)
              → (∀ a a' b b' → R a a' → R b b' → R (a ∗ b) (a' ∗ b'))
              → (A / R → A / R → A / R)
-setQuotBinOp {A = A} {R = R} isReflR _∗_ h =
-                 equivFun (invEquiv (setQuotUniversal2 squash/ isReflR))
-                          ((λ a b → [ a ∗ b ]) , λ _ _ _ _ ra rb → eq/ _ _ (h _ _ _ _ ra rb))
+setQuotBinOp isReflR _∗_ h = Iso.inv (setQuotUniversal2Iso squash/ isReflR)
+                             ((λ a b → [ a ∗ b ]) , λ _ _ _ _ ra rb → eq/ _ _ (h _ _ _ _ ra rb))
 
 setQuotSymmBinOp : isRefl R → isTrans R
                  → (_∗_ : A → A → A)
@@ -237,19 +234,11 @@ discreteSetQuotients {A = A} {R = R} Adis Rprop Req Rdec =
 
 
 -- Quotienting by the truncated relation is equivalent to quotienting by untruncated relation
+truncRelIso : Iso (A / R) (A / (λ a b → ∥ R a b ∥))
+Iso.fun truncRelIso = rec squash/ [_] λ _ _ r → eq/ _ _ ∣ r ∣
+Iso.inv truncRelIso = rec squash/ [_] λ _ _ → PropTrunc.rec (squash/ _ _) λ r → eq/ _ _ r
+Iso.rightInv truncRelIso = elimProp (λ _ → squash/ _ _) λ _ → refl
+Iso.leftInv truncRelIso = elimProp (λ _ → squash/ _ _) λ _ → refl
+
 truncRelEquiv : A / R ≃ A / (λ a b → ∥ R a b ∥)
-truncRelEquiv = isoToEquiv (iso φ ψ η ε)
- where
- φ : A / R → A / (λ a b → ∥ R a b ∥)
- φ [ a ] = [ a ]
- φ (eq/ a b r i) = eq/ a b ∣ r ∣ i
- φ (squash/ x y p q i j) = squash/ (φ x) (φ y) (cong φ p) (cong φ q) i j
-
- ψ : A / (λ a b → ∥ R a b ∥) → A / R
- ψ = rec squash/ [_] λ _ _ → PropTrunc.rec (squash/ _ _) λ r → eq/ _ _ r
-
- η : section φ ψ
- η = elimProp (λ _ → squash/ _ _) λ _ → refl
-
- ε : retract φ ψ
- ε = elimProp (λ _ → squash/ _ _) λ _ → refl
+truncRelEquiv = isoToEquiv truncRelIso
