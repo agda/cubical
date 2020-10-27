@@ -1,0 +1,773 @@
+find . -type f -name '*.agdai' -delete
+runhaskell ./Everythings.hs gen-except Core Foundations Codata Experiments
+agda -W error +RTS -H3G -RTS -v profile.modules:10 Cubical/README.agda
+Checking Cubical.README (/home/axel/Documents/HoTT/cubical/Cubical/README.agda).
+ Checking Cubical.Core.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Core/Everything.agda).
+  Checking Cubical.Core.Primitives (/home/axel/Documents/HoTT/cubical/Cubical/Core/Primitives.agda).
+  Checking Cubical.Core.Glue (/home/axel/Documents/HoTT/cubical/Cubical/Core/Glue.agda).
+   Checking Cubical.Foundations.Prelude (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Prelude.agda).
+  Checking Cubical.Core.Id (/home/axel/Documents/HoTT/cubical/Cubical/Core/Id.agda).
+ Checking Cubical.Foundations.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Everything.agda).
+  Checking Cubical.Foundations.Id (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Id.agda).
+   Checking Cubical.Foundations.Equiv (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Equiv.agda).
+    Checking Cubical.Foundations.Function (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Function.agda).
+    Checking Cubical.Foundations.Isomorphism (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Isomorphism.agda).
+     Checking Cubical.Foundations.Equiv.Base (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Equiv/Base.agda).
+    Checking Cubical.Foundations.GroupoidLaws (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/GroupoidLaws.agda).
+    Checking Cubical.Data.Sigma.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/Sigma/Base.agda).
+     Checking Cubical.HITs.PropositionalTruncation.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/PropositionalTruncation/Base.agda).
+   Checking Cubical.Foundations.Univalence (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Univalence.agda).
+   Checking Cubical.HITs.PropositionalTruncation (/home/axel/Documents/HoTT/cubical/Cubical/HITs/PropositionalTruncation.agda).
+    Checking Cubical.HITs.PropositionalTruncation.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/PropositionalTruncation/Properties.agda).
+     Checking Cubical.Foundations.HLevels (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/HLevels.agda).
+      Checking Cubical.Foundations.Structure (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Structure.agda).
+      Checking Cubical.Functions.FunExtEquiv (/home/axel/Documents/HoTT/cubical/Cubical/Functions/FunExtEquiv.agda).
+       Checking Cubical.Foundations.CartesianKanOps (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/CartesianKanOps.agda).
+       Checking Cubical.Data.Vec (/home/axel/Documents/HoTT/cubical/Cubical/Data/Vec.agda).
+        Checking Cubical.Data.Vec.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/Vec/Base.agda).
+         Checking Cubical.Data.Nat (/home/axel/Documents/HoTT/cubical/Cubical/Data/Nat.agda).
+          Checking Cubical.Data.Nat.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/Nat/Base.agda).
+           Checking Cubical.Data.Nat.Literals (/home/axel/Documents/HoTT/cubical/Cubical/Data/Nat/Literals.agda).
+            Checking Cubical.Data.Unit.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/Unit/Base.agda).
+          Checking Cubical.Data.Nat.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/Nat/Properties.agda).
+           Checking Cubical.Data.Empty (/home/axel/Documents/HoTT/cubical/Cubical/Data/Empty.agda).
+            Checking Cubical.Data.Empty.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/Empty/Base.agda).
+            Checking Cubical.Data.Empty.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/Empty/Properties.agda).
+           Checking Cubical.Data.Sigma (/home/axel/Documents/HoTT/cubical/Cubical/Data/Sigma.agda).
+            Checking Cubical.Data.Sigma.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/Sigma/Properties.agda).
+             Checking Cubical.Foundations.Equiv.HalfAdjoint (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Equiv/HalfAdjoint.agda).
+              Checking Cubical.Foundations.Path (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Path.agda).
+               Checking Cubical.Foundations.Transport (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Transport.agda).
+             Checking Cubical.Relation.Nullary (/home/axel/Documents/HoTT/cubical/Cubical/Relation/Nullary.agda).
+              Checking Cubical.Relation.Nullary.Base (/home/axel/Documents/HoTT/cubical/Cubical/Relation/Nullary/Base.agda).
+               Checking Cubical.Functions.Fixpoint (/home/axel/Documents/HoTT/cubical/Cubical/Functions/Fixpoint.agda).
+              Checking Cubical.Relation.Nullary.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Relation/Nullary/Properties.agda).
+           Checking Cubical.Relation.Nullary.DecidableEq (/home/axel/Documents/HoTT/cubical/Cubical/Relation/Nullary/DecidableEq.agda).
+         Checking Cubical.Data.FinData (/home/axel/Documents/HoTT/cubical/Cubical/Data/FinData.agda).
+          Checking Cubical.Data.FinData.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/FinData/Base.agda).
+           Checking Cubical.Data.Bool.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/Bool/Base.agda).
+            Checking Cubical.Data.Sum.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/Sum/Base.agda).
+          Checking Cubical.Data.FinData.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/FinData/Properties.agda).
+        Checking Cubical.Data.Vec.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/Vec/Properties.agda).
+        Checking Cubical.Data.Vec.NAry (/home/axel/Documents/HoTT/cubical/Cubical/Data/Vec/NAry.agda).
+    Checking Cubical.HITs.PropositionalTruncation.MagicTrick (/home/axel/Documents/HoTT/cubical/Cubical/HITs/PropositionalTruncation/MagicTrick.agda).
+     Checking Cubical.Foundations.Pointed (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Pointed.agda).
+      Checking Cubical.Foundations.Pointed.Base (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Pointed/Base.agda).
+      Checking Cubical.Foundations.Pointed.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Pointed/Properties.agda).
+      Checking Cubical.Foundations.Pointed.FunExt (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Pointed/FunExt.agda).
+       Checking Cubical.Foundations.Pointed.Homotopy (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Pointed/Homotopy.agda).
+        Checking Cubical.Foundations.Equiv.Fiberwise (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Equiv/Fiberwise.agda).
+        Checking Cubical.Foundations.Equiv.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Equiv/Properties.agda).
+        Checking Cubical.Homotopy.Base (/home/axel/Documents/HoTT/cubical/Cubical/Homotopy/Base.agda).
+      Checking Cubical.Foundations.Pointed.Homogeneous (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Pointed/Homogeneous.agda).
+       Checking Cubical.Structures.Pointed (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Pointed.agda).
+        Checking Cubical.Foundations.SIP (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/SIP.agda).
+  Checking Cubical.Foundations.Equiv.PathSplit (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Equiv/PathSplit.agda).
+  Checking Cubical.Foundations.Equiv.BiInvertible (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Equiv/BiInvertible.agda).
+  Checking Cubical.Foundations.RelationalStructure (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/RelationalStructure.agda).
+   Checking Cubical.HITs.SetQuotients (/home/axel/Documents/HoTT/cubical/Cubical/HITs/SetQuotients.agda).
+    Checking Cubical.HITs.SetQuotients.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/SetQuotients/Base.agda).
+    Checking Cubical.HITs.SetQuotients.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/SetQuotients/Properties.agda).
+     Checking Cubical.Relation.Binary.Base (/home/axel/Documents/HoTT/cubical/Cubical/Relation/Binary/Base.agda).
+     Checking Cubical.HITs.SetTruncation (/home/axel/Documents/HoTT/cubical/Cubical/HITs/SetTruncation.agda).
+      Checking Cubical.HITs.SetTruncation.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/SetTruncation/Base.agda).
+      Checking Cubical.HITs.SetTruncation.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/SetTruncation/Properties.agda).
+   Checking Cubical.Relation.ZigZag.Base (/home/axel/Documents/HoTT/cubical/Cubical/Relation/ZigZag/Base.agda).
+  Checking Cubical.Foundations.Univalence.Universe (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Univalence/Universe.agda).
+   Checking Cubical.Functions.Embedding (/home/axel/Documents/HoTT/cubical/Cubical/Functions/Embedding.agda).
+    Checking Cubical.Foundations.Powerset (/home/axel/Documents/HoTT/cubical/Cubical/Foundations/Powerset.agda).
+    Checking Cubical.Functions.Fibration (/home/axel/Documents/HoTT/cubical/Cubical/Functions/Fibration.agda).
+    Checking Cubical.Structures.Axioms (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Axioms.agda).
+ Checking Cubical.Functions.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Functions/Everything.agda).
+  Checking Cubical.Functions.Bundle (/home/axel/Documents/HoTT/cubical/Cubical/Functions/Bundle.agda).
+   Checking Cubical.Structures.TypeEqvTo (/home/axel/Documents/HoTT/cubical/Cubical/Structures/TypeEqvTo.agda).
+  Checking Cubical.Functions.Involution (/home/axel/Documents/HoTT/cubical/Cubical/Functions/Involution.agda).
+  Checking Cubical.Functions.Logic (/home/axel/Documents/HoTT/cubical/Cubical/Functions/Logic.agda).
+   Checking Cubical.Data.Sum (/home/axel/Documents/HoTT/cubical/Cubical/Data/Sum.agda).
+    Checking Cubical.Data.Sum.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/Sum/Properties.agda).
+   Checking Cubical.Data.Unit (/home/axel/Documents/HoTT/cubical/Cubical/Data/Unit.agda).
+    Checking Cubical.Data.Unit.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/Unit/Properties.agda).
+     Checking Cubical.Data.Prod.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/Prod/Base.agda).
+  Checking Cubical.Functions.Surjection (/home/axel/Documents/HoTT/cubical/Cubical/Functions/Surjection.agda).
+ Checking Cubical.Data.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Data/Everything.agda).
+  Checking Cubical.Data.BinNat (/home/axel/Documents/HoTT/cubical/Cubical/Data/BinNat.agda).
+   Checking Cubical.Data.BinNat.BinNat (/home/axel/Documents/HoTT/cubical/Cubical/Data/BinNat/BinNat.agda).
+    Checking Cubical.Data.Bool (/home/axel/Documents/HoTT/cubical/Cubical/Data/Bool.agda).
+     Checking Cubical.Data.Bool.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/Bool/Properties.agda).
+  Checking Cubical.Data.DescendingList (/home/axel/Documents/HoTT/cubical/Cubical/Data/DescendingList.agda).
+   Checking Cubical.Data.DescendingList.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/DescendingList/Base.agda).
+   Checking Cubical.Data.DescendingList.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/DescendingList/Properties.agda).
+    Checking Cubical.Data.List (/home/axel/Documents/HoTT/cubical/Cubical/Data/List.agda).
+     Checking Cubical.Data.List.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/List/Base.agda).
+      Checking Cubical.Data.Maybe (/home/axel/Documents/HoTT/cubical/Cubical/Data/Maybe.agda).
+       Checking Cubical.Data.Maybe.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/Maybe/Base.agda).
+       Checking Cubical.Data.Maybe.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/Maybe/Properties.agda).
+     Checking Cubical.Data.List.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/List/Properties.agda).
+    Checking Cubical.HITs.FiniteMultiset (/home/axel/Documents/HoTT/cubical/Cubical/HITs/FiniteMultiset.agda).
+     Checking Cubical.HITs.FiniteMultiset.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/FiniteMultiset/Base.agda).
+     Checking Cubical.HITs.FiniteMultiset.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/FiniteMultiset/Properties.agda).
+      Checking Cubical.Structures.MultiSet (/home/axel/Documents/HoTT/cubical/Cubical/Structures/MultiSet.agda).
+       Checking Cubical.Structures.Auto (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Auto.agda).
+        Checking Cubical.Structures.Macro (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Macro.agda).
+         Checking Cubical.Structures.Constant (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Constant.agda).
+         Checking Cubical.Structures.Function (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Function.agda).
+         Checking Cubical.Structures.Maybe (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Maybe.agda).
+         Checking Cubical.Structures.Parameterized (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Parameterized.agda).
+         Checking Cubical.Structures.Product (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Product.agda).
+        Checking Cubical.Reflection.Base (/home/axel/Documents/HoTT/cubical/Cubical/Reflection/Base.agda).
+   Checking Cubical.Data.DescendingList.Examples (/home/axel/Documents/HoTT/cubical/Cubical/Data/DescendingList/Examples.agda).
+   Checking Cubical.Data.DescendingList.Strict (/home/axel/Documents/HoTT/cubical/Cubical/Data/DescendingList/Strict.agda).
+   Checking Cubical.Data.DescendingList.Strict.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/DescendingList/Strict/Properties.agda).
+    Checking Cubical.HITs.ListedFiniteSet (/home/axel/Documents/HoTT/cubical/Cubical/HITs/ListedFiniteSet.agda).
+     Checking Cubical.HITs.ListedFiniteSet.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/ListedFiniteSet/Base.agda).
+     Checking Cubical.HITs.ListedFiniteSet.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/ListedFiniteSet/Properties.agda).
+  Checking Cubical.Data.DiffInt (/home/axel/Documents/HoTT/cubical/Cubical/Data/DiffInt.agda).
+   Checking Cubical.Data.DiffInt.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/DiffInt/Base.agda).
+   Checking Cubical.Data.DiffInt.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/DiffInt/Properties.agda).
+  Checking Cubical.Data.Equality (/home/axel/Documents/HoTT/cubical/Cubical/Data/Equality.agda).
+  Checking Cubical.Data.Fin (/home/axel/Documents/HoTT/cubical/Cubical/Data/Fin.agda).
+   Checking Cubical.Data.Fin.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/Fin/Base.agda).
+    Checking Cubical.Data.Nat.Order (/home/axel/Documents/HoTT/cubical/Cubical/Data/Nat/Order.agda).
+     Checking Cubical.Induction.WellFounded (/home/axel/Documents/HoTT/cubical/Cubical/Induction/WellFounded.agda).
+   Checking Cubical.Data.Fin.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/Fin/Properties.agda).
+  Checking Cubical.Data.Fin.LehmerCode (/home/axel/Documents/HoTT/cubical/Cubical/Data/Fin/LehmerCode.agda).
+  Checking Cubical.Data.FinInd (/home/axel/Documents/HoTT/cubical/Cubical/Data/FinInd.agda).
+   Checking Cubical.Data.FinSet (/home/axel/Documents/HoTT/cubical/Cubical/Data/FinSet.agda).
+   Checking Cubical.HITs.S1 (/home/axel/Documents/HoTT/cubical/Cubical/HITs/S1.agda).
+    Checking Cubical.HITs.S1.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/S1/Base.agda).
+     Checking Cubical.Data.Int (/home/axel/Documents/HoTT/cubical/Cubical/Data/Int.agda).
+      Checking Cubical.Data.Int.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/Int/Base.agda).
+      Checking Cubical.Data.Int.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/Int/Properties.agda).
+    Checking Cubical.HITs.S1.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/S1/Properties.agda).
+  Checking Cubical.Data.Graph (/home/axel/Documents/HoTT/cubical/Cubical/Data/Graph.agda).
+   Checking Cubical.Data.Graph.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/Graph/Base.agda).
+   Checking Cubical.Data.Graph.Examples (/home/axel/Documents/HoTT/cubical/Cubical/Data/Graph/Examples.agda).
+    Checking Cubical.Data.SumFin (/home/axel/Documents/HoTT/cubical/Cubical/Data/SumFin.agda).
+     Checking Cubical.Data.SumFin.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/SumFin/Base.agda).
+     Checking Cubical.Data.SumFin.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/SumFin/Properties.agda).
+  Checking Cubical.Data.HomotopyGroup (/home/axel/Documents/HoTT/cubical/Cubical/Data/HomotopyGroup.agda).
+   Checking Cubical.Data.HomotopyGroup.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/HomotopyGroup/Base.agda).
+    Checking Cubical.Algebra.Group (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Group.agda).
+     Checking Cubical.Algebra.Group.Base (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Group/Base.agda).
+      Checking Cubical.Algebra.Monoid (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Monoid.agda).
+       Checking Cubical.Algebra.Monoid.Base (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Monoid/Base.agda).
+        Checking Cubical.Structures.Record (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Record.agda).
+        Checking Cubical.Algebra.Semigroup (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Semigroup.agda).
+         Checking Cubical.Algebra.Semigroup.Base (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Semigroup/Base.agda).
+     Checking Cubical.Algebra.Group.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Group/Properties.agda).
+     Checking Cubical.Algebra.Group.Morphism (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Group/Morphism.agda).
+     Checking Cubical.Algebra.Group.MorphismProperties (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Group/MorphismProperties.agda).
+     Checking Cubical.Algebra.Group.Algebra (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Group/Algebra.agda).
+    Checking Cubical.Homotopy.Loopspace (/home/axel/Documents/HoTT/cubical/Cubical/Homotopy/Loopspace.agda).
+     Checking Cubical.HITs.Truncation (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Truncation.agda).
+      Checking Cubical.HITs.Truncation.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Truncation/Base.agda).
+       Checking Cubical.Data.NatMinusOne (/home/axel/Documents/HoTT/cubical/Cubical/Data/NatMinusOne.agda).
+        Checking Cubical.Data.NatMinusOne.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/NatMinusOne/Base.agda).
+        Checking Cubical.Data.NatMinusOne.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/NatMinusOne/Properties.agda).
+       Checking Cubical.HITs.Sn.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Sn/Base.agda).
+        Checking Cubical.HITs.Susp (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Susp.agda).
+         Checking Cubical.HITs.Susp.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Susp/Base.agda).
+          Checking Cubical.HITs.S2 (/home/axel/Documents/HoTT/cubical/Cubical/HITs/S2.agda).
+           Checking Cubical.HITs.S2.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/S2/Base.agda).
+          Checking Cubical.HITs.S3 (/home/axel/Documents/HoTT/cubical/Cubical/HITs/S3.agda).
+           Checking Cubical.HITs.S3.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/S3/Base.agda).
+         Checking Cubical.HITs.Susp.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Susp/Properties.agda).
+          Checking Cubical.HITs.Join (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Join.agda).
+           Checking Cubical.HITs.Join.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Join/Base.agda).
+           Checking Cubical.HITs.Join.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Join/Properties.agda).
+            Checking Cubical.HITs.Pushout (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Pushout.agda).
+             Checking Cubical.HITs.Pushout.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Pushout/Base.agda).
+             Checking Cubical.HITs.Pushout.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Pushout/Properties.agda).
+             Checking Cubical.HITs.Pushout.KrausVonRaumer (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Pushout/KrausVonRaumer.agda).
+      Checking Cubical.HITs.Truncation.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Truncation/Properties.agda).
+       Checking Cubical.Modalities.Modality (/home/axel/Documents/HoTT/cubical/Cubical/Modalities/Modality.agda).
+       Checking Cubical.HITs.Nullification (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Nullification.agda).
+        Checking Cubical.HITs.Nullification.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Nullification/Base.agda).
+        Checking Cubical.HITs.Nullification.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Nullification/Properties.agda).
+         Checking Cubical.HITs.Localization (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Localization.agda).
+          Checking Cubical.HITs.Localization.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Localization/Base.agda).
+          Checking Cubical.HITs.Localization.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Localization/Properties.agda).
+       Checking Cubical.HITs.GroupoidTruncation (/home/axel/Documents/HoTT/cubical/Cubical/HITs/GroupoidTruncation.agda).
+        Checking Cubical.HITs.GroupoidTruncation.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/GroupoidTruncation/Base.agda).
+        Checking Cubical.HITs.GroupoidTruncation.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/GroupoidTruncation/Properties.agda).
+       Checking Cubical.HITs.2GroupoidTruncation (/home/axel/Documents/HoTT/cubical/Cubical/HITs/2GroupoidTruncation.agda).
+        Checking Cubical.HITs.2GroupoidTruncation.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/2GroupoidTruncation/Base.agda).
+        Checking Cubical.HITs.2GroupoidTruncation.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/2GroupoidTruncation/Properties.agda).
+      Checking Cubical.HITs.Truncation.FromNegTwo (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Truncation/FromNegTwo.agda).
+       Checking Cubical.HITs.Truncation.FromNegTwo.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Truncation/FromNegTwo/Base.agda).
+       Checking Cubical.HITs.Truncation.FromNegTwo.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Truncation/FromNegTwo/Properties.agda).
+  Checking Cubical.Data.InfNat (/home/axel/Documents/HoTT/cubical/Cubical/Data/InfNat.agda).
+   Checking Cubical.Data.InfNat.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/InfNat/Base.agda).
+   Checking Cubical.Data.InfNat.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/InfNat/Properties.agda).
+  Checking Cubical.Data.Nat.Algebra (/home/axel/Documents/HoTT/cubical/Cubical/Data/Nat/Algebra.agda).
+  Checking Cubical.Data.Nat.Coprime (/home/axel/Documents/HoTT/cubical/Cubical/Data/Nat/Coprime.agda).
+   Checking Cubical.Data.NatPlusOne (/home/axel/Documents/HoTT/cubical/Cubical/Data/NatPlusOne.agda).
+    Checking Cubical.Data.NatPlusOne.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/NatPlusOne/Base.agda).
+    Checking Cubical.Data.NatPlusOne.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/NatPlusOne/Properties.agda).
+   Checking Cubical.Data.Nat.Divisibility (/home/axel/Documents/HoTT/cubical/Cubical/Data/Nat/Divisibility.agda).
+   Checking Cubical.Data.Nat.GCD (/home/axel/Documents/HoTT/cubical/Cubical/Data/Nat/GCD.agda).
+  Checking Cubical.Data.Prod (/home/axel/Documents/HoTT/cubical/Cubical/Data/Prod.agda).
+   Checking Cubical.Data.Prod.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Data/Prod/Properties.agda).
+  Checking Cubical.Data.Queue (/home/axel/Documents/HoTT/cubical/Cubical/Data/Queue.agda).
+   Checking Cubical.Data.Queue.Base (/home/axel/Documents/HoTT/cubical/Cubical/Data/Queue/Base.agda).
+    Checking Cubical.Data.Queue.1List (/home/axel/Documents/HoTT/cubical/Cubical/Data/Queue/1List.agda).
+     Checking Cubical.Structures.Queue (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Queue.agda).
+    Checking Cubical.Data.Queue.Truncated2List (/home/axel/Documents/HoTT/cubical/Cubical/Data/Queue/Truncated2List.agda).
+    Checking Cubical.Data.Queue.Untruncated2List (/home/axel/Documents/HoTT/cubical/Cubical/Data/Queue/Untruncated2List.agda).
+   Checking Cubical.Data.Queue.Finite (/home/axel/Documents/HoTT/cubical/Cubical/Data/Queue/Finite.agda).
+  Checking Cubical.Data.Queue.Untruncated2ListInvariant (/home/axel/Documents/HoTT/cubical/Cubical/Data/Queue/Untruncated2ListInvariant.agda).
+  Checking Cubical.Data.SubFinSet (/home/axel/Documents/HoTT/cubical/Cubical/Data/SubFinSet.agda).
+ Checking Cubical.HITs.Everything (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Everything.agda).
+  Checking Cubical.HITs.AssocList (/home/axel/Documents/HoTT/cubical/Cubical/HITs/AssocList.agda).
+   Checking Cubical.HITs.AssocList.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/AssocList/Base.agda).
+   Checking Cubical.HITs.AssocList.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/AssocList/Properties.agda).
+  Checking Cubical.HITs.Colimit (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Colimit.agda).
+   Checking Cubical.HITs.Colimit.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Colimit/Base.agda).
+   Checking Cubical.HITs.Colimit.Examples (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Colimit/Examples.agda).
+  Checking Cubical.HITs.Cost (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Cost.agda).
+   Checking Cubical.HITs.Cost.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Cost/Base.agda).
+  Checking Cubical.HITs.Cylinder (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Cylinder.agda).
+   Checking Cubical.HITs.Cylinder.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Cylinder/Base.agda).
+    Checking Cubical.HITs.Interval (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Interval.agda).
+     Checking Cubical.HITs.Interval.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Interval/Base.agda).
+  Checking Cubical.HITs.DunceCap (/home/axel/Documents/HoTT/cubical/Cubical/HITs/DunceCap.agda).
+   Checking Cubical.HITs.DunceCap.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/DunceCap/Base.agda).
+    Checking Cubical.HITs.MappingCones (/home/axel/Documents/HoTT/cubical/Cubical/HITs/MappingCones.agda).
+     Checking Cubical.HITs.MappingCones.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/MappingCones/Base.agda).
+     Checking Cubical.HITs.MappingCones.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/MappingCones/Properties.agda).
+   Checking Cubical.HITs.DunceCap.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/DunceCap/Properties.agda).
+  Checking Cubical.HITs.FiniteMultiset.CountExtensionality (/home/axel/Documents/HoTT/cubical/Cubical/HITs/FiniteMultiset/CountExtensionality.agda).
+  Checking Cubical.HITs.Hopf (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Hopf.agda).
+   Checking Cubical.HITs.Sn (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Sn.agda).
+    Checking Cubical.HITs.Sn.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Sn/Properties.agda).
+     Checking Cubical.Homotopy.Connected (/home/axel/Documents/HoTT/cubical/Cubical/Homotopy/Connected.agda).
+      Checking Cubical.HITs.SmashProduct (/home/axel/Documents/HoTT/cubical/Cubical/HITs/SmashProduct.agda).
+       Checking Cubical.HITs.SmashProduct.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/SmashProduct/Base.agda).
+        Checking Cubical.HITs.Wedge (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Wedge.agda).
+         Checking Cubical.HITs.Wedge.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Wedge/Base.agda).
+  Checking Cubical.HITs.InfNat (/home/axel/Documents/HoTT/cubical/Cubical/HITs/InfNat.agda).
+   Checking Cubical.HITs.InfNat.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/InfNat/Base.agda).
+   Checking Cubical.HITs.InfNat.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/InfNat/Properties.agda).
+  Checking Cubical.HITs.Ints.BiInvInt (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Ints/BiInvInt.agda).
+   Checking Cubical.HITs.Ints.BiInvInt.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Ints/BiInvInt/Base.agda).
+   Checking Cubical.HITs.Ints.BiInvInt.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Ints/BiInvInt/Properties.agda).
+  Checking Cubical.HITs.Ints.DeltaInt (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Ints/DeltaInt.agda).
+   Checking Cubical.HITs.Ints.DeltaInt.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Ints/DeltaInt/Base.agda).
+   Checking Cubical.HITs.Ints.DeltaInt.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Ints/DeltaInt/Properties.agda).
+  Checking Cubical.HITs.Ints.HAEquivInt (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Ints/HAEquivInt.agda).
+   Checking Cubical.HITs.Ints.HAEquivInt.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Ints/HAEquivInt/Base.agda).
+  Checking Cubical.HITs.Ints.IsoInt (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Ints/IsoInt.agda).
+   Checking Cubical.HITs.Ints.IsoInt.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Ints/IsoInt/Base.agda).
+  Checking Cubical.HITs.Ints.QuoInt (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Ints/QuoInt.agda).
+   Checking Cubical.HITs.Ints.QuoInt.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Ints/QuoInt/Base.agda).
+   Checking Cubical.HITs.Ints.QuoInt.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Ints/QuoInt/Properties.agda).
+  Checking Cubical.HITs.KleinBottle (/home/axel/Documents/HoTT/cubical/Cubical/HITs/KleinBottle.agda).
+   Checking Cubical.HITs.KleinBottle.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/KleinBottle/Base.agda).
+   Checking Cubical.HITs.KleinBottle.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/KleinBottle/Properties.agda).
+  Checking Cubical.HITs.Modulo (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Modulo.agda).
+   Checking Cubical.HITs.Modulo.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Modulo/Base.agda).
+   Checking Cubical.HITs.Modulo.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Modulo/Properties.agda).
+    Checking Cubical.HITs.Modulo.FinEquiv (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Modulo/FinEquiv.agda).
+  Checking Cubical.HITs.PropositionalTruncation.Monad (/home/axel/Documents/HoTT/cubical/Cubical/HITs/PropositionalTruncation/Monad.agda).
+  Checking Cubical.HITs.Pushout.Flattening (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Pushout/Flattening.agda).
+  Checking Cubical.HITs.RPn (/home/axel/Documents/HoTT/cubical/Cubical/HITs/RPn.agda).
+   Checking Cubical.HITs.RPn.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/RPn/Base.agda).
+  Checking Cubical.HITs.Rationals.HITQ (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Rationals/HITQ.agda).
+   Checking Cubical.HITs.Rationals.HITQ.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Rationals/HITQ/Base.agda).
+  Checking Cubical.HITs.Rationals.QuoQ (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Rationals/QuoQ.agda).
+   Checking Cubical.HITs.Rationals.QuoQ.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Rationals/QuoQ/Base.agda).
+   Checking Cubical.HITs.Rationals.QuoQ.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Rationals/QuoQ/Properties.agda).
+  Checking Cubical.HITs.Rationals.SigmaQ (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Rationals/SigmaQ.agda).
+   Checking Cubical.HITs.Rationals.SigmaQ.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Rationals/SigmaQ/Base.agda).
+   Checking Cubical.HITs.Rationals.SigmaQ.Properties (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Rationals/SigmaQ/Properties.agda).
+  Checking Cubical.HITs.Torus (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Torus.agda).
+   Checking Cubical.HITs.Torus.Base (/home/axel/Documents/HoTT/cubical/Cubical/HITs/Torus/Base.agda).
+ Checking Cubical.Codata.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Codata/Everything.agda).
+  Checking Cubical.Codata.EverythingSafe (/home/axel/Documents/HoTT/cubical/Cubical/Codata/EverythingSafe.agda).
+  Checking Cubical.Codata.Stream (/home/axel/Documents/HoTT/cubical/Cubical/Codata/Stream.agda).
+   Checking Cubical.Codata.Stream.Base (/home/axel/Documents/HoTT/cubical/Cubical/Codata/Stream/Base.agda).
+   Checking Cubical.Codata.Stream.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Codata/Stream/Properties.agda).
+  Checking Cubical.Codata.Conat (/home/axel/Documents/HoTT/cubical/Cubical/Codata/Conat.agda).
+   Checking Cubical.Codata.Conat.Base (/home/axel/Documents/HoTT/cubical/Cubical/Codata/Conat/Base.agda).
+   Checking Cubical.Codata.Conat.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Codata/Conat/Properties.agda).
+  Checking Cubical.Codata.M (/home/axel/Documents/HoTT/cubical/Cubical/Codata/M.agda).
+  Checking Cubical.Codata.M.Bisimilarity (/home/axel/Documents/HoTT/cubical/Cubical/Codata/M/Bisimilarity.agda).
+  Checking Cubical.Codata.M.AsLimit.M (/home/axel/Documents/HoTT/cubical/Cubical/Codata/M/AsLimit/M.agda).
+   Checking Cubical.Codata.M.AsLimit.M.Base (/home/axel/Documents/HoTT/cubical/Cubical/Codata/M/AsLimit/M/Base.agda).
+    Checking Cubical.Codata.M.AsLimit.helper (/home/axel/Documents/HoTT/cubical/Cubical/Codata/M/AsLimit/helper.agda).
+    Checking Cubical.Codata.M.AsLimit.Container (/home/axel/Documents/HoTT/cubical/Cubical/Codata/M/AsLimit/Container.agda).
+    Checking Cubical.Codata.M.AsLimit.Coalg.Base (/home/axel/Documents/HoTT/cubical/Cubical/Codata/M/AsLimit/Coalg/Base.agda).
+   Checking Cubical.Codata.M.AsLimit.M.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Codata/M/AsLimit/M/Properties.agda).
+  Checking Cubical.Codata.M.AsLimit.Coalg (/home/axel/Documents/HoTT/cubical/Cubical/Codata/M/AsLimit/Coalg.agda).
+  Checking Cubical.Codata.M.AsLimit.itree (/home/axel/Documents/HoTT/cubical/Cubical/Codata/M/AsLimit/itree.agda).
+  Checking Cubical.Codata.M.AsLimit.stream (/home/axel/Documents/HoTT/cubical/Cubical/Codata/M/AsLimit/stream.agda).
+ Checking Cubical.Papers.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Papers/Everything.agda).
+  Checking Cubical.Papers.RepresentationIndependence (/home/axel/Documents/HoTT/cubical/Cubical/Papers/RepresentationIndependence.agda).
+   Checking Cubical.Algebra.Matrix (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Matrix.agda).
+    Checking Cubical.Algebra.AbGroup (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/AbGroup.agda).
+     Checking Cubical.Algebra.AbGroup.Base (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/AbGroup/Base.agda).
+    Checking Cubical.Algebra.Ring (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Ring.agda).
+     Checking Cubical.Algebra.Ring.Base (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Ring/Base.agda).
+     Checking Cubical.Algebra.Ring.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Ring/Properties.agda).
+     Checking Cubical.Algebra.Ring.Ideal (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Ring/Ideal.agda).
+     Checking Cubical.Algebra.Ring.Kernel (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Ring/Kernel.agda).
+   Checking Cubical.Relation.ZigZag.Applications.MultiSet (/home/axel/Documents/HoTT/cubical/Cubical/Relation/ZigZag/Applications/MultiSet.agda).
+    Checking Cubical.Structures.Relational.Auto (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Relational/Auto.agda).
+     Checking Cubical.Structures.Relational.Macro (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Relational/Macro.agda).
+      Checking Cubical.Structures.Relational.Constant (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Relational/Constant.agda).
+      Checking Cubical.Structures.Relational.Function (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Relational/Function.agda).
+      Checking Cubical.Structures.Relational.Maybe (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Relational/Maybe.agda).
+      Checking Cubical.Structures.Relational.Parameterized (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Relational/Parameterized.agda).
+      Checking Cubical.Structures.Relational.Pointed (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Relational/Pointed.agda).
+      Checking Cubical.Structures.Relational.Product (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Relational/Product.agda).
+  Checking Cubical.Papers.Synthetic (/home/axel/Documents/HoTT/cubical/Cubical/Papers/Synthetic.agda).
+ Checking Cubical.Relation.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Relation/Everything.agda).
+  Checking Cubical.Relation.Binary (/home/axel/Documents/HoTT/cubical/Cubical/Relation/Binary.agda).
+   Checking Cubical.Relation.Binary.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Relation/Binary/Properties.agda).
+  Checking Cubical.Relation.Binary.Poset (/home/axel/Documents/HoTT/cubical/Cubical/Relation/Binary/Poset.agda).
+  Checking Cubical.Relation.Nullary.HLevels (/home/axel/Documents/HoTT/cubical/Cubical/Relation/Nullary/HLevels.agda).
+ Checking Cubical.Categories.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Categories/Everything.agda).
+  Checking Cubical.Categories.Category (/home/axel/Documents/HoTT/cubical/Cubical/Categories/Category.agda).
+  Checking Cubical.Categories.Functor (/home/axel/Documents/HoTT/cubical/Cubical/Categories/Functor.agda).
+  Checking Cubical.Categories.NaturalTransformation (/home/axel/Documents/HoTT/cubical/Cubical/Categories/NaturalTransformation.agda).
+  Checking Cubical.Categories.Presheaves (/home/axel/Documents/HoTT/cubical/Cubical/Categories/Presheaves.agda).
+   Checking Cubical.Categories.Sets (/home/axel/Documents/HoTT/cubical/Cubical/Categories/Sets.agda).
+  Checking Cubical.Categories.Pullback (/home/axel/Documents/HoTT/cubical/Cubical/Categories/Pullback.agda).
+  Checking Cubical.Categories.Type (/home/axel/Documents/HoTT/cubical/Cubical/Categories/Type.agda).
+ Checking Cubical.Homotopy.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Homotopy/Everything.agda).
+  Checking Cubical.Homotopy.Freudenthal (/home/axel/Documents/HoTT/cubical/Cubical/Homotopy/Freudenthal.agda).
+   Checking Cubical.Homotopy.WedgeConnectivity (/home/axel/Documents/HoTT/cubical/Cubical/Homotopy/WedgeConnectivity.agda).
+ Checking Cubical.Modalities.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Modalities/Everything.agda).
+  Checking Cubical.Modalities.Lex (/home/axel/Documents/HoTT/cubical/Cubical/Modalities/Lex.agda).
+ Checking Cubical.Experiments.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Experiments/Everything.agda).
+  Checking Cubical.Experiments.Brunerie (/home/axel/Documents/HoTT/cubical/Cubical/Experiments/Brunerie.agda).
+  Checking Cubical.Experiments.EscardoSIP (/home/axel/Documents/HoTT/cubical/Cubical/Experiments/EscardoSIP.agda).
+  Checking Cubical.Experiments.Generic (/home/axel/Documents/HoTT/cubical/Cubical/Experiments/Generic.agda).
+  Checking Cubical.Experiments.NatMinusTwo (/home/axel/Documents/HoTT/cubical/Cubical/Experiments/NatMinusTwo.agda).
+   Checking Cubical.Experiments.NatMinusTwo.Base (/home/axel/Documents/HoTT/cubical/Cubical/Experiments/NatMinusTwo/Base.agda).
+   Checking Cubical.Experiments.NatMinusTwo.Properties (/home/axel/Documents/HoTT/cubical/Cubical/Experiments/NatMinusTwo/Properties.agda).
+   Checking Cubical.Experiments.NatMinusTwo.ToNatMinusOne (/home/axel/Documents/HoTT/cubical/Cubical/Experiments/NatMinusTwo/ToNatMinusOne.agda).
+  Checking Cubical.Experiments.Problem (/home/axel/Documents/HoTT/cubical/Cubical/Experiments/Problem.agda).
+  Checking Cubical.Experiments.FunExtFromUA (/home/axel/Documents/HoTT/cubical/Cubical/Experiments/FunExtFromUA.agda).
+  Checking Cubical.Experiments.HoTT-UF (/home/axel/Documents/HoTT/cubical/Cubical/Experiments/HoTT-UF.agda).
+  Checking Cubical.Experiments.Rng (/home/axel/Documents/HoTT/cubical/Cubical/Experiments/Rng.agda).
+ Checking Cubical.Induction.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Induction/Everything.agda).
+ Checking Cubical.Structures.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Everything.agda).
+  Checking Cubical.Structures.LeftAction (/home/axel/Documents/HoTT/cubical/Cubical/Structures/LeftAction.agda).
+  Checking Cubical.Structures.Relational.Equalizer (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Relational/Equalizer.agda).
+  Checking Cubical.Structures.Transfer (/home/axel/Documents/HoTT/cubical/Cubical/Structures/Transfer.agda).
+ Checking Cubical.ZCohomology.Everything (/home/axel/Documents/HoTT/cubical/Cubical/ZCohomology/Everything.agda).
+  Checking Cubical.ZCohomology.Base (/home/axel/Documents/HoTT/cubical/Cubical/ZCohomology/Base.agda).
+  Checking Cubical.ZCohomology.Groups.Connected (/home/axel/Documents/HoTT/cubical/Cubical/ZCohomology/Groups/Connected.agda).
+   Checking Cubical.ZCohomology.Properties (/home/axel/Documents/HoTT/cubical/Cubical/ZCohomology/Properties.agda).
+    Checking Cubical.ZCohomology.KcompPrelims (/home/axel/Documents/HoTT/cubical/Cubical/ZCohomology/KcompPrelims.agda).
+   Checking Cubical.ZCohomology.Groups.Unit (/home/axel/Documents/HoTT/cubical/Cubical/ZCohomology/Groups/Unit.agda).
+  Checking Cubical.ZCohomology.Groups.Prelims (/home/axel/Documents/HoTT/cubical/Cubical/ZCohomology/Groups/Prelims.agda).
+  Checking Cubical.ZCohomology.Groups.Sn (/home/axel/Documents/HoTT/cubical/Cubical/ZCohomology/Groups/Sn.agda).
+   Checking Cubical.ZCohomology.MayerVietorisUnreduced (/home/axel/Documents/HoTT/cubical/Cubical/ZCohomology/MayerVietorisUnreduced.agda).
+  Checking Cubical.ZCohomology.Groups.Torus (/home/axel/Documents/HoTT/cubical/Cubical/ZCohomology/Groups/Torus.agda).
+  Checking Cubical.ZCohomology.Groups.Wedge (/home/axel/Documents/HoTT/cubical/Cubical/ZCohomology/Groups/Wedge.agda).
+  Checking Cubical.ZCohomology.Groups.WedgeOfSpheres (/home/axel/Documents/HoTT/cubical/Cubical/ZCohomology/Groups/WedgeOfSpheres.agda).
+ Checking Cubical.Algebra.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Everything.agda).
+  Checking Cubical.Algebra.Algebra (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Algebra.agda).
+   Checking Cubical.Algebra.Algebra.Base (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Algebra/Base.agda).
+    Checking Cubical.Algebra.Module (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Module.agda).
+     Checking Cubical.Algebra.Module.Base (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Module/Base.agda).
+  Checking Cubical.Algebra.CommAlgebra (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/CommAlgebra.agda).
+   Checking Cubical.Algebra.CommAlgebra.Base (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/CommAlgebra/Base.agda).
+    Checking Cubical.Algebra.CommRing (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/CommRing.agda).
+     Checking Cubical.Algebra.CommRing.Base (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/CommRing/Base.agda).
+  Checking Cubical.Algebra.CommRing.Integers (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/CommRing/Integers.agda).
+  Checking Cubical.Algebra.FreeCommAlgebra (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/FreeCommAlgebra.agda).
+  Checking Cubical.Algebra.Ring.QuotientRing (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/Ring/QuotientRing.agda).
+  Checking Cubical.Algebra.RingSolver.AlmostRing (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/RingSolver/AlmostRing.agda).
+  Checking Cubical.Algebra.SymmetricGroup (/home/axel/Documents/HoTT/cubical/Cubical/Algebra/SymmetricGroup.agda).
+ Checking Cubical.Talks.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Talks/Everything.agda).
+  Checking Cubical.Talks.EPA2020 (/home/axel/Documents/HoTT/cubical/Cubical/Talks/EPA2020.agda).
+ Checking Cubical.Reflection.Everything (/home/axel/Documents/HoTT/cubical/Cubical/Reflection/Everything.agda).
+Total                                           195,225ms 
+Miscellaneous                                     2,880ms 
+Cubical.ZCohomology.Groups.Wedge                 10,548ms 
+Cubical.ZCohomology.MayerVietorisUnreduced        7,304ms 
+Cubical.ZCohomology.Properties                    6,387ms 
+Cubical.ZCohomology.Groups.WedgeOfSpheres         3,661ms 
+Cubical.ZCohomology.Groups.Prelims                3,153ms 
+Cubical.HITs.Hopf                                 3,077ms 
+Cubical.ZCohomology.Groups.Sn                     2,969ms 
+Cubical.Data.Fin.Properties                       2,870ms 
+Cubical.Algebra.Algebra.Base                      2,800ms 
+Cubical.Foundations.HLevels                       2,742ms 
+Cubical.Foundations.Id                            2,687ms 
+Cubical.HITs.Truncation.Properties                2,635ms 
+Cubical.Foundations.GroupoidLaws                  2,593ms 
+Cubical.ZCohomology.Groups.Torus                  2,295ms 
+Cubical.HITs.Sn.Properties                        2,196ms 
+Cubical.Algebra.Group.MorphismProperties          2,110ms 
+Cubical.HITs.FiniteMultiset.CountExtensionality   2,103ms 
+Cubical.Algebra.Monoid.Base                       2,069ms 
+Cubical.HITs.KleinBottle.Properties               1,989ms 
+Cubical.Algebra.FreeCommAlgebra                   1,881ms 
+Cubical.Data.Sigma.Properties                     1,856ms 
+Cubical.Relation.ZigZag.Applications.MultiSet     1,821ms 
+Cubical.Functions.Embedding                       1,815ms 
+Cubical.HITs.Rationals.QuoQ.Properties            1,814ms 
+Cubical.HITs.SmashProduct.Base                    1,764ms 
+Cubical.Algebra.Ring.Base                         1,757ms 
+Cubical.HITs.Truncation.FromNegTwo.Properties     1,756ms 
+Cubical.HITs.S1.Base                              1,689ms 
+Cubical.Foundations.Prelude                       1,656ms 
+Cubical.HITs.Pushout.Properties                   1,655ms 
+Cubical.Structures.Record                         1,644ms 
+Cubical.Homotopy.Connected                        1,494ms 
+Cubical.HITs.Join.Properties                      1,487ms 
+Cubical.HITs.PropositionalTruncation.Properties   1,438ms 
+Cubical.Algebra.Module.Base                       1,405ms 
+Cubical.Homotopy.Freudenthal                      1,403ms 
+Cubical.Algebra.Group.Algebra                     1,397ms 
+Cubical.HITs.RPn.Base                             1,394ms 
+Cubical.Algebra.Matrix                            1,391ms 
+Cubical.Algebra.CommAlgebra.Base                  1,380ms 
+Cubical.Data.DescendingList.Properties            1,376ms 
+Cubical.Structures.Relational.Function            1,373ms 
+Cubical.Relation.Binary.Poset                     1,364ms 
+Cubical.Algebra.Semigroup.Base                    1,317ms 
+Cubical.Foundations.Pointed.Homotopy              1,301ms 
+Cubical.Structures.Relational.Product             1,275ms 
+Cubical.Foundations.RelationalStructure           1,226ms 
+Cubical.Modalities.Lex                            1,213ms 
+Cubical.Data.Fin.LehmerCode                       1,209ms 
+Cubical.HITs.FiniteMultiset.Properties            1,168ms 
+Cubical.HITs.Pushout.KrausVonRaumer               1,084ms 
+Cubical.Data.Nat.Algebra                          1,083ms 
+Cubical.Experiments.Brunerie                      1,060ms 
+Cubical.Foundations.Univalence                    1,053ms 
+Cubical.Structures.Queue                          1,051ms 
+Cubical.HITs.Ints.QuoInt.Properties               1,030ms 
+Cubical.Algebra.CommRing.Base                       988ms 
+Cubical.Data.DescendingList.Strict.Properties       987ms 
+Cubical.Foundations.Equiv.PathSplit                 983ms 
+Cubical.Functions.FunExtEquiv                       953ms 
+Cubical.Papers.RepresentationIndependence           938ms 
+Cubical.Foundations.Path                            927ms 
+Cubical.Data.Nat.Order                              903ms 
+Cubical.Foundations.Equiv.Properties                868ms 
+Cubical.HITs.Nullification.Properties               865ms 
+Cubical.Experiments.EscardoSIP                      845ms 
+Cubical.Functions.Logic                             839ms 
+Cubical.Codata.M.AsLimit.M.Base                     835ms 
+Cubical.Algebra.AbGroup.Base                        817ms 
+Cubical.Algebra.Ring.QuotientRing                   813ms 
+Cubical.HITs.Ints.BiInvInt.Base                     806ms 
+Cubical.Data.Queue.Untruncated2List                 803ms 
+Cubical.Data.Queue.Truncated2List                   797ms 
+Cubical.Structures.Relational.Maybe                 797ms 
+Cubical.HITs.Rationals.SigmaQ.Properties            785ms 
+Cubical.Foundations.Equiv                           772ms 
+Cubical.HITs.SetTruncation.Properties               761ms 
+Cubical.Foundations.Equiv.HalfAdjoint               757ms 
+Cubical.HITs.SetQuotients.Properties                753ms 
+Cubical.Relation.ZigZag.Base                        749ms 
+Cubical.HITs.AssocList.Properties                   738ms 
+Cubical.HITs.Cost.Base                              705ms 
+Cubical.Codata.M.Bisimilarity                       705ms 
+Cubical.Data.Int.Properties                         689ms 
+Cubical.Data.BinNat.BinNat                          687ms 
+Cubical.HITs.Ints.BiInvInt.Properties               660ms 
+Cubical.HITs.Colimit.Base                           629ms 
+Cubical.HITs.Pushout.Flattening                     618ms 
+Cubical.HITs.Cylinder.Base                          617ms 
+Cubical.Data.Graph.Examples                         612ms 
+Cubical.Structures.MultiSet                         607ms 
+Cubical.Structures.Relational.Macro                 596ms 
+Cubical.Algebra.Ring.Properties                     593ms 
+Cubical.Modalities.Modality                         583ms 
+Cubical.Experiments.Rng                             579ms 
+Cubical.Data.Nat.GCD                                570ms 
+Cubical.Data.List.Properties                        564ms 
+Cubical.Algebra.Group.Base                          562ms 
+Cubical.ZCohomology.KcompPrelims                    546ms 
+Cubical.Talks.EPA2020                               545ms 
+Cubical.Structures.Macro                            538ms 
+Cubical.Structures.Relational.Equalizer             520ms 
+Cubical.Foundations.Isomorphism                     490ms 
+Cubical.HITs.Susp.Base                              486ms 
+Cubical.Experiments.Problem                         473ms 
+Cubical.HITs.Ints.QuoInt.Base                       472ms 
+Cubical.Structures.Relational.Auto                  471ms 
+Cubical.Data.Maybe.Properties                       467ms 
+Cubical.HITs.Join.Base                              463ms 
+Cubical.Foundations.Transport                       457ms 
+Cubical.Data.DescendingList.Examples                457ms 
+Cubical.Data.Queue.Untruncated2ListInvariant        452ms 
+Cubical.HITs.Colimit.Examples                       449ms 
+Cubical.Structures.Auto                             437ms 
+Cubical.Data.Queue.1List                            429ms 
+Cubical.Foundations.SIP                             425ms 
+Cubical.Data.Queue.Finite                           423ms 
+Cubical.Categories.NaturalTransformation            420ms 
+Cubical.Structures.Transfer                         416ms 
+Cubical.HITs.Susp.Properties                        413ms 
+Cubical.Data.Sum.Properties                         410ms 
+Cubical.ZCohomology.Groups.Unit                     406ms 
+Cubical.Foundations.Function                        397ms 
+Cubical.Foundations.Pointed.Properties              395ms 
+Cubical.Data.Nat.Properties                         390ms 
+Cubical.Codata.Conat.Properties                     388ms 
+Cubical.Structures.Function                         383ms 
+Cubical.Homotopy.WedgeConnectivity                  381ms 
+Cubical.Data.Prod.Properties                        380ms 
+Cubical.Codata.M                                    376ms 
+Cubical.Structures.Maybe                            366ms 
+Cubical.Foundations.Univalence.Universe             352ms 
+Cubical.Homotopy.Loopspace                          352ms 
+Cubical.Codata.M.AsLimit.helper                     347ms 
+Cubical.Data.Nat.Divisibility                       346ms 
+Cubical.Functions.Fibration                         338ms 
+Cubical.Data.Nat.Coprime                            336ms 
+Cubical.Experiments.FunExtFromUA                    334ms 
+Cubical.HITs.Rationals.SigmaQ.Base                  329ms 
+Cubical.HITs.Torus.Base                             321ms 
+Cubical.Papers.Synthetic                            321ms 
+Cubical.Structures.Axioms                           315ms 
+Cubical.Categories.Presheaves                       304ms 
+Cubical.Foundations.Equiv.Fiberwise                 303ms 
+Cubical.Relation.Nullary.Properties                 301ms 
+Cubical.Algebra.Group.Properties                    301ms 
+Cubical.Codata.Stream.Properties                    300ms 
+Cubical.Structures.Relational.Parameterized         296ms 
+Cubical.Foundations.Pointed.Homogeneous             287ms 
+Cubical.HITs.ListedFiniteSet.Base                   286ms 
+Cubical.Data.FinSet                                 274ms 
+Cubical.Codata.M.AsLimit.M.Properties               273ms 
+Cubical.ZCohomology.Groups.Connected                272ms 
+Cubical.HITs.AssocList.Base                         270ms 
+Cubical.HITs.Ints.DeltaInt.Properties               265ms 
+Cubical.Algebra.Ring.Kernel                         263ms 
+Cubical.Data.Fin.Base                               258ms 
+Cubical.Algebra.Ring.Ideal                          250ms 
+Cubical.Experiments.Generic                         248ms 
+Cubical.Foundations.CartesianKanOps                 246ms 
+Cubical.HITs.2GroupoidTruncation.Properties         243ms 
+Cubical.Categories.Category                         240ms 
+Cubical.HITs.Modulo.FinEquiv                        225ms 
+Cubical.HITs.Ints.IsoInt.Base                       222ms 
+Cubical.Codata.M.AsLimit.itree                      221ms 
+Cubical.Structures.Product                          217ms 
+Cubical.HITs.Modulo.Properties                      216ms 
+Cubical.HITs.GroupoidTruncation.Properties          212ms 
+Cubical.HITs.Localization.Base                      211ms 
+Cubical.HITs.Rationals.QuoQ.Base                    210ms 
+Cubical.Data.HomotopyGroup.Base                     208ms 
+Cubical.HITs.MappingCones.Properties                204ms 
+Cubical.Categories.Pullback                         201ms 
+Cubical.Algebra.Group.Morphism                      200ms 
+Cubical.Structures.LeftAction                       200ms 
+Cubical.Data.Bool.Properties                        199ms 
+Cubical.Induction.WellFounded                       198ms 
+Cubical.Data.DiffInt.Properties                     198ms 
+Cubical.Algebra.RingSolver.AlmostRing               196ms 
+Cubical.Data.Vec.Properties                         192ms 
+Cubical.HITs.Everything                             192ms 
+Cubical.Functions.Surjection                        189ms 
+Cubical.HITs.DunceCap.Properties                    187ms 
+Cubical.Structures.Relational.Constant              182ms 
+Cubical.Data.Everything                             182ms 
+Cubical.Codata.M.AsLimit.Container                  178ms 
+Cubical.Data.Unit.Properties                        177ms 
+Cubical.Structures.Parameterized                    173ms 
+Cubical.Data.Vec.NAry                               173ms 
+Cubical.Foundations.Equiv.BiInvertible              172ms 
+Cubical.Foundations.Powerset                        169ms 
+Cubical.HITs.Pushout.Base                           167ms 
+Cubical.Foundations.Pointed.FunExt                  166ms 
+Cubical.HITs.FiniteMultiset.Base                    165ms 
+Cubical.Structures.TypeEqvTo                        162ms 
+Cubical.Structures.Relational.Pointed               158ms 
+Cubical.HITs.Localization.Properties                155ms 
+Cubical.Data.SumFin.Properties                      155ms 
+Cubical.Relation.Binary.Base                        154ms 
+Cubical.Functions.Bundle                            154ms 
+Cubical.Data.Graph.Base                             149ms 
+Cubical.Data.SumFin.Base                            147ms 
+Cubical.Core.Glue                                   144ms 
+Cubical.Algebra.SymmetricGroup                      140ms 
+Cubical.Algebra.Everything                          139ms 
+Cubical.HITs.InfNat.Properties                      138ms 
+Cubical.HITs.S1.Properties                          136ms 
+Cubical.HITs.Rationals.HITQ.Base                    136ms 
+Cubical.Codata.M.AsLimit.Coalg.Base                 135ms 
+Cubical.Data.FinData.Base                           134ms 
+Cubical.Categories.Functor                          134ms 
+Cubical.Relation.Nullary.HLevels                    134ms 
+Cubical.Data.SubFinSet                              131ms 
+Cubical.README                                      129ms 
+Cubical.Functions.Fixpoint                          125ms 
+Cubical.HITs.Modulo.Base                            125ms 
+Cubical.Data.Vec.Base                               123ms 
+Cubical.Foundations.Everything                      123ms 
+Cubical.Data.FinData.Properties                     120ms 
+Cubical.HITs.PropositionalTruncation.MagicTrick     120ms 
+Cubical.HITs.ListedFiniteSet.Properties             118ms 
+Cubical.HITs.Nullification.Base                     118ms 
+Cubical.Data.FinInd                                 117ms 
+Cubical.Data.DescendingList.Base                    111ms 
+Cubical.Data.Prod.Base                              110ms 
+Cubical.Functions.Involution                        109ms 
+Cubical.Data.NatPlusOne.Properties                  109ms 
+Cubical.Data.List.Base                              106ms 
+Cubical.Data.Bool.Base                              105ms 
+Cubical.HITs.Ints.DeltaInt.Base                     104ms 
+Cubical.HITs.Interval.Base                          102ms 
+Cubical.Data.Equality                               101ms 
+Cubical.Core.Primitives                             101ms 
+Cubical.Papers.Everything                           100ms 
+Cubical.ZCohomology.Base                             99ms 
+Cubical.HITs.2GroupoidTruncation.Base                98ms 
+Cubical.Structures.Pointed                           98ms 
+Cubical.Categories.Sets                              96ms 
+Cubical.Reflection.Base                              94ms 
+Cubical.HITs.PropositionalTruncation.Monad           92ms 
+Cubical.HITs.Wedge.Base                              91ms 
+Cubical.Data.Sum.Base                                91ms 
+Cubical.HITs.Sn.Base                                 90ms 
+Cubical.Structures.Constant                          87ms 
+Cubical.Experiments.HoTT-UF                          87ms 
+Cubical.Data.InfNat.Properties                       85ms 
+Cubical.HITs.MappingCones.Base                       81ms 
+Cubical.Experiments.NatMinusTwo.Base                 81ms 
+Cubical.HITs.Truncation.Base                         81ms 
+Cubical.Foundations.Structure                        81ms 
+Cubical.Relation.Nullary.Base                        79ms 
+Cubical.Codata.M.AsLimit.stream                      74ms 
+Cubical.Data.Int.Base                                72ms 
+Cubical.HITs.DunceCap.Base                           69ms 
+Cubical.Algebra.CommRing.Integers                    69ms 
+Cubical.Foundations.Pointed.Base                     68ms 
+Cubical.HITs.Truncation.FromNegTwo.Base              68ms 
+Cubical.HITs.S2.Base                                 67ms 
+Cubical.Experiments.NatMinusTwo.ToNatMinusOne        66ms 
+Cubical.Structures.Everything                        64ms 
+Cubical.Data.InfNat.Base                             64ms 
+Cubical.HITs.InfNat.Base                             63ms 
+Cubical.Experiments.NatMinusTwo.Properties           63ms 
+Cubical.Codata.Conat.Base                            62ms 
+Cubical.Data.NatMinusOne.Base                        62ms 
+Cubical.HITs.Ints.HAEquivInt.Base                    62ms 
+Cubical.Data.DiffInt.Base                            61ms 
+Cubical.Data.NatPlusOne.Base                         61ms 
+Cubical.Experiments.Everything                       60ms 
+Cubical.Categories.Type                              60ms 
+Cubical.Data.Empty.Properties                        59ms 
+Cubical.HITs.GroupoidTruncation.Base                 55ms 
+Cubical.Foundations.Equiv.Base                       54ms 
+Cubical.ZCohomology.Everything                       54ms 
+Cubical.Codata.Everything                            53ms 
+Cubical.HITs.SetQuotients.Base                       53ms 
+Cubical.Data.NatMinusOne.Properties                  53ms 
+Cubical.Data.Nat.Base                                52ms 
+Cubical.Homotopy.Base                                51ms 
+Cubical.Data.Maybe.Base                              51ms 
+Cubical.Relation.Everything                          49ms 
+Cubical.Relation.Binary.Properties                   49ms 
+Cubical.Data.Sigma.Base                              49ms 
+Cubical.Functions.Everything                         45ms 
+Cubical.HITs.KleinBottle.Base                        43ms 
+Cubical.Algebra.Ring                                 42ms 
+Cubical.HITs.S3.Base                                 42ms 
+Cubical.Algebra.Algebra                              40ms 
+Cubical.Algebra.Group                                40ms 
+Cubical.Algebra.CommAlgebra                          39ms 
+Cubical.Categories.Everything                        38ms 
+Cubical.Algebra.CommRing                             38ms 
+Cubical.Algebra.Module                               38ms 
+Cubical.Codata.Stream.Base                           38ms 
+Cubical.HITs.Ints.QuoInt                             37ms 
+Cubical.HITs.KleinBottle                             36ms 
+Cubical.HITs.SetTruncation.Base                      35ms 
+Cubical.Modalities.Everything                        35ms 
+Cubical.Homotopy.Everything                          35ms 
+Cubical.Data.DescendingList.Strict                   35ms 
+Cubical.Data.Unit.Base                               34ms 
+Cubical.Experiments.NatMinusTwo                      34ms 
+Cubical.HITs.Rationals.QuoQ                          33ms 
+Cubical.HITs.Truncation                              33ms 
+Cubical.Talks.Everything                             33ms 
+Cubical.Algebra.AbGroup                              32ms 
+Cubical.HITs.Ints.BiInvInt                           32ms 
+Cubical.Foundations.Pointed                          32ms 
+Cubical.Data.DescendingList                          31ms 
+Cubical.HITs.Rationals.SigmaQ                        31ms 
+Cubical.Codata.Conat                                 30ms 
+Cubical.Reflection.Everything                        30ms 
+Cubical.HITs.Rationals.HITQ                          29ms 
+Cubical.Codata.M.AsLimit.M                           29ms 
+Cubical.Induction.Everything                         29ms 
+Cubical.HITs.PropositionalTruncation.Base            29ms 
+Cubical.Codata.Stream                                29ms 
+Cubical.Relation.Binary                              29ms 
+Cubical.HITs.Pushout                                 29ms 
+Cubical.HITs.Truncation.FromNegTwo                   28ms 
+Cubical.Data.Int                                     28ms 
+Cubical.Data.Queue.Base                              28ms 
+Cubical.Data.Empty.Base                              28ms 
+Cubical.HITs.Modulo                                  28ms 
+Cubical.HITs.Torus                                   28ms 
+Cubical.Data.Queue                                   27ms 
+Cubical.HITs.MappingCones                            27ms 
+Cubical.Data.NatPlusOne                              27ms 
+Cubical.Data.Sigma                                   27ms 
+Cubical.HITs.Colimit                                 26ms 
+Cubical.HITs.Ints.DeltaInt                           26ms 
+Cubical.HITs.Ints.IsoInt                             26ms 
+Cubical.HITs.RPn                                     26ms 
+Cubical.HITs.AssocList                               26ms 
+Cubical.Codata.M.AsLimit.Coalg                       26ms 
+Cubical.HITs.Sn                                      26ms 
+Cubical.HITs.SmashProduct                            26ms 
+Cubical.HITs.Cylinder                                26ms 
+Cubical.Data.Graph                                   26ms 
+Cubical.HITs.Susp                                    26ms 
+Cubical.Data.Fin                                     25ms 
+Cubical.HITs.DunceCap                                25ms 
+Cubical.HITs.InfNat                                  25ms 
+Cubical.Algebra.Monoid                               25ms 
+Cubical.HITs.S1                                      25ms 
+Cubical.Codata.EverythingSafe                        25ms 
+Cubical.HITs.Ints.HAEquivInt                         25ms 
+Cubical.Data.Prod                                    25ms 
+Cubical.Data.NatMinusOne                             25ms 
+Cubical.HITs.Wedge                                   24ms 
+Cubical.HITs.Cost                                    24ms 
+Cubical.Algebra.Semigroup                            24ms 
+Cubical.HITs.Nullification                           24ms 
+Cubical.HITs.Localization                            24ms 
+Cubical.HITs.2GroupoidTruncation                     24ms 
+Cubical.Data.SumFin                                  24ms 
+Cubical.HITs.GroupoidTruncation                      23ms 
+Cubical.Data.BinNat                                  23ms 
+Cubical.Data.Nat                                     23ms 
+Cubical.HITs.Join                                    23ms 
+Cubical.HITs.Interval                                23ms 
+Cubical.Data.InfNat                                  23ms 
+Cubical.Core.Id                                      23ms 
+Cubical.Data.HomotopyGroup                           23ms 
+Cubical.Data.Bool                                    23ms 
+Cubical.HITs.FiniteMultiset                          23ms 
+Cubical.Data.List                                    23ms 
+Cubical.Data.Maybe                                   22ms 
+Cubical.Core.Everything                              22ms 
+Cubical.Data.Sum                                     21ms 
+Cubical.HITs.S2                                      21ms 
+Cubical.Relation.Nullary                             21ms 
+Cubical.HITs.S3                                      21ms 
+Cubical.HITs.PropositionalTruncation                 21ms 
+Cubical.Data.Nat.Literals                            21ms 
+Cubical.Data.Vec                                     21ms 
+Cubical.HITs.ListedFiniteSet                         20ms 
+Cubical.HITs.SetTruncation                           20ms 
+Cubical.Data.DiffInt                                 20ms 
+Cubical.HITs.SetQuotients                            19ms 
+Cubical.Data.Unit                                    19ms 
+Cubical.Relation.Nullary.DecidableEq                 18ms 
+Cubical.Data.FinData                                 17ms 
+Cubical.Data.Empty                                   16ms 

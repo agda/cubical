@@ -169,7 +169,7 @@ isConnectedPath : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isConnected (suc n) A
   → (a₀ a₁ : A) → isConnected n (a₀ ≡ a₁)
 isConnectedPath zero connA a₀ a₁ = isContrUnit*
-isConnectedPath (suc n) connA a₀ a₁ =
+isConnectedPath (suc n) {A = A} connA a₀ a₁ =
   isOfHLevelRetractFromIso 0
     (invIso (PathIdTruncIso (suc n)))
     (isContr→isContrPath connA _ _)

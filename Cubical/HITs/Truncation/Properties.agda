@@ -5,6 +5,7 @@ open import Cubical.Data.NatMinusOne
 open import Cubical.HITs.Truncation.Base
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
@@ -402,6 +403,26 @@ module ΩTrunc where
   Iso.rightInv (IsoFinal _ x y) = P-linv x y
   Iso.leftInv (IsoFinal _ x y) = P-rinv x y
 
+  +P : {B : Type ℓ} (n : HLevel) (x y z : ∥ B ∥ (2 + n)) → (P x y) → (P y z) → P x z
+  +P n = elim3 (λ x _ z → isOfHLevelΠ (2 + n) λ _ → isOfHLevelΠ (2 + n) λ _ → hLevelP x z)
+                      λ a b c → rec (isOfHLevelΠ (suc n) λ _ → isOfHLevelTrunc (suc n))
+                        λ p → rec (isOfHLevelTrunc (suc n))
+                        λ q → ∣ p ∙ q ∣
+
+  +P-funct : {B : Type ℓ} (n : HLevel) (x y z : ∥ B ∥ (2 + n)) (p : x ≡ y) (q : y ≡ z)
+          → +P n x y z (Iso.fun (IsoFinal n x y) p) (Iso.fun (IsoFinal n y z) q)
+          ≡ Iso.fun (IsoFinal n x z) (p ∙ q)
+  +P-funct {B = B} n x y z = J (λ y p → (q : y ≡ z) → +P n x y z (Iso.fun (IsoFinal n x y) p) (Iso.fun (IsoFinal n y z) q)
+                                                       ≡ Iso.fun (IsoFinal n x z) (p ∙ q))
+                               (J (λ z q → +P n x x z (Iso.fun (IsoFinal n x x) refl) (Iso.fun (IsoFinal n x z) q)
+                                                       ≡ Iso.fun (IsoFinal n x z) (refl ∙ q))
+                                  (helper x))
+    where
+    helper : (x : ∥ B ∥ (2 + n)) → +P n x x x (encode-fun x x refl) (encode-fun x x refl) ≡ encode-fun x x (refl ∙ refl)
+    helper = elim (λ x → isOfHLevelPath (2 + n) (hLevelP x x) _ _)
+                  λ a → (λ i → ∣ transport (λ _ → a ≡ a) (λ _ → a) ∙ (transportRefl (λ _ → a) i) ∣)
+                        ∙ λ i → ∣ rUnit (transportRefl (transportRefl (transport (λ _ → a ≡ a) refl) (~ i)) (~ i)) (~ i) ∣
+
 PathIdTruncIso : {a b : A} (n : HLevel) → Iso (Path (∥ A ∥ (suc n)) ∣ a ∣ ∣ b ∣) (∥ a ≡ b ∥ n)
 PathIdTruncIso zero = isContr→Iso ((isOfHLevelTrunc 1 _ _)
                     , isOfHLevelPath 1 (isOfHLevelTrunc 1) ∣ _ ∣ ∣ _ ∣ _) (isOfHLevelUnit* 0)
@@ -418,6 +439,11 @@ PathIdTrunc₀Iso : {a b : A} → Iso (∣ a ∣₂ ≡ ∣ b ∣₂) ∥ a ≡ 
 PathIdTrunc₀Iso = compIso (congIso setTruncTrunc2Iso)
                     (compIso (ΩTrunc.IsoFinal _ ∣ _ ∣ ∣ _ ∣)
                              (invIso propTruncTrunc1Iso))
+
+PathIdTruncIsoFunct : ∀ {A : Type ℓ} {a : A} (n : HLevel) → (p q : (Path (∥ A ∥ (2 +  n)) ∣ a ∣ ∣ a ∣))
+                   → Iso.fun (PathIdTruncIso (suc n)) (p ∙ q)
+                    ≡ map2 _∙_ (Iso.fun (PathIdTruncIso (suc n)) p) (Iso.fun (PathIdTruncIso (suc n)) q) 
+PathIdTruncIsoFunct {a = a} n p q = sym (ΩTrunc.+P-funct n (∣ a ∣) ∣ a ∣ ∣ a ∣ p q)
 
 -------------------------
 
@@ -461,3 +487,13 @@ Iso.rightInv (truncOfΣIso (suc n)) =
          λ b → refl)
 Iso.leftInv (truncOfΣIso (suc n)) =
   elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) λ {(a , b) → refl}
+
+ 
+congTruncIso : (n : HLevel) → Iso A B → Iso (hLevelTrunc n A) (hLevelTrunc n B) 
+congTruncIso zero _ = isContr→Iso isContrUnit* isContrUnit*
+Iso.fun (congTruncIso (suc n) e) = map (Iso.fun e)
+Iso.inv (congTruncIso (suc n) e) = map (Iso.inv e)
+Iso.rightInv (congTruncIso (suc n) e) = elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
+                                              λ a i → ∣ Iso.rightInv e a i ∣
+Iso.leftInv (congTruncIso (suc n) e) = elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
+                                              λ a i → ∣ Iso.leftInv e a i ∣
