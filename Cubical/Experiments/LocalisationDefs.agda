@@ -1,3 +1,6 @@
+-- This file contains several ways to define localisation
+-- and proves them all to be equivalent
+
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Experiments.LocalisationDefs where
 
@@ -13,7 +16,6 @@ open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_ ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.Sigma.Properties
@@ -37,16 +39,16 @@ private
     ℓ ℓ' : Level
     A : Type ℓ
 
-record isSubMonoid (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) : Type ℓ where
+record isMultClosedSubset (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) : Type ℓ where
  constructor
-   submonoid
+   multclosedsubset
  field
    containsOne : (R' .snd .CommRingStr.1r) ∈ S'
    multClosed : ∀ {s t} → s ∈ S' → t ∈ S' → (R' .snd .CommRingStr._·_ s t) ∈ S'
 
-module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SsubMonoid : isSubMonoid R' S') where
- open isSubMonoid
- R = R' .fst
+module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultClosedSubset R' S') where
+ open isMultClosedSubset
+ private R = R' .fst
  open CommRingStr (R' .snd)
  open Theory (CommRing→Ring R')
 
@@ -134,10 +136,11 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SsubMonoid : isSubMonoid 
 
 
  -- Set quotients but with Σ, this is the type used in Algebra.Localisation.Base
+ -- as this is easiest to use
  _≈'_ : R × S → R × S → Type ℓ
  (r₁ , s₁) ≈' (r₂ , s₂) = Σ[ s ∈ S ] (fst s · r₁ · fst s₂ ≡ fst s · r₂ · fst s₁)
 
- S⁻¹R/Σ = (R × S) / _≈'_
+ S⁻¹R/' = (R × S) / _≈'_
 
- S⁻¹R/Σ≃S⁻¹R/ : S⁻¹R/Σ ≃ S⁻¹R/
- S⁻¹R/Σ≃S⁻¹R/ = SQ.truncRelEquiv
+ S⁻¹R/'≃S⁻¹R/ : S⁻¹R/' ≃ S⁻¹R/
+ S⁻¹R/'≃S⁻¹R/ = SQ.truncRelEquiv

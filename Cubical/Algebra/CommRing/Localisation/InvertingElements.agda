@@ -1,3 +1,7 @@
+-- In this file we consider the special of localising at a single
+-- element f : R (or rather the set of powers of f). This is also
+-- known as inverting f.
+
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Algebra.CommRing.Localisation.InvertingElements where
 
@@ -13,7 +17,9 @@ open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_ ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
+open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
+                                      ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
+                                      ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.Sigma.Properties
@@ -38,7 +44,7 @@ private
     A : Type ℓ
 
 module _(R' : CommRing {ℓ}) where
- open isSubMonoid
+ open isMultClosedSubset
  private R = R' .fst
  open CommRingStr (R' .snd)
  open Exponentiation R'
@@ -49,7 +55,7 @@ module _(R' : CommRing {ℓ}) where
  -- Σ[ n ∈ ℕ ] (s ≡ f ^ n) × (∀ m → s ≡ f ^ m → n ≤ m) maybe better, this isProp:
  -- (n,s≡fⁿ,p) (m,s≡fᵐ,q) then n≤m by p and  m≤n by q => n≡m
 
- powersFormSubMonoid : (f : R) → isSubMonoid R' [ f ⁿ|n≥0]
+ powersFormSubMonoid : (f : R) → isMultClosedSubset R' [ f ⁿ|n≥0]
  powersFormSubMonoid f .containsOne = ∣ zero , refl ∣
  powersFormSubMonoid f .multClosed =
              PT.map2 λ (m , p) (n , q) → (m +ℕ n) , (λ i → (p i) · (q i)) ∙ ·-of-^-is-^-of-+ f m n
@@ -62,10 +68,24 @@ module _(R' : CommRing {ℓ}) where
  R[1/_]AsCommRing : R → CommRing {ℓ}
  R[1/ f ]AsCommRing = S⁻¹RAsCommRing R' [ f ⁿ|n≥0] (powersFormSubMonoid f)
 
+ -- A useful lemma: (gⁿ/1)≡(g/1)ⁿ in R[1/f]
+ ^-respects-/1 : {f g : R} (n : ℕ) → [ (g ^ n) , 1r , ∣ 0 , (λ _ → 1r) ∣ ] ≡
+     Exponentiation._^_ R[1/ f ]AsCommRing [ g , 1r , powersFormSubMonoid _ .containsOne ] n
+ ^-respects-/1 zero = refl
+ ^-respects-/1 {f} {g} (suc n) = eq/ _ _ ( (1r , powersFormSubMonoid f .containsOne)
+                               , cong (1r · (g · (g ^ n)) ·_) (·-lid 1r))
+                               ∙ cong (CommRingStr._·_ (R[1/ f ]AsCommRing .snd)
+                                 [ g , 1r , powersFormSubMonoid f .containsOne ]) (^-respects-/1 n)
+
 
 -- Check: (R[1/f])[1/g] ≡ R[1/fg]
+-- still TODO:
+-- ψ : R[1/f][1/g] → R[1/fg]
+-- η : section φ ψ
+-- ε : retract φ ψ
+-- prove that φ is ring hom
 module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
- open isSubMonoid
+ open isMultClosedSubset
  open CommRingStr (R' .snd)
  open Exponentiation R'
  open Theory (CommRing→Ring R')
@@ -81,15 +101,6 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
   R[1/f][1/g]AsCommRing = R[1/_]AsCommRing (R[1/_]AsCommRing R' f)
                                 [ g , 1r , powersFormSubMonoid R' f .containsOne ]
 
- -- prove R[1/fg] ≃ R[1/f][1/g] and then check ringhom
- indhelper : ∀ n → [ (g ^ n) , 1r , ∣ 0 , (λ _ → 1r) ∣ ] ≡
-     Exponentiation._^_ (R[1/_]AsCommRing R' f) [ g , 1r , powersFormSubMonoid R' f .containsOne ] n
- indhelper zero = refl
- indhelper (suc n) =
-       eq/ _ _ ( (1r , powersFormSubMonoid R' f .containsOne)
-               , cong (1r · (g · (g ^ n)) ·_) (·-lid 1r))
-     ∙ cong ([ g , 1r , powersFormSubMonoid R' f .containsOne ] ·ᶠ_) (indhelper n)
-
  φ : R[1/fg] → R[1/f][1/g]
  φ = SQ.rec squash/ ϕ ϕcoh
    where
@@ -97,7 +108,7 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
 
    curriedϕΣ : (r s : R) → Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n → R[1/f][1/g]
    curriedϕΣ r s (n , s≡fg^n) =
-    [ [ r , (f ^ n) , ∣ n , refl ∣ ] , [ (g ^ n) , 1r , ∣ 0 , refl ∣ ] , ∣ n , indhelper n ∣ ]
+    [ [ r , (f ^ n) , ∣ n , refl ∣ ] , [ (g ^ n) , 1r , ∣ 0 , refl ∣ ] , ∣ n , ^-respects-/1 R' n ∣ ]
 
    curriedϕ : (r s : R) → ∃[ n ∈ ℕ ] s ≡ (f · g) ^ n → R[1/f][1/g]
    curriedϕ r s = elim→Set (λ _ → squash/) (curriedϕΣ r s) coh
@@ -130,7 +141,7 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
 
    ϕ : R × S[fg] → R[1/f][1/g]
    ϕ (r , s , |n,s≡fg^n|) = curriedϕ r s |n,s≡fg^n|
-   -- λ (r / (fg)ⁿ) → ((r / fⁿ) /gⁿ)
+   -- λ (r / (fg)ⁿ) → ((r / fⁿ) / gⁿ)
 
    curriedϕcohΣ : (r s r' s' u : R) → (p : u · r · s' ≡ u · r' · s)
                                     → (α : Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n)
@@ -138,7 +149,7 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
                                     → (γ : Σ[ l ∈ ℕ ] u ≡ (f · g) ^ l)
                                     → ϕ (r , s , ∣ α ∣) ≡ ϕ (r' , s' , ∣ β ∣)
    curriedϕcohΣ r s r' s' u p (n , s≡fgⁿ) (m , s'≡fgᵐ) (l , u≡fgˡ) =
-    eq/ _ _ (([ (g ^ l) , 1r , powersFormSubMonoid R' f .containsOne ] , ∣ l , indhelper l ∣) ,
+    eq/ _ _ (([ (g ^ l) , 1r , powersFormSubMonoid R' f .containsOne ] , ∣ l , ^-respects-/1 R' l ∣) ,
     eq/ _ _ ((f ^ l , ∣ l , refl ∣) , path))
     where
     path : f ^ l · (g ^ l · transp (λ i → R) i0 r · transp (λ i → R) i0 (g ^ m))
@@ -194,10 +205,3 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
    ϕcoh : (a b : R × S[fg]) → _≈_ R' ([_ⁿ|n≥0] R' (f · g)) (powersFormSubMonoid R' (f · g)) a b
                             → ϕ a ≡ ϕ b
    ϕcoh (r , s , α) (r' , s' , β) ((u , γ) , p) =  curriedϕcoh r s r' s' u p α β γ
-
-
- -- TODO:
- -- ψ : R[1/f][1/g] → R[1/fg]
- -- η : section φ ψ
- -- ε : retract φ ψ
- -- prove that φ is ring hom

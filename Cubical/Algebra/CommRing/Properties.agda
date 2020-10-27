@@ -11,7 +11,8 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
-open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_ ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
+open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
+                                      ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
@@ -47,10 +48,10 @@ module Exponentiation (R' : CommRing {ℓ}) where
  ^-ldist-· f g (suc n) = path
   where
   path : f · g · ((f · g) ^ n) ≡ f · (f ^ n) · (g · (g ^ n))
-  path = f · g · ((f · g) ^ n) ≡⟨ cong (f · g ·_) (^-ldist-· f g n) ⟩
+  path = f · g · ((f · g) ^ n)       ≡⟨ cong (f · g ·_) (^-ldist-· f g n) ⟩
          f · g · ((f ^ n) · (g ^ n)) ≡⟨ ·-assoc _ _ _ ⟩
-         f · g · (f ^ n) · (g ^ n) ≡⟨ cong (_· (g ^ n)) (sym (·-assoc _ _ _)) ⟩
+         f · g · (f ^ n) · (g ^ n)   ≡⟨ cong (_· (g ^ n)) (sym (·-assoc _ _ _)) ⟩
          f · (g · (f ^ n)) · (g ^ n) ≡⟨ cong (λ r → (f · r) · (g ^ n)) (·-comm _ _) ⟩
          f · ((f ^ n) · g) · (g ^ n) ≡⟨ cong (_· (g ^ n)) (·-assoc _ _ _) ⟩
-         f · (f ^ n) · g · (g ^ n) ≡⟨ sym (·-assoc _ _ _) ⟩
+         f · (f ^ n) · g · (g ^ n)   ≡⟨ sym (·-assoc _ _ _) ⟩
          f · (f ^ n) · (g · (g ^ n)) ∎

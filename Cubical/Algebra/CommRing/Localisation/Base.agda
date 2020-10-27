@@ -1,3 +1,7 @@
+-- We define the localisation of a commutative ring
+-- at a multiplicatively closed subset and show that it
+-- has a commutative ring structure.
+
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Algebra.CommRing.Localisation.Base where
 
@@ -13,7 +17,9 @@ open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_ ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
+open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
+                                      ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
+                                      ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.Sigma.Properties
@@ -40,22 +46,22 @@ private
 
 -- A sub monoid of a commutative ring is a multiplicatively closed subset
 -- that contains 1
-record isSubMonoid (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) : Type ℓ where
+record isMultClosedSubset (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) : Type ℓ where
  constructor
-   submonoid
+   multclosedsubset
  field
    containsOne : (R' .snd .CommRingStr.1r) ∈ S'
    multClosed : ∀ {s t} → s ∈ S' → t ∈ S' → (R' .snd .CommRingStr._·_ s t) ∈ S'
 
-module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SsubMonoid : isSubMonoid R' S') where
- open isSubMonoid
+module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultClosedSubset R' S') where
+ open isMultClosedSubset
  private R = R' .fst
  open CommRingStr (R' .snd)
  open Theory (CommRing→Ring R')
 
  S = Σ[ s ∈ R ] (s ∈ S')
 
- -- We define the localisation or R by S by quotienting by the following relation:
+ -- We define the localisation of R by S by quotienting by the following relation:
  _≈_ : R × S → R × S → Type ℓ
  (r₁ , s₁) ≈ (r₂ , s₂) = Σ[ s ∈ S ] (fst s · r₁ · fst s₂ ≡ fst s · r₂ · fst s₁)
 
@@ -65,18 +71,18 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SsubMonoid : isSubMonoid R'
  open BinaryRelation
 
  locRefl : isRefl _≈_
- locRefl _ = (1r , SsubMonoid .containsOne) , refl
+ locRefl _ = (1r , SMultClosedSubset .containsOne) , refl
 
  _+ₗ_ : S⁻¹R → S⁻¹R → S⁻¹R
  _+ₗ_ = setQuotBinOp locRefl _+ₚ_ θ
   where
   _+ₚ_ : R × S → R × S → R × S
   (r₁ , s₁ , s₁∈S) +ₚ (r₂ , s₂ , s₂∈S) =
-                      (r₁ · s₂ + r₂ · s₁) , (s₁ · s₂) , SsubMonoid .multClosed s₁∈S s₂∈S
+                      (r₁ · s₂ + r₂ · s₁) , (s₁ · s₂) , SMultClosedSubset .multClosed s₁∈S s₂∈S
 
   θ : (a a' b b' : R × S) → a ≈ a' → b ≈ b' → (a +ₚ b) ≈ (a' +ₚ b')
   θ (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) (r'₂ , s'₂ , s'₂∈S) (s , p) (s' , q) =
-    ((fst s · fst s') , SsubMonoid .multClosed (s .snd) (s' .snd)) , path
+    ((fst s · fst s') , SMultClosedSubset .multClosed (s .snd) (s' .snd)) , path
     where
     path : fst s · fst s' · (r₁ · s₂ + r₂ · s₁) · (s'₁ · s'₂)
          ≡ fst s · fst s' · (r'₁ · s'₂ + r'₂ · s'₁) · (s₁ · s₂)
@@ -226,7 +232,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SsubMonoid : isSubMonoid R'
           (r · s' + r' · s) · s'' + r'' · (s · s') ∎
 
  0ₗ : S⁻¹R
- 0ₗ = [ 0r , 1r , SsubMonoid .containsOne ]
+ 0ₗ = [ 0r , 1r , SMultClosedSubset .containsOne ]
 
  +ₗ-rid : (x : S⁻¹R) → x +ₗ 0ₗ ≡ x
  +ₗ-rid = SQ.elimProp (λ _ → squash/ _ _) +ₗ-rid[]
@@ -237,7 +243,8 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SsubMonoid : isSubMonoid R'
    eq1 : r · 1r + 0r · s ≡ r
    eq1 = cong (r · 1r +_) (0-leftNullifies _) ∙∙ +-rid _ ∙∙ ·-rid _
 
-   path : [ r · 1r + 0r · s , s · 1r , SsubMonoid .multClosed s∈S (SsubMonoid .containsOne) ]
+   path : [ r · 1r + 0r · s , s · 1r , SMultClosedSubset .multClosed s∈S
+                                      (SMultClosedSubset .containsOne) ]
         ≡ [ r , s , s∈S ]
    path = cong [_] (ΣPathP (eq1 , Σ≡Prop (λ x → ∈-isProp S' x) (·-rid _)))
 
@@ -262,7 +269,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SsubMonoid : isSubMonoid R'
  +ₗ-rinv = SQ.elimProp (λ _ → squash/ _ _) +ₗ-rinv[]
   where
   +ₗ-rinv[] : (a : R × S) → ([ a ] +ₗ (-ₗ [ a ])) ≡ 0ₗ
-  +ₗ-rinv[] (r , s , s∈S) = eq/ _ _ ((1r , SsubMonoid .containsOne) , path)
+  +ₗ-rinv[] (r , s , s∈S) = eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path)
    where
    path : 1r · (r · s + - r · s) · 1r ≡ 1r · 0r · (s · s)
    path = 1r · (r · s + - r · s) · 1r   ≡⟨ cong (λ x → 1r · (r · s + x) · 1r) (-commutesWithLeft-· _ _) ⟩
@@ -288,11 +295,11 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SsubMonoid : isSubMonoid R'
   where
   _·ₚ_ : R × S → R × S → R × S
   (r₁ , s₁ , s₁∈S) ·ₚ (r₂ , s₂ , s₂∈S) =
-                      (r₁ · r₂) , ((s₁ · s₂) , SsubMonoid .multClosed s₁∈S s₂∈S)
+                      (r₁ · r₂) , ((s₁ · s₂) , SMultClosedSubset .multClosed s₁∈S s₂∈S)
 
   θ : (a a' b b' : R × S) → a ≈ a' → b ≈ b' → (a ·ₚ b) ≈ (a' ·ₚ b')
   θ (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) (r'₂ , s'₂ , s'₂∈S) (s , p) (s' , q) =
-    ((fst s · fst s') , SsubMonoid .multClosed (s .snd) (s' .snd)) , path
+    ((fst s · fst s') , SMultClosedSubset .multClosed (s .snd) (s' .snd)) , path
     where
     path : fst s · fst s' · (r₁ · r₂) · (s'₁ · s'₂)
          ≡ fst s · fst s' · (r'₁ · r'₂) · (s₁ · s₂)
@@ -357,7 +364,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SsubMonoid : isSubMonoid R'
 
  -- checking laws for multiplication
  1ₗ : S⁻¹R
- 1ₗ = [ 1r , 1r , SsubMonoid .containsOne ]
+ 1ₗ = [ 1r , 1r , SMultClosedSubset .containsOne ]
 
  ·ₗ-assoc : (x y z : S⁻¹R) → x ·ₗ (y ·ₗ z) ≡ (x ·ₗ y) ·ₗ z
  ·ₗ-assoc = SQ.elimProp3 (λ _ _ _ → squash/ _ _) ·ₗ-assoc[]
@@ -378,7 +385,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SsubMonoid : isSubMonoid R'
    where
    ·ₗ-rdist-+ₗ[] : (a b c : R × S) → [ a ] ·ₗ ([ b ] +ₗ [ c ]) ≡ ([ a ] ·ₗ [ b ]) +ₗ ([ a ] ·ₗ [ c ])
    ·ₗ-rdist-+ₗ[] (r , s , s∈S) (r' , s' , s'∈S) (r'' , s'' , s''∈S) =
-      eq/ _ _ ((1r , (SsubMonoid .containsOne)) , path)
+      eq/ _ _ ((1r , (SMultClosedSubset .containsOne)) , path)
       where
       path : 1r · (r · (r' · s'' + r'' · s')) · (s · s' · (s · s''))
            ≡ 1r · (r · r' · (s · s'') + r · r'' · (s · s')) · (s · (s' · s''))
@@ -414,5 +421,14 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SsubMonoid : isSubMonoid R'
 
  -- Commutative ring structure on S⁻¹R
  S⁻¹RAsCommRing : CommRing
- S⁻¹RAsCommRing = makeCommRing 0ₗ 1ₗ _+ₗ_ _·ₗ_ -ₗ_ squash/ +ₗ-assoc +ₗ-rid +ₗ-rinv +ₗ-comm
-                                                           ·ₗ-assoc ·ₗ-rid ·ₗ-rdist-+ₗ ·ₗ-comm
+ S⁻¹RAsCommRing = S⁻¹R , S⁻¹RCommRingStr
+  where
+  open CommRingStr
+  S⁻¹RCommRingStr : CommRingStr S⁻¹R
+  0r S⁻¹RCommRingStr = 0ₗ
+  1r S⁻¹RCommRingStr = 1ₗ
+  _+_ S⁻¹RCommRingStr = _+ₗ_
+  _·_ S⁻¹RCommRingStr = _·ₗ_
+  - S⁻¹RCommRingStr = -ₗ_
+  isCommRing S⁻¹RCommRingStr = makeIsCommRing squash/ +ₗ-assoc +ₗ-rid +ₗ-rinv +ₗ-comm
+                                                      ·ₗ-assoc ·ₗ-rid ·ₗ-rdist-+ₗ ·ₗ-comm
