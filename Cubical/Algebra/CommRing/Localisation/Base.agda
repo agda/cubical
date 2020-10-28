@@ -44,8 +44,7 @@ private
     A : Type ℓ
 
 
--- A sub monoid of a commutative ring is a multiplicatively closed subset
--- that contains 1
+-- A multiplicatively closed subset is assumed to contain 1
 record isMultClosedSubset (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) : Type ℓ where
  constructor
    multclosedsubset
