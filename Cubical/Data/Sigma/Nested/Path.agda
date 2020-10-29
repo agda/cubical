@@ -181,7 +181,6 @@ InsideOfⁿ {n = n} {A} = lastTy (NCubeSig n A)
 Pathⁿ : ∀ {ℓ} → (n : ℕ) → (A : Type ℓ) → _
 Pathⁿ n A = toTypeFam (pathⁿ-args-desc n) (NCubeSig n A)
 
-
 NCubeSig' : ∀ {ℓ} → ∀ n → (A : Type ℓ) → Sig ℓ (3^ n)
 NCubeSig' zero A = A
 NCubeSig' (suc n) A = sig-PathP-withEnds' λ _ → NCubeSig' n A
@@ -223,3 +222,19 @@ Pathⁿ-3-≡-Cube' = refl
 
 ---
 
+record CubeR {ℓ} {bTy : Type ℓ} (cTy : bTy → Type ℓ) : Type ℓ where
+  constructor cubeR
+
+  field
+    side0 side1 : bTy
+    
+    
+
+Cubeⁿ : ∀ {ℓ} → ℕ → (A : Type ℓ) → Type ℓ
+Cubeⁿ n A = NestedΣᵣ (NCubeSig' n A)
+
+cubeBd : ∀ {ℓ} → ∀ n → (A : Type ℓ) → Cubeⁿ n A → Boundaryⁿ' n A
+cubeBd n A = dropLastΣᵣ ( (NCubeSig' n A))
+
+cubeIns : ∀ {ℓ} → ∀ n → (A : Type ℓ) → (c : Cubeⁿ n A) → InsideOfⁿ' {n = n} {A} (cubeBd n A c)
+cubeIns n A c = getLast ((NCubeSig' n A)) c

@@ -320,10 +320,23 @@ dropLast : ∀ {ℓ} → ∀ {n} → Sig ℓ n → Sig ℓ (predℕ n)
 dropLast {n = zero} = _
 dropLast {n = suc n} = fst ∘ sig-n+1.to n
 
+-- getLast : ∀ {ℓ} → ∀ {n} → Sig ℓ n → Sig ℓ (predℕ n)
+-- getLast {n = zero} = _
+-- getLast {n = suc n} = fst ∘ sig-n+1.to n
+
+dropLastΣᵣ : ∀ {ℓ} → ∀ {n} → (s : Sig ℓ n) → NestedΣᵣ s → NestedΣᵣ (dropLast s)
+dropLastΣᵣ {n = zero} = _
+dropLastΣᵣ {n = suc n} s = fst ∘ Iso.fun (nestedΣᵣ-n+1.isom-to (n) s)
+
+
 lastTy : ∀ {ℓ} → ∀ {n} → (s : Sig ℓ n)
          → NestedΣᵣ (dropLast s) → Type ℓ
 lastTy {n = zero} _ = (const (Lift Unit))
 lastTy {n = suc n} _ = snd (sig-n+1.to n _)
+
+getLast : ∀ {ℓ} → ∀ {n} → (s : Sig ℓ n) → (x : NestedΣᵣ s) → lastTy s (dropLastΣᵣ s x)
+getLast {n = zero} = _
+getLast {n = suc n} s = snd ∘ Iso.fun (nestedΣᵣ-n+1.isom-to (n) s)
 
 
 -- this helper is provded, to avoid using subst, which sometimes
