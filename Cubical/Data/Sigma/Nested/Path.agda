@@ -227,8 +227,8 @@ record CubeR {ℓ} {bTy : Type ℓ} (cTy : bTy → Type ℓ) : Type ℓ where
 
   field
     side0 side1 : bTy
-    
-    
+
+
 
 Cubeⁿ : ∀ {ℓ} → ℕ → (A : Type ℓ) → Type ℓ
 Cubeⁿ n A = NestedΣᵣ (NCubeSig' n A)

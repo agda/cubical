@@ -14,7 +14,7 @@ open import Cubical.Data.Vec
 open import Cubical.Data.Fin renaming (elim to Fin-elim)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Maybe
-open import Cubical.Data.Sum 
+open import Cubical.Data.Sum
 
 open import Cubical.HITs.Interval
 open import Cubical.HITs.PropositionalTruncation renaming (map to mapₚ)
@@ -51,7 +51,7 @@ variable
   ℓ : Level
 
 
-iso-NCube : ∀ {n} → ∀ {A : Type ℓ}  
+iso-NCube : ∀ {n} → ∀ {A : Type ℓ}
               → Iso
                 (NCube (suc n) → A)
                 ((Σ[ x₀ ∈ (NCube n → A) ] Σ[ x₁ ∈ (NCube n → A) ] x₀ ≡ x₁))
