@@ -9,6 +9,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
@@ -26,6 +27,30 @@ open import Cubical.Algebra.CommRing.Base
 private
   variable
     ℓ : Level
+
+module Units (R' : CommRing {ℓ}) where
+ open CommRingStr (snd R')
+ private R = R' .fst
+
+ inverseUniqueness : (r : R) → isProp (Σ[ r' ∈ R ] r · r' ≡ 1r)
+ inverseUniqueness r (r' , rr'≡1) (r'' , rr''≡1) = Σ≡Prop (λ _ → is-set _ _) path
+  where
+  path : r' ≡ r''
+  path = r'             ≡⟨ sym (·-rid _) ⟩
+         r' · 1r        ≡⟨ cong (r' ·_) (sym rr''≡1) ⟩
+         r' · (r · r'') ≡⟨ ·-assoc _ _ _ ⟩
+         (r' · r) · r'' ≡⟨ cong (_· r'') (·-comm _ _) ⟩
+         (r · r') · r'' ≡⟨ cong (_· r'') rr'≡1 ⟩
+         1r · r''       ≡⟨ ·-lid _ ⟩
+         r''            ∎
+
+
+ Rˣ : ℙ R
+ Rˣ r = (Σ[ r' ∈ R ] r · r' ≡ 1r) , inverseUniqueness r
+
+ -- some notation using instance arguments
+ _⁻¹ : (r : R) → ⦃ r ∈ Rˣ ⦄ → R
+ _⁻¹ r ⦃ r∈Rˣ ⦄ = r∈Rˣ .fst
 
 module Exponentiation (R' : CommRing {ℓ}) where
  open CommRingStr (snd R')
