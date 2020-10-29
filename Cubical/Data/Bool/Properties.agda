@@ -40,10 +40,10 @@ isSetBool : isSet Bool
 isSetBool = Discrete→isSet _≟_
 
 true≢false : ¬ true ≡ false
-true≢false p = subst (caseBool Bool ⊥) p true
+true≢false p = subst (λ b → if b then Bool else ⊥) p true
 
 false≢true : ¬ false ≡ true
-false≢true p = subst (caseBool ⊥ Bool) p true
+false≢true p = subst (λ b → if b then ⊥ else Bool) p true
 
 not≢const : ∀ x → ¬ not x ≡ x
 not≢const false = true≢false
@@ -95,6 +95,15 @@ or-idem true  = refl
 ⊕-comm false true  = refl
 ⊕-comm true  false = refl
 ⊕-comm true  true  = refl
+
+⊕-assoc : ∀ x y z → x ⊕ (y ⊕ z) ≡ (x ⊕ y) ⊕ z
+⊕-assoc false y z = refl
+⊕-assoc true false z = refl
+⊕-assoc true true z = notnot z
+
+not-⊕ˡ : ∀ x y → not (x ⊕ y) ≡ not x ⊕ y
+not-⊕ˡ false y = refl
+not-⊕ˡ true  y = notnot y
 
 ⊕-invol : ∀ x y → x ⊕ (x ⊕ y) ≡ y
 ⊕-invol false x = refl

@@ -78,9 +78,9 @@ NatΣ τ (x , a) = (x , τ x a)
    g : Y → X
    g = isHAEquiv.g isHAEquivf
    ε : (x : X) → (g (f x)) ≡ x
-   ε = isHAEquiv.sec isHAEquivf
+   ε = isHAEquiv.linv isHAEquivf
    η : (y : Y) → f (g y) ≡ y
-   η = isHAEquiv.ret isHAEquivf
+   η = isHAEquiv.rinv isHAEquivf
    τ :  (x : X) → cong f (ε x) ≡ η (f x)
    τ = isHAEquiv.com isHAEquivf
 
@@ -129,28 +129,28 @@ NatΣ τ (x , a) = (x , τ x a)
 -- as S-structures. This we call a standard notion of structure.
 
 
-SNS : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') → Type (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ') ℓ'')
+SNS : (S : Type ℓ → Type ℓ') (ι : StrEquiv S ℓ'') → Type (ℓ-max (ℓ-max (ℓ-suc ℓ) ℓ') ℓ'')
 SNS  {ℓ = ℓ} S ι = ∀ {X : (Type ℓ)} (s t : S X) → ((s ≡ t) ≃ ι (X , s) (X , t) (idEquiv X))
 
 
 -- Escardo's ρ can actually be  defined from this:
-ρ :  {ι : StrIso S ℓ''} (θ : SNS S ι) (A : TypeWithStr ℓ S) → (ι A A (idEquiv (typ A)))
+ρ :  {ι : StrEquiv S ℓ''} (θ : SNS S ι) (A : TypeWithStr ℓ S) → (ι A A (idEquiv (typ A)))
 ρ θ A = equivFun (θ (str A) (str A)) refl
 
 -- We introduce the notation a bit differently:
-_≃[_]_ : (A : TypeWithStr ℓ S) (ι : StrIso S ℓ'') (B : TypeWithStr ℓ S) → (Type (ℓ-max ℓ ℓ''))
+_≃[_]_ : (A : TypeWithStr ℓ S) (ι : StrEquiv S ℓ'') (B : TypeWithStr ℓ S) → (Type (ℓ-max ℓ ℓ''))
 A ≃[ ι ] B = Σ[ f ∈ ((typ A) ≃ (typ B)) ] (ι A B f)
 
 
 
-Id→homEq : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'')
+Id→homEq : (S : Type ℓ → Type ℓ') (ι : StrEquiv S ℓ'')
           → (ρ : (A : TypeWithStr ℓ S) → ι A A (idEquiv (typ A)))
           → (A B : TypeWithStr ℓ S) → A ≡ B → (A ≃[ ι ] B)
 Id→homEq S ι ρ A B p = J (λ y x → A ≃[ ι ] y) (idEquiv (typ A) , ρ A) p
 
 
 -- Use a PathP version of Escardó's homomorphism-lemma
-hom-lemma-dep : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') (θ : SNS S ι)
+hom-lemma-dep : (S : Type ℓ → Type ℓ') (ι : StrEquiv S ℓ'') (θ : SNS S ι)
                → (A B : TypeWithStr ℓ S)
                → (p : (typ A) ≡ (typ B))
                → (PathP (λ i → S (p i)) (str A) (str B)) ≃ (ι A B (pathToEquiv p))
@@ -169,7 +169,7 @@ ua-lemma A B e = EquivJ (λ A f → (pathToEquiv (ua f)) ≡ f)
                         e
 
 
-homEq→Id : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') (θ : SNS S ι)
+homEq→Id : (S : Type ℓ → Type ℓ') (ι : StrEquiv S ℓ'') (θ : SNS S ι)
           → (A B : TypeWithStr ℓ S) → (A ≃[ ι ] B) → A ≡ B
 homEq→Id S ι θ A B (f , φ) = ΣPathP (p , q)
         where
@@ -183,7 +183,7 @@ homEq→Id S ι θ A B (f , φ) = ΣPathP (p , q)
 
 
 -- Proof of the SIP:
-SIP : (S : Type ℓ → Type ℓ') (ι : StrIso S ℓ'') (θ : SNS S ι)
+SIP : (S : Type ℓ → Type ℓ') (ι : StrEquiv S ℓ'') (θ : SNS S ι)
      → (A B : TypeWithStr ℓ S) → ((A ≡ B) ≃ (A ≃[ ι ] B))
 SIP S ι θ A B =
             (A ≡ B)                                                             ≃⟨ i ⟩
