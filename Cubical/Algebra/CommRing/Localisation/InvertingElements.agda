@@ -62,11 +62,11 @@ module _(R' : CommRing {ℓ}) where
 
 
  R[1/_] : R → Type ℓ
- R[1/ f ] = S⁻¹R R' [ f ⁿ|n≥0] (powersFormSubMonoid f)
+ R[1/ f ] = Loc.S⁻¹R R' [ f ⁿ|n≥0] (powersFormSubMonoid f)
 
 
  R[1/_]AsCommRing : R → CommRing {ℓ}
- R[1/ f ]AsCommRing = S⁻¹RAsCommRing R' [ f ⁿ|n≥0] (powersFormSubMonoid f)
+ R[1/ f ]AsCommRing = Loc.S⁻¹RAsCommRing R' [ f ⁿ|n≥0] (powersFormSubMonoid f)
 
  -- A useful lemma: (gⁿ/1)≡(g/1)ⁿ in R[1/f]
  ^-respects-/1 : {f g : R} (n : ℕ) → [ (g ^ n) , 1r , ∣ 0 , (λ _ → 1r) ∣ ] ≡
@@ -104,7 +104,7 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
  φ : R[1/fg] → R[1/f][1/g]
  φ = SQ.rec squash/ ϕ ϕcoh
    where
-   S[fg] = S R' ([_ⁿ|n≥0] R' (f · g)) (powersFormSubMonoid R' (f · g))
+   S[fg] = Loc.S R' ([_ⁿ|n≥0] R' (f · g)) (powersFormSubMonoid R' (f · g))
 
    curriedϕΣ : (r s : R) → Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n → R[1/f][1/g]
    curriedϕΣ r s (n , s≡fg^n) =
@@ -202,6 +202,6 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
                          λ β → PT.rec (squash/ _ _)
                          λ γ →  curriedϕcohΣ r s r' s' u p α β γ
 
-   ϕcoh : (a b : R × S[fg]) → _≈_ R' ([_ⁿ|n≥0] R' (f · g)) (powersFormSubMonoid R' (f · g)) a b
+   ϕcoh : (a b : R × S[fg]) → Loc._≈_ R' ([_ⁿ|n≥0] R' (f · g)) (powersFormSubMonoid R' (f · g)) a b
                             → ϕ a ≡ ϕ b
    ϕcoh (r , s , α) (r' , s' , β) ((u , γ) , p) =  curriedϕcoh r s r' s' u p α β γ

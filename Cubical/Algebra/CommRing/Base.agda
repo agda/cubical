@@ -92,6 +92,9 @@ CommRing→Ring (_ , commringstr _ _ _ _ _ H) = _ , ringstr _ _ _ _ _ (IsCommRin
 CommRingEquiv : (R S : CommRing) (e : ⟨ R ⟩ ≃ ⟨ S ⟩) → Type ℓ
 CommRingEquiv R S e = RingEquiv (CommRing→Ring R) (CommRing→Ring S) e
 
+CommRingHom : (R S : CommRing) → Type ℓ
+CommRingHom R S = RingHom (CommRing→Ring R) (CommRing→Ring S)
+
 module CommRingΣTheory {ℓ} where
 
   open RingΣTheory

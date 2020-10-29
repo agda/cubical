@@ -52,7 +52,7 @@ record isMultClosedSubset (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) : Type ℓ 
    containsOne : (R' .snd .CommRingStr.1r) ∈ S'
    multClosed : ∀ {s t} → s ∈ S' → t ∈ S' → (R' .snd .CommRingStr._·_ s t) ∈ S'
 
-module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultClosedSubset R' S') where
+module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultClosedSubset R' S') where
  open isMultClosedSubset
  private R = R' .fst
  open CommRingStr (R' .snd)
