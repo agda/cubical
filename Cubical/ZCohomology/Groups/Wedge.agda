@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.Wedge where
 
 open import Cubical.ZCohomology.Base
@@ -97,7 +97,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
                                                      {A = λ i → (fst (id2 (~ i)) (pt A) ≡ snd (id2 (~ i)) (pt B))}
                                                        (isConnectedPath 2 (isConnectedSubtr 3 n
                                                                           (subst (λ m → isConnected m (coHomK (2 + n))) (+-comm 3 n)
-                                                                                 (isConnectedKn (1 + n)))) _ _)
+                                                                                 (isConnectedKn (suc n)))) _ _)
                                                        (p ∙ sym q) id1 .fst))
                                                        (Iso.fun PathIdTrunc₀Iso y))}))
       theIso : Iso ∥ (Σ[ f ∈ (typ A → coHomK (2 + n)) × (typ B → coHomK (2 + n)) ] (fst f) (pt A) ≡ (snd f) (pt B)) ∥₂
