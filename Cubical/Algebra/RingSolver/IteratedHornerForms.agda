@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Algebra.RingSolver.MultivariatePolynomials where
+module Cubical.Algebra.RingSolver.IteratedHornerForms where
 
 open import Cubical.Foundations.Prelude
 
