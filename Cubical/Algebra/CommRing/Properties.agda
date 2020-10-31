@@ -52,6 +52,35 @@ module Units (R' : CommRing {ℓ}) where
  _⁻¹ : (r : R) → ⦃ r ∈ Rˣ ⦄ → R
  _⁻¹ r ⦃ r∈Rˣ ⦄ = r∈Rˣ .fst
 
+ infix 9 _⁻¹
+
+ -- some results about inverses
+ ·-inv : (r : R) ⦃ r∈Rˣ : r ∈ Rˣ ⦄ → r · r ⁻¹ ≡ 1r
+ ·-inv r ⦃ r∈Rˣ ⦄ = r∈Rˣ .snd
+
+ RˣMultClosed : (r r' : R) ⦃ r∈Rˣ : r ∈ Rˣ ⦄ ⦃ r'∈Rˣ : r' ∈ Rˣ ⦄
+              → (r · r') ∈ Rˣ
+ RˣMultClosed r r' = (r ⁻¹ · r' ⁻¹) , path
+  where
+  path : r · r' · (r ⁻¹ · r' ⁻¹) ≡ 1r
+  path = r · r' · (r ⁻¹ · r' ⁻¹) ≡⟨ cong (_· (r ⁻¹ · r' ⁻¹)) (·-comm _ _) ⟩
+         r' · r · (r ⁻¹ · r' ⁻¹) ≡⟨ ·-assoc _ _ _ ⟩
+         r' · r · r ⁻¹ · r' ⁻¹   ≡⟨ cong (_· r' ⁻¹) (sym (·-assoc _ _ _)) ⟩
+         r' · (r · r ⁻¹) · r' ⁻¹ ≡⟨ cong (λ x → r' · x · r' ⁻¹) (·-inv _) ⟩
+         r' · 1r · r' ⁻¹         ≡⟨ cong (_· r' ⁻¹) (·-rid _) ⟩
+         r' · r' ⁻¹              ≡⟨ ·-inv _ ⟩
+         1r ∎
+
+ 1∈Rˣ : 1r ∈ Rˣ
+ 1∈Rˣ = 1r , ·-lid _
+
+ 1⁻¹≡1 : ⦃ 1∈Rˣ' : 1r ∈ Rˣ ⦄ → 1r ⁻¹ ≡ 1r
+ 1⁻¹≡1 ⦃ 1∈Rˣ' ⦄ = (sym (·-lid _)) ∙ 1∈Rˣ' .snd
+
+ ⁻¹-dist-· : (r r' : R) ⦃ r∈Rˣ : r ∈ Rˣ ⦄ ⦃ r'∈Rˣ : r' ∈ Rˣ ⦄ ⦃ rr'∈Rˣ : (r · r') ∈ Rˣ ⦄
+           → (r · r') ⁻¹ ≡ r ⁻¹ · r' ⁻¹
+ ⁻¹-dist-· r r' ⦃ r∈Rˣ ⦄ ⦃ r'∈Rˣ ⦄ ⦃ rr'∈Rˣ ⦄ = {!rr'∈Rˣ .snd!}
+
 module Exponentiation (R' : CommRing {ℓ}) where
  open CommRingStr (snd R')
  private R = R' .fst

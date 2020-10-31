@@ -53,7 +53,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
  open Theory (CommRing→Ring R')
  open Units hiding (_⁻¹)
  open RingHom
- --open Loc R' S' SMultClosedSubset
+
 
 
  hasLocUniversalProp : (A : CommRing {ℓ}) (φ : CommRingHom R' A)
@@ -63,6 +63,10 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
                            → (∀ s → s ∈ S' → f ψ s ∈ (Rˣ B))
                            → ∃![ χ ∈ CommRingHom A B ] (f χ) ∘ (f φ) ≡ (f ψ)
 
+ UniversalPropIsProp : (A : CommRing {ℓ}) (φ : CommRingHom R' A)
+                     → (φS⊆Aˣ : ∀ s → s ∈ S' → f φ s ∈ (Rˣ A))
+                     → isProp (hasLocUniversalProp A φ φS⊆Aˣ)
+ UniversalPropIsProp A φ φS⊆Aˣ = isPropΠ3 (λ _ _ _ → isPropIsContr)
 
  -- S⁻¹R has the universal property
  module S⁻¹RUniversalProp where
@@ -87,15 +91,35 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
          1r · (1r  · s)     ≡⟨ cong (_· (1r · s)) (sym (·-lid _)) ⟩
          1r · 1r · (1r  · s) ∎
 
- -- S⁻¹RHasUniversalProp : hasLocUniversalProp S⁻¹RAsCommRing /1AsCommRingHom S/1⊆S⁻¹Rˣ
- -- S⁻¹RHasUniversalProp B' ψ ψS⊆Bˣ = ({!!} , {!!}) , {!!}
- --  where
- --  B = B' .fst
- --  open CommRingStr (B' .snd) renaming (is-set to Bset ; _·_ to _·B_)
- --  open Units B'
+ S⁻¹RHasUniversalProp : hasLocUniversalProp S⁻¹RAsCommRing /1AsCommRingHom S/1⊆S⁻¹Rˣ
+ S⁻¹RHasUniversalProp B' ψ ψS⊆Bˣ = (χ , funExt (λ x → {!!})) , {!!}
+  where
+  B = B' .fst
+  open CommRingStr (B' .snd) renaming ( is-set to Bset ; _·_ to _·B_ ; 1r to 1b
+                                      ; _+_ to _+B_
+                                      ; ·-assoc to ·B-assoc ; ·-comm to ·B-comm
+                                      ; ·-lid to ·B-lid ; ·-rid to ·B-rid)
+  open Units B'
 
- --  χ : CommRingHom S⁻¹RAsCommRing B'
- --  f χ = SQ.rec Bset (λ { (r , s , s∈S') → (f ψ r) ·B ((f ψ s) ⁻¹) ⦃ ψS⊆Bˣ s s∈S' ⦄ }) {!!}
- --  pres1 χ = {!!}
- --  isHom+ χ = elimProp {!λ _ → Bset _ _!} {!!}
- --  isHom· χ = {!!}
+  χ : CommRingHom S⁻¹RAsCommRing B'
+  f χ = SQ.rec Bset fχ fχcoh
+   where
+   fχ : R × S → B
+   fχ (r , s , s∈S') = (f ψ r) ·B ((f ψ s) ⁻¹) ⦃ ψS⊆Bˣ s s∈S' ⦄
+   fχcoh : (a b : R × S) → a ≈ b → fχ a ≡ fχ b
+   fχcoh (r , s , s∈S') (r' , s' , s'∈S') (u , p) = instancepath ⦃ ψS⊆Bˣ s s∈S' ⦄ ⦃ ψS⊆Bˣ s' s'∈S' ⦄
+    where
+    instancepath : ⦃ ψs∈Bˣ : f ψ s ∈ Units.Rˣ B' ⦄ ⦃ ψs'∈Bˣ : f ψ s' ∈ Units.Rˣ B' ⦄
+                 → (f ψ r) ·B ((f ψ s) ⁻¹) ≡ (f ψ r') ·B ((f ψ s') ⁻¹)
+    instancepath = (f ψ r) ·B ((f ψ s) ⁻¹)   ≡⟨ {!!} ⟩
+                   (f ψ r') ·B ((f ψ s') ⁻¹) ∎
+
+  pres1 χ = {!!}
+  isHom+ χ = elimProp2 (λ _ _ _ _ → Bset _ _ _ _) isHom+[]
+   where
+   isHom+[] : (a b : R × S) → f χ ([ a ] +ₗ [ b ]) ≡ (f χ [ a ]) +B (f χ [ b ])
+   isHom+[] (r , s , s∈S') (r' , s' , s'∈S') = {!!}
+  isHom· χ = elimProp2 (λ _ _ _ _ → Bset _ _ _ _) isHom·[]
+   where
+   isHom·[] : (a b : R × S) → f χ ([ a ] ·ₗ [ b ]) ≡ (f χ [ a ]) ·B (f χ [ b ])
+   isHom·[] (r , s , s∈S') (r' , s' , s'∈S') = {!!}
