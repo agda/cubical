@@ -7,9 +7,11 @@ open import Cubical.Data.FinData
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.Vec.Base
+
 open import Cubical.Algebra.RingSolver.AlmostRing
 open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.RingSolver.HornerNormalForm
+open import Cubical.Algebra.RingSolver.IteratedHornerForms
 open import Cubical.Algebra.RingSolver.RingExpression
 
 private
