@@ -24,11 +24,12 @@ module HomomorphismProperties (R : AlmostRing {ℓ}) where
   open IteratedHornerOperations νR
 
   EvalHom+0 : (n : ℕ) (P : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)
-      → Eval n (0H +H P) xs ≡ Eval n P xs
-  EvalHom+0 n P xs = refl
+      → Eval n (0ₕ +H P) xs ≡ Eval n P xs
+  EvalHom+0 ℕ.zero (const x) [] = +Lid _
+  EvalHom+0 (ℕ.suc n) P xs = refl
 
   Eval0H : (n : ℕ) (xs : Vec ⟨ νR ⟩ n)
-         → Eval {R = νR} n 0H xs ≡ 0r
+         → Eval {R = νR} n 0ₕ xs ≡ 0r
   Eval0H .ℕ.zero [] = refl
   Eval0H .(ℕ.suc _) (x ∷ xs) = refl
 
@@ -62,7 +63,6 @@ module HomomorphismProperties (R : AlmostRing {ℓ}) where
     (n : ℕ) (P Q : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)
     → Eval n (P +H Q) xs ≡ (Eval n P xs) + (Eval n Q xs)
   +HomEval .ℕ.zero (const x) (const y) [] = refl
-  +HomEval .ℕ.zero (const x) 0H [] = sym (+Rid _)
   +HomEval n 0H Q xs =
     Eval n (0H +H Q) xs            ≡⟨ refl ⟩
     Eval n Q xs                    ≡⟨ sym (+Lid _) ⟩
