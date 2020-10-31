@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 
-module Cubical.Universe.Binary.Base where
+module Cubical.Data.FinSet.Binary.Small.Base where
 
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude

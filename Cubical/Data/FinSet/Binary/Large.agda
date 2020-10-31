@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --no-import-sorts --safe --postfix-projections #-}
 
-module Cubical.Data.FinSet.Binary where
+module Cubical.Data.FinSet.Binary.Large where
 
 open import Cubical.Functions.Embedding
 open import Cubical.Functions.Involution

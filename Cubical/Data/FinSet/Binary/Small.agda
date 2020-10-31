@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --no-import-sorts #-}
 
-module Cubical.Universe.Binary where
+module Cubical.Data.FinSet.Binary.Small where
 
-open import Cubical.Universe.Binary.Base public
-open import Cubical.Universe.Binary.Properties public
+open import Cubical.Data.FinSet.Binary.Small.Base public
+open import Cubical.Data.FinSet.Binary.Small.Properties public

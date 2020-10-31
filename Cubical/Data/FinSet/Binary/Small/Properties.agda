@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --no-import-sorts --safe --postfix-projections #-}
 
-module Cubical.Universe.Binary.Properties where
+module Cubical.Data.FinSet.Binary.Small.Properties where
 
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
@@ -17,10 +17,10 @@ open import Cubical.Data.Sigma
 
 open import Cubical.HITs.PropositionalTruncation
 
-open import Cubical.Universe.Binary.Base
+open import Cubical.Data.FinSet.Binary.Small.Base
 
 open import Cubical.Data.Bool
-import Cubical.Data.FinSet.Binary as FS
+import Cubical.Data.FinSet.Binary.Large as FS
 open FS using (isBinary)
 
 open import Cubical.Foundations.Univalence.Universe Binary El un (λ _ → refl)

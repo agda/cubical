@@ -64,6 +64,3 @@ import Cubical.Talks.Everything
 
 -- Reflection
 import Cubical.Reflection.Everything
-
--- Universes
-import Cubical.Universe.Everything
