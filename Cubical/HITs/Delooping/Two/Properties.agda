@@ -52,7 +52,7 @@ module Embed where
   El b = Code b .fst
 
 module BINARY where
-  open import Cubical.Data.FinSet.Binary
+  open import Cubical.Data.FinSet.Binary.Large
 
   sem : Bℤ₂ → Binary _
   sem = Elim.rec Base Loop Loop² isGroupoidBinary
