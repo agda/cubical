@@ -71,7 +71,7 @@ module MultivariateReification (R : AlmostRing {ℓ}) where
   open AlmostRing R
   open Theory R
   open Eval νR
-
+{-
   ReifyMultivariate : (n : ℕ) → Expr ⟨ R ⟩ n → ⟨ IteratedHornerForms n νR ⟩ᵣ
   ReifyMultivariate n (K r) = Constant n νR r
   ReifyMultivariate n (∣ k) = Variable n νR k
@@ -92,7 +92,7 @@ module MultivariateReification (R : AlmostRing {ℓ}) where
   ReifyMultivariate ℕ.zero (x ⊕ y) = ReifyMultivariate ℕ.zero x + ReifyMultivariate ℕ.zero y
   ReifyMultivariate ℕ.zero (x ⊗ y) = ReifyMultivariate ℕ.zero x · ReifyMultivariate ℕ.zero y
   ReifyMultivariate ℕ.zero (⊝ x) =  - ReifyMultivariate ℕ.zero x
-
+-}
 module SolverFor (R : AlmostRing {ℓ}) where
   νR = AlmostRing→RawRing R
   open HornerOperations νR

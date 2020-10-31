@@ -8,6 +8,7 @@ open import Cubical.Data.FinData
 open import Cubical.Data.Vec
 
 open import Cubical.Algebra.RingSolver.RawRing
+open import Cubical.Algebra.RingSolver.AlmostRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.RingSolver.HornerNormalForm
 
 private
@@ -32,31 +33,39 @@ private
     (⋯((R[Xₙ])[Xₙ₋₁])⋯)[X₀]
 
 -}
-IteratedHornerForms : (n : ℕ) (R : RawRing {ℓ}) → RawRing {ℓ}
-IteratedHornerForms ℕ.zero    R = R
-IteratedHornerForms (ℕ.suc n) R = HornerOperations.asRawRing
-                                          (IteratedHornerForms n R)
+data IteratedHornerForms (R : RawRing {ℓ}) : ℕ → Type ℓ where
+  const : ⟨ R ⟩ → IteratedHornerForms R ℕ.zero
+  0H : {n : ℕ} → IteratedHornerForms R n
+  _·X+_ : {n : ℕ} → IteratedHornerForms R (ℕ.suc n) → IteratedHornerForms R n
+                  → IteratedHornerForms R (ℕ.suc n)
 
-Variable : (n : ℕ) (R : RawRing {ℓ}) (k : Fin n) → ⟨ IteratedHornerForms n R ⟩
-Variable ℕ.zero R ()
-Variable (ℕ.suc m) R zero = HornerOperations.X (IteratedHornerForms m R)
-Variable (ℕ.suc m) R (suc k) = HornerOperations.Const
-                                 (IteratedHornerForms m R)
-                                 (Variable m R k)
-
-Constant : (n : ℕ) (R : RawRing {ℓ}) (r : ⟨ R ⟩) → ⟨ IteratedHornerForms n R ⟩
-Constant ℕ.zero R r = r
-Constant (ℕ.suc n) R r = HornerOperations.Const (IteratedHornerForms n R) (Constant n R r)
-
-private
-  EvaluateExplicit : (n : ℕ) (R : RawRing {ℓ}) (P : ⟨ IteratedHornerForms n R ⟩)
+Eval : {R : RawRing {ℓ}} (n : ℕ) (P : IteratedHornerForms R n)
              → Vec ⟨ R ⟩ n → ⟨ R ⟩
-  EvaluateExplicit ℕ.zero R r [] = r
-  EvaluateExplicit (ℕ.suc m) R P (x ∷ xs) =
-    EvaluateExplicit m R
-      (HornerOperations.evalH (IteratedHornerForms m R) P (Constant m R x))
-      xs
+Eval ℕ.zero (const r) [] = r
+Eval {R = R} .ℕ.zero 0H [] = RawRing.0r R
+Eval {R = R} .(ℕ.suc _) 0H (_ ∷ _) = RawRing.0r R
+Eval {R = R} (ℕ.suc n) (P ·X+ Q) (x ∷ xs) =
+  let open RawRing R
+  in (Eval (ℕ.suc n) P (x ∷ xs)) · x + Eval n Q xs
 
-Evaluate : {n : ℕ} {R : RawRing {ℓ}} (P : ⟨ IteratedHornerForms n R ⟩)
-             → Vec ⟨ R ⟩ n → ⟨ R ⟩
-Evaluate {ℓ} {n} {R} = EvaluateExplicit n R
+module IteratedHornerOperations (R : RawRing {ℓ}) where
+  open RawRing R
+
+  1H : IteratedHornerForms R 0
+  1H = const 1r
+
+  X : IteratedHornerForms R 1
+  X = (0H ·X+ (const 1r)) ·X+ (const 0r)
+
+  _+H_ : {n : ℕ} → IteratedHornerForms R n → IteratedHornerForms R n
+               → IteratedHornerForms R n
+  (const r) +H (const s) = const (r + s)
+  (const r) +H 0H = const r
+  0H +H Q = Q
+  (P ·X+ r) +H 0H = P ·X+ r
+  (P ·X+ r) +H (Q ·X+ s) = (P +H Q) ·X+ (r +H s)
+
+  -H : {n : ℕ} → IteratedHornerForms R n → IteratedHornerForms R n
+  -H (const x) = const (- x)
+  -H 0H = 0H
+  -H (P ·X+ Q) = (-H P) ·X+ (-H Q)
