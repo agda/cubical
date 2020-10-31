@@ -51,8 +51,12 @@ Eval {R = R} (ℕ.suc n) (P ·X+ Q) (x ∷ xs) =
 module IteratedHornerOperations (R : RawRing {ℓ}) where
   open RawRing R
 
-  1H : IteratedHornerForms R 0
-  1H = const 1r
+  1H' : (n : ℕ) → IteratedHornerForms R n
+  1H' ℕ.zero = const 1r
+  1H' (ℕ.suc n) = 0H ·X+ 1H' n
+
+  1H : {n : ℕ} → IteratedHornerForms R n
+  1H {n = n} = 1H' n
 
   X : IteratedHornerForms R 1
   X = (0H ·X+ (const 1r)) ·X+ (const 0r)
@@ -69,3 +73,23 @@ module IteratedHornerOperations (R : RawRing {ℓ}) where
   -H (const x) = const (- x)
   -H 0H = 0H
   -H (P ·X+ Q) = (-H P) ·X+ (-H Q)
+
+  _⋆_ : {n : ℕ} → IteratedHornerForms R n → IteratedHornerForms R (ℕ.suc n)
+                → IteratedHornerForms R (ℕ.suc n)
+  _·H_ : {n : ℕ} → IteratedHornerForms R n → IteratedHornerForms R n
+                → IteratedHornerForms R n
+  r ⋆ 0H = 0H
+  r ⋆ (P ·X+ Q) = (r ⋆ P) ·X+ (r ·H Q)
+
+  const x ·H const y = const (x · y)
+  const x ·H 0H = 0H
+  0H ·H Q = 0H
+  (P ·X+ Q) ·H S = ((P ·H S) ·X+ 0H) +H (Q ⋆ S)
+
+  asRawRing : (n : ℕ) → RawRing {ℓ}
+  RawRing.Carrier (asRawRing n) = IteratedHornerForms R n
+  RawRing.0r (asRawRing n) = 0H
+  RawRing.1r (asRawRing n) = 1H
+  RawRing._+_ (asRawRing n) = _+H_
+  RawRing._·_ (asRawRing n) = _·H_
+  RawRing.- (asRawRing n) =  -H
