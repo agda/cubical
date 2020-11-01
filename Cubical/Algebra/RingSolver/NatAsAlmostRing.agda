@@ -4,9 +4,9 @@ module Cubical.Algebra.RingSolver.NatAsAlmostRing where
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat
 open import Cubical.Algebra.RingSolver.AlmostRing
-open import Cubical.Algebra.Semigroup    hiding (⟨_⟩)
-open import Cubical.Algebra.Monoid       hiding (⟨_⟩)
-open import Cubical.Algebra.AbGroup   hiding (⟨_⟩)
+open import Cubical.Algebra.Semigroup
+open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.AbGroup
 
 
 ℕAsAlmostRing : AlmostRing {ℓ-zero}

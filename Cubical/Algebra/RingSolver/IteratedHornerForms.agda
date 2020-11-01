@@ -65,8 +65,9 @@ module IteratedHornerOperations (R : RawRing {ℓ}) where
   0ₕ : {n : ℕ} → IteratedHornerForms R n
   0ₕ {n = n} = 0H' n
 
-  X : IteratedHornerForms R 1
-  X = 1ₕ ·X+ (const 0r)
+  X : (n : ℕ) (k : Fin n) → IteratedHornerForms R n
+  X (ℕ.suc m) zero = 1ₕ ·X+ 0ₕ
+  X (ℕ.suc m) (suc k) = 0ₕ ·X+ X m k
 
   _+ₕ_ : {n : ℕ} → IteratedHornerForms R n → IteratedHornerForms R n
                → IteratedHornerForms R n
@@ -99,15 +100,9 @@ module IteratedHornerOperations (R : RawRing {ℓ}) where
   RawRing._·_ (asRawRing n) = _·ₕ_
   RawRing.- (asRawRing n) =  -ₕ
 
-{-
 Variable : (n : ℕ) (R : RawRing {ℓ}) (k : Fin n) → IteratedHornerForms R n
-Variable ℕ.zero R ()
-Variable (ℕ.suc m) R zero = HornerOperations.X (IteratedHornerForms R m)
-Variable (ℕ.suc m) R (suc k) = const
-                                 (IteratedHornerForms m R)
-                                 (Variable m R k)
+Variable n R k = IteratedHornerOperations.X R n k
 
-Constant : (n : ℕ) (R : RawRing {ℓ}) (r : ⟨ R ⟩) → ⟨ IteratedHornerForms n R ⟩
-Constant ℕ.zero R r = r
-Constant (ℕ.suc n) R r = HornerOperations.Const (IteratedHornerForms n R) (Constant n R r)
--}
+Constant : (n : ℕ) (R : RawRing {ℓ}) (r : ⟨ R ⟩) → IteratedHornerForms R n
+Constant ℕ.zero R r = const r
+Constant (ℕ.suc n) R r = IteratedHornerOperations.0ₕ R ·X+ Constant n R r
