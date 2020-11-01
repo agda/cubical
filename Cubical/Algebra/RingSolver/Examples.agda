@@ -147,7 +147,7 @@ module Multivariate where
 
   X₁Expr : Expr ℕ 2
   X₁Expr = ∣ (fromℕ 1)
-{-
+
   _ : ReifyMultivariate 2 (X₀Expr ⊕ X₁Expr) ≡ X₀ + X₁
   _ = refl
 
@@ -155,4 +155,3 @@ module Multivariate where
   _ : ReifyMultivariate 2 (X₀Expr ⊗ X₀Expr ⊕ X₁Expr ⊗ X₀Expr ⊕ (K 5))
                         ≡ X₀ · X₀ + X₁ · X₀ + five
   _ = refl
--}

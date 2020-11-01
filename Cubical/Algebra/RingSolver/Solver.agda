@@ -9,10 +9,11 @@ open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.Vec.Base
 open import Cubical.Algebra.RingSolver.AlmostRing
 open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
+open import Cubical.Algebra.RingSolver.RingExpression
 open import Cubical.Algebra.RingSolver.HornerNormalForm
 open import Cubical.Algebra.RingSolver.IteratedHornerForms
-open import Cubical.Algebra.RingSolver.RingExpression
 open import Cubical.Algebra.RingSolver.EvaluationHomomorphism
+open import Cubical.Algebra.RingSolver.MultivariateEvaluationHomomorphism
 
 private
   variable
@@ -71,28 +72,17 @@ module MultivariateReification (R : AlmostRing {ℓ}) where
   open AlmostRing R
   open Theory R
   open Eval νR
-{-
-  ReifyMultivariate : (n : ℕ) → Expr ⟨ R ⟩ n → ⟨ IteratedHornerForms n νR ⟩ᵣ
+  open IteratedHornerOperations νR
+
+  ReifyMultivariate : (n : ℕ) → Expr ⟨ R ⟩ n → IteratedHornerForms νR n
   ReifyMultivariate n (K r) = Constant n νR r
   ReifyMultivariate n (∣ k) = Variable n νR k
-  ReifyMultivariate (ℕ.suc n) (x ⊕ y) =
-    (ReifyMultivariate (ℕ.suc n) x) +H (ReifyMultivariate (ℕ.suc n) y)
-    where
-      _+H_ : ⟨ IteratedHornerForms (ℕ.suc n) νR ⟩ᵣ → ⟨ IteratedHornerForms (ℕ.suc n) νR ⟩ᵣ → _
-      x +H y = HornerOperations._+H_ (IteratedHornerForms n νR) x y
-  ReifyMultivariate (ℕ.suc n) (x ⊗ y) =
-    (ReifyMultivariate (ℕ.suc n) x) ·H (ReifyMultivariate (ℕ.suc n) y)
-    where
-      _·H_ : ⟨ IteratedHornerForms (ℕ.suc n) νR ⟩ᵣ → ⟨ IteratedHornerForms (ℕ.suc n) νR ⟩ᵣ → _
-      x ·H y = HornerOperations._·H_ (IteratedHornerForms n νR) x y
-  ReifyMultivariate (ℕ.suc n) (⊝ x) =  -H (ReifyMultivariate (ℕ.suc n) x)
-    where
-      -H_ : ⟨ IteratedHornerForms (ℕ.suc n) νR ⟩ᵣ → _
-      -H x = HornerOperations.-H_ (IteratedHornerForms n νR) x
-  ReifyMultivariate ℕ.zero (x ⊕ y) = ReifyMultivariate ℕ.zero x + ReifyMultivariate ℕ.zero y
-  ReifyMultivariate ℕ.zero (x ⊗ y) = ReifyMultivariate ℕ.zero x · ReifyMultivariate ℕ.zero y
-  ReifyMultivariate ℕ.zero (⊝ x) =  - ReifyMultivariate ℕ.zero x
--}
+  ReifyMultivariate n (x ⊕ y) =
+    (ReifyMultivariate n x) +ₕ (ReifyMultivariate n y)
+  ReifyMultivariate n (x ⊗ y) =
+    (ReifyMultivariate n x) ·ₕ (ReifyMultivariate n y)
+  ReifyMultivariate n (⊝ x) =  -ₕ (ReifyMultivariate n x)
+
 module SolverFor (R : AlmostRing {ℓ}) where
   νR = AlmostRing→RawRing R
   open HornerOperations νR
