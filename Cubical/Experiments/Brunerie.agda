@@ -244,7 +244,7 @@ g9 : Ω ∥ S¹∙ ∥₃∙ .fst → ∥ Int ∥₂
 g9 = encodeTruncS¹
 
 g10 : ∥ Int ∥₂ → Int
-g10 = SetTrunc.elim (λ _ → isSetInt) (idfun Int)
+g10 = SetTrunc.rec isSetInt (idfun Int)
 
 -- don't run me
 brunerie : Int
