@@ -55,8 +55,12 @@ module Units (R' : CommRing {ℓ}) where
  infix 9 _⁻¹
 
  -- some results about inverses
- ·-inv : (r : R) ⦃ r∈Rˣ : r ∈ Rˣ ⦄ → r · r ⁻¹ ≡ 1r
- ·-inv r ⦃ r∈Rˣ ⦄ = r∈Rˣ .snd
+ ·-rinv : (r : R) ⦃ r∈Rˣ : r ∈ Rˣ ⦄ → r · r ⁻¹ ≡ 1r
+ ·-rinv r ⦃ r∈Rˣ ⦄ = r∈Rˣ .snd
+
+ ·-linv : (r : R) ⦃ r∈Rˣ : r ∈ Rˣ ⦄ → r ⁻¹ · r ≡ 1r
+ ·-linv r ⦃ r∈Rˣ ⦄ = ·-comm _ _ ∙ r∈Rˣ .snd
+
 
  RˣMultClosed : (r r' : R) ⦃ r∈Rˣ : r ∈ Rˣ ⦄ ⦃ r'∈Rˣ : r' ∈ Rˣ ⦄
               → (r · r') ∈ Rˣ
@@ -66,20 +70,67 @@ module Units (R' : CommRing {ℓ}) where
   path = r · r' · (r ⁻¹ · r' ⁻¹) ≡⟨ cong (_· (r ⁻¹ · r' ⁻¹)) (·-comm _ _) ⟩
          r' · r · (r ⁻¹ · r' ⁻¹) ≡⟨ ·-assoc _ _ _ ⟩
          r' · r · r ⁻¹ · r' ⁻¹   ≡⟨ cong (_· r' ⁻¹) (sym (·-assoc _ _ _)) ⟩
-         r' · (r · r ⁻¹) · r' ⁻¹ ≡⟨ cong (λ x → r' · x · r' ⁻¹) (·-inv _) ⟩
+         r' · (r · r ⁻¹) · r' ⁻¹ ≡⟨ cong (λ x → r' · x · r' ⁻¹) (·-rinv _) ⟩
          r' · 1r · r' ⁻¹         ≡⟨ cong (_· r' ⁻¹) (·-rid _) ⟩
-         r' · r' ⁻¹              ≡⟨ ·-inv _ ⟩
+         r' · r' ⁻¹              ≡⟨ ·-rinv _ ⟩
          1r ∎
 
- 1∈Rˣ : 1r ∈ Rˣ
- 1∈Rˣ = 1r , ·-lid _
+ RˣContainsOne : 1r ∈ Rˣ
+ RˣContainsOne = 1r , ·-lid _
 
+ -- laws keeping the instance arguments
  1⁻¹≡1 : ⦃ 1∈Rˣ' : 1r ∈ Rˣ ⦄ → 1r ⁻¹ ≡ 1r
  1⁻¹≡1 ⦃ 1∈Rˣ' ⦄ = (sym (·-lid _)) ∙ 1∈Rˣ' .snd
 
  ⁻¹-dist-· : (r r' : R) ⦃ r∈Rˣ : r ∈ Rˣ ⦄ ⦃ r'∈Rˣ : r' ∈ Rˣ ⦄ ⦃ rr'∈Rˣ : (r · r') ∈ Rˣ ⦄
            → (r · r') ⁻¹ ≡ r ⁻¹ · r' ⁻¹
- ⁻¹-dist-· r r' ⦃ r∈Rˣ ⦄ ⦃ r'∈Rˣ ⦄ ⦃ rr'∈Rˣ ⦄ = {!rr'∈Rˣ .snd!}
+ ⁻¹-dist-· r r' ⦃ r∈Rˣ ⦄ ⦃ r'∈Rˣ ⦄ ⦃ rr'∈Rˣ ⦄ =
+                 sym path ∙∙ cong (r ⁻¹ · r' ⁻¹ ·_) (rr'∈Rˣ .snd) ∙∙ (·-rid _)
+  where
+  path : r ⁻¹ · r' ⁻¹ · (r · r' · (r · r') ⁻¹) ≡ (r · r') ⁻¹
+  path = r ⁻¹ · r' ⁻¹ · (r · r' · (r · r') ⁻¹)
+       ≡⟨ ·-assoc _ _ _ ⟩
+         r ⁻¹ · r' ⁻¹ · (r · r') · (r · r') ⁻¹
+       ≡⟨ cong (λ x → r ⁻¹ · r' ⁻¹ · x · (r · r') ⁻¹) (·-comm _ _) ⟩
+         r ⁻¹ · r' ⁻¹ · (r' · r) · (r · r') ⁻¹
+       ≡⟨ cong (_· (r · r') ⁻¹) (sym (·-assoc _ _ _)) ⟩
+         r ⁻¹ · (r' ⁻¹ · (r' · r)) · (r · r') ⁻¹
+       ≡⟨ cong (λ x → r ⁻¹ · x · (r · r') ⁻¹) (·-assoc _ _ _) ⟩
+         r ⁻¹ · (r' ⁻¹ · r' · r) · (r · r') ⁻¹
+       ≡⟨ cong (λ x → r ⁻¹ · (x · r) · (r · r') ⁻¹) (·-linv _) ⟩
+         r ⁻¹ · (1r · r) · (r · r') ⁻¹
+       ≡⟨ cong (λ x → r ⁻¹ · x · (r · r') ⁻¹) (·-lid _) ⟩
+         r ⁻¹ · r · (r · r') ⁻¹
+       ≡⟨ cong (_· (r · r') ⁻¹) (·-linv _) ⟩
+         1r · (r · r') ⁻¹
+       ≡⟨ ·-lid _ ⟩
+         (r · r') ⁻¹ ∎
+
+module RingHomRespUnits {A' B' : CommRing {ℓ}} (φ : CommRingHom A' B') where
+ open Units A' renaming (Rˣ to Aˣ ; _⁻¹ to _⁻¹ᵃ ; ·-rinv to ·A-rinv ; ·-linv to ·A-linv)
+ private A = A' .fst
+ open CommRingStr (A' .snd) renaming (_·_ to _·A_ ; 1r to 1a)
+ open Units B' renaming (Rˣ to Bˣ ; _⁻¹ to _⁻¹ᵇ ; ·-rinv to ·B-rinv)
+ open CommRingStr (B' .snd) renaming ( _·_ to _·B_ ; 1r to 1b
+                                     ; ·-lid to ·B-lid ; ·-rid to ·B-rid
+                                     ; ·-assoc to ·B-assoc)
+ open RingHom
+
+ RingHomRespInv : (r : A) ⦃ r∈Aˣ : r ∈ Aˣ ⦄ → f φ r ∈ Bˣ
+ RingHomRespInv r = f φ (r ⁻¹ᵃ) , (sym (isHom· φ r (r ⁻¹ᵃ)) ∙∙ cong (f φ) (·A-rinv r) ∙∙ pres1 φ)
+
+ φ[x⁻¹]≡φ[x]⁻¹ : (r : A) ⦃ r∈Aˣ : r ∈ Aˣ ⦄ ⦃ φr∈Bˣ : f φ r ∈ Bˣ ⦄
+               → f φ (r ⁻¹ᵃ) ≡ (f φ r) ⁻¹ᵇ
+ φ[x⁻¹]≡φ[x]⁻¹ r ⦃ r∈Aˣ ⦄ ⦃ φr∈Bˣ ⦄ =
+  f φ (r ⁻¹ᵃ)                             ≡⟨ sym (·B-rid _) ⟩
+  f φ (r ⁻¹ᵃ) ·B 1b                       ≡⟨ cong (f φ (r ⁻¹ᵃ) ·B_) (sym (·B-rinv _)) ⟩
+  f φ (r ⁻¹ᵃ) ·B ((f φ r) ·B (f φ r) ⁻¹ᵇ) ≡⟨ ·B-assoc _ _ _ ⟩
+  f φ (r ⁻¹ᵃ) ·B (f φ r) ·B (f φ r) ⁻¹ᵇ   ≡⟨ cong (_·B (f φ r) ⁻¹ᵇ) (sym (isHom· φ _ _)) ⟩
+  f φ (r ⁻¹ᵃ ·A r) ·B (f φ r) ⁻¹ᵇ         ≡⟨ cong (λ x → f φ x ·B (f φ r) ⁻¹ᵇ) (·A-linv _) ⟩
+  f φ 1a ·B (f φ r) ⁻¹ᵇ                   ≡⟨ cong (_·B (f φ r) ⁻¹ᵇ) (pres1 φ) ⟩
+  1b ·B (f φ r) ⁻¹ᵇ                       ≡⟨ ·B-lid _ ⟩
+  (f φ r) ⁻¹ᵇ                             ∎
+
 
 module Exponentiation (R' : CommRing {ℓ}) where
  open CommRingStr (snd R')
