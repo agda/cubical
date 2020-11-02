@@ -106,6 +106,14 @@ module Units (R' : CommRing {ℓ}) where
        ≡⟨ ·-lid _ ⟩
          (r · r') ⁻¹ ∎
 
+ unitCong : {r r' : R} → r ≡ r' → ⦃ r∈Rˣ : r ∈ Rˣ ⦄ ⦃ r'∈Rˣ : r' ∈ Rˣ ⦄ → r ⁻¹ ≡ r' ⁻¹
+ unitCong {r = r} {r' = r'} p ⦃ r∈Rˣ ⦄ ⦃ r'∈Rˣ ⦄ =
+          PathPΣ (inverseUniqueness r' (r ⁻¹ , subst (λ x → x · r ⁻¹ ≡ 1r) p (r∈Rˣ .snd)) r'∈Rˣ) .fst
+
+-- some convenient notation
+_ˣ : (R' : CommRing {ℓ}) → ℙ (R' .fst)
+R' ˣ = Units.Rˣ R'
+
 module RingHomRespUnits {A' B' : CommRing {ℓ}} (φ : CommRingHom A' B') where
  open Units A' renaming (Rˣ to Aˣ ; _⁻¹ to _⁻¹ᵃ ; ·-rinv to ·A-rinv ; ·-linv to ·A-linv)
  private A = A' .fst
@@ -160,3 +168,19 @@ module Exponentiation (R' : CommRing {ℓ}) where
          f · ((f ^ n) · g) · (g ^ n) ≡⟨ cong (_· (g ^ n)) (·-assoc _ _ _) ⟩
          f · (f ^ n) · g · (g ^ n)   ≡⟨ sym (·-assoc _ _ _) ⟩
          f · (f ^ n) · (g · (g ^ n)) ∎
+
+
+-- like in Ring.Properties we provide helpful lemmas here
+module CommTheory (R' : CommRing {ℓ}) where
+ open CommRingStr (snd R')
+ private R = R' .fst
+
+ ·-commAssocl : (x y z : R) → x · (y · z) ≡ y · (x · z)
+ ·-commAssocl x y z = ·-assoc x y z ∙∙ cong (_· z) (·-comm x y) ∙∙ sym (·-assoc y x z)
+
+ ·-commAssocr : (x y z : R) → x · y · z ≡ x · z · y
+ ·-commAssocr x y z = sym (·-assoc x y z) ∙∙ cong (x ·_) (·-comm y z) ∙∙ ·-assoc x z y
+
+ ·-commAssocSwap : (x y z w : R) → (x · y) · (z · w) ≡ (x · z) · (y · w)
+ ·-commAssocSwap x y z w = ·-assoc (x · y) z w ∙∙ cong (_· w) (·-commAssocr x y z)
+                                               ∙∙ sym (·-assoc (x · z) y w)
