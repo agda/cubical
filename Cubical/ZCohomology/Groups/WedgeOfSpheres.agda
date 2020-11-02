@@ -14,7 +14,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.Pushout
-open import Cubical.HITs.Truncation renaming (elim to trElim)
+open import Cubical.HITs.Truncation renaming (elim₊ to trElim)
 open import Cubical.Algebra.Group
 
 S¹⋁S¹ : Type₀

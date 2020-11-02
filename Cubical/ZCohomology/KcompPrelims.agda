@@ -7,7 +7,7 @@ open import Cubical.HITs.Hopf
 open import Cubical.Homotopy.Freudenthal hiding (encode)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
-open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; map to trMap)
+open import Cubical.HITs.Truncation renaming (elim₊ to trElim ; rec₊ to trRec ; map to trMap)
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

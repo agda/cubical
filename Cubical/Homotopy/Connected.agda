@@ -242,8 +242,7 @@ connectedTruncIso {A = A} {B = B} (suc n) f con = g
   backSection :  (b : B) → Path (hLevelTrunc (suc n) B)
                                 (Trunc.rec (isOfHLevelTrunc (suc n))
                                            (λ a → ∣ f a ∣)
-                                           (Trunc.rec {n = n}
-                                                      {B = hLevelTrunc (suc n) A} (isOfHLevelTrunc (suc n))
+                                           (Trunc.rec (isOfHLevelTrunc (suc n))
                                                       back ∣ b ∣))
                                ∣ b ∣
   backSection b = helper (λ p → map f p ≡ ∣ b ∣)
