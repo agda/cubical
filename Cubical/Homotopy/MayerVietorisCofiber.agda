@@ -1,9 +1,10 @@
 {-
 
- Mayer-Vietoris cofiber sequence:
+Mayer-Vietoris cofiber sequence:
 
   Let X be a pointed type, and let a span B ←[f]- X -[g]→ C be given.
   Then the mapping cone of the canonical map (B ⋁ C) → B ⊔_X C is equivalent to Susp X.
+
 The sequence Susp X → (B ⋁ C) → B ⊔_X C therefore induces a long exact sequence in cohomology.
 Proof is adapted from Evan Cavallo's master's thesis.
 
