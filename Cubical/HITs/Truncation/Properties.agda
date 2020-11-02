@@ -317,89 +317,79 @@ Iso.leftInv (truncOfProdIso (suc n)) = elim (λ _ → isOfHLevelPath (suc n) (is
 
   {- Proofs of Theorem 7.3.12. and Corollary 7.3.13. in the HoTT book  -}
 
-module ΩTrunc where
+module ΩTrunc {X : Type ℓ} {n : HLevel} where
   {- We define the fibration P to show a more general result  -}
-  P : {X : Type ℓ} {n : HLevel} → ∥ X ∥ (2 + n) → ∥ X ∥ (2 + n) → Type ℓ
-  P {n = n} x y =  elim2 (λ _ _  → isOfHLevelTypeOfHLevel (suc n))
-                         (λ a b → ∥ a ≡ b ∥ (suc n) , isOfHLevelTrunc (suc n)) x y .fst
+  P : ∥ X ∥ (2 + n) → ∥ X ∥ (2 + n) → Type ℓ
+  P x y =  elim2 (λ _ _  → isOfHLevelTypeOfHLevel (suc n))
+                 (λ a b → ∥ a ≡ b ∥ (suc n) , isOfHLevelTrunc (suc n)) x y .fst
 
   {- We will need P to be of hLevel n + 3  -}
-  hLevelP : {X : Type ℓ} {n : HLevel} (a b : ∥ X ∥ (2 + n)) → isOfHLevel ((2 + n)) (P a b)
-  hLevelP {n = n} =
+  hLevelP : (a b : ∥ X ∥ (2 + n)) → isOfHLevel (2 + n) (P a b)
+  hLevelP  =
     elim2 (λ x y → isProp→isOfHLevelSuc (suc n) (isPropIsOfHLevel (2 + n)))
           (λ a b → isOfHLevelSuc (suc n) (isOfHLevelTrunc (suc n)))
 
   {- decode function from P x y to x ≡ y -}
-  decode-fun : {X : Type ℓ} {n : HLevel} (x y : ∥ X ∥ (2 + n)) → P x y → x ≡ y
-  decode-fun {n = n} =
-    elim2 (λ u v → isOfHLevelΠ (2 + n)
-                                (λ _ → isOfHLevelSuc (2 + n) (isOfHLevelTrunc (2 + n)) u v))
+  decode-fun : (x y : ∥ X ∥ (2 + n)) → P x y → x ≡ y
+  decode-fun =
+    elim2 (λ u v → isOfHLevelΠ (2 + n)(λ _ → isOfHLevelSuc (2 + n) (isOfHLevelTrunc (2 + n)) u v))
           decode*
       where
-      decode* : ∀ {n : HLevel} (u v : B)
-              → P {n = n} ∣ u ∣ ∣ v ∣ → Path (∥ B ∥ (2 + n)) ∣ u ∣ ∣ v ∣
-      decode* {B = B} {n = zero} u v = rec (isOfHLevelTrunc 2 _ _) (cong ∣_∣)
-      decode* {n = suc n} u v =
-        rec (isOfHLevelTrunc (3 + n) ∣ u ∣ ∣ v ∣) (cong ∣_∣)
+      decode* : (u v : X) → P ∣ u ∣ ∣ v ∣ → Path (∥ X ∥ (2 + n)) ∣ u ∣ ∣ v ∣
+      decode* u v =
+        rec (isOfHLevelTrunc (2 + n) ∣ u ∣ ∣ v ∣) (cong ∣_∣)
 
   {- auxiliary function r used to define encode -}
-  r : {X : Type ℓ} {n : HLevel} (u : ∥ X ∥ (2 + n)) → P u u
+  r : (u : ∥ X ∥ (2 + n)) → P u u
   r = elim (λ x → hLevelP x x) (λ a → ∣ refl ∣)
 
   {- encode function from x ≡ y to P x y -}
-  encode-fun : {X : Type ℓ} {n : HLevel} (x y : ∥ X ∥ (2 + n)) → x ≡ y → P x y
+  encode-fun : (x y : ∥ X ∥ (2 + n)) → x ≡ y → P x y
   encode-fun x y p = subst (P x) p (r x)
 
   {- We need the following two lemmas on the functions behaviour for refl -}
-  dec-refl : {X : Type ℓ} {n : HLevel} (x : ∥ X ∥ (2 + n)) → decode-fun x x (r x) ≡ refl
-  dec-refl {n = zero} =
-    elim (λ _ → isOfHLevelSuc 2 (isOfHLevelSuc 1 (isOfHLevelTrunc 2 _ _)) _ _) λ _ → refl
-  dec-refl {n = suc n} =
-    elim (λ x → isOfHLevelSuc (2 + n)
-                  (isOfHLevelSuc (2 + n)
-                     (isOfHLevelTrunc (3 + n) x x)
+  dec-refl : (x : ∥ X ∥ (2 + n)) → decode-fun x x (r x) ≡ refl
+  dec-refl =
+    elim (λ x → isOfHLevelSuc (1 + n)
+                  (isOfHLevelSuc (1 + n)
+                     (isOfHLevelTrunc (2 + n) x x)
                      (decode-fun x x (r x)) refl))
          (λ _ → refl)
 
-  enc-refl : {X : Type ℓ} {n : HLevel} (x : ∥ X ∥ (2 + n)) → encode-fun x x refl ≡ r x
-  enc-refl x j = transp (λ _ → P x x) j (r x)
+  enc-refl : (x : ∥ X ∥ (2 + n)) → encode-fun x x refl ≡ r x
+  enc-refl x = transportRefl (r x)
 
   {- decode-fun is a right-inverse -}
-  P-rinv : {X : Type ℓ} {n : HLevel} (u v : ∥ X ∥ (2 + n)) (x : Path (∥ X ∥ (2 + n)) u v)
+  P-rinv : (u v : ∥ X ∥ (2 + n)) (x : Path (∥ X ∥ (2 + n)) u v)
          → decode-fun u v (encode-fun u v x) ≡ x
   P-rinv u v = J (λ y p → decode-fun u y (encode-fun u y p) ≡ p)
                  (cong (decode-fun u u) (enc-refl u) ∙ dec-refl u)
 
   {- decode-fun is a left-inverse -}
-  P-linv : {X : Type ℓ} {n : HLevel} (u v : ∥ X ∥ (2 + n)) (x : P u v)
+  P-linv : (u v : ∥ X ∥ (2 + n)) (x : P u v)
          → encode-fun u v (decode-fun u v x) ≡ x
-  P-linv {n = n} =
-    elim2 (λ x y → isOfHLevelΠ (2 + n)
-                               (λ z → isOfHLevelSuc (2 + n) (hLevelP x y) _ _))
+  P-linv =
+    elim2 (λ x y → isOfHLevelΠ (2 + n) (λ z → isOfHLevelSuc (2 + n) (hLevelP x y) _ _))
           helper
     where
-    helper : {X : Type ℓ} {n : HLevel} (a b : X) (p : P {n = n} ∣ a ∣ ∣ b ∣)
+    helper : (a b : X) (p : P ∣ a ∣ ∣ b ∣)
            → encode-fun _ _ (decode-fun ∣ a ∣ ∣ b ∣ p) ≡ p
-    helper {n = zero} a b =
-      elim (λ _ → isOfHLevelPath 1 (isOfHLevelTrunc 1) _ _)
+    helper a b =
+      elim (λ x → hLevelP ∣ a ∣ ∣ b ∣ _ _)
            (J (λ y p → encode-fun ∣ a ∣ ∣ y ∣ (decode-fun _ _ ∣ p ∣) ≡ ∣ p ∣)
-              (enc-refl ∣ a ∣))
-    helper {n = suc n} a b =
-      elim (λ x → hLevelP {n = suc n} ∣ a ∣ ∣ b ∣ _ _)
-           (J (λ y p → encode-fun {n = (suc n)} ∣ a ∣ ∣ y ∣ (decode-fun _ _ ∣ p ∣) ≡ ∣ p ∣)
               (enc-refl ∣ a ∣))
 
   {- The final Iso established -}
-  IsoFinal : {B : Type ℓ} (n : HLevel) (x y : ∥ B ∥ (2 + n)) → Iso (x ≡ y) (P x y)
-  Iso.fun (IsoFinal _ x y) = encode-fun x y
-  Iso.inv (IsoFinal _ x y) = decode-fun x y
-  Iso.rightInv (IsoFinal _ x y) = P-linv x y
-  Iso.leftInv (IsoFinal _ x y) = P-rinv x y
+  IsoFinal : (x y : ∥ X ∥ (2 + n)) → Iso (x ≡ y) (P x y)
+  Iso.fun (IsoFinal x y) = encode-fun x y
+  Iso.inv (IsoFinal x y) = decode-fun x y
+  Iso.rightInv (IsoFinal x y) = P-linv x y
+  Iso.leftInv (IsoFinal x y) = P-rinv x y
 
 PathIdTruncIso : {a b : A} (n : HLevel) → Iso (Path (∥ A ∥ (suc n)) ∣ a ∣ ∣ b ∣) (∥ a ≡ b ∥ n)
 PathIdTruncIso zero = isContr→Iso ((isOfHLevelTrunc 1 _ _)
                     , isOfHLevelPath 1 (isOfHLevelTrunc 1) ∣ _ ∣ ∣ _ ∣ _) (isOfHLevelUnit* 0)
-PathIdTruncIso (suc n) = ΩTrunc.IsoFinal n ∣ _ ∣ ∣ _ ∣
+PathIdTruncIso (suc n) = ΩTrunc.IsoFinal ∣ _ ∣ ∣ _ ∣
 
 PathIdTrunc : {a b : A} (n : HLevel) → (Path (∥ A ∥ (suc n)) ∣ a ∣ ∣ b ∣) ≡ (∥ a ≡ b ∥ n)
 PathIdTrunc n = isoToPath (PathIdTruncIso n)
@@ -410,7 +400,7 @@ PathΩ n = PathIdTrunc n
 {- Special case using direct defs of truncations -}
 PathIdTrunc₀Iso : {a b : A} → Iso (∣ a ∣₂ ≡ ∣ b ∣₂) ∥ a ≡ b ∥₁
 PathIdTrunc₀Iso = compIso (congIso setTruncTrunc2Iso)
-                    (compIso (ΩTrunc.IsoFinal _ ∣ _ ∣ ∣ _ ∣)
+                    (compIso (ΩTrunc.IsoFinal ∣ _ ∣ ∣ _ ∣)
                              (invIso propTruncTrunc1Iso))
 
 -------------------------
