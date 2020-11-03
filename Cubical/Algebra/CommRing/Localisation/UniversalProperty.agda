@@ -165,7 +165,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
 
   χunique : (y : Σ[ χ' ∈ CommRingHom S⁻¹RAsCommRing B' ] f χ' ∘ _/1 ≡ f ψ)
           → (χ , funExt χcomp) ≡ y
-  χunique (χ' , χ'/1≡ψ) = Σ≡Prop (λ x → isSetΠ (λ _ → Bset) _ _) {!!}
+  χunique (χ' , χ'/1≡ψ) = Σ≡Prop (λ x → isSetΠ (λ _ → Bset) _ _) (RingHom≡f _ _ fχ≡fχ')
    where
    open RingHomRespUnits {A' = S⁻¹RAsCommRing} {B' = B'} χ'
                          renaming (φ[x⁻¹]≡φ[x]⁻¹ to χ'[x⁻¹]≡χ'[x]⁻¹)
@@ -178,7 +178,14 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
                               hiding (unitCong)
 
     s-inv : ⦃ s/1∈S⁻¹Rˣ : s /1 ∈ S⁻¹Rˣ ⦄ → s /1 ⁻¹ˡ ≡ [ 1r , s , s∈S' ]
-    s-inv ⦃ s/1∈S⁻¹Rˣ ⦄ = PathPΣ (S⁻¹RInverseUniqueness (s /1) s/1∈S⁻¹Rˣ (_ , eq/ _ _ ((1r , SMultClosedSubset .containsOne) , {!!}))) .fst
+    s-inv ⦃ s/1∈S⁻¹Rˣ ⦄ = PathPΣ (S⁻¹RInverseUniqueness (s /1) s/1∈S⁻¹Rˣ
+                          (_ , eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path))) .fst
+     where
+     path : 1r · (s · 1r) · 1r ≡ 1r · 1r · (1r · s)
+     path = 1r · (s · 1r) · 1r ≡⟨ (λ i → ·-rid (·-lid (·-rid s i) i) i) ⟩
+            s                  ≡⟨ (λ i → ·-lid (·-lid s (~ i)) (~ i)) ⟩
+            1r · (1r · s)      ≡⟨ cong (_· (1r · s)) (sym (·-lid _)) ⟩
+            1r · 1r · (1r · s) ∎
 
     ·ₗ-path : [ r , s , s∈S' ] ≡   [ r , 1r , SMultClosedSubset .containsOne ]
                                 ·ₗ [ 1r , s , s∈S' ]
