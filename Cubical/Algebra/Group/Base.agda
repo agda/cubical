@@ -208,6 +208,13 @@ trivialGroup = Unit , groupstr tt (λ _ _ → tt) (λ _ → tt)
                                    (λ _ → refl) (λ _ → refl))
 
 intGroup : Group₀
-intGroup = Int , groupstr 0 _+Int_ (0 -Int_)
-                 (makeIsGroup isSetInt +-assoc (λ x → refl) (λ x → +-comm 0 x)
-                              (λ x → +-comm x (pos 0 -Int x) ∙ minusPlus x 0) (λ x → minusPlus x 0))
+fst intGroup = Int
+0g (snd intGroup) = 0
+_+_ (snd intGroup) = _+Int_
+- snd intGroup = 0 -Int_
+isGroup (snd intGroup) = isGroupInt
+  where
+  abstract
+    isGroupInt : IsGroup (pos 0) _+Int_ (_-Int_ (pos 0))
+    isGroupInt = makeIsGroup isSetInt +-assoc (λ x → refl) (λ x → +-comm 0 x)
+                              (λ x → +-comm x (pos 0 -Int x) ∙ minusPlus x 0) (λ x → minusPlus x 0)

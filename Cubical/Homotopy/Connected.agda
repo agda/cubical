@@ -26,6 +26,7 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Unit
 
 -- Note that relative to most sources, this notation is off by +2
+
 isConnected : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ
 isConnected n A = isContr (hLevelTrunc n A)
 
@@ -170,8 +171,15 @@ isConnectedPath : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → (a₀ a₁ : A) → isConnected n (a₀ ≡ a₁)
 isConnectedPath zero connA a₀ a₁ = isContrUnit*
 isConnectedPath (suc n) {A = A} connA a₀ a₁ =
-  isOfHLevelRetractFromIso 0
-    (invIso (PathIdTruncIso (suc n)))
+  isContrRetract
+    (Trunc.rec {B = Path (hLevelTrunc (2 + n) A) ∣ a₀ ∣ ∣ a₁ ∣} (isOfHLevelTrunc (2 + n) _ _) (cong ∣_∣))
+    (λ p → transport (λ i → Trunc.rec (isOfHLevelTypeOfHLevel (suc n))
+                                        (λ a → (hLevelTrunc (suc n) (a ≡ a₁))
+                                               , isOfHLevelTrunc (suc n)) (p (~ i)) .fst)
+            ∣ refl ∣)
+    (Trunc.elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
+                (J (λ a₁ p → transport (λ i → HubAndSpoke (p (~ i) ≡ a₁) n) ∣ (λ _ → a₁) ∣ ≡ ∣ p ∣)
+                   (transportRefl ∣ refl ∣)))
     (isContr→isContrPath connA _ _)
 
 isConnectedPathP : ∀ {ℓ} (n : HLevel) {A : I → Type ℓ}

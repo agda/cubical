@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.ZCohomology.EilenbergIso where
+module Cubical.ZCohomology.pathComp.EilenbergIso where
 
-open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.pathComp.Base
 open import Cubical.Homotopy.Connected
 open import Cubical.HITs.Hopf
 open import Cubical.Homotopy.Freudenthal hiding (encode)
@@ -89,6 +89,7 @@ d-mapId2 = funExt (trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) λ
 Iso∥ϕ₁∥ : Iso (coHomK 1) (∥ Path (S₊ 2) north north ∥ 3)
 Iso∥ϕ₁∥ = composesToId→Iso d-Iso (trMap (ϕ base)) d-mapId2
 
+{-
 IsoKnLoopKn : (n : HLevel) → Iso (coHomK n) (loopK n)
 IsoKnLoopKn zero = invIso (compIso (congTruncIso 2 ΩS¹IsoInt) (truncIdempotentIso 2 isSetInt))
 IsoKnLoopKn (suc zero) = Iso∥ϕ₁∥ 
@@ -114,7 +115,7 @@ Iso.leftInv (IsoKnLoopKn0 n) x = (λ i → (λ j → 0→refl n (j ∧ ~ i))
                                           ∙∙ (λ j → 0→refl n (j ∧ ~ i))
                                           ∙∙ (λ j → 0→refl n (~ j ∧ ~ i)))
                                   ∙ λ i → rUnit (rUnit x (~ i)) (~ i)
-
+-}
 Iso-Kn-ΩKn+1 : (n : HLevel) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
 Iso-Kn-ΩKn+1 zero = invIso (compIso (congIso (truncIdempotentIso _ isGroupoidS¹)) ΩS¹IsoInt)
 Iso-Kn-ΩKn+1 (suc zero) = compIso Iso∥ϕ₁∥ (invIso (PathIdTruncIso 3))
@@ -124,5 +125,9 @@ Iso-Kn-ΩKn+1 (suc (suc n)) = compIso (stabSpheres-n≥2 n)
   helper : n + (4 + n) ≡ 2 + (n + (2 + n))
   helper = +-suc n (3 + n) ∙ (λ i → suc (+-suc n (2 + n) i))
 
+Kn-ΩKn+10→0 : (n : ℕ) → Iso.fun (Iso-Kn-ΩKn+1 (suc n)) ∣ ptSn (suc n) ∣ ≡ refl
+Kn-ΩKn+10→0 zero j i = ∣ rCancel (merid base) j i ∣
+Kn-ΩKn+10→0 (suc n) j i = ∣ rCancel (merid north) j i ∣
+
 IsoLoopK₀Int : Iso (loopK 0) Int
-IsoLoopK₀Int = compIso (truncIdempotentIso _ (isGroupoidS¹ _ _)) ΩS¹IsoInt
+IsoLoopK₀Int = compIso (congIso (truncIdempotentIso _ isGroupoidS¹)) ΩS¹IsoInt -- compIso (truncIdempotentIso _ (isGroupoidS¹ _ _)) ΩS¹IsoInt

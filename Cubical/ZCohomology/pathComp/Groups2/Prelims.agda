@@ -1,9 +1,10 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.ZCohomology.Groups2.Prelims where
+module Cubical.ZCohomology.pathComp.Groups2.Prelims where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties2
-open import Cubical.ZCohomology.EilenbergIso
+open import Cubical.ZCohomology.pathComp.Base
+open import Cubical.ZCohomology.pathComp.Properties2
+open import Cubical.ZCohomology.pathComp.EilenbergIso
+open import Cubical.ZCohomology.pathComp.MayerVietoris2
 
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Pointed
@@ -62,62 +63,75 @@ S1map = trRec isGroupoidS¹ (idfun _)
 Iso-S¹→S¹-ΩS²×Ω²S² : Iso (S¹ → loopK 1) (Σ[ x ∈ loopK 1 ] x ≡ x)
 Iso-S¹→S¹-ΩS²×Ω²S² = IsoFunSpaceS¹
 
-test : Iso (typ (Ω (loopK 1 , ∣ refl ∣))) Int
-test = congIso (invIso (IsoKnLoopKn 1)) ⋄ invIso (Iso-Kn-ΩKn+1 0)
+test : Iso (typ (Ω (loopK 1 , refl))) Int
+test = congIso (invIso (Iso-Kn-ΩKn+1 1)) ⋄ invIso (Iso-Kn-ΩKn+1 0)
 
 abstract
-  testFunct : (p q : typ (Ω (loopK 1 , ∣ refl ∣))) → Iso.fun test (p ∙ q) ≡ (Iso.fun test p +ℤ Iso.fun test q)
-  testFunct p q = cong (Iso.inv (Iso-Kn-ΩKn+1 0)) (congFunct (Iso.inv (IsoKnLoopKn 1)) p q)
-                ∙∙ cong winding (congFunct (Iso.fun ((truncIdempotentIso 3 isGroupoidS¹))) (cong (Iso.inv (IsoKnLoopKn 1)) p) (cong (Iso.inv (IsoKnLoopKn 1)) q)) 
-                ∙∙ winding-hom (cong (Iso.fun ((truncIdempotentIso 3 isGroupoidS¹))) (cong (Iso.inv (IsoKnLoopKn 1)) p))
-                               (cong (Iso.fun ((truncIdempotentIso 3 isGroupoidS¹))) (cong (Iso.inv (IsoKnLoopKn 1)) q))
-
-wrapItUp : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ x) (q : x ≡ y) → y ≡ y
-wrapItUp p q = sym q ∙∙ p ∙∙ q
-
-wrapInv : ∀ {ℓ} {A : Type ℓ} {x y : A} → (p : x ≡ x) → (q : x ≡ y) → wrapItUp (wrapItUp p q) (sym q) ≡ p
-wrapInv p q = (λ i → (λ j → q (~ i ∧ j)) ∙∙ (λ j → q (~ i ∧ ~ j))
-                    ∙∙ p
-                    ∙∙ (λ j → q (~ i ∧ j)) ∙∙ λ j → q (~ i ∧ ~ j))
-             ∙ λ i → rUnit (rUnit p (~ i)) (~ i)
-
-wrapFunct : ∀ {ℓ} {A : Type ℓ} {x y : A} (p q : x ≡ x) (r : x ≡ y)
-            → wrapItUp (p ∙ q) r ≡ wrapItUp p r ∙ wrapItUp q r
-wrapFunct p q r =
-    doubleCompPath-elim' (sym r) (p ∙ q) r
- ∙∙ cong (sym r ∙_) (sym (assoc p q r))
- ∙∙ assoc (sym r) p (q ∙ r)
- ∙∙ cong (_∙ (q ∙ r)) (leftright (sym r) p)
- ∙∙ λ i → (sym r ∙∙ p ∙∙ λ j → r (i ∧ j)) ∙ ((λ j → r (i ∧ ~ j)) ∙∙ q ∙∙ r)
+  testFunct : (p q : typ (Ω (loopK 1 , refl))) → Iso.fun test (p ∙ q) ≡ (Iso.fun test p +ℤ Iso.fun test q)
+  testFunct p q = cong (Iso.inv (Iso-Kn-ΩKn+1 0)) (congFunct (Iso.inv (Iso-Kn-ΩKn+1 1)) p q)
+                ∙∙ cong winding (congFunct (Iso.fun ((truncIdempotentIso 3 isGroupoidS¹))) (cong (Iso.inv (Iso-Kn-ΩKn+1 1)) p) (cong (Iso.inv (Iso-Kn-ΩKn+1 1)) q)) 
+                ∙∙ winding-hom (cong (Iso.fun ((truncIdempotentIso 3 isGroupoidS¹))) (cong (Iso.inv (Iso-Kn-ΩKn+1 1)) p))
+                               (cong (Iso.fun ((truncIdempotentIso 3 isGroupoidS¹))) (cong (Iso.inv (Iso-Kn-ΩKn+1 1)) q))
 
 hahah : (n : ℕ) (x : loopK n) → Iso (loopK n) (loopK n)
-Iso.fun (hahah n x) y = y -[ n ]ₖ x
-Iso.inv (hahah n x) y = y +[ n ]ₖ x
-Iso.rightInv (hahah n x) y = assocₖ n y x (-[ n ]ₖ x) ∙∙ cong (λ z → y +[ n ]ₖ z) (rCancelₖ n x) ∙∙ rUnitₖ n y
-Iso.leftInv (hahah n x) y = assocₖ n y (-[ n ]ₖ x) x ∙∙ cong (λ z → y +[ n ]ₖ z) (lCancelₖ n x) ∙∙ rUnitₖ n y
+Iso.fun (hahah n x) y = y ∙ sym x
+Iso.inv (hahah n x) y = y ∙ x
+Iso.rightInv (hahah n x) y = sym (assoc y x (sym x)) ∙∙ cong (y ∙_) (rCancel x) ∙∙ sym (rUnit y)
+Iso.leftInv (hahah n x) y = sym (assoc y (sym x) x) ∙∙ cong (y ∙_) (lCancel x) ∙∙ sym (rUnit y)
 
-hahah2 : (n : ℕ) (x : loopK n) → Iso (x -[ n ]ₖ x ≡ x -[ n ]ₖ x) (typ (Ω ((loopK n) , ∣ refl ∣)))
-Iso.fun (hahah2 n x) p = wrapItUp p (rCancelₖ n x)
-Iso.inv (hahah2 n x) p = wrapItUp p (sym (rCancelₖ n x))
-Iso.rightInv (hahah2 n x) p = wrapInv p (sym (rCancelₖ n x))
-Iso.leftInv (hahah2 n x) p = wrapInv p (rCancelₖ n x)
-maybe2 : (n : ℕ) → (x : loopK n) → Iso (x ≡ x) (typ (Ω ((loopK n) , ∣ refl ∣)))
+hahah2 : (n : ℕ) (x : loopK n) → Iso (x ∙ sym x ≡ x ∙ sym x) (typ (Ω ((loopK n) , refl)))
+Iso.fun (hahah2 n x) p = wrapItUp p (rCancel x)
+Iso.inv (hahah2 n x) p = wrapItUp p (sym (rCancel x))
+Iso.rightInv (hahah2 n x) p = wrapInv p (sym (rCancel x))
+Iso.leftInv (hahah2 n x) p = wrapInv p (rCancel x)
+
+maybe2 : (n : ℕ) → (x : loopK n) → Iso (x ≡ x) (typ (Ω ((loopK n) , refl)))
 maybe2 n x = congIso (hahah n x) ⋄ hahah2 n x
-                            
+
 abstract
   maybe2Funct : (n : ℕ) → (x : loopK n) → (p q : x ≡ x) → Iso.fun (maybe2 n x) (p ∙ q) ≡ Iso.fun (maybe2 n x) p ∙ Iso.fun (maybe2 n x) q
   maybe2Funct n x p q = cong (Iso.fun (hahah2 n x)) (congFunct (Iso.fun (hahah n x)) p q)
-                      ∙ wrapFunct (cong (λ y → -'ₖ-syntax n y x) p) (cong (λ y → -'ₖ-syntax n y x) q) (rCancelₖ n x)
+                      ∙ wrapFunct (cong (_∙ sym x) p) (cong (_∙ sym x) q) (rCancel x)
 
-nice! : Iso (Σ[ x ∈ loopK 1 ] x ≡ x) (loopK 1 × typ (Ω ((loopK 1) , ∣ refl ∣)))
+nice! : Iso (Σ[ x ∈ loopK 1 ] x ≡ x) (loopK 1 × typ (Ω ((loopK 1) , refl)))
 Iso.fun nice! (a , p) = a , (Iso.fun (maybe2 1 a) p)
 Iso.inv nice! (a , p) = a , (Iso.inv (maybe2 1 a) p)
 Iso.rightInv nice! (a , p) i = a , (Iso.rightInv (maybe2 1 a) p i)
 Iso.leftInv nice! (a , p) i = a , (Iso.leftInv (maybe2 1 a) p i)
 
+open import Cubical.Algebra.Group
+
+halfway : GroupIso (coHomGr 1 S¹) (dirProd (auxGr ((loopK 1) , refl)) (auxGr ((coHomK 2) , _))) 
+GroupHom.fun (GroupIso.map halfway) =
+  sRec (isSet× setTruncIsSet setTruncIsSet)
+       λ f → ∣ Iso.fun (IsoFunSpaceS¹ ⋄ nice!) f .snd ∣₂ ,  ∣ Iso.fun (IsoFunSpaceS¹ ⋄ nice!) f .fst ∣₂
+GroupHom.isHom (GroupIso.map halfway) =
+  coHomPointedElim2 _ base base
+    (λ _ _ → isSet× setTruncIsSet setTruncIsSet _ _)
+    λ f g fId gId → ΣPathP ((cong ∣_∣₂ (cong (Iso.fun (maybe2 1 (f base ∙ g base))) (cong₂Funct _∙_ (cong f loop) (cong g loop))
+                            ∙∙ maybe2Funct 1 (f base ∙ g base) (cong (_∙ g base) (cong f loop)) (cong (f base ∙_) (cong g loop))
+                            ∙∙ ((λ i → Iso.fun (maybe2 1 (f base ∙ gId i)) (cong (_∙ gId i) (cong f loop))
+                                      ∙ Iso.fun (maybe2 1 (fId i ∙ g base)) (cong (fId i ∙_) (cong g loop)))
+                              ∙ λ i → Iso.fun (maybe2 1 (rUnit (f base) (~ i))) (cong (λ x → rUnit x (~ i)) (cong f loop))
+                                      ∙ Iso.fun (maybe2 1 (lUnit (g base) (~ i))) (cong (λ x → lUnit x (~ i)) (cong g loop)))))
+                           , refl)
+GroupIso.inv halfway = uncurry (rec2 setTruncIsSet λ p q → ∣ Iso.inv IsoFunSpaceS¹ (Iso.inv nice! (q , p)) ∣₂ )
+GroupIso.rightInv halfway =
+  uncurry (elim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
+          λ p q → ΣPathP (cong ∣_∣₂ (cong snd (Iso.rightInv (IsoFunSpaceS¹ ⋄ nice!) (q , p)))
+                         , cong ∣_∣₂ (cong fst (Iso.rightInv (IsoFunSpaceS¹ ⋄ nice!) (q , p)))))
+GroupIso.leftInv halfway =
+  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        λ f → cong ∣_∣₂ (Iso.leftInv (IsoFunSpaceS¹ ⋄ nice!) f)
+
 nice!TOTAL : Iso (S¹ → loopK 1) (loopK 1 × Int)
 nice!TOTAL = IsoFunSpaceS¹ ⋄ nice! ⋄ prodIso idIso test
 
+
+halfway2 : GroupIso (auxGr ((loopK 1) , refl)) intGroup
+halfway2 =
+  Iso+Hom→GrIso (setTruncIdempotentIso (isOfHLevelTrunc 4 _ _ _ _) ⋄ test)
+    (elim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _) testFunct)
 
 -- S1→K₁≡S1×Int : Iso ((S₊ 1) → coHomK 1) (coHomK 1 × Int)
 -- S1→K₁≡S1×Int = S¹→S¹≡S¹×Int ⋄ prodIso (invIso (truncIdempotentIso 3 (isGroupoidS¹))) idIso

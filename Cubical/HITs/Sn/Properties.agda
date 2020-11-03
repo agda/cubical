@@ -336,3 +336,169 @@ isConnectedσ-Sn n = isConnectedFunSubtr _ n _
 
 stabSpheres-n≥2 : (n : ℕ) → Iso (hLevelTrunc (4 + n) (S₊ (2 + n))) (hLevelTrunc (4 + n) (typ (Ω (S₊∙ (3 + n)))))
 stabSpheres-n≥2 n = connectedTruncIso (4 + n) (miniFreudenthal.σ n) (isConnectedσ-Sn n)
+
+
+wedgeConSn' : ∀ {ℓ} (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) → Type ℓ}
+          → ((x : S₊ (suc n)) (y : S₊ (suc m)) → isOfHLevel ((suc n) + (suc m)) (A x y))
+          → (f : (x : _) → A (ptSn (suc n)) x)
+          → (g : (x : _) → A x (ptSn (suc m)))
+          → (hom : (g (ptSn (suc n)) ≡ f (ptSn (suc m))))
+          → Σ[ F ∈ ((x : S₊ (suc n)) (y : S₊ (suc m)) → A x y) ]
+              Σ[ Homs ∈ (((x : S₊ (suc m)) → F (ptSn (suc n)) x ≡ f x) × ((x : S₊ (suc n)) → F x (ptSn (suc m)) ≡ g x)) ] (Homs .fst (ptSn (suc m)) ≡ Homs .snd (ptSn (suc n)) ∙ hom)
+wedgeConSn' zero zero {A = A} hlev f g hom = F , ((λ _ → refl) , right) , sym (lCancel hom)
+  where
+  helper : SquareP (λ i j → A (loop i) (loop j)) (cong f loop) (cong f loop)
+                        (λ i → hcomp (λ k → λ { (i = i0) → hom k
+                                                ; (i = i1) → hom k })
+                                      (g (loop i)))
+                         λ i → hcomp (λ k → λ { (i = i0) → hom k
+                                                ; (i = i1) → hom k })
+                                       (g (loop i))
+  helper = transport (sym (PathP≡Path _ _ _))
+                     (isOfHLevelPathP' 1 (hlev base base) _ _ _ _)
+
+  F : (x y : S¹) → A x y
+  F base y = f y
+  F (loop i) base = hcomp (λ k → λ { (i = i0) → hom k
+                                    ; (i = i1) → hom k })
+                          (g (loop i))
+  F (loop i) (loop j) = helper i j
+
+  right : (x : S¹) → F x base ≡ g x
+  right base = sym hom
+  right (loop i) j = hcomp (λ k → λ { (i = i0) → hom (~ j ∧ k)
+                                     ; (i = i1) → hom (~ j ∧ k)
+                                     ; (j = i1) → g (loop i) })
+                           (g (loop i))
+wedgeConSn' zero (suc m) {A = A} hlev f g hom = F , (left , (λ _ → refl)) , lUnit hom
+  where
+  transpLemma : (x : S₊ (suc m)) → transport (λ i₁ → A base (merid x i₁)) (g base) ≡ f south
+  transpLemma x = cong (transport (λ i₁ → A base (merid x i₁)))
+                                  hom
+              ∙ (λ i → transp (λ j → A base (merid x (i ∨ j))) i
+                               (f (merid x i)))
+
+  pathOverMerid : (x : S₊ (suc m)) → PathP (λ i₁ → A base (merid x i₁))
+                                            (g base)
+                                            (transport (λ i₁ → A base (merid (ptSn (suc m)) i₁))
+                                                       (g base))
+  pathOverMerid x i = hcomp (λ k → λ { (i = i0) → g base
+                                      ; (i = i1) → (transpLemma x ∙ sym (transpLemma (ptSn (suc m)))) k})
+                            (transp (λ i₁ → A base (merid x (i₁ ∧ i))) (~ i)
+                                    (g base))
+
+  pathOverMeridId : pathOverMerid (ptSn (suc m)) ≡ λ i → transp (λ i₁ → A base (merid (ptSn (suc m)) (i₁ ∧ i))) (~ i)
+                                                                 (g base)
+  pathOverMeridId  =
+       (λ j i → hcomp (λ k → λ {(i = i0) → g base
+                               ; (i = i1) → rCancel (transpLemma (ptSn (suc m))) j k})
+                      (transp (λ i₁ → A base (merid (ptSn (suc m)) (i₁ ∧ i))) (~ i)
+                              (g base)))
+     ∙ λ j i → hfill (λ k → λ { (i = i0) → g base
+                                ; (i = i1) → transport (λ i₁ → A base (merid (ptSn (suc m)) i₁))
+                                                        (g base)})
+                      (inS (transp (λ i₁ → A base (merid (ptSn (suc m)) (i₁ ∧ i))) (~ i)
+                                   (g base))) (~ j)
+
+  indStep : Σ[ F ∈ ((x : _) (a : _) → PathP (λ i → A x (merid a i))
+                                             (g x)
+                                             (subst (λ y → A x y) (merid (ptSn (suc m)))
+                                                    (g x))) ] _
+  indStep = wedgeConSn zero m (λ _ _ → isOfHLevelPathP' (2 + m) (hlev _ _) _ _)
+                              pathOverMerid
+                              (λ a i → transp (λ i₁ → A a (merid (ptSn (suc m)) (i₁ ∧ i))) (~ i)
+                                               (g a))
+                              (sym pathOverMeridId)
+
+  F : (x : S¹) (y : Susp (S₊ (suc m))) → A x y
+  F x north = g x
+  F x south = subst (λ y → A x y) (merid (ptSn (suc m))) (g x)
+  F x (merid a i) = indStep .fst x a i
+
+  left : (x : Susp (S₊ (suc m))) → F base x ≡ f x
+  left north = hom
+  left south = cong (subst (A base) (merid (ptSn (suc m)))) hom
+             ∙ λ i → transp (λ j → A base (merid (ptSn (suc m)) (i ∨ j))) i
+                             (f (merid (ptSn (suc m)) i))
+  left (merid a i) j =
+    hcomp (λ k → λ { (i = i0) → hom j
+                    ; (i = i1) → transpLemma (ptSn (suc m)) j
+                    ; (j = i0) → indStep .snd .fst a (~ k) i
+                    ; (j = i1) → f (merid a i)})
+          (hcomp (λ k →  λ { (i = i0) → hom j
+                            ; (i = i1) → compPath-lem (transpLemma a) (transpLemma (ptSn (suc m))) k j
+                            ; (j = i1) → f (merid a i)})
+                 (hcomp (λ k → λ { (i = i0) → hom j
+                                  ; (j = i0) → transp (λ i₂ → A base (merid a (i₂ ∧ i))) (~ i)
+                                                       (g base)
+                                  ; (j = i1) → transp (λ j → A base (merid a (i ∧ (j ∨ k)))) (k ∨ ~ i)
+                                                       (f (merid a (i ∧ k)))})
+                        (transp (λ i₂ → A base (merid a (i₂ ∧ i))) (~ i)
+                                (hom j))))
+
+wedgeConSn' (suc n) m {A = A} hlev f g hom = F , (((λ _ → refl) , right) , sym (lCancel hom))
+  where
+  transpLemma : (x : S₊ (suc n)) → transport (λ i₁ → A (merid x i₁) (ptSn (suc m))) (f (ptSn (suc m))) ≡ g south
+  transpLemma x = cong (transport (λ i₁ → A (merid x i₁) (ptSn (suc m))))
+                       (sym hom)
+                ∙ (λ i → transp (λ j → A (merid x (i ∨ j)) (ptSn (suc m))) i
+                                 (g (merid x i)))
+
+  pathOverMerid : (x : S₊ (suc n)) → PathP (λ i₁ → A (merid x i₁) (ptSn (suc m)))
+                                            (f (ptSn (suc m)))
+                                            (transport (λ i₁ → A (merid (ptSn (suc n)) i₁) (ptSn (suc m)))
+                                                       (f (ptSn (suc m))))
+  pathOverMerid x i = hcomp (λ k → λ { (i = i0) → f (ptSn (suc m))
+                                      ; (i = i1) → (transpLemma x ∙ sym (transpLemma (ptSn (suc n)))) k })
+                            (transp (λ i₁ → A (merid x (i₁ ∧ i)) (ptSn (suc m))) (~ i)
+                                    (f (ptSn (suc m))))
+
+  pathOverMeridId : pathOverMerid (ptSn (suc n)) ≡ λ i → transp (λ i₁ → A (merid (ptSn (suc n)) (i₁ ∧ i)) (ptSn (suc m))) (~ i)
+                                                                 (f (ptSn (suc m)))
+  pathOverMeridId =
+        (λ j i → hcomp (λ k → λ { (i = i0) → f (ptSn (suc m))
+                                  ; (i = i1) → rCancel (transpLemma (ptSn (suc n))) j k })
+                        (transp (λ i₁ → A (merid (ptSn (suc n)) (i₁ ∧ i)) (ptSn (suc m))) (~ i)
+                                (f (ptSn (suc m)))))
+       ∙ λ j i → hfill (λ k → λ { (i = i0) → f (ptSn (suc m))
+                                  ; (i = i1) → transport (λ i₁ → A (merid (ptSn (suc n)) i₁) (ptSn (suc m)))
+                                                          (f (ptSn (suc m))) })
+                        (inS (transp (λ i₁ → A (merid (ptSn (suc n)) (i₁ ∧ i)) (ptSn (suc m))) (~ i)
+                                     (f (ptSn (suc m))))) (~ j)
+
+  indStep : Σ[ F ∈ ((a : _) (y : _) → PathP (λ i → A (merid a i) y)
+                                             (f y)
+                                             (subst (λ x → A x y) (merid (ptSn (suc n)))
+                                                    (f y))) ] _
+  indStep = wedgeConSn n m (λ _ _ → isOfHLevelPathP' (suc (n + suc m)) (hlev _ _) _ _)
+                           (λ a i → transp (λ i₁ → A (merid (ptSn (suc n)) (i₁ ∧ i)) a) (~ i)
+                                            (f a))
+                           pathOverMerid
+                           pathOverMeridId
+
+  F : (x : Susp (S₊ (suc n))) (y : S₊ (suc m))  → A x y
+  right : (x : Susp (S₊ (suc n))) → F x (ptSn (suc m)) ≡ g x
+  F north y = f y
+  F south y = subst (λ x → A x y) (merid (ptSn (suc n))) (f y)
+  F (merid a i) y = indStep .fst a y i
+  right north = sym hom
+  right south = cong (subst (λ x → A x (ptSn (suc m)))
+                            (merid (ptSn (suc n))))
+                            (sym hom)
+              ∙ λ i → transp (λ j → A (merid (ptSn (suc n)) (i ∨ j)) (ptSn (suc m))) i
+                              (g (merid (ptSn (suc n)) i))
+  right (merid a i) j =
+    hcomp (λ k → λ { (i = i0) → hom (~ j)
+                    ; (i = i1) → transpLemma (ptSn (suc n)) j
+                    ; (j = i0) → indStep .snd .snd a (~ k) i
+                    ; (j = i1) → g (merid a i)})
+          (hcomp (λ k →  λ { (i = i0) → hom (~ j)
+                            ; (i = i1) → compPath-lem (transpLemma a) (transpLemma (ptSn (suc n))) k j
+                            ; (j = i1) → g (merid a i)})
+                 (hcomp (λ k → λ { (i = i0) → hom (~ j)
+                                  ; (j = i0) → transp (λ i₂ → A (merid a (i₂ ∧ i)) (ptSn (suc m))) (~ i)
+                                                       (f (ptSn (suc m)))
+                                  ; (j = i1) → transp (λ j → A (merid a (i ∧ (j ∨ k))) (ptSn (suc m))) (k ∨ ~ i)
+                                                       (g (merid a (i ∧ k))) })
+                        (transp (λ i₂ → A (merid a (i₂ ∧ i)) (ptSn (suc m))) (~ i)
+                                (hom (~ j)))))

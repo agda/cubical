@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.ZCohomology.Base where
+module Cubical.ZCohomology.dirrAdd.Base where
 
 open import Cubical.Data.Int.Base
 open import Cubical.Data.Nat.Base
@@ -34,19 +34,20 @@ coHom n A = ∥ (A → coHomK n) ∥₂
 
 -- Alternative definition
 loopK : (n : ℕ) → Type₀
-loopK n = ∥ typ (Ω (S₊∙ (suc n))) ∥ (2 + n)
+loopK n = typ (Ω (∥ S₊ (suc n) ∥ (3 + n) , ∣ ptSn (suc n) ∣))
 
 coHom' : (n : ℕ) → Type ℓ → Type ℓ
 coHom' n A = ∥ (A → loopK n) ∥₂
 
 coHom'-pt : (n : ℕ) → loopK n
-coHom'-pt n = ∣ refl ∣
+coHom'-pt n = refl
 
 --- Reduced cohomology ---
 
 coHom-pt : (n : ℕ) → coHomK n
 coHom-pt 0 = 0
-coHom-pt (suc n) = ∣ (ptSn (suc n)) ∣
+coHom-pt 1 = ∣ base ∣
+coHom-pt (suc (suc n)) = ∣ north ∣
 
 {- Pointed version of Kₙ  -}
 coHomK-ptd : (n : ℕ) → Pointed (ℓ-zero)

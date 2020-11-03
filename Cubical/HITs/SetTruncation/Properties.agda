@@ -88,14 +88,14 @@ setTruncUniversal {B = B} Bset =
 setTruncIsSet : isSet ∥ A ∥₂
 setTruncIsSet a b p q = squash₂ a b p q
 
+setTruncIdempotentIso : isSet A → Iso ∥ A ∥₂ A
+Iso.fun (setTruncIdempotentIso hA) = rec hA (idfun _)
+Iso.inv (setTruncIdempotentIso hA) x = ∣ x ∣₂
+Iso.rightInv (setTruncIdempotentIso hA) _ = refl
+Iso.leftInv (setTruncIdempotentIso hA) = elim (λ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ → refl)
+
 setTruncIdempotent≃ : isSet A → ∥ A ∥₂ ≃ A
-setTruncIdempotent≃ {A = A} hA = isoToEquiv f
-  where
-  f : Iso ∥ A ∥₂ A
-  Iso.fun f = rec hA (idfun A)
-  Iso.inv f x = ∣ x ∣₂
-  Iso.rightInv f _ = refl
-  Iso.leftInv f = elim (λ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ → refl)
+setTruncIdempotent≃ {A = A} hA = isoToEquiv (setTruncIdempotentIso hA)
 
 setTruncIdempotent : isSet A → ∥ A ∥₂ ≡ A
 setTruncIdempotent hA = ua (setTruncIdempotent≃ hA)

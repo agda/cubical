@@ -1,12 +1,12 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.ZCohomology.Groups2.WedgeOfSpheres where
+module Cubical.ZCohomology.pathComp.Groups2.WedgeOfSpheres where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties2
-open import Cubical.ZCohomology.Groups2.Unit
-open import Cubical.ZCohomology.Groups2.Sn
-open import Cubical.ZCohomology.Groups2.Wedge
-open import Cubical.ZCohomology.Groups2.Connected
+open import Cubical.ZCohomology.pathComp.Base
+open import Cubical.ZCohomology.pathComp.Properties2
+open import Cubical.ZCohomology.pathComp.Groups2.Unit
+open import Cubical.ZCohomology.pathComp.Groups2.Sn
+open import Cubical.ZCohomology.pathComp.Groups2.Wedge
+open import Cubical.ZCohomology.pathComp.Groups2.Connected
 
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
@@ -89,3 +89,6 @@ test = refl
 test2 : to₂ (from₂ 0) ≡ 0
 test2 = refl
 -}
+
+test : to₁ (from₁ (0 , 0) +ₕ from₁ (0 , 0)) ≡ (0 , 0)
+test = refl

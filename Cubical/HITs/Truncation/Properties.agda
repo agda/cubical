@@ -434,16 +434,16 @@ PathIdTrunc n = isoToPath (PathIdTruncIso n)
 PathΩ : {a : A} (n : HLevel) → (Path (∥ A ∥ (suc n)) ∣ a ∣ ∣ a ∣) ≡ (∥ a ≡ a ∥ n)
 PathΩ n = PathIdTrunc n
 
+PathIdTruncIsoFunct : ∀ {A : Type ℓ} {a : A} (n : HLevel) → (p q : (Path (∥ A ∥ (2 +  n)) ∣ a ∣ ∣ a ∣))
+                   → Iso.fun (PathIdTruncIso (suc n)) (p ∙ q)
+                    ≡ map2 _∙_ (Iso.fun (PathIdTruncIso (suc n)) p) (Iso.fun (PathIdTruncIso (suc n)) q) 
+PathIdTruncIsoFunct {a = a} n p q = sym (ΩTrunc.+P-funct n (∣ a ∣) ∣ a ∣ ∣ a ∣ p q)
+
 {- Special case using direct defs of truncations -}
 PathIdTrunc₀Iso : {a b : A} → Iso (∣ a ∣₂ ≡ ∣ b ∣₂) ∥ a ≡ b ∥₁
 PathIdTrunc₀Iso = compIso (congIso setTruncTrunc2Iso)
                     (compIso (ΩTrunc.IsoFinal _ ∣ _ ∣ ∣ _ ∣)
                              (invIso propTruncTrunc1Iso))
-
-PathIdTruncIsoFunct : ∀ {A : Type ℓ} {a : A} (n : HLevel) → (p q : (Path (∥ A ∥ (2 +  n)) ∣ a ∣ ∣ a ∣))
-                   → Iso.fun (PathIdTruncIso (suc n)) (p ∙ q)
-                    ≡ map2 _∙_ (Iso.fun (PathIdTruncIso (suc n)) p) (Iso.fun (PathIdTruncIso (suc n)) q) 
-PathIdTruncIsoFunct {a = a} n p q = sym (ΩTrunc.+P-funct n (∣ a ∣) ∣ a ∣ ∣ a ∣ p q)
 
 -------------------------
 
@@ -467,6 +467,16 @@ Iso.rightInv (truncOfTruncIso (suc n) (suc m)) =
                       λ a → refl)
 Iso.leftInv (truncOfTruncIso (suc n) zero) = elim (λ x → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) λ a → refl
 Iso.leftInv (truncOfTruncIso (suc n) (suc m)) = elim (λ x → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) λ a → refl
+
+truncOfTruncIso' : (n m : HLevel) → Iso (hLevelTrunc n A) (hLevelTrunc n (hLevelTrunc (n + m) A))
+truncOfTruncIso' zero m = isContr→Iso (isOfHLevelUnit* 0) (isOfHLevelUnit* 0)
+Iso.fun (truncOfTruncIso' (suc n) m) = rec (isOfHLevelTrunc (suc n)) λ a → ∣ ∣ a ∣ ∣
+Iso.inv (truncOfTruncIso' {A = A} (suc n) m) = rec (isOfHLevelTrunc (suc n))
+                                                      (rec (isOfHLevelPlus' {n = m} (suc n) (isOfHLevelTrunc (suc n)))  ∣_∣)
+Iso.rightInv (truncOfTruncIso' (suc n) m) = elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
+                                                    (elim (λ _ → isOfHLevelPath (suc n + m) (isOfHLevelPlus' {n = m} (suc n) (isOfHLevelTrunc (suc n))) _ _)
+                                                    λ _ → refl)
+Iso.leftInv (truncOfTruncIso' (suc n) m) = elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) λ _ → refl
 
 truncOfTruncEq : (n m : ℕ) → (hLevelTrunc n A) ≃ (hLevelTrunc n (hLevelTrunc (m + n) A))
 truncOfTruncEq n m = isoToEquiv (truncOfTruncIso n m)

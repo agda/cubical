@@ -1,10 +1,10 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.ZCohomology.Groups2.Connected where
+module Cubical.ZCohomology.pathComp.Groups2.Connected where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties2
-open import Cubical.ZCohomology.Groups2.Unit
-open import Cubical.ZCohomology.EilenbergIso
+open import Cubical.ZCohomology.pathComp.Base
+open import Cubical.ZCohomology.pathComp.Properties2
+open import Cubical.ZCohomology.pathComp.Groups2.Unit
+open import Cubical.ZCohomology.pathComp.EilenbergIso
 
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
@@ -30,12 +30,12 @@ private
   H⁰-connected-type {A = A} a con = compIso helper IsoLoopK₀Int
     where
     helper : Iso (coHom' 0 A) (loopK 0)
-    Iso.fun helper = sRec (isOfHLevelTrunc 2) λ f → f a
+    Iso.fun helper = sRec (isOfHLevelTrunc 3 _ _) λ f → f a
     Iso.inv helper b = ∣ (λ x → b) ∣₂
     Iso.rightInv helper _ = refl
     Iso.leftInv helper =
       sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-             λ f → cong ∣_∣₂ (funExt λ x → trRec (isOfHLevelTrunc 2 _ _) (cong f) (isConnectedPath 1 con a x .fst))
+            λ f → cong ∣_∣₂ (funExt λ x → trRec (isOfHLevelTrunc 3 _ _ _ _) (cong f) (isConnectedPath 1 con a x .fst))
 
 H⁰-connected : ∀ {ℓ} {A : Type ℓ} (a : A) → isConnected 2 A → GroupIso (coHomGr 0 A) intGroup
 H⁰-connected a con = Iso+Hom→GrIso (H⁰-connected-type a con)

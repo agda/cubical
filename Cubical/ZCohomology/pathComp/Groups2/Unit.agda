@@ -1,9 +1,9 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.ZCohomology.Groups2.Unit where
+module Cubical.ZCohomology.pathComp.Groups2.Unit where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties2
-open import Cubical.ZCohomology.EilenbergIso
+open import Cubical.ZCohomology.pathComp.Base
+open import Cubical.ZCohomology.pathComp.Properties2
+open import Cubical.ZCohomology.pathComp.EilenbergIso
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
 open import Cubical.Foundations.HLevels
@@ -34,13 +34,10 @@ leftInv H⁰-Unit≅ℤ = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
 
 {- Hⁿ(Unit) for n ≥ 1 -}
 isContrHⁿ-Unit : (n : ℕ) → isContr (coHom' (suc n) Unit)
-isContrHⁿ-Unit n = subst isContr (sym (cong ∥_∥₂ (UnitToTypePath (loopK (suc n))))) helper
-  where
-  helper : isContr (∥ loopK (suc n) ∥₂)
-  helper = isOfHLevelRetractFromIso 0
-                (compIso setTruncTrunc2Iso (invIso (truncOfTruncIso' 2 (suc n))))
-                (isConnectedPath 2 (isConnectedSubtr 3 n (subst (λ x → isConnected x (S₊ (2 + n))) (+-comm 3 n)
-                                   (sphereConnected (2 + n)))) _ _)
+isContrHⁿ-Unit n = 
+  isOfHLevelRetractFromIso 0
+    (setTruncIso (UnitToTypeIso (loopK (suc n))))
+    (is2ConnectedLoopK' n)
 
 Hⁿ-Unit≅0 : (n : ℕ) → GroupIso (coHomGr (suc n) Unit) trivialGroup
 GroupHom.fun (GroupIso.map (Hⁿ-Unit≅0 n)) _ = _
@@ -48,7 +45,6 @@ GroupHom.isHom (GroupIso.map (Hⁿ-Unit≅0 n)) _ _ = refl
 GroupIso.inv (Hⁿ-Unit≅0 n) _ = 0ₕ (suc n)
 GroupIso.rightInv (Hⁿ-Unit≅0 n) _ = refl
 GroupIso.leftInv (Hⁿ-Unit≅0 n) _ = isOfHLevelSuc 0 (isContrHⁿ-Unit n) _ _
-
 
 {- Hⁿ for arbitrary contractible types -}
 private

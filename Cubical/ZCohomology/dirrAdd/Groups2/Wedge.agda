@@ -1,11 +1,12 @@
 {-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
-module Cubical.ZCohomology.Groups2.Wedge where
+module Cubical.ZCohomology.pathComp.Groups2.Wedge where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties2
-open import Cubical.ZCohomology.MayerVietoris2
+open import Cubical.ZCohomology.pathComp.Base
+open import Cubical.ZCohomology.pathComp.Properties2
+open import Cubical.ZCohomology.pathComp.MayerVietoris2
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Function
@@ -16,8 +17,8 @@ open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; el
 open import Cubical.Data.Nat
 open import Cubical.Algebra.Group
 
-open import Cubical.ZCohomology.Groups2.Unit
-open import Cubical.ZCohomology.Groups2.Sn
+open import Cubical.ZCohomology.pathComp.Groups2.Unit
+open import Cubical.ZCohomology.pathComp.Groups2.Sn
 
 open import Cubical.HITs.Pushout
 open import Cubical.Data.Sigma
@@ -39,7 +40,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
     surj-helper : (x : coHom' 0 Unit) → isInIm _ _ (I.Δ 0) x
     surj-helper =
       sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
-            λ f → ∣ (∣ (λ _ → f tt) ∣₂ , (0ₕ 0)) , (cong ∣_∣₂ (funExt λ _ → rUnitₖ 0 (f tt))) ∣₁
+            λ f → ∣ (∣ (λ _ → f tt) ∣₂ , (0ₕ 0)) , (cong ∣_∣₂ (funExt λ _ → sym (rUnit (f tt)))) ∣₁
 
     helper : (x : coHom' 1 (A ⋁ B)) → isInIm _ _ (I.d 0) x → x ≡ 0ₕ 1
     helper x inim =
@@ -55,10 +56,18 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
             λ f inker → helper ∣ f ∣₂ (I.Ker-i⊂Im-d 0 ∣ f ∣₂ inker)
     BijectionIso.surj bijIso p = I.Ker-Δ⊂Im-i 1 p (isContr→isProp (isContrHⁿ-Unit 0) _ _)
 
-  Hⁿ-⋁ (suc n) = Iso+Hom→GrIso mainIso
+  Hⁿ-⋁ (suc n) =
+    vSES→GroupIso _ _
+         (ses (isOfHLevelSuc 0 (isContrHⁿ-Unit n))
+              (isOfHLevelSuc 0 (isContrHⁿ-Unit (suc n)))
+              (I.d (suc n))
+              (I.Δ (suc (suc n)))
+              (I.i (suc (suc n)))
+              (I.Ker-i⊂Im-d (suc n))
+              (I.Ker-Δ⊂Im-i (suc (suc n)))) {- Iso+Hom→GrIso mainIso
                                 (sElim2 (λ _ _ → isOfHLevelPath 2 (isOfHLevel× 2 setTruncIsSet setTruncIsSet) _ _)
-                                         λ _ _ → refl)
-    where
+                                         λ _ _ → refl)-}
+ {-   where
     helpIso : ∀ {ℓ'''} {C : Type ℓ'''} → Iso (A ⋁ B → C) (Σ[ f ∈ (typ A → C) × (typ B → C) ] (fst f) (pt A) ≡ (snd f) (pt B))
     Iso.fun helpIso f = ((λ x → f (inl x)) , λ x → f (inr x)) , cong f (push tt)
     Iso.inv helpIso ((f , g) , p) (inl x) = f x
@@ -124,7 +133,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
       theIso : Iso ∥ (Σ[ f ∈ (typ A → loopK (2 + n)) × (typ B → loopK (2 + n)) ] (fst f) (pt A) ≡ (snd f) (pt B)) ∥₂
                    ∥ (typ A → loopK (2 + n)) × (typ B → loopK (2 + n)) ∥₂
       theIso = equivToIso (forget , record { equiv-proof = isEq })
-
+-}
    {- Alternative, less direct proof :
        vSES→GroupIso _ _
          (ses (isOfHLevelSuc 0 (isContrHⁿ-Unit n))
