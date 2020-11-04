@@ -57,6 +57,15 @@ private
                     ; (j = i1) → y })
           (p (j ∨ i))
 
+sphereToPropElim : (n : ℕ) {A : (S₊ (suc n)) → Type ℓ} → ((x : S₊ (suc n)) → isProp (A x))
+          → A (ptSn (suc n))
+          → (x : S₊ (suc n)) → A x
+sphereToPropElim zero = toPropElim
+sphereToPropElim (suc n) hlev pt north = pt
+sphereToPropElim (suc n) {A = A} hlev pt south = subst A (merid (ptSn (suc n))) pt
+sphereToPropElim (suc n) {A = A} hlev pt (merid a i) =
+  isProp→PathP {B = λ i → A (merid a i)} (λ _ → hlev _) pt (subst A (merid (ptSn (suc n))) pt) i 
+
 -- Elimination rule for fibrations (x : Sⁿ) → (y : Sᵐ) → A x y of h-Level (n + m).
 -- The following principle is just the special case of the "Wedge Connectivity Lemma"
 -- for spheres (See Cubical.Homotopy.WedgeConnectivity or chapter 8.6 in the HoTT book).
@@ -502,3 +511,27 @@ wedgeConSn' (suc n) m {A = A} hlev f g hom = F , (((λ _ → refl) , right) , sy
                                                        (g (merid a (i ∧ k))) })
                         (transp (λ i₂ → A (merid a (i₂ ∧ i)) (ptSn (suc m))) (~ i)
                                 (hom (~ j)))))
+
+
+pathIdTruncSⁿ' : (n : ℕ)
+             → (x : S₊ (suc n)) → Path (hLevelTrunc (2 + n) (S₊ (suc n))) ∣ x ∣ ∣ (ptSn (suc n)) ∣
+             → hLevelTrunc (suc n) (ptSn (suc n) ≡ x)
+pathIdTruncSⁿ' n = sphereElim n (λ _ → isOfHLevelΠ (suc n) λ _ → isOfHLevelTrunc (suc n))
+                               λ _ → ∣ refl ∣
+
+isConnectedPathSⁿ : (n : ℕ)
+                 → (x y : S₊ (suc n)) → isConnected (suc n) (x ≡ y)
+isConnectedPathSⁿ n =
+  sphereToPropElim n (λ _ → isPropΠ λ _ → isPropIsContr)
+    λ y → isContrRetract
+             (rec (isOfHLevelTrunc (2 + n) _ _) (J (λ y p → Path (hLevelTrunc (2 + n) (S₊ (suc n))) ∣ y ∣ ∣ (ptSn (suc n)) ∣) refl))
+             (pathIdTruncSⁿ' n y)
+             (elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
+                   (J (λ y p → pathIdTruncSⁿ' n y (J (λ y p → Path (hLevelTrunc (2 + n) (S₊ (suc n)))  ∣ y ∣ ∣ (ptSn (suc n)) ∣) refl p) ≡ ∣ p ∣)
+                       (cong (pathIdTruncSⁿ' n (ptSn (suc n))) (transportRefl refl) ∙ pm-help n)))
+             (sym (snd (sphereConnected (suc n)) ∣ y ∣)
+           , λ p → isOfHLevelPlus {n = 0} 2 ((sphereConnected (suc n))) _ _ _ _)
+  where
+  pm-help : (n : ℕ) → pathIdTruncSⁿ' n (ptSn (suc n)) (λ _ → ∣ ptSn (suc n) ∣) ≡ ∣ refl ∣
+  pm-help zero = refl
+  pm-help (suc n) = refl

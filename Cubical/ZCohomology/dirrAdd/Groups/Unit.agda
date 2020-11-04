@@ -1,8 +1,8 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.ZCohomology.Groups.Unit where
+module Cubical.ZCohomology.dirrAdd.Groups.Unit where
 
 open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.dirrAdd.Properties
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
@@ -23,7 +23,7 @@ open GroupHom
 open GroupIso
 H⁰-Unit≅ℤ : GroupIso (coHomGr 0 Unit) intGroup
 fun (GroupIso.map H⁰-Unit≅ℤ) = sRec isSetInt (λ f → f tt)
-isHom (GroupIso.map H⁰-Unit≅ℤ) = sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _) λ a b → addLemma (a tt) (b tt)
+isHom (GroupIso.map H⁰-Unit≅ℤ) = sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _) λ a b → refl
 inv H⁰-Unit≅ℤ a = ∣ (λ _ → a) ∣₂
 rightInv H⁰-Unit≅ℤ _ = refl
 leftInv H⁰-Unit≅ℤ = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _) λ a → refl

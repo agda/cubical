@@ -1,12 +1,12 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.ZCohomology.Groups.WedgeOfSpheres where
+module Cubical.ZCohomology.dirrAdd.Groups.WedgeOfSpheres where
 
 open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.Groups.Unit
-open import Cubical.ZCohomology.Groups.Sn
-open import Cubical.ZCohomology.Groups.Wedge
-open import Cubical.ZCohomology.Groups.Connected
+open import Cubical.ZCohomology.dirrAdd.Properties
+open import Cubical.ZCohomology.dirrAdd.Groups.Unit
+open import Cubical.ZCohomology.dirrAdd.Groups.Sn
+open import Cubical.ZCohomology.dirrAdd.Groups.Wedge
+open import Cubical.ZCohomology.dirrAdd.Groups.Connected
 
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
