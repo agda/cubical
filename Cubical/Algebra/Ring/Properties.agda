@@ -139,6 +139,9 @@ module Theory (R' : Ring {ℓ}) where
   +-assoc-comm2 : (x y z : R) → x + (y + z) ≡ z + (y + x)
   +-assoc-comm2 x y z = +-assoc-comm1 x y z ∙∙ cong (λ x → y + x) (+-comm x z) ∙∙ +-assoc-comm1 y z x
 
+  ·-assoc2 : (x y z w : R) → (x · y) · (z · w) ≡ x · (y · z) · w
+  ·-assoc2 x y z w = ·-assoc (x · y) z w ∙ cong (_· w) (sym (·-assoc x y z))
+
 module HomTheory {R S : Ring {ℓ}} (f′ : RingHom  R S) where
   open Theory ⦃...⦄
   open RingStr ⦃...⦄
@@ -173,6 +176,7 @@ module _{R S : Ring {ℓ}} (φ ψ : RingHom  R S) where
      _ = S
      _ = snd R
      _ = snd S
+
  RingHom≡f : f φ ≡ f ψ → φ ≡ ψ
  f (RingHom≡f p i) = p i
  pres1 (RingHom≡f p i) = isProp→PathP {B = λ i → p i 1r ≡ 1r}

@@ -97,8 +97,10 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
   open CommRingStr (B' .snd) renaming ( is-set to Bset ; _·_ to _·B_ ; 1r to 1b
                                       ; _+_ to _+B_
                                       ; ·-assoc to ·B-assoc ; ·-comm to ·B-comm
-                                      ; ·-lid to ·B-lid ; ·-rid to ·B-rid)
+                                      ; ·-lid to ·B-lid ; ·-rid to ·B-rid
+                                      ; ·-ldist-+ to ·B-ldist-+)
   open Units B' renaming (Rˣ to Bˣ ; RˣMultClosed to BˣMultClosed ; RˣContainsOne to BˣContainsOne)
+  open Theory (CommRing→Ring B') renaming (·-assoc2 to ·B-assoc2)
   open CommTheory B'
 
   χ : CommRingHom S⁻¹RAsCommRing B'
@@ -131,7 +133,22 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
     instancepath : ⦃ _ : f ψ s ∈ Bˣ ⦄ ⦃ _ : f ψ s' ∈ Bˣ ⦄
                    ⦃ _ : f ψ (s · s') ∈ Bˣ ⦄ ⦃ _ : f ψ s ·B f ψ s' ∈ Bˣ ⦄
                → f ψ (r · s' + r' · s) ·B f ψ (s · s') ⁻¹ ≡ f ψ r ·B f ψ s ⁻¹ +B f ψ r' ·B f ψ s' ⁻¹
-    instancepath = {!!}
+    instancepath =
+           f ψ (r · s' + r' · s) ·B f ψ (s · s') ⁻¹
+         ≡⟨ (λ i → isHom+ ψ (r · s') (r' · s) i ·B unitCong (isHom· ψ s s') i) ⟩
+           (f ψ (r · s') +B f ψ (r' · s)) ·B (f ψ s ·B f ψ s') ⁻¹
+         ≡⟨ (λ i → (isHom· ψ r s' i +B isHom· ψ r' s i) ·B ⁻¹-dist-· (f ψ s) (f ψ s') i) ⟩
+           (f ψ r ·B f ψ s' +B f ψ r' ·B f ψ s) ·B (f ψ s ⁻¹ ·B f ψ s' ⁻¹)
+         ≡⟨ ·B-ldist-+ _ _ _ ⟩
+           f ψ r ·B f ψ s' ·B (f ψ s ⁻¹ ·B f ψ s' ⁻¹) +B f ψ r' ·B f ψ s ·B (f ψ s ⁻¹ ·B f ψ s' ⁻¹)
+         ≡⟨ (λ i → ·-commAssocSwap (f ψ r) (f ψ s') (f ψ s ⁻¹) (f ψ s' ⁻¹) i
+                +B ·B-assoc2 (f ψ r') (f ψ s) (f ψ s ⁻¹) (f ψ s' ⁻¹) i) ⟩
+           f ψ r ·B f ψ s ⁻¹ ·B (f ψ s' ·B f ψ s' ⁻¹) +B f ψ r' ·B (f ψ s ·B f ψ s ⁻¹) ·B f ψ s' ⁻¹
+         ≡⟨ (λ i → f ψ r ·B f ψ s ⁻¹ ·B (·-rinv (f ψ s') i)
+                +B f ψ r' ·B (·-rinv (f ψ s) i) ·B f ψ s' ⁻¹) ⟩
+           f ψ r ·B f ψ s ⁻¹ ·B 1b +B f ψ r' ·B 1b ·B f ψ s' ⁻¹
+         ≡⟨ (λ i → ·B-rid (f ψ r ·B f ψ s ⁻¹) i +B ·B-rid (f ψ r') i ·B f ψ s' ⁻¹) ⟩
+           f ψ r ·B f ψ s ⁻¹ +B f ψ r' ·B f ψ s' ⁻¹ ∎
 
   isHom· χ = elimProp2 (λ _ _ _ _ → Bset _ _ _ _) isHom·[]
    where
