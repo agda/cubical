@@ -101,7 +101,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
                                       ; ·-ldist-+ to ·B-ldist-+)
   open Units B' renaming (Rˣ to Bˣ ; RˣMultClosed to BˣMultClosed ; RˣContainsOne to BˣContainsOne)
   open Theory (CommRing→Ring B') renaming (·-assoc2 to ·B-assoc2)
-  open CommTheory B'
+  open CommTheory B' renaming (·-commAssocl to ·B-commAssocl ; ·-commAssocSwap to ·B-commAssocSwap)
 
   χ : CommRingHom S⁻¹RAsCommRing B'
   f χ = SQ.rec Bset fχ fχcoh
@@ -109,12 +109,62 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
    fχ : R × S → B
    fχ (r , s , s∈S') = (f ψ r) ·B ((f ψ s) ⁻¹) ⦃ ψS⊆Bˣ s s∈S' ⦄
    fχcoh : (a b : R × S) → a ≈ b → fχ a ≡ fχ b
-   fχcoh (r , s , s∈S') (r' , s' , s'∈S') (u , p) = instancepath ⦃ ψS⊆Bˣ s s∈S' ⦄ ⦃ ψS⊆Bˣ s' s'∈S' ⦄
+   fχcoh (r , s , s∈S') (r' , s' , s'∈S') ((u , u∈S') , p) = instancepath
+    ⦃ ψS⊆Bˣ s s∈S' ⦄ ⦃ ψS⊆Bˣ s' s'∈S' ⦄ ⦃ ψS⊆Bˣ (u · s · s')
+           (SMultClosedSubset .multClosed (SMultClosedSubset .multClosed u∈S' s∈S') s'∈S') ⦄
+    ⦃ BˣMultClosed _ _ ⦃ ψS⊆Bˣ (u · s) (SMultClosedSubset .multClosed u∈S' s∈S') ⦄
+                       ⦃ ψS⊆Bˣ s' s'∈S' ⦄ ⦄
+    ⦃ ψS⊆Bˣ (u · s) (SMultClosedSubset .multClosed u∈S' s∈S') ⦄
     where
     instancepath : ⦃ _ : f ψ s ∈ Bˣ ⦄ ⦃ _ : f ψ s' ∈ Bˣ ⦄
-                 → (f ψ r) ·B ((f ψ s) ⁻¹) ≡ (f ψ r') ·B ((f ψ s') ⁻¹)
-    instancepath = (f ψ r) ·B ((f ψ s) ⁻¹)   ≡⟨ {!!} ⟩
-                   (f ψ r') ·B ((f ψ s') ⁻¹) ∎
+                   ⦃ _ : f ψ (u · s · s') ∈ Bˣ ⦄ ⦃ _ : f ψ (u · s) ·B f ψ s' ∈ Bˣ ⦄
+                   ⦃ _ : f ψ (u · s) ∈ Bˣ ⦄
+                 → f ψ r ·B f ψ s ⁻¹ ≡ f ψ r' ·B f ψ s' ⁻¹
+    instancepath = f ψ r ·B f ψ s ⁻¹
+                 ≡⟨ sym (·B-rid _) ⟩
+                   f ψ r ·B f ψ s ⁻¹ ·B 1b
+                 ≡⟨ cong (f ψ r ·B f ψ s ⁻¹ ·B_) (sym (·-rinv _)) ⟩
+                   f ψ r ·B f ψ s ⁻¹ ·B (f ψ (u · s · s') ·B f ψ (u · s · s') ⁻¹)
+                 ≡⟨ ·B-assoc _ _ _ ⟩
+                   f ψ r ·B f ψ s ⁻¹ ·B f ψ (u · s · s') ·B f ψ (u · s · s') ⁻¹
+                 ≡⟨ cong (λ x → f ψ r ·B f ψ s ⁻¹ ·B x ·B f ψ (u · s · s') ⁻¹) (isHom· ψ _ _) ⟩
+                   f ψ r ·B f ψ s ⁻¹ ·B (f ψ (u · s) ·B f ψ s') ·B f ψ (u · s · s') ⁻¹
+                 ≡⟨ cong (_·B f ψ (u · s · s') ⁻¹) (·B-assoc _ _ _) ⟩
+                   f ψ r ·B f ψ s ⁻¹ ·B f ψ (u · s) ·B f ψ s' ·B f ψ (u · s · s') ⁻¹
+                 ≡⟨ cong (λ x → f ψ r ·B f ψ s ⁻¹ ·B x ·B f ψ s' ·B f ψ (u · s · s') ⁻¹)
+                         (isHom· ψ _ _) ⟩
+                   f ψ r ·B f ψ s ⁻¹ ·B (f ψ u ·B f ψ s) ·B f ψ s' ·B f ψ (u · s · s') ⁻¹
+                 ≡⟨ cong (λ x → x ·B f ψ s' ·B f ψ (u · s · s') ⁻¹) (·B-commAssocSwap _ _ _ _) ⟩
+                   f ψ r ·B f ψ u ·B (f ψ s ⁻¹ ·B f ψ s) ·B f ψ s' ·B f ψ (u · s · s') ⁻¹
+                 ≡⟨ (λ i → ·B-comm (f ψ r) (f ψ u) i ·B (·-linv (f ψ s) i)
+                           ·B f ψ s' ·B f ψ (u · s · s') ⁻¹) ⟩
+                   f ψ u ·B f ψ r ·B 1b ·B f ψ s' ·B f ψ (u · s · s') ⁻¹
+                 ≡⟨ (λ i → (·B-rid (sym (isHom· ψ u r) i) i) ·B f ψ s' ·B f ψ (u · s · s') ⁻¹) ⟩
+                   f ψ (u · r) ·B f ψ s' ·B f ψ (u · s · s') ⁻¹
+                 ≡⟨ cong (_·B f ψ (u · s · s') ⁻¹) (sym (isHom· ψ _ _)) ⟩
+                   f ψ (u · r · s') ·B f ψ (u · s · s') ⁻¹
+                 ≡⟨ cong (λ x → f ψ x ·B f ψ (u · s · s') ⁻¹) p ⟩
+                   f ψ (u · r' · s) ·B f ψ (u · s · s') ⁻¹
+                 ≡⟨ cong (_·B f ψ (u · s · s') ⁻¹) (isHom· ψ _ _) ⟩
+                   f ψ (u · r') ·B f ψ s ·B f ψ (u · s · s') ⁻¹
+                 ≡⟨ cong (λ x → x ·B f ψ s ·B f ψ (u · s · s') ⁻¹) (isHom· ψ _ _) ⟩
+                   f ψ u ·B f ψ r' ·B f ψ s ·B f ψ (u · s · s') ⁻¹
+                 ≡⟨ cong (_·B f ψ (u · s · s') ⁻¹) (sym (·B-assoc _ _ _)) ⟩
+                   f ψ u ·B (f ψ r' ·B f ψ s) ·B f ψ (u · s · s') ⁻¹
+                 ≡⟨ cong (_·B f ψ (u · s · s') ⁻¹) (·B-commAssocl _ _ _) ⟩
+                   f ψ r' ·B (f ψ u ·B f ψ s) ·B f ψ (u · s · s') ⁻¹
+                 ≡⟨ cong (λ x → f ψ r' ·B x ·B f ψ (u · s · s') ⁻¹) (sym (isHom· ψ _ _)) ⟩
+                   f ψ r' ·B f ψ (u · s) ·B f ψ (u · s · s') ⁻¹
+                 ≡⟨ cong (f ψ r' ·B f ψ (u · s) ·B_) (unitCong (isHom· ψ _ _)) ⟩
+                   f ψ r' ·B f ψ (u · s) ·B (f ψ (u · s) ·B f ψ s') ⁻¹
+                 ≡⟨ cong (f ψ r' ·B f ψ (u · s) ·B_) (⁻¹-dist-· _ _) ⟩
+                   f ψ r' ·B f ψ (u · s) ·B (f ψ (u · s) ⁻¹ ·B f ψ s' ⁻¹)
+                 ≡⟨ ·B-assoc2 _ _ _ _ ⟩
+                   f ψ r' ·B (f ψ (u · s) ·B f ψ (u · s) ⁻¹) ·B f ψ s' ⁻¹
+                 ≡⟨ cong (λ x → f ψ r' ·B x ·B f ψ s' ⁻¹) (·-rinv _) ⟩
+                   f ψ r' ·B 1b ·B f ψ s' ⁻¹
+                 ≡⟨ cong (_·B f ψ s' ⁻¹) (·B-rid _) ⟩
+                   f ψ r' ·B f ψ s' ⁻¹ ∎
 
   pres1 χ = instancepres1χ ⦃ ψS⊆Bˣ 1r (SMultClosedSubset .containsOne) ⦄ ⦃ BˣContainsOne ⦄
    where
@@ -141,7 +191,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
            (f ψ r ·B f ψ s' +B f ψ r' ·B f ψ s) ·B (f ψ s ⁻¹ ·B f ψ s' ⁻¹)
          ≡⟨ ·B-ldist-+ _ _ _ ⟩
            f ψ r ·B f ψ s' ·B (f ψ s ⁻¹ ·B f ψ s' ⁻¹) +B f ψ r' ·B f ψ s ·B (f ψ s ⁻¹ ·B f ψ s' ⁻¹)
-         ≡⟨ (λ i → ·-commAssocSwap (f ψ r) (f ψ s') (f ψ s ⁻¹) (f ψ s' ⁻¹) i
+         ≡⟨ (λ i → ·B-commAssocSwap (f ψ r) (f ψ s') (f ψ s ⁻¹) (f ψ s' ⁻¹) i
                 +B ·B-assoc2 (f ψ r') (f ψ s) (f ψ s ⁻¹) (f ψ s' ⁻¹) i) ⟩
            f ψ r ·B f ψ s ⁻¹ ·B (f ψ s' ·B f ψ s' ⁻¹) +B f ψ r' ·B (f ψ s ·B f ψ s ⁻¹) ·B f ψ s' ⁻¹
          ≡⟨ (λ i → f ψ r ·B f ψ s ⁻¹ ·B (·-rinv (f ψ s') i)
@@ -165,7 +215,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
                    f ψ r ·B f ψ r' ·B (f ψ s ·B f ψ s') ⁻¹
                  ≡⟨ cong (f ψ r ·B f ψ r' ·B_) (⁻¹-dist-· _ _) ⟩
                    f ψ r ·B f ψ r' ·B (f ψ s ⁻¹ ·B f ψ s' ⁻¹)
-                 ≡⟨ ·-commAssocSwap _ _ _ _ ⟩
+                 ≡⟨ ·B-commAssocSwap _ _ _ _ ⟩
                    f ψ r ·B f ψ s ⁻¹ ·B (f ψ r' ·B f ψ s' ⁻¹) ∎
 
 
