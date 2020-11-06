@@ -33,6 +33,21 @@ module HomomorphismProperties (R : AlmostRing {ℓ}) where
   Eval0H .ℕ.zero [] = refl
   Eval0H .(ℕ.suc _) (x ∷ xs) = refl
 
+  Eval1ₕ : (n : ℕ) (xs : Vec ⟨ νR ⟩ n)
+         → Eval {R = νR} n 1ₕ xs ≡ 1r
+  Eval1ₕ .ℕ.zero [] = refl
+  Eval1ₕ (ℕ.suc n) (x ∷ xs) =
+    Eval (ℕ.suc n) 1ₕ (x ∷ xs)                             ≡⟨ refl ⟩
+    Eval (ℕ.suc n) (0H ·X+ 1ₕ) (x ∷ xs)                    ≡⟨ refl ⟩
+    Eval {R = νR} (ℕ.suc n) 0H (x ∷ xs) · x + Eval n 1ₕ xs ≡⟨ cong (λ u → u · x + Eval n 1ₕ xs)
+                                                                   (Eval0H _ (x ∷ xs)) ⟩
+    0r · x + Eval n 1ₕ xs                                   ≡⟨ cong (λ u → 0r · x + u)
+                                                                    (Eval1ₕ _ xs) ⟩
+    0r · x + 1r                                            ≡⟨ cong (λ u → u + 1r)
+                                                                   (0LeftAnnihilates _) ⟩
+    0r + 1r                                                ≡⟨ +Lid _ ⟩
+    1r ∎
+
   -EvalDist :
     (n : ℕ) (P : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)
     → Eval n (-ₕ P) xs ≡ - Eval n P xs

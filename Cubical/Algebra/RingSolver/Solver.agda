@@ -67,12 +67,12 @@ module EqualityToNormalForm (R : AlmostRing {ℓ}) where
     ⟦ e ⟧ (x ∷ []) · ⟦ e₁ ⟧ (x ∷ []) ∎
 
 module MultivariateReification (R : AlmostRing {ℓ}) where
-  open ToBaseRing R
   νR = AlmostRing→RawRing R
   open AlmostRing R
   open Theory R
   open Eval νR
   open IteratedHornerOperations νR
+  open HomomorphismProperties R
 
   ReifyMultivariate : (n : ℕ) → Expr ⟨ R ⟩ n → IteratedHornerForms νR n
   ReifyMultivariate n (K r) = Constant n νR r
@@ -82,6 +82,111 @@ module MultivariateReification (R : AlmostRing {ℓ}) where
   ReifyMultivariate n (x ⊗ y) =
     (ReifyMultivariate n x) ·ₕ (ReifyMultivariate n y)
   ReifyMultivariate n (⊝ x) =  -ₕ (ReifyMultivariate n x)
+
+  IsEqualToMultivariateNormalForm :
+            (n : ℕ)
+            (e : Expr ⟨ R ⟩ n) (xs : Vec ⟨ R ⟩ n)
+          → Eval n (ReifyMultivariate n e) xs ≡ ⟦ e ⟧ xs
+  IsEqualToMultivariateNormalForm ℕ.zero (K r) [] = refl
+  IsEqualToMultivariateNormalForm (ℕ.suc n) (K r) (x ∷ xs) =
+     Eval (ℕ.suc n) (Constant (ℕ.suc n) νR r) (x ∷ xs)           ≡⟨ refl ⟩
+     Eval (ℕ.suc n) (0ₕ ·X+ Constant n νR r) (x ∷ xs)             ≡⟨ refl ⟩
+     Eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + Eval n (Constant n νR r) xs
+    ≡⟨ cong (λ u → u · x + Eval n (Constant n νR r) xs) (Eval0H _ (x ∷ xs)) ⟩
+     0r · x + Eval n (Constant n νR r) xs
+    ≡⟨ cong (λ u → u + Eval n (Constant n νR r) xs) (0LeftAnnihilates _) ⟩
+     0r + Eval n (Constant n νR r) xs                             ≡⟨ +Lid _ ⟩
+     Eval n (Constant n νR r) xs
+    ≡⟨ IsEqualToMultivariateNormalForm n (K r) xs ⟩
+     r ∎
+
+  IsEqualToMultivariateNormalForm (ℕ.suc n) (∣ zero) (x ∷ xs) =
+    Eval (ℕ.suc n) (1ₕ ·X+ 0ₕ) (x ∷ xs)           ≡⟨ refl ⟩
+    Eval (ℕ.suc n) 1ₕ (x ∷ xs) · x + Eval n 0ₕ xs ≡⟨ cong (λ u → u · x + Eval n 0ₕ xs)
+                                                          (Eval1ₕ _ (x ∷ xs)) ⟩
+    1r · x + Eval n 0ₕ xs                         ≡⟨ cong (λ u → 1r · x + u ) (Eval0H _ xs) ⟩
+    1r · x + 0r                                   ≡⟨ +Rid _ ⟩
+    1r · x                                        ≡⟨ ·Lid _ ⟩
+    x ∎
+  IsEqualToMultivariateNormalForm (ℕ.suc n) (∣ (suc k)) (x ∷ xs) =
+      Eval (ℕ.suc n) (0ₕ ·X+ Variable n νR k) (x ∷ xs)             ≡⟨ refl ⟩
+      Eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + Eval n (Variable n νR k) xs
+    ≡⟨ cong (λ u → u · x + Eval n (Variable n νR k) xs) (Eval0H _ (x ∷ xs)) ⟩
+      0r · x + Eval n (Variable n νR k) xs
+    ≡⟨ cong (λ u → u + Eval n (Variable n νR k) xs) (0LeftAnnihilates _) ⟩
+      0r + Eval n (Variable n νR k) xs                             ≡⟨ +Lid _ ⟩
+      Eval n (Variable n νR k) xs
+    ≡⟨ IsEqualToMultivariateNormalForm n (∣ k) xs ⟩
+      ⟦ ∣ (suc k) ⟧ (x ∷ xs) ∎
+
+  IsEqualToMultivariateNormalForm ℕ.zero (⊝ e) [] =
+    Eval ℕ.zero (-ₕ (ReifyMultivariate ℕ.zero e)) [] ≡⟨ -EvalDist ℕ.zero
+                                                                  (ReifyMultivariate ℕ.zero e)
+                                                                  [] ⟩
+    - Eval ℕ.zero (ReifyMultivariate ℕ.zero e) []    ≡⟨ cong -_
+                                                          (IsEqualToMultivariateNormalForm
+                                                            ℕ.zero e [] ) ⟩
+    - ⟦ e ⟧ [] ∎
+  IsEqualToMultivariateNormalForm (ℕ.suc n) (⊝ e) (x ∷ xs) =
+    Eval (ℕ.suc n) (-ₕ (ReifyMultivariate (ℕ.suc n) e)) (x ∷ xs) ≡⟨ -EvalDist (ℕ.suc n)
+                                                                  (ReifyMultivariate
+                                                                    (ℕ.suc n) e)
+                                                                  (x ∷ xs) ⟩
+    - Eval (ℕ.suc n) (ReifyMultivariate (ℕ.suc n) e) (x ∷ xs)    ≡⟨ cong -_
+                                                          (IsEqualToMultivariateNormalForm
+                                                            (ℕ.suc n) e (x ∷ xs) ) ⟩
+    - ⟦ e ⟧ (x ∷ xs) ∎
+
+  IsEqualToMultivariateNormalForm ℕ.zero (e ⊕ e₁) [] =
+        Eval ℕ.zero (ReifyMultivariate ℕ.zero e +ₕ ReifyMultivariate ℕ.zero e₁) []
+      ≡⟨ +HomEval ℕ.zero (ReifyMultivariate ℕ.zero e) _ [] ⟩
+        Eval ℕ.zero (ReifyMultivariate ℕ.zero e) []
+        + Eval ℕ.zero (ReifyMultivariate ℕ.zero e₁) []
+      ≡⟨ cong (λ u → u + Eval ℕ.zero (ReifyMultivariate ℕ.zero e₁) [])
+              (IsEqualToMultivariateNormalForm ℕ.zero e []) ⟩
+        ⟦ e ⟧ []
+        + Eval ℕ.zero (ReifyMultivariate ℕ.zero e₁) []
+      ≡⟨ cong (λ u → ⟦ e ⟧ [] + u) (IsEqualToMultivariateNormalForm ℕ.zero e₁ []) ⟩
+        ⟦ e ⟧ [] + ⟦ e₁ ⟧ [] ∎
+  IsEqualToMultivariateNormalForm (ℕ.suc n) (e ⊕ e₁) (x ∷ xs) =
+        Eval (ℕ.suc n) (ReifyMultivariate (ℕ.suc n) e
+                         +ₕ ReifyMultivariate (ℕ.suc n) e₁) (x ∷ xs)
+      ≡⟨ +HomEval (ℕ.suc n) (ReifyMultivariate (ℕ.suc n) e) _ (x ∷ xs) ⟩
+        Eval (ℕ.suc n) (ReifyMultivariate (ℕ.suc n) e) (x ∷ xs)
+        + Eval (ℕ.suc n) (ReifyMultivariate (ℕ.suc n) e₁) (x ∷ xs)
+      ≡⟨ cong (λ u → u + Eval (ℕ.suc n) (ReifyMultivariate (ℕ.suc n) e₁) (x ∷ xs))
+              (IsEqualToMultivariateNormalForm (ℕ.suc n) e (x ∷ xs)) ⟩
+        ⟦ e ⟧ (x ∷ xs)
+        + Eval (ℕ.suc n) (ReifyMultivariate (ℕ.suc n) e₁) (x ∷ xs)
+      ≡⟨ cong (λ u → ⟦ e ⟧ (x ∷ xs) + u)
+              (IsEqualToMultivariateNormalForm (ℕ.suc n) e₁ (x ∷ xs)) ⟩
+        ⟦ e ⟧ (x ∷ xs) + ⟦ e₁ ⟧ (x ∷ xs) ∎
+
+  IsEqualToMultivariateNormalForm ℕ.zero (e ⊗ e₁) [] =
+        Eval ℕ.zero (ReifyMultivariate ℕ.zero e ·ₕ ReifyMultivariate ℕ.zero e₁) []
+      ≡⟨ ·HomEval ℕ.zero (ReifyMultivariate ℕ.zero e) _ [] ⟩
+        Eval ℕ.zero (ReifyMultivariate ℕ.zero e) []
+        · Eval ℕ.zero (ReifyMultivariate ℕ.zero e₁) []
+      ≡⟨ cong (λ u → u · Eval ℕ.zero (ReifyMultivariate ℕ.zero e₁) [])
+              (IsEqualToMultivariateNormalForm ℕ.zero e []) ⟩
+        ⟦ e ⟧ []
+        · Eval ℕ.zero (ReifyMultivariate ℕ.zero e₁) []
+      ≡⟨ cong (λ u → ⟦ e ⟧ [] · u) (IsEqualToMultivariateNormalForm ℕ.zero e₁ []) ⟩
+        ⟦ e ⟧ [] · ⟦ e₁ ⟧ [] ∎
+
+  IsEqualToMultivariateNormalForm (ℕ.suc n) (e ⊗ e₁) (x ∷ xs) =
+        Eval (ℕ.suc n) (ReifyMultivariate (ℕ.suc n) e
+                         ·ₕ ReifyMultivariate (ℕ.suc n) e₁) (x ∷ xs)
+      ≡⟨ ·HomEval (ℕ.suc n) (ReifyMultivariate (ℕ.suc n) e) _ (x ∷ xs) ⟩
+        Eval (ℕ.suc n) (ReifyMultivariate (ℕ.suc n) e) (x ∷ xs)
+        · Eval (ℕ.suc n) (ReifyMultivariate (ℕ.suc n) e₁) (x ∷ xs)
+      ≡⟨ cong (λ u → u · Eval (ℕ.suc n) (ReifyMultivariate (ℕ.suc n) e₁) (x ∷ xs))
+              (IsEqualToMultivariateNormalForm (ℕ.suc n) e (x ∷ xs)) ⟩
+        ⟦ e ⟧ (x ∷ xs)
+        · Eval (ℕ.suc n) (ReifyMultivariate (ℕ.suc n) e₁) (x ∷ xs)
+      ≡⟨ cong (λ u → ⟦ e ⟧ (x ∷ xs) · u)
+              (IsEqualToMultivariateNormalForm (ℕ.suc n) e₁ (x ∷ xs)) ⟩
+        ⟦ e ⟧ (x ∷ xs) · ⟦ e₁ ⟧ (x ∷ xs) ∎
 
 module SolverFor (R : AlmostRing {ℓ}) where
   νR = AlmostRing→RawRing R
