@@ -21,7 +21,7 @@ typ = fst
 str : (A : TypeWithStr ℓ S) → S (typ A)
 str = snd
 
--- Alternative notation type typ used for algebra stuff
+-- Alternative notation for typ
 ⟨_⟩ : TypeWithStr ℓ S → Type ℓ
 ⟨_⟩ = typ
 

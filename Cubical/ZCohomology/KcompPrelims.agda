@@ -7,7 +7,7 @@ open import Cubical.HITs.Hopf
 open import Cubical.Homotopy.Freudenthal hiding (encode)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
-open import Cubical.HITs.Truncation.FromNegOne renaming (elim to trElim ; rec to trRec ; map to trMap)
+open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; map to trMap)
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -20,7 +20,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv.HalfAdjoint
 
 open import Cubical.Data.Int renaming (_+_ to +Int)
-open import Cubical.Data.Nat
+open import Cubical.Data.Nat hiding (_·_)
 open import Cubical.Data.Unit
 
 open import Cubical.HITs.Susp
@@ -59,7 +59,7 @@ private
   d-mapId r = substComposite HopfSuspS¹ (merid r) (sym (merid base)) base ∙
               rotLemma r
     where
-    rotLemma : (r : S¹) → rot r base ≡ r
+    rotLemma : (r : S¹) → r · base ≡ r
     rotLemma base = refl
     rotLemma (loop i) = refl
 
@@ -90,10 +90,9 @@ Iso∥ϕ₁∥ : Iso (coHomK 1) (∥ Path (S₊ 2) north north ∥ 3)
 Iso∥ϕ₁∥ = composesToId→Iso d-Iso (trMap (ϕ base)) d-mapId2
 
 Iso-Kn-ΩKn+1 : (n : HLevel) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
-Iso-Kn-ΩKn+1 zero = invIso (compIso (congIso (truncIdempotentIso _ isGroupoidS1)) ΩS¹IsoInt)
+Iso-Kn-ΩKn+1 zero = invIso (compIso (congIso (truncIdempotentIso _ isGroupoidS¹)) ΩS¹IsoInt)
 Iso-Kn-ΩKn+1 (suc zero) = compIso Iso∥ϕ₁∥ (invIso (PathIdTruncIso 3))
-Iso-Kn-ΩKn+1 (suc (suc n)) = compIso (connectedTruncIso2 (4 + n) _ (ϕ north) (n , helper)
-                                                                             (isConnectedσ (suc n) (sphereConnected _)))
+Iso-Kn-ΩKn+1 (suc (suc n)) = compIso (stabSpheres-n≥2 n)
                                      (invIso (PathIdTruncIso (4 + n)))
  where
   helper : n + (4 + n) ≡ 2 + (n + (2 + n))

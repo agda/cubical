@@ -109,10 +109,10 @@ expand : ℕ → ℕ → ℕ → ℕ
 expand 0 k m = m
 expand (suc o) k m = k + expand o k m
 
-expand≡ : ∀ k m o → expand o k m ≡ o * k + m
+expand≡ : ∀ k m o → expand o k m ≡ o · k + m
 expand≡ k m zero = refl
 expand≡ k m (suc o)
-  = cong (k +_) (expand≡ k m o) ∙ +-assoc k (o * k) m
+  = cong (k +_) (expand≡ k m o) ∙ +-assoc k (o · k) m
 
 -- Expand a pair. This is useful because the whole function is
 -- injective.
@@ -240,11 +240,11 @@ _/_ : ℕ → ℕ → ℕ
 n / zero = zero
 n / (suc k) = reduce k n .fst .snd
 
-moddiv : ∀ n k → (n / k) * k + n % k ≡ n
+moddiv : ∀ n k → (n / k) · k + n % k ≡ n
 moddiv n zero = refl
 moddiv n (suc k) = sym (expand≡ _ _ (n / suc k)) ∙ reduce k n .snd
 
-n%k≡n[modk] : ∀ n k → Σ[ o ∈ ℕ ] o * k + n % k ≡ n
+n%k≡n[modk] : ∀ n k → Σ[ o ∈ ℕ ] o · k + n % k ≡ n
 n%k≡n[modk] n k = (n / k) , moddiv n k
 
 n%sk<sk : (n k : ℕ) → (n % suc k) < suc k
@@ -436,53 +436,53 @@ Fin-inj n m p with n ≟ m
 ... | lt n<m = Empty.rec (Fin-inj′ n<m (sym p))
 ... | gt n>m = Empty.rec (Fin-inj′ n>m p)
 
-≤-*sk-cancel : ∀ {m} {k} {n} → m * suc k ≤ n * suc k → m ≤ n
-≤-*sk-cancel {m} {k} {n} (d , p) = o , inj-*sm {m = k} goal where
+≤-·sk-cancel : ∀ {m} {k} {n} → m · suc k ≤ n · suc k → m ≤ n
+≤-·sk-cancel {m} {k} {n} (d , p) = o , inj-·sm {m = k} goal where
   r = d % suc k
   o = d / suc k
-  resn*k : Residue (suc k) (n * suc k)
-  resn*k = ((r , n%sk<sk d k) , (o + m)) , reason where
+  resn·k : Residue (suc k) (n · suc k)
+  resn·k = ((r , n%sk<sk d k) , (o + m)) , reason where
    reason = expand× ((r , n%sk<sk d k) , o + m) ≡⟨ expand≡ (suc k) r (o + m) ⟩
-            (o + m) * suc k + r                 ≡[ i ]⟨ +-comm (*-distribʳ o m (suc k) (~ i)) r i ⟩
-            r + (o * suc k + m * suc k)         ≡⟨ +-assoc r (o * suc k) (m * suc k) ⟩
-            (r + o * suc k) + m * suc k         ≡⟨ cong (_+ m * suc k) (+-comm r (o * suc k) ∙ moddiv d (suc k)) ⟩
-            d + m * suc k                       ≡⟨ p ⟩
-            n * suc k ∎
+            (o + m) · suc k + r                 ≡[ i ]⟨ +-comm (·-distribʳ o m (suc k) (~ i)) r i ⟩
+            r + (o · suc k + m · suc k)         ≡⟨ +-assoc r (o · suc k) (m · suc k) ⟩
+            (r + o · suc k) + m · suc k         ≡⟨ cong (_+ m · suc k) (+-comm r (o · suc k) ∙ moddiv d (suc k)) ⟩
+            d + m · suc k                       ≡⟨ p ⟩
+            n · suc k ∎
 
-  residuek*n : ∀ k n → (r : Residue (suc k) (n * suc k)) → ((fzero , n) , expand≡ (suc k) 0 n ∙ +-zero _) ≡ r
-  residuek*n _ _ = isContr→isProp isContrResidue _
+  residuek·n : ∀ k n → (r : Residue (suc k) (n · suc k)) → ((fzero , n) , expand≡ (suc k) 0 n ∙ +-zero _) ≡ r
+  residuek·n _ _ = isContr→isProp isContrResidue _
 
   r≡0 : r ≡ 0
-  r≡0 = cong (toℕ ∘ extract) (sym (residuek*n k n resn*k))
-  d≡o*sk : d ≡ o * suc k
-  d≡o*sk = sym (moddiv d (suc k)) ∙∙ cong (o * suc k +_) r≡0 ∙∙ +-zero _
-  goal : (o + m) * suc k ≡ n * suc k
-  goal = sym (*-distribʳ o m (suc k)) ∙∙ cong (_+ m * suc k) (sym d≡o*sk) ∙∙ p
+  r≡0 = cong (toℕ ∘ extract) (sym (residuek·n k n resn·k))
+  d≡o·sk : d ≡ o · suc k
+  d≡o·sk = sym (moddiv d (suc k)) ∙∙ cong (o · suc k +_) r≡0 ∙∙ +-zero _
+  goal : (o + m) · suc k ≡ n · suc k
+  goal = sym (·-distribʳ o m (suc k)) ∙∙ cong (_+ m · suc k) (sym d≡o·sk) ∙∙ p
 
-<-*sk-cancel : ∀ {m} {k} {n} → m * suc k < n * suc k → m < n
-<-*sk-cancel {m} {k} {n} p = goal where
+<-·sk-cancel : ∀ {m} {k} {n} → m · suc k < n · suc k → m < n
+<-·sk-cancel {m} {k} {n} p = goal where
   ≤-helper : m ≤ n
-  ≤-helper = ≤-*sk-cancel (pred-≤-pred (<≤-trans p (≤-suc ≤-refl)))
+  ≤-helper = ≤-·sk-cancel (pred-≤-pred (<≤-trans p (≤-suc ≤-refl)))
   goal : m < n
   goal = case <-split (suc-≤-suc ≤-helper) of λ
     { (inl g) → g
-    ; (inr e) → Empty.rec (¬m<m (subst (λ m → m * suc k < n * suc k) e p))
+    ; (inr e) → Empty.rec (¬m<m (subst (λ m → m · suc k < n · suc k) e p))
     }
 
-factorEquiv : ∀ {n} {m} → Fin n × Fin m ≃ Fin (n * m)
+factorEquiv : ∀ {n} {m} → Fin n × Fin m ≃ Fin (n · m)
 factorEquiv {zero} {m} = uninhabEquiv (¬Fin0 ∘ fst) ¬Fin0
 factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddingIntro , isSurjectionIntro) where
-  intro : Fin (suc n) × Fin m → Fin (suc n * m)
-  intro (nn , mm) = nm , subst (λ nm₁ → nm₁ < suc n * m) (sym (expand≡ _ (toℕ nn) (toℕ mm))) nm<n*m where
+  intro : Fin (suc n) × Fin m → Fin (suc n · m)
+  intro (nn , mm) = nm , subst (λ nm₁ → nm₁ < suc n · m) (sym (expand≡ _ (toℕ nn) (toℕ mm))) nm<n·m where
     nm : ℕ
     nm = expand× (nn , toℕ mm)
-    nm<n*m : toℕ mm * suc n + toℕ nn < suc n * m
-    nm<n*m =
-      toℕ mm * suc n + toℕ nn <≤⟨ <-k+ (snd nn) ⟩
-      toℕ mm * suc n + suc n  ≡≤⟨ +-comm _ (suc n) ⟩
-      suc (toℕ mm) * suc n    ≤≡⟨ ≤-*k (snd mm) ⟩
-      m * suc n               ≡⟨ *-comm _ (suc n) ⟩
-      suc n * m               ∎ where open <-Reasoning
+    nm<n·m : toℕ mm · suc n + toℕ nn < suc n · m
+    nm<n·m =
+      toℕ mm · suc n + toℕ nn <≤⟨ <-k+ (snd nn) ⟩
+      toℕ mm · suc n + suc n  ≡≤⟨ +-comm _ (suc n) ⟩
+      suc (toℕ mm) · suc n    ≤≡⟨ ≤-·k (snd mm) ⟩
+      m · suc n               ≡⟨ ·-comm _ (suc n) ⟩
+      suc n · m               ∎ where open <-Reasoning
 
   intro-injective : ∀ {o} {p} → intro o ≡ intro p → o ≡ p
   intro-injective {o} {p} io≡ip = λ i → io′≡ip′ i .fst , toℕ-injective {fj = snd o} {fk = snd p} (cong snd io′≡ip′) i where
@@ -496,21 +496,21 @@ factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddi
     mm = toℕ nm / suc n
     nn = toℕ nm % suc n
 
-    nmmoddiv : mm * suc n + nn ≡ toℕ nm
+    nmmoddiv : mm · suc n + nn ≡ toℕ nm
     nmmoddiv = moddiv _ (suc n)
     nn<n : nn < suc n
     nn<n = n%sk<sk (toℕ nm) _
 
-    nmsnd : mm * suc n + nn < suc n * m
-    nmsnd = subst (λ l → l < suc n * m) (sym nmmoddiv) (snd nm)
-    mm*sn<m*sn : mm * suc n < m * suc n
-    mm*sn<m*sn =
-      mm * suc n      ≤<⟨ nn , +-comm nn (mm * suc n) ⟩
-      mm * suc n + nn <≡⟨ nmsnd ⟩
-      suc n * m       ≡⟨ *-comm (suc n) m ⟩
-      m * suc n       ∎ where open <-Reasoning
+    nmsnd : mm · suc n + nn < suc n · m
+    nmsnd = subst (λ l → l < suc n · m) (sym nmmoddiv) (snd nm)
+    mm·sn<m·sn : mm · suc n < m · suc n
+    mm·sn<m·sn =
+      mm · suc n      ≤<⟨ nn , +-comm nn (mm · suc n) ⟩
+      mm · suc n + nn <≡⟨ nmsnd ⟩
+      suc n · m       ≡⟨ ·-comm (suc n) m ⟩
+      m · suc n       ∎ where open <-Reasoning
     mm<m : mm < m
-    mm<m = <-*sk-cancel mm*sn<m*sn
+    mm<m = <-·sk-cancel mm·sn<m·sn
 
   isSurjectionIntro : isSurjection intro
   isSurjectionIntro = ∣_∣ ∘ elimF

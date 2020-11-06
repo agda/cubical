@@ -54,7 +54,7 @@ H²-S²⋁S¹⋁S¹ =
   (Hⁿ-⋁ _ _ 1)
   (dirProdGroupIso {B = trivialGroup}
     (invGroupIso (Hⁿ-Sⁿ≅ℤ 1))
-    ((Hⁿ-⋁ _ _ 1)  □ dirProdGroupIso H²-S¹≅0 H²-S¹≅0 □ rUnitGroupIso)
+    ((Hⁿ-⋁ _ _ 1)  □ dirProdGroupIso (Hⁿ-S¹≅0 0) (Hⁿ-S¹≅0 0) □ rUnitGroupIso)
   □ rUnitGroupIso)
 
 private

@@ -12,7 +12,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Truncation.FromNegOne as Trunc renaming (rec to trRec ; elim to trElim)
+open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec ; elim to trElim)
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
 open import Cubical.Homotopy.Loopspace
@@ -102,7 +102,7 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
     gluePath i = hLevelTrunc 2n+2 (fiber (interpolate a i) (λ j → merid a (i ∧ j)))
 
     lem : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : z ≡ y) → (p ∙ q ⁻¹) ∙ q ≡ p
-    lem p q = assoc p (q ⁻¹) q ⁻¹ ∙ cong (p ∙_) (lCancel q) ∙ rUnit p ⁻¹
+    lem p q = assoc p (q ⁻¹) q ⁻¹ ∙∙ cong (p ∙_) (lCancel q) ∙∙ rUnit p ⁻¹
 
   contractCodeSouth : (p : north ≡ south) (c : Code south p) → encode south p ≡ c
   contractCodeSouth p =
@@ -121,7 +121,7 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
 isConn→isConnSusp : ∀ {ℓ} {A : Pointed ℓ} → isConnected 2 (typ A) → isConnected 2 (Susp (typ A))
 isConn→isConnSusp {A = A} iscon = ∣ north ∣
                                 , trElim (λ _ → isOfHLevelSuc 1 (isOfHLevelTrunc 2 _ _))
-                                         (suspToPropRec (pt A) (λ _ → isOfHLevelTrunc 2 _ _)
+                                         (suspToPropElim (pt A) (λ _ → isOfHLevelTrunc 2 _ _)
                                          refl)
 
 FreudenthalEquiv : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)

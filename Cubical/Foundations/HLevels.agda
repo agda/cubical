@@ -113,10 +113,6 @@ isOfHLevelPathP : {A : I → Type ℓ} (n : HLevel)
 isOfHLevelPathP {A = A} n h x y = transport⁻ (λ i → isOfHLevel n (PathP≡Path A x y i))
                                              (isOfHLevelPath n h _ _)
 
-isProp→isContrPathP : {A : I → Type ℓ} → (∀ i → isProp (A i))
-                                       → (x : A i0) (y : A i1) → isContr (PathP A x y)
-isProp→isContrPathP h x y = isProp→PathP h x y , isOfHLevelPathP 1 (h i1) x y _
-
 -- h-level of isOfHLevel
 
 isPropIsOfHLevel : (n : HLevel) → isProp (isOfHLevel n A)
@@ -134,6 +130,10 @@ isPropIsGroupoid = isPropIsOfHLevel 3
 isPropIs2Groupoid : isProp (is2Groupoid A)
 isPropIs2Groupoid = isPropIsOfHLevel 4
 
+TypeOfHLevel≡ : (n : HLevel) {X Y : TypeOfHLevel ℓ n} → ⟨ X ⟩ ≡ ⟨ Y ⟩ → X ≡ Y
+TypeOfHLevel≡ n = Σ≡Prop (λ _ → isPropIsOfHLevel n)
+
+
 -- Fillers for cubes from h-level
 
 isSet→isSet' : isSet A → isSet' A
@@ -142,6 +142,17 @@ isSet→isSet' {A = A} Aset a₀₋ a₁₋ a₋₀ a₋₁ =
 
 isSet'→isSet : isSet' A → isSet A
 isSet'→isSet {A = A} Aset' x y p q = Aset' p q refl refl
+
+isSet→SquareP :
+  {A : I → I → Type ℓ}
+  (isSet : (i j : I) → isSet (A i j))
+  {a₀₀ : A i0 i0} {a₀₁ : A i0 i1} (a₀₋ : PathP (λ j → A i0 j) a₀₀ a₀₁)
+  {a₁₀ : A i1 i0} {a₁₁ : A i1 i1} (a₁₋ : PathP (λ j → A i1 j) a₁₀ a₁₁)
+  (a₋₀ : PathP (λ i → A i i0) a₀₀ a₁₀) (a₋₁ : PathP (λ i → A i i1) a₀₁ a₁₁)
+  → SquareP A a₀₋ a₁₋ a₋₀ a₋₁
+isSet→SquareP isset a₀₋ a₁₋ a₋₀ a₋₁ =
+  transport (sym (PathP≡Path _ _ _))
+            (isOfHLevelPathP' 1 (isset _ _) _ _ _ _ )
 
 isGroupoid→isGroupoid' : isGroupoid A → isGroupoid' A
 isGroupoid→isGroupoid' {A = A} Agpd a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ =

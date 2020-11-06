@@ -14,6 +14,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
+open import Cubical.Structures.Record
 
 open Iso
 
@@ -155,4 +156,11 @@ isPropIsSemigroup _·_ =
         (SemigroupΣTheory.isPropSemigroupAxioms _ _·_)
 
 SemigroupPath : (M N : Semigroup {ℓ}) → (Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] SemigroupEquiv M N e) ≃ (M ≡ N)
-SemigroupPath = SemigroupΣTheory.SemigroupPath
+SemigroupPath {ℓ = ℓ} =
+  SIP
+    (autoUnivalentRecord
+      (autoRecordSpec (SemigroupStr {ℓ}) SemigroupEquiv
+        (fields:
+          data[ _·_ ∣ isHom ]
+          prop[ isSemigroup ∣ (λ _ → isPropIsSemigroup _) ]))
+      _ _)

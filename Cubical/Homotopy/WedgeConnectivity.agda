@@ -7,7 +7,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Truncation.FromNegOne as Trunc
+open import Cubical.HITs.Truncation as Trunc
 open import Cubical.Homotopy.Connected
 
 module WedgeConnectivity {ℓ ℓ' ℓ''} (n m : ℕ)

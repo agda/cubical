@@ -88,7 +88,7 @@ open Prelude using (isContr) public
 open Equivalences using (isEquiv ; _≃_) public
 open Equivalences renaming (fiber to preim) public
 open Sigma using (ΣPath≃PathΣ) public
-open Equivalences renaming (isPropEquiv→Equiv to prop≃) public
+open Equivalences renaming (propBiimpl→Equiv to prop≃) public
 
 
 -- 2.3 Higher Inductive Types
@@ -240,8 +240,8 @@ open QER.QER→Equiv using (Thm ; bwd≡ToRel) public
 open MultiSets renaming (AList to AssocList) public
 open MultiSets.Lists&ALists using (addIfEq ; R ; φ ; ψ
                                            ; List/Rᴸ≃AList/Rᴬᴸ) public
-open MultiSets.Lists&ALists.L using (insert ; count)
-open MultiSets.Lists&ALists.AL using (insert ; count)
+open MultiSets.Lists&ALists.L using (insert ; union ; count)
+open MultiSets.Lists&ALists.AL using (insert ; union ; count)
 
 
 -- 5.2 Structured Relations
@@ -260,4 +260,7 @@ open RelStructure using (PositiveStrRel) public
 open RelFunction using (functionSuitableRel) public
 -- Multisets
 -- (main is applying 5.7 to the example)
-open MultiSets.Lists&ALists using (multisetShape ; isStructuredR ; main) public
+open MultiSets.Lists&ALists using (multisetShape ; isStructuredR ; main ; List/Rᴸ≡AList/Rᴬᴸ)
+                            renaming ( hasAssociativeUnion to unionAssocAxiom
+                                     ; LQassoc to LUnionAssoc
+                                     ; ALQassoc to ALUnionAssoc) public
