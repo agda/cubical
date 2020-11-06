@@ -37,19 +37,38 @@ open import Cubical.HITs.Truncation renaming (elim to trElim ; elim2 to trElim2 
 open GroupHom
 open GroupIso
 
+{-
+The following induction principle says that when proving any propositon about an element
+x ∈ Hⁿ(T²) (where T² := S¹×S¹) we may assume it is on the form
+∣ f ∣₂ where f : T² → Kₙ is defined by
+f (base , base) = 0          (*)
+cong (f (base ,_)) loop = p
+cong (f (_ , base)) loop = q
+cong² f (loop , loop) = p□q
+where p□q is a filler of
+     p
+   ----->
+  ∣̂       ∣̂
+q ∣       ∣ q
+  ∣       ∣
+   ----->
+     p
+furthermore, (*) holds definitionally
+-}
+
 coHomPointedElimT² : ∀ {ℓ} (n : ℕ) {B : coHom (suc n) (S¹ × S¹) → Type ℓ}
                  → ((x : coHom (suc n) (S¹ × S¹)) → isProp (B x))
                  → ((p q : _) (P : _) → B ∣ elimFunT² n p q P ∣₂)
                  → (x : coHom (suc n) (S¹ × S¹)) → B x
 coHomPointedElimT² n {B = B} isprop indp =
   coHomPointedElim _ (base , base) isprop
-    λ f fId → subst B (cong ∣_∣₂ (funExt (λ {(base , base) → sym fId
+    λ f fId → subst B (cong ∣_∣₂ (funExt (λ { (base , base) → sym fId
                                            ; (base , loop i) j → helper f fId i1 i (~ j)
                                            ; (loop i , base) j → helper f fId i i1 (~ j)
                                            ; (loop i , loop j) k → helper f fId i j (~ k)})))
                        (indp (λ i → helper f fId i i1 i1)
                              (λ i → helper f fId i1 i i1)
-                             λ i j → helper f fId i j i1)
+                              λ i j → helper f fId i j i1)
     where
     helper : (f : S¹ × S¹ → coHomK (suc n)) → f (base , base) ≡ ∣ ptSn (suc n) ∣
            → I → I → I → coHomK (suc n)
@@ -272,6 +291,8 @@ private
   from₀ : Int → coHom 0 (S₊ 1 × S₊ 1)
   from₀ = inv H⁰-T²≅ℤ
 
+test3 : to₂ (from₂ 0 +ₕ from₂ 1) ≡ 1
+test3 = refl
 
 {-
 -- Compute fast:

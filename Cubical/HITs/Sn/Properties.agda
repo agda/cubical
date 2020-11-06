@@ -544,3 +544,38 @@ isConnectedPathSⁿ n x y =
    (pathIdTruncSⁿretract n x y)
      ((isContr→isProp (sphereConnected (suc n)) ∣ x ∣ ∣ y ∣)
       , isProp→isSet (isContr→isProp (sphereConnected (suc n))) _ _ _)
+
+
+funSpaceSⁿ⁺²-Iso : ∀ {ℓ} {A : Type ℓ} → (n : ℕ) → Iso ((S₊ (2 + n) → A))  (Σ[ x ∈ A × A ] (S₊ (suc n) → fst x ≡ snd x))
+Iso.fun (funSpaceSⁿ⁺²-Iso n) f = ((f north) , (f south)) , λ a → cong f (merid a) -- {!!} , ((f north) , (f south)) , {!!}
+Iso.inv (funSpaceSⁿ⁺²-Iso n) ((a , b) , p) north = a
+Iso.inv (funSpaceSⁿ⁺²-Iso n) ((a , b) , p) south = b
+Iso.inv (funSpaceSⁿ⁺²-Iso n) ((a , b) , p) (merid a₁ i) = p a₁ i
+Iso.rightInv (funSpaceSⁿ⁺²-Iso n) ((a , b) , p) = refl
+Iso.leftInv (funSpaceSⁿ⁺²-Iso n) f _ north = f north
+Iso.leftInv (funSpaceSⁿ⁺²-Iso n) f _ south = f south
+Iso.leftInv (funSpaceSⁿ⁺²-Iso n) f _ (merid a j) = f (merid a j)
+
+open import Cubical.Data.Bool
+S' : (n : ℕ) → Type₀
+S' zero = Bool
+S' (suc n) = Susp (S' n)
+
+S'pt : (n : ℕ) → S' n
+S'pt zero = true
+S'pt (suc n) = north
+
+help : ∀ (n : ℕ) (y : S₊ (suc n)) → ptSn (suc n) ≡ y → {!!}
+help = {!!}
+
+funSpaceTest : (n : ℕ) → Iso (hLevelTrunc 2 (Σ[ x ∈ S₊ (2 + n) × S₊ (2 + n) ] (S₊ (suc n) → fst x ≡ snd x)))
+                             ((hLevelTrunc 2 (Σ[ x ∈ S₊ (2 + n) × S₊ (2 + n) ] (S₊ (suc n) → S₊ (suc n)))))
+funSpaceTest zero = {!!}
+Iso.fun (funSpaceTest (suc n)) =
+  elim {!!} (uncurry (uncurry (sphereElim {!!} {!!}
+    λ y → λ f → J (λ y p → (hLevelTrunc 2 (Σ[ x ∈ S₊ (3 + n) × S₊ (3 + n) ] (S₊ (2 + n) → S₊ (2 + n)))))
+      ∣ (north , north) , {!f ?!} ∣
+      (f north))))
+Iso.inv (funSpaceTest (suc n)) = {!!}
+Iso.rightInv (funSpaceTest (suc n)) = {!!}
+Iso.leftInv (funSpaceTest (suc n)) = {!!}
