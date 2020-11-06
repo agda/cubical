@@ -94,3 +94,94 @@ module HomomorphismProperties (R : AlmostRing {ℓ}) where
    ≡⟨ refl ⟩
     Eval (ℕ.suc _) (P ·X+ Q) (x ∷ xs)
     + Eval (ℕ.suc _) (S ·X+ T) (x ∷ xs) ∎
+
+  ⋆HomEval : (n : ℕ)
+             (r : IteratedHornerForms νR n)
+             (P : IteratedHornerForms νR (ℕ.suc n)) (x : ⟨ νR ⟩) (xs : Vec ⟨ νR ⟩ n)
+           → Eval (ℕ.suc n) (r ⋆ P) (x ∷ xs) ≡ Eval n r xs · Eval (ℕ.suc n) P (x ∷ xs)
+
+  ⋆0LeftAnnihilates :
+    (n : ℕ) (P : IteratedHornerForms νR (ℕ.suc n)) (xs : Vec ⟨ νR ⟩ (ℕ.suc n))
+    → Eval (ℕ.suc n) (0ₕ ⋆ P) xs ≡ 0r
+  ·HomEval : (n : ℕ) (P Q : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)
+    → Eval n (P ·ₕ Q) xs ≡ (Eval n P xs) · (Eval n Q xs)
+
+  ⋆0LeftAnnihilates n 0H xs = Eval0H (ℕ.suc n) xs
+  ⋆0LeftAnnihilates n (P ·X+ Q) (x ∷ xs) =
+      Eval (ℕ.suc n) (0ₕ ⋆ (P ·X+ Q)) (x ∷ xs)                    ≡⟨ refl ⟩
+      Eval (ℕ.suc n) ((0ₕ ⋆ P) ·X+ (0ₕ ·ₕ Q)) (x ∷ xs)             ≡⟨ refl ⟩
+      (Eval (ℕ.suc n) (0ₕ ⋆ P) (x ∷ xs)) · x + Eval n (0ₕ ·ₕ Q) xs
+    ≡⟨ cong (λ u → (u · x) + Eval _ (0ₕ ·ₕ Q) _) (⋆0LeftAnnihilates n P (x ∷ xs)) ⟩
+      0r · x + Eval n (0ₕ ·ₕ Q) xs
+    ≡⟨ cong (λ u → u + Eval _ (0ₕ ·ₕ Q) _) (0LeftAnnihilates _) ⟩
+      0r + Eval n (0ₕ ·ₕ Q) xs
+    ≡⟨ +Lid _ ⟩
+      Eval n (0ₕ ·ₕ Q) xs
+    ≡⟨ ·HomEval n 0ₕ Q _ ⟩
+      Eval n 0ₕ xs · Eval n Q xs
+    ≡⟨ cong (λ u → u · Eval n Q xs) (Eval0H _ xs) ⟩
+      0r · Eval n Q xs
+    ≡⟨ 0LeftAnnihilates _ ⟩
+      0r ∎
+
+  ⋆HomEval n r 0H x xs =
+    Eval (ℕ.suc n) (r ⋆ 0H) (x ∷ xs)         ≡⟨ refl ⟩
+    0r                                       ≡⟨ sym (0RightAnnihilates _) ⟩
+    Eval n r xs · 0r                         ≡⟨ refl ⟩
+    Eval n r xs · Eval {R = νR} (ℕ.suc n) 0H (x ∷ xs) ∎
+  ⋆HomEval n r (P ·X+ Q) x xs =
+      Eval (ℕ.suc n) (r ⋆ (P ·X+ Q)) (x ∷ xs)                    ≡⟨ refl ⟩
+      Eval (ℕ.suc n) ((r ⋆ P) ·X+ (r ·ₕ Q)) (x ∷ xs)              ≡⟨ refl ⟩
+      (Eval (ℕ.suc n) (r ⋆ P) (x ∷ xs)) · x + Eval n (r ·ₕ Q) xs
+    ≡⟨ cong (λ u → u · x + Eval n (r ·ₕ Q) xs) (⋆HomEval n r P x xs) ⟩
+      (Eval n r xs · Eval (ℕ.suc n) P (x ∷ xs)) · x + Eval n (r ·ₕ Q) xs
+    ≡⟨ cong (λ u → (Eval n r xs · Eval (ℕ.suc n) P (x ∷ xs)) · x + u) (·HomEval n r Q xs) ⟩
+      (Eval n r xs · Eval (ℕ.suc n) P (x ∷ xs)) · x + Eval n r xs · Eval n Q xs
+    ≡⟨ cong (λ u → u  + Eval n r xs · Eval n Q xs) (sym (·Assoc _ _ _)) ⟩
+      Eval n r xs · (Eval (ℕ.suc n) P (x ∷ xs) · x) + Eval n r xs · Eval n Q xs
+    ≡⟨ sym (·DistR+ _ _ _) ⟩
+      Eval n r xs · ((Eval (ℕ.suc n) P (x ∷ xs) · x) + Eval n Q xs)
+    ≡⟨ refl ⟩
+      Eval n r xs · Eval (ℕ.suc n) (P ·X+ Q) (x ∷ xs) ∎
+
+  ·HomEval .ℕ.zero (const x) (const y) [] = refl
+  ·HomEval (ℕ.suc n) 0H Q xs =
+    Eval (ℕ.suc n) (0H ·ₕ Q) xs        ≡⟨ Eval0H _ xs ⟩
+    0r                                 ≡⟨ sym (0LeftAnnihilates _) ⟩
+    0r · Eval (ℕ.suc n) Q xs          ≡⟨ cong (λ u → u · Eval _ Q xs) (sym (Eval0H _ xs)) ⟩
+    Eval (ℕ.suc n) 0H xs · Eval (ℕ.suc n) Q xs ∎
+  ·HomEval (ℕ.suc n) (P ·X+ Q) S (x ∷ xs) =
+      Eval (ℕ.suc n) ((P ·X+ Q) ·ₕ S) (x ∷ xs)
+    ≡⟨ refl ⟩
+      Eval (ℕ.suc n) (((P ·ₕ S) ·X+ 0ₕ) +ₕ (Q ⋆ S)) (x ∷ xs)
+    ≡⟨ +HomEval (ℕ.suc n) ((P ·ₕ S) ·X+ 0ₕ) (Q ⋆ S) (x ∷ xs) ⟩
+      Eval (ℕ.suc n) ((P ·ₕ S) ·X+ 0ₕ) (x ∷ xs) + Eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs)
+    ≡⟨ refl ⟩
+      (Eval (ℕ.suc n) (P ·ₕ S) (x ∷ xs) · x + Eval n 0ₕ xs)
+      + Eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs)
+    ≡⟨ cong (λ u → u + Eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs))
+          ((Eval (ℕ.suc n) (P ·ₕ S) (x ∷ xs) · x + Eval n 0ₕ xs)
+         ≡⟨ cong (λ u → Eval (ℕ.suc n) (P ·ₕ S) (x ∷ xs) · x + u) (Eval0H _ xs) ⟩
+           (Eval (ℕ.suc n) (P ·ₕ S) (x ∷ xs) · x + 0r)
+         ≡⟨ +Rid _ ⟩
+           (Eval (ℕ.suc n) (P ·ₕ S) (x ∷ xs) · x)
+         ≡⟨ cong (λ u → u · x) (·HomEval (ℕ.suc n) P S (x ∷ xs)) ⟩
+           ((Eval (ℕ.suc n) P (x ∷ xs) · Eval (ℕ.suc n) S (x ∷ xs)) · x)
+         ≡⟨ sym (·Assoc _ _ _) ⟩
+           (Eval (ℕ.suc n) P (x ∷ xs) · (Eval (ℕ.suc n) S (x ∷ xs) · x))
+         ≡⟨ cong (λ u → Eval (ℕ.suc n) P (x ∷ xs) · u) (·Comm _ _) ⟩
+           (Eval (ℕ.suc n) P (x ∷ xs) · (x · Eval (ℕ.suc n) S (x ∷ xs)))
+         ≡⟨ ·Assoc _ _ _ ⟩
+           (Eval (ℕ.suc n) P (x ∷ xs) · x) · Eval (ℕ.suc n) S (x ∷ xs)
+          ∎) ⟩
+      (Eval (ℕ.suc n) P (x ∷ xs) · x) · Eval (ℕ.suc n) S (x ∷ xs)
+      + Eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs)
+    ≡⟨ cong (λ u → (Eval (ℕ.suc n) P (x ∷ xs) · x) · Eval (ℕ.suc n) S (x ∷ xs) + u)
+            (⋆HomEval n Q S x xs) ⟩
+      (Eval (ℕ.suc n) P (x ∷ xs) · x) · Eval (ℕ.suc n) S (x ∷ xs)
+      + Eval n Q xs · Eval (ℕ.suc n) S (x ∷ xs)
+    ≡⟨ sym (·DistL+ _ _ _) ⟩
+      ((Eval (ℕ.suc n) P (x ∷ xs) · x) + Eval n Q xs) · Eval (ℕ.suc n) S (x ∷ xs)
+    ≡⟨ refl ⟩
+      Eval (ℕ.suc n) (P ·X+ Q) (x ∷ xs) · Eval (ℕ.suc n) S (x ∷ xs) ∎
+

@@ -53,7 +53,7 @@ module ToBaseRing (R : AlmostRing {ℓ}) where
 
   ⋆0LeftAnnihilates : (P : RawHornerPolynomial νR) (x : ⟨ R ⟩)
     → evalH (0r ⋆ P) x ≡ 0r
-  ⋆0LeftAnnihilates 0H x = cong (λ u → evalH u x) (λ _ → 0H)
+  ⋆0LeftAnnihilates 0H x = refl
   ⋆0LeftAnnihilates (P ·X+ r) x =
     evalH ((0r ⋆ P) ·X+ (0r · r)) x ≡⟨ cong (λ u → evalH ((0r ⋆ P) ·X+ u) x)
                                             (0LeftAnnihilates _) ⟩
