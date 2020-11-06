@@ -16,6 +16,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Transport
 open import Cubical.Functions.FunExtEquiv
+open import Cubical.Functions.Surjection
+open import Cubical.Functions.Embedding
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
@@ -44,7 +46,7 @@ open Iso
 private
   variable
     ℓ ℓ' : Level
-    A : Type ℓ
+
 
 module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultClosedSubset R' S') where
  open isMultClosedSubset
@@ -276,3 +278,65 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
 
    fχ≡fχ' : f χ ≡ f χ'
    fχ≡fχ' = funExt (SQ.elimProp (λ _ → Bset _ _) []-path)
+
+
+ -- sufficient conditions for having the universal property
+ -- used as API in the leanprover-community/mathlib
+ -- Corollary 3.2 in Atiyah-McDonald
+ open S⁻¹RUniversalProp
+
+ record PathToS⁻¹R (A' : CommRing {ℓ}) (φ : CommRingHom R' A') : Type ℓ where
+  constructor
+   pathtoS⁻¹R
+  open Units A' renaming (Rˣ to Aˣ)
+  open CommRingStr (A' .snd) renaming (is-set to Aset ; 0r to 0a ; _·_ to _·A_)
+  field
+   φS⊆Aˣ : ∀ s → s ∈ S' → f φ s ∈ Aˣ
+   kerφ⊆annS : ∀ r → f φ r ≡ 0a → ∃[ s ∈ S ] (s .fst) · r ≡ 0r
+   surχ : ∀ a → ∃[ x ∈ R × S ] f φ (x .fst) ·A (f φ (x .snd .fst) ⁻¹) ⦃ φS⊆Aˣ _ (x .snd .snd) ⦄ ≡ a
+
+ S⁻¹RChar : (A' : CommRing {ℓ}) (φ : CommRingHom R' A')
+          → PathToS⁻¹R A' φ
+          → S⁻¹RAsCommRing ≡ A'
+ S⁻¹RChar A' φ cond = CommRingPath S⁻¹RAsCommRing A' .fst
+                    (S⁻¹R≃A , record { pres1 = pres1 χ ; isHom+ = isHom+ χ ; isHom· = isHom· χ })
+  where
+  open CommRingStr (A' .snd) renaming ( is-set to Aset ; 0r to 0a ; _·_ to _·A_ ; 1r to 1a
+                                      ; ·-rid to ·A-rid)
+  open Units A' renaming (Rˣ to Aˣ ; RˣInvClosed to AˣInvClosed)
+  open PathToS⁻¹R ⦃...⦄
+  private
+   A = A' .fst
+   instance
+    _ = cond
+   χ = (S⁻¹RHasUniversalProp A' φ φS⊆Aˣ .fst .fst)
+   open HomTheory χ
+
+  S⁻¹R≃A : S⁻¹R ≃ A
+  S⁻¹R≃A = f χ , isEmbedding×isSurjection→isEquiv (Embχ , Surχ)
+   where
+   Embχ : isEmbedding (f χ)
+   Embχ = injEmbedding squash/ Aset (ker≡0→inj λ {x} → kerχ≡0 x)
+    where
+    kerχ≡0 : (r/s : S⁻¹R) → f χ r/s ≡ 0a → r/s ≡ 0ₗ
+    kerχ≡0 = SQ.elimProp (λ _ → isPropΠ λ _ → squash/ _ _) kerχ≡[]
+     where
+     kerχ≡[] : (a : R × S) → f χ [ a ] ≡ 0a → [ a ] ≡ 0ₗ
+     kerχ≡[] (r , s , s∈S') p = PT.rec (squash/ _ _) Σhelper
+                                       (kerφ⊆annS r (UnitsAreNotZeroDivisors _ _ p))
+      where
+      instance
+       _ : f φ s ∈ Aˣ
+       _ = φS⊆Aˣ s s∈S'
+       _ : f φ s ⁻¹ ∈ Aˣ
+       _ = AˣInvClosed _
+
+      Σhelper : Σ[ s ∈ S ] (s .fst) · r ≡ 0r → [ r , s , s∈S' ] ≡ 0ₗ
+      Σhelper ((u , u∈S') , q) = eq/ _ _ ((u , u∈S') , path)
+       where
+       path : u · r · 1r ≡ u · 0r · s
+       path = (λ i → ·-rid (q  i) i) ∙∙ sym (0-leftNullifies _)
+                                     ∙∙ cong (_· s) (sym (0-rightNullifies _))
+
+   Surχ : isSurjection (f χ)
+   Surχ a = PT.rec propTruncIsProp (λ x → ∣ [ x .fst ] , x .snd ∣) (surχ a)

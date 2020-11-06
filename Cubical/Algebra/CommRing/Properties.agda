@@ -21,7 +21,7 @@ open import Cubical.Structures.Macro
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.Ring.Base
+open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing.Base
 
 private
@@ -30,6 +30,7 @@ private
 
 module Units (R' : CommRing {ℓ}) where
  open CommRingStr (snd R')
+ open Theory (CommRing→Ring R')
  private R = R' .fst
 
  inverseUniqueness : (r : R) → isProp (Σ[ r' ∈ R ] r · r' ≡ 1r)
@@ -77,6 +78,19 @@ module Units (R' : CommRing {ℓ}) where
 
  RˣContainsOne : 1r ∈ Rˣ
  RˣContainsOne = 1r , ·-lid _
+
+ RˣInvClosed : (r : R) ⦃ _ : r ∈ Rˣ ⦄ → r ⁻¹ ∈ Rˣ
+ RˣInvClosed r = r , ·-linv _
+
+ UnitsAreNotZeroDivisors : (r : R) ⦃ _ : r ∈ Rˣ ⦄
+                         → ∀ r' → r' · r ≡ 0r → r' ≡ 0r
+ UnitsAreNotZeroDivisors r r' p = r'              ≡⟨ sym (·-rid _) ⟩
+                                  r' · 1r         ≡⟨ cong (r' ·_) (sym (·-rinv _)) ⟩
+                                  r' · (r · r ⁻¹) ≡⟨ ·-assoc _ _ _ ⟩
+                                  r' · r · r ⁻¹   ≡⟨ cong (_· r ⁻¹) p ⟩
+                                  0r · r ⁻¹       ≡⟨ 0-leftNullifies _ ⟩
+                                  0r ∎
+
 
  -- laws keeping the instance arguments
  1⁻¹≡1 : ⦃ 1∈Rˣ' : 1r ∈ Rˣ ⦄ → 1r ⁻¹ ≡ 1r

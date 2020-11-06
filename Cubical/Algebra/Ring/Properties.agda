@@ -166,6 +166,17 @@ module HomTheory {R S : Ring {ℓ}} (f′ : RingHom  R S) where
                           f 0r            ≡⟨ homPres0 ⟩
                           0r ∎)
 
+  ker≡0→inj : ({x : ⟨ R ⟩} → f x ≡ 0r → x ≡ 0r)
+            → ({x y : ⟨ R ⟩} → f x ≡ f y → x ≡ y)
+  ker≡0→inj ker≡0 {x} {y} p = equalByDifference _ _ (ker≡0 path)
+   where
+   path : f (x - y) ≡ 0r
+   path = f (x - y)     ≡⟨ isHom+ _ _ ⟩
+          f x + f (- y) ≡⟨ cong (f x +_) (-commutesWithHom _) ⟩
+          f x - f y     ≡⟨ cong (_- f y) p ⟩
+          f y - f y     ≡⟨ +-rinv _ ⟩
+          0r            ∎
+
 
 module _{R S : Ring {ℓ}} (φ ψ : RingHom  R S) where
  open RingStr ⦃...⦄
