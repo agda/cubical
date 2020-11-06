@@ -81,7 +81,7 @@ S0→Int a false = snd a
 H⁰-S⁰≅ℤ×ℤ : GroupIso (coHomGr 0 (S₊ 0)) (dirProd intGroup intGroup)
 fun (map H⁰-S⁰≅ℤ×ℤ) = sRec (isSet× isSetInt isSetInt) λ f → (f true) , (f false)
 isHom (map H⁰-S⁰≅ℤ×ℤ) = sElim2 (λ _ _ → isSet→isGroupoid (isSet× isSetInt isSetInt) _ _)
-                                λ a b i → addLemma (a true) (b true) i , addLemma (a false) (b false) i
+                                λ a b → refl
 inv H⁰-S⁰≅ℤ×ℤ a = ∣ S0→Int a ∣₂
 rightInv H⁰-S⁰≅ℤ×ℤ _ = refl
 leftInv H⁰-S⁰≅ℤ×ℤ = sElim (λ _ → isSet→isGroupoid setTruncIsSet _ _)
@@ -209,37 +209,17 @@ coHom1S1≃ℤ = theIso
 
   theIso : GroupIso (coHomGr 1 (S₊ 1)) intGroup
   fun (map theIso) = sRec isSetInt (λ f → snd (F f))
-  isHom (map theIso) = sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _)
-                              λ f g → ((λ i → winding (guy (ΩKn+1→Kn 1 (Kn→ΩKn+1 1 (f base) ∙ Kn→ΩKn+1 1 (g base)))
-                                              (λ i → S¹map (ΩKn+1→Kn 1 (Kn→ΩKn+1 1 (f (loop i)) ∙ Kn→ΩKn+1 1 (g (loop i))))))))
-                                   ∙∙ cong winding (helper (f base) (g base) f g refl refl)
-                                   ∙∙ winding-hom (guy (f base) (λ i → S¹map (f (loop i))))
-                                                  (guy (g base) (λ i → S¹map (g (loop i))))
+  isHom (map theIso) =
+    coHomPointedElimS¹2 _ (λ _ _ → isSetInt _ _)
+      λ p q → (λ i → winding (guy ∣ base ∣ (cong S¹map (help p q i))))
+            ∙∙ (λ i → winding (guy ∣ base ∣ (congFunct S¹map p q i)))
+            ∙∙ winding-hom (guy ∣ base ∣ (cong S¹map p))
+                           (guy ∣ base ∣ (cong S¹map q))
+
     where
     guy = basechange2⁻ ∘ S¹map
-
-    helper : (x y : coHomK 1) (f g : S₊ 1 → coHomK 1)
-           → (f base) ≡ x
-           → (g base) ≡ y
-           → (guy (ΩKn+1→Kn 1 (Kn→ΩKn+1 1 (f base) ∙ Kn→ΩKn+1 1 (g base)))
-                   (λ i → S¹map ((ΩKn+1→Kn 1 (Kn→ΩKn+1 1 (f (loop i)) ∙ Kn→ΩKn+1 1 (g (loop i)))))))
-             ≡ (guy (f base)
-                    (λ i → S¹map (f (loop i))))
-             ∙ (guy (g base)
-                    (λ i → S¹map ((g (loop i)))))
-    helper =
-      elim2 (λ _ _ → isGroupoidΠ4 λ _ _ _ _ → isOfHLevelPath 3 (isOfHLevelSuc 3 (isGroupoidS¹) base base) _ _)
-            (toPropElim2
-              (λ _ _ → isPropΠ4 λ _ _ _ _ → isGroupoidS¹ _ _ _ _)
-              λ f g reflf reflg →
-              basechange-lemma base base
-                (S¹map ∘ (ΩKn+1→Kn 1))
-                ((Kn→ΩKn+1 1) ∘ f) ((Kn→ΩKn+1 1) ∘ g)
-                (cong (Kn→ΩKn+1 1) reflf ∙ Kn→ΩKn+10ₖ 1) (cong (Kn→ΩKn+1 1) reflg ∙ Kn→ΩKn+10ₖ 1)
-              ∙ λ j → guy (Iso.leftInv (Iso-Kn-ΩKn+1 1) (f base) j)
-                          (λ i → S¹map (Iso.leftInv (Iso-Kn-ΩKn+1 1) (f (loop i)) j))
-                    ∙ guy (Iso.leftInv (Iso-Kn-ΩKn+1 1) (g base) j)
-                          (λ i → S¹map (Iso.leftInv (Iso-Kn-ΩKn+1 1) (g (loop i)) j)))
+    help : (p q : Path (coHomK 1) ∣ base ∣ ∣ base ∣) → cong₂ _+ₖ_ p q ≡ p ∙ q
+    help p q = cong₂Funct _+ₖ_ p q ∙ (λ i → cong (λ x → rUnitₖ 1 x i) p ∙ cong (λ x → lUnitₖ 1 x i) q)
   inv theIso a = ∣ (F⁻ (base , a)) ∣₂
   rightInv theIso a = cong snd (Iso.rightInv S¹→S¹≡S¹×Int (base , a))
   leftInv theIso = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)

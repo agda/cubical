@@ -284,6 +284,12 @@ isOfHLevelRetractFromIso n e hlev = isOfHLevelRetract n (Iso.fun e) (Iso.inv e) 
 isOfHLevelRespectEquiv : {A : Type ℓ} {B : Type ℓ'} → (n : HLevel) → A ≃ B → isOfHLevel n A → isOfHLevel n B
 isOfHLevelRespectEquiv n eq = isOfHLevelRetract n (invEq eq) (eq .fst) (retEq eq)
 
+isContrRetractOfConstFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (b₀ : B)
+   → Σ[ f ∈ (B → A) ] ((x : A) → (f ∘ (λ _ → b₀)) x ≡ x)
+   → isContr A
+fst (isContrRetractOfConstFun b₀ ret) = ret .fst b₀
+snd (isContrRetractOfConstFun b₀ ret) y = ret .snd y
+
 -- h-level of Σ-types
 
 isContrΣ : isContr A → ((x : A) → isContr (B x)) → isContr (Σ A B)

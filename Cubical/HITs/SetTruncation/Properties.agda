@@ -17,6 +17,8 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
 open import Cubical.Data.Sigma
+open import Cubical.HITs.PropositionalTruncation
+  renaming (rec to pRec ; elim to pElim) hiding (elim2 ; elim3 ; rec2 ; map)
 
 private
   variable
@@ -184,3 +186,12 @@ Iso.rightInv IsoSetTruncateSndΣ =
 Iso.leftInv IsoSetTruncateSndΣ =
   elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
          λ _ → refl
+
+PathIdTrunc₀Iso : {a b : A} → Iso (∣ a ∣₂ ≡ ∣ b ∣₂) ∥ a ≡ b ∥
+Iso.fun (PathIdTrunc₀Iso {b = b}) p =
+  transport (λ i → rec {B = TypeOfHLevel _ 1} (isOfHLevelTypeOfHLevel 1)
+                        (λ a → ∥ a ≡ b ∥ , squash) (p (~ i)) .fst)
+            ∣ refl ∣
+Iso.inv PathIdTrunc₀Iso = pRec (squash₂ _ _) (cong ∣_∣₂)
+Iso.rightInv PathIdTrunc₀Iso _ = squash _ _
+Iso.leftInv PathIdTrunc₀Iso _ = squash₂ _ _ _ _

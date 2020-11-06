@@ -32,16 +32,6 @@ coHomK (suc n) = ∥ S₊ (suc n) ∥ (2 + suc n)
 coHom : (n : ℕ) → Type ℓ → Type ℓ
 coHom n A = ∥ (A → coHomK n) ∥₂
 
--- Alternative definition
-loopK : (n : ℕ) → Type₀
-loopK n = ∥ typ (Ω (S₊∙ (suc n))) ∥ (2 + n)
-
-coHom' : (n : ℕ) → Type ℓ → Type ℓ
-coHom' n A = ∥ (A → loopK n) ∥₂
-
-coHom'-pt : (n : ℕ) → loopK n
-coHom'-pt n = ∣ refl ∣
-
 --- Reduced cohomology ---
 
 coHom-pt : (n : ℕ) → coHomK n

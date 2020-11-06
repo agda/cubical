@@ -76,8 +76,8 @@ private
   from₀ : Int → coHom 0 S²⋁S¹⋁S¹
   from₀ = GroupIso.inv H⁰-S²⋁S¹⋁S¹
 
-
 {-
+
 -- Computes (a lot slower than for the torus)
 test : to₁ (from₁ (1 , 0) +ₕ from₁ (0 , 1)) ≡ (1 , 1)
 test = refl

@@ -37,6 +37,30 @@ open import Cubical.HITs.Truncation renaming (elim to trElim ; elim2 to trElim2 
 open GroupHom
 open GroupIso
 
+coHomPointedElimT² : ∀ {ℓ} (n : ℕ) {B : coHom (suc n) (S¹ × S¹) → Type ℓ}
+                 → ((x : coHom (suc n) (S¹ × S¹)) → isProp (B x))
+                 → ((p q : _) (P : _) → B ∣ elimFunT² n p q P ∣₂)
+                 → (x : coHom (suc n) (S¹ × S¹)) → B x
+coHomPointedElimT² n {B = B} isprop indp =
+  coHomPointedElim _ (base , base) isprop
+    λ f fId → subst B (cong ∣_∣₂ (funExt (λ {(base , base) → sym fId
+                                           ; (base , loop i) j → helper f fId i1 i (~ j)
+                                           ; (loop i , base) j → helper f fId i i1 (~ j)
+                                           ; (loop i , loop j) k → helper f fId i j (~ k)})))
+                       (indp (λ i → helper f fId i i1 i1)
+                             (λ i → helper f fId i1 i i1)
+                             λ i j → helper f fId i j i1)
+    where
+    helper : (f : S¹ × S¹ → coHomK (suc n)) → f (base , base) ≡ ∣ ptSn (suc n) ∣
+           → I → I → I → coHomK (suc n)
+    helper f fId i j k = 
+      hfill (λ k → λ {(i = i0) → doubleCompPath-filler (sym fId) (cong f (λ i → (base , loop i))) fId k j
+                     ; (i = i1) → doubleCompPath-filler (sym fId) (cong f (λ i → (base , loop i))) fId k j
+                     ; (j = i0) → doubleCompPath-filler (sym fId) (cong f (λ i → (loop i , base))) fId k i
+                     ; (j = i1) → doubleCompPath-filler (sym fId) (cong f (λ i → (loop i , base))) fId k i})
+            (inS (f ((loop i) , (loop j))))
+            k
+
 private
   module congLemma (key : Unit') where
     module K = lockedCohom key
@@ -44,7 +68,7 @@ private
     main : (n : ℕ) (p : Path (coHomK n) (0ₖ n) (0ₖ n))
               → Path (K.+K n (0ₖ n) (0ₖ n) ≡ K.+K n (0ₖ n) (0ₖ n))
                       (cong (K.+K n (0ₖ n)) p) (cong (λ x → K.+K n x (0ₖ n)) p)
-    main n = congIdLeft≡congIdRight (K.+K n) (K.-K n) (0ₖ n) (K.rUnitK n) (K.lUnitK n) (rUnitlUnit0K key n)
+    main n = congIdLeft≡congIdRight (K.+K n) (K.-K n) (0ₖ n) (K.rUnitK n) (K.lUnitK n) (sym (lUnitK≡rUnitK key n))
 
 --------- H⁰(T²) ------------
 H⁰-T²≅ℤ : GroupIso (coHomGr 0 (S₊ 1 × S₊ 1)) intGroup
@@ -72,6 +96,31 @@ H¹-T²≅ℤ×ℤ = theIso □ dirProdGroupIso (invGroupIso (Hⁿ-Sⁿ≅ℤ 0)
   theIso : GroupIso _ _
   fun (map theIso) = Iso.fun (typIso)
   isHom (map theIso) =
+    coHomPointedElimT² _ (λ _ → isPropΠ λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
+      λ pf qf Pf →
+        coHomPointedElimT² _ (λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
+          λ pg qg Pg i → ∣ funExt (helper' pf qf pg qg Pg Pf) i  ∣₂
+                        , ∣ funExt (helper'' pf qf pg qg Pg Pf) i ∣₂
+     where
+     helper' : (pf qf pg qg : _) → (Pg : Square qg qg pg pg) → (Pf : Square qf qf pf pf)
+            → (x : S¹)
+            → Iso.fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pf qf Pf (x , y) +ₖ elimFunT² 0 pg qg  Pg (x , y)) .fst
+            ≡ Iso.fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pf qf Pf (x , y)) .fst +ₖ Iso.fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pg qg  Pg (x , y)) .fst
+     helper' pf qf pg qg Pg Pf base = refl
+     helper' pf qf pg qg Pg Pf (loop i) j = ok j i
+       where
+       ok : cong (λ x → Iso.fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pf qf Pf (x , y) +ₖ elimFunT² 0 pg qg  Pg (x , y)) .fst) loop
+          ≡ cong (λ x → Iso.fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pf qf Pf (x , y)) .fst +ₖ Iso.fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pg qg  Pg (x , y)) .fst) loop
+       ok = (λ i j → S¹map-id (pf j +ₖ pg j) i)
+         ∙∙ {!!}
+         ∙∙ {!!} -- (λ i j → (elimFunT² 0 pf qf Pf (loop j , base) +ₖ {!elimFunT² 0 pg qg  Pg (loop j , base)!}) ) ∙∙ {!!} ∙∙ {!!}
+
+     helper'' : (pf qf pg qg : _) → (Pg : Square qg qg pg pg) → (Pf : Square qf qf pf pf)
+            → (x : S¹)
+            → Iso.fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pf qf Pf (x , y) +ₖ elimFunT² 0 pg qg  Pg (x , y)) .snd
+            ≡ Iso.fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pf qf Pf (x , y)) .snd +[ 0 ]ₖ Iso.fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pg qg  Pg (x , y)) .snd
+     helper'' pf qf pq gq Pg Pf = toPropElim (λ _ → isSetInt _ _) {!!}
+  {-
     sElim2 (λ _ _ → isOfHLevelPath 2 (isOfHLevelΣ 2 setTruncIsSet (λ _ → setTruncIsSet)) _ _)
             λ f g → ΣPathP ((cong ∣_∣₂
                              (funExt (λ x → helper (f (x , base) +ₖ g (x , base))
@@ -102,7 +151,7 @@ H¹-T²≅ℤ×ℤ = theIso □ dirProdGroupIso (invGroupIso (Hⁿ-Sⁿ≅ℤ 0)
                                           (winding
                                             (basechange2⁻
                                               (S¹map  (g (base , base)))
-                                              (λ i → S¹map (g (base , (loop i))))))))))))
+                                              (λ i → S¹map (g (base , (loop i)))))))))))) -}
   inv theIso = Iso.inv typIso
   rightInv theIso = Iso.rightInv typIso
   leftInv theIso = Iso.leftInv typIso
@@ -144,7 +193,8 @@ H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² unlock)
 
       mapIsHom : (x y : Int)
               → Iso.fun typIso (x +ℤ y) ≡ ((Iso.fun typIso x) +H Iso.fun typIso y)
-      mapIsHom a b =
+      mapIsHom a b = {!!}
+      {-
           (cong f ((GroupHom.isHom (GroupIso.map (invGroupIso (dirProdGroupIso (Hⁿ-S¹≅0 0) (invGroupIso (Hⁿ-Sⁿ≅ℤ 0)))))
                                                               (_ , a) (_ , b))
                 ∙ λ i → guyId i , +H≡+ₕ key _ (~ i) (g a) (g b)))
@@ -188,7 +238,7 @@ H²-T²≅ℤ = invGroupIso (ℤ≅H²-T² unlock)
             helper3 a b = cong (cong (0₂ +K_)) (+K→∙ key 1 a b)
                         ∙ (congFunct (0₂ +K_) (Kn→ΩKn+1 1 a) (Kn→ΩKn+1 1 b)
                         ∙∙ (λ i → congLemma.main key 2 (Kn→ΩKn+1 1 a) i ∙ cong (_+K_ ∣ north ∣) (λ i → Kn→ΩKn+1 1 b i))
-                        ∙∙ sym (cong₂Funct (_+K_) (Kn→ΩKn+1 1 a) (Kn→ΩKn+1 1 b)))
+                        ∙∙ sym (cong₂Funct (_+K_) (Kn→ΩKn+1 1 a) (Kn→ΩKn+1 1 b))) -}
 
       ℤ≅H²-T² : GroupIso intGroup (coHomGr 2 (S₊ 1 × S₊ 1))
       fun (map ℤ≅H²-T²) = Iso.fun typIso

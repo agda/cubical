@@ -329,7 +329,6 @@ module miniFreudenthal (n : HLevel) where
                λ p → elim (λ _ → isOfHLevelPath 4n+2 (isOfHLevelTrunc 4n+2) _ _)
                            (uncurry λ a → J (λ p r → encode' south p ≡ ∣ a , r ∣)
                                              (encodeMerid a))
-
   isConnectedσ : isConnectedFun 4n+2 σ
   fst (isConnectedσ p) = encode' north p
   snd (isConnectedσ p) = contractCodeNorth p
@@ -513,25 +512,35 @@ wedgeConSn' (suc n) m {A = A} hlev f g hom = F , (((λ _ → refl) , right) , sy
                                 (hom (~ j)))))
 
 
-pathIdTruncSⁿ' : (n : ℕ)
-             → (x : S₊ (suc n)) → Path (hLevelTrunc (2 + n) (S₊ (suc n))) ∣ x ∣ ∣ (ptSn (suc n)) ∣
-             → hLevelTrunc (suc n) (ptSn (suc n) ≡ x)
-pathIdTruncSⁿ' n = sphereElim n (λ _ → isOfHLevelΠ (suc n) λ _ → isOfHLevelTrunc (suc n))
-                               λ _ → ∣ refl ∣
+pathIdTruncSⁿ : (n : ℕ) (x y : S₊ (suc n))
+             → Path (hLevelTrunc (2 + n) (S₊ (suc n))) ∣ x ∣ ∣ y ∣
+             → hLevelTrunc (suc n) (x ≡ y)
+pathIdTruncSⁿ n = sphereElim n (λ _ → isOfHLevelΠ (suc n) λ _ → isOfHLevelΠ (suc n)  λ _ → isOfHLevelTrunc (suc n)) -- λ _ → isOfHLevelTrunc (suc n))
+                     (sphereElim n (λ _ → isOfHLevelΠ (suc n)  λ _ → isOfHLevelTrunc (suc n))
+                       λ _ → ∣ refl ∣)
 
-isConnectedPathSⁿ : (n : ℕ)
-                 → (x y : S₊ (suc n)) → isConnected (suc n) (x ≡ y)
-isConnectedPathSⁿ n =
-  sphereToPropElim n (λ _ → isPropΠ λ _ → isPropIsContr)
-    λ y → isContrRetract
-             (rec (isOfHLevelTrunc (2 + n) _ _) (J (λ y p → Path (hLevelTrunc (2 + n) (S₊ (suc n))) ∣ y ∣ ∣ (ptSn (suc n)) ∣) refl))
-             (pathIdTruncSⁿ' n y)
-             (elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
-                   (J (λ y p → pathIdTruncSⁿ' n y (J (λ y p → Path (hLevelTrunc (2 + n) (S₊ (suc n)))  ∣ y ∣ ∣ (ptSn (suc n)) ∣) refl p) ≡ ∣ p ∣)
-                       (cong (pathIdTruncSⁿ' n (ptSn (suc n))) (transportRefl refl) ∙ pm-help n)))
-             (sym (snd (sphereConnected (suc n)) ∣ y ∣)
-           , λ p → isOfHLevelPlus {n = 0} 2 ((sphereConnected (suc n))) _ _ _ _)
+pathIdTruncSⁿ⁻ : (n : ℕ) (x y : S₊ (suc n))
+             → hLevelTrunc (suc n) (x ≡ y)
+             → Path (hLevelTrunc (2 + n) (S₊ (suc n))) ∣ x ∣ ∣ y ∣
+pathIdTruncSⁿ⁻ n x y = rec (isOfHLevelTrunc (2 + n) _ _)
+                           (J (λ y _ → Path (hLevelTrunc (2 + n) (S₊ (suc n))) ∣ x ∣ ∣ y ∣) refl)
+
+pathIdTruncSⁿretract : (n : ℕ) (x y : S₊ (suc n)) → (p : hLevelTrunc (suc n) (x ≡ y)) → pathIdTruncSⁿ n x y (pathIdTruncSⁿ⁻ n x y p) ≡ p
+pathIdTruncSⁿretract n =
+  sphereElim n (λ _ → isOfHLevelΠ (suc n) λ _ → isOfHLevelΠ (suc n) λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
+    λ y → elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
+      (J (λ y p → pathIdTruncSⁿ n (ptSn (suc n)) y (pathIdTruncSⁿ⁻ n (ptSn (suc n)) y ∣ p ∣) ≡ ∣ p ∣)
+         (cong (pathIdTruncSⁿ n (ptSn (suc n)) (ptSn (suc n))) (transportRefl refl) ∙ pm-help n))
   where
-  pm-help : (n : ℕ) → pathIdTruncSⁿ' n (ptSn (suc n)) (λ _ → ∣ ptSn (suc n) ∣) ≡ ∣ refl ∣
+  pm-help : (n : ℕ) → pathIdTruncSⁿ n (ptSn (suc n)) (ptSn (suc n)) refl  ≡ ∣ refl ∣
   pm-help zero = refl
   pm-help (suc n) = refl
+
+isConnectedPathSⁿ : (n : ℕ) (x y : S₊ (suc n)) → isConnected (suc n) (x ≡ y)
+isConnectedPathSⁿ n x y =
+  isContrRetract
+   (pathIdTruncSⁿ⁻ n x y)
+   (pathIdTruncSⁿ n x y)
+   (pathIdTruncSⁿretract n x y)
+     ((isContr→isProp (sphereConnected (suc n)) ∣ x ∣ ∣ y ∣)
+      , isProp→isSet (isContr→isProp (sphereConnected (suc n))) _ _ _)
