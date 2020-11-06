@@ -155,3 +155,8 @@ module Multivariate where
   _ : ReifyMultivariate 2 (X₀Expr ⊗ X₀Expr ⊕ X₁Expr ⊗ X₀Expr ⊕ (K 5))
                         ≡ X₀ · X₀ + X₁ · X₀ + five
   _ = refl
+
+  open IteratedHornerOperations ℕAsRawRing
+
+  _ : ⟨ ℕ[X₀,X₁] ⟩ᵣ
+  _ = (Constant 1 ℕAsRawRing 5) ⋆ X₀
