@@ -184,4 +184,3 @@ module HomomorphismProperties (R : AlmostRing {ℓ}) where
       ((Eval (ℕ.suc n) P (x ∷ xs) · x) + Eval n Q xs) · Eval (ℕ.suc n) S (x ∷ xs)
     ≡⟨ refl ⟩
       Eval (ℕ.suc n) (P ·X+ Q) (x ∷ xs) · Eval (ℕ.suc n) S (x ∷ xs) ∎
-
