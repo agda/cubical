@@ -188,6 +188,16 @@ module MultivariateReification (R : AlmostRing {ℓ}) where
               (IsEqualToMultivariateNormalForm (ℕ.suc n) e₁ (x ∷ xs)) ⟩
         ⟦ e ⟧ (x ∷ xs) · ⟦ e₁ ⟧ (x ∷ xs) ∎
 
+  SolveExplicitMultivariate :
+    (n : ℕ) (e₁ e₂ : Expr ⟨ R ⟩ n) (xs : Vec ⟨ R ⟩ n)
+    (p : Eval n (ReifyMultivariate n e₁) xs ≡ Eval n (ReifyMultivariate n e₂) xs)
+    → ⟦ e₁ ⟧ xs ≡ ⟦ e₂ ⟧ xs
+  SolveExplicitMultivariate n e₁ e₂ xs p =
+    ⟦ e₁ ⟧ xs    ≡⟨ sym (IsEqualToMultivariateNormalForm n e₁ xs) ⟩
+    Eval n (ReifyMultivariate n e₁) xs ≡⟨ p ⟩
+    Eval n (ReifyMultivariate n e₂) xs ≡⟨ IsEqualToMultivariateNormalForm n e₂ xs ⟩
+    ⟦ e₂ ⟧ xs ∎
+
 module SolverFor (R : AlmostRing {ℓ}) where
   νR = AlmostRing→RawRing R
   open HornerOperations νR

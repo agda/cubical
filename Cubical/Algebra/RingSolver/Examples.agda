@@ -117,10 +117,10 @@ module RingSolvingInOneVariable where
              in SolveExplicit lhs rhs x refl
 
 module Multivariate where
+  open AlmostRing ℕAsAlmostRing
   ℕAsRawRing = AlmostRing→RawRing ℕAsAlmostRing
 
   ℕ[X₀,X₁] = IteratedHornerOperations.asRawRing ℕAsRawRing 2
-  open RawRing ℕ[X₀,X₁]
 
   X₀ : ⟨ ℕ[X₀,X₁] ⟩ᵣ
   X₀ = Variable 2 ℕAsRawRing (Fin.zero)
@@ -137,26 +137,47 @@ module Multivariate where
   _ : Eval 2 X₁ (0 ∷ 1 ∷ []) ≡ 1
   _ = refl
 
-  _ : Eval 2 (X₀ · X₁ + X₀ + X₁ · X₁ + Two) (2 ∷ 3 ∷ []) ≡ 19
-  _ = refl
-
   open MultivariateReification ℕAsAlmostRing
 
-  X₀Expr : Expr ℕ 2
-  X₀Expr = ∣ Fin.zero
+  X : Expr ℕ 2
+  X = ∣ Fin.zero
 
-  X₁Expr : Expr ℕ 2
-  X₁Expr = ∣ (fromℕ 1)
+  Y : Expr ℕ 2
+  Y = ∣ (fromℕ 1)
 
-  _ : ReifyMultivariate 2 (X₀Expr ⊕ X₁Expr) ≡ X₀ + X₁
-  _ = refl
+  {-
+    The solver needs to produce an equality between
+    actual ring elements. So we need a proof that
+    those actual ring elements are equal to a normal form:
+  -}
+  _ : (x y : ℕ) →
+      Eval 2 (ReifyMultivariate 2 ((K 2) ⊗ X ⊗ Y)) (x ∷ y ∷ [])
+      ≡ 2 · x · y
+  _ = λ x y → IsEqualToMultivariateNormalForm 2 ((K 2) ⊗ X ⊗ Y) (x ∷ y ∷ [])
 
-  five = Constant 2 ℕAsRawRing 5
-  _ : ReifyMultivariate 2 (X₀Expr ⊗ X₀Expr ⊕ X₁Expr ⊗ X₀Expr ⊕ (K 5))
-                        ≡ X₀ · X₀ + X₁ · X₀ + five
-  _ = refl
+  {-
+    Now two of these proofs can be plugged together
+    to solve an equation:
+  -}
+  open Eval ℕAsRawRing
+  _ : (x y : ℕ) → 3 + x + y · y ≡ y · y + x + 1 + 2
+  _ = let
+        lhs = (K 3) ⊕ X ⊕ (Y ⊗ Y)
+        rhs = Y ⊗ Y ⊕ X ⊕ (K 1) ⊕ (K 2)
+      in (λ x y →
+          ⟦ lhs ⟧ (x ∷ y ∷ [])
+        ≡⟨ sym (IsEqualToMultivariateNormalForm 2 lhs (x ∷ y ∷ [])) ⟩
+          Eval 2 (ReifyMultivariate 2 lhs) (x ∷ y ∷ [])
+        ≡⟨ refl ⟩
+          Eval 2 (ReifyMultivariate 2 rhs) (x ∷ y ∷ [])
+        ≡⟨ IsEqualToMultivariateNormalForm 2 rhs (x ∷ y ∷ []) ⟩
+          ⟦ rhs ⟧ (x ∷ y ∷ []) ∎)
 
-  open IteratedHornerOperations ℕAsRawRing
-
-  _ : ⟨ ℕ[X₀,X₁] ⟩ᵣ
-  _ = (Constant 1 ℕAsRawRing 5) ⋆ X₀
+  {-
+    Parts of that can be automated easily:
+  -}
+  _ : (x y : ℕ) → (x + y) · (x + y) ≡ x · x + 2 · x · y + y · y
+  _ = λ x y → let
+              lhs = (X ⊕ Y) ⊗ (X ⊕ Y)
+              rhs = X ⊗ X ⊕ (K 2) ⊗ X ⊗ Y ⊕ Y ⊗ Y
+             in SolveExplicitMultivariate 2 lhs rhs (x ∷ y ∷ []) refl
