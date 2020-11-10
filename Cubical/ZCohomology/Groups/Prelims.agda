@@ -41,6 +41,11 @@ coHomPointedElimS¹ n {B = B} x p =
               (cong ∣_∣₂ (funExt (λ {base → sym Id ; (loop i) j → doubleCompPath-filler (sym Id) (cong f loop) Id (~ j) i})))
               (p (sym Id ∙∙ (cong f loop) ∙∙ Id))
 
+elimFun' : (n m : ℕ) → (p : S₊ (suc m) → typ (Ω (coHomK-ptd (suc n)))) → (S₊ (2 + m)) → coHomK (suc n)
+elimFun' n m p north = ∣ ptSn (suc n) ∣
+elimFun' n m p south = ∣ ptSn (suc n) ∣
+elimFun' n m p (merid a i) = p a i
+
 coHomPointedElimS¹2 : ∀ {ℓ} (n : ℕ) {B : (x y : coHom (suc n) S¹) → Type ℓ}
                  → ((x y : coHom (suc n) S¹) → isProp (B x y))
                  → ((p q : typ (Ω (coHomK-ptd (suc n)))) → B ∣ elimFun n 0 p ∣₂ ∣ elimFun n 0 q ∣₂)
@@ -50,6 +55,24 @@ coHomPointedElimS¹2 n {B = B} x p =
     → subst2 B (cong ∣_∣₂ (funExt (λ {base → sym fId ; (loop i) j → doubleCompPath-filler (sym (fId)) (cong f loop) fId (~ j) i})))
                 (cong ∣_∣₂ (funExt (λ {base → sym gId ; (loop i) j → doubleCompPath-filler (sym (gId)) (cong g loop) gId (~ j) i})))
                 (p (sym fId ∙∙ cong f loop ∙∙ fId) (sym gId ∙∙ cong g loop ∙∙ gId))
+
+coHomPointedElimGen : ∀ {ℓ} (n m : ℕ) {B : (x : coHom (suc n) (S₊ (2 + m))) → Type ℓ}
+                 → ((x : coHom (suc n) (S₊ (2 + m))) → isProp (B x))
+                 → ((p : _) → B ∣ elimFun' n m p ∣₂)
+                 → (x : coHom (suc n) (S₊ (2 + m))) → B x
+coHomPointedElimGen n m {B = B} isprop ind =
+  coHomPointedElim n north isprop
+    λ f fId → subst B (cong ∣_∣₂ (funExt (λ {north → sym fId
+                                           ; south → sym fId ∙' cong f (merid (ptSn (suc m)))
+                                           ; (merid a i) j → hcomp (λ k → λ {(i = i0) → fId (~ j ∧ k)
+                                                                             ; (i = i1) → compPath'-filler (sym fId)
+                                                                                                            (cong f (merid (ptSn (suc m)))) k j
+                                                                             ; (j = i1) → f (merid a i)})
+                                                                    (hcomp (λ k → λ {(i = i0) → f north ;
+                                                                                      (i = i1) → f (merid (ptSn (suc m)) (j ∨ ~ k)) ;
+                                                                                      (j = i1) → f (merid a i)})
+                                                                           (f (merid a i)))})))
+                       (ind λ a → sym fId ∙∙ cong f (merid a) ∙ cong f (sym (merid (ptSn (suc m)))) ∙∙ fId)
 
 0₀ = 0ₖ 0
 0₁ = 0ₖ 1

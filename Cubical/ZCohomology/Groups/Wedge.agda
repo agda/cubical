@@ -137,7 +137,9 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
                                            ∙∙ cong ((f (inl x)) +ₖ_) (cong f (push tt))
                                  ; (inr x) → sym (rUnitₖ 1 (f (inr x)))
                                             ∙ cong ((f (inr x)) +ₖ_) (sym inlId)
-                                 ; (push tt i) j → cheating (f (inl (pt A))) (sym (inlId)) (f (inr (pt B))) (cong f (push tt)) j i}) ∣₁))
+                                 ; (push tt i) j → cheating (f (inl (pt A))) (sym (inlId))
+                                                             (f (inr (pt B)))
+                                                             (cong f (push tt)) j i}) ∣₁))
       where
       cheating : (x : coHomK 1) (r : ∣ base ∣ ≡ x) (y : coHomK 1) (p : x ≡ y)
              → PathP (λ j → ((sym (rUnitₖ 1 x) ∙∙ cong (x +ₖ_) r ∙∙ cong (x +ₖ_) p)) j
@@ -188,7 +190,8 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
                                            ∙∙ cong ((f (inl x)) +ₖ_) (cong f (push tt))
                                  ; (inr x) → sym (rUnitₖ (2 + n) (f (inr x)))
                                             ∙ cong ((f (inr x)) +ₖ_) (sym inlId)
-                                 ; (push tt i) j → cheating (f (inl (pt A))) (sym (inlId)) (f (inr (pt B))) (cong f (push tt)) j i}) ∣₁))
+                                 ; (push tt i) j → cheating (f (inl (pt A))) (sym (inlId))
+                                                             (f (inr (pt B))) (cong f (push tt)) j i}) ∣₁))
       where
       cheating : (x : coHomK (2 + n)) (r : ∣ north ∣ ≡ x) (y : coHomK (2 + n)) (p : x ≡ y)
              → PathP (λ j → ((sym (rUnitₖ (2 + n) x) ∙∙ cong (x +ₖ_) r ∙∙ cong (x +ₖ_) p)) j

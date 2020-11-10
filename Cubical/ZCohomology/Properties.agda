@@ -11,7 +11,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Data.Empty
@@ -33,7 +33,7 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Data.NatMinusOne
 
 open import Cubical.HITs.Pushout
-open import Cubical.Data.Sum.Base
+open import Cubical.Data.Sum.Base hiding (map)
 open import Cubical.Data.HomotopyGroup
 
 open import Cubical.ZCohomology.KcompPrelims
@@ -509,8 +509,8 @@ cong+ₖ-comm (suc n) p q =
 
 isCommΩK : (n : ℕ) → isComm∙ (coHomK-ptd n)
 isCommΩK zero p q = isSetInt _ _ (p ∙ q) (q ∙ p)
-isCommΩK (suc zero) p q = ∙≡+₁ p q ∙∙ cong+ₖ-comm 0 p q ∙∙ sym (∙≡+₁ q p) 
-isCommΩK (suc (suc n)) p q = ∙≡+₂ n p q ∙∙ cong+ₖ-comm (suc n) p q ∙∙ sym (∙≡+₂ n q p) 
+isCommΩK (suc zero) p q = ∙≡+₁ p q ∙∙ cong+ₖ-comm 0 p q ∙∙ sym (∙≡+₁ q p)
+isCommΩK (suc (suc n)) p q = ∙≡+₂ n p q ∙∙ cong+ₖ-comm (suc n) p q ∙∙ sym (∙≡+₂ n q p)
 
 ----- some other useful lemmas about algebra in Kₙ
 
@@ -687,6 +687,39 @@ coHomGr n A = coHom n A , coHomGrnA
 
 ×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group
 ×coHomGr n A B = dirProd (coHomGr n A) (coHomGr n B)
+
+-- Alternative definition of cohomology using ΩKₙ instead. Useful for breaking proofs of group isos
+-- up into smaller parts
+coHomGrΩ : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group {ℓ}
+coHomGrΩ n A = ∥ (A → typ (Ω (coHomK-ptd (suc n)))) ∥₂ , coHomGrnA
+  where
+  coHomGrnA : GroupStr ∥ (A → typ (Ω (coHomK-ptd (suc n)))) ∥₂
+  0g coHomGrnA = ∣ (λ _ → refl) ∣₂
+  GroupStr._+_ coHomGrnA = sRec2 § λ p q → ∣ (λ x → p x ∙ q x) ∣₂
+  - coHomGrnA = map λ f x → sym (f x)
+  isGroup coHomGrnA = helper
+    where
+    abstract
+      helper : IsGroup (∣ (λ _ → refl) ∣₂) (sRec2 § λ p q → ∣ (λ x → p x ∙ q x) ∣₂) (map λ f x → sym (f x))
+      helper = makeIsGroup § (elim3 (λ _ _ _ → isOfHLevelPath 2 § _ _)
+                                    (λ p q r → cong ∣_∣₂ (funExt λ x → assoc∙ (p x) (q x) (r x))))
+                             (sElim (λ _ → isOfHLevelPath 2 § _ _) λ p → cong ∣_∣₂ (funExt λ x → sym (rUnit (p x))))
+                             (sElim (λ _ → isOfHLevelPath 2 § _ _) λ p → cong ∣_∣₂ (funExt λ x → sym (lUnit (p x))))
+                             (sElim (λ _ → isOfHLevelPath 2 § _ _) λ p → cong ∣_∣₂ (funExt λ x → rCancel (p x)))
+                             (sElim (λ _ → isOfHLevelPath 2 § _ _) λ p → cong ∣_∣₂ (funExt λ x → lCancel (p x)))
+
+coHom≅coHomΩ : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → GroupIso (coHomGr n A) (coHomGrΩ n A)
+fun (GroupIso.map (coHom≅coHomΩ n A)) = map λ f a → Kn→ΩKn+1 n (f a)
+isHom (GroupIso.map (coHom≅coHomΩ n A)) =
+  sElim2 (λ _ _ → isOfHLevelPath 2 § _ _)
+         λ f g → cong ∣_∣₂ (funExt λ x → Kn→ΩKn+1-hom n (f x) (g x)) 
+GroupIso.inv (coHom≅coHomΩ n A) = map λ f a → ΩKn+1→Kn n (f a)
+GroupIso.rightInv (coHom≅coHomΩ n A) =
+  sElim (λ _ → isOfHLevelPath 2 § _ _)
+        λ f → cong ∣_∣₂ (funExt λ x → rightInv (Iso-Kn-ΩKn+1 n) (f x))
+GroupIso.leftInv (coHom≅coHomΩ n A) =
+  sElim (λ _ → isOfHLevelPath 2 § _ _)
+        λ f → cong ∣_∣₂ (funExt λ x → leftInv (Iso-Kn-ΩKn+1 n) (f x))
 
 coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → coHom n B → coHom n A
 coHomFun n f = sRec § λ β → ∣ β ∘ f ∣₂

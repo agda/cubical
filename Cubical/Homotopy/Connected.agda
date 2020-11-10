@@ -12,8 +12,7 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Univalence
 open import Cubical.Functions.Fibration
 open import Cubical.Data.Nat
-open import Cubical.Data.Prod hiding (map)
-open import Cubical.Data.Sigma hiding (_×_)
+open import Cubical.Data.Sigma
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SmashProduct
@@ -29,6 +28,9 @@ open import Cubical.Data.Unit
 
 isConnected : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ
 isConnected n A = isContr (hLevelTrunc n A)
+
+isConnected'₊ : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ
+isConnected'₊ n A = hLevelTrunc (suc n) A × ((x y : A) → hLevelTrunc n (x ≡ y))
 
 isConnectedFun : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
 isConnectedFun n f = ∀ b → isConnected n (fiber f b)
