@@ -1,11 +1,10 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.ZCohomology.dirrAdd.Base where
+module Cubical.Experiments.ZCohomologyOld.Base where
 
 open import Cubical.Data.Int.Base
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Sigma
 
-open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed.Base
 
 open import Cubical.HITs.Nullification.Base
@@ -14,7 +13,6 @@ open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.S1.Base
 open import Cubical.HITs.Susp.Base
 open import Cubical.HITs.Truncation.Base
-open import Cubical.Homotopy.Loopspace
 
 private
   variable
@@ -31,16 +29,6 @@ coHomK (suc n) = ∥ S₊ (suc n) ∥ (2 + suc n)
 {- Cohomology -}
 coHom : (n : ℕ) → Type ℓ → Type ℓ
 coHom n A = ∥ (A → coHomK n) ∥₂
-
--- Alternative definition
-loopK : (n : ℕ) → Type₀
-loopK n = typ (Ω (∥ S₊ (suc n) ∥ (3 + n) , ∣ ptSn (suc n) ∣))
-
-coHom' : (n : ℕ) → Type ℓ → Type ℓ
-coHom' n A = ∥ (A → loopK n) ∥₂
-
-coHom'-pt : (n : ℕ) → loopK n
-coHom'-pt n = refl
 
 --- Reduced cohomology ---
 

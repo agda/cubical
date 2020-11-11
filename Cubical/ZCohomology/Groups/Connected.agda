@@ -2,7 +2,7 @@
 module Cubical.ZCohomology.Groups.Connected where
 
 open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Groups.Unit
 
 open import Cubical.Foundations.HLevels

@@ -2,6 +2,7 @@
 module Cubical.ZCohomology.Groups.Wedge where
 
 open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.MayerVietorisUnreduced
 open import Cubical.Foundations.HLevels

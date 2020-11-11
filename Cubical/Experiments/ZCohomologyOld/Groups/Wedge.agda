@@ -1,9 +1,9 @@
 {-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
-module Cubical.ZCohomology.dirrAdd.Groups.Wedge where
+module Cubical.Experiments.ZCohomologyOld.Groups.Wedge where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.dirrAdd.Properties
-open import Cubical.ZCohomology.dirrAdd.MayerVietorisUnreduced
+open import Cubical.Experiments.ZCohomologyOld.Base
+open import Cubical.Experiments.ZCohomologyOld.Properties
+open import Cubical.Experiments.ZCohomologyOld.MayerVietorisUnreduced
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
@@ -15,8 +15,8 @@ open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; el
 open import Cubical.Data.Nat
 open import Cubical.Algebra.Group
 
-open import Cubical.ZCohomology.dirrAdd.Groups.Unit
-open import Cubical.ZCohomology.dirrAdd.Groups.Sn
+open import Cubical.Experiments.ZCohomologyOld.Groups.Unit
+open import Cubical.Experiments.ZCohomologyOld.Groups.Sn
 
 open import Cubical.HITs.Pushout
 open import Cubical.Data.Sigma
@@ -38,7 +38,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
     surj-helper : (x : coHom 0 Unit) → isInIm _ _ (I.Δ 0) x
     surj-helper =
       sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
-            λ f → ∣ (∣ (λ _ → f tt) ∣₂ , 0ₕ 0) , cong ∣_∣₂ (funExt λ _ → rUnitₖ 0 (f tt)) ∣₁
+            λ f → ∣ (∣ (λ _ → f tt) ∣₂ , 0ₕ 0) , cong ∣_∣₂ (funExt λ _ → -rUnitₖ 0 (f tt)) ∣₁
 
     helper : (x : coHom 1 (A ⋁ B)) → isInIm _ _ (I.d 0) x → x ≡ 0ₕ 1
     helper x inim =
@@ -54,7 +54,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
             λ f inker → helper ∣ f ∣₂ (I.Ker-i⊂Im-d 0 ∣ f ∣₂ inker)
     BijectionIso.surj bijIso p = I.Ker-Δ⊂Im-i 1 p (isContr→isProp (isContrHⁿ-Unit 0) _ _)
 
-  Hⁿ-⋁ (suc n) = {- Iso+Hom→GrIso mainIso
+  Hⁿ-⋁ (suc n) = Iso+Hom→GrIso mainIso
                                 (sElim2 (λ _ _ → isOfHLevelPath 2 (isOfHLevel× 2 setTruncIsSet setTruncIsSet) _ _)
                                          λ _ _ → refl)
     where
@@ -97,17 +97,14 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
                                                      {A = λ i → (fst (id2 (~ i)) (pt A) ≡ snd (id2 (~ i)) (pt B))}
                                                        (isConnectedPath 2 (isConnectedSubtr 3 n
                                                                           (subst (λ m → isConnected m (coHomK (2 + n))) (+-comm 3 n)
-                                                                                 lossy)) _ _)
+                                                                                 (isConnectedKn (suc n)))) _ _)
                                                        (p ∙ sym q) id1 .fst))
                                                        (Iso.fun PathIdTrunc₀Iso y))}))
-         where
-         lossy : isConnected (3 + n) (coHomK (2 + n))
-         lossy = isConnectedKn (1 + n)
       theIso : Iso ∥ (Σ[ f ∈ (typ A → coHomK (2 + n)) × (typ B → coHomK (2 + n)) ] (fst f) (pt A) ≡ (snd f) (pt B)) ∥₂
                    ∥ (typ A → coHomK (2 + n)) × (typ B → coHomK (2 + n)) ∥₂
       theIso = equivToIso (forget , record { equiv-proof = isEq })
--}
-   {- Alternative, less direct proof : -}
+
+   {- Alternative, less direct proof :
        vSES→GroupIso _ _
          (ses (isOfHLevelSuc 0 (isContrHⁿ-Unit n))
               (isOfHLevelSuc 0 (isContrHⁿ-Unit (suc n)))
@@ -116,7 +113,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
               (I.i (suc (suc n)))
               (I.Ker-i⊂Im-d (suc n))
               (I.Ker-Δ⊂Im-i (suc (suc n))))
-   
+   -}
 
   wedgeConnected : ((x : typ A) → ∥ pt A ≡ x ∥) → ((x : typ B) → ∥ pt B ≡ x ∥) → (x : A ⋁ B) → ∥ inl (pt A) ≡ x ∥
   wedgeConnected conA conB =

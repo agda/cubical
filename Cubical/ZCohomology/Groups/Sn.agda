@@ -6,7 +6,7 @@ open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.MayerVietorisUnreduced
 open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Connected
-open import Cubical.ZCohomology.KcompPrelims
+open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Groups.Prelims
 
 open import Cubical.Foundations.HLevels
@@ -188,19 +188,15 @@ H¹-Sⁿ≅0 (suc n) = IsoContrGroupTrivialGroup isContrH¹S³⁺ⁿ
       (∣ (λ _ → ∣ ∣ base ∣ ∣) ∣₂
       , sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _) isContrH¹S³⁺ⁿ-ish)
 
---------- Direct proof of H¹(S¹) ≅ ℤ without Mayer-Vietoris -------
-
--- The strategy is to use the proof that ΩS¹ ≃ ℤ. Since we only have this for S¹ with the base/loop definition
--- we begin with some functions translating between H¹(S₊ 1) and ∥ S¹ → S¹ ∥₀.  The latter type is easy to characterise,
--- by (S¹ → S¹) ≃ S¹ × ℤ (see Cubical.ZCohomology.Groups.Prelims). Truncating this leaves only ℤ, since S¹ is connected.
-
--- The translation mentioned above uses the basechange function. We use basechange-lemma (Cubical.ZCohomology.Groups.Prelims) to prove the basechange2⁻ preserves
--- path composition (in a more general sense than what is proved in basechange2⁻-morph)
-
--- We can now give the group equivalence. The first bit is just a big composition of our previously defined translations and is pretty uninteresting.
--- The harder step is proving that the equivalence is a morphism. This relies heavily on the fact that addition the cohomology groups essentially is defined using an
--- application of cong₂, which allows us to use basechange-lemma.
-
+--------- H¹(S¹) ≅ ℤ -------
+{-
+Idea : 
+H¹(S¹) := ∥ S¹ → K₁ ∥₂
+        ≃ ∥ S¹ → S¹ ∥₂
+        ≃ ∥ S¹ × ℤ ∥₂
+        ≃ ∥ S¹ ∥₂ × ∥ ℤ ∥₂
+        ≃ ℤ
+-}
 coHom1S1≃ℤ : GroupIso (coHomGr 1 (S₊ 1)) intGroup
 coHom1S1≃ℤ = theIso
   where
@@ -229,7 +225,6 @@ coHom1S1≃ℤ = theIso
                               ∙ cong ∣_∣₂ (Iso.leftInv S¹→S¹≡S¹×Int f)
 
 ---------------------------- Hⁿ(Sⁿ) ≅ ℤ , n ≥ 1 -------------------
-
 {-
 The proof of the inductive step below is a compact version of the following equations. Let n ≥ 1.
 Hⁿ⁺¹(Sⁿ⁺¹) := ∥ Sⁿ⁺¹ → Kₙ₊₁ ∥₂ 
@@ -249,15 +244,17 @@ Hⁿ-Sⁿ≅ℤ : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ (suc n))) intGro
 Hⁿ-Sⁿ≅ℤ zero = coHom1S1≃ℤ
 Hⁿ-Sⁿ≅ℤ (suc n) = invGroupIso helper □ invGroupIso (coHom≅coHomΩ (suc n) _) □ (Hⁿ-Sⁿ≅ℤ n)
   where
-  basePointInd : (p : _) (a : _) → (p (ptSn (suc n)) ≡ refl) → sym (rCancelₖ (2 + n) ∣ north ∣)
-                            ∙∙ (λ i →  (elimFun' (suc n) n p) ((merid a ∙ sym (merid (ptSn (suc n)))) i) +ₖ ∣ north ∣)
-                            ∙∙ rCancelₖ (2 + n) ∣ north ∣ ≡ p a
+  basePointInd : (p : _) (a : _)
+    → (p (ptSn (suc n)) ≡ refl) → sym (rCancelₖ (2 + n) ∣ north ∣)
+                                 ∙∙ (λ i →  (elimFunSⁿ (suc n) n p) ((merid a ∙ sym (merid (ptSn (suc n)))) i) +ₖ ∣ north ∣)
+                                 ∙∙ rCancelₖ (2 + n) ∣ north ∣
+                               ≡ p a
   basePointInd p a prefl =
-        cong (λ z → sym z ∙∙ ((λ i →  (elimFun' (suc n) n p) ((merid a ∙ sym (merid (ptSn (suc n)))) i) +ₖ ∣ north ∣)) ∙∙ z)
+        cong (λ z → sym z ∙∙ ((λ i →  (elimFunSⁿ (suc n) n p) ((merid a ∙ sym (merid (ptSn (suc n)))) i) +ₖ ∣ north ∣)) ∙∙ z)
              (transportRefl refl)
      ∙∙ sym (rUnit _)
-     ∙∙ (λ j i → rUnitₖ (2 + n) (elimFun' (suc n) n p ((merid a ∙ sym (merid (ptSn (suc n)))) i)) j)
-     ∙∙ congFunct (elimFun' (suc n) n p) (merid a) (sym (merid (ptSn (suc n))))
+     ∙∙ (λ j i → rUnitₖ (2 + n) (elimFunSⁿ (suc n) n p ((merid a ∙ sym (merid (ptSn (suc n)))) i)) j)
+     ∙∙ congFunct (elimFunSⁿ (suc n) n p) (merid a) (sym (merid (ptSn (suc n))))
      ∙∙ (cong (p a ∙_) (cong sym prefl)
      ∙ sym (rUnit (p a)))
 
@@ -274,7 +271,7 @@ Hⁿ-Sⁿ≅ℤ (suc n) = invGroupIso helper □ invGroupIso (coHom≅coHomΩ (s
                           ∙∙ (λ i → f ((merid x ∙ sym (merid (ptSn (suc n)))) i) -ₖ f north)
                           ∙∙ rCancelₖ (2 + n) (f north)
   rightInv helper =
-    coHomPointedElimGen (suc n) n (λ _ → setTruncIsSet _ _)
+    coHomPointedElimSⁿ (suc n) n (λ _ → setTruncIsSet _ _)
       λ p → trRec (isProp→isOfHLevelSuc n (setTruncIsSet _ _))
                    (λ prefl → cong ∣_∣₂ (funExt λ {north → refl
                                                  ; south → refl

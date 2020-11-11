@@ -3,7 +3,7 @@ module Cubical.ZCohomology.MayerVietorisUnreduced where
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.KcompPrelims
+open import Cubical.ZCohomology.GroupStructure
 
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
