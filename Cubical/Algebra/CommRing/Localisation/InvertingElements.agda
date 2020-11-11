@@ -55,27 +55,27 @@ module _(R' : CommRing {ℓ}) where
  -- Σ[ n ∈ ℕ ] (s ≡ f ^ n) × (∀ m → s ≡ f ^ m → n ≤ m) maybe better, this isProp:
  -- (n,s≡fⁿ,p) (m,s≡fᵐ,q) then n≤m by p and  m≤n by q => n≡m
 
- powersFormSubMonoid : (f : R) → isMultClosedSubset R' [ f ⁿ|n≥0]
- powersFormSubMonoid f .containsOne = ∣ zero , refl ∣
- powersFormSubMonoid f .multClosed =
+ powersFormMultClosedSubset : (f : R) → isMultClosedSubset R' [ f ⁿ|n≥0]
+ powersFormMultClosedSubset f .containsOne = ∣ zero , refl ∣
+ powersFormMultClosedSubset f .multClosed =
              PT.map2 λ (m , p) (n , q) → (m +ℕ n) , (λ i → (p i) · (q i)) ∙ ·-of-^-is-^-of-+ f m n
 
 
  R[1/_] : R → Type ℓ
- R[1/ f ] = Loc.S⁻¹R R' [ f ⁿ|n≥0] (powersFormSubMonoid f)
+ R[1/ f ] = Loc.S⁻¹R R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
 
 
  R[1/_]AsCommRing : R → CommRing {ℓ}
- R[1/ f ]AsCommRing = Loc.S⁻¹RAsCommRing R' [ f ⁿ|n≥0] (powersFormSubMonoid f)
+ R[1/ f ]AsCommRing = Loc.S⁻¹RAsCommRing R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
 
  -- A useful lemma: (gⁿ/1)≡(g/1)ⁿ in R[1/f]
  ^-respects-/1 : {f g : R} (n : ℕ) → [ (g ^ n) , 1r , ∣ 0 , (λ _ → 1r) ∣ ] ≡
-     Exponentiation._^_ R[1/ f ]AsCommRing [ g , 1r , powersFormSubMonoid _ .containsOne ] n
+     Exponentiation._^_ R[1/ f ]AsCommRing [ g , 1r , powersFormMultClosedSubset _ .containsOne ] n
  ^-respects-/1 zero = refl
- ^-respects-/1 {f} {g} (suc n) = eq/ _ _ ( (1r , powersFormSubMonoid f .containsOne)
-                               , cong (1r · (g · (g ^ n)) ·_) (·-lid 1r))
-                               ∙ cong (CommRingStr._·_ (R[1/ f ]AsCommRing .snd)
-                                 [ g , 1r , powersFormSubMonoid f .containsOne ]) (^-respects-/1 n)
+ ^-respects-/1 {f} {g} (suc n) = eq/ _ _ ( (1r , powersFormMultClosedSubset f .containsOne)
+                                         , cong (1r · (g · (g ^ n)) ·_) (·-lid 1r))
+                           ∙ cong (CommRingStr._·_ (R[1/ f ]AsCommRing .snd)
+                           [ g , 1r , powersFormMultClosedSubset f .containsOne ]) (^-respects-/1 n)
 
 
 -- Check: (R[1/f])[1/g] ≡ R[1/fg]
@@ -97,14 +97,14 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
   R = R' .fst
   R[1/fg] = R[1/_] R' (f · g)
   R[1/f][1/g] = R[1/_] (R[1/_]AsCommRing R' f)
-                                [ g , 1r , powersFormSubMonoid R' f .containsOne ]
+                                [ g , 1r , powersFormMultClosedSubset R' f .containsOne ]
   R[1/f][1/g]AsCommRing = R[1/_]AsCommRing (R[1/_]AsCommRing R' f)
-                                [ g , 1r , powersFormSubMonoid R' f .containsOne ]
+                                [ g , 1r , powersFormMultClosedSubset R' f .containsOne ]
 
  φ : R[1/fg] → R[1/f][1/g]
  φ = SQ.rec squash/ ϕ ϕcoh
    where
-   S[fg] = Loc.S R' ([_ⁿ|n≥0] R' (f · g)) (powersFormSubMonoid R' (f · g))
+   S[fg] = Loc.S R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g))
 
    curriedϕΣ : (r s : R) → Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n → R[1/f][1/g]
    curriedϕΣ r s (n , s≡fg^n) =
@@ -115,7 +115,8 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
     where
     coh : (x y : Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n) → curriedϕΣ r s x ≡ curriedϕΣ r s y
     coh (n , s≡fg^n) (m , s≡fg^m) = eq/ _ _ ((1ᶠ , ∣ 0 , refl ∣) ,
-                                    eq/ _ _ ((1r , powersFormSubMonoid R' f .containsOne) , path))
+                                    eq/ _ _ ( (1r , powersFormMultClosedSubset R' f .containsOne)
+                                            , path))
      where
      path : 1r · (1r · r · (g ^ m)) · (1r · (f ^ m) · 1r)
           ≡ 1r · (1r · r · (g ^ n)) · (1r · (f ^ n) · 1r)
@@ -149,8 +150,9 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
                                     → (γ : Σ[ l ∈ ℕ ] u ≡ (f · g) ^ l)
                                     → ϕ (r , s , ∣ α ∣) ≡ ϕ (r' , s' , ∣ β ∣)
    curriedϕcohΣ r s r' s' u p (n , s≡fgⁿ) (m , s'≡fgᵐ) (l , u≡fgˡ) =
-    eq/ _ _ (([ (g ^ l) , 1r , powersFormSubMonoid R' f .containsOne ] , ∣ l , ^-respects-/1 R' l ∣) ,
-    eq/ _ _ ((f ^ l , ∣ l , refl ∣) , path))
+    eq/ _ _ ( ( [ (g ^ l) , 1r , powersFormMultClosedSubset R' f .containsOne ]
+              , ∣ l , ^-respects-/1 R' l ∣)
+            , eq/ _ _ ((f ^ l , ∣ l , refl ∣) , path))
     where
     path : f ^ l · (g ^ l · transp (λ i → R) i0 r · transp (λ i → R) i0 (g ^ m))
                  · (1r · transp (λ i → R) i0 (f ^ m) · transp (λ i → R) i0 1r)
@@ -202,6 +204,7 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
                          λ β → PT.rec (squash/ _ _)
                          λ γ →  curriedϕcohΣ r s r' s' u p α β γ
 
-   ϕcoh : (a b : R × S[fg]) → Loc._≈_ R' ([_ⁿ|n≥0] R' (f · g)) (powersFormSubMonoid R' (f · g)) a b
-                            → ϕ a ≡ ϕ b
+   ϕcoh : (a b : R × S[fg])
+        → Loc._≈_ R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g)) a b
+        → ϕ a ≡ ϕ b
    ϕcoh (r , s , α) (r' , s' , β) ((u , γ) , p) =  curriedϕcoh r s r' s' u p α β γ
