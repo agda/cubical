@@ -7,7 +7,7 @@ open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.Groups.Wedge
 open import Cubical.ZCohomology.Groups.Connected
-open import Cubical.Data.Int renaming (_+_ to _ℤ+_) 
+open import Cubical.Data.Int renaming (_+_ to _ℤ+_)
 
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1

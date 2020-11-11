@@ -38,7 +38,7 @@ This module proves that Hⁿ(A ⋁ B) ≅ Hⁿ(A) × Hⁿ(B) for n ≥ 1 directl
 
 Proof sketch:
 
-Any ∣ f ∣₂ ∈ Hⁿ(A ⋁ B) is uniquely characterised by a pair of functions 
+Any ∣ f ∣₂ ∈ Hⁿ(A ⋁ B) is uniquely characterised by a pair of functions
   f₁ : A → Kₙ
   f₂ : B → Kₙ
 together with a path
@@ -61,7 +61,7 @@ The fact that F and F⁻ cancel out is a proposition and we may thus assume for 
   f₁ (pt A) = f₂ (pt B) = 0                (*)
   and
   f (inl (pt A)) = 0                       (**)
-  
+
 The fact that F(F⁻(∣ f₁ ∣₂ , ∣ f₂ ∣₂)) = ∣ f₁ ∣₂ , ∣ f₂ ∣₂) follows immediately from (*)
 
 The other way is slightly trickier. We need to construct paths
@@ -69,9 +69,9 @@ The other way is slightly trickier. We need to construct paths
   Pᵣ  : f (inr (x)) + f (inl (pt A)) ---> f (inr (x))
 
 Together with a filler of the following square
-       
+
      cong f (push tt)
-    -----------------> 
+    ----------------->
    ^                  ^
    |                  |
    |                  |
@@ -84,13 +84,13 @@ Pₗ |                  | Pᵣ
 where Q is commutativity proof f (inl (pt A)) + f (inr (pt B)) = f (inr (pt B)) + f (inl (pt A))
 
 The square is filled by first constructing Pₗ by
-  f (inl (x)) + f (inr (pt B))    ---[cong f (push tt)⁻¹]--->  
-  f (inl (x)) + f (inl (pt A))    ---[(**)]---> 
+  f (inl (x)) + f (inr (pt B))    ---[cong f (push tt)⁻¹]--->
+  f (inl (x)) + f (inl (pt A))    ---[(**)]--->
   f (inl (x)) + 0                 ---[right-unit]--->
   f (inl (x))
 
 and then Pᵣ by
-  f (inr (x)) + f (inl (pt A))    ---[(**)]---> 
+  f (inr (x)) + f (inl (pt A))    ---[(**)]--->
   f (inr (x)) + 0                 ---[right-unit]--->
   f (inr (x))
 

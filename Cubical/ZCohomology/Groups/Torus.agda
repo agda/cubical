@@ -84,7 +84,7 @@ coHomPointedElimT² n {B = B} isprop indp =
     where
     helper : (f : S¹ × S¹ → coHomK (suc n)) → f (base , base) ≡ ∣ ptSn (suc n) ∣
            → I → I → I → coHomK (suc n)
-    helper f fId i j k = 
+    helper f fId i j k =
       hfill (λ k → λ {(i = i0) → doubleCompPath-filler (sym fId) (cong f (λ i → (base , loop i))) fId k j
                      ; (i = i1) → doubleCompPath-filler (sym fId) (cong f (λ i → (base , loop i))) fId k j
                      ; (j = i0) → doubleCompPath-filler (sym fId) (cong f (λ i → (loop i , base))) fId k i

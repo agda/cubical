@@ -190,7 +190,7 @@ H¹-Sⁿ≅0 (suc n) = IsoContrGroupTrivialGroup isContrH¹S³⁺ⁿ
 
 --------- H¹(S¹) ≅ ℤ -------
 {-
-Idea : 
+Idea :
 H¹(S¹) := ∥ S¹ → K₁ ∥₂
         ≃ ∥ S¹ → S¹ ∥₂
         ≃ ∥ S¹ × ℤ ∥₂
@@ -227,8 +227,8 @@ coHom1S1≃ℤ = theIso
 ---------------------------- Hⁿ(Sⁿ) ≅ ℤ , n ≥ 1 -------------------
 {-
 The proof of the inductive step below is a compact version of the following equations. Let n ≥ 1.
-Hⁿ⁺¹(Sⁿ⁺¹) := ∥ Sⁿ⁺¹ → Kₙ₊₁ ∥₂ 
-           ≅ ∥ Σ[ (a , b) ∈ Kₙ₊₁ ] (Sⁿ → a ≡ b) ∥₂       (characterisation of functions from suspensions) 
+Hⁿ⁺¹(Sⁿ⁺¹) := ∥ Sⁿ⁺¹ → Kₙ₊₁ ∥₂
+           ≅ ∥ Σ[ (a , b) ∈ Kₙ₊₁ ] (Sⁿ → a ≡ b) ∥₂       (characterisation of functions from suspensions)
            ≅ ∥ Kₙ₊₁ × Kₙ₊₁ × (Sⁿ → ΩKₙ₊₁) ∥₂             (base change in ΩKₙ₊₁)
            ≅ ∥ Kₙ₊₁ ∥₂ × ∥ Kₙ₊₁ ∥₂ × ∥ (Sⁿ → ΩKₙ₊₁) ∥₂
            ≅ ∥ Sⁿ → ΩKₙ₊₁ ∥₂                             (connectivity of Kₙ₊₁)
@@ -236,7 +236,7 @@ Hⁿ⁺¹(Sⁿ⁺¹) := ∥ Sⁿ⁺¹ → Kₙ₊₁ ∥₂
           := Hⁿ(Sⁿ)
            ≅ ℤ                                           (ind. hyp)
 
-The inverse function Hⁿ(Sⁿ) → Hⁿ⁺¹(Sⁿ⁺¹) is just the function d from Mayer-Vietoris. 
+The inverse function Hⁿ(Sⁿ) → Hⁿ⁺¹(Sⁿ⁺¹) is just the function d from Mayer-Vietoris.
 However, we can construct d⁻¹ directly in this case, thus avoiding computationally
 heavier proofs concerning exact sequences. -}
 

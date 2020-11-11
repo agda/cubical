@@ -134,7 +134,7 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
                                                                        ∙∙ cong (λ F₁ → F₁ (g a)) p2) (~ k) i
                         ; (j = i1) → F (push a i)})
               (doubleCompPath-filler (sym (cong (λ F → F (f a)) p1)) (cong F (push a)) (cong (λ F → F (g a)) p2) (~ j) i)
-              
+
   open GroupHom
 
   Im-i⊂Ker-Δ : (n : ℕ) (x : ⟨ ×coHomGr n A B ⟩)

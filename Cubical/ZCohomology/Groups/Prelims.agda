@@ -56,7 +56,7 @@ coHomPointedElimS¹2 n {B = B} x p =
                 (cong ∣_∣₂ (funExt (λ {base → sym gId ; (loop i) j → doubleCompPath-filler (sym (gId)) (cong g loop) gId (~ j) i})))
                 (p (sym fId ∙∙ cong f loop ∙∙ fId) (sym gId ∙∙ cong g loop ∙∙ gId))
 
--- We do the same thing for Sⁿ, n ≥ 2. 
+-- We do the same thing for Sⁿ, n ≥ 2.
 elimFunSⁿ : (n m : ℕ) (p : S₊ (suc m) → typ (Ω (coHomK-ptd (suc n))))
          → (S₊ (2 + m)) → coHomK (suc n)
 elimFunSⁿ n m p north = ∣ ptSn (suc n) ∣

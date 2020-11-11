@@ -426,7 +426,7 @@ PathΩ n = PathIdTrunc n
 
 PathIdTruncIsoFunct : ∀ {A : Type ℓ} {a : A} (n : HLevel) → (p q : (Path (∥ A ∥ (2 +  n)) ∣ a ∣ ∣ a ∣))
                    → Iso.fun (PathIdTruncIso (suc n)) (p ∙ q)
-                    ≡ map2 _∙_ (Iso.fun (PathIdTruncIso (suc n)) p) (Iso.fun (PathIdTruncIso (suc n)) q) 
+                    ≡ map2 _∙_ (Iso.fun (PathIdTruncIso (suc n)) p) (Iso.fun (PathIdTruncIso (suc n)) q)
 PathIdTruncIsoFunct {a = a} n p q = sym (ΩTrunc.+P-funct (∣ a ∣) ∣ a ∣ ∣ a ∣ p q)
 
 -------------------------
@@ -481,8 +481,8 @@ Iso.rightInv (truncOfΣIso (suc n)) =
          λ b → refl)
 Iso.leftInv (truncOfΣIso (suc n)) =
   elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) λ {(a , b) → refl}
- 
-congTruncIso : (n : HLevel) → Iso A B → Iso (hLevelTrunc n A) (hLevelTrunc n B) 
+
+congTruncIso : (n : HLevel) → Iso A B → Iso (hLevelTrunc n A) (hLevelTrunc n B)
 congTruncIso zero _ = isContr→Iso isContrUnit* isContrUnit*
 Iso.fun (congTruncIso (suc n) e) = map (Iso.fun e)
 Iso.inv (congTruncIso (suc n) e) = map (Iso.inv e)

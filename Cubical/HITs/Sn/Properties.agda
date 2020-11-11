@@ -60,7 +60,7 @@ sphereToPropElim zero = toPropElim
 sphereToPropElim (suc n) hlev pt north = pt
 sphereToPropElim (suc n) {A = A} hlev pt south = subst A (merid (ptSn (suc n))) pt
 sphereToPropElim (suc n) {A = A} hlev pt (merid a i) =
-  isProp→PathP {B = λ i → A (merid a i)} (λ _ → hlev _) pt (subst A (merid (ptSn (suc n))) pt) i 
+  isProp→PathP {B = λ i → A (merid a i)} (λ _ → hlev _) pt (subst A (merid (ptSn (suc n))) pt) i
 
 -- Elimination rule for fibrations (x : Sⁿ) → (y : Sᵐ) → A x y of h-Level (n + m).
 -- The following principle is just the special case of the "Wedge Connectivity Lemma"
