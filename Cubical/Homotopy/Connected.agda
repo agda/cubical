@@ -29,9 +29,6 @@ open import Cubical.Data.Unit
 isConnected : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ
 isConnected n A = isContr (hLevelTrunc n A)
 
-isConnected'₊ : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ
-isConnected'₊ n A = hLevelTrunc (suc n) A × ((x y : A) → hLevelTrunc n (x ≡ y))
-
 isConnectedFun : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
 isConnectedFun n f = ∀ b → isConnected n (fiber f b)
 

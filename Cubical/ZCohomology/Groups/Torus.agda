@@ -141,7 +141,7 @@ H⁰-T²≅ℤ =
                                    (Sn-connected 0 b) )
                      (Sn-connected 0 a)
 
--- --------- H¹(T²) -------------------------------
+--------- H¹(T²) -------------------------------
 
 H¹-T²≅ℤ×ℤ : GroupIso (coHomGr 1 ((S₊ 1) × (S₊ 1))) (dirProd intGroup intGroup)
 H¹-T²≅ℤ×ℤ = theIso □ dirProdGroupIso (Hⁿ-Sⁿ≅ℤ 0) (H⁰-Sⁿ≅ℤ 0)

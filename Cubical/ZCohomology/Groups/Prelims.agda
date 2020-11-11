@@ -277,29 +277,3 @@ module _ (key : Unit') where
 
 S1→K2≡K2×K1 : Iso (S₊ 1 → coHomK 2) (coHomK 2 × coHomK 1)
 S1→K2≡K2×K1 = S1→K2≡K2×K1' unlock
-
-
--- -- The translation mention above uses the basechange function.
-
--- ---------- lemmas on the baschange of ΩS¹ ----------
-
--- --The following lemma is used to prove the basechange2⁻ preserves
--- -- path composition (in a more general sense than what is proved in basechange2⁻-morph)
-
--- basechange-lemma : ∀ {ℓ} {A : Type ℓ} {a : A} (x y : S¹) (F : a ≡ a → S¹) (f : S¹ → a ≡ a) (g : S¹ → a ≡ a)
---                   → (f base ≡ refl)
---                   → (g base ≡ refl)
---                   → basechange2⁻ (F (f base ∙ g base)) (cong₂ {A = S¹} {B = λ x → S¹} (λ x y → F (f x ∙ g y)) loop loop)
---                    ≡ basechange2⁻ (F (f base)) (cong (λ x → F (f x)) loop) ∙ basechange2⁻ (F (g base)) (cong (λ x → F (g x)) loop)
--- basechange-lemma x y F f g frefl grefl  =
---     ((λ i → basechange2⁻ (F (f base ∙ g base)) (cong₂Funct (λ x y → F (f x ∙ g y)) loop loop i))
---   ∙∙ (λ i → basechange2⁻ (F (f base ∙ g base)) (cong (λ x₁ → F (f x₁ ∙ g base)) loop ∙ cong (λ y₁ → F (f base ∙ g y₁)) loop))
---   ∙∙ basechange2⁻-morph (F (f base ∙ g base)) _ _)
---   ∙∙ (λ j → basechange2⁻ (F (f base ∙ grefl j))
---                         (λ i → F (f (loop i) ∙ grefl j))
---           ∙ basechange2⁻ (F (frefl j ∙ g base))
---                         (λ i → F (frefl j ∙ g (loop i))))
---   ∙∙ ((λ j → basechange2⁻ (F (rUnit (f base) (~ j)))
---                         (λ i → F (rUnit (f (loop i)) (~ j)))
---           ∙ basechange2⁻ (F (lUnit (g base) (~ j)))
---                         (λ i → F (lUnit (g (loop i)) (~ j)))))

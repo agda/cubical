@@ -327,6 +327,7 @@ module miniFreudenthal (n : HLevel) where
                λ p → elim (λ _ → isOfHLevelPath 4n+2 (isOfHLevelTrunc 4n+2) _ _)
                            (uncurry λ a → J (λ p r → encode' south p ≡ ∣ a , r ∣)
                                              (encodeMerid a))
+
   isConnectedσ : isConnectedFun 4n+2 σ
   fst (isConnectedσ p) = encode' north p
   snd (isConnectedσ p) = contractCodeNorth p
@@ -343,9 +344,8 @@ isConnectedσ-Sn n = isConnectedFunSubtr _ n _
 stabSpheres-n≥2 : (n : ℕ) → Iso (hLevelTrunc (4 + n) (S₊ (2 + n))) (hLevelTrunc (4 + n) (typ (Ω (S₊∙ (3 + n)))))
 stabSpheres-n≥2 n = connectedTruncIso (4 + n) (miniFreudenthal.σ n) (isConnectedσ-Sn n)
 
-
-
 ---------- Connectedness -----------
+
 sphereConnected : (n : HLevel) → isConnected (suc n) (S₊ n)
 sphereConnected n = ∣ ptSn n ∣ , elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
                                      (λ a → sym (spoke ∣_∣ (ptSn n)) ∙ spoke ∣_∣ a)
