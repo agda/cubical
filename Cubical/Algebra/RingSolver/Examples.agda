@@ -22,7 +22,7 @@ private
 module MultivariateSolving where
   open AlmostRing ℕAsAlmostRing
   ℕAsRawRing = AlmostRing→RawRing ℕAsAlmostRing
-  open MultivariateReification ℕAsAlmostRing
+  open EqualityToReification ℕAsAlmostRing
   ℕ[X₀,X₁] = IteratedHornerOperations.asRawRing ℕAsRawRing 2
 
   X₀ : ⟨ ℕ[X₀,X₁] ⟩ᵣ
@@ -57,18 +57,18 @@ module MultivariateSolving where
      can be checked by agda's unification (so refl is a proof)
 
    -}
-  _ : ReifyMultivariate 3 ((K 2) ⊗ X) ≡
-      ReifyMultivariate 3 (X ⊕ X)
+  _ : Reify 3 ((K 2) ⊗ X) ≡
+      Reify 3 (X ⊕ X)
   _ = refl
 
 
-  _ : ReifyMultivariate 3 ((K 2) ⊗ X) ≡ ReifyMultivariate 3 (X ⊕ X)
+  _ : Reify 3 ((K 2) ⊗ X) ≡ Reify 3 (X ⊕ X)
   _ = refl
 
-  _ : ReifyMultivariate 3 (((K 2) ⊗ X) ⊗ Y) ≡ ReifyMultivariate 3 (Y ⊗ (X ⊕ X))
+  _ : Reify 3 (((K 2) ⊗ X) ⊗ Y) ≡ Reify 3 (Y ⊗ (X ⊕ X))
   _ = refl
 
-  _ : ReifyMultivariate 3 (Z ⊗ (((K 2) ⊗ X) ⊗ Y)) ≡ ReifyMultivariate 3 (Z ⊗ (Y ⊗ (X ⊕ X)))
+  _ : Reify 3 (Z ⊗ (((K 2) ⊗ X) ⊗ Y)) ≡ Reify 3 (Z ⊗ (Y ⊗ (X ⊕ X)))
   _ = refl
 
 
@@ -78,7 +78,7 @@ module MultivariateSolving where
     those actual ring elements are equal to a normal form:
   -}
   _ : (x y z : ℕ) →
-      Eval 3 (ReifyMultivariate 3 ((K 2) ⊗ X ⊗ Y)) (x ∷ y ∷ z ∷ [])
+      Eval 3 (Reify 3 ((K 2) ⊗ X ⊗ Y)) (x ∷ y ∷ z ∷ [])
       ≡ 2 · x · y
   _ = λ x y z → IsEqualToMultivariateNormalForm 3 ((K 2) ⊗ X ⊗ Y) (x ∷ y ∷ z ∷ [])
 
@@ -94,9 +94,9 @@ module MultivariateSolving where
       in (λ x y z →
           ⟦ lhs ⟧ (x ∷ y ∷ z ∷ [])
         ≡⟨ sym (IsEqualToMultivariateNormalForm 3 lhs (x ∷ y ∷ z ∷ [])) ⟩
-          Eval 3 (ReifyMultivariate 3 lhs) (x ∷ y ∷ z ∷ [])
+          Eval 3 (Reify 3 lhs) (x ∷ y ∷ z ∷ [])
         ≡⟨ refl ⟩
-          Eval 3 (ReifyMultivariate 3 rhs) (x ∷ y ∷ z ∷ [])
+          Eval 3 (Reify 3 rhs) (x ∷ y ∷ z ∷ [])
         ≡⟨ IsEqualToMultivariateNormalForm 3 rhs (x ∷ y ∷ z ∷ []) ⟩
           ⟦ rhs ⟧ (x ∷ y ∷ z ∷ []) ∎)
 
@@ -107,7 +107,7 @@ module MultivariateSolving where
   _ = λ x y z → let
               lhs = (X ⊕ Y) ⊗ (X ⊕ Y)
               rhs = X ⊗ X ⊕ (K 2) ⊗ X ⊗ Y ⊕ Y ⊗ Y
-             in SolveExplicitMultivariate 3 lhs rhs (x ∷ y ∷ z ∷ []) refl
+             in SolveExplicit 3 lhs rhs (x ∷ y ∷ z ∷ []) refl
 
   {-
     A bigger example
@@ -122,11 +122,11 @@ module MultivariateSolving where
                   ⊕ (K 6) ⊗ X ⊗ X ⊗ Y ⊗ Y
                   ⊕ (K 4) ⊗ X ⊗ Y ⊗ Y ⊗ Y
                   ⊕ Y ⊗ Y ⊗ Y ⊗ Y
-             in SolveExplicitMultivariate 3 lhs rhs (x ∷ y ∷ z ∷ []) refl
+             in SolveExplicit 3 lhs rhs (x ∷ y ∷ z ∷ []) refl
 
 module ExamplesForArbitraryRings (R : AlmostRing {ℓ-zero}) where
   open AlmostRing R
-  open MultivariateReification R
+  open EqualityToReification R
 
   X : Expr ⟨ R ⟩ 4
   X = ∣ Fin.zero
@@ -144,21 +144,21 @@ module ExamplesForArbitraryRings (R : AlmostRing {ℓ-zero}) where
   _ = λ x y a b → let
                 lhs = (X ⊕ Y) ⊕ (A ⊕ B)
                 rhs = (Y ⊕ B) ⊕ (X ⊕ A)
-              in SolveExplicitMultivariate 4 lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
+              in SolveExplicit 4 lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
 
   _ : (x y a b : ⟨ R ⟩) → (x + y) · (x + y) ≡ x · x + x · y + x · y + y · y
   _ = λ x y a b →
               let
                 lhs = (X ⊕ Y) ⊗ (X ⊕ Y)
                 rhs = (X ⊗ X) ⊕ (X ⊗ Y) ⊕ (X ⊗ Y) ⊕ (Y ⊗ Y)
-              in SolveExplicitMultivariate 4 lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
+              in SolveExplicit 4 lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
 
   _ : (x y a b : ⟨ R ⟩) → x · a ≡ a · x
   _ = λ x y a b →
               let
                 lhs = X ⊗ A
                 rhs = A ⊗ X
-              in SolveExplicitMultivariate 4 lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
+              in SolveExplicit 4 lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
 
 {-
   '-' seems to be problematic...
