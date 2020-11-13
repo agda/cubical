@@ -33,6 +33,7 @@ open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Localisation.Base
+open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
 
@@ -89,17 +90,20 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
  open CommRingStr (R' .snd)
  open Exponentiation R'
  open Theory (CommRing→Ring R')
- open CommRingStr (R[1/_]AsCommRing R' f .snd) renaming (_·_ to _·ᶠ_ ; 1r to 1ᶠ)
-                                            hiding (_+_ ; ·-lid ; ·-rid ; ·-assoc ; ·-comm)
+ open CommRingStr (R[1/_]AsCommRing R' f .snd) renaming ( _·_ to _·ᶠ_ ; 1r to 1ᶠ ; _+_ to _+ᶠ_
+                                                        ; ·-lid to ·ᶠ-lid ; ·-rid to ·ᶠ-rid
+                                                        ; ·-assoc to ·ᶠ-assoc ; ·-comm to ·ᶠ-comm)
 
 
  private
   R = R' .fst
   R[1/fg] = R[1/_] R' (f · g)
+  R[1/fg]AsCommRing = R[1/_]AsCommRing R' (f · g)
   R[1/f][1/g] = R[1/_] (R[1/_]AsCommRing R' f)
                                 [ g , 1r , powersFormMultClosedSubset R' f .containsOne ]
   R[1/f][1/g]AsCommRing = R[1/_]AsCommRing (R[1/_]AsCommRing R' f)
                                 [ g , 1r , powersFormMultClosedSubset R' f .containsOne ]
+  R[1/f][1/g]ˣ = R[1/f][1/g]AsCommRing ˣ
 
  φ : R[1/fg] → R[1/f][1/g]
  φ = SQ.rec squash/ ϕ ϕcoh
@@ -208,3 +212,38 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
         → Loc._≈_ R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g)) a b
         → ϕ a ≡ ϕ b
    ϕcoh (r , s , α) (r' , s' , β) ((u , γ) , p) =  curriedϕcoh r s r' s' u p α β γ
+
+
+ _/1/1 : R → R[1/f][1/g]
+ r /1/1 = [ [ r , 1r , ∣ 0 , refl ∣ ] , 1ᶠ , ∣ 0 , refl ∣ ]
+
+ /1/1AsCommRingHom : CommRingHom R' R[1/f][1/g]AsCommRing
+ RingHom.f /1/1AsCommRingHom = _/1/1
+ RingHom.pres1 /1/1AsCommRingHom = refl
+ RingHom.isHom+ /1/1AsCommRingHom r r' = cong [_] (≡-× (cong [_]
+                                                  (≡-×
+                         (cong₂ _+_ (sym (·-rid _) ∙ (λ i → (·-rid r (~ i)) · (·-rid 1r (~ i))))
+                         (sym (·-rid _) ∙ (λ i → (·-rid r' (~ i)) · (·-rid 1r (~ i)))))
+                                                  (Σ≡Prop (λ _ → propTruncIsProp)
+                         (sym (·-lid _) ∙ (λ i → (·-lid 1r (~ i)) · (·-lid 1r (~ i)))))))
+                                                  (Σ≡Prop (λ _ → propTruncIsProp) (sym (·ᶠ-lid 1ᶠ))))
+ RingHom.isHom· /1/1AsCommRingHom r r' = cong [_] (≡-× (cong [_]
+                                                  (≡-× refl (Σ≡Prop (λ _ → propTruncIsProp)
+                                                  (sym (·-lid _)))))
+                                                  (Σ≡Prop (λ _ → propTruncIsProp) (sym (·ᶠ-lid 1ᶠ))))
+ -- takes forever to compute...
+ R[1/fg]≡R[1/f][1/g] : R[1/fg]AsCommRing ≡ R[1/f][1/g]AsCommRing
+ R[1/fg]≡R[1/f][1/g] = S⁻¹RChar R' ([_ⁿ|n≥0] R' (f · g))
+                         (powersFormMultClosedSubset R' (f · g)) _ /1/1AsCommRingHom pathtoR[1/fg]
+  where
+  open PathToS⁻¹R
+  pathtoR[1/fg] : PathToS⁻¹R R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g))
+                             R[1/f][1/g]AsCommRing /1/1AsCommRingHom
+  φS⊆Aˣ pathtoR[1/fg] s = PT.elim (λ _ → R[1/f][1/g]ˣ (s /1/1) .snd) Σhelper
+   where
+   Σhelper : Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n → (s /1/1) ∈ R[1/f][1/g]ˣ
+   Σhelper (n , p) = {!!} , {!!}
+-- [ [ 1r , (f ^ n) , ∣ n , refl ∣ ] , [ (g ^ n) , 1r , ∣ 0 , refl ∣ ] , ∣ n , ^-respects-/1 _ n ∣ ]
+  kerφ⊆annS pathtoR[1/fg] r p = {!!}
+  -- use SQ.isEquivRel→TruncIso
+  surχ pathtoR[1/fg] = {!!}

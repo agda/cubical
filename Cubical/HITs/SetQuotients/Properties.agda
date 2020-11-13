@@ -191,20 +191,14 @@ effective {A = A} {R = R} Rprop (equivRel R/refl R/sym R/trans) a b p = transpor
     aa≡ab : R a a ≡ R a b
     aa≡ab i = helper (p i) .fst
 
+isEquivRel→effectiveIso : isPropValued R → isEquivRel R → (a b : A) → Iso ([ a ] ≡ [ b ]) (R a b)
+Iso.fun (isEquivRel→effectiveIso {R = R} Rprop Req a b) = effective Rprop Req a b
+Iso.inv (isEquivRel→effectiveIso {R = R} Rprop Req a b) = eq/ a b
+Iso.rightInv (isEquivRel→effectiveIso {R = R} Rprop Req a b) _ = Rprop a b _ _
+Iso.leftInv (isEquivRel→effectiveIso {R = R} Rprop Req a b) _ = squash/ _ _ _ _
+
 isEquivRel→isEffective : isPropValued R → isEquivRel R → isEffective R
-isEquivRel→isEffective {R = R} Rprop Req a b = isoToIsEquiv (iso out intro out-intro intro-out)
-  where
-    intro : [ a ] ≡ [ b ] → R a b
-    intro = effective Rprop Req a b
-
-    out : R a b → [ a ] ≡ [ b ]
-    out = eq/ a b
-
-    intro-out : ∀ x → intro (out x) ≡ x
-    intro-out ab = Rprop a b _ _
-
-    out-intro : ∀ x → out (intro x) ≡ x
-    out-intro eq = squash/ _ _ _ _
+isEquivRel→isEffective Rprop Req a b = isoToIsEquiv (invIso (isEquivRel→effectiveIso Rprop Req a b))
 
 discreteSetQuotients : Discrete A → isPropValued R → isEquivRel R → (∀ a₀ a₁ → Dec (R a₀ a₁)) → Discrete (A / R)
 discreteSetQuotients {A = A} {R = R} Adis Rprop Req Rdec =
@@ -242,3 +236,18 @@ Iso.leftInv truncRelIso = elimProp (λ _ → squash/ _ _) λ _ → refl
 
 truncRelEquiv : A / R ≃ A / (λ a b → ∥ R a b ∥)
 truncRelEquiv = isoToEquiv truncRelIso
+
+-- Using this we can obtain a useful characterization of
+-- path-types for equivalence relations (not prop-valued)
+-- and their quotients
+
+isEquivRel→TruncIso : isEquivRel R → (a b : A) → Iso ([ a ] ≡ [ b ])  ∥ R a b ∥
+isEquivRel→TruncIso {A = A} {R = R} Req a b = compIso (isProp→Iso (squash/ _ _) (squash/ _ _)
+                                   (cong (Iso.fun truncRelIso)) (cong (Iso.inv truncRelIso)))
+                      (isEquivRel→effectiveIso  (λ _ _ → PropTrunc.propTruncIsProp) ∥R∥eq a b)
+ where
+ open isEquivRel
+ ∥R∥eq : isEquivRel  λ a b → ∥ R a b ∥
+ reflexive ∥R∥eq a = ∣ reflexive Req a ∣
+ symmetric ∥R∥eq a b = PropTrunc.map (symmetric Req a b)
+ transitive ∥R∥eq a b c = PropTrunc.map2 (transitive Req a b c)
