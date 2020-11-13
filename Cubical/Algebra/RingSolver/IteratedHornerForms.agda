@@ -10,7 +10,6 @@ open import Cubical.Data.Bool using (Bool; true; false; if_then_else_)
 
 open import Cubical.Algebra.RingSolver.RawRing
 open import Cubical.Algebra.RingSolver.AlmostRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
-open import Cubical.Algebra.RingSolver.HornerNormalForm
 
 private
   variable

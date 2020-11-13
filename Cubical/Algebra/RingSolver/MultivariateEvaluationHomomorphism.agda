@@ -9,7 +9,6 @@ open import Cubical.Data.Vec
 
 open import Cubical.Algebra.RingSolver.RawRing
 open import Cubical.Algebra.RingSolver.AlmostRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
-open import Cubical.Algebra.RingSolver.HornerNormalForm
 open import Cubical.Algebra.RingSolver.IteratedHornerForms
 
 private
