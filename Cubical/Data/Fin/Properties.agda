@@ -580,7 +580,7 @@ Fin+≃Fin⊎Fin m n = isoToPath (iso f g sec-f-g ret-f-g)
     sec-f-g (inr (k , k<n)) | inr k≥m = cong inr (Σ≡Prop (λ _ → m≤n-isProp) rem)
       where
         rem : (m + k) ∸ m ≡ k
-        rem = subst (λ - → - ∸ m ≡ k) (sym (+-comm m k)) (m+n∸n=m m k)
+        rem = subst (λ - → - ∸ m ≡ k) (+-comm k m) (m+n∸n=m m k)
 
     ret-f-g : retract f g
     ret-f-g (k , k<m+n) with k ≤? m
