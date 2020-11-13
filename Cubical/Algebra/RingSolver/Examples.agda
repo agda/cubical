@@ -11,7 +11,7 @@ open import Cubical.Algebra.RingSolver.AlmostRing
 open import Cubical.Algebra.RingSolver.NatAsAlmostRing
 open import Cubical.Algebra.RingSolver.RingExpression
 open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
-open import Cubical.Algebra.RingSolver.IteratedHornerForms
+open import Cubical.Algebra.RingSolver.HornerForms
 open import Cubical.Algebra.RingSolver.Solver
 
 private
@@ -79,7 +79,7 @@ module MultivariateSolving where
   _ : (x y z : ℕ) →
       Eval 3 (Reify 3 ((K 2) ⊗ X ⊗ Y)) (x ∷ y ∷ z ∷ [])
       ≡ 2 · x · y
-  _ = λ x y z → IsEqualToMultivariateNormalForm 3 ((K 2) ⊗ X ⊗ Y) (x ∷ y ∷ z ∷ [])
+  _ = λ x y z → IsEqualToReification 3 ((K 2) ⊗ X ⊗ Y) (x ∷ y ∷ z ∷ [])
 
   {-
     Now two of these proofs can be plugged together
@@ -92,11 +92,11 @@ module MultivariateSolving where
         rhs = Y ⊗ Y ⊕ X ⊕ (K 1) ⊕ (K 2)
       in (λ x y z →
           ⟦ lhs ⟧ (x ∷ y ∷ z ∷ [])
-        ≡⟨ sym (IsEqualToMultivariateNormalForm 3 lhs (x ∷ y ∷ z ∷ [])) ⟩
+        ≡⟨ sym (IsEqualToReification 3 lhs (x ∷ y ∷ z ∷ [])) ⟩
           Eval 3 (Reify 3 lhs) (x ∷ y ∷ z ∷ [])
         ≡⟨ refl ⟩
           Eval 3 (Reify 3 rhs) (x ∷ y ∷ z ∷ [])
-        ≡⟨ IsEqualToMultivariateNormalForm 3 rhs (x ∷ y ∷ z ∷ []) ⟩
+        ≡⟨ IsEqualToReification 3 rhs (x ∷ y ∷ z ∷ []) ⟩
           ⟦ rhs ⟧ (x ∷ y ∷ z ∷ []) ∎)
 
   {-
@@ -166,5 +166,5 @@ module ExamplesForArbitraryRings (R : AlmostRing {ℓ-zero}) where
   _ = λ x y a b → let
                 lhs = (X ⊕ Y) ⊗ (X ⊕ (⊝ Y))
                 rhs = (X ⊗ X) ⊕ (⊝ (Y ⊗ Y))
-              in SolveExplicitMultivariate 4 lhs rhs (x ∷ y ∷ a ∷ b ∷ []) {!!}
+              in SolveExplicit 4 lhs rhs (x ∷ y ∷ a ∷ b ∷ []) {!!}
 -}

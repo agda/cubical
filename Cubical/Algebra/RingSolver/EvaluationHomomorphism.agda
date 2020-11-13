@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Algebra.RingSolver.MultivariateEvaluationHomomorphism where
+module Cubical.Algebra.RingSolver.EvaluationHomomorphism where
 
 open import Cubical.Foundations.Prelude
 
@@ -9,7 +9,7 @@ open import Cubical.Data.Vec
 
 open import Cubical.Algebra.RingSolver.RawRing
 open import Cubical.Algebra.RingSolver.AlmostRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
-open import Cubical.Algebra.RingSolver.IteratedHornerForms
+open import Cubical.Algebra.RingSolver.HornerForms
 
 private
   variable
