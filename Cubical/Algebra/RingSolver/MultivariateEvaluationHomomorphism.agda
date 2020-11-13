@@ -115,9 +115,11 @@ module HomomorphismProperties (R : AlmostRing {ℓ}) where
              (P : IteratedHornerForms νR (ℕ.suc n)) (x : ⟨ νR ⟩) (xs : Vec ⟨ νR ⟩ n)
            → Eval (ℕ.suc n) (r ⋆ P) (x ∷ xs) ≡ Eval n r xs · Eval (ℕ.suc n) P (x ∷ xs)
 
+
   ⋆0LeftAnnihilates :
     (n : ℕ) (P : IteratedHornerForms νR (ℕ.suc n)) (xs : Vec ⟨ νR ⟩ (ℕ.suc n))
     → Eval (ℕ.suc n) (0ₕ ⋆ P) xs ≡ 0r
+
   ·HomEval : (n : ℕ) (P Q : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)
     → Eval n (P ·ₕ Q) xs ≡ (Eval n P xs) · (Eval n Q xs)
 
@@ -159,6 +161,32 @@ module HomomorphismProperties (R : AlmostRing {ℓ}) where
     ≡⟨ refl ⟩
       Eval n r xs · Eval (ℕ.suc n) (P ·X+ Q) (x ∷ xs) ∎
 
+  combineCases :
+    (n : ℕ) (Q : IteratedHornerForms νR n) (P S : IteratedHornerForms νR (ℕ.suc n))
+    (xs : Vec ⟨ νR ⟩ (ℕ.suc n))
+    → Eval (ℕ.suc n) ((P ·X+ Q) ·ₕ S) xs ≡ Eval (ℕ.suc n) (((P ·ₕ S) ·X+ 0ₕ) +ₕ (Q ⋆ S)) xs
+  combineCases n Q P S (x ∷ xs) with (P ·ₕ S)
+  ... | 0H =
+    Eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs)                ≡⟨ sym (+Lid _) ⟩
+    0r + Eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs)           ≡⟨ cong (λ u → u + Eval _ (Q ⋆ S) (x ∷ xs)) lemma ⟩
+    Eval (ℕ.suc n) (0H ·X+ 0ₕ) (x ∷ xs)
+    + Eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs)              ≡⟨ sym (+HomEval (ℕ.suc n)
+                                                      (0H ·X+ 0ₕ) (Q ⋆ S) (x ∷ xs)) ⟩
+    Eval (ℕ.suc n) ((0H ·X+ 0ₕ) +ₕ (Q ⋆ S)) (x ∷ xs) ∎
+    where lemma : 0r ≡ Eval (ℕ.suc n) (0H ·X+ 0ₕ) (x ∷ xs)
+          lemma = 0r
+                ≡⟨ sym (+Rid _) ⟩
+                  0r + 0r
+                ≡⟨ cong (λ u → u + 0r) (sym (0LeftAnnihilates _)) ⟩
+                  0r · x + 0r
+                ≡⟨ cong (λ u → 0r · x + u) (sym (Eval0H _ xs)) ⟩
+                  0r · x + Eval n 0ₕ xs
+                ≡⟨ cong (λ u → u · x + Eval n 0ₕ xs) (sym (Eval0H _ (x ∷ xs))) ⟩
+                  Eval {R = νR} (ℕ.suc n) 0H (x ∷ xs) · x + Eval n 0ₕ xs
+                ≡⟨ refl ⟩
+                  Eval (ℕ.suc n) (0H ·X+ 0ₕ) (x ∷ xs) ∎
+  ... | (_ ·X+ _) = refl
+
   ·HomEval .ℕ.zero (const x) (const y) [] = refl
   ·HomEval (ℕ.suc n) 0H Q xs =
     Eval (ℕ.suc n) (0H ·ₕ Q) xs        ≡⟨ Eval0H _ xs ⟩
@@ -167,7 +195,7 @@ module HomomorphismProperties (R : AlmostRing {ℓ}) where
     Eval (ℕ.suc n) 0H xs · Eval (ℕ.suc n) Q xs ∎
   ·HomEval (ℕ.suc n) (P ·X+ Q) S (x ∷ xs) =
       Eval (ℕ.suc n) ((P ·X+ Q) ·ₕ S) (x ∷ xs)
-    ≡⟨ refl ⟩
+    ≡⟨ combineCases n Q P S (x ∷ xs) ⟩
       Eval (ℕ.suc n) (((P ·ₕ S) ·X+ 0ₕ) +ₕ (Q ⋆ S)) (x ∷ xs)
     ≡⟨ +HomEval (ℕ.suc n) ((P ·ₕ S) ·X+ 0ₕ) (Q ⋆ S) (x ∷ xs) ⟩
       Eval (ℕ.suc n) ((P ·ₕ S) ·X+ 0ₕ) (x ∷ xs) + Eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs)

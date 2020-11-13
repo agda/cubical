@@ -38,4 +38,3 @@ module Eval (R : RawRing {ℓ}) where
   ⟦ x ⊗ y ⟧ v = ⟦ x ⟧ v · ⟦ y ⟧ v
 --  ⟦ x ⊛ l ⟧ v =  ⟦ x ⟧ v ^ l
   ⟦ ⊝ x ⟧ v = - ⟦ x ⟧ v
-

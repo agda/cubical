@@ -193,7 +193,7 @@ module MultivariateReification (R : AlmostRing {ℓ}) where
     (p : Eval n (ReifyMultivariate n e₁) xs ≡ Eval n (ReifyMultivariate n e₂) xs)
     → ⟦ e₁ ⟧ xs ≡ ⟦ e₂ ⟧ xs
   SolveExplicitMultivariate n e₁ e₂ xs p =
-    ⟦ e₁ ⟧ xs    ≡⟨ sym (IsEqualToMultivariateNormalForm n e₁ xs) ⟩
+    ⟦ e₁ ⟧ xs                          ≡⟨ sym (IsEqualToMultivariateNormalForm n e₁ xs) ⟩
     Eval n (ReifyMultivariate n e₁) xs ≡⟨ p ⟩
     Eval n (ReifyMultivariate n e₂) xs ≡⟨ IsEqualToMultivariateNormalForm n e₂ xs ⟩
     ⟦ e₂ ⟧ xs ∎

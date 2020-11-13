@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec
+open import Cubical.Data.Bool using (Bool; true; false; if_then_else_)
 
 open import Cubical.Algebra.RingSolver.RawRing
 open import Cubical.Algebra.RingSolver.AlmostRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
@@ -81,6 +82,11 @@ module IteratedHornerOperations (R : RawRing {ℓ}) where
   -ₕ 0H = 0H
   -ₕ (P ·X+ Q) = (-ₕ P) ·X+ (-ₕ Q)
 
+  isZero : {n : ℕ} → IteratedHornerForms R (ℕ.suc n)
+                   → Bool
+  isZero 0H = true
+  isZero (P ·X+ P₁) = false
+
   _⋆_ : {n : ℕ} → IteratedHornerForms R n → IteratedHornerForms R (ℕ.suc n)
                 → IteratedHornerForms R (ℕ.suc n)
   _·ₕ_ : {n : ℕ} → IteratedHornerForms R n → IteratedHornerForms R n
@@ -90,7 +96,12 @@ module IteratedHornerOperations (R : RawRing {ℓ}) where
 
   const x ·ₕ const y = const (x · y)
   0H ·ₕ Q = 0H
-  (P ·X+ Q) ·ₕ S = ((P ·ₕ S) ·X+ 0ₕ) +ₕ (Q ⋆ S)
+  (P ·X+ Q) ·ₕ S =
+     let
+        z = (P ·ₕ S)
+     in if (isZero z)
+        then (Q ⋆ S)
+        else (z ·X+ 0ₕ) +ₕ (Q ⋆ S)
 
   asRawRing : (n : ℕ) → RawRing {ℓ}
   RawRing.Carrier (asRawRing n) = IteratedHornerForms R n
