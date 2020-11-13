@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.FinData
 open import Cubical.Data.Nat using (ℕ)
-open import Cubical.Data.Vec.Base hiding (length)
+open import Cubical.Data.Vec.Base
 
 open import Cubical.Algebra.RingSolver.AlmostRing
 open import Cubical.Algebra.RingSolver.NatAsAlmostRing
