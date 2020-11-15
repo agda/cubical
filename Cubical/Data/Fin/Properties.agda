@@ -567,7 +567,7 @@ Fin+≃Fin⊎Fin m n = isoToPath (iso f g sec-f-g ret-f-g)
     f (k , k<m+n) | inl k<m = inl (k , k<m)
     f (k , k<m+n) | inr k≥m = inr (k ∸ m , ∸-<-lemma m n k k<m+n k≥m)
 
-    g :  Fin m  ⊎  Fin n  →  Fin (m + n) 
+    g :  Fin m  ⊎  Fin n  →  Fin (m + n)
     g (inl (k , k<m)) = k     , o<m→o<m+n m n k k<m
     g (inr (k , k<n)) = m + k , <-k+ k<n
 
