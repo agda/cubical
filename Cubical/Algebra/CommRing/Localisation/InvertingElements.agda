@@ -2,7 +2,7 @@
 -- element f : R (or rather the set of powers of f). This is also
 -- known as inverting f.
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.InvertingElements where
 
 open import Cubical.Foundations.Prelude
@@ -77,6 +77,21 @@ module _(R' : CommRing {ℓ}) where
                                          , cong (1r · (g · (g ^ n)) ·_) (·-lid 1r))
                            ∙ cong (CommRingStr._·_ (R[1/ f ]AsCommRing .snd)
                            [ g , 1r , powersFormMultClosedSubset f .containsOne ]) (^-respects-/1 n)
+
+ -- A slight improvement for eliminating into propositions
+ InvElPropElim : {f : R} {P : R[1/ f ] → Type ℓ'}
+               → (∀ x →  isProp (P x))
+               → (∀ (r : R) (n : ℕ) → P [ r , (f ^ n) , ∣ n , refl ∣ ])
+              ----------------------------------------------------------
+               → (∀ x → P x)
+ InvElPropElim {f = f} {P = P} PisProp base = elimProp (λ _ → PisProp _) []-case
+  where
+  S[f] = Loc.S R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
+  []-case : (a : R × S[f]) → P [ a ]
+  []-case (r , s , s∈S[f]) = PT.rec (PisProp _) Σhelper s∈S[f]
+   where
+   Σhelper : Σ[ n ∈ ℕ ] s ≡ f ^ n → P [ r , s , s∈S[f] ]
+   Σhelper (n , p) = subst P (cong [_] (≡-× refl (Σ≡Prop (λ _ → propTruncIsProp) (sym p)))) (base r n)
 
 
 -- Check: (R[1/f])[1/g] ≡ R[1/fg]
@@ -242,8 +257,33 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
   φS⊆Aˣ pathtoR[1/fg] s = PT.elim (λ _ → R[1/f][1/g]ˣ (s /1/1) .snd) Σhelper
    where
    Σhelper : Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n → (s /1/1) ∈ R[1/f][1/g]ˣ
-   Σhelper (n , p) = {!!} , {!!}
--- [ [ 1r , (f ^ n) , ∣ n , refl ∣ ] , [ (g ^ n) , 1r , ∣ 0 , refl ∣ ] , ∣ n , ^-respects-/1 _ n ∣ ]
+   Σhelper (n , p) =
+    [ [ 1r , (f ^ n) , ∣ n , refl ∣ ] , [ (g ^ n) , 1r , ∣ 0 , refl ∣ ] , ∣ n , ^-respects-/1 _ n ∣ ]
+                   , eq/ _ _ ((1ᶠ , powersFormMultClosedSubset _ _ .containsOne)
+                   , eq/ _ _ ((1r , powersFormMultClosedSubset _ _ .containsOne)
+                   , path))
+    where
+    path : 1r · (1r · (s · 1r) · 1r) · (1r · 1r · (1r · 1r))
+         ≡ 1r · (1r · 1r · (1r · g ^ n)) · (1r · (1r · f ^ n) · 1r)
+    path = 1r · (1r · (s · 1r) · 1r) · (1r · 1r · (1r · 1r))
+         ≡⟨ (λ i → ·-lid (·-rid (·-lid (·-rid s i) i) i) i · (·-lid 1r i · ·-lid 1r i) ) ⟩
+           s · (1r · 1r)
+         ≡⟨ cong (s ·_) (·-rid _) ⟩
+           s · 1r
+         ≡⟨ ·-rid _ ⟩
+           s
+         ≡⟨ p ⟩
+           (f · g) ^ n
+         ≡⟨ ^-ldist-· _ _ _ ⟩
+           f ^ n · g ^ n
+         ≡⟨ (λ i → ·-comm (f ^ n) (·-lid (g ^ n) (~ i)) i) ⟩
+           1r · g ^ n · f ^ n
+         ≡⟨ (λ i → ·-lid (·-lid 1r (~ i) · ·-lid (g ^ n) (~ i)) (~ i)
+                   · ·-rid (·-lid (·-lid (f ^ n) (~ i)) (~ i)) (~ i)) ⟩
+           1r · (1r · 1r · (1r · g ^ n)) · (1r · (1r · f ^ n) · 1r) ∎
+
   kerφ⊆annS pathtoR[1/fg] r p = {!!}
-  -- use SQ.isEquivRel→TruncIso
-  surχ pathtoR[1/fg] = {!!}
+   where
+   ∥r/1,1/1≈0/1,1/1∥ = Iso.fun (SQ.isEquivRel→TruncIso (Loc.locIsEquivRel _ _ _) _ _) p
+
+  surχ pathtoR[1/fg] = InvElPropElim _ (λ _ → propTruncIsProp) {!!}

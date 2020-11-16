@@ -2,7 +2,7 @@
 -- at a multiplicatively closed subset and show that it
 -- has a commutative ring structure.
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.Base where
 
 open import Cubical.Foundations.Prelude
@@ -57,6 +57,7 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMul
  private R = R' .fst
  open CommRingStr (R' .snd)
  open Theory (CommRing→Ring R')
+ open CommTheory R'
 
  S = Σ[ s ∈ R ] (s ∈ S')
 
@@ -71,6 +72,37 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMul
 
  locRefl : isRefl _≈_
  locRefl _ = (1r , SMultClosedSubset .containsOne) , refl
+
+ locSym : isSym _≈_
+ locSym (r , s , s∈S') (r' , s' , s'∈S') (u , p) = u , sym p
+
+ locTrans : isTrans _≈_
+ locTrans (r , s , s∈S') (r' , s' , s'∈S') (r'' , s'' , s''∈S') ((u , u∈S') , p) ((v , v∈S') , q) =
+   ((u · v · s') , SMultClosedSubset .multClosed (SMultClosedSubset .multClosed u∈S' v∈S') s'∈S')
+   , path
+  where
+  path : u · v · s' · r · s'' ≡ u · v · s' · r'' · s
+  path = u · v · s' · r · s''   ≡⟨ cong (_· s'') (·-commAssocr _ _ _) ⟩
+         u · v · r · s' · s''   ≡⟨ cong (λ x → x · s' · s'') (·-commAssocr _ _ _) ⟩
+         u · r · v · s' · s''   ≡⟨ cong (_· s'') (·-commAssocr _ _ _) ⟩
+         u · r · s' · v · s''   ≡⟨ cong (λ x → x · v · s'') p ⟩
+         u · r' · s · v · s''   ≡⟨ cong (λ x → x · v · s'') (·-commAssocr _ _ _) ⟩
+         u · s · r' · v · s''   ≡⟨ cong (_· s'') (·-commAssocr _ _ _) ⟩
+         u · s · v · r' · s''   ≡⟨ cong (_· s'') (sym (·-assoc _ _ _)) ⟩
+         u · s · (v · r') · s'' ≡⟨ sym (·-assoc _ _ _) ⟩
+         u · s · (v · r' · s'') ≡⟨ cong (u · s ·_) q ⟩
+         u · s · (v · r'' · s') ≡⟨ ·-assoc _ _ _ ⟩
+         u · s · (v · r'') · s' ≡⟨ cong (_· s') (·-commAssocSwap _ _ _ _) ⟩
+         u · v · (s · r'') · s' ≡⟨ sym (·-assoc _ _ _) ⟩
+         u · v · (s · r'' · s') ≡⟨ cong (u · v ·_) (·-commAssocr2 _ _ _) ⟩
+         u · v · (s' · r'' · s) ≡⟨ ·-assoc _ _ _ ⟩
+         u · v · (s' · r'') · s ≡⟨ cong (_· s) (·-assoc _ _ _) ⟩
+         u · v · s' · r'' · s   ∎
+
+ locIsEquivRel : isEquivRel _≈_
+ isEquivRel.reflexive locIsEquivRel = locRefl
+ isEquivRel.symmetric locIsEquivRel = locSym
+ isEquivRel.transitive locIsEquivRel = locTrans
 
  _+ₗ_ : S⁻¹R → S⁻¹R → S⁻¹R
  _+ₗ_ = setQuotBinOp locRefl _+ₚ_ θ

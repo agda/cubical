@@ -195,6 +195,10 @@ module CommTheory (R' : CommRing {ℓ}) where
  ·-commAssocr : (x y z : R) → x · y · z ≡ x · z · y
  ·-commAssocr x y z = sym (·-assoc x y z) ∙∙ cong (x ·_) (·-comm y z) ∙∙ ·-assoc x z y
 
+
+ ·-commAssocr2 : (x y z : R) → x · y · z ≡ z · y · x
+ ·-commAssocr2 x y z = ·-commAssocr _ _ _ ∙∙ cong (_· y) (·-comm _ _) ∙∙ ·-commAssocr _ _ _
+
  ·-commAssocSwap : (x y z w : R) → (x · y) · (z · w) ≡ (x · z) · (y · w)
  ·-commAssocSwap x y z w = ·-assoc (x · y) z w ∙∙ cong (_· w) (·-commAssocr x y z)
                                                ∙∙ sym (·-assoc (x · z) y w)
