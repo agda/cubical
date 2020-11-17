@@ -559,19 +559,21 @@ m+n∸n=m (suc m) k = (k + suc m) ∸ suc m   ≡⟨ cong (λ - → - ∸ suc m)
   suc (m + (k ∸ m))         ≡⟨ cong suc (∸-lemma (pred-≤-pred m≤k)) ⟩
   suc k                     ∎
 
-Fin+≃Fin⊎Fin : (m n : ℕ) → Fin (m + n) ≡ (Fin m) ⊎ (Fin n)
-Fin+≃Fin⊎Fin m n = isoToPath (iso f g sec-f-g ret-f-g)
+Fin+≅Fin⊎Fin : (m n : ℕ) → Iso (Fin (m + n)) (Fin m ⊎ Fin n)
+Iso.fun (Fin+≅Fin⊎Fin m n) = f
   where
     f : Fin (m + n) → Fin m ⊎ Fin n
     f (k , k<m+n) with k ≤? m
     f (k , k<m+n) | inl k<m = inl (k , k<m)
     f (k , k<m+n) | inr k≥m = inr (k ∸ m , ∸-<-lemma m n k k<m+n k≥m)
-
+Iso.inv (Fin+≅Fin⊎Fin m n) = g
+  where
     g :  Fin m  ⊎  Fin n  →  Fin (m + n)
     g (inl (k , k<m)) = k     , o<m→o<m+n m n k k<m
     g (inr (k , k<n)) = m + k , <-k+ k<n
-
-    sec-f-g : section f g
+Iso.rightInv (Fin+≅Fin⊎Fin m n) = sec-f-g
+  where
+    sec-f-g : _
     sec-f-g (inl (k , k<m)) with k ≤? m
     sec-f-g (inl (k , k<m)) | inl _   = cong inl (Σ≡Prop (λ _ → m≤n-isProp) refl)
     sec-f-g (inl (k , k<m)) | inr m≤k = Empty.rec (¬-<-and-≥ k<m m≤k)
@@ -581,8 +583,12 @@ Fin+≃Fin⊎Fin m n = isoToPath (iso f g sec-f-g ret-f-g)
       where
         rem : (m + k) ∸ m ≡ k
         rem = subst (λ - → - ∸ m ≡ k) (+-comm k m) (m+n∸n=m m k)
-
-    ret-f-g : retract f g
+Iso.leftInv  (Fin+≅Fin⊎Fin m n) = ret-f-g
+  where
+    ret-f-g : _
     ret-f-g (k , k<m+n) with k ≤? m
     ret-f-g (k , k<m+n) | inl _   = Σ≡Prop (λ _ → m≤n-isProp) refl
     ret-f-g (k , k<m+n) | inr m≥k = Σ≡Prop (λ _ → m≤n-isProp) (∸-lemma m≥k)
+
+Fin+≡Fin⊎Fin : (m n : ℕ) → Fin (m + n) ≡ Fin m ⊎ Fin n
+Fin+≡Fin⊎Fin m n = isoToPath (Fin+≅Fin⊎Fin m n)
