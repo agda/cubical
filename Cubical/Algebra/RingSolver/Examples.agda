@@ -123,7 +123,7 @@ module MultivariateSolving where
                   ⊕ Y ⊗ Y ⊗ Y ⊗ Y
              in SolveExplicit 3 lhs rhs (x ∷ y ∷ z ∷ []) refl
 
-module ExamplesForArbitraryRings (R : AlmostRing {ℓ-zero}) where
+module ExamplesForArbitraryRings (R : AlmostRing {ℓ}) where
   open AlmostRing R
   open EqualityToReification R
 
