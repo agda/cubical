@@ -7,6 +7,7 @@ open import Cubical.ZCohomology.Properties
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude
@@ -22,7 +23,7 @@ open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; setTruncIsSet to §)
 open import Cubical.Data.Int renaming (_+_ to _ℤ+_)
-open import Cubical.Data.Nat hiding (+-comm ; +-assoc)
+open import Cubical.Data.Nat renaming (+-assoc to +-assocℕ ; +-comm to +-commℕ)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3 ; map2 to trMap2)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
@@ -73,19 +74,18 @@ private
     help = subst (λ x → isOfHLevel x (coHomK (suc n))) (+-suc n (2 + n) ∙ +-suc (suc n) (suc n))
                  (isOfHLevelPlus n (isOfHLevelTrunc (3 + n)))
 
-private
-  wedgeConHLev : (n : ℕ) → isOfHLevel ((2 + n) + (2 + n)) (coHomK (2 + n))
-  wedgeConHLev n = subst (λ x → isOfHLevel x (coHomK (2 + n)))
-                         (sym (+-suc (2 + n) (suc n) ∙ +-suc (3 + n) n))
-                         (isOfHLevelPlus' {n = n} (4 + n) (isOfHLevelTrunc (4 + n)))
-  wedgeConHLev' : (n : ℕ) → isOfHLevel ((2 + n) + (2 + n)) (typ (Ω (coHomK-ptd (3 + n))))
-  wedgeConHLev' n = subst (λ x → isOfHLevel x (typ (Ω (coHomK-ptd (3 + n)))))
-                          (sym (+-suc (2 + n) (suc n) ∙ +-suc (3 + n) n))
-                          (isOfHLevelPlus' {n = n} (4 + n) (isOfHLevelTrunc (5 + n) _ _))
+wedgeConHLev : (n : ℕ) → isOfHLevel ((2 + n) + (2 + n)) (coHomK (2 + n))
+wedgeConHLev n = subst (λ x → isOfHLevel x (coHomK (2 + n)))
+                       (sym (+-suc (2 + n) (suc n) ∙ +-suc (3 + n) n))
+                       (isOfHLevelPlus' {n = n} (4 + n) (isOfHLevelTrunc (4 + n)))
+wedgeConHLev' : (n : ℕ) → isOfHLevel ((2 + n) + (2 + n)) (typ (Ω (coHomK-ptd (3 + n))))
+wedgeConHLev' n = subst (λ x → isOfHLevel x (typ (Ω (coHomK-ptd (3 + n)))))
+                        (sym (+-suc (2 + n) (suc n) ∙ +-suc (3 + n) n))
+                        (isOfHLevelPlus' {n = n} (4 + n) (isOfHLevelTrunc (5 + n) _ _))
 
-  wedgeConHLevPath : (n : ℕ) → (x y : coHomK (suc n)) → isOfHLevel ((suc n) + (suc n)) (x ≡ y)
-  wedgeConHLevPath zero x y = isOfHLevelTrunc 3 _ _
-  wedgeConHLevPath (suc n) x y = isOfHLevelPath ((2 + n) + (2 + n)) (wedgeConHLev n) _ _
+wedgeConHLevPath : (n : ℕ) → (x y : coHomK (suc n)) → isOfHLevel ((suc n) + (suc n)) (x ≡ y)
+wedgeConHLevPath zero x y = isOfHLevelTrunc 3 _ _
+wedgeConHLevPath (suc n) x y = isOfHLevelPath ((2 + n) + (2 + n)) (wedgeConHLev n) _ _
 
 -- addition for n ≥ 2 together with the left- and right-unit laws (modulo truncations)
 preAdd : (n : ℕ) → Σ[ f ∈ (S₊ (2 + n) → S₊ (2 + n) → coHomK (2 + n)) ]
@@ -269,10 +269,10 @@ lUnitₖ≡rUnitₖ (suc (suc n)) = refl
 
 ------ Kn≃ΩKn is a morphism -------
 
-private
-  cheating : ∀ {ℓ} {A : Type ℓ} {a : A} (p : a ≡ a) (r : refl ≡ p)
+
+Kn→ΩKn+1-hom-helper : ∀ {ℓ} {A : Type ℓ} {a : A} (p : a ≡ a) (r : refl ≡ p)
                  → lUnit p ∙ cong (_∙ p) r ≡ rUnit p ∙ cong (p ∙_) r
-  cheating p = J (λ p r → lUnit p ∙ cong (_∙ p) r ≡ rUnit p ∙ cong (p ∙_) r) refl
+Kn→ΩKn+1-hom-helper p = J (λ p r → lUnit p ∙ cong (_∙ p) r ≡ rUnit p ∙ cong (p ∙_) r) refl
 
 Kn→ΩKn+1-hom : (n : ℕ) (x y : coHomK n) → Kn→ΩKn+1 n (x +[ n ]ₖ y) ≡ Kn→ΩKn+1 n x ∙ Kn→ΩKn+1 n y
 Kn→ΩKn+1-hom zero x y = (λ j i → hfill (doubleComp-faces (λ i₁ → ∣ base ∣) (λ _ → ∣ base ∣) i) (inS (∣ intLoop (x ℤ+ y) i ∣)) (~ j))
@@ -286,7 +286,7 @@ Kn→ΩKn+1-hom (suc zero) =
                     (λ _ _ → isOfHLevelTrunc 4 _ _ _ _ )
                     (λ x → lUnit _ ∙ cong (_∙ Kn→ΩKn+1 1 ∣ x ∣) (sym (Kn→ΩKn+10ₖ 1)))
                     (λ x → cong (Kn→ΩKn+1 1) (rUnitₖ 1 ∣ x ∣) ∙∙ rUnit _ ∙∙ cong (Kn→ΩKn+1 1 ∣ x ∣ ∙_) (sym (Kn→ΩKn+10ₖ 1)))
-                    (sym (cheating (Kn→ΩKn+1 1 ∣ base ∣) (sym (Kn→ΩKn+10ₖ 1)))) .fst)
+                    (sym (Kn→ΩKn+1-hom-helper (Kn→ΩKn+1 1 ∣ base ∣) (sym (Kn→ΩKn+10ₖ 1)))) .fst)
 Kn→ΩKn+1-hom (suc (suc n)) =
   elim2 (λ _ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (5 + n) _ _) _ _)
         (wedgeConSn _ _ (λ _ _ → isOfHLevelPath ((2 + n) + (2 + n)) (wedgeConHLev' n) _ _)
@@ -294,7 +294,7 @@ Kn→ΩKn+1-hom (suc (suc n)) =
                         (λ y → cong (Kn→ΩKn+1 (suc (suc n))) (preAdd n .snd .snd y)
                             ∙∙ rUnit _
                             ∙∙ cong (Kn→ΩKn+1 (suc (suc n)) ∣ y ∣ ∙_) (sym (Kn→ΩKn+10ₖ (2 + n))))
-                        (sym (cheating (Kn→ΩKn+1 (suc (suc n)) ∣ north ∣) (sym (Kn→ΩKn+10ₖ (2 + n))))) .fst)
+                        (sym (Kn→ΩKn+1-hom-helper (Kn→ΩKn+1 (suc (suc n)) ∣ north ∣) (sym (Kn→ΩKn+10ₖ (2 + n))))) .fst)
 
 ΩKn+1→Kn-hom : (n : ℕ) (x y : typ (Ω (coHomK-ptd (suc n)))) → ΩKn+1→Kn n (x ∙ y) ≡ ΩKn+1→Kn n x +[ n ]ₖ (ΩKn+1→Kn n y)
 ΩKn+1→Kn-hom zero x y =
