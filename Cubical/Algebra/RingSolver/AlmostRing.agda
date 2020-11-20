@@ -62,9 +62,11 @@ record AlmostRing : Type (ℓ-suc ℓ) where
     -_      : Carrier → Carrier
     isAlmostRing  : IsAlmostRing 0r 1r _+_ _·_ -_
 
+  infixl 9 _^_
   infixl 8 _·_
   infixl 7 -_
   infixl 6 _+_
+  infixl 6 _-_
 
   open IsAlmostRing isAlmostRing public
 
@@ -72,6 +74,9 @@ record AlmostRing : Type (ℓ-suc ℓ) where
   x ^ 0 = 1r
   x ^ 1 = x
   x ^ ℕ.suc k = x · (x ^ k)
+
+  _-_ : Carrier → Carrier → Carrier
+  x - y = x + (- y)
 
 -- Extractor for the carrier type
 ⟨_⟩ : AlmostRing → Type ℓ
