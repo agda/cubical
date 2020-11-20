@@ -13,12 +13,12 @@ private
   variable
     ℓ ℓ′ : Level
 
-record RawAlgebra (R : RawRing {ℓ′}) : Type (ℓ-suc (ℓ-max ℓ ℓ′)) where
+record RawAlgebra (R : RawRing {ℓ}) (ℓ′ : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ′)) where
 
   constructor rawalgebra
 
   field
-    Carrier : Type ℓ
+    Carrier : Type ℓ′
     scalar  : ⟨ R ⟩ → Carrier
     0r      : Carrier
     1r      : Carrier
@@ -30,13 +30,13 @@ record RawAlgebra (R : RawRing {ℓ′}) : Type (ℓ-suc (ℓ-max ℓ ℓ′)) w
   infixl 7 -_
   infixl 6 _+_
 
-⟨_⟩ₐ : {R : RawRing {ℓ′}} → RawAlgebra R → Type ℓ
+⟨_⟩ₐ : {R : RawRing {ℓ}} → RawAlgebra R ℓ′ → Type ℓ′
 ⟨_⟩ₐ = RawAlgebra.Carrier
 
 private
   ℕAsRawRing = AlmostRing→RawRing ℕAsAlmostRing
 
-AlmostRing→RawℕAlgebra : AlmostRing {ℓ} → RawAlgebra {ℓ = ℓ} ℕAsRawRing
+AlmostRing→RawℕAlgebra : AlmostRing {ℓ} → RawAlgebra ℕAsRawRing ℓ
 AlmostRing→RawℕAlgebra (almostring A 0r 1r _+_ _·_ -_ isAlmostRing) =
   rawalgebra A inclusion 0r 1r _+_ _·_ -_
   where

@@ -12,21 +12,21 @@ open import Cubical.Algebra.RingSolver.RawAlgebra
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ′ : Level
 
 infixl 6 _⊕_
 infixl 7 ⊝_
 infixl 8 _⊗_
 
 -- Expression in an R-Algebra A with n variables
-data Expr {ℓ} (R : RawRing {ℓ}) (A : Type ℓ) (n : ℕ) : Type ℓ where
+data Expr {ℓ} (R : RawRing {ℓ}) (A : Type ℓ′) (n : ℕ) : Type ℓ where
   K : ⟨ R ⟩ → Expr R A n
   ∣ : Fin n → Expr R A n
   _⊕_ : Expr R A n → Expr R A n → Expr R A n
   _⊗_ : Expr R A n → Expr R A n → Expr R A n
   ⊝_ : Expr R A n → Expr R A n
 
-module Eval (R : RawRing {ℓ}) (A : RawAlgebra R) where
+module Eval (R : RawRing {ℓ}) (A : RawAlgebra R ℓ′) where
   open import Cubical.Data.Vec
   open RawAlgebra A
 
