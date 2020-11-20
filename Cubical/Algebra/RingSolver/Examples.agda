@@ -122,6 +122,15 @@ module MultivariateSolving where
                   ⊕ (K 4) ⊗ X ⊗ Y ⊗ Y ⊗ Y
                   ⊕ Y ⊗ Y ⊗ Y ⊗ Y
              in SolveExplicit 3 lhs rhs (x ∷ y ∷ z ∷ []) refl
+  {-
+    this one cannot work:
+
+  _ : (x y z : ℕ) → (x + y) · (x - y) ≡ (x · x - (y · y))
+  _ = λ x y z → let
+                lhs = (X ⊕ Y) ⊗ (X ⊕ (⊝ Y))
+                rhs = (X ⊗ X) ⊕ (⊝ (Y ⊗ Y))
+              in SolveExplicit 3 lhs rhs (x ∷ y ∷ z ∷ []) {!!}
+  -}
 
 module ExamplesForArbitraryRings (R : AlmostRing {ℓ}) where
   open AlmostRing R
@@ -160,9 +169,35 @@ module ExamplesForArbitraryRings (R : AlmostRing {ℓ}) where
               in SolveExplicit 4 lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
 
 {-
-  '-' seems to be problematic...
+  this one should work, but doesn't:
 
-  _ : (x y a b : ⟨ R ⟩) → (x + y) · (x + (- y)) ≡ (x · x + (- (y · y)))
+  _ : (x y a b : ⟨ R ⟩) → x · (a + b) ≡ a · x + b · x
+  _ = λ x y a b →
+              let
+                lhs = X ⊗ (A ⊕ B)
+                rhs = (A ⊗ X) ⊕ (B ⊗ X)
+              in SolveExplicit 4 lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
+
+  the reason ist, that lhs and rhs evaluate to definitionally different things:
+
+(0r · x +
+ (0r · y +
+  ((0r · a + (0r · b + 1r · 1r)) · a +
+   ((0r · b + 1r · 1r) · b + 1r · 0r))))
+· x
++ 0r
+
+(0r · x +
+ (0r · y +
+  ((0r · a + (0r · b + 1r · 1r)) · a +
+   ((0r · b + 1r · 1r) · b + (0r + 0r · 1r)))))
+· x
++ 0r
+-}
+{-
+  '-' is problematic...
+
+  _ : (x y a b : ⟨ R ⟩) → (x + y) · (x - y) ≡ (x · x - (y · y))
   _ = λ x y a b → let
                 lhs = (X ⊕ Y) ⊗ (X ⊕ (⊝ Y))
                 rhs = (X ⊗ X) ⊕ (⊝ (Y ⊗ Y))
