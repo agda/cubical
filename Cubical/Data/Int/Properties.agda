@@ -35,7 +35,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Empty
-open import Cubical.Data.Nat hiding (_+_ ; +-assoc ; +-comm)
+open import Cubical.Data.Nat hiding (+-assoc ; +-comm) renaming (_·_ to _·ℕ_; _+_ to _+ℕ_)
 open import Cubical.Data.Bool
 open import Cubical.Data.Sum
 open import Cubical.Data.Int.Base
@@ -287,3 +287,11 @@ private
                                        (λ n → n - m)
                                        (minusPlus m)
                                        (plusMinus m))
+
+_·_ : Int → Int → Int
+pos n · pos m = pos (n ·ℕ m)
+pos zero · negsuc m = pos zero
+pos (suc n) · negsuc m = negsuc (n ·ℕ m +ℕ n +ℕ m)
+negsuc n · pos zero = pos zero
+negsuc n · pos (suc m) = negsuc (n ·ℕ m +ℕ n +ℕ m)
+negsuc n · negsuc m = pos (suc (n ·ℕ m +ℕ n +ℕ m))

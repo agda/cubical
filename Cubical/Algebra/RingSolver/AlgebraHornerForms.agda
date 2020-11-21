@@ -9,7 +9,7 @@ open import Cubical.Data.Vec
 open import Cubical.Data.Bool using (Bool; true; false; if_then_else_)
 
 open import Cubical.Algebra.RingSolver.RawRing
-open import Cubical.Algebra.RingSolver.RawAlgebra
+open import Cubical.Algebra.RingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ₐ)
 open import Cubical.Algebra.RingSolver.AlmostRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 
 private
