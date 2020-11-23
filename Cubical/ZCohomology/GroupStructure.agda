@@ -109,33 +109,10 @@ wedgeMapS¹ (loop i) (loop j) =
                   ; (j = i1) → loop (i ∧ k)})
         (loop (i ∨ j))
 
------------
-
-Kn→ΩKn+1 : (n : ℕ) → coHomK n → typ (Ω (coHomK-ptd (suc n)))
-Kn→ΩKn+1 n = Iso.fun (Iso-Kn-ΩKn+1 n)
-
-ΩKn+1→Kn : (n : ℕ) → typ (Ω (coHomK-ptd (suc n))) → coHomK n
-ΩKn+1→Kn n = Iso.inv (Iso-Kn-ΩKn+1 n)
-
-Kn≃ΩKn+1 : {n : ℕ} → coHomK n ≃ typ (Ω (coHomK-ptd (suc n)))
-Kn≃ΩKn+1 {n = n} = isoToEquiv (Iso-Kn-ΩKn+1 n)
-
 ---------- Algebra/Group stuff --------
 
 0ₖ : (n : ℕ) → coHomK n
 0ₖ = coHom-pt
-
-Kn→ΩKn+10ₖ : (n : ℕ) → Kn→ΩKn+1 n (0ₖ n) ≡ refl
-Kn→ΩKn+10ₖ zero = sym (rUnit refl)
-Kn→ΩKn+10ₖ (suc zero) i j = ∣ (rCancel (merid base) i j) ∣
-Kn→ΩKn+10ₖ (suc (suc n)) i j = ∣ (rCancel (merid north) i j) ∣
-
-ΩKn+1→Kn-refl : (n : ℕ) → ΩKn+1→Kn n refl ≡ 0ₖ n
-ΩKn+1→Kn-refl zero = refl
-ΩKn+1→Kn-refl (suc zero) = refl
-ΩKn+1→Kn-refl (suc (suc zero)) = refl
-ΩKn+1→Kn-refl (suc (suc (suc n))) = refl
-
 
 _+ₖ_ : {n : ℕ} → coHomK n → coHomK n → coHomK n
 _+ₖ_ {n = zero} x y = x ℤ+ y
@@ -273,40 +250,6 @@ lUnitₖ≡rUnitₖ (suc (suc n)) = refl
 Kn→ΩKn+1-hom-helper : ∀ {ℓ} {A : Type ℓ} {a : A} (p : a ≡ a) (r : refl ≡ p)
                  → lUnit p ∙ cong (_∙ p) r ≡ rUnit p ∙ cong (p ∙_) r
 Kn→ΩKn+1-hom-helper p = J (λ p r → lUnit p ∙ cong (_∙ p) r ≡ rUnit p ∙ cong (p ∙_) r) refl
-
-Kn→ΩKn+1-hom : (n : ℕ) (x y : coHomK n) → Kn→ΩKn+1 n (x +[ n ]ₖ y) ≡ Kn→ΩKn+1 n x ∙ Kn→ΩKn+1 n y
-Kn→ΩKn+1-hom zero x y = (λ j i → hfill (doubleComp-faces (λ i₁ → ∣ base ∣) (λ _ → ∣ base ∣) i) (inS (∣ intLoop (x ℤ+ y) i ∣)) (~ j))
-                      ∙∙ (λ j i → ∣ intLoop-hom x y (~ j) i ∣)
-                      ∙∙ (congFunct ∣_∣ (intLoop x) (intLoop y)
-                        ∙ cong₂ _∙_ (λ j i → hfill (doubleComp-faces (λ i₁ → ∣ base ∣) (λ _ → ∣ base ∣) i) (inS (∣ intLoop x i ∣)) j)
-                                     λ j i → hfill (doubleComp-faces (λ i₁ → ∣ base ∣) (λ _ → ∣ base ∣) i) (inS (∣ intLoop y i ∣)) j)
-Kn→ΩKn+1-hom (suc zero) =
-  elim2 (λ _ _ → isOfHLevelPath 3 (isOfHLevelTrunc 4 _ _) _ _)
-        (wedgeConSn _ _
-                    (λ _ _ → isOfHLevelTrunc 4 _ _ _ _ )
-                    (λ x → lUnit _ ∙ cong (_∙ Kn→ΩKn+1 1 ∣ x ∣) (sym (Kn→ΩKn+10ₖ 1)))
-                    (λ x → cong (Kn→ΩKn+1 1) (rUnitₖ 1 ∣ x ∣) ∙∙ rUnit _ ∙∙ cong (Kn→ΩKn+1 1 ∣ x ∣ ∙_) (sym (Kn→ΩKn+10ₖ 1)))
-                    (sym (Kn→ΩKn+1-hom-helper (Kn→ΩKn+1 1 ∣ base ∣) (sym (Kn→ΩKn+10ₖ 1)))) .fst)
-Kn→ΩKn+1-hom (suc (suc n)) =
-  elim2 (λ _ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (5 + n) _ _) _ _)
-        (wedgeConSn _ _ (λ _ _ → isOfHLevelPath ((2 + n) + (2 + n)) (wedgeConHLev' n) _ _)
-                        (λ x → lUnit _ ∙ cong (_∙ Kn→ΩKn+1 (suc (suc n)) ∣ x ∣) (sym (Kn→ΩKn+10ₖ (2 + n))))
-                        (λ y → cong (Kn→ΩKn+1 (suc (suc n))) (preAdd n .snd .snd y)
-                            ∙∙ rUnit _
-                            ∙∙ cong (Kn→ΩKn+1 (suc (suc n)) ∣ y ∣ ∙_) (sym (Kn→ΩKn+10ₖ (2 + n))))
-                        (sym (Kn→ΩKn+1-hom-helper (Kn→ΩKn+1 (suc (suc n)) ∣ north ∣) (sym (Kn→ΩKn+10ₖ (2 + n))))) .fst)
-
-ΩKn+1→Kn-hom : (n : ℕ) (x y : typ (Ω (coHomK-ptd (suc n)))) → ΩKn+1→Kn n (x ∙ y) ≡ ΩKn+1→Kn n x +[ n ]ₖ (ΩKn+1→Kn n y)
-ΩKn+1→Kn-hom zero x y =
-    (λ i → winding (congFunct (trRec isGroupoidS¹ (λ a → a)) x y i))
-  ∙ winding-hom (cong (trRec isGroupoidS¹ (λ a → a)) x) (cong (trRec isGroupoidS¹ (λ a → a)) y)
-ΩKn+1→Kn-hom (suc n) x y =
-  let
-  xId = rightInv (Iso-Kn-ΩKn+1 (1 + n)) x
-  yId = rightInv (Iso-Kn-ΩKn+1 (1 + n)) y
-  in   cong₂ (λ x y → ΩKn+1→Kn (1 + n) (x ∙ y)) (sym xId) (sym yId)
-    ∙∙ cong (ΩKn+1→Kn (1 + n)) (sym (Kn→ΩKn+1-hom (suc n) (ΩKn+1→Kn (1 + n) x) (ΩKn+1→Kn (1 + n) y)))
-    ∙∙ leftInv (Iso-Kn-ΩKn+1 (1 + n)) (ΩKn+1→Kn (1 + n) x +ₖ ΩKn+1→Kn (1 + n) y)
 
 -- ΩKₙ is commutative w.r.t. path composition
 isComm∙ : ∀ {ℓ} (A : Pointed ℓ) → Type ℓ
@@ -532,31 +475,6 @@ coHomGrΩ n A = ∥ (A → typ (Ω (coHomK-ptd (suc n)))) ∥₂ , coHomGrnA
                              (sElim (λ _ → isOfHLevelPath 2 § _ _) λ p → cong ∣_∣₂ (funExt λ x → rCancel (p x)))
                              (sElim (λ _ → isOfHLevelPath 2 § _ _) λ p → cong ∣_∣₂ (funExt λ x → lCancel (p x)))
 
-coHom≅coHomΩ : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → GroupIso (coHomGr n A) (coHomGrΩ n A)
-fun (GroupIso.map (coHom≅coHomΩ n A)) = map λ f a → Kn→ΩKn+1 n (f a)
-isHom (GroupIso.map (coHom≅coHomΩ n A)) =
-  sElim2 (λ _ _ → isOfHLevelPath 2 § _ _)
-         λ f g → cong ∣_∣₂ (funExt λ x → Kn→ΩKn+1-hom n (f x) (g x))
-GroupIso.inv (coHom≅coHomΩ n A) = map λ f a → ΩKn+1→Kn n (f a)
-GroupIso.rightInv (coHom≅coHomΩ n A) =
-  sElim (λ _ → isOfHLevelPath 2 § _ _)
-        λ f → cong ∣_∣₂ (funExt λ x → rightInv (Iso-Kn-ΩKn+1 n) (f x))
-GroupIso.leftInv (coHom≅coHomΩ n A) =
-  sElim (λ _ → isOfHLevelPath 2 § _ _)
-        λ f → cong ∣_∣₂ (funExt λ x → leftInv (Iso-Kn-ΩKn+1 n) (f x))
-
-coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → coHom n B → coHom n A
-coHomFun n f = sRec § λ β → ∣ β ∘ f ∣₂
-
--distrLemma : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n m : ℕ) (f : GroupHom (coHomGr n A) (coHomGr m B))
-              (x y : coHom n A)
-            → fun f (x -[ n ]ₕ y) ≡ fun f x -[ m ]ₕ fun f y
--distrLemma n m f' x y = sym (-cancelRₕ m (f y) (f (x -[ n ]ₕ y)))
-                     ∙∙ cong (λ x → x -[ m ]ₕ f y) (sym (isHom f' (x -[ n ]ₕ y) y))
-                     ∙∙ cong (λ x → x -[ m ]ₕ f y) ( cong f (-+cancelₕ n _ _))
-  where
-  f = fun f'
-
 --- the loopspace of Kₙ is commutative regardless of base
 
 addIso : (n : ℕ) (x : coHomK n) → Iso (coHomK n) (coHomK n)
@@ -697,7 +615,7 @@ module lockedCohom (key : Unit') where
   -+cancelH : (n : ℕ) (x y : coHom n A) → +H n (-Hbin n x y) y ≡ x
   -+cancelH n = sElim2 (λ _ _ → isOfHLevelPath 1 (§ _ _))
                         λ a b i → ∣ (λ x → -+cancelK n (a x) (b x) i) ∣₂
-
+{-
   Kn→ΩKn+1' : (n : ℕ) → coHomK n → typ (Ω (coHomK-ptd (suc n)))
   Kn→ΩKn+1' n = lock key (Iso.fun (Iso-Kn-ΩKn+1 n))
 
@@ -715,6 +633,6 @@ module lockedCohom (key : Unit') where
     where
     pm : (key : Unit') → lock key (Iso.inv (Iso-Kn-ΩKn+1 n)) (lock key (Iso.fun (Iso-Kn-ΩKn+1 n)) x) ≡ x
     pm unlock = Iso.leftInv (Iso-Kn-ΩKn+1 n) x
-
+-}
 lUnitK≡rUnitK : (key : Unit') (n : ℕ) → lockedCohom.lUnitK key n (0ₖ n) ≡ lockedCohom.rUnitK key n (0ₖ n)
 lUnitK≡rUnitK unlock = lUnitₖ≡rUnitₖ

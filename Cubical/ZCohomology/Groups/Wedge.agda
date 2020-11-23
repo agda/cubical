@@ -227,3 +227,123 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
     PushoutToProp (λ _ → propTruncIsProp)
                   (λ a → pRec propTruncIsProp (λ p → ∣ cong inl p ∣₁) (conA a))
                    λ b → pRec propTruncIsProp (λ p → ∣ push tt ∙ cong inr p ∣₁) (conB b)
+
+
+open import Cubical.HITs.KleinBottle
+open import Cubical.Foundations.Path
+open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Equiv.HalfAdjoint
+funSpaceKleinIso : ∀ {ℓ} {A : Type ℓ} → Iso (KleinBottle → A)
+           (Σ[ x ∈ A ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ]
+             PathP (λ i → p (~ i) ≡ p i) q q)
+Iso.fun funSpaceKleinIso f = f point , (cong f line1) , ((cong f line2) , (λ i j → f (square i j)))
+Iso.inv funSpaceKleinIso (x , p , q , sq) point = x
+Iso.inv funSpaceKleinIso (x , p , q , sq) (line1 i) = p i
+Iso.inv funSpaceKleinIso (x , p , q , sq) (line2 i) = q i
+Iso.inv funSpaceKleinIso (x , p , q , sq) (square i j) = sq i j
+Iso.rightInv funSpaceKleinIso (x , p , q , sq) = refl
+Iso.leftInv funSpaceKleinIso f = funExt λ {point → refl ; (line1 i) → refl ; (line2 i) → refl ; (square i j) → refl}
+
+module _ (x : coHomK 2) (p q : x ≡ x) where
+  test : Iso (PathP (λ i → p (~ i) ≡ p i) q q) (p ∙ p ∙ q ≡ q)
+  test  = pathToIso (PathP≡doubleCompPathˡ _ _ _ _
+                  ∙∙ cong (_≡ q) (doubleCompPath-elim' _ _ _)
+                  ∙∙ cong (λ x → p ∙ x ≡ q) (isCommΩK-based 2 x q p))
+
+  compPathIso : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p q : x ≡ y) (r : y ≡ z) → Iso (x ≡ y) (x ≡ z) 
+  Iso.fun (compPathIso p q r) = _∙ r
+  Iso.inv (compPathIso p q r) = _∙ sym r
+  Iso.rightInv (compPathIso p q r) P = sym (assoc _ _ _) ∙∙ cong (P ∙_) (lCancel r) ∙∙ sym (rUnit P)
+  Iso.leftInv (compPathIso p q r) P = sym (assoc _ _ _) ∙∙ cong (P ∙_) (rCancel r) ∙∙ sym (rUnit P)
+
+  PathP→idempIso : Iso (PathP (λ i → p (~ i) ≡ p i) q q) (p ∙ p ≡ refl)
+  PathP→idempIso =
+    compIso test (compIso (congIso (compPathIso (p ∙ p ∙ q) q (sym q)))
+            (pathToIso (cong₂ _≡_ ((λ j → (p ∙ p ∙ λ i → q (i ∧ ~ j)) ∙ (λ i → q (~ i ∧ ~ j)))
+                               ∙∙ sym (rUnit _)
+                               ∙∙ cong (p ∙_) (sym (rUnit _)))
+                       (rCancel q))))
+
+funSpaceKleinIso' : Iso (coHom 2 KleinBottle) ∥ (Σ[ x ∈ coHomK 2 ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙ p ≡ refl ) ∥₂
+funSpaceKleinIso' = setTruncIso (compIso funSpaceKleinIso (Σ-cong-iso-snd λ x → Σ-cong-iso-snd λ p → Σ-cong-iso-snd λ q → PathP→idempIso x p q))
+
+tihi : Iso ∥ (Σ[ x ∈ coHomK 2 ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙ p ≡ refl ) ∥₂
+          ∥ Σ[ p ∈ Path (coHomK 2) (0ₖ _) (0ₖ _) ] p ∙ p ≡ refl ∥₂
+Iso.fun tihi = sRec setTruncIsSet (uncurry (trElim (λ _ → isOfHLevelΠ 4 λ _ → isOfHLevelPlus 2 setTruncIsSet)
+                    (sphereElim _ (λ _ → isSetΠ λ _ → setTruncIsSet)
+                    λ {(p , _  , idem) → ∣ p , idem ∣₂})))
+Iso.inv tihi = sMap λ {(p , idem) → (0ₖ _) , (p , (refl , idem))}
+Iso.rightInv tihi = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+                           λ _ → refl
+Iso.leftInv tihi =
+  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        (uncurry
+          (trElim (λ _ → isOfHLevelΠ 4 λ _ → isOfHLevelPlus 3 (setTruncIsSet _ _))
+                  (sphereToPropElim 1 (λ _ → isPropΠ (λ _ → setTruncIsSet _ _))
+                    λ {(p , q , idem) → trRec (setTruncIsSet _ _)
+                                               (λ qId → cong ∣_∣₂ (ΣPathP (refl , ΣPathP (refl , (ΣPathP ((sym qId) , refl))))))
+                                               (Iso.fun (PathIdTruncIso 1)
+                                                        (isContr→isProp (isConnectedPathKn 1 _ _) ∣ q ∣ ∣ refl ∣ ))})))
+
+open import Cubical.Data.Sum
+
+
+tes : (x : coHomK 1) →  x +ₖ x ≡ 0ₖ _ → x ≡ 0ₖ _ 
+tes = trElim {!j : I
+p : ∣
+    hcomp
+    (λ {
+       ; k (i = i0) → ∣ base ∣
+       ; k (i = i1) → loop k
+       })
+    (loop i)
+    ∣
+    ≡ 0ₖ 1
+!} λ {base p → refl ; (loop i) → {!!}}
+  where
+  helper2 : PathP (λ i → ∣ loop i ∣ +ₖ ∣ loop i ∣ ≡ ∣ base ∣ → ∣ loop i ∣ ≡ 0ₖ 1) (λ p → p) λ p → p
+  helper2 = toPathP (funExt λ x → (λ i → transport (λ i → Path (coHomK 1) ∣ loop i ∣ ∣ base ∣)
+     (transp
+      (λ j →
+         Path (coHomK 1) ∣
+         (sym loop ∙∙ sym loop ∙∙ refl) (i ∨ j)
+         ∣
+         ∣ base ∣) i (sym (compPath-filler (sym x) (cong ∣_∣ (sym loop ∙∙ sym loop ∙∙ refl)) i)))) ∙∙ {!!} ∙∙ {! ∙∙ {!!}!})
+
+testi : cong (λ x → ∣ x ∣ +ₖ ∣ x ∣) loop ≡ cong ∣_∣ loop ∙ cong ∣_∣ loop 
+testi = (λ j → (λ i →
+         ∣
+         hcomp
+         (λ { k (i = i0) → base
+            ; k (i = i1) → loop k
+            })
+         (rUnit loop j i)
+         ∣)) ∙∙ ((λ j → (λ i →
+         ∣
+         hcomp
+         (λ { k (i = i0) → base
+            ; k (i = i1) → loop (k ∨ j)
+            })
+         ((loop ∙ λ z → loop (z ∧ j)) i)
+         ∣)))
+         ∙∙ ((λ j → (λ i →
+         ∣
+         hfill
+         (λ { k (i = i0) → base
+            ; k (i = i1) → base
+            })
+         (inS ((loop ∙ loop) i))
+         (~ j)
+         ∣)) ∙ congFunct ∣_∣ loop loop)
+
+stupid : {!!}
+stupid = {!!}
+
+test3 : Path ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ _  ∥₂ ∣ (0ₖ _) , cong ∣_∣ loop ∣₂ ∣ 0ₖ _ , sym (cong ∣_∣ loop) ∣₂
+test3 = cong ∣_∣₂ (ΣPathP ((cong ∣_∣ loop) , toPathP ((λ j → transport (λ i → testi j i ≡ 0ₖ 1) (lUnit (cong ∣_∣ loop) j)) ∙∙ (λ j → transp (λ i → (cong ∣_∣ loop ∙ cong ∣_∣ loop) (i ∨ j) ≡ 0ₖ 1) j (((λ i → (cong ∣_∣ loop ∙ cong ∣_∣ loop) (~ i ∧ j)) ∙ cong ∣_∣ loop))) ∙∙ (cong (_∙ cong ∣_∣ loop) (symDistr (cong ∣_∣ loop) (cong ∣_∣ loop))  ∙∙ (λ i → (sym (cong ∣_∣ loop) ∙ λ j → ∣ loop (~ j ∨ i) ∣) ∙ λ j → ∣ loop (j ∨ i) ∣) ∙∙ λ i → rUnit (rUnit (sym (cong ∣_∣ loop)) (~ i)) (~ i)))))
+
+test2 : Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ _ → Type₀
+test2  = uncurry
+          (trElim {!!}
+            λ {base → {!!}
+            ; (loop i) → {!!}})

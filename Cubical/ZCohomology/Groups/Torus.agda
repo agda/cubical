@@ -6,6 +6,7 @@ open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Groups.Connected
 open import Cubical.ZCohomology.MayerVietorisUnreduced
+open import Cubical.ZCohomology.EilenbergSpaceIso
 open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.Groups.Prelims
@@ -286,3 +287,6 @@ test6 = refl
 test6 : to₂ (from₂ 1 +ₕ from₂ 0) ≡ 1
 test6 = refl
 -}
+
+test6 : to₂ (from₂ 1 +ₕ from₂ 0) ≡ 1
+test6 = refl

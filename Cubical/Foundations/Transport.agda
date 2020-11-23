@@ -87,7 +87,10 @@ uaTransportη P i j
       (j = i1) → P i1 , idEquiv (P i1)
 
 pathToIso : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → Iso A B
-pathToIso x = iso (transport x) (transport⁻ x) (transportTransport⁻ x) (transport⁻Transport x)
+Iso.fun (pathToIso x) = transport x
+Iso.inv (pathToIso x) = transport⁻ x
+Iso.rightInv (pathToIso x) = transportTransport⁻ x
+Iso.leftInv (pathToIso x) = transport⁻Transport x
 
 isInjectiveTransport : ∀ {ℓ : Level} {A B : Type ℓ} {p q : A ≡ B}
   → transport p ≡ transport q → p ≡ q
