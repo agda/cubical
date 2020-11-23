@@ -4,7 +4,6 @@ module Cubical.ZCohomology.Groups.Sn where
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.MayerVietorisUnreduced
-open import Cubical.ZCohomology.EilenbergSpaceIso
 open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Connected
 open import Cubical.ZCohomology.GroupStructure

@@ -2,7 +2,6 @@
 module Cubical.ZCohomology.GroupStructure where
 
 open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
@@ -243,13 +242,6 @@ lUnitₖ≡rUnitₖ : (n : ℕ) → lUnitₖ n (coHom-pt n) ≡ rUnitₖ n (coHo
 lUnitₖ≡rUnitₖ zero = isSetInt _ _ _ _
 lUnitₖ≡rUnitₖ (suc zero) = refl
 lUnitₖ≡rUnitₖ (suc (suc n)) = refl
-
------- Kn≃ΩKn is a morphism -------
-
-
-Kn→ΩKn+1-hom-helper : ∀ {ℓ} {A : Type ℓ} {a : A} (p : a ≡ a) (r : refl ≡ p)
-                 → lUnit p ∙ cong (_∙ p) r ≡ rUnit p ∙ cong (p ∙_) r
-Kn→ΩKn+1-hom-helper p = J (λ p r → lUnit p ∙ cong (_∙ p) r ≡ rUnit p ∙ cong (p ∙_) r) refl
 
 -- ΩKₙ is commutative w.r.t. path composition
 isComm∙ : ∀ {ℓ} (A : Pointed ℓ) → Type ℓ
