@@ -48,12 +48,3 @@ module WedgeConnectivity {ℓ ℓ' ℓ''} (n m : ℕ)
   right = funExt⁻ (cong fst (funExt⁻ (main .fst .snd) _))
 
     -- TODO: left (pt A) ⁻¹ ∙ right (pt B) ≡ p
-
-module WedgeConnectivity' {ℓ ℓ' ℓ''} (n m : ℕ)
-  (A : Pointed ℓ) (connA : isConnected (suc n) (Pointer A))
-  (B : Pointed ℓ') (connB : isConnected (suc m) (Pointer B))
-  (P : Pointer A → Pointer B → TypeOfHLevel ℓ'' (n + m))
-  (f : (a : Pointer A) → P a pt₀ .fst)
-  (g : (b : Pointer B) → P pt₀ b .fst)
-  (p : f pt₀ ≡ g pt₀)
-  where

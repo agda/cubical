@@ -28,7 +28,7 @@ idfun∙ : ∀ {ℓ} (A : Pointed ℓ) → A →∙ A
 idfun∙ A = (λ x → x) , refl
 
 {- HIT allowing for pattern matching on pointed types -}
-data Pointer {ℓ } (A : Pointed ℓ) : Type ℓ where
+data Pointer {ℓ} (A : Pointed ℓ) : Type ℓ where
   pt₀ : Pointer A
   ⌊_⌋ : typ A → Pointer A
   id : ⌊ pt A ⌋ ≡ pt₀
