@@ -295,7 +295,7 @@ decode-encode {n = n} =
 stabSpheres : (n : ℕ) → Iso (coHomK (suc n)) (typ (Ω (coHomK-ptd (2 + n))))
 fun (stabSpheres n) = decode _
 inv' (stabSpheres n) = encode
-rightInv (stabSpheres n) p = decode-encode p 
+rightInv (stabSpheres n) p = decode-encode p
 leftInv (stabSpheres n) =
   trElim (λ _ → isOfHLevelPath (3 + n) (isOfHLevelTrunc (3 + n)) _ _)
     λ a → cong encode (congFunct ∣_∣ (merid a) (sym (merid (ptSn (suc n)))))

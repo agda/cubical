@@ -8,7 +8,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 
-open Iso 
+open Iso
 module ax {ℓ : Level} (A : Type ℓ) (_+A_ : A → A → A) (a₀ : A) where
   rUnit = (a : A) → a +A a₀ ≡ a
   lUnit = (a : A) → a₀ +A a ≡ a
