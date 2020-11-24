@@ -227,3 +227,150 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
     PushoutToProp (λ _ → propTruncIsProp)
                   (λ a → pRec propTruncIsProp (λ p → ∣ cong inl p ∣₁) (conA a))
                    λ b → pRec propTruncIsProp (λ p → ∣ push tt ∙ cong inr p ∣₁) (conB b)
+
+
+open import Cubical.Data.Int
+open import Cubical.Data.Empty renaming (rec to ⊥-rec)
+open import Cubical.Data.Bool
+open import Cubical.Data.Int renaming (+-comm to +-commℤ ; _+_ to _+ℤ_)
+
+even : Int → Bool
+even (pos zero) = true
+even (pos (suc zero)) = false
+even (pos (suc (suc n))) = even (pos n)
+even (negsuc zero) = false
+even (negsuc (suc n)) = even (pos n)
+
+open import Cubical.Data.Sum
+
+even-2 : (x : Int) → even (-2 +ℤ x) ≡ even x
+even-2 (pos zero) = refl
+even-2 (pos (suc zero)) = refl
+even-2 (pos (suc (suc n))) =
+    cong even (cong sucInt (sucInt+pos _ _)
+            ∙∙ sucInt+pos _ _
+            ∙∙ +-commℤ 0 (pos n))
+  ∙ noClueWhy n
+  where
+  noClueWhy : (n : ℕ) → even (pos n) ≡ even (pos n)
+  noClueWhy n = refl
+even-2 (negsuc zero) = refl
+even-2 (negsuc (suc n)) =
+    cong even (predInt+negsuc n _
+             ∙ +-commℤ -3 (negsuc n))
+  ∙ noClueWhy n
+  where
+  noClueWhy : (n : ℕ) → even (negsuc (suc (suc (suc n)))) ≡ even (pos n)
+  noClueWhy n = refl
+
+test3 : (p : 0ₖ 1 ≡ 0ₖ 1) → even (ΩKn+1→Kn 0 (transport (λ i → ∣ (loop ∙ loop) i ∣ ≡ 0ₖ 1) p)) ≡ even (ΩKn+1→Kn 0 p)
+test3 p = cong even (cong (ΩKn+1→Kn 0) (cong (transport (λ i → ∣ (loop ∙ loop) i ∣ ≡ 0ₖ 1)) (lUnit p)))
+      ∙∙ cong even (cong (ΩKn+1→Kn 0) λ j → transp (λ i → ∣ (loop ∙ loop) (i ∨ j) ∣ ≡ 0ₖ 1) j ((λ i → ∣ (loop ∙ loop) (~ i ∧ j) ∣) ∙ p))
+      ∙∙ cong even (ΩKn+1→Kn-hom 0 (sym (cong ∣_∣ (loop ∙ loop))) p)
+       ∙ even-2 (ΩKn+1→Kn 0 p)
+
+test2 :  Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 → Bool
+test2 = uncurry (trElim (λ _ → isGroupoidΠ λ _ → isOfHLevelSuc 2 isSetBool)
+                        λ {base p → even (ΩKn+1→Kn 0 p)
+                        ; (loop i) p → hcomp (λ k → λ { (i = i0) → test3 p k
+                                                        ; (i = i1) → even (ΩKn+1→Kn 0 p)})
+                        (even (ΩKn+1→Kn 0 (transp (λ j → ∣ (loop ∙ loop) (i ∨ j) ∣ ≡ 0ₖ 1) i
+                                                      p)))})
+
+*' : (x y : coHomK 1) (p : x +ₖ x ≡ 0ₖ 1) (q : y +ₖ y ≡ 0ₖ 1) → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
+*' =
+  trElim2 (λ _ _ → isGroupoidΠ2 λ _ _ → isOfHLevelSuc 2 setTruncIsSet)
+          (wedgeConSn _ _
+            (λ _ _ → isSetΠ2 λ _ _ → setTruncIsSet)
+            (λ x p q → ∣ ∣ x ∣ , cong₂ _+ₖ_ p q ∣₂)
+            (λ y p q → ∣ ∣ y ∣ , sym (rUnitₖ 1 (∣ y ∣ +ₖ ∣ y ∣)) ∙ cong₂ _+ₖ_ p q ∣₂)
+            (funExt λ p → funExt λ q → cong ∣_∣₂ (ΣPathP (refl , (sym (lUnit _))))) .fst)
+
+
+
+_*_ : ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂ → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂ → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
+_*_ = sRec (isSetΠ (λ _ → setTruncIsSet)) λ a → sRec setTruncIsSet λ b → *' (fst a) (fst b) (snd a) (snd b)
+*=∙ : (p q : 0ₖ 1 ≡ 0ₖ 1) → ∣ 0ₖ 1 , p ∣₂ * ∣ 0ₖ 1 , q ∣₂ ≡ ∣ 0ₖ 1 , p ∙ q ∣₂
+*=∙ p q = cong ∣_∣₂ (ΣPathP (refl , sym (∙≡+₁ p q)))
+
+help : (n : ℕ) → even (pos (suc n)) ≡ true → even (negsuc n) ≡ true
+help zero p = ⊥-rec (true≢false (sym p))
+help (suc n) p = p
+
+help2 : (n : ℕ) → even (pos (suc n)) ≡ false → even (negsuc n) ≡ false
+help2 zero p = refl
+help2 (suc n) p = p
+
+
+evenCharac : (x : Int) → even x ≡ true
+    → Path ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
+            ∣ (0ₖ 1 , Kn→ΩKn+1 0 x) ∣₂
+            ∣ (0ₖ 1 , refl) ∣₂
+evenCharac (pos zero) iseven i = ∣ (0ₖ 1) , (rUnit refl (~ i)) ∣₂
+evenCharac (pos (suc zero)) iseven = ⊥-rec (true≢false (sym iseven))
+evenCharac (pos (suc (suc zero))) iseven = cong ∣_∣₂ ((λ i → 0ₖ 1 , rUnit (cong ∣_∣ ((lUnit loop (~ i)) ∙ loop)) (~ i))
+                                           ∙  (ΣPathP (cong ∣_∣ loop , λ i j → ∣ (loop ∙ loop) (i ∨ j) ∣)))
+evenCharac (pos (suc (suc (suc n)))) iseven =
+     (λ i → ∣ 0ₖ 1 , Kn→ΩKn+1-hom 0 (pos (suc n)) 2 i ∣₂)
+  ∙∙ sym (*=∙ (Kn→ΩKn+1 0 (pos (suc n))) (Kn→ΩKn+1 0 (pos 2)))
+  ∙∙ (cong₂ _*_ (evenCharac (pos (suc n)) iseven) (evenCharac 2 refl))
+
+evenCharac (negsuc zero) iseven = ⊥-rec (true≢false (sym iseven))
+evenCharac (negsuc (suc zero)) iseven =
+  cong ∣_∣₂ ((λ i → 0ₖ 1 , λ i₁ → hfill (doubleComp-faces (λ i₂ → ∣ base ∣) (λ _ → ∣ base ∣) i₁)
+                                         (inS ∣ compPath≡compPath' (sym loop) (sym loop) i i₁ ∣) (~ i))
+                                ∙ ΣPathP ((cong ∣_∣ (sym loop)) , λ i j → ∣ (sym loop ∙' sym loop) (i ∨ j) ∣))
+evenCharac (negsuc (suc (suc n))) iseven =
+     cong ∣_∣₂ (λ i → 0ₖ 1 , Kn→ΩKn+1-hom 0 (negsuc n) -2 i)
+  ∙∙ sym (*=∙ (Kn→ΩKn+1 0 (negsuc n)) (Kn→ΩKn+1 0 -2))
+  ∙∙ cong₂ _*_ (evenCharac (negsuc n) (help n iseven)) (evenCharac -2 refl) -- i
+
+oddCharac : (x : Int) → even x ≡ false
+    → Path ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
+            ∣ (0ₖ 1 , Kn→ΩKn+1 0 x) ∣₂
+            ∣ (0ₖ 1 , cong ∣_∣ loop) ∣₂
+oddCharac (pos zero) isOdd = ⊥-rec (true≢false isOdd)
+oddCharac (pos (suc zero)) isOdd i =
+  ∣ (0ₖ 1 , λ j → hfill (doubleComp-faces (λ i₂ → ∣ base ∣) (λ _ → ∣ base ∣) j)
+                         (inS ∣ lUnit loop (~ i) j ∣) (~ i)) ∣₂
+oddCharac (pos (suc (suc n))) isOdd =
+  (λ i → ∣ 0ₖ 1 , Kn→ΩKn+1-hom 0 (pos n) 2 i ∣₂)
+  ∙∙ sym (*=∙ (Kn→ΩKn+1 0 (pos n)) (Kn→ΩKn+1 0 2))
+  ∙∙ cong₂ _*_ (oddCharac (pos n) isOdd) (evenCharac 2 refl)
+oddCharac (negsuc zero) isOdd =
+    cong ∣_∣₂ ((λ i → 0ₖ 1 , rUnit (sym (cong ∣_∣ loop)) (~ i))
+  ∙ ΣPathP (cong ∣_∣ (sym loop) , λ i j → ∣ hcomp (λ k → λ { (i = i0) → loop (~ j ∧ k)
+                                                           ; (i = i1) → loop j
+                                                           ; (j = i1) → base})
+                                                 (loop (j ∨ ~ i)) ∣))
+oddCharac (negsuc (suc zero)) isOdd = ⊥-rec (true≢false isOdd)
+oddCharac (negsuc (suc (suc n))) isOdd =
+     cong ∣_∣₂ (λ i → 0ₖ 1 , Kn→ΩKn+1-hom 0 (negsuc n) -2 i)
+  ∙∙ sym (*=∙ (Kn→ΩKn+1 0 (negsuc n)) (Kn→ΩKn+1 0 -2))
+  ∙∙ cong₂ _*_ (oddCharac (negsuc n) (help2 n isOdd)) (evenCharac (negsuc 1) refl)
+
+map⁻ : Bool → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
+map⁻ false = ∣ 0ₖ 1 , cong ∣_∣ loop ∣₂
+map⁻ true = ∣ 0ₖ 1 , refl ∣₂
+
+testIso : Iso ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂ Bool
+Iso.fun testIso = sRec isSetBool test2
+Iso.inv testIso = map⁻
+Iso.rightInv testIso false = refl
+Iso.rightInv testIso true = refl
+Iso.leftInv testIso =
+  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        (uncurry (trElim
+          (λ _ → isGroupoidΠ λ _ → isOfHLevelPlus {n = 1} 2 (setTruncIsSet _ _))
+          (toPropElim (λ _ → isPropΠ (λ _ → setTruncIsSet _ _))
+          (λ p → path p (even (ΩKn+1→Kn 0 p)) refl))))
+  where
+  path : (p : 0ₖ 1 ≡ 0ₖ 1) (b : Bool) → (even (ΩKn+1→Kn 0 p) ≡ b) → map⁻ (test2 (∣ base ∣ , p)) ≡ ∣ ∣ base ∣ , p ∣₂
+  path p false q =
+       (cong map⁻ q)
+    ∙∙ sym (oddCharac (ΩKn+1→Kn 0 p) q)
+    ∙∙ cong ∣_∣₂ λ i → 0ₖ 1 , Iso.rightInv (Iso-Kn-ΩKn+1 0) p i
+  path p true q =
+       cong map⁻ q
+    ∙∙ sym (evenCharac (ΩKn+1→Kn 0 p) q)
+    ∙∙ cong ∣_∣₂ λ i → 0ₖ 1 , Iso.rightInv (Iso-Kn-ΩKn+1 0) p i
