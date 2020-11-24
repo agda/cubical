@@ -25,7 +25,6 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Unit
 
 -- Note that relative to most sources, this notation is off by +2
-
 isConnected : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ
 isConnected n A = isContr (hLevelTrunc n A)
 

@@ -274,7 +274,7 @@ test4 = refl
 test5 : to₂ (from₂ 3) ≡ 3
 test5 = refl
 
--- Compute, but incredibly slowly
+-- Compute, but slower
 
 test6 : to₂ (from₂ 0 +ₕ from₂ 0) ≡ 0
 test6 = refl

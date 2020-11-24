@@ -109,7 +109,6 @@ wedgeMapS¹ (loop i) (loop j) =
         (loop (i ∨ j))
 
 ---------- Algebra/Group stuff --------
-
 0ₖ : (n : ℕ) → coHomK n
 0ₖ = coHom-pt
 
@@ -162,7 +161,6 @@ syntax -ₖ-syntax n x = -[ n ]ₖ x
 syntax -'ₖ-syntax n x y = x -[ n ]ₖ y
 
 ------- Groupoid Laws for Kₙ ---------
-
 commₖ : (n : ℕ) → (x y : coHomK n) → x +[ n ]ₖ y ≡ y +[ n ]ₖ x
 commₖ zero = +-comm
 commₖ (suc zero) =
@@ -223,7 +221,8 @@ assocₖ (suc zero) =
                 (λ z → cong (∣ x ∣ +ₖ_) (rUnitₖ 1 ∣ z ∣) ∙ sym (rUnitₖ 1 (∣ x ∣ +ₖ ∣ z ∣)))
                 (helper x) .fst
   where
-  helper : (x : S¹) → cong (∣ x ∣ +ₖ_) (rUnitₖ 1 ∣ base ∣) ∙ sym (rUnitₖ 1 (∣ x ∣ +ₖ ∣ base ∣)) ≡ (cong (_+ₖ ∣ base ∣) (sym (rUnitₖ 1 ∣ x ∣)))
+  helper : (x : S¹) → cong (∣ x ∣ +ₖ_) (rUnitₖ 1 ∣ base ∣) ∙ sym (rUnitₖ 1 (∣ x ∣ +ₖ ∣ base ∣))
+                    ≡ (cong (_+ₖ ∣ base ∣) (sym (rUnitₖ 1 ∣ x ∣)))
   helper = toPropElim (λ _ → isOfHLevelTrunc 3 _ _ _ _)
                       (sym (lUnit refl))
 assocₖ (suc (suc n)) =
@@ -243,35 +242,9 @@ lUnitₖ≡rUnitₖ zero = isSetInt _ _ _ _
 lUnitₖ≡rUnitₖ (suc zero) = refl
 lUnitₖ≡rUnitₖ (suc (suc n)) = refl
 
--- ΩKₙ is commutative w.r.t. path composition
-isComm∙ : ∀ {ℓ} (A : Pointed ℓ) → Type ℓ
-isComm∙ A = (p q : typ (Ω A)) → p ∙ q ≡ q ∙ p
-
-abstract
-  isCommA→isCommTrunc : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ A
-                      → isOfHLevel (suc n) (typ A)
-                      → isComm∙ (∥ typ A ∥ (suc n) , ∣ pt A ∣)
-  isCommA→isCommTrunc {A = (A , a)} n comm hlev p q =
-      ((λ i j → (Iso.leftInv (truncIdempotentIso (suc n) hlev) ((p ∙ q) j) (~ i)))
-   ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (cong (trRec hlev (λ x → x)) (p ∙ q)))
-   ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (congFunct {A = ∥ A ∥ (suc n)} {B = A} (trRec hlev (λ x → x)) p q i)))
-   ∙ ((λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (comm (cong (trRec hlev (λ x → x)) p) (cong (trRec hlev (λ x → x)) q) i))
-   ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (congFunct {A = ∥ A ∥ (suc n)} {B = A} (trRec hlev (λ x → x)) q p (~ i)))
-   ∙∙ (λ i j → (Iso.leftInv (truncIdempotentIso (suc n) hlev) ((q ∙ p) j) i)))
-
-  open Iso renaming (inv to inv')
-  ptdIso→comm : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Type ℓ'} (e : Iso (typ A) B) → isComm∙ A → isComm∙ (B , Iso.fun e (pt A))
-  ptdIso→comm {A = (A , a)} {B = B} e comm p q =
-         sym (rightInv (congIso e) (p ∙ q))
-      ∙∙ (cong (fun (congIso e)) ((invCongFunct e p q)
-                              ∙∙ (comm (inv' (congIso e) p) (inv' (congIso e) q))
-                              ∙∙ (sym (invCongFunct e q p))))
-      ∙∙ rightInv (congIso e) (q ∙ p)
-
-
+------ Commutativity of  ΩKₙ
 -- We show that p ∙ q ≡ (λ i → (p i) +ₖ (q i)) for any p q : ΩKₙ₊₁. This allows us to prove that p ∙ q ≡ q ∙ p
 -- without having to use the equivalence Kₙ ≃ ΩKₙ₊₁
-
 ∙≡+₁ : (p q : typ (Ω (coHomK-ptd 1))) → p ∙ q ≡ cong₂ _+ₖ_ p q
 ∙≡+₁ p q = (λ i → (λ j → rUnitₖ 1 (p j) (~ i)) ∙ λ j → lUnitₖ 1 (q j) (~ i)) ∙  sym (cong₂Funct _+ₖ_ p q)
 
@@ -300,7 +273,6 @@ isCommΩK (suc zero) p q = ∙≡+₁ p q ∙∙ cong+ₖ-comm 0 p q ∙∙ sym 
 isCommΩK (suc (suc n)) p q = ∙≡+₂ n p q ∙∙ cong+ₖ-comm (suc n) p q ∙∙ sym (∙≡+₂ n q p)
 
 ----- some other useful lemmas about algebra in Kₙ
-
 -0ₖ : {n : ℕ} → -[ n ]ₖ (0ₖ n) ≡ (0ₖ n)
 -0ₖ {n = zero} = refl
 -0ₖ {n = suc zero} = refl
@@ -356,8 +328,7 @@ isCommΩK (suc (suc n)) p q = ∙≡+₂ n p q ∙∙ cong+ₖ-comm (suc n) p q 
           (λ x → cong (_+ₖ ∣ north ∣) (rUnitₖ (2 + n) ∣ x ∣) ∙ rUnitₖ (2 + n) ∣ x ∣)
           (cong (refl ∙_) (rUnit refl ∙ (λ i → rUnit refl i ∙ transportRefl refl (~ i)))) .fst)
 
----- Group structure of cohomology groups ---
-
+---- Group structure of cohomology groups
 _+ₕ_ : {n : ℕ} → coHom n A → coHom n A → coHom n A
 _+ₕ_ {n = n} = sRec2 § λ a b → ∣ (λ x → a x +[ n ]ₖ b x) ∣₂
 
@@ -419,12 +390,15 @@ commₕ n = sElim2 (λ _ _ → isOfHLevelPath 1 (§ _ _))
 -+cancelₕ n = sElim2 (λ _ _ → isOfHLevelPath 1 (§ _ _))
                      λ a b i → ∣ (λ x → -+cancelₖ n (a x) (b x) i) ∣₂
 
--- Group structure of reduced cohomology groups (in progress - might need K to compute properly first) ---
-
+-- Group structure of reduced cohomology groups (in progress - might need K to compute properly first)
 +ₕ∙ : {A : Pointed ℓ} (n : ℕ) → coHomRed n A → coHomRed n A → coHomRed n A
-+ₕ∙ zero = sRec2 § λ { (a , pa) (b , pb) → ∣ (λ x → a x +[ zero ]ₖ b x) , (λ i → (pa i +[ zero ]ₖ pb i)) ∣₂ }
-+ₕ∙ (suc zero) = sRec2 § λ { (a , pa) (b , pb) → ∣ (λ x → a x +[ 1 ]ₖ b x) , (λ i → pa i +[ 1 ]ₖ pb i) ∙ lUnitₖ 1 (0ₖ 1) ∣₂ }
-+ₕ∙ (suc (suc n)) = sRec2 § λ { (a , pa) (b , pb) → ∣ (λ x → a x +[ (2 + n) ]ₖ b x) , (λ i → pa i +[ (2 + n) ]ₖ pb i) ∙ lUnitₖ (2 + n) (0ₖ (2 + n)) ∣₂ }
++ₕ∙ zero = sRec2 § λ { (a , pa) (b , pb) → ∣ (λ x → a x +[ zero ]ₖ b x)
+                                            , (λ i → (pa i +[ zero ]ₖ pb i)) ∣₂ }
++ₕ∙ (suc zero) = sRec2 § λ { (a , pa) (b , pb) → ∣ (λ x → a x +[ 1 ]ₖ b x)
+                                                 , (λ i → pa i +[ 1 ]ₖ pb i) ∣₂ }
++ₕ∙ (suc (suc n)) =
+  sRec2 § λ { (a , pa) (b , pb) → ∣ (λ x → a x +[ (2 + n) ]ₖ b x)
+                                  , (λ i → pa i +[ (2 + n) ]ₖ pb i) ∣₂ }
 
 open IsSemigroup
 open IsMonoid
@@ -447,6 +421,10 @@ coHomGr n A = coHom n A , coHomGrnA
 ×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group
 ×coHomGr n A B = dirProd (coHomGr n A) (coHomGr n B)
 
+-- Induced map
+coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → coHom n B → coHom n A
+coHomFun n f = sRec § λ β → ∣ β ∘ f ∣₂
+
 -- Alternative definition of cohomology using ΩKₙ instead. Useful for breaking proofs of group isos
 -- up into smaller parts
 coHomGrΩ : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group {ℓ}
@@ -468,7 +446,6 @@ coHomGrΩ n A = ∥ (A → typ (Ω (coHomK-ptd (suc n)))) ∥₂ , coHomGrnA
                              (sElim (λ _ → isOfHLevelPath 2 § _ _) λ p → cong ∣_∣₂ (funExt λ x → lCancel (p x)))
 
 --- the loopspace of Kₙ is commutative regardless of base
-
 addIso : (n : ℕ) (x : coHomK n) → Iso (coHomK n) (coHomK n)
 fun (addIso n x) y = y +[ n ]ₖ x
 inv' (addIso n x) y = y -[ n ]ₖ x
@@ -486,10 +463,8 @@ isCommΩK-based (suc (suc n)) x =
                 (ptdIso→comm {A = (_ , 0ₖ (suc (suc n)))} (addIso (suc (suc n)) x)
                               (isCommΩK (suc (suc n))))
 
----
 -- hidden versions of cohom stuff using the "lock" hack. The locked versions can be used when proving things.
 -- Swapping "key" for "tt*" will then give computing functions.
-
 Unit' : Type₀
 Unit' = lockUnit {ℓ-zero}
 
@@ -607,24 +582,6 @@ module lockedCohom (key : Unit') where
   -+cancelH : (n : ℕ) (x y : coHom n A) → +H n (-Hbin n x y) y ≡ x
   -+cancelH n = sElim2 (λ _ _ → isOfHLevelPath 1 (§ _ _))
                         λ a b i → ∣ (λ x → -+cancelK n (a x) (b x) i) ∣₂
-{-
-  Kn→ΩKn+1' : (n : ℕ) → coHomK n → typ (Ω (coHomK-ptd (suc n)))
-  Kn→ΩKn+1' n = lock key (Iso.fun (Iso-Kn-ΩKn+1 n))
 
-  ΩKn+1→Kn' : (n : ℕ) → typ (Ω (coHomK-ptd (suc n))) → coHomK n
-  ΩKn+1→Kn' n = lock key (Iso.inv (Iso-Kn-ΩKn+1 n))
-
-  ΩKn+1→Kn→ΩKn+1 : (n : ℕ) → (x : typ (Ω (coHomK-ptd (suc n)))) → Kn→ΩKn+1' n (ΩKn+1→Kn' n x) ≡ x
-  ΩKn+1→Kn→ΩKn+1 n x = pm key
-    where
-    pm : (key : Unit') → lock key (Iso.fun (Iso-Kn-ΩKn+1 n)) (lock key (Iso.inv (Iso-Kn-ΩKn+1 n)) x) ≡ x
-    pm unlock = Iso.rightInv (Iso-Kn-ΩKn+1 n) x
-
-  Kn→ΩKn+1→Kn : (n : ℕ) → (x : coHomK n) → ΩKn+1→Kn' n (Kn→ΩKn+1' n x) ≡ x
-  Kn→ΩKn+1→Kn n x = pm key
-    where
-    pm : (key : Unit') → lock key (Iso.inv (Iso-Kn-ΩKn+1 n)) (lock key (Iso.fun (Iso-Kn-ΩKn+1 n)) x) ≡ x
-    pm unlock = Iso.leftInv (Iso-Kn-ΩKn+1 n) x
--}
 lUnitK≡rUnitK : (key : Unit') (n : ℕ) → lockedCohom.lUnitK key n (0ₖ n) ≡ lockedCohom.rUnitK key n (0ₖ n)
 lUnitK≡rUnitK unlock = lUnitₖ≡rUnitₖ
