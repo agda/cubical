@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.ZCohomology.KcompPrelims where
+module Cubical.Experiments.ZCohomologyOld.KcompPrelims where
 
-open import Cubical.ZCohomology.Base
+open import Cubical.Experiments.ZCohomologyOld.Base
 open import Cubical.Homotopy.Connected
 open import Cubical.HITs.Hopf
 open import Cubical.Homotopy.Freudenthal hiding (encode)

@@ -12,6 +12,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Function using (_∘_)
 
 -- Direct definition of transport filler, note that we have to
 -- explicitly tell Agda that the type is constant (like in CHM)
@@ -86,7 +87,10 @@ uaTransportη P i j
       (j = i1) → P i1 , idEquiv (P i1)
 
 pathToIso : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → Iso A B
-pathToIso x = iso (transport x) (transport⁻ x) (transportTransport⁻ x) (transport⁻Transport x)
+Iso.fun (pathToIso x) = transport x
+Iso.inv (pathToIso x) = transport⁻ x
+Iso.rightInv (pathToIso x) = transportTransport⁻ x
+Iso.leftInv (pathToIso x) = transport⁻Transport x
 
 isInjectiveTransport : ∀ {ℓ : Level} {A B : Type ℓ} {p q : A ≡ B}
   → transport p ≡ transport q → p ≡ q
@@ -129,6 +133,12 @@ substCommSlice : ∀ {ℓ ℓ′} {A : Type ℓ}
 substCommSlice B C F p Bx i =
   transport-fillerExt⁻ (cong C p) i (F _ (transport-fillerExt (cong B p) i Bx))
 
+-- transporting over (λ i → B (p i) → C (p i)) divides the transport into
+-- transports over (λ i → C (p i)) and (λ i → B (p (~ i)))
+funTypeTransp : ∀ {ℓ ℓ'} {A : Type ℓ} (B C : A → Type ℓ') {x y : A} (p : x ≡ y) (f : B x → C x)
+         → PathP (λ i → B (p i) → C (p i)) f (subst C p ∘ f ∘ subst B (sym p))
+funTypeTransp B C {x = x} p f i b =
+  transp (λ j → C (p (j ∧ i))) (~ i) (f (transp (λ j → B (p (i ∧ ~ j))) (~ i) b))
 
 -- transports between loop spaces preserve path composition
 overPathFunct : ∀ {ℓ} {A : Type ℓ} {x y : A} (p q : x ≡ x) (P : x ≡ y)

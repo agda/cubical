@@ -161,3 +161,6 @@ invCongFunct {x = x} e p q = helper (Iso.inv e) _ _ _
     → (sym r ∙∙ cong f (p ∙ q) ∙∙ r) ≡ (sym r ∙∙ cong f p ∙∙ r) ∙ (sym r ∙∙ cong f q ∙∙ r))
       λ p q → (λ i → rUnit (congFunct f p q i) (~ i))
              ∙ λ i → rUnit (cong f p) i ∙ rUnit (cong f q) i
+
+invCongRefl : {x : A} (e : Iso A B) → Iso.inv (congIso {x = x} {y = x} e) refl ≡ refl
+invCongRefl {x = x} e = (λ i → (λ j → Iso.leftInv e x (i ∨ ~ j)) ∙∙ refl ∙∙ (λ j → Iso.leftInv e x (i ∨ j))) ∙ sym (rUnit refl)
