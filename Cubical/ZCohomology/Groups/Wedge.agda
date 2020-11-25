@@ -4,7 +4,6 @@ module Cubical.ZCohomology.Groups.Wedge where
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.MayerVietorisUnreduced
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
@@ -55,6 +54,7 @@ The construction of its inverse is defined by
   f₁∨f₂ (inr x) := f₂ x + f₁ (pt B)
   cong f₁∨f₂ (push tt) := "f₁ (pt A) + f₂ (pt B) =(commutativity) f₂ (pt B) + f₁ (pt A)"
   (this is the map wedgeFun⁻ below)
+  Note that the cong-case above reduces to refl when f₁ (pt A) := f₂ (pt B) := 0
 
 The fact that F and F⁻ cancel out is a proposition and we may thus assume for any
   ∣ f ∣₂ ∈ Hⁿ(A ⋁ B) and its corresponding f₁ that
@@ -94,7 +94,7 @@ and then Pᵣ by
   f (inr (x)) + 0                 ---[right-unit]--->
   f (inr (x))
 
-and finally by using the fact that the groupoid laws for Kₙ are refl at its base point.
+and finally by using the fact that the group laws for Kₙ are refl at its base point.
 -}
 
 module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where

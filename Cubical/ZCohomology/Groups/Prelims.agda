@@ -16,7 +16,6 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
 open import Cubical.HITs.S1
-open import Cubical.HITs.Nullification
 
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Data.Sigma

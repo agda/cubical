@@ -6,37 +6,22 @@ open import Cubical.ZCohomology.Base
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Equiv.Properties
-open import Cubical.Data.Empty
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Wedge
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; setTruncIsSet to §)
 open import Cubical.Data.Int renaming (_+_ to _ℤ+_)
 open import Cubical.Data.Nat renaming (+-assoc to +-assocℕ ; +-comm to +-commℕ)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3 ; map2 to trMap2)
 open import Cubical.Homotopy.Loopspace
-open import Cubical.Homotopy.Connected
-open import Cubical.Homotopy.WedgeConnectivity
-open import Cubical.Homotopy.Freudenthal
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Data.NatMinusOne
-
-open import Cubical.HITs.Pushout
-open import Cubical.Data.Sum.Base hiding (map)
-open import Cubical.Data.HomotopyGroup
 
 open Iso renaming (inv to inv')
 
