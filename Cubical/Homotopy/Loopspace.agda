@@ -41,7 +41,7 @@ Eckmann-Hilton : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ ((Ω^ (suc 
 Eckmann-Hilton {A = A} n α β i =
   comp (λ k → rUnit (snd ((Ω^ (1 + n)) A)) (~ k) ≡ rUnit (snd ((Ω^ (1 + n)) A)) (~ k)) -- note : rUnit refl := lUnit refl
        (λ k → λ { (i = i0) → (cong (λ x → rUnit x (~ k)) α) ∙ cong (λ x → lUnit x (~ k)) β
-               ;  (i = i1) → (cong (λ x → lUnit x (~ k)) β) ∙ cong (λ x → rUnit x (~ k)) α})
+                ;  (i = i1) → (cong (λ x → lUnit x (~ k)) β) ∙ cong (λ x → rUnit x (~ k)) α})
        ((λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j))
 
 isCommA→isCommTrunc : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ A

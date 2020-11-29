@@ -104,6 +104,13 @@ discreteInt (negsuc n) (negsuc m) with discreteℕ n m
 isSetInt : isSet Int
 isSetInt = Discrete→isSet discreteInt
 
+isEven : Int → Bool
+isEven (pos zero) = true
+isEven (pos (suc zero)) = false
+isEven (pos (suc (suc n))) = isEven (pos n)
+isEven (negsuc zero) = false
+isEven (negsuc (suc n)) = isEven (pos n)
+
 _ℕ-_ : ℕ → ℕ → Int
 a ℕ- 0 = pos a
 0 ℕ- suc b = negsuc b
