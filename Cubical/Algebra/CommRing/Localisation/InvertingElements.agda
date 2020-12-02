@@ -20,6 +20,7 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.Sigma.Properties
@@ -106,6 +107,7 @@ module _(R' : CommRing {ℓ}) where
 module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
  open isMultClosedSubset
  open CommRingStr (R' .snd)
+ open CommTheory R'
  open Exponentiation R'
  open Theory (CommRing→Ring R')
  open CommRingStr (R[1/_]AsCommRing R' f .snd) renaming ( _·_ to _·ᶠ_ ; 1r to 1ᶠ ; _+_ to _+ᶠ_
@@ -288,11 +290,12 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
    where
    ∥r/1,1/1≈0/1,1/1∥ = Iso.fun (SQ.isEquivRel→TruncIso (Loc.locIsEquivRel _ _ _) _ _) p
 
-  surχ pathtoR[1/fg] = InvElPropElim _ (λ _ → propTruncIsProp) {!!}
+  surχ pathtoR[1/fg] = InvElPropElim _ (λ _ → propTruncIsProp) foo2
    where
    open Exponentiation (R[1/_]AsCommRing R' f) renaming (_^_ to _^ᶠ_)
+                                               hiding (·-of-^-is-^-of-+ ; ^-ldist-·)
    open CommRingStr (R[1/f][1/g]AsCommRing .snd) renaming (_·_ to _·R[1/f][1/g]_)
-                    hiding (1r ; ·-lid ; ·-rid)
+                    hiding (1r ; ·-lid ; ·-rid ; ·-assoc)
    open Units R[1/f][1/g]AsCommRing
    g/1 : R[1/_] R' f
    g/1 = [ g , 1r , powersFormMultClosedSubset R' f .containsOne ]
@@ -313,7 +316,23 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
          ≡⟨ (λ i → ·-lid (·-lid (r · f ^ (l ∸ m) · g ^ (l ∸ n)) i · ·-rid (g ^ n) i) i
                  · ·-rid (·-lid (·-rid (f ^ m) i) i) i) ⟩
            r · f ^ (l ∸ m) · g ^ (l ∸ n) · g ^ n · f ^ m
-         ≡⟨ {!!} ⟩
+         ≡⟨ cong (_· f ^ m) (sym (·-assoc _ _ _)) ⟩
+           r · f ^ (l ∸ m) · (g ^ (l ∸ n) · g ^ n) · f ^ m
+         ≡⟨ cong (λ x → r · f ^ (l ∸ m) · x · f ^ m) (·-of-^-is-^-of-+ _ _ _) ⟩
+           r · f ^ (l ∸ m) · g ^ (l ∸ n +ℕ n) · f ^ m
+         ≡⟨ cong (λ x → r · f ^ (l ∸ m) · g ^ x · f ^ m) (≤-∸-+-cancel right-≤-max) ⟩
+           r · f ^ (l ∸ m) · g ^ l · f ^ m
+         ≡⟨ ·-commAssocr _ _ _ ⟩
+           r · f ^ (l ∸ m) · f ^ m · g ^ l
+         ≡⟨ cong (_· g ^ l) (sym (·-assoc _ _ _)) ⟩
+           r · (f ^ (l ∸ m) · f ^ m) · g ^ l
+         ≡⟨ cong (λ x → r · x · g ^ l) (·-of-^-is-^-of-+ _ _ _) ⟩
+           r · f ^ (l ∸ m +ℕ m) · g ^ l
+         ≡⟨ cong (λ x → r · f ^ x · g ^ l) (≤-∸-+-cancel left-≤-max) ⟩
+           r · f ^ l · g ^ l
+         ≡⟨ sym (·-assoc _ _ _) ⟩
+           r · (f ^ l · g ^ l)
+         ≡⟨ cong (r ·_) (sym (^-ldist-· _ _ _)) ⟩
            r · (f · g) ^ l
          ≡⟨ sym (·-rid _) ∙ cong (r · (f · g) ^ l ·_) (sym (·-rid _))⟩
            r · (f · g) ^ l · (1r · 1r)
@@ -331,3 +350,8 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
          (x .fst /1/1) ≡ [ r , g/1 ^ᶠ n , ∣ n , refl ∣ ] ·R[1/f][1/g] (x .snd .fst /1/1)
    foo = InvElPropElim _ (λ _ → isPropΠ λ _ → propTruncIsProp) baz
 
+   foo2 : (r : R[1/_] R' f) (n : ℕ) → ∃[ x ∈ R × S[fg] ]
+          (x .fst /1/1) ·R[1/f][1/g]
+          ((x .snd .fst /1/1) ⁻¹) ⦃ φS⊆Aˣ pathtoR[1/fg] (x .snd .fst) (x .snd .snd) ⦄
+        ≡ [ r , g/1 ^ᶠ n , ∣ n , refl ∣ ]
+   foo2 = {!!}

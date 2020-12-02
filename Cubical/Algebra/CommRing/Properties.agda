@@ -124,6 +124,7 @@ module Units (R' : CommRing {ℓ}) where
  unitCong {r = r} {r' = r'} p ⦃ r∈Rˣ ⦄ ⦃ r'∈Rˣ ⦄ =
           PathPΣ (inverseUniqueness r' (r ⁻¹ , subst (λ x → x · r ⁻¹ ≡ 1r) p (r∈Rˣ .snd)) r'∈Rˣ) .fst
 
+ 
 -- some convenient notation
 _ˣ : (R' : CommRing {ℓ}) → ℙ (R' .fst)
 R' ˣ = Units.Rˣ R'
