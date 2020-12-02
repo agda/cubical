@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.ZCohomology.KcompPrelims where
+module Cubical.Experiments.ZCohomologyOld.KcompPrelims where
 
-open import Cubical.ZCohomology.Base
+open import Cubical.Experiments.ZCohomologyOld.Base
 open import Cubical.Homotopy.Connected
 open import Cubical.HITs.Hopf
 open import Cubical.Homotopy.Freudenthal hiding (encode)
@@ -90,10 +90,9 @@ Iso∥ϕ₁∥ : Iso (coHomK 1) (∥ Path (S₊ 2) north north ∥ 3)
 Iso∥ϕ₁∥ = composesToId→Iso d-Iso (trMap (ϕ base)) d-mapId2
 
 Iso-Kn-ΩKn+1 : (n : HLevel) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
-Iso-Kn-ΩKn+1 zero = invIso (compIso (congIso (truncIdempotentIso _ isGroupoidS1)) ΩS¹IsoInt)
+Iso-Kn-ΩKn+1 zero = invIso (compIso (congIso (truncIdempotentIso _ isGroupoidS¹)) ΩS¹IsoInt)
 Iso-Kn-ΩKn+1 (suc zero) = compIso Iso∥ϕ₁∥ (invIso (PathIdTruncIso 3))
-Iso-Kn-ΩKn+1 (suc (suc n)) = compIso (connectedTruncIso2 (4 + n) _ (ϕ north) (n , helper)
-                                                                             (isConnectedσ (suc n) (sphereConnected _)))
+Iso-Kn-ΩKn+1 (suc (suc n)) = compIso (stabSpheres-n≥2 n)
                                      (invIso (PathIdTruncIso (4 + n)))
  where
   helper : n + (4 + n) ≡ 2 + (n + (2 + n))

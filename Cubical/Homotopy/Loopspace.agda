@@ -11,7 +11,10 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.HITs.SetTruncation
-open import Cubical.HITs.Truncation hiding (elim2)
+open import Cubical.HITs.Truncation hiding (elim2) renaming (rec to trRec)
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv.HalfAdjoint
+open Iso
 
 {- loop space of a pointed type -}
 Ω : {ℓ : Level} → Pointed ℓ → Pointed ℓ
@@ -30,13 +33,35 @@ open import Cubical.HITs.Truncation hiding (elim2)
 Ω→ : ∀ {ℓA ℓB} {A : Pointed ℓA} {B : Pointed ℓB} (f : A →∙ B) → (Ω A →∙ Ω B)
 Ω→ (f , f∙) = (λ p → (sym f∙ ∙ cong f p) ∙ f∙) , cong (λ q → q ∙ f∙) (sym (rUnit (sym f∙))) ∙ lCancel f∙
 
-Eckmann-Hilton : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (α β : typ ((Ω^ (2 + n)) A))
-              → α ∙ β ≡ β ∙ α
+{- Commutativity of loop spaces -}
+isComm∙ : ∀ {ℓ} (A : Pointed ℓ) → Type ℓ
+isComm∙ A = (p q : typ (Ω A)) → p ∙ q ≡ q ∙ p
+
+Eckmann-Hilton : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ ((Ω^ (suc n)) A)
 Eckmann-Hilton {A = A} n α β i =
   comp (λ k → rUnit (snd ((Ω^ (1 + n)) A)) (~ k) ≡ rUnit (snd ((Ω^ (1 + n)) A)) (~ k)) -- note : rUnit refl := lUnit refl
        (λ k → λ { (i = i0) → (cong (λ x → rUnit x (~ k)) α) ∙ cong (λ x → lUnit x (~ k)) β
                ;  (i = i1) → (cong (λ x → lUnit x (~ k)) β) ∙ cong (λ x → rUnit x (~ k)) α})
        ((λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j))
+
+isCommA→isCommTrunc : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ A
+                    → isOfHLevel (suc n) (typ A)
+                    → isComm∙ (∥ typ A ∥ (suc n) , ∣ pt A ∣)
+isCommA→isCommTrunc {A = (A , a)} n comm hlev p q =
+    ((λ i j → (leftInv (truncIdempotentIso (suc n) hlev) ((p ∙ q) j) (~ i)))
+ ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (cong (trRec hlev (λ x → x)) (p ∙ q)))
+ ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (congFunct {A = ∥ A ∥ (suc n)} {B = A} (trRec hlev (λ x → x)) p q i)))
+ ∙ ((λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (comm (cong (trRec hlev (λ x → x)) p) (cong (trRec hlev (λ x → x)) q) i))
+ ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (congFunct {A = ∥ A ∥ (suc n)} {B = A} (trRec hlev (λ x → x)) q p (~ i)))
+ ∙∙ (λ i j → (leftInv (truncIdempotentIso (suc n) hlev) ((q ∙ p) j) i)))
+
+ptdIso→comm : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Type ℓ'} (e : Iso (typ A) B) → isComm∙ A → isComm∙ (B , fun e (pt A))
+ptdIso→comm {A = (A , a)} {B = B} e comm p q =
+       sym (rightInv (congIso e) (p ∙ q))
+    ∙∙ (cong (fun (congIso e)) ((invCongFunct e p q)
+                            ∙∙ (comm (inv (congIso e) p) (inv (congIso e) q))
+                            ∙∙ (sym (invCongFunct e q p))))
+    ∙∙ rightInv (congIso e) (q ∙ p)
 
 {- Homotopy group version -}
 π-comp : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → ∥ typ ((Ω^ (suc n)) A) ∥₂

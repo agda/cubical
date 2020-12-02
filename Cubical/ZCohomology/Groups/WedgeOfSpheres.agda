@@ -1,12 +1,13 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.WedgeOfSpheres where
 
 open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.Groups.Wedge
 open import Cubical.ZCohomology.Groups.Connected
+open import Cubical.Data.Int renaming (_+_ to _ℤ+_)
 
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
@@ -14,8 +15,9 @@ open import Cubical.Foundations.Prelude
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.Pushout
-open import Cubical.HITs.Truncation renaming (elim to trElim)
+open import Cubical.HITs.Truncation renaming (elim to trElim) hiding (map ; elim2)
 open import Cubical.Algebra.Group
+open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim)
 
 S¹⋁S¹ : Type₀
 S¹⋁S¹ = S₊∙ 1 ⋁ S₊∙ 1
@@ -48,13 +50,14 @@ H¹-S²⋁S¹⋁S¹ =
   □ lUnitGroupIso
 
 ------------- H²(S²⋁S¹⋁S¹) ---------
+
 H²-S²⋁S¹⋁S¹ : GroupIso (coHomGr 2 S²⋁S¹⋁S¹) intGroup
 H²-S²⋁S¹⋁S¹ =
   compGroupIso
   (Hⁿ-⋁ _ _ 1)
   (dirProdGroupIso {B = trivialGroup}
-    (invGroupIso (Hⁿ-Sⁿ≅ℤ 1))
-    ((Hⁿ-⋁ _ _ 1)  □ dirProdGroupIso H²-S¹≅0 H²-S¹≅0 □ rUnitGroupIso)
+    (Hⁿ-Sⁿ≅ℤ 1)
+    ((Hⁿ-⋁ _ _ 1)  □ dirProdGroupIso (Hⁿ-S¹≅0 0) (Hⁿ-S¹≅0 0) □ rUnitGroupIso)
   □ rUnitGroupIso)
 
 private
@@ -76,13 +79,16 @@ private
   from₀ : Int → coHom 0 S²⋁S¹⋁S¹
   from₀ = GroupIso.inv H⁰-S²⋁S¹⋁S¹
 
-
 {-
--- Computes (a lot slower than for the torus)
-test : to₁ (from₁ (1 , 0) +ₕ from₁ (0 , 1)) ≡ (1 , 1)
-test = refl
+
+-- Compute pretty fast
+test1 : to₁ (from₁ (1 , 0) +ₕ from₁ (0 , 1)) ≡ (1 , 1)
+test1 = refl
+
+test2 : to₁ (from₁ (50 , 3) +ₕ from₁ (2 , -2)) ≡ (52 , 1)
+test2 = refl
 
 -- Does not compute:
-test2 : to₂ (from₂ 0) ≡ 0
-test2 = refl
+test3 : to₂ (from₂ 0) ≡ 0
+test3 = refl
 -}

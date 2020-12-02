@@ -17,6 +17,8 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
 open import Cubical.Data.Sigma
+open import Cubical.HITs.PropositionalTruncation
+  renaming (rec to pRec ; elim to pElim) hiding (elim2 ; elim3 ; rec2 ; map)
 
 private
   variable
@@ -72,6 +74,10 @@ elim3 : {B : (x y z : ∥ A ∥₂) → Type ℓ}
 elim3 Bset g = elim2 (λ _ _ → isSetΠ (λ _ → Bset _ _ _))
                      (λ a b → elim (λ _ → Bset _ _ _) (g a b))
 
+
+map : (A → B) → ∥ A ∥₂ → ∥ B ∥₂
+map f = rec squash₂ λ x → ∣ f x ∣₂
+
 setTruncUniversal : isSet B → (∥ A ∥₂ → B) ≃ (A → B)
 setTruncUniversal {B = B} Bset =
   isoToEquiv (iso (λ h x → h ∣ x ∣₂) (rec Bset) (λ _ → refl) rinv)
@@ -84,14 +90,14 @@ setTruncUniversal {B = B} Bset =
 setTruncIsSet : isSet ∥ A ∥₂
 setTruncIsSet a b p q = squash₂ a b p q
 
+setTruncIdempotentIso : isSet A → Iso ∥ A ∥₂ A
+Iso.fun (setTruncIdempotentIso hA) = rec hA (idfun _)
+Iso.inv (setTruncIdempotentIso hA) x = ∣ x ∣₂
+Iso.rightInv (setTruncIdempotentIso hA) _ = refl
+Iso.leftInv (setTruncIdempotentIso hA) = elim (λ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ → refl)
+
 setTruncIdempotent≃ : isSet A → ∥ A ∥₂ ≃ A
-setTruncIdempotent≃ {A = A} hA = isoToEquiv f
-  where
-  f : Iso ∥ A ∥₂ A
-  Iso.fun f = rec hA (idfun A)
-  Iso.inv f x = ∣ x ∣₂
-  Iso.rightInv f _ = refl
-  Iso.leftInv f = elim (λ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ → refl)
+setTruncIdempotent≃ {A = A} hA = isoToEquiv (setTruncIdempotentIso hA)
 
 setTruncIdempotent : isSet A → ∥ A ∥₂ ≡ A
 setTruncIdempotent hA = ua (setTruncIdempotent≃ hA)
@@ -169,3 +175,23 @@ Iso.rightInv setTruncOfProdIso =
   prodElim (λ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _) λ _ _ → refl
 Iso.leftInv setTruncOfProdIso =
   elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _) λ {(a , b) → refl}
+
+IsoSetTruncateSndΣ : {A : Type ℓ} {B : A → Type ℓ'} → Iso ∥ Σ A B ∥₂ ∥ Σ A (λ x → ∥ B x ∥₂) ∥₂
+Iso.fun IsoSetTruncateSndΣ = map λ a → (fst a) , ∣ snd a ∣₂
+Iso.inv IsoSetTruncateSndΣ = rec setTruncIsSet (uncurry λ x → map λ b → x , b)
+Iso.rightInv IsoSetTruncateSndΣ =
+  elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        (uncurry λ a → elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        λ _ → refl)
+Iso.leftInv IsoSetTruncateSndΣ =
+  elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+         λ _ → refl
+
+PathIdTrunc₀Iso : {a b : A} → Iso (∣ a ∣₂ ≡ ∣ b ∣₂) ∥ a ≡ b ∥
+Iso.fun (PathIdTrunc₀Iso {b = b}) p =
+  transport (λ i → rec {B = TypeOfHLevel _ 1} (isOfHLevelTypeOfHLevel 1)
+                        (λ a → ∥ a ≡ b ∥ , squash) (p (~ i)) .fst)
+            ∣ refl ∣
+Iso.inv PathIdTrunc₀Iso = pRec (squash₂ _ _) (cong ∣_∣₂)
+Iso.rightInv PathIdTrunc₀Iso _ = squash _ _
+Iso.leftInv PathIdTrunc₀Iso _ = squash₂ _ _ _ _

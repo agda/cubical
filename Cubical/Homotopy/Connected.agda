@@ -12,15 +12,14 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Univalence
 open import Cubical.Functions.Fibration
 open import Cubical.Data.Nat
-open import Cubical.Data.Prod hiding (map)
-open import Cubical.Data.Sigma hiding (_×_)
+open import Cubical.Data.Sigma
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SmashProduct
 open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.Pushout
-open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.S1
 open import Cubical.Data.Bool
 open import Cubical.Data.Unit
@@ -169,10 +168,24 @@ isConnectedPath : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isConnected (suc n) A
   → (a₀ a₁ : A) → isConnected n (a₀ ≡ a₁)
 isConnectedPath zero connA a₀ a₁ = isContrUnit*
-isConnectedPath (suc n) connA a₀ a₁ =
-  isOfHLevelRetractFromIso 0
-    (invIso (PathIdTruncIso (suc n)))
+isConnectedPath (suc n) {A = A} connA a₀ a₁ =
+  isContrRetract
+    (Trunc.rec {B = Path (hLevelTrunc (2 + n) A) ∣ a₀ ∣ ∣ a₁ ∣} (isOfHLevelTrunc (2 + n) _ _) (cong ∣_∣))
+    (λ p → transport (λ i → Trunc.rec (isOfHLevelTypeOfHLevel (suc n))
+                                        (λ a → (hLevelTrunc (suc n) (a ≡ a₁))
+                                               , isOfHLevelTrunc (suc n)) (p (~ i)) .fst)
+            ∣ refl ∣)
+    (Trunc.elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
+                (J (λ a₁ p → transport (λ i → HubAndSpoke (p (~ i) ≡ a₁) n) ∣ (λ _ → a₁) ∣ ≡ ∣ p ∣)
+                   (transportRefl ∣ refl ∣)))
     (isContr→isContrPath connA _ _)
+
+isConnectedPathP : ∀ {ℓ} (n : HLevel) {A : I → Type ℓ}
+  → isConnected (suc n) (A i1)
+  → (a₀ : A i0) (a₁ : A i1) → isConnected n (PathP A a₀ a₁)
+isConnectedPathP n con a₀ a₁ =
+  subst (isConnected n) (sym (PathP≡Path _ _ _))
+        (isConnectedPath n con _ _)
 
 isConnectedRetract : ∀ {ℓ ℓ'} (n : HLevel)
   {A : Type ℓ} {B : Type ℓ'}
@@ -301,7 +314,3 @@ inrConnected {A = A} {B = B} {C = C} n f g iscon =
                     (~ i)
                     (equiv-proof (elim.isEquivPrecompose f n Q iscon)
                                  fun .fst .snd i a))
-
-sphereConnected : (n : HLevel) → isConnected (suc n) (S₊ n)
-sphereConnected n = ∣ ptSn n ∣ , (Trunc.elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
-                                               (λ a → sym (spoke ∣_∣ (ptSn n)) ∙ spoke ∣_∣ a))
