@@ -121,6 +121,11 @@ _+_ : Int → Int → Int
 m + pos n = m +pos n
 m + negsuc n = m +negsuc n
 
+-_ : Int → Int
+- pos zero = pos zero
+- pos (suc n) = negsuc n
+- negsuc n = pos (suc n)
+
 _-_ : Int → Int → Int
 m - pos zero    = m
 m - pos (suc n) = m + negsuc n

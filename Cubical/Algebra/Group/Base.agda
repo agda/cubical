@@ -4,7 +4,7 @@ module Cubical.Algebra.Group.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
-open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_)
+open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_; -_ to -Int_)
 open import Cubical.Data.Unit
 
 open import Cubical.Algebra.Monoid
@@ -208,6 +208,6 @@ trivialGroup = Unit , groupstr tt (λ _ _ → tt) (λ _ → tt)
                                    (λ _ → refl) (λ _ → refl))
 
 intGroup : Group₀
-intGroup = Int , groupstr 0 _+Int_ (0 -Int_)
+intGroup = Int , groupstr 0 _+Int_ (_-Int_ 0)
                  (makeIsGroup isSetInt +-assoc (λ x → refl) (λ x → +-comm 0 x)
                               (λ x → +-comm x (pos 0 -Int x) ∙ minusPlus x 0) (λ x → minusPlus x 0))

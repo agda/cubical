@@ -19,7 +19,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv.HalfAdjoint
 
-open import Cubical.Data.Int renaming (_+_ to +Int)
+open import Cubical.Data.Int renaming (_+_ to +Int) hiding (_·_)
 open import Cubical.Data.Nat hiding (_·_)
 open import Cubical.Data.Unit
 

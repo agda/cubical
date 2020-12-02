@@ -7,7 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
-open import Cubical.Data.Int
+open import Cubical.Data.Int hiding (_·_)
 open import Cubical.Data.Sigma
 open import Cubical.Foundations.Function
 

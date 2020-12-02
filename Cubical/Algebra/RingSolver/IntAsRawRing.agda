@@ -9,4 +9,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Algebra.RingSolver.RawRing
 
 ℤAsRawRing : RawRing {ℓ-zero}
-ℤAsRawRing = rawring ℤ (pos zero) (pos (suc zero)) _+_ _·_ (λ k → (pos zero) - k)
+ℤAsRawRing = rawring ℤ (pos zero) (pos (suc zero)) _+_ _·_ (λ k → - k)
+
++Ridℤ : (k : ℤ) → (pos zero) + k ≡ k
++Ridℤ k = sym (pos0+ k)

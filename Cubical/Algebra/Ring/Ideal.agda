@@ -56,18 +56,18 @@ module _ (R' : Ring {ℓ}) where
   isIdealZeroIdeal : isIdeal zeroSubset
   isIdealZeroIdeal = record
                        { +-closed = λ x≡0 y≡0 → _ + _    ≡⟨ cong (λ u → u + _) x≡0 ⟩
-                                                0r + _   ≡⟨ +-lid _ ⟩
+                                                0r + _   ≡⟨ +Lid _ ⟩
                                                 _        ≡⟨ y≡0 ⟩
                                                 0r        ∎
                        ; -closed = λ x≡0 → - _ ≡⟨ cong (λ u → - u) x≡0 ⟩
-                                           - 0r ≡⟨ 0-selfinverse ⟩
+                                           - 0r ≡⟨ 0Selfinverse ⟩
                                            0r ∎
                        ; 0r-closed = refl
                        ; ·-closedLeft = λ r x≡0 → r · _ ≡⟨ cong (λ u → r · u) x≡0 ⟩
-                                                  r · 0r ≡⟨ 0-rightNullifies r  ⟩
+                                                  r · 0r ≡⟨ 0RightAnnihilates r  ⟩
                                                   0r ∎
                        ; ·-closedRight = λ r x≡0 → _ · r ≡⟨ cong (λ u → u · r) x≡0 ⟩
-                                                   0r · r ≡⟨ 0-leftNullifies r ⟩
+                                                   0r · r ≡⟨ 0LeftAnnihilates r ⟩
                                                    0r ∎
                        }
 

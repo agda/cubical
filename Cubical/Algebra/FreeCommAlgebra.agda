@@ -117,7 +117,7 @@ R [ I ] = let open Construction R
 module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
   open CommRingStr (snd R)
          using (0r; 1r)
-         renaming (_·_ to _·r_; _+_ to _+r_; ·-comm to ·r-comm; ·-rid to ·r-rid)
+         renaming (_·_ to _·r_; _+_ to _+r_; ·-comm to ·r-comm; ·Rid to ·r-rid)
 
   module _ (A : CommAlgebra R) (φ : I → ⟨ A ⟩a) where
     open CommAlgebra A
@@ -154,19 +154,19 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
       in eq i
     inducedMap (Construction.+-comm P Q i) = +-comm (inducedMap P) (inducedMap Q) i
     inducedMap (P ·c Q) = inducedMap P · inducedMap Q
-    inducedMap (Construction.·-assoc P Q S i) = ·-assoc (inducedMap P) (inducedMap Q) (inducedMap S) i
+    inducedMap (Construction.·-assoc P Q S i) = ·Assoc (inducedMap P) (inducedMap Q) (inducedMap S) i
     inducedMap (Construction.·-lid P i) =
       let eq = inducedMap (const 1r) · inducedMap P ≡⟨ cong (λ u → u · inducedMap P) imageOf1Works ⟩
-               1a · inducedMap P                    ≡⟨ ·-lid (inducedMap P) ⟩
+               1a · inducedMap P                    ≡⟨ ·Lid (inducedMap P) ⟩
                inducedMap P ∎
       in eq i
     inducedMap (Construction.·-comm P Q i) = ·-comm (inducedMap P) (inducedMap Q) i
-    inducedMap (Construction.ldist P Q S i) = ·-ldist-+ (inducedMap P) (inducedMap Q) (inducedMap S) i
+    inducedMap (Construction.ldist P Q S i) = ·Ldist+ (inducedMap P) (inducedMap Q) (inducedMap S) i
     inducedMap (Construction.+HomConst s t i) = ⋆-ldist s t 1a i
     inducedMap (Construction.·HomConst s t i) =
       let eq = (s ·r t) ⋆ 1a       ≡⟨ cong (λ u → u ⋆ 1a) (·r-comm _ _) ⟩
                (t ·r s) ⋆ 1a       ≡⟨ ⋆-assoc t s 1a ⟩
-               t ⋆ (s ⋆ 1a)        ≡⟨ cong (λ u → t ⋆ u) (sym (·-rid _)) ⟩
+               t ⋆ (s ⋆ 1a)        ≡⟨ cong (λ u → t ⋆ u) (sym (·Rid _)) ⟩
                t ⋆ ((s ⋆ 1a) · 1a) ≡⟨ ⋆-rassoc t (s ⋆ 1a) 1a ⟩
                (s ⋆ 1a) · (t ⋆ 1a) ∎
       in eq i
@@ -180,7 +180,7 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
                    (λ x y → refl)
                    imageOf1Works
                    λ r x → (r ⋆ 1a) · inducedMap x ≡⟨ ⋆-lassoc r 1a (inducedMap x) ⟩
-                           r ⋆ (1a · inducedMap x) ≡⟨ cong (λ u → r ⋆ u) (·-lid (inducedMap x)) ⟩
+                           r ⋆ (1a · inducedMap x) ≡⟨ cong (λ u → r ⋆ u) (·Lid (inducedMap x)) ⟩
                            r ⋆ inducedMap x ∎
 
   module _ (A : CommAlgebra R) where
