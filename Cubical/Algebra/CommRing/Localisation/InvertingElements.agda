@@ -354,4 +354,14 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
           (x .fst /1/1) ·R[1/f][1/g]
           ((x .snd .fst /1/1) ⁻¹) ⦃ φS⊆Aˣ pathtoR[1/fg] (x .snd .fst) (x .snd .snd) ⦄
         ≡ [ r , g/1 ^ᶠ n , ∣ n , refl ∣ ]
-   foo2 = {!!}
+   foo2 r n = PT.map Σhelper (foo r n)
+    where
+    Σhelper : Σ[ x ∈ R × S[fg] ]
+               (x .fst /1/1) ≡ [ r , g/1 ^ᶠ n , ∣ n , refl ∣ ] ·R[1/f][1/g] (x .snd .fst /1/1)
+            → Σ[ x ∈ R × S[fg] ]
+               (x .fst /1/1) ·R[1/f][1/g] ((x .snd .fst /1/1) ⁻¹)
+               ⦃ φS⊆Aˣ pathtoR[1/fg] (x .snd .fst) (x .snd .snd) ⦄
+               ≡ [ r , g/1 ^ᶠ n , ∣ n , refl ∣ ]
+    Σhelper ((r' , s , s∈S[fg]) , p) = (r' , s , s∈S[fg])
+                                     , ⁻¹-eq-elim ⦃ φS⊆Aˣ pathtoR[1/fg] s s∈S[fg] ⦄ p
+
