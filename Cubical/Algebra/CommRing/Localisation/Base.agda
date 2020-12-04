@@ -32,6 +32,7 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.RingSolver.CommRingSolver
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -76,15 +77,17 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMul
  locSym : isSym _≈_
  locSym (r , s , s∈S') (r' , s' , s'∈S') (u , p) = u , sym p
 
+ open VarNames5 R'
  locTrans : isTrans _≈_
  locTrans (r , s , s∈S') (r' , s' , s'∈S') (r'' , s'' , s''∈S') ((u , u∈S') , p) ((v , v∈S') , q) =
    ((u · v · s') , SMultClosedSubset .multClosed (SMultClosedSubset .multClosed u∈S' v∈S') s'∈S')
    , path
   where
   path : u · v · s' · r · s'' ≡ u · v · s' · r'' · s
-  path = u · v · s' · r · s''   ≡⟨ cong (_· s'') (·-commAssocr _ _ _) ⟩
-         u · v · r · s' · s''   ≡⟨ cong (λ x → x · s' · s'') (·-commAssocr _ _ _) ⟩
-         u · r · v · s' · s''   ≡⟨ cong (_· s'') (·-commAssocr _ _ _) ⟩
+  path = u · v · s' · r · s''   ≡⟨ solve R' (X4 ·' X5 ·' X1 ·' X3 ·' X2)
+                                             (X4 ·' X3 ·' X1 ·' X5 ·' X2)
+                                             (s' ∷ s'' ∷ r ∷ u ∷ v ∷ [])
+                                             refl ⟩
          u · r · s' · v · s''   ≡⟨ cong (λ x → x · v · s'') p ⟩
          u · r' · s · v · s''   ≡⟨ cong (λ x → x · v · s'') (·-commAssocr _ _ _) ⟩
          u · s · r' · v · s''   ≡⟨ cong (_· s'') (·-commAssocr _ _ _) ⟩

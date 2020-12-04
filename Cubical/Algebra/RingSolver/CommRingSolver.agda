@@ -162,3 +162,60 @@ solve : (R : CommRing {ℓ})
         → _
 solve R = EqualityToNormalform.solve R
 
+module VarNames3 (R : CommRing {ℓ}) where
+  X1 : ℤExpr R 3
+  X1 = ∣ Fin.zero
+
+  X2 : ℤExpr R 3
+  X2 = ∣ (suc Fin.zero)
+
+  X3 : ℤExpr R 3
+  X3 = ∣ (suc (suc Fin.zero))
+
+module VarNames4 (R : CommRing {ℓ}) where
+  X1 : ℤExpr R 4
+  X1 = ∣ Fin.zero
+
+  X2 : ℤExpr R 4
+  X2 = ∣ (suc Fin.zero)
+
+  X3 : ℤExpr R 4
+  X3 = ∣ (suc (suc Fin.zero))
+
+  X4 : ℤExpr R 4
+  X4 = ∣ (suc (suc (suc Fin.zero)))
+
+module VarNames5 (R : CommRing {ℓ}) where
+  X1 : ℤExpr R 5
+  X1 = ∣ Fin.zero
+
+  X2 : ℤExpr R 5
+  X2 = ∣ (suc Fin.zero)
+
+  X3 : ℤExpr R 5
+  X3 = ∣ (suc (suc Fin.zero))
+
+  X4 : ℤExpr R 5
+  X4 = ∣ (suc (suc (suc Fin.zero)))
+
+  X5 : ℤExpr R 5
+  X5 = ∣ (suc (suc (suc (suc Fin.zero))))
+
+module VarNames6 (R : CommRing {ℓ}) where
+  X1 : ℤExpr R 6
+  X1 = ∣ Fin.zero
+
+  X2 : ℤExpr R 6
+  X2 = ∣ (suc Fin.zero)
+
+  X3 : ℤExpr R 6
+  X3 = ∣ (suc (suc Fin.zero))
+
+  X4 : ℤExpr R 6
+  X4 = ∣ (suc (suc (suc Fin.zero)))
+
+  X5 : ℤExpr R 6
+  X5 = ∣ (suc (suc (suc (suc Fin.zero))))
+
+  X6 : ℤExpr R 6
+  X6 = ∣ (suc (suc (suc (suc (suc Fin.zero)))))
