@@ -11,7 +11,8 @@ open import Cubical.Algebra.RingSolver.IntAsRawRing public
 open import Cubical.Algebra.RingSolver.CommRingAsAlmostRing
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
-open import Cubical.Data.Int.Properties using (+-assoc; +-comm; pos0+) renaming (-_ to -ℤ_; _+_ to _+ℤ_)
+open import Cubical.Data.Int.Properties using (+-assoc; +-comm; pos0+; sucPred)
+                                        renaming (-_ to -ℤ_; _+_ to _+ℤ_)
 
 private
   variable
@@ -69,13 +70,13 @@ module _ (R : CommRing {ℓ}) where
   -DistScalar (pos (ℕ.suc n)) = refl
   -DistScalar (negsuc n) = sym (-Idempotent _)
 
-  lemma : (k : ℤ)
+  lemmaSuc : (k : ℤ)
           → scalar (sucInt k) ≡ 1r + scalar k
-  lemma (pos ℕ.zero) = sym (+Rid _)
-  lemma (pos (ℕ.suc ℕ.zero)) = refl
-  lemma (pos (ℕ.suc (ℕ.suc n))) = refl
-  lemma (negsuc ℕ.zero) = sym (+Rinv _)
-  lemma (negsuc (ℕ.suc n)) =
+  lemmaSuc (pos ℕ.zero) = sym (+Rid _)
+  lemmaSuc (pos (ℕ.suc ℕ.zero)) = refl
+  lemmaSuc (pos (ℕ.suc (ℕ.suc n))) = refl
+  lemmaSuc (negsuc ℕ.zero) = sym (+Rinv _)
+  lemmaSuc (negsuc (ℕ.suc n)) =
     scalar (negsuc n)                        ≡⟨ sym (+Lid (scalar (negsuc n))) ⟩
     0r + scalar (negsuc n)                  ≡[ i ]⟨ +Rinv 1r (~ i) + scalar (negsuc n) ⟩
     (1r - 1r) + scalar (negsuc n)           ≡⟨ sym (+Assoc _ _ _) ⟩
@@ -83,6 +84,16 @@ module _ (R : CommRing {ℓ}) where
     1r + -(1r + scalar (pos (ℕ.suc n)))    ≡⟨ refl ⟩
     1r + -(scalar (pos (ℕ.suc (ℕ.suc n)))) ≡⟨ refl ⟩
     1r + scalar (negsuc (ℕ.suc n)) ∎
+
+  lemmaPred : (k : ℤ)
+          → scalar (predInt k) ≡ - 1r + scalar k
+  lemmaPred k = sym(
+    - 1r + scalar k                      ≡[ i ]⟨ - 1r + scalar (sucPred k (~ i)) ⟩
+    - 1r + scalar (sucInt (predInt k))   ≡[ i ]⟨ - 1r + lemmaSuc (predInt k) i ⟩
+    - 1r + (1r + scalar (predInt k))     ≡⟨ +Assoc _ _ _ ⟩
+    (- 1r + 1r) + scalar (predInt k)     ≡[ i ]⟨ +Linv 1r i + scalar (predInt k) ⟩
+    0r + scalar (predInt k)              ≡⟨ +Lid _ ⟩
+    scalar (predInt k)  ∎)
 
   +HomScalar : (k l : ℤ)
                → scalar (k +ℤ l) ≡ (scalar k) + (scalar l)
@@ -95,7 +106,7 @@ module _ (R : CommRing {ℓ}) where
   +HomScalar (pos (ℕ.suc ℕ.zero)) l =
     scalar (1 +ℤ l)                         ≡[ i ]⟨ scalar (+-comm 1 l i) ⟩
     scalar (l  +ℤ 1)                        ≡⟨ refl ⟩
-    scalar (sucInt l)                       ≡⟨ lemma l ⟩
+    scalar (sucInt l)                       ≡⟨ lemmaSuc l ⟩
     1r + scalar l                           ≡⟨ refl ⟩
     scalar (pos (ℕ.suc ℕ.zero)) + scalar l ∎
 
@@ -110,7 +121,24 @@ module _ (R : CommRing {ℓ}) where
     (1r + scalar (pos (ℕ.suc n))) + scalar l   ≡⟨ refl ⟩
     scalar (pos (ℕ.suc (ℕ.suc n))) + scalar l ∎
 
-  +HomScalar (negsuc n) l = {!!}
+  +HomScalar (negsuc ℕ.zero) l =
+    scalar (-1 +ℤ l)                  ≡[ i ]⟨ scalar (+-comm -1 l i) ⟩
+    scalar (l +ℤ -1)                  ≡⟨ refl ⟩
+    scalar (predInt l)                ≡⟨ lemmaPred l ⟩
+    - 1r + scalar l                    ≡⟨ refl ⟩
+    scalar -1 + scalar l ∎
+
+  +HomScalar (negsuc (ℕ.suc n)) l =
+    scalar (negsuc (ℕ.suc n) +ℤ l)               ≡⟨ refl ⟩
+    scalar ((negsuc n +ℤ -1) +ℤ l)               ≡[ i ]⟨ scalar (+-comm (negsuc n) -1 i +ℤ l) ⟩
+    scalar ((-1 +ℤ negsuc n) +ℤ l)               ≡[ i ]⟨ scalar (+-assoc -1 (negsuc n) l (~ i)) ⟩
+    scalar (-1 +ℤ (negsuc n +ℤ l))               ≡⟨ +HomScalar -1 (negsuc n +ℤ l) ⟩
+    - 1r + scalar (negsuc n +ℤ l)                 ≡[ i ]⟨ - 1r + +HomScalar (negsuc n) l i ⟩
+    - 1r + (scalar (negsuc n) + scalar l)         ≡⟨ +Assoc (- 1r) _ _ ⟩
+    (- 1r + (scalar (negsuc n))) + scalar l       ≡⟨ refl ⟩
+    (- 1r + - scalar (pos (ℕ.suc n))) + scalar l ≡[ i ]⟨ -Dist 1r (scalar (pos (ℕ.suc n))) i + scalar l ⟩
+    (- (1r + scalar (pos (ℕ.suc n)))) + scalar l ≡⟨ refl ⟩
+    scalar (negsuc (ℕ.suc n)) + scalar l ∎
 
 AlmostRing→RawℤAlgebra : CommRing {ℓ} → RawAlgebra ℤAsRawRing ℓ
 AlmostRing→RawℤAlgebra (R , commringstr 0r 1r _+_ _·_ -_ isCommRing) =

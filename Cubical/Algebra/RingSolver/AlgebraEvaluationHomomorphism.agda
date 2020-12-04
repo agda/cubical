@@ -77,7 +77,7 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
   +HomEval :
     (n : ℕ) (P Q : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)
     → Eval n (P +ₕ Q) xs ≡ (Eval n P xs) + (Eval n Q xs)
-  +HomEval .ℕ.zero (const x) (const y) [] = {!!}
+  +HomEval .ℕ.zero (const x) (const y) [] = +HomScalar R x y
   +HomEval n 0H Q xs =
     Eval n (0H +ₕ Q) xs            ≡⟨ refl ⟩
     Eval n Q xs                    ≡⟨ sym (+Lid _) ⟩
@@ -109,6 +109,7 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
    ≡⟨ refl ⟩
     Eval (ℕ.suc _) (P ·X+ Q) (x ∷ xs)
     + Eval (ℕ.suc _) (S ·X+ T) (x ∷ xs) ∎
+{-
 
   ⋆HomEval : (n : ℕ)
              (r : IteratedHornerForms νR n)
@@ -187,7 +188,7 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
                   Eval (ℕ.suc n) (0H ·X+ 0ₕ) (x ∷ xs) ∎
   ... | (_ ·X+ _) = refl
 
-  ·HomEval .ℕ.zero (const x) (const y) [] = {!!} -- refl
+  ·HomEval .ℕ.zero (const x) (const y) [] = {!!}
   ·HomEval (ℕ.suc n) 0H Q xs =
     Eval (ℕ.suc n) (0H ·ₕ Q) xs        ≡⟨ Eval0H _ xs ⟩
     0r                                 ≡⟨ sym (0LeftAnnihilates _) ⟩
@@ -227,3 +228,4 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
       ((Eval (ℕ.suc n) P (x ∷ xs) · x) + Eval n Q xs) · Eval (ℕ.suc n) S (x ∷ xs)
     ≡⟨ refl ⟩
       Eval (ℕ.suc n) (P ·X+ Q) (x ∷ xs) · Eval (ℕ.suc n) S (x ∷ xs) ∎
+-}
