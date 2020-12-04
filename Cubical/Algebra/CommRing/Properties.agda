@@ -37,12 +37,12 @@ module Units (R' : CommRing {ℓ}) where
  inverseUniqueness r (r' , rr'≡1) (r'' , rr''≡1) = Σ≡Prop (λ _ → is-set _ _) path
   where
   path : r' ≡ r''
-  path = r'             ≡⟨ sym (·-rid _) ⟩
+  path = r'             ≡⟨ sym (·Rid _) ⟩
          r' · 1r        ≡⟨ cong (r' ·_) (sym rr''≡1) ⟩
-         r' · (r · r'') ≡⟨ ·-assoc _ _ _ ⟩
+         r' · (r · r'') ≡⟨ ·Assoc _ _ _ ⟩
          (r' · r) · r'' ≡⟨ cong (_· r'') (·-comm _ _) ⟩
          (r · r') · r'' ≡⟨ cong (_· r'') rr'≡1 ⟩
-         1r · r''       ≡⟨ ·-lid _ ⟩
+         1r · r''       ≡⟨ ·Lid _ ⟩
          r''            ∎
 
 
@@ -69,55 +69,55 @@ module Units (R' : CommRing {ℓ}) where
   where
   path : r · r' · (r ⁻¹ · r' ⁻¹) ≡ 1r
   path = r · r' · (r ⁻¹ · r' ⁻¹) ≡⟨ cong (_· (r ⁻¹ · r' ⁻¹)) (·-comm _ _) ⟩
-         r' · r · (r ⁻¹ · r' ⁻¹) ≡⟨ ·-assoc _ _ _ ⟩
-         r' · r · r ⁻¹ · r' ⁻¹   ≡⟨ cong (_· r' ⁻¹) (sym (·-assoc _ _ _)) ⟩
+         r' · r · (r ⁻¹ · r' ⁻¹) ≡⟨ ·Assoc _ _ _ ⟩
+         r' · r · r ⁻¹ · r' ⁻¹   ≡⟨ cong (_· r' ⁻¹) (sym (·Assoc _ _ _)) ⟩
          r' · (r · r ⁻¹) · r' ⁻¹ ≡⟨ cong (λ x → r' · x · r' ⁻¹) (·-rinv _) ⟩
-         r' · 1r · r' ⁻¹         ≡⟨ cong (_· r' ⁻¹) (·-rid _) ⟩
+         r' · 1r · r' ⁻¹         ≡⟨ cong (_· r' ⁻¹) (·Rid _) ⟩
          r' · r' ⁻¹              ≡⟨ ·-rinv _ ⟩
          1r ∎
 
  RˣContainsOne : 1r ∈ Rˣ
- RˣContainsOne = 1r , ·-lid _
+ RˣContainsOne = 1r , ·Lid _
 
  RˣInvClosed : (r : R) ⦃ _ : r ∈ Rˣ ⦄ → r ⁻¹ ∈ Rˣ
  RˣInvClosed r = r , ·-linv _
 
  UnitsAreNotZeroDivisors : (r : R) ⦃ _ : r ∈ Rˣ ⦄
                          → ∀ r' → r' · r ≡ 0r → r' ≡ 0r
- UnitsAreNotZeroDivisors r r' p = r'              ≡⟨ sym (·-rid _) ⟩
+ UnitsAreNotZeroDivisors r r' p = r'              ≡⟨ sym (·Rid _) ⟩
                                   r' · 1r         ≡⟨ cong (r' ·_) (sym (·-rinv _)) ⟩
-                                  r' · (r · r ⁻¹) ≡⟨ ·-assoc _ _ _ ⟩
+                                  r' · (r · r ⁻¹) ≡⟨ ·Assoc _ _ _ ⟩
                                   r' · r · r ⁻¹   ≡⟨ cong (_· r ⁻¹) p ⟩
-                                  0r · r ⁻¹       ≡⟨ 0-leftNullifies _ ⟩
+                                  0r · r ⁻¹       ≡⟨ 0LeftAnnihilates _ ⟩
                                   0r ∎
 
 
  -- laws keeping the instance arguments
  1⁻¹≡1 : ⦃ 1∈Rˣ' : 1r ∈ Rˣ ⦄ → 1r ⁻¹ ≡ 1r
- 1⁻¹≡1 ⦃ 1∈Rˣ' ⦄ = (sym (·-lid _)) ∙ 1∈Rˣ' .snd
+ 1⁻¹≡1 ⦃ 1∈Rˣ' ⦄ = (sym (·Lid _)) ∙ 1∈Rˣ' .snd
 
  ⁻¹-dist-· : (r r' : R) ⦃ r∈Rˣ : r ∈ Rˣ ⦄ ⦃ r'∈Rˣ : r' ∈ Rˣ ⦄ ⦃ rr'∈Rˣ : (r · r') ∈ Rˣ ⦄
            → (r · r') ⁻¹ ≡ r ⁻¹ · r' ⁻¹
  ⁻¹-dist-· r r' ⦃ r∈Rˣ ⦄ ⦃ r'∈Rˣ ⦄ ⦃ rr'∈Rˣ ⦄ =
-                 sym path ∙∙ cong (r ⁻¹ · r' ⁻¹ ·_) (rr'∈Rˣ .snd) ∙∙ (·-rid _)
+                 sym path ∙∙ cong (r ⁻¹ · r' ⁻¹ ·_) (rr'∈Rˣ .snd) ∙∙ (·Rid _)
   where
   path : r ⁻¹ · r' ⁻¹ · (r · r' · (r · r') ⁻¹) ≡ (r · r') ⁻¹
   path = r ⁻¹ · r' ⁻¹ · (r · r' · (r · r') ⁻¹)
-       ≡⟨ ·-assoc _ _ _ ⟩
+       ≡⟨ ·Assoc _ _ _ ⟩
          r ⁻¹ · r' ⁻¹ · (r · r') · (r · r') ⁻¹
        ≡⟨ cong (λ x → r ⁻¹ · r' ⁻¹ · x · (r · r') ⁻¹) (·-comm _ _) ⟩
          r ⁻¹ · r' ⁻¹ · (r' · r) · (r · r') ⁻¹
-       ≡⟨ cong (_· (r · r') ⁻¹) (sym (·-assoc _ _ _)) ⟩
+       ≡⟨ cong (_· (r · r') ⁻¹) (sym (·Assoc _ _ _)) ⟩
          r ⁻¹ · (r' ⁻¹ · (r' · r)) · (r · r') ⁻¹
-       ≡⟨ cong (λ x → r ⁻¹ · x · (r · r') ⁻¹) (·-assoc _ _ _) ⟩
+       ≡⟨ cong (λ x → r ⁻¹ · x · (r · r') ⁻¹) (·Assoc _ _ _) ⟩
          r ⁻¹ · (r' ⁻¹ · r' · r) · (r · r') ⁻¹
        ≡⟨ cong (λ x → r ⁻¹ · (x · r) · (r · r') ⁻¹) (·-linv _) ⟩
          r ⁻¹ · (1r · r) · (r · r') ⁻¹
-       ≡⟨ cong (λ x → r ⁻¹ · x · (r · r') ⁻¹) (·-lid _) ⟩
+       ≡⟨ cong (λ x → r ⁻¹ · x · (r · r') ⁻¹) (·Lid _) ⟩
          r ⁻¹ · r · (r · r') ⁻¹
        ≡⟨ cong (_· (r · r') ⁻¹) (·-linv _) ⟩
          1r · (r · r') ⁻¹
-       ≡⟨ ·-lid _ ⟩
+       ≡⟨ ·Lid _ ⟩
          (r · r') ⁻¹ ∎
 
  unitCong : {r r' : R} → r ≡ r' → ⦃ r∈Rˣ : r ∈ Rˣ ⦄ ⦃ r'∈Rˣ : r' ∈ Rˣ ⦄ → r ⁻¹ ≡ r' ⁻¹
@@ -134,8 +134,8 @@ module RingHomRespUnits {A' B' : CommRing {ℓ}} (φ : CommRingHom A' B') where
  open CommRingStr (A' .snd) renaming (_·_ to _·A_ ; 1r to 1a)
  open Units B' renaming (Rˣ to Bˣ ; _⁻¹ to _⁻¹ᵇ ; ·-rinv to ·B-rinv)
  open CommRingStr (B' .snd) renaming ( _·_ to _·B_ ; 1r to 1b
-                                     ; ·-lid to ·B-lid ; ·-rid to ·B-rid
-                                     ; ·-assoc to ·B-assoc)
+                                     ; ·Lid to ·B-lid ; ·Rid to ·B-rid
+                                     ; ·Assoc to ·B-assoc)
  open RingHom
 
  RingHomRespInv : (r : A) ⦃ r∈Aˣ : r ∈ Aˣ ⦄ → f φ r ∈ Bˣ
@@ -167,20 +167,20 @@ module Exponentiation (R' : CommRing {ℓ}) where
 
  -- and prove some laws
  ·-of-^-is-^-of-+ : (f : R) (m n : ℕ) → (f ^ m) · (f ^ n) ≡ f ^ (m +ℕ n)
- ·-of-^-is-^-of-+ f zero n = ·-lid _
- ·-of-^-is-^-of-+ f (suc m) n = sym (·-assoc _ _ _) ∙ cong (f ·_) (·-of-^-is-^-of-+ f m n)
+ ·-of-^-is-^-of-+ f zero n = ·Lid _
+ ·-of-^-is-^-of-+ f (suc m) n = sym (·Assoc _ _ _) ∙ cong (f ·_) (·-of-^-is-^-of-+ f m n)
 
  ^-ldist-· : (f g : R) (n : ℕ) → (f · g) ^ n ≡ (f ^ n) · (g ^ n)
- ^-ldist-· f g zero = sym (·-lid 1r)
+ ^-ldist-· f g zero = sym (·Lid 1r)
  ^-ldist-· f g (suc n) = path
   where
   path : f · g · ((f · g) ^ n) ≡ f · (f ^ n) · (g · (g ^ n))
   path = f · g · ((f · g) ^ n)       ≡⟨ cong (f · g ·_) (^-ldist-· f g n) ⟩
-         f · g · ((f ^ n) · (g ^ n)) ≡⟨ ·-assoc _ _ _ ⟩
-         f · g · (f ^ n) · (g ^ n)   ≡⟨ cong (_· (g ^ n)) (sym (·-assoc _ _ _)) ⟩
+         f · g · ((f ^ n) · (g ^ n)) ≡⟨ ·Assoc _ _ _ ⟩
+         f · g · (f ^ n) · (g ^ n)   ≡⟨ cong (_· (g ^ n)) (sym (·Assoc _ _ _)) ⟩
          f · (g · (f ^ n)) · (g ^ n) ≡⟨ cong (λ r → (f · r) · (g ^ n)) (·-comm _ _) ⟩
-         f · ((f ^ n) · g) · (g ^ n) ≡⟨ cong (_· (g ^ n)) (·-assoc _ _ _) ⟩
-         f · (f ^ n) · g · (g ^ n)   ≡⟨ sym (·-assoc _ _ _) ⟩
+         f · ((f ^ n) · g) · (g ^ n) ≡⟨ cong (_· (g ^ n)) (·Assoc _ _ _) ⟩
+         f · (f ^ n) · g · (g ^ n)   ≡⟨ sym (·Assoc _ _ _) ⟩
          f · (f ^ n) · (g · (g ^ n)) ∎
 
 
@@ -190,15 +190,15 @@ module CommTheory (R' : CommRing {ℓ}) where
  private R = R' .fst
 
  ·-commAssocl : (x y z : R) → x · (y · z) ≡ y · (x · z)
- ·-commAssocl x y z = ·-assoc x y z ∙∙ cong (_· z) (·-comm x y) ∙∙ sym (·-assoc y x z)
+ ·-commAssocl x y z = ·Assoc x y z ∙∙ cong (_· z) (·-comm x y) ∙∙ sym (·Assoc y x z)
 
  ·-commAssocr : (x y z : R) → x · y · z ≡ x · z · y
- ·-commAssocr x y z = sym (·-assoc x y z) ∙∙ cong (x ·_) (·-comm y z) ∙∙ ·-assoc x z y
+ ·-commAssocr x y z = sym (·Assoc x y z) ∙∙ cong (x ·_) (·-comm y z) ∙∙ ·Assoc x z y
 
 
  ·-commAssocr2 : (x y z : R) → x · y · z ≡ z · y · x
  ·-commAssocr2 x y z = ·-commAssocr _ _ _ ∙∙ cong (_· y) (·-comm _ _) ∙∙ ·-commAssocr _ _ _
 
  ·-commAssocSwap : (x y z w : R) → (x · y) · (z · w) ≡ (x · z) · (y · w)
- ·-commAssocSwap x y z w = ·-assoc (x · y) z w ∙∙ cong (_· w) (·-commAssocr x y z)
-                                               ∙∙ sym (·-assoc (x · z) y w)
+ ·-commAssocSwap x y z w = ·Assoc (x · y) z w ∙∙ cong (_· w) (·-commAssocr x y z)
+                                               ∙∙ sym (·Assoc (x · z) y w)

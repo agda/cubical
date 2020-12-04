@@ -216,7 +216,7 @@ intGroup : Group₀
 fst intGroup = Int
 0g (snd intGroup) = 0
 _+_ (snd intGroup) = _+Int_
-- snd intGroup = 0 -Int_
+- snd intGroup = _-Int_ 0
 isGroup (snd intGroup) = isGroupInt
   where
   abstract

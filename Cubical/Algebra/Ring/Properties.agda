@@ -154,7 +154,7 @@ module Theory (R' : Ring {ℓ}) where
     (a + c) + (b + d) ∎
 
   ·-assoc2 : (x y z w : R) → (x · y) · (z · w) ≡ x · (y · z) · w
-  ·-assoc2 x y z w = ·-assoc (x · y) z w ∙ cong (_· w) (sym (·-assoc x y z))
+  ·-assoc2 x y z w = ·Assoc (x · y) z w ∙ cong (_· w) (sym (·Assoc x y z))
 
 module HomTheory {R S : Ring {ℓ}} (f′ : RingHom  R S) where
   open Theory ⦃...⦄
@@ -188,7 +188,7 @@ module HomTheory {R S : Ring {ℓ}} (f′ : RingHom  R S) where
    path = f (x - y)     ≡⟨ isHom+ _ _ ⟩
           f x + f (- y) ≡⟨ cong (f x +_) (-commutesWithHom _) ⟩
           f x - f y     ≡⟨ cong (_- f y) p ⟩
-          f y - f y     ≡⟨ +-rinv _ ⟩
+          f y - f y     ≡⟨ +Rinv _ ⟩
           0r            ∎
 
 
