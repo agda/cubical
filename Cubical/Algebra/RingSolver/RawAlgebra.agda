@@ -38,31 +38,21 @@ record RawAlgebra (R : RawRing {ℓ}) (ℓ′ : Level) : Type (ℓ-suc (ℓ-max 
 ⟨_⟩ : {R : RawRing {ℓ}} → RawAlgebra R ℓ′ → Type ℓ′
 ⟨_⟩ = RawAlgebra.Carrier
 
-module _ (A : AlmostRing {ℓ}) where
-    open AlmostRing A
-
-    scalarℕ : ℕ → Carrier
-    scalarℕ ℕ.zero = 0r
-    scalarℕ (ℕ.suc ℕ.zero) = 1r
-    scalarℕ (ℕ.suc (ℕ.suc n)) = 1r + scalarℕ (ℕ.suc n)
-
 {-
   Mapping to integer scalars and its (homorphism) properties.
 -}
 module _ (R : CommRing {ℓ}) where
-    A = (CommRingAsAlmostRing R)
-    open AlmostRing A
-
-    scalarℤ : ℤ → Carrier
-    scalarℤ (pos k)  = scalarℕ A k
-    scalarℤ (negsuc k)  = - scalarℕ A (ℕ.suc k)
-
-module _ (R : CommRing {ℓ}) where
-  open Cubical.Algebra.Ring.Theory (CommRing→Ring R)
   open CommRingStr (snd R)
+  open Cubical.Algebra.Ring.Theory (CommRing→Ring R)
 
-  scalar : ℤ → fst R
-  scalar = scalarℤ R
+  scalarℕ : ℕ → (fst R)
+  scalarℕ ℕ.zero = 0r
+  scalarℕ (ℕ.suc ℕ.zero) = 1r
+  scalarℕ (ℕ.suc (ℕ.suc n)) = 1r + scalarℕ (ℕ.suc n)
+
+  scalar : ℤ → (fst R)
+  scalar (pos k)  = scalarℕ k
+  scalar (negsuc k)  = - scalarℕ (ℕ.suc k)
 
   -DistScalar : (k : ℤ)
                 → scalar (-ℤ k) ≡ - (scalar k)

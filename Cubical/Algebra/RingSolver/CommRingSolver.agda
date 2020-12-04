@@ -161,3 +161,4 @@ solve : (R : CommRing {ℓ})
         (p : eval n (EqualityToNormalform.normalize R n e₁) xs ≡ eval n (EqualityToNormalform.normalize R n e₂) xs)
         → _
 solve R = EqualityToNormalform.solve R
+
