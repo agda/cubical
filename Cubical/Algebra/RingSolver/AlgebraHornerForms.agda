@@ -40,14 +40,14 @@ data IteratedHornerForms {R : RawRing {ℓ}} (A : RawAlgebra R ℓ′) : ℕ →
   _·X+_ : {n : ℕ} → IteratedHornerForms A (ℕ.suc n) → IteratedHornerForms A n
                   → IteratedHornerForms A (ℕ.suc n)
 
-Eval : {R : RawRing {ℓ}} {A : RawAlgebra R ℓ′}
+eval : {R : RawRing {ℓ}} {A : RawAlgebra R ℓ′}
        (n : ℕ) (P : IteratedHornerForms A n)
        → Vec ⟨ A ⟩ₐ n → ⟨ A ⟩ₐ
-Eval {A = A} ℕ.zero (const r) [] = RawAlgebra.scalar A r
-Eval {A = A} .(ℕ.suc _) 0H (_ ∷ _) = RawAlgebra.0r A
-Eval {A = A} (ℕ.suc n) (P ·X+ Q) (x ∷ xs) =
+eval {A = A} ℕ.zero (const r) [] = RawAlgebra.scalar A r
+eval {A = A} .(ℕ.suc _) 0H (_ ∷ _) = RawAlgebra.0r A
+eval {A = A} (ℕ.suc n) (P ·X+ Q) (x ∷ xs) =
   let open RawAlgebra A
-  in (Eval (ℕ.suc n) P (x ∷ xs)) · x + Eval n Q xs
+  in (eval (ℕ.suc n) P (x ∷ xs)) · x + eval n Q xs
 
 module IteratedHornerOperations {R : RawRing {ℓ}} (A : RawAlgebra R ℓ′) where
   open RawRing R
