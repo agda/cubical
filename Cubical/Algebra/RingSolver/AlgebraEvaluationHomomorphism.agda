@@ -18,7 +18,7 @@ private
 
 module HomomorphismProperties (R : CommRing {ℓ}) where
   private
-    νR = AlmostRing→RawℤAlgebra R
+    νR = CommRing→RawℤAlgebra R
   open CommRingStr (snd R)
   open Theory (CommRing→Ring R)
   open IteratedHornerOperations νR

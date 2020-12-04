@@ -185,6 +185,6 @@ module _ (R : CommRing {ℓ}) where
     (- 1r + scalar (negsuc n)) · scalar l          ≡[ i ]⟨ lemma-1 n i · scalar l ⟩
     scalar (negsuc (ℕ.suc n)) · scalar l ∎
 
-AlmostRing→RawℤAlgebra : CommRing {ℓ} → RawAlgebra ℤAsRawRing ℓ
-AlmostRing→RawℤAlgebra (R , commringstr 0r 1r _+_ _·_ -_ isCommRing) =
+CommRing→RawℤAlgebra : CommRing {ℓ} → RawAlgebra ℤAsRawRing ℓ
+CommRing→RawℤAlgebra (R , commringstr 0r 1r _+_ _·_ -_ isCommRing) =
   rawalgebra R (scalar ((R , commringstr 0r 1r _+_ _·_ -_ isCommRing))) 0r 1r _+_ _·_ -_
