@@ -330,14 +330,17 @@ basechange2-retr =
   toPropElim (λ s → isOfHLevelΠ 1 λ x → isSetΩx _ _ _)
              λ _ → refl
 
-basedΩS¹≡ΩS¹ : (x : S¹) → basedΩS¹ x ≡ ΩS¹
-basedΩS¹≡ΩS¹ x = isoToPath (iso (basechange2⁻ x)
-                                (basechange2 x)
-                                (basechange2-retr x)
-                                (basechange2-sect x))
+Iso-basedΩS¹-ΩS¹ : (x : S¹) → Iso (basedΩS¹ x) ΩS¹
+Iso.fun (Iso-basedΩS¹-ΩS¹ x) = basechange2⁻ x
+Iso.inv (Iso-basedΩS¹-ΩS¹ x) = basechange2 x
+Iso.rightInv (Iso-basedΩS¹-ΩS¹ x) = basechange2-retr x
+Iso.leftInv (Iso-basedΩS¹-ΩS¹ x) = basechange2-sect x
+
+Iso-basedΩS¹-Int : (x : S¹) → Iso (basedΩS¹ x) Int
+Iso-basedΩS¹-Int x = compIso (Iso-basedΩS¹-ΩS¹ x) ΩS¹IsoInt
 
 basedΩS¹≡Int : (x : S¹) → basedΩS¹ x ≡ Int
-basedΩS¹≡Int x = (basedΩS¹≡ΩS¹ x) ∙ ΩS¹≡Int
+basedΩS¹≡Int x = isoToPath (Iso-basedΩS¹-Int x)
 
 -- baschange2⁻ is a morphism
 
