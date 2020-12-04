@@ -201,5 +201,5 @@ module ExamplesForArbitraryRings (R : AlmostRing {ℓ}) where
   _ = λ x y a b → let
                 lhs = (X ⊕ Y) ⊗ (X ⊕ (⊝ Y))
                 rhs = (X ⊗ X) ⊕ (⊝ (Y ⊗ Y))
-              in SolveExplicit 4 lhs rhs (x ∷ y ∷ a ∷ b ∷ []) {!!}
+              in solve lhs rhs (x ∷ y ∷ a ∷ b ∷ []) {!!}
 -}
