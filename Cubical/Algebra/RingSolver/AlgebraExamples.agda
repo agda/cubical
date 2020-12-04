@@ -32,23 +32,23 @@ module MultivariateSolving (R : CommRing {ℓ}) where
   _ : (x y z : (fst R)) → x · y · z ≡ z · y · x
   _ = λ x y z →
               let
-                lhs = X ⊗ Y ⊗ Z
-                rhs = Z ⊗ Y ⊗ X
+                lhs = X ·' Y ·' Z
+                rhs = Z ·' Y ·' X
               in solve R lhs rhs (x ∷ y ∷ z ∷ []) refl
 
   _ : (x y z : (fst R)) → x · (y + z) ≡ z · x + y · x
   _ = λ x y z →
               let
-                lhs = X ⊗ (Y ⊕ Z)
-                rhs = Z ⊗ X ⊕ Y ⊗ X
+                lhs = X ·' (Y +' Z)
+                rhs = Z ·' X +' Y ·' X
               in solve R lhs rhs (x ∷ y ∷ z ∷ []) refl
 
 
   _ : (x y z : (fst R)) → x · (y - z) ≡ (- z) · x + y · x
   _ = λ x y z →
               let
-                lhs = X ⊗ (Y ⊕ (⊝ Z))
-                rhs = (⊝ Z) ⊗ X ⊕ (Y ⊗ X)
+                lhs = X ·' (Y +' (-' Z))
+                rhs = (-' Z) ·' X +' (Y ·' X)
               in solve R lhs rhs (x ∷ y ∷ z ∷ []) refl
 
 
@@ -59,12 +59,12 @@ module MultivariateSolving (R : CommRing {ℓ}) where
                 ≡ x · x · x · x + (scalar R 4) · x · x · x · y + (scalar R 6) · x · x · y · y
                   +  (scalar R 4) · x · y · y · y + y · y · y · y
   _ = λ x y z → let
-              lhs = (X ⊕ Y) ⊗ (X ⊕ Y) ⊗ (X ⊕ Y) ⊗ (X ⊕ Y)
-              rhs = X ⊗ X ⊗ X ⊗ X
-                  ⊕ (K 4) ⊗ X ⊗ X ⊗ X ⊗ Y
-                  ⊕ (K 6) ⊗ X ⊗ X ⊗ Y ⊗ Y
-                  ⊕ (K 4) ⊗ X ⊗ Y ⊗ Y ⊗ Y
-                  ⊕ Y ⊗ Y ⊗ Y ⊗ Y
+              lhs = (X +' Y) ·' (X +' Y) ·' (X +' Y) ·' (X +' Y)
+              rhs = X ·' X ·' X ·' X
+                  +' (K 4) ·' X ·' X ·' X ·' Y
+                  +' (K 6) ·' X ·' X ·' Y ·' Y
+                  +' (K 4) ·' X ·' Y ·' Y ·' Y
+                  +' Y ·' Y ·' Y ·' Y
              in solve R lhs rhs (x ∷ y ∷ z ∷ []) refl
 
 {-
@@ -73,8 +73,8 @@ module MultivariateSolving (R : CommRing {ℓ}) where
   _ : (x y z : (fst R)) → (x + y) · (x - y) ≡ (x · x - y · y)
   _ = λ x y z →
               let
-                lhs = (X ⊕ Y) ⊗ (X ⊕ (⊝ Y))
-                rhs = (X ⊗ X) ⊕ (⊝ (Y ⊗ Y))
+                lhs = (X +' Y) ·' (X +' (-' Y))
+                rhs = (X ·' X) +' (-' (Y ·' Y))
               in solve R lhs rhs (x ∷ y ∷ z ∷ []) {!!}
 
 
