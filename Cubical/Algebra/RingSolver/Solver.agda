@@ -17,7 +17,7 @@ private
   variable
     ℓ : Level
 
-module EqualityToReification (R : AlmostRing {ℓ}) where
+module EqualityToNormalform (R : AlmostRing {ℓ}) where
   νR = AlmostRing→RawRing R
   open AlmostRing R
   open Theory R
@@ -25,126 +25,126 @@ module EqualityToReification (R : AlmostRing {ℓ}) where
   open IteratedHornerOperations νR
   open HomomorphismProperties R
 
-  Reify : (n : ℕ) → Expr ⟨ R ⟩ n → IteratedHornerForms νR n
-  Reify n (K r) = Constant n νR r
-  Reify n (∣ k) = Variable n νR k
-  Reify n (x ⊕ y) =
-    (Reify n x) +ₕ (Reify n y)
-  Reify n (x ⊗ y) =
-    (Reify n x) ·ₕ (Reify n y)
-  Reify n (⊝ x) =  -ₕ (Reify n x)
+  normalize : (n : ℕ) → Expr ⟨ R ⟩ n → IteratedHornerForms νR n
+  normalize n (K r) = Constant n νR r
+  normalize n (∣ k) = Variable n νR k
+  normalize n (x ⊕ y) =
+    (normalize n x) +ₕ (normalize n y)
+  normalize n (x ⊗ y) =
+    (normalize n x) ·ₕ (normalize n y)
+  normalize n (⊝ x) =  -ₕ (normalize n x)
 
-  IsEqualToReification :
+  isEqualToNormalform :
             (n : ℕ)
             (e : Expr ⟨ R ⟩ n) (xs : Vec ⟨ R ⟩ n)
-          → Eval n (Reify n e) xs ≡ ⟦ e ⟧ xs
-  IsEqualToReification ℕ.zero (K r) [] = refl
-  IsEqualToReification (ℕ.suc n) (K r) (x ∷ xs) =
-     Eval (ℕ.suc n) (Constant (ℕ.suc n) νR r) (x ∷ xs)           ≡⟨ refl ⟩
-     Eval (ℕ.suc n) (0ₕ ·X+ Constant n νR r) (x ∷ xs)             ≡⟨ refl ⟩
-     Eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + Eval n (Constant n νR r) xs
-    ≡⟨ cong (λ u → u · x + Eval n (Constant n νR r) xs) (Eval0H _ (x ∷ xs)) ⟩
-     0r · x + Eval n (Constant n νR r) xs
-    ≡⟨ cong (λ u → u + Eval n (Constant n νR r) xs) (0LeftAnnihilates _) ⟩
-     0r + Eval n (Constant n νR r) xs                             ≡⟨ +Lid _ ⟩
-     Eval n (Constant n νR r) xs
-    ≡⟨ IsEqualToReification n (K r) xs ⟩
+          → eval n (normalize n e) xs ≡ ⟦ e ⟧ xs
+  isEqualToNormalform ℕ.zero (K r) [] = refl
+  isEqualToNormalform (ℕ.suc n) (K r) (x ∷ xs) =
+     eval (ℕ.suc n) (Constant (ℕ.suc n) νR r) (x ∷ xs)           ≡⟨ refl ⟩
+     eval (ℕ.suc n) (0ₕ ·X+ Constant n νR r) (x ∷ xs)             ≡⟨ refl ⟩
+     eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + eval n (Constant n νR r) xs
+    ≡⟨ cong (λ u → u · x + eval n (Constant n νR r) xs) (eval0H _ (x ∷ xs)) ⟩
+     0r · x + eval n (Constant n νR r) xs
+    ≡⟨ cong (λ u → u + eval n (Constant n νR r) xs) (0LeftAnnihilates _) ⟩
+     0r + eval n (Constant n νR r) xs                             ≡⟨ +Lid _ ⟩
+     eval n (Constant n νR r) xs
+    ≡⟨ isEqualToNormalform n (K r) xs ⟩
      r ∎
 
-  IsEqualToReification (ℕ.suc n) (∣ zero) (x ∷ xs) =
-    Eval (ℕ.suc n) (1ₕ ·X+ 0ₕ) (x ∷ xs)           ≡⟨ refl ⟩
-    Eval (ℕ.suc n) 1ₕ (x ∷ xs) · x + Eval n 0ₕ xs ≡⟨ cong (λ u → u · x + Eval n 0ₕ xs)
-                                                          (Eval1ₕ _ (x ∷ xs)) ⟩
-    1r · x + Eval n 0ₕ xs                         ≡⟨ cong (λ u → 1r · x + u ) (Eval0H _ xs) ⟩
+  isEqualToNormalform (ℕ.suc n) (∣ zero) (x ∷ xs) =
+    eval (ℕ.suc n) (1ₕ ·X+ 0ₕ) (x ∷ xs)           ≡⟨ refl ⟩
+    eval (ℕ.suc n) 1ₕ (x ∷ xs) · x + eval n 0ₕ xs ≡⟨ cong (λ u → u · x + eval n 0ₕ xs)
+                                                          (eval1ₕ _ (x ∷ xs)) ⟩
+    1r · x + eval n 0ₕ xs                         ≡⟨ cong (λ u → 1r · x + u ) (eval0H _ xs) ⟩
     1r · x + 0r                                   ≡⟨ +Rid _ ⟩
     1r · x                                        ≡⟨ ·Lid _ ⟩
     x ∎
-  IsEqualToReification (ℕ.suc n) (∣ (suc k)) (x ∷ xs) =
-      Eval (ℕ.suc n) (0ₕ ·X+ Variable n νR k) (x ∷ xs)             ≡⟨ refl ⟩
-      Eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + Eval n (Variable n νR k) xs
-    ≡⟨ cong (λ u → u · x + Eval n (Variable n νR k) xs) (Eval0H _ (x ∷ xs)) ⟩
-      0r · x + Eval n (Variable n νR k) xs
-    ≡⟨ cong (λ u → u + Eval n (Variable n νR k) xs) (0LeftAnnihilates _) ⟩
-      0r + Eval n (Variable n νR k) xs                             ≡⟨ +Lid _ ⟩
-      Eval n (Variable n νR k) xs
-    ≡⟨ IsEqualToReification n (∣ k) xs ⟩
+  isEqualToNormalform (ℕ.suc n) (∣ (suc k)) (x ∷ xs) =
+      eval (ℕ.suc n) (0ₕ ·X+ Variable n νR k) (x ∷ xs)             ≡⟨ refl ⟩
+      eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + eval n (Variable n νR k) xs
+    ≡⟨ cong (λ u → u · x + eval n (Variable n νR k) xs) (eval0H _ (x ∷ xs)) ⟩
+      0r · x + eval n (Variable n νR k) xs
+    ≡⟨ cong (λ u → u + eval n (Variable n νR k) xs) (0LeftAnnihilates _) ⟩
+      0r + eval n (Variable n νR k) xs                             ≡⟨ +Lid _ ⟩
+      eval n (Variable n νR k) xs
+    ≡⟨ isEqualToNormalform n (∣ k) xs ⟩
       ⟦ ∣ (suc k) ⟧ (x ∷ xs) ∎
 
-  IsEqualToReification ℕ.zero (⊝ e) [] =
-    Eval ℕ.zero (-ₕ (Reify ℕ.zero e)) [] ≡⟨ -EvalDist ℕ.zero
-                                                                  (Reify ℕ.zero e)
+  isEqualToNormalform ℕ.zero (⊝ e) [] =
+    eval ℕ.zero (-ₕ (normalize ℕ.zero e)) [] ≡⟨ -evalDist ℕ.zero
+                                                                  (normalize ℕ.zero e)
                                                                   [] ⟩
-    - Eval ℕ.zero (Reify ℕ.zero e) []    ≡⟨ cong -_
-                                                          (IsEqualToReification
+    - eval ℕ.zero (normalize ℕ.zero e) []    ≡⟨ cong -_
+                                                          (isEqualToNormalform
                                                             ℕ.zero e [] ) ⟩
     - ⟦ e ⟧ [] ∎
-  IsEqualToReification (ℕ.suc n) (⊝ e) (x ∷ xs) =
-    Eval (ℕ.suc n) (-ₕ (Reify (ℕ.suc n) e)) (x ∷ xs) ≡⟨ -EvalDist (ℕ.suc n)
-                                                                  (Reify
+  isEqualToNormalform (ℕ.suc n) (⊝ e) (x ∷ xs) =
+    eval (ℕ.suc n) (-ₕ (normalize (ℕ.suc n) e)) (x ∷ xs) ≡⟨ -evalDist (ℕ.suc n)
+                                                                  (normalize
                                                                     (ℕ.suc n) e)
                                                                   (x ∷ xs) ⟩
-    - Eval (ℕ.suc n) (Reify (ℕ.suc n) e) (x ∷ xs)    ≡⟨ cong -_
-                                                          (IsEqualToReification
+    - eval (ℕ.suc n) (normalize (ℕ.suc n) e) (x ∷ xs)    ≡⟨ cong -_
+                                                          (isEqualToNormalform
                                                             (ℕ.suc n) e (x ∷ xs) ) ⟩
     - ⟦ e ⟧ (x ∷ xs) ∎
 
-  IsEqualToReification ℕ.zero (e ⊕ e₁) [] =
-        Eval ℕ.zero (Reify ℕ.zero e +ₕ Reify ℕ.zero e₁) []
-      ≡⟨ +HomEval ℕ.zero (Reify ℕ.zero e) _ [] ⟩
-        Eval ℕ.zero (Reify ℕ.zero e) []
-        + Eval ℕ.zero (Reify ℕ.zero e₁) []
-      ≡⟨ cong (λ u → u + Eval ℕ.zero (Reify ℕ.zero e₁) [])
-              (IsEqualToReification ℕ.zero e []) ⟩
+  isEqualToNormalform ℕ.zero (e ⊕ e₁) [] =
+        eval ℕ.zero (normalize ℕ.zero e +ₕ normalize ℕ.zero e₁) []
+      ≡⟨ +Homeval ℕ.zero (normalize ℕ.zero e) _ [] ⟩
+        eval ℕ.zero (normalize ℕ.zero e) []
+        + eval ℕ.zero (normalize ℕ.zero e₁) []
+      ≡⟨ cong (λ u → u + eval ℕ.zero (normalize ℕ.zero e₁) [])
+              (isEqualToNormalform ℕ.zero e []) ⟩
         ⟦ e ⟧ []
-        + Eval ℕ.zero (Reify ℕ.zero e₁) []
-      ≡⟨ cong (λ u → ⟦ e ⟧ [] + u) (IsEqualToReification ℕ.zero e₁ []) ⟩
+        + eval ℕ.zero (normalize ℕ.zero e₁) []
+      ≡⟨ cong (λ u → ⟦ e ⟧ [] + u) (isEqualToNormalform ℕ.zero e₁ []) ⟩
         ⟦ e ⟧ [] + ⟦ e₁ ⟧ [] ∎
-  IsEqualToReification (ℕ.suc n) (e ⊕ e₁) (x ∷ xs) =
-        Eval (ℕ.suc n) (Reify (ℕ.suc n) e
-                         +ₕ Reify (ℕ.suc n) e₁) (x ∷ xs)
-      ≡⟨ +HomEval (ℕ.suc n) (Reify (ℕ.suc n) e) _ (x ∷ xs) ⟩
-        Eval (ℕ.suc n) (Reify (ℕ.suc n) e) (x ∷ xs)
-        + Eval (ℕ.suc n) (Reify (ℕ.suc n) e₁) (x ∷ xs)
-      ≡⟨ cong (λ u → u + Eval (ℕ.suc n) (Reify (ℕ.suc n) e₁) (x ∷ xs))
-              (IsEqualToReification (ℕ.suc n) e (x ∷ xs)) ⟩
+  isEqualToNormalform (ℕ.suc n) (e ⊕ e₁) (x ∷ xs) =
+        eval (ℕ.suc n) (normalize (ℕ.suc n) e
+                         +ₕ normalize (ℕ.suc n) e₁) (x ∷ xs)
+      ≡⟨ +Homeval (ℕ.suc n) (normalize (ℕ.suc n) e) _ (x ∷ xs) ⟩
+        eval (ℕ.suc n) (normalize (ℕ.suc n) e) (x ∷ xs)
+        + eval (ℕ.suc n) (normalize (ℕ.suc n) e₁) (x ∷ xs)
+      ≡⟨ cong (λ u → u + eval (ℕ.suc n) (normalize (ℕ.suc n) e₁) (x ∷ xs))
+              (isEqualToNormalform (ℕ.suc n) e (x ∷ xs)) ⟩
         ⟦ e ⟧ (x ∷ xs)
-        + Eval (ℕ.suc n) (Reify (ℕ.suc n) e₁) (x ∷ xs)
+        + eval (ℕ.suc n) (normalize (ℕ.suc n) e₁) (x ∷ xs)
       ≡⟨ cong (λ u → ⟦ e ⟧ (x ∷ xs) + u)
-              (IsEqualToReification (ℕ.suc n) e₁ (x ∷ xs)) ⟩
+              (isEqualToNormalform (ℕ.suc n) e₁ (x ∷ xs)) ⟩
         ⟦ e ⟧ (x ∷ xs) + ⟦ e₁ ⟧ (x ∷ xs) ∎
 
-  IsEqualToReification ℕ.zero (e ⊗ e₁) [] =
-        Eval ℕ.zero (Reify ℕ.zero e ·ₕ Reify ℕ.zero e₁) []
-      ≡⟨ ·HomEval ℕ.zero (Reify ℕ.zero e) _ [] ⟩
-        Eval ℕ.zero (Reify ℕ.zero e) []
-        · Eval ℕ.zero (Reify ℕ.zero e₁) []
-      ≡⟨ cong (λ u → u · Eval ℕ.zero (Reify ℕ.zero e₁) [])
-              (IsEqualToReification ℕ.zero e []) ⟩
+  isEqualToNormalform ℕ.zero (e ⊗ e₁) [] =
+        eval ℕ.zero (normalize ℕ.zero e ·ₕ normalize ℕ.zero e₁) []
+      ≡⟨ ·Homeval ℕ.zero (normalize ℕ.zero e) _ [] ⟩
+        eval ℕ.zero (normalize ℕ.zero e) []
+        · eval ℕ.zero (normalize ℕ.zero e₁) []
+      ≡⟨ cong (λ u → u · eval ℕ.zero (normalize ℕ.zero e₁) [])
+              (isEqualToNormalform ℕ.zero e []) ⟩
         ⟦ e ⟧ []
-        · Eval ℕ.zero (Reify ℕ.zero e₁) []
-      ≡⟨ cong (λ u → ⟦ e ⟧ [] · u) (IsEqualToReification ℕ.zero e₁ []) ⟩
+        · eval ℕ.zero (normalize ℕ.zero e₁) []
+      ≡⟨ cong (λ u → ⟦ e ⟧ [] · u) (isEqualToNormalform ℕ.zero e₁ []) ⟩
         ⟦ e ⟧ [] · ⟦ e₁ ⟧ [] ∎
 
-  IsEqualToReification (ℕ.suc n) (e ⊗ e₁) (x ∷ xs) =
-        Eval (ℕ.suc n) (Reify (ℕ.suc n) e
-                         ·ₕ Reify (ℕ.suc n) e₁) (x ∷ xs)
-      ≡⟨ ·HomEval (ℕ.suc n) (Reify (ℕ.suc n) e) _ (x ∷ xs) ⟩
-        Eval (ℕ.suc n) (Reify (ℕ.suc n) e) (x ∷ xs)
-        · Eval (ℕ.suc n) (Reify (ℕ.suc n) e₁) (x ∷ xs)
-      ≡⟨ cong (λ u → u · Eval (ℕ.suc n) (Reify (ℕ.suc n) e₁) (x ∷ xs))
-              (IsEqualToReification (ℕ.suc n) e (x ∷ xs)) ⟩
+  isEqualToNormalform (ℕ.suc n) (e ⊗ e₁) (x ∷ xs) =
+        eval (ℕ.suc n) (normalize (ℕ.suc n) e
+                         ·ₕ normalize (ℕ.suc n) e₁) (x ∷ xs)
+      ≡⟨ ·Homeval (ℕ.suc n) (normalize (ℕ.suc n) e) _ (x ∷ xs) ⟩
+        eval (ℕ.suc n) (normalize (ℕ.suc n) e) (x ∷ xs)
+        · eval (ℕ.suc n) (normalize (ℕ.suc n) e₁) (x ∷ xs)
+      ≡⟨ cong (λ u → u · eval (ℕ.suc n) (normalize (ℕ.suc n) e₁) (x ∷ xs))
+              (isEqualToNormalform (ℕ.suc n) e (x ∷ xs)) ⟩
         ⟦ e ⟧ (x ∷ xs)
-        · Eval (ℕ.suc n) (Reify (ℕ.suc n) e₁) (x ∷ xs)
+        · eval (ℕ.suc n) (normalize (ℕ.suc n) e₁) (x ∷ xs)
       ≡⟨ cong (λ u → ⟦ e ⟧ (x ∷ xs) · u)
-              (IsEqualToReification (ℕ.suc n) e₁ (x ∷ xs)) ⟩
+              (isEqualToNormalform (ℕ.suc n) e₁ (x ∷ xs)) ⟩
         ⟦ e ⟧ (x ∷ xs) · ⟦ e₁ ⟧ (x ∷ xs) ∎
 
-  SolveExplicit :
-    (n : ℕ) (e₁ e₂ : Expr ⟨ R ⟩ n) (xs : Vec ⟨ R ⟩ n)
-    (p : Eval n (Reify n e₁) xs ≡ Eval n (Reify n e₂) xs)
+  solve :
+    {n : ℕ} (e₁ e₂ : Expr ⟨ R ⟩ n) (xs : Vec ⟨ R ⟩ n)
+    (p : eval n (normalize n e₁) xs ≡ eval n (normalize n e₂) xs)
     → ⟦ e₁ ⟧ xs ≡ ⟦ e₂ ⟧ xs
-  SolveExplicit n e₁ e₂ xs p =
-    ⟦ e₁ ⟧ xs                          ≡⟨ sym (IsEqualToReification n e₁ xs) ⟩
-    Eval n (Reify n e₁) xs ≡⟨ p ⟩
-    Eval n (Reify n e₂) xs ≡⟨ IsEqualToReification n e₂ xs ⟩
+  solve e₁ e₂ xs p =
+    ⟦ e₁ ⟧ xs                  ≡⟨ sym (isEqualToNormalform _ e₁ xs) ⟩
+    eval _ (normalize _ e₁) xs ≡⟨ p ⟩
+    eval _ (normalize _ e₂) xs ≡⟨ isEqualToNormalform _ e₂ xs ⟩
     ⟦ e₂ ⟧ xs ∎
