@@ -33,12 +33,23 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
   Eval0H .ℕ.zero [] = refl
   Eval0H .(ℕ.suc _) (x ∷ xs) = refl
 
+  combineCasesEval :
+    {n : ℕ}  (P : IteratedHornerForms νR (ℕ.suc n)) (Q : IteratedHornerForms νR n)
+    (x : (fst R)) (xs : Vec ⟨ νR ⟩ n)
+    → eval (ℕ.suc n) (P ·X+ Q) (x ∷ xs) ≡ (eval (ℕ.suc n) P (x ∷ xs)) · x + eval n Q xs
+  combineCasesEval {n = n} 0H Q x xs =
+    eval n Q xs               ≡⟨ sym (+Lid _) ⟩
+    0r + eval n Q xs          ≡[ i ]⟨ 0LeftAnnihilates x (~ i) + eval n Q xs ⟩
+    0r · x + eval n Q xs ∎
+  combineCasesEval {n = n} (P ·X+ P₁) Q x xs = refl
+
+
   Eval1ₕ : (n : ℕ) (xs : Vec ⟨ νR ⟩ n)
          → eval {A = νR} n 1ₕ xs ≡ 1r
   Eval1ₕ .ℕ.zero [] = refl
   Eval1ₕ (ℕ.suc n) (x ∷ xs) =
     eval (ℕ.suc n) 1ₕ (x ∷ xs)                             ≡⟨ refl ⟩
-    eval (ℕ.suc n) (0H ·X+ 1ₕ) (x ∷ xs)                    ≡⟨ refl ⟩
+    eval (ℕ.suc n) (0H ·X+ 1ₕ) (x ∷ xs)                    ≡⟨ combineCasesEval 0H 1ₕ x xs ⟩
     eval {A = νR} (ℕ.suc n) 0H (x ∷ xs) · x + eval n 1ₕ xs ≡⟨ cong (λ u → u · x + eval n 1ₕ xs)
                                                                    (Eval0H _ (x ∷ xs)) ⟩
     0r · x + eval n 1ₕ xs                                   ≡⟨ cong (λ u → 0r · x + u)
@@ -61,7 +72,7 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
       eval (ℕ.suc _) (-ₕ (P ·X+ Q)) (x ∷ xs)
     ≡⟨ refl ⟩
       eval (ℕ.suc _) ((-ₕ P) ·X+ (-ₕ Q)) (x ∷ xs)
-    ≡⟨ refl ⟩
+    ≡⟨ combineCasesEval (-ₕ P) (-ₕ Q) x xs ⟩
       (eval (ℕ.suc _) (-ₕ P) (x ∷ xs)) · x + eval _ (-ₕ Q) xs
     ≡⟨ cong (λ u → u · x + eval _ (-ₕ Q) xs) (-EvalDist _ P _) ⟩
       (- eval (ℕ.suc _) P (x ∷ xs)) · x + eval _ (-ₕ Q) xs
@@ -71,8 +82,9 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
       - ((eval (ℕ.suc _) P (x ∷ xs)) · x) + (- eval _ Q xs)
     ≡⟨ -Dist _ _ ⟩
       - ((eval (ℕ.suc _) P (x ∷ xs)) · x + eval _ Q xs)
-    ≡⟨ refl ⟩
+    ≡[ i ]⟨ - combineCasesEval P Q x xs (~ i) ⟩
       - eval (ℕ.suc _) (P ·X+ Q) (x ∷ xs) ∎
+
 
   +Homeval :
     (n : ℕ) (P Q : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)
@@ -93,7 +105,7 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
     eval (ℕ.suc _) ((P ·X+ Q) +ₕ (S ·X+ T)) (x ∷ xs)
    ≡⟨ refl ⟩
     eval (ℕ.suc _) ((P +ₕ S) ·X+ (Q +ₕ T)) (x ∷ xs)
-   ≡⟨ refl ⟩
+   ≡⟨ combineCasesEval (P +ₕ S) (Q +ₕ T) x xs ⟩
     (eval (ℕ.suc _) (P +ₕ S) (x ∷ xs)) · x + eval _ (Q +ₕ T) xs
    ≡⟨ cong (λ u → (eval (ℕ.suc _) (P +ₕ S) (x ∷ xs)) · x + u) (+Homeval _ Q T xs) ⟩
     (eval (ℕ.suc _) (P +ₕ S) (x ∷ xs)) · x + (eval _ Q xs + eval _ T xs)
@@ -106,7 +118,7 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
    ≡⟨ +ShufflePairs _ _ _ _ ⟩
     ((eval (ℕ.suc _) P (x ∷ xs)) · x + eval _ Q xs)
     + ((eval (ℕ.suc _) S (x ∷ xs)) · x + eval _ T xs)
-   ≡⟨ refl ⟩
+   ≡[ i ]⟨ combineCasesEval P Q x xs (~ i) + combineCasesEval S T x xs (~ i) ⟩
     eval (ℕ.suc _) (P ·X+ Q) (x ∷ xs)
     + eval (ℕ.suc _) (S ·X+ T) (x ∷ xs) ∎
 
@@ -126,7 +138,8 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
   ⋆0LeftAnnihilates n 0H xs = Eval0H (ℕ.suc n) xs
   ⋆0LeftAnnihilates n (P ·X+ Q) (x ∷ xs) =
       eval (ℕ.suc n) (0ₕ ⋆ (P ·X+ Q)) (x ∷ xs)                    ≡⟨ refl ⟩
-      eval (ℕ.suc n) ((0ₕ ⋆ P) ·X+ (0ₕ ·ₕ Q)) (x ∷ xs)             ≡⟨ refl ⟩
+      eval (ℕ.suc n) ((0ₕ ⋆ P) ·X+ (0ₕ ·ₕ Q)) (x ∷ xs)
+    ≡⟨ combineCasesEval (0ₕ ⋆ P) (0ₕ ·ₕ Q) x xs ⟩
       (eval (ℕ.suc n) (0ₕ ⋆ P) (x ∷ xs)) · x + eval n (0ₕ ·ₕ Q) xs
     ≡⟨ cong (λ u → (u · x) + eval _ (0ₕ ·ₕ Q) _) (⋆0LeftAnnihilates n P (x ∷ xs)) ⟩
       0r · x + eval n (0ₕ ·ₕ Q) xs
@@ -148,7 +161,8 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
     eval n r xs · eval {A = νR} (ℕ.suc n) 0H (x ∷ xs) ∎
   ⋆Homeval n r (P ·X+ Q) x xs =
       eval (ℕ.suc n) (r ⋆ (P ·X+ Q)) (x ∷ xs)                    ≡⟨ refl ⟩
-      eval (ℕ.suc n) ((r ⋆ P) ·X+ (r ·ₕ Q)) (x ∷ xs)              ≡⟨ refl ⟩
+      eval (ℕ.suc n) ((r ⋆ P) ·X+ (r ·ₕ Q)) (x ∷ xs)
+    ≡⟨ combineCasesEval (r ⋆ P) (r ·ₕ Q) x xs ⟩
       (eval (ℕ.suc n) (r ⋆ P) (x ∷ xs)) · x + eval n (r ·ₕ Q) xs
     ≡⟨ cong (λ u → u · x + eval n (r ·ₕ Q) xs) (⋆Homeval n r P x xs) ⟩
       (eval n r xs · eval (ℕ.suc n) P (x ∷ xs)) · x + eval n (r ·ₕ Q) xs
@@ -158,7 +172,7 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
       eval n r xs · (eval (ℕ.suc n) P (x ∷ xs) · x) + eval n r xs · eval n Q xs
     ≡⟨ sym (·Rdist+ _ _ _) ⟩
       eval n r xs · ((eval (ℕ.suc n) P (x ∷ xs) · x) + eval n Q xs)
-    ≡⟨ refl ⟩
+    ≡[ i ]⟨ eval n r xs · combineCasesEval P Q x xs (~ i) ⟩
       eval n r xs · eval (ℕ.suc n) (P ·X+ Q) (x ∷ xs) ∎
 
   combineCases :
@@ -183,7 +197,7 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
                   0r · x + eval n 0ₕ xs
                 ≡⟨ cong (λ u → u · x + eval n 0ₕ xs) (sym (Eval0H _ (x ∷ xs))) ⟩
                   eval {A = νR} (ℕ.suc n) 0H (x ∷ xs) · x + eval n 0ₕ xs
-                ≡⟨ refl ⟩
+                ≡[ i ]⟨ combineCasesEval 0H 0ₕ x xs (~ i) ⟩
                   eval (ℕ.suc n) (0H ·X+ 0ₕ) (x ∷ xs) ∎
   ... | (_ ·X+ _) = refl
 
@@ -199,7 +213,7 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
       eval (ℕ.suc n) (((P ·ₕ S) ·X+ 0ₕ) +ₕ (Q ⋆ S)) (x ∷ xs)
     ≡⟨ +Homeval (ℕ.suc n) ((P ·ₕ S) ·X+ 0ₕ) (Q ⋆ S) (x ∷ xs) ⟩
       eval (ℕ.suc n) ((P ·ₕ S) ·X+ 0ₕ) (x ∷ xs) + eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs)
-    ≡⟨ refl ⟩
+    ≡⟨ cong (λ u → u + eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs)) (combineCasesEval (P ·ₕ S) 0ₕ x xs) ⟩
       (eval (ℕ.suc n) (P ·ₕ S) (x ∷ xs) · x + eval n 0ₕ xs)
       + eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs)
     ≡⟨ cong (λ u → u + eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs))
@@ -225,6 +239,6 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
       + eval n Q xs · eval (ℕ.suc n) S (x ∷ xs)
     ≡⟨ sym (·Ldist+ _ _ _) ⟩
       ((eval (ℕ.suc n) P (x ∷ xs) · x) + eval n Q xs) · eval (ℕ.suc n) S (x ∷ xs)
-    ≡⟨ refl ⟩
+    ≡⟨ cong (λ u → u · eval (ℕ.suc n) S (x ∷ xs)) (sym (combineCasesEval P Q x xs)) ⟩
       eval (ℕ.suc n) (P ·X+ Q) (x ∷ xs) · eval (ℕ.suc n) S (x ∷ xs) ∎
 

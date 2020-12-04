@@ -45,6 +45,30 @@ module MultivariateSolving (R : CommRing {ℓ}) where
                 rhs = Z ⊗ X ⊕ Y ⊗ X
               in solve R lhs rhs (x ∷ y ∷ z ∷ []) refl
 
+
+  _ : (x y z : (fst R)) → x · (y - z) ≡ (- z) · x + y · x
+  _ = λ x y z →
+              let
+                lhs = X ⊗ (Y ⊕ (⊝ Z))
+                rhs = (⊝ Z) ⊗ X ⊕ (Y ⊗ X)
+              in solve R lhs rhs (x ∷ y ∷ z ∷ []) refl
+
+
+  {-
+    A bigger example, copied from 'Example.agda'
+  -}
+  _ : (x y z : (fst R)) → (x + y) · (x + y) · (x + y) · (x + y)
+                ≡ x · x · x · x + (scalar R 4) · x · x · x · y + (scalar R 6) · x · x · y · y
+                  +  (scalar R 4) · x · y · y · y + y · y · y · y
+  _ = λ x y z → let
+              lhs = (X ⊕ Y) ⊗ (X ⊕ Y) ⊗ (X ⊕ Y) ⊗ (X ⊕ Y)
+              rhs = X ⊗ X ⊗ X ⊗ X
+                  ⊕ (K 4) ⊗ X ⊗ X ⊗ X ⊗ Y
+                  ⊕ (K 6) ⊗ X ⊗ X ⊗ Y ⊗ Y
+                  ⊕ (K 4) ⊗ X ⊗ Y ⊗ Y ⊗ Y
+                  ⊕ Y ⊗ Y ⊗ Y ⊗ Y
+             in solve R lhs rhs (x ∷ y ∷ z ∷ []) refl
+
 {-
   still bad, see below:
 
@@ -56,13 +80,10 @@ module MultivariateSolving (R : CommRing {ℓ}) where
               in solve R lhs rhs (x ∷ y ∷ z ∷ []) {!!}
 
 
+  lhs normalizes to:
+  (1r · x + (0r · y + 0r)) · x + ((- 1r · y + 0r) · y + 0r)
 
+  rhs normalizes to:
+  (1r · x + 0r) · x + ((- 1r · y + 0r) · y + 0r)
 
-((0r · x + (0r · y + (0r · z + 1r))) · x +
- ((0r · y + (0r · z + 0r)) · y + 0r))
-· x
-+ (((0r · y + (0r · z + - 1r)) · y + 0r) · y + 0r)
-
-((0r · x + (0r · y + (0r · z + 1r))) · x + 0r) · x +
-(((0r · y + (0r · z + - 1r)) · y + 0r) · y + 0r)
 -}

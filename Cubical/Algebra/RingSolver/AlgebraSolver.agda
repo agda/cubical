@@ -45,7 +45,7 @@ module EqualityToNormalform (R : CommRing {ℓ}) where
   isEqualToNormalform ℕ.zero (K r) [] = refl
   isEqualToNormalform (ℕ.suc n) (K r) (x ∷ xs) =
      eval (ℕ.suc n) (Constant (ℕ.suc n) νR r) (x ∷ xs)           ≡⟨ refl ⟩
-     eval (ℕ.suc n) (0ₕ ·X+ Constant n νR r) (x ∷ xs)             ≡⟨ refl ⟩
+     eval (ℕ.suc n) (0ₕ ·X+ Constant n νR r) (x ∷ xs)             ≡⟨ combineCasesEval 0ₕ (Constant n νR r) x xs ⟩
      eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + eval n (Constant n νR r) xs
     ≡⟨ cong (λ u → u · x + eval n (Constant n νR r) xs) (Eval0H _ (x ∷ xs)) ⟩
      0r · x + eval n (Constant n νR r) xs
@@ -63,7 +63,7 @@ module EqualityToNormalform (R : CommRing {ℓ}) where
     1r · x                                        ≡⟨ ·Lid _ ⟩
     x ∎
   isEqualToNormalform (ℕ.suc n) (∣ (suc k)) (x ∷ xs) =
-      eval (ℕ.suc n) (0ₕ ·X+ Variable n νR k) (x ∷ xs)             ≡⟨ refl ⟩
+      eval (ℕ.suc n) (0ₕ ·X+ Variable n νR k) (x ∷ xs)             ≡⟨ combineCasesEval 0ₕ (Variable n νR k) x xs ⟩
       eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + eval n (Variable n νR k) xs
     ≡⟨ cong (λ u → u · x + eval n (Variable n νR k) xs) (Eval0H _ (x ∷ xs)) ⟩
       0r · x + eval n (Variable n νR k) xs

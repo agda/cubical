@@ -40,14 +40,25 @@ data IteratedHornerForms {R : RawRing {ℓ}} (A : RawAlgebra R ℓ′) : ℕ →
   _·X+_ : {n : ℕ} → IteratedHornerForms A (ℕ.suc n) → IteratedHornerForms A n
                   → IteratedHornerForms A (ℕ.suc n)
 
+module _ {R : RawRing {ℓ}} (A : RawAlgebra R ℓ′) where
+  open RawRing R
+  isZero : {n : ℕ} → IteratedHornerForms A (ℕ.suc n)
+                   → Bool
+  isZero 0H = true
+  isZero (P ·X+ P₁) = false
+
 eval : {R : RawRing {ℓ}} {A : RawAlgebra R ℓ′}
        (n : ℕ) (P : IteratedHornerForms A n)
        → Vec ⟨ A ⟩ₐ n → ⟨ A ⟩ₐ
 eval {A = A} ℕ.zero (const r) [] = RawAlgebra.scalar A r
 eval {A = A} .(ℕ.suc _) 0H (_ ∷ _) = RawAlgebra.0r A
 eval {A = A} (ℕ.suc n) (P ·X+ Q) (x ∷ xs) =
-  let open RawAlgebra A
-  in (eval (ℕ.suc n) P (x ∷ xs)) · x + eval n Q xs
+     let open RawAlgebra A
+         P' = (eval (ℕ.suc n) P (x ∷ xs))
+         Q' = eval n Q xs
+     in if (isZero A P)
+        then Q'
+        else P' · x + Q'
 
 module IteratedHornerOperations {R : RawRing {ℓ}} (A : RawAlgebra R ℓ′) where
   open RawRing R
@@ -83,11 +94,6 @@ module IteratedHornerOperations {R : RawRing {ℓ}} (A : RawAlgebra R ℓ′) wh
   -ₕ 0H = 0H
   -ₕ (P ·X+ Q) = (-ₕ P) ·X+ (-ₕ Q)
 
-  isZero : {n : ℕ} → IteratedHornerForms A (ℕ.suc n)
-                   → Bool
-  isZero 0H = true
-  isZero (P ·X+ P₁) = false
-
   _⋆_ : {n : ℕ} → IteratedHornerForms A n → IteratedHornerForms A (ℕ.suc n)
                 → IteratedHornerForms A (ℕ.suc n)
   _·ₕ_ : {n : ℕ} → IteratedHornerForms A n → IteratedHornerForms A n
@@ -100,7 +106,7 @@ module IteratedHornerOperations {R : RawRing {ℓ}} (A : RawAlgebra R ℓ′) wh
   (P ·X+ Q) ·ₕ S =
      let
         z = (P ·ₕ S)
-     in if (isZero z)
+     in if (isZero A z)
         then (Q ⋆ S)
         else (z ·X+ 0ₕ) +ₕ (Q ⋆ S)
 
