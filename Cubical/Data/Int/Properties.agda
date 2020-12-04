@@ -294,9 +294,7 @@ private
                                        (plusMinus m))
 
 _·_ : Int → Int → Int
-pos n · pos m = pos (n ·ℕ m)
-pos zero · negsuc m = pos zero
-pos (suc n) · negsuc m = negsuc (n ·ℕ m +ℕ n +ℕ m)
-negsuc n · pos zero = pos zero
-negsuc n · pos (suc m) = negsuc (n ·ℕ m +ℕ n +ℕ m)
-negsuc n · negsuc m = pos (suc (n ·ℕ m +ℕ n +ℕ m))
+pos zero · m = pos zero
+pos (suc n) · m = m + (pos n · m)
+negsuc zero · m = (- m)
+negsuc (suc n) · m = (- m) + ((negsuc n) · m)

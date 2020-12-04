@@ -12,7 +12,7 @@ open import Cubical.Algebra.RingSolver.CommRingAsAlmostRing
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 open import Cubical.Data.Int.Properties using (+-assoc; +-comm; pos0+; sucPred)
-                                        renaming (-_ to -ℤ_; _+_ to _+ℤ_)
+                                        renaming (-_ to -ℤ_; _+_ to _+ℤ_; _·_ to _·ℤ_)
 
 private
   variable
@@ -139,6 +139,51 @@ module _ (R : CommRing {ℓ}) where
     (- 1r + - scalar (pos (ℕ.suc n))) + scalar l ≡[ i ]⟨ -Dist 1r (scalar (pos (ℕ.suc n))) i + scalar l ⟩
     (- (1r + scalar (pos (ℕ.suc n)))) + scalar l ≡⟨ refl ⟩
     scalar (negsuc (ℕ.suc n)) + scalar l ∎
+
+
+  lemma1 : (n : ℕ)
+          → 1r + scalar (pos n) ≡ scalar (pos (ℕ.suc n))
+  lemma1 ℕ.zero = +Rid _
+  lemma1 (ℕ.suc k) = refl
+
+  lemma-1 : (n : ℕ)
+          → - 1r + scalar (negsuc n) ≡ scalar (negsuc (ℕ.suc n))
+  lemma-1 ℕ.zero = -Dist _ _
+  lemma-1 (ℕ.suc k) =
+    - 1r + scalar (negsuc (ℕ.suc k))        ≡⟨ refl ⟩
+    - 1r + - scalar (pos (ℕ.suc (ℕ.suc k))) ≡⟨ -Dist _ _ ⟩
+    - (1r + scalar (pos (ℕ.suc (ℕ.suc k)))) ≡⟨ refl ⟩
+    scalar (negsuc (ℕ.suc (ℕ.suc k))) ∎
+
+  ·HomScalar : (k l : ℤ)
+             → scalar (k ·ℤ l) ≡ scalar k · scalar l
+  ·HomScalar (pos ℕ.zero) l =  0r ≡⟨ sym (0LeftAnnihilates (scalar l)) ⟩ 0r · scalar l ∎
+  ·HomScalar (pos (ℕ.suc n)) l =
+    scalar (l +ℤ (pos n ·ℤ l))                  ≡⟨ +HomScalar l (pos n ·ℤ l) ⟩
+    scalar l + scalar (pos n ·ℤ l)              ≡[ i ]⟨ scalar l + ·HomScalar (pos n) l i ⟩
+    scalar l + (scalar (pos n) · scalar l)      ≡[ i ]⟨ ·Lid (scalar l) (~ i) + (scalar (pos n) · scalar l) ⟩
+    1r · scalar l + (scalar (pos n) · scalar l) ≡⟨ sym (·Ldist+ 1r _ _) ⟩
+    (1r + scalar (pos n)) · scalar l            ≡[ i ]⟨ lemma1 n i · scalar l ⟩
+    scalar (pos (ℕ.suc n)) · scalar l ∎
+
+  ·HomScalar (negsuc ℕ.zero) l =
+    scalar (-ℤ l)                     ≡⟨ -DistScalar l ⟩
+    - scalar l                        ≡[ i ]⟨ - (·Lid (scalar l) (~ i)) ⟩
+    - (1r · scalar l)                 ≡⟨ sym (-DistL· _ _) ⟩
+    - 1r · scalar l                   ≡⟨ refl ⟩
+    scalar (negsuc ℕ.zero) · scalar l ∎
+
+  ·HomScalar (negsuc (ℕ.suc n)) l =
+    scalar ((-ℤ l) +ℤ (negsuc n ·ℤ l))             ≡⟨ +HomScalar (-ℤ l) (negsuc n ·ℤ l) ⟩
+    scalar (-ℤ l) + scalar (negsuc n ·ℤ l)         ≡[ i ]⟨ -DistScalar l i + scalar (negsuc n ·ℤ l) ⟩
+    - scalar l + scalar (negsuc n ·ℤ l)            ≡[ i ]⟨ - scalar l + ·HomScalar (negsuc n) l i ⟩
+    - scalar l + scalar (negsuc n) · scalar l      ≡[ i ]⟨ (- ·Lid (scalar l) (~ i))
+                                                           + scalar (negsuc n) · scalar l ⟩
+    - (1r · scalar l) + scalar (negsuc n) · scalar l ≡[ i ]⟨ -DistL· 1r (scalar l) (~ i)
+                                                            + scalar (negsuc n) · scalar l ⟩
+    - 1r · scalar l + scalar (negsuc n) · scalar l ≡⟨ sym (·Ldist+ _ _ _) ⟩
+    (- 1r + scalar (negsuc n)) · scalar l          ≡[ i ]⟨ lemma-1 n i · scalar l ⟩
+    scalar (negsuc (ℕ.suc n)) · scalar l ∎
 
 AlmostRing→RawℤAlgebra : CommRing {ℓ} → RawAlgebra ℤAsRawRing ℓ
 AlmostRing→RawℤAlgebra (R , commringstr 0r 1r _+_ _·_ -_ isCommRing) =
