@@ -16,7 +16,7 @@ open import Cubical.Structures.Axioms
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.Base
 
 open Iso
 
