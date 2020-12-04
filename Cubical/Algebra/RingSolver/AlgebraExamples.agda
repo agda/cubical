@@ -9,10 +9,8 @@ open import Cubical.Data.Vec.Base
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.RingSolver.NatAsAlmostRing
-open import Cubical.Algebra.RingSolver.AlgebraExpression
 open import Cubical.Algebra.RingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ᵣ)
-open import Cubical.Algebra.RingSolver.AlgebraHornerForms
-open import Cubical.Algebra.RingSolver.AlgebraSolver
+open import Cubical.Algebra.RingSolver.CommRingSolver
 
 private
   variable
