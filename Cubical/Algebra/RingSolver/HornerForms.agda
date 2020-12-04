@@ -39,13 +39,13 @@ data IteratedHornerForms (R : RawRing {ℓ}) : ℕ → Type ℓ where
   _·X+_ : {n : ℕ} → IteratedHornerForms R (ℕ.suc n) → IteratedHornerForms R n
                   → IteratedHornerForms R (ℕ.suc n)
 
-Eval : {R : RawRing {ℓ}} (n : ℕ) (P : IteratedHornerForms R n)
+eval : {R : RawRing {ℓ}} (n : ℕ) (P : IteratedHornerForms R n)
              → Vec ⟨ R ⟩ n → ⟨ R ⟩
-Eval ℕ.zero (const r) [] = r
-Eval {R = R} .(ℕ.suc _) 0H (_ ∷ _) = RawRing.0r R
-Eval {R = R} (ℕ.suc n) (P ·X+ Q) (x ∷ xs) =
+eval ℕ.zero (const r) [] = r
+eval {R = R} .(ℕ.suc _) 0H (_ ∷ _) = RawRing.0r R
+eval {R = R} (ℕ.suc n) (P ·X+ Q) (x ∷ xs) =
   let open RawRing R
-  in (Eval (ℕ.suc n) P (x ∷ xs)) · x + Eval n Q xs
+  in (eval (ℕ.suc n) P (x ∷ xs)) · x + eval n Q xs
 
 module IteratedHornerOperations (R : RawRing {ℓ}) where
   open RawRing R
