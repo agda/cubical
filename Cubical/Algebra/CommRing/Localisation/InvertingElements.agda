@@ -47,9 +47,9 @@ private
 
 module _(R' : CommRing {ℓ}) where
  open isMultClosedSubset
- private R = R' .fst
+ private R = fst R'
  -- open CommRingStr ⦃...⦄
- open CommRingStr (R' .snd)
+ open CommRingStr (snd R')
  open Exponentiation R'
 
 
@@ -77,13 +77,13 @@ module _(R' : CommRing {ℓ}) where
  ^-respects-/1 zero = refl
  ^-respects-/1 {f} {g} (suc n) = eq/ _ _ ( (1r , powersFormMultClosedSubset f .containsOne)
                                          , cong (1r · (g · (g ^ n)) ·_) (·-lid 1r))
-                           ∙ cong (CommRingStr._·_ (R[1/ f ]AsCommRing .snd)
+                           ∙ cong (CommRingStr._·_ (snd R[1/ f ]AsCommRing)
                            [ g , 1r , powersFormMultClosedSubset f .containsOne ]) (^-respects-/1 n)
 
  -- A slight improvement for eliminating into propositions
  InvElPropElim : {f : R} {P : R[1/ f ] → Type ℓ'}
                → (∀ x →  isProp (P x))
-               → (∀ (r : R) (n : ℕ) → P [ r , (f ^ n) , ∣ n , refl ∣ ])
+               → (∀ (r : R) (n : ℕ) → P [ r , (f ^ n) , ∣ n , refl ∣ ])    -- ∀ r n → P (r/fⁿ)
               ----------------------------------------------------------
                → (∀ x → P x)
  InvElPropElim {f = f} {P = P} PisProp base = elimProp (λ _ → PisProp _) []-case
@@ -95,8 +95,14 @@ module _(R' : CommRing {ℓ}) where
    Σhelper : Σ[ n ∈ ℕ ] s ≡ f ^ n → P [ r , s , s∈S[f] ]
    Σhelper (n , p) = subst P (cong [_] (≡-× refl (Σ≡Prop (λ _ → propTruncIsProp) (sym p)))) (base r n)
 
-
-
+ -- For predicates over the set of powers
+ powersPropElim : {f : R} {P : R → Type ℓ'}
+                → (∀ x →  isProp (P x))
+                → (∀ n → P (f ^ n))
+               ------------------------------
+                → ∀ s → s ∈ [ f ⁿ|n≥0] → P s
+ powersPropElim {f = f} {P = P} PisProp base s =
+                PT.rec (PisProp s) λ (n , p) → subst P (sym p) (base n)
 
 -- Check: (R[1/f])[1/g] ≡ R[1/fg]
 -- still TODO:
@@ -104,18 +110,21 @@ module _(R' : CommRing {ℓ}) where
 -- η : section φ ψ
 -- ε : retract φ ψ
 -- prove that φ is ring hom
-module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
+module check (R' : CommRing {ℓ}) (f g : (fst R')) where
  open isMultClosedSubset
- open CommRingStr (R' .snd)
+ open CommRingStr (snd R')
  open CommTheory R'
  open Exponentiation R'
  open Theory (CommRing→Ring R')
- open CommRingStr (R[1/_]AsCommRing R' f .snd) renaming ( _·_ to _·ᶠ_ ; 1r to 1ᶠ ; _+_ to _+ᶠ_
-                                                        ; ·-lid to ·ᶠ-lid ; ·-rid to ·ᶠ-rid
-                                                        ; ·-assoc to ·ᶠ-assoc ; ·-comm to ·ᶠ-comm)
+ open CommRingStr (snd (R[1/_]AsCommRing R' f)) renaming ( _·_ to _·ᶠ_ ; 1r to 1ᶠ
+                                                         ; _+_ to _+ᶠ_ ; 0r to 0ᶠ
+                                                         ; ·-lid to ·ᶠ-lid ; ·-rid to ·ᶠ-rid
+                                                         ; ·-assoc to ·ᶠ-assoc ; ·-comm to ·ᶠ-comm)
 
  private
-  R = R' .fst
+  R = fst R'
+  R[1/f] = R[1/_] R' f
+  R[1/f]AsCommRing = R[1/_]AsCommRing R' f
   R[1/fg] = R[1/_] R' (f · g)
   R[1/fg]AsCommRing = R[1/_]AsCommRing R' (f · g)
   R[1/f][1/g] = R[1/_] (R[1/_]AsCommRing R' f)
@@ -286,15 +295,108 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
                    · ·-rid (·-lid (·-lid (f ^ n) (~ i)) (~ i)) (~ i)) ⟩
            1r · (1r · 1r · (1r · g ^ n)) · (1r · (1r · f ^ n) · 1r) ∎
 
-  kerφ⊆annS pathtoR[1/fg] r p = {!!}
+  kerφ⊆annS pathtoR[1/fg] r p = toGoal helperR[1/f]
    where
+   open Theory (CommRing→Ring R[1/f]AsCommRing) renaming ( 0-rightNullifies to 0ᶠ-rightNullifies
+                                                         ; 0-leftNullifies to 0ᶠ-leftNullifies)
+   open Exponentiation R[1/f]AsCommRing renaming (_^_ to _^ᶠ_)
+                                        hiding (·-of-^-is-^-of-+ ; ^-ldist-·)
+
+   S[f] = Loc.S R' ([_ⁿ|n≥0] R' f) (powersFormMultClosedSubset R' f)
+   S[fg] = Loc.S R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g))
+   g/1 : R[1/_] R' f
+   g/1 = [ g , 1r , powersFormMultClosedSubset R' f .containsOne ]
+   S[g/1] = Loc.S R[1/f]AsCommRing
+                  ([_ⁿ|n≥0] R[1/f]AsCommRing g/1)
+                  (powersFormMultClosedSubset R[1/f]AsCommRing g/1)
+   r/1 : R[1/_] R' f
+   r/1 = [ r , 1r , powersFormMultClosedSubset R' f .containsOne ]
+
+   -- this is the crucial step, modulo truncation we can take p to be generated
+   -- by the quotienting relation of localisation. Note that we wouldn't be able
+   -- to prove our goal if kerφ⊆annS was formulated with a Σ instead of a ∃
+   ∥r/1,1/1≈0/1,1/1∥ : ∃[ u ∈ S[g/1] ] fst u ·ᶠ r/1 ·ᶠ 1ᶠ ≡ fst u ·ᶠ 0ᶠ ·ᶠ 1ᶠ
    ∥r/1,1/1≈0/1,1/1∥ = Iso.fun (SQ.isEquivRel→TruncIso (Loc.locIsEquivRel _ _ _) _ _) p
+
+   helperR[1/f] : ∃[ n ∈ ℕ ] [ g ^ n · r , 1r , ∣ 0 , refl ∣ ] ≡ 0ᶠ
+   helperR[1/f] = PT.rec propTruncIsProp
+                  (uncurry (uncurry (powersPropElim R[1/f]AsCommRing
+                                    (λ _ → isPropΠ (λ _ → propTruncIsProp)) baseCase)))
+                  ∥r/1,1/1≈0/1,1/1∥
+    where
+    baseCase : ∀ n → g/1 ^ᶠ n ·ᶠ r/1 ·ᶠ 1ᶠ ≡ g/1 ^ᶠ n ·ᶠ 0ᶠ ·ᶠ 1ᶠ
+                   → ∃[ n ∈ ℕ ] [ g ^ n · r , 1r , ∣ 0 , refl ∣ ] ≡ 0ᶠ
+    baseCase n q = ∣ n , path ∣
+     where
+     path : [ g ^ n · r , 1r , ∣ 0 , refl ∣ ] ≡ 0ᶠ
+     path = [ g ^ n · r , 1r , ∣ 0 , refl ∣ ]
+          ≡⟨ cong [_] (≡-× refl (Σ≡Prop (λ _ → propTruncIsProp) (sym (·-rid _)))) ⟩
+            [ g ^ n , 1r , ∣ 0 , refl ∣ ] ·ᶠ r/1
+          ≡⟨ cong (_·ᶠ r/1) (^-respects-/1 _ n) ⟩
+            g/1 ^ᶠ n ·ᶠ r/1
+          ≡⟨ sym (·ᶠ-rid _) ⟩
+            g/1 ^ᶠ n ·ᶠ r/1 ·ᶠ 1ᶠ
+          ≡⟨ q ⟩
+            g/1 ^ᶠ n ·ᶠ 0ᶠ ·ᶠ 1ᶠ
+          ≡⟨ cong (_·ᶠ 1ᶠ) (0ᶠ-rightNullifies _) ∙ 0ᶠ-leftNullifies 1ᶠ ⟩
+            0ᶠ ∎
+
+   toGoal : ∃[ n ∈ ℕ ] [ g ^ n · r , 1r , ∣ 0 , refl ∣ ] ≡ 0ᶠ
+          → ∃[ u ∈ S[fg] ] fst u · r ≡ 0r
+   toGoal = PT.rec propTruncIsProp Σhelper
+    where
+    Σhelper : Σ[ n ∈ ℕ ] [ g ^ n · r , 1r , ∣ 0 , refl ∣ ] ≡ 0ᶠ
+            → ∃[ u ∈ S[fg] ] fst u · r ≡ 0r
+    Σhelper (n , q) = PT.map Σhelper2 helperR
+     where
+     -- now, repeat the above strategy with q
+     ∥gⁿr≈0∥ : ∃[ u ∈ S[f] ] fst u · (g ^ n · r) · 1r ≡ fst u · 0r · 1r
+     ∥gⁿr≈0∥ = Iso.fun (SQ.isEquivRel→TruncIso (Loc.locIsEquivRel _ _ _) _ _) q
+
+     helperR : ∃[ m ∈ ℕ ] f ^ m · g ^ n · r ≡ 0r
+     helperR = PT.rec propTruncIsProp
+               (uncurry (uncurry (powersPropElim R'
+                                 (λ _ → isPropΠ (λ _ → propTruncIsProp)) baseCase)))
+               ∥gⁿr≈0∥
+      where
+      baseCase : (m : ℕ) → f ^ m · (g ^ n · r) · 1r ≡ f ^ m · 0r · 1r
+               → ∃[ m ∈ ℕ ] f ^ m · g ^ n · r ≡ 0r
+      baseCase m q' = ∣ m , path ∣
+       where
+       path : f ^ m · g ^ n · r ≡ 0r
+       path = (λ i → ·-rid (·-assoc (f ^ m) (g ^ n) r (~ i)) (~ i))
+            ∙∙ q' ∙∙ (λ i → ·-rid (0-rightNullifies (f ^ m) i) i)
+
+     Σhelper2 : Σ[ m ∈ ℕ ] f ^ m · g ^ n · r ≡ 0r
+              → Σ[ u ∈ S[fg] ] fst u · r ≡ 0r
+     Σhelper2 (m , q') = (((f · g) ^ l) , ∣ l , refl ∣) , path
+      where
+      l = max m n
+
+      path : (f · g) ^ l · r ≡ 0r
+      path = (f · g) ^ l · r
+           ≡⟨ cong (_· r) (^-ldist-· _ _ _) ⟩
+             f ^ l · g ^ l · r
+           ≡⟨ cong₂ (λ x y → f ^ x · g ^ y · r) (sym (≤-∸-+-cancel {m = m} left-≤-max))
+                                                (sym (≤-∸-+-cancel {m = n} right-≤-max)) ⟩
+             f ^ (l ∸ m +ℕ m) · g ^ (l ∸ n +ℕ n) · r
+           ≡⟨ cong₂ (λ x y → x · y · r) (sym (·-of-^-is-^-of-+ _ _ _))
+                                        (sym (·-of-^-is-^-of-+ _ _ _)) ⟩
+             f ^ (l ∸ m) · f ^ m · (g ^ (l ∸ n) · g ^ n) · r
+           ≡⟨ cong (_· r) (·-commAssocSwap _ _ _ _) ⟩
+             f ^ (l ∸ m) · g ^ (l ∸ n) · (f ^ m · g ^ n) · r
+           ≡⟨ sym (·-assoc _ _ _) ⟩
+             f ^ (l ∸ m) · g ^ (l ∸ n) · (f ^ m · g ^ n · r)
+           ≡⟨ cong (f ^ (l ∸ m) · g ^ (l ∸ n) ·_) q' ⟩
+             f ^ (l ∸ m) · g ^ (l ∸ n) · 0r
+           ≡⟨ 0-rightNullifies _ ⟩
+             0r ∎
 
   surχ pathtoR[1/fg] = InvElPropElim _ (λ _ → propTruncIsProp) foo2
    where
-   open Exponentiation (R[1/_]AsCommRing R' f) renaming (_^_ to _^ᶠ_)
+   open Exponentiation R[1/f]AsCommRing renaming (_^_ to _^ᶠ_)
                                                hiding (·-of-^-is-^-of-+ ; ^-ldist-·)
-   open CommRingStr (R[1/f][1/g]AsCommRing .snd) renaming (_·_ to _·R[1/f][1/g]_)
+   open CommRingStr (snd R[1/f][1/g]AsCommRing) renaming (_·_ to _·R[1/f][1/g]_)
                     hiding (1r ; ·-lid ; ·-rid ; ·-assoc)
    open Units R[1/f][1/g]AsCommRing
    g/1 : R[1/_] R' f
@@ -307,7 +409,7 @@ module check (R' : CommRing {ℓ}) (f g : (R' .fst)) where
    bar r m n = ∣ ((r · f ^ (l ∸ m) · g ^ (l ∸ n)) -- x .fst
                , (f · g) ^ l , ∣ l , refl ∣)      -- x .snd
                , eq/ _ _ ((1ᶠ , ∣ 0 , refl ∣) , eq/ _ _ ((1r , ∣ 0 , refl ∣) , path)) ∣
-               -- reduce equality of double fractions  equality in R
+               -- reduce equality of double fractions into equality in R
     where
     l = max m n
     path : 1r · (1r · (r · f ^ (l ∸ m) · g ^ (l ∸ n)) · (g ^ n · 1r)) · (1r · (f ^ m · 1r) · 1r)
