@@ -18,6 +18,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Univalence
 
+open import Cubical.Functions.FunExtEquiv
+
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Nullary
@@ -110,23 +112,71 @@ rec2 Bset f feql feqr = rec (isSetΠ (λ _ → Bset))
                             (λ a b r → funExt (elimProp (λ _ → Bset _ _)
                                               (λ c → feql a b c r)))
 
+setQuotUniversalIso : {B : Type ℓ} (Bset : isSet B)
+                    → Iso (A / R → B) (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
+Iso.fun (setQuotUniversalIso Bset) g = (λ a → g [ a ]) , λ a b r i → g (eq/ a b r i)
+Iso.inv (setQuotUniversalIso Bset) h = elim (λ x → Bset) (fst h) (snd h)
+Iso.rightInv (setQuotUniversalIso Bset) h = refl
+Iso.leftInv (setQuotUniversalIso Bset) g =
+ funExt (λ x → PropTrunc.elim (λ sur → Bset (out (intro g) x) (g x))
+        (λ sur → cong (out (intro g)) (sym (snd sur)) ∙ (cong g (snd sur))) ([]surjective x))
+     where
+     intro = Iso.fun (setQuotUniversalIso Bset)
+     out = Iso.inv (setQuotUniversalIso Bset)
+
 setQuotUniversal : {B : Type ℓ} (Bset : isSet B) →
                    (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
-setQuotUniversal Bset = isoToEquiv (iso intro out outRightInv outLeftInv)
-  where
-  intro = λ g →  (λ a → g [ a ]) , λ a b r i → g (eq/ a b r i)
-  out = λ h → elim (λ x → Bset) (fst h) (snd h)
+setQuotUniversal Bset = isoToEquiv (setQuotUniversalIso Bset)
 
-  outRightInv : ∀ h → intro (out h) ≡ h
-  outRightInv h = refl
-
-  outLeftInv : ∀ g → out (intro g) ≡ g
-  outLeftInv = λ g → funExt (λ x → PropTrunc.elim {P = λ sur → out (intro g) x ≡ g x}
-    (λ sur → Bset (out (intro g) x) (g x))
-    (λ sur → cong (out (intro g)) (sym (snd sur)) ∙ (cong g (snd sur))) ([]surjective x)
-    )
 
 open BinaryRelation
+
+-- characterisation of binary functions/operations on set-quotients
+setQuotUniversal2Iso : {B : Type ℓ} (Bset : isSet B) → isRefl R
+                 → Iso (A / R → A / R → B)
+                       (Σ[ _∗_ ∈ (A → A → B) ] ((a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'))
+Iso.fun (setQuotUniversal2Iso {A = A} {R = R} {B = B} Bset isReflR) _∗/_ = _∗_ , h
+   where
+   _∗_ = λ a b → [ a ] ∗/ [ b ]
+   h : (a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'
+   h a a' b b' ra rb = cong (_∗/ [ b ]) (eq/ _ _ ra) ∙ cong ([ a' ] ∗/_) (eq/ _ _ rb)
+Iso.inv (setQuotUniversal2Iso {A = A} {R = R} {B = B} Bset isReflR) (_∗_ , h) =
+   rec2 Bset _∗_ hleft hright
+        where
+        hleft : ∀ a b c → R a b → (a ∗ c) ≡ (b ∗ c)
+        hleft _ _ c r = h _ _ _ _ r (isReflR c)
+        hright : ∀ a b c → R b c → (a ∗ b) ≡ (a ∗ c)
+        hright a _ _ r = h _ _ _ _ (isReflR a) r
+Iso.rightInv (setQuotUniversal2Iso {A = A} {R = R} {B = B} Bset isReflR) (_∗_ , h) =
+   Σ≡Prop (λ _ → isPropΠ4 λ _ _ _ _ → isPropΠ2 λ _ _ → Bset _ _) refl
+Iso.leftInv (setQuotUniversal2Iso {A = A} {R = R} {B = B} Bset isReflR) _∗/_ =
+   funExt₂ (elimProp2 (λ _ _ → Bset _ _) λ _ _ → refl)
+
+setQuotUniversal2 : {B : Type ℓ} (Bset : isSet B) → isRefl R
+                  → (A / R → A / R → B)
+                  ≃ (Σ[ _∗_ ∈ (A → A → B) ] ((a a' b b' : A) → R a a' → R b b' → a ∗ b ≡ a' ∗ b'))
+setQuotUniversal2 Bset isReflR = isoToEquiv (setQuotUniversal2Iso Bset isReflR)
+
+-- corollary for binary operations
+-- TODO: prove truncated inverse for effective relations
+setQuotBinOp : isRefl R
+             → (_∗_ : A → A → A)
+             → (∀ a a' b b' → R a a' → R b b' → R (a ∗ b) (a' ∗ b'))
+             → (A / R → A / R → A / R)
+setQuotBinOp isReflR _∗_ h = Iso.inv (setQuotUniversal2Iso squash/ isReflR)
+                             ((λ a b → [ a ∗ b ]) , λ _ _ _ _ ra rb → eq/ _ _ (h _ _ _ _ ra rb))
+
+setQuotSymmBinOp : isRefl R → isTrans R
+                 → (_∗_ : A → A → A)
+                 → (∀ a b → a ∗ b ≡ b ∗ a)
+                 → (∀ a a' b → R a a' → R (a ∗ b) (a' ∗ b))
+                 → (A / R → A / R → A / R)
+setQuotSymmBinOp {A = A} {R = R} isReflR isTransR _∗_ ∗-symm h = setQuotBinOp isReflR _∗_ h'
+  where
+  h' : ∀ a a' b b' → R a a' → R b b' → R (a ∗ b) (a' ∗ b')
+  h' a a' b b' ra rb = isTransR _ _ _ (h a a' b ra)
+                               (transport (λ i → R (∗-symm b a' i) (∗-symm b' a' i)) (h b b' a' rb))
+
 
 effective : (Rprop : isPropValued R) (Requiv : isEquivRel R) (a b : A) → [ a ] ≡ [ b ] → R a b
 effective {A = A} {R = R} Rprop (equivRel R/refl R/sym R/trans) a b p = transport aa≡ab (R/refl _)
@@ -141,20 +191,14 @@ effective {A = A} {R = R} Rprop (equivRel R/refl R/sym R/trans) a b p = transpor
     aa≡ab : R a a ≡ R a b
     aa≡ab i = helper (p i) .fst
 
+isEquivRel→effectiveIso : isPropValued R → isEquivRel R → (a b : A) → Iso ([ a ] ≡ [ b ]) (R a b)
+Iso.fun (isEquivRel→effectiveIso {R = R} Rprop Req a b) = effective Rprop Req a b
+Iso.inv (isEquivRel→effectiveIso {R = R} Rprop Req a b) = eq/ a b
+Iso.rightInv (isEquivRel→effectiveIso {R = R} Rprop Req a b) _ = Rprop a b _ _
+Iso.leftInv (isEquivRel→effectiveIso {R = R} Rprop Req a b) _ = squash/ _ _ _ _
+
 isEquivRel→isEffective : isPropValued R → isEquivRel R → isEffective R
-isEquivRel→isEffective {R = R} Rprop Req a b = isoToIsEquiv (iso out intro out-intro intro-out)
-  where
-    intro : [ a ] ≡ [ b ] → R a b
-    intro = effective Rprop Req a b
-
-    out : R a b → [ a ] ≡ [ b ]
-    out = eq/ a b
-
-    intro-out : ∀ x → intro (out x) ≡ x
-    intro-out ab = Rprop a b _ _
-
-    out-intro : ∀ x → out (intro x) ≡ x
-    out-intro eq = squash/ _ _ _ _
+isEquivRel→isEffective Rprop Req a b = isoToIsEquiv (invIso (isEquivRel→effectiveIso Rprop Req a b))
 
 discreteSetQuotients : Discrete A → isPropValued R → isEquivRel R → (∀ a₀ a₁ → Dec (R a₀ a₁)) → Discrete (A / R)
 discreteSetQuotients {A = A} {R = R} Adis Rprop Req Rdec =
@@ -181,3 +225,29 @@ discreteSetQuotients {A = A} {R = R} Adis Rprop Req Rdec =
       J (λ b ab → ∀ k → PathP (λ i → (y : A / R) → Dec (ab i ≡ y))
                               (discreteSetQuotients' a) k)
         (λ k → funExt (λ x → isPropDec (squash/ _ _) _ _)) (eq/ a b ab) (discreteSetQuotients' b)
+
+
+-- Quotienting by the truncated relation is equivalent to quotienting by untruncated relation
+truncRelIso : Iso (A / R) (A / (λ a b → ∥ R a b ∥))
+Iso.fun truncRelIso = rec squash/ [_] λ _ _ r → eq/ _ _ ∣ r ∣
+Iso.inv truncRelIso = rec squash/ [_] λ _ _ → PropTrunc.rec (squash/ _ _) λ r → eq/ _ _ r
+Iso.rightInv truncRelIso = elimProp (λ _ → squash/ _ _) λ _ → refl
+Iso.leftInv truncRelIso = elimProp (λ _ → squash/ _ _) λ _ → refl
+
+truncRelEquiv : A / R ≃ A / (λ a b → ∥ R a b ∥)
+truncRelEquiv = isoToEquiv truncRelIso
+
+-- Using this we can obtain a useful characterization of
+-- path-types for equivalence relations (not prop-valued)
+-- and their quotients
+
+isEquivRel→TruncIso : isEquivRel R → (a b : A) → Iso ([ a ] ≡ [ b ])  ∥ R a b ∥
+isEquivRel→TruncIso {A = A} {R = R} Req a b = compIso (isProp→Iso (squash/ _ _) (squash/ _ _)
+                                   (cong (Iso.fun truncRelIso)) (cong (Iso.inv truncRelIso)))
+                      (isEquivRel→effectiveIso  (λ _ _ → PropTrunc.propTruncIsProp) ∥R∥eq a b)
+ where
+ open isEquivRel
+ ∥R∥eq : isEquivRel  λ a b → ∥ R a b ∥
+ reflexive ∥R∥eq a = ∣ reflexive Req a ∣
+ symmetric ∥R∥eq a b = PropTrunc.map (symmetric Req a b)
+ transitive ∥R∥eq a b c = PropTrunc.map2 (transitive Req a b c)

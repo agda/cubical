@@ -227,7 +227,7 @@ coHom1S1≃ℤ = theIso
 {-
 The proof of the inductive step below is a compact version of the following equations. Let n ≥ 1.
 Hⁿ⁺¹(Sⁿ⁺¹) := ∥ Sⁿ⁺¹ → Kₙ₊₁ ∥₂
-           ≅ ∥ Σ[ a , b ∈ Kₙ₊₁ ] (Sⁿ → a ≡ b) ∥₂       (characterisation of functions from suspensions)
+           ≅ ∥ Σ[ (a , b) ∈ Kₙ₊₁ ] (Sⁿ → a ≡ b) ∥₂      (characterisation of functions from suspensions)
            ≅ ∥ Kₙ₊₁ × Kₙ₊₁ × (Sⁿ → ΩKₙ₊₁) ∥₂             (base change in ΩKₙ₊₁)
            ≅ ∥ Kₙ₊₁ ∥₂ × ∥ Kₙ₊₁ ∥₂ × ∥ (Sⁿ → ΩKₙ₊₁) ∥₂
            ≅ ∥ Sⁿ → ΩKₙ₊₁ ∥₂                             (connectivity of Kₙ₊₁)

@@ -227,6 +227,7 @@ isGroup (snd intGroup) = isGroupInt
 open IsGroup
 open IsMonoid
 open IsSemigroup renaming (assoc to assoc')
+
 BoolGroup : Group₀
 fst BoolGroup = Bool
 0g (snd BoolGroup) = true

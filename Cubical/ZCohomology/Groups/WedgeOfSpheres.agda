@@ -85,6 +85,7 @@ private
 test1 : to₁ (from₁ (1 , 0) +ₕ from₁ (0 , 1)) ≡ (1 , 1)
 test1 = refl
 
+-- Computes, but only when computing some smaller numbers first
 test2 : to₁ (from₁ (50 , 3) +ₕ from₁ (2 , -2)) ≡ (52 , 1)
 test2 = refl
 
@@ -95,5 +96,8 @@ test4 : to₂ (from₂ 3) ≡ 3
 test4 = refl
 
 -- Does not compute:
+
+test5 : to₂ (from₂ 1 +ₕ from₂ 1) ≡ 2
+test5 = refl
 
 -}
