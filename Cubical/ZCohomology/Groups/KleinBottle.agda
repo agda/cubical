@@ -123,11 +123,16 @@ nilpotent→≡0 (pos (suc n)) p =
   where
   helper2 : (n : ℕ) → pos (suc n) +pos n ≡ pos (suc (n + n))
   helper2 zero = refl
-  helper2 (suc n) = cong sucInt (sym (sucInt+pos n (pos (suc n)))) ∙∙ cong (sucInt ∘ sucInt) (helper2 n) ∙∙ cong (pos ∘ suc ∘ suc) (sym (+-suc n n))
+  helper2 (suc n) = cong sucInt (sym (sucInt+pos n (pos (suc n))))
+                 ∙∙ cong (sucInt ∘ sucInt) (helper2 n)
+                 ∙∙ cong (pos ∘ suc ∘ suc) (sym (+-suc n n))
 nilpotent→≡0 (negsuc n) p = ⊥-rec (negsucNotpos _ _ (helper2 n p))
   where
   helper2 : (n : ℕ) → (negsuc n +negsuc n) ≡ pos 0 → negsuc n ≡ pos (suc n)
-  helper2 n p = cong (negsuc n +ℤ_) (sym (helper3 n)) ∙ +-assoc (negsuc n) (negsuc n) (pos (suc n)) ∙∙ cong (_+ℤ (pos (suc n))) p ∙∙ cong sucInt (+-commℤ (pos 0) (pos n))
+  helper2 n p = cong (negsuc n +ℤ_) (sym (helper3 n))
+              ∙ +-assoc (negsuc n) (negsuc n) (pos (suc n))
+              ∙∙ cong (_+ℤ (pos (suc n))) p
+              ∙∙ cong sucInt (+-commℤ (pos 0) (pos n))
     where
     helper3 : (n : ℕ) → negsuc n +pos (suc n) ≡ 0
     helper3 zero = refl
@@ -261,20 +266,22 @@ and ∣ (0ₖ 1 , Kn→ΩKn+1 0 x) ∣₂ ≡ ∣ (0ₖ 1 , cong ∣_∣ loop) �
 This is done by induction on x. For the inductive step we define a multiplication _*_ on ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
 which is just ∣ (0 , p) ∣₂ * ∣ (0 , q) ∣₂ ≡ ∣ (0 , p ∙ q) ∣₂ when x is 0
 -}
-_*_ : ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂ → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂ → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
-_*_ = sRec (isSetΠ (λ _ → setTruncIsSet)) λ a → sRec setTruncIsSet λ b → *' (fst a) (fst b) (snd a) (snd b)
-  where
-  *' : (x y : coHomK 1) (p : x +ₖ x ≡ 0ₖ 1) (q : y +ₖ y ≡ 0ₖ 1) → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
-  *' =
-    trElim2 (λ _ _ → isGroupoidΠ2 λ _ _ → isOfHLevelSuc 2 setTruncIsSet)
-            (wedgeConSn _ _
-              (λ _ _ → isSetΠ2 λ _ _ → setTruncIsSet)
-              (λ x p q → ∣ ∣ x ∣ , cong₂ _+ₖ_ p q ∣₂)
-              (λ y p q → ∣ ∣ y ∣ , sym (rUnitₖ 1 (∣ y ∣ +ₖ ∣ y ∣)) ∙ cong₂ _+ₖ_ p q ∣₂)
-              (funExt λ p → funExt λ q → cong ∣_∣₂ (ΣPathP (refl , (sym (lUnit _))))) .fst)
 
-*=∙ : (p q : 0ₖ 1 ≡ 0ₖ 1) → ∣ 0ₖ 1 , p ∣₂ * ∣ 0ₖ 1 , q ∣₂ ≡ ∣ 0ₖ 1 , p ∙ q ∣₂
-*=∙ p q = cong ∣_∣₂ (ΣPathP (refl , sym (∙≡+₁ p q)))
+private
+  _*_ : ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂ → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂ → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
+  _*_ = sRec (isSetΠ (λ _ → setTruncIsSet)) λ a → sRec setTruncIsSet λ b → *' (fst a) (fst b) (snd a) (snd b)
+    where
+    *' : (x y : coHomK 1) (p : x +ₖ x ≡ 0ₖ 1) (q : y +ₖ y ≡ 0ₖ 1) → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
+    *' =
+      trElim2 (λ _ _ → isGroupoidΠ2 λ _ _ → isOfHLevelSuc 2 setTruncIsSet)
+              (wedgeConSn _ _
+                (λ _ _ → isSetΠ2 λ _ _ → setTruncIsSet)
+                (λ x p q → ∣ ∣ x ∣ , cong₂ _+ₖ_ p q ∣₂)
+                (λ y p q → ∣ ∣ y ∣ , sym (rUnitₖ 1 (∣ y ∣ +ₖ ∣ y ∣)) ∙ cong₂ _+ₖ_ p q ∣₂)
+                (funExt λ p → funExt λ q → cong ∣_∣₂ (ΣPathP (refl , (sym (lUnit _))))) .fst)
+
+  *=∙ : (p q : 0ₖ 1 ≡ 0ₖ 1) → ∣ 0ₖ 1 , p ∣₂ * ∣ 0ₖ 1 , q ∣₂ ≡ ∣ 0ₖ 1 , p ∙ q ∣₂
+  *=∙ p q = cong ∣_∣₂ (ΣPathP (refl , sym (∙≡+₁ p q)))
 
 isEvenNegsuc : (n : ℕ) → isEven (pos (suc n)) ≡ true → isEven (negsuc n) ≡ true
 isEvenNegsuc zero p = ⊥-rec (true≢false (sym p))

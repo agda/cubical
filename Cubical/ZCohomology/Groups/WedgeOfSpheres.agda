@@ -88,7 +88,12 @@ test1 = refl
 test2 : to₁ (from₁ (50 , 3) +ₕ from₁ (2 , -2)) ≡ (52 , 1)
 test2 = refl
 
--- Does not compute:
 test3 : to₂ (from₂ 0) ≡ 0
 test3 = refl
+
+test4 : to₂ (from₂ 3) ≡ 3
+test4 = refl
+
+-- Does not compute:
+
 -}

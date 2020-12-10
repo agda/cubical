@@ -43,7 +43,7 @@ private
     A : Type ℓ
 
 funSpaceIso-RP² : Iso (RP² → A) (Σ[ x ∈ A ] Σ[ p ∈ x ≡ x ] p ≡ sym p)
-Iso.fun funSpaceIso-RP² f = (f point) , ((cong f line) , (λ i j → f (square i j)))
+Iso.fun funSpaceIso-RP² f = f point , (cong f line , λ i j → f (square i j))
 Iso.inv funSpaceIso-RP² (x , p , P) point = x
 Iso.inv funSpaceIso-RP² (x , p , P) (line i) = p i
 Iso.inv funSpaceIso-RP² (x , p , P) (square i j) = P i j
@@ -59,13 +59,13 @@ private
 
 --- H⁰(RP²) ≅ ℤ ----
 H⁰-RP²≅ℤ : GroupIso (coHomGr 0 RP²) intGroup
-H⁰-RP²≅ℤ = H⁰-connected point connectedPR¹
+H⁰-RP²≅ℤ = H⁰-connected point connectedRP¹
   where
-  connectedPR¹ : (x : RP²) → ∥ point ≡ x ∥
-  connectedPR¹ point = ∣ refl ∣
-  connectedPR¹ (line i) =
+  connectedRP¹ : (x : RP²) → ∥ point ≡ x ∥
+  connectedRP¹ point = ∣ refl ∣
+  connectedRP¹ (line i) =
     isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥} (λ _ → propTruncIsProp) ∣ refl ∣ ∣ refl ∣ line i
-  connectedPR¹ (square i j) = helper i j
+  connectedRP¹ (square i j) = helper i j
     where
     helper : SquareP (λ i j → ∥ point ≡ square i j ∥)
                      (isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥} (λ _ → propTruncIsProp) ∣ refl ∣ ∣ refl ∣ line)
