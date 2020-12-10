@@ -260,17 +260,7 @@ congIdLeft≡congIdRight _+A_ -A_ 0A rUnitA lUnitA r≡l p =
          ∙∙ λ i → (λ j → rUnitA 0A (~ i ∧ j)) ∙∙ cong (λ x → rUnitA x (~ i)) p ∙∙ λ j → rUnitA 0A (~ i ∧ ~ j))
          ∙∙ sym (rUnit (cong (_+A 0A) p))
 
--- expl
-IsoPresDiscrete : ∀ {ℓ ℓ'}{A : Type ℓ} {B : Type ℓ'} → Iso A B
-               → Discrete A → Discrete B
-IsoPresDiscrete e dA x y with dA (Iso.inv e x) (Iso.inv e y)
-... | yes p = subst Dec (λ i → Iso.rightInv e x i ≡ Iso.rightInv e y i)
-                        (yes (cong (Iso.fun e) p))
-... | no p = subst Dec (λ i → Iso.rightInv e x i ≡ Iso.rightInv e y i)
-                   (no λ q → p (sym (Iso.leftInv e (Iso.inv e x))
-                     ∙∙ cong (Iso.inv e) q
-                     ∙∙ Iso.leftInv e (Iso.inv e y)))
-
+-- Proof that any Group equivalent to Bool as types is also isomorhic to Bool as groups.
 open GroupStr renaming (assoc to assocG)
 
 module _ {ℓ : Level} {A : Group {ℓ}} (e : Iso (fst A) Bool) where

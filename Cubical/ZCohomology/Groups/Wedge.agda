@@ -64,7 +64,6 @@ The fact that F and F⁻ cancel out is a proposition and we may thus assume for 
 The fact that F(F⁻(∣ f₁ ∣₂ , ∣ f₂ ∣₂)) = ∣ f₁ ∣₂ , ∣ f₂ ∣₂) follows immediately from (*)
 
 The other way is slightly trickier. We need to construct paths
-<<<<<<< HEAD
   Pₗ(x) : f (inl (x)) + f (inr (pt B)) ---> f (inl (x))
   Pᵣ(x)  : f (inl (pt A)) + f (inr (x)) ---> f (inr (x))
 
@@ -81,25 +80,6 @@ Pₗ(pr A) |                  | Pᵣ(pt B)
          |                  |
           ----------------->
                   refl
-=======
-  Pₗ : f (inl (x)) + f (inr (pt B)) ---> f (inl (x))
-  Pᵣ  : f (inr (x)) + f (inl (pt A)) ---> f (inr (x))
-
-Together with a filler of the following square
-
-     cong f (push tt)
-    ----------------->
-   ^                  ^
-   |                  |
-   |                  |
-Pₗ |                  | Pᵣ
-   |                  |
-   |                  |
-   |                  |
-    ----------------->
-            Q
-where Q is commutativity proof f (inl (pt A)) + f (inr (pt B)) = f (inr (pt B)) + f (inl (pt A))
->>>>>>> e2601d642074094f0a7183a54ba7cea411b024eb
 
 The square is filled by first constructing Pₗ by
   f (inl (x)) + f (inr (pt B))    ---[cong f (push tt)⁻¹]--->
@@ -108,13 +88,8 @@ The square is filled by first constructing Pₗ by
   f (inl (x))
 
 and then Pᵣ by
-<<<<<<< HEAD
   f (inl (pt A)) + f (inr (x))    ---[(**)⁻¹]--->
   0 + f (inr (x))                 ---[left-unit]--->
-=======
-  f (inr (x)) + f (inl (pt A))    ---[(**)]--->
-  f (inr (x)) + 0                 ---[right-unit]--->
->>>>>>> e2601d642074094f0a7183a54ba7cea411b024eb
   f (inr (x))
 
 and finally by using the fact that the group laws for Kₙ are refl at its base point.
