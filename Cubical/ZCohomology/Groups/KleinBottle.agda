@@ -88,7 +88,7 @@ private
 H⁰-𝕂² : GroupIso (coHomGr 0 KleinBottle) intGroup
 fun (map' H⁰-𝕂²) = sRec isSetInt λ f → f point
 isHom (map' H⁰-𝕂²) = sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _)
-                              λ _ _ → refl 
+                              λ _ _ → refl
 inv H⁰-𝕂² x = ∣ (λ _ → x) ∣₂
 rightInv H⁰-𝕂² _ = refl
 leftInv H⁰-𝕂² =

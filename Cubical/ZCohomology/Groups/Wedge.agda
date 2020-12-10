@@ -128,7 +128,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
     helper : (f : A ⋁ B → coHomK 1) (x : coHomK 1)
           → f (inl (pt A)) ≡ x
           → ∥ f ≡ wedgeFun⁻ 0 (λ x → f (inl x)) (λ x → f (inr x)) ∥
-    helper f = 
+    helper f =
       trElim (λ _ → isProp→isOfHLevelSuc 2 (isPropΠ λ _ → propTruncIsProp))
         (sphereElim 0 (λ _ → isPropΠ λ _ → propTruncIsProp)
          λ inlId → ∣ funExt (λ { (inl x) → sym (rUnitₖ 1 (f (inl x)))
