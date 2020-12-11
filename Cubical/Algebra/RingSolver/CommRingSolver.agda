@@ -11,8 +11,8 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.RingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.RingSolver.AlgebraExpression public
-open import Cubical.Algebra.RingSolver.AlgebraHornerForms
-open import Cubical.Algebra.RingSolver.AlgebraEvaluationHomomorphism
+open import Cubical.Algebra.RingSolver.CommRingHornerForms
+open import Cubical.Algebra.RingSolver.CommRingEvalHom
 
 private
   variable

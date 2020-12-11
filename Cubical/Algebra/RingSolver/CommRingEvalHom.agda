@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Algebra.RingSolver.AlgebraEvaluationHomomorphism where
+module Cubical.Algebra.RingSolver.CommRingEvalHom where
 
 open import Cubical.Foundations.Prelude
 
@@ -8,7 +8,7 @@ open import Cubical.Data.FinData
 open import Cubical.Data.Vec
 
 open import Cubical.Algebra.RingSolver.RawAlgebra
-open import Cubical.Algebra.RingSolver.AlgebraHornerForms
+open import Cubical.Algebra.RingSolver.CommRingHornerForms
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 
@@ -131,28 +131,47 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
   ⋆0LeftAnnihilates :
     (n : ℕ) (P : IteratedHornerForms νR (ℕ.suc n)) (xs : Vec ⟨ νR ⟩ (ℕ.suc n))
     → eval (ℕ.suc n) (0ₕ ⋆ P) xs ≡ 0r
+  ⋆0LeftAnnihilates n 0H xs = Eval0H (ℕ.suc n) xs
+  ⋆0LeftAnnihilates ℕ.zero (P ·X+ Q) (x ∷ xs) = refl
+  ⋆0LeftAnnihilates (ℕ.suc n) (P ·X+ Q) (x ∷ xs) = refl
+
+  ·0LeftAnnihilates :
+    (n : ℕ) (P : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)
+    → eval n (0ₕ ·ₕ P) xs ≡ 0r
+  ·0LeftAnnihilates .ℕ.zero (const x) xs =
+    eval ℕ.zero (const _) xs ≡⟨ Eval0H _ xs ⟩ 0r ∎
+  ·0LeftAnnihilates .(ℕ.suc _) 0H xs = Eval0H _ xs
+  ·0LeftAnnihilates .(ℕ.suc _) (P ·X+ P₁) xs = Eval0H _ xs
 
   ·Homeval : (n : ℕ) (P Q : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)
     → eval n (P ·ₕ Q) xs ≡ (eval n P xs) · (eval n Q xs)
 
-  ⋆0LeftAnnihilates n 0H xs = Eval0H (ℕ.suc n) xs
-  ⋆0LeftAnnihilates n (P ·X+ Q) (x ∷ xs) =
-      eval (ℕ.suc n) (0ₕ ⋆ (P ·X+ Q)) (x ∷ xs)                    ≡⟨ refl ⟩
-      eval (ℕ.suc n) ((0ₕ ⋆ P) ·X+ (0ₕ ·ₕ Q)) (x ∷ xs)
-    ≡⟨ combineCasesEval (0ₕ ⋆ P) (0ₕ ·ₕ Q) x xs ⟩
-      (eval (ℕ.suc n) (0ₕ ⋆ P) (x ∷ xs)) · x + eval n (0ₕ ·ₕ Q) xs
-    ≡⟨ cong (λ u → (u · x) + eval _ (0ₕ ·ₕ Q) _) (⋆0LeftAnnihilates n P (x ∷ xs)) ⟩
-      0r · x + eval n (0ₕ ·ₕ Q) xs
-    ≡⟨ cong (λ u → u + eval _ (0ₕ ·ₕ Q) _) (0LeftAnnihilates _) ⟩
-      0r + eval n (0ₕ ·ₕ Q) xs
-    ≡⟨ +Lid _ ⟩
-      eval n (0ₕ ·ₕ Q) xs
-    ≡⟨ ·Homeval n 0ₕ Q _ ⟩
-      eval n 0ₕ xs · eval n Q xs
-    ≡⟨ cong (λ u → u · eval n Q xs) (Eval0H _ xs) ⟩
-      0r · eval n Q xs
-    ≡⟨ 0LeftAnnihilates _ ⟩
-      0r ∎
+  combineCases⋆ : (n : ℕ) (xs : Vec ⟨ νR ⟩ (ℕ.suc n))
+                → (r : IteratedHornerForms νR n)
+                → (P : IteratedHornerForms νR (ℕ.suc n))
+                → (Q : IteratedHornerForms νR n)
+                → eval (ℕ.suc n) (r ⋆ (P ·X+ Q)) xs ≡ eval (ℕ.suc n) ((r ⋆ P) ·X+ (r ·ₕ Q)) xs
+  combineCases⋆ .ℕ.zero (x ∷ []) (const (pos ℕ.zero)) P Q =
+      eval _ (const (pos ℕ.zero) ⋆ (P ·X+ Q))  (x ∷ [])                          ≡⟨ refl ⟩
+      eval _ 0ₕ  (x ∷ [])                                                         ≡⟨ refl ⟩
+      0r             ≡⟨ sym (+Rid _) ⟩
+      0r + 0r        ≡[ i ]⟨ 0LeftAnnihilates x (~ i) + 0r ⟩
+      0r · x + 0r    ≡[ i ]⟨ ⋆0LeftAnnihilates _ P (x ∷ []) (~ i) · x + ·0LeftAnnihilates _ Q [] (~ i) ⟩
+      eval _ (const (pos ℕ.zero) ⋆ P) (x ∷ []) · x + eval _ (const (pos ℕ.zero) ·ₕ Q) []
+    ≡⟨ sym (combineCasesEval (const (pos ℕ.zero) ⋆ P) (const (pos ℕ.zero) ·ₕ Q) x []) ⟩
+      eval _ ((const (pos ℕ.zero) ⋆ P) ·X+ (const (pos ℕ.zero) ·ₕ Q))  (x ∷ []) ∎
+  combineCases⋆ .ℕ.zero (x ∷ []) (const (pos (ℕ.suc n))) P Q = refl
+  combineCases⋆ .ℕ.zero (x ∷ []) (const (negsuc n)) P Q = refl
+  combineCases⋆ .(ℕ.suc _) (x ∷ xs) 0H P Q =
+      eval _ (0H ⋆ (P ·X+ Q))  (x ∷ xs)    ≡⟨ refl ⟩
+      eval _ 0ₕ  (x ∷ [])                  ≡⟨ refl ⟩
+      0r             ≡⟨ sym (+Rid _) ⟩
+      0r + 0r        ≡[ i ]⟨ 0LeftAnnihilates x (~ i) + 0r ⟩
+      0r · x + 0r    ≡[ i ]⟨ ⋆0LeftAnnihilates _ P (x ∷ xs) (~ i) · x + ·0LeftAnnihilates _ Q xs (~ i) ⟩
+      eval _ (0H ⋆ P) (x ∷ xs) · x + eval _ (0H ·ₕ Q) xs
+    ≡⟨ sym (combineCasesEval (0H ⋆ P) (0H ·ₕ Q) x xs) ⟩
+      eval _ ((0H ⋆ P) ·X+ (0H ·ₕ Q))  (x ∷ xs) ∎
+  combineCases⋆ .(ℕ.suc _) (x ∷ xs) (r ·X+ r₁) P Q = refl
 
   ⋆Homeval n r 0H x xs =
     eval (ℕ.suc n) (r ⋆ 0H) (x ∷ xs)         ≡⟨ refl ⟩
@@ -160,7 +179,7 @@ module HomomorphismProperties (R : CommRing {ℓ}) where
     eval n r xs · 0r                         ≡⟨ refl ⟩
     eval n r xs · eval {A = νR} (ℕ.suc n) 0H (x ∷ xs) ∎
   ⋆Homeval n r (P ·X+ Q) x xs =
-      eval (ℕ.suc n) (r ⋆ (P ·X+ Q)) (x ∷ xs)                    ≡⟨ refl ⟩
+      eval (ℕ.suc n) (r ⋆ (P ·X+ Q)) (x ∷ xs)                    ≡⟨ combineCases⋆ n (x ∷ xs) r P Q ⟩
       eval (ℕ.suc n) ((r ⋆ P) ·X+ (r ·ₕ Q)) (x ∷ xs)
     ≡⟨ combineCasesEval (r ⋆ P) (r ·ₕ Q) x xs ⟩
       (eval (ℕ.suc n) (r ⋆ P) (x ∷ xs)) · x + eval n (r ·ₕ Q) xs

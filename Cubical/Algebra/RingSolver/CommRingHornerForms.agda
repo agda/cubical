@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Algebra.RingSolver.AlgebraHornerForms where
+module Cubical.Algebra.RingSolver.CommRingHornerForms where
 
 open import Cubical.Foundations.Prelude
 
@@ -34,20 +34,23 @@ private
 
 -}
 
-data IteratedHornerForms {R : RawRing {ℓ}} (A : RawAlgebra R ℓ′) : ℕ → Type ℓ where
-  const : ⟨ R ⟩ → IteratedHornerForms A ℕ.zero
+data IteratedHornerForms (A : RawAlgebra ℤAsRawRing ℓ) : ℕ → Type ℓ where
+  const : ℤ → IteratedHornerForms A ℕ.zero
   0H : {n : ℕ} → IteratedHornerForms A (ℕ.suc n)
   _·X+_ : {n : ℕ} → IteratedHornerForms A (ℕ.suc n) → IteratedHornerForms A n
                   → IteratedHornerForms A (ℕ.suc n)
 
-module _ {R : RawRing {ℓ}} (A : RawAlgebra R ℓ′) where
-  open RawRing R
-  isZero : {n : ℕ} → IteratedHornerForms A (ℕ.suc n)
+module _ (A : RawAlgebra ℤAsRawRing ℓ′) where
+  open RawRing ℤAsRawRing
+  isZero : {n : ℕ} → IteratedHornerForms A n
                    → Bool
+  isZero (const (pos ℕ.zero)) = true
+  isZero (const (pos (ℕ.suc _))) = false
+  isZero (const (negsuc _)) = false
   isZero 0H = true
   isZero (P ·X+ P₁) = false
 
-eval : {R : RawRing {ℓ}} {A : RawAlgebra R ℓ′}
+eval : {A : RawAlgebra ℤAsRawRing ℓ′}
        (n : ℕ) (P : IteratedHornerForms A n)
        → Vec ⟨ A ⟩ₐ n → ⟨ A ⟩ₐ
 eval {A = A} ℕ.zero (const r) [] = RawAlgebra.scalar A r
@@ -60,8 +63,8 @@ eval {A = A} (ℕ.suc n) (P ·X+ Q) (x ∷ xs) =
         then Q'
         else P' · x + Q'
 
-module IteratedHornerOperations {R : RawRing {ℓ}} (A : RawAlgebra R ℓ′) where
-  open RawRing R
+module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
+  open RawRing ℤAsRawRing
 
   private
     1H' : (n : ℕ) → IteratedHornerForms A n
@@ -99,7 +102,10 @@ module IteratedHornerOperations {R : RawRing {ℓ}} (A : RawAlgebra R ℓ′) wh
   _·ₕ_ : {n : ℕ} → IteratedHornerForms A n → IteratedHornerForms A n
                 → IteratedHornerForms A n
   r ⋆ 0H = 0H
-  r ⋆ (P ·X+ Q) = (r ⋆ P) ·X+ (r ·ₕ Q)
+  r ⋆ (P ·X+ Q) =
+    if (isZero A r)
+    then 0ₕ
+    else (r ⋆ P) ·X+ (r ·ₕ Q)
 
   const x ·ₕ const y = const (x · y)
   0H ·ₕ Q = 0H
@@ -118,9 +124,9 @@ module IteratedHornerOperations {R : RawRing {ℓ}} (A : RawAlgebra R ℓ′) wh
   RawRing._·_ (asRawRing n) = _·ₕ_
   RawRing.- (asRawRing n) =  -ₕ
 
-Variable : (n : ℕ) {R : RawRing {ℓ}} (A : RawAlgebra R ℓ′) (k : Fin n) → IteratedHornerForms A n
+Variable : (n : ℕ) (R : RawAlgebra ℤAsRawRing ℓ′) (k : Fin n) → IteratedHornerForms R n
 Variable n R k = IteratedHornerOperations.X R n k
 
-Constant : (n : ℕ) {R : RawRing {ℓ}} (A : RawAlgebra R ℓ′) (r : ⟨ R ⟩) → IteratedHornerForms A n
+Constant : (n : ℕ) (R : RawAlgebra ℤAsRawRing ℓ′) (r : ℤ) → IteratedHornerForms R n
 Constant ℕ.zero R r = const r
 Constant (ℕ.suc n) R r = IteratedHornerOperations.0ₕ R ·X+ Constant n R r

@@ -12,11 +12,17 @@ open import Cubical.Algebra.RingSolver.NatAsAlmostRing
 open import Cubical.Algebra.RingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.RingSolver.CommRingSolver
 
+-- In scope for debugging:
+open import Cubical.Algebra.RingSolver.CommRingHornerForms
+
 private
   variable
     ℓ : Level
 
 module MultivariateSolving (R : CommRing {ℓ}) where
+  -- In scope for debuggin:
+
+  -- In scope for solver use:
   open CommRingStr (snd R)
   AsAlgebra = CommRing→RawℤAlgebra R
 
@@ -67,9 +73,9 @@ module MultivariateSolving (R : CommRing {ℓ}) where
                   +' Y ·' Y ·' Y ·' Y
              in solve R lhs rhs (x ∷ y ∷ z ∷ []) refl
 
+
 {-
   still bad, see below:
-
   _ : (x y z : (fst R)) → (x + y) · (x - y) ≡ (x · x - y · y)
   _ = λ x y z →
               let
