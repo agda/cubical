@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Algebra.RingSolver.AlgebraExamples where
+module Cubical.Algebra.RingSolver.CommRingExamples where
 
 open import Cubical.Foundations.Prelude
 
@@ -74,20 +74,9 @@ module MultivariateSolving (R : CommRing {ℓ}) where
              in solve R lhs rhs (x ∷ y ∷ z ∷ []) refl
 
 
-{-
-  still bad, see below:
   _ : (x y z : (fst R)) → (x + y) · (x - y) ≡ (x · x - y · y)
   _ = λ x y z →
               let
                 lhs = (X +' Y) ·' (X +' (-' Y))
                 rhs = (X ·' X) +' (-' (Y ·' Y))
-              in solve R lhs rhs (x ∷ y ∷ z ∷ []) {!!}
-
-
-  lhs normalizes to:
-  (1r · x + (0r · y + 0r)) · x + ((- 1r · y + 0r) · y + 0r)
-
-  rhs normalizes to:
-  (1r · x + 0r) · x + ((- 1r · y + 0r) · y + 0r)
-
--}
+              in solve R lhs rhs (x ∷ y ∷ z ∷ []) refl
