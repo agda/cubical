@@ -6,7 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec
-open import Cubical.Data.Bool using (Bool; true; false; if_then_else_)
+open import Cubical.Data.Bool using (Bool; true; false; if_then_else_; _and_)
 
 open import Cubical.Algebra.RingSolver.RawRing
 open import Cubical.Algebra.RingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ₐ)
@@ -90,7 +90,12 @@ module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   (const r) +ₕ (const s) = const (r + s)
   0H +ₕ Q = Q
   (P ·X+ r) +ₕ 0H = P ·X+ r
-  (P ·X+ r) +ₕ (Q ·X+ s) = (P +ₕ Q) ·X+ (r +ₕ s)
+  (P ·X+ r) +ₕ (Q ·X+ s) =
+    let left = (P +ₕ Q)
+        right = (r +ₕ s)
+    in if ((isZero A left) and (isZero A right))
+       then 0ₕ
+       else left ·X+ right
 
   -ₕ : {n : ℕ} → IteratedHornerForms A n → IteratedHornerForms A n
   -ₕ (const x) = const (- x)
