@@ -136,21 +136,21 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
                                          ∙∙ cong ((f (inl x)) +ₖ_) (cong f (push tt))
                                  ; (inr x) → sym (lUnitₖ 1 (f (inr x)))
                                             ∙ cong (_+ₖ (f (inr x))) (sym inlId)
-                                 ; (push tt i) j → cheating (f (inl (pt A))) (sym (inlId))
-                                                             (f (inr (pt B))) (cong f (push tt)) j i} ) ∣₁)
+                                 ; (push tt i) j → helper2 (f (inl (pt A))) (sym (inlId))
+                                                            (f (inr (pt B))) (cong f (push tt)) j i} ) ∣₁)
       where
-      cheating : (x : coHomK 1) (r : ∣ base ∣ ≡ x) (y : coHomK 1) (p : x ≡ y)
+      helper2 : (x : coHomK 1) (r : ∣ base ∣ ≡ x) (y : coHomK 1) (p : x ≡ y)
               → PathP (λ j → ((sym (rUnitₖ 1 x) ∙∙ cong (x +ₖ_) r ∙∙ cong (x +ₖ_) p)) j
                              ≡ (sym (lUnitₖ 1 y) ∙ cong (_+ₖ y) r) j)
                        p refl
-      cheating x = J (λ x r → (y : coHomK 1) (p : x ≡ y)
-                            → PathP (λ j → ((sym (rUnitₖ 1 x) ∙∙ cong (x +ₖ_) r ∙∙ cong (x +ₖ_) p)) j
-                                            ≡ (sym (lUnitₖ 1 y) ∙ cong (_+ₖ y) r) j)
-                                     p refl)
-                      λ y → J (λ y p → PathP (λ j → ((sym (rUnitₖ 1 ∣ base ∣) ∙∙ refl ∙∙ cong (∣ base ∣ +ₖ_) p)) j
-                                                     ≡ (sym (lUnitₖ 1 y) ∙ refl) j)
-                                              p refl)
-                             λ i _ → (refl ∙ (λ _ → 0ₖ 1)) i
+      helper2 x = J (λ x r → (y : coHomK 1) (p : x ≡ y)
+                           → PathP (λ j → ((sym (rUnitₖ 1 x) ∙∙ cong (x +ₖ_) r ∙∙ cong (x +ₖ_) p)) j
+                                           ≡ (sym (lUnitₖ 1 y) ∙ cong (_+ₖ y) r) j)
+                                    p refl)
+                     λ y → J (λ y p → PathP (λ j → ((sym (rUnitₖ 1 ∣ base ∣) ∙∙ refl ∙∙ cong (∣ base ∣ +ₖ_) p)) j
+                                                    ≡ (sym (lUnitₖ 1 y) ∙ refl) j)
+                                             p refl)
+                               λ i _ → (refl ∙ (λ _ → 0ₖ 1)) i
   fun (map' (Hⁿ-⋁ (suc n))) =
     sElim (λ _ → isSet× setTruncIsSet setTruncIsSet)
            λ f → ∣ (λ x → f (inl x)) ∣₂ , ∣ (λ x → f (inr x)) ∣₂
@@ -183,21 +183,21 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
                                            ∙∙ cong ((f (inl x)) +ₖ_) (cong f (push tt))
                                  ; (inr x) → sym (lUnitₖ (2 + n) (f (inr x)))
                                             ∙ cong (_+ₖ (f (inr x))) (sym inlId)
-                                 ; (push tt i) j → cheating (f (inl (pt A))) (sym (inlId))
-                                                             (f (inr (pt B))) (cong f (push tt)) j i}) ∣₁))
+                                 ; (push tt i) j → helper2 (f (inl (pt A))) (sym (inlId))
+                                                            (f (inr (pt B))) (cong f (push tt)) j i}) ∣₁))
       where
-      cheating : (x : coHomK (2 + n)) (r : ∣ north ∣ ≡ x) (y : coHomK (2 + n)) (p : x ≡ y)
-              → PathP (λ j → ((sym (rUnitₖ (2 + n) x) ∙∙ cong (x +ₖ_) r ∙∙ cong (x +ₖ_) p)) j
-                             ≡ (sym (lUnitₖ (2 + n) y) ∙ cong (_+ₖ y) r) j)
-                       p refl
-      cheating x = J (λ x r → (y : coHomK (2 + n)) (p : x ≡ y)
-                            → PathP (λ j → ((sym (rUnitₖ (2 + n) x) ∙∙ cong (x +ₖ_) r ∙∙ cong (x +ₖ_) p)) j
-                                            ≡ (sym (lUnitₖ (2 + n) y) ∙ cong (_+ₖ y) r) j)
-                                     p refl)
-                      λ y → J (λ y p → PathP (λ j → ((sym (rUnitₖ (2 + n) ∣ north ∣) ∙∙ refl ∙∙ cong (∣ north ∣ +ₖ_) p)) j
-                                                     ≡ (sym (lUnitₖ (2 + n) y) ∙ refl) j)
-                                              p refl)
-                               λ i j → ((λ _ → ∣ north ∣) ∙ refl) i
+      helper2 : (x : coHomK (2 + n)) (r : ∣ north ∣ ≡ x) (y : coHomK (2 + n)) (p : x ≡ y)
+             → PathP (λ j → ((sym (rUnitₖ (2 + n) x) ∙∙ cong (x +ₖ_) r ∙∙ cong (x +ₖ_) p)) j
+                            ≡ (sym (lUnitₖ (2 + n) y) ∙ cong (_+ₖ y) r) j)
+                      p refl
+      helper2 x = J (λ x r → (y : coHomK (2 + n)) (p : x ≡ y)
+                           → PathP (λ j → ((sym (rUnitₖ (2 + n) x) ∙∙ cong (x +ₖ_) r ∙∙ cong (x +ₖ_) p)) j
+                                           ≡ (sym (lUnitₖ (2 + n) y) ∙ cong (_+ₖ y) r) j)
+                                    p refl)
+                     λ y → J (λ y p → PathP (λ j → ((sym (rUnitₖ (2 + n) ∣ north ∣) ∙∙ refl ∙∙ cong (∣ north ∣ +ₖ_) p)) j
+                                                    ≡ (sym (lUnitₖ (2 + n) y) ∙ refl) j)
+                                             p refl)
+                              λ i j → ((λ _ → ∣ north ∣) ∙ refl) i
 
   wedgeConnected : ((x : typ A) → ∥ pt A ≡ x ∥) → ((x : typ B) → ∥ pt B ≡ x ∥) → (x : A ⋁ B) → ∥ inl (pt A) ≡ x ∥
   wedgeConnected conA conB =
