@@ -410,6 +410,12 @@ coHomGr n A = coHom n A , coHomGrnA
 coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → coHom n B → coHom n A
 coHomFun n f = sRec § λ β → ∣ β ∘ f ∣₂
 
+coHomMorph : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → GroupHom (coHomGr n B) (coHomGr n A)
+fun (coHomMorph n f) = coHomFun n f
+isHom (coHomMorph zero f) = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
+isHom (coHomMorph (suc zero) f) = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
+isHom (coHomMorph (suc (suc n)) f) = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
+
 -- Alternative definition of cohomology using ΩKₙ instead. Useful for breaking proofs of group isos
 -- up into smaller parts
 coHomGrΩ : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group {ℓ}

@@ -302,6 +302,42 @@ private
         (cong (decode ∣ north ∣) (transportRefl ∣ ptSn (suc n) ∣)
        ∙ cong (cong ∣_∣) (rCancel (merid (ptSn (suc n)))))
 
+  hLevCode : {n : ℕ} (x : coHomK (2 + n)) → isOfHLevel (3 + n) (Code n x)
+  hLevCode {n = n} =
+    trElim (λ _ → isProp→isOfHLevelSuc (3 + n) (isPropIsOfHLevel (3 + n)))
+      (sphereToPropElim _
+        (λ _ → (isPropIsOfHLevel (3 + n))) (isOfHLevelTrunc (3 + n)))
+
+  Code-add' : {n : ℕ} (x : _) → Code n ∣ north ∣ → Code n ∣ x ∣ → Code n ∣ x ∣
+  Code-add' {n = n} north = _+ₖ_
+  Code-add' {n = n} south = _+ₖ_
+  Code-add' {n = n} (merid a i) = helper n a i
+    where
+    help : (n : ℕ) → (x y a : S₊ (suc n)) → transport (λ i → Code n ∣ north ∣ → Code n ∣ merid a i ∣ → Code n ∣ merid a i ∣) (_+ₖ_) ∣ x ∣ ∣ y ∣ ≡ ∣ x ∣ +ₖ ∣ y ∣
+    help n x y a =
+         (λ i → transportRefl ((∣ transportRefl x i ∣  +ₖ (∣ transportRefl y i ∣ -ₖ ∣ a ∣)) +ₖ ∣ a ∣) i)
+      ∙∙ cong (_+ₖ ∣ a ∣) (assocₖ _ ∣ x ∣ ∣ y ∣ (-ₖ ∣ a ∣))
+      ∙∙ sym (assocₖ _ (∣ x ∣ +ₖ ∣ y ∣) (-ₖ ∣ a ∣) ∣ a ∣)
+      ∙∙ cong ((∣ x ∣ +ₖ ∣ y ∣) +ₖ_) (lCancelₖ _ ∣ a ∣)
+      ∙∙ rUnitₖ _ _
+
+    helper : (n : ℕ) →  (a : S₊ (suc n)) → PathP (λ i → Code n ∣ north ∣ → Code n ∣ merid a i ∣ → Code n ∣ merid a i ∣) _+ₖ_ _+ₖ_
+    helper n a =
+      toPathP (funExt
+                (trElim (λ _ → isOfHLevelPath (3 + n) (isOfHLevelΠ (3 + n) (λ _ → isOfHLevelTrunc (3 + n))) _ _)
+                  λ x → funExt
+                           (trElim (λ _ → isOfHLevelPath (3 + n) (isOfHLevelTrunc (3 + n)) _ _)
+                                   λ y → help n x y a)))
+
+  Code-add : {n : ℕ} (x : _) → Code n ∣ north ∣ → Code n x → Code n x
+  Code-add {n = n} =
+    trElim (λ x → isOfHLevelΠ (4 + n) λ _ → isOfHLevelΠ (4 + n) λ _ → isOfHLevelSuc (3 + n) (hLevCode {n = n} x))
+           Code-add'
+
+  encode-hom : {n : ℕ} {x : _} (q : 0ₖ _ ≡ 0ₖ _) (p : 0ₖ _ ≡ x) → encode (q ∙ p) ≡ Code-add {n = n} x (encode q) (encode p)
+  encode-hom {n = n} q = J (λ x p → encode (q ∙ p) ≡ Code-add {n = n} x (encode q) (encode p))
+                           (cong encode (sym (rUnit q)) ∙∙ sym (rUnitₖ _ (encode q)) ∙∙ cong (encode q +ₖ_) (cong ∣_∣ (sym (transportRefl _))))
+
 stabSpheres : (n : ℕ) → Iso (coHomK (suc n)) (typ (Ω (coHomK-ptd (2 + n))))
 fun (stabSpheres n) = decode _
 inv' (stabSpheres n) = encode
@@ -356,15 +392,10 @@ Kn→ΩKn+1-hom (suc n) = σ-hom
 
 ΩKn+1→Kn-hom : (n : ℕ) (x y : Path (coHomK (suc n)) (0ₖ _) (0ₖ _))
              → ΩKn+1→Kn n (x ∙ y) ≡ ΩKn+1→Kn n x +[ n ]ₖ ΩKn+1→Kn n y
-ΩKn+1→Kn-hom n =
-  morphLemmas.isMorphInv
-    (λ x y → x +[ n ]ₖ y) _∙_
-    (Kn→ΩKn+1 n) (Kn→ΩKn+1-hom n)
-    (ΩKn+1→Kn n)
-    (Iso.rightInv (Iso-Kn-ΩKn+1 n))
-    (Iso.leftInv (Iso-Kn-ΩKn+1 n))
-
-
+ΩKn+1→Kn-hom zero p q =
+     cong winding (congFunct (trRec isGroupoidS¹ (λ x → x)) p q)
+   ∙ winding-hom (cong (trRec isGroupoidS¹ (λ x → x)) p) (cong (trRec isGroupoidS¹ (λ x → x)) q)
+ΩKn+1→Kn-hom (suc n) = encode-hom
 
 -- With the equivalence Kn≃ΩKn+1, we get that the two definitions of cohomology groups agree
 open GroupHom
