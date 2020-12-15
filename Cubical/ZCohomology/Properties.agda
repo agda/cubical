@@ -173,22 +173,31 @@ rightInv (Iso-coHom-coHomRed {A = A , a} n) =
                       (Iso.fun (PathIdTruncIso (suc n)) (isContr→isProp (isConnectedKn n) ∣ f a ∣ ∣ 0ₖ _ ∣))
 leftInv (Iso-coHom-coHomRed {A = A , a} n) =
   sElim (λ _ → isOfHLevelPath 2 § _ _)
-        λ {(f , p) → cong ∣_∣₂ (ΣPathP (((funExt λ x → cong (λ y → f x -ₖ y) p ∙∙ cong (λ y → f x +ₖ y) -0ₖ ∙∙ rUnitₖ _ (f x)))
+        λ {(f , p) → cong ∣_∣₂ (ΣPathP (((funExt λ x → cong (λ y → f x -ₖ y) p
+                                                    ∙∙ cong (λ y → f x +ₖ y) -0ₖ
+                                                    ∙∙ rUnitₖ _ (f x)))
                               , helper n (f a) (sym p)))}
     where
-    helper :  (n : ℕ) → (x : coHomK (suc n)) → (p : 0ₖ _ ≡ x) → PathP (λ i → (cong (λ y → x -ₖ y) (sym p) ∙∙ cong (λ y → x +ₖ y) -0ₖ ∙∙ rUnitₖ _ x) i ≡ 0ₖ _) (rCancelₖ _ x) (sym p)
-    helper zero x = J (λ x p → PathP (λ i → (cong (λ y → x +ₖ y) (cong -ₖ_ (sym p)) ∙∙ cong (λ y → x +ₖ y) -0ₖ ∙∙ rUnitₖ _ x) i ≡ 0ₖ _) (rCancelₖ _ x) (sym p))
-                 λ i j → hcomp (λ k → λ { (i = i0) → transportRefl (refl {x = 0ₖ 1}) (~ k) j
-                                          ; (i = i1) → 0ₖ 1
-                                          ; (j = i0) → rUnit (refl {x = 0ₖ 1}) k i
-                                          ; (j = i1) → 0ₖ 1})
-                                (0ₖ 1)
-    helper (suc n) x = J (λ x p → PathP (λ i → (cong (λ y → x +ₖ y) (cong -ₖ_ (sym p)) ∙∙ cong (λ y → x +ₖ y) -0ₖ ∙∙ rUnitₖ _ x) i ≡ 0ₖ _) (rCancelₖ _ x) (sym p))
-                 λ i j → hcomp (λ k → λ { (i = i0) → transportRefl (refl {x = 0ₖ (2 + n)}) (~ k) j
-                                          ; (i = i1) → 0ₖ (2 + n)
-                                          ; (j = i0) → rUnit (refl {x = 0ₖ (2 + n)}) k i
-                                          ; (j = i1) → 0ₖ (2 + n)})
-                                (0ₖ (2 + n))
+    path : (n : ℕ) (x : coHomK (suc n)) (p : 0ₖ _ ≡ x) → _
+    path n x p = cong (λ y → x -ₖ y) (sym p) ∙∙ cong (λ y → x +ₖ y) -0ₖ ∙∙ rUnitₖ _ x
+
+    helper :  (n : ℕ) (x : coHomK (suc n)) (p : 0ₖ _ ≡ x)
+            → PathP (λ i → path n x p i ≡ 0ₖ _) (rCancelₖ _ x) (sym p)
+    helper zero x =
+      J (λ x p → PathP (λ i → path 0 x p i ≡ 0ₖ _)
+                        (rCancelₖ _ x) (sym p))
+         λ i j → hcomp (λ k → λ { (i = i0) → transportRefl (refl {x = 0ₖ 1}) (~ k) j
+                                  ; (i = i1) → 0ₖ 1
+                                  ; (j = i0) → rUnit (refl {x = 0ₖ 1}) k i
+                                  ; (j = i1) → 0ₖ 1})
+                        (0ₖ 1)
+    helper (suc n) x =
+      J (λ x p → PathP (λ i → path (suc n) x p i ≡ 0ₖ _) (rCancelₖ _ x) (sym p))
+         λ i j → hcomp (λ k → λ { (i = i0) → transportRefl (refl {x = 0ₖ (2 + n)}) (~ k) j
+                                  ; (i = i1) → 0ₖ (2 + n)
+                                  ; (j = i0) → rUnit (refl {x = 0ₖ (2 + n)}) k i
+                                  ; (j = i1) → 0ₖ (2 + n)})
+                        (0ₖ (2 + n))
 
 ------------------- Kₙ ≃ ΩKₙ₊₁ ---------------------
 -- This proof uses the encode-decode method rather than Freudenthal
@@ -197,7 +206,8 @@ leftInv (Iso-coHom-coHomRed {A = A , a} n) =
 private
   module _ (n : ℕ) where
   σ : {n : ℕ} → coHomK (suc n) → Path (coHomK (2 + n)) ∣ north ∣ ∣ north ∣
-  σ {n = n} = trRec (isOfHLevelTrunc (4 + n) _ _) λ a → cong ∣_∣ (merid a ∙ sym (merid (ptSn (suc n))))
+  σ {n = n} = trRec (isOfHLevelTrunc (4 + n) _ _)
+                    λ a → cong ∣_∣ (merid a ∙ sym (merid (ptSn (suc n))))
 
   σ-hom-helper : ∀ {ℓ} {A : Type ℓ} {a : A} (p : a ≡ a) (r : refl ≡ p)
                    → lUnit p ∙ cong (_∙ p) r ≡ rUnit p ∙ cong (p ∙_) r
@@ -217,12 +227,12 @@ private
   σ-hom {n = suc n} =
     elim2 (λ _ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (5 + n) _ _) _ _)
           (wedgeConSn _ _ (λ _ _ → isOfHLevelPath ((2 + n) + (2 + n)) (wedgeConHLev' n) _ _)
-                      (λ x → lUnit _
-                            ∙ cong (_∙ σ ∣ x ∣) (cong (cong ∣_∣) (sym (rCancel (merid north)))))
-                      (λ y → cong σ (rUnitₖ (2 + n) ∣ y ∣)
-                           ∙∙ rUnit _
-                           ∙∙ cong (σ ∣ y ∣ ∙_) (cong (cong ∣_∣) (sym (rCancel (merid north)))))
-                      (sym (σ-hom-helper (σ ∣ north ∣) (cong (cong ∣_∣) (sym (rCancel (merid north)))))) .fst)
+           (λ x → lUnit _
+                 ∙ cong (_∙ σ ∣ x ∣) (cong (cong ∣_∣) (sym (rCancel (merid north)))))
+           (λ y → cong σ (rUnitₖ (2 + n) ∣ y ∣)
+                ∙∙ rUnit _
+                ∙∙ cong (σ ∣ y ∣ ∙_) (cong (cong ∣_∣) (sym (rCancel (merid north)))))
+           (sym (σ-hom-helper (σ ∣ north ∣) (cong (cong ∣_∣) (sym (rCancel (merid north)))))) .fst)
 
   -- We will need to following lemma
   σ-minusDistr : {n : ℕ} (x y : coHomK (suc n)) → σ (x -ₖ y) ≡ σ x ∙ sym (σ y)

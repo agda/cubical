@@ -64,12 +64,15 @@ H⁰-RP²≅ℤ = H⁰-connected point connectedRP¹
   connectedRP¹ : (x : RP²) → ∥ point ≡ x ∥
   connectedRP¹ point = ∣ refl ∣
   connectedRP¹ (line i) =
-    isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥} (λ _ → propTruncIsProp) ∣ refl ∣ ∣ refl ∣ line i
+    isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥}
+      (λ _ → propTruncIsProp) ∣ refl ∣ ∣ refl ∣ line i
   connectedRP¹ (square i j) = helper i j
     where
     helper : SquareP (λ i j → ∥ point ≡ square i j ∥)
-                     (isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥} (λ _ → propTruncIsProp) ∣ refl ∣ ∣ refl ∣ line)
-                     (symP (isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥} (λ _ → propTruncIsProp) ∣ refl ∣ ∣ refl ∣ line))
+                     (isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥}
+                       (λ _ → propTruncIsProp) ∣ refl ∣ ∣ refl ∣ line)
+                     (symP (isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥}
+                             (λ _ → propTruncIsProp) ∣ refl ∣ ∣ refl ∣ line))
                      refl refl
     helper = toPathP (isOfHLevelPathP 1 propTruncIsProp _ _ _ _)
 
@@ -81,13 +84,13 @@ snd isContr-H¹-RP²-helper =
     (uncurry
       (trElim (λ _ → isGroupoidΠ λ _ → isOfHLevelPlus {n = 1} 2 (setTruncIsSet _ _))
       (toPropElim (λ _ → isPropΠ (λ _ → setTruncIsSet _ _))
-                  λ {(p , nilp)
-                     → cong ∣_∣₂ (ΣPathP (refl , Σ≡Prop (λ _ → isOfHLevelTrunc 3 _ _ _ _)
-                                                  (rUnit refl
-                                                ∙∙ cong (Kn→ΩKn+1 0) (sym (nilpotent→≡0 (ΩKn+1→Kn 0 p)
-                                                                                          (sym (ΩKn+1→Kn-hom 0 p p)
-                                                                                         ∙ cong (ΩKn+1→Kn 0) nilp)))
-                                                ∙∙ Iso.rightInv (Iso-Kn-ΩKn+1 0) p)))})))
+         λ {(p , nilp)
+            → cong ∣_∣₂ (ΣPathP (refl , Σ≡Prop (λ _ → isOfHLevelTrunc 3 _ _ _ _)
+                                         (rUnit refl
+                                       ∙∙ cong (Kn→ΩKn+1 0) (sym (nilpotent→≡0 (ΩKn+1→Kn 0 p)
+                                                                                 (sym (ΩKn+1→Kn-hom 0 p p)
+                                                                                ∙ cong (ΩKn+1→Kn 0) nilp)))
+                                       ∙∙ Iso.rightInv (Iso-Kn-ΩKn+1 0) p)))})))
 
 H¹-RP²≅0 : GroupIso (coHomGr 1 RP²) trivialGroup
 H¹-RP²≅0 =
@@ -99,7 +102,8 @@ H¹-RP²≅0 =
 
 --- H²(RP²) ≅ ℤ/2ℤ ----
 
-Iso-H²-RP²₁ : Iso ∥ Σ[ x ∈ coHomK 2 ] Σ[ p ∈ x ≡ x ] p ≡ sym p ∥₂ ∥ Σ[ p ∈ 0ₖ 2 ≡ 0ₖ 2 ] p ≡ sym p ∥₂
+Iso-H²-RP²₁ : Iso ∥ Σ[ x ∈ coHomK 2 ] Σ[ p ∈ x ≡ x ] p ≡ sym p ∥₂
+                  ∥ Σ[ p ∈ 0ₖ 2 ≡ 0ₖ 2 ] p ≡ sym p ∥₂
 Iso.fun Iso-H²-RP²₁ =
   sRec setTruncIsSet
     (uncurry

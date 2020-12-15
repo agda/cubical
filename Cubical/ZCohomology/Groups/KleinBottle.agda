@@ -56,7 +56,8 @@ Iso.fun (characFunSpace𝕂² A) f =
 Iso.inv (characFunSpace𝕂² A) (x , p , q , sq) point = x
 Iso.inv (characFunSpace𝕂² A) (x , p , q , sq) (line1 i) = p i
 Iso.inv (characFunSpace𝕂² A) (x , p , q , sq) (line2 i) = q i
-Iso.inv (characFunSpace𝕂² A) (x , p , q , sq) (square i j) = invEq (Square≃doubleComp q q (sym p) p) sq i j
+Iso.inv (characFunSpace𝕂² A) (x , p , q , sq) (square i j) =
+  invEq (Square≃doubleComp q q (sym p) p) sq i j
 Iso.rightInv (characFunSpace𝕂² A) (x , (p , (q , sq))) =
   ΣPathP (refl , (ΣPathP (refl , (ΣPathP (refl , retEq (Square≃doubleComp q q (sym p) p) sq)))))
 Iso.leftInv (characFunSpace𝕂² A) f _ point = f point
@@ -68,14 +69,19 @@ Iso.leftInv (characFunSpace𝕂² A) f z (square i j) =
           (sym (cong f line1)) (cong f line1))
           (λ i j → f (square i j)) z i j
 private
-  movePathLem : ∀ {ℓ} {A : Type ℓ} {x : A} (p q : x ≡ x) → isComm∙ (A , x) → (p ∙∙ q ∙∙ p ≡ q) ≡ ((p ∙ p) ∙ q ≡ q)
-  movePathLem p q comm = cong (_≡ q) (doubleCompPath-elim' p q p ∙∙ cong (p ∙_) (comm q p) ∙∙ assoc _ _ _)
+  movePathLem : ∀ {ℓ} {A : Type ℓ} {x : A} (p q : x ≡ x) → isComm∙ (A , x)
+             → (p ∙∙ q ∙∙ p ≡ q) ≡ ((p ∙ p) ∙ q ≡ q)
+  movePathLem p q comm =
+    cong (_≡ q) (doubleCompPath-elim' p q p ∙∙ cong (p ∙_) (comm q p) ∙∙ assoc _ _ _)
 
-  movePathLem2 : ∀ {ℓ} {A : Type ℓ} {x : A} (p q : x ≡ x) → (((p ∙ p) ∙ q) ∙ sym q ≡ q ∙ sym q) ≡ (p ∙ p ≡ refl)
-  movePathLem2 p q = cong₂ _≡_ (sym (assoc (p ∙ p) q (sym q)) ∙∙ cong ((p ∙ p) ∙_) (rCancel q) ∙∙ sym (rUnit (p ∙ p)))
-                               (rCancel q)
+  movePathLem2 : ∀ {ℓ} {A : Type ℓ} {x : A} (p q : x ≡ x)
+             → (((p ∙ p) ∙ q) ∙ sym q ≡ q ∙ sym q) ≡ (p ∙ p ≡ refl)
+  movePathLem2 p q =
+    cong₂ _≡_ (sym (assoc (p ∙ p) q (sym q)) ∙∙ cong ((p ∙ p) ∙_) (rCancel q) ∙∙ sym (rUnit (p ∙ p)))
+              (rCancel q)
 
-  movePathIso : ∀ {ℓ} {A : Type ℓ} {x : A} (p q : x ≡ x) → isComm∙ (A , x) → Iso (p ∙∙ q ∙∙ p ≡ q) (p ∙ p ≡ refl)
+  movePathIso : ∀ {ℓ} {A : Type ℓ} {x : A} (p q : x ≡ x) → isComm∙ (A , x)
+                → Iso (p ∙∙ q ∙∙ p ≡ q) (p ∙ p ≡ refl)
   movePathIso {x = x} p q comm =
     compIso (pathToIso (movePathLem p q comm))
       (compIso (helper (p ∙ p))
@@ -88,7 +94,7 @@ private
 H⁰-𝕂² : GroupIso (coHomGr 0 KleinBottle) intGroup
 fun (map' H⁰-𝕂²) = sRec isSetInt λ f → f point
 isHom (map' H⁰-𝕂²) = sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _)
-                              λ _ _ → refl 
+                              λ _ _ → refl
 inv H⁰-𝕂² x = ∣ (λ _ → x) ∣₂
 rightInv H⁰-𝕂² _ = refl
 leftInv H⁰-𝕂² =
@@ -98,12 +104,13 @@ leftInv H⁰-𝕂² =
                                  ; (line2 i) j → isSetInt (f point) (f point) refl (cong f line2) j i
                                  ; (square i j) z → helper f i j z}))
   where
-  helper : (f : KleinBottle → Int) → Cube (λ j z → isSetInt (f point) (f point) refl (cong  f line2) z j)
-                                            (λ j z → isSetInt (f point) (f point) refl (cong  f line2) z j)
-                                            (λ i z → isSetInt (f point) (f point) refl (cong  f line1) z (~ i))
-                                            (λ i z → isSetInt (f point) (f point) refl (cong  f line1) z i)
-                                            refl
-                                            λ i j → f (square i j)
+  helper : (f : KleinBottle → Int)
+        → Cube (λ j z → isSetInt (f point) (f point) refl (cong  f line2) z j)
+                (λ j z → isSetInt (f point) (f point) refl (cong  f line2) z j)
+                (λ i z → isSetInt (f point) (f point) refl (cong  f line1) z (~ i))
+                (λ i z → isSetInt (f point) (f point) refl (cong  f line1) z i)
+                refl
+                λ i j → f (square i j)
   helper f = isGroupoid→isGroupoid' (isOfHLevelSuc 2 isSetInt) _ _ _ _ _ _
 
 ------ H¹(𝕂¹) ≅ ℤ ------------
@@ -143,10 +150,13 @@ nilpotent→≡refl =
   trElim (λ _ → isGroupoidΠ2 λ _ _ → isOfHLevelPlus {n = 1} 2 (isOfHLevelTrunc 3 _ _ _ _))
          (toPropElim (λ _ → isPropΠ2 λ _ _ → isOfHLevelTrunc 3 _ _ _ _)
           λ p pId → sym (Iso.rightInv (Iso-Kn-ΩKn+1 0) p)
-                  ∙∙ cong (Kn→ΩKn+1 0) (nilpotent→≡0 (ΩKn+1→Kn 0 p) (sym (ΩKn+1→Kn-hom 0 p p) ∙ cong (ΩKn+1→Kn 0) pId))
+                  ∙∙ cong (Kn→ΩKn+1 0) (nilpotent→≡0 (ΩKn+1→Kn 0 p)
+                                                       (sym (ΩKn+1→Kn-hom 0 p p)
+                                                        ∙ cong (ΩKn+1→Kn 0) pId))
                   ∙∙ Kn→ΩKn+10ₖ 0)
 
-Iso-H¹-𝕂²₁ : Iso (Σ[ x ∈ coHomK 1 ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙ p ≡ refl) (Σ[ x ∈ coHomK 1 ] x ≡ x)
+Iso-H¹-𝕂²₁ : Iso (Σ[ x ∈ coHomK 1 ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙ p ≡ refl)
+                  (Σ[ x ∈ coHomK 1 ] x ≡ x)
 Iso.fun Iso-H¹-𝕂²₁ (x , (_ , (q , _))) = x , q
 Iso.inv Iso-H¹-𝕂²₁ (x , q) = x , (refl , (q , (sym (rUnit refl))))
 Iso.rightInv Iso-H¹-𝕂²₁ _ = refl
@@ -167,7 +177,10 @@ H¹-𝕂²≅ℤ = compGroupIso theGroupIso (Hⁿ-Sⁿ≅ℤ 0)
   theIso =
     setTruncIso (
     compIso (characFunSpace𝕂² (coHomK 1))
-      (compIso (Σ-cong-iso-snd (λ x → Σ-cong-iso-snd λ p → Σ-cong-iso-snd λ q → movePathIso p q (isCommΩK-based 1 x)))
+      (compIso
+         (Σ-cong-iso-snd (λ x → Σ-cong-iso-snd
+                            λ p → Σ-cong-iso-snd
+                              λ q → movePathIso p q (isCommΩK-based 1 x)))
          (compIso Iso-H¹-𝕂²₁
                   Iso-H¹-𝕂²₂)))
 
@@ -190,7 +203,8 @@ H²(𝕂²) := ∥ 𝕂² → K₂ ∥₂
 -}
 
 
-Iso-H²-𝕂²₁ : Iso ∥ Σ[ x ∈ coHomK 2 ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙ p ≡ refl ∥₂ ∥ (Σ[ p ∈ 0ₖ 2 ≡ 0ₖ 2 ] p ∙ p ≡ refl) ∥₂
+Iso-H²-𝕂²₁ : Iso ∥ Σ[ x ∈ coHomK 2 ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙ p ≡ refl ∥₂
+                  ∥ Σ[ p ∈ 0ₖ 2 ≡ 0ₖ 2 ] p ∙ p ≡ refl ∥₂
 Iso.fun Iso-H²-𝕂²₁ =
   sRec setTruncIsSet
     (uncurry (trElim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 2} 2 setTruncIsSet)
@@ -206,10 +220,11 @@ Iso.leftInv Iso-H²-𝕂²₁ =
         (uncurry (trElim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 1} 3 (setTruncIsSet _ _))
                  (sphereToPropElim _
                    (λ _ → isPropΠ λ _ → setTruncIsSet _ _)
-                   λ {(p , (q , sq)) → trRec (setTruncIsSet _ _)
-                                              (λ qid → cong ∣_∣₂ (ΣPathP (refl , (ΣPathP (refl , (ΣPathP (sym qid  , refl)))))))
-                                              (Iso.fun (PathIdTruncIso _)
-                                                       (isContr→isProp (isConnectedPathKn 1 (0ₖ 2) (0ₖ 2)) ∣ q ∣ ∣ refl ∣))})))
+                   λ {(p , (q , sq))
+                     → trRec (setTruncIsSet _ _)
+                              (λ qid → cong ∣_∣₂ (ΣPathP (refl , (ΣPathP (refl , (ΣPathP (sym qid  , refl)))))))
+                              (Iso.fun (PathIdTruncIso _)
+                                       (isContr→isProp (isConnectedPathKn 1 (0ₖ 2) (0ₖ 2)) ∣ q ∣ ∣ refl ∣))})))
 
 {- Step two :  ∥ Σ[ p ∈ x ≡ x ] p ∙ p ≡ refl ∥₂ ≡ ∥ Σ[ x ∈ K₁ ] x + x ≡ 0 ∥₂ -}
 Iso-H²-𝕂²₂ : Iso ∥ (Σ[ p ∈ 0ₖ 2 ≡ 0ₖ 2 ] p ∙ p ≡ refl) ∥₂ ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
@@ -247,15 +262,19 @@ We also have to show that this map respects the loop
   isEven-2 (negsuc (suc n)) =
       cong isEven (predInt+negsuc n _
                ∙ +-commℤ -3 (negsuc n))
-    ∙ lossy n
-    where
-    lossy : (n : ℕ) → isEven (negsuc (suc (suc (suc n)))) ≡ isEven (pos n)
-    lossy n = refl
+    ∙ lossy2 n
+      where
+      lossy2 : (n : ℕ) → isEven (negsuc (suc (suc (suc n)))) ≡ isEven (pos n)
+      lossy2 n = refl
   respectsLoop : (p : 0ₖ 1 ≡ 0ₖ 1)
-              → isEven (ΩKn+1→Kn 0 (transport (λ i → ∣ (loop ∙ loop) i ∣ ≡ 0ₖ 1) p)) ≡ isEven (ΩKn+1→Kn 0 p)
+              → isEven (ΩKn+1→Kn 0 (transport (λ i → ∣ (loop ∙ loop) i ∣ ≡ 0ₖ 1) p))
+               ≡ isEven (ΩKn+1→Kn 0 p)
   respectsLoop p =
-       cong isEven (cong (ΩKn+1→Kn 0) (cong (transport (λ i → ∣ (loop ∙ loop) i ∣ ≡ 0ₖ 1)) (lUnit p)))
-    ∙∙ cong isEven (cong (ΩKn+1→Kn 0) λ j → transp (λ i → ∣ (loop ∙ loop) (i ∨ j) ∣ ≡ 0ₖ 1) j ((λ i → ∣ (loop ∙ loop) (~ i ∧ j) ∣) ∙ p))
+       cong isEven (cong (ΩKn+1→Kn 0) (cong (transport (λ i → ∣ (loop ∙ loop) i ∣ ≡ 0ₖ 1))
+                                             (lUnit p)))
+    ∙∙ cong isEven (cong (ΩKn+1→Kn 0)
+                             λ j → transp (λ i → ∣ (loop ∙ loop) (i ∨ j) ∣ ≡ 0ₖ 1) j
+                                           ((λ i → ∣ (loop ∙ loop) (~ i ∧ j) ∣) ∙ p))
     ∙∙ cong isEven (ΩKn+1→Kn-hom 0 (sym (cong ∣_∣ (loop ∙ loop))) p)
      ∙ isEven-2 (ΩKn+1→Kn 0 p)
 
@@ -297,8 +316,9 @@ evenCharac : (x : Int) → isEven x ≡ true
             ∣ (0ₖ 1 , refl) ∣₂
 evenCharac (pos zero) isisEven i = ∣ (0ₖ 1) , (rUnit refl (~ i)) ∣₂
 evenCharac (pos (suc zero)) isisEven = ⊥-rec (true≢false (sym isisEven))
-evenCharac (pos (suc (suc zero))) isisEven = cong ∣_∣₂ ((λ i → 0ₖ 1 , rUnit (cong ∣_∣ ((lUnit loop (~ i)) ∙ loop)) (~ i))
-                                           ∙  (ΣPathP (cong ∣_∣ loop , λ i j → ∣ (loop ∙ loop) (i ∨ j) ∣)))
+evenCharac (pos (suc (suc zero))) isisEven =
+    cong ∣_∣₂ ((λ i → 0ₖ 1 , rUnit (cong ∣_∣ ((lUnit loop (~ i)) ∙ loop)) (~ i))
+  ∙ (ΣPathP (cong ∣_∣ loop , λ i j → ∣ (loop ∙ loop) (i ∨ j) ∣)))
 evenCharac (pos (suc (suc (suc n)))) isisEven =
      (λ i → ∣ 0ₖ 1 , Kn→ΩKn+1-hom 0 (pos (suc n)) 2 i ∣₂)
   ∙∙ sym (*=∙ (Kn→ΩKn+1 0 (pos (suc n))) (Kn→ΩKn+1 0 (pos 2)))
@@ -306,13 +326,14 @@ evenCharac (pos (suc (suc (suc n)))) isisEven =
 
 evenCharac (negsuc zero) isisEven = ⊥-rec (true≢false (sym isisEven))
 evenCharac (negsuc (suc zero)) isisEven =
-  cong ∣_∣₂ ((λ i → 0ₖ 1 , λ i₁ → hfill (doubleComp-faces (λ i₂ → ∣ base ∣) (λ _ → ∣ base ∣) i₁)
-                                         (inS ∣ compPath≡compPath' (sym loop) (sym loop) i i₁ ∣) (~ i))
-                                ∙ ΣPathP ((cong ∣_∣ (sym loop)) , λ i j → ∣ (sym loop ∙' sym loop) (i ∨ j) ∣))
+  cong ∣_∣₂ ((λ i → 0ₖ 1
+                  , λ i₁ → hfill (doubleComp-faces (λ i₂ → ∣ base ∣) (λ _ → ∣ base ∣) i₁)
+                                  (inS ∣ compPath≡compPath' (sym loop) (sym loop) i i₁ ∣) (~ i))
+          ∙ ΣPathP ((cong ∣_∣ (sym loop)) , λ i j → ∣ (sym loop ∙' sym loop) (i ∨ j) ∣))
 evenCharac (negsuc (suc (suc n))) isisEven =
      cong ∣_∣₂ (λ i → 0ₖ 1 , Kn→ΩKn+1-hom 0 (negsuc n) -2 i)
   ∙∙ sym (*=∙ (Kn→ΩKn+1 0 (negsuc n)) (Kn→ΩKn+1 0 -2))
-  ∙∙ cong₂ _*_ (evenCharac (negsuc n) (isEvenNegsuc n isisEven)) (evenCharac -2 refl) -- i
+  ∙∙ cong₂ _*_ (evenCharac (negsuc n) (isEvenNegsuc n isisEven)) (evenCharac -2 refl)
 
 oddCharac : (x : Int) → isEven x ≡ false
     → Path ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
@@ -355,7 +376,8 @@ Iso.leftInv testIso =
           (toPropElim (λ _ → isPropΠ (λ _ → setTruncIsSet _ _))
           (λ p → path p (isEven (ΩKn+1→Kn 0 p)) refl))))
   where
-  path : (p : 0ₖ 1 ≡ 0ₖ 1) (b : Bool) → (isEven (ΩKn+1→Kn 0 p) ≡ b) → Bool→ΣKₙNilpot (ΣKₙNilpot→Bool (∣ base ∣ , p)) ≡ ∣ ∣ base ∣ , p ∣₂
+  path : (p : 0ₖ 1 ≡ 0ₖ 1) (b : Bool) → (isEven (ΩKn+1→Kn 0 p) ≡ b)
+       → Bool→ΣKₙNilpot (ΣKₙNilpot→Bool (∣ base ∣ , p)) ≡ ∣ ∣ base ∣ , p ∣₂
   path p false q =
        (cong Bool→ΣKₙNilpot q)
     ∙∙ sym (oddCharac (ΩKn+1→Kn 0 p) q)
@@ -389,12 +411,12 @@ isContrHⁿ-𝕂² n =
     (setTruncIso (characFunSpace𝕂² (coHomK _)))
     isContrΣ-help
   where
-  lazy : (x : coHomK (3 + n))(p : x ≡ x) → (refl ≡ p) → (q : x ≡ x) → (refl ≡ q)
+  helper : (x : coHomK (3 + n))(p : x ≡ x) → (refl ≡ p) → (q : x ≡ x) → (refl ≡ q)
       → (P : p ∙∙ q ∙∙ p ≡ q)
       → Path ∥ (Σ[ x ∈ coHomK (3 + n) ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙∙ q ∙∙ p ≡ q) ∥₂
               ∣ x , p , q , P ∣₂
               ∣ 0ₖ _ , refl , refl , sym (rUnit refl) ∣₂
-  lazy =
+  helper =
     trElim (λ _ → isProp→isOfHLevelSuc (4 + n) (isPropΠ4 λ _ _ _ _ → isPropΠ λ _ → setTruncIsSet _ _))
       (sphereToPropElim _ (λ _ → isPropΠ4 λ _ _ _ _ → isPropΠ λ _ → setTruncIsSet _ _)
         λ p → J (λ p _ → (q : 0ₖ _ ≡ 0ₖ _) → (refl ≡ q)
@@ -420,9 +442,11 @@ isContrHⁿ-𝕂² n =
       λ {(x , p , q , P)
         → trRec (isProp→isOfHLevelSuc (suc n) (setTruncIsSet _ _))
             (λ pId → trRec (isProp→isOfHLevelSuc (suc n) (setTruncIsSet _ _))
-                      (λ qId → sym (lazy x p pId q qId P))
-                      (Iso.fun (PathIdTruncIso (2 + n)) (isContr→isProp (isConnectedPathKn (2 + n) _ _) ∣ refl ∣ ∣ q ∣)))
-                 (Iso.fun (PathIdTruncIso (2 + n)) (isContr→isProp (isConnectedPathKn (2 + n) _ _) ∣ refl ∣ ∣ p ∣))}
+                      (λ qId → sym (helper x p pId q qId P))
+                      (Iso.fun (PathIdTruncIso (2 + n))
+                                 (isContr→isProp (isConnectedPathKn (2 + n) _ _) ∣ refl ∣ ∣ q ∣)))
+                 (Iso.fun (PathIdTruncIso (2 + n))
+                            (isContr→isProp (isConnectedPathKn (2 + n) _ _) ∣ refl ∣ ∣ p ∣))}
 
 Hⁿ⁺³-𝕂²≅0 : (n : ℕ) → GroupIso (coHomGr (3 + n) KleinBottle) trivialGroup
 Hⁿ⁺³-𝕂²≅0 n = IsoContrGroupTrivialGroup (isContrHⁿ-𝕂² n)
