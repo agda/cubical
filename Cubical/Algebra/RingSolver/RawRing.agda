@@ -27,11 +27,6 @@ record RawRing : Type (ℓ-suc ℓ) where
   infixl 7 -_
   infixl 6 _+_
 
-  _^_ : Carrier → ℕ → Carrier
-  x ^ 0 = 1r
-  x ^ 1 = x
-  x ^ ℕ.suc k = x · (x ^ k)
-
 ⟨_⟩ : RawRing → Type ℓ
 ⟨_⟩ = RawRing.Carrier
 

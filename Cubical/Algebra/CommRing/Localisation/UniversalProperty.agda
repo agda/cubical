@@ -78,18 +78,18 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
  /1AsCommRingHom : CommRingHom R' S⁻¹RAsCommRing
  f /1AsCommRingHom = _/1
  pres1 /1AsCommRingHom = refl
- isHom+ /1AsCommRingHom r r' = cong [_] (≡-× (cong₂ (_+_) (sym (·-rid r)) (sym (·-rid r')))
-                                        (Σ≡Prop (λ x → S' x .snd) (sym (·-lid 1r))))
- isHom· /1AsCommRingHom r r' = cong [_] (≡-× refl (Σ≡Prop (λ x → S' x .snd) (sym (·-lid 1r))))
+ isHom+ /1AsCommRingHom r r' = cong [_] (≡-× (cong₂ (_+_) (sym (·Rid r)) (sym (·Rid r')))
+                                        (Σ≡Prop (λ x → S' x .snd) (sym (·Lid 1r))))
+ isHom· /1AsCommRingHom r r' = cong [_] (≡-× refl (Σ≡Prop (λ x → S' x .snd) (sym (·Lid 1r))))
 
  S⁻¹Rˣ = S⁻¹RAsCommRing ˣ
  S/1⊆S⁻¹Rˣ : ∀ s → s ∈ S' → (s /1) ∈ S⁻¹Rˣ
  S/1⊆S⁻¹Rˣ s s∈S' = [ 1r , s , s∈S' ] , eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path)
   where
   path : 1r · (s · 1r) · 1r ≡ 1r · 1r · (1r  · s)
-  path = 1r · (s · 1r) · 1r ≡⟨ (λ i → ·-rid (·-lid (·-rid s i) i) i) ⟩
-         s                  ≡⟨ (λ i → ·-lid (·-lid s (~ i)) (~ i)) ⟩
-         1r · (1r  · s)     ≡⟨ cong (_· (1r · s)) (sym (·-lid _)) ⟩
+  path = 1r · (s · 1r) · 1r ≡⟨ (λ i → ·Rid (·Lid (·Rid s i) i) i) ⟩
+         s                  ≡⟨ (λ i → ·Lid (·Lid s (~ i)) (~ i)) ⟩
+         1r · (1r  · s)     ≡⟨ cong (_· (1r · s)) (sym (·Lid _)) ⟩
          1r · 1r · (1r  · s) ∎
 
  S⁻¹RHasUniversalProp : hasLocUniversalProp S⁻¹RAsCommRing /1AsCommRingHom S/1⊆S⁻¹Rˣ
@@ -98,9 +98,9 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
   B = B' .fst
   open CommRingStr (B' .snd) renaming ( is-set to Bset ; _·_ to _·B_ ; 1r to 1b
                                       ; _+_ to _+B_
-                                      ; ·-assoc to ·B-assoc ; ·-comm to ·B-comm
-                                      ; ·-lid to ·B-lid ; ·-rid to ·B-rid
-                                      ; ·-ldist-+ to ·B-ldist-+)
+                                      ; ·Assoc to ·B-assoc ; ·-comm to ·B-comm
+                                      ; ·Lid to ·B-lid ; ·Rid to ·B-rid
+                                      ; ·Ldist+ to ·B-ldist-+)
   open Units B' renaming (Rˣ to Bˣ ; RˣMultClosed to BˣMultClosed ; RˣContainsOne to BˣContainsOne)
   open Theory (CommRing→Ring B') renaming (·-assoc2 to ·B-assoc2)
   open CommTheory B' renaming (·-commAssocl to ·B-commAssocl ; ·-commAssocSwap to ·B-commAssocSwap)
@@ -251,14 +251,14 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
                           (_ , eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path))) .fst
      where
      path : 1r · (s · 1r) · 1r ≡ 1r · 1r · (1r · s)
-     path = 1r · (s · 1r) · 1r ≡⟨ (λ i → ·-rid (·-lid (·-rid s i) i) i) ⟩
-            s                  ≡⟨ (λ i → ·-lid (·-lid s (~ i)) (~ i)) ⟩
-            1r · (1r · s)      ≡⟨ cong (_· (1r · s)) (sym (·-lid _)) ⟩
+     path = 1r · (s · 1r) · 1r ≡⟨ (λ i → ·Rid (·Lid (·Rid s i) i) i) ⟩
+            s                  ≡⟨ (λ i → ·Lid (·Lid s (~ i)) (~ i)) ⟩
+            1r · (1r · s)      ≡⟨ cong (_· (1r · s)) (sym (·Lid _)) ⟩
             1r · 1r · (1r · s) ∎
 
     ·ₗ-path : [ r , s , s∈S' ] ≡   [ r , 1r , SMultClosedSubset .containsOne ]
                                 ·ₗ [ 1r , s , s∈S' ]
-    ·ₗ-path = cong [_] (≡-× (sym (·-rid r)) (Σ≡Prop (λ x → S' x .snd) (sym (·-lid s))))
+    ·ₗ-path = cong [_] (≡-× (sym (·Rid r)) (Σ≡Prop (λ x → S' x .snd) (sym (·Lid s))))
 
     instancepath : ⦃ _ : f ψ s ∈ Bˣ ⦄ ⦃ _ : s /1 ∈ S⁻¹Rˣ ⦄ ⦃ _ : f χ' (s /1) ∈ Bˣ ⦄
                  → f ψ r ·B f ψ s ⁻¹ ≡ f χ' [ r , s , s∈S' ]
@@ -302,7 +302,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
                     (S⁻¹R≃A , record { pres1 = pres1 χ ; isHom+ = isHom+ χ ; isHom· = isHom· χ })
   where
   open CommRingStr (A' .snd) renaming ( is-set to Aset ; 0r to 0a ; _·_ to _·A_ ; 1r to 1a
-                                      ; ·-rid to ·A-rid)
+                                      ; ·Rid to ·A-rid)
   open Units A' renaming (Rˣ to Aˣ ; RˣInvClosed to AˣInvClosed)
   open PathToS⁻¹R ⦃...⦄
   private
@@ -335,8 +335,8 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
       Σhelper ((u , u∈S') , q) = eq/ _ _ ((u , u∈S') , path)
        where
        path : u · r · 1r ≡ u · 0r · s
-       path = (λ i → ·-rid (q  i) i) ∙∙ sym (0-leftNullifies _)
-                                     ∙∙ cong (_· s) (sym (0-rightNullifies _))
+       path = (λ i → ·Rid (q  i) i) ∙∙ sym (0LeftAnnihilates _)
+                                     ∙∙ cong (_· s) (sym (0RightAnnihilates _))
 
    Surχ : isSurjection (f χ)
    Surχ a = PT.rec propTruncIsProp (λ x → ∣ [ x .fst ] , x .snd ∣) (surχ a)

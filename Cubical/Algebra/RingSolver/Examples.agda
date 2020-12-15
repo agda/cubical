@@ -123,7 +123,7 @@ module MultivariateSolving where
                   ⊕ Y ⊗ Y ⊗ Y ⊗ Y
              in solve lhs rhs (x ∷ y ∷ z ∷ []) refl
   {-
-    this one cannot work:
+    this one cannot work so far:
 
   _ : (x y z : ℕ) → (x + y) · (x - y) ≡ (x · x - (y · y))
   _ = λ x y z → let
