@@ -37,110 +37,124 @@ module Theory (R' : Ring {ℓ}) where
                  → x + y ≡ 0r
                  → y ≡ - x
   implicitInverse x y p =
-    y               ≡⟨ sym (+-lid y) ⟩
-    0r + y          ≡⟨ cong (λ u → u + y) (sym (+-linv x)) ⟩
-    (- x + x) + y   ≡⟨ sym (+-assoc _ _ _) ⟩
+    y               ≡⟨ sym (+Lid y) ⟩
+    0r + y          ≡⟨ cong (λ u → u + y) (sym (+Linv x)) ⟩
+    (- x + x) + y   ≡⟨ sym (+Assoc _ _ _) ⟩
     (- x) + (x + y) ≡⟨ cong (λ u → (- x) + u) p ⟩
-    (- x) + 0r      ≡⟨ +-rid _ ⟩
+    (- x) + 0r      ≡⟨ +Rid _ ⟩
     - x             ∎
 
   equalByDifference : (x y : R)
                       → x - y ≡ 0r
                       → x ≡ y
   equalByDifference x y p =
-    x               ≡⟨ sym (+-rid _) ⟩
-    x + 0r          ≡⟨ cong (λ u → x + u) (sym (+-linv y)) ⟩
-    x + ((- y) + y) ≡⟨ +-assoc _ _ _ ⟩
+    x               ≡⟨ sym (+Rid _) ⟩
+    x + 0r          ≡⟨ cong (λ u → x + u) (sym (+Linv y)) ⟩
+    x + ((- y) + y) ≡⟨ +Assoc _ _ _ ⟩
     (x - y) + y     ≡⟨ cong (λ u → u + y) p ⟩
-    0r + y          ≡⟨ +-lid _ ⟩
+    0r + y          ≡⟨ +Lid _ ⟩
     y               ∎
 
-  0-selfinverse : - 0r ≡ 0r
-  0-selfinverse = sym (implicitInverse _ _ (+-rid 0r))
+  0Selfinverse : - 0r ≡ 0r
+  0Selfinverse = sym (implicitInverse _ _ (+Rid 0r))
 
-  0-idempotent : 0r + 0r ≡ 0r
-  0-idempotent = +-lid 0r
+  0Idempotent : 0r + 0r ≡ 0r
+  0Idempotent = +Lid 0r
 
-  +-idempotency→0 : (x : R) → x ≡ x + x → x ≡ 0r
-  +-idempotency→0 x p =
-    x               ≡⟨ sym (+-rid x) ⟩
-    x + 0r          ≡⟨ cong (λ u → x + u) (sym (+-rinv _)) ⟩
-    x + (x + (- x)) ≡⟨ +-assoc _ _ _ ⟩
+  +Idempotency→0 : (x : R) → x ≡ x + x → x ≡ 0r
+  +Idempotency→0 x p =
+    x               ≡⟨ sym (+Rid x) ⟩
+    x + 0r          ≡⟨ cong (λ u → x + u) (sym (+Rinv _)) ⟩
+    x + (x + (- x)) ≡⟨ +Assoc _ _ _ ⟩
     (x + x) + (- x) ≡⟨ cong (λ u → u + (- x)) (sym p) ⟩
-    x + (- x)       ≡⟨ +-rinv _ ⟩
+    x + (- x)       ≡⟨ +Rinv _ ⟩
     0r              ∎
 
-  0-rightNullifies : (x : R) → x · 0r ≡ 0r
-  0-rightNullifies x =
+  -Idempotent : (x : R) → -(- x) ≡ x
+  -Idempotent x =  - (- x)   ≡⟨ sym (implicitInverse (- x) x (+Linv _)) ⟩
+                   x ∎
+
+  0RightAnnihilates : (x : R) → x · 0r ≡ 0r
+  0RightAnnihilates x =
               let x·0-is-idempotent : x · 0r ≡ x · 0r + x · 0r
                   x·0-is-idempotent =
-                    x · 0r               ≡⟨ cong (λ u → x · u) (sym 0-idempotent) ⟩
-                    x · (0r + 0r)        ≡⟨ ·-rdist-+ _ _ _ ⟩
+                    x · 0r               ≡⟨ cong (λ u → x · u) (sym 0Idempotent) ⟩
+                    x · (0r + 0r)        ≡⟨ ·Rdist+ _ _ _ ⟩
                     (x · 0r) + (x · 0r)  ∎
-              in (+-idempotency→0 _ x·0-is-idempotent)
+              in (+Idempotency→0 _ x·0-is-idempotent)
 
-  0-leftNullifies : (x : R) → 0r · x ≡ 0r
-  0-leftNullifies x =
+  0LeftAnnihilates : (x : R) → 0r · x ≡ 0r
+  0LeftAnnihilates x =
               let 0·x-is-idempotent : 0r · x ≡ 0r · x + 0r · x
                   0·x-is-idempotent =
-                    0r · x               ≡⟨ cong (λ u → u · x) (sym 0-idempotent) ⟩
-                    (0r + 0r) · x        ≡⟨ ·-ldist-+ _ _ _ ⟩
+                    0r · x               ≡⟨ cong (λ u → u · x) (sym 0Idempotent) ⟩
+                    (0r + 0r) · x        ≡⟨ ·Ldist+ _ _ _ ⟩
                     (0r · x) + (0r · x)  ∎
-              in +-idempotency→0 _ 0·x-is-idempotent
+              in +Idempotency→0 _ 0·x-is-idempotent
 
-  -commutesWithRight-· : (x y : R) →  x · (- y) ≡ - (x · y)
-  -commutesWithRight-· x y = implicitInverse (x · y) (x · (- y))
+  -DistR· : (x y : R) →  x · (- y) ≡ - (x · y)
+  -DistR· x y = implicitInverse (x · y) (x · (- y))
 
-                               (x · y + x · (- y)     ≡⟨ sym (·-rdist-+ _ _ _) ⟩
-                               x · (y + (- y))        ≡⟨ cong (λ u → x · u) (+-rinv y) ⟩
-                               x · 0r                 ≡⟨ 0-rightNullifies x ⟩
+                               (x · y + x · (- y)     ≡⟨ sym (·Rdist+ _ _ _) ⟩
+                               x · (y + (- y))        ≡⟨ cong (λ u → x · u) (+Rinv y) ⟩
+                               x · 0r                 ≡⟨ 0RightAnnihilates x ⟩
                                0r ∎)
 
-  -commutesWithLeft-· : (x y : R) →  (- x) · y ≡ - (x · y)
-  -commutesWithLeft-· x y = implicitInverse (x · y) ((- x) · y)
+  -DistL· : (x y : R) →  (- x) · y ≡ - (x · y)
+  -DistL· x y = implicitInverse (x · y) ((- x) · y)
 
-                              (x · y + (- x) · y     ≡⟨ sym (·-ldist-+ _ _ _) ⟩
-                              (x - x) · y            ≡⟨ cong (λ u → u · y) (+-rinv x) ⟩
-                              0r · y                 ≡⟨ 0-leftNullifies y ⟩
+                              (x · y + (- x) · y     ≡⟨ sym (·Ldist+ _ _ _) ⟩
+                              (x - x) · y            ≡⟨ cong (λ u → u · y) (+Rinv x) ⟩
+                              0r · y                 ≡⟨ 0LeftAnnihilates y ⟩
                               0r ∎)
 
-  -isDistributive : (x y : R) → (- x) + (- y) ≡ - (x + y)
-  -isDistributive x y =
+  -Dist : (x y : R) → (- x) + (- y) ≡ - (x + y)
+  -Dist x y =
     implicitInverse _ _
-         ((x + y) + ((- x) + (- y)) ≡⟨ sym (+-assoc _ _ _) ⟩
+         ((x + y) + ((- x) + (- y)) ≡⟨ sym (+Assoc _ _ _) ⟩
           x + (y + ((- x) + (- y))) ≡⟨ cong
                                          (λ u → x + (y + u))
-                                         (+-comm _ _) ⟩
-          x + (y + ((- y) + (- x))) ≡⟨ cong (λ u → x + u) (+-assoc _ _ _) ⟩
+                                         (+Comm _ _) ⟩
+          x + (y + ((- y) + (- x))) ≡⟨ cong (λ u → x + u) (+Assoc _ _ _) ⟩
           x + ((y + (- y)) + (- x)) ≡⟨ cong (λ u → x + (u + (- x)))
-                                            (+-rinv _) ⟩
-          x + (0r + (- x))           ≡⟨ cong (λ u → x + u) (+-lid _) ⟩
-          x + (- x)                 ≡⟨ +-rinv _ ⟩
+                                            (+Rinv _) ⟩
+          x + (0r + (- x))           ≡⟨ cong (λ u → x + u) (+Lid _) ⟩
+          x + (- x)                 ≡⟨ +Rinv _ ⟩
           0r ∎)
 
   translatedDifference : (x a b : R) → a - b ≡ (x + a) - (x + b)
   translatedDifference x a b =
               a - b                       ≡⟨ cong (λ u → a + u)
-                                                  (sym (+-lid _)) ⟩
+                                                  (sym (+Lid _)) ⟩
               (a + (0r + (- b)))          ≡⟨ cong (λ u → a + (u + (- b)))
-                                                  (sym (+-rinv _)) ⟩
+                                                  (sym (+Rinv _)) ⟩
               (a + ((x + (- x)) + (- b))) ≡⟨ cong (λ u → a + u)
-                                                  (sym (+-assoc _ _ _)) ⟩
-              (a + (x + ((- x) + (- b)))) ≡⟨ (+-assoc _ _ _) ⟩
+                                                  (sym (+Assoc _ _ _)) ⟩
+              (a + (x + ((- x) + (- b)))) ≡⟨ (+Assoc _ _ _) ⟩
               ((a + x) + ((- x) + (- b))) ≡⟨ cong (λ u → u + ((- x) + (- b)))
-                                                  (+-comm _ _) ⟩
+                                                  (+Comm _ _) ⟩
               ((x + a) + ((- x) + (- b))) ≡⟨ cong (λ u → (x + a) + u)
-                                                  (-isDistributive _ _) ⟩
+                                                  (-Dist _ _) ⟩
               ((x + a) - (x + b)) ∎
 
-  +-assoc-comm1 : (x y z : R) → x + (y + z) ≡ y + (x + z)
-  +-assoc-comm1 x y z = +-assoc x y z ∙∙ cong (λ x → x + z) (+-comm x y) ∙∙ sym (+-assoc y x z)
+  +Assoc-comm1 : (x y z : R) → x + (y + z) ≡ y + (x + z)
+  +Assoc-comm1 x y z = +Assoc x y z ∙∙ cong (λ x → x + z) (+Comm x y) ∙∙ sym (+Assoc y x z)
 
-  +-assoc-comm2 : (x y z : R) → x + (y + z) ≡ z + (y + x)
-  +-assoc-comm2 x y z = +-assoc-comm1 x y z ∙∙ cong (λ x → y + x) (+-comm x z) ∙∙ +-assoc-comm1 y z x
+  +Assoc-comm2 : (x y z : R) → x + (y + z) ≡ z + (y + x)
+  +Assoc-comm2 x y z = +Assoc-comm1 x y z ∙∙ cong (λ x → y + x) (+Comm x z) ∙∙ +Assoc-comm1 y z x
+
+  +ShufflePairs : (a b c d : R)
+                → (a + b) + (c + d) ≡ (a + c) + (b + d)
+  +ShufflePairs a b c d =
+    (a + b) + (c + d) ≡⟨ +Assoc _ _ _ ⟩
+    ((a + b) + c) + d ≡⟨ cong (λ u → u + d) (sym (+Assoc _ _ _)) ⟩
+    (a + (b + c)) + d ≡⟨ cong (λ u → (a + u) + d) (+Comm _ _) ⟩
+    (a + (c + b)) + d ≡⟨ cong (λ u → u + d) (+Assoc _ _ _) ⟩
+    ((a + c) + b) + d ≡⟨ sym (+Assoc _ _ _) ⟩
+    (a + c) + (b + d) ∎
 
   ·-assoc2 : (x y z w : R) → (x · y) · (z · w) ≡ x · (y · z) · w
-  ·-assoc2 x y z w = ·-assoc (x · y) z w ∙ cong (_· w) (sym (·-assoc x y z))
+  ·-assoc2 x y z w = ·Assoc (x · y) z w ∙ cong (_· w) (sym (·Assoc x y z))
 
 module HomTheory {R S : Ring {ℓ}} (f′ : RingHom  R S) where
   open Theory ⦃...⦄
@@ -154,15 +168,15 @@ module HomTheory {R S : Ring {ℓ}} (f′ : RingHom  R S) where
       _ = snd S
 
   homPres0 : f 0r ≡ 0r
-  homPres0 = +-idempotency→0 (f 0r)
-               (f 0r        ≡⟨ sym (cong f 0-idempotent) ⟩
+  homPres0 = +Idempotency→0 (f 0r)
+               (f 0r        ≡⟨ sym (cong f 0Idempotent) ⟩
                 f (0r + 0r) ≡⟨ isHom+ _ _ ⟩
                 f 0r + f 0r ∎)
 
   -commutesWithHom : (x : ⟨ R ⟩) → f (- x) ≡ - (f x)
   -commutesWithHom x = implicitInverse _ _
                          (f x + f (- x)   ≡⟨ sym (isHom+ _ _) ⟩
-                          f (x + (- x))   ≡⟨ cong f (+-rinv x) ⟩
+                          f (x + (- x))   ≡⟨ cong f (+Rinv x) ⟩
                           f 0r            ≡⟨ homPres0 ⟩
                           0r ∎)
 
@@ -174,7 +188,7 @@ module HomTheory {R S : Ring {ℓ}} (f′ : RingHom  R S) where
    path = f (x - y)     ≡⟨ isHom+ _ _ ⟩
           f x + f (- y) ≡⟨ cong (f x +_) (-commutesWithHom _) ⟩
           f x - f y     ≡⟨ cong (_- f y) p ⟩
-          f y - f y     ≡⟨ +-rinv _ ⟩
+          f y - f y     ≡⟨ +Rinv _ ⟩
           0r            ∎
 
 

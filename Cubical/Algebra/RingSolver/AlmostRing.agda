@@ -72,7 +72,6 @@ record AlmostRing : Type (ℓ-suc ℓ) where
 
   _^_ : Carrier → ℕ → Carrier
   x ^ 0 = 1r
-  x ^ 1 = x
   x ^ ℕ.suc k = x · (x ^ k)
 
   _-_ : Carrier → Carrier → Carrier

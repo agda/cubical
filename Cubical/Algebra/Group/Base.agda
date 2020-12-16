@@ -4,7 +4,7 @@ module Cubical.Algebra.Group.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
-open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_)
+open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_; -_ to -Int_)
 open import Cubical.Data.Unit
 open import Cubical.Data.Bool
 
@@ -217,7 +217,7 @@ intGroup : Group₀
 fst intGroup = Int
 0g (snd intGroup) = 0
 _+_ (snd intGroup) = _+Int_
-- snd intGroup = 0 -Int_
+- snd intGroup = _-Int_ 0
 isGroup (snd intGroup) = isGroupInt
   where
   abstract

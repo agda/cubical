@@ -201,7 +201,6 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
                                              p refl)
                               λ i j → ((λ _ → ∣ north ∣) ∙ refl) i
 
-
   H⁰Red-⋁ : GroupIso (coHomRedGrDir 0 (A ⋁ B , inl (pt A)))
                       (dirProd (coHomRedGrDir 0 A) (coHomRedGrDir 0 B))
   fun (GroupIso.map H⁰Red-⋁) =

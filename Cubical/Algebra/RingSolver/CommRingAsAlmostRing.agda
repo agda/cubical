@@ -39,7 +39,7 @@ CommRingAsAlmostRing {ℓ}
        ·-comm
        (λ x y z → fst (dist x y z))
        (λ x y z → snd (dist x y z))
-       (λ x y → sym (-commutesWithLeft-· R″ x y))
-       (λ x y → sym (-isDistributive R″ x y))
-       (λ x → 0-leftNullifies R″ x)
-       λ x → 0-rightNullifies R″ x)
+       (λ x y → sym (-DistL· R″ x y))
+       (λ x y → sym (-Dist R″ x y))
+       (λ x → 0LeftAnnihilates R″ x)
+       λ x → 0RightAnnihilates R″ x)
