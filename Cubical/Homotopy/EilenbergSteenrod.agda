@@ -2,6 +2,12 @@
 
 module Cubical.Homotopy.EilenbergSteenrod where
 
+{-
+This module contains the Eilenberg-Steenrod axioms for ordinary reduced cohomology theories with binary additivity.
+The axioms are based on the ones given in Cavallo's MSc thesis (https://www.cs.cmu.edu/~ecavallo/works/thesis15.pdf) and Buchholtz/Favonia (2018)
+-}
+
+
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Function
