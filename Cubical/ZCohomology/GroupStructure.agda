@@ -547,7 +547,7 @@ coHomGr n A = coHom n A , coHomGrnA
 coHomGroup : (n : ℕ) (A : Type ℓ) → AbGroup {ℓ}
 fst (coHomGroup n A) = coHom n A
 AbGroupStr.0g (snd (coHomGroup n A)) = 0ₕ n
-AbGroupStr._+_ (snd (coHomGroup n A)) = _+ₕ_ {n = n} 
+AbGroupStr._+_ (snd (coHomGroup n A)) = _+ₕ_ {n = n}
 AbGroupStr.- snd (coHomGroup n A) = -ₕ_ {n = n}
 IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (coHomGroup n A))) = isGroup (snd (coHomGr n A))
 IsAbGroup.comm (AbGroupStr.isAbGroup (snd (coHomGroup n A))) = commₕ n
