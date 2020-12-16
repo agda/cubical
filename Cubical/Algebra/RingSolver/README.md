@@ -19,9 +19,8 @@ There are three parts of the appraoch to prove x=y:
 * map the expressions to polynomials in horner form (normalize)
 * let agda compare the results with unification
 
-So far, the ring solver here works kind of ok for the natural numbers,
-but it fails sometimes for an abstract ring.
+There are two versions of the solver, one which works for natural numbers and one which works for commutatitive rings (CommRing).
 The ring solver here could need a nice reflection interface like oisdk's.
 
-To understand how the ring solver works and it might be used, have a look at 'Examples.agda'.
+To understand how the ring solver works and it might be used, have a look at 'Examples.agda' and 'CommRingExamples.agda'.
 
