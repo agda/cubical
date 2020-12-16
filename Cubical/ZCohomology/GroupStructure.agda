@@ -20,6 +20,7 @@ open import Cubical.Data.Nat renaming (+-assoc to +-assocℕ ; +-comm to +-comm�
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3 ; map2 to trMap2)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 
@@ -543,17 +544,34 @@ coHomGr n A = coHom n A , coHomGrnA
 ×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group
 ×coHomGr n A B = dirProd (coHomGr n A) (coHomGr n B)
 
--- Reduced cohomology group
-coHomRedGr : (n : ℕ) (A : Pointed ℓ) → Group {ℓ}
-fst (coHomRedGr n A) = coHomRed n A
-0g (snd (coHomRedGr n A)) = 0ₕ∙ n
-GroupStr._+_ (snd (coHomRedGr n A)) = _+ₕ∙_ {n = n}
-- snd (coHomRedGr n A) = -ₕ∙_ {n = n}
-isGroup (snd (coHomRedGr n A)) = helper
+coHomGroup : (n : ℕ) (A : Type ℓ) → AbGroup {ℓ}
+fst (coHomGroup n A) = coHom n A
+AbGroupStr.0g (snd (coHomGroup n A)) = 0ₕ n
+AbGroupStr._+_ (snd (coHomGroup n A)) = _+ₕ_ {n = n} 
+AbGroupStr.- snd (coHomGroup n A) = -ₕ_ {n = n}
+IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (coHomGroup n A))) = isGroup (snd (coHomGr n A))
+IsAbGroup.comm (AbGroupStr.isAbGroup (snd (coHomGroup n A))) = commₕ n
+
+-- Reduced cohomology group (direct def)
+
+coHomRedGrDir : (n : ℕ) (A : Pointed ℓ) → Group {ℓ}
+fst (coHomRedGrDir n A) = coHomRed n A
+0g (snd (coHomRedGrDir n A)) = 0ₕ∙ n
+GroupStr._+_ (snd (coHomRedGrDir n A)) = _+ₕ∙_ {n = n}
+- snd (coHomRedGrDir n A) = -ₕ∙_ {n = n}
+isGroup (snd (coHomRedGrDir n A)) = helper
   where
   abstract
     helper : IsGroup (0ₕ∙ n) (_+ₕ∙_ {n = n}) (-ₕ∙_ {n = n})
     helper = makeIsGroup § (assocₕ∙ n) (rUnitₕ∙ n) (lUnitₕ∙ n) (rCancelₕ∙ n) (lCancelₕ∙ n)
+
+coHomRedGroupDir : (n : ℕ) (A : Pointed ℓ) → AbGroup {ℓ}
+fst (coHomRedGroupDir n A) = coHomRed n A
+AbGroupStr.0g (snd (coHomRedGroupDir n A)) = 0ₕ∙ n
+AbGroupStr._+_ (snd (coHomRedGroupDir n A)) = _+ₕ∙_ {n = n}
+AbGroupStr.- snd (coHomRedGroupDir n A) = -ₕ∙_ {n = n}
+IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (coHomRedGroupDir n A))) = isGroup (snd (coHomRedGrDir n A))
+IsAbGroup.comm (AbGroupStr.isAbGroup (snd (coHomRedGroupDir n A))) = commₕ∙ n
 
 -- Induced map
 coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → coHom n B → coHom n A

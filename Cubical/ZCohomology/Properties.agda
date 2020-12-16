@@ -22,6 +22,7 @@ open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; re
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Foundations.Equiv.HalfAdjoint
@@ -198,6 +199,47 @@ leftInv (Iso-coHom-coHomRed {A = A , a} n) =
                                   ; (j = i0) → rUnit (refl {x = 0ₖ (2 + n)}) k i
                                   ; (j = i1) → 0ₖ (2 + n)})
                         (0ₖ (2 + n))
+
++∙≡+ : (n : ℕ) {A : Pointed ℓ} (x y : coHomRed (suc n) A)
+     → Iso.fun (Iso-coHom-coHomRed n) (x +ₕ∙ y)
+      ≡ Iso.fun (Iso-coHom-coHomRed n) x +ₕ Iso.fun (Iso-coHom-coHomRed n) y
+
++∙≡+ zero = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
++∙≡+ (suc n) = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
+
+private
+  homhelp : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) (x y : coHom (suc n) (typ A))
+          → Iso.inv (Iso-coHom-coHomRed {A = A} n) (x +ₕ y)
+           ≡ Iso.inv (Iso-coHom-coHomRed n) x +ₕ∙ Iso.inv (Iso-coHom-coHomRed n) y
+  homhelp n A = morphLemmas.isMorphInv _+ₕ∙_ _+ₕ_
+                (Iso.fun (Iso-coHom-coHomRed n)) (+∙≡+ n) _
+                (Iso.rightInv (Iso-coHom-coHomRed n)) (Iso.leftInv (Iso-coHom-coHomRed n))
+
+coHomGr≅coHomRedGr : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
+                  → GroupEquiv (coHomRedGrDir (suc n) A) (coHomGr (suc n) (typ A))
+GroupEquiv.eq (coHomGr≅coHomRedGr n A) = isoToEquiv (Iso-coHom-coHomRed n)
+GroupEquiv.isHom (coHomGr≅coHomRedGr n A) = +∙≡+ n
+
+coHomGr≡coHomRedGr : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
+                  → coHomRedGrDir (suc n) A ≡ coHomGr (suc n) (typ A)
+coHomGr≡coHomRedGr n A = uaGroup (coHomGr≅coHomRedGr n A)
+
+coHomGroup≡coHomRedGroup' : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
+                        → _ ≡ coHomGroup (suc n) (typ A)
+coHomGroup≡coHomRedGroup' n A =
+  sym (InducedAbGroupPath (coHomGroup (suc n) (typ A))
+                 (coHomRed (suc n) A , _+ₕ∙_)
+                 (isoToEquiv (invIso (Iso-coHom-coHomRed n)))
+                 (homhelp n A))
+
+coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → AbGroup {ℓ}
+coHomRedGroup zero A = coHomRedGroupDir zero A
+coHomRedGroup (suc n) A = coHomGroup≡coHomRedGroup' n A i0
+
+abstract
+  coHomGroup≡coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
+                          → coHomRedGroup (suc n) A ≡ coHomGroup (suc n) (typ A)
+  coHomGroup≡coHomRedGroup = coHomGroup≡coHomRedGroup'
 
 ------------------- Kₙ ≃ ΩKₙ₊₁ ---------------------
 -- This proof uses the encode-decode method rather than Freudenthal

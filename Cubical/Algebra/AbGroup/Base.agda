@@ -54,6 +54,18 @@ record AbGroupStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 AbGroup : Type (ℓ-suc ℓ)
 AbGroup = TypeWithStr _ AbGroupStr
 
+open import Cubical.Data.Unit
+trivialAbGroup : ∀ {ℓ} → Group {ℓ}
+fst trivialAbGroup = Unit*
+GroupStr.0g (snd trivialAbGroup) = tt*
+GroupStr._+_ (snd trivialAbGroup) _ _ = tt*
+(GroupStr.- snd trivialAbGroup) _ = tt*
+IsSemigroup.is-set (IsMonoid.isSemigroup (IsGroup.isMonoid (GroupStr.isGroup (snd trivialAbGroup)))) =
+  isProp→isSet isPropUnit*
+IsSemigroup.assoc (IsMonoid.isSemigroup (IsGroup.isMonoid (GroupStr.isGroup (snd trivialAbGroup)))) _ _ _ = refl
+IsMonoid.identity (IsGroup.isMonoid (GroupStr.isGroup (snd trivialAbGroup))) tt* = refl , refl
+IsGroup.inverse (GroupStr.isGroup (snd trivialAbGroup)) tt* = refl , refl
+
 makeIsAbGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
               (is-setG : isSet G)
               (assoc   : (x y z : G) → x + (y + z) ≡ (x + y) + z)
@@ -74,9 +86,27 @@ makeAbGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
 makeAbGroup 0g _+_ -_ is-setG assoc rid rinv comm =
   _ , abgroupstr 0g _+_ -_ (makeIsAbGroup is-setG assoc rid rinv comm)
 
-
+open GroupStr
 AbGroup→Group : AbGroup {ℓ} → Group
-AbGroup→Group (_ , abgroupstr _ _ _ H) = group _ _ _ _ (IsAbGroup.isGroup H)
+fst (AbGroup→Group A) = fst A
+0g (snd (AbGroup→Group A)) = AbGroupStr.0g (snd A)
+_+_ (snd (AbGroup→Group A)) = AbGroupStr._+_ (snd A)
+- snd (AbGroup→Group A) = AbGroupStr.- (snd A)
+isGroup (snd (AbGroup→Group A)) = IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd A))
+
+Group→AbGroup : (G : Group {ℓ}) → ((x y : fst G) → _+_ (snd G) x y ≡ _+_ (snd G) y x) → AbGroup
+fst (Group→AbGroup G comm) = fst G
+AbGroupStr.0g (snd (Group→AbGroup G comm)) = 0g (snd G)
+AbGroupStr._+_ (snd (Group→AbGroup G comm)) = _+_ (snd G)
+AbGroupStr.- snd (Group→AbGroup G comm) = - (snd G)
+IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (Group→AbGroup G comm))) = isGroup (snd G)
+IsAbGroup.comm (AbGroupStr.isAbGroup (snd (Group→AbGroup G comm))) = comm
+
+dirProdAb : AbGroup {ℓ} → AbGroup {ℓ'} → AbGroup
+dirProdAb A B =
+  Group→AbGroup (dirProd (AbGroup→Group A) (AbGroup→Group B))
+                 λ p q → ΣPathP (IsAbGroup.comm (AbGroupStr.isAbGroup (snd A)) _ _
+                                , IsAbGroup.comm (AbGroupStr.isAbGroup (snd B)) _ _)
 
 isSetAbGroup : (A : AbGroup {ℓ}) → isSet ⟨ A ⟩
 isSetAbGroup A = isSetGroup (AbGroup→Group A)
@@ -160,8 +190,8 @@ module AbGroupΣTheory {ℓ} where
 AbGroupPath : (G H : AbGroup {ℓ}) → (AbGroupEquiv G H) ≃ (G ≡ H)
 AbGroupPath = AbGroupΣTheory.AbGroupPath
 
-isPropIsAbGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
-                → isProp (IsAbGroup 0g _+_ -_)
+isPropIsAbGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (- : G → G)
+                → isProp (IsAbGroup 0g _+_ -)
 isPropIsAbGroup 0g _+_ -_ (isabgroup GG GC) (isabgroup HG HC) =
   λ i → isabgroup (isPropIsGroup _ _ _ GG HG i) (isPropComm GC HC i)
   where

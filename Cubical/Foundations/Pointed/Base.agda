@@ -8,6 +8,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Structure using (typ) public
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
 
 Pointed : (ℓ : Level) → Type (ℓ-suc ℓ)
 Pointed ℓ = TypeWithStr ℓ (λ x → x)
@@ -42,3 +43,25 @@ Iso.rightInv IsoPointedPointer pt₀ = id
 Iso.rightInv IsoPointedPointer ⌊ x ⌋ = refl
 Iso.rightInv IsoPointedPointer (id i) j = id (i ∧ j)
 Iso.leftInv IsoPointedPointer x = refl
+
+Pointed≡Pointer : ∀ {ℓ} {A : Pointed ℓ} → typ A ≡ Pointer A
+Pointed≡Pointer = isoToPath IsoPointedPointer
+
+Pointer∙ : ∀ {ℓ} (A : Pointed ℓ) → Pointed ℓ
+Pointer∙ A = Pointer A , pt₀
+
+Pointed≡∙Pointer : ∀ {ℓ} {A : Pointed ℓ} → A ≡ (Pointer A , pt₀)
+Pointed≡∙Pointer {A = A} i = (Pointed≡Pointer {A = A} i) , helper i
+  where
+  helper : PathP (λ i → Pointed≡Pointer {A = A} i) (pt A) pt₀
+  helper = ua-gluePath (isoToEquiv (IsoPointedPointer {A = A})) id
+
+pointerFun : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B)
+            → Pointer A → Pointer B
+pointerFun f pt₀ = pt₀
+pointerFun f ⌊ x ⌋ = ⌊ fst f x ⌋
+pointerFun f (id i) = (cong ⌊_⌋ (snd f) ∙ id) i
+
+pointerFun∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B)
+             → Pointer∙ A →∙ Pointer∙ B
+pointerFun∙ f = (pointerFun f) , refl

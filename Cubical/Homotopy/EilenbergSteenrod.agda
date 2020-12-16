@@ -15,10 +15,11 @@ open import Cubical.HITs.SetTruncation renaming (map to sMap)
 open import Cubical.HITs.Truncation hiding (elim2) renaming (rec to trRec ; map to trMap)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.HalfAdjoint
-open Iso
+open import Cubical.Foundations.Equiv
 
 open import Cubical.HITs.Pushout
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.AbGroup
 open import Cubical.HITs.Susp
 
 open IsGroup
@@ -27,35 +28,45 @@ open GroupIso
 open import Cubical.Data.Bool
 
 open import Cubical.HITs.Wedge
+open import Cubical.Data.Int
+
+open GroupEquiv
 
 open GroupHom
-cofib : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type _
+private
+  variable
+    ℓ ℓ' ℓ'' : Level
+    A : Type ℓ
+    B : Type ℓ'
+
+cofib : (f : A → B) → Type _
 cofib f = Pushout (λ _ → tt) f
 
-cfcod : ∀ {ℓ} {ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → B → cofib f
+cfcod : (f : A → B) → B → cofib f
 cfcod f = inr 
 
-suspFun : ∀ {ℓ} {ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Susp A → Susp B
+suspFun : (f : A → B) → Susp A → Susp B
 suspFun f north = north
 suspFun f south = south
 suspFun f (merid a i) = merid (f a) i
 
-contravar : ∀ {ℓ''} (H : Type ℓ-zero → Group {ℓ''}) → Type _
-contravar H = {A : Type ℓ-zero} {B : Type ℓ-zero} → (f : A → B) → GroupHom (H B) (H A)
+contravar :  (H : Pointed ℓ → AbGroup {ℓ}) → Type _
+contravar {ℓ = ℓ} H = {A B : Pointed ℓ} (f : A →∙ B) → AbGroupHom (H B) (H A)
 
 open import Cubical.Data.Sigma
 
-record isCohomTheory (H : (n : ℕ) → Type ℓ-zero → Group {ℓ-zero}) (f* : (n : ℕ) → contravar {ℓ-zero} (H n))  : Type₁ where
-  _* : {A B : Type ℓ-zero} (f : B → A) (n : ℕ) → fst (H n A) → fst (H n B)
-  _* f n = GroupHom.fun (f* n f)
-  
+record isCohomTheory {ℓ : Level} (H : (n : Int) → Pointed ℓ → AbGroup {ℓ}) : Type (ℓ-suc ℓ)
+  where
   field
-    Suspension : Σ[ F ∈ ((n : ℕ) {A : Pointed ℓ-zero} → GroupIso (H (suc n) (Susp (typ A))) (H n (typ A))) ]
-                   ({A B : Pointed ℓ-zero} (f : typ A → typ B) (n : ℕ)
-               → fun (f* (suc n) (suspFun f)) ∘ inv (F n {A = B})
-                ≡ inv (F n {A = A}) ∘ fun (f* n f))
-    Exactness : {A B : Pointed ℓ-zero}  (f : A →∙ B) → (n :  ℕ)
-              → ((x : _) → (isInKer _ _ (f* n (fst f)) x) → isInIm _ _ (f* n (cfcod (fst f))) x)
-               × ((x : _) → isInIm _ _ (f* n (cfcod (fst f))) x → isInKer _ _ (f* n (fst f)) x)
-    Dimension : (n : ℕ) → isContr (fst (H (suc n) Bool))
-    BinaryWedge : (n : ℕ) {A B : Pointed ℓ-zero} → GroupIso (H (suc n) (A ⋁ B)) (dirProd (H (suc n) (typ A)) (H (suc n) (typ B)))
+    f* : (n : Int) → contravar (H n)
+    Suspension : Σ[ F ∈ ((n : Int) {A : Pointed ℓ} → AbGroupEquiv (H (sucInt n) (Susp (typ A) , north)) (H n A)) ]
+                   ({A B : Pointed ℓ} (f : A →∙ B) (n : Int)
+               → fun (f* (sucInt n) (suspFun (fst f) , refl)) ∘ invEq (eq (F n {A = B}))
+                ≡ invEq (eq (F n {A = A})) ∘ fun (f* n f))
+    Exactness : {A B : Pointed ℓ}  (f : A →∙ B) → (n :  Int)
+              → ((x : _) → isInKer _ _ (f* n {A = A} {B = B} f) x
+                          → isInIm _ _ (f* n {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl)) x)
+               × ((x : _) → isInIm _ _ (f* n {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl)) x
+                          → isInKer _ _ (f* n {A = A} {B = B} f) x)
+    Dimension : (n : ℕ) → isContr (fst (H (pos (suc n)) (Lift (Bool) , lift true))) × isContr (fst (H (negsuc n) (Lift (Bool) , lift true)))
+    BinaryWedge : (n : Int) {A B : Pointed ℓ} → AbGroupEquiv (H n (A ⋁ B , (inl (pt A)))) (dirProdAb (H n A) (H n B))
