@@ -8,9 +8,10 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
 open import Cubical.HITs.Wedge
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to pRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
+open import Cubical.Data.Int hiding (_+_)
+open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∣_∣ to ∣_∣₁)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; elim2 to trElim2)
 open import Cubical.Data.Nat
@@ -34,8 +35,9 @@ open GroupHom
 
 {-
 This module proves that Hⁿ(A ⋁ B) ≅ Hⁿ(A) × Hⁿ(B) for n ≥ 1 directly (rather than by means of Mayer-Vietoris).
+It also proves that Ĥⁿ(A ⋁ B) ≅ Ĥ⁰(A) × Ĥ⁰(B) (reduced groups)
 
-Proof sketch:
+Proof sketch for n ≥ 1:
 
 Any ∣ f ∣₂ ∈ Hⁿ(A ⋁ B) is uniquely characterised by a pair of functions
   f₁ : A → Kₙ
@@ -198,6 +200,39 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
                                                     ≡ (sym (lUnitₖ (2 + n) y) ∙ refl) j)
                                              p refl)
                               λ i j → ((λ _ → ∣ north ∣) ∙ refl) i
+
+
+  H⁰Red-⋁ : GroupIso (coHomRedGrDir 0 (A ⋁ B , inl (pt A)))
+                      (dirProd (coHomRedGrDir 0 A) (coHomRedGrDir 0 B))
+  fun (GroupIso.map H⁰Red-⋁) =
+    sRec (isSet× setTruncIsSet setTruncIsSet)
+         λ {(f , p) → ∣ (f ∘ inl) , p ∣₂
+                     , ∣ (f ∘ inr) , cong f (sym (push tt)) ∙ p ∣₂}
+  isHom (GroupIso.map H⁰Red-⋁) =
+    sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
+           λ {(f , p) (g , q) → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl)
+                                       , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl))}
+  inv H⁰Red-⋁ =
+    uncurry (sRec2 setTruncIsSet
+              λ {(f , p) (g , q) → ∣ (λ {(inl a) → f a
+                                       ; (inr b) → g b
+                                       ; (push tt i) → (p ∙ sym q) i})
+                                       , p ∣₂})
+  rightInv H⁰Red-⋁ =
+    uncurry
+      (sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
+        λ {(_ , _) (_ , _) → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl)
+                                    , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl))})
+  leftInv H⁰Red-⋁ =
+    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+      λ {(f , p) → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _)
+                                 (funExt λ {(inl a) → refl
+                                          ; (inr b) → refl
+                                          ; (push tt i) j → (cong (p ∙_) (symDistr (cong f (sym (push tt))) p)
+                                                           ∙∙ assoc∙ p (sym p) (cong f (push tt))
+                                                           ∙∙ cong (_∙ (cong f (push tt))) (rCancel p)
+                                                            ∙ sym (lUnit (cong f (push tt)))) j i}))}
+                                          -- Alt. use isOfHLevel→isOfHLevelDep
 
   wedgeConnected : ((x : typ A) → ∥ pt A ≡ x ∥) → ((x : typ B) → ∥ pt B ≡ x ∥) → (x : A ⋁ B) → ∥ inl (pt A) ≡ x ∥
   wedgeConnected conA conB =

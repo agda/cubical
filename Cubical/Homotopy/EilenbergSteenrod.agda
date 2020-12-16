@@ -2,37 +2,24 @@
 
 module Cubical.Homotopy.EilenbergSteenrod where
 
-open import Cubical.Core.Everything
-
-open import Cubical.Data.Nat
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
-open import Cubical.HITs.SetTruncation renaming (map to sMap)
-open import Cubical.HITs.Truncation hiding (elim2) renaming (rec to trRec ; map to trMap)
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Equiv
-
+open import Cubical.HITs.Wedge
 open import Cubical.HITs.Pushout
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.AbGroup
 open import Cubical.HITs.Susp
 
-open IsGroup
-open GroupStr
-open GroupIso
+open import Cubical.Data.Nat
 open import Cubical.Data.Bool
-
-open import Cubical.HITs.Wedge
+open import Cubical.Data.Sigma
 open import Cubical.Data.Int
 
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.AbGroup
 open GroupEquiv
-
 open GroupHom
+
 private
   variable
     ℓ ℓ' ℓ'' : Level
@@ -43,19 +30,17 @@ cofib : (f : A → B) → Type _
 cofib f = Pushout (λ _ → tt) f
 
 cfcod : (f : A → B) → B → cofib f
-cfcod f = inr 
+cfcod f = inr
 
 suspFun : (f : A → B) → Susp A → Susp B
 suspFun f north = north
 suspFun f south = south
 suspFun f (merid a i) = merid (f a) i
 
-contravar :  (H : Pointed ℓ → AbGroup {ℓ}) → Type _
+contravar :  (H : Pointed ℓ → AbGroup {ℓ'}) → Type _
 contravar {ℓ = ℓ} H = {A B : Pointed ℓ} (f : A →∙ B) → AbGroupHom (H B) (H A)
 
-open import Cubical.Data.Sigma
-
-record isCohomTheory {ℓ : Level} (H : (n : Int) → Pointed ℓ → AbGroup {ℓ}) : Type (ℓ-suc ℓ)
+record isCohomTheory {ℓ : Level} (H : (n : Int) → Pointed ℓ → AbGroup {ℓ'}) : Type (ℓ-suc (ℓ-max ℓ ℓ'))
   where
   field
     f* : (n : Int) → contravar (H n)
@@ -68,5 +53,6 @@ record isCohomTheory {ℓ : Level} (H : (n : Int) → Pointed ℓ → AbGroup {�
                           → isInIm _ _ (f* n {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl)) x)
                × ((x : _) → isInIm _ _ (f* n {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl)) x
                           → isInKer _ _ (f* n {A = A} {B = B} f) x)
-    Dimension : (n : ℕ) → isContr (fst (H (pos (suc n)) (Lift (Bool) , lift true))) × isContr (fst (H (negsuc n) (Lift (Bool) , lift true)))
+    Dimension : (n : ℕ) → isContr (fst (H (pos (suc n)) (Lift (Bool) , lift true)))
+                          × isContr (fst (H (negsuc n) (Lift (Bool) , lift true)))
     BinaryWedge : (n : Int) {A B : Pointed ℓ} → AbGroupEquiv (H n (A ⋁ B , (inl (pt A)))) (dirProdAb (H n A) (H n B))

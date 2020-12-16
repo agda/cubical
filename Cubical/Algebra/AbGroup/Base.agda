@@ -9,9 +9,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP
-
 open import Cubical.Data.Sigma
-
+open import Cubical.Data.Unit
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Pointed
@@ -54,18 +53,6 @@ record AbGroupStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 AbGroup : Type (ℓ-suc ℓ)
 AbGroup = TypeWithStr _ AbGroupStr
 
-open import Cubical.Data.Unit
-trivialAbGroup : ∀ {ℓ} → Group {ℓ}
-fst trivialAbGroup = Unit*
-GroupStr.0g (snd trivialAbGroup) = tt*
-GroupStr._+_ (snd trivialAbGroup) _ _ = tt*
-(GroupStr.- snd trivialAbGroup) _ = tt*
-IsSemigroup.is-set (IsMonoid.isSemigroup (IsGroup.isMonoid (GroupStr.isGroup (snd trivialAbGroup)))) =
-  isProp→isSet isPropUnit*
-IsSemigroup.assoc (IsMonoid.isSemigroup (IsGroup.isMonoid (GroupStr.isGroup (snd trivialAbGroup)))) _ _ _ = refl
-IsMonoid.identity (IsGroup.isMonoid (GroupStr.isGroup (snd trivialAbGroup))) tt* = refl , refl
-IsGroup.inverse (GroupStr.isGroup (snd trivialAbGroup)) tt* = refl , refl
-
 makeIsAbGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
               (is-setG : isSet G)
               (assoc   : (x y z : G) → x + (y + z) ≡ (x + y) + z)
@@ -101,12 +88,6 @@ AbGroupStr._+_ (snd (Group→AbGroup G comm)) = _+_ (snd G)
 AbGroupStr.- snd (Group→AbGroup G comm) = - (snd G)
 IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (Group→AbGroup G comm))) = isGroup (snd G)
 IsAbGroup.comm (AbGroupStr.isAbGroup (snd (Group→AbGroup G comm))) = comm
-
-dirProdAb : AbGroup {ℓ} → AbGroup {ℓ'} → AbGroup
-dirProdAb A B =
-  Group→AbGroup (dirProd (AbGroup→Group A) (AbGroup→Group B))
-                 λ p q → ΣPathP (IsAbGroup.comm (AbGroupStr.isAbGroup (snd A)) _ _
-                                , IsAbGroup.comm (AbGroupStr.isAbGroup (snd B)) _ _)
 
 isSetAbGroup : (A : AbGroup {ℓ}) → isSet ⟨ A ⟩
 isSetAbGroup A = isSetGroup (AbGroup→Group A)
@@ -210,3 +191,27 @@ InducedAbGroupPath : (G : AbGroup {ℓ}) (H : GroupΣTheory.RawGroupΣ) (e : ⟨
                      (E : GroupΣTheory.RawGroupEquivStr (AbGroupΣTheory.AbGroup→RawGroupΣ G) H e)
                    → G ≡ InducedAbGroup G H e E
 InducedAbGroupPath = AbGroupΣTheory.InducedAbGroupPath
+
+open IsMonoid
+open IsSemigroup
+open IsGroup
+open AbGroupStr
+open IsAbGroup
+
+dirProdAb : AbGroup {ℓ} → AbGroup {ℓ'} → AbGroup
+dirProdAb A B =
+  Group→AbGroup (dirProd (AbGroup→Group A) (AbGroup→Group B))
+                 λ p q → ΣPathP (comm (isAbGroup (snd A)) _ _
+                                , comm (isAbGroup (snd B)) _ _)
+
+trivialAbGroup : ∀ {ℓ} → AbGroup {ℓ}
+fst trivialAbGroup = Unit*
+0g (snd trivialAbGroup) = tt*
+_+_ (snd trivialAbGroup) _ _ = tt*
+(- snd trivialAbGroup) _ = tt*
+is-set (isSemigroup (isMonoid (isGroup (isAbGroup (snd trivialAbGroup))))) =
+  isProp→isSet isPropUnit*
+assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd trivialAbGroup))))) _ _ _ = refl
+identity (isMonoid (isGroup (isAbGroup (snd trivialAbGroup)))) _ = refl , refl
+inverse (isGroup (isAbGroup (snd trivialAbGroup))) _ = refl , refl
+comm (isAbGroup (snd trivialAbGroup)) _ _ = refl
