@@ -1,6 +1,19 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.ZCohomology.Properties where
 
+{-
+This module contains:
+1. direct proofs of connectedness of Kn and ΩKn
+2. Induction principles for cohomology groups of pointed types
+3. Equivalence between cohomology of A and reduced cohomology of (A + 1)
+4. Equivalence between cohomology and reduced cohomology for dimension ≥ 1
+5. Encode-decode proof of Kₙ ≃ ΩKₙ₊₁ and proofs that this equivalence
+   and its inverse are morphisms
+6. A proof of coHomGr ≅ coHomGrΩ
+7. A locked (non-reducing) version of Kₙ ≃ ΩKₙ₊₁
+-}
+
+
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 
@@ -22,6 +35,7 @@ open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; ma
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Foundations.Equiv.HalfAdjoint
@@ -199,6 +213,44 @@ leftInv (Iso-coHom-coHomRed {A = A , a} n) =
                                   ; (j = i1) → 0ₖ (2 + n)})
                         (0ₖ (2 + n))
 
++∙≡+ : (n : ℕ) {A : Pointed ℓ} (x y : coHomRed (suc n) A)
+     → Iso.fun (Iso-coHom-coHomRed n) (x +ₕ∙ y)
+      ≡ Iso.fun (Iso-coHom-coHomRed n) x +ₕ Iso.fun (Iso-coHom-coHomRed n) y
+
++∙≡+ zero = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
++∙≡+ (suc n) = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
+
+private
+  homhelp : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) (x y : coHom (suc n) (typ A))
+          → Iso.inv (Iso-coHom-coHomRed {A = A} n) (x +ₕ y)
+           ≡ Iso.inv (Iso-coHom-coHomRed n) x +ₕ∙ Iso.inv (Iso-coHom-coHomRed n) y
+  homhelp n A = morphLemmas.isMorphInv _+ₕ∙_ _+ₕ_
+                (Iso.fun (Iso-coHom-coHomRed n)) (+∙≡+ n) _
+                (Iso.rightInv (Iso-coHom-coHomRed n)) (Iso.leftInv (Iso-coHom-coHomRed n))
+
+coHomGr≅coHomRedGr : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
+                  → GroupEquiv (coHomRedGrDir (suc n) A) (coHomGr (suc n) (typ A))
+GroupEquiv.eq (coHomGr≅coHomRedGr n A) = isoToEquiv (Iso-coHom-coHomRed n)
+GroupEquiv.isHom (coHomGr≅coHomRedGr n A) = +∙≡+ n
+
+private
+  coHomGroup≡coHomRedGroup' : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
+                          → _ ≡ coHomGroup (suc n) (typ A)
+  coHomGroup≡coHomRedGroup' n A =
+    sym (InducedAbGroupPath (coHomGroup (suc n) (typ A))
+                   (coHomRed (suc n) A , _+ₕ∙_)
+                   (isoToEquiv (invIso (Iso-coHom-coHomRed n)))
+                   (homhelp n A))
+
+coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → AbGroup {ℓ}
+coHomRedGroup zero A = coHomRedGroupDir zero A
+coHomRedGroup (suc n) A = coHomGroup≡coHomRedGroup' n A i0
+
+abstract
+  coHomGroup≡coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
+                          → coHomRedGroup (suc n) A ≡ coHomGroup (suc n) (typ A)
+  coHomGroup≡coHomRedGroup = coHomGroup≡coHomRedGroup'
+
 ------------------- Kₙ ≃ ΩKₙ₊₁ ---------------------
 -- This proof uses the encode-decode method rather than Freudenthal
 
@@ -312,6 +364,47 @@ private
         (cong (decode ∣ north ∣) (transportRefl ∣ ptSn (suc n) ∣)
        ∙ cong (cong ∣_∣) (rCancel (merid (ptSn (suc n)))))
 
+-- We define an addition operation on Code which we can use in order to show that encode is a
+-- morphism (in a very loose sense)
+  hLevCode : {n : ℕ} (x : coHomK (2 + n)) → isOfHLevel (3 + n) (Code n x)
+  hLevCode {n = n} =
+    trElim (λ _ → isProp→isOfHLevelSuc (3 + n) (isPropIsOfHLevel (3 + n)))
+      (sphereToPropElim _
+        (λ _ → (isPropIsOfHLevel (3 + n))) (isOfHLevelTrunc (3 + n)))
+
+  Code-add' : {n : ℕ} (x : _) → Code n ∣ north ∣ → Code n ∣ x ∣ → Code n ∣ x ∣
+  Code-add' {n = n} north = _+ₖ_
+  Code-add' {n = n} south = _+ₖ_
+  Code-add' {n = n} (merid a i) = helper n a i
+    where
+    help : (n : ℕ) → (x y a : S₊ (suc n))
+        → transport (λ i → Code n ∣ north ∣ → Code n ∣ merid a i ∣ → Code n ∣ merid a i ∣)
+                     (_+ₖ_) ∣ x ∣ ∣ y ∣
+         ≡ ∣ x ∣ +ₖ ∣ y ∣
+    help n x y a =
+         (λ i → transportRefl ((∣ transportRefl x i ∣  +ₖ (∣ transportRefl y i ∣ -ₖ ∣ a ∣)) +ₖ ∣ a ∣) i)
+      ∙∙ cong (_+ₖ ∣ a ∣) (assocₖ _ ∣ x ∣ ∣ y ∣ (-ₖ ∣ a ∣))
+      ∙∙ sym (assocₖ _ (∣ x ∣ +ₖ ∣ y ∣) (-ₖ ∣ a ∣) ∣ a ∣)
+      ∙∙ cong ((∣ x ∣ +ₖ ∣ y ∣) +ₖ_) (lCancelₖ _ ∣ a ∣)
+      ∙∙ rUnitₖ _ _
+
+    helper : (n : ℕ) →  (a : S₊ (suc n)) → PathP (λ i → Code n ∣ north ∣ → Code n ∣ merid a i ∣ → Code n ∣ merid a i ∣) _+ₖ_ _+ₖ_
+    helper n a =
+      toPathP (funExt
+                (trElim (λ _ → isOfHLevelPath (3 + n) (isOfHLevelΠ (3 + n) (λ _ → isOfHLevelTrunc (3 + n))) _ _)
+                  λ x → funExt
+                           (trElim (λ _ → isOfHLevelPath (3 + n) (isOfHLevelTrunc (3 + n)) _ _)
+                                   λ y → help n x y a)))
+
+  Code-add : {n : ℕ} (x : _) → Code n ∣ north ∣ → Code n x → Code n x
+  Code-add {n = n} =
+    trElim (λ x → isOfHLevelΠ (4 + n) λ _ → isOfHLevelΠ (4 + n) λ _ → isOfHLevelSuc (3 + n) (hLevCode {n = n} x))
+           Code-add'
+
+  encode-hom : {n : ℕ} {x : _} (q : 0ₖ _ ≡ 0ₖ _) (p : 0ₖ _ ≡ x) → encode (q ∙ p) ≡ Code-add {n = n} x (encode q) (encode p)
+  encode-hom {n = n} q = J (λ x p → encode (q ∙ p) ≡ Code-add {n = n} x (encode q) (encode p))
+                           (cong encode (sym (rUnit q)) ∙∙ sym (rUnitₖ _ (encode q)) ∙∙ cong (encode q +ₖ_) (cong ∣_∣ (sym (transportRefl _))))
+
 stabSpheres : (n : ℕ) → Iso (coHomK (suc n)) (typ (Ω (coHomK-ptd (2 + n))))
 fun (stabSpheres n) = decode _
 inv' (stabSpheres n) = encode
@@ -366,15 +459,10 @@ Kn→ΩKn+1-hom (suc n) = σ-hom
 
 ΩKn+1→Kn-hom : (n : ℕ) (x y : Path (coHomK (suc n)) (0ₖ _) (0ₖ _))
              → ΩKn+1→Kn n (x ∙ y) ≡ ΩKn+1→Kn n x +[ n ]ₖ ΩKn+1→Kn n y
-ΩKn+1→Kn-hom n =
-  morphLemmas.isMorphInv
-    (λ x y → x +[ n ]ₖ y) _∙_
-    (Kn→ΩKn+1 n) (Kn→ΩKn+1-hom n)
-    (ΩKn+1→Kn n)
-    (Iso.rightInv (Iso-Kn-ΩKn+1 n))
-    (Iso.leftInv (Iso-Kn-ΩKn+1 n))
-
-
+ΩKn+1→Kn-hom zero p q =
+     cong winding (congFunct (trRec isGroupoidS¹ (λ x → x)) p q)
+   ∙ winding-hom (cong (trRec isGroupoidS¹ (λ x → x)) p) (cong (trRec isGroupoidS¹ (λ x → x)) q)
+ΩKn+1→Kn-hom (suc n) = encode-hom
 
 -- With the equivalence Kn≃ΩKn+1, we get that the two definitions of cohomology groups agree
 open GroupHom
