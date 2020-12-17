@@ -9,9 +9,12 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 
+open Precategory
+
 private
   variable
     ℓ ℓ' : Level
+
 
 record Cospan (C : Precategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   constructor cospan

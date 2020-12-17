@@ -6,6 +6,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Categories.Category
 
+open Precategory
+
 module _ ℓ where
   SET : Precategory (ℓ-suc ℓ) ℓ
   SET .ob = Σ (Type ℓ) isSet

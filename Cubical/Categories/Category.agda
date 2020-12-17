@@ -45,7 +45,7 @@ record Precategory ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   _∘_ : ∀ {x y z} (g : Hom[ y , z ]) (f : Hom[ x , y ]) → Hom[ x , z ]
   g ∘ f = f ⋆ g
 
-open Precategory public
+open Precategory
 
 
 -- Helpful syntax/notation

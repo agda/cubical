@@ -23,25 +23,26 @@ private
 module Yoneda (C : Precategory ℓ ℓ) ⦃ C-cat : isCategory C ⦄ where
   open Functor
   open NatTrans
+  open Precategory C
 
-  yo : C .ob → Functor (C ^op) (SET ℓ)
+  yo : ob → Functor (C ^op) (SET ℓ)
   yo x .F-ob y .fst = C [ y , x ]
   yo x .F-ob y .snd = C-cat .homIsSet
   yo x .F-hom f g = f ⋆⟨ C ⟩ g
-  yo x .F-id i f = C .seq-λ f i
-  yo x .F-seq f g i h = C .seq-α g f h i
+  yo x .F-id i f = seq-λ f i
+  yo x .F-seq f g i h = seq-α g f h i
 
   YO : Functor C (PSH ℓ ℓ C)
   YO .F-ob = yo
   YO .F-hom f .N-ob z g = g ⋆⟨ C ⟩ f
-  YO .F-hom f .N-hom g i h = C .seq-α g h f i
-  YO .F-id = makeNatTransPath λ i _ → λ f → C .seq-ρ f i
-  YO .F-seq f g = makeNatTransPath λ i _ → λ h → C .seq-α h f g (~ i)
+  YO .F-hom f .N-hom g i h = seq-α g h f i
+  YO .F-id = makeNatTransPath λ i _ → λ f → seq-ρ f i
+  YO .F-seq f g = makeNatTransPath λ i _ → λ h → seq-α h f g (~ i)
 
 
   module _ {x} (F : Functor (C ^op) (SET ℓ)) where
     yo-yo-yo : NatTrans (yo x) F → F .F-ob x .fst
-    yo-yo-yo α = α .N-ob _ (C .id _)
+    yo-yo-yo α = α .N-ob _ (id _)
 
     no-no-no : F .F-ob x .fst → NatTrans (yo x) F
     no-no-no a .N-ob y f = F .F-hom f a
@@ -56,9 +57,9 @@ module Yoneda (C : Precategory ℓ ℓ) ⦃ C-cat : isCategory C ⦄ where
         rem : ∀ {z} (x₁ : C [ z , x ]) → F .F-hom x₁ (yo-yo-yo a) ≡ (a .N-ob z) x₁
         rem g =
           F .F-hom g (yo-yo-yo a)
-            ≡[ i ]⟨ a .N-hom g (~ i) (C .id x) ⟩
-          a .N-hom g i0 (C .id x)
-            ≡[ i ]⟨ a .N-ob _ (C .seq-ρ g i) ⟩
+            ≡[ i ]⟨ a .N-hom g (~ i) (id x) ⟩
+          a .N-hom g i0 (id x)
+            ≡[ i ]⟨ a .N-ob _ (seq-ρ g i) ⟩
           (a .N-ob _) g
             ∎
 
@@ -72,5 +73,5 @@ module Yoneda (C : Precategory ℓ ℓ) ⦃ C-cat : isCategory C ⦄ where
   isFaithfulYO : isFaithful YO
   isFaithfulYO x y f g p i =
     hcomp
-      (λ j → λ{ (i = i0) → C .seq-λ f j; (i = i1) → C .seq-λ g j})
+      (λ j → λ{ (i = i0) → seq-λ f j; (i = i1) → seq-λ g j})
       (yo-yo-yo _ (p i))
