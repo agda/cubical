@@ -554,24 +554,20 @@ IsAbGroup.comm (AbGroupStr.isAbGroup (snd (coHomGroup n A))) = commₕ n
 
 -- Reduced cohomology group (direct def)
 
-coHomRedGrDir : (n : ℕ) (A : Pointed ℓ) → Group {ℓ}
-fst (coHomRedGrDir n A) = coHomRed n A
-0g (snd (coHomRedGrDir n A)) = 0ₕ∙ n
-GroupStr._+_ (snd (coHomRedGrDir n A)) = _+ₕ∙_ {n = n}
-- snd (coHomRedGrDir n A) = -ₕ∙_ {n = n}
-isGroup (snd (coHomRedGrDir n A)) = helper
-  where
-  abstract
-    helper : IsGroup (0ₕ∙ n) (_+ₕ∙_ {n = n}) (-ₕ∙_ {n = n})
-    helper = makeIsGroup § (assocₕ∙ n) (rUnitₕ∙ n) (lUnitₕ∙ n) (rCancelₕ∙ n) (lCancelₕ∙ n)
-
 coHomRedGroupDir : (n : ℕ) (A : Pointed ℓ) → AbGroup {ℓ}
 fst (coHomRedGroupDir n A) = coHomRed n A
 AbGroupStr.0g (snd (coHomRedGroupDir n A)) = 0ₕ∙ n
 AbGroupStr._+_ (snd (coHomRedGroupDir n A)) = _+ₕ∙_ {n = n}
 AbGroupStr.- snd (coHomRedGroupDir n A) = -ₕ∙_ {n = n}
-IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (coHomRedGroupDir n A))) = isGroup (snd (coHomRedGrDir n A))
+IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (coHomRedGroupDir n A))) = helper
+  where
+  abstract
+    helper : IsGroup (0ₕ∙ n) (_+ₕ∙_ {n = n}) (-ₕ∙_ {n = n})
+    helper = makeIsGroup § (assocₕ∙ n) (rUnitₕ∙ n) (lUnitₕ∙ n) (rCancelₕ∙ n) (lCancelₕ∙ n)
 IsAbGroup.comm (AbGroupStr.isAbGroup (snd (coHomRedGroupDir n A))) = commₕ∙ n
+
+coHomRedGrDir : (n : ℕ) (A : Pointed ℓ) → Group {ℓ}
+coHomRedGrDir n A = AbGroup→Group (coHomRedGroupDir n A)
 
 -- Induced map
 coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → coHom n B → coHom n A

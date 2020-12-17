@@ -220,17 +220,14 @@ coHomGr≅coHomRedGr : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
 GroupEquiv.eq (coHomGr≅coHomRedGr n A) = isoToEquiv (Iso-coHom-coHomRed n)
 GroupEquiv.isHom (coHomGr≅coHomRedGr n A) = +∙≡+ n
 
-coHomGr≡coHomRedGr : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
-                  → coHomRedGrDir (suc n) A ≡ coHomGr (suc n) (typ A)
-coHomGr≡coHomRedGr n A = uaGroup (coHomGr≅coHomRedGr n A)
-
-coHomGroup≡coHomRedGroup' : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
-                        → _ ≡ coHomGroup (suc n) (typ A)
-coHomGroup≡coHomRedGroup' n A =
-  sym (InducedAbGroupPath (coHomGroup (suc n) (typ A))
-                 (coHomRed (suc n) A , _+ₕ∙_)
-                 (isoToEquiv (invIso (Iso-coHom-coHomRed n)))
-                 (homhelp n A))
+private
+  coHomGroup≡coHomRedGroup' : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
+                          → _ ≡ coHomGroup (suc n) (typ A)
+  coHomGroup≡coHomRedGroup' n A =
+    sym (InducedAbGroupPath (coHomGroup (suc n) (typ A))
+                   (coHomRed (suc n) A , _+ₕ∙_)
+                   (isoToEquiv (invIso (Iso-coHom-coHomRed n)))
+                   (homhelp n A))
 
 coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → AbGroup {ℓ}
 coHomRedGroup zero A = coHomRedGroupDir zero A

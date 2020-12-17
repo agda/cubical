@@ -15,6 +15,13 @@ data Pushout {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
   inr : C → Pushout f g
   push : (a : A) → inl (f a) ≡ inr (g a)
 
+-- cofiber
+cofib : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type _
+cofib f = Pushout (λ _ → tt) f
+
+cfcod : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → B → cofib f
+cfcod f = inr
+
 -- Suspension defined as a pushout
 
 PushoutSusp : ∀ {ℓ} (A : Type ℓ) → Type ℓ
