@@ -9,9 +9,9 @@ open import Cubical.Categories.Category
 module _ ℓ where
   SET : Precategory (ℓ-suc ℓ) ℓ
   SET .ob = Σ (Type ℓ) isSet
-  SET .hom (A , _) (B , _) = A → B
-  SET .idn _  = λ x → x
-  SET .seq f g = λ x → g (f x)
+  SET .Hom[_,_] (A , _) (B , _) = A → B
+  SET .id _  = λ x → x
+  SET ._◾_ f g = λ x → g (f x)
   SET .seq-λ f = refl
   SET .seq-ρ f = refl
   SET .seq-α f g h = refl
