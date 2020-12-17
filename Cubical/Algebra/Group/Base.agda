@@ -4,8 +4,9 @@ module Cubical.Algebra.Group.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
-open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_)
+open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_; -_ to -Int_)
 open import Cubical.Data.Unit
+open import Cubical.Data.Bool
 
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
@@ -216,10 +217,35 @@ intGroup : Group₀
 fst intGroup = Int
 0g (snd intGroup) = 0
 _+_ (snd intGroup) = _+Int_
-- snd intGroup = 0 -Int_
+- snd intGroup = _-Int_ 0
 isGroup (snd intGroup) = isGroupInt
   where
   abstract
     isGroupInt : IsGroup (pos 0) _+Int_ (_-Int_ (pos 0))
     isGroupInt = makeIsGroup isSetInt +-assoc (λ x → refl) (λ x → +-comm 0 x)
                               (λ x → +-comm x (pos 0 -Int x) ∙ minusPlus x 0) (λ x → minusPlus x 0)
+open IsGroup
+open IsMonoid
+open IsSemigroup renaming (assoc to assoc')
+
+BoolGroup : Group₀
+fst BoolGroup = Bool
+0g (snd BoolGroup) = true
+(snd BoolGroup GroupStr.+ false) false = true
+(snd BoolGroup GroupStr.+ false) true = false
+(snd BoolGroup GroupStr.+ true) y = y
+(- snd BoolGroup) false = false
+(- snd BoolGroup) true = true
+is-set (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) = isSetBool
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false false false = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false false true = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false true false = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false true true = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true false false = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true false true = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true true false = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true true true = refl
+identity (IsGroup.isMonoid (isGroup (snd BoolGroup))) false = refl , refl
+identity (IsGroup.isMonoid (isGroup (snd BoolGroup))) true = refl , refl
+inverse (isGroup (snd BoolGroup)) false = refl , refl
+inverse (isGroup (snd BoolGroup)) true = refl , refl

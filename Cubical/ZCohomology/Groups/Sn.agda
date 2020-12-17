@@ -227,7 +227,7 @@ coHom1S1≃ℤ = theIso
 {-
 The proof of the inductive step below is a compact version of the following equations. Let n ≥ 1.
 Hⁿ⁺¹(Sⁿ⁺¹) := ∥ Sⁿ⁺¹ → Kₙ₊₁ ∥₂
-           ≅ ∥ Σ[ (a , b) ∈ Kₙ₊₁ ] (Sⁿ → a ≡ b) ∥₂       (characterisation of functions from suspensions)
+           ≅ ∥ Σ[ (a , b) ∈ Kₙ₊₁ ] (Sⁿ → a ≡ b) ∥₂      (characterisation of functions from suspensions)
            ≅ ∥ Kₙ₊₁ × Kₙ₊₁ × (Sⁿ → ΩKₙ₊₁) ∥₂             (base change in ΩKₙ₊₁)
            ≅ ∥ Kₙ₊₁ ∥₂ × ∥ Kₙ₊₁ ∥₂ × ∥ (Sⁿ → ΩKₙ₊₁) ∥₂
            ≅ ∥ Sⁿ → ΩKₙ₊₁ ∥₂                             (connectivity of Kₙ₊₁)
@@ -247,7 +247,7 @@ Hⁿ-Sⁿ≅ℤ (suc n) = invGroupIso helper □ invGroupIso (coHom≅coHomΩ (s
     → (p (ptSn (suc n)) ≡ refl) → sym (rCancelₖ (2 + n) ∣ north ∣)
                                  ∙∙ (λ i →  (elimFunSⁿ (suc n) n p) ((merid a ∙ sym (merid (ptSn (suc n)))) i) +ₖ ∣ north ∣)
                                  ∙∙ rCancelₖ (2 + n) ∣ north ∣
-                               ≡ p a
+                                 ≡ p a
   basePointInd p a prefl =
         cong (λ z → sym z ∙∙ ((λ i →  (elimFunSⁿ (suc n) n p) ((merid a ∙ sym (merid (ptSn (suc n)))) i) +ₖ ∣ north ∣)) ∙∙ z)
              (transportRefl refl)

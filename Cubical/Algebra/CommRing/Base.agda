@@ -16,7 +16,7 @@ open import Cubical.Structures.Axioms
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.Base
 
 open Iso
 
@@ -157,7 +157,7 @@ isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
                    (isPropComm RC SC i)
   where
   isSetR : isSet _
-  isSetR = RR .IsRing.·-isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+  isSetR = RR .IsRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
   isPropComm : isProp ((x y : _) → x · y ≡ y · x)
   isPropComm = isPropΠ2 λ _ _ → isSetR _ _

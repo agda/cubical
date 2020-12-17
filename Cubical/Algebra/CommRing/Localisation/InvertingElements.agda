@@ -76,8 +76,8 @@ module _(R' : CommRing {ℓ}) where
      Exponentiation._^_ R[1/ f ]AsCommRing [ g , 1r , powersFormMultClosedSubset _ .containsOne ] n
  ^-respects-/1 zero = refl
  ^-respects-/1 {f} {g} (suc n) = eq/ _ _ ( (1r , powersFormMultClosedSubset f .containsOne)
-                                         , cong (1r · (g · (g ^ n)) ·_) (·-lid 1r))
-                           ∙ cong (CommRingStr._·_ (snd R[1/ f ]AsCommRing)
+                                         , cong (1r · (g · (g ^ n)) ·_) (·Lid 1r))
+                           ∙ cong (CommRingStr._·_ (R[1/ f ]AsCommRing .snd)
                            [ g , 1r , powersFormMultClosedSubset f .containsOne ]) (^-respects-/1 n)
 
  -- A slight improvement for eliminating into propositions

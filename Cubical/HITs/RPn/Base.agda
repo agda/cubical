@@ -41,6 +41,12 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
+-- PR² as a HIT
+data RP² : Type₀ where
+  point : RP²
+  line : point ≡ point
+  square : line ≡ sym line
+
 -- Definition II.1 in [BR17], see also Cubical.Functions.Bundle
 
 2-EltType₀    = TypeEqvTo    ℓ-zero Bool -- Σ[ X ∈ Type₀ ] ∥ X ≃ Bool ∥
