@@ -15,7 +15,7 @@ data Pushout {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
   inr : C → Pushout f g
   push : (a : A) → inl (f a) ≡ inr (g a)
 
--- cofiber
+-- cofiber (equivalent to Cone in Cubical.HITs.MappingCones.Base)
 cofib : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type _
 cofib f = Pushout (λ _ → tt) f
 

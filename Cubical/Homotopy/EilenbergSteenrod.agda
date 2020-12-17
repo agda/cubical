@@ -3,8 +3,11 @@
 module Cubical.Homotopy.EilenbergSteenrod where
 
 {-
-This module contains the Eilenberg-Steenrod axioms for ordinary reduced cohomology theories with binary additivity.
-The axioms are based on the ones given in Cavallo's MSc thesis (https://www.cs.cmu.edu/~ecavallo/works/thesis15.pdf) and Buchholtz/Favonia (2018)
+This module contains the Eilenberg-Steenrod axioms for ordinary
+reduced cohomology theories with binary additivity.
+The axioms are based on the ones given in Cavallo's MSc thesis
+(https://www.cs.cmu.edu/~ecavallo/works/thesis15.pdf) and
+Buchholtz/Favonia (2018)
 -}
 
 
@@ -29,7 +32,7 @@ open import Cubical.Algebra.AbGroup
 open GroupEquiv
 open GroupHom
 
-record isCohomTheory {ℓ ℓ' : Level} (H : (n : Int) → Pointed ℓ → AbGroup {ℓ'}) : Type (ℓ-suc (ℓ-max ℓ ℓ'))
+record coHomTheory {ℓ ℓ' : Level} (H : (n : Int) → Pointed ℓ → AbGroup {ℓ'}) : Type (ℓ-suc (ℓ-max ℓ ℓ'))
   where
   Boolℓ : Pointed ℓ
   Boolℓ = Lift Bool , lift true
@@ -40,7 +43,7 @@ record isCohomTheory {ℓ ℓ' : Level} (H : (n : Int) → Pointed ℓ → AbGro
                → fun (f* (sucInt n) (suspFun (fst f) , refl)) ∘ invEq (eq (F n {A = B}))
                 ≡ invEq (eq (F n {A = A})) ∘ fun (f* n f))
     Exactness : {A B : Pointed ℓ}  (f : A →∙ B) (n :  Int)
-              → Ker _ _ (f* n {A = A} {B = B} f)
-               ≡ Im _ _ (f* n {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl))
+              → Ker (f* n {A = A} {B = B} f)
+               ≡ Im (f* n {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl))
     Dimension : (n : Int) → ¬ n ≡ 0 → isContr (fst (H n Boolℓ))
     BinaryWedge : (n : Int) {A B : Pointed ℓ} → AbGroupEquiv (H n (A ⋁ B , (inl (pt A)))) (dirProdAb (H n A) (H n B))

@@ -1,6 +1,19 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.ZCohomology.Properties where
 
+{-
+This module contains:
+1. direct proofs of connectedness of Kn and ΩKn
+2. Induction principles for cohomology groups of pointed types
+3. Equivalence between cohomology of A and reduced cohomology of (A + 1)
+4. Equivalence between cohomology and reduced cohomology for dimension ≥ 1
+5. Encode-decode proof of Kₙ ≃ ΩKₙ₊₁ and proofs that this equivalence
+   and its inverse are morphisms
+6. A proof of coHomGr ≅ coHomGrΩ
+7. A locked (non-reducing) version of Kₙ ≃ ΩKₙ₊₁
+-}
+
+
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 
@@ -351,6 +364,8 @@ private
         (cong (decode ∣ north ∣) (transportRefl ∣ ptSn (suc n) ∣)
        ∙ cong (cong ∣_∣) (rCancel (merid (ptSn (suc n)))))
 
+-- We define an addition operation on Code which we can use in order to show that encode is a
+-- morphism (in a very loose sense)
   hLevCode : {n : ℕ} (x : coHomK (2 + n)) → isOfHLevel (3 + n) (Code n x)
   hLevCode {n = n} =
     trElim (λ _ → isProp→isOfHLevelSuc (3 + n) (isPropIsOfHLevel (3 + n)))
@@ -362,7 +377,10 @@ private
   Code-add' {n = n} south = _+ₖ_
   Code-add' {n = n} (merid a i) = helper n a i
     where
-    help : (n : ℕ) → (x y a : S₊ (suc n)) → transport (λ i → Code n ∣ north ∣ → Code n ∣ merid a i ∣ → Code n ∣ merid a i ∣) (_+ₖ_) ∣ x ∣ ∣ y ∣ ≡ ∣ x ∣ +ₖ ∣ y ∣
+    help : (n : ℕ) → (x y a : S₊ (suc n))
+        → transport (λ i → Code n ∣ north ∣ → Code n ∣ merid a i ∣ → Code n ∣ merid a i ∣)
+                     (_+ₖ_) ∣ x ∣ ∣ y ∣
+         ≡ ∣ x ∣ +ₖ ∣ y ∣
     help n x y a =
          (λ i → transportRefl ((∣ transportRefl x i ∣  +ₖ (∣ transportRefl y i ∣ -ₖ ∣ a ∣)) +ₖ ∣ a ∣) i)
       ∙∙ cong (_+ₖ ∣ a ∣) (assocₖ _ ∣ x ∣ ∣ y ∣ (-ₖ ∣ a ∣))

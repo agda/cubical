@@ -42,7 +42,7 @@ open import Cubical.HITs.S1
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup
 
-open isCohomTheory
+open coHomTheory
 open Iso
 open IsGroup
 open GroupStr
@@ -216,8 +216,8 @@ private
   fun (theMorph (negsuc n) f) = idfun _
   isHom (theMorph (negsuc n) f) _ _ = refl
 
-  open isCohomTheory
-  isCohomTheoryZ' : ∀ {ℓ} → isCohomTheory {ℓ} coHomFunctor'
+  open coHomTheory
+  isCohomTheoryZ' : ∀ {ℓ} → coHomTheory {ℓ} coHomFunctor'
   f* isCohomTheoryZ' = theMorph
 
   -------------------------- Suspension --------------------------
@@ -273,7 +273,7 @@ private
   Exactness isCohomTheoryZ' {A = A} {B = B} f n = isoToPath (exactnessIso n f)
     where
     exactnessIso : (n : Int) (f : A →∙ B)
-                → Iso (Ker _ _ (theMorph n f)) (Im _ _ (theMorph n (cfcod (fst f) , refl)))
+                → Iso (Ker (theMorph n f)) (Im (theMorph n (cfcod (fst f) , refl)))
     fun (exactnessIso (pos zero) (f , p)) =
       uncurry (sElim (λ _ → isSetΠ λ _ → isSetΣ setTruncIsSet λ _ → isProp→isSet propTruncIsProp)
                      λ {(g , q) inker → ∣ g , q ∣₂
@@ -375,6 +375,6 @@ private
                     (invGroupIso (IsoContrGroupTrivialGroup (isOfHLevel× 0 isContrUnit* isContrUnit*))))
 
 -- Substituting back for our original theory, we are done
-isCohomTheoryZ : ∀ {ℓ} → isCohomTheory {ℓ} coHomFunctor
-isCohomTheoryZ = subst isCohomTheory (sym coHomFunctor≡coHomFunctor')
+isCohomTheoryZ : ∀ {ℓ} → coHomTheory {ℓ} coHomFunctor
+isCohomTheoryZ = subst coHomTheory (sym coHomFunctor≡coHomFunctor')
                        isCohomTheoryZ'
