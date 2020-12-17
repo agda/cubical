@@ -248,7 +248,7 @@ private
 abstract
   coHomGroup≡coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
                           → coHomRedGroup (suc n) A ≡ coHomGroup (suc n) (typ A)
-  coHomGroup≡coHomRedGroup n A = coHomGroup≡coHomRedGroup' n A
+  coHomGroup≡coHomRedGroup = coHomGroup≡coHomRedGroup'
 
 ------------------- Kₙ ≃ ΩKₙ₊₁ ---------------------
 -- This proof uses the encode-decode method rather than Freudenthal
