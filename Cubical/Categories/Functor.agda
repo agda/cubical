@@ -18,7 +18,7 @@ record Functor (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') : Type 
     F-ob : C .ob → D .ob
     F-hom : {x y : C .ob} → C [ x , y ] → D [(F-ob x) , (F-ob y)]
     F-id : {x : C .ob} → F-hom (C .id x) ≡ D .id (F-ob x)
-    F-seq : {x y z : C .ob} (f : C [ x , y ]) (g : C [ y , z ]) → F-hom (f ◾⟨ C ⟩ g) ≡ (F-hom f) ◾⟨ D ⟩ (F-hom g)
+    F-seq : {x y z : C .ob} (f : C [ x , y ]) (g : C [ y , z ]) → F-hom (f ⋆⟨ C ⟩ g) ≡ (F-hom f) ⋆⟨ D ⟩ (F-hom g)
 
   isFull = (x y : _) (F[f] : D [(F-ob x) , (F-ob y)]) → ∃ (C [ x , y ]) (λ f → F-hom f ≡ F[f])
   isFaithful = (x y : _) (f g : C [ x , y ]) → F-hom f ≡ F-hom g → f ≡ g

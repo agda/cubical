@@ -10,7 +10,7 @@ module _ ℓ where
   TYPE .ob = Type ℓ
   TYPE .Hom[_,_] A B = A → B
   TYPE .id A  = λ x → x
-  TYPE ._◾_ f g = λ x → g (f x)
+  TYPE ._⋆_ f g = λ x → g (f x)
   TYPE .seq-λ f = refl
   TYPE .seq-ρ f = refl
   TYPE .seq-α f g h = refl

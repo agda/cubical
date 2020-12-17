@@ -11,7 +11,7 @@ module _ ℓ where
   SET .ob = Σ (Type ℓ) isSet
   SET .Hom[_,_] (A , _) (B , _) = A → B
   SET .id _  = λ x → x
-  SET ._◾_ f g = λ x → g (f x)
+  SET ._⋆_ f g = λ x → g (f x)
   SET .seq-λ f = refl
   SET .seq-ρ f = refl
   SET .seq-α f g h = refl

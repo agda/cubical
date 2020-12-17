@@ -12,8 +12,8 @@ private
 
 module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
   -- syntax for sequencing in category D
-  _◾ᴰ_ : ∀ {x y z} (f : D [ x , y ]) (g : D [ y , z ]) → D [ x , z ]
-  f ◾ᴰ g = f ◾⟨ D ⟩ g
+  _⋆ᴰ_ : ∀ {x y z} (f : D [ x , y ]) (g : D [ y , z ]) → D [ x , z ]
+  f ⋆ᴰ g = f ⋆⟨ D ⟩ g
 
 
   record NatTrans (F G : Functor C D) : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
@@ -24,7 +24,7 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
       -- components of the natural transformation
       N-ob : (x : C .ob) → D [(F .F-ob x) , (G .F-ob x)]
       -- naturality condition
-      N-hom : {x y : C .ob} (f : C [ x , y ]) → (F .F-hom f) ◾ᴰ (N-ob y) ≡ (N-ob x) ◾ᴰ (G .F-hom f)
+      N-hom : {x y : C .ob} (f : C [ x , y ]) → (F .F-hom f) ⋆ᴰ (N-ob y) ≡ (N-ob x) ⋆ᴰ (G .F-hom f)
 
 
   open Precategory
@@ -34,28 +34,28 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
   idTrans : (F : Functor C D) → NatTrans F F
   idTrans F .N-ob x = D .id (F .F-ob x)
   idTrans F .N-hom f =
-     (F .F-hom f) ◾ᴰ (idTrans F .N-ob _)
+     (F .F-hom f) ⋆ᴰ (idTrans F .N-ob _)
        ≡⟨ D .seq-ρ _ ⟩
      F .F-hom f
        ≡⟨ sym (D .seq-λ _) ⟩
-     (D .id (F .F-ob _)) ◾ᴰ (F .F-hom f)
+     (D .id (F .F-ob _)) ⋆ᴰ (F .F-hom f)
        ∎
 
 
   seqTrans : {F G H : Functor C D} (α : NatTrans F G) (β : NatTrans G H) → NatTrans F H
-  seqTrans α β .N-ob x = (α .N-ob x) ◾ᴰ (β .N-ob x)
+  seqTrans α β .N-ob x = (α .N-ob x) ⋆ᴰ (β .N-ob x)
   seqTrans {F} {G} {H} α β .N-hom f =
-    (F .F-hom f) ◾ᴰ ((α .N-ob _) ◾ᴰ (β .N-ob _))
+    (F .F-hom f) ⋆ᴰ ((α .N-ob _) ⋆ᴰ (β .N-ob _))
       ≡⟨ sym (D .seq-α _ _ _) ⟩
-    ((F .F-hom f) ◾ᴰ (α .N-ob _)) ◾ᴰ (β .N-ob _)
-      ≡[ i ]⟨ (α .N-hom f i) ◾ᴰ (β .N-ob _) ⟩
-    ((α .N-ob _) ◾ᴰ (G .F-hom f)) ◾ᴰ (β .N-ob _)
+    ((F .F-hom f) ⋆ᴰ (α .N-ob _)) ⋆ᴰ (β .N-ob _)
+      ≡[ i ]⟨ (α .N-hom f i) ⋆ᴰ (β .N-ob _) ⟩
+    ((α .N-ob _) ⋆ᴰ (G .F-hom f)) ⋆ᴰ (β .N-ob _)
       ≡⟨ D .seq-α _ _ _ ⟩
-    (α .N-ob _) ◾ᴰ ((G .F-hom f) ◾ᴰ (β .N-ob _))
-      ≡[ i ]⟨ (α .N-ob _) ◾ᴰ (β .N-hom f i) ⟩
-    (α .N-ob _) ◾ᴰ ((β .N-ob _) ◾ᴰ (H .F-hom f))
+    (α .N-ob _) ⋆ᴰ ((G .F-hom f) ⋆ᴰ (β .N-ob _))
+      ≡[ i ]⟨ (α .N-ob _) ⋆ᴰ (β .N-hom f i) ⟩
+    (α .N-ob _) ⋆ᴰ ((β .N-ob _) ⋆ᴰ (H .F-hom f))
       ≡⟨ sym (D .seq-α _ _ _) ⟩
-    ((α .N-ob _) ◾ᴰ (β .N-ob _)) ◾ᴰ (H .F-hom f)
+    ((α .N-ob _) ⋆ᴰ (β .N-ob _)) ⋆ᴰ (H .F-hom f)
       ∎
 
   module _  ⦃ D-category : isCategory D ⦄ {F G : Functor C D} {α β : NatTrans F G} where
@@ -67,7 +67,7 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
     makeNatTransPath p i .N-ob = p i
     makeNatTransPath p i .N-hom f = rem i
       where
-        rem : PathP (λ i → (F .F-hom f) ◾ᴰ (p i _) ≡ (p i _) ◾ᴰ (G .F-hom f)) (α .N-hom f) (β .N-hom f)
+        rem : PathP (λ i → (F .F-hom f) ⋆ᴰ (p i _) ≡ (p i _) ⋆ᴰ (G .F-hom f)) (α .N-hom f) (β .N-hom f)
         rem = toPathP (D-category .homIsSet _ _ _ _)
 
 
@@ -80,7 +80,7 @@ module _ (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') ⦃ _ : isCat
   FUNCTOR .ob = Functor C D
   FUNCTOR .Hom[_,_] = NatTrans
   FUNCTOR .id = idTrans
-  FUNCTOR ._◾_ = seqTrans
+  FUNCTOR ._⋆_ = seqTrans
   FUNCTOR .seq-λ α = makeNatTransPath λ i x → D .seq-λ (α .N-ob x) i
   FUNCTOR .seq-ρ α = makeNatTransPath λ i x → D .seq-ρ (α .N-ob x) i
   FUNCTOR .seq-α α β γ = makeNatTransPath λ i x → D .seq-α (α .N-ob x) (β .N-ob x) (γ .N-ob x) i

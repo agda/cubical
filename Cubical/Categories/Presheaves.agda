@@ -27,13 +27,13 @@ module Yoneda (C : Precategory ℓ ℓ) ⦃ C-cat : isCategory C ⦄ where
   yo : C .ob → Functor (C ^op) (SET ℓ)
   yo x .F-ob y .fst = C [ y , x ]
   yo x .F-ob y .snd = C-cat .homIsSet
-  yo x .F-hom f g = f ◾⟨ C ⟩ g
+  yo x .F-hom f g = f ⋆⟨ C ⟩ g
   yo x .F-id i f = C .seq-λ f i
   yo x .F-seq f g i h = C .seq-α g f h i
 
   YO : Functor C (PSH ℓ ℓ C)
   YO .F-ob = yo
-  YO .F-hom f .N-ob z g = g ◾⟨ C ⟩ f
+  YO .F-hom f .N-ob z g = g ⋆⟨ C ⟩ f
   YO .F-hom f .N-hom g i h = C .seq-α g h f i
   YO .F-id = makeNatTransPath λ i _ → λ f → C .seq-ρ f i
   YO .F-seq f g = makeNatTransPath λ i _ → λ h → C .seq-α h f g (~ i)
