@@ -20,7 +20,7 @@ Pointed₀ = Pointed ℓ-zero
 
 {- Pointed functions -}
 _→∙_ : ∀{ℓ ℓ'} → (A : Pointed ℓ) (B : Pointed ℓ') → Type (ℓ-max ℓ ℓ')
-_→∙_ A B = Σ[ f ∈ (typ A → typ B) ] f (pt A) ≡ pt B
+(A , a) →∙ (B , b) = Σ[ f ∈ (A → B) ] f a ≡ b
 
 _→∙_∙ : ∀{ℓ ℓ'} → (A : Pointed ℓ) (B : Pointed ℓ') → Pointed (ℓ-max ℓ ℓ')
 A →∙ B ∙  = (A →∙ B) , (λ x → pt B) , refl

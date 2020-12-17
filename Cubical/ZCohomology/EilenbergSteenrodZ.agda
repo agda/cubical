@@ -218,7 +218,7 @@ private
 
   open coHomTheory
   isCohomTheoryZ' : ∀ {ℓ} → coHomTheory {ℓ} coHomFunctor'
-  f* isCohomTheoryZ' = theMorph
+  Hmap isCohomTheoryZ' = theMorph
 
   -------------------------- Suspension --------------------------
   -- existence of suspension isomorphism

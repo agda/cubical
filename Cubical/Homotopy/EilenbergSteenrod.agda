@@ -37,13 +37,13 @@ record coHomTheory {ℓ ℓ' : Level} (H : (n : Int) → Pointed ℓ → AbGroup
   Boolℓ : Pointed ℓ
   Boolℓ = Lift Bool , lift true
   field
-    f* : (n : Int) → {A B : Pointed ℓ} (f : A →∙ B) → AbGroupHom (H n B) (H n A)
+    Hmap : (n : Int) → {A B : Pointed ℓ} (f : A →∙ B) → AbGroupHom (H n B) (H n A)
     Suspension : Σ[ F ∈ ((n : Int) {A : Pointed ℓ} → AbGroupEquiv (H (sucInt n) (Susp (typ A) , north)) (H n A)) ]
                    ({A B : Pointed ℓ} (f : A →∙ B) (n : Int)
-               → fun (f* (sucInt n) (suspFun (fst f) , refl)) ∘ invEq (eq (F n {A = B}))
-                ≡ invEq (eq (F n {A = A})) ∘ fun (f* n f))
+               → fun (Hmap (sucInt n) (suspFun (fst f) , refl)) ∘ invEq (eq (F n {A = B}))
+                ≡ invEq (eq (F n {A = A})) ∘ fun (Hmap n f))
     Exactness : {A B : Pointed ℓ}  (f : A →∙ B) (n :  Int)
-              → Ker (f* n {A = A} {B = B} f)
-               ≡ Im (f* n {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl))
+              → Ker (Hmap n f)
+               ≡ Im (Hmap n {B = _ , inr (pt B)} (cfcod (fst f) , refl))
     Dimension : (n : Int) → ¬ n ≡ 0 → isContr (fst (H n Boolℓ))
     BinaryWedge : (n : Int) {A B : Pointed ℓ} → AbGroupEquiv (H n (A ⋁ B , (inl (pt A)))) (dirProdAb (H n A) (H n B))
