@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Properties where
 
 {-
@@ -241,19 +241,14 @@ coHomRedGroup (suc n) A =
                  (isoToEquiv (invIso (Iso-coHom-coHomRed n)))
                  (homhelp n A)
 
-private
-  coHomGroup≡coHomRedGroup' : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
-                          → _ ≡ coHomGroup (suc n) (typ A)
-  coHomGroup≡coHomRedGroup' n A =
+abstract
+  coHomGroup≡coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
+                          → coHomRedGroup (suc n) A ≡ coHomGroup (suc n) (typ A)
+  coHomGroup≡coHomRedGroup n A =
     sym (InducedAbGroupPath (coHomGroup (suc n) (typ A))
                    (coHomRed (suc n) A , _+ₕ∙_)
                    (isoToEquiv (invIso (Iso-coHom-coHomRed n)))
                    (homhelp n A))
-
-abstract
-  coHomGroup≡coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
-                          → coHomRedGroup (suc n) A ≡ coHomGroup (suc n) (typ A)
-  coHomGroup≡coHomRedGroup = coHomGroup≡coHomRedGroup'
 
 ------------------- Kₙ ≃ ΩKₙ₊₁ ---------------------
 -- This proof uses the encode-decode method rather than Freudenthal
