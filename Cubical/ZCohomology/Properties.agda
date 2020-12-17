@@ -228,6 +228,11 @@ private
                 (Iso.fun (Iso-coHom-coHomRed n)) (+∙≡+ n) _
                 (Iso.rightInv (Iso-coHom-coHomRed n)) (Iso.leftInv (Iso-coHom-coHomRed n))
 
+coHomGr≅coHomRedGr : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
+                  → GroupEquiv (coHomRedGrDir (suc n) A) (coHomGr (suc n) (typ A))
+GroupEquiv.eq (coHomGr≅coHomRedGr n A) = isoToEquiv (Iso-coHom-coHomRed n)
+GroupEquiv.isHom (coHomGr≅coHomRedGr n A) = +∙≡+ n
+
 coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → AbGroup {ℓ}
 coHomRedGroup zero A = coHomRedGroupDir zero A
 coHomRedGroup (suc n) A =
