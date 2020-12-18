@@ -99,5 +99,23 @@ test4 = refl
 
 test5 : to₂ (from₂ 1 +ₕ from₂ 1) ≡ 2
 test5 = refl
-
 -}
+
+-- some odd behaviour:
+inducedIso : GroupIso (inducedCoHom H²-S²⋁S¹⋁S¹) intGroup
+inducedIso = subst (λ x → GroupIso x intGroup)
+                   (inducedCoHomPath H²-S²⋁S¹⋁S¹) H²-S²⋁S¹⋁S¹
+
+to₂' : fst (inducedCoHom H²-S²⋁S¹⋁S¹) → Int
+to₂' = GroupHom.fun (GroupIso.map inducedIso)
+
+from₂' : Int → fst (inducedCoHom H²-S²⋁S¹⋁S¹)
+from₂' = GroupIso.inv inducedIso
+
+-- does not work
+-- test100 : to₂' (induced+ H²-S²⋁S¹⋁S¹ (from₂' 0) (from₂' 0)) ≡ 0
+-- test100 = refl
+
+-- works (give it a few seconds)
+-- test101 : to₂ (induced+ H²-S²⋁S¹⋁S¹ (from₂ 0) (from₂ 0)) ≡ 0
+-- test101 = refl
