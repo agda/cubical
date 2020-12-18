@@ -5,9 +5,9 @@ Eilenberg–Mac Lane type K(G, 1)
 -}
 
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.HITs.EilenbergMacLane1.Properties where
+module Cubical.HITs.EMSpace.Properties where
 
-open import Cubical.HITs.EilenbergMacLane1.Base
+open import Cubical.HITs.EMSpace.Base
 
 open import Cubical.Core.Everything
 
@@ -20,7 +20,7 @@ open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Structures.Group.Base
+open import Cubical.Algebra.Group.Base
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
 open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂; ∣_∣₂; squash₂)
@@ -31,13 +31,13 @@ private
   variable
     ℓG ℓ : Level
 
-module _ (G : Group {ℓG}) where
+module _ ((G , str) : Group {ℓG}) where
 
-  open Group G
+  open GroupStr str
 
-  elimEq : {B : EM₁ G → Type ℓ}
-           (Bprop : (x : EM₁ G) → isProp (B x))
-           {x y : EM₁ G}
+  elimEq : {B : EM₁ (G , str) → Type ℓ}
+           (Bprop : (x : EM₁ (G , str)) → isProp (B x))
+           {x y : EM₁ (G , str)}
            (eq : x ≡ y)
            (bx : B x)
            (by : B y) →
@@ -45,10 +45,10 @@ module _ (G : Group {ℓG}) where
   elimEq {B = B} Bprop {x = x} =
     J (λ y eq → ∀ bx by → PathP (λ i → B (eq i)) bx by) (λ bx by → Bprop x bx by)
 
-  elimProp : {B : EM₁ G → Type ℓ}
-             → ((x : EM₁ G) → isProp (B x))
+  elimProp : {B : EM₁ (G , str) → Type ℓ}
+             → ((x : EM₁ (G , str)) → isProp (B x))
              → B embase
-             → (x : EM₁ G)
+             → (x : EM₁ (G , str))
              → B x
   elimProp Bprop b embase = b
   elimProp Bprop b (emloop g i) = elimEq Bprop (emloop g) b b i
@@ -64,10 +64,10 @@ module _ (G : Group {ℓG}) where
     where
       g = elimProp Bprop b
 
-  elimProp2 : {C : EM₁ G → EM₁ G → Type ℓ}
-            → ((x y : EM₁ G) → isProp (C x y))
+  elimProp2 : {C : EM₁ (G , str) → EM₁ (G , str) → Type ℓ}
+            → ((x y : EM₁ (G , str)) → isProp (C x y))
             → C embase embase
-            → (x y : EM₁ G)
+            → (x y : EM₁ (G , str))
             → C x y
   elimProp2 Cprop c = elimProp (λ x → isPropΠ (λ y → Cprop x y))
                                (elimProp (λ y → Cprop embase y) c)

@@ -349,6 +349,26 @@ Square :
   → Type _
 Square a₀₋ a₁₋ a₋₀ a₋₁ = PathP (λ i → a₋₀ i ≡ a₋₁ i) a₀₋ a₁₋
 
+-- J for squares
+module _ {A : Type ℓ} {a₀₀ : A}
+         (P : {a₀₁ : A} (a₀₋ : a₀₀ ≡ a₀₁) {a₁₀ a₁₁ : A} (a₁₋ : a₁₀ ≡ a₁₁)
+              (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
+              → Square a₀₋ a₁₋ a₋₀ a₋₁ → Type ℓ')
+         (d : P (λ _ → a₀₀) (λ _ → a₀₀) (λ _ → a₀₀) (λ _ → a₀₀)
+                (λ _ _ → a₀₀)) where
+
+  J-square : {a₀₁ : A} (a₀₋ : a₀₀ ≡ a₀₁) {a₁₀ a₁₁ : A} (a₁₋ : a₁₀ ≡ a₁₁)
+             (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁) (s : Square a₀₋ a₁₋ a₋₀ a₋₁)
+             → P a₀₋ a₁₋ a₋₀ a₋₁ s
+  J-square a₀₋ a₁₋ a₋₀ a₋₁ s =
+    transport (λ k → P (λ j → s i0 (k ∧ j)) (λ j → s k (k ∧ j))
+      (λ i → s (k ∧ i) i0) (λ i → s (k ∧ i) k)
+      (λ i j → s (k ∧ i) (k ∧ j))) d
+
+  J-square-refl : J-square (λ _ → a₀₀) (λ _ → a₀₀) (λ _ → a₀₀) (λ _ → a₀₀)
+                  (λ _ _ → a₀₀) ≡ d
+  J-square-refl = transportRefl d
+
 isSet' : Type ℓ → Type ℓ
 isSet' A =
   {a₀₀ a₀₁ : A} (a₀₋ : a₀₀ ≡ a₀₁)
