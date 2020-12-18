@@ -24,7 +24,7 @@ record Functor (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') : Type 
   isFaithful = (x y : _) (f g : C [ x , y ]) → F-hom f ≡ F-hom g → f ≡ g
 
 
--- Functor results
+-- Functor results0
 
 module _ (C : Precategory ℓC ℓC') (D : Precategory ℓC ℓC') (F : Functor C D ) where
   open Precategory
