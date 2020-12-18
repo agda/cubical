@@ -126,9 +126,9 @@ module Units (R' : CommRing {ℓ}) where
 
  ⁻¹-eq-elim : {r r' r'' : R} ⦃ r∈Rˣ : r ∈ Rˣ ⦄ → r' ≡ r'' · r → r' · r ⁻¹ ≡ r''
  ⁻¹-eq-elim {r = r} {r'' = r''} p = cong (_· r ⁻¹) p
-                                  ∙ sym (·-assoc _ _ _)
+                                  ∙ sym (·Assoc _ _ _)
                                   ∙ cong (r'' ·_) (·-rinv _)
-                                  ∙ ·-rid _
+                                  ∙ ·Rid _
 
 
 -- some convenient notation

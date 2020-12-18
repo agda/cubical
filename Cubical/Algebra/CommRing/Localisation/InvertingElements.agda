@@ -118,8 +118,8 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
  open Theory (CommRing→Ring R')
  open CommRingStr (snd (R[1/_]AsCommRing R' f)) renaming ( _·_ to _·ᶠ_ ; 1r to 1ᶠ
                                                          ; _+_ to _+ᶠ_ ; 0r to 0ᶠ
-                                                         ; ·-lid to ·ᶠ-lid ; ·-rid to ·ᶠ-rid
-                                                         ; ·-assoc to ·ᶠ-assoc ; ·-comm to ·ᶠ-comm)
+                                                         ; ·Lid to ·ᶠ-lid ; ·Rid to ·ᶠ-rid
+                                                         ; ·Assoc to ·ᶠ-assoc ; ·-comm to ·ᶠ-comm)
 
  private
   R = fst R'
@@ -153,9 +153,9 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
      path : 1r · (1r · r · (g ^ m)) · (1r · (f ^ m) · 1r)
           ≡ 1r · (1r · r · (g ^ n)) · (1r · (f ^ n) · 1r)
      path = 1r · (1r · r · (g ^ m)) · (1r · (f ^ m) · 1r)
-          ≡⟨ (λ i → ·-lid ((·-lid r i) · (g ^ m)) i · (·-rid (·-lid (f ^ m) i) i)) ⟩
+          ≡⟨ (λ i → ·Lid ((·Lid r i) · (g ^ m)) i · (·Rid (·Lid (f ^ m) i) i)) ⟩
             r · g ^ m · f ^ m
-          ≡⟨ sym (·-assoc _ _ _) ⟩
+          ≡⟨ sym (·Assoc _ _ _) ⟩
             r · (g ^ m · f ^ m)
           ≡⟨ cong (r ·_) (sym (^-ldist-· g f m)) ⟩
             r · ((g · f) ^ m)
@@ -167,9 +167,9 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
             r · ((g · f) ^ n)
           ≡⟨ cong (r ·_) (^-ldist-· g f n) ⟩
             r · (g ^ n · f ^ n)
-          ≡⟨ ·-assoc _ _ _ ⟩
+          ≡⟨ ·Assoc _ _ _ ⟩
             r · g ^ n · f ^ n
-          ≡⟨ (λ i → ·-lid ((·-lid r (~ i)) · (g ^ n)) (~ i) · (·-rid (·-lid (f ^ n) (~ i)) (~ i))) ⟩
+          ≡⟨ (λ i → ·Lid ((·Lid r (~ i)) · (g ^ n)) (~ i) · (·Rid (·Lid (f ^ n) (~ i)) (~ i))) ⟩
             1r · (1r · r · (g ^ n)) · (1r · (f ^ n) · 1r) ∎
 
    ϕ : R × S[fg] → R[1/f][1/g]
@@ -195,11 +195,11 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
          ≡⟨ (λ i → f ^ l · (g ^ l · transportRefl r i · transportRefl (g ^ m) i)
                          · (1r · transportRefl (f ^ m) i · transportRefl 1r i)) ⟩
            f ^ l · (g ^ l · r · g ^ m) · (1r · f ^ m · 1r)
-         ≡⟨ (λ i → ·-assoc (f ^ l) ((g ^ l) · r) (g ^ m) i · ·-rid (1r · (f ^ m)) i) ⟩
+         ≡⟨ (λ i → ·Assoc (f ^ l) ((g ^ l) · r) (g ^ m) i · ·Rid (1r · (f ^ m)) i) ⟩
            f ^ l · (g ^ l · r) · g ^ m · (1r · f ^ m)
-         ≡⟨ (λ i → ·-assoc (f ^ l) (g ^ l) r i · g ^ m ·  ·-lid (f ^ m) i) ⟩
+         ≡⟨ (λ i → ·Assoc (f ^ l) (g ^ l) r i · g ^ m ·  ·Lid (f ^ m) i) ⟩
            f ^ l · g ^ l · r · g ^ m · f ^ m
-         ≡⟨ sym (·-assoc _ _ _) ⟩
+         ≡⟨ sym (·Assoc _ _ _) ⟩
            f ^ l · g ^ l · r · (g ^ m · f ^ m)
          ≡⟨ (λ i → ^-ldist-· f g l (~ i) · r · ^-ldist-· g f m (~ i)) ⟩
            (f · g) ^ l · r · (g · f) ^ m
@@ -215,11 +215,11 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
            (f · g) ^ l · r' · (g · f) ^ n
          ≡⟨ (λ i → ^-ldist-· f g l i · r' · ^-ldist-· g f n i) ⟩
            f ^ l · g ^ l · r' · (g ^ n · f ^ n)
-         ≡⟨ ·-assoc _ _ _ ⟩
+         ≡⟨ ·Assoc _ _ _ ⟩
            f ^ l · g ^ l · r' · g ^ n · f ^ n
-         ≡⟨ (λ i → ·-assoc (f ^ l) (g ^ l) r' (~ i) · g ^ n ·  ·-lid (f ^ n) (~ i)) ⟩
+         ≡⟨ (λ i → ·Assoc (f ^ l) (g ^ l) r' (~ i) · g ^ n ·  ·Lid (f ^ n) (~ i)) ⟩
            f ^ l · (g ^ l · r') · g ^ n · (1r · f ^ n)
-         ≡⟨ (λ i → ·-assoc (f ^ l) ((g ^ l) · r') (g ^ n) (~ i) · ·-rid (1r · (f ^ n)) (~ i)) ⟩
+         ≡⟨ (λ i → ·Assoc (f ^ l) ((g ^ l) · r') (g ^ n) (~ i) · ·Rid (1r · (f ^ n)) (~ i)) ⟩
            f ^ l · (g ^ l · r' · g ^ n) · (1r · f ^ n · 1r)
          ≡⟨ (λ i → f ^ l · (g ^ l · transportRefl r' (~ i) · transportRefl (g ^ n) (~ i))
                          · (1r · transportRefl (f ^ n) (~ i) · transportRefl 1r (~ i))) ⟩
@@ -250,14 +250,14 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
  RingHom.pres1 /1/1AsCommRingHom = refl
  RingHom.isHom+ /1/1AsCommRingHom r r' = cong [_] (≡-× (cong [_]
                                                   (≡-×
-                         (cong₂ _+_ (sym (·-rid _) ∙ (λ i → (·-rid r (~ i)) · (·-rid 1r (~ i))))
-                         (sym (·-rid _) ∙ (λ i → (·-rid r' (~ i)) · (·-rid 1r (~ i)))))
+                         (cong₂ _+_ (sym (·Rid _) ∙ (λ i → (·Rid r (~ i)) · (·Rid 1r (~ i))))
+                         (sym (·Rid _) ∙ (λ i → (·Rid r' (~ i)) · (·Rid 1r (~ i)))))
                                                   (Σ≡Prop (λ _ → propTruncIsProp)
-                         (sym (·-lid _) ∙ (λ i → (·-lid 1r (~ i)) · (·-lid 1r (~ i)))))))
+                         (sym (·Lid _) ∙ (λ i → (·Lid 1r (~ i)) · (·Lid 1r (~ i)))))))
                                                   (Σ≡Prop (λ _ → propTruncIsProp) (sym (·ᶠ-lid 1ᶠ))))
  RingHom.isHom· /1/1AsCommRingHom r r' = cong [_] (≡-× (cong [_]
                                                   (≡-× refl (Σ≡Prop (λ _ → propTruncIsProp)
-                                                  (sym (·-lid _)))))
+                                                  (sym (·Lid _)))))
                                                   (Σ≡Prop (λ _ → propTruncIsProp) (sym (·ᶠ-lid 1ᶠ))))
  -- takes forever to compute...
  R[1/fg]≡R[1/f][1/g] : R[1/fg]AsCommRing ≡ R[1/f][1/g]AsCommRing
@@ -279,26 +279,26 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
     path : 1r · (1r · (s · 1r) · 1r) · (1r · 1r · (1r · 1r))
          ≡ 1r · (1r · 1r · (1r · g ^ n)) · (1r · (1r · f ^ n) · 1r)
     path = 1r · (1r · (s · 1r) · 1r) · (1r · 1r · (1r · 1r))
-         ≡⟨ (λ i → ·-lid (·-rid (·-lid (·-rid s i) i) i) i · (·-lid 1r i · ·-lid 1r i) ) ⟩
+         ≡⟨ (λ i → ·Lid (·Rid (·Lid (·Rid s i) i) i) i · (·Lid 1r i · ·Lid 1r i) ) ⟩
            s · (1r · 1r)
-         ≡⟨ cong (s ·_) (·-rid _) ⟩
+         ≡⟨ cong (s ·_) (·Rid _) ⟩
            s · 1r
-         ≡⟨ ·-rid _ ⟩
+         ≡⟨ ·Rid _ ⟩
            s
          ≡⟨ p ⟩
            (f · g) ^ n
          ≡⟨ ^-ldist-· _ _ _ ⟩
            f ^ n · g ^ n
-         ≡⟨ (λ i → ·-comm (f ^ n) (·-lid (g ^ n) (~ i)) i) ⟩
+         ≡⟨ (λ i → ·-comm (f ^ n) (·Lid (g ^ n) (~ i)) i) ⟩
            1r · g ^ n · f ^ n
-         ≡⟨ (λ i → ·-lid (·-lid 1r (~ i) · ·-lid (g ^ n) (~ i)) (~ i)
-                   · ·-rid (·-lid (·-lid (f ^ n) (~ i)) (~ i)) (~ i)) ⟩
+         ≡⟨ (λ i → ·Lid (·Lid 1r (~ i) · ·Lid (g ^ n) (~ i)) (~ i)
+                   · ·Rid (·Lid (·Lid (f ^ n) (~ i)) (~ i)) (~ i)) ⟩
            1r · (1r · 1r · (1r · g ^ n)) · (1r · (1r · f ^ n) · 1r) ∎
 
   kerφ⊆annS pathtoR[1/fg] r p = toGoal helperR[1/f]
    where
-   open Theory (CommRing→Ring R[1/f]AsCommRing) renaming ( 0-rightNullifies to 0ᶠ-rightNullifies
-                                                         ; 0-leftNullifies to 0ᶠ-leftNullifies)
+   open Theory (CommRing→Ring R[1/f]AsCommRing) renaming ( 0RightAnnihilates to 0ᶠRightAnnihilates
+                                                         ; 0LeftAnnihilates to 0ᶠ-leftNullifies)
    open Exponentiation R[1/f]AsCommRing renaming (_^_ to _^ᶠ_)
                                         hiding (·-of-^-is-^-of-+ ; ^-ldist-·)
 
@@ -330,7 +330,7 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
      where
      path : [ g ^ n · r , 1r , ∣ 0 , refl ∣ ] ≡ 0ᶠ
      path = [ g ^ n · r , 1r , ∣ 0 , refl ∣ ]
-          ≡⟨ cong [_] (≡-× refl (Σ≡Prop (λ _ → propTruncIsProp) (sym (·-rid _)))) ⟩
+          ≡⟨ cong [_] (≡-× refl (Σ≡Prop (λ _ → propTruncIsProp) (sym (·Rid _)))) ⟩
             [ g ^ n , 1r , ∣ 0 , refl ∣ ] ·ᶠ r/1
           ≡⟨ cong (_·ᶠ r/1) (^-respects-/1 _ n) ⟩
             g/1 ^ᶠ n ·ᶠ r/1
@@ -338,7 +338,7 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
             g/1 ^ᶠ n ·ᶠ r/1 ·ᶠ 1ᶠ
           ≡⟨ q ⟩
             g/1 ^ᶠ n ·ᶠ 0ᶠ ·ᶠ 1ᶠ
-          ≡⟨ cong (_·ᶠ 1ᶠ) (0ᶠ-rightNullifies _) ∙ 0ᶠ-leftNullifies 1ᶠ ⟩
+          ≡⟨ cong (_·ᶠ 1ᶠ) (0ᶠRightAnnihilates _) ∙ 0ᶠ-leftNullifies 1ᶠ ⟩
             0ᶠ ∎
 
    toGoal : ∃[ n ∈ ℕ ] [ g ^ n · r , 1r , ∣ 0 , refl ∣ ] ≡ 0ᶠ
@@ -364,8 +364,8 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
       baseCase m q' = ∣ m , path ∣
        where
        path : f ^ m · g ^ n · r ≡ 0r
-       path = (λ i → ·-rid (·-assoc (f ^ m) (g ^ n) r (~ i)) (~ i))
-            ∙∙ q' ∙∙ (λ i → ·-rid (0-rightNullifies (f ^ m) i) i)
+       path = (λ i → ·Rid (·Assoc (f ^ m) (g ^ n) r (~ i)) (~ i))
+            ∙∙ q' ∙∙ (λ i → ·Rid (0RightAnnihilates (f ^ m) i) i)
 
      Σhelper2 : Σ[ m ∈ ℕ ] f ^ m · g ^ n · r ≡ 0r
               → Σ[ u ∈ S[fg] ] fst u · r ≡ 0r
@@ -385,11 +385,11 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
              f ^ (l ∸ m) · f ^ m · (g ^ (l ∸ n) · g ^ n) · r
            ≡⟨ cong (_· r) (·-commAssocSwap _ _ _ _) ⟩
              f ^ (l ∸ m) · g ^ (l ∸ n) · (f ^ m · g ^ n) · r
-           ≡⟨ sym (·-assoc _ _ _) ⟩
+           ≡⟨ sym (·Assoc _ _ _) ⟩
              f ^ (l ∸ m) · g ^ (l ∸ n) · (f ^ m · g ^ n · r)
            ≡⟨ cong (f ^ (l ∸ m) · g ^ (l ∸ n) ·_) q' ⟩
              f ^ (l ∸ m) · g ^ (l ∸ n) · 0r
-           ≡⟨ 0-rightNullifies _ ⟩
+           ≡⟨ 0RightAnnihilates _ ⟩
              0r ∎
 
   surχ pathtoR[1/fg] = InvElPropElim _ (λ _ → propTruncIsProp) foo2
@@ -397,7 +397,7 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
    open Exponentiation R[1/f]AsCommRing renaming (_^_ to _^ᶠ_)
                                                hiding (·-of-^-is-^-of-+ ; ^-ldist-·)
    open CommRingStr (snd R[1/f][1/g]AsCommRing) renaming (_·_ to _·R[1/f][1/g]_)
-                    hiding (1r ; ·-lid ; ·-rid ; ·-assoc)
+                    hiding (1r ; ·Lid ; ·Rid ; ·Assoc)
    open Units R[1/f][1/g]AsCommRing
    g/1 : R[1/_] R' f
    g/1 = [ g , 1r , powersFormMultClosedSubset R' f .containsOne ]
@@ -415,10 +415,10 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
     path : 1r · (1r · (r · f ^ (l ∸ m) · g ^ (l ∸ n)) · (g ^ n · 1r)) · (1r · (f ^ m · 1r) · 1r)
          ≡ 1r · (1r · (r · (f · g) ^ l) · 1r) · (1r · 1r · (1r · 1r))
     path = 1r · (1r · (r · f ^ (l ∸ m) · g ^ (l ∸ n)) · (g ^ n · 1r)) · (1r · (f ^ m · 1r) · 1r)
-         ≡⟨ (λ i → ·-lid (·-lid (r · f ^ (l ∸ m) · g ^ (l ∸ n)) i · ·-rid (g ^ n) i) i
-                 · ·-rid (·-lid (·-rid (f ^ m) i) i) i) ⟩
+         ≡⟨ (λ i → ·Lid (·Lid (r · f ^ (l ∸ m) · g ^ (l ∸ n)) i · ·Rid (g ^ n) i) i
+                 · ·Rid (·Lid (·Rid (f ^ m) i) i) i) ⟩
            r · f ^ (l ∸ m) · g ^ (l ∸ n) · g ^ n · f ^ m
-         ≡⟨ cong (_· f ^ m) (sym (·-assoc _ _ _)) ⟩
+         ≡⟨ cong (_· f ^ m) (sym (·Assoc _ _ _)) ⟩
            r · f ^ (l ∸ m) · (g ^ (l ∸ n) · g ^ n) · f ^ m
          ≡⟨ cong (λ x → r · f ^ (l ∸ m) · x · f ^ m) (·-of-^-is-^-of-+ _ _ _) ⟩
            r · f ^ (l ∸ m) · g ^ (l ∸ n +ℕ n) · f ^ m
@@ -426,20 +426,20 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
            r · f ^ (l ∸ m) · g ^ l · f ^ m
          ≡⟨ ·-commAssocr _ _ _ ⟩
            r · f ^ (l ∸ m) · f ^ m · g ^ l
-         ≡⟨ cong (_· g ^ l) (sym (·-assoc _ _ _)) ⟩
+         ≡⟨ cong (_· g ^ l) (sym (·Assoc _ _ _)) ⟩
            r · (f ^ (l ∸ m) · f ^ m) · g ^ l
          ≡⟨ cong (λ x → r · x · g ^ l) (·-of-^-is-^-of-+ _ _ _) ⟩
            r · f ^ (l ∸ m +ℕ m) · g ^ l
          ≡⟨ cong (λ x → r · f ^ x · g ^ l) (≤-∸-+-cancel left-≤-max) ⟩
            r · f ^ l · g ^ l
-         ≡⟨ sym (·-assoc _ _ _) ⟩
+         ≡⟨ sym (·Assoc _ _ _) ⟩
            r · (f ^ l · g ^ l)
          ≡⟨ cong (r ·_) (sym (^-ldist-· _ _ _)) ⟩
            r · (f · g) ^ l
-         ≡⟨ sym (·-rid _) ∙ cong (r · (f · g) ^ l ·_) (sym (·-rid _))⟩
+         ≡⟨ sym (·Rid _) ∙ cong (r · (f · g) ^ l ·_) (sym (·Rid _))⟩
            r · (f · g) ^ l · (1r · 1r)
-         ≡⟨ (λ i → ·-lid (·-rid (·-lid (r · (f · g) ^ l) (~ i)) (~ i)) (~ i)
-                 · (·-rid 1r (~ i) · ·-rid 1r (~ i))) ⟩
+         ≡⟨ (λ i → ·Lid (·Rid (·Lid (r · (f · g) ^ l) (~ i)) (~ i)) (~ i)
+                 · (·Rid 1r (~ i) · ·Rid 1r (~ i))) ⟩
            1r · (1r · (r · (f · g) ^ l) · 1r) · (1r · 1r · (1r · 1r)) ∎
 
    baz : (r : R) (m n : ℕ) → ∃[ x ∈ R × S[fg] ] (x .fst /1/1)

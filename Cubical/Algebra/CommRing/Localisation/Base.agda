@@ -85,21 +85,19 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMul
   where
   path : u · v · s' · r · s'' ≡ u · v · s' · r'' · s
   path = u · v · s' · r · s''   ≡⟨ solve R' (X4 ·' X5 ·' X1 ·' X3 ·' X2)
-                                             (X4 ·' X3 ·' X1 ·' X5 ·' X2)
-                                             (s' ∷ s'' ∷ r ∷ u ∷ v ∷ [])
-                                             refl ⟩
+                                            (X4 ·' X3 ·' X1 ·' X5 ·' X2)
+                                            (s' ∷ s'' ∷ r ∷ u ∷ v ∷ [])
+                                            refl ⟩
          u · r · s' · v · s''   ≡⟨ cong (λ x → x · v · s'') p ⟩
-         u · r' · s · v · s''   ≡⟨ cong (λ x → x · v · s'') (·-commAssocr _ _ _) ⟩
-         u · s · r' · v · s''   ≡⟨ cong (_· s'') (·-commAssocr _ _ _) ⟩
-         u · s · v · r' · s''   ≡⟨ cong (_· s'') (sym (·Assoc _ _ _)) ⟩
-         u · s · (v · r') · s'' ≡⟨ sym (·Assoc _ _ _) ⟩
+         u · r' · s · v · s''   ≡⟨ solve R' (X4 ·' X3 ·' X1 ·' X5 ·' X2)
+                                            (X4 ·' X1 ·' (X5 ·' X3 ·' X2))
+                                            (s ∷ s'' ∷ r' ∷ u ∷ v ∷ [])
+                                            refl ⟩
          u · s · (v · r' · s'') ≡⟨ cong (u · s ·_) q ⟩
-         u · s · (v · r'' · s') ≡⟨ ·Assoc _ _ _ ⟩
-         u · s · (v · r'') · s' ≡⟨ cong (_· s') (·-commAssocSwap _ _ _ _) ⟩
-         u · v · (s · r'') · s' ≡⟨ sym (·Assoc _ _ _) ⟩
-         u · v · (s · r'' · s') ≡⟨ cong (u · v ·_) (·-commAssocr2 _ _ _) ⟩
-         u · v · (s' · r'' · s) ≡⟨ ·Assoc _ _ _ ⟩
-         u · v · (s' · r'') · s ≡⟨ cong (_· s) (·Assoc _ _ _) ⟩
+         u · s · (v · r'' · s') ≡⟨ solve R' (X4 ·' X1 ·' (X5 ·' X3 ·' X2))
+                                            (X4 ·' X5 ·' X2 ·' X3 ·' X1)
+                                            (s ∷ s' ∷ r'' ∷ u ∷ v ∷ [])
+                                            refl ⟩
          u · v · s' · r'' · s   ∎
 
  locIsEquivRel : isEquivRel _≈_
