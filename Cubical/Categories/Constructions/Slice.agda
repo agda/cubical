@@ -30,7 +30,8 @@ record SliceHom (a b : SliceOb) : TypeC where
 SliceCat : Precategory _ _
 ob SliceCat = SliceOb
 Hom[_,_] SliceCat = SliceHom
-id SliceCat (sliceob {x} f) = slicehom {!C .id x!} {!!}
+id SliceCat (sliceob {x} f) = slicehom (C .id x) (C .⋆IdL _)
+_⋆_ SliceCat (slicehom f p) (slicehom g p') = slicehom (f ⋆⟨ C ⟩ g) {!!}
 
 -- private
 --   variable
