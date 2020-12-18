@@ -12,9 +12,9 @@ module _ ℓ where
   SET .Hom[_,_] (A , _) (B , _) = A → B
   SET .id _  = λ x → x
   SET ._⋆_ f g = λ x → g (f x)
-  SET .seq-λ f = refl
-  SET .seq-ρ f = refl
-  SET .seq-α f g h = refl
+  SET .⋆IdL f = refl
+  SET .⋆IdR f = refl
+  SET .⋆Assoc f g h = refl
 
 module _ {ℓ} where
   isSetExpIdeal : {A B : Type ℓ} → isSet B → isSet (A → B)

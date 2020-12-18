@@ -28,15 +28,15 @@ module Yoneda (C : Precategory ℓ ℓ) ⦃ C-cat : isCategory C ⦄ where
   yo x .F-ob y .fst = C [ y , x ]
   yo x .F-ob y .snd = C-cat .homIsSet
   yo x .F-hom f g = f ⋆⟨ C ⟩ g
-  yo x .F-id i f = C .seq-λ f i
-  yo x .F-seq f g i h = C .seq-α g f h i
+  yo x .F-id i f = C .⋆IdL f i
+  yo x .F-seq f g i h = C .⋆Assoc g f h i
 
   YO : Functor C (PSH ℓ ℓ C)
   YO .F-ob = yo
   YO .F-hom f .N-ob z g = g ⋆⟨ C ⟩ f
-  YO .F-hom f .N-hom g i h = C .seq-α g h f i
-  YO .F-id = makeNatTransPath λ i _ → λ f → C .seq-ρ f i
-  YO .F-seq f g = makeNatTransPath λ i _ → λ h → C .seq-α h f g (~ i)
+  YO .F-hom f .N-hom g i h = C .⋆Assoc g h f i
+  YO .F-id = makeNatTransPath λ i _ → λ f → C .⋆IdR f i
+  YO .F-seq f g = makeNatTransPath λ i _ → λ h → C .⋆Assoc h f g (~ i)
 
 
   module _ {x} (F : Functor (C ^op) (SET ℓ)) where
@@ -58,7 +58,7 @@ module Yoneda (C : Precategory ℓ ℓ) ⦃ C-cat : isCategory C ⦄ where
           F .F-hom g (yo-yo-yo a)
             ≡[ i ]⟨ a .N-hom g (~ i) (C .id x) ⟩
           a .N-hom g i0 (C .id x)
-            ≡[ i ]⟨ a .N-ob _ (C .seq-ρ g i) ⟩
+            ≡[ i ]⟨ a .N-ob _ (C .⋆IdR g i) ⟩
           (a .N-ob _) g
             ∎
 
@@ -72,5 +72,5 @@ module Yoneda (C : Precategory ℓ ℓ) ⦃ C-cat : isCategory C ⦄ where
   isFaithfulYO : isFaithful YO
   isFaithfulYO x y f g p i =
     hcomp
-      (λ j → λ{ (i = i0) → C .seq-λ f j; (i = i1) → C .seq-λ g j})
+      (λ j → λ{ (i = i0) → C .⋆IdL f j; (i = i1) → C .⋆IdL g j})
       (yo-yo-yo _ (p i))
