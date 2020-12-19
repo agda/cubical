@@ -57,14 +57,14 @@ _[_,_] = Hom[_,_]
 seq' : ∀ (C : Precategory ℓ ℓ') {x y z} (f : C [ x , y ]) (g : C [ y , z ]) → C [ x , z ]
 seq' = _⋆_
 
-infix 15 seq'
+infixl 15 seq'
 syntax seq' C f g = f ⋆⟨ C ⟩ g
 
 -- composition
 comp' : ∀ (C : Precategory ℓ ℓ') {x y z} (g : C [ y , z ]) (f : C [ x , y ]) → C [ x , z ]
 comp' = _∘_
 
-infix 16 comp'
+infixr 16 comp'
 syntax comp' C g f = g ∘⟨ C ⟩ f
 
 
