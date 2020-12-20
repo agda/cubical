@@ -26,10 +26,16 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
       -- naturality condition
       N-hom : {x y : C .ob} (f : C [ x , y ]) → (F .F-hom f) ⋆ᴰ (N-ob y) ≡ (N-ob x) ⋆ᴰ (G .F-hom f)
 
-
   open Precategory
   open Functor
   open NatTrans
+
+  infix 10 NatTrans
+  syntax NatTrans F G = F ⇒ G
+
+  -- component of a natural transformation
+  _⟦_⟧ : ∀ {F G : Functor C D} → (F ⇒ G) → (x : C .ob) → D [(F .F-ob x) , (G .F-ob x)]
+  _⟦_⟧ = N-ob
 
   idTrans : (F : Functor C D) → NatTrans F F
   idTrans F .N-ob x = D .id (F .F-ob x)
@@ -41,7 +47,9 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
      (D .id (F .F-ob _)) ⋆ᴰ (F .F-hom f)
        ∎
 
+  syntax idTrans F = 1[ F ]
 
+  -- vertical sequencing
   seqTrans : {F G H : Functor C D} (α : NatTrans F G) (β : NatTrans G H) → NatTrans F H
   seqTrans α β .N-ob x = (α .N-ob x) ⋆ᴰ (β .N-ob x)
   seqTrans {F} {G} {H} α β .N-hom f =
@@ -58,6 +66,9 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
     ((α .N-ob _) ⋆ᴰ (β .N-ob _)) ⋆ᴰ (H .F-hom f)
       ∎
 
+  infixl 8 seqTrans
+  syntax seqTrans α β = α ●ᵛ β
+
   module _  ⦃ D-category : isCategory D ⦄ {F G : Functor C D} {α β : NatTrans F G} where
     open Precategory
     open Functor
@@ -69,6 +80,26 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
       where
         rem : PathP (λ i → (F .F-hom f) ⋆ᴰ (p i _) ≡ (p i _) ⋆ᴰ (G .F-hom f)) (α .N-hom f) (β .N-hom f)
         rem = toPathP (D-category .isSetHom _ _ _ _)
+
+private
+  variable
+    ℓA ℓA' ℓB ℓB' : Level
+
+module _ {B : Precategory ℓB ℓB'} {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
+  open NatTrans
+  -- whiskering
+  -- Fα
+  _∘ˡ_ : ∀ (F : Functor B C) → {G H : Functor C D} (α : NatTrans G H)
+        → NatTrans (G ∘F F) (H ∘F F)
+  (_∘ˡ_ F {G} {H} α) .N-ob x = α ⟦ F ⟅ x ⟆ ⟧
+  (_∘ˡ_ F {G} {H} α) .N-hom f = (α .N-hom) _
+
+  -- βK
+  _∘ʳ_ : ∀ {G H : Functor B C} (β : NatTrans G H) → (K : Functor C D)
+       → NatTrans (K ∘F G) (K ∘F H)
+  (_∘ʳ_ {G} {H} β K) .N-ob x = K ⟪ β ⟦ x ⟧ ⟫
+  (_∘ʳ_ {G} {H} β K) .N-hom f = preserveCommF {C = C} {D} {K} (β .N-hom f)
+
 
 
 module _ (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') ⦃ _ : isCategory D ⦄ where

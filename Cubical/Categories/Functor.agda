@@ -25,6 +25,7 @@ record Functor (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') : Type 
 
 private
   variable
+    ℓ ℓ' : Level
     ℓE ℓE' : Level
     C : Precategory ℓC ℓC'
     D : Precategory ℓD ℓD'
@@ -49,20 +50,26 @@ _⟪_⟫ : (F : Functor C D)
 _⟪_⟫ = F-hom
 
 
--- Functor results
+-- Functor constructions
+
+𝟙⟨_⟩ : ∀ (C : Precategory ℓ ℓ') → Functor C C
+𝟙⟨ C ⟩ .F-ob x = x
+𝟙⟨ C ⟩ .F-hom f = f
+𝟙⟨ C ⟩ .F-id = refl
+𝟙⟨ C ⟩ .F-seq _ _ = refl
 
 -- functor composition
-funcComp : ∀ (F : Functor C D) (G : Functor D E) → Functor C E
-(funcComp F G) .F-ob c = G ⟅ F ⟅ c ⟆ ⟆
-(funcComp F G) .F-hom f = G ⟪ F ⟪ f ⟫ ⟫
-(funcComp {C = C} {D = D} {E = E} F G) .F-id {c}
+funcComp : ∀ (G : Functor D E) (F : Functor C D) → Functor C E
+(funcComp G F) .F-ob c = G ⟅ F ⟅ c ⟆ ⟆
+(funcComp G F) .F-hom f = G ⟪ F ⟪ f ⟫ ⟫
+(funcComp {D = D} {E = E} {C = C} G F) .F-id {c}
   = (G ⟪ F ⟪ C .id c ⟫ ⟫)
   ≡⟨ cong (G ⟪_⟫) (F .F-id) ⟩
     (G ⟪ D .id (F ⟅ c ⟆) ⟫)
   ≡⟨ G .F-id ⟩
     E .id (G ⟅ F ⟅ c ⟆ ⟆)
   ∎
-(funcComp {C = C} {D = D} {E = E} F G) .F-seq {x} {y} {z} f g
+(funcComp {D = D} {E = E} {C = C} G F) .F-seq {x} {y} {z} f g
   = (G ⟪ F ⟪ f ⋆⟨ C ⟩ g ⟫ ⟫)
   ≡⟨ cong (G ⟪_⟫) (F .F-seq _ _) ⟩
     (G ⟪ (F ⟪ f ⟫) ⋆⟨ D ⟩ (F ⟪ g ⟫) ⟫)
@@ -70,37 +77,57 @@ funcComp : ∀ (F : Functor C D) (G : Functor D E) → Functor C E
     (G ⟪ F ⟪ f ⟫ ⟫) ⋆⟨ E ⟩ (G ⟪ F ⟪ g ⟫ ⟫)
   ∎
 
--- functors preserve isomorphisms
-preserveIsosF : ∀ {x y} (F : Functor C D) → CatIso {C = C} x y → CatIso {C = D} (F ⟅ x ⟆) (F ⟅ y ⟆)
-preserveIsosF {C = C} {D = D} {x} {y} F (catiso f f⁻¹ sec' ret') =
-  catiso
-    g g⁻¹
-    -- sec
-    ( (g⁻¹ ⋆⟨ D ⟩ g)
-    ≡⟨ sym (F .F-seq f⁻¹ f) ⟩
-      F ⟪ f⁻¹ ⋆⟨ C ⟩ f ⟫
-    ≡⟨ cong (F .F-hom) sec' ⟩
-      F ⟪ C .id y ⟫
-    ≡⟨ F .F-id ⟩
-      D .id y'
-    ∎ )
-    -- ret
-    ( (g ⋆⟨ D ⟩ g⁻¹)
-      ≡⟨ sym (F .F-seq f f⁻¹) ⟩
-    F ⟪ f ⋆⟨ C ⟩ f⁻¹ ⟫
-      ≡⟨ cong (F .F-hom) ret' ⟩
-    F ⟪ C .id x ⟫
-    ≡⟨ F .F-id ⟩
-      D .id x'
-    ∎ )
+infixr 30 funcComp
+syntax funcComp G F = G ∘F F
+-- Results about functors
 
-    where
-      x' : D .ob
-      x' = F ⟅ x ⟆
-      y' : D .ob
-      y' = F ⟅ y ⟆
+module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} {F : Functor C D} where
 
-      g : D [ x' , y' ]
-      g = F ⟪ f ⟫
-      g⁻¹ : D [ y' , x' ]
-      g⁻¹ = F ⟪ f⁻¹ ⟫
+  -- functors preserve commutative diagrams (specificallysqures here)
+  preserveCommF : ∀ {x y z w} {f : C [ x , y ]} {g : C [ y , w ]} {h : C [ x , z ]} {k : C [ z , w ]}
+                → f ⋆⟨ C ⟩ g ≡ h ⋆⟨ C ⟩ k
+                → (F ⟪ f ⟫) ⋆⟨ D ⟩ (F ⟪ g ⟫) ≡ (F ⟪ h ⟫) ⋆⟨ D ⟩ (F ⟪ k ⟫)
+  preserveCommF {f = f} {g = g} {h = h} {k = k} eq
+    = (F ⟪ f ⟫) ⋆⟨ D ⟩ (F ⟪ g ⟫)
+    ≡⟨ sym (F .F-seq _ _) ⟩
+      F ⟪ f ⋆⟨ C ⟩ g ⟫
+    ≡⟨ cong (F ⟪_⟫) eq ⟩
+      F ⟪ h ⋆⟨ C ⟩ k ⟫
+    ≡⟨ F .F-seq _ _ ⟩
+      (F ⟪ h ⟫) ⋆⟨ D ⟩ (F ⟪ k ⟫)
+    ∎
+
+  -- functors preserve isomorphisms
+  preserveIsosF : ∀ {x y} → CatIso {C = C} x y → CatIso {C = D} (F ⟅ x ⟆) (F ⟅ y ⟆)
+  preserveIsosF {x} {y} (catiso f f⁻¹ sec' ret') =
+    catiso
+      g g⁻¹
+      -- sec
+      ( (g⁻¹ ⋆⟨ D ⟩ g)
+      ≡⟨ sym (F .F-seq f⁻¹ f) ⟩
+        F ⟪ f⁻¹ ⋆⟨ C ⟩ f ⟫
+      ≡⟨ cong (F .F-hom) sec' ⟩
+        F ⟪ C .id y ⟫
+      ≡⟨ F .F-id ⟩
+        D .id y'
+      ∎ )
+      -- ret
+      ( (g ⋆⟨ D ⟩ g⁻¹)
+        ≡⟨ sym (F .F-seq f f⁻¹) ⟩
+      F ⟪ f ⋆⟨ C ⟩ f⁻¹ ⟫
+        ≡⟨ cong (F .F-hom) ret' ⟩
+      F ⟪ C .id x ⟫
+      ≡⟨ F .F-id ⟩
+        D .id x'
+      ∎ )
+
+      where
+        x' : D .ob
+        x' = F ⟅ x ⟆
+        y' : D .ob
+        y' = F ⟅ y ⟆
+
+        g : D [ x' , y' ]
+        g = F ⟪ f ⟫
+        g⁻¹ : D [ y' , x' ]
+        g⁻¹ = F ⟪ f⁻¹ ⟫
