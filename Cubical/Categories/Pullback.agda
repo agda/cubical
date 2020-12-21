@@ -16,27 +16,24 @@ private
 record Cospan (C : Precategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   constructor cospan
   field
-    S₁ S₂ vertex : Precategory.ob C
-    s₁ : C [ S₁ , vertex ]
-    s₂ : C [ S₂ , vertex ]
+    l r vertex : Precategory.ob C
+    s₁ : C [ l , vertex ]
+    s₂ : C [ r , vertex ]
 
 record Cone {C : Precategory ℓ ℓ'} (cspn : Cospan C) (c : ob C) : Type (ℓ-max ℓ ℓ') where
   constructor cone
   field
-    p₁ : C [ c , (Cospan.S₁ cspn)]
-    p₂ : C [ c , (Cospan.S₂ cspn)]
+    p₁ : C [ c , (Cospan.l cspn)]
+    p₂ : C [ c , (Cospan.r cspn)]
     sq : p₁ ⋆⟨ C ⟩ (Cospan.s₁ cspn) ≡ p₂ ⋆⟨ C ⟩ (Cospan.s₂ cspn)
 
 record Pullback {C : Precategory ℓ ℓ'} (cspn : Cospan C) : Type (ℓ-max ℓ ℓ') where
   constructor pullback
   field
-    c : ob C
-    cn : Cone cspn c
-    universal : {c' : ob C} (cn' : Cone cspn c') → ∃![ f ∈ C [ c' , c ] ] Σ[ q ∈ Cone.p₁ cn' ≡ f ⋆⟨ C ⟩ (Cone.p₁ cn) ] (Cone.p₂ cn' ≡ f ⋆⟨ C ⟩ (Cone.p₂ cn))
-
--- whisker the parallel morphisms g and g' with f
-lPrecatWhisker : {C : Precategory ℓ ℓ'} {x y z : C .ob} (f : C [ x , y ]) (g g' : C [ y , z ]) (p : g ≡ g') → f ⋆⟨ C ⟩ g ≡ f ⋆⟨ C ⟩ g'
-lPrecatWhisker {C = C} f _ _ p = cong (_⋆_ C f) p
+    pbOb : ob C
+    pbCn : Cone cspn pbOb
+    universal : ∀ {c' : ob C} (cn' : Cone cspn c')
+              → ∃![ f ∈ C [ c' , pbOb ] ] Σ[ q ∈ Cone.p₁ cn' ≡ f ⋆⟨ C ⟩ (Cone.p₁ pbCn) ] (Cone.p₂ cn' ≡ f ⋆⟨ C ⟩ (Cone.p₂ pbCn))
 
 -- extend a cone on c by a morphism c'→c using precomposition
 coneMap : {C : Precategory ℓ ℓ'} {cspn : Cospan C} {c c' : ob C} (cn : Cone cspn c) (f : C [ c' , c ]) → Cone cspn c'

@@ -25,4 +25,4 @@ module _ {ℓ} where
 
   instance
     SET-category : isCategory (SET ℓ)
-    SET-category .homIsSet {_} {B , B/set} = isSetExpIdeal B/set
+    SET-category .isSetHom {_} {B , B/set} = isSetExpIdeal B/set

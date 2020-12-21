@@ -13,8 +13,8 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Sets
 
 module _ (ℓ ℓ' : Level) where
-  PSH : Precategory ℓ ℓ' → Precategory (ℓ-max (ℓ-suc ℓ) ℓ') (ℓ-max (ℓ-suc ℓ) ℓ')
-  PSH C = FUNCTOR (C ^op) (SET ℓ)
+  PreShv : Precategory ℓ ℓ' → Precategory (ℓ-max (ℓ-suc ℓ) ℓ') (ℓ-max (ℓ-suc ℓ) ℓ')
+  PreShv C = FUNCTOR (C ^op) (SET ℓ)
 
 private
   variable
@@ -26,12 +26,12 @@ module Yoneda (C : Precategory ℓ ℓ) ⦃ C-cat : isCategory C ⦄ where
 
   yo : C .ob → Functor (C ^op) (SET ℓ)
   yo x .F-ob y .fst = C [ y , x ]
-  yo x .F-ob y .snd = C-cat .homIsSet
+  yo x .F-ob y .snd = C-cat .isSetHom
   yo x .F-hom f g = f ⋆⟨ C ⟩ g
   yo x .F-id i f = C .⋆IdL f i
   yo x .F-seq f g i h = C .⋆Assoc g f h i
 
-  YO : Functor C (PSH ℓ ℓ C)
+  YO : Functor C (PreShv ℓ ℓ C)
   YO .F-ob = yo
   YO .F-hom f .N-ob z g = g ⋆⟨ C ⟩ f
   YO .F-hom f .N-hom g i h = C .⋆Assoc g h f i

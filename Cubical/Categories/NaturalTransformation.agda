@@ -68,7 +68,7 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
     makeNatTransPath p i .N-hom f = rem i
       where
         rem : PathP (λ i → (F .F-hom f) ⋆ᴰ (p i _) ≡ (p i _) ⋆ᴰ (G .F-hom f)) (α .N-hom f) (β .N-hom f)
-        rem = toPathP (D-category .homIsSet _ _ _ _)
+        rem = toPathP (D-category .isSetHom _ _ _ _)
 
 
 module _ (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') ⦃ _ : isCategory D ⦄ where
