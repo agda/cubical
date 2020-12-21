@@ -12,6 +12,7 @@ private
 
 module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
   -- syntax for sequencing in category D
+  infixl 15 _⋆ᴰ_
   _⋆ᴰ_ : ∀ {x y z} (f : D [ x , y ]) (g : D [ y , z ]) → D [ x , z ]
   f ⋆ᴰ g = f ⋆⟨ D ⟩ g
 
@@ -34,6 +35,7 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
   syntax NatTrans F G = F ⇒ G
 
   -- component of a natural transformation
+  infix 30 _⟦_⟧
   _⟦_⟧ : ∀ {F G : Functor C D} → (F ⇒ G) → (x : C .ob) → D [(F .F-ob x) , (G .F-ob x)]
   _⟦_⟧ = N-ob
 
@@ -69,6 +71,35 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
   infixl 8 seqTrans
   syntax seqTrans α β = α ●ᵛ β
 
+
+  seqTrans' : {F G G' H : Functor C D} → {G ≡ G'}
+            → (α : NatTrans F G) (β : NatTrans G' H)
+            → NatTrans F H
+  seqTrans' {F} {G} {G'} {H} {p} α β
+    = record { N-ob = λ x → α ⟦ x ⟧ ⋆ᴰ id' ⋆ᴰ β ⟦ x ⟧
+             ; N-hom = λ f i → {!!} }
+    where
+      Gx≡G'x : ∀ {x} → G ⟅ x ⟆ ≡ G' ⟅ x ⟆
+      Gx≡G'x {x} i = F-ob (p i) x
+
+      id' : ∀ {x} → D [ G ⟅ x ⟆ , G' ⟅ x ⟆ ]
+      id' {x} = subst (λ v → D [ G ⟅ x ⟆ , v ]) Gx≡G'x (D .id _)
+
+      sq : ∀ {x y}
+         → (f : C [ x , y ])
+         → id' ⋆ᴰ (G' ⟪ f ⟫) ≡ G ⟪ f ⟫ ⋆ᴰ id'
+      sq f = ?
+
+  -- seqTrans' {_} {G} {G'} {_} {p} α β .N-ob x = α ⟦ x ⟧ ⋆ᴰ id' ⋆ᴰ β ⟦ x ⟧
+  --   where
+  --     Gx≡G'x : G ⟅ x ⟆ ≡ G' ⟅ x ⟆
+  --     Gx≡G'x i = F-ob (p i) x
+
+  --     id' : D [ G ⟅ x ⟆ , G' ⟅ x ⟆ ]
+  --     id' = subst (λ v → D [ G ⟅ x ⟆ , v ]) Gx≡G'x (D .id _)
+  -- seqTrans' {F} {G} {G'} {H} α β .N-hom f = {!!}
+    
+
   module _  ⦃ D-category : isCategory D ⦄ {F G : Functor C D} {α β : NatTrans F G} where
     open Precategory
     open Functor
@@ -88,17 +119,17 @@ private
 module _ {B : Precategory ℓB ℓB'} {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
   open NatTrans
   -- whiskering
-  -- Fα
-  _∘ˡ_ : ∀ (F : Functor B C) → {G H : Functor C D} (α : NatTrans G H)
+  -- αF
+  _∘ˡ_ : ∀ {G H : Functor C D} (α : NatTrans G H) → (F : Functor B C)
         → NatTrans (G ∘F F) (H ∘F F)
-  (_∘ˡ_ F {G} {H} α) .N-ob x = α ⟦ F ⟅ x ⟆ ⟧
-  (_∘ˡ_ F {G} {H} α) .N-hom f = (α .N-hom) _
+  (_∘ˡ_ {G} {H} α F) .N-ob x = α ⟦ F ⟅ x ⟆ ⟧
+  (_∘ˡ_ {G} {H} α F) .N-hom f = (α .N-hom) _
 
-  -- βK
-  _∘ʳ_ : ∀ {G H : Functor B C} (β : NatTrans G H) → (K : Functor C D)
+  -- Kβ
+  _∘ʳ_ : ∀ (K : Functor C D) → {G H : Functor B C} (β : NatTrans G H)
        → NatTrans (K ∘F G) (K ∘F H)
-  (_∘ʳ_ {G} {H} β K) .N-ob x = K ⟪ β ⟦ x ⟧ ⟫
-  (_∘ʳ_ {G} {H} β K) .N-hom f = preserveCommF {C = C} {D} {K} (β .N-hom f)
+  (_∘ʳ_ K {G} {H} β) .N-ob x = K ⟪ β ⟦ x ⟧ ⟫
+  (_∘ʳ_ K {G} {H} β) .N-hom f = preserveCommF {C = C} {D} {K} (β .N-hom f)
 
 
 

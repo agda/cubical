@@ -41,4 +41,4 @@ record Pullback {C : Precategory ℓ ℓ'} (cspn : Cospan C) : Type (ℓ-max ℓ
 -- extend a cone on c by a morphism c'→c using precomposition
 coneMap : {C : Precategory ℓ ℓ'} {cspn : Cospan C} {c c' : ob C} (cn : Cone cspn c) (f : C [ c' , c ]) → Cone cspn c'
 coneMap {C = C} {cospan _ _ _ s₁ s₂} (cone p₁ p₂ sq) f =
-  cone (f ⋆⟨ C ⟩ p₁)  (f ⋆⟨ C ⟩ p₂) ((C .⋆Assoc f p₁ s₁) ∙∙ lPrecatWhisker {C = C} f (p₁ ⋆⟨ C ⟩ s₁) (p₂ ⋆⟨ C ⟩ s₂) sq ∙∙ sym (C .⋆Assoc f p₂ s₂))
+  cone (f ⋆⟨ C ⟩ p₁)  (f ⋆⟨ C ⟩ p₂) ((C .⋆Assoc _ _ _) ∙∙ lPrecatWhisker {C = C} f (p₁ ⋆⟨ C ⟩ s₁) (p₂ ⋆⟨ C ⟩ s₂) sq ∙∙ sym (C .⋆Assoc _ _ _))

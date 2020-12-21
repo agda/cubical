@@ -118,3 +118,52 @@ open isCategory public
 -- whisker the parallel morphisms g and g' with f
 lPrecatWhisker : {C : Precategory ℓ ℓ'} {x y z : C .ob} (f : C [ x , y ]) (g g' : C [ y , z ]) (p : g ≡ g') → f ⋆⟨ C ⟩ g ≡ f ⋆⟨ C ⟩ g'
 lPrecatWhisker {C = C} f _ _ p = cong (_⋆_ C f) p
+
+-- working with equal objects
+module _ {C : Precategory ℓ ℓ'} {x x'} (p : x ≡ x') where
+  -- id≡ : ∀ {x x'}
+  --     → (x ≡ x')
+  id≡ : C [ x , x' ]
+  id≡ = subst (λ v → C [ x , v ]) p (C .id x)
+
+  ⋆IdL≡ : ∀ {y : C .ob} {f' : C [ x' , y ]}
+        → PathP (λ i → C [ p i , y ]) (id≡ ⋆⟨ C ⟩ f') f'
+  ⋆IdL≡ {y} {f'} = symP {A = λ i → C [ p (~ i) , y ]} (toPathP (sym (idf'≡idf ∙ idf≡f))) --  compPathP' {A = C .ob} {B = λ a → {!C [ a , y ]!}} {p = refl} (idf'≡idf ∙ idf≡f) f≡f'
+    where
+      idl : (C .id x') ⋆⟨ C ⟩ f' ≡ f'
+      idl = {!!}
+      id≡id : PathP (λ i → C [ x , p (~ i) ]) id≡ (C .id _)
+      id≡id = symP {A = (λ i → C [ x , p i ])} (toPathP refl)
+
+      f = subst (C [_, y ]) (sym p) f'
+
+      f≡f' : PathP (λ i → C [ p i , y ]) f f'
+      f≡f' = symP {A = λ i → C [ p (~ i) , y ]} (toPathP refl)
+
+      idf'≡idf : id≡ ⋆⟨ C ⟩ f' ≡ (C .id x) ⋆⟨ C ⟩ f
+      idf'≡idf i = id≡id i ⋆⟨ C ⟩ f≡f' (~ i)
+
+      idf≡f : (C .id x) ⋆⟨ C ⟩ f ≡ f
+      idf≡f = C .⋆IdL _
+
+module _ {C : Precategory ℓ ℓ'} {x x'} (p : x ≡ x') where
+
+  id' = id≡ {C = C} (sym p)
+
+  ⋆IdR≡ : ∀ {w : C .ob} {f : C [ w , x ]}
+        → PathP (λ i → C [ w , p (~ i) ]) (f ⋆⟨ C ⟩ (id')) f
+  ⋆IdR≡ {w} {f} = {!!}
+    where
+      id≡id : PathP (λ i → C [ p i , x' ]) (id') (C .id _)
+      id≡id = symP {A = {!!}} (toPathP {!!})
+
+      f' = subst (C [ w ,_]) p f
+
+      f≡f' : PathP (λ i → C [ w , p i ]) f f'
+      f≡f' = toPathP refl
+
+      fid≡f'id : (f ⋆⟨ C ⟩ (id')) ≡ f' ⋆⟨ C ⟩ (C .id _)
+      fid≡f'id i = f≡f' i ⋆⟨ C ⟩ {!id≡id (~ i)!}
+
+      idf≡f : f' ⋆⟨ C ⟩ (C .id _) ≡ f'
+      idf≡f = C .⋆IdR _
