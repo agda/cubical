@@ -37,12 +37,14 @@ open Functor
 -- Helpful notation
 
 -- action on objects
+infix 30 _⟅_⟆
 _⟅_⟆ : (F : Functor C D)
      → C .ob
      → D .ob
 _⟅_⟆ = F-ob
 
 -- action on morphisms
+infix 30 _⟪_⟫ -- same infix level as on objects since these will never be used in the same context
 _⟪_⟫ : (F : Functor C D)
      → ∀ {x y}
      → C [ x , y ]
@@ -79,6 +81,14 @@ funcComp : ∀ (G : Functor D E) (F : Functor C D) → Functor C E
 
 infixr 30 funcComp
 syntax funcComp G F = G ∘F F
+
+-- reasoning about path connected functors
+πObF : {F F' : Functor C D} → F ≡ F' → (F .F-ob) ≡ (F' .F-ob)
+πObF p i = F-ob (p i)
+
+
+-- composition is associative
+
 -- Results about functors
 
 module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} {F : Functor C D} where
