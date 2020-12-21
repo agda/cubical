@@ -56,10 +56,10 @@ leftInv SliceHom-Σ-Iso = λ x → refl
 -- Precategory definition
 
 SliceCat : Precategory _ _
-ob SliceCat = SliceOb
-Hom[_,_] SliceCat = SliceHom
-id SliceCat (sliceob {x} f) = slicehom (C .id x) (C .⋆IdL _)
-_⋆_ SliceCat {sliceob j} {sliceob k} {sliceob l} (slicehom f p) (slicehom g p') =
+SliceCat .ob = SliceOb
+SliceCat .Hom[_,_] = SliceHom
+SliceCat .id (sliceob {x} f) = slicehom (C .id x) (C .⋆IdL _)
+SliceCat ._⋆_ {sliceob j} {sliceob k} {sliceob l} (slicehom f p) (slicehom g p') =
   slicehom
     (f ⋆⟨ C ⟩ g)
     ( f ⋆⟨ C ⟩ g ⋆⟨ C ⟩ l
@@ -70,19 +70,19 @@ _⋆_ SliceCat {sliceob j} {sliceob k} {sliceob l} (slicehom f p) (slicehom g p'
     ≡⟨ p ⟩
       j
     ∎)
-⋆IdL SliceCat (slicehom S-hom S-comm) =
-  SliceHom-≡-intro (⋆IdL C _) (toPathP (isC .homIsSet _ _ _ _))
-⋆IdR SliceCat (slicehom S-hom S-comm) =
-  SliceHom-≡-intro (⋆IdR C _) (toPathP (isC .homIsSet _ _ _ _))
-⋆Assoc SliceCat f g h =
-  SliceHom-≡-intro (⋆Assoc C _ _ _) (toPathP (isC .homIsSet _ _ _ _))
+SliceCat .⋆IdL (slicehom S-hom S-comm) =
+  SliceHom-≡-intro (⋆IdL C _) (toPathP (isC .isSetHom _ _ _ _))
+SliceCat .⋆IdR (slicehom S-hom S-comm) =
+  SliceHom-≡-intro (⋆IdR C _) (toPathP (isC .isSetHom _ _ _ _))
+SliceCat .⋆Assoc f g h =
+  SliceHom-≡-intro (⋆Assoc C _ _ _) (toPathP (isC .isSetHom _ _ _ _))
 
 
 -- SliceCat is a Category
 
 instance
   SliceIsCat : isCategory SliceCat
-  homIsSet SliceIsCat {a} {b} (slicehom f c₁) (slicehom g c₂) p q = cong isoP p'≡q'
+  SliceIsCat .isSetHom {a} {b} (slicehom f c₁) (slicehom g c₂) p q = cong isoP p'≡q'
     where
       -- paths between SliceHoms are equivalent to the projection paths
       p' : Σ[ p ∈ f ≡ g ] PathP (λ i → (p i) ⋆⟨ C ⟩ (S-arr b) ≡ S-arr a) c₁ c₂
@@ -94,11 +94,11 @@ instance
       B = λ v → v ⋆⟨ C ⟩ (S-arr b) ≡ S-arr a
 
       homIsGroupoidDep : isOfHLevelDep 2 B
-      homIsGroupoidDep = isOfHLevel→isOfHLevelDep 2 (λ v x y → isSet→isGroupoid (isC .homIsSet) _ _ x y)
+      homIsGroupoidDep = isOfHLevel→isOfHLevelDep 2 (λ v x y → isSet→isGroupoid (isC .isSetHom) _ _ x y)
 
       -- we first prove that the projected paths are equal
       p'≡q' : p' ≡ q'
-      p'≡q' = ΣPathP ((isC .homIsSet _ _ _ _) , toPathP (homIsGroupoidDep _ _ _ _ _))
+      p'≡q' = ΣPathP ((isC .isSetHom _ _ _ _) , toPathP (homIsGroupoidDep _ _ _ _ _))
 
       -- and then we can use equivalence to lift these paths up
       -- to actual SliceHom paths
