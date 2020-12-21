@@ -37,9 +37,9 @@ record Precategory ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
     Hom[_,_] : ob → ob → Type ℓ'
     id : ∀ x → Hom[ x , x ]
     _⋆_ : ∀ {x y z} (f : Hom[ x , y ]) (g : Hom[ y , z ]) → Hom[ x , z ]
-    seq-λ : ∀ {x y : ob} (f : Hom[ x , y ]) → (id x) ⋆ f ≡ f
-    seq-ρ : ∀ {x y} (f : Hom[ x , y ]) → f ⋆ (id y) ≡ f
-    seq-α : ∀ {u v w x} (f : Hom[ u , v ]) (g : Hom[ v , w ]) (h : Hom[ w , x ]) → (f ⋆ g) ⋆ h ≡ f ⋆ (g ⋆ h)
+    ⋆IdL : ∀ {x y : ob} (f : Hom[ x , y ]) → (id x) ⋆ f ≡ f
+    ⋆IdR : ∀ {x y} (f : Hom[ x , y ]) → f ⋆ (id y) ≡ f
+    ⋆Assoc : ∀ {u v w x} (f : Hom[ u , v ]) (g : Hom[ v , w ]) (h : Hom[ w , x ]) → (f ⋆ g) ⋆ h ≡ f ⋆ (g ⋆ h)
 
   -- composition: alternative to diagramatic order
   _∘_ : ∀ {x y z} (g : Hom[ y , z ]) (f : Hom[ x , y ]) → Hom[ x , z ]
@@ -73,7 +73,7 @@ syntax comp' C g f = g ∘⟨ C ⟩ f
 
 record isCategory (C : Precategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   field
-    homIsSet : ∀ {x y} → isSet (C [ x , y ])
+    isSetHom : ∀ {x y} → isSet (C [ x , y ])
 
 
 -- Isomorphisms and paths in precategories
@@ -81,13 +81,13 @@ record isCategory (C : Precategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
 record CatIso {C : Precategory ℓ ℓ'} (x y : C .Precategory.ob) : Type ℓ' where
   constructor catiso
   field
-    h : C [ x , y ]
-    h⁻¹ : C [ y , x ]
-    sec : (h⁻¹ ⋆⟨ C ⟩ h) ≡ C .id y
-    ret : h ⋆⟨ C ⟩ h⁻¹ ≡ C .id x
+    mor : C [ x , y ]
+    inv : C [ y , x ]
+    sec : inv ⋆⟨ C ⟩ mor ≡ C .id y
+    ret : mor ⋆⟨ C ⟩ inv ≡ C .id x
 
 pathToIso : {C : Precategory ℓ ℓ'} (x y : C .ob) (p : x ≡ y) → CatIso {C = C} x y
-pathToIso {C = C} x y p = J (λ z _ → CatIso x z) (catiso (C .id x) idx (C .seq-λ idx) (C .seq-λ idx)) p
+pathToIso {C = C} x y p = J (λ z _ → CatIso x z) (catiso (C .id x) idx (C .⋆IdL idx) (C .⋆IdL idx)) p
   where
     idx = C .id x
 
@@ -106,8 +106,15 @@ _^op : Precategory ℓ ℓ' → Precategory ℓ ℓ'
 (C ^op) .Hom[_,_] x y = C .Hom[_,_] y x
 (C ^op) .id = C .id
 (C ^op) ._⋆_ f g = C ._⋆_ g f
-(C ^op) .seq-λ = C .seq-ρ
-(C ^op) .seq-ρ = C .seq-λ
-(C ^op) .seq-α f g h = sym (C .seq-α _ _ _)
+(C ^op) .⋆IdL = C .⋆IdR
+(C ^op) .⋆IdR = C .⋆IdL
+(C ^op) .⋆Assoc f g h = sym (C .⋆Assoc _ _ _)
 
 open isCategory public
+
+
+-- Other useful operations on categories
+
+-- whisker the parallel morphisms g and g' with f
+lPrecatWhisker : {C : Precategory ℓ ℓ'} {x y z : C .ob} (f : C [ x , y ]) (g g' : C [ y , z ]) (p : g ≡ g') → f ⋆⟨ C ⟩ g ≡ f ⋆⟨ C ⟩ g'
+lPrecatWhisker {C = C} f _ _ p = cong (_⋆_ C f) p

@@ -13,6 +13,6 @@ module _ ℓ where
   TYPE .Hom[_,_] A B = A → B
   TYPE .id A  = λ x → x
   TYPE ._⋆_ f g = λ x → g (f x)
-  TYPE .seq-λ f = refl
-  TYPE .seq-ρ f = refl
-  TYPE .seq-α f g h = refl
+  TYPE .⋆IdL f = refl
+  TYPE .⋆IdR f = refl
+  TYPE .⋆Assoc f g h = refl

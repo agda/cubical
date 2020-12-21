@@ -13,8 +13,8 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Sets
 
 module _ (ℓ ℓ' : Level) where
-  PSH : Precategory ℓ ℓ' → Precategory (ℓ-max (ℓ-suc ℓ) ℓ') (ℓ-max (ℓ-suc ℓ) ℓ')
-  PSH C = FUNCTOR (C ^op) (SET ℓ)
+  PreShv : Precategory ℓ ℓ' → Precategory (ℓ-max (ℓ-suc ℓ) ℓ') (ℓ-max (ℓ-suc ℓ) ℓ')
+  PreShv C = FUNCTOR (C ^op) (SET ℓ)
 
 private
   variable
@@ -27,17 +27,17 @@ module Yoneda (C : Precategory ℓ ℓ) ⦃ C-cat : isCategory C ⦄ where
 
   yo : ob → Functor (C ^op) (SET ℓ)
   yo x .F-ob y .fst = C [ y , x ]
-  yo x .F-ob y .snd = C-cat .homIsSet
+  yo x .F-ob y .snd = C-cat .isSetHom
   yo x .F-hom f g = f ⋆⟨ C ⟩ g
-  yo x .F-id i f = seq-λ f i
-  yo x .F-seq f g i h = seq-α g f h i
+  yo x .F-id i f = ⋆IdL f i
+  yo x .F-seq f g i h = ⋆Assoc g f h i
 
-  YO : Functor C (PSH ℓ ℓ C)
+  YO : Functor C (PreShv ℓ ℓ C)
   YO .F-ob = yo
   YO .F-hom f .N-ob z g = g ⋆⟨ C ⟩ f
-  YO .F-hom f .N-hom g i h = seq-α g h f i
-  YO .F-id = makeNatTransPath λ i _ → λ f → seq-ρ f i
-  YO .F-seq f g = makeNatTransPath λ i _ → λ h → seq-α h f g (~ i)
+  YO .F-hom f .N-hom g i h = ⋆Assoc g h f i
+  YO .F-id = makeNatTransPath λ i _ → λ f → ⋆IdR f i
+  YO .F-seq f g = makeNatTransPath λ i _ → λ h → ⋆Assoc h f g (~ i)
 
 
   module _ {x} (F : Functor (C ^op) (SET ℓ)) where
@@ -59,7 +59,7 @@ module Yoneda (C : Precategory ℓ ℓ) ⦃ C-cat : isCategory C ⦄ where
           F .F-hom g (yo-yo-yo a)
             ≡[ i ]⟨ a .N-hom g (~ i) (id x) ⟩
           a .N-hom g i0 (id x)
-            ≡[ i ]⟨ a .N-ob _ (seq-ρ g i) ⟩
+            ≡[ i ]⟨ a .N-ob _ (⋆IdR g i) ⟩
           (a .N-ob _) g
             ∎
 
@@ -73,5 +73,5 @@ module Yoneda (C : Precategory ℓ ℓ) ⦃ C-cat : isCategory C ⦄ where
   isFaithfulYO : isFaithful YO
   isFaithfulYO x y f g p i =
     hcomp
-      (λ j → λ{ (i = i0) → seq-λ f j; (i = i1) → seq-λ g j})
+      (λ j → λ{ (i = i0) → ⋆IdL f j; (i = i1) → ⋆IdL g j})
       (yo-yo-yo _ (p i))
