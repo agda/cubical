@@ -119,51 +119,93 @@ open isCategory public
 lPrecatWhisker : {C : Precategory ℓ ℓ'} {x y z : C .ob} (f : C [ x , y ]) (g g' : C [ y , z ]) (p : g ≡ g') → f ⋆⟨ C ⟩ g ≡ f ⋆⟨ C ⟩ g'
 lPrecatWhisker {C = C} f _ _ p = cong (_⋆_ C f) p
 
+-- whiskering kind of parallel morphisms
+-- lPrecatWhiskerP : {C : Precategory ℓ ℓ'} {x y z y' z' : C .ob} {p : y ≡ y'} {q : z ≡ z'}
+--                 → (f : C [ x , y ]) (g : C [ y , z ]) (g' : C [ y' , z' ])
+--                 → (r : PathP (λ i → C [ p i , q i ]) g g')
+--                 → PathP (λ i → C [ x , q i ]) (f ⋆⟨ C ⟩ g) (f ⋆⟨ C ⟩ g')
+-- lPrecatWhiskerP f r = ?
+
 -- working with equal objects
-module _ {C : Precategory ℓ ℓ'} {x x'} (p : x ≡ x') where
+module _ {C : Precategory ℓ ℓ'} where
   -- id≡ : ∀ {x x'}
   --     → (x ≡ x')
-  id≡ : C [ x , x' ]
-  id≡ = subst (λ v → C [ x , v ]) p (C .id x)
+  idP : ∀ {x x'} {p : x ≡ x'} → C [ x , x' ]
+  idP {x = x} {x'} {p} = subst (λ v → C [ x , v ]) p (C .id x)
 
-  ⋆IdL≡ : ∀ {y : C .ob} {f' : C [ x' , y ]}
-        → PathP (λ i → C [ p i , y ]) (id≡ ⋆⟨ C ⟩ f') f'
-  ⋆IdL≡ {y} {f'} = symP {A = λ i → C [ p (~ i) , y ]} (toPathP (sym (idf'≡idf ∙ idf≡f))) --  compPathP' {A = C .ob} {B = λ a → {!C [ a , y ]!}} {p = refl} (idf'≡idf ∙ idf≡f) f≡f'
-    where
-      idl : (C .id x') ⋆⟨ C ⟩ f' ≡ f'
-      idl = {!!}
-      id≡id : PathP (λ i → C [ x , p (~ i) ]) id≡ (C .id _)
-      id≡id = symP {A = (λ i → C [ x , p i ])} (toPathP refl)
+  -- heterogeneous seq
+  seqP : ∀ {x y y' z} {p : y ≡ y'}
+       → (f : C [ x , y ]) (g : C [ y' , z ])
+       → C [ x , z ]
+  seqP {x = x} {_} {_} {z} {p} f g = f ⋆⟨ C ⟩ (subst (λ a → C [ a , z ]) (sym p) g)
 
-      f = subst (C [_, y ]) (sym p) f'
+  -- also heterogeneous seq, but substituting on the left
+  seqP' : ∀ {x y y' z} {p : y ≡ y'}
+       → (f : C [ x , y ]) (g : C [ y' , z ])
+       → C [ x , z ]
+  seqP' {x = x} {_} {_} {z} {p} f g = subst (λ a → C [ x , a ]) p f ⋆⟨ C ⟩ g
 
-      f≡f' : PathP (λ i → C [ p i , y ]) f f'
-      f≡f' = symP {A = λ i → C [ p (~ i) , y ]} (toPathP refl)
+  -- show that they're equal
+  seqP≡seqP' : ∀ {x y y' z} {p : y ≡ y'}
+             → (f : C [ x , y ]) (g : C [ y' , z ])
+             → seqP {p = p} f g ≡ seqP' {p = p} f g
+  seqP≡seqP' {x = x} {z = z} {p = p} f g i =
+    (toPathP {A = λ i' → C [ x , p i' ]} {f} refl i)
+      ⋆⟨ C ⟩
+    (toPathP {A = λ i' → C [ p (~ i') , z ]} {x = g} (sym refl) (~ i))
 
-      idf'≡idf : id≡ ⋆⟨ C ⟩ f' ≡ (C .id x) ⋆⟨ C ⟩ f
-      idf'≡idf i = id≡id i ⋆⟨ C ⟩ f≡f' (~ i)
+  -- whiskering with heterogenous seq -- (maybe should let z be heterogeneous too)
+  lPrecatWhiskerP : {x y z y' : C .ob} {p : y ≡ y'}
+                  → (f : C [ x , y ]) (g : C [ y , z ]) (g' : C [ y' , z ])
+                  → (r : PathP (λ i → C [ p i , z ]) g g')
+                  → f ⋆⟨ C ⟩ g ≡ seqP {p = p} f g'
+  lPrecatWhiskerP f g g' r = cong (λ v → f ⋆⟨ C ⟩ v) (sym (fromPathP (symP r)))
 
-      idf≡f : (C .id x) ⋆⟨ C ⟩ f ≡ f
-      idf≡f = C .⋆IdL _
+  rPrecatWhiskerP : {x y' y z : C .ob} {p : y' ≡ y}
+                  → (f' : C [ x , y' ]) (f : C [ x , y ]) (g : C [ y , z ])
+                  → (r : PathP (λ i → C [ x , p i ]) f' f)
+                  → f ⋆⟨ C ⟩ g ≡ seqP' {p = p} f' g
+  rPrecatWhiskerP f' f g r = cong (λ v → v ⋆⟨ C ⟩ g) (sym (fromPathP r))
+    -- where
+      
+  
 
-module _ {C : Precategory ℓ ℓ'} {x x'} (p : x ≡ x') where
+  -- ⋆IdL≡ : ∀ {y : C .ob} {f' : C [ x' , y ]}
+  --       → PathP (λ i → C [ p i , y ]) (id≡ ⋆⟨ C ⟩ f') f'
+  -- ⋆IdL≡ {y} {f'} = symP {A = λ i → C [ p (~ i) , y ]} (toPathP (sym (idf'≡idf ∙ idf≡f))) --  compPathP' {A = C .ob} {B = λ a → {!C [ a , y ]!}} {p = refl} (idf'≡idf ∙ idf≡f) f≡f'
+  --   where
+  --     id≡id : PathP (λ i → C [ x , p (~ i) ]) id≡ (C .id _)
+  --     id≡id = symP {A = (λ i → C [ x , p i ])} (toPathP refl)
 
-  id' = id≡ {C = C} (sym p)
+  --     f = subst (C [_, y ]) (sym p) f'
 
-  ⋆IdR≡ : ∀ {w : C .ob} {f : C [ w , x ]}
-        → PathP (λ i → C [ w , p (~ i) ]) (f ⋆⟨ C ⟩ (id')) f
-  ⋆IdR≡ {w} {f} = {!!}
-    where
-      id≡id : PathP (λ i → C [ p i , x' ]) (id') (C .id _)
-      id≡id = symP {A = {!!}} (toPathP {!!})
+  --     f≡f' : PathP (λ i → C [ p i , y ]) f f'
+  --     f≡f' = symP {A = λ i → C [ p (~ i) , y ]} (toPathP refl)
 
-      f' = subst (C [ w ,_]) p f
+  --     idf'≡idf : id≡ ⋆⟨ C ⟩ f' ≡ (C .id x) ⋆⟨ C ⟩ f
+  --     idf'≡idf i = id≡id i ⋆⟨ C ⟩ f≡f' (~ i)
 
-      f≡f' : PathP (λ i → C [ w , p i ]) f f'
-      f≡f' = toPathP refl
+  --     idf≡f : (C .id x) ⋆⟨ C ⟩ f ≡ f
+  --     idf≡f = C .⋆IdL _
 
-      fid≡f'id : (f ⋆⟨ C ⟩ (id')) ≡ f' ⋆⟨ C ⟩ (C .id _)
-      fid≡f'id i = f≡f' i ⋆⟨ C ⟩ {!id≡id (~ i)!}
+-- module _ {C : Precategory ℓ ℓ'} {x x'} (p : x ≡ x') where
 
-      idf≡f : f' ⋆⟨ C ⟩ (C .id _) ≡ f'
-      idf≡f = C .⋆IdR _
+--   id' = id≡ {C = C} (sym p)
+
+--   ⋆IdR≡ : ∀ {w : C .ob} {f : C [ w , x ]}
+--         → PathP (λ i → C [ w , p (~ i) ]) (f ⋆⟨ C ⟩ (id')) f
+--   ⋆IdR≡ {w} {f} = {!!}
+--     where
+--       id≡id : PathP (λ i → C [ p i , x' ]) (id') (C .id _)
+--       id≡id = symP {A = {!!}} (toPathP {!!})
+
+--       f' = subst (C [ w ,_]) p f
+
+--       f≡f' : PathP (λ i → C [ w , p i ]) f f'
+--       f≡f' = toPathP refl
+
+--       fid≡f'id : (f ⋆⟨ C ⟩ (id')) ≡ f' ⋆⟨ C ⟩ (C .id _)
+--       fid≡f'id i = f≡f' i ⋆⟨ C ⟩ {!id≡id (~ i)!}
+
+--       idf≡f : f' ⋆⟨ C ⟩ (C .id _) ≡ f'
+--       idf≡f = C .⋆IdR _

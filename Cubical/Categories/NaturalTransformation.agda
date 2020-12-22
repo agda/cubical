@@ -5,6 +5,7 @@ module Cubical.Categories.NaturalTransformation where
 open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Commutativity
 
 private
   variable
@@ -72,23 +73,73 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
   syntax seqTrans α β = α ●ᵛ β
 
 
-  seqTrans' : {F G G' H : Functor C D} → {G ≡ G'}
+  -- vertically sequence natural transformations whose
+  -- common functor is not definitional equal
+  seqTransP : {F G G' H : Functor C D} → {G ≡ G'}
             → (α : NatTrans F G) (β : NatTrans G' H)
             → NatTrans F H
-  seqTrans' {F} {G} {G'} {H} {p} α β
-    = record { N-ob = λ x → α ⟦ x ⟧ ⋆ᴰ id' ⋆ᴰ β ⟦ x ⟧
-             ; N-hom = λ f i → {!!} }
+  seqTransP {F} {G} {G'} {H} {p} α β .N-ob x
+    -- sequence morphisms with non-judgementally equal (co)domain
+    = seqP {C = D} {p = Gx≡G'x} (α ⟦ x ⟧) (β ⟦ x ⟧)
     where
       Gx≡G'x : ∀ {x} → G ⟅ x ⟆ ≡ G' ⟅ x ⟆
       Gx≡G'x {x} i = F-ob (p i) x
+  seqTransP {F} {G} {G'} {H} {p} α β .N-hom {x = x} {y} f
+    -- compose the two commuting squares
+    -- 1. α's commuting square
+    -- 2. β's commuting square, but extended to G since β is only G' ≡> H
+    = compSq {C = D} (α .N-hom f) βSq
+    where
+      -- functor equality implies equality of actions on objects and morphisms
+      Gx≡G'x : G ⟅ x ⟆ ≡ G' ⟅ x ⟆
+      Gx≡G'x i = F-ob (p i) x
 
-      id' : ∀ {x} → D [ G ⟅ x ⟆ , G' ⟅ x ⟆ ]
-      id' {x} = subst (λ v → D [ G ⟅ x ⟆ , v ]) Gx≡G'x (D .id _)
+      Gy≡G'y : G ⟅ y ⟆ ≡ G' ⟅ y ⟆
+      Gy≡G'y i = F-ob (p i) y
 
-      sq : ∀ {x y}
-         → (f : C [ x , y ])
-         → id' ⋆ᴰ (G' ⟪ f ⟫) ≡ G ⟪ f ⟫ ⋆ᴰ id'
-      sq f = ?
+      Gf≡G'f : PathP (λ i → D [ Gx≡G'x i , Gy≡G'y i ]) (G ⟪ f ⟫) (G' ⟪ f ⟫)
+      Gf≡G'f i = p i ⟪ f ⟫
+
+      -- components of β extended out to Gx and Gy respectively
+      βx' = subst (λ a → D [ a , H ⟅ x ⟆ ]) (sym Gx≡G'x) (β ⟦ x ⟧)
+      βy' = subst (λ a → D [ a , H ⟅ y ⟆ ]) (sym Gy≡G'y) (β ⟦ y ⟧)
+
+      -- extensions are equal to originals
+      βy'≡βy : PathP (λ i → D [ Gy≡G'y i , H ⟅ y ⟆ ]) βy' (β ⟦ y ⟧)
+      βy'≡βy = symP (toPathP {A = λ i → D [ Gy≡G'y (~ i) , H ⟅ y ⟆ ]} refl)
+
+      βx≡βx' : PathP (λ i → D [ Gx≡G'x (~ i) , H ⟅ x ⟆ ]) (β ⟦ x ⟧) βx'
+      βx≡βx' = toPathP refl
+
+      -- left wall of square
+      left : PathP (λ i → D [ Gx≡G'x i , H ⟅ y ⟆ ]) (G ⟪ f ⟫ ⋆⟨ D ⟩ βy') (G' ⟪ f ⟫ ⋆⟨ D ⟩ β ⟦ y ⟧)
+      left i = Gf≡G'f i ⋆⟨ D ⟩ βy'≡βy i
+
+      -- right wall of square
+      right : PathP (λ i → D [ Gx≡G'x (~ i) , H ⟅ y ⟆ ]) (β ⟦ x ⟧ ⋆⟨ D ⟩ H ⟪ f ⟫) (βx' ⋆⟨ D ⟩ H ⟪ f ⟫)
+      right i = βx≡βx' i ⋆⟨ D ⟩ refl {x = H ⟪ f ⟫} i
+
+      -- putting it all together
+      βSq : G ⟪ f ⟫ ⋆⟨ D ⟩ βy' ≡ βx' ⋆⟨ D ⟩ H ⟪ f ⟫
+      βSq i = comp (λ k → D [ Gx≡G'x (~ k) , H ⟅ y ⟆ ])
+                   (λ j → λ { (i = i0) → left (~ j)
+                            ; (i = i1) → right j })
+                   (β .N-hom f i)
+
+
+    --   Gf≡G'f : ∀ {x y} {f : C [ x , y ]}
+    --          → PathP (λ i → D [ Gx≡G'x i , Gy≡G'y i ]) (G ⟪ f ⟫) (G' ⟪ f ⟫)
+    --   Gf≡G'f = {!!}
+
+    --   id' : ∀ {x} → D [ G ⟅ x ⟆ , G' ⟅ x ⟆ ]
+    --   id' {x} = idP {C = D} {x = G ⟅ x ⟆} {p = Gx≡G'x}
+
+    --   idG'f : ∀ {f}
+
+    --   sq : ∀ {x y}
+    --      → (f : C [ x , y ])
+    --      → id' ⋆ᴰ (G' ⟪ f ⟫) ≡ G ⟪ f ⟫ ⋆ᴰ id'
+    --   sq f = {!!}
 
   -- seqTrans' {_} {G} {G'} {_} {p} α β .N-ob x = α ⟦ x ⟧ ⋆ᴰ id' ⋆ᴰ β ⟦ x ⟧
   --   where
