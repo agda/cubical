@@ -141,3 +141,15 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} {F : Functor 
         g = F ⟪ f ⟫
         g⁻¹ : D [ y' , x' ]
         g⁻¹ = F ⟪ f⁻¹ ⟫
+
+-- working with equal functors
+-- module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} {F F' : Functor C D} {p : F ≡ F'} where
+--   F-ob≡F'-ob : ∀ {x : C .ob}
+--              → F ⟅ x ⟆ ≡ F' ⟅ x ⟆
+--              -- → _≡_ (F .F-ob x) (F' .F-ob x) -- had to do this cause parser wasn't happy? TODO: find out why
+--   F-ob≡F'-ob {x} = cong (λ G → F-ob G x) p
+
+
+--   F-hom≡F'-hom : ∀ {x y} {f : C [ x , y ]}
+--                → F ⟪ f ⟫ ≡ F' ⟪ f ⟫
+--   F-
