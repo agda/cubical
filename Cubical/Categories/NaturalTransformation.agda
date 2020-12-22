@@ -75,7 +75,7 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
 
   -- vertically sequence natural transformations whose
   -- common functor is not definitional equal
-  seqTransP : {F G G' H : Functor C D} → {G ≡ G'}
+  seqTransP : {F G G' H : Functor C D} {p : G ≡ G'}
             → (α : NatTrans F G) (β : NatTrans G' H)
             → NatTrans F H
   seqTransP {F} {G} {G'} {H} {p} α β .N-ob x
@@ -126,30 +126,12 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
                             ; (i = i1) → right j })
                    (β .N-hom f i)
 
-
-    --   Gf≡G'f : ∀ {x y} {f : C [ x , y ]}
-    --          → PathP (λ i → D [ Gx≡G'x i , Gy≡G'y i ]) (G ⟪ f ⟫) (G' ⟪ f ⟫)
-    --   Gf≡G'f = {!!}
-
-    --   id' : ∀ {x} → D [ G ⟅ x ⟆ , G' ⟅ x ⟆ ]
-    --   id' {x} = idP {C = D} {x = G ⟅ x ⟆} {p = Gx≡G'x}
-
-    --   idG'f : ∀ {f}
-
-    --   sq : ∀ {x y}
-    --      → (f : C [ x , y ])
-    --      → id' ⋆ᴰ (G' ⟪ f ⟫) ≡ G ⟪ f ⟫ ⋆ᴰ id'
-    --   sq f = {!!}
-
-  -- seqTrans' {_} {G} {G'} {_} {p} α β .N-ob x = α ⟦ x ⟧ ⋆ᴰ id' ⋆ᴰ β ⟦ x ⟧
-  --   where
-  --     Gx≡G'x : G ⟅ x ⟆ ≡ G' ⟅ x ⟆
-  --     Gx≡G'x i = F-ob (p i) x
-
-  --     id' : D [ G ⟅ x ⟆ , G' ⟅ x ⟆ ]
-  --     id' = subst (λ v → D [ G ⟅ x ⟆ , v ]) Gx≡G'x (D .id _)
-  -- seqTrans' {F} {G} {G'} {H} α β .N-hom f = {!!}
-    
+  -- hmm are these judgementally equal when refl?
+  -- nope
+  -- does that matter? is there way to make it judgementally equal?
+  -- hmm : {F G H : Functor C D} {α : NatTrans F G} {β : NatTrans G H}
+  --     → seqTrans α β ≡ seqTransP {p = refl} α β
+  -- hmm = {!refl!}
 
   module _  ⦃ D-category : isCategory D ⦄ {F G : Functor C D} {α β : NatTrans F G} where
     open Precategory

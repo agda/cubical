@@ -37,6 +37,7 @@ record Precategory ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
     Hom[_,_] : ob → ob → Type ℓ'
     id : ∀ x → Hom[ x , x ]
     _⋆_ : ∀ {x y z} (f : Hom[ x , y ]) (g : Hom[ y , z ]) → Hom[ x , z ]
+    -- TODO: change these to implicit argument
     ⋆IdL : ∀ {x y : ob} (f : Hom[ x , y ]) → (id x) ⋆ f ≡ f
     ⋆IdR : ∀ {x y} (f : Hom[ x , y ]) → f ⋆ (id y) ≡ f
     ⋆Assoc : ∀ {u v w x} (f : Hom[ u , v ]) (g : Hom[ v , w ]) (h : Hom[ w , x ]) → (f ⋆ g) ⋆ h ≡ f ⋆ (g ⋆ h)
@@ -66,7 +67,6 @@ comp' = _∘_
 
 infixr 16 comp'
 syntax comp' C g f = g ∘⟨ C ⟩ f
-
 
 
 -- Categories
@@ -110,6 +110,10 @@ _^op : Precategory ℓ ℓ' → Precategory ℓ ℓ'
 (C ^op) .⋆IdR = C .⋆IdL
 (C ^op) .⋆Assoc f g h = sym (C .⋆Assoc _ _ _)
 
+-- opposite of opposite is cool
+opop : ∀ {C : Precategory ℓ ℓ'} → (C ^op) ^op ≡ C
+opop = refl
+
 open isCategory public
 
 -- opposite of opposite is definitionally equal to itself
@@ -121,13 +125,6 @@ involutiveOp = refl
 -- whisker the parallel morphisms g and g' with f
 lPrecatWhisker : {C : Precategory ℓ ℓ'} {x y z : C .ob} (f : C [ x , y ]) (g g' : C [ y , z ]) (p : g ≡ g') → f ⋆⟨ C ⟩ g ≡ f ⋆⟨ C ⟩ g'
 lPrecatWhisker {C = C} f _ _ p = cong (_⋆_ C f) p
-
--- whiskering kind of parallel morphisms
--- lPrecatWhiskerP : {C : Precategory ℓ ℓ'} {x y z y' z' : C .ob} {p : y ≡ y'} {q : z ≡ z'}
---                 → (f : C [ x , y ]) (g : C [ y , z ]) (g' : C [ y' , z' ])
---                 → (r : PathP (λ i → C [ p i , q i ]) g g')
---                 → PathP (λ i → C [ x , q i ]) (f ⋆⟨ C ⟩ g) (f ⋆⟨ C ⟩ g')
--- lPrecatWhiskerP f r = ?
 
 -- working with equal objects
 module _ {C : Precategory ℓ ℓ'} where
@@ -169,9 +166,6 @@ module _ {C : Precategory ℓ ℓ'} where
                   → (r : PathP (λ i → C [ x , p i ]) f' f)
                   → f ⋆⟨ C ⟩ g ≡ seqP' {p = p} f' g
   rPrecatWhiskerP f' f g r = cong (λ v → v ⋆⟨ C ⟩ g) (sym (fromPathP r))
-    -- where
-      
-  
 
   -- ⋆IdL≡ : ∀ {y : C .ob} {f' : C [ x' , y ]}
   --       → PathP (λ i → C [ p i , y ]) (id≡ ⋆⟨ C ⟩ f') f'
@@ -191,24 +185,3 @@ module _ {C : Precategory ℓ ℓ'} where
   --     idf≡f : (C .id x) ⋆⟨ C ⟩ f ≡ f
   --     idf≡f = C .⋆IdL _
 
--- module _ {C : Precategory ℓ ℓ'} {x x'} (p : x ≡ x') where
-
---   id' = id≡ {C = C} (sym p)
-
---   ⋆IdR≡ : ∀ {w : C .ob} {f : C [ w , x ]}
---         → PathP (λ i → C [ w , p (~ i) ]) (f ⋆⟨ C ⟩ (id')) f
---   ⋆IdR≡ {w} {f} = {!!}
---     where
---       id≡id : PathP (λ i → C [ p i , x' ]) (id') (C .id _)
---       id≡id = symP {A = {!!}} (toPathP {!!})
-
---       f' = subst (C [ w ,_]) p f
-
---       f≡f' : PathP (λ i → C [ w , p i ]) f f'
---       f≡f' = toPathP refl
-
---       fid≡f'id : (f ⋆⟨ C ⟩ (id')) ≡ f' ⋆⟨ C ⟩ (C .id _)
---       fid≡f'id i = f≡f' i ⋆⟨ C ⟩ {!id≡id (~ i)!}
-
---       idf≡f : f' ⋆⟨ C ⟩ (C .id _) ≡ f'
---       idf≡f = C .⋆IdR _

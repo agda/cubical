@@ -82,12 +82,7 @@ funcComp : ∀ (G : Functor D E) (F : Functor C D) → Functor C E
 infixr 30 funcComp
 syntax funcComp G F = G ∘F F
 
--- reasoning about path connected functors
-πObF : {F F' : Functor C D} → F ≡ F' → (F .F-ob) ≡ (F' .F-ob)
-πObF p i = F-ob (p i)
-
-
--- composition is associative
+-- TODO: composition is associative
 
 -- Results about functors
 
@@ -142,14 +137,3 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} {F : Functor 
         g⁻¹ : D [ y' , x' ]
         g⁻¹ = F ⟪ f⁻¹ ⟫
 
--- working with equal functors
--- module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} {F F' : Functor C D} {p : F ≡ F'} where
---   F-ob≡F'-ob : ∀ {x : C .ob}
---              → F ⟅ x ⟆ ≡ F' ⟅ x ⟆
---              -- → _≡_ (F .F-ob x) (F' .F-ob x) -- had to do this cause parser wasn't happy? TODO: find out why
---   F-ob≡F'-ob {x} = cong (λ G → F-ob G x) p
-
-
---   F-hom≡F'-hom : ∀ {x y} {f : C [ x , y ]}
---                → F ⟪ f ⟫ ≡ F' ⟪ f ⟫
---   F-
