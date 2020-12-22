@@ -12,8 +12,11 @@ module Cubical.Categories.Constructions.Slice {ℓ ℓ' : Level} (C : Precategor
 open import Cubical.Data.Sigma
 
 
+-- just a helper to prevent redundency
 TypeC : Type (ℓ-suc (ℓ-max ℓ ℓ'))
 TypeC = Type (ℓ-max ℓ ℓ')
+
+-- Components of a slice category
 
 record SliceOb : TypeC where
   constructor sliceob
@@ -32,7 +35,9 @@ record SliceHom (a b : SliceOb) : Type ℓ' where
 
 open SliceHom
 
--- intro and elim for working with SliceHom equalities
+-- Helpers for working with equality
+
+-- intro and elim for working with SliceHom equalities (is there a better way to do this?)
 SliceHom-≡-intro : ∀ {a b} {f g} {c₁} {c₂}
                 → (p : f ≡ g)
                 → PathP (λ i → (p i) ⋆⟨ C ⟩ (S-arr b) ≡ S-arr a) c₁ c₂
@@ -47,10 +52,10 @@ SliceHom-≡-elim r = (λ i → S-hom (r i)) , λ i → S-comm (r i)
 -- SliceHom is isomorphic to the Sigma type with the same components
 SliceHom-Σ-Iso : ∀ {a b}
             → Iso (SliceHom a b) (Σ[ h ∈ C [ S-ob a , S-ob b ] ] h ⋆⟨ C ⟩ (S-arr b) ≡ S-arr a)
-fun SliceHom-Σ-Iso (slicehom h c) = h , c
-inv SliceHom-Σ-Iso (h , c) = slicehom h c
-rightInv SliceHom-Σ-Iso = λ x → refl
-leftInv SliceHom-Σ-Iso = λ x → refl
+SliceHom-Σ-Iso .fun (slicehom h c) = h , c
+SliceHom-Σ-Iso .inv (h , c) = slicehom h c
+SliceHom-Σ-Iso .rightInv = λ x → refl
+SliceHom-Σ-Iso .leftInv = λ x → refl
 
 
 -- Precategory definition
@@ -93,6 +98,7 @@ instance
       -- we want all paths between (dependent) paths of this type to be equal
       B = λ v → v ⋆⟨ C ⟩ (S-arr b) ≡ S-arr a
 
+      -- need the groupoidness for dependent paths
       homIsGroupoidDep : isOfHLevelDep 2 B
       homIsGroupoidDep = isOfHLevel→isOfHLevelDep 2 (λ v x y → isSet→isGroupoid (isC .isSetHom) _ _ x y)
 
