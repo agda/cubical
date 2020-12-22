@@ -31,7 +31,7 @@ private
 -- Precategories
 
 record Precategory ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
-  no-eta-equality
+  -- no-eta-equality ; NOTE: need eta equality for `opop`
   field
     ob : Type ℓ
     Hom[_,_] : ob → ob → Type ℓ'
@@ -112,6 +112,9 @@ _^op : Precategory ℓ ℓ' → Precategory ℓ ℓ'
 
 open isCategory public
 
+-- opposite of opposite is definitionally equal to itself
+involutiveOp : ∀ {C : Precategory ℓ ℓ'} → (C ^op) ^op ≡ C
+involutiveOp = refl
 
 -- Other useful operations on categories
 
