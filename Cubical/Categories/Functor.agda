@@ -117,17 +117,17 @@ F-assoc {F = F} {G} {H} i .F-seq f g =  congAssoc (G ⟪_⟫) (H ⟪_⟫) (F .F-
 module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} {F : Functor C D} where
 
   -- the identity is the identity
-  𝟙IdL : F ∘F 𝟙⟨ C ⟩ ≡ F
-  𝟙IdL i .F-ob x = F ⟅ x ⟆
-  𝟙IdL i .F-hom f = F ⟪ f ⟫
-  𝟙IdL i .F-id {x} = lUnit (F .F-id) (~ i)
-  𝟙IdL i .F-seq f g = lUnit (F .F-seq f g) (~ i)
+  F-lUnit : F ∘F 𝟙⟨ C ⟩ ≡ F
+  F-lUnit i .F-ob x = F ⟅ x ⟆
+  F-lUnit i .F-hom f = F ⟪ f ⟫
+  F-lUnit i .F-id {x} = lUnit (F .F-id) (~ i)
+  F-lUnit i .F-seq f g = lUnit (F .F-seq f g) (~ i)
 
-  𝟙IdR : 𝟙⟨ D ⟩ ∘F F  ≡ F
-  𝟙IdR i .F-ob x = F ⟅ x ⟆
-  𝟙IdR i .F-hom f = F ⟪ f ⟫
-  𝟙IdR i .F-id {x} = rUnit (F .F-id) (~ i)
-  𝟙IdR i .F-seq f g = rUnit (F .F-seq f g) (~ i)
+  F-rUnit : 𝟙⟨ D ⟩ ∘F F  ≡ F
+  F-rUnit i .F-ob x = F ⟅ x ⟆
+  F-rUnit i .F-hom f = F ⟪ f ⟫
+  F-rUnit i .F-id {x} = rUnit (F .F-id) (~ i)
+  F-rUnit i .F-seq f g = rUnit (F .F-seq f g) (~ i)
 
   -- functors preserve commutative diagrams (specificallysqures here)
   preserveCommF : ∀ {x y z w} {f : C [ x , y ]} {g : C [ y , w ]} {h : C [ x , z ]} {k : C [ z , w ]}
