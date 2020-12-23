@@ -3,6 +3,7 @@
 module Cubical.Categories.Functor where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.GroupoidLaws using (lUnit; rUnit; assoc; cong-∙)
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 
@@ -25,8 +26,9 @@ record Functor (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') : Type 
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
     ℓE ℓE' : Level
+    B : Precategory ℓC ℓC'
     C : Precategory ℓC ℓC'
     D : Precategory ℓD ℓD'
     E : Precategory ℓE ℓE'
@@ -67,26 +69,65 @@ funcComp : ∀ (G : Functor D E) (F : Functor C D) → Functor C E
 (funcComp {D = D} {E = E} {C = C} G F) .F-id {c}
   = (G ⟪ F ⟪ C .id c ⟫ ⟫)
   ≡⟨ cong (G ⟪_⟫) (F .F-id) ⟩
-    (G ⟪ D .id (F ⟅ c ⟆) ⟫)
-  ≡⟨ G .F-id ⟩
-    E .id (G ⟅ F ⟅ c ⟆ ⟆)
-  ∎
+    G .F-id
+  --   (G ⟪ D .id (F ⟅ c ⟆) ⟫) -- deleted this cause the extra refl composition was annoying
+  -- ≡⟨ G .F-id ⟩
+  --   E .id (G ⟅ F ⟅ c ⟆ ⟆)
+  -- ∎
 (funcComp {D = D} {E = E} {C = C} G F) .F-seq {x} {y} {z} f g
   = (G ⟪ F ⟪ f ⋆⟨ C ⟩ g ⟫ ⟫)
   ≡⟨ cong (G ⟪_⟫) (F .F-seq _ _) ⟩
-    (G ⟪ (F ⟪ f ⟫) ⋆⟨ D ⟩ (F ⟪ g ⟫) ⟫)
-  ≡⟨ G .F-seq _ _ ⟩
-    (G ⟪ F ⟪ f ⟫ ⟫) ⋆⟨ E ⟩ (G ⟪ F ⟪ g ⟫ ⟫)
-  ∎
+    G .F-seq _ _
+  --   (G ⟪ (F ⟪ f ⟫) ⋆⟨ D ⟩ (F ⟪ g ⟫) ⟫) -- deleted for same reason as above
+  -- ≡⟨ G .F-seq _ _ ⟩
+  --   (G ⟪ F ⟪ f ⟫ ⟫) ⋆⟨ E ⟩ (G ⟪ F ⟪ g ⟫ ⟫)
+  -- ∎
 
 infixr 30 funcComp
 syntax funcComp G F = G ∘F F
 
--- TODO: composition is associative
+infixr 15 _◍_
+-- is there actual function composition in the library somewhere?
+_◍_ : ∀ {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''} → (Y → Z) → (X → Y) → (X → Z)
+(g ◍ f) x = g (f x)
+
+congAssoc : ∀ {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''} (g : X → Y) (h : Y → Z) {x x' : X} {y : Y} {z : Z}
+          → (p : x ≡ x') (q : g x' ≡ y) (r : h y ≡ z)
+          → cong (h ◍ g) p ∙ (cong h q ∙ r) ≡ cong h (cong g p ∙ q) ∙ r
+congAssoc g h p q r
+  = cong (h ◍ g) p ∙ (cong h q ∙ r)
+  ≡⟨ assoc _ _ _ ⟩
+    ((cong (h ◍ g) p) ∙ (cong h q)) ∙ r
+  ≡⟨ refl ⟩
+    (cong h (cong g p) ∙ (cong h q)) ∙ r
+  ≡⟨ cong (_∙ r) (sym (cong-∙ h _ _)) ⟩
+    cong h (cong g p ∙ q) ∙ r
+  ∎
+
+-- composition is associative
+F-assoc : {F : Functor B C} {G : Functor C D} {H : Functor D E}
+        → H ∘F (G ∘F F) ≡ (H ∘F G) ∘F F
+F-assoc {F = F} {G} {H} i .F-ob x = H ⟅ G ⟅ F ⟅ x ⟆ ⟆ ⟆
+F-assoc {F = F} {G} {H} i .F-hom f = H ⟪ G ⟪ F ⟪ f ⟫ ⟫ ⟫
+F-assoc {F = F} {G} {H} i .F-id {x} =  congAssoc (G ⟪_⟫) (H ⟪_⟫) (F .F-id {x}) (G .F-id {F ⟅ x ⟆}) (H .F-id) (~ i)
+F-assoc {F = F} {G} {H} i .F-seq f g =  congAssoc (G ⟪_⟫) (H ⟪_⟫) (F .F-seq f g) (G .F-seq _ _) (H .F-seq _ _) (~ i)
 
 -- Results about functors
 
 module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} {F : Functor C D} where
+
+  -- the identity is the identity
+  𝟙IdL : F ∘F 𝟙⟨ C ⟩ ≡ F
+  𝟙IdL i .F-ob x = F ⟅ x ⟆
+  𝟙IdL i .F-hom f = F ⟪ f ⟫
+  𝟙IdL i .F-id {x} = lUnit (F .F-id) (~ i)
+  𝟙IdL i .F-seq f g = lUnit (F .F-seq f g) (~ i)
+
+  𝟙IdR : 𝟙⟨ D ⟩ ∘F F  ≡ F
+  𝟙IdR i .F-ob x = F ⟅ x ⟆
+  𝟙IdR i .F-hom f = F ⟪ f ⟫
+  𝟙IdR i .F-id {x} = rUnit (F .F-id) (~ i)
+  𝟙IdR i .F-seq f g = rUnit (F .F-seq f g) (~ i)
 
   -- functors preserve commutative diagrams (specificallysqures here)
   preserveCommF : ∀ {x y z w} {f : C [ x , y ]} {g : C [ y , w ]} {h : C [ x , z ]} {k : C [ z , w ]}
