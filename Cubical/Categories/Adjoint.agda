@@ -51,7 +51,12 @@ record isAdjoint {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} {F : 
     -- counit
     ε : (funcComp F G) ⇒ 𝟙⟨ D ⟩
     -- triangle identities
-    Δ₁ : (F ∘ʳ η) ●ᵛ (ε ∘ˡ F) ≡ 1[ F ]
+    Δ₁ : PathP (λ i → NatTrans (F-lUnit {F = F} i) (F-rUnit {F = F} i))
+               (seqTransP {p = F-assoc} (F ∘ʳ η) (ε ∘ˡ F))
+               (1[ F ])
+    Δ₂ : PathP (λ i → NatTrans (F-rUnit {F = G} i) (F-lUnit {F = G} i))
+               (seqTransP {p = sym F-assoc} (η ∘ˡ G) (G ∘ʳ ε))
+               (1[ G ])
 
 
 open isAdjoint
