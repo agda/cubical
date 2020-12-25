@@ -145,6 +145,26 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
         rem : PathP (λ i → (F .F-hom f) ⋆ᴰ (p i _) ≡ (p i _) ⋆ᴰ (G .F-hom f)) (α .N-hom f) (β .N-hom f)
         rem = toPathP (D-category .isSetHom _ _ _ _)
 
+  module _  ⦃ D-category : isCategory D ⦄ {F F' G G' : Functor C D}
+            {α : NatTrans F G}
+            {β : NatTrans F' G'} where
+    open Precategory
+    open Functor
+    open NatTrans
+    makeNatTransPathP : ∀ (p : F ≡ F') (q : G ≡ G')
+                      → PathP (λ i → (x : C .ob) → D [ (p i) .F-ob x , (q i) .F-ob x ]) (α .N-ob) (β .N-ob)
+                      → PathP (λ i → NatTrans (p i) (q i)) α β
+    makeNatTransPathP p q P i .N-ob = P i
+    makeNatTransPathP p q P i .N-hom f = rem i
+      where
+        rem : PathP (λ i → ((p i) .F-hom f) ⋆ᴰ (P i _) ≡ (P i _) ⋆ᴰ ((q i) .F-hom f)) (α .N-hom f) (β .N-hom f)
+        rem = toPathP (D-category .isSetHom _ _ _ _)
+    -- makeNatTransPathP p i .N-ob = p i
+    -- makeNatTransPathP p i .N-hom f = rem i
+    --   where
+    --     rem : PathP (λ i → (F .F-hom f) ⋆ᴰ (p i _) ≡ (p i _) ⋆ᴰ (G .F-hom f)) (α .N-hom f) (β .N-hom f)
+    --     rem = toPathP (D-category .isSetHom _ _ _ _)
+
 private
   variable
     ℓA ℓA' ℓB ℓB' : Level
