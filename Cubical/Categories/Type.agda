@@ -5,12 +5,14 @@ module Cubical.Categories.Type where
 open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category
 
+open Precategory
+
 module _ ℓ where
   TYPE : Precategory (ℓ-suc ℓ) ℓ
   TYPE .ob = Type ℓ
-  TYPE .hom A B = A → B
-  TYPE .idn A  = λ x → x
-  TYPE .seq f g = λ x → g (f x)
-  TYPE .seq-λ f = refl
-  TYPE .seq-ρ f = refl
-  TYPE .seq-α f g h = refl
+  TYPE .Hom[_,_] A B = A → B
+  TYPE .id A  = λ x → x
+  TYPE ._⋆_ f g = λ x → g (f x)
+  TYPE .⋆IdL f = refl
+  TYPE .⋆IdR f = refl
+  TYPE .⋆Assoc f g h = refl
