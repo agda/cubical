@@ -120,16 +120,17 @@ open isCategory public
 involutiveOp : ∀ {C : Precategory ℓ ℓ'} → (C ^op) ^op ≡ C
 involutiveOp = refl
 
--- Other useful operations on categories
-
--- whisker the parallel morphisms g and g' with f
-lPrecatWhisker : {C : Precategory ℓ ℓ'} {x y z : C .ob} (f : C [ x , y ]) (g g' : C [ y , z ]) (p : g ≡ g') → f ⋆⟨ C ⟩ g ≡ f ⋆⟨ C ⟩ g'
-lPrecatWhisker {C = C} f _ _ p = cong (_⋆_ C f) p
-
--- working with equal objects
 module _ {C : Precategory ℓ ℓ'} where
-  -- id≡ : ∀ {x x'}
-  --     → (x ≡ x')
+  -- Other useful operations on categories
+
+  -- whisker the parallel morphisms g and g' with f
+  lPrecatWhisker : {x y z : C .ob} (f : C [ x , y ]) (g g' : C [ y , z ]) (p : g ≡ g') → f ⋆⟨ C ⟩ g ≡ f ⋆⟨ C ⟩ g'
+  lPrecatWhisker f _ _ p = cong (_⋆_ C f) p
+
+  rPrecatWhisker : {x y z : C .ob} (f f' : C [ x , y ]) (g : C [ y , z ]) (p : f ≡ f') → f ⋆⟨ C ⟩ g ≡ f' ⋆⟨ C ⟩ g
+  rPrecatWhisker _ _ g p = cong (λ v → v ⋆⟨ C ⟩ g) p
+
+  -- working with equal objects
   idP : ∀ {x x'} {p : x ≡ x'} → C [ x , x' ]
   idP {x = x} {x'} {p} = subst (λ v → C [ x , v ]) p (C .id x)
 
