@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Commutativity
+open import Cubical.Categories.Morphism
 
 private
   variable
@@ -17,10 +18,10 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
   _⋆ᴰ_ : ∀ {x y z} (f : D [ x , y ]) (g : D [ y , z ]) → D [ x , z ]
   f ⋆ᴰ g = f ⋆⟨ D ⟩ g
 
+  open Precategory
+  open Functor
 
   record NatTrans (F G : Functor C D) : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
-    open Precategory
-    open Functor
 
     field
       -- components of the natural transformation
@@ -28,12 +29,21 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
       -- naturality condition
       N-hom : {x y : C .ob} (f : C [ x , y ]) → (F .F-hom f) ⋆ᴰ (N-ob y) ≡ (N-ob x) ⋆ᴰ (G .F-hom f)
 
-  open Precategory
-  open Functor
+  record NatIso (F G : Functor C D): Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
+    field
+      trans : NatTrans F G
+    open NatTrans trans
+
+    field
+      iso : ∀ (x : C .ob) → IsIso {C = D} (N-ob x)
+
   open NatTrans
 
   infix 10 NatTrans
   syntax NatTrans F G = F ⇒ G
+
+  infix 9 NatIso
+  syntax NatIso F G = F ≅ᶜ G -- c superscript to indicate that this is in the context of categories
 
   -- component of a natural transformation
   infix 30 _⟦_⟧
@@ -183,7 +193,6 @@ module _ {B : Precategory ℓB ℓB'} {C : Precategory ℓC ℓC'} {D : Precateg
        → NatTrans (K ∘F G) (K ∘F H)
   (_∘ʳ_ K {G} {H} β) .N-ob x = K ⟪ β ⟦ x ⟧ ⟫
   (_∘ʳ_ K {G} {H} β) .N-hom f = preserveCommF {C = C} {D} {K} (β .N-hom f)
-
 
 
 module _ (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') ⦃ _ : isCategory D ⦄ where

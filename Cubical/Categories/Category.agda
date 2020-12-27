@@ -160,7 +160,7 @@ module _ {C : Precategory ℓ ℓ'} where
              → (f : C [ x , y ]) (g : C [ y , z ])
              → seqP {p = refl} f g ≡ f ⋆⟨ C ⟩ g
   seqP≡seq {y = y} {z} f g i = f ⋆⟨ C ⟩ toPathP {A = λ _ → C [ y , z ]} {x = g} refl (~ i)
-  
+
 
   -- whiskering with heterogenous seq -- (maybe should let z be heterogeneous too)
   lPrecatWhiskerP : {x y z y' : C .ob} {p : y ≡ y'}

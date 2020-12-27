@@ -10,7 +10,7 @@ private
   variable
     ℓ ℓ' : Level
 
-module MorphTypes (C : Precategory ℓ ℓ') where
+module _ {C : Precategory ℓ ℓ'} where
   open Precategory C
   private
     variable
