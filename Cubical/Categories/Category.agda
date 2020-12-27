@@ -160,7 +160,6 @@ module _ {C : Precategory ℓ ℓ'} where
              → (f : C [ x , y ]) (g : C [ y , z ])
              → seqP {p = refl} f g ≡ f ⋆⟨ C ⟩ g
   seqP≡seq {y = y} {z} f g i = f ⋆⟨ C ⟩ toPathP {A = λ _ → C [ y , z ]} {x = g} refl (~ i)
-  
 
   -- whiskering with heterogenous seq -- (maybe should let z be heterogeneous too)
   lPrecatWhiskerP : {x y z y' : C .ob} {p : y ≡ y'}
@@ -174,22 +173,3 @@ module _ {C : Precategory ℓ ℓ'} where
                   → (r : PathP (λ i → C [ x , p i ]) f' f)
                   → f ⋆⟨ C ⟩ g ≡ seqP' {p = p} f' g
   rPrecatWhiskerP f' f g r = cong (λ v → v ⋆⟨ C ⟩ g) (sym (fromPathP r))
-
-  -- ⋆IdL≡ : ∀ {y : C .ob} {f' : C [ x' , y ]}
-  --       → PathP (λ i → C [ p i , y ]) (id≡ ⋆⟨ C ⟩ f') f'
-  -- ⋆IdL≡ {y} {f'} = symP {A = λ i → C [ p (~ i) , y ]} (toPathP (sym (idf'≡idf ∙ idf≡f))) --  compPathP' {A = C .ob} {B = λ a → {!C [ a , y ]!}} {p = refl} (idf'≡idf ∙ idf≡f) f≡f'
-  --   where
-  --     id≡id : PathP (λ i → C [ x , p (~ i) ]) id≡ (C .id _)
-  --     id≡id = symP {A = (λ i → C [ x , p i ])} (toPathP refl)
-
-  --     f = subst (C [_, y ]) (sym p) f'
-
-  --     f≡f' : PathP (λ i → C [ p i , y ]) f f'
-  --     f≡f' = symP {A = λ i → C [ p (~ i) , y ]} (toPathP refl)
-
-  --     idf'≡idf : id≡ ⋆⟨ C ⟩ f' ≡ (C .id x) ⋆⟨ C ⟩ f
-  --     idf'≡idf i = id≡id i ⋆⟨ C ⟩ f≡f' (~ i)
-
-  --     idf≡f : (C .id x) ⋆⟨ C ⟩ f ≡ f
-  --     idf≡f = C .⋆IdL _
-
