@@ -23,6 +23,7 @@ record Functor (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') : Type 
 
   isFull = (x y : _) (F[f] : D [(F-ob x) , (F-ob y)]) → ∃ (C [ x , y ]) (λ f → F-hom f ≡ F[f])
   isFaithful = (x y : _) (f g : C [ x , y ]) → F-hom f ≡ F-hom g → f ≡ g
+  isEssentiallySurj = ∀ (d : D .ob) → Σ[ c ∈ C .ob ] CatIso {C = D} (F-ob c) d
 
 private
   variable

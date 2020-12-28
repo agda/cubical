@@ -35,15 +35,44 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
     open NatTrans trans
 
     field
-      iso : ∀ (x : C .ob) → IsIso {C = D} (N-ob x)
+      iso : ∀ (x : C .ob) → isIso {C = D} (N-ob x)
+
+    open isIso
+
+    -- the three other commuting squares
+    sqRL : ∀ {x y : C .ob} {f : C [ x , y ]}
+         → F ⟪ f ⟫ ≡ (N-ob x) ⋆ᴰ G ⟪ f ⟫ ⋆ᴰ (iso y) .inv
+    sqRL {x} {y} {f} = invMoveR (isIso→areInv (iso y)) (N-hom f)
+
+    sqLL : ∀ {x y : C .ob} {f : C [ x , y ]}
+         → G ⟪ f ⟫ ⋆ᴰ (iso y) .inv ≡ (iso x) .inv ⋆ᴰ F ⟪ f ⟫
+    sqLL {x} {y} {f} = invMoveL (isIso→areInv (iso x)) (sym sqRL')
+      where
+        sqRL' : F ⟪ f ⟫ ≡ (N-ob x) ⋆ᴰ ( G ⟪ f ⟫ ⋆ᴰ (iso y) .inv )
+        sqRL' = sqRL ∙ (D .⋆Assoc _ _ _)
+
+    sqLR : ∀ {x y : C .ob} {f : C [ x , y ]}
+         → G ⟪ f ⟫ ≡ (iso x) .inv ⋆ᴰ F ⟪ f ⟫ ⋆ᴰ (N-ob y)
+    sqLR {x} {y} {f} = invMoveR (symAreInv (isIso→areInv (iso y))) sqLL
 
   open NatTrans
+  open NatIso
 
   infix 10 NatTrans
   syntax NatTrans F G = F ⇒ G
 
   infix 9 NatIso
   syntax NatIso F G = F ≅ᶜ G -- c superscript to indicate that this is in the context of categories
+
+  open isIso
+
+  -- natural isomorphism is symmetric
+  symNatIso : ∀ {F G : Functor C D}
+            → F ≅ᶜ G
+            → G ≅ᶜ F
+  symNatIso η@record { trans = record { N-ob = N-ob ; N-hom = N-hom }
+                     ; iso = iso } = record { trans = record { N-ob = λ x → (iso x) .inv ; N-hom = λ _ → sqLL η }
+                                            ; iso = λ x → record { inv = N-ob x ; sec = (iso x) .ret ; ret = (iso x) .sec } }
 
   -- component of a natural transformation
   infix 30 _⟦_⟧
