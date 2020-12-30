@@ -81,13 +81,18 @@ module _ {C : Precategory ℓ ℓ'} ⦃ isC : isCategory C ⦄ where
   open isCategory isC
   -- isSet where your allowed to compare paths where one side is only
   -- equal up to path. Is there a generalization of this?
-  isSetHomP : ∀ {x y : C .ob} {n : C [ x , y ]}
+  isSetHomP1 : ∀ {x y : C .ob} {n : C [ x , y ]}
             → isOfHLevelDep 1 (λ m → m ≡ n)
-  isSetHomP {x = x} {y} {n} = isOfHLevel→isOfHLevelDep 1 (λ m → isSetHom m n)
-  -- isSetHomP : ∀ {x x' y : C .ob} {n : C [ x' , y ]}
-  --           → (p : x ≡ x')
-  --           → isOfHLevelDep 1 (λ m → PathP (λ i → C [ p i , y ]) m n)
-  -- isSetHomP {x = x} {y} {n} p = isOfHLevel→isOfHLevelDep 1 (λ m → isSetHom m n)
+  isSetHomP1 {x = x} {y} {n} = isOfHLevel→isOfHLevelDep 1 (λ m → isSetHom m n)
+
+  -- isSet where the arrows can be between non-definitionally equal obs
+  isSetHomP2l : ∀ {y : C .ob}
+            → isOfHLevelDep 2 (λ x → C [ x , y ])
+  isSetHomP2l = isOfHLevel→isOfHLevelDep 2 (λ a → isSetHom {x = a})
+
+  isSetHomP2r : ∀ {x : C .ob}
+              → isOfHLevelDep 2 (λ y → C [ x , y ])
+  isSetHomP2r = isOfHLevel→isOfHLevelDep 2 (λ a → isSetHom {y = a})
 
 
 -- Isomorphisms and paths in precategories
@@ -99,12 +104,6 @@ record CatIso {C : Precategory ℓ ℓ'} (x y : C .Precategory.ob) : Type ℓ' w
     inv : C [ y , x ]
     sec : inv ⋆⟨ C ⟩ mor ≡ C .id y
     ret : mor ⋆⟨ C ⟩ inv ≡ C .id x
-
-
--- -- CatIso x y is a set if C is a category
--- catIsoIsSet : ∀ {C : Precategory ℓ ℓ'} ⦃ isC : isCategory C ⦄
---             → ∀ {x y : C .ob} → isSet (CatIso x y)
--- catIsoIsSet {C = C} ⦃ isC ⦄ (catiso mor inv sec ret) (catiso mor₁ inv₁ sec₁ ret₁) p1 p2 = {!!}
 
 
 pathToIso : {C : Precategory ℓ ℓ'} (x y : C .ob) (p : x ≡ y) → CatIso {C = C} x y
@@ -122,11 +121,9 @@ open isUnivalent public
 
 module _ {C : Precategory ℓ ℓ'} ⦃ isU : isUnivalent C ⦄ where
 
+  -- package up the univalence equivalence
   univEquiv : ∀ (x y : C .ob) → (x ≡ y) ≃ (CatIso x y)
   univEquiv x y = (pathToIso {C = C} x y) , (isU .univ x y)
-
-  -- isUniv→ObIsSet : isGroupoid (C .ob)
-  -- isUniv→ObIsSet x y = isOfHLevelRespectEquiv 2 (invEquiv (univEquiv x y)) {!!}
 
 -- Opposite Categories
 
@@ -203,22 +200,3 @@ module _ {C : Precategory ℓ ℓ'} where
                   → (r : PathP (λ i → C [ x , p i ]) f' f)
                   → f ⋆⟨ C ⟩ g ≡ seqP' {p = p} f' g
   rPrecatWhiskerP f' f g r = cong (λ v → v ⋆⟨ C ⟩ g) (sym (fromPathP r))
-
-  -- ⋆IdL≡ : ∀ {y : C .ob} {f' : C [ x' , y ]}
-  --       → PathP (λ i → C [ p i , y ]) (id≡ ⋆⟨ C ⟩ f') f'
-  -- ⋆IdL≡ {y} {f'} = symP {A = λ i → C [ p (~ i) , y ]} (toPathP (sym (idf'≡idf ∙ idf≡f))) --  compPathP' {A = C .ob} {B = λ a → {!C [ a , y ]!}} {p = refl} (idf'≡idf ∙ idf≡f) f≡f'
-  --   where
-  --     id≡id : PathP (λ i → C [ x , p (~ i) ]) id≡ (C .id _)
-  --     id≡id = symP {A = (λ i → C [ x , p i ])} (toPathP refl)
-
-  --     f = subst (C [_, y ]) (sym p) f'
-
-  --     f≡f' : PathP (λ i → C [ p i , y ]) f f'
-  --     f≡f' = symP {A = λ i → C [ p (~ i) , y ]} (toPathP refl)
-
-  --     idf'≡idf : id≡ ⋆⟨ C ⟩ f' ≡ (C .id x) ⋆⟨ C ⟩ f
-  --     idf'≡idf i = id≡id i ⋆⟨ C ⟩ f≡f' (~ i)
-
-  --     idf≡f : (C .id x) ⋆⟨ C ⟩ f ≡ f
-  --     idf≡f = C .⋆IdL _
-
