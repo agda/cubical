@@ -23,6 +23,8 @@ module Cubical.Categories.Category where
 
 open import Cubical.Core.Glue
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
 
 private
   variable
@@ -75,6 +77,18 @@ record isCategory (C : Precategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   field
     isSetHom : ∀ {x y} → isSet (C [ x , y ])
 
+module _ {C : Precategory ℓ ℓ'} ⦃ isC : isCategory C ⦄ where
+  open isCategory isC
+  -- isSet where your allowed to compare paths where one side is only
+  -- equal up to path. Is there a generalization of this?
+  isSetHomP : ∀ {x y : C .ob} {n : C [ x , y ]}
+            → isOfHLevelDep 1 (λ m → m ≡ n)
+  isSetHomP {x = x} {y} {n} = isOfHLevel→isOfHLevelDep 1 (λ m → isSetHom m n)
+  -- isSetHomP : ∀ {x x' y : C .ob} {n : C [ x' , y ]}
+  --           → (p : x ≡ x')
+  --           → isOfHLevelDep 1 (λ m → PathP (λ i → C [ p i , y ]) m n)
+  -- isSetHomP {x = x} {y} {n} p = isOfHLevel→isOfHLevelDep 1 (λ m → isSetHom m n)
+
 
 -- Isomorphisms and paths in precategories
 
@@ -85,6 +99,13 @@ record CatIso {C : Precategory ℓ ℓ'} (x y : C .Precategory.ob) : Type ℓ' w
     inv : C [ y , x ]
     sec : inv ⋆⟨ C ⟩ mor ≡ C .id y
     ret : mor ⋆⟨ C ⟩ inv ≡ C .id x
+
+
+-- -- CatIso x y is a set if C is a category
+-- catIsoIsSet : ∀ {C : Precategory ℓ ℓ'} ⦃ isC : isCategory C ⦄
+--             → ∀ {x y : C .ob} → isSet (CatIso x y)
+-- catIsoIsSet {C = C} ⦃ isC ⦄ (catiso mor inv sec ret) (catiso mor₁ inv₁ sec₁ ret₁) p1 p2 = {!!}
+
 
 pathToIso : {C : Precategory ℓ ℓ'} (x y : C .ob) (p : x ≡ y) → CatIso {C = C} x y
 pathToIso {C = C} x y p = J (λ z _ → CatIso x z) (catiso (C .id x) idx (C .⋆IdL idx) (C .⋆IdL idx)) p
@@ -98,6 +119,14 @@ record isUnivalent (C : Precategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
     univ : (x y : C .ob) → isEquiv (pathToIso {C = C} x y)
 
 open isUnivalent public
+
+module _ {C : Precategory ℓ ℓ'} ⦃ isU : isUnivalent C ⦄ where
+
+  univEquiv : ∀ (x y : C .ob) → (x ≡ y) ≃ (CatIso x y)
+  univEquiv x y = (pathToIso {C = C} x y) , (isU .univ x y)
+
+  -- isUniv→ObIsSet : isGroupoid (C .ob)
+  -- isUniv→ObIsSet x y = isOfHLevelRespectEquiv 2 (invEquiv (univEquiv x y)) {!!}
 
 -- Opposite Categories
 
