@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws using (lUnit; rUnit; assoc; cong-∙)
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
+open import Cubical.Categories.Sets
 
 private
   variable
@@ -179,3 +180,16 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} {F : Functor 
         g⁻¹ : D [ y' , x' ]
         g⁻¹ = F ⟪ f⁻¹ ⟫
 
+
+-- Hom functors
+_[-,_] : (C : Precategory ℓ ℓ') → (c : C .ob) → ⦃ isCat : isCategory C ⦄ → Functor (C ^op) (SET _)
+(C [-, c ]) ⦃ isCat ⦄ .F-ob x = (C [ x , c ]) , isCat .isSetHom
+(C [-, c ])           .F-hom f k = f ⋆⟨ C ⟩ k
+(C [-, c ])           .F-id = funExt λ _ → C .⋆IdL _
+(C [-, c ])           .F-seq _ _ = funExt λ _ → C .⋆Assoc _ _ _
+
+_[_,-] : (C : Precategory ℓ ℓ') → (c : C .ob) → ⦃ isCat : isCategory C ⦄ → Functor C (SET _)
+(C [ c ,-]) ⦃ isCat ⦄ .F-ob x = (C [ c , x ]) , isCat .isSetHom
+(C [ c ,-])           .F-hom f k = k ⋆⟨ C ⟩ f
+(C [ c ,-])           .F-id = funExt λ _ → C .⋆IdR _
+(C [ c ,-])           .F-seq _ _ = funExt λ _ → sym (C .⋆Assoc _ _ _)
