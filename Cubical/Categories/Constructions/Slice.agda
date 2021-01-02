@@ -58,15 +58,15 @@ module _ {xf yg : SliceOb} where
     g = yg .S-arr
 
   -- a path between slice objects is the "same" as a pair of paths between C obs and C arrows
-  SOPathIsoΣ : Iso (xf ≡ yg) (Σ[ p ∈ x ≡ y ] PathP (λ i → C [ p i , c ]) f g)
-  SOPathIsoΣ .fun p = (λ i → (p i) .S-ob) , (λ i → (p i) .S-arr)
-  SOPathIsoΣ .inv (p , q) i = sliceob {p i} (q i)
-  SOPathIsoΣ .rightInv _ = refl
-  SOPathIsoΣ .leftInv _ = refl
+  SOPathIsoPathΣ : Iso (xf ≡ yg) (Σ[ p ∈ x ≡ y ] PathP (λ i → C [ p i , c ]) f g)
+  SOPathIsoPathΣ .fun p = (λ i → (p i) .S-ob) , (λ i → (p i) .S-arr)
+  SOPathIsoPathΣ .inv (p , q) i = sliceob {p i} (q i)
+  SOPathIsoPathΣ .rightInv _ = refl
+  SOPathIsoPathΣ .leftInv _ = refl
 
-  SOPath≃PathΣ = isoToEquiv SOPathIsoΣ
+  SOPath≃PathΣ = isoToEquiv SOPathIsoPathΣ
 
-  SOPath≡PathΣ = ua (isoToEquiv SOPathIsoΣ)
+  SOPath≡PathΣ = ua (isoToEquiv SOPathIsoPathΣ)
 
 -- intro and elim for working with SliceHom equalities (is there a better way to do this?)
 SliceHom-≡-intro : ∀ {a b} {f g} {c₁} {c₂}
