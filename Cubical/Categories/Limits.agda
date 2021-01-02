@@ -55,11 +55,11 @@ module _ (J : Precategory ℓJ ℓJ')
 
     -- μ factors ν if there's a morphism such that the natural transformation
     -- from precomposing it with ν gives you back μ
-    _factors_ : (μ ν : Cone) → Type (ℓ-max (ℓ-max ℓJ ℓJ') (ℓ-max ℓC ℓC'))
+    _factors_ : (μ ν : Cone) → Type _ --(ℓ-max (ℓ-max ℓJ ℓJ') (ℓ-max ℓC ℓC'))
     μ factors ν = Σ[ mor ∈ C [ ν .head , μ .head ] ] ν .legs ≡ (mor ● μ .legs)
 
     -- μ uniquely factors ν if the factor from above is contractible
-    _uniquelyFactors_ : (μ ν : Cone) → Type (ℓ-max (ℓ-max ℓJ ℓJ') (ℓ-max ℓC ℓC'))
+    _uniquelyFactors_ : (μ ν : Cone) → Type _ --(ℓ-max (ℓ-max ℓJ ℓJ') (ℓ-max ℓC ℓC'))
     μ uniquelyFactors ν = isContr (μ factors ν)
 
     -- a Limit is a cone such that all cones are uniquely factored by it

@@ -13,7 +13,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Sets
 
 module _ (ℓ ℓ' : Level) where
-  PreShv : Precategory ℓ ℓ' → Precategory (ℓ-max (ℓ-suc ℓ) ℓ') (ℓ-max (ℓ-suc ℓ) ℓ')
+  PreShv : Precategory ℓ ℓ' → Precategory _ _ -- (ℓ-max (ℓ-suc ℓ) ℓ') (ℓ-max (ℓ-suc ℓ) ℓ')
   PreShv C = FUNCTOR (C ^op) (SET ℓ)
 
 private

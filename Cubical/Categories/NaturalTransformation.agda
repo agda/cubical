@@ -25,13 +25,20 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
   open Precategory
   open Functor
 
-  record NatTrans (F G : Functor C D) : Type (ℓ-max (ℓ-max ℓC ℓC') ℓD') where
+  -- type aliases because it gets tedious typing it out all the time
+  N-ob-Type : (F G : Functor C D) → Type _
+  N-ob-Type F G = (x : C .ob) → D [(F .F-ob x) , (G .F-ob x)]
 
+  N-hom-Type : (F G : Functor C D) → N-ob-Type F G → Type _
+  N-hom-Type F G ϕ = {x y : C .ob} (f : C [ x , y ]) → (F .F-hom f) ⋆ᴰ (ϕ y) ≡ (ϕ x) ⋆ᴰ (G .F-hom f)
+  
+  record NatTrans (F G : Functor C D) : Type (ℓ-max (ℓ-max ℓC ℓC') ℓD') where
+    constructor natTrans
     field
       -- components of the natural transformation
-      N-ob : (x : C .ob) → D [(F .F-ob x) , (G .F-ob x)]
+      N-ob : N-ob-Type F G
       -- naturality condition
-      N-hom : {x y : C .ob} (f : C [ x , y ]) → (F .F-hom f) ⋆ᴰ (N-ob y) ≡ (N-ob x) ⋆ᴰ (G .F-hom f)
+      N-hom :  N-hom-Type F G N-ob
 
   record NatIso (F G : Functor C D): Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
     field
@@ -111,6 +118,9 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
       ≡⟨ sym (D .⋆Assoc _ _ _) ⟩
     ((α .N-ob _) ⋆ᴰ (β .N-ob _)) ⋆ᴰ (H .F-hom f)
       ∎
+
+  compTrans : {F G H : Functor C D} (β : NatTrans G H) (α : NatTrans F G) → NatTrans F H
+  compTrans β α = seqTrans α β
 
   infixl 8 seqTrans
   syntax seqTrans α β = α ●ᵛ β
@@ -212,6 +222,30 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
 
   -- path helpers
   module NatTransP where
+
+    module _ {F G : Functor C D} where
+      open Iso
+
+      -- same as Sigma version
+      NatTransΣ = Σ[ ob ∈ ((x : C .ob) → D [(F .F-ob x) , (G .F-ob x)]) ]
+                     ({x y : _ } (f : C [ x , y ]) → (F .F-hom f) ⋆ᴰ (ob y) ≡ (ob x) ⋆ᴰ (G .F-hom f))
+
+      NatTransIsoΣ : Iso (NatTrans F G) NatTransΣ
+      NatTransIsoΣ .fun (natTrans N-ob N-hom) = N-ob , N-hom
+      NatTransIsoΣ .inv (N-ob , N-hom) = (natTrans N-ob N-hom)
+      NatTransIsoΣ .rightInv _ = refl
+      NatTransIsoΣ .leftInv _ = refl
+
+      NatTrans≡Σ = ua (isoToEquiv NatTransIsoΣ)
+
+      -- introducing paths
+      NatTrans-≡-intro : ∀ {αo βo : N-ob-Type F G}
+                           {αh : N-hom-Type F G αo}
+                           {βh : N-hom-Type F G βo}
+                       → (p : αo ≡ βo)
+                       → PathP (λ i → ({x y : C .ob} (f : C [ x , y ]) → (F .F-hom f) ⋆ᴰ (p i y) ≡ (p i x) ⋆ᴰ (G .F-hom f))) αh βh
+                       → natTrans {F = F} {G} αo αh ≡ natTrans βo βh
+      NatTrans-≡-intro p q i = natTrans (p i) (q i)
     module _ {F G : Functor C D} {α β : NatTrans F G} where
       open Iso
       private
@@ -319,7 +353,7 @@ module _ {B : Precategory ℓB ℓB'} {C : Precategory ℓC ℓC'} {D : Precateg
 
 
 
-module _ (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') ⦃ _ : isCategory D ⦄ where
+module _ (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') ⦃ isCatD : isCategory D ⦄ where
   open Precategory
   open NatTrans
   open Functor
