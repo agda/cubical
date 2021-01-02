@@ -5,6 +5,8 @@ module Cubical.Categories.Sets where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Categories.Category
+open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation
 
 open Precategory
 
@@ -28,3 +30,39 @@ module _ {ℓ} where
   instance
     SET-category : isCategory (SET ℓ)
     SET-category .isSetHom {_} {B , B/set} = isSetExpIdeal B/set
+
+private
+  variable
+    ℓ ℓ' : Level
+
+open Functor
+
+-- Hom functors
+_[-,_] : (C : Precategory ℓ ℓ') → (c : C .ob) → ⦃ isCat : isCategory C ⦄ → Functor (C ^op) (SET _)
+(C [-, c ]) ⦃ isCat ⦄ .F-ob x = (C [ x , c ]) , isCat .isSetHom
+(C [-, c ])           .F-hom f k = f ⋆⟨ C ⟩ k
+(C [-, c ])           .F-id = funExt λ _ → C .⋆IdL _
+(C [-, c ])           .F-seq _ _ = funExt λ _ → C .⋆Assoc _ _ _
+
+_[_,-] : (C : Precategory ℓ ℓ') → (c : C .ob) → ⦃ isCat : isCategory C ⦄ → Functor C (SET _)
+(C [ c ,-]) ⦃ isCat ⦄ .F-ob x = (C [ c , x ]) , isCat .isSetHom
+(C [ c ,-])           .F-hom f k = k ⋆⟨ C ⟩ f
+(C [ c ,-])           .F-id = funExt λ _ → C .⋆IdR _
+(C [ c ,-])           .F-seq _ _ = funExt λ _ → sym (C .⋆Assoc _ _ _)
+
+module _ {C : Precategory ℓ ℓ'} ⦃ _ : isCategory C ⦄ {F : Functor C (SET ℓ')} where
+  open NatTrans
+
+  -- natural transformations by pre/post composition
+  preComp : {x y : C .ob}
+          → (f : C [ x , y ])
+          → C [ x ,-] ⇒ F
+          → C [ y ,-] ⇒ F
+  preComp f α .N-ob c k = (α ⟦ c ⟧) (f ⋆⟨ C ⟩ k)
+  preComp f α .N-hom {x = c} {d} k
+    = (λ l → (α ⟦ d ⟧) (f ⋆⟨ C ⟩ (l ⋆⟨ C ⟩ k)))
+    ≡[ i ]⟨ (λ l → (α ⟦ d ⟧) (⋆Assoc C f l k (~ i))) ⟩
+      (λ l → (α ⟦ d ⟧) (f ⋆⟨ C ⟩ l ⋆⟨ C ⟩ k))
+    ≡[ i ]⟨ (λ l → (α .N-hom k) i (f ⋆⟨ C ⟩ l)) ⟩
+      (λ l → (F ⟪ k ⟫) ((α ⟦ c ⟧) (f ⋆⟨ C ⟩ l)))
+    ∎
