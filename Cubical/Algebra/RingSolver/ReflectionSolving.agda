@@ -5,18 +5,20 @@
 -}
 module Cubical.Algebra.RingSolver.ReflectionSolving where
 
-open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Prelude hiding (Type)
 open import Cubical.Functions.Logic
 
 open import Agda.Builtin.Reflection hiding (Type)
+open import Agda.Builtin.String
 
 open import Cubical.Reflection.Base
 
 open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.Data.List
-open import Cubical.Data.Nat
-open import Cubical.Data.Int hiding (_+'_; _-_; -_)
+open import Cubical.Data.Nat hiding (zero)
+open import Cubical.Data.FinData using (zero; suc)
+open import Cubical.Data.Int hiding (_+'_; _-_; -_; abs)
 open import Cubical.Data.Bool
 open import Cubical.Data.Bool.SwitchStatement
 open import Cubical.Data.Vec using () renaming ([] to emptyVec)
@@ -27,7 +29,6 @@ open import Cubical.Algebra.RingSolver.RawAlgebra
 open import Cubical.Algebra.RingSolver.IntAsRawRing
 open import Cubical.Algebra.RingSolver.CommRingSolver renaming (solve to ringSolve)
 
-
 private
   variable
     ℓ : Level
@@ -35,21 +36,24 @@ private
 _==_ = primQNameEquality
 {-# INLINE _==_ #-}
 
-getArgs : Term → Maybe (Term × Term)
+getArgs : Term → Maybe (List (String × Arg Term) × Term × Term)
+getArgs (pi argType (abs varName t)) =
+  map-Maybe (λ {(vars , x , y) → (varName , argType) ∷ vars , (x , y)}) (getArgs t)
 getArgs (def n xs) =
   if n == (quote PathP)
-  then go xs
+  then map-Maybe (λ x → ([] , x)) (go xs)
   else nothing
     where
     go : List (Arg Term) → Maybe (Term × Term)
     go (varg x ∷ varg y ∷ []) = just (x , y)
     go (x ∷ xs)               = go xs
     go _                      = nothing
-
 getArgs _ = nothing
 
-constructSolution : Term → Term → Term → Term
-constructSolution R lhs rhs =
+constructSolution : List String → Term → Term → Term → Term
+constructSolution (varName ∷ xs) R lhs rhs =
+  lam visible (abs varName (constructSolution xs R lhs rhs))
+constructSolution [] R lhs rhs =
   def
     (quote ringSolve)
     (varg R ∷ varg lhs ∷ varg rhs
@@ -112,6 +116,7 @@ module _ (cring : Term) where
     K' xs = con (quote K) xs
 
     buildExpression : Term → Term
+    buildExpression (var _ _) = con (quote ∣) (varg (def (quote zero) []) ∷ [])
     buildExpression t@(def n xs) =
       switch (n ==_) cases
         case (quote CommRingStr.0r)  ⇒ `0` xs     break
@@ -130,16 +135,16 @@ module _ (cring : Term) where
         default⇒ (K' xs)
     buildExpression t = unknown
 
-  toAlgebraExpression : Maybe (Term × Term) → Maybe (Term × Term)
+  toAlgebraExpression : Maybe (List (String × Arg Term) × Term × Term) → Maybe (List (String × Arg Term) × Term × Term)
   toAlgebraExpression nothing = nothing
-  toAlgebraExpression (just (lhs , rhs)) = just (buildExpression lhs , buildExpression rhs)
+  toAlgebraExpression (just (varNames , lhs , rhs)) = just (varNames , buildExpression lhs , buildExpression rhs)
 
 solve-macro : Term → Term → TC _
 solve-macro cring hole = do
   hole′ ← inferType hole >>= normalise
-  just (lhs , rhs) ← returnTC (toAlgebraExpression cring (getArgs hole′))
+  just (varNames , lhs , rhs) ← returnTC (toAlgebraExpression cring (getArgs hole′))
     where nothing → typeError (termErr hole′ ∷ [])
-  let solution = constructSolution cring lhs rhs
+  let solution = constructSolution (map fst varNames) cring lhs rhs
   unify hole solution
 
 macro
