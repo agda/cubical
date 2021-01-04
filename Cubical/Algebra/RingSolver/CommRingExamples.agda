@@ -12,9 +12,6 @@ open import Cubical.Algebra.RingSolver.NatAsAlmostRing
 open import Cubical.Algebra.RingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.RingSolver.CommRingSolver
 
--- In scope for debugging:
-open import Cubical.Algebra.RingSolver.CommRingHornerForms
-
 private
   variable
     ℓ : Level
