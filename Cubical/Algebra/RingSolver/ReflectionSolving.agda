@@ -118,7 +118,7 @@ module _ (cring : Term) where
 
     buildExpression : Term → Term
     buildExpression t@(def n xs) =
-      switch (λ n' → n == n') cases
+      switch (n ==_) cases
         case (quote CommRingStr.0r)  ⇒ `0` xs     break
         case (quote CommRingStr.1r)  ⇒ `1` xs     break
         case (quote CommRingStr._·_) ⇒ `_·_` xs   break
@@ -126,7 +126,7 @@ module _ (cring : Term) where
         case (quote disamb-)         ⇒ `-_` xs   break
         default⇒ (K' xs)
     buildExpression t@(con n xs) =
-      switch (λ n' → n == n') cases
+      switch (n ==_) cases
         case (quote CommRingStr.0r)  ⇒ `0` xs     break
         case (quote CommRingStr.1r)  ⇒ `1` xs     break
         case (quote CommRingStr._·_) ⇒ `_·_` xs   break
