@@ -68,9 +68,6 @@ module pr (R : CommRing {ℓ}) where
   1' : Expr ℤAsRawRing (fst R) 0
   1' = K 1
 
-  disamb- : fst R → fst R
-  disamb- x = - x
-
 module _ (cring : Term) where
   private
     νR = def (quote CommRing→RawℤAlgebra) (varg cring ∷ [])
