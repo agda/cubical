@@ -12,7 +12,12 @@ private
 
 module Test (R : CommRing {ℓ}) where
   open CommRingStr (snd R)
+  open CommRingMinusOperator R
 
-  test :  1r · (1r + 0r)
-        ≡ (1r · 0r) + 1r
-  test = solve R
+  _ :   1r · (1r + 0r)
+      ≡ (1r · 0r) + 1r
+  _ = solve R
+
+  _ :   1r · 0r + (1r - 1r)
+      ≡ 0r - 0r
+  _ = solve R
