@@ -60,7 +60,7 @@ module pr (R : CommRing {ℓ}) where
   private
     νR = CommRing→RawℤAlgebra R
 
-  open CommRingStr (snd R) hiding (_-_)
+  open CommRingStr (snd R)
 
   0' : Expr ℤAsRawRing (fst R) 0
   0' = K 0
@@ -111,8 +111,6 @@ module _ (cring : Term) where
         (quote -'_) (varg (buildExpression x) ∷ [])
     `-_` _ = unknown
 
-
-
     K' : List (Arg Term) → Term
     K' xs = con (quote K) xs
 
@@ -123,7 +121,7 @@ module _ (cring : Term) where
         case (quote CommRingStr.1r)  ⇒ `1` xs     break
         case (quote CommRingStr._·_) ⇒ `_·_` xs   break
         case (quote CommRingStr._+_) ⇒ `_+_` xs   break
-        case (quote disamb-)         ⇒ `-_` xs   break
+        case (quote CommRingStr.-_) ⇒ `-_` xs   break
         default⇒ (K' xs)
     buildExpression t@(con n xs) =
       switch (n ==_) cases
@@ -131,7 +129,7 @@ module _ (cring : Term) where
         case (quote CommRingStr.1r)  ⇒ `1` xs     break
         case (quote CommRingStr._·_) ⇒ `_·_` xs   break
         case (quote CommRingStr._+_) ⇒ `_+_` xs   break
-        case (quote disamb-)         ⇒ `-_` xs   break
+        case (quote CommRingStr.-_) ⇒ `-_` xs   break
         default⇒ (K' xs)
     buildExpression t = unknown
 
