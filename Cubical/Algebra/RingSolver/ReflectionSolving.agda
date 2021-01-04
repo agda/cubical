@@ -18,6 +18,7 @@ open import Cubical.Data.List
 open import Cubical.Data.Nat
 open import Cubical.Data.Int hiding (_+'_; _-_; -_)
 open import Cubical.Data.Bool
+open import Cubical.Data.Bool.SwitchStatement
 open import Cubical.Data.Vec using () renaming ([] to emptyVec)
 
 open import Cubical.Algebra.RingSolver.AlgebraExpression
@@ -59,7 +60,7 @@ module pr (R : CommRing {ℓ}) where
   private
     νR = CommRing→RawℤAlgebra R
 
-  open CommRingStr (snd R)
+  open CommRingStr (snd R) hiding (_-_)
 
   0' : Expr ℤAsRawRing (fst R) 0
   0' = K 0
@@ -117,29 +118,21 @@ module _ (cring : Term) where
 
     buildExpression : Term → Term
     buildExpression t@(def n xs) =
-      if n == (quote CommRingStr.0r)
-      then `0` xs
-      else if n == (quote CommRingStr.1r)
-      then `1` xs
-      else if n == quote CommRingStr._·_
-      then `_·_` xs
-      else if n == quote CommRingStr._+_
-      then `_+_` xs
-      else ( if (n == (quote disamb-))
-      then (`-_` xs)
-      else (K' xs))
+      switch (λ n' → n == n') cases
+        case (quote CommRingStr.0r)  ⇒ `0` xs     break
+        case (quote CommRingStr.1r)  ⇒ `1` xs     break
+        case (quote CommRingStr._·_) ⇒ `_·_` xs   break
+        case (quote CommRingStr._+_) ⇒ `_+_` xs   break
+        case (quote disamb-)         ⇒ `-_` xs   break
+        default⇒ (K' xs)
     buildExpression t@(con n xs) =
-      if n == (quote CommRingStr.0r)
-      then `0` xs
-      else if n == (quote CommRingStr.1r)
-      then `1` xs
-      else if n == quote CommRingStr._·_
-      then `_·_` xs
-      else if n == quote CommRingStr._+_
-      then `_+_` xs
-      else ( if (n == (quote disamb-))
-      then (`-_` xs)
-      else (K' xs))
+      switch (λ n' → n == n') cases
+        case (quote CommRingStr.0r)  ⇒ `0` xs     break
+        case (quote CommRingStr.1r)  ⇒ `1` xs     break
+        case (quote CommRingStr._·_) ⇒ `_·_` xs   break
+        case (quote CommRingStr._+_) ⇒ `_+_` xs   break
+        case (quote disamb-)         ⇒ `-_` xs   break
+        default⇒ (K' xs)
     buildExpression t = unknown
 
   toAlgebraExpression : Maybe (Term × Term) → Maybe (Term × Term)
