@@ -21,34 +21,34 @@ private
 
 -- Definition
 
-record IsEquivalence {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'}
-                     (F : Functor C D) : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
+record isEquivalence {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'}
+                     (func : Functor C D) : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
   field
-    G : Functor D C
+    invFunc : Functor D C
 
-    η : 𝟙⟨ C ⟩ ≅ᶜ G ∘F F
-    ε : F ∘F G ≅ᶜ 𝟙⟨ D ⟩
+    η : 𝟙⟨ C ⟩ ≅ᶜ invFunc ∘F func
+    ε : func ∘F invFunc ≅ᶜ 𝟙⟨ D ⟩
 
 record _≃ᶜ_ (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
   field
-    F : Functor C D
-    isEquiv : IsEquivalence F
+    func : Functor C D
+    isEquiv : isEquivalence func
 
 open NatIso
 open CatIso
 open NatTrans
 
-open IsEquivalence
+open isEquivalence
 
 
 -- Equivalence implies Full, Faithul, and Essentially Surjective
 
 module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
-  symEquiv : ∀ {F : Functor C D} → (e : IsEquivalence F) → IsEquivalence (e .G)
-  symEquiv {F} record { G = G ; η = η ; ε = ε } = record { G = F ; η = symNatIso ε ; ε = symNatIso η }
+  symEquiv : ∀ {F : Functor C D} → (e : isEquivalence F) → isEquivalence (e .invFunc)
+  symEquiv {F} record { invFunc = G ; η = η ; ε = ε } = record { invFunc = F ; η = symNatIso ε ; ε = symNatIso η }
 
-  isEquiv→Faithful : ∀ {F : Functor C D} → IsEquivalence F → isFaithful F
-  isEquiv→Faithful {F} record { G = G
+  isEquiv→Faithful : ∀ {F : Functor C D} → isEquivalence F → isFaithful F
+  isEquiv→Faithful {F} record { invFunc = G
                               ; η = η
                               ; ε = _ }
                    c c' f g p = f
@@ -67,8 +67,8 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
       c'Iso = isIso→CatIso (η .iso c')
 
 module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
-  isEquiv→Full : ∀ {F : Functor C D} → IsEquivalence F → isFull F
-  isEquiv→Full {F} eq@record { G = G
+  isEquiv→Full : ∀ {F : Functor C D} → isEquivalence F → isFull F
+  isEquiv→Full {F} eq@record { invFunc = G
                              ; η = η
                              ; ε = _ }
                c c' g = ∣ h , isEquiv→Faithful (symEquiv eq) _ _ _ _ GFh≡Gg ∣ -- apply faithfulness of G
@@ -107,5 +107,5 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
                G ⟪ g ⟫
              ∎
 
-  isEquiv→Surj : ∀ {F : Functor C D} → IsEquivalence F → isEssentiallySurj F
-  isEquiv→Surj isE d = (isE .G ⟅ d ⟆) , isIso→CatIso ((isE .ε .iso) d)
+  isEquiv→Surj : ∀ {F : Functor C D} → isEquivalence F → isEssentiallySurj F
+  isEquiv→Surj isE d = (isE .invFunc ⟅ d ⟆) , isIso→CatIso ((isE .ε .iso) d)
