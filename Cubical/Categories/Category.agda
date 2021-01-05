@@ -136,6 +136,12 @@ _^op : Precategory ℓ ℓ' → Precategory ℓ ℓ'
 (C ^op) .⋆IdR = C .⋆IdL
 (C ^op) .⋆Assoc f g h = sym (C .⋆Assoc _ _ _)
 
+-- instance
+--   open isCategory
+--   isCatOp : {C : Precategory ℓ ℓ'} ⦃ isCatC : isCategory C ⦄
+--           → isCategory (C ^op)
+--   isCatOp {C = C} ⦃ isCatC ⦄ .isSetHom = isCatC .isSetHom
+
 -- opposite of opposite is cool
 opop : ∀ {C : Precategory ℓ ℓ'} → (C ^op) ^op ≡ C
 opop = refl
