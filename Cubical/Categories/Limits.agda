@@ -5,6 +5,10 @@ module Cubical.Categories.Limits where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Unit
+open import Cubical.Data.Fin
+open import Cubical.Data.Nat
+open import Cubical.Data.Nat.Order
+open import Cubical.Data.Sum
 open import Cubical.Data.Sigma using (ΣPathP)
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -85,6 +89,38 @@ complete C = ∀ {ℓJ ℓJ'} → complete' {ℓJ = ℓJ} {ℓJ'} C
 open Limit
 open NatTrans
 open Precategory
+
+
+-- -- specific diagrams
+-- data 𝟚 {ℓ : Level} : Type ℓ where
+--   ⓪ : 𝟚
+--   ① : 𝟚
+
+-- this is whack...
+-- see agda categories for inspiration
+-- https://github.com/agda/agda-categories/blob/master/src/Categories/Category/Finite/Fin.agda
+equalizer : Precategory ℓ-zero ℓ-zero
+equalizer .ob = Fin 2
+equalizer .Hom[_,_] (m , _) (n , _) = (m ≤ n) ⊎ (suc m ≤ n)
+-- equalizer .Hom[_,_] (n , _) (m , _) = n ≤ m
+(equalizer ⋆ inl lte) (inl lte') = inl (≤-trans lte lte')
+(equalizer ⋆ inl lte) (inr l') = inr (≤-trans (suc-≤-suc lte) l')
+(equalizer ⋆ inr l) (inl lte') = inr (≤-trans l lte')
+(equalizer ⋆ inr l) (inr l') = inr (≤-trans (≤-suc l) l')
+equalizer .id x = inl ≤-refl
+equalizer .⋆IdL (inl le) = cong inl (m≤n-isProp (≤-trans ≤-refl le) le)
+equalizer .⋆IdL (inr l) = cong inr (m≤n-isProp (≤-trans (suc-≤-suc ≤-refl) l) l)
+equalizer .⋆IdR (inl le) = cong inl (m≤n-isProp (≤-trans le ≤-refl) le)
+equalizer .⋆IdR (inr l) = cong inr (m≤n-isProp (≤-trans l ≤-refl) l)
+equalizer .⋆Assoc f g h = {!!}
+
+-- 1. every diagram has limits isomorphic to the limit of an equalizer of products
+
+-- 2. every equalizer can be made into a pullback
+
+-- 3. every product can be made into an equalizer
+
+-- 4. a category with all pullbacks and a terminal object has all limits
 
 
 -- notes
