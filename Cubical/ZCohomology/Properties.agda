@@ -243,12 +243,12 @@ coHomRedGroup (suc n) A =
 
 abstract
   coHomGroup≡coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
-                          → coHomRedGroup (suc n) A ≡ coHomGroup (suc n) (typ A)
+                          → coHomGroup (suc n) (typ A) ≡ coHomRedGroup (suc n) A
   coHomGroup≡coHomRedGroup n A =
-    sym (InducedAbGroupPath (coHomGroup (suc n) (typ A))
-                   (coHomRed (suc n) A , _+ₕ∙_)
-                   (isoToEquiv (invIso (Iso-coHom-coHomRed n)))
-                   (homhelp n A))
+    InducedAbGroupPath (coHomGroup (suc n) (typ A))
+              (coHomRed (suc n) A , _+ₕ∙_)
+              (isoToEquiv (invIso (Iso-coHom-coHomRed n)))
+              (homhelp n A)
 
 ------------------- Kₙ ≃ ΩKₙ₊₁ ---------------------
 -- This proof uses the encode-decode method rather than Freudenthal
@@ -387,7 +387,8 @@ private
       ∙∙ cong ((∣ x ∣ +ₖ ∣ y ∣) +ₖ_) (lCancelₖ _ ∣ a ∣)
       ∙∙ rUnitₖ _ _
 
-    helper : (n : ℕ) →  (a : S₊ (suc n)) → PathP (λ i → Code n ∣ north ∣ → Code n ∣ merid a i ∣ → Code n ∣ merid a i ∣) _+ₖ_ _+ₖ_
+    helper : (n : ℕ) (a : S₊ (suc n))
+           → PathP (λ i → Code n ∣ north ∣ → Code n ∣ merid a i ∣ → Code n ∣ merid a i ∣) _+ₖ_ _+ₖ_
     helper n a =
       toPathP (funExt
                 (trElim (λ _ → isOfHLevelPath (3 + n) (isOfHLevelΠ (3 + n) (λ _ → isOfHLevelTrunc (3 + n))) _ _)
@@ -400,9 +401,12 @@ private
     trElim (λ x → isOfHLevelΠ (4 + n) λ _ → isOfHLevelΠ (4 + n) λ _ → isOfHLevelSuc (3 + n) (hLevCode {n = n} x))
            Code-add'
 
-  encode-hom : {n : ℕ} {x : _} (q : 0ₖ _ ≡ 0ₖ _) (p : 0ₖ _ ≡ x) → encode (q ∙ p) ≡ Code-add {n = n} x (encode q) (encode p)
+  encode-hom : {n : ℕ} {x : _} (q : 0ₖ _ ≡ 0ₖ _) (p : 0ₖ _ ≡ x)
+             → encode (q ∙ p) ≡ Code-add {n = n} x (encode q) (encode p)
   encode-hom {n = n} q = J (λ x p → encode (q ∙ p) ≡ Code-add {n = n} x (encode q) (encode p))
-                           (cong encode (sym (rUnit q)) ∙∙ sym (rUnitₖ _ (encode q)) ∙∙ cong (encode q +ₖ_) (cong ∣_∣ (sym (transportRefl _))))
+                           (cong encode (sym (rUnit q))
+                         ∙∙ sym (rUnitₖ _ (encode q))
+                         ∙∙ cong (encode q +ₖ_) (cong ∣_∣ (sym (transportRefl _))))
 
 stabSpheres : (n : ℕ) → Iso (coHomK (suc n)) (typ (Ω (coHomK-ptd (2 + n))))
 fun (stabSpheres n) = decode _
