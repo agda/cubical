@@ -91,7 +91,7 @@ coHomFunctor' (negsuc n) = coHomFunctor (negsuc n)
 
 coHomFunctor≡coHomFunctor' : ∀ {ℓ} → coHomFunctor {ℓ} ≡ coHomFunctor'
 coHomFunctor≡coHomFunctor' = funExt λ {(pos zero) → refl
-                                     ; (pos (suc n)) → funExt λ A → coHomGroup≡coHomRedGroup n A
+                                     ; (pos (suc n)) → funExt λ A → sym (coHomGroup≡coHomRedGroup n A)
                                      ; (negsuc n) → refl}
 
 -- Ĥ⁰(Susp A) is contractible
