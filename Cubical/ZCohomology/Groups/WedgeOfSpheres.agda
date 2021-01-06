@@ -100,4 +100,7 @@ test4 = refl
 test5 : to₂ (from₂ 1 +ₕ from₂ 1) ≡ 2
 test5 = refl
 
+-- This does however compute with the induced addition
+test5' : to₂ (induced+ H²-S²⋁S¹⋁S¹ (from₂ 1) (from₂ 1)) ≡ 2
+test5' = refl
 -}
