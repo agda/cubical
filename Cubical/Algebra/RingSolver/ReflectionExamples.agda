@@ -22,6 +22,5 @@ module Test (R : CommRing {ℓ}) where
       ≡ 0r - 0r
   _ = solve R
 
-  _ : (x : fst R) → 1r ≡ 1r
-  _ = solve R
-
+  test : (x : fst R) → x ≡ x
+  test = solve R
