@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Algebra.RingSolver.ReflectionExamples where
+module Cubical.Algebra.RingSolver.Examples where
 
 open import Cubical.Foundations.Prelude
 
