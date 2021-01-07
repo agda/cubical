@@ -336,7 +336,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
        where
        path : u · r · 1r ≡ u · 0r · s
        path = (λ i → ·Rid (q  i) i) ∙∙ sym (0LeftAnnihilates _)
-                                     ∙∙ cong (_· s) (sym (0RightAnnihilates _))
+                                    ∙∙ cong (_· s) (sym (0RightAnnihilates _))
 
    Surχ : isSurjection (f χ)
    Surχ a = PT.rec propTruncIsProp (λ x → ∣ [ x .fst ] , x .snd ∣) (surχ a)
