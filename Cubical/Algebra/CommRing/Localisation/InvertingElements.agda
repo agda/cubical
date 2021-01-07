@@ -48,7 +48,6 @@ private
 module _(R' : CommRing {ℓ}) where
  open isMultClosedSubset
  private R = fst R'
- -- open CommRingStr ⦃...⦄
  open CommRingStr (snd R')
  open Exponentiation R'
 

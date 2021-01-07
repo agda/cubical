@@ -48,10 +48,10 @@ private
     ℓ ℓ' : Level
 
 
-module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultClosedSubset R' S') where
+module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClosedSubset R' S') where
  open isMultClosedSubset
- private R = R' .fst
- open CommRingStr (R' .snd) hiding (is-set)
+ private R = fst R'
+ open CommRingStr (snd R') hiding (is-set)
  open Theory (CommRing→Ring R')
  open RingHom
 
@@ -95,8 +95,8 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
  S⁻¹RHasUniversalProp : hasLocUniversalProp S⁻¹RAsCommRing /1AsCommRingHom S/1⊆S⁻¹Rˣ
  S⁻¹RHasUniversalProp B' ψ ψS⊆Bˣ = (χ , funExt χcomp) , χunique
   where
-  B = B' .fst
-  open CommRingStr (B' .snd) renaming ( is-set to Bset ; _·_ to _·B_ ; 1r to 1b
+  B = fst B'
+  open CommRingStr (snd B') renaming  ( is-set to Bset ; _·_ to _·B_ ; 1r to 1b
                                       ; _+_ to _+B_
                                       ; ·Assoc to ·B-assoc ; ·-comm to ·B-comm
                                       ; ·Lid to ·B-lid ; ·Rid to ·B-rid
@@ -289,7 +289,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
   constructor
    pathtoS⁻¹R
   open Units A' renaming (Rˣ to Aˣ)
-  open CommRingStr (A' .snd) renaming (is-set to Aset ; 0r to 0a ; _·_ to _·A_)
+  open CommRingStr (snd A') renaming (is-set to Aset ; 0r to 0a ; _·_ to _·A_)
   field
    φS⊆Aˣ : ∀ s → s ∈ S' → f φ s ∈ Aˣ
    kerφ⊆annS : ∀ r → f φ r ≡ 0a → ∃[ s ∈ S ] (s .fst) · r ≡ 0r
@@ -301,12 +301,12 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultC
  S⁻¹RChar A' φ cond = CommRingPath S⁻¹RAsCommRing A' .fst
                     (S⁻¹R≃A , record { pres1 = pres1 χ ; isHom+ = isHom+ χ ; isHom· = isHom· χ })
   where
-  open CommRingStr (A' .snd) renaming ( is-set to Aset ; 0r to 0a ; _·_ to _·A_ ; 1r to 1a
+  open CommRingStr (snd A') renaming ( is-set to Aset ; 0r to 0a ; _·_ to _·A_ ; 1r to 1a
                                       ; ·Rid to ·A-rid)
   open Units A' renaming (Rˣ to Aˣ ; RˣInvClosed to AˣInvClosed)
   open PathToS⁻¹R ⦃...⦄
   private
-   A = A' .fst
+   A = fst A'
    instance
     _ = cond
    χ = (S⁻¹RHasUniversalProp A' φ φS⊆Aˣ .fst .fst)
