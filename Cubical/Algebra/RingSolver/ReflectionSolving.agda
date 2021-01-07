@@ -16,9 +16,10 @@ open import Cubical.Reflection.Base
 open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.Data.List
-open import Cubical.Data.Nat hiding (zero; suc) renaming (_+_ to _+ℕ_)
+open import Cubical.Data.Nat.Literals public
+open import Cubical.Data.Int using (fromNegInt; fromNatInt) public
+open import Cubical.Data.Nat using (ℕ) renaming (_+_ to _+ℕ_)
 open import Cubical.Data.FinData using (zero; suc)
-open import Cubical.Data.Int hiding (_+'_; _-_; -_; abs)
 open import Cubical.Data.Bool
 open import Cubical.Data.Bool.SwitchStatement
 open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_)
@@ -203,3 +204,5 @@ macro
   solve : Term → Term → TC _
   solve = solve-macro
 
+fromℤ : (R : CommRing {ℓ}) → ℤ → fst R
+fromℤ = scalar
