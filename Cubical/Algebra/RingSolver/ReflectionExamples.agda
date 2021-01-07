@@ -28,3 +28,16 @@ module Test (R : CommRing {ℓ}) where
   _ : (x y : fst R) → x ≡ x
   _ = solve R
 
+  _ : (x y : fst R) → x + y ≡ y + x
+  _ = solve R
+
+  _ : (x y : fst R) → (x + y) · (x - y) ≡ x · x - y · y
+  _ = solve R
+
+  {-
+    A bigger example, copied from the other example files:
+  -}
+  _ : (x y z : (fst R)) → (x + y) · (x + y) · (x + y) · (x + y)
+                ≡ x · x · x · x + (fromℤ R 4) · x · x · x · y + (fromℤ R 6) · x · x · y · y
+                  + (fromℤ R 4) · x · y · y · y + y · y · y · y
+  _ = solve R
