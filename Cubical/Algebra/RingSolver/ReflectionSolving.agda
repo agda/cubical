@@ -33,45 +33,45 @@ private
   variable
     ℓ : Level
 
-_==_ = primQNameEquality
-{-# INLINE _==_ #-}
+  _==_ = primQNameEquality
+  {-# INLINE _==_ #-}
 
-record VarInfo : Type ℓ-zero where
-  field
-    varName : String
-    varType : Arg Term
-    index : ℕ
+  record VarInfo : Type ℓ-zero where
+    field
+      varName : String
+      varType : Arg Term
+      index : ℕ
 
-getArgs : Term → Maybe (Term × Term)
-getArgs (def n xs) =
-  if n == (quote PathP)
-  then go xs
-  else nothing
+  getArgs : Term → Maybe (Term × Term)
+  getArgs (def n xs) =
+    if n == (quote PathP)
+    then go xs
+    else nothing
+      where
+      go : List (Arg Term) → Maybe (Term × Term)
+      go (varg x ∷ varg y ∷ []) = just (x , y)
+      go (x ∷ xs)               = go xs
+      go _                      = nothing
+  getArgs _ = nothing
+
+  constructSolution : ℕ → List VarInfo → Term → Term → Term → Term
+  constructSolution n varInfos R lhs rhs =
+    encloseWithIteratedLambda (map VarInfo.varName varInfos) solverCall
     where
-    go : List (Arg Term) → Maybe (Term × Term)
-    go (varg x ∷ varg y ∷ []) = just (x , y)
-    go (x ∷ xs)               = go xs
-    go _                      = nothing
-getArgs _ = nothing
+      encloseWithIteratedLambda : List String → Term → Term
+      encloseWithIteratedLambda (varName ∷ xs) t = lam visible (abs varName (encloseWithIteratedLambda xs t))
+      encloseWithIteratedLambda [] t = t
 
-constructSolution : ℕ → List VarInfo → Term → Term → Term → Term
-constructSolution n varInfos R lhs rhs =
-  encloseWithIteratedLambda (map VarInfo.varName varInfos) solverCall
-  where
-    encloseWithIteratedLambda : List String → Term → Term
-    encloseWithIteratedLambda (varName ∷ xs) t = lam visible (abs varName (encloseWithIteratedLambda xs t))
-    encloseWithIteratedLambda [] t = t
+      variableList : List VarInfo → Arg Term
+      variableList [] = varg (con (quote emptyVec) [])
+      variableList (varInfo ∷ varInfos)
+        = varg (con (quote _∷vec_) (varg (var (VarInfo.index varInfo) []) ∷ (variableList varInfos) ∷ []))
 
-    variableList : List VarInfo → Arg Term
-    variableList [] = varg (con (quote emptyVec) [])
-    variableList (varInfo ∷ varInfos)
-      = varg (con (quote _∷vec_) (varg (var (VarInfo.index varInfo) []) ∷ (variableList varInfos) ∷ []))
-
-    solverCall = def
-       (quote ringSolve)
-       (varg R ∷ varg lhs ∷ varg rhs
-         ∷ variableList (rev varInfos)
-         ∷ varg (def (quote refl) []) ∷ [])
+      solverCall = def
+         (quote ringSolve)
+         (varg R ∷ varg lhs ∷ varg rhs
+           ∷ variableList (rev varInfos)
+           ∷ varg (def (quote refl) []) ∷ [])
 
 module pr (R : CommRing {ℓ}) {n : ℕ} where
   private
@@ -156,46 +156,48 @@ module _ (cring : Term) where
   toAlgebraExpression nothing = nothing
   toAlgebraExpression (just (lhs , rhs)) = just (buildExpression lhs , buildExpression rhs)
 
-adjustDeBruijnIndex : (n : ℕ) → Term → Term
-adjustDeBruijnIndex n (var k args) = var (k +ℕ n) args
-adjustDeBruijnIndex n _ = unknown
+private
+  adjustDeBruijnIndex : (n : ℕ) → Term → Term
+  adjustDeBruijnIndex n (var k args) = var (k +ℕ n) args
+  adjustDeBruijnIndex n _ = unknown
 
-getVarsAndEquation : Term → Maybe (List VarInfo × Term)
-getVarsAndEquation t =
-  let
-    (rawVars , equationTerm) = extractVars t
-    maybeVars = addIndices (length rawVars) rawVars
-  in map-Maybe (_, equationTerm) maybeVars
-  where
-        extractVars : Term → List (String × Arg Term) × Term
-        extractVars (pi argType (abs varName t)) with extractVars t
-        ...                                         | xs , equation = (varName , argType) ∷ xs , equation
-        extractVars equation = [] , equation
-
-        addIndices : ℕ → List (String × Arg Term) → Maybe (List VarInfo)
-        addIndices ℕ.zero         []        = just []
-        addIndices (ℕ.suc countVar) ((varName , argType) ∷ list) =
-          map-Maybe (λ varList → record { varName = varName ; varType = argType ; index = countVar } ∷ varList)
-                    (addIndices countVar list)
-        addIndices _ _ = nothing
-
-solve-macro : Term → Term → TC Unit
-solve-macro cring hole = do
-  hole′ ← inferType hole >>= normalise
-  just (varInfos , equation) ← returnTC (getVarsAndEquation hole′)
+  getVarsAndEquation : Term → Maybe (List VarInfo × Term)
+  getVarsAndEquation t =
+    let
+      (rawVars , equationTerm) = extractVars t
+      maybeVars = addIndices (length rawVars) rawVars
+    in map-Maybe (_, equationTerm) maybeVars
     where
-      nothing
-        → typeError (strErr "Something went wrong when getting the variable names in "
-                       ∷ termErr hole′ ∷ [])
-  adjustedCring ← returnTC (adjustDeBruijnIndex (length varInfos) cring)
-  just (lhs , rhs) ← returnTC (toAlgebraExpression adjustedCring (getArgs equation))
-    where
-      nothing
-        → typeError(
-            strErr "Error while trying to buils ASTs for the equation " ∷
-            termErr equation ∷ [])
-  let solution = constructSolution (length varInfos) varInfos adjustedCring lhs rhs
-  unify hole solution
+          extractVars : Term → List (String × Arg Term) × Term
+          extractVars (pi argType (abs varName t)) with extractVars t
+          ...                                         | xs , equation = (varName , argType) ∷ xs , equation
+          extractVars equation = [] , equation
+
+          addIndices : ℕ → List (String × Arg Term) → Maybe (List VarInfo)
+          addIndices ℕ.zero         []        = just []
+          addIndices (ℕ.suc countVar) ((varName , argType) ∷ list) =
+            map-Maybe (λ varList → record { varName = varName ; varType = argType ; index = countVar }
+                                   ∷ varList)
+                      (addIndices countVar list)
+          addIndices _ _ = nothing
+
+  solve-macro : Term → Term → TC Unit
+  solve-macro cring hole = do
+    hole′ ← inferType hole >>= normalise
+    just (varInfos , equation) ← returnTC (getVarsAndEquation hole′)
+      where
+        nothing
+          → typeError (strErr "Something went wrong when getting the variable names in "
+                         ∷ termErr hole′ ∷ [])
+    adjustedCring ← returnTC (adjustDeBruijnIndex (length varInfos) cring)
+    just (lhs , rhs) ← returnTC (toAlgebraExpression adjustedCring (getArgs equation))
+      where
+        nothing
+          → typeError(
+              strErr "Error while trying to buils ASTs for the equation " ∷
+              termErr equation ∷ [])
+    let solution = constructSolution (length varInfos) varInfos adjustedCring lhs rhs
+    unify hole solution
 
 macro
   solve : Term → Term → TC _
