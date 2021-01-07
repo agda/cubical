@@ -124,18 +124,51 @@ module _ {C : Precategory ℓ ℓ'} where
         p2 : x ≡ (F ⟪ f ⋆⟨ C ⟩ (g ⋆⟨ C ⟩ h) ⟫) x₃
         p2 = snd ((∫ᴾ F) ._⋆_ f' ((∫ᴾ F) ._⋆_ {o1} {o2} {o3} g' h'))
 
+  -- helpful results
+
+  module _ {F : Functor (C ^op) (SET ℓ)} where
+
+    -- morphisms are equal as long as the morphisms in C are equals
+    ∫ᴾhomEq : ∀ {o1 o1' o2 o2'} (f : (∫ᴾ F) [ o1 , o2 ]) (g : (∫ᴾ F) [ o1' , o2' ])
+            → (p : o1 ≡ o1') (q : o2 ≡ o2')
+            → (eqInC : PathP (λ i → C [ fst (p i) , fst (q i) ]) (fst f) (fst g))
+            → PathP (λ i → (∫ᴾ F) [ p i , q i ]) f g
+    ∫ᴾhomEq (f , eqf) (g , eqg) p q eqInC
+      = ΣPathP (eqInC
+               , isOfHLevel→isOfHLevelDep 1 {A = Σ[ (o1 , o2) ∈ (∫ᴾ F) .ob × (∫ᴾ F) .ob ] (C [ fst o1 , fst o2 ])}
+                                            {B = λ ((o1 , o2) , f) → snd o1 ≡ (F ⟪ f ⟫) (snd o2)}
+                                            (λ ((o1 , o2) , f) → snd (F ⟅ (fst o1) ⟆) (snd o1) ((F ⟪ f ⟫) (snd o2)))
+                                            eqf
+                                            eqg
+                                            λ i → ((p i , q i) , eqInC i))
+
   -- BIG THEOREM
   module _ (F : Functor (C ^op) (SET ℓ)) where
     open _≃ᶜ_
     open isEquivalence
     open NatTrans
-    preshvSlice≃preshvElem : SliceCat (PreShv C) F ⦃ isC = isCatPreShv {C = C} ⦄ ≃ᶜ PreShv (∫ᴾ F)
+
+    -- fibers are equal when their representatives are equal
+    fiberEqIfRepsEq : ∀ {A} (ϕ : A ⇒ F) {c x} {a' b' : fiber (ϕ ⟦ c ⟧) x}
+                    → fst a' ≡ fst b'
+                    → a' ≡ b'
+    fiberEqIfRepsEq ϕ {c} {x} {a , fiba} {b , fibb} p
+      = ΣPathP (p , isOfHLevel→isOfHLevelDep 1 (λ v → snd (F ⟅ c ⟆) ((ϕ ⟦ c ⟧) v) x) _ _ p)
+
+
+    -- Functor from Slice to PreShv (∫ᴾ F)
+    -- call it K
+
+    SlCat = SliceCat (PreShv C) F ⦃ isC = isCatPreShv {C = C} ⦄
+
+    -- action on (slice) objects
+    K-ob : (s : SlCat .ob) → (PreShv (∫ᴾ F) .ob)
     -- we take (c , x) to the fiber in A of ϕ over x
-    preshvSlice≃preshvElem .func .F-ob (sliceob {A} ϕ) .F-ob (c , x)
+    K-ob (sliceob {A} ϕ) .F-ob (c , x)
       = (fiber (ϕ ⟦ c ⟧) x)
       , isOfHLevelΣ 2 (snd (A ⟅ c ⟆)) λ _ → isSet→isGroupoid (snd (F ⟅ c ⟆)) _ _
     -- for morhpisms, we just apply A ⟪ h ⟫ (plus equality proof)
-    preshvSlice≃preshvElem .func .F-ob (sliceob {A} ϕ) .F-hom {d , y} {c , x} (h , com) (b , eq)
+    K-ob (sliceob {A} ϕ) .F-hom {d , y} {c , x} (h , com) (b , eq)
       = ((A ⟪ h ⟫) b)
       , ((ϕ ⟦ c ⟧) ((A ⟪ h ⟫) b)
       ≡[ i ]⟨ (ϕ .N-hom h) i b ⟩
@@ -146,42 +179,118 @@ module _ {C : Precategory ℓ ℓ'} where
         x
       ∎)
     -- functoriality follows from functoriality of A
-    preshvSlice≃preshvElem .func .F-ob (sliceob {A} ϕ) .F-id {x = (c , x)}
-      -- = funExt {!!}
+    K-ob (sliceob {A} ϕ) .F-id {x = (c , x)}
       = funExt λ { (a , fibp)
-                → ΣPathP (a≡ a
-                          , isOfHLevel→isOfHLevelDep 1 (λ v → snd (F ⟅ c ⟆) ((ϕ ⟦ c ⟧) v) x) _ fibp (a≡ a)) }
-        where
-          a≡ : ∀ (a : fst (A ⟅ c ⟆)) → (A ⟪ C .id _ ⟫) a ≡ a
-          a≡ = λ a → (A ⟪ C .id _ ⟫) a
-                   ≡[ i ]⟨ A .F-id i a ⟩
-                     a
-                   ∎
-    preshvSlice≃preshvElem .func .F-ob (sliceob {A} ϕ) .F-seq {x = (c , x)} {(d , y)} {(e , z)} (f' , eq1) (g' , eq2)
+                 → fiberEqIfRepsEq ϕ (λ i → A .F-id i a) }
+    K-ob (sliceob {A} ϕ) .F-seq {x = (c , x)} {(d , y)} {(e , z)} (f' , eq1) (g' , eq2)
       = funExt λ { ( a , fibp )
-                  → ΣPathP ( seq≡ a --(λ i → (A .F-seq f' g') i a)
-                           , isOfHLevel→isOfHLevelDep 1 (λ v → snd (F ⟅ e ⟆) ((ϕ ⟦ e ⟧) v) z) _ _ (seq≡ a) )}
-        where
-          seq≡ = λ (a : fst (A ⟅ c ⟆)) → λ i → (A .F-seq f' g') i a
-    preshvSlice≃preshvElem .func .F-hom = {!!}
-    --   = record
-    --   -- takes each element to its preimage under ϕ ⟦ c ⟧
-    --   { F-ob = λ { (c , x) → 
-    --   ; F-hom = λ { {d , y} {c , x} (h , com) (b , eq)
-    --               → ((A ⟪ h ⟫) b)
-    --               , ((ϕ ⟦ c ⟧) ((A ⟪ h ⟫) b)
-    --               ≡[ i ]⟨ (ϕ .N-hom h) i b ⟩
-    --                 (F ⟪ h ⟫) ((ϕ ⟦ d ⟧) b)
-    --               ≡[ i ]⟨ (F ⟪ h ⟫) (eq i) ⟩
-    --                 (F ⟪ h ⟫) y
-    --               ≡⟨ sym com ⟩
-    --                 x
-    --               ∎)}
-    --   ; F-id = λ { {x = (c , x)} → funExt λ {  (a , fibp)
-    --                     → ΣPathP (((A ⟪ C .id _ ⟫) a
-    --                              ≡[ i ]⟨ A .F-id i a ⟩
-    --                                a
-    --                              ∎)
-    --                              , isOfHLevel→isOfHLevelDep 1 (λ v → snd (F ⟅ c ⟆) {!(ϕ ⟦ c ⟧) a!} x) _ fibp {!!}) } }
-    --   ; F-seq = {!!} }
-    preshvSlice≃preshvElem .isEquiv = {!!}
+                   → fiberEqIfRepsEq ϕ (λ i → (A .F-seq f' g') i a) }
+
+
+    -- action on morphisms (in this case, natural transformation)
+    K-hom : {sA sB : SlCat .ob}
+          → (ε : SlCat [ sA , sB ])
+          → (K-ob sA) ⇒ (K-ob sB)
+    K-hom {sA = s1@(sliceob {A} ϕ)} {s2@(sliceob {B} ψ)} (slicehom ε com) = natTrans η-ob (λ h → funExt (η-hom h))
+      where
+        P = K-ob s1
+        Q = K-ob s2
+
+        -- just apply the natural transformation (ε) we're given
+        -- this ensures that we stay in the fiber over x due to the commutativity given by slicenesss
+        η-ob : (el : (∫ᴾ F) .ob) → (fst (P ⟅ el ⟆) → fst (Q ⟅ el ⟆) )
+        η-ob (c , x) (a , ϕa≡x) = ((ε ⟦ c ⟧) a) , εψ≡ϕ ∙ ϕa≡x
+          where
+            εψ≡ϕ : (ψ ⟦ c ⟧) ((ε ⟦ c ⟧) a) ≡ (ϕ ⟦ c ⟧) a
+            εψ≡ϕ i = ((com i) ⟦ c ⟧) a
+
+        η-hom : ∀ {el1 el2} (h : (∫ᴾ F) [ el1 , el2 ]) (ae : fst (P ⟅ el2 ⟆)) → η-ob el1 ((P ⟪ h ⟫) ae) ≡ (Q ⟪ h ⟫) (η-ob el2 ae)
+        η-hom {el1 = (c , x)} {d , y} (h , eqh) (a , eqa)
+          = fiberEqIfRepsEq ψ (λ i → ε .N-hom h i a)
+
+
+    -- reverse functor from presheaf to slice
+    L-ob : (P : PreShv (∫ᴾ F) .ob)
+         → SlCat .ob
+    L-ob P = sliceob ⦃ isC = isCatPreShv {C = C} ⦄ {S-ob = L-ob-ob} L-ob-hom
+      where
+        LF-ob : (c : C .ob) → (SET _) .ob
+        LF-ob c = (Σ[ x ∈ fst (F ⟅ c ⟆) ] fst (P ⟅ c , x ⟆)) , isSetΣ (snd (F ⟅ c ⟆)) (λ x → snd (P ⟅ c , x ⟆))
+
+        LF-hom : ∀ {x y}
+               → (f : C [ y , x ])
+               → (SET _) [ LF-ob x , LF-ob y ]
+        LF-hom {x = c} {d} f (x , a) = ((F ⟪ f ⟫) x) , (P ⟪ f , refl ⟫) a
+
+        L-ob-ob : Functor (C ^op) (SET _)
+        -- sends c to the disjoint union of all the images under P
+        L-ob-ob .F-ob = LF-ob
+        -- defines a function piecewise over the fibers by applying P
+        L-ob-ob .F-hom = LF-hom
+        L-ob-ob .F-id {x = c}
+          = funExt idFunExt
+            where
+              idFunExt : ∀ (un : fst (LF-ob c))
+                       → (LF-hom (C .id c) un) ≡ un
+              idFunExt (x , X) = ΣPathP (leftEq , rightEq)
+                where
+                  leftEq : (F ⟪ C .id c ⟫) x ≡ x
+                  leftEq i = F .F-id i x
+
+                  rightEq : PathP (λ i → fst (P ⟅ c , leftEq i ⟆))
+                            ((P ⟪ C .id c , refl ⟫) X) X
+                  rightEq = left ▷ right
+                    where
+                      -- the id morphism in (∫ᴾ F)
+                      ∫id = C .id c , sym (funExt⁻ (F .F-id) x ∙ refl)
+
+                      -- functoriality of P gives us close to what we want
+                      right : (P ⟪ ∫id ⟫) X ≡ X
+                      right i = P .F-id i X
+
+                      -- but need to do more work to show that (C .id c , refl) ≡ ∫id
+                      left : PathP (λ i → fst (P ⟅ c , leftEq i ⟆))
+                                   ((P ⟪ C .id c , refl ⟫) X)
+                                   ((P ⟪ ∫id ⟫) X)
+                      left i = (P ⟪ ∫ᴾhomEq {F = F} (C .id c , refl) ∫id (λ i → (c , leftEq i)) refl refl i ⟫) X
+        L-ob-ob .F-seq {x = c} {d} {e} f g
+          = funExt seqFunEq
+            where
+              -- for every (x , X) where x is in F ⟅ c ⟆ and X is its image under P
+              -- the functions obtained by sequencing then functoring and functoring
+              -- then sequencing do the same thing
+              seqFunEq : ∀ (un : fst (LF-ob c))
+                       → (LF-hom (g ⋆⟨ C ⟩ f) un) ≡ (LF-hom g) (LF-hom f un)
+              seqFunEq un@(x , X) = ΣPathP (leftEq , rightEq)
+                where
+                  -- the left component is comparing the action of F on x
+                  -- equality follows from functoriality of F
+                  -- leftEq : fst (LF-hom (g ⋆⟨ C ⟩ f) un) ≡ fst ((LF-hom g) (LF-hom f un))
+                  leftEq : (F ⟪ g ⋆⟨ C ⟩ f ⟫) x ≡ (F ⟪ g ⟫) ((F ⟪ f ⟫) x)
+                  leftEq i = F .F-seq f g i x
+
+                  -- on the right, equality also follows from functoriality of P
+                  -- but it's more complicated because of heterogeneity
+                  -- since leftEq is not a definitional equality
+                  rightEq : PathP (λ i → fst (P ⟅ e , leftEq i ⟆))
+                                  ((P ⟪ g ⋆⟨ C ⟩ f , refl ⟫) X)
+                                  ((P ⟪ g , refl ⟫) ((P ⟪ f , refl ⟫) X))
+                  rightEq = left ▷ right
+                    where
+                      -- functoriality of P only gets us to this weird composition on the left
+                      right : (P ⟪ (g , refl) ⋆⟨ (∫ᴾ F) ⟩ (f , refl) ⟫) X ≡ (P ⟪ g , refl ⟫) ((P ⟪ f , refl ⟫) X)
+                      right i = P .F-seq (f , refl) (g , refl) i X
+
+                      -- so we need to show that this composition is actually equal to the one we want
+                      left : PathP (λ i → fst (P ⟅ e , leftEq i ⟆))
+                                   ((P ⟪ g ⋆⟨ C ⟩ f , refl ⟫) X)
+                                   ((P ⟪ (g , refl) ⋆⟨ (∫ᴾ F) ⟩ (f , refl) ⟫) X)
+                      left i = (P ⟪ ∫ᴾhomEq {F = F} (g ⋆⟨ C ⟩ f , refl) ((g , refl) ⋆⟨ (∫ᴾ F) ⟩ (f , refl)) (λ i → (e , leftEq i)) refl refl i ⟫) X
+        L-ob-hom : L-ob-ob ⇒ F
+        L-ob-hom .N-ob c (x , _) = x
+        L-ob-hom .N-hom f = funExt λ (x , _) → refl
+
+    preshvSlice≃preshvElem : SliceCat (PreShv C) F ⦃ isC = isCatPreShv {C = C} ⦄ ≃ᶜ PreShv (∫ᴾ F)
+    preshvSlice≃preshvElem .func .F-ob = K-ob
+    preshvSlice≃preshvElem .func .F-hom = K-hom
+    preshvSlice≃preshvElem .isEquiv .invFunc .F-ob = L-ob
