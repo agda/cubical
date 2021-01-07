@@ -1,7 +1,7 @@
 Ring solving
 ========================================
 
-This is a crude ring solver similar to this one:
+This is a ring solver similar to this one:
 
 https://github.com/oisdk/agda-ring-solver
 
@@ -20,7 +20,6 @@ There are three parts of the appraoch to prove x=y:
 * let agda compare the results with unification
 
 There are two versions of the solver, one which works for natural numbers and one which works for commutatitive rings (CommRing).
-The ring solver here could need a nice reflection interface like oisdk's.
 
-To understand how the ring solver works and it might be used, have a look at 'Examples.agda' and 'CommRingExamples.agda'.
+To see how the ring solver might be used, check out 'ReflectionExamples.agda'. To understand how it works, it is probably good to have a look at 'Examples.agda' and 'CommRingExamples.agda'.
 
