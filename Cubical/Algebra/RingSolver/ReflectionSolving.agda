@@ -16,7 +16,7 @@ open import Cubical.Reflection.Base
 open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.Data.List
-open import Cubical.Data.Nat hiding (zero) renaming (_+_ to _+ℕ_)
+open import Cubical.Data.Nat hiding (zero; suc) renaming (_+_ to _+ℕ_)
 open import Cubical.Data.FinData using (zero; suc)
 open import Cubical.Data.Int hiding (_+'_; _-_; -_; abs)
 open import Cubical.Data.Bool
@@ -70,7 +70,7 @@ constructSolution n varInfos R lhs rhs =
     solverCall = def
        (quote ringSolve)
        (varg R ∷ varg lhs ∷ varg rhs
-         ∷ variableList varInfos
+         ∷ variableList (rev varInfos)
          ∷ varg (def (quote refl) []) ∷ [])
 
 module pr (R : CommRing {ℓ}) {n : ℕ} where
@@ -128,8 +128,12 @@ module _ (cring : Term) where
     K' : List (Arg Term) → Term
     K' xs = con (quote K) xs
 
+    finiteNumberAsTerm : ℕ → Term
+    finiteNumberAsTerm ℕ.zero = con (quote zero) []
+    finiteNumberAsTerm (ℕ.suc n) = con (quote suc) (varg (finiteNumberAsTerm n) ∷ [])
+
     buildExpression : Term → Term
-    buildExpression (var _ _) = con (quote ∣) (varg (con (quote zero) []) ∷ [])
+    buildExpression (var index _) = con (quote ∣) (varg (finiteNumberAsTerm index) ∷ [])
     buildExpression t@(def n xs) =
       switch (n ==_) cases
         case (quote CommRingStr.0r)  ⇒ `0` xs     break
@@ -165,12 +169,12 @@ getVarsAndEquation t =
   where
         extractVars : Term → List (String × Arg Term) × Term
         extractVars (pi argType (abs varName t)) with extractVars t
-        ...                                         | xs , equation = (varName , argType) ∷ [] , equation
+        ...                                         | xs , equation = (varName , argType) ∷ xs , equation
         extractVars equation = [] , equation
 
         addIndices : ℕ → List (String × Arg Term) → Maybe (List VarInfo)
         addIndices ℕ.zero         []        = just []
-        addIndices (suc countVar) ((varName , argType) ∷ list) =
+        addIndices (ℕ.suc countVar) ((varName , argType) ∷ list) =
           map-Maybe (λ varList → record { varName = varName ; varType = argType ; index = countVar } ∷ varList)
                     (addIndices countVar list)
         addIndices _ _ = nothing
@@ -179,14 +183,16 @@ solve-macro : Term → Term → TC Unit
 solve-macro cring hole = do
   hole′ ← inferType hole >>= normalise
   just (varInfos , equation) ← returnTC (getVarsAndEquation hole′)
-    where nothing → typeError (strErr "Something went wrong when getting the variable names in "
-                                ∷ termErr hole′ ∷ [])
+    where
+      nothing
+        → typeError (strErr "Something went wrong when getting the variable names in "
+                       ∷ termErr hole′ ∷ [])
   adjustedCring ← returnTC (adjustDeBruijnIndex (length varInfos) cring)
   just (lhs , rhs) ← returnTC (toAlgebraExpression adjustedCring (getArgs equation))
     where
       nothing
         → typeError(
-            strErr "Error while trying to buils ASTs for left hand side or right hand side of the equation " ∷
+            strErr "Error while trying to buils ASTs for the equation " ∷
             termErr equation ∷ [])
   let solution = constructSolution (length varInfos) varInfos adjustedCring lhs rhs
   unify hole solution
