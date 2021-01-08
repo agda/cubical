@@ -1,6 +1,10 @@
 -- In this file we consider the special of localising at a single
 -- element f : R (or rather the set of powers of f). This is also
 -- known as inverting f.
+-- We then prove that localising first at an element f and at an element
+-- g (or rather the image g/1) is the same as localising at the product f·g
+-- This fact has an important application in algebraic geometry where it's
+-- used to define the structure sheaf of a commutative ring.
 
 {-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.InvertingElements where
@@ -103,13 +107,9 @@ module _(R' : CommRing {ℓ}) where
  powersPropElim {f = f} {P = P} PisProp base s =
                 PT.rec (PisProp s) λ (n , p) → subst P (sym p) (base n)
 
--- Check: (R[1/f])[1/g] ≡ R[1/fg]
--- still TODO:
--- ψ : R[1/f][1/g] → R[1/fg]
--- η : section φ ψ
--- ε : retract φ ψ
--- prove that φ is ring hom
-module check (R' : CommRing {ℓ}) (f g : (fst R')) where
+
+
+module DoubleLoc (R' : CommRing {ℓ}) (f g : (fst R')) where
  open isMultClosedSubset
  open CommRingStr (snd R')
  open CommTheory R'
@@ -132,114 +132,6 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
                                 [ g , 1r , powersFormMultClosedSubset R' f .containsOne ]
   R[1/f][1/g]ˣ = R[1/f][1/g]AsCommRing ˣ
 
- φ : R[1/fg] → R[1/f][1/g]
- φ = SQ.rec squash/ ϕ ϕcoh
-   where
-   S[fg] = Loc.S R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g))
-
-   curriedϕΣ : (r s : R) → Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n → R[1/f][1/g]
-   curriedϕΣ r s (n , s≡fg^n) =
-    [ [ r , (f ^ n) , ∣ n , refl ∣ ] , [ (g ^ n) , 1r , ∣ 0 , refl ∣ ] , ∣ n , ^-respects-/1 R' n ∣ ]
-
-   curriedϕ : (r s : R) → ∃[ n ∈ ℕ ] s ≡ (f · g) ^ n → R[1/f][1/g]
-   curriedϕ r s = elim→Set (λ _ → squash/) (curriedϕΣ r s) coh
-    where
-    coh : (x y : Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n) → curriedϕΣ r s x ≡ curriedϕΣ r s y
-    coh (n , s≡fg^n) (m , s≡fg^m) = eq/ _ _ ((1ᶠ , ∣ 0 , refl ∣) ,
-                                    eq/ _ _ ( (1r , powersFormMultClosedSubset R' f .containsOne)
-                                            , path))
-     where
-     path : 1r · (1r · r · (g ^ m)) · (1r · (f ^ m) · 1r)
-          ≡ 1r · (1r · r · (g ^ n)) · (1r · (f ^ n) · 1r)
-     path = 1r · (1r · r · (g ^ m)) · (1r · (f ^ m) · 1r)
-          ≡⟨ (λ i → ·Lid ((·Lid r i) · (g ^ m)) i · (·Rid (·Lid (f ^ m) i) i)) ⟩
-            r · g ^ m · f ^ m
-          ≡⟨ sym (·Assoc _ _ _) ⟩
-            r · (g ^ m · f ^ m)
-          ≡⟨ cong (r ·_) (sym (^-ldist-· g f m)) ⟩
-            r · ((g · f) ^ m)
-          ≡⟨ cong (λ x → r · (x ^ m)) (·-comm _ _) ⟩
-            r · ((f · g) ^ m)
-          ≡⟨ cong (r ·_) ((sym s≡fg^m) ∙ s≡fg^n) ⟩
-            r · ((f · g) ^ n)
-          ≡⟨ cong (λ x → r · (x ^ n)) (·-comm _ _) ⟩
-            r · ((g · f) ^ n)
-          ≡⟨ cong (r ·_) (^-ldist-· g f n) ⟩
-            r · (g ^ n · f ^ n)
-          ≡⟨ ·Assoc _ _ _ ⟩
-            r · g ^ n · f ^ n
-          ≡⟨ (λ i → ·Lid ((·Lid r (~ i)) · (g ^ n)) (~ i) · (·Rid (·Lid (f ^ n) (~ i)) (~ i))) ⟩
-            1r · (1r · r · (g ^ n)) · (1r · (f ^ n) · 1r) ∎
-
-   ϕ : R × S[fg] → R[1/f][1/g]
-   ϕ (r , s , |n,s≡fg^n|) = curriedϕ r s |n,s≡fg^n|
-   -- λ (r / (fg)ⁿ) → ((r / fⁿ) / gⁿ)
-
-   curriedϕcohΣ : (r s r' s' u : R) → (p : u · r · s' ≡ u · r' · s)
-                                    → (α : Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n)
-                                    → (β : Σ[ m ∈ ℕ ] s' ≡ (f · g) ^ m)
-                                    → (γ : Σ[ l ∈ ℕ ] u ≡ (f · g) ^ l)
-                                    → ϕ (r , s , ∣ α ∣) ≡ ϕ (r' , s' , ∣ β ∣)
-   curriedϕcohΣ r s r' s' u p (n , s≡fgⁿ) (m , s'≡fgᵐ) (l , u≡fgˡ) =
-    eq/ _ _ ( ( [ (g ^ l) , 1r , powersFormMultClosedSubset R' f .containsOne ]
-              , ∣ l , ^-respects-/1 R' l ∣)
-            , eq/ _ _ ((f ^ l , ∣ l , refl ∣) , path))
-    where
-    path : f ^ l · (g ^ l · transp (λ i → R) i0 r · transp (λ i → R) i0 (g ^ m))
-                 · (1r · transp (λ i → R) i0 (f ^ m) · transp (λ i → R) i0 1r)
-         ≡ f ^ l · (g ^ l · transp (λ i → R) i0 r' · transp (λ i → R) i0 (g ^ n))
-                 · (1r · transp (λ i → R) i0 (f ^ n) · transp (λ i → R) i0 1r)
-    path = f ^ l · (g ^ l · transp (λ i → R) i0 r · transp (λ i → R) i0 (g ^ m))
-                 · (1r · transp (λ i → R) i0 (f ^ m) · transp (λ i → R) i0 1r)
-         ≡⟨ (λ i → f ^ l · (g ^ l · transportRefl r i · transportRefl (g ^ m) i)
-                         · (1r · transportRefl (f ^ m) i · transportRefl 1r i)) ⟩
-           f ^ l · (g ^ l · r · g ^ m) · (1r · f ^ m · 1r)
-         ≡⟨ (λ i → ·Assoc (f ^ l) ((g ^ l) · r) (g ^ m) i · ·Rid (1r · (f ^ m)) i) ⟩
-           f ^ l · (g ^ l · r) · g ^ m · (1r · f ^ m)
-         ≡⟨ (λ i → ·Assoc (f ^ l) (g ^ l) r i · g ^ m ·  ·Lid (f ^ m) i) ⟩
-           f ^ l · g ^ l · r · g ^ m · f ^ m
-         ≡⟨ sym (·Assoc _ _ _) ⟩
-           f ^ l · g ^ l · r · (g ^ m · f ^ m)
-         ≡⟨ (λ i → ^-ldist-· f g l (~ i) · r · ^-ldist-· g f m (~ i)) ⟩
-           (f · g) ^ l · r · (g · f) ^ m
-         ≡⟨ cong (λ x → (f · g) ^ l · r · x ^ m) (·-comm _ _) ⟩
-           (f · g) ^ l · r · (f · g) ^ m
-         ≡⟨ (λ i → u≡fgˡ (~ i) · r · s'≡fgᵐ (~ i)) ⟩
-           u · r · s'
-         ≡⟨ p ⟩
-           u · r' · s
-         ≡⟨ (λ i → u≡fgˡ i · r' · s≡fgⁿ i) ⟩
-           (f · g) ^ l · r' · (f · g) ^ n
-         ≡⟨ cong (λ x → (f · g) ^ l · r' · x ^ n) (·-comm _ _) ⟩
-           (f · g) ^ l · r' · (g · f) ^ n
-         ≡⟨ (λ i → ^-ldist-· f g l i · r' · ^-ldist-· g f n i) ⟩
-           f ^ l · g ^ l · r' · (g ^ n · f ^ n)
-         ≡⟨ ·Assoc _ _ _ ⟩
-           f ^ l · g ^ l · r' · g ^ n · f ^ n
-         ≡⟨ (λ i → ·Assoc (f ^ l) (g ^ l) r' (~ i) · g ^ n ·  ·Lid (f ^ n) (~ i)) ⟩
-           f ^ l · (g ^ l · r') · g ^ n · (1r · f ^ n)
-         ≡⟨ (λ i → ·Assoc (f ^ l) ((g ^ l) · r') (g ^ n) (~ i) · ·Rid (1r · (f ^ n)) (~ i)) ⟩
-           f ^ l · (g ^ l · r' · g ^ n) · (1r · f ^ n · 1r)
-         ≡⟨ (λ i → f ^ l · (g ^ l · transportRefl r' (~ i) · transportRefl (g ^ n) (~ i))
-                         · (1r · transportRefl (f ^ n) (~ i) · transportRefl 1r (~ i))) ⟩
-           f ^ l · (g ^ l · transp (λ i → R) i0 r' · transp (λ i → R) i0 (g ^ n))
-                 · (1r · transp (λ i → R) i0 (f ^ n) · transp (λ i → R) i0 1r) ∎
-
-   curriedϕcoh : (r s r' s' u : R) → (p : u · r · s' ≡ u · r' · s)
-                                   → (α : ∃[ n ∈ ℕ ] s ≡ (f · g) ^ n)
-                                   → (β : ∃[ m ∈ ℕ ] s' ≡ (f · g) ^ m)
-                                   → (γ : ∃[ l ∈ ℕ ] u ≡ (f · g) ^ l)
-                                   → ϕ (r , s , α) ≡ ϕ (r' , s' , β)
-   curriedϕcoh r s r' s' u p = PT.elim (λ _ → isPropΠ2 (λ _ _ → squash/ _ _))
-                         λ α → PT.elim (λ _ → isPropΠ (λ _ → squash/ _ _))
-                         λ β → PT.rec (squash/ _ _)
-                         λ γ →  curriedϕcohΣ r s r' s' u p α β γ
-
-   ϕcoh : (a b : R × S[fg])
-        → Loc._≈_ R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g)) a b
-        → ϕ a ≡ ϕ b
-   ϕcoh (r , s , α) (r' , s' , β) ((u , γ) , p) =  curriedϕcoh r s r' s' u p α β γ
-
 
  _/1/1 : R → R[1/f][1/g]
  r /1/1 = [ [ r , 1r , ∣ 0 , refl ∣ ] , 1ᶠ , ∣ 0 , refl ∣ ]
@@ -258,7 +150,39 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
                                                   (≡-× refl (Σ≡Prop (λ _ → propTruncIsProp)
                                                   (sym (·Lid _)))))
                                                   (Σ≡Prop (λ _ → propTruncIsProp) (sym (·ᶠ-lid 1ᶠ))))
- -- takes forever to compute...
+
+ -- this will give us a map R[1/fg] → R[1/f][1/g] by the universal property of localisation
+ fⁿgⁿ/1/1∈R[1/f][1/g]ˣ : (s : R) → s ∈ ([_ⁿ|n≥0] R' (f · g)) → s /1/1 ∈ R[1/f][1/g]ˣ
+ fⁿgⁿ/1/1∈R[1/f][1/g]ˣ = powersPropElim R' (λ s → R[1/f][1/g]ˣ (s /1/1) .snd) ℕcase
+  where
+  ℕcase : (n : ℕ) → ((f · g) ^ n) /1/1 ∈ R[1/f][1/g]ˣ
+  ℕcase n = [ [ 1r , (f ^ n) , ∣ n , refl ∣ ]
+            , [ (g ^ n) , 1r , ∣ 0 , refl ∣ ] --denominator
+            , ∣ n , ^-respects-/1 _ n ∣ ]
+            , eq/ _ _ ((1ᶠ , powersFormMultClosedSubset _ _ .containsOne)
+            , eq/ _ _ ((1r , powersFormMultClosedSubset _ _ .containsOne) , path))
+   where
+   path : 1r · (1r · ((f · g) ^ n · 1r) · 1r) · (1r · 1r · (1r · 1r))
+        ≡ 1r · (1r · 1r · (1r · g ^ n)) · (1r · (1r · f ^ n) · 1r)
+   path = 1r · (1r · ((f · g) ^ n · 1r) · 1r) · (1r · 1r · (1r · 1r))
+        ≡⟨ (λ i → ·Lid (·Rid (·Lid (·Rid ((f · g) ^ n) i) i) i) i · (·Lid 1r i · ·Lid 1r i) ) ⟩
+          (f · g) ^ n · (1r · 1r)
+        ≡⟨ cong ((f · g) ^ n ·_) (·Rid _) ⟩
+          (f · g) ^ n · 1r
+        ≡⟨ ·Rid _ ⟩
+          (f · g) ^ n
+        ≡⟨ ^-ldist-· _ _ _ ⟩
+          f ^ n · g ^ n
+        ≡⟨ (λ i → ·-comm (f ^ n) (·Lid (g ^ n) (~ i)) i) ⟩
+          1r · g ^ n · f ^ n
+        ≡⟨ (λ i → ·Lid (·Lid 1r (~ i) · ·Lid (g ^ n) (~ i)) (~ i)
+                  · ·Rid (·Lid (·Lid (f ^ n) (~ i)) (~ i)) (~ i)) ⟩
+          1r · (1r · 1r · (1r · g ^ n)) · (1r · (1r · f ^ n) · 1r) ∎
+
+
+ -- the main result: localising at one element and then at another is
+ -- the same as localising at the product.
+ -- takes forever to compute without experimental lossy unification
  R[1/fg]≡R[1/f][1/g] : R[1/fg]AsCommRing ≡ R[1/f][1/g]AsCommRing
  R[1/fg]≡R[1/f][1/g] = S⁻¹RChar R' ([_ⁿ|n≥0] R' (f · g))
                          (powersFormMultClosedSubset R' (f · g)) _ /1/1AsCommRingHom pathtoR[1/fg]
@@ -266,33 +190,7 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
   open PathToS⁻¹R
   pathtoR[1/fg] : PathToS⁻¹R R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g))
                              R[1/f][1/g]AsCommRing /1/1AsCommRingHom
-  φS⊆Aˣ pathtoR[1/fg] s = PT.elim (λ _ → R[1/f][1/g]ˣ (s /1/1) .snd) Σhelper
-   where
-   Σhelper : Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n → (s /1/1) ∈ R[1/f][1/g]ˣ
-   Σhelper (n , p) =
-    [ [ 1r , (f ^ n) , ∣ n , refl ∣ ] , [ (g ^ n) , 1r , ∣ 0 , refl ∣ ] , ∣ n , ^-respects-/1 _ n ∣ ]
-                   , eq/ _ _ ((1ᶠ , powersFormMultClosedSubset _ _ .containsOne)
-                   , eq/ _ _ ((1r , powersFormMultClosedSubset _ _ .containsOne)
-                   , path))
-    where
-    path : 1r · (1r · (s · 1r) · 1r) · (1r · 1r · (1r · 1r))
-         ≡ 1r · (1r · 1r · (1r · g ^ n)) · (1r · (1r · f ^ n) · 1r)
-    path = 1r · (1r · (s · 1r) · 1r) · (1r · 1r · (1r · 1r))
-         ≡⟨ (λ i → ·Lid (·Rid (·Lid (·Rid s i) i) i) i · (·Lid 1r i · ·Lid 1r i) ) ⟩
-           s · (1r · 1r)
-         ≡⟨ cong (s ·_) (·Rid _) ⟩
-           s · 1r
-         ≡⟨ ·Rid _ ⟩
-           s
-         ≡⟨ p ⟩
-           (f · g) ^ n
-         ≡⟨ ^-ldist-· _ _ _ ⟩
-           f ^ n · g ^ n
-         ≡⟨ (λ i → ·-comm (f ^ n) (·Lid (g ^ n) (~ i)) i) ⟩
-           1r · g ^ n · f ^ n
-         ≡⟨ (λ i → ·Lid (·Lid 1r (~ i) · ·Lid (g ^ n) (~ i)) (~ i)
-                   · ·Rid (·Lid (·Lid (f ^ n) (~ i)) (~ i)) (~ i)) ⟩
-           1r · (1r · 1r · (1r · g ^ n)) · (1r · (1r · f ^ n) · 1r) ∎
+  φS⊆Aˣ pathtoR[1/fg] = fⁿgⁿ/1/1∈R[1/f][1/g]ˣ
 
   kerφ⊆annS pathtoR[1/fg] r p = toGoal helperR[1/f]
    where
@@ -391,7 +289,7 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
            ≡⟨ 0RightAnnihilates _ ⟩
              0r ∎
 
-  surχ pathtoR[1/fg] = InvElPropElim _ (λ _ → propTruncIsProp) foo2
+  surχ pathtoR[1/fg] = InvElPropElim _ (λ _ → propTruncIsProp) toGoal
    where
    open Exponentiation R[1/f]AsCommRing renaming (_^_ to _^ᶠ_)
                                                hiding (·-of-^-is-^-of-+ ; ^-ldist-·)
@@ -402,10 +300,10 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
    g/1 = [ g , 1r , powersFormMultClosedSubset R' f .containsOne ]
    S[fg] = Loc.S R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g))
 
-   bar : (r : R) (m n : ℕ) → ∃[ x ∈ R × S[fg] ] (x .fst /1/1)
+   baseCase : (r : R) (m n : ℕ) → ∃[ x ∈ R × S[fg] ] (x .fst /1/1)
        ≡ [ [ r , f ^ m , ∣ m , refl ∣ ] , [ g ^ n , 1r , ∣ 0 , refl ∣ ] , ∣ n , ^-respects-/1 _ n ∣ ]
        ·R[1/f][1/g] (x .snd .fst /1/1)
-   bar r m n = ∣ ((r · f ^ (l ∸ m) · g ^ (l ∸ n)) -- x .fst
+   baseCase r m n = ∣ ((r · f ^ (l ∸ m) · g ^ (l ∸ n)) -- x .fst
                , (f · g) ^ l , ∣ l , refl ∣)      -- x .snd
                , eq/ _ _ ((1ᶠ , ∣ 0 , refl ∣) , eq/ _ _ ((1r , ∣ 0 , refl ∣) , path)) ∣
                -- reduce equality of double fractions into equality in R
@@ -441,21 +339,21 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
                  · (·Rid 1r (~ i) · ·Rid 1r (~ i))) ⟩
            1r · (1r · (r · (f · g) ^ l) · 1r) · (1r · 1r · (1r · 1r)) ∎
 
-   baz : (r : R) (m n : ℕ) → ∃[ x ∈ R × S[fg] ] (x .fst /1/1)
+   base-^ᶠ-helper : (r : R) (m n : ℕ) → ∃[ x ∈ R × S[fg] ] (x .fst /1/1)
        ≡ [ [ r , f ^ m , ∣ m , refl ∣ ] , g/1 ^ᶠ n , ∣ n , refl ∣ ] ·R[1/f][1/g] (x .snd .fst /1/1)
-   baz r m n = subst (λ y →  ∃[ x ∈ R × S[fg] ] (x .fst /1/1)
+   base-^ᶠ-helper r m n = subst (λ y →  ∃[ x ∈ R × S[fg] ] (x .fst /1/1)
                           ≡ [ [ r , f ^ m , ∣ m , refl ∣ ] , y ] ·R[1/f][1/g] (x .snd .fst /1/1))
-                     (Σ≡Prop (λ _ → propTruncIsProp) (^-respects-/1 _ n)) (bar r m n)
+                     (Σ≡Prop (λ _ → propTruncIsProp) (^-respects-/1 _ n)) (baseCase r m n)
 
-   foo : (r : R[1/_] R' f) (n : ℕ) → ∃[ x ∈ R × S[fg] ]
+   indStep : (r : R[1/_] R' f) (n : ℕ) → ∃[ x ∈ R × S[fg] ]
          (x .fst /1/1) ≡ [ r , g/1 ^ᶠ n , ∣ n , refl ∣ ] ·R[1/f][1/g] (x .snd .fst /1/1)
-   foo = InvElPropElim _ (λ _ → isPropΠ λ _ → propTruncIsProp) baz
+   indStep = InvElPropElim _ (λ _ → isPropΠ λ _ → propTruncIsProp) base-^ᶠ-helper
 
-   foo2 : (r : R[1/_] R' f) (n : ℕ) → ∃[ x ∈ R × S[fg] ]
-          (x .fst /1/1) ·R[1/f][1/g]
-          ((x .snd .fst /1/1) ⁻¹) ⦃ φS⊆Aˣ pathtoR[1/fg] (x .snd .fst) (x .snd .snd) ⦄
-        ≡ [ r , g/1 ^ᶠ n , ∣ n , refl ∣ ]
-   foo2 r n = PT.map Σhelper (foo r n)
+   toGoal : (r : R[1/_] R' f) (n : ℕ) → ∃[ x ∈ R × S[fg] ]
+            (x .fst /1/1) ·R[1/f][1/g]
+            ((x .snd .fst /1/1) ⁻¹) ⦃ φS⊆Aˣ pathtoR[1/fg] (x .snd .fst) (x .snd .snd) ⦄
+          ≡ [ r , g/1 ^ᶠ n , ∣ n , refl ∣ ]
+   toGoal r n = PT.map Σhelper (indStep r n)
     where
     Σhelper : Σ[ x ∈ R × S[fg] ]
                (x .fst /1/1) ≡ [ r , g/1 ^ᶠ n , ∣ n , refl ∣ ] ·R[1/f][1/g] (x .snd .fst /1/1)
@@ -466,3 +364,152 @@ module check (R' : CommRing {ℓ}) (f g : (fst R')) where
     Σhelper ((r' , s , s∈S[fg]) , p) = (r' , s , s∈S[fg])
                                      , ⁻¹-eq-elim ⦃ φS⊆Aˣ pathtoR[1/fg] s s∈S[fg] ⦄ p
 
+
+ -- In this module we construct the map R[1/fg]→R[1/f][1/g] directly
+ -- and show that it is equal (although not judgementally) to the map induced
+ -- by the universal property of localisation, i.e. transporting along the path
+ -- constructed above. Given that this is the easier direction, we can see that
+ -- it is pretty cumbersome to prove R[1/fg]≡R[1/f][1/g] directly,
+ -- which illustrates the usefulness of S⁻¹RChar quite well.
+ private
+  module check where
+   φ : R[1/fg] → R[1/f][1/g]
+   φ = SQ.rec squash/ ϕ ϕcoh
+     where
+     S[fg] = Loc.S R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g))
+
+     curriedϕΣ : (r s : R) → Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n → R[1/f][1/g]
+     curriedϕΣ r s (n , s≡fg^n) = [ [ r , (f ^ n) , ∣ n , refl ∣ ]
+                                  , [ (g ^ n) , 1r , ∣ 0 , refl ∣ ] --denominator
+                                  , ∣ n , ^-respects-/1 R' n ∣ ]
+
+     curriedϕ : (r s : R) → ∃[ n ∈ ℕ ] s ≡ (f · g) ^ n → R[1/f][1/g]
+     curriedϕ r s = elim→Set (λ _ → squash/) (curriedϕΣ r s) coh
+      where
+      coh : (x y : Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n) → curriedϕΣ r s x ≡ curriedϕΣ r s y
+      coh (n , s≡fg^n) (m , s≡fg^m) = eq/ _ _ ((1ᶠ , ∣ 0 , refl ∣) ,
+                                      eq/ _ _ ( (1r , powersFormMultClosedSubset R' f .containsOne)
+                                              , path))
+       where
+       path : 1r · (1r · r · (g ^ m)) · (1r · (f ^ m) · 1r)
+            ≡ 1r · (1r · r · (g ^ n)) · (1r · (f ^ n) · 1r)
+       path = 1r · (1r · r · (g ^ m)) · (1r · (f ^ m) · 1r)
+            ≡⟨ (λ i → ·Lid ((·Lid r i) · (g ^ m)) i · (·Rid (·Lid (f ^ m) i) i)) ⟩
+              r · g ^ m · f ^ m
+            ≡⟨ sym (·Assoc _ _ _) ⟩
+              r · (g ^ m · f ^ m)
+            ≡⟨ cong (r ·_) (sym (^-ldist-· g f m)) ⟩
+              r · ((g · f) ^ m)
+            ≡⟨ cong (λ x → r · (x ^ m)) (·-comm _ _) ⟩
+              r · ((f · g) ^ m)
+            ≡⟨ cong (r ·_) ((sym s≡fg^m) ∙ s≡fg^n) ⟩
+              r · ((f · g) ^ n)
+            ≡⟨ cong (λ x → r · (x ^ n)) (·-comm _ _) ⟩
+              r · ((g · f) ^ n)
+            ≡⟨ cong (r ·_) (^-ldist-· g f n) ⟩
+              r · (g ^ n · f ^ n)
+            ≡⟨ ·Assoc _ _ _ ⟩
+              r · g ^ n · f ^ n
+            ≡⟨ (λ i → ·Lid ((·Lid r (~ i)) · (g ^ n)) (~ i) · (·Rid (·Lid (f ^ n) (~ i)) (~ i))) ⟩
+              1r · (1r · r · (g ^ n)) · (1r · (f ^ n) · 1r) ∎
+
+     ϕ : R × S[fg] → R[1/f][1/g]
+     ϕ (r , s , |n,s≡fg^n|) = curriedϕ r s |n,s≡fg^n|
+     -- λ (r / (fg)ⁿ) → ((r / fⁿ) / gⁿ)
+
+     curriedϕcohΣ : (r s r' s' u : R) → (p : u · r · s' ≡ u · r' · s)
+                                      → (α : Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n)
+                                      → (β : Σ[ m ∈ ℕ ] s' ≡ (f · g) ^ m)
+                                      → (γ : Σ[ l ∈ ℕ ] u ≡ (f · g) ^ l)
+                                      → ϕ (r , s , ∣ α ∣) ≡ ϕ (r' , s' , ∣ β ∣)
+     curriedϕcohΣ r s r' s' u p (n , s≡fgⁿ) (m , s'≡fgᵐ) (l , u≡fgˡ) =
+      eq/ _ _ ( ( [ (g ^ l) , 1r , powersFormMultClosedSubset R' f .containsOne ]
+                , ∣ l , ^-respects-/1 R' l ∣)
+              , eq/ _ _ ((f ^ l , ∣ l , refl ∣) , path))
+      where
+      path : f ^ l · (g ^ l · transp (λ i → R) i0 r · transp (λ i → R) i0 (g ^ m))
+                   · (1r · transp (λ i → R) i0 (f ^ m) · transp (λ i → R) i0 1r)
+           ≡ f ^ l · (g ^ l · transp (λ i → R) i0 r' · transp (λ i → R) i0 (g ^ n))
+                   · (1r · transp (λ i → R) i0 (f ^ n) · transp (λ i → R) i0 1r)
+      path = f ^ l · (g ^ l · transp (λ i → R) i0 r · transp (λ i → R) i0 (g ^ m))
+                   · (1r · transp (λ i → R) i0 (f ^ m) · transp (λ i → R) i0 1r)
+           ≡⟨ (λ i → f ^ l · (g ^ l · transportRefl r i · transportRefl (g ^ m) i)
+                           · (1r · transportRefl (f ^ m) i · transportRefl 1r i)) ⟩
+             f ^ l · (g ^ l · r · g ^ m) · (1r · f ^ m · 1r)
+           ≡⟨ (λ i → ·Assoc (f ^ l) ((g ^ l) · r) (g ^ m) i · ·Rid (1r · (f ^ m)) i) ⟩
+             f ^ l · (g ^ l · r) · g ^ m · (1r · f ^ m)
+           ≡⟨ (λ i → ·Assoc (f ^ l) (g ^ l) r i · g ^ m ·  ·Lid (f ^ m) i) ⟩
+             f ^ l · g ^ l · r · g ^ m · f ^ m
+           ≡⟨ sym (·Assoc _ _ _) ⟩
+             f ^ l · g ^ l · r · (g ^ m · f ^ m)
+           ≡⟨ (λ i → ^-ldist-· f g l (~ i) · r · ^-ldist-· g f m (~ i)) ⟩
+             (f · g) ^ l · r · (g · f) ^ m
+           ≡⟨ cong (λ x → (f · g) ^ l · r · x ^ m) (·-comm _ _) ⟩
+             (f · g) ^ l · r · (f · g) ^ m
+           ≡⟨ (λ i → u≡fgˡ (~ i) · r · s'≡fgᵐ (~ i)) ⟩
+             u · r · s'
+           ≡⟨ p ⟩
+             u · r' · s
+           ≡⟨ (λ i → u≡fgˡ i · r' · s≡fgⁿ i) ⟩
+             (f · g) ^ l · r' · (f · g) ^ n
+           ≡⟨ cong (λ x → (f · g) ^ l · r' · x ^ n) (·-comm _ _) ⟩
+             (f · g) ^ l · r' · (g · f) ^ n
+           ≡⟨ (λ i → ^-ldist-· f g l i · r' · ^-ldist-· g f n i) ⟩
+             f ^ l · g ^ l · r' · (g ^ n · f ^ n)
+           ≡⟨ ·Assoc _ _ _ ⟩
+             f ^ l · g ^ l · r' · g ^ n · f ^ n
+           ≡⟨ (λ i → ·Assoc (f ^ l) (g ^ l) r' (~ i) · g ^ n ·  ·Lid (f ^ n) (~ i)) ⟩
+             f ^ l · (g ^ l · r') · g ^ n · (1r · f ^ n)
+           ≡⟨ (λ i → ·Assoc (f ^ l) ((g ^ l) · r') (g ^ n) (~ i) · ·Rid (1r · (f ^ n)) (~ i)) ⟩
+             f ^ l · (g ^ l · r' · g ^ n) · (1r · f ^ n · 1r)
+           ≡⟨ (λ i → f ^ l · (g ^ l · transportRefl r' (~ i) · transportRefl (g ^ n) (~ i))
+                           · (1r · transportRefl (f ^ n) (~ i) · transportRefl 1r (~ i))) ⟩
+             f ^ l · (g ^ l · transp (λ i → R) i0 r' · transp (λ i → R) i0 (g ^ n))
+                   · (1r · transp (λ i → R) i0 (f ^ n) · transp (λ i → R) i0 1r) ∎
+
+     curriedϕcoh : (r s r' s' u : R) → (p : u · r · s' ≡ u · r' · s)
+                                     → (α : ∃[ n ∈ ℕ ] s ≡ (f · g) ^ n)
+                                     → (β : ∃[ m ∈ ℕ ] s' ≡ (f · g) ^ m)
+                                     → (γ : ∃[ l ∈ ℕ ] u ≡ (f · g) ^ l)
+                                     → ϕ (r , s , α) ≡ ϕ (r' , s' , β)
+     curriedϕcoh r s r' s' u p = PT.elim (λ _ → isPropΠ2 (λ _ _ → squash/ _ _))
+                           λ α → PT.elim (λ _ → isPropΠ (λ _ → squash/ _ _))
+                           λ β → PT.rec (squash/ _ _)
+                           λ γ →  curriedϕcohΣ r s r' s' u p α β γ
+
+     ϕcoh : (a b : R × S[fg])
+          → Loc._≈_ R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g)) a b
+          → ϕ a ≡ ϕ b
+     ϕcoh (r , s , α) (r' , s' , β) ((u , γ) , p) =  curriedϕcoh r s r' s' u p α β γ
+
+
+
+
+   -- the map induced by the universal property
+   open S⁻¹RUniversalProp R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g))
+   χ : R[1/fg] → R[1/f][1/g]
+   χ = RingHom.f ( S⁻¹RHasUniversalProp R[1/f][1/g]AsCommRing
+                   /1/1AsCommRingHom fⁿgⁿ/1/1∈R[1/f][1/g]ˣ .fst .fst)
+
+   -- the sanity check:
+   -- both maps send a fraction r/(fg)ⁿ to a double fraction,
+   -- where numerator and denominator are almost the same fraction respectively.
+   -- unfortunately the proofs that the denominators are powers are quite different for
+   -- the two maps, but of course we can ignore them.
+   -- The definition of χ introduces a lot of (1r ·_). Perhaps most surprisingly,
+   -- we have to give the path eq1 for the equality of the numerator of the numerator.
+   φ≡χ : ∀ r → φ r ≡ χ r
+   φ≡χ = InvElPropElim _ (λ _ → squash/ _ _) ℕcase
+    where
+    ℕcase : (r : R) (n : ℕ)
+          → φ [ r , (f · g) ^ n , ∣ n , refl ∣ ] ≡ χ [ r , (f · g) ^ n , ∣ n , refl ∣ ]
+    ℕcase r n = cong [_] (ΣPathP --look into the components of the double-fractions
+              ( cong [_] (ΣPathP (eq1 , Σ≡Prop (λ x → S'[f] x .snd) (sym (·Lid _))))
+              , Σ≡Prop (λ x → S'[f][g] x .snd) --ignore proof that denominator is power of g/1
+              ( cong [_] (ΣPathP (sym (·Lid _) , Σ≡Prop (λ x → S'[f] x .snd) (sym (·Lid _)))))))
+     where
+     S'[f] = ([_ⁿ|n≥0] R' f)
+     S'[f][g] = ([_ⁿ|n≥0] R[1/f]AsCommRing [ g , 1r , powersFormMultClosedSubset R' f .containsOne ])
+
+     eq1 : transp (λ i → fst R') i0 r ≡ r · transp (λ i → fst R') i0 1r
+     eq1 = transportRefl r ∙∙ sym (·Rid r) ∙∙ cong (r ·_) (sym (transportRefl 1r))
