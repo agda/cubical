@@ -152,7 +152,7 @@ stabSpheres-n≥2 : (n : ℕ) → Iso (hLevelTrunc (4 + n) (S₊ (2 + n)))
                                   (hLevelTrunc (4 + n) (typ (Ω (S₊∙ (3 + n)))))
 stabSpheres-n≥2 n = connectedTruncIso (4 + n) (miniFreudenthal.σ n) (isConnectedσ-Sn n)
 
--- 
+--
 
 ϕ : (pt a : A) → typ (Ω (Susp A , north))
 ϕ pt a = (merid a) ∙ sym (merid pt)
