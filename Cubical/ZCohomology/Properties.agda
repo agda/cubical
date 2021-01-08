@@ -146,6 +146,14 @@ coHomPointedElim2 {ℓ' = ℓ'} {A = A} n a isprop indp = sElim2 (λ _ _ → isO
     elim2 (λ _ _ → isOfHLevelPlus' {n = 5 + n} 1 (isPropΠ2 λ _ _ → isprop _ _))
           (suspToPropElim2 north (λ _ _ → isPropΠ2 λ _ _ → isprop _ _) (indp f g))
 
+coHomK-elim : ∀ {ℓ} (n : ℕ) {B : coHomK (suc n) → Type ℓ}
+           → ((x : _) → isOfHLevel (suc n) (B x))
+           → B (0ₖ (suc n))
+           → (x : _) → B x
+coHomK-elim n {B = B } hlev b =
+  trElim (λ _ → isOfHLevelPlus {n = (suc n)} 2 (hlev _))
+    (sphereElim _ (hlev ∘ ∣_∣) b)
+
 {- Equivalence between cohomology of A and reduced cohomology of (A + 1) -}
 coHomRed+1Equiv : (n : ℕ) →
                   (A : Type ℓ) →

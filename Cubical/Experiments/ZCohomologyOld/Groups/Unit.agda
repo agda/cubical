@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Experiments.ZCohomologyOld.Groups.Unit where
 
-open import Cubical.Experiments.ZCohomologyOld.Base
+open import Cubical.ZCohomology.Base
 open import Cubical.Experiments.ZCohomologyOld.Properties
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
