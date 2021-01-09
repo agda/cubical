@@ -7,7 +7,7 @@ The Synthetic Spectrum
 Everything done here relies heavily on work by Ingo Blechschmidt and unpublished work of David Jaz Myers.
 
 
-<aside>
+<!--
 ```
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.AlgebraicGeometry.Spec where
@@ -24,7 +24,7 @@ private
     ℓ : Level
 
 ```
-</aside>
+-->
 
 In the following, we will use a fixed, commutative ring 𝔸.
 We are specifically interested in commutative algebras over that ring, so let us introduce a short name for those.
