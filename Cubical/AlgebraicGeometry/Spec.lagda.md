@@ -13,6 +13,7 @@ Everything done here is from Ingo Blechschmidt's thesis or unpublished work of D
 module Cubical.AlgebraicGeometry.Spec where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Data.Unit
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra
@@ -31,9 +32,9 @@ We are specifically interested in commutative algebras over that ring, so let us
 
 ```
 
-module _ (𝔸 : CommRing {ℓ}) where
-  𝔸-Alg = CommAlgebra 𝔸
-  𝔸′ = CommAlgebraExamples.initial 𝔸
+module _ (𝔸asRing : CommRing {ℓ}) where
+  𝔸-Alg = CommAlgebra 𝔸asRing
+  𝔸 = CommAlgebraExamples.initial 𝔸asRing
 
 ```
 
@@ -45,10 +46,21 @@ The latter can be turned around to give a definition:
 ```
 
   Hom : 𝔸-Alg → 𝔸-Alg → Type ℓ
-  Hom R S = AlgebraHom (CommAlgebra→Algebra R) (CommAlgebra→Algebra S)
+  Hom R S = CAlgHom R S
 
   Spec : 𝔸-Alg → Type ℓ
-  Spec R = Hom R 𝔸′
+  Spec R = Hom R 𝔸
 
 ```
 
+𝔸 is the initial 𝔸-algebra, so we now that its spectrum has to be equal to the point:
+
+```
+
+  point : Type ℓ
+  point = Unit*
+
+  _ : Spec 𝔸 ≡ point
+  _ = CommAlgebraExamples.isInitial 𝔸asRing 𝔸
+
+```
