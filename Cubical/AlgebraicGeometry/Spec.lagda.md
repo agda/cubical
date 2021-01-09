@@ -4,7 +4,7 @@ Synthetic Algebraic Geometry
 The Synthetic Spectrum
 ----------------------
 
-Everything done here relies heavily on work by Ingo Blechschmidt and unpublished work of David Jaz Myers.
+Everything done here is from Ingo Blechschmidt's thesis or unpublished work of David Jaz Myers.
 
 
 <!--
@@ -51,3 +51,4 @@ The latter can be turned around to give a definition:
   Spec R = Hom R 𝔸′
 
 ```
+
