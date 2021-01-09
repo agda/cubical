@@ -167,3 +167,7 @@ module CommAlgebraΣTheory (R : CommRing {ℓ}) where
 
 CommAlgebraPath : (R : CommRing {ℓ}) → (A B : CommAlgebra R) → (CommAlgebraEquiv A B) ≃ (A ≡ B)
 CommAlgebraPath = CommAlgebraΣTheory.CommAlgebraPath
+
+
+CAlgHom : {R : CommRing {ℓ}} → CommAlgebra R → CommAlgebra R → Type ℓ
+CAlgHom A B = AlgebraHom (CommAlgebra→Algebra A) (CommAlgebra→Algebra B)
