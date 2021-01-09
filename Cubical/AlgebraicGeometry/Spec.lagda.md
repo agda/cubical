@@ -7,7 +7,7 @@ The Synthetic Spectrum
 Everything done here relies heavily on work by Ingo Blechschmidt and unpublished work of David Jaz Myers.
 
 
-<!--
+<aside>
 ```
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.AlgebraicGeometry.Spec where
@@ -24,7 +24,7 @@ private
     ℓ : Level
 
 ```
--->
+</aside>
 
 In the following, we will use a fixed, commutative ring 𝔸.
 We are specifically interested in commutative algebras over that ring, so let us introduce a short name for those.
@@ -34,6 +34,7 @@ We are specifically interested in commutative algebras over that ring, so let us
 module _ (𝔸 : CommRing {ℓ}) where
   𝔸-Alg = CommAlgebra 𝔸
   𝔸′ = CommAlgebraExamples.initial 𝔸
+
 ```
 
 The synthetic spectrum of an 𝔸-algebra R, Spec R, is supposed to be a space such that
@@ -42,6 +43,7 @@ that the only homomorphisms R → 𝔸 are evaluations at points.
 The latter can be turned around to give a definition:
 
 ```
+
   Hom : 𝔸-Alg → 𝔸-Alg → Type ℓ
   Hom R S = AlgebraHom (CommAlgebra→Algebra R) (CommAlgebra→Algebra S)
 
