@@ -14,47 +14,47 @@ data 𝟛 : Type ℓ-zero where
   ① : 𝟛
   ② : 𝟛
 
-Cospan : Precategory ℓ-zero ℓ-zero
-Cospan .ob = 𝟛
+CospanCat : Precategory ℓ-zero ℓ-zero
+CospanCat .ob = 𝟛
 
-Cospan .Hom[_,_] ⓪ ① = Unit
-Cospan .Hom[_,_] ② ① = Unit
-Cospan .Hom[_,_] ⓪ ⓪ = Unit
-Cospan .Hom[_,_] ① ① = Unit
-Cospan .Hom[_,_] ② ② = Unit
-Cospan .Hom[_,_] _ _ = ⊥
+CospanCat .Hom[_,_] ⓪ ① = Unit
+CospanCat .Hom[_,_] ② ① = Unit
+CospanCat .Hom[_,_] ⓪ ⓪ = Unit
+CospanCat .Hom[_,_] ① ① = Unit
+CospanCat .Hom[_,_] ② ② = Unit
+CospanCat .Hom[_,_] _ _ = ⊥
 
 
-Cospan ._⋆_ {x = ⓪} {⓪} {⓪} f g = tt
-Cospan ._⋆_ {x = ①} {①} {①} f g = tt
-Cospan ._⋆_ {x = ②} {②} {②} f g = tt
-Cospan ._⋆_ {x = ⓪} {①} {①} f g = tt
-Cospan ._⋆_ {x = ②} {①} {①} f g = tt
-Cospan ._⋆_ {x = ⓪} {⓪} {①} f g = tt
-Cospan ._⋆_ {x = ②} {②} {①} f g = tt
+CospanCat ._⋆_ {x = ⓪} {⓪} {⓪} f g = tt
+CospanCat ._⋆_ {x = ①} {①} {①} f g = tt
+CospanCat ._⋆_ {x = ②} {②} {②} f g = tt
+CospanCat ._⋆_ {x = ⓪} {①} {①} f g = tt
+CospanCat ._⋆_ {x = ②} {①} {①} f g = tt
+CospanCat ._⋆_ {x = ⓪} {⓪} {①} f g = tt
+CospanCat ._⋆_ {x = ②} {②} {①} f g = tt
 
-Cospan .id ⓪ = tt
-Cospan .id ① = tt
-Cospan .id ② = tt
+CospanCat .id ⓪ = tt
+CospanCat .id ① = tt
+CospanCat .id ② = tt
 
-Cospan .⋆IdL {⓪} {①} _ = refl
-Cospan .⋆IdL {②} {①} _ = refl
-Cospan .⋆IdL {⓪} {⓪} _ = refl
-Cospan .⋆IdL {①} {①} _ = refl
-Cospan .⋆IdL {②} {②} _ = refl
+CospanCat .⋆IdL {⓪} {①} _ = refl
+CospanCat .⋆IdL {②} {①} _ = refl
+CospanCat .⋆IdL {⓪} {⓪} _ = refl
+CospanCat .⋆IdL {①} {①} _ = refl
+CospanCat .⋆IdL {②} {②} _ = refl
 
-Cospan .⋆IdR {⓪} {①} _ = refl
-Cospan .⋆IdR {②} {①} _ = refl
-Cospan .⋆IdR {⓪} {⓪} _ = refl
-Cospan .⋆IdR {①} {①} _ = refl
-Cospan .⋆IdR {②} {②} _ = refl
+CospanCat .⋆IdR {⓪} {①} _ = refl
+CospanCat .⋆IdR {②} {①} _ = refl
+CospanCat .⋆IdR {⓪} {⓪} _ = refl
+CospanCat .⋆IdR {①} {①} _ = refl
+CospanCat .⋆IdR {②} {②} _ = refl
 
-Cospan .⋆Assoc {⓪} {⓪} {⓪} {⓪} _ _ _ = refl
-Cospan .⋆Assoc {⓪} {⓪} {⓪} {①} _ _ _ = refl
-Cospan .⋆Assoc {⓪} {⓪} {①} {①} _ _ _ = refl
-Cospan .⋆Assoc {⓪} {①} {①} {①} _ _ _ = refl
-Cospan .⋆Assoc {①} {①} {①} {①} _ _ _ = refl
-Cospan .⋆Assoc {②} {②} {②} {②} _ _ _ = refl
-Cospan .⋆Assoc {②} {②} {②} {①} _ _ _ = refl
-Cospan .⋆Assoc {②} {②} {①} {①} _ _ _ = refl
-Cospan .⋆Assoc {②} {①} {①} {①} _ _ _ = refl
+CospanCat .⋆Assoc {⓪} {⓪} {⓪} {⓪} _ _ _ = refl
+CospanCat .⋆Assoc {⓪} {⓪} {⓪} {①} _ _ _ = refl
+CospanCat .⋆Assoc {⓪} {⓪} {①} {①} _ _ _ = refl
+CospanCat .⋆Assoc {⓪} {①} {①} {①} _ _ _ = refl
+CospanCat .⋆Assoc {①} {①} {①} {①} _ _ _ = refl
+CospanCat .⋆Assoc {②} {②} {②} {②} _ _ _ = refl
+CospanCat .⋆Assoc {②} {②} {②} {①} _ _ _ = refl
+CospanCat .⋆Assoc {②} {②} {①} {①} _ _ _ = refl
+CospanCat .⋆Assoc {②} {①} {①} {①} _ _ _ = refl
