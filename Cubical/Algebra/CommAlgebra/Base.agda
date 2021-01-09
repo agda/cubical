@@ -16,6 +16,7 @@ open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra hiding (⟨_⟩a)
+open import Cubical.Algebra.Algebra using (_$a_; AlgebraHom; isSetAlgebra) public
 
 private
   variable
