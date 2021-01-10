@@ -12,12 +12,14 @@ Everything done here is from Ingo Blechschmidt's thesis or unpublished work of D
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.AlgebraicGeometry.Spec where
 
-open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Everything
 open import Cubical.Data.Unit
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Examples
+open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
+open import Cubical.Algebra.CommAlgebra.Morphism
 open import Cubical.Algebra.Algebra
 
 private
@@ -53,7 +55,7 @@ The latter can be turned around to give a definition:
 
 ```
 
-𝔸 is the initial 𝔸-algebra, so we now that its spectrum has to be equal to the point:
+𝔸 is the initial 𝔸-algebra, so we know that its spectrum has to be equal to the point:
 
 ```
 
@@ -62,5 +64,25 @@ The latter can be turned around to give a definition:
 
   _ : Spec 𝔸 ≡ point
   _ = CommAlgebraExamples.isInitial 𝔸asRing 𝔸
+
+```
+
+Note that in the Zariski topos based on affine k-schemes, Spec k would be the point as well.
+In general, 𝔸 behaves like the base field (or ring) when plugged into the Spec construction.
+Here is another instance of this phenomenon:
+
+```
+
+  𝔸[X] = 𝔸asRing [ Unit* ]
+  𝔸′ = CommAlgebra.Carrier 𝔸              -- 𝔸′ is the underlying type of the algebra 𝔸
+
+  _ : Spec 𝔸[X] ≡ 𝔸′
+  _ = Spec 𝔸[X]        ≡⟨ refl ⟩
+      Hom 𝔸[X] 𝔸      ≡⟨ homMapEq 𝔸 ⟩
+      (Unit* → 𝔸′)     ≡⟨ isoToPath
+                            (iso (λ f → f tt*) (λ a _ → a)
+                                 (λ b i → b)
+                                 λ a i x → a x) ⟩
+      𝔸′ ∎
 
 ```
