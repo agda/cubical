@@ -153,12 +153,19 @@ module _ {C : Precategory ℓ ℓ'} where
     open NatIso
     open Slice (PreShv C) F ⦃ isC = isCatPreShv {C = C} ⦄
 
+    fiberEqIfRepsEq' : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {isSetB : isSet B}
+                         (f : A → B) {x x'} {px : x ≡ x'} {a' : fiber f x} {b' : fiber f x'}
+                     → fst a' ≡ fst b'
+                     → PathP (λ i → fiber f (px i)) a' b'
+    fiberEqIfRepsEq' {isSetB = isSetB} f {x} {x'} {px} {a'} {b'} p
+      = ΣPathP (p , (isOfHLevel→isOfHLevelDep 1 (λ (v , w) → isSetB (f v) w) (snd a') (snd b') (λ i → (p i , px i))))
+
     -- fibers are equal when their representatives are equal
     fiberEqIfRepsEq : ∀ {A} (ϕ : A ⇒ F) {c x x'} {px : x ≡ x'} {a' : fiber (ϕ ⟦ c ⟧) x} {b' : fiber (ϕ ⟦ c ⟧) x'}
                     → fst a' ≡ fst b'
                     → PathP (λ i → fiber (ϕ ⟦ c ⟧) (px i)) a' b'
     fiberEqIfRepsEq ϕ {c} {x} {x'} {px} {a , fiba} {b , fibb} p
-      = ΣPathP (p , isOfHLevel→isOfHLevelDep 1 (λ (v , w) → snd (F ⟅ c ⟆) ((ϕ ⟦ c ⟧) v) w) _ _ λ i → (p i , px i))
+      = fiberEqIfRepsEq' {isSetB = snd (F ⟅ c ⟆)} (ϕ ⟦ c ⟧) p
 
 
     -- Functor from Slice to PreShv (∫ᴾ F)
@@ -330,7 +337,8 @@ module _ {C : Precategory ℓ ℓ'} where
     module _ where
       open Iso
       open Morphism renaming (isIso to isIsoC)
-      -- the iso we deserve
+      -- the iso we need
+      -- a type is isomorphic to the disjoint union of all its fibers
       typeSectionIso : ∀ {A B : Type ℓ} {isSetB : isSet B} → (ϕ : A → B)
                     → Iso A (Σ[ b ∈ B ] fiber ϕ b)
       typeSectionIso ϕ .fun a = (ϕ a) , (a , refl)
@@ -374,8 +382,34 @@ module _ {C : Precategory ℓ ℓ'} where
                   → isIsoC (ηTrans .N-ob sob .S-hom ⟦ c ⟧)
           isIsoCf c = CatIso→isIso (Iso→CatIso (typeSectionIso {isSetB = snd (F ⟅ c ⟆)} (ϕ ⟦ c ⟧)))
 
+    module _ where
+      open Iso
+      -- the iso we deserve
+      -- says that a type family at x is isomorphic to the fiber over x of that type family packaged up
+      typeFiberIso : ∀ {ℓ ℓ'} {A : Type ℓ} {isSetA : isSet A} {x} (B : A → Type ℓ')
+                   → Iso (B x) (fiber {A = Σ[ a ∈ A ] B a} (λ (x , _) → x) x)
+      typeFiberIso {x = x} _ .fun b = (x , b) , refl
+      typeFiberIso _ .inv ((a , b) , eq) = subst _ eq b
+      typeFiberIso {isSetA = isSetA} {x = x} B .rightInv ((a , b) , eq)
+        = fiberEqIfRepsEq' {isSetB = isSetA} (λ (x , _) → x) (ΣPathP (sym eq , symP (transport-filler (λ i → B (eq i)) b)))
+      typeFiberIso {x = x} _ .leftInv b = sym (transport-filler refl b)
+
+      εTrans : (K ∘F L) ⇒ 𝟙⟨ PreShv (∫ᴾ F) ⟩
+      εTrans .N-ob P = natTrans γ-ob {!!}
+        where
+          γ-ob : (el : (∫ᴾ F) .ob)
+              → (fst (K ⟅ L ⟅ P ⟆ ⟆ ⟅ el ⟆) → fst (P ⟅ el ⟆) )
+          γ-ob el@(c , _) = typeFiberIso {isSetA = snd (F ⟅ c ⟆)} (λ x → fst (P ⟅ c , x ⟆)) .inv
+          -- γ-ob el@(c , x) ((x' , X') , eq) = subst (λ x → fst (P ⟅ c , x ⟆)) x'≡x X'
+            -- where
+            --   x'≡x : x' ≡ x
+            --   x'≡x = eq
+            
+
     preshvSlice≃preshvElem : SliceCat ≃ᶜ PreShv (∫ᴾ F)
     preshvSlice≃preshvElem .func = K
     preshvSlice≃preshvElem .isEquiv .invFunc = L
     preshvSlice≃preshvElem .isEquiv .η .trans = ηTrans
     preshvSlice≃preshvElem .isEquiv .η .nIso = ηIso
+    preshvSlice≃preshvElem .isEquiv .ε .trans = εTrans
+    preshvSlice≃preshvElem .isEquiv .ε .nIso = {!!}
