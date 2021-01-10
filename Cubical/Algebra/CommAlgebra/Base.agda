@@ -170,5 +170,3 @@ CommAlgebraPath : (R : CommRing {ℓ}) → (A B : CommAlgebra R) → (CommAlgebr
 CommAlgebraPath = CommAlgebraΣTheory.CommAlgebraPath
 
 
-CAlgHom : {R : CommRing {ℓ}} → CommAlgebra R → CommAlgebra R → Type ℓ
-CAlgHom A B = AlgebraHom (CommAlgebra→Algebra A) (CommAlgebra→Algebra B)
