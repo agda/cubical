@@ -424,7 +424,7 @@ inducedHom : {R : CommRing {ℓ}} {I : Type ℓ} (A : CommAlgebra R)
              (φ : I → ⟨ A ⟩a)
              → CAlgHom (R [ I ]) A
 inducedHom A φ = Theory.inducedHom A φ
-{-
+
 homMapEq : {R : CommRing {ℓ}} {I : Type ℓ} (A : CommAlgebra R)
              → CAlgHom (R [ I ]) A ≡ (I → (CommAlgebra.Carrier A))
 homMapEq A =
@@ -432,9 +432,11 @@ homMapEq A =
     (iso
       (evaluateAt A)
       (inducedHom A)
-      {!!}
-      {!!})
--}
+      (λ φ → Theory.mapRetrievable A φ)
+      λ f → homEq (_ [ _ ]) A
+                  _ f
+                  λ x i → Theory.homRetrievable A f i x)
+
 module _ {R : CommRing {ℓ}} {A B : CommAlgebra R} where
   A′ = CommAlgebra→Algebra A
   B′ = CommAlgebra→Algebra B
