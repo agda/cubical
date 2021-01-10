@@ -147,6 +147,7 @@ module _ {C : Precategory ℓ ℓ'} where
     open _≃ᶜ_
     open isEquivalence
     open NatTrans
+    open NatIso
 
     -- fibers are equal when their representatives are equal
     fiberEqIfRepsEq : ∀ {A} (ϕ : A ⇒ F) {c x} {a' b' : fiber (ϕ ⟦ c ⟧) x}
@@ -290,7 +291,37 @@ module _ {C : Precategory ℓ ℓ'} where
         L-ob-hom .N-ob c (x , _) = x
         L-ob-hom .N-hom f = funExt λ (x , _) → refl
 
+    L-hom : ∀ {P Q} → PreShv (∫ᴾ F) [ P , Q ] →
+          SlCat [ L-ob P , L-ob Q ]
+    L-hom {P} {Q} η = slicehom arr com
+      where
+        A = S-ob ⦃ isC = isCatPreShv {C = C} ⦄ (L-ob P)
+        ϕ = S-arr ⦃ isC = isCatPreShv {C = C} ⦄ (L-ob P)
+        B = S-ob ⦃ isC = isCatPreShv {C = C} ⦄ (L-ob Q)
+        ψ = S-arr ⦃ isC = isCatPreShv {C = C} ⦄ (L-ob Q)
+        arr : A ⇒ B
+        arr .N-ob c (x , X) = x , ((η ⟦ c , x ⟧) X)
+        arr .N-hom {c} {d} f = funExt natu
+          where
+            natuType : fst (A ⟅ c ⟆) → Type _
+            natuType xX@(x , X) = ((F ⟪ f ⟫) x , (η ⟦ d , (F ⟪ f ⟫) x ⟧) ((P ⟪ f , refl ⟫) X)) ≡ ((F ⟪ f ⟫) x , (Q ⟪ f , refl ⟫) ((η ⟦ c , x ⟧) X))
+            natu : ∀ (xX : fst (A ⟅ c ⟆)) → natuType xX
+            natu (x , X) = ΣPathP (refl , λ i → (η .N-hom (f , refl) i) X)
+                 -- → (x , ((η ⟦ d , ())))
+
+        com : arr ⋆⟨ PreShv C ⟩ ψ ≡ ϕ
+        com = makeNatTransPath (funExt comFunExt)
+          where
+            comFunExt : ∀ (c : C .ob)
+                      → (arr ●ᵛ ψ) ⟦ c ⟧ ≡ ϕ ⟦ c ⟧
+            comFunExt c = funExt λ x → refl
+
+    -- THE NATURAL ISOMORPHISM
+    nTrans 
+
     preshvSlice≃preshvElem : SliceCat (PreShv C) F ⦃ isC = isCatPreShv {C = C} ⦄ ≃ᶜ PreShv (∫ᴾ F)
     preshvSlice≃preshvElem .func .F-ob = K-ob
     preshvSlice≃preshvElem .func .F-hom = K-hom
     preshvSlice≃preshvElem .isEquiv .invFunc .F-ob = L-ob
+    preshvSlice≃preshvElem .isEquiv .invFunc .F-hom = L-hom
+    preshvSlice≃preshvElem .isEquiv .η .trans = {!!}
