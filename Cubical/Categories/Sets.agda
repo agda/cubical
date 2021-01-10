@@ -4,6 +4,7 @@ module Cubical.Categories.Sets where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
@@ -66,3 +67,16 @@ module _ {C : Precategory ℓ ℓ'} ⦃ _ : isCategory C ⦄ {F : Functor C (SET
     ≡[ i ]⟨ (λ l → (α .N-hom k) i (f ⋆⟨ C ⟩ l)) ⟩
       (λ l → (F ⟪ k ⟫) ((α ⟦ c ⟧) (f ⋆⟨ C ⟩ l)))
     ∎
+
+-- properties
+-- TODO: move to own file
+open CatIso renaming (inv to cInv)
+open Iso
+
+Iso→CatIso : ∀ {A B : (SET ℓ) .ob}
+           → Iso (fst A) (fst B)
+           → CatIso {C = SET ℓ} A B
+Iso→CatIso is .mor = is .fun
+Iso→CatIso is .cInv = is .inv
+Iso→CatIso is .sec = funExt λ b → is .rightInv b -- is .rightInv
+Iso→CatIso is .ret = funExt λ b → is .leftInv b -- is .rightInv

@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Morphism
+open import Cubical.Categories.Morphism renaming (isIso to isIsoC)
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
@@ -38,7 +38,7 @@ record SliceHom (a b : SliceOb) : Type ℓ' where
     -- commutative diagram
     S-comm : S-hom ⋆⟨ C ⟩ (S-arr b) ≡ S-arr a
 
-open SliceHom
+open SliceHom public
 
 -- Helpers for working with equality
 -- can probably replace these by showing that SliceOb is isomorphic to Sigma and
@@ -79,6 +79,15 @@ SliceHom-≡-elim : ∀ {a b} {f g} {c₁} {c₂}
                 → slicehom f c₁ ≡ slicehom g c₂
                 → Σ[ p ∈ f ≡ g ] PathP (λ i → (p i) ⋆⟨ C ⟩ (S-arr b) ≡ S-arr a) c₁ c₂
 SliceHom-≡-elim r = (λ i → S-hom (r i)) , λ i → S-comm (r i)
+
+
+SliceHom-≡-intro' : ∀ {a b} {f g : C [ a .S-ob , b .S-ob ]} {c₁} {c₂}
+                  → (p : f ≡ g)
+                  → slicehom f c₁ ≡ slicehom g c₂
+SliceHom-≡-intro' {a} {b} {f} {g} {c₁} {c₂} p i = slicehom (p i) (c₁≡c₂ i)
+  where
+    c₁≡c₂ : PathP (λ i → (p i) ⋆⟨ C ⟩ (b .S-arr) ≡ a .S-arr) c₁ c₂
+    c₁≡c₂ = isOfHLevel→isOfHLevelDep 1 (λ _ → isC .isSetHom _ _) c₁ c₂ p
 
 -- SliceHom is isomorphic to the Sigma type with the same components
 SliceHom-Σ-Iso : ∀ {a b}
@@ -359,3 +368,16 @@ module _ ⦃ isU : isUnivalent C ⦄ where
 
                 right : PathP (λ i → SOPath≡PathΣ {xf = xf} {yg} i) p pΣ
                 right = transport-filler SOPath≡PathΣ p ▷ pΣT≡pΣ
+
+-- properties
+-- TODO: move to own file
+
+open isIsoC renaming (inv to invC)
+
+-- make a slice isomorphism from just the hom
+sliceIso : ∀ {a b} (f : C [ a .S-ob , b .S-ob ]) (c : (f ⋆⟨ C ⟩ b .S-arr) ≡ a .S-arr)
+         → isIsoC {C = C} f
+         → isIsoC {C = SliceCat} (slicehom f c)
+sliceIso f c isof .invC = slicehom (isof .invC) (sym (invMoveL (isIso→areInv isof) c))
+sliceIso f c isof .sec = SliceHom-≡-intro' (isof .sec)
+sliceIso f c isof .ret = SliceHom-≡-intro' (isof .ret)

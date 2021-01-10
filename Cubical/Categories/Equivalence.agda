@@ -62,9 +62,9 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
     where
 
       -- isomorphism between c and GFc
-      cIso = isIso→CatIso (η .iso c)
+      cIso = isIso→CatIso (η .nIso c)
       -- isomorphism between c' and GFc'
-      c'Iso = isIso→CatIso (η .iso c')
+      c'Iso = isIso→CatIso (η .nIso c')
 
 module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
   isEquiv→Full : ∀ {F : Functor C D} → isEquivalence F → isFull F
@@ -74,9 +74,9 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
                c c' g = ∣ h , isEquiv→Faithful (symEquiv eq) _ _ _ _ GFh≡Gg ∣ -- apply faithfulness of G
     where
       -- isomorphism between c and GFc
-      cIso = isIso→CatIso (η .iso c)
+      cIso = isIso→CatIso (η .nIso c)
       -- isomorphism between c' and GFc'
-      c'Iso = isIso→CatIso (η .iso c')
+      c'Iso = isIso→CatIso (η .nIso c')
 
       -- reverses
       cIso⁻ = symCatIso cIso
@@ -108,4 +108,4 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
              ∎
 
   isEquiv→Surj : ∀ {F : Functor C D} → isEquivalence F → isEssentiallySurj F
-  isEquiv→Surj isE d = (isE .invFunc ⟅ d ⟆) , isIso→CatIso ((isE .ε .iso) d)
+  isEquiv→Surj isE d = (isE .invFunc ⟅ d ⟆) , isIso→CatIso ((isE .ε .nIso) d)
