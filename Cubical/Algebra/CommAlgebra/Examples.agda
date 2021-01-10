@@ -10,6 +10,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra.Base using (algebrahom)
 open import Cubical.Algebra.CommAlgebra.Base
+open import Cubical.Algebra.CommAlgebra.Morphism
 
 private
   variable
@@ -51,34 +52,10 @@ module CommAlgebraExamples ((R , str) : CommRing {ℓ}) where
                  λ r x → (r · x) * 1a   ≡⟨ ⋆-assoc _ _ _ ⟩
                          (r * (x * 1a)) ∎
 
-    homEq : (f g : CAlgHom initial A)
-            → ((x : R) → (f $a x) ≡ (g $a x)) → f ≡ g
-    homEq f g mapEq i =
-      let
-        open AlgebraHom
-        isSetA = isSetAlgebra (CommAlgebra→Algebra A)
-      in algebrahom (λ x → mapEq x i)
-                    (λ x y j → isOfHLevel→isOfHLevelDep 1
-                                 (λ (f : R → _) → isSetA (f (x + y)) (f x + f y))
-                                 (isHom+ f x y) (isHom+ g x y)
-                                 (λ i x → mapEq x i) i j)
-                    (λ x y j → isOfHLevel→isOfHLevelDep 1
-                                 (λ (f : R → _) → isSetA (f (x · y)) (f x · f y))
-                                 (isHom· f x y) (isHom· g x y)
-                                 (λ i x → mapEq x i) i j)
-                    (λ j → isOfHLevel→isOfHLevelDep 1 (λ (f : R → _) → isSetA (f 1a) 1a)
-                                 (pres1 f) (pres1 g)
-                                 (λ i x → mapEq x i) i j)
-                    (λ r x j →
-                          isOfHLevel→isOfHLevelDep 1
-                          (λ (f : R → _) →
-                             isSetA (f ((initial CommAlgebra.⋆ r) x)) (r * f x))
-                          (comm⋆ f r x) (comm⋆ g r x)
-                          ((λ i x → mapEq x i)) i j)
 
     initialMapEq : (f : CAlgHom initial A)
                    → f ≡ initialMap
-    initialMapEq f = homEq f initialMap
+    initialMapEq f = homEq initial A f initialMap
                            (λ r → f $a r         ≡[ i ]⟨ f $a (·Rid r (~ i)) ⟩
                                   f $a (r · 1a)    ≡⟨ AlgebraHom.comm⋆ f r 1a ⟩
                                   r * (f $a 1a)    ≡[ i ]⟨ r * (AlgebraHom.pres1 f i) ⟩

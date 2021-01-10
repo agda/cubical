@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --no-import-sorts #-}
 
-module Cubical.Algebra.FreeCommAlgebra where
+module Cubical.Algebra.CommAlgebra.FreeCommAlgebra where
 {-
   The free commutative algebra over a commutative ring,
   or in other words the ring of polynomials with coefficients in a given ring.
@@ -28,6 +28,7 @@ module Cubical.Algebra.FreeCommAlgebra where
     ('naturalR', 'naturalL')
 -}
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
@@ -36,6 +37,7 @@ open import Cubical.Foundations.Function hiding (const)
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring        using ()
 open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebra.Morphism
 open import Cubical.Algebra.Algebra     hiding (⟨_⟩a)
 open import Cubical.HITs.SetTruncation
 
@@ -173,7 +175,7 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
     inducedMap (Construction.0-trunc P Q p q i j) =
       isSetAlgebra (CommAlgebra→Algebra A) (inducedMap P) (inducedMap Q) (cong _ p) (cong _ q) i j
 
-    inducedHom : AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
+    inducedHom : CAlgHom (R [ I ]) A
     inducedHom = algebrahom
                    inducedMap
                    (λ x y → refl)
@@ -188,7 +190,7 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
     open AlgebraTheory (CommRing→Ring R) (CommAlgebra→Algebra A)
     open Construction using (var; const) renaming (_+_ to _+c_; -_ to -c_; _·_ to _·c_)
 
-    Hom = AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
+    Hom = CAlgHom (R [ I ]) A
     open AlgebraHom
 
     evaluateAt : Hom
@@ -379,7 +381,7 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
 
 
     homRetrievable : ∀ (f : Hom)
-                     → inducedMap A (evaluateAt f) ≡ AlgebraHom.f f
+                     → inducedMap A (evaluateAt f) ≡ AlgebraHom.map f
     homRetrievable f =
       let
         ι = inducedMap A (evaluateAt f)
@@ -414,15 +416,25 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
              f $a (-c x) ∎)
 
 evaluateAt : {R : CommRing {ℓ}} {I : Type ℓ} (A : CommAlgebra R)
-             (f : AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A))
+             (f : CAlgHom (R [ I ]) A)
              → (I → ⟨ A ⟩a)
 evaluateAt A f x = f $a (Construction.var x)
 
 inducedHom : {R : CommRing {ℓ}} {I : Type ℓ} (A : CommAlgebra R)
              (φ : I → ⟨ A ⟩a)
-             → AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
+             → CAlgHom (R [ I ]) A
 inducedHom A φ = Theory.inducedHom A φ
-
+{-
+homMapEq : {R : CommRing {ℓ}} {I : Type ℓ} (A : CommAlgebra R)
+             → CAlgHom (R [ I ]) A ≡ (I → (CommAlgebra.Carrier A))
+homMapEq A =
+  isoToPath
+    (iso
+      (evaluateAt A)
+      (inducedHom A)
+      {!!}
+      {!!})
+-}
 module _ {R : CommRing {ℓ}} {A B : CommAlgebra R} where
   A′ = CommAlgebra→Algebra A
   B′ = CommAlgebra→Algebra B
