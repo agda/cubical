@@ -153,23 +153,24 @@ module _ {C : Precategory ℓ ℓ'} where
     open NatIso
     open Slice (PreShv C) F ⦃ isC = isCatPreShv {C = C} ⦄
 
-    fiberEqIfRepsEq' : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {isSetB : isSet B}
+    -- fibers are equal when their representatives are equal
+    fibersEqIfRepsEq : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {isSetB : isSet B}
                          (f : A → B) {x x'} {px : x ≡ x'} {a' : fiber f x} {b' : fiber f x'}
                      → fst a' ≡ fst b'
                      → PathP (λ i → fiber f (px i)) a' b'
-    fiberEqIfRepsEq' {isSetB = isSetB} f {x} {x'} {px} {a'} {b'} p
+    fibersEqIfRepsEq {isSetB = isSetB} f {x} {x'} {px} {a'} {b'} p
       = ΣPathP (p , (isOfHLevel→isOfHLevelDep 1 (λ (v , w) → isSetB (f v) w) (snd a') (snd b') (λ i → (p i , px i))))
 
-    -- fibers are equal when their representatives are equal
-    fiberEqIfRepsEq : ∀ {A} (ϕ : A ⇒ F) {c x x'} {px : x ≡ x'} {a' : fiber (ϕ ⟦ c ⟧) x} {b' : fiber (ϕ ⟦ c ⟧) x'}
+    -- specific case of fiber under natural transformation
+    fibersEqIfRepsEqNatTrans : ∀ {A} (ϕ : A ⇒ F) {c x x'} {px : x ≡ x'} {a' : fiber (ϕ ⟦ c ⟧) x} {b' : fiber (ϕ ⟦ c ⟧) x'}
                     → fst a' ≡ fst b'
                     → PathP (λ i → fiber (ϕ ⟦ c ⟧) (px i)) a' b'
-    fiberEqIfRepsEq ϕ {c} {x} {x'} {px} {a , fiba} {b , fibb} p
-      = fiberEqIfRepsEq' {isSetB = snd (F ⟅ c ⟆)} (ϕ ⟦ c ⟧) p
+    fibersEqIfRepsEqNatTrans ϕ {c} {x} {x'} {px} {a , fiba} {b , fibb} p
+      = fibersEqIfRepsEq {isSetB = snd (F ⟅ c ⟆)} (ϕ ⟦ c ⟧) p
 
-
-    -- Functor from Slice to PreShv (∫ᴾ F)
-    -- call it K
+    -- ========================================
+    --            K : Slice → PreShv
+    -- ========================================
 
     -- action on (slice) objects
     K-ob : (s : SliceCat .ob) → (PreShv (∫ᴾ F) .ob)
@@ -177,7 +178,7 @@ module _ {C : Precategory ℓ ℓ'} where
     K-ob (sliceob {A} ϕ) .F-ob (c , x)
       = (fiber (ϕ ⟦ c ⟧) x)
       , isOfHLevelΣ 2 (snd (A ⟅ c ⟆)) λ _ → isSet→isGroupoid (snd (F ⟅ c ⟆)) _ _
-    -- for morhpisms, we just apply A ⟪ h ⟫ (plus equality proof)
+    -- for morphisms, we just apply A ⟪ h ⟫ (plus equality proof)
     K-ob (sliceob {A} ϕ) .F-hom {d , y} {c , x} (h , com) (b , eq)
       = ((A ⟪ h ⟫) b)
       , ((ϕ ⟦ c ⟧) ((A ⟪ h ⟫) b)
@@ -191,10 +192,10 @@ module _ {C : Precategory ℓ ℓ'} where
     -- functoriality follows from functoriality of A
     K-ob (sliceob {A} ϕ) .F-id {x = (c , x)}
       = funExt λ { (a , fibp)
-                 → fiberEqIfRepsEq ϕ (λ i → A .F-id i a) }
+                 → fibersEqIfRepsEqNatTrans ϕ (λ i → A .F-id i a) }
     K-ob (sliceob {A} ϕ) .F-seq {x = (c , x)} {(d , y)} {(e , z)} (f' , eq1) (g' , eq2)
       = funExt λ { ( a , fibp )
-                   → fiberEqIfRepsEq ϕ (λ i → (A .F-seq f' g') i a) }
+                   → fibersEqIfRepsEqNatTrans ϕ (λ i → (A .F-seq f' g') i a) }
 
 
     -- action on morphisms (in this case, natural transformation)
@@ -216,31 +217,44 @@ module _ {C : Precategory ℓ ℓ'} where
 
         η-hom : ∀ {el1 el2} (h : (∫ᴾ F) [ el1 , el2 ]) (ae : fst (P ⟅ el2 ⟆)) → η-ob el1 ((P ⟪ h ⟫) ae) ≡ (Q ⟪ h ⟫) (η-ob el2 ae)
         η-hom {el1 = (c , x)} {d , y} (h , eqh) (a , eqa)
-          = fiberEqIfRepsEq ψ (λ i → ε .N-hom h i a)
+          = fibersEqIfRepsEqNatTrans ψ (λ i → ε .N-hom h i a)
 
 
     K : Functor SliceCat (PreShv (∫ᴾ F))
     K .F-ob = K-ob
     K .F-hom = K-hom
+    K .F-id = makeNatTransPath
+                            (funExt λ cx@(c , x)
+                                    → funExt λ aeq@(a , eq)
+                                             → fibersEqIfRepsEq {isSetB = snd (F ⟅ c ⟆)} _ refl)
+    K .F-seq (slicehom α eqa) (slicehom β eqb)
+      = makeNatTransPath
+          (funExt λ cx@(c , x)
+          → funExt λ aeq@(a , eq)
+          → fibersEqIfRepsEq {isSetB = snd (F ⟅ c ⟆)} _ refl)
 
 
-    -- reverse functor from presheaf to slice
+    -- ========================================
+    --            L : PreShv → Slice
+    -- ========================================
+
+    -- action on objects (presheaves)
     L-ob : (P : PreShv (∫ᴾ F) .ob)
          → SliceCat .ob
     L-ob P = sliceob {S-ob = L-ob-ob} L-ob-hom
       where
+        -- sends c to the disjoint union of all the images under P
         LF-ob : (c : C .ob) → (SET _) .ob
         LF-ob c = (Σ[ x ∈ fst (F ⟅ c ⟆) ] fst (P ⟅ c , x ⟆)) , isSetΣ (snd (F ⟅ c ⟆)) (λ x → snd (P ⟅ c , x ⟆))
 
+        -- defines a function piecewise over the fibers by applying P
         LF-hom : ∀ {x y}
                → (f : C [ y , x ])
                → (SET _) [ LF-ob x , LF-ob y ]
         LF-hom {x = c} {d} f (x , a) = ((F ⟪ f ⟫) x) , (P ⟪ f , refl ⟫) a
 
         L-ob-ob : Functor (C ^op) (SET _)
-        -- sends c to the disjoint union of all the images under P
         L-ob-ob .F-ob = LF-ob
-        -- defines a function piecewise over the fibers by applying P
         L-ob-ob .F-hom = LF-hom
         L-ob-ob .F-id {x = c}
           = funExt idFunExt
@@ -271,9 +285,6 @@ module _ {C : Precategory ℓ ℓ'} where
         L-ob-ob .F-seq {x = c} {d} {e} f g
           = funExt seqFunEq
             where
-              -- for every (x , X) where x is in F ⟅ c ⟆ and X is its image under P
-              -- the functions obtained by sequencing then functoring and functoring
-              -- then sequencing do the same thing
               seqFunEq : ∀ (un : fst (LF-ob c))
                        → (LF-hom (g ⋆⟨ C ⟩ f) un) ≡ (LF-hom g) (LF-hom f un)
               seqFunEq un@(x , X) = ΣPathP (leftEq , rightEq)
@@ -305,6 +316,8 @@ module _ {C : Precategory ℓ ℓ'} where
         L-ob-hom .N-ob c (x , _) = x
         L-ob-hom .N-hom f = funExt λ (x , _) → refl
 
+    -- action on morphisms (aka natural transformations between presheaves)
+    -- is essentially the identity (plus equality proofs for naturality and slice commutativity)
     L-hom : ∀ {P Q} → PreShv (∫ᴾ F) [ P , Q ] →
           SliceCat [ L-ob P , L-ob Q ]
     L-hom {P} {Q} η = slicehom arr com
@@ -333,6 +346,12 @@ module _ {C : Precategory ℓ ℓ'} where
     L : Functor (PreShv (∫ᴾ F)) SliceCat
     L .F-ob = L-ob
     L .F-hom = L-hom
+    L .F-id {cx} = SliceHom-≡-intro' (makeNatTransPath (funExt λ c → refl))
+    L .F-seq {cx} {dy} P Q = SliceHom-≡-intro' (makeNatTransPath (funExt λ c → refl))
+
+    -- ========================================
+    --              η : 𝟙 ≅ LK
+    -- ========================================
 
     module _ where
       open Iso
@@ -349,7 +368,8 @@ module _ {C : Precategory ℓ ℓ'} where
                           , isOfHLevel→isOfHLevelDep 1 (λ b' → isSetB _ _) refl eq eq))
       typeSectionIso ϕ .leftInv a = refl
 
-      -- THE NATURAL ISOMORPHISM
+      -- the natural transformation
+      -- just applies typeSectionIso
       ηTrans : 𝟙⟨ SliceCat ⟩ ⇒ (L ∘F K)
       ηTrans .N-ob sob@(sliceob {A} ϕ) = slicehom A⇒LK comm
         where
@@ -362,7 +382,7 @@ module _ {C : Precategory ℓ ℓ'} where
             where
               homFunExt : (x : fst (A ⟅ c ⟆))
                         → (((ϕ ⟦ d ⟧) ((A ⟪ f ⟫) x)) , ((A ⟪ f ⟫) x , refl))  ≡ ((F ⟪ f ⟫) ((ϕ ⟦ c ⟧) x) , (A ⟪ f ⟫) x , _)
-              homFunExt x = ΣPathP ((λ i → (ϕ .N-hom f i) x) , fiberEqIfRepsEq ϕ refl)
+              homFunExt x = ΣPathP ((λ i → (ϕ .N-hom f i) x) , fibersEqIfRepsEqNatTrans ϕ refl)
 
           comm : (A⇒LK) ●ᵛ ψ ≡ ϕ
           comm = makeNatTransPath (funExt λ x → refl)
@@ -371,9 +391,9 @@ module _ {C : Precategory ℓ ℓ'} where
         where
           natFunExt : ∀ (c : C .ob) (a : fst (A ⟅ c ⟆))
                     → ((β ⟦ c ⟧) ((ϕ ⟦ c ⟧) a) , (ϕ ⟦ c ⟧) a , _) ≡ ((α ⟦ c ⟧) a , (ϕ ⟦ c ⟧) a , _)
-          natFunExt c a = ΣPathP ((λ i → ((eq i) ⟦ c ⟧) a) , fiberEqIfRepsEq β refl)
+          natFunExt c a = ΣPathP ((λ i → ((eq i) ⟦ c ⟧) a) , fibersEqIfRepsEqNatTrans β refl)
 
-
+      -- isomorphism follows from typeSectionIso
       ηIso : ∀ (sob : SliceCat .ob)
            → isIsoC {C = SliceCat} (ηTrans ⟦ sob ⟧)
       ηIso sob@(sliceob ϕ) = sliceIso _ _ (FUNCTORIso _ _ _ isIsoCf)
@@ -382,8 +402,13 @@ module _ {C : Precategory ℓ ℓ'} where
                   → isIsoC (ηTrans .N-ob sob .S-hom ⟦ c ⟧)
           isIsoCf c = CatIso→isIso (Iso→CatIso (typeSectionIso {isSetB = snd (F ⟅ c ⟆)} (ϕ ⟦ c ⟧)))
 
+    -- ========================================
+    --              η : 𝟙 ≅ LK
+    -- ========================================
+
     module _ where
       open Iso
+      open Morphism renaming (isIso to isIsoC)
       -- the iso we deserve
       -- says that a type family at x is isomorphic to the fiber over x of that type family packaged up
       typeFiberIso : ∀ {ℓ ℓ'} {A : Type ℓ} {isSetA : isSet A} {x} (B : A → Type ℓ')
@@ -391,20 +416,91 @@ module _ {C : Precategory ℓ ℓ'} where
       typeFiberIso {x = x} _ .fun b = (x , b) , refl
       typeFiberIso _ .inv ((a , b) , eq) = subst _ eq b
       typeFiberIso {isSetA = isSetA} {x = x} B .rightInv ((a , b) , eq)
-        = fiberEqIfRepsEq' {isSetB = isSetA} (λ (x , _) → x) (ΣPathP (sym eq , symP (transport-filler (λ i → B (eq i)) b)))
+        = fibersEqIfRepsEq {isSetB = isSetA} (λ (x , _) → x) (ΣPathP (sym eq , symP (transport-filler (λ i → B (eq i)) b)))
       typeFiberIso {x = x} _ .leftInv b = sym (transport-filler refl b)
 
+      -- the natural isomorphism
+      -- applies typeFiberIso (inv)
       εTrans : (K ∘F L) ⇒ 𝟙⟨ PreShv (∫ᴾ F) ⟩
-      εTrans .N-ob P = natTrans γ-ob {!!}
+      εTrans .N-ob P = natTrans γ-ob (λ f → funExt (λ a → γ-homFunExt f a))
         where
+          KLP = K ⟅ L ⟅ P ⟆ ⟆
+
           γ-ob : (el : (∫ᴾ F) .ob)
-              → (fst (K ⟅ L ⟅ P ⟆ ⟆ ⟅ el ⟆) → fst (P ⟅ el ⟆) )
+              → (fst (KLP ⟅ el ⟆) → fst (P ⟅ el ⟆) )
           γ-ob el@(c , _) = typeFiberIso {isSetA = snd (F ⟅ c ⟆)} (λ x → fst (P ⟅ c , x ⟆)) .inv
-          -- γ-ob el@(c , x) ((x' , X') , eq) = subst (λ x → fst (P ⟅ c , x ⟆)) x'≡x X'
-            -- where
-            --   x'≡x : x' ≡ x
-            --   x'≡x = eq
-            
+
+          -- naturality
+          -- the annoying part is all the substs
+          γ-homFunExt : ∀ {el2 el1} → (f' : (∫ᴾ F) [ el2 , el1 ])
+                → (∀ (a : fst (KLP ⟅ el1 ⟆)) → γ-ob el2 ((KLP ⟪ f' ⟫) a) ≡ (P ⟪ f' ⟫) (γ-ob el1 a))
+          γ-homFunExt {d , y} {c , x} f'@(f , comm) a@((x' , X') , eq) i
+            = comp (λ j → fst (P ⟅ d , eq' j ⟆)) (λ j → λ { (i = i0) → left j
+                                                          ; (i = i1) → right j }) ((P ⟪ f , refl ⟫) X')
+              where
+                -- fiber equality proof that we get from an application of KLP
+                eq' = snd ((KLP ⟪ f' ⟫) a)
+
+                -- top right of the commuting diagram
+                -- "remove" the subst from the inside
+                right : PathP (λ i → fst (P ⟅ d , eq' i ⟆)) ((P ⟪ f , refl ⟫) X') ((P ⟪ f , comm ⟫) (subst _ eq X'))
+                right i = (P ⟪ f , refl≡comm i ⟫) (X'≡subst i)
+                  where
+                    refl≡comm : PathP (λ i → (eq' i) ≡ (F ⟪ f ⟫) (eq i)) refl comm
+                    refl≡comm = isOfHLevel→isOfHLevelDep 1 (λ (v , w) → snd (F ⟅ d ⟆) v ((F ⟪ f ⟫) w)) refl comm λ i → (eq' i , eq i)
+
+                    X'≡subst : PathP (λ i → fst (P ⟅ c , eq i ⟆)) X' (subst _ eq X')
+                    X'≡subst = transport-filler (λ i → fst (P ⟅ c , eq i ⟆)) X'
+
+                -- bottom left of the commuting diagram
+                -- "remove" the subst from the outside
+                left : PathP (λ i → fst (P ⟅ d , eq' i ⟆)) ((P ⟪ f , refl ⟫) X') (subst (λ v → fst (P ⟅ d , v ⟆)) eq' ((P ⟪ f , refl ⟫) X'))
+                left = transport-filler (λ i → fst (P ⟅ d , eq' i ⟆)) ((P ⟪ f , refl ⟫) X')
+      εTrans .N-hom {P} {Q} α = makeNatTransPath (funExt λ cx → funExt λ xX' → ε-homFunExt cx xX')
+        where
+          KLP = K ⟅ L ⟅ P ⟆ ⟆
+
+          -- naturality of the above construction applies a similar argument as in `γ-homFunExt`
+          ε-homFunExt : ∀ (cx@(c , x) : (∫ᴾ F) .ob) (xX'@((x' , X') , eq) : fst (KLP ⟅ cx ⟆))
+                      → subst (λ v → fst (Q ⟅ c , v ⟆)) (snd ((K ⟪ L ⟪ α ⟫ ⟫ ⟦ cx ⟧) xX')) ((α ⟦ c , x' ⟧) X')
+                      ≡ (α ⟦ c , x ⟧) (subst _ eq X')
+          ε-homFunExt cx@(c , x) xX'@((x' , X') , eq) i
+            = comp (λ j → fst (Q ⟅ c , eq j ⟆)) (λ j → λ { (i = i0) → left j
+                                                         ; (i = i1) → right j }) ((α ⟦ c , x' ⟧) X')
+            where
+              eq' : x' ≡ x
+              eq' = snd ((K ⟪ L ⟪ α ⟫ ⟫ ⟦ cx ⟧) xX')
+
+              right : PathP (λ i → fst (Q ⟅ c , eq i ⟆)) ((α ⟦ c , x' ⟧) X') ((α ⟦ c , x ⟧) (subst _ eq X'))
+              right i = (α ⟦ c , eq i ⟧) (X'≡subst i)
+                where
+                  -- this is exactly the same as the one from before, can refactor?
+                  X'≡subst : PathP (λ i → fst (P ⟅ c , eq i ⟆)) X' (subst _ eq X')
+                  X'≡subst = transport-filler _ _
+
+              -- extracted out type since need to use in in 'left' body as well
+              leftTy : (x' ≡ x) → Type _
+              leftTy eq* = PathP (λ i → fst (Q ⟅ c , eq* i ⟆)) ((α ⟦ c , x' ⟧) X') (subst (λ v → fst (Q ⟅ c , v ⟆)) eq' ((α ⟦ c , x' ⟧) X'))
+
+              left : leftTy eq
+              left = subst
+                     (λ eq* → leftTy eq*)
+                     eq'≡eq
+                     (transport-filler _ _)
+                where
+                  eq'≡eq : eq' ≡ eq
+                  eq'≡eq = snd (F ⟅ c ⟆) _ _ eq' eq
+
+      εIso : ∀ (P : PreShv (∫ᴾ F) .ob)
+           → isIsoC {C = PreShv (∫ᴾ F)} (εTrans ⟦ P ⟧)
+      εIso P = FUNCTORIso _ _ _ isIsoC'
+        where
+          isIsoC' : ∀ (cx : (∫ᴾ F) .ob)
+                  → isIsoC {C = SET _} ((εTrans ⟦ P ⟧) ⟦ cx ⟧)
+          isIsoC' cx@(c , _) = CatIso→isIso (Iso→CatIso (invIso (typeFiberIso {isSetA = snd (F ⟅ c ⟆)} _)))
+
+
+    -- putting it all together
 
     preshvSlice≃preshvElem : SliceCat ≃ᶜ PreShv (∫ᴾ F)
     preshvSlice≃preshvElem .func = K
@@ -412,4 +508,4 @@ module _ {C : Precategory ℓ ℓ'} where
     preshvSlice≃preshvElem .isEquiv .η .trans = ηTrans
     preshvSlice≃preshvElem .isEquiv .η .nIso = ηIso
     preshvSlice≃preshvElem .isEquiv .ε .trans = εTrans
-    preshvSlice≃preshvElem .isEquiv .ε .nIso = {!!}
+    preshvSlice≃preshvElem .isEquiv .ε .nIso = εIso
