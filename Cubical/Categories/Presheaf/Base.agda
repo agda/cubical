@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --no-import-sorts --postfix-projections --safe #-}
 
-module Cubical.Categories.Presheaves where
+module Cubical.Categories.Presheaf.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
