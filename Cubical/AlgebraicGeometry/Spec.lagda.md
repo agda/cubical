@@ -30,7 +30,8 @@ private
 -->
 
 In the following, we will use a fixed, commutative ring 𝔸.
-We are specifically interested in commutative algebras over that ring, so let us introduce a short name for those.
+We are specifically interested in commutative algebras over that ring, so let us introduce a short name for those
+and let us use '𝔸' to refer to the 𝔸-algebra 𝔸.
 
 ```
 
