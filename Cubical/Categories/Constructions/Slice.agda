@@ -162,7 +162,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
       y = yg .S-ob
 
     -- names for the equivalences/isos
-    
+
     pathIsoEquiv : (x ≡ y) ≃ (CatIso x y)
     pathIsoEquiv = univEquiv x y
 

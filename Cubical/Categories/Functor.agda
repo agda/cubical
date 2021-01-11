@@ -6,7 +6,6 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws using (lUnit; rUnit; assoc; cong-∙)
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
--- open import Cubical.Categories.Sets
 
 private
   variable
@@ -179,5 +178,3 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} {F : Functor 
         g = F ⟪ f ⟫
         g⁻¹ : D [ y' , x' ]
         g⁻¹ = F ⟪ f⁻¹ ⟫
-
-
