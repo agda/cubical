@@ -46,25 +46,25 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
     open NatTrans trans
 
     field
-      iso : ∀ (x : C .ob) → isIsoC {C = D} (N-ob x)
+      nIso : ∀ (x : C .ob) → isIsoC {C = D} (N-ob x)
 
     open isIsoC
 
     -- the three other commuting squares
     sqRL : ∀ {x y : C .ob} {f : C [ x , y ]}
-         → F ⟪ f ⟫ ≡ (N-ob x) ⋆ᴰ G ⟪ f ⟫ ⋆ᴰ (iso y) .inv
-    sqRL {x} {y} {f} = invMoveR (isIso→areInv (iso y)) (N-hom f)
+         → F ⟪ f ⟫ ≡ (N-ob x) ⋆ᴰ G ⟪ f ⟫ ⋆ᴰ (nIso y) .inv
+    sqRL {x} {y} {f} = invMoveR (isIso→areInv (nIso y)) (N-hom f)
 
     sqLL : ∀ {x y : C .ob} {f : C [ x , y ]}
-         → G ⟪ f ⟫ ⋆ᴰ (iso y) .inv ≡ (iso x) .inv ⋆ᴰ F ⟪ f ⟫
-    sqLL {x} {y} {f} = invMoveL (isIso→areInv (iso x)) (sym sqRL')
+         → G ⟪ f ⟫ ⋆ᴰ (nIso y) .inv ≡ (nIso x) .inv ⋆ᴰ F ⟪ f ⟫
+    sqLL {x} {y} {f} = invMoveL (isIso→areInv (nIso x)) (sym sqRL')
       where
-        sqRL' : F ⟪ f ⟫ ≡ (N-ob x) ⋆ᴰ ( G ⟪ f ⟫ ⋆ᴰ (iso y) .inv )
+        sqRL' : F ⟪ f ⟫ ≡ (N-ob x) ⋆ᴰ ( G ⟪ f ⟫ ⋆ᴰ (nIso y) .inv )
         sqRL' = sqRL ∙ (D .⋆Assoc _ _ _)
 
     sqLR : ∀ {x y : C .ob} {f : C [ x , y ]}
-         → G ⟪ f ⟫ ≡ (iso x) .inv ⋆ᴰ F ⟪ f ⟫ ⋆ᴰ (N-ob y)
-    sqLR {x} {y} {f} = invMoveR (symAreInv (isIso→areInv (iso y))) sqLL
+         → G ⟪ f ⟫ ≡ (nIso x) .inv ⋆ᴰ F ⟪ f ⟫ ⋆ᴰ (N-ob y)
+    sqLR {x} {y} {f} = invMoveR (symAreInv (isIso→areInv (nIso y))) sqLL
 
   open NatTrans
   open NatIso
@@ -82,8 +82,8 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
             → F ≅ᶜ G
             → G ≅ᶜ F
   symNatIso η@record { trans = record { N-ob = N-ob ; N-hom = N-hom }
-                     ; iso = iso } = record { trans = record { N-ob = λ x → (iso x) .inv ; N-hom = λ _ → sqLL η }
-                                            ; iso = λ x → record { inv = N-ob x ; sec = (iso x) .ret ; ret = (iso x) .sec } }
+                     ; nIso = nIso } = record { trans = record { N-ob = λ x → (nIso x) .inv ; N-hom = λ _ → sqLL η }
+                                            ; nIso = λ x → record { inv = N-ob x ; sec = (nIso x) .ret ; ret = (nIso x) .sec } }
 
   -- component of a natural transformation
   infix 30 _⟦_⟧
@@ -185,6 +185,7 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
   -- hmm : {F G H : Functor C D} {α : NatTrans F G} {β : NatTrans G H}
   --     → seqTrans α β ≡ seqTransP {p = refl} α β
   -- hmm = {!refl!}
+
 
   module _  ⦃ D-category : isCategory D ⦄ {F G : Functor C D} {α β : NatTrans F G} where
     open Precategory
@@ -370,3 +371,26 @@ module _ (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') ⦃ isCatD : 
   instance
     isCatFUNCTOR : isCategory FUNCTOR
     isCatFUNCTOR .isSetHom = isSetNat
+
+  open isIsoC renaming (inv to invC)
+  -- component wise iso is an iso in Functor
+  FUNCTORIso : ∀ {F G : Functor C D} (α : F ⇒ G)
+             → (∀ (c : C .ob) → isIsoC {C = D} (α ⟦ c ⟧))
+             → isIsoC {C = FUNCTOR} α
+  FUNCTORIso α is .invC .N-ob c = (is c) .invC
+  FUNCTORIso {F} {G} α is .invC .N-hom {c} {d} f
+    = invMoveL areInv-αc
+               ( α ⟦ c ⟧ ⋆⟨ D ⟩ (G ⟪ f ⟫ ⋆⟨ D ⟩ is d .invC)
+               ≡⟨ sym (D .⋆Assoc _ _ _) ⟩
+                 (α ⟦ c ⟧ ⋆⟨ D ⟩ G ⟪ f ⟫) ⋆⟨ D ⟩ is d .invC
+               ≡⟨ sym (invMoveR areInv-αd (α .N-hom f)) ⟩
+                 F ⟪ f ⟫
+               ∎ )
+    where
+      areInv-αc : areInv (α ⟦ c ⟧) ((is c) .invC)
+      areInv-αc = isIso→areInv (is c)
+
+      areInv-αd : areInv (α ⟦ d ⟧) ((is d) .invC)
+      areInv-αd = isIso→areInv (is d)
+  FUNCTORIso α is .sec = makeNatTransPath (funExt (λ c → (is c) .sec))
+  FUNCTORIso α is .ret = makeNatTransPath (funExt (λ c → (is c) .ret))
