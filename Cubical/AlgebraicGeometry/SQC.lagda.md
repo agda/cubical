@@ -30,7 +30,7 @@ private
 ```
 -->
 
-Let 𝔸 be a commutative ring, and let us use the same notation as in [Spec](Spec.lagda.md)
+Let 𝔸 be a commutative ring, and let us use the same notation as in [Spec](Cubical.AlgebraicGeometry.Spec.html)
 ```
 module _ (𝔸asRing : CommRing {ℓ}) where
   open SpecExamples 𝔸asRing
