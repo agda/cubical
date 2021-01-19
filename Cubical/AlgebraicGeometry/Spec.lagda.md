@@ -35,7 +35,7 @@ and let us use '𝔸' to refer to the 𝔸-algebra 𝔸.
 
 ```
 
-module _ (𝔸asRing : CommRing {ℓ}) where
+module SpecExamples (𝔸asRing : CommRing {ℓ}) where
   𝔸-Alg = CommAlgebra 𝔸asRing
   𝔸 = CommAlgebraExamples.initial 𝔸asRing
 
