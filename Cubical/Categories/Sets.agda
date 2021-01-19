@@ -28,6 +28,17 @@ module _ {ℓ} where
   isSetLift : {A : Type ℓ} → isSet A → isSet (Lift {ℓ} {ℓ-suc ℓ} A)
   isSetLift = isOfHLevelLift 2
 
+  module _ {A B : SET ℓ .ob} where
+    -- monic/surjectiveness
+    open import Cubical.Categories.Morphism
+    isSurjSET : (f : SET ℓ [ A , B ]) → Type _
+    isSurjSET f = ∀ (b : fst B) → Σ[ a ∈ fst A ] f a ≡ b
+
+    -- isMonic→isSurjSET : {f : SET ℓ [ A , B ]}
+    --                   → isEpic {C = SET ℓ} {x = A} {y = B} f
+    --                   → isSurjSET f
+    -- isMonic→isSurjSET ism b = {!!} , {!!}
+
   instance
     SET-category : isCategory (SET ℓ)
     SET-category .isSetHom {_} {B , B/set} = isSetExpIdeal B/set

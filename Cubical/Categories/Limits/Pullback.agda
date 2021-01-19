@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Limits.Base
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Data.Sigma
 open import Cubical.Categories.Instances.Cospan public
 
 
@@ -25,13 +26,35 @@ module _ {C : Precategory ℓ ℓ'} where
       s₁ : C [ l , m ]
       s₂ : C [ r , m ]
 
-  record PullbackCone (cspn : Cospan) (c : ob) : Type (ℓ-max ℓ ℓ') where
-    constructor cone
+  record PullbackLegs (cspn : Cospan) (c : ob) : Type (ℓ-max ℓ ℓ') where
+    constructor pblegs
     open Cospan cspn
     field
       p₁ : C [ c , l ]
       p₂ : C [ c , r ]
+
+  record PullbackCone (cspn : Cospan) (c : ob) : Type (ℓ-max ℓ ℓ') where
+    constructor cone
+    open Cospan cspn
+    field
+      pl : PullbackLegs cspn c
+    open PullbackLegs pl public
+    field
       sq : p₁ ⋆⟨ C ⟩ s₁ ≡ p₂ ⋆⟨ C ⟩ s₂
+
+
+  record isPullback (cspn : _) {c} (pb : PullbackLegs cspn c) : Type (ℓ-max ℓ ℓ') where
+    open Cospan cspn
+    open PullbackLegs
+    field
+      sq : pb .p₁ ⋆⟨ C ⟩ s₁ ≡ pb .p₂ ⋆⟨ C ⟩ s₂
+
+    open PullbackCone
+    field
+      up : ∀ {d}
+         → (pb' : PullbackCone cspn d)
+         → isContr (Σ[ f ∈ (C [ d , c ]) ] ((pb' .p₁ ≡ f ⋆⟨ C ⟩ pb .p₁)
+              × (pb' .p₂ ≡ f ⋆⟨ C ⟩ pb .p₂)))
 
   Cospan→Func : Cospan → Functor CospanCat C
   Cospan→Func (cospan l m r f g) .F-ob ⓪ = l
