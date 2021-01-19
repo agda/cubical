@@ -6,7 +6,6 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma
--- open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -15,9 +14,6 @@ open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Sets
 
--- private
---   variable
---     ℓ ℓ' ℓ'' : Level
 
 record isTypeCategory {ℓ ℓ' ℓ''} (C : Precategory ℓ ℓ')
        : Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-suc ℓ''))) where
@@ -50,13 +46,11 @@ record isTypeCategory {ℓ ℓ' ℓ''} (C : Precategory ℓ ℓ')
            → (A : Ty[ Γ ])
            → C [ Γ' ⍮ (reindex f A) , Γ ⍮ A ]
 
-
-    isPB : ∀ {Γ Γ' : ob} {A : Ty[ Γ ]} {f : C [ Γ' , Γ ]}
+    isPB : ∀ {Γ' Γ : ob} (f : C [ Γ' , Γ ]) (A : Ty[ Γ ])
          → isPullback {C = C} (cospan Γ' Γ (Γ ⍮ A) f (π Γ A))
                       (pblegs (π Γ' (reindex f A)) q⟨ f , A ⟩)
 
 -- presheaves are type contexts
-
 module _ {ℓ ℓ' : Level} (C : Precategory ℓ ℓ') where
   open isTypeCategory
   open Precategory
@@ -111,12 +105,12 @@ module _ {ℓ ℓ' : Level} (C : Precategory ℓ ℓ') where
                 → ΣPathP ((λ i → Δ .F-seq f g i δax)
                   , fibersEqIfRepsEq {isSetB = snd (Γ ⟅ c ⟆)} _
                                       λ i → ΓA .F-seq f g i γax)
+      π' : ΔA ⇒ Δ
+      π' .N-ob c (x , snd) = x
+      π' .N-hom f = refl
       PSReindex : PSTy[ Δ ]
       PSReindex = ΔA , (π' , isSurj)
         where
-          π' : ΔA ⇒ Δ
-          π' .N-ob c (x , snd) = x
-          π' .N-hom f = refl
 
           isSurj : ∀ (c : C .ob) → isSurjSET {A = ΔA ⟅ c ⟆} {B = Δ ⟅ c ⟆} (π' ⟦ c ⟧)
           isSurj c δx = (δx , isSurjπ c ((γ ⟦ c ⟧) δx)) , refl
@@ -125,25 +119,67 @@ module _ {ℓ ℓ' : Level} (C : Precategory ℓ ℓ') where
       PSq .N-ob c (δax , γax , eq) = γax
       PSq .N-hom {c} {d} f = funExt λ (δax , γax , eq) → refl
 
-      -- PSIsPB : isPullback
-      --            (cospan Δ Γ (fst (PSCext Γ A')) γ (snd (PSCext Γ A')))
-      --            (pblegs (snd (PSCext Δ PSReindex)) (PSq))
-      -- PSIsPB = {!!}
+      PSIsPB : isPullback {C = PreShv C}
+                 (cospan Δ Γ (fst (PSCext Γ A')) γ (snd (PSCext Γ A')))
+                 (pblegs (snd (PSCext Δ PSReindex)) (PSq))
+      PSIsPB .sq = makeNatTransPath (funExt sqExt)
+        where
+          sqExt : ∀ (c : C .ob) → _
+          sqExt c = funExt λ (δax , γax , eq) → sym eq
 
+      PSIsPB .up {Θ} (cone (pblegs p₁ p₂) sq)
+        = ((α , eq)
+          , unique)
+        where
+          α : Θ ⇒ ΔA
+          α .N-ob c t = ((p₁ ⟦ c ⟧) t)
+                      , (((p₂ ⟦ c ⟧) t)
+                      , (λ i → (sq (~ i) ⟦ c ⟧) t))
+          α .N-hom {d} {c} f = funExt αHomExt
+            where
+              αHomExt : ∀ (t : fst (Θ ⟅ d ⟆))
+                      → ((p₁ ⟦ c ⟧) ((Θ ⟪ f ⟫) t) , (p₂ ⟦ c ⟧) ((Θ ⟪ f ⟫) t), _)
+                      ≡ ((Δ ⟪ f ⟫) ((p₁ ⟦ d ⟧) t) , (ΓA ⟪ f ⟫) ((p₂ ⟦ d ⟧) t) , _)
+              αHomExt t = ΣPathP ((λ i → p₁ .N-hom f i t)
+                                 , fibersEqIfRepsEq {isSetB = snd (Γ ⟅ c ⟆)} _
+                                                    (λ i → p₂ .N-hom f i t))
+
+          eq : _
+          eq = makeNatTransPath (funExt (λ _ → funExt λ _ → refl))
+             , makeNatTransPath (funExt (λ _ → funExt λ _ → refl))
+
+          unique : ∀ (βeq : Σ[ β ∈ Θ ⇒ ΔA ] _)
+                 → (α , eq) ≡ βeq
+          unique (β , eqβ) = ΣPathP (α≡β , eq≡eqβ)
+            where
+              α≡β : α ≡ β
+              α≡β = makeNatTransPath (funExt λ c → funExt λ t → eqExt c t)
+                where
+                  eqβ1 = eqβ .fst
+                  eqβ2 = eqβ .snd
+                  eqExt : ∀ (c : C .ob)
+                        → (t : fst (Θ ⟅ c ⟆))
+                        → (α ⟦ c ⟧) t ≡ (β ⟦ c ⟧) t
+                  eqExt c t = ΣPathP ((λ i → (eqβ1 i ⟦ c ⟧) t)
+                            , fibersEqIfRepsEq {isSetB = snd (Γ ⟅ c ⟆)} _
+                                               (λ i → (eqβ2 i ⟦ c ⟧) t))
+              eq≡eqβ : PathP (λ i
+                             → (p₁ ≡ (α≡β i) ●ᵛ π')
+                             × (p₂ ≡ (α≡β i) ●ᵛ PSq)) eq eqβ
+              eq≡eqβ = ΣPathP ( isPropNatP1 (eq .fst) (eqβ .fst) α≡β
+                              , isPropNatP2 (eq .snd) (eqβ .snd) α≡β)
+                where
+                  isPropNatP1 : isOfHLevelDep 1 (λ γ → p₁ ≡ γ ●ᵛ π')
+                  isPropNatP1 = isOfHLevel→isOfHLevelDep 1 (λ _ → isSetNat _ _)
+
+                  isPropNatP2 : isOfHLevelDep 1 (λ γ → p₂ ≡ γ ●ᵛ PSq)
+                  isPropNatP2 = isOfHLevel→isOfHLevelDep 1 (λ _ → isSetNat _ _)
+
+  -- putting everything together
   isTypeCategoryPresheaf : isTypeCategory (PreShv C)
   isTypeCategoryPresheaf .Ty[_] Γ = PSTy[ Γ ]
 
   isTypeCategoryPresheaf .cext = PSCext
   isTypeCategoryPresheaf .reindex = PSReindex
   isTypeCategoryPresheaf .q⟨_,_⟩ = PSq
-  isTypeCategoryPresheaf .isPB .sq = makeNatTransPath (funExt sqExt)
-    where
-      sqExt : ∀ (c : C .ob) → _
-      sqExt c = funExt λ (δax , γax , eq) → sym eq
-
-  isTypeCategoryPresheaf .isPB .up pb' = ? , ?
-  -- q⟨ isTypeCategoryPresheaf , γ ⟩ (ΓA , π , isSurj) = {!!}
-    -- where
-    --   ΔA = 
-    -- where
-    --   ΔA = 
+  isTypeCategoryPresheaf .isPB = PSIsPB
