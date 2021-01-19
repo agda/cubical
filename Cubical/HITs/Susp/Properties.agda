@@ -106,3 +106,14 @@ suspToPropElim2 a isProp Bnorth =
   suspToPropElim a (λ x → isOfHLevelΠ 1 λ y → isProp x y)
                    (suspToPropElim a (λ x → isProp north x) Bnorth)
 -}
+
+funSpaceSuspIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+                   → Iso (Σ[ x ∈ B ] Σ[ y ∈ B ] (A → x ≡ y)) (Susp A → B)
+Iso.fun funSpaceSuspIso (x , y , f) north = x
+Iso.fun funSpaceSuspIso (x , y , f) south = y
+Iso.fun funSpaceSuspIso (x , y , f) (merid a i) = f a i
+Iso.inv funSpaceSuspIso f = (f north) , (f south , (λ x → cong f (merid x)))
+Iso.rightInv funSpaceSuspIso f = funExt λ {north → refl
+                                             ; south → refl
+                                             ; (merid a i) → refl}
+Iso.leftInv funSpaceSuspIso _ = refl

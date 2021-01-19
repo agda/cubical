@@ -39,26 +39,25 @@ infixr 34 _+ₕ∙_
 
 -- Addition in the Eilenberg-Maclane spaces is uniquely determined if we require it to have left- and right-unit laws,
 -- such that these agree on 0. In particular, any h-structure (see http://ericfinster.github.io/files/emhott.pdf) is unique.
-private
-  genAddId : (n : ℕ) → (comp1 comp2 : coHomK (suc n) → coHomK (suc n) → coHomK (suc n))
-           → (rUnit1 : (x : _) → comp1 x (coHom-pt (suc n)) ≡ x)
-           → (lUnit1 : (x : _) → comp1 (coHom-pt (suc n)) x ≡ x)
-           → (rUnit2 : (x : _) → comp2 x (coHom-pt (suc n)) ≡ x)
-           → (lUnit2 : (x : _) → comp2 (coHom-pt (suc n)) x ≡ x)
-           → (unId1 : rUnit1 (coHom-pt (suc n)) ≡ lUnit1 (coHom-pt (suc n)))
-           → (unId2 : rUnit2 (coHom-pt (suc n)) ≡ lUnit2 (coHom-pt (suc n)))
-           → (x y : _) → comp1 x y ≡ comp2 x y
-  genAddId n comp1 comp2 rUnit1 lUnit1 rUnit2 lUnit2 unId1 unId2 =
-    elim2 (λ _ _ → isOfHLevelPath (3 + n) (isOfHLevelTrunc (3 + n)) _ _)
-          (wedgeConSn _ _
-          (λ _ _ → help _ _)
-          (λ x → lUnit1 ∣ x ∣ ∙ sym (lUnit2 ∣ x ∣))
-          (λ x → rUnit1 ∣ x ∣ ∙ sym (rUnit2 ∣ x ∣))
-          (cong₂ _∙_ unId1 (cong sym unId2)) .fst)
-    where
-    help : isOfHLevel (2 + (n + suc n)) (coHomK (suc n))
-    help = subst (λ x → isOfHLevel x (coHomK (suc n))) (+-suc n (2 + n) ∙ +-suc (suc n) (suc n))
-                 (isOfHLevelPlus n (isOfHLevelTrunc (3 + n)))
++ₖ-unique : (n : ℕ) → (comp1 comp2 : coHomK (suc n) → coHomK (suc n) → coHomK (suc n))
+         → (rUnit1 : (x : _) → comp1 x (coHom-pt (suc n)) ≡ x)
+         → (lUnit1 : (x : _) → comp1 (coHom-pt (suc n)) x ≡ x)
+         → (rUnit2 : (x : _) → comp2 x (coHom-pt (suc n)) ≡ x)
+         → (lUnit2 : (x : _) → comp2 (coHom-pt (suc n)) x ≡ x)
+         → (unId1 : rUnit1 (coHom-pt (suc n)) ≡ lUnit1 (coHom-pt (suc n)))
+         → (unId2 : rUnit2 (coHom-pt (suc n)) ≡ lUnit2 (coHom-pt (suc n)))
+         → (x y : _) → comp1 x y ≡ comp2 x y
++ₖ-unique n comp1 comp2 rUnit1 lUnit1 rUnit2 lUnit2 unId1 unId2 =
+  elim2 (λ _ _ → isOfHLevelPath (3 + n) (isOfHLevelTrunc (3 + n)) _ _)
+        (wedgeConSn _ _
+        (λ _ _ → help _ _)
+        (λ x → lUnit1 ∣ x ∣ ∙ sym (lUnit2 ∣ x ∣))
+        (λ x → rUnit1 ∣ x ∣ ∙ sym (rUnit2 ∣ x ∣))
+        (cong₂ _∙_ unId1 (cong sym unId2)) .fst)
+  where
+  help : isOfHLevel (2 + (n + suc n)) (coHomK (suc n))
+  help = subst (λ x → isOfHLevel x (coHomK (suc n))) (+-suc n (2 + n) ∙ +-suc (suc n) (suc n))
+               (isOfHLevelPlus n (isOfHLevelTrunc (3 + n)))
 
 wedgeConHLev : (n : ℕ) → isOfHLevel ((2 + n) + (2 + n)) (coHomK (2 + n))
 wedgeConHLev n = subst (λ x → isOfHLevel x (coHomK (2 + n)))
