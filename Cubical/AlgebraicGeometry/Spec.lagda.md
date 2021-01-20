@@ -87,3 +87,4 @@ Here is another instance of this phenomenon:
       𝔸′ ∎
 
 ```
+See how the story continues with [Synthetic Quasi Coherence](Cubical.AlgebraicGeometry.SQC.html).
