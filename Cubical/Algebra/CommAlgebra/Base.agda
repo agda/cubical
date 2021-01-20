@@ -49,6 +49,11 @@ record CommAlgebra (R : CommRing {ℓ}) : Type (ℓ-suc ℓ) where
     _⋆_            : ⟨ R ⟩ → Carrier → Carrier
     isCommAlgebra  : IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_
 
+  infix  8 -_
+  infixl 7 _·_
+  infixl 7 _⋆_
+  infixl 6 _+_
+
   open IsCommAlgebra isCommAlgebra public
 
 module _ {R : CommRing {ℓ}} where
