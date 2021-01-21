@@ -135,3 +135,4 @@ homorphism of 𝔸-algberas:
                   →               (f (CommAlgebra._⋆_ R r x)
                     ≡⟨ ⋆Comm _ _ ⟩ CommAlgebra._⋆_ 𝔸 r (f x) ∎) i}
 ```
+

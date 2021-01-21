@@ -14,6 +14,8 @@ module Cubical.AlgebraicGeometry.Spec where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Unit
+open import Cubical.Data.Fin
+open import Cubical.Data.Nat
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra
@@ -86,5 +88,28 @@ Here is another instance of this phenomenon:
                                  λ a i x → a x) ⟩
       𝔸′ ∎
 
+```
+More generall, any type of the form 'D → 𝔸' is a 'Spec' of the 𝔸-algebra 𝔸[D]:
+
+```
+  module _ (D : Type ℓ) where
+    𝔸[D] = 𝔸asRing [ D ]
+    mappingSchemeEq : Spec 𝔸[D] ≡ (D → 𝔸′)
+    mappingSchemeEq = Spec 𝔸[D]      ≡⟨ refl ⟩
+                    Hom 𝔸[D] 𝔸    ≡⟨ homMapEq 𝔸 ⟩
+                    (D → 𝔸′)       ∎
+```
+We can use the standard n-elment type 'Fin n', lifted to the current universe,
+to define the affine n-dimensional standard space as a spectrum:
+
+```
+  𝔸″ : (n : ℕ) → Type ℓ
+  𝔸″ n = Spec (𝔸asRing [ Lift (Fin n) ])
+```
+
+This space is equivalent to a mapping space as we showed above, which is again
+a cartesian product:
+(still figuring out how to state this in a convenient way...)
+```
 ```
 See how the story continues with [Synthetic Quasi Coherence](Cubical.AlgebraicGeometry.SQC.html).
