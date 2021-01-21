@@ -110,6 +110,4 @@ to define the affine n-dimensional standard space as a spectrum:
 This space is equivalent to a mapping space as we showed above, which is again
 a cartesian product:
 (still figuring out how to state this in a convenient way...)
-```
-```
-See how the story continues with [Synthetic Quasi Coherence](Cubical.AlgebraicGeometry.SQC.html).
+See how the story is supposed to continue with [Synthetic Quasi Coherence](Cubical.AlgebraicGeometry.SQC.html).
