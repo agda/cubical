@@ -14,8 +14,9 @@ module Cubical.AlgebraicGeometry.Spec where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Unit
-open import Cubical.Data.Fin
+open import Cubical.Data.FinData
 open import Cubical.Data.Nat
+open import Cubical.Data.Vec
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra
@@ -96,18 +97,41 @@ More generall, any type of the form 'D → 𝔸' is a 'Spec' of the 𝔸-algebra
     𝔸[D] = 𝔸asRing [ D ]
     mappingSchemeEq : Spec 𝔸[D] ≡ (D → 𝔸′)
     mappingSchemeEq = Spec 𝔸[D]      ≡⟨ refl ⟩
-                    Hom 𝔸[D] 𝔸    ≡⟨ homMapEq 𝔸 ⟩
-                    (D → 𝔸′)       ∎
+                      Hom 𝔸[D] 𝔸    ≡⟨ homMapEq 𝔸 ⟩
+                      (D → 𝔸′)       ∎
 ```
-We can use the standard n-elment type 'Fin n', lifted to the current universe,
+We can use the standard n-elment type 'Fin n'
 to define the affine n-dimensional standard space as a spectrum:
 
 ```
-  𝔸″ : (n : ℕ) → Type ℓ
+  𝔸″ : ℕ → Type ℓ
   𝔸″ n = Spec (𝔸asRing [ Lift (Fin n) ])
 ```
+This space is equivalent to a mapping space as we showed above, which in turn is
+a cartesian product. For the n-fold cartesian product of 𝔸, we use the type 'Vec 𝔸 n':
 
-This space is equivalent to a mapping space as we showed above, which is again
-a cartesian product:
-(still figuring out how to state this in a convenient way...)
+```
+  standardSpaceEq : ∀ (n : ℕ)
+                  → 𝔸″ n ≡ Vec 𝔸′ n
+  standardSpaceEq n = 𝔸″ n                ≡⟨ mappingSchemeEq _ ⟩
+                      (Lift (Fin n) → 𝔸′) ≡⟨ lemma _ _ LiftEquiv ⟩
+                      (Fin n → 𝔸′)        ≡⟨ FinVec≡Vec n ⟩
+                      Vec 𝔸′ n ∎
+    where lemma : (X : Type₀) (Y : Type ℓ) → (X ≃ Y) → (Y → 𝔸′) ≡ (X → 𝔸′)
+          lemma X Y equiv =
+            let open Iso (equivToIso equiv)
+                  renaming (fun to e; inv to e⁻¹)
+            in isoToPath
+               (iso (λ f → λ x → f (e x))
+                    (λ g → λ y → g (e⁻¹ y))
+                    (λ f → λ i x →
+                         (f (e⁻¹ (e x)) ≡⟨ cong f (leftInv x) ⟩
+                         f x            ∎)
+                      i)
+                    λ g → λ i y →
+                         (g (e (e⁻¹ y)) ≡⟨ cong g (rightInv y) ⟩
+                         g y ∎)
+                       i)
+```
+
 See how the story is supposed to continue with [Synthetic Quasi Coherence](Cubical.AlgebraicGeometry.SQC.html).
