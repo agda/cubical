@@ -4,7 +4,7 @@ Synthetic Algebraic Geometry
 The Synthetic Spectrum
 ----------------------
 
-Everything done here is from Ingo Blechschmidt's thesis or unpublished work of David Jaz Myers.
+All the mathematics presented here, is from Ingo Blechschmidt's thesis or unpublished work of David Jaz Myers. The style of presentation and the formalization in Agda are due to [Felix Cherubini](http://felix-cherubini.de)
 
 
 <!--
