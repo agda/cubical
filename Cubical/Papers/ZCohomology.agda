@@ -157,31 +157,31 @@ open S using (sphereConnected)
 -- Lemma 1
 open S using (wedgeConSn)
 
--- The proof of p ≡ (left *) ∙ (right *)⁻¹ is not explicitly stated in
--- the library since it is so trivial. We give it here instead.
-left-right-hom : ∀ {ℓ} (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) → Type ℓ}
-          → (hlev : ((x : S₊ (suc n)) (y : S₊ (suc m)) → isOfHLevel ((suc n) + (suc m)) (A x y)))
-          → (f : (x : _) → A (ptSn (suc n)) x)
-          → (g : (x : _) → A x (ptSn (suc m)))
-          → (p : g (ptSn (suc n)) ≡ f (ptSn (suc m)))
-          → p ≡ sym (S.wedgeConSn n m hlev f g p .snd .snd (ptSn (suc n)))
-              ∙ S.wedgeConSn n m hlev f g p .snd .fst (ptSn (suc m))
-left-right-hom zero zero hlev f g p = rUnit p
-left-right-hom zero (suc m) hlev f g p = lUnit p
-left-right-hom (suc n) m hlev f g p = rUnit p
-
--- We cannot state the definitional equality explicitly, but the following
--- makes sure that these hold definitionally (as they're proved by refl)
-defEq : ∀ {ℓ} (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) → Type ℓ}
-          → (hlev : ((x : S₊ (suc n)) (y : S₊ (suc m)) → isOfHLevel ((suc n) + (suc m)) (A x y)))
-          → (f : (x : _) → A (ptSn (suc n)) x)
-          → (g : (x : _) → A x (ptSn (suc m)))
-          → (p : g (ptSn (suc n)) ≡ f (ptSn (suc m)))
-          → (f ≡ S.wedgeConSn n m hlev f g p .fst (ptSn (suc n)))
-          ⊎ (g ≡ λ x → S.wedgeConSn n m hlev f g p .fst x (ptSn (suc m)))
-defEq zero zero hlev f g p = inl refl
-defEq zero (suc m) hlev f g p = inr refl
-defEq (suc n) m hlev f g p = inl refl
+-- restated to match the formulation in the paper
+wedgeConSn' : ∀ {ℓ} (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) → Type ℓ}
+            → ((x : S₊ (suc n)) (y : S₊ (suc m)) → isOfHLevel ((suc n) + (suc m)) (A x y))
+            → (fₗ : (x : _) → A x (ptSn (suc m)))
+            → (fᵣ : (x : _) → A (ptSn (suc n)) x)
+            → (p : fₗ (ptSn (suc n)) ≡ fᵣ (ptSn (suc m)))
+            → Σ[ F ∈ ((x : S₊ (suc n)) (y : S₊ (suc m)) → A x y) ]
+                (Σ[ (left , right) ∈ ((x : S₊ (suc n)) → fₗ x ≡ F x (ptSn (suc m)))
+                                   × ((x : S₊ (suc m)) → fᵣ x ≡ F (ptSn (suc n)) x) ]
+                  p ≡ left (ptSn (suc n)) ∙ (right (ptSn (suc m))) ⁻¹)
+wedgeConSn' zero zero hlev fₗ fᵣ p =
+  (wedgeConSn 0 0 hlev fᵣ fₗ p .fst)
+   , ((λ x → sym (wedgeConSn 0 0 hlev fᵣ fₗ p .snd .snd x))
+   , λ _ → refl) -- right holds by refl
+   , rUnit _
+wedgeConSn' zero (suc m) hlev fₗ fᵣ p =
+  (wedgeConSn 0 (suc m) hlev fᵣ fₗ p .fst)
+  , ((λ _ → refl) -- left holds by refl
+  , (λ x → sym (wedgeConSn 0 (suc m) hlev fᵣ fₗ p .snd .fst x)))
+  , lUnit _
+wedgeConSn' (suc n) m hlev fₗ fᵣ p =
+  (wedgeConSn (suc n) m hlev fᵣ fₗ p .fst)
+   , ((λ x → sym (wedgeConSn (suc n) m hlev fᵣ fₗ p .snd .snd x))
+   , λ _ → refl) -- right holds by refl
+   , rUnit _
 
 -- +ₖ (addition), -ₖ and 0ₖ
 open GroupStructure using (_+ₖ_ ; -ₖ_ ; 0ₖ)
