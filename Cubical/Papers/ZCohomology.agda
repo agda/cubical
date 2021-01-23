@@ -31,6 +31,7 @@ open import Cubical.HITs.Susp                        as Suspension
 open import Cubical.HITs.Sn                          as Sn
 open import Cubical.Homotopy.Loopspace               as Loop
 open import Cubical.Foundations.HLevels              as n-types
+open import Cubical.HITs.Truncation                  as Trunc
 open import Cubical.Homotopy.Connected               as Connected
 import Cubical.HITs.Pushout                          as Push
 import Cubical.HITs.Wedge                            as ⋁
@@ -99,6 +100,26 @@ open Loop using (Eckmann-Hilton)
 -- on)
 open n-types using (isOfHLevel)
 
+-- truncations
+open Trunc using (hLevelTrunc)
+
+-- elimination principle
+open Trunc using (elim)
+
+-- elimination principle for paths
+truncPathElim : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (n : ℕ)
+              → {B : Path (hLevelTrunc (suc n) A) ∣ x ∣ ∣ y ∣ → Type ℓ'}
+              → ((q : _) → isOfHLevel n (B q))
+              → ((p : x ≡ y) → B (cong ∣_∣ p))
+              → (q : _) → B q
+truncPathElim zero hlev ind q = hlev q .fst
+truncPathElim (suc n) {B = B} hlev ind q =
+  subst B (Iso.leftInv (Trunc.PathIdTruncIso _) q)
+    (help (ΩTrunc.encode-fun ∣ _ ∣ ∣ _ ∣ q))
+  where
+  help : (q : _) → B (ΩTrunc.decode-fun ∣ _ ∣ ∣ _ ∣ q)
+  help = Trunc.elim (λ _ → hlev _) ind
+
 -- Connectedness
 open Connected using (isConnected)
 
@@ -136,7 +157,7 @@ open S using (sphereConnected)
 -- Lemma 1
 open S using (wedgeConSn)
 
--- The proof of p ≡ (left *)⁻¹ ∙ (right *) is not explicitly stated in
+-- The proof of p ≡ (left *) ∙ (right *)⁻¹ is not explicitly stated in
 -- the library since it is so trivial. We give it here instead.
 left-right-hom : ∀ {ℓ} (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) → Type ℓ}
           → (hlev : ((x : S₊ (suc n)) (y : S₊ (suc m)) → isOfHLevel ((suc n) + (suc m)) (A x y)))
@@ -144,7 +165,7 @@ left-right-hom : ∀ {ℓ} (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) �
           → (g : (x : _) → A x (ptSn (suc m)))
           → (p : g (ptSn (suc n)) ≡ f (ptSn (suc m)))
           → p ≡ sym (S.wedgeConSn n m hlev f g p .snd .snd (ptSn (suc n)))
-               ∙ S.wedgeConSn n m hlev f g p .snd .fst (ptSn (suc m))
+              ∙ S.wedgeConSn n m hlev f g p .snd .fst (ptSn (suc m))
 left-right-hom zero zero hlev f g p = rUnit p
 left-right-hom zero (suc m) hlev f g p = lUnit p
 left-right-hom (suc n) m hlev f g p = rUnit p
