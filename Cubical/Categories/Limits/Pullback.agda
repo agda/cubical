@@ -75,3 +75,6 @@ module _ {C : Precategory ℓ ℓ'} where
   Cospan→Func (cospan l m r f g) .F-seq {②} {②} {②} φ ψ = sym (⋆IdL _)
   Cospan→Func (cospan l m r f g) .F-seq {②} {②} {①} φ ψ = sym (⋆IdL _)
   Cospan→Func (cospan l m r f g) .F-seq {②} {①} {①} φ ψ = sym (⋆IdR _)
+
+
+  -- TODO: show that this definition of Pullback is equivalent to the Cospan limit

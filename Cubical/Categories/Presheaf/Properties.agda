@@ -4,7 +4,8 @@ module Cubical.Categories.Presheaf.Properties where
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Sets
+open import Cubical.Categories.Instances.SetCat
+open import Cubical.Categories.Instances.FunctorCat
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Equivalence

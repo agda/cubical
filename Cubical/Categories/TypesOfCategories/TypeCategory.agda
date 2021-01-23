@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --no-import-sorts --postfix-projections --safe #-}
 
-module Cubical.Categories.TypeCategory where
+module Cubical.Categories.TypesOfCategories.TypeCategory where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -12,7 +12,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Sets
+open import Cubical.Categories.Instances.SetCat
 
 
 record isTypeCategory {ℓ ℓ' ℓ''} (C : Precategory ℓ ℓ')
@@ -178,7 +178,6 @@ module _ {ℓ ℓ' : Level} (C : Precategory ℓ ℓ') where
   -- putting everything together
   isTypeCategoryPresheaf : isTypeCategory (PreShv C)
   isTypeCategoryPresheaf .Ty[_] Γ = PSTy[ Γ ]
-
   isTypeCategoryPresheaf .cext = PSCext
   isTypeCategoryPresheaf .reindex = PSReindex
   isTypeCategoryPresheaf .q⟨_,_⟩ = PSq

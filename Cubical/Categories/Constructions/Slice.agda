@@ -164,7 +164,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
     -- names for the equivalences/isos
 
     pathIsoEquiv : (x ≡ y) ≃ (CatIso x y)
-    pathIsoEquiv = univEquiv x y
+    pathIsoEquiv = univEquiv isU x y
 
     isoPathEquiv : (CatIso x y) ≃ (x ≡ y)
     isoPathEquiv = invEquiv pathIsoEquiv

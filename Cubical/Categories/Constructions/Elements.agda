@@ -6,7 +6,7 @@ open import Cubical.Categories.Category
 
 module Cubical.Categories.Constructions.Elements {ℓ ℓ'} {C : Precategory ℓ ℓ'} where
 
-open import Cubical.Categories.Sets
+open import Cubical.Categories.Instances.SetCat
 open import Cubical.Categories.Functor
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

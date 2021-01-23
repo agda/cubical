@@ -9,7 +9,7 @@ open import Cubical.Data.Sigma using (ΣPathP)
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Sets
+open import Cubical.Categories.Instances.SetCat
 
 private
   variable
@@ -71,6 +71,7 @@ module _ {J : Precategory ℓJ ℓJ'}
     record isLimit (head : C .ob) : Type (ℓ-max (ℓ-max ℓJ ℓJ') (ℓ-max ℓC ℓC'))  where
       field
         cone : Cone K head
+        -- TODO: change this to terminal object in category of Cones?
         up   : ∀ {v} (ν : Cone K v) → cone uniquelyFactors ν
 
     record Limit : Type (ℓ-max (ℓ-max ℓJ ℓJ') (ℓ-max ℓC ℓC'))  where
@@ -90,11 +91,8 @@ open NatTrans
 open Precategory
 
 
--- -- specific diagrams
--- data 𝟚 {ℓ : Level} : Type ℓ where
---   ⓪ : 𝟚
---   ① : 𝟚
 
+-- TODO:
 
 -- 1. every diagram has limits isomorphic to the limit of an equalizer of products
 
@@ -105,10 +103,11 @@ open Precategory
 -- 4. a category with all pullbacks and a terminal object has all limits
 
 
--- notes
--- didn't need to restrict to *finite* diagrams , why is that required in Set theoretic?
+-- SET is complete
 
--- NOTE: didn't use coinduction here because Agda didn't like me referencing 'cone' frome 'up' (termination check)
+-- notes:
+-- didn't need to restrict to *finite* diagrams , why is that required in Set theoretic?
+-- didn't use coinduction here because Agda didn't like me referencing 'cone' frome 'up' (termination check)
 
 isCompleteSET : ∀ {ℓJ ℓJ'} → complete' {ℓJ = ℓJ} {ℓJ'} (SET (ℓ-max ℓJ ℓJ'))
 isCompleteSET J K = record
@@ -159,30 +158,3 @@ isCompleteSET J K = record
             -- follows from Set having homsets
             fact≡fact' : PathP (λ i → α ≡ ((f≡f' i) ◼ cone')) fact fact'
             fact≡fact' = isOfHLevel→isOfHLevelDep 1 (λ β → isSetNat α β) fact fact' λ i → (f≡f' i) ◼ cone'
-
--- diagrams
-
-
-
--- this is whack...
--- see agda categories for inspiration
--- https://github.com/agda/agda-categories/blob/master/src/Categories/Category/Finite/Fin.agda
--- equalizer : Precategory ℓ-zero ℓ-zero
--- equalizer .ob = Fin 2
--- equalizer .Hom[_,_] (0 , _) (1 , _) = Fin 2
--- equalizer .Hom[_,_] (0 , _) (0 , _) = Fin 1
--- equalizer .Hom[_,_] (1 , _) (1 , _) = Fin 1
--- equalizer .Hom[_,_] (_ , _) (_ , _) = Fin 0
--- equalizer ._⋆_ {x = (0 , )}f g = {!!}
--- equalizer .Hom[_,_] (m , _) (n , _) = (m ≤ n) ⊎ (suc m ≤ n)
--- -- equalizer .Hom[_,_] (n , _) (m , _) = n ≤ m
--- (equalizer ⋆ inl lte) (inl lte') = inl (≤-trans lte lte')
--- (equalizer ⋆ inl lte) (inr l') = inr (≤-trans (suc-≤-suc lte) l')
--- (equalizer ⋆ inr l) (inl lte') = inr (≤-trans l lte')
--- (equalizer ⋆ inr l) (inr l') = inr (≤-trans (≤-suc l) l')
--- equalizer .id x = inl ≤-refl
--- equalizer .⋆IdL (inl le) = cong inl (m≤n-isProp (≤-trans ≤-refl le) le)
--- equalizer .⋆IdL (inr l) = cong inr (m≤n-isProp (≤-trans (suc-≤-suc ≤-refl) l) l)
--- equalizer .⋆IdR (inl le) = cong inl (m≤n-isProp (≤-trans le ≤-refl) le)
--- equalizer .⋆IdR (inr l) = cong inr (m≤n-isProp (≤-trans l ≤-refl) l)
--- equalizer .⋆Assoc f g h = {!!}
