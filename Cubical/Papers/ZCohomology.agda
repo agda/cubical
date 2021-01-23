@@ -21,6 +21,7 @@ open import Cubical.Data.Nat
 open import Cubical.Foundations.Everything
 open import Cubical.HITs.S1
 open import Cubical.Data.Sum
+open import Cubical.Data.Sigma
 
 -- II
 import Cubical.Foundations.Prelude                   as Prelude
