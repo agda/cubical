@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.GroupStructure where
 
 open import Cubical.ZCohomology.Base
@@ -39,26 +39,25 @@ infixr 34 _+ₕ∙_
 
 -- Addition in the Eilenberg-Maclane spaces is uniquely determined if we require it to have left- and right-unit laws,
 -- such that these agree on 0. In particular, any h-structure (see http://ericfinster.github.io/files/emhott.pdf) is unique.
-private
-  genAddId : (n : ℕ) → (comp1 comp2 : coHomK (suc n) → coHomK (suc n) → coHomK (suc n))
-           → (rUnit1 : (x : _) → comp1 x (coHom-pt (suc n)) ≡ x)
-           → (lUnit1 : (x : _) → comp1 (coHom-pt (suc n)) x ≡ x)
-           → (rUnit2 : (x : _) → comp2 x (coHom-pt (suc n)) ≡ x)
-           → (lUnit2 : (x : _) → comp2 (coHom-pt (suc n)) x ≡ x)
-           → (unId1 : rUnit1 (coHom-pt (suc n)) ≡ lUnit1 (coHom-pt (suc n)))
-           → (unId2 : rUnit2 (coHom-pt (suc n)) ≡ lUnit2 (coHom-pt (suc n)))
-           → (x y : _) → comp1 x y ≡ comp2 x y
-  genAddId n comp1 comp2 rUnit1 lUnit1 rUnit2 lUnit2 unId1 unId2 =
-    elim2 (λ _ _ → isOfHLevelPath (3 + n) (isOfHLevelTrunc (3 + n)) _ _)
-          (wedgeConSn _ _
-          (λ _ _ → help _ _)
-          (λ x → lUnit1 ∣ x ∣ ∙ sym (lUnit2 ∣ x ∣))
-          (λ x → rUnit1 ∣ x ∣ ∙ sym (rUnit2 ∣ x ∣))
-          (cong₂ _∙_ unId1 (cong sym unId2)) .fst)
-    where
-    help : isOfHLevel (2 + (n + suc n)) (coHomK (suc n))
-    help = subst (λ x → isOfHLevel x (coHomK (suc n))) (+-suc n (2 + n) ∙ +-suc (suc n) (suc n))
-                 (isOfHLevelPlus n (isOfHLevelTrunc (3 + n)))
++ₖ-unique : (n : ℕ) → (comp1 comp2 : coHomK (suc n) → coHomK (suc n) → coHomK (suc n))
+         → (rUnit1 : (x : _) → comp1 x (coHom-pt (suc n)) ≡ x)
+         → (lUnit1 : (x : _) → comp1 (coHom-pt (suc n)) x ≡ x)
+         → (rUnit2 : (x : _) → comp2 x (coHom-pt (suc n)) ≡ x)
+         → (lUnit2 : (x : _) → comp2 (coHom-pt (suc n)) x ≡ x)
+         → (unId1 : rUnit1 (coHom-pt (suc n)) ≡ lUnit1 (coHom-pt (suc n)))
+         → (unId2 : rUnit2 (coHom-pt (suc n)) ≡ lUnit2 (coHom-pt (suc n)))
+         → (x y : _) → comp1 x y ≡ comp2 x y
++ₖ-unique n comp1 comp2 rUnit1 lUnit1 rUnit2 lUnit2 unId1 unId2 =
+  elim2 (λ _ _ → isOfHLevelPath (3 + n) (isOfHLevelTrunc (3 + n)) _ _)
+        (wedgeConSn _ _
+        (λ _ _ → help _ _)
+        (λ x → lUnit1 ∣ x ∣ ∙ sym (lUnit2 ∣ x ∣))
+        (λ x → rUnit1 ∣ x ∣ ∙ sym (rUnit2 ∣ x ∣))
+        (cong₂ _∙_ unId1 (cong sym unId2)) .fst)
+  where
+  help : isOfHLevel (2 + (n + suc n)) (coHomK (suc n))
+  help = subst (λ x → isOfHLevel x (coHomK (suc n))) (+-suc n (2 + n) ∙ +-suc (suc n) (suc n))
+               (isOfHLevelPlus n (isOfHLevelTrunc (3 + n)))
 
 wedgeConHLev : (n : ℕ) → isOfHLevel ((2 + n) + (2 + n)) (coHomK (2 + n))
 wedgeConHLev n = subst (λ x → isOfHLevel x (coHomK (2 + n)))
@@ -739,3 +738,38 @@ module lockedCohom (key : Unit') where
 
 lUnitK≡rUnitK : (key : Unit') (n : ℕ) → lockedCohom.lUnitK key n (0ₖ n) ≡ lockedCohom.rUnitK key n (0ₖ n)
 lUnitK≡rUnitK unlock = lUnitₖ≡rUnitₖ
+
+open GroupIso renaming (map to grMap)
+open GroupStr renaming (_+_ to _+gr_)
+open GroupHom
+
+inducedCoHom : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
+  → GroupIso (coHomGr n A) G
+  → Group
+inducedCoHom {A = A} {G = G} {n = n} e =
+  InducedGroup (coHomGr n A)
+               (coHom n A , λ x y → inv e (_+gr_ (snd G) (fun (grMap e) x)
+                                                          (fun (grMap e) y)))
+               (idEquiv _)
+               λ x y → sym (leftInv e _)
+                      ∙ cong (inv e) (isHom (grMap e) x y)
+
+induced+ : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
+  → (e : GroupIso (coHomGr n A) G)
+  → fst (inducedCoHom e) → fst (inducedCoHom e) → fst (inducedCoHom e)
+induced+ e = _+gr_ (snd (inducedCoHom e))
+
+inducedCoHomIso : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
+               → (e : GroupIso (coHomGr n A) G)
+               → GroupIso (coHomGr n A) (inducedCoHom e)
+fun (grMap (inducedCoHomIso e)) = idfun _
+isHom (grMap (inducedCoHomIso e)) x y = sym (leftInv e _)
+                                      ∙ cong (inv e) (isHom (grMap e) x y)
+inv (inducedCoHomIso e) = idfun _
+rightInv (inducedCoHomIso e) _ = refl
+leftInv (inducedCoHomIso e) _ = refl
+
+inducedCoHomPath : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
+               → (e : GroupIso (coHomGr n A) G)
+               → coHomGr n A ≡ inducedCoHom e
+inducedCoHomPath e = InducedGroupPath _ _ _ _

@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Experiments.ZCohomologyOld.Groups.Prelims where
 
-open import Cubical.Experiments.ZCohomologyOld.Base
+open import Cubical.ZCohomology.Base
 open import Cubical.Experiments.ZCohomologyOld.Properties
 open import Cubical.Experiments.ZCohomologyOld.KcompPrelims
 
@@ -11,6 +11,8 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
+
+open import Cubical.Homotopy.Loopspace
 
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp

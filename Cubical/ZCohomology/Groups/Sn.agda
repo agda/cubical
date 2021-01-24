@@ -22,7 +22,12 @@ open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2 ; map to sMap)
-open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁) hiding (map)
+open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁)
+  hiding (map)
+
+open import Cubical.Relation.Nullary
+open import Cubical.Data.Sum hiding (map)
+open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
@@ -49,6 +54,59 @@ Sn-connected : (n : ℕ) (x : typ (S₊∙ (suc n))) → ∥ pt (S₊∙ (suc n)
 Sn-connected zero = toPropElim (λ _ → propTruncIsProp) ∣ refl ∣₁
 Sn-connected (suc zero) = suspToPropElim base (λ _ → propTruncIsProp) ∣ refl ∣₁
 Sn-connected (suc (suc n)) = suspToPropElim north (λ _ → propTruncIsProp) ∣ refl ∣₁
+
+suspensionAx-Sn : (n m : ℕ) → GroupIso (coHomGr (2 + n) (S₊ (2 + m)))
+                                         (coHomGr (suc n) (S₊ (suc m)))
+suspensionAx-Sn n m =
+  Iso+Hom→GrIso
+    (compIso (setTruncIso (invIso funSpaceSuspIso)) helperIso)
+    funIsHom
+  where
+  helperIso : Iso ∥ (Σ[ x ∈ coHomK (2 + n) ]
+                  Σ[ y ∈ coHomK (2 + n) ]
+                   (S₊ (suc m) → x ≡ y)) ∥₂
+              (coHom (suc n) (S₊ (suc m)))
+  Iso.fun helperIso =
+    sRec setTruncIsSet
+         (uncurry
+           (coHomK-elim _
+             (λ _ → isOfHLevelΠ (2 + n)
+                λ _ → isOfHLevelPlus' {n = n} 2 setTruncIsSet)
+             (uncurry
+               (coHomK-elim _
+                 (λ _ → isOfHLevelΠ (2 + n)
+                    λ _ → isOfHLevelPlus' {n = n} 2 setTruncIsSet)
+                 λ f → ∣ (λ x → ΩKn+1→Kn (suc n) (f x)) ∣₂))))
+  Iso.inv helperIso =
+    sMap λ f → (0ₖ _) , (0ₖ _ , λ x → Kn→ΩKn+1 (suc n) (f x))
+  Iso.rightInv helperIso =
+    coHomPointedElim _ (ptSn (suc m)) (λ _ → setTruncIsSet _ _)
+      λ f fId → cong ∣_∣₂ (funExt (λ x → Iso.leftInv (Iso-Kn-ΩKn+1 _) (f x)))
+  Iso.leftInv helperIso =
+    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+      (uncurry
+        (coHomK-elim _
+          (λ _ → isProp→isOfHLevelSuc (suc n) (isPropΠ λ _ → setTruncIsSet _ _))
+          (uncurry
+            (coHomK-elim _
+              (λ _ → isProp→isOfHLevelSuc (suc n) (isPropΠ λ _ → setTruncIsSet _ _))
+              λ f → cong ∣_∣₂
+                      (ΣPathP (refl ,
+                        ΣPathP (refl ,
+                          (λ i x → Iso.rightInv (Iso-Kn-ΩKn+1 (suc n)) (f x) i))))))))
+
+  theFun : coHom (2 + n) (S₊ (2 + m)) → coHom (suc n) (S₊ (suc m))
+  theFun = Iso.fun (compIso (setTruncIso (invIso funSpaceSuspIso))
+                             helperIso)
+
+  funIsHom : (x y : coHom (2 + n) (S₊ (2 + m)))
+          → theFun (x +ₕ y) ≡ theFun x +ₕ theFun y
+  funIsHom =
+    coHomPointedElimSⁿ _ _ (λ _ → isPropΠ λ _ → setTruncIsSet _ _)
+      λ f → coHomPointedElimSⁿ _ _ (λ _ → setTruncIsSet _ _)
+        λ g → cong ∣_∣₂ (funExt λ x → cong (ΩKn+1→Kn (suc n)) (sym (∙≡+₂ n (f x) (g x)))
+                                    ∙ ΩKn+1→Kn-hom (suc n) (f x) (g x))
+
 
 H⁰-Sⁿ≅ℤ : (n : ℕ) → GroupIso (coHomGr 0 (S₊ (suc n))) intGroup
 H⁰-Sⁿ≅ℤ zero = H⁰-connected base (Sn-connected 0)
@@ -224,64 +282,14 @@ coHom1S1≃ℤ = theIso
                               ∙ cong ∣_∣₂ (Iso.leftInv S¹→S¹≡S¹×Int f)
 
 ---------------------------- Hⁿ(Sⁿ) ≅ ℤ , n ≥ 1 -------------------
-{-
-The proof of the inductive step below is a compact version of the following equations. Let n ≥ 1.
-Hⁿ⁺¹(Sⁿ⁺¹) := ∥ Sⁿ⁺¹ → Kₙ₊₁ ∥₂
-           ≅ ∥ Σ[ (a , b) ∈ Kₙ₊₁ ] (Sⁿ → a ≡ b) ∥₂      (characterisation of functions from suspensions)
-           ≅ ∥ Kₙ₊₁ × Kₙ₊₁ × (Sⁿ → ΩKₙ₊₁) ∥₂             (base change in ΩKₙ₊₁)
-           ≅ ∥ Kₙ₊₁ ∥₂ × ∥ Kₙ₊₁ ∥₂ × ∥ (Sⁿ → ΩKₙ₊₁) ∥₂
-           ≅ ∥ Sⁿ → ΩKₙ₊₁ ∥₂                             (connectivity of Kₙ₊₁)
-           ≅ ∥ Sⁿ → Kₙ ∥₂                                (ΩKₙ₊₁ ≃ Kₙ)
-          := Hⁿ(Sⁿ)
-           ≅ ℤ                                           (ind. hyp)
-
-The inverse function Hⁿ(Sⁿ) → Hⁿ⁺¹(Sⁿ⁺¹) is just the function d from Mayer-Vietoris.
-However, we can construct d⁻¹ directly in this case, thus avoiding computationally
-heavier proofs concerning exact sequences. -}
-
 Hⁿ-Sⁿ≅ℤ : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ (suc n))) intGroup
 Hⁿ-Sⁿ≅ℤ zero = coHom1S1≃ℤ
-Hⁿ-Sⁿ≅ℤ (suc n) = invGroupIso helper □ invGroupIso (coHom≅coHomΩ (suc n) _) □ (Hⁿ-Sⁿ≅ℤ n)
-  where
-  basePointInd : (p : _) (a : _)
-    → (p (ptSn (suc n)) ≡ refl) → sym (rCancelₖ (2 + n) ∣ north ∣)
-                                 ∙∙ (λ i →  (elimFunSⁿ (suc n) n p) ((merid a ∙ sym (merid (ptSn (suc n)))) i) +ₖ ∣ north ∣)
-                                 ∙∙ rCancelₖ (2 + n) ∣ north ∣
-                                 ≡ p a
-  basePointInd p a prefl =
-        cong (λ z → sym z ∙∙ ((λ i →  (elimFunSⁿ (suc n) n p) ((merid a ∙ sym (merid (ptSn (suc n)))) i) +ₖ ∣ north ∣)) ∙∙ z)
-             (transportRefl refl)
-     ∙∙ sym (rUnit _)
-     ∙∙ (λ j i → rUnitₖ (2 + n) (elimFunSⁿ (suc n) n p ((merid a ∙ sym (merid (ptSn (suc n)))) i)) j)
-     ∙∙ congFunct (elimFunSⁿ (suc n) n p) (merid a) (sym (merid (ptSn (suc n))))
-     ∙∙ (cong (p a ∙_) (cong sym prefl)
-     ∙ sym (rUnit (p a)))
+Hⁿ-Sⁿ≅ℤ (suc n) = suspensionAx-Sn n n □ Hⁿ-Sⁿ≅ℤ n
 
-  helper : GroupIso (coHomGrΩ (suc n) (S₊ (suc n))) (coHomGr (2 + n) (S₊ (2 + n)))
-  fun (map helper) = sMap λ f → λ { north → ∣ north ∣
-                                   ; south → ∣ north ∣
-                                   ; (merid a i) → f a i}
-  isHom (map helper) =
-    sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-           λ f g → cong ∣_∣₂ (funExt λ { north → refl
-                                       ; south → refl
-                                       ; (merid a i) j → ∙≡+₂ n (f a) (g a) j i})
-  inv helper = sMap λ f x → sym (rCancelₖ (2 + n) (f north))
-                          ∙∙ (λ i → f ((merid x ∙ sym (merid (ptSn (suc n)))) i) -ₖ f north)
-                          ∙∙ rCancelₖ (2 + n) (f north)
-  rightInv helper =
-    coHomPointedElimSⁿ (suc n) n (λ _ → setTruncIsSet _ _)
-      λ p → trRec (isProp→isOfHLevelSuc n (setTruncIsSet _ _))
-                   (λ prefl → cong ∣_∣₂ (funExt λ {north → refl
-                                                 ; south → refl
-                                                 ; (merid a i) j → basePointInd p a prefl j i}))
-                   (Iso.fun (PathIdTruncIso _)
-                            (isOfHLevelSuc 0 (isConnectedPathKn _ ∣ north ∣ ∣ north ∣)
-                            (∣ p (ptSn (suc n)) ∣) ∣ refl ∣))
-  leftInv helper =
-    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-          λ f → (trRec (isProp→isOfHLevelSuc n (setTruncIsSet _ _))
-                        (λ frefl → cong ∣_∣₂ (funExt λ x → basePointInd f x frefl))
-                        ((Iso.fun (PathIdTruncIso _)
-                            (isOfHLevelSuc 0 (isConnectedPathKn _ ∣ north ∣ ∣ north ∣)
-                            (∣ f (ptSn (suc n)) ∣) ∣ refl ∣))))
+-------------- Hⁿ(Sᵐ) ≅ ℤ for n , m ≥ 1 with n ≠ m ----------------
+Hⁿ-Sᵐ≅0 : (n m : ℕ) → ¬ (n ≡ m) → GroupIso (coHomGr (suc n) (S₊ (suc m))) trivialGroup
+Hⁿ-Sᵐ≅0 zero zero pf = ⊥-rec (pf refl)
+Hⁿ-Sᵐ≅0 zero (suc m) pf = H¹-Sⁿ≅0 m
+Hⁿ-Sᵐ≅0 (suc n) zero pf = Hⁿ-S¹≅0 n
+Hⁿ-Sᵐ≅0 (suc n) (suc m) pf = suspensionAx-Sn n m
+                           □ Hⁿ-Sᵐ≅0 n m λ p → pf (cong suc p)

@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Experiments.ZCohomologyOld.Properties where
 
-open import Cubical.Experiments.ZCohomologyOld.Base
+open import Cubical.ZCohomology.Base
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
@@ -18,7 +18,7 @@ open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; setTruncIsSet to §)
-open import Cubical.Data.Int renaming (_+_ to _ℤ+_)
+open import Cubical.Data.Int renaming (_+_ to _ℤ+_) hiding (-_)
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3) hiding (map2)
 open import Cubical.Homotopy.Loopspace
@@ -263,32 +263,12 @@ cancelₖ (suc (suc (suc (suc (suc n))))) x = cong (ΩKn+1→Kn (5 + n)) (rCance
                  ∙∙ cong (ΩKn+1→Kn (suc n)) (sym (rUnit (Kn→ΩKn+1 (suc n) x)))
                  ∙∙ Iso.leftInv (Iso-Kn-ΩKn+1 (suc n)) x
 
-isComm∙ : ∀ {ℓ} (A : Pointed ℓ) → Type ℓ
-isComm∙ A = (p q : typ (Ω A)) → p ∙ q ≡ q ∙ p
-
 abstract
-  isCommA→isCommTrunc : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ A → isOfHLevel (suc n) (typ A) → isComm∙ (∥ typ A ∥ (suc n) , ∣ pt A ∣)
-  isCommA→isCommTrunc {A = (A , a)} n comm hlev p q =
-      ((λ i j → (Iso.leftInv (truncIdempotentIso (suc n) hlev) ((p ∙ q) j) (~ i)))
-   ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (cong (trRec hlev (λ x → x)) (p ∙ q)))
-   ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (congFunct {A = ∥ A ∥ (suc n)} {B = A} (trRec hlev (λ x → x)) p q i)))
-   ∙ ((λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (comm (cong (trRec hlev (λ x → x)) p) (cong (trRec hlev (λ x → x)) q) i))
-   ∙∙ (λ i → cong {B = λ _ → ∥ A ∥ (suc n) } (λ x → ∣ x ∣) (congFunct {A = ∥ A ∥ (suc n)} {B = A} (trRec hlev (λ x → x)) q p (~ i)))
-   ∙∙ (λ i j → (Iso.leftInv (truncIdempotentIso (suc n) hlev) ((q ∙ p) j) i)))
-
   isCommΩK1 : (n : ℕ) → isComm∙ ((Ω^ n) (coHomK-ptd 1))
   isCommΩK1 zero = isCommA→isCommTrunc 2 comm-ΩS¹ isGroupoidS¹
   isCommΩK1 (suc n) = Eckmann-Hilton n
 
   open Iso renaming (inv to inv')
-  ptdIso→comm : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Type ℓ'} (e : Iso (typ A) B) → isComm∙ A → isComm∙ (B , Iso.fun e (pt A))
-  ptdIso→comm {A = (A , a)} {B = B} e comm p q =
-         sym (rightInv (congIso e) (p ∙ q))
-      ∙∙ (cong (fun (congIso e)) ((invCongFunct e p q)
-                              ∙∙ (comm (inv' (congIso e) p) (inv' (congIso e) q))
-                              ∙∙ (sym (invCongFunct e q p))))
-      ∙∙ rightInv (congIso e) (q ∙ p)
-
   isCommΩK : (n : ℕ) → isComm∙ (coHomK-ptd n)
   isCommΩK zero p q = isSetInt _ _ (p ∙ q) (q ∙ p)
   isCommΩK (suc zero) = isCommA→isCommTrunc 2 comm-ΩS¹ isGroupoidS¹
@@ -433,7 +413,10 @@ private
 rUnitlUnit0 : (n : ℕ) → rUnitₖ n (0ₖ n) ≡ lUnitₖ n (0ₖ n)
 rUnitlUnit0 0 = refl
 rUnitlUnit0 (suc zero) = refl
-rUnitlUnit0 (suc (suc n)) = sym (rUnitlUnitGen (Iso-Kn-ΩKn+1 (2 + n)) (0ₖ (2 + n)) (Kn→ΩKn+10ₖ (2 + n)))
+rUnitlUnit0 (suc (suc n)) =
+  sym (rUnitlUnitGen (Iso-Kn-ΩKn+1 (2 + n))
+                     (0ₖ (2 + n))
+                     (Kn→ΩKn+10ₖ (2 + n)))
 
 -cancelLₕ : (n : ℕ) (x y : coHom n A) → (x +[ n ]ₕ y) -[ n ]ₕ x ≡ y
 -cancelLₕ n = sElim2 (λ _ _ → isOfHLevelPath 1 (§ _ _))
