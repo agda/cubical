@@ -1,10 +1,7 @@
-Synthetic Algebraic Geometry
-============================
-
 Synthetic quasi coherence
 -------------------------
 
-All the mathematics presented here, is from Ingo Blechschmidt's thesis or unpublished work of David Jaz Myers. The style of presentation and the formalization in Agda are due to [Felix Cherubini](http://felix-cherubini.de)
+All the mathematics presented here, is from [Ingo Blechschmidt](https://www.ingo-blechschmidt.eu/research.html)'s thesis or unpublished work of [David Jaz Myers](http://davidjaz.com/). The formalization in Agda are due to [Felix Cherubini](http://felix-cherubini.de).
 
 <!--
 ```
