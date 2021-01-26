@@ -11,8 +11,8 @@ open import Cubical.Data.Nat.Order.Recursive
   using (_≤_)
 
 instance
-  fromFin : {n : _} → HasFromNat (Fin (suc n))
-  fromFin {n} = record
+  fromNatFin : {n : _} → HasFromNat (Fin (suc n))
+  fromNatFin {n} = record
     { Constraint = λ m → m ≤ n
     ; fromNat    = λ m ⦃ m≤n ⦄ → fromℕ≤ m n m≤n
     }
