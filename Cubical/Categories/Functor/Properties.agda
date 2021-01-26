@@ -3,26 +3,18 @@
 module Cubical.Categories.Functor.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function renaming (_∘_ to _◍_)
 open import Cubical.Foundations.GroupoidLaws using (lUnit; rUnit; assoc; cong-∙)
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor.Base
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
     ℓ ℓ' ℓ'' : Level
-    B : Precategory ℓC ℓC'
-    C : Precategory ℓC ℓC'
-    D : Precategory ℓD ℓD'
-    E : Precategory ℓE ℓE'
+    B C D E : Precategory ℓ ℓ'
 
 open Precategory
 open Functor
-
-infixr 15 _◍_
--- is there actual function composition in the library somewhere?
-_◍_ : ∀ {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''} → (Y → Z) → (X → Y) → (X → Z)
-(g ◍ f) x = g (f x)
 
 {-
 x ---p--- x'
@@ -59,7 +51,7 @@ F-assoc {F = F} {G} {H} i .F-seq f g =  congAssoc (G ⟪_⟫) (H ⟪_⟫) (F .F-
 
 -- Results about functors
 
-module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} {F : Functor C D} where
+module _ {F : Functor C D} where
 
   -- the identity is the identity
   F-lUnit : F ∘F 𝟙⟨ C ⟩ ≡ F

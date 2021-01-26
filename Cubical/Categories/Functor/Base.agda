@@ -26,12 +26,8 @@ record Functor (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') : Type 
 
 private
   variable
-    ℓ ℓ' ℓ'' : Level
-    ℓE ℓE' : Level
-    B : Precategory ℓC ℓC'
-    C : Precategory ℓC ℓC'
-    D : Precategory ℓD ℓD'
-    E : Precategory ℓE ℓE'
+    ℓ ℓ' : Level
+    C D E : Precategory ℓ ℓ'
 
 open Precategory
 open Functor
