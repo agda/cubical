@@ -1,11 +1,12 @@
 {-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
 module Cubical.Data.Fin.Literals where
 
-open import Cubical.Data.Nat.Literals public
-open import Cubical.Data.Fin.Base
-  using (Fin; fromℕ≤)
 open import Agda.Builtin.Nat
   using (suc)
+open import Agda.Builtin.FromNat
+  renaming (Number to HasFromNat)
+open import Cubical.Data.Fin.Base
+  using (Fin; fromℕ≤)
 open import Cubical.Data.Nat.Order.Recursive
   using (_≤_)
 
