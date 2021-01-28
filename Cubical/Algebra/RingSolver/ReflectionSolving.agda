@@ -141,7 +141,7 @@ module _ (cring : Term) where
         case (quote CommRingStr.1r)  ⇒ `1` xs     break
         case (quote CommRingStr._·_) ⇒ `_·_` xs   break
         case (quote CommRingStr._+_) ⇒ `_+_` xs   break
-        case (quote CommRingStr.-_)  ⇒ `-_` xs    break
+        case (quote (CommRingStr.-_))  ⇒ `-_` xs    break
         default⇒ (K' xs)
     buildExpression t@(con n xs) =
       switch (n ==_) cases
@@ -149,7 +149,7 @@ module _ (cring : Term) where
         case (quote CommRingStr.1r)  ⇒ `1` xs     break
         case (quote CommRingStr._·_) ⇒ `_·_` xs   break
         case (quote CommRingStr._+_) ⇒ `_+_` xs   break
-        case (quote CommRingStr.-_)  ⇒ `-_` xs    break
+        case (quote (CommRingStr.-_))  ⇒ `-_` xs    break
         default⇒ (K' xs)
     buildExpression t = unknown
 

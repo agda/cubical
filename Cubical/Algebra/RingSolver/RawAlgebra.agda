@@ -43,7 +43,6 @@ record RawAlgebra (R : RawRing {ℓ}) (ℓ′ : Level) : Type (ℓ-suc (ℓ-max 
 -}
 module _ (R : CommRing {ℓ}) where
   open CommRingStr (snd R)
-  open CommRingMinusOperator R
   open Cubical.Algebra.Ring.Theory (CommRing→Ring R)
 
   scalarℕ : ℕ → (fst R)

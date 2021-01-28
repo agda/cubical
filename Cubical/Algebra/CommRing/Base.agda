@@ -51,22 +51,11 @@ record CommRingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
   infixl 7 _·_
   infixl 6 _+_
 
-  open IsCommRing isCommRing hiding (_-_) public
+  open IsCommRing isCommRing public
 
 CommRing : Type (ℓ-suc ℓ)
 CommRing = TypeWithStr _ CommRingStr
 
-{-
-  The following is a workaround. Without it, the CommRingSolver
-  cannot disambiguate the names 'CommRingStr.-_' and 'CommRingStr._-_',
-  but the former is needed to make the solver work.
-  So as a solution, the minusOperator has to be kept in a separate module.
--}
-module CommRingMinusOperator (R : CommRing {ℓ}) where
-  open CommRingStr (snd R)
-  infixl 6 _-_
-  _-_ : fst R → fst R → fst R
-  x - y = x + (- y)
 
 makeIsCommRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
                  (is-setR : isSet R)

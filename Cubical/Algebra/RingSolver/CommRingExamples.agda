@@ -21,7 +21,6 @@ module MultivariateSolving (R : CommRing {ℓ}) where
 
   -- In scope for solver use:
   open CommRingStr (snd R)
-  open CommRingMinusOperator R
   AsAlgebra = CommRing→RawℤAlgebra R
 
   X : ℤExpr R 3

@@ -12,7 +12,6 @@ private
 
 module Test (R : CommRing {ℓ}) where
   open CommRingStr (snd R)
-  open CommRingMinusOperator R
 
   _ :   1r · (1r + 0r)
       ≡ (1r · 0r) + 1r
