@@ -53,11 +53,16 @@ module _ ((G , str) : Group {ℓG}) where
   elimProp Bprop b embase = b
   elimProp Bprop b (emloop g i) = elimEq Bprop (emloop g) b b i
   elimProp Bprop b (emcomp g h i j) =
-    isSet→isSetDep (λ x → isProp→isSet (Bprop x))
+    isOfHLevel→isOfHLevelDep 2 (λ x → isProp→isSet (Bprop x))
+      b b
+      (λ i → elimEq Bprop (emloop g) b b i)
+      (λ i → elimEq Bprop (emloop (g + h)) b b i)
+      {!!} i j
+{-    isOfHLevel→isOfHLevelDep 2 (λ x → isProp→isSet (Bprop x))
     (emloop g) (emloop (g + h)) (λ j → embase) (emloop h) (emcomp g h)
     (λ i → elimEq Bprop (emloop g) b b i)
     (λ i → elimEq Bprop (emloop (g + h)) b b i)
-    (λ j → b) (λ j → elimEq Bprop (emloop h) b b j) i j
+    (λ j → b) (λ j → elimEq Bprop (emloop h) b b j) i j -}
   elimProp Bprop b (emsquash x y p q r s i j k) =
     isOfHLevel→isOfHLevelDep 3 (λ x → isSet→isGroupoid (isProp→isSet (Bprop x)))
     _ _ _ _ (λ j k → g (r j k)) (λ j k → g (s j k)) (emsquash x y p q r s) i j k
@@ -72,30 +77,30 @@ module _ ((G , str) : Group {ℓG}) where
   elimProp2 Cprop c = elimProp (λ x → isPropΠ (λ y → Cprop x y))
                                (elimProp (λ y → Cprop embase y) c)
 
-  elimSet : {B : EM₁ G → Type ℓ}
-          → ((x : EM₁ G) → isSet (B x))
+  elimSet : {B : EM₁ (G , str) → Type ℓ}
+          → ((x : EM₁ (G , str)) → isSet (B x))
           → (b : B embase)
-          → ((g : Carrier) → PathP (λ i → B (emloop g i)) b b)
-          → (x : EM₁ G)
+          → ((g : G) → PathP (λ i → B (emloop g i)) b b)
+          → (x : EM₁ (G , str))
           → B x
   elimSet Bset b bloop embase = b
   elimSet Bset b bloop (emloop g i) = bloop g i
-  elimSet Bset b bloop (emcomp g h i j) =
-    isSet→isSetDep Bset (emloop g) (emloop (g + h)) (λ j → embase) (emloop h) (emcomp g h)
-      (bloop g) (bloop (g + h)) refl (bloop h) i j
+  elimSet Bset b bloop (emcomp g h i j) = {!!}
+{-    isOfHLevel→isOfHLevelDep 2 Bset (emloop g) (emloop (g + h)) (λ j → embase) (emloop h) (emcomp g h)
+      (bloop g) (bloop (g + h)) refl (bloop h) i j -}
   elimSet Bset b bloop (emsquash x y p q r s i j k) =
     isOfHLevel→isOfHLevelDep 3 (λ x → isSet→isGroupoid (Bset x))
       _ _ _ _ (λ j k → g (r j k)) (λ j k → g (s j k)) (emsquash x y p q r s) i j k
     where
       g = elimSet Bset b bloop
 
-  elim : {B : EM₁ G → Type ℓ}
-       → ((x : EM₁ G) → isGroupoid (B x))
+  elim : {B : EM₁ (G , str) → Type ℓ}
+       → ((x : EM₁ (G , str)) → isGroupoid (B x))
        → (b : B embase)
-       → (bloop : (g : Carrier) → PathP (λ i → B (emloop g i)) b b)
-       → ((g h : Carrier) → SquareP (λ i j → B (emcomp g h i j))
+       → (bloop : (g : G) → PathP (λ i → B (emloop g i)) b b)
+       → ((g h : G) → SquareP (λ i j → B (emcomp g h i j))
             (bloop g) (bloop (g + h)) (λ j → b) (bloop h))
-       → (x : EM₁ G)
+       → (x : EM₁ (G , str))
        → B x
   elim Bgpd b bloop bcomp embase = b
   elim Bgpd b bloop bcomp (emloop g i) = bloop g i
@@ -109,8 +114,8 @@ module _ ((G , str) : Group {ℓG}) where
   rec : {B : Type ℓ}
       → isGroupoid B
       → (b : B)
-      → (bloop : Carrier → b ≡ b)
-      → ((g h : Carrier) → Square (bloop g) (bloop (g + h)) refl (bloop h))
-      → (x : EM₁ G)
+      → (bloop : G → b ≡ b)
+      → ((g h : G) → Square (bloop g) (bloop (g + h)) refl (bloop h))
+      → (x : EM₁ (G , str))
       → B
   rec Bgpd = elim (λ _ → Bgpd)
