@@ -19,12 +19,12 @@ open import Cubical.Data.List
 open import Cubical.Data.Nat.Literals public
 open import Cubical.Data.Int using (fromNegInt; fromNatInt) public
 open import Cubical.Data.Nat using (ℕ) renaming (_+_ to _+ℕ_)
-open import Cubical.Data.FinData using (zero; suc)
+open import Cubical.Data.FinData using () renaming (zero to fzero; suc to fsuc) public
 open import Cubical.Data.Bool
 open import Cubical.Data.Bool.SwitchStatement
-open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_)
+open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_) public
 
-open import Cubical.Algebra.RingSolver.AlgebraExpression
+open import Cubical.Algebra.RingSolver.AlgebraExpression public
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.RingSolver.RawAlgebra
 open import Cubical.Algebra.RingSolver.IntAsRawRing
@@ -130,8 +130,8 @@ module _ (cring : Term) where
     K' xs = con (quote K) xs
 
     finiteNumberAsTerm : ℕ → Term
-    finiteNumberAsTerm ℕ.zero = con (quote zero) []
-    finiteNumberAsTerm (ℕ.suc n) = con (quote suc) (varg (finiteNumberAsTerm n) ∷ [])
+    finiteNumberAsTerm ℕ.zero = con (quote fzero) []
+    finiteNumberAsTerm (ℕ.suc n) = con (quote fsuc) (varg (finiteNumberAsTerm n) ∷ [])
 
     buildExpression : Term → Term
     buildExpression (var index _) = con (quote ∣) (varg (finiteNumberAsTerm index) ∷ [])
