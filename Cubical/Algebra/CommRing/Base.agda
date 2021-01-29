@@ -56,6 +56,7 @@ record CommRingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 CommRing : Type (ℓ-suc ℓ)
 CommRing = TypeWithStr _ CommRingStr
 
+
 makeIsCommRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
                  (is-setR : isSet R)
                  (+-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
