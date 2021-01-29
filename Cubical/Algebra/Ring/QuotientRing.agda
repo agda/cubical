@@ -206,7 +206,7 @@ module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
         _ = snd S
 
 
-    inducedHom : Iₛ ⊆ kernel φ → RingHom (R / I) S
+    inducedHom : Iₛ ⊆ kernelType φ → RingHom (R / I) S
     f (inducedHom Iₛ⊆kernel) = elim
                                  (λ _ → isSetRing S)
                                  f
@@ -221,11 +221,11 @@ module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
     isHom· (inducedHom Iₛ⊆kernel) =
       elimProp2 (λ _ _ → isSetRing S _ _) isHom·
 
-    solution : (p : Iₛ ⊆ kernel φ)
+    solution : (p : Iₛ ⊆ kernelType φ)
                → (x : ⟨ R ⟩) → inducedHom p $ [ x ] ≡ φ $ x
     solution p x = refl
 
-    unique : (p : Iₛ ⊆ kernel φ)
+    unique : (p : Iₛ ⊆ kernelType φ)
              → (ψ : RingHom (R / I) S) → (ψIsSolution : (x : ⟨ R ⟩) → ψ $ [ x ] ≡ φ $ x)
              → (x : ⟨ R ⟩) → ψ $ [ x ] ≡ inducedHom p $ [ x ]
     unique p ψ ψIsSolution x = ψIsSolution x
