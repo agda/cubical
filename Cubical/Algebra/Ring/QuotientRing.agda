@@ -10,7 +10,10 @@ open import Cubical.Foundations.Powerset using (_∈_; _⊆_) -- \in, \sub=
 open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/ₛ_)
 open import Cubical.HITs.SetQuotients.Properties
 
-open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.Base
+open import Cubical.Algebra.Ring.Properties
+open import Cubical.Algebra.Ring.Ideal
+open import Cubical.Algebra.Ring.Kernel
 
 private
   variable
