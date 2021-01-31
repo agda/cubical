@@ -136,7 +136,7 @@ module RingHomRespUnits {A' B' : CommRing {ℓ}} (φ : CommRingHom A' B') where
  open CommRingStr (B' .snd) renaming ( _·_ to _·B_ ; 1r to 1b
                                      ; ·Lid to ·B-lid ; ·Rid to ·B-rid
                                      ; ·Assoc to ·B-assoc)
- open RingHom
+ open RingHom renaming (map to f)
 
  RingHomRespInv : (r : A) ⦃ r∈Aˣ : r ∈ Aˣ ⦄ → f φ r ∈ Bˣ
  RingHomRespInv r = f φ (r ⁻¹ᵃ) , (sym (isHom· φ r (r ⁻¹ᵃ)) ∙∙ cong (f φ) (·A-rinv r) ∙∙ pres1 φ)

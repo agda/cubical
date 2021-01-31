@@ -15,8 +15,9 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.Ring.Ideal
 open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.Ideal
+open import Cubical.Algebra.Ring.QuotientRing
 
 private
   variable
@@ -49,15 +50,15 @@ Now we prove that this is indeed an ideal:
 
 ```
 module _ {(R , str) : CommRing {ℓ}} where
-  open CommRingStr str
-  open Theory (CommRing→Ring (R , str))
   private
     instance
       _ : CommRing {ℓ}
       _ = (R , str)
   isIdealPrincipalIdeal : (r : R) → isIdeal (CommRing→Ring (R , str)) ⟨ r ⟩i
   isIdealPrincipalIdeal r =
-    record
+    let open CommRingStr str
+        open Theory (CommRing→Ring (R , str))
+    in record
       { +-closed = elim (λ _ → isOfHLevelΠ 1 (λ _ → propTruncIsProp))
                    -- somehow elim2 does not work here
                         (λ {(a , x≡a·r) →
@@ -86,4 +87,42 @@ module _ {(R , str) : CommRing {ℓ}} where
                                                        a · (s · r) ≡⟨ ·Assoc _ _ _ ⟩
                                                        (a · s) · r ∎) ∣}
       }
+
+  principalIdeal : (a : R) → IdealsIn (CommRing→Ring (R , str))
+  principalIdeal a = ⟨ a ⟩i , isIdealPrincipalIdeal a
+```
+
+The Quotient by a principal ideal has a universal property:
+
+```
+  module _ {a : R} where
+    Q = (CommRing→Ring (R , str)) / (principalIdeal a)
+
+    module _ {(S , strS) : CommRing {ℓ}} where
+      open CommRingStr {{...}}
+      R′ = CommRing→Ring (R , str)
+      S′ = CommRing→Ring (S , strS)
+      private
+        instance
+          _ : CommRingStr R
+          _ = str
+          _ : CommRingStr S
+          _ = strS
+
+      inducedMap : (f : RingHom R′ S′)
+                   → f $ a ≡ CommRingStr.0r strS
+                   → RingHom Q S′
+      inducedMap fHom eq =
+        let open UniversalProperty R′ (principalIdeal a)
+            open RingHom fHom renaming (map to f)
+            open Theory S′
+        in inducedHom
+             fHom
+             λ r → elim (λ r∈⟨a⟩ → isSetCommRing (S , strS) (f r) (CommRingStr.0r strS))
+                         λ {(x , r≡x·a) →
+                               f r                        ≡⟨ cong f r≡x·a ⟩
+                               f (x · a)                  ≡⟨ isHom· x a ⟩
+                               f x · f a                  ≡[ i ]⟨ f x · (eq i) ⟩
+                               f x · CommRingStr.0r strS  ≡⟨ 0RightAnnihilates (f x) ⟩
+                               CommRingStr.0r strS ∎}
 ```
