@@ -198,15 +198,14 @@ module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
       _ = snd R
 
   module _ {S : Ring {ℓ}} (φ : RingHom R S) where
-    open RingHom φ
+    open RingHom φ renaming (map to f)
     open HomTheory φ
     private
       instance
         _ = S
         _ = snd S
 
-
-    inducedHom : Iₛ ⊆ kernelType φ → RingHom (R / I) S
+    inducedHom : Iₛ ⊆ kernelSubtype φ → RingHom (R / I) S
     f (inducedHom Iₛ⊆kernel) = elim
                                  (λ _ → isSetRing S)
                                  f
@@ -220,12 +219,25 @@ module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
       elimProp2 (λ _ _ → isSetRing S _ _) isHom+
     isHom· (inducedHom Iₛ⊆kernel) =
       elimProp2 (λ _ _ → isSetRing S _ _) isHom·
+    {-
+      ringhom (elim
+                                 (λ _ → isSetRing S)
+                                 f
+                                 λ r₁ r₂ r₁-r₂∈I → equalByDifference (f r₁) (f r₂)
+                                   (f r₁ - f r₂     ≡⟨ cong (λ u → f r₁ + u) (sym (-commutesWithHom _)) ⟩
+                                    f r₁ + f (- r₂) ≡⟨ sym (isHom+ _ _) ⟩
+                                    f (r₁ - r₂)     ≡⟨ Iₛ⊆kernel (r₁ - r₂) r₁-r₂∈I ⟩
+                                    0r ∎))
+              pres1
+              (elimProp2 (λ _ _ → isSetRing S _ _) isHom+)
+              (elimProp2 (λ _ _ → isSetRing S _ _) isHom·)
+              -}
 
-    solution : (p : Iₛ ⊆ kernelType φ)
+    solution : (p : Iₛ ⊆ kernelSubtype φ)
                → (x : ⟨ R ⟩) → inducedHom p $ [ x ] ≡ φ $ x
     solution p x = refl
 
-    unique : (p : Iₛ ⊆ kernelType φ)
+    unique : (p : Iₛ ⊆ kernelSubtype φ)
              → (ψ : RingHom (R / I) S) → (ψIsSolution : (x : ⟨ R ⟩) → ψ $ [ x ] ≡ φ $ x)
              → (x : ⟨ R ⟩) → ψ $ [ x ] ≡ inducedHom p $ [ x ]
     unique p ψ ψIsSolution x = ψIsSolution x

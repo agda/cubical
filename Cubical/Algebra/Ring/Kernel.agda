@@ -16,7 +16,7 @@ private
     ℓ : Level
 
 module _ {{R S : Ring {ℓ}}} (f′ : RingHom R S) where
-  open RingHom f′
+  open RingHom f′ renaming (map to f)
   open HomTheory f′
   open RingStr ⦃...⦄
   open isIdeal
@@ -28,10 +28,10 @@ module _ {{R S : Ring {ℓ}}} (f′ : RingHom R S) where
       _ = snd R
       _ = snd S
 
-  kernelType : ⟨ R ⟩ → hProp ℓ
-  kernelType x = (f x ≡ 0r) , isSetRing S _ _
+  kernelSubtype : ⟨ R ⟩ → hProp ℓ
+  kernelSubtype x = (f x ≡ 0r) , isSetRing S _ _
 
-  kernelIsIdeal : isIdeal R kernelType
+  kernelIsIdeal : isIdeal R kernelSubtype
   +-closed kernelIsIdeal =
     λ fx≡0 fy≡0 → f (_ + _)  ≡⟨ isHom+ _ _ ⟩
                   f _ + f _  ≡⟨ cong (λ u → u + f _) fx≡0 ⟩
@@ -56,4 +56,4 @@ module _ {{R S : Ring {ℓ}}} (f′ : RingHom R S) where
     0r ∎
 
 kernel : {{R S : Ring {ℓ}}} (f′ : RingHom R S) → IdealsIn R
-kernel f′ = kernelType f′ , kernelIsIdeal f′
+kernel f′ = kernelSubtype f′ , kernelIsIdeal f′
