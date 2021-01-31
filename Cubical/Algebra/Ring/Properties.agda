@@ -159,7 +159,7 @@ module Theory (R' : Ring {ℓ}) where
 module HomTheory {R S : Ring {ℓ}} (f′ : RingHom  R S) where
   open Theory ⦃...⦄
   open RingStr ⦃...⦄
-  open RingHom f′
+  open RingHom f′ renaming (map to f)
   private
     instance
       _ = R
@@ -194,7 +194,7 @@ module HomTheory {R S : Ring {ℓ}} (f′ : RingHom  R S) where
 
 module _{R S : Ring {ℓ}} (φ ψ : RingHom  R S) where
  open RingStr ⦃...⦄
- open RingHom
+ open RingHom renaming (map to f)
  private
    instance
      _ = R

@@ -149,13 +149,13 @@ record RingHom (R S : Ring {ℓ}) : Type ℓ where
     module S = RingStr (snd S)
 
   field
-    f : ⟨ R ⟩ → ⟨ S ⟩
-    pres1 : f R.1r ≡ S.1r
-    isHom+ : (x y : ⟨ R ⟩) → f (x R.+ y) ≡ f x S.+ f y
-    isHom· : (x y : ⟨ R ⟩) → f (x R.· y) ≡ f x S.· f y
+    map : ⟨ R ⟩ → ⟨ S ⟩
+    pres1 : map R.1r ≡ S.1r
+    isHom+ : (x y : ⟨ R ⟩) → map (x R.+ y) ≡ map x S.+ map y
+    isHom· : (x y : ⟨ R ⟩) → map (x R.· y) ≡ map x S.· map y
 
 _$_ : {R S : Ring {ℓ}} → (φ : RingHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
-φ $ x = RingHom.f φ x
+φ $ x = RingHom.map φ x
 
 module RingΣTheory {ℓ} where
 
