@@ -225,7 +225,7 @@ module _ {B : Precategory ℓB ℓB'} {C : Precategory ℓC ℓC'} {D : Precateg
   _∘ʳ_ : ∀ (K : Functor C D) → {G H : Functor B C} (β : NatTrans G H)
        → NatTrans (K ∘F G) (K ∘F H)
   (_∘ʳ_ K {G} {H} β) .N-ob x = K ⟪ β ⟦ x ⟧ ⟫
-  (_∘ʳ_ K {G} {H} β) .N-hom f = preserveCommF {C = C} {D} {K} (β .N-hom f)
+  (_∘ʳ_ K {G} {H} β) .N-hom f = preserveCommF {C = C} {D = D} {K} (β .N-hom f)
 
 
 
