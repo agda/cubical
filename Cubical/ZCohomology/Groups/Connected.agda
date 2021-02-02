@@ -2,7 +2,7 @@
 module Cubical.ZCohomology.Groups.Connected where
 
 open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Groups.Unit
 
 open import Cubical.Foundations.HLevels
@@ -35,7 +35,7 @@ private
 H⁰-connected : ∀ {ℓ} {A : Type ℓ} (a : A) → ((x : A) → ∥ a ≡ x ∥₁) → GroupIso (coHomGr 0 A) intGroup
 GroupHom.fun (GroupIso.map (H⁰-connected a con)) = sRec isSetInt (λ f → f a)
 GroupHom.isHom (GroupIso.map (H⁰-connected a con)) =
-  sElim2 (λ _ _ → isProp→isSet (isSetInt _ _)) λ x y → addLemma (x a) (y a)
+  sElim2 (λ _ _ → isProp→isSet (isSetInt _ _)) λ x y → refl
 GroupIso.inv (H⁰-connected a con) b = ∣ (λ _ → b) ∣₂
 GroupIso.rightInv (H⁰-connected a con) _ = refl
 GroupIso.leftInv (H⁰-connected a con) =

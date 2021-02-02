@@ -2,14 +2,16 @@
 module Cubical.ZCohomology.Groups.Wedge where
 
 open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.MayerVietorisUnreduced
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
 open import Cubical.HITs.Wedge
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to pRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
+open import Cubical.Data.Int hiding (_+_)
+open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∣_∣ to ∣_∣₁)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; elim2 to trElim2)
 open import Cubical.Data.Nat
@@ -28,92 +30,208 @@ open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.Equiv
 
+open GroupIso renaming (map to map')
+open GroupHom
+
+{-
+This module proves that Hⁿ(A ⋁ B) ≅ Hⁿ(A) × Hⁿ(B) for n ≥ 1 directly (rather than by means of Mayer-Vietoris).
+It also proves that Ĥⁿ(A ⋁ B) ≅ Ĥ⁰(A) × Ĥ⁰(B) (reduced groups)
+
+Proof sketch for n ≥ 1:
+
+Any ∣ f ∣₂ ∈ Hⁿ(A ⋁ B) is uniquely characterised by a pair of functions
+  f₁ : A → Kₙ
+  f₂ : B → Kₙ
+together with a path
+  p : f₁ (pt A) ≡ f₂ (pt B)
+
+The map F : Hⁿ(A ⋁ B) → Hⁿ(A) × Hⁿ(B) simply forgets about p, i.e.:
+  F(∣ f ∣₂) := (∣ f₁ ∣₂ , ∣ f₂ ∣₂)
+
+The construction of its inverse is defined by
+  F⁻(∣ f₁ ∣₂ , ∣ f₂ ∣₂) := ∣ f₁∨f₂ ∣₂
+  where
+  f₁∨f₂ : A ⋁ B → Kₙ is defined inductively by
+  f₁∨f₂ (inl x) := f₁ x + f₂ (pt B)
+  f₁∨f₂ (inr x) := f₁ (pt B) + f₂ x
+  cong f₁∨f₂ (push tt) := refl
+  (this is the map wedgeFun⁻ below)
+
+The fact that F and F⁻ cancel out is a proposition and we may thus assume for any
+  ∣ f ∣₂ ∈ Hⁿ(A ⋁ B) and its corresponding f₁ that
+  f₁ (pt A) = f₂ (pt B) = 0                (*)
+  and
+  f (inl (pt A)) = 0                       (**)
+
+The fact that F(F⁻(∣ f₁ ∣₂ , ∣ f₂ ∣₂)) = ∣ f₁ ∣₂ , ∣ f₂ ∣₂) follows immediately from (*)
+
+The other way is slightly trickier. We need to construct paths
+  Pₗ(x) : f (inl (x)) + f (inr (pt B)) ---> f (inl (x))
+  Pᵣ(x)  : f (inl (pt A)) + f (inr (x)) ---> f (inr (x))
+
+Together with a filler of the following square
+
+           cong f (push tt)
+          ----------------->
+         ^                  ^
+         |                  |
+         |                  |
+Pₗ(pr A) |                  | Pᵣ(pt B)
+         |                  |
+         |                  |
+         |                  |
+          ----------------->
+                  refl
+
+The square is filled by first constructing Pₗ by
+  f (inl (x)) + f (inr (pt B))    ---[cong f (push tt)⁻¹]--->
+  f (inl (x)) + f (inl (pt A))    ---[(**)]--->
+  f (inl (x)) + 0                 ---[right-unit]--->
+  f (inl (x))
+
+and then Pᵣ by
+  f (inl (pt A)) + f (inr (x))    ---[(**)⁻¹]--->
+  0 + f (inr (x))                 ---[left-unit]--->
+  f (inr (x))
+
+and finally by using the fact that the group laws for Kₙ are refl at its base point.
+-}
 
 module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
-  module I = MV (typ A) (typ B) Unit (λ _ → pt A) (λ _ → pt B)
+
+  private
+    wedgeFun⁻ : ∀ n → (f : typ A → coHomK (suc n)) (g : typ B → coHomK (suc n))
+            → ((A ⋁ B) → coHomK (suc n))
+    wedgeFun⁻ n f g (inl x) = f x +ₖ g (pt B)
+    wedgeFun⁻ n f g (inr x) = f (pt A) +ₖ g x
+    wedgeFun⁻ n f g (push a i) = f (pt A) +ₖ g (pt B)
 
   Hⁿ-⋁ : (n : ℕ) → GroupIso (coHomGr (suc n) (A ⋁ B)) (×coHomGr (suc n) (typ A) (typ B))
-  Hⁿ-⋁ zero = BijectionIsoToGroupIso bijIso
+  fun (map' (Hⁿ-⋁ zero)) =
+    sElim (λ _ → isSet× setTruncIsSet setTruncIsSet)
+           λ f → ∣ (λ x → f (inl x)) ∣₂ , ∣ (λ x → f (inr x)) ∣₂
+  isHom (map' (Hⁿ-⋁ zero)) =
+    sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
+            λ _ _ → refl
+  inv (Hⁿ-⋁ zero) = uncurry (sElim2 (λ _ _ → setTruncIsSet)
+                             λ f g → ∣ wedgeFun⁻ 0 f g ∣₂)
+  rightInv (Hⁿ-⋁ zero) =
+    uncurry
+    (coHomPointedElim _ (pt A) (λ _ → isPropΠ λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
+      λ f fId → coHomPointedElim _ (pt B) (λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
+        λ g gId → ΣPathP ((cong ∣_∣₂ (funExt (λ x → cong (f x +ₖ_) gId ∙ rUnitₖ 1 (f x))))
+                          , cong ∣_∣₂ (funExt (λ x → cong (_+ₖ g x) fId ∙ lUnitₖ 1 (g x)))))
+  leftInv (Hⁿ-⋁ zero) =
+    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+      (λ f → pRec (setTruncIsSet _ _)
+                   (λ fId → cong ∣_∣₂ (sym fId))
+                   (helper f _ refl))
     where
-    surj-helper : (x : coHom 0 Unit) → isInIm _ _ (I.Δ 0) x
-    surj-helper =
-      sElim (λ _ → isOfHLevelSuc 1 propTruncIsProp)
-            λ f → ∣ (∣ (λ _ → f tt) ∣₂ , 0ₕ 0) , cong ∣_∣₂ (funExt λ _ → -rUnitₖ 0 (f tt)) ∣₁
-
-    helper : (x : coHom 1 (A ⋁ B)) → isInIm _ _ (I.d 0) x → x ≡ 0ₕ 1
-    helper x inim =
-      pRec (setTruncIsSet _ _)
-           (λ p → sym (snd p) ∙
-                       MV.Im-Δ⊂Ker-d _ _ Unit (λ _ → pt A) (λ _ → pt B) 0 (fst p) (surj-helper (fst p)))
-             inim
-
-    bijIso : BijectionIso (coHomGr 1 (A ⋁ B)) (×coHomGr 1 (typ A) (typ B))
-    BijectionIso.map' bijIso = I.i 1
-    BijectionIso.inj bijIso =
-      sElim (λ _ → isSetΠ λ _ → isProp→isSet (setTruncIsSet _ _))
-            λ f inker → helper ∣ f ∣₂ (I.Ker-i⊂Im-d 0 ∣ f ∣₂ inker)
-    BijectionIso.surj bijIso p = I.Ker-Δ⊂Im-i 1 p (isContr→isProp (isContrHⁿ-Unit 0) _ _)
-
-  Hⁿ-⋁ (suc n) = Iso+Hom→GrIso mainIso
-                                (sElim2 (λ _ _ → isOfHLevelPath 2 (isOfHLevel× 2 setTruncIsSet setTruncIsSet) _ _)
-                                         λ _ _ → refl)
-    where
-    helpIso : ∀ {ℓ'''} {C : Type ℓ'''} → Iso (A ⋁ B → C) (Σ[ f ∈ (typ A → C) × (typ B → C) ] (fst f) (pt A) ≡ (snd f) (pt B))
-    Iso.fun helpIso f = ((λ x → f (inl x)) , λ x → f (inr x)) , cong f (push tt)
-    Iso.inv helpIso ((f , g) , p) (inl x) = f x
-    Iso.inv helpIso ((f , g) , p) (inr x) = g x
-    Iso.inv helpIso ((f , g) , p) (push a i) = p i
-    Iso.rightInv helpIso ((f , g) , p) = ΣPathP (ΣPathP (refl , refl) , refl)
-    Iso.leftInv helpIso f = funExt λ {(inl a) → refl ; (inr a) → refl ; (push a i) → refl}
-
-    mainIso : Iso (coHom (2 + n) (A ⋁ B))
-                  (coHom (2 + n) (typ A) × coHom (2 + n) (typ B))
-    mainIso = compIso (setTruncIso helpIso) (compIso theIso setTruncOfProdIso)
+    helper : (f : A ⋁ B → coHomK 1) (x : coHomK 1)
+          → f (inl (pt A)) ≡ x
+          → ∥ f ≡ wedgeFun⁻ 0 (λ x → f (inl x)) (λ x → f (inr x)) ∥
+    helper f =
+      trElim (λ _ → isProp→isOfHLevelSuc 2 (isPropΠ λ _ → propTruncIsProp))
+        (sphereElim 0 (λ _ → isPropΠ λ _ → propTruncIsProp)
+         λ inlId → ∣ funExt (λ { (inl x) → sym (rUnitₖ 1 (f (inl x)))
+                                         ∙∙ cong ((f (inl x)) +ₖ_) (sym inlId)
+                                         ∙∙ cong ((f (inl x)) +ₖ_) (cong f (push tt))
+                                 ; (inr x) → sym (lUnitₖ 1 (f (inr x)))
+                                            ∙ cong (_+ₖ (f (inr x))) (sym inlId)
+                                 ; (push tt i) j → helper2 (f (inl (pt A))) (sym (inlId))
+                                                            (f (inr (pt B))) (cong f (push tt)) j i} ) ∣₁)
       where
-      forget :  ∥ (Σ[ f ∈ (typ A → coHomK (2 + n)) × (typ B → coHomK (2 + n)) ] (fst f) (pt A) ≡ (snd f) (pt B)) ∥₂
-                     → ∥ (typ A → coHomK (2 + n)) × (typ B → coHomK (2 + n)) ∥₂
-      forget = sMap (λ {((f , g) , _) → f , g})
+      helper2 : (x : coHomK 1) (r : ∣ base ∣ ≡ x) (y : coHomK 1) (p : x ≡ y)
+              → PathP (λ j → ((sym (rUnitₖ 1 x) ∙∙ cong (x +ₖ_) r ∙∙ cong (x +ₖ_) p)) j
+                             ≡ (sym (lUnitₖ 1 y) ∙ cong (_+ₖ y) r) j)
+                       p refl
+      helper2 x = J (λ x r → (y : coHomK 1) (p : x ≡ y)
+                           → PathP (λ j → ((sym (rUnitₖ 1 x) ∙∙ cong (x +ₖ_) r ∙∙ cong (x +ₖ_) p)) j
+                                           ≡ (sym (lUnitₖ 1 y) ∙ cong (_+ₖ y) r) j)
+                                    p refl)
+                     λ y → J (λ y p → PathP (λ j → ((sym (rUnitₖ 1 ∣ base ∣) ∙∙ refl ∙∙ cong (∣ base ∣ +ₖ_) p)) j
+                                                    ≡ (sym (lUnitₖ 1 y) ∙ refl) j)
+                                             p refl)
+                               λ i _ → (refl ∙ (λ _ → 0ₖ 1)) i
+  fun (map' (Hⁿ-⋁ (suc n))) =
+    sElim (λ _ → isSet× setTruncIsSet setTruncIsSet)
+           λ f → ∣ (λ x → f (inl x)) ∣₂ , ∣ (λ x → f (inr x)) ∣₂
+  isHom (map' (Hⁿ-⋁ (suc n))) =
+    sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
+            λ _ _ → refl
+  inv (Hⁿ-⋁ (suc n)) =
+    uncurry (sElim2 (λ _ _ → setTruncIsSet)
+                     λ f g → ∣ wedgeFun⁻ (suc n) f g ∣₂)
+  rightInv (Hⁿ-⋁ (suc n)) =
+   uncurry
+    (coHomPointedElim _ (pt A) (λ _ → isPropΠ λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
+      λ f fId → coHomPointedElim _ (pt B) (λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
+        λ g gId → ΣPathP ((cong ∣_∣₂ (funExt (λ x → cong (f x +ₖ_) gId ∙ rUnitₖ (2 + n) (f x))))
+                          , cong ∣_∣₂ (funExt (λ x → cong (_+ₖ g x) fId ∙ lUnitₖ (2 + n) (g x)))))
+  leftInv (Hⁿ-⋁ (suc n)) =
+    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+      (λ f → pRec (setTruncIsSet _ _)
+                   (λ fId → cong ∣_∣₂ (sym fId))
+                   (helper f _ refl))
+    where
+    helper : (f : A ⋁ B → coHomK (2 + n)) (x : coHomK (2 + n))
+          → f (inl (pt A)) ≡ x
+          → ∥ f ≡ wedgeFun⁻ (suc n) (λ x → f (inl x)) (λ x → f (inr x)) ∥
+    helper f =
+      trElim (λ _ → isProp→isOfHLevelSuc (3 + n) (isPropΠ λ _ → propTruncIsProp))
+        (sphereToPropElim (suc n) (λ _ → isPropΠ λ _ → propTruncIsProp)
+          λ inlId → (∣ funExt (λ { (inl x) → sym (rUnitₖ (2 + n) (f (inl x)))
+                                           ∙∙ cong ((f (inl x)) +ₖ_) (sym inlId)
+                                           ∙∙ cong ((f (inl x)) +ₖ_) (cong f (push tt))
+                                 ; (inr x) → sym (lUnitₖ (2 + n) (f (inr x)))
+                                            ∙ cong (_+ₖ (f (inr x))) (sym inlId)
+                                 ; (push tt i) j → helper2 (f (inl (pt A))) (sym (inlId))
+                                                            (f (inr (pt B))) (cong f (push tt)) j i}) ∣₁))
+      where
+      helper2 : (x : coHomK (2 + n)) (r : ∣ north ∣ ≡ x) (y : coHomK (2 + n)) (p : x ≡ y)
+             → PathP (λ j → ((sym (rUnitₖ (2 + n) x) ∙∙ cong (x +ₖ_) r ∙∙ cong (x +ₖ_) p)) j
+                            ≡ (sym (lUnitₖ (2 + n) y) ∙ cong (_+ₖ y) r) j)
+                      p refl
+      helper2 x = J (λ x r → (y : coHomK (2 + n)) (p : x ≡ y)
+                           → PathP (λ j → ((sym (rUnitₖ (2 + n) x) ∙∙ cong (x +ₖ_) r ∙∙ cong (x +ₖ_) p)) j
+                                           ≡ (sym (lUnitₖ (2 + n) y) ∙ cong (_+ₖ y) r) j)
+                                    p refl)
+                     λ y → J (λ y p → PathP (λ j → ((sym (rUnitₖ (2 + n) ∣ north ∣) ∙∙ refl ∙∙ cong (∣ north ∣ +ₖ_) p)) j
+                                                    ≡ (sym (lUnitₖ (2 + n) y) ∙ refl) j)
+                                             p refl)
+                              λ i j → ((λ _ → ∣ north ∣) ∙ refl) i
 
-      isEq :  (f :  ∥ (typ A → coHomK (2 + n)) × (typ B → coHomK (2 + n)) ∥₂) → isContr (fiber forget f)
-      isEq = sElim (λ _ → isOfHLevelSuc 1 isPropIsContr) (uncurry λ f g → helper f g (f (pt A)) (g (pt B)) refl refl)
-        where
-        helper : (f : (typ A → coHomK (2 +  n))) (g : (typ B → coHomK (2 + n))) (x y : coHomK (2 + n))
-               → f (pt A) ≡ x
-               → g (pt B) ≡ y
-               → isContr (fiber forget ∣ f , g ∣₂)
-        helper f g = trElim2 (λ _ _ → isProp→isOfHLevelSuc (3 + n)
-                               (isPropΠ2 λ _ _ → isPropIsContr))
-                             (suspToPropElim2 (ptSn (suc n))
-                                              (λ _ _ → isPropΠ2 λ _ _ → isPropIsContr)
-                                              λ p q → (∣ (f , g) , (p ∙ sym q) ∣₂
-                         , refl)
-                         , uncurry (sElim (λ _ → isSetΠ λ _ → isOfHLevelPath 2 (isOfHLevelΣ 2 setTruncIsSet λ _ → isOfHLevelPath 2 setTruncIsSet _ _) _ _)
-                               λ { ((f' , g') , id1) y →
-                                     Σ≡Prop (λ _ → setTruncIsSet _ _)
-                                              (pRec (setTruncIsSet _ _)
-                                                 (λ id2 → trRec (setTruncIsSet _ _)
-                                                   (λ pathp → cong ∣_∣₂ (ΣPathP ((sym id2) , pathp)))
-                                                   (isConnectedPathP 1
-                                                     {A = λ i → (fst (id2 (~ i)) (pt A) ≡ snd (id2 (~ i)) (pt B))}
-                                                       (isConnectedPath 2 (isConnectedSubtr 3 n
-                                                                          (subst (λ m → isConnected m (coHomK (2 + n))) (+-comm 3 n)
-                                                                                 (isConnectedKn (suc n)))) _ _)
-                                                       (p ∙ sym q) id1 .fst))
-                                                       (Iso.fun PathIdTrunc₀Iso y))}))
-      theIso : Iso ∥ (Σ[ f ∈ (typ A → coHomK (2 + n)) × (typ B → coHomK (2 + n)) ] (fst f) (pt A) ≡ (snd f) (pt B)) ∥₂
-                   ∥ (typ A → coHomK (2 + n)) × (typ B → coHomK (2 + n)) ∥₂
-      theIso = equivToIso (forget , record { equiv-proof = isEq })
-
-   {- Alternative, less direct proof :
-       vSES→GroupIso _ _
-         (ses (isOfHLevelSuc 0 (isContrHⁿ-Unit n))
-              (isOfHLevelSuc 0 (isContrHⁿ-Unit (suc n)))
-              (I.d (suc n))
-              (I.Δ (suc (suc n)))
-              (I.i (suc (suc n)))
-              (I.Ker-i⊂Im-d (suc n))
-              (I.Ker-Δ⊂Im-i (suc (suc n))))
-   -}
+  H⁰Red-⋁ : GroupIso (coHomRedGrDir 0 (A ⋁ B , inl (pt A)))
+                      (dirProd (coHomRedGrDir 0 A) (coHomRedGrDir 0 B))
+  fun (GroupIso.map H⁰Red-⋁) =
+    sRec (isSet× setTruncIsSet setTruncIsSet)
+         λ {(f , p) → ∣ (f ∘ inl) , p ∣₂
+                     , ∣ (f ∘ inr) , cong f (sym (push tt)) ∙ p ∣₂}
+  isHom (GroupIso.map H⁰Red-⋁) =
+    sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
+           λ {(f , p) (g , q) → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl)
+                                       , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl))}
+  inv H⁰Red-⋁ =
+    uncurry (sRec2 setTruncIsSet
+              λ {(f , p) (g , q) → ∣ (λ {(inl a) → f a
+                                       ; (inr b) → g b
+                                       ; (push tt i) → (p ∙ sym q) i})
+                                       , p ∣₂})
+  rightInv H⁰Red-⋁ =
+    uncurry
+      (sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
+        λ {(_ , _) (_ , _) → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl)
+                                    , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl))})
+  leftInv H⁰Red-⋁ =
+    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+      λ {(f , p) → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _)
+                                 (funExt λ {(inl a) → refl
+                                          ; (inr b) → refl
+                                          ; (push tt i) j → (cong (p ∙_) (symDistr (cong f (sym (push tt))) p)
+                                                           ∙∙ assoc∙ p (sym p) (cong f (push tt))
+                                                           ∙∙ cong (_∙ (cong f (push tt))) (rCancel p)
+                                                            ∙ sym (lUnit (cong f (push tt)))) j i}))}
+                                          -- Alt. use isOfHLevel→isOfHLevelDep
 
   wedgeConnected : ((x : typ A) → ∥ pt A ≡ x ∥) → ((x : typ B) → ∥ pt B ≡ x ∥) → (x : A ⋁ B) → ∥ inl (pt A) ≡ x ∥
   wedgeConnected conA conB =

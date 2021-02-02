@@ -31,42 +31,42 @@ record IsRing {R : Type ℓ}
   constructor isring
 
   field
-    +-isAbGroup : IsAbGroup 0r _+_ -_
-    ·-isMonoid  : IsMonoid 1r _·_
+    +IsAbGroup : IsAbGroup 0r _+_ -_
+    ·IsMonoid  : IsMonoid 1r _·_
     dist        : (x y z : R) → (x · (y + z) ≡ (x · y) + (x · z))
                               × ((x + y) · z ≡ (x · z) + (y · z))
     -- This is in the Agda stdlib, but it's redundant
     -- zero             : (x : R) → (x · 0r ≡ 0r) × (0r · x ≡ 0r)
 
-  open IsAbGroup +-isAbGroup public
+  open IsAbGroup +IsAbGroup public
     renaming
-      ( assoc       to +-assoc
-      ; identity    to +-identity
-      ; lid         to +-lid
-      ; rid         to +-rid
-      ; inverse     to +-inv
-      ; invl        to +-linv
-      ; invr        to +-rinv
-      ; comm        to +-comm
-      ; isSemigroup to +-isSemigroup
-      ; isMonoid    to +-isMonoid
-      ; isGroup     to +-isGroup )
+      ( assoc       to +Assoc
+      ; identity    to +Identity
+      ; lid         to +Lid
+      ; rid         to +Rid
+      ; inverse     to +Inv
+      ; invl        to +Linv
+      ; invr        to +Rinv
+      ; comm        to +Comm
+      ; isSemigroup to +IsSemigroup
+      ; isMonoid    to +IsMonoid
+      ; isGroup     to +IsGroup )
 
-  open IsMonoid ·-isMonoid public
+  open IsMonoid ·IsMonoid public
     renaming
-      ( assoc       to ·-assoc
-      ; identity    to ·-identity
-      ; lid         to ·-lid
-      ; rid         to ·-rid
-      ; isSemigroup to ·-isSemigroup )
+      ( assoc       to ·Assoc
+      ; identity    to ·Identity
+      ; lid         to ·Lid
+      ; rid         to ·Rid
+      ; isSemigroup to ·IsSemigroup )
     hiding
       ( is-set ) -- We only want to export one proof of this
 
-  ·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
-  ·-rdist-+ x y z = dist x y z .fst
+  ·Rdist+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
+  ·Rdist+ x y z = dist x y z .fst
 
-  ·-ldist-+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
-  ·-ldist-+ x y z = dist x y z .snd
+  ·Ldist+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
+  ·Ldist+ x y z = dist x y z .snd
 
 record RingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
@@ -90,7 +90,7 @@ Ring : Type (ℓ-suc ℓ)
 Ring = TypeWithStr _ RingStr
 
 isSetRing : (R : Ring {ℓ}) → isSet ⟨ R ⟩
-isSetRing R = R .snd .RingStr.isRing .IsRing.·-isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+isSetRing R = R .snd .RingStr.isRing .IsRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
 makeIsRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
              (is-setR : isSet R)
@@ -250,7 +250,7 @@ isPropIsRing 0r 1r _+_ _·_ -_ (isring RG RM RD) (isring SG SM SD) =
 -- Rings have an abelian group and a monoid
 
 Ring→AbGroup : Ring {ℓ} → AbGroup {ℓ}
-Ring→AbGroup (A , ringstr _ _ _ _ _ R) = A , abgroupstr _ _ _ (IsRing.+-isAbGroup R)
+Ring→AbGroup (A , ringstr _ _ _ _ _ R) = A , abgroupstr _ _ _ (IsRing.+IsAbGroup R)
 
 Ring→Monoid : Ring {ℓ} → Monoid {ℓ}
-Ring→Monoid (A , ringstr _ _ _ _ _ R) = monoid _ _ _ (IsRing.·-isMonoid R)
+Ring→Monoid (A , ringstr _ _ _ _ _ R) = monoid _ _ _ (IsRing.·IsMonoid R)

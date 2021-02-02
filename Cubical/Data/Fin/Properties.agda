@@ -514,3 +514,81 @@ factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddi
 
   isSurjectionIntro : isSurjection intro
   isSurjectionIntro = ∣_∣ ∘ elimF
+
+-- Fin (m + n) ≡ Fin m ⊎ Fin n
+-- ===========================
+
+o<m→o<m+n : (m n o : ℕ) → o < m → o < (m + n)
+o<m→o<m+n m n o (k , p) = (n + k) , (n + k + suc o    ≡⟨ sym (+-assoc n k _)  ⟩
+                                     n + (k + suc o)  ≡⟨ cong (λ - → n + -) p ⟩
+                                     n + m            ≡⟨ +-comm n m           ⟩
+                                     m + n            ∎)
+
+∸-<-lemma : (m n o : ℕ) → o < m + n → m ≤ o → o ∸ m < n
+∸-<-lemma zero    n o       o<m+n m<o = o<m+n
+∸-<-lemma (suc m) n zero    o<m+n m<o = Empty.rec (¬-<-zero m<o)
+∸-<-lemma (suc m) n (suc o) o<m+n m<o =
+  ∸-<-lemma m n o (pred-≤-pred o<m+n) (pred-≤-pred m<o)
+
+-- A convenient wrapper on top of trichotomy, as we will be interested in
+-- whether `m < n` or `n ≤ m`.
+_≤?_ : (m n : ℕ) → (m < n) ⊎ (n ≤ m)
+_≤?_ m n with m ≟ n
+_≤?_ m n | lt m<n = inl m<n
+_≤?_ m n | eq m=n = inr (subst (λ - → - ≤ m) m=n ≤-refl)
+_≤?_ m n | gt n<m = inr (<-weaken n<m)
+
+¬-<-and-≥ : {m n : ℕ} → m < n → ¬ n ≤ m
+¬-<-and-≥ {m}     {zero}  m<n n≤m = ¬-<-zero m<n
+¬-<-and-≥ {zero}  {suc n} m<n n≤m = ¬-<-zero n≤m
+¬-<-and-≥ {suc m} {suc n} m<n n≤m = ¬-<-and-≥ (pred-≤-pred m<n) (pred-≤-pred n≤m)
+
+m+n∸n=m : (n m : ℕ) → (m + n) ∸ n ≡ m
+m+n∸n=m zero    k = +-zero k
+m+n∸n=m (suc m) k = (k + suc m) ∸ suc m   ≡⟨ cong (λ - → - ∸ suc m) (+-suc k m) ⟩
+                    suc (k + m) ∸ (suc m) ≡⟨ refl                               ⟩
+                    (k + m) ∸ m           ≡⟨ m+n∸n=m m k                        ⟩
+                    k                     ∎
+
+∸-lemma : {m n : ℕ} → m ≤ n → m + (n ∸ m) ≡ n
+∸-lemma {zero}  {k}     _   = refl {x = k}
+∸-lemma {suc m} {zero}  m≤k = Empty.rec (¬-<-and-≥ (suc-≤-suc zero-≤) m≤k)
+∸-lemma {suc m} {suc k} m≤k =
+  suc m + (suc k ∸ suc m)   ≡⟨ refl                                 ⟩
+  suc (m + (suc k ∸ suc m)) ≡⟨ refl                                 ⟩
+  suc (m + (k ∸ m))         ≡⟨ cong suc (∸-lemma (pred-≤-pred m≤k)) ⟩
+  suc k                     ∎
+
+Fin+≅Fin⊎Fin : (m n : ℕ) → Iso (Fin (m + n)) (Fin m ⊎ Fin n)
+Iso.fun (Fin+≅Fin⊎Fin m n) = f
+  where
+    f : Fin (m + n) → Fin m ⊎ Fin n
+    f (k , k<m+n) with k ≤? m
+    f (k , k<m+n) | inl k<m = inl (k , k<m)
+    f (k , k<m+n) | inr k≥m = inr (k ∸ m , ∸-<-lemma m n k k<m+n k≥m)
+Iso.inv (Fin+≅Fin⊎Fin m n) = g
+  where
+    g :  Fin m  ⊎  Fin n  →  Fin (m + n)
+    g (inl (k , k<m)) = k     , o<m→o<m+n m n k k<m
+    g (inr (k , k<n)) = m + k , <-k+ k<n
+Iso.rightInv (Fin+≅Fin⊎Fin m n) = sec-f-g
+  where
+    sec-f-g : _
+    sec-f-g (inl (k , k<m)) with k ≤? m
+    sec-f-g (inl (k , k<m)) | inl _   = cong inl (Σ≡Prop (λ _ → m≤n-isProp) refl)
+    sec-f-g (inl (k , k<m)) | inr m≤k = Empty.rec (¬-<-and-≥ k<m m≤k)
+    sec-f-g (inr (k , k<n)) with (m + k) ≤? m
+    sec-f-g (inr (k , k<n)) | inl p   = Empty.rec (¬m+n<m {m} {k} p)
+    sec-f-g (inr (k , k<n)) | inr k≥m = cong inr (Σ≡Prop (λ _ → m≤n-isProp) rem)
+      where
+        rem : (m + k) ∸ m ≡ k
+        rem = subst (λ - → - ∸ m ≡ k) (+-comm k m) (m+n∸n=m m k)
+Iso.leftInv  (Fin+≅Fin⊎Fin m n) = ret-f-g
+  where
+    ret-f-g : _
+    ret-f-g (k , k<m+n) with k ≤? m
+    ret-f-g (k , k<m+n) | inl _   = Σ≡Prop (λ _ → m≤n-isProp) refl
+    ret-f-g (k , k<m+n) | inr m≥k = Σ≡Prop (λ _ → m≤n-isProp) (∸-lemma m≥k)
+
+Fin+≡Fin⊎Fin : (m n : ℕ) → Fin (m + n) ≡ Fin m ⊎ Fin n
+Fin+≡Fin⊎Fin m n = isoToPath (Fin+≅Fin⊎Fin m n)

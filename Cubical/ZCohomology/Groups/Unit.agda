@@ -3,6 +3,7 @@ module Cubical.ZCohomology.Groups.Unit where
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.GroupStructure
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
@@ -16,6 +17,7 @@ open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation
 open import Cubical.Homotopy.Connected
 open import Cubical.Data.Unit
+open import Cubical.Data.Sigma
 open import Cubical.Algebra.Group
 
 -- H⁰(Unit)
@@ -23,7 +25,7 @@ open GroupHom
 open GroupIso
 H⁰-Unit≅ℤ : GroupIso (coHomGr 0 Unit) intGroup
 fun (GroupIso.map H⁰-Unit≅ℤ) = sRec isSetInt (λ f → f tt)
-isHom (GroupIso.map H⁰-Unit≅ℤ) = sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _) λ a b → addLemma (a tt) (b tt)
+isHom (GroupIso.map H⁰-Unit≅ℤ) = sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _) λ a b → refl
 inv H⁰-Unit≅ℤ a = ∣ (λ _ → a) ∣₂
 rightInv H⁰-Unit≅ℤ _ = refl
 leftInv H⁰-Unit≅ℤ = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _) λ a → refl
@@ -74,3 +76,11 @@ leftInv (Hⁿ-contrType≅0 {A = A} n contr) _ = isOfHLevelSuc 0 helper _ _
           , λ y →  cong (Iso.inv (Hⁿ-contrTypeIso n contr))
                          (isOfHLevelSuc 0 (isContrHⁿ-Unit n) (0ₕ (suc n)) (Iso.fun (Hⁿ-contrTypeIso n contr) y))
                   ∙ Iso.leftInv (Hⁿ-contrTypeIso n contr) y
+
+-- Reduced groups of Unit are contractible
+isContr-HⁿRed-Unit : (n : ℕ) → isContr (coHomRed n (Unit , tt))
+fst (isContr-HⁿRed-Unit n) = 0ₕ∙ _
+snd (isContr-HⁿRed-Unit n) =
+  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        λ {(f , p) → cong ∣_∣₂ (ΣPathP (funExt (λ _ → sym p)
+                                     , λ i j → p (~ i ∨ j)))}

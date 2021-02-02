@@ -46,7 +46,7 @@ record IsAlgebra (R : Ring {ℓ}) {A : Type ℓ}
 
   isRing : IsRing _ _ _ _ _
   isRing = isring (IsLeftModule.+-isAbGroup isLeftModule) ·-isMonoid dist
-  open IsRing isRing public hiding (_-_; +-assoc; +-lid; +-linv; +-rid; +-rinv; +-comm)
+  open IsRing isRing public hiding (_-_; +Assoc; +Lid; +Linv; +Rid; +Rinv; +Comm)
 
 record Algebra (R : Ring {ℓ}) : Type (ℓ-suc ℓ) where
 
@@ -85,7 +85,7 @@ module commonExtractors {R : Ring {ℓ}} where
   isSetAlgebra : (A : Algebra R) → isSet ⟨ A ⟩a
   isSetAlgebra A = isSetAbGroup (Algebra→AbGroup A)
 
-  open RingStr (snd R) using (1r; ·-ldist-+) renaming (_+_ to _+r_; _·_ to _·s_)
+  open RingStr (snd R) using (1r; ·Ldist+) renaming (_+_ to _+r_; _·_ to _·s_)
 
   makeIsAlgebra : {A : Type ℓ} {0a 1a : A}
                   {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
@@ -161,7 +161,7 @@ record AlgebraHom {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
     comm⋆  : (r : ⟨ R ⟩) (x : ⟨ A ⟩a) → f (r ⋆ x) ≡ r ⋆ f x
 
   pres0 : f 0a ≡ 0a
-  pres0 = Theory.+-idempotency→0 (Algebra→Ring B) (f 0a)
+  pres0 = Theory.+Idempotency→0 (Algebra→Ring B) (f 0a)
           (f 0a        ≡⟨ cong f (sym (+-rid _)) ⟩
            f (0a + 0a) ≡⟨ isHom+ _ _ ⟩
            f 0a + f 0a ∎)
@@ -308,7 +308,7 @@ module AlgebraTheory (R : Ring {ℓ}) (A : Algebra R) where
 
   0-actsNullifying : (x : ⟨ A ⟩a) → 0r ⋆ x ≡ 0a
   0-actsNullifying x =
-    let idempotent-+ = 0r ⋆ x              ≡⟨ cong (λ u → u ⋆ x) (sym (Theory.0-idempotent R)) ⟩
+    let idempotent-+ = 0r ⋆ x              ≡⟨ cong (λ u → u ⋆ x) (sym (Theory.0Idempotent R)) ⟩
                        (0r +r 0r) ⋆ x      ≡⟨ ⋆-ldist 0r 0r x ⟩
                        (0r ⋆ x) + (0r ⋆ x) ∎
-    in Theory.+-idempotency→0 (Algebra→Ring A) (0r ⋆ x) idempotent-+
+    in Theory.+Idempotency→0 (Algebra→Ring A) (0r ⋆ x) idempotent-+

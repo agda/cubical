@@ -27,8 +27,14 @@ isSetUnit = isProp→isSet isPropUnit
 isOfHLevelUnit : (n : HLevel) → isOfHLevel n Unit
 isOfHLevelUnit n = isContr→isOfHLevel n isContrUnit
 
+UnitToTypeIso : ∀ {ℓ} (A : Type ℓ) → Iso (Unit → A) A
+Iso.fun (UnitToTypeIso A) f = f _
+Iso.inv (UnitToTypeIso A) a _ = a
+Iso.rightInv (UnitToTypeIso A) _ = refl
+Iso.leftInv (UnitToTypeIso A) _ = refl
+
 UnitToTypePath : ∀ {ℓ} (A : Type ℓ) → (Unit → A) ≡ A
-UnitToTypePath A = isoToPath (iso (λ f → f tt) (λ a _ → a) (λ _ → refl) λ _ → refl)
+UnitToTypePath A = isoToPath (UnitToTypeIso A)
 
 isContr→Iso2 : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isContr A → Iso (A → B) B
 Iso.fun (isContr→Iso2 iscontr) f = f (fst iscontr)

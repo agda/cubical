@@ -51,6 +51,12 @@ isInIm G H ϕ h = ∃[ g ∈ ⟨ G ⟩ ] ϕ .fun g ≡ h
 isInKer : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupHom G H → ⟨ G ⟩ → Type ℓ'
 isInKer G H ϕ g = ϕ .fun g ≡ 0g (snd H)
 
+Ker : {G : Group {ℓ}} {H : Group {ℓ'}} → GroupHom G H → Type _
+Ker {G = G} {H = H} ϕ = Σ[ x ∈ ⟨ G ⟩ ] isInKer G H ϕ x
+
+Im : {G : Group {ℓ}} {H : Group {ℓ'}} → GroupHom G H → Type _
+Im {G = G} {H = H} ϕ = Σ[ x ∈ ⟨ H ⟩ ] isInIm G H ϕ x
+
 isSurjective : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupHom G H → Type (ℓ-max ℓ ℓ')
 isSurjective G H ϕ = (x : ⟨ H ⟩) → isInIm G H ϕ x
 

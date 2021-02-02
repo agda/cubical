@@ -232,6 +232,10 @@ transport-filler p x i = transp (λ j → p (i ∧ j)) (~ i) x
 subst : (B : A → Type ℓ') (p : x ≡ y) → B x → B y
 subst B p pa = transport (λ i → B (p i)) pa
 
+subst2 : ∀ {ℓ' ℓ''} {B : Type ℓ'} {z w : B} (C : A → B → Type ℓ'')
+        (p : x ≡ y) (q : z ≡ w) → C x z → C y w
+subst2 B p q b = transport (λ i → B (p i) (q i)) b
+
 substRefl : (px : B x) → subst B refl px ≡ px
 substRefl px = transportRefl px
 

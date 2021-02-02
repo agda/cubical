@@ -4,8 +4,9 @@ module Cubical.Algebra.Group.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
-open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_)
+open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_; -_ to -Int_)
 open import Cubical.Data.Unit
+open import Cubical.Data.Bool
 
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
@@ -188,19 +189,24 @@ isSetCarrier : ∀ {ℓ} → (G : Group {ℓ}) → isSet ⟨ G ⟩
 isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (GroupStr.isMonoid (snd G)))
 
 open GroupStr
-
 dirProd : ∀ {ℓ ℓ'} → Group {ℓ} → Group {ℓ'} → Group
-dirProd (GC , G) (HC , H) =
-  makeGroup (0g G , 0g H)
-            (λ { (x1 , x2) (y1 , y2) → _+_ G x1 y1 , _+_ H x2 y2 })
-            (λ { (x1 , x2) → -_ G x1 , -_ H x2 })
-            (isSet× (isSetCarrier (GC , G)) (isSetCarrier (HC , H)))
-            (λ { (x1 , x2) (y1 , y2) (z1 , z2) i →
-               assoc G x1 y1 z1 i , assoc H x2 y2 z2 i })
-            (λ { (x1 , x2) i → GroupStr.rid G x1 i , GroupStr.rid H x2 i })
-            (λ { (x1 , x2) i → GroupStr.lid G x1 i , GroupStr.lid H x2 i })
-            (λ { (x1 , x2) i → GroupStr.invr G x1 i , GroupStr.invr H x2 i })
-            (λ { (x1 , x2) i → GroupStr.invl G x1 i , GroupStr.invl H x2 i })
+fst (dirProd G H) = fst G × fst H
+0g (snd (dirProd G H)) = (0g (snd G)) , (0g (snd H))
+_+_ (snd (dirProd G H)) x y = _+_ (snd G) (fst x) (fst y)
+                            , _+_ (snd H) (snd x) (snd y)
+(- snd (dirProd G H)) x = (-_ (snd G) (fst x)) , (-_ (snd H) (snd x))
+IsSemigroup.is-set (IsMonoid.isSemigroup (IsGroup.isMonoid (isGroup (snd (dirProd G H))))) =
+  isSet× (is-set (snd G)) (is-set (snd H))
+IsSemigroup.assoc (IsMonoid.isSemigroup (IsGroup.isMonoid (isGroup (snd (dirProd G H))))) x y z i =
+  assoc (snd G) (fst x) (fst y) (fst z) i , assoc (snd H) (snd x) (snd y) (snd z) i
+fst (IsMonoid.identity (IsGroup.isMonoid (isGroup (snd (dirProd G H)))) x) i =
+  rid (snd G) (fst x) i , rid (snd H) (snd x) i
+snd (IsMonoid.identity (IsGroup.isMonoid (isGroup (snd (dirProd G H)))) x) i =
+  lid (snd G) (fst x) i , lid (snd H) (snd x) i
+fst (IsGroup.inverse (isGroup (snd (dirProd G H))) x) i =
+  (invr (snd G) (fst x) i) , invr (snd H) (snd x) i
+snd (IsGroup.inverse (isGroup (snd (dirProd G H))) x) i =
+  (invl (snd G) (fst x) i) , invl (snd H) (snd x) i
 
 trivialGroup : Group₀
 trivialGroup = Unit , groupstr tt (λ _ _ → tt) (λ _ → tt)
@@ -208,6 +214,38 @@ trivialGroup = Unit , groupstr tt (λ _ _ → tt) (λ _ → tt)
                                    (λ _ → refl) (λ _ → refl))
 
 intGroup : Group₀
-intGroup = Int , groupstr 0 _+Int_ (0 -Int_)
-                 (makeIsGroup isSetInt +-assoc (λ x → refl) (λ x → +-comm 0 x)
-                              (λ x → +-comm x (pos 0 -Int x) ∙ minusPlus x 0) (λ x → minusPlus x 0))
+fst intGroup = Int
+0g (snd intGroup) = 0
+_+_ (snd intGroup) = _+Int_
+- snd intGroup = _-Int_ 0
+isGroup (snd intGroup) = isGroupInt
+  where
+  abstract
+    isGroupInt : IsGroup (pos 0) _+Int_ (_-Int_ (pos 0))
+    isGroupInt = makeIsGroup isSetInt +-assoc (λ x → refl) (λ x → +-comm 0 x)
+                              (λ x → +-comm x (pos 0 -Int x) ∙ minusPlus x 0) (λ x → minusPlus x 0)
+open IsGroup
+open IsMonoid
+open IsSemigroup renaming (assoc to assoc')
+
+BoolGroup : Group₀
+fst BoolGroup = Bool
+0g (snd BoolGroup) = true
+(snd BoolGroup GroupStr.+ false) false = true
+(snd BoolGroup GroupStr.+ false) true = false
+(snd BoolGroup GroupStr.+ true) y = y
+(- snd BoolGroup) false = false
+(- snd BoolGroup) true = true
+is-set (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) = isSetBool
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false false false = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false false true = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false true false = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false true true = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true false false = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true false true = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true true false = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true true true = refl
+identity (IsGroup.isMonoid (isGroup (snd BoolGroup))) false = refl , refl
+identity (IsGroup.isMonoid (isGroup (snd BoolGroup))) true = refl , refl
+inverse (isGroup (snd BoolGroup)) false = refl , refl
+inverse (isGroup (snd BoolGroup)) true = refl , refl

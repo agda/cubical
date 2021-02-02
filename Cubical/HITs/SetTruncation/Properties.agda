@@ -17,6 +17,8 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
 open import Cubical.Data.Sigma
+open import Cubical.HITs.PropositionalTruncation
+  renaming (rec to pRec ; elim to pElim) hiding (elim2 ; elim3 ; rec2 ; map)
 
 private
   variable
@@ -88,14 +90,14 @@ setTruncUniversal {B = B} Bset =
 setTruncIsSet : isSet ∥ A ∥₂
 setTruncIsSet a b p q = squash₂ a b p q
 
+setTruncIdempotentIso : isSet A → Iso ∥ A ∥₂ A
+Iso.fun (setTruncIdempotentIso hA) = rec hA (idfun _)
+Iso.inv (setTruncIdempotentIso hA) x = ∣ x ∣₂
+Iso.rightInv (setTruncIdempotentIso hA) _ = refl
+Iso.leftInv (setTruncIdempotentIso hA) = elim (λ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ → refl)
+
 setTruncIdempotent≃ : isSet A → ∥ A ∥₂ ≃ A
-setTruncIdempotent≃ {A = A} hA = isoToEquiv f
-  where
-  f : Iso ∥ A ∥₂ A
-  Iso.fun f = rec hA (idfun A)
-  Iso.inv f x = ∣ x ∣₂
-  Iso.rightInv f _ = refl
-  Iso.leftInv f = elim (λ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ → refl)
+setTruncIdempotent≃ {A = A} hA = isoToEquiv (setTruncIdempotentIso hA)
 
 setTruncIdempotent : isSet A → ∥ A ∥₂ ≡ A
 setTruncIdempotent hA = ua (setTruncIdempotent≃ hA)
@@ -184,3 +186,12 @@ Iso.rightInv IsoSetTruncateSndΣ =
 Iso.leftInv IsoSetTruncateSndΣ =
   elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
          λ _ → refl
+
+PathIdTrunc₀Iso : {a b : A} → Iso (∣ a ∣₂ ≡ ∣ b ∣₂) ∥ a ≡ b ∥
+Iso.fun (PathIdTrunc₀Iso {b = b}) p =
+  transport (λ i → rec {B = TypeOfHLevel _ 1} (isOfHLevelTypeOfHLevel 1)
+                        (λ a → ∥ a ≡ b ∥ , squash) (p (~ i)) .fst)
+            ∣ refl ∣
+Iso.inv PathIdTrunc₀Iso = pRec (squash₂ _ _) (cong ∣_∣₂)
+Iso.rightInv PathIdTrunc₀Iso _ = squash _ _
+Iso.leftInv PathIdTrunc₀Iso _ = squash₂ _ _ _ _
