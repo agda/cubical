@@ -22,6 +22,11 @@ suc m ≤ suc n = m ≤ n
 _<_ : ℕ → ℕ → Type₀
 m < n = suc m ≤ n
 
+_≤?_ : (m n : ℕ) → Dec (m ≤ n)
+zero  ≤? _     = yes tt
+suc m ≤? zero  = no λ ()
+suc m ≤? suc n = m ≤? n
+
 data Trichotomy (m n : ℕ) : Type₀ where
   lt : m < n → Trichotomy m n
   eq : m ≡ n → Trichotomy m n
