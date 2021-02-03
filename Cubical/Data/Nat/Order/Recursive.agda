@@ -77,6 +77,9 @@ m≤n-isProp {suc m} {suc n} = m≤n-isProp {m} {n}
 <-weaken {zero} _ = _
 <-weaken {suc m} {suc n} = <-weaken {m}
 
+<→≢ : n < m → ¬ n ≡ m
+<→≢ {n} {m} p q = ¬m<m {m = m} (subst {x = n} (_< m) q p)
+
 Trichotomy-suc : Trichotomy m n → Trichotomy (suc m) (suc n)
 Trichotomy-suc (lt m<n) = lt m<n
 Trichotomy-suc (eq m≡n) = eq (cong suc m≡n)
