@@ -14,6 +14,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Data.List as List
 open import Cubical.Data.Nat
+open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 
 import Agda.Builtin.Reflection as R
@@ -29,7 +30,6 @@ Assoc = List (Projections × Projections)
 data ΣFormat : Type where
   leaf : R.Name → ΣFormat
   _,_ : ΣFormat → ΣFormat → ΣFormat
-  nil : ΣFormat
 
 infixr 4 _,_
 
@@ -38,15 +38,15 @@ module Internal where
   flipAssoc : Assoc → Assoc
   flipAssoc = List.map λ {p .fst → p .snd; p .snd → p .fst}
 
-  list→ΣFormat : List R.Name → ΣFormat
-  list→ΣFormat [] = nil
-  list→ΣFormat (x ∷ []) = leaf x
-  list→ΣFormat (x ∷ y ∷ xs) = leaf x , list→ΣFormat (y ∷ xs)
+  list→ΣFormat : List R.Name → Maybe ΣFormat
+  list→ΣFormat [] = nothing
+  list→ΣFormat (x ∷ []) = just (leaf x)
+  list→ΣFormat (x ∷ y ∷ xs) = map-Maybe (leaf x ,_) (list→ΣFormat (y ∷ xs))
 
-  recordName→ΣFormat : R.Name → R.TC ΣFormat
+  recordName→ΣFormat : R.Name → R.TC (Maybe ΣFormat)
   recordName→ΣFormat name = R.getDefinition name >>= go
     where
-    go : R.Definition → R.TC ΣFormat
+    go : R.Definition → R.TC (Maybe ΣFormat)
     go (R.record-type c fs) = R.returnTC (list→ΣFormat (List.map (λ {(R.arg _ n) → n}) fs))
     go _ = R.typeError (R.strErr "Not a record type name:" ∷ R.nameErr name ∷ [])
 
@@ -54,11 +54,14 @@ module Internal where
   ΣFormat→Assoc = go []
     where
     go : List R.Name → ΣFormat → Assoc
-    go prefix nil = []
     go prefix (leaf fieldName) = [ prefix , [ fieldName ] ]
     go prefix (sig₁ , sig₂) =
       go (quote fst ∷ prefix) sig₁ ++ go (quote snd ∷ prefix) sig₂
 
+  MaybeΣFormat→Assoc : Maybe ΣFormat → Assoc
+  MaybeΣFormat→Assoc nothing = [ [] , [] ]
+  MaybeΣFormat→Assoc (just sig) = ΣFormat→Assoc sig
+  
   convertTerm : Assoc → R.Term → R.Term
   convertTerm al term = R.pat-lam (List.map makeClause al) []
     where
@@ -114,12 +117,14 @@ macro
   -- <RecordTypeName> → <Σ-Type> ≃ <RecordType>
   FlatΣ≃Record : R.Name → R.Term → R.TC Unit
   FlatΣ≃Record name hole =
-    recordName→ΣFormat name >>= λ sig → equivMacro (ΣFormat→Assoc sig) hole
+    recordName→ΣFormat name >>= λ sig →
+    equivMacro (MaybeΣFormat→Assoc sig) hole
 
   -- <RecordTypeName> → <RecordType> ≃ <Σ-Type>
   Record≃FlatΣ : R.Name → R.Term → R.TC Unit
   Record≃FlatΣ name hole =
-    recordName→ΣFormat name >>= λ sig → equivMacro (flipAssoc (ΣFormat→Assoc sig)) hole
+    recordName→ΣFormat name >>= λ sig →
+    equivMacro (flipAssoc (MaybeΣFormat→Assoc sig)) hole
 
   -- ΣFormat → <RecordType₁> ≃ <RecordType₂>
   Record≃Record : Assoc → R.Term → R.TC Unit
@@ -151,6 +156,9 @@ module Example where
 
   Example0' : Example B ≃ (Σ[ a ∈ A ] Σ[ a' ∈ A ] B a)
   Example0' = Record≃FlatΣ Example
+
+  Example0'' : Unit ≃ Unit -- any record with no fields is equivalent to unit
+  Example0'' = FlatΣ≃Record Unit
 
   {-
     Example: Equivalence between an arbitrarily arrange Σ-type and record type using Σ≃Record
