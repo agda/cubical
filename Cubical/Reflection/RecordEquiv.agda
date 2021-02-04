@@ -26,7 +26,7 @@ Assoc = List (Projections × Projections)
 
 -- Describes a correspondence between a record type and an iterated Σ-types;
 -- more convenient than Assoc for this special case
-data ΣFormat : Set where
+data ΣFormat : Type where
   leaf : R.Name → ΣFormat
   _,_ : ΣFormat → ΣFormat → ΣFormat
 
