@@ -53,16 +53,12 @@ module _ ((G , str) : Group {ℓG}) where
   elimProp Bprop b embase = b
   elimProp Bprop b (emloop g i) = elimEq Bprop (emloop g) b b i
   elimProp Bprop b (emcomp g h i j) =
-    isOfHLevel→isOfHLevelDep 2 (λ x → isProp→isSet (Bprop x))
-      b b
-      (λ i → elimEq Bprop (emloop g) b b i)
-      (λ i → elimEq Bprop (emloop (g + h)) b b i)
-      {!!} i j
-{-    isOfHLevel→isOfHLevelDep 2 (λ x → isProp→isSet (Bprop x))
-    (emloop g) (emloop (g + h)) (λ j → embase) (emloop h) (emcomp g h)
-    (λ i → elimEq Bprop (emloop g) b b i)
-    (λ i → elimEq Bprop (emloop (g + h)) b b i)
-    (λ j → b) (λ j → elimEq Bprop (emloop h) b b j) i j -}
+    isSet→SquareP (λ i j → isProp→isSet (Bprop (emcomp g h i j)))
+      (λ j → elimProp Bprop b (emloop g j))
+      (λ j → elimProp Bprop b (emloop (g + h) j))
+      (λ i → b)
+      (λ i → elimProp Bprop b (emloop h i))
+      i j
   elimProp Bprop b (emsquash x y p q r s i j k) =
     isOfHLevel→isOfHLevelDep 3 (λ x → isSet→isGroupoid (isProp→isSet (Bprop x)))
     _ _ _ _ (λ j k → g (r j k)) (λ j k → g (s j k)) (emsquash x y p q r s) i j k
@@ -85,9 +81,12 @@ module _ ((G , str) : Group {ℓG}) where
           → B x
   elimSet Bset b bloop embase = b
   elimSet Bset b bloop (emloop g i) = bloop g i
-  elimSet Bset b bloop (emcomp g h i j) = {!!}
-{-    isOfHLevel→isOfHLevelDep 2 Bset (emloop g) (emloop (g + h)) (λ j → embase) (emloop h) (emcomp g h)
-      (bloop g) (bloop (g + h)) refl (bloop h) i j -}
+  elimSet Bset b bloop (emcomp g h i j) =
+    isSet→SquareP
+      (λ i j → Bset (emcomp g h i j))
+      (λ j → bloop g j) (λ j → bloop (g + h) j)
+      (λ i → b) (λ i → bloop h i)
+      i j
   elimSet Bset b bloop (emsquash x y p q r s i j k) =
     isOfHLevel→isOfHLevelDep 3 (λ x → isSet→isGroupoid (Bset x))
       _ _ _ _ (λ j k → g (r j k)) (λ j k → g (s j k)) (emsquash x y p q r s) i j k
