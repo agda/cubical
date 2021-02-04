@@ -29,6 +29,7 @@ Assoc = List (Projections × Projections)
 data ΣFormat : Type where
   leaf : R.Name → ΣFormat
   _,_ : ΣFormat → ΣFormat → ΣFormat
+  nil : ΣFormat
 
 infixr 4 _,_
 
@@ -37,10 +38,23 @@ module Internal where
   flipAssoc : Assoc → Assoc
   flipAssoc = List.map λ {p .fst → p .snd; p .snd → p .fst}
 
+  list→ΣFormat : List R.Name → ΣFormat
+  list→ΣFormat [] = nil
+  list→ΣFormat (x ∷ []) = leaf x
+  list→ΣFormat (x ∷ y ∷ xs) = leaf x , list→ΣFormat (y ∷ xs)
+
+  recordName→ΣFormat : R.Name → R.TC ΣFormat
+  recordName→ΣFormat name = R.getDefinition name >>= go
+    where
+    go : R.Definition → R.TC ΣFormat
+    go (R.record-type c fs) = R.returnTC (list→ΣFormat (List.map (λ {(R.arg _ n) → n}) fs))
+    go _ = R.typeError (R.strErr "Not a record type name:" ∷ R.nameErr name ∷ [])
+
   ΣFormat→Assoc : ΣFormat → Assoc
   ΣFormat→Assoc = go []
     where
     go : List R.Name → ΣFormat → Assoc
+    go prefix nil = []
     go prefix (leaf fieldName) = [ prefix , [ fieldName ] ]
     go prefix (sig₁ , sig₂) =
       go (quote fst ∷ prefix) sig₁ ++ go (quote snd ∷ prefix) sig₂
@@ -97,6 +111,16 @@ macro
   Record≃Σ : ΣFormat → R.Term → R.TC Unit
   Record≃Σ sig = equivMacro (flipAssoc (ΣFormat→Assoc sig))
 
+  -- <RecordTypeName> → <Σ-Type> ≃ <RecordType>
+  FlatΣ≃Record : R.Name → R.Term → R.TC Unit
+  FlatΣ≃Record name hole =
+    recordName→ΣFormat name >>= λ sig → equivMacro (ΣFormat→Assoc sig) hole
+
+  -- <RecordTypeName> → <RecordType> ≃ <Σ-Type>
+  Record≃FlatΣ : R.Name → R.Term → R.TC Unit
+  Record≃FlatΣ name hole =
+    recordName→ΣFormat name >>= λ sig → equivMacro (flipAssoc (ΣFormat→Assoc sig)) hole
+
   -- ΣFormat → <RecordType₁> ≃ <RecordType₂>
   Record≃Record : Assoc → R.Term → R.TC Unit
   Record≃Record = equivMacro
@@ -119,22 +143,26 @@ module Example where
   open Example
 
   {-
-    Examples: Equivalence between a Σ-type and record type
+    Example: Equivalence between a Σ-type and record type using FlatΣ≃Record
   -}
 
   Example0 : (Σ[ a ∈ A ] Σ[ a' ∈ A ] B a) ≃ Example B
-  Example0 = Σ≃Record (leaf (quote cool) , leaf (quote fun) , leaf (quote wow))
+  Example0 = FlatΣ≃Record Example
 
   Example0' : Example B ≃ (Σ[ a ∈ A ] Σ[ a' ∈ A ] B a)
-  Example0' = Record≃Σ (leaf (quote cool) , leaf (quote fun) , leaf (quote wow))
+  Example0' = Record≃FlatΣ Example
 
-  -- Fields can be re-ordered and associated in any way that makes sense
+  {-
+    Example: Equivalence between an arbitrarily arrange Σ-type and record type using Σ≃Record
+  -}
+
   Example1 : (Σ[ p ∈ A × A ] B (p .snd)) ≃ Example B
   Example1 =
     Σ≃Record ((leaf (quote fun) , leaf (quote cool)) , leaf (quote wow))
 
   {-
-    Example: Equivalence between arbitrary iterated record types (less convenient)
+    Example: Equivalence between arbitrary iterated record types (less convenient) using
+    Record≃Record
   -}
 
   record Inner {A : Type ℓ} (B : A → Type ℓ') (a : A) : Type (ℓ-max ℓ ℓ') where
