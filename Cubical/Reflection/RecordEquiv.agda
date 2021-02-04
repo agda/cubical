@@ -61,7 +61,7 @@ module Internal where
   MaybeΣFormat→Assoc : Maybe ΣFormat → Assoc
   MaybeΣFormat→Assoc nothing = [ [] , [] ]
   MaybeΣFormat→Assoc (just sig) = ΣFormat→Assoc sig
-  
+
   convertTerm : Assoc → R.Term → R.Term
   convertTerm al term = R.pat-lam (List.map makeClause al) []
     where
