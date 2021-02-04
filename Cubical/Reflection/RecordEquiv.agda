@@ -6,7 +6,7 @@
   See end of file for examples.
 
 -}
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
 module Cubical.Reflection.RecordEquiv where
 
 open import Cubical.Foundations.Prelude
