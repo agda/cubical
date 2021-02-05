@@ -85,9 +85,8 @@ module _ ((G , str) : Group {ℓ}) where
     → compEquiv (rightEquiv g) (rightEquiv h) ≡ rightEquiv (g + h)
   compRightEquiv g h = equivEq (funExt (λ x → (assoc x g h) ⁻¹))
 
-{-
   CodesSet : EM₁ (G , str) → hSet ℓ
-  CodesSet = rec (G , str) (isOfHLevelTypeOfHLevel 2) (G , is-set) RE REComp
+  CodesSet = rec (G , str) (isOfHLevelTypeOfHLevel 2) (G , is-set) RE {!!}
     where
       RE : (g : G) → Path (hSet ℓ) (G , is-set) (G , is-set)
       RE g = Σ≡Prop (λ X → isPropIsOfHLevel {A = X} 2) (ua (rightEquiv g))
@@ -118,6 +117,7 @@ module _ ((G , str) : Group {ℓ}) where
           (cong fst p₀₋) (cong fst p₁₋) (cong fst p₋₀) (cong fst p₋₁) s
           (cong snd p₀₋) (cong snd p₁₋) (cong snd p₋₀) (cong snd p₋₁) i j
 -}
+{-
       REComp : (g h : G) → Square (RE g) (RE (g + h)) refl (RE h)
       REComp g h = lemma₂ (RE g) (RE (g + h)) refl (RE h) (lemma₁ g h)
 
