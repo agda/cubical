@@ -60,13 +60,22 @@ module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
   where
 
   ΣPathP : Σ[ p ∈ PathP A (fst x) (fst y) ] PathP (λ i → B i (p i)) (snd x) (snd y)
-    → PathP (λ i → Σ (A i) (B i)) x y
+         → PathP (λ i → Σ (A i) (B i)) x y
   ΣPathP eq i = fst eq i , snd eq i
+
+  PathPΣ : PathP (λ i → Σ (A i) (B i)) x y
+         → Σ[ p ∈ PathP A (fst x) (fst y) ] PathP (λ i → B i (p i)) (snd x) (snd y)
+  PathPΣ eq = (λ i → fst (eq i)) , (λ i → snd (eq i))
+
+  -- allows one to write
+  -- open PathPΣ somePathInΣAB renaming (fst ... )
+  module PathPΣ (p : PathP (λ i → Σ (A i) (B i)) x y) where
+    open Σ (PathPΣ p) public
 
   ΣPathIsoPathΣ : Iso (Σ[ p ∈ PathP A (fst x) (fst y) ] (PathP (λ i → B i (p i)) (snd x) (snd y)))
                       (PathP (λ i → Σ (A i) (B i)) x y)
   fun ΣPathIsoPathΣ        = ΣPathP
-  inv ΣPathIsoPathΣ eq     = (λ i → fst (eq i)) , (λ i → snd (eq i))
+  inv ΣPathIsoPathΣ        = PathPΣ
   rightInv ΣPathIsoPathΣ _ = refl
   leftInv ΣPathIsoPathΣ _  = refl
 
@@ -78,9 +87,8 @@ module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
               ≡ (PathP (λ i → Σ (A i) (B i)) x y)
   ΣPath≡PathΣ = ua ΣPath≃PathΣ
 
-Σ≡Prop : ((x : A) → isProp (B x)) → {u v : Σ A B}
-       → (p : u .fst ≡ v .fst) → u ≡ v
-Σ≡Prop pB {u} {v} p i = (p i) , isProp→PathP (λ i → pB (p i)) (u .snd) (v .snd) i
+×≡Prop : isProp A' → {u v : A × A'} → u .fst ≡ v .fst → u ≡ v
+×≡Prop pB {u} {v} p i = (p i) , (pB (u .snd) (v .snd) i)
 
 -- Characterization of dependent paths in Σ
 
@@ -146,29 +154,65 @@ leftInv Σ-Π-Iso _     = refl
 fun (Σ-cong-iso-fst isom) x = fun isom (x .fst) , x .snd
 inv (Σ-cong-iso-fst {B = B} isom) x = inv isom (x .fst) , subst B (sym (ε (x .fst))) (x .snd)
   where
-  ε = isHAEquiv.ret (snd (iso→HAEquiv isom))
+  ε = isHAEquiv.rinv (snd (iso→HAEquiv isom))
 rightInv (Σ-cong-iso-fst {B = B} isom) (x , y) = ΣPathP (ε x , toPathP goal)
   where
-  ε = isHAEquiv.ret (snd (iso→HAEquiv isom))
+  ε = isHAEquiv.rinv (snd (iso→HAEquiv isom))
   goal : subst B (ε x) (subst B (sym (ε x)) y) ≡ y
   goal = sym (substComposite B (sym (ε x)) (ε x) y)
       ∙∙ cong (λ x → subst B x y) (lCancel (ε x))
       ∙∙ substRefl {B = B} y
-leftInv (Σ-cong-iso-fst {A = A} {B = B} isom@(iso f _ _ η)) (x , y) = ΣPathP (η x , toPathP goal)
+leftInv (Σ-cong-iso-fst {A = A} {B = B} isom) (x , y) = ΣPathP (leftInv isom x , toPathP goal)
   where
-  ε = isHAEquiv.ret (snd (iso→HAEquiv isom))
+  ε = isHAEquiv.rinv (snd (iso→HAEquiv isom))
   γ = isHAEquiv.com (snd (iso→HAEquiv isom))
 
-  lem : (x : A) → sym (ε (f x)) ∙ cong f (η x) ≡ refl
-  lem x = cong (λ a → sym (ε (f x)) ∙ a) (γ x) ∙ lCancel (ε (f x))
+  lem : (x : A) → sym (ε (fun isom x)) ∙ cong (fun isom) (leftInv isom x) ≡ refl
+  lem x = cong (λ a → sym (ε (fun isom x)) ∙ a) (γ x) ∙ lCancel (ε (fun isom x))
 
-  goal : subst B (cong f (η x)) (subst B (sym (ε (f x))) y) ≡ y
-  goal = sym (substComposite B (sym (ε (f x))) (cong f (η x)) y)
+  goal : subst B (cong (fun isom) (leftInv isom x)) (subst B (sym (ε (fun isom x))) y) ≡ y
+  goal = sym (substComposite B (sym (ε (fun isom x))) (cong (fun isom) (leftInv isom x)) y)
       ∙∙ cong (λ a → subst B a y) (lem x)
       ∙∙ substRefl {B = B} y
 
 Σ-cong-equiv-fst : (e : A ≃ A') → Σ A (B ∘ equivFun e) ≃ Σ A' B
-Σ-cong-equiv-fst e = isoToEquiv (Σ-cong-iso-fst (equivToIso e))
+-- we could just do this:
+-- Σ-cong-equiv-fst e = isoToEquiv (Σ-cong-iso-fst (equivToIso e))
+-- but the following reduces slightly better
+Σ-cong-equiv-fst {A = A} {A' = A'} {B = B} e = intro , isEqIntro
+ where
+  intro : Σ A (B ∘ equivFun e) → Σ A' B
+  intro (a , b) = equivFun e a , b
+  isEqIntro : isEquiv intro
+  isEqIntro .equiv-proof x = ctr , isCtr where
+    PB : ∀ {x y} → x ≡ y → B x → B y → Type _
+    PB p = PathP (λ i → B (p i))
+
+    open Σ x renaming (fst to a'; snd to b)
+    open Σ (equivCtr e a') renaming (fst to ctrA; snd to α)
+    ctrB : B (equivFun e ctrA)
+    ctrB = subst B (sym α) b
+    ctrP : PB α ctrB b
+    ctrP = symP (transport-filler (λ i → B (sym α i)) b)
+    ctr : fiber intro x
+    ctr = (ctrA , ctrB) , ΣPathP (α , ctrP)
+
+    isCtr : ∀ y → ctr ≡ y
+    isCtr ((r , s) , p) = λ i → (a≡r i , b!≡s i) , ΣPathP (α≡ρ i , coh i) where
+      open PathPΣ p renaming (fst to ρ; snd to σ)
+      open PathPΣ (equivCtrPath e a' (r , ρ)) renaming (fst to a≡r; snd to α≡ρ)
+
+      b!≡s : PB (cong (equivFun e) a≡r) ctrB s
+      b!≡s i = comp (λ k → B (α≡ρ i (~ k))) (λ k → (λ
+        { (i = i0) → ctrP (~ k)
+        ; (i = i1) → σ (~ k)
+        })) b
+
+      coh : PathP (λ i → PB (α≡ρ i) (b!≡s i) b) ctrP σ
+      coh i j = fill (λ k → B (α≡ρ i (~ k))) (λ k → (λ
+        { (i = i0) → ctrP (~ k)
+        ; (i = i1) → σ (~ k)
+        })) (inS b) (~ j)
 
 Σ-cong-fst : (p : A ≡ A') → Σ A (B ∘ transport p) ≡ Σ A' B
 Σ-cong-fst {B = B} p i = Σ (p i) (B ∘ transp (λ j → p (i ∨ j)) i)
@@ -203,17 +247,18 @@ leftInv (Σ-cong-iso-snd isom) (x , y') = ΣPathP (refl , leftInv (isom x) y')
 ΣPathTransport : (a b : Σ A B) → Type _
 ΣPathTransport {B = B} a b = Σ[ p ∈ (fst a ≡ fst b) ] transport (λ i → B (p i)) (snd a) ≡ snd b
 
+IsoΣPathTransportPathΣ : (a b : Σ A B) → Iso (ΣPathTransport a b) (a ≡ b)
+IsoΣPathTransportPathΣ {B = B} a b = compIso (Σ-cong-iso-snd (λ p → invIso (equivToIso (PathP≃Path (λ i → B (p i)) _ _))))
+         ΣPathIsoPathΣ
+
 ΣPathTransport≃PathΣ : (a b : Σ A B) → ΣPathTransport a b ≃ (a ≡ b)
-ΣPathTransport≃PathΣ {B = B} a b =
-  compEquiv
-    (isoToEquiv (Σ-cong-iso-snd λ p → invIso (equivToIso (PathP≃Path (λ i → B (p i)) _ _))))
-    ΣPath≃PathΣ
+ΣPathTransport≃PathΣ {B = B} a b = isoToEquiv (IsoΣPathTransportPathΣ a b)
 
 ΣPathTransport→PathΣ : (a b : Σ A B) → ΣPathTransport a b → (a ≡ b)
-ΣPathTransport→PathΣ a b = ΣPathTransport≃PathΣ a b .fst
+ΣPathTransport→PathΣ a b = Iso.fun (IsoΣPathTransportPathΣ a b)
 
 PathΣ→ΣPathTransport : (a b : Σ A B) → (a ≡ b) → ΣPathTransport a b
-PathΣ→ΣPathTransport a b = invEq (ΣPathTransport≃PathΣ a b)
+PathΣ→ΣPathTransport a b = Iso.inv (IsoΣPathTransportPathΣ a b)
 
 ΣPathTransport≡PathΣ : (a b : Σ A B) → ΣPathTransport a b ≡ (a ≡ b)
 ΣPathTransport≡PathΣ a b = ua (ΣPathTransport≃PathΣ a b)
@@ -242,6 +287,32 @@ PathΣ→ΣPathTransport a b = invEq (ΣPathTransport≃PathΣ a b)
   isom .rightInv _ = refl
   isom .leftInv (a , b) = cong (a ,_) (c a .snd b)
 
+isEmbeddingFstΣProp : ((x : A) → isProp (B x))
+                    → {u v : Σ A B}
+                    → isEquiv (λ (p : u ≡ v) → cong fst p)
+isEmbeddingFstΣProp {B = B} pB {u = u} {v = v} .equiv-proof x = ctr , isCtr
+  where
+  ctrP : u ≡ v
+  ctrP = ΣPathP (x , isProp→PathP (λ _ → pB _) _ _)
+  ctr  : fiber (λ (p : u ≡ v) → cong fst p) x
+  ctr  = ctrP , refl
+
+  isCtr : ∀ z → ctr ≡ z
+  isCtr (z , p) = ΣPathP (ctrP≡ , cong (sym ∘ snd) fzsingl) where
+    fzsingl : Path (singl x) (x , refl) (cong fst z , sym p)
+    fzsingl = isContrSingl x .snd (cong fst z , sym p)
+    ctrSnd : SquareP (λ i j → B (fzsingl i .fst j)) (cong snd ctrP) (cong snd z) _ _
+    ctrSnd = isProp→SquareP (λ _ _ → pB _) _ _ _ _
+    ctrP≡ : ctrP ≡ z
+    ctrP≡ i = ΣPathP (fzsingl i .fst , ctrSnd i)
+
+Σ≡PropEquiv : ((x : A) → isProp (B x)) → {u v : Σ A B}
+            → (u .fst ≡ v .fst) ≃ (u ≡ v)
+Σ≡PropEquiv pB = invEquiv (_ , isEmbeddingFstΣProp pB)
+
+Σ≡Prop : ((x : A) → isProp (B x)) → {u v : Σ A B}
+       → (p : u .fst ≡ v .fst) → u ≡ v
+Σ≡Prop pB p = equivFun (Σ≡PropEquiv pB) p
 
 ≃-× : ∀ {ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''} → A ≃ C → B ≃ D → A × B ≃ C × D
 ≃-× eq1 eq2 =
@@ -271,16 +342,18 @@ Iso.inv (prodIso iAC iBD) (c , d) = (Iso.inv iAC c) , Iso.inv iBD d
 Iso.rightInv (prodIso iAC iBD) (c , d) = ΣPathP ((Iso.rightInv iAC c) , (Iso.rightInv iBD d))
 Iso.leftInv (prodIso iAC iBD) (a , b) = ΣPathP ((Iso.leftInv iAC a) , (Iso.leftInv iBD b))
 
-toProdIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
-         → Iso (A → B × C) ((A → B) × (A → C))
+toProdIso : {B C : A → Type ℓ}
+          → Iso ((a : A) → B a × C a) (((a : A) → B a) × ((a : A) → C a))
 Iso.fun toProdIso = λ f → (λ a → fst (f a)) , (λ a → snd (f a))
 Iso.inv toProdIso (f , g) = λ a → (f a) , (g a)
 Iso.rightInv toProdIso (f , g) = refl
 Iso.leftInv toProdIso b = funExt λ _ → refl
 
-curryIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
-         → Iso (A × B → C) (A → B → C)
+curryIso : Iso (((a , b) : Σ A B) → C a b) ((a : A) → (b : B a) → C a b)
 Iso.fun curryIso f a b = f (a , b)
 Iso.inv curryIso f a = f (fst a) (snd a)
 Iso.rightInv curryIso a = refl
 Iso.leftInv curryIso f = funExt λ _ → refl
+
+curryEquiv : (((a , b) : Σ A B) → C a b) ≃ (∀ a → (b : B a) → C a b)
+curryEquiv = isoToEquiv curryIso

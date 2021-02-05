@@ -21,6 +21,10 @@ typ = fst
 str : (A : TypeWithStr ℓ S) → S (typ A)
 str = snd
 
+-- Alternative notation for typ
+⟨_⟩ : TypeWithStr ℓ S → Type ℓ
+⟨_⟩ = typ
+
 -- An S-structure should have a notion of S-homomorphism, or rather S-isomorphism.
 -- This will be implemented by a function ι : StrEquiv S ℓ'
 -- that gives us for any two types with S-structure (X , s) and (Y , t) a family:

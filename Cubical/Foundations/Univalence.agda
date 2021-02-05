@@ -40,7 +40,7 @@ uaIdEquiv {A = A} i j = Glue A {φ = i ∨ ~ j ∨ j} (λ _ → A , idEquiv A)
 
 -- Propositional extensionality
 hPropExt : {A B : Type ℓ} → isProp A → isProp B → (A → B) → (B → A) → A ≡ B
-hPropExt Aprop Bprop f g = ua (isPropEquiv→Equiv Aprop Bprop f g)
+hPropExt Aprop Bprop f g = ua (propBiimpl→Equiv Aprop Bprop f g)
 
 -- the unglue and glue primitives specialized to the case of ua
 
@@ -196,7 +196,7 @@ pathToEquiv : {A B : Type ℓ} → A ≡ B → A ≃ B
 pathToEquiv p = lineToEquiv (λ i → p i)
 
 pathToEquivRefl : {A : Type ℓ} → pathToEquiv refl ≡ idEquiv A
-pathToEquivRefl {A = A} = equivEq _ _ (λ i x → transp (λ _ → A) i x)
+pathToEquivRefl {A = A} = equivEq (λ i x → transp (λ _ → A) i x)
 
 pathToEquiv-ua : {A B : Type ℓ} (e : A ≃ B) → pathToEquiv (ua e) ≡ e
 pathToEquiv-ua = Univalence.au-ua pathToEquiv pathToEquivRefl

@@ -190,20 +190,16 @@ doubleCompPath-elim' : {ℓ : Level} {A : Type ℓ} {w x y z : A} (p : w ≡ x) 
                        (r : y ≡ z) → (p ∙∙ q ∙∙ r) ≡ p ∙ (q ∙ r)
 doubleCompPath-elim' p q r = (split-leftright' p q r) ∙ (sym (leftright p (q ∙ r)))
 
-
-cong-∙ : ∀ {B : Type ℓ} (f : A → B) (p : x ≡ y) (q : y ≡ z)
-         → cong f (p ∙ q) ≡ (cong f p) ∙ (cong f q)
-cong-∙ f p q j i = hcomp (λ k → λ { (j = i0) → f (compPath-filler p q k i)
-                                  ; (i = i0) → f (p i0)
-                                  ; (i = i1) → f (q k) })
-                         (f (p i))
-
 cong-∙∙ : ∀ {B : Type ℓ} (f : A → B) (p : w ≡ x) (q : x ≡ y) (r : y ≡ z)
           → cong f (p ∙∙ q ∙∙ r) ≡ (cong f p) ∙∙ (cong f q) ∙∙ (cong f r)
 cong-∙∙ f p q r j i = hcomp (λ k → λ { (j = i0) → f (doubleCompPath-filler p q r k i)
                                      ; (i = i0) → f (p (~ k))
                                      ; (i = i1) → f (r k) })
                             (f (q i))
+
+cong-∙ : ∀ {B : Type ℓ} (f : A → B) (p : x ≡ y) (q : y ≡ z)
+         → cong f (p ∙ q) ≡ (cong f p) ∙ (cong f q)
+cong-∙ f p q = cong-∙∙ f refl p q
 
 hcomp-unique : ∀ {ℓ} {A : Type ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
                (h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
@@ -244,10 +240,10 @@ congFunct-filler : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y z : A} (f 
                 → I → I → I → B
 congFunct-filler {x = x} f p q i j z =
   hfill (λ k → λ { (i = i0) → f x
-                  ; (i = i1) → f (q k)
-                  ; (j = i0) → f (compPath-filler p q k i)})
-        (inS (f (p i)))
-        z
+                 ; (i = i1) → f (q k)
+                 ; (j = i0) → f (compPath-filler p q k i)})
+       (inS (f (p i)))
+       z
 
 congFunct : ∀ {ℓ} {B : Type ℓ} (f : A → B) (p : x ≡ y) (q : y ≡ z) → cong f (p ∙ q) ≡ cong f p ∙ cong f q
 congFunct f p q j i = congFunct-filler f p q i j i1
@@ -271,13 +267,12 @@ cong₂Funct {x = x} {y = y} f p {u = u} {v = v} q j i =
 symDistr-filler : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → I → I → I → A
 symDistr-filler {A = A} {z = z} p q i j k =
   hfill (λ k → λ { (i = i0) → q (k ∨ j)
-                  ; (i = i1) → p (~ k ∧ j) })
-        (inS (invSides-filler q (sym p) i j))
-        k
+                 ; (i = i1) → p (~ k ∧ j) })
+       (inS (invSides-filler q (sym p) i j))
+       k
 
 symDistr : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → sym (p ∙ q) ≡ sym q ∙ sym p
 symDistr p q i j = symDistr-filler p q j i i1
-
 
 -- we can not write hcomp-isEquiv : {ϕ : I} → (p : I → Partial ϕ A) → isEquiv (λ (a : A [ ϕ ↦ p i0 ]) → hcomp p a)
 -- due to size issues. But what we can write (compare to hfill) is:

@@ -23,6 +23,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Foundations.Equiv.Base public
+open import Cubical.Data.Sigma.Base
 
 private
   variable
@@ -61,8 +62,8 @@ equiv-proof (isPropIsEquiv f p q i) y =
                             ; (j = i1) → w })
                    (p2 w (i ∨ j))
 
-equivEq : (e f : A ≃ B) → (h : e .fst ≡ f .fst) → e ≡ f
-equivEq e f h = λ i → (h i) , isProp→PathP (λ i → isPropIsEquiv (h i)) (e .snd) (f .snd) i
+equivEq : {e f : A ≃ B} → (h : e .fst ≡ f .fst) → e ≡ f
+equivEq {e = e} {f = f} h = λ i → (h i) , isProp→PathP (λ i → isPropIsEquiv (h i)) (e .snd) (f .snd) i
 
 module _ {f : A → B} (equivF : isEquiv f) where
   funIsEq : A → B
@@ -103,27 +104,27 @@ invEquiv : A ≃ B → B ≃ A
 invEquiv e = isoToEquiv (invIso (equivToIso e))
 
 invEquivIdEquiv : (A : Type ℓ) → invEquiv (idEquiv A) ≡ idEquiv A
-invEquivIdEquiv _ = equivEq _ _ refl
+invEquivIdEquiv _ = equivEq refl
 
 -- TODO: there should be a direct proof of this that doesn't use equivToIso
 compEquiv : A ≃ B → B ≃ C → A ≃ C
 compEquiv f g = isoToEquiv (compIso (equivToIso f) (equivToIso g))
 
 compEquivIdEquiv : (e : A ≃ B) → compEquiv (idEquiv A) e ≡ e
-compEquivIdEquiv e = equivEq _ _ refl
+compEquivIdEquiv e = equivEq refl
 
 compEquivEquivId : (e : A ≃ B) → compEquiv e (idEquiv B) ≡ e
-compEquivEquivId e = equivEq _ _ refl
+compEquivEquivId e = equivEq refl
 
 invEquiv-is-rinv : (e : A ≃ B) → compEquiv e (invEquiv e) ≡ idEquiv A
-invEquiv-is-rinv e = equivEq _ _ (funExt (secEq e))
+invEquiv-is-rinv e = equivEq (funExt (secEq e))
 
 invEquiv-is-linv : (e : A ≃ B) → compEquiv (invEquiv e) e ≡ idEquiv B
-invEquiv-is-linv e = equivEq _ _ (funExt (retEq e))
+invEquiv-is-linv e = equivEq (funExt (retEq e))
 
 compEquiv-assoc : (f : A ≃ B) (g : B ≃ C) (h : C ≃ D)
                 → compEquiv f (compEquiv g h) ≡ compEquiv (compEquiv f g) h
-compEquiv-assoc f g h = equivEq _ _ refl
+compEquiv-assoc f g h = equivEq refl
 
 LiftEquiv : A ≃ Lift {i = ℓ} {j = ℓ'} A
 LiftEquiv .fst a .lower = a
@@ -145,14 +146,23 @@ Lift≃Lift e .snd .equiv-proof b .snd (a , p) i .snd j .lower =
 isContr→Equiv : isContr A → isContr B → A ≃ B
 isContr→Equiv Actr Bctr = isoToEquiv (isContr→Iso Actr Bctr)
 
-isPropEquiv→Equiv : (Aprop : isProp A) (Bprop : isProp B) (f : A → B) (g : B → A) → A ≃ B
-isPropEquiv→Equiv Aprop Bprop f g = f , hf
+propBiimpl→Equiv : (Aprop : isProp A) (Bprop : isProp B) (f : A → B) (g : B → A) → A ≃ B
+propBiimpl→Equiv Aprop Bprop f g = f , hf
   where
   hf : isEquiv f
   hf .equiv-proof y .fst          = (g y , Bprop (f (g y)) y)
   hf .equiv-proof y .snd h i .fst = Aprop (g y) (h .fst) i
   hf .equiv-proof y .snd h i .snd = isProp→isSet' Bprop (Bprop (f (g y)) y) (h .snd)
                                                   (cong f (Aprop (g y) (h .fst))) refl i
+
+isEquivPropBiimpl→Equiv : isProp A → isProp B
+                        → ((A → B) × (B → A)) ≃ (A ≃ B)
+isEquivPropBiimpl→Equiv {A = A} {B = B} Aprop Bprop = isoToEquiv isom where
+  isom : Iso (Σ (A → B) (λ _ → B → A)) (A ≃ B)
+  isom .fun (f , g) = propBiimpl→Equiv Aprop Bprop f g
+  isom .inv e = equivFun e , invEq e
+  isom .rightInv e = equivEq refl
+  isom .leftInv _ = refl
 
 equivΠCod : ∀ {F : A → Type ℓ} {G : A → Type ℓ'}
         → ((x : A) → F x ≃ G x) → ((x : A) → F x) ≃ ((x : A) → G x)
@@ -174,15 +184,23 @@ equivImplicitΠCod k .snd .equiv-proof f .snd (g , p) i .fst {x} =
 equivImplicitΠCod k .snd .equiv-proof f .snd (g , p) i .snd j {x} =
   equivCtrPath (k {x}) (f {x}) (g {x} , λ k → p k {x}) i .snd j
 
+equiv→Iso : (A ≃ B) → (C ≃ D) → Iso (A → C) (B → D)
+equiv→Iso h k .Iso.fun f b = equivFun k (f (invEq h b))
+equiv→Iso h k .Iso.inv g a = invEq k (g (equivFun h a))
+equiv→Iso h k .Iso.rightInv g = funExt λ b → retEq k _ ∙ cong g (retEq h b)
+equiv→Iso h k .Iso.leftInv f = funExt λ a → secEq k _ ∙ cong f (secEq h a)
+
 equiv→ : (A ≃ B) → (C ≃ D) → (A → C) ≃ (B → D)
-equiv→ h k = isoToEquiv isom
-  where
-  open Iso
-  isom : Iso _ _
-  isom .fun f b = equivFun k (f (invEq h b))
-  isom .inv g a = invEq k (g (equivFun h a))
-  isom .rightInv g = funExt λ b → retEq k _ ∙ cong g (retEq h b)
-  isom .leftInv f = funExt λ a → secEq k _ ∙ cong f (secEq h a)
+equiv→ h k = isoToEquiv (equiv→Iso h k)
+
+equivCompIso : (A ≃ B) → (C ≃ D) → Iso (A ≃ C) (B ≃ D)
+equivCompIso h k .Iso.fun f = compEquiv (compEquiv (invEquiv h) f) k
+equivCompIso h k .Iso.inv g = compEquiv (compEquiv h g) (invEquiv k)
+equivCompIso h k .Iso.rightInv g = equivEq (equiv→Iso h k .Iso.rightInv (equivFun g))
+equivCompIso h k .Iso.leftInv f = equivEq (equiv→Iso h k .Iso.leftInv (equivFun f))
+
+equivComp : (A ≃ B) → (C ≃ D) → (A ≃ C) ≃ (B ≃ D)
+equivComp h k = isoToEquiv (equivCompIso h k)
 
 -- Some helpful notation:
 _≃⟨_⟩_ : (X : Type ℓ) → (X ≃ B) → (B ≃ C) → (X ≃ C)
