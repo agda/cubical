@@ -236,5 +236,7 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
                    (equivFun (uaᴰρB' _ _))
                    (G a)
 
+    -- DUARelFiberIsoOver→TotalIso produces an isomorphism of total spaces
+    -- from a relational isomorphism between B a and (F * B) a
     DUARelFiberIsoOver→TotalIso : Iso (Σ A B) (Σ A' B')
     DUARelFiberIsoOver→TotalIso = Σ-cong-iso F fiberIsoOver
