@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence using (pathToEquiv)
 
 open import Cubical.Functions.FunExtEquiv
 
@@ -50,20 +51,76 @@ module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) {B : A → Type ℓB} (𝒮�
       (equivΠCod λ a → uaᴰρ (f a) (f' a))
       funExtEquiv
 
+
 -- induction principles
 
 module _ {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : UARel A ℓ≅A) where
   open UARel 𝒮-A
   J-UARel : {a : A}
-            (P : (a' : A) → {p : a ≡ a'} → Type ℓ)
-            (d : P a {refl})
+            (P : (a' : A) → (p : a ≡ a') → Type ℓ)
+            (d : P a refl)
             {a' : A}
             (p : a ≅ a')
-            → P a' {≅→≡ p}
+            → P a' (≅→≡ p)
   J-UARel {a} P d {a'} p
-    = J (λ y q → P y {q})
+    = J (λ y q → P y q)
         d
         (≅→≡ p)
+
+  J-UARel-2 : {a : A}
+            (P : (a' : A) → (p : a ≅ a') → Type ℓ)
+            (d : P a (ρ a))
+            {a' : A}
+            (p : a ≅ a')
+            → P a' p
+  J-UARel-2 {a = a} P d {a'} p
+    = subst (λ r → P a' r) (Iso.leftInv (uaIso a a') p) g
+    where
+      g : P a' (≡→≅ (≅→≡ p))
+      g = J (λ y q → P y (≡→≅ q)) d (≅→≡ p)
+
+
+
+
+-- constructors
+
+module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
+  {B : A → Type ℓB}
+  (_≅ᴰ⟨_⟩_ : {a a' : A} → B a → UARel._≅_ 𝒮-A a a' → B a' → Type ℓ≅B)
+  where
+
+    open UARel 𝒮-A
+
+    -- constructor that reduces ua to the case where p = ρ a by induction on p
+    private
+      make-𝒮ᴰ-1-aux : (uni : {a : A} (b b' : B a) → b ≅ᴰ⟨ ρ a ⟩ b' ≃ (b ≡ b'))
+                    → ({a a' : A} (b : B a) (p : a ≅ a') (b' : B a') → (b ≅ᴰ⟨ p ⟩ b') ≃ PathP (λ i → B (≅→≡ p i)) b b')
+      make-𝒮ᴰ-1-aux uni {a} {a'} b p
+        = J-UARel-2 𝒮-A
+                    (λ y q → (b' : B y) → (b ≅ᴰ⟨ q ⟩ b') ≃ PathP (λ i → B (≅→≡ q i)) b b')
+                    (λ b' → uni' b')
+                    p
+        where
+          g : (b' : B a) → (b ≡ b') ≡ PathP (λ i → B (≅→≡ (ρ a) i)) b b'
+          g b' = subst (λ r → (b ≡ b') ≡ PathP (λ i → B (r i)) b b')
+                       (sym (Iso.rightInv (uaIso a a) refl))
+                       refl
+          uni' : (b' : B a) → b ≅ᴰ⟨ ρ a ⟩ b' ≃ PathP (λ i → B (≅→≡ (ρ a) i)) b b'
+          uni' b' = compEquiv (uni b b') (pathToEquiv (g b'))
+
+    make-𝒮ᴰ-1 : (uni : {a : A} (b b' : B a) → b ≅ᴰ⟨ ρ a ⟩ b' ≃ (b ≡ b'))
+                → DUARel 𝒮-A B ℓ≅B
+    DUARel._≅ᴰ⟨_⟩_ (make-𝒮ᴰ-1 uni) = _≅ᴰ⟨_⟩_
+    DUARel.uaᴰ (make-𝒮ᴰ-1 uni) = make-𝒮ᴰ-1-aux uni
+
+    -- constructor that reduces univalence further to contractibility of relational singletons
+
+    make-𝒮ᴰ-2 : (ρᴰ : {a : A} → isRefl _≅ᴰ⟨ ρ a ⟩_)
+                (contrTotal : (a : A) → contrRelSingl _≅ᴰ⟨ UARel.ρ 𝒮-A a ⟩_)
+                → DUARel 𝒮-A B ℓ≅B
+    DUARel._≅ᴰ⟨_⟩_ (make-𝒮ᴰ-2 ρᴰ contrTotal) = _≅ᴰ⟨_⟩_
+    DUARel.uaᴰ (make-𝒮ᴰ-2 ρᴰ contrTotal)
+      = make-𝒮ᴰ-1-aux (contrRelSingl→isUnivalent _ ρᴰ (contrTotal _))
 
 
 -- lifts

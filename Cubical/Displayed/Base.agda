@@ -23,12 +23,17 @@ record UARel (A : Type ℓA) (ℓ≅A : Level) : Type (ℓ-max ℓA (ℓ-suc ℓ
   field
     _≅_ : A → A → Type ℓ≅A
     ua : (a a' : A) → (a ≅ a') ≃ (a ≡ a')
-  ρ : (a : A) → a ≅ a
-  ρ a = invEq (ua a a) refl
+
+  uaIso : (a a' : A) → Iso (a ≅ a') (a ≡ a')
+  uaIso a a' = equivToIso (ua a a')
+
   ≅→≡ : {a a' : A} (p : a ≅ a') → a ≡ a'
-  ≅→≡ {a} {a'} p = equivFun (ua a a') p
+  ≅→≡ {a} {a'} = Iso.fun (uaIso a a')
   ≡→≅ : {a a' : A} (p : a ≡ a') → a ≅ a'
-  ≡→≅ {a} {a'} p = equivFun (invEquiv (ua a a')) p
+  ≡→≅ {a} {a'} = Iso.inv (uaIso a a')
+
+  ρ : (a : A) → a ≅ a
+  ρ a = ≡→≅ refl
 
 open BinaryRelation
 
@@ -60,15 +65,3 @@ record DUARel {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : UARel A ℓ≅A)
   ρᴰ : {a : A} → (b : B a) → b ≅ᴰ⟨ ρ a ⟩ b
   ρᴰ {a} b = invEq (uaᴰρ b b) refl
 
--- Not sure if useful for this definition
-{-
-make-𝒮ᴰ : {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
-          {B : A → Type ℓB}
-          (_≅ᴰ⟨_⟩_ : {a a' : A} → B a → UARel._≅_ 𝒮-A a a' → B a' → Type ℓ≅B)
-          (ρᴰ : {a : A} → isRefl _≅ᴰ⟨ UARel.ρ 𝒮-A a ⟩_)
-          (contrTotal : (a : A) → contrRelSingl _≅ᴰ⟨ UARel.ρ 𝒮-A a ⟩_)
-          → DUARel 𝒮-A B ℓ≅B
-DUARel._≅ᴰ⟨_⟩_ (make-𝒮ᴰ _≅ᴰ⟨_⟩_ ρᴰ contrTotal) = _≅ᴰ⟨_⟩_
-DUARel.uaᴰ (make-𝒮ᴰ {𝒮-A = 𝒮-A} _≅ᴰ⟨_⟩_ ρᴰ contrTotal) {a} b b'
-  = contrRelSingl→isUnivalent (_≅ᴰ⟨ UARel.ρ 𝒮-A a ⟩_) (ρᴰ {a}) (contrTotal a) b b'
--}
