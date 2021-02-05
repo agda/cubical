@@ -110,9 +110,9 @@ module _ ((G , str) : Group {ℓ}) where
                → Square p₀₋ p₁₋ p₋₀ p₋₁
       fst (lemma₂ p₀₋ p₁₋ p₋₀ p₋₁ s i j) = s i j
       snd (lemma₂ p₀₋ p₁₋ p₋₀ p₋₁ s i j) =
-        isSet→SquareP
+        isSet→SquareP {A = (λ i j → isSet (s i j))}
           (λ i j → isProp→isSet (isPropIsOfHLevel 2))
-          (cong snd p₀₋) (cong snd p₁₋) (cong snd p₋₀) (cong snd p₋₁) i j   {- fix? -}
+          (cong snd p₀₋) (cong snd p₁₋) (cong snd p₋₀) (cong snd p₋₁) i j
 {-        isSet→isSetDep (λ X → isProp→isSet (isPropIsOfHLevel {A = X} 2))
           (cong fst p₀₋) (cong fst p₁₋) (cong fst p₋₀) (cong fst p₋₁) s
           (cong snd p₀₋) (cong snd p₁₋) (cong snd p₋₀) (cong snd p₋₁) i j
