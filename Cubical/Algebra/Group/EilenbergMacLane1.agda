@@ -113,10 +113,7 @@ module _ ((G , str) : Group {ℓ}) where
         isSet→SquareP {A = (λ i j → isSet (s i j))}
           (λ i j → isProp→isSet (isPropIsOfHLevel 2))
           (cong snd p₀₋) (cong snd p₁₋) (cong snd p₋₀) (cong snd p₋₁) i j
-{-        isSet→isSetDep (λ X → isProp→isSet (isPropIsOfHLevel {A = X} 2))
-          (cong fst p₀₋) (cong fst p₁₋) (cong fst p₋₀) (cong fst p₋₁) s
-          (cong snd p₀₋) (cong snd p₁₋) (cong snd p₋₀) (cong snd p₋₁) i j
--}
+
 {-
       REComp : (g h : G) → Square (RE g) (RE (g + h)) refl (RE h)
       REComp g h = lemma₂ (RE g) (RE (g + h)) refl (RE h) (lemma₁ g h)
