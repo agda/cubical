@@ -9,6 +9,8 @@ open import Cubical.Foundations.Univalence using (pathToEquiv)
 
 open import Cubical.Functions.FunExtEquiv
 
+open import Cubical.Data.Unit
+open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary
@@ -18,7 +20,7 @@ open import Cubical.Displayed.Base
 
 private
   variable
-    ℓ ℓA ℓA' ℓ≅A ℓ≅A' ℓB ℓB' ℓ≅B ℓ≅B' ℓC ℓ≅C : Level
+    ℓ ℓA ℓA' ℓP ℓ≅A ℓ≅A' ℓB ℓB' ℓ≅B ℓ≅B' ℓC ℓ≅C : Level
 
 -- UARel on Σ-type
 
@@ -44,9 +46,9 @@ module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) {B : A → Type ℓB} (𝒮�
   open UARel 𝒮-A
   open DUARel 𝒮ᴰ-B
 
-  DUARel→Π-UARel : UARel ((a : A) → B a) (ℓ-max ℓA ℓ≅B)
-  UARel._≅_ DUARel→Π-UARel f f' = ∀ a → f a ≅ᴰ⟨ ρ a ⟩ f' a
-  UARel.ua DUARel→Π-UARel f f' =
+  𝒮ᴰ→𝒮-Π : UARel ((a : A) → B a) (ℓ-max ℓA ℓ≅B)
+  UARel._≅_ 𝒮ᴰ→𝒮-Π f f' = ∀ a → f a ≅ᴰ⟨ ρ a ⟩ f' a
+  UARel.ua 𝒮ᴰ→𝒮-Π f f' =
     compEquiv
       (equivΠCod λ a → uaᴰρ (f a) (f' a))
       funExtEquiv
@@ -56,30 +58,28 @@ module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) {B : A → Type ℓB} (𝒮�
 
 module _ {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : UARel A ℓ≅A) where
   open UARel 𝒮-A
-  J-UARel : {a : A}
-            (P : (a' : A) → (p : a ≡ a') → Type ℓ)
-            (d : P a refl)
-            {a' : A}
-            (p : a ≅ a')
-            → P a' (≅→≡ p)
-  J-UARel {a} P d {a'} p
+  𝒮-J : {a : A}
+        (P : (a' : A) → (p : a ≡ a') → Type ℓ)
+        (d : P a refl)
+        {a' : A}
+        (p : a ≅ a')
+        → P a' (≅→≡ p)
+  𝒮-J {a} P d {a'} p
     = J (λ y q → P y q)
         d
         (≅→≡ p)
 
-  J-UARel-2 : {a : A}
+  𝒮-J-2 : {a : A}
             (P : (a' : A) → (p : a ≅ a') → Type ℓ)
             (d : P a (ρ a))
             {a' : A}
             (p : a ≅ a')
             → P a' p
-  J-UARel-2 {a = a} P d {a'} p
+  𝒮-J-2 {a = a} P d {a'} p
     = subst (λ r → P a' r) (Iso.leftInv (uaIso a a') p) g
     where
       g : P a' (≡→≅ (≅→≡ p))
       g = J (λ y q → P y (≡→≅ q)) d (≅→≡ p)
-
-
 
 
 -- constructors
@@ -93,10 +93,10 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
 
     -- constructor that reduces ua to the case where p = ρ a by induction on p
     private
-      make-𝒮ᴰ-1-aux : (uni : {a : A} (b b' : B a) → b ≅ᴰ⟨ ρ a ⟩ b' ≃ (b ≡ b'))
+      𝒮ᴰ-make-aux : (uni : {a : A} (b b' : B a) → b ≅ᴰ⟨ ρ a ⟩ b' ≃ (b ≡ b'))
                     → ({a a' : A} (b : B a) (p : a ≅ a') (b' : B a') → (b ≅ᴰ⟨ p ⟩ b') ≃ PathP (λ i → B (≅→≡ p i)) b b')
-      make-𝒮ᴰ-1-aux uni {a} {a'} b p
-        = J-UARel-2 𝒮-A
+      𝒮ᴰ-make-aux uni {a} {a'} b p
+        = 𝒮-J-2 𝒮-A
                     (λ y q → (b' : B y) → (b ≅ᴰ⟨ q ⟩ b') ≃ PathP (λ i → B (≅→≡ q i)) b b')
                     (λ b' → uni' b')
                     p
@@ -108,19 +108,19 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
           uni' : (b' : B a) → b ≅ᴰ⟨ ρ a ⟩ b' ≃ PathP (λ i → B (≅→≡ (ρ a) i)) b b'
           uni' b' = compEquiv (uni b b') (pathToEquiv (g b'))
 
-    make-𝒮ᴰ-1 : (uni : {a : A} (b b' : B a) → b ≅ᴰ⟨ ρ a ⟩ b' ≃ (b ≡ b'))
+    𝒮ᴰ-make-1 : (uni : {a : A} (b b' : B a) → b ≅ᴰ⟨ ρ a ⟩ b' ≃ (b ≡ b'))
                 → DUARel 𝒮-A B ℓ≅B
-    DUARel._≅ᴰ⟨_⟩_ (make-𝒮ᴰ-1 uni) = _≅ᴰ⟨_⟩_
-    DUARel.uaᴰ (make-𝒮ᴰ-1 uni) = make-𝒮ᴰ-1-aux uni
+    DUARel._≅ᴰ⟨_⟩_ (𝒮ᴰ-make-1 uni) = _≅ᴰ⟨_⟩_
+    DUARel.uaᴰ (𝒮ᴰ-make-1 uni) = 𝒮ᴰ-make-aux uni
 
     -- constructor that reduces univalence further to contractibility of relational singletons
 
-    make-𝒮ᴰ-2 : (ρᴰ : {a : A} → isRefl _≅ᴰ⟨ ρ a ⟩_)
+    𝒮ᴰ-make-2 : (ρᴰ : {a : A} → isRefl _≅ᴰ⟨ ρ a ⟩_)
                 (contrTotal : (a : A) → contrRelSingl _≅ᴰ⟨ UARel.ρ 𝒮-A a ⟩_)
                 → DUARel 𝒮-A B ℓ≅B
-    DUARel._≅ᴰ⟨_⟩_ (make-𝒮ᴰ-2 ρᴰ contrTotal) = _≅ᴰ⟨_⟩_
-    DUARel.uaᴰ (make-𝒮ᴰ-2 ρᴰ contrTotal)
-      = make-𝒮ᴰ-1-aux (contrRelSingl→isUnivalent _ ρᴰ (contrTotal _))
+    DUARel._≅ᴰ⟨_⟩_ (𝒮ᴰ-make-2 ρᴰ contrTotal) = _≅ᴰ⟨_⟩_
+    DUARel.uaᴰ (𝒮ᴰ-make-2 ρᴰ contrTotal)
+      = 𝒮ᴰ-make-aux (contrRelSingl→isUnivalent _ ρᴰ (contrTotal _))
 
 
 -- lifts
@@ -186,15 +186,13 @@ module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
   _×𝒮_ : UARel (A × B) (ℓ-max ℓ≅A ℓ≅B)
   _×𝒮_ = ∫ 𝒮ᴰ-const
 
-
-
 -- relational isomorphisms
 
-UARelIso→Iso : {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
+𝒮-iso→iso : {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
                {B : Type ℓB} (𝒮-B : UARel B ℓ≅B)
                (F : RelIso (UARel._≅_ 𝒮-A) (UARel._≅_ 𝒮-B))
                → Iso A B
-UARelIso→Iso 𝒮-A 𝒮-B F
+𝒮-iso→iso 𝒮-A 𝒮-B F
   = RelIso→Iso (UARel._≅_ 𝒮-A)
                (UARel._≅_ 𝒮-B)
                (UARel.≅→≡ 𝒮-A)
@@ -219,24 +217,42 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
                              ; fiberRel to fiberRelB'
                              ; uaᴰρ to uaᴰρB')
 
-  f = Iso.fun F
+  private
+    f = Iso.fun F
 
-  -- the following can of course be done slightly more generally
-  -- for fiberwise binary relations
+    -- the following can of course be done slightly more generally
+    -- for fiberwise binary relations
 
-  F*fiberRelB' : (a : A) → Rel (B' (f a)) (B' (f a)) ℓ≅B'
-  F*fiberRelB' a = fiberRelB' (f a)
+    F*fiberRelB' : (a : A) → Rel (B' (f a)) (B' (f a)) ℓ≅B'
+    F*fiberRelB' a = fiberRelB' (f a)
 
   module _ (G : (a : A) → RelIso (fiberRelB a) (F*fiberRelB' a)) where
-    fiberIsoOver : (a : A) → Iso (B a) (B' (f a))
-    fiberIsoOver a
-      = RelIso→Iso (fiberRelB a)
-                   (F*fiberRelB' a)
-                   (equivFun (uaᴰρB _ _))
-                   (equivFun (uaᴰρB' _ _))
-                   (G a)
+    private
+      fiberIsoOver : (a : A) → Iso (B a) (B' (f a))
+      fiberIsoOver a
+        = RelIso→Iso (fiberRelB a)
+                     (F*fiberRelB' a)
+                     (equivFun (uaᴰρB _ _))
+                     (equivFun (uaᴰρB' _ _))
+                     (G a)
 
     -- DUARelFiberIsoOver→TotalIso produces an isomorphism of total spaces
     -- from a relational isomorphism between B a and (F * B) a
-    DUARelFiberIsoOver→TotalIso : Iso (Σ A B) (Σ A' B')
-    DUARelFiberIsoOver→TotalIso = Σ-cong-iso F fiberIsoOver
+    𝒮ᴰ-fiberIsoOver→totalIso : Iso (Σ A B) (Σ A' B')
+    𝒮ᴰ-fiberIsoOver→totalIso = Σ-cong-iso F fiberIsoOver
+
+
+-- Special cases:
+-- Subtypes
+𝒮-type : (A : Type ℓ) → UARel A ℓ
+UARel._≅_ (𝒮-type A) = _≡_
+UARel.ua (𝒮-type A) a a' = idEquiv (a ≡ a')
+
+module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) where
+  𝒮ᴰ-subtype : (P : A → hProp ℓP) → DUARel 𝒮-A (λ a → P a .fst) ℓ-zero
+  𝒮ᴰ-subtype P
+    = 𝒮ᴰ-make-2 (λ _ _ _ → Unit)
+                (λ _ → tt)
+                λ a p → isOfHLevelRespectEquiv 0
+                                               (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
+                                               (inhProp→isContr p (P a .snd))
