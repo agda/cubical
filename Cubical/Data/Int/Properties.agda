@@ -35,7 +35,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Empty
-open import Cubical.Data.Nat hiding (_+_ ; +-assoc ; +-comm)
+open import Cubical.Data.Nat hiding (+-assoc ; +-comm) renaming (_·_ to _·ℕ_; _+_ to _+ℕ_)
 open import Cubical.Data.Bool
 open import Cubical.Data.Sum
 open import Cubical.Data.Int.Base
@@ -104,6 +104,13 @@ discreteInt (negsuc n) (negsuc m) with discreteℕ n m
 isSetInt : isSet Int
 isSetInt = Discrete→isSet discreteInt
 
+isEven : Int → Bool
+isEven (pos zero) = true
+isEven (pos (suc zero)) = false
+isEven (pos (suc (suc n))) = isEven (pos n)
+isEven (negsuc zero) = false
+isEven (negsuc (suc n)) = isEven (pos n)
+
 _ℕ-_ : ℕ → ℕ → Int
 a ℕ- 0 = pos a
 0 ℕ- suc b = negsuc b
@@ -120,6 +127,11 @@ z +negsuc (suc n) = predInt (z +negsuc n)
 _+_ : Int → Int → Int
 m + pos n = m +pos n
 m + negsuc n = m +negsuc n
+
+-_ : Int → Int
+- pos zero = pos zero
+- pos (suc n) = negsuc n
+- negsuc n = pos (suc n)
 
 _-_ : Int → Int → Int
 m - pos zero    = m
@@ -287,3 +299,9 @@ private
                                        (λ n → n - m)
                                        (minusPlus m)
                                        (plusMinus m))
+
+_·_ : Int → Int → Int
+pos zero · m = pos zero
+pos (suc n) · m = m + (pos n · m)
+negsuc zero · m = (- m)
+negsuc (suc n) · m = (- m) + ((negsuc n) · m)

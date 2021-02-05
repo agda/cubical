@@ -3,10 +3,9 @@ module Cubical.ZCohomology.Groups.Sn where
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.MayerVietorisUnreduced
 open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Connected
-open import Cubical.ZCohomology.KcompPrelims
+open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Groups.Prelims
 
 open import Cubical.Foundations.HLevels
@@ -23,7 +22,12 @@ open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2 ; map to sMap)
-open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁) hiding (map)
+open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁)
+  hiding (map)
+
+open import Cubical.Relation.Nullary
+open import Cubical.Data.Sum hiding (map)
+open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
@@ -50,6 +54,59 @@ Sn-connected : (n : ℕ) (x : typ (S₊∙ (suc n))) → ∥ pt (S₊∙ (suc n)
 Sn-connected zero = toPropElim (λ _ → propTruncIsProp) ∣ refl ∣₁
 Sn-connected (suc zero) = suspToPropElim base (λ _ → propTruncIsProp) ∣ refl ∣₁
 Sn-connected (suc (suc n)) = suspToPropElim north (λ _ → propTruncIsProp) ∣ refl ∣₁
+
+suspensionAx-Sn : (n m : ℕ) → GroupIso (coHomGr (2 + n) (S₊ (2 + m)))
+                                         (coHomGr (suc n) (S₊ (suc m)))
+suspensionAx-Sn n m =
+  Iso+Hom→GrIso
+    (compIso (setTruncIso (invIso funSpaceSuspIso)) helperIso)
+    funIsHom
+  where
+  helperIso : Iso ∥ (Σ[ x ∈ coHomK (2 + n) ]
+                  Σ[ y ∈ coHomK (2 + n) ]
+                   (S₊ (suc m) → x ≡ y)) ∥₂
+              (coHom (suc n) (S₊ (suc m)))
+  Iso.fun helperIso =
+    sRec setTruncIsSet
+         (uncurry
+           (coHomK-elim _
+             (λ _ → isOfHLevelΠ (2 + n)
+                λ _ → isOfHLevelPlus' {n = n} 2 setTruncIsSet)
+             (uncurry
+               (coHomK-elim _
+                 (λ _ → isOfHLevelΠ (2 + n)
+                    λ _ → isOfHLevelPlus' {n = n} 2 setTruncIsSet)
+                 λ f → ∣ (λ x → ΩKn+1→Kn (suc n) (f x)) ∣₂))))
+  Iso.inv helperIso =
+    sMap λ f → (0ₖ _) , (0ₖ _ , λ x → Kn→ΩKn+1 (suc n) (f x))
+  Iso.rightInv helperIso =
+    coHomPointedElim _ (ptSn (suc m)) (λ _ → setTruncIsSet _ _)
+      λ f fId → cong ∣_∣₂ (funExt (λ x → Iso.leftInv (Iso-Kn-ΩKn+1 _) (f x)))
+  Iso.leftInv helperIso =
+    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+      (uncurry
+        (coHomK-elim _
+          (λ _ → isProp→isOfHLevelSuc (suc n) (isPropΠ λ _ → setTruncIsSet _ _))
+          (uncurry
+            (coHomK-elim _
+              (λ _ → isProp→isOfHLevelSuc (suc n) (isPropΠ λ _ → setTruncIsSet _ _))
+              λ f → cong ∣_∣₂
+                      (ΣPathP (refl ,
+                        ΣPathP (refl ,
+                          (λ i x → Iso.rightInv (Iso-Kn-ΩKn+1 (suc n)) (f x) i))))))))
+
+  theFun : coHom (2 + n) (S₊ (2 + m)) → coHom (suc n) (S₊ (suc m))
+  theFun = Iso.fun (compIso (setTruncIso (invIso funSpaceSuspIso))
+                             helperIso)
+
+  funIsHom : (x y : coHom (2 + n) (S₊ (2 + m)))
+          → theFun (x +ₕ y) ≡ theFun x +ₕ theFun y
+  funIsHom =
+    coHomPointedElimSⁿ _ _ (λ _ → isPropΠ λ _ → setTruncIsSet _ _)
+      λ f → coHomPointedElimSⁿ _ _ (λ _ → setTruncIsSet _ _)
+        λ g → cong ∣_∣₂ (funExt λ x → cong (ΩKn+1→Kn (suc n)) (sym (∙≡+₂ n (f x) (g x)))
+                                    ∙ ΩKn+1→Kn-hom (suc n) (f x) (g x))
+
 
 H⁰-Sⁿ≅ℤ : (n : ℕ) → GroupIso (coHomGr 0 (S₊ (suc n))) intGroup
 H⁰-Sⁿ≅ℤ zero = H⁰-connected base (Sn-connected 0)
@@ -81,7 +138,7 @@ S0→Int a false = snd a
 H⁰-S⁰≅ℤ×ℤ : GroupIso (coHomGr 0 (S₊ 0)) (dirProd intGroup intGroup)
 fun (map H⁰-S⁰≅ℤ×ℤ) = sRec (isSet× isSetInt isSetInt) λ f → (f true) , (f false)
 isHom (map H⁰-S⁰≅ℤ×ℤ) = sElim2 (λ _ _ → isSet→isGroupoid (isSet× isSetInt isSetInt) _ _)
-                                λ a b i → addLemma (a true) (b true) i , addLemma (a false) (b false) i
+                                λ a b → refl
 inv H⁰-S⁰≅ℤ×ℤ a = ∣ S0→Int a ∣₂
 rightInv H⁰-S⁰≅ℤ×ℤ _ = refl
 leftInv H⁰-S⁰≅ℤ×ℤ = sElim (λ _ → isSet→isGroupoid setTruncIsSet _ _)
@@ -188,19 +245,15 @@ H¹-Sⁿ≅0 (suc n) = IsoContrGroupTrivialGroup isContrH¹S³⁺ⁿ
       (∣ (λ _ → ∣ ∣ base ∣ ∣) ∣₂
       , sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _) isContrH¹S³⁺ⁿ-ish)
 
---------- Direct proof of H¹(S¹) ≅ ℤ without Mayer-Vietoris -------
-
--- The strategy is to use the proof that ΩS¹ ≃ ℤ. Since we only have this for S¹ with the base/loop definition
--- we begin with some functions translating between H¹(S₊ 1) and ∥ S¹ → S¹ ∥₀.  The latter type is easy to characterise,
--- by (S¹ → S¹) ≃ S¹ × ℤ (see Cubical.ZCohomology.Groups.Prelims). Truncating this leaves only ℤ, since S¹ is connected.
-
--- The translation mentioned above uses the basechange function. We use basechange-lemma (Cubical.ZCohomology.Groups.Prelims) to prove the basechange2⁻ preserves
--- path composition (in a more general sense than what is proved in basechange2⁻-morph)
-
--- We can now give the group equivalence. The first bit is just a big composition of our previously defined translations and is pretty uninteresting.
--- The harder step is proving that the equivalence is a morphism. This relies heavily on the fact that addition the cohomology groups essentially is defined using an
--- application of cong₂, which allows us to use basechange-lemma.
-
+--------- H¹(S¹) ≅ ℤ -------
+{-
+Idea :
+H¹(S¹) := ∥ S¹ → K₁ ∥₂
+        ≃ ∥ S¹ → S¹ ∥₂
+        ≃ ∥ S¹ × ℤ ∥₂
+        ≃ ∥ S¹ ∥₂ × ∥ ℤ ∥₂
+        ≃ ℤ
+-}
 coHom1S1≃ℤ : GroupIso (coHomGr 1 (S₊ 1)) intGroup
 coHom1S1≃ℤ = theIso
   where
@@ -209,37 +262,17 @@ coHom1S1≃ℤ = theIso
 
   theIso : GroupIso (coHomGr 1 (S₊ 1)) intGroup
   fun (map theIso) = sRec isSetInt (λ f → snd (F f))
-  isHom (map theIso) = sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _)
-                              λ f g → ((λ i → winding (guy (ΩKn+1→Kn 1 (Kn→ΩKn+1 1 (f base) ∙ Kn→ΩKn+1 1 (g base)))
-                                              (λ i → S¹map (ΩKn+1→Kn 1 (Kn→ΩKn+1 1 (f (loop i)) ∙ Kn→ΩKn+1 1 (g (loop i))))))))
-                                   ∙∙ cong winding (helper (f base) (g base) f g refl refl)
-                                   ∙∙ winding-hom (guy (f base) (λ i → S¹map (f (loop i))))
-                                                  (guy (g base) (λ i → S¹map (g (loop i))))
+  isHom (map theIso) =
+    coHomPointedElimS¹2 _ (λ _ _ → isSetInt _ _)
+      λ p q → (λ i → winding (guy ∣ base ∣ (cong S¹map (help p q i))))
+            ∙∙ (λ i → winding (guy ∣ base ∣ (congFunct S¹map p q i)))
+            ∙∙ winding-hom (guy ∣ base ∣ (cong S¹map p))
+                           (guy ∣ base ∣ (cong S¹map q))
+
     where
     guy = basechange2⁻ ∘ S¹map
-
-    helper : (x y : coHomK 1) (f g : S₊ 1 → coHomK 1)
-           → (f base) ≡ x
-           → (g base) ≡ y
-           → (guy (ΩKn+1→Kn 1 (Kn→ΩKn+1 1 (f base) ∙ Kn→ΩKn+1 1 (g base)))
-                   (λ i → S¹map ((ΩKn+1→Kn 1 (Kn→ΩKn+1 1 (f (loop i)) ∙ Kn→ΩKn+1 1 (g (loop i)))))))
-             ≡ (guy (f base)
-                    (λ i → S¹map (f (loop i))))
-             ∙ (guy (g base)
-                    (λ i → S¹map ((g (loop i)))))
-    helper =
-      elim2 (λ _ _ → isGroupoidΠ4 λ _ _ _ _ → isOfHLevelPath 3 (isOfHLevelSuc 3 (isGroupoidS¹) base base) _ _)
-            (toPropElim2
-              (λ _ _ → isPropΠ4 λ _ _ _ _ → isGroupoidS¹ _ _ _ _)
-              λ f g reflf reflg →
-              basechange-lemma base base
-                (S¹map ∘ (ΩKn+1→Kn 1))
-                ((Kn→ΩKn+1 1) ∘ f) ((Kn→ΩKn+1 1) ∘ g)
-                (cong (Kn→ΩKn+1 1) reflf ∙ Kn→ΩKn+10ₖ 1) (cong (Kn→ΩKn+1 1) reflg ∙ Kn→ΩKn+10ₖ 1)
-              ∙ λ j → guy (Iso.leftInv (Iso-Kn-ΩKn+1 1) (f base) j)
-                          (λ i → S¹map (Iso.leftInv (Iso-Kn-ΩKn+1 1) (f (loop i)) j))
-                    ∙ guy (Iso.leftInv (Iso-Kn-ΩKn+1 1) (g base) j)
-                          (λ i → S¹map (Iso.leftInv (Iso-Kn-ΩKn+1 1) (g (loop i)) j)))
+    help : (p q : Path (coHomK 1) ∣ base ∣ ∣ base ∣) → cong₂ _+ₖ_ p q ≡ p ∙ q
+    help p q = cong₂Funct _+ₖ_ p q ∙ (λ i → cong (λ x → rUnitₖ 1 x i) p ∙ cong (λ x → lUnitₖ 1 x i) q)
   inv theIso a = ∣ (F⁻ (base , a)) ∣₂
   rightInv theIso a = cong snd (Iso.rightInv S¹→S¹≡S¹×Int (base , a))
   leftInv theIso = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
@@ -249,140 +282,14 @@ coHom1S1≃ℤ = theIso
                               ∙ cong ∣_∣₂ (Iso.leftInv S¹→S¹≡S¹×Int f)
 
 ---------------------------- Hⁿ(Sⁿ) ≅ ℤ , n ≥ 1 -------------------
+Hⁿ-Sⁿ≅ℤ : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ (suc n))) intGroup
+Hⁿ-Sⁿ≅ℤ zero = coHom1S1≃ℤ
+Hⁿ-Sⁿ≅ℤ (suc n) = suspensionAx-Sn n n □ Hⁿ-Sⁿ≅ℤ n
 
-Hⁿ-Sⁿ≅ℤ : (n : ℕ) → GroupIso intGroup (coHomGr (suc n) (S₊ (suc n)))
-Hⁿ-Sⁿ≅ℤ zero = invGroupIso coHom1S1≃ℤ
-Hⁿ-Sⁿ≅ℤ (suc n) =
-    Hⁿ-Sⁿ≅ℤ n
-  □ vSES→GroupIso _ _ theIso
-  □ invGroupIso (coHomPushout≅coHomSn (suc n) (suc (suc n)))
-  where
-  module K = MV Unit Unit (S₊ (suc n)) (λ _ → tt) (λ _ → tt)
-  theIso : vSES (coHomGr (suc n) (S₊ (suc n))) (coHomGr (suc (suc n))
-                (Pushout {A = S₊ (suc n)} (λ _ → tt) (λ _ → tt)))
-                _
-                _
-  isTrivialLeft theIso p q = ΣPathP (isOfHLevelSuc 0 (isContrHⁿ-Unit n) (fst p) (fst q)
-                                        , isOfHLevelSuc 0 (isContrHⁿ-Unit n) (snd p) (snd q))
-  isTrivialRight theIso p q = ΣPathP (isOfHLevelSuc 0 (isContrHⁿ-Unit (suc n)) (fst p) (fst q)
-                                         , isOfHLevelSuc 0 (isContrHⁿ-Unit (suc n)) (snd p) (snd q))
-  left theIso = K.Δ (suc n)
-  right theIso = K.i (2 + n)
-  vSES.ϕ theIso = K.d (suc n)
-  Ker-ϕ⊂Im-left theIso = K.Ker-d⊂Im-Δ  (suc n)
-  Ker-right⊂Im-ϕ theIso = K.Ker-i⊂Im-d (suc n)
-
-
-
-
-{- More standard proof of H¹(S¹) ≅ ℤ using Mayer-Vietoris.
-This is much slower than the direct proof, but let's keep it here for completeness.
-
--- --------------------------H¹(S¹) -----------------------------------
-{-
-In order to apply Mayer-Vietoris, we need the following lemma.
-Given the following diagram
-  a ↦ (a , 0)   ψ         ϕ
- A -->  A × A -------> B --->  C
-If ψ is an isomorphism and ϕ is surjective with ker ϕ ≡ {ψ (a , a) ∣ a ∈ A}, then C ≅ B
--}
-
-
-diagonalIso : ∀ {ℓ ℓ' ℓ''} {A : Group {ℓ}} (B : Group {ℓ'}) {C : Group {ℓ''}}
-               (ψ : GroupIso (dirProd A A) B) (ϕ : GroupHom B C)
-             → isSurjective _ _ ϕ
-             → ((x : ⟨ B ⟩) → isInKer B C ϕ x
-                                    → ∃[ y ∈ ⟨ A ⟩ ] x ≡ (fun (map ψ)) (y , y))
-             → ((x : ⟨ B ⟩) → (∃[ y ∈ ⟨ A ⟩ ] x ≡ (fun (map ψ)) (y , y))
-                                    → isInKer B C ϕ x)
-             → GroupIso A C
-diagonalIso {A = A} B {C = C} ψ ϕ issurj ker→diag diag→ker = BijectionIsoToGroupIso bijIso
-  where
-  open GroupStr
-  module A = GroupStr (snd A)
-  module B = GroupStr (snd B)
-  module C = GroupStr (snd C)
-  module A×A = GroupStr (snd (dirProd A A))
-  module ψ = GroupIso ψ
-  module ϕ = GroupHom ϕ
-  ψ⁻ = inv ψ
-
-  fstProj : GroupHom A (dirProd A A)
-  fun fstProj a = a , GroupStr.0g (snd A)
-  isHom fstProj g0 g1 i = (g0 A.+ g1) , GroupStr.lid (snd A) (GroupStr.0g (snd A)) (~ i)
-
-  bijIso : BijectionIso A C
-  map' bijIso = compGroupHom fstProj (compGroupHom (map ψ) ϕ)
-  inj bijIso a inker = pRec (isSetCarrier A _ _)
-                             (λ {(a' , id) → (cong fst (sym (leftInv ψ (a , GroupStr.0g (snd A))) ∙∙ cong ψ⁻ id ∙∙ leftInv ψ (a' , a')))
-                                           ∙ cong snd (sym (leftInv ψ (a' , a')) ∙∙ cong ψ⁻ (sym id) ∙∙ leftInv ψ (a , GroupStr.0g (snd A)))})
-                             (ker→diag _ inker)
-  surj bijIso c =
-    pRec propTruncIsProp
-         (λ { (b , id) → ∣ (fst (ψ⁻ b) A.+ (A.- snd (ψ⁻ b)))
-                          , ((sym (GroupStr.rid (snd C) _)
-                           ∙∙ cong ((fun ϕ) ((fun (map ψ)) (fst (ψ⁻ b) A.+ (A.- snd (ψ⁻ b)) , GroupStr.0g (snd A))) C.+_)
-                                  (sym (diag→ker (fun (map ψ) ((snd (ψ⁻ b)) , (snd (ψ⁻ b))))
-                                                  ∣ (snd (ψ⁻ b)) , refl ∣₁))
-                           ∙∙ sym ((isHom ϕ) _ _))
-                           ∙∙ cong (fun ϕ) (sym ((isHom (map ψ)) _ _)
-                                        ∙∙ cong (fun (map ψ)) (ΣPathP (sym (GroupStr.assoc (snd A) _ _ _)
-                                                                           ∙∙ cong (fst (ψ⁻ b) A.+_) (GroupStr.invl (snd A) _)
-                                                                           ∙∙ GroupStr.rid (snd A) _
-                                                                        , (GroupStr.lid (snd A) _)))
-                                        ∙∙ rightInv ψ b)
-                           ∙∙ id) ∣₁ })
-         (issurj c)
-
-H¹-S¹≅ℤ : GroupIso intGroup (coHomGr 1 (S₊ 1))
-H¹-S¹≅ℤ =
-    diagonalIso (coHomGr 0 (S₊ 0))
-                (invGroupIso H⁰-S⁰≅ℤ×ℤ)
-                (K.d 0)
-                (λ x → K.Ker-i⊂Im-d 0 x
-                                     (ΣPathP (isOfHLevelSuc 0 (isContrHⁿ-Unit 0) _ _
-                                            , isOfHLevelSuc 0 (isContrHⁿ-Unit 0) _ _)))
-                ((sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
-                        (λ x inker
-                            → pRec propTruncIsProp
-                                    (λ {((f , g) , id') → helper x f g id' inker})
-                                    ((K.Ker-d⊂Im-Δ 0 ∣ x ∣₂ inker)))))
-                ((sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                         λ F surj
-                           → pRec (setTruncIsSet _ _)
-                                   (λ { (x , id) → K.Im-Δ⊂Ker-d 0 ∣ F ∣₂
-                                                      ∣ (∣ (λ _ → x) ∣₂ , ∣ (λ _ → 0) ∣₂) ,
-                                                       (cong ∣_∣₂ (funExt (surjHelper x))) ∙ sym id ∣₁ })
-                                   surj) )
-  □ invGroupIso (coHomPushout≅coHomSn 0 1)
-  where
-  module K = MV Unit Unit (S₊ 0) (λ _ → tt) (λ _ → tt)
-
-  surjHelper :  (x : Int) (x₁ : S₊ 0) → x -[ 0 ]ₖ 0 ≡ S0→Int (x , x) x₁
-  surjHelper x true = Iso.leftInv (Iso-Kn-ΩKn+1 0) x
-  surjHelper x false = Iso.leftInv (Iso-Kn-ΩKn+1 0) x
-
-  helper : (F : S₊ 0 → Int) (f g : ∥ (Unit → Int) ∥₂)
-           (id : GroupHom.fun (K.Δ 0) (f , g) ≡ ∣ F ∣₂)
-         → isInKer (coHomGr 0 (S₊ 0))
-                    (coHomGr 1 (Pushout (λ _ → tt) (λ _ → tt)))
-                    (K.d 0)
-                    ∣ F ∣₂
-         → ∃[ x ∈ Int ] ∣ F ∣₂ ≡ inv H⁰-S⁰≅ℤ×ℤ (x , x)
-  helper F =
-    sElim2 (λ _ _ → isOfHLevelΠ 2 λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
-           λ f g id inker
-             → pRec propTruncIsProp
-                     (λ ((a , b) , id2)
-                        → sElim2 {C = λ f g → GroupHom.fun (K.Δ 0) (f , g) ≡ ∣ F ∣₂ → _ }
-                                  (λ _ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
-                                  (λ f g id → ∣ (helper2 f g .fst) , (sym id ∙ sym (helper2 f g .snd)) ∣₁)
-                                  a b id2)
-                     (MV.Ker-d⊂Im-Δ _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0 ∣ F ∣₂ inker)
-    where
-    helper2 : (f g : Unit → Int)
-            → Σ[ x ∈ Int ] (inv H⁰-S⁰≅ℤ×ℤ (x , x))
-             ≡ GroupHom.fun (K.Δ 0) (∣ f ∣₂ , ∣ g ∣₂)
-    helper2 f g = (f _ -[ 0 ]ₖ g _) , cong ∣_∣₂ (funExt λ {true → refl ; false → refl})
-
--}
+-------------- Hⁿ(Sᵐ) ≅ ℤ for n , m ≥ 1 with n ≠ m ----------------
+Hⁿ-Sᵐ≅0 : (n m : ℕ) → ¬ (n ≡ m) → GroupIso (coHomGr (suc n) (S₊ (suc m))) trivialGroup
+Hⁿ-Sᵐ≅0 zero zero pf = ⊥-rec (pf refl)
+Hⁿ-Sᵐ≅0 zero (suc m) pf = H¹-Sⁿ≅0 m
+Hⁿ-Sᵐ≅0 (suc n) zero pf = Hⁿ-S¹≅0 n
+Hⁿ-Sᵐ≅0 (suc n) (suc m) pf = suspensionAx-Sn n m
+                           □ Hⁿ-Sᵐ≅0 n m λ p → pf (cong suc p)

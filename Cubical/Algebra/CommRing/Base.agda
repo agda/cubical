@@ -16,7 +16,7 @@ open import Cubical.Structures.Axioms
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.Base
 
 open Iso
 
@@ -56,6 +56,7 @@ record CommRingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 CommRing : Type (ℓ-suc ℓ)
 CommRing = TypeWithStr _ CommRingStr
 
+
 makeIsCommRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
                  (is-setR : isSet R)
                  (+-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
@@ -91,6 +92,9 @@ CommRing→Ring (_ , commringstr _ _ _ _ _ H) = _ , ringstr _ _ _ _ _ (IsCommRin
 
 CommRingEquiv : (R S : CommRing) (e : ⟨ R ⟩ ≃ ⟨ S ⟩) → Type ℓ
 CommRingEquiv R S e = RingEquiv (CommRing→Ring R) (CommRing→Ring S) e
+
+CommRingHom : (R S : CommRing) → Type ℓ
+CommRingHom R S = RingHom (CommRing→Ring R) (CommRing→Ring S)
 
 module CommRingΣTheory {ℓ} where
 
@@ -154,7 +158,7 @@ isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
                    (isPropComm RC SC i)
   where
   isSetR : isSet _
-  isSetR = RR .IsRing.·-isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+  isSetR = RR .IsRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
   isPropComm : isProp ((x y : _) → x · y ≡ y · x)
   isPropComm = isPropΠ2 λ _ _ → isSetR _ _

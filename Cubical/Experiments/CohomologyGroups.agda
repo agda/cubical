@@ -1,12 +1,12 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Experiments.CohomologyGroups where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.MayerVietorisUnreduced
-open import Cubical.ZCohomology.Groups.Unit
-open import Cubical.ZCohomology.KcompPrelims
-open import Cubical.ZCohomology.Groups.Sn
+open import Cubical.Experiments.ZCohomologyOld.Base
+open import Cubical.Experiments.ZCohomologyOld.Properties
+open import Cubical.Experiments.ZCohomologyOld.MayerVietorisUnreduced
+open import Cubical.Experiments.ZCohomologyOld.Groups.Unit
+open import Cubical.Experiments.ZCohomologyOld.KcompPrelims
+open import Cubical.Experiments.ZCohomologyOld.Groups.Sn
 
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
