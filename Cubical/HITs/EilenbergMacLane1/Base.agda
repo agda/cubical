@@ -14,7 +14,7 @@ open import Cubical.Algebra.Group.Base
 private
   variable ℓ : Level
 
-module _ ((G , str) : Group {ℓ}) where
+module _ (Group@(G , str) : Group {ℓ}) where
   open GroupStr str
 
   data EM₁ : Type ℓ where

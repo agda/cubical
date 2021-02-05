@@ -38,7 +38,8 @@ module _ ((G , str) : Group {ℓ}) where
     emloop 0g ∙ (emloop 0g ∙ (emloop 0g) ⁻¹)  ≡⟨ ∙assoc _ _ _ ⟩
     (emloop 0g ∙ emloop 0g) ∙ (emloop 0g) ⁻¹  ≡⟨ cong (_∙ emloop 0g ⁻¹)
                                                    ((emloop-comp (G , str) 0g 0g) ⁻¹) ⟩
-    emloop (0g + 0g) ∙ (emloop 0g) ⁻¹         ≡⟨ cong (λ g → emloop g ∙ (emloop 0g) ⁻¹)
+    emloop (0g + 0g) ∙ (emloop 0g) ⁻¹         ≡⟨ cong (λ g → emloop {Group = (G , str)} g
+                                                             ∙ (emloop 0g) ⁻¹)
                                                       (rid 0g) ⟩
     emloop 0g ∙ (emloop 0g) ⁻¹                ≡⟨ rCancel (emloop 0g) ⟩
     refl ∎
@@ -51,7 +52,8 @@ module _ ((G , str) : Group {ℓ}) where
     emloop (- g) ∙ (emloop g ∙ (emloop g) ⁻¹) ≡⟨ ∙assoc _ _ _ ⟩
     (emloop (- g) ∙ emloop g) ∙ (emloop g) ⁻¹ ≡⟨ cong (_∙ emloop g ⁻¹)
                                                       ((emloop-comp (G , str) (- g) g) ⁻¹) ⟩
-    emloop (- g + g) ∙ (emloop g) ⁻¹          ≡⟨ cong (λ h → emloop h ∙ (emloop g) ⁻¹)
+    emloop (- g + g) ∙ (emloop g) ⁻¹          ≡⟨ cong (λ h → emloop {Group = (G , str)} h
+                                                            ∙ (emloop g) ⁻¹)
                                                       (invl g) ⟩
     emloop 0g ∙ (emloop g) ⁻¹                 ≡⟨ cong (_∙ (emloop g) ⁻¹) emloop-id ⟩
     refl ∙ (emloop g) ⁻¹                      ≡⟨ (lUnit ((emloop g) ⁻¹)) ⁻¹ ⟩
@@ -82,6 +84,7 @@ module _ ((G , str) : Group {ℓ}) where
   compRightEquiv : (g h : G)
     → compEquiv (rightEquiv g) (rightEquiv h) ≡ rightEquiv (g + h)
   compRightEquiv g h = equivEq (funExt (λ x → (assoc x g h) ⁻¹))
+
 {-
   CodesSet : EM₁ (G , str) → hSet ℓ
   CodesSet = rec (G , str) (isOfHLevelTypeOfHLevel 2) (G , is-set) RE REComp
@@ -104,10 +107,13 @@ module _ ((G , str) : Group {ℓ}) where
       lemma₂ : {A₀₀ A₀₁ : hSet ℓ} (p₀₋ : A₀₀ ≡ A₀₁)
                {A₁₀ A₁₁ : hSet ℓ} (p₁₋ : A₁₀ ≡ A₁₁)
                (p₋₀ : A₀₀ ≡ A₁₀) (p₋₁ : A₀₁ ≡ A₁₁)
-                 (s : Square (cong fst p₀₋) (cong fst p₁₋) (cong fst p₋₀) (cong fst p₋₁))
+               (s : Square (cong fst p₀₋) (cong fst p₁₋) (cong fst p₋₀) (cong fst p₋₁))
                → Square p₀₋ p₁₋ p₋₀ p₋₁
       fst (lemma₂ p₀₋ p₁₋ p₋₀ p₋₁ s i j) = s i j
-      snd (lemma₂ p₀₋ p₁₋ p₋₀ p₋₁ s i j) = ?
+      snd (lemma₂ p₀₋ p₁₋ p₋₀ p₋₁ s i j) =
+        isSet→SquareP
+          (λ i j → isProp→isSet (isPropIsOfHLevel 2))
+          (cong snd p₀₋) (cong snd p₁₋) (cong snd p₋₀) (cong snd p₋₁) i j   {- fix? -}
 {-        isSet→isSetDep (λ X → isProp→isSet (isPropIsOfHLevel {A = X} 2))
           (cong fst p₀₋) (cong fst p₁₋) (cong fst p₋₀) (cong fst p₋₁) s
           (cong snd p₀₋) (cong snd p₁₋) (cong snd p₋₀) (cong snd p₋₁) i j
