@@ -33,8 +33,6 @@ private
     ℓA ℓR ℓ : Level
     A : Type ℓA
     R : A → A → Type ℓR
---    B : A // Rt → Type ℓ
---    C : A // Rt → A // Rt → Type ℓ
 
 elimEq// : (Rt : BinaryRelation.isTrans R)
           {B : A // Rt → Type ℓ}
@@ -56,11 +54,12 @@ elimProp : (Rt : BinaryRelation.isTrans R)
 elimProp Rt Bprop f [ x ] = f x
 elimProp Rt Bprop f (eq// {a} {b} r i) = elimEq// Rt Bprop (eq// r) (f a) (f b) i
 elimProp Rt Bprop f (comp// {a} {b} {c} r s i j) =
-  isSet→isSetDep (λ x → isProp→isSet (Bprop x))
-  (eq// r) (eq// (Rt a b c r s)) (λ j → [ a ]) (eq// s) (comp// r s)
-  (λ i → elimEq// Rt Bprop (eq// r) (f a) (f b) i)
-  (λ i → elimEq// Rt Bprop (eq// (Rt a b c r s)) (f a) (f c) i)
-  (λ j → f a ) (λ j → elimEq// Rt Bprop (eq// s) (f b) (f c) j) i j
+  isSet→SquareP (λ i j → isProp→isSet (Bprop (comp// r s i j)))
+    (λ j → elimProp Rt Bprop f (eq// r j))
+    (λ j → elimProp Rt Bprop f (eq// (Rt a b c r s) j))
+    (λ i → f a)
+    (λ i → elimEq// Rt Bprop (eq// s) (f b) (f c) i)
+    i j
 elimProp Rt Bprop f (squash// x y p q r s i j k) =
   isOfHLevel→isOfHLevelDep 3 (λ x → isSet→isGroupoid (isProp→isSet (Bprop x)))
   _ _ _ _ (λ j k → g (r j k)) (λ j k → g (s j k)) (squash// x y p q r s) i j k
@@ -90,8 +89,9 @@ elimSet : (Rt : BinaryRelation.isTrans R)
 elimSet Rt Bset f feq [ a ] = f a
 elimSet Rt Bset f feq (eq// r i) = feq r i
 elimSet Rt Bset f feq (comp// {a} {b} {c} r s i j) =
-  isSet→isSetDep Bset (eq// r) (eq// (Rt a b c r s)) (λ j → [ a ]) (eq// s) (comp// r s)
-  (feq r) (feq (Rt a b c r s)) refl (feq s) i j
+  isSet→SquareP (λ i j → Bset (comp// r s i j))
+    (λ j → feq r j) (λ j → feq (Rt a b c r s) j)
+    (λ i → f a) (λ i → feq s i) i j
 elimSet Rt Bset f feq (squash// x y p q r s i j k) =
   isOfHLevel→isOfHLevelDep 3 (λ x → isSet→isGroupoid (Bset x))
     _ _ _ _ (λ j k → g (r j k)) (λ j k → g (s j k)) (squash// x y p q r s) i j k
@@ -133,4 +133,3 @@ module BinarySetRelation {ℓA ℓR : Level} {A : Type ℓA} (R : Rel A A ℓR) 
 
   isSetValued : Type (ℓ-max ℓA ℓR)
   isSetValued = (a b : A) → isSet (R a b)
-
