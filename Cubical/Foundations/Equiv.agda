@@ -174,6 +174,7 @@ equivΠCod k .snd .equiv-proof f .snd (g , p) i .fst x =
 equivΠCod k .snd .equiv-proof f .snd (g , p) i .snd j x =
   equivCtrPath (k x) (f x) (g x , λ k → p k x) i .snd j
 
+
 equivImplicitΠCod : ∀ {F : A → Type ℓ} {G : A → Type ℓ'}
         → ({x : A} → F x ≃ G x) → ({x : A} → F x) ≃ ({x : A} → G x)
 equivImplicitΠCod k .fst f {x} = k {x} .fst (f {x})

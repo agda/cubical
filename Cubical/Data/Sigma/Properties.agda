@@ -55,6 +55,40 @@ map-× f g (a , b) = (f a , g b)
 
 -- Characterization of paths in Σ using dependent paths
 
+-- <<<<<<< HEAD
+-- ΣPathP : ∀ {x y}
+--        → Σ[ p ∈ (fst x ≡ fst y) ] PathP (λ i → B (p i)) (snd x) (snd y)
+--        → x ≡ y
+-- ΣPathP eq i = fst eq i , snd eq i
+
+
+-- ΣPathIsoPathΣ : {x y : Σ A B}
+--               → Iso (Σ[ p ∈ fst x ≡ fst y ] (PathP (λ i → B (p i)) (snd x) (snd y)))
+--                     (x ≡ y)
+-- fun ΣPathIsoPathΣ        = ΣPathP
+-- inv ΣPathIsoPathΣ eq     = (λ i → fst (eq i)) , (λ i → snd (eq i))
+-- rightInv ΣPathIsoPathΣ _ = refl
+-- leftInv ΣPathIsoPathΣ _  = refl
+
+-- ΣPathPIsoPathPΣ : {A : I → Type ℓ} → {B : ∀ i → A i → Type ℓ' }
+--                       → {a : Σ (A i0) (B i0)} → {b : Σ (A i1) (B i1)}
+--                       → Iso (Σ[ p ∈ (PathP A (fst a) (fst b)) ]
+--                                   (PathP (λ i → B i (p i)) (snd a) (snd b)))
+--                             (PathP (λ i → Σ (A i) (B i)) a b)
+-- ΣPathPIsoPathPΣ =
+--   iso (λ x i → _ , (snd x i)) (λ x → _ , (λ i → snd (x i)))
+--        (λ _ → refl) λ _ → refl
+
+-- ΣPath≃PathΣ : {x y : Σ A B}
+--             → (Σ[ p ∈ (fst x ≡ fst y) ] PathP (λ i → B (p i)) (snd x) (snd y))
+--             ≃ (x ≡ y)
+-- ΣPath≃PathΣ = isoToEquiv ΣPathIsoPathΣ
+
+-- ΣPath≡PathΣ : {x y : Σ A B}
+--             → (Σ[ p ∈ (fst x ≡ fst y) ] PathP (λ i → B (p i)) (snd x) (snd y))
+--             ≡ (x ≡ y)
+-- ΣPath≡PathΣ = ua ΣPath≃PathΣ
+-- =======
 module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
   {x : Σ (A i0) (B i0)} {y : Σ (A i1) (B i1)}
   where
