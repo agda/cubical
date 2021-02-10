@@ -39,14 +39,10 @@ module Internal where
   flipAssoc : Assoc → Assoc
   flipAssoc = List.map λ {p .fst → p .snd; p .snd → p .fst}
 
-  List→NiceΣFormat : List R.Name → ΣFormat
-  List→NiceΣFormat [] = unit
-  List→NiceΣFormat (x ∷ []) = leaf x
-  List→NiceΣFormat (x ∷ y ∷ xs) = leaf x , List→NiceΣFormat (y ∷ xs)
-
   List→ΣFormat : List R.Name → ΣFormat
   List→ΣFormat [] = unit
-  List→ΣFormat (x ∷ xs) = leaf x , List→ΣFormat xs
+  List→ΣFormat (x ∷ []) = leaf x
+  List→ΣFormat (x ∷ y ∷ xs) = leaf x , List→ΣFormat (y ∷ xs)
 
   ΣFormat→Assoc : ΣFormat → Assoc
   ΣFormat→Assoc = go []
@@ -57,18 +53,8 @@ module Internal where
     go prefix (sig₁ , sig₂) =
       go (quote fst ∷ prefix) sig₁ ++ go (quote snd ∷ prefix) sig₂
 
-  List→NiceAssoc : List R.Name → Assoc
-  List→NiceAssoc xs = ΣFormat→Assoc (List→NiceΣFormat xs)
-
   List→Assoc : List R.Name → Assoc
   List→Assoc xs = ΣFormat→Assoc (List→ΣFormat xs)
-
-  recordName→NiceAssoc : R.Name → R.TC Assoc
-  recordName→NiceAssoc name = R.getDefinition name >>= go
-    where
-    go : R.Definition → R.TC Assoc
-    go (R.record-type c fs) = R.returnTC (List→NiceAssoc (List.map (λ {(R.arg _ n) → n}) fs))
-    go _ = R.typeError (R.strErr "Not a record type name:" ∷ R.nameErr name ∷ [])
 
   recordName→Assoc : R.Name → R.TC Assoc
   recordName→Assoc name = R.getDefinition name >>= go
@@ -128,18 +114,6 @@ open Internal
 
 macro
   -- <RecordTypeName> → <Σ-Type> ≃ <RecordType>
-  NiceFlatΣ≃Record : R.Name → R.Term → R.TC Unit
-  NiceFlatΣ≃Record name hole =
-    recordName→NiceAssoc name >>= λ al →
-    equivMacro al hole
-
-  -- <RecordTypeName> → <RecordType> ≃ <Σ-Type>
-  Record≃NiceFlatΣ : R.Name → R.Term → R.TC Unit
-  Record≃NiceFlatΣ name hole =
-    recordName→NiceAssoc name >>= λ al →
-    equivMacro (flipAssoc al) hole
-
-  -- <RecordTypeName> → <Σ-Type> ≃ <RecordType>
   FlatΣ≃Record : R.Name → R.Term → R.TC Unit
   FlatΣ≃Record name hole =
     recordName→Assoc name >>= λ al →
@@ -183,23 +157,19 @@ module Example where
   record Example' : Type where
 
   {-
-    Example: Equivalence between a Σ-type and record type using (Nice)FlatΣ≃Record
+    Example: Equivalence between a Σ-type and record type using ()FlatΣ≃Record
   -}
 
   -- Record is equivalent to an iterated sigma with an entry for each field
   Example00 : (Σ[ a ∈ A ] Σ[ a' ∈ A ] B a) ≃ Example B
-  Example00 = NiceFlatΣ≃Record Example
+  Example00 = FlatΣ≃Record Example
 
   Example01 : Example B ≃ (Σ[ a ∈ A ] Σ[ a' ∈ A ] B a)
-  Example01 = Record≃NiceFlatΣ Example
-
-  -- Non-"Nice" macros leave a trailing Unit
-  Example02 : Example B ≃ (Σ[ a ∈ A ] Σ[ a' ∈ A ] Σ[ b ∈ B a ] Unit)
-  Example02 = Record≃FlatΣ Example
+  Example01 = Record≃FlatΣ Example
 
   -- Any record with no fields is equivalent to unit
-  Example03 : Unit ≃ Example'
-  Example03 = NiceFlatΣ≃Record Example'
+  Example02 : Unit ≃ Example'
+  Example02 = FlatΣ≃Record Example'
 
   {-
     Example: Equivalence between an arbitrarily arrange Σ-type and record type using Σ≃Record

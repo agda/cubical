@@ -46,3 +46,6 @@ hlam str t = R.lam R.hidden (R.abs str t)
 
 newMeta = R.checkType R.unknown
 
+extend*Context : ∀ {ℓ} {A : Type ℓ} → List (R.Arg R.Type) → R.TC A → R.TC A
+extend*Context [] tac = tac
+extend*Context (a ∷ as) tac = R.extendContext a (extend*Context as tac)
