@@ -87,7 +87,6 @@ data DUAFields {ℓA ℓ≅A ℓR ℓ≅R} {A : Type ℓA} (𝒮-A : UARel A ℓ
     (πF≅ : ∀ {a} {r : R a} {e} {r' : R a} (p : r ≅R⟨ e ⟩ r') → DUARel._≅ᴰ⟨_⟩_ 𝒮ᴰ-F (πF r) (e , πS≅ p) (πF r'))
     → DUAFields 𝒮-A R _≅R⟨_⟩_ (λ r → πS r , πF r) (splitTotal-𝒮ᴰ 𝒮-A 𝒮ᴰ-S 𝒮ᴰ-F) (λ p → πS≅ p , πF≅ p)
 
-
 private
   variable
     ℓA ℓ≅A ℓR ℓ≅R ℓF ℓ≅F ℓS ℓ≅S ℓP : Level
@@ -100,23 +99,13 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
 
   open UARel 𝒮-A
 
-  𝒮ᴰ-Σ : DUAFields 𝒮-A R _≅R⟨_⟩_ πS 𝒮ᴰ-S πS≅ → DUARel 𝒮-A S ℓ≅S
-  𝒮ᴰ-Σ _ = 𝒮ᴰ-S
-
   equiv-Σ : DUAFields 𝒮-A R _≅R⟨_⟩_ πS 𝒮ᴰ-S πS≅
     → {a a' : A} → S a → UARel._≅_ 𝒮-A a a' → S a' → Type ℓ≅S
-  equiv-Σ fs = DUARel._≅ᴰ⟨_⟩_ (𝒮ᴰ-Σ fs)
+  equiv-Σ fs = DUARel._≅ᴰ⟨_⟩_ 𝒮ᴰ-S
 
   uaᴰ-Σ : (fs : DUAFields 𝒮-A R _≅R⟨_⟩_ πS 𝒮ᴰ-S πS≅)
     → {a a' : A} (b : S a) (p : a ≅ a') (b' : S a') → equiv-Σ fs b p b' ≃ PathP (λ i → S (≅→≡ p i)) b b'
-  uaᴰ-Σ fs = DUARel.uaᴰ (𝒮ᴰ-Σ fs)
-
-  -- 𝒮ᴰ-Σ : ∀ {ℓS ℓ≅S} {S : A → Type ℓS} 
-  --   {πS : ∀ {a} → R a → S a} {𝒮ᴰ-S : DUARel 𝒮-A S ℓ≅S}
-  --   {πS≅ : ∀ {a} {r : R a} {e} {r' : R a} → r ≅R⟨ e ⟩ r' → DUARel._≅ᴰ⟨_⟩_ 𝒮ᴰ-S (πS r) e (πS r')}
-  --   → DUAFields 𝒮-A R _≅R⟨_⟩_ πS 𝒮ᴰ-S πS≅
-  --   → DUARel 𝒮-A S ℓ≅S
-  -- 𝒮ᴰ-Σ {𝒮ᴰ-S = 𝒮ᴰ-S} _ = 𝒮ᴰ-S
+  uaᴰ-Σ _ = DUARel.uaᴰ 𝒮ᴰ-S
 
 module Internal where
 
@@ -167,12 +156,9 @@ module Internal where
     withI (newMeta R.unknown) >>= λ fsEquiv → 
     newMeta R.unknown >>= λ equiv →
     R.unify hole (R.def (quote frame) (f≅sEquiv v∷ vlam "_" fsEquiv v∷ equiv v∷ [])) >>
-    RE.Internal.equivMacro (I.flipAssoc (List→LeftAssoc f≅s)) f≅sEquiv >>
-    R.typeError [ R.termErr (RE.Internal.convertFun (I.flipAssoc (List→LeftAssoc f≅s))) ] >>
-    R.unify equiv (R.def (quote uaᴰ-Σ) (spec v∷ R.unknown v∷ p v∷ R.unknown v∷ [])) >>
     withI (RE.Internal.equivMacro (List→LeftAssoc fs) fsEquiv) >>
-    -- R.reduce hole >>= λ out → R.typeError [ R.termErr out ] >>
-    R.returnTC tt
+    R.unify equiv (R.def (quote uaᴰ-Σ) (spec v∷ R.unknown v∷ p v∷ R.unknown v∷ [])) >>
+    RE.Internal.equivMacro (I.flipAssoc (List→LeftAssoc f≅s)) f≅sEquiv
     where
     withI : ∀ {A : Type} → R.TC A → R.TC A
     withI = R.extendContext (varg (R.def (quote I) []))
@@ -204,4 +190,4 @@ module Example where
   example : DUARel (𝒮-univ ℓ-zero) Example ℓ-zero
   DUARel._≅ᴰ⟨_⟩_ example = ExampleEquiv
   DUARel.uaᴰ example x e x' =
-   uaᴰRecord test x e x'
+    uaᴰRecord test x e x'
