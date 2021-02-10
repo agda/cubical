@@ -1,15 +1,13 @@
 {-
 
-Tooling to generate univalent reflexive graph characterizations for record types
+Generate univalent reflexive graph characterizations for record types using reflection
 
 -}
-{-# OPTIONS --cubical --no-exact-split --no-import-sorts #-} -- --safe #-}
+{-# OPTIONS --cubical --no-exact-split --no-import-sorts --safe #-}
 module Cubical.Displayed.Record where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Data.Sigma
 open import Cubical.Data.List as List
@@ -32,7 +30,7 @@ data DUAFields {ℓA ℓ≅A ℓR ℓ≅R} {A : Type ℓA} (𝒮-A : UARel A ℓ
 
   fields: : DUAFields 𝒮-A R _≅R⟨_⟩_ (λ _ → tt) (𝒮ᴰ-Unit 𝒮-A) (λ _ → tt)
 
-  _basic[_∣_∣_] : ∀ {ℓS ℓ≅S} {S : A → Type ℓS}
+  _data[_∣_∣_] : ∀ {ℓS ℓ≅S} {S : A → Type ℓS}
     {πS : ∀ {a} → R a → S a} {𝒮ᴰ-S : DUARel 𝒮-A S ℓ≅S}
     {πS≅ : ∀ {a} {r : R a} {e} {r' : R a} → r ≅R⟨ e ⟩ r' → DUARel._≅ᴰ⟨_⟩_ 𝒮ᴰ-S (πS r) e (πS r')}
     → DUAFields 𝒮-A R _≅R⟨_⟩_ πS 𝒮ᴰ-S πS≅
@@ -41,16 +39,6 @@ data DUAFields {ℓA ℓ≅A ℓR ℓ≅R} {A : Type ℓA} (𝒮-A : UARel A ℓ
     (𝒮ᴰ-F : DUARel 𝒮-A F ℓ≅F)
     (πF≅ : ∀ {a} {r : R a} {e} {r' : R a} (p : r ≅R⟨ e ⟩ r') → DUARel._≅ᴰ⟨_⟩_ 𝒮ᴰ-F (πF r) e (πF r'))
     → DUAFields 𝒮-A R _≅R⟨_⟩_ (λ r → πS r , πF r) (𝒮ᴰ-S ×𝒮ᴰ 𝒮ᴰ-F) (λ p → πS≅ p , πF≅ p)
-
-  _dep[_∣_∣_] : ∀ {ℓS ℓ≅S} {S : A → Type ℓS}
-    {πS : ∀ {a} → R a → S a} {𝒮ᴰ-S : DUARel 𝒮-A S ℓ≅S}
-    {πS≅ : ∀ {a} {r : R a} {e} {r' : R a} → r ≅R⟨ e ⟩ r' → DUARel._≅ᴰ⟨_⟩_ 𝒮ᴰ-S (πS r) e (πS r')}
-    → DUAFields 𝒮-A R _≅R⟨_⟩_ πS 𝒮ᴰ-S πS≅
-    → ∀ {ℓF ℓ≅F} {F : (a : A) → S a → Type ℓF}
-    (πF : ∀ {a} → (r : R a) → F a (πS r))
-    (𝒮ᴰ-F : DUARel (∫ 𝒮ᴰ-S) (uncurry F) ℓ≅F)
-    (πF≅ : ∀ {a} {r : R a} {e} {r' : R a} (p : r ≅R⟨ e ⟩ r') → DUARel._≅ᴰ⟨_⟩_ 𝒮ᴰ-F (πF r) (e , πS≅ p) (πF r'))
-    → DUAFields 𝒮-A R _≅R⟨_⟩_ (λ r → πS r , πF r) (splitTotal-𝒮ᴰ 𝒮-A 𝒮ᴰ-S 𝒮ᴰ-F) (λ p → πS≅ p , πF≅ p)
 
   _prop[_∣_] : ∀ {ℓS ℓ≅S} {S : A → Type ℓS}
     {πS : ∀ {a} → R a → S a} {𝒮ᴰ-S : DUARel 𝒮-A S ℓ≅S}
@@ -61,10 +49,10 @@ data DUAFields {ℓA ℓ≅A ℓR ℓ≅R} {A : Type ℓA} (𝒮-A : UARel A ℓ
     (propF : ∀ a s → isProp (F a s))
     → DUAFields 𝒮-A R _≅R⟨_⟩_ (λ r → πS r , πF r) (𝒮ᴰ-Axioms 𝒮-A 𝒮ᴰ-S F propF) (λ p → πS≅ p)
 
-fields[_∣_∣_]: : ∀ {ℓA ℓ≅A ℓR ℓ≅R} {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
-  (R : A → Type ℓR) (_≅R⟨_⟩_ : {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R)
+fields[_]: : ∀ {ℓA ℓ≅A ℓR ℓ≅R} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
+  {R : A → Type ℓR} (_≅R⟨_⟩_ : {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R)
   → DUAFields 𝒮-A R _≅R⟨_⟩_ (λ _ → tt) (𝒮ᴰ-Unit 𝒮-A) (λ _ → tt)
-fields[ _ ∣ _ ∣ _ ]: = fields:
+fields[ _ ]: = fields:
 
 private
   variable
@@ -106,16 +94,11 @@ module Internal where
 
   parseFields : R.Term → R.TC (List R.Name × List R.Name)
   parseFields (R.con (quote fields:) _) = R.returnTC ([] , [])
-  parseFields (R.con (quote _basic[_∣_∣_]) (family∷ (indices∷ (fs v∷ ℓF h∷ ℓ≅F h∷ F h∷ πF v∷ 𝒮ᴰ-F v∷ πF≅ v∷ _)))) =
+  parseFields (R.con (quote _data[_∣_∣_]) (family∷ (indices∷ (fs v∷ ℓF h∷ ℓ≅F h∷ F h∷ πF v∷ 𝒮ᴰ-F v∷ πF≅ v∷ _)))) =
     parseFields fs >>= λ (fs , f≅s) →
     findName πF >>= λ f →
     findName πF≅ >>= λ f≅ →
     R.returnTC (f ∷ fs , f≅ ∷ f≅s)
-  parseFields (R.con (quote _dep[_∣_∣_]) (family∷ (indices∷ (fs v∷ ℓF h∷ ℓ≅F h∷ F h∷ πF v∷ 𝒮ᴰ-F v∷ πF≅ v∷ _)))) =
-    parseFields fs >>= λ (fs , f≅s) →
-    findName πF >>= λ f →
-    findName πF≅ >>= λ f≅ →
-    R.returnTC (fs ∷ʳ f , f≅s ∷ʳ f≅)
   parseFields (R.con (quote _prop[_∣_]) (family∷ (indices∷ (fs v∷ ℓF h∷ F h∷ πF v∷ _)))) =
     parseFields fs >>= λ (fs , f≅s) →
     findName πF >>= λ f →
@@ -183,6 +166,6 @@ module Example where
   example : DUARel (𝒮-univ ℓ-zero) Example ℓ-zero
   example =
     𝒮ᴰ-Record
-      (fields[ 𝒮-univ ℓ-zero ∣ Example ∣ ExampleEquiv ]:
-        basic[ Example.dog ∣ 𝒮ᴰ-element ℓ-zero ∣ ExampleEquiv.dogEq ]
+      (fields[ ExampleEquiv ]:
+        data[ Example.dog ∣ 𝒮ᴰ-element ℓ-zero ∣ ExampleEquiv.dogEq ]
         prop[ Example.cat ∣ (λ _ _ → isPropUnit) ])
