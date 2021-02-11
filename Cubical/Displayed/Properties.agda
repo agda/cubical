@@ -7,8 +7,6 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence using (pathToEquiv; univalence; ua-ungluePath-Equiv)
 
-open import Cubical.Functions.FunExtEquiv
-
 open import Cubical.Data.Unit
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
@@ -38,21 +36,6 @@ module _ {A : Type ℓA} {ℓ≅A : Level} {𝒮-A : UARel A ℓ≅A}
     compEquiv
       (Σ-cong-equiv (ua a a') (λ p → uaᴰ b p b'))
       ΣPath≃PathΣ
-
--- UARel on Π-type
-
-module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) {B : A → Type ℓB} (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B) where
-
-  open UARel 𝒮-A
-  open DUARel 𝒮ᴰ-B
-
-  𝒮ᴰ→𝒮-Π : UARel ((a : A) → B a) (ℓ-max ℓA ℓ≅B)
-  UARel._≅_ 𝒮ᴰ→𝒮-Π f f' = ∀ a → f a ≅ᴰ⟨ ρ a ⟩ f' a
-  UARel.ua 𝒮ᴰ→𝒮-Π f f' =
-    compEquiv
-      (equivΠCod λ a → uaᴰρ (f a) (f' a))
-      funExtEquiv
-
 
 -- induction principles
 

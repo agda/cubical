@@ -81,6 +81,17 @@ module _ {f : A → B} (equivF : isEquiv f) where
   commSqIsEq : ∀ a → Square (secIsEq (f a)) refl (cong f (retIsEq a)) refl
   commSqIsEq a i = equivF .equiv-proof (f a) .snd (a , refl) i .snd
 
+  commPathIsEq : ∀ a → secIsEq (f a) ≡ cong f (retIsEq a)
+  commPathIsEq a i j =
+    hcomp
+      (λ k → λ
+        { (i = i0) → secIsEq (f a) j
+        ; (i = i1) → f (retIsEq a (j ∨ ~ k))
+        ; (j = i0) → f (retIsEq a (i ∧ ~ k))
+        ; (j = i1) → f a
+        })
+      (commSqIsEq a i j)
+
 module _ (w : A ≃ B) where
   invEq : B → A
   invEq = invIsEq (snd w)
