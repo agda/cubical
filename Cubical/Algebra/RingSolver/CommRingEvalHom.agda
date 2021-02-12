@@ -10,7 +10,7 @@ open import Cubical.Data.Bool.Base
 
 open import Cubical.Algebra.RingSolver.RawAlgebra
 open import Cubical.Algebra.RingSolver.CommRingHornerForms
-open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.Ring
 
 private
