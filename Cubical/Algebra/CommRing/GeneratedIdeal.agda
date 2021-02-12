@@ -17,7 +17,7 @@ open import Cubical.Data.Nat using (ℕ)
 
 open import Cubical.HITs.PropositionalTruncation hiding (map)
 
-open import Cubical.Algebra.CommRing.Base
+open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.Ring.QuotientRing
 open import Cubical.Algebra.Ring.Properties

@@ -3,7 +3,7 @@ module Cubical.Algebra.CommRing.Integers where
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Algebra.CommRing.Base
+open import Cubical.Algebra.CommRing
 open import Cubical.HITs.Ints.BiInvInt
   renaming (
     _+_ to _+ℤ_;
