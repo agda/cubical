@@ -9,7 +9,7 @@ open import Cubical.Algebra.RingSolver.AlmostRing hiding (⟨_⟩)
 open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.RingSolver.IntAsRawRing public
 open import Cubical.Algebra.RingSolver.CommRingAsAlmostRing
-open import Cubical.Algebra.CommRing.Base
+open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 open import Cubical.Data.Int.Properties using (+-assoc; +-comm; pos0+; sucPred)
                                         renaming (-_ to -ℤ_; _+_ to _+ℤ_; _·_ to _·ℤ_)

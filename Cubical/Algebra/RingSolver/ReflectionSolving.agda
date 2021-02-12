@@ -25,7 +25,7 @@ open import Cubical.Data.Bool.SwitchStatement
 open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_) public
 
 open import Cubical.Algebra.RingSolver.AlgebraExpression public
-open import Cubical.Algebra.CommRing.Base
+open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.RingSolver.RawAlgebra
 open import Cubical.Algebra.RingSolver.IntAsRawRing
 open import Cubical.Algebra.RingSolver.CommRingSolver renaming (solve to ringSolve)
