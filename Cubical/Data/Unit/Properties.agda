@@ -27,14 +27,12 @@ isSetUnit = isProp→isSet isPropUnit
 isOfHLevelUnit : (n : HLevel) → isOfHLevel n Unit
 isOfHLevelUnit n = isContr→isOfHLevel n isContrUnit
 
-UnitToTypeIso : ∀ {ℓ} (A : Type ℓ) → Iso (Unit → A) A
-Iso.fun (UnitToTypeIso A) f = f _
-Iso.inv (UnitToTypeIso A) a _ = a
-Iso.rightInv (UnitToTypeIso A) _ = refl
-Iso.leftInv (UnitToTypeIso A) _ = refl
+UnitToType≃ : ∀ {ℓ} (A : Type ℓ) → (Unit → A) ≃ A
+UnitToType≃ _ .fst f = f _
+UnitToType≃ _ .snd .equiv-proof = strictContrFibers (λ a _ → a)
 
 UnitToTypePath : ∀ {ℓ} (A : Type ℓ) → (Unit → A) ≡ A
-UnitToTypePath A = isoToPath (UnitToTypeIso A)
+UnitToTypePath A = ua (UnitToType≃ A)
 
 isContr→Iso2 : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isContr A → Iso (A → B) B
 Iso.fun (isContr→Iso2 iscontr) f = f (fst iscontr)
