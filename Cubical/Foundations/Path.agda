@@ -192,6 +192,19 @@ Square≃doubleComp a₀₋ a₁₋ a₋₀ a₋₁ = transportEquiv (PathP≡do
 symIso : {a b : A} (p q : a ≡ b) → Iso (p ≡ q) (q ≡ p)
 symIso p q = iso sym sym (λ _ → refl) λ _ → refl
 
+-- J is an equivalence
+Jequiv : {x : A} (P : ∀ y → x ≡ y → Type ℓ') → P x refl ≃ (∀ {y} (p : x ≡ y) → P y p)
+Jequiv P = isoToEquiv isom
+  where
+  isom : Iso _ _
+  Iso.fun isom = J P
+  Iso.inv isom f = f refl
+  Iso.rightInv isom f =
+    implicitFunExt λ {_} →
+    funExt λ t →
+    J (λ _ t → J P (f refl) t ≡ f t) (JRefl P (f refl)) t
+  Iso.leftInv isom = JRefl P
+
 -- Action of PathP on equivalences (without relying on univalence)
 congPathEquiv : ∀ {ℓ ℓ'} {A : I → Type ℓ} {B : I → Type ℓ'}
   (e : ∀ i → A i ≃ B i) {a₀ : A i0} {a₁ : A i1}

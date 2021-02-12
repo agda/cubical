@@ -15,6 +15,7 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Univalence using (pathToEquiv)
 
 open import Cubical.Functions.FunExtEquiv
+open import Cubical.Functions.Implicit
 
 open import Cubical.Displayed.Base
 open import Cubical.Displayed.Subst
@@ -93,3 +94,22 @@ _𝒮ᴰ→_ : {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
   → DUARel 𝒮-A (λ a → B a → C a) (ℓ-max (ℓ-max ℓB ℓ≅B) ℓ≅C)
 𝒮ᴰ-B 𝒮ᴰ→ 𝒮ᴰ-C =
   𝒮ᴰ-Π 𝒮ᴰ-B (Lift-𝒮ᴰ _ 𝒮ᴰ-C 𝒮ᴰ-B)
+
+module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
+  {B : A → Type ℓB} (𝒮ˢ-B : SubstRel 𝒮-A B)
+  {C : (a : A) → B a → Type ℓC} (𝒮ᴰ-C : DUARel (∫ (Subst→DUA 𝒮ˢ-B)) (uncurry C) ℓ≅C)
+  where
+
+  open UARel 𝒮-A
+  open SubstRel 𝒮ˢ-B
+  open DUARel 𝒮ᴰ-C renaming (_≅ᴰ⟨_⟩_ to _≅C⟨_⟩_ ; uaᴰ to uaC)
+
+  𝒮ᴰ-Πˢ : DUARel 𝒮-A (λ a → (b : B a) → C a b) (ℓ-max ℓB ℓ≅C)
+  DUARel._≅ᴰ⟨_⟩_ 𝒮ᴰ-Πˢ f p f' =
+    (b : B _) → f b ≅C⟨ p , refl ⟩ f' (act p .fst b)
+  DUARel.uaᴰ 𝒮ᴰ-Πˢ f p f' =
+    compEquiv
+      (compEquiv
+        (equivΠCod λ b → Jequiv (λ b' q → f b ≅C⟨ p , q ⟩ f' b'))
+        (invEquiv implicit≃Explicit))
+      (DUARel.uaᴰ (𝒮ᴰ-Π (Subst→DUA 𝒮ˢ-B) 𝒮ᴰ-C) f p f')
