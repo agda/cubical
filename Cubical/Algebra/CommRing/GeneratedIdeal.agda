@@ -1,3 +1,9 @@
+{-
+  Define finitely generated ideals of commutative rings and
+  show that they are an ideal.
+  Parts of this should be reusable for explicit constructions
+  of free modules over a finite set.
+-}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Algebra.CommRing.GeneratedIdeal where
 
@@ -9,7 +15,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Vec
 open import Cubical.Data.Nat using (ℕ)
 
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation hiding (map)
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
@@ -37,26 +43,33 @@ module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
   coefficientSum [] [] = []
   coefficientSum (x ∷ c) (y ∷ c′) = x + y ∷ coefficientSum c c′
 
-  sumHom+ : (n : ℕ) (c c′ l : Vec R n)
+  sumDist+ : (n : ℕ) (c c′ l : Vec R n)
             → linearCombination (coefficientSum c c′) l
               ≡ linearCombination c l + linearCombination c′ l
-  sumHom+ ℕ.zero [] [] [] = solution
-                            where
-                              solution : 0r ≡ 0r + 0r
-                              solution = solve Ring
-  sumHom+ (ℕ.suc n) (x ∷ c) (y ∷ c′) (a ∷ l) =
+  sumDist+ ℕ.zero [] [] [] = solve Ring
+  sumDist+ (ℕ.suc n) (x ∷ c) (y ∷ c′) (a ∷ l) =
     linearCombination (coefficientSum (x ∷ c) (y ∷ c′)) (a ∷ l)            ≡⟨ refl ⟩
-    linearCombination (x + y ∷ coefficientSum c c′) (a ∷ l)                ≡⟨ refl ⟩
     (x + y) · a + linearCombination (coefficientSum c c′) l                ≡⟨ step1 ⟩
     (x + y) · a + (linearCombination c l + linearCombination c′ l)         ≡⟨ step2 ⟩
     (x · a + linearCombination c l) + (y · a + linearCombination c′ l)     ≡⟨ refl ⟩
     linearCombination (x ∷ c) (a ∷ l) + linearCombination (y ∷ c′) (a ∷ l) ∎
     where
-      step1 = cong (λ z → (x + y) · a + z) (sumHom+ n c c′ l)
+      step1 = cong (λ z → (x + y) · a + z) (sumDist+ n c c′ l)
       autoSolve : (x y a t1 t2 : R)
                   → (x + y) · a + (t1 + t2) ≡ (x · a + t1) + (y · a + t2)
       autoSolve = solve Ring
       step2 = autoSolve x y a _ _
+
+  dist- : (n : ℕ) (c l : Vec R n)
+          → linearCombination (map -_ c) l
+            ≡ - linearCombination c l
+  dist- ℕ.zero [] [] = solve Ring
+  dist- (ℕ.suc n) (x ∷ c) (a ∷ l) =
+      - x · a + linearCombination (map -_ c) l    ≡[ i ]⟨ - x · a + dist- n c l i ⟩
+      - x · a - linearCombination c l             ≡⟨ step1 x a _ ⟩
+      - (x · a + linearCombination c l)           ∎
+      where step1 : (x a t1 : R) → - x · a - t1 ≡ - (x · a + t1)
+            step1 = solve Ring
 
   isLinearCombination : {n : ℕ} → Vec R n → R → hProp _
   isLinearCombination l x =
@@ -75,15 +88,20 @@ module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
           λ {(cy , py) →
             ∣  coefficientSum cx cy ,
                 (_ + _                                           ≡[ i ]⟨ px i + py i ⟩
-                 linearCombination cx l + linearCombination cy l ≡⟨ sym (sumHom+ _ cx cy l) ⟩
+                 linearCombination cx l + linearCombination cy l ≡⟨ sym (sumDist+ _ cx cy l) ⟩
                  linearCombination (coefficientSum cx cy) l ∎) ∣}})
 
   {- If x is a linear combinations of l, then -x is
      a linear combination. -}
-  isLinearCombination- : {n : ℕ} {x y : R} → (l : Vec R n)
+  isLinearCombination- : {n : ℕ} {x y : R} (l : Vec R n)
                          → isLinearCombination l x holds
                          → isLinearCombination l (- x) holds
-  isLinearCombination- l xIsLinearCombination = {!!}
+  isLinearCombination- l =
+    elim (λ _ → propTruncIsProp)
+         λ {(cx , px) → ∣ map -_ cx ,
+                         ( - _                             ≡⟨ cong -_ px ⟩
+                           - linearCombination cx l        ≡⟨ sym (dist- _ cx l) ⟩
+                           linearCombination (map -_ cx) l ∎) ∣}
 
 {-
    generatedIdeal : {n : ℕ} → Vec R n → IdealsIn R′
