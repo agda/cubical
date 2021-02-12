@@ -18,9 +18,9 @@ open import Cubical.Data.Nat using (ℕ)
 open import Cubical.HITs.PropositionalTruncation hiding (map)
 
 open import Cubical.Algebra.CommRing.Base
-open import Cubical.Algebra.Ring
-open import Cubical.Algebra.Ring.Ideal
+open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.Ring.QuotientRing
+open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.RingSolver.ReflectionSolving hiding (∣)
 
 private
@@ -33,7 +33,7 @@ module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
   P holds = fst P
   open CommRingStr str
   isSetR = isSetCommRing (R , str)
-  R′ = CommRing→Ring (R , str)
+  open Theory (CommRing→Ring Ring)
 
   linearCombination : {n : ℕ} → Vec R n → Vec R n → R
   linearCombination [] [] = 0r
@@ -118,14 +118,37 @@ module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
                         → isLinearCombination l 0r holds
   isLinearCombination0 l = ∣ replicate 0r , sym (dist0 _ l) ∣
 
-{-
-   generatedIdeal : {n : ℕ} → Vec R n → IdealsIn R′
-   generatedIdeal l = (isLinearCombination l) ,
-                      record
-                        { +-closed = {!!}
-                        ; -closed = {!!}
-                        ; 0r-closed = {!!}
-                        ; ·-closedLeft = {!!}
-                        ; ·-closedRight = {!!}
-                        }
--}
+  {- Linear combinations are stable under left multiplication -}
+  isLinearCombinationL· : {n : ℕ} (l : Vec R n)
+                        → (r x : R)
+                        → isLinearCombination l x holds
+                        → isLinearCombination l (r · x) holds
+  isLinearCombinationL· l r x =
+    elim (λ _ → propTruncIsProp)
+         λ {(cx , px) →
+            ∣ map (r ·_) cx ,
+             (r · _                               ≡[ i ]⟨ r · px i ⟩
+              r · linearCombination cx l          ≡⟨ step1 _ cx l r  ⟩
+              linearCombination (map (r ·_) cx) l ∎) ∣}
+    where
+      step2 : (r c a t1 : R) → r · (c · a + t1) ≡ r · (c · a) + r · t1
+      step2 = solve Ring
+      step3 : (r c a t1 : R) → r · (c · a) + t1 ≡ r · c · a + t1
+      step3 = solve Ring
+      step1 : (k : ℕ) (cx l : Vec R k)
+              → (r : R)
+              → r · linearCombination cx l ≡ linearCombination (map (r ·_) cx) l
+      step1 ℕ.zero [] [] r = 0RightAnnihilates _
+      step1 (ℕ.suc k) (c ∷ cx) (a ∷ l) r =
+        r · (c · a + linearCombination cx l)               ≡⟨ step2 r c a _ ⟩
+        r · (c · a) + r · linearCombination cx l             ≡[ i ]⟨ r · (c · a)
+                                                                + step1 _ cx l r i ⟩
+        r · (c · a) + linearCombination (map (_·_ r) cx) l ≡⟨ step3 r c a _ ⟩
+        r · c · a + linearCombination (map (_·_ r) cx) l ∎
+
+  generatedIdeal : {n : ℕ} → Vec R n → IdealsIn Ring
+  generatedIdeal l = makeIdeal Ring
+                               (isLinearCombination l)
+                               (isLinearCombination+ l)
+                               (isLinearCombination0 l)
+                               λ r → isLinearCombinationL· l r _
