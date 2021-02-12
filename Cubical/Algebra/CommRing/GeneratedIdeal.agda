@@ -15,7 +15,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal
 open import Cubical.Algebra.Ring.QuotientRing
-open import Cubical.Algebra.RingSolver.CommRingSolver hiding (∣)
+open import Cubical.Algebra.RingSolver.ReflectionSolving hiding (∣)
 
 private
   variable
@@ -40,11 +40,23 @@ module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
   sumHom+ : (n : ℕ) (c c′ l : Vec R n)
             → linearCombination (coefficientSum c c′) l
               ≡ linearCombination c l + linearCombination c′ l
-  sumHom+ ℕ.zero [] [] [] = 0r ≡⟨ solution ⟩ 0r + 0r ∎
+  sumHom+ ℕ.zero [] [] [] = solution
                             where
                               solution : 0r ≡ 0r + 0r
                               solution = solve Ring
-  sumHom+ (ℕ.suc n) c c′ l = {!!}
+  sumHom+ (ℕ.suc n) (x ∷ c) (y ∷ c′) (a ∷ l) =
+    linearCombination (coefficientSum (x ∷ c) (y ∷ c′)) (a ∷ l)            ≡⟨ refl ⟩
+    linearCombination (x + y ∷ coefficientSum c c′) (a ∷ l)                ≡⟨ refl ⟩
+    (x + y) · a + linearCombination (coefficientSum c c′) l                ≡⟨ step1 ⟩
+    (x + y) · a + (linearCombination c l + linearCombination c′ l)         ≡⟨ step2 ⟩
+    (x · a + linearCombination c l) + (y · a + linearCombination c′ l)     ≡⟨ refl ⟩
+    linearCombination (x ∷ c) (a ∷ l) + linearCombination (y ∷ c′) (a ∷ l) ∎
+    where
+      step1 = cong (λ z → (x + y) · a + z) (sumHom+ n c c′ l)
+      autoSolve : (x y a t1 t2 : R)
+                  → (x + y) · a + (t1 + t2) ≡ (x · a + t1) + (y · a + t2)
+      autoSolve = solve Ring
+      step2 = autoSolve x y a _ _
 
   isLinearCombination : {n : ℕ} → Vec R n → R → hProp _
   isLinearCombination l x =
@@ -60,7 +72,11 @@ module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
   isLinearCombination+ l =
     elim (λ _ → isOfHLevelΠ 1 (λ _ → propTruncIsProp))
          (λ {(cx , px) → elim (λ _ → propTruncIsProp)
-          λ {(cy , py) → ∣  coefficientSum cx cy , {!!} ∣}})
+          λ {(cy , py) →
+            ∣  coefficientSum cx cy ,
+                (_ + _                                           ≡[ i ]⟨ px i + py i ⟩
+                 linearCombination cx l + linearCombination cy l ≡⟨ sym (sumHom+ _ cx cy l) ⟩
+                 linearCombination (coefficientSum cx cy) l ∎) ∣}})
 
   {- If x is a linear combinations of l, then -x is
      a linear combination. -}
