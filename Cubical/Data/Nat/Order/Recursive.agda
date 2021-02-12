@@ -22,6 +22,11 @@ suc m ≤ suc n = m ≤ n
 _<_ : ℕ → ℕ → Type₀
 m < n = suc m ≤ n
 
+_≤?_ : (m n : ℕ) → Dec (m ≤ n)
+zero  ≤? _     = yes tt
+suc m ≤? zero  = no λ ()
+suc m ≤? suc n = m ≤? n
+
 data Trichotomy (m n : ℕ) : Type₀ where
   lt : m < n → Trichotomy m n
   eq : m ≡ n → Trichotomy m n
@@ -76,6 +81,9 @@ m≤n-isProp {suc m} {suc n} = m≤n-isProp {m} {n}
 <-weaken : m < n → m ≤ n
 <-weaken {zero} _ = _
 <-weaken {suc m} {suc n} = <-weaken {m}
+
+<→≢ : n < m → ¬ n ≡ m
+<→≢ {n} {m} p q = ¬m<m {m = m} (subst {x = n} (_< m) q p)
 
 Trichotomy-suc : Trichotomy m n → Trichotomy (suc m) (suc n)
 Trichotomy-suc (lt m<n) = lt m<n
