@@ -71,6 +71,16 @@ module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
       where step1 : (x a t1 : R) → - x · a - t1 ≡ - (x · a + t1)
             step1 = solve Ring
 
+  dist0 : (n : ℕ) (l : Vec R n)
+          → linearCombination (replicate 0r) l ≡ 0r
+  dist0 ℕ.zero [] = refl
+  dist0 (ℕ.suc n) (a ∷ l) =
+    0r · a + linearCombination (replicate 0r) l ≡[ i ]⟨  0r · a + dist0 n l i ⟩
+    0r · a + 0r                                 ≡⟨ step1 a ⟩
+    0r ∎
+    where step1 : (a : R) → 0r · a + 0r ≡ 0r
+          step1 = solve Ring
+
   isLinearCombination : {n : ℕ} → Vec R n → R → hProp _
   isLinearCombination l x =
     ∥ Σ[ coefficients ∈ Vec R _ ] x ≡ linearCombination coefficients l ∥ ,
@@ -103,9 +113,14 @@ module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
                            - linearCombination cx l        ≡⟨ sym (dist- _ cx l) ⟩
                            linearCombination (map -_ cx) l ∎) ∣}
 
+  {- 0r is the trivial linear Combination -}
+  isLinearCombination0 : {n : ℕ} (l : Vec R n)
+                        → isLinearCombination l 0r holds
+  isLinearCombination0 l = ∣ replicate 0r , sym (dist0 _ l) ∣
+
 {-
    generatedIdeal : {n : ℕ} → Vec R n → IdealsIn R′
-   generatedIdeal l = (linearDependent l) ,
+   generatedIdeal l = (isLinearCombination l) ,
                       record
                         { +-closed = {!!}
                         ; -closed = {!!}
