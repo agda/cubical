@@ -3,8 +3,12 @@ module Cubical.Data.Nat.Order.Recursive where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Transport
 
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as Empty
+open import Cubical.Data.Sigma
+open import Cubical.Data.Sum as Sum
 open import Cubical.Data.Unit
 
 open import Cubical.Data.Nat.Base
@@ -34,6 +38,8 @@ data Trichotomy (m n : ℕ) : Type₀ where
 
 private
   variable
+    ℓ : Level
+    P : ℕ → Type ℓ
     k l m n : ℕ
 
 m≤n-isProp : isProp (m ≤ n)
@@ -82,6 +88,13 @@ m≤n-isProp {suc m} {suc n} = m≤n-isProp {m} {n}
 <-weaken {zero} _ = _
 <-weaken {suc m} {suc n} = <-weaken {m}
 
+<-trans : k < m → m < n → k < n
+<-trans {k} {m} {n} k<m m<n
+  = ≤-trans {suc k} {m} {n} k<m (<-weaken {m} m<n)
+
+<-asym : m < n → ¬ n < m
+<-asym {m} m<n n<m = ¬m<m {m} (<-trans {m} {_} {m} m<n n<m)
+
 <→≢ : n < m → ¬ n ≡ m
 <→≢ {n} {m} p q = ¬m<m {m = m} (subst {x = n} (_< m) q p)
 
@@ -102,3 +115,59 @@ k≤k+n (suc k) = k≤k+n k
 
 n≤k+n : ∀ n → n ≤ k + n
 n≤k+n {k} n = transport (λ i → n ≤ +-comm n k i) (k≤k+n n)
+
+≤-split : m ≤ n → (m < n) ⊎ (m ≡ n)
+≤-split {zero} {zero} m≤n = inr refl
+≤-split {zero} {suc n} m≤n = inl _
+≤-split {suc m} {suc n} m≤n
+  = Sum.map (idfun _) (cong suc) (≤-split {m} {n} m≤n)
+
+module Minimal where
+  Least : ∀{ℓ} → (ℕ → Type ℓ) → (ℕ → Type ℓ)
+  Least P m = P m × (∀ n → n < m → ¬ P n)
+
+  isPropLeast : (∀ m → isProp (P m)) → ∀ m → isProp (Least P m)
+  isPropLeast pP m
+    = isPropΣ (pP m) (λ _ → isPropΠ3 λ _ _ _ → isProp⊥)
+
+  Least→ : Σ _ (Least P) → Σ _ P
+  Least→ = map-snd fst
+
+  →Least : (∀ m → Dec (P m)) → Σ _ P → Σ _ (Least P)
+  →Least {P = P} dec (n , Pn) = case search n of λ where
+      (inl least) → least
+      (inr ¬P<n) → n , Pn , ¬P<n
+    where
+    nope : ∀ n → (∀ m → m < n → ¬ P m) → ¬ P n → ∀ m → m ≤ n → ¬ P m
+    nope n ¬P<n ¬Pn m m≤n with ≤-split m≤n
+    ... | inl m<n = ¬P<n m m<n
+    ... | inr m≡n = subst⁻ (¬_ ∘ P) m≡n ¬Pn
+
+    search : ∀ n → (Σ[ m ∈ ℕ ] Least P m) ⊎ (∀ m → m < n → ¬ P m)
+    search 0 = inr (λ _ b _ → b)
+    search (suc n) with search n
+    ... | inl tup = inl tup
+    ... | inr k with dec n
+    ... | yes Pn = inl (n , Pn , k)
+    ... | no ¬Pn = inr (nope n k ¬Pn)
+
+  Least-unique : (x y : Σ _ (Least P)) → fst x ≡ fst y
+  Least-unique (m , Pm , ¬P<m) (n , Pn , ¬P<n) with m ≟ n
+  ... | lt m<n = Empty.rec (¬P<n m m<n Pm)
+  ... | eq m≡n = m≡n
+  ... | gt n<m = Empty.rec (¬P<m n n<m Pn)
+
+  isPropΣLeast : (∀ m → isProp (P m)) → isProp (Σ _ (Least P))
+  isPropΣLeast pP l@(m , LPm) r@(n , LPn)
+    = ΣPathP λ where
+        .fst → Least-unique l r
+        .snd → isOfHLevel→isOfHLevelDep 1 (isPropLeast pP)
+                LPm LPn (Least-unique l r)
+
+  Decidable→Collapsible
+    : (∀ m → isProp (P m)) → (∀ m → Dec (P m)) → Collapsible (Σ ℕ P)
+  Decidable→Collapsible pP dP = λ where
+    .fst → Least→ ∘ →Least dP
+    .snd x y → cong Least→ (isPropΣLeast pP (→Least dP x) (→Least dP y))
+
+open Minimal using (Decidable→Collapsible) public
