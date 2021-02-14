@@ -22,17 +22,18 @@ open import Cubical.HITs.PropositionalTruncation.Base
 private
   variable
     ℓ : Level
-    A : Type ℓ
+    A B : Type ℓ
 
-IsoPresDiscrete : ∀ {ℓ ℓ'}{A : Type ℓ} {B : Type ℓ'} → Iso A B
-               → Discrete A → Discrete B
-IsoPresDiscrete e dA x y with dA (Iso.inv e x) (Iso.inv e y)
-... | yes p = subst Dec (λ i → Iso.rightInv e x i ≡ Iso.rightInv e y i)
-                        (yes (cong (Iso.fun e) p))
-... | no p = subst Dec (λ i → Iso.rightInv e x i ≡ Iso.rightInv e y i)
-                   (no λ q → p (sym (Iso.leftInv e (Iso.inv e x))
-                     ∙∙ cong (Iso.inv e) q
-                     ∙∙ Iso.leftInv e (Iso.inv e y)))
+-- Functions with a section preserve discreteness.
+SectionDiscrete
+  : (f : A → B) (g : B → A) → section f g → Discrete A → Discrete B
+SectionDiscrete f g sect dA x y with dA (g x) (g y)
+... | yes p = yes (sym (sect x) ∙∙ cong f p ∙∙ sect y)
+... | no ¬p = no (λ p → ¬p (cong g p))
+
+IsoPresDiscrete : Iso A B → Discrete A → Discrete B
+IsoPresDiscrete e = SectionDiscrete fun inv rightInv
+  where open Iso e
 
 isProp¬ : (A : Type ℓ) → isProp (¬ A)
 isProp¬ A p q i x = isProp⊥ (p x) (q x) i
