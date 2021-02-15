@@ -14,6 +14,8 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Nat.Properties
 
+open import Cubical.Induction.WellFounded
+
 open import Cubical.Relation.Nullary
 
 infix 4 _≤_ _<_
@@ -39,6 +41,7 @@ data Trichotomy (m n : ℕ) : Type₀ where
 private
   variable
     ℓ : Level
+    R : Type ℓ
     P : ℕ → Type ℓ
     k l m n : ℕ
 
@@ -121,6 +124,22 @@ n≤k+n {k} n = transport (λ i → n ≤ +-comm n k i) (k≤k+n n)
 ≤-split {zero} {suc n} m≤n = inl _
 ≤-split {suc m} {suc n} m≤n
   = Sum.map (idfun _) (cong suc) (≤-split {m} {n} m≤n)
+
+module WellFounded where
+  wf-< : WellFounded _<_
+  wf-rec-< : ∀ n → WFRec _<_ (Acc _<_) n
+
+  wf-< n = acc (wf-rec-< n)
+
+  wf-rec-< (suc n) m m≤n with ≤-split {m} {n} m≤n
+  ... | inl m<n = wf-rec-< n m m<n
+  ... | inr m≡n = subst⁻ (Acc _<_) m≡n (wf-< n)
+
+wf-elim : (∀ n → (∀ m → m < n → P m) → P n) → ∀ n → P n
+wf-elim = WFI.induction WellFounded.wf-<
+
+wf-rec : (∀ n → (∀ m → m < n → R) → R) → ℕ → R
+wf-rec {R = R} = wf-elim {P = λ _ → R}
 
 module Minimal where
   Least : ∀{ℓ} → (ℕ → Type ℓ) → (ℕ → Type ℓ)
