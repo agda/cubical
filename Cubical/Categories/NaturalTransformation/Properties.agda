@@ -32,10 +32,11 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
   symNatIso : ∀ {F G : Functor C D}
             → F ≅ᶜ G
             → G ≅ᶜ F
-  symNatIso η@record { trans = record { N-ob = N-ob ; N-hom = N-hom }
-                     ; nIso = nIso } = record { trans = record { N-ob = λ x → (nIso x) .inv ; N-hom = λ _ → sqLL η }
-                                            ; nIso = λ x → record { inv = N-ob x ; sec = (nIso x) .ret ; ret = (nIso x) .sec } }
-
+  symNatIso η .trans .N-ob x = η .nIso x .inv
+  symNatIso η .trans .N-hom _ = sqLL η
+  symNatIso η .nIso x .inv = η .trans .N-ob x
+  symNatIso η .nIso x .sec = η .nIso x .ret
+  symNatIso η .nIso x .ret = η .nIso x .sec
 
   -- Properties
 

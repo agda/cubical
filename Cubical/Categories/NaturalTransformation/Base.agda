@@ -120,16 +120,16 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
 
   -- vertically sequence natural transformations whose
   -- common functor is not definitional equal
-  seqTransP : {F G G' H : Functor C D} {p : G ≡ G'}
+  seqTransP : {F G G' H : Functor C D} (p : G ≡ G')
             → (α : NatTrans F G) (β : NatTrans G' H)
             → NatTrans F H
-  seqTransP {F} {G} {G'} {H} {p} α β .N-ob x
+  seqTransP {F} {G} {G'} {H} p α β .N-ob x
     -- sequence morphisms with non-judgementally equal (co)domain
     = seqP {C = D} {p = Gx≡G'x} (α ⟦ x ⟧) (β ⟦ x ⟧)
     where
       Gx≡G'x : ∀ {x} → G ⟅ x ⟆ ≡ G' ⟅ x ⟆
       Gx≡G'x {x} i = F-ob (p i) x
-  seqTransP {F} {G} {G'} {H} {p} α β .N-hom {x = x} {y} f
+  seqTransP {F} {G} {G'} {H} p α β .N-hom {x = x} {y} f
     -- compose the two commuting squares
     -- 1. α's commuting square
     -- 2. β's commuting square, but extended to G since β is only G' ≡> H
@@ -170,13 +170,6 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
                    (λ j → λ { (i = i0) → left (~ j)
                             ; (i = i1) → right j })
                    (β .N-hom f i)
-
-  -- hmm are these judgementally equal when refl?
-  -- nope
-  -- does that matter? is there way to make it judgementally equal?
-  -- hmm : {F G H : Functor C D} {α : NatTrans F G} {β : NatTrans G H}
-  --     → seqTrans α β ≡ seqTransP {p = refl} α β
-  -- hmm = {!refl!}
 
 
   module _  ⦃ isCatD : isCategory D ⦄ {F G : Functor C D} {α β : NatTrans F G} where
@@ -226,46 +219,3 @@ module _ {B : Precategory ℓB ℓB'} {C : Precategory ℓC ℓC'} {D : Precateg
        → NatTrans (K ∘F G) (K ∘F H)
   (_∘ʳ_ K {G} {H} β) .N-ob x = K ⟪ β ⟦ x ⟧ ⟫
   (_∘ʳ_ K {G} {H} β) .N-hom f = preserveCommF {C = C} {D = D} {K} (β .N-hom f)
-
-
-
--- module _ (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') ⦃ isCatD : isCategory D ⦄ where
---   open Precategory
---   open NatTrans
---   open Functor
-
---   FUNCTOR : Precategory (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) (ℓ-max (ℓ-max ℓC ℓC') ℓD')
---   FUNCTOR .ob = Functor C D
---   FUNCTOR .Hom[_,_] = NatTrans
---   FUNCTOR .id = idTrans
---   FUNCTOR ._⋆_ = seqTrans
---   FUNCTOR .⋆IdL α = makeNatTransPath λ i x → D .⋆IdL (α .N-ob x) i
---   FUNCTOR .⋆IdR α = makeNatTransPath λ i x → D .⋆IdR (α .N-ob x) i
---   FUNCTOR .⋆Assoc α β γ = makeNatTransPath λ i x → D .⋆Assoc (α .N-ob x) (β .N-ob x) (γ .N-ob x) i
-
---   instance
---     isCatFUNCTOR : isCategory FUNCTOR
---     isCatFUNCTOR .isSetHom = isSetNat
-
---   open isIsoC renaming (inv to invC)
---   -- component wise iso is an iso in Functor
---   FUNCTORIso : ∀ {F G : Functor C D} (α : F ⇒ G)
---              → (∀ (c : C .ob) → isIsoC {C = D} (α ⟦ c ⟧))
---              → isIsoC {C = FUNCTOR} α
---   FUNCTORIso α is .invC .N-ob c = (is c) .invC
---   FUNCTORIso {F} {G} α is .invC .N-hom {c} {d} f
---     = invMoveL areInv-αc
---                ( α ⟦ c ⟧ ⋆⟨ D ⟩ (G ⟪ f ⟫ ⋆⟨ D ⟩ is d .invC)
---                ≡⟨ sym (D .⋆Assoc _ _ _) ⟩
---                  (α ⟦ c ⟧ ⋆⟨ D ⟩ G ⟪ f ⟫) ⋆⟨ D ⟩ is d .invC
---                ≡⟨ sym (invMoveR areInv-αd (α .N-hom f)) ⟩
---                  F ⟪ f ⟫
---                ∎ )
---     where
---       areInv-αc : areInv (α ⟦ c ⟧) ((is c) .invC)
---       areInv-αc = isIso→areInv (is c)
-
---       areInv-αd : areInv (α ⟦ d ⟧) ((is d) .invC)
---       areInv-αd = isIso→areInv (is d)
---   FUNCTORIso α is .sec = makeNatTransPath (funExt (λ c → (is c) .sec))
---   FUNCTORIso α is .ret = makeNatTransPath (funExt (λ c → (is c) .ret))

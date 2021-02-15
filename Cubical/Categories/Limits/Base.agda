@@ -9,7 +9,7 @@ open import Cubical.Data.Sigma using (ΣPathP)
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Instances.SetCat
+open import Cubical.Categories.Instances.Sets
 
 private
   variable

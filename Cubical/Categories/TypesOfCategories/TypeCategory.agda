@@ -12,7 +12,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Instances.SetCat
+open import Cubical.Categories.Instances.Sets
 
 
 record isTypeCategory {ℓ ℓ' ℓ''} (C : Precategory ℓ ℓ')

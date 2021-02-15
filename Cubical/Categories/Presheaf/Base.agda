@@ -10,8 +10,8 @@ open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Instances.SetCat
-open import Cubical.Categories.Instances.FunctorCat
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Functors
 
 module _ {ℓ ℓ' : Level} where
   PreShv : Precategory ℓ ℓ' → Precategory _ _ -- (ℓ-max (ℓ-suc ℓ) ℓ') (ℓ-max (ℓ-suc ℓ) ℓ')

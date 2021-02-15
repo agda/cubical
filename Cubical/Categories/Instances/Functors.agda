@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 
-module Cubical.Categories.Instances.FunctorCat where
+module Cubical.Categories.Instances.Functors where
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor

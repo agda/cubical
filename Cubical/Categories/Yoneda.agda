@@ -6,13 +6,14 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence using (ua)
+open import Cubical.Foundations.Function renaming (_∘_ to _◍_)
 open import Cubical.Data.Sigma
 open import Cubical.Foundations.Equiv
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Instances.SetCat
-open import Cubical.Categories.Instances.FunctorCat
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf
@@ -27,10 +28,6 @@ open NatTrans
 open NatTransP
 open Functor
 open Iso
-
--- function composition?? Is this in the lib somewhere?
-_●_ : ∀ {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} → (B → C) → (A → B) → (A → C)
-(g ● f) x = g (f x)
 
 
 module _ (A B : Type ℓ) (f : A → B) where
@@ -108,11 +105,11 @@ module _ {C : Precategory ℓ ℓ'} ⦃ isCatC : isCategory C ⦄ where
 
   -- in the functor
   -- it's equivalent to apply ϕ to α then do β ⟦ c ⟧
-  -- or apply ϕ the the composite nat trans α ● β
+  -- or apply ϕ the the composite nat trans α ◍ β
   -- where ϕ takes a natural transformation to its representing element
   yonedaIsNaturalInFunctor : ∀ {F G : Functor C (SET ℓ')} (c : C .ob)
                      → (β : F ⇒ G)
-                     → (fun (yoneda G c) ● compTrans β) ≡ (β ⟦ c ⟧ ● fun (yoneda F c))
+                     → (fun (yoneda G c) ◍ compTrans β) ≡ (β ⟦ c ⟧ ◍ fun (yoneda F c))
   yonedaIsNaturalInFunctor {F = F} {G} c β = funExt λ α → refl
 
   -- in the object
@@ -121,9 +118,9 @@ module _ {C : Precategory ℓ ℓ'} ⦃ isCatC : isCategory C ⦄ where
   yonedaIsNaturalInOb : ∀ {F : Functor C (SET ℓ')}
                       → (c c' : C .ob)
                       → (f : C [ c , c' ])
-                      → yoneda F c' .fun ● preComp f ≡ F ⟪ f ⟫ ● yoneda F c .fun
+                      → yoneda F c' .fun ◍ preComp f ≡ F ⟪ f ⟫ ◍ yoneda F c .fun
   yonedaIsNaturalInOb {F = F} c c' f = funExt (λ α
-                             → (yoneda F c' .fun ● preComp f) α
+                             → (yoneda F c' .fun ◍ preComp f) α
                              ≡⟨ refl ⟩
                                (α ⟦ c' ⟧) (f ⋆⟨ C ⟩ C .id c')
                              ≡[ i ]⟨ (α ⟦ c' ⟧) (C .⋆IdR f i) ⟩
@@ -133,7 +130,7 @@ module _ {C : Precategory ℓ ℓ'} ⦃ isCatC : isCategory C ⦄ where
                              ≡[ i ]⟨ (α .N-hom f i) (C .id c) ⟩
                                (F ⟪ f ⟫) ((α ⟦ c ⟧) (C .id c))
                              ≡⟨ refl ⟩
-                               ((F ⟪ f ⟫) ● yoneda F c .fun) α
+                               ((F ⟪ f ⟫) ◍ yoneda F c .fun) α
                              ∎)
 
 -- Yoneda embedding

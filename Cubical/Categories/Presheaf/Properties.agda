@@ -4,8 +4,8 @@ module Cubical.Categories.Presheaf.Properties where
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Instances.SetCat
-open import Cubical.Categories.Instances.FunctorCat
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Equivalence
@@ -22,6 +22,7 @@ import Cubical.Categories.Constructions.Elements as Elements
 private
   variable
     ℓ ℓ' : Level
+    e e' : Level
 
 -- TODO: upstream
 -- fibers are equal when their representatives are equal
@@ -31,6 +32,7 @@ fibersEqIfRepsEq : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {isSetB : isSet
                 → PathP (λ i → fiber f (px i)) a' b'
 fibersEqIfRepsEq {isSetB = isSetB} f {x} {x'} {px} {a'} {b'} p
   = ΣPathP (p , (isOfHLevel→isOfHLevelDep 1 (λ (v , w) → isSetB (f v) w) (snd a') (snd b') (λ i → (p i , px i))))
+
 
 -- (PreShv C) / F ≃ᶜ PreShv (∫ᴾ F)
 module _ (C : Precategory ℓ ℓ') (F : Functor (C ^op) (SET ℓ)) where
