@@ -537,7 +537,7 @@ coHomGr n A = coHom n A , coHomGrnA
   isGroup coHomGrnA = helper
     where
     abstract
-      helper : IsGroup (0ₕ n) (λ x y → x +[ n ]ₕ y) (λ x → -[ n ]ₕ x)
+      helper : IsGroup {G = coHom n A} (0ₕ n) (λ x y → x +[ n ]ₕ y) (λ x → -[ n ]ₕ x)
       helper = makeIsGroup § (assocₕ n) (rUnitₕ n) (lUnitₕ n) (rCancelₕ n) (lCancelₕ n)
 
 ×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group
@@ -561,7 +561,7 @@ AbGroupStr.- snd (coHomRedGroupDir n A) = -ₕ∙_ {n = n}
 IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (coHomRedGroupDir n A))) = helper
   where
   abstract
-    helper : IsGroup (0ₕ∙ n) (_+ₕ∙_ {n = n}) (-ₕ∙_ {n = n})
+    helper : IsGroup {G = coHomRed n A} (0ₕ∙ n) (_+ₕ∙_ {n = n}) (-ₕ∙_ {n = n})
     helper = makeIsGroup § (assocₕ∙ n) (rUnitₕ∙ n) (lUnitₕ∙ n) (rCancelₕ∙ n) (lCancelₕ∙ n)
 IsAbGroup.comm (AbGroupStr.isAbGroup (snd (coHomRedGroupDir n A))) = commₕ∙ n
 
@@ -590,7 +590,9 @@ coHomGrΩ n A = ∥ (A → typ (Ω (coHomK-ptd (suc n)))) ∥₂ , coHomGrnA
   isGroup coHomGrnA = helper
     where
     abstract
-      helper : IsGroup (∣ (λ _ → refl) ∣₂) (sRec2 § λ p q → ∣ (λ x → p x ∙ q x) ∣₂) (map λ f x → sym (f x))
+      helper :
+        IsGroup {G = ∥ (A → typ (Ω (coHomK-ptd (suc n)))) ∥₂}
+          (∣ (λ _ → refl) ∣₂) (sRec2 § λ p q → ∣ (λ x → p x ∙ q x) ∣₂) (map λ f x → sym (f x))
       helper = makeIsGroup § (elim3 (λ _ _ _ → isOfHLevelPath 2 § _ _)
                                     (λ p q r → cong ∣_∣₂ (funExt λ x → assoc∙ (p x) (q x) (r x))))
                              (sElim (λ _ → isOfHLevelPath 2 § _ _) λ p → cong ∣_∣₂ (funExt λ x → sym (rUnit (p x))))
