@@ -152,36 +152,36 @@ module Minimal where
   Least→ : Σ _ (Least P) → Σ _ P
   Least→ = map-snd fst
 
+  search
+    : (∀ m → Dec (P m))
+    → ∀ n → (Σ[ m ∈ ℕ ] Least P m) ⊎ (∀ m → m < n → ¬ P m)
+  search dec zero = inr (λ _ b _ → b)
+  search {P = P} dec (suc n) with search dec n
+  ... | inl tup = inl tup
+  ... | inr ¬P<n with dec n
+  ... | yes Pn = inl (n , Pn , ¬P<n)
+  ... | no ¬Pn = inr λ m m≤n
+      → case ≤-split m≤n of λ where
+          (inl m<n) → ¬P<n m m<n
+          (inr m≡n) → subst⁻ (¬_ ∘ P) m≡n ¬Pn
+
   →Least : (∀ m → Dec (P m)) → Σ _ P → Σ _ (Least P)
-  →Least {P = P} dec (n , Pn) = case search n of λ where
-      (inl least) → least
-      (inr ¬P<n) → n , Pn , ¬P<n
-    where
-    nope : ∀ n → (∀ m → m < n → ¬ P m) → ¬ P n → ∀ m → m ≤ n → ¬ P m
-    nope n ¬P<n ¬Pn m m≤n with ≤-split m≤n
-    ... | inl m<n = ¬P<n m m<n
-    ... | inr m≡n = subst⁻ (¬_ ∘ P) m≡n ¬Pn
+  →Least dec (n , Pn) with search dec n
+  ... | inl least = least
+  ... | inr ¬P<n  = n , Pn , ¬P<n
 
-    search : ∀ n → (Σ[ m ∈ ℕ ] Least P m) ⊎ (∀ m → m < n → ¬ P m)
-    search 0 = inr (λ _ b _ → b)
-    search (suc n) with search n
-    ... | inl tup = inl tup
-    ... | inr k with dec n
-    ... | yes Pn = inl (n , Pn , k)
-    ... | no ¬Pn = inr (nope n k ¬Pn)
-
-  Least-unique : (x y : Σ _ (Least P)) → fst x ≡ fst y
-  Least-unique (m , Pm , ¬P<m) (n , Pn , ¬P<n) with m ≟ n
+  Least-unique : ∀ m n → Least P m → Least P n → m ≡ n
+  Least-unique m n (Pm , ¬P<m) (Pn , ¬P<n) with m ≟ n
   ... | lt m<n = Empty.rec (¬P<n m m<n Pm)
   ... | eq m≡n = m≡n
   ... | gt n<m = Empty.rec (¬P<m n n<m Pn)
 
   isPropΣLeast : (∀ m → isProp (P m)) → isProp (Σ _ (Least P))
-  isPropΣLeast pP l@(m , LPm) r@(n , LPn)
+  isPropΣLeast pP (m , LPm) (n , LPn)
     = ΣPathP λ where
-        .fst → Least-unique l r
+        .fst → Least-unique m n LPm LPn
         .snd → isOfHLevel→isOfHLevelDep 1 (isPropLeast pP)
-                LPm LPn (Least-unique l r)
+                LPm LPn (Least-unique m n LPm LPn)
 
   Decidable→Collapsible
     : (∀ m → isProp (P m)) → (∀ m → Dec (P m)) → Collapsible (Σ ℕ P)
