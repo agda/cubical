@@ -414,6 +414,9 @@ isProp→ pB = isPropΠ λ _ → pB
 isSetΠ : ((x : A) → isSet (B x)) → isSet ((x : A) → B x)
 isSetΠ = isOfHLevelΠ 2
 
+isSet→ : {B : Type ℓ} → isSet B → isSet (A → B)
+isSet→ sB = isOfHLevelΠ 2 λ _ → sB
+
 isSetΠ2 : (h : (x : A) (y : B x) → isSet (C x y))
         → isSet ((x : A) (y : B x) → C x y)
 isSetΠ2 h = isSetΠ λ x → isSetΠ λ y → h x y
