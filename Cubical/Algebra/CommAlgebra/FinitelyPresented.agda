@@ -8,7 +8,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Vec
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.GeneratedIdeal
+open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
 
