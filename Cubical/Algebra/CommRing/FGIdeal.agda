@@ -5,7 +5,7 @@
   of free modules over a finite set.
 -}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Algebra.CommRing.FinitelyGeneratedIdeal where
+module Cubical.Algebra.CommRing.FGIdeal where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Powerset
