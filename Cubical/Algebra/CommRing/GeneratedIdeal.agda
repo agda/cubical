@@ -32,7 +32,6 @@ module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
   _holds : hProp ℓ → Type ℓ
   P holds = fst P
   open CommRingStr str
-  isSetR = isSetCommRing (R , str)
   open Theory (CommRing→Ring Ring)
 
   linearCombination : {n : ℕ} → Vec R n → Vec R n → R
@@ -81,17 +80,16 @@ module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
     where step1 : (a : R) → 0r · a + 0r ≡ 0r
           step1 = solve Ring
 
-  isLinearCombination : {n : ℕ} → Vec R n → R → hProp _
+  isLinearCombination : {n : ℕ} → Vec R n → R → Type ℓ
   isLinearCombination l x =
-    ∥ Σ[ coefficients ∈ Vec R _ ] x ≡ linearCombination coefficients l ∥ ,
-       propTruncIsProp
+    ∥ Σ[ coefficients ∈ Vec R _ ] x ≡ linearCombination coefficients l ∥
 
   {- If x and y are linear combinations of l, then (x + y) is
      a linear combination. -}
   isLinearCombination+ : {n : ℕ} {x y : R} → (l : Vec R n)
-                         → isLinearCombination l x holds
-                         → isLinearCombination l y holds
-                         → isLinearCombination l (x + y) holds
+                         → isLinearCombination l x
+                         → isLinearCombination l y
+                         → isLinearCombination l (x + y)
   isLinearCombination+ l =
     elim (λ _ → isOfHLevelΠ 1 (λ _ → propTruncIsProp))
          (λ {(cx , px) → elim (λ _ → propTruncIsProp)
@@ -104,8 +102,8 @@ module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
   {- If x is a linear combinations of l, then -x is
      a linear combination. -}
   isLinearCombination- : {n : ℕ} {x y : R} (l : Vec R n)
-                         → isLinearCombination l x holds
-                         → isLinearCombination l (- x) holds
+                         → isLinearCombination l x
+                         → isLinearCombination l (- x)
   isLinearCombination- l =
     elim (λ _ → propTruncIsProp)
          λ {(cx , px) → ∣ map -_ cx ,
@@ -115,14 +113,14 @@ module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
 
   {- 0r is the trivial linear Combination -}
   isLinearCombination0 : {n : ℕ} (l : Vec R n)
-                        → isLinearCombination l 0r holds
+                        → isLinearCombination l 0r
   isLinearCombination0 l = ∣ replicate 0r , sym (dist0 _ l) ∣
 
   {- Linear combinations are stable under left multiplication -}
   isLinearCombinationL· : {n : ℕ} (l : Vec R n)
                         → (r x : R)
-                        → isLinearCombination l x holds
-                        → isLinearCombination l (r · x) holds
+                        → isLinearCombination l x
+                        → isLinearCombination l (r · x)
   isLinearCombinationL· l r x =
     elim (λ _ → propTruncIsProp)
          λ {(cx , px) →
@@ -148,7 +146,7 @@ module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
 
   generatedIdeal : {n : ℕ} → Vec R n → IdealsIn Ring
   generatedIdeal l = makeIdeal Ring
-                               (isLinearCombination l)
+                               (λ x → isLinearCombination l x , propTruncIsProp)
                                (isLinearCombination+ l)
                                (isLinearCombination0 l)
                                λ r → isLinearCombinationL· l r _

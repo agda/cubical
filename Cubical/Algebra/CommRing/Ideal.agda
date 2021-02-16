@@ -31,8 +31,7 @@ module _ (Ring@(R , str) : CommRing {ℓ}) where
   makeIdeal I +-closed 0r-closed ·-closedLeft = I ,
     (record
        { +-closed = +-closed
-       ; -closed = λ x∈I → subst (_∈ I)
-                             (- 1r · _ ≡⟨ step1 _ ⟩ - _ ∎ )
+       ; -closed = λ x∈I → subst (_∈ I) (useSolver _)
                              (·-closedLeft (- 1r) x∈I)
        ; 0r-closed = 0r-closed
        ; ·-closedLeft = ·-closedLeft
@@ -41,5 +40,5 @@ module _ (Ring@(R , str) : CommRing {ℓ}) where
                              (·-comm r _)
                              (·-closedLeft r x∈I)
        })
-       where step1 : (x : R) → - 1r · x ≡ - x
-             step1 = solve Ring
+       where useSolver : (x : R) → - 1r · x ≡ - x
+             useSolver = solve Ring
