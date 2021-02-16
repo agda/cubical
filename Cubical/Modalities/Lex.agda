@@ -219,7 +219,7 @@ module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
       compute =
         funExt λ p →
         fun (η-Σ◯ p)
-          ≡⟨ funExt⁻ (◯-ind-β _ _ _) _ ⟩
+          ≡⟨ funExt⁻ {_} {_} {_} {λ _ _ → ◯ (Σ A B)} {_} {_} (◯-ind-β {_} {_} {_} {λ _ → (x : _) → ◯ (Σ A B)} _ _ _) _ ⟩
         transport refl (◯-map _ _)
           ≡⟨ transportRefl _ ⟩
         ◯-map _ (⟨◯⟩→◯ (⟨η⟩ _))

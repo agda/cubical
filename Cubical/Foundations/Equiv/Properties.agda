@@ -153,45 +153,46 @@ cong≃-idEquiv F A = cong≃ F (idEquiv A) ≡⟨ cong (λ p → pathToEquiv (c
                     pathToEquiv refl    ≡⟨ pathToEquivRefl ⟩
                     idEquiv (F A)       ∎
 
-isPropIsHAEquiv : {f : A → B} → isProp (isHAEquiv f)
-isPropIsHAEquiv {f = f} ishaef = goal ishaef where
-  equivF : isEquiv f
-  equivF = isHAEquiv→isEquiv ishaef
-
-  rCoh1 : (sec : hasSection f) → Type _
-  rCoh1 (g , ε) = Σ[ η ∈ retract f g ] ∀ x → cong f (η x) ≡ ε (f x)
-
-  rCoh2 : (sec : hasSection f) → Type _
-  rCoh2 (g , ε) = Σ[ η ∈ retract f g ] ∀ x → Square (ε (f x)) refl (cong f (η x)) refl
-
-  rCoh3 : (sec : hasSection f) → Type _
-  rCoh3 (g , ε) = ∀ x → Σ[ ηx ∈ g (f x) ≡ x ] Square (ε (f x)) refl (cong f ηx) refl
-
-  rCoh4 : (sec : hasSection f) → Type _
-  rCoh4 (g , ε) = ∀ x → Path (fiber f (f x)) (g (f x) , ε (f x)) (x , refl)
-
-  characterization : isHAEquiv f ≃ Σ _ rCoh4
-  characterization =
-    isHAEquiv f
-      -- first convert between Σ and record
-      ≃⟨ isoToEquiv (iso (λ e → (e .g , e .ret) , (e .sec , e .com))
-                         (λ e → record { g = e .fst .fst ; ret = e .fst .snd
-                                       ; sec = e .snd .fst ; com = e .snd .snd })
-                         (λ _ → refl) (λ _ → refl)) ⟩
-    Σ _ rCoh1
-      -- secondly, convert the path into a dependent path for later convenience
-      ≃⟨  Σ-cong-equiv-snd (λ s → Σ-cong-equiv-snd
-                             λ η → depPostCompEquiv
-                               λ x → compEquiv (flipSquareEquiv {a₀₀ = f x}) (invEquiv slideSquareEquiv)) ⟩
-    Σ _ rCoh2
-      ≃⟨ Σ-cong-equiv-snd (λ s → invEquiv Σ-Π-≃) ⟩
-    Σ _ rCoh3
-      ≃⟨ Σ-cong-equiv-snd (λ s → depPostCompEquiv λ x → ΣPath≃PathΣ) ⟩
-    Σ _ rCoh4
-      ■
-    where open isHAEquiv
-
-  goal : isProp (isHAEquiv f)
-  goal = subst isProp (sym (ua characterization))
-    (isPropΣ (isContr→isProp (isEquiv→isContrHasSection equivF))
-             λ s → isPropΠ λ x → isProp→isSet (isContr→isProp (equivF .equiv-proof (f x))) _ _)
+-- TODO: 2021-02-16 <Víctor> Infinite loop when using twin types
+-- isPropIsHAEquiv : {f : A → B} → isProp (isHAEquiv f)
+-- isPropIsHAEquiv {f = f} ishaef = goal ishaef where
+--   equivF : isEquiv f
+--   equivF = isHAEquiv→isEquiv ishaef
+--
+--   rCoh1 : (sec : hasSection f) → Type _
+--   rCoh1 (g , ε) = Σ[ η ∈ retract f g ] ∀ x → cong f (η x) ≡ ε (f x)
+--
+--   rCoh2 : (sec : hasSection f) → Type _
+--   rCoh2 (g , ε) = Σ[ η ∈ retract f g ] ∀ x → Square (ε (f x)) refl (cong f (η x)) refl
+--
+--   rCoh3 : (sec : hasSection f) → Type _
+--   rCoh3 (g , ε) = ∀ x → Σ[ ηx ∈ g (f x) ≡ x ] Square (ε (f x)) refl (cong f ηx) refl
+--
+--   rCoh4 : (sec : hasSection f) → Type _
+--   rCoh4 (g , ε) = ∀ x → Path (fiber f (f x)) (g (f x) , ε (f x)) (x , refl)
+--
+--   characterization : isHAEquiv f ≃ Σ _ rCoh4
+--   characterization =
+--     isHAEquiv f
+--       -- first convert between Σ and record
+--       ≃⟨ isoToEquiv (iso (λ e → (e .g , e .ret) , (e .sec , e .com))
+--                          (λ e → record { g = e .fst .fst ; ret = e .fst .snd
+--                                        ; sec = e .snd .fst ; com = e .snd .snd })
+--                          (λ _ → refl) (λ _ → refl)) ⟩
+--     Σ _ rCoh1
+--       -- secondly, convert the path into a dependent path for later convenience
+--       ≃⟨  Σ-cong-equiv-snd (λ s → Σ-cong-equiv-snd
+--                              λ η → depPostCompEquiv
+--                                λ x → compEquiv (flipSquareEquiv {a₀₀ = f x}) (invEquiv slideSquareEquiv)) ⟩
+--     Σ _ rCoh2
+--       ≃⟨ Σ-cong-equiv-snd (λ s → invEquiv Σ-Π-≃) ⟩
+--     Σ _ rCoh3
+--       ≃⟨ Σ-cong-equiv-snd (λ s → depPostCompEquiv λ x → ΣPath≃PathΣ) ⟩
+--     Σ _ rCoh4
+--       ■
+--     where open isHAEquiv
+--
+--   goal : isProp (isHAEquiv f)
+--   goal = subst isProp (sym (ua characterization))
+--     (isPropΣ (isContr→isProp (isEquiv→isContrHasSection equivF))
+--              λ s → isPropΠ λ x → isProp→isSet (isContr→isProp (equivF .equiv-proof (f x))) _ _)
