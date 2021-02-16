@@ -152,7 +152,7 @@ CommRingPath : (R S : CommRing {ℓ}) → (Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] C
 CommRingPath = CommRingΣTheory.CommRingPath
 
 isSetCommRing : ((R , str) : CommRing {ℓ}) → isSet R
-isSetCommRing (R , str) = str .CommRingStr.isRing .IsRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+isSetCommRing (R , str) = str .CommRingStr.is-set
 
 isPropIsCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
              → isProp (IsCommRing 0r 1r _+_ _·_ -_)

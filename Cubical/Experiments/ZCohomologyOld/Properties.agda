@@ -453,7 +453,7 @@ coHomGr n A = coHom n A , coHomGrnA
   isGroup coHomGrnA = helper
     where
     abstract
-      helper : IsGroup (0ₕ n) (λ x y → x +[ n ]ₕ y) (λ x → -[ n ]ₕ x)
+      helper : IsGroup {G = coHom n A} (0ₕ n) (λ x y → x +[ n ]ₕ y) (λ x → -[ n ]ₕ x)
       helper = makeIsGroup § (λ x y z → sym (assocₕ n x y z)) (rUnitₕ n) (lUnitₕ n) (rCancelₕ n) (lCancelₕ n)
 
 ×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group
