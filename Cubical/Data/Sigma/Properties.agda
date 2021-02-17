@@ -31,6 +31,8 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Relation.Nullary
 open import Cubical.Data.Unit.Base
 
+open import Cubical.Reflection.StrictEquiv
+
 open Iso
 
 private
@@ -81,7 +83,7 @@ module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
 
   ΣPath≃PathΣ : (Σ[ p ∈ PathP A (fst x) (fst y) ] (PathP (λ i → B i (p i)) (snd x) (snd y)))
               ≃ (PathP (λ i → Σ (A i) (B i)) x y)
-  ΣPath≃PathΣ = isoToEquiv ΣPathIsoPathΣ
+  ΣPath≃PathΣ = strictIsoToEquiv ΣPathIsoPathΣ
 
   ΣPath≡PathΣ : (Σ[ p ∈ PathP A (fst x) (fst y) ] (PathP (λ i → B i (p i)) (snd x) (snd y)))
               ≡ (PathP (λ i → Σ (A i) (B i)) x y)
@@ -105,7 +107,7 @@ module _ {A : I → Type ℓ} {B : (i : I) → (a : A i) → Type ℓ'}
   ΣPathPIsoPathPΣ .rightInv _ = refl
   ΣPathPIsoPathPΣ .leftInv _ = refl
 
-  ΣPathP≃PathPΣ = isoToEquiv ΣPathPIsoPathPΣ
+  ΣPathP≃PathPΣ = strictIsoToEquiv ΣPathPIsoPathPΣ
 
   ΣPathP≡PathPΣ = ua ΣPathP≃PathPΣ
 
@@ -130,7 +132,7 @@ rightInv Σ-swap-Iso _ = refl
 leftInv Σ-swap-Iso _  = refl
 
 Σ-swap-≃ : A × A' ≃ A' × A
-Σ-swap-≃ = isoToEquiv Σ-swap-Iso
+Σ-swap-≃ = strictIsoToEquiv Σ-swap-Iso
 
 Σ-assoc-Iso : Iso (Σ[ (a , b) ∈ Σ A B ] C a b) (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
 fun Σ-assoc-Iso ((x , y) , z) = (x , (y , z))
@@ -139,7 +141,7 @@ rightInv Σ-assoc-Iso _ = refl
 leftInv Σ-assoc-Iso _  = refl
 
 Σ-assoc-≃ : (Σ[ (a , b) ∈ Σ A B ] C a b) ≃ (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
-Σ-assoc-≃ = isoToEquiv Σ-assoc-Iso
+Σ-assoc-≃ = strictIsoToEquiv Σ-assoc-Iso
 
 Σ-Π-Iso : Iso ((a : A) → Σ[ b ∈ B a ] C a b) (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
 fun Σ-Π-Iso f         = (fst ∘ f , snd ∘ f)
@@ -148,7 +150,7 @@ rightInv Σ-Π-Iso _    = refl
 leftInv Σ-Π-Iso _     = refl
 
 Σ-Π-≃ : ((a : A) → Σ[ b ∈ B a ] C a b) ≃ (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
-Σ-Π-≃ = isoToEquiv Σ-Π-Iso
+Σ-Π-≃ = strictIsoToEquiv Σ-Π-Iso
 
 Σ-cong-iso-fst : (isom : Iso A A') → Iso (Σ A (B ∘ fun isom)) (Σ A' B)
 fun (Σ-cong-iso-fst isom) x = fun isom (x .fst) , x .snd
@@ -347,13 +349,13 @@ toProdIso : {B C : A → Type ℓ}
 Iso.fun toProdIso = λ f → (λ a → fst (f a)) , (λ a → snd (f a))
 Iso.inv toProdIso (f , g) = λ a → (f a) , (g a)
 Iso.rightInv toProdIso (f , g) = refl
-Iso.leftInv toProdIso b = funExt λ _ → refl
+Iso.leftInv toProdIso b = refl
 
 curryIso : Iso (((a , b) : Σ A B) → C a b) ((a : A) → (b : B a) → C a b)
 Iso.fun curryIso f a b = f (a , b)
 Iso.inv curryIso f a = f (fst a) (snd a)
 Iso.rightInv curryIso a = refl
-Iso.leftInv curryIso f = funExt λ _ → refl
+Iso.leftInv curryIso f = refl
 
 curryEquiv : (((a , b) : Σ A B) → C a b) ≃ (∀ a → (b : B a) → C a b)
-curryEquiv = isoToEquiv curryIso
+curryEquiv = strictIsoToEquiv curryIso

@@ -3,8 +3,8 @@ module Cubical.Data.List.Base where
 
 open import Agda.Builtin.List        public
 open import Cubical.Core.Everything
-open import Cubical.Data.Maybe
-open import Cubical.Data.Nat
+open import Cubical.Data.Maybe.Base
+open import Cubical.Data.Nat.Base
 
 module _ {ℓ} {A : Type ℓ} where
 

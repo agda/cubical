@@ -23,6 +23,8 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphism
 
+open import Cubical.Reflection.StrictEquiv
+
 private
   variable
     ℓ ℓ' ℓ'' : Level

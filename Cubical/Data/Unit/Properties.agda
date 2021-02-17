@@ -4,6 +4,7 @@ module Cubical.Data.Unit.Properties where
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 
@@ -14,6 +15,8 @@ open import Cubical.Data.Prod.Base
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
+
+open import Cubical.Reflection.StrictEquiv
 
 isContrUnit : isContr Unit
 isContrUnit = tt , λ {tt → refl}
@@ -28,9 +31,14 @@ isOfHLevelUnit : (n : HLevel) → isOfHLevel n Unit
 isOfHLevelUnit n = isContr→isOfHLevel n isContrUnit
 
 UnitToType≃ : ∀ {ℓ} (A : Type ℓ) → (Unit → A) ≃ A
-UnitToType≃ _ .fst f = f _
-UnitToType≃ _ .snd .equiv-proof = strictContrFibers (λ a _ → a)
+UnitToType≃ A = strictEquiv fwd bwd
+  where
+  fwd : (Unit → A) → A
+  fwd f = f _
 
+  bwd : A → (Unit → A)
+  bwd = const
+  
 UnitToTypePath : ∀ {ℓ} (A : Type ℓ) → (Unit → A) ≡ A
 UnitToTypePath A = ua (UnitToType≃ A)
 
@@ -44,13 +52,13 @@ diagonal-unit : Unit ≡ Unit × Unit
 diagonal-unit = isoToPath (iso (λ x → tt , tt) (λ x → tt) (λ {(tt , tt) i → tt , tt}) λ {tt i → tt})
 
 fibId : ∀ {ℓ} (A : Type ℓ) → (fiber (λ (x : A) → tt) tt) ≡ A
-fibId A =
-  isoToPath
-    (iso fst
-         (λ a → a , refl)
-         (λ _ → refl)
-         (λ a i → fst a
-                 , isOfHLevelSuc 1 isPropUnit _ _ (snd a) refl i))
+fibId A = ua (strictEquiv fwd bwd)
+  where
+  fwd : fiber (λ (x : A) → tt) tt → A
+  fwd = fst
+
+  bwd : A → fiber (λ (x : A) → tt) tt
+  bwd a = a , refl
 
 isContr→≃Unit : ∀ {ℓ} {A : Type ℓ} → isContr A → A ≃ Unit
 isContr→≃Unit contr = isoToEquiv (iso (λ _ → tt) (λ _ → fst contr) (λ _ → refl) λ _ → snd contr _)
