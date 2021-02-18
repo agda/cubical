@@ -2,6 +2,7 @@
 module Cubical.Reflection.StrictEquiv where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.Base
 open import Cubical.Foundations.Isomorphism
 
@@ -21,6 +22,9 @@ private
   _`≃`_ : R.Term → R.Term → R.Term
   A `≃` B = R.def (quote _≃_) (A v∷ B v∷ [])
 
+  `id` : R.Term → R.Term
+  `id` t = R.def (quote idfun) (R.unknown v∷ t v∷ [])
+
 strictEquivTerm : R.Term → R.Term → R.Term
 strictEquivTerm f g =
   R.pat-lam
@@ -34,30 +38,30 @@ strictEquivTerm f g =
     )
     []
 
-strictEquivMacro : R.Term → R.Term → R.Term → R.TC Unit
-strictEquivMacro f g hole =
-  newMeta (R.def (quote Type) [ varg R.unknown ]) >>= λ A →
-  newMeta (R.def (quote Type) [ varg R.unknown ]) >>= λ B →
-  R.checkType hole (A `≃` B) >>
-  newMeta (A `→` B) >>= λ fHole →
-  newMeta (B `→` A) >>= λ gHole →
-  R.unify f fHole >>
-  R.unify g gHole >>
-  R.unify (strictEquivTerm fHole gHole) hole
+strictEquivMacro : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+  → (A → B) → (B → A) → R.Term → R.TC Unit
+strictEquivMacro {A = A} {B} f g hole =
+  R.quoteTC A >>= λ `A` →
+  R.quoteTC B >>= λ `B` →
+  R.checkType hole (`A` `≃` `B`) >>
+  R.quoteTC f >>= λ `f` →
+  R.quoteTC g >>= λ `g` →
+  R.unify (strictEquivTerm `f` `g`) hole
 
-strictIsoToEquivMacro : R.Term → R.Term → R.TC Unit
+strictIsoToEquivMacro : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+  → Iso A B → R.Term → R.TC Unit
 strictIsoToEquivMacro isom =
-  strictEquivMacro
-    (R.def (quote Iso.fun) (isom v∷ []))
-    (R.def (quote Iso.inv) (isom v∷ []))
+  strictEquivMacro (Iso.fun isom) (Iso.inv isom)
 
 macro
   -- (f : A → B) → (g : B → A) → (A ≃ B)
   -- Assumes that `f` and `g` are inverse up to definitional equality
-  strictEquiv : R.Term → R.Term → R.Term → R.TC Unit
+  strictEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+    → (A → B) → (B → A) → R.Term → R.TC Unit
   strictEquiv = strictEquivMacro
 
   -- (isom : Iso A B) → (A ≃ B)
   -- Assumes that the functions defining `isom` are inverse up to definitional equality
-  strictIsoToEquiv : R.Term → R.Term → R.TC Unit
+  strictIsoToEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+    → Iso A B → R.Term → R.TC Unit
   strictIsoToEquiv = strictIsoToEquivMacro
