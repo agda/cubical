@@ -12,19 +12,6 @@ open import Cubical.Data.Unit.Base
 import Agda.Builtin.Reflection as R
 open import Cubical.Reflection.Base
 
-private
-  Fun : ∀ {ℓ ℓ'} → Type ℓ → Type ℓ' → Type (ℓ-max ℓ ℓ')
-  Fun A B = A → B
-
-  _`→`_ : R.Term → R.Term → R.Term
-  A `→` B = R.def (quote Fun) (A v∷ B v∷ [])
-
-  _`≃`_ : R.Term → R.Term → R.Term
-  A `≃` B = R.def (quote _≃_) (A v∷ B v∷ [])
-
-  `id` : R.Term → R.Term
-  `id` t = R.def (quote idfun) (R.unknown v∷ t v∷ [])
-
 strictEquivTerm : R.Term → R.Term → R.Term
 strictEquivTerm f g =
   R.pat-lam
@@ -41,9 +28,8 @@ strictEquivTerm f g =
 strictEquivMacro : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
   → (A → B) → (B → A) → R.Term → R.TC Unit
 strictEquivMacro {A = A} {B} f g hole =
-  R.quoteTC A >>= λ `A` →
-  R.quoteTC B >>= λ `B` →
-  R.checkType hole (`A` `≃` `B`) >>
+  R.quoteTC (A ≃ B) >>= λ equivTy →
+  R.checkType hole equivTy >>
   R.quoteTC f >>= λ `f` →
   R.quoteTC g >>= λ `g` →
   R.unify (strictEquivTerm `f` `g`) hole
