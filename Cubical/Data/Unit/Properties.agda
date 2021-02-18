@@ -38,7 +38,7 @@ UnitToType≃ A = strictEquiv fwd bwd
 
   bwd : A → (Unit → A)
   bwd = const
-  
+
 UnitToTypePath : ∀ {ℓ} (A : Type ℓ) → (Unit → A) ≡ A
 UnitToTypePath A = ua (UnitToType≃ A)
 
