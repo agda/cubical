@@ -17,7 +17,6 @@ open isPathSplitEquiv
 open import Cubical.Modalities.Modality
 open Modality
 
-open import Cubical.Data.Empty.Base as ⊥ renaming (rec to ⊥rec ; elim to ⊥elim)
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Bool
@@ -110,48 +109,82 @@ isOfHLevelTrunc : (n : ℕ) → isOfHLevel n (∥ A ∥ n)
 isOfHLevelTrunc zero = isOfHLevelUnit* 0
 isOfHLevelTrunc (suc n) = isSphereFilled→isOfHLevel n isSphereFilled∥∥
 
+rec₊ : {n : HLevel}
+       {B : Type ℓ'} →
+       isOfHLevel (suc n) B →
+       (A → B) →
+       hLevelTrunc (suc n) A →
+       B
+rec₊ h g ∣ x ∣ = g x
+rec₊ {n = n} {B = B} hB g (hub f) = isOfHLevel→isSphereFilled n hB (λ x → rec₊ hB g (f x)) .fst
+rec₊ {n = n} hB g (spoke f x i) =
+  isOfHLevel→isSphereFilled n hB (λ x → rec₊ hB g (f x)) .snd x i
+
 rec : {n : HLevel}
       {B : Type ℓ'} →
-      isOfHLevel (suc n) B →
+      isOfHLevel n B →
       (A → B) →
-      hLevelTrunc (suc n) A →
+      hLevelTrunc n A →
       B
-rec h g ∣ x ∣ = g x
-rec {n = n} {B = B} hB g (hub f) = isOfHLevel→isSphereFilled n hB (λ x → rec hB g (f x)) .fst
-rec {n = n} hB g (spoke f x i) =
-  isOfHLevel→isSphereFilled n hB (λ x → rec hB g (f x)) .snd x i
+rec {n = zero} h g t = h .fst
+rec {n = suc n} = rec₊
 
-elim : {n : ℕ}
-      {B : ∥ A ∥ (suc n) → Type ℓ'}
-      (hB : (x : ∥ A ∥ (suc n)) → isOfHLevel (suc n) (B x))
-      (g : (a : A) → B (∣ a ∣))
-      (x : ∥ A ∥ (suc n)) →
-      B x
-elim hB g (∣ a ∣ ) = g a
-elim {B = B} hB g (hub f) =
-  isOfHLevel→isSphereFilled _ (hB (hub f)) (λ x → subst B (sym (spoke f x)) (elim hB g (f x)) ) .fst
-elim {B = B} hB g (spoke f x i) =
+rec2 : {n : HLevel}
+       {B : Type ℓ'} →
+       isOfHLevel n B →
+       (A → A → B) →
+       (t u : hLevelTrunc n A)
+       → B
+rec2 h g = rec (isOfHLevelΠ _ (λ _ → h)) (λ a → rec h (λ b → g a b))
+
+rec3 : {n : HLevel}
+       {B : Type ℓ'} →
+       isOfHLevel n B →
+       (A → A → A → B) →
+       (t u v : hLevelTrunc n A)
+       → B
+rec3 h g = rec2 (isOfHLevelΠ _ (λ _ → h)) (λ a b → rec h (λ c → g a b c))
+
+elim₊ : {n : ℕ}
+        {B : ∥ A ∥ (suc n) → Type ℓ'}
+        (hB : (x : ∥ A ∥ (suc n)) → isOfHLevel (suc n) (B x))
+        (g : (a : A) → B (∣ a ∣))
+        (x : ∥ A ∥ (suc n)) →
+        B x
+elim₊ hB g (∣ a ∣ ) = g a
+elim₊ {B = B} hB g (hub f) =
+  isOfHLevel→isSphereFilled _ (hB (hub f)) (λ x → subst B (sym (spoke f x)) (elim₊ hB g (f x)) ) .fst
+elim₊ {B = B} hB g (spoke f x i) =
   toPathP {A = λ i → B (spoke f x (~ i))}
-    (sym (isOfHLevel→isSphereFilled _ (hB (hub f)) (λ x → subst B (sym (spoke f x)) (elim hB g (f x))) .snd x))
+    (sym (isOfHLevel→isSphereFilled _ (hB (hub f)) (λ x → subst B (sym (spoke f x)) (elim₊ hB g (f x))) .snd x))
     (~ i)
 
+elim : {n : ℕ}
+       {B : ∥ A ∥ n → Type ℓ'}
+       (hB : (x : ∥ A ∥ n) → isOfHLevel n (B x))
+       (g : (a : A) → B (∣ a ∣ₕ))
+       (x : ∥ A ∥ n) →
+       B x
+elim {n = zero} h g t = h t .fst
+elim {n = suc n} = elim₊
+
 elim2 : {n : ℕ}
-       {B : ∥ A ∥ (suc n) → ∥ A ∥ (suc n) → Type ℓ'}
-       (hB : ((x y : ∥ A ∥ (suc n)) → isOfHLevel (suc n) (B x y)))
-       (g : (a b : A) → B ∣ a ∣ ∣ b ∣)
-       (x y : ∥ A ∥ (suc n)) →
-       B x y
-elim2 {n = n} hB g = elim (λ _ → isOfHLevelΠ (suc n) (λ _ → hB _ _)) λ a →
-                    elim (λ _ → hB _ _) (λ b → g a b)
+        {B : ∥ A ∥ n → ∥ A ∥ n → Type ℓ'}
+        (hB : ((x y : ∥ A ∥ n) → isOfHLevel n (B x y)))
+        (g : (a b : A) → B ∣ a ∣ₕ ∣ b ∣ₕ)
+        (x y : ∥ A ∥ n) →
+        B x y
+elim2 hB g = elim (λ _ → isOfHLevelΠ _ (λ _ → hB _ _)) λ a →
+             elim (λ _ → hB _ _) (λ b → g a b)
 
 elim3 : {n : ℕ}
-       {B : (x y z : ∥ A ∥ (suc n)) → Type ℓ'}
-       (hB : ((x y z : ∥ A ∥ (suc n)) → isOfHLevel (suc n) (B x y z)))
-       (g : (a b c : A) → B (∣ a ∣) ∣ b ∣ ∣ c ∣)
-       (x y z : ∥ A ∥ (suc n)) →
-       B x y z
-elim3 {n = n} hB g = elim2 (λ _ _ → isOfHLevelΠ (suc n) (hB _ _)) λ a b →
-                    elim (λ _ → hB _ _ _) (λ c → g a b c)
+        {B : (x y z : ∥ A ∥ n) → Type ℓ'}
+        (hB : ((x y z : ∥ A ∥ n) → isOfHLevel n (B x y z)))
+        (g : (a b c : A) → B (∣ a ∣ₕ) ∣ b ∣ₕ ∣ c ∣ₕ)
+        (x y z : ∥ A ∥ n) →
+        B x y z
+elim3 hB g = elim2 (λ _ _ → isOfHLevelΠ _ (hB _ _)) λ a b →
+             elim (λ _ → hB _ _ _) (λ c → g a b c)
 
 isContr→isContr∥ : (n : ℕ) → isContr A → isContr (∥ A ∥ n)
 isContr→isContr∥ zero _ = tt* , (λ _ _ → tt*)
@@ -174,15 +207,14 @@ isOfHLevelMin→isOfHLevel {A = A} {n = suc n} {m = suc m} h =
   helper (suc n) (suc m) = +-suc _ _ ∙ cong suc (helper n m)
 
 ΣTruncElim : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {n m : ℕ}
-              {B : (x : ∥ A ∥ (suc n)) → Type ℓ'}
-              {C : (Σ[ a ∈ (∥ A ∥ (suc n)) ] (∥ B a ∥ (suc m))) → Type ℓ''}
-            → ((x : (Σ[ a ∈ (∥ A ∥ (suc n)) ] (∥ B a ∥ (suc m)))) → isOfHLevel (min (suc n) (suc m)) (C x))
-            → ((a : A) (b : B (∣ a ∣)) → C (∣ a ∣ , ∣ b ∣))
-            → (x : (Σ[ a ∈ (∥ A ∥ (suc n)) ] (∥ B a ∥ (suc m)))) → (C x)
-ΣTruncElim {n = n} {m = m} {B = B} {C = C} hB g (a , b) =
-  elim {B = λ a → (b :  (∥ B a ∥ (suc m))) → C (a , b)}
-       (λ x → isOfHLevelΠ (suc n) λ b → isOfHLevelMin→isOfHLevel (hB (x , b)) .fst )
-       (λ a → elim (λ _ → isOfHLevelMin→isOfHLevel (hB (∣ a ∣ , _)) .snd) λ b → g a b)
+             {B : (x : ∥ A ∥ n) → Type ℓ'}
+             {C : (Σ[ a ∈ (∥ A ∥ n) ] (∥ B a ∥ m)) → Type ℓ''}
+             → ((x : (Σ[ a ∈ (∥ A ∥ n) ] (∥ B a ∥ m))) → isOfHLevel (min n m) (C x))
+             → ((a : A) (b : B (∣ a ∣ₕ)) → C (∣ a ∣ₕ , ∣ b ∣ₕ))
+             → (x : (Σ[ a ∈ (∥ A ∥ n) ] (∥ B a ∥ m))) → C x
+ΣTruncElim hB g (a , b) =
+  elim (λ x → isOfHLevelΠ _ λ b → isOfHLevelMin→isOfHLevel (hB (x , b)) .fst )
+       (λ a → elim (λ _ → isOfHLevelMin→isOfHLevel (hB (∣ a ∣ₕ , _)) .snd) λ b → g a b)
        a b
 
 truncIdempotentIso : (n : ℕ) → isOfHLevel n A → Iso (∥ A ∥ n) A
@@ -190,7 +222,8 @@ truncIdempotentIso zero hA = isContr→Iso (isOfHLevelUnit* 0) hA
 Iso.fun (truncIdempotentIso (suc n) hA) = rec hA λ a → a
 Iso.inv (truncIdempotentIso (suc n) hA) = ∣_∣
 Iso.rightInv (truncIdempotentIso (suc n) hA) _ = refl
-Iso.leftInv (truncIdempotentIso (suc n) hA) = elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) λ _ → refl
+Iso.leftInv (truncIdempotentIso (suc n) hA) =
+  elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) λ _ → refl
 
 truncIdempotent≃ : (n : ℕ) → isOfHLevel n A → ∥ A ∥ n ≃ A
 truncIdempotent≃ n hA = isoToEquiv (truncIdempotentIso n hA)
@@ -226,8 +259,7 @@ Iso.leftInv (univTrunc (suc n) {B , lev}) b = funExt (elim (λ x → isOfHLevelP
 
 map : {n : HLevel} {B : Type ℓ'} (g : A → B)
   → hLevelTrunc n A → hLevelTrunc n B
-map {n = zero} g = λ _ → tt*
-map {n = suc n} g = rec (isOfHLevelTrunc _) (λ a → ∣ g a ∣)
+map g = rec (isOfHLevelTrunc _) (λ a → ∣ g a ∣ₕ)
 
 map2 : ∀ {ℓ''} {n : HLevel} {B : Type ℓ'} {C : Type ℓ''} (g : A → B → C)
   → hLevelTrunc n A → hLevelTrunc n B → hLevelTrunc n C
@@ -327,8 +359,8 @@ Iso.leftInv (truncOfProdIso (suc n)) = elim (λ _ → isOfHLevelPath (suc n) (is
 module ΩTrunc {X : Type ℓ} {n : HLevel} where
   {- We define the fibration P to show a more general result  -}
   P : ∥ X ∥ (2 + n) → ∥ X ∥ (2 + n) → Type ℓ
-  P x y =  elim2 (λ _ _  → isOfHLevelTypeOfHLevel (suc n))
-                 (λ a b → ∥ a ≡ b ∥ (suc n) , isOfHLevelTrunc (suc n)) x y .fst
+  P x y =  rec2 (isOfHLevelTypeOfHLevel (suc n))
+                (λ a b → ∥ a ≡ b ∥ (suc n) , isOfHLevelTrunc (suc n)) x y .fst
 
   {- We will need P to be of hLevel n + 3  -}
   hLevelP : (a b : ∥ X ∥ (2 + n)) → isOfHLevel (2 + n) (P a b)
