@@ -196,5 +196,3 @@ module CommAlgebraΣTheory (R : CommRing {ℓ}) where
 
 CommAlgebraPath : (R : CommRing {ℓ}) → (A B : CommAlgebra R) → (CommAlgebraEquiv A B) ≃ (A ≡ B)
 CommAlgebraPath = CommAlgebraΣTheory.CommAlgebraPath
-
-
