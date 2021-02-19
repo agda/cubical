@@ -119,6 +119,29 @@ module _ {R : CommRing {ℓ}} where
                    x · (r ⋆ y) ∎)
      ·-comm
 
+
+module _ {R : CommRing {ℓ}} ((S , str) : CommRing {ℓ}) where
+  open CommRingStr {{...}}
+  instance
+    _ : CommRingStr _
+    _ = str
+    _ : CommRingStr _
+    _ = snd R
+
+  commAlgebraFromCommRing :
+        (_⋆_ : fst R → S → S)
+      → ((r s : fst R) (x : S) → (r · s) ⋆ x ≡ r ⋆ (s ⋆ x))
+      → ((r s : fst R) (x : S) → (r + s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
+      → ((r : fst R) (x y : S) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
+      → ((x : S) → 1r ⋆ x ≡ x)
+      → ((r : fst R) (x y : S) → (r ⋆ x) · y ≡ r ⋆ (x · y))
+      → CommAlgebra R
+  commAlgebraFromCommRing _⋆_ ·Assoc⋆ ⋆DistR ⋆DistL ⋆Lid ⋆Assoc· =
+    commalgebra S 0r 1r _+_ _·_  -_ _⋆_
+      (makeIsCommAlgebra is-set +Assoc +Rid +Rinv +Comm ·Assoc ·Lid ·Ldist+ ·-comm
+                                ·Assoc⋆ ⋆DistR ⋆DistL ⋆Lid ⋆Assoc·)
+
+
 module CommAlgebraΣTheory (R : CommRing {ℓ}) where
 
   open AlgebraΣTheory (CommRing→Ring R)
