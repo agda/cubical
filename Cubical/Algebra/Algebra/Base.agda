@@ -46,7 +46,7 @@ record IsAlgebra (R : Ring {ℓ}) {A : Type ℓ}
 
   isRing : IsRing _ _ _ _ _
   isRing = isring (IsLeftModule.+-isAbGroup isLeftModule) ·-isMonoid dist
-  open IsRing isRing public hiding (_-_; +Assoc; +Lid; +Linv; +Rid; +Rinv; +Comm)
+  open IsRing isRing public hiding (_-_; +Assoc; +Lid; +Linv; +Rid; +Rinv; +Comm; dist)
 
 record Algebra (R : Ring {ℓ}) : Type (ℓ-suc ℓ) where
 
