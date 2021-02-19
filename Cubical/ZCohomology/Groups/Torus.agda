@@ -203,10 +203,6 @@ H²-T²≅ℤ = compGroupIso helper2 (Hⁿ-Sⁿ≅ℤ 0)
          ⋄ setTruncOfProdIso
          ⋄ helper
 
-  -- needed due to the lossy-unification flag
-  lossy : (p q : _) → ΩKn+1→Kn 1 (p ∙ q) ≡ ΩKn+1→Kn 1 p +ₖ ΩKn+1→Kn 1 q
-  lossy = ΩKn+1→Kn-hom 1
-
   helper2 : GroupIso (coHomGr 2 (S¹ × S¹)) (coHomGr 1 S¹)
   helper2 = Iso+Hom→GrIso theIso (
     coHomPointedElimT²'' 0 (λ _ → isPropΠ λ _ → setTruncIsSet _ _)
@@ -216,7 +212,7 @@ H²-T²≅ℤ = compGroupIso helper2 (Hⁿ-Sⁿ≅ℤ 0)
                                             ∙∙ transportRefl refl i)) ∣₂)
           ∙∙ (λ i → ∣ (λ a → ΩKn+1→Kn 1 (rUnit (cong (λ x → rUnitₖ 2 (elimFunT²' 1 P (a , x) +ₖ elimFunT²' 1 Q (a , x)) i) loop) (~ i))) ∣₂)
           ∙∙ (λ i → ∣ (λ a → ΩKn+1→Kn 1 (∙≡+₂ 0 (cong (λ x → elimFunT²' 1 P (a , x)) loop) (cong (λ x → elimFunT²' 1 Q (a , x)) loop) (~ i))) ∣₂)
-          ∙∙ (λ i → ∣ (λ a → lossy (cong (λ x → elimFunT²' 1 P (a , x)) loop) (cong (λ x → elimFunT²' 1 Q (a , x)) loop) i) ∣₂)
+          ∙∙ (λ i → ∣ (λ a → ΩKn+1→Kn-hom 1 (cong (λ x → elimFunT²' 1 P (a , x)) loop) (cong (λ x → elimFunT²' 1 Q (a , x)) loop) i) ∣₂)
           ∙∙ (λ i → ∣ ((λ a → ΩKn+1→Kn 1 (rUnit (cong (λ x → rUnitₖ 2 (elimFunT²' 1 P (a , x)) (~ i)) loop) i)
                                            +ₖ ΩKn+1→Kn 1 (rUnit (cong (λ x → rUnitₖ 2 (elimFunT²' 1 Q (a , x)) (~ i)) loop) i))) ∣₂)
            ∙ (λ i → ∣ ((λ a → ΩKn+1→Kn 1 (transportRefl refl (~ i)

@@ -23,7 +23,7 @@ private
     ℓ ℓ' : Level
 
 module _ {ℓ} where
-  rawRngDesc : Desc ℓ
+  rawRngDesc : Desc ℓ ℓ ℓ
   rawRngDesc = autoDesc (λ (X : Type ℓ) → (X → X → X) × (X → X → X))
 
   open Macro ℓ rawRngDesc public renaming

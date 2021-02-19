@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Properties where
 
 {-
@@ -146,6 +146,14 @@ coHomPointedElim2 {ℓ' = ℓ'} {A = A} n a isprop indp = sElim2 (λ _ _ → isO
     elim2 (λ _ _ → isOfHLevelPlus' {n = 5 + n} 1 (isPropΠ2 λ _ _ → isprop _ _))
           (suspToPropElim2 north (λ _ _ → isPropΠ2 λ _ _ → isprop _ _) (indp f g))
 
+coHomK-elim : ∀ {ℓ} (n : ℕ) {B : coHomK (suc n) → Type ℓ}
+           → ((x : _) → isOfHLevel (suc n) (B x))
+           → B (0ₖ (suc n))
+           → (x : _) → B x
+coHomK-elim n {B = B } hlev b =
+  trElim (λ _ → isOfHLevelPlus {n = (suc n)} 2 (hlev _))
+    (sphereElim _ (hlev ∘ ∣_∣) b)
+
 {- Equivalence between cohomology of A and reduced cohomology of (A + 1) -}
 coHomRed+1Equiv : (n : ℕ) →
                   (A : Type ℓ) →
@@ -233,23 +241,22 @@ coHomGr≅coHomRedGr : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
 GroupEquiv.eq (coHomGr≅coHomRedGr n A) = isoToEquiv (Iso-coHom-coHomRed n)
 GroupEquiv.isHom (coHomGr≅coHomRedGr n A) = +∙≡+ n
 
-private
-  coHomGroup≡coHomRedGroup' : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
-                          → _ ≡ coHomGroup (suc n) (typ A)
-  coHomGroup≡coHomRedGroup' n A =
-    sym (InducedAbGroupPath (coHomGroup (suc n) (typ A))
-                   (coHomRed (suc n) A , _+ₕ∙_)
-                   (isoToEquiv (invIso (Iso-coHom-coHomRed n)))
-                   (homhelp n A))
-
 coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → AbGroup {ℓ}
 coHomRedGroup zero A = coHomRedGroupDir zero A
-coHomRedGroup (suc n) A = coHomGroup≡coHomRedGroup' n A i0
+coHomRedGroup (suc n) A =
+  InducedAbGroup (coHomGroup (suc n) (typ A))
+                 (coHomRed (suc n) A , _+ₕ∙_)
+                 (isoToEquiv (invIso (Iso-coHom-coHomRed n)))
+                 (homhelp n A)
 
 abstract
   coHomGroup≡coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
-                          → coHomRedGroup (suc n) A ≡ coHomGroup (suc n) (typ A)
-  coHomGroup≡coHomRedGroup = coHomGroup≡coHomRedGroup'
+                          → coHomGroup (suc n) (typ A) ≡ coHomRedGroup (suc n) A
+  coHomGroup≡coHomRedGroup n A =
+    InducedAbGroupPath (coHomGroup (suc n) (typ A))
+              (coHomRed (suc n) A , _+ₕ∙_)
+              (isoToEquiv (invIso (Iso-coHom-coHomRed n)))
+              (homhelp n A)
 
 ------------------- Kₙ ≃ ΩKₙ₊₁ ---------------------
 -- This proof uses the encode-decode method rather than Freudenthal
@@ -388,7 +395,8 @@ private
       ∙∙ cong ((∣ x ∣ +ₖ ∣ y ∣) +ₖ_) (lCancelₖ _ ∣ a ∣)
       ∙∙ rUnitₖ _ _
 
-    helper : (n : ℕ) →  (a : S₊ (suc n)) → PathP (λ i → Code n ∣ north ∣ → Code n ∣ merid a i ∣ → Code n ∣ merid a i ∣) _+ₖ_ _+ₖ_
+    helper : (n : ℕ) (a : S₊ (suc n))
+           → PathP (λ i → Code n ∣ north ∣ → Code n ∣ merid a i ∣ → Code n ∣ merid a i ∣) _+ₖ_ _+ₖ_
     helper n a =
       toPathP (funExt
                 (trElim (λ _ → isOfHLevelPath (3 + n) (isOfHLevelΠ (3 + n) (λ _ → isOfHLevelTrunc (3 + n))) _ _)
@@ -401,9 +409,12 @@ private
     trElim (λ x → isOfHLevelΠ (4 + n) λ _ → isOfHLevelΠ (4 + n) λ _ → isOfHLevelSuc (3 + n) (hLevCode {n = n} x))
            Code-add'
 
-  encode-hom : {n : ℕ} {x : _} (q : 0ₖ _ ≡ 0ₖ _) (p : 0ₖ _ ≡ x) → encode (q ∙ p) ≡ Code-add {n = n} x (encode q) (encode p)
+  encode-hom : {n : ℕ} {x : _} (q : 0ₖ _ ≡ 0ₖ _) (p : 0ₖ _ ≡ x)
+             → encode (q ∙ p) ≡ Code-add {n = n} x (encode q) (encode p)
   encode-hom {n = n} q = J (λ x p → encode (q ∙ p) ≡ Code-add {n = n} x (encode q) (encode p))
-                           (cong encode (sym (rUnit q)) ∙∙ sym (rUnitₖ _ (encode q)) ∙∙ cong (encode q +ₖ_) (cong ∣_∣ (sym (transportRefl _))))
+                           (cong encode (sym (rUnit q))
+                         ∙∙ sym (rUnitₖ _ (encode q))
+                         ∙∙ cong (encode q +ₖ_) (cong ∣_∣ (sym (transportRefl _))))
 
 stabSpheres : (n : ℕ) → Iso (coHomK (suc n)) (typ (Ω (coHomK-ptd (2 + n))))
 fun (stabSpheres n) = decode _
