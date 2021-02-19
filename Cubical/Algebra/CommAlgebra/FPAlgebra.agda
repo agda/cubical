@@ -14,17 +14,20 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Vec
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
+open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal
+open import Cubical.Algebra.CommAlgebra.FGIdeal
 
 private
   variable
     ℓ : Level
 
-module _ (Ring@(R , str) : CommRing {ℓ}) where
-  free : (n : ℕ) → CommAlgebra Ring
-  free n = Ring [ Lift (Fin n) ]
+module _ {R : CommRing {ℓ}} where
+  free : (n : ℕ) → CommAlgebra R
+  free n = R [ Lift (Fin n) ]
 
-
+  makeFPAlgebra : {m : ℕ} (n : ℕ) (l : Vec (CommAlgebra.Carrier (free n)) m)
+                  → CommAlgebra R
+  makeFPAlgebra n l = free n / generatedIdeal (free n) l
