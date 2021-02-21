@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --no-import-sorts --safe --guardedness #-}
-module Cubical.Codata.Conat.Pigeonhole where
+module Cubical.Codata.Conat.Bounded where
 
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
