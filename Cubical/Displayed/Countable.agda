@@ -38,14 +38,14 @@ isDenumerable A = ∥ ℕ ≃ A ∥
 [_]-Listing : Conat → Type ℓ → Type ℓ
 [ m ]-Listing A = Bounded m ≃ A
 
-isCountable : Type ℓ → Type ℓ
-isCountable A = ∥ Σ[ m ∈ Conat ] [ m ]-Listing A ∥
-
 isCountable' : Type ℓ → Type ℓ
-isCountable' A = Σ[ m ∈ Conat ] ∥ [ m ]-Listing A ∥
+isCountable' A = ∥ Σ[ m ∈ Conat ] [ m ]-Listing A ∥
 
-isCountable'IsProp : isProp (isCountable' A)
-isCountable'IsProp (m , l) (n , r)
+isCountable : Type ℓ → Type ℓ
+isCountable A = Σ[ m ∈ Conat ] ∥ [ m ]-Listing A ∥
+
+isCountableIsProp : isProp (isCountable A)
+isCountableIsProp (m , l) (n , r)
     = ΣPathP (m≡n , isOfHLevel→isOfHLevelDep 1 (λ _ → squash) l r m≡n)
   where
   m≡n : m ≡ n
@@ -53,8 +53,8 @@ isCountable'IsProp (m , l) (n , r)
           (λ e1 e2 → Bounded-inj m n (ua (compEquiv e1 (invEquiv e2))))
           l r
 
-isCountable→isCountable' : isCountable A → isCountable' A
-isCountable→isCountable' = PT.rec isCountable'IsProp (map-snd ∣_∣)
+isCountable'→isCountable : isCountable' A → isCountable A
+isCountable'→isCountable = PT.rec isCountableIsProp (map-snd ∣_∣)
 
 CountableIndexing : Type ℓ → Type ℓ
 CountableIndexing A = Σ[ f ∈ (ℕ → Maybe A) ] ∀ x → ∥ fiber f (just x) ∥
@@ -68,7 +68,7 @@ Denumeration→[∞]-Listing = compEquiv Σ≺∞≃ℕ
 [∞]-Listing→Denumeration : [ ∞ ]-Listing A → Denumeration A
 [∞]-Listing→Denumeration = compEquiv (invEquiv Σ≺∞≃ℕ)
 
-isDenumerable→isCountable : isDenumerable A → isCountable A
+isDenumerable→isCountable : isDenumerable A → isCountable' A
 isDenumerable→isCountable = map (_,_ ∞ ∘ Denumeration→[∞]-Listing)
 
 Listing→CountableIndexing : ∀ m → [ m ]-Listing A → CountableIndexing A
@@ -85,7 +85,7 @@ Listing→CountableIndexing m l = (f , ∣_∣ ∘ fib)
   fib x with l .snd .equiv-proof x .fst
   ... | ((n , n≺m) , p) = n , cong (ix n) (≺?-yes n m n≺m) ∙ cong just p
 
-isCountable→isCountablyIndexed : isCountable A → isCountablyIndexed A
+isCountable→isCountablyIndexed : isCountable' A → isCountablyIndexed A
 isCountable→isCountablyIndexed = map (uncurry Listing→CountableIndexing)
 
 -- UA-Relations
@@ -94,14 +94,14 @@ isDenumerableᴰ : ∀ ℓ → DUARel (𝒮-type (Type ℓ)) isDenumerable _
 isDenumerableᴰ ℓ
   = 𝒮ᴰ-subtype (𝒮-type (Type ℓ)) λ A → isDenumerable A , squash
 
-isCountableᴰ : ∀ ℓ → DUARel (𝒮-type (Type ℓ)) isCountable _
-isCountableᴰ ℓ
-  = 𝒮ᴰ-subtype (𝒮-type (Type ℓ)) λ A → isCountable A , squash
-
 isCountable'ᴰ : ∀ ℓ → DUARel (𝒮-type (Type ℓ)) isCountable' _
 isCountable'ᴰ ℓ
+  = 𝒮ᴰ-subtype (𝒮-type (Type ℓ)) λ A → isCountable' A , squash
+
+isCountableᴰ : ∀ ℓ → DUARel (𝒮-type (Type ℓ)) isCountable _
+isCountableᴰ ℓ
   = 𝒮ᴰ-subtype (𝒮-type (Type ℓ))
-      λ A → isCountable' A , isCountable'IsProp
+      λ A → isCountable A , isCountableIsProp
 
 isCountablyIndexedᴰ : ∀ ℓ → DUARel (𝒮-type (Type ℓ)) isCountablyIndexed _
 isCountablyIndexedᴰ ℓ
