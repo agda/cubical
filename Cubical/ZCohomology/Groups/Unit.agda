@@ -17,6 +17,7 @@ open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation
 open import Cubical.Homotopy.Connected
 open import Cubical.Data.Unit
+open import Cubical.Data.Sigma
 open import Cubical.Algebra.Group
 
 -- H⁰(Unit)
@@ -75,3 +76,11 @@ leftInv (Hⁿ-contrType≅0 {A = A} n contr) _ = isOfHLevelSuc 0 helper _ _
           , λ y →  cong (Iso.inv (Hⁿ-contrTypeIso n contr))
                          (isOfHLevelSuc 0 (isContrHⁿ-Unit n) (0ₕ (suc n)) (Iso.fun (Hⁿ-contrTypeIso n contr) y))
                   ∙ Iso.leftInv (Hⁿ-contrTypeIso n contr) y
+
+-- Reduced groups of Unit are contractible
+isContr-HⁿRed-Unit : (n : ℕ) → isContr (coHomRed n (Unit , tt))
+fst (isContr-HⁿRed-Unit n) = 0ₕ∙ _
+snd (isContr-HⁿRed-Unit n) =
+  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        λ {(f , p) → cong ∣_∣₂ (ΣPathP (funExt (λ _ → sym p)
+                                     , λ i j → p (~ i ∨ j)))}
