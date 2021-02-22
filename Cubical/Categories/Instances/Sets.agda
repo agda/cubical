@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 
-module Cubical.Categories.Sets where
+module Cubical.Categories.Instances.Sets where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -50,13 +50,13 @@ private
 open Functor
 
 -- Hom functors
-_[-,_] : (C : Precategory ℓ ℓ') → (c : C .ob) → ⦃ isCat : isCategory C ⦄ → Functor (C ^op) (SET _)
+_[-,_] : (C : Precategory ℓ ℓ') → (c : C .ob) → ⦃ isCat : isCategory C ⦄ → Functor (C ^op) (SET ℓ')
 (C [-, c ]) ⦃ isCat ⦄ .F-ob x = (C [ x , c ]) , isCat .isSetHom
 (C [-, c ])           .F-hom f k = f ⋆⟨ C ⟩ k
 (C [-, c ])           .F-id = funExt λ _ → C .⋆IdL _
 (C [-, c ])           .F-seq _ _ = funExt λ _ → C .⋆Assoc _ _ _
 
-_[_,-] : (C : Precategory ℓ ℓ') → (c : C .ob) → ⦃ isCat : isCategory C ⦄ → Functor C (SET _)
+_[_,-] : (C : Precategory ℓ ℓ') → (c : C .ob) → ⦃ isCat : isCategory C ⦄ → Functor C (SET ℓ')
 (C [ c ,-]) ⦃ isCat ⦄ .F-ob x = (C [ c , x ]) , isCat .isSetHom
 (C [ c ,-])           .F-hom f k = k ⋆⟨ C ⟩ f
 (C [ c ,-])           .F-id = funExt λ _ → C .⋆IdR _
@@ -91,3 +91,16 @@ Iso→CatIso is .mor = is .fun
 Iso→CatIso is .cInv = is .inv
 Iso→CatIso is .sec = funExt λ b → is .rightInv b -- is .rightInv
 Iso→CatIso is .ret = funExt λ b → is .leftInv b -- is .rightInv
+
+
+-- TYPE category is has all types as objects
+-- kind of useless
+module _ ℓ where
+  TYPE : Precategory (ℓ-suc ℓ) ℓ
+  TYPE .ob = Type ℓ
+  TYPE .Hom[_,_] A B = A → B
+  TYPE .id A  = λ x → x
+  TYPE ._⋆_ f g = λ x → g (f x)
+  TYPE .⋆IdL f = refl
+  TYPE .⋆IdR f = refl
+  TYPE .⋆Assoc f g h = refl
