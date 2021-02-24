@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma
+import Cubical.Functions.Fibration as Fibration
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -14,6 +15,8 @@ open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Sets
 
+
+open Fibration.ForSets
 
 record isTypeCategory {ℓ ℓ' ℓ''} (C : Precategory ℓ ℓ')
        : Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-suc ℓ''))) where
