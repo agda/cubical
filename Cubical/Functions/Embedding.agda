@@ -415,7 +415,7 @@ module EmbeddingIdentityPrinciple {B : Type ℓ} {ℓ₁} (f g : Embedding B ℓ
   EmbeddingIP : f≃g ≃ (f ≡ g)
   EmbeddingIP =
       f≃g
-    ≃⟨ isoToEquiv (invIso toProdIso) ⟩
+    ≃⟨ strictIsoToEquiv (invIso toProdIso) ⟩
       (∀ b → (fiber ffun b → fiber gfun b) × (fiber gfun b → fiber ffun b))
     ≃⟨ equivΠCod (λ _ → isEquivPropBiimpl→Equiv (isEmbedding→hasPropFibers isEmbF _)
                                                  (isEmbedding→hasPropFibers isEmbG _)) ⟩
