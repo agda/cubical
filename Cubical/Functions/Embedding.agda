@@ -21,6 +21,8 @@ open import Cubical.Functions.FunExtEquiv
 open import Cubical.Relation.Nullary using (Discrete; yes; no)
 open import Cubical.Structures.Axioms
 
+open import Cubical.Reflection.StrictEquiv
+
 open import Cubical.Data.Nat using (ℕ; zero; suc)
 open import Cubical.Data.Sigma
 
@@ -366,8 +368,10 @@ module FibrationIdentityPrinciple {B : Type ℓ} {ℓ₁} where
         (Σ[ (E , eq) ∈ fiber L A ] fiber (_∘ lower) (transport⁻ (λ i → eq i → B) f))
       ■ where
       boringSwap : _
-      boringSwap = isoToEquiv (iso (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p)))
-                                   (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p))) (λ _ → refl) (λ _ → refl))
+      boringSwap =
+        strictEquiv
+          (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p)))
+          (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p)))
 
   isEmbeddingLiftFibration : isEmbedding liftFibration
   isEmbeddingLiftFibration = hasPropFibers→isEmbedding hasPropFibersLiftFibration

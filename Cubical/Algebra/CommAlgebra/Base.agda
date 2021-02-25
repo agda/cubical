@@ -10,6 +10,8 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Reflection.StrictEquiv
+
 open import Cubical.Structures.Axioms
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
@@ -159,7 +161,7 @@ module CommAlgebraΣTheory (R : CommRing {ℓ}) where
 
   CommAlgebraPath : (A B : CommAlgebra R) → (CommAlgebraEquiv A B) ≃ (A ≡ B)
   CommAlgebraPath A B =
-    CommAlgebraEquiv A B   ≃⟨ isoToEquiv AlgebraEquivΣPath ⟩
+    CommAlgebraEquiv A B   ≃⟨ strictIsoToEquiv AlgebraEquivΣPath ⟩
     CommAlgebraEquivΣ A B  ≃⟨ CommAlgebraΣPath _ _ ⟩
     CommAlgebra→CommAlgebraΣ A ≡ CommAlgebra→CommAlgebraΣ B
       ≃⟨ isoToEquiv (invIso (congIso CommAlgebraIsoCommAlgebraΣ)) ⟩
