@@ -20,12 +20,15 @@ open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
 open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.FGIdeal
+open import Cubical.Algebra.CommAlgebra.Examples
 
 private
   variable
     ℓ : Level
 
 module _ {R : CommRing {ℓ}} where
+  open CommAlgebraExamples R
+
   freeAlgebra : (n : ℕ) → CommAlgebra R
   freeAlgebra n = R [ Lift (Fin n) ]
 
@@ -40,3 +43,6 @@ module _ {R : CommRing {ℓ}} where
 
   isFPAlgebraIsProp : {A : CommAlgebra R} → isProp (isFPAlgebra A)
   isFPAlgebraIsProp = propTruncIsProp
+
+  initialAlgebraIsFP : isFPAlgebra initial
+  initialAlgebraIsFP = ∣ 0 , (0 , [] , {!!}) ∣

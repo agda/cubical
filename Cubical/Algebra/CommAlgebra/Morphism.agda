@@ -49,3 +49,6 @@ homEq {ℓ} {(R , str)} A B f g mapEq i =
                          isSetB (f ((A CommAlgebra.⋆ r) x)) (r * f x))
                       (comm⋆ f r x) (comm⋆ g r x)
                       ((λ i x → mapEq x i)) i j)
+
+idCAlg : {R : CommRing {ℓ}} (A : CommAlgebra R) → CAlgHom A A
+idCAlg A = algebrahom (λ x → x) (λ _ _ → refl) (λ _ _ → refl) refl λ _ _ → refl
