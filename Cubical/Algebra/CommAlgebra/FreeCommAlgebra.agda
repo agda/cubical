@@ -472,6 +472,18 @@ isEquivFromUniversalProperty {R = R} {I = I} B ϕ ϕinducesEquiv =
                           (λ P → cong (_$a P) rinv)
                            λ b → cong (_$a b) linv))
 
+pathFromUniversalProperty : {R : CommRing {ℓ}} {I : Type ℓ}
+  → (B : CommAlgebra R)
+  → (ϕ : CAlgHom B (R [ I ]))
+  → ((A : CommAlgebra R) → isEquiv λ (f : CAlgHom (R [ I ]) A) → f ∘a ϕ)
+  → B ≡ R [ I ]
+pathFromUniversalProperty {R = R} {I = I} B ϕ ϕinducesEquiv =
+  let
+    ϕisEquiv = isEquivFromUniversalProperty B ϕ ϕinducesEquiv
+    ϕ : CommAlgebraEquiv B (R [ I ])
+    ϕ = algebraiso ((AlgebraHom.map ϕ) , ϕisEquiv) (AlgebraHom.isHom+ ϕ) (AlgebraHom.isHom· ϕ) (AlgebraHom.pres1 ϕ) (AlgebraHom.comm⋆ ϕ)
+  in fst (CommAlgebraPath R B (R [ I ])) ϕ
+
 module _ {R : CommRing {ℓ}} {A B : CommAlgebra R} where
   A′ = CommAlgebra→Algebra A
   B′ = CommAlgebra→Algebra B
