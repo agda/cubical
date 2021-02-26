@@ -10,7 +10,7 @@ open import Cubical.Foundations.Transport
 private
   variable
     ℓ ℓ' : Level
-    A : Type ℓ
+    A B : Type ℓ
 
 -- Less polymorphic version of `cong`, to avoid some unresolved metas
 cong′ : ∀ {B : Type ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
@@ -196,3 +196,14 @@ Square≃doubleComp a₀₋ a₁₋ a₋₀ a₋₁ = transportEquiv (PathP≡do
 -- sym induces an equivalence on identity types of paths
 symIso : {a b : A} (p q : a ≡ b) → Iso (p ≡ q) (q ≡ p)
 symIso p q = iso sym sym (λ _ → refl) λ _ → refl
+
+private
+  mx : Type ℓ → Type ℓ' → Level
+  mx {ℓ} {ℓ'} _ _ = ℓ-max ℓ ℓ'
+
+record Reveal_·_is_ (f : A → B) (x : A) (y : B) : Type (mx A B) where
+  constructor [_]ᵢ
+  field path : f x ≡ y
+
+inspect : (f : A → B) (x : A) → Reveal f · x is f x
+inspect f x .Reveal_·_is_.path = refl
