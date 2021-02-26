@@ -26,17 +26,17 @@ private
     ℓ : Level
 
 module _ {R : CommRing {ℓ}} where
-  free : (n : ℕ) → CommAlgebra R
-  free n = R [ Lift (Fin n) ]
+  freeAlgebra : (n : ℕ) → CommAlgebra R
+  freeAlgebra n = R [ Lift (Fin n) ]
 
-  makeFPAlgebra : {m : ℕ} (n : ℕ) (l : Vec (CommAlgebra.Carrier (free n)) m)
+  makeFPAlgebra : {m : ℕ} (n : ℕ) (l : Vec (CommAlgebra.Carrier (freeAlgebra n)) m)
                   → CommAlgebra R
-  makeFPAlgebra n l = free n / generatedIdeal (free n) l
+  makeFPAlgebra n l = freeAlgebra n / generatedIdeal (freeAlgebra n) l
 
   isFPAlgebra : (A : CommAlgebra R) → Type _
   isFPAlgebra A = ∥ (Σ[ n ∈ ℕ ]
                       Σ[ m ∈ ℕ ]
-                      Σ[ l ∈ Vec (CommAlgebra.Carrier (free n)) m ]  makeFPAlgebra n l ≡ A)  ∥
+                      Σ[ l ∈ Vec (CommAlgebra.Carrier (freeAlgebra n)) m ]  makeFPAlgebra n l ≡ A)  ∥
 
   isFPAlgebraIsProp : {A : CommAlgebra R} → isProp (isFPAlgebra A)
   isFPAlgebraIsProp = propTruncIsProp
