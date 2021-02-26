@@ -151,6 +151,9 @@ module CommRingΣTheory {ℓ} where
 CommRingPath : (R S : CommRing {ℓ}) → (Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] CommRingEquiv R S e) ≃ (R ≡ S)
 CommRingPath = CommRingΣTheory.CommRingPath
 
+isSetCommRing : ((R , str) : CommRing {ℓ}) → isSet R
+isSetCommRing (R , str) = str .CommRingStr.is-set
+
 isPropIsCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
              → isProp (IsCommRing 0r 1r _+_ _·_ -_)
 isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =

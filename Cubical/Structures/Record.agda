@@ -183,11 +183,11 @@ private
       isom .rightInv = fwdBwd A B e
       isom .leftInv = bwdFwd A B e
 
-  ExplicitUnivalentDesc : ∀ ℓ → (d : M.Desc ℓ) → Type _
+  ExplicitUnivalentDesc : ∀ ℓ {ℓ₁ ℓ₁'} → (d : M.Desc ℓ ℓ₁ ℓ₁') → Type _
   ExplicitUnivalentDesc _ d =
     ExplicitUnivalentStr (M.MacroStructure d) (M.MacroEquivStr d)
 
-  explicitUnivalentDesc : ∀ ℓ → (d : M.Desc ℓ) → ExplicitUnivalentDesc ℓ d
+  explicitUnivalentDesc : ∀ ℓ {ℓ₁ ℓ₁'} → (d : M.Desc ℓ ℓ₁ ℓ₁') → ExplicitUnivalentDesc ℓ d
   explicitUnivalentDesc _ d A B e = M.MacroUnivalentStr d e
 
 -- Internal record specification type

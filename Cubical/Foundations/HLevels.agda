@@ -444,7 +444,9 @@ isOfHLevelΠ⁻ (suc (suc n)) h x y z =
 
 -- h-level of A ≃ B and A ≡ B
 
-isOfHLevel≃ : ∀ n → {A B : Type ℓ} (hA : isOfHLevel n A) (hB : isOfHLevel n B) → isOfHLevel n (A ≃ B)
+isOfHLevel≃
+  : ∀ n {A : Type ℓ} {B : Type ℓ'}
+  → (hA : isOfHLevel n A) (hB : isOfHLevel n B) → isOfHLevel n (A ≃ B)
 isOfHLevel≃ zero {A = A} {B = B} hA hB = isContr→Equiv hA hB , contr
   where
   contr : (y : A ≃ B) → isContr→Equiv hA hB ≡ y
@@ -457,6 +459,42 @@ isOfHLevel≃ (suc n) {A = A} {B = B} hA hB =
 isOfHLevel≡ : ∀ n → {A B : Type ℓ} (hA : isOfHLevel n A) (hB : isOfHLevel n B) →
   isOfHLevel n (A ≡ B)
 isOfHLevel≡ n hA hB = isOfHLevelRetract n (fst univalence) ua (secEq univalence) (isOfHLevel≃ n hA hB)
+
+isOfHLevel⁺≃ₗ
+  : ∀ n {A : Type ℓ} {B : Type ℓ'}
+  → isOfHLevel (suc n) A → isOfHLevel (suc n) (A ≃ B)
+isOfHLevel⁺≃ₗ zero pA e = isOfHLevel≃ 1 pA (isOfHLevelRespectEquiv 1 e pA) e
+isOfHLevel⁺≃ₗ (suc n) hA e = isOfHLevel≃ m hA (isOfHLevelRespectEquiv m e hA) e
+  where
+  m = suc (suc n)
+
+isOfHLevel⁺≃ᵣ
+  : ∀ n {A : Type ℓ} {B : Type ℓ'}
+  → isOfHLevel (suc n) B → isOfHLevel (suc n) (A ≃ B)
+isOfHLevel⁺≃ᵣ zero pB e
+  = isOfHLevel≃ 1 (isPropRetract (e .fst) (invEq e) (secEq e) pB) pB e
+isOfHLevel⁺≃ᵣ (suc n) hB e
+  = isOfHLevel≃ m (isOfHLevelRetract m (e .fst) (invEq e) (secEq e) hB) hB e
+  where
+  m = suc (suc n)
+
+isOfHLevel⁺≡ₗ
+  : ∀ n → {A B : Type ℓ}
+  → isOfHLevel (suc n) A → isOfHLevel (suc n) (A ≡ B)
+isOfHLevel⁺≡ₗ zero pA P = isOfHLevel≡ 1 pA (subst isProp P pA) P
+isOfHLevel⁺≡ₗ (suc n) hA P
+  = isOfHLevel≡ m hA (subst (isOfHLevel m) P hA) P
+  where
+  m = suc (suc n)
+
+isOfHLevel⁺≡ᵣ
+  : ∀ n → {A B : Type ℓ}
+  → isOfHLevel (suc n) B → isOfHLevel (suc n) (A ≡ B)
+isOfHLevel⁺≡ᵣ zero pB P = isOfHLevel≡ 1 (subst⁻ isProp P pB) pB P
+isOfHLevel⁺≡ᵣ (suc n) hB P
+  = isOfHLevel≡ m (subst⁻ (isOfHLevel m) P hB) hB P
+  where
+  m = suc (suc n)
 
 -- h-level of TypeOfHLevel
 
