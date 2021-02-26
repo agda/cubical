@@ -511,8 +511,20 @@ isOfHLevelDep 0 {A = A} B = {a : A} → Σ[ b ∈ B a ] ({a' : A} (b' : B a') (p
 isOfHLevelDep 1 {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) (p : a0 ≡ a1)  → PathP (λ i → B (p i)) b0 b1
 isOfHLevelDep (suc (suc  n)) {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) → isOfHLevelDep (suc n) {A = a0 ≡ a1} (λ p → PathP (λ i → B (p i)) b0 b1)
 
+isContrDep : {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
+isContrDep = isOfHLevelDep 0
+
 isPropDep : {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
 isPropDep = isOfHLevelDep 1
+
+isContrDep∘
+  : {A' : Type ℓ} (f : A' → A) → isContrDep B → isContrDep (B ∘ f)
+isContrDep∘ f cB {a} = λ where
+  .fst → cB .fst
+  .snd b' p → cB .snd b' (cong f p)
+
+isPropDep∘ : {A' : Type ℓ} (f : A' → A) → isPropDep B → isPropDep (B ∘ f)
+isPropDep∘ f pB b0 b1 = pB b0 b1 ∘ cong f
 
 isOfHLevel→isOfHLevelDep : (n : HLevel)
   → {A : Type ℓ} {B : A → Type ℓ'} (h : (a : A) → isOfHLevel n (B a)) → isOfHLevelDep n {A = A} B
