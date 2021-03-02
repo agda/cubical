@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --no-import-sorts --postfix-projections --safe #-}
 
-module Cubical.Categories.Presheaves where
+module Cubical.Categories.Presheaf.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -10,11 +10,17 @@ open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Sets
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Functors
 
-module _ (ℓ ℓ' : Level) where
-  PreShv : Precategory ℓ ℓ' → Precategory (ℓ-max (ℓ-suc ℓ) ℓ') (ℓ-max (ℓ-suc ℓ) ℓ')
+module _ {ℓ ℓ' : Level} where
+  PreShv : Precategory ℓ ℓ' → Precategory _ _ -- (ℓ-max (ℓ-suc ℓ) ℓ') (ℓ-max (ℓ-suc ℓ) ℓ')
   PreShv C = FUNCTOR (C ^op) (SET ℓ)
+
+  instance
+    isCatPreShv : {C : Precategory ℓ ℓ'}
+                → isCategory (PreShv C)
+    isCatPreShv {C} = isCatFUNCTOR (C ^op) (SET ℓ)
 
 private
   variable
@@ -32,7 +38,7 @@ module Yoneda (C : Precategory ℓ ℓ) ⦃ C-cat : isCategory C ⦄ where
   yo x .F-id i f = ⋆IdL f i
   yo x .F-seq f g i h = ⋆Assoc g f h i
 
-  YO : Functor C (PreShv ℓ ℓ C)
+  YO : Functor C (PreShv C)
   YO .F-ob = yo
   YO .F-hom f .N-ob z g = g ⋆⟨ C ⟩ f
   YO .F-hom f .N-hom g i h = ⋆Assoc g h f i
