@@ -18,20 +18,12 @@ open import Cubical.Data.Sigma
 import Cubical.Categories.Morphism as Morphism
 import Cubical.Categories.Constructions.Slice as Slice
 import Cubical.Categories.Constructions.Elements as Elements
+import Cubical.Functions.Fibration as Fibration
 
 private
   variable
     ℓ ℓ' : Level
     e e' : Level
-
--- TODO: upstream
--- fibers are equal when their representatives are equal
-fibersEqIfRepsEq : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {isSetB : isSet B}
-                (f : A → B) {x x'} {px : x ≡ x'} {a' : fiber f x} {b' : fiber f x'}
-                → fst a' ≡ fst b'
-                → PathP (λ i → fiber f (px i)) a' b'
-fibersEqIfRepsEq {isSetB = isSetB} f {x} {x'} {px} {a'} {b'} p
-  = ΣPathP (p , (isOfHLevel→isOfHLevelDep 1 (λ (v , w) → isSetB (f v) w) (snd a') (snd b') (λ i → (p i , px i))))
 
 
 -- (PreShv C) / F ≃ᶜ PreShv (∫ᴾ F)
@@ -44,6 +36,8 @@ module _ (C : Precategory ℓ ℓ') (F : Functor (C ^op) (SET ℓ)) where
   open NatIso
   open Slice (PreShv C) F ⦃ isC = isCatPreShv {C = C} ⦄
   open Elements {C = C}
+
+  open Fibration.ForSets
 
   -- specific case of fiber under natural transformation
   fibersEqIfRepsEqNatTrans : ∀ {A} (ϕ : A ⇒ F) {c x x'} {px : x ≡ x'} {a' : fiber (ϕ ⟦ c ⟧) x} {b' : fiber (ϕ ⟦ c ⟧) x'}

@@ -43,7 +43,7 @@ module _ {C : Precategory ℓ ℓ'} ⦃ isCatC : isCategory C ⦄ where
   open Precategory
   yoneda : (F : Functor C (SET ℓ'))
          → (c : C .ob)
-         → Iso ((FUNCTOR C (SET ℓ')) [ C [ c ,-] , F ]) (fst (F ⟅ c ⟆)) -- (Lift {ℓ'} {ℓ} (fst (F ⟅ c ⟆)))
+         → Iso ((FUNCTOR C (SET ℓ')) [ C [ c ,-] , F ]) (fst (F ⟅ c ⟆))
   yoneda F c = theIso
     where
       natType = (FUNCTOR C (SET ℓ')) [ C [ c ,-] , F ]

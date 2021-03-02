@@ -2,6 +2,7 @@
 module Cubical.Functions.Fibration where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels using (isOfHLevel→isOfHLevelDep)
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
@@ -72,6 +73,17 @@ module _ (B : Type ℓb) (ℓ : Level) where
           Iso.leftInv  isom (E , p) i = ua e (~ i) , fst ∘ ua-unglue e (~ i)
             where e = totalEquiv p
 
+
+module ForSets {E : Type ℓ} {isSetB : isSet B} (f : E → B) where
+  module _ {x x'} {px : x ≡ x'} {a' : fiber f x} {b' : fiber f x'} where
+    -- fibers are equal when their representatives are equal
+    fibersEqIfRepsEq : fst a' ≡ fst b'
+                    → PathP (λ i → fiber f (px i)) a' b'
+    fibersEqIfRepsEq p = ΣPathP (p ,
+                                (isOfHLevel→isOfHLevelDep 1
+                                                          (λ (v , w) → isSetB (f v) w)
+                                                          (snd a') (snd b')
+                                                          (λ i → (p i , px i))))
 -- The path type in a fiber of f is equivalent to a fiber of (cong f)
 open import Cubical.Foundations.Function
 
