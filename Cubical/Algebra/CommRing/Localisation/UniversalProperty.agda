@@ -35,6 +35,7 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
+open import Cubical.Algebra.RingSolver.ReflectionSolving
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Localisation.Base
 
@@ -84,13 +85,10 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
 
   S⁻¹Rˣ = S⁻¹RAsCommRing ˣ
   S/1⊆S⁻¹Rˣ : ∀ s → s ∈ S' → (s /1) ∈ S⁻¹Rˣ
-  S/1⊆S⁻¹Rˣ s s∈S' = [ 1r , s , s∈S' ] , eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path)
+  S/1⊆S⁻¹Rˣ s s∈S' = [ 1r , s , s∈S' ] , eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path s)
    where
-   path : 1r · (s · 1r) · 1r ≡ 1r · 1r · (1r  · s)
-   path = 1r · (s · 1r) · 1r ≡⟨ (λ i → ·Rid (·Lid (·Rid s i) i) i) ⟩
-          s                  ≡⟨ (λ i → ·Lid (·Lid s (~ i)) (~ i)) ⟩
-          1r · (1r  · s)     ≡⟨ cong (_· (1r · s)) (sym (·Lid _)) ⟩
-          1r · 1r · (1r  · s) ∎
+   path : ∀ s → 1r · (s · 1r) · 1r ≡ 1r · 1r · (1r  · s)
+   path = solve R'
 
   S⁻¹RHasUniversalProp : hasLocUniversalProp S⁻¹RAsCommRing /1AsCommRingHom S/1⊆S⁻¹Rˣ
   S⁻¹RHasUniversalProp B' ψ ψS⊆Bˣ = (χ , funExt χcomp) , χunique
@@ -118,55 +116,99 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
                         ⦃ ψS⊆Bˣ s' s'∈S' ⦄ ⦄
      ⦃ ψS⊆Bˣ (u · s) (SMultClosedSubset .multClosed u∈S' s∈S') ⦄
      where
+     -- only a few indidividual steps can be solved by the ring solver yet
      instancepath : ⦃ _ : f ψ s ∈ Bˣ ⦄ ⦃ _ : f ψ s' ∈ Bˣ ⦄
                     ⦃ _ : f ψ (u · s · s') ∈ Bˣ ⦄ ⦃ _ : f ψ (u · s) ·B f ψ s' ∈ Bˣ ⦄
                     ⦃ _ : f ψ (u · s) ∈ Bˣ ⦄
                   → f ψ r ·B f ψ s ⁻¹ ≡ f ψ r' ·B f ψ s' ⁻¹
      instancepath = f ψ r ·B f ψ s ⁻¹
+
                   ≡⟨ sym (·B-rid _) ⟩
+
                     f ψ r ·B f ψ s ⁻¹ ·B 1b
+
                   ≡⟨ cong (f ψ r ·B f ψ s ⁻¹ ·B_) (sym (·-rinv _)) ⟩
+
                     f ψ r ·B f ψ s ⁻¹ ·B (f ψ (u · s · s') ·B f ψ (u · s · s') ⁻¹)
+
                   ≡⟨ ·B-assoc _ _ _ ⟩
+
                     f ψ r ·B f ψ s ⁻¹ ·B f ψ (u · s · s') ·B f ψ (u · s · s') ⁻¹
+
                   ≡⟨ cong (λ x → f ψ r ·B f ψ s ⁻¹ ·B x ·B f ψ (u · s · s') ⁻¹) (isHom· ψ _ _) ⟩
+
                     f ψ r ·B f ψ s ⁻¹ ·B (f ψ (u · s) ·B f ψ s') ·B f ψ (u · s · s') ⁻¹
+
                   ≡⟨ cong (_·B f ψ (u · s · s') ⁻¹) (·B-assoc _ _ _) ⟩
+
                     f ψ r ·B f ψ s ⁻¹ ·B f ψ (u · s) ·B f ψ s' ·B f ψ (u · s · s') ⁻¹
+
                   ≡⟨ cong (λ x → f ψ r ·B f ψ s ⁻¹ ·B x ·B f ψ s' ·B f ψ (u · s · s') ⁻¹)
                           (isHom· ψ _ _) ⟩
+
                     f ψ r ·B f ψ s ⁻¹ ·B (f ψ u ·B f ψ s) ·B f ψ s' ·B f ψ (u · s · s') ⁻¹
+
                   ≡⟨ cong (λ x → x ·B f ψ s' ·B f ψ (u · s · s') ⁻¹) (·B-commAssocSwap _ _ _ _) ⟩
+
                     f ψ r ·B f ψ u ·B (f ψ s ⁻¹ ·B f ψ s) ·B f ψ s' ·B f ψ (u · s · s') ⁻¹
+
                   ≡⟨ (λ i → ·B-comm (f ψ r) (f ψ u) i ·B (·-linv (f ψ s) i)
-                            ·B f ψ s' ·B f ψ (u · s · s') ⁻¹) ⟩
+                                                      ·B f ψ s' ·B f ψ (u · s · s') ⁻¹) ⟩
+
                     f ψ u ·B f ψ r ·B 1b ·B f ψ s' ·B f ψ (u · s · s') ⁻¹
+
                   ≡⟨ (λ i → (·B-rid (sym (isHom· ψ u r) i) i) ·B f ψ s' ·B f ψ (u · s · s') ⁻¹) ⟩
+
                     f ψ (u · r) ·B f ψ s' ·B f ψ (u · s · s') ⁻¹
+
                   ≡⟨ cong (_·B f ψ (u · s · s') ⁻¹) (sym (isHom· ψ _ _)) ⟩
+
                     f ψ (u · r · s') ·B f ψ (u · s · s') ⁻¹
+
                   ≡⟨ cong (λ x → f ψ x ·B f ψ (u · s · s') ⁻¹) p ⟩
+
                     f ψ (u · r' · s) ·B f ψ (u · s · s') ⁻¹
+
                   ≡⟨ cong (_·B f ψ (u · s · s') ⁻¹) (isHom· ψ _ _) ⟩
+
                     f ψ (u · r') ·B f ψ s ·B f ψ (u · s · s') ⁻¹
+
                   ≡⟨ cong (λ x → x ·B f ψ s ·B f ψ (u · s · s') ⁻¹) (isHom· ψ _ _) ⟩
+
                     f ψ u ·B f ψ r' ·B f ψ s ·B f ψ (u · s · s') ⁻¹
+
                   ≡⟨ cong (_·B f ψ (u · s · s') ⁻¹) (sym (·B-assoc _ _ _)) ⟩
+
                     f ψ u ·B (f ψ r' ·B f ψ s) ·B f ψ (u · s · s') ⁻¹
+
                   ≡⟨ cong (_·B f ψ (u · s · s') ⁻¹) (·B-commAssocl _ _ _) ⟩
+
                     f ψ r' ·B (f ψ u ·B f ψ s) ·B f ψ (u · s · s') ⁻¹
+
                   ≡⟨ cong (λ x → f ψ r' ·B x ·B f ψ (u · s · s') ⁻¹) (sym (isHom· ψ _ _)) ⟩
+
                     f ψ r' ·B f ψ (u · s) ·B f ψ (u · s · s') ⁻¹
+
                   ≡⟨ cong (f ψ r' ·B f ψ (u · s) ·B_) (unitCong (isHom· ψ _ _)) ⟩
+
                     f ψ r' ·B f ψ (u · s) ·B (f ψ (u · s) ·B f ψ s') ⁻¹
+
                   ≡⟨ cong (f ψ r' ·B f ψ (u · s) ·B_) (⁻¹-dist-· _ _) ⟩
+
                     f ψ r' ·B f ψ (u · s) ·B (f ψ (u · s) ⁻¹ ·B f ψ s' ⁻¹)
+
                   ≡⟨ ·B-assoc2 _ _ _ _ ⟩
+
                     f ψ r' ·B (f ψ (u · s) ·B f ψ (u · s) ⁻¹) ·B f ψ s' ⁻¹
+
                   ≡⟨ cong (λ x → f ψ r' ·B x ·B f ψ s' ⁻¹) (·-rinv _) ⟩
+
                     f ψ r' ·B 1b ·B f ψ s' ⁻¹
+
                   ≡⟨ cong (_·B f ψ s' ⁻¹) (·B-rid _) ⟩
+
                     f ψ r' ·B f ψ s' ⁻¹ ∎
+
 
    pres1 χ = instancepres1χ ⦃ ψS⊆Bˣ 1r (SMultClosedSubset .containsOne) ⦄ ⦃ BˣContainsOne ⦄
     where
@@ -182,25 +224,39 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
      ⦃ ψS⊆Bˣ s s∈S' ⦄ ⦃ ψS⊆Bˣ s' s'∈S' ⦄ ⦃ ψS⊆Bˣ (s · s') (SMultClosedSubset .multClosed s∈S' s'∈S') ⦄
      ⦃ BˣMultClosed _ _ ⦃ ψS⊆Bˣ s s∈S' ⦄ ⦃ ψS⊆Bˣ s' s'∈S' ⦄ ⦄
      where
+     -- only a few indidividual steps can be solved by the ring solver yet
      instancepath : ⦃ _ : f ψ s ∈ Bˣ ⦄ ⦃ _ : f ψ s' ∈ Bˣ ⦄
                     ⦃ _ : f ψ (s · s') ∈ Bˣ ⦄ ⦃ _ : f ψ s ·B f ψ s' ∈ Bˣ ⦄
                 → f ψ (r · s' + r' · s) ·B f ψ (s · s') ⁻¹ ≡ f ψ r ·B f ψ s ⁻¹ +B f ψ r' ·B f ψ s' ⁻¹
      instancepath =
             f ψ (r · s' + r' · s) ·B f ψ (s · s') ⁻¹
+
           ≡⟨ (λ i → isHom+ ψ (r · s') (r' · s) i ·B unitCong (isHom· ψ s s') i) ⟩
+
             (f ψ (r · s') +B f ψ (r' · s)) ·B (f ψ s ·B f ψ s') ⁻¹
+
           ≡⟨ (λ i → (isHom· ψ r s' i +B isHom· ψ r' s i) ·B ⁻¹-dist-· (f ψ s) (f ψ s') i) ⟩
+
             (f ψ r ·B f ψ s' +B f ψ r' ·B f ψ s) ·B (f ψ s ⁻¹ ·B f ψ s' ⁻¹)
+
           ≡⟨ ·B-ldist-+ _ _ _ ⟩
+
             f ψ r ·B f ψ s' ·B (f ψ s ⁻¹ ·B f ψ s' ⁻¹) +B f ψ r' ·B f ψ s ·B (f ψ s ⁻¹ ·B f ψ s' ⁻¹)
+
           ≡⟨ (λ i → ·B-commAssocSwap (f ψ r) (f ψ s') (f ψ s ⁻¹) (f ψ s' ⁻¹) i
                  +B ·B-assoc2 (f ψ r') (f ψ s) (f ψ s ⁻¹) (f ψ s' ⁻¹) i) ⟩
+
             f ψ r ·B f ψ s ⁻¹ ·B (f ψ s' ·B f ψ s' ⁻¹) +B f ψ r' ·B (f ψ s ·B f ψ s ⁻¹) ·B f ψ s' ⁻¹
+
           ≡⟨ (λ i → f ψ r ·B f ψ s ⁻¹ ·B (·-rinv (f ψ s') i)
                  +B f ψ r' ·B (·-rinv (f ψ s) i) ·B f ψ s' ⁻¹) ⟩
+
             f ψ r ·B f ψ s ⁻¹ ·B 1b +B f ψ r' ·B 1b ·B f ψ s' ⁻¹
+
           ≡⟨ (λ i → ·B-rid (f ψ r ·B f ψ s ⁻¹) i +B ·B-rid (f ψ r') i ·B f ψ s' ⁻¹) ⟩
+
             f ψ r ·B f ψ s ⁻¹ +B f ψ r' ·B f ψ s' ⁻¹ ∎
+
 
    isHom· χ = elimProp2 (λ _ _ _ _ → Bset _ _ _ _) isHom·[]
     where
@@ -209,15 +265,22 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
      ⦃ ψS⊆Bˣ s s∈S' ⦄ ⦃ ψS⊆Bˣ s' s'∈S' ⦄ ⦃ ψS⊆Bˣ (s · s') (SMultClosedSubset .multClosed s∈S' s'∈S') ⦄
      ⦃ BˣMultClosed _ _ ⦃ ψS⊆Bˣ s s∈S' ⦄ ⦃ ψS⊆Bˣ s' s'∈S' ⦄ ⦄
      where
+     -- only a indidividual steps can be solved by the ring solver yet
      instancepath : ⦃ _ : f ψ s ∈ Bˣ ⦄ ⦃ _ : f ψ s' ∈ Bˣ ⦄
                     ⦃ _ : f ψ (s · s') ∈ Bˣ ⦄ ⦃ _ : f ψ s ·B f ψ s' ∈ Bˣ ⦄
                   → f ψ (r · r') ·B f ψ (s · s') ⁻¹ ≡ (f ψ r ·B f ψ s ⁻¹) ·B (f ψ r' ·B f ψ s' ⁻¹)
      instancepath = f ψ (r · r') ·B f ψ (s · s') ⁻¹
+
                   ≡⟨ (λ i → isHom· ψ r r' i ·B unitCong (isHom· ψ s s') i) ⟩
+
                     f ψ r ·B f ψ r' ·B (f ψ s ·B f ψ s') ⁻¹
+
                   ≡⟨ cong (f ψ r ·B f ψ r' ·B_) (⁻¹-dist-· _ _) ⟩
+
                     f ψ r ·B f ψ r' ·B (f ψ s ⁻¹ ·B f ψ s' ⁻¹)
+
                   ≡⟨ ·B-commAssocSwap _ _ _ _ ⟩
+
                     f ψ r ·B f ψ s ⁻¹ ·B (f ψ r' ·B f ψ s' ⁻¹) ∎
 
 
@@ -248,13 +311,10 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
 
      s-inv : ⦃ s/1∈S⁻¹Rˣ : s /1 ∈ S⁻¹Rˣ ⦄ → s /1 ⁻¹ˡ ≡ [ 1r , s , s∈S' ]
      s-inv ⦃ s/1∈S⁻¹Rˣ ⦄ = PathPΣ (S⁻¹RInverseUniqueness (s /1) s/1∈S⁻¹Rˣ
-                           (_ , eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path))) .fst
+                           (_ , eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path s))) .fst
       where
-      path : 1r · (s · 1r) · 1r ≡ 1r · 1r · (1r · s)
-      path = 1r · (s · 1r) · 1r ≡⟨ (λ i → ·Rid (·Lid (·Rid s i) i) i) ⟩
-             s                  ≡⟨ (λ i → ·Lid (·Lid s (~ i)) (~ i)) ⟩
-             1r · (1r · s)      ≡⟨ cong (_· (1r · s)) (sym (·Lid _)) ⟩
-             1r · 1r · (1r · s) ∎
+      path : ∀ s → 1r · (s · 1r) · 1r ≡ 1r · 1r · (1r · s)
+      path = solve R'
 
      ·ₗ-path : [ r , s , s∈S' ] ≡   [ r , 1r , SMultClosedSubset .containsOne ]
                                  ·ₗ [ 1r , s , s∈S' ]
@@ -263,17 +323,29 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
      instancepath : ⦃ _ : f ψ s ∈ Bˣ ⦄ ⦃ _ : s /1 ∈ S⁻¹Rˣ ⦄ ⦃ _ : f χ' (s /1) ∈ Bˣ ⦄
                   → f ψ r ·B f ψ s ⁻¹ ≡ f χ' [ r , s , s∈S' ]
      instancepath = f ψ r ·B f ψ s ⁻¹
+
                   ≡⟨ cong (f ψ r ·B_) (unitCong (cong (λ φ → φ s) (sym χ'/1≡ψ))) ⟩
+
                     f ψ r ·B f χ' (s /1) ⁻¹
+
                   ≡⟨ cong (f ψ r ·B_) (sym (χ'[x⁻¹]≡χ'[x]⁻¹ _)) ⟩
+
                     f ψ r ·B f χ' (s /1 ⁻¹ˡ)
+
                   ≡⟨ cong (λ x → f ψ r ·B f χ' x) s-inv ⟩
+
                     f ψ r ·B f χ' [ 1r , s , s∈S' ]
+
                   ≡⟨ cong (_·B f χ' [ 1r , s , s∈S' ]) (cong (λ φ → φ r) (sym χ'/1≡ψ)) ⟩
+
                     f χ' [ r , 1r , SMultClosedSubset .containsOne ] ·B f χ' [ 1r , s , s∈S' ]
+
                   ≡⟨ sym (isHom· χ' _ _) ⟩
+
                     f χ' ([ r , 1r , SMultClosedSubset .containsOne ] ·ₗ [ 1r , s , s∈S' ])
+
                   ≡⟨ cong (f χ') (sym ·ₗ-path) ⟩
+
                     f χ' [ r , s , s∈S' ] ∎
 
     fχ≡fχ' : f χ ≡ f χ'
@@ -340,4 +412,4 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
                                     ∙∙ cong (_· s) (sym (0RightAnnihilates _))
 
    Surχ : isSurjection (f χ)
-   Surχ a = PT.rec propTruncIsProp (λ x → ∣ [ x .fst ] , x .snd ∣) (surχ a)
+   Surχ a = PT.rec propTruncIsProp (λ x → PT.∣ [ x .fst ] , x .snd ∣) (surχ a)

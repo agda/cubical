@@ -32,7 +32,6 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
---open import Cubical.Algebra.RingSolver.CommRingSolver
 open import Cubical.Algebra.RingSolver.ReflectionSolving
 
 open import Cubical.HITs.SetQuotients as SQ
