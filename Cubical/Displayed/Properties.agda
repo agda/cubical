@@ -15,27 +15,12 @@ open import Cubical.Relation.Binary
 open BinaryRelation
 
 open import Cubical.Displayed.Base
+open import Cubical.Displayed.Constant
+open import Cubical.Displayed.Sigma
 
 private
   variable
     ℓ ℓA ℓA' ℓP ℓ≅A ℓ≅A' ℓB ℓB' ℓ≅B ℓ≅B' ℓC ℓ≅C : Level
-
--- UARel on Σ-type
-
-module _ {A : Type ℓA} {ℓ≅A : Level} {𝒮-A : UARel A ℓ≅A}
-  {B : A → Type ℓB} {ℓ≅B : Level}
-  (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
-  where
-
-  open UARel 𝒮-A
-  open DUARel 𝒮ᴰ-B
-
-  ∫ : UARel (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
-  UARel._≅_ ∫ (a , b) (a' , b') = Σ[ p ∈ a ≅ a' ] (b ≅ᴰ⟨ p ⟩ b')
-  UARel.ua ∫ (a , b) (a' , b') =
-    compEquiv
-      (Σ-cong-equiv (ua a a') (λ p → uaᴰ b p b'))
-      ΣPath≃PathΣ
 
 -- induction principles
 
@@ -105,70 +90,6 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
     DUARel.uaᴰ (𝒮ᴰ-make-2 ρᴰ contrTotal)
       = 𝒮ᴰ-make-aux (contrRelSingl→isUnivalent _ ρᴰ (contrTotal _))
 
-
--- lifts
-
-module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
-  {B : A → Type ℓB}
-  {ℓ≅B : Level}
-  (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
-  {C : A → Type ℓC}
-  (𝒮ᴰ-C : DUARel 𝒮-A C ℓ≅C)
-  where
-
-  open DUARel 𝒮ᴰ-B
-
-  Lift-𝒮ᴰ : DUARel (∫ 𝒮ᴰ-C) (λ (a , _) → B a) ℓ≅B
-  DUARel._≅ᴰ⟨_⟩_ Lift-𝒮ᴰ b p b' = b ≅ᴰ⟨ p .fst ⟩ b'
-  DUARel.uaᴰ Lift-𝒮ᴰ b p b' = uaᴰ b (p .fst) b'
-
-
--- associativity
-
-module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
-  {B : A → Type ℓB} {ℓ≅B : Level} (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
-  {C : Σ A B → Type ℓC} {ℓ≅C : Level} (𝒮ᴰ-C : DUARel (∫ 𝒮ᴰ-B) C ℓ≅C)
-  where
-
-  open UARel 𝒮-A
-  open DUARel 𝒮ᴰ-B renaming (_≅ᴰ⟨_⟩_ to _≅B⟨_⟩_ ; uaᴰ to uaB)
-  open DUARel 𝒮ᴰ-C renaming (_≅ᴰ⟨_⟩_ to _≅C⟨_⟩_ ; uaᴰ to uaC)
-
-  splitTotal-𝒮ᴰ : DUARel 𝒮-A (λ a → Σ[ b ∈ B a ] C (a , b)) (ℓ-max ℓ≅B ℓ≅C)
-  DUARel._≅ᴰ⟨_⟩_ splitTotal-𝒮ᴰ (b , c) p (b' , c') =
-    Σ[ q ∈ b ≅B⟨ p ⟩ b' ]  (c ≅C⟨ p , q ⟩ c')
-  DUARel.uaᴰ splitTotal-𝒮ᴰ (b ,  c) p (b' , c') =
-    compEquiv
-      (Σ-cong-equiv (uaB b p b') (λ q → uaC c (p , q) c'))
-      ΣPath≃PathΣ
-
--- combination
-
-module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
-  {B : A → Type ℓB} {ℓ≅B : Level} (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
-  {C : A → Type ℓC} {ℓ≅C : Level} (𝒮ᴰ-C : DUARel 𝒮-A C ℓ≅C)
-  where
-
-  _×𝒮ᴰ_ : DUARel 𝒮-A (λ a → B a × C a) (ℓ-max ℓ≅B ℓ≅C)
-  _×𝒮ᴰ_ = splitTotal-𝒮ᴰ 𝒮-A 𝒮ᴰ-B (Lift-𝒮ᴰ 𝒮-A 𝒮ᴰ-C 𝒮ᴰ-B)
-
--- constant displayed structure
-
-module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
-  {B : Type ℓB} (𝒮-B : UARel B ℓ≅B)  where
-
-  open UARel 𝒮-B
-  open DUARel
-
-  𝒮ᴰ-const : DUARel 𝒮-A (λ _ → B) ℓ≅B
-  𝒮ᴰ-const ._≅ᴰ⟨_⟩_ b _ b' = b ≅ b'
-  𝒮ᴰ-const .uaᴰ b p b' = ua b b'
-
-  -- UARel product
-
-  _×𝒮_ : UARel (A × B) (ℓ-max ℓ≅A ℓ≅B)
-  _×𝒮_ = ∫ 𝒮ᴰ-const
-
 -- relational isomorphisms
 
 𝒮-iso→iso : {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
@@ -224,12 +145,6 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
     𝒮ᴰ-fiberIsoOver→totalIso : Iso (Σ A B) (Σ A' B')
     𝒮ᴰ-fiberIsoOver→totalIso = Σ-cong-iso F fiberIsoOver
 
-
--- Special cases:
-
-𝒮-type : (A : Type ℓ) → UARel A ℓ
-UARel._≅_ (𝒮-type A) = _≡_
-UARel.ua (𝒮-type A) a a' = idEquiv (a ≡ a')
 
 𝒮-Univ : ∀ ℓ → UARel (Type ℓ) ℓ
 UARel._≅_ (𝒮-Univ ℓ) = _≃_

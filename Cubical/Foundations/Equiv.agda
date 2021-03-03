@@ -201,6 +201,64 @@ equiv→Iso h k .Iso.leftInv f = funExt λ a → secEq k _ ∙ cong f (secEq h a
 equiv→ : (A ≃ B) → (C ≃ D) → (A → C) ≃ (B → D)
 equiv→ h k = isoToEquiv (equiv→Iso h k)
 
+equivΠ : ∀ {ℓA ℓA' ℓB ℓB'} {A : Type ℓA} {A' : Type ℓA'}
+  {B : A → Type ℓB} {B' : A' → Type ℓB'}
+  (eA : A ≃ A')
+  (eB : (a : A) → B a ≃ B' (eA .fst a))
+  → ((a : A) → B a) ≃ ((a' : A') → B' a')
+equivΠ {B' = B'} eA eB = isoToEquiv isom
+  where
+  open Iso
+
+  isom : Iso _ _
+  isom .fun f a' =
+    subst B' (retEq eA a') (eB _ .fst (f (invEq eA a')))
+  isom .inv f' a =
+    invEq (eB _) (f' (eA .fst a))
+  isom .rightInv f' =
+    funExt λ a' →
+    cong (subst B' (retEq eA a')) (retEq (eB _) _)
+    ∙ fromPathP (cong f' (retEq eA a'))
+  isom .leftInv f =
+    funExt λ a →
+    invEq (eB a) (subst B' (retEq eA _) (eB _ .fst (f (invEq eA (eA .fst a)))))
+      ≡⟨ cong (λ t → invEq (eB a) (subst B' t (eB _ .fst (f (invEq eA (eA .fst a))))))
+           (commPathIsEq (snd eA) a) ⟩
+    invEq (eB a) (subst B' (cong (eA .fst) (secEq eA a)) (eB _ .fst (f (invEq eA (eA .fst a)))))
+      ≡⟨ cong (invEq (eB a)) (fromPathP (λ i → eB _ .fst (f (secEq eA a i)))) ⟩
+    invEq (eB a) (eB a .fst (f a))
+      ≡⟨ secEq (eB _) (f a) ⟩
+    f a
+    ∎
+
+equivΠ' : ∀ {ℓA ℓA' ℓB ℓB'} {A : Type ℓA} {A' : Type ℓA'}
+  {B : A → Type ℓB} {B' : A' → Type ℓB'}
+  (eA : A ≃ A')
+  (eB : {a : A} {a' : A'} → eA .fst a ≡ a' → B a ≃ B' a')
+  → ((a : A) → B a) ≃ ((a' : A') → B' a')
+equivΠ' {B' = B'} eA eB = isoToEquiv isom
+  where
+  open Iso
+
+  isom : Iso _ _
+  isom .fun f a' =
+    eB (retEq eA a') .fst (f (invEq eA a'))
+  isom .inv f' a =
+    invEq (eB refl) (f' (eA .fst a))
+  isom .rightInv f' =
+    funExt λ a' →
+    J (λ a'' p → eB p .fst (invEq (eB refl) (f' (p i0))) ≡ f' a'')
+      (retEq (eB refl) (f' (eA .fst (invEq eA a'))))
+      (retEq eA a')
+  isom .leftInv f =
+    funExt λ a →
+    subst
+      (λ p → invEq (eB refl) (eB p .fst (f (invEq eA (eA .fst a)))) ≡ f a)
+      (sym (commPathIsEq (eA .snd) a))
+      (J (λ a'' p → invEq (eB refl) (eB (cong (eA .fst) p) .fst (f (invEq eA (eA .fst a)))) ≡ f a'')
+        (secEq (eB refl) (f (invEq eA (eA .fst a))))
+        (secEq eA a))
+
 equivCompIso : (A ≃ B) → (C ≃ D) → Iso (A ≃ C) (B ≃ D)
 equivCompIso h k .Iso.fun f = compEquiv (compEquiv (invEquiv h) f) k
 equivCompIso h k .Iso.inv g = compEquiv (compEquiv h g) (invEquiv k)
