@@ -30,8 +30,9 @@ isSetUnit = isProp→isSet isPropUnit
 isOfHLevelUnit : (n : HLevel) → isOfHLevel n Unit
 isOfHLevelUnit n = isContr→isOfHLevel n isContrUnit
 
-UnitToType≃ : ∀ {ℓ} (A : Type ℓ) → (Unit → A) ≃ A
-UnitToType≃ A = strictEquiv (λ f → f _) const
+module _ {ℓ} (A : Type ℓ) where
+  UnitToType≃ : (Unit → A) ≃ A
+  unquoteDef UnitToType≃ = defStrictEquiv UnitToType≃ (λ f → f _) const
 
 UnitToTypePath : ∀ {ℓ} (A : Type ℓ) → (Unit → A) ≡ A
 UnitToTypePath A = ua (UnitToType≃ A)
@@ -46,7 +47,9 @@ diagonal-unit : Unit ≡ Unit × Unit
 diagonal-unit = isoToPath (iso (λ x → tt , tt) (λ x → tt) (λ {(tt , tt) i → tt , tt}) λ {tt i → tt})
 
 fibId : ∀ {ℓ} (A : Type ℓ) → (fiber (λ (x : A) → tt) tt) ≡ A
-fibId A = ua (strictEquiv fst (λ a → a , refl))
+fibId A = ua e
+  where
+  unquoteDecl e = declStrictEquiv e fst (λ a → a , refl)
 
 isContr→≃Unit : ∀ {ℓ} {A : Type ℓ} → isContr A → A ≃ Unit
 isContr→≃Unit contr = isoToEquiv (iso (λ _ → tt) (λ _ → fst contr) (λ _ → refl) λ _ → snd contr _)

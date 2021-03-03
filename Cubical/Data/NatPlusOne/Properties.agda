@@ -9,7 +9,9 @@ open import Cubical.Data.NatPlusOne.Base
 open import Cubical.Reflection.StrictEquiv
 
 1+Path : ℕ ≡ ℕ₊₁
-1+Path = ua (strictEquiv 1+_ -1+_)
+1+Path = ua e
+  where
+  unquoteDecl e = declStrictEquiv e 1+_ -1+_
 
 ℕ₊₁→ℕ-inj : ∀ {m n} → ℕ₊₁→ℕ m ≡ ℕ₊₁→ℕ n → m ≡ n
 ℕ₊₁→ℕ-inj p i = 1+ (injSuc p i)

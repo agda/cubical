@@ -367,9 +367,8 @@ module FibrationIdentityPrinciple {B : Type ℓ} {ℓ₁} where
       ≃⟨ Σ-cong-equiv-snd (λ _ → Σ-cong-equiv-snd λ _ → transportEquiv (PathP≡Path⁻ _ _ _)) ⟩
         (Σ[ (E , eq) ∈ fiber L A ] fiber (_∘ lower) (transport⁻ (λ i → eq i → B) f))
       ■ where
-      boringSwap : _
-      boringSwap =
-        strictEquiv
+      unquoteDecl boringSwap =
+        declStrictEquiv boringSwap
           (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p)))
           (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p)))
 

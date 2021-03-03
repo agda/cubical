@@ -22,7 +22,7 @@ module _ {A : Type ℓ} {B : A → I → Type ℓ₁}
   {f : (x : A) → B x i0} {g : (x : A) → B x i1} where
 
   funExtEquiv : (∀ x → PathP (B x) (f x) (g x)) ≃ PathP (λ i → ∀ x → B x i) f g
-  funExtEquiv = strictEquiv funExt funExt⁻
+  unquoteDef funExtEquiv = defStrictEquiv funExtEquiv funExt funExt⁻
 
   funExtPath : (∀ x → PathP (B x) (f x) (g x)) ≡ PathP (λ i → ∀ x → B x i) f g
   funExtPath = ua funExtEquiv
@@ -47,7 +47,7 @@ module _ {A : Type ℓ} {B : A → Type ℓ₁} {C : (x : A) → B x → I → T
     appl₂ eq x y i = eq i x y
 
   funExt₂Equiv : (∀ x y → PathP (C x y) (f x y) (g x y)) ≃ (PathP (λ i → ∀ x y → C x y i) f g)
-  funExt₂Equiv = strictEquiv funExt₂ appl₂
+  unquoteDef funExt₂Equiv = defStrictEquiv funExt₂Equiv funExt₂ appl₂
 
   funExt₂Path : (∀ x y → PathP (C x y) (f x y) (g x y)) ≡ (PathP (λ i → ∀ x y → C x y i) f g)
   funExt₂Path = ua funExt₂Equiv
@@ -72,7 +72,7 @@ module _ {A : Type ℓ} {B : A → Type ℓ₁} {C : (x : A) → B x → Type �
     appl₃ eq x y z i = eq i x y z
 
   funExt₃Equiv : (∀ x y z → PathP (D x y z) (f x y z) (g x y z)) ≃ (PathP (λ i → ∀ x y z → D x y z i) f g)
-  funExt₃Equiv = strictEquiv funExt₃ appl₃
+  unquoteDef funExt₃Equiv = defStrictEquiv funExt₃Equiv funExt₃ appl₃
 
   funExt₃Path : (∀ x y z → PathP (D x y z) (f x y z) (g x y z)) ≡ (PathP (λ i → ∀ x y z → D x y z i) f g)
   funExt₃Path = ua funExt₃Equiv
