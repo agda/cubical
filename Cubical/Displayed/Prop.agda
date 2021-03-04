@@ -1,6 +1,6 @@
 {-
 
-  Functions building UARels and DUARels on function types
+  Functions building UARels and DUARels on propositions / propositional families
 
 -}
 {-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
