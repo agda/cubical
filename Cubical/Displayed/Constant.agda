@@ -30,10 +30,10 @@ module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
 
 -- SubstRel for an arbitrary constant family
 
-module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) {B : Type ℓB} where
+module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) (B : Type ℓB) where
 
   open SubstRel
 
-  𝒮ˢ-type : SubstRel 𝒮-A (λ _ → B)
-  𝒮ˢ-type .SubstRel.act _ = idEquiv B
-  𝒮ˢ-type .SubstRel.uaˢ p b = transportRefl b
+  𝒮ˢ-const : SubstRel 𝒮-A (λ _ → B)
+  𝒮ˢ-const .SubstRel.act _ = idEquiv B
+  𝒮ˢ-const .SubstRel.uaˢ p b = transportRefl b

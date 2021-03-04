@@ -8,6 +8,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 
 open import Cubical.Displayed.Base
+open import Cubical.Displayed.Subst
 
 private
   variable
@@ -49,3 +50,12 @@ open UARelHom
   compEquiv
     (𝒮ᴰ-C .DUARel.uaᴰ c (f .rel p) c')
     (substEquiv (λ q → PathP (λ i → C (q i)) c c') (sym (f .ua p)))
+
+𝒮ˢ-reindex : {A : Type ℓA} {𝒮-A : UARel A ℓ≅A} {B : Type ℓB} {𝒮-B : UARel B ℓ≅B} {C : B → Type ℓC}
+  (f : UARelHom 𝒮-A 𝒮-B)
+  → SubstRel 𝒮-B C
+  → SubstRel 𝒮-A (C ∘ fun f)
+𝒮ˢ-reindex f 𝒮ˢ-C .SubstRel.act p = 𝒮ˢ-C .SubstRel.act (f .rel p)
+𝒮ˢ-reindex {C = C} f 𝒮ˢ-C .SubstRel.uaˢ p c =
+  cong (λ q → subst C q c) (f .ua p)
+  ∙ 𝒮ˢ-C .SubstRel.uaˢ (f .rel p) c

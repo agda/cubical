@@ -33,8 +33,8 @@ open import Cubical.Reflection.Base
 
 mutual
   data UARelDesc : ∀ {ℓA ℓ≅A} {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) → Typeω where
-    instance
-    generic : ∀ {ℓA} (A : Type ℓA) → UARelDesc (𝒮-generic A)
+
+    generic : ∀ {ℓA} {A : Type ℓA} → UARelDesc (𝒮-generic A)
 
     univ : ∀ ℓU → UARelDesc (𝒮-Univ ℓU)
 
@@ -66,16 +66,31 @@ mutual
       → UARelReindex f
       → UARelReindex (𝒮-∘ f (𝒮-fst {𝒮ᴰ-B = 𝒮ᴰ-B}))
 
+    ∘snd : ∀ {ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C}
+      {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
+      {B : Type ℓB} {𝒮-B : UARel B ℓ≅B}
+      {C : Type ℓC} {𝒮-C : UARel C ℓ≅C}
+      {f : UARelHom 𝒮-B 𝒮-C}
+      → UARelReindex f
+      → UARelReindex (𝒮-∘ f (𝒮-snd {𝒮-A = 𝒮-A}))
+
 
   data SubstRelDesc : ∀ {ℓA ℓ≅A ℓB}
     {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
     {B : A → Type ℓB} (𝒮ˢ-B : SubstRel 𝒮-A B) → Typeω
     where
 
-    generic : ∀ {ℓA ℓ≅A ℓB} {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) (B : A → Type ℓB)
+    generic : ∀ {ℓA ℓ≅A ℓB} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A} {B : A → Type ℓB}
       → SubstRelDesc 𝒮-A (𝒮ˢ-generic 𝒮-A B)
 
-    el : ∀ ℓU → SubstRelDesc (𝒮-Univ ℓU) (𝒮ˢ-El ℓU)
+    constant : ∀ {ℓA ℓ≅A ℓB}
+      {A : Type ℓA} {𝒮-A : UARel A ℓ≅A} {B : Type ℓB}
+      → SubstRelDesc 𝒮-A (𝒮ˢ-const 𝒮-A B)
+
+    el : ∀ {ℓA ℓ≅A ℓU} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
+      {f : UARelHom 𝒮-A (𝒮-Univ ℓU)}
+      → UARelReindex f
+      → SubstRelDesc 𝒮-A (𝒮ˢ-reindex f (𝒮ˢ-El ℓU))
 
     sigma : ∀ {ℓA ℓ≅A ℓB ℓC}
       {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
@@ -94,7 +109,7 @@ mutual
     {B : A → Type ℓB} (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B) → Typeω
     where
 
-    generic : ∀ {ℓA ℓ≅A ℓB} {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) (B : A → Type ℓB)
+    generic : ∀ {ℓA ℓ≅A ℓB} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A} {B : A → Type ℓB}
       → DUARelDesc 𝒮-A (𝒮ᴰ-generic 𝒮-A B)
 
     constant : ∀ {ℓA ℓ≅A ℓB ℓ≅B}
@@ -103,7 +118,10 @@ mutual
       → UARelDesc 𝒮-B
       → DUARelDesc 𝒮-A (𝒮ᴰ-const 𝒮-A 𝒮-B)
 
-    el : ∀ ℓU → DUARelDesc (𝒮-Univ ℓU) (𝒮ᴰ-El ℓU)
+    el : ∀ {ℓA ℓ≅A ℓU} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
+      {f : UARelHom 𝒮-A (𝒮-Univ ℓU)}
+      → UARelReindex f
+      → DUARelDesc 𝒮-A (𝒮ᴰ-reindex f (𝒮ᴰ-El ℓU))
 
     sigma : ∀ {ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C}
       {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
@@ -128,6 +146,12 @@ private
     → UARelDesc 𝒮-A → UARel A ℓ≅A
   getUARel {𝒮-A = 𝒮-A} _ = 𝒮-A
 
+  getDUARel : ∀ {ℓA ℓ≅A ℓB ℓ≅B}
+    {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
+    {B : A → Type ℓB} {𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B}
+    → DUARelDesc 𝒮-A 𝒮ᴰ-B → DUARel 𝒮-A B ℓ≅B
+  getDUARel {𝒮ᴰ-B = 𝒮ᴰ-B} _ = 𝒮ᴰ-B
+
 -- Magic number
 private
   FUEL = 10000
@@ -135,6 +159,7 @@ private
 private
   module _
     (rec : R.Term → R.TC Unit)
+    (recᴿ : R.Term → R.TC Unit)
     (recˢ : R.Term → R.TC Unit)
     (recᴰ : R.Term → R.TC Unit)
     (hole : R.Term)
@@ -150,30 +175,117 @@ private
         newMeta R.unknown >>= λ hole₂ →
         R.unify (R.con name (hole₁ v∷ hole₂ v∷ [])) hole >>
         rec hole₁ >>
-        rec hole₂
+        recᴰ hole₂
+
+      trySigma = tryBinary (quote UARelDesc.sigma)
+      tryPi = tryBinary (quote UARelDesc.pi)
+
+      useGeneric : R.TC Unit
+      useGeneric = R.unify (R.con (quote UARelDesc.generic) []) hole
+
+    module Reindex where
+      tryId : R.TC Unit
+      tryId = R.unify (R.con (quote UARelReindex.id) []) hole
+
+      tryUnary : R.Name → R.TC Unit
+      tryUnary name =
+        newMeta R.unknown >>= λ hole₁ →
+        R.unify (R.con name [ varg hole₁ ]) hole >>
+        recᴿ hole₁
+
+      tryFst = tryUnary (quote UARelReindex.∘fst)
+      trySnd = tryUnary (quote UARelReindex.∘snd)
 
     module Subst where
 
+      tryConstant : R.TC Unit
+      tryConstant =
+        R.unify (R.con (quote SubstRelDesc.constant) []) hole
+
+      tryEl : R.TC Unit
+      tryEl =
+        newMeta R.unknown >>= λ hole₁ →
+        R.unify (R.con (quote SubstRelDesc.el) [ varg hole₁ ]) hole >>
+        recᴿ hole₁
+
+      tryBinary : R.Name → R.TC Unit
+      tryBinary name =
+        newMeta R.unknown >>= λ hole₁ →
+        newMeta R.unknown >>= λ hole₂ →
+        R.unify (R.con name (hole₁ v∷ hole₂ v∷ [])) hole >>
+        recˢ hole₁ >>
+        recˢ hole₂
+
+      trySigma = tryBinary (quote SubstRelDesc.sigma)
+      tryPi = tryBinary (quote SubstRelDesc.pi)
+
+      useGeneric : R.TC Unit
+      useGeneric = R.unify (R.con (quote SubstRelDesc.generic) []) hole
+
     module DUA where
+
+      tryConstant : R.TC Unit
+      tryConstant =
+        newMeta R.unknown >>= λ hole₁ →
+        R.unify (R.con (quote DUARelDesc.constant) [ varg hole₁ ]) hole >>
+        rec hole₁
+
+      tryEl : R.TC Unit
+      tryEl =
+        newMeta R.unknown >>= λ hole₁ →
+        R.unify (R.con (quote DUARelDesc.el) [ varg hole₁ ]) hole >>
+        recᴿ hole₁
+
+      tryBinary : R.Name → R.TC Unit
+      tryBinary name =
+        newMeta R.unknown >>= λ hole₁ →
+        newMeta R.unknown >>= λ hole₂ →
+        R.unify (R.con name (hole₁ v∷ hole₂ v∷ [])) hole >>
+        recᴰ hole₁ >>
+        recᴰ hole₂
+
+      trySigma = tryBinary (quote DUARelDesc.sigma)
+      tryPi = tryBinary (quote DUARelDesc.pi)
+
+      tryPiˢ : R.TC Unit
+      tryPiˢ =
+        newMeta R.unknown >>= λ hole₁ →
+        newMeta R.unknown >>= λ hole₂ →
+        R.unify (R.con (quote DUARelDesc.piˢ) (hole₁ v∷ hole₂ v∷ [])) hole >>
+        recˢ hole₁ >>
+        recᴰ hole₂
+
+      useGeneric : R.TC Unit
+      useGeneric = R.unify (R.con (quote DUARelDesc.generic) []) hole
 
 mutual
   autoUARelDesc : ℕ → R.Term → R.TC Unit
   autoUARelDesc zero hole = R.typeError [ R.strErr "Out of fuel" ]
   autoUARelDesc (suc n) hole =
-    tryUniv <|>
-    R.typeError [ R.strErr "Could not generate UARel" ]
+    tryUniv <|> trySigma <|> tryPi <|> useGeneric
     where
-    open UA (autoUARelDesc n) (autoSubstRelDesc n) (autoDUARelDesc n) hole
+    open UA (autoUARelDesc n) (autoUARelReindex n) (autoSubstRelDesc n) (autoDUARelDesc n) hole
+
+  autoUARelReindex : ℕ → R.Term → R.TC Unit
+  autoUARelReindex zero hole = R.typeError [ R.strErr "Out of fuel" ]
+  autoUARelReindex (suc n) hole =
+    tryId <|> tryFst <|> trySnd
+    where
+    open Reindex (autoUARelDesc n) (autoUARelReindex n) (autoSubstRelDesc n) (autoDUARelDesc n) hole
 
   autoSubstRelDesc : ℕ → R.Term → R.TC Unit
   autoSubstRelDesc zero hole = R.typeError [ R.strErr "Out of fuel" ]
   autoSubstRelDesc (suc n) hole =
-    R.typeError [ R.strErr "Could not generate SubstRel" ]
+    tryConstant <|> tryEl <|> tryEl <|> trySigma <|> tryPi <|> useGeneric
+    where
+    open Subst (autoUARelDesc n) (autoUARelReindex n) (autoSubstRelDesc n) (autoDUARelDesc n) hole
 
   autoDUARelDesc : ℕ → R.Term → R.TC Unit
   autoDUARelDesc zero hole = R.typeError [ R.strErr "Out of fuel" ]
   autoDUARelDesc (suc n) hole =
-    R.typeError [ R.strErr "Could not generate DUARel" ]
+    tryConstant <|> tryEl <|> trySigma <|> tryPiˢ <|> tryPi <|> useGeneric
+    where
+    open DUA (autoUARelDesc n) (autoUARelReindex n) (autoSubstRelDesc n) (autoDUARelDesc n) hole
 
 autoUARelMacro : ∀ {ℓA} {A : Type ℓA} → ℕ → R.Term → R.TC Unit
 autoUARelMacro {A = A} n hole =
@@ -183,9 +295,20 @@ autoUARelMacro {A = A} n hole =
   R.unify hole (R.def (quote getUARel) [ varg desc ]) >>
   autoUARelDesc n desc
 
+autoDUARelMacro : ∀ {ℓA ℓ≅A ℓB} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A} {B : A → Type ℓB}
+  → ℕ → R.Term → R.TC Unit
+autoDUARelMacro {𝒮-A = 𝒮-A} {B = B} n hole =
+  R.quoteTC 𝒮-A >>= λ `𝒮-A` →
+  R.quoteTC B >>= λ `B` →
+  R.checkType hole (R.def (quote DUARel) (`𝒮-A` v∷ `B` v∷ R.unknown v∷ [])) >>
+  newMeta R.unknown >>= λ desc →
+  R.unify hole (R.def (quote getDUARel) [ varg desc ]) >>
+  autoDUARelDesc n desc
+
 macro
   autoUARel : ∀ {ℓA} {A : Type ℓA} → R.Term → R.TC Unit
   autoUARel {A = A} = autoUARelMacro {A = A} FUEL
 
-test : _
-test = autoUARel {A = Type}
+  autoDUARel : ∀ {ℓA ℓ≅A ℓB} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A} {B : A → Type ℓB}
+    → R.Term → R.TC Unit
+  autoDUARel {𝒮-A = 𝒮-A} {B = B} = autoDUARelMacro {𝒮-A = 𝒮-A} {B = B} FUEL
