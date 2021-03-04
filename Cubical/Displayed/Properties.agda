@@ -8,15 +8,12 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence using (pathToEquiv; univalence; ua-ungluePath-Equiv)
 
 open import Cubical.Data.Unit
-open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary
 open BinaryRelation
 
 open import Cubical.Displayed.Base
-open import Cubical.Displayed.Constant
-open import Cubical.Displayed.Sigma
 
 private
   variable
