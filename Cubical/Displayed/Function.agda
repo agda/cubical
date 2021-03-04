@@ -73,7 +73,7 @@ _→𝒮ᴰ_ : {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
 
 module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
   {B : A → Type ℓB} (𝒮ˢ-B : SubstRel 𝒮-A B)
-  {C : (a : A) → B a → Type ℓC} (𝒮ᴰ-C : DUARel (∫ (Subst→DUA 𝒮ˢ-B)) (uncurry C) ℓ≅C)
+  {C : (a : A) → B a → Type ℓC} (𝒮ᴰ-C : DUARel (∫ˢ 𝒮ˢ-B) (uncurry C) ℓ≅C)
   where
 
   open UARel 𝒮-A
@@ -123,7 +123,7 @@ equivΠ' {B' = B'} eA eB = isoToEquiv isom
 
 module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
   {B : A → Type ℓB} (𝒮ˢ-B : SubstRel 𝒮-A B)
-  {C : Σ A B → Type ℓC} (𝒮ˢ-C : SubstRel (∫ (Subst→DUA 𝒮ˢ-B)) C)
+  {C : Σ A B → Type ℓC} (𝒮ˢ-C : SubstRel (∫ˢ 𝒮ˢ-B) C)
   where
 
   open UARel 𝒮-A
@@ -132,11 +132,11 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
     module B = SubstRel 𝒮ˢ-B
     module C = SubstRel 𝒮ˢ-C
 
-  𝒮-Πˢ : SubstRel 𝒮-A (λ a → (b : B a) → C (a , b))
-  𝒮-Πˢ .act p = equivΠ' (B.act p) (λ q → C.act (p , q))
-  𝒮-Πˢ .uaˢ p f =
+  𝒮ˢ-Π : SubstRel 𝒮-A (λ a → (b : B a) → C (a , b))
+  𝒮ˢ-Π .act p = equivΠ' (B.act p) (λ q → C.act (p , q))
+  𝒮ˢ-Π .uaˢ p f =
     fromPathP
-      (DUARel.uaᴰ (𝒮ᴰ-Π (Subst→DUA 𝒮ˢ-B) (Subst→DUA 𝒮ˢ-C)) f p (equivFun (𝒮-Πˢ .act p) f) .fst
+      (DUARel.uaᴰ (𝒮ᴰ-Π (Subst→DUA 𝒮ˢ-B) (Subst→DUA 𝒮ˢ-C)) f p (equivFun (𝒮ˢ-Π .act p) f) .fst
         (λ {b} →
           J (λ b' q →
                 equivFun (C.act (p , q)) (f b)

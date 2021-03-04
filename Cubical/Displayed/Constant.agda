@@ -1,6 +1,6 @@
 {-
 
-  Functions building DUARels on constant famillies
+  Functions building DUARels on constant families
 
 -}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}

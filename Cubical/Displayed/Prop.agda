@@ -6,19 +6,14 @@
 {-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
 module Cubical.Displayed.Prop where
 
-open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Path
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Displayed.Base
-open import Cubical.Displayed.Subst
-open import Cubical.Displayed.Sigma
 
 private
   variable

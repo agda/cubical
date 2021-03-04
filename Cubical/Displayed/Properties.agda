@@ -141,6 +141,7 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
     -- from a relational isomorphism between B a and (F * B) a
     𝒮ᴰ-fiberIsoOver→totalIso : Iso (Σ A B) (Σ A' B')
     𝒮ᴰ-fiberIsoOver→totalIso = Σ-cong-iso F fiberIsoOver
+<<<<<<< HEAD
 
 
 𝒮-Univ : ∀ ℓ → UARel (Type ℓ) ℓ
@@ -183,3 +184,5 @@ module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) where
     where
     open UARel 𝒮-A
     open DUARel 𝒮ᴰ-B
+=======
+>>>>>>> start on auto

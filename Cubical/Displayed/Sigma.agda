@@ -13,6 +13,8 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Displayed.Base
 open import Cubical.Displayed.Subst
+open import Cubical.Displayed.Morphism
+open import Cubical.Displayed.Constant
 
 private
   variable
@@ -35,21 +37,34 @@ module _ {A : Type ℓA} {ℓ≅A : Level} {𝒮-A : UARel A ℓ≅A}
       (Σ-cong-equiv (ua a a') (λ p → uaᴰ b p b'))
       ΣPath≃PathΣ
 
+∫ˢ : {A : Type ℓA} {𝒮-A : UARel A ℓ≅A} {B : A → Type ℓB} (𝒮ˢ-B : SubstRel 𝒮-A B)
+  → UARel (Σ A B) (ℓ-max ℓ≅A ℓB)
+∫ˢ 𝒮ˢ-B = ∫ (Subst→DUA 𝒮ˢ-B)
+
+_×𝒮_ : {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) {B : Type ℓB} (𝒮-B : UARel B ℓ≅B)
+  → UARel (A × B) (ℓ-max ℓ≅A ℓ≅B)
+𝒮-A ×𝒮 𝒮-B = ∫ (𝒮ᴰ-const 𝒮-A 𝒮-B)
+
+-- Projection UARel morphisms
+
+𝒮-fst : {A : Type ℓA} {𝒮-A : UARel A ℓ≅A} {B : A → Type ℓB} {𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B}
+  → UARelHom (∫ 𝒮ᴰ-B) 𝒮-A
+𝒮-fst .UARelHom.fun = fst
+𝒮-fst .UARelHom.rel = fst
+𝒮-fst .UARelHom.ua p = refl
+
+𝒮-snd : {A : Type ℓA} {𝒮-A : UARel A ℓ≅A} {B : Type ℓB} {𝒮-B : UARel B ℓ≅B}
+  → UARelHom (𝒮-A ×𝒮 𝒮-B) 𝒮-B
+𝒮-snd .UARelHom.fun = snd
+𝒮-snd .UARelHom.rel = snd
+𝒮-snd .UARelHom.ua p = refl
+
 -- Lift a DUARel to live over a Σ-type
 
-module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
-  {B : A → Type ℓB}
-  {ℓ≅B : Level}
-  (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
-  {C : A → Type ℓC}
-  (𝒮ᴰ-C : DUARel 𝒮-A C ℓ≅C)
-  where
-
-  open DUARel 𝒮ᴰ-B
-
-  𝒮ᴰ-Lift : DUARel (∫ 𝒮ᴰ-C) (λ (a , _) → B a) ℓ≅B
-  DUARel._≅ᴰ⟨_⟩_ 𝒮ᴰ-Lift b p b' = b ≅ᴰ⟨ p .fst ⟩ b'
-  DUARel.uaᴰ 𝒮ᴰ-Lift b p b' = uaᴰ b (p .fst) b'
+𝒮ᴰ-Lift : {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) {B : A → Type ℓB} (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
+  {C : A → Type ℓC} (𝒮ᴰ-C : DUARel 𝒮-A C ℓ≅C)
+  → DUARel (∫ 𝒮ᴰ-C) (λ (a , _) → B a) ℓ≅B
+𝒮ᴰ-Lift _  𝒮ᴰ-B _ = 𝒮ᴰ-reindex 𝒮-fst 𝒮ᴰ-B
 
 -- DUARel on a Σ-type
 
@@ -85,7 +100,7 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
 
 module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
   {B : A → Type ℓB} (𝒮ˢ-B : SubstRel 𝒮-A B)
-  {C : Σ A B → Type ℓC} (𝒮ˢ-C : SubstRel (∫ (Subst→DUA 𝒮ˢ-B)) C)
+  {C : Σ A B → Type ℓC} (𝒮ˢ-C : SubstRel (∫ˢ 𝒮ˢ-B) C)
   where
 
   open UARel 𝒮-A
