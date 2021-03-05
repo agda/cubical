@@ -27,6 +27,17 @@ minComm zero (suc m) = refl
 minComm (suc n) zero = refl
 minComm (suc n) (suc m) = cong suc (minComm n m)
 
+max : ℕ → ℕ → ℕ
+max zero m = m
+max (suc n) zero = suc n
+max (suc n) (suc m) = suc (max n m)
+
+maxComm : (n m : ℕ) → max n m ≡ max m n
+maxComm zero zero = refl
+maxComm zero (suc m) = refl
+maxComm (suc n) zero = refl
+maxComm (suc n) (suc m) = cong suc (maxComm n m)
+
 znots : ¬ (0 ≡ suc n)
 znots eq = subst (caseNat ℕ ⊥) eq 0
 

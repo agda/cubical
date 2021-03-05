@@ -31,7 +31,7 @@ private
 module Units (R' : CommRing {ℓ}) where
  open CommRingStr (snd R')
  open Theory (CommRing→Ring R')
- private R = R' .fst
+ private R = fst R'
 
  inverseUniqueness : (r : R) → isProp (Σ[ r' ∈ R ] r · r' ≡ 1r)
  inverseUniqueness r (r' , rr'≡1) (r'' , rr''≡1) = Σ≡Prop (λ _ → is-set _ _) path
@@ -124,16 +124,23 @@ module Units (R' : CommRing {ℓ}) where
  unitCong {r = r} {r' = r'} p ⦃ r∈Rˣ ⦄ ⦃ r'∈Rˣ ⦄ =
           PathPΣ (inverseUniqueness r' (r ⁻¹ , subst (λ x → x · r ⁻¹ ≡ 1r) p (r∈Rˣ .snd)) r'∈Rˣ) .fst
 
+ ⁻¹-eq-elim : {r r' r'' : R} ⦃ r∈Rˣ : r ∈ Rˣ ⦄ → r' ≡ r'' · r → r' · r ⁻¹ ≡ r''
+ ⁻¹-eq-elim {r = r} {r'' = r''} p = cong (_· r ⁻¹) p
+                                  ∙ sym (·Assoc _ _ _)
+                                  ∙ cong (r'' ·_) (·-rinv _)
+                                  ∙ ·Rid _
+
+
 -- some convenient notation
 _ˣ : (R' : CommRing {ℓ}) → ℙ (R' .fst)
 R' ˣ = Units.Rˣ R'
 
 module RingHomRespUnits {A' B' : CommRing {ℓ}} (φ : CommRingHom A' B') where
  open Units A' renaming (Rˣ to Aˣ ; _⁻¹ to _⁻¹ᵃ ; ·-rinv to ·A-rinv ; ·-linv to ·A-linv)
- private A = A' .fst
- open CommRingStr (A' .snd) renaming (_·_ to _·A_ ; 1r to 1a)
+ private A = fst A'
+ open CommRingStr (snd A') renaming (_·_ to _·A_ ; 1r to 1a)
  open Units B' renaming (Rˣ to Bˣ ; _⁻¹ to _⁻¹ᵇ ; ·-rinv to ·B-rinv)
- open CommRingStr (B' .snd) renaming ( _·_ to _·B_ ; 1r to 1b
+ open CommRingStr (snd B') renaming  ( _·_ to _·B_ ; 1r to 1b
                                      ; ·Lid to ·B-lid ; ·Rid to ·B-rid
                                      ; ·Assoc to ·B-assoc)
  open RingHom
@@ -156,7 +163,7 @@ module RingHomRespUnits {A' B' : CommRing {ℓ}} (φ : CommRingHom A' B') where
 
 module Exponentiation (R' : CommRing {ℓ}) where
  open CommRingStr (snd R')
- private R = R' .fst
+ private R = fst R'
 
  -- introduce exponentiation
  _^_ : R → ℕ → R
@@ -187,7 +194,7 @@ module Exponentiation (R' : CommRing {ℓ}) where
 -- like in Ring.Properties we provide helpful lemmas here
 module CommTheory (R' : CommRing {ℓ}) where
  open CommRingStr (snd R')
- private R = R' .fst
+ private R = fst R'
 
  ·-commAssocl : (x y z : R) → x · (y · z) ≡ y · (x · z)
  ·-commAssocl x y z = ·Assoc x y z ∙∙ cong (_· z) (·-comm x y) ∙∙ sym (·Assoc y x z)

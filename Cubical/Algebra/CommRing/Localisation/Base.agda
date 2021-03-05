@@ -32,7 +32,7 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.RingSolver.CommRingSolver
+open import Cubical.Algebra.RingSolver.ReflectionSolving
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -46,17 +46,17 @@ private
 
 
 -- A multiplicatively closed subset is assumed to contain 1
-record isMultClosedSubset (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) : Type ℓ where
+record isMultClosedSubset (R' : CommRing {ℓ}) (S' : ℙ (fst R')) : Type ℓ where
  constructor
    multclosedsubset
  field
    containsOne : (R' .snd .CommRingStr.1r) ∈ S'
-   multClosed : ∀ {s t} → s ∈ S' → t ∈ S' → (R' .snd .CommRingStr._·_ s t) ∈ S'
+   multClosed : ∀ {s t} → s ∈ S' → t ∈ S' → ((snd R') .CommRingStr._·_ s t) ∈ S'
 
-module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMultClosedSubset R' S') where
+module Loc (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClosedSubset R' S') where
  open isMultClosedSubset
- private R = R' .fst
- open CommRingStr (R' .snd)
+ private R = fst R'
+ open CommRingStr (snd R')
  open Theory (CommRing→Ring R')
  open CommTheory R'
 
@@ -77,29 +77,26 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMul
  locSym : isSym _≈_
  locSym (r , s , s∈S') (r' , s' , s'∈S') (u , p) = u , sym p
 
- open VarNames5 R'
  locTrans : isTrans _≈_
  locTrans (r , s , s∈S') (r' , s' , s'∈S') (r'' , s'' , s''∈S') ((u , u∈S') , p) ((v , v∈S') , q) =
    ((u · v · s') , SMultClosedSubset .multClosed (SMultClosedSubset .multClosed u∈S' v∈S') s'∈S')
    , path
   where
+  eq1 : (r s r' s' r'' s'' u v : R) → u · v · s' · r · s'' ≡ u · r · s' · v · s''
+  eq1 = solve R'
+
+  eq2 : (r s r' s' r'' s'' u v : R) → u · r' · s · v · s'' ≡ u · s · (v · r' · s'')
+  eq2 = solve R'
+
+  eq3 : (r s r' s' r'' s'' u v : R) → u · s · (v · r'' · s') ≡ u · v · s' · r'' · s
+  eq3 = solve R'
+
   path : u · v · s' · r · s'' ≡ u · v · s' · r'' · s
-  path = u · v · s' · r · s''   ≡⟨ solve R' (X4 ·' X5 ·' X1 ·' X3 ·' X2)
-                                             (X4 ·' X3 ·' X1 ·' X5 ·' X2)
-                                             (s' ∷ s'' ∷ r ∷ u ∷ v ∷ [])
-                                             refl ⟩
+  path = u · v · s' · r · s''   ≡⟨ eq1 r s r' s' r'' s'' u v ⟩ -- not just ≡⟨ solve R' ⟩
          u · r · s' · v · s''   ≡⟨ cong (λ x → x · v · s'') p ⟩
-         u · r' · s · v · s''   ≡⟨ cong (λ x → x · v · s'') (·-commAssocr _ _ _) ⟩
-         u · s · r' · v · s''   ≡⟨ cong (_· s'') (·-commAssocr _ _ _) ⟩
-         u · s · v · r' · s''   ≡⟨ cong (_· s'') (sym (·Assoc _ _ _)) ⟩
-         u · s · (v · r') · s'' ≡⟨ sym (·Assoc _ _ _) ⟩
+         u · r' · s · v · s''   ≡⟨ eq2 r s r' s' r'' s'' u v ⟩
          u · s · (v · r' · s'') ≡⟨ cong (u · s ·_) q ⟩
-         u · s · (v · r'' · s') ≡⟨ ·Assoc _ _ _ ⟩
-         u · s · (v · r'') · s' ≡⟨ cong (_· s') (·-commAssocSwap _ _ _ _) ⟩
-         u · v · (s · r'') · s' ≡⟨ sym (·Assoc _ _ _) ⟩
-         u · v · (s · r'' · s') ≡⟨ cong (u · v ·_) (·-commAssocr2 _ _ _) ⟩
-         u · v · (s' · r'' · s) ≡⟨ ·Assoc _ _ _ ⟩
-         u · v · (s' · r'') · s ≡⟨ cong (_· s) (·Assoc _ _ _) ⟩
+         u · s · (v · r'' · s') ≡⟨ eq3 r s r' s' r'' s'' u v ⟩
          u · v · s' · r'' · s   ∎
 
  locIsEquivRel : isEquivRel _≈_
@@ -108,137 +105,42 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMul
  isEquivRel.transitive locIsEquivRel = locTrans
 
  _+ₗ_ : S⁻¹R → S⁻¹R → S⁻¹R
- _+ₗ_ = setQuotBinOp locRefl _+ₚ_ θ
+ _+ₗ_ = setQuotSymmBinOp locRefl locTrans _+ₚ_ +ₚ-symm θ
   where
   _+ₚ_ : R × S → R × S → R × S
   (r₁ , s₁ , s₁∈S) +ₚ (r₂ , s₂ , s₂∈S) =
                       (r₁ · s₂ + r₂ · s₁) , (s₁ · s₂) , SMultClosedSubset .multClosed s₁∈S s₂∈S
 
-  θ : (a a' b b' : R × S) → a ≈ a' → b ≈ b' → (a +ₚ b) ≈ (a' +ₚ b')
-  θ (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) (r'₂ , s'₂ , s'₂∈S) (s , p) (s' , q) =
-    ((fst s · fst s') , SMultClosedSubset .multClosed (s .snd) (s' .snd)) , path
+  +ₚ-symm : (a b : R × S) → (a +ₚ b) ≡ (b +ₚ a)
+  +ₚ-symm (r₁ , s₁ , s₁∈S) (r₂ , s₂ , s₂∈S) =
+          ΣPathP (+Comm _ _ , Σ≡Prop (λ x → S' x .snd) (·-comm _ _))
+
+  θ : (a a' b : R × S) → a ≈ a' → (a +ₚ b) ≈ (a' +ₚ b)
+  θ (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) ((s , s∈S) , p) = (s , s∈S) , path
     where
-    path : fst s · fst s' · (r₁ · s₂ + r₂ · s₁) · (s'₁ · s'₂)
-         ≡ fst s · fst s' · (r'₁ · s'₂ + r'₂ · s'₁) · (s₁ · s₂)
-    path = fst s · fst s' · (r₁ · s₂ + r₂ · s₁) · (s'₁ · s'₂)
-         ≡⟨ cong (_· (s'₁ · s'₂)) (·Rdist+ _ _ _) ⟩
-           (fst s · fst s' · (r₁ · s₂) + fst s · fst s' · (r₂ · s₁)) · (s'₁ · s'₂)
-         ≡⟨ ·Ldist+ _ _ _ ⟩
-           fst s · fst s' · (r₁ · s₂) · (s'₁ · s'₂) + fst s · fst s' · (r₂ · s₁) · (s'₁ · s'₂)
-         ≡⟨ (λ i → ·Assoc (fst s · fst s') r₁ s₂ i · (s'₁ · s'₂)
-                 + ·Assoc (fst s · fst s') r₂ s₁ i · (s'₁ · s'₂)) ⟩
-           fst s · fst s' · r₁ · s₂ · (s'₁ · s'₂) + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
-         ≡⟨ (λ i → ·-comm (fst s) (fst s') i
-                   · r₁ · s₂ · (s'₁ · s'₂) + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
-           fst s' · fst s · r₁ · s₂ · (s'₁ · s'₂) + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
-         ≡⟨ (λ i → ·Assoc (fst s') (fst s) r₁ (~ i)
-                   · s₂ · (s'₁ · s'₂) + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
-           fst s' · (fst s · r₁) · s₂ · (s'₁ · s'₂) + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
-         ≡⟨ (λ i → ·Assoc (fst s' · (fst s · r₁) · s₂) s'₁ s'₂ i
-                   + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
-           fst s' · (fst s · r₁) · s₂ · s'₁ · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
-         ≡⟨ (λ i → ·Assoc (fst s' · (fst s · r₁)) s₂ s'₁ (~ i)
-                   · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
-           fst s' · (fst s · r₁) · (s₂ · s'₁) · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
-         ≡⟨ (λ i → fst s' · (fst s · r₁) · (·-comm s₂ s'₁ i) · s'₂
-                   + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
-           fst s' · (fst s · r₁) · (s'₁ · s₂) · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
-         ≡⟨ (λ i → ·Assoc (fst s' · (fst s · r₁)) s'₁ s₂ i
-                   · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
-           fst s' · (fst s · r₁) · s'₁ · s₂ · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
-         ≡⟨ (λ i → ·Assoc (fst s') (fst s · r₁) s'₁ (~ i)
-                   · s₂ · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
-           fst s' · (fst s · r₁ · s'₁) · s₂ · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
-         ≡⟨ (λ i → fst s' · (p i) · s₂ · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
-           fst s' · (fst s · r'₁ · s₁) · s₂ · s'₂ + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
-         ≡⟨ (λ i → ·Assoc (fst s' · (fst s · r'₁ · s₁)) s₂ s'₂ (~ i)
-                   + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s₂ · s'₂) + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (·-comm s₂ s'₂ i)
-                   + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · fst s' · r₂ · s₁ · (s'₁ · s'₂)
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + fst s · fst s' · r₂ · s₁ · ·-comm s'₁ s'₂ i) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · fst s' · r₂ · s₁ · (s'₂ · s'₁)
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + ·Assoc (fst s) (fst s') r₂ (~ i) · s₁ · (s'₂ · s'₁)) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r₂) · s₁ · (s'₂ · s'₁)
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + ·Assoc (fst s · (fst s' · r₂) · s₁) s'₂ s'₁ i) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r₂) · s₁ · s'₂ · s'₁
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + ·Assoc (fst s · (fst s' · r₂)) s₁ s'₂ (~ i) · s'₁) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r₂) · (s₁ · s'₂) · s'₁
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + fst s · (fst s' · r₂) · (·-comm s₁ s'₂ i) · s'₁) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r₂) · (s'₂ · s₁) · s'₁
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + ·Assoc (fst s · (fst s' · r₂)) s'₂ s₁ i · s'₁) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r₂) · s'₂ · s₁ · s'₁
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                  + ·Assoc (fst s) (fst s' · r₂) s'₂ (~ i) · s₁ · s'₁) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r₂ · s'₂) · s₁ · s'₁
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + ·Assoc (fst s · (fst s' · r₂ · s'₂)) s₁ s'₁ (~ i)) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r₂ · s'₂) · (s₁ · s'₁)
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + fst s · (q i) · (·-comm s₁ s'₁ i)) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r'₂ · s₂) · (s'₁ · s₁)
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + ·Assoc (fst s · (fst s' · r'₂ · s₂)) s'₁ s₁ i) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r'₂ · s₂) · s'₁ · s₁
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + ·Assoc (fst s) (fst s' · r'₂) s₂ i · s'₁ · s₁) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r'₂) · s₂ · s'₁ · s₁
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + ·Assoc (fst s · (fst s' · r'₂)) s₂ s'₁ (~ i) · s₁) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r'₂) · (s₂ · s'₁) · s₁
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + fst s · (fst s' · r'₂) · (·-comm s₂ s'₁ i) · s₁) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r'₂) · (s'₁ · s₂) · s₁
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + ·Assoc (fst s · (fst s' · r'₂)) s'₁ s₂ i · s₁) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r'₂) · s'₁ · s₂ · s₁
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + ·Assoc (fst s · (fst s' · r'₂) · s'₁) s₂ s₁ (~ i)) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · (fst s' · r'₂) · s'₁ · (s₂ · s₁)
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + ·Assoc (fst s) (fst s') r'₂ i · s'₁ · (s₂ · s₁)) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · fst s' · r'₂ · s'₁ · (s₂ · s₁)
-         ≡⟨ (λ i → fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂)
-                   + fst s · fst s' · r'₂ · s'₁ · ·-comm s₂ s₁ i) ⟩
-           fst s' · (fst s · r'₁ · s₁) · (s'₂ · s₂) + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
-         ≡⟨ (λ i → ·Assoc (fst s' · (fst s · r'₁ · s₁)) s'₂ s₂ i
-                   + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
-           fst s' · (fst s · r'₁ · s₁) · s'₂ · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
-         ≡⟨ (λ i → ·Assoc (fst s') (fst s · r'₁) s₁ i
-                   · s'₂ · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
-           fst s' · (fst s · r'₁) · s₁ · s'₂ · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
-         ≡⟨ (λ i → ·Assoc (fst s' · (fst s · r'₁)) s₁ s'₂ (~ i)
-                   · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
-           fst s' · (fst s · r'₁) · (s₁ · s'₂) · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
-         ≡⟨ (λ i → fst s' · (fst s · r'₁) · (·-comm s₁ s'₂ i) · s₂
-                   + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
-           fst s' · (fst s · r'₁) · (s'₂ · s₁) · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
-         ≡⟨ (λ i → ·Assoc (fst s' · (fst s · r'₁)) s'₂ s₁ i
-                   · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
-           fst s' · (fst s · r'₁) · s'₂ · s₁ · s₂ + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
-         ≡⟨ (λ i → ·Assoc (fst s' · (fst s · r'₁) · s'₂) s₁ s₂ (~ i)
-                   + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
-           fst s' · (fst s · r'₁) · s'₂ · (s₁ · s₂) + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
-         ≡⟨ (λ i → ·Assoc (fst s') (fst s) r'₁ i
-                   · s'₂ · (s₁ · s₂) + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
-           fst s' · fst s · r'₁ · s'₂ · (s₁ · s₂) + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
-         ≡⟨ (λ i → ·-comm (fst s') (fst s) i
-                   · r'₁ · s'₂ · (s₁ · s₂) + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)) ⟩
-           fst s · fst s' · r'₁ · s'₂ · (s₁ · s₂) + fst s · fst s' · r'₂ · s'₁ · (s₁ · s₂)
-         ≡⟨ (λ i → ·Assoc (fst s · fst s') r'₁ s'₂ (~ i) · (s₁ · s₂)
-                 + ·Assoc (fst s · fst s') r'₂ s'₁ (~ i) · (s₁ · s₂)) ⟩
-           fst s · fst s' · (r'₁ · s'₂) · (s₁ · s₂) + fst s · fst s' · (r'₂ · s'₁) · (s₁ · s₂)
-         ≡⟨ sym (·Ldist+ _ _ _) ⟩
-           (fst s · fst s' · (r'₁ · s'₂)  + fst s · fst s' · (r'₂ · s'₁)) · (s₁ · s₂)
-         ≡⟨ cong (_· (s₁ · s₂)) (sym (·Rdist+ _ _ _)) ⟩
-           fst s · fst s' · (r'₁ · s'₂ + r'₂ · s'₁) · (s₁ · s₂) ∎
+    eq1 : (r₁ s₁ r'₁ s'₁ s'₁ r₂ s₂ s : R)
+        → s · (r₁ · s₂ + r₂ · s₁) · (s'₁ · s₂) ≡ s · r₁ · s'₁ · s₂ · s₂ + s · r₂ · s₁ · s'₁ · s₂
+    eq1 = solve R'
+
+    eq2 : (r₁ s₁ r'₁ s'₁ s'₁ r₂ s₂ s : R)
+        → s · r'₁ · s₁ · s₂ · s₂ + s · r₂ · s₁ · s'₁ · s₂ ≡ s · (r'₁ · s₂ + r₂ · s'₁) · (s₁ · s₂)
+    eq2 = solve R'
+
+
+    path : s · (r₁ · s₂ + r₂ · s₁) · (s'₁ · s₂) ≡ s · (r'₁ · s₂ + r₂ · s'₁) · (s₁ · s₂)
+    path = s · (r₁ · s₂ + r₂ · s₁) · (s'₁ · s₂)
+
+         ≡⟨ eq1 r₁ s₁ r'₁ s'₁ s'₁ r₂ s₂ s ⟩
+
+           s · r₁ · s'₁ · s₂ · s₂ + s · r₂ · s₁ · s'₁ · s₂
+
+         ≡⟨ cong (λ x → x · s₂ · s₂ + s · r₂ · s₁ · s'₁ · s₂) p ⟩
+
+           s · r'₁ · s₁ · s₂ · s₂ + s · r₂ · s₁ · s'₁ · s₂
+
+         ≡⟨ eq2 r₁ s₁ r'₁ s'₁ s'₁ r₂ s₂ s ⟩
+
+           s · (r'₁ · s₂ + r₂ · s'₁) · (s₁ · s₂) ∎
 
 
  -- check group-laws for addition
@@ -247,23 +149,11 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMul
   where
   +ₗ-assoc[] : (a b c : R × S) → [ a ] +ₗ ([ b ] +ₗ [ c ]) ≡ ([ a ] +ₗ [ b ]) +ₗ [ c ]
   +ₗ-assoc[] (r , s , s∈S) (r' , s' , s'∈S) (r'' , s'' , s''∈S) =
-             cong [_] (ΣPathP (path , Σ≡Prop (λ x → ∈-isProp S' x) (·Assoc _ _ _)))
-   where
-   path : r · (s' · s'') + (r' · s'' + r'' · s') · s
-        ≡ (r · s' + r' · s) · s'' + r'' · (s · s')
-   path = r · (s' · s'') + (r' · s'' + r'' · s') · s
-        ≡⟨ (λ i → ·Assoc r s' s'' i + ·Ldist+ (r' · s'') (r'' · s') s i) ⟩
-          r · s' · s'' + (r' · s'' · s + r'' · s' · s)
-        ≡⟨ +Assoc _ _ _ ⟩
-          r · s' · s'' + r' · s'' · s + r'' · s' · s
-        ≡⟨ (λ i → r · s' · s'' + ·Assoc r' s'' s (~ i) + ·Assoc r'' s' s (~ i)) ⟩
-          r · s' · s'' + r' · (s'' · s) + r'' · (s' · s)
-        ≡⟨ (λ i → r · s' · s'' + r' · (·-comm s'' s i) + r'' · (·-comm s' s i)) ⟩
-          r · s' · s'' + r' · (s · s'') + r'' · (s · s')
-        ≡⟨ (λ i → r · s' · s'' + ·Assoc r' s  s'' i + r'' · (s · s')) ⟩
-          r · s' · s'' + r' · s · s'' + r'' · (s · s')
-        ≡⟨ (λ i → ·Ldist+ (r · s') (r' · s) s'' (~ i) + r'' · (s · s')) ⟩
-          (r · s' + r' · s) · s'' + r'' · (s · s') ∎
+     cong [_] (ΣPathP ((path r s r' s' r'' s'') , Σ≡Prop (λ x → ∈-isProp S' x) (·Assoc _ _ _)))
+     where
+     path : (r s r' s' r'' s'' : R)
+          → r · (s' · s'') + (r' · s'' + r'' · s') · s ≡ (r · s' + r' · s) · s'' + r'' · (s · s')
+     path = solve R'
 
  0ₗ : S⁻¹R
  0ₗ = [ 0r , 1r , SMultClosedSubset .containsOne ]
@@ -274,6 +164,7 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMul
   +ₗ-rid[] : (a : R × S) → [ a ] +ₗ 0ₗ ≡ [ a ]
   +ₗ-rid[] (r , s , s∈S) = path
    where
+   -- possible to automate with improved ring solver?
    eq1 : r · 1r + 0r · s ≡ r
    eq1 = cong (r · 1r +_) (0LeftAnnihilates _) ∙∙ +Rid _ ∙∙ ·Rid _
 
@@ -289,15 +180,16 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMul
   -ₗ[] (r , s) = [ - r , s ]
 
   -ₗWellDef : (a b : R × S) → a ≈ b → -ₗ[] a ≡ -ₗ[] b
-  -ₗWellDef (r , s , _) (r' , s' , _) (u , p) = eq/ _ _ (u , path)
+  -ₗWellDef (r , s , _) (r' , s' , _) ((u , u∈S) , p) = eq/ _ _ ((u , u∈S) , path)
    where
-   path : fst u · - r · s' ≡ fst u · - r' · s
-   path = fst u · - r · s'   ≡⟨ cong (_· s') (-DistR· _ _) ⟩
-          - (fst u · r) · s' ≡⟨ -DistL· _ _ ⟩
-          - (fst u · r · s') ≡⟨ cong -_ p ⟩
-          - (fst u · r' · s) ≡⟨ sym (-DistL· _ _) ⟩
-          - (fst u · r') · s ≡⟨ cong (_· s) (sym (-DistR· _ _)) ⟩
-          fst u · - r' · s   ∎
+   eq1 : (u r s' : R) → u · - r · s' ≡ - (u · r · s')
+   eq1 = solve R'
+
+   eq2 : (u r' s : R) → - (u · r' · s) ≡ u · - r' · s
+   eq2 = solve R'
+
+   path : u · - r · s' ≡ u · - r' · s
+   path = eq1 u r s' ∙∙ cong -_ p ∙∙ eq2 u r' s
 
  +ₗ-rinv : (x : S⁻¹R) → x +ₗ (-ₗ x) ≡ 0ₗ
  +ₗ-rinv = SQ.elimProp (λ _ → squash/ _ _) +ₗ-rinv[]
@@ -305,6 +197,7 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMul
   +ₗ-rinv[] : (a : R × S) → ([ a ] +ₗ (-ₗ [ a ])) ≡ 0ₗ
   +ₗ-rinv[] (r , s , s∈S) = eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path)
    where
+   -- not yet possible with ring solver
    path : 1r · (r · s + - r · s) · 1r ≡ 1r · 0r · (s · s)
    path = 1r · (r · s + - r · s) · 1r   ≡⟨ cong (λ x → 1r · (r · s + x) · 1r) (-DistL· _ _) ⟩
           1r · (r · s + - (r · s)) · 1r ≡⟨ cong (λ x → 1r · x · 1r) (+Rinv _) ⟩
@@ -313,7 +206,6 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMul
           0r                            ≡⟨ sym (0LeftAnnihilates _) ⟩
           0r · (s · s)                  ≡⟨ cong (_· (s · s)) (sym (·Lid _)) ⟩
           1r · 0r · (s · s)             ∎
-
 
  +ₗ-comm : (x y : S⁻¹R) → x +ₗ y ≡ y +ₗ x
  +ₗ-comm = SQ.elimProp2 (λ _ _ → squash/ _ _) +ₗ-comm[]
@@ -325,75 +217,29 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMul
 
  -- Now for multiplication
  _·ₗ_ : S⁻¹R → S⁻¹R → S⁻¹R
- _·ₗ_ = setQuotBinOp locRefl _·ₚ_ θ
+ _·ₗ_ = setQuotSymmBinOp locRefl locTrans _·ₚ_ ·ₚ-symm θ
   where
   _·ₚ_ : R × S → R × S → R × S
   (r₁ , s₁ , s₁∈S) ·ₚ (r₂ , s₂ , s₂∈S) =
                       (r₁ · r₂) , ((s₁ · s₂) , SMultClosedSubset .multClosed s₁∈S s₂∈S)
 
-  θ : (a a' b b' : R × S) → a ≈ a' → b ≈ b' → (a ·ₚ b) ≈ (a' ·ₚ b')
-  θ (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) (r'₂ , s'₂ , s'₂∈S) (s , p) (s' , q) =
-    ((fst s · fst s') , SMultClosedSubset .multClosed (s .snd) (s' .snd)) , path
-    where
-    path : fst s · fst s' · (r₁ · r₂) · (s'₁ · s'₂)
-         ≡ fst s · fst s' · (r'₁ · r'₂) · (s₁ · s₂)
-    path = fst s · fst s' · (r₁ · r₂) · (s'₁ · s'₂)
-         ≡⟨ (λ i → ·Assoc (fst s · fst s') r₁ r₂ i · (s'₁ · s'₂)) ⟩
-           fst s · fst s' · r₁ · r₂ · (s'₁ · s'₂)
-         ≡⟨ (λ i → ·Assoc (fst s · fst s' · r₁ · r₂) s'₁ s'₂ i) ⟩
-           fst s · fst s' · r₁ · r₂ · s'₁ · s'₂
-         ≡⟨ (λ i → ·Assoc (fst s) (fst s') r₁ (~ i) · r₂ · s'₁ · s'₂) ⟩
-           fst s · (fst s' · r₁) · r₂ · s'₁ · s'₂
-         ≡⟨ (λ i → fst s · (·-comm (fst s') r₁ i) · r₂ · s'₁ · s'₂) ⟩
-           fst s · (r₁ · fst s') · r₂ · s'₁ · s'₂
-         ≡⟨ (λ i → ·Assoc (fst s) r₁  (fst s') i · r₂ · s'₁ · s'₂) ⟩
-           fst s · r₁ · fst s' · r₂ · s'₁ · s'₂
-         ≡⟨ (λ i → ·Assoc (fst s · r₁ · fst s') r₂ s'₁ (~ i) · s'₂) ⟩
-           fst s · r₁ · fst s' · (r₂ · s'₁) · s'₂
-         ≡⟨ (λ i → fst s · r₁ · fst s' · (·-comm r₂ s'₁ i) · s'₂) ⟩
-           fst s · r₁ · fst s' · (s'₁ · r₂) · s'₂
-         ≡⟨ (λ i → ·Assoc (fst s · r₁ · fst s') s'₁ r₂ i · s'₂) ⟩
-           fst s · r₁ · fst s' · s'₁ · r₂ · s'₂
-         ≡⟨ (λ i → ·Assoc (fst s · r₁) (fst s') s'₁ (~ i) · r₂ · s'₂) ⟩
-           fst s · r₁ · (fst s' · s'₁) · r₂ · s'₂
-         ≡⟨ (λ i → fst s · r₁ · (·-comm (fst s') s'₁ i) · r₂ · s'₂) ⟩
-           fst s · r₁ · (s'₁ · fst s') · r₂ · s'₂
-         ≡⟨ (λ i → ·Assoc (fst s · r₁) s'₁ (fst s') i · r₂ · s'₂) ⟩
-           fst s · r₁ · s'₁ · fst s' · r₂ · s'₂
-         ≡⟨ (λ i → ·Assoc (fst s · r₁ · s'₁) (fst s') r₂ (~ i) · s'₂) ⟩
-           fst s · r₁ · s'₁ · (fst s' · r₂) · s'₂
-         ≡⟨ (λ i → ·Assoc (fst s · r₁ · s'₁) (fst s' · r₂) s'₂ (~ i)) ⟩
-           fst s · r₁ · s'₁ · (fst s' · r₂ · s'₂)
-         ≡⟨ (λ i → (p i) · (q i)) ⟩
-           fst s · r'₁ · s₁ · (fst s' · r'₂ · s₂)
-         ≡⟨ (λ i → ·Assoc (fst s · r'₁ · s₁) (fst s' · r'₂) s₂ i) ⟩
-           fst s · r'₁ · s₁ · (fst s' · r'₂) · s₂
-         ≡⟨ (λ i → ·Assoc (fst s · r'₁ · s₁) (fst s') r'₂ i · s₂) ⟩
-           fst s · r'₁ · s₁ · fst s' · r'₂ · s₂
-         ≡⟨ (λ i → ·Assoc (fst s · r'₁) s₁ (fst s') (~ i) · r'₂ · s₂) ⟩
-           fst s · r'₁ · (s₁ · fst s') · r'₂ · s₂
-         ≡⟨ (λ i → fst s · r'₁ · (·-comm s₁ (fst s') i) · r'₂ · s₂) ⟩
-           fst s · r'₁ · (fst s' · s₁) · r'₂ · s₂
-         ≡⟨ (λ i → ·Assoc (fst s · r'₁) (fst s') s₁ i · r'₂ · s₂) ⟩
-           fst s · r'₁ · fst s' · s₁ · r'₂ · s₂
-         ≡⟨ (λ i → ·Assoc (fst s · r'₁ · fst s') s₁ r'₂ (~ i) · s₂) ⟩
-           fst s · r'₁ · fst s' · (s₁ · r'₂) · s₂
-         ≡⟨ (λ i → fst s · r'₁ · fst s' · (·-comm s₁ r'₂ i) · s₂) ⟩
-           fst s · r'₁ · fst s' · (r'₂ · s₁) · s₂
-         ≡⟨ (λ i → ·Assoc (fst s · r'₁ · fst s') r'₂ s₁ i · s₂) ⟩
-           fst s · r'₁ · fst s' · r'₂ · s₁ · s₂
-         ≡⟨ (λ i → ·Assoc (fst s) r'₁ (fst s') (~ i) · r'₂ · s₁ · s₂) ⟩
-           fst s · (r'₁ · fst s') · r'₂ · s₁ · s₂
-         ≡⟨ (λ i → fst s · (·-comm r'₁ (fst s') i) · r'₂ · s₁ · s₂) ⟩
-           fst s · (fst s' · r'₁) · r'₂ · s₁ · s₂
-         ≡⟨ (λ i → ·Assoc (fst s) (fst s') r'₁ i · r'₂ · s₁ · s₂) ⟩
-           fst s · fst s' · r'₁ · r'₂ · s₁ · s₂
-         ≡⟨ (λ i → ·Assoc (fst s · fst s' · r'₁ · r'₂) s₁ s₂ (~ i)) ⟩
-           fst s · fst s' · r'₁ · r'₂ · (s₁ · s₂)
-         ≡⟨ (λ i → ·Assoc (fst s · fst s') r'₁ r'₂ (~ i) · (s₁ · s₂)) ⟩
-           fst s · fst s' · (r'₁ · r'₂) · (s₁ · s₂) ∎
+  ·ₚ-symm : (a b : R × S) → (a ·ₚ b) ≡ (b ·ₚ a)
+  ·ₚ-symm (r₁ , s₁ , s₁∈S) (r₂ , s₂ , s₂∈S) =
+          ΣPathP (·-comm _ _ , Σ≡Prop (λ x → S' x .snd) (·-comm _ _))
 
+  θ : (a a' b : R × S) → a ≈ a' → (a ·ₚ b) ≈ (a' ·ₚ b)
+  θ (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) ((s , s∈S) , p) = (s , s∈S) , path
+   where
+   eq1 : (r₁ s₁ r'₁ s'₁ r₂ s₂ s : R)
+       → s · (r₁ · r₂) · (s'₁ · s₂) ≡ s · r₁ · s'₁ · r₂ · s₂
+   eq1 = solve R'
 
+   eq2 : (r₁ s₁ r'₁ s'₁ r₂ s₂ s : R)
+       → s · r'₁ · s₁ · r₂ · s₂ ≡ s · (r'₁ · r₂) · (s₁ · s₂)
+   eq2 = solve R'
+
+   path : s · (r₁ · r₂) · (s'₁ · s₂) ≡ s · (r'₁ · r₂) · (s₁ · s₂)
+   path = eq1 r₁ s₁ r'₁ s'₁ r₂ s₂ s ∙∙ cong (λ x → x · r₂ · s₂) p ∙∙ eq2 r₁ s₁ r'₁ s'₁ r₂ s₂ s
 
 
  -- checking laws for multiplication
@@ -419,30 +265,13 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (R' .fst)) (SMultClosedSubset : isMul
    where
    ·ₗ-rdist-+ₗ[] : (a b c : R × S) → [ a ] ·ₗ ([ b ] +ₗ [ c ]) ≡ ([ a ] ·ₗ [ b ]) +ₗ ([ a ] ·ₗ [ c ])
    ·ₗ-rdist-+ₗ[] (r , s , s∈S) (r' , s' , s'∈S) (r'' , s'' , s''∈S) =
-      eq/ _ _ ((1r , (SMultClosedSubset .containsOne)) , path)
+      eq/ _ _ ((1r , (SMultClosedSubset .containsOne)) , path r s r' s' r'' s'')
       where
-      path : 1r · (r · (r' · s'' + r'' · s')) · (s · s' · (s · s''))
+      -- could be shortened even further
+      path : (r s r' s' r'' s'' : R)
+           → 1r · (r · (r' · s'' + r'' · s')) · (s · s' · (s · s''))
            ≡ 1r · (r · r' · (s · s'') + r · r'' · (s · s')) · (s · (s' · s''))
-      path = 1r · (r · (r' · s'' + r'' · s')) · (s · s' · (s · s''))
-           ≡⟨ (λ i → ·Lid (r · (r' · s'' + r'' · s')) i · (s · s' · (s · s''))) ⟩
-             r · (r' · s'' + r'' · s') · (s · s' · (s · s''))
-           ≡⟨ (λ i → ·Rdist+ r (r' · s'') (r'' · s') i · (s · s' · (s · s''))) ⟩
-             (r · (r' · s'') + r · (r'' · s')) · (s · s' · (s · s''))
-           ≡⟨ (λ i → (·Assoc r r' s'' i + ·Assoc r r'' s' i) · (s · s' · (s · s''))) ⟩
-             (r · r' · s'' + r · r'' · s') · (s · s' · (s · s''))
-           ≡⟨ (λ i → (r · r' · s'' + r · r'' · s') · (·Assoc s s' (s · s'') (~ i))) ⟩
-             (r · r' · s'' + r · r'' · s') · (s · (s' · (s · s'')))
-           ≡⟨ (λ i → ·Assoc (r · r' · s'' + r · r'' · s') s (s' · (s · s'')) i) ⟩
-             (r · r' · s'' + r · r'' · s') · s · (s' · (s · s''))
-           ≡⟨ (λ i → ·Ldist+ (r · r' · s'') (r · r'' · s') s i · (·Assoc s' s s'' i)) ⟩
-             (r · r' · s'' · s + r · r'' · s' · s) · (s' · s · s'')
-           ≡⟨ (λ i → (·Assoc (r · r') s'' s (~ i) + ·Assoc (r · r'') s' s (~ i)) · ((·-comm s' s i) · s'')) ⟩
-             (r · r' · (s'' · s) + r · r'' · (s' · s)) · (s · s' · s'')
-           ≡⟨ (λ i → (r · r' · (·-comm s'' s i) + r · r'' · (·-comm s' s i)) · (·Assoc s s' s'' (~ i))) ⟩
-             (r · r' · (s · s'') + r · r'' · (s · s')) · (s · (s' · s''))
-           ≡⟨ (λ i → ·Lid (r · r' · (s · s'') + r · r'' · (s · s')) (~ i) · (s · (s' · s''))) ⟩
-             1r · (r · r' · (s · s'') + r · r'' · (s · s')) · (s · (s' · s'')) ∎
-
+      path = solve R'
 
  ·ₗ-comm : (x y : S⁻¹R) → x ·ₗ y ≡ y ·ₗ x
  ·ₗ-comm = SQ.elimProp2 (λ _ _ → squash/ _ _) ·ₗ-comm[]
