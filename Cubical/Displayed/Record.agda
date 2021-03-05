@@ -227,10 +227,10 @@ module Example where
       dogEq : e .fst (Example.dog x) ≡ Example.dog x'
       catEq : e .fst (Example.cat x) ≡ Example.cat x'
 
-  example : DUARel (𝒮-univ ℓ-zero) Example ℓ-zero
+  example : DUARel (𝒮-Univ ℓ-zero) Example ℓ-zero
   example =
     𝒮ᴰ-Record ExampleEquiv
       (fields:
-        data[ Example.dog ∣ 𝒮ᴰ-element ℓ-zero ∣ ExampleEquiv.dogEq ]
-        data[ Example.cat ∣ 𝒮ᴰ-element ℓ-zero ∣ ExampleEquiv.catEq ]
+        data[ Example.dog ∣ 𝒮ᴰ-El ℓ-zero ∣ ExampleEquiv.dogEq ]
+        data[ Example.cat ∣ 𝒮ᴰ-El ℓ-zero ∣ ExampleEquiv.catEq ]
         prop[ Example.mouse ∣ (λ _ _ → isPropUnit) ])

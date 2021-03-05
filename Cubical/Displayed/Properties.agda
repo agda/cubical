@@ -248,13 +248,13 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
 UARel._≅_ (𝒮-type A) = _≡_
 UARel.ua (𝒮-type A) a a' = idEquiv (a ≡ a')
 
-𝒮-univ : ∀ ℓ → UARel (Type ℓ) ℓ
-UARel._≅_ (𝒮-univ ℓ) = _≃_
-UARel.ua (𝒮-univ ℓ) _ _ = invEquiv univalence
+𝒮-Univ : ∀ ℓ → UARel (Type ℓ) ℓ
+UARel._≅_ (𝒮-Univ ℓ) = _≃_
+UARel.ua (𝒮-Univ ℓ) _ _ = invEquiv univalence
 
-𝒮ᴰ-element : ∀ ℓ → DUARel (𝒮-univ ℓ) (λ X → X) ℓ
-DUARel._≅ᴰ⟨_⟩_ (𝒮ᴰ-element ℓ) x e x' = e .fst x ≡ x'
-DUARel.uaᴰ (𝒮ᴰ-element ℓ) x e x' = invEquiv (ua-ungluePath-Equiv e)
+𝒮ᴰ-El : ∀ ℓ → DUARel (𝒮-Univ ℓ) (λ X → X) ℓ
+DUARel._≅ᴰ⟨_⟩_ (𝒮ᴰ-El ℓ) x e x' = e .fst x ≡ x'
+DUARel.uaᴰ (𝒮ᴰ-El ℓ) x e x' = invEquiv (ua-ungluePath-Equiv e)
 
 module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) where
 
