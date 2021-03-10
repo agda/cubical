@@ -1,5 +1,5 @@
 {-# OPTIONS --cubical --safe --no-import-sorts #-}
-module Cubical.Experiments.Dedekind where
+module Cubical.Categories.Cube where
 
 open import Cubical.Foundations.Everything
 
@@ -13,6 +13,8 @@ open import Cubical.Data.Vec
 open import Cubical.Relation.Nullary.Base
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Presheaf.Base
 
 {- Cartesian -}
 
@@ -88,20 +90,24 @@ module Cartesian where
   assocC [] g f = refl
   assocC (r ∷ h) g f = cong₂ _∷_ ([∘] r g f) (assocC h g f)
 
-  Cart : Precategory ℓ-zero ℓ-zero
-  Cart .Precategory.ob = ℕ
-  Cart .Precategory.Hom[_,_] = [_,_]
-  Cart .Precategory.id = idC
-  Cart .Precategory._⋆_ f g = g ∘C f
-  Cart .Precategory.⋆IdL = idR
-  Cart .Precategory.⋆IdR = idL
-  Cart .Precategory.⋆Assoc f g h = assocC h g f
+  Cat : Precategory ℓ-zero ℓ-zero
+  Cat .Precategory.ob = ℕ
+  Cat .Precategory.Hom[_,_] = [_,_]
+  Cat .Precategory.id = idC
+  Cat .Precategory._⋆_ f g = g ∘C f
+  Cat .Precategory.⋆IdL = idR
+  Cat .Precategory.⋆IdR = idL
+  Cat .Precategory.⋆Assoc f g h = assocC h g f
 
-  isCat : isCategory Cart
-  isCat .isSetHom =
-    isOfHLevelRespectEquiv 2
-      (FinVec≃Vec _)
-      (isSetΠ λ _ → isOfHLevelSum 0 isSetFin isSetBool)
+  instance
+    isCat : isCategory Cat
+    isCat .isSetHom =
+      isOfHLevelRespectEquiv 2
+        (FinVec≃Vec _)
+        (isSetΠ λ _ → isOfHLevelSum 0 isSetFin isSetBool)
+
+  Sets : Precategory _ _
+  Sets = PreShv Cat
 
 {- Dedekind -}
 
@@ -126,13 +132,6 @@ module Dedekind where
   isProp⊑ : ∀ {b b'} → isProp (b ⊑ b')
   isProp⊑ (false⊑ _) (false⊑ _) = refl
   isProp⊑ true⊑ true⊑ = refl
-
-  -- allV : ∀ {n} → Bool → Vec Bool n
-  -- allV {zero} b = []
-  -- allV {suc n} b = b ∷ allV b
-
-  -- isNotFace : ∀ {n} → DedI n → Type
-  -- isNotFace (f , _) = ¬ (f (allV true) ≡ f (allV false))
 
   𝔹 : ℕ → Type
   𝔹 n = Vec Bool n
@@ -164,6 +163,9 @@ module Dedekind where
   weak𝕀 : ∀ {m} → 𝕀 m → 𝕀 (suc m)
   weak𝕀 f .fst (b ∷ v) = f .fst v
   weak𝕀 f .snd (_ ∷⊑ leq) = f .snd leq
+
+  weakEnd : ∀ {m} (b : Bool) → weak𝕀 (end {m} b) ≡ end b
+  weakEnd b = 𝕀≡ (funExt λ {(_ ∷ v) → refl})
 
   [_,_] : ℕ → ℕ → Type
   [ m , n ] = Vec (𝕀 m) n
@@ -236,25 +238,71 @@ module Dedekind where
   assocD [] g f = refl
   assocD (r ∷ h) g f = cong₂ _∷_ ([∘] r g f) (assocD h g f)
 
-  Ded : Precategory ℓ-zero ℓ-zero
-  Ded .Precategory.ob = ℕ
-  Ded .Precategory.Hom[_,_] = [_,_]
-  Ded .Precategory.id = idD
-  Ded .Precategory._⋆_ f g = g ∘D f
-  Ded .Precategory.⋆IdL = idR
-  Ded .Precategory.⋆IdR = idL
-  Ded .Precategory.⋆Assoc f g h = assocD h g f
+  Cat : Precategory ℓ-zero ℓ-zero
+  Cat .Precategory.ob = ℕ
+  Cat .Precategory.Hom[_,_] = [_,_]
+  Cat .Precategory.id = idD
+  Cat .Precategory._⋆_ f g = g ∘D f
+  Cat .Precategory.⋆IdL = idR
+  Cat .Precategory.⋆IdR = idL
+  Cat .Precategory.⋆Assoc f g h = assocD h g f
 
-  isCat : isCategory Ded
-  isCat .isSetHom =
-    isOfHLevelRespectEquiv 2
-      (FinVec≃Vec _)
-      (isSetΠ λ _ →
-        isSetΣ
-          (isSetΠ λ _ → isSetBool)
-          (λ _ → isProp→isSet (isPropIsMonotone _)))
+  instance
+    isCat : isCategory Cat
+    isCat .isSetHom =
+      isOfHLevelRespectEquiv 2
+        (FinVec≃Vec _)
+        (isSetΠ λ _ →
+          isSetΣ
+            (isSetΠ λ _ → isSetBool)
+            (λ _ → isProp→isSet (isPropIsMonotone _)))
 
-{- Relationship -}
+  Sets : Precategory _ _
+  Sets = PreShv Cat
+
+{- Cartesian → Dedekind -}
+
+module Inclusion where
+
+  private
+    module C = Cartesian
+    module D = Dedekind
+
+  𝕀 : ∀ {n} → C.𝕀 n → D.𝕀 n
+  𝕀 (inl zero) = D.var
+  𝕀 (inl (suc x)) = D.weak𝕀 (𝕀 (inl x))
+  𝕀 (inr b) = D.end b
+
+  ι : ∀ {m n} → C.[ m , n ] → D.[ m , n ]
+  ι [] = []
+  ι (r ∷ f) = 𝕀 r ∷ ι f
+
+  ιweak : ∀ {m n} (f : C.[ m , n ])
+    → ι (C.weak f) ≡ D.weak (ι f)
+  ιweak [] = refl
+  ιweak (inl x ∷ f) = cong (D.weak𝕀 (𝕀 (inl x)) ∷_) (ιweak f)
+  ιweak (inr b ∷ f) = cong₂ _∷_ (sym (D.weakEnd b)) (ιweak f)
+
+  ιid : ∀ n → ι (C.idC n) ≡ D.idD n
+  ιid zero = refl
+  ιid (suc n) = cong (D.var ∷_) (ιweak (C.idC n) ∙ cong D.weak (ιid n))
+
+  𝕀[] : ∀ {m n} (r : C.𝕀 n) (f : C.[ m , n ])
+    → 𝕀 (r C.[ f ]) ≡ (𝕀 r) D.[ ι f ]
+  𝕀[] (inl zero) (s ∷ f) = refl
+  𝕀[] (inl (suc x)) (s ∷ f) = 𝕀[] (inl x) f
+  𝕀[] (inr b) f = refl
+
+  ι∘ : ∀ {m n p} (g : C.[ n , p ]) (f : C.[ m , n ])
+    → ι (g C.∘C f) ≡ (ι g) D.∘D (ι f)
+  ι∘ [] f = refl
+  ι∘ (r ∷ g) f = cong₂ _∷_ (𝕀[] r f) (ι∘ g f)
+
+  Cart→Ded : Functor C.Cat D.Cat
+  Cart→Ded .Functor.F-ob = idfun ℕ
+  Cart→Ded .Functor.F-hom = ι
+  Cart→Ded .Functor.F-id = ιid _
+  Cart→Ded .Functor.F-seq f g = ι∘ g f
 
 -- 𝕀→𝕀 : ∀ {m} → 𝕀 m → 𝕀 m
 -- 𝕀→𝕀 (inl zero) = var
