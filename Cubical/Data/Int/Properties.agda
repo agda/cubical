@@ -408,8 +408,8 @@ pos- (suc m) (suc n) = suc m ℕ- suc n                       ≡⟨ pos- m n �
 
 -dist : ∀ m n → - (m + n) ≡ (- m) + (- n)
 -dist (pos n) (pos n₁) =  - (pos  n + pos n₁)       ≡⟨ cong -_ (sym (pos+ n n₁)) ⟩
-                          - (pos (n +ℕ n₁))        ≡⟨ -pos (n +ℕ n₁) ⟩
-                             neg (n +ℕ n₁)         ≡⟨ neg+ n n₁ ⟩
+                          - (pos (n +ℕ n₁))         ≡⟨ -pos (n +ℕ n₁) ⟩
+                             neg (n +ℕ n₁)          ≡⟨ neg+ n n₁ ⟩
                             (neg  n) + (neg n₁)     ≡⟨ cong (neg n +_) (sym (-pos n₁)) ⟩
                             (neg  n) + (- (pos n₁)) ≡⟨ cong (_+ (- pos n₁)) (sym (-pos n)) ⟩
                          (-  pos  n) + (- pos n₁) ∎
