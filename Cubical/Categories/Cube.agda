@@ -13,8 +13,9 @@ open import Cubical.Data.Vec
 open import Cubical.Relation.Nullary.Base
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Instances.Sets
 
 {- Cartesian -}
 
@@ -303,3 +304,6 @@ module Inclusion where
   Cart→Ded .Functor.F-hom = ι
   Cart→Ded .Functor.F-id = ιid _
   Cart→Ded .Functor.F-seq f g = ι∘ g f
+
+  Sets : Functor D.Sets C.Sets
+  Sets = ∘Functor (SET ℓ-zero) (Cart→Ded ^opF)
