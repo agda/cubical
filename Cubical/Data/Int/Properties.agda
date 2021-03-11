@@ -150,17 +150,6 @@ double- (pos n) = (- (-  pos n)) ≡⟨ cong -_ (-pos n) ⟩
                          pos n ∎
 double- (negsuc n) = refl
 
-sucIntpredInt : ∀ z → sucInt (predInt z) ≡ z
-sucIntpredInt (pos zero) = refl
-sucIntpredInt (pos (suc n)) = refl
-sucIntpredInt (negsuc n) = refl
-
-predIntsucInt : ∀ z → predInt (sucInt z) ≡ z
-predIntsucInt (pos zero) = refl
-predIntsucInt (pos (suc n)) = refl
-predIntsucInt (negsuc zero) = refl
-predIntsucInt (negsuc (suc n)) = refl
-
 sucInt+pos : ∀ n m → sucInt (m +pos n) ≡ (sucInt m) +pos n
 sucInt+pos zero m = refl
 sucInt+pos (suc n) m = cong sucInt (sucInt+pos n m)
@@ -378,7 +367,7 @@ pos- zero (suc n) = zero ℕ- suc n ≡⟨ +-comm (negsuc n) (pos zero) ⟩
                     pos zero - pos (suc n) ∎
 pos- (suc m) zero = refl
 pos- (suc m) (suc n) = suc m ℕ- suc n                       ≡⟨ pos- m n ⟩
-                       pos m - pos n                        ≡⟨ sym (sucIntpredInt (pos m - pos n)) ⟩
+                       pos m - pos n                        ≡⟨ sym (sucPred (pos m - pos n)) ⟩
                        sucInt (predInt (pos m - pos n))     ≡⟨ cong sucInt (+predInt (pos m) (- pos n)) ⟩
                        sucInt (pos m + predInt (- (pos n))) ≡⟨ cong sucInt (cong (pos m +_) (predInt-pos n)) ⟩
                        sucInt (pos m + negsuc n)            ≡⟨ sucInt+negsuc n (pos m) ⟩
