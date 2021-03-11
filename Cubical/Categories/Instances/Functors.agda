@@ -27,9 +27,8 @@ module _ (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') ⦃ isCatD : 
   FUNCTOR .⋆IdR α = makeNatTransPath λ i x → D .⋆IdR (α .N-ob x) i
   FUNCTOR .⋆Assoc α β γ = makeNatTransPath λ i x → D .⋆Assoc (α .N-ob x) (β .N-ob x) (γ .N-ob x) i
 
-  instance
-    isCatFUNCTOR : isCategory FUNCTOR
-    isCatFUNCTOR .isSetHom = isSetNat
+  isCatFUNCTOR : isCategory FUNCTOR
+  isCatFUNCTOR .isSetHom = isSetNat
 
   open isIsoC renaming (inv to invC)
   -- component wise iso is an iso in Functor
@@ -53,3 +52,8 @@ module _ (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') ⦃ isCatD : 
       areInv-αd = isIso→areInv (is d)
   FUNCTORIso α is .sec = makeNatTransPath (funExt (λ c → (is c) .sec))
   FUNCTORIso α is .ret = makeNatTransPath (funExt (λ c → (is c) .ret))
+
+instance
+  ⦃isCatFUNCTOR⦄ : {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} ⦃ isCatD : isCategory D ⦄
+    → isCategory (FUNCTOR C D)
+  ⦃isCatFUNCTOR⦄ {C = C} {D} = isCatFUNCTOR C D

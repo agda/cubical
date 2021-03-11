@@ -58,6 +58,30 @@ module UnitCounit where
         (seqTransP (sym F-assoc) (η ∘ˡ G) (G ∘ʳ ε))
         (1[ G ])
 
+  {-
+   Helper function for building unit-counit adjunctions between categories,
+   using that equality of natural transformations in a category is equality on objects
+  -}
+
+  module _ {ℓC ℓC' ℓD ℓD'}
+    {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} {F : Functor C D} {G : Functor D C}
+    ⦃ isCatC : isCategory C ⦄ ⦃ isCatD : isCategory D ⦄
+    (η : 𝟙⟨ C ⟩ ⇒ (funcComp G F))
+    (ε : (funcComp F G) ⇒ 𝟙⟨ D ⟩)
+    (Δ₁ : ∀ c → F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧ ≡ D .id (F ⟅ c ⟆))
+    (Δ₂ : ∀ d → η ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫ ≡ C .id (G ⟅ d ⟆))
+    where
+
+    make⊣ : F ⊣ G
+    make⊣ ._⊣_.η = η
+    make⊣ ._⊣_.ε = ε
+    make⊣ ._⊣_.Δ₁ =
+      makeNatTransPathP F-lUnit F-rUnit
+        (funExt λ c → cong (D ._⋆_ (F ⟪ η ⟦ c ⟧ ⟫)) (transportRefl _) ∙ Δ₁ c)
+    make⊣ ._⊣_.Δ₂ =
+      makeNatTransPathP F-rUnit F-lUnit
+        (funExt λ d → cong (C ._⋆_ (η ⟦ G ⟅ d ⟆ ⟧)) (transportRefl _) ∙ Δ₂ d)
+
 module NaturalBijection where
   -- Adjoint def 2: natural bijection
   record _⊣_ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} (F : Functor C D) (G : Functor D C) : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
