@@ -303,12 +303,3 @@ module Inclusion where
   Cart→Ded .Functor.F-hom = ι
   Cart→Ded .Functor.F-id = ιid _
   Cart→Ded .Functor.F-seq f g = ι∘ g f
-
--- 𝕀→𝕀 : ∀ {m} → 𝕀 m → 𝕀 m
--- 𝕀→𝕀 (inl zero) = var
--- 𝕀→𝕀 (inl (suc x)) = weak𝕀 (𝕀→𝕀 (inl x))
--- 𝕀→𝕀 (inr b) = end b
-
--- ιF : ∀ {m n} → [ m , n ] → [ m , n ]
--- ιF [] = []
--- ιF (r ∷ f) = 𝕀→𝕀 r ∷ ιF f
