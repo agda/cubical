@@ -108,6 +108,7 @@ module _ {ℓC ℓC' ℓD ℓD'} ℓS
   private
     ℓ = ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓS
 
+  open Precategory
   open Functor
   open NatTrans
   open UnitCounit
@@ -116,17 +117,26 @@ module _ {ℓC ℓC' ℓD ℓD'} ℓS
     module C = Precategory C
     module D = Precategory D
 
-  counitOb : (G : Functor (D ^op) (SET _))
-    → (d : D.ob) → LanOb ℓ F (funcComp G (F ^opF)) d → (G ⟅ d ⟆) .fst
-  counitOb G d =
+  counitOb : (H : Functor (D ^op) (SET _))
+    → (d : D.ob) → LanOb ℓ F (funcComp H (F ^opF)) d → (H ⟅ d ⟆) .fst
+  counitOb H d =
     elim
-      (λ _ → (G ⟅ d ⟆) .snd)
-      (λ (c , g , a) → (G ⟪ g ⟫) a)
-      (λ {_ _ (shift g f a) i → G .F-seq (F ⟪ f ⟫) g i a})
+      (λ _ → (H ⟅ d ⟆) .snd)
+      (λ (c , g , a) → (H ⟪ g ⟫) a)
+      (λ {_ _ (shift g f a) i → H .F-seq (F ⟪ f ⟫) g i a})
 
-  isAdjointLan : Lan ℓ F ⊣ ∘Functor (SET ℓ) (F ^opF)
-  isAdjointLan ._⊣_.η .N-ob G .N-ob c a = [ c , D.id _ , a ]
-  isAdjointLan ._⊣_.η .N-ob G .N-hom {c'} {c} f =
+  make : ∀ {ℓC ℓC' ℓD ℓD'}
+    {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} (F : Functor C D) (G : Functor D C)
+    (η : 𝟙⟨ C ⟩ ⇒ (funcComp G F))
+    (ε : (funcComp F G) ⇒ 𝟙⟨ D ⟩)
+    (Δ₁ : ∀ c → D ._⋆_ (F ⟪ η ⟦ c ⟧ ⟫) (ε ⟦ F ⟅ c ⟆ ⟧) ≡ D .id (F ⟅ c ⟆))
+    (Δ₂ : ∀ d → C ._⋆_ (η ⟦ G ⟅ d ⟆ ⟧) (G ⟪ ε ⟦ d ⟧ ⟫) ≡ C .id (G ⟅ d ⟆))
+    → F ⊣ G
+  make η = {!!}
+
+  unit : 𝟙⟨ FUNCTOR (C ^op) (SET ℓ) ⟩ ⇒ funcComp (∘Functor (SET ℓ) (F ^opF)) (Lan ℓ F)
+  unit .N-ob G .N-ob c a = [ c , D.id _ , a ]
+  unit .N-ob G .N-hom {c'} {c} f =
     funExt λ a →
     [ c , D.id _ , (G ⟪ f ⟫) a ]
       ≡⟨ sym (eq/ _ _ (shift (D.id _) f a)) ⟩
@@ -137,15 +147,36 @@ module _ {ℓC ℓC' ℓD ℓD'} ℓS
     where
     lem : (D.id _) D.⋆ F ⟪ f ⟫ ≡ F ⟪ f ⟫ D.⋆ (D.id _)
     lem = D.⋆IdL (F ⟪ f ⟫) ∙ sym (D.⋆IdR (F ⟪ f ⟫))
-  isAdjointLan ._⊣_.η .N-hom f = makeNatTransPath refl
-  isAdjointLan ._⊣_.ε .N-ob G .N-ob = counitOb G
-  isAdjointLan ._⊣_.ε .N-ob G .N-hom g' =
-    funExt (elimProp (λ _ → (G ⟅ _ ⟆) .snd _ _) (λ (c , g , a) → funExt⁻ (G .F-seq g g') a))
-  isAdjointLan ._⊣_.ε .N-hom {G} {G'} α =
+  unit .N-hom f = makeNatTransPath refl
+
+  counit : funcComp (Lan ℓ F) (∘Functor (SET ℓ) (F ^opF)) ⇒ 𝟙⟨ FUNCTOR (D ^op) (SET ℓ) ⟩
+  counit .N-ob H .N-ob = counitOb H
+  counit .N-ob H .N-hom g' =
+    funExt (elimProp (λ _ → (H ⟅ _ ⟆) .snd _ _) (λ (c , g , a) → funExt⁻ (H .F-seq g g') a))
+  counit .N-hom {H} {H'} α =
     makeNatTransPath
       (funExt λ d →
         funExt
-          (elimProp (λ _ → (G' ⟅ _ ⟆) .snd _ _)
+          (elimProp (λ _ → (H' ⟅ _ ⟆) .snd _ _)
             (λ (c , g , a) → sym (funExt⁻ (α .N-hom g) a))))
-  isAdjointLan ._⊣_.Δ₁ = {!!}
-  isAdjointLan ._⊣_.Δ₂ = {!!}
+
+  isAdjointLan : Lan ℓ F ⊣ ∘Functor (SET ℓ) (F ^opF)
+  isAdjointLan =
+    make (Lan ℓ F) (∘Functor (SET ℓ) (F ^opF))
+      unit
+      counit
+      (λ G →
+        makeNatTransPath
+          (funExt λ d →
+            funExt
+              (elimProp (λ _ → squash/ _ _)
+                (λ (c , g , a) →
+                  [ c , g D.⋆ D.id _ , a ]
+                    ≡[ i ]⟨ [ c , (g D.⋆ F .F-id (~ i)) , a ] ⟩
+                  [ c , g D.⋆ (F ⟪ C .id _ ⟫) , a ]
+                    ≡⟨ eq/ _ _ (shift g (C.id _) a) ⟩
+                  [ c , g , (G ⟪ C .id _ ⟫) a ]
+                    ≡[ i ]⟨ [ c , g , G .F-id i a ] ⟩
+                  [ c , g , a ]
+                  ∎))))
+      (λ H → makeNatTransPath (funExt λ c → H .F-id))
