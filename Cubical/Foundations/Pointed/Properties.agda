@@ -56,16 +56,16 @@ id∙ A .snd = refl
 
 -- constant pointed map
 const∙ : (A : Pointed ℓA) (B : Pointed ℓB) → (A →∙ B)
-const∙ _ (_ , b) .fst _ = b
-const∙ _ (_ , b) .snd = refl
+const∙ _ B .fst _ = B .snd
+const∙ _ B .snd = refl
 
 -- left identity law for pointed maps
 ∘∙-idˡ : {A : Pointed ℓA} {B : Pointed ℓB} (f : A →∙ B) → f ∘∙ id∙ A ≡ f
-∘∙-idˡ (_ , f∙) = ΣPathP ( refl , (lUnit f∙) ⁻¹ )
+∘∙-idˡ f = ΣPathP ( refl , (lUnit (f .snd)) ⁻¹ )
 
 -- right identity law for pointed maps
 ∘∙-idʳ : {A : Pointed ℓA} {B : Pointed ℓB} (f : A →∙ B) → id∙ B ∘∙ f ≡ f
-∘∙-idʳ (_ , f∙) = ΣPathP ( refl , (rUnit f∙) ⁻¹ )
+∘∙-idʳ f = ΣPathP ( refl , (rUnit (f .snd)) ⁻¹ )
 
 -- associativity for composition of pointed maps
 ∘∙-assoc : {A : Pointed ℓA} {B : Pointed ℓB} {C : Pointed ℓC} {D : Pointed ℓD}
