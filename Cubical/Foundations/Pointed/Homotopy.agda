@@ -60,23 +60,24 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
       r = f₂
       s = g₂
       P≡Q : P ≡ Q
-      P≡Q = p ≡ r ∙ s ⁻¹
-              ≡⟨ isoToPath (symIso p (r ∙ s ⁻¹)) ⟩
-            r ∙ s ⁻¹ ≡ p
-              ≡⟨ cong (r ∙ s ⁻¹ ≡_) (rUnit p ∙∙ cong (p ∙_) (sym (rCancel s)) ∙∙ assoc p s (s ⁻¹)) ⟩
-            r ∙ s ⁻¹ ≡ (p ∙ s) ∙ s ⁻¹
-              ≡⟨ sym (ua (compr≡Equiv r (p ∙ s) (s ⁻¹))) ⟩
-            r ≡ p ∙ s
-              ≡⟨ ua (compl≡Equiv (p ⁻¹) r (p ∙ s)) ⟩
-            p ⁻¹ ∙ r ≡ p ⁻¹ ∙ (p ∙ s)
-              ≡⟨ cong (p ⁻¹ ∙ r ≡_ ) (assoc (p ⁻¹) p s ∙∙ (cong (_∙ s) (lCancel p)) ∙∙ sym (lUnit s)) ⟩
-            p ⁻¹ ∙ r ≡ s
-              ≡⟨ cong (λ z → p ⁻¹ ∙ z ≡ s) (rUnit r) ⟩
-            p ⁻¹ ∙ (r ∙ refl) ≡ s
-              ≡⟨ cong (_≡ s) (sym (doubleCompPath-elim' (p ⁻¹) r refl)) ⟩
-            p ⁻¹ ∙∙ r ∙∙ refl ≡ s
-              ≡⟨ sym (ua (Square≃doubleComp r s p refl)) ⟩
-            PathP (λ i → p i ≡ ptB) r s ∎
+      P≡Q =
+        p ≡ r ∙ s ⁻¹
+          ≡⟨ isoToPath (symIso p (r ∙ s ⁻¹)) ⟩
+        r ∙ s ⁻¹ ≡ p
+          ≡⟨ cong (r ∙ s ⁻¹ ≡_) (rUnit p ∙∙ cong (p ∙_) (sym (rCancel s)) ∙∙ assoc p s (s ⁻¹)) ⟩
+        r ∙ s ⁻¹ ≡ (p ∙ s) ∙ s ⁻¹
+          ≡⟨ sym (ua (compr≡Equiv r (p ∙ s) (s ⁻¹))) ⟩
+        r ≡ p ∙ s
+          ≡⟨ ua (compl≡Equiv (p ⁻¹) r (p ∙ s)) ⟩
+        p ⁻¹ ∙ r ≡ p ⁻¹ ∙ (p ∙ s)
+          ≡⟨ cong (p ⁻¹ ∙ r ≡_ ) (assoc (p ⁻¹) p s ∙∙ (cong (_∙ s) (lCancel p)) ∙∙ sym (lUnit s)) ⟩
+        p ⁻¹ ∙ r ≡ s
+          ≡⟨ cong (λ z → p ⁻¹ ∙ z ≡ s) (rUnit r) ⟩
+        p ⁻¹ ∙ (r ∙ refl) ≡ s
+          ≡⟨ cong (_≡ s) (sym (doubleCompPath-elim' (p ⁻¹) r refl)) ⟩
+        p ⁻¹ ∙∙ r ∙∙ refl ≡ s
+          ≡⟨ sym (ua (Square≃doubleComp r s p refl)) ⟩
+        PathP (λ i → p i ≡ ptB) r s ∎
 
       -- φ is a fiberwise transformation (H : f ∼ g) → P H → Q H
       -- φ is even a fiberwise equivalence by P≡Q
@@ -85,7 +86,8 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 
     -- The total map corresponding to φ
     totφ : {f g : Π∙ A B ptB} → f ∙∼ g → f ∙∼P g
-    totφ {f = f} {g = g} (p₁ , p₂) = p₁ , φ {f = f} {g = g} p₁ p₂
+    totφ {f = f} {g = g} (p₁ , p₂) .fst = p₁
+    totφ {f = f} {g = g} (p₁ , p₂) .snd = φ {f = f} {g = g} p₁ p₂
 
   -- transformation of the homotopies using totφ
   ∙∼→∙∼P : {f g : Π∙ A B ptB} → (f ∙∼ g) → (f ∙∼P g)
@@ -93,10 +95,12 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 
   -- Proof that ∙∼ and ∙∼P are equivalent using the fiberwise equivalence φ
   ∙∼≃∙∼P : (f g : Π∙ A B ptB) → (f ∙∼ g) ≃ (f ∙∼P g)
-  ∙∼≃∙∼P f g = ∙∼→∙∼P {f = f} {g = g} , totalEquiv (P {f = f} {g = g})
-                                                    (Q {f = f} {g = g})
-                                                    (φ {f = f} {g = g})
-                                                    λ H → isEquivTransport (P≡Q H)
+  ∙∼≃∙∼P f g .fst = ∙∼→∙∼P {f = f} {g = g}
+  ∙∼≃∙∼P f g .snd =
+    totalEquiv (P {f = f} {g = g})
+      (Q {f = f} {g = g})
+      (φ {f = f} {g = g})
+      λ H → isEquivTransport (P≡Q H)
 
   -- inverse of ∙∼→∙∼P extracted from the equivalence
   ∙∼P→∙∼ : {f g : Π∙ A B ptB} → f ∙∼P g → f ∙∼ g
