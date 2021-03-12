@@ -59,26 +59,24 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
       p = H ⋆
       r = f₂
       s = g₂
-
       P≡Q : P ≡ Q
-      P≡Q =
-        p ≡ r ∙ s ⁻¹
-          ≡⟨ isoToPath (symIso p (r ∙ s ⁻¹)) ⟩
-        r ∙ s ⁻¹ ≡ p
-          ≡⟨ cong (r ∙ s ⁻¹ ≡_) (rUnit p ∙∙ cong (p ∙_) (sym (rCancel s)) ∙∙ assoc p s (s ⁻¹)) ⟩
-        r ∙ s ⁻¹ ≡ (p ∙ s) ∙ s ⁻¹
-          ≡⟨ sym (ua (compr≡Equiv r (p ∙ s) (s ⁻¹))) ⟩
-        r ≡ p ∙ s
-          ≡⟨ ua (compl≡Equiv (p ⁻¹) r (p ∙ s)) ⟩
-        p ⁻¹ ∙ r ≡ p ⁻¹ ∙ (p ∙ s)
-          ≡⟨ cong (p ⁻¹ ∙ r ≡_ ) (assoc (p ⁻¹) p s ∙∙ (cong (_∙ s) (lCancel p)) ∙∙ sym (lUnit s)) ⟩
-        p ⁻¹ ∙ r ≡ s
-          ≡⟨ cong (λ z → p ⁻¹ ∙ z ≡ s) (rUnit r) ⟩
-        p ⁻¹ ∙ (r ∙ refl) ≡ s
-          ≡⟨ cong (_≡ s) (sym (doubleCompPath-elim' (p ⁻¹) r refl)) ⟩
-        p ⁻¹ ∙∙ r ∙∙ refl ≡ s
-          ≡⟨ sym (ua (Square≃doubleComp r s p refl)) ⟩
-        PathP (λ i → p i ≡ ptB) r s ∎
+      P≡Q = p ≡ r ∙ s ⁻¹
+              ≡⟨ isoToPath (symIso p (r ∙ s ⁻¹)) ⟩
+            r ∙ s ⁻¹ ≡ p
+              ≡⟨ cong (r ∙ s ⁻¹ ≡_) (rUnit p ∙∙ cong (p ∙_) (sym (rCancel s)) ∙∙ assoc p s (s ⁻¹)) ⟩
+            r ∙ s ⁻¹ ≡ (p ∙ s) ∙ s ⁻¹
+              ≡⟨ sym (ua (compr≡Equiv r (p ∙ s) (s ⁻¹))) ⟩
+            r ≡ p ∙ s
+              ≡⟨ ua (compl≡Equiv (p ⁻¹) r (p ∙ s)) ⟩
+            p ⁻¹ ∙ r ≡ p ⁻¹ ∙ (p ∙ s)
+              ≡⟨ cong (p ⁻¹ ∙ r ≡_ ) (assoc (p ⁻¹) p s ∙∙ (cong (_∙ s) (lCancel p)) ∙∙ sym (lUnit s)) ⟩
+            p ⁻¹ ∙ r ≡ s
+              ≡⟨ cong (λ z → p ⁻¹ ∙ z ≡ s) (rUnit r) ⟩
+            p ⁻¹ ∙ (r ∙ refl) ≡ s
+              ≡⟨ cong (_≡ s) (sym (doubleCompPath-elim' (p ⁻¹) r refl)) ⟩
+            p ⁻¹ ∙∙ r ∙∙ refl ≡ s
+              ≡⟨ sym (ua (Square≃doubleComp r s p refl)) ⟩
+            PathP (λ i → p i ≡ ptB) r s ∎
 
       -- φ is a fiberwise transformation (H : f ∼ g) → P H → Q H
       -- φ is even a fiberwise equivalence by P≡Q
