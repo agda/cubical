@@ -6,8 +6,11 @@ open import Cubical.Foundations.Pointed.Base
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
+
+open import Cubical.Structures.Pointed using (pointedSIP)
 
 private
   variable
@@ -88,3 +91,7 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} where
 
   →Π∙Iso : Iso (A →∙ B) (Π∙ A (λ _ → B₁) B₂)
   →Π∙Iso = iso (λ f → f) (λ f → f) (λ _ → refl) λ _ → refl
+
+
+pathToPointedMap : {A B : Pointed ℓ} → A ≡ B → (A →∙ B)
+pathToPointedMap {A = A} {B = B} p =  ≃∙To→∙ (equivFun (invEquiv (pointedSIP A B)) p)
