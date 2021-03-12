@@ -31,6 +31,8 @@ module Lan {ℓC ℓC' ℓD ℓD' ℓS}
 
   module _ (G : Functor (C ^op) (SET ℓ)) where
 
+    -- Definition of the coend
+
     module _ (d : D.ob) where
 
       Raw : Type ℓ
@@ -43,6 +45,8 @@ module Lan {ℓC ℓC' ℓD ℓD' ℓS}
       Quo = Raw / _≈_
 
     pattern shift/ g f a i = eq/ _ _ (shift g f a) i
+
+    -- Action of Quo on arrows in D
 
     mapR : {d d' : D.ob} (h : D.Hom[ d' , d ]) → Quo d → Quo d'
     mapR h [ c , g , a ] = [ c , h D.⋆ g , a ]
@@ -66,6 +70,15 @@ module Lan {ℓC ℓC' ℓD ℓD' ℓS}
         → mapR (h' D.⋆ h) ≡ mapR h' ∘ mapR h
       mapR∘ h' h =
         funExt (elimProp (λ _ → squash/ _ _) (λ (c , g , a) i → [ c , D.⋆Assoc h' h g i , a ]))
+
+  LanOb : Functor (C ^op) (SET ℓ) → Functor (D ^op) (SET _)
+  LanOb G .F-ob d .fst = Quo G d
+  LanOb G .F-ob d .snd = squash/
+  LanOb G .F-hom = mapR G
+  LanOb G .F-id {d} = mapRId G d
+  LanOb G .F-seq h h' = mapR∘ G h' h
+
+  -- Action of Quo on arrows in C ^op → Set
 
   module _ {G G' : Functor (C ^op) (SET ℓ)} (α : NatTrans G G') where
   
@@ -96,13 +109,6 @@ module Lan {ℓC ℓC' ℓD ℓD' ℓS}
       (d : D.ob) → mapL (seqTrans α β) d ≡ mapL β d ∘ mapL α d
     mapL∘ β α d = funExt (elimProp (λ _ → squash/ _ _) (λ _ → refl))
 
-  LanOb : Functor (C ^op) (SET ℓ) → Functor (D ^op) (SET _)
-  LanOb G .F-ob d .fst = Quo G d
-  LanOb G .F-ob d .snd = squash/
-  LanOb G .F-hom = mapR G
-  LanOb G .F-id {d} = mapRId G d
-  LanOb G .F-seq h h' = mapR∘ G h' h
-
   LanHom : {G G' : Functor (C ^op) (SET ℓ)}
     → NatTrans G G' → NatTrans (LanOb G) (LanOb G')
   LanHom α .N-ob = mapL α
@@ -115,6 +121,8 @@ module Lan {ℓC ℓC' ℓD ℓD' ℓS}
   Lan .F-hom = LanHom
   Lan .F-id {G} = makeNatTransPath (funExt (mapLId G))
   Lan .F-seq α β = makeNatTransPath (funExt (mapL∘ β α))
+
+  -- Adjunction between the left Kan extension and precomposition
 
   private
     F* = ∘Functor (SET ℓ) (F ^opF)
@@ -172,8 +180,6 @@ module Lan {ℓC ℓC' ℓD ℓD' ℓS}
 
     Δ₂ : ∀ H → seqTrans (η ⟦ F* ⟅ H ⟆ ⟧) (F* ⟪ ε ⟦ H ⟧ ⟫) ≡ idTrans _
     Δ₂ H = makeNatTransPath (funExt λ c → H .F-id)
-
-  -- Adjunction between the left Kan extension and precomposition
 
   adj : Lan ⊣ F*
   adj = make⊣ η ε Δ₁ Δ₂
