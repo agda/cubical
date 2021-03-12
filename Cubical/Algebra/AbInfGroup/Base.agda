@@ -18,6 +18,10 @@ private
 isConnected : (n : ℕ) → Type ℓ → Type ℓ
 isConnected n = isConnectedWrongLevel (suc (suc n))
 
+{-
+  'delooping 0' is actually the first delooping of
+  the abelian infinity group.
+-}
 record AbInfGroup (ℓ : Level) : Type (ℓ-suc ℓ) where
   constructor abInfGroup
   field
