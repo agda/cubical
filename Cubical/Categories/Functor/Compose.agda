@@ -12,7 +12,7 @@ open import Cubical.Categories.Instances.Functors
 
 module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
   {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'}
-  (E : Precategory ℓE ℓE') ⦃ isCatE : isCategory E ⦄ 
+  (E : Precategory ℓE ℓE') ⦃ isCatE : isCategory E ⦄
   (F : Functor C D)
   where
 
@@ -28,8 +28,8 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
 
 module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
   (C : Precategory ℓC ℓC')
-  {D : Precategory ℓD ℓD'} ⦃ isCatD : isCategory D ⦄ 
-  {E : Precategory ℓE ℓE'} ⦃ isCatE : isCategory E ⦄ 
+  {D : Precategory ℓD ℓD'} ⦃ isCatD : isCategory D ⦄
+  {E : Precategory ℓE ℓE'} ⦃ isCatE : isCategory E ⦄
   (G : Functor D E)
   where
 

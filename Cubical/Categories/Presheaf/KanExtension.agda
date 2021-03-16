@@ -91,7 +91,7 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
   -- Action of Quo on arrows in Cᵒᵖ → Set
 
   module _ {G G' : Functor (C ^op) (SET ℓ)} (α : NatTrans G G') where
-  
+
     mapL : (d : D.ob) → Quo G d → Quo G' d
     mapL d [ c , g , a ] = [ c , g , α .N-ob c a ]
     mapL d (shift/ g f a i) =
@@ -104,7 +104,7 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
     mapL d (squash/ t u p q i j) =
       squash/ (mapL d t) (mapL d u) (cong (mapL d) p) (cong (mapL d) q) i j
 
-    mapLR : {d d' : D.ob} (h : D.Hom[ d' , d ]) 
+    mapLR : {d d' : D.ob} (h : D.Hom[ d' , d ])
       → mapL d' ∘ mapR G h ≡ mapR G' h ∘ mapL d
     mapLR h = funExt (elimProp (λ _ → squash/ _ _) (λ _ → refl))
 
