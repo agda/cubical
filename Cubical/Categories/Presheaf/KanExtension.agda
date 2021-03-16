@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
 
 module Cubical.Categories.Presheaf.KanExtension where
 
@@ -16,7 +16,7 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
 
-module Lan {ℓC ℓC' ℓD ℓD' ℓS}
+module Lan {ℓC ℓC' ℓD ℓD'} ℓS
   {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'}
   (F : Functor C D)
   where
@@ -60,16 +60,15 @@ module Lan {ℓC ℓC' ℓD ℓD' ℓS}
     mapR h (squash/ t u p q i j) =
       squash/ (mapR h t) (mapR h u) (cong (mapR h) p) (cong (mapR h) q) i j
 
-    abstract
-      mapRId : (d : D.ob) → mapR (D.id d) ≡ (idfun _)
-      mapRId d =
-        funExt (elimProp (λ _ → squash/ _ _) (λ (c , g , a) i → [ c , D.⋆IdL g i , a ]))
+    mapRId : (d : D.ob) → mapR (D.id d) ≡ (idfun _)
+    mapRId d =
+      funExt (elimProp (λ _ → squash/ _ _) (λ (c , g , a) i → [ c , D.⋆IdL g i , a ]))
 
-      mapR∘ : {d d' d'' : D.ob}
-        (h' : D.Hom[ d'' , d' ]) (h : D.Hom[ d' , d ])
-        → mapR (h' D.⋆ h) ≡ mapR h' ∘ mapR h
-      mapR∘ h' h =
-        funExt (elimProp (λ _ → squash/ _ _) (λ (c , g , a) i → [ c , D.⋆Assoc h' h g i , a ]))
+    mapR∘ : {d d' d'' : D.ob}
+      (h' : D.Hom[ d'' , d' ]) (h : D.Hom[ d' , d ])
+      → mapR (h' D.⋆ h) ≡ mapR h' ∘ mapR h
+    mapR∘ h' h =
+      funExt (elimProp (λ _ → squash/ _ _) (λ (c , g , a) i → [ c , D.⋆Assoc h' h g i , a ]))
 
   LanOb : Functor (C ^op) (SET ℓ) → Functor (D ^op) (SET _)
   LanOb G .F-ob d .fst = Quo G d
@@ -94,20 +93,18 @@ module Lan {ℓC ℓC' ℓD ℓD' ℓS}
     mapL d (squash/ t u p q i j) =
       squash/ (mapL d t) (mapL d u) (cong (mapL d) p) (cong (mapL d) q) i j
 
-    abstract
-      mapLR : {d d' : D.ob} (h : D.Hom[ d' , d ]) 
-        → mapL d' ∘ mapR G h ≡ mapR G' h ∘ mapL d
-      mapLR h = funExt (elimProp (λ _ → squash/ _ _) (λ _ → refl))
+    mapLR : {d d' : D.ob} (h : D.Hom[ d' , d ]) 
+      → mapL d' ∘ mapR G h ≡ mapR G' h ∘ mapL d
+    mapLR h = funExt (elimProp (λ _ → squash/ _ _) (λ _ → refl))
 
-  abstract
-    mapLId : (G : Functor (C ^op) (SET ℓ))
-      (d : D.ob) → mapL (idTrans G) d ≡ idfun (Quo G d)
-    mapLId G d = funExt (elimProp (λ _ → squash/ _ _) (λ _ → refl))
+  mapLId : (G : Functor (C ^op) (SET ℓ))
+    (d : D.ob) → mapL (idTrans G) d ≡ idfun (Quo G d)
+  mapLId G d = funExt (elimProp (λ _ → squash/ _ _) (λ _ → refl))
 
-    mapL∘ : {G G' G'' : Functor (C ^op) (SET ℓ)}
-      (β : NatTrans G' G'') (α : NatTrans G G')
-      (d : D.ob) → mapL (seqTrans α β) d ≡ mapL β d ∘ mapL α d
-    mapL∘ β α d = funExt (elimProp (λ _ → squash/ _ _) (λ _ → refl))
+  mapL∘ : {G G' G'' : Functor (C ^op) (SET ℓ)}
+    (β : NatTrans G' G'') (α : NatTrans G G')
+    (d : D.ob) → mapL (seqTrans α β) d ≡ mapL β d ∘ mapL α d
+  mapL∘ β α d = funExt (elimProp (λ _ → squash/ _ _) (λ _ → refl))
 
   LanHom : {G G' : Functor (C ^op) (SET ℓ)}
     → NatTrans G G' → NatTrans (LanOb G) (LanOb G')
@@ -125,7 +122,7 @@ module Lan {ℓC ℓC' ℓD ℓD' ℓS}
   -- Adjunction between the left Kan extension and precomposition
 
   private
-    F* = ∘Functor (SET ℓ) (F ^opF)
+    F* = precomposeF (SET ℓ) (F ^opF)
 
   open UnitCounit
 
@@ -144,16 +141,12 @@ module Lan {ℓC ℓC' ℓD ℓD' ℓS}
     lem = D.⋆IdL (F ⟪ f ⟫) ∙ sym (D.⋆IdR (F ⟪ f ⟫))
   η .N-hom f = makeNatTransPath refl
 
-  εOb : (H : Functor (D ^op) (SET _))
-    → (d : D.ob) → Quo (F* ⟅ H ⟆) d → (H ⟅ d ⟆) .fst
-  εOb H d =
+  ε : funcComp Lan F* ⇒ 𝟙⟨ FUNCTOR (D ^op) (SET ℓ) ⟩
+  ε .N-ob H .N-ob d =
     elim
       (λ _ → (H ⟅ d ⟆) .snd)
       (λ (c , g , a) → (H ⟪ g ⟫) a)
       (λ {_ _ (shift g f a) i → H .F-seq (F ⟪ f ⟫) g i a})
-
-  ε : funcComp Lan F* ⇒ 𝟙⟨ FUNCTOR (D ^op) (SET ℓ) ⟩
-  ε .N-ob H .N-ob = εOb H
   ε .N-ob H .N-hom g' =
     funExt (elimProp (λ _ → (H ⟅ _ ⟆) .snd _ _) (λ (c , g , a) → funExt⁻ (H .F-seq g g') a))
   ε .N-hom {H} {H'} α =
@@ -162,24 +155,23 @@ module Lan {ℓC ℓC' ℓD ℓD' ℓS}
          elimProp (λ _ → (H' ⟅ _ ⟆) .snd _ _)
           (λ (c , g , a) → sym (funExt⁻ (α .N-hom g) a)))
 
-  abstract
-    Δ₁ : ∀ G → seqTrans (Lan ⟪ η ⟦ G ⟧ ⟫) (ε ⟦ Lan ⟅ G ⟆ ⟧) ≡ idTrans _
-    Δ₁ G =
-      makeNatTransPath
-        (funExt₂ λ d →
-          elimProp (λ _ → squash/ _ _)
-            (λ (c , g , a) →
-              [ c , g D.⋆ D.id _ , a ]
-                ≡[ i ]⟨ [ c , (g D.⋆ F .F-id (~ i)) , a ] ⟩
-              [ c , g D.⋆ (F ⟪ C.id _ ⟫) , a ]
-                ≡⟨ shift/ g (C.id _) a ⟩
-              [ c , g , (G ⟪ C.id _ ⟫) a ]
-                ≡[ i ]⟨ [ c , g , G .F-id i a ] ⟩
-              [ c , g , a ]
-              ∎))
+  Δ₁ : ∀ G → seqTrans (Lan ⟪ η ⟦ G ⟧ ⟫) (ε ⟦ Lan ⟅ G ⟆ ⟧) ≡ idTrans _
+  Δ₁ G =
+    makeNatTransPath
+      (funExt₂ λ d →
+        elimProp (λ _ → squash/ _ _)
+          (λ (c , g , a) →
+            [ c , g D.⋆ D.id _ , a ]
+              ≡[ i ]⟨ [ c , (g D.⋆ F .F-id (~ i)) , a ] ⟩
+            [ c , g D.⋆ (F ⟪ C.id _ ⟫) , a ]
+              ≡⟨ shift/ g (C.id _) a ⟩
+            [ c , g , (G ⟪ C.id _ ⟫) a ]
+              ≡[ i ]⟨ [ c , g , G .F-id i a ] ⟩
+            [ c , g , a ]
+            ∎))
 
-    Δ₂ : ∀ H → seqTrans (η ⟦ F* ⟅ H ⟆ ⟧) (F* ⟪ ε ⟦ H ⟧ ⟫) ≡ idTrans _
-    Δ₂ H = makeNatTransPath (funExt λ c → H .F-id)
+  Δ₂ : ∀ H → seqTrans (η ⟦ F* ⟅ H ⟆ ⟧) (F* ⟪ ε ⟦ H ⟧ ⟫) ≡ idTrans _
+  Δ₂ H = makeNatTransPath (funExt λ c → H .F-id)
 
   adj : Lan ⊣ F*
   adj = make⊣ η ε Δ₁ Δ₂

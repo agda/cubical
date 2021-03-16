@@ -19,9 +19,9 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
   open Functor
   open NatTrans
 
-  ∘Functor : Functor (FUNCTOR D E) (FUNCTOR C E)
-  ∘Functor .F-ob G = funcComp G F
-  ∘Functor .F-hom α .N-ob c = α .N-ob (F .F-ob c)
-  ∘Functor .F-hom α .N-hom f = α .N-hom (F .F-hom f)
-  ∘Functor .F-id = refl
-  ∘Functor .F-seq f g = refl
+  precomposeF : Functor (FUNCTOR D E) (FUNCTOR C E)
+  precomposeF .F-ob G = funcComp G F
+  precomposeF .F-hom α .N-ob c = α .N-ob (F .F-ob c)
+  precomposeF .F-hom α .N-hom f = α .N-hom (F .F-hom f)
+  precomposeF .F-id = refl
+  precomposeF .F-seq f g = refl
