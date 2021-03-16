@@ -1,5 +1,10 @@
 {-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
 
+{-
+  Kan extension of a functor C → D to a functor PreShv C ℓ → PreShv D ℓ.
+  Currently only left Kan extension.
+-}
+
 module Cubical.Categories.Presheaf.KanExtension where
 
 open import Cubical.Foundations.Prelude
@@ -27,6 +32,12 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
   private
     module C = Precategory C
     module D = Precategory D
+
+    {-
+      We want the category SET ℓ we're mapping into to be large enough that the coend will take presheaves
+      Cᵒᵖ → Set ℓ to presheaves Dᵒᵖ → Set ℓ, otherwise we get no adjunction with precomposition.
+      So we must have ℓC,ℓC',ℓD' ≤ ℓ; the parameter ℓS allows ℓ to be larger than their maximum.
+    -}
     ℓ = ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓS
 
   module _ (G : Functor (C ^op) (SET ℓ)) where
@@ -56,7 +67,7 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
           { (i = i0) → [ _ , D.⋆Assoc h g (F ⟪ f ⟫) j , a ]
           ; (i = i1) → [ _ , h D.⋆ g , (G ⟪ f ⟫) a ]
           })
-        (eq/ _ _ (shift (h D.⋆ g) f a) i)
+        (shift/ (h D.⋆ g) f a i)
     mapR h (squash/ t u p q i j) =
       squash/ (mapR h t) (mapR h u) (cong (mapR h) p) (cong (mapR h) q) i j
 
@@ -77,7 +88,7 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
   LanOb G .F-id {d} = mapRId G d
   LanOb G .F-seq h h' = mapR∘ G h' h
 
-  -- Action of Quo on arrows in C ^op → Set
+  -- Action of Quo on arrows in Cᵒᵖ → Set
 
   module _ {G G' : Functor (C ^op) (SET ℓ)} (α : NatTrans G G') where
   
