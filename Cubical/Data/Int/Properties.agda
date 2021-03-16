@@ -396,20 +396,20 @@ pos- (suc m) (suc n) = suc m ℕ- suc n                       ≡⟨ pos- m n �
                                 - (negsuc n₁ - negsuc n) ∎
 
 -Dist+ : ∀ m n → - (m + n) ≡ (- m) + (- n)
--Dist+ (pos n) (pos n₁) =  - (pos  n + pos n₁)       ≡⟨ cong -_ (sym (pos+ n n₁)) ⟩
+-Dist+ (pos n) (pos n₁) =  - (pos  n + pos n₁)      ≡⟨ cong -_ (sym (pos+ n n₁)) ⟩
                           - (pos (n +ℕ n₁))         ≡⟨ -pos (n +ℕ n₁) ⟩
                              neg (n +ℕ n₁)          ≡⟨ neg+ n n₁ ⟩
                             (neg  n) + (neg n₁)     ≡⟨ cong (neg n +_) (sym (-pos n₁)) ⟩
                             (neg  n) + (- (pos n₁)) ≡⟨ cong (_+ (- pos n₁)) (sym (-pos n)) ⟩
                          (-  pos  n) + (- pos n₁) ∎
--Dist+ (pos n) (negsuc n₁) = - (pos n + negsuc n₁)   ≡⟨ sym (-AntiComm (pos (suc n₁)) (pos n)) ⟩
+-Dist+ (pos n) (negsuc n₁) = - (pos n + negsuc n₁)  ≡⟨ sym (-AntiComm (pos (suc n₁)) (pos n)) ⟩
                                pos (suc n₁) - pos n ≡⟨ +-comm (pos (suc n₁)) (- pos n) ⟩
                            (-  pos n) + (- negsuc n₁) ∎
 -Dist+ (negsuc n) (pos n₁) = - (negsuc n + pos n₁) ≡⟨ cong -_ (+-comm (negsuc n) (pos n₁)) ⟩
-                            - (pos n₁ + negsuc n) ≡⟨ sym (-AntiComm (- negsuc n) (pos n₁)) ⟩
+                            - (pos n₁ + negsuc n)  ≡⟨ sym (-AntiComm (- negsuc n) (pos n₁)) ⟩
                            (-  negsuc n) + (- pos n₁) ∎
 -Dist+ (negsuc n) (negsuc n₁) = - (negsuc n + negsuc n₁) ≡⟨ cong -_ (sym (neg+ (suc n) (suc n₁))) ⟩
-                               - neg (suc n +ℕ suc n₁)  ≡⟨ pos+ (suc n) (suc n₁) ⟩
+                               - neg (suc n +ℕ suc n₁)   ≡⟨ pos+ (suc n) (suc n₁) ⟩
                               (- negsuc n) + (- negsuc n₁) ∎
 
 _·_ : Int → Int → Int
