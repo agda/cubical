@@ -144,11 +144,11 @@ m - n = m + (- n)
 -neg zero = refl
 -neg (suc n) = refl
 
-double- : ∀ z → - (- z) ≡ z
-double- (pos n) = (- (-  pos n)) ≡⟨ cong -_ (-pos n) ⟩
+-Involutive : ∀ z → - (- z) ≡ z
+-Involutive (pos n) = (- (-  pos n)) ≡⟨ cong -_ (-pos n) ⟩
                       - (neg n)  ≡⟨ -neg n ⟩
                          pos n ∎
-double- (negsuc n) = refl
+-Involutive (negsuc n) = refl
 
 sucInt+pos : ∀ n m → sucInt (m +pos n) ≡ (sucInt m) +pos n
 sucInt+pos zero m = refl
@@ -316,8 +316,8 @@ private
                                        (minusPlus m)
                                        (plusMinus m))
 
-+inv : ∀ z → z - z ≡ pos zero
-+inv z = z - z             ≡⟨ cong (_- z) (pos0+ z) ⟩
+-Cancel : ∀ z → z - z ≡ pos zero
+-Cancel z = z - z             ≡⟨ cong (_- z) (pos0+ z) ⟩
         (pos zero + z) - z ≡⟨ plusMinus z (pos zero) ⟩
          pos zero ∎
 
@@ -354,11 +354,11 @@ neg+ (suc m) zero = neg (suc (m +ℕ zero)) ≡⟨ cong neg (cong suc (+-zero m)
 neg+ (suc m) (suc n) = neg (suc m +ℕ suc n) ≡⟨ negsuc+ m (suc n) ⟩
                        neg (suc m) + neg (suc n) ∎
 
-ℕ-anticomm : ∀ m n → m ℕ- n ≡ - (n ℕ- m)
-ℕ-anticomm zero zero = refl
-ℕ-anticomm zero (suc n) = refl
-ℕ-anticomm (suc m) zero = refl
-ℕ-anticomm (suc m) (suc n) = suc m ℕ- suc n ≡⟨ ℕ-anticomm m n ⟩
+ℕ-AntiComm : ∀ m n → m ℕ- n ≡ - (n ℕ- m)
+ℕ-AntiComm zero zero = refl
+ℕ-AntiComm zero (suc n) = refl
+ℕ-AntiComm (suc m) zero = refl
+ℕ-AntiComm (suc m) (suc n) = suc m ℕ- suc n ≡⟨ ℕ-AntiComm m n ⟩
                              - (suc n ℕ- suc m) ∎
 
 pos- : ∀ m n → m ℕ- n ≡ pos m - pos n
@@ -373,42 +373,42 @@ pos- (suc m) (suc n) = suc m ℕ- suc n                       ≡⟨ pos- m n �
                        sucInt (pos m + negsuc n)            ≡⟨ sucInt+negsuc n (pos m) ⟩
                        pos (suc m) - pos (suc n) ∎
 
--anticomm : ∀ m n → m - n ≡ - (n - m)
--anticomm (pos n) (pos n₁) = pos n - pos n₁ ≡⟨ sym (pos- n n₁) ⟩
-                             n ℕ- n₁        ≡⟨ ℕ-anticomm n n₁ ⟩
+-AntiComm : ∀ m n → m - n ≡ - (n - m)
+-AntiComm (pos n) (pos n₁) = pos n - pos n₁ ≡⟨ sym (pos- n n₁) ⟩
+                             n ℕ- n₁        ≡⟨ ℕ-AntiComm n n₁ ⟩
                           - (n₁ ℕ- n)       ≡⟨ cong -_ (pos- n₁ n) ⟩
                           - (pos n₁ - pos n) ∎
--anticomm (pos n) (negsuc n₁) = pos n - negsuc n₁     ≡⟨ +-comm (pos n) (pos (suc n₁)) ⟩
+-AntiComm (pos n) (negsuc n₁) = pos n - negsuc n₁     ≡⟨ +-comm (pos n) (pos (suc n₁)) ⟩
                                 pos (suc n₁) + pos n  ≡⟨ sym (pos+ (suc n₁) n) ⟩
                                 pos (suc n₁ +ℕ n)     ≡⟨ sym (-neg (suc n₁ +ℕ n)) ⟩
                              -  neg (suc n₁ +ℕ n)     ≡⟨ cong -_ (neg+ (suc n₁) n) ⟩
                              - (neg (suc n₁) + neg n) ≡⟨ cong -_ (cong (negsuc n₁ +_) (sym (-pos n))) ⟩
                              - (negsuc n₁ - pos n) ∎
--anticomm (negsuc n) (pos n₁) = negsuc n - pos n₁     ≡⟨ sym (negsuc+ n n₁) ⟩
+-AntiComm (negsuc n) (pos n₁) = negsuc n - pos n₁     ≡⟨ sym (negsuc+ n n₁) ⟩
                                 negsuc (n +ℕ n₁)      ≡⟨ cong -_ (pos+ (suc n) n₁) ⟩
                              - (pos (suc n) + pos n₁) ≡⟨ cong -_ (+-comm (pos (suc n)) (pos n₁)) ⟩
                              - (pos n₁ - negsuc n) ∎
--anticomm (negsuc n) (negsuc n₁) = negsuc n - negsuc n₁        ≡⟨ +-comm (negsuc n) (pos (suc n₁)) ⟩
+-AntiComm (negsuc n) (negsuc n₁) = negsuc n - negsuc n₁        ≡⟨ +-comm (negsuc n) (pos (suc n₁)) ⟩
                                    pos (suc n₁) + negsuc n     ≡⟨ sym (pos- (suc n₁) (suc n)) ⟩
-                                   suc n₁ ℕ- suc n             ≡⟨ ℕ-anticomm (suc n₁) (suc n) ⟩
+                                   suc n₁ ℕ- suc n             ≡⟨ ℕ-AntiComm (suc n₁) (suc n) ⟩
                                 - (suc n ℕ- suc n₁)            ≡⟨ cong -_ (pos- (suc n) (suc n₁)) ⟩
                                 - (pos (suc n) - pos (suc n₁)) ≡⟨ cong -_ (+-comm (pos (suc n)) (negsuc n₁)) ⟩
                                 - (negsuc n₁ - negsuc n) ∎
 
--dist : ∀ m n → - (m + n) ≡ (- m) + (- n)
--dist (pos n) (pos n₁) =  - (pos  n + pos n₁)       ≡⟨ cong -_ (sym (pos+ n n₁)) ⟩
+-Dist+ : ∀ m n → - (m + n) ≡ (- m) + (- n)
+-Dist+ (pos n) (pos n₁) =  - (pos  n + pos n₁)       ≡⟨ cong -_ (sym (pos+ n n₁)) ⟩
                           - (pos (n +ℕ n₁))         ≡⟨ -pos (n +ℕ n₁) ⟩
                              neg (n +ℕ n₁)          ≡⟨ neg+ n n₁ ⟩
                             (neg  n) + (neg n₁)     ≡⟨ cong (neg n +_) (sym (-pos n₁)) ⟩
                             (neg  n) + (- (pos n₁)) ≡⟨ cong (_+ (- pos n₁)) (sym (-pos n)) ⟩
                          (-  pos  n) + (- pos n₁) ∎
--dist (pos n) (negsuc n₁) = - (pos n + negsuc n₁)   ≡⟨ sym (-anticomm (pos (suc n₁)) (pos n)) ⟩
+-Dist+ (pos n) (negsuc n₁) = - (pos n + negsuc n₁)   ≡⟨ sym (-AntiComm (pos (suc n₁)) (pos n)) ⟩
                                pos (suc n₁) - pos n ≡⟨ +-comm (pos (suc n₁)) (- pos n) ⟩
                            (-  pos n) + (- negsuc n₁) ∎
--dist (negsuc n) (pos n₁) = - (negsuc n + pos n₁) ≡⟨ cong -_ (+-comm (negsuc n) (pos n₁)) ⟩
-                            - (pos n₁ + negsuc n) ≡⟨ sym (-anticomm (- negsuc n) (pos n₁)) ⟩
+-Dist+ (negsuc n) (pos n₁) = - (negsuc n + pos n₁) ≡⟨ cong -_ (+-comm (negsuc n) (pos n₁)) ⟩
+                            - (pos n₁ + negsuc n) ≡⟨ sym (-AntiComm (- negsuc n) (pos n₁)) ⟩
                            (-  negsuc n) + (- pos n₁) ∎
--dist (negsuc n) (negsuc n₁) = - (negsuc n + negsuc n₁) ≡⟨ cong -_ (sym (neg+ (suc n) (suc n₁))) ⟩
+-Dist+ (negsuc n) (negsuc n₁) = - (negsuc n + negsuc n₁) ≡⟨ cong -_ (sym (neg+ (suc n) (suc n₁))) ⟩
                                - neg (suc n +ℕ suc n₁)  ≡⟨ pos+ (suc n) (suc n₁) ⟩
                               (- negsuc n) + (- negsuc n₁) ∎
 
