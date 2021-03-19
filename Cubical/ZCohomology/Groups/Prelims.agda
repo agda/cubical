@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.Prelims where
 
 open import Cubical.ZCohomology.Base
@@ -189,35 +189,43 @@ module _ (key : Unit') where
       conghelper3 x p f = J (λ f _ → (q : (f x) ≡ x) → (sym q) ∙ cong f p ∙ q ≡ p)
                             λ q → (cong (sym q ∙_) (isCommΩK-based 2 x p _) ∙∙ assoc _ _ _ ∙∙ cong (_∙ p) (lCancel q))
                                       ∙  sym (lUnit p)
-  Iso.leftInv S1→K2≡K2×K1' a = funExt λ { base → P.rUnitK _ (a base)
-                                        ; (loop i) j → loopcase j i}
+  Iso.leftInv S1→K2≡K2×K1' a i base = P.rUnitK _ (a base) i
+  Iso.leftInv S1→K2≡K2×K1' a i (loop j) = loop-helper i j
     where
-    loopcase : PathP (λ i → P.rUnitK _ (a base) i ≡ P.rUnitK _ (a base) i)
+    loop-helper : PathP (λ i → P.rUnitK _ (a base) i ≡ P.rUnitK _ (a base) i)
                      (cong (a base +K_) (Kn→ΩKn+1 1 (ΩKn+1→Kn 1 ((sym (P.rCancelK 2 (a base))
                            ∙∙ (λ i → a (loop i) -K (a (base)))
                            ∙∙ P.rCancelK 2 (a base))))))
                      (cong a loop)
-    loopcase i j = hcomp (λ k → λ { (i = i0) → a base +K Kn→ΩKn+1 1 (ΩKn+1→Kn 1 (doubleCompPath-elim'
-                                                                                  (sym (P.rCancelK 2 (a base)))
-                                                                                  (λ i₁ → a (loop i₁) -K a base)
-                                                                                  (P.rCancelK 2 (a base)) (~ k))) j
-                                  ; (i = i1) → cong a loop j
-                                  ; (j = i0) → P.rUnitK 2 (a base) i
-                                  ; (j = i1) → P.rUnitK 2 (a base) i})
-                         (loopcase2 i j)
+    loop-helper i j =
+      hcomp (λ k → λ { (i = i0) → (G (doubleCompPath-elim'
+                                        (sym rP) (λ i₁ → a (loop i₁) -K a base) rP (~ k))) j
+                      ; (i = i1) → cong a loop j
+                      ; (j = i0) → P.rUnitK 2 (a base) i
+                      ; (j = i1) → P.rUnitK 2 (a base) i})
+             (loop-helper2 i j)
 
        where
+       F : typ (Ω (coHomK-ptd 2)) → a base +K snd (coHomK-ptd 2) ≡ a base +K snd (coHomK-ptd 2)
+       F = cong (_+K_ {n = 2} (a base))
 
-       stupidAgda : (x : coHomK 2) (p : x ≡ x) (q : 0₂ ≡ x) → Kn→ΩKn+1 1 (ΩKn+1→Kn 1 (q ∙ p ∙ sym q)) ≡ q ∙ p ∙ sym q
-       stupidAgda x p q = Iso.rightInv (Iso-Kn-ΩKn+1 1) (q ∙ p ∙ sym q)
+       G : 0ₖ 2 ≡ 0ₖ 2 → a base +K snd (coHomK-ptd 2) ≡ a base +K snd (coHomK-ptd 2)
+       G p = F (Kn→ΩKn+1 1 (ΩKn+1→Kn 1 p))
 
-       pathHelper : (a b : hLevelTrunc 4 (S₊ 2)) → a +K (b -K a) ≡ b
-       pathHelper a b = P.commK 2 a (b -K a) ∙ P.-+cancelK 2 b a
+       rP : P.+K 2 (a base) (P.-K 2 (a base)) ≡ 0ₖ 2
+       rP = P.rCancelK 2 (a base)
 
-       pathPHelper : PathP (λ i → pathHelper (a base) (a base) i ≡ pathHelper (a base) (a base) i)
+       lem : (x : coHomK 2) (p : x ≡ x) (q : 0₂ ≡ x)
+           → Kn→ΩKn+1 1 (ΩKn+1→Kn 1 (q ∙ p ∙ sym q)) ≡ q ∙ p ∙ sym q
+       lem x p q = Iso.rightInv (Iso-Kn-ΩKn+1 1) (q ∙ p ∙ sym q)
+
+       subtr-lem : (a b : hLevelTrunc 4 (S₊ 2)) → a +K (b -K a) ≡ b
+       subtr-lem a b = P.commK 2 a (b -K a) ∙ P.-+cancelK 2 b a
+
+       subtr-lem-coher : PathP (λ i → subtr-lem (a base) (a base) i ≡ subtr-lem (a base) (a base) i)
                            (cong (a base +K_) (λ i₁ → a (loop i₁) -K a base))
                            λ i → a (loop i)
-       pathPHelper i j = pathHelper (a base) (a (loop j)) i
+       subtr-lem-coher i j = subtr-lem (a base) (a (loop j)) i
 
        abstract
          helperFun2 : {A : Type₀} {0A a b : A} (main : 0A ≡ 0A) (start : b ≡ b) (p : a ≡ a) (q : a ≡ b) (r : b ≡ 0A) (Q : a ≡ 0A)
@@ -239,40 +247,34 @@ module _ (key : Unit') where
              refl ∙ main                                                  ≡⟨ sym (lUnit main) ⟩
              main ∎
 
-
-       helper : cong (a base +K_)
-                     (Kn→ΩKn+1 1
-                       (ΩKn+1→Kn 1
-                       (sym (P.rCancelK 2 (a base))
-                         ∙ (λ i₁ → a (loop i₁) -K a base)
-                         ∙ P.rCancelK 2 (a base))))
-              ≡ _
-       helper = (λ i → cong (a base +K_) (stupidAgda (a base -K (a base))
-                                                      (λ i₁ → a (loop i₁) -K a base)
-                                                      (sym (P.rCancelK 2 (a base))) i))
-             ∙ congFunct₃ (a base +K_) (sym (P.rCancelK 2 (a base)))
-                                        (λ i₁ → a (loop i₁) -K a base)
-                                        (P.rCancelK 2 (a base))
-         where
          congFunct₃ : ∀ {A B : Type₀} {a b c d : A} (f : A → B) (p : a ≡ b) (q : b ≡ c) (r : c ≡ d)
-                    → cong f (p ∙ q ∙ r) ≡ cong f p ∙ cong f q ∙ cong f r
-         congFunct₃ f p q r = congFunct f p (q ∙ r)
-                            ∙ cong (cong f p ∙_) (congFunct f q r)
+                      → cong f (p ∙ q ∙ r) ≡ cong f p ∙ cong f q ∙ cong f r
+         congFunct₃ f p q r = congFunct f p (q ∙ r) ∙ cong (cong f p ∙_) (congFunct f q r)
 
-       loopcase2 : PathP (λ i → P.rUnitK _ (a base) i ≡ P.rUnitK _ (a base) i)
-                     (cong (a base +K_) (Kn→ΩKn+1 1 (ΩKn+1→Kn 1 ((sym (P.rCancelK 2 (a base))
-                           ∙ (λ i → a (loop i) -K (a (base)))
-                           ∙ P.rCancelK 2 (a base))))))
-                     (cong a loop)
-       loopcase2 = compPathL→PathP (helperFun2 (cong a loop)
-                                            _
-                                            _
-                                            (cong (a base +K_) (P.rCancelK 2 (a base)))
-                                            _
-                                            _
-                                            pathPHelper
-                                            helper
-                                            (isCommΩK-based 2 (a base)))
+         lem₀ : G (sym rP ∙ (λ i₁ → a (loop i₁) -K a base) ∙ rP)
+                 ≡ F (sym rP ∙ (λ i₁ → a (loop i₁) -K a base) ∙ rP)
+         lem₀ = cong F (lem (a base -K (a base))
+                               (λ i₁ → a (loop i₁) -K a base)
+                               (sym (P.rCancelK 2 (a base))))
+
+         lem₁ : G (sym rP ∙ (λ i₁ → a (loop i₁) -K a base) ∙ rP)
+                ≡ sym (λ i₁ → a base +K P.rCancelK 2 (a base) i₁) ∙
+                      cong (a base +K_) (λ i₁ → a (loop i₁) -K a base) ∙
+                      (λ i₁ → a base +K P.rCancelK 2 (a base) i₁)
+         lem₁ = lem₀ ∙ congFunct₃ (a base +K_) (sym rP)
+                                                    (λ i₁ → a (loop i₁) -K a base)
+                                                    rP
+
+         loop-helper2 : PathP (λ i → P.rUnitK _ (a base) i ≡ P.rUnitK _ (a base) i)
+                       (cong (a base +K_) (Kn→ΩKn+1 1 (ΩKn+1→Kn 1 ((sym (P.rCancelK 2 (a base))
+                             ∙ (λ i → a (loop i) -K (a (base)))
+                             ∙ P.rCancelK 2 (a base))))))
+                       (cong a loop)
+         loop-helper2 = compPathL→PathP (helperFun2 (cong a loop) _ _
+                                                  (cong (a base +K_) (P.rCancelK 2 (a base))) _ _
+                                                  subtr-lem-coher
+                                                  lem₁
+                                                  (isCommΩK-based 2 (a base)))
 
 S1→K2≡K2×K1 : Iso (S₊ 1 → coHomK 2) (coHomK 2 × coHomK 1)
 S1→K2≡K2×K1 = S1→K2≡K2×K1' unlock
