@@ -108,7 +108,7 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 
   -- Verifies that the pointed homotopies actually correspond
   -- to their Σ-type versions
-  {-
+
   _∙∼Σ_ : (f g : Π∙ A B ptB) → Type (ℓ-max ℓ ℓ')
   f ∙∼Σ g = Σ[ H ∈ f .fst ∼ g .fst ] (P {f = f} {g = g} H)
 
@@ -120,4 +120,4 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 
   ∙∼P≡∙∼PΣ : (f g : Π∙ A B ptB) → f ∙∼P g ≡ f ∙∼PΣ g
   ∙∼P≡∙∼PΣ f g = refl
-  -}
+

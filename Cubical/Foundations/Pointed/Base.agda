@@ -14,6 +14,7 @@ private
   variable
     ℓ ℓ′ : Level
 
+
 Pointed : (ℓ : Level) → Type (ℓ-suc ℓ)
 Pointed ℓ = TypeWithStr ℓ (λ x → x)
 
@@ -74,4 +75,5 @@ _≃∙_ : (A B : Pointed ℓ) → Type ℓ
 A ≃∙ B = Σ[ f ∈ (fst A ≃ fst B) ] equivFun f (pt A) ≡ pt B
 
 ≃∙To→∙ : {A B : Pointed ℓ} → A ≃∙ B → (A →∙ B)
-≃∙To→∙ ((f , _) , pointed) = f , pointed
+fst (≃∙To→∙ f) = f .fst .fst
+snd (≃∙To→∙ f) = f .snd

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe  #-}
 module Cubical.HITs.Sn.Properties where
 
 open import Cubical.Foundations.Pointed
@@ -11,7 +11,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
-open import Cubical.HITs.S1
+open import Cubical.HITs.S1 hiding (_·_)
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Sn.Base
@@ -236,6 +236,30 @@ wedgeConSn (suc n) m {A = A} hlev f g hom = F , ((λ _ → refl) , right)
                         (transp (λ i₂ → A (merid a (i₂ ∧ i)) (ptSn (suc m))) (~ i)
                                 (hom (~ j)))))
 
+{-
+test : {!!}
+test = {!!}
+
+tok : {n m : ℕ} {x y : S₊ (suc m)} (z : hLevelTrunc (suc n) (S₊ (suc m)))
+  → Path (hLevelTrunc (suc n) (S₊ (suc m))) ∣ x ∣ z → (l : ∣ y ∣ ≡ z) → hLevelTrunc n (x ≡ y) 
+tok {n = n} {m = m} {x = x} {y = y} z =
+  J (λ z p → (l : ∣ y ∣ ≡ z) → hLevelTrunc n (x ≡ y) ) {!!}
+
+
+
+
+pathIdTruncFunSn : {n m : ℕ} {x y : S₊ (suc m)} → Path (hLevelTrunc (suc n) (S₊ (suc m))) ∣ x ∣ ∣ y ∣ → hLevelTrunc n (x ≡ y)
+pathIdTruncFunSn {n = zero} {x = x} {y = y} p = tt*
+pathIdTruncFunSn {n = suc n} {m = zero} {x = base} {y = base} p = ∣ refl ∣
+pathIdTruncFunSn {n = suc zero} {m = zero} {x = base} {y = loop i} p =
+  hcomp (λ k → λ {(i = i0) → ∣ refl ∣ ; (i = i1) → ∣ {!!} ∣})
+        (rec {!!} (λ {base → ∣ ((λ k → loop (i ∧ k))) ∣
+                    ; (loop j) → ∣ (λ k → loop (i ∧ k)) ∣}) (p i))
+
+pathIdTruncFunSn {n = suc (suc n)} {m = zero} {x = base} {y = loop i} p = {!!}
+pathIdTruncFunSn {n = suc n} {m = zero} {x = loop i} {y = y} p = {!!}
+pathIdTruncFunSn {n = suc n} {m = suc m} {x = x} {y = y} p = {!!}
+-}
 ---------- Connectedness -----------
 
 sphereConnected : (n : HLevel) → isConnected (suc n) (S₊ n)
@@ -276,3 +300,235 @@ isConnectedPathSⁿ n x y =
    (pathIdTruncSⁿretract n x y)
      ((isContr→isProp (sphereConnected (suc n)) ∣ x ∣ ∣ y ∣)
       , isProp→isSet (isContr→isProp (sphereConnected (suc n))) _ _ _)
+
+testFib : (n m : ℕ) (x : S₊ (suc n)) (y : hLevelTrunc (2 + m) (S₊ (suc n))) → hLevelTrunc (2 + m) Type₀
+testFib n m x = rec (isOfHLevelTrunc (2 + m)) λ y → ∣ hLevelTrunc (suc m) (x ≡ y) ∣
+
+open import Cubical.Data.Int hiding (_·_ ; +-comm ; +-assoc) renaming (_+_ to _+Z_)
+open import Cubical.HITs.Pushout
+S¹-mod→ : (n : ℕ) → S¹ → S¹
+S¹-mod→ n base = base
+S¹-mod→ n (loop i) = intLoop (pos n) i
+
+data S1-mod (n : ℕ) : Type₀ where
+  [_] : S¹ → S1-mod n
+  coher : cong [_] (intLoop (pos n)) ≡ refl
+  isGr : isGroupoid (S1-mod n)
+
+S1-mod-elim : ∀ {ℓ} {n : ℕ} {A : S1-mod n → Type ℓ}
+           → ((x : _) → isGroupoid (A x))
+           → (f : (m : S¹) → A [ m ])
+           → SquareP (λ i j → A (coher i j))
+                     (cong f (intLoop (pos n))) (λ i → f base)
+                     (λ i → f base)            (λ i → f base)
+           → (x : _) → A x
+S1-mod-elim gr f p [ x ] = f x
+S1-mod-elim gr f p (coher i j) = p i j
+S1-mod-elim {A = A} gr f p (isGr x y a b c d i j k) = helper i j k
+  where
+  helper : PathP (λ i → PathP (λ j → PathP (λ k → A (isGr x y a b c d i j k))
+                                             (S1-mod-elim gr f p x) (S1-mod-elim gr f p y))
+                               (λ k → S1-mod-elim gr f p (a k)) λ k → S1-mod-elim gr f p (b k))
+                 (λ j k → S1-mod-elim gr f p (c j k)) λ j k → S1-mod-elim gr f p (d j k)
+  helper = toPathP (isOfHLevelPathP' 1 (isOfHLevelPathP' 2 (gr _) _ _) _ _ _ _)
+
+
+-- finInt n = ℤ/(n-1)
+data finInt (n : ℕ) : Type₀ where
+  [_] : ℕ → finInt n
+  coher : [ n ] ≡ [ 0 ]
+  LUnit : (m : ℕ) → [ n + m ] ≡ [ m ]
+  is-set : isSet (finInt n)
+
+elimfinInt : ∀ {ℓ} {n : ℕ} {A : finInt n → Type ℓ}
+           → ((x : _) → isSet (A x))
+           → (f : (m : ℕ) → A [ m ])
+           → (p : PathP (λ i → A (coher i)) (f n) (f 0))
+           → ((x : ℕ) → PathP (λ i → A (LUnit x i)) (f (n + x)) (f x))
+           → (x : _) → A x
+elimfinInt {A = A} isset f p _ [ x ] = f x
+elimfinInt {A = A} isset f p _ (coher i) = p i
+elimfinInt {A = A} isset f p s (LUnit x i) = s x i
+elimfinInt {A = A} isset f p s (is-set x x₁ x₂ y i i₁) = helper i i₁ 
+  where
+  helper : SquareP (λ i i₁ → A (is-set x x₁ x₂ y i i₁))
+                   (λ i₁ → elimfinInt isset f p s (x₂ i₁))
+                   (λ i₁ → elimfinInt isset f p s (y i₁))
+                   (λ i → elimfinInt isset f p s x)
+                   λ i → elimfinInt isset f p s x₁
+  helper = toPathP (isOfHLevelPathP' 1 (isset _) _ _ _ _)
+
+
+_+fin_ : {n : ℕ} → finInt n → finInt n → finInt n
+_+fin_ {n = zero} x y = [ 0 ]
+_+fin_ {n = suc n} =
+  elimfinInt (λ _ → isSetΠ λ _ → is-set)
+    (λ x → elimfinInt (λ _ → is-set)
+               (λ y → [ x + y ])
+               ((λ i → [ +-comm x (suc n) i ]) ∙∙ LUnit _ ∙∙ λ i → [ +-comm x 0 (~ i) ])
+               λ y → (λ i → [ (+-comm x (suc (n + y)) ∙ sym (+-assoc (suc n) y x)) i ]) ∙∙ LUnit _ ∙∙ λ i → [ +-comm y x i ])
+    (funExt (elimfinInt (λ _ → isOfHLevelPath 2 is-set _ _) LUnit (isProp→PathP (λ _ → is-set _ _) _ _) λ _ → isProp→PathP (λ _ → is-set _ _) _ _ ))
+    λ x → funExt (elimfinInt (λ _ → isOfHLevelPath 2 is-set _ _) (λ y → (λ i → [ +-assoc (suc n) x y (~ i) ]) ∙ LUnit (x + y)) (isProp→PathP (λ _ → is-set _ _ ) _ _) λ _ → isProp→PathP (λ _ → is-set _ _) _ _)
+
+test : (n : ℕ) → finInt n → finInt n
+test zero x = [ 0 ]
+test (suc n) = elimfinInt (λ _ → is-set) (λ m → [ m + 1 ]) (LUnit 1) λ x → (λ i → [ +-assoc (suc n) x 1 (~ i) ]) ∙ LUnit (x + 1)
+
+isEqt : (n : ℕ) → Iso (finInt (suc n)) (finInt (suc n)) -- isEquiv (test (suc n))
+Iso.fun (isEqt n) = test (suc n)
+Iso.inv (isEqt n) =
+  elimfinInt (λ _ → is-set) (λ m → [ m + n ]) (LUnit n) λ x → (λ i → [ +-assoc (suc n) x n (~ i) ]) ∙ LUnit (x + n)
+Iso.rightInv (isEqt n) =
+  elimfinInt (λ _ → isOfHLevelPath 2 is-set _ _)
+             (λ m → (λ i → [ (sym (+-assoc m n 1) ∙ +-comm m (n + 1) ∙ (λ j → +-comm n 1 j + m)) i ]) ∙ LUnit m)
+             (toPathP (is-set _ _ _ _))
+             λ _ → toPathP (is-set _ _ _ _)
+Iso.leftInv (isEqt n) =
+  elimfinInt (λ _ → isOfHLevelPath 2 is-set _ _)
+             (λ m → (λ i → [ (sym (+-assoc m 1 n) ∙ +-comm m (1 + n)) i ]) ∙ LUnit m)
+             (toPathP (is-set _ _ _ _))
+             λ _ → toPathP (is-set _ _ _ _)
+
+
+module _ where
+  path : (n : ℕ) → Path (TypeOfHLevel ℓ-zero 2) (finInt (suc n) , is-set) (finInt (suc n) , is-set)
+  path n = Σ≡Prop (λ _ → isPropIsSet) (ua (isoToEquiv (isEqt n)))
+
+  path_^ : (n m : ℕ) → finInt (suc n) ≡ (finInt (suc n))
+  path n ^ zero = refl
+  path n ^ (suc zero) = cong fst (path n)
+  path n ^ (suc (suc m)) = path n ^ (suc m) ∙ cong fst (path n)
+
+  F : (n : ℕ) → (m : S¹) → TypeOfHLevel ℓ-zero 2
+  F n base = finInt (suc n) , is-set
+  F n (loop i) = path n i
+
+  tsa : (n : ℕ) (m : ℕ) → cong fst (cong (F n) (intLoop (pos (suc m)))) ≡ path n ^ (suc m)
+  tsa n zero i = cong fst (cong (F n) (lUnit loop (~ i)))
+  tsa n (suc m) i = tsa n m i ∙ path n ^ 1
+
+  tsa' : (n : ℕ) (m : ℕ) → cong fst (cong (F n) (intLoop (pos m))) ≡ path n ^ m
+  tsa' n zero = refl
+  tsa' n (suc m) = tsa n m
+
+  
+
+  isEqt_^ : (n m : ℕ) → finInt (suc n) ≃ finInt (suc n)
+  isEqt n ^ zero = idEquiv _
+  isEqt n ^ (suc zero) = isoToEquiv (isEqt n)
+  isEqt n ^ (suc (suc m)) = compEquiv (isEqt n ^ (suc m)) (isoToEquiv (isEqt n))
+
+
+  isEqt-lem : (n m : ℕ) (x : _) → fst (isEqt n ^ m) [ x ] ≡ [ x + m ]
+  isEqt-lem n zero x i = [ +-comm 0 x i ]
+  isEqt-lem n (suc zero) x = refl
+  isEqt-lem n (suc (suc m)) x =
+      cong (fst (isoToEquiv (isEqt n))) (isEqt-lem n (suc m) x)
+    ∙∙ (λ i → [ +-assoc x (suc m) 1 (~ i) ])
+    ∙∙ λ i → [ x + suc (+-comm m 1 i) ]
+
+  isEqt-lem2 : (n : ℕ) → isEqt n ^ (suc n) ≡ idEquiv _
+  isEqt-lem2 n = Σ≡Prop (λ _ → isPropIsEquiv _)
+                        (funExt (elimfinInt (λ _ → isOfHLevelPath 2 is-set _ _)
+                                (λ m → isEqt-lem n (suc n) m ∙∙ (λ i → [ +-comm m (suc n) i ]) ∙∙ LUnit _)
+                                (isProp→PathP (λ _ → is-set _ _) _ _)
+                                λ _ → isProp→PathP (λ _ → is-set _ _) _ _))
+
+
+  tsb : (n m : ℕ) → path n ^ (suc m) ≡ ua (isEqt n ^ (suc m))
+  tsb n zero = refl
+  tsb n (suc m) = (λ i → tsb n m i ∙ (λ i → fst (path n i))) ∙ sym (uaCompEquiv _ _)
+
+  path-lem : (n : ℕ) → path n ^ (suc n) ≡ refl
+  path-lem n = tsb n n ∙∙ (λ i → ua (isEqt-lem2 n i)) ∙∙ uaIdEquiv
+
+  eqProp : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} → ((x : A) → isProp (B x)) → {x y : Σ A B} {p q : x ≡ y} → cong fst p ≡ cong fst q → p ≡ q 
+  fst (eqProp isProp {x = x} {y = y} {p = p} {q = q} fstp i j) = fstp i j
+  snd (eqProp {B = B} isProp {x = x} {y = y} {p = p} {q = q} fstp i j) =
+    hcomp (λ k → λ { (i = i0) → isProp (fst (p j)) (snd (p j)) (snd (p j)) k
+                   ; (i = i1) → isProp (fst (q j)) (transport (λ r → B (fstp r j)) (snd (p j))) (snd (q j)) k
+                   ; (j = i0) → isProp (fst x) (transp (λ r → B (fst x)) (~ i) (snd x)) (snd x) k 
+                   ; (j = i1) → isProp (fst y) (transp (λ r → B (fst y)) (~ i) (snd y)) (snd y) k })
+          (transp (λ r → B (fstp (i ∧ r) j)) (~ i) (snd (p j)) )
+
+  hm : (n : ℕ) → cong (F n) (intLoop (pos (suc n))) ≡ refl
+  hm n = eqProp (λ _ → isPropIsSet) (tsa n n ∙ path-lem n)
+
+CODE : (n : ℕ) → S1-mod (suc n) → Type₀
+CODE n x = fst (helper x)
+  where
+
+
+  helper : S1-mod (suc n) → TypeOfHLevel ℓ-zero 2
+  helper =
+    S1-mod-elim (λ _ → isOfHLevelTypeOfHLevel 2)
+                (F n)
+                λ i j → hm n i j
+
+decode' : (n : ℕ) (x : S1-mod (suc n)) → CODE n x → [ base ] ≡ x
+decode' n = S1-mod-elim (λ _ → isGroupoidΠ λ _ → isOfHLevelPath 3 isGr _ _) tehe (toPathP (isOfHLevelPath' 1 (isSetΠ (λ _ → isGr _ _)) _ _ _ _))
+  where
+
+  intLem : (a b : ℕ) → (pos a) +Z (pos b) ≡ pos (a + b)
+  intLem a zero = cong pos (sym (+-comm a 0))
+  intLem a (suc b) = cong sucInt (intLem a b) ∙ cong pos (cong suc (+-comm a b) ∙ sym (+-comm a (suc b)))
+
+  F' : CODE n [ base ] → [ base ] ≡ [ base ]
+  F' = elimfinInt (λ _ → isGr _ _) (λ m i → [ intLoop (pos m) i ])
+                 coher
+                 λ x → (λ j i → [ intLoop (intLem (suc n) x (~ j)) i ])
+                    ∙∙ (λ j i → [ intLoop-hom (pos (suc n)) (pos x) (~ j) i ])
+                    ∙∙ congFunct [_] (intLoop (pos (suc n))) (intLoop (pos x))
+                    ∙∙ (λ i → coher i ∙ λ j → [ intLoop (pos x) j ])
+                    ∙∙ sym (lUnit _)
+
+  tehe : _
+  tehe base = F'
+  tehe (loop i) = toPathP (funExt help) i
+    where
+    help : (x : _) → transport (λ i → CODE n [ loop i ] → Path (S1-mod (suc n)) [ base ] [ loop i ]) F' x ≡ F' x
+    help =
+      elimfinInt (λ _ → isOfHLevelPath 2 (isGr _ _) _ _)
+                 (λ m → (λ i → transport (λ i → Path (S1-mod (suc n)) [ base ] [ loop i ]) (F' (transportRefl [ m + n ] i)))
+                       ∙∙ (λ j → transp (λ i → Path (S1-mod (suc n)) [ base ] [ loop (i ∨ j) ]) j (compPath-filler (λ j → [ intLoop (pos (m + n)) j ]) (λ z → [ loop (z ∧ j) ]) j))
+                       ∙∙ (λ i → (λ j → [ intLoop (intLem m n (~ i)) j ]) ∙ (λ j → [ loop j ])) -- sym (congFunct [_] (intLoop (pos (m + n))) loop)
+                       ∙∙ (λ i → (λ j → [ intLoop-hom (pos m) (pos n) (~ i) j ]) ∙ (λ j → [ loop j ])) -- (λ i j → [ intLoop (pos (suc (m + n))) j ] )
+                       ∙∙ (λ i → congFunct [_] (intLoop (pos m)) (intLoop (pos n)) i ∙ (λ j → [ loop j ]))
+                       ∙∙ sym (assoc _ _ _)
+                       ∙∙ (λ i → (λ j → [ intLoop (pos m) j ]) ∙ congFunct [_] (intLoop (pos n)) (lUnit loop i) (~ i))
+                       ∙∙ (λ i → (λ j → [ intLoop (pos m) j ]) ∙ λ j → [ intLoop-hom (pos n) 1 i j ])
+                       ∙∙ (λ i → (λ j → [ intLoop (pos m) j ]) ∙ λ j → [ intLoop (intLem n 1 i) j ])
+                       ∙∙ (λ i → (λ j → [ intLoop (pos m) j ]) ∙ λ j → [ intLoop (pos (+-comm n 1 i)) j ])
+                       ∙∙ (λ i → (λ j → [ intLoop (pos m) j ]) ∙ coher i)
+                        ∙ sym (rUnit (λ j → [ intLoop (pos m) j ])))
+                 (toPathP (isOfHLevelPath' 1 (isGr _ _) _ _ _ _))
+                 λ _ → toPathP (isOfHLevelPath' 1 (isGr _ _) _ _ _ _)
+    
+
+encode' : (n : ℕ) (x : S1-mod (suc n)) → [ base ] ≡ x → CODE n x
+encode' n x p = subst (CODE n) p [ 0 ]
+
+encode-decode : (n : ℕ) (x : S1-mod (suc n)) (p : [ base ] ≡ x) → decode' n x (encode' n x p) ≡ p
+encode-decode n x = J (λ x p → decode' n x (encode' n x p) ≡ p) refl
+
+tr-help : (n m : ℕ) → transport (path n ^ m) [ 0 ] ≡ [ m ]
+tr-help n zero = refl
+tr-help n (suc zero) = refl
+tr-help n (suc (suc m)) =
+     substComposite (λ x → x) (path n ^ (suc m)) (path n ^ 1) [ 0 ]
+  ∙∙ cong (subst (λ x → x) (λ i → fst (path n i))) (tr-help n (suc m))
+  ∙∙ λ i → [ suc (+-comm m 1 i) ]
+
+decode-encode : (n : ℕ) (a : CODE n [ base ]) → encode' n [ base ] (decode' n [ base ] a) ≡ a
+decode-encode n =
+  elimfinInt (λ _ → isOfHLevelPath 2 is-set _ _)
+             (λ m → (λ i → transport (tsa' n m i) [ 0 ])
+                   ∙ tr-help n m)
+             (isProp→PathP (λ _ → is-set _ _) _ _)
+             λ _ → isProp→PathP (λ _ → is-set _ _) _ _
+
+finalIso : (n : ℕ) → Iso (Path (S1-mod (suc n)) [ base ] [ base ]) (finInt (suc n))
+Iso.fun (finalIso n) = encode' n [ base ]
+Iso.inv (finalIso n) = decode' n [ base ]
+Iso.rightInv (finalIso n) = decode-encode n
+Iso.leftInv (finalIso n) = encode-decode n [ base ]

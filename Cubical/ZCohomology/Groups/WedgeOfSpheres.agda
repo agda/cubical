@@ -19,6 +19,56 @@ open import Cubical.HITs.Truncation renaming (elim to trElim) hiding (map ; elim
 open import Cubical.Algebra.Group
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim)
 
+{-
+open import Cubical.Data.Nat
+open import Cubical.Foundations.Equiv
+open import Cubical.Data.Empty
+open import Cubical.Foundations.HLevels
+open import Cubical.Homotopy.WedgeConnectivity
+open import Cubical.Foundations.Isomorphism
+n≥ : (n m : ℕ) → isOfHLevel ((2 + n) + (2 + n)) (S₊ (2 + n)) → ⊥
+n≥ n zero hlev = {!!}
+n≥ n (suc m) hlev = {!!}
+  where
+  +-mega = wedgeConSn (suc n) (suc n) (λ _ _ → hlev) (λ x → x) (λ x → x) refl
+
+  _+*_ : S₊ (2 + n) → S₊ (2 + n) → S₊ (2 + n)
+  _+*_ = +-mega .fst
+
+  isEq : (x : S₊ (2 + n)) → isEquiv (x +*_)
+  isEq = sphereElim _ (λ _ → isProp→isOfHLevelSuc _ (isPropIsEquiv _)) (idIsEquiv _)
+
+  -*_ : S₊ (2 + n) → S₊ (2 + n)
+  -* x = invEq (_ , (isEq x)) north
+
+  _-*_ : S₊ (2 + n) → S₊ (2 + n) → S₊ (2 + n)
+  _-*_ x y = x +* (-* y)
+  
+  LUNIT : (x : S₊ (2 + n)) → north +* x ≡ x
+  LUNIT x = refl
+
+  RUNIT : (x : S₊ (2 + n)) → x +* north ≡ x
+  RUNIT x = +-mega .snd .snd x
+
+  COMM : (x y : S₊ (2 + n)) → (x +* y) ≡ (y +* x)
+  COMM = wedgeConSn _ _ (λ _ _ → isOfHLevelPath ((2 + n) + (2 + n)) hlev _ _)
+                        (λ _ → sym (RUNIT _))
+                        (λ _ → RUNIT _)
+                        refl .fst
+  
+  RCANCEL : (x : S₊ (2 + n)) → (x -* x) ≡ north
+  RCANCEL x = retEq (_ , isEq x) north
+
+  LCANCEL : (x : S₊ (2 + n)) → ((-* x) +* x) ≡ north
+  LCANCEL x = COMM _ _ ∙ RCANCEL _
+  
+  open import Cubical.Foundations.Univalence 
+  CODE : S₊ (3 + n) → Type₀
+  CODE north = S₊ (2 + n)
+  CODE south = S₊ (2 + n)
+  CODE (merid a i) = ua (_ , isEq a) i
+-}
+
 S¹⋁S¹ : Type₀
 S¹⋁S¹ = S₊∙ 1 ⋁ S₊∙ 1
 
@@ -60,7 +110,7 @@ H²-S²⋁S¹⋁S¹ =
     ((Hⁿ-⋁ _ _ 1)  □ dirProdGroupIso (Hⁿ-S¹≅0 0) (Hⁿ-S¹≅0 0) □ rUnitGroupIso)
   □ rUnitGroupIso)
 
-private
+module _ where -- private
   open import Cubical.Data.Int
   open import Cubical.Foundations.Equiv
   open import Cubical.Data.Sigma

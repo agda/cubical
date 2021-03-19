@@ -222,7 +222,7 @@ H²-T²≅ℤ = compGroupIso helper2 (Hⁿ-Sⁿ≅ℤ 0)
                                                          ∙∙ cong (λ x → elimFunT²' 1 Q (a , x) +ₖ ∣ north ∣) loop
                                                          ∙∙ transportRefl refl (~ i)))) ∣₂))
 
-private
+module _ where -- private
   to₂ : coHom 2 (S₊ 1 × S₊ 1) → Int
   to₂ = fun (map H²-T²≅ℤ)
 

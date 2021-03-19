@@ -190,16 +190,48 @@ doubleCompPath-elim' : {ℓ : Level} {A : Type ℓ} {w x y z : A} (p : w ≡ x) 
                        (r : y ≡ z) → (p ∙∙ q ∙∙ r) ≡ p ∙ (q ∙ r)
 doubleCompPath-elim' p q r = (split-leftright' p q r) ∙ (sym (leftright p (q ∙ r)))
 
+
+cong-∙∙-filler : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y w z : A}
+                  (f : A → B) (p : w ≡ x) (q : x ≡ y) (r : y ≡ z)
+               → I → I → I → B
+cong-∙∙-filler f p q r l j i =
+  hfill (λ k → λ { (j = i0) → f (doubleCompPath-filler p q r k i)
+                  ; (i = i0) → f (p (~ k))
+                  ; (i = i1) → f (r k) })
+        (inS (f (q i)))
+        l
+
 cong-∙∙ : ∀ {B : Type ℓ} (f : A → B) (p : w ≡ x) (q : x ≡ y) (r : y ≡ z)
           → cong f (p ∙∙ q ∙∙ r) ≡ (cong f p) ∙∙ (cong f q) ∙∙ (cong f r)
-cong-∙∙ f p q r j i = hcomp (λ k → λ { (j = i0) → f (doubleCompPath-filler p q r k i)
-                                     ; (i = i0) → f (p (~ k))
-                                     ; (i = i1) → f (r k) })
-                            (f (q i))
+cong-∙∙ f p q r j i = cong-∙∙-filler f p q r i1 j i
 
 cong-∙ : ∀ {B : Type ℓ} (f : A → B) (p : x ≡ y) (q : y ≡ z)
          → cong f (p ∙ q) ≡ (cong f p) ∙ (cong f q)
 cong-∙ f p q = cong-∙∙ f refl p q
+
+cong-∙+rCancel : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y : A} (f : A → B) (p : x ≡ y)
+               → cong-∙ f p (sym p) ∙ rCancel (cong f p) ≡ cong (cong f) (rCancel p)
+cong-∙+rCancel {x = x} {y = y} f p k i j =
+  hcomp (λ r → λ { (i = i0) → cong f (p ∙ sym p) j
+                  ; (k = i0) → compPath-filler (cong-∙ f p (sym p)) (rCancel (cong f p)) r i j
+                  ; (i = i1) → helper r j k
+                  ; (j = i0) → f x
+                  ; (j = i1) → f x
+                  ; (k = i1) → cong (cong f) (rCancel p) (i ∧ r) j})
+        (cong-∙ f p (sym p) (~ k ∧ i) j)
+  where
+  helper : Cube (λ i j → (cong-∙ f p (sym p)) (~ j) i) refl
+                (λ _ _ → f x) (λ _ _ → f x)
+                (rCancel (cong f p)) (cong (cong f) (rCancel p))
+  helper i j k =
+    hcomp (λ r → λ { (i = i0) → cong-∙∙-filler f refl p (sym p) r (~ k) j
+                    ; (k = i0) → rCancel-filler (cong f p) r i j
+                    ; (i = i1) → f x
+                    ; (j = i0) → f x
+                    ; (j = i1) → f (p (~ r ∧ ~ i))
+                    ; (k = i1) → f (rCancel-filler p r i j)})
+          (f (p (j ∧ ~ i)))
+
 
 hcomp-unique : ∀ {ℓ} {A : Type ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
                (h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])

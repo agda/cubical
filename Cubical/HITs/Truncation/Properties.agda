@@ -521,3 +521,4 @@ Iso.rightInv (truncOfΣIso (suc n)) =
          λ b → refl)
 Iso.leftInv (truncOfΣIso (suc n)) =
   elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) λ {(a , b) → refl}
+
