@@ -134,9 +134,21 @@ m + negsuc n = m +negsuc n
 - negsuc n = pos (suc n)
 
 _-_ : Int → Int → Int
-m - pos zero    = m
-m - pos (suc n) = m + negsuc n
-m - negsuc n    = m + pos (suc n)
+m - n = m + (- n)
+
+-pos : ∀ n → - (pos n) ≡ neg n
+-pos zero    = refl
+-pos (suc n) = refl
+
+-neg : ∀ n → - (neg n) ≡ pos n
+-neg zero    = refl
+-neg (suc n) = refl
+
+-Involutive : ∀ z → - (- z) ≡ z
+-Involutive (pos n)    = (- (-  pos n)) ≡⟨ cong -_ (-pos n) ⟩
+                             - (neg n)  ≡⟨ -neg n ⟩
+                                pos n   ∎
+-Involutive (negsuc n) = refl
 
 sucInt+pos : ∀ n m → sucInt (m +pos n) ≡ (sucInt m) +pos n
 sucInt+pos zero m = refl
@@ -159,6 +171,10 @@ predInt+pos (suc n) m =     _ ≡⟨ predSuc _ ⟩
   m +pos n                    ≡[ i ]⟨ sucPred m (~ i) + pos n ⟩
   (sucInt (predInt m)) +pos n ≡⟨ sym (sucInt+pos n (predInt m))⟩
   (predInt m) +pos (suc n)    ∎
+
+predInt-pos : ∀ n → predInt(- (pos n)) ≡ negsuc n
+predInt-pos zero = refl
+predInt-pos (suc n) = refl
 
 predInt+ : ∀ m n → predInt (m + n) ≡ (predInt m) + n
 predInt+ m (pos n) = predInt+pos n m
@@ -299,6 +315,116 @@ private
                                        (λ n → n - m)
                                        (minusPlus m)
                                        (plusMinus m))
+
+-Cancel : ∀ z → z - z ≡ pos zero
+-Cancel z = z - z             ≡⟨ cong (_- z) (pos0+ z) ⟩
+           (pos zero + z) - z ≡⟨ plusMinus z (pos zero) ⟩
+            pos zero          ∎
+
+pos+ : ∀ m n → pos (m +ℕ n) ≡ pos m + pos n
+pos+ zero zero = refl
+pos+ zero (suc n)    =
+  pos (zero +ℕ suc n)    ≡⟨ +-comm (pos (suc n)) (pos zero) ⟩
+  pos zero + pos (suc n) ∎
+pos+ (suc m) zero    =
+  pos (suc (m +ℕ zero))  ≡⟨ cong pos (cong suc (+-zero m)) ⟩
+  pos (suc m) + pos zero ∎
+pos+ (suc m) (suc n) =
+  pos (suc m +ℕ suc n)            ≡⟨ cong pos (cong suc (+-suc m n)) ⟩
+  sucInt (pos (suc (m +ℕ n)))     ≡⟨ cong sucInt (cong sucInt (pos+ m n)) ⟩
+  sucInt (sucInt (pos m + pos n)) ≡⟨ sucInt+ (pos m) (sucInt (pos n)) ⟩
+  pos (suc m) + pos (suc n)       ∎
+
+negsuc+ : ∀ m n → negsuc (m +ℕ n) ≡ negsuc m - pos n
+negsuc+ zero zero       = refl
+negsuc+ zero (suc n)    =
+  negsuc (zero +ℕ suc n)    ≡⟨ negsuc0+ (negsuc n) ⟩
+  negsuc zero + negsuc n    ≡⟨ cong (negsuc zero +_) (-pos (suc n)) ⟩
+  negsuc zero - pos (suc n) ∎
+negsuc+ (suc m) zero    =
+  negsuc (suc m +ℕ zero)    ≡⟨ cong negsuc (cong suc (+-zero m)) ⟩
+  negsuc (suc m) - pos zero ∎
+negsuc+ (suc m) (suc n) =
+  negsuc (suc m +ℕ suc n)        ≡⟨ cong negsuc (sym (+-suc m (suc n))) ⟩
+  negsuc (m +ℕ suc (suc n))      ≡⟨ negsuc+ m (suc (suc n)) ⟩
+  negsuc m - pos (suc (suc n))   ≡⟨ sym (+predInt (negsuc m) (negsuc n)) ⟩
+  predInt (negsuc m + negsuc n ) ≡⟨ predInt+ (negsuc m) (negsuc n) ⟩
+  negsuc (suc m) - pos (suc n)   ∎
+
+neg+ : ∀ m n → neg (m +ℕ n) ≡ neg m + neg n
+neg+ zero zero       = refl
+neg+ zero (suc n)    = neg (zero +ℕ suc n)    ≡⟨ +-comm (neg (suc n)) (pos zero) ⟩
+                       neg zero + neg (suc n) ∎
+neg+ (suc m) zero    = neg (suc (m +ℕ zero))  ≡⟨ cong neg (cong suc (+-zero m)) ⟩
+                       neg (suc m) + neg zero ∎
+neg+ (suc m) (suc n) = neg (suc m +ℕ suc n)      ≡⟨ negsuc+ m (suc n) ⟩
+                       neg (suc m) + neg (suc n) ∎
+
+ℕ-AntiComm : ∀ m n → m ℕ- n ≡ - (n ℕ- m)
+ℕ-AntiComm zero zero       = refl
+ℕ-AntiComm zero (suc n)    = refl
+ℕ-AntiComm (suc m) zero    = refl
+ℕ-AntiComm (suc m) (suc n) = suc m ℕ- suc n  ≡⟨ ℕ-AntiComm m n ⟩
+                          - (suc n ℕ- suc m) ∎
+
+pos- : ∀ m n → m ℕ- n ≡ pos m - pos n
+pos- zero zero       = refl
+pos- zero (suc n)    = zero ℕ- suc n          ≡⟨ +-comm (negsuc n) (pos zero) ⟩
+                       pos zero - pos (suc n) ∎
+pos- (suc m) zero    = refl
+pos- (suc m) (suc n) =
+  suc m ℕ- suc n                       ≡⟨ pos- m n ⟩
+  pos m - pos n                        ≡⟨ sym (sucPred (pos m - pos n)) ⟩
+  sucInt (predInt (pos m - pos n))     ≡⟨ cong sucInt (+predInt (pos m) (- pos n)) ⟩
+  sucInt (pos m + predInt (- (pos n))) ≡⟨ cong sucInt (cong (pos m +_) (predInt-pos n)) ⟩
+  sucInt (pos m + negsuc n)            ≡⟨ sucInt+negsuc n (pos m) ⟩
+  pos (suc m) - pos (suc n)            ∎
+
+-AntiComm : ∀ m n → m - n ≡ - (n - m)
+-AntiComm (pos n) (pos m)       = pos n - pos m   ≡⟨ sym (pos- n m) ⟩
+                                   n ℕ- m         ≡⟨ ℕ-AntiComm n m ⟩
+                                - (m ℕ- n)        ≡⟨ cong -_ (pos- m n) ⟩
+                                - (pos m - pos n) ∎
+-AntiComm (pos n) (negsuc m)    =
+     pos n - negsuc m     ≡⟨ +-comm (pos n) (pos (suc m)) ⟩
+     pos (suc m) + pos n  ≡⟨ sym (pos+ (suc m) n) ⟩
+     pos (suc m +ℕ n)     ≡⟨ sym (-neg (suc m +ℕ n)) ⟩
+  -  neg (suc m +ℕ n)     ≡⟨ cong -_ (neg+ (suc m) n) ⟩
+  - (neg (suc m) + neg n) ≡⟨ cong -_ (cong (negsuc m +_) (sym (-pos n))) ⟩
+  - (negsuc m - pos n)    ∎
+-AntiComm (negsuc n) (pos m)    =
+     negsuc n - pos m     ≡⟨ sym (negsuc+ n m) ⟩
+     negsuc (n +ℕ m)      ≡⟨ cong -_ (pos+ (suc n) m) ⟩
+  - (pos (suc n) + pos m) ≡⟨ cong -_ (+-comm (pos (suc n)) (pos m)) ⟩
+  - (pos m - negsuc n)    ∎
+-AntiComm (negsuc n) (negsuc m) =
+     negsuc n - negsuc m        ≡⟨ +-comm (negsuc n) (pos (suc m)) ⟩
+     pos (suc m) + negsuc n     ≡⟨ sym (pos- (suc m) (suc n)) ⟩
+     suc m ℕ- suc n             ≡⟨ ℕ-AntiComm (suc m) (suc n) ⟩
+  - (suc n ℕ- suc m)            ≡⟨ cong -_ (pos- (suc n) (suc m)) ⟩
+  - (pos (suc n) - pos (suc m)) ≡⟨ cong -_ (+-comm (pos (suc n)) (negsuc m)) ⟩
+  - (negsuc m - negsuc n)       ∎
+
+-Dist+ : ∀ m n → - (m + n) ≡ (- m) + (- n)
+-Dist+ (pos n) (pos m)       =
+   - (pos n + pos m)     ≡⟨ cong -_ (sym (pos+ n m)) ⟩
+   -  pos (n +ℕ m)       ≡⟨ -pos (n +ℕ m) ⟩
+      neg (n +ℕ m)       ≡⟨ neg+ n m ⟩
+      neg n + neg m      ≡⟨ cong (neg n +_) (sym (-pos m)) ⟩
+      neg n + (- pos m)  ≡⟨ cong (_+ (- pos m)) (sym (-pos n)) ⟩
+  (-  pos n) + (- pos m) ∎
+-Dist+ (pos n) (negsuc m)    =
+   - (pos n + negsuc m)     ≡⟨ sym (-AntiComm (pos (suc m)) (pos n)) ⟩
+      pos (suc m) - pos n   ≡⟨ +-comm (pos (suc m)) (- pos n) ⟩
+  (-  pos n) + (- negsuc m) ∎
+-Dist+ (negsuc n) (pos m)    =
+   - (negsuc n + pos m)     ≡⟨ cong -_ (+-comm (negsuc n) (pos m)) ⟩
+   - (pos m + negsuc n)     ≡⟨ sym (-AntiComm (- negsuc n) (pos m)) ⟩
+  (-  negsuc n) + (- pos m) ∎
+-Dist+ (negsuc n) (negsuc m) =
+   - (negsuc n + negsuc m)     ≡⟨ cong -_ (sym (neg+ (suc n) (suc m))) ⟩
+   -  neg (suc n +ℕ suc m)     ≡⟨ pos+ (suc n) (suc m) ⟩
+  (-  negsuc n) + (- negsuc m) ∎
 
 _·_ : Int → Int → Int
 pos zero · m = pos zero
