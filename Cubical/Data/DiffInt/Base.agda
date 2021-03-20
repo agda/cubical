@@ -4,11 +4,11 @@ module Cubical.Data.DiffInt.Base where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.HITs.SetQuotients
-open import Cubical.HITs.SetQuotients.Properties
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat hiding (+-comm ; +-assoc) renaming (_+_ to _+ℕ_)
+open import Cubical.Data.Int
 
 rel : (ℕ × ℕ) → (ℕ × ℕ) → Type₀
 rel (a₀ , b₀) (a₁ , b₁) = x ≡ y
@@ -20,8 +20,6 @@ rel (a₀ , b₀) (a₁ , b₁) = x ≡ y
 
 
 -- Proof of equivalence between Int and DiffInt
-
-open import Cubical.Data.Int
 
 private
   -- Prove all the identities for ℕ×ℕ first and use that to build to ℤ
