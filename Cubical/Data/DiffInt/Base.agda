@@ -59,7 +59,7 @@ Int→ℤ n = [ Int→ℕ×ℕ n ]
 ℤ→Int(eq/ a b r i) = lemℤeq a b r i
   where lemℤeq : (a b : (ℕ × ℕ)) → rel a b → ℕ×ℕ→Int(a) ≡ ℕ×ℕ→Int(b)
         lemℤeq (a₀ , a₁) (b₀ , b₁) r = a₀ ℕ- a₁          ≡⟨ pos- a₀ a₁ ⟩
-                pos a₀ - pos a₁                          ≡[ i ]⟨ ((pos a₀ - pos a₁) + +inv (pos b₁) (~ i)) ⟩
+                pos a₀ - pos a₁                          ≡[ i ]⟨ ((pos a₀ - pos a₁) + -Cancel (pos b₁) (~ i)) ⟩
                (pos a₀ - pos a₁) + (pos b₁ - pos b₁)     ≡⟨ +-assoc (pos a₀ + (- pos a₁)) (pos b₁) (- pos b₁) ⟩
               ((pos a₀ - pos a₁) + pos b₁) - pos b₁      ≡[ i ]⟨ +-assoc (pos a₀) (- pos a₁) (pos b₁) (~ i) + (- pos b₁) ⟩
                (pos a₀ + ((- pos a₁) + pos b₁)) - pos b₁ ≡[ i ]⟨ (pos a₀ + +-comm (- pos a₁) (pos b₁) i) - pos b₁ ⟩
@@ -68,7 +68,7 @@ Int→ℤ n = [ Int→ℕ×ℕ n ]
                (pos (a₀ +ℕ b₁) - pos a₁) - pos b₁        ≡[ i ]⟨ (pos (r i) - pos a₁) - pos b₁ ⟩
                (pos (b₀ +ℕ a₁) - pos a₁) - pos b₁        ≡[ i ]⟨ (pos+ b₀ a₁ i - pos a₁) - pos b₁ ⟩
               ((pos b₀ + pos a₁) - pos a₁) - pos b₁      ≡[ i ]⟨ +-assoc (pos b₀) (pos a₁) (- pos a₁) (~ i) + (- pos b₁) ⟩
-               (pos b₀ + (pos a₁ - pos a₁)) - pos b₁     ≡[ i ]⟨ (pos b₀ + (+inv (pos a₁) i)) - pos b₁ ⟩
+               (pos b₀ + (pos a₁ - pos a₁)) - pos b₁     ≡[ i ]⟨ (pos b₀ + (-Cancel (pos a₁) i)) - pos b₁ ⟩
                 pos b₀ - pos b₁                          ≡[ i ]⟨ pos- b₀ b₁ (~ i) ⟩
                 b₀ ℕ- b₁                                 ∎
 ℤ→Int(squash/ x x₀ p q i j) = isSetInt (ℤ→Int x) (ℤ→Int x₀) (cong ℤ→Int p) (cong ℤ→Int q) i j
