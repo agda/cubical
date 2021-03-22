@@ -124,7 +124,7 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
 
   -- Definition of the left Kan extension functor
 
-  Lan : Functor (FUNCTOR (C ^op) (SET ℓ)) (FUNCTOR (D ^op) (SET (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓS)))
+  Lan : Functor (FUNCTOR (C ^op) (SET ℓ)) (FUNCTOR (D ^op) (SET ℓ))
   Lan .F-ob = LanOb
   Lan .F-hom = LanHom
   Lan .F-id {G} = makeNatTransPath (funExt (mapLId G))

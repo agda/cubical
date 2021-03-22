@@ -41,7 +41,7 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
   postcomposeF .F-hom α .N-ob c = G. F-hom (α .N-ob c)
   postcomposeF .F-hom {F₀} {F₁} α .N-hom {x} {y} f =
     sym (G .F-seq (F₀ ⟪ f ⟫) (α ⟦ y ⟧))
-    ∙ cong (G ⟪_⟫) (α .N-hom f)
-    ∙ G .F-seq (α ⟦ x ⟧) (F₁ ⟪ f ⟫)
+    ∙∙ cong (G ⟪_⟫) (α .N-hom f)
+    ∙∙ G .F-seq (α ⟦ x ⟧) (F₁ ⟪ f ⟫)
   postcomposeF .F-id = makeNatTransPath (funExt λ _ → G .F-id)
   postcomposeF .F-seq f g = makeNatTransPath (funExt λ _ → G .F-seq _ _)
