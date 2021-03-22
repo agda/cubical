@@ -82,3 +82,8 @@ funcComp : ∀ (G : Functor D E) (F : Functor C D) → Functor C E
 infixr 30 funcComp
 syntax funcComp G F = G ∘F F
 
+_^opF : Functor C D → Functor (C ^op) (D ^op)
+(F ^opF) .F-ob = F .F-ob
+(F ^opF) .F-hom = F .F-hom
+(F ^opF) .F-id = F .F-id
+(F ^opF) .F-seq f g = F .F-seq g f
