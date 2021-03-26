@@ -9,8 +9,10 @@ open import Cubical.Data.Vec
 open import Cubical.Data.Bool using (Bool; true; false; if_then_else_; _and_)
 
 open import Cubical.Algebra.RingSolver.RawRing
+open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.RingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ₐ)
 open import Cubical.Algebra.RingSolver.AlmostRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
+open import Cubical.Algebra.RingSolver.AlgebraExpression public
 
 private
   variable
@@ -48,7 +50,7 @@ module _ (A : RawAlgebra ℤAsRawRing ℓ′) where
   isZero (const (pos (ℕ.suc _))) = false
   isZero (const (negsuc _)) = false
   isZero 0H = true
-  isZero (P ·X+ P₁) = false
+  isZero (P ·X+ Q) = (isZero P) and (isZero Q)
 
 eval : {A : RawAlgebra ℤAsRawRing ℓ′}
        (n : ℕ) (P : IteratedHornerForms A n)
