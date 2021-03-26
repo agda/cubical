@@ -559,7 +559,6 @@ isOfHLevel→isOfHLevelDep (suc (suc n)) {A = A} {B} h {a0} {a1} b0 b1 =
   helper a1 p b1 = J (λ a1 p → ∀ b1 → isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1))
                      (λ _ → h _ _ _) p b1
 
-
 isContrDep→isPropDep : isOfHLevelDep 0 B → isOfHLevelDep 1 B
 isContrDep→isPropDep {B = B} Bctr {a0 = a0} b0 b1 p i
   = comp (λ k → B (p (i ∧ k))) (λ k → λ where
@@ -613,4 +612,3 @@ isOfHLevelΣ' {A = A} {B = B} (suc (suc n)) Alvl Blvl (w , y) (x , z)
       ΣPathP
       (λ x → refl)
       (isOfHLevelΣ' (suc n) (Alvl w x) (Blvl y z))
-
