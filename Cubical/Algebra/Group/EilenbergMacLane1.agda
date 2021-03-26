@@ -9,18 +9,12 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.SIP
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
-open import Cubical.Relation.Binary.Base
-open import Cubical.Structures.Axioms
-open import Cubical.Structures.Auto
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Homotopy.Connected
-open import Cubical.HITs.Nullification as Null hiding (rec; elim)
 open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec; elim to trElim)
 open import Cubical.HITs.EilenbergMacLane1
 
@@ -29,8 +23,7 @@ private
 
 module _ (Ĝ : Group {ℓ}) where
   G = fst Ĝ
-  Gstr = snd Ĝ
-  open GroupStr Gstr
+  open GroupStr (snd Ĝ)
 
   emloop-id : emloop 0g ≡ refl
   emloop-id =
