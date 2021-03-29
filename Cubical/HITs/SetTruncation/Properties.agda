@@ -11,6 +11,7 @@ module Cubical.HITs.SetTruncation.Properties where
 open import Cubical.HITs.SetTruncation.Base
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
@@ -144,10 +145,10 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
  -- ∥ A ∥₂ → H → B
  -- we first define the rhs function
  f₁ : H → B
- f₁ = Hrec.fun Bgpd f εf λ _ _ _ → refl
+ f₁ = Hrec.fun Bgpd f εᶠ λ _ _ _ → refl
   where
-  εf : (a b : A) → ∥ a ≡ b ∥ → f a ≡ f b
-  εf a b = rec→Set (Bgpd _ _) (cong f) λ p q → congFConst a b p q
+  εᶠ : (a b : A) → ∥ a ≡ b ∥ → f a ≡ f b
+  εᶠ a b = rec→Set (Bgpd _ _) (cong f) λ p q → congFConst a b p q
   -- this is the inductive step,
   -- we use that maps ∥ A ∥ → B for an hset B
   -- correspond to 2-Constant maps A → B
@@ -155,14 +156,19 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
  -- Now we need to prove that H is a set.
  -- From that we immediately get the desired result...
  -- upstream lemma?:
- localHedbergLemma : {C : Type ℓ''} (P : C → Type ℓ'')
+ localHedbergLemma : {X : Type ℓ''} (P : X → Type ℓ'')
                    → (∀ x → isProp (P x))
-                   → ((x y : C) → P x → P y → x ≡ y)
+                   → ((x y : X) → P x → P y → x ≡ y)
                   --------------------------------------------------
-                   → (x : C) → P x → (y : C) → isProp (x ≡ y)
- localHedbergLemma {C = C} P Pprop P→≡ x px y = isPropRetract (λ p → subst P p px)
-                                                              ((P→≡ x x px px ∙_) ∘ (P→≡ x y px))
-                   (λ p → {!!}) (Pprop y) -- implies P→≡ x x px px ≡ refl
+                   → (x : X) → P x → (y : X) → isProp (x ≡ y)
+ localHedbergLemma {X = X} P Pprop P→≡ x px y = isPropRetract
+                   (λ p → subst P p px) (λ py → sym (P→≡ x x px px) ∙ P→≡ x y px py)
+                   isRetract (Pprop y)
+  where
+  isRetract : (p : x ≡ y) → (sym (P→≡ x x px px)) ∙ P→≡ x y px (subst P p px) ≡ p
+  isRetract p = J (λ y' p' → (sym (P→≡ x x px px)) ∙ P→≡ x y' px (subst P p' px) ≡ p')
+                  (subst (λ px' → sym (P→≡ x x px px) ∙ P→≡ x x px px' ≡ refl)
+                  (sym (substRefl {B = P} px)) (lCancel (P→≡ x x px px))) p
 
  Hset : isSet H
  Hset = HelimProp.fun (λ _ → isPropΠ λ _ → isPropIsProp) baseCaseLeft
