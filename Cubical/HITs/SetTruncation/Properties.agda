@@ -22,7 +22,7 @@ open import Cubical.HITs.PropositionalTruncation
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
     A B C D : Type ℓ
 
 rec : isSet B → (A → B) → ∥ A ∥₂ → B
@@ -87,7 +87,7 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
   gtrunc : isGroupoid H
 
  -- write elimination principle for H
- module Helim {P : H → Type ℓ'} (Pgpd : ∀ h → isGroupoid (P h))
+ module Helim {P : H → Type ℓ''} (Pgpd : ∀ h → isGroupoid (P h))
               (η* : (a : A) → P (η a))
               (ε* : ∀ (a b : A) (∣p∣ : ∥ a ≡ b ∥)
                   → PathP (λ i → P (ε a b ∣p∣ i)) (η* a) (η* b))
@@ -105,7 +105,7 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
                                    (cong (cong fun) α) (cong (cong fun) β)
                                    (gtrunc x y p q α β) i j k
 
- module Hrec {C : Type ℓ'} (Cgpd : isGroupoid C)
+ module Hrec {C : Type ℓ''} (Cgpd : isGroupoid C)
              (η* : A → C)
              (ε* : ∀ (a b : A) → ∥ a ≡ b ∥ → η* a ≡ η* b)
              (δ* : ∀ (a b : A) (p : a ≡ b) → ε* a b ∣ p ∣ ≡ cong η* p) where
@@ -113,7 +113,7 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
   fun : H → C
   fun = Helim.fun (λ _ → Cgpd) η* ε* δ*
 
- module HelimProp {P : H → Type ℓ'} (Pprop : ∀ h → isProp (P h))
+ module HelimProp {P : H → Type ℓ''} (Pprop : ∀ h → isProp (P h))
                   (η* : ∀ a → P (η a)) where
 
   fun : ∀ h → P h
@@ -125,7 +125,7 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
 
  -- The main trick: eliminating into hsets is easy
  -- i.e. H has the universal property of set truncation...
- module HelimSet {P : H → Type ℓ'} (Pset : ∀ h → isSet (P h))
+ module HelimSet {P : H → Type ℓ''} (Pset : ∀ h → isSet (P h))
                  (η* : ∀ a → P (η a)) where
 
   fun : (h : H) → P h
@@ -154,8 +154,30 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
 
  -- Now we need to prove that H is a set.
  -- From that we immediately get the desired result...
+ -- upstream lemma?:
+ localHedbergLemma : {C : Type ℓ''} (P : C → Type ℓ'')
+                   → (∀ x → isProp (P x))
+                   → ((x y : C) → P x → P y → x ≡ y)
+                  --------------------------------------------------
+                   → (x : C) → P x → (y : C) → isProp (x ≡ y)
+ localHedbergLemma {C = C} P Pprop P→≡ x px y = isPropRetract (λ p → subst P p px)
+                                                              ((P→≡ x x px px ∙_) ∘ (P→≡ x y px))
+                   (λ p → {!!}) (Pprop y) -- implies P→≡ x x px px ≡ refl
+
  Hset : isSet H
- Hset = {!!}
+ Hset = HelimProp.fun (λ _ → isPropΠ λ _ → isPropIsProp) baseCaseLeft
+  where
+  baseCaseLeft : (a₀ : A) (y : H) → isProp (η a₀ ≡ y)
+  baseCaseLeft a₀ = localHedbergLemma (λ x → Q x .fst) (λ x → Q x .snd) Q→≡ _ ∣ refl ∣
+   where
+   Q : H → hProp ℓ
+   Q = HelimSet.fun (λ _ → isSetHProp) λ b → ∥ a₀ ≡ b ∥ , propTruncIsProp
+   -- Q (η b) = ∥ a ≡ b ∥
+
+   Q→≡ : (x y : H) → Q x .fst → Q y .fst → x ≡ y
+   Q→≡ =     HelimSet.fun (λ _ → isSetΠ3 λ _ _ _ → gtrunc _ _)
+       λ a → HelimSet.fun (λ _ → isSetΠ2 λ _ _ → gtrunc _ _)
+       λ b p q → sym (ε a₀ a p) ∙ ε a₀ b q
 
  f₂ : ∥ A ∥₂ → H
  f₂ = rec Hset η
