@@ -75,6 +75,94 @@ elim3 Bset g = elim2 (λ _ _ → isSetΠ (λ _ → Bset _ _ _))
                      (λ a b → elim (λ _ → Bset _ _ _) (g a b))
 
 
+-- the recursor for maps into groupoids following the "HIT proof" in:
+-- https://arxiv.org/abs/1507.01150
+module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A → B)
+               (congFConst : ∀ (a b : A) (p q : a ≡ b) → cong f p ≡ cong f q) where
+
+ data H : Type ℓ where
+  η : A → H
+  ε : ∀ (a b : A) → ∥ a ≡ b ∥ → η a ≡ η b -- prop. trunc. of a≡b
+  δ : ∀ (a b : A) (p : a ≡ b) → ε a b ∣ p ∣ ≡ cong η p
+  gtrunc : isGroupoid H
+
+ -- write elimination principle for H
+ module Helim {P : H → Type ℓ'} (Pgpd : ∀ h → isGroupoid (P h))
+              (η* : (a : A) → P (η a))
+              (ε* : ∀ (a b : A) (∣p∣ : ∥ a ≡ b ∥)
+                  → PathP (λ i → P (ε a b ∣p∣ i)) (η* a) (η* b))
+              (δ* : ∀ (a b : A) (p : a ≡ b)
+                  → PathP (λ i → PathP (λ j → P (δ a b p i j)) (η* a) (η* b))
+                          (ε* a b ∣ p ∣) (cong η* p)) where
+
+  fun : (h : H) → P h
+  fun (η a) = η* a
+  fun (ε a b ∣p∣ i) = ε* a b ∣p∣ i
+  fun (δ a b p i j) = δ* a b p i j
+  fun (gtrunc x y p q α β i j k) = isOfHLevel→isOfHLevelDep 3 Pgpd
+                                   (fun x) (fun y)
+                                   (cong fun p) (cong fun q)
+                                   (cong (cong fun) α) (cong (cong fun) β)
+                                   (gtrunc x y p q α β) i j k
+
+ module Hrec {C : Type ℓ'} (Cgpd : isGroupoid C)
+             (η* : A → C)
+             (ε* : ∀ (a b : A) → ∥ a ≡ b ∥ → η* a ≡ η* b)
+             (δ* : ∀ (a b : A) (p : a ≡ b) → ε* a b ∣ p ∣ ≡ cong η* p) where
+
+  fun : H → C
+  fun = Helim.fun (λ _ → Cgpd) η* ε* δ*
+
+ module HelimProp {P : H → Type ℓ'} (Pprop : ∀ h → isProp (P h))
+                  (η* : ∀ a → P (η a)) where
+
+  fun : ∀ h → P h
+  fun = Helim.fun (λ _ → isSet→isGroupoid (isProp→isSet (Pprop _))) η*
+                  (λ a b ∣p∣ → isOfHLevel→isOfHLevelDep 1 Pprop _ _ (ε a b ∣p∣))
+                   λ a b p → isOfHLevel→isOfHLevelDep 1
+                              {B = λ p → PathP (λ i → P (p i)) (η* a) (η* b)}
+                              (λ _ → isOfHLevelPathP 1 (Pprop _) _ _) _ _ (δ a b p)
+
+ -- The main trick: eliminating into hsets is easy
+ -- i.e. H has the universal property of set truncation...
+ module HelimSet {P : H → Type ℓ'} (Pset : ∀ h → isSet (P h))
+                 (η* : ∀ a → P (η a)) where
+
+  fun : (h : H) → P h
+  fun = Helim.fun (λ _ → isSet→isGroupoid (Pset _)) η* ε*
+                   λ a b p → isOfHLevel→isOfHLevelDep 1
+                             {B = λ p → PathP (λ i → P (p i)) (η* a) (η* b)}
+                             (λ _ → isOfHLevelPathP' 1 (Pset _) _ _) _ _ (δ a b p)
+   where
+   ε* : (a b : A) (∣p∣ : ∥ a ≡ b ∥) → PathP (λ i → P (ε a b ∣p∣ i)) (η* a) (η* b)
+   ε* a b = pElim (λ _ → isOfHLevelPathP' 1 (Pset _) (η* a) (η* b))
+                   λ p → subst (λ x → PathP (λ i → P (x i)) (η* a) (η* b))
+                               (sym (δ a b p)) (cong η* p)
+
+
+ -- our desired function will split through H:
+ -- ∥ A ∥₂ → H → B
+ -- we first define the rhs function
+ f₁ : H → B
+ f₁ = Hrec.fun Bgpd f εf λ _ _ _ → refl
+  where
+  εf : (a b : A) → ∥ a ≡ b ∥ → f a ≡ f b
+  εf a b = rec→Set (Bgpd _ _) (cong f) λ p q → congFConst a b p q
+  -- this is the inductive step,
+  -- we use that maps ∥ A ∥ → B for an hset B
+  -- correspond to 2-Constant maps A → B
+
+ -- Now we need to prove that H is a set.
+ -- From that we immediately get the desired result...
+ Hset : isSet H
+ Hset = {!!}
+
+ f₂ : ∥ A ∥₂ → H
+ f₂ = rec Hset η
+
+ fun : ∥ A ∥₂ → B
+ fun = f₁ ∘ f₂
+
 map : (A → B) → ∥ A ∥₂ → ∥ B ∥₂
 map f = rec squash₂ λ x → ∣ f x ∣₂
 
