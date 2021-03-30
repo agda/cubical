@@ -78,6 +78,10 @@ elim3 Bset g = elim2 (λ _ _ → isSetΠ (λ _ → Bset _ _ _))
 
 -- the recursor for maps into groupoids following the "HIT proof" in:
 -- https://arxiv.org/abs/1507.01150
+-- i.e. for any type A and groupoid B we can construct a map ∥ A ∥₂ → B
+-- from a map A → B satisfying the condition
+--    ∀ (a b : A) (p q : a ≡ b) → cong f p ≡ cong f q
+-- TODO: prove that this is an equivalence
 module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A → B)
                (congFConst : ∀ (a b : A) (p q : a ≡ b) → cong f p ≡ cong f q) where
 
@@ -112,10 +116,14 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
              (δ* : ∀ (a b : A) (p : a ≡ b) → ε* a b ∣ p ∣ ≡ cong η* p) where
 
   fun : H → C
-  fun = Helim.fun (λ _ → Cgpd) η* ε* δ*
+  fun (η a) = η* a
+  fun (ε a b ∣p∣ i) = ε* a b ∣p∣ i
+  fun (δ a b p i j) = δ* a b p i j
+  fun (gtrunc x y p q α β i j k) = Cgpd (fun x) (fun y) (cong fun p) (cong fun q)
+                                   (cong (cong fun) α) (cong (cong fun) β) i j k
 
  module HelimProp {P : H → Type ℓ''} (Pprop : ∀ h → isProp (P h))
-                  (η* : ∀ a → P (η a)) where
+                  (η* : (a : A) → P (η a)) where
 
   fun : ∀ h → P h
   fun = Helim.fun (λ _ → isSet→isGroupoid (isProp→isSet (Pprop _))) η*
@@ -141,34 +149,21 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
                                (sym (δ a b p)) (cong η* p)
 
 
- -- our desired function will split through H:
- -- ∥ A ∥₂ → H → B
- -- we first define the rhs function
- f₁ : H → B
- f₁ = Hrec.fun Bgpd f εᶠ λ _ _ _ → refl
-  where
-  εᶠ : (a b : A) → ∥ a ≡ b ∥ → f a ≡ f b
-  εᶠ a b = rec→Set (Bgpd _ _) (cong f) λ p q → congFConst a b p q
-  -- this is the inductive step,
-  -- we use that maps ∥ A ∥ → B for an hset B
-  -- correspond to 2-Constant maps A → B
-
  -- Now we need to prove that H is a set.
- -- From that we immediately get the desired result...
- -- upstream lemma?:
+ -- We start with a  little lemma:
  localHedbergLemma : {X : Type ℓ''} (P : X → Type ℓ'')
                    → (∀ x → isProp (P x))
-                   → ((x y : X) → P x → P y → x ≡ y)
+                   → ((x : X) → P x → (y : X) → P y → x ≡ y)
                   --------------------------------------------------
                    → (x : X) → P x → (y : X) → isProp (x ≡ y)
  localHedbergLemma {X = X} P Pprop P→≡ x px y = isPropRetract
-                   (λ p → subst P p px) (λ py → sym (P→≡ x x px px) ∙ P→≡ x y px py)
+                   (λ p → subst P p px) (λ py → sym (P→≡ x px x px) ∙ P→≡ x px y py)
                    isRetract (Pprop y)
   where
-  isRetract : (p : x ≡ y) → (sym (P→≡ x x px px)) ∙ P→≡ x y px (subst P p px) ≡ p
-  isRetract p = J (λ y' p' → (sym (P→≡ x x px px)) ∙ P→≡ x y' px (subst P p' px) ≡ p')
-                  (subst (λ px' → sym (P→≡ x x px px) ∙ P→≡ x x px px' ≡ refl)
-                  (sym (substRefl {B = P} px)) (lCancel (P→≡ x x px px))) p
+  isRetract : (p : x ≡ y) → (sym (P→≡ x px x px)) ∙ P→≡ x px y (subst P p px) ≡ p
+  isRetract = J (λ y' p' → (sym (P→≡ x px x px)) ∙ P→≡ x px y' (subst P p' px) ≡ p')
+                (subst (λ px' → sym (P→≡ x px x px) ∙ P→≡ x px x px' ≡ refl)
+                (sym (substRefl {B = P} px)) (lCancel (P→≡ x px x px)))
 
  Hset : isSet H
  Hset = HelimProp.fun (λ _ → isPropΠ λ _ → isPropIsProp) baseCaseLeft
@@ -180,16 +175,27 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
    Q = HelimSet.fun (λ _ → isSetHProp) λ b → ∥ a₀ ≡ b ∥ , propTruncIsProp
    -- Q (η b) = ∥ a ≡ b ∥
 
-   Q→≡ : (x y : H) → Q x .fst → Q y .fst → x ≡ y
-   Q→≡ =     HelimSet.fun (λ _ → isSetΠ3 λ _ _ _ → gtrunc _ _)
-       λ a → HelimSet.fun (λ _ → isSetΠ2 λ _ _ → gtrunc _ _)
-       λ b p q → sym (ε a₀ a p) ∙ ε a₀ b q
+   Q→≡ : (x : H) → Q x .fst → (y : H) → Q y .fst → x ≡ y
+   Q→≡ = HelimSet.fun (λ _ → isSetΠ3 λ _ _ _ → gtrunc _ _)
+       λ a p → HelimSet.fun (λ _ → isSetΠ λ _ → gtrunc _ _)
+       λ b q → sym (ε a₀ a p) ∙ ε a₀ b q
 
- f₂ : ∥ A ∥₂ → H
- f₂ = rec Hset η
-
+ -- our desired function will split through H,
+ -- i.e. we get a function ∥ A ∥₂ → H → B
  fun : ∥ A ∥₂ → B
  fun = f₁ ∘ f₂
+  where
+  f₁ : H → B
+  f₁ = Hrec.fun Bgpd f εᶠ λ _ _ _ → refl
+   where
+   εᶠ : (a b : A) → ∥ a ≡ b ∥ → f a ≡ f b
+   εᶠ a b = rec→Set (Bgpd _ _) (cong f) λ p q → congFConst a b p q
+   -- this is the inductive step,
+   -- we use that maps ∥ A ∥ → B for an hset B
+   -- correspond to 2-Constant maps A → B (which cong f is by assumption)
+  f₂ : ∥ A ∥₂ → H
+  f₂ = rec Hset η
+
 
 map : (A → B) → ∥ A ∥₂ → ∥ B ∥₂
 map f = rec squash₂ λ x → ∣ f x ∣₂
