@@ -35,7 +35,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Empty
-open import Cubical.Data.Nat hiding (+-assoc ; ·-comm) renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; +-comm to +ℕ-comm)
+open import Cubical.Data.Nat hiding (+-assoc ; ·-comm) renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; +-comm to +ℕ-comm ; ·-assoc to ·ℕ-assoc)
 open import Cubical.Data.Bool
 open import Cubical.Data.Sum
 open import Cubical.Data.Int.Base
@@ -417,3 +417,36 @@ pos+pos (suc n) (suc m) = cong sucInt (pos+pos (suc n) m)
 ·-comm (negsuc n) (negsuc m) =
   -·- n m ∙∙ ·-comm (pos (suc n)) (pos (suc m)) ∙∙ sym (-·- m n)
 
+distrHelper : (x1 x2 y1 y2 : Int) → ((x1 + y1) + (x2 + y2)) ≡ ((x1 + x2) + (y1 + y2))
+distrHelper x1 x2 y1 y2 = (λ i → (+-assoc x1 y1 (+-comm x2 y2 i) (~ i)))
+                       ∙∙ cong (x1 +_) (+-assoc y1 y2 x2 ∙ +-comm (y1 + y2) x2)
+                       ∙∙ +-assoc x1 x2 (y1 + y2)
+{-
+-· : (x y : Int) → {!- (x · y) ≡ - x · y!}
+-· = {!!}
+
+·distrˡ : (x y z : Int) → (x · (y + z)) ≡ ((x · y) + (x · z))
+·distrˡ (pos zero) y z = refl
+·distrˡ (pos (suc n)) y z =
+     cong ((y + z) +_) (·distrˡ (pos n) y z)
+   ∙ distrHelper y (pos n · y) z (pos n · z)
+·distrˡ (negsuc zero) y z = sym (-distr y z)
+·distrˡ (negsuc (suc n)) y z = cong₂ _+_ (sym (-distr y z)) (·distrˡ (negsuc n) y z)
+                            ∙ distrHelper (- y) (negsuc n · y) (- z) (negsuc n · z)
+
+·distrʳ : (x y z : Int) → ((y + z) · x) ≡ ((x · y) + (x · z))
+·distrʳ x y z = ·-comm (y + z) x ∙ ·distrˡ x y z
+
+·-assoc : (x y z : Int) → x · (y · z) ≡ ((x · y) · z)
+·-assoc (pos zero) y z = refl
+·-assoc (pos (suc n)) y z =
+     cong ((y · z) +_) (cong (pos n ·_) (·-comm y z)
+                   ∙∙ ·-assoc (pos n) z y
+                   ∙∙ (cong (_· y) (·-comm (pos n) z)))
+  ∙∙ sym (cong₂ _+_ (·-comm z y) (·-assoc z (pos n) y))
+  ∙∙ sym (·distrʳ z y (pos n · y))
+·-assoc (negsuc zero) (pos n₁) (pos n) = {!-!}
+·-assoc (negsuc zero) (negsuc n₁) (pos n) = {!!}
+·-assoc (negsuc zero) y (negsuc n) = {!!}
+·-assoc (negsuc (suc n)) y z = {!!}
+-}
