@@ -334,31 +334,202 @@ S1-mod-elim {A = A} gr f p (isGr x y a b c d i j k) = helper i j k
 
 
 -- finInt n = ℤ/(n-1)
+open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 data finInt (n : ℕ) : Type₀ where
   [_] : ℕ → finInt n
-  coher : [ n ] ≡ [ 0 ]
   LUnit : (m : ℕ) → [ n + m ] ≡ [ m ]
   is-set : isSet (finInt n)
+
+
+
+
+
+ℤ/_ : (n : ℕ) → Type₀
+ℤ/ zero = ⊥
+ℤ/ suc n = finInt n
+
+open import Cubical.Data.Fin
+
+finInt-rec : ∀ {ℓ} {n : ℕ} {A : Type ℓ}
+           → isSet A
+           → (f : ℕ → A)
+           → ((x : ℕ) → (f (n + x)) ≡ (f x))
+           → finInt n → A
+finInt-rec {A = A} isset f _ [ x ] = f x
+finInt-rec {A = A} isset f s (LUnit x i) = s x i
+finInt-rec {A = A} isset f s (is-set x x₁ x₂ y i i₁) = helper i i₁ 
+  where
+  helper : Square (λ i₁ → finInt-rec isset f s (x₂ i₁))
+                   (λ i₁ → finInt-rec isset f s (y i₁))
+                   (λ i → finInt-rec isset f s x)
+                   λ i → finInt-rec isset f s x₁
+  helper = isSet→isSet' isset _ _ _ _
+
+
+open import Cubical.Data.Nat.Order
+open import Cubical.Data.Sum renaming (rec to ⊎-rec)
+open import Cubical.Relation.Nullary
+
+suc[] : {n : ℕ} → finInt n → finInt n
+suc[] {n = n} [ x ] = [ suc x ]
+suc[] {n = n} (LUnit m i) = ((λ i → [ +-suc n m (~ i) ]) ∙ LUnit (suc m)) i
+suc[] {n = n} (is-set x x₁ x₂ y i i₁) =
+  is-set (suc[] x) (suc[] x₁) (cong suc[] x₂) (cong suc[] y) i i₁
+
+congSuc[] : (n x y : ℕ) → Path (finInt n) [ x ] [ y ] → Path (finInt n) [ suc x ] [ suc y ] 
+congSuc[] n x y p = {!<-suc!}
+
+<-suc : {x y : ℕ} → x < y → suc x < suc y
+<-suc {x = x} le = (fst le) , (+-suc (fst le) (suc x) ∙ cong suc (snd le))
+
+
+<-suc
+
+module _ (n : ℕ) where
+  help2 : (n y : ℕ) → y < (suc n) → ¬ (y ≡ n) → suc y < suc n
+  help2 zero zero le false = ⊥-rec (false refl)
+  help2 (suc n) zero le false = n , +-comm n 2
+  help2 zero (suc y) (zero , p) false = ⊥-rec (snotz (cong predℕ p))
+  help2 zero (suc y) (suc k , p) false = ⊥-rec (snotz (sym (+-suc k (suc y)) ∙ cong predℕ p))
+  help2 (suc n) (suc y) le false = <-suc (help2 n y ((fst le) , (cong predℕ (sym (+-suc (fst le) (suc y)) ∙ snd le))) λ p → false (cong suc p))
+
+  help : (x : ℕ) →  (p : Σ[ y ∈ ℕ ] (Path (finInt (suc n)) [ x ] [ y ] × (y < suc n))) → Dec (fst p ≡ n)
+                   → Σ[ y ∈ ℕ ] (Path (finInt (suc n)) [ (suc x) ] [ y ] × (y < suc n))
+  help x (y , l , k) (yes p) = 0 , (cong suc[] l ∙∙ (λ i → [ suc (p i) ]) ∙ (λ i → [ +-comm 0 (suc n) i ]) ∙∙ LUnit 0) , n , (+-comm n 1)
+  help x (y , l , k) (no ¬p) = (suc y) , (cong suc[] l) , help2 n y k ¬p
+
+helpfun : (n x : ℕ) → (p : Σ[ y ∈ ℕ ] ((Σ[ k ∈ ℕ ] (x ≡ y + k · (suc n))) × (y < (suc n))))
+      → ((fst p < n) ⊎ (fst p ≡ n))
+      →  Σ[ y ∈ ℕ ] ((Σ[ k ∈ ℕ ] (suc x ≡ y + k · (suc n))) × (y < (suc n)))
+helpfun n x (y , (k , i) , le) (inr z) = 0 , (k + 1  , (cong suc i ∙∙ (λ i → suc (z i) + k · suc n) ∙∙  cong (_· suc n) (+-comm 1 k))) , n , +-comm n 1
+helpfun n x (y , (k , i) , le) (inl z) = suc y , (k , cong suc i) , <-suc z
+
+isProp⊎< : (x y : ℕ) → isProp ((x < y) ⊎ (x ≡ y))
+isProp⊎< x y (inl x₁) (inl x₂) i = inl (m<n-isProp x₁ x₂ i)
+isProp⊎< x y (inl x₁) (inr x₂) = ⊥-rec (¬m<m (subst (λ x → x < y) x₂ x₁))
+isProp⊎< x y (inr x₁) (inl x₂) = ⊥-rec (¬m<m (subst (λ x → x < y) x₁ x₂))
+isProp⊎< x y (inr x₁) (inr x₂) i = inr (isSetℕ x y x₁ x₂ i)
+
+helpfunId : (n x : ℕ) → (p : Σ[ y ∈ ℕ ] ((Σ[ k ∈ ℕ ] (x ≡ y + k · (suc n))) × (y < (suc n))))
+      → (z w : (fst p < n) ⊎ (fst p ≡ n)) → helpfun n x p z ≡ helpfun n x p w
+helpfunId n x p z w i = helpfun n x p (isProp⊎< _ _ z w i)
+
+leastElem : (n x : ℕ) → Σ[ y ∈ ℕ ] ((Σ[ k ∈ ℕ ] (x ≡ y + k · (suc n))) × (y < (suc n)))
+leastElem n zero = 0 , (0 , refl) , (n , +-comm n 1)
+leastElem n (suc x) = helpfun n x (leastElem n x) (<-split (snd (snd (leastElem n x))))
+
+
+isPropLeast : (n x y : ℕ) → ((Σ[ k ∈ ℕ ] (x ≡ y + k · (suc n))) × (y < (suc n)))
+isPropLeast n x = {!!}
+
+
+open import Cubical.Foundations.Function
+{-
+leastElem-lem-n : (n : ℕ) → Dec (fst (leastElem (suc n) n) ≡ suc n) → fst (leastElem (suc n) (suc n)) ≡ 0
+leastElem-lem-n n (yes p) i = (fst (help (suc n) n (leastElem (suc n) n)
+                                      (isPropDec (isSetℕ (fst (leastElem (suc n) n)) (suc n))
+                                                    (discreteℕ (fst (leastElem (suc n) n)) (suc n))
+                                                    (yes p) i)))
+leastElem-lem-n n (no ¬p) = (λ i → (fst (help (suc n) n (leastElem (suc n) n)
+                                      (isPropDec (isSetℕ (fst (leastElem (suc n) n)) (suc n))
+                                                    (discreteℕ (fst (leastElem (suc n) n)) (suc n))
+                                                    (no ¬p) i)))) ∙ {!suc (fst (leastElem (suc n) n))!} ∙ {!¬p!}
+{- (fst (help (suc n) n (leastElem (suc n) n)
+                                      (isPropDec (isSetℕ (fst (leastElem (suc n) n)) (suc n))
+                                                    (discreteℕ (fst (leastElem (suc n) n)) (suc n))
+                                                    (yes {!discreteℕ (fst (leastElem (suc n) n)) (suc n)!}) i))) -}
+  where
+  c = (leastElem (suc n) n)
+
+  help3 : fst c ≡ suc n
+  help3 = {!fst c !}
+-}
+
+sucn-n≠0 : (n : ℕ) → fst (leastElem (suc n) n) ≡ suc n
+sucn-n≠0 zero = {!!}
+sucn-n≠0 (suc n) = {!!}
+
+leastElem-lem₂ : (n : ℕ) → fst (leastElem n n) ≡ 0
+leastElem-lem₂ zero = refl
+leastElem-lem₂ (suc n) = {!fst (leastElem 2 2)!}
+  where
+  help1 : (z : _) → fst (helpfun (suc n) n (leastElem (suc n) n) z) ≡ 0
+  help1 (inl x) = {!!}
+    where
+    help14 : (n : ℕ) → (x : _) → fst (snd (leastElem (suc n) n)) ≡ x → ⊥
+    help14 zero (zero , q) p = {!!}
+    help14 (suc n) (zero , q) p = {!!}
+    help14 n (suc k , q) p = {!!}
+  help1 (inr x) = refl
+
+leastElem-lem₁ : (n : ℕ) → Path (finInt (suc n)) [ fst (leastElem n n) ] [ 0 ]
+leastElem-lem₁ zero = refl
+leastElem-lem₁ (suc n) = help4 {!!} -- {!<-split (snd (snd (leastElem (suc n) n)))!} ∙∙ {!!} ∙∙ {!!}
+  where
+  c = (leastElem (suc n) n)
+  help4 : (z : _) →  Path (finInt (2 + n)) [ fst (helpfun (suc n) n (leastElem (suc n) n) z) ] [ 0 ]
+  help4 (inl x) = ({!!} ∙ (λ i → [ (cong suc ((snd (fst (snd c))))) (~ i) + (suc n) ]) ∙ {!!}) ∙ LUnit 0
+  help4 (inr x) = refl
+
+Prop-Least : (n x x₂ : ℕ) →
+      isProp (Σ-syntax ℕ (λ k → n + x ≡ x₂ + k · suc n) × (x₂ < suc n))
+Prop-Least = {!!}
+
+
 
 elimfinInt : ∀ {ℓ} {n : ℕ} {A : finInt n → Type ℓ}
            → ((x : _) → isSet (A x))
            → (f : (m : ℕ) → A [ m ])
-           → (p : PathP (λ i → A (coher i)) (f n) (f 0))
            → ((x : ℕ) → PathP (λ i → A (LUnit x i)) (f (n + x)) (f x))
            → (x : _) → A x
-elimfinInt {A = A} isset f p _ [ x ] = f x
-elimfinInt {A = A} isset f p _ (coher i) = p i
-elimfinInt {A = A} isset f p s (LUnit x i) = s x i
-elimfinInt {A = A} isset f p s (is-set x x₁ x₂ y i i₁) = helper i i₁ 
+elimfinInt {A = A} isset f _ [ x ] = f x
+elimfinInt {A = A} isset f s (LUnit x i) = s x i
+elimfinInt {A = A} isset f s (is-set x x₁ x₂ y i i₁) = helper i i₁ 
   where
   helper : SquareP (λ i i₁ → A (is-set x x₁ x₂ y i i₁))
-                   (λ i₁ → elimfinInt isset f p s (x₂ i₁))
-                   (λ i₁ → elimfinInt isset f p s (y i₁))
-                   (λ i → elimfinInt isset f p s x)
-                   λ i → elimfinInt isset f p s x₁
+                   (λ i₁ → elimfinInt isset f s (x₂ i₁))
+                   (λ i₁ → elimfinInt isset f s (y i₁))
+                   (λ i → elimfinInt isset f s x)
+                   λ i → elimfinInt isset f s x₁
   helper = toPathP (isOfHLevelPathP' 1 (isset _) _ _ _ _)
 
+finInt→Prop : ∀ {ℓ} {n : ℕ} {A : finInt n → Type ℓ}
+            → ((x : _) → isProp (A x))
+            → ((m : ℕ) → A [ m ])
+            → (x : _) → A x
+finInt→Prop p f = elimfinInt (λ _ → isProp→isSet (p _))
+                              f
+                              λ _ → isProp→PathP (λ _ → p _) _ _
 
+isoFin : (n : ℕ) → Iso (Fin n) (ℤ/_ n)
+Iso.fun (isoFin zero) (_ , zero , p) = snotz p
+Iso.fun (isoFin zero) (_ , suc _ , p) = snotz p
+Iso.inv (isoFin zero) ()
+Iso.rightInv (isoFin zero) ()
+Iso.leftInv (isoFin zero) (_ , zero , p) = ⊥-rec (snotz p)
+Iso.leftInv (isoFin zero) (_ , suc _ , p) = ⊥-rec (snotz p)
+Iso.fun (isoFin (suc n)) k = [ fst k ]
+Iso.inv (isoFin (suc n)) = finInt-rec isSetFin (λ x → (fst (leastElem (suc n) x)) , {!snd (leastElem (suc n) x) .snd!}) -- snd (leastElem n x) .snd)
+                                      λ x → Σ≡Prop {!!} {!snd (leastElem n x) .snd!}
+Iso.rightInv (isoFin (suc n)) = finInt→Prop {!!} λ x → {!x!}
+Iso.leftInv (isoFin (suc n)) x i = {!!} -- fst (helper n x {!_!} i) , snd (helper n x {!!} i)
+  where
+  helper : (n : ℕ) (x : Fin (suc n)) (z : _) → (fst
+       (helpfun n (fst x) (leastElem n (fst x))
+        z)
+       ,
+       snd
+       (helpfun n (fst x) (leastElem n (fst x))
+        z)
+       .snd)
+      ≡ x
+  helper n (zero , p) (inl x) = {!!}
+  helper n (suc k , p) (inl x) = {!!}
+  helper n (k , p) (inr x) = {!!}
+
+
+
+{-
 _+fin_ : {n : ℕ} → finInt n → finInt n → finInt n
 _+fin_ {n = zero} x y = [ 0 ]
 _+fin_ {n = suc n} =
@@ -532,3 +703,4 @@ Iso.fun (finalIso n) = encode' n [ base ]
 Iso.inv (finalIso n) = decode' n [ base ]
 Iso.rightInv (finalIso n) = decode-encode n
 Iso.leftInv (finalIso n) = encode-decode n [ base ]
+-}

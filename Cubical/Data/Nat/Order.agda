@@ -45,6 +45,10 @@ m≤n-isProp {m} {n} (k , p) (l , q)
   lemma : k ≡ l
   lemma = inj-+m (p ∙ (sym q))
 
+m<n-isProp : isProp (m < n)
+m<n-isProp {m} {n} (k , p) (l , q) =
+  Σ≡Prop (λ x → witness-prop {m = suc m} x) (inj-+m (p ∙ sym q))
+
 zero-≤ : 0 ≤ n
 zero-≤ {n} = n , +-zero n
 
