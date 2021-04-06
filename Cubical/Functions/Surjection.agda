@@ -3,10 +3,12 @@ module Cubical.Functions.Surjection where
 
 open import Cubical.Core.Everything
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
 open import Cubical.Functions.Embedding
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
@@ -57,3 +59,25 @@ isEquiv≃isEmbedding×isSurjection = isoToEquiv (iso
 
 isPropIsSurjection : isProp (isSurjection f)
 isPropIsSurjection = isPropΠ λ _ → propTruncIsProp
+
+-- obs: for epi⇒surjective to go through we require a stronger
+-- hypothesis that one would expect:
+-- f must cancel functions from a higher universe.
+rightCancellable : (f : A → B) → Type _
+rightCancellable {ℓ} {A} {ℓ'} {B} f = ∀ {C : Type (ℓ-suc (ℓ-max ℓ ℓ'))}
+  → ∀ (g g' : B → C) → (∀ x → g (f x) ≡ g' (f x)) → ∀ y → g y ≡ g' y
+
+-- This statement is in Mac Lane & Moerdijk (page 143, corollary 5).
+epi⇒surjective : (f : A → B) → rightCancellable f → isSurjection f
+epi⇒surjective f rc y = transport (fact₂ y) tt*
+    where hasPreimage : (A → B) → B → _
+          hasPreimage f y = ∥ fiber f y ∥
+
+          fact₁ : ∀ x → Unit* ≡ hasPreimage f (f x)
+          fact₁ x = hPropExt isPropUnit*
+                             propTruncIsProp
+                             (λ _ → ∣ (x , refl) ∣)
+                             (λ _ → tt*)
+
+          fact₂ : ∀ y → Unit* ≡ hasPreimage f y
+          fact₂ = rc _ _ fact₁

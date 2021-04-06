@@ -8,7 +8,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism renaming (iso to iIso)
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functor.Properties
 open import Cubical.Categories.Commutativity
 open import Cubical.Categories.Morphism renaming (isIso to isIsoC)
 

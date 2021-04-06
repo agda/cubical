@@ -33,7 +33,7 @@ rec : {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥ → P
 rec Pprop f ∣ x ∣ = f x
 rec Pprop f (squash x y i) = Pprop (rec Pprop f x) (rec Pprop f y) i
 
-rec2 : {P : Type ℓ} → isProp P → (A → A → P) → ∥ A ∥ → ∥ A ∥ → P
+rec2 : {P : Type ℓ} → isProp P → (A → B → P) → ∥ A ∥ → ∥ B ∥ → P
 rec2 Pprop f ∣ x ∣ ∣ y ∣ = f x y
 rec2 Pprop f ∣ x ∣ (squash y z i) = Pprop (rec2 Pprop f ∣ x ∣ y) (rec2 Pprop f ∣ x ∣ z) i
 rec2 Pprop f (squash x y i) z = Pprop (rec2 Pprop f x z) (rec2 Pprop f y z) i
