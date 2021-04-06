@@ -213,6 +213,28 @@ assocₖ (suc zero) =
                       (sym (lUnit refl))
 assocₖ (suc (suc n)) =
   trElim3 (λ _ _ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (4 + n)) _ _)
+          (wedgeConSn-×3 _
+            (λ x z i → preAdd n .snd .snd x (~ i) +ₖ ∣ z ∣)
+            (λ x y → cong (∣ x ∣ +ₖ_) (rUnitₖ (2 + n) ∣ y ∣) ∙ sym (rUnitₖ (2 + n) (∣ x ∣ +ₖ ∣ y ∣)))
+            (lUnit (sym (rUnitₖ (2 + n) (∣ north ∣ +ₖ ∣ north ∣)))))
+  where
+  wedgeConSn-×3 : (n : ℕ)
+          → (f : (x z : S₊ (2 + n))→ ∣ x ∣ +ₖ ((0ₖ _) +ₖ ∣ z ∣) ≡ (∣ x ∣ +ₖ (0ₖ _)) +ₖ ∣ z ∣)
+          → (g : (x y : S₊ (2 + n)) → ∣ x ∣ +ₖ (∣ y ∣ +ₖ 0ₖ _) ≡ (∣ x ∣ +ₖ ∣ y ∣) +ₖ 0ₖ _)
+          → (f (ptSn _) (ptSn _) ≡ g (ptSn _) (ptSn _))
+          → (x y z : S₊ (2 + n)) → ∣ x ∣ +ₖ (∣ y ∣ +ₖ ∣ z ∣) ≡ (∣ x ∣ +ₖ ∣ y ∣) +ₖ ∣ z ∣
+  wedgeConSn-×3 n f g d x =
+    wedgeConSn _ _ (λ _ _ → isOfHLevelPath ((2 + n) + (2 + n)) (wedgeConHLev n) _ _)
+               (f x)
+               (g x)
+               (sphereElim _ {A = λ x → g x (ptSn (suc (suc n))) ≡ f x (ptSn (suc (suc n))) }
+                             (λ _ → isOfHLevelTrunc (4 + n) _ _ _ _)
+                             (sym d) x) .fst
+{-
+This was the original proof for the case n ≥ 2:
+For some reason it doesn't check in reasonable time anymore:
+assocₖ (suc (suc n)) =
+  trElim3 (λ _ _ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (4 + n)) _ _)
           λ x → wedgeConSn _ _ (λ _ _ → isOfHLevelPath ((2 + n) + (2 + n)) (wedgeConHLev n) _ _)
                            (λ z i → preAdd n .snd .snd x (~ i) +ₖ ∣ z ∣)
                            (λ y → cong (∣ x ∣ +ₖ_) (rUnitₖ (2 + n) ∣ y ∣) ∙ sym (rUnitₖ (2 + n) (∣ x ∣ +ₖ ∣ y ∣)))
@@ -222,6 +244,8 @@ assocₖ (suc (suc n)) =
                           ≡ cong (_+ₖ ∣ north ∣) (sym (preAdd n .snd .snd x))
   helper = sphereElim (suc n) (λ _ → isOfHLevelTrunc (4 + n) _ _ _ _)
                               (sym (lUnit (sym (rUnitₖ (2 + n) (∣ north ∣ +ₖ ∣ north ∣)))))
+-}
+
 
 lUnitₖ≡rUnitₖ : (n : ℕ) → lUnitₖ n (coHom-pt n) ≡ rUnitₖ n (coHom-pt n)
 lUnitₖ≡rUnitₖ zero = isSetInt _ _ _ _
