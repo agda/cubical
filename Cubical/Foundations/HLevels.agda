@@ -19,7 +19,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Univalence using (ua ; univalence)
+open import Cubical.Foundations.Univalence -- using (ua ; univalence ; uaIdEquiv)
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)
@@ -458,7 +458,10 @@ isOfHLevel≃ (suc n) {A = A} {B = B} hA hB =
 
 isOfHLevel≡ : ∀ n → {A B : Type ℓ} (hA : isOfHLevel n A) (hB : isOfHLevel n B) →
   isOfHLevel n (A ≡ B)
-isOfHLevel≡ n hA hB = isOfHLevelRetract n (fst univalence) ua (secEq univalence) (isOfHLevel≃ n hA hB)
+isOfHLevel≡ n {A = A} hA hB =
+  isOfHLevelRetract n (J (λ B _ → A ≃ B) (idEquiv' A)) ua'
+    (J (λ B p → ua' ((J (λ B _ → A ≃ B) (idEquiv' A)) p) ≡ p)
+       (cong ua' (transportRefl (idEquiv' A)) ∙ uaIdEquiv')) (isOfHLevel≃ n hA hB)
 
 isOfHLevel⁺≃ₗ
   : ∀ n {A : Type ℓ} {B : Type ℓ'}

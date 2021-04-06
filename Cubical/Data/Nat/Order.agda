@@ -46,8 +46,8 @@ m≤n-isProp {m} {n} (k , p) (l , q)
   lemma = inj-+m (p ∙ (sym q))
 
 m<n-isProp : isProp (m < n)
-m<n-isProp {m} {n} (k , p) (l , q) =
-  Σ≡Prop (λ x → witness-prop {m = suc m} x) (inj-+m (p ∙ sym q))
+m<n-isProp {m = m} (k , p) (l , q) =
+  Σ≡Prop (λ x → witness-prop {m = suc m} x) (inj-+m (p ∙ (sym q)))
 
 zero-≤ : 0 ≤ n
 zero-≤ {n} = n , +-zero n
@@ -166,6 +166,31 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
            d · suc k + suc m · suc k         ≡⟨ ·-distribʳ d (suc m) (suc k) ⟩
            (d + suc m) · suc k               ≡⟨ cong (_· suc k) r ⟩
            n · suc k                         ∎
+
+≤-∸-+-cancel : m ≤ n → (n ∸ m) + m ≡ n
+≤-∸-+-cancel {zero} {n} _ = +-zero _
+≤-∸-+-cancel {suc m} {zero} m≤n = ⊥.rec (¬-<-zero m≤n)
+≤-∸-+-cancel {suc m} {suc n} m+1≤n+1 = +-suc _ _ ∙ cong suc (≤-∸-+-cancel (pred-≤-pred m+1≤n+1))
+
+left-≤-max : m ≤ max m n
+left-≤-max {zero} {n} = zero-≤
+left-≤-max {suc m} {zero} = ≤-refl
+left-≤-max {suc m} {suc n} = suc-≤-suc left-≤-max
+
+right-≤-max : n ≤ max m n
+right-≤-max {zero} {m} = zero-≤
+right-≤-max {suc n} {zero} = ≤-refl
+right-≤-max {suc n} {suc m} = suc-≤-suc right-≤-max
+
+min-≤-left : min m n ≤ m
+min-≤-left {zero} {n} = ≤-refl
+min-≤-left {suc m} {zero} = zero-≤
+min-≤-left {suc m} {suc n} = suc-≤-suc min-≤-left
+
+min-≤-right : min m n ≤ n
+min-≤-right {zero} {n} = zero-≤
+min-≤-right {suc m} {zero} = ≤-refl
+min-≤-right {suc m} {suc n} = suc-≤-suc min-≤-right
 
 Trichotomy-suc : Trichotomy m n → Trichotomy (suc m) (suc n)
 Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)

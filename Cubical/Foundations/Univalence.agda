@@ -35,8 +35,15 @@ ua : ∀ {A B : Type ℓ} → A ≃ B → A ≡ B
 ua {A = A} {B = B} e i = Glue B (λ { (i = i0) → (A , e)
                                    ; (i = i1) → (B , idEquiv B) })
 
+ua' : ∀ {A B : Type ℓ} → A ≃ B → A ≡ B
+ua' {A = A} {B = B} e i = Glue B (λ { (i = i0) → (A , e)
+                                   ; (i = i1) → (B , idEquiv' B) })
+
 uaIdEquiv : {A : Type ℓ} → ua (idEquiv A) ≡ refl
 uaIdEquiv {A = A} i j = Glue A {φ = i ∨ ~ j ∨ j} (λ _ → A , idEquiv A)
+
+uaIdEquiv' : {A : Type ℓ} → ua' (idEquiv' A) ≡ refl
+uaIdEquiv' {A = A} i j = Glue A {φ = i ∨ ~ j ∨ j} (λ _ → A , idEquiv' A)
 
 -- Propositional extensionality
 hPropExt : {A B : Type ℓ} → isProp A → isProp B → (A → B) → (B → A) → A ≡ B

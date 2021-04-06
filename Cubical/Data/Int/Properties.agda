@@ -35,7 +35,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Empty
-open import Cubical.Data.Nat hiding (+-assoc ; +-comm) renaming (_·_ to _·ℕ_; _+_ to _+ℕ_)
+open import Cubical.Data.Nat hiding (+-assoc ; ·-comm) renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; +-comm to +ℕ-comm ; ·-assoc to ·ℕ-assoc)
 open import Cubical.Data.Bool
 open import Cubical.Data.Sum
 open import Cubical.Data.Int.Base
@@ -300,8 +300,153 @@ private
                                        (minusPlus m)
                                        (plusMinus m))
 
+minusMinus : (x : Int) → - (- x) ≡ x
+minusMinus (pos zero) = refl
+minusMinus (pos (suc n)) = refl
+minusMinus (negsuc n) = refl
+
+-≡+- : (x y : Int) → x + (- y) ≡ x - y
+-≡+- x (pos zero) = refl
+-≡+- x (pos (suc n)) = refl
+-≡+- x (negsuc n) = refl
+
 _·_ : Int → Int → Int
 pos zero · m = pos zero
 pos (suc n) · m = m + (pos n · m)
 negsuc zero · m = (- m)
 negsuc (suc n) · m = (- m) + ((negsuc n) · m)
+
+negsuc+negsuc : (n m : ℕ) → (negsuc n + negsuc m) ≡ negsuc ((suc n) +ℕ m)
+negsuc+negsuc zero zero = refl
+negsuc+negsuc zero (suc m) = cong predInt (negsuc+negsuc zero m)
+negsuc+negsuc (suc n) zero = cong (λ x → negsuc (suc (suc x))) (+ℕ-comm zero n)
+negsuc+negsuc (suc n) (suc m) =
+    cong predInt (negsuc+negsuc (suc n) m)
+  ∙ cong (λ x → negsuc (2 +ℕ x)) (sym (+-suc n m))
+
+pos+pos : (n m : ℕ) → (pos n + pos m) ≡ pos (n +ℕ m)
+pos+pos n zero i = pos (+ℕ-comm n zero (~ i))
+pos+pos zero (suc m) i = sucInt (+-comm (pos zero) (pos m) i)
+pos+pos (suc n) (suc m) = cong sucInt (pos+pos (suc n) m)
+                        ∙ cong (λ x → pos (suc x)) (sym (+-suc n m))
+
+-pos : (n : ℕ) → (negsuc zero + (- pos n)) ≡ negsuc n
+-pos zero = refl
+-pos (suc n) = sym (negsuc0+ (- pos (suc n)))
+
+-distr : (x y : Int) → ((- x) + (- y)) ≡ (- (x + y))
+-distr (pos n) (pos m) = p n m
+  where
+  p : (n m : ℕ) → ((- pos n) + (- pos m)) ≡ (- (pos n +pos m))
+  p zero m = +-comm (pos zero) (- pos m) ∙ cong -_ (+-comm (pos m) (pos zero))
+  p (suc n) zero = refl
+  p (suc n) (suc m) =
+       negsuc+negsuc n m
+    ∙∙ cong negsuc (sym (+-suc n m))
+    ∙∙ cong -_ (sym (pos+pos (suc n) (suc m))) 
+-distr (pos n) (negsuc m) = p n m
+  where
+  helper : (n m : ℕ) → sucInt (- (pos (suc n) +negsuc m)) ≡ (- (pos n +negsuc m))
+  helper zero zero = refl
+  helper zero (suc m) = cong sucInt (cong -_ (predInt+ (pos 1) (negsuc m)))
+                    ∙∙ cong sucInt (cong -_ (+-comm (pos 0) (negsuc m)))
+                    ∙∙ sym (cong -_ (cong predInt (+-comm (pos 0) (negsuc m))))
+  helper (suc zero) zero = refl
+  helper (suc (suc n)) zero = refl
+  helper (suc n) (suc m) =
+       cong sucInt (cong -_ (predInt+ (pos (suc (suc n))) (negsuc m)))
+    ∙∙ helper n m
+    ∙∙ cong -_ (sym (predInt+ (pos (suc n)) (negsuc m)))
+
+  p : (n m : ℕ) → ((- pos n) + (- negsuc m)) ≡ (- (pos n + negsuc m))
+  p zero m = cong sucInt (+-comm (pos zero) (pos m)) ∙ cong -_ (+-comm (negsuc m) (pos zero))
+  p (suc zero) zero = refl
+  p (suc (suc n)) zero = refl
+  p (suc n) (suc m) =
+       cong sucInt (p (suc n) m)
+    ∙∙ helper n m
+    ∙∙ cong -_ (sym (predInt+ (pos (suc n)) (negsuc m)))
+-distr (negsuc n) (pos m) =
+      +-comm (pos (suc n)) (- pos m)
+  ∙∙ -distr (pos m) (negsuc n)
+  ∙∙ cong -_ (+-comm (pos m) (negsuc n))
+-distr (negsuc n) (negsuc m) =
+     pos+pos (suc n) (suc m)
+  ∙∙ cong (λ x → pos (suc x)) (+-suc n m)
+  ∙∙ sym (cong -_ (negsuc+negsuc n m))
+
++·- : (n m : ℕ) → pos n · negsuc m ≡ (- (pos n · pos (suc m)))
++·- zero m = refl
++·- (suc n) m =
+     (λ i → negsuc m + (+·- n m i))
+   ∙ -distr (pos (suc m)) (pos n · pos (suc m))
+
+-·+ : (n m : ℕ) → negsuc n · pos m ≡ (- (pos (suc n) · pos m))
+-·+ zero m = refl
+-·+ (suc n) m =
+    cong ((- pos m) +_) (-·+ n m)
+  ∙ -distr (pos m) (pos m + (pos n · pos m))
+
+-·- : (n m : ℕ) → negsuc n · negsuc m ≡ (pos (suc n) · pos (suc m))
+-·- zero m = refl
+-·- (suc n) m = cong (pos (suc m) +_) (-·- n m)
+
+·-comm : (x y : Int) → x · y ≡ y · x
+·-comm (pos n) (pos m) = p n m
+  where
+  p : (n m : ℕ) → (pos n · pos m) ≡ (pos m · pos n)
+  p zero zero = refl
+  p zero (suc m) i = +-comm (p zero m i) (pos zero) i
+  p (suc n) zero i = +-comm (pos zero) (p n zero i) i
+  p (suc n) (suc m) =
+       (λ i → pos (suc m) + (p n (suc m) i))
+    ∙∙ +-assoc (pos (suc m)) (pos n) (pos m · pos n)
+    ∙∙ (λ i → sucInt+ (pos m) (pos n) (~ i)  + (pos m · pos n))
+    ∙∙ (λ i → +-comm (pos m) (pos (suc n)) i + (pos m · pos n))
+    ∙∙ sym (+-assoc (pos (suc n)) (pos m) (pos m · pos n))
+    ∙∙ (λ i → pos (suc n) + (pos m + (p n m (~ i))))
+    ∙∙ λ i → pos (suc n) + (p (suc n) m i)
+·-comm (pos n) (negsuc m) =
+     +·- n m
+  ∙∙ cong -_ (·-comm (pos n) (pos (suc m)))
+  ∙∙ sym (-·+ m n)
+·-comm (negsuc n) (pos m) =
+  sym (+·- m n
+  ∙∙ cong -_ (·-comm (pos m) (pos (suc n)))
+  ∙∙ sym (-·+ n m))
+·-comm (negsuc n) (negsuc m) =
+  -·- n m ∙∙ ·-comm (pos (suc n)) (pos (suc m)) ∙∙ sym (-·- m n)
+
+distrHelper : (x1 x2 y1 y2 : Int) → ((x1 + y1) + (x2 + y2)) ≡ ((x1 + x2) + (y1 + y2))
+distrHelper x1 x2 y1 y2 = (λ i → (+-assoc x1 y1 (+-comm x2 y2 i) (~ i)))
+                       ∙∙ cong (x1 +_) (+-assoc y1 y2 x2 ∙ +-comm (y1 + y2) x2)
+                       ∙∙ +-assoc x1 x2 (y1 + y2)
+{-
+-· : (x y : Int) → {!- (x · y) ≡ - x · y!}
+-· = {!!}
+
+·distrˡ : (x y z : Int) → (x · (y + z)) ≡ ((x · y) + (x · z))
+·distrˡ (pos zero) y z = refl
+·distrˡ (pos (suc n)) y z =
+     cong ((y + z) +_) (·distrˡ (pos n) y z)
+   ∙ distrHelper y (pos n · y) z (pos n · z)
+·distrˡ (negsuc zero) y z = sym (-distr y z)
+·distrˡ (negsuc (suc n)) y z = cong₂ _+_ (sym (-distr y z)) (·distrˡ (negsuc n) y z)
+                            ∙ distrHelper (- y) (negsuc n · y) (- z) (negsuc n · z)
+
+·distrʳ : (x y z : Int) → ((y + z) · x) ≡ ((x · y) + (x · z))
+·distrʳ x y z = ·-comm (y + z) x ∙ ·distrˡ x y z
+
+·-assoc : (x y z : Int) → x · (y · z) ≡ ((x · y) · z)
+·-assoc (pos zero) y z = refl
+·-assoc (pos (suc n)) y z =
+     cong ((y · z) +_) (cong (pos n ·_) (·-comm y z)
+                   ∙∙ ·-assoc (pos n) z y
+                   ∙∙ (cong (_· y) (·-comm (pos n) z)))
+  ∙∙ sym (cong₂ _+_ (·-comm z y) (·-assoc z (pos n) y))
+  ∙∙ sym (·distrʳ z y (pos n · y))
+·-assoc (negsuc zero) (pos n₁) (pos n) = {!-!}
+·-assoc (negsuc zero) (negsuc n₁) (pos n) = {!!}
+·-assoc (negsuc zero) y (negsuc n) = {!!}
+·-assoc (negsuc (suc n)) y z = {!!}
+-}

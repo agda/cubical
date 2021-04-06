@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+oc{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Algebra.CommRing.Integers where
 
 open import Cubical.Foundations.Prelude

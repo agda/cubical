@@ -28,10 +28,13 @@ _→∙_ : ∀{ℓ ℓ'} → (A : Pointed ℓ) (B : Pointed ℓ') → Type (ℓ-
 (A , a) →∙ (B , b) = Σ[ f ∈ (A → B) ] f a ≡ b
 
 _→∙_∙ : ∀{ℓ ℓ'} → (A : Pointed ℓ) (B : Pointed ℓ') → Pointed (ℓ-max ℓ ℓ')
-A →∙ B ∙  = (A →∙ B) , (λ x → pt B) , refl
+(A →∙ B ∙) .fst = A →∙ B
+(A →∙ B ∙) .snd .fst x = pt B
+(A →∙ B ∙) .snd .snd = refl
 
 idfun∙ : ∀ {ℓ} (A : Pointed ℓ) → A →∙ A
-idfun∙ A = (λ x → x) , refl
+idfun∙ A .fst x = x
+idfun∙ A .snd = refl
 
 {- HIT allowing for pattern matching on pointed types -}
 data Pointer {ℓ} (A : Pointed ℓ) : Type ℓ where
@@ -53,7 +56,8 @@ Pointed≡Pointer : ∀ {ℓ} {A : Pointed ℓ} → typ A ≡ Pointer A
 Pointed≡Pointer = isoToPath IsoPointedPointer
 
 Pointer∙ : ∀ {ℓ} (A : Pointed ℓ) → Pointed ℓ
-Pointer∙ A = Pointer A , pt₀
+Pointer∙ A .fst = Pointer A
+Pointer∙ A .snd = pt₀
 
 Pointed≡∙Pointer : ∀ {ℓ} {A : Pointed ℓ} → A ≡ (Pointer A , pt₀)
 Pointed≡∙Pointer {A = A} i = (Pointed≡Pointer {A = A} i) , helper i
@@ -69,11 +73,5 @@ pointerFun f (id i) = (cong ⌊_⌋ (snd f) ∙ id) i
 
 pointerFun∙ : {A : Pointed ℓ} {B : Pointed ℓ′} (f : A →∙ B)
              → Pointer∙ A →∙ Pointer∙ B
-pointerFun∙ f = (pointerFun f) , refl
-
-_≃∙_ : (A B : Pointed ℓ) → Type ℓ
-A ≃∙ B = Σ[ f ∈ (fst A ≃ fst B) ] equivFun f (pt A) ≡ pt B
-
-≃∙To→∙ : {A B : Pointed ℓ} → A ≃∙ B → (A →∙ B)
-fst (≃∙To→∙ f) = f .fst .fst
-snd (≃∙To→∙ f) = f .snd
+pointerFun∙ f .fst = pointerFun f
+pointerFun∙ f .snd = refl
