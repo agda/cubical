@@ -12,6 +12,7 @@ open import Cubical.HITs.SetQuotients.Base
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
@@ -25,14 +26,15 @@ open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 
-open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
-open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂; ∣_∣₂; squash₂)
+open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥ ; ∣_∣ ; squash)
+open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂ ; ∣_∣₂ ; squash₂
+                                                              ; setTruncIsSet)
 
 -- Type quotients
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' ℓ'' : Level
     A : Type ℓ
     R : A → A → Type ℓ
     B : A / R → Type ℓ
@@ -111,6 +113,64 @@ rec2 Bset f feql feqr = rec (isSetΠ (λ _ → Bset))
                             (λ a → rec Bset (f a) (feqr a))
                             (λ a b r → funExt (elimProp (λ _ → Bset _ _)
                                               (λ c → feql a b c r)))
+-- the recursor for maps into groupoids:
+-- i.e. for any type A with a binary relation R and groupoid B,
+-- we can construct a map A / R → B from a map A → B satisfying the conditions
+-- (i)    eq/ : ∀ (a b : A) → R a b → f a ≡ f b
+-- (ii')  (a b : A) → isProp (f a ≡ f b)
+-- (ii)   ∀ (a b : A) (p q : a ≡ b) → cong f p ≡ cong f q
+-- (iii)  ∀ (a b : A) (r r' : R a b) → eq/ a b r ≡ eq/ a b r'
+-- (iv)   ∀ (a b : A) (p : a ≡ b) (r : R a b) → cong f p ≡ eq/ a b r
+module rec→Gpd {A : Type ℓ} {R : A → A → Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B)
+               (f : A → B) (fRespR : ∀ (a b : A) → R a b → f a ≡ f b)
+               (fProp : (a b : A) → isProp (f a ≡ f b)) where
+
+ -- we start by defining the type quotient: Upstream!!!
+ -- data _/t_ (A : Type) (R : A → A → Type) where
+ data nonSetA/R : Type ℓ where
+  ns[_] : (a : A) → nonSetA/R
+  nseq/ : (a b : A) → (r : R a b) → ns[ a ] ≡ ns[ b ]
+
+ module NonSetRec {C : Type ℓ''} (g : A → C)
+                  (gRespR : ∀ (a b : A) → R a b → g a ≡ g b) where
+
+  fun : nonSetA/R → C
+  fun ns[ a ] = g a
+  fun (nseq/ a b r i) = gRespR a b r i
+
+ module NonSetElimProp {P : nonSetA/R → Type ℓ''} (Pprop : ∀ x → isProp (P x))
+                       (ns[_]* : ∀ (a : A) → P ns[ a ]) where
+
+  fun : (x : nonSetA/R) → P x
+  fun ns[ a ] = ns[ a ]*
+  fun (nseq/ a b r i) = isOfHLevel→isOfHLevelDep 1 Pprop ns[ a ]* ns[ b ]* (nseq/ a b r) i
+
+ -- we can recover the set-quotient by set-truncating
+ -- upstreamed to whereever type-quotients will end up
+ setQuotSetTruncIso : Iso (A / R) ∥ nonSetA/R ∥₂
+ Iso.fun setQuotSetTruncIso = rec setTruncIsSet (λ a → ∣ ns[ a ] ∣₂)
+                                                 λ a b r → cong ∣_∣₂ (nseq/ a b r)
+ Iso.inv setQuotSetTruncIso = SetTrunc.rec squash/ (NonSetRec.fun [_] eq/)
+ Iso.rightInv setQuotSetTruncIso = SetTrunc.elim (λ _ → isProp→isSet (squash₂ _ _))
+                                  (NonSetElimProp.fun (λ _ → squash₂ _ _) λ _ → refl)
+ Iso.leftInv setQuotSetTruncIso = elimProp (λ _ → squash/ _ _) λ _ → refl
+
+ fun : A / R → B
+ fun = f₁ ∘ f₂
+  where
+  f₁ : ∥ nonSetA/R ∥₂ → B
+  f₁ = SetTrunc.rec→Gpd.fun Bgpd f/ congF/Const
+   where
+   f/ : nonSetA/R → B
+   f/ = NonSetRec.fun f fRespR
+   congF/Const : (a b : nonSetA/R) (p q : a ≡ b) → cong f/ p ≡ cong f/ q
+   congF/Const = NonSetElimProp.fun (λ _ → isPropΠ3 λ _ _ _ → Bgpd _ _ _ _)
+               λ a → NonSetElimProp.fun (λ _ → isPropΠ2 λ _ _ → Bgpd _ _ _ _)
+               (λ b _ _ → fProp a b _ _)
+
+  f₂ : A / R → ∥ nonSetA/R ∥₂
+  f₂ = Iso.fun setQuotSetTruncIso
+
 
 setQuotUniversalIso : {B : Type ℓ} (Bset : isSet B)
                     → Iso (A / R → B) (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
