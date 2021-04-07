@@ -1,6 +1,6 @@
 {-
 
-Set quotients:
+Type quotients:
 
 -}
 
