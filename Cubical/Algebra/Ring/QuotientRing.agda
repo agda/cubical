@@ -219,19 +219,6 @@ module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
       elimProp2 (λ _ _ → isSetRing S _ _) isHom+
     isHom· (inducedHom Iₛ⊆kernel) =
       elimProp2 (λ _ _ → isSetRing S _ _) isHom·
-    {-
-      ringhom (elim
-                                 (λ _ → isSetRing S)
-                                 f
-                                 λ r₁ r₂ r₁-r₂∈I → equalByDifference (f r₁) (f r₂)
-                                   (f r₁ - f r₂     ≡⟨ cong (λ u → f r₁ + u) (sym (-commutesWithHom _)) ⟩
-                                    f r₁ + f (- r₂) ≡⟨ sym (isHom+ _ _) ⟩
-                                    f (r₁ - r₂)     ≡⟨ Iₛ⊆kernel (r₁ - r₂) r₁-r₂∈I ⟩
-                                    0r ∎))
-              pres1
-              (elimProp2 (λ _ _ → isSetRing S _ _) isHom+)
-              (elimProp2 (λ _ _ → isSetRing S _ _) isHom·)
-              -}
 
     solution : (p : Iₛ ⊆ kernelSubtype φ)
                → (x : ⟨ R ⟩) → inducedHom p $ [ x ] ≡ φ $ x
