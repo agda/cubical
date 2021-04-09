@@ -26,6 +26,8 @@ open import Cubical.Data.Sigma.Base
 open import Cubical.Core.Glue public
   using ( Glue ; glue ; unglue ; lineToEquiv )
 
+open import Cubical.Reflection.StrictEquiv
+
 private
   variable
     ℓ ℓ' : Level
@@ -53,22 +55,19 @@ ua-glue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : Partial (~ i) A)
           → ua e i {- [ _ ↦ (λ { (i = i0) → x 1=1 ; (i = i1) → outS y }) ] -}
 ua-glue e i x y = glue {φ = i ∨ ~ i} (λ { (i = i0) → x 1=1 ; (i = i1) → outS y }) (outS y)
 
--- sometimes more useful are versions of these functions with the (i : I) factored in
+module _ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B} where
+  -- sometimes more useful are versions of these functions with the (i : I) factored in
 
-ua-ungluePath : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
-                → PathP (λ i → ua e i) x y
-                → e .fst x ≡ y
-ua-ungluePath e p i = ua-unglue e i (p i)
+  ua-ungluePath : PathP (λ i → ua e i) x y → e .fst x ≡ y
+  ua-ungluePath p i = ua-unglue e i (p i)
 
-ua-gluePath : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
-              → e .fst x ≡ y
-              → PathP (λ i → ua e i) x y
-ua-gluePath e {x} p i = ua-glue e i (λ { (i = i0) → x }) (inS (p i))
+  ua-gluePath : e .fst x ≡ y → PathP (λ i → ua e i) x y
+  ua-gluePath p i = ua-glue e i (λ { (i = i0) → x }) (inS (p i))
 
--- ua-ungluePath and ua-gluePath are definitional inverses
-ua-ungluePath-Equiv : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
-                      → (PathP (λ i → ua e i) x y) ≃ (e .fst x ≡ y)
-ua-ungluePath-Equiv e = isoToEquiv (iso (ua-ungluePath e) (ua-gluePath e) (λ _ → refl) (λ _ → refl))
+  -- ua-ungluePath and ua-gluePath are definitional inverses
+  ua-ungluePath-Equiv : (PathP (λ i → ua e i) x y) ≃ (e .fst x ≡ y)
+  unquoteDef ua-ungluePath-Equiv =
+    defStrictEquiv ua-ungluePath-Equiv ua-ungluePath ua-gluePath
 
 -- ua-unglue and ua-glue are also definitional inverses, in a way
 -- strengthening the types of ua-unglue and ua-glue gives a nicer formulation of this, see below

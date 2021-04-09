@@ -7,8 +7,8 @@ Some basic utilities for reflection
 module Cubical.Reflection.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.List
-open import Cubical.Data.Nat
+open import Cubical.Data.List.Base
+open import Cubical.Data.Nat.Base
 
 import Agda.Builtin.Reflection as R
 open import Agda.Builtin.String

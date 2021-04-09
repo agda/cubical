@@ -6,6 +6,9 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Univalence
+
+open import Cubical.Reflection.StrictEquiv
 
 private
   variable
@@ -143,27 +146,21 @@ isProp→isContrPathP h x y = isProp→PathP h x y , isProp→isPropPathP h x y 
 
 -- Flipping a square along its diagonal
 
-flipSquare :
-  {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
+flipSquare : {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
   {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
   {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁}
-  → Square a₀₋ a₁₋ a₋₀ a₋₁
-  → Square a₋₀ a₋₁ a₀₋ a₁₋
+  → Square a₀₋ a₁₋ a₋₀ a₋₁ → Square a₋₀ a₋₁ a₀₋ a₁₋
 flipSquare sq i j = sq j i
 
-flipSquareEquiv :
-  {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
-  {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
+module _ {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁} {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
   {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁}
-  → Square a₀₋ a₁₋ a₋₀ a₋₁ ≃ Square a₋₀ a₋₁ a₀₋ a₁₋
-flipSquareEquiv = isoToEquiv (iso flipSquare flipSquare (λ _ → refl) (λ _ → refl))
+  where
 
-flipSquarePath :
-  {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
-  {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
-  {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁}
-  → Square a₀₋ a₁₋ a₋₀ a₋₁ ≡ Square a₋₀ a₋₁ a₀₋ a₁₋
-flipSquarePath = isoToPath (iso flipSquare flipSquare (λ _ → refl) (λ _ → refl))
+  flipSquareEquiv : Square a₀₋ a₁₋ a₋₀ a₋₁ ≃ Square a₋₀ a₋₁ a₀₋ a₁₋
+  unquoteDef flipSquareEquiv = defStrictEquiv flipSquareEquiv flipSquare flipSquare
+
+  flipSquarePath : Square a₀₋ a₁₋ a₋₀ a₋₁ ≡ Square a₋₀ a₋₁ a₀₋ a₁₋
+  flipSquarePath = ua flipSquareEquiv
 
 module _ {a₀₀ a₁₁ : A} {a₋ : a₀₀ ≡ a₁₁}
   {a₁₀ : A} {a₁₋ : a₁₀ ≡ a₁₁} {a₋₀ : a₀₀ ≡ a₁₀} where

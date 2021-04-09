@@ -18,6 +18,8 @@ open import Cubical.Structures.Auto
 open import Cubical.Structures.Record
 open import Cubical.Algebra.Semigroup
 
+open import Cubical.Reflection.StrictEquiv
+
 open Iso
 
 private
@@ -132,7 +134,7 @@ module MonoidΣTheory {ℓ} where
 
   MonoidAxioms≡IsMonoid : {M : Type ℓ} (s : RawMonoidStructure M)
     → MonoidAxioms M s ≡ IsMonoid (s .fst) (s .snd)
-  MonoidAxioms≡IsMonoid s = isoToPath (MonoidAxiomsIsoIsMonoid s)
+  MonoidAxioms≡IsMonoid s = ua (strictIsoToEquiv (MonoidAxiomsIsoIsMonoid s))
 
   open MonoidStr
 

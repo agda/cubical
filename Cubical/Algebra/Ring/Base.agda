@@ -19,6 +19,8 @@ open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.AbGroup
 
+open import Cubical.Reflection.StrictEquiv
+
 open Iso
 
 private
@@ -223,7 +225,7 @@ module RingΣTheory {ℓ} where
 
   RingPath : (R S : Ring) → (Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] RingEquiv R S e) ≃ (R ≡ S)
   RingPath R S =
-    Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] RingEquiv R S e ≃⟨ isoToEquiv RingIsoΣPath ⟩
+    Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] RingEquiv R S e ≃⟨ strictIsoToEquiv RingIsoΣPath ⟩
     RingEquivΣ R S              ≃⟨ RingΣPath _ _ ⟩
     Ring→RingΣ R ≡ Ring→RingΣ S ≃⟨ isoToEquiv (invIso (congIso RingIsoRingΣ)) ⟩
     R ≡ S ■

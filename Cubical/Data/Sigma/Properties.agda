@@ -31,11 +31,13 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Relation.Nullary
 open import Cubical.Data.Unit.Base
 
+open import Cubical.Reflection.StrictEquiv
+
 open Iso
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
     A A' : Type ℓ
     B B' : (a : A) → Type ℓ
     C : (a : A) (b : B a) → Type ℓ
@@ -79,9 +81,7 @@ module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
   rightInv ΣPathIsoPathΣ _ = refl
   leftInv ΣPathIsoPathΣ _  = refl
 
-  ΣPath≃PathΣ : (Σ[ p ∈ PathP A (fst x) (fst y) ] (PathP (λ i → B i (p i)) (snd x) (snd y)))
-              ≃ (PathP (λ i → Σ (A i) (B i)) x y)
-  ΣPath≃PathΣ = isoToEquiv ΣPathIsoPathΣ
+  unquoteDecl ΣPath≃PathΣ = declStrictIsoToEquiv ΣPath≃PathΣ ΣPathIsoPathΣ
 
   ΣPath≡PathΣ : (Σ[ p ∈ PathP A (fst x) (fst y) ] (PathP (λ i → B i (p i)) (snd x) (snd y)))
               ≡ (PathP (λ i → Σ (A i) (B i)) x y)
@@ -105,7 +105,7 @@ module _ {A : I → Type ℓ} {B : (i : I) → (a : A i) → Type ℓ'}
   ΣPathPIsoPathPΣ .rightInv _ = refl
   ΣPathPIsoPathPΣ .leftInv _ = refl
 
-  ΣPathP≃PathPΣ = isoToEquiv ΣPathPIsoPathPΣ
+  unquoteDecl ΣPathP≃PathPΣ = declStrictIsoToEquiv ΣPathP≃PathPΣ ΣPathPIsoPathPΣ
 
   ΣPathP≡PathPΣ = ua ΣPathP≃PathPΣ
 
@@ -123,32 +123,31 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
         ... | (no ¬q) = no (λ r → ¬q (subst (λ X → PathP (λ i → B (X i)) b0 b1) (Discrete→isSet Adis a0 a0 (cong fst r) refl) (cong snd r)))
     discreteΣ' (no ¬p) = no (λ r → ¬p (cong fst r))
 
-Σ-swap-Iso : Iso (A × A') (A' × A)
-fun Σ-swap-Iso (x , y) = (y , x)
-inv Σ-swap-Iso (x , y) = (y , x)
-rightInv Σ-swap-Iso _ = refl
-leftInv Σ-swap-Iso _  = refl
+module _ {A : Type ℓ} {A' : Type ℓ'} where
+  Σ-swap-Iso : Iso (A × A') (A' × A)
+  fun Σ-swap-Iso (x , y) = (y , x)
+  inv Σ-swap-Iso (x , y) = (y , x)
+  rightInv Σ-swap-Iso _ = refl
+  leftInv Σ-swap-Iso _  = refl
 
-Σ-swap-≃ : A × A' ≃ A' × A
-Σ-swap-≃ = isoToEquiv Σ-swap-Iso
+  unquoteDecl Σ-swap-≃ = declStrictIsoToEquiv Σ-swap-≃ Σ-swap-Iso
 
-Σ-assoc-Iso : Iso (Σ[ (a , b) ∈ Σ A B ] C a b) (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
-fun Σ-assoc-Iso ((x , y) , z) = (x , (y , z))
-inv Σ-assoc-Iso (x , (y , z)) = ((x , y) , z)
-rightInv Σ-assoc-Iso _ = refl
-leftInv Σ-assoc-Iso _  = refl
+module _ {A : Type ℓ} {B : A → Type ℓ'} {C : ∀ a → B a → Type ℓ''} where
+  Σ-assoc-Iso : Iso (Σ[ (a , b) ∈ Σ A B ] C a b) (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
+  fun Σ-assoc-Iso ((x , y) , z) = (x , (y , z))
+  inv Σ-assoc-Iso (x , (y , z)) = ((x , y) , z)
+  rightInv Σ-assoc-Iso _ = refl
+  leftInv Σ-assoc-Iso _  = refl
 
-Σ-assoc-≃ : (Σ[ (a , b) ∈ Σ A B ] C a b) ≃ (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
-Σ-assoc-≃ = isoToEquiv Σ-assoc-Iso
+  unquoteDecl Σ-assoc-≃ = declStrictIsoToEquiv Σ-assoc-≃ Σ-assoc-Iso
 
-Σ-Π-Iso : Iso ((a : A) → Σ[ b ∈ B a ] C a b) (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
-fun Σ-Π-Iso f         = (fst ∘ f , snd ∘ f)
-inv Σ-Π-Iso (f , g) x = (f x , g x)
-rightInv Σ-Π-Iso _    = refl
-leftInv Σ-Π-Iso _     = refl
+  Σ-Π-Iso : Iso ((a : A) → Σ[ b ∈ B a ] C a b) (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
+  fun Σ-Π-Iso f         = (fst ∘ f , snd ∘ f)
+  inv Σ-Π-Iso (f , g) x = (f x , g x)
+  rightInv Σ-Π-Iso _    = refl
+  leftInv Σ-Π-Iso _     = refl
 
-Σ-Π-≃ : ((a : A) → Σ[ b ∈ B a ] C a b) ≃ (Σ[ f ∈ ((a : A) → B a) ] ∀ a → C a (f a))
-Σ-Π-≃ = isoToEquiv Σ-Π-Iso
+  unquoteDecl Σ-Π-≃ = declStrictIsoToEquiv Σ-Π-≃ Σ-Π-Iso
 
 Σ-cong-iso-fst : (isom : Iso A A') → Iso (Σ A (B ∘ fun isom)) (Σ A' B)
 fun (Σ-cong-iso-fst isom) x = fun isom (x .fst) , x .snd
@@ -275,8 +274,9 @@ PathΣ→ΣPathTransport a b = Iso.inv (IsoΣPathTransportPathΣ a b)
     ΣPathTransport≃PathΣ _ _ .fst (c .snd a , transportTransport⁻ (cong B (c .snd a)) _)
 
 -- a special case of the above
-ΣUnit : ∀ {ℓ} (A : Unit → Type ℓ) → Σ Unit A ≃ A tt
-ΣUnit A = isoToEquiv (iso snd (λ { x → (tt , x) }) (λ _ → refl) (λ _ → refl))
+module _ (A : Unit → Type ℓ) where
+  ΣUnit : Σ Unit A ≃ A tt
+  unquoteDef ΣUnit = defStrictEquiv ΣUnit snd (λ { x → (tt , x) })
 
 Σ-contractSnd : ((a : A) → isContr (B a)) → Σ A B ≃ A
 Σ-contractSnd c = isoToEquiv isom
@@ -347,13 +347,13 @@ toProdIso : {B C : A → Type ℓ}
 Iso.fun toProdIso = λ f → (λ a → fst (f a)) , (λ a → snd (f a))
 Iso.inv toProdIso (f , g) = λ a → (f a) , (g a)
 Iso.rightInv toProdIso (f , g) = refl
-Iso.leftInv toProdIso b = funExt λ _ → refl
+Iso.leftInv toProdIso b = refl
 
-curryIso : Iso (((a , b) : Σ A B) → C a b) ((a : A) → (b : B a) → C a b)
-Iso.fun curryIso f a b = f (a , b)
-Iso.inv curryIso f a = f (fst a) (snd a)
-Iso.rightInv curryIso a = refl
-Iso.leftInv curryIso f = funExt λ _ → refl
+module _ {A : Type ℓ} {B : A → Type ℓ'} {C : ∀ a → B a → Type ℓ''} where
+  curryIso : Iso (((a , b) : Σ A B) → C a b) ((a : A) → (b : B a) → C a b)
+  Iso.fun curryIso f a b = f (a , b)
+  Iso.inv curryIso f a = f (fst a) (snd a)
+  Iso.rightInv curryIso a = refl
+  Iso.leftInv curryIso f = refl
 
-curryEquiv : (((a , b) : Σ A B) → C a b) ≃ (∀ a → (b : B a) → C a b)
-curryEquiv = isoToEquiv curryIso
+  unquoteDecl curryEquiv = declStrictIsoToEquiv curryEquiv curryIso
