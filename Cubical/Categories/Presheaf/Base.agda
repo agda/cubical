@@ -13,32 +13,33 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 
-module _ {ℓ ℓ' : Level} where
-  PreShv : Precategory ℓ ℓ' → Precategory _ _ -- (ℓ-max (ℓ-suc ℓ) ℓ') (ℓ-max (ℓ-suc ℓ) ℓ')
-  PreShv C = FUNCTOR (C ^op) (SET ℓ)
+module _ {ℓ ℓ'} where
 
-  instance
-    isCatPreShv : {C : Precategory ℓ ℓ'}
-                → isCategory (PreShv C)
-    isCatPreShv {C} = isCatFUNCTOR (C ^op) (SET ℓ)
+  PreShv : Precategory ℓ ℓ' → (ℓS : Level) → Precategory (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓS)) (ℓ-max (ℓ-max ℓ ℓ') ℓS)
+  PreShv C ℓS = FUNCTOR (C ^op) (SET ℓS)
+
+instance
+  isCatPreShv : ∀ {ℓ ℓ'} {C : Precategory ℓ ℓ'} {ℓS}
+    → isCategory (PreShv C ℓS)
+  isCatPreShv {C = C} {ℓS} = isCatFUNCTOR (C ^op) (SET ℓS)
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
-module Yoneda (C : Precategory ℓ ℓ) ⦃ C-cat : isCategory C ⦄ where
+module Yoneda (C : Precategory ℓ ℓ') ⦃ C-cat : isCategory C ⦄ where
   open Functor
   open NatTrans
   open Precategory C
 
-  yo : ob → Functor (C ^op) (SET ℓ)
+  yo : ob → Functor (C ^op) (SET ℓ')
   yo x .F-ob y .fst = C [ y , x ]
   yo x .F-ob y .snd = C-cat .isSetHom
   yo x .F-hom f g = f ⋆⟨ C ⟩ g
   yo x .F-id i f = ⋆IdL f i
   yo x .F-seq f g i h = ⋆Assoc g f h i
 
-  YO : Functor C (PreShv C)
+  YO : Functor C (PreShv C ℓ')
   YO .F-ob = yo
   YO .F-hom f .N-ob z g = g ⋆⟨ C ⟩ f
   YO .F-hom f .N-hom g i h = ⋆Assoc g h f i
@@ -46,7 +47,7 @@ module Yoneda (C : Precategory ℓ ℓ) ⦃ C-cat : isCategory C ⦄ where
   YO .F-seq f g = makeNatTransPath λ i _ → λ h → ⋆Assoc h f g (~ i)
 
 
-  module _ {x} (F : Functor (C ^op) (SET ℓ)) where
+  module _ {x} (F : Functor (C ^op) (SET ℓ')) where
     yo-yo-yo : NatTrans (yo x) F → F .F-ob x .fst
     yo-yo-yo α = α .N-ob _ (id _)
 

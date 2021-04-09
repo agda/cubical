@@ -2,12 +2,16 @@
 module Cubical.Data.NatPlusOne.Properties where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
 open import Cubical.Data.Nat
 open import Cubical.Data.NatPlusOne.Base
 
+open import Cubical.Reflection.StrictEquiv
+
 1+Path : ℕ ≡ ℕ₊₁
-1+Path = isoToPath (iso 1+_ -1+_ (λ _ → refl) (λ _ → refl))
+1+Path = ua e
+  where
+  unquoteDecl e = declStrictEquiv e 1+_ -1+_
 
 ℕ₊₁→ℕ-inj : ∀ {m n} → ℕ₊₁→ℕ m ≡ ℕ₊₁→ℕ n → m ≡ n
 ℕ₊₁→ℕ-inj p i = 1+ (injSuc p i)

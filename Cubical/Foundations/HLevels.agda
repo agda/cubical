@@ -418,6 +418,10 @@ isSetΠ2 : (h : (x : A) (y : B x) → isSet (C x y))
         → isSet ((x : A) (y : B x) → C x y)
 isSetΠ2 h = isSetΠ λ x → isSetΠ λ y → h x y
 
+isSetΠ3 : (h : (x : A) (y : B x) (z : C x y) → isSet (D x y z))
+         → isSet ((x : A) (y : B x) (z : C x y) → D x y z)
+isSetΠ3 h = isSetΠ λ x → isSetΠ λ y → isSetΠ λ z → h x y z
+
 isGroupoidΠ : ((x : A) → isGroupoid (B x)) → isGroupoid ((x : A) → B x)
 isGroupoidΠ = isOfHLevelΠ 3
 

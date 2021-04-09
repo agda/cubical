@@ -21,12 +21,12 @@ open Precategory
 open Functor
 
 
-getIsSet : {C : Precategory ℓ ℓ'} (F : Functor C (SET ℓ)) → (c : C .ob) → isSet (fst (F ⟅ c ⟆))
+getIsSet : ∀ {ℓS} {C : Precategory ℓ ℓ'} (F : Functor C (SET ℓS)) → (c : C .ob) → isSet (fst (F ⟅ c ⟆))
 getIsSet F c = snd (F ⟅ c ⟆)
 
 
 infix 50 ∫_
-∫_ : Functor C (SET ℓ) → Precategory ℓ (ℓ-max ℓ ℓ')
+∫_ : ∀ {ℓS} → Functor C (SET ℓS) → Precategory (ℓ-max ℓ ℓS) (ℓ-max ℓ' ℓS)
 -- objects are (c , x) pairs where c ∈ C and x ∈ F c
 (∫ F) .ob = Σ[ c ∈ C .ob ] fst (F ⟅ c ⟆)
 -- morphisms are f : c → c' which take x to x'
@@ -73,7 +73,7 @@ infix 50 ∫_
 
 
 -- same thing but for presheaves
-∫ᴾ_ : Functor (C ^op) (SET ℓ) → Precategory ℓ (ℓ-max ℓ ℓ')
+∫ᴾ_ : ∀ {ℓS} → Functor (C ^op) (SET ℓS) → Precategory (ℓ-max ℓ ℓS) (ℓ-max ℓ' ℓS)
 -- objects are (c , x) pairs where c ∈ C and x ∈ F c
 (∫ᴾ F) .ob = Σ[ c ∈ C .ob ] fst (F ⟅ c ⟆)
 -- morphisms are f : c → c' which take x to x'
@@ -120,7 +120,7 @@ infix 50 ∫_
 
 -- helpful results
 
-module _ {F : Functor (C ^op) (SET ℓ)} where
+module _ {ℓS} {F : Functor (C ^op) (SET ℓS)} where
 
   -- morphisms are equal as long as the morphisms in C are equals
   ∫ᴾhomEq : ∀ {o1 o1' o2 o2'} (f : (∫ᴾ F) [ o1 , o2 ]) (g : (∫ᴾ F) [ o1' , o2' ])

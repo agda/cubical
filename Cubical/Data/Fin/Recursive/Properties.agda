@@ -231,22 +231,22 @@ module Isos where
   up : Fin m → Fin (m + n)
   up {m} = inject≤ (k≤k+n m)
 
-  resplit-identᵣ₀ : ∀ m (i : Fin n) → Sum.SumPath.Cover (split m (m ⊕ i)) (inr i)
+  resplit-identᵣ₀ : ∀ m (i : Fin n) → Sum.⊎Path.Cover (split m (m ⊕ i)) (inr i)
   resplit-identᵣ₀ zero    i = lift refl
   resplit-identᵣ₀ (suc m) i with split m (m ⊕ i) | resplit-identᵣ₀ m i
   ... | inr j | p = p
 
   resplit-identᵣ : ∀ m (i : Fin n) → split m (m ⊕ i) ≡ inr i
-  resplit-identᵣ m i = Sum.SumPath.decode _ _ (resplit-identᵣ₀ m i)
+  resplit-identᵣ m i = Sum.⊎Path.decode _ _ (resplit-identᵣ₀ m i)
 
-  resplit-identₗ₀ : ∀ m (i : Fin m) → Sum.SumPath.Cover (split {n} m (up i)) (inl i)
+  resplit-identₗ₀ : ∀ m (i : Fin m) → Sum.⊎Path.Cover (split {n} m (up i)) (inl i)
   resplit-identₗ₀ (suc m) zero = lift refl
   resplit-identₗ₀ {n} (suc m) (suc i)
     with split {n} m (up i) | resplit-identₗ₀ {n} m i
   ... | inl j | lift p = lift (cong suc p)
 
   resplit-identₗ : ∀ m (i : Fin m) → split {n} m (up i) ≡ inl i
-  resplit-identₗ m i = Sum.SumPath.decode _ _ (resplit-identₗ₀ m i)
+  resplit-identₗ m i = Sum.⊎Path.decode _ _ (resplit-identₗ₀ m i)
 
   desplit-ident : ∀ m → (i : Fin (m + n)) → Sum.rec up (m ⊕_) (split m i) ≡ i
   desplit-ident zero i = refl
