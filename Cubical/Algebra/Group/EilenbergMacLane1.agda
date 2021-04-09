@@ -67,13 +67,19 @@ module _ (Ĝ : Group {ℓ}) where
      and function composition in the other order,
      we need right multiplication here -}
   rightEquiv : (g : G) → G ≃ G {- equivEq _ _ (funExt (λ x → (assoc x g h) ⁻¹)) -}
-  rightEquiv g = isoToEquiv (iso (_+ g) (_+ - g)
-    (λ h → (h + - g) + g ≡⟨ (assoc h (- g) g) ⁻¹ ⟩
-             h + - g + g ≡⟨ cong (h +_) (invl g) ⟩
-                  h + 0g ≡⟨ rid h ⟩ h ∎)
-    λ h → (h + g) + - g ≡⟨ (assoc h g (- g)) ⁻¹ ⟩
-            h + g + - g ≡⟨ cong (h +_) (invr g) ⟩
-                 h + 0g ≡⟨ rid h ⟩ h ∎)
+  rightEquiv g = isoToEquiv isom
+    where
+    isom : Iso G G
+    isom .Iso.fun = _+ g
+    isom .Iso.inv = _+ - g
+    isom .Iso.rightInv h =
+      (h + - g) + g ≡⟨ (assoc h (- g) g) ⁻¹ ⟩
+        h + - g + g ≡⟨ cong (h +_) (invl g) ⟩
+             h + 0g ≡⟨ rid h ⟩ h ∎
+    isom .Iso.leftInv h =
+      (h + g) + - g ≡⟨ (assoc h g (- g)) ⁻¹ ⟩
+        h + g + - g ≡⟨ cong (h +_) (invr g) ⟩
+             h + 0g ≡⟨ rid h ⟩ h ∎
 
   compRightEquiv : (g h : G)
     → compEquiv (rightEquiv g) (rightEquiv h) ≡ rightEquiv (g + h)
