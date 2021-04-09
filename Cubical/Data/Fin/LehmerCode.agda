@@ -157,7 +157,7 @@ lehmerEquiv {suc n} =
       Fin (suc n)
         ≃⟨ invEquiv projectionEquiv ⟩
       Unit ⊎ FinExcept fzero
-        ≃⟨ isoToEquiv (Sum.sumIso idIso (equivToIso f)) ⟩
+        ≃⟨ isoToEquiv (Sum.⊎Iso idIso (equivToIso f)) ⟩
       Unit ⊎ FinExcept k
         ≃⟨ projectionEquiv ⟩
       Fin (suc n)
