@@ -3,6 +3,7 @@ module Cubical.Algebra.Ring.QuotientRing where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Powerset using (_∈_; _⊆_) -- \in, \sub=
@@ -228,3 +229,21 @@ module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
              → (ψ : RingHom (R / I) S) → (ψIsSolution : (x : ⟨ R ⟩) → ψ $ [ x ] ≡ φ $ x)
              → (x : ⟨ R ⟩) → ψ $ [ x ] ≡ inducedHom p $ [ x ]
     unique p ψ ψIsSolution x = ψIsSolution x
+
+module trivialQuotient (R : Ring {ℓ}) where
+  open RingStr (snd R)
+  open Theory R
+
+  up : ⟨ (R / (zeroIdeal R)) ⟩ → ⟨ R ⟩
+  up = elim (λ _ → isSetRing R) (λ x → x) equalByDifference
+
+  asIso : Iso ⟨ (R / (zeroIdeal R)) ⟩ ⟨ R ⟩
+  asIso = iso up
+              (λ x → [ x ])
+              (λ _ → refl)
+              (elim (λ _ → isProp→isSet (isSetRing (R / (zeroIdeal R)) _ _))
+                    (λ _ → refl)
+                    λ x y ∈zeroIdeal → {!!})
+
+  byUMP : RingHom (R / (zeroIdeal R)) R
+  byUMP = {!UniversalProperty.inducedHom !}
