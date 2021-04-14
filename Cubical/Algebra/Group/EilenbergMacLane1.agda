@@ -54,11 +54,11 @@ module _ (Ĝ : Group {ℓ}) where
     refl ∙ (emloop g) ⁻¹                      ≡⟨ (lUnit ((emloop g) ⁻¹)) ⁻¹ ⟩
     (emloop g) ⁻¹ ∎
 
-  EM₁Groupoid : isGroupoid (EM₁ Ĝ)
-  EM₁Groupoid = emsquash
+  isGroupoidEM₁ : isGroupoid (EM₁ Ĝ)
+  isGroupoidEM₁ = emsquash
 
-  EM₁Connected : isConnected 2 (EM₁ Ĝ)
-  EM₁Connected = ∣ embase ∣ , h
+  isConnectedEM₁ : isConnected 2 (EM₁ Ĝ)
+  isConnectedEM₁ = ∣ embase ∣ , h
     where
       h : (y : hLevelTrunc 2 (EM₁ Ĝ)) → ∣ embase ∣ ≡ y
       h = trElim (λ y → isOfHLevelSuc 1 (isOfHLevelTrunc 2 ∣ embase ∣ y))
@@ -124,7 +124,7 @@ module _ (Ĝ : Group {ℓ}) where
   encode x p = subst Codes p 0g
 
   decode : (x : EM₁ Ĝ) → Codes x → embase ≡ x
-  decode = elimSet Ĝ (λ x → isOfHLevelΠ 2 (λ c → EM₁Groupoid (embase) x))
+  decode = elimSet Ĝ (λ x → isOfHLevelΠ 2 (λ c → isGroupoidEM₁ (embase) x))
     emloop λ g → ua→ λ h → emcomp h g
 
 
