@@ -67,7 +67,7 @@ module _ (Ĝ : Group {ℓ}) where
   {- since we write composition in diagrammatic order,
      and function composition in the other order,
      we need right multiplication here -}
-  rightEquiv : (g : G) → G ≃ G {- equivEq _ _ (funExt (λ x → (assoc x g h) ⁻¹)) -}
+  rightEquiv : (g : G) → G ≃ G
   rightEquiv g = isoToEquiv isom
     where
     isom : Iso G G
