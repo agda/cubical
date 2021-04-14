@@ -46,7 +46,7 @@ record IsAlgebra (R : Ring {ℓ}) {A : Type ℓ}
 
   isRing : IsRing _ _ _ _ _
   isRing = isring (IsLeftModule.+-isAbGroup isLeftModule) ·-isMonoid dist
-  open IsRing isRing public hiding (_-_; +Assoc; +Lid; +Linv; +Rid; +Rinv; +Comm)
+  open IsRing isRing public hiding (_-_; +Assoc; +Lid; +Linv; +Rid; +Rinv; +Comm; dist)
 
 record Algebra (R : Ring {ℓ}) : Type (ℓ-suc ℓ) where
 
@@ -154,27 +154,27 @@ record AlgebraHom {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
   open Algebra {{...}}
 
   field
-    f      : ⟨ A ⟩a → ⟨ B ⟩a
-    isHom+ : (x y : ⟨ A ⟩a) → f (x + y) ≡ f x + f y
-    isHom· : (x y : ⟨ A ⟩a) → f (x · y) ≡ f x · f y
-    pres1  : f 1a ≡ 1a
-    comm⋆  : (r : ⟨ R ⟩) (x : ⟨ A ⟩a) → f (r ⋆ x) ≡ r ⋆ f x
+    map      : ⟨ A ⟩a → ⟨ B ⟩a
+    isHom+ : (x y : ⟨ A ⟩a) → map (x + y) ≡ map x + map y
+    isHom· : (x y : ⟨ A ⟩a) → map (x · y) ≡ map x · map y
+    pres1  : map 1a ≡ 1a
+    comm⋆  : (r : ⟨ R ⟩) (x : ⟨ A ⟩a) → map (r ⋆ x) ≡ r ⋆ map x
 
-  pres0 : f 0a ≡ 0a
-  pres0 = Theory.+Idempotency→0 (Algebra→Ring B) (f 0a)
-          (f 0a        ≡⟨ cong f (sym (+-rid _)) ⟩
-           f (0a + 0a) ≡⟨ isHom+ _ _ ⟩
-           f 0a + f 0a ∎)
+  pres0 : map 0a ≡ 0a
+  pres0 = Theory.+Idempotency→0 (Algebra→Ring B) (map 0a)
+          (map 0a        ≡⟨ cong map (sym (+-rid _)) ⟩
+           map (0a + 0a) ≡⟨ isHom+ _ _ ⟩
+           map 0a + map 0a ∎)
 
-  isHom- : (x : ⟨ A ⟩a) → f (- x) ≡ - f x
-  isHom- x = Theory.implicitInverse (Algebra→Ring B) (f x) (f (- x))
-             (f (x) + f (- x)  ≡⟨ sym (isHom+ _ _) ⟩
-             f (x - x)         ≡⟨ cong f (+-rinv _) ⟩
-             f 0a              ≡⟨ pres0 ⟩
+  isHom- : (x : ⟨ A ⟩a) → map (- x) ≡ - map x
+  isHom- x = Theory.implicitInverse (Algebra→Ring B) (map x) (map (- x))
+             (map (x) + map (- x)  ≡⟨ sym (isHom+ _ _) ⟩
+             map (x - x)         ≡⟨ cong map (+-rinv _) ⟩
+             map 0a              ≡⟨ pres0 ⟩
              0a ∎)
 
 _$a_ : {R : Ring {ℓ}} {A B : Algebra R} → AlgebraHom A B → ⟨ A ⟩a → ⟨ B ⟩a
-f $a x = AlgebraHom.f f x
+f $a x = AlgebraHom.map f x
 
 
 _∘a_ : {R : Ring {ℓ}} {A B C : Algebra R}

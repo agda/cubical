@@ -50,14 +50,14 @@ elim Pprop f (squash x y i) =
     (elim Pprop f x) (elim Pprop f y) (squash x y) i
 
 elim2 : {P : ∥ A ∥ → ∥ A ∥ → Type ℓ}
-        (Bset : ((x y : ∥ A ∥) → isProp (P x y)))
+        (Pprop : ((x y : ∥ A ∥) → isProp (P x y)))
         (f : (a b : A) → P ∣ a ∣ ∣ b ∣)
         (x y : ∥ A ∥) → P x y
 elim2 Pprop f = elim (λ _ → isPropΠ (λ _ → Pprop _ _))
                      (λ a → elim (λ _ → Pprop _ _) (f a))
 
 elim3 : {P : ∥ A ∥ → ∥ A ∥ → ∥ A ∥ → Type ℓ}
-        (Bset : ((x y z : ∥ A ∥) → isProp (P x y z)))
+        (Pprop : ((x y z : ∥ A ∥) → isProp (P x y z)))
         (g : (a b c : A) → P (∣ a ∣) ∣ b ∣ ∣ c ∣)
         (x y z : ∥ A ∥) → P x y z
 elim3 Pprop g = elim2 (λ _ _ → isPropΠ (λ _ → Pprop _ _ _))

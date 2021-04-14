@@ -54,7 +54,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
  private R = fst R'
  open CommRingStr (snd R') hiding (is-set)
  open Theory (CommRing→Ring R')
- open RingHom
+ open RingHom renaming (map to f)
 
 
 

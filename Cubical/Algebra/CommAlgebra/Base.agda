@@ -18,6 +18,7 @@ open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra hiding (⟨_⟩a)
+open import Cubical.Algebra.Algebra using (_$a_; AlgebraHom; isSetAlgebra) public
 
 private
   variable
@@ -49,6 +50,11 @@ record CommAlgebra (R : CommRing {ℓ}) : Type (ℓ-suc ℓ) where
     -_             : Carrier → Carrier
     _⋆_            : ⟨ R ⟩ → Carrier → Carrier
     isCommAlgebra  : IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_
+
+  infix  8 -_
+  infixl 7 _·_
+  infixl 7 _⋆_
+  infixl 6 _+_
 
   open IsCommAlgebra isCommAlgebra public
 
@@ -114,6 +120,29 @@ module _ {R : CommRing {ℓ}} where
                    (r ⋆ y) · x ≡⟨ ·-comm _ _ ⟩
                    x · (r ⋆ y) ∎)
      ·-comm
+
+
+module _ {R : CommRing {ℓ}} ((S , str) : CommRing {ℓ}) where
+  open CommRingStr {{...}}
+  instance
+    _ : CommRingStr _
+    _ = str
+    _ : CommRingStr _
+    _ = snd R
+
+  commAlgebraFromCommRing :
+        (_⋆_ : fst R → S → S)
+      → ((r s : fst R) (x : S) → (r · s) ⋆ x ≡ r ⋆ (s ⋆ x))
+      → ((r s : fst R) (x : S) → (r + s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
+      → ((r : fst R) (x y : S) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
+      → ((x : S) → 1r ⋆ x ≡ x)
+      → ((r : fst R) (x y : S) → (r ⋆ x) · y ≡ r ⋆ (x · y))
+      → CommAlgebra R
+  commAlgebraFromCommRing _⋆_ ·Assoc⋆ ⋆DistR ⋆DistL ⋆Lid ⋆Assoc· =
+    commalgebra S 0r 1r _+_ _·_  -_ _⋆_
+      (makeIsCommAlgebra is-set +Assoc +Rid +Rinv +Comm ·Assoc ·Lid ·Ldist+ ·-comm
+                                ·Assoc⋆ ⋆DistR ⋆DistL ⋆Lid ⋆Assoc·)
+
 
 module CommAlgebraΣTheory (R : CommRing {ℓ}) where
 

@@ -3,6 +3,7 @@ module Cubical.Algebra.Ring.QuotientRing where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Powerset using (_∈_; _⊆_) -- \in, \sub=
@@ -10,7 +11,10 @@ open import Cubical.Foundations.Powerset using (_∈_; _⊆_) -- \in, \sub=
 open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/ₛ_)
 open import Cubical.HITs.SetQuotients.Properties
 
-open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.Base
+open import Cubical.Algebra.Ring.Properties
+open import Cubical.Algebra.Ring.Ideal
+open import Cubical.Algebra.Ring.Kernel
 
 private
   variable
@@ -195,15 +199,14 @@ module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
       _ = snd R
 
   module _ {S : Ring {ℓ}} (φ : RingHom R S) where
-    open RingHom φ
+    open RingHom φ renaming (map to f)
     open HomTheory φ
     private
       instance
         _ = S
         _ = snd S
 
-
-    inducedHom : Iₛ ⊆ kernel φ → RingHom (R / I) S
+    inducedHom : Iₛ ⊆ kernelSubtype φ → RingHom (R / I) S
     f (inducedHom Iₛ⊆kernel) = elim
                                  (λ _ → isSetRing S)
                                  f
@@ -218,11 +221,29 @@ module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
     isHom· (inducedHom Iₛ⊆kernel) =
       elimProp2 (λ _ _ → isSetRing S _ _) isHom·
 
-    solution : (p : Iₛ ⊆ kernel φ)
+    solution : (p : Iₛ ⊆ kernelSubtype φ)
                → (x : ⟨ R ⟩) → inducedHom p $ [ x ] ≡ φ $ x
     solution p x = refl
 
-    unique : (p : Iₛ ⊆ kernel φ)
+    unique : (p : Iₛ ⊆ kernelSubtype φ)
              → (ψ : RingHom (R / I) S) → (ψIsSolution : (x : ⟨ R ⟩) → ψ $ [ x ] ≡ φ $ x)
              → (x : ⟨ R ⟩) → ψ $ [ x ] ≡ inducedHom p $ [ x ]
     unique p ψ ψIsSolution x = ψIsSolution x
+
+module trivialQuotient (R : Ring {ℓ}) where
+  open RingStr (snd R)
+  open Theory R
+
+  up : ⟨ (R / (zeroIdeal R)) ⟩ → ⟨ R ⟩
+  up = elim (λ _ → isSetRing R) (λ x → x) equalByDifference
+
+  asIso : Iso ⟨ (R / (zeroIdeal R)) ⟩ ⟨ R ⟩
+  asIso = iso up
+              (λ x → [ x ])
+              (λ _ → refl)
+              (elim (λ _ → isProp→isSet (isSetRing (R / (zeroIdeal R)) _ _))
+                    (λ _ → refl)
+                    λ x y ∈zeroIdeal → {!!})
+
+  byUMP : RingHom (R / (zeroIdeal R)) R
+  byUMP = {!UniversalProperty.inducedHom !}
