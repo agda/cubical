@@ -46,7 +46,9 @@ private
   infixl 4 _>>=_ _>>_ _<|>_
 
   varg : ∀ {ℓ} {A : Type ℓ} → A → R.Arg A
-  varg = R.arg (R.arg-info R.visible R.relevant)
+  varg = R.arg (R.arg-info R.visible m)
+    where
+    m = R.modality R.relevant R.quantity-ω
 
   tLevel = R.def (quote Level) []
 
