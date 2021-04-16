@@ -29,59 +29,57 @@ PathP≡Path⁻ : ∀ (P : I → Type ℓ) (p : P i0) (q : P i1) →
              PathP P p q ≡ Path (P i0) p (transport⁻ (λ i → P i) q)
 PathP≡Path⁻ P p q i = PathP (λ j → P (~ i ∧ j)) p (transport⁻-filler (λ j → P j) q i)
 
-PathP≃Path : ∀ (P : I → Type ℓ) (p : P i0) (q : P i1) →
-             PathP P p q ≃ Path (P i1) (transport (λ i → P i) p) q
-PathP≃Path P p q = transportEquiv (PathP≡Path P p q)
+PathPIsoPath : ∀ (A : I → Type ℓ) (x : A i0) (y : A i1) → Iso (PathP A x y) (transport (λ i → A i) x ≡ y)
+PathPIsoPath A x y .Iso.fun = fromPathP
+PathPIsoPath A x y .Iso.inv = toPathP
+PathPIsoPath A x y .Iso.rightInv q k i =
+  hcomp
+    (λ j → λ
+      { (i = i0) → slide (j ∨ ~ k)
+      ; (i = i1) → q j
+      ; (k = i0) → transp (λ l → A (i ∨ l)) i (fromPathPFiller j)
+      ; (k = i1) → ∧∨Square i j
+      })
+    (transp (λ l → A (i ∨ ~ k ∨ l)) (i ∨ ~ k)
+      (transp (λ l → (A (i ∨ (~ k ∧ l)))) (k ∨ i)
+        (transp (λ l → A (i ∧ l)) (~ i)
+          x)))
+  where
+  fromPathPFiller : _
+  fromPathPFiller =
+    hfill
+      (λ j → λ
+        { (i = i0) → x
+        ; (i = i1) → q j })
+      (inS (transp (λ j → A (i ∧ j)) (~ i) x))
 
--- Alternative more unfolded proof
-toPathP-isEquiv : ∀ (A : I → Type ℓ) {x y} → isEquiv (toPathP {A = A} {x} {y})
-toPathP-isEquiv A {x} {y} = isoToIsEquiv (iso toPathP fromPathP to-from from-to)
- where
-   to-from : ∀ (p : PathP A x y) → toPathP (fromPathP p) ≡ p
-   to-from p h i = outS (hcomp-unique (λ { j (i = i0) → x ; j (i = i1) → fromPathP p j })
-                                  (inS (transp (λ j → A (i ∧ j)) (~ i) x))
-                                  \ h → inS (sq1 h i))
-                        h
-      where
-        sq1 : (\ h → A [ x ≡ transp (\ j → A (h ∨ j)) h (p h) ]) [ (\ i → transp (λ j → A (i ∧ j)) (~ i) x) ≡ p ]
-        sq1 = \ h i → comp (\ z → (hcomp (\ w →
-                                                    \ { (z = i1) → A (i ∧ (w ∨ h))
-                                                      ; (z = i0) → A (i ∧ h)
-                                                      ; (i = i0) → A i0
-                                                      ; (i = i1) → A (h ∨ (w ∧ z))
-                                                      ; (h = i0) → A (i ∧ (w ∧ z))
-                                                      ; (h = i1) → A i})
-                                                   ((A (i ∧ h)))))
-                                          (\ z → \ { (i = i0) → x
-                                                   ; (i = i1) → transp (\ j → A (h ∨ (z ∧ j))) (h ∨ ~ z) (p h)
-                                                   ; (h = i0) → transp (λ j → A ((i ∧ z) ∧ j)) (~ (i ∧ z)) x
-                                                   ; (h = i1) → p i })
-                                (p (i ∧ h))
-   from-to : ∀ (q : transp (\ i → A i) i0 x ≡ y) → fromPathP (toPathP {A = A} q) ≡ q
-   from-to q = (\ h i → outS (transp-hcomp i {A' = A i1} (\ j → inS (A (i ∨ j)))
-                                           ((λ { j (i = i0) → x ; j (i = i1) → q j }))
-                                           (inS ((transp (λ j → A (i ∧ j)) (~ i) x))))
-                             h)
-             ∙ (\ h i → outS (hcomp-unique {A = A i1} ((λ { j (i = i0) → transp (\ i → A i) i0 x ; j (i = i1) → q j }))
-                                      (inS ((transp (λ j → A (i ∨ j)) i (transp (λ j → A (i ∧ j)) (~ i) x))))
-                                      \ h → inS (sq2 h i))
-                             h)
-             ∙ sym (lUnit q)
-     where
-       sq2 : (\ h → transp (\ i → A i) i0 x ≡ q h) [ (\ i → transp (\ j → A (i ∨ j)) i (transp (\ j → A (i ∧ j)) (~ i) x)) ≡ refl ∙ q ]
-       sq2 = \ h i → comp (\ z → hcomp (\ w → \ { (i = i1) → A i1
-                                              ; (i = i0) → A (h ∨ (w ∧ z))
-                                              ; (h = i0) → A (i ∨ (w ∧ z))
-                                              ; (h = i1) → A i1
-                                              ; (z = i0) → A (i ∨ h)
-                                              ; (z = i1) → A ((i ∨ h) ∨ w) })
-                                             (A (i ∨ h)))
-                 (\ z → \ { (i = i0) → transp (λ j → A ((z ∨ h) ∧ j)) (~ z ∧ ~ h) x
-                          ; (i = i1) → q (z ∧ h)
-                          ; (h = i1) → compPath-filler refl q z i
-                          ; (h = i0) → transp (\ j → A (i ∨ (z ∧ j))) (i ∨ ~ z) (transp (\ j → A (i ∧ j)) (~ i) x)
-                          })
-                          (transp (\ j → A ((i ∨ h) ∧ j)) (~ (i ∨ h)) x)
+  slide : I → _
+  slide i = transp (λ l → A (i ∨ l)) i (transp (λ l → A (i ∧ l)) (~ i) x)
+
+  ∧∨Square : I → I → _
+  ∧∨Square i j =
+    hcomp
+      (λ l → λ
+        { (i = i0) → slide j
+        ; (i = i1) → q (j ∧ l)
+        ; (j = i0) → slide i
+        ; (j = i1) → q (i ∧ l)
+        })
+      (slide (i ∨ j))
+PathPIsoPath A x y .Iso.leftInv q k i =
+  outS
+    (hcomp-unique
+      (λ j → λ
+        { (i = i0) → x
+        ; (i = i1) → transp (λ l → A (j ∨ l)) j (q j)
+        })
+      (inS (transp (λ l → A (i ∧ l)) (~ i) x))
+      (λ j → inS (transp (λ l → A (i ∧ (j ∨ l))) (~ i ∨ j) (q (i ∧ j)))))
+    k
+
+PathP≃Path : (A : I → Type ℓ) (x : A i0) (y : A i1) →
+             PathP A x y ≃ (transport (λ i → A i) x ≡ y)
+PathP≃Path A x y = isoToEquiv (PathPIsoPath A x y)
 
 PathP≡compPath : ∀ {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) (r : x ≡ z)
                  → (PathP (λ i → x ≡ q i) p r) ≡ (p ∙ q ≡ r)
