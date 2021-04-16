@@ -592,3 +592,38 @@ Iso.leftInv  (Fin+≅Fin⊎Fin m n) = ret-f-g
 
 Fin+≡Fin⊎Fin : (m n : ℕ) → Fin (m + n) ≡ Fin m ⊎ Fin n
 Fin+≡Fin⊎Fin m n = isoToPath (Fin+≅Fin⊎Fin m n)
+
+
+
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function
+open import Cubical.Data.FinData.Base renaming (Fin to FinData)
+
+sucFin : {N : ℕ} → Fin N → Fin (suc N)
+sucFin (k , n , p) = suc k , n , (+-suc _ _ ∙ cong suc p)
+
+FinData→Fin : (N : ℕ) → FinData N → Fin N
+FinData→Fin zero ()
+FinData→Fin (suc N) zero = 0 , suc-≤-suc zero-≤
+FinData→Fin (suc N) (suc k) = sucFin (FinData→Fin N k)
+
+Fin→FinData : (N : ℕ) → Fin N → FinData N
+Fin→FinData zero (k , n , p) = Empty.rec (snotz (sym (+-suc n k) ∙ p))
+Fin→FinData (suc N) (0 , n , p) = zero
+Fin→FinData (suc N) ((suc k) , n , p) = suc (Fin→FinData N (k , n , injSuc (sym (+-suc n (suc k)) ∙ p)))
+
+secFin : (n : ℕ) → section (FinData→Fin n) (Fin→FinData n)
+secFin 0 (k , n , p) = Empty.rec (snotz (sym (+-suc n k) ∙ p))
+secFin (suc N) (0 , n , p) = Fin-fst-≡ refl
+secFin (suc N) (suc k , n , p) = Fin-fst-≡ (cong suc (cong fst (secFin N (k , n , injSuc (sym (+-suc n (suc k)) ∙ p)))))
+
+retFin : (n : ℕ) → retract (FinData→Fin n) (Fin→FinData n)
+retFin 0 ()
+retFin (suc N) zero = refl
+retFin (suc N) (suc k) = cong FinData.suc (cong (Fin→FinData N) (Fin-fst-≡ refl) ∙ retFin N k)
+
+FinData≃Fin : (N : ℕ) → FinData N ≃ Fin N
+FinData≃Fin N = isoToEquiv (iso (FinData→Fin N) (Fin→FinData N) (secFin N) (retFin N))
+
+FinData≡Fin : (N : ℕ) → FinData N ≡ Fin N
+FinData≡Fin N = ua (FinData≃Fin N)
