@@ -21,6 +21,7 @@ open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
+open import Cubical.Data.FinData.Base renaming (Fin to FinData) hiding (¬Fin0 ; toℕ)
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
@@ -593,11 +594,7 @@ Iso.leftInv  (Fin+≅Fin⊎Fin m n) = ret-f-g
 Fin+≡Fin⊎Fin : (m n : ℕ) → Fin (m + n) ≡ Fin m ⊎ Fin n
 Fin+≡Fin⊎Fin m n = isoToPath (Fin+≅Fin⊎Fin m n)
 
-
-
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Function
-open import Cubical.Data.FinData.Base renaming (Fin to FinData)
+-- Equivalence between FinData and Fin
 
 sucFin : {N : ℕ} → Fin N → Fin (suc N)
 sucFin (k , n , p) = suc k , n , (+-suc _ _ ∙ cong suc p)
