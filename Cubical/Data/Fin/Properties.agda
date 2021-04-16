@@ -607,20 +607,30 @@ FinData→Fin (suc N) (suc k) = sucFin (FinData→Fin N k)
 Fin→FinData : (N : ℕ) → Fin N → FinData N
 Fin→FinData zero (k , n , p) = Empty.rec (snotz (sym (+-suc n k) ∙ p))
 Fin→FinData (suc N) (0 , n , p) = zero
-Fin→FinData (suc N) ((suc k) , n , p) = suc (Fin→FinData N (k , n , injSuc (sym (+-suc n (suc k)) ∙ p)))
+Fin→FinData (suc N) ((suc k) , n , p) = suc (Fin→FinData N (k , n , p')) where
+  p' : n + suc k ≡ N
+  p' = injSuc (sym (+-suc n (suc k)) ∙ p)
 
 secFin : (n : ℕ) → section (FinData→Fin n) (Fin→FinData n)
 secFin 0 (k , n , p) = Empty.rec (snotz (sym (+-suc n k) ∙ p))
 secFin (suc N) (0 , n , p) = Fin-fst-≡ refl
-secFin (suc N) (suc k , n , p) = Fin-fst-≡ (cong suc (cong fst (secFin N (k , n , injSuc (sym (+-suc n (suc k)) ∙ p)))))
+secFin (suc N) (suc k , n , p) = Fin-fst-≡ (cong suc (cong fst (secFin N (k , n , p')))) where
+  p' : n + suc k ≡ N
+  p' = injSuc (sym (+-suc n (suc k)) ∙ p)
 
 retFin : (n : ℕ) → retract (FinData→Fin n) (Fin→FinData n)
 retFin 0 ()
 retFin (suc N) zero = refl
 retFin (suc N) (suc k) = cong FinData.suc (cong (Fin→FinData N) (Fin-fst-≡ refl) ∙ retFin N k)
 
+FinDataIsoFin : (N : ℕ) → Iso (FinData N) (Fin N)
+Iso.fun (FinDataIsoFin N) = FinData→Fin N
+Iso.inv (FinDataIsoFin N) = Fin→FinData N
+Iso.rightInv (FinDataIsoFin N) = secFin N
+Iso.leftInv (FinDataIsoFin N) = retFin N
+
 FinData≃Fin : (N : ℕ) → FinData N ≃ Fin N
-FinData≃Fin N = isoToEquiv (iso (FinData→Fin N) (Fin→FinData N) (secFin N) (retFin N))
+FinData≃Fin N = isoToEquiv (FinDataIsoFin N)
 
 FinData≡Fin : (N : ℕ) → FinData N ≡ Fin N
 FinData≡Fin N = ua (FinData≃Fin N)
