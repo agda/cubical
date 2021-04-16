@@ -414,6 +414,9 @@ isProp→ pB = isPropΠ λ _ → pB
 isSetΠ : ((x : A) → isSet (B x)) → isSet ((x : A) → B x)
 isSetΠ = isOfHLevelΠ 2
 
+isSet→ : {B : Type ℓ} → isSet B → isSet (A → B)
+isSet→ sB = isOfHLevelΠ 2 λ _ → sB
+
 isSetΠ2 : (h : (x : A) (y : B x) → isSet (C x y))
         → isSet ((x : A) (y : B x) → C x y)
 isSetΠ2 h = isSetΠ λ x → isSetΠ λ y → h x y
@@ -549,6 +552,21 @@ isOfHLevelDep : HLevel → {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-ma
 isOfHLevelDep 0 {A = A} B = {a : A} → Σ[ b ∈ B a ] ({a' : A} (b' : B a') (p : a ≡ a') → PathP (λ i → B (p i)) b b')
 isOfHLevelDep 1 {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) (p : a0 ≡ a1)  → PathP (λ i → B (p i)) b0 b1
 isOfHLevelDep (suc (suc  n)) {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) → isOfHLevelDep (suc n) {A = a0 ≡ a1} (λ p → PathP (λ i → B (p i)) b0 b1)
+
+isContrDep : {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
+isContrDep = isOfHLevelDep 0
+
+isPropDep : {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
+isPropDep = isOfHLevelDep 1
+
+isContrDep∘
+  : {A' : Type ℓ} (f : A' → A) → isContrDep B → isContrDep (B ∘ f)
+isContrDep∘ f cB {a} = λ where
+  .fst → cB .fst
+  .snd b' p → cB .snd b' (cong f p)
+
+isPropDep∘ : {A' : Type ℓ} (f : A' → A) → isPropDep B → isPropDep (B ∘ f)
+isPropDep∘ f pB b0 b1 = pB b0 b1 ∘ cong f
 
 isOfHLevel→isOfHLevelDep : (n : HLevel)
   → {A : Type ℓ} {B : A → Type ℓ'} (h : (a : A) → isOfHLevel n (B a)) → isOfHLevelDep n {A = A} B
