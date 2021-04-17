@@ -260,8 +260,7 @@ isOfHLevelPathP {A = A} n h x y =
 -- Fillers for cubes from h-level
 
 isSet→isSet' : isSet A → isSet' A
-isSet→isSet' {A = A} Aset a₀₋ a₁₋ a₋₀ a₋₁ =
-  transport⁻ (PathP≡Path (λ i → a₋₀ i ≡ a₋₁ i) a₀₋ a₁₋) (Aset _ _ _ _)
+isSet→isSet' Aset _ _ _ _ = toPathP (Aset _ _ _ _)
 
 isSet'→isSet : isSet' A → isSet A
 isSet'→isSet {A = A} Aset' x y p q = Aset' p q refl refl
