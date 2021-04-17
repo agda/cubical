@@ -521,3 +521,71 @@ Iso.rightInv (truncOfΣIso (suc n)) =
          λ b → refl)
 Iso.leftInv (truncOfΣIso (suc n)) =
   elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) λ {(a , b) → refl}
+
+
+
+open import Cubical.Core.Glue
+
+idEquiv' : (A : Type ℓ) → A ≃ A
+fst (idEquiv' _) = idfun _
+snd (idEquiv' A) = subst isEquiv (λ i x → transp (λ _ → A) i x) (snd (lineToEquiv (λ _ → A)))
+
+ua' : A ≃ B → A ≡ B
+ua' {A = A} {B = B} e i = Glue B (λ { (i = i0) → (A , e)
+                                    ; (i = i1) → (B , idEquiv' B) })
+
+ua'refl : ua' (idEquiv' A) ≡ refl
+ua'refl {A = A} i j = Glue A {φ = i ∨ ~ j ∨ j} (λ _ → A , idEquiv' A)
+
+t = ua
+
+isOfHLevel≡' : ∀ n → {A B : Type ℓ} (hA : isOfHLevel n A) (hB : isOfHLevel n B) →
+  isOfHLevel n (A ≡ B)
+isOfHLevel≡' n {A = A} {B = B} hA hB =
+  isOfHLevelRetract n (λ P → lineToEquiv (λ i → P i))
+    ua'
+    ((J (λ b x → ua' (lineToEquiv (λ i → x i)) ≡ x)
+       (cong ua' (λ i → (transp (λ _ → A) i) ,
+                         transp (λ j → isEquiv (transp (λ _ → A) (i ∧ j))) (~ i)
+                                (snd (lineToEquiv (λ _ → A))))
+       ∙ ua'refl)))
+    (isOfHLevel≃ n hA hB)
+
+isOfHLevelTypeOfHLevel' : ∀ n → isOfHLevel (suc n) (TypeOfHLevel ℓ n)
+isOfHLevelTypeOfHLevel' zero = isPropHContr
+isOfHLevelTypeOfHLevel' (suc n) (X , a) (Y , b) =
+  isOfHLevelRetract (suc n) (cong fst) (Σ≡Prop λ _ → isPropIsOfHLevel (suc n))
+                    (section-Σ≡Prop λ _ → isPropIsOfHLevel (suc n))
+                    (isOfHLevel≡' (suc n) a b)
+
+open import Cubical.Data.Int
+fib1 : hLevelTrunc 3 S¹ → TypeOfHLevel ℓ-zero 2
+fib1 = rec (isOfHLevelTypeOfHLevel 2)
+           λ {base → Int , isSetInt
+           ; (loop i) → sucPathInt i , help i
+          }
+  where
+  help : PathP (λ i → isSet (sucPathInt i)) isSetInt isSetInt
+  help = isProp→PathP (λ _ → isPropIsSet) _ _
+
+
+fib2 : hLevelTrunc 3 S¹ → TypeOfHLevel ℓ-zero 2
+fib2 = rec (isOfHLevelTypeOfHLevel' 2)
+           λ {base → Int , isSetInt
+           ; (loop i) → sucPathInt i , help i
+          }
+  where
+  help : PathP (λ i → isSet (sucPathInt i)) isSetInt isSetInt
+  help = isProp→PathP (λ _ → isPropIsSet) _ _
+
+
+mapOld : Path (hLevelTrunc 3 S¹) ∣ base ∣ ∣ base ∣ → Int
+mapOld p = transport (λ i → fib1 (p i) .fst) 0
+
+mapNew : Path (hLevelTrunc 3 S¹) ∣ base ∣ ∣ base ∣ → Int
+mapNew p = transport (λ i → fib2 (p i) .fst) 0
+
+
+l : Path (hLevelTrunc 3 S¹) ∣ base ∣ ∣ base ∣ 
+l = (λ i → ∣ loop (~ i) ∣) ∙ (λ i → ∣ intLoop 0 i ∣) ∙ λ i → ∣ loop i ∣
+

@@ -3,7 +3,7 @@
 Freudenthal suspension theorem
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
 module Cubical.Homotopy.Freudenthal where
 
 open import Cubical.Foundations.Everything
@@ -136,3 +136,18 @@ FreudenthalIso : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
                 → Iso (hLevelTrunc ((suc n) + (suc n)) (typ A))
                       (hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north))))
 FreudenthalIso n A iscon = connectedTruncIso _ (σ n {A = A} iscon) (isConnectedσ _ iscon)
+
+
+map₁ : typ ((Ω^ 2) (hLevelTrunc 4 (typ (Ω (S₊∙ 3)))
+     , ∣ refl ∣)) → typ ((Ω^ 2) (hLevelTrunc 4 (typ ((S₊∙ 2))) , ∣ north ∣))
+map₁ p = cong (cong help) p
+  where
+  help : (hLevelTrunc 4 (typ (Ω (S₊∙ 3)))) → hLevelTrunc 4 (S₊ 2)
+  help = Iso.inv (FreudenthalIso 1 (S₊∙ 2) (sphereConnected 2))
+
+map₂ : typ ((Ω^ 2) (hLevelTrunc 4 (typ ((S₊∙ 2))) , ∣ north ∣))
+    → typ (Ω (hLevelTrunc 3 (typ ((S₊∙ 1))) , ∣ base ∣)) 
+map₂ p = {!cong  (Iso.inv (FreudenthalIso 0 (S₊∙ 1) ?)) ?!}
+  where
+  help : typ (Ω (hLevelTrunc 3 (typ (Ω ((S₊∙ 2)))) , ∣ refl  ∣))
+  help = {!!} ∙ cong (Iso.fun (PathIdTruncIso _)) p ∙ {!!}

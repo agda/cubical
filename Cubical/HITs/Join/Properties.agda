@@ -417,3 +417,72 @@ joinAssocDirect {A = A} {B} {C} =
           ; (l = i1) → push (push a b i) c j
           })
         (push (push a b i) c j))
+{-
+open import Cubical.Foundations.HLevels
+
+
+
+test : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isProp A → isProp B → isProp (join A B)
+test p q (inl x) (inl y) = λ i → inl (p x y i)
+test p q (inl x) (inr x₁) = push x x₁
+test p q (inl x) (push a b i) j =
+  hcomp (λ k → λ {(i = i0) → inl (p x a (j ∧ k))
+                 ; (i = i1) → {!!}
+                 ; (j = i0) → {!!}
+                 ; (j = i1) → {!!}})
+        {!!}
+test p q (inr x) (inl y) = sym (push y x)
+test p q (inr x) (inr y) = λ i → inr (q x y i)
+test p q (inr x) (push a b i) j = {!push (p a x ) (q x b (j ∧ i)) !} -- push {!!} {!!} (~ j ∨ i)
+test p q (push a b i) (inl x) j = {!!}
+test p q (push a b i) (inr x) j = {!!}
+test p q (push a b i) (push a₁ b₁ i₁) k = {!!}
+
+open import Cubical.Data.Sum
+open import Cubical.HITs.PropositionalTruncation
+sick : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isProp A → isProp B
+   → Iso (join A B)
+          ∥ A ⊎ B ∥
+Iso.fun (sick pA pB) (inl x) = ∣ inl x ∣
+Iso.fun (sick pA pB) (inr x) = ∣ inr x ∣
+Iso.fun (sick pA pB) (push a b i) =
+  squash ∣ inl a ∣ ∣ inr b ∣ i
+Iso.inv (sick pA pB) ∣ inl x ∣ = inl x
+Iso.inv (sick pA pB) ∣ inr x ∣ = inr x
+Iso.inv (sick pA pB) (squash x x₂ i) = {!sick pA pB!}
+Iso.rightInv (sick pA pB) = {!!}
+Iso.leftInv (sick pA pB) = {!!}
+
+top : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → A × B → join A B
+top (a , b) = inl a
+
+
+
+data sus {ℓ : Level}(A : Type ℓ) : Type ℓ where
+  n : sus A
+  s : sus A
+  m : A → n ≡ s
+
+am : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → join A B → sus (A × B)
+am (inl x) = n
+am (inr x) = s
+am (push a b i) = m (a , b) i
+
+myMan : ∀ {ℓ} {A : Type ℓ} → ((x : A) → isContr A)
+      → isProp A
+myMan f x y = sym (snd (f x) x) ∙ (snd (f x)) y
+
+isContrJoin : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+  → isProp A → isProp B
+  → (x : join A B)
+  → isContr (join A B)
+proj₁ (isContrJoin pA pB (inl x)) = inl x
+snd (isContrJoin pA pB (inl x)) (inl x₁) = λ i → inl (pA x x₁ i)
+snd (isContrJoin pA pB (inl x)) (inr x₁) = push x x₁
+snd (isContrJoin {A = A} {B = B} pA pB (inl x)) (push a b i) j = help i j
+  where
+  help : PathP (λ i → inl x ≡ push a b i) (λ i → inl (pA x a i)) (push x b)
+  help = toPathP ((λ j → transp (λ i → Path (join A B) (inl x) (push a b (i ∨ j))) j (compPath-filler (λ i → inl (pA x a i)) (λ i → push a b (i ∧ j)) j)) ∙ {!!})
+isContrJoin pA pB (inr x) = {!!}
+isContrJoin pA pB (push a b i) = isPropIsContr _ _ i
+-}
