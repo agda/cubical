@@ -7,11 +7,10 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Functions.Embedding
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Data.Empty hiding (rec)
+open import Cubical.Data.Empty
 open import Cubical.Data.Nat
-open import Cubical.HITs.PropositionalTruncation
 
-open import Cubical.Data.Sum.Base hiding (rec)
+open import Cubical.Data.Sum.Base
 
 open Iso
 
@@ -154,33 +153,3 @@ leftInv ⊎-⊥-Iso (inl _) = refl
 
 ⊎-⊥-≃ : A ⊎ ⊥ ≃ A
 ⊎-⊥-≃ = isoToEquiv ⊎-⊥-Iso
-
-∥∥-AbsorbL-⊎-Iso : Iso (∥ ∥ A ∥ ⊎ B ∥)  (∥ A ⊎ B ∥)
-fun ∥∥-AbsorbL-⊎-Iso x = rec squash lem x
-  where lem : ∥ A ∥ ⊎ B → ∥ A ⊎ B ∥
-        lem (inl x) = rec squash (λ a → ∣ inl a ∣) x
-        lem (inr x) = ∣ inr x ∣
-inv ∥∥-AbsorbL-⊎-Iso x = rec squash lem x
-  where lem : A ⊎ B → ∥ ∥ A ∥ ⊎ B ∥
-        lem (inl x) = ∣ inl ∣ x ∣ ∣
-        lem (inr x) = ∣ inr x ∣
-rightInv ∥∥-AbsorbL-⊎-Iso x = squash (fun ∥∥-AbsorbL-⊎-Iso (inv ∥∥-AbsorbL-⊎-Iso x)) x
-leftInv ∥∥-AbsorbL-⊎-Iso x  = squash (inv ∥∥-AbsorbL-⊎-Iso (fun ∥∥-AbsorbL-⊎-Iso x)) x
-
-∥∥-AbsorbL-⊎-≃ : ∥ ∥ A ∥ ⊎ B ∥ ≃ ∥ A ⊎ B ∥
-∥∥-AbsorbL-⊎-≃ = isoToEquiv ∥∥-AbsorbL-⊎-Iso
-
-∥∥-AbsorbR-⊎-Iso : Iso (∥ A ⊎ ∥ B ∥ ∥) (∥ A ⊎ B ∥)
-fun ∥∥-AbsorbR-⊎-Iso x = rec squash lem x
-  where lem : A ⊎ ∥ B ∥ → ∥ A ⊎ B ∥
-        lem (inl x) = ∣ inl x ∣
-        lem (inr x) = rec squash (λ b → ∣ inr b ∣) x
-inv ∥∥-AbsorbR-⊎-Iso x = rec squash lem x
-  where lem : A ⊎ B → ∥ A ⊎ ∥ B ∥ ∥
-        lem (inl x) = ∣ inl x ∣
-        lem (inr x) = ∣ inr ∣ x ∣ ∣
-rightInv ∥∥-AbsorbR-⊎-Iso x = squash (fun ∥∥-AbsorbR-⊎-Iso (inv ∥∥-AbsorbR-⊎-Iso x)) x
-leftInv ∥∥-AbsorbR-⊎-Iso x  = squash (inv ∥∥-AbsorbR-⊎-Iso (fun ∥∥-AbsorbR-⊎-Iso x)) x
-
-∥∥-AbsorbR-⊎-≃ : ∥ A ⊎ ∥ B ∥ ∥ ≃ ∥ A ⊎ B ∥
-∥∥-AbsorbR-⊎-≃ = isoToEquiv ∥∥-AbsorbR-⊎-Iso
