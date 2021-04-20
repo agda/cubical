@@ -415,3 +415,38 @@ RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP
 ∥∥-Idempotent-⊎ {A = A} {B = B} = ∥ ∥ A ∥ ⊎ ∥ B ∥ ∥ ≡⟨ ∥∥-IdempotentR-⊎ ⟩
                                   ∥ ∥ A ∥ ⊎ B ∥     ≡⟨ ∥∥-IdempotentL-⊎ ⟩
                                   ∥ A ⊎ B ∥         ∎
+
+∥∥-IdempotentL-×-≃ : ∥ ∥ A ∥ × B ∥ ≃ ∥ A × B ∥
+∥∥-IdempotentL-×-≃ = isoToEquiv ∥∥-IdempotentL-×-Iso
+  where ∥∥-IdempotentL-×-Iso : Iso (∥ ∥ A ∥ × B ∥) (∥ A × B ∥)
+        Iso.fun ∥∥-IdempotentL-×-Iso x = rec squash lem x
+          where lem : ∥ A ∥ × B → ∥ A × B ∥
+                lem (a , b) = rec2 squash (λ a b → ∣ a , b ∣) a ∣ b ∣
+        Iso.inv ∥∥-IdempotentL-×-Iso x = rec squash lem x
+          where lem : A × B → ∥ ∥ A ∥ × B ∥
+                lem (a , b) = ∣ ∣ a ∣ , b ∣
+        Iso.rightInv ∥∥-IdempotentL-×-Iso x = squash (Iso.fun ∥∥-IdempotentL-×-Iso (Iso.inv ∥∥-IdempotentL-×-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentL-×-Iso x  = squash (Iso.inv ∥∥-IdempotentL-×-Iso (Iso.fun ∥∥-IdempotentL-×-Iso x)) x
+
+∥∥-IdempotentL-× : ∥ ∥ A ∥ × B ∥ ≡ ∥ A × B ∥
+∥∥-IdempotentL-× = ua ∥∥-IdempotentL-×-≃
+
+∥∥-IdempotentR-×-≃ : ∥ A × ∥ B ∥ ∥ ≃ ∥ A × B ∥
+∥∥-IdempotentR-×-≃ = isoToEquiv ∥∥-IdempotentR-×-Iso
+  where ∥∥-IdempotentR-×-Iso : Iso (∥ A × ∥ B ∥ ∥) (∥ A × B ∥)
+        Iso.fun ∥∥-IdempotentR-×-Iso x = rec squash lem x
+          where lem : A × ∥ B ∥ → ∥ A × B ∥
+                lem (a , b) = rec2 squash (λ a b → ∣ a , b ∣) ∣ a ∣ b
+        Iso.inv ∥∥-IdempotentR-×-Iso x = rec squash lem x
+          where lem : A × B → ∥ A × ∥ B ∥ ∥
+                lem (a , b) = ∣ a , ∣ b ∣ ∣
+        Iso.rightInv ∥∥-IdempotentR-×-Iso x = squash (Iso.fun ∥∥-IdempotentR-×-Iso (Iso.inv ∥∥-IdempotentR-×-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentR-×-Iso x  = squash (Iso.inv ∥∥-IdempotentR-×-Iso (Iso.fun ∥∥-IdempotentR-×-Iso x)) x
+
+∥∥-IdempotentR-× : ∥ A × ∥ B ∥ ∥ ≡ ∥ A × B ∥
+∥∥-IdempotentR-× = ua ∥∥-IdempotentR-×-≃
+
+∥∥-Idempotent-× : {A : Type ℓ} {B : Type ℓ} → ∥ ∥ A ∥ × ∥ B ∥ ∥ ≡ ∥ A × B ∥
+∥∥-Idempotent-× {A = A} {B = B} = ∥ ∥ A ∥ × ∥ B ∥ ∥ ≡⟨ ∥∥-IdempotentR-× ⟩
+                                  ∥ ∥ A ∥ × B ∥     ≡⟨ ∥∥-IdempotentL-× ⟩
+                                  ∥ A × B ∥         ∎
