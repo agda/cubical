@@ -377,38 +377,36 @@ elim→Gpd {A = A} P Pgpd f kf 3kf t = rec→Gpd (Pgpd t) g 3kg t
 RecHSet : (P : A → TypeOfHLevel ℓ 2) → 3-Constant P → ∥ A ∥ → TypeOfHLevel ℓ 2
 RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP
 
-∥∥-IdempotentL-⊎-Iso : Iso (∥ ∥ A ∥ ⊎ B ∥)  (∥ A ⊎ B ∥)
-Iso.fun ∥∥-IdempotentL-⊎-Iso x = rec squash lem x
-  where lem : ∥ A ∥ ⊎ B → ∥ A ⊎ B ∥
-        lem (inl x) = rec squash (λ a → ∣ inl a ∣) x
-        lem (inr x) = ∣ inr x ∣
-Iso.inv ∥∥-IdempotentL-⊎-Iso x = rec squash lem x
-  where lem : A ⊎ B → ∥ ∥ A ∥ ⊎ B ∥
-        lem (inl x) = ∣ inl ∣ x ∣ ∣
-        lem (inr x) = ∣ inr x ∣
-Iso.rightInv ∥∥-IdempotentL-⊎-Iso x = squash (Iso.fun ∥∥-IdempotentL-⊎-Iso (Iso.inv ∥∥-IdempotentL-⊎-Iso x)) x
-Iso.leftInv ∥∥-IdempotentL-⊎-Iso x  = squash (Iso.inv ∥∥-IdempotentL-⊎-Iso (Iso.fun ∥∥-IdempotentL-⊎-Iso x)) x
-
 ∥∥-IdempotentL-⊎-≃ : ∥ ∥ A ∥ ⊎ B ∥ ≃ ∥ A ⊎ B ∥
 ∥∥-IdempotentL-⊎-≃ = isoToEquiv ∥∥-IdempotentL-⊎-Iso
+  where ∥∥-IdempotentL-⊎-Iso : Iso (∥ ∥ A ∥ ⊎ B ∥)  (∥ A ⊎ B ∥)
+        Iso.fun ∥∥-IdempotentL-⊎-Iso x = rec squash lem x
+          where lem : ∥ A ∥ ⊎ B → ∥ A ⊎ B ∥
+                lem (inl x) = rec squash (λ a → ∣ inl a ∣) x
+                lem (inr x) = ∣ inr x ∣
+        Iso.inv ∥∥-IdempotentL-⊎-Iso x = rec squash lem x
+          where lem : A ⊎ B → ∥ ∥ A ∥ ⊎ B ∥
+                lem (inl x) = ∣ inl ∣ x ∣ ∣
+                lem (inr x) = ∣ inr x ∣
+        Iso.rightInv ∥∥-IdempotentL-⊎-Iso x = squash (Iso.fun ∥∥-IdempotentL-⊎-Iso (Iso.inv ∥∥-IdempotentL-⊎-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentL-⊎-Iso x  = squash (Iso.inv ∥∥-IdempotentL-⊎-Iso (Iso.fun ∥∥-IdempotentL-⊎-Iso x)) x
 
 ∥∥-IdempotentL-⊎ : ∥ ∥ A ∥ ⊎ B ∥ ≡ ∥ A ⊎ B ∥
 ∥∥-IdempotentL-⊎ = ua ∥∥-IdempotentL-⊎-≃
 
-∥∥-IdempotentR-⊎-Iso : Iso (∥ A ⊎ ∥ B ∥ ∥) (∥ A ⊎ B ∥)
-Iso.fun ∥∥-IdempotentR-⊎-Iso x = rec squash lem x
-  where lem : A ⊎ ∥ B ∥ → ∥ A ⊎ B ∥
-        lem (inl x) = ∣ inl x ∣
-        lem (inr x) = rec squash (λ b → ∣ inr b ∣) x
-Iso.inv ∥∥-IdempotentR-⊎-Iso x = rec squash lem x
-  where lem : A ⊎ B → ∥ A ⊎ ∥ B ∥ ∥
-        lem (inl x) = ∣ inl x ∣
-        lem (inr x) = ∣ inr ∣ x ∣ ∣
-Iso.rightInv ∥∥-IdempotentR-⊎-Iso x = squash (Iso.fun ∥∥-IdempotentR-⊎-Iso (Iso.inv ∥∥-IdempotentR-⊎-Iso x)) x
-Iso.leftInv ∥∥-IdempotentR-⊎-Iso x  = squash (Iso.inv ∥∥-IdempotentR-⊎-Iso (Iso.fun ∥∥-IdempotentR-⊎-Iso x)) x
-
 ∥∥-IdempotentR-⊎-≃ : ∥ A ⊎ ∥ B ∥ ∥ ≃ ∥ A ⊎ B ∥
 ∥∥-IdempotentR-⊎-≃ = isoToEquiv ∥∥-IdempotentR-⊎-Iso
+  where ∥∥-IdempotentR-⊎-Iso : Iso (∥ A ⊎ ∥ B ∥ ∥) (∥ A ⊎ B ∥)
+        Iso.fun ∥∥-IdempotentR-⊎-Iso x = rec squash lem x
+          where lem : A ⊎ ∥ B ∥ → ∥ A ⊎ B ∥
+                lem (inl x) = ∣ inl x ∣
+                lem (inr x) = rec squash (λ b → ∣ inr b ∣) x
+        Iso.inv ∥∥-IdempotentR-⊎-Iso x = rec squash lem x
+          where lem : A ⊎ B → ∥ A ⊎ ∥ B ∥ ∥
+                lem (inl x) = ∣ inl x ∣
+                lem (inr x) = ∣ inr ∣ x ∣ ∣
+        Iso.rightInv ∥∥-IdempotentR-⊎-Iso x = squash (Iso.fun ∥∥-IdempotentR-⊎-Iso (Iso.inv ∥∥-IdempotentR-⊎-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentR-⊎-Iso x  = squash (Iso.inv ∥∥-IdempotentR-⊎-Iso (Iso.fun ∥∥-IdempotentR-⊎-Iso x)) x
 
 ∥∥-IdempotentR-⊎ : ∥ A ⊎ ∥ B ∥ ∥ ≡ ∥ A ⊎ B ∥
 ∥∥-IdempotentR-⊎ = ua ∥∥-IdempotentR-⊎-≃
