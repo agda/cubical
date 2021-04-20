@@ -155,13 +155,10 @@ leftInv ⊎-⊥-Iso (inl _) = refl
 ⊎-⊥-≃ : A ⊎ ⊥ ≃ A
 ⊎-⊥-≃ = isoToEquiv ⊎-⊥-Iso
 
-∥∥-⊎-IdentityL : ∥ A ∥ → ∥ A ⊎ B ∥
-∥∥-⊎-IdentityL x = rec squash (λ a → ∣ inl a ∣) x
-
 ∥∥-AbsorbL-⊎-Iso : Iso (∥ ∥ A ∥ ⊎ B ∥)  (∥ A ⊎ B ∥)
 fun ∥∥-AbsorbL-⊎-Iso x = rec squash lem x
   where lem : ∥ A ∥ ⊎ B → ∥ A ⊎ B ∥
-        lem (inl x) = ∥∥-⊎-IdentityL x
+        lem (inl x) = rec squash (λ a → ∣ inl a ∣) x
         lem (inr x) = ∣ inr x ∣
 inv ∥∥-AbsorbL-⊎-Iso x = rec squash lem x
   where lem : A ⊎ B → ∥ ∥ A ∥ ⊎ B ∥
@@ -173,14 +170,11 @@ leftInv ∥∥-AbsorbL-⊎-Iso x  = squash (inv ∥∥-AbsorbL-⊎-Iso (fun ∥�
 ∥∥-AbsorbL-⊎-≃ : ∥ ∥ A ∥ ⊎ B ∥ ≃ ∥ A ⊎ B ∥
 ∥∥-AbsorbL-⊎-≃ = isoToEquiv ∥∥-AbsorbL-⊎-Iso
 
-∥∥-⊎-IdentityR : ∥ B ∥ → ∥ A ⊎ B ∥
-∥∥-⊎-IdentityR x = rec squash (λ b → ∣ inr b ∣) x
-
 ∥∥-AbsorbR-⊎-Iso : Iso (∥ A ⊎ ∥ B ∥ ∥) (∥ A ⊎ B ∥)
 fun ∥∥-AbsorbR-⊎-Iso x = rec squash lem x
   where lem : A ⊎ ∥ B ∥ → ∥ A ⊎ B ∥
         lem (inl x) = ∣ inl x ∣
-        lem (inr x) = ∥∥-⊎-IdentityR x
+        lem (inr x) = rec squash (λ b → ∣ inr b ∣) x
 inv ∥∥-AbsorbR-⊎-Iso x = rec squash lem x
   where lem : A ⊎ B → ∥ A ⊎ ∥ B ∥ ∥
         lem (inl x) = ∣ inl x ∣
