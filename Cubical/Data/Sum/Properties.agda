@@ -156,8 +156,7 @@ leftInv ⊎-⊥-Iso (inl _) = refl
 ⊎-⊥-≃ = isoToEquiv ⊎-⊥-Iso
 
 ∥∥-⊎-IdentityL : ∥ A ∥ → ∥ A ⊎ B ∥
-∥∥-⊎-IdentityL ∣ x ∣ = ∣ inl x ∣
-∥∥-⊎-IdentityL (squash x y i) = squash (∥∥-⊎-IdentityL x) (∥∥-⊎-IdentityL y) i
+∥∥-⊎-IdentityL x = rec squash (λ a → ∣ inl a ∣) x
 
 ∥∥-AbsorbL-⊎-Iso : Iso (∥ ∥ A ∥ ⊎ B ∥)  (∥ A ⊎ B ∥)
 fun ∥∥-AbsorbL-⊎-Iso x = rec squash lem x
@@ -175,8 +174,7 @@ leftInv ∥∥-AbsorbL-⊎-Iso x  = squash (inv ∥∥-AbsorbL-⊎-Iso (fun ∥�
 ∥∥-AbsorbL-⊎-≃ = isoToEquiv ∥∥-AbsorbL-⊎-Iso
 
 ∥∥-⊎-IdentityR : ∥ B ∥ → ∥ A ⊎ B ∥
-∥∥-⊎-IdentityR ∣ x ∣ = ∣ inr x ∣
-∥∥-⊎-IdentityR (squash x y i) = squash (∥∥-⊎-IdentityR x) (∥∥-⊎-IdentityR y) i
+∥∥-⊎-IdentityR x = rec squash (λ b → ∣ inr b ∣) x
 
 ∥∥-AbsorbR-⊎-Iso : Iso (∥ A ⊎ ∥ B ∥ ∥) (∥ A ⊎ B ∥)
 fun ∥∥-AbsorbR-⊎-Iso x = rec squash lem x
