@@ -7,10 +7,11 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Functions.Embedding
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty hiding (rec)
 open import Cubical.Data.Nat
+open import Cubical.HITs.PropositionalTruncation
 
-open import Cubical.Data.Sum.Base
+open import Cubical.Data.Sum.Base hiding (rec)
 
 open Iso
 
@@ -148,8 +149,46 @@ leftInv ⊎-assoc-Iso (inr _)        = refl
 ⊎-⊥-Iso : Iso (A ⊎ ⊥) A
 fun ⊎-⊥-Iso (inl x) = x
 inv ⊎-⊥-Iso x       = inl x
-rightInv ⊎-⊥-Iso x      = refl
-leftInv ⊎-⊥-Iso (inl x) = refl
+rightInv ⊎-⊥-Iso _      = refl
+leftInv ⊎-⊥-Iso (inl _) = refl
 
 ⊎-⊥-≃ : A ⊎ ⊥ ≃ A
 ⊎-⊥-≃ = isoToEquiv ⊎-⊥-Iso
+
+∥∥-⊎-IdentityL : ∥ A ∥ → ∥ A ⊎ B ∥
+∥∥-⊎-IdentityL ∣ x ∣ = ∣ inl x ∣
+∥∥-⊎-IdentityL (squash x y i) = squash (∥∥-⊎-IdentityL x) (∥∥-⊎-IdentityL y) i
+
+∥∥-AbsorbL-⊎-Iso : Iso (∥ ∥ A ∥ ⊎ B ∥)  (∥ A ⊎ B ∥)
+fun ∥∥-AbsorbL-⊎-Iso x = rec squash lem x
+  where lem : ∥ A ∥ ⊎ B → ∥ A ⊎ B ∥
+        lem (inl x) = ∥∥-⊎-IdentityL x
+        lem (inr x) = ∣ inr x ∣
+inv ∥∥-AbsorbL-⊎-Iso x = rec squash lem x
+  where lem : A ⊎ B → ∥ ∥ A ∥ ⊎ B ∥
+        lem (inl x) = ∣ inl ∣ x ∣ ∣
+        lem (inr x) = ∣ inr x ∣
+rightInv ∥∥-AbsorbL-⊎-Iso x = squash (fun ∥∥-AbsorbL-⊎-Iso (inv ∥∥-AbsorbL-⊎-Iso x)) x
+leftInv ∥∥-AbsorbL-⊎-Iso x  = squash (inv ∥∥-AbsorbL-⊎-Iso (fun ∥∥-AbsorbL-⊎-Iso x)) x
+
+∥∥-AbsorbL-⊎-≃ : ∥ ∥ A ∥ ⊎ B ∥ ≃ ∥ A ⊎ B ∥
+∥∥-AbsorbL-⊎-≃ = isoToEquiv ∥∥-AbsorbL-⊎-Iso
+
+∥∥-⊎-IdentityR : ∥ B ∥ → ∥ A ⊎ B ∥
+∥∥-⊎-IdentityR ∣ x ∣ = ∣ inr x ∣
+∥∥-⊎-IdentityR (squash x y i) = squash (∥∥-⊎-IdentityR x) (∥∥-⊎-IdentityR y) i
+
+∥∥-AbsorbR-⊎-Iso : Iso (∥ A ⊎ ∥ B ∥ ∥) (∥ A ⊎ B ∥)
+fun ∥∥-AbsorbR-⊎-Iso x = rec squash lem x
+  where lem : A ⊎ ∥ B ∥ → ∥ A ⊎ B ∥
+        lem (inl x) = ∣ inl x ∣
+        lem (inr x) = ∥∥-⊎-IdentityR x
+inv ∥∥-AbsorbR-⊎-Iso x = rec squash lem x
+  where lem : A ⊎ B → ∥ A ⊎ ∥ B ∥ ∥
+        lem (inl x) = ∣ inl x ∣
+        lem (inr x) = ∣ inr ∣ x ∣ ∣
+rightInv ∥∥-AbsorbR-⊎-Iso x = squash (fun ∥∥-AbsorbR-⊎-Iso (inv ∥∥-AbsorbR-⊎-Iso x)) x
+leftInv ∥∥-AbsorbR-⊎-Iso x  = squash (inv ∥∥-AbsorbR-⊎-Iso (fun ∥∥-AbsorbR-⊎-Iso x)) x
+
+∥∥-AbsorbR-⊎-≃ : ∥ A ⊎ ∥ B ∥ ∥ ≃ ∥ A ⊎ B ∥
+∥∥-AbsorbR-⊎-≃ = isoToEquiv ∥∥-AbsorbR-⊎-Iso
