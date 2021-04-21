@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Univalence using (pathToEquiv)
+open import Cubical.Foundations.Univalence using (pathToEquiv; univalence; ua-ungluePath-Equiv)
 
 open import Cubical.Functions.FunExtEquiv
 
@@ -243,12 +243,26 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
 
 
 -- Special cases:
--- Subtypes
+
 𝒮-type : (A : Type ℓ) → UARel A ℓ
 UARel._≅_ (𝒮-type A) = _≡_
 UARel.ua (𝒮-type A) a a' = idEquiv (a ≡ a')
 
+𝒮-Univ : ∀ ℓ → UARel (Type ℓ) ℓ
+UARel._≅_ (𝒮-Univ ℓ) = _≃_
+UARel.ua (𝒮-Univ ℓ) _ _ = invEquiv univalence
+
+𝒮ᴰ-El : ∀ ℓ → DUARel (𝒮-Univ ℓ) (λ X → X) ℓ
+DUARel._≅ᴰ⟨_⟩_ (𝒮ᴰ-El ℓ) x e x' = e .fst x ≡ x'
+DUARel.uaᴰ (𝒮ᴰ-El ℓ) x e x' = invEquiv (ua-ungluePath-Equiv e)
+
 module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) where
+
+  𝒮ᴰ-Unit : DUARel 𝒮-A (λ _ → Unit) ℓ-zero
+  DUARel._≅ᴰ⟨_⟩_ 𝒮ᴰ-Unit _ _ _ = Unit
+  DUARel.uaᴰ 𝒮ᴰ-Unit u _ u' =
+    invEquiv (isContr→≃Unit (isProp→isContrPath isPropUnit u u'))
+
   𝒮ᴰ-subtype : (P : A → hProp ℓP) → DUARel 𝒮-A (λ a → P a .fst) ℓ-zero
   𝒮ᴰ-subtype P
     = 𝒮ᴰ-make-2 (λ _ _ _ → Unit)
@@ -256,3 +270,21 @@ module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) where
                 λ a p → isOfHLevelRespectEquiv 0
                                                (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
                                                (inhProp→isContr p (P a .snd))
+
+  𝒮ᴰ-Axioms : {B : A → Type ℓB} (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
+    (P : (a : A) → B a → Type ℓP)
+    → (∀ a b → isProp (P a b))
+    → DUARel 𝒮-A (λ a → Σ[ b ∈ B a ] P a b) ℓ≅B
+  DUARel._≅ᴰ⟨_⟩_ (𝒮ᴰ-Axioms 𝒮ᴰ-B P propP) (b , _) p (b' , _) = DUARel._≅ᴰ⟨_⟩_ 𝒮ᴰ-B b p b'
+  DUARel.uaᴰ (𝒮ᴰ-Axioms {B = B} 𝒮ᴰ-B P propP) (b , t) p (b' , t') =
+    b ≅ᴰ⟨ p ⟩ b'
+      ≃⟨ uaᴰ b p b' ⟩
+    PathP (λ i → B (≅→≡ p i)) b b'
+      ≃⟨ invEquiv (Σ-contractSnd (λ _ → isOfHLevelPathP' 0 (propP _ _) _ _)) ⟩
+    Σ[ q ∈ PathP (λ i → B (≅→≡ p i)) b b' ] PathP (λ i → P (≅→≡ p i) (q i)) t t'
+      ≃⟨ ΣPath≃PathΣ ⟩
+    PathP (λ i → Σ[ y ∈ B (≅→≡ p i) ] P (≅→≡ p i) y) (b , t) (b' , t')
+    ■
+    where
+    open UARel 𝒮-A
+    open DUARel 𝒮ᴰ-B
