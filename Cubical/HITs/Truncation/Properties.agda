@@ -446,8 +446,10 @@ module ΩTrunc {X : Type ℓ} {n : HLevel} where
                         ∙ λ i → ∣ rUnit (transportRefl (transportRefl (transport (λ _ → a ≡ a) refl) (~ i)) (~ i)) (~ i) ∣
 
 PathIdTruncIso : {a b : A} (n : HLevel) → Iso (Path (∥ A ∥ (suc n)) ∣ a ∣ ∣ b ∣) (∥ a ≡ b ∥ n)
-PathIdTruncIso zero = isContr→Iso ((isOfHLevelTrunc 1 _ _)
-                    , isOfHLevelPath 1 (isOfHLevelTrunc 1) ∣ _ ∣ ∣ _ ∣ _) (isOfHLevelUnit* 0)
+PathIdTruncIso zero =
+  isContr→Iso
+    (isOfHLevelTrunc 1 _ _ , isOfHLevelPath 1 (isOfHLevelTrunc 1) ∣ _ ∣ ∣ _ ∣ _)
+    (isOfHLevelUnit* 0)
 PathIdTruncIso (suc n) = ΩTrunc.IsoFinal ∣ _ ∣ ∣ _ ∣
 
 PathIdTrunc : {a b : A} (n : HLevel) → (Path (∥ A ∥ (suc n)) ∣ a ∣ ∣ b ∣) ≡ (∥ a ≡ b ∥ n)
