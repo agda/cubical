@@ -24,6 +24,7 @@ open import Cubical.Displayed.Prop
 open import Cubical.Displayed.Sigma
 open import Cubical.Displayed.Unit
 open import Cubical.Displayed.Universe
+open import Cubical.Displayed.Auto
 
 import Agda.Builtin.Reflection as R
 open import Cubical.Reflection.Base
@@ -113,7 +114,7 @@ module _ {ℓA ℓ≅A} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
         (uaᴰ (invEq (e _) r) p (invEq (e _) r'))
         (invEquiv (congPathEquiv λ i → invEquiv (e _))))
 
-module Macro where
+module DisplayedRecordMacro where
 
   -- Extract a name from a term
   findName : R.Term → R.TC R.Name
@@ -165,76 +166,69 @@ module Macro where
     go [] = RE.unit
     go (x ∷ xs) = go xs RE., RE.leaf x
 
-  {-
-    "𝒮ᴰ-Record : DUAFields 𝒮-A R _≅R⟨_⟩_ πS 𝒮ᴰ-S πS≅ → DUARel 𝒮-A R ℓ≅R"
-    Requires that `R` and `_≅R⟨_⟩_` are defined by records and `πS` and `πS≅` are equivalences.
-    The proofs of equivalence are generated using Cubical.Reflection.RecordEquiv and then
-    `𝒮ᴰ-Fields` is applied.
-  -}
-  𝒮ᴰ-Record : ∀ {ℓA ℓ≅A} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
+  module _ {ℓA ℓ≅A} {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
     {ℓR ℓ≅R} {R : A → Type ℓR} (≅R : {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R)
     {ℓS ℓ≅S} {S : A → Type ℓS}
     {πS : ∀ {a} → R a → S a} {𝒮ᴰ-S : DUARel 𝒮-A S ℓ≅S}
     {πS≅ : ∀ {a} {r : R a} {e} {r' : R a} → ≅R r e r' → DUARel._≅ᴰ⟨_⟩_ 𝒮ᴰ-S (πS r) e (πS r')}
-    → DUAFields 𝒮-A R ≅R πS 𝒮ᴰ-S πS≅
-    → R.Term → R.TC Unit
-  𝒮ᴰ-Record {A = A} {𝒮-A = 𝒮-A} {ℓ≅R = ℓ≅R} {R = R} ≅R {πS = πS} {𝒮ᴰ-S} {πS≅} fs hole =
-    R.quoteTC (DUARel 𝒮-A R ℓ≅R) >>= λ outTy →
-    R.checkType hole outTy >>= λ hole →
-    R.quoteωTC fs >>= λ `fs` →
-    parseFields `fs` >>= λ (fields , ≅fields) →
-    inFieldsContext (newMeta R.unknown) >>= λ fieldsEquiv →
-    in≅FieldsContext (newMeta R.unknown) >>= λ ≅fieldsEquiv →
-    R.quoteTC {A = {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R} ≅R >>= λ `≅R` →
-    R.unify hole
-      (R.def (quote 𝒮ᴰ-Fields)
-        (`≅R` v∷ `fs` v∷
-          vlam "_" fieldsEquiv v∷
-          vlam "a" (vlam "a'" (vlam "r" (vlam "p" (vlam "r'" ≅fieldsEquiv)))) v∷
-          [])) >>
-    inFieldsContext (I.equivMacro (List→LeftAssoc fields) fieldsEquiv) >>
-    in≅FieldsContext (I.equivMacro (I.flipAssoc (List→LeftAssoc ≅fields)) ≅fieldsEquiv)
     where
-    module I = RE.Internal
 
-    inFieldsContext : ∀ {A : Type} → R.TC A → R.TC A
-    inFieldsContext = R.extendContext (varg R.unknown)
+    {-
+      "𝒮ᴰ-Record ... : DUARel 𝒮-A R ℓ≅R"
+      Requires that `R` and `_≅R⟨_⟩_` are defined by records and `πS` and `πS≅` are equivalences.
+      The proofs of equivalence are generated using Cubical.Reflection.RecordEquiv and then
+      `𝒮ᴰ-Fields` is applied.
+    -}
+    𝒮ᴰ-Record : DUAFields 𝒮-A R ≅R πS 𝒮ᴰ-S πS≅ → R.Term → R.TC Unit
+    𝒮ᴰ-Record fs hole =
+      R.quoteTC (DUARel 𝒮-A R ℓ≅R) >>= λ outTy →
+      R.checkType hole outTy >>= λ hole →
+      R.quoteωTC fs >>= λ `fs` →
+      parseFields `fs` >>= λ (fields , ≅fields) →
+      inFieldsContext (newMeta R.unknown) >>= λ fieldsEquiv →
+      in≅FieldsContext (newMeta R.unknown) >>= λ ≅fieldsEquiv →
+      R.quoteTC {A = {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R} ≅R >>= λ `≅R` →
+      R.unify hole
+        (R.def (quote 𝒮ᴰ-Fields)
+          (`≅R` v∷ `fs` v∷
+            vlam "_" fieldsEquiv v∷
+            vlam "a" (vlam "a'" (vlam "r" (vlam "p" (vlam "r'" ≅fieldsEquiv)))) v∷
+            [])) >>
+      inFieldsContext (I.equivMacro (List→LeftAssoc fields) fieldsEquiv) >>
+      in≅FieldsContext (I.equivMacro (I.flipAssoc (List→LeftAssoc ≅fields)) ≅fieldsEquiv)
+      where
+      module I = RE.Internal
 
-    in≅FieldsContext : ∀ {A : Type} → R.TC A → R.TC A
-    in≅FieldsContext =
-      extend*Context (R.unknown v∷ R.unknown v∷ R.unknown v∷ R.unknown v∷ R.unknown v∷ [])
+      inFieldsContext : ∀ {A : Type} → R.TC A → R.TC A
+      inFieldsContext = R.extendContext (varg R.unknown)
+
+      in≅FieldsContext : ∀ {A : Type} → R.TC A → R.TC A
+      in≅FieldsContext =
+        extend*Context (R.unknown v∷ R.unknown v∷ R.unknown v∷ R.unknown v∷ R.unknown v∷ [])
 
 macro
-  -- "𝒮ᴰ-Record : DUAFields 𝒮-A R _≅R⟨_⟩_ πS 𝒮ᴰ-S πS≅ → DUARel 𝒮-A R ℓ≅R"
-  -- Requires that `R` and `_≅R⟨_⟩_` are defined by records and `πS` and `πS≅` are equivalences.
-  𝒮ᴰ-Record : ∀ {ℓA ℓ≅A} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
-    {ℓR ℓ≅R} {R : A → Type ℓR} (≅R : {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R)
-    {ℓS ℓ≅S} {S : A → Type ℓS}
-    {πS : ∀ {a} → R a → S a} {𝒮ᴰ-S : DUARel 𝒮-A S ℓ≅S}
-    {πS≅ : ∀ {a} {r : R a} {e} {r' : R a} → ≅R r e r' → DUARel._≅ᴰ⟨_⟩_ 𝒮ᴰ-S (πS r) e (πS r')}
-    → DUAFields 𝒮-A R ≅R πS 𝒮ᴰ-S πS≅
-    → R.Term → R.TC Unit
-  𝒮ᴰ-Record = Macro.𝒮ᴰ-Record
+  𝒮ᴰ-Record = DisplayedRecordMacro.𝒮ᴰ-Record
 
 -- Example
 
-module Example where
+private
+  module Example where
 
-  record Example (A : Type) : Type where
-    field
-      dog : A
-      cat : A
-      mouse : Unit
+    record Example (A : Type) : Type where
+      field
+        dog : A
+        cat : A
+        mouse : Unit
 
-  record ExampleEquiv {A B : Type} (x : Example A) (e : A ≃ B) (x' : Example B) : Type where
-    field
-      dogEq : e .fst (Example.dog x) ≡ Example.dog x'
-      catEq : e .fst (Example.cat x) ≡ Example.cat x'
+    record ExampleEquiv {A B : Type} (x : Example A) (e : A ≃ B) (x' : Example B) : Type where
+      field
+        dogEq : e .fst (Example.dog x) ≡ Example.dog x'
+        catEq : e .fst (Example.cat x) ≡ Example.cat x'
 
-  example : DUARel (𝒮-Univ ℓ-zero) Example ℓ-zero
-  example =
-    𝒮ᴰ-Record ExampleEquiv
-      (fields:
-        data[ Example.dog ∣ 𝒮ᴰ-El ℓ-zero ∣ ExampleEquiv.dogEq ]
-        data[ Example.cat ∣ 𝒮ᴰ-El ℓ-zero ∣ ExampleEquiv.catEq ]
-        prop[ Example.mouse ∣ (λ _ _ → isPropUnit) ])
+    example : DUARel (𝒮-Univ ℓ-zero) Example ℓ-zero
+    example =
+      𝒮ᴰ-Record (𝒮-Univ ℓ-zero) ExampleEquiv
+        (fields:
+          data[ Example.dog ∣ autoDUARel _ _ ∣ ExampleEquiv.dogEq ]
+          data[ Example.cat ∣ autoDUARel _ _ ∣ ExampleEquiv.catEq ]
+          prop[ Example.mouse ∣ (λ _ _ → isPropUnit) ])

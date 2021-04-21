@@ -16,6 +16,8 @@ open import Cubical.Functions.FunExtEquiv
 open import Cubical.Functions.Implicit
 
 open import Cubical.Displayed.Base
+open import Cubical.Displayed.Constant
+open import Cubical.Displayed.Morphism
 open import Cubical.Displayed.Subst
 open import Cubical.Displayed.Sigma
 
@@ -37,6 +39,21 @@ module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) {B : A → Type ℓB} (𝒮�
     compEquiv
       (equivΠCod λ a → uaᴰρ (f a) (f' a))
       funExtEquiv
+
+-- Parameterize UARel by type
+
+_→𝒮_ : (A : Type ℓA) {B : Type ℓB} (𝒮-B : UARel B ℓ≅B) → UARel (A → B) (ℓ-max ℓA ℓ≅B)
+(A →𝒮 𝒮-B) .UARel._≅_ f f' = ∀ a → 𝒮-B .UARel._≅_ (f a) (f' a)
+(A →𝒮 𝒮-B) .UARel.ua f f' =
+  compEquiv
+    (equivΠCod λ a → 𝒮-B .UARel.ua (f a) (f' a))
+    funExtEquiv
+
+𝒮-app : {A : Type ℓA} {B : Type ℓB} {𝒮-B : UARel B ℓ≅B}
+  → A → UARelHom (A →𝒮 𝒮-B) 𝒮-B
+𝒮-app a .UARelHom.fun f = f a
+𝒮-app a .UARelHom.rel h = h a
+𝒮-app a .UARelHom.ua h = refl
 
 -- DUARel on dependent function type
 -- from DUARels on domain and codomain
