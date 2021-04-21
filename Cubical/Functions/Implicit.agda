@@ -15,4 +15,3 @@ implicit≃Explicit = isoToEquiv isom
   Iso.rightInv isom f = funExt λ _ → refl
   Iso.leftInv isom f = implicitFunExt refl
 
-
