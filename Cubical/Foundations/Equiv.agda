@@ -106,9 +106,38 @@ invEquiv e = isoToEquiv (invIso (equivToIso e))
 invEquivIdEquiv : (A : Type ℓ) → invEquiv (idEquiv A) ≡ idEquiv A
 invEquivIdEquiv _ = equivEq refl
 
--- TODO: there should be a direct proof of this that doesn't use equivToIso
 compEquiv : A ≃ B → B ≃ C → A ≃ C
-compEquiv f g = isoToEquiv (compIso (equivToIso f) (equivToIso g))
+compEquiv f g .fst = g .fst ∘ f .fst
+compEquiv {A = A} {C = C} f g .snd .equiv-proof c = contr
+  where
+  contractG = g .snd .equiv-proof c .snd
+
+  secFiller : (a : A) (p : g .fst (f .fst a) ≡ c) → _ {- square in A -}
+  secFiller a p = compPath-filler (cong (invEq f ∘ fst) (contractG (_ , p))) (secEq f a)
+
+  contr : isContr (fiber (g .fst ∘ f .fst) c)
+  contr .fst .fst = invEq f (invEq g c)
+  contr .fst .snd = cong (g .fst) (retEq f (invEq g c)) ∙ retEq g c
+  contr .snd (a , p) i .fst = secFiller a p i1 i
+  contr .snd (a , p) i .snd j =
+    hcomp
+      (λ k → λ
+        { (i = i1) → fSquare k
+        ; (j = i0) → g .fst (f .fst (secFiller a p k i))
+        ; (j = i1) → contractG (_  , p) i .snd k
+        })
+      (g .fst (retEq f (contractG (_ , p) i .fst) j))
+    where
+    fSquare : I → C
+    fSquare k =
+      hcomp
+        (λ l → λ
+          { (j = i0) → g .fst (f .fst (secEq f a k))
+          ; (j = i1) → p (k ∧ l)
+          ; (k = i0) → g .fst (retEq f (f .fst a) j)
+          ; (k = i1) → p (j ∧ l)
+          })
+        (g .fst (f .snd .equiv-proof (f .fst a) .snd (a , refl) k .snd j))
 
 compEquivIdEquiv : (e : A ≃ B) → compEquiv (idEquiv A) e ≡ e
 compEquivIdEquiv e = equivEq refl
