@@ -1,3 +1,11 @@
+{-
+  Given a type A with a UARel and a family B over A,
+  a SubstRel on B is a family of functions a ≅ a' → B a ≃ B a' path-equal to transport in that family.
+
+  Any SubstRel gives rise to a DUARel in which b and b' are related over p when the transport of b along p is
+  equial to b'.
+-}
+
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Displayed.Subst where
 

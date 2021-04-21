@@ -1,3 +1,9 @@
+{-
+  A morphism of UARels is a function between the structures with an action on the relations that
+  commutes with the equivalence to PathP.
+
+  We can reindex a DUARel or SubstRel along one of these.
+-}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Displayed.Morphism where
 

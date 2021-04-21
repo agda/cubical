@@ -1,6 +1,6 @@
 {-
 
-  Generic UARel, DUARel, and SubstRel
+  Generic UARel, DUARel, and SubstRel: the path relation is always univalent
 
 -}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
