@@ -20,6 +20,10 @@ open import Cubical.Data.Maybe as Maybe
 
 open import Cubical.Displayed.Base
 open import Cubical.Displayed.Properties
+open import Cubical.Displayed.Prop
+open import Cubical.Displayed.Sigma
+open import Cubical.Displayed.Unit
+open import Cubical.Displayed.Universe
 
 import Agda.Builtin.Reflection as R
 open import Cubical.Reflection.Base
@@ -84,7 +88,7 @@ data DUAFields {ℓA ℓ≅A ℓR ℓ≅R} {A : Type ℓA} (𝒮-A : UARel A ℓ
     → ∀ {ℓF} {F : (a : A) → S a → Type ℓF}
     (πF : ∀ {a} → (r : R a) → F a (πS r))
     (propF : ∀ a s → isProp (F a s))
-    → DUAFields 𝒮-A R _≅R⟨_⟩_ (λ r → πS r , πF r) (𝒮ᴰ-Axioms 𝒮-A 𝒮ᴰ-S F propF) (λ p → πS≅ p)
+    → DUAFields 𝒮-A R _≅R⟨_⟩_ (λ r → πS r , πF r) (𝒮ᴰ-subtype 𝒮ᴰ-S propF) (λ p → πS≅ p)
 
 module _ {ℓA ℓ≅A} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
   {ℓR ℓ≅R} {R : A → Type ℓR} (_≅R⟨_⟩_ : {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R)
