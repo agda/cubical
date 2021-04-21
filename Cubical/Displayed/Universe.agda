@@ -21,8 +21,7 @@ private
 
 𝒮-Univ : ∀ ℓ → UARel (Type ℓ) ℓ
 𝒮-Univ ℓ .UARel._≅_ = _≃_
-𝒮-Univ ℓ .UARel.ua _ _ =
-  isoToEquiv (invIso (Univalence.isoThm pathToEquiv pathToEquivRefl))
+𝒮-Univ ℓ .UARel.ua _ _ = isoToEquiv (invIso univalenceIso)
 
 𝒮ˢ-El : ∀ ℓ → SubstRel (𝒮-Univ ℓ) (λ X → X)
 𝒮ˢ-El ℓ .SubstRel.act e = e
