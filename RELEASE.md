@@ -1,6 +1,6 @@
-When releasing a new version of [the cubical
-library](https://github.com/agda/cubical), the following procedure
-should be followed:
+When releasing a new version of
+[agda/cubical](https://github.com/agda/cubical), the following
+procedure should be followed:
 
 Post-release
 ============
