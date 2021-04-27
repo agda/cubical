@@ -30,7 +30,7 @@ private
 
 module Units (R' : CommRing {ℓ}) where
  open CommRingStr (snd R')
- open Theory (CommRing→Ring R')
+ open RingTheory (CommRing→Ring R')
  private R = fst R'
 
  inverseUniqueness : (r : R) → isProp (Σ[ r' ∈ R ] r · r' ≡ 1r)

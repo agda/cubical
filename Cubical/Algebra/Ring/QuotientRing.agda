@@ -20,7 +20,7 @@ module _ (R' : Ring {ℓ}) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal 
   open RingStr (snd R')
   private R = ⟨ R' ⟩
   open isIdeal I-isIdeal
-  open Theory R'
+  open RingTheory R'
 
   R/I : Type ℓ
   R/I = R /ₛ (λ x y → x - y ∈ I)
@@ -187,7 +187,7 @@ R / (I , IisIdeal) = asRing R I IisIdeal
 
 module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
   open RingStr ⦃...⦄
-  open Theory ⦃...⦄
+  open RingTheory ⦃...⦄
   Iₛ = fst I
   private
     instance

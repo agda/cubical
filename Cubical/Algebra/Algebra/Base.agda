@@ -161,13 +161,13 @@ record AlgebraHom {R : Ring {ℓ}} (A B : Algebra R) : Type ℓ where
     comm⋆  : (r : ⟨ R ⟩) (x : ⟨ A ⟩a) → f (r ⋆ x) ≡ r ⋆ f x
 
   pres0 : f 0a ≡ 0a
-  pres0 = Theory.+Idempotency→0 (Algebra→Ring B) (f 0a)
+  pres0 = RingTheory.+Idempotency→0 (Algebra→Ring B) (f 0a)
           (f 0a        ≡⟨ cong f (sym (+-rid _)) ⟩
            f (0a + 0a) ≡⟨ isHom+ _ _ ⟩
            f 0a + f 0a ∎)
 
   isHom- : (x : ⟨ A ⟩a) → f (- x) ≡ - f x
-  isHom- x = Theory.implicitInverse (Algebra→Ring B) (f x) (f (- x))
+  isHom- x = RingTheory.implicitInverse (Algebra→Ring B) (f x) (f (- x))
              (f (x) + f (- x)  ≡⟨ sym (isHom+ _ _) ⟩
              f (x - x)         ≡⟨ cong f (+-rinv _) ⟩
              f 0a              ≡⟨ pres0 ⟩
@@ -308,7 +308,7 @@ module AlgebraTheory (R : Ring {ℓ}) (A : Algebra R) where
 
   0-actsNullifying : (x : ⟨ A ⟩a) → 0r ⋆ x ≡ 0a
   0-actsNullifying x =
-    let idempotent-+ = 0r ⋆ x              ≡⟨ cong (λ u → u ⋆ x) (sym (Theory.0Idempotent R)) ⟩
+    let idempotent-+ = 0r ⋆ x              ≡⟨ cong (λ u → u ⋆ x) (sym (RingTheory.0Idempotent R)) ⟩
                        (0r +r 0r) ⋆ x      ≡⟨ ⋆-ldist 0r 0r x ⟩
                        (0r ⋆ x) + (0r ⋆ x) ∎
-    in Theory.+Idempotency→0 (Algebra→Ring A) (0r ⋆ x) idempotent-+
+    in RingTheory.+Idempotency→0 (Algebra→Ring A) (0r ⋆ x) idempotent-+
