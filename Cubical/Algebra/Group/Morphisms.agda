@@ -1,13 +1,10 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
-module Cubical.Algebra.Group.Morphism where
+module Cubical.Algebra.Group.Morphisms where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Function using (_∘_)
-open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.DirProd
@@ -15,12 +12,11 @@ open import Cubical.Data.Sigma
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ''' ℓ₁ ℓ₂ : Level
+    ℓ ℓ' ℓ'' ℓ''' : Level
 
 -- The following definition of GroupHom and GroupEquiv are level-wise heterogeneous.
 -- This allows for example to deduce that G ≡ F from a chain of isomorphisms
 -- G ≃ H ≃ F, even if H does not lie in the same level as G and F.
-
 isGroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) (f : ⟨ G ⟩ → ⟨ H ⟩) → Type _
 isGroupHom G H f = (x y : ⟨ G ⟩) → f (x G.+ y) ≡ (f x H.+ f y) where
   module G = GroupStr (snd G)
@@ -76,29 +72,32 @@ isInjective G H ϕ = (x : ⟨ G ⟩) → isInKer G H ϕ x → x ≡ 0g (snd G)
 
 
 -- ----------- Alternative notions of isomorphisms --------------
+
 record GroupIso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
 
   constructor iso
   field
-    map : GroupHom G H
+    fun : GroupHom G H
     inv : ⟨ H ⟩ → ⟨ G ⟩
-    rightInv : section (GroupHom.fun map) inv
-    leftInv : retract (GroupHom.fun map) inv
+    rightInv : section (GroupHom.fun fun) inv
+    leftInv : retract (GroupHom.fun fun) inv
+
 
 record BijectionIso {ℓ ℓ'} (A : Group {ℓ}) (B : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
 
-  constructor bij-iso
+  constructor bijIso
   field
-    map' : GroupHom A B
-    inj : isInjective A B map'
-    surj : isSurjective A B map'
+    fun : GroupHom A B
+    inj : isInjective A B fun
+    surj : isSurjective A B fun
+
 
 -- "Very" short exact sequences
 -- i.e. an exact sequence A → B → C → D where A and D are trivial
 record vSES {ℓ ℓ' ℓ'' ℓ'''} (A : Group {ℓ}) (B : Group {ℓ'}) (leftGr : Group {ℓ''}) (rightGr : Group {ℓ'''})
            : Type (ℓ-suc (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓ''')))) where
 
-  constructor ses
+  constructor vses
   field
     isTrivialLeft : isProp ⟨ leftGr ⟩
     isTrivialRight : isProp ⟨ rightGr ⟩

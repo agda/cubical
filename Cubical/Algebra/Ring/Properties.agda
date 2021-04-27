@@ -29,7 +29,7 @@ private
   that should become obsolete or subject to change once we have a
   ring solver (see https://github.com/agda/cubical/issues/297)
 -}
-module Theory (R' : Ring {ℓ}) where
+module RingTheory (R' : Ring {ℓ}) where
 
   open RingStr (snd R')
   private R = ⟨ R' ⟩

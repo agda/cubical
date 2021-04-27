@@ -19,7 +19,7 @@ open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 
 open import Cubical.Algebra.Group.Base
-open import Cubical.Algebra.Group.Morphism
+open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 
 open import Cubical.Reflection.StrictEquiv
@@ -40,7 +40,7 @@ IsGroup.inverse (isPropIsGroup 0g _+_ -_ g1 g2 i) = isPropInv (IsGroup.inverse g
   isPropInv = isPropΠ λ _ → isProp× (isSetG _ _) (isSetG _ _)
 
 
-module Theory (G : Group {ℓ}) where
+module GroupTheory (G : Group {ℓ}) where
   open GroupStr (snd G)
   abstract
     +CancelL : (a : ⟨ G ⟩) {b c : ⟨ G ⟩} → a + b ≡ a + c → b ≡ c

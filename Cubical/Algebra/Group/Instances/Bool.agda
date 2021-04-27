@@ -8,7 +8,7 @@ open import Cubical.Data.Bool renaming (Bool to BoolType)
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Sum hiding (map ; rec)
 open import Cubical.Algebra.Group.Base
-open import Cubical.Algebra.Group.Morphism
+open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
