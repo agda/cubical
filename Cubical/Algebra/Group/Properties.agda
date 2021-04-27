@@ -47,9 +47,9 @@ module GroupTheory (G : Group {ℓ}) where
     +CancelL a {b} {c} p =
        b
         ≡⟨ sym (lid b) ∙ cong (_+ b) (sym (invl a)) ∙ sym (assoc _ _ _) ⟩
-      - a + (a + b)
-        ≡⟨ cong (- a +_) p ⟩
-      - a + (a + c)
+      inv a + (a + b)
+        ≡⟨ cong (inv a +_) p ⟩
+      inv a + (a + c)
         ≡⟨ assoc _ _ _ ∙ cong (_+ c) (invl a) ∙ lid c ⟩
       c ∎
 
@@ -57,17 +57,17 @@ module GroupTheory (G : Group {ℓ}) where
     +CancelR {a} {b} c p =
       a
         ≡⟨ sym (rid a) ∙ cong (a +_) (sym (invr c)) ∙ assoc _ _ _ ⟩
-      (a + c) - c
-        ≡⟨ cong (_- c) p ⟩
-      (b + c) - c
+      (a + c) + inv c
+        ≡⟨ cong (λ x → x + inv c) p ⟩
+      (b + c) + inv c
         ≡⟨ sym (assoc _ _ _) ∙ cong (b +_) (invr c) ∙ rid b ⟩
       b ∎
 
-    -Invo : (a : ⟨ G ⟩) → - (- a) ≡ a
-    -Invo a = +CancelL (- a) (invr (- a) ∙ sym (invl a))
+    invInvo : (a : ⟨ G ⟩) → inv (inv a) ≡ a
+    invInvo a = +CancelL (inv a) (invr (inv a) ∙ sym (invl a))
 
-    -0g : - 0g ≡ 0g
-    -0g = +CancelL 0g (invr 0g ∙ sym (lid 0g))
+    inv0g : inv 0g ≡ 0g
+    inv0g = +CancelL 0g (invr 0g ∙ sym (lid 0g))
 
     0gUniqueL : {e : ⟨ G ⟩} (x : ⟨ G ⟩) → e + x ≡ x → e ≡ 0g
     0gUniqueL {e} x p = +CancelR x (p ∙ sym (lid _))
@@ -75,21 +75,21 @@ module GroupTheory (G : Group {ℓ}) where
     0gUniqueR : (x : ⟨ G ⟩) {e : ⟨ G ⟩} → x + e ≡ x → e ≡ 0g
     0gUniqueR x {e} p = +CancelL x (p ∙ sym (rid _))
 
-    -UniqueL : {g h : ⟨ G ⟩} → g + h ≡ 0g → g ≡ - h
-    -UniqueL {g} {h} p = +CancelR h (p ∙ sym (invl h))
+    invUniqueL : {g h : ⟨ G ⟩} → g + h ≡ 0g → g ≡ inv h
+    invUniqueL {g} {h} p = +CancelR h (p ∙ sym (invl h))
 
-    -UniqueR : {g h : ⟨ G ⟩} → g + h ≡ 0g → h ≡ - g
-    -UniqueR {g} {h} p = +CancelL g (p ∙ sym (invr g))
+    invUniqueR : {g h : ⟨ G ⟩} → g + h ≡ 0g → h ≡ inv g
+    invUniqueR {g} {h} p = +CancelL g (p ∙ sym (invr g))
 
-    -Distr : (a b : ⟨ G ⟩) → - (a + b) ≡ - b - a
-    -Distr a b = sym (-UniqueR γ) where
-      γ : (a + b) + (- b - a) ≡ 0g
-      γ = (a + b) + (- b - a)
+    invDistr : (a b : ⟨ G ⟩) → inv (a + b) ≡ inv b + inv a
+    invDistr a b = sym (invUniqueR γ) where
+      γ : (a + b) + (inv b + inv a) ≡ 0g
+      γ = (a + b) + (inv b + inv a)
             ≡⟨ sym (assoc _ _ _) ⟩
-          a + b + (- b) + (- a)
-            ≡⟨ cong (a +_) (assoc _ _ _ ∙ cong (_+ (- a)) (invr b)) ⟩
-          a + (0g - a)
-            ≡⟨ cong (a +_) (lid (- a)) ∙ invr a ⟩
+          a + b + (inv b) + (inv a)
+            ≡⟨ cong (a +_) (assoc _ _ _ ∙ cong (_+ (inv a)) (invr b)) ⟩
+          a + (0g + inv a)
+            ≡⟨ cong (a +_) (lid (inv a)) ∙ invr a ⟩
           0g ∎
 
 open Iso
@@ -158,7 +158,7 @@ module GroupΣTheory {ℓ} where
         ℳ = makeMonoid e _+_ (IsSemigroup.is-set h) (IsSemigroup.assoc h) (λ x → He x .fst) (λ x → He x .snd)
 
   Group→GroupΣ : Group → GroupΣ
-  Group→GroupΣ (G , GS) = _ , _ , (isSemigroup GS , _ , identity GS , λ x → (- GS) x , inverse GS x)
+  Group→GroupΣ (G , GS) = _ , _ , (isSemigroup GS , _ , identity GS , λ x → (inv GS) x , inverse GS x)
 
   GroupΣ→Group : GroupΣ → Group
   GroupΣ→Group (G , _ , SG , _ , H0g , invertible ) =
@@ -235,14 +235,14 @@ Group≡ : (G H : Group {ℓ}) → (
   Σ[ p ∈ ⟨ G ⟩ ≡ ⟨ H ⟩ ]
   Σ[ q ∈ PathP (λ i → p i) (0g (snd G)) (0g (snd H)) ]
   Σ[ r ∈ PathP (λ i → p i → p i → p i) (_+_ (snd G)) (_+_ (snd H)) ]
-  Σ[ s ∈ PathP (λ i → p i → p i) (- snd G) (- snd H) ]
+  Σ[ s ∈ PathP (λ i → p i → p i) (inv (snd G)) (inv (snd H)) ]
   PathP (λ i → IsGroup (q i) (r i) (s i)) (isGroup (snd G)) (isGroup (snd H)))
   ≃ (G ≡ H)
 Group≡ G H = isoToEquiv theIso
   where
   theIso : Iso _ _
   fun theIso (p , q , r , s , t) i = p i , groupstr (q i) (r i) (s i) (t i)
-  inv theIso x = cong ⟨_⟩ x , cong (0g ∘ snd) x , cong (_+_ ∘ snd) x , cong (-_ ∘ snd) x , cong (isGroup ∘ snd) x
+  inv theIso x = cong ⟨_⟩ x , cong (0g ∘ snd) x , cong (_+_ ∘ snd) x , cong (inv ∘ snd) x , cong (isGroup ∘ snd) x
   rightInv theIso _ = refl
   leftInv theIso _ = refl
 

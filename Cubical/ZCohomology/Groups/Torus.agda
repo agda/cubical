@@ -22,7 +22,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +-comm to +ℤ-comm ; +-assoc to +ℤ-assoc)
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group renaming (Int to IntGroup ; Bool to BoolGroup ; Unit to UnitGroup)
 
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.S1
@@ -132,7 +132,7 @@ private
                         (elimFunT²'≡elimFunT² (suc n) P) (ind P)
 
 --------- H⁰(T²) ------------
-H⁰-T²≅ℤ : GroupIso (coHomGr 0 (S₊ 1 × S₊ 1)) intGroup
+H⁰-T²≅ℤ : GroupIso (coHomGr 0 (S₊ 1 × S₊ 1)) IntGroup
 H⁰-T²≅ℤ =
   H⁰-connected (base , base)
     λ (a , b) → pRec propTruncIsProp
@@ -143,7 +143,7 @@ H⁰-T²≅ℤ =
 
 --------- H¹(T²) -------------------------------
 
-H¹-T²≅ℤ×ℤ : GroupIso (coHomGr 1 ((S₊ 1) × (S₊ 1))) (dirProd intGroup intGroup)
+H¹-T²≅ℤ×ℤ : GroupIso (coHomGr 1 ((S₊ 1) × (S₊ 1))) (dirProd IntGroup IntGroup)
 H¹-T²≅ℤ×ℤ = theIso □ dirProdGroupIso (Hⁿ-Sⁿ≅ℤ 0) (H⁰-Sⁿ≅ℤ 0)
   where
   typIso : Iso _ _
@@ -151,8 +151,8 @@ H¹-T²≅ℤ×ℤ = theIso □ dirProdGroupIso (Hⁿ-Sⁿ≅ℤ 0) (H⁰-Sⁿ�
                       ⋄ setTruncOfProdIso
 
   theIso : GroupIso _ _
-  fun (map theIso) = Iso.fun (typIso)
-  isHom (map theIso) =
+  fun (fun theIso) = Iso.fun (typIso)
+  isHom (fun theIso) =
     coHomPointedElimT² _ (λ _ → isPropΠ λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
       λ pf qf Pf →
         coHomPointedElimT² _ (λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
@@ -188,7 +188,7 @@ H¹-T²≅ℤ×ℤ = theIso □ dirProdGroupIso (Hⁿ-Sⁿ≅ℤ 0) (H⁰-Sⁿ�
 
 ----------------------- H²(T²) ------------------------------
 open import Cubical.Foundations.Equiv
-H²-T²≅ℤ : GroupIso (coHomGr 2 (S₊ 1 × S₊ 1)) intGroup
+H²-T²≅ℤ : GroupIso (coHomGr 2 (S₊ 1 × S₊ 1)) IntGroup
 H²-T²≅ℤ = compGroupIso helper2 (Hⁿ-Sⁿ≅ℤ 0)
   where
   helper : Iso (∥ ((a : S¹) → coHomK 2) ∥₂ × ∥ ((a : S¹) → coHomK 1) ∥₂) (coHom 1 S¹)
@@ -224,19 +224,19 @@ H²-T²≅ℤ = compGroupIso helper2 (Hⁿ-Sⁿ≅ℤ 0)
 
 private
   to₂ : coHom 2 (S₊ 1 × S₊ 1) → Int
-  to₂ = fun (map H²-T²≅ℤ)
+  to₂ = fun (fun H²-T²≅ℤ)
 
   from₂ : Int → coHom 2 (S₊ 1 × S₊ 1)
   from₂ = inv H²-T²≅ℤ
 
   to₁ : coHom 1 (S₊ 1 × S₊ 1) → Int × Int
-  to₁ = fun (map H¹-T²≅ℤ×ℤ)
+  to₁ = fun (fun H¹-T²≅ℤ×ℤ)
 
   from₁ : Int × Int → coHom 1 (S₊ 1 × S₊ 1)
   from₁ = inv H¹-T²≅ℤ×ℤ
 
   to₀ : coHom 0 (S₊ 1 × S₊ 1) → Int
-  to₀ = fun (map H⁰-T²≅ℤ)
+  to₀ = fun (fun H⁰-T²≅ℤ)
 
   from₀ : Int → coHom 0 (S₊ 1 × S₊ 1)
   from₀ = inv H⁰-T²≅ℤ

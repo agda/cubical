@@ -157,7 +157,7 @@ module RingTheory (R' : Ring {ℓ}) where
   ·-assoc2 x y z w = ·Assoc (x · y) z w ∙ cong (_· w) (sym (·Assoc x y z))
 
 module HomTheory {R S : Ring {ℓ}} (f′ : RingHom  R S) where
-  open Theory ⦃...⦄
+  open RingTheory ⦃...⦄
   open RingStr ⦃...⦄
   open RingHom f′
   private

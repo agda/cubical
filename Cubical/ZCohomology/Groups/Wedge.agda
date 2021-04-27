@@ -30,7 +30,7 @@ open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.Equiv
 
-open GroupIso renaming (map to map')
+open GroupIso
 open GroupHom
 
 {-
@@ -107,10 +107,10 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
     wedgeFun⁻ n f g (push a i) = f (pt A) +ₖ g (pt B)
 
   Hⁿ-⋁ : (n : ℕ) → GroupIso (coHomGr (suc n) (A ⋁ B)) (×coHomGr (suc n) (typ A) (typ B))
-  fun (map' (Hⁿ-⋁ zero)) =
+  fun (fun (Hⁿ-⋁ zero)) =
     sElim (λ _ → isSet× setTruncIsSet setTruncIsSet)
            λ f → ∣ (λ x → f (inl x)) ∣₂ , ∣ (λ x → f (inr x)) ∣₂
-  isHom (map' (Hⁿ-⋁ zero)) =
+  isHom (fun (Hⁿ-⋁ zero)) =
     sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
             λ _ _ → refl
   inv (Hⁿ-⋁ zero) = uncurry (sElim2 (λ _ _ → setTruncIsSet)
@@ -153,10 +153,10 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
                                                     ≡ (sym (lUnitₖ 1 y) ∙ refl) j)
                                              p refl)
                                λ i _ → (refl ∙ (λ _ → 0ₖ 1)) i
-  fun (map' (Hⁿ-⋁ (suc n))) =
+  fun (fun (Hⁿ-⋁ (suc n))) =
     sElim (λ _ → isSet× setTruncIsSet setTruncIsSet)
            λ f → ∣ (λ x → f (inl x)) ∣₂ , ∣ (λ x → f (inr x)) ∣₂
-  isHom (map' (Hⁿ-⋁ (suc n))) =
+  isHom (fun (Hⁿ-⋁ (suc n))) =
     sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
             λ _ _ → refl
   inv (Hⁿ-⋁ (suc n)) =
@@ -203,11 +203,11 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
 
   H⁰Red-⋁ : GroupIso (coHomRedGrDir 0 (A ⋁ B , inl (pt A)))
                       (dirProd (coHomRedGrDir 0 A) (coHomRedGrDir 0 B))
-  fun (GroupIso.map H⁰Red-⋁) =
+  fun (GroupIso.fun H⁰Red-⋁) =
     sRec (isSet× setTruncIsSet setTruncIsSet)
          λ {(f , p) → ∣ (f ∘ inl) , p ∣₂
                      , ∣ (f ∘ inr) , cong f (sym (push tt)) ∙ p ∣₂}
-  isHom (GroupIso.map H⁰Red-⋁) =
+  isHom (GroupIso.fun H⁰Red-⋁) =
     sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
            λ {(f , p) (g , q) → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl)
                                        , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl))}

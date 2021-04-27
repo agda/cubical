@@ -28,7 +28,7 @@ open import Cubical.HITs.PropositionalTruncation hiding (map)
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ₁ ℓ₂ ℓ₃ : Level
+    ℓ ℓ' ℓ'' ℓ''' ℓ₁ ℓ₂ ℓ₃ : Level
 
 open Iso
 open GroupStr
@@ -80,6 +80,11 @@ invGroupEquiv : {G : Group {ℓ}} {H : Group {ℓ'}} → GroupEquiv G H → Grou
 eq (invGroupEquiv f) = invEquiv (eq f)
 isHom (invGroupEquiv f) = isGroupHomInv f
 
+×hom : {A : Group {ℓ}} {B : Group {ℓ'}} {C : Group {ℓ''}} {D : Group {ℓ'''}}
+    → GroupHom A C → GroupHom B D → GroupHom (dirProd A B) (dirProd C D)
+fun (×hom mf1 mf2) = map-× (fun mf1) (fun mf2)
+isHom (×hom mf1 mf2) a b = ≡-× (isHom mf1 _ _) (isHom mf2 _ _)
+
 dirProdEquiv : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Group {ℓ}} {B : Group {ℓ'}} {C : Group {ℓ''}} {D : Group {ℓ'''}}
            → GroupEquiv A C → GroupEquiv B D
            → GroupEquiv (dirProd A B) (dirProd C D)
@@ -109,7 +114,7 @@ module _ (G : Group {ℓ}) (H : Group {ℓ'}) where
   module G = GroupStr (snd G)
   module H = GroupStr (snd H)
 
-  -0≡0 : G.- G.0g ≡ G.0g
+  -0≡0 : G.inv G.0g ≡ G.0g
   -0≡0 = sym (G.lid _) ∙ G.invr _
 
   -- ϕ(0) ≡ 0
@@ -117,24 +122,24 @@ module _ (G : Group {ℓ}) (H : Group {ℓ'}) where
   morph0→0 fh@(grouphom f _) =
     f G.0g                         ≡⟨ sym (H.rid _) ⟩
     f G.0g H.+ H.0g                ≡⟨ (λ i → f G.0g H.+ H.invr (f G.0g) (~ i)) ⟩
-    f G.0g H.+ (f G.0g H.- f G.0g) ≡⟨ H.assoc _ _ _ ⟩
-    (f G.0g H.+ f G.0g) H.- f G.0g ≡⟨ sym (cong (λ x → x H.+ (H.- f G.0g))
+    f G.0g H.+ (f G.0g H.+ H.inv (f G.0g)) ≡⟨ H.assoc _ _ _ ⟩
+    (f G.0g H.+ f G.0g) H.+ H.inv (f G.0g) ≡⟨ sym (cong (λ x → x H.+ _)
                                                 (sym (cong f (G.lid _)) ∙ isHom fh G.0g G.0g)) ⟩
-    f G.0g H.- f G.0g              ≡⟨ H.invr _ ⟩
+    f G.0g H.+ H.inv (f G.0g)              ≡⟨ H.invr _ ⟩
     H.0g ∎
 
   -- ϕ(- x) = - ϕ(x)
-  morphMinus : (f : GroupHom G H) → (g : ⟨ G ⟩) → f .fun (G.- g) ≡ H.- (f .fun g)
+  morphMinus : (f : GroupHom G H) → (g : ⟨ G ⟩) → f .fun (G.inv g) ≡ H.inv (f .fun g)
   morphMinus fc@(grouphom f fh) g =
-    f (G.- g)                   ≡⟨ sym (H.rid _) ⟩
-    f (G.- g) H.+ H.0g          ≡⟨ cong (f (G.- g) H.+_) (sym (H.invr _)) ⟩
-    f (G.- g) H.+ (f g H.- f g) ≡⟨ H.assoc _ _ _ ⟩
-    (f (G.- g) H.+ f g) H.- f g ≡⟨ cong (H._+ (H.- f g)) helper ⟩
-    H.0g H.- f g                ≡⟨ H.lid _ ⟩
-    H.- f g ∎
+    f (G.inv g)                   ≡⟨ sym (H.rid _) ⟩
+    f (G.inv g) H.+ H.0g          ≡⟨ cong (f (G.inv g) H.+_) (sym (H.invr _)) ⟩
+    f (G.inv g) H.+ (f g H.+ H.inv (f g)) ≡⟨ H.assoc _ _ _ ⟩
+    (f (G.inv g) H.+ f g) H.+ H.inv (f g) ≡⟨ cong (H._+ _) helper ⟩
+    H.0g H.+ H.inv (f g)                ≡⟨ H.lid _ ⟩
+    H.inv (f g) ∎
     where
-    helper : f (G.- g) H.+ f g ≡ H.0g
-    helper = sym (fh (G.- g) g) ∙∙ cong f (G.invl g) ∙∙ morph0→0 fc
+    helper : f (G.inv g) H.+ f g ≡ H.0g
+    helper = sym (fh (G.inv g) g) ∙∙ cong f (G.invl g) ∙∙ morph0→0 fc
 
 
 
@@ -203,17 +208,17 @@ BijectionIsoToGroupIso {A = A} {B = B} i = grIso
     Σ≡Prop (λ _ → isSetCarrier B _ _)
            (fst a                             ≡⟨ sym (A.rid _) ⟩
             fst a A.+ A.0g                    ≡⟨ cong (fst a A.+_) (sym (A.invl _)) ⟩
-            fst a A.+ ((A.- fst b) A.+ fst b) ≡⟨ A.assoc _ _ _ ⟩
-            (fst a A.- fst b) A.+ fst b       ≡⟨ cong (A._+ fst b) idHelper ⟩
+            fst a A.+ ((A.inv (fst b)) A.+ fst b) ≡⟨ A.assoc _ _ _ ⟩
+            (fst a A.+ A.inv (fst b)) A.+ fst b   ≡⟨ cong (A._+ fst b) idHelper ⟩
             A.0g A.+ fst b                    ≡⟨ A.lid _ ⟩
             fst b ∎)
     where
-    idHelper : fst a A.- fst b ≡ A.0g
+    idHelper : fst a A.+ A.inv (fst b) ≡ A.0g
     idHelper =
       inj i _
-           (isHom (fun i) (fst a) (A.- (fst b))
+           (isHom (fun i) (fst a) (A.inv (fst b))
          ∙ (cong (f (fst a) B.+_) (morphMinus A B (fun i) (fst b))
-         ∙∙ cong (B._+ (B.- f (fst b))) (snd a ∙ sym (snd b))
+         ∙∙ cong (B._+ (B.inv (f (fst b)))) (snd a ∙ sym (snd b))
          ∙∙ B.invr (f (fst b))))
 
   grIso : GroupIso A B

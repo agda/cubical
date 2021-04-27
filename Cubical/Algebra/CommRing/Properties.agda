@@ -192,7 +192,7 @@ module Exponentiation (R' : CommRing {ℓ}) where
 
 
 -- like in Ring.Properties we provide helpful lemmas here
-module CommTheory (R' : CommRing {ℓ}) where
+module CommRingTheory (R' : CommRing {ℓ}) where
  open CommRingStr (snd R')
  private R = fst R'
 

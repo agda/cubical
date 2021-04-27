@@ -12,25 +12,26 @@ private
     ℓ : Level
 
 record IsGroup {G : Type ℓ}
-               (0g : G) (_+_ : G → G → G) (-_ : G → G) : Type ℓ where
+               (0g : G) (_+_ : G → G → G) (inv : G → G) : Type ℓ where
 
   constructor isgroup
 
   field
     isMonoid  : IsMonoid 0g _+_
-    inverse   : (x : G) → (x + (- x) ≡ 0g) × ((- x) + x ≡ 0g)
+    inverse   : (x : G) → (x + inv x ≡ 0g) × (inv x + x ≡ 0g)
 
   open IsMonoid isMonoid public
 
   infixl 6 _-_
 
+  -- Useful notation for additive groups
   _-_ : G → G → G
-  x - y = x + (- y)
+  x - y = x + (inv y)
 
-  invl : (x : G) → (- x) + x ≡ 0g
+  invl : (x : G) → (inv x) + x ≡ 0g
   invl x = inverse x .snd
 
-  invr : (x : G) → x + (- x) ≡ 0g
+  invr : (x : G) → x + (inv x) ≡ 0g
   invr x = inverse x .fst
 
 record GroupStr (G : Type ℓ) : Type (ℓ-suc ℓ) where
@@ -40,10 +41,9 @@ record GroupStr (G : Type ℓ) : Type (ℓ-suc ℓ) where
   field
     0g      : G
     _+_     : G → G → G
-    -_      : G → G
-    isGroup : IsGroup 0g _+_ -_
+    inv     : G → G
+    isGroup : IsGroup 0g _+_ inv
 
-  infix  8 -_
   infixr 7 _+_
 
   open IsGroup isGroup public
@@ -54,37 +54,37 @@ Group = TypeWithStr _ GroupStr
 Group₀ : Type₁
 Group₀ = Group {ℓ-zero}
 
-group : (G : Type ℓ) (0g : G) (_+_ : G → G → G) (-_ : G → G) (h : IsGroup 0g _+_ -_) → Group
-group G 0g _+_ -_ h = G , groupstr 0g _+_ -_ h
+group : (G : Type ℓ) (0g : G) (_+_ : G → G → G) (inv : G → G) (h : IsGroup 0g _+_ inv) → Group
+group G 0g _+_ inv h = G , groupstr 0g _+_ inv h
 
 isSetGroup : (G : Group {ℓ}) → isSet ⟨ G ⟩
 isSetGroup G = GroupStr.isGroup (snd G) .IsGroup.isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
-makeIsGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
+makeIsGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { inv : G → G}
               (is-setG : isSet G)
               (assoc : (x y z : G) → x + (y + z) ≡ (x + y) + z)
               (rid : (x : G) → x + 0g ≡ x)
               (lid : (x : G) → 0g + x ≡ x)
-              (rinv : (x : G) → x + (- x) ≡ 0g)
-              (linv : (x : G) → (- x) + x ≡ 0g)
-            → IsGroup 0g _+_ -_
+              (rinv : (x : G) → x + inv x ≡ 0g)
+              (linv : (x : G) → inv x + x ≡ 0g)
+            → IsGroup 0g _+_ inv
 IsGroup.isMonoid (makeIsGroup is-setG assoc rid lid rinv linv) = makeIsMonoid is-setG assoc rid lid
 IsGroup.inverse (makeIsGroup is-setG assoc rid lid rinv linv) = λ x → rinv x , linv x
 
-makeGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
+makeGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (inv : G → G)
             (is-setG : isSet G)
             (assoc : (x y z : G) → x + (y + z) ≡ (x + y) + z)
             (rid : (x : G) → x + 0g ≡ x)
             (lid : (x : G) → 0g + x ≡ x)
-            (rinv : (x : G) → x + (- x) ≡ 0g)
-            (linv : (x : G) → (- x) + x ≡ 0g)
+            (rinv : (x : G) → x + inv x ≡ 0g)
+            (linv : (x : G) → inv x + x ≡ 0g)
           → Group
-makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv = _ , helper
+makeGroup 0g _+_ inv is-setG assoc rid lid rinv linv = _ , helper
   where
   helper : GroupStr _
   GroupStr.0g helper = 0g
   GroupStr._+_ helper = _+_
-  GroupStr.- helper = -_
+  GroupStr.inv helper = inv
   GroupStr.isGroup helper = makeIsGroup is-setG assoc rid lid rinv linv
 
 makeGroup-right : {A : Type ℓ}

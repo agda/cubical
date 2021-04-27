@@ -42,11 +42,6 @@ record GroupEquiv (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ')
 open GroupHom
 open GroupStr
 
-×hom : {A : Group {ℓ}} {B : Group {ℓ'}} {C : Group {ℓ''}} {D : Group {ℓ'''}}
-    → GroupHom A C → GroupHom B D → GroupHom (dirProd A B) (dirProd C D)
-fun (×hom mf1 mf2) = map-× (fun mf1) (fun mf2)
-isHom (×hom mf1 mf2) a b = ≡-× (isHom mf1 _ _) (isHom mf2 _ _)
-
 -- TODO: make G and H implicit?
 isInIm : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupHom G H → ⟨ H ⟩ → Type (ℓ-max ℓ ℓ')
 isInIm G H ϕ h = ∃[ g ∈ ⟨ G ⟩ ] ϕ .fun g ≡ h

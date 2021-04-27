@@ -18,7 +18,7 @@ fst (dirProd G H) = fst G × fst H
 0g (snd (dirProd G H)) = (0g (snd G)) , (0g (snd H))
 _+_ (snd (dirProd G H)) x y = _+_ (snd G) (fst x) (fst y)
                             , _+_ (snd H) (snd x) (snd y)
-(- snd (dirProd G H)) x = (-_ (snd G) (fst x)) , (-_ (snd H) (snd x))
+(inv (snd (dirProd G H))) x = (inv (snd G) (fst x)) , (inv (snd H) (snd x))
 is-set (isSemigroup (isMonoid (isGroup (snd (dirProd G H))))) =
   isSet× (is-set (snd G)) (is-set (snd H))
 assoc (isSemigroup (isMonoid (isGroup (snd (dirProd G H))))) x y z i =

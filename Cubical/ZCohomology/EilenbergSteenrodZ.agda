@@ -39,7 +39,7 @@ open import Cubical.HITs.Wedge
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
 
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group renaming (Int to IntGroup)
 open import Cubical.Algebra.AbGroup
 
 open coHomTheory
@@ -371,8 +371,8 @@ private
   BinaryWedge isCohomTheoryZ' (pos (suc n)) = GrIsoToGrEquiv (Hⁿ-⋁ _ _ n)
   BinaryWedge isCohomTheoryZ' (negsuc n) =
     GrIsoToGrEquiv
-      (compGroupIso (IsoContrGroupTrivialGroup isContrUnit*)
-                    (invGroupIso (IsoContrGroupTrivialGroup (isOfHLevel× 0 isContrUnit* isContrUnit*))))
+      (compGroupIso (contrGroupIsoUnit isContrUnit*)
+                    (invGroupIso (contrGroupIsoUnit (isOfHLevel× 0 isContrUnit* isContrUnit*))))
 
 -- Substituting back for our original theory, we are done
 isCohomTheoryZ : ∀ {ℓ} → coHomTheory {ℓ} coHomFunctor

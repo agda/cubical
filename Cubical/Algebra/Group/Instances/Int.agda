@@ -11,7 +11,7 @@ Int : Group₀
 fst Int = IntType
 0g (snd Int) = 0
 _+_ (snd Int) = _+Int_
-- snd Int = _-Int_ 0
+inv (snd Int) = _-Int_ 0
 isGroup (snd Int) = isGroupInt
   where
   abstract
