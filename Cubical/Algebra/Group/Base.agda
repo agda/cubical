@@ -2,15 +2,10 @@
 module Cubical.Algebra.Group.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.SIP
+open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
-open import Cubical.Data.Int renaming (_+_ to _+Int_ ; _-_ to _-Int_; -_ to -Int_)
-open import Cubical.Data.Unit
-open import Cubical.Data.Bool
-
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
-open import Cubical.Foundations.HLevels
 
 private
   variable
@@ -92,160 +87,95 @@ makeGroup 0g _+_ -_ is-setG assoc rid lid rinv linv = _ , helper
   GroupStr.- helper = -_
   GroupStr.isGroup helper = makeIsGroup is-setG assoc rid lid rinv linv
 
-makeGroup-right : ∀ {ℓ} {A : Type ℓ}
+makeGroup-right : {A : Type ℓ}
   → (id : A)
-  → (comp : A → A → A)
+  → (_+_ : A → A → A)
   → (inv : A → A)
   → (set : isSet A)
-  → (assoc : ∀ a b c → comp a (comp b c) ≡ comp (comp a b) c)
-  → (rUnit : ∀ a → comp a id ≡ a)
-  → (rCancel : ∀ a → comp a (inv a) ≡ id)
+  → (assoc : ∀ a b c → a + (b + c) ≡ (a + b) + c)
+  → (rUnit : ∀ a → a + id ≡ a)
+  → (rCancel : ∀ a → a + (inv a) ≡ id)
   → Group
-makeGroup-right id comp inv set assoc rUnit rCancel =
-  makeGroup id comp inv set assoc rUnit lUnit rCancel lCancel
+makeGroup-right id _+_ inv set assoc rUnit rCancel =
+  makeGroup id _+_ inv set assoc rUnit lUnit rCancel lCancel
   where
-    _⨀_ = comp
     abstract
-      lCancel : ∀ a → comp (inv a) a ≡ id
+      lCancel : ∀ a → inv a + a ≡ id
       lCancel a =
-        inv a ⨀ a
-          ≡⟨ sym (rUnit (comp (inv a) a))  ⟩
-        (inv a ⨀ a) ⨀ id
-          ≡⟨ cong (comp (comp (inv a) a)) (sym (rCancel (inv a))) ⟩
-        (inv a ⨀ a) ⨀ (inv a ⨀ (inv (inv a)))
+        inv a + a
+          ≡⟨ sym (rUnit _)  ⟩
+        (inv a + a) + id
+          ≡⟨ cong (_+_ _) (sym (rCancel (inv a))) ⟩
+        (inv a + a) + (inv a + (inv (inv a)))
           ≡⟨ assoc _ _ _ ⟩
-        ((inv a ⨀ a) ⨀ (inv a)) ⨀ (inv (inv a))
-          ≡⟨ cong (λ □ → □ ⨀ _) (sym (assoc _ _ _)) ⟩
-        (inv a ⨀ (a ⨀ inv a)) ⨀ (inv (inv a))
-          ≡⟨ cong (λ □ → (inv a ⨀ □) ⨀ (inv (inv a))) (rCancel a) ⟩
-        (inv a ⨀ id) ⨀ (inv (inv a))
-          ≡⟨ cong (λ □ → □ ⨀ (inv (inv a))) (rUnit (inv a)) ⟩
-        inv a ⨀ (inv (inv a))
+        ((inv a + a) + (inv a)) + (inv (inv a))
+          ≡⟨ cong (λ □ → □ + _) (sym (assoc _ _ _)) ⟩
+        (inv a + (a + inv a)) + (inv (inv a))
+          ≡⟨ cong (λ □ → (inv a + □) + (inv (inv a))) (rCancel a) ⟩
+        (inv a + id) + (inv (inv a))
+          ≡⟨ cong (λ □ → □ + (inv (inv a))) (rUnit (inv a)) ⟩
+        inv a + (inv (inv a))
           ≡⟨ rCancel (inv a) ⟩
         id
           ∎
 
-      lUnit : ∀ a → comp id a ≡ a
+      lUnit : ∀ a → id + a ≡ a
       lUnit a =
-        id ⨀ a
-          ≡⟨ cong (λ b → comp b a) (sym (rCancel a)) ⟩
-        (a ⨀ inv a) ⨀ a
+        id + a
+          ≡⟨ cong (λ b → b + a) (sym (rCancel a)) ⟩
+        (a + inv a) + a
           ≡⟨ sym (assoc _ _ _) ⟩
-        a ⨀ (inv a ⨀ a)
-          ≡⟨ cong (comp a) (lCancel a) ⟩
-        a ⨀ id
+        a + (inv a + a)
+          ≡⟨ cong (a +_) (lCancel a) ⟩
+        a + id
           ≡⟨ rUnit a ⟩
         a
           ∎
 
-makeGroup-left : ∀ {ℓ} {A : Type ℓ}
+makeGroup-left : {A : Type ℓ}
   → (id : A)
-  → (comp : A → A → A)
+  → (_+_ : A → A → A)
   → (inv : A → A)
   → (set : isSet A)
-  → (assoc : ∀ a b c → comp a (comp b c) ≡ comp (comp a b) c)
-  → (lUnit : ∀ a → comp id a ≡ a)
-  → (lCancel : ∀ a → comp (inv a) a ≡ id)
+  → (assoc : ∀ a b c → a + (b + c) ≡ (a + b) + c)
+  → (lUnit : ∀ a → id + a ≡ a)
+  → (lCancel : ∀ a → (inv a) + a ≡ id)
   → Group
-makeGroup-left id comp inv set assoc lUnit lCancel =
-  makeGroup id comp inv set assoc rUnit lUnit rCancel lCancel
+makeGroup-left id _+_ inv set assoc lUnit lCancel =
+  makeGroup id _+_ inv set assoc rUnit lUnit rCancel lCancel
   where
     abstract
-      rCancel : ∀ a → comp a (inv a) ≡ id
+      rCancel : ∀ a → a + inv a ≡ id
       rCancel a =
-        comp a (inv a)
-          ≡⟨ sym (lUnit (comp a (inv a)))  ⟩
-        comp id (comp a (inv a))
-          ≡⟨ cong (λ b → comp b (comp a (inv a))) (sym (lCancel (inv a))) ⟩
-        comp (comp (inv (inv a)) (inv a)) (comp a (inv a))
-          ≡⟨ sym (assoc (inv (inv a)) (inv a) (comp a (inv a))) ⟩
-        comp (inv (inv a)) (comp (inv a) (comp a (inv a)))
-          ≡⟨ cong (comp (inv (inv a))) (assoc (inv a) a (inv a)) ⟩
-        comp (inv (inv a)) (comp (comp (inv a) a) (inv a))
-          ≡⟨ cong (λ b → comp (inv (inv a)) (comp b (inv a))) (lCancel a) ⟩
-        comp (inv (inv a)) (comp id (inv a))
-          ≡⟨ cong (comp (inv (inv a))) (lUnit (inv a)) ⟩
-        comp (inv (inv a)) (inv a)
+        a + inv a
+          ≡⟨ sym (lUnit _)  ⟩
+        id + (a + inv a)
+          ≡⟨ cong (λ b → b + (a + inv a)) (sym (lCancel (inv a))) ⟩
+        (inv (inv a) + inv a) + (a + inv a)
+          ≡⟨ sym (assoc (inv (inv a)) (inv a) _) ⟩
+        inv (inv a) + (inv a + (a + inv a))
+          ≡⟨ cong (inv (inv a) +_) (assoc (inv a) a (inv a)) ⟩
+        (inv (inv a)) + ((inv a + a) + (inv a))
+          ≡⟨ cong (λ b → (inv (inv a)) + (b + (inv a))) (lCancel a) ⟩
+        inv (inv a) + (id + inv a)
+          ≡⟨ cong (inv (inv a) +_) (lUnit (inv a)) ⟩
+        inv (inv a) + inv a
           ≡⟨ lCancel (inv a) ⟩
         id
           ∎
 
-      rUnit : ∀ a → comp a id ≡ a
+      rUnit : ∀ a → a + id ≡ a
       rUnit a =
-        comp a id
-          ≡⟨ cong (comp a) (sym (lCancel a)) ⟩
-        comp a (comp (inv a) a)
+        a + id
+          ≡⟨ cong (a +_) (sym (lCancel a)) ⟩
+        a + (inv a + a)
           ≡⟨ assoc a (inv a) a ⟩
-        comp (comp a (inv a)) a
-          ≡⟨ cong (λ b → comp b a) (rCancel a) ⟩
-        comp id a
+        (a + inv a) + a
+          ≡⟨ cong (λ b → b + a) (rCancel a) ⟩
+        id + a
           ≡⟨ lUnit a ⟩
         a
           ∎
 
-open GroupStr hiding (0g ; _+_ ; -_)
-
-isSetCarrier : ∀ {ℓ} → (G : Group {ℓ}) → isSet ⟨ G ⟩
+isSetCarrier : (G : Group {ℓ}) → isSet ⟨ G ⟩
 isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (GroupStr.isMonoid (snd G)))
-
-open GroupStr
-dirProd : ∀ {ℓ ℓ'} → Group {ℓ} → Group {ℓ'} → Group
-fst (dirProd G H) = fst G × fst H
-0g (snd (dirProd G H)) = (0g (snd G)) , (0g (snd H))
-_+_ (snd (dirProd G H)) x y = _+_ (snd G) (fst x) (fst y)
-                            , _+_ (snd H) (snd x) (snd y)
-(- snd (dirProd G H)) x = (-_ (snd G) (fst x)) , (-_ (snd H) (snd x))
-IsSemigroup.is-set (IsMonoid.isSemigroup (IsGroup.isMonoid (isGroup (snd (dirProd G H))))) =
-  isSet× (is-set (snd G)) (is-set (snd H))
-IsSemigroup.assoc (IsMonoid.isSemigroup (IsGroup.isMonoid (isGroup (snd (dirProd G H))))) x y z i =
-  assoc (snd G) (fst x) (fst y) (fst z) i , assoc (snd H) (snd x) (snd y) (snd z) i
-fst (IsMonoid.identity (IsGroup.isMonoid (isGroup (snd (dirProd G H)))) x) i =
-  rid (snd G) (fst x) i , rid (snd H) (snd x) i
-snd (IsMonoid.identity (IsGroup.isMonoid (isGroup (snd (dirProd G H)))) x) i =
-  lid (snd G) (fst x) i , lid (snd H) (snd x) i
-fst (IsGroup.inverse (isGroup (snd (dirProd G H))) x) i =
-  (invr (snd G) (fst x) i) , invr (snd H) (snd x) i
-snd (IsGroup.inverse (isGroup (snd (dirProd G H))) x) i =
-  (invl (snd G) (fst x) i) , invl (snd H) (snd x) i
-
-trivialGroup : Group₀
-trivialGroup = Unit , groupstr tt (λ _ _ → tt) (λ _ → tt)
-                      (makeIsGroup isSetUnit (λ _ _ _ → refl) (λ _ → refl) (λ _ → refl)
-                                   (λ _ → refl) (λ _ → refl))
-
-intGroup : Group₀
-fst intGroup = Int
-0g (snd intGroup) = 0
-_+_ (snd intGroup) = _+Int_
-- snd intGroup = _-Int_ 0
-isGroup (snd intGroup) = isGroupInt
-  where
-  abstract
-    isGroupInt : IsGroup (pos 0) _+Int_ (_-Int_ (pos 0))
-    isGroupInt = makeIsGroup isSetInt +-assoc (λ x → refl) (λ x → +-comm 0 x)
-                              (λ x → +-comm x (pos 0 -Int x) ∙ minusPlus x 0) (λ x → minusPlus x 0)
-open IsGroup
-open IsMonoid
-open IsSemigroup renaming (assoc to assoc')
-
-BoolGroup : Group₀
-fst BoolGroup = Bool
-0g (snd BoolGroup) = true
-(snd BoolGroup GroupStr.+ false) false = true
-(snd BoolGroup GroupStr.+ false) true = false
-(snd BoolGroup GroupStr.+ true) y = y
-(- snd BoolGroup) false = false
-(- snd BoolGroup) true = true
-is-set (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) = isSetBool
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false false false = refl
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false false true = refl
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false true false = refl
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false true true = refl
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true false false = refl
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true false true = refl
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true true false = refl
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true true true = refl
-identity (IsGroup.isMonoid (isGroup (snd BoolGroup))) false = refl , refl
-identity (IsGroup.isMonoid (isGroup (snd BoolGroup))) true = refl , refl
-inverse (isGroup (snd BoolGroup)) false = refl , refl
-inverse (isGroup (snd BoolGroup)) true = refl , refl
