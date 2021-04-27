@@ -40,11 +40,11 @@ IsGroup.inverse (isPropIsGroup 0g _+_ -_ g1 g2 i) = isPropInv (IsGroup.inverse g
   isPropInv = isPropΠ λ _ → isProp× (isSetG _ _) (isSetG _ _)
 
 
-module GroupLemmas (G : Group {ℓ}) where
+module Theory (G : Group {ℓ}) where
   open GroupStr (snd G)
   abstract
-    simplL : (a : ⟨ G ⟩) {b c : ⟨ G ⟩} → a + b ≡ a + c → b ≡ c
-    simplL a {b} {c} p =
+    +CancelL : (a : ⟨ G ⟩) {b c : ⟨ G ⟩} → a + b ≡ a + c → b ≡ c
+    +CancelL a {b} {c} p =
        b
         ≡⟨ sym (lid b) ∙ cong (_+ b) (sym (invl a)) ∙ sym (assoc _ _ _) ⟩
       - a + (a + b)
@@ -53,8 +53,8 @@ module GroupLemmas (G : Group {ℓ}) where
         ≡⟨ assoc _ _ _ ∙ cong (_+ c) (invl a) ∙ lid c ⟩
       c ∎
 
-    simplR : {a b : ⟨ G ⟩} (c : ⟨ G ⟩) → a + c ≡ b + c → a ≡ b
-    simplR {a} {b} c p =
+    +CancelR : {a b : ⟨ G ⟩} (c : ⟨ G ⟩) → a + c ≡ b + c → a ≡ b
+    +CancelR {a} {b} c p =
       a
         ≡⟨ sym (rid a) ∙ cong (a +_) (sym (invr c)) ∙ assoc _ _ _ ⟩
       (a + c) - c
@@ -63,26 +63,26 @@ module GroupLemmas (G : Group {ℓ}) where
         ≡⟨ sym (assoc _ _ _) ∙ cong (b +_) (invr c) ∙ rid b ⟩
       b ∎
 
-    invInvo : (a : ⟨ G ⟩) → - (- a) ≡ a
-    invInvo a = simplL (- a) (invr (- a) ∙ sym (invl a))
+    -Invo : (a : ⟨ G ⟩) → - (- a) ≡ a
+    -Invo a = +CancelL (- a) (invr (- a) ∙ sym (invl a))
 
-    invId : - 0g ≡ 0g
-    invId = simplL 0g (invr 0g ∙ sym (lid 0g))
+    -0g : - 0g ≡ 0g
+    -0g = +CancelL 0g (invr 0g ∙ sym (lid 0g))
 
-    idUniqueL : {e : ⟨ G ⟩} (x : ⟨ G ⟩) → e + x ≡ x → e ≡ 0g
-    idUniqueL {e} x p = simplR x (p ∙ sym (lid _))
+    0gUniqueL : {e : ⟨ G ⟩} (x : ⟨ G ⟩) → e + x ≡ x → e ≡ 0g
+    0gUniqueL {e} x p = +CancelR x (p ∙ sym (lid _))
 
-    idUniqueR : (x : ⟨ G ⟩) {e : ⟨ G ⟩} → x + e ≡ x → e ≡ 0g
-    idUniqueR x {e} p = simplL x (p ∙ sym (rid _))
+    0gUniqueR : (x : ⟨ G ⟩) {e : ⟨ G ⟩} → x + e ≡ x → e ≡ 0g
+    0gUniqueR x {e} p = +CancelL x (p ∙ sym (rid _))
 
-    invUniqueL : {g h : ⟨ G ⟩} → g + h ≡ 0g → g ≡ - h
-    invUniqueL {g} {h} p = simplR h (p ∙ sym (invl h))
+    -UniqueL : {g h : ⟨ G ⟩} → g + h ≡ 0g → g ≡ - h
+    -UniqueL {g} {h} p = +CancelR h (p ∙ sym (invl h))
 
-    invUniqueR : {g h : ⟨ G ⟩} → g + h ≡ 0g → h ≡ - g
-    invUniqueR {g} {h} p = simplL g (p ∙ sym (invr g))
+    -UniqueR : {g h : ⟨ G ⟩} → g + h ≡ 0g → h ≡ - g
+    -UniqueR {g} {h} p = +CancelL g (p ∙ sym (invr g))
 
-    invDistr : (a b : ⟨ G ⟩) → - (a + b) ≡ - b - a
-    invDistr a b = sym (invUniqueR γ) where
+    -Distr : (a b : ⟨ G ⟩) → - (a + b) ≡ - b - a
+    -Distr a b = sym (-UniqueR γ) where
       γ : (a + b) + (- b - a) ≡ 0g
       γ = (a + b) + (- b - a)
             ≡⟨ sym (assoc _ _ _) ⟩

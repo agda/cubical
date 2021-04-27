@@ -4,7 +4,7 @@ module Cubical.Algebra.Group.Instances.Bool where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
-open import Cubical.Data.Bool
+open import Cubical.Data.Bool renaming (Bool to BoolType)
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Sum hiding (map ; rec)
 open import Cubical.Algebra.Group.Base
@@ -14,40 +14,39 @@ open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
 open import Cubical.Relation.Nullary
 
-
 open GroupStr
 open IsGroup
 open IsMonoid
 open IsSemigroup renaming (assoc to assoc')
 
-BoolGroup : Group₀
-fst BoolGroup = Bool
-0g (snd BoolGroup) = true
-(snd BoolGroup GroupStr.+ false) false = true
-(snd BoolGroup GroupStr.+ false) true = false
-(snd BoolGroup GroupStr.+ true) y = y
-(- snd BoolGroup) false = false
-(- snd BoolGroup) true = true
-is-set (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) = isSetBool
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false false false = refl
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false false true = refl
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false true false = refl
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) false true true = refl
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true false false = refl
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true false true = refl
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true true false = refl
-assoc' (isSemigroup (isMonoid (isGroup (snd BoolGroup)))) true true true = refl
-identity (IsGroup.isMonoid (isGroup (snd BoolGroup))) false = refl , refl
-identity (IsGroup.isMonoid (isGroup (snd BoolGroup))) true = refl , refl
-inverse (isGroup (snd BoolGroup)) false = refl , refl
-inverse (isGroup (snd BoolGroup)) true = refl , refl
+Bool : Group₀
+fst Bool = BoolType
+0g (snd Bool) = true
+(snd Bool GroupStr.+ false) false = true
+(snd Bool GroupStr.+ false) true = false
+(snd Bool GroupStr.+ true) y = y
+(- snd Bool) false = false
+(- snd Bool) true = true
+is-set (isSemigroup (isMonoid (isGroup (snd Bool)))) = isSetBool
+assoc' (isSemigroup (isMonoid (isGroup (snd Bool)))) false false false = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd Bool)))) false false true = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd Bool)))) false true false = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd Bool)))) false true true = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd Bool)))) true false false = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd Bool)))) true false true = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd Bool)))) true true false = refl
+assoc' (isSemigroup (isMonoid (isGroup (snd Bool)))) true true true = refl
+identity (IsGroup.isMonoid (isGroup (snd Bool))) false = refl , refl
+identity (IsGroup.isMonoid (isGroup (snd Bool))) true = refl , refl
+inverse (isGroup (snd Bool)) false = refl , refl
+inverse (isGroup (snd Bool)) true = refl , refl
 
 
 
 -- Proof that any Group equivalent to Bool as types is also isomorhic to Bool as groups.
 open GroupStr renaming (assoc to assocG)
 
-module _ {ℓ : Level} {A : Group {ℓ}} (e : Iso (fst A) Bool) where
+module _ {ℓ : Level} {A : Group {ℓ}} (e : Iso (fst A) BoolType) where
   private
     discreteA : Discrete (typ A)
     discreteA = IsoPresDiscrete (invIso e) _≟_
@@ -55,21 +54,7 @@ module _ {ℓ : Level} {A : Group {ℓ}} (e : Iso (fst A) Bool) where
     _+A_ = GroupStr._+_ (snd A)
     -A_ = GroupStr.-_ (snd A)
 
-    notIso : Iso Bool Bool
-    Iso.fun notIso = not
-    Iso.inv notIso = not
-    Iso.rightInv notIso = notnot
-    Iso.leftInv notIso = notnot
-
-    ¬true→false : (x : Bool) → ¬ x ≡ true → x ≡ false
-    ¬true→false false _ = refl
-    ¬true→false true p = ⊥-rec (p refl)
-
-    ¬false→true : (x : Bool) → ¬ x ≡ false → x ≡ true
-    ¬false→true false p = ⊥-rec (p refl)
-    ¬false→true true _ = refl
-
-    IsoABool : Iso Bool (typ A)
+    IsoABool : Iso BoolType (typ A)
     IsoABool with (Iso.fun e (0g (snd A))) ≟ true
     ... | yes p = invIso e
     ... | no p = compIso notIso (invIso e)
@@ -89,10 +74,10 @@ module _ {ℓ : Level} {A : Group {ℓ}} (e : Iso (fst A) Bool) where
                                    ∙∙ true→0)))
     ... | no p  | yes q = inl q
 
-  ≅Bool : GroupIso BoolGroup A
+  ≅Bool : GroupIso Bool A
   ≅Bool = Iso+Hom→GrIso IsoABool homHelp
     where
-    homHelp : isGroupHom BoolGroup A (Iso.fun IsoABool)
+    homHelp : isGroupHom Bool A (Iso.fun IsoABool)
     homHelp false false with discreteA (Iso.fun IsoABool false) (0g (snd A))
                            | (decA ((Iso.fun IsoABool false) +A Iso.fun IsoABool false))
     ... | yes p | _     = true→0 ∙∙ sym (GroupStr.rid (snd A) (0g (snd A))) ∙∙ cong₂ (_+A_) (sym p) (sym p)
