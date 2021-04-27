@@ -41,34 +41,6 @@ module _ ((G , str) : Group {ℓG}) where
   elimEq {B = B} Bprop {x = x} =
     J (λ y eq → ∀ bx by → PathP (λ i → B (eq i)) bx by) (λ bx by → Bprop x bx by)
 
-  elimProp : {B : EM₁ (G , str) → Type ℓ}
-             → ((x : EM₁ (G , str)) → isProp (B x))
-             → B embase
-             → (x : EM₁ (G , str))
-             → B x
-  elimProp Bprop b embase = b
-  elimProp Bprop b (emloop g i) = elimEq Bprop (emloop g) b b i
-  elimProp Bprop b (emcomp g h i j) =
-    isSet→SquareP (λ i j → isProp→isSet (Bprop (emcomp g h i j)))
-      (λ j → elimProp Bprop b (emloop g j))
-      (λ j → elimProp Bprop b (emloop (g + h) j))
-      (λ i → b)
-      (λ i → elimProp Bprop b (emloop h i))
-      i j
-  elimProp Bprop b (emsquash x y p q r s i j k) =
-    isOfHLevel→isOfHLevelDep 3 (λ x → isSet→isGroupoid (isProp→isSet (Bprop x)))
-    _ _ _ _ (λ j k → g (r j k)) (λ j k → g (s j k)) (emsquash x y p q r s) i j k
-    where
-      g = elimProp Bprop b
-
-  elimProp2 : {C : EM₁ (G , str) → EM₁ (G , str) → Type ℓ}
-            → ((x y : EM₁ (G , str)) → isProp (C x y))
-            → C embase embase
-            → (x y : EM₁ (G , str))
-            → C x y
-  elimProp2 Cprop c = elimProp (λ x → isPropΠ (λ y → Cprop x y))
-                               (elimProp (λ y → Cprop embase y) c)
-
   elimSet : {B : EM₁ (G , str) → Type ℓ}
           → ((x : EM₁ (G , str)) → isSet (B x))
           → (b : B embase)
@@ -88,6 +60,35 @@ module _ ((G , str) : Group {ℓG}) where
       _ _ _ _ (λ j k → g (r j k)) (λ j k → g (s j k)) (emsquash x y p q r s) i j k
     where
       g = elimSet Bset b bloop
+
+  elimProp : {B : EM₁ (G , str) → Type ℓ}
+             → ((x : EM₁ (G , str)) → isProp (B x))
+             → B embase
+             → (x : EM₁ (G , str))
+             → B x
+  elimProp Bprop b x = elimSet (λ x → isProp→isSet (Bprop x)) b (λ g i → {!Bprop !}) x
+{-  elimProp Bprop b embase = b
+  elimProp Bprop b (emloop g i) = elimEq Bprop (emloop g) b b i
+  elimProp Bprop b (emcomp g h i j) =
+    isSet→SquareP (λ i j → isProp→isSet (Bprop (emcomp g h i j)))
+      (λ j → elimProp Bprop b (emloop g j))
+      (λ j → elimProp Bprop b (emloop (g + h) j))
+      (λ i → b)
+      (λ i → elimProp Bprop b (emloop h i))
+      i j
+  elimProp Bprop b (emsquash x y p q r s i j k) =
+    isOfHLevel→isOfHLevelDep 3 (λ x → isSet→isGroupoid (isProp→isSet (Bprop x)))
+    _ _ _ _ (λ j k → g (r j k)) (λ j k → g (s j k)) (emsquash x y p q r s) i j k
+    where
+      g = elimProp Bprop b
+-}
+  elimProp2 : {C : EM₁ (G , str) → EM₁ (G , str) → Type ℓ}
+            → ((x y : EM₁ (G , str)) → isProp (C x y))
+            → C embase embase
+            → (x y : EM₁ (G , str))
+            → C x y
+  elimProp2 Cprop c = elimProp (λ x → isPropΠ (λ y → Cprop x y))
+                               (elimProp (λ y → Cprop embase y) c)
 
   elim : {B : EM₁ (G , str) → Type ℓ}
        → ((x : EM₁ (G , str)) → isGroupoid (B x))
