@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Pointed hiding (id)
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
@@ -447,8 +447,8 @@ coHomGr : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group {ℓ}
 coHomGr n A = coHom n A , coHomGrnA
   where
   coHomGrnA : GroupStr (coHom n A)
-  0g coHomGrnA = 0ₕ n
-  GroupStr._+_ coHomGrnA = λ x y → x +[ n ]ₕ y
+  id coHomGrnA = 0ₕ n
+  GroupStr._·_ coHomGrnA = λ x y → x +[ n ]ₕ y
   inv coHomGrnA = λ x → -[ n ]ₕ x
   isGroup coHomGrnA = helper
     where

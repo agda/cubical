@@ -9,7 +9,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Pointed hiding (id)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
 open import Cubical.Data.Sigma
@@ -555,8 +555,8 @@ coHomGr : (n : ℕ) (A : Type ℓ) → Group {ℓ}
 coHomGr n A = coHom n A , coHomGrnA
   where
   coHomGrnA : GroupStr (coHom n A)
-  0g coHomGrnA = 0ₕ n
-  GroupStr._+_ coHomGrnA = λ x y → x +[ n ]ₕ y
+  id coHomGrnA = 0ₕ n
+  GroupStr._·_ coHomGrnA = λ x y → x +[ n ]ₕ y
   inv coHomGrnA = λ x → -[ n ]ₕ x
   isGroup coHomGrnA = helper
     where
@@ -608,8 +608,8 @@ coHomGrΩ : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group {ℓ}
 coHomGrΩ n A = ∥ (A → typ (Ω (coHomK-ptd (suc n)))) ∥₂ , coHomGrnA
   where
   coHomGrnA : GroupStr ∥ (A → typ (Ω (coHomK-ptd (suc n)))) ∥₂
-  0g coHomGrnA = ∣ (λ _ → refl) ∣₂
-  GroupStr._+_ coHomGrnA = sRec2 § λ p q → ∣ (λ x → p x ∙ q x) ∣₂
+  id coHomGrnA = ∣ (λ _ → refl) ∣₂
+  GroupStr._·_ coHomGrnA = sRec2 § λ p q → ∣ (λ x → p x ∙ q x) ∣₂
   inv coHomGrnA = map λ f x → sym (f x)
   isGroup coHomGrnA = helper
     where
@@ -766,7 +766,7 @@ lUnitK≡rUnitK : (key : Unit') (n : ℕ) → lockedCohom.lUnitK key n (0ₖ n) 
 lUnitK≡rUnitK unlock = lUnitₖ≡rUnitₖ
 
 open GroupIso
-open GroupStr renaming (_+_ to _+gr_)
+open GroupStr renaming (_·_ to _+gr_)
 open GroupHom
 
 inducedCoHom : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}

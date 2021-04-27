@@ -18,7 +18,7 @@ private
 -- This allows for example to deduce that G ≡ F from a chain of isomorphisms
 -- G ≃ H ≃ F, even if H does not lie in the same level as G and F.
 isGroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) (f : ⟨ G ⟩ → ⟨ H ⟩) → Type _
-isGroupHom G H f = (x y : ⟨ G ⟩) → f (x G.+ y) ≡ (f x H.+ f y) where
+isGroupHom G H f = (x y : ⟨ G ⟩) → f (x G.· y) ≡ (f x H.· f y) where
   module G = GroupStr (snd G)
   module H = GroupStr (snd H)
 
@@ -48,7 +48,7 @@ isInIm G H ϕ h = ∃[ g ∈ ⟨ G ⟩ ] ϕ .fun g ≡ h
 
 -- TODO: make G and H implicit?
 isInKer : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupHom G H → ⟨ G ⟩ → Type ℓ'
-isInKer G H ϕ g = ϕ .fun g ≡ 0g (snd H)
+isInKer G H ϕ g = ϕ .fun g ≡ id (snd H)
 
 Ker : {G : Group {ℓ}} {H : Group {ℓ'}} → GroupHom G H → Type _
 Ker {G = G} {H = H} ϕ = Σ[ x ∈ ⟨ G ⟩ ] isInKer G H ϕ x
@@ -62,7 +62,7 @@ isSurjective G H ϕ = (x : ⟨ H ⟩) → isInIm G H ϕ x
 
 -- TODO: make G and H implicit?
 isInjective : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupHom G H → Type (ℓ-max ℓ ℓ')
-isInjective G H ϕ = (x : ⟨ G ⟩) → isInKer G H ϕ x → x ≡ 0g (snd G)
+isInjective G H ϕ = (x : ⟨ G ⟩) → isInKer G H ϕ x → x ≡ id (snd G)
 
 
 

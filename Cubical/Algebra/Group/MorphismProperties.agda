@@ -69,8 +69,8 @@ isGroupHomInv {G = G} {H = H}  f h h' = isInj-f _ _ (
   f' (g h ⋆¹ g h') ∎)
   where
   f' = fst (eq f)
-  _⋆¹_ = _+_ (snd G)
-  _⋆²_ = _+_ (snd H)
+  _⋆¹_ = _·_ (snd G)
+  _⋆²_ = _·_ (snd H)
   g = invEq (eq f)
 
   isInj-f : (x y : ⟨ G ⟩) → f' x ≡ f' y → x ≡ y
@@ -114,32 +114,32 @@ module _ (G : Group {ℓ}) (H : Group {ℓ'}) where
   module G = GroupStr (snd G)
   module H = GroupStr (snd H)
 
-  -0≡0 : G.inv G.0g ≡ G.0g
-  -0≡0 = sym (G.lid _) ∙ G.invr _
+  -id≡id : G.inv G.id ≡ G.id
+  -id≡id = sym (G.lid _) ∙ G.invr _
 
-  -- ϕ(0) ≡ 0
-  morph0→0 : (f : GroupHom G H) → f .fun G.0g ≡ H.0g
-  morph0→0 fh@(grouphom f _) =
-    f G.0g                         ≡⟨ sym (H.rid _) ⟩
-    f G.0g H.+ H.0g                ≡⟨ (λ i → f G.0g H.+ H.invr (f G.0g) (~ i)) ⟩
-    f G.0g H.+ (f G.0g H.+ H.inv (f G.0g)) ≡⟨ H.assoc _ _ _ ⟩
-    (f G.0g H.+ f G.0g) H.+ H.inv (f G.0g) ≡⟨ sym (cong (λ x → x H.+ _)
-                                                (sym (cong f (G.lid _)) ∙ isHom fh G.0g G.0g)) ⟩
-    f G.0g H.+ H.inv (f G.0g)              ≡⟨ H.invr _ ⟩
-    H.0g ∎
+  -- ϕ(id) ≡ id
+  morphid→id : (f : GroupHom G H) → f .fun G.id ≡ H.id
+  morphid→id fh@(grouphom f _) =
+    f G.id                         ≡⟨ sym (H.rid _) ⟩
+    f G.id H.· H.id                ≡⟨ (λ i → f G.id H.· H.invr (f G.id) (~ i)) ⟩
+    f G.id H.· (f G.id H.· H.inv (f G.id)) ≡⟨ H.assoc _ _ _ ⟩
+    (f G.id H.· f G.id) H.· H.inv (f G.id) ≡⟨ sym (cong (λ x → x H.· _)
+                                                (sym (cong f (G.lid _)) ∙ isHom fh G.id G.id)) ⟩
+    f G.id H.· H.inv (f G.id)              ≡⟨ H.invr _ ⟩
+    H.id ∎
 
   -- ϕ(- x) = - ϕ(x)
   morphMinus : (f : GroupHom G H) → (g : ⟨ G ⟩) → f .fun (G.inv g) ≡ H.inv (f .fun g)
   morphMinus fc@(grouphom f fh) g =
     f (G.inv g)                   ≡⟨ sym (H.rid _) ⟩
-    f (G.inv g) H.+ H.0g          ≡⟨ cong (f (G.inv g) H.+_) (sym (H.invr _)) ⟩
-    f (G.inv g) H.+ (f g H.+ H.inv (f g)) ≡⟨ H.assoc _ _ _ ⟩
-    (f (G.inv g) H.+ f g) H.+ H.inv (f g) ≡⟨ cong (H._+ _) helper ⟩
-    H.0g H.+ H.inv (f g)                ≡⟨ H.lid _ ⟩
+    f (G.inv g) H.· H.id          ≡⟨ cong (f (G.inv g) H.·_) (sym (H.invr _)) ⟩
+    f (G.inv g) H.· (f g H.· H.inv (f g)) ≡⟨ H.assoc _ _ _ ⟩
+    (f (G.inv g) H.· f g) H.· H.inv (f g) ≡⟨ cong (H._· _) helper ⟩
+    H.id H.· H.inv (f g)                ≡⟨ H.lid _ ⟩
     H.inv (f g) ∎
     where
-    helper : f (G.inv g) H.+ f g ≡ H.0g
-    helper = sym (fh (G.inv g) g) ∙∙ cong f (G.invl g) ∙∙ morph0→0 fc
+    helper : f (G.inv g) H.· f g ≡ H.id
+    helper = sym (fh (G.inv g) g) ∙∙ cong f (G.invl g) ∙∙ morphid→id fc
 
 
 
@@ -169,8 +169,8 @@ isGroupHomInv' {G = G} {H = H}  f h h' = isInj-f _ _ (
   f' (g h ⋆¹ g h') ∎)
   where
   f' = fun (fun f)
-  _⋆¹_ = GroupStr._+_ (snd G)
-  _⋆²_ = GroupStr._+_ (snd H)
+  _⋆¹_ = GroupStr._·_ (snd G)
+  _⋆²_ = GroupStr._·_ (snd H)
   g = inv f
 
   isInj-f : (x y : ⟨ G ⟩) → f' x ≡ f' y → x ≡ y
@@ -207,18 +207,18 @@ BijectionIsoToGroupIso {A = A} {B = B} i = grIso
   helper _ a b =
     Σ≡Prop (λ _ → isSetCarrier B _ _)
            (fst a                             ≡⟨ sym (A.rid _) ⟩
-            fst a A.+ A.0g                    ≡⟨ cong (fst a A.+_) (sym (A.invl _)) ⟩
-            fst a A.+ ((A.inv (fst b)) A.+ fst b) ≡⟨ A.assoc _ _ _ ⟩
-            (fst a A.+ A.inv (fst b)) A.+ fst b   ≡⟨ cong (A._+ fst b) idHelper ⟩
-            A.0g A.+ fst b                    ≡⟨ A.lid _ ⟩
+            fst a A.· A.id                    ≡⟨ cong (fst a A.·_) (sym (A.invl _)) ⟩
+            fst a A.· ((A.inv (fst b)) A.· fst b) ≡⟨ A.assoc _ _ _ ⟩
+            (fst a A.· A.inv (fst b)) A.· fst b   ≡⟨ cong (A._· fst b) idHelper ⟩
+            A.id A.· fst b                    ≡⟨ A.lid _ ⟩
             fst b ∎)
     where
-    idHelper : fst a A.+ A.inv (fst b) ≡ A.0g
+    idHelper : fst a A.· A.inv (fst b) ≡ A.id
     idHelper =
       inj i _
            (isHom (fun i) (fst a) (A.inv (fst b))
-         ∙ (cong (f (fst a) B.+_) (morphMinus A B (fun i) (fst b))
-         ∙∙ cong (B._+ (B.inv (f (fst b)))) (snd a ∙ sym (snd b))
+         ∙ (cong (f (fst a) B.·_) (morphMinus A B (fun i) (fst b))
+         ∙∙ cong (B._· (B.inv (f (fst b)))) (snd a ∙ sym (snd b))
          ∙∙ B.invr (f (fst b))))
 
   grIso : GroupIso A B
@@ -240,7 +240,7 @@ vSES→GroupIso {A = A} lGr rGr isvses = BijectionIsoToGroupIso theIso
   inj theIso a inker = rec (isSetCarrier A _ _)
                             (λ (a , p) → sym p
                                         ∙∙ cong (fun (left isvses)) (isTrivialLeft isvses a _)
-                                        ∙∙ morph0→0 lGr A (left isvses))
+                                        ∙∙ morphid→id lGr A (left isvses))
                             (Ker-ϕ⊂Im-left isvses a inker)
   surj theIso a = Ker-right⊂Im-ϕ isvses a (isTrivialRight isvses _ _)
 

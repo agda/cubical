@@ -43,54 +43,54 @@ IsGroup.inverse (isPropIsGroup 0g _+_ -_ g1 g2 i) = isPropInv (IsGroup.inverse g
 module GroupTheory (G : Group {ℓ}) where
   open GroupStr (snd G)
   abstract
-    +CancelL : (a : ⟨ G ⟩) {b c : ⟨ G ⟩} → a + b ≡ a + c → b ≡ c
-    +CancelL a {b} {c} p =
+    ·CancelL : (a : ⟨ G ⟩) {b c : ⟨ G ⟩} → a · b ≡ a · c → b ≡ c
+    ·CancelL a {b} {c} p =
        b
-        ≡⟨ sym (lid b) ∙ cong (_+ b) (sym (invl a)) ∙ sym (assoc _ _ _) ⟩
-      inv a + (a + b)
-        ≡⟨ cong (inv a +_) p ⟩
-      inv a + (a + c)
-        ≡⟨ assoc _ _ _ ∙ cong (_+ c) (invl a) ∙ lid c ⟩
+        ≡⟨ sym (lid b) ∙ cong (_· b) (sym (invl a)) ∙ sym (assoc _ _ _) ⟩
+      inv a · (a · b)
+        ≡⟨ cong (inv a ·_) p ⟩
+      inv a · (a · c)
+        ≡⟨ assoc _ _ _ ∙ cong (_· c) (invl a) ∙ lid c ⟩
       c ∎
 
-    +CancelR : {a b : ⟨ G ⟩} (c : ⟨ G ⟩) → a + c ≡ b + c → a ≡ b
-    +CancelR {a} {b} c p =
+    ·CancelR : {a b : ⟨ G ⟩} (c : ⟨ G ⟩) → a · c ≡ b · c → a ≡ b
+    ·CancelR {a} {b} c p =
       a
-        ≡⟨ sym (rid a) ∙ cong (a +_) (sym (invr c)) ∙ assoc _ _ _ ⟩
-      (a + c) + inv c
-        ≡⟨ cong (λ x → x + inv c) p ⟩
-      (b + c) + inv c
-        ≡⟨ sym (assoc _ _ _) ∙ cong (b +_) (invr c) ∙ rid b ⟩
+        ≡⟨ sym (rid a) ∙ cong (a ·_) (sym (invr c)) ∙ assoc _ _ _ ⟩
+      (a · c) · inv c
+        ≡⟨ cong (λ x → x · inv c) p ⟩
+      (b · c) · inv c
+        ≡⟨ sym (assoc _ _ _) ∙ cong (b ·_) (invr c) ∙ rid b ⟩
       b ∎
 
     invInvo : (a : ⟨ G ⟩) → inv (inv a) ≡ a
-    invInvo a = +CancelL (inv a) (invr (inv a) ∙ sym (invl a))
+    invInvo a = ·CancelL (inv a) (invr (inv a) ∙ sym (invl a))
 
-    inv0g : inv 0g ≡ 0g
-    inv0g = +CancelL 0g (invr 0g ∙ sym (lid 0g))
+    invId : inv id ≡ id
+    invId = ·CancelL id (invr id ∙ sym (lid id))
 
-    0gUniqueL : {e : ⟨ G ⟩} (x : ⟨ G ⟩) → e + x ≡ x → e ≡ 0g
-    0gUniqueL {e} x p = +CancelR x (p ∙ sym (lid _))
+    idUniqueL : {e : ⟨ G ⟩} (x : ⟨ G ⟩) → e · x ≡ x → e ≡ id
+    idUniqueL {e} x p = ·CancelR x (p ∙ sym (lid _))
 
-    0gUniqueR : (x : ⟨ G ⟩) {e : ⟨ G ⟩} → x + e ≡ x → e ≡ 0g
-    0gUniqueR x {e} p = +CancelL x (p ∙ sym (rid _))
+    idUniqueR : (x : ⟨ G ⟩) {e : ⟨ G ⟩} → x · e ≡ x → e ≡ id
+    idUniqueR x {e} p = ·CancelL x (p ∙ sym (rid _))
 
-    invUniqueL : {g h : ⟨ G ⟩} → g + h ≡ 0g → g ≡ inv h
-    invUniqueL {g} {h} p = +CancelR h (p ∙ sym (invl h))
+    invUniqueL : {g h : ⟨ G ⟩} → g · h ≡ id → g ≡ inv h
+    invUniqueL {g} {h} p = ·CancelR h (p ∙ sym (invl h))
 
-    invUniqueR : {g h : ⟨ G ⟩} → g + h ≡ 0g → h ≡ inv g
-    invUniqueR {g} {h} p = +CancelL g (p ∙ sym (invr g))
+    invUniqueR : {g h : ⟨ G ⟩} → g · h ≡ id → h ≡ inv g
+    invUniqueR {g} {h} p = ·CancelL g (p ∙ sym (invr g))
 
-    invDistr : (a b : ⟨ G ⟩) → inv (a + b) ≡ inv b + inv a
+    invDistr : (a b : ⟨ G ⟩) → inv (a · b) ≡ inv b · inv a
     invDistr a b = sym (invUniqueR γ) where
-      γ : (a + b) + (inv b + inv a) ≡ 0g
-      γ = (a + b) + (inv b + inv a)
+      γ : (a · b) · (inv b · inv a) ≡ id
+      γ = (a · b) · (inv b · inv a)
             ≡⟨ sym (assoc _ _ _) ⟩
-          a + b + (inv b) + (inv a)
-            ≡⟨ cong (a +_) (assoc _ _ _ ∙ cong (_+ (inv a)) (invr b)) ⟩
-          a + (0g + inv a)
-            ≡⟨ cong (a +_) (lid (inv a)) ∙ invr a ⟩
-          0g ∎
+          a · b · (inv b) · (inv a)
+            ≡⟨ cong (a ·_) (assoc _ _ _ ∙ cong (_· (inv a)) (invr b)) ⟩
+          a · (id · inv a)
+            ≡⟨ cong (a ·_) (lid (inv a)) ∙ invr a ⟩
+          id ∎
 
 open Iso
 open GroupStr
@@ -138,31 +138,31 @@ module GroupΣTheory {ℓ} where
   isPropGroupAxioms : (G : Type ℓ)
                       → (s : RawGroupStructure G)
                       → isProp (GroupAxioms G s)
-  isPropGroupAxioms G _+_ = isPropΣ (isPropIsSemigroup _) γ
+  isPropGroupAxioms G _·_ = isPropΣ (isPropIsSemigroup _) γ
     where
-    γ : (h : IsSemigroup _+_) →
-        isProp (Σ[ e ∈ G ] ((x : G) → (x + e ≡ x) × (e + x ≡ x))
-                         × ((x : G) → Σ[ x' ∈ G ] (x + x' ≡ e) × (x' + x ≡ e)))
+    γ : (h : IsSemigroup _·_) →
+        isProp (Σ[ e ∈ G ] ((x : G) → (x · e ≡ x) × (e · x ≡ x))
+                         × ((x : G) → Σ[ x' ∈ G ] (x · x' ≡ e) × (x' · x ≡ e)))
     γ h (e , P , _) (e' , Q , _) =
       Σ≡Prop (λ x → isPropΣ (isPropΠ λ _ → isProp× ((IsSemigroup.is-set h) _ _) ((IsSemigroup.is-set h) _ _)) (β x))
              (sym (fst (Q e)) ∙ snd (P e'))
       where
-      β : (e : G) → ((x : G) → (x + e ≡ x) × (e + x ≡ x))
-        → isProp ((x : G) → Σ[ x' ∈ G ] (x + x' ≡ e) × (x' + x ≡ e))
+      β : (e : G) → ((x : G) → (x · e ≡ x) × (e · x ≡ x))
+        → isProp ((x : G) → Σ[ x' ∈ G ] (x · x' ≡ e) × (x' · x ≡ e))
       β e He =
         isPropΠ λ { x (x' , _ , P) (x'' , Q , _) →
                 Σ≡Prop (λ _ → isProp× ((IsSemigroup.is-set h) _ _) ((IsSemigroup.is-set h) _ _))
                        (inv-lemma ℳ x x' x'' P Q) }
         where
         ℳ : Monoid
-        ℳ = makeMonoid e _+_ (IsSemigroup.is-set h) (IsSemigroup.assoc h) (λ x → He x .fst) (λ x → He x .snd)
+        ℳ = makeMonoid e _·_ (IsSemigroup.is-set h) (IsSemigroup.assoc h) (λ x → He x .fst) (λ x → He x .snd)
 
   Group→GroupΣ : Group → GroupΣ
   Group→GroupΣ (G , GS) = _ , _ , (isSemigroup GS , _ , identity GS , λ x → (inv GS) x , inverse GS x)
 
   GroupΣ→Group : GroupΣ → Group
-  GroupΣ→Group (G , _ , SG , _ , H0g , invertible ) =
-     group _ _ _ (λ x → invertible x .fst) (isgroup (ismonoid SG H0g) λ x → invertible x .snd)
+  GroupΣ→Group (G , _ , SG , _ , Hid , invertible ) =
+     group _ _ _ (λ x → invertible x .fst) (isgroup (ismonoid SG Hid) λ x → invertible x .snd)
 
   GroupIsoGroupΣ : Iso Group GroupΣ
   GroupIsoGroupΣ = iso Group→GroupΣ GroupΣ→Group (λ _ → refl) (λ _ → refl)
@@ -193,7 +193,7 @@ module GroupΣTheory {ℓ} where
   RawGroupΣ = TypeWithStr ℓ RawGroupStructure
 
   Group→RawGroupΣ : Group → RawGroupΣ
-  Group→RawGroupΣ (G , GS) = G , _+_ GS
+  Group→RawGroupΣ (G , GS) = G , _·_ GS
 
   InducedGroup : (G : Group) (H : RawGroupΣ) (e : ⟨ G ⟩ ≃ H .fst)
                → RawGroupEquivStr (Group→RawGroupΣ G) H e → Group
@@ -233,8 +233,8 @@ carac-uaGroup f = ua (eq f) ∙ refl ≡⟨ sym (rUnit _)  ⟩
 
 Group≡ : (G H : Group {ℓ}) → (
   Σ[ p ∈ ⟨ G ⟩ ≡ ⟨ H ⟩ ]
-  Σ[ q ∈ PathP (λ i → p i) (0g (snd G)) (0g (snd H)) ]
-  Σ[ r ∈ PathP (λ i → p i → p i → p i) (_+_ (snd G)) (_+_ (snd H)) ]
+  Σ[ q ∈ PathP (λ i → p i) (id (snd G)) (id (snd H)) ]
+  Σ[ r ∈ PathP (λ i → p i → p i → p i) (_·_ (snd G)) (_·_ (snd H)) ]
   Σ[ s ∈ PathP (λ i → p i → p i) (inv (snd G)) (inv (snd H)) ]
   PathP (λ i → IsGroup (q i) (r i) (s i)) (isGroup (snd G)) (isGroup (snd H)))
   ≃ (G ≡ H)
@@ -242,7 +242,7 @@ Group≡ G H = isoToEquiv theIso
   where
   theIso : Iso _ _
   fun theIso (p , q , r , s , t) i = p i , groupstr (q i) (r i) (s i) (t i)
-  inv theIso x = cong ⟨_⟩ x , cong (0g ∘ snd) x , cong (_+_ ∘ snd) x , cong (inv ∘ snd) x , cong (isGroup ∘ snd) x
+  inv theIso x = cong ⟨_⟩ x , cong (id ∘ snd) x , cong (_·_ ∘ snd) x , cong (inv ∘ snd) x , cong (isGroup ∘ snd) x
   rightInv theIso _ = refl
   leftInv theIso _ = refl
 
@@ -279,16 +279,16 @@ uaCompGroupEquiv f g = caracGroup≡ _ _ (
   open GroupEquiv
 
 
-congIdLeft≡congIdRight : {A : Type ℓ} (_+A_ : A → A → A) (-A_ : A → A)
+congIdLeft≡congIdRight : {A : Type ℓ} (_·A_ : A → A → A) (-A_ : A → A)
             (0A : A)
-            (rUnitA : (x : A) → x +A 0A ≡ x)
-            (lUnitA : (x : A) → 0A +A x ≡ x)
+            (rUnitA : (x : A) → x ·A 0A ≡ x)
+            (lUnitA : (x : A) → 0A ·A x ≡ x)
           → (r≡l : rUnitA 0A ≡ lUnitA 0A)
           → (p : 0A ≡ 0A) →
-            cong (0A +A_) p ≡ cong (_+A 0A) p
-congIdLeft≡congIdRight _+A_ -A_ 0A rUnitA lUnitA r≡l p =
-            rUnit (cong (0A +A_) p)
+            cong (0A ·A_) p ≡ cong (_·A 0A) p
+congIdLeft≡congIdRight _·A_ -A_ 0A rUnitA lUnitA r≡l p =
+            rUnit (cong (0A ·A_) p)
          ∙∙ ((λ i → (λ j → lUnitA 0A (i ∧ j)) ∙∙ cong (λ x → lUnitA x i) p ∙∙ λ j → lUnitA 0A (i ∧ ~ j))
          ∙∙ cong₂ (λ x y → x ∙∙ p ∙∙ y) (sym r≡l) (cong sym (sym r≡l))
          ∙∙ λ i → (λ j → rUnitA 0A (~ i ∧ j)) ∙∙ cong (λ x → rUnitA x (~ i)) p ∙∙ λ j → rUnitA 0A (~ i ∧ ~ j))
-         ∙∙ sym (rUnit (cong (_+A 0A) p))
+         ∙∙ sym (rUnit (cong (_·A 0A) p))

@@ -2,15 +2,15 @@
 module Cubical.Algebra.Group.Instances.Int where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Int renaming (Int to IntType ; _+_ to _+Int_ ; _-_ to _-Int_; -_ to -Int_)
+open import Cubical.Data.Int renaming (Int to IntType ; _+_ to _+Int_ ; _-_ to _-Int_; -_ to -Int_ ; _·_ to _·Int_)
 open import Cubical.Algebra.Group.Base
 
 open GroupStr
 
 Int : Group₀
 fst Int = IntType
-0g (snd Int) = 0
-_+_ (snd Int) = _+Int_
+id (snd Int) = 0
+_·_ (snd Int) = _+Int_
 inv (snd Int) = _-Int_ 0
 isGroup (snd Int) = isGroupInt
   where
