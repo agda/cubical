@@ -24,7 +24,7 @@ open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; re
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group renaming (Unit to trivialGroup ; Int to IntGroup)
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Foundations.Equiv.HalfAdjoint
@@ -125,7 +125,7 @@ coHomPointedElim2 {ℓ' = ℓ'} {A = A} n a isprop indp = sElim2 (λ _ _ → isO
 coHomRed+1Equiv : (n : ℕ) →
                   (A : Type ℓ) →
                   (coHom n A) ≡ (coHomRed n ((A ⊎ Unit , inr (tt))))
-coHomRed+1Equiv zero A i = ∥ helpLemma {C = (Int , pos 0)} i ∥₂
+coHomRed+1Equiv zero A i = ∥ helpLemma {C = (_ , pos 0)} i ∥₂
   module coHomRed+1 where
   helpLemma : {C : Pointed ℓ} → ( (A → (typ C)) ≡  ((((A ⊎ Unit) , inr (tt)) →∙ C)))
   helpLemma {C = C} = isoToPath (iso map1
@@ -449,7 +449,7 @@ coHomGr n A = coHom n A , coHomGrnA
   coHomGrnA : GroupStr (coHom n A)
   0g coHomGrnA = 0ₕ n
   GroupStr._+_ coHomGrnA = λ x y → x +[ n ]ₕ y
-  - coHomGrnA = λ x → -[ n ]ₕ x
+  inv coHomGrnA = λ x → -[ n ]ₕ x
   isGroup coHomGrnA = helper
     where
     abstract

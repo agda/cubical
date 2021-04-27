@@ -25,7 +25,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Bool
 open import Cubical.Data.Int
 open import Cubical.HITs.Sn
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group hiding (Int ; Bool)
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.GroupStructure
@@ -47,7 +47,7 @@ open GroupIso
 module S1-tests where
 
   ϕ : coHom 1 (S₊ 1) → Int
-  ϕ = fun (map (Hⁿ-Sⁿ≅ℤ 0))
+  ϕ = fun (fun (Hⁿ-Sⁿ≅ℤ 0))
 
   ϕ⁻¹ : Int → coHom 1 (S₊ 1)
   ϕ⁻¹ = inv (Hⁿ-Sⁿ≅ℤ 0)
@@ -77,7 +77,7 @@ module S1-tests where
 module S2-tests where
 
   ϕ : coHom 2 (S₊ 2) → Int
-  ϕ = fun (map (Hⁿ-Sⁿ≅ℤ 1))
+  ϕ = fun (fun (Hⁿ-Sⁿ≅ℤ 1))
 
   ϕ⁻¹ : Int → coHom 2 (S₊ 2)
   ϕ⁻¹ = inv (Hⁿ-Sⁿ≅ℤ 1)
@@ -109,7 +109,7 @@ module S2-tests where
 module S1∨S1∨S2-tests₁ where -- everything fast
 
   ϕ : coHom 1 S²⋁S¹⋁S¹ → Int × Int
-  ϕ = fun (map H¹-S²⋁S¹⋁S¹)
+  ϕ = fun (fun H¹-S²⋁S¹⋁S¹)
 
   ϕ⁻¹ : Int × Int → coHom 1 S²⋁S¹⋁S¹
   ϕ⁻¹ = inv H¹-S²⋁S¹⋁S¹
@@ -133,7 +133,7 @@ module S1∨S1∨S2-tests₁ where -- everything fast
 module S1∨S1∨S2-tests₂ where
 
   ϕ : coHom 2 S²⋁S¹⋁S¹ → Int
-  ϕ = fun (map H²-S²⋁S¹⋁S¹)
+  ϕ = fun (fun H²-S²⋁S¹⋁S¹)
 
   ϕ⁻¹ : Int → coHom 2 S²⋁S¹⋁S¹
   ϕ⁻¹ = inv H²-S²⋁S¹⋁S¹
@@ -151,7 +151,7 @@ module S1∨S1∨S2-tests₂ where
 module Torus-test₁ where -- fast
 
   ϕ : coHom 1 (S₊ 1 × S₊ 1) → Int × Int
-  ϕ = fun (map H¹-T²≅ℤ×ℤ)
+  ϕ = fun (fun H¹-T²≅ℤ×ℤ)
 
   ϕ⁻¹ : Int × Int → coHom 1 (S₊ 1 × S₊ 1)
   ϕ⁻¹ = inv H¹-T²≅ℤ×ℤ
@@ -175,7 +175,7 @@ module Torus-test₁ where -- fast
 module Torus-test₂ where
 
   ϕ : coHom 2 (S₊ 1 × S₊ 1) → Int
-  ϕ = fun (map H²-T²≅ℤ)
+  ϕ = fun (fun H²-T²≅ℤ)
 
   ϕ⁻¹ : Int → coHom 2 (S₊ 1 × S₊ 1)
   ϕ⁻¹ = inv H²-T²≅ℤ
@@ -200,7 +200,7 @@ module Torus-test₂ where
 module Klein-test₁ where -- fast
 
   ϕ : coHom 1 KleinBottle → Int
-  ϕ = fun (map H¹-𝕂²≅ℤ)
+  ϕ = fun (fun H¹-𝕂²≅ℤ)
 
   ϕ⁻¹ : Int → coHom 1 KleinBottle
   ϕ⁻¹ = inv H¹-𝕂²≅ℤ
@@ -233,7 +233,7 @@ module Klein-test₁ where -- fast
 
 module Klein-test₂ where
   ϕ : coHom 2 KleinBottle → Bool
-  ϕ = fun (map H²-𝕂²≅Bool)
+  ϕ = fun (fun H²-𝕂²≅Bool)
 
   ϕ⁻¹ : Bool → coHom 2 KleinBottle
   ϕ⁻¹ = inv H²-𝕂²≅Bool
@@ -245,7 +245,7 @@ module Klein-test₂ where
 
 module RP2-test₂ where
   ϕ : coHom 2 RP² → Bool
-  ϕ = fun (map H²-RP²≅Bool)
+  ϕ = fun (fun H²-RP²≅Bool)
 
   ϕ⁻¹ : Bool → coHom 2 RP²
   ϕ⁻¹ = inv H²-RP²≅Bool
