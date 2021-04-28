@@ -75,7 +75,7 @@ module _ {ℓ : Level} {A : Group {ℓ}} (e : Iso (fst A) BoolType) where
     ... | no p  | yes q = inl q
 
   ≅Bool : GroupIso Bool A
-  ≅Bool = Iso+Hom→GrIso IsoABool homHelp
+  ≅Bool = groupiso IsoABool homHelp
     where
     homHelp : isGroupHom Bool A (Iso.fun IsoABool)
     homHelp false false with discreteA (Iso.fun IsoABool false) (id (snd A))

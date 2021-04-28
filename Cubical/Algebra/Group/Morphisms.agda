@@ -54,16 +54,12 @@ record GroupEquiv (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ')
   hom : GroupHom G H
   hom = grouphom (equivFun eq) isHom
 
--- TODO: change def
 record GroupIso (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
   constructor groupiso
 
   field
-    fun : GroupHom G H
-    inv : ⟨ H ⟩ → ⟨ G ⟩
-    rightInv : section (GroupHom.fun fun) inv
-    leftInv : retract (GroupHom.fun fun) inv
-
+    isom : Iso ⟨ G ⟩ ⟨ H ⟩
+    isHom : isGroupHom G H (Iso.fun isom)
 
 
 -- Image, kernel, surjective, injective, and bijections

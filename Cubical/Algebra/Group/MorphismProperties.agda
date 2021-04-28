@@ -143,57 +143,45 @@ module _ (G : Group {ℓ}) (H : Group {ℓ'}) where
 
 
 
-
 open BijectionIso
 open GroupIso
 open vSES
 
-Iso+Hom→GrIso : {G : Group {ℓ}} {H : Group {ℓ₁}} → (e : Iso ⟨ G ⟩ ⟨ H ⟩) → isGroupHom G H (Iso.fun e) → GroupIso G H
-fun (fun (Iso+Hom→GrIso e hom)) = Iso.fun e
-isHom (fun (Iso+Hom→GrIso e hom)) = hom
-inv (Iso+Hom→GrIso e hom) = Iso.inv e
-rightInv (Iso+Hom→GrIso e hom) = Iso.rightInv e
-leftInv (Iso+Hom→GrIso e hom) = Iso.leftInv e
-
 compGroupIso : {G : Group {ℓ}} {H : Group {ℓ₁}} {A : Group {ℓ₂}} → GroupIso G H → GroupIso H A → GroupIso G A
-fun (compGroupIso iso1 iso2) = compGroupHom (fun iso1) (fun iso2)
-inv (compGroupIso iso1 iso2) = inv iso1 ∘ inv iso2
-rightInv (compGroupIso iso1 iso2) a = cong (fun (fun iso2)) (rightInv iso1 _) ∙ rightInv iso2 a
-leftInv (compGroupIso iso1 iso2) a = cong (inv iso1) (leftInv iso2 _) ∙ leftInv iso1 a
+isom (compGroupIso iso1 iso2) = compIso (isom iso1) (isom iso2)
+isHom (compGroupIso {G = G} {H = H} {A = A} iso1 iso2) =
+  isGroupHomComp {F = G} {G = H} {H = A} (grouphom (fun (isom iso1)) (isHom iso1)) (grouphom (fun (isom iso2)) (isHom iso2))
 
-isGroupHomInv' : {G : Group {ℓ}} {H : Group {ℓ₁}} (f : GroupIso G H) → isGroupHom H G (inv f)
+isGroupHomInv' : {G : Group {ℓ}} {H : Group {ℓ₁}} (f : GroupIso G H) → isGroupHom H G (inv (isom f))
 isGroupHomInv' {G = G} {H = H}  f h h' = isInj-f _ _ (
-  f' (g (h ⋆² h')) ≡⟨ (rightInv f) _ ⟩
-  (h ⋆² h') ≡⟨ sym (cong₂ _⋆²_ (rightInv f h) (rightInv f h')) ⟩
-  (f' (g h) ⋆² f' (g h')) ≡⟨ sym (isHom (fun f) _ _) ⟩
+  f' (g (h ⋆² h')) ≡⟨ (rightInv (isom f)) _ ⟩
+  (h ⋆² h') ≡⟨ sym (cong₂ _⋆²_ (rightInv (isom f) h) (rightInv (isom f) h')) ⟩
+  (f' (g h) ⋆² f' (g h')) ≡⟨ sym (isHom f _ _) ⟩
   f' (g h ⋆¹ g h') ∎)
   where
-  f' = fun (fun f)
+  f' = fun (isom f)
   _⋆¹_ = GroupStr._·_ (snd G)
   _⋆²_ = GroupStr._·_ (snd H)
-  g = inv f
+  g = inv (isom f)
 
   isInj-f : (x y : ⟨ G ⟩) → f' x ≡ f' y → x ≡ y
-  isInj-f x y p = sym (leftInv f _) ∙∙ cong g p ∙∙ leftInv f _
+  isInj-f x y p = sym (leftInv (isom f) _) ∙∙ cong g p ∙∙ leftInv (isom f) _
 
 invGroupIso : {G : Group {ℓ}} {H : Group {ℓ₁}} → GroupIso G H → GroupIso H G
-fun (fun (invGroupIso iso1)) = inv iso1
-isHom (fun (invGroupIso iso1)) = isGroupHomInv' iso1
-inv (invGroupIso iso1) = fun (fun iso1)
-rightInv (invGroupIso iso1) = leftInv iso1
-leftInv (invGroupIso iso1) = rightInv iso1
+isom (invGroupIso iso1) = invIso (isom iso1)
+isHom (invGroupIso iso1) = isGroupHomInv' iso1
 
 dirProdGroupIso : {G : Group {ℓ}} {H : Group {ℓ₁}} {A : Group {ℓ₂}} {B : Group {ℓ₃}}
                → GroupIso G H → GroupIso A B → GroupIso (dirProd G A) (dirProd H B)
-fun (fun (dirProdGroupIso iso1 iso2)) prod = fun (fun iso1) (fst prod) , fun (fun iso2) (snd prod)
-isHom (fun (dirProdGroupIso iso1 iso2)) a b = ΣPathP (isHom (fun iso1) (fst a) (fst b) , isHom (fun iso2) (snd a) (snd b))
-inv (dirProdGroupIso iso1 iso2) prod = (inv iso1) (fst prod) , (inv iso2) (snd prod)
-rightInv (dirProdGroupIso iso1 iso2) a = ΣPathP (rightInv iso1 (fst a) , (rightInv iso2 (snd a)))
-leftInv (dirProdGroupIso iso1 iso2) a = ΣPathP (leftInv iso1 (fst a) , (leftInv iso2 (snd a)))
+fun (isom (dirProdGroupIso iso1 iso2)) prod = fun (isom iso1) (fst prod) , fun (isom iso2) (snd prod)
+inv (isom (dirProdGroupIso iso1 iso2)) prod = inv (isom iso1) (fst prod) , inv (isom iso2) (snd prod)
+rightInv (isom (dirProdGroupIso iso1 iso2)) a = ΣPathP (rightInv (isom iso1) (fst a) , (rightInv (isom iso2) (snd a)))
+leftInv (isom (dirProdGroupIso iso1 iso2)) a = ΣPathP (leftInv (isom iso1) (fst a) , (leftInv (isom iso2) (snd a)))
+isHom (dirProdGroupIso iso1 iso2) a b = ΣPathP (isHom iso1 (fst a) (fst b) , isHom iso2 (snd a) (snd b))
 
 GrIsoToGrEquiv : {G : Group {ℓ}} {H : Group {ℓ₂}} → GroupIso G H → GroupEquiv G H
-GroupEquiv.eq (GrIsoToGrEquiv i) = isoToEquiv (iso (fun (fun i)) (inv i) (rightInv i) (leftInv i))
-GroupEquiv.isHom (GrIsoToGrEquiv i) = isHom (fun i)
+GroupEquiv.eq (GrIsoToGrEquiv i) = isoToEquiv (isom i)
+GroupEquiv.isHom (GrIsoToGrEquiv i) = isHom i
 
 --- Proofs that BijectionIso and vSES both induce isomorphisms ---
 BijectionIsoToGroupIso : {A : Group {ℓ}} {B : Group {ℓ'}} → BijectionIso A B → GroupIso A B
@@ -222,10 +210,11 @@ BijectionIsoToGroupIso {A = A} {B = B} i = grIso
          ∙∙ B.invr (f (fst b))))
 
   grIso : GroupIso A B
-  fun grIso = fun i
-  inv grIso b = (rec (helper b) (λ a → a) (surj i b)) .fst
-  rightInv grIso b = (rec (helper b) (λ a → a) (surj i b)) .snd
-  leftInv grIso b j = rec (helper (f b)) (λ a → a) (propTruncIsProp (surj i (f b)) ∣ b , refl ∣ j) .fst
+  fun (isom grIso) = fun (fun i)
+  inv (isom grIso) b = rec (helper b) (λ a → a) (surj i b) .fst
+  rightInv (isom grIso) b = rec (helper b) (λ a → a) (surj i b) .snd
+  leftInv (isom grIso) b j = rec (helper (f b)) (λ a → a) (propTruncIsProp (surj i (f b)) ∣ b , refl ∣ j) .fst
+  isHom grIso = isHom (fun i)
 
 BijectionIsoToGroupEquiv : {A : Group {ℓ}} {B : Group {ℓ₂}} → BijectionIso A B → GroupEquiv A B
 BijectionIsoToGroupEquiv i = GrIsoToGrEquiv (BijectionIsoToGroupIso i)
@@ -248,10 +237,3 @@ vSES→GroupEquiv : {A : Group {ℓ}} {B : Group {ℓ₁}} (leftGr : Group {ℓ�
         → vSES A B leftGr rightGr
         → GroupEquiv A B
 vSES→GroupEquiv lGr rGr isvses = GrIsoToGrEquiv (vSES→GroupIso lGr rGr isvses)
-
-
-GroupIso→Iso : {A : Group {ℓ}} {B : Group {ℓ₁}} → GroupIso A B → Iso ⟨ A ⟩ ⟨ B ⟩
-fun (GroupIso→Iso i) = fun (fun i)
-inv (GroupIso→Iso i) = inv i
-rightInv (GroupIso→Iso i) = rightInv i
-leftInv (GroupIso→Iso i) = leftInv i
