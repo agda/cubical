@@ -217,22 +217,3 @@ BijectionIsoToGroupIso {A = A} {B = B} i = grIso
 
 BijectionIsoToGroupEquiv : {A : Group {ℓ}} {B : Group {ℓ₂}} → BijectionIso A B → GroupEquiv A B
 BijectionIsoToGroupEquiv i = GrIsoToGrEquiv (BijectionIsoToGroupIso i)
-
-vSES→GroupIso : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Group {ℓ}} {B : Group {ℓ'}} (leftGr : Group {ℓ''}) (rightGr : Group {ℓ'''})
-                → vSES A B leftGr rightGr
-                → GroupIso A B
-vSES→GroupIso {A = A} lGr rGr isvses = BijectionIsoToGroupIso theIso
-  where
-  theIso : BijectionIso _ _
-  fun theIso = vSES.ϕ isvses
-  inj theIso a inker = rec (isSetCarrier A _ _)
-                            (λ (a , p) → sym p
-                                        ∙∙ cong (fun (left isvses)) (isTrivialLeft isvses a _)
-                                        ∙∙ morphid→id lGr A (left isvses))
-                            (Ker-ϕ⊂Im-left isvses a inker)
-  surj theIso a = Ker-right⊂Im-ϕ isvses a (isTrivialRight isvses _ _)
-
-vSES→GroupEquiv : {A : Group {ℓ}} {B : Group {ℓ₁}} (leftGr : Group {ℓ₂}) (rightGr : Group {ℓ₃})
-        → vSES A B leftGr rightGr
-        → GroupEquiv A B
-vSES→GroupEquiv lGr rGr isvses = GrIsoToGrEquiv (vSES→GroupIso lGr rGr isvses)

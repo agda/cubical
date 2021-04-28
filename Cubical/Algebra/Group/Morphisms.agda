@@ -10,7 +10,6 @@ Defines different notions of morphisms of groups:
 - Surjective
 - Injective
 - Bijection (surjective + injective)
-- "Very short exact sequences"
 
 -}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
@@ -98,30 +97,3 @@ record BijectionIso (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ
     fun : GroupHom G H
     inj : isInjective fun
     surj : isSurjective fun
-
-
-
-
--- TODO: define short exact sequences (probably in another file) and
--- make this a special case
---
--- "Very" short exact sequences
--- i.e. an exact sequence A → B → C → D where A and D are trivial
-record vSES {ℓ ℓ' ℓ'' ℓ'''} (A : Group {ℓ}) (B : Group {ℓ'}) (leftGr : Group {ℓ''}) (rightGr : Group {ℓ'''})
-           : Type (ℓ-suc (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓ''')))) where
-  constructor vses
-
-  field
-    isTrivialLeft : isProp ⟨ leftGr ⟩
-    isTrivialRight : isProp ⟨ rightGr ⟩
-
-    left : GroupHom leftGr A
-    right : GroupHom B rightGr
-    ϕ : GroupHom A B
-
-    Ker-ϕ⊂Im-left : (x : ⟨ A ⟩)
-                  → isInKer ϕ x
-                  → isInIm left x
-    Ker-right⊂Im-ϕ : (x : ⟨ B ⟩)
-                   → isInKer right x
-                   → isInIm ϕ x

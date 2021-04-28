@@ -3,7 +3,7 @@ module Cubical.Experiments.ZCohomologyOld.MayerVietorisUnreduced where
 
 open import Cubical.ZCohomology.Base
 open import Cubical.Experiments.ZCohomologyOld.Properties
-open import Cubical.Experiments.ZCohomologyOld.KcompPrelims
+open import Cubical.Experiments.ZCohomologyOld.KcompPrelims hiding (ϕ)
 
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
@@ -24,6 +24,49 @@ open import Cubical.Algebra.Group
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
 
 open GroupHom
+
+-- "Very" short exact sequences
+-- i.e. an exact sequence A → B → C → D where A and D are trivial
+record vSES {ℓ ℓ' ℓ'' ℓ'''} (A : Group {ℓ}) (B : Group {ℓ'}) (leftGr : Group {ℓ''}) (rightGr : Group {ℓ'''})
+           : Type (ℓ-suc (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓ''')))) where
+  constructor vses
+
+  field
+    isTrivialLeft : isProp ⟨ leftGr ⟩
+    isTrivialRight : isProp ⟨ rightGr ⟩
+
+    left : GroupHom leftGr A
+    right : GroupHom B rightGr
+    ϕ : GroupHom A B
+
+    Ker-ϕ⊂Im-left : (x : ⟨ A ⟩)
+                  → isInKer ϕ x
+                  → isInIm left x
+    Ker-right⊂Im-ϕ : (x : ⟨ B ⟩)
+                   → isInKer right x
+                   → isInIm ϕ x
+
+open BijectionIso
+open vSES
+
+vSES→GroupIso : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Group {ℓ}} {B : Group {ℓ'}} (leftGr : Group {ℓ''}) (rightGr : Group {ℓ'''})
+                → vSES A B leftGr rightGr
+                → GroupIso A B
+vSES→GroupIso {A = A} lGr rGr isvses = BijectionIsoToGroupIso theIso
+  where
+  theIso : BijectionIso _ _
+  fun theIso = vSES.ϕ isvses
+  inj theIso a inker = pRec (isSetCarrier A _ _)
+                            (λ (a , p) → sym p
+                                        ∙∙ cong (fun (left isvses)) (isTrivialLeft isvses a _)
+                                        ∙∙ morph1g→1g lGr A (left isvses))
+                            (Ker-ϕ⊂Im-left isvses a inker)
+  surj theIso a = Ker-right⊂Im-ϕ isvses a (isTrivialRight isvses _ _)
+
+vSES→GroupEquiv : {ℓ ℓ₁ ℓ₂ ℓ₃ : Level} {A : Group {ℓ}} {B : Group {ℓ₁}} (leftGr : Group {ℓ₂}) (rightGr : Group {ℓ₃})
+        → vSES A B leftGr rightGr
+        → GroupEquiv A B
+vSES→GroupEquiv lGr rGr isvses = GrIsoToGrEquiv (vSES→GroupIso lGr rGr isvses)
 
 module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : C → A) (g : C → B) where
   -- Proof from Brunerie 2016.

@@ -32,12 +32,15 @@ private
     sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
            λ f → cong ∣_∣₂ (funExt λ x → trRec (isSetInt _ _) (cong f) (isConnectedPath 1 con a x .fst))
 
+open Iso
+open GroupIso
+
 H⁰-connected : ∀ {ℓ} {A : Type ℓ} (a : A) → ((x : A) → ∥ a ≡ x ∥₁) → GroupIso (coHomGr 0 A) IntGroup
-GroupHom.fun (GroupIso.fun (H⁰-connected a con)) = sRec isSetInt (λ f → f a)
-GroupHom.isHom (GroupIso.fun (H⁰-connected a con)) =
-  sElim2 (λ _ _ → isProp→isSet (isSetInt _ _)) λ x y → addLemma (x a) (y a)
-GroupIso.inv (H⁰-connected a con) b = ∣ (λ _ → b) ∣₂
-GroupIso.rightInv (H⁰-connected a con) _ = refl
-GroupIso.leftInv (H⁰-connected a con) =
+fun (isom (H⁰-connected a con)) = sRec isSetInt (λ f → f a)
+inv (isom (H⁰-connected a con)) b = ∣ (λ _ → b) ∣₂
+rightInv (isom (H⁰-connected a con)) _ = refl
+leftInv (isom (H⁰-connected a con)) =
   sElim (λ _ → isProp→isSet (setTruncIsSet _ _))
         (λ f → cong ∣_∣₂ (funExt λ x → pRec (isSetInt _ _) (cong f) (con x)))
+isHom (H⁰-connected a con) =
+  sElim2 (λ _ _ → isProp→isSet (isSetInt _ _)) λ x y → addLemma (x a) (y a)
