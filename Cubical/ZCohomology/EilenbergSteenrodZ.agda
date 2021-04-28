@@ -313,8 +313,8 @@ private
     fun (exactnessIso (pos (suc n)) f) ker = (fst ker) , inIm-helper (fst ker) (snd ker)
       where
       inIm-helper : (x : coHom (suc n) (typ B))
-                  → isInKer _ _ (theMorph (pos (suc n)) {A = A} {B = B} f) x
-                  → isInIm _ _ (theMorph (pos (suc n)) {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl)) x
+                  → isInKer (theMorph (pos (suc n)) {A = A} {B = B} f) x
+                  → isInIm (theMorph (pos (suc n)) {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl)) x
       inIm-helper =
         coHomPointedElim _ (pt B) (λ _ → isPropΠ λ _ → propTruncIsProp)
           λ g gId inker → pRec propTruncIsProp
@@ -326,14 +326,13 @@ private
     inv (exactnessIso (pos (suc n)) f) im = fst im , inKer-helper (fst im) (snd im)
       where
       inKer-helper : (x : coHom (suc n) (typ B))
-                  → isInIm _ _ (theMorph (pos (suc n)) {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl)) x
-                  → isInKer _ _ (theMorph (pos (suc n)) {A = A} {B = B} f) x
+                  → isInIm (theMorph (pos (suc n)) {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl)) x
+                  → isInKer (theMorph (pos (suc n)) {A = A} {B = B} f) x
       inKer-helper =
         coHomPointedElim _ (pt B) (λ _ → isPropΠ λ _ → setTruncIsSet _ _)
           λ g gId → pRec (setTruncIsSet _ _)
                           (uncurry λ cg p
-                            → subst (isInKer (coHomGr (suc n) (typ B)) (coHomGr (suc n) (typ A))
-                                                                        (coHomMorph (suc n) (fst f)))
+                            → subst (isInKer (coHomMorph (suc n) (fst f)))
                                      p
                                      (helper cg))
          where
