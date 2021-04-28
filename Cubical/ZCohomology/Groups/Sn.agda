@@ -48,6 +48,7 @@ open vSES
 open GroupIso
 open GroupHom
 open BijectionIso
+open Iso
 
 Sn-connected : (n : ℕ) (x : typ (S₊∙ (suc n))) → ∥ pt (S₊∙ (suc n)) ≡ x ∥₁
 Sn-connected zero = toPropElim (λ _ → propTruncIsProp) ∣ refl ∣₁
@@ -57,7 +58,7 @@ Sn-connected (suc (suc n)) = suspToPropElim north (λ _ → propTruncIsProp) ∣
 suspensionAx-Sn : (n m : ℕ) → GroupIso (coHomGr (2 + n) (S₊ (2 + m)))
                                          (coHomGr (suc n) (S₊ (suc m)))
 suspensionAx-Sn n m =
-  Iso+Hom→GrIso
+  groupiso
     (compIso (setTruncIso (invIso funSpaceSuspIso)) helperIso)
     funIsHom
   where
@@ -123,10 +124,10 @@ S1Iso = S¹IsoSuspBool ⋄ invIso PushoutSuspIsoSusp
 coHomPushout≅coHomSn : (n m : ℕ) → GroupIso (coHomGr m (S₊ (suc n)))
                                              (coHomGr m (Pushout {A = S₊ n} (λ _ → tt) λ _ → tt))
 coHomPushout≅coHomSn zero m =
-  Iso+Hom→GrIso (setTruncIso (domIso S1Iso))
+  groupiso (setTruncIso (domIso S1Iso))
                 (sElim2 (λ _ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ _ → refl))
 coHomPushout≅coHomSn (suc n) m =
-  Iso+Hom→GrIso (setTruncIso (domIso (invIso PushoutSuspIsoSusp)))
+  groupiso (setTruncIso (domIso (invIso PushoutSuspIsoSusp)))
                 (sElim2 (λ _ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ _ → refl))
 
 -------------------------- H⁰(S⁰) -----------------------------
@@ -135,13 +136,15 @@ S0→Int a true = fst a
 S0→Int a false = snd a
 
 H⁰-S⁰≅ℤ×ℤ : GroupIso (coHomGr 0 (S₊ 0)) (dirProd IntGroup IntGroup)
-fun (fun H⁰-S⁰≅ℤ×ℤ) = sRec (isSet× isSetInt isSetInt) λ f → (f true) , (f false)
-isHom (fun H⁰-S⁰≅ℤ×ℤ) = sElim2 (λ _ _ → isSet→isGroupoid (isSet× isSetInt isSetInt) _ _)
+fun (isom H⁰-S⁰≅ℤ×ℤ) = sRec (isSet× isSetInt isSetInt) λ f → (f true) , (f false)
+inv (isom H⁰-S⁰≅ℤ×ℤ) a = ∣ S0→Int a ∣₂
+rightInv (isom H⁰-S⁰≅ℤ×ℤ) _ = refl
+leftInv (isom H⁰-S⁰≅ℤ×ℤ) =
+  sElim (λ _ → isSet→isGroupoid setTruncIsSet _ _)
+                            λ f → cong ∣_∣₂ (funExt (λ {true → refl ; false → refl}))
+isHom H⁰-S⁰≅ℤ×ℤ =
+  sElim2 (λ _ _ → isSet→isGroupoid (isSet× isSetInt isSetInt) _ _)
                                 λ a b → refl
-inv H⁰-S⁰≅ℤ×ℤ a = ∣ S0→Int a ∣₂
-rightInv H⁰-S⁰≅ℤ×ℤ _ = refl
-leftInv H⁰-S⁰≅ℤ×ℤ = sElim (λ _ → isSet→isGroupoid setTruncIsSet _ _)
-                           λ f → cong ∣_∣₂ (funExt (λ {true → refl ; false → refl}))
 
 
 ------------------------- H¹(S⁰) ≅ 0 -------------------------------
@@ -260,25 +263,25 @@ coHom1S1≃ℤ = theIso
   F⁻ = Iso.inv S¹→S¹≡S¹×Int
 
   theIso : GroupIso (coHomGr 1 (S₊ 1)) IntGroup
-  fun (fun theIso) = sRec isSetInt (λ f → snd (F f))
-  isHom (fun theIso) =
+  fun (isom theIso) = sRec isSetInt (λ f → snd (F f))
+  inv (isom theIso) a = ∣ (F⁻ (base , a)) ∣₂
+  rightInv (isom theIso) a = cong snd (Iso.rightInv S¹→S¹≡S¹×Int (base , a))
+  leftInv (isom theIso) =
+    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+                          λ f → cong ((sRec setTruncIsSet ∣_∣₂)
+                                        ∘ sRec setTruncIsSet λ x → ∣ F⁻ (x , (snd (F f))) ∣₂)
+                                      (Iso.inv PathIdTrunc₀Iso (isConnectedS¹ (fst (F f))))
+                              ∙ cong ∣_∣₂ (Iso.leftInv S¹→S¹≡S¹×Int f)
+  isHom theIso =
     coHomPointedElimS¹2 _ (λ _ _ → isSetInt _ _)
       λ p q → (λ i → winding (guy ∣ base ∣ (cong S¹map (help p q i))))
             ∙∙ (λ i → winding (guy ∣ base ∣ (congFunct S¹map p q i)))
             ∙∙ winding-hom (guy ∣ base ∣ (cong S¹map p))
                            (guy ∣ base ∣ (cong S¹map q))
-
     where
     guy = basechange2⁻ ∘ S¹map
     help : (p q : Path (coHomK 1) ∣ base ∣ ∣ base ∣) → cong₂ _+ₖ_ p q ≡ p ∙ q
     help p q = cong₂Funct _+ₖ_ p q ∙ (λ i → cong (λ x → rUnitₖ 1 x i) p ∙ cong (λ x → lUnitₖ 1 x i) q)
-  inv theIso a = ∣ (F⁻ (base , a)) ∣₂
-  rightInv theIso a = cong snd (Iso.rightInv S¹→S¹≡S¹×Int (base , a))
-  leftInv theIso = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                          λ f → cong ((sRec setTruncIsSet ∣_∣₂)
-                                        ∘ sRec setTruncIsSet λ x → ∣ F⁻ (x , (snd (F f))) ∣₂)
-                                      (Iso.inv PathIdTrunc₀Iso (isConnectedS¹ (fst (F f))))
-                              ∙ cong ∣_∣₂ (Iso.leftInv S¹→S¹≡S¹×Int f)
 
 ---------------------------- Hⁿ(Sⁿ) ≅ ℤ , n ≥ 1 -------------------
 Hⁿ-Sⁿ≅ℤ : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ (suc n))) IntGroup

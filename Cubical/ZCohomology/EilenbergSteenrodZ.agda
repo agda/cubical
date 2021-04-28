@@ -225,7 +225,7 @@ private
   fst (Suspension isCohomTheoryZ') (pos zero) {A = A} =
       invGroupEquiv
       (GrIsoToGrEquiv
-        (Iso+Hom→GrIso (invIso suspFunCharac0)
+        (groupiso (invIso suspFunCharac0)
                         (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
                                 λ f g → cong ∣_∣₂ (funExt λ { north → refl
                                                            ; south → refl
@@ -239,7 +239,7 @@ private
   fst (Suspension isCohomTheoryZ') (pos (suc n)) {A = A} =
       invGroupEquiv
       (GrIsoToGrEquiv
-        (Iso+Hom→GrIso (invIso (suspFunCharac {A = A} n))
+        (groupiso (invIso (suspFunCharac {A = A} n))
                         (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
                                 λ f g → cong ∣_∣₂ (funExt λ { north → refl
                                                            ; south → refl
@@ -251,7 +251,7 @@ private
     helper a f g = Kn→ΩKn+1-hom (suc n) (f a) (g a)
                 ∙ ∙≡+₂ n (Kn→ΩKn+1 _ (f a)) (Kn→ΩKn+1 _ (g a))
   fst (Suspension isCohomTheoryZ') (negsuc zero) {A = A} =
-      GrIsoToGrEquiv (Iso+Hom→GrIso (isContr→Iso (H0-susp {A = _ , pt A}) isContrUnit*)
+      GrIsoToGrEquiv (groupiso (isContr→Iso (H0-susp {A = _ , pt A}) isContrUnit*)
                       λ _ _ → refl)
   fst (Suspension isCohomTheoryZ') (negsuc (suc n)) = idGroupEquiv _
 

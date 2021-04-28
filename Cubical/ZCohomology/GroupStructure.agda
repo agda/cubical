@@ -774,11 +774,11 @@ inducedCoHom : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
   → Group
 inducedCoHom {A = A} {G = G} {n = n} e =
   InducedGroup (coHomGr n A)
-               (coHom n A , λ x y → inv e (_+gr_ (snd G) (fun (fun e) x)
-                                                         (fun (fun e) y)))
+               (coHom n A , λ x y → Iso.inv (isom e) (_+gr_ (snd G) (fun (isom e) x)
+                                                         (fun (isom e) y)))
                (idEquiv _)
-               λ x y → sym (leftInv e _)
-                      ∙ cong (inv e) (isHom (fun e) x y)
+               λ x y → sym (leftInv (isom e) _)
+                      ∙ cong (Iso.inv (isom e)) (isHom e x y)
 
 induced+ : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
   → (e : GroupIso (coHomGr n A) G)
@@ -788,12 +788,9 @@ induced+ e = _+gr_ (snd (inducedCoHom e))
 inducedCoHomIso : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
                → (e : GroupIso (coHomGr n A) G)
                → GroupIso (coHomGr n A) (inducedCoHom e)
-fun (fun (inducedCoHomIso e)) = idfun _
-isHom (fun (inducedCoHomIso e)) x y = sym (leftInv e _)
-                                      ∙ cong (inv e) (isHom (fun e) x y)
-inv (inducedCoHomIso e) = idfun _
-rightInv (inducedCoHomIso e) _ = refl
-leftInv (inducedCoHomIso e) _ = refl
+isom (inducedCoHomIso e) = idIso
+isHom (inducedCoHomIso e) x y = sym (leftInv (isom e) _)
+                              ∙ cong (Iso.inv (isom e)) (isHom e x y)
 
 inducedCoHomPath : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
                → (e : GroupIso (coHomGr n A) G)
