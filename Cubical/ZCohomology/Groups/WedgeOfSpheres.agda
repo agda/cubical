@@ -32,7 +32,7 @@ H⁰-S¹⋁S¹ : GroupIso (coHomGr 0 S¹⋁S¹) IntGroup
 H⁰-S¹⋁S¹ = H⁰-connected (inl base) (wedgeConnected _ _ (Sn-connected 0) (Sn-connected 0))
 
 ------------- H¹(S¹⋁S¹) ------------
-H¹-S¹⋁S¹ : GroupIso (coHomGr 1 S¹⋁S¹) (dirProd IntGroup IntGroup)
+H¹-S¹⋁S¹ : GroupIso (coHomGr 1 S¹⋁S¹) (DirProd IntGroup IntGroup)
 H¹-S¹⋁S¹ =  (Hⁿ-⋁ _ _ 0) □ GroupIsoDirProd coHom1S1≃ℤ coHom1S1≃ℤ
 
 ------------- H⁰(S²⋁S¹⋁S¹) ---------
@@ -45,7 +45,7 @@ H⁰-S²⋁S¹⋁S¹ = H⁰-connected (inl north)
                       (Sn-connected 0)))
 
 ------------- H¹(S²⋁S¹⋁S¹) ---------
-H¹-S²⋁S¹⋁S¹ : GroupIso (coHomGr 1 S²⋁S¹⋁S¹) (dirProd IntGroup IntGroup)
+H¹-S²⋁S¹⋁S¹ : GroupIso (coHomGr 1 S²⋁S¹⋁S¹) (DirProd IntGroup IntGroup)
 H¹-S²⋁S¹⋁S¹ =
     Hⁿ-⋁ (S₊∙ 2) (S¹⋁S¹ , inl base) 0
   □ GroupIsoDirProd (H¹-Sⁿ≅0 0) H¹-S¹⋁S¹

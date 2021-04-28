@@ -203,7 +203,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
             λ _ _ → refl
 
   H⁰Red-⋁ : GroupIso (coHomRedGrDir 0 (A ⋁ B , inl (pt A)))
-                      (dirProd (coHomRedGrDir 0 A) (coHomRedGrDir 0 B))
+                      (DirProd (coHomRedGrDir 0 A) (coHomRedGrDir 0 B))
   fun (isom H⁰Red-⋁) =
     sRec (isSet× setTruncIsSet setTruncIsSet)
          λ {(f , p) → ∣ (f ∘ inl) , p ∣₂

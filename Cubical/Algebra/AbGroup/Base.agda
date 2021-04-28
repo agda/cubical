@@ -202,7 +202,7 @@ open IsAbGroup
 
 dirProdAb : AbGroup {ℓ} → AbGroup {ℓ'} → AbGroup
 dirProdAb A B =
-  Group→AbGroup (dirProd (AbGroup→Group A) (AbGroup→Group B))
+  Group→AbGroup (DirProd (AbGroup→Group A) (AbGroup→Group B))
                  λ p q → ΣPathP (comm (isAbGroup (snd A)) _ _
                                 , comm (isAbGroup (snd B)) _ _)
 

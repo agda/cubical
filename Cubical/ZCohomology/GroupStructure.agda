@@ -565,7 +565,7 @@ coHomGr n A = coHom n A , coHomGrnA
       helper = makeIsGroup § (assocₕ n) (rUnitₕ n) (lUnitₕ n) (rCancelₕ n) (lCancelₕ n)
 
 ×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group
-×coHomGr n A B = dirProd (coHomGr n A) (coHomGr n B)
+×coHomGr n A B = DirProd (coHomGr n A) (coHomGr n B)
 
 coHomGroup : (n : ℕ) (A : Type ℓ) → AbGroup {ℓ}
 fst (coHomGroup n A) = coHom n A

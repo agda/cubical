@@ -134,7 +134,7 @@ S0→Int : (a : Int × Int) → S₊ 0 → Int
 S0→Int a true = fst a
 S0→Int a false = snd a
 
-H⁰-S⁰≅ℤ×ℤ : GroupIso (coHomGr 0 (S₊ 0)) (dirProd IntGroup IntGroup)
+H⁰-S⁰≅ℤ×ℤ : GroupIso (coHomGr 0 (S₊ 0)) (DirProd IntGroup IntGroup)
 fun (isom H⁰-S⁰≅ℤ×ℤ) = sRec (isSet× isSetInt isSetInt) λ f → (f true) , (f false)
 inv (isom H⁰-S⁰≅ℤ×ℤ) a = ∣ S0→Int a ∣₂
 rightInv (isom H⁰-S⁰≅ℤ×ℤ) _ = refl

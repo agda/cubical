@@ -143,7 +143,7 @@ fun (compGroupHom f g) = fun g ∘ fun f
 isHom (compGroupHom f g) = isGroupHomComp f g
 
 GroupHomDirProd : {A : Group {ℓ}} {B : Group {ℓ'}} {C : Group {ℓ''}} {D : Group {ℓ'''}}
-                → GroupHom A C → GroupHom B D → GroupHom (dirProd A B) (dirProd C D)
+                → GroupHom A C → GroupHom B D → GroupHom (DirProd A B) (DirProd C D)
 fun (GroupHomDirProd mf1 mf2) = map-× (fun mf1) (fun mf2)
 isHom (GroupHomDirProd mf1 mf2) a b = ≡-× (isHom mf1 _ _) (isHom mf2 _ _)
 
@@ -185,7 +185,7 @@ isHom (invGroupEquiv f) = isGroupHomInv f
 
 GroupEquivDirProd : {A : Group {ℓ}} {B : Group {ℓ'}} {C : Group {ℓ''}} {D : Group {ℓ'''}}
                   → GroupEquiv A C → GroupEquiv B D
-                  → GroupEquiv (dirProd A B) (dirProd C D)
+                  → GroupEquiv (DirProd A B) (DirProd C D)
 eq (GroupEquivDirProd eq1 eq2) = ≃-× (eq eq1) (eq eq2)
 isHom (GroupEquivDirProd eq1 eq2) = isHom (GroupHomDirProd (GroupEquiv.hom eq1) (GroupEquiv.hom eq2))
 
@@ -226,7 +226,7 @@ isHom (invGroupIso iso1) = isGroupHomInv iso1
     isInj-f x y p = sym (leftInv (isom f) _) ∙∙ cong g p ∙∙ leftInv (isom f) _
 
 GroupIsoDirProd : {G : Group {ℓ}} {H : Group {ℓ'}} {A : Group {ℓ''}} {B : Group {ℓ'''}}
-                → GroupIso G H → GroupIso A B → GroupIso (dirProd G A) (dirProd H B)
+                → GroupIso G H → GroupIso A B → GroupIso (DirProd G A) (DirProd H B)
 fun (isom (GroupIsoDirProd iso1 iso2)) prod = fun (isom iso1) (fst prod) , fun (isom iso2) (snd prod)
 inv (isom (GroupIsoDirProd iso1 iso2)) prod = inv (isom iso1) (fst prod) , inv (isom iso2) (snd prod)
 rightInv (isom (GroupIsoDirProd iso1 iso2)) a = ΣPathP (rightInv (isom iso1) (fst a) , (rightInv (isom iso2) (snd a)))
