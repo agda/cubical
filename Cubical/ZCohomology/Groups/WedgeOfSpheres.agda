@@ -1,6 +1,9 @@
 {-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.WedgeOfSpheres where
 
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
+
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Groups.Unit
@@ -11,7 +14,6 @@ open import Cubical.Data.Int renaming (_+_ to _ℤ+_)
 
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
-open import Cubical.Foundations.Prelude
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.Pushout
@@ -64,20 +66,24 @@ private
   open import Cubical.Data.Int
   open import Cubical.Foundations.Equiv
   open import Cubical.Data.Sigma
+
+  open GroupIso
+  open Iso
+
   to₂ : coHom 2 S²⋁S¹⋁S¹ → Int
-  to₂ = GroupHom.fun (GroupIso.fun H²-S²⋁S¹⋁S¹)
+  to₂ = fun (isom H²-S²⋁S¹⋁S¹)
   from₂ : Int → coHom 2 S²⋁S¹⋁S¹
-  from₂ = GroupIso.inv H²-S²⋁S¹⋁S¹
+  from₂ = inv (isom H²-S²⋁S¹⋁S¹)
 
   to₁ : coHom 1 S²⋁S¹⋁S¹ → Int × Int
-  to₁ = GroupHom.fun (GroupIso.fun H¹-S²⋁S¹⋁S¹)
+  to₁ = fun (isom H¹-S²⋁S¹⋁S¹)
   from₁ : Int × Int → coHom 1 S²⋁S¹⋁S¹
-  from₁ = GroupIso.inv H¹-S²⋁S¹⋁S¹
+  from₁ = inv (isom H¹-S²⋁S¹⋁S¹)
 
   to₀ : coHom 0 S²⋁S¹⋁S¹ → Int
-  to₀ = GroupHom.fun (GroupIso.fun H⁰-S²⋁S¹⋁S¹)
+  to₀ = fun (isom H⁰-S²⋁S¹⋁S¹)
   from₀ : Int → coHom 0 S²⋁S¹⋁S¹
-  from₀ = GroupIso.inv H⁰-S²⋁S¹⋁S¹
+  from₀ = inv (isom H⁰-S²⋁S¹⋁S¹)
 
 {-
 
