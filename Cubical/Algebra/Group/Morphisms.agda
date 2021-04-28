@@ -1,3 +1,18 @@
+{-
+
+Defines different notions of morphisms of groups:
+
+- GroupHom (homomorphisms)
+- GroupEquiv (equivs which are homomorphisms)
+- GroupIso (isos which are homomorphisms)
+- Image
+- Kernel
+- Surjective
+- Injective
+- Bijection (surjective + injective)
+- "Very short exact sequences"
+
+-}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Algebra.Group.Morphisms where
 
@@ -39,38 +54,10 @@ record GroupEquiv (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ')
   hom : GroupHom G H
   hom = grouphom (equivFun eq) isHom
 
-open GroupHom
-open GroupStr
+-- TODO: change def
+record GroupIso (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
+  constructor groupiso
 
--- TODO: make G and H implicit?
-isInIm : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupHom G H → ⟨ H ⟩ → Type (ℓ-max ℓ ℓ')
-isInIm G H ϕ h = ∃[ g ∈ ⟨ G ⟩ ] ϕ .fun g ≡ h
-
--- TODO: make G and H implicit?
-isInKer : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupHom G H → ⟨ G ⟩ → Type ℓ'
-isInKer G H ϕ g = ϕ .fun g ≡ id (snd H)
-
-Ker : {G : Group {ℓ}} {H : Group {ℓ'}} → GroupHom G H → Type _
-Ker {G = G} {H = H} ϕ = Σ[ x ∈ ⟨ G ⟩ ] isInKer G H ϕ x
-
-Im : {G : Group {ℓ}} {H : Group {ℓ'}} → GroupHom G H → Type _
-Im {G = G} {H = H} ϕ = Σ[ x ∈ ⟨ H ⟩ ] isInIm G H ϕ x
-
--- TODO: make G and H implicit?
-isSurjective : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupHom G H → Type (ℓ-max ℓ ℓ')
-isSurjective G H ϕ = (x : ⟨ H ⟩) → isInIm G H ϕ x
-
--- TODO: make G and H implicit?
-isInjective : (G : Group {ℓ}) (H : Group {ℓ'}) → GroupHom G H → Type (ℓ-max ℓ ℓ')
-isInjective G H ϕ = (x : ⟨ G ⟩) → isInKer G H ϕ x → x ≡ id (snd G)
-
-
-
--- ----------- Alternative notions of isomorphisms --------------
-
-record GroupIso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
-
-  constructor iso
   field
     fun : GroupHom G H
     inv : ⟨ H ⟩ → ⟨ G ⟩
@@ -78,21 +65,56 @@ record GroupIso {ℓ ℓ'} (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max 
     leftInv : retract (GroupHom.fun fun) inv
 
 
-record BijectionIso {ℓ ℓ'} (A : Group {ℓ}) (B : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
+
+-- Image, kernel, surjective, injective, and bijections
+
+open GroupHom
+open GroupStr
+
+private
+  variable
+    G H : Group {ℓ}
+
+isInIm : GroupHom G H → ⟨ H ⟩ → Type _
+isInIm {G = G} ϕ h = ∃[ g ∈ ⟨ G ⟩ ] ϕ .fun g ≡ h
+
+isInKer : GroupHom G H → ⟨ G ⟩ → Type _
+isInKer {H = H} ϕ g = ϕ .fun g ≡ id (snd H)
+
+Ker : GroupHom G H → Type _
+Ker {G = G} ϕ = Σ[ x ∈ ⟨ G ⟩ ] isInKer ϕ x
+
+Im : GroupHom G H → Type _
+Im {H = H} ϕ = Σ[ x ∈ ⟨ H ⟩ ] isInIm ϕ x
+
+isSurjective : GroupHom G H → Type _
+isSurjective {H = H} ϕ = (x : ⟨ H ⟩) → isInIm ϕ x
+
+isInjective : GroupHom G H → Type _
+isInjective {G = G} ϕ = (x : ⟨ G ⟩) → isInKer ϕ x → x ≡ id (snd G)
+
+-- Group bijections
+record BijectionIso (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
 
   constructor bijIso
+
   field
-    fun : GroupHom A B
-    inj : isInjective A B fun
-    surj : isSurjective A B fun
+    fun : GroupHom G H
+    inj : isInjective fun
+    surj : isSurjective fun
 
 
+
+
+-- TODO: define short exact sequences (probably in another file) and
+-- make this a special case
+--
 -- "Very" short exact sequences
 -- i.e. an exact sequence A → B → C → D where A and D are trivial
 record vSES {ℓ ℓ' ℓ'' ℓ'''} (A : Group {ℓ}) (B : Group {ℓ'}) (leftGr : Group {ℓ''}) (rightGr : Group {ℓ'''})
            : Type (ℓ-suc (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓ''')))) where
-
   constructor vses
+
   field
     isTrivialLeft : isProp ⟨ leftGr ⟩
     isTrivialRight : isProp ⟨ rightGr ⟩
@@ -102,8 +124,8 @@ record vSES {ℓ ℓ' ℓ'' ℓ'''} (A : Group {ℓ}) (B : Group {ℓ'}) (leftGr
     ϕ : GroupHom A B
 
     Ker-ϕ⊂Im-left : (x : ⟨ A ⟩)
-                  → isInKer A B ϕ x
-                  → isInIm leftGr A left x
+                  → isInKer ϕ x
+                  → isInIm left x
     Ker-right⊂Im-ϕ : (x : ⟨ B ⟩)
-                   → isInKer B rightGr right x
-                   → isInIm A B ϕ x
+                   → isInKer right x
+                   → isInIm ϕ x
