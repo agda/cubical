@@ -203,24 +203,27 @@ H²-T²≅ℤ = compGroupIso helper2 (Hⁿ-Sⁿ≅ℤ 0)
          ⋄ setTruncOfProdIso
          ⋄ helper
 
+  rCancel≡refl : rCancelₖ 2 (0ₖ _) ≡ refl
+  rCancel≡refl i = rUnit (rUnit refl (~ i)) (~ i)
+
   helper2 : GroupIso (coHomGr 2 (S¹ × S¹)) (coHomGr 1 S¹)
   helper2 = Iso+Hom→GrIso theIso (
     coHomPointedElimT²'' 0 (λ _ → isPropΠ λ _ → setTruncIsSet _ _)
       λ P → coHomPointedElimT²'' 0 (λ _ → setTruncIsSet _ _)
-      λ Q → (λ i → ∣ (λ a → ΩKn+1→Kn 1 (transportRefl refl i
-                                            ∙∙ cong (λ x → (elimFunT²' 1 P (a , x) +ₖ elimFunT²' 1 Q (a , x)) -ₖ ∣ north ∣) loop
-                                            ∙∙ transportRefl refl i)) ∣₂)
+      λ Q → ((λ i → ∣ (λ a → ΩKn+1→Kn 1 (sym (rCancel≡refl i)
+                                        ∙∙ cong (λ x → (elimFunT²' 1 P (a , x) +ₖ elimFunT²' 1 Q (a , x)) -ₖ ∣ north ∣) loop
+                                        ∙∙ rCancel≡refl i)) ∣₂))
           ∙∙ (λ i → ∣ (λ a → ΩKn+1→Kn 1 (rUnit (cong (λ x → rUnitₖ 2 (elimFunT²' 1 P (a , x) +ₖ elimFunT²' 1 Q (a , x)) i) loop) (~ i))) ∣₂)
           ∙∙ (λ i → ∣ (λ a → ΩKn+1→Kn 1 (∙≡+₂ 0 (cong (λ x → elimFunT²' 1 P (a , x)) loop) (cong (λ x → elimFunT²' 1 Q (a , x)) loop) (~ i))) ∣₂)
           ∙∙ (λ i → ∣ (λ a → ΩKn+1→Kn-hom 1 (cong (λ x → elimFunT²' 1 P (a , x)) loop) (cong (λ x → elimFunT²' 1 Q (a , x)) loop) i) ∣₂)
           ∙∙ (λ i → ∣ ((λ a → ΩKn+1→Kn 1 (rUnit (cong (λ x → rUnitₖ 2 (elimFunT²' 1 P (a , x)) (~ i)) loop) i)
                                            +ₖ ΩKn+1→Kn 1 (rUnit (cong (λ x → rUnitₖ 2 (elimFunT²' 1 Q (a , x)) (~ i)) loop) i))) ∣₂)
-           ∙ (λ i → ∣ ((λ a → ΩKn+1→Kn 1 (transportRefl refl (~ i)
+           ∙ (λ i → ∣ ((λ a → ΩKn+1→Kn 1 (sym (rCancel≡refl (~ i))
                                                          ∙∙ cong (λ x → elimFunT²' 1 P (a , x) +ₖ ∣ north ∣) loop
-                                                         ∙∙ transportRefl refl (~ i))
-                                           +ₖ ΩKn+1→Kn 1 (transportRefl refl (~ i)
+                                                         ∙∙ rCancel≡refl (~ i))
+                                           +ₖ ΩKn+1→Kn 1 (sym (rCancel≡refl (~ i))
                                                          ∙∙ cong (λ x → elimFunT²' 1 Q (a , x) +ₖ ∣ north ∣) loop
-                                                         ∙∙ transportRefl refl (~ i)))) ∣₂))
+                                                         ∙∙ rCancel≡refl (~ i)))) ∣₂))
 
 private
   to₂ : coHom 2 (S₊ 1 × S₊ 1) → Int

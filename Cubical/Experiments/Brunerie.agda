@@ -246,9 +246,39 @@ g9 = encodeTruncS¹
 g10 : ∥ Int ∥₂ → Int
 g10 = SetTrunc.rec isSetInt (idfun Int)
 
+test : ∥ S² ∥₄ → ∥ S² ∥₄
+test = 2GroupoidTrunc.rec squash₄ help
+  where
+  help : S² → ∥ S² ∥₄
+  help base = ∣ base ∣₄
+  help (surf i j) = ∣ surf i j ∣₄
+
+test2 : ∥ S² ∥₄ → ∥ S² ∥₄ → ∥ S² ∥₄
+test2 = 2GroupoidTrunc.rec (is2GroupoidΠ (λ _ → squash₄)) λ x → 2GroupoidTrunc.rec squash₄ (help x)
+  where
+  help : S² → S² → ∥ S² ∥₄
+  help base y = ∣ y ∣₄
+  help (surf i j) y = help2 y i j
+    where
+    help2 : (y : S²) → Square (refl {x = ∣ y ∣₄}) refl refl refl
+    help2 = S²ToSetRec (λ _ → squash₄ _ _ _ _) λ i j → ∣ surf i j ∣₄
+
+test3-r : (y : ∥ S² ∥₄) → test2 y ∣ base ∣₄ ≡ y
+test3-r = 2GroupoidTrunc.elim (λ _ → isOfHLevelPath 4 squash₄ _ _) help
+  where
+  help : (x : S²) → test2 ∣ x ∣₄ ∣ base ∣₄ ≡ ∣ x ∣₄
+  help base = refl
+  help (surf i i₁) = refl
+
 -- don't run me
 brunerie : Int
 brunerie = g10 (g9 (g8 (f7 (f6 (f5 (f4 (f3 (λ i j k → surf i j k))))))))
+
+brunerie2 : Int
+brunerie2 = g10 (g9 (g8 (cong (cong (λ x → test2 x ∣ base ∣₄)) (f7 (f6 (f5 (f4 (f3 surf))))))))
+
+brunerie2id : brunerie2 ≡ 2
+brunerie2id = {!refl!}
 
 -- simpler tests
 
@@ -296,3 +326,4 @@ sorghum i j k =
 
 goo : Ω³ S²∙ .fst → Int
 goo x = g10 (g9 (g8 (f7 (f6 (f5 x)))))
+

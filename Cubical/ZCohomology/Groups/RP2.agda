@@ -129,3 +129,15 @@ H²-RP²≅Bool = invGroupIso (≅Bool (compIso
                                     (compIso (setTruncIso funSpaceIso-RP²)
                                              Iso-H²-RP²₁)
                                     Iso-H²-RP²₂))
+
+
+mymy = compIso
+                                    (compIso (setTruncIso funSpaceIso-RP²)
+                                             Iso-H²-RP²₁)
+                                    Iso-H²-RP²₂
+
+to₂ : coHom 2 RP² → Bool
+to₂ = Iso.fun mymy
+
+from₂ : Bool → coHom 2 RP²
+from₂ = Iso.inv mymy

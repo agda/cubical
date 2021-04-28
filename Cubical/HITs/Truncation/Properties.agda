@@ -352,8 +352,6 @@ Iso.rightInv (truncOfProdIso (suc n)) (a , b) =
 Iso.leftInv (truncOfProdIso (suc n)) = elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) λ a → refl
 
 ---- ∥ Ω A ∥ ₙ ≡ Ω ∥ A ∥ₙ₊₁  ----
-
-
   {- Proofs of Theorem 7.3.12. and Corollary 7.3.13. in the HoTT book  -}
 
 module ΩTrunc {X : Type ℓ} {n : HLevel} where

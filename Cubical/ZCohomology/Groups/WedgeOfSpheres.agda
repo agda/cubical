@@ -104,3 +104,15 @@ test5 = refl
 test5' : to₂ (induced+ H²-S²⋁S¹⋁S¹ (from₂ 1) (from₂ 1)) ≡ 2
 test5' = refl
 -}
+
+sick : S²⋁S¹⋁S¹ → ∥ Susp S¹ ∥ 4
+sick (inl x) = ∣ x ∣
+sick (inr x) = 0ₖ _
+sick (push a i) = 0ₖ _
+
+c = from₂ 0
+
+G = ∣ sick ∣₂
+
+test5 : to₂ (from₂ 2 +ₕ from₂ 1) ≡ 3
+test5 = refl
