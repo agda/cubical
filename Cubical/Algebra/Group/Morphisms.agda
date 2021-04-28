@@ -1,6 +1,7 @@
 {-
 
-Defines different notions of morphisms of groups:
+Defines different notions of morphisms and properties of morphisms of
+groups:
 
 - GroupHom (homomorphisms)
 - GroupEquiv (equivs which are homomorphisms)
@@ -9,7 +10,7 @@ Defines different notions of morphisms of groups:
 - Kernel
 - Surjective
 - Injective
-- Bijection (surjective + injective)
+- BijectionIso (surjective + injective)
 
 -}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
@@ -60,6 +61,9 @@ record GroupIso (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') w
     isom : Iso ⟨ G ⟩ ⟨ H ⟩
     isHom : isGroupHom G H (Iso.fun isom)
 
+  hom : GroupHom G H
+  hom = grouphom (Iso.fun isom) isHom
+
 
 -- Image, kernel, surjective, injective, and bijections
 
@@ -87,6 +91,9 @@ isSurjective {H = H} ϕ = (x : ⟨ H ⟩) → isInIm ϕ x
 
 isInjective : GroupHom G H → Type _
 isInjective {G = G} ϕ = (x : ⟨ G ⟩) → isInKer ϕ x → x ≡ 1g (snd G)
+
+isMono : GroupHom G H → Type _
+isMono {G = G} f = {x y : ⟨ G ⟩} → f .fun x ≡ f .fun y → x ≡ y
 
 -- Group bijections
 record BijectionIso (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where

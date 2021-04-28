@@ -224,7 +224,7 @@ private
   -- existence of suspension isomorphism
   fst (Suspension isCohomTheoryZ') (pos zero) {A = A} =
       invGroupEquiv
-      (GrIsoToGrEquiv
+      (GroupIso→GroupEquiv
         (groupiso (invIso suspFunCharac0)
                         (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
                                 λ f g → cong ∣_∣₂ (funExt λ { north → refl
@@ -238,7 +238,7 @@ private
                 ∙ ∙≡+₁ (Kn→ΩKn+1 _ (f a)) (Kn→ΩKn+1 _ (g a))
   fst (Suspension isCohomTheoryZ') (pos (suc n)) {A = A} =
       invGroupEquiv
-      (GrIsoToGrEquiv
+      (GroupIso→GroupEquiv
         (groupiso (invIso (suspFunCharac {A = A} n))
                         (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
                                 λ f g → cong ∣_∣₂ (funExt λ { north → refl
@@ -251,9 +251,9 @@ private
     helper a f g = Kn→ΩKn+1-hom (suc n) (f a) (g a)
                 ∙ ∙≡+₂ n (Kn→ΩKn+1 _ (f a)) (Kn→ΩKn+1 _ (g a))
   fst (Suspension isCohomTheoryZ') (negsuc zero) {A = A} =
-      GrIsoToGrEquiv (groupiso (isContr→Iso (H0-susp {A = _ , pt A}) isContrUnit*)
+      GroupIso→GroupEquiv (groupiso (isContr→Iso (H0-susp {A = _ , pt A}) isContrUnit*)
                       λ _ _ → refl)
-  fst (Suspension isCohomTheoryZ') (negsuc (suc n)) = idGroupEquiv _
+  fst (Suspension isCohomTheoryZ') (negsuc (suc n)) = idGroupEquiv
 
   -- naturality of the suspension isomorphism
   snd (Suspension (isCohomTheoryZ' {ℓ})) (f , p) (pos zero) =
@@ -366,10 +366,10 @@ private
   Dimension isCohomTheoryZ' (negsuc n) _ = isContrUnit*
 
   ------------------------ Binary wedges -------------------------
-  BinaryWedge isCohomTheoryZ' (pos zero) = GrIsoToGrEquiv (H⁰Red-⋁ _ _)
-  BinaryWedge isCohomTheoryZ' (pos (suc n)) = GrIsoToGrEquiv (Hⁿ-⋁ _ _ n)
+  BinaryWedge isCohomTheoryZ' (pos zero) = GroupIso→GroupEquiv (H⁰Red-⋁ _ _)
+  BinaryWedge isCohomTheoryZ' (pos (suc n)) = GroupIso→GroupEquiv (Hⁿ-⋁ _ _ n)
   BinaryWedge isCohomTheoryZ' (negsuc n) =
-    GrIsoToGrEquiv
+    GroupIso→GroupEquiv
       (compGroupIso (contrGroupIsoUnit isContrUnit*)
                     (invGroupIso (contrGroupIsoUnit (isOfHLevel× 0 isContrUnit* isContrUnit*))))
 

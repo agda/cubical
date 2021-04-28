@@ -260,10 +260,11 @@ caracGroup≡ {G = G} {H = H} p q P = sym (transportTransport⁻ (ua (Group≡ G
                        λ _ → isOfHLevelPathP 1 (isPropIsGroup _ _ _) _ _)
              (transportRefl (cong ⟨_⟩ p) ∙ P ∙ sym (transportRefl (cong ⟨_⟩ q)))
 
-uaGroupId : (G : Group {ℓ}) → uaGroup (idGroupEquiv G) ≡ refl
-uaGroupId G = caracGroup≡ _ _ (carac-uaGroup (idGroupEquiv G) ∙ uaIdEquiv)
+uaGroupId : (G : Group {ℓ}) → uaGroup (idGroupEquiv {G = G}) ≡ refl
+uaGroupId G = caracGroup≡ _ _ (carac-uaGroup (idGroupEquiv {G = G}) ∙ uaIdEquiv)
 
-uaCompGroupEquiv : {F G H : Group {ℓ}} (f : GroupEquiv F G) (g : GroupEquiv G H) → uaGroup (compGroupEquiv f g) ≡ uaGroup f ∙ uaGroup g
+uaCompGroupEquiv : {F G H : Group {ℓ}} (f : GroupEquiv F G) (g : GroupEquiv G H)
+                 → uaGroup (compGroupEquiv f g) ≡ uaGroup f ∙ uaGroup g
 uaCompGroupEquiv f g = caracGroup≡ _ _ (
   cong ⟨_⟩ (uaGroup (compGroupEquiv f g))
     ≡⟨ carac-uaGroup (compGroupEquiv f g) ⟩

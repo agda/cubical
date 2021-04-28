@@ -40,11 +40,11 @@ rightInv (isom rUnitGroupIso) _ = refl
 leftInv (isom rUnitGroupIso) _ = refl
 isHom rUnitGroupIso _ _ = refl
 
-lUnitGroupEquiv : ∀ {ℓ} {G : Group {ℓ}} → GroupEquiv (dirProd Unit G) G
-lUnitGroupEquiv = GrIsoToGrEquiv lUnitGroupIso
+lUnitGroupEquiv : {G : Group {ℓ}} → GroupEquiv (dirProd Unit G) G
+lUnitGroupEquiv = GroupIso→GroupEquiv lUnitGroupIso
 
 rUnitGroupEquiv : ∀ {ℓ} {G : Group {ℓ}} → GroupEquiv (dirProd G Unit) G
-rUnitGroupEquiv = GrIsoToGrEquiv rUnitGroupIso
+rUnitGroupEquiv = GroupIso→GroupEquiv rUnitGroupIso
 
 contrGroupIsoUnit : {G : Group {ℓ}} → isContr ⟨ G ⟩ → GroupIso G Unit
 fun (isom (contrGroupIsoUnit contr)) _ = tt
@@ -54,4 +54,4 @@ leftInv (isom (contrGroupIsoUnit contr)) x = snd contr x
 isHom (contrGroupIsoUnit contr) _ _ = refl
 
 contrGroupEquivUnit : {G : Group {ℓ}} → isContr ⟨ G ⟩ → GroupEquiv G Unit
-contrGroupEquivUnit contr = GrIsoToGrEquiv (contrGroupIsoUnit contr)
+contrGroupEquivUnit contr = GroupIso→GroupEquiv (contrGroupIsoUnit contr)

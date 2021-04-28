@@ -33,7 +33,7 @@ H⁰-S¹⋁S¹ = H⁰-connected (inl base) (wedgeConnected _ _ (Sn-connected 0) 
 
 ------------- H¹(S¹⋁S¹) ------------
 H¹-S¹⋁S¹ : GroupIso (coHomGr 1 S¹⋁S¹) (dirProd IntGroup IntGroup)
-H¹-S¹⋁S¹ =  (Hⁿ-⋁ _ _ 0) □ dirProdGroupIso coHom1S1≃ℤ coHom1S1≃ℤ
+H¹-S¹⋁S¹ =  (Hⁿ-⋁ _ _ 0) □ GroupIsoDirProd coHom1S1≃ℤ coHom1S1≃ℤ
 
 ------------- H⁰(S²⋁S¹⋁S¹) ---------
 H⁰-S²⋁S¹⋁S¹ : GroupIso (coHomGr 0 S²⋁S¹⋁S¹) IntGroup
@@ -48,7 +48,7 @@ H⁰-S²⋁S¹⋁S¹ = H⁰-connected (inl north)
 H¹-S²⋁S¹⋁S¹ : GroupIso (coHomGr 1 S²⋁S¹⋁S¹) (dirProd IntGroup IntGroup)
 H¹-S²⋁S¹⋁S¹ =
     Hⁿ-⋁ (S₊∙ 2) (S¹⋁S¹ , inl base) 0
-  □ dirProdGroupIso (H¹-Sⁿ≅0 0) H¹-S¹⋁S¹
+  □ GroupIsoDirProd (H¹-Sⁿ≅0 0) H¹-S¹⋁S¹
   □ lUnitGroupIso
 
 ------------- H²(S²⋁S¹⋁S¹) ---------
@@ -57,9 +57,9 @@ H²-S²⋁S¹⋁S¹ : GroupIso (coHomGr 2 S²⋁S¹⋁S¹) IntGroup
 H²-S²⋁S¹⋁S¹ =
   compGroupIso
   (Hⁿ-⋁ _ _ 1)
-  (dirProdGroupIso {B = UnitGroup}
+  (GroupIsoDirProd {B = UnitGroup}
     (Hⁿ-Sⁿ≅ℤ 1)
-    ((Hⁿ-⋁ _ _ 1)  □ dirProdGroupIso (Hⁿ-S¹≅0 0) (Hⁿ-S¹≅0 0) □ rUnitGroupIso)
+    ((Hⁿ-⋁ _ _ 1)  □ GroupIsoDirProd (Hⁿ-S¹≅0 0) (Hⁿ-S¹≅0 0) □ rUnitGroupIso)
   □ rUnitGroupIso)
 
 private

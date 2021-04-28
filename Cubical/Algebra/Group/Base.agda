@@ -1,6 +1,6 @@
 {-
 
-Defines groups together and adds some smart constructors
+Defines groups and adds some smart constructors
 
 -}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
@@ -181,6 +181,3 @@ makeGroup-left 1g _·_ inv set assoc lUnit lCancel =
           ≡⟨ lUnit a ⟩
         a
           ∎
-
-isSetCarrier : (G : Group {ℓ}) → isSet ⟨ G ⟩
-isSetCarrier G = IsSemigroup.is-set (IsMonoid.isSemigroup (GroupStr.isMonoid (snd G)))
