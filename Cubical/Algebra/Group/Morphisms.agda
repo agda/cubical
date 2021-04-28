@@ -10,6 +10,7 @@ groups:
 - Kernel
 - Surjective
 - Injective
+- Mono
 - BijectionIso (surjective + injective)
 
 -}

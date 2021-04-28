@@ -22,6 +22,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 
 open import Cubical.HITs.PropositionalTruncation hiding (map)
@@ -46,36 +47,26 @@ module _ {G : Group {ℓ}} {H : Group {ℓ'}} where
     module G = GroupStr (snd G)
     module H = GroupStr (snd H)
 
-  -- TODO: upstream
-  inv1g≡1g : G.inv G.1g ≡ G.1g
-  inv1g≡1g = sym (G.lid _) ∙ G.invr _
-
   -- ϕ(1g) ≡ 1g
-  -- TODO: This problably uses some theory from Properties
   hom1g : (f : GroupHom G H) → f .fun G.1g ≡ H.1g
   hom1g fh@(grouphom f _) =
-    f G.1g                         ≡⟨ sym (H.rid _) ⟩
-    f G.1g H.· H.1g                ≡⟨ (λ i → f G.1g H.· H.invr (f G.1g) (~ i)) ⟩
-    f G.1g H.· (f G.1g H.· H.inv (f G.1g)) ≡⟨ H.assoc _ _ _ ⟩
-    (f G.1g H.· f G.1g) H.· H.inv (f G.1g) ≡⟨ sym (cong (λ x → x H.· _)
+    f G.1g                                  ≡⟨ sym (H.rid _) ⟩
+    f G.1g H.· H.1g                         ≡⟨ (λ i → f G.1g H.· H.invr (f G.1g) (~ i)) ⟩
+    f G.1g H.· (f G.1g H.· H.inv (f G.1g))  ≡⟨ H.assoc _ _ _ ⟩
+    (f G.1g H.· f G.1g) H.· H.inv (f G.1g)  ≡⟨ sym (cong (λ x → x H.· _)
                                                 (sym (cong f (G.lid _)) ∙ isHom fh G.1g G.1g)) ⟩
-    f G.1g H.· H.inv (f G.1g)              ≡⟨ H.invr _ ⟩
+    f G.1g H.· H.inv (f G.1g)               ≡⟨ H.invr _ ⟩
     H.1g ∎
 
   -- ϕ(- x) = - ϕ(x)
-  -- TODO: This problably uses some theory from Properties
   homInv : (f : GroupHom G H) → (g : ⟨ G ⟩) → f .fun (G.inv g) ≡ H.inv (f .fun g)
   homInv fc@(grouphom f fh) g =
-    f (G.inv g)                   ≡⟨ sym (H.rid _) ⟩
-    f (G.inv g) H.· H.1g          ≡⟨ cong (f (G.inv g) H.·_) (sym (H.invr _)) ⟩
-    f (G.inv g) H.· (f g H.· H.inv (f g)) ≡⟨ H.assoc _ _ _ ⟩
-    (f (G.inv g) H.· f g) H.· H.inv (f g) ≡⟨ cong (H._· _) helper ⟩
-    H.1g H.· H.inv (f g)                ≡⟨ H.lid _ ⟩
+    f (G.inv g)                            ≡⟨ sym (H.rid _) ⟩
+    f (G.inv g) H.· H.1g                   ≡⟨ cong (_ H.·_) (sym (H.invr _)) ⟩
+    f (G.inv g) H.· (f g H.· H.inv (f g))  ≡⟨ H.assoc _ _ _ ⟩
+    (f (G.inv g) H.· f g) H.· H.inv (f g)  ≡⟨ cong (H._· _) (sym (fh _ g) ∙∙ cong f (G.invl g) ∙∙ hom1g fc) ⟩
+    H.1g H.· H.inv (f g)                   ≡⟨ H.lid _ ⟩
     H.inv (f g) ∎
-    where
-    helper : f (G.inv g) H.· f g ≡ H.1g
-    helper = sym (fh (G.inv g) g) ∙∙ cong f (G.invl g) ∙∙ hom1g fc
-
 
 
 -- H-level results
@@ -92,8 +83,14 @@ isSetGroupHom {G = G} {H = H} =
 isPropIsInIm : (f : GroupHom G H) (x : ⟨ H ⟩) → isProp (isInIm f x)
 isPropIsInIm f x = squash
 
+isSetIm : (f : GroupHom G H) → isSet (Im f)
+isSetIm {H = H} f = isSetΣ (is-set (snd H)) λ x → isProp→isSet (isPropIsInIm f x)
+
 isPropIsInKer : (f : GroupHom G H) (x : ⟨ G ⟩) → isProp (isInKer f x)
 isPropIsInKer {H = H} f x = is-set (snd H) _ _
+
+isSetKer : (f : GroupHom G H) → isSet (Ker f)
+isSetKer {G = G} f = isSetΣ (is-set (snd G)) λ x → isProp→isSet (isPropIsInKer f x)
 
 isPropIsSurjective : (f : GroupHom G H) → isProp (isSurjective f)
 isPropIsSurjective f = isPropΠ (λ x → isPropIsInIm f x)
@@ -105,12 +102,10 @@ isPropIsMono : (f : GroupHom G H) → isProp (isMono f)
 isPropIsMono {G = G} f = isPropImplicitΠ2 λ _ _ → isPropΠ (λ _ → is-set (snd G) _ _)
 
 
--- Logical equivalence of isMono and isInjective
-
+-- Logically equivalent versions of isInjective
 isMono→isInjective : (f : GroupHom G H) → isMono f → isInjective f
 isMono→isInjective f h x p = h (p ∙ sym (hom1g f))
 
--- TODO: upstream some of this to Property
 isInjective→isMono : (f : GroupHom G H) → isInjective f → isMono f
 isInjective→isMono {G = G} {H = H} f h {x = x} {y = y} p =
   x                      ≡⟨ sym (G.rid _) ⟩
@@ -128,6 +123,18 @@ isInjective→isMono {G = G} {H = H} f h {x = x} {y = y} p =
                     cong (λ a → f .fun x H.· a) (homInv f y) ∙
                     cong (H._· H.inv (f .fun y)) p ∙
                     H.invr _)
+
+-- TODO: maybe it would be better to take this as the definition of isInjective?
+isInjective→isContrKer : (f : GroupHom G H) → isInjective f → isContr (Ker f)
+fst (isInjective→isContrKer {G = G} f hf) = 1g (snd G) , hom1g f
+snd (isInjective→isContrKer {G = G} f hf) k =
+  Σ≡Prop (isPropIsInKer f) (sym (isInjective→isMono f hf (k .snd ∙ sym (hom1g f))))
+
+isContrKer→isInjective : (f : GroupHom G H) → isContr (Ker f) → isInjective f
+isContrKer→isInjective {G = G} f ((a , b) , c) x y = cong fst (sym (c (x , y)) ∙ rem)
+  where
+  rem : (a , b) ≡ (1g (snd G) , hom1g f)
+  rem = c (1g (snd G) , hom1g f)
 
 
 -- Special homomorphisms and operations (id, composition...)
@@ -227,11 +234,16 @@ isHom (invGroupIso iso1) = isGroupHomInv iso1
 
 GroupIsoDirProd : {G : Group {ℓ}} {H : Group {ℓ'}} {A : Group {ℓ''}} {B : Group {ℓ'''}}
                 → GroupIso G H → GroupIso A B → GroupIso (DirProd G A) (DirProd H B)
-fun (isom (GroupIsoDirProd iso1 iso2)) prod = fun (isom iso1) (fst prod) , fun (isom iso2) (snd prod)
-inv (isom (GroupIsoDirProd iso1 iso2)) prod = inv (isom iso1) (fst prod) , inv (isom iso2) (snd prod)
-rightInv (isom (GroupIsoDirProd iso1 iso2)) a = ΣPathP (rightInv (isom iso1) (fst a) , (rightInv (isom iso2) (snd a)))
-leftInv (isom (GroupIsoDirProd iso1 iso2)) a = ΣPathP (leftInv (isom iso1) (fst a) , (leftInv (isom iso2) (snd a)))
-isHom (GroupIsoDirProd iso1 iso2) a b = ΣPathP (isHom iso1 (fst a) (fst b) , isHom iso2 (snd a) (snd b))
+fun (isom (GroupIsoDirProd iso1 iso2)) prod =
+  fun (isom iso1) (fst prod) , fun (isom iso2) (snd prod)
+inv (isom (GroupIsoDirProd iso1 iso2)) prod =
+  inv (isom iso1) (fst prod) , inv (isom iso2) (snd prod)
+rightInv (isom (GroupIsoDirProd iso1 iso2)) a =
+  ΣPathP (rightInv (isom iso1) (fst a) , (rightInv (isom iso2) (snd a)))
+leftInv (isom (GroupIsoDirProd iso1 iso2)) a =
+  ΣPathP (leftInv (isom iso1) (fst a) , (leftInv (isom iso2) (snd a)))
+isHom (GroupIsoDirProd iso1 iso2) a b =
+  ΣPathP (isHom iso1 (fst a) (fst b) , isHom iso2 (snd a) (snd b))
 
 
 -- Conversion functions between different notions of group morphisms
