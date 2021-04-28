@@ -9,7 +9,7 @@ open GroupStr
 
 Int : Group₀
 fst Int = IntType
-id (snd Int) = 0
+1g (snd Int) = 0
 _·_ (snd Int) = _+Int_
 inv (snd Int) = _-Int_ 0
 isGroup (snd Int) = isGroupInt

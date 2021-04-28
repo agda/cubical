@@ -15,7 +15,7 @@ open IsSemigroup
 
 dirProd : ∀ {ℓ ℓ'} → Group {ℓ} → Group {ℓ'} → Group
 fst (dirProd G H) = fst G × fst H
-id (snd (dirProd G H)) = (id (snd G)) , (id (snd H))
+1g (snd (dirProd G H)) = (1g (snd G)) , (1g (snd H))
 _·_ (snd (dirProd G H)) x y = _·_ (snd G) (fst x) (fst y)
                             , _·_ (snd H) (snd x) (snd y)
 (inv (snd (dirProd G H))) x = (inv (snd G) (fst x)) , (inv (snd H) (snd x))

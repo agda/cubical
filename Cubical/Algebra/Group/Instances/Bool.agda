@@ -21,7 +21,7 @@ open IsSemigroup renaming (assoc to assoc')
 
 Bool : Group₀
 fst Bool = BoolType
-id (snd Bool) = true
+1g (snd Bool) = true
 (snd Bool GroupStr.· false) false = true
 (snd Bool GroupStr.· false) true = false
 (snd Bool GroupStr.· true) y = y
@@ -55,18 +55,18 @@ module _ {ℓ : Level} {A : Group {ℓ}} (e : Iso (fst A) BoolType) where
     -A_ = GroupStr.inv (snd A)
 
     IsoABool : Iso BoolType (typ A)
-    IsoABool with (Iso.fun e (id (snd A))) ≟ true
+    IsoABool with (Iso.fun e (1g (snd A))) ≟ true
     ... | yes p = invIso e
     ... | no p = compIso notIso (invIso e)
 
-    true→0 : Iso.fun IsoABool true ≡ id (snd A)
-    true→0 with (Iso.fun e (id (snd A))) ≟ true
+    true→0 : Iso.fun IsoABool true ≡ 1g (snd A)
+    true→0 with (Iso.fun e (1g (snd A))) ≟ true
     ... | yes p = sym (cong (Iso.inv e) p) ∙ Iso.leftInv e _
-    ... | no p = sym (cong (Iso.inv e) (¬true→false (Iso.fun e (id (snd A))) p))
-               ∙ Iso.leftInv e (id (snd A))
+    ... | no p = sym (cong (Iso.inv e) (¬true→false (Iso.fun e (1g (snd A))) p))
+               ∙ Iso.leftInv e (1g (snd A))
 
-    decA : (x : typ A) → (x ≡ id (snd A)) ⊎ (x ≡ Iso.fun IsoABool false)
-    decA x with (Iso.inv IsoABool x) ≟ false | discreteA x (id (snd A))
+    decA : (x : typ A) → (x ≡ 1g (snd A)) ⊎ (x ≡ Iso.fun IsoABool false)
+    decA x with (Iso.inv IsoABool x) ≟ false | discreteA x (1g (snd A))
     ... | yes p | yes q = inl q
     ... | yes p | no q  = inr (sym (Iso.rightInv IsoABool x) ∙ cong (Iso.fun (IsoABool)) p)
     ... | no p  | no q  = inr (⊥-rec (q (sym (Iso.rightInv IsoABool x)
@@ -78,13 +78,13 @@ module _ {ℓ : Level} {A : Group {ℓ}} (e : Iso (fst A) BoolType) where
   ≅Bool = groupiso IsoABool homHelp
     where
     homHelp : isGroupHom Bool A (Iso.fun IsoABool)
-    homHelp false false with discreteA (Iso.fun IsoABool false) (id (snd A))
+    homHelp false false with discreteA (Iso.fun IsoABool false) (1g (snd A))
                            | (decA ((Iso.fun IsoABool false) ·A Iso.fun IsoABool false))
-    ... | yes p | _     = true→0 ∙∙ sym (GroupStr.rid (snd A) (id (snd A))) ∙∙ cong₂ (_·A_) (sym p) (sym p)
+    ... | yes p | _     = true→0 ∙∙ sym (GroupStr.rid (snd A) (1g (snd A))) ∙∙ cong₂ (_·A_) (sym p) (sym p)
     ... | no p  | inl x = true→0 ∙ sym x
     ... | no p  | inr x = true→0 ∙∙ sym (helper _ x) ∙∙ sym x
       where
-      helper : (x : typ A) → x ·A x ≡ x → x ≡ (id (snd A))
+      helper : (x : typ A) → x ·A x ≡ x → x ≡ (1g (snd A))
       helper x p = sym (GroupStr.rid (snd A) x)
                 ∙∙ cong (x ·A_) (sym (inverse (snd A) x .fst))
                 ∙∙ assocG (snd A) x x (-A x) ∙∙ cong (_·A (-A x)) p

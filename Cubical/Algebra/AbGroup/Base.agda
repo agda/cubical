@@ -78,14 +78,14 @@ open GroupStr
 
 AbGroup→Group : AbGroup {ℓ} → Group
 fst (AbGroup→Group A) = fst A
-id (snd (AbGroup→Group A)) = AbGroupStr.0g (snd A)
+1g (snd (AbGroup→Group A)) = AbGroupStr.0g (snd A)
 _·_ (snd (AbGroup→Group A)) = AbGroupStr._+_ (snd A)
 inv (snd (AbGroup→Group A)) = AbGroupStr.- (snd A)
 isGroup (snd (AbGroup→Group A)) = IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd A))
 
 Group→AbGroup : (G : Group {ℓ}) → ((x y : fst G) → _·_ (snd G) x y ≡ _·_ (snd G) y x) → AbGroup
 fst (Group→AbGroup G comm) = fst G
-AbGroupStr.0g (snd (Group→AbGroup G comm)) = id (snd G)
+AbGroupStr.0g (snd (Group→AbGroup G comm)) = 1g (snd G)
 AbGroupStr._+_ (snd (Group→AbGroup G comm)) = _·_ (snd G)
 AbGroupStr.- snd (Group→AbGroup G comm) = inv (snd G)
 IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (Group→AbGroup G comm))) = isGroup (snd G)

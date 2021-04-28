@@ -114,38 +114,37 @@ module _ (G : Group {ℓ}) (H : Group {ℓ'}) where
   module G = GroupStr (snd G)
   module H = GroupStr (snd H)
 
-  -id≡id : G.inv G.id ≡ G.id
-  -id≡id = sym (G.lid _) ∙ G.invr _
+  -1g≡1g : G.inv G.1g ≡ G.1g
+  -1g≡1g = sym (G.lid _) ∙ G.invr _
 
-  -- ϕ(id) ≡ id
-  morphid→id : (f : GroupHom G H) → f .fun G.id ≡ H.id
-  morphid→id fh@(grouphom f _) =
-    f G.id                         ≡⟨ sym (H.rid _) ⟩
-    f G.id H.· H.id                ≡⟨ (λ i → f G.id H.· H.invr (f G.id) (~ i)) ⟩
-    f G.id H.· (f G.id H.· H.inv (f G.id)) ≡⟨ H.assoc _ _ _ ⟩
-    (f G.id H.· f G.id) H.· H.inv (f G.id) ≡⟨ sym (cong (λ x → x H.· _)
-                                                (sym (cong f (G.lid _)) ∙ isHom fh G.id G.id)) ⟩
-    f G.id H.· H.inv (f G.id)              ≡⟨ H.invr _ ⟩
-    H.id ∎
+  -- ϕ(1g) ≡ 1g
+  morph1g→1g : (f : GroupHom G H) → f .fun G.1g ≡ H.1g
+  morph1g→1g fh@(grouphom f _) =
+    f G.1g                         ≡⟨ sym (H.rid _) ⟩
+    f G.1g H.· H.1g                ≡⟨ (λ i → f G.1g H.· H.invr (f G.1g) (~ i)) ⟩
+    f G.1g H.· (f G.1g H.· H.inv (f G.1g)) ≡⟨ H.assoc _ _ _ ⟩
+    (f G.1g H.· f G.1g) H.· H.inv (f G.1g) ≡⟨ sym (cong (λ x → x H.· _)
+                                                (sym (cong f (G.lid _)) ∙ isHom fh G.1g G.1g)) ⟩
+    f G.1g H.· H.inv (f G.1g)              ≡⟨ H.invr _ ⟩
+    H.1g ∎
 
   -- ϕ(- x) = - ϕ(x)
   morphMinus : (f : GroupHom G H) → (g : ⟨ G ⟩) → f .fun (G.inv g) ≡ H.inv (f .fun g)
   morphMinus fc@(grouphom f fh) g =
     f (G.inv g)                   ≡⟨ sym (H.rid _) ⟩
-    f (G.inv g) H.· H.id          ≡⟨ cong (f (G.inv g) H.·_) (sym (H.invr _)) ⟩
+    f (G.inv g) H.· H.1g          ≡⟨ cong (f (G.inv g) H.·_) (sym (H.invr _)) ⟩
     f (G.inv g) H.· (f g H.· H.inv (f g)) ≡⟨ H.assoc _ _ _ ⟩
     (f (G.inv g) H.· f g) H.· H.inv (f g) ≡⟨ cong (H._· _) helper ⟩
-    H.id H.· H.inv (f g)                ≡⟨ H.lid _ ⟩
+    H.1g H.· H.inv (f g)                ≡⟨ H.lid _ ⟩
     H.inv (f g) ∎
     where
-    helper : f (G.inv g) H.· f g ≡ H.id
-    helper = sym (fh (G.inv g) g) ∙∙ cong f (G.invl g) ∙∙ morphid→id fc
+    helper : f (G.inv g) H.· f g ≡ H.1g
+    helper = sym (fh (G.inv g) g) ∙∙ cong f (G.invl g) ∙∙ morph1g→1g fc
 
 
 
 open BijectionIso
 open GroupIso
-open vSES
 
 compGroupIso : {G : Group {ℓ}} {H : Group {ℓ₁}} {A : Group {ℓ₂}} → GroupIso G H → GroupIso H A → GroupIso G A
 isom (compGroupIso iso1 iso2) = compIso (isom iso1) (isom iso2)
@@ -183,7 +182,7 @@ GrIsoToGrEquiv : {G : Group {ℓ}} {H : Group {ℓ₂}} → GroupIso G H → Gro
 GroupEquiv.eq (GrIsoToGrEquiv i) = isoToEquiv (isom i)
 GroupEquiv.isHom (GrIsoToGrEquiv i) = isHom i
 
---- Proofs that BijectionIso and vSES both induce isomorphisms ---
+--- Proofs that BijectionIso induce isomorphisms ---
 BijectionIsoToGroupIso : {A : Group {ℓ}} {B : Group {ℓ'}} → BijectionIso A B → GroupIso A B
 BijectionIsoToGroupIso {A = A} {B = B} i = grIso
   where
@@ -195,13 +194,13 @@ BijectionIsoToGroupIso {A = A} {B = B} i = grIso
   helper _ a b =
     Σ≡Prop (λ _ → isSetCarrier B _ _)
            (fst a                             ≡⟨ sym (A.rid _) ⟩
-            fst a A.· A.id                    ≡⟨ cong (fst a A.·_) (sym (A.invl _)) ⟩
+            fst a A.· A.1g                    ≡⟨ cong (fst a A.·_) (sym (A.invl _)) ⟩
             fst a A.· ((A.inv (fst b)) A.· fst b) ≡⟨ A.assoc _ _ _ ⟩
             (fst a A.· A.inv (fst b)) A.· fst b   ≡⟨ cong (A._· fst b) idHelper ⟩
-            A.id A.· fst b                    ≡⟨ A.lid _ ⟩
+            A.1g A.· fst b                    ≡⟨ A.lid _ ⟩
             fst b ∎)
     where
-    idHelper : fst a A.· A.inv (fst b) ≡ A.id
+    idHelper : fst a A.· A.inv (fst b) ≡ A.1g
     idHelper =
       inj i _
            (isHom (fun i) (fst a) (A.inv (fst b))

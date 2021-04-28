@@ -75,7 +75,7 @@ isInIm : GroupHom G H → ⟨ H ⟩ → Type _
 isInIm {G = G} ϕ h = ∃[ g ∈ ⟨ G ⟩ ] ϕ .fun g ≡ h
 
 isInKer : GroupHom G H → ⟨ G ⟩ → Type _
-isInKer {H = H} ϕ g = ϕ .fun g ≡ id (snd H)
+isInKer {H = H} ϕ g = ϕ .fun g ≡ 1g (snd H)
 
 Ker : GroupHom G H → Type _
 Ker {G = G} ϕ = Σ[ x ∈ ⟨ G ⟩ ] isInKer ϕ x
@@ -87,7 +87,7 @@ isSurjective : GroupHom G H → Type _
 isSurjective {H = H} ϕ = (x : ⟨ H ⟩) → isInIm ϕ x
 
 isInjective : GroupHom G H → Type _
-isInjective {G = G} ϕ = (x : ⟨ G ⟩) → isInKer ϕ x → x ≡ id (snd G)
+isInjective {G = G} ϕ = (x : ⟨ G ⟩) → isInKer ϕ x → x ≡ 1g (snd G)
 
 -- Group bijections
 record BijectionIso (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where

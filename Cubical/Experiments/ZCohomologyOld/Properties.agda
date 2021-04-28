@@ -447,7 +447,7 @@ coHomGr : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group {ℓ}
 coHomGr n A = coHom n A , coHomGrnA
   where
   coHomGrnA : GroupStr (coHom n A)
-  id coHomGrnA = 0ₕ n
+  1g coHomGrnA = 0ₕ n
   GroupStr._·_ coHomGrnA = λ x y → x +[ n ]ₕ y
   inv coHomGrnA = λ x → -[ n ]ₕ x
   isGroup coHomGrnA = helper

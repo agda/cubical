@@ -44,7 +44,6 @@ _□_ : _
 _□_ = compGroupIso
 
 open GroupEquiv
-open vSES
 open GroupIso
 open GroupHom
 open BijectionIso

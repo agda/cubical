@@ -555,7 +555,7 @@ coHomGr : (n : ℕ) (A : Type ℓ) → Group {ℓ}
 coHomGr n A = coHom n A , coHomGrnA
   where
   coHomGrnA : GroupStr (coHom n A)
-  id coHomGrnA = 0ₕ n
+  1g coHomGrnA = 0ₕ n
   GroupStr._·_ coHomGrnA = λ x y → x +[ n ]ₕ y
   inv coHomGrnA = λ x → -[ n ]ₕ x
   isGroup coHomGrnA = helper
@@ -608,7 +608,7 @@ coHomGrΩ : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group {ℓ}
 coHomGrΩ n A = ∥ (A → typ (Ω (coHomK-ptd (suc n)))) ∥₂ , coHomGrnA
   where
   coHomGrnA : GroupStr ∥ (A → typ (Ω (coHomK-ptd (suc n)))) ∥₂
-  id coHomGrnA = ∣ (λ _ → refl) ∣₂
+  1g coHomGrnA = ∣ (λ _ → refl) ∣₂
   GroupStr._·_ coHomGrnA = sRec2 § λ p q → ∣ (λ x → p x ∙ q x) ∣₂
   inv coHomGrnA = map λ f x → sym (f x)
   isGroup coHomGrnA = helper

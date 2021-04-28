@@ -66,31 +66,31 @@ module GroupTheory (G : Group {ℓ}) where
     invInvo : (a : ⟨ G ⟩) → inv (inv a) ≡ a
     invInvo a = ·CancelL (inv a) (invr (inv a) ∙ sym (invl a))
 
-    invId : inv id ≡ id
-    invId = ·CancelL id (invr id ∙ sym (lid id))
+    inv1g : inv 1g ≡ 1g
+    inv1g = ·CancelL 1g (invr 1g ∙ sym (lid 1g))
 
-    idUniqueL : {e : ⟨ G ⟩} (x : ⟨ G ⟩) → e · x ≡ x → e ≡ id
-    idUniqueL {e} x p = ·CancelR x (p ∙ sym (lid _))
+    1gUniqueL : {e : ⟨ G ⟩} (x : ⟨ G ⟩) → e · x ≡ x → e ≡ 1g
+    1gUniqueL {e} x p = ·CancelR x (p ∙ sym (lid _))
 
-    idUniqueR : (x : ⟨ G ⟩) {e : ⟨ G ⟩} → x · e ≡ x → e ≡ id
-    idUniqueR x {e} p = ·CancelL x (p ∙ sym (rid _))
+    1gUniqueR : (x : ⟨ G ⟩) {e : ⟨ G ⟩} → x · e ≡ x → e ≡ 1g
+    1gUniqueR x {e} p = ·CancelL x (p ∙ sym (rid _))
 
-    invUniqueL : {g h : ⟨ G ⟩} → g · h ≡ id → g ≡ inv h
+    invUniqueL : {g h : ⟨ G ⟩} → g · h ≡ 1g → g ≡ inv h
     invUniqueL {g} {h} p = ·CancelR h (p ∙ sym (invl h))
 
-    invUniqueR : {g h : ⟨ G ⟩} → g · h ≡ id → h ≡ inv g
+    invUniqueR : {g h : ⟨ G ⟩} → g · h ≡ 1g → h ≡ inv g
     invUniqueR {g} {h} p = ·CancelL g (p ∙ sym (invr g))
 
     invDistr : (a b : ⟨ G ⟩) → inv (a · b) ≡ inv b · inv a
     invDistr a b = sym (invUniqueR γ) where
-      γ : (a · b) · (inv b · inv a) ≡ id
+      γ : (a · b) · (inv b · inv a) ≡ 1g
       γ = (a · b) · (inv b · inv a)
             ≡⟨ sym (assoc _ _ _) ⟩
           a · b · (inv b) · (inv a)
             ≡⟨ cong (a ·_) (assoc _ _ _ ∙ cong (_· (inv a)) (invr b)) ⟩
-          a · (id · inv a)
+          a · (1g · inv a)
             ≡⟨ cong (a ·_) (lid (inv a)) ∙ invr a ⟩
-          id ∎
+          1g ∎
 
 open Iso
 open GroupStr
@@ -233,7 +233,7 @@ carac-uaGroup f = ua (eq f) ∙ refl ≡⟨ sym (rUnit _)  ⟩
 
 Group≡ : (G H : Group {ℓ}) → (
   Σ[ p ∈ ⟨ G ⟩ ≡ ⟨ H ⟩ ]
-  Σ[ q ∈ PathP (λ i → p i) (id (snd G)) (id (snd H)) ]
+  Σ[ q ∈ PathP (λ i → p i) (1g (snd G)) (1g (snd H)) ]
   Σ[ r ∈ PathP (λ i → p i → p i → p i) (_·_ (snd G)) (_·_ (snd H)) ]
   Σ[ s ∈ PathP (λ i → p i → p i) (inv (snd G)) (inv (snd H)) ]
   PathP (λ i → IsGroup (q i) (r i) (s i)) (isGroup (snd G)) (isGroup (snd H)))
@@ -242,7 +242,7 @@ Group≡ G H = isoToEquiv theIso
   where
   theIso : Iso _ _
   fun theIso (p , q , r , s , t) i = p i , groupstr (q i) (r i) (s i) (t i)
-  inv theIso x = cong ⟨_⟩ x , cong (id ∘ snd) x , cong (_·_ ∘ snd) x , cong (inv ∘ snd) x , cong (isGroup ∘ snd) x
+  inv theIso x = cong ⟨_⟩ x , cong (1g ∘ snd) x , cong (_·_ ∘ snd) x , cong (inv ∘ snd) x , cong (isGroup ∘ snd) x
   rightInv theIso _ = refl
   leftInv theIso _ = refl
 
