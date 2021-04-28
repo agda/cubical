@@ -457,7 +457,7 @@ coHomGr n A = coHom n A , coHomGrnA
       helper = makeIsGroup § (λ x y z → sym (assocₕ n x y z)) (rUnitₕ n) (lUnitₕ n) (rCancelₕ n) (lCancelₕ n)
 
 ×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group
-×coHomGr n A B = dirProd (coHomGr n A) (coHomGr n B)
+×coHomGr n A B = DirProd (coHomGr n A) (coHomGr n B)
 
 coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → coHom n B → coHom n A
 coHomFun n f = sRec § λ β → ∣ β ∘ f ∣₂
