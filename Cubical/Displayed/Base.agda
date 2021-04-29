@@ -1,15 +1,15 @@
+{-
+
+  Definition of univalent and displayed univalent relations
+
+-}
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Displayed.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
-
-open import Cubical.Functions.FunExtEquiv
-
-open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary
 
@@ -64,4 +64,3 @@ record DUARel {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : UARel A ℓ≅A)
 
   ρᴰ : {a : A} → (b : B a) → b ≅ᴰ⟨ ρ a ⟩ b
   ρᴰ {a} b = invEq (uaᴰρ b b) refl
-

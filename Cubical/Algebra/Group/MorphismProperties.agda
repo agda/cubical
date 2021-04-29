@@ -23,6 +23,8 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphism
 
+open import Cubical.Reflection.StrictEquiv
+
 private
   variable
     ℓ ℓ' ℓ'' : Level
@@ -186,7 +188,7 @@ module GroupΣTheory {ℓ} where
 
   GroupPath : (G H : Group) → (GroupEquiv G H) ≃ (G ≡ H)
   GroupPath G H =
-    GroupEquiv G H                  ≃⟨ isoToEquiv GroupIsoΣPath ⟩
+    GroupEquiv G H                  ≃⟨ strictIsoToEquiv GroupIsoΣPath ⟩
     GroupEquivΣ G H                 ≃⟨ GroupΣPath _ _ ⟩
     Group→GroupΣ G ≡ Group→GroupΣ H ≃⟨ isoToEquiv (invIso (congIso GroupIsoGroupΣ)) ⟩
     G ≡ H ■

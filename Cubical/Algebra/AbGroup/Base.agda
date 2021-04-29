@@ -11,6 +11,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
+open import Cubical.Reflection.StrictEquiv
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Macro
 open import Cubical.Structures.Pointed
@@ -147,7 +148,7 @@ module AbGroupΣTheory {ℓ} where
 
   AbGroupPath : (G H : AbGroup) → (AbGroupEquiv G H) ≃ (G ≡ H)
   AbGroupPath G H =
-    AbGroupEquiv G H                        ≃⟨ isoToEquiv GroupIsoΣPath ⟩
+    AbGroupEquiv G H                        ≃⟨ strictIsoToEquiv GroupIsoΣPath ⟩
     AbGroupEquivΣ G H                       ≃⟨ AbGroupΣPath _ _ ⟩
     AbGroup→AbGroupΣ G ≡ AbGroup→AbGroupΣ H ≃⟨ isoToEquiv (invIso (congIso AbGroupIsoAbGroupΣ)) ⟩
     G ≡ H ■

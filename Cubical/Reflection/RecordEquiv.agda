@@ -14,13 +14,13 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Data.List as List
 open import Cubical.Data.Nat
-open import Cubical.Data.Maybe
+open import Cubical.Data.Maybe as Maybe
 open import Cubical.Data.Sigma
 
 import Agda.Builtin.Reflection as R
 open import Cubical.Reflection.Base
 
-Projections = List R.Name
+Projections = Maybe (List R.Name)
 
 -- Describes a correspondence between two iterated record types
 Assoc = List (Projections × Projections)
@@ -30,6 +30,7 @@ Assoc = List (Projections × Projections)
 data ΣFormat : Type where
   leaf : R.Name → ΣFormat
   _,_ : ΣFormat → ΣFormat → ΣFormat
+  unit : ΣFormat
 
 infixr 4 _,_
 
@@ -38,36 +39,36 @@ module Internal where
   flipAssoc : Assoc → Assoc
   flipAssoc = List.map λ {p .fst → p .snd; p .snd → p .fst}
 
-  list→ΣFormat : List R.Name → Maybe ΣFormat
-  list→ΣFormat [] = nothing
-  list→ΣFormat (x ∷ []) = just (leaf x)
-  list→ΣFormat (x ∷ y ∷ xs) = map-Maybe (leaf x ,_) (list→ΣFormat (y ∷ xs))
-
-  recordName→ΣFormat : R.Name → R.TC (Maybe ΣFormat)
-  recordName→ΣFormat name = R.getDefinition name >>= go
-    where
-    go : R.Definition → R.TC (Maybe ΣFormat)
-    go (R.record-type c fs) = R.returnTC (list→ΣFormat (List.map (λ {(R.arg _ n) → n}) fs))
-    go _ = R.typeError (R.strErr "Not a record type name:" ∷ R.nameErr name ∷ [])
+  List→ΣFormat : List R.Name → ΣFormat
+  List→ΣFormat [] = unit
+  List→ΣFormat (x ∷ []) = leaf x
+  List→ΣFormat (x ∷ y ∷ xs) = leaf x , List→ΣFormat (y ∷ xs)
 
   ΣFormat→Assoc : ΣFormat → Assoc
   ΣFormat→Assoc = go []
     where
     go : List R.Name → ΣFormat → Assoc
-    go prefix (leaf fieldName) = [ prefix , [ fieldName ] ]
+    go prefix unit = [ just prefix , nothing ]
+    go prefix (leaf fieldName) = [ just prefix , just [ fieldName ] ]
     go prefix (sig₁ , sig₂) =
       go (quote fst ∷ prefix) sig₁ ++ go (quote snd ∷ prefix) sig₂
 
-  MaybeΣFormat→Assoc : Maybe ΣFormat → Assoc
-  MaybeΣFormat→Assoc nothing = [ [] , [] ]
-  MaybeΣFormat→Assoc (just sig) = ΣFormat→Assoc sig
+  List→Assoc : List R.Name → Assoc
+  List→Assoc xs = ΣFormat→Assoc (List→ΣFormat xs)
+
+  recordName→Assoc : R.Name → R.TC Assoc
+  recordName→Assoc name = R.getDefinition name >>= go
+    where
+    go : R.Definition → R.TC Assoc
+    go (R.record-type c fs) = R.returnTC (List→Assoc (List.map (λ {(R.arg _ n) → n}) fs))
+    go _ = R.typeError (R.strErr "Not a record type name:" ∷ R.nameErr name ∷ [])
 
   convertTerm : Assoc → R.Term → R.Term
-  convertTerm al term = R.pat-lam (List.map makeClause al) []
+  convertTerm al term = R.pat-lam (fixIfEmpty (List.filterMap makeClause al)) []
     where
-    makeClause : Projections × Projections → R.Clause
-    makeClause (projl , projr) =
-      R.clause [] (goPat [] projr) (goTm projl)
+    makeClause : Projections × Projections → Maybe R.Clause
+    makeClause (projl , just projr) =
+      just (R.clause [] (goPat [] projr) (Maybe.rec R.unknown goTm projl))
       where
       goPat : List (R.Arg R.Pattern) → List R.Name → List (R.Arg R.Pattern)
       goPat acc [] = acc
@@ -76,12 +77,18 @@ module Internal where
       goTm : List R.Name → R.Term
       goTm [] = term
       goTm (π ∷ projs) = R.def π [ varg (goTm projs) ]
+    makeClause (_ , nothing) = nothing
+
+    fixIfEmpty : List R.Clause → List R.Clause
+    fixIfEmpty [] = [ R.clause [] [] R.unknown ]
+    fixIfEmpty (c ∷ cs) = c ∷ cs
 
   convertFun : Assoc → R.Term
   convertFun al = vlam "ρ" (convertTerm al (v 0))
 
   convertMacro : Assoc → R.Term → R.TC Unit
-  convertMacro al hole = R.unify hole (convertFun al)
+  convertMacro al hole =
+    R.unify hole (convertFun al)
 
   equivMacro : Assoc → R.Term → R.TC Unit
   equivMacro al hole =
@@ -106,6 +113,18 @@ module Internal where
 open Internal
 
 macro
+  -- <RecordTypeName> → <Σ-Type> ≃ <RecordType>
+  FlatΣ≃Record : R.Name → R.Term → R.TC Unit
+  FlatΣ≃Record name hole =
+    recordName→Assoc name >>= λ al →
+    equivMacro al hole
+
+  -- <RecordTypeName> → <RecordType> ≃ <Σ-Type>
+  Record≃FlatΣ : R.Name → R.Term → R.TC Unit
+  Record≃FlatΣ name hole =
+    recordName→Assoc name >>= λ al →
+    equivMacro (flipAssoc al) hole
+
   -- ΣFormat → <Σ-Type> ≃ <RecordType>
   Σ≃Record : ΣFormat → R.Term → R.TC Unit
   Σ≃Record sig = equivMacro (ΣFormat→Assoc sig)
@@ -113,18 +132,6 @@ macro
   -- ΣFormat → <RecordType> ≃ <Σ-Type>
   Record≃Σ : ΣFormat → R.Term → R.TC Unit
   Record≃Σ sig = equivMacro (flipAssoc (ΣFormat→Assoc sig))
-
-  -- <RecordTypeName> → <Σ-Type> ≃ <RecordType>
-  FlatΣ≃Record : R.Name → R.Term → R.TC Unit
-  FlatΣ≃Record name hole =
-    recordName→ΣFormat name >>= λ sig →
-    equivMacro (MaybeΣFormat→Assoc sig) hole
-
-  -- <RecordTypeName> → <RecordType> ≃ <Σ-Type>
-  Record≃FlatΣ : R.Name → R.Term → R.TC Unit
-  Record≃FlatΣ name hole =
-    recordName→ΣFormat name >>= λ sig →
-    equivMacro (flipAssoc (MaybeΣFormat→Assoc sig)) hole
 
   -- ΣFormat → <RecordType₁> ≃ <RecordType₂>
   Record≃Record : Assoc → R.Term → R.TC Unit
@@ -147,18 +154,22 @@ module Example where
 
   open Example
 
+  record Example' : Type where
+
   {-
-    Example: Equivalence between a Σ-type and record type using FlatΣ≃Record
+    Example: Equivalence between a Σ-type and record type using ()FlatΣ≃Record
   -}
 
-  Example0 : (Σ[ a ∈ A ] Σ[ a' ∈ A ] B a) ≃ Example B
-  Example0 = FlatΣ≃Record Example
+  -- Record is equivalent to an iterated sigma with an entry for each field
+  Example00 : (Σ[ a ∈ A ] Σ[ a' ∈ A ] B a) ≃ Example B
+  Example00 = FlatΣ≃Record Example
 
-  Example0' : Example B ≃ (Σ[ a ∈ A ] Σ[ a' ∈ A ] B a)
-  Example0' = Record≃FlatΣ Example
+  Example01 : Example B ≃ (Σ[ a ∈ A ] Σ[ a' ∈ A ] B a)
+  Example01 = Record≃FlatΣ Example
 
-  Example0'' : Unit ≃ Unit -- any record with no fields is equivalent to unit
-  Example0'' = FlatΣ≃Record Unit
+  -- Any record with no fields is equivalent to unit
+  Example02 : Unit ≃ Example'
+  Example02 = FlatΣ≃Record Example'
 
   {-
     Example: Equivalence between an arbitrarily arrange Σ-type and record type using Σ≃Record
@@ -189,8 +200,8 @@ module Example where
   Example2 : Example B ≃ Outer (Inner B)
   Example2 =
     Record≃Record
-      ( ([ quote cool ] , [ quote cool' ])
-      ∷ ([ quote fun ] , (quote fun' ∷ quote inner ∷ []))
-      ∷ ([ quote wow ] , (quote wow' ∷ quote inner ∷ []))
+      ( (just [ quote cool ] , just [ quote cool' ])
+      ∷ (just [ quote fun ] , just (quote fun' ∷ quote inner ∷ []))
+      ∷ (just [ quote wow ] , just (quote wow' ∷ quote inner ∷ []))
       ∷ []
       )

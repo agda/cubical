@@ -5,12 +5,9 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Univalence using (pathToEquiv)
-
-open import Cubical.Functions.FunExtEquiv
+open import Cubical.Foundations.Univalence using (pathToEquiv; univalence; ua-ungluePath-Equiv)
 
 open import Cubical.Data.Unit
-open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary
@@ -21,38 +18,6 @@ open import Cubical.Displayed.Base
 private
   variable
     ℓ ℓA ℓA' ℓP ℓ≅A ℓ≅A' ℓB ℓB' ℓ≅B ℓ≅B' ℓC ℓ≅C : Level
-
--- UARel on Σ-type
-
-module _ {A : Type ℓA} {ℓ≅A : Level} {𝒮-A : UARel A ℓ≅A}
-  {B : A → Type ℓB} {ℓ≅B : Level}
-  (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
-  where
-
-  open UARel 𝒮-A
-  open DUARel 𝒮ᴰ-B
-
-  ∫ : UARel (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
-  UARel._≅_ ∫ (a , b) (a' , b') = Σ[ p ∈ a ≅ a' ] (b ≅ᴰ⟨ p ⟩ b')
-  UARel.ua ∫ (a , b) (a' , b') =
-    compEquiv
-      (Σ-cong-equiv (ua a a') (λ p → uaᴰ b p b'))
-      ΣPath≃PathΣ
-
--- UARel on Π-type
-
-module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) {B : A → Type ℓB} (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B) where
-
-  open UARel 𝒮-A
-  open DUARel 𝒮ᴰ-B
-
-  𝒮ᴰ→𝒮-Π : UARel ((a : A) → B a) (ℓ-max ℓA ℓ≅B)
-  UARel._≅_ 𝒮ᴰ→𝒮-Π f f' = ∀ a → f a ≅ᴰ⟨ ρ a ⟩ f' a
-  UARel.ua 𝒮ᴰ→𝒮-Π f f' =
-    compEquiv
-      (equivΠCod λ a → uaᴰρ (f a) (f' a))
-      funExtEquiv
-
 
 -- induction principles
 
@@ -122,70 +87,6 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
     DUARel.uaᴰ (𝒮ᴰ-make-2 ρᴰ contrTotal)
       = 𝒮ᴰ-make-aux (contrRelSingl→isUnivalent _ ρᴰ (contrTotal _))
 
-
--- lifts
-
-module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
-  {B : A → Type ℓB}
-  {ℓ≅B : Level}
-  (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
-  {C : A → Type ℓC}
-  (𝒮ᴰ-C : DUARel 𝒮-A C ℓ≅C)
-  where
-
-  open DUARel 𝒮ᴰ-B
-
-  Lift-𝒮ᴰ : DUARel (∫ 𝒮ᴰ-C) (λ (a , _) → B a) ℓ≅B
-  DUARel._≅ᴰ⟨_⟩_ Lift-𝒮ᴰ b p b' = b ≅ᴰ⟨ p .fst ⟩ b'
-  DUARel.uaᴰ Lift-𝒮ᴰ b p b' = uaᴰ b (p .fst) b'
-
-
--- associativity
-
-module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
-  {B : A → Type ℓB} {ℓ≅B : Level} (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
-  {C : Σ A B → Type ℓC} {ℓ≅C : Level} (𝒮ᴰ-C : DUARel (∫ 𝒮ᴰ-B) C ℓ≅C)
-  where
-
-  open UARel 𝒮-A
-  open DUARel 𝒮ᴰ-B renaming (_≅ᴰ⟨_⟩_ to _≅B⟨_⟩_ ; uaᴰ to uaB)
-  open DUARel 𝒮ᴰ-C renaming (_≅ᴰ⟨_⟩_ to _≅C⟨_⟩_ ; uaᴰ to uaC)
-
-  splitTotal-𝒮ᴰ : DUARel 𝒮-A (λ a → Σ[ b ∈ B a ] C (a , b)) (ℓ-max ℓ≅B ℓ≅C)
-  DUARel._≅ᴰ⟨_⟩_ splitTotal-𝒮ᴰ (b , c) p (b' , c') =
-    Σ[ q ∈ b ≅B⟨ p ⟩ b' ]  (c ≅C⟨ p , q ⟩ c')
-  DUARel.uaᴰ splitTotal-𝒮ᴰ (b ,  c) p (b' , c') =
-    compEquiv
-      (Σ-cong-equiv (uaB b p b') (λ q → uaC c (p , q) c'))
-      ΣPath≃PathΣ
-
--- combination
-
-module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
-  {B : A → Type ℓB} {ℓ≅B : Level} (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
-  {C : A → Type ℓC} {ℓ≅C : Level} (𝒮ᴰ-C : DUARel 𝒮-A C ℓ≅C)
-  where
-
-  _×𝒮ᴰ_ : DUARel 𝒮-A (λ a → B a × C a) (ℓ-max ℓ≅B ℓ≅C)
-  _×𝒮ᴰ_ = splitTotal-𝒮ᴰ 𝒮-A 𝒮ᴰ-B (Lift-𝒮ᴰ 𝒮-A 𝒮ᴰ-C 𝒮ᴰ-B)
-
--- constant displayed structure
-
-module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
-  {B : Type ℓB} (𝒮-B : UARel B ℓ≅B)  where
-
-  open UARel 𝒮-B
-  open DUARel
-
-  𝒮ᴰ-const : DUARel 𝒮-A (λ _ → B) ℓ≅B
-  𝒮ᴰ-const ._≅ᴰ⟨_⟩_ b _ b' = b ≅ b'
-  𝒮ᴰ-const .uaᴰ b p b' = ua b b'
-
-  -- UARel product
-
-  _×𝒮_ : UARel (A × B) (ℓ-max ℓ≅A ℓ≅B)
-  _×𝒮_ = ∫ 𝒮ᴰ-const
-
 -- relational isomorphisms
 
 𝒮-iso→iso : {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
@@ -240,19 +141,3 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
     -- from a relational isomorphism between B a and (F * B) a
     𝒮ᴰ-fiberIsoOver→totalIso : Iso (Σ A B) (Σ A' B')
     𝒮ᴰ-fiberIsoOver→totalIso = Σ-cong-iso F fiberIsoOver
-
-
--- Special cases:
--- Subtypes
-𝒮-type : (A : Type ℓ) → UARel A ℓ
-UARel._≅_ (𝒮-type A) = _≡_
-UARel.ua (𝒮-type A) a a' = idEquiv (a ≡ a')
-
-module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) where
-  𝒮ᴰ-subtype : (P : A → hProp ℓP) → DUARel 𝒮-A (λ a → P a .fst) ℓ-zero
-  𝒮ᴰ-subtype P
-    = 𝒮ᴰ-make-2 (λ _ _ _ → Unit)
-                (λ _ → tt)
-                λ a p → isOfHLevelRespectEquiv 0
-                                               (invEquiv (Σ-contractSnd (λ _ → isContrUnit)))
-                                               (inhProp→isContr p (P a .snd))
