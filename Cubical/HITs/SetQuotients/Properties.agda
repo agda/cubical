@@ -167,8 +167,12 @@ setQuotUniversal : {B : Type ℓ} (Bset : isSet B) →
                    (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
 setQuotUniversal Bset = isoToEquiv (setQuotUniversalIso Bset)
 
-
 open BinaryRelation
+
+setQuotUnaryOp : (-_ : A → A)
+               → (∀ a a' → R a a' → R (- a) (- a'))
+               → (A / R → A / R)
+setQuotUnaryOp -_ h = Iso.inv (setQuotUniversalIso squash/) ((λ a → [ - a ]) , λ a b x → eq/ _ _ (h _ _ x))
 
 -- characterisation of binary functions/operations on set-quotients
 setQuotUniversal2Iso : {B : Type ℓ} (Bset : isSet B) → isRefl R

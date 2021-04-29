@@ -25,7 +25,7 @@ open import Cubical.Algebra.Group.MorphismProperties
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ : Level
 
 -- Generalized from Function.Logic. TODO: upstream
 open import Cubical.Algebra.Group.Instances.Unit
@@ -63,13 +63,19 @@ module _ (G' : Group {ℓ}) where
   isSetSubgroup : isSet Subgroup
   isSetSubgroup = isSetΣ (isSetℙ G) λ x → isProp→isSet (isPropIsSubgroup x)
 
-  ⟪_⟫ : Subgroup → ℙ G
+module _ {G' : Group {ℓ}} where
+
+  open GroupStr (snd G')
+  open isSubgroup
+  private G = ⟨ G' ⟩
+
+  ⟪_⟫ : Subgroup G' → ℙ G
   ⟪ H , _ ⟫ = H
 
-  isNormal : Subgroup → Type ℓ
+  isNormal : Subgroup G' → Type ℓ
   isNormal H = (g h : G) → h ∈ ⟪ H ⟫ → g · h · inv g ∈ ⟪ H ⟫
 
-  isPropIsNormal : (H : Subgroup) → isProp (isNormal H)
+  isPropIsNormal : (H : Subgroup G') → isProp (isNormal H)
   isPropIsNormal H = isPropΠ3 λ g h _ → ∈-isProp ⟪ H ⟫ (g · h · inv g)
 
   -- Examples of subgroups
@@ -79,24 +85,24 @@ module _ (G' : Group {ℓ}) where
   groupSubset : ℙ G
   groupSubset x = (x ≡ x) , is-set x x
 
-  isSubgroupGroup : isSubgroup groupSubset
+  isSubgroupGroup : isSubgroup G' groupSubset
   id-closed isSubgroupGroup = refl
   op-closed isSubgroupGroup _ _ = refl
   inv-closed isSubgroupGroup _ = refl
 
-  groupSubgroup : Subgroup
+  groupSubgroup : Subgroup G'
   groupSubgroup = groupSubset , isSubgroupGroup
 
   -- The trivial subgroup
   trivialSubset : ℙ G
   trivialSubset x = (x ≡ 1g) , is-set x 1g
 
-  isSubgroupTrivialGroup : isSubgroup trivialSubset
+  isSubgroupTrivialGroup : isSubgroup G' trivialSubset
   id-closed isSubgroupTrivialGroup = refl
   op-closed isSubgroupTrivialGroup hx hy = cong (_· _) hx ∙∙ lid _ ∙∙ hy
   inv-closed isSubgroupTrivialGroup hx = cong inv hx ∙ inv1g
 
-  trivialSubgroup : Subgroup
+  trivialSubgroup : Subgroup G'
   trivialSubgroup = trivialSubset , isSubgroupTrivialGroup
 
   isNormalTrivialSubgroup : isNormal trivialSubgroup
@@ -105,7 +111,6 @@ module _ (G' : Group {ℓ}) where
     (g · 1g · inv g) ≡⟨ assoc _ _ _ ∙ cong (_· inv g) (rid g) ⟩
     (g · inv g)      ≡⟨ invr g ⟩
     1g ∎
-
 
 -- Can one get this to work with different universes for G and H?
 module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
@@ -143,7 +148,7 @@ module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
   kerSubgroup : Subgroup G
   kerSubgroup = kerSubset , isSubgroupKer
 
-  isNormalKer : isNormal G kerSubgroup
+  isNormalKer : isNormal kerSubgroup
   isNormalKer x y hy =
     f (x G.· y G.· G.inv x)         ≡⟨ ϕ .isHom _ _ ⟩
     f x H.· f (y G.· G.inv x)       ≡⟨ cong (f x H.·_) (ϕ .isHom _ _) ⟩
