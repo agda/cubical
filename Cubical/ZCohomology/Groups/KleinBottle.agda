@@ -293,11 +293,11 @@ private
     *' : (x y : coHomK 1) (p : x +ₖ x ≡ 0ₖ 1) (q : y +ₖ y ≡ 0ₖ 1) → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
     *' =
       trElim2 (λ _ _ → isGroupoidΠ2 λ _ _ → isOfHLevelSuc 2 setTruncIsSet)
-              (wedgeConSn _ _
+              (wedgeconFun _ _
                 (λ _ _ → isSetΠ2 λ _ _ → setTruncIsSet)
                 (λ x p q → ∣ ∣ x ∣ , cong₂ _+ₖ_ p q ∣₂)
                 (λ y p q → ∣ ∣ y ∣ , sym (rUnitₖ 1 (∣ y ∣ +ₖ ∣ y ∣)) ∙ cong₂ _+ₖ_ p q ∣₂)
-                (funExt λ p → funExt λ q → cong ∣_∣₂ (ΣPathP (refl , (sym (lUnit _))))) .fst)
+                (funExt λ p → funExt λ q → cong ∣_∣₂ (ΣPathP (refl , (sym (lUnit _))))))
 
   *=∙ : (p q : 0ₖ 1 ≡ 0ₖ 1) → ∣ 0ₖ 1 , p ∣₂ * ∣ 0ₖ 1 , q ∣₂ ≡ ∣ 0ₖ 1 , p ∙ q ∣₂
   *=∙ p q = cong ∣_∣₂ (ΣPathP (refl , sym (∙≡+₁ p q)))

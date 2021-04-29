@@ -243,6 +243,9 @@ rCancelₖ (suc zero) = trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ 
   help = sym (∙≡+₁ (cong ∣_∣ₕ loop) (sym (cong ∣_∣ₕ loop))) ∙ rCancel _
 rCancelₖ (suc (suc n)) x = commₖ _ x (-ₖ x) ∙ lCancelₖ _ x
 
+rCancel≡refl : (n : ℕ) → rCancelₖ (2 + n) (0ₖ _) ≡ refl
+rCancel≡refl n i = rUnit (rUnit refl (~ i)) (~ i)
+
 assocₖ : (n : ℕ) → (x y z : coHomK n) → x +[ n ]ₖ (y +[ n ]ₖ z) ≡ (x +[ n ]ₖ y) +[ n ]ₖ z
 assocₖ zero = +-assoc
 assocₖ (suc zero) =
