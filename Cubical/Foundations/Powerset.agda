@@ -27,6 +27,9 @@ private
 ℙ : Type ℓ → Type (ℓ-suc ℓ)
 ℙ X = X → hProp _
 
+isSetℙ : (X : Type ℓ) → isSet (ℙ X)
+isSetℙ X = isSetΠ λ x → isSetHProp
+
 infix 5 _∈_
 
 _∈_ : {X : Type ℓ} → X → ℙ X → Type ℓ
