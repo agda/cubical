@@ -16,6 +16,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.GroupoidLaws hiding (assoc)
 open import Cubical.Data.Sigma
+open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
@@ -40,20 +41,24 @@ module _ (G' : Group {ℓ}) where
   open GroupStr (snd G')
   private G = ⟨ G' ⟩
 
-  -- TODO: define as a record and give names to the fields? (c.f. ideals)
-  isSubgroup : ℙ G → Type ℓ
-  isSubgroup H = (1g ∈ H)
-               × ((x y : G) → x ∈ H → y ∈ H → x · y ∈ H)
-               × ((x : G) → x ∈ H → inv x ∈ H)
+  record isSubgroup (H : ℙ G) : Type ℓ where
+    field
+      id-closed  : (1g ∈ H)
+      op-closed  : {x y : G} → x ∈ H → y ∈ H → x · y ∈ H
+      inv-closed : {x : G} → x ∈ H → inv x ∈ H
 
-  -- TODO: define as a record?
+  open isSubgroup
+
   Subgroup : Type (ℓ-suc ℓ)
   Subgroup = Σ[ H ∈ ℙ G ] isSubgroup H
 
   isPropIsSubgroup : (H : ℙ G) → isProp (isSubgroup H)
-  isPropIsSubgroup H = isProp×2 (∈-isProp H 1g)
-                                (isPropΠ4 λ x y _ _ → ∈-isProp H (x · y))
-                                (isPropΠ2 λ x _ → ∈-isProp H (inv x))
+  id-closed (isPropIsSubgroup H h1 h2 i) =
+    ∈-isProp H 1g (h1 .id-closed) (h2 .id-closed) i
+  op-closed (isPropIsSubgroup H h1 h2 i) Hx Hy =
+    ∈-isProp H _ (h1 .op-closed Hx Hy) (h2 .op-closed Hx Hy) i
+  inv-closed (isPropIsSubgroup H h1 h2 i) Hx =
+    ∈-isProp H _ (h1 .inv-closed Hx) (h2 .inv-closed Hx) i
 
   isSetSubgroup : isSet Subgroup
   isSetSubgroup = isSetΣ (isSetℙ G) λ x → isProp→isSet (isPropIsSubgroup x)
@@ -75,7 +80,9 @@ module _ (G' : Group {ℓ}) where
   groupSubset x = (x ≡ x) , is-set x x
 
   isSubgroupGroup : isSubgroup groupSubset
-  isSubgroupGroup = refl , (λ x y _ _ → refl) , λ x _ → refl
+  id-closed isSubgroupGroup = refl
+  op-closed isSubgroupGroup _ _ = refl
+  inv-closed isSubgroupGroup _ = refl
 
   groupSubgroup : Subgroup
   groupSubgroup = groupSubset , isSubgroupGroup
@@ -85,9 +92,9 @@ module _ (G' : Group {ℓ}) where
   trivialSubset x = (x ≡ 1g) , is-set x 1g
 
   isSubgroupTrivialGroup : isSubgroup trivialSubset
-  isSubgroupTrivialGroup = refl
-                         , (λ x y hx hy → cong (_· y) hx ∙∙ lid y ∙∙ hy)
-                         , λ x hx → cong inv hx ∙ inv1g
+  id-closed isSubgroupTrivialGroup = refl
+  op-closed isSubgroupTrivialGroup hx hy = cong (_· _) hx ∙∙ lid _ ∙∙ hy
+  inv-closed isSubgroupTrivialGroup hx = cong inv hx ∙ inv1g
 
   trivialSubgroup : Subgroup
   trivialSubgroup = trivialSubset , isSubgroupTrivialGroup
@@ -98,3 +105,50 @@ module _ (G' : Group {ℓ}) where
     (g · 1g · inv g) ≡⟨ assoc _ _ _ ∙ cong (_· inv g) (rid g) ⟩
     (g · inv g)      ≡⟨ invr g ⟩
     1g ∎
+
+
+-- Can one get this to work with different universes for G and H?
+module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
+
+  open isSubgroup
+  open GroupHom
+  open GroupTheory
+
+  private
+    module G = GroupStr (snd G)
+    module H = GroupStr (snd H)
+    f = fun ϕ
+
+  imSubset : ℙ ⟨ H ⟩
+  imSubset x = isInIm ϕ x , isPropIsInIm ϕ x
+
+  isSubgroupIm : isSubgroup H imSubset
+  id-closed isSubgroupIm = ∣ G.1g , hom1g ϕ ∣
+  op-closed isSubgroupIm =
+    map2 λ { (x , hx) (y , hy) → x G.· y , ϕ .isHom x y ∙ λ i → hx i H.· hy i }
+  inv-closed isSubgroupIm = map λ { (x , hx) → G.inv x , homInv ϕ x ∙ cong H.inv hx }
+
+  imSubgroup : Subgroup H
+  imSubgroup = imSubset , isSubgroupIm
+
+  kerSubset : ℙ ⟨ G ⟩
+  kerSubset x = isInKer ϕ x , isPropIsInKer ϕ x
+
+  isSubgroupKer : isSubgroup G kerSubset
+  id-closed isSubgroupKer = hom1g ϕ
+  op-closed isSubgroupKer {x} {y} hx hy =
+    ϕ .isHom x y ∙∙ (λ i → hx i H.· hy i) ∙∙ H.rid _
+  inv-closed isSubgroupKer hx = homInv ϕ _ ∙∙ cong H.inv hx ∙∙ inv1g H
+
+  kerSubgroup : Subgroup G
+  kerSubgroup = kerSubset , isSubgroupKer
+
+  isNormalKer : isNormal G kerSubgroup
+  isNormalKer x y hy =
+    f (x G.· y G.· G.inv x)         ≡⟨ ϕ .isHom _ _ ⟩
+    f x H.· f (y G.· G.inv x)       ≡⟨ cong (f x H.·_) (ϕ .isHom _ _) ⟩
+    f x H.· f y H.· f (G.inv x)     ≡⟨ (λ i → f x H.· hy i H.· f (G.inv x)) ⟩
+    f x H.· (H.1g H.· f (G.inv x))  ≡⟨ cong (f x H.·_) (H.lid _) ⟩
+    f x H.· f (G.inv x)             ≡⟨ cong (f x H.·_) (homInv ϕ x) ⟩
+    f x H.· H.inv (f x)             ≡⟨ H.invr _ ⟩
+    H.1g                            ∎
