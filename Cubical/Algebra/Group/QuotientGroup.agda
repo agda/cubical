@@ -96,5 +96,14 @@ module _ (G' : Group {ℓ}) (H' : Subgroup G') (Hnormal : isNormal H') where
      ha'a : (a' a : G) → (haa' : a · inv a' ∈ ⟪ H' ⟫) → a' · inv a ∈ ⟪ H' ⟫
      ha'a a' a haa' = subst (_∈ ⟪ H' ⟫) (invDistr a (inv a') ∙ cong (_· inv a) (invInv a')) (inv-closed haa')
 
+  foo1 : (a b c : G/H) → (a ·/H (b ·/H c)) ≡ ((a ·/H b) ·/H c)
+  foo1 = elimProp3 (λ x y z → squash/ _ _) λ x y z → cong [_] (assoc x y z)
+
+  foo2 : (a : G/H) → (a ·/H 1/H) ≡ a
+  foo2 = elimProp (λ x → squash/ _ _) λ x → cong [_] (rid x)
+
+  foo3 : (a : G/H) → (a ·/H inv/H a) ≡ 1/H
+  foo3 = elimProp (λ x → squash/ _ _) λ x → cong [_] (invr x)
+
   asGroup : Group {ℓ}
-  asGroup = makeGroup-right 1/H _·/H_ inv/H squash/ {!!} {!!} {!!}
+  asGroup = makeGroup-right 1/H _·/H_ inv/H squash/ foo1 foo2 foo3
