@@ -40,8 +40,22 @@ module _ (G' : Group {ℓ}) (H' : Subgroup G') (Hnormal : isNormal H') where
   _~_ : G → G → Type ℓ
   x ~ y = x · inv y ∈ ⟪ H' ⟫
 
+  -- TODO: upstream
+  foo : (x y : G) → x · y ∈ ⟪ H' ⟫ → y · x ∈ ⟪ H' ⟫
+  foo x y Hxy = subst (_∈ ⟪ H' ⟫) h2 h1
+    where
+    h1 : inv x · (x · y) · inv (inv x) ∈ ⟪ H' ⟫
+    h1 = Hnormal (inv x) _ Hxy
+
+    h2 : inv x · (x · y) · inv (inv x) ≡ y · x
+    h2 = inv x · (x · y) · inv (inv x) ≡⟨ assoc _ _ _ ⟩
+         (inv x · x · y) · inv (inv x) ≡⟨ (λ i → assoc (inv x) x y i · invInv x i) ⟩
+         ((inv x · x) · y) · x         ≡⟨ cong (λ z → (z · y) · x) (invl x) ⟩
+         (1g · y) · x                  ≡⟨ cong (_· x) (lid y) ⟩
+         y · x ∎
+
   isRefl~ : isRefl _~_
-  isRefl~ x = {!!} -- subst (_∈ ⟪ H' ⟫) (sym (invl x)) id-closed
+  isRefl~ x = subst (_∈ ⟪ H' ⟫) (sym (invr x)) id-closed
 
   G/H : Type ℓ
   G/H = G / (λ x y → x · inv y ∈ ⟪ H' ⟫)
@@ -66,14 +80,10 @@ module _ (G' : Group {ℓ}) (H' : Subgroup G') (Hnormal : isNormal H') where
      (a · b) · inv (a' · b') ∎
 
   inv/H : G/H → G/H
-  inv/H = -- rec squash/ (λ x → [ inv x ]) λ a b hab → {!eq/ a (inv b) hab!}
-     setQuotUnaryOp (λ x → x) λ a a' haa' → haa'
---  Hnormal (inv a' · a) 1g id-closed
-
--- subst (_∈ ⟪ H' ⟫) {!inv-closed haa'!} (Hnormal (inv a · a') 1g id-closedwinv) -- inv-closed haa')
-
-
--- rec squash/ (λ x → [ inv x ]) λ a b Hab → {!!}
+  inv/H = setQuotUnaryOp inv λ a a' haa' → subst (_∈ ⟪ H' ⟫) (cong (inv a ·_) (sym (invInv a'))) (foo _ _ (ha'a a' a haa'))
+     where
+     ha'a : (a' a : G) → (haa' : a · inv a' ∈ ⟪ H' ⟫) → a' · inv a ∈ ⟪ H' ⟫
+     ha'a a' a haa' = subst (_∈ ⟪ H' ⟫) (invDistr a (inv a') ∙ cong (_· inv a) (invInv a')) (inv-closed haa')
 
   asGroup : Group {ℓ}
-  asGroup = makeGroup-right {A = G/H} 1/H _·/H_ {!!} {!!} {!!} {!!} {!!}
+  asGroup = makeGroup-right {A = G/H} 1/H _·/H_ inv/H squash/ {!!} {!!} {!!}
