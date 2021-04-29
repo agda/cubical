@@ -400,13 +400,11 @@ isProp→PathP : ∀ {B : I → Type ℓ} → ((i : I) → isProp (B i))
 isProp→PathP hB b0 b1 = toPathP (hB _ _ _)
 
 isPropIsContr : isProp (isContr A)
-isPropIsContr z0 z1 j =
-  ( z0 .snd (z1 .fst) j
-  , λ x i → hcomp (λ k → λ { (i = i0) → z0 .snd (z1 .fst) j
-                           ; (i = i1) → z0 .snd x (j ∨ k)
-                           ; (j = i0) → z0 .snd x (i ∧ k)
-                           ; (j = i1) → z1 .snd x i })
-                  (z0 .snd (z1 .snd x i) j))
+isPropIsContr (c0 , h0) (c1 , h1) j =
+  h0 c1 j , λ y i → hcomp (λ k → λ { (i = i0) → h0 (h0 c1 j) k;
+                                     (i = i1) → h0 y k;
+                                     (j = i0) → h0 (h0 y i) k;
+                                     (j = i1) → h0 (h1 y i) k}) c0
 
 isContr→isProp : isContr A → isProp A
 isContr→isProp (x , p) a b i =

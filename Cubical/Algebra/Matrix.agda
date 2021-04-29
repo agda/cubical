@@ -178,7 +178,7 @@ module _ (G' : AbGroup {ℓ}) where
 module _ (R' : Ring {ℓ}) where
 
   open RingStr (snd R') renaming ( is-set to isSetR )
-  open Theory R'
+  open RingTheory R'
   open FinMatrixAbGroup (_ , abgroupstr _ _ _ (snd R' .RingStr.+IsAbGroup))
 
   private R = ⟨ R' ⟩

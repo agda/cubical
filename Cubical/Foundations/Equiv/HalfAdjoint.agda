@@ -126,7 +126,7 @@ equiv→HAEquiv e = e .fst , λ where
   .isHAEquiv.g → invIsEq (snd e)
   .isHAEquiv.linv → retIsEq (snd e)
   .isHAEquiv.rinv → secIsEq (snd e)
-  .isHAEquiv.com a → flipSquare (slideSquare (commSqIsEq (snd e) a))
+  .isHAEquiv.com a → sym (commPathIsEq (snd e) a)
 
 congIso : {x y : A} (e : Iso A B) → Iso (x ≡ y) (Iso.fun e x ≡ Iso.fun e y)
 congIso {x = x} {y} e = goal

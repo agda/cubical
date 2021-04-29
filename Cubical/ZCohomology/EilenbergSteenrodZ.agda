@@ -39,7 +39,7 @@ open import Cubical.HITs.Wedge
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
 
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group renaming (Int to IntGroup)
 open import Cubical.Algebra.AbGroup
 
 open coHomTheory
@@ -224,8 +224,8 @@ private
   -- existence of suspension isomorphism
   fst (Suspension isCohomTheoryZ') (pos zero) {A = A} =
       invGroupEquiv
-      (GrIsoToGrEquiv
-        (Iso+Hom→GrIso (invIso suspFunCharac0)
+      (GroupIso→GroupEquiv
+        (groupiso (invIso suspFunCharac0)
                         (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
                                 λ f g → cong ∣_∣₂ (funExt λ { north → refl
                                                            ; south → refl
@@ -238,8 +238,8 @@ private
                 ∙ ∙≡+₁ (Kn→ΩKn+1 _ (f a)) (Kn→ΩKn+1 _ (g a))
   fst (Suspension isCohomTheoryZ') (pos (suc n)) {A = A} =
       invGroupEquiv
-      (GrIsoToGrEquiv
-        (Iso+Hom→GrIso (invIso (suspFunCharac {A = A} n))
+      (GroupIso→GroupEquiv
+        (groupiso (invIso (suspFunCharac {A = A} n))
                         (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
                                 λ f g → cong ∣_∣₂ (funExt λ { north → refl
                                                            ; south → refl
@@ -251,9 +251,9 @@ private
     helper a f g = Kn→ΩKn+1-hom (suc n) (f a) (g a)
                 ∙ ∙≡+₂ n (Kn→ΩKn+1 _ (f a)) (Kn→ΩKn+1 _ (g a))
   fst (Suspension isCohomTheoryZ') (negsuc zero) {A = A} =
-      GrIsoToGrEquiv (Iso+Hom→GrIso (isContr→Iso (H0-susp {A = _ , pt A}) isContrUnit*)
+      GroupIso→GroupEquiv (groupiso (isContr→Iso (H0-susp {A = _ , pt A}) isContrUnit*)
                       λ _ _ → refl)
-  fst (Suspension isCohomTheoryZ') (negsuc (suc n)) = idGroupEquiv _
+  fst (Suspension isCohomTheoryZ') (negsuc (suc n)) = idGroupEquiv
 
   -- naturality of the suspension isomorphism
   snd (Suspension (isCohomTheoryZ' {ℓ})) (f , p) (pos zero) =
@@ -313,8 +313,8 @@ private
     fun (exactnessIso (pos (suc n)) f) ker = (fst ker) , inIm-helper (fst ker) (snd ker)
       where
       inIm-helper : (x : coHom (suc n) (typ B))
-                  → isInKer _ _ (theMorph (pos (suc n)) {A = A} {B = B} f) x
-                  → isInIm _ _ (theMorph (pos (suc n)) {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl)) x
+                  → isInKer (theMorph (pos (suc n)) {A = A} {B = B} f) x
+                  → isInIm (theMorph (pos (suc n)) {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl)) x
       inIm-helper =
         coHomPointedElim _ (pt B) (λ _ → isPropΠ λ _ → propTruncIsProp)
           λ g gId inker → pRec propTruncIsProp
@@ -326,14 +326,13 @@ private
     inv (exactnessIso (pos (suc n)) f) im = fst im , inKer-helper (fst im) (snd im)
       where
       inKer-helper : (x : coHom (suc n) (typ B))
-                  → isInIm _ _ (theMorph (pos (suc n)) {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl)) x
-                  → isInKer _ _ (theMorph (pos (suc n)) {A = A} {B = B} f) x
+                  → isInIm (theMorph (pos (suc n)) {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl)) x
+                  → isInKer (theMorph (pos (suc n)) {A = A} {B = B} f) x
       inKer-helper =
         coHomPointedElim _ (pt B) (λ _ → isPropΠ λ _ → setTruncIsSet _ _)
           λ g gId → pRec (setTruncIsSet _ _)
                           (uncurry λ cg p
-                            → subst (isInKer (coHomGr (suc n) (typ B)) (coHomGr (suc n) (typ A))
-                                                                        (coHomMorph (suc n) (fst f)))
+                            → subst (isInKer (coHomMorph (suc n) (fst f)))
                                      p
                                      (helper cg))
          where
@@ -367,12 +366,12 @@ private
   Dimension isCohomTheoryZ' (negsuc n) _ = isContrUnit*
 
   ------------------------ Binary wedges -------------------------
-  BinaryWedge isCohomTheoryZ' (pos zero) = GrIsoToGrEquiv (H⁰Red-⋁ _ _)
-  BinaryWedge isCohomTheoryZ' (pos (suc n)) = GrIsoToGrEquiv (Hⁿ-⋁ _ _ n)
+  BinaryWedge isCohomTheoryZ' (pos zero) = GroupIso→GroupEquiv (H⁰Red-⋁ _ _)
+  BinaryWedge isCohomTheoryZ' (pos (suc n)) = GroupIso→GroupEquiv (Hⁿ-⋁ _ _ n)
   BinaryWedge isCohomTheoryZ' (negsuc n) =
-    GrIsoToGrEquiv
-      (compGroupIso (IsoContrGroupTrivialGroup isContrUnit*)
-                    (invGroupIso (IsoContrGroupTrivialGroup (isOfHLevel× 0 isContrUnit* isContrUnit*))))
+    GroupIso→GroupEquiv
+      (compGroupIso (contrGroupIsoUnit isContrUnit*)
+                    (invGroupIso (contrGroupIsoUnit (isOfHLevel× 0 isContrUnit* isContrUnit*))))
 
 -- Substituting back for our original theory, we are done
 isCohomTheoryZ : ∀ {ℓ} → coHomTheory {ℓ} coHomFunctor

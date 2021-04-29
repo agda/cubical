@@ -29,7 +29,7 @@ private
   that should become obsolete or subject to change once we have a
   ring solver (see https://github.com/agda/cubical/issues/297)
 -}
-module Theory (R' : Ring {ℓ}) where
+module RingTheory (R' : Ring {ℓ}) where
 
   open RingStr (snd R')
   private R = ⟨ R' ⟩
@@ -157,7 +157,7 @@ module Theory (R' : Ring {ℓ}) where
   ·-assoc2 x y z w = ·Assoc (x · y) z w ∙ cong (_· w) (sym (·Assoc x y z))
 
 module HomTheory {R S : Ring {ℓ}} (f′ : RingHom  R S) where
-  open Theory ⦃...⦄
+  open RingTheory ⦃...⦄
   open RingStr ⦃...⦄
   open RingHom f′
   private

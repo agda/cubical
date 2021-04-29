@@ -34,7 +34,7 @@ open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; map2 to trMap2; rec to trRec ; elim3 to trElim3)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group hiding (Unit ; Int)
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
@@ -477,18 +477,20 @@ Kn→ΩKn+1-hom (suc n) = σ-hom
 
 -- With the equivalence Kn≃ΩKn+1, we get that the two definitions of cohomology groups agree
 open GroupHom
+open GroupIso
+
 coHom≅coHomΩ : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → GroupIso (coHomGr n A) (coHomGrΩ n A)
-fun (GroupIso.map (coHom≅coHomΩ n A)) = map λ f a → Kn→ΩKn+1 n (f a)
-isHom (GroupIso.map (coHom≅coHomΩ n A)) =
-  sElim2 (λ _ _ → isOfHLevelPath 2 § _ _)
-         λ f g → cong ∣_∣₂ (funExt λ x → Kn→ΩKn+1-hom n (f x) (g x))
-GroupIso.inv (coHom≅coHomΩ n A) = map λ f a → ΩKn+1→Kn n (f a)
-GroupIso.rightInv (coHom≅coHomΩ n A) =
+fun (isom (coHom≅coHomΩ n A)) = map λ f a → Kn→ΩKn+1 n (f a)
+inv' (isom (coHom≅coHomΩ n A)) = map λ f a → ΩKn+1→Kn n (f a)
+rightInv (isom (coHom≅coHomΩ n A)) =
   sElim (λ _ → isOfHLevelPath 2 § _ _)
         λ f → cong ∣_∣₂ (funExt λ x → rightInv (Iso-Kn-ΩKn+1 n) (f x))
-GroupIso.leftInv (coHom≅coHomΩ n A) =
+leftInv (isom (coHom≅coHomΩ n A)) =
   sElim (λ _ → isOfHLevelPath 2 § _ _)
         λ f → cong ∣_∣₂ (funExt λ x → leftInv (Iso-Kn-ΩKn+1 n) (f x))
+isHom (coHom≅coHomΩ n A) =
+  sElim2 (λ _ _ → isOfHLevelPath 2 § _ _)
+         λ f g → cong ∣_∣₂ (funExt λ x → Kn→ΩKn+1-hom n (f x) (g x))
 
 module lockedKnIso (key : Unit') where
   Kn→ΩKn+1' : (n : ℕ) → coHomK n → typ (Ω (coHomK-ptd (suc n)))

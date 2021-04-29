@@ -9,13 +9,13 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Pointed hiding (id)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; setTruncIsSet to §)
-open import Cubical.Data.Int hiding (-_) renaming (_+_ to _ℤ+_)
+open import Cubical.Data.Int hiding (-_) renaming (Int to ℤ ; _+_ to _ℤ+_)
 open import Cubical.Data.Nat renaming (+-assoc to +-assocℕ ; +-comm to +-commℕ)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3 ; map2 to trMap2)
 open import Cubical.Homotopy.Loopspace
@@ -213,6 +213,28 @@ assocₖ (suc zero) =
                       (sym (lUnit refl))
 assocₖ (suc (suc n)) =
   trElim3 (λ _ _ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (4 + n)) _ _)
+          (wedgeConSn-×3 _
+            (λ x z i → preAdd n .snd .snd x (~ i) +ₖ ∣ z ∣)
+            (λ x y → cong (∣ x ∣ +ₖ_) (rUnitₖ (2 + n) ∣ y ∣) ∙ sym (rUnitₖ (2 + n) (∣ x ∣ +ₖ ∣ y ∣)))
+            (lUnit (sym (rUnitₖ (2 + n) (∣ north ∣ +ₖ ∣ north ∣)))))
+  where
+  wedgeConSn-×3 : (n : ℕ)
+          → (f : (x z : S₊ (2 + n))→ ∣ x ∣ +ₖ ((0ₖ _) +ₖ ∣ z ∣) ≡ (∣ x ∣ +ₖ (0ₖ _)) +ₖ ∣ z ∣)
+          → (g : (x y : S₊ (2 + n)) → ∣ x ∣ +ₖ (∣ y ∣ +ₖ 0ₖ _) ≡ (∣ x ∣ +ₖ ∣ y ∣) +ₖ 0ₖ _)
+          → (f (ptSn _) (ptSn _) ≡ g (ptSn _) (ptSn _))
+          → (x y z : S₊ (2 + n)) → ∣ x ∣ +ₖ (∣ y ∣ +ₖ ∣ z ∣) ≡ (∣ x ∣ +ₖ ∣ y ∣) +ₖ ∣ z ∣
+  wedgeConSn-×3 n f g d x =
+    wedgeConSn _ _ (λ _ _ → isOfHLevelPath ((2 + n) + (2 + n)) (wedgeConHLev n) _ _)
+               (f x)
+               (g x)
+               (sphereElim _ {A = λ x → g x (ptSn (suc (suc n))) ≡ f x (ptSn (suc (suc n))) }
+                             (λ _ → isOfHLevelTrunc (4 + n) _ _ _ _)
+                             (sym d) x) .fst
+{-
+This was the original proof for the case n ≥ 2:
+For some reason it doesn't check in reasonable time anymore:
+assocₖ (suc (suc n)) =
+  trElim3 (λ _ _ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (4 + n)) _ _)
           λ x → wedgeConSn _ _ (λ _ _ → isOfHLevelPath ((2 + n) + (2 + n)) (wedgeConHLev n) _ _)
                            (λ z i → preAdd n .snd .snd x (~ i) +ₖ ∣ z ∣)
                            (λ y → cong (∣ x ∣ +ₖ_) (rUnitₖ (2 + n) ∣ y ∣) ∙ sym (rUnitₖ (2 + n) (∣ x ∣ +ₖ ∣ y ∣)))
@@ -222,6 +244,8 @@ assocₖ (suc (suc n)) =
                           ≡ cong (_+ₖ ∣ north ∣) (sym (preAdd n .snd .snd x))
   helper = sphereElim (suc n) (λ _ → isOfHLevelTrunc (4 + n) _ _ _ _)
                               (sym (lUnit (sym (rUnitₖ (2 + n) (∣ north ∣ +ₖ ∣ north ∣)))))
+-}
+
 
 lUnitₖ≡rUnitₖ : (n : ℕ) → lUnitₖ n (coHom-pt n) ≡ rUnitₖ n (coHom-pt n)
 lUnitₖ≡rUnitₖ zero = isSetInt _ _ _ _
@@ -265,7 +289,7 @@ isCommΩK (suc (suc n)) p q = ∙≡+₂ n p q ∙∙ cong+ₖ-comm (suc n) p q 
 -0ₖ {n = suc (suc n)} = refl
 
 -distrₖ : (n : ℕ) (x y : coHomK n) → -[ n ]ₖ (x +[ n ]ₖ y) ≡ (-[ n ]ₖ x) +[ n ]ₖ (-[ n ]ₖ y)
--distrₖ zero x y = GroupLemmas.invDistr intGroup x y ∙ +-comm (0 - y) (0 - x)
+-distrₖ zero x y = GroupTheory.invDistr Int x y ∙ +-comm (0 - y) (0 - x)
 -distrₖ (suc zero) =
   elim2 (λ _ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
         (wedgeConSn _ _ (λ _ _ → isOfHLevelTrunc 3 _ _)
@@ -531,9 +555,9 @@ coHomGr : (n : ℕ) (A : Type ℓ) → Group {ℓ}
 coHomGr n A = coHom n A , coHomGrnA
   where
   coHomGrnA : GroupStr (coHom n A)
-  0g coHomGrnA = 0ₕ n
-  GroupStr._+_ coHomGrnA = λ x y → x +[ n ]ₕ y
-  - coHomGrnA = λ x → -[ n ]ₕ x
+  1g coHomGrnA = 0ₕ n
+  GroupStr._·_ coHomGrnA = λ x y → x +[ n ]ₕ y
+  inv coHomGrnA = λ x → -[ n ]ₕ x
   isGroup coHomGrnA = helper
     where
     abstract
@@ -541,7 +565,7 @@ coHomGr n A = coHom n A , coHomGrnA
       helper = makeIsGroup § (assocₕ n) (rUnitₕ n) (lUnitₕ n) (rCancelₕ n) (lCancelₕ n)
 
 ×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group
-×coHomGr n A B = dirProd (coHomGr n A) (coHomGr n B)
+×coHomGr n A B = DirProd (coHomGr n A) (coHomGr n B)
 
 coHomGroup : (n : ℕ) (A : Type ℓ) → AbGroup {ℓ}
 fst (coHomGroup n A) = coHom n A
@@ -584,9 +608,9 @@ coHomGrΩ : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group {ℓ}
 coHomGrΩ n A = ∥ (A → typ (Ω (coHomK-ptd (suc n)))) ∥₂ , coHomGrnA
   where
   coHomGrnA : GroupStr ∥ (A → typ (Ω (coHomK-ptd (suc n)))) ∥₂
-  0g coHomGrnA = ∣ (λ _ → refl) ∣₂
-  GroupStr._+_ coHomGrnA = sRec2 § λ p q → ∣ (λ x → p x ∙ q x) ∣₂
-  - coHomGrnA = map λ f x → sym (f x)
+  1g coHomGrnA = ∣ (λ _ → refl) ∣₂
+  GroupStr._·_ coHomGrnA = sRec2 § λ p q → ∣ (λ x → p x ∙ q x) ∣₂
+  inv coHomGrnA = map λ f x → sym (f x)
   isGroup coHomGrnA = helper
     where
     abstract
@@ -741,8 +765,8 @@ module lockedCohom (key : Unit') where
 lUnitK≡rUnitK : (key : Unit') (n : ℕ) → lockedCohom.lUnitK key n (0ₖ n) ≡ lockedCohom.rUnitK key n (0ₖ n)
 lUnitK≡rUnitK unlock = lUnitₖ≡rUnitₖ
 
-open GroupIso renaming (map to grMap)
-open GroupStr renaming (_+_ to _+gr_)
+open GroupIso
+open GroupStr renaming (_·_ to _+gr_)
 open GroupHom
 
 inducedCoHom : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
@@ -750,11 +774,11 @@ inducedCoHom : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
   → Group
 inducedCoHom {A = A} {G = G} {n = n} e =
   InducedGroup (coHomGr n A)
-               (coHom n A , λ x y → inv e (_+gr_ (snd G) (fun (grMap e) x)
-                                                          (fun (grMap e) y)))
+               (coHom n A , λ x y → Iso.inv (isom e) (_+gr_ (snd G) (fun (isom e) x)
+                                                         (fun (isom e) y)))
                (idEquiv _)
-               λ x y → sym (leftInv e _)
-                      ∙ cong (inv e) (isHom (grMap e) x y)
+               λ x y → sym (leftInv (isom e) _)
+                      ∙ cong (Iso.inv (isom e)) (isHom e x y)
 
 induced+ : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
   → (e : GroupIso (coHomGr n A) G)
@@ -764,12 +788,9 @@ induced+ e = _+gr_ (snd (inducedCoHom e))
 inducedCoHomIso : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
                → (e : GroupIso (coHomGr n A) G)
                → GroupIso (coHomGr n A) (inducedCoHom e)
-fun (grMap (inducedCoHomIso e)) = idfun _
-isHom (grMap (inducedCoHomIso e)) x y = sym (leftInv e _)
-                                      ∙ cong (inv e) (isHom (grMap e) x y)
-inv (inducedCoHomIso e) = idfun _
-rightInv (inducedCoHomIso e) _ = refl
-leftInv (inducedCoHomIso e) _ = refl
+isom (inducedCoHomIso e) = idIso
+isHom (inducedCoHomIso e) x y = sym (leftInv (isom e) _)
+                              ∙ cong (Iso.inv (isom e)) (isHom e x y)
 
 inducedCoHomPath : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
                → (e : GroupIso (coHomGr n A) G)

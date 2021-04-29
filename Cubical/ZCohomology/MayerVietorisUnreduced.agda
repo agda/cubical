@@ -91,8 +91,8 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
 
   -- The long exact sequence
   Im-d⊂Ker-i : (n : ℕ) (x : ⟨ (coHomGr (suc n) (Pushout f g)) ⟩)
-            → isInIm (coHomGr n C) (coHomGr (suc n) (Pushout f g)) (d n) x
-            → isInKer (coHomGr (suc n) (Pushout f g)) (×coHomGr (suc n) A B) (i (suc n)) x
+            → isInIm (d n) x
+            → isInKer (i (suc n)) x
   Im-d⊂Ker-i n = sElim (λ _ → isSetΠ λ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
                        λ a → pRec (isOfHLevelPath' 1 (isSet× setTruncIsSet setTruncIsSet) _ _)
                                (sigmaElim (λ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
@@ -101,8 +101,8 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
 
 
   Ker-i⊂Im-d : (n : ℕ) (x : ⟨ coHomGr (suc n) (Pushout f g) ⟩)
-             → isInKer (coHomGr (suc n) (Pushout f g)) (×coHomGr (suc n) A B) (i (suc n)) x
-             → isInIm (coHomGr n C) (coHomGr (suc n) (Pushout f g)) (d n) x
+             → isInKer (i (suc n)) x
+             → isInIm (d n) x
   Ker-i⊂Im-d n =
      sElim (λ _ → isSetΠ λ _ → isProp→isSet propTruncIsProp)
            λ a p → pRec {A = (λ x → a (inl x)) ≡ λ _ → 0ₖ (suc n)}
@@ -137,11 +137,11 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
   open GroupHom
 
   Im-i⊂Ker-Δ : (n : ℕ) (x : ⟨ ×coHomGr n A B ⟩)
-            → isInIm (coHomGr n (Pushout f g)) (×coHomGr n A B) (i n) x
-            → isInKer (×coHomGr n A B) (coHomGr n C) (Δ n) x
+            → isInIm (i n) x
+            → isInKer (Δ n) x
   Im-i⊂Ker-Δ n (Fa , Fb) =
-    sElim {B = λ Fa → (Fb : _) → isInIm (coHomGr n (Pushout f g)) (×coHomGr n A B) (i n) (Fa , Fb)
-                               → isInKer (×coHomGr n A B) (coHomGr n C) (Δ n) (Fa , Fb)}
+    sElim {B = λ Fa → (Fb : _) → isInIm (i n) (Fa , Fb)
+                               → isInKer (Δ n) (Fa , Fb)}
           (λ _ → isSetΠ2 λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
           (λ Fa → sElim (λ _ → isSetΠ λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
                         λ Fb → pRec (setTruncIsSet _ _)
@@ -158,8 +158,8 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
                            ∙∙ rCancelₕ n ∣ (λ x → Fd (inl (f x))) ∣₂
 
   Ker-Δ⊂Im-i : (n : ℕ) (a : ⟨ ×coHomGr n A B ⟩)
-            → isInKer (×coHomGr n A B) (coHomGr n C) (Δ n) a
-            → isInIm (coHomGr n (Pushout f g)) (×coHomGr n A B) (i n) a
+            → isInKer (Δ n) a
+            → isInIm (i n) a
   Ker-Δ⊂Im-i n = prodElim (λ _ → isSetΠ (λ _ → isProp→isSet propTruncIsProp))
                           (λ Fa Fb p → pRec propTruncIsProp
                                             (λ q → ∣ ∣ helpFun Fa Fb q ∣₂ , refl ∣₁)
@@ -197,8 +197,8 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
         helper2 = sym (ΩKn+1→Kn-hom n q (sym q)) ∙∙ cong (ΩKn+1→Kn n) (rCancel q) ∙∙ ΩKn+1→Kn-refl n
 
   Ker-d⊂Im-Δ : (n : ℕ) (a : coHom n C)
-             → isInKer (coHomGr n C) (coHomGr (suc n) (Pushout f g)) (d n) a
-             → isInIm (×coHomGr n A B) (coHomGr n C) (Δ n) a
+             → isInKer (d n) a
+             → isInIm (Δ n) a
   Ker-d⊂Im-Δ n =
     sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
           λ Fc p → pRec propTruncIsProp (λ p → ∣ (∣ (λ a → ΩKn+1→Kn n (cong (λ f → f (inl a)) p)) ∣₂ ,
@@ -217,8 +217,8 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
       helper3 = cong ((λ i₁ → p i₁ (inl (f c))) ∙_) (lUnit _) ∙ sym (PathP→compPathR (cong (λ f → cong f (push c)) p))
 
   Im-Δ⊂Ker-d : (n : ℕ) (a : coHom n C)
-             → isInIm (×coHomGr n A B) (coHomGr n C) (Δ n) a
-             → isInKer (coHomGr n C) (coHomGr (suc n) (Pushout f g)) (d n) a
+             → isInIm (Δ n) a
+             → isInKer (d n) a
   Im-Δ⊂Ker-d n =
     sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
           λ Fc → pRec (isOfHLevelPath' 1 setTruncIsSet _ _)

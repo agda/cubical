@@ -81,6 +81,17 @@ module _ {f : A → B} (equivF : isEquiv f) where
   commSqIsEq : ∀ a → Square (secIsEq (f a)) refl (cong f (retIsEq a)) refl
   commSqIsEq a i = equivF .equiv-proof (f a) .snd (a , refl) i .snd
 
+  commPathIsEq : ∀ a → secIsEq (f a) ≡ cong f (retIsEq a)
+  commPathIsEq a i j =
+    hcomp
+      (λ k → λ
+        { (i = i0) → secIsEq (f a) j
+        ; (i = i1) → f (retIsEq a (j ∨ ~ k))
+        ; (j = i0) → f (retIsEq a (i ∧ ~ k))
+        ; (j = i1) → f a
+        })
+      (commSqIsEq a i j)
+
 module _ (w : A ≃ B) where
   invEq : B → A
   invEq = invIsEq (snd w)
@@ -106,9 +117,38 @@ invEquiv e = isoToEquiv (invIso (equivToIso e))
 invEquivIdEquiv : (A : Type ℓ) → invEquiv (idEquiv A) ≡ idEquiv A
 invEquivIdEquiv _ = equivEq refl
 
--- TODO: there should be a direct proof of this that doesn't use equivToIso
 compEquiv : A ≃ B → B ≃ C → A ≃ C
-compEquiv f g = isoToEquiv (compIso (equivToIso f) (equivToIso g))
+compEquiv f g .fst = g .fst ∘ f .fst
+compEquiv {A = A} {C = C} f g .snd .equiv-proof c = contr
+  where
+  contractG = g .snd .equiv-proof c .snd
+
+  secFiller : (a : A) (p : g .fst (f .fst a) ≡ c) → _ {- square in A -}
+  secFiller a p = compPath-filler (cong (invEq f ∘ fst) (contractG (_ , p))) (secEq f a)
+
+  contr : isContr (fiber (g .fst ∘ f .fst) c)
+  contr .fst .fst = invEq f (invEq g c)
+  contr .fst .snd = cong (g .fst) (retEq f (invEq g c)) ∙ retEq g c
+  contr .snd (a , p) i .fst = secFiller a p i1 i
+  contr .snd (a , p) i .snd j =
+    hcomp
+      (λ k → λ
+        { (i = i1) → fSquare k
+        ; (j = i0) → g .fst (f .fst (secFiller a p k i))
+        ; (j = i1) → contractG (_  , p) i .snd k
+        })
+      (g .fst (retEq f (contractG (_ , p) i .fst) j))
+    where
+    fSquare : I → C
+    fSquare k =
+      hcomp
+        (λ l → λ
+          { (j = i0) → g .fst (f .fst (secEq f a k))
+          ; (j = i1) → p (k ∧ l)
+          ; (k = i0) → g .fst (retEq f (f .fst a) j)
+          ; (k = i1) → p (j ∧ l)
+          })
+        (g .fst (f .snd .equiv-proof (f .fst a) .snd (a , refl) k .snd j))
 
 compEquivIdEquiv : (e : A ≃ B) → compEquiv (idEquiv A) e ≡ e
 compEquivIdEquiv e = equivEq refl
@@ -128,10 +168,7 @@ compEquiv-assoc f g h = equivEq refl
 
 LiftEquiv : A ≃ Lift {i = ℓ} {j = ℓ'} A
 LiftEquiv .fst a .lower = a
-LiftEquiv .snd .equiv-proof a+ .fst .fst = a+ .lower
-LiftEquiv .snd .equiv-proof _ .fst .snd = refl
-LiftEquiv .snd .equiv-proof _ .snd (_ , p) i .fst = p (~ i) .lower
-LiftEquiv .snd .equiv-proof _ .snd (_ , p) i .snd j = p (~ i ∨ j)
+LiftEquiv .snd .equiv-proof = strictContrFibers lower
 
 Lift≃Lift : (e : A ≃ B) → Lift {j = ℓ'} A ≃ Lift {j = ℓ''} B
 Lift≃Lift e .fst a .lower = e .fst (a .lower)
@@ -192,6 +229,36 @@ equiv→Iso h k .Iso.leftInv f = funExt λ a → secEq k _ ∙ cong f (secEq h a
 
 equiv→ : (A ≃ B) → (C ≃ D) → (A → C) ≃ (B → D)
 equiv→ h k = isoToEquiv (equiv→Iso h k)
+
+equivΠ : ∀ {ℓA ℓA' ℓB ℓB'} {A : Type ℓA} {A' : Type ℓA'}
+  {B : A → Type ℓB} {B' : A' → Type ℓB'}
+  (eA : A ≃ A')
+  (eB : (a : A) → B a ≃ B' (eA .fst a))
+  → ((a : A) → B a) ≃ ((a' : A') → B' a')
+equivΠ {B' = B'} eA eB = isoToEquiv isom
+  where
+  open Iso
+
+  isom : Iso _ _
+  isom .fun f a' =
+    subst B' (retEq eA a') (eB _ .fst (f (invEq eA a')))
+  isom .inv f' a =
+    invEq (eB _) (f' (eA .fst a))
+  isom .rightInv f' =
+    funExt λ a' →
+    cong (subst B' (retEq eA a')) (retEq (eB _) _)
+    ∙ fromPathP (cong f' (retEq eA a'))
+  isom .leftInv f =
+    funExt λ a →
+    invEq (eB a) (subst B' (retEq eA _) (eB _ .fst (f (invEq eA (eA .fst a)))))
+      ≡⟨ cong (λ t → invEq (eB a) (subst B' t (eB _ .fst (f (invEq eA (eA .fst a))))))
+           (commPathIsEq (snd eA) a) ⟩
+    invEq (eB a) (subst B' (cong (eA .fst) (secEq eA a)) (eB _ .fst (f (invEq eA (eA .fst a)))))
+      ≡⟨ cong (invEq (eB a)) (fromPathP (λ i → eB _ .fst (f (secEq eA a i)))) ⟩
+    invEq (eB a) (eB a .fst (f a))
+      ≡⟨ secEq (eB _) (f a) ⟩
+    f a
+    ∎
 
 equivCompIso : (A ≃ B) → (C ≃ D) → Iso (A ≃ C) (B ≃ D)
 equivCompIso h k .Iso.fun f = compEquiv (compEquiv (invEquiv h) f) k

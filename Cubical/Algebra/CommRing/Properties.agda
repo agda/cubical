@@ -30,7 +30,7 @@ private
 
 module Units (R' : CommRing {ℓ}) where
  open CommRingStr (snd R')
- open Theory (CommRing→Ring R')
+ open RingTheory (CommRing→Ring R')
  private R = fst R'
 
  inverseUniqueness : (r : R) → isProp (Σ[ r' ∈ R ] r · r' ≡ 1r)
@@ -192,7 +192,7 @@ module Exponentiation (R' : CommRing {ℓ}) where
 
 
 -- like in Ring.Properties we provide helpful lemmas here
-module CommTheory (R' : CommRing {ℓ}) where
+module CommRingTheory (R' : CommRing {ℓ}) where
  open CommRingStr (snd R')
  private R = fst R'
 
