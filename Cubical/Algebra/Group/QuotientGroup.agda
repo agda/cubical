@@ -58,26 +58,37 @@ module _ (G' : Group {ℓ}) (H' : Subgroup G') (Hnormal : isNormal H') where
   isRefl~ x = subst (_∈ ⟪ H' ⟫) (sym (invr x)) id-closed
 
   G/H : Type ℓ
-  G/H = G / (λ x y → x · inv y ∈ ⟪ H' ⟫)
+  G/H = G / _~_
 
   1/H : G/H
   1/H = [ 1g ]
 
   _·/H_ : G/H → G/H → G/H
-  x ·/H y = setQuotBinOp isRefl~ _·_
-                {!!}
---                (λ a a' b b' haa' hbb' → subst (_∈ ⟪ H' ⟫) {!!} (op-closed hbb' haa'))
-                x y
+  x ·/H y = setQuotBinOp isRefl~ _·_ rem x y
    where
-   rem : (a a' b b' : G) → a · (b · inv b') · inv a' ≡ (a · b) · inv (a' · b')
-   rem a a' b b' =
-     a · (b · inv b') · inv a' ≡⟨ {!assoc a (b · inv b') (inv a)!} ⟩
-     {!!} ≡⟨ {!!} ⟩
-     {!!} ≡⟨ {!!} ⟩
-     {!!} ≡⟨ {!!} ⟩
-     {!!} ≡⟨ {!!} ⟩
-     (a · b) · inv b' · inv a' ≡⟨ cong ((a · b) ·_) (sym (invDistr _ _)) ⟩
-     (a · b) · inv (a' · b') ∎
+   rem : (a a' b b' : G)
+       → a · inv a' ∈ ⟪ H' ⟫
+       → b · inv b' ∈ ⟪ H' ⟫
+       → (a · b) · inv (a' · b') ∈ ⟪ H' ⟫
+   rem a a' b b' haa' hbb' = rem8
+     where
+     rem3 : (inv a' · a) · b · inv b' ∈ ⟪ H' ⟫
+     rem3 = foo _ _ (op-closed  hbb' (foo _ _ haa'))
+
+     rem4 : ((inv a' · a) · b) · inv b' ∈ ⟪ H' ⟫
+     rem4 = subst (_∈ ⟪ H' ⟫) (assoc _ _ _) rem3
+
+     rem5 : inv b' · (inv a' · a) · b ∈ ⟪ H' ⟫
+     rem5 = foo _ _ rem4
+
+     rem6 : (inv b' · inv a') · (a · b) ∈ ⟪ H' ⟫
+     rem6 = subst (_∈ ⟪ H' ⟫) ( cong (inv b' ·_) (sym (assoc _ _ _)) ∙ assoc _ _ _) rem5
+
+     rem7 : (a · b) · inv b' · inv a' ∈ ⟪ H' ⟫
+     rem7 = foo _ _ rem6
+
+     rem8 : (a · b) · inv (a' · b') ∈ ⟪ H' ⟫
+     rem8 = subst (_∈ ⟪ H' ⟫) (cong (_ ·_) (sym (invDistr _ _))) rem7
 
   inv/H : G/H → G/H
   inv/H = setQuotUnaryOp inv λ a a' haa' → subst (_∈ ⟪ H' ⟫) (cong (inv a ·_) (sym (invInv a'))) (foo _ _ (ha'a a' a haa'))
@@ -86,4 +97,4 @@ module _ (G' : Group {ℓ}) (H' : Subgroup G') (Hnormal : isNormal H') where
      ha'a a' a haa' = subst (_∈ ⟪ H' ⟫) (invDistr a (inv a') ∙ cong (_· inv a) (invInv a')) (inv-closed haa')
 
   asGroup : Group {ℓ}
-  asGroup = makeGroup-right {A = G/H} 1/H _·/H_ inv/H squash/ {!!} {!!} {!!}
+  asGroup = makeGroup-right 1/H _·/H_ inv/H squash/ {!!} {!!} {!!}
