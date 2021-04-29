@@ -148,8 +148,8 @@ leftInv ⊎-assoc-Iso (inr _)        = refl
 ⊎-⊥-Iso : Iso (A ⊎ ⊥) A
 fun ⊎-⊥-Iso (inl x) = x
 inv ⊎-⊥-Iso x       = inl x
-rightInv ⊎-⊥-Iso x      = refl
-leftInv ⊎-⊥-Iso (inl x) = refl
+rightInv ⊎-⊥-Iso _      = refl
+leftInv ⊎-⊥-Iso (inl _) = refl
 
 ⊎-⊥-≃ : A ⊎ ⊥ ≃ A
 ⊎-⊥-≃ = isoToEquiv ⊎-⊥-Iso
