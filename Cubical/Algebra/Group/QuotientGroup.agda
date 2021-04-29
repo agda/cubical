@@ -51,8 +51,8 @@ module _ (G' : Group {ℓ}) (H' : Subgroup G') (Hnormal : isNormal H') where
 
   _·/H_ : G/H → G/H → G/H
   x ·/H y = setQuotBinOp isRefl~ _·_
-                
-                (λ a a' b b' haa' hbb' → subst (_∈ ⟪ H' ⟫) {!!} (op-closed hbb' haa'))
+                {!!}
+--                (λ a a' b b' haa' hbb' → subst (_∈ ⟪ H' ⟫) {!!} (op-closed hbb' haa'))
                 x y
    where
    rem : (a a' b b' : G) → a · (b · inv b') · inv a' ≡ (a · b) · inv (a' · b')
@@ -66,8 +66,8 @@ module _ (G' : Group {ℓ}) (H' : Subgroup G') (Hnormal : isNormal H') where
      (a · b) · inv (a' · b') ∎
 
   inv/H : G/H → G/H
-  inv/H = rec squash/ (λ x → [ inv x ]) λ a b hab → {!eq/ a (inv b) hab!}
-  -- setQuotUnaryOp inv λ a a' haa' → {!!}
+  inv/H = -- rec squash/ (λ x → [ inv x ]) λ a b hab → {!eq/ a (inv b) hab!}
+     setQuotUnaryOp (λ x → x) λ a a' haa' → haa'
 --  Hnormal (inv a' · a) 1g id-closed
 
 -- subst (_∈ ⟪ H' ⟫) {!inv-closed haa'!} (Hnormal (inv a · a') 1g id-closedwinv) -- inv-closed haa')
