@@ -167,9 +167,9 @@ quotient_/_ : (x n : ℕ) → ℕ
 quotient x / zero = 0
 quotient x / suc n = +induction n (λ _ → ℕ) (λ _ _ → 0) (λ _ → suc) x
 
-rem+quot-mod≡ : (n x : ℕ) → (remainder x / n) + n · (quotient x / n) ≡ x
-rem+quot-mod≡ zero x = +-comm x 0
-rem+quot-mod≡ (suc n) =
+≡remainder+quotient : (n x : ℕ) → (remainder x / n) + n · (quotient x / n) ≡ x
+≡remainder+quotient zero x = +-comm x 0
+≡remainder+quotient (suc n) =
   +induction n
     (λ x → (remainder x / (suc n)) + (suc n) · (quotient x / (suc n)) ≡ x)
     (λ x base → cong₂ _+_ (+inductionBase n (λ _ → ℕ) (λ x _ → x) (λ _ x → x) x base)
