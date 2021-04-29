@@ -53,7 +53,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
  open isMultClosedSubset
  private R = fst R'
  open CommRingStr (snd R') hiding (is-set)
- open Theory (CommRing→Ring R')
+ open RingTheory (CommRing→Ring R')
  open RingHom
 
 
@@ -100,8 +100,8 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
                                        ; ·Lid to ·B-lid ; ·Rid to ·B-rid
                                        ; ·Ldist+ to ·B-ldist-+)
    open Units B' renaming (Rˣ to Bˣ ; RˣMultClosed to BˣMultClosed ; RˣContainsOne to BˣContainsOne)
-   open Theory (CommRing→Ring B') renaming (·-assoc2 to ·B-assoc2)
-   open CommTheory B' renaming (·-commAssocl to ·B-commAssocl ; ·-commAssocSwap to ·B-commAssocSwap)
+   open RingTheory (CommRing→Ring B') renaming (·-assoc2 to ·B-assoc2)
+   open CommRingTheory B' renaming (·-commAssocl to ·B-commAssocl ; ·-commAssocSwap to ·B-commAssocSwap)
 
    χ : CommRingHom S⁻¹RAsCommRing B'
    f χ = SQ.rec Bset fχ fχcoh

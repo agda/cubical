@@ -75,18 +75,19 @@ makeAbGroup 0g _+_ -_ is-setG assoc rid rinv comm =
   _ , abgroupstr 0g _+_ -_ (makeIsAbGroup is-setG assoc rid rinv comm)
 
 open GroupStr
+
 AbGroup→Group : AbGroup {ℓ} → Group
 fst (AbGroup→Group A) = fst A
-0g (snd (AbGroup→Group A)) = AbGroupStr.0g (snd A)
-_+_ (snd (AbGroup→Group A)) = AbGroupStr._+_ (snd A)
-- snd (AbGroup→Group A) = AbGroupStr.- (snd A)
+1g (snd (AbGroup→Group A)) = AbGroupStr.0g (snd A)
+_·_ (snd (AbGroup→Group A)) = AbGroupStr._+_ (snd A)
+inv (snd (AbGroup→Group A)) = AbGroupStr.- (snd A)
 isGroup (snd (AbGroup→Group A)) = IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd A))
 
-Group→AbGroup : (G : Group {ℓ}) → ((x y : fst G) → _+_ (snd G) x y ≡ _+_ (snd G) y x) → AbGroup
+Group→AbGroup : (G : Group {ℓ}) → ((x y : fst G) → _·_ (snd G) x y ≡ _·_ (snd G) y x) → AbGroup
 fst (Group→AbGroup G comm) = fst G
-AbGroupStr.0g (snd (Group→AbGroup G comm)) = 0g (snd G)
-AbGroupStr._+_ (snd (Group→AbGroup G comm)) = _+_ (snd G)
-AbGroupStr.- snd (Group→AbGroup G comm) = - (snd G)
+AbGroupStr.0g (snd (Group→AbGroup G comm)) = 1g (snd G)
+AbGroupStr._+_ (snd (Group→AbGroup G comm)) = _·_ (snd G)
+AbGroupStr.- snd (Group→AbGroup G comm) = inv (snd G)
 IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (Group→AbGroup G comm))) = isGroup (snd G)
 IsAbGroup.comm (AbGroupStr.isAbGroup (snd (Group→AbGroup G comm))) = comm
 
@@ -201,7 +202,7 @@ open IsAbGroup
 
 dirProdAb : AbGroup {ℓ} → AbGroup {ℓ'} → AbGroup
 dirProdAb A B =
-  Group→AbGroup (dirProd (AbGroup→Group A) (AbGroup→Group B))
+  Group→AbGroup (DirProd (AbGroup→Group A) (AbGroup→Group B))
                  λ p q → ΣPathP (comm (isAbGroup (snd A)) _ _
                                 , comm (isAbGroup (snd B)) _ _)
 

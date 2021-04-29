@@ -57,8 +57,8 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMult
  open isMultClosedSubset
  private R = fst R'
  open CommRingStr (snd R')
- open Theory (CommRing→Ring R')
- open CommTheory R'
+ open RingTheory (CommRing→Ring R')
+ open CommRingTheory R'
 
  S = Σ[ s ∈ R ] (s ∈ S')
 

@@ -13,7 +13,7 @@ open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to pRec2 ; e
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∣_∣ to ∣_∣₁)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; elim2 to trElim2)
 open import Cubical.Data.Nat hiding (+-assoc)
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group renaming (Int to IntGroup ; Bool to BoolGroup ; Unit to UnitGroup)
 
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Transport
@@ -29,9 +29,6 @@ open import Cubical.HITs.Sn
 open import Cubical.Foundations.Equiv
 open import Cubical.Homotopy.Connected
 
-open GroupIso renaming (map to map')
-open GroupHom
-
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Bool
 open import Cubical.Data.Int renaming (+-comm to +-commℤ ; _+_ to _+ℤ_)
@@ -42,10 +39,14 @@ open import Cubical.Foundations.Path
 
 open import Cubical.Homotopy.Loopspace
 
+open GroupIso
+open GroupHom
+open Iso
+
 characFunSpace𝕂² : ∀ {ℓ} (A : Type ℓ) →
                Iso (KleinBottle → A)
                    (Σ[ x ∈ A ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙∙ q ∙∙ p ≡ q)
-Iso.fun (characFunSpace𝕂² A) f =
+fun (characFunSpace𝕂² A) f =
   (f point) ,
   ((cong f line1) ,
    (cong f line2 ,
@@ -53,17 +54,17 @@ Iso.fun (characFunSpace𝕂² A) f =
          (cong f line2) (cong f line2)
          (sym (cong f line1)) (cong f line1))
          (λ i j → f (square i j))))
-Iso.inv (characFunSpace𝕂² A) (x , p , q , sq) point = x
-Iso.inv (characFunSpace𝕂² A) (x , p , q , sq) (line1 i) = p i
-Iso.inv (characFunSpace𝕂² A) (x , p , q , sq) (line2 i) = q i
-Iso.inv (characFunSpace𝕂² A) (x , p , q , sq) (square i j) =
+inv (characFunSpace𝕂² A) (x , p , q , sq) point = x
+inv (characFunSpace𝕂² A) (x , p , q , sq) (line1 i) = p i
+inv (characFunSpace𝕂² A) (x , p , q , sq) (line2 i) = q i
+inv (characFunSpace𝕂² A) (x , p , q , sq) (square i j) =
   invEq (Square≃doubleComp q q (sym p) p) sq i j
-Iso.rightInv (characFunSpace𝕂² A) (x , (p , (q , sq))) =
+rightInv (characFunSpace𝕂² A) (x , (p , (q , sq))) =
   ΣPathP (refl , (ΣPathP (refl , (ΣPathP (refl , retEq (Square≃doubleComp q q (sym p) p) sq)))))
-Iso.leftInv (characFunSpace𝕂² A) f _ point = f point
-Iso.leftInv (characFunSpace𝕂² A) f _ (line1 i) = f (line1 i)
-Iso.leftInv (characFunSpace𝕂² A) f _ (line2 i) = f (line2 i)
-Iso.leftInv (characFunSpace𝕂² A) f z (square i j) =
+leftInv (characFunSpace𝕂² A) f _ point = f point
+leftInv (characFunSpace𝕂² A) f _ (line1 i) = f (line1 i)
+leftInv (characFunSpace𝕂² A) f _ (line2 i) = f (line2 i)
+leftInv (characFunSpace𝕂² A) f z (square i j) =
   secEq (Square≃doubleComp
           (cong f line2) (cong f line2)
           (sym (cong f line1)) (cong f line1))
@@ -91,13 +92,11 @@ private
     helper p = congIso (equivToIso (_ , compPathr-isEquiv (sym q)))
 
 ------ H¹(𝕂²) ≅ 0 --------------
-H⁰-𝕂² : GroupIso (coHomGr 0 KleinBottle) intGroup
-fun (map' H⁰-𝕂²) = sRec isSetInt λ f → f point
-isHom (map' H⁰-𝕂²) = sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _)
-                              λ _ _ → refl
-inv H⁰-𝕂² x = ∣ (λ _ → x) ∣₂
-rightInv H⁰-𝕂² _ = refl
-leftInv H⁰-𝕂² =
+H⁰-𝕂² : GroupIso (coHomGr 0 KleinBottle) IntGroup
+fun (isom H⁰-𝕂²) = sRec isSetInt λ f → f point
+inv (isom H⁰-𝕂²) x = ∣ (λ _ → x) ∣₂
+rightInv (isom H⁰-𝕂²) _ = refl
+leftInv (isom H⁰-𝕂²) =
   sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
         λ f → cong ∣_∣₂ (funExt (λ {point → refl
                                  ; (line1 i) j → isSetInt (f point) (f point) refl (cong f line1) j i
@@ -112,6 +111,8 @@ leftInv H⁰-𝕂² =
                 refl
                 λ i j → f (square i j)
   helper f = isGroupoid→isGroupoid' (isOfHLevelSuc 2 isSetInt) _ _ _ _ _ _
+isHom H⁰-𝕂² =
+  sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _) λ _ _ → refl
 
 ------ H¹(𝕂¹) ≅ ℤ ------------
 {-
@@ -149,7 +150,7 @@ nilpotent→≡refl : (x : coHomK 1) (p : x ≡ x) → p ∙ p ≡ refl → p �
 nilpotent→≡refl =
   trElim (λ _ → isGroupoidΠ2 λ _ _ → isOfHLevelPlus {n = 1} 2 (isOfHLevelTrunc 3 _ _ _ _))
          (toPropElim (λ _ → isPropΠ2 λ _ _ → isOfHLevelTrunc 3 _ _ _ _)
-          λ p pId → sym (Iso.rightInv (Iso-Kn-ΩKn+1 0) p)
+          λ p pId → sym (rightInv (Iso-Kn-ΩKn+1 0) p)
                   ∙∙ cong (Kn→ΩKn+1 0) (nilpotent→≡0 (ΩKn+1→Kn 0 p)
                                                        (sym (ΩKn+1→Kn-hom 0 p p)
                                                         ∙ cong (ΩKn+1→Kn 0) pId))
@@ -157,10 +158,10 @@ nilpotent→≡refl =
 
 Iso-H¹-𝕂²₁ : Iso (Σ[ x ∈ coHomK 1 ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙ p ≡ refl)
                   (Σ[ x ∈ coHomK 1 ] x ≡ x)
-Iso.fun Iso-H¹-𝕂²₁ (x , (_ , (q , _))) = x , q
-Iso.inv Iso-H¹-𝕂²₁ (x , q) = x , (refl , (q , (sym (rUnit refl))))
-Iso.rightInv Iso-H¹-𝕂²₁ _ = refl
-Iso.leftInv Iso-H¹-𝕂²₁ (x , (p , (q , P))) =
+fun Iso-H¹-𝕂²₁ (x , (_ , (q , _))) = x , q
+inv Iso-H¹-𝕂²₁ (x , q) = x , (refl , (q , (sym (rUnit refl))))
+rightInv Iso-H¹-𝕂²₁ _ = refl
+leftInv Iso-H¹-𝕂²₁ (x , (p , (q , P))) =
   ΣPathP (refl ,
    (ΣPathP (sym (nilpotent→≡refl x p P)
      , toPathP (Σ≡Prop (λ _ → isOfHLevelTrunc 3 _ _ _ _)
@@ -170,7 +171,7 @@ Iso.leftInv Iso-H¹-𝕂²₁ (x , (p , (q , P))) =
 Iso-H¹-𝕂²₂ : Iso (Σ[ x ∈ coHomK 1 ] x ≡ x) (S¹ → coHomK 1)
 Iso-H¹-𝕂²₂ = invIso IsoFunSpaceS¹
 
-H¹-𝕂²≅ℤ : GroupIso (coHomGr 1 KleinBottle) intGroup
+H¹-𝕂²≅ℤ : GroupIso (coHomGr 1 KleinBottle) IntGroup
 H¹-𝕂²≅ℤ = compGroupIso theGroupIso (Hⁿ-Sⁿ≅ℤ 0)
   where
   theIso : Iso (coHom 1 KleinBottle) (coHom 1 S¹)
@@ -184,12 +185,12 @@ H¹-𝕂²≅ℤ = compGroupIso theGroupIso (Hⁿ-Sⁿ≅ℤ 0)
          (compIso Iso-H¹-𝕂²₁
                   Iso-H¹-𝕂²₂)))
 
-  is-hom : isGroupHom (coHomGr 1 KleinBottle) (coHomGr 1 S¹) (Iso.fun theIso)
+  is-hom : isGroupHom (coHomGr 1 KleinBottle) (coHomGr 1 S¹) (fun theIso)
   is-hom = sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
                   λ f g → cong ∣_∣₂ (funExt λ {base → refl ; (loop i) → refl})
 
   theGroupIso : GroupIso (coHomGr 1 KleinBottle) (coHomGr 1 S¹)
-  theGroupIso = Iso+Hom→GrIso theIso is-hom
+  theGroupIso = groupiso theIso is-hom
 
 ------ H²(𝕂²) ≅ ℤ/2ℤ (represented here by BoolGroup) -------
 -- It suffices to show that H²(Klein) is equivalent to Bool as types
@@ -205,17 +206,17 @@ H²(𝕂²) := ∥ 𝕂² → K₂ ∥₂
 
 Iso-H²-𝕂²₁ : Iso ∥ Σ[ x ∈ coHomK 2 ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙ p ≡ refl ∥₂
                   ∥ Σ[ p ∈ 0ₖ 2 ≡ 0ₖ 2 ] p ∙ p ≡ refl ∥₂
-Iso.fun Iso-H²-𝕂²₁ =
+fun Iso-H²-𝕂²₁ =
   sRec setTruncIsSet
     (uncurry (trElim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 2} 2 setTruncIsSet)
                      (sphereElim _ (λ _ → isSetΠ λ _ → setTruncIsSet)
                                  λ y → ∣ fst y , snd (snd y) ∣₂)))
-Iso.inv Iso-H²-𝕂²₁ =
+inv Iso-H²-𝕂²₁ =
   sMap λ p → (0ₖ 2) , ((fst p) , (refl , (snd p)))
-Iso.rightInv Iso-H²-𝕂²₁ =
+rightInv Iso-H²-𝕂²₁ =
   sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
         λ p → refl
-Iso.leftInv Iso-H²-𝕂²₁ =
+leftInv Iso-H²-𝕂²₁ =
   sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
         (uncurry (trElim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 1} 3 (setTruncIsSet _ _))
                  (sphereToPropElim _
@@ -223,7 +224,7 @@ Iso.leftInv Iso-H²-𝕂²₁ =
                    λ {(p , (q , sq))
                      → trRec (setTruncIsSet _ _)
                               (λ qid → cong ∣_∣₂ (ΣPathP (refl , (ΣPathP (refl , (ΣPathP (sym qid  , refl)))))))
-                              (Iso.fun (PathIdTruncIso _)
+                              (fun (PathIdTruncIso _)
                                        (isContr→isProp (isConnectedPathKn 1 (0ₖ 2) (0ₖ 2)) ∣ q ∣ ∣ refl ∣))})))
 
 {- Step two :  ∥ Σ[ p ∈ x ≡ x ] p ∙ p ≡ refl ∥₂ ≡ ∥ Σ[ x ∈ K₁ ] x + x ≡ 0 ∥₂ -}
@@ -365,11 +366,11 @@ Bool→ΣKₙNilpot false = ∣ 0ₖ 1 , cong ∣_∣ loop ∣₂
 Bool→ΣKₙNilpot true = ∣ 0ₖ 1 , refl ∣₂
 
 testIso : Iso ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂ Bool
-Iso.fun testIso = sRec isSetBool ΣKₙNilpot→Bool
-Iso.inv testIso = Bool→ΣKₙNilpot
-Iso.rightInv testIso false = refl
-Iso.rightInv testIso true = refl
-Iso.leftInv testIso =
+fun testIso = sRec isSetBool ΣKₙNilpot→Bool
+inv testIso = Bool→ΣKₙNilpot
+rightInv testIso false = refl
+rightInv testIso true = refl
+leftInv testIso =
   sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
         (uncurry (trElim
           (λ _ → isGroupoidΠ λ _ → isOfHLevelPlus {n = 1} 2 (setTruncIsSet _ _))
@@ -381,11 +382,11 @@ Iso.leftInv testIso =
   path p false q =
        (cong Bool→ΣKₙNilpot q)
     ∙∙ sym (oddCharac (ΩKn+1→Kn 0 p) q)
-    ∙∙ cong ∣_∣₂ λ i → 0ₖ 1 , Iso.rightInv (Iso-Kn-ΩKn+1 0) p i
+    ∙∙ cong ∣_∣₂ λ i → 0ₖ 1 , rightInv (Iso-Kn-ΩKn+1 0) p i
   path p true q =
        cong Bool→ΣKₙNilpot q
     ∙∙ sym (evenCharac (ΩKn+1→Kn 0 p) q)
-    ∙∙ cong ∣_∣₂ λ i → 0ₖ 1 , Iso.rightInv (Iso-Kn-ΩKn+1 0) p i
+    ∙∙ cong ∣_∣₂ λ i → 0ₖ 1 , rightInv (Iso-Kn-ΩKn+1 0) p i
 
 
 H²-𝕂²≅Bool : GroupIso (coHomGr 2 KleinBottle) BoolGroup
@@ -430,7 +431,7 @@ isContrHⁿ-𝕂² n =
                                         ∣ 0ₖ _ , refl , refl , sym (rUnit refl) ∣₂)
                          λ P → trRec (isProp→isOfHLevelSuc n (setTruncIsSet _ _))
                                       (λ P≡rUnitrefl i → ∣ 0ₖ (3 + n) , refl , refl , P≡rUnitrefl i ∣₂)
-                                      (Iso.fun (PathIdTruncIso _)
+                                      (fun (PathIdTruncIso _)
                                                  (isContr→isProp (isConnectedPath _ (isConnectedPathKn (2 + n) _ _)
                                                                      (refl ∙∙ refl ∙∙ refl) refl)
                                                                      ∣ P ∣ ∣ sym (rUnit refl) ∣)))
@@ -443,10 +444,10 @@ isContrHⁿ-𝕂² n =
         → trRec (isProp→isOfHLevelSuc (suc n) (setTruncIsSet _ _))
             (λ pId → trRec (isProp→isOfHLevelSuc (suc n) (setTruncIsSet _ _))
                       (λ qId → sym (helper x p pId q qId P))
-                      (Iso.fun (PathIdTruncIso (2 + n))
+                      (fun (PathIdTruncIso (2 + n))
                                  (isContr→isProp (isConnectedPathKn (2 + n) _ _) ∣ refl ∣ ∣ q ∣)))
-                 (Iso.fun (PathIdTruncIso (2 + n))
+                 (fun (PathIdTruncIso (2 + n))
                             (isContr→isProp (isConnectedPathKn (2 + n) _ _) ∣ refl ∣ ∣ p ∣))}
 
-Hⁿ⁺³-𝕂²≅0 : (n : ℕ) → GroupIso (coHomGr (3 + n) KleinBottle) trivialGroup
-Hⁿ⁺³-𝕂²≅0 n = IsoContrGroupTrivialGroup (isContrHⁿ-𝕂² n)
+Hⁿ⁺³-𝕂²≅0 : (n : ℕ) → GroupIso (coHomGr (3 + n) KleinBottle) UnitGroup
+Hⁿ⁺³-𝕂²≅0 n = contrGroupIsoUnit (isContrHⁿ-𝕂² n)

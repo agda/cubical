@@ -27,7 +27,7 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int
 
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group hiding (Int ; Bool)
 open import Cubical.Algebra.AbGroup
 open GroupEquiv
 open GroupHom

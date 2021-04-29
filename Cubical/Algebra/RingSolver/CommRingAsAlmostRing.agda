@@ -15,7 +15,7 @@ private
   variable
     ℓ : Level
 
-open Cubical.Algebra.Ring.Properties.Theory
+open Cubical.Algebra.Ring.Properties.RingTheory
 
 CommRingAsAlmostRing : CommRing {ℓ} → AlmostRing {ℓ}
 CommRingAsAlmostRing {ℓ}
