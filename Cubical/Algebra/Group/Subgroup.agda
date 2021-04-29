@@ -19,10 +19,12 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 -- Generalized from Function.Logic. TODO: upstream
 open import Cubical.Algebra.Group.Instances.Unit
@@ -38,7 +40,7 @@ module _ (G' : Group {ℓ}) where
   open GroupStr (snd G')
   private G = ⟨ G' ⟩
 
-  -- TODO: define as a record and give a name to the field? (c.f. ideals)
+  -- TODO: define as a record and give names to the fields? (c.f. ideals)
   isSubgroup : ℙ G → Type ℓ
   isSubgroup H = (1g ∈ H)
                × ((x y : G) → x ∈ H → y ∈ H → x · y ∈ H)
@@ -60,18 +62,18 @@ module _ (G' : Group {ℓ}) where
   ⟪ H , _ ⟫ = H
 
   isNormal : Subgroup → Type ℓ
-  isNormal H = (g h : G) → h ∈ ⟪ H ⟫ → g · h · inv g ∈ ⟪ H ⟫ 
+  isNormal H = (g h : G) → h ∈ ⟪ H ⟫ → g · h · inv g ∈ ⟪ H ⟫
 
   isPropIsNormal : (H : Subgroup) → isProp (isNormal H)
   isPropIsNormal H = isPropΠ3 λ g h _ → ∈-isProp ⟪ H ⟫ (g · h · inv g)
-  
+
   -- Examples of subgroups
   open GroupTheory G'
 
-  -- We get view all of G as a subset of itself
+  -- We can view all of G as a subset of itself
   groupSubset : ℙ G
   groupSubset x = (x ≡ x) , is-set x x
-  
+
   isSubgroupGroup : isSubgroup groupSubset
   isSubgroupGroup = refl , (λ x y _ _ → refl) , λ x _ → refl
 
