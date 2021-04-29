@@ -239,7 +239,7 @@ rCancelₖ zero x = +-comm x (pos 0 - x) ∙ minusPlus x 0 -- +-comm x (pos 0 - 
 rCancelₖ (suc zero) = trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
                               λ {base → refl ; (loop i) j → help j i}
   where
-  help : (λ i → ∣ loop i ∣ₕ +ₖ (-ₖ ∣ loop i ∣ₕ)) ≡ refl  
+  help : (λ i → ∣ loop i ∣ₕ +ₖ (-ₖ ∣ loop i ∣ₕ)) ≡ refl
   help = sym (∙≡+₁ (cong ∣_∣ₕ loop) (sym (cong ∣_∣ₕ loop))) ∙ rCancel _
 rCancelₖ (suc (suc n)) x = commₖ _ x (-ₖ x) ∙ lCancelₖ _ x
 
@@ -257,7 +257,7 @@ assocₖ (suc zero) =
                     ≡ (cong (_+ₖ ∣ base ∣) (sym (rUnitₖ 1 ∣ x ∣)))
   helper = toPropElim (λ _ → isOfHLevelTrunc 3 _ _ _ _)
                       (sym (lUnit refl))
-                      
+
 assocₖ (suc (suc n)) =
   trElim3 (λ _ _ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (4 + n)) _ _)
           (wedgeConSn-×3 _
@@ -834,4 +834,3 @@ inducedCoHomPath : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
                → (e : GroupIso (coHomGr n A) G)
                → coHomGr n A ≡ inducedCoHom e
 inducedCoHomPath e = InducedGroupPath _ _ _ _
-

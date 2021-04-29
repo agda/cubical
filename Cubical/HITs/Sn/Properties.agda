@@ -82,7 +82,7 @@ wedgeconLeft : ∀ {ℓ} (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) → 
              → (f : (x : _) → A (ptSn (suc n)) x)
              → (g : (x : _) → A x (ptSn (suc m)))
              → (hom : g (ptSn (suc n)) ≡ f (ptSn (suc m)))
-             → (x : _) → wedgeconFun n m hLev f g hom (ptSn (suc n)) x ≡ f x 
+             → (x : _) → wedgeconFun n m hLev f g hom (ptSn (suc n)) x ≡ f x
 wedgeconRight : ∀ {ℓ} (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) → Type ℓ}
              → (hLev : ((x : S₊ (suc n)) (y : S₊ (suc m)) → isOfHLevel ((suc n) + (suc m)) (A x y)))
              → (f : (x : _) → A (ptSn (suc n)) x)
@@ -250,7 +250,7 @@ wedgeconLeft zero (suc m) {A = A} hlev f g hom = help
   help south = cong (subst (A base) (merid (ptSn (suc m)))) hom
              ∙ λ i → transp (λ j → A base (merid (ptSn (suc m)) (i ∨ j))) i
                              (f (merid (ptSn (suc m)) i))
-  help (merid a i) j = 
+  help (merid a i) j =
     hcomp (λ k → λ { (i = i0) → hom j
                     ; (i = i1) → transpLemma₀ m hlev f g hom (ptSn (suc m)) j
                     ; (j = i0) → left₁ a (~ k) i
