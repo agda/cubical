@@ -324,5 +324,6 @@ However, the same example works for S¹ ∨ S¹ ∨ S², where the functions are
 (although somewhat more complicated).
 -}
 
--- test₀ : to₂ (from₂ 1 +ₕ from₂ 1) ≡ 2
--- test₀ = refl
+
+
+test₀ = to₂ (from₂ 1 +'ₕ from₂ 1)
