@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Experiments.ZCohomologyExperiments where
-open import Cubical.ZCohomology.Base 
+open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Groups.Sn
