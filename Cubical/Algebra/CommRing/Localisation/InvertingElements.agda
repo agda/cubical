@@ -114,9 +114,9 @@ module _(R' : CommRing {ℓ}) where
 module DoubleLoc (R' : CommRing {ℓ}) (f g : (fst R')) where
  open isMultClosedSubset
  open CommRingStr (snd R')
- open CommTheory R'
+ open CommRingTheory R'
  open Exponentiation R'
- open Theory (CommRing→Ring R')
+ open RingTheory (CommRing→Ring R')
  open CommRingStr (snd (R[1/_]AsCommRing R' f)) renaming ( _·_ to _·ᶠ_ ; 1r to 1ᶠ
                                                          ; _+_ to _+ᶠ_ ; 0r to 0ᶠ
                                                          ; ·Lid to ·ᶠ-lid ; ·Rid to ·ᶠ-rid
@@ -192,7 +192,7 @@ module DoubleLoc (R' : CommRing {ℓ}) (f g : (fst R')) where
 
   kerφ⊆annS pathtoR[1/fg] r p = toGoal helperR[1/f]
    where
-   open Theory (CommRing→Ring R[1/f]AsCommRing) renaming ( 0RightAnnihilates to 0ᶠRightAnnihilates
+   open RingTheory (CommRing→Ring R[1/f]AsCommRing) renaming ( 0RightAnnihilates to 0ᶠRightAnnihilates
                                                          ; 0LeftAnnihilates to 0ᶠ-leftNullifies)
    open Exponentiation R[1/f]AsCommRing renaming (_^_ to _^ᶠ_)
                                         hiding (·-of-^-is-^-of-+ ; ^-ldist-·)

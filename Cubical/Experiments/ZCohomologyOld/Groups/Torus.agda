@@ -22,7 +22,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +-comm to +ℤ-comm ; +-assoc to +ℤ-assoc)
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group renaming (Unit to trivialGroup ; Int to IntGroup)
 
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.S1

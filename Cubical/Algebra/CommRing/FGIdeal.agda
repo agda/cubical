@@ -32,7 +32,7 @@ module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
   _holds : hProp ℓ → Type ℓ
   P holds = fst P
   open CommRingStr str
-  open Theory (CommRing→Ring Ring)
+  open RingTheory (CommRing→Ring Ring)
 
   linearCombination : {n : ℕ} → Vec R n → Vec R n → R
   linearCombination [] [] = 0r

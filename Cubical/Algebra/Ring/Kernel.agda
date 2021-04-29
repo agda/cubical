@@ -20,7 +20,7 @@ module _ {{R S : Ring {ℓ}}} (f′ : RingHom R S) where
   open HomTheory f′
   open RingStr ⦃...⦄
   open isIdeal
-  open Theory
+  open RingTheory
   private
     instance
       _ = R
