@@ -62,7 +62,6 @@ H²-S²⋁S¹⋁S¹ =
 
 private
   open import Cubical.Data.Int
-  open import Cubical.Foundations.Equiv
   open import Cubical.Data.Sigma
   to₂ : coHom 2 S²⋁S¹⋁S¹ → Int
   to₂ = GroupHom.fun (GroupIso.map H²-S²⋁S¹⋁S¹)
@@ -95,14 +94,8 @@ test3 = refl
 test4 : to₂ (from₂ 3) ≡ 3
 test4 = refl
 
--- Does not compute:
-
 test5 : to₂ (from₂ 1 +ₕ from₂ 1) ≡ 2
 test5 = refl
-
--- This does however compute with the induced addition
-test5' : to₂ (induced+ H²-S²⋁S¹⋁S¹ (from₂ 1) (from₂ 1)) ≡ 2
-test5' = refl
 -}
 
   g : S²⋁S¹⋁S¹ → ∥ Susp S¹ ∥ 4
