@@ -322,8 +322,10 @@ test₀ : to₂ (from₂ 1 +ₕ from₂ 1) ≡ 2
 test₀ = refl
 However, the same example works for S¹ ∨ S¹ ∨ S², where the functions are essentially the same as here
 (although somewhat more complicated).
+
+But with our new strange addition +'ₕ, it computes just fine:
+
+test₀ : to₂ (from₂ 1 +'ₕ from₂ 1) ≡ 2
+test₀ = refl
+
 -}
-
-
-
-test₀ = to₂ (from₂ 1 +'ₕ from₂ 1)

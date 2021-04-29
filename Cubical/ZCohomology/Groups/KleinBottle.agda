@@ -450,4 +450,3 @@ isContrHⁿ-𝕂² n =
 
 Hⁿ⁺³-𝕂²≅0 : (n : ℕ) → GroupIso (coHomGr (3 + n) KleinBottle) trivialGroup
 Hⁿ⁺³-𝕂²≅0 n = IsoContrGroupTrivialGroup (isContrHⁿ-𝕂² n)
-

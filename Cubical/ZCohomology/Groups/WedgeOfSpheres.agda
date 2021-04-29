@@ -89,7 +89,7 @@ test1 = refl
 test2 : to₁ (from₁ (50 , 3) +ₕ from₁ (2 , -2)) ≡ (52 , 1)
 test2 = refl
 
-test3 : to₂ (from₂ 0) ≡ 0to₂ (from₂ 0) ≡ 0
+test3 : to₂ (from₂ 0) ≡ 0
 test3 = refl
 
 test4 : to₂ (from₂ 3) ≡ 3
@@ -105,14 +105,18 @@ test5' : to₂ (induced+ H²-S²⋁S¹⋁S¹ (from₂ 1) (from₂ 1)) ≡ 2
 test5' = refl
 -}
 
-g : S²⋁S¹⋁S¹ → ∥ Susp S¹ ∥ 4
-g (inl x) = ∣ x ∣
-g (inr x) = 0ₖ _
-g (push a i) = 0ₖ _
+  g : S²⋁S¹⋁S¹ → ∥ Susp S¹ ∥ 4
+  g (inl x) = ∣ x ∣
+  g (inr x) = 0ₖ _
+  g (push a i) = 0ₖ _
 
-c = from₂ 0
+  G = ∣ g ∣₂
 
-G = ∣ g ∣₂
+{- Does not compute:
+test₀ : to₂ (G +ₕ G) ≡ 2
+test₀ = refl
 
-test5 : to₂ (G +'ₕ G) ≡ 2
-test5 = refl
+but this does:
+test₀ : to₂ (G +'ₕ G) ≡ 2
+test₀ = refl
+-}
