@@ -556,7 +556,7 @@ wow zero (suc m) =
     isOfHLevelΩ→isOfHLevel 0
     λ f → isOfHLevelRetractFromIso 1 (invIso (basechangeIso _ _ f))
       (isOfHLevelRetractFromIso 1 (ΩfunExtIso _ _)
-        {!isOfHLevel!})
+        {!isOfHLevel ?!})
 wow (suc n) m = {!!}
 
 -- test2 : (n : ℕ) {A : Type₀} → isOfHLevel (2 + n) (A → coHomK n)
