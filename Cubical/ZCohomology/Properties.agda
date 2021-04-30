@@ -511,3 +511,60 @@ module lockedKnIso (key : Unit') where
                      ∙∙ cong (λ x → x -[ m ]ₕ f y) ( cong f (-+cancelₕ n _ _))
   where
   f = fun f'
+
+isOfHLevelΩ→isOfHLevel :
+  ∀ {ℓ} {A : Type ℓ} (n : ℕ)
+  → ((x : A) → isOfHLevel (suc n) (x ≡ x)) → isOfHLevel (2 + n) A
+isOfHLevelΩ→isOfHLevel zero hΩ x y =
+  J (λ y p → (q : x ≡ y) → p ≡ q) (hΩ x refl)
+isOfHLevelΩ→isOfHLevel (suc n) hΩ x y =
+  J (λ y p → (q : x ≡ y) → isOfHLevel (suc n) (p ≡ q)) (hΩ x refl)
+
+contrMin : (n : ℕ) → isContr (coHomK-ptd (2 + n) →∙ coHomK-ptd (suc n))
+fst (contrMin n) = (λ _ → 0ₖ _) , refl
+snd (contrMin n) f =
+  ΣPathP ((funExt (trElim (λ _ → isOfHLevelPath (4 + n) (isOfHLevelSuc (3 + n) (isOfHLevelTrunc (3 + n))) _ _)
+         (sphereElim _ (λ _ → isOfHLevelTrunc (3 + n) _ _) (sym (snd f))))) ,
+         λ i j → snd f (~ i ∨ j))
+
+
+ΩfunExtIso : (A B : Pointed₀) → Iso (typ (Ω (A →∙ B ∙))) (A →∙ Ω B)
+fst (fun (ΩfunExtIso A B) p) x = funExt⁻ (cong fst p) x
+snd (fun (ΩfunExtIso A B) p) i j = snd (p j) i
+fst (inv' (ΩfunExtIso A B) (f , p) i) x = f x i
+snd (inv' (ΩfunExtIso A B) (f , p) i) j = p j i
+fst (rightInv (ΩfunExtIso A B) (f , p) i) x = f x
+snd (rightInv (ΩfunExtIso A B) (f , p) i) j = p j
+fst (leftInv (ΩfunExtIso A B) p i j) y = fst (p j) y
+snd (leftInv (ΩfunExtIso A B) p i j) k = snd (p j) k
+
+basechangeIso : (n : ℕ) → (A : Pointed₀) (f : A →∙ coHomK-ptd (suc n)) → Iso (typ (Ω (A →∙ (coHomK-ptd (suc n)) ∙))) (f ≡ f)
+fun (basechangeIso n A f) q =
+  ΣPathP ((funExt (λ x → sym (rUnitₖ _ (fst f x)) ∙∙ cong ((fst f x) +ₖ_) (funExt⁻ (cong fst q) x) ∙∙ rUnitₖ _ (fst f x))) , {!cong snd q!})
+inv' (basechangeIso n A f) = {!!}
+rightInv (basechangeIso n A f) = {!!}
+leftInv (basechangeIso n A f) = {!!}
+
+wow : ∀ n m → isOfHLevel (2 + n) (coHomK-ptd (suc m) →∙ coHomK-ptd (n + suc m))
+wow zero zero =
+  isOfHLevelΩ→isOfHLevel 0
+    λ f → isOfHLevelRetractFromIso 1 (invIso (basechangeIso _ _ f))
+      (isOfHLevelRetractFromIso 1 (ΩfunExtIso _ _)
+        λ f g → Σ≡Prop (λ _ → isOfHLevelTrunc 3 _ _ _ _)
+          (funExt (trElim (λ _ → isOfHLevelPath 3 (isOfHLevelSuc 2 (isOfHLevelTrunc 3 _ _)) _ _) (toPropElim (λ _ → isOfHLevelTrunc 3 _ _ _ _) (snd f ∙ sym (snd g))))))
+wow zero (suc m) =
+    isOfHLevelΩ→isOfHLevel 0
+    λ f → isOfHLevelRetractFromIso 1 (invIso (basechangeIso _ _ f))
+      (isOfHLevelRetractFromIso 1 (ΩfunExtIso _ _)
+        {!isOfHLevel!})
+wow (suc n) m = {!!}
+
+-- test2 : (n : ℕ) {A : Type₀} → isOfHLevel (2 + n) (A → coHomK n)
+-- test2 zero = {!!}
+-- test2 (suc n) {A = A} = {!!}
+--   where
+--   king : Iso (typ (Ω ((A → coHomK (suc n)) , λ _ → 0ₖ _))) (A → typ (Ω (coHomK-ptd (suc n))))
+--   fun king = funExt⁻
+--   inv' king = funExt
+--   rightInv king _ = refl
+--   leftInv king _ = refl
