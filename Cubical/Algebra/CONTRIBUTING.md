@@ -19,7 +19,7 @@ CONTRIBUTING
   RawMonoidStr = {! unit and multiplication operators !}
 
   IsMonoidStr : (A : Type ℓ) → RawMonoidStr A → Type ℓ
-  IsMonoidStr = (⋯ associativity and unit laws ⋯)
+  IsMonoidStr = {! associativity and unit laws !}
 
   MonoidStr : Type ℓ → Type ℓ
   MonoidStr A = Σ[ R ∈ RawMonoidStr A ] (IsMonoidStr R)
