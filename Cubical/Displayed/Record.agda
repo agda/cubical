@@ -10,6 +10,7 @@ See end of file for an example.
 module Cubical.Displayed.Record where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Path
 open import Cubical.Data.Sigma
@@ -103,16 +104,16 @@ module _ {ℓA ℓ≅A} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
   open DUARel 𝒮ᴰ-S
 
   𝒮ᴰ-Fields :
-    (e : ∀ a → S a ≃ R a)
-    (e≅ : ∀ a a' (r : R a) p (r' : R a') → r ≅R⟨ p ⟩ r' ≃ (invEq (e a) r ≅ᴰ⟨ p ⟩ invEq (e a') r'))
+    (e : ∀ a → Iso (R a) (S a))
+    (e≅ : ∀ a a' (r : R a) p (r' : R a') → Iso (r ≅R⟨ p ⟩ r') ((e a .Iso.fun r ≅ᴰ⟨ p ⟩ e a' .Iso.fun r')))
     → DUARel 𝒮-A R ℓ≅R
   DUARel._≅ᴰ⟨_⟩_ (𝒮ᴰ-Fields e e≅) r p r' = r ≅R⟨ p ⟩ r'
   DUARel.uaᴰ (𝒮ᴰ-Fields e e≅) r p r' =
     compEquiv
-      (e≅ _ _ r p r')
+      (isoToEquiv (e≅ _ _ r p r'))
       (compEquiv
-        (uaᴰ (invEq (e _) r) p (invEq (e _) r'))
-        (invEquiv (congPathEquiv λ i → invEquiv (e _))))
+        (uaᴰ (e _ .Iso.fun r) p (e _ .Iso.fun r'))
+        (invEquiv (congPathEquiv λ i → isoToEquiv (e _))))
 
 module DisplayedRecordMacro where
 
@@ -159,8 +160,8 @@ module DisplayedRecordMacro where
     Cubical.Reflection.RecordEquiv) between the record fields and the fields of a left-associated iterated
     Σ-type
   -}
-  List→LeftAssoc : List R.Name → RE.Assoc
-  List→LeftAssoc xs = RE.Internal.ΣFormat→Assoc (go xs)
+  List→LeftAssoc : List R.Name → RE.RecordAssoc
+  List→LeftAssoc xs = RE.ΣFormat→RecordAssoc (go xs)
     where
     go : List R.Name → RE.ΣFormat
     go [] = RE.unit
@@ -185,26 +186,15 @@ module DisplayedRecordMacro where
       R.checkType hole outTy >>= λ hole →
       R.quoteωTC fs >>= λ `fs` →
       parseFields `fs` >>= λ (fields , ≅fields) →
-      inFieldsContext (newMeta R.unknown) >>= λ fieldsEquiv →
-      in≅FieldsContext (newMeta R.unknown) >>= λ ≅fieldsEquiv →
+      let fieldsIso = RE.recordAssocIso (List→LeftAssoc fields) in
+      let ≅fieldsIso = RE.recordAssocIso (List→LeftAssoc ≅fields) in
       R.quoteTC {A = {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R} ≅R >>= λ `≅R` →
       R.unify hole
         (R.def (quote 𝒮ᴰ-Fields)
           (`≅R` v∷ `fs` v∷
-            vlam "_" fieldsEquiv v∷
-            vlam "a" (vlam "a'" (vlam "r" (vlam "p" (vlam "r'" ≅fieldsEquiv)))) v∷
-            [])) >>
-      inFieldsContext (I.equivMacro (List→LeftAssoc fields) fieldsEquiv) >>
-      in≅FieldsContext (I.equivMacro (I.flipAssoc (List→LeftAssoc ≅fields)) ≅fieldsEquiv)
-      where
-      module I = RE.Internal
-
-      inFieldsContext : ∀ {A : Type} → R.TC A → R.TC A
-      inFieldsContext = R.extendContext (varg R.unknown)
-
-      in≅FieldsContext : ∀ {A : Type} → R.TC A → R.TC A
-      in≅FieldsContext =
-        extend*Context (R.unknown v∷ R.unknown v∷ R.unknown v∷ R.unknown v∷ R.unknown v∷ [])
+            vlam "_" fieldsIso v∷
+            vlam "a" (vlam "a'" (vlam "r" (vlam "p" (vlam "r'" ≅fieldsIso)))) v∷
+            []))
 
 macro
   𝒮ᴰ-Record = DisplayedRecordMacro.𝒮ᴰ-Record
