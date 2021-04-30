@@ -61,16 +61,17 @@ module _ (G' : Group {ℓ}) where
     ∈-isProp H _ (h1 .inv-closed Hx) (h2 .inv-closed Hx) i
 
   isSetSubgroup : isSet Subgroup
-  isSetSubgroup = isSetΣ (isSetℙ G) λ x → isProp→isSet (isPropIsSubgroup x)
+  isSetSubgroup = isSetΣ isSetℙ λ x → isProp→isSet (isPropIsSubgroup x)
+
+⟪_⟫ : {G' : Group {ℓ}} → Subgroup G' → ℙ (G' .fst)
+⟪ H , _ ⟫ = H
 
 module _ {G' : Group {ℓ}} where
 
   open GroupStr (snd G')
   open isSubgroup
+  open GroupTheory G'
   private G = ⟨ G' ⟩
-
-  ⟪_⟫ : Subgroup G' → ℙ G
-  ⟪ H , _ ⟫ = H
 
   isNormal : Subgroup G' → Type ℓ
   isNormal H = (g h : G) → h ∈ ⟪ H ⟫ → g · h · inv g ∈ ⟪ H ⟫
@@ -78,8 +79,20 @@ module _ {G' : Group {ℓ}} where
   isPropIsNormal : (H : Subgroup G') → isProp (isNormal H)
   isPropIsNormal H = isPropΠ3 λ g h _ → ∈-isProp ⟪ H ⟫ (g · h · inv g)
 
+  ·CommNormalSubgroup : (H : Subgroup G') (Hnormal : isNormal H) {x y : G}
+                      → x · y ∈ ⟪ H ⟫ → y · x ∈ ⟪ H ⟫
+  ·CommNormalSubgroup H Hnormal {x = x} {y = y} Hxy =
+    subst-∈ ⟪ H ⟫ rem (Hnormal (inv x) (x · y) Hxy)
+      where
+      rem : inv x · (x · y) · inv (inv x) ≡ y · x
+      rem = inv x · (x · y) · inv (inv x) ≡⟨ assoc _ _ _ ⟩
+            (inv x · x · y) · inv (inv x) ≡⟨ (λ i → assoc (inv x) x y i · invInv x i) ⟩
+            ((inv x · x) · y) · x         ≡⟨ cong (λ z → (z · y) · x) (invl x) ⟩
+            (1g · y) · x                  ≡⟨ cong (_· x) (lid y) ⟩
+            y · x                         ∎
+
+
   -- Examples of subgroups
-  open GroupTheory G'
 
   -- We can view all of G as a subset of itself
   groupSubset : ℙ G
@@ -111,6 +124,10 @@ module _ {G' : Group {ℓ}} where
     (g · 1g · inv g) ≡⟨ assoc _ _ _ ∙ cong (_· inv g) (rid g) ⟩
     (g · inv g)      ≡⟨ invr g ⟩
     1g ∎
+
+NormalSubgroup : (G : Group {ℓ}) → Type _
+NormalSubgroup G = Σ[ G ∈ Subgroup G ] isNormal G
+
 
 -- Can one get this to work with different universes for G and H?
 module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where

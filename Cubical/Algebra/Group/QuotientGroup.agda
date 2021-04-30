@@ -13,8 +13,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.GroupoidLaws hiding (assoc)
 open import Cubical.Data.Sigma
--- open import Cubical.HITs.PropositionalTruncation
-open import Cubical.HITs.SetQuotients.Base
+open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/s_)
 open import Cubical.HITs.SetQuotients.Properties
 open import Cubical.Relation.Binary.Base
 
@@ -40,25 +39,11 @@ module _ (G' : Group {ℓ}) (H' : Subgroup G') (Hnormal : isNormal H') where
   _~_ : G → G → Type ℓ
   x ~ y = x · inv y ∈ ⟪ H' ⟫
 
-  -- TODO: upstream
-  foo : (x y : G) → x · y ∈ ⟪ H' ⟫ → y · x ∈ ⟪ H' ⟫
-  foo x y Hxy = subst (_∈ ⟪ H' ⟫) h2 h1
-    where
-    h1 : inv x · (x · y) · inv (inv x) ∈ ⟪ H' ⟫
-    h1 = Hnormal (inv x) _ Hxy
-
-    h2 : inv x · (x · y) · inv (inv x) ≡ y · x
-    h2 = inv x · (x · y) · inv (inv x) ≡⟨ assoc _ _ _ ⟩
-         (inv x · x · y) · inv (inv x) ≡⟨ (λ i → assoc (inv x) x y i · invInv x i) ⟩
-         ((inv x · x) · y) · x         ≡⟨ cong (λ z → (z · y) · x) (invl x) ⟩
-         (1g · y) · x                  ≡⟨ cong (_· x) (lid y) ⟩
-         y · x ∎
-
   isRefl~ : isRefl _~_
-  isRefl~ x = subst (_∈ ⟪ H' ⟫) (sym (invr x)) id-closed
+  isRefl~ x = subst-∈ ⟪ H' ⟫ (sym (invr x)) id-closed
 
   G/H : Type ℓ
-  G/H = G / _~_
+  G/H = G /s _~_
 
   1/H : G/H
   1/H = [ 1g ]
@@ -70,40 +55,51 @@ module _ (G' : Group {ℓ}) (H' : Subgroup G') (Hnormal : isNormal H') where
        → a · inv a' ∈ ⟪ H' ⟫
        → b · inv b' ∈ ⟪ H' ⟫
        → (a · b) · inv (a' · b') ∈ ⟪ H' ⟫
-   rem a a' b b' haa' hbb' = rem8
+   rem a a' b b' haa' hbb' = subst-∈ ⟪ H' ⟫ (cong (_ ·_) (sym (invDistr _ _))) rem5
      where
-     rem3 : (inv a' · a) · b · inv b' ∈ ⟪ H' ⟫
-     rem3 = foo _ _ (op-closed  hbb' (foo _ _ haa'))
+     rem1 : (inv a' · a) · b · inv b' ∈ ⟪ H' ⟫
+     rem1 = ·CommNormalSubgroup H' Hnormal
+              (op-closed  hbb' (·CommNormalSubgroup H' Hnormal haa'))
 
-     rem4 : ((inv a' · a) · b) · inv b' ∈ ⟪ H' ⟫
-     rem4 = subst (_∈ ⟪ H' ⟫) (assoc _ _ _) rem3
+     rem2 : ((inv a' · a) · b) · inv b' ∈ ⟪ H' ⟫
+     rem2 = subst-∈ ⟪ H' ⟫ (assoc _ _ _) rem1
 
-     rem5 : inv b' · (inv a' · a) · b ∈ ⟪ H' ⟫
-     rem5 = foo _ _ rem4
+     rem3 : inv b' · (inv a' · a) · b ∈ ⟪ H' ⟫
+     rem3 = ·CommNormalSubgroup H' Hnormal rem2
 
-     rem6 : (inv b' · inv a') · (a · b) ∈ ⟪ H' ⟫
-     rem6 = subst (_∈ ⟪ H' ⟫) ( cong (inv b' ·_) (sym (assoc _ _ _)) ∙ assoc _ _ _) rem5
+     rem4 : (inv b' · inv a') · (a · b) ∈ ⟪ H' ⟫
+     rem4 = subst-∈ ⟪ H' ⟫ (cong (inv b' ·_) (sym (assoc _ _ _)) ∙ assoc _ _ _) rem3
 
-     rem7 : (a · b) · inv b' · inv a' ∈ ⟪ H' ⟫
-     rem7 = foo _ _ rem6
-
-     rem8 : (a · b) · inv (a' · b') ∈ ⟪ H' ⟫
-     rem8 = subst (_∈ ⟪ H' ⟫) (cong (_ ·_) (sym (invDistr _ _))) rem7
+     rem5 : (a · b) · inv b' · inv a' ∈ ⟪ H' ⟫
+     rem5 = ·CommNormalSubgroup H' Hnormal rem4
 
   inv/H : G/H → G/H
-  inv/H = setQuotUnaryOp inv λ a a' haa' → subst (_∈ ⟪ H' ⟫) (cong (inv a ·_) (sym (invInv a'))) (foo _ _ (ha'a a' a haa'))
-     where
-     ha'a : (a' a : G) → (haa' : a · inv a' ∈ ⟪ H' ⟫) → a' · inv a ∈ ⟪ H' ⟫
-     ha'a a' a haa' = subst (_∈ ⟪ H' ⟫) (invDistr a (inv a') ∙ cong (_· inv a) (invInv a')) (inv-closed haa')
+  inv/H = setQuotUnaryOp inv rem
+    where
+    rem : (a a' : G) → a · inv a' ∈ ⟪ H' ⟫ → inv a · inv (inv a') ∈ ⟪ H' ⟫
+    rem a a' haa' = subst-∈ ⟪ H' ⟫ (cong (inv a ·_) (sym (invInv a'))) rem1
+      where
+      ha'a : a' · inv a ∈ ⟪ H' ⟫
+      ha'a = subst-∈ ⟪ H' ⟫ (invDistr a (inv a') ∙ cong (_· inv a) (invInv a')) (inv-closed haa')
 
-  foo1 : (a b c : G/H) → (a ·/H (b ·/H c)) ≡ ((a ·/H b) ·/H c)
-  foo1 = elimProp3 (λ x y z → squash/ _ _) λ x y z → cong [_] (assoc x y z)
+      rem1 : inv a · a' ∈ ⟪ H' ⟫
+      rem1 = ·CommNormalSubgroup H' Hnormal ha'a
 
-  foo2 : (a : G/H) → (a ·/H 1/H) ≡ a
-  foo2 = elimProp (λ x → squash/ _ _) λ x → cong [_] (rid x)
+  ·/H-assoc : (a b c : G/H) → (a ·/H (b ·/H c)) ≡ ((a ·/H b) ·/H c)
+  ·/H-assoc = elimProp3 (λ x y z → squash/ _ _) λ x y z → cong [_] (assoc x y z)
 
-  foo3 : (a : G/H) → (a ·/H inv/H a) ≡ 1/H
-  foo3 = elimProp (λ x → squash/ _ _) λ x → cong [_] (invr x)
+  ·/H-rid : (a : G/H) → (a ·/H 1/H) ≡ a
+  ·/H-rid = elimProp (λ x → squash/ _ _) λ x → cong [_] (rid x)
+
+  ·/H-invr : (a : G/H) → (a ·/H inv/H a) ≡ 1/H
+  ·/H-invr = elimProp (λ x → squash/ _ _) λ x → cong [_] (invr x)
 
   asGroup : Group {ℓ}
-  asGroup = makeGroup-right 1/H _·/H_ inv/H squash/ foo1 foo2 foo3
+  asGroup = makeGroup-right 1/H _·/H_ inv/H squash/ ·/H-assoc ·/H-rid ·/H-invr
+
+
+_/_ : (G : Group {ℓ}) → (H : NormalSubgroup G) → Group {ℓ}
+G / H = asGroup G (H .fst) (H .snd)
+
+[_]/G : {G : Group {ℓ}} {H : NormalSubgroup G} → ⟨ G ⟩ → ⟨ G / H ⟩
+[ x ]/G = [ x ]
