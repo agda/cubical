@@ -31,8 +31,8 @@ liftTC f ta = ta >>= λ a → R.returnTC (f a)
 v : ℕ → R.Term
 v n = R.var n []
 
-pattern varg t = R.arg (R.arg-info R.visible R.relevant) t
-pattern harg t = R.arg (R.arg-info R.hidden R.relevant) t
+pattern varg t = R.arg (R.arg-info R.visible (R.modality R.relevant R.quantity-ω)) t
+pattern harg t = R.arg (R.arg-info R.hidden (R.modality R.relevant R.quantity-ω)) t
 pattern _v∷_ a l = varg a ∷ l
 pattern _h∷_ a l = harg a ∷ l
 
