@@ -10,7 +10,7 @@ CONTRIBUTING
   3. Operations: Non-propositional operations on the carrier, such as the multiplication and unit for a monoid.
   4. Properties of the operations: for example, the associativity and unit laws for a monoid.
 
-  We separate 2 and 4 because it makes it easier to avoid redundant assumptions of `isSet` in complex
+  We separate (ii) and (iv) because it makes it easier to avoid redundant assumptions of `isSet` in complex
   algebraic structures or to drop this assumption when it is not needed. As an example illustrating our naming
   conventions, we would give the following definitions building up the universe of monoids.
 
@@ -32,9 +32,9 @@ CONTRIBUTING
   Should we use a record instead of this four-part `Σ`-type? I'd guess we want sub-groupings of these often
   enough that a `Σ`-type is preferable._
 
-- We define more complicated instances of 1-4 by nesting simpler instances. For example, the definition of
-  `RawRingStr` structure would be a record or `Σ`-type containing `RawMonoidStr` and `RawAbGroupStr` as fields,
-  and `IsRingStr` would likewise use `IsMonoidStr` and `IsAbGroupStr`.
+- We define more complicated instances of (i-iv) by nesting simpler instances. For example, the definition of
+  `RawRingStr` structure would be a record or `Σ`-type containing `RawMonoidStr` and `RawAbGroupStr` as
+  fields, and `IsRingStr` would likewise use `IsMonoidStr` and `IsAbGroupStr`.
 
 - We prefer records over nested `Σ`-types for efficiency and readability. For example, the definition of
   `IsRingStr` could be a record with first `IsMonoidStr` and `IsAbGroupStr` fields and then fields for the
