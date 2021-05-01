@@ -63,6 +63,31 @@ module _ (G' : Group {ℓ}) where
   isSetSubgroup : isSet Subgroup
   isSetSubgroup = isSetΣ isSetℙ λ x → isProp→isSet (isPropIsSubgroup x)
 
+  Subgroup→Group : Subgroup → Group {ℓ}
+  Subgroup→Group (H , Hh) = makeGroup-right 1HG _·HG_ invHG isSetHG assocHG ridHG invrHG
+    where
+    HG = Σ[ x ∈ G ] ⟨ H x ⟩
+    isSetHG = isSetΣ is-set (λ x → isProp→isSet (H x .snd))
+
+    1HG : HG
+    1HG = (1g , (id-closed Hh))
+
+    _·HG_ : HG → HG → HG
+    (x , Hx) ·HG (y , Hy) = (x · y) , (op-closed Hh Hx Hy)
+
+    invHG : HG → HG
+    invHG (x , Hx) = inv x , inv-closed Hh Hx
+
+    assocHG : (x y z : HG) → x ·HG (y ·HG z) ≡ (x ·HG y) ·HG z
+    assocHG (x , Hx) (y , Hy) (z , Hz) =
+      ΣPathP (assoc x y z , isProp→PathP (λ i → H (assoc x y z i) .snd) _ _)
+
+    ridHG : (x : HG) → x ·HG 1HG ≡ x
+    ridHG (x , Hx) = ΣPathP (rid x , isProp→PathP (λ i → H (rid x i) .snd) _ _)
+
+    invrHG : (x : HG) → x ·HG invHG x ≡ 1HG
+    invrHG (x , Hx) = ΣPathP (invr x , isProp→PathP (λ i → H (invr x i) .snd) _ _)
+
 ⟪_⟫ : {G' : Group {ℓ}} → Subgroup G' → ℙ (G' .fst)
 ⟪ H , _ ⟫ = H
 
@@ -152,6 +177,9 @@ module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
 
   imSubgroup : Subgroup H
   imSubgroup = imSubset , isSubgroupIm
+
+  imGroup : Group {ℓ}
+  imGroup = Subgroup→Group _ imSubgroup
 
   kerSubset : ℙ ⟨ G ⟩
   kerSubset x = isInKer ϕ x , isPropIsInKer ϕ x
