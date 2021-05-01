@@ -27,14 +27,6 @@ private
   variable
     ℓ : Level
 
--- Generalized from Function.Logic. TODO: upstream
-open import Cubical.Algebra.Group.Instances.Unit
-open import Cubical.Data.Unit
-⊤ : ∀ {ℓ} → hProp ℓ
-⊤ = Unit* , (λ _ _ _ → tt*)
-
-
-
 -- We assume an ambient group
 module _ (G' : Group {ℓ}) where
 
