@@ -50,7 +50,7 @@ module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
     module kerG = GroupStr (snd (G / kerϕ))
 
   f1 : ⟨ imϕ ⟩ → ⟨ G / kerϕ ⟩
-  f1 (x , Hx) = elim→Set (λ _ → squash/)
+  f1 (x , Hx) = rec→Set ( squash/)
                          (λ { (y , hy) → [ y ]})
                          (λ { (y , hy) (z , hz) → eq/ y z (rem y z hy hz) })
                          Hx
@@ -65,7 +65,8 @@ module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
 
   f2 : ⟨ G / kerϕ ⟩ → ⟨ imϕ ⟩
   f2 = recS imG.is-set (λ y → ϕ .fun y , ∣ y , refl ∣)
-                       (λ x y r → Σ≡Prop (λ _ → squash) (rem x y r))
+                       (λ x y r → Σ≡Prop (λ _ → squash)
+                       (rem x y r))
     where
     rem : (x y : ⟨ G ⟩) → ϕ .fun (x G.· G.inv y) ≡ H.1g → ϕ .fun x ≡ ϕ .fun y
     rem x y r =
@@ -79,22 +80,18 @@ module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
       ϕ .fun y ∎
 
   f12 : (x : ⟨ G / kerϕ ⟩) → f1 (f2 x) ≡ x
-  f12 = elimProp (λ _ → squash/ _ _) (λ x → cong [_] (transportRefl x))
+  f12 = elimProp (λ _ → squash/ _ _) (λ _ → refl)
 
   f21 : (x : ⟨ imϕ ⟩) → f2 (f1 x) ≡ x
   f21 (x , hx) = elim {P = λ hx → f2 (f1 (x , hx)) ≡ (x , hx)}
                       (λ _ → imG.is-set _ _)
-                      (λ {(x , hx) → Σ≡Prop (λ _ → squash) (cong (ϕ .fun) (transportRefl x) ∙ hx)})
+                      (λ {(x , hx) → Σ≡Prop (λ _ → squash) hx})
                       hx
 
   f1-isHom : (x y : ⟨ imϕ ⟩) → f1 (x imG.· y) ≡ f1 x kerG.· f1 y
   f1-isHom (x , hx) (y , hy) =
     elim2 {P = λ hx hy → f1 ((x , hx) imG.· (y , hy)) ≡ f1 (x , hx) kerG.· f1 (y , hy)}
-          (λ _ _ → kerG.is-set _ _)
-          (λ { (x , hx) (y , hy) →
-               cong [_] (transportRefl (x G.· y)
-                        ∙ (λ i → transportRefl x (~ i) G.· transportRefl y (~ i) ))})
-          hx hy
+          (λ _ _ → kerG.is-set _ _) (λ _ _ → refl) hx hy
 
   -- The first isomorphism theorem for groups
   isoThm1 : GroupIso imϕ (G / kerϕ)
