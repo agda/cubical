@@ -299,23 +299,23 @@ Hⁿ-Sᵐ≅0 (suc n) (suc m) pf = suspensionAx-Sn n m
 -- Test functions
 private
   to₁ : coHom 1 S¹ → Int
-  to₁ = GroupHom.fun (GroupIso.map (Hⁿ-Sⁿ≅ℤ 0))
+  to₁ = Iso.fun (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 0))
 
   to₂ : coHom 2 (S₊ 2) → Int
-  to₂ = GroupHom.fun (GroupIso.map (Hⁿ-Sⁿ≅ℤ 1))
+  to₂ = Iso.fun (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 1))
 
   to₃ : coHom 3 (S₊ 3) → Int
-  to₃ = GroupHom.fun (GroupIso.map (Hⁿ-Sⁿ≅ℤ 2))
+  to₃ = Iso.fun (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 2))
 
 
   from₁ : Int → coHom 1 S¹
-  from₁ = GroupIso.inv (Hⁿ-Sⁿ≅ℤ 0)
+  from₁ = Iso.inv (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 0))
 
   from₂ : Int → coHom 2 (S₊ 2)
-  from₂ = GroupIso.inv (Hⁿ-Sⁿ≅ℤ 1)
+  from₂ = Iso.inv (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 1))
 
   from₃ : Int → coHom 3 (S₊ 3)
-  from₃ = GroupIso.inv (Hⁿ-Sⁿ≅ℤ 2)
+  from₃ = Iso.inv (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 2))
 
 {-
 Strangely, the following won't compute
