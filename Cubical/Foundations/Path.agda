@@ -206,44 +206,46 @@ Jequiv P = isoToEquiv isom
   Iso.leftInv isom = JRefl P
 
 -- Action of PathP on equivalences (without relying on univalence)
+
+congPathIso : ∀ {ℓ ℓ'} {A : I → Type ℓ} {B : I → Type ℓ'}
+  (e : ∀ i → A i ≃ B i) {a₀ : A i0} {a₁ : A i1}
+  → Iso (PathP A a₀ a₁) (PathP B (e i0 .fst a₀) (e i1 .fst a₁))
+congPathIso {A = A} {B} e {a₀} {a₁} .Iso.fun p i = e i .fst (p i)
+congPathIso {A = A} {B} e {a₀} {a₁} .Iso.inv q i =
+  hcomp
+    (λ j → λ
+      { (i = i0) → secEq (e i0) a₀ j
+      ; (i = i1) → secEq (e i1) a₁ j
+      })
+    (invEq (e i) (q i))
+congPathIso {A = A} {B} e {a₀} {a₁} .Iso.rightInv q k i =
+  hcomp
+    (λ j → λ
+      { (i = i0) → commSqIsEq (e i0 .snd) a₀ j k
+      ; (i = i1) → commSqIsEq (e i1 .snd) a₁ j k
+      ; (k = i0) →
+        e i .fst
+          (hfill
+            (λ j → λ
+              { (i = i0) → secEq (e i0) a₀ j
+              ; (i = i1) → secEq (e i1) a₁ j
+              })
+            (inS (invEq (e i) (q i)))
+            j)
+      ; (k = i1) → q i
+      })
+    (retEq (e i) (q i) k)
+    where b = commSqIsEq
+congPathIso {A = A} {B} e {a₀} {a₁} .Iso.leftInv p k i =
+  hcomp
+    (λ j → λ
+      { (i = i0) → secEq (e i0) a₀ (j ∨ k)
+      ; (i = i1) → secEq (e i1) a₁ (j ∨ k)
+      ; (k = i1) → p i
+      })
+    (secEq (e i) (p i) k)
+
 congPathEquiv : ∀ {ℓ ℓ'} {A : I → Type ℓ} {B : I → Type ℓ'}
   (e : ∀ i → A i ≃ B i) {a₀ : A i0} {a₁ : A i1}
   → PathP A a₀ a₁ ≃ PathP B (e i0 .fst a₀) (e i1 .fst a₁)
-congPathEquiv {A = A} {B} e {a₀} {a₁} =
-  isoToEquiv is
-  where
-  is : Iso (PathP A a₀ a₁) (PathP B (e i0 .fst a₀) (e i1 .fst a₁))
-  Iso.fun is p i = e i .fst (p i)
-  Iso.inv is q i =
-    hcomp
-      (λ j → λ
-        { (i = i0) → secEq (e i0) a₀ j
-        ; (i = i1) → secEq (e i1) a₁ j
-        })
-      (invEq (e i) (q i))
-  Iso.rightInv is q k i =
-    hcomp
-      (λ j → λ
-        { (i = i0) → commSqIsEq (e i0 .snd) a₀ j k
-        ; (i = i1) → commSqIsEq (e i1 .snd) a₁ j k
-        ; (k = i0) →
-          e i .fst
-            (hfill
-              (λ j → λ
-                { (i = i0) → secEq (e i0) a₀ j
-                ; (i = i1) → secEq (e i1) a₁ j
-                })
-              (inS (invEq (e i) (q i)))
-              j)
-        ; (k = i1) → q i
-        })
-      (retEq (e i) (q i) k)
-      where b = commSqIsEq
-  Iso.leftInv is p k i =
-    hcomp
-      (λ j → λ
-        { (i = i0) → secEq (e i0) a₀ (j ∨ k)
-        ; (i = i1) → secEq (e i1) a₁ (j ∨ k)
-        ; (k = i1) → p i
-        })
-      (secEq (e i) (p i) k)
+congPathEquiv e = isoToEquiv (congPathIso e)
