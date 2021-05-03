@@ -12,7 +12,7 @@ Synthetic Cohomology Theory in Cubical Agda
 
 -- The "--safe" flag ensures that there are no postulates or
 -- unfinished goals
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Papers.ZCohomology where
 
 -- Misc.

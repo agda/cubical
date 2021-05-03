@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Homotopy.WedgeConnectivity where
 
 open import Cubical.Foundations.Everything

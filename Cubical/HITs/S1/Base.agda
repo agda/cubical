@@ -3,7 +3,7 @@
 Definition of the circle as a HIT with a proof that Ω(S¹) ≡ ℤ
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.S1.Base where
 
 open import Cubical.Foundations.Prelude

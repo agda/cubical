@@ -1,4 +1,3 @@
-{-# OPTIONS --cubical --no-import-sorts #-}
 module Cubical.Codata.Everything where
 
 open import Cubical.Codata.EverythingSafe public

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --no-import-sorts --postfix-projections #-}
+{-# OPTIONS --safe --postfix-projections #-}
 
 module Cubical.Data.Fin.Recursive.Properties where
 
