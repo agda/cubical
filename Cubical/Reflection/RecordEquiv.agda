@@ -1,7 +1,7 @@
 {-
 
   Reflection-based tools for converting between iterated record types, particularly between
-  record types and iterated Σ-types. Currently requires eta equality.
+  record types and iterated Σ-types.
 
   See end of file for examples.
 
@@ -38,6 +38,9 @@ infixr 4 _,_
 flipRecordAssoc : RecordAssoc → RecordAssoc
 flipRecordAssoc = List.map λ {p .fst → p .snd; p .snd → p .fst}
 
+fstIdRecordAssoc : RecordAssoc → RecordAssoc
+fstIdRecordAssoc = List.map λ {p .fst → p .fst; p .snd → p .fst}
+
 List→ΣFormat : List R.Name → ΣFormat
 List→ΣFormat [] = unit
 List→ΣFormat (x ∷ []) = leaf x
@@ -51,13 +54,6 @@ List→ΣFormat (x ∷ y ∷ xs) = leaf x , List→ΣFormat (y ∷ xs)
   go prefix (leaf fieldName) = [ just prefix , just [ fieldName ] ]
   go prefix (sig₁ , sig₂) =
     go (quote fst ∷ prefix) sig₁ ++ go (quote snd ∷ prefix) sig₂
-
-recordName→ΣFormat : R.Name → R.TC ΣFormat
-recordName→ΣFormat name = R.getDefinition name >>= go
-  where
-  go : R.Definition → R.TC ΣFormat
-  go (R.record-type _ fs) = R.returnTC (List→ΣFormat (List.map (λ {(R.arg _ n) → n}) fs))
-  go _ = R.typeError (R.strErr "Not a record type name:" ∷ R.nameErr name ∷ [])
 
 -- Derive the shape of the compound Σ-type
 ΣFormat→Ty : ΣFormat → R.Type
@@ -83,6 +79,17 @@ recordName→isoTy name σShape =
     makeArgs n acc (i ∷ infos) = makeArgs (suc n) (R.arg i (v n) ∷ acc) infos
   go _ _ = R.typeError (R.strErr "Not a record type name: " ∷ R.nameErr name ∷ [])
 
+projNames→Patterns : List R.Name → List (R.Arg R.Pattern)
+projNames→Patterns = go []
+  where
+  go : List (R.Arg R.Pattern) → List R.Name → List (R.Arg R.Pattern)
+  go acc [] = acc
+  go acc (π ∷ projs) = go (varg (R.proj π) ∷ acc) projs
+
+projNames→Term : R.Term → List R.Name → R.Term
+projNames→Term term [] = term
+projNames→Term term (π ∷ projs) = R.def π [ varg (projNames→Term term projs) ]
+
 convertClauses : RecordAssoc → R.Term → List R.Clause
 convertClauses al term = fixIfEmpty (List.filterMap makeClause al)
   where
@@ -103,37 +110,53 @@ convertClauses al term = fixIfEmpty (List.filterMap makeClause al)
   fixIfEmpty [] = [ R.clause [] [] R.unknown ]
   fixIfEmpty (c ∷ cs) = c ∷ cs
 
-recordAssocClauses : RecordAssoc → List R.Clause
-recordAssocClauses al =
-  List.map (prefixClause (quote fun)) (convertClauses (flipRecordAssoc al) (v 0)) ++
-  List.map (prefixClause (quote inv)) (convertClauses al (v 0)) ++
-  prefixClause (quote rightInv) (R.clause [] [] (R.def (quote refl) [])) ∷
-  prefixClause (quote leftInv) (R.clause [] [] (R.def (quote refl) [])) ∷
-  []
+mapClause :
+  (List (String × R.Arg R.Type) → List (String × R.Arg R.Type))
+  → (List (R.Arg R.Pattern) → List (R.Arg R.Pattern))
+  → (R.Clause → R.Clause)
+mapClause f g (R.clause tel ps t) = R.clause (f tel) (g ps) t
+mapClause f g (R.absurd-clause tel ps) = R.absurd-clause (f tel) (g ps)
+
+recordIsoΣClauses : ΣFormat → List R.Clause
+recordIsoΣClauses σ =
+  funClauses (quote Iso.fun) Σ↔R ++
+  funClauses (quote Iso.inv) R↔Σ ++
+  pathClauses (quote Iso.rightInv) R↔Σ ++
+  pathClauses (quote Iso.leftInv) Σ↔R
   where
-  open Iso
+  R↔Σ = ΣFormat→RecordAssoc σ
+  Σ↔R = flipRecordAssoc R↔Σ
 
-  prefixTel : List (String × R.Arg R.Type) → List (String × R.Arg R.Type)
-  prefixTel tel = ("_" , varg R.unknown) ∷ tel
+  funClauses : R.Name → RecordAssoc → List R.Clause
+  funClauses name al =
+    List.map
+      (mapClause
+        (("_" , varg R.unknown) ∷_)
+        (λ ps → R.proj name v∷ R.var 0 v∷ ps))
+      (convertClauses al (v 0))
 
-  prefixPats : R.Name → List (R.Arg R.Pattern) → List (R.Arg R.Pattern)
-  prefixPats name ps = R.proj name v∷ R.Pattern.var 0 v∷ ps
+  pathClauses : R.Name → RecordAssoc → List R.Clause
+  pathClauses name al =
+    List.map
+      (mapClause
+        (λ vs → ("_" , varg R.unknown) ∷ ("_" , varg R.unknown) ∷ vs)
+        (λ ps → R.proj name v∷ R.var 1 v∷ R.var 0 v∷ ps))
+      (convertClauses (fstIdRecordAssoc al) (v 1))
 
-  prefixClause : R.Name → R.Clause → R.Clause
-  prefixClause name (R.clause tel ps t) = R.clause (prefixTel tel) (prefixPats name ps) t
-  prefixClause name (R.absurd-clause tel ps) = R.absurd-clause (prefixTel tel) (prefixPats name ps)
-
-recordAssocIso : RecordAssoc → R.Term
-recordAssocIso al = R.pat-lam (recordAssocClauses al) []
+recordIsoΣTerm : ΣFormat → R.Term
+recordIsoΣTerm σ = R.pat-lam (recordIsoΣClauses σ) []
 
 declareRecordIsoΣ : R.Name → R.Name → R.TC Unit
-declareRecordIsoΣ id-name recordName =
-  recordName→ΣFormat recordName >>= λ σ →
-  let σTy = ΣFormat→Ty σ in
-  recordName→isoTy recordName σTy >>= λ isoTy →
-  let al = ΣFormat→RecordAssoc σ in
-  R.declareDef (varg id-name) isoTy >>
-  R.defineFun id-name (recordAssocClauses al)
+declareRecordIsoΣ idName recordName =
+  R.getDefinition recordName >>= λ where
+  (R.record-type _ fs) →
+    let σ = List→ΣFormat (List.map (λ {(R.arg _ n) → n}) fs) in
+    let σTy = ΣFormat→Ty σ in
+    recordName→isoTy recordName σTy >>= λ isoTy →
+    R.declareDef (varg idName) isoTy >>
+    R.defineFun idName (recordIsoΣClauses σ)
+  _ →
+    R.typeError (R.strErr "Not a record type name:" ∷ R.nameErr recordName ∷ [])
 
 private
   module Example where
@@ -143,6 +166,7 @@ private
       B : A → Type ℓ'
 
     record Example0 {A : Type ℓ} (B : A → Type ℓ') : Type (ℓ-max ℓ ℓ') where
+      no-eta-equality -- works with or without eta equality
       field
         cool : A
         fun : A

@@ -156,16 +156,13 @@ module DisplayedRecordMacro where
   parseFields t = R.typeError (R.strErr "Malformed specification: " ∷ R.termErr t ∷ [])
 
   {-
-    Given a list of record field names (in reverse order), generates an association (in the sense of
-    Cubical.Reflection.RecordEquiv) between the record fields and the fields of a left-associated iterated
-    Σ-type
+    Given a list of record field names (in reverse order), generates a ΣFormat (in the sense of
+    Cubical.Reflection.RecordEquiv) associating the record fields with the fields of a left-associated
+    iterated Σ-type
   -}
-  List→LeftAssoc : List R.Name → RE.RecordAssoc
-  List→LeftAssoc xs = RE.ΣFormat→RecordAssoc (go xs)
-    where
-    go : List R.Name → RE.ΣFormat
-    go [] = RE.unit
-    go (x ∷ xs) = go xs RE., RE.leaf x
+  List→LeftAssoc : List R.Name → RE.ΣFormat
+  List→LeftAssoc [] = RE.unit
+  List→LeftAssoc (x ∷ xs) = List→LeftAssoc xs RE., RE.leaf x
 
   module _ {ℓA ℓ≅A} {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
     {ℓR ℓ≅R} {R : A → Type ℓR} (≅R : {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R)
@@ -186,8 +183,8 @@ module DisplayedRecordMacro where
       R.checkType hole outTy >>= λ hole →
       R.quoteωTC fs >>= λ `fs` →
       parseFields `fs` >>= λ (fields , ≅fields) →
-      let fieldsIso = RE.recordAssocIso (List→LeftAssoc fields) in
-      let ≅fieldsIso = RE.recordAssocIso (List→LeftAssoc ≅fields) in
+      let fieldsIso = RE.recordIsoΣTerm (List→LeftAssoc fields) in
+      let ≅fieldsIso = RE.recordIsoΣTerm (List→LeftAssoc ≅fields) in
       R.quoteTC {A = {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R} ≅R >>= λ `≅R` →
       R.unify hole
         (R.def (quote 𝒮ᴰ-Fields)
@@ -205,12 +202,14 @@ private
   module Example where
 
     record Example (A : Type) : Type where
+      no-eta-equality -- works with or without eta equality
       field
         dog : A
         cat : A
         mouse : Unit
 
     record ExampleEquiv {A B : Type} (x : Example A) (e : A ≃ B) (x' : Example B) : Type where
+      no-eta-equality -- works with or without eta equality
       field
         dogEq : e .fst (Example.dog x) ≡ Example.dog x'
         catEq : e .fst (Example.cat x) ≡ Example.cat x'
