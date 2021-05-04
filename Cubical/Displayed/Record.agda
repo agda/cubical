@@ -92,7 +92,7 @@ data DUAFields {ℓA ℓ≅A ℓR ℓ≅R} {A : Type ℓA} (𝒮-A : UARel A ℓ
     (πF : ∀ {a} → (r : R a) → F a (πS r))
     (propF : ∀ a s → isProp (F a s))
     → DUAFields 𝒮-A R _≅R⟨_⟩_ (λ r → πS r , πF r) (𝒮ᴰ-subtype 𝒮ᴰ-S propF) (λ p → πS≅ p)
-
+  
 module _ {ℓA ℓ≅A} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
   {ℓR ℓ≅R} {R : A → Type ℓR} (_≅R⟨_⟩_ : {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R)
   {ℓS ℓ≅S} {S : A → Type ℓS}
@@ -130,7 +130,7 @@ module DisplayedRecordMacro where
     go : R.Term → Maybe (R.TC R.Name)
     go (R.meta x _) = just (R.blockOnMeta x)
     go (R.def name _) = just (R.returnTC name)
-    go (R.lam R.hidden (R.abs _ t)) = go t
+    go (R.lam _ (R.abs _ t)) = go t
     go t = nothing
 
   -- ℓA ℓ≅A ℓR ℓ≅R A 𝒮-A R _≅R⟨_⟩_
@@ -186,8 +186,8 @@ module DisplayedRecordMacro where
       parseFields `fs` >>= λ (fields , ≅fields) →
       R.freshName "fieldsIso" >>= λ fieldsIso →
       R.freshName "≅fieldsIso" >>= λ ≅fieldsIso →
-      R.quoteTC R >>= λ `R` →
-      R.quoteTC {A = {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R} ≅R >>= λ `≅R` →
+      R.quoteTC R >>= R.normalise >>= λ `R` →
+      R.quoteTC {A = {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R} ≅R >>= R.normalise >>= λ `≅R` →
       findName `R` >>= RE.declareRecordIsoΣ' fieldsIso (List→LeftAssoc fields) >>
       findName `≅R` >>= RE.declareRecordIsoΣ' ≅fieldsIso (List→LeftAssoc ≅fields) >>
       R.unify hole

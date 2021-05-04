@@ -195,28 +195,34 @@ module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
       _ = snd R
 
   module _ {S : Ring {ℓ}} (φ : RingHom R S) where
-    open RingHom φ
+    open IsRingHom
     open HomTheory φ
     private
       instance
         _ = S
         _ = snd S
+      f = fst φ
+      module φ = IsRingHom (snd φ)
 
 
     inducedHom : Iₛ ⊆ kernel φ → RingHom (R / I) S
-    f (inducedHom Iₛ⊆kernel) = elim
-                                 (λ _ → isSetRing S)
-                                 f
-                                 λ r₁ r₂ r₁-r₂∈I → equalByDifference (f r₁) (f r₂)
-                                   (f r₁ - f r₂     ≡⟨ cong (λ u → f r₁ + u) (sym (-commutesWithHom _)) ⟩
-                                    f r₁ + f (- r₂) ≡⟨ sym (isHom+ _ _) ⟩
-                                    f (r₁ - r₂)     ≡⟨ Iₛ⊆kernel (r₁ - r₂) r₁-r₂∈I ⟩
-                                    0r ∎)
-    pres1 (inducedHom Iₛ⊆kernel) = pres1
-    isHom+ (inducedHom Iₛ⊆kernel) =
-      elimProp2 (λ _ _ → isSetRing S _ _) isHom+
-    isHom· (inducedHom Iₛ⊆kernel) =
-      elimProp2 (λ _ _ → isSetRing S _ _) isHom·
+    fst (inducedHom Iₛ⊆kernel) =
+      elim
+        (λ _ → isSetRing S)
+        f
+        λ r₁ r₂ r₁-r₂∈I → equalByDifference (f r₁) (f r₂)
+          (f r₁ - f r₂     ≡⟨ cong (λ u → f r₁ + u) (sym (φ.pres- _)) ⟩
+           f r₁ + f (- r₂) ≡⟨ sym (φ.pres+ _ _) ⟩
+           f (r₁ - r₂)     ≡⟨ Iₛ⊆kernel (r₁ - r₂) r₁-r₂∈I ⟩
+           0r ∎)
+    pres0 (snd (inducedHom Iₛ⊆kernel)) = φ.pres0
+    pres1 (snd (inducedHom Iₛ⊆kernel)) = φ.pres1
+    pres+ (snd (inducedHom Iₛ⊆kernel)) =
+      elimProp2 (λ _ _ → isSetRing S _ _) φ.pres+
+    pres· (snd (inducedHom Iₛ⊆kernel)) =
+      elimProp2 (λ _ _ → isSetRing S _ _) φ.pres·
+    pres- (snd (inducedHom Iₛ⊆kernel)) =
+      elimProp (λ _ → isSetRing S _ _) φ.pres-
 
     solution : (p : Iₛ ⊆ kernel φ)
                → (x : ⟨ R ⟩) → inducedHom p $ [ x ] ≡ φ $ x
