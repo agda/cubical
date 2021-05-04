@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.RingSolver.IntAsRawRing where
 
 open import Cubical.Data.Nat hiding (_+_; _·_)

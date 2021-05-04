@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.Queue.Untruncated2ListInvariant where
 
 open import Cubical.Foundations.Everything

@@ -3,7 +3,7 @@
 Some basic utilities for reflection
 
 -}
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Reflection.Base where
 
 open import Cubical.Foundations.Prelude

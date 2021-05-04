@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Rationals.HITQ.Base where
 
 open import Cubical.Foundations.Prelude

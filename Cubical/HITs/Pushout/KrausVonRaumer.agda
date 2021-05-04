@@ -6,7 +6,7 @@ https://arxiv.org/abs/1901.06022
 
 -}
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Pushout.KrausVonRaumer where
 
 open import Cubical.Foundations.Everything

@@ -4,7 +4,7 @@
 
   We can reindex a DUARel or SubstRel along one of these.
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Displayed.Morphism where
 
 open import Cubical.Foundations.Prelude

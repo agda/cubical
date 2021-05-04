@@ -1,6 +1,6 @@
 {- Definition of vectors. Inspired by the Agda Standard Library -}
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.Vec.Base where
 
 open import Cubical.Foundations.Prelude

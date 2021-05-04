@@ -3,7 +3,7 @@
 Defines groups and adds some smart constructors
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Base where
 
 open import Cubical.Foundations.Prelude

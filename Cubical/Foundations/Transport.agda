@@ -4,7 +4,7 @@
 - transport is an equivalence ([transportEquiv])
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Transport where
 
 open import Cubical.Foundations.Prelude

@@ -17,7 +17,7 @@ then it should be removed before the above command is run.
 
 -}
 
-{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Experiments.ZCohomology.Benchmarks where
 
 open import Cubical.Foundations.Everything

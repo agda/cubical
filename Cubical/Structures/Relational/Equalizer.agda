@@ -3,7 +3,7 @@
 Equalizer of functions f g : S X ⇉ T X such that f and g act on relation structures
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Structures.Relational.Equalizer where
 
 open import Cubical.Foundations.Prelude

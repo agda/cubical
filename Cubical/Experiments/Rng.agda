@@ -3,7 +3,7 @@
 -- rings). As this file isn't used for anything at the moment this
 -- rewrite has been postponed.
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Experiments.Rng where
 
 open import Cubical.Foundations.Prelude
