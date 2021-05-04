@@ -71,19 +71,19 @@ sphereToPropElim (suc n) {A = A} hlev pt (merid a i) =
 -- (iii) the fact that the two homotopies only differ by (composition with) the homotopy leftFunction(base) ≡ rightFunction(base)
 -- is close to trivial
 
-wedgeconFun : ∀ {ℓ} (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) → Type ℓ}
+wedgeconFun : (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) → Type ℓ}
           → ((x : S₊ (suc n)) (y : S₊ (suc m)) → isOfHLevel ((suc n) + (suc m)) (A x y))
           → (f : (x : _) → A (ptSn (suc n)) x)
           → (g : (x : _) → A x (ptSn (suc m)))
           → (g (ptSn (suc n)) ≡ f (ptSn (suc m)))
           → (x : S₊ (suc n)) (y : S₊ (suc m)) → A x y
-wedgeconLeft : ∀ {ℓ} (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) → Type ℓ}
+wedgeconLeft : (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) → Type ℓ}
              → (hLev : ((x : S₊ (suc n)) (y : S₊ (suc m)) → isOfHLevel ((suc n) + (suc m)) (A x y)))
              → (f : (x : _) → A (ptSn (suc n)) x)
              → (g : (x : _) → A x (ptSn (suc m)))
              → (hom : g (ptSn (suc n)) ≡ f (ptSn (suc m)))
              → (x : _) → wedgeconFun n m hLev f g hom (ptSn (suc n)) x ≡ f x
-wedgeconRight : ∀ {ℓ} (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) → Type ℓ}
+wedgeconRight : (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) → Type ℓ}
              → (hLev : ((x : S₊ (suc n)) (y : S₊ (suc m)) → isOfHLevel ((suc n) + (suc m)) (A x y)))
              → (f : (x : _) → A (ptSn (suc n)) x)
              → (g : (x : _) → A x (ptSn (suc m)))
