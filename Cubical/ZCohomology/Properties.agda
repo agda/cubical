@@ -29,7 +29,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; setTruncIsSet to §)
-open import Cubical.Data.Int renaming (_+_ to _ℤ+_) hiding (-_)
+open import Cubical.Data.Int renaming (_+_ to _ℤ+_ ; _·_ to _ℤ∙_ ; +-comm to +ℤ-comm) hiding (-_)
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; map2 to trMap2; rec to trRec ; elim3 to trElim3)
 open import Cubical.Homotopy.Loopspace
@@ -520,13 +520,17 @@ isOfHLevelΩ→isOfHLevel zero hΩ x y =
 isOfHLevelΩ→isOfHLevel (suc n) hΩ x y =
   J (λ y p → (q : x ≡ y) → isOfHLevel (suc n) (p ≡ q)) (hΩ x refl)
 
-contrMin : (n : ℕ) → isContr (coHomK-ptd (2 + n) →∙ coHomK-ptd (suc n))
-fst (contrMin n) = (λ _ → 0ₖ _) , refl
-snd (contrMin n) f =
+contrMin : (n : ℕ) → isContr (coHomK-ptd (suc n) →∙ coHomK-ptd n)
+fst (contrMin zero) = (λ _ → 0) , refl
+snd (contrMin zero) (f , p) =
+  Σ≡Prop (λ f → isSetInt _ _)
+         (funExt (trElim (λ _ → isOfHLevelPath 3 (isOfHLevelSuc 2 isSetInt) _ _)
+                 (toPropElim (λ _ → isSetInt _ _) (sym p))))
+fst (contrMin (suc n)) = (λ _ → 0ₖ _) , refl
+snd (contrMin (suc n)) f =
   ΣPathP ((funExt (trElim (λ _ → isOfHLevelPath (4 + n) (isOfHLevelSuc (3 + n) (isOfHLevelTrunc (3 + n))) _ _)
          (sphereElim _ (λ _ → isOfHLevelTrunc (3 + n) _ _) (sym (snd f))))) ,
          λ i j → snd f (~ i ∨ j))
-
 
 ΩfunExtIso : (A B : Pointed₀) → Iso (typ (Ω (A →∙ B ∙))) (A →∙ Ω B)
 fst (fun (ΩfunExtIso A B) p) x = funExt⁻ (cong fst p) x
@@ -538,33 +542,168 @@ snd (rightInv (ΩfunExtIso A B) (f , p) i) j = p j
 fst (leftInv (ΩfunExtIso A B) p i j) y = fst (p j) y
 snd (leftInv (ΩfunExtIso A B) p i j) k = snd (p j) k
 
-basechangeIso : (n : ℕ) → (A : Pointed₀) (f : A →∙ coHomK-ptd (suc n)) → Iso (typ (Ω (A →∙ (coHomK-ptd (suc n)) ∙))) (f ≡ f)
-fun (basechangeIso n A f) q =
-  ΣPathP ((funExt (λ x → sym (rUnitₖ _ (fst f x)) ∙∙ cong ((fst f x) +ₖ_) (funExt⁻ (cong fst q) x) ∙∙ rUnitₖ _ (fst f x))) , {!cong snd q!})
-inv' (basechangeIso n A f) = {!!}
-rightInv (basechangeIso n A f) = {!!}
-leftInv (basechangeIso n A f) = {!!}
+ΩfunExtIsoDep : {A B : Pointed₀} → (f g : A →∙ B)
+              → Iso (f ≡ g) (Σ[ p ∈ ((x : fst A) → fst f x ≡ fst g x) ]
+                               PathP (λ i → p (snd A) i ≡ snd B) (snd f) (snd g))
+fst (fun (ΩfunExtIsoDep f g) p) x j = fst (p j) x
+snd (fun (ΩfunExtIsoDep f g) p) i j = snd (p i) j
+fst (inv' (ΩfunExtIsoDep f g) (p , pp) j) x = p x j
+snd (inv' (ΩfunExtIsoDep f g) (p , pp) j) i = pp j i
+rightInv (ΩfunExtIsoDep f g) (p , pp) = refl
+leftInv (ΩfunExtIsoDep f g) p = refl
 
-wow : ∀ n m → isOfHLevel (2 + n) (coHomK-ptd (suc m) →∙ coHomK-ptd (n + suc m))
-wow zero zero =
-  isOfHLevelΩ→isOfHLevel 0
-    λ f → isOfHLevelRetractFromIso 1 (invIso (basechangeIso _ _ f))
-      (isOfHLevelRetractFromIso 1 (ΩfunExtIso _ _)
-        λ f g → Σ≡Prop (λ _ → isOfHLevelTrunc 3 _ _ _ _)
-          (funExt (trElim (λ _ → isOfHLevelPath 3 (isOfHLevelSuc 2 (isOfHLevelTrunc 3 _ _)) _ _) (toPropElim (λ _ → isOfHLevelTrunc 3 _ _ _ _) (snd f ∙ sym (snd g))))))
-wow zero (suc m) =
-    isOfHLevelΩ→isOfHLevel 0
-    λ f → isOfHLevelRetractFromIso 1 (invIso (basechangeIso _ _ f))
-      (isOfHLevelRetractFromIso 1 (ΩfunExtIso _ _)
-        {!isOfHLevel ?!})
-wow (suc n) m = {!!}
+codomainIsoDep : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : A → Type ℓ'} {C : Type ℓ''}
+               → ((x : A) → Iso (B x) C) → Iso ((x : A) → B x) (A → C) 
+fun (codomainIsoDep is) f x = fun (is x) (f x)
+inv' (codomainIsoDep is) f x = inv' (is x) (f x)
+rightInv (codomainIsoDep is) f = funExt λ x → rightInv (is x) (f x)
+leftInv (codomainIsoDep is) f = funExt λ x → leftInv (is x) (f x)
 
--- test2 : (n : ℕ) {A : Type₀} → isOfHLevel (2 + n) (A → coHomK n)
--- test2 zero = {!!}
--- test2 (suc n) {A = A} = {!!}
+open import Cubical.Foundations.Univalence
+pointedEquiv→Path : {A B : Pointed₀} (e : fst A ≃ fst B) → fst e (snd A) ≡ snd B → A ≡ B
+fst (pointedEquiv→Path e p i) = ua e i
+snd (pointedEquiv→Path {A = A} e p i) = hcomp (λ k → λ {(i = i0) → snd A ; (i = i1) → (transportRefl (fst e (snd A)) ∙ p) k}) (transp (λ j → ua e (i ∧ j)) (~ i) (snd A))
+
+ind₂ : {A : Pointed₀} (n : ℕ) → Iso (A →∙ Ω (coHomK-ptd (suc n))) (typ (Ω (A →∙ coHomK-ptd (suc n) ∙)))
+fst (fun (ind₂ n) (f , p) i) x = f x i
+snd (fun (ind₂ n) (f , p) i) j = p j i
+fst (inv' (ind₂ n) p) x = funExt⁻ (cong fst p) x
+snd (inv' (ind₂ n) p) i j = snd (p j) i
+rightInv (ind₂ n) p = refl
+leftInv (ind₂ n) (f , p) = refl
+
+taha : {A : Pointed₀} (n : ℕ) (f : A →∙ coHomK-ptd (suc n)) → Iso (typ A → coHomK (suc n)) (typ A → coHomK (suc n))
+fun (taha n (f , p)) g a = g a +ₖ f a
+inv' (taha n (f , p)) g a = g a -ₖ f a
+rightInv (taha n (f , p)) g =
+  funExt λ x → sym (assocₖ (suc n) (g x) (-ₖ (f x)) (f x)) ∙∙ cong (g x +ₖ_) (lCancelₖ (suc n) (f x)) ∙∙ rUnitₖ (suc n) (g x)
+leftInv (taha n (f , p)) g =
+  funExt λ x → sym (assocₖ (suc n) (g x) (f x) (-ₖ (f x))) ∙∙ cong (g x +ₖ_) (rCancelₖ (suc n) (f x)) ∙∙ rUnitₖ (suc n) (g x)
+
+
+ind₁ : {A : Pointed₀} (n : ℕ) (f : A →∙ coHomK-ptd (suc n)) → (A →∙ coHomK-ptd (suc n) ∙) ≡ ((A →∙ coHomK-ptd (suc n) , f))
+ind₁ {A  = A} n (f , p) = pointedEquiv→Path (Σ-cong-equiv (isoToEquiv (taha n (f , p))) λ g → pathToEquiv λ i → (cong ((g (snd A)) +ₖ_) p ∙ rUnitₖ (suc n) (g (snd A))) (~ i) ≡ 0ₖ (suc n))
+                          (ΣPathP ((funExt (λ x → lUnitₖ (suc n) (f x)))
+                          , (toPathP ((λ j → transp (λ i → lUnitₖ (suc n) (f (snd A)) i ≡ ∣ ptSn (suc n) ∣) i0
+                                                   (transp
+                                                    (λ i →
+                                                       hcomp
+                                                       (doubleComp-faces (λ _ → ∣ ptSn (suc n) ∣ +ₖ f (snd A))
+                                                        (rUnitₖ (suc n) ∣ ptSn (suc n) ∣) (~ i ∧ ~ j))
+                                                       (∣ ptSn (suc n) ∣ +ₖ p (~ i ∧ ~ j))
+                                                       ≡ ∣ ptSn (suc n) ∣)
+                                                    j λ i → hcomp
+                                                       (doubleComp-faces (λ _ → ∣ ptSn (suc n) ∣ +ₖ f (snd A))
+                                                        (rUnitₖ (suc n) ∣ ptSn (suc n) ∣) (i ∨ ~ j))
+                                                       (∣ ptSn (suc n) ∣ +ₖ p (i ∨ ~ j))))
+                                                    ∙∙ (λ j → transp (λ i → lUnitₖ (suc n) (f (snd A)) (i ∨ j) ≡ ∣ ptSn (suc n) ∣) j
+                                                                      ((λ i → lUnitₖ (suc n) (f (snd A)) (~ i ∧ j)) ∙∙ (λ i → ∣ ptSn (suc n) ∣ +ₖ p i) ∙∙ (rUnitₖ (suc n) ∣ ptSn (suc n) ∣)))
+                                                    ∙∙ helper n (f (snd A)) (sym p)))))
+  where
+  helper : (n : ℕ) (x : coHomK (suc n)) (p : 0ₖ (suc n) ≡ x) → (sym (lUnitₖ (suc n) x) ∙∙ cong (0ₖ (suc n) +ₖ_) (sym p) ∙∙ rUnitₖ (suc n) (0ₖ _)) ≡ sym p
+  helper zero x =
+    J (λ x p → (sym (lUnitₖ 1 x) ∙∙ cong (0ₖ 1 +ₖ_) (sym p) ∙∙ rUnitₖ 1 (0ₖ _)) ≡ sym p)
+      (sym (rUnit refl))
+  helper (suc n) x =
+    J (λ x p → (sym (lUnitₖ (suc (suc n)) x) ∙∙ cong (0ₖ (suc (suc n)) +ₖ_) (sym p) ∙∙ rUnitₖ (suc (suc n)) (0ₖ _)) ≡ sym p)
+      (sym (rUnit refl))
+
+
+hlevStep₁ : {A : Pointed₀} (n m : ℕ) → isOfHLevel (suc m) (typ (Ω (A →∙ coHomK-ptd (suc n) ∙)))
+                                    → isOfHLevel (suc (suc m)) (A →∙ coHomK-ptd (suc n))
+hlevStep₁ n m hlev =
+  isOfHLevelΩ→isOfHLevel m λ f → subst (λ x → isOfHLevel (suc m) (typ (Ω x))) (ind₁ n f) hlev
+  
+hlevStep₂ : {A : Pointed₀} (n m : ℕ) → isOfHLevel (suc m) (A →∙ Ω (coHomK-ptd (suc n))) → isOfHLevel (suc m) (typ (Ω (A →∙ coHomK-ptd (suc n) ∙)))
+hlevStep₂ n m hlev = isOfHLevelRetractFromIso (suc m) (invIso (ind₂ n)) hlev
+
+hlevStep₃ :  {A : Pointed₀} (n m : ℕ) → isOfHLevel (suc m) (A →∙ coHomK-ptd n) → isOfHLevel (suc m) (A →∙ Ω (coHomK-ptd (suc n)))
+hlevStep₃ {A = A} n m hlev = subst (isOfHLevel (suc m)) (λ i → A →∙ pointedEquiv→Path {A = Ω (coHomK-ptd (suc n))} {B = coHomK-ptd n} (invEquiv Kn≃ΩKn+1) (ΩKn+1→Kn-refl n) (~ i)) hlev
+
+hlevTotal : {A : Pointed₀} (n m : ℕ) → isOfHLevel (suc m) (A →∙ coHomK-ptd n) → isOfHLevel (suc (suc m)) (A →∙ coHomK-ptd (suc n))
+hlevTotal n m hlev = hlevStep₁ n m (hlevStep₂ n m (hlevStep₃ n m hlev))
+
+wow : ∀ n m → isOfHLevel (2 + n) (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (n + m)))
+wow zero m = hlevTotal m 0 (isContr→isProp (contrMin m))
+wow (suc n) m = hlevTotal (suc (n + m)) (suc n) (wow n m)
+
+isOfHLevel→∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) → isOfHLevel n (fst B) → isOfHLevel n (A →∙ B)
+isOfHLevel→∙ n hlev = isOfHLevelΣ n (isOfHLevelΠ n (λ _ → hlev)) λ x → isOfHLevelPath n hlev _ _
+
+∙-comm : (x y : Int) → x ℤ∙ y ≡ y ℤ∙ x
+∙-comm = {!!}
+
+⌣ₖ' : (n m : ℕ) → (coHomK n → (coHomK-ptd m) →∙ coHomK-ptd (n + m))
+⌣ₖ' zero zero x = (λ y → y ℤ∙ x) , refl
+⌣ₖ' zero (suc m) x = (trRec (isOfHLevelTrunc (3 + m)) (help m)) , help∙ m
+  where
+  help : (m : ℕ) → S₊ (suc m) → fst (coHomK-ptd (suc m))
+  help zero base = 0ₖ _
+  help zero (loop i) = ∣ intLoop x i ∣
+  help (suc m) north = 0ₖ _
+  help (suc m) south = 0ₖ _
+  help (suc m) (merid a i) = Kn→ΩKn+1 (suc m) (help m a) i
+
+  help∙ : (m : ℕ) → help m (ptSn (suc m)) ≡ snd (coHomK-ptd (suc m))
+  help∙ zero = refl
+  help∙ (suc m) = refl
+⌣ₖ' (suc n) zero =
+    trRec (isOfHLevel→∙ (3 + n) (subst (λ m → isOfHLevel (3 + n) (coHomK (suc m))) (sym (+-comm n zero)) (isOfHLevelTrunc (3 + n))))
+          (subst (λ m → S₊ (suc n) → coHomK-ptd zero →∙ coHomK-ptd (suc m)) (sym (+-comm n zero)) λ x → (help n x) , pathHelp n x)
+  where
+  help : (n : ℕ) → S₊ (suc n) → coHomK zero → coHomK (suc n)
+  pathHelp : (n : ℕ) (x : S₊ (suc n)) → help n x (snd (coHomK-ptd zero)) ≡ 0ₖ _
+  help zero base x = 0ₖ _
+  help zero (loop i) x = Kn→ΩKn+1 0 x i
+  help (suc n) north x = 0ₖ _
+  help (suc n) south x = 0ₖ _
+  help (suc n) (merid a i) x = Kn→ΩKn+1 (suc n) (help n a x) i
+  pathHelp zero base = refl
+  pathHelp zero (loop i) j = Kn→ΩKn+10ₖ 0 j i
+  pathHelp (suc n) north = refl
+  pathHelp (suc n) south = refl
+  pathHelp (suc n) (merid a i) j = help2 j i
+    where
+    help2 : (Kn→ΩKn+1 (suc n)) (help n a 0) ≡ refl
+    help2 = cong (Kn→ΩKn+1 (suc n)) (pathHelp n a) ∙ Kn→ΩKn+10ₖ (suc n)
+⌣ₖ' (suc n) (suc m) =
+  trRec (subst (isOfHLevel (3 + n))
+            (λ i → (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (+-suc n m (~ i))))) (wow (suc n) m))
+    (k n m)
+  where
+  k : (n m : ℕ) → S₊ (suc n) → coHomK-ptd (suc m) →∙ coHomK-ptd (suc (n + suc m))
+  k zero m base = (λ _ → 0ₖ _) , refl
+  k zero m (loop i) = (λ x → Kn→ΩKn+1 _ x i) , (λ j → Kn→ΩKn+10ₖ _ j i)
+  fst (k (suc n) m north) _ = 0ₖ _
+  snd (k (suc n) m north) = refl
+  fst (k (suc n) m south) _ = 0ₖ _
+  snd (k (suc n) m south) = refl
+  fst (k (suc n) m (merid a i)) x = Kn→ΩKn+1 _ (k n m a .fst x) i
+  snd (k (suc n) m (merid a i)) j =
+    (cong (Kn→ΩKn+1 (suc (n + suc m))) (k n m a .snd) ∙ Kn→ΩKn+10ₖ (suc (n + (suc m)))) j i
+
+_⌣ₖ_ : {n m : ℕ} → coHomK n → coHomK m → coHomK (n + m)
+_⌣ₖ_ {n = n} {m = m} x = fst (⌣ₖ' n m x)
+
+_⌣_ : ∀ {ℓ} {A : Type ℓ} {n m : ℕ} → coHom n A → coHom m A → coHom (n + m) A
+_⌣_ {n = n} {m = m} = sRec2 squash₂ λ f g → ∣ (λ x → f x ⌣ₖ g x) ∣₂
+
+-- ⌣ₖ∙ : (n m : ℕ) → (coHomK n → (coHomK-ptd m) →∙ coHomK-ptd (n + m))
+-- ⌣ₖ∙ zero zero = λ x → (λ y → y ℤ∙ x) , refl
+-- ⌣ₖ∙ zero (suc zero) x = (trMap λ {base → base ; (loop i) → intLoop x i}) , refl
+-- ⌣ₖ∙ zero (suc (suc m)) = {!!}
+-- ⌣ₖ∙ (suc n) zero = {!!}
+-- ⌣ₖ∙ (suc zero) (suc m) = {!!}
+-- ⌣ₖ∙ (suc (suc n)) (suc zero) = {!!}
+-- ⌣ₖ∙ (suc (suc n)) (suc (suc m)) = trRec {!wow (suc n) (suc m)!} {!!}
 --   where
---   king : Iso (typ (Ω ((A → coHomK (suc n)) , λ _ → 0ₖ _))) (A → typ (Ω (coHomK-ptd (suc n))))
---   fun king = funExt⁻
---   inv' king = funExt
---   rightInv king _ = refl
---   leftInv king _ = refl
+--   helpME! : Susp (S₊ (suc n)) →
+--       coHomK (suc m) → coHomK (suc (suc (n + (suc m))))
+--   helpME! north x = 0ₖ _
+--   helpME! south x = 0ₖ _
+--   helpME! (merid a i) x = Kn→ΩKn+1 (suc (n + suc m)) (⌣ₖ∙ (suc n) (suc m) ∣ a ∣ .fst x) i
+--   {- (λ x → Kn→ΩKn+1 _ (⌣ₖ∙ (suc n) (suc m) ∣ a ∣ .fst x) i) , λ j → (cong (Kn→ΩKn+1 (suc (n + (suc m)))) (⌣ₖ∙ (suc n) m ∣ a ∣ .snd) ∙ Kn→ΩKn+10ₖ (suc (n + (suc m)))) j i 
+--     where
+--     help : (n m : ℕ) (a : _) → Kn→ΩKn+1 (suc (n + (suc m)))
+--       (⌣ₖ∙ (suc n) (suc m) ∣ a ∣ .fst (snd (coHomK-ptd (suc m)))) ≡ refl
+--     help n m a = cong (Kn→ΩKn+1 (suc (n + (suc m)))) (⌣ₖ∙ (suc n) (suc m) ∣ a ∣ .snd) ∙ Kn→ΩKn+10ₖ (suc (n + (suc m))) -}

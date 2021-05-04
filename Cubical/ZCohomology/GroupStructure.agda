@@ -669,6 +669,15 @@ inv' (addIso n x) y = y -[ n ]ₖ x
 rightInv (addIso n x) y = -+cancelₖ n y x
 leftInv (addIso n x) y = -cancelRₖ n x y
 
+baseChange : (n : ℕ) (x : coHomK (suc n)) → (0ₖ (suc n) ≡ 0ₖ (suc n)) ≃ (x ≡ x)
+fst (baseChange n x) p = sym (rUnitₖ _ x) ∙∙ cong (x +ₖ_) p ∙∙ rUnitₖ _ x
+snd (baseChange n x) = isEqHelp n x
+  where
+  isEqHelp : (n : ℕ) (x : coHomK (suc n)) → isEquiv λ p → sym (rUnitₖ _ x) ∙∙ cong (x +ₖ_) p ∙∙ rUnitₖ _ x
+  isEqHelp zero = trElim (λ _ → isProp→isOfHLevelSuc 2 (isPropIsEquiv _)) (sphereToPropElim 0 (λ _ → isPropIsEquiv _) (subst isEquiv (funExt (λ p → (λ i → cong (λ x → lUnitₖ 1 x (~ i)) p) ∙∙ refl ∙∙ rUnit _)) (idIsEquiv _)))
+  isEqHelp (suc n) = trElim (λ _ → isProp→isOfHLevelSuc (3 + n) (isPropIsEquiv _)) (sphereToPropElim (suc n) (λ _ → isPropIsEquiv _) (subst isEquiv (funExt (λ p → (λ i → cong (λ x → lUnitₖ (2 + n) x (~ i)) p) ∙ rUnit _)) (idIsEquiv _)))
+  {- trElim (λ _ → isProp→isOfHLevelSuc (2 + n) (isPropIsEquiv _)) {!sphereToPropElim ? ? ?!} -}
+
 isCommΩK-based : (n : ℕ) (x : coHomK n) → isComm∙ (coHomK n , x)
 isCommΩK-based zero x p q = isSetInt _ _ (p ∙ q) (q ∙ p)
 isCommΩK-based (suc zero) x =
