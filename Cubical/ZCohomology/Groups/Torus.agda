@@ -270,3 +270,20 @@ test6 = refl
 test7 : to₂ (from₂ 1 +ₕ from₂ 0) ≡ 1
 test7 = refl
 -}
+
+ff : (S₊ 1 × S₊ 1 → coHomK 1)
+ff (x , y) = ∣ x ∣ +ₖ ∣ y ∣ +ₖ 0ₖ _
+
+ff2 : (S₊ 1 × S₊ 1 → coHomK 1)
+ff2 (x , y) = ∣ x ∣ -ₖ ∣ y ∣
+
+f : coHom 1 (S₊ 1 × S₊ 1)
+f = ∣ ff ∣₂ +ₕ 0ₕ _
+
+f2 : coHom 1 (S₊ 1 × S₊ 1)
+f2 = ∣ ff2 ∣₂ +ₕ 0ₕ _
+
+elem1 : coHom 2 (S₊ 1 × S₊ 1)
+elem1 = ((f ⌣ 0ₕ 1) ⌣ ∣ (λ x → 1) ∣₂) +ₕ 0ₕ _
+
+w = to₂ elem1
