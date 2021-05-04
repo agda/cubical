@@ -208,20 +208,24 @@ private
     record Example (A : Type) : Type where
       no-eta-equality -- works with or without eta equality
       field
-        dog : A
-        cat : A
+        dog : A → A → A
+        cat : A → A → A
         mouse : Unit
 
-    record ExampleEquiv {A B : Type} (x : Example A) (e : A ≃ B) (x' : Example B) : Type where
+    open Example
+
+    record ExampleEquiv {A B : Type} (x : Example A) (e : A ≃ B) (y : Example B) : Type where
       no-eta-equality -- works with or without eta equality
       field
-        dogEq : e .fst (Example.dog x) ≡ Example.dog x'
-        catEq : e .fst (Example.cat x) ≡ Example.cat x'
+        dogEq : ∀ a a' → e .fst (x .dog a a') ≡ y .dog (e .fst a) (e .fst a')
+        catEq : ∀ a a' → e .fst (x .cat a a') ≡ y .cat (e .fst a) (e .fst a')
+
+    open ExampleEquiv
 
     example : DUARel (𝒮-Univ ℓ-zero) Example ℓ-zero
     example =
       𝒮ᴰ-Record (𝒮-Univ ℓ-zero) ExampleEquiv
         (fields:
-          data[ Example.dog ∣ autoDUARel _ _ ∣ ExampleEquiv.dogEq ]
-          data[ Example.cat ∣ autoDUARel _ _ ∣ ExampleEquiv.catEq ]
-          prop[ Example.mouse ∣ (λ _ _ → isPropUnit) ])
+          data[ dog ∣ autoDUARel _ _ ∣ dogEq ]
+          data[ cat ∣ autoDUARel _ _ ∣ catEq ]
+          prop[ mouse ∣ (λ _ _ → isPropUnit) ])
