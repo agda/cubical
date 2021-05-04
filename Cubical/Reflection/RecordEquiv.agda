@@ -146,15 +146,21 @@ recordIsoΣClauses σ =
 recordIsoΣTerm : ΣFormat → R.Term
 recordIsoΣTerm σ = R.pat-lam (recordIsoΣClauses σ) []
 
+-- with a provided ΣFormat for the record
+declareRecordIsoΣ' : R.Name → ΣFormat → R.Name → R.TC Unit
+declareRecordIsoΣ' idName σ recordName =
+  let σTy = ΣFormat→Ty σ in
+  recordName→isoTy recordName σTy >>= λ isoTy →
+  R.declareDef (varg idName) isoTy >>
+  R.defineFun idName (recordIsoΣClauses σ)
+
+-- using the right-associated Σ given by the record fields
 declareRecordIsoΣ : R.Name → R.Name → R.TC Unit
 declareRecordIsoΣ idName recordName =
   R.getDefinition recordName >>= λ where
   (R.record-type _ fs) →
     let σ = List→ΣFormat (List.map (λ {(R.arg _ n) → n}) fs) in
-    let σTy = ΣFormat→Ty σ in
-    recordName→isoTy recordName σTy >>= λ isoTy →
-    R.declareDef (varg idName) isoTy >>
-    R.defineFun idName (recordIsoΣClauses σ)
+    declareRecordIsoΣ' idName σ recordName
   _ →
     R.typeError (R.strErr "Not a record type name:" ∷ R.nameErr recordName ∷ [])
 

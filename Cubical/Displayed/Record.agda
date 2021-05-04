@@ -10,8 +10,9 @@ See end of file for an example.
 module Cubical.Displayed.Record where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Data.Sigma
 open import Cubical.Data.List as List
@@ -109,11 +110,12 @@ module _ {ℓA ℓ≅A} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
     → DUARel 𝒮-A R ℓ≅R
   DUARel._≅ᴰ⟨_⟩_ (𝒮ᴰ-Fields e e≅) r p r' = r ≅R⟨ p ⟩ r'
   DUARel.uaᴰ (𝒮ᴰ-Fields e e≅) r p r' =
-    compEquiv
-      (isoToEquiv (e≅ _ _ r p r'))
-      (compEquiv
-        (uaᴰ (e _ .Iso.fun r) p (e _ .Iso.fun r'))
-        (invEquiv (congPathEquiv λ i → isoToEquiv (e _))))
+    isoToEquiv
+      (compIso
+        (e≅ _ _ r p r')
+        (compIso
+          (equivToIso (uaᴰ (e _ .Iso.fun r) p (e _ .Iso.fun r')))
+          (invIso (congPathIso λ i → isoToEquiv (e _)))))
 
 module DisplayedRecordMacro where
 
@@ -179,18 +181,20 @@ module DisplayedRecordMacro where
     -}
     𝒮ᴰ-Record : DUAFields 𝒮-A R ≅R πS 𝒮ᴰ-S πS≅ → R.Term → R.TC Unit
     𝒮ᴰ-Record fs hole =
-      R.quoteTC (DUARel 𝒮-A R ℓ≅R) >>= λ outTy →
-      R.checkType hole outTy >>= λ hole →
+      R.quoteTC (DUARel 𝒮-A R ℓ≅R) >>= R.checkType hole >>= λ hole →
       R.quoteωTC fs >>= λ `fs` →
       parseFields `fs` >>= λ (fields , ≅fields) →
-      let fieldsIso = RE.recordIsoΣTerm (List→LeftAssoc fields) in
-      let ≅fieldsIso = RE.recordIsoΣTerm (List→LeftAssoc ≅fields) in
+      R.freshName "fieldsIso" >>= λ fieldsIso →
+      R.freshName "≅fieldsIso" >>= λ ≅fieldsIso →
+      R.quoteTC R >>= λ `R` →
       R.quoteTC {A = {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R} ≅R >>= λ `≅R` →
+      findName `R` >>= RE.declareRecordIsoΣ' fieldsIso (List→LeftAssoc fields) >>
+      findName `≅R` >>= RE.declareRecordIsoΣ' ≅fieldsIso (List→LeftAssoc ≅fields) >>
       R.unify hole
         (R.def (quote 𝒮ᴰ-Fields)
           (`≅R` v∷ `fs` v∷
-            vlam "_" fieldsIso v∷
-            vlam "a" (vlam "a'" (vlam "r" (vlam "p" (vlam "r'" ≅fieldsIso)))) v∷
+            vlam "_" (R.def fieldsIso []) v∷
+            vlam "a" (vlam "a'" (vlam "r" (vlam "p" (vlam "r'" (R.def ≅fieldsIso []))))) v∷
             []))
 
 macro
