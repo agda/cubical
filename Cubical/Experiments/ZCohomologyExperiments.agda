@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Experiments.ZCohomologyExperiments where
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
