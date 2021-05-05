@@ -19,7 +19,6 @@ open import Cubical.Displayed.Auto
 open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
-open import Cubical.Structures.Axioms
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 
@@ -27,7 +26,6 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Reflection.StrictEquiv
 
 private
   variable
@@ -52,15 +50,37 @@ open IsGroupHom
 GroupPath : (M N : Group {ℓ}) → GroupEquiv M N ≃ (M ≡ N)
 GroupPath = ∫ 𝒮ᴰ-Group .UARel.ua
 
--- InducedGroup : (G : Group {ℓ}) (H : GroupΣTheory.RawGroupΣ) (e : ⟨ G ⟩ ≃ H .fst)
---              → GroupΣTheory.RawGroupEquivStr (GroupΣTheory.Group→RawGroupΣ G) H e
---              → Group
--- InducedGroup = GroupΣTheory.InducedGroup
+-- TODO: Induced structure results are temporarily inconvenient while we transition between algebra
+-- representations
+module _ (G : Group {ℓ}) {A : Type ℓ} (m : A → A → A)
+  (e : ⟨ G ⟩ ≃ A)
+  (p· : ∀ x y → e .fst (G .snd ._·_ x y) ≡ m (e .fst x) (e .fst y))
+  where
 
--- InducedGroupPath : (G : Group {ℓ}) (H : GroupΣTheory.RawGroupΣ) (e : ⟨ G ⟩ ≃ H .fst)
---                    (E : GroupΣTheory.RawGroupEquivStr (GroupΣTheory.Group→RawGroupΣ G) H e)
---                  → G ≡ InducedGroup G H e E
--- InducedGroupPath = GroupΣTheory.InducedGroupPath
+  private
+    module G = GroupStr (G .snd)
+
+    FamilyΣ : Σ[ B ∈ Type ℓ ] (B → B → B) → Type ℓ
+    FamilyΣ (B , n) =
+      Σ[ e ∈ B ]
+      Σ[ i ∈ (B → B) ]
+      IsGroup e n i
+
+    inducedΣ : FamilyΣ (A , m)
+    inducedΣ =
+      subst FamilyΣ
+        (UARel.≅→≡ (autoUARel (Σ[ B ∈ Type ℓ ] (B → B → B))) (e , p·))
+        (G.1g , G.inv , G.isGroup)
+
+  InducedGroup : Group
+  InducedGroup .fst = A
+  InducedGroup .snd ._·_ = m
+  InducedGroup .snd .1g = inducedΣ .fst
+  InducedGroup .snd .inv = inducedΣ .snd .fst
+  InducedGroup .snd .isGroup = inducedΣ .snd .snd
+
+  InducedGroupPath : G ≡ InducedGroup
+  InducedGroupPath = GroupPath _ _ .fst (e , makeIsGroupHom p·)
 
 uaGroup : {G H : Group {ℓ}} → GroupEquiv G H → G ≡ H
 uaGroup {G = G} {H = H} = equivFun (GroupPath G H)

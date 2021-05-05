@@ -117,7 +117,10 @@ record IsLeftModuleHom {R : Ring {ℓ}} {A B : Type ℓ}
     pres0 : f M.0m ≡ N.0m
     pres+ : (x y : A) → f (x M.+ y) ≡ f x N.+ f y
     pres- : (x : A) → f (M.- x) ≡ N.- (f x)
-    pres⋆ : (x : ⟨ R ⟩) (y : A) → f (x M.⋆ y) ≡ x N.⋆ f y
+    pres⋆ : (r : ⟨ R ⟩) (y : A) → f (r M.⋆ y) ≡ r N.⋆ f y
+
+LeftModuleHom : {R : Ring {ℓ}} (M N : LeftModule R) → Type ℓ
+LeftModuleHom M N = Σ[ f ∈ (⟨ M ⟩ → ⟨ N ⟩) ] IsLeftModuleHom (M .snd) f (N .snd)
 
 IsLeftModuleEquiv : {R : Ring {ℓ}} {A B : Type ℓ}
   (M : LeftModuleStr R A) (e : A ≃ B) (N : LeftModuleStr R B)
@@ -135,15 +138,11 @@ isPropIsLeftModule : (R : Ring {ℓ}) {M : Type ℓ}
   → isProp (IsLeftModule R 0m _+_ -_ _⋆_)
 isPropIsLeftModule R _ _ _ _ =
   isOfHLevelRetractFromIso 1 IsLeftModuleIsoΣ
-    (isPropΣ
-      (isPropIsAbGroup _ _ _)
+    (isPropΣ (isPropIsAbGroup _ _ _)
       (λ ab →
-        isProp×
-          (isPropΠ3 λ _ _ _ → ab .is-set _ _)
-          (isProp×
-            (isPropΠ3 λ _ _ _ → ab .is-set _ _)
-            (isProp×
-              (isPropΠ3 λ _ _ _ → ab .is-set _ _)
+        isProp× (isPropΠ3 λ _ _ _ → ab .is-set _ _)
+          (isProp× (isPropΠ3 λ _ _ _ → ab .is-set _ _)
+            (isProp× (isPropΠ3 λ _ _ _ → ab .is-set _ _)
               (isPropΠ λ _ → ab .is-set _ _)))))
   where
   open IsAbGroup

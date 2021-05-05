@@ -164,13 +164,13 @@ module _ (G' : AbGroup {ℓ}) where
   -- VecMatrix that is equal to the one on FinMatrix
   VecMatrixAbGroup : (m n : ℕ) → AbGroup
   VecMatrixAbGroup m n =
-    InducedAbGroup (FinMatrixAbGroup G' m n) (_ , addVecMatrix)
-                    FinMatrix≃VecMatrix (FinMatrix→VecMatrixHomAdd m n)
+    InducedAbGroup (FinMatrixAbGroup G' m n) addVecMatrix
+      FinMatrix≃VecMatrix (FinMatrix→VecMatrixHomAdd m n)
 
   FinMatrixAbGroup≡VecMatrixAbGroup : (m n : ℕ) → FinMatrixAbGroup G' m n ≡ VecMatrixAbGroup m n
   FinMatrixAbGroup≡VecMatrixAbGroup m n =
-    InducedAbGroupPath (FinMatrixAbGroup G' m n) (_ , addVecMatrix)
-                        FinMatrix≃VecMatrix (FinMatrix→VecMatrixHomAdd m n)
+    InducedAbGroupPath (FinMatrixAbGroup G' m n) addVecMatrix
+      FinMatrix≃VecMatrix (FinMatrix→VecMatrixHomAdd m n)
 
 
 -- Define identity matrix and matrix multiplication for FinMatrix and

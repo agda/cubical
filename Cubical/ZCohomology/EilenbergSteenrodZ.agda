@@ -46,8 +46,7 @@ open coHomTheory
 open Iso
 open IsGroup
 open GroupStr
-open GroupIso
-open GroupHom
+open IsGroupHom
 
 private
   suspΩFun' : ∀ {ℓ} {A : Type ℓ} (n : ℕ) (f : A → Path _ (0ₖ _) (0ₖ _))
@@ -208,13 +207,14 @@ private
   -- First, we need to that coHomFunctor' is contravariant
   theMorph : ∀ {ℓ} (n : Int) {A B : Pointed ℓ} (f : A →∙ B)
           → AbGroupHom (coHomFunctor' n B) (coHomFunctor' n A)
-  fun (theMorph (pos zero) f) = sMap λ g → (λ x → fst g (fst f x)) , cong (fst g) (snd f) ∙ snd g
-  isHom (theMorph (pos zero) f) =
-    sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-           λ f g → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl)
+  fst (theMorph (pos zero) f) = sMap λ g → (λ x → fst g (fst f x)) , cong (fst g) (snd f) ∙ snd g
+  snd (theMorph (pos zero) f) =
+    makeIsGroupHom
+      (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+              λ f g → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl))
   theMorph (pos (suc n)) f = coHomMorph _ (fst f)
-  fun (theMorph (negsuc n) f) = idfun _
-  isHom (theMorph (negsuc n) f) _ _ = refl
+  fst (theMorph (negsuc n) f) = idfun _
+  snd (theMorph (negsuc n) f) = makeIsGroupHom λ _ _ → refl
 
   open coHomTheory
   isCohomTheoryZ' : ∀ {ℓ} → coHomTheory {ℓ} coHomFunctor'
@@ -225,11 +225,12 @@ private
   fst (Suspension isCohomTheoryZ') (pos zero) {A = A} =
       invGroupEquiv
       (GroupIso→GroupEquiv
-        (groupiso (invIso suspFunCharac0)
-                        (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                                λ f g → cong ∣_∣₂ (funExt λ { north → refl
-                                                           ; south → refl
-                                                           ; (merid a i) j → helper a (fst f) (fst g) j i}))))
+        ( invIso suspFunCharac0
+        , makeIsGroupHom
+            (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+              λ f g → cong ∣_∣₂ (funExt λ { north → refl
+                                          ; south → refl
+                                          ; (merid a i) j → helper a (fst f) (fst g) j i}))))
     where
     helper : (a : typ A) (f g : typ A → coHomK 0)
           → Kn→ΩKn+1 0 (f a +[ 0 ]ₖ g a)
@@ -239,11 +240,12 @@ private
   fst (Suspension isCohomTheoryZ') (pos (suc n)) {A = A} =
       invGroupEquiv
       (GroupIso→GroupEquiv
-        (groupiso (invIso (suspFunCharac {A = A} n))
-                        (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                                λ f g → cong ∣_∣₂ (funExt λ { north → refl
-                                                           ; south → refl
-                                                           ; (merid a i) j → helper a f g j i}))))
+        ( invIso (suspFunCharac {A = A} n)
+        , makeIsGroupHom
+            (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+              λ f g → cong ∣_∣₂ (funExt λ { north → refl
+                                          ; south → refl
+                                          ; (merid a i) j → helper a f g j i}))))
     where
     helper : (a : typ A) (f g : typ A → coHomK (suc n))
           → Kn→ΩKn+1 (suc n) (f a +ₖ g a)
@@ -251,8 +253,9 @@ private
     helper a f g = Kn→ΩKn+1-hom (suc n) (f a) (g a)
                 ∙ ∙≡+₂ n (Kn→ΩKn+1 _ (f a)) (Kn→ΩKn+1 _ (g a))
   fst (Suspension isCohomTheoryZ') (negsuc zero) {A = A} =
-      GroupIso→GroupEquiv (groupiso (isContr→Iso (H0-susp {A = _ , pt A}) isContrUnit*)
-                      λ _ _ → refl)
+      GroupIso→GroupEquiv
+        ( isContr→Iso (H0-susp {A = _ , pt A}) isContrUnit*
+        , makeIsGroupHom λ _ _ → refl)
   fst (Suspension isCohomTheoryZ') (negsuc (suc n)) = idGroupEquiv
 
   -- naturality of the suspension isomorphism

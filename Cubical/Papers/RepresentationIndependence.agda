@@ -31,7 +31,7 @@ import Cubical.HITs.Rationals.SigmaQ           as SigmaQ
 -- 3.1
 import Cubical.Foundations.SIP                 as SIP
 import Cubical.Structures.Axioms               as Axioms
-import Cubical.Algebra.Monoid.Base             as Monoid
+import Cubical.Algebra.Semigroup.Base          as Semigroup
 open import Cubical.Data.Sigma.Base
 -- 3.2
 import Cubical.Structures.Pointed              as PointedStr
@@ -127,9 +127,19 @@ open Axioms using ( AxiomsStructure ; AxiomsEquivStr
                   ; axiomsUnivalentStr ; transferAxioms) public
 
 -- Monoids are defined using records and Σ-types in the library
-open Monoid.MonoidΣTheory using (RawMonoidStructure ; MonoidAxioms
-                                                    ; MonoidStructure) public
-open Monoid.MonoidΣTheory renaming (MonoidΣ to Monoid) public
+
+RawMonoidStructure : Type → Type
+RawMonoidStructure X = X × (X → X → X)
+
+MonoidAxioms : (M : Type) → RawMonoidStructure M → Type
+MonoidAxioms M (e , _·_) = Semigroup.IsSemigroup _·_
+                         × ((x : M) → (x · e ≡ x) × (e · x ≡ x))
+
+MonoidStructure : Type → Type
+MonoidStructure = AxiomsStructure RawMonoidStructure MonoidAxioms
+
+Monoid : Type₁
+Monoid = TypeWithStr ℓ-zero MonoidStructure
 
 MonoidEquiv : (M N : Monoid) → fst M ≃ fst N → Type
 MonoidEquiv (_ , (εᴹ , _·_) , _) (_ , (εᴺ , _∗_) , _) (φ , _) =
@@ -162,96 +172,45 @@ open FunctionStr using (FunctionEquivStr+) public
 
 -- Monoids Revisited
 
-module MonoidΣTheory {ℓ} where
+RawMonoid : Type₁
+RawMonoid = TypeWithStr _ RawMonoidStructure
 
-  RawMonoidStructure : Type ℓ → Type ℓ
-  RawMonoidStructure X = X × (X → X → X)
+Monoid→RawMonoid : Monoid → RawMonoid
+Monoid→RawMonoid (A , r , _) = (A , r)
 
-  RawMonoidEquivStr = AutoEquivStr RawMonoidStructure
+RawMonoidEquivStr = Auto.AutoEquivStr RawMonoidStructure
 
-  rawMonoidUnivalentStr : UnivalentStr _ RawMonoidEquivStr
-  rawMonoidUnivalentStr = autoUnivalentStr RawMonoidStructure
+rawMonoidUnivalentStr : UnivalentStr _ RawMonoidEquivStr
+rawMonoidUnivalentStr = Auto.autoUnivalentStr RawMonoidStructure
 
-  MonoidAxioms : (M : Type ℓ) → RawMonoidStructure M → Type ℓ
-  MonoidAxioms M (e , _·_) = IsSemigroup _·_
-                            × ((x : M) → (x · e ≡ x) × (e · x ≡ x))
+isPropMonoidAxioms : (M : Type) (s : RawMonoidStructure M) → isProp (MonoidAxioms M s)
+isPropMonoidAxioms M (e , _·_) =
+  HLevels.isPropΣ
+    (Semigroup.isPropIsSemigroup _·_)
+    (λ α → isPropΠ λ _ →
+      HLevels.isProp×
+        (Semigroup.IsSemigroup.is-set α _ _)
+        (Semigroup.IsSemigroup.is-set α _ _))
 
-  MonoidStructure : Type ℓ → Type ℓ
-  MonoidStructure = AxiomsStructure RawMonoidStructure MonoidAxioms
+MonoidEquivStr : StrEquiv MonoidStructure ℓ-zero
+MonoidEquivStr = AxiomsEquivStr RawMonoidEquivStr MonoidAxioms
 
-  MonoidΣ : Type (ℓ-suc ℓ)
-  MonoidΣ = TypeWithStr ℓ MonoidStructure
+monoidUnivalentStr : UnivalentStr MonoidStructure MonoidEquivStr
+monoidUnivalentStr = axiomsUnivalentStr _ isPropMonoidAxioms rawMonoidUnivalentStr
 
-  isPropMonoidAxioms : (M : Type ℓ) (s : RawMonoidStructure M) → isProp (MonoidAxioms M s)
-  isPropMonoidAxioms M (e , _·_) =
-    isPropΣ (isPropIsSemigroup _·_)
-            λ α → isPropΠ λ _ → isProp× (IsSemigroup.is-set α _ _) (IsSemigroup.is-set α _ _)
+MonoidΣPath : (M N : Monoid) → (M ≃[ MonoidEquivStr ] N) ≃ (M ≡ N)
+MonoidΣPath = SIP monoidUnivalentStr
 
-  MonoidEquivStr : StrEquiv MonoidStructure ℓ
-  MonoidEquivStr = AxiomsEquivStr RawMonoidEquivStr MonoidAxioms
+InducedMonoid : (M : Monoid) (N : RawMonoid) (e : M .fst ≃ N .fst)
+                → RawMonoidEquivStr (Monoid→RawMonoid M) N e → Monoid
+InducedMonoid M N e r =
+  Axioms.inducedStructure rawMonoidUnivalentStr M N (e , r)
 
-  unquoteDecl IsMonoidIsoMonoidAxioms =
-    declareRecordIsoΣ IsMonoidIsoMonoidAxioms (quote IsMonoid)
-
-  MonoidAxioms≡IsMonoid : {M : Type ℓ} (s : RawMonoidStructure M)
-    → MonoidAxioms M s ≡ IsMonoid (s .fst) (s .snd)
-  MonoidAxioms≡IsMonoid s = ua (strictIsoToEquiv (invIso IsMonoidIsoMonoidAxioms))
-
-  open MonoidStr
-
-  Monoid→MonoidΣ : Monoid → MonoidΣ
-  Monoid→MonoidΣ (A , M) =
-    A , (ε M , _·_ M) , IsMonoidIsoMonoidAxioms .fun (isMonoid M)
-
-  MonoidΣ→Monoid : MonoidΣ → Monoid
-  MonoidΣ→Monoid (M , (ε , _·_) , isMonoidΣ) =
-    monoid M ε _·_ (IsMonoidIsoMonoidAxioms .inv isMonoidΣ)
-
-  MonoidIsoMonoidΣ : Iso Monoid MonoidΣ
-  MonoidIsoMonoidΣ =
-    iso Monoid→MonoidΣ MonoidΣ→Monoid (λ _ → refl) (λ _ → refl)
-
-  monoidUnivalentStr : UnivalentStr MonoidStructure MonoidEquivStr
-  monoidUnivalentStr = axiomsUnivalentStr _ isPropMonoidAxioms rawMonoidUnivalentStr
-
-  MonoidΣPath : (M N : MonoidΣ) → (M ≃[ MonoidEquivStr ] N) ≃ (M ≡ N)
-  MonoidΣPath = SIP monoidUnivalentStr
-
-  MonoidEquivΣ : (M N : Monoid) → Type ℓ
-  MonoidEquivΣ M N = Monoid→MonoidΣ M ≃[ MonoidEquivStr ] Monoid→MonoidΣ N
-
-  MonoidIsoΣPath : {M N : Monoid} → Iso (Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] (MonoidEquiv M N e)) (MonoidEquivΣ M N)
-  fun MonoidIsoΣPath (e , monoidiso h1 h2) = (e , h1 , h2)
-  inv MonoidIsoΣPath (e , h1 , h2)         = (e , monoidiso h1 h2)
-  rightInv MonoidIsoΣPath _                = refl
-  leftInv MonoidIsoΣPath _                 = refl
-
-  MonoidPath : (M N : Monoid {ℓ}) → (Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] (MonoidEquiv M N e)) ≃ (M ≡ N)
-  MonoidPath M N =
-    Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] MonoidEquiv M N e ≃⟨ isoToEquiv MonoidIsoΣPath ⟩
-    MonoidEquivΣ M N                      ≃⟨ MonoidΣPath _ _ ⟩
-    Monoid→MonoidΣ M ≡ Monoid→MonoidΣ N ≃⟨ isoToEquiv (invIso (congIso MonoidIsoMonoidΣ)) ⟩
-    M ≡ N ■
-
-  RawMonoidΣ : Type (ℓ-suc ℓ)
-  RawMonoidΣ = TypeWithStr ℓ RawMonoidStructure
-
-  Monoid→RawMonoidΣ : Monoid → RawMonoidΣ
-  Monoid→RawMonoidΣ (A , M) = A , (ε M) , (_·_ M)
-
-  InducedMonoid : (M : Monoid) (N : RawMonoidΣ) (e : M .fst ≃ N .fst)
-                 → RawMonoidEquivStr (Monoid→RawMonoidΣ M) N e → Monoid
-  InducedMonoid M N e r =
-    MonoidΣ→Monoid (inducedStructure rawMonoidUnivalentStr (Monoid→MonoidΣ M) N (e , r))
-
-  InducedMonoidPath : (M : Monoid {ℓ}) (N : RawMonoidΣ) (e : M .fst ≃ N .fst)
-                      (E : RawMonoidEquivStr (Monoid→RawMonoidΣ M) N e)
+InducedMonoidPath : (M : Monoid) (N : RawMonoid) (e : M .fst ≃ N .fst)
+                    (E : RawMonoidEquivStr (Monoid→RawMonoid M) N e)
                     → M ≡ InducedMonoid M N e E
-  InducedMonoidPath M N e E =
-    MonoidPath M (InducedMonoid M N e E) .fst (e , monoidiso (E .fst) (E .snd))
-
-open MonoidΣTheory using (MonoidΣPath ; InducedMonoid
-                                      ; InducedMonoidPath) public
+InducedMonoidPath M N e E =
+  MonoidΣPath M (InducedMonoid M N e E) .fst (e , E)
 
 -- Automation
 open Auto using (Transp[_] ; AutoEquivStr ; autoUnivalentStr) public

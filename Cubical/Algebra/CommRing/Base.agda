@@ -12,14 +12,11 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Reflection.StrictEquiv
-
 open import Cubical.Displayed.Base
 open import Cubical.Displayed.Auto
 open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
-open import Cubical.Structures.Axioms
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.AbGroup
@@ -130,7 +127,7 @@ isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
       data[ 1r ∣ null ∣ pres1 ]
       data[ _+_ ∣ bin ∣ pres+ ]
       data[ _·_ ∣ bin ∣ pres· ]
-      data[ -_ ∣ un ∣ pres- ]
+      data[ -_ ∣ autoDUARel _ _ ∣ pres- ]
       prop[ isCommRing ∣ (λ _ _ → isPropIsCommRing _ _ _ _ _) ])
  where
   open CommRingStr
@@ -138,7 +135,6 @@ isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
 
   -- faster with some sharing
   null = autoDUARel (𝒮-Univ _) (λ A → A) 
-  un = autoDUARel (𝒮-Univ _) (λ A → A → A)
   bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
 
 CommRingPath : (R S : CommRing {ℓ}) → CommRingEquiv R S ≃ (R ≡ S)

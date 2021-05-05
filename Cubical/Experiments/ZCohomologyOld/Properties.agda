@@ -441,7 +441,7 @@ rUnitlUnit0 (suc (suc n)) =
 open IsSemigroup
 open IsMonoid
 open GroupStr
-open GroupHom
+open IsGroupHom
 
 coHomGr : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group {ℓ}
 coHomGr n A = coHom n A , coHomGrnA
@@ -464,12 +464,12 @@ coHomFun n f = sRec § λ β → ∣ β ∘ f ∣₂
 
 -distrLemma : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n m : ℕ) (f : GroupHom (coHomGr n A) (coHomGr m B))
               (x y : coHom n A)
-            → fun f (x -[ n ]ₕ y) ≡ fun f x -[ m ]ₕ fun f y
+            → fst f (x -[ n ]ₕ y) ≡ fst f x -[ m ]ₕ fst f y
 -distrLemma n m f' x y = sym (-cancelRₕ m (f y) (f (x -[ n ]ₕ y)))
-                     ∙∙ cong (λ x → x -[ m ]ₕ f y) (sym (isHom f' (x -[ n ]ₕ y) y))
+                     ∙∙ cong (λ x → x -[ m ]ₕ f y) (sym (f' .snd .pres· (x -[ n ]ₕ y) y))
                      ∙∙ cong (λ x → x -[ m ]ₕ f y) ( cong f (-+cancelₕ n _ _))
   where
-  f = fun f'
+  f = fst f'
 
 --- the loopspace of Kₙ is commutative regardless of base
 

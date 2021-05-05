@@ -11,10 +11,6 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
-open import Cubical.Reflection.StrictEquiv
-open import Cubical.Structures.Axioms
-open import Cubical.Structures.Macro
-open import Cubical.Structures.Pointed
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Group
@@ -140,6 +136,38 @@ isPropIsAbGroup 0g _+_ -_ (isabgroup GG GC) (isabgroup HG HC) =
 -- Extract the characterization of equality of groups
 AbGroupPath : (G H : AbGroup {ℓ}) → (AbGroupEquiv G H) ≃ (G ≡ H)
 AbGroupPath = ∫ 𝒮ᴰ-AbGroup .UARel.ua
+
+-- TODO: Induced structure results are temporarily inconvenient while we transition between algebra
+-- representations
+module _ (G : AbGroup {ℓ}) {A : Type ℓ} (m : A → A → A)
+  (e : ⟨ G ⟩ ≃ A)
+  (p· : ∀ x y → e .fst (G .snd ._+_ x y) ≡ m (e .fst x) (e .fst y))
+  where
+
+  private
+    module G = AbGroupStr (G .snd)
+
+    FamilyΣ : Σ[ B ∈ Type ℓ ] (B → B → B) → Type ℓ
+    FamilyΣ (B , n) =
+      Σ[ e ∈ B ]
+      Σ[ i ∈ (B → B) ]
+      IsAbGroup e n i
+
+    inducedΣ : FamilyΣ (A , m)
+    inducedΣ =
+      subst FamilyΣ
+        (UARel.≅→≡ (autoUARel (Σ[ B ∈ Type ℓ ] (B → B → B))) (e , p·))
+        (G.0g , G.-_ , G.isAbGroup)
+
+  InducedAbGroup : AbGroup
+  InducedAbGroup .fst = A
+  InducedAbGroup .snd ._+_ = m
+  InducedAbGroup .snd .0g = inducedΣ .fst
+  InducedAbGroup .snd .-_ = inducedΣ .snd .fst
+  InducedAbGroup .snd .isAbGroup = inducedΣ .snd .snd
+
+  InducedAbGroupPath : G ≡ InducedAbGroup
+  InducedAbGroupPath = AbGroupPath _ _ .fst (e , makeIsGroupHom p·)
 
 open IsMonoid
 open IsSemigroup
