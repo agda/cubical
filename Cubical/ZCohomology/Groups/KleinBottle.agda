@@ -184,7 +184,7 @@ H¹-𝕂²≅ℤ = compGroupIso theGroupIso (Hⁿ-Sⁿ≅ℤ 0)
          (compIso Iso-H¹-𝕂²₁
                   Iso-H¹-𝕂²₂)))
 
-  is-hom : IsGroupHom (coHomGr 1 KleinBottle .snd) (fun theIso) (coHomGr 1 S¹ .snd) 
+  is-hom : IsGroupHom (coHomGr 1 KleinBottle .snd) (fun theIso) (coHomGr 1 S¹ .snd)
   is-hom =
     makeIsGroupHom
       (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)

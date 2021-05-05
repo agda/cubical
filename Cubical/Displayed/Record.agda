@@ -92,7 +92,7 @@ data DUAFields {ℓA ℓ≅A ℓR ℓ≅R} {A : Type ℓA} (𝒮-A : UARel A ℓ
     (πF : ∀ {a} → (r : R a) → F a (πS r))
     (propF : ∀ a s → isProp (F a s))
     → DUAFields 𝒮-A R _≅R⟨_⟩_ (λ r → πS r , πF r) (𝒮ᴰ-subtype 𝒮ᴰ-S propF) (λ p → πS≅ p)
-  
+
 module _ {ℓA ℓ≅A} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
   {ℓR ℓ≅R} {R : A → Type ℓR} (_≅R⟨_⟩_ : {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R)
   {ℓS ℓ≅S} {S : A → Type ℓS}

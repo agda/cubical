@@ -62,7 +62,7 @@ record IsLeftModule (R : Ring {ℓ}) {M : Type ℓ}
 unquoteDecl IsLeftModuleIsoΣ = declareRecordIsoΣ IsLeftModuleIsoΣ (quote IsLeftModule)
 
 record LeftModuleStr (R : Ring {ℓ}) (A : Type ℓ) : Type ℓ where
-  
+
   constructor leftmodulestr
 
   field
@@ -162,4 +162,4 @@ isPropIsLeftModule R _ _ _ _ =
 
 LeftModulePath : {R : Ring {ℓ}} (M N : LeftModule R) → (LeftModuleEquiv M N) ≃ (M ≡ N)
 LeftModulePath {ℓ} {R} = ∫ (𝒮ᴰ-LeftModule R) .UARel.ua
-  
+

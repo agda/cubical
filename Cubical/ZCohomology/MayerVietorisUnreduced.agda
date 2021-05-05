@@ -83,7 +83,7 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
                                   ; (j = i1) → (Kn→ΩKn+1 n (h a) i) +[ (suc n) ]ₖ coHom-pt (suc n)})
                         (rUnitₖ (suc n) (Kn→ΩKn+1 n (h a) i) (~ j))))
 
-  dIsHom : (n : ℕ) → IsGroupHom (coHomGr n C .snd) (sRec setTruncIsSet λ a → ∣ d-pre n a ∣₂) (coHomGr (suc n) (Pushout f g) .snd) 
+  dIsHom : (n : ℕ) → IsGroupHom (coHomGr n C .snd) (sRec setTruncIsSet λ a → ∣ d-pre n a ∣₂) (coHomGr (suc n) (Pushout f g) .snd)
   dIsHom n =
     makeIsGroupHom
       (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)

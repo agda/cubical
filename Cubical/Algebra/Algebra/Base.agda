@@ -193,7 +193,7 @@ isPropIsAlgebra R _ _ _ _ _ _ =
   open AlgebraStr
 
   -- faster with some sharing
-  nul = autoDUARel (𝒮-Univ _) (λ A → A) 
+  nul = autoDUARel (𝒮-Univ _) (λ A → A)
   bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
 
 AlgebraPath : {R : Ring {ℓ}} (A B : Algebra R) → (AlgebraEquiv A B) ≃ (A ≡ B)
@@ -209,7 +209,7 @@ compIsAlgebraHom {g = g} {f} gh fh .pres+ x y = cong g (fh .pres+ x y) ∙ gh .p
 compIsAlgebraHom {g = g} {f} gh fh .pres· x y = cong g (fh .pres· x y) ∙ gh .pres· (f x) (f y)
 compIsAlgebraHom {g = g} {f} gh fh .pres- x = cong g (fh .pres- x) ∙ gh .pres- (f x)
 compIsAlgebraHom {g = g} {f} gh fh .pres⋆ r x = cong g (fh .pres⋆ r x) ∙ gh .pres⋆ r (f x)
-       
+
 _∘a_ : {R : Ring {ℓ}} {A B C : Algebra R}
        → AlgebraHom B C → AlgebraHom A B → AlgebraHom A C
 _∘a_  g f .fst = g .fst ∘ f .fst

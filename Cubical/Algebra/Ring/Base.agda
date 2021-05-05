@@ -202,7 +202,7 @@ isPropIsRingHom R f S =
   open IsRingHom
 
   -- faster with some sharing
-  null = autoDUARel (𝒮-Univ _) (λ A → A) 
+  null = autoDUARel (𝒮-Univ _) (λ A → A)
   un = autoDUARel (𝒮-Univ _) (λ A → A → A)
   bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
 
@@ -229,7 +229,7 @@ module _ {R : Ring {ℓ}} {S : Ring {ℓ'}} {f : ⟨ R ⟩ → ⟨ S ⟩} where
     module R = RingStr (R .snd)
     module S = RingStr (S .snd)
 
-  module _ 
+  module _
     (p1 : f R.1r ≡ S.1r)
     (p+ : (x y : ⟨ R ⟩) → f (x R.+ y) ≡ f x S.+ f y)
     (p· : (x y : ⟨ R ⟩) → f (x R.· y) ≡ f x S.· f y)

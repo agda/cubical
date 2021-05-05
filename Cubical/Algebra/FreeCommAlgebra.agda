@@ -417,7 +417,7 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
       where
       ι = inducedMap A (evaluateAt f)
       module f = IsAlgebraHom (f .snd)
-             
+
 
 evaluateAt : {R : CommRing {ℓ}} {I : Type ℓ} (A : CommAlgebra R)
              (f : AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A))

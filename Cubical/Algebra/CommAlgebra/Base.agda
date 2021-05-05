@@ -153,7 +153,7 @@ isPropIsCommAlgebra R _ _ _ _ _ _ =
   open IsAlgebraHom
 
   -- faster with some sharing
-  nul = autoDUARel (𝒮-Univ _) (λ A → A) 
+  nul = autoDUARel (𝒮-Univ _) (λ A → A)
   bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
 
 CommAlgebraPath : (R : CommRing {ℓ}) → (A B : CommAlgebra R) → (CommAlgebraEquiv A B) ≃ (A ≡ B)

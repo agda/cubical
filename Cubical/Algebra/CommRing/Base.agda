@@ -134,7 +134,7 @@ isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
   open IsRingHom
 
   -- faster with some sharing
-  null = autoDUARel (𝒮-Univ _) (λ A → A) 
+  null = autoDUARel (𝒮-Univ _) (λ A → A)
   bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
 
 CommRingPath : (R S : CommRing {ℓ}) → CommRingEquiv R S ≃ (R ≡ S)

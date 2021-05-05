@@ -224,7 +224,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
                      → ψ₀ 1r ·B (ψ₀ 1r) ⁻¹ ≡ 1b
     instancepres1χ = (λ i → (ψ.pres1 i) ·B (unitCong (ψ.pres1) i))
                    ∙ (λ i → ·B-lid (1⁻¹≡1 i) i)
-   
+
     pres+[] : (a b : R × S) → fst χ ([ a ] +ₗ [ b ]) ≡ (fst χ [ a ]) +B (fst χ [ b ])
     pres+[] (r , s , s∈S') (r' , s' , s'∈S') = instancepath
      ⦃ ψS⊆Bˣ s s∈S' ⦄ ⦃ ψS⊆Bˣ s' s'∈S' ⦄ ⦃ ψS⊆Bˣ (s · s') (SMultClosedSubset .multClosed s∈S' s'∈S') ⦄
