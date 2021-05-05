@@ -17,7 +17,7 @@ This module contains:
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 
-open import Cubical.HITs.S1 hiding (encode ; decode)
+open import Cubical.HITs.S1 hiding (encode ; decode ; _·_)
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
@@ -542,23 +542,6 @@ snd (rightInv (ΩfunExtIso A B) (f , p) i) j = p j
 fst (leftInv (ΩfunExtIso A B) p i j) y = fst (p j) y
 snd (leftInv (ΩfunExtIso A B) p i j) k = snd (p j) k
 
-ΩfunExtIsoDep : {A B : Pointed₀} → (f g : A →∙ B)
-              → Iso (f ≡ g) (Σ[ p ∈ ((x : fst A) → fst f x ≡ fst g x) ]
-                               PathP (λ i → p (snd A) i ≡ snd B) (snd f) (snd g))
-fst (fun (ΩfunExtIsoDep f g) p) x j = fst (p j) x
-snd (fun (ΩfunExtIsoDep f g) p) i j = snd (p i) j
-fst (inv' (ΩfunExtIsoDep f g) (p , pp) j) x = p x j
-snd (inv' (ΩfunExtIsoDep f g) (p , pp) j) i = pp j i
-rightInv (ΩfunExtIsoDep f g) (p , pp) = refl
-leftInv (ΩfunExtIsoDep f g) p = refl
-
-codomainIsoDep : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : A → Type ℓ'} {C : Type ℓ''}
-               → ((x : A) → Iso (B x) C) → Iso ((x : A) → B x) (A → C) 
-fun (codomainIsoDep is) f x = fun (is x) (f x)
-inv' (codomainIsoDep is) f x = inv' (is x) (f x)
-rightInv (codomainIsoDep is) f = funExt λ x → rightInv (is x) (f x)
-leftInv (codomainIsoDep is) f = funExt λ x → leftInv (is x) (f x)
-
 open import Cubical.Foundations.Univalence
 pointedEquiv→Path : {A B : Pointed₀} (e : fst A ≃ fst B) → fst e (snd A) ≡ snd B → A ≡ B
 fst (pointedEquiv→Path e p i) = ua e i
@@ -630,60 +613,147 @@ wow (suc n) m = hlevTotal (suc (n + m)) (suc n) (wow n m)
 isOfHLevel→∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) → isOfHLevel n (fst B) → isOfHLevel n (A →∙ B)
 isOfHLevel→∙ n hlev = isOfHLevelΣ n (isOfHLevelΠ n (λ _ → hlev)) λ x → isOfHLevelPath n hlev _ _
 
+^ₖ : {n : ℕ} (m : Int) → coHomK n → coHomK n
+^ₖ {n = n} (pos zero) x = 0ₖ _
+^ₖ {n = n} (pos (suc m)) x = x +ₖ ^ₖ (pos m) x
+^ₖ {n = n} (negsuc zero) x = -ₖ x
+^ₖ {n = n} (negsuc (suc m)) x = ^ₖ (negsuc m) x -ₖ x
+
+^ₖ-base : {n : ℕ} (m : Int) → ^ₖ m (0ₖ n) ≡ 0ₖ n
+^ₖ-base (pos zero) = refl
+^ₖ-base (pos (suc n)) = cong (0ₖ _ +ₖ_) (^ₖ-base (pos n)) ∙ rUnitₖ _ (0ₖ _)
+^ₖ-base {n = zero} (negsuc zero) = refl
+^ₖ-base {n = suc zero} (negsuc zero) = refl
+^ₖ-base {n = suc (suc k)} (negsuc zero) = refl
+^ₖ-base {n = zero} (negsuc (suc n)) = cong (λ x → x -ₖ (0ₖ _)) (^ₖ-base (negsuc n))
+^ₖ-base {n = suc zero} (negsuc (suc n)) = cong (λ x → x -ₖ (0ₖ _)) (^ₖ-base (negsuc n))
+^ₖ-base {n = suc (suc k)} (negsuc (suc n)) = cong (λ x → x -ₖ (0ₖ _)) (^ₖ-base (negsuc n))
+
+k : (n m : ℕ) → S₊ (suc n) → coHomK-ptd (suc m) →∙ coHomK-ptd (suc (n + suc m))
+k zero m base = (λ _ → 0ₖ _) , refl
+k zero m (loop i) = (λ x → Kn→ΩKn+1 _ x i) , (λ j → Kn→ΩKn+10ₖ _ j i)
+fst (k (suc n) m north) _ = 0ₖ _
+snd (k (suc n) m north) = refl
+fst (k (suc n) m south) _ = 0ₖ _
+snd (k (suc n) m south) = refl
+fst (k (suc n) m (merid a i)) x = Kn→ΩKn+1 _ (k n m a .fst x) i
+snd (k (suc n) m (merid a i)) j =
+  (cong (Kn→ΩKn+1 (suc (n + suc m))) (k n m a .snd)
+  ∙ Kn→ΩKn+10ₖ (suc (n + (suc m)))) j i
+
+
 ⌣ₖ' : (n m : ℕ) → (coHomK n → (coHomK-ptd m) →∙ coHomK-ptd (n + m))
 ⌣ₖ' zero zero x = (λ y → y ℤ∙ x) , refl
-⌣ₖ' zero (suc m) x = (trRec (isOfHLevelTrunc (3 + m)) (help m)) , help∙ m
-  where
-  help : (m : ℕ) → S₊ (suc m) → fst (coHomK-ptd (suc m))
-  help zero base = 0ₖ _
-  help zero (loop i) = ∣ intLoop x i ∣
-  help (suc m) north = 0ₖ _
-  help (suc m) south = 0ₖ _
-  help (suc m) (merid a i) = Kn→ΩKn+1 (suc m) (help m a) i
-
-  help∙ : (m : ℕ) → help m (ptSn (suc m)) ≡ snd (coHomK-ptd (suc m))
-  help∙ zero = refl
-  help∙ (suc m) = refl
-⌣ₖ' (suc n) zero =
-    trRec (isOfHLevel→∙ (3 + n) (subst (λ m → isOfHLevel (3 + n) (coHomK (suc m))) (sym (+-comm n zero)) (isOfHLevelTrunc (3 + n))))
-          (subst (λ m → S₊ (suc n) → coHomK-ptd zero →∙ coHomK-ptd (suc m)) (sym (+-comm n zero)) λ x → (help n x) , pathHelp n x)
-  where
-  help : (n : ℕ) → S₊ (suc n) → coHomK zero → coHomK (suc n)
-  pathHelp : (n : ℕ) (x : S₊ (suc n)) → help n x (snd (coHomK-ptd zero)) ≡ 0ₖ _
-  help zero base x = 0ₖ _
-  help zero (loop i) x = Kn→ΩKn+1 0 x i
-  help (suc n) north x = 0ₖ _
-  help (suc n) south x = 0ₖ _
-  help (suc n) (merid a i) x = Kn→ΩKn+1 (suc n) (help n a x) i
-  pathHelp zero base = refl
-  pathHelp zero (loop i) j = Kn→ΩKn+10ₖ 0 j i
-  pathHelp (suc n) north = refl
-  pathHelp (suc n) south = refl
-  pathHelp (suc n) (merid a i) j = help2 j i
-    where
-    help2 : (Kn→ΩKn+1 (suc n)) (help n a 0) ≡ refl
-    help2 = cong (Kn→ΩKn+1 (suc n)) (pathHelp n a) ∙ Kn→ΩKn+10ₖ (suc n)
+⌣ₖ' zero (suc m) x = ^ₖ x , ^ₖ-base x
+⌣ₖ' (suc n) zero x =
+  subst (λ m → coHomK-ptd zero →∙ coHomK-ptd (suc m)) (+-comm zero n)
+        ((λ y → ^ₖ y x) , refl)
 ⌣ₖ' (suc n) (suc m) =
   trRec (subst (isOfHLevel (3 + n))
             (λ i → (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (+-suc n m (~ i))))) (wow (suc n) m))
     (k n m)
-  where
-  k : (n m : ℕ) → S₊ (suc n) → coHomK-ptd (suc m) →∙ coHomK-ptd (suc (n + suc m))
-  k zero m base = (λ _ → 0ₖ _) , refl
-  k zero m (loop i) = (λ x → Kn→ΩKn+1 _ x i) , (λ j → Kn→ΩKn+10ₖ _ j i)
-  fst (k (suc n) m north) _ = 0ₖ _
-  snd (k (suc n) m north) = refl
-  fst (k (suc n) m south) _ = 0ₖ _
-  snd (k (suc n) m south) = refl
-  fst (k (suc n) m (merid a i)) x = Kn→ΩKn+1 _ (k n m a .fst x) i
-  snd (k (suc n) m (merid a i)) j =
-    (cong (Kn→ΩKn+1 (suc (n + suc m))) (k n m a .snd) ∙ Kn→ΩKn+10ₖ (suc (n + (suc m)))) j i
-
 _⌣ₖ_ : {n m : ℕ} → coHomK n → coHomK m → coHomK (n + m)
 _⌣ₖ_ {n = n} {m = m} x = fst (⌣ₖ' n m x)
 
 _⌣_ : ∀ {ℓ} {A : Type ℓ} {n m : ℕ} → coHom n A → coHom m A → coHom (n + m) A
 _⌣_ {n = n} {m = m} = sRec2 squash₂ λ f g → ∣ (λ x → f x ⌣ₖ g x) ∣₂
+
+-ₖ̂_ : (n : ℕ) {m : ℕ} → coHomK m → coHomK m
+-ₖ̂ zero = λ x → x
+(-ₖ̂ suc n) {m = m} x = -[ m ]ₖ (-ₖ̂ n) x
+
+sisi : (n m : ℕ) → (x : coHomK n) (y : coHomK m) → (x ⌣ₖ y) ≡ -ₖ̂_ (n · m) (subst (coHomK) (+-comm m n) (y ⌣ₖ x))
+sisi zero m = {!!}
+sisi (suc n) zero = {!!}
+sisi (suc n) (suc m) = {!!}
+
+ptpt : (n m : ℕ) → (x : coHomK n) → (-ₖ̂ (n · m)) (subst coHomK (+-comm m n) (fst (⌣ₖ' m n (snd (coHomK-ptd m))) x)) ≡ 0ₖ _
+ptpt n m = {!!}
+
+cong-ₖ : (n : ℕ) → (p : typ ((Ω^ 2) (coHomK-ptd 1))) → cong (cong (-ₖ_)) p ≡ {!!}
+cong-ₖ = {!!}
+
+ptCP∞ : (n m : ℕ) (x : coHomK n) → ⌣ₖ' n m x ≡ ((λ y → -ₖ̂_ (n · m) (subst (coHomK) (+-comm m n) (fst (⌣ₖ' m n y) x))) , ptpt n m x)
+ptCP∞ zero m x = {!!}
+ptCP∞ (suc n) zero x = {!!}
+ptCP∞ (suc n) (suc m) = trElim {!!} {!!}
+  where
+  help : (n m : ℕ) → (s : S₊ (suc n)) (l : _) → fst (k n m s) l ≡ -ₖ̂_ ((suc n) · (suc m)) (subst (coHomK) (+-comm (suc m) (suc n)) (fst (⌣ₖ' (suc m) (suc n) l) ∣ s ∣))
+  help zero zero s =
+    trElim (λ _ → isOfHLevelTrunc 4 _ _)
+           λ a → {!!} ∙∙ (λ i → -ₖ transportRefl (fst (k 0 0 a) ∣ s ∣) (~ i)) ∙∙ λ i → -ₖ (subst coHomK (rUnit (λ i → 2) i) (fst (k 0 0 a) ∣ s ∣))
+    where
+    r : cong (fst (k zero zero base)) (λ i → ∣ loop i ∣) ≡ cong (λ x → -ₖ (fst (k 0 0 x) ∣ base ∣)) loop
+    r i = cong (λ x → -ₖ x) (Kn→ΩKn+10ₖ 1 (~ i))
+
+    l : cong (λ x → fst (k 0 0 x) ∣ base ∣) loop ≡ cong (λ x → -ₖ (fst (k zero zero base) x)) (λ i → ∣ loop i ∣)
+    l i = Kn→ΩKn+10ₖ 1 i
+
+    r-l : Square {!λ i j → (fst (k 0 0 (loop (i ∧ j)))) (∣ loop j ∣)!} {!cong (λ x → -ₖ fst (k zero zero base) x) (λ i → ∣ loop i ∣)!} l r
+    -- PathP (λ i → {!cong (λ x → fst (k 0 0 x) ∣ base ∣) loop!} ≡ {!!}) l r
+    r-l = {!!}
+
+    lem : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) (n : ℕ)
+         → PathP (λ i → Path (Path (hLevelTrunc (suc n) A) ∣ x ∣ ∣ x ∣) (congFunct ∣_∣ p (sym p) (~ i)) refl)
+                  (rCancel (cong ∣_∣ p)) (cong (cong ∣_∣) (rCancel p))
+    lem = {!!}
+
+    lem₂ : ∀ {ℓ} {A B : Type ℓ} {x y : A} (p : x ≡ y) (f : A → B) → PathP (λ i → congFunct f p (sym p) i ≡ refl) (cong (cong f) (rCancel p)) (rCancel (cong f p))
+    lem₂ = {!!}
+
+    lem₃ : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → PathP (λ i → p (~ i) ≡ z) q (p ∙ q)
+    lem₃ = {!!}
+
+    lem₄ : (cong₂ (λ s t → fst (k zero zero s) ∣ t ∣) loop loop) ≡ (cong₂ (λ s t → -ₖ (fst (k zero zero t) ∣ s ∣)) loop loop)
+    lem₄ = {!!}
+
+    characFun≡S¹ : ∀ {ℓ} {A : Type ℓ} (f g : S¹ → S¹ → A)
+                  → (p : f base base ≡ g base base)
+                  → (ppₗ : PathP (λ i → p i ≡ p i) (cong (f base) loop) (cong (g base) loop))
+                  → (ppᵣ : PathP (λ i → p i ≡ p i) (cong (λ x → f x base) loop ) (cong (λ x → g x base) loop))
+                  → PathP (λ i → ppₗ i ≡ ppᵣ i) {!λ i j → f (loop i) (loop j)!} {!!}
+                  → (s t : S¹) → f s t ≡ g s t
+    characFun≡S¹ f g p ppl ppr pp base base = p
+    characFun≡S¹ f g p ppl ppr pp base (loop i) j = ppl j i
+    characFun≡S¹ f g p ppl ppr pp (loop i) base j = ppr j i
+    characFun≡S¹ f g p ppl ppr pp (loop i) (loop k) j = {!!}
+
+    help2 : (s a : S¹) → fst (k zero zero s) ∣ a ∣ ≡ -ₖ (fst (k 0 0 a) ∣ s ∣)
+    help2 base base = refl
+    help2 base (loop i) j = r j i
+    help2 (loop i) base j = l j i
+    help2 (loop i) (loop j) s =
+      hcomp (λ r → λ { (i = i0) → -ₖ lem (merid base) 3 r (~ s) j
+                       ; (i = i1) → -ₖ lem (merid base) 3 r (~ s) j
+                       ; (j = i0) → lem (merid base) 3 r s i
+                       ; (j = i1) → lem (merid base) 3 r s i
+                       ; (s = i0) → congFunct ∣_∣ (merid (loop j)) (sym (merid base)) (~ r) i
+                       ; (s = i1) → -ₖ congFunct ∣_∣ (merid (loop i)) (sym (merid base)) (~ r) j })
+            (hcomp (λ r → λ { (i = i0) → lem₂ (cong ∣_∣ (merid base)) (-ₖ_) (~ r) (~ s) j -- -ₖ lem (merid base) 3 r (~ s) j
+                       ; (i = i1) → lem₂ (cong ∣_∣ (merid base)) (-ₖ_) (~ r) (~ s) j -- -ₖ lem (merid base) 3 r (~ s) j
+                       ; (j = i0) → rCancel (cong ∣_∣ (merid base)) s i -- lem (merid base) 3 r s i
+                       ; (j = i1) → rCancel (cong ∣_∣ (merid base)) s i -- lem (merid base) 3 r s i
+                       ; (s = i0) → (cong ∣_∣ (merid (loop j)) ∙ cong ∣_∣ (sym (merid base))) i
+                       ; (s = i1) → congFunct (-ₖ_) (cong ∣_∣ (merid (loop i))) (cong ∣_∣ (sym (merid base))) (~ r) j })
+                   (hcomp (λ r → λ { (i = i0) → rCancel (cong ∣_∣ (lem₃ (merid base) (sym (merid base)) r)) (~ s) j
+                       ; (i = i1) → rCancel (cong ∣_∣ (lem₃ (merid base) (sym (merid base)) r)) (~ s) j
+                       ; (j = i0) → rCancel (cong ∣_∣ (λ i → merid base (i ∨ ~ r))) s i
+                       ; (j = i1) → rCancel (cong ∣_∣ (λ i → merid base (i ∨ ~ r))) s i
+                       ; (s = i0) → {!(cong ∣_∣ (λ i → merid (loop j) (i ∨ ~ r)) ∙ cong ∣_∣ (sym (λ i → merid base (i ∨ ~ r)))) i!}
+                       ; (s = i1) → (((cong ∣_∣ (lem₃ (merid base) (sym (merid (loop i))) r))) ∙ sym (cong ∣_∣ (lem₃ (merid base) (sym (merid base)) r))) j })
+                         {!!}))
+      where
+      help3 : {!!}
+      help3 = {!!}
+  help zero (suc m) s l = {!!}
+  help (suc n) m s l = {!i = i0 ⊢ help2 base (loop j) s
+i = i1 ⊢ help2 base (loop j) s
+j = i0 ⊢ help2 (loop i) base s
+j = i1 ⊢ help2 (loop i) base s
+s = i0 ⊢ fst (k zero zero (loop i))
+         ∣ loop j ∣
+s = i1 ⊢ -ₖ
+         fst (k 0 0 (loop j)) ∣ loop i ∣!}
 
 -- ⌣ₖ∙ : (n m : ℕ) → (coHomK n → (coHomK-ptd m) →∙ coHomK-ptd (n + m))
 -- ⌣ₖ∙ zero zero = λ x → (λ y → y ℤ∙ x) , refl
