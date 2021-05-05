@@ -3,7 +3,7 @@
   - Automatically generate UARel and DUARel instances
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Displayed.Auto where
 
 open import Cubical.Foundations.Prelude
@@ -303,9 +303,12 @@ module DisplayedAutoMacro where
   autoUARel : ∀ {ℓA} (A : Type ℓA) → ℕ → R.Term → R.TC Unit
   autoUARel A n hole =
     R.quoteTC A >>= λ `A` →
-    R.checkType hole (R.def (quote UARel) (`A` v∷ R.unknown v∷ [])) >>
     newMeta R.unknown >>= λ desc →
-    R.unify hole (R.def (quote getUARel) [ varg desc ]) >>
+    makeAuxiliaryDef "autoUA"
+      (R.def (quote UARel) (`A` v∷ R.unknown v∷ []))
+      (R.def (quote getUARel) [ varg desc ])
+      >>= λ uaTerm →
+    R.unify hole uaTerm >>
     autoUARelDesc n desc
 
   autoDUARel : ∀ {ℓA ℓ≅A ℓB} {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) (B : A → Type ℓB)
@@ -313,9 +316,12 @@ module DisplayedAutoMacro where
   autoDUARel 𝒮-A B n hole =
     R.quoteTC 𝒮-A >>= λ `𝒮-A` →
     R.quoteTC B >>= λ `B` →
-    R.checkType hole (R.def (quote DUARel) (`𝒮-A` v∷ `B` v∷ R.unknown v∷ [])) >>
     newMeta R.unknown >>= λ desc →
-    R.unify hole (R.def (quote getDUARel) [ varg desc ]) >>
+    makeAuxiliaryDef "autoDUA"
+      (R.def (quote DUARel) (`𝒮-A` v∷ `B` v∷ R.unknown v∷ []))
+      (R.def (quote getDUARel) [ varg desc ])
+      >>= λ duaTerm →
+    R.unify hole duaTerm >>
     autoDUARelDesc n desc
 
 macro

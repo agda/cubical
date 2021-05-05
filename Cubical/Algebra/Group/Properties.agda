@@ -3,7 +3,7 @@
 This file contains basic theory about groups
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Properties where
 
 open import Cubical.Foundations.Prelude

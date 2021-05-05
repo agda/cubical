@@ -3,7 +3,7 @@
 Some basic utilities for reflection
 
 -}
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Reflection.Base where
 
 open import Cubical.Foundations.Prelude
@@ -49,3 +49,11 @@ newMeta = R.checkType R.unknown
 extend*Context : ∀ {ℓ} {A : Type ℓ} → List (R.Arg R.Type) → R.TC A → R.TC A
 extend*Context [] tac = tac
 extend*Context (a ∷ as) tac = R.extendContext a (extend*Context as tac)
+
+makeAuxiliaryDef : String → R.Type → R.Term → R.TC R.Term
+makeAuxiliaryDef s ty term =
+  R.freshName s >>= λ name →
+  R.declareDef (varg name) ty >>
+  R.defineFun name [ R.clause [] [] term ] >>
+  R.returnTC (R.def name [])
+

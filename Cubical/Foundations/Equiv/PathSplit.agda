@@ -15,7 +15,7 @@ The module starts with a couple of general facts about equivalences:
 
 (those are not in 'Equiv.agda' because they need Univalence.agda (which imports Equiv.agda))
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Equiv.PathSplit where
 
 open import Cubical.Foundations.Prelude

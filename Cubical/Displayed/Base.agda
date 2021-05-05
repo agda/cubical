@@ -3,7 +3,7 @@
   Definition of univalent and displayed univalent relations
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Displayed.Base where
 
 open import Cubical.Foundations.Prelude

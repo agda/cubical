@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.ZCohomology.Groups.Sn where
 
 open import Cubical.ZCohomology.Base
