@@ -239,6 +239,10 @@ subst2 B p q b = transport (λ i → B (p i) (q i)) b
 substRefl : (px : B x) → subst B refl px ≡ px
 substRefl px = transportRefl px
 
+subst-filler : (B : A → Type ℓ') (p : x ≡ y) (b : B x)
+  → PathP (λ i → B (p i)) b (subst B p b)
+subst-filler B p = transport-filler (cong B p)
+
 funExt : {B : A → I → Type ℓ'}
   {f : (x : A) → B x i0} {g : (x : A) → B x i1}
   → ((x : A) → PathP (B x) (f x) (g x))
