@@ -359,8 +359,9 @@ Iso.leftInv (truncOfProdIso (suc n)) = elim (λ _ → isOfHLevelPath (suc n) (is
 module ΩTrunc {X : Type ℓ} {n : HLevel} where
   {- We define the fibration P to show a more general result  -}
   Code : ∥ X ∥ (2 + n) → ∥ X ∥ (2 + n) → TypeOfHLevel ℓ (suc n)
-  Code x y =  rec2 (isOfHLevelTypeOfHLevel (suc n))
-                (λ a b → ∥ a ≡ b ∥ (suc n) , isOfHLevelTrunc (suc n)) x y
+  Code x y =
+    rec2 (isOfHLevelTypeOfHLevel (suc n))
+      (λ a b → ∥ a ≡ b ∥ (suc n) , isOfHLevelTrunc (suc n)) x y
 
   P : ∥ X ∥ (2 + n) → ∥ X ∥ (2 + n) → Type ℓ
   P x y = Code x y .fst
