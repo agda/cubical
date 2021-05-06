@@ -308,7 +308,7 @@ private
 
   -- we define the code using addIso
   Code : (n : ℕ) →  coHomK (2 + n) → Type₀
-  Code n x = (trElim {B = λ _ → TypeOfHLevel ℓ-zero (3 + n)} (λ _ → isOfHLevelTypeOfHLevel (3 + n))
+  Code n x = (trRec {B = TypeOfHLevel ℓ-zero (3 + n)} (isOfHLevelTypeOfHLevel (3 + n))
                      λ a → Code' a , hLevCode' a) x .fst
     where
     Code' : (S₊ (2 + n)) → Type₀
