@@ -52,7 +52,7 @@ module _ ((G , str) : Group {ℓG}) where
   elimSet Bset b bloop (emcomp g h i j) =
     isSet→SquareP
       (λ i j → Bset (emcomp g h i j))
-      (λ j → bloop g j) (λ j → bloop (g + h) j)
+      (λ j → bloop g j) (λ j → bloop (g · h) j)
       (λ i → b) (λ i → bloop h i)
       i j
   elimSet Bset b bloop (emsquash x y p q r s i j k) =
@@ -72,7 +72,7 @@ module _ ((G , str) : Group {ℓG}) where
   elimProp Bprop b (emcomp g h i j) =
     isSet→SquareP (λ i j → isProp→isSet (Bprop (emcomp g h i j)))
       (λ j → elimProp Bprop b (emloop g j))
-      (λ j → elimProp Bprop b (emloop (g + h) j))
+      (λ j → elimProp Bprop b (emloop (g · h) j))
       (λ i → b)
       (λ i → elimProp Bprop b (emloop h i))
       i j
@@ -95,7 +95,7 @@ module _ ((G , str) : Group {ℓG}) where
        → (b : B embase)
        → (bloop : (g : G) → PathP (λ i → B (emloop g i)) b b)
        → ((g h : G) → SquareP (λ i j → B (emcomp g h i j))
-            (bloop g) (bloop (g + h)) (λ j → b) (bloop h))
+            (bloop g) (bloop (g · h)) (λ j → b) (bloop h))
        → (x : EM₁ (G , str))
        → B x
   elim Bgpd b bloop bcomp embase = b
@@ -111,7 +111,7 @@ module _ ((G , str) : Group {ℓG}) where
       → isGroupoid B
       → (b : B)
       → (bloop : G → b ≡ b)
-      → ((g h : G) → Square (bloop g) (bloop (g + h)) refl (bloop h))
+      → ((g h : G) → Square (bloop g) (bloop (g · h)) refl (bloop h))
       → (x : EM₁ (G , str))
       → B
   rec Bgpd = elim (λ _ → Bgpd)
