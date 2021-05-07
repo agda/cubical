@@ -60,7 +60,7 @@ elimProp : (Rt : BinaryRelation.isTrans R)
          → (x : A // Rt)
          → B x
 elimProp Rt Brop f x =
-  elimSet Rt (λ x → isProp→isSet (Brop x)) f (λ r → isProp→PathP (λ i → Brop (eq// r i)) (f _) (f _)) x         
+  elimSet Rt (λ x → isProp→isSet (Brop x)) f (λ r → isProp→PathP (λ i → Brop (eq// r i)) (f _) (f _)) x
 
 elimProp2 : (Rt : BinaryRelation.isTrans R)
           → {C : A // Rt → A // Rt → Type ℓ}
@@ -104,4 +104,3 @@ rec : (Rt : BinaryRelation.isTrans R)
     → (x : A // Rt)
     → B
 rec Rt Bgpd = elim Rt (λ _ → Bgpd)
-
