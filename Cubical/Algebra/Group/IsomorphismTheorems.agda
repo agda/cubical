@@ -4,7 +4,7 @@ This file contains the classic isomorphism theorems for groups (so far
 only the first theorem)
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.IsomorphismTheorems where
 
 open import Cubical.Foundations.Prelude
