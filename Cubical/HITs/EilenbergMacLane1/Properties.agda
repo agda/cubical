@@ -31,16 +31,6 @@ module _ ((G , str) : Group {ℓG}) where
 
   open GroupStr str
 
-  elimEq : {B : EM₁ (G , str) → Type ℓ}
-           (Bprop : (x : EM₁ (G , str)) → isProp (B x))
-           {x y : EM₁ (G , str)}
-           (eq : x ≡ y)
-           (bx : B x)
-           (by : B y) →
-           PathP (λ i → B (eq i)) bx by
-  elimEq {B = B} Bprop {x = x} =
-    J (λ y eq → ∀ bx by → PathP (λ i → B (eq i)) bx by) (λ bx by → Bprop x bx by)
-
   elimSet : {B : EM₁ (G , str) → Type ℓ}
           → ((x : EM₁ (G , str)) → isSet (B x))
           → (b : B embase)
@@ -70,7 +60,7 @@ module _ ((G , str) : Group {ℓG}) where
     elimSet
       (λ x → isProp→isSet (Bprop x))
       b
-      (λ g → elimEq Bprop (emloop g) b b)
+      (λ g → isProp→PathP (λ i → Bprop ((emloop g) i)) b b)
       x
 
   elimProp2 : {C : EM₁ (G , str) → EM₁ (G , str) → Type ℓ}

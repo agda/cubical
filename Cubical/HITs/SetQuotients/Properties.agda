@@ -41,15 +41,6 @@ private
     C : A / R → A / R → Type ℓ
     D : A / R → A / R → A / R → Type ℓ
 
-elimEq/ : (Bprop : (x : A / R ) → isProp (B x))
-          {x y : A / R}
-          (eq : x ≡ y)
-          (bx : B x)
-          (by : B y) →
-          PathP (λ i → B (eq i)) bx by
-elimEq/ {B = B} Bprop {x = x} =
-  J (λ y eq → ∀ bx by → PathP (λ i → B (eq i)) bx by) (λ bx by → Bprop x bx by)
-
 elimProp : ((x : A / R ) → isProp (B x))
          → ((a : A) → B ( [ a ]))
          → (x : A / R)
@@ -60,7 +51,7 @@ elimProp Bprop f (squash/ x y p q i j) =
     (g x) (g y) (cong g p) (cong g q) (squash/ x y p q) i j
     where
     g = elimProp Bprop f
-elimProp Bprop f (eq/ a b r i) = elimEq/ Bprop (eq/ a b r) (f a) (f b) i
+elimProp Bprop f (eq/ a b r i) = isProp→PathP (λ i → Bprop ((eq/ a b r) i)) (f a) (f b) i
 
 elimProp2 : ((x y : A / R ) → isProp (C x y))
           → ((a b : A) → C [ a ] [ b ])
