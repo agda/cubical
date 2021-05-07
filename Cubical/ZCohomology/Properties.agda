@@ -233,7 +233,7 @@ coHomGr≅coHomRedGr : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
 fst (coHomGr≅coHomRedGr n A) = isoToEquiv (Iso-coHom-coHomRed n)
 snd (coHomGr≅coHomRedGr n A) = makeIsGroupHom (+∙≡+ n)
 
-coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → AbGroup {ℓ}
+coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → AbGroup ℓ
 coHomRedGroup zero A = coHomRedGroupDir zero A
 coHomRedGroup (suc n) A =
   InducedAbGroup (coHomGroup (suc n) (typ A))

@@ -25,13 +25,13 @@ open Iso
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
-record IsLeftModule (R : Ring {ℓ}) {M : Type ℓ}
+record IsLeftModule (R : Ring ℓ) {M : Type ℓ'}
   (0m : M)
   (_+_ : M → M → M)
   (-_ : M → M)
-  (_⋆_ : ⟨ R ⟩ → M → M) : Type ℓ where
+  (_⋆_ : ⟨ R ⟩ → M → M) : Type (ℓ-max ℓ ℓ') where
 
   constructor ismodule
 
@@ -61,7 +61,7 @@ record IsLeftModule (R : Ring {ℓ}) {M : Type ℓ}
 
 unquoteDecl IsLeftModuleIsoΣ = declareRecordIsoΣ IsLeftModuleIsoΣ (quote IsLeftModule)
 
-record LeftModuleStr (R : Ring {ℓ}) (A : Type ℓ) : Type ℓ where
+record LeftModuleStr (R : Ring ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ') where
 
   constructor leftmodulestr
 
@@ -74,21 +74,21 @@ record LeftModuleStr (R : Ring {ℓ}) (A : Type ℓ) : Type ℓ where
 
   open IsLeftModule isLeftModule public
 
-LeftModule : (R : Ring {ℓ}) → Type (ℓ-suc ℓ)
-LeftModule {ℓ} R = Σ[ A ∈ Type ℓ ] LeftModuleStr R A
+LeftModule : (R : Ring ℓ) → ∀ ℓ' → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+LeftModule R ℓ' = Σ[ A ∈ Type ℓ' ] LeftModuleStr R A
 
-module _ {R : Ring {ℓ}} where
+module _ {R : Ring ℓ} where
 
-  LeftModule→AbGroup : (M : LeftModule R) → AbGroup {ℓ}
+  LeftModule→AbGroup : (M : LeftModule R ℓ') → AbGroup ℓ'
   LeftModule→AbGroup (_ , leftmodulestr _ _ _ _ isLeftModule) =
                      _ , abgroupstr _ _ _ (IsLeftModule.+-isAbGroup isLeftModule)
 
-  isSetLeftModule : (M : LeftModule R) → isSet ⟨ M ⟩
+  isSetLeftModule : (M : LeftModule R ℓ') → isSet ⟨ M ⟩
   isSetLeftModule M = isSetAbGroup (LeftModule→AbGroup M)
 
   open RingStr (snd R) using (1r) renaming (_+_ to _+r_; _·_ to _·s_)
 
-  makeIsLeftModule : {M : Type ℓ} {0m : M}
+  makeIsLeftModule : {M : Type ℓ'} {0m : M}
                   {_+_ : M → M → M} { -_ : M → M} {_⋆_ : ⟨ R ⟩ → M → M}
                   (isSet-M : isSet M)
                   (+-assoc :  (x y z : M) → x + (y + z) ≡ (x + y) + z)
@@ -103,9 +103,9 @@ module _ {R : Ring {ℓ}} where
   makeIsLeftModule isSet-M +-assoc +-rid +-rinv +-comm ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid =
     ismodule (makeIsAbGroup isSet-M +-assoc +-rid +-rinv +-comm) ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid
 
-record IsLeftModuleHom {R : Ring {ℓ}} {A B : Type ℓ}
+record IsLeftModuleHom {R : Ring ℓ} {A B : Type ℓ'}
   (M : LeftModuleStr R A) (f : A → B) (N : LeftModuleStr R B)
-  : Type ℓ
+  : Type (ℓ-max ℓ ℓ')
   where
 
   -- Shorter qualified names
@@ -119,18 +119,18 @@ record IsLeftModuleHom {R : Ring {ℓ}} {A B : Type ℓ}
     pres- : (x : A) → f (M.- x) ≡ N.- (f x)
     pres⋆ : (r : ⟨ R ⟩) (y : A) → f (r M.⋆ y) ≡ r N.⋆ f y
 
-LeftModuleHom : {R : Ring {ℓ}} (M N : LeftModule R) → Type ℓ
+LeftModuleHom : {R : Ring ℓ} (M N : LeftModule R ℓ') → Type (ℓ-max ℓ ℓ')
 LeftModuleHom M N = Σ[ f ∈ (⟨ M ⟩ → ⟨ N ⟩) ] IsLeftModuleHom (M .snd) f (N .snd)
 
-IsLeftModuleEquiv : {R : Ring {ℓ}} {A B : Type ℓ}
+IsLeftModuleEquiv : {R : Ring ℓ} {A B : Type ℓ'}
   (M : LeftModuleStr R A) (e : A ≃ B) (N : LeftModuleStr R B)
-  → Type ℓ
+  → Type (ℓ-max ℓ ℓ')
 IsLeftModuleEquiv M e N = IsLeftModuleHom M (e .fst) N
 
-LeftModuleEquiv : {R : Ring {ℓ}} (M N : LeftModule R) → Type ℓ
+LeftModuleEquiv : {R : Ring ℓ} (M N : LeftModule R ℓ') → Type (ℓ-max ℓ ℓ')
 LeftModuleEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsLeftModuleEquiv (M .snd) e (N .snd)
 
-isPropIsLeftModule : (R : Ring {ℓ}) {M : Type ℓ}
+isPropIsLeftModule : (R : Ring ℓ) {M : Type ℓ'}
   (0m : M)
   (_+_ : M → M → M)
   (-_ : M → M)
@@ -147,7 +147,7 @@ isPropIsLeftModule R _ _ _ _ =
   where
   open IsAbGroup
 
-𝒮ᴰ-LeftModule : (R : Ring {ℓ}) → DUARel (𝒮-Univ ℓ) (LeftModuleStr R) ℓ
+𝒮ᴰ-LeftModule : (R : Ring ℓ) → DUARel (𝒮-Univ ℓ') (LeftModuleStr R) (ℓ-max ℓ ℓ')
 𝒮ᴰ-LeftModule R =
   𝒮ᴰ-Record (𝒮-Univ _) (IsLeftModuleEquiv {R = R})
     (fields:
@@ -160,6 +160,6 @@ isPropIsLeftModule R _ _ _ _ =
   open LeftModuleStr
   open IsLeftModuleHom
 
-LeftModulePath : {R : Ring {ℓ}} (M N : LeftModule R) → (LeftModuleEquiv M N) ≃ (M ≡ N)
-LeftModulePath {ℓ} {R} = ∫ (𝒮ᴰ-LeftModule R) .UARel.ua
+LeftModulePath : {R : Ring ℓ} (M N : LeftModule R ℓ') → (LeftModuleEquiv M N) ≃ (M ≡ N)
+LeftModulePath {R = R} = ∫ (𝒮ᴰ-LeftModule R) .UARel.ua
 

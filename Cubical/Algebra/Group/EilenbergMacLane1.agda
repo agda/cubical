@@ -21,7 +21,7 @@ open import Cubical.HITs.EilenbergMacLane1
 private
   variable ℓ : Level
 
-module _ (Ĝ : Group {ℓ}) where
+module _ (Ĝ : Group ℓ) where
   private
     G = fst Ĝ
   open GroupStr (snd Ĝ)

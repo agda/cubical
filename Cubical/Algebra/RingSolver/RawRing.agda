@@ -11,7 +11,7 @@ private
   variable
     ℓ : Level
 
-record RawRing : Type (ℓ-suc ℓ) where
+record RawRing ℓ : Type (ℓ-suc ℓ) where
 
   constructor rawring
 
@@ -27,9 +27,9 @@ record RawRing : Type (ℓ-suc ℓ) where
   infixl 7 -_
   infixl 6 _+_
 
-⟨_⟩ : RawRing → Type ℓ
+⟨_⟩ : RawRing ℓ → Type ℓ
 ⟨_⟩ = RawRing.Carrier
 
-AlmostRing→RawRing : AlmostRing {ℓ} → RawRing {ℓ}
+AlmostRing→RawRing : AlmostRing ℓ → RawRing ℓ
 AlmostRing→RawRing (almostring Carrier 0r 1r _+_ _·_ -_ isAlmostRing) =
                    rawring Carrier 0r 1r _+_ _·_ -_

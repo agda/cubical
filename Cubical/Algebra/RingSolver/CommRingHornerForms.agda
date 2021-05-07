@@ -121,7 +121,7 @@ module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
         then (Q ⋆ S)
         else (z ·X+ 0ₕ) +ₕ (Q ⋆ S)
 
-  asRawRing : (n : ℕ) → RawRing {ℓ}
+  asRawRing : (n : ℕ) → RawRing ℓ
   RawRing.Carrier (asRawRing n) = IteratedHornerForms A n
   RawRing.0r (asRawRing n) = 0ₕ
   RawRing.1r (asRawRing n) = 1ₕ

@@ -237,7 +237,7 @@ open Matrices.FinMatrixAbGroup using (addFinMatrix ; addFinMatrixComm) public
 -- example (not in the library)
 open import Cubical.Data.Int renaming (Int to ℤ ; isSetInt to isSetℤ) hiding (-_)
 
-ℤ-AbGroup : AbGroup
+ℤ-AbGroup : AbGroup ℓ-zero
 ℤ-AbGroup = makeAbGroup {G = ℤ} 0 _+_ -_ isSetℤ +-assoc (λ x _ → x) rem +-comm
     where
     -_ : ℤ → ℤ

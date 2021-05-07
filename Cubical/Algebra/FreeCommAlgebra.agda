@@ -41,12 +41,12 @@ open import Cubical.HITs.SetTruncation
 
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ' ℓ'' : Level
 
-module Construction (R : CommRing {ℓ}) where
+module Construction (R : CommRing ℓ) where
   open CommRingStr (snd R) using (1r; 0r) renaming (_+_ to _+r_; _·_ to _·r_)
 
-  data R[_] (I : Type ℓ′) : Type (ℓ-max ℓ ℓ′) where
+  data R[_] (I : Type ℓ') : Type (ℓ-max ℓ ℓ') where
     var : I → R[ I ]
     const : ⟨ R ⟩ → R[ I ]
     _+_ : R[ I ] → R[ I ] → R[ I ]
@@ -69,57 +69,54 @@ module Construction (R : CommRing {ℓ}) where
 
     0-trunc : (x y : R[ I ]) (p q : x ≡ y) → p ≡ q
 
-  _⋆_ : {I : Type ℓ′} → ⟨ R ⟩ → R[ I ] → R[ I ]
+  _⋆_ : {I : Type ℓ'} → ⟨ R ⟩ → R[ I ] → R[ I ]
   r ⋆ x = const r · x
 
-  ⋆-assoc : {I : Type ℓ′} → (s t : ⟨ R ⟩) (x : R[ I ]) → (s ·r t) ⋆ x ≡ s ⋆ (t ⋆ x)
+  ⋆-assoc : {I : Type ℓ'} → (s t : ⟨ R ⟩) (x : R[ I ]) → (s ·r t) ⋆ x ≡ s ⋆ (t ⋆ x)
   ⋆-assoc s t x = const (s ·r t) · x       ≡⟨ cong (λ u → u · x) (·HomConst _ _) ⟩
                   (const s · const t) · x  ≡⟨ sym (·-assoc _ _ _) ⟩
                   const s · (const t · x)  ≡⟨ refl ⟩
                   s ⋆ (t ⋆ x) ∎
 
-  ⋆-ldist-+ : {I : Type ℓ′} → (s t : ⟨ R ⟩) (x : R[ I ]) → (s +r t) ⋆ x ≡ (s ⋆ x) + (t ⋆ x)
+  ⋆-ldist-+ : {I : Type ℓ'} → (s t : ⟨ R ⟩) (x : R[ I ]) → (s +r t) ⋆ x ≡ (s ⋆ x) + (t ⋆ x)
   ⋆-ldist-+ s t x = (s +r t) ⋆ x             ≡⟨ cong (λ u → u · x) (+HomConst _ _) ⟩
                     (const s + const t) · x  ≡⟨ ldist _ _ _ ⟩
                     (s ⋆ x) + (t ⋆ x) ∎
 
-  ⋆-rdist-+ : {I : Type ℓ′} → (s : ⟨ R ⟩) (x y : R[ I ]) → s ⋆ (x + y) ≡ (s ⋆ x) + (s ⋆ y)
+  ⋆-rdist-+ : {I : Type ℓ'} → (s : ⟨ R ⟩) (x y : R[ I ]) → s ⋆ (x + y) ≡ (s ⋆ x) + (s ⋆ y)
   ⋆-rdist-+ s x y = const s · (x + y)             ≡⟨ ·-comm _ _ ⟩
                     (x + y) · const s             ≡⟨ ldist _ _ _ ⟩
                     (x · const s) + (y · const s) ≡⟨ cong (λ u → u + (y · const s)) (·-comm _ _) ⟩
                     (s ⋆ x) + (y · const s)       ≡⟨ cong (λ u → (s ⋆ x) + u) (·-comm _ _)  ⟩
                     (s ⋆ x) + (s ⋆ y) ∎
 
-  ⋆-assoc-· : {I : Type ℓ′} → (s : ⟨ R ⟩) (x y : R[ I ]) → (s ⋆ x) · y ≡ s ⋆ (x · y)
+  ⋆-assoc-· : {I : Type ℓ'} → (s : ⟨ R ⟩) (x y : R[ I ]) → (s ⋆ x) · y ≡ s ⋆ (x · y)
   ⋆-assoc-· s x y = (s ⋆ x) · y ≡⟨ sym (·-assoc _ _ _) ⟩
                     s ⋆ (x · y) ∎
 
-  0a : {I : Type ℓ′} → R[ I ]
+  0a : {I : Type ℓ'} → R[ I ]
   0a = (const 0r)
 
-  1a : {I : Type ℓ′} → R[ I ]
+  1a : {I : Type ℓ'} → R[ I ]
   1a = (const 1r)
 
-  isCommAlgebra : {I : Type ℓ} → IsCommAlgebra
-                                   R {A = R[ I ]}
-                                   0a 1a
-                                   _+_ _·_ -_ _⋆_
+  isCommAlgebra : {I : Type ℓ'} → IsCommAlgebra R {A = R[ I ]} 0a 1a _+_ _·_ -_ _⋆_
   isCommAlgebra = makeIsCommAlgebra 0-trunc
                                     +-assoc +-rid +-rinv +-comm
                                     ·-assoc ·-lid ldist ·-comm
                                     ⋆-assoc ⋆-ldist-+ ⋆-rdist-+ ·-lid ⋆-assoc-·
 
-_[_] : (R : CommRing {ℓ}) (I : Type ℓ) → CommAlgebra R
+_[_] : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R (ℓ-max ℓ ℓ')
 (R [ I ]) = R[ I ] , commalgebrastr 0a 1a _+_ _·_ -_ _⋆_ isCommAlgebra
   where
   open Construction R
 
-module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
+module Theory {R : CommRing ℓ} {I : Type ℓ'} where
   open CommRingStr (snd R)
          using (0r; 1r)
          renaming (_·_ to _·r_; _+_ to _+r_; ·-comm to ·r-comm; ·Rid to ·r-rid)
 
-  module _ (A : CommAlgebra R) (φ : I → ⟨ A ⟩) where
+  module _ (A : CommAlgebra R ℓ'') (φ : I → ⟨ A ⟩) where
     open CommAlgebraStr (A .snd)
     open AlgebraTheory (CommRing→Ring R) (CommAlgebra→Algebra A)
     open Construction using (var; const) renaming (_+_ to _+c_; -_ to -c_; _·_ to _·c_)
@@ -188,7 +185,7 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
         r ⋆ (1a · inducedMap x) ≡⟨ cong (λ u → r ⋆ u) (·Lid (inducedMap x)) ⟩
         r ⋆ inducedMap x ∎
 
-  module _ (A : CommAlgebra R) where
+  module _ (A : CommAlgebra R ℓ'') where
     open CommAlgebraStr (A .snd)
     open AlgebraTheory (CommRing→Ring R) (CommAlgebra→Algebra A)
     open Construction using (var; const) renaming (_+_ to _+c_; -_ to -c_; _·_ to _·c_)
@@ -203,7 +200,7 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
                      → evaluateAt (inducedHom A φ) ≡ φ
     mapRetrievable φ = refl
 
-    proveEq : ∀ {X : Type ℓ} (isSetX : isSet X) (f g : ⟨ R [ I ] ⟩ → X)
+    proveEq : ∀ {X : Type ℓ''} (isSetX : isSet X) (f g : ⟨ R [ I ] ⟩ → X)
               → (var-eq : (x : I) → f (var x) ≡ g (var x))
               → (const-eq : (r : ⟨ R ⟩) → f (const r) ≡ g (const r))
               → (+-eq : (x y : ⟨ R [ I ] ⟩) → (eq-x : f x ≡ g x) → (eq-y : f y ≡ g y)
@@ -419,17 +416,17 @@ module Theory {R : CommRing {ℓ}} {I : Type ℓ} where
       module f = IsAlgebraHom (f .snd)
 
 
-evaluateAt : {R : CommRing {ℓ}} {I : Type ℓ} (A : CommAlgebra R)
+evaluateAt : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
              (f : AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A))
              → (I → ⟨ A ⟩)
 evaluateAt A f x = f $a (Construction.var x)
 
-inducedHom : {R : CommRing {ℓ}} {I : Type ℓ} (A : CommAlgebra R)
+inducedHom : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
              (φ : I → ⟨ A ⟩)
              → AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
 inducedHom A φ = Theory.inducedHom A φ
 
-module _ {R : CommRing {ℓ}} {A B : CommAlgebra R} where
+module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
   A′ = CommAlgebra→Algebra A
   B′ = CommAlgebra→Algebra B
   R′ = (CommRing→Ring R)
@@ -441,7 +438,7 @@ module _ {R : CommRing {ℓ}} {A B : CommAlgebra R} where
          ↓          ↓
     Hom(R[I],B) → (I → B)
   -}
-  naturalR : {I : Type ℓ} (ψ : AlgebraHom A′ B′)
+  naturalR : {I : Type ℓ'} (ψ : AlgebraHom A′ B′)
              (f : AlgebraHom (CommAlgebra→Algebra (R [ I ])) A′)
              → (ν ψ) ∘ evaluateAt A f ≡ evaluateAt B (ψ ∘a f)
   naturalR ψ f = refl
@@ -451,7 +448,7 @@ module _ {R : CommRing {ℓ}} {A B : CommAlgebra R} where
          ↓          ↓
     Hom(R[J],A) → (J → A)
   -}
-  naturalL : {I J : Type ℓ} (φ : J → I)
+  naturalL : {I J : Type ℓ'} (φ : J → I)
              (f : AlgebraHom (CommAlgebra→Algebra (R [ I ])) A′)
              → (evaluateAt A f) ∘ φ
                ≡ evaluateAt A (f ∘a (inducedHom (R [ I ]) (λ x → Construction.var (φ x))))

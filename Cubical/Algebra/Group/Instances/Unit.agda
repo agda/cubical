@@ -25,32 +25,32 @@ Unit = UnitType , groupstr tt (λ _ _ → tt) (λ _ → tt)
 open Iso
 
 -- The trivial group is a unit.
-lUnitGroupIso : {G : Group {ℓ}} → GroupIso (DirProd Unit G) G
+lUnitGroupIso : {G : Group ℓ} → GroupIso (DirProd Unit G) G
 fun (fst lUnitGroupIso) = snd
 inv (fst lUnitGroupIso) g = tt , g
 rightInv (fst lUnitGroupIso) _ = refl
 leftInv (fst lUnitGroupIso) _ = refl
 snd lUnitGroupIso = makeIsGroupHom λ _ _ → refl
 
-rUnitGroupIso : {G : Group {ℓ}} → GroupIso (DirProd G Unit) G
+rUnitGroupIso : {G : Group ℓ} → GroupIso (DirProd G Unit) G
 fun (fst rUnitGroupIso) = fst
 inv (fst rUnitGroupIso) g = g , tt
 rightInv (fst rUnitGroupIso) _ = refl
 leftInv (fst rUnitGroupIso) _ = refl
 snd rUnitGroupIso = makeIsGroupHom λ _ _ → refl
 
-lUnitGroupEquiv : {G : Group {ℓ}} → GroupEquiv (DirProd Unit G) G
+lUnitGroupEquiv : {G : Group ℓ} → GroupEquiv (DirProd Unit G) G
 lUnitGroupEquiv = GroupIso→GroupEquiv lUnitGroupIso
 
-rUnitGroupEquiv : ∀ {ℓ} {G : Group {ℓ}} → GroupEquiv (DirProd G Unit) G
+rUnitGroupEquiv : ∀ {ℓ} {G : Group ℓ} → GroupEquiv (DirProd G Unit) G
 rUnitGroupEquiv = GroupIso→GroupEquiv rUnitGroupIso
 
-contrGroupIsoUnit : {G : Group {ℓ}} → isContr ⟨ G ⟩ → GroupIso G Unit
+contrGroupIsoUnit : {G : Group ℓ} → isContr ⟨ G ⟩ → GroupIso G Unit
 fun (fst (contrGroupIsoUnit contr)) _ = tt
 inv (fst (contrGroupIsoUnit contr)) _ = fst contr
 rightInv (fst (contrGroupIsoUnit contr)) _ = refl
 leftInv (fst (contrGroupIsoUnit contr)) x = snd contr x
 snd (contrGroupIsoUnit contr) = makeIsGroupHom λ _ _ → refl
 
-contrGroupEquivUnit : {G : Group {ℓ}} → isContr ⟨ G ⟩ → GroupEquiv G Unit
+contrGroupEquivUnit : {G : Group ℓ} → isContr ⟨ G ⟩ → GroupEquiv G Unit
 contrGroupEquivUnit contr = GroupIso→GroupEquiv (contrGroupIsoUnit contr)

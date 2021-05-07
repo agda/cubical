@@ -52,8 +52,8 @@ record AbGroupStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
   open IsAbGroup isAbGroup public
 
-AbGroup : Type (ℓ-suc ℓ)
-AbGroup = TypeWithStr _ AbGroupStr
+AbGroup : ∀ ℓ → Type (ℓ-suc ℓ)
+AbGroup ℓ = TypeWithStr ℓ AbGroupStr
 
 makeIsAbGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
               (is-setG : isSet G)
@@ -71,7 +71,7 @@ makeAbGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
             (rid : (x : G) → x + 0g ≡ x)
             (rinv : (x : G) → x + (- x) ≡ 0g)
             (comm    : (x y : G) → x + y ≡ y + x)
-          → AbGroup
+          → AbGroup ℓ
 makeAbGroup 0g _+_ -_ is-setG assoc rid rinv comm =
   _ , abgroupstr 0g _+_ -_ (makeIsAbGroup is-setG assoc rid rinv comm)
 
@@ -85,11 +85,11 @@ AbGroupStr→GroupStr A ._·_ = A ._+_
 AbGroupStr→GroupStr A .inv = A .-_
 AbGroupStr→GroupStr A .isGroup = A .isAbGroup .isGroup
 
-AbGroup→Group : AbGroup {ℓ} → Group
+AbGroup→Group : AbGroup ℓ → Group ℓ
 fst (AbGroup→Group A) = fst A
 snd (AbGroup→Group A) = AbGroupStr→GroupStr (snd A)
 
-Group→AbGroup : (G : Group {ℓ}) → ((x y : fst G) → _·_ (snd G) x y ≡ _·_ (snd G) y x) → AbGroup
+Group→AbGroup : (G : Group ℓ) → ((x y : fst G) → _·_ (snd G) x y ≡ _·_ (snd G) y x) → AbGroup ℓ
 fst (Group→AbGroup G comm) = fst G
 AbGroupStr.0g (snd (Group→AbGroup G comm)) = 1g (snd G)
 AbGroupStr._+_ (snd (Group→AbGroup G comm)) = _·_ (snd G)
@@ -97,17 +97,17 @@ AbGroupStr.- snd (Group→AbGroup G comm) = inv (snd G)
 IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (Group→AbGroup G comm))) = isGroup (snd G)
 IsAbGroup.comm (AbGroupStr.isAbGroup (snd (Group→AbGroup G comm))) = comm
 
-isSetAbGroup : (A : AbGroup {ℓ}) → isSet ⟨ A ⟩
+isSetAbGroup : (A : AbGroup ℓ) → isSet ⟨ A ⟩
 isSetAbGroup A = isSetGroup (AbGroup→Group A)
 
-AbGroupHom : (G : AbGroup {ℓ}) (H : AbGroup {ℓ'}) → Type (ℓ-max ℓ ℓ')
+AbGroupHom : (G : AbGroup ℓ) (H : AbGroup ℓ') → Type (ℓ-max ℓ ℓ')
 AbGroupHom G H = GroupHom (AbGroup→Group G) (AbGroup→Group H)
 
 IsAbGroupEquiv : {A : Type ℓ} {B : Type ℓ'}
   (G : AbGroupStr A) (e : A ≃ B) (H : AbGroupStr B) → Type (ℓ-max ℓ ℓ')
 IsAbGroupEquiv G e H = IsGroupHom (AbGroupStr→GroupStr G) (e .fst) (AbGroupStr→GroupStr H)
 
-AbGroupEquiv : (G : AbGroup {ℓ}) (H : AbGroup {ℓ'}) → Type (ℓ-max ℓ ℓ')
+AbGroupEquiv : (G : AbGroup ℓ) (H : AbGroup ℓ') → Type (ℓ-max ℓ ℓ')
 AbGroupEquiv G H = Σ[ e ∈ (G .fst ≃ H .fst) ] IsAbGroupEquiv (G .snd) e (H .snd)
 
 isPropIsAbGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (- : G → G)
@@ -134,12 +134,12 @@ isPropIsAbGroup 0g _+_ -_ (isabgroup GG GC) (isabgroup HG HC) =
   open IsGroupHom
 
 -- Extract the characterization of equality of groups
-AbGroupPath : (G H : AbGroup {ℓ}) → (AbGroupEquiv G H) ≃ (G ≡ H)
+AbGroupPath : (G H : AbGroup ℓ) → (AbGroupEquiv G H) ≃ (G ≡ H)
 AbGroupPath = ∫ 𝒮ᴰ-AbGroup .UARel.ua
 
 -- TODO: Induced structure results are temporarily inconvenient while we transition between algebra
 -- representations
-module _ (G : AbGroup {ℓ}) {A : Type ℓ} (m : A → A → A)
+module _ (G : AbGroup ℓ) {A : Type ℓ} (m : A → A → A)
   (e : ⟨ G ⟩ ≃ A)
   (p· : ∀ x y → e .fst (G .snd ._+_ x y) ≡ m (e .fst x) (e .fst y))
   where
@@ -159,7 +159,7 @@ module _ (G : AbGroup {ℓ}) {A : Type ℓ} (m : A → A → A)
         (UARel.≅→≡ (autoUARel (Σ[ B ∈ Type ℓ ] (B → B → B))) (e , p·))
         (G.0g , G.-_ , G.isAbGroup)
 
-  InducedAbGroup : AbGroup
+  InducedAbGroup : AbGroup ℓ
   InducedAbGroup .fst = A
   InducedAbGroup .snd ._+_ = m
   InducedAbGroup .snd .0g = inducedΣ .fst
@@ -173,13 +173,13 @@ open IsMonoid
 open IsSemigroup
 open IsGroup
 
-dirProdAb : AbGroup {ℓ} → AbGroup {ℓ'} → AbGroup
+dirProdAb : AbGroup ℓ → AbGroup ℓ' → AbGroup (ℓ-max ℓ ℓ')
 dirProdAb A B =
   Group→AbGroup (DirProd (AbGroup→Group A) (AbGroup→Group B))
                  λ p q → ΣPathP (comm (isAbGroup (snd A)) _ _
                                 , comm (isAbGroup (snd B)) _ _)
 
-trivialAbGroup : ∀ {ℓ} → AbGroup {ℓ}
+trivialAbGroup : ∀ {ℓ} → AbGroup ℓ
 fst trivialAbGroup = Unit*
 0g (snd trivialAbGroup) = tt*
 _+_ (snd trivialAbGroup) _ _ = tt*

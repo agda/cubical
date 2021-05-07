@@ -16,7 +16,7 @@ private
   variable
     ℓ : Level
 
-module _ (R' : Ring {ℓ}) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R' I) where
+module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R' I) where
   open RingStr (snd R')
   private R = ⟨ R' ⟩
   open isIdeal I-isIdeal
@@ -173,19 +173,19 @@ module _ (R' : Ring {ℓ}) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal 
         eq : (x y z : R) → [ x ] ·/I ([ y ] +/I [ z ]) ≡ ([ x ] ·/I [ y ]) +/I ([ x ] ·/I [ z ])
         eq x y z i = [ ·Rdist+ x y z i ]
 
-  asRing : Ring {ℓ}
+  asRing : Ring ℓ
   asRing = makeRing 0/I 1/I _+/I_ _·/I_ -/I isSetR/I
                     +/I-assoc +/I-rid +/I-rinv +/I-comm
                     ·/I-assoc ·/I-rid ·/I-lid /I-rdist /I-ldist
 
-_/_ : (R : Ring {ℓ}) → (I : IdealsIn R) → Ring {ℓ}
+_/_ : (R : Ring ℓ) → (I : IdealsIn R) → Ring ℓ
 R / (I , IisIdeal) = asRing R I IisIdeal
 
-[_]/I : {R : Ring {ℓ}} {I : IdealsIn R} → (a : ⟨ R ⟩) → ⟨ R / I ⟩
+[_]/I : {R : Ring ℓ} {I : IdealsIn R} → (a : ⟨ R ⟩) → ⟨ R / I ⟩
 [ a ]/I = [ a ]
 
 
-module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
+module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
   open RingStr ⦃...⦄
   open RingTheory ⦃...⦄
   Iₛ = fst I
@@ -194,7 +194,7 @@ module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
       _ = R
       _ = snd R
 
-  module _ {S : Ring {ℓ}} (φ : RingHom R S) where
+  module _ {S : Ring ℓ} (φ : RingHom R S) where
     open IsRingHom
     open HomTheory φ
     private

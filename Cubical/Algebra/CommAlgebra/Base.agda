@@ -23,12 +23,12 @@ open import Cubical.Reflection.RecordEquiv
 
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ' : Level
 
-record IsCommAlgebra (R : CommRing {ℓ}) {A : Type ℓ}
+record IsCommAlgebra (R : CommRing ℓ) {A : Type ℓ'}
                      (0a : A) (1a : A)
                      (_+_ : A → A → A) (_·_ : A → A → A) (-_ : A → A)
-                     (_⋆_ : ⟨ R ⟩ → A → A) : Type ℓ where
+                     (_⋆_ : ⟨ R ⟩ → A → A) : Type (ℓ-max ℓ ℓ') where
 
   constructor iscommalgebra
 
@@ -40,7 +40,7 @@ record IsCommAlgebra (R : CommRing {ℓ}) {A : Type ℓ}
 
 unquoteDecl IsCommAlgebraIsoΣ = declareRecordIsoΣ IsCommAlgebraIsoΣ (quote IsCommAlgebra)
 
-record CommAlgebraStr (R : CommRing {ℓ}) (A : Type ℓ) : Type ℓ where
+record CommAlgebraStr (R : CommRing ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ') where
 
   constructor commalgebrastr
 
@@ -55,24 +55,24 @@ record CommAlgebraStr (R : CommRing {ℓ}) (A : Type ℓ) : Type ℓ where
 
   open IsCommAlgebra isCommAlgebra public
 
-CommAlgebra : (R : CommRing {ℓ}) → Type (ℓ-suc ℓ)
-CommAlgebra {ℓ} R = Σ[ A ∈ Type ℓ ] CommAlgebraStr R A
+CommAlgebra : (R : CommRing ℓ) → ∀ ℓ' → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+CommAlgebra R ℓ' = Σ[ A ∈ Type ℓ' ] CommAlgebraStr R A
 
-module _ {R : CommRing {ℓ}} where
+module _ {R : CommRing ℓ} where
   open CommRingStr (snd R) using (1r) renaming (_+_ to _+r_; _·_ to _·s_)
 
-  CommAlgebraStr→AlgebraStr : {A : Type ℓ} → CommAlgebraStr R A → AlgebraStr (CommRing→Ring R) A
+  CommAlgebraStr→AlgebraStr : {A : Type ℓ'} → CommAlgebraStr R A → AlgebraStr (CommRing→Ring R) A
   CommAlgebraStr→AlgebraStr (commalgebrastr _ _ _ _ _ _ (iscommalgebra isAlgebra ·-comm)) =
     algebrastr _ _ _ _ _ _ isAlgebra
 
-  CommAlgebra→Algebra : (A : CommAlgebra R) → Algebra (CommRing→Ring R)
+  CommAlgebra→Algebra : (A : CommAlgebra R ℓ') → Algebra (CommRing→Ring R) ℓ'
   CommAlgebra→Algebra (_ , str) = (_ , CommAlgebraStr→AlgebraStr str)
 
-  CommAlgebra→CommRing : (A : CommAlgebra R) → CommRing {ℓ}
+  CommAlgebra→CommRing : (A : CommAlgebra R ℓ') → CommRing ℓ'
   CommAlgebra→CommRing (_ , commalgebrastr  _ _ _ _ _ _ (iscommalgebra isAlgebra ·-comm)) =
     _ , commringstr _ _ _ _ _ (iscommring (IsAlgebra.isRing isAlgebra) ·-comm)
 
-  makeIsCommAlgebra : {A : Type ℓ} {0a 1a : A}
+  makeIsCommAlgebra : {A : Type ℓ'} {0a 1a : A}
                       {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
                       (isSet-A : isSet A)
                       (+-assoc :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
@@ -89,7 +89,7 @@ module _ {R : CommRing {ℓ}} where
                       (⋆-lid   : (x : A) → 1r ⋆ x ≡ x)
                       (⋆-lassoc : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
                     → IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_
-  makeIsCommAlgebra {A} {0a} {1a} {_+_} {_·_} { -_} {_⋆_} isSet-A
+  makeIsCommAlgebra {A = A} {0a} {1a} {_+_} {_·_} { -_} {_⋆_} isSet-A
                     +-assoc +-rid +-rinv +-comm
                     ·-assoc ·-lid ·-ldist-+ ·-comm
                     ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid ⋆-lassoc
@@ -117,16 +117,16 @@ module _ {R : CommRing {ℓ}} where
                    x · (r ⋆ y) ∎)
      ·-comm
 
-  IsCommAlgebraEquiv : {A B : Type ℓ}
+  IsCommAlgebraEquiv : {A B : Type ℓ'}
     (M : CommAlgebraStr R A) (e : A ≃ B) (N : CommAlgebraStr R B)
-    → Type ℓ
+    → Type (ℓ-max ℓ ℓ')
   IsCommAlgebraEquiv M e N =
     IsAlgebraHom (CommAlgebraStr→AlgebraStr M) (e .fst) (CommAlgebraStr→AlgebraStr N)
 
-  CommAlgebraEquiv : (M N : CommAlgebra R) → Type ℓ
+  CommAlgebraEquiv : (M N : CommAlgebra R ℓ') → Type (ℓ-max ℓ ℓ')
   CommAlgebraEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsCommAlgebraEquiv (M .snd) e (N .snd)
 
-isPropIsCommAlgebra : (R : CommRing {ℓ}) {A : Type ℓ}
+isPropIsCommAlgebra : (R : CommRing ℓ) {A : Type ℓ'}
   (0a 1a : A)
   (_+_ _·_ : A → A → A)
   (-_ : A → A)
@@ -137,7 +137,7 @@ isPropIsCommAlgebra R _ _ _ _ _ _ =
     (isPropΣ (isPropIsAlgebra _ _ _ _ _ _ _)
       (λ alg → isPropΠ2 λ _ _ → alg .IsAlgebra.is-set _ _))
 
-𝒮ᴰ-CommAlgebra : (R : CommRing {ℓ}) → DUARel (𝒮-Univ ℓ) (CommAlgebraStr R) ℓ
+𝒮ᴰ-CommAlgebra : (R : CommRing ℓ) → DUARel (𝒮-Univ ℓ') (CommAlgebraStr R) (ℓ-max ℓ ℓ')
 𝒮ᴰ-CommAlgebra R =
   𝒮ᴰ-Record (𝒮-Univ _) (IsCommAlgebraEquiv {R = R})
     (fields:
@@ -156,5 +156,5 @@ isPropIsCommAlgebra R _ _ _ _ _ _ =
   nul = autoDUARel (𝒮-Univ _) (λ A → A)
   bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
 
-CommAlgebraPath : (R : CommRing {ℓ}) → (A B : CommAlgebra R) → (CommAlgebraEquiv A B) ≃ (A ≡ B)
+CommAlgebraPath : (R : CommRing ℓ) → (A B : CommAlgebra R ℓ') → (CommAlgebraEquiv A B) ≃ (A ≡ B)
 CommAlgebraPath R = ∫ (𝒮ᴰ-CommAlgebra R) .UARel.ua

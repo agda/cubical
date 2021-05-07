@@ -36,7 +36,7 @@ IsGroup.inverse (isPropIsGroup 0g _+_ -_ g1 g2 i) =
   isPropInv = isPropΠ λ _ → isProp× (isSetG _ _) (isSetG _ _)
 
 
-module GroupTheory (G : Group {ℓ}) where
+module GroupTheory (G : Group ℓ) where
   open GroupStr (snd G)
   abstract
     ·CancelL : (a : ⟨ G ⟩) {b c : ⟨ G ⟩} → a · b ≡ a · c → b ≡ c

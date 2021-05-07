@@ -18,7 +18,7 @@ private
   variable
     ℓ : Level
 
-module EqualityToNormalform (R : CommRing {ℓ}) where
+module EqualityToNormalform (R : CommRing ℓ) where
   νR = CommRing→RawℤAlgebra R
   open CommRingStr (snd R)
   open RingTheory (CommRing→Ring R)
@@ -152,17 +152,17 @@ module EqualityToNormalform (R : CommRing {ℓ}) where
     eval _ (normalize _ e₂) xs ≡⟨ isEqualToNormalform _ e₂ xs ⟩
     ⟦ e₂ ⟧ xs ∎
 
-ℤExpr : (R : CommRing {ℓ}) (n : ℕ)
+ℤExpr : (R : CommRing ℓ) (n : ℕ)
         → _
 ℤExpr R n = EqualityToNormalform.ℤExpr R n
 
-solve : (R : CommRing {ℓ})
+solve : (R : CommRing ℓ)
         {n : ℕ} (e₁ e₂ : ℤExpr R n) (xs : Vec (fst R) n)
         (p : eval n (EqualityToNormalform.normalize R n e₁) xs ≡ eval n (EqualityToNormalform.normalize R n e₂) xs)
         → _
 solve R = EqualityToNormalform.solve R
 
-module VarNames3 (R : CommRing {ℓ}) where
+module VarNames3 (R : CommRing ℓ) where
   X1 : ℤExpr R 3
   X1 = ∣ Fin.zero
 
@@ -172,7 +172,7 @@ module VarNames3 (R : CommRing {ℓ}) where
   X3 : ℤExpr R 3
   X3 = ∣ (suc (suc Fin.zero))
 
-module VarNames4 (R : CommRing {ℓ}) where
+module VarNames4 (R : CommRing ℓ) where
   X1 : ℤExpr R 4
   X1 = ∣ Fin.zero
 
@@ -185,7 +185,7 @@ module VarNames4 (R : CommRing {ℓ}) where
   X4 : ℤExpr R 4
   X4 = ∣ (suc (suc (suc Fin.zero)))
 
-module VarNames5 (R : CommRing {ℓ}) where
+module VarNames5 (R : CommRing ℓ) where
   X1 : ℤExpr R 5
   X1 = ∣ Fin.zero
 
@@ -201,7 +201,7 @@ module VarNames5 (R : CommRing {ℓ}) where
   X5 : ℤExpr R 5
   X5 = ∣ (suc (suc (suc (suc Fin.zero))))
 
-module VarNames6 (R : CommRing {ℓ}) where
+module VarNames6 (R : CommRing ℓ) where
   X1 : ℤExpr R 6
   X1 = ∣ Fin.zero
 

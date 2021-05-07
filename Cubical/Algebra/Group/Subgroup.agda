@@ -28,7 +28,7 @@ private
     ℓ : Level
 
 -- We assume an ambient group
-module _ (G' : Group {ℓ}) where
+module _ (G' : Group ℓ) where
 
   open GroupStr (snd G')
   private G = ⟨ G' ⟩
@@ -55,7 +55,7 @@ module _ (G' : Group {ℓ}) where
   isSetSubgroup : isSet Subgroup
   isSetSubgroup = isSetΣ isSetℙ λ x → isProp→isSet (isPropIsSubgroup x)
 
-  Subgroup→Group : Subgroup → Group {ℓ}
+  Subgroup→Group : Subgroup → Group ℓ
   Subgroup→Group (H , Hh) = makeGroup-right 1HG _·HG_ invHG isSetHG assocHG ridHG invrHG
     where
     HG = Σ[ x ∈ G ] ⟨ H x ⟩
@@ -80,10 +80,10 @@ module _ (G' : Group {ℓ}) where
     invrHG : (x : HG) → x ·HG invHG x ≡ 1HG
     invrHG (x , Hx) = ΣPathP (invr x , isProp→PathP (λ i → H (invr x i) .snd) _ _)
 
-⟪_⟫ : {G' : Group {ℓ}} → Subgroup G' → ℙ (G' .fst)
+⟪_⟫ : {G' : Group ℓ} → Subgroup G' → ℙ (G' .fst)
 ⟪ H , _ ⟫ = H
 
-module _ {G' : Group {ℓ}} where
+module _ {G' : Group ℓ} where
 
   open GroupStr (snd G')
   open isSubgroup
@@ -142,12 +142,12 @@ module _ {G' : Group {ℓ}} where
     (g · inv g)      ≡⟨ invr g ⟩
     1g ∎
 
-NormalSubgroup : (G : Group {ℓ}) → Type _
+NormalSubgroup : (G : Group ℓ) → Type _
 NormalSubgroup G = Σ[ G ∈ Subgroup G ] isNormal G
 
 
 -- Can one get this to work with different universes for G and H?
-module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
+module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
 
   open isSubgroup
   open GroupTheory
@@ -170,7 +170,7 @@ module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
   imSubgroup : Subgroup H
   imSubgroup = imSubset , isSubgroupIm
 
-  imGroup : Group {ℓ}
+  imGroup : Group ℓ
   imGroup = Subgroup→Group _ imSubgroup
 
   kerSubset : ℙ ⟨ G ⟩

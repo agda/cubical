@@ -45,7 +45,7 @@ record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
 
 unquoteDecl IsMonoidIsoΣ = declareRecordIsoΣ IsMonoidIsoΣ (quote IsMonoid)
 
-record MonoidStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
+record MonoidStr (A : Type ℓ) : Type ℓ where
   constructor monoidstr
 
   field
@@ -57,15 +57,10 @@ record MonoidStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
   open IsMonoid isMonoid public
 
-  -- semigrp : Semigroup
-  -- semigrp = record { isSemigroup = isSemigroup }
+Monoid : ∀ ℓ → Type (ℓ-suc ℓ)
+Monoid ℓ = TypeWithStr ℓ MonoidStr
 
-  -- open Semigroup semigrp public
-
-Monoid : Type (ℓ-suc ℓ)
-Monoid = TypeWithStr _ MonoidStr
-
-monoid : (A : Type ℓ) (ε : A) (_·_ : A → A → A) (h : IsMonoid ε _·_) → Monoid
+monoid : (A : Type ℓ) (ε : A) (_·_ : A → A → A) (h : IsMonoid ε _·_) → Monoid ℓ
 monoid A ε _·_ h = A , monoidstr ε _·_ h
 
 -- Easier to use constructors
@@ -84,7 +79,7 @@ makeMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
              (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
              (rid : (x : M) → x · ε ≡ x)
              (lid : (x : M) → ε · x ≡ x)
-           → Monoid
+           → Monoid ℓ
 makeMonoid ε _·_ is-setM assoc rid lid =
   monoid _ ε _·_ (makeIsMonoid is-setM assoc rid lid)
 
@@ -104,7 +99,7 @@ record IsMonoidEquiv {A : Type ℓ} {B : Type ℓ}
     presε : equivFun e M.ε ≡ N.ε
     isHom : (x y : A) → equivFun e (x M.· y) ≡ equivFun e x N.· equivFun e y
 
-MonoidEquiv : (M N : Monoid {ℓ}) → Type ℓ
+MonoidEquiv : (M N : Monoid ℓ) → Type ℓ
 MonoidEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsMonoidEquiv (M .snd) e (N .snd)
 
 -- We now extract the important results from the above module
@@ -129,10 +124,10 @@ isPropIsMonoid ε _·_ =
   open MonoidStr
   open IsMonoidEquiv
 
-MonoidPath : (M N : Monoid {ℓ}) → MonoidEquiv M N ≃ (M ≡ N)
+MonoidPath : (M N : Monoid ℓ) → MonoidEquiv M N ≃ (M ≡ N)
 MonoidPath = ∫ 𝒮ᴰ-Monoid .UARel.ua
 
-module MonoidTheory {ℓ} (M : Monoid {ℓ}) where
+module MonoidTheory {ℓ} (M : Monoid ℓ) where
 
   open MonoidStr (snd M)
 

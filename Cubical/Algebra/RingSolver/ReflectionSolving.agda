@@ -74,7 +74,7 @@ private
            ∷ variableList (rev varInfos)
            ∷ varg (def (quote refl) []) ∷ [])
 
-module pr (R : CommRing {ℓ}) {n : ℕ} where
+module pr (R : CommRing ℓ) {n : ℕ} where
   private
     νR = CommRing→RawℤAlgebra R
 
@@ -204,5 +204,5 @@ macro
   solve : Term → Term → TC _
   solve = solve-macro
 
-fromℤ : (R : CommRing {ℓ}) → ℤ → fst R
+fromℤ : (R : CommRing ℓ) → ℤ → fst R
 fromℤ = scalar

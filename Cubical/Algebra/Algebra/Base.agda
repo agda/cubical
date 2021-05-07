@@ -28,11 +28,11 @@ open Iso
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' ℓ'' ℓ''' : Level
 
-record IsAlgebra (R : Ring {ℓ}) {A : Type ℓ}
+record IsAlgebra (R : Ring ℓ) {A : Type ℓ'}
                  (0a 1a : A) (_+_ _·_ : A → A → A) (-_ : A → A)
-                 (_⋆_ : ⟨ R ⟩ → A → A) : Type ℓ where
+                 (_⋆_ : ⟨ R ⟩ → A → A) : Type (ℓ-max ℓ ℓ') where
 
   constructor isalgebra
 
@@ -54,7 +54,7 @@ record IsAlgebra (R : Ring {ℓ}) {A : Type ℓ}
 
 unquoteDecl IsAlgebraIsoΣ = declareRecordIsoΣ IsAlgebraIsoΣ (quote IsAlgebra)
 
-record AlgebraStr (R : Ring {ℓ}) (A : Type ℓ) : Type ℓ where
+record AlgebraStr (R : Ring ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ') where
 
   constructor algebrastr
 
@@ -69,30 +69,30 @@ record AlgebraStr (R : Ring {ℓ}) (A : Type ℓ) : Type ℓ where
 
   open IsAlgebra isAlgebra public
 
-Algebra : (R : Ring {ℓ}) → Type (ℓ-suc ℓ)
-Algebra {ℓ} R = Σ[ A ∈ Type ℓ ] AlgebraStr R A
+Algebra : (R : Ring ℓ) → ∀ ℓ' → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+Algebra R ℓ' = Σ[ A ∈ Type ℓ' ] AlgebraStr R A
 
-module commonExtractors {R : Ring {ℓ}} where
+module commonExtractors {R : Ring ℓ} where
 
-  Algebra→Module : (A : Algebra R) → LeftModule R
+  Algebra→Module : (A : Algebra R ℓ') → LeftModule R ℓ'
   Algebra→Module (_ , algebrastr A _ _ _ _ _ (isalgebra isLeftModule _ _ _ _)) =
     _ , leftmodulestr A _ _ _ isLeftModule
 
-  Algebra→Ring : (A : Algebra R) → Ring {ℓ}
+  Algebra→Ring : (A : Algebra R ℓ') → Ring ℓ'
   Algebra→Ring (_ , str) = _ , ringstr _ _ _ _ _ (IsAlgebra.isRing (AlgebraStr.isAlgebra str))
 
-  Algebra→AbGroup : (A : Algebra R) → AbGroup {ℓ}
+  Algebra→AbGroup : (A : Algebra R ℓ') → AbGroup ℓ'
   Algebra→AbGroup A = LeftModule→AbGroup (Algebra→Module A)
 
-  Algebra→Monoid : (A : Algebra R) → Monoid {ℓ}
+  Algebra→Monoid : (A : Algebra R ℓ') → Monoid ℓ'
   Algebra→Monoid A = Ring→Monoid (Algebra→Ring A)
 
-  isSetAlgebra : (A : Algebra R) → isSet ⟨ A ⟩
+  isSetAlgebra : (A : Algebra R ℓ') → isSet ⟨ A ⟩
   isSetAlgebra A = isSetAbGroup (Algebra→AbGroup A)
 
   open RingStr (snd R) using (1r; ·Ldist+) renaming (_+_ to _+r_; _·_ to _·s_)
 
-  makeIsAlgebra : {A : Type ℓ} {0a 1a : A}
+  makeIsAlgebra : {A : Type ℓ'} {0a 1a : A}
                   {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
                   (isSet-A : isSet A)
                   (+-assoc :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
@@ -126,9 +126,9 @@ module commonExtractors {R : Ring {ℓ}} where
 
 open commonExtractors public
 
-record IsAlgebraHom {R : Ring {ℓ}} {A B : Type ℓ}
+record IsAlgebraHom {R : Ring ℓ} {A : Type ℓ'} {B : Type ℓ''}
   (M : AlgebraStr R A) (f : A → B) (N : AlgebraStr R B)
-  : Type ℓ
+  : Type (ℓ-max ℓ (ℓ-max ℓ' ℓ''))
   where
 
   -- Shorter qualified names
@@ -146,21 +146,21 @@ record IsAlgebraHom {R : Ring {ℓ}} {A B : Type ℓ}
 
 open IsAlgebraHom
 
-AlgebraHom : {R : Ring {ℓ}} (M N : Algebra R) → Type ℓ
+AlgebraHom : {R : Ring ℓ} (M : Algebra R ℓ') (N : Algebra R ℓ'') → Type (ℓ-max ℓ (ℓ-max ℓ' ℓ''))
 AlgebraHom M N = Σ[ f ∈ (⟨ M ⟩ → ⟨ N ⟩) ] IsAlgebraHom (M .snd) f (N .snd)
 
-IsAlgebraEquiv : {R : Ring {ℓ}} {A B : Type ℓ}
+IsAlgebraEquiv : {R : Ring ℓ} {A B : Type ℓ'}
   (M : AlgebraStr R A) (e : A ≃ B) (N : AlgebraStr R B)
-  → Type ℓ
+  → Type (ℓ-max ℓ ℓ')
 IsAlgebraEquiv M e N = IsAlgebraHom M (e .fst) N
 
-AlgebraEquiv : {R : Ring {ℓ}} (M N : Algebra R) → Type ℓ
+AlgebraEquiv : {R : Ring ℓ} (M N : Algebra R ℓ') → Type (ℓ-max ℓ ℓ')
 AlgebraEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsAlgebraEquiv (M .snd) e (N .snd)
 
-_$a_ : {R : Ring {ℓ}} {A B : Algebra R} → AlgebraHom A B → ⟨ A ⟩ → ⟨ B ⟩
+_$a_ : {R : Ring ℓ} {A : Algebra R ℓ'} {B : Algebra R ℓ''} → AlgebraHom A B → ⟨ A ⟩ → ⟨ B ⟩
 f $a x = fst f x
 
-isPropIsAlgebra : (R : Ring {ℓ}) {A : Type ℓ}
+isPropIsAlgebra : (R : Ring ℓ) {A : Type ℓ'}
   (0a 1a : A)
   (_+_ _·_ : A → A → A)
   (-_ : A → A)
@@ -178,7 +178,7 @@ isPropIsAlgebra R _ _ _ _ _ _ =
   where
   open IsLeftModule
 
-𝒮ᴰ-Algebra : (R : Ring {ℓ}) → DUARel (𝒮-Univ ℓ) (AlgebraStr R) ℓ
+𝒮ᴰ-Algebra : (R : Ring ℓ) → DUARel (𝒮-Univ ℓ') (AlgebraStr R) (ℓ-max ℓ ℓ')
 𝒮ᴰ-Algebra R =
   𝒮ᴰ-Record (𝒮-Univ _) (IsAlgebraEquiv {R = R})
     (fields:
@@ -196,10 +196,11 @@ isPropIsAlgebra R _ _ _ _ _ _ =
   nul = autoDUARel (𝒮-Univ _) (λ A → A)
   bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
 
-AlgebraPath : {R : Ring {ℓ}} (A B : Algebra R) → (AlgebraEquiv A B) ≃ (A ≡ B)
-AlgebraPath {ℓ} {R} = ∫ (𝒮ᴰ-Algebra R) .UARel.ua
+AlgebraPath : {R : Ring ℓ} (A B : Algebra R ℓ') → (AlgebraEquiv A B) ≃ (A ≡ B)
+AlgebraPath {R = R} = ∫ (𝒮ᴰ-Algebra R) .UARel.ua
 
-compIsAlgebraHom : {R : Ring {ℓ}} {A B C : Algebra R} {g : ⟨ B ⟩ → ⟨ C ⟩} {f : ⟨ A ⟩ → ⟨ B ⟩}
+compIsAlgebraHom : {R : Ring ℓ} {A : Algebra R ℓ'} {B : Algebra R ℓ''} {C : Algebra R ℓ'''}
+  {g : ⟨ B ⟩ → ⟨ C ⟩} {f : ⟨ A ⟩ → ⟨ B ⟩}
   → IsAlgebraHom (B .snd) g (C .snd)
   → IsAlgebraHom (A .snd) f (B .snd)
   → IsAlgebraHom (A .snd) (g ∘ f) (C .snd)
@@ -210,12 +211,12 @@ compIsAlgebraHom {g = g} {f} gh fh .pres· x y = cong g (fh .pres· x y) ∙ gh 
 compIsAlgebraHom {g = g} {f} gh fh .pres- x = cong g (fh .pres- x) ∙ gh .pres- (f x)
 compIsAlgebraHom {g = g} {f} gh fh .pres⋆ r x = cong g (fh .pres⋆ r x) ∙ gh .pres⋆ r (f x)
 
-_∘a_ : {R : Ring {ℓ}} {A B C : Algebra R}
+_∘a_ : {R : Ring ℓ} {A : Algebra R ℓ'} {B : Algebra R ℓ''} {C : Algebra R ℓ'''}
        → AlgebraHom B C → AlgebraHom A B → AlgebraHom A C
 _∘a_  g f .fst = g .fst ∘ f .fst
 _∘a_  g f .snd = compIsAlgebraHom (g .snd) (f .snd)
 
-module AlgebraTheory (R : Ring {ℓ}) (A : Algebra R) where
+module AlgebraTheory (R : Ring ℓ) (A : Algebra R ℓ') where
   open RingStr (snd R) renaming (_+_ to _+r_)
   open AlgebraStr (A .snd)
 
