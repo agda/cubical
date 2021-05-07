@@ -150,22 +150,22 @@ NormalSubgroup G = Σ[ G ∈ Subgroup G ] isNormal G
 module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
 
   open isSubgroup
-  open GroupHom
   open GroupTheory
 
   private
     module G = GroupStr (snd G)
     module H = GroupStr (snd H)
-    f = fun ϕ
+    f = ϕ .fst
+    module ϕ = IsGroupHom (ϕ .snd)
 
   imSubset : ℙ ⟨ H ⟩
   imSubset x = isInIm ϕ x , isPropIsInIm ϕ x
 
   isSubgroupIm : isSubgroup H imSubset
-  id-closed isSubgroupIm = ∣ G.1g , hom1g ϕ ∣
+  id-closed isSubgroupIm = ∣ G.1g , ϕ.pres1 ∣
   op-closed isSubgroupIm =
-    map2 λ { (x , hx) (y , hy) → x G.· y , ϕ .isHom x y ∙ λ i → hx i H.· hy i }
-  inv-closed isSubgroupIm = map λ { (x , hx) → G.inv x , homInv ϕ x ∙ cong H.inv hx }
+    map2 λ { (x , hx) (y , hy) → x G.· y , ϕ.pres· x y ∙ λ i → hx i H.· hy i }
+  inv-closed isSubgroupIm = map λ { (x , hx) → G.inv x , ϕ.presinv x ∙ cong H.inv hx }
 
   imSubgroup : Subgroup H
   imSubgroup = imSubset , isSubgroupIm
@@ -177,20 +177,20 @@ module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
   kerSubset x = isInKer ϕ x , isPropIsInKer ϕ x
 
   isSubgroupKer : isSubgroup G kerSubset
-  id-closed isSubgroupKer = hom1g ϕ
+  id-closed isSubgroupKer = ϕ.pres1
   op-closed isSubgroupKer {x} {y} hx hy =
-    ϕ .isHom x y ∙∙ (λ i → hx i H.· hy i) ∙∙ H.rid _
-  inv-closed isSubgroupKer hx = homInv ϕ _ ∙∙ cong H.inv hx ∙∙ inv1g H
+    ϕ.pres· x y ∙∙ (λ i → hx i H.· hy i) ∙∙ H.rid _
+  inv-closed isSubgroupKer hx = ϕ.presinv _ ∙∙ cong H.inv hx ∙∙ inv1g H
 
   kerSubgroup : Subgroup G
   kerSubgroup = kerSubset , isSubgroupKer
 
   isNormalKer : isNormal kerSubgroup
   isNormalKer x y hy =
-    f (x G.· y G.· G.inv x)         ≡⟨ ϕ .isHom _ _ ⟩
-    f x H.· f (y G.· G.inv x)       ≡⟨ cong (f x H.·_) (ϕ .isHom _ _) ⟩
+    f (x G.· y G.· G.inv x)         ≡⟨ ϕ.pres· _ _ ⟩
+    f x H.· f (y G.· G.inv x)       ≡⟨ cong (f x H.·_) (ϕ.pres· _ _) ⟩
     f x H.· f y H.· f (G.inv x)     ≡⟨ (λ i → f x H.· hy i H.· f (G.inv x)) ⟩
     f x H.· (H.1g H.· f (G.inv x))  ≡⟨ cong (f x H.·_) (H.lid _) ⟩
-    f x H.· f (G.inv x)             ≡⟨ cong (f x H.·_) (homInv ϕ x) ⟩
+    f x H.· f (G.inv x)             ≡⟨ cong (f x H.·_) (ϕ.presinv x) ⟩
     f x H.· H.inv (f x)             ≡⟨ H.invr _ ⟩
     H.1g                            ∎

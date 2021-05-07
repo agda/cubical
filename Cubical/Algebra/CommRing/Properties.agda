@@ -143,22 +143,25 @@ module RingHomRespUnits {A' B' : CommRing {ℓ}} (φ : CommRingHom A' B') where
  open CommRingStr (snd B') renaming  ( _·_ to _·B_ ; 1r to 1b
                                      ; ·Lid to ·B-lid ; ·Rid to ·B-rid
                                      ; ·Assoc to ·B-assoc)
- open RingHom
 
- RingHomRespInv : (r : A) ⦃ r∈Aˣ : r ∈ Aˣ ⦄ → f φ r ∈ Bˣ
- RingHomRespInv r = f φ (r ⁻¹ᵃ) , (sym (isHom· φ r (r ⁻¹ᵃ)) ∙∙ cong (f φ) (·A-rinv r) ∙∙ pres1 φ)
+ private
+   f = fst φ
+ open IsRingHom (φ .snd)
 
- φ[x⁻¹]≡φ[x]⁻¹ : (r : A) ⦃ r∈Aˣ : r ∈ Aˣ ⦄ ⦃ φr∈Bˣ : f φ r ∈ Bˣ ⦄
-               → f φ (r ⁻¹ᵃ) ≡ (f φ r) ⁻¹ᵇ
+ RingHomRespInv : (r : A) ⦃ r∈Aˣ : r ∈ Aˣ ⦄ → f r ∈ Bˣ
+ RingHomRespInv r = f (r ⁻¹ᵃ) , (sym (pres· r (r ⁻¹ᵃ)) ∙∙ cong (f) (·A-rinv r) ∙∙ pres1)
+
+ φ[x⁻¹]≡φ[x]⁻¹ : (r : A) ⦃ r∈Aˣ : r ∈ Aˣ ⦄ ⦃ φr∈Bˣ : f r ∈ Bˣ ⦄
+               → f (r ⁻¹ᵃ) ≡ (f r) ⁻¹ᵇ
  φ[x⁻¹]≡φ[x]⁻¹ r ⦃ r∈Aˣ ⦄ ⦃ φr∈Bˣ ⦄ =
-  f φ (r ⁻¹ᵃ)                             ≡⟨ sym (·B-rid _) ⟩
-  f φ (r ⁻¹ᵃ) ·B 1b                       ≡⟨ cong (f φ (r ⁻¹ᵃ) ·B_) (sym (·B-rinv _)) ⟩
-  f φ (r ⁻¹ᵃ) ·B ((f φ r) ·B (f φ r) ⁻¹ᵇ) ≡⟨ ·B-assoc _ _ _ ⟩
-  f φ (r ⁻¹ᵃ) ·B (f φ r) ·B (f φ r) ⁻¹ᵇ   ≡⟨ cong (_·B (f φ r) ⁻¹ᵇ) (sym (isHom· φ _ _)) ⟩
-  f φ (r ⁻¹ᵃ ·A r) ·B (f φ r) ⁻¹ᵇ         ≡⟨ cong (λ x → f φ x ·B (f φ r) ⁻¹ᵇ) (·A-linv _) ⟩
-  f φ 1a ·B (f φ r) ⁻¹ᵇ                   ≡⟨ cong (_·B (f φ r) ⁻¹ᵇ) (pres1 φ) ⟩
-  1b ·B (f φ r) ⁻¹ᵇ                       ≡⟨ ·B-lid _ ⟩
-  (f φ r) ⁻¹ᵇ                             ∎
+  f (r ⁻¹ᵃ)                         ≡⟨ sym (·B-rid _) ⟩
+  f (r ⁻¹ᵃ) ·B 1b                   ≡⟨ cong (f (r ⁻¹ᵃ) ·B_) (sym (·B-rinv _)) ⟩
+  f (r ⁻¹ᵃ) ·B ((f r) ·B (f r) ⁻¹ᵇ) ≡⟨ ·B-assoc _ _ _ ⟩
+  f (r ⁻¹ᵃ) ·B (f r) ·B (f r) ⁻¹ᵇ   ≡⟨ cong (_·B (f r) ⁻¹ᵇ) (sym (pres· _ _)) ⟩
+  f (r ⁻¹ᵃ ·A r) ·B (f r) ⁻¹ᵇ       ≡⟨ cong (λ x → f x ·B (f r) ⁻¹ᵇ) (·A-linv _) ⟩
+  f 1a ·B (f r) ⁻¹ᵇ                 ≡⟨ cong (_·B (f r) ⁻¹ᵇ) (pres1) ⟩
+  1b ·B (f r) ⁻¹ᵇ                   ≡⟨ ·B-lid _ ⟩
+  (f r) ⁻¹ᵇ                         ∎
 
 
 module Exponentiation (R' : CommRing {ℓ}) where

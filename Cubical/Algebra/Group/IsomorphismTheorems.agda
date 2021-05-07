@@ -32,8 +32,6 @@ private
 module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
 
   open isSubgroup
-  open GroupHom
-  open GroupIso
   open Iso
   open GroupTheory
 
@@ -48,6 +46,7 @@ module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
     module H = GroupStr (snd H)
     module imG = GroupStr (snd imϕ)
     module kerG = GroupStr (snd (G / kerϕ))
+    module ϕ = IsGroupHom (ϕ .snd)
 
   f1 : ⟨ imϕ ⟩ → ⟨ G / kerϕ ⟩
   f1 (x , Hx) = rec→Set ( squash/)
@@ -55,29 +54,29 @@ module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
                          (λ { (y , hy) (z , hz) → eq/ y z (rem y z hy hz) })
                          Hx
     where
-    rem : (y z : ⟨ G ⟩) → ϕ .fun y ≡ x → ϕ .fun z ≡ x → ϕ .fun (y G.· G.inv z) ≡ H.1g
+    rem : (y z : ⟨ G ⟩) → ϕ .fst y ≡ x → ϕ .fst z ≡ x → ϕ .fst (y G.· G.inv z) ≡ H.1g
     rem y z hy hz =
-      ϕ .fun (y G.· G.inv z)        ≡⟨ ϕ .isHom _ _ ⟩
-      ϕ .fun y H.· ϕ .fun (G.inv z) ≡⟨ cong (ϕ .fun y H.·_) (homInv ϕ _) ⟩
-      ϕ .fun y H.· H.inv (ϕ .fun z) ≡⟨ (λ i → hy i H.· H.inv (hz i)) ⟩
+      ϕ .fst (y G.· G.inv z)        ≡⟨ ϕ.pres· _ _ ⟩
+      ϕ .fst y H.· ϕ .fst (G.inv z) ≡⟨ cong (ϕ .fst y H.·_) (ϕ.presinv _) ⟩
+      ϕ .fst y H.· H.inv (ϕ .fst z) ≡⟨ (λ i → hy i H.· H.inv (hz i)) ⟩
       x H.· H.inv x                 ≡⟨ H.invr x ⟩
       H.1g                          ∎
 
   f2 : ⟨ G / kerϕ ⟩ → ⟨ imϕ ⟩
-  f2 = recS imG.is-set (λ y → ϕ .fun y , ∣ y , refl ∣)
+  f2 = recS imG.is-set (λ y → ϕ .fst y , ∣ y , refl ∣)
                        (λ x y r → Σ≡Prop (λ _ → squash)
                        (rem x y r))
     where
-    rem : (x y : ⟨ G ⟩) → ϕ .fun (x G.· G.inv y) ≡ H.1g → ϕ .fun x ≡ ϕ .fun y
+    rem : (x y : ⟨ G ⟩) → ϕ .fst (x G.· G.inv y) ≡ H.1g → ϕ .fst x ≡ ϕ .fst y
     rem x y r =
-      ϕ .fun x                                      ≡⟨ sym (H.rid _) ⟩
-      ϕ .fun x H.· H.1g                             ≡⟨ cong (ϕ .fun x H.·_) (sym (H.invl _)) ⟩
-      ϕ .fun x H.· H.inv (ϕ .fun y) H.· ϕ .fun y    ≡⟨ (λ i → ϕ .fun x H.· homInv ϕ y (~ i) H.· ϕ .fun y) ⟩
-      ϕ .fun x H.· ϕ .fun (G.inv y) H.· ϕ .fun y    ≡⟨ H.assoc _ _ _ ⟩
-      (ϕ .fun x H.· ϕ .fun (G.inv y)) H.· ϕ .fun y  ≡⟨ cong (H._· _) (sym (ϕ .isHom _ _)) ⟩
-      ϕ .fun (x G.· G.inv y) H.· ϕ .fun y           ≡⟨ cong (H._· ϕ .fun y) r ⟩
-      H.1g H.· ϕ .fun y                             ≡⟨ H.lid _ ⟩
-      ϕ .fun y ∎
+      ϕ .fst x                                      ≡⟨ sym (H.rid _) ⟩
+      ϕ .fst x H.· H.1g                             ≡⟨ cong (ϕ .fst x H.·_) (sym (H.invl _)) ⟩
+      ϕ .fst x H.· H.inv (ϕ .fst y) H.· ϕ .fst y    ≡⟨ (λ i → ϕ .fst x H.· ϕ.presinv y (~ i) H.· ϕ .fst y) ⟩
+      ϕ .fst x H.· ϕ .fst (G.inv y) H.· ϕ .fst y    ≡⟨ H.assoc _ _ _ ⟩
+      (ϕ .fst x H.· ϕ .fst (G.inv y)) H.· ϕ .fst y  ≡⟨ cong (H._· _) (sym (ϕ.pres· _ _)) ⟩
+      ϕ .fst (x G.· G.inv y) H.· ϕ .fst y           ≡⟨ cong (H._· ϕ .fst y) r ⟩
+      H.1g H.· ϕ .fst y                             ≡⟨ H.lid _ ⟩
+      ϕ .fst y ∎
 
   f12 : (x : ⟨ G / kerϕ ⟩) → f1 (f2 x) ≡ x
   f12 = elimProp (λ _ → squash/ _ _) (λ _ → refl)
@@ -95,11 +94,11 @@ module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
 
   -- The first isomorphism theorem for groups
   isoThm1 : GroupIso imϕ (G / kerϕ)
-  fun (isom isoThm1) = f1
-  inv (isom isoThm1) = f2
-  rightInv (isom isoThm1) = f12
-  leftInv (isom isoThm1) = f21
-  isHom isoThm1 = f1-isHom
+  fun (fst isoThm1) = f1
+  inv (fst isoThm1) = f2
+  rightInv (fst isoThm1) = f12
+  leftInv (fst isoThm1) = f21
+  snd isoThm1 = makeIsGroupHom f1-isHom
 
   -- The SIP lets us turn the isomorphism theorem into a path
   pathThm1 : imϕ ≡ G / kerϕ

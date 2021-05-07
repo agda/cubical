@@ -36,8 +36,7 @@ open import Cubical.HITs.Truncation renaming (elim to trElim ; elim2 to trElim2 
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Loopspace
 
-open GroupHom
-open GroupIso
+open IsGroupHom
 open Iso
 
 -- The following section contains stengthened induction principles for cohomology groups of T². They are particularly useful for showing that
@@ -152,13 +151,14 @@ H¹-T²≅ℤ×ℤ = theIso □ GroupIsoDirProd (Hⁿ-Sⁿ≅ℤ 0) (H⁰-Sⁿ�
                       ⋄ setTruncOfProdIso
 
   theIso : GroupIso _ _
-  isom theIso = typIso
-  isHom theIso =
-      coHomPointedElimT² _ (λ _ → isPropΠ λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
-      λ pf qf Pf →
+  fst theIso = typIso
+  snd theIso =
+    makeIsGroupHom
+      (coHomPointedElimT² _ (λ _ → isPropΠ λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
+        λ pf qf Pf →
         coHomPointedElimT² _ (λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
           λ pg qg Pg i → ∣ funExt (helperFst pf qf pg qg Pg Pf) i  ∣₂
-                        , ∣ funExt (helperSnd pf qf pg qg Pg Pf) i ∣₂
+                        , ∣ funExt (helperSnd pf qf pg qg Pg Pf) i ∣₂)
      where
        module _ (pf qf pg qg : 0ₖ 1 ≡ 0ₖ 1) (Pg : Square qg qg pg pg) (Pf : Square qf qf pf pf) where
          helperFst : (x : S¹)
@@ -193,7 +193,7 @@ H²-T²≅ℤ = compGroupIso helper2 (Hⁿ-Sⁿ≅ℤ 0)
   inv helper s = 0ₕ _ , s
   fun helper = snd
   leftInv helper _ =
-    ΣPathP (isOfHLevelSuc 0 (isOfHLevelRetractFromIso 0 (isom (Hⁿ-S¹≅0 0)) (isContrUnit)) _ _
+    ΣPathP (isOfHLevelSuc 0 (isOfHLevelRetractFromIso 0 (fst (Hⁿ-S¹≅0 0)) (isContrUnit)) _ _
           , refl)
   rightInv helper _ = refl
   theIso : Iso (coHom 2 (S¹ × S¹)) (coHom 1 S¹)
@@ -202,7 +202,8 @@ H²-T²≅ℤ = compGroupIso helper2 (Hⁿ-Sⁿ≅ℤ 0)
          ⋄ helper
 
   helper2 : GroupIso (coHomGr 2 (S¹ × S¹)) (coHomGr 1 S¹)
-  helper2 = groupiso theIso (
+  helper2 .fst = theIso
+  helper2 .snd = makeIsGroupHom (
     coHomPointedElimT²'' 0 (λ _ → isPropΠ λ _ → setTruncIsSet _ _)
       λ P → coHomPointedElimT²'' 0 (λ _ → setTruncIsSet _ _)
       λ Q → ((λ i → ∣ (λ a → ΩKn+1→Kn 1 (sym (rCancel≡refl 0 i)
@@ -219,25 +220,26 @@ H²-T²≅ℤ = compGroupIso helper2 (Hⁿ-Sⁿ≅ℤ 0)
                                            +ₖ ΩKn+1→Kn 1 (sym (rCancel≡refl 0 (~ i))
                                                          ∙∙ cong (λ x → elimFunT²' 1 Q (a , x) +ₖ ∣ north ∣) loop
                                                          ∙∙ rCancel≡refl 0 (~ i)))) ∣₂))
+-- >>>>>>> master
 
 private
   to₂ : coHom 2 (S₊ 1 × S₊ 1) → Int
-  to₂ = fun (isom H²-T²≅ℤ)
+  to₂ = fun (fst H²-T²≅ℤ)
 
   from₂ : Int → coHom 2 (S₊ 1 × S₊ 1)
-  from₂ = inv (isom H²-T²≅ℤ)
+  from₂ = inv (fst H²-T²≅ℤ)
 
   to₁ : coHom 1 (S₊ 1 × S₊ 1) → Int × Int
-  to₁ = fun (isom H¹-T²≅ℤ×ℤ)
+  to₁ = fun (fst H¹-T²≅ℤ×ℤ)
 
   from₁ : Int × Int → coHom 1 (S₊ 1 × S₊ 1)
-  from₁ = inv (isom H¹-T²≅ℤ×ℤ)
+  from₁ = inv (fst H¹-T²≅ℤ×ℤ)
 
   to₀ : coHom 0 (S₊ 1 × S₊ 1) → Int
-  to₀ = fun (isom H⁰-T²≅ℤ)
+  to₀ = fun (fst H⁰-T²≅ℤ)
 
   from₀ : Int → coHom 0 (S₊ 1 × S₊ 1)
-  from₀ = inv (isom H⁰-T²≅ℤ)
+  from₀ = inv (fst H⁰-T²≅ℤ)
 
 {-
 -- Compute fast:

@@ -28,9 +28,6 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Homotopy.Connected
 open import Cubical.HITs.RPn.Base
 
-open GroupIso
-open GroupHom
-
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Bool
 open import Cubical.Data.Int

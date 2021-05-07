@@ -39,8 +39,7 @@ open import Cubical.Foundations.Path
 
 open import Cubical.Homotopy.Loopspace
 
-open GroupIso
-open GroupHom
+open IsGroupHom
 open Iso
 
 characFunSpace𝕂² : ∀ {ℓ} (A : Type ℓ) →
@@ -93,10 +92,10 @@ private
 
 ------ H¹(𝕂²) ≅ 0 --------------
 H⁰-𝕂² : GroupIso (coHomGr 0 KleinBottle) IntGroup
-fun (isom H⁰-𝕂²) = sRec isSetInt λ f → f point
-inv (isom H⁰-𝕂²) x = ∣ (λ _ → x) ∣₂
-rightInv (isom H⁰-𝕂²) _ = refl
-leftInv (isom H⁰-𝕂²) =
+fun (fst H⁰-𝕂²) = sRec isSetInt λ f → f point
+inv (fst H⁰-𝕂²) x = ∣ (λ _ → x) ∣₂
+rightInv (fst H⁰-𝕂²) _ = refl
+leftInv (fst H⁰-𝕂²) =
   sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
         λ f → cong ∣_∣₂ (funExt (λ {point → refl
                                  ; (line1 i) j → isSetInt (f point) (f point) refl (cong f line1) j i
@@ -111,8 +110,8 @@ leftInv (isom H⁰-𝕂²) =
                 refl
                 λ i j → f (square i j)
   helper f = isGroupoid→isGroupoid' (isOfHLevelSuc 2 isSetInt) _ _ _ _ _ _
-isHom H⁰-𝕂² =
-  sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _) λ _ _ → refl
+snd H⁰-𝕂² =
+  makeIsGroupHom (sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _) λ _ _ → refl)
 
 ------ H¹(𝕂¹) ≅ ℤ ------------
 {-
@@ -185,12 +184,14 @@ H¹-𝕂²≅ℤ = compGroupIso theGroupIso (Hⁿ-Sⁿ≅ℤ 0)
          (compIso Iso-H¹-𝕂²₁
                   Iso-H¹-𝕂²₂)))
 
-  is-hom : isGroupHom (coHomGr 1 KleinBottle) (coHomGr 1 S¹) (fun theIso)
-  is-hom = sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                  λ f g → cong ∣_∣₂ (funExt λ {base → refl ; (loop i) → refl})
+  is-hom : IsGroupHom (coHomGr 1 KleinBottle .snd) (fun theIso) (coHomGr 1 S¹ .snd)
+  is-hom =
+    makeIsGroupHom
+      (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        λ f g → cong ∣_∣₂ (funExt λ {base → refl ; (loop i) → refl}))
 
   theGroupIso : GroupIso (coHomGr 1 KleinBottle) (coHomGr 1 S¹)
-  theGroupIso = groupiso theIso is-hom
+  theGroupIso = (theIso , is-hom)
 
 ------ H²(𝕂²) ≅ ℤ/2ℤ (represented here by BoolGroup) -------
 -- It suffices to show that H²(Klein) is equivalent to Bool as types
