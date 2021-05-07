@@ -156,7 +156,7 @@ open coHom using (K)
 open S using (sphereConnected)
 
 -- Lemma 1
-open S using (wedgeConSn)
+open S using (wedgeconFun; wedgeconLeft ; wedgeconRight)
 
 -- restated to match the formulation in the paper
 wedgeConSn' : ∀ {ℓ} (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) → Type ℓ}
@@ -169,18 +169,18 @@ wedgeConSn' : ∀ {ℓ} (n m : ℕ) {A : (S₊ (suc n)) → (S₊ (suc m)) → T
                                    × ((x : S₊ (suc m)) → fᵣ x ≡ F (ptSn (suc n)) x) ]
                   p ≡ left (ptSn (suc n)) ∙ (right (ptSn (suc m))) ⁻¹)
 wedgeConSn' zero zero hlev fₗ fᵣ p =
-  (wedgeConSn 0 0 hlev fᵣ fₗ p .fst)
-   , ((λ x → sym (wedgeConSn 0 0 hlev fᵣ fₗ p .snd .snd x))
+  (wedgeconFun 0 0 hlev fᵣ fₗ p)
+   , ((λ x → sym (wedgeconRight 0 0 hlev fᵣ fₗ p x))
    , λ _ → refl) -- right holds by refl
    , rUnit _
 wedgeConSn' zero (suc m) hlev fₗ fᵣ p =
-  (wedgeConSn 0 (suc m) hlev fᵣ fₗ p .fst)
+  (wedgeconFun 0 (suc m) hlev fᵣ fₗ p)
   , ((λ _ → refl) -- left holds by refl
-  , (λ x → sym (wedgeConSn 0 (suc m) hlev fᵣ fₗ p .snd .fst x)))
+  , (λ x → sym (wedgeconLeft 0 (suc m) hlev fᵣ fₗ p x)))
   , lUnit _
 wedgeConSn' (suc n) m hlev fₗ fᵣ p =
-  (wedgeConSn (suc n) m hlev fᵣ fₗ p .fst)
-   , ((λ x → sym (wedgeConSn (suc n) m hlev fᵣ fₗ p .snd .snd x))
+  (wedgeconFun (suc n) m hlev fᵣ fₗ p)
+   , ((λ x → sym (wedgeconRight (suc n) m hlev fᵣ fₗ p x))
    , λ _ → refl) -- right holds by refl
    , rUnit _
 
@@ -232,16 +232,16 @@ n≥2-comm≡refl = sym (rUnit refl)
 1-lCancel≡refl : lCancelₖ 1 (0ₖ 1) ≡ refl
 n≥2-lCancel≡refl : {n : ℕ} → lCancelₖ (2 + n) (0ₖ (2 + n)) ≡ refl
 0-lCancel≡refl = refl
-1-lCancel≡refl = sym (lUnit _) ∙ transportRefl refl
-n≥2-lCancel≡refl = rCancel _
+1-lCancel≡refl = refl
+n≥2-lCancel≡refl = refl
 
 -- rCancelₖ (≡ transport refl refl for n ≥ 1)
 0-rCancel≡refl : rCancelₖ 0 (0ₖ 0) ≡ refl
 1-rCancel≡refl : rCancelₖ 1 (0ₖ 1) ≡ refl
 n≥2-rCancel≡refl : {n : ℕ} → rCancelₖ (2 + n) (0ₖ (2 + n)) ≡ refl
 0-rCancel≡refl = refl
-1-rCancel≡refl = transportRefl refl
-n≥2-rCancel≡refl = transportRefl refl
+1-rCancel≡refl = refl
+n≥2-rCancel≡refl i = rUnit (rUnit refl (~ i)) (~ i)
 
 -- Proof that there is a unique h-structure on Kₙ
 -- +ₖ defines an h-Structure on Kₙ
