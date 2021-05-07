@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.Monoid.Base where
 
 open import Cubical.Foundations.Prelude
@@ -17,6 +17,8 @@ open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
 open import Cubical.Structures.Record
 open import Cubical.Algebra.Semigroup
+
+open import Cubical.Reflection.StrictEquiv
 
 open Iso
 
@@ -132,7 +134,7 @@ module MonoidΣTheory {ℓ} where
 
   MonoidAxioms≡IsMonoid : {M : Type ℓ} (s : RawMonoidStructure M)
     → MonoidAxioms M s ≡ IsMonoid (s .fst) (s .snd)
-  MonoidAxioms≡IsMonoid s = isoToPath (MonoidAxiomsIsoIsMonoid s)
+  MonoidAxioms≡IsMonoid s = ua (strictIsoToEquiv (MonoidAxiomsIsoIsMonoid s))
 
   open MonoidStr
 

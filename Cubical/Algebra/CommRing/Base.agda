@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Base where
 
 open import Cubical.Foundations.Prelude
@@ -11,6 +11,8 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
+
+open import Cubical.Reflection.StrictEquiv
 
 open import Cubical.Structures.Axioms
 open import Cubical.Algebra.Semigroup
@@ -142,7 +144,7 @@ module CommRingΣTheory {ℓ} where
 
   CommRingPath : (R S : CommRing) → (Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] CommRingEquiv R S e) ≃ (R ≡ S)
   CommRingPath R S =
-    Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] CommRingEquiv R S e ≃⟨ isoToEquiv RingIsoΣPath ⟩
+    Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] CommRingEquiv R S e ≃⟨ strictIsoToEquiv RingIsoΣPath ⟩
     CommRingEquivΣ R S  ≃⟨ CommRingΣPath _ _ ⟩
     CommRing→CommRingΣ R ≡ CommRing→CommRingΣ S
       ≃⟨ isoToEquiv (invIso (congIso CommRingIsoCommRingΣ)) ⟩

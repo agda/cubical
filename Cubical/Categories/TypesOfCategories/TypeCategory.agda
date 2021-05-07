@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --postfix-projections --safe #-}
+{-# OPTIONS --postfix-projections --safe #-}
 
 module Cubical.Categories.TypesOfCategories.TypeCategory where
 
@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma
+import Cubical.Functions.Fibration as Fibration
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -14,6 +15,8 @@ open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Sets
 
+
+open Fibration.ForSets
 
 record isTypeCategory {ℓ ℓ' ℓ''} (C : Precategory ℓ ℓ')
        : Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-suc ℓ''))) where
@@ -51,7 +54,7 @@ record isTypeCategory {ℓ ℓ' ℓ''} (C : Precategory ℓ ℓ')
                       (pblegs (π Γ' (reindex f A)) q⟨ f , A ⟩)
 
 -- presheaves are type contexts
-module _ {ℓ ℓ' : Level} (C : Precategory ℓ ℓ') where
+module _ {ℓ ℓ' ℓ'' : Level} (C : Precategory ℓ ℓ') where
   open isTypeCategory
   open Precategory
   open Functor
@@ -60,21 +63,21 @@ module _ {ℓ ℓ' : Level} (C : Precategory ℓ ℓ') where
 
   private
     -- types over Γ are types with a "projection" (aka surjection) to Γ
-    PSTy[_] : PreShv C .ob → Type _
-    PSTy[ Γ ] = Σ[ ΓA ∈ PreShv C .ob ]
+    PSTy[_] : PreShv C ℓ'' .ob → Type _
+    PSTy[ Γ ] = Σ[ ΓA ∈ PreShv C ℓ'' .ob ]
                    Σ[ π ∈ ΓA ⇒ Γ ]
                      (∀ (c : C .ob)
                      → isSurjSET {A = ΓA ⟅ c ⟆} {Γ ⟅ c ⟆} (π ⟦ c ⟧))
 
     -- just directly use types from above as context extensions
-    PSCext : (Γ : _) → PSTy[ Γ ] → Σ[ ΓA ∈ PreShv C .ob ] ΓA ⇒ Γ
+    PSCext : (Γ : _) → PSTy[ Γ ] → Σ[ ΓA ∈ PreShv C ℓ'' .ob ] ΓA ⇒ Γ
     PSCext Γ (ΓA , π , _) = ΓA , π
 
     -- the pullback or reindexed set is the disjoint union of the fibers
     -- from the projection
-    module _ {Δ Γ : PreShv C .ob} (γ : Δ ⇒ Γ)
+    module _ {Δ Γ : PreShv C ℓ'' .ob} (γ : Δ ⇒ Γ)
              (A'@(ΓA , π , isSurjπ) : PSTy[ Γ ]) where
-      ΔA : PreShv C .ob
+      ΔA : PreShv C ℓ'' .ob
       ΔA .F-ob c =  ΔATy , isSetΔA
         where
           ΔATy = (Σ[ x ∈ fst (Δ ⟅ c ⟆) ] fiber (π ⟦ c ⟧) ((γ ⟦ c ⟧) x))
@@ -119,7 +122,7 @@ module _ {ℓ ℓ' : Level} (C : Precategory ℓ ℓ') where
       PSq .N-ob c (δax , γax , eq) = γax
       PSq .N-hom {c} {d} f = funExt λ (δax , γax , eq) → refl
 
-      PSIsPB : isPullback {C = PreShv C}
+      PSIsPB : isPullback {C = PreShv C ℓ''}
                  (cospan Δ Γ (fst (PSCext Γ A')) γ (snd (PSCext Γ A')))
                  (pblegs (snd (PSCext Δ PSReindex)) (PSq))
       PSIsPB .sq = makeNatTransPath (funExt sqExt)
@@ -176,7 +179,7 @@ module _ {ℓ ℓ' : Level} (C : Precategory ℓ ℓ') where
                   isPropNatP2 = isOfHLevel→isOfHLevelDep 1 (λ _ → isSetNat _ _)
 
   -- putting everything together
-  isTypeCategoryPresheaf : isTypeCategory (PreShv C)
+  isTypeCategoryPresheaf : isTypeCategory (PreShv C ℓ'')
   isTypeCategoryPresheaf .Ty[_] Γ = PSTy[ Γ ]
   isTypeCategoryPresheaf .cext = PSCext
   isTypeCategoryPresheaf .reindex = PSReindex

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.RingSolver.CommRingSolver where
 
 open import Cubical.Foundations.Prelude
@@ -21,7 +21,7 @@ private
 module EqualityToNormalform (R : CommRing {ℓ}) where
   νR = CommRing→RawℤAlgebra R
   open CommRingStr (snd R)
-  open Theory (CommRing→Ring R)
+  open RingTheory (CommRing→Ring R)
   open Eval ℤAsRawRing νR
   open IteratedHornerOperations νR
   open HomomorphismProperties R

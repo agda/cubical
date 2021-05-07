@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.Ring.Kernel where
 
 open import Cubical.Foundations.Prelude
@@ -20,7 +20,7 @@ module _ {{R S : Ring {ℓ}}} (f′ : RingHom R S) where
   open HomTheory f′
   open RingStr ⦃...⦄
   open isIdeal
-  open Theory
+  open RingTheory
   private
     instance
       _ = R

@@ -6,7 +6,7 @@ Portions of this file adapted from Nicolai Kraus' code here:
   https://bitbucket.org/nicolaikraus/agda/src/e30d70c72c6af8e62b72eefabcc57623dd921f04/trunc-inverse.lagda
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Pointed.Homogeneous where
 
 open import Cubical.Foundations.Prelude
@@ -28,11 +28,14 @@ isHomogeneous {ℓ} (A , x) = ∀ y → Path (Pointed ℓ) (A , x) (A , y)
 
 isHomogeneousPi : ∀ {ℓ ℓ'} {A : Type ℓ} {B∙ : A → Pointed ℓ'}
                  → (∀ a → isHomogeneous (B∙ a)) → isHomogeneous (Πᵘ∙ A B∙)
-isHomogeneousPi h f i = (∀ a → typ (h a (f a) i)) , (λ a → pt (h a (f a) i))
+isHomogeneousPi h f i .fst = ∀ a → typ (h a (f a) i)
+isHomogeneousPi h f i .snd a = pt (h a (f a) i)
 
 isHomogeneousProd : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'}
                    → isHomogeneous A∙ → isHomogeneous B∙ → isHomogeneous (A∙ ×∙ B∙)
-isHomogeneousProd hA hB (a , b) i = (typ (hA a i)) × (typ (hB b i)) , (pt (hA a i) , pt (hB b i))
+isHomogeneousProd hA hB (a , b) i .fst = typ (hA a i) × typ (hB b i)
+isHomogeneousProd hA hB (a , b) i .snd .fst = pt (hA a i)
+isHomogeneousProd hA hB (a , b) i .snd .snd = pt (hB b i)
 
 isHomogeneousPath : ∀ {ℓ} (A : Type ℓ) {x y : A} (p : x ≡ y) → isHomogeneous ((x ≡ y) , p)
 isHomogeneousPath A {x} {y} p q

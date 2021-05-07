@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Experiments.ZCohomologyOld.Base where
 
 open import Cubical.Data.Int.Base

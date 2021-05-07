@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --no-import-sorts #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebra.Base where
 
 open import Cubical.Foundations.Prelude
@@ -9,6 +9,8 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
+
+open import Cubical.Reflection.StrictEquiv
 
 open import Cubical.Structures.Axioms
 open import Cubical.Algebra.Semigroup
@@ -159,7 +161,7 @@ module CommAlgebraΣTheory (R : CommRing {ℓ}) where
 
   CommAlgebraPath : (A B : CommAlgebra R) → (CommAlgebraEquiv A B) ≃ (A ≡ B)
   CommAlgebraPath A B =
-    CommAlgebraEquiv A B   ≃⟨ isoToEquiv AlgebraEquivΣPath ⟩
+    CommAlgebraEquiv A B   ≃⟨ strictIsoToEquiv AlgebraEquivΣPath ⟩
     CommAlgebraEquivΣ A B  ≃⟨ CommAlgebraΣPath _ _ ⟩
     CommAlgebra→CommAlgebraΣ A ≡ CommAlgebra→CommAlgebraΣ B
       ≃⟨ isoToEquiv (invIso (congIso CommAlgebraIsoCommAlgebraΣ)) ⟩

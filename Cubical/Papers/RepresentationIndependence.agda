@@ -10,7 +10,7 @@ Carlo Angiuli, Evan Cavallo, Anders Mörtberg, Max Zeuner
 Preprint: https://arxiv.org/abs/2009.05547
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Papers.RepresentationIndependence where
 
 

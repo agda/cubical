@@ -8,7 +8,7 @@ Some theory about Bi-Invertible Equivalences
 - Iso to BiInvEquiv
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Equiv.BiInvertible where
 
 open import Cubical.Foundations.Prelude

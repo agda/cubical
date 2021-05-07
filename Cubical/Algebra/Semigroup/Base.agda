@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.Semigroup.Base where
 
 open import Cubical.Foundations.Prelude
@@ -11,6 +11,8 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
+
+open import Cubical.Reflection.StrictEquiv
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
@@ -143,7 +145,7 @@ module SemigroupΣTheory {ℓ} where
 
   SemigroupPath : (M N : Semigroup) → (Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] SemigroupEquiv M N e) ≃ (M ≡ N)
   SemigroupPath M N =
-    Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] SemigroupEquiv M N e ≃⟨ isoToEquiv SemigroupIsoΣPath ⟩
+    Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] SemigroupEquiv M N e ≃⟨ strictIsoToEquiv SemigroupIsoΣPath ⟩
     SemigroupEquivΣ M N ≃⟨ SemigroupΣPath _ _ ⟩
     Semigroup→SemigroupΣ M ≡ Semigroup→SemigroupΣ N ≃⟨ isoToEquiv (invIso (congIso SemigroupIsoSemigroupΣ)) ⟩
     M ≡ N ■

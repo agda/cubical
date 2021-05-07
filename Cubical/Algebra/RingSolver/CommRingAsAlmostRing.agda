@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.RingSolver.CommRingAsAlmostRing where
 
 open import Cubical.Foundations.Prelude
@@ -15,7 +15,7 @@ private
   variable
     ℓ : Level
 
-open Cubical.Algebra.Ring.Properties.Theory
+open Cubical.Algebra.Ring.Properties.RingTheory
 
 CommRingAsAlmostRing : CommRing {ℓ} → AlmostRing {ℓ}
 CommRingAsAlmostRing {ℓ}

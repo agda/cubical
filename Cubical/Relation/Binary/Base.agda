@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Base where
 
 open import Cubical.Core.Everything
@@ -104,8 +104,11 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
       abstract
         f : (x : A) → a ≡ x → R a x
         f x p = invEq (u a x) p
+
         t : singl a → relSinglAt a
         t (x , p) = x , f x p
+
+        q : isContr (relSinglAt a)
         q = isOfHLevelRespectEquiv 0 (t , totalEquiv _ _ f λ x → invEquiv (u a x) .snd)
                                    (isContrSingl a)
 

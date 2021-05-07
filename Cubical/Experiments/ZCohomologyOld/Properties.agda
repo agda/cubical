@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Experiments.ZCohomologyOld.Properties where
 
 open import Cubical.ZCohomology.Base
@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Pointed hiding (id)
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
@@ -24,7 +24,7 @@ open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; re
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group renaming (Unit to trivialGroup ; Int to IntGroup)
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Foundations.Equiv.HalfAdjoint
@@ -125,7 +125,7 @@ coHomPointedElim2 {ℓ' = ℓ'} {A = A} n a isprop indp = sElim2 (λ _ _ → isO
 coHomRed+1Equiv : (n : ℕ) →
                   (A : Type ℓ) →
                   (coHom n A) ≡ (coHomRed n ((A ⊎ Unit , inr (tt))))
-coHomRed+1Equiv zero A i = ∥ helpLemma {C = (Int , pos 0)} i ∥₂
+coHomRed+1Equiv zero A i = ∥ helpLemma {C = (_ , pos 0)} i ∥₂
   module coHomRed+1 where
   helpLemma : {C : Pointed ℓ} → ( (A → (typ C)) ≡  ((((A ⊎ Unit) , inr (tt)) →∙ C)))
   helpLemma {C = C} = isoToPath (iso map1
@@ -447,9 +447,9 @@ coHomGr : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group {ℓ}
 coHomGr n A = coHom n A , coHomGrnA
   where
   coHomGrnA : GroupStr (coHom n A)
-  0g coHomGrnA = 0ₕ n
-  GroupStr._+_ coHomGrnA = λ x y → x +[ n ]ₕ y
-  - coHomGrnA = λ x → -[ n ]ₕ x
+  1g coHomGrnA = 0ₕ n
+  GroupStr._·_ coHomGrnA = λ x y → x +[ n ]ₕ y
+  inv coHomGrnA = λ x → -[ n ]ₕ x
   isGroup coHomGrnA = helper
     where
     abstract
@@ -457,7 +457,7 @@ coHomGr n A = coHom n A , coHomGrnA
       helper = makeIsGroup § (λ x y z → sym (assocₕ n x y z)) (rUnitₕ n) (lUnitₕ n) (rCancelₕ n) (lCancelₕ n)
 
 ×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group
-×coHomGr n A B = dirProd (coHomGr n A) (coHomGr n B)
+×coHomGr n A B = DirProd (coHomGr n A) (coHomGr n B)
 
 coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → coHom n B → coHom n A
 coHomFun n f = sRec § λ β → ∣ β ∘ f ∣₂

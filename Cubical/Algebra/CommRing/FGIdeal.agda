@@ -4,7 +4,7 @@
   Parts of this should be reusable for explicit constructions
   of free modules over a finite set.
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.FGIdeal where
 
 open import Cubical.Foundations.Prelude
@@ -32,7 +32,7 @@ module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
   _holds : hProp ℓ → Type ℓ
   P holds = fst P
   open CommRingStr str
-  open Theory (CommRing→Ring Ring)
+  open RingTheory (CommRing→Ring Ring)
 
   linearCombination : {n : ℕ} → Vec R n → Vec R n → R
   linearCombination [] [] = 0r

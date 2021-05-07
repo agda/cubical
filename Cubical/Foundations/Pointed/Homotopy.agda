@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Pointed.Homotopy where
 
 {-
@@ -39,7 +39,7 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
   -- Proof that f ∙∼ g ≃ f ∙∼P g
   -- using equivalence of the total map of φ
   private
-    module _ {f g : Π∙ A B ptB} (H : f .fst ∼ g .fst) where
+    module _ (f g : Π∙ A B ptB) (H : f .fst ∼ g .fst) where
       -- convenient notation
       f₁ = fst f
       f₂ = snd f
@@ -84,23 +84,21 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
       φ = transport P≡Q
 
     -- The total map corresponding to φ
-    totφ : {f g : Π∙ A B ptB} → f ∙∼ g → f ∙∼P g
-    totφ {f = f} {g = g} (p₁ , p₂) = p₁ , φ {f = f} {g = g} p₁ p₂
+    totφ : (f g : Π∙ A B ptB) → f ∙∼ g → f ∙∼P g
+    totφ f g p .fst = p .fst
+    totφ f g p .snd = φ f g (p .fst) (p .snd)
 
   -- transformation of the homotopies using totφ
-  ∙∼→∙∼P : {f g : Π∙ A B ptB} → (f ∙∼ g) → (f ∙∼P g)
-  ∙∼→∙∼P {f = f} {g = g} = totφ {f = f} {g = g}
+  ∙∼→∙∼P : (f g : Π∙ A B ptB) → (f ∙∼ g) → (f ∙∼P g)
+  ∙∼→∙∼P f g = totφ f g
 
   -- Proof that ∙∼ and ∙∼P are equivalent using the fiberwise equivalence φ
   ∙∼≃∙∼P : (f g : Π∙ A B ptB) → (f ∙∼ g) ≃ (f ∙∼P g)
-  ∙∼≃∙∼P f g = ∙∼→∙∼P {f = f} {g = g} , totalEquiv (P {f = f} {g = g})
-                                                    (Q {f = f} {g = g})
-                                                    (φ {f = f} {g = g})
-                                                    λ H → isEquivTransport (P≡Q H)
+  ∙∼≃∙∼P f g = Σ-cong-equiv-snd (λ H → transportEquiv (P≡Q f g H))
 
   -- inverse of ∙∼→∙∼P extracted from the equivalence
   ∙∼P→∙∼ : {f g : Π∙ A B ptB} → f ∙∼P g → f ∙∼ g
-  ∙∼P→∙∼ {f = f} {g = g} = equivFun (invEquiv (∙∼≃∙∼P f g))
+  ∙∼P→∙∼ {f = f} {g = g} = invEq (∙∼≃∙∼P f g)
 
   -- ∙∼≃∙∼P transformed to a path
   ∙∼≡∙∼P : (f g : Π∙ A B ptB) → (f ∙∼ g) ≡ (f ∙∼P g)
@@ -108,16 +106,14 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 
   -- Verifies that the pointed homotopies actually correspond
   -- to their Σ-type versions
-  {-
   _∙∼Σ_ : (f g : Π∙ A B ptB) → Type (ℓ-max ℓ ℓ')
-  f ∙∼Σ g = Σ[ H ∈ f .fst ∼ g .fst ] (P {f = f} {g = g} H)
+  f ∙∼Σ g = Σ[ H ∈ f .fst ∼ g .fst ] (P f g H)
 
   _∙∼PΣ_ : (f g : Π∙ A B ptB) → Type (ℓ-max ℓ ℓ')
-  f ∙∼PΣ g = Σ[ H ∈ f .fst ∼ g .fst ] (Q {f = f} {g = g} H)
+  f ∙∼PΣ g = Σ[ H ∈ f .fst ∼ g .fst ] (Q f g H)
 
   ∙∼≡∙∼Σ : (f g : Π∙ A B ptB) → f ∙∼ g ≡ f ∙∼Σ g
   ∙∼≡∙∼Σ f g = refl
 
   ∙∼P≡∙∼PΣ : (f g : Π∙ A B ptB) → f ∙∼P g ≡ f ∙∼PΣ g
   ∙∼P≡∙∼PΣ f g = refl
-  -}

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.Bool.Properties where
 
 open import Cubical.Core.Everything
@@ -20,6 +20,12 @@ open import Cubical.Relation.Nullary.DecidableEq
 notnot : ∀ x → not (not x) ≡ x
 notnot true  = refl
 notnot false = refl
+
+notIso : Iso Bool Bool
+Iso.fun notIso = not
+Iso.inv notIso = not
+Iso.rightInv notIso = notnot
+Iso.leftInv notIso = notnot
 
 notIsEquiv : isEquiv not
 notIsEquiv = involIsEquiv {f = not} notnot
@@ -57,6 +63,14 @@ true≢false p = subst (λ b → if b then Bool else ⊥) p true
 
 false≢true : ¬ false ≡ true
 false≢true p = subst (λ b → if b then ⊥ else Bool) p true
+
+¬true→false : (x : Bool) → ¬ x ≡ true → x ≡ false
+¬true→false false _ = refl
+¬true→false true p = rec (p refl)
+
+¬false→true : (x : Bool) → ¬ x ≡ false → x ≡ true
+¬false→true false p = rec (p refl)
+¬false→true true _ = refl
 
 not≢const : ∀ x → ¬ not x ≡ x
 not≢const false = true≢false

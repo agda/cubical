@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.Ring.Base where
 
 open import Cubical.Foundations.Prelude
@@ -18,6 +18,8 @@ open import Cubical.Structures.Macro
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.AbGroup
+
+open import Cubical.Reflection.StrictEquiv
 
 open Iso
 
@@ -223,7 +225,7 @@ module RingΣTheory {ℓ} where
 
   RingPath : (R S : Ring) → (Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] RingEquiv R S e) ≃ (R ≡ S)
   RingPath R S =
-    Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] RingEquiv R S e ≃⟨ isoToEquiv RingIsoΣPath ⟩
+    Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] RingEquiv R S e ≃⟨ strictIsoToEquiv RingIsoΣPath ⟩
     RingEquivΣ R S              ≃⟨ RingΣPath _ _ ⟩
     Ring→RingΣ R ≡ Ring→RingΣ S ≃⟨ isoToEquiv (invIso (congIso RingIsoRingΣ)) ⟩
     R ≡ S ■

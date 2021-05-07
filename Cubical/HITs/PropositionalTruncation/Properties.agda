@@ -5,7 +5,7 @@ This file contains:
 - Eliminator for propositional truncation
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.PropositionalTruncation.Properties where
 
 open import Cubical.Core.Everything
@@ -18,13 +18,15 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum hiding (rec ; elim ; map)
 
 open import Cubical.HITs.PropositionalTruncation.Base
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ′ : Level
     A B C : Type ℓ
+    A′ : Type ℓ′
 
 ∥∥-isPropDep : (P : A → Type ℓ) → isOfHLevelDep 1 (λ x → ∥ P x ∥)
 ∥∥-isPropDep P = isOfHLevel→isOfHLevelDep 1 (λ _ → squash)
@@ -33,7 +35,7 @@ rec : {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥ → P
 rec Pprop f ∣ x ∣ = f x
 rec Pprop f (squash x y i) = Pprop (rec Pprop f x) (rec Pprop f y) i
 
-rec2 : {P : Type ℓ} → isProp P → (A → A → P) → ∥ A ∥ → ∥ A ∥ → P
+rec2 : {P : Type ℓ} → isProp P → (A → B → P) → ∥ A ∥ → ∥ B ∥ → P
 rec2 Pprop f ∣ x ∣ ∣ y ∣ = f x y
 rec2 Pprop f ∣ x ∣ (squash y z i) = Pprop (rec2 Pprop f ∣ x ∣ y) (rec2 Pprop f ∣ x ∣ z) i
 rec2 Pprop f (squash x y i) z = Pprop (rec2 Pprop f x z) (rec2 Pprop f y z) i
@@ -375,3 +377,77 @@ elim→Gpd {A = A} P Pgpd f kf 3kf t = rec→Gpd (Pgpd t) g 3kg t
 
 RecHSet : (P : A → TypeOfHLevel ℓ 2) → 3-Constant P → ∥ A ∥ → TypeOfHLevel ℓ 2
 RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP
+
+∥∥-IdempotentL-⊎-≃ : ∥ ∥ A ∥ ⊎ A′ ∥ ≃ ∥ A ⊎ A′ ∥
+∥∥-IdempotentL-⊎-≃ = isoToEquiv ∥∥-IdempotentL-⊎-Iso
+  where ∥∥-IdempotentL-⊎-Iso : Iso (∥ ∥ A ∥ ⊎ A′ ∥)  (∥ A ⊎ A′ ∥)
+        Iso.fun ∥∥-IdempotentL-⊎-Iso x = rec squash lem x
+          where lem : ∥ A ∥ ⊎ A′ → ∥ A ⊎ A′ ∥
+                lem (inl x) = map (λ a → inl a) x
+                lem (inr x) = ∣ inr x ∣
+        Iso.inv ∥∥-IdempotentL-⊎-Iso x = map lem x
+          where lem : A ⊎ A′ → ∥ A ∥ ⊎ A′
+                lem (inl x) = inl ∣ x ∣
+                lem (inr x) = inr x
+        Iso.rightInv ∥∥-IdempotentL-⊎-Iso x = squash (Iso.fun ∥∥-IdempotentL-⊎-Iso (Iso.inv ∥∥-IdempotentL-⊎-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentL-⊎-Iso x  = squash (Iso.inv ∥∥-IdempotentL-⊎-Iso (Iso.fun ∥∥-IdempotentL-⊎-Iso x)) x
+
+∥∥-IdempotentL-⊎ : ∥ ∥ A ∥ ⊎ A′ ∥ ≡ ∥ A ⊎ A′ ∥
+∥∥-IdempotentL-⊎ = ua ∥∥-IdempotentL-⊎-≃
+
+∥∥-IdempotentR-⊎-≃ : ∥ A ⊎ ∥ A′ ∥ ∥ ≃ ∥ A ⊎ A′ ∥
+∥∥-IdempotentR-⊎-≃ = isoToEquiv ∥∥-IdempotentR-⊎-Iso
+  where ∥∥-IdempotentR-⊎-Iso : Iso (∥ A ⊎ ∥ A′ ∥ ∥) (∥ A ⊎ A′ ∥)
+        Iso.fun ∥∥-IdempotentR-⊎-Iso x = rec squash lem x
+          where lem : A ⊎ ∥ A′ ∥ → ∥ A ⊎ A′ ∥
+                lem (inl x) = ∣ inl x ∣
+                lem (inr x) = map (λ a → inr a) x
+        Iso.inv ∥∥-IdempotentR-⊎-Iso x = map lem x
+          where lem : A ⊎ A′ → A ⊎ ∥ A′ ∥
+                lem (inl x) = inl x
+                lem (inr x) = inr ∣ x ∣
+        Iso.rightInv ∥∥-IdempotentR-⊎-Iso x = squash (Iso.fun ∥∥-IdempotentR-⊎-Iso (Iso.inv ∥∥-IdempotentR-⊎-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentR-⊎-Iso x  = squash (Iso.inv ∥∥-IdempotentR-⊎-Iso (Iso.fun ∥∥-IdempotentR-⊎-Iso x)) x
+
+∥∥-IdempotentR-⊎ : ∥ A ⊎ ∥ A′ ∥ ∥ ≡ ∥ A ⊎ A′ ∥
+∥∥-IdempotentR-⊎ = ua ∥∥-IdempotentR-⊎-≃
+
+∥∥-Idempotent-⊎ : {A : Type ℓ} {A′ : Type ℓ′} → ∥ ∥ A ∥ ⊎ ∥ A′ ∥ ∥ ≡ ∥ A ⊎ A′ ∥
+∥∥-Idempotent-⊎ {A = A} {A′} = ∥ ∥ A ∥ ⊎ ∥ A′ ∥ ∥ ≡⟨ ∥∥-IdempotentR-⊎ ⟩
+                               ∥ ∥ A ∥ ⊎ A′ ∥     ≡⟨ ∥∥-IdempotentL-⊎ ⟩
+                               ∥ A ⊎ A′ ∥         ∎
+
+∥∥-IdempotentL-×-≃ : ∥ ∥ A ∥ × A′ ∥ ≃ ∥ A × A′ ∥
+∥∥-IdempotentL-×-≃ = isoToEquiv ∥∥-IdempotentL-×-Iso
+  where ∥∥-IdempotentL-×-Iso : Iso (∥ ∥ A ∥ × A′ ∥) (∥ A × A′ ∥)
+        Iso.fun ∥∥-IdempotentL-×-Iso x = rec squash lem x
+          where lem : ∥ A ∥ × A′ → ∥ A × A′ ∥
+                lem (a , a′) = map2 (λ a a′ → a , a′) a ∣ a′ ∣
+        Iso.inv ∥∥-IdempotentL-×-Iso x = map lem x
+          where lem : A × A′ → ∥ A ∥ × A′
+                lem (a , a′) = ∣ a ∣ , a′
+        Iso.rightInv ∥∥-IdempotentL-×-Iso x = squash (Iso.fun ∥∥-IdempotentL-×-Iso (Iso.inv ∥∥-IdempotentL-×-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentL-×-Iso x  = squash (Iso.inv ∥∥-IdempotentL-×-Iso (Iso.fun ∥∥-IdempotentL-×-Iso x)) x
+
+∥∥-IdempotentL-× : ∥ ∥ A ∥ × A′ ∥ ≡ ∥ A × A′ ∥
+∥∥-IdempotentL-× = ua ∥∥-IdempotentL-×-≃
+
+∥∥-IdempotentR-×-≃ : ∥ A × ∥ A′ ∥ ∥ ≃ ∥ A × A′ ∥
+∥∥-IdempotentR-×-≃ = isoToEquiv ∥∥-IdempotentR-×-Iso
+  where ∥∥-IdempotentR-×-Iso : Iso (∥ A × ∥ A′ ∥ ∥) (∥ A × A′ ∥)
+        Iso.fun ∥∥-IdempotentR-×-Iso x = rec squash lem x
+          where lem : A × ∥ A′ ∥ → ∥ A × A′ ∥
+                lem (a , a′) = map2 (λ a a′ → a , a′) ∣ a ∣ a′
+        Iso.inv ∥∥-IdempotentR-×-Iso x = map lem x
+          where lem : A × A′ → A × ∥ A′ ∥
+                lem (a , a′) = a , ∣ a′ ∣
+        Iso.rightInv ∥∥-IdempotentR-×-Iso x = squash (Iso.fun ∥∥-IdempotentR-×-Iso (Iso.inv ∥∥-IdempotentR-×-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentR-×-Iso x  = squash (Iso.inv ∥∥-IdempotentR-×-Iso (Iso.fun ∥∥-IdempotentR-×-Iso x)) x
+
+∥∥-IdempotentR-× : ∥ A × ∥ A′ ∥ ∥ ≡ ∥ A × A′ ∥
+∥∥-IdempotentR-× = ua ∥∥-IdempotentR-×-≃
+
+∥∥-Idempotent-× : {A : Type ℓ} {A′ : Type ℓ′} → ∥ ∥ A ∥ × ∥ A′ ∥ ∥ ≡ ∥ A × A′ ∥
+∥∥-Idempotent-× {A = A} {A′} = ∥ ∥ A ∥ × ∥ A′ ∥ ∥ ≡⟨ ∥∥-IdempotentR-× ⟩
+                               ∥ ∥ A ∥ × A′ ∥     ≡⟨ ∥∥-IdempotentL-× ⟩
+                               ∥ A × A′ ∥         ∎

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.Ring.Ideal where
 
 open import Cubical.Foundations.Prelude
@@ -51,7 +51,7 @@ module _ (R' : Ring {ℓ}) where
   zeroSubset : (x : R) → hProp ℓ
   zeroSubset x = (x ≡ 0r) , isSetRing R' _ _
 
-  open Theory R'
+  open RingTheory R'
 
   isIdealZeroIdeal : isIdeal zeroSubset
   isIdealZeroIdeal = record

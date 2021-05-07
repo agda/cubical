@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.RingSolver.RawAlgebra where
 
 open import Cubical.Foundations.Prelude
@@ -43,7 +43,7 @@ record RawAlgebra (R : RawRing {ℓ}) (ℓ′ : Level) : Type (ℓ-suc (ℓ-max 
 -}
 module _ (R : CommRing {ℓ}) where
   open CommRingStr (snd R)
-  open Cubical.Algebra.Ring.Theory (CommRing→Ring R)
+  open Cubical.Algebra.Ring.RingTheory (CommRing→Ring R)
 
   scalarℕ : ℕ → (fst R)
   scalarℕ ℕ.zero = 0r
