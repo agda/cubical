@@ -292,3 +292,39 @@ Hⁿ-Sᵐ≅0 zero (suc m) pf = H¹-Sⁿ≅0 m
 Hⁿ-Sᵐ≅0 (suc n) zero pf = Hⁿ-S¹≅0 n
 Hⁿ-Sᵐ≅0 (suc n) (suc m) pf = suspensionAx-Sn n m
                            □ Hⁿ-Sᵐ≅0 n m λ p → pf (cong suc p)
+
+
+-- Test functions
+private
+  to₁ : coHom 1 S¹ → Int
+  to₁ = Iso.fun (fst (Hⁿ-Sⁿ≅ℤ 0))
+
+  to₂ : coHom 2 (S₊ 2) → Int
+  to₂ = Iso.fun (fst (Hⁿ-Sⁿ≅ℤ 1))
+
+  to₃ : coHom 3 (S₊ 3) → Int
+  to₃ = Iso.fun (fst (Hⁿ-Sⁿ≅ℤ 2))
+
+
+  from₁ : Int → coHom 1 S¹
+  from₁ = Iso.inv (fst (Hⁿ-Sⁿ≅ℤ 0))
+
+  from₂ : Int → coHom 2 (S₊ 2)
+  from₂ = Iso.inv (fst (Hⁿ-Sⁿ≅ℤ 1))
+
+  from₃ : Int → coHom 3 (S₊ 3)
+  from₃ = Iso.inv (fst (Hⁿ-Sⁿ≅ℤ 2))
+
+{-
+Strangely, the following won't compute
+test₀ : to₂ (from₂ 1 +ₕ from₂ 1) ≡ 2
+test₀ = refl
+However, the same example works for S¹ ∨ S¹ ∨ S², where the functions are essentially the same as here
+(although somewhat more complicated).
+
+But with our new strange addition +'ₕ, it computes just fine:
+
+test₀ : to₂ (from₂ 1 +'ₕ from₂ 1) ≡ 2
+test₀ = refl
+
+-}

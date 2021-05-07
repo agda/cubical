@@ -70,10 +70,10 @@ module miniFreudenthal (n : HLevel) where
                    ∙ λ i → ∣ north , lUnit r (~ i) ∣
 
     totalFun : (a b : S2+n) → P a b
-    totalFun =  wedgeConSn (suc n) (suc n) hLevelP rightFun leftFun funsAgree .fst
+    totalFun =  wedgeconFun (suc n) (suc n) hLevelP rightFun leftFun funsAgree
 
     leftId : (λ x → totalFun x north) ≡ leftFun
-    leftId x i = wedgeConSn (suc n) (suc n) hLevelP rightFun leftFun funsAgree .snd .snd i x
+    leftId x i = wedgeconRight (suc n) (suc n) hLevelP rightFun leftFun funsAgree i x
 
   fwd : (p : north ≡ north) (a : S2+n)
     → hLevelTrunc 4n+2 (fiber σ p)

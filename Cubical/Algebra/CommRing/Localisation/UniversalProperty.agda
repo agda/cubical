@@ -31,9 +31,6 @@ open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
 
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.RingSolver.ReflectionSolving
 open import Cubical.Algebra.CommRing
