@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.Wedge where
 
 open import Cubical.ZCohomology.Base

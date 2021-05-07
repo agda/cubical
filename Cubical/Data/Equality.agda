@@ -8,7 +8,7 @@ and the inductively define equality types.
 
 TODO: reconsider naming scheme.
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Data.Equality where
 

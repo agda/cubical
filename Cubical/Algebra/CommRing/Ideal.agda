@@ -2,7 +2,7 @@
   This is mostly for convenience, when working with ideals
   (which are defined for general rings) in a commutative ring.
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Ideal where
 
 open import Cubical.Foundations.Prelude

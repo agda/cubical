@@ -4,7 +4,7 @@ Set quotients:
 
 -}
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.SetQuotients.Properties where
 
 open import Cubical.HITs.SetQuotients.Base

@@ -6,10 +6,10 @@ Note that this uses the HoTT book's indexing, so it will be off
  from `∥_∥_` in HITs.Truncation.Base by -2
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Truncation.Base where
 
-open import Cubical.Data.NatMinusOne renaming (suc₋₁ to suc)
+open import Cubical.Data.NatMinusOne
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.HITs.Sn.Base

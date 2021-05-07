@@ -5,7 +5,7 @@ This file contains:
 - Eliminator for propositional truncation
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.PropositionalTruncation.Properties where
 
 open import Cubical.Core.Everything

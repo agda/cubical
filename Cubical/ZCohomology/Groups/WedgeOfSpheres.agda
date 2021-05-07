@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.WedgeOfSpheres where
 
 open import Cubical.Foundations.Prelude
@@ -64,7 +64,6 @@ H²-S²⋁S¹⋁S¹ =
 
 private
   open import Cubical.Data.Int
-  open import Cubical.Foundations.Equiv
   open import Cubical.Data.Sigma
 
   open GroupIso
@@ -101,12 +100,22 @@ test3 = refl
 test4 : to₂ (from₂ 3) ≡ 3
 test4 = refl
 
--- Does not compute:
-
 test5 : to₂ (from₂ 1 +ₕ from₂ 1) ≡ 2
 test5 = refl
+-}
 
--- This does however compute with the induced addition
-test5' : to₂ (induced+ H²-S²⋁S¹⋁S¹ (from₂ 1) (from₂ 1)) ≡ 2
-test5' = refl
+  g : S²⋁S¹⋁S¹ → ∥ Susp S¹ ∥ 4
+  g (inl x) = ∣ x ∣
+  g (inr x) = 0ₖ _
+  g (push a i) = 0ₖ _
+
+  G = ∣ g ∣₂
+
+{- Does not compute:
+test₀ : to₂ (G +ₕ G) ≡ 2
+test₀ = refl
+
+but this does:
+test₀ : to₂ (G +'ₕ G) ≡ 2
+test₀ = refl
 -}

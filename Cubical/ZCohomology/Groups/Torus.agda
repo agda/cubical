@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.Torus where
 
 open import Cubical.ZCohomology.Base
@@ -205,20 +205,20 @@ H²-T²≅ℤ = compGroupIso helper2 (Hⁿ-Sⁿ≅ℤ 0)
   helper2 = groupiso theIso (
     coHomPointedElimT²'' 0 (λ _ → isPropΠ λ _ → setTruncIsSet _ _)
       λ P → coHomPointedElimT²'' 0 (λ _ → setTruncIsSet _ _)
-      λ Q → (λ i → ∣ (λ a → ΩKn+1→Kn 1 (transportRefl refl i
-                                            ∙∙ cong (λ x → (elimFunT²' 1 P (a , x) +ₖ elimFunT²' 1 Q (a , x)) -ₖ ∣ north ∣) loop
-                                            ∙∙ transportRefl refl i)) ∣₂)
+      λ Q → ((λ i → ∣ (λ a → ΩKn+1→Kn 1 (sym (rCancel≡refl 0 i)
+                                        ∙∙ cong (λ x → (elimFunT²' 1 P (a , x) +ₖ elimFunT²' 1 Q (a , x)) -ₖ ∣ north ∣) loop
+                                        ∙∙ rCancel≡refl 0 i)) ∣₂))
           ∙∙ (λ i → ∣ (λ a → ΩKn+1→Kn 1 (rUnit (cong (λ x → rUnitₖ 2 (elimFunT²' 1 P (a , x) +ₖ elimFunT²' 1 Q (a , x)) i) loop) (~ i))) ∣₂)
           ∙∙ (λ i → ∣ (λ a → ΩKn+1→Kn 1 (∙≡+₂ 0 (cong (λ x → elimFunT²' 1 P (a , x)) loop) (cong (λ x → elimFunT²' 1 Q (a , x)) loop) (~ i))) ∣₂)
           ∙∙ (λ i → ∣ (λ a → ΩKn+1→Kn-hom 1 (cong (λ x → elimFunT²' 1 P (a , x)) loop) (cong (λ x → elimFunT²' 1 Q (a , x)) loop) i) ∣₂)
           ∙∙ (λ i → ∣ ((λ a → ΩKn+1→Kn 1 (rUnit (cong (λ x → rUnitₖ 2 (elimFunT²' 1 P (a , x)) (~ i)) loop) i)
                                            +ₖ ΩKn+1→Kn 1 (rUnit (cong (λ x → rUnitₖ 2 (elimFunT²' 1 Q (a , x)) (~ i)) loop) i))) ∣₂)
-           ∙ (λ i → ∣ ((λ a → ΩKn+1→Kn 1 (transportRefl refl (~ i)
+           ∙ (λ i → ∣ ((λ a → ΩKn+1→Kn 1 (sym (rCancel≡refl 0 (~ i))
                                                          ∙∙ cong (λ x → elimFunT²' 1 P (a , x) +ₖ ∣ north ∣) loop
-                                                         ∙∙ transportRefl refl (~ i))
-                                           +ₖ ΩKn+1→Kn 1 (transportRefl refl (~ i)
+                                                         ∙∙ rCancel≡refl 0 (~ i))
+                                           +ₖ ΩKn+1→Kn 1 (sym (rCancel≡refl 0 (~ i))
                                                          ∙∙ cong (λ x → elimFunT²' 1 Q (a , x) +ₖ ∣ north ∣) loop
-                                                         ∙∙ transportRefl refl (~ i)))) ∣₂))
+                                                         ∙∙ rCancel≡refl 0 (~ i)))) ∣₂))
 
 private
   to₂ : coHom 2 (S₊ 1 × S₊ 1) → Int

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 {-
 This module develops Lehmer codes, i.e. an encoding of permutations as finite integers.
 
