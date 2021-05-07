@@ -78,12 +78,12 @@ SuspCohomElim {A = A} n {B = B} isprop f =
                                   ∙∙ sym (rUnit refl)))
 
 -- (Reduced) cohomology functor
-coHomFunctor : {ℓ : Level}  (n : Int) → Pointed ℓ → AbGroup {ℓ}
+coHomFunctor : {ℓ : Level}  (n : Int) → Pointed ℓ → AbGroup ℓ
 coHomFunctor (pos n) = coHomRedGroup n
 coHomFunctor (negsuc n) _ = trivialAbGroup
 
--- Alternative definition with reduced groups replaced by unrecued one for n ≥ 1
-coHomFunctor' : {ℓ : Level} (n : Int) → Pointed ℓ → AbGroup {ℓ}
+-- Alternative definition with reduced groups replaced by unreduced one for n ≥ 1
+coHomFunctor' : {ℓ : Level} (n : Int) → Pointed ℓ → AbGroup ℓ
 coHomFunctor' (pos zero) = coHomFunctor 0
 coHomFunctor' (pos (suc n)) A = coHomGroup (suc n) (typ A)
 coHomFunctor' (negsuc n) = coHomFunctor (negsuc n)

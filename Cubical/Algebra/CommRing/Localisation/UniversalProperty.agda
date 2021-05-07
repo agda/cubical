@@ -46,7 +46,7 @@ private
     ℓ ℓ' : Level
 
 
-module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClosedSubset R' S') where
+module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClosedSubset R' S') where
  open isMultClosedSubset
  private R = fst R'
  open CommRingStr (snd R') hiding (is-set)
@@ -55,14 +55,14 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
 
 
 
- hasLocUniversalProp : (A : CommRing {ℓ}) (φ : CommRingHom R' A)
+ hasLocUniversalProp : (A : CommRing ℓ) (φ : CommRingHom R' A)
                      → (∀ s → s ∈ S' → fst φ s ∈ A ˣ)
                      → Type (ℓ-suc ℓ)
- hasLocUniversalProp A φ _ = (B : CommRing {ℓ}) (ψ : CommRingHom R' B)
+ hasLocUniversalProp A φ _ = (B : CommRing ℓ) (ψ : CommRingHom R' B)
                            → (∀ s → s ∈ S' → fst ψ s ∈ B ˣ)
                            → ∃![ χ ∈ CommRingHom A B ] (fst χ) ∘ (fst φ) ≡ (fst ψ)
 
- UniversalPropIsProp : (A : CommRing {ℓ}) (φ : CommRingHom R' A)
+ UniversalPropIsProp : (A : CommRing ℓ) (φ : CommRingHom R' A)
                      → (φS⊆Aˣ : ∀ s → s ∈ S' → fst φ s ∈ A ˣ)
                      → isProp (hasLocUniversalProp A φ φS⊆Aˣ)
  UniversalPropIsProp A φ φS⊆Aˣ = isPropΠ3 (λ _ _ _ → isPropIsContr)
@@ -360,7 +360,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
  open S⁻¹RUniversalProp
  open Loc R' S' SMultClosedSubset
 
- record PathToS⁻¹R (A' : CommRing {ℓ}) (φ : CommRingHom R' A') : Type ℓ where
+ record PathToS⁻¹R (A' : CommRing ℓ) (φ : CommRingHom R' A') : Type ℓ where
   constructor
    pathtoS⁻¹R
   open Units A' renaming (Rˣ to Aˣ)
@@ -370,7 +370,7 @@ module _ (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
    kerφ⊆annS : ∀ r → fst φ r ≡ 0a → ∃[ s ∈ S ] (s .fst) · r ≡ 0r
    surχ : ∀ a → ∃[ x ∈ R × S ] fst φ (x .fst) ·A (fst φ (x .snd .fst) ⁻¹) ⦃ φS⊆Aˣ _ (x .snd .snd) ⦄ ≡ a
 
- S⁻¹RChar : (A' : CommRing {ℓ}) (φ : CommRingHom R' A')
+ S⁻¹RChar : (A' : CommRing ℓ) (φ : CommRingHom R' A')
           → PathToS⁻¹R A' φ
           → S⁻¹RAsCommRing ≡ A'
  S⁻¹RChar A' φ cond = CommRingPath S⁻¹RAsCommRing A' .fst

@@ -30,7 +30,7 @@ open import Cubical.HITs.PropositionalTruncation hiding (map)
 private
   variable
     ℓ ℓ' ℓ'' ℓ''' : Level
-    F G H : Group {ℓ}
+    F G H : Group ℓ
 
 open Iso
 open GroupStr
@@ -79,7 +79,7 @@ module _ {A : Type ℓ} {B : Type ℓ'} {G : GroupStr A} {f : A → B} {H : Grou
 
 
 -- H-level results
-isPropIsGroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) {f : ⟨ G ⟩ → ⟨ H ⟩}
+isPropIsGroupHom : (G : Group ℓ) (H : Group ℓ') {f : ⟨ G ⟩ → ⟨ H ⟩}
                  → isProp (IsGroupHom (G .snd) f (H .snd))
 isPropIsGroupHom G H =
   isOfHLevelRetractFromIso 1 IsGroupHomIsoΣ
@@ -162,7 +162,7 @@ compGroupHom : GroupHom F G → GroupHom G H → GroupHom F H
 fst (compGroupHom f g) = fst g ∘ fst f
 snd (compGroupHom f g) = isGroupHomComp f g
 
-GroupHomDirProd : {A : Group {ℓ}} {B : Group {ℓ'}} {C : Group {ℓ''}} {D : Group {ℓ'''}}
+GroupHomDirProd : {A : Group ℓ} {B : Group ℓ'} {C : Group ℓ''} {D : Group ℓ'''}
                 → GroupHom A C → GroupHom B D → GroupHom (DirProd A B) (DirProd C D)
 fst (GroupHomDirProd mf1 mf2) = map-× (fst mf1) (fst mf2)
 snd (GroupHomDirProd mf1 mf2) = makeIsGroupHom λ _ _ → ≡-× (mf1 .snd .pres· _ _) (mf2 .snd .pres· _ _)
@@ -204,7 +204,7 @@ snd (invGroupEquiv f) = isGroupHomInv f
     isInj-f : (x y : ⟨ G ⟩) → f' x ≡ f' y → x ≡ y
     isInj-f x y = invEq (_ , isEquiv→isEmbedding (snd (fst f)) x y)
 
-GroupEquivDirProd : {A : Group {ℓ}} {B : Group {ℓ'}} {C : Group {ℓ''}} {D : Group {ℓ'''}}
+GroupEquivDirProd : {A : Group ℓ} {B : Group ℓ'} {C : Group ℓ''} {D : Group ℓ'''}
                   → GroupEquiv A C → GroupEquiv B D
                   → GroupEquiv (DirProd A B) (DirProd C D)
 fst (GroupEquivDirProd eq1 eq2) = ≃-× (fst eq1) (fst eq2)
@@ -247,7 +247,7 @@ snd (invGroupIso iso1) = isGroupHomInv iso1
     isInj-f : (x y : ⟨ G ⟩) → f' x ≡ f' y → x ≡ y
     isInj-f x y p = sym (leftInv (fst f) _) ∙∙ cong g p ∙∙ leftInv (fst f) _
 
-GroupIsoDirProd : {G : Group {ℓ}} {H : Group {ℓ'}} {A : Group {ℓ''}} {B : Group {ℓ'''}}
+GroupIsoDirProd : {G : Group ℓ} {H : Group ℓ'} {A : Group ℓ''} {B : Group ℓ'''}
                 → GroupIso G H → GroupIso A B → GroupIso (DirProd G A) (DirProd H B)
 fun (fst (GroupIsoDirProd iso1 iso2)) prod =
   fun (fst iso1) (fst prod) , fun (fst iso2) (snd prod)

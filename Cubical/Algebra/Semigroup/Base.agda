@@ -44,7 +44,7 @@ record IsSemigroup {A : Type ℓ} (_·_ : A → A → A) : Type ℓ where
 
 unquoteDecl IsSemigroupIsoΣ = declareRecordIsoΣ IsSemigroupIsoΣ (quote IsSemigroup)
 
-record SemigroupStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
+record SemigroupStr (A : Type ℓ) : Type ℓ where
 
   constructor semigroupstr
 
@@ -56,10 +56,10 @@ record SemigroupStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
   open IsSemigroup isSemigroup public
 
-Semigroup : Type (ℓ-suc ℓ)
-Semigroup = TypeWithStr _ SemigroupStr
+Semigroup : ∀ ℓ → Type (ℓ-suc ℓ)
+Semigroup ℓ = TypeWithStr ℓ SemigroupStr
 
-semigroup : (A : Type ℓ) (_·_ : A → A → A) (h : IsSemigroup _·_) → Semigroup
+semigroup : (A : Type ℓ) (_·_ : A → A → A) (h : IsSemigroup _·_) → Semigroup ℓ
 semigroup A _·_ h = A , semigroupstr _·_ h
 
 record IsSemigroupEquiv {A : Type ℓ} {B : Type ℓ}
@@ -79,7 +79,7 @@ open SemigroupStr
 open IsSemigroup
 open IsSemigroupEquiv
 
-SemigroupEquiv : (M N : Semigroup {ℓ}) → Type ℓ
+SemigroupEquiv : (M N : Semigroup ℓ) → Type ℓ
 SemigroupEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsSemigroupEquiv (M .snd) e (N .snd)
 
 isPropIsSemigroup : {A : Type ℓ} (_·_ : A → A → A) → isProp (IsSemigroup _·_)
@@ -96,5 +96,5 @@ isPropIsSemigroup _·_ =
       data[ _·_ ∣ autoDUARel _ _ ∣ isHom ]
       prop[ isSemigroup ∣ (λ _ _ → isPropIsSemigroup _) ])
 
-SemigroupPath : (M N : Semigroup {ℓ}) → SemigroupEquiv M N ≃ (M ≡ N)
+SemigroupPath : (M N : Semigroup ℓ) → SemigroupEquiv M N ≃ (M ≡ N)
 SemigroupPath = ∫ 𝒮ᴰ-Semigroup .UARel.ua

@@ -49,7 +49,7 @@ record IsAlmostRing {R : Type ℓ}
     hiding
       ( is-set ) -- We only want to export one proof of this
 
-record AlmostRing : Type (ℓ-suc ℓ) where
+record AlmostRing ℓ : Type (ℓ-suc ℓ) where
 
   constructor almostring
 
@@ -78,13 +78,13 @@ record AlmostRing : Type (ℓ-suc ℓ) where
   x - y = x + (- y)
 
 -- Extractor for the carrier type
-⟨_⟩ : AlmostRing → Type ℓ
+⟨_⟩ : AlmostRing ℓ → Type ℓ
 ⟨_⟩ = AlmostRing.Carrier
 
-isSetAlmostRing : (R : AlmostRing {ℓ}) → isSet ⟨ R ⟩
+isSetAlmostRing : (R : AlmostRing ℓ) → isSet ⟨ R ⟩
 isSetAlmostRing R = R .AlmostRing.isAlmostRing .IsAlmostRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
-module Theory (R : AlmostRing {ℓ}) where
+module Theory (R : AlmostRing ℓ) where
   open AlmostRing R
 
   0IsSelfinverse : - 0r ≡ 0r

@@ -92,10 +92,10 @@ record RingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
   open IsRing isRing public
 
-Ring : Type (ℓ-suc ℓ)
-Ring = TypeWithStr _ RingStr
+Ring : ∀ ℓ → Type (ℓ-suc ℓ)
+Ring ℓ = TypeWithStr ℓ RingStr
 
-isSetRing : (R : Ring {ℓ}) → isSet ⟨ R ⟩
+isSetRing : (R : Ring ℓ) → isSet ⟨ R ⟩
 isSetRing R = R .snd .RingStr.isRing .IsRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
 makeIsRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
@@ -126,7 +126,7 @@ makeRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
            (·-lid : (x : R) → 1r · x ≡ x)
            (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
            (·-ldist-+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
-         → Ring
+         → Ring ℓ
 makeRing 0r 1r _+_ _·_ -_ is-setR assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+ =
   _ , ringstr 0r 1r _+_ _·_ -_
        (makeIsRing is-setR assoc +-rid +-rinv +-comm
@@ -150,17 +150,17 @@ record IsRingHom {A : Type ℓ} {B : Type ℓ'} (R : RingStr A) (f : A → B) (S
 
 unquoteDecl IsRingHomIsoΣ = declareRecordIsoΣ IsRingHomIsoΣ (quote IsRingHom)
 
-RingHom : (R : Ring {ℓ}) (S : Ring {ℓ'}) → Type (ℓ-max ℓ ℓ')
+RingHom : (R : Ring ℓ) (S : Ring ℓ') → Type (ℓ-max ℓ ℓ')
 RingHom R S = Σ[ f ∈ (⟨ R ⟩ → ⟨ S ⟩) ] IsRingHom (R .snd) f (S .snd)
 
 IsRingEquiv : {A : Type ℓ} {B : Type ℓ'} (M : RingStr A) (e : A ≃ B) (N : RingStr B)
   → Type (ℓ-max ℓ ℓ')
 IsRingEquiv M e N = IsRingHom M (e .fst) N
 
-RingEquiv : (R : Ring {ℓ}) (S : Ring {ℓ'}) → Type (ℓ-max ℓ ℓ')
+RingEquiv : (R : Ring ℓ) (S : Ring ℓ') → Type (ℓ-max ℓ ℓ')
 RingEquiv R S = Σ[ e ∈ (⟨ R ⟩ ≃ ⟨ S ⟩) ] IsRingEquiv (R .snd) e (S .snd)
 
-_$_ : {R S : Ring {ℓ}} → (φ : RingHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
+_$_ : {R S : Ring ℓ} → (φ : RingHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
 φ $ x = φ .fst x
 
 isPropIsRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
@@ -206,24 +206,24 @@ isPropIsRingHom R f S =
   un = autoDUARel (𝒮-Univ _) (λ A → A → A)
   bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
 
-RingPath : (R S : Ring {ℓ}) → RingEquiv R S ≃ (R ≡ S)
+RingPath : (R S : Ring ℓ) → RingEquiv R S ≃ (R ≡ S)
 RingPath = ∫ 𝒮ᴰ-Ring .UARel.ua
 
 -- Rings have an abelian group and a monoid
 
-Ring→AbGroup : Ring {ℓ} → AbGroup {ℓ}
+Ring→AbGroup : Ring ℓ → AbGroup ℓ
 Ring→AbGroup (A , ringstr _ _ _ _ _ R) = A , abgroupstr _ _ _ (IsRing.+IsAbGroup R)
 
-Ring→Group : Ring {ℓ} → Group {ℓ}
+Ring→Group : Ring ℓ → Group ℓ
 Ring→Group = AbGroup→Group ∘ Ring→AbGroup
 
-Ring→Monoid : Ring {ℓ} → Monoid {ℓ}
+Ring→Monoid : Ring ℓ → Monoid ℓ
 Ring→Monoid (A , ringstr _ _ _ _ _ R) = monoid _ _ _ (IsRing.·IsMonoid R)
 
 -- Smart constructor for ring homomorphisms
 -- that infers the other equations from pres1, pres+, and pres·
 
-module _ {R : Ring {ℓ}} {S : Ring {ℓ'}} {f : ⟨ R ⟩ → ⟨ S ⟩} where
+module _ {R : Ring ℓ} {S : Ring ℓ'} {f : ⟨ R ⟩ → ⟨ S ⟩} where
 
   private
     module R = RingStr (R .snd)

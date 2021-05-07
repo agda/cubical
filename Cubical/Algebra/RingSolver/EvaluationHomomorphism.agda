@@ -15,7 +15,7 @@ private
   variable
     ℓ : Level
 
-module HomomorphismProperties (R : AlmostRing {ℓ}) where
+module HomomorphismProperties (R : AlmostRing ℓ) where
   private
     νR = AlmostRing→RawRing R
   open AlmostRing R

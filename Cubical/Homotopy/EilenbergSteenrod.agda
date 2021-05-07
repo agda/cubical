@@ -30,7 +30,7 @@ open import Cubical.Data.Int
 open import Cubical.Algebra.Group hiding (Int ; Bool)
 open import Cubical.Algebra.AbGroup
 
-record coHomTheory {ℓ ℓ' : Level} (H : (n : Int) → Pointed ℓ → AbGroup {ℓ'}) : Type (ℓ-suc (ℓ-max ℓ ℓ'))
+record coHomTheory {ℓ ℓ' : Level} (H : (n : Int) → Pointed ℓ → AbGroup ℓ') : Type (ℓ-suc (ℓ-max ℓ ℓ'))
   where
   Boolℓ : Pointed ℓ
   Boolℓ = Lift Bool , lift true

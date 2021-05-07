@@ -29,7 +29,7 @@ private
     ℓ : Level
 
 -- The first isomorphism theorem: im ϕ ≃ G / ker ϕ
-module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
+module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
 
   open isSubgroup
   open Iso
@@ -39,7 +39,7 @@ module _ {G H : Group {ℓ}} (ϕ : GroupHom G H) where
     kerϕ : NormalSubgroup G
     kerϕ = kerSubgroup ϕ , isNormalKer ϕ
 
-    imϕ : Group
+    imϕ : Group ℓ
     imϕ = imGroup ϕ
 
     module G = GroupStr (snd G)

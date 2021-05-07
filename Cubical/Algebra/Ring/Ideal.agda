@@ -15,7 +15,7 @@ private
   variable
     ℓ : Level
 
-module _ (R' : Ring {ℓ}) where
+module _ (R' : Ring ℓ) where
 
   open RingStr (snd R')
   private R = ⟨ R' ⟩
@@ -77,5 +77,5 @@ module _ (R' : Ring {ℓ}) where
   zeroIdeal : Ideal
   zeroIdeal = zeroSubset , isIdealZeroIdeal
 
-IdealsIn : (R : Ring {ℓ}) → Type _
+IdealsIn : (R : Ring ℓ) → Type _
 IdealsIn {ℓ} R = Σ[ I ∈ ℙ ⟨ R ⟩ ] isIdeal R I

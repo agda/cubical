@@ -49,17 +49,17 @@ record IsGroupHom {A : Type ℓ} {B : Type ℓ'}
 
 unquoteDecl IsGroupHomIsoΣ = declareRecordIsoΣ IsGroupHomIsoΣ (quote IsGroupHom)
 
-GroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) → Type (ℓ-max ℓ ℓ')
+GroupHom : (G : Group ℓ) (H : Group ℓ') → Type (ℓ-max ℓ ℓ')
 GroupHom G H = Σ[ f ∈ (G .fst → H .fst) ] IsGroupHom (G .snd) f (H .snd)
 
-GroupIso : (G : Group {ℓ}) (H : Group {ℓ'}) → Type (ℓ-max ℓ ℓ')
+GroupIso : (G : Group ℓ) (H : Group ℓ') → Type (ℓ-max ℓ ℓ')
 GroupIso G H = Σ[ e ∈ Iso (G .fst) (H .fst) ] IsGroupHom (G .snd) (e .Iso.fun) (H .snd)
 
 IsGroupEquiv : {A : Type ℓ} {B : Type ℓ'}
   (M : GroupStr A) (e : A ≃ B) (N : GroupStr B) → Type (ℓ-max ℓ ℓ')
 IsGroupEquiv M e N = IsGroupHom M (e .fst) N
 
-GroupEquiv : (G : Group {ℓ}) (H : Group {ℓ'}) → Type (ℓ-max ℓ ℓ')
+GroupEquiv : (G : Group ℓ) (H : Group ℓ') → Type (ℓ-max ℓ ℓ')
 GroupEquiv G H = Σ[ e ∈ (G .fst ≃ H .fst) ] IsGroupEquiv (G .snd) e (H .snd)
 
 -- Image, kernel, surjective, injective, and bijections
@@ -69,7 +69,7 @@ open GroupStr
 
 private
   variable
-    G H : Group {ℓ}
+    G H : Group ℓ
 
 isInIm : GroupHom G H → ⟨ H ⟩ → Type _
 isInIm {G = G} ϕ h = ∃[ g ∈ ⟨ G ⟩ ] ϕ .fst g ≡ h
@@ -93,7 +93,7 @@ isMono : GroupHom G H → Type _
 isMono {G = G} f = {x y : ⟨ G ⟩} → f .fst x ≡ f .fst y → x ≡ y
 
 -- Group bijections
-record BijectionIso (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
+record BijectionIso (G : Group ℓ) (H : Group ℓ') : Type (ℓ-max ℓ ℓ') where
 
   constructor bijIso
 

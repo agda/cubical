@@ -18,7 +18,7 @@ private
   variable
     ℓ ℓ′ : Level
 
-record RawAlgebra (R : RawRing {ℓ}) (ℓ′ : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ′)) where
+record RawAlgebra (R : RawRing ℓ) (ℓ′ : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ′)) where
 
   constructor rawalgebra
 
@@ -35,13 +35,13 @@ record RawAlgebra (R : RawRing {ℓ}) (ℓ′ : Level) : Type (ℓ-suc (ℓ-max 
   infixl 7 -_
   infixl 6 _+_
 
-⟨_⟩ : {R : RawRing {ℓ}} → RawAlgebra R ℓ′ → Type ℓ′
+⟨_⟩ : {R : RawRing ℓ} → RawAlgebra R ℓ′ → Type ℓ′
 ⟨_⟩ = RawAlgebra.Carrier
 
 {-
   Mapping to integer scalars and its (homorphism) properties.
 -}
-module _ (R : CommRing {ℓ}) where
+module _ (R : CommRing ℓ) where
   open CommRingStr (snd R)
   open Cubical.Algebra.Ring.RingTheory (CommRing→Ring R)
 
@@ -175,6 +175,6 @@ module _ (R : CommRing {ℓ}) where
     (- 1r + scalar (negsuc n)) · scalar l          ≡[ i ]⟨ lemma-1 n i · scalar l ⟩
     scalar (negsuc (ℕ.suc n)) · scalar l ∎
 
-CommRing→RawℤAlgebra : CommRing {ℓ} → RawAlgebra ℤAsRawRing ℓ
+CommRing→RawℤAlgebra : CommRing ℓ → RawAlgebra ℤAsRawRing ℓ
 CommRing→RawℤAlgebra (R , commringstr 0r 1r _+_ _·_ -_ isCommRing) =
   rawalgebra R (scalar ((R , commringstr 0r 1r _+_ _·_ -_ isCommRing))) 0r 1r _+_ _·_ -_

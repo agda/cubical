@@ -47,12 +47,12 @@ open IsGroupHom
   open GroupStr
   open IsGroupHom
 
-GroupPath : (M N : Group {ℓ}) → GroupEquiv M N ≃ (M ≡ N)
+GroupPath : (M N : Group ℓ) → GroupEquiv M N ≃ (M ≡ N)
 GroupPath = ∫ 𝒮ᴰ-Group .UARel.ua
 
 -- TODO: Induced structure results are temporarily inconvenient while we transition between algebra
 -- representations
-module _ (G : Group {ℓ}) {A : Type ℓ} (m : A → A → A)
+module _ (G : Group ℓ) {A : Type ℓ} (m : A → A → A)
   (e : ⟨ G ⟩ ≃ A)
   (p· : ∀ x y → e .fst (G .snd ._·_ x y) ≡ m (e .fst x) (e .fst y))
   where
@@ -72,7 +72,7 @@ module _ (G : Group {ℓ}) {A : Type ℓ} (m : A → A → A)
         (UARel.≅→≡ (autoUARel (Σ[ B ∈ Type ℓ ] (B → B → B))) (e , p·))
         (G.1g , G.inv , G.isGroup)
 
-  InducedGroup : Group
+  InducedGroup : Group ℓ
   InducedGroup .fst = A
   InducedGroup .snd ._·_ = m
   InducedGroup .snd .1g = inducedΣ .fst
@@ -82,11 +82,11 @@ module _ (G : Group {ℓ}) {A : Type ℓ} (m : A → A → A)
   InducedGroupPath : G ≡ InducedGroup
   InducedGroupPath = GroupPath _ _ .fst (e , makeIsGroupHom p·)
 
-uaGroup : {G H : Group {ℓ}} → GroupEquiv G H → G ≡ H
+uaGroup : {G H : Group ℓ} → GroupEquiv G H → G ≡ H
 uaGroup {G = G} {H = H} = equivFun (GroupPath G H)
 
 -- Group-ua functoriality
-Group≡ : (G H : Group {ℓ}) → (
+Group≡ : (G H : Group ℓ) → (
   Σ[ p ∈ ⟨ G ⟩ ≡ ⟨ H ⟩ ]
   Σ[ q ∈ PathP (λ i → p i) (1g (snd G)) (1g (snd H)) ]
   Σ[ r ∈ PathP (λ i → p i → p i → p i) (_·_ (snd G)) (_·_ (snd H)) ]
@@ -101,7 +101,7 @@ Group≡ G H = isoToEquiv theIso
   rightInv theIso _ = refl
   leftInv theIso _ = refl
 
-caracGroup≡ : {G H : Group {ℓ}} (p q : G ≡ H) → cong ⟨_⟩ p ≡ cong ⟨_⟩ q → p ≡ q
+caracGroup≡ : {G H : Group ℓ} (p q : G ≡ H) → cong ⟨_⟩ p ≡ cong ⟨_⟩ q → p ≡ q
 caracGroup≡ {G = G} {H = H} p q P =
   sym (transportTransport⁻ (ua (Group≡ G H)) p)
                                    ∙∙ cong (transport (ua (Group≡ G H))) helper
@@ -116,10 +116,10 @@ caracGroup≡ {G = G} {H = H} p q P =
                          λ _ → isOfHLevelPathP 1 (isPropIsGroup _ _ _) _ _)
                (transportRefl (cong ⟨_⟩ p) ∙ P ∙ sym (transportRefl (cong ⟨_⟩ q)))
 
-uaGroupId : (G : Group {ℓ}) → uaGroup (idGroupEquiv {G = G}) ≡ refl
+uaGroupId : (G : Group ℓ) → uaGroup (idGroupEquiv {G = G}) ≡ refl
 uaGroupId G = caracGroup≡ _ _ uaIdEquiv
 
-uaCompGroupEquiv : {F G H : Group {ℓ}} (f : GroupEquiv F G) (g : GroupEquiv G H)
+uaCompGroupEquiv : {F G H : Group ℓ} (f : GroupEquiv F G) (g : GroupEquiv G H)
                  → uaGroup (compGroupEquiv f g) ≡ uaGroup f ∙ uaGroup g
 uaCompGroupEquiv f g = caracGroup≡ _ _ (
   cong ⟨_⟩ (uaGroup (compGroupEquiv f g))

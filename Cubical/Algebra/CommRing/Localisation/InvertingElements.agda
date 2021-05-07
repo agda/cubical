@@ -51,7 +51,7 @@ private
     ℓ ℓ' : Level
     A : Type ℓ
 
-module _(R' : CommRing {ℓ}) where
+module _(R' : CommRing ℓ) where
  open isMultClosedSubset
  private R = fst R'
  open CommRingStr (snd R')
@@ -73,7 +73,7 @@ module _(R' : CommRing {ℓ}) where
  R[1/ f ] = Loc.S⁻¹R R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
 
 
- R[1/_]AsCommRing : R → CommRing {ℓ}
+ R[1/_]AsCommRing : R → CommRing ℓ
  R[1/ f ]AsCommRing = Loc.S⁻¹RAsCommRing R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
 
  -- A useful lemma: (gⁿ/1)≡(g/1)ⁿ in R[1/f]
@@ -111,7 +111,7 @@ module _(R' : CommRing {ℓ}) where
 
 
 
-module DoubleLoc (R' : CommRing {ℓ}) (f g : (fst R')) where
+module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
  open isMultClosedSubset
  open CommRingStr (snd R')
  open CommRingTheory R'

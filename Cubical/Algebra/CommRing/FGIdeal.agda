@@ -27,7 +27,7 @@ private
   variable
     ℓ : Level
 
-module _ (Ring@(R , str) : CommRing {ℓ}) (r : R) where
+module _ (Ring@(R , str) : CommRing ℓ) (r : R) where
   infixr 5 _holds
   _holds : hProp ℓ → Type ℓ
   P holds = fst P

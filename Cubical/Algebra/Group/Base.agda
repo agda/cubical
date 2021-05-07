@@ -39,7 +39,7 @@ record IsGroup {G : Type ℓ}
   invr : (x : G) → x · inv x ≡ 1g
   invr x = inverse x .fst
 
-record GroupStr (G : Type ℓ) : Type (ℓ-suc ℓ) where
+record GroupStr (G : Type ℓ) : Type ℓ where
 
   constructor groupstr
 
@@ -53,16 +53,16 @@ record GroupStr (G : Type ℓ) : Type (ℓ-suc ℓ) where
 
   open IsGroup isGroup public
 
-Group : Type (ℓ-suc ℓ)
-Group = TypeWithStr _ GroupStr
+Group : ∀ ℓ → Type (ℓ-suc ℓ)
+Group ℓ = TypeWithStr ℓ GroupStr
 
 Group₀ : Type₁
-Group₀ = Group {ℓ-zero}
+Group₀ = Group ℓ-zero
 
-group : (G : Type ℓ) (1g : G) (_·_ : G → G → G) (inv : G → G) (h : IsGroup 1g _·_ inv) → Group
+group : (G : Type ℓ) (1g : G) (_·_ : G → G → G) (inv : G → G) (h : IsGroup 1g _·_ inv) → Group ℓ
 group G 1g _·_ inv h = G , groupstr 1g _·_ inv h
 
-isSetGroup : (G : Group {ℓ}) → isSet ⟨ G ⟩
+isSetGroup : (G : Group ℓ) → isSet ⟨ G ⟩
 isSetGroup G = GroupStr.isGroup (snd G) .IsGroup.isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
 makeIsGroup : {G : Type ℓ} {e : G} {_·_ : G → G → G} { inv : G → G}
@@ -83,7 +83,7 @@ makeGroup : {G : Type ℓ} (e : G) (_·_ : G → G → G) (inv : G → G)
             (lid : (x : G) → e · x ≡ x)
             (rinv : (x : G) → x · inv x ≡ e)
             (linv : (x : G) → inv x · x ≡ e)
-          → Group
+          → Group ℓ
 makeGroup e _·_ inv is-setG assoc rid lid rinv linv = _ , helper
   where
   helper : GroupStr _
@@ -100,7 +100,7 @@ makeGroup-right : {A : Type ℓ}
   → (assoc : ∀ a b c → a · (b · c) ≡ (a · b) · c)
   → (rUnit : ∀ a → a · 1g ≡ a)
   → (rCancel : ∀ a → a · inv a ≡ 1g)
-  → Group
+  → Group ℓ
 makeGroup-right 1g _·_ inv set assoc rUnit rCancel =
   makeGroup 1g _·_ inv set assoc rUnit lUnit rCancel lCancel
   where
@@ -145,7 +145,7 @@ makeGroup-left : {A : Type ℓ}
   → (assoc : ∀ a b c → a · (b · c) ≡ (a · b) · c)
   → (lUnit : ∀ a → 1g · a ≡ a)
   → (lCancel : ∀ a → (inv a) · a ≡ 1g)
-  → Group
+  → Group ℓ
 makeGroup-left 1g _·_ inv set assoc lUnit lCancel =
   makeGroup 1g _·_ inv set assoc rUnit lUnit rCancel lCancel
   where

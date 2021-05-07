@@ -28,7 +28,7 @@ private
   variable
     ℓ : Level
 
-module Units (R' : CommRing {ℓ}) where
+module Units (R' : CommRing ℓ) where
  open CommRingStr (snd R')
  open RingTheory (CommRing→Ring R')
  private R = fst R'
@@ -132,10 +132,10 @@ module Units (R' : CommRing {ℓ}) where
 
 
 -- some convenient notation
-_ˣ : (R' : CommRing {ℓ}) → ℙ (R' .fst)
+_ˣ : (R' : CommRing ℓ) → ℙ (R' .fst)
 R' ˣ = Units.Rˣ R'
 
-module RingHomRespUnits {A' B' : CommRing {ℓ}} (φ : CommRingHom A' B') where
+module RingHomRespUnits {A' B' : CommRing ℓ} (φ : CommRingHom A' B') where
  open Units A' renaming (Rˣ to Aˣ ; _⁻¹ to _⁻¹ᵃ ; ·-rinv to ·A-rinv ; ·-linv to ·A-linv)
  private A = fst A'
  open CommRingStr (snd A') renaming (_·_ to _·A_ ; 1r to 1a)
@@ -164,7 +164,7 @@ module RingHomRespUnits {A' B' : CommRing {ℓ}} (φ : CommRingHom A' B') where
   (f r) ⁻¹ᵇ                         ∎
 
 
-module Exponentiation (R' : CommRing {ℓ}) where
+module Exponentiation (R' : CommRing ℓ) where
  open CommRingStr (snd R')
  private R = fst R'
 
@@ -195,7 +195,7 @@ module Exponentiation (R' : CommRing {ℓ}) where
 
 
 -- like in Ring.Properties we provide helpful lemmas here
-module CommRingTheory (R' : CommRing {ℓ}) where
+module CommRingTheory (R' : CommRing ℓ) where
  open CommRingStr (snd R')
  private R = fst R'
 

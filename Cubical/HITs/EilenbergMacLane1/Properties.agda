@@ -27,7 +27,7 @@ private
   variable
     ℓG ℓ : Level
 
-module _ ((G , str) : Group {ℓG}) where
+module _ ((G , str) : Group ℓG) where
 
   open GroupStr str
 

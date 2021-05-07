@@ -57,8 +57,8 @@ record CommRingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
   open IsCommRing isCommRing public
 
-CommRing : Type (ℓ-suc ℓ)
-CommRing = TypeWithStr _ CommRingStr
+CommRing : ∀ ℓ → Type (ℓ-suc ℓ)
+CommRing ℓ = TypeWithStr ℓ CommRingStr
 
 
 makeIsCommRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
@@ -87,24 +87,24 @@ makeCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R →
                (·-rid : (x : R) → x · 1r ≡ x)
                (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
                (·-comm : (x y : R) → x · y ≡ y · x)
-             → CommRing
+             → CommRing ℓ
 makeCommRing 0r 1r _+_ _·_ -_ is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm =
   _ , commringstr _ _ _ _ _ (makeIsCommRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm)
 
 CommRingStr→RingStr : {A : Type ℓ} → CommRingStr A → RingStr A
 CommRingStr→RingStr (commringstr _ _ _ _ _ H) = ringstr _ _ _ _ _ (IsCommRing.isRing H)
 
-CommRing→Ring : CommRing {ℓ} → Ring
+CommRing→Ring : CommRing ℓ → Ring ℓ
 CommRing→Ring (_ , commringstr _ _ _ _ _ H) = _ , ringstr _ _ _ _ _ (IsCommRing.isRing H)
 
-CommRingHom : (R : CommRing {ℓ}) (S : CommRing {ℓ'}) → Type (ℓ-max ℓ ℓ')
+CommRingHom : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
 CommRingHom R S = RingHom (CommRing→Ring R) (CommRing→Ring S)
 
 IsCommRingEquiv : {A : Type ℓ} {B : Type ℓ'}
   (R : CommRingStr A) (e : A ≃ B) (S : CommRingStr B) → Type (ℓ-max ℓ ℓ')
 IsCommRingEquiv R e S = IsRingHom (CommRingStr→RingStr R) (e .fst) (CommRingStr→RingStr S)
 
-CommRingEquiv : (R : CommRing {ℓ}) (S : CommRing {ℓ'}) → Type (ℓ-max ℓ ℓ')
+CommRingEquiv : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
 CommRingEquiv R S = Σ[ e ∈ (R .fst ≃ S .fst) ] IsCommRingEquiv (R .snd) e (S .snd)
 
 isPropIsCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
@@ -137,8 +137,8 @@ isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
   null = autoDUARel (𝒮-Univ _) (λ A → A)
   bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
 
-CommRingPath : (R S : CommRing {ℓ}) → CommRingEquiv R S ≃ (R ≡ S)
+CommRingPath : (R S : CommRing ℓ) → CommRingEquiv R S ≃ (R ≡ S)
 CommRingPath = ∫ 𝒮ᴰ-CommRing .UARel.ua
 
-isSetCommRing : ((R , str) : CommRing {ℓ}) → isSet R
+isSetCommRing : ((R , str) : CommRing ℓ) → isSet R
 isSetCommRing (R , str) = str .CommRingStr.is-set

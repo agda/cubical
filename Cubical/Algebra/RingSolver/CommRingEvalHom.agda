@@ -17,7 +17,7 @@ private
   variable
     ℓ : Level
 
-module HomomorphismProperties (R : CommRing {ℓ}) where
+module HomomorphismProperties (R : CommRing ℓ) where
   private
     νR = CommRing→RawℤAlgebra R
   open CommRingStr (snd R)
