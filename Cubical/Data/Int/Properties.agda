@@ -35,7 +35,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Empty
-open import Cubical.Data.Nat hiding (+-assoc ; +-comm) renaming (_·_ to _·ℕ_; _+_ to _+ℕ_)
+open import Cubical.Data.Nat hiding (+-assoc ; +-comm ; ·-comm) renaming (_·_ to _·ℕ_; _+_ to _+ℕ_)
 open import Cubical.Data.Bool
 open import Cubical.Data.Sum
 open import Cubical.Data.Int.Base
@@ -431,3 +431,45 @@ pos zero · m = pos zero
 pos (suc n) · m = m + (pos n · m)
 negsuc zero · m = (- m)
 negsuc (suc n) · m = (- m) + ((negsuc n) · m)
+
++·- : (n m : ℕ) → pos n · negsuc m ≡ (- (pos n · pos (suc m)))
++·- zero m = refl
++·- (suc n) m =
+     (λ i → negsuc m + (+·- n m i))
+   ∙ sym (-Dist+ (pos (suc m)) (pos n · pos (suc m)))
+
+-·+ : (n m : ℕ) → negsuc n · pos m ≡ (- (pos (suc n) · pos m))
+-·+ zero m = refl
+-·+ (suc n) m =
+    cong ((- pos m) +_) (-·+ n m)
+  ∙ sym (-Dist+ (pos m) (pos m + (pos n · pos m)))
+
+-·- : (n m : ℕ) → negsuc n · negsuc m ≡ (pos (suc n) · pos (suc m))
+-·- zero m = refl
+-·- (suc n) m = cong (pos (suc m) +_) (-·- n m)
+
+·-comm : (x y : Int) → x · y ≡ y · x
+·-comm (pos n) (pos m) = p n m
+  where
+  p : (n m : ℕ) → (pos n · pos m) ≡ (pos m · pos n)
+  p zero zero = refl
+  p zero (suc m) i = +-comm (p zero m i) (pos zero) i
+  p (suc n) zero i = +-comm (pos zero) (p n zero i) i
+  p (suc n) (suc m) =
+       (λ i → pos (suc m) + (p n (suc m) i))
+    ∙∙ +-assoc (pos (suc m)) (pos n) (pos m · pos n)
+    ∙∙ (λ i → sucInt+ (pos m) (pos n) (~ i)  + (pos m · pos n))
+    ∙∙ (λ i → +-comm (pos m) (pos (suc n)) i + (pos m · pos n))
+    ∙∙ sym (+-assoc (pos (suc n)) (pos m) (pos m · pos n))
+    ∙∙ (λ i → pos (suc n) + (pos m + (p n m (~ i))))
+    ∙∙ λ i → pos (suc n) + (p (suc n) m i)
+·-comm (pos n) (negsuc m) =
+     +·- n m
+  ∙∙ cong -_ (·-comm (pos n) (pos (suc m)))
+  ∙∙ sym (-·+ m n)
+·-comm (negsuc n) (pos m) =
+  sym (+·- m n
+  ∙∙ cong -_ (·-comm (pos m) (pos (suc n)))
+  ∙∙ sym (-·+ n m))
+·-comm (negsuc n) (negsuc m) =
+  -·- n m ∙∙ ·-comm (pos (suc n)) (pos (suc m)) ∙∙ sym (-·- m n)
