@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.ZCohomology.Groups.Sn where
 
 open import Cubical.ZCohomology.Base
@@ -302,41 +302,30 @@ private
   to₁ = Iso.fun (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 0))
 
   to₂ : coHom 2 (S₊ 2) → Int
-  to₂ = Iso.fun (GroupIso.isom  (Hⁿ-Sⁿ≅ℤ 1))
+  to₂ = Iso.fun (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 1))
 
   to₃ : coHom 3 (S₊ 3) → Int
   to₃ = Iso.fun (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 2))
 
+  from₁ : Int → coHom 1 S¹
+  from₁ = Iso.inv (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 0))
 
---   from₁ : Int → coHom 1 S¹
---   from₁ = GroupIso.inv (Hⁿ-Sⁿ≅ℤ 0)
+  from₂ : Int → coHom 2 (S₊ 2)
+  from₂ = Iso.inv (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 1))
 
---   from₂ : Int → coHom 2 (S₊ 2)
---   from₂ = GroupIso.inv (Hⁿ-Sⁿ≅ℤ 1)
+  from₃ : Int → coHom 3 (S₊ 3)
+  from₃ = Iso.inv (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 2))
 
---   from₃ : Int → coHom 3 (S₊ 3)
---   from₃ = GroupIso.inv (Hⁿ-Sⁿ≅ℤ 2) -}
+{-
+Strangely, the following won't compute
+test₀ : to₂ (from₂ 1 +ₕ from₂ 1) ≡ 2
+test₀ = refl
+However, the same example works for S¹ ∨ S¹ ∨ S², where the functions are essentially the same as here
+(although somewhat more complicated).
 
--- {-
--- Strangely, the following won't compute
--- test₀ : to₂ (from₂ 1 +ₕ from₂ 1) ≡ 2
--- test₀ = refl
--- However, the same example works for S¹ ∨ S¹ ∨ S², where the functions are essentially the same as here
--- (although somewhat more complicated).
+But with our new strange addition +'ₕ, it computes just fine:
 
--- But with our new strange addition +'ₕ, it computes just fine:
+test₀ : to₂ (from₂ 1 +'ₕ from₂ 1) ≡ 2
+test₀ = refl
 
--- test₀ : to₂ (from₂ 1 +'ₕ from₂ 1) ≡ 2
--- test₀ = refl
-
--- -}
-
--- elem : coHom 1 S¹
--- elem = _⌣_ {n = 0} {m = 1} ∣ (λ x → 1) ∣₂ ∣ ∣_∣ ∣₂
-
--- elem2 : coHom 1 S¹
--- elem2 = _⌣_ {n = 1} {m = 0} ∣ ∣_∣ ∣₂ ∣ (λ x → 1) ∣₂
-
-
--- c1 = to₁ elem
--- c2 = to₁ elem2
+-}

@@ -3,7 +3,7 @@
 Automatically generating proofs of UnivalentStr for records
 
 -}
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Structures.Record where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.Graph.Examples where
 
 open import Cubical.Foundations.Prelude

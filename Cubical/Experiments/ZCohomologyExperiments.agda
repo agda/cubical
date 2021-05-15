@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Experiments.ZCohomologyExperiments where
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
@@ -16,14 +16,15 @@ open import Cubical.HITs.Susp
 open import Cubical.Data.Int
 open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma
-open import Cubical.Algebra.Group
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Algebra.Group hiding (Int)
 
 private
 
   ⋁-to : coHom 2 S²⋁S¹⋁S¹ → Int
-  ⋁-to = GroupHom.fun (GroupIso.map H²-S²⋁S¹⋁S¹)
+  ⋁-to = Iso.fun (GroupIso.isom H²-S²⋁S¹⋁S¹)
   ⋁-from : Int → coHom 2 S²⋁S¹⋁S¹
-  ⋁-from = GroupIso.inv H²-S²⋁S¹⋁S¹
+  ⋁-from = Iso.inv (GroupIso.isom H²-S²⋁S¹⋁S¹)
 
   g : S²⋁S¹⋁S¹ → ∥ S₊ 2 ∥ 4
   g (inl x) = ∣ x ∣
@@ -51,10 +52,10 @@ test₁ = refl
 -- Similar stuff happens with Sⁿ.
 private
   S²-to : coHom 2 (S₊ 2) → Int
-  S²-to = GroupHom.fun (GroupIso.map (Hⁿ-Sⁿ≅ℤ 1))
+  S²-to = Iso.fun (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 1))
 
   S²-from : Int → coHom 2 (S₊ 2)
-  S²-from = GroupIso.inv (Hⁿ-Sⁿ≅ℤ 1)
+  S²-from = Iso.inv (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 1))
 
   one : coHom 2 (S₊ 2)
   one = ∣ ∣_∣ ∣₂

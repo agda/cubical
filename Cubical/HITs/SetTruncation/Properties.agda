@@ -5,7 +5,7 @@ This file contains:
 - Properties of set truncations
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.SetTruncation.Properties where
 
 open import Cubical.HITs.SetTruncation.Base

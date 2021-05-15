@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Core.Everything where
 
 -- Basic primitives (some are from Agda.Primitive)

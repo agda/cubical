@@ -1,5 +1,5 @@
 -- The SIP applied to groups
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.GroupPath where
 
 open import Cubical.Foundations.Prelude
