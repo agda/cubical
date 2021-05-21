@@ -1,3 +1,5 @@
+{-# OPTIONS --guardedness #-}
+
 module Cubical.Codata.Everything where
 
 open import Cubical.Codata.EverythingSafe public

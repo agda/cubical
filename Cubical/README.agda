@@ -1,3 +1,5 @@
+{-# OPTIONS --guardedness #-}
+
 module Cubical.README where
 
 ------------------------------------------------------------------------
