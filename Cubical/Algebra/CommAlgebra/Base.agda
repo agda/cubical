@@ -72,6 +72,9 @@ module _ {R : CommRing ℓ} where
   CommAlgebra→CommRing (_ , commalgebrastr  _ _ _ _ _ _ (iscommalgebra isAlgebra ·-comm)) =
     _ , commringstr _ _ _ _ _ (iscommring (IsAlgebra.isRing isAlgebra) ·-comm)
 
+  isSetCommAlgebra : (A : CommAlgebra R ℓ') → isSet ⟨ A ⟩
+  isSetCommAlgebra A = isSetAlgebra (CommAlgebra→Algebra A)
+
   makeIsCommAlgebra : {A : Type ℓ'} {0a 1a : A}
                       {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
                       (isSet-A : isSet A)
@@ -126,6 +129,15 @@ module _ {R : CommRing ℓ} where
   CommAlgebraEquiv : (M N : CommAlgebra R ℓ') → Type (ℓ-max ℓ ℓ')
   CommAlgebraEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsCommAlgebraEquiv (M .snd) e (N .snd)
 
+  IsCommAlgebraHom : {A B : Type ℓ'}
+    (M : CommAlgebraStr R A) (f : A → B) (N : CommAlgebraStr R B)
+    → Type (ℓ-max ℓ ℓ')
+  IsCommAlgebraHom M f N =
+    IsAlgebraHom (CommAlgebraStr→AlgebraStr M) f (CommAlgebraStr→AlgebraStr N)
+
+  CommAlgebraHom : (M N : CommAlgebra R ℓ') → Type (ℓ-max ℓ ℓ')
+  CommAlgebraHom M N = Σ[ f ∈ (⟨ M ⟩ → ⟨ N ⟩) ] IsCommAlgebraHom (M .snd) f (N .snd)
+
 isPropIsCommAlgebra : (R : CommRing ℓ) {A : Type ℓ'}
   (0a 1a : A)
   (_+_ _·_ : A → A → A)
@@ -158,3 +170,8 @@ isPropIsCommAlgebra R _ _ _ _ _ _ =
 
 CommAlgebraPath : (R : CommRing ℓ) → (A B : CommAlgebra R ℓ') → (CommAlgebraEquiv A B) ≃ (A ≡ B)
 CommAlgebraPath R = ∫ (𝒮ᴰ-CommAlgebra R) .UARel.ua
+
+isGroupoidCommAlgebra : {R : CommRing ℓ} → isGroupoid (CommAlgebra R ℓ')
+isGroupoidCommAlgebra A B = isOfHLevelRespectEquiv 2 (CommAlgebraPath _ _ _)
+                              (isSetΣ (isOfHLevel≃ 2 (isSetCommAlgebra A) (isSetCommAlgebra B))
+                               λ _ → isProp→isSet (isPropIsAlgebraHom _ _ _ _))
