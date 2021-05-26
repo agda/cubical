@@ -153,6 +153,15 @@ open IsAlgebraHom
 AlgebraHom : {R : Ring ℓ} (M : Algebra R ℓ') (N : Algebra R ℓ'') → Type (ℓ-max ℓ (ℓ-max ℓ' ℓ''))
 AlgebraHom M N = Σ[ f ∈ (⟨ M ⟩ → ⟨ N ⟩) ] IsAlgebraHom (M .snd) f (N .snd)
 
+idAlgHom : {R : Ring ℓ} {A : Algebra R ℓ'} → AlgebraHom A A
+fst idAlgHom x = x
+pres0 (snd idAlgHom) = refl
+pres1 (snd idAlgHom) = refl
+pres+ (snd idAlgHom) x y = refl
+pres· (snd idAlgHom) x y = refl
+pres- (snd idAlgHom) x = refl
+pres⋆ (snd idAlgHom) r x = refl
+
 IsAlgebraEquiv : {R : Ring ℓ} {A B : Type ℓ'}
   (M : AlgebraStr R A) (e : A ≃ B) (N : AlgebraStr R B)
   → Type (ℓ-max ℓ ℓ')
@@ -163,6 +172,10 @@ AlgebraEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsAlgebraEquiv (M .snd) e
 
 _$a_ : {R : Ring ℓ} {A : Algebra R ℓ'} {B : Algebra R ℓ''} → AlgebraHom A B → ⟨ A ⟩ → ⟨ B ⟩
 f $a x = fst f x
+
+AlgebraEquiv→AlgebraHom : {R : Ring ℓ} {A B : Algebra R ℓ'}
+                        → AlgebraEquiv A B → AlgebraHom A B
+AlgebraEquiv→AlgebraHom (e , eIsHom) = e .fst , eIsHom
 
 isPropIsAlgebra : (R : Ring ℓ) {A : Type ℓ'}
   (0a 1a : A)

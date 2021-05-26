@@ -163,6 +163,9 @@ RingEquiv R S = Σ[ e ∈ (⟨ R ⟩ ≃ ⟨ S ⟩) ] IsRingEquiv (R .snd) e (S 
 _$_ : {R S : Ring ℓ} → (φ : RingHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
 φ $ x = φ .fst x
 
+RingEquiv→RingHom : {A B : Ring ℓ} → RingEquiv A B → RingHom A B
+RingEquiv→RingHom (e , eIsHom) = e .fst , eIsHom
+
 isPropIsRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
              → isProp (IsRing 0r 1r _+_ _·_ -_)
 isPropIsRing 0r 1r _+_ _·_ -_ (isring RG RM RD) (isring SG SM SD) =
