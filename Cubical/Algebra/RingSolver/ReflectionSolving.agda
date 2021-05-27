@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 {-
   This is inspired by/copied from:
   https://github.com/agda/agda-stdlib/blob/master/src/Tactic/MonoidSolver.agda
@@ -74,7 +74,7 @@ private
            ∷ variableList (rev varInfos)
            ∷ varg (def (quote refl) []) ∷ [])
 
-module pr (R : CommRing {ℓ}) {n : ℕ} where
+module pr (R : CommRing ℓ) {n : ℕ} where
   private
     νR = CommRing→RawℤAlgebra R
 
@@ -204,5 +204,5 @@ macro
   solve : Term → Term → TC _
   solve = solve-macro
 
-fromℤ : (R : CommRing {ℓ}) → ℤ → fst R
+fromℤ : (R : CommRing ℓ) → ℤ → fst R
 fromℤ = scalar

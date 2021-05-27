@@ -1,5 +1,5 @@
 {- This file exports the primitives of cubical Id types -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Core.Id where
 
 open import Cubical.Core.Primitives hiding ( _≡_ )

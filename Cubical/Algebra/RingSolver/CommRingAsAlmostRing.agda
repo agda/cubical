@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.RingSolver.CommRingAsAlmostRing where
 
 open import Cubical.Foundations.Prelude
@@ -15,9 +15,9 @@ private
   variable
     ℓ : Level
 
-open Cubical.Algebra.Ring.Properties.Theory
+open Cubical.Algebra.Ring.Properties.RingTheory
 
-CommRingAsAlmostRing : CommRing {ℓ} → AlmostRing {ℓ}
+CommRingAsAlmostRing : CommRing ℓ → AlmostRing ℓ
 CommRingAsAlmostRing {ℓ}
   (R , commringstr _ _ _ _ _
          (iscommring (isring
@@ -25,7 +25,7 @@ CommRingAsAlmostRing {ℓ}
                        ·-isMonoid dist)
                      ·-comm)) =
   let
-    R' : CommRing {ℓ}
+    R' : CommRing ℓ
     R' = (R , commringstr _ _ _ _ _
          (iscommring (isring
                        (isabgroup (isgroup +-isMonoid inverse) +-comm) ·-isMonoid dist)

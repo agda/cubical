@@ -1,13 +1,15 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-
+
+  Definition of univalent and displayed univalent relations
+
+-}
+{-# OPTIONS --safe #-}
 module Cubical.Displayed.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
-
-open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Data.Sigma
 
@@ -64,4 +66,22 @@ record DUARel {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : UARel A ℓ≅A)
 
   ρᴰ : {a : A} → (b : B a) → b ≅ᴰ⟨ ρ a ⟩ b
   ρᴰ {a} b = invEq (uaᴰρ b b) refl
+
+
+-- total UARel induced by a DUARel
+
+module _ {A : Type ℓA} {ℓ≅A : Level} {𝒮-A : UARel A ℓ≅A}
+  {B : A → Type ℓB} {ℓ≅B : Level}
+  (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
+  where
+
+  open UARel 𝒮-A
+  open DUARel 𝒮ᴰ-B
+
+  ∫ : UARel (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
+  UARel._≅_ ∫ (a , b) (a' , b') = Σ[ p ∈ a ≅ a' ] (b ≅ᴰ⟨ p ⟩ b')
+  UARel.ua ∫ (a , b) (a' , b') =
+    compEquiv
+      (Σ-cong-equiv (ua a a') (λ p → uaᴰ b p b'))
+      ΣPath≃PathΣ
 

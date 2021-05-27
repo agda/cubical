@@ -5,7 +5,7 @@ This file contains:
 - Definition of set truncations
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.SetTruncation.Base where
 
 open import Cubical.Core.Primitives

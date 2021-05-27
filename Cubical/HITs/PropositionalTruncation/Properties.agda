@@ -5,7 +5,7 @@ This file contains:
 - Eliminator for propositional truncation
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.PropositionalTruncation.Properties where
 
 open import Cubical.Core.Everything
@@ -18,13 +18,15 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum hiding (rec ; elim ; map)
 
 open import Cubical.HITs.PropositionalTruncation.Base
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ′ : Level
     A B C : Type ℓ
+    A′ : Type ℓ′
 
 ∥∥-isPropDep : (P : A → Type ℓ) → isOfHLevelDep 1 (λ x → ∥ P x ∥)
 ∥∥-isPropDep P = isOfHLevel→isOfHLevelDep 1 (λ _ → squash)
@@ -49,17 +51,18 @@ elim Pprop f (squash x y i) =
   isOfHLevel→isOfHLevelDep 1 Pprop
     (elim Pprop f x) (elim Pprop f y) (squash x y) i
 
-elim2 : {P : ∥ A ∥ → ∥ A ∥ → Type ℓ}
-        (Bset : ((x y : ∥ A ∥) → isProp (P x y)))
-        (f : (a b : A) → P ∣ a ∣ ∣ b ∣)
-        (x y : ∥ A ∥) → P x y
-elim2 Pprop f = elim (λ _ → isPropΠ (λ _ → Pprop _ _))
-                     (λ a → elim (λ _ → Pprop _ _) (f a))
+elim2 : {P : ∥ A ∥ → ∥ B ∥ → Type ℓ}
+        (Pprop : (x : ∥ A ∥) (y : ∥ B ∥) → isProp (P x y))
+        (f : (a : A) (b : B) → P ∣ a ∣ ∣ b ∣)
+        (x : ∥ A ∥) (y : ∥ B ∥) → P x y
+elim2 Pprop f =
+  elim (λ _ → isPropΠ (λ _ → Pprop _ _))
+                       (λ a → elim (λ _ → Pprop _ _) (f a))
 
-elim3 : {P : ∥ A ∥ → ∥ A ∥ → ∥ A ∥ → Type ℓ}
-        (Bset : ((x y z : ∥ A ∥) → isProp (P x y z)))
-        (g : (a b c : A) → P (∣ a ∣) ∣ b ∣ ∣ c ∣)
-        (x y z : ∥ A ∥) → P x y z
+elim3 : {P : ∥ A ∥ → ∥ B ∥ → ∥ C ∥ → Type ℓ}
+        (Pprop : ((x : ∥ A ∥) (y : ∥ B ∥) (z : ∥ C ∥) → isProp (P x y z)))
+        (g : (a : A) (b : B) (c : C) → P (∣ a ∣) ∣ b ∣ ∣ c ∣)
+        (x : ∥ A ∥) (y : ∥ B ∥) (z : ∥ C ∥) → P x y z
 elim3 Pprop g = elim2 (λ _ _ → isPropΠ (λ _ → Pprop _ _ _))
                       (λ a b → elim (λ _ → Pprop _ _ _) (g a b))
 
@@ -375,3 +378,77 @@ elim→Gpd {A = A} P Pgpd f kf 3kf t = rec→Gpd (Pgpd t) g 3kg t
 
 RecHSet : (P : A → TypeOfHLevel ℓ 2) → 3-Constant P → ∥ A ∥ → TypeOfHLevel ℓ 2
 RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP
+
+∥∥-IdempotentL-⊎-≃ : ∥ ∥ A ∥ ⊎ A′ ∥ ≃ ∥ A ⊎ A′ ∥
+∥∥-IdempotentL-⊎-≃ = isoToEquiv ∥∥-IdempotentL-⊎-Iso
+  where ∥∥-IdempotentL-⊎-Iso : Iso (∥ ∥ A ∥ ⊎ A′ ∥)  (∥ A ⊎ A′ ∥)
+        Iso.fun ∥∥-IdempotentL-⊎-Iso x = rec squash lem x
+          where lem : ∥ A ∥ ⊎ A′ → ∥ A ⊎ A′ ∥
+                lem (inl x) = map (λ a → inl a) x
+                lem (inr x) = ∣ inr x ∣
+        Iso.inv ∥∥-IdempotentL-⊎-Iso x = map lem x
+          where lem : A ⊎ A′ → ∥ A ∥ ⊎ A′
+                lem (inl x) = inl ∣ x ∣
+                lem (inr x) = inr x
+        Iso.rightInv ∥∥-IdempotentL-⊎-Iso x = squash (Iso.fun ∥∥-IdempotentL-⊎-Iso (Iso.inv ∥∥-IdempotentL-⊎-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentL-⊎-Iso x  = squash (Iso.inv ∥∥-IdempotentL-⊎-Iso (Iso.fun ∥∥-IdempotentL-⊎-Iso x)) x
+
+∥∥-IdempotentL-⊎ : ∥ ∥ A ∥ ⊎ A′ ∥ ≡ ∥ A ⊎ A′ ∥
+∥∥-IdempotentL-⊎ = ua ∥∥-IdempotentL-⊎-≃
+
+∥∥-IdempotentR-⊎-≃ : ∥ A ⊎ ∥ A′ ∥ ∥ ≃ ∥ A ⊎ A′ ∥
+∥∥-IdempotentR-⊎-≃ = isoToEquiv ∥∥-IdempotentR-⊎-Iso
+  where ∥∥-IdempotentR-⊎-Iso : Iso (∥ A ⊎ ∥ A′ ∥ ∥) (∥ A ⊎ A′ ∥)
+        Iso.fun ∥∥-IdempotentR-⊎-Iso x = rec squash lem x
+          where lem : A ⊎ ∥ A′ ∥ → ∥ A ⊎ A′ ∥
+                lem (inl x) = ∣ inl x ∣
+                lem (inr x) = map (λ a → inr a) x
+        Iso.inv ∥∥-IdempotentR-⊎-Iso x = map lem x
+          where lem : A ⊎ A′ → A ⊎ ∥ A′ ∥
+                lem (inl x) = inl x
+                lem (inr x) = inr ∣ x ∣
+        Iso.rightInv ∥∥-IdempotentR-⊎-Iso x = squash (Iso.fun ∥∥-IdempotentR-⊎-Iso (Iso.inv ∥∥-IdempotentR-⊎-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentR-⊎-Iso x  = squash (Iso.inv ∥∥-IdempotentR-⊎-Iso (Iso.fun ∥∥-IdempotentR-⊎-Iso x)) x
+
+∥∥-IdempotentR-⊎ : ∥ A ⊎ ∥ A′ ∥ ∥ ≡ ∥ A ⊎ A′ ∥
+∥∥-IdempotentR-⊎ = ua ∥∥-IdempotentR-⊎-≃
+
+∥∥-Idempotent-⊎ : {A : Type ℓ} {A′ : Type ℓ′} → ∥ ∥ A ∥ ⊎ ∥ A′ ∥ ∥ ≡ ∥ A ⊎ A′ ∥
+∥∥-Idempotent-⊎ {A = A} {A′} = ∥ ∥ A ∥ ⊎ ∥ A′ ∥ ∥ ≡⟨ ∥∥-IdempotentR-⊎ ⟩
+                               ∥ ∥ A ∥ ⊎ A′ ∥     ≡⟨ ∥∥-IdempotentL-⊎ ⟩
+                               ∥ A ⊎ A′ ∥         ∎
+
+∥∥-IdempotentL-×-≃ : ∥ ∥ A ∥ × A′ ∥ ≃ ∥ A × A′ ∥
+∥∥-IdempotentL-×-≃ = isoToEquiv ∥∥-IdempotentL-×-Iso
+  where ∥∥-IdempotentL-×-Iso : Iso (∥ ∥ A ∥ × A′ ∥) (∥ A × A′ ∥)
+        Iso.fun ∥∥-IdempotentL-×-Iso x = rec squash lem x
+          where lem : ∥ A ∥ × A′ → ∥ A × A′ ∥
+                lem (a , a′) = map2 (λ a a′ → a , a′) a ∣ a′ ∣
+        Iso.inv ∥∥-IdempotentL-×-Iso x = map lem x
+          where lem : A × A′ → ∥ A ∥ × A′
+                lem (a , a′) = ∣ a ∣ , a′
+        Iso.rightInv ∥∥-IdempotentL-×-Iso x = squash (Iso.fun ∥∥-IdempotentL-×-Iso (Iso.inv ∥∥-IdempotentL-×-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentL-×-Iso x  = squash (Iso.inv ∥∥-IdempotentL-×-Iso (Iso.fun ∥∥-IdempotentL-×-Iso x)) x
+
+∥∥-IdempotentL-× : ∥ ∥ A ∥ × A′ ∥ ≡ ∥ A × A′ ∥
+∥∥-IdempotentL-× = ua ∥∥-IdempotentL-×-≃
+
+∥∥-IdempotentR-×-≃ : ∥ A × ∥ A′ ∥ ∥ ≃ ∥ A × A′ ∥
+∥∥-IdempotentR-×-≃ = isoToEquiv ∥∥-IdempotentR-×-Iso
+  where ∥∥-IdempotentR-×-Iso : Iso (∥ A × ∥ A′ ∥ ∥) (∥ A × A′ ∥)
+        Iso.fun ∥∥-IdempotentR-×-Iso x = rec squash lem x
+          where lem : A × ∥ A′ ∥ → ∥ A × A′ ∥
+                lem (a , a′) = map2 (λ a a′ → a , a′) ∣ a ∣ a′
+        Iso.inv ∥∥-IdempotentR-×-Iso x = map lem x
+          where lem : A × A′ → A × ∥ A′ ∥
+                lem (a , a′) = a , ∣ a′ ∣
+        Iso.rightInv ∥∥-IdempotentR-×-Iso x = squash (Iso.fun ∥∥-IdempotentR-×-Iso (Iso.inv ∥∥-IdempotentR-×-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentR-×-Iso x  = squash (Iso.inv ∥∥-IdempotentR-×-Iso (Iso.fun ∥∥-IdempotentR-×-Iso x)) x
+
+∥∥-IdempotentR-× : ∥ A × ∥ A′ ∥ ∥ ≡ ∥ A × A′ ∥
+∥∥-IdempotentR-× = ua ∥∥-IdempotentR-×-≃
+
+∥∥-Idempotent-× : {A : Type ℓ} {A′ : Type ℓ′} → ∥ ∥ A ∥ × ∥ A′ ∥ ∥ ≡ ∥ A × A′ ∥
+∥∥-Idempotent-× {A = A} {A′} = ∥ ∥ A ∥ × ∥ A′ ∥ ∥ ≡⟨ ∥∥-IdempotentR-× ⟩
+                               ∥ ∥ A ∥ × A′ ∥     ≡⟨ ∥∥-IdempotentL-× ⟩
+                               ∥ A × A′ ∥         ∎

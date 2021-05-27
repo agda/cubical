@@ -4,7 +4,7 @@ Set quotients:
 
 -}
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.SetQuotients.Properties where
 
 open import Cubical.HITs.SetQuotients.Base
@@ -12,6 +12,7 @@ open import Cubical.HITs.SetQuotients.Base
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
@@ -25,28 +26,20 @@ open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 
-open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
-open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂; ∣_∣₂; squash₂)
+open import Cubical.HITs.TypeQuotients as TypeQuot using (_/ₜ_ ; [_] ; eq/)
+open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥ ; ∣_∣ ; squash)
+open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂ ; ∣_∣₂ ; squash₂
+                                                              ; setTruncIsSet)
 
--- Type quotients
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' ℓ'' : Level
     A : Type ℓ
     R : A → A → Type ℓ
     B : A / R → Type ℓ
     C : A / R → A / R → Type ℓ
     D : A / R → A / R → A / R → Type ℓ
-
-elimEq/ : (Bprop : (x : A / R ) → isProp (B x))
-          {x y : A / R}
-          (eq : x ≡ y)
-          (bx : B x)
-          (by : B y) →
-          PathP (λ i → B (eq i)) bx by
-elimEq/ {B = B} Bprop {x = x} =
-  J (λ y eq → ∀ bx by → PathP (λ i → B (eq i)) bx by) (λ bx by → Bprop x bx by)
 
 elimProp : ((x : A / R ) → isProp (B x))
          → ((a : A) → B ( [ a ]))
@@ -58,7 +51,7 @@ elimProp Bprop f (squash/ x y p q i j) =
     (g x) (g y) (cong g p) (cong g q) (squash/ x y p q) i j
     where
     g = elimProp Bprop f
-elimProp Bprop f (eq/ a b r i) = elimEq/ Bprop (eq/ a b r) (f a) (f b) i
+elimProp Bprop f (eq/ a b r i) = isProp→PathP (λ i → Bprop ((eq/ a b r) i)) (f a) (f b) i
 
 elimProp2 : ((x y : A / R ) → isProp (C x y))
           → ((a b : A) → C [ a ] [ b ])
@@ -112,6 +105,43 @@ rec2 Bset f feql feqr = rec (isSetΠ (λ _ → Bset))
                             (λ a b r → funExt (elimProp (λ _ → Bset _ _)
                                               (λ c → feql a b c r)))
 
+-- the recursor for maps into groupoids:
+-- i.e. for any type A with a binary relation R and groupoid B,
+-- we can construct a map A / R → B from a map A → B satisfying the conditions
+-- (i)   ∀ (a b : A) → R a b → f a ≡ f b
+-- (ii)  ∀ (a b : A) → isProp (f a ≡ f b)
+
+-- We start by proving that we can recover the set-quotient
+-- by set-truncating the (non-truncated type quotient)
+typeQuotSetTruncIso : Iso (A / R) ∥ A /ₜ R ∥₂
+Iso.fun typeQuotSetTruncIso = rec setTruncIsSet (λ a → ∣ [ a ] ∣₂)
+                                                 λ a b r → cong ∣_∣₂ (eq/ a b r)
+Iso.inv typeQuotSetTruncIso = SetTrunc.rec squash/ (TypeQuot.rec [_] eq/)
+Iso.rightInv typeQuotSetTruncIso = SetTrunc.elim (λ _ → isProp→isSet (squash₂ _ _))
+                                  (TypeQuot.elimProp (λ _ → squash₂ _ _) λ _ → refl)
+Iso.leftInv typeQuotSetTruncIso = elimProp (λ _ → squash/ _ _) λ _ → refl
+
+module rec→Gpd {A : Type ℓ} {R : A → A → Type ℓ'} {B : Type ℓ''} (Bgpd : isGroupoid B)
+               (f : A → B)
+               (feq : ∀ (a b : A) → R a b → f a ≡ f b)
+               (fprop : ∀ (a b : A) → isProp (f a ≡ f b)) where
+
+ fun : A / R → B
+ fun = f₁ ∘ f₂
+  where
+  f₁ : ∥ A /ₜ R ∥₂ → B
+  f₁ = SetTrunc.rec→Gpd.fun Bgpd f/ congF/Const
+   where
+   f/ : A /ₜ R → B
+   f/ = TypeQuot.rec f feq
+   congF/Const : (a b : A /ₜ R) (p q : a ≡ b) → cong f/ p ≡ cong f/ q
+   congF/Const = TypeQuot.elimProp2 (λ _ _ → isPropΠ2 λ _ _ → Bgpd _ _ _ _)
+                                     λ a b p q → fprop a b (cong f/ p) (cong f/ q)
+
+  f₂ : A / R → ∥ A /ₜ R ∥₂
+  f₂ = Iso.fun typeQuotSetTruncIso
+
+
 setQuotUniversalIso : {B : Type ℓ} (Bset : isSet B)
                     → Iso (A / R → B) (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
 Iso.fun (setQuotUniversalIso Bset) g = (λ a → g [ a ]) , λ a b r i → g (eq/ a b r i)
@@ -128,8 +158,12 @@ setQuotUniversal : {B : Type ℓ} (Bset : isSet B) →
                    (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
 setQuotUniversal Bset = isoToEquiv (setQuotUniversalIso Bset)
 
-
 open BinaryRelation
+
+setQuotUnaryOp : (-_ : A → A)
+               → (∀ a a' → R a a' → R (- a) (- a'))
+               → (A / R → A / R)
+setQuotUnaryOp -_ h = Iso.inv (setQuotUniversalIso squash/) ((λ a → [ - a ]) , λ a b x → eq/ _ _ (h _ _ x))
 
 -- characterisation of binary functions/operations on set-quotients
 setQuotUniversal2Iso : {B : Type ℓ} (Bset : isSet B) → isRefl R

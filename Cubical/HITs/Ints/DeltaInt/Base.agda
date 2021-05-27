@@ -1,8 +1,9 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 {-
 
-This file defines DiffInt (Cubical.Data.DiffInt) as HIT.
+This file defines integers as equivalence classes of pairs of natural numbers
+using a direct & untruncated HIT definition (cf. HITs.Ints.DiffInt)
 
 and some basic operations, and the zero value:
 

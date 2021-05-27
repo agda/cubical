@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Pushout.Base where
 
 open import Cubical.Foundations.Prelude

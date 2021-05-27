@@ -1,4 +1,5 @@
-{-# OPTIONS --cubical --no-import-sorts #-}
+{-# OPTIONS --guardedness #-}
+
 module Cubical.README where
 
 ------------------------------------------------------------------------
