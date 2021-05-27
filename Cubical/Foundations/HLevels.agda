@@ -29,7 +29,7 @@ HLevel = ℕ
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ''' : Level
+    ℓ ℓ' ℓ'' ℓ''' ℓ'''' ℓ''''' : Level
     A : Type ℓ
     B : A → Type ℓ
     C : (x : A) → B x → Type ℓ
@@ -350,6 +350,16 @@ isProp×2 pA pB pC = isProp× pA (isProp× pB pC)
 isProp×3 : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
          → isProp A → isProp B → isProp C → isProp D → isProp (A × B × C × D)
 isProp×3 pA pB pC pD = isProp×2 pA pB (isProp× pC pD)
+
+isProp×4 : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''} {E : Type ℓ''''}
+         → isProp A → isProp B → isProp C → isProp D → isProp E → isProp (A × B × C × D × E)
+isProp×4 pA pB pC pD pE = isProp×3 pA pB pC (isProp× pD pE)
+
+isProp×5 : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''} {E : Type ℓ''''} {F : Type ℓ'''''}
+         → isProp A → isProp B → isProp C → isProp D → isProp E → isProp F
+         → isProp (A × B × C × D × E × F)
+isProp×5 pA pB pC pD pE pF = isProp×4 pA pB pC pD (isProp× pE pF)
+
 
 isOfHLevel× : ∀ {A : Type ℓ} {B : Type ℓ'} n → isOfHLevel n A → isOfHLevel n B
                                              → isOfHLevel n (A × B)

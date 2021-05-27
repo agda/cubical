@@ -182,13 +182,12 @@ isPropIsRing 0r 1r _+_ _·_ -_ (isring RG RM RD) (isring SG SM SD) =
 
 isPropIsRingHom : {A : Type ℓ} {B : Type ℓ'} (R : RingStr A) (f : A → B) (S : RingStr B)
   → isProp (IsRingHom R f S)
-isPropIsRingHom R f S =
-  isOfHLevelRetractFromIso 1 IsRingHomIsoΣ
-    (isProp× (isSetRing (_ , S) _ _)
-      (isProp× (isSetRing (_ , S) _ _)
-        (isProp× (isPropΠ2 λ _ _ → isSetRing (_ , S) _ _)
-          (isProp× (isPropΠ2 λ _ _ → isSetRing (_ , S) _ _)
-            (isPropΠ λ _ → isSetRing (_ , S) _ _)))))
+isPropIsRingHom R f S = isOfHLevelRetractFromIso 1 IsRingHomIsoΣ
+                        (isProp×4 (isSetRing (_ , S) _ _)
+                                  (isSetRing (_ , S) _ _)
+                                  (isPropΠ2 λ _ _ → isSetRing (_ , S) _ _)
+                                  (isPropΠ2 λ _ _ → isSetRing (_ , S) _ _)
+                                  (isPropΠ λ _ → isSetRing (_ , S) _ _))
 
 RingHomEqDep : (R S T : Ring ℓ) (p : S ≡ T) (φ : RingHom R S) (ψ : RingHom R T)
              → PathP (λ i → R .fst → p i .fst) (φ .fst) (ψ .fst)

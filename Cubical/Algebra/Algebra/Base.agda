@@ -183,29 +183,26 @@ isPropIsAlgebra : (R : Ring ℓ) {A : Type ℓ'}
   (-_ : A → A)
   (_⋆_ : ⟨ R ⟩ → A → A)
   → isProp (IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_)
-isPropIsAlgebra R _ _ _ _ _ _ =
+isPropIsAlgebra R _ _ _ _ _ _ = let open IsLeftModule in
   isOfHLevelRetractFromIso 1 IsAlgebraIsoΣ
     (isPropΣ
       (isPropIsLeftModule _ _ _ _ _)
-      (λ mo →
-        isProp× (isPropIsMonoid _ _)
-          (isProp× (isPropΠ3 λ _ _ _ → isProp× (mo .is-set _ _) (mo .is-set _ _))
-            (isProp× (isPropΠ3 λ _ _ _ → mo .is-set _ _)
-              (isPropΠ3 λ _ _ _ → mo .is-set _ _)))))
-  where
-  open IsLeftModule
+      (λ mo → isProp×3 (isPropIsMonoid _ _)
+                       (isPropΠ3 λ _ _ _ → isProp× (mo .is-set _ _) (mo .is-set _ _))
+                       (isPropΠ3 λ _ _ _ → mo .is-set _ _)
+                       (isPropΠ3 λ _ _ _ → mo .is-set _ _) ))
+
 
 isPropIsAlgebraHom : (R : Ring ℓ) {A : Type ℓ'} {B : Type ℓ''}
                      (AS : AlgebraStr R A) (f : A → B) (BS : AlgebraStr R B)
                    → isProp (IsAlgebraHom AS f BS)
-isPropIsAlgebraHom R AS f BS =
-  isOfHLevelRetractFromIso 1 IsAlgebraHomIsoΣ
-   (isProp× (isSetAlgebra (_ , BS) _ _)
-     (isProp× (isSetAlgebra (_ , BS) _ _)
-       (isProp× (isPropΠ2 λ _ _ → isSetAlgebra (_ , BS) _ _)
-         (isProp× (isPropΠ2 λ _ _ → isSetAlgebra (_ , BS) _ _)
-           (isProp× (isPropΠ λ _ → isSetAlgebra (_ , BS) _ _)
-             (isPropΠ2 λ _ _ → isSetAlgebra (_ , BS) _ _))))))
+isPropIsAlgebraHom R AS f BS = isOfHLevelRetractFromIso 1 IsAlgebraHomIsoΣ
+                               (isProp×5 (isSetAlgebra (_ , BS) _ _)
+                                         (isSetAlgebra (_ , BS) _ _)
+                                         (isPropΠ2 λ _ _ → isSetAlgebra (_ , BS) _ _)
+                                         (isPropΠ2 λ _ _ → isSetAlgebra (_ , BS) _ _)
+                                         (isPropΠ λ _ → isSetAlgebra (_ , BS) _ _)
+                                         (isPropΠ2 λ _ _ → isSetAlgebra (_ , BS) _ _))
 
 
 𝒮ᴰ-Algebra : (R : Ring ℓ) → DUARel (𝒮-Univ ℓ') (AlgebraStr R) (ℓ-max ℓ ℓ')
