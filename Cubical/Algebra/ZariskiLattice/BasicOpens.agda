@@ -48,8 +48,9 @@ private
 
 module Presheaf (A' : CommRing ℓ) where
  open CommRingStr (snd A') renaming (_·_ to _·r_ ; ·-comm to ·r-comm ; ·Assoc to ·rAssoc
-                                                 ; ·Lid to ·rLid)
+                                                 ; ·Lid to ·rLid ; ·Rid to ·rRid)
  open Exponentiation A'
+ open CommRingTheory A'
  open isMultClosedSubset
  open CommAlgebraStr ⦃...⦄
  private
@@ -95,6 +96,60 @@ module Presheaf (A' : CommRing ℓ) where
  RequivRel .transitive _ _ _ Rxy Ryz = Trans≼ _ _ _ (Rxy .fst) (Ryz .fst)
                                      , Trans≼ _ _ _  (Ryz .snd) (Rxy .snd)
 
+ RpropValued : isPropValued R
+ RpropValued x y = isProp× propTruncIsProp propTruncIsProp
+
+ powerIs≽ : (x a : A) → x ∈ ([_ⁿ|n≥0] A' a) → a ≼ x
+ powerIs≽ x a = map powerIs≽Σ
+  where
+  powerIs≽Σ : Σ[ n ∈ ℕ ] (x ≡ a ^ n) → Σ[ n ∈ ℕ ] Σ[ z ∈ A ] (a ^ n ≡ z ·r x)
+  powerIs≽Σ (n , p) = n , 1r , sym p ∙ sym (·rLid _)
+
+ module ≼ToLoc (x y : A) where
+  private
+   instance
+    _ = snd A[1/ x ]
+
+  lemma : x ≼ y → y ⋆ 1a ∈ A[1/ x ]ˣ -- y/1 ∈ A[1/x]ˣ
+  lemma = PT.rec (A[1/ x ]ˣ (y ⋆ 1a) .snd) lemmaΣ
+   where
+   path1 : (y z : A) → 1r ·r (y ·r 1r ·r z) ·r 1r ≡ z ·r y
+   path1 = solve A'
+   path2 : (xn : A) → xn ≡ 1r ·r 1r ·r (1r ·r 1r ·r xn)
+   path2 = solve A'
+
+   lemmaΣ : Σ[ n ∈ ℕ ] Σ[ a ∈ A ] x ^ n ≡ a ·r y → y ⋆ 1a ∈ A[1/ x ]ˣ
+   lemmaΣ (n , z , p) = [ z , (x ^ n) ,  PT.∣ n , refl ∣ ] -- xⁿ≡zy → y⁻¹ ≡ z/xⁿ
+                      , eq/ _ _ ((1r , powersFormMultClosedSubset _ _ .containsOne)
+                      , (path1 _ _ ∙∙ sym p ∙∙ path2 _))
+
+ module ≼PowerToLoc (x y : A) (x≼y : x ≼ y) where
+  private
+   [yⁿ|n≥0] = [_ⁿ|n≥0] A' y
+   instance
+    _ = snd A[1/ x ]
+  lemma : ∀ (s : A) → s ∈ [yⁿ|n≥0] → s ⋆ 1a ∈ A[1/ x ]ˣ
+  lemma _ s∈[yⁿ|n≥0] = ≼ToLoc.lemma _ _ (Trans≼ _ y _ x≼y (powerIs≽ _ _ s∈[yⁿ|n≥0]))
+
+
+
+ 𝓞ᴰ : A / R → CommAlgebra A' ℓ
+ 𝓞ᴰ = rec→Gpd.fun isGroupoidCommAlgebra (λ a → A[1/ a ]) RCoh LocPathProp
+    where
+    RCoh : ∀ a b → R a b → A[1/ a ] ≡ A[1/ b ]
+    RCoh a b (a≼b , b≼a) = fst (isContrS₁⁻¹R≡S₂⁻¹R (≼PowerToLoc.lemma _ _ b≼a)
+                                                   (≼PowerToLoc.lemma _ _ a≼b))
+     where
+     open AlgLocTwoSubsets A' ([_ⁿ|n≥0] A' a) (powersFormMultClosedSubset _ _)
+                              ([_ⁿ|n≥0] A' b) (powersFormMultClosedSubset _ _)
+
+    LocPathProp : ∀ a b → isProp (A[1/ a ] ≡ A[1/ b ])
+    LocPathProp a b = isPropS₁⁻¹R≡S₂⁻¹R
+     where
+     open AlgLocTwoSubsets A' ([_ⁿ|n≥0] A' a) (powersFormMultClosedSubset _ _)
+                              ([_ⁿ|n≥0] A' b) (powersFormMultClosedSubset _ _)
+
+
  -- The quotient A/R corresponds to the basic opens of the Zariski topology.
  -- Multiplication lifts to the quotient and corresponds to intersection
  -- of basic opens, i.e. we get a meet-semilattice with:
@@ -116,48 +171,40 @@ module Presheaf (A' : CommRing ℓ) where
   ·r-lcoh : (x y z : A) → R x y → R (x ·r z) (y ·r z)
   ·r-lcoh x y z Rxy = ·r-lcoh-≼ x y z (Rxy .fst) , ·r-lcoh-≼ y x z (Rxy .snd)
 
+ -- The induced partial order
+ _≼/_ : A / R → A / R → Type ℓ
+ x ≼/ y = x ≡ (x ∧/ y)
 
-
- module ≼ToLoc (x y : A)  where
-  private
-   instance
-    _ = snd A[1/ x ]
-    _ = snd A[1/ y ]
-
-  lemma : x ≼ y → y ⋆ 1a ∈ A[1/ x ]ˣ -- y/1 ∈ A[1/x]ˣ
-  lemma = PT.rec (A[1/ x ]ˣ (y ⋆ 1a) .snd) lemmaΣ
-   where
-   path1 : (y z : A) → 1r ·r (y ·r 1r ·r z) ·r 1r ≡ z ·r y
-   path1 = solve A'
-   path2 : (xn : A) → xn ≡ 1r ·r 1r ·r (1r ·r 1r ·r xn)
-   path2 = solve A'
-
-   lemmaΣ : Σ[ n ∈ ℕ ] Σ[ a ∈ A ] x ^ n ≡ a ·r y → y ⋆ 1a ∈ A[1/ x ]ˣ
-   lemmaΣ (n , z , p) = [ z , (x ^ n) ,  PT.∣ n , refl ∣ ] -- xⁿ≡zy → y⁻¹ ≡ z/xⁿ
-                      , eq/ _ _ ((1r , powersFormMultClosedSubset _ _ .containsOne)
-                      , (path1 _ _ ∙∙ sym p ∙∙ path2 _))
-
- powerIs≽ : (x a : A) → x ∈ ([_ⁿ|n≥0] A' a) → a ≼ x
- powerIs≽ x a = map powerIs≽Σ
+ -- coincides with our ≼
+ ≼/CoincidesWith≼ : ∀ (x y : A) → [ x ] ≼/ [ y ] ≡ x ≼ y
+ ≼/CoincidesWith≼ x y = [ x ] ≼/ [ y ] -- ≡⟨ refl ⟩ [ x ] ≡ [ x ·r y ]
+                      ≡⟨ isoToPath (isEquivRel→effectiveIso RpropValued RequivRel _ _) ⟩
+                        R x (x ·r y)
+                      ≡⟨ hPropExt (RpropValued _ _) propTruncIsProp ·To≼ ≼To· ⟩
+                        x ≼ y ∎
   where
-  powerIs≽Σ : Σ[ n ∈ ℕ ] (x ≡ a ^ n) → Σ[ n ∈ ℕ ] Σ[ z ∈ A ] (a ^ n ≡ z ·r x)
-  powerIs≽Σ (n , p) = n , 1r , sym p ∙ sym (·rLid _)
+  x≼xy→x≼yΣ : Σ[ n ∈ ℕ ] Σ[ z ∈ A ] x ^ n ≡ z ·r (x ·r y)
+            → Σ[ n ∈ ℕ ] Σ[ z ∈ A ] x ^ n ≡ z ·r y
+  x≼xy→x≼yΣ (n , z , p) =  n , (z ·r x) , p ∙ ·rAssoc _ _ _
+
+  ·To≼ : R x (x ·r y) → x ≼ y
+  ·To≼ (x≼xy , _) = PT.map x≼xy→x≼yΣ x≼xy
+
+  x≼y→x≼xyΣ : Σ[ n ∈ ℕ ] Σ[ z ∈ A ] x ^ n ≡ z ·r y
+            → Σ[ n ∈ ℕ ] Σ[ z ∈ A ] x ^ n ≡ z ·r (x ·r y)
+  x≼y→x≼xyΣ (n , z , p) = suc n , z , cong (x ·r_) p ∙ ·-commAssocl _ _ _
+
+  ≼To· : x ≼ y → R x ( x ·r y)
+  ≼To· x≼y = PT.map x≼y→x≼xyΣ x≼y , PT.∣ 1 , y , ·rRid _ ∙ ·r-comm _ _ ∣
 
 
- 𝓞ᴰ : A / R → CommAlgebra A' ℓ
- 𝓞ᴰ = rec→Gpd.fun isGroupoidCommAlgebra (λ a → A[1/ a ]) RCoh LocPathProp
-    where
-    RCoh : ∀ a b → R a b → A[1/ a ] ≡ A[1/ b ]
-    RCoh a b (a≼b , b≼a) = fst (isContrS₁⁻¹R≡S₂⁻¹R
-             (λ _ x∈[aⁿ|n≥0] → ≼ToLoc.lemma _ _ (Trans≼ _ a _ b≼a (powerIs≽ _ _ x∈[aⁿ|n≥0])))
-              λ _ x∈[bⁿ|n≥0] → ≼ToLoc.lemma _ _ (Trans≼ _ b _ a≼b (powerIs≽ _ _ x∈[bⁿ|n≥0])))
-     where
-     open AlgLocTwoSubsets A' ([_ⁿ|n≥0] A' a) (powersFormMultClosedSubset _ _)
-                              ([_ⁿ|n≥0] A' b) (powersFormMultClosedSubset _ _)
-
-    LocPathProp : ∀ a b → isProp (A[1/ a ] ≡ A[1/ b ])
-    LocPathProp a b = isPropS₁⁻¹R≡S₂⁻¹R
-     where
-     open AlgLocTwoSubsets A' ([_ⁿ|n≥0] A' a) (powersFormMultClosedSubset _ _)
-                              ([_ⁿ|n≥0] A' b) (powersFormMultClosedSubset _ _)
-
+ -- The restrictions:
+ ρᴰ : (x y : A / R) → x ≼/ y → CommAlgebraHom (𝓞ᴰ y) (𝓞ᴰ x)
+ ρᴰ = elimContr2 λ _ _ → isOfHLevelΠ 0
+                 λ [a]≼/[b] → ρᴰᴬ _ _ (transport (≼/CoincidesWith≼ _ _) [a]≼/[b])
+  where
+  ρᴰᴬ : (a b : A) → a ≼ b → isContr (CommAlgebraHom A[1/ b ] A[1/ a ])
+  ρᴰᴬ _ b a≼b = A[1/b]HasUniversalProp _ (≼PowerToLoc.lemma _ _ a≼b)
+   where
+   open AlgLoc A' ([_ⁿ|n≥0] A' b) (powersFormMultClosedSubset _ _)
+        renaming (S⁻¹RHasAlgUniversalProp to A[1/b]HasUniversalProp)
