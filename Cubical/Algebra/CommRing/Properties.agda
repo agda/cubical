@@ -176,6 +176,10 @@ module Exponentiation (R' : CommRing ℓ) where
  infix 9 _^_
 
  -- and prove some laws
+ 1ⁿ≡1 : (n : ℕ) → 1r ^ n ≡ 1r
+ 1ⁿ≡1 zero = refl
+ 1ⁿ≡1 (suc n) = ·Lid _ ∙ 1ⁿ≡1 n
+
  ·-of-^-is-^-of-+ : (f : R) (m n : ℕ) → (f ^ m) · (f ^ n) ≡ f ^ (m +ℕ n)
  ·-of-^-is-^-of-+ f zero n = ·Lid _
  ·-of-^-is-^-of-+ f (suc m) n = sym (·Assoc _ _ _) ∙ cong (f ·_) (·-of-^-is-^-of-+ f m n)
@@ -192,6 +196,12 @@ module Exponentiation (R' : CommRing ℓ) where
          f · ((f ^ n) · g) · (g ^ n) ≡⟨ cong (_· (g ^ n)) (·Assoc _ _ _) ⟩
          f · (f ^ n) · g · (g ^ n)   ≡⟨ sym (·Assoc _ _ _) ⟩
          f · (f ^ n) · (g · (g ^ n)) ∎
+
+ ^-rdist-·ℕ : (f : R) (n m : ℕ) → f ^ (n ·ℕ m) ≡ (f ^ n) ^ m
+ ^-rdist-·ℕ f zero m = sym (1ⁿ≡1 m)
+ ^-rdist-·ℕ f (suc n) m =  sym (·-of-^-is-^-of-+ f m (n ·ℕ m))
+                        ∙∙ cong (f ^ m ·_) (^-rdist-·ℕ f n m)
+                        ∙∙ sym  (^-ldist-· f (f ^ n) m)
 
 
 -- like in Ring.Properties we provide helpful lemmas here

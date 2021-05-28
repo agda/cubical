@@ -67,6 +67,17 @@ elimProp3 : ((x y z : A / R ) → isProp (D x y z))
 elimProp3 Dprop f = elimProp (λ x → isPropΠ2 (λ y z → Dprop x y z))
                              (λ x → elimProp2 (λ y z → Dprop [ x ] y z) (f x))
 
+-- sometimes more convenient:
+elimContr : (∀ (a : A) → isContr (B [ a ]))
+          → (x : A / R) → B x
+elimContr Bcontr = elimProp (elimProp (λ _ → isPropIsProp) λ _ → isContr→isProp (Bcontr _))
+                             λ _ → Bcontr _ .fst
+
+elimContr2 : (∀ (a b : A) → isContr (C [ a ] [ b ]))
+           → (x y : A / R) → C x y
+elimContr2 Ccontr = elimContr λ _ → isOfHLevelΠ 0
+                   (elimContr λ _ → inhProp→isContr (Ccontr _ _) isPropIsContr)
+
 -- lemma 6.10.2 in hott book
 []surjective : (x : A / R) → ∃[ a ∈ A ] [ a ] ≡ x
 []surjective = elimProp (λ x → squash) (λ a → ∣ a , refl ∣)

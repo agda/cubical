@@ -84,6 +84,9 @@ module commonExtractors {R : Ring ℓ} where
   Algebra→AbGroup : (A : Algebra R ℓ') → AbGroup ℓ'
   Algebra→AbGroup A = LeftModule→AbGroup (Algebra→Module A)
 
+  Algebra→Group : (A : Algebra R ℓ') → Group ℓ'
+  Algebra→Group A = Ring→Group (Algebra→Ring A)
+
   Algebra→Monoid : (A : Algebra R ℓ') → Monoid ℓ'
   Algebra→Monoid A = Ring→Monoid (Algebra→Ring A)
 
@@ -144,10 +147,20 @@ record IsAlgebraHom {R : Ring ℓ} {A : Type ℓ'} {B : Type ℓ''}
     pres- : (x : A) → f (M.- x) ≡ N.- (f x)
     pres⋆ : (r : ⟨ R ⟩) (y : A) → f (r M.⋆ y) ≡ r N.⋆ f y
 
+unquoteDecl IsAlgebraHomIsoΣ = declareRecordIsoΣ IsAlgebraHomIsoΣ (quote IsAlgebraHom)
 open IsAlgebraHom
 
 AlgebraHom : {R : Ring ℓ} (M : Algebra R ℓ') (N : Algebra R ℓ'') → Type (ℓ-max ℓ (ℓ-max ℓ' ℓ''))
 AlgebraHom M N = Σ[ f ∈ (⟨ M ⟩ → ⟨ N ⟩) ] IsAlgebraHom (M .snd) f (N .snd)
+
+idAlgHom : {R : Ring ℓ} {A : Algebra R ℓ'} → AlgebraHom A A
+fst idAlgHom x = x
+pres0 (snd idAlgHom) = refl
+pres1 (snd idAlgHom) = refl
+pres+ (snd idAlgHom) x y = refl
+pres· (snd idAlgHom) x y = refl
+pres- (snd idAlgHom) x = refl
+pres⋆ (snd idAlgHom) r x = refl
 
 IsAlgebraEquiv : {R : Ring ℓ} {A B : Type ℓ'}
   (M : AlgebraStr R A) (e : A ≃ B) (N : AlgebraStr R B)
@@ -160,23 +173,47 @@ AlgebraEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsAlgebraEquiv (M .snd) e
 _$a_ : {R : Ring ℓ} {A : Algebra R ℓ'} {B : Algebra R ℓ''} → AlgebraHom A B → ⟨ A ⟩ → ⟨ B ⟩
 f $a x = fst f x
 
+AlgebraEquiv→AlgebraHom : {R : Ring ℓ} {A B : Algebra R ℓ'}
+                        → AlgebraEquiv A B → AlgebraHom A B
+AlgebraEquiv→AlgebraHom (e , eIsHom) = e .fst , eIsHom
+
 isPropIsAlgebra : (R : Ring ℓ) {A : Type ℓ'}
   (0a 1a : A)
   (_+_ _·_ : A → A → A)
   (-_ : A → A)
   (_⋆_ : ⟨ R ⟩ → A → A)
   → isProp (IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_)
-isPropIsAlgebra R _ _ _ _ _ _ =
+isPropIsAlgebra R _ _ _ _ _ _ = let open IsLeftModule in
   isOfHLevelRetractFromIso 1 IsAlgebraIsoΣ
     (isPropΣ
       (isPropIsLeftModule _ _ _ _ _)
-      (λ mo →
-        isProp× (isPropIsMonoid _ _)
-          (isProp× (isPropΠ3 λ _ _ _ → isProp× (mo .is-set _ _) (mo .is-set _ _))
-            (isProp× (isPropΠ3 λ _ _ _ → mo .is-set _ _)
-              (isPropΠ3 λ _ _ _ → mo .is-set _ _)))))
-  where
-  open IsLeftModule
+      (λ mo → isProp×3 (isPropIsMonoid _ _)
+                       (isPropΠ3 λ _ _ _ → isProp× (mo .is-set _ _) (mo .is-set _ _))
+                       (isPropΠ3 λ _ _ _ → mo .is-set _ _)
+                       (isPropΠ3 λ _ _ _ → mo .is-set _ _) ))
+
+
+isPropIsAlgebraHom : (R : Ring ℓ) {A : Type ℓ'} {B : Type ℓ''}
+                     (AS : AlgebraStr R A) (f : A → B) (BS : AlgebraStr R B)
+                   → isProp (IsAlgebraHom AS f BS)
+isPropIsAlgebraHom R AS f BS = isOfHLevelRetractFromIso 1 IsAlgebraHomIsoΣ
+                               (isProp×5 (isSetAlgebra (_ , BS) _ _)
+                                         (isSetAlgebra (_ , BS) _ _)
+                                         (isPropΠ2 λ _ _ → isSetAlgebra (_ , BS) _ _)
+                                         (isPropΠ2 λ _ _ → isSetAlgebra (_ , BS) _ _)
+                                         (isPropΠ λ _ → isSetAlgebra (_ , BS) _ _)
+                                         (isPropΠ2 λ _ _ → isSetAlgebra (_ , BS) _ _))
+
+isSetAlgebraHom : {R : Ring ℓ} (M : Algebra R ℓ') (N : Algebra R ℓ'')
+                → isSet (AlgebraHom M N)
+isSetAlgebraHom _ N = isSetΣ (isSetΠ (λ _ → isSetAlgebra N))
+                        λ _ → isProp→isSet (isPropIsAlgebraHom _ _ _ _)
+
+
+isSetAlgebraEquiv : {R : Ring ℓ} (M N : Algebra R ℓ')
+                  → isSet (AlgebraEquiv M N)
+isSetAlgebraEquiv M N = isSetΣ (isOfHLevel≃ 2 (isSetAlgebra M) (isSetAlgebra N))
+                          λ _ → isProp→isSet (isPropIsAlgebraHom _ _ _ _)
 
 𝒮ᴰ-Algebra : (R : Ring ℓ) → DUARel (𝒮-Univ ℓ') (AlgebraStr R) (ℓ-max ℓ ℓ')
 𝒮ᴰ-Algebra R =
@@ -217,7 +254,7 @@ _∘a_  g f .fst = g .fst ∘ f .fst
 _∘a_  g f .snd = compIsAlgebraHom (g .snd) (f .snd)
 
 module AlgebraTheory (R : Ring ℓ) (A : Algebra R ℓ') where
-  open RingStr (snd R) renaming (_+_ to _+r_)
+  open RingStr (snd R) renaming (_+_ to _+r_ ; _·_ to _·r_)
   open AlgebraStr (A .snd)
 
   0-actsNullifying : (x : ⟨ A ⟩) → 0r ⋆ x ≡ 0a
@@ -226,3 +263,40 @@ module AlgebraTheory (R : Ring ℓ) (A : Algebra R ℓ') where
                        (0r +r 0r) ⋆ x      ≡⟨ ⋆-ldist 0r 0r x ⟩
                        (0r ⋆ x) + (0r ⋆ x) ∎
     in RingTheory.+Idempotency→0 (Algebra→Ring A) (0r ⋆ x) idempotent-+
+
+  ⋆Dist· : (x y : ⟨ R ⟩) (a b : ⟨ A ⟩) → (x ·r y) ⋆ (a · b) ≡ (x ⋆ a) · (y ⋆ b)
+  ⋆Dist· x y a b = (x ·r y) ⋆ (a · b) ≡⟨ ⋆-rassoc _ _ _ ⟩
+                   a · ((x ·r y) ⋆ b) ≡⟨ cong (a ·_) (⋆-assoc _ _ _) ⟩
+                   a · (x ⋆ (y ⋆ b)) ≡⟨ sym (⋆-rassoc _ _ _) ⟩
+                   x ⋆ (a · (y ⋆ b)) ≡⟨ sym (⋆-lassoc _ _ _) ⟩
+                   (x ⋆ a) · (y ⋆ b) ∎
+
+
+-- Smart constructor for ring homomorphisms
+-- that infers the other equations from pres1, pres+, and pres·
+
+module _  {R : Ring ℓ} {A : Algebra R ℓ} {B : Algebra R ℓ'} {f : ⟨ A ⟩ → ⟨ B ⟩} where
+
+  private
+    module A = AlgebraStr (A .snd)
+    module B = AlgebraStr (B .snd)
+
+  module _
+    (p1 : f A.1a ≡ B.1a)
+    (p+ : (x y : ⟨ A ⟩) → f (x A.+ y) ≡ f x B.+ f y)
+    (p· : (x y : ⟨ A ⟩) → f (x A.· y) ≡ f x B.· f y)
+    (p⋆ : (r : ⟨ R ⟩) (x : ⟨ A ⟩) → f (r A.⋆ x) ≡ r B.⋆ f x)
+    where
+
+    open IsAlgebraHom
+    private
+      isGHom : IsGroupHom (Algebra→Group A .snd) f (Algebra→Group B .snd)
+      isGHom = makeIsGroupHom p+
+
+    makeIsAlgebraHom : IsAlgebraHom (A .snd) f (B .snd)
+    makeIsAlgebraHom .pres0 = isGHom .IsGroupHom.pres1
+    makeIsAlgebraHom .pres1 = p1
+    makeIsAlgebraHom .pres+ = p+
+    makeIsAlgebraHom .pres· = p·
+    makeIsAlgebraHom .pres- = isGHom .IsGroupHom.presinv
+    makeIsAlgebraHom .pres⋆ = p⋆
