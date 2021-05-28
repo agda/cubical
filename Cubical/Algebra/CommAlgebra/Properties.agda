@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --no-import-sorts --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.CommAlgebra.Properties where
 
 open import Cubical.Foundations.Prelude

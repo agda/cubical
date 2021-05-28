@@ -204,6 +204,16 @@ isPropIsAlgebraHom R AS f BS = isOfHLevelRetractFromIso 1 IsAlgebraHomIsoΣ
                                          (isPropΠ λ _ → isSetAlgebra (_ , BS) _ _)
                                          (isPropΠ2 λ _ _ → isSetAlgebra (_ , BS) _ _))
 
+isSetAlgebraHom : {R : Ring ℓ} (M : Algebra R ℓ') (N : Algebra R ℓ'')
+                → isSet (AlgebraHom M N)
+isSetAlgebraHom _ N = isSetΣ (isSetΠ (λ _ → isSetAlgebra N))
+                        λ _ → isProp→isSet (isPropIsAlgebraHom _ _ _ _)
+
+
+isSetAlgebraEquiv : {R : Ring ℓ} (M N : Algebra R ℓ')
+                  → isSet (AlgebraEquiv M N)
+isSetAlgebraEquiv M N = isSetΣ (isOfHLevel≃ 2 (isSetAlgebra M) (isSetAlgebra N))
+                          λ _ → isProp→isSet (isPropIsAlgebraHom _ _ _ _)
 
 𝒮ᴰ-Algebra : (R : Ring ℓ) → DUARel (𝒮-Univ ℓ') (AlgebraStr R) (ℓ-max ℓ ℓ')
 𝒮ᴰ-Algebra R =

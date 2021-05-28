@@ -172,6 +172,4 @@ CommAlgebraPath : (R : CommRing ℓ) → (A B : CommAlgebra R ℓ') → (CommAlg
 CommAlgebraPath R = ∫ (𝒮ᴰ-CommAlgebra R) .UARel.ua
 
 isGroupoidCommAlgebra : {R : CommRing ℓ} → isGroupoid (CommAlgebra R ℓ')
-isGroupoidCommAlgebra A B = isOfHLevelRespectEquiv 2 (CommAlgebraPath _ _ _)
-                              (isSetΣ (isOfHLevel≃ 2 (isSetCommAlgebra A) (isSetCommAlgebra B))
-                               λ _ → isProp→isSet (isPropIsAlgebraHom _ _ _ _))
+isGroupoidCommAlgebra A B = isOfHLevelRespectEquiv 2 (CommAlgebraPath _ _ _) (isSetAlgebraEquiv _ _)
