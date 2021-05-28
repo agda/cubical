@@ -18,6 +18,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Relation.Nullary
 
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Pointed.Base
 open import Cubical.Foundations.Pointed.Properties
 open import Cubical.Structures.Pointed
@@ -25,11 +26,83 @@ open import Cubical.Structures.Pointed
 isHomogeneous : ∀ {ℓ} → Pointed ℓ → Type (ℓ-suc ℓ)
 isHomogeneous {ℓ} (A , x) = ∀ y → Path (Pointed ℓ) (A , x) (A , y)
 
+-- Pointed functions into a homogeneous type are equal as soon as they are equal
+-- as unpointed functions
+→∙homogeneous≡ : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'} {f∙ g∙ : A∙ →∙ B∙}
+  → isHomogeneous B∙ → f∙ .fst ≡ g∙ .fst → f∙ ≡ g∙
+→∙homogeneous≡ {A∙ = _ , a₀} {B∙ = B , _} {f , f₀} {g , g₀} h p = ΣPathP (funEq , ptEq)
+  where
+  wrong = funExt⁻ p a₀
+  right = f₀ ∙∙ refl ∙∙ sym (g₀)
+
+  fix₀ : g a₀ ≡ g a₀
+  fix₀ = sym wrong ∙ right
+
+  fix : ∀ y → y ≡ y
+  fix y i =
+    comp
+      (λ j → shift j .fst)
+      (λ j → λ
+        { (i = i0) → shift j .snd
+        ; (i = i1) → shift j .snd
+        })
+      (fix₀ i)
+    where
+    shift = sym (h (g a₀)) ∙ h y
+
+  fix≡₀ : fix (g a₀) ≡ fix₀
+  fix≡₀ k i =
+    comp
+      (λ j → shift≡ k j .fst)
+      (λ j → λ
+        { (i = i0) → shift≡ k j .snd
+        ; (i = i1) → shift≡ k j .snd
+        ; (k = i1) → fix₀ i
+        })
+      (fix₀ i)
+    where
+    shift≡ = lCancel (h (g a₀))
+
+  funEq : f ≡ g
+  funEq = funExt λ a → funExt⁻ p a ∙ fix (g a)
+
+  ptEq : Square f₀ g₀ (funExt⁻ funEq a₀) refl
+  ptEq = flipSquare (transport (sym (PathP≡doubleCompPathʳ _ _ _ _)) lem)
+    where
+    lem : funExt⁻ funEq a₀ ≡ right
+    lem =
+      wrong ∙ fix (g a₀)
+        ≡[ i ]⟨ wrong ∙ fix≡₀ i ⟩
+      wrong ∙ (sym wrong ∙ right)
+        ≡⟨ assoc wrong (sym wrong) right ⟩
+      (wrong ∙ (sym wrong)) ∙ right
+        ≡[ i ]⟨ rCancel wrong i ∙ right ⟩
+      refl ∙ right
+        ≡⟨ sym (lUnit _) ⟩
+      right
+      ∎
 
 isHomogeneousPi : ∀ {ℓ ℓ'} {A : Type ℓ} {B∙ : A → Pointed ℓ'}
                  → (∀ a → isHomogeneous (B∙ a)) → isHomogeneous (Πᵘ∙ A B∙)
 isHomogeneousPi h f i .fst = ∀ a → typ (h a (f a) i)
 isHomogeneousPi h f i .snd a = pt (h a (f a) i)
+
+isHomogeneous→∙ : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'}
+  → isHomogeneous B∙ → isHomogeneous (A∙ →∙ B∙ ∙)
+isHomogeneous→∙ {A∙ = A∙} {B∙} h f∙ =
+  ΣPathP
+    ( (λ i → Π∙ A∙ (λ a → T a i) (t₀ i))
+    , PathPIsoPath _ _ _ .Iso.inv
+        (→∙homogeneous≡ h
+          (PathPIsoPath (λ i → (a : typ A∙) → T a i) (λ _ → pt B∙) _ .Iso.fun
+            (λ i a → pt (h (f∙ .fst a) i))))
+    )
+  where
+  T : ∀ a → typ B∙ ≡ typ B∙
+  T a i = typ (h (f∙ .fst a) i)
+
+  t₀ : PathP (λ i → T (pt A∙) i) (pt B∙) (pt B∙)
+  t₀ = cong pt (h (f∙ .fst (pt A∙))) ▷ f∙ .snd
 
 isHomogeneousProd : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'}
                    → isHomogeneous A∙ → isHomogeneous B∙ → isHomogeneous (A∙ ×∙ B∙)
