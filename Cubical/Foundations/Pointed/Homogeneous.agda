@@ -26,34 +26,25 @@ open import Cubical.Structures.Pointed
 isHomogeneous : ∀ {ℓ} → Pointed ℓ → Type (ℓ-suc ℓ)
 isHomogeneous {ℓ} (A , x) = ∀ y → Path (Pointed ℓ) (A , x) (A , y)
 
-module _ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'} {f∙ g∙ : A∙ →∙ B∙} (h : isHomogeneous B∙)
+-- Pointed functions into a homogeneous type are equal as soon as they are equal
+-- as unpointed functions
+→∙Homogeneous≡ : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'} {f∙ g∙ : A∙ →∙ B∙}
+  (h : isHomogeneous B∙) → f∙ .fst ≡ g∙ .fst → f∙ ≡ g∙
+→∙Homogeneous≡ {A∙ = A∙@(_ , a₀)} {B∙@(B , _)} {f∙@(_ , f₀)} {g∙@(_ , g₀)} h p =
+  subst (λ Q∙ → PathP (λ i → A∙ →∙ Q∙ i) f∙ g∙) (sym (flipSquare fix)) badPath
   where
-  private
-    a₀ = A∙ .snd
-    B = B∙ .fst
-    f = f∙ .fst
-    f₀ = f∙ .snd
-    g = g∙ .fst
-    g₀ = g∙ .snd
+  badPath : PathP (λ i → A∙ →∙ (B , (sym f₀ ∙∙ funExt⁻ p a₀ ∙∙ g₀) i)) f∙ g∙
+  badPath i .fst = p i
+  badPath i .snd j = doubleCompPath-filler (sym f₀) (funExt⁻ p a₀) g₀ j i
 
-  -- Pointed functions into a homogeneous type are equal as soon as they are equal
-  -- as unpointed functions
-  →∙Homogeneous≡ : f∙ .fst ≡ g∙ .fst → f∙ ≡ g∙
-  →∙Homogeneous≡ p =
-    subst (λ Q∙ → PathP (λ i → A∙ →∙ Q∙ i) f∙ g∙) (sym (flipSquare fix)) badPath
-    where
-    badPath : PathP (λ i → A∙ →∙ (B , (sym f₀ ∙∙ funExt⁻ p a₀ ∙∙ g₀) i)) f∙ g∙
-    badPath i .fst = p i
-    badPath i .snd j = doubleCompPath-filler (sym f₀) (funExt⁻ p a₀) g₀ j i
-
-    fix : PathP (λ i → B∙ ≡ (B , (sym f₀ ∙∙ funExt⁻ p a₀ ∙∙ g₀) i)) refl refl
-    fix i =
-      hcomp
-        (λ j → λ
-          { (i = i0) → lCancel (h (pt B∙)) j
-          ; (i = i1) → lCancel (h (pt B∙)) j
-          })
-        (sym (h (pt B∙)) ∙ h ((sym f₀ ∙∙ funExt⁻ p a₀ ∙∙ g₀) i))
+  fix : PathP (λ i → B∙ ≡ (B , (sym f₀ ∙∙ funExt⁻ p a₀ ∙∙ g₀) i)) refl refl
+  fix i =
+    hcomp
+      (λ j → λ
+        { (i = i0) → lCancel (h (pt B∙)) j
+        ; (i = i1) → lCancel (h (pt B∙)) j
+        })
+      (sym (h (pt B∙)) ∙ h ((sym f₀ ∙∙ funExt⁻ p a₀ ∙∙ g₀) i))
 
 isHomogeneousPi : ∀ {ℓ ℓ'} {A : Type ℓ} {B∙ : A → Pointed ℓ'}
                  → (∀ a → isHomogeneous (B∙ a)) → isHomogeneous (Πᵘ∙ A B∙)
