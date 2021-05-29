@@ -25,8 +25,10 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
+open import Cubical.Foundations.Univalence
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; setTruncIsSet to §)
 open import Cubical.Data.Int renaming (_+_ to _ℤ+_) hiding (-_)
@@ -466,6 +468,12 @@ Kn→ΩKn+1-hom (suc n) = σ-hom
      cong winding (congFunct (trRec isGroupoidS¹ (λ x → x)) p q)
    ∙ winding-hom (cong (trRec isGroupoidS¹ (λ x → x)) p) (cong (trRec isGroupoidS¹ (λ x → x)) q)
 ΩKn+1→Kn-hom (suc n) = encode-hom
+
+isHomogeneousKn : (n : HLevel) → isHomogeneous (coHomK-ptd n)
+isHomogeneousKn n =
+  subst isHomogeneous
+    (sym (ΣPathP (ua Kn≃ΩKn+1 , ua-gluePath _ (Kn→ΩKn+10ₖ n))))
+    (isHomogeneousPath _ _)
 
 -- With the equivalence Kn≃ΩKn+1, we get that the two definitions of cohomology groups agree
 open IsGroupHom
