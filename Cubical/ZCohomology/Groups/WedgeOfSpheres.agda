@@ -21,6 +21,16 @@ open import Cubical.HITs.Truncation renaming (elim to trElim) hiding (map ; elim
 open import Cubical.Algebra.Group renaming (Int to IntGroup ; Bool to BoolGroup ; Unit to UnitGroup)
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim)
 
+open import Cubical.ZCohomology.Properties
+open import Cubical.Data.Nat
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Pointed
+open import Cubical.Data.Sigma
+open import Cubical.Homotopy.WedgeConnectivity
+open import Cubical.Foundations.HLevels
+open import Cubical.ZCohomology.RingStructure.CupProduct
+
+
 S¹⋁S¹ : Type₀
 S¹⋁S¹ = S₊∙ 1 ⋁ S₊∙ 1
 
@@ -50,6 +60,13 @@ H¹-S²⋁S¹⋁S¹ =
     Hⁿ-⋁ (S₊∙ 2) (S¹⋁S¹ , inl base) 0
   □ GroupIsoDirProd (H¹-Sⁿ≅0 0) H¹-S¹⋁S¹
   □ lUnitGroupIso
+
+genₗ : coHom 1 S²⋁S¹⋁S¹
+genₗ = ∣ (λ {(inl x) → 0ₖ _ ; (inr (inl x)) → ∣ x ∣ ; (inr (inr x)) → 0ₖ _ ; (inr (push a i)) → 0ₖ 1 ; (push a i) → 0ₖ 1}) ∣₂
+
+genᵣ : coHom 1 S²⋁S¹⋁S¹
+genᵣ = ∣ (λ {(inl x) → 0ₖ _ ; (inr (inl x)) → 0ₖ _ ; (inr (inr x)) → ∣ x ∣ ; (inr (push a i)) → 0ₖ 1 ; (push a i) → 0ₖ 1}) ∣₂
+
 
 ------------- H²(S²⋁S¹⋁S¹) ---------
 

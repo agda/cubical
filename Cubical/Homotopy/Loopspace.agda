@@ -33,6 +33,14 @@ open Iso
 Ω→ : ∀ {ℓA ℓB} {A : Pointed ℓA} {B : Pointed ℓB} (f : A →∙ B) → (Ω A →∙ Ω B)
 Ω→ (f , f∙) = (λ p → (sym f∙ ∙ cong f p) ∙ f∙) , cong (λ q → q ∙ f∙) (sym (rUnit (sym f∙))) ∙ lCancel f∙
 
+ΩfunExtIso : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') → Iso (typ (Ω (A →∙ B ∙))) (A →∙ Ω B)
+fst (fun (ΩfunExtIso A B) p) x = funExt⁻ (cong fst p) x
+snd (fun (ΩfunExtIso A B) p) i j = snd (p j) i
+fst (inv (ΩfunExtIso A B) (f , p) i) x = f x i
+snd (inv (ΩfunExtIso A B) (f , p) i) j = p j i
+rightInv (ΩfunExtIso A B) _ = refl
+leftInv (ΩfunExtIso A B) _ = refl
+
 {- Commutativity of loop spaces -}
 isComm∙ : ∀ {ℓ} (A : Pointed ℓ) → Type ℓ
 isComm∙ A = (p q : typ (Ω A)) → p ∙ q ≡ q ∙ p

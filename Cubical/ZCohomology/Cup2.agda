@@ -416,213 +416,6 @@ miner : {k : ℕ} (n m : ℕ) → (p : is-even n ⊎ is-odd n) → (q : is-even 
 miner {k = zero} n m p q x = x --doesn't really make sense, but doesn't matter in practice
 miner {k = suc k} n m p q = trMap (miner-h n m p q)
 
-{-
-zero-fun : S₊ 1 → S₊ 1 → coHomK 2
-zero-fun base y = 0ₖ _
-zero-fun (loop i) base = 0ₖ _
-zero-fun (loop i) (loop j) =
-  hcomp (λ k → λ {(j = i0) → 0ₖ 2
-                 ; (j = i1) → ∣ merid base (~ k) ∣
-                 ; (i = i0) → ∣ merid base (~ k ∧ j) ∣
-                 ; (i = i1) → ∣ merid base (~ k ∧ j) ∣})
-        ∣ merid (loop i) j ∣
-zero-l : (m : ℕ) → (S₊ 1 → (S₊ (suc (suc m))) → coHomK (1 + suc (suc m)))
-zero-r : (n : ℕ) → (S₊ (suc (suc n))) → S₊ 1 → coHomK (suc (suc n) + 1)
-zero-l-id : (m : ℕ) (a : _) → zero-l m base a ≡ 0ₖ _
-zero-l n base y = 0ₖ _
-zero-l zero (loop i) north = 0ₖ _
-zero-l zero (loop i) south = 0ₖ _
-zero-l zero (loop i) (merid a j) =
-  (sym (Kn→ΩKn+10ₖ _)
-  ∙∙ cong (Kn→ΩKn+1 _) (cong (λ z → zero-fun z a) loop)
-  ∙∙ Kn→ΩKn+10ₖ _) i j
-zero-l (suc n) (loop i) north = 0ₖ _
-zero-l (suc n) (loop i) south = 0ₖ _
-zero-l (suc n) (loop i) (merid a j) =
-  (sym (Kn→ΩKn+10ₖ _)
-  ∙∙ cong (Kn→ΩKn+1 (suc (suc (suc n))))
-          (cong (λ z → zero-l n z a) loop)
-  ∙∙ Kn→ΩKn+10ₖ _) i j
-zero-r n x y = subber (suc n) 0 (miner (suc (suc n)) 1 even-or-odd (inr tt) (zero-l n y x))
-zero-l-id zero a = refl
-zero-l-id (suc m) a = refl
-
-∪-alt-even-even : (n m : ℕ) → is-even (suc n) → is-even (suc m) → (S₊ (suc n) → (S₊ (suc m)) → coHomK (suc n + suc m))
-∪-alt-odd-odd : (n m : ℕ) → is-odd (suc n) → is-odd (suc m) → (S₊ (suc n) → (S₊ (suc m)) → coHomK (suc n + suc m))
-∪-alt-even-odd : (n m : ℕ) → is-even (suc n) → is-odd (suc m) → (S₊ (suc n) → (S₊ (suc m)) → coHomK (suc n + suc m))
-∪-alt-odd-even : (n m : ℕ) → is-odd (suc n) → is-even (suc m) → (S₊ (suc n) → (S₊ (suc m)) → coHomK (suc n + suc m))
-∪-alt-even-even (suc n) (suc m) evn evm north y = 0ₖ _
-∪-alt-even-even (suc n) (suc m) evn evm south y = 0ₖ _
-∪-alt-even-even (suc n) (suc m) evn evm (merid a i) north = 0ₖ _
-∪-alt-even-even (suc n) (suc m) evn evm (merid a i) south = 0ₖ _
-∪-alt-even-even (suc n) (suc m) evn evm (merid a i) (merid b j) =
-  (sym (Kn→ΩKn+10ₖ _)
-  ∙∙ cong (Kn→ΩKn+1 _)
-          (Kn→ΩKn+1 _ (subst coHomK (sym (+-suc n (suc m))) (∪-alt-odd-odd n m (even-suc→odd evn) (even-suc→odd evm) a b)))
-  ∙∙ Kn→ΩKn+10ₖ _) i j
-∪-alt-odd-odd zero zero odn odm x y = zero-fun x y
-∪-alt-odd-odd zero (suc m) odn odm x y = zero-l m x y
-∪-alt-odd-odd (suc n) zero odn odm x y = zero-r n x y
-∪-alt-odd-odd (suc n) (suc m) odn odm north y = 0ₖ _
-∪-alt-odd-odd (suc n) (suc m) odn odm south y = 0ₖ _
-∪-alt-odd-odd (suc n) (suc m) odn odm (merid a i) north = 0ₖ _
-∪-alt-odd-odd (suc n) (suc m) odn odm (merid a i) south = 0ₖ _
-∪-alt-odd-odd (suc n) (suc m) odn odm (merid a i) (merid b j) =
-  (sym (Kn→ΩKn+10ₖ _)
-  ∙∙ cong (Kn→ΩKn+1 _)
-          (Kn→ΩKn+1 _ (subst coHomK (sym (+-suc n (suc m))) (∪-alt-even-even n m (odd-suc→even odn) (odd-suc→even odm) a b)))
-  ∙∙ Kn→ΩKn+10ₖ _) i j
-∪-alt-even-odd (suc n) zero evn odm x y = zero-r n x y
-∪-alt-even-odd (suc n) (suc m) evn odm north y = 0ₖ _
-∪-alt-even-odd (suc n) (suc m) evn odm south y = 0ₖ _
-∪-alt-even-odd (suc n) (suc m) evn odm (merid a i) north = 0ₖ _
-∪-alt-even-odd (suc n) (suc m) evn odm (merid a i) south = 0ₖ _
-∪-alt-even-odd (suc n) (suc m) evn odm (merid a i) (merid b j) =
-  (sym (Kn→ΩKn+10ₖ _)
-  ∙∙ cong (Kn→ΩKn+1 _)
-          (Kn→ΩKn+1 _ (subst coHomK (sym (+-suc n (suc m))) (∪-alt-odd-even n m (even-suc→odd evn) (odd-suc→even odm) a b)))
-  ∙∙ Kn→ΩKn+10ₖ _) i j
-∪-alt-odd-even zero (suc m) odn evm x y = zero-l m x y
-∪-alt-odd-even (suc n) (suc m) odn evm x y = subber (suc n) (suc m) (∪-alt-even-odd (suc m) (suc n) evm odn y x)
-
-∪-alt' : (n m : ℕ) → is-even (suc n) ⊎ is-odd (suc n) → is-even (suc m) ⊎ is-odd (suc m) → (S₊ (suc n) → (S₊ (suc m)) → coHomK (suc n + suc m))
-∪-alt' n m (inl x) (inl x₁) = ∪-alt-even-even n m x x₁
-∪-alt' n m (inl x) (inr x₁) = ∪-alt-even-odd n m x x₁
-∪-alt' n m (inr x) (inl x₁) = ∪-alt-odd-even n m x x₁
-∪-alt' n m (inr x) (inr x₁) = ∪-alt-odd-odd n m x x₁
-
-∪-alt : (n m : ℕ) → is-even (suc n) ⊎ is-odd (suc n) → is-even (suc m) ⊎ is-odd (suc m) → (S₊ (suc n) → (S₊ (suc m)) → coHomK (suc n + suc m))
-∪-alt-id : (n : ℕ) (a : _) → ∪-alt n zero even-or-odd (inr tt) a base ≡ 0ₖ _
-∪-alt zero m p q base y = 0ₖ _
-∪-alt zero zero p q (loop i) base = 0ₖ _
-∪-alt zero zero p q (loop i) (loop j) =
-  hcomp (λ k → λ {(j = i0) → 0ₖ 2
-                 ; (j = i1) → ∣ merid base (~ k) ∣
-                 ; (i = i0) → ∣ merid base (~ k ∧ j) ∣
-                 ; (i = i1) → ∣ merid base (~ k ∧ j) ∣})
-        ∣ merid (loop i) j ∣
-∪-alt zero (suc m) p q (loop i) north = 0ₖ _
-∪-alt zero (suc m) p q (loop i) south = 0ₖ _
-∪-alt zero (suc m) p q (loop i) (merid a j) =
-  (sym (Kn→ΩKn+10ₖ _)
-  ∙∙ cong (Kn→ΩKn+1 _) (cong (λ x → ∪-alt zero m (inr tt) (even-or-odd {n = suc m}) x a) loop)
-  ∙∙ Kn→ΩKn+10ₖ _) i j
-∪-alt (suc n) zero p q x base = 0ₖ _
-∪-alt (suc n) zero p q north (loop i) = 0ₖ _
-∪-alt (suc n) zero p q south (loop i) = 0ₖ _
-∪-alt (suc n) zero p q (merid a i) (loop j) =
-  (sym (Kn→ΩKn+10ₖ _)
-  ∙∙ cong (Kn→ΩKn+1 _) ((sym (∪-alt-id n a) ∙∙ cong (∪-alt n zero (even-or-odd {n = suc n}) (inr tt) a) loop ∙∙ ∪-alt-id n a))
-  ∙∙ Kn→ΩKn+10ₖ _) i j
-∪-alt (suc n) (suc m) (inl even-sucn) (inl even-sucm) north y = 0ₖ _
-∪-alt (suc n) (suc m) (inl even-sucn) (inl even-sucm) south y = 0ₖ _
-∪-alt (suc n) (suc m) (inl even-sucn) (inl even-sucm) (merid a i) north = 0ₖ _
-∪-alt (suc n) (suc m) (inl even-sucn) (inl even-sucm) (merid a i) south = 0ₖ _
-∪-alt (suc n) (suc m) (inl even-sucn) (inl even-sucm) (merid a i) (merid b j) =
-     (sym (Kn→ΩKn+10ₖ _)
-  ∙∙ cong (Kn→ΩKn+1 _) (Kn→ΩKn+1 _ (subst coHomK (sym (+-suc n (suc m)))
-             (∪-alt n m (inr (even-suc→odd even-sucn)) (inr (even-suc→odd even-sucm)) a b)))
-  ∙∙ Kn→ΩKn+10ₖ _) i j
--- even + odd
-∪-alt (suc n) (suc m) (inl even-sucn) (inr odd-sucm) north y = 0ₖ _
-∪-alt (suc n) (suc m) (inl even-sucn) (inr odd-sucm) south y = 0ₖ _
-∪-alt (suc n) (suc m) (inl even-sucn) (inr odd-sucm) (merid a i) north = 0ₖ _
-∪-alt (suc n) (suc m) (inl even-sucn) (inr odd-sucm) (merid a i) south = 0ₖ _
-∪-alt (suc n) (suc m) (inl even-sucn) (inr odd-sucm) (merid a i) (merid b j) =
-  (sym (Kn→ΩKn+10ₖ _)
-  ∙∙ cong (Kn→ΩKn+1 _) (Kn→ΩKn+1 _ (subst coHomK (sym (+-suc n (suc m)))
-             (∪-alt n m (inr (even-suc→odd even-sucn)) (inl (odd-suc→even odd-sucm)) a b)))
-  ∙∙ Kn→ΩKn+10ₖ _) j i
--- odd + even
-∪-alt (suc n) (suc m) (inr odd-sucn) (inl even-sucm) north y = 0ₖ _
-∪-alt (suc n) (suc m) (inr odd-sucn) (inl even-sucm) south y = 0ₖ _
-∪-alt (suc n) (suc m) (inr odd-sucn) (inl even-sucm) (merid a i) north = 0ₖ _
-∪-alt (suc n) (suc m) (inr odd-sucn) (inl even-sucm) (merid a i) south = 0ₖ _
-∪-alt (suc n) (suc m) (inr odd-sucn) (inl even-sucm) (merid a i) (merid b j) =
-  (sym (Kn→ΩKn+10ₖ _)
-  ∙∙ cong (Kn→ΩKn+1 _) (Kn→ΩKn+1 _ (subst coHomK (sym (+-suc n (suc m)))
-             (subber n m (∪-alt m n (inr (even-suc→odd {n = suc m} even-sucm)) (inl (odd-suc→even {n = suc n} odd-sucn)) b a))))
-  ∙∙ Kn→ΩKn+10ₖ _) i j
--- odd + odd
-∪-alt (suc n) (suc m) (inr odd-sucn) (inr odd-sucm) north y = 0ₖ _
-∪-alt (suc n) (suc m) (inr odd-sucn) (inr odd-sucm) south y = 0ₖ _
-∪-alt (suc n) (suc m) (inr odd-sucn) (inr odd-sucm) (merid a i) north = 0ₖ _
-∪-alt (suc n) (suc m) (inr odd-sucn) (inr odd-sucm) (merid a i) south = 0ₖ _
-∪-alt (suc n) (suc m) (inr odd-sucn) (inr odd-sucm) (merid a i) (merid b j) =
-     (sym (Kn→ΩKn+10ₖ _)
-  ∙∙ cong (Kn→ΩKn+1 _) (Kn→ΩKn+1 _ (subst coHomK (sym (+-suc n (suc m)))
-             (∪-alt n m (inl (odd-suc→even odd-sucn)) (inl (odd-suc→even odd-sucm)) a b)))
-  ∙∙ Kn→ΩKn+10ₖ _) i j
-∪-alt-id zero base = refl
-∪-alt-id zero (loop i) = refl
-∪-alt-id (suc n) a = refl -}
-
-{-
-∪-alt2 : (n m : ℕ) → is-even (suc n) ⊎ is-odd (suc n) → is-even (suc m) ⊎ is-odd (suc m) → (S₊ (suc n)) → (S₊ (suc m)) → coHomK (suc n + suc m)
-∪-alt2 zero m p q x y = {!!}
-∪-alt2 (suc n) zero p q x y = {!!}
-∪-alt2 (suc n) (suc m) (inl p) (inl q) north y = 0ₖ _
-∪-alt2 (suc n) (suc m) (inl p) (inl q) south y = 0ₖ _
-∪-alt2 (suc n) (suc m) (inl p) (inl q) (merid a i) y =
-  Kn→ΩKn+1 _ (∪-alt2 n (suc m) (inr (even-suc→odd p)) (inl q) a y) i
-∪-alt2 (suc n) (suc m) (inl x₁) (inr x₂) north y = 0ₖ _
-∪-alt2 (suc n) (suc m) (inl x₁) (inr x₂) south y = 0ₖ _
-∪-alt2 (suc n) (suc m) (inl x₁) (inr x₂) (merid a i) y =
-  Kn→ΩKn+1 _ (∪-alt2 n (suc m) (inr (even-suc→odd x₁)) (inr x₂) a y) i
-∪-alt2 (suc n) (suc m) (inr x₁) (inl x₂) x north = 0ₖ _
-∪-alt2 (suc n) (suc m) (inr x₁) (inl x₂) x south = 0ₖ _
-∪-alt2 (suc n) (suc m) (inr x₁) (inl x₂) x (merid a i) =
-  Kn→ΩKn+1 _ (subst coHomK (cong suc (sym (+-suc n (suc m))))
-              (∪-alt2 (suc n) m (inr x₁) (inr (even-suc→odd x₂)) x a)) i
-∪-alt2 (suc n) (suc m) (inr x₁) (inr x₂) north y = 0ₖ _
-∪-alt2 (suc n) (suc m) (inr x₁) (inr x₂) south y = 0ₖ _
-∪-alt2 (suc n) (suc m) (inr x₁) (inr x₂) (merid a i) y =
-  Kn→ΩKn+1 _ (∪-alt2 n (suc m) (inl (odd-suc→even x₁)) (inr x₂) a y) i
-
-
-∪≡ : (n m : ℕ) → (p : is-even (suc n) ⊎ is-odd (suc n)) → (q : is-even (suc m) ⊎ is-odd (suc m)) → (x : S₊ (suc n)) → (y : S₊ (suc m))
-  → ∪-alt2 n m p q x y ≡ ∪-alt n m p q x y
-∪≡ zero m p q x y = {!!}
-∪≡ (suc n) zero p q x y = {!!}
-∪≡ (suc n) (suc m) (inl x₁) (inl x₂) north y = refl
-∪≡ (suc n) (suc m) (inl x₁) (inl x₂) south y = refl
-∪≡ (suc n) (suc m) (inl x₁) (inl x₂) (merid a i) y j = help1 y j i
-  where
-  lUnithelers : (n m : ℕ) (x : _) (x₁ : _) (x₂ : _) → cong (λ x → ∪-alt2 (suc n) (suc m) (inl x₁) (inl x₂) x south)
-      (merid x) ≡ refl
-  lUnithelers zero m base x₁ x₂ = cong (Kn→ΩKn+1 _) (∪≡ zero (suc m) (inr (even-suc→odd x₁)) (inl x₂) base south) ∙ Kn→ΩKn+10ₖ _
-  lUnithelers zero m (loop i) x₁ x₂ = cong (Kn→ΩKn+1 _) (∪≡ zero (suc m) (inr (even-suc→odd x₁)) (inl x₂) (loop i) south) ∙ Kn→ΩKn+10ₖ _
-  lUnithelers (suc n) m north x₁ x₂ = cong (Kn→ΩKn+1 _) (∪≡ (suc n) (suc m) (inr (even-suc→odd x₁)) (inl x₂) north south) ∙ Kn→ΩKn+10ₖ _
-  lUnithelers (suc n) m south x₁ x₂ = cong (Kn→ΩKn+1 _) (∪≡ (suc n) (suc m) (inr (even-suc→odd x₁)) (inl x₂) south south) ∙ Kn→ΩKn+10ₖ _
-  lUnithelers (suc n) m (merid a i) x₁ x₂ = cong (Kn→ΩKn+1 _) (∪≡ (suc n) (suc m) (inr (even-suc→odd x₁)) (inl x₂) (merid a i) south) ∙ Kn→ΩKn+10ₖ _
-
-  lUnitheler : (n m : ℕ) (x : _) (x₁ : _) (x₂ : _) → cong (λ x → ∪-alt2 (suc n) (suc m) (inl x₁) (inl x₂) x north)
-      (merid x) ≡ refl
-  lUnitheler zero m x x₁ x₂ = {!!}
-  lUnitheler (suc n) m x x₁ x₂ = {!!}
-
-  main : (b : _) → cong (λ y → cong (λ x → ∪-alt2 (suc n) (suc m) (inl x₁) (inl x₂) x y)
-      (merid a)) (merid b)
-      ≡
-      ({!!} ∙∙ cong (λ y → cong (λ x → ∪-alt (suc n) (suc m) (inl x₁) (inl x₂) x y)
-      (merid a)) (merid b) ∙∙ sym (lUnithelers n m a x₁ x₂))
-  main b =  (λ i → (cong (Kn→ΩKn+1 (suc (n + suc (suc m))))) (rUnit (cong (∪-alt2 n (suc m) (inr (even-suc→odd x₁)) (inl x₂) a) (merid b)) i))
-        ∙∙ cong (cong (Kn→ΩKn+1 (suc (n + suc (suc m)))))
-                (λ i → (λ j → ∪≡ n (suc m) (inr (even-suc→odd x₁)) (inl x₂) a north (i ∧ j))
-                    ∙∙ (λ j → ∪≡ n (suc m) (inr (even-suc→odd x₁)) (inl x₂) a (merid b j) i)
-                    ∙∙ λ j → ∪≡ n (suc m) (inr (even-suc→odd x₁)) (inl x₂) a south (i ∧ ~ j))
-        ∙∙ {!!}
-        ∙∙ {!!}
-        ∙∙ {!!}
-
-  help1 : (y : _) → cong (λ x → ∪-alt2 (suc n) (suc m) (inl x₁) (inl x₂) x y) (merid a) ≡ cong (λ x → ∪-alt (suc n) (suc m) (inl x₁) (inl x₂) x y) (merid a)
-  help1 y = {!!}
-∪≡ (suc n) (suc m) (inl x₁) (inr x₂) x y = {!!}
-∪≡ (suc n) (suc m) (inr x₁) q x y = {!!}
--}
-
-
-
 isEquiv-miner : {k : ℕ} → (n m : ℕ) → (p : is-odd n) → (q : is-odd m) → Iso (S₊ (suc k)) (S₊ (suc k))
 fun (isEquiv-miner {k = k} n m p q) = miner-h n m (inr p) (inr q)
 inv' (isEquiv-miner {k = k} n m p q) = miner-h n m (inr p) (inr q)
@@ -727,50 +520,50 @@ congMinner = {!!}
 miner≡minus : {k : ℕ} (n m : ℕ) → (p : is-odd n) → (q : is-odd m) (x : coHomK (suc k)) → miner n m (inr p) (inr q) x ≡ -ₖ x
 miner≡minus {k = k} n m p q = {!!}
 
-∪ₗ'-1-cool : (m : ℕ) → S¹ → S₊ (suc m) → S₊ (suc (suc m))
-∪ₗ'-1-cool m base y = north
-∪ₗ'-1-cool zero (loop i) base = north
-∪ₗ'-1-cool zero (loop i) (loop i₁) =
-  (sym (rCancel (merid base)) ∙∙ (λ i → merid (loop i) ∙ sym (merid base)) ∙∙ rCancel (merid base)) i i₁
-∪ₗ'-1-cool (suc m) (loop i) north = north
-∪ₗ'-1-cool (suc m) (loop i) south = north
-∪ₗ'-1-cool (suc m) (loop i) (merid a j) = 
-  (sym (rCancel (merid north)) ∙∙ (λ i → merid ((∪ₗ'-1-cool m (loop i) a)) ∙ sym (merid north)) ∙∙ rCancel (merid north)) i j
 
-∪ₗ'-cool : (n m : ℕ) → S₊ (suc n) →  S₊ (suc m) → S₊ (suc (suc (n + m)))
-∪ₗ'-cool-0 : (n m : ℕ) → (x : S₊ (suc n)) → ∪ₗ'-cool n m x (ptSn _) ≡ north
-∪ₗ'-cool-south : (n m : ℕ) → (x : S₊ (suc n)) → ∪ₗ'-cool n (suc m) x south ≡ north
-∪ₗ'-cool zero m x y = ∪ₗ'-1-cool m x y
-∪ₗ'-cool (suc n) zero north y = north
-∪ₗ'-cool (suc n) zero south y = north
-∪ₗ'-cool (suc n) zero (merid a i) base = north
-∪ₗ'-cool (suc n) zero (merid a i) (loop i₁) =
-  ∪ₗ'-1-cool (suc (n + zero))
-       (loop i) ((sym (∪ₗ'-cool-0 n zero a)
-    ∙∙ (λ i₁ → ∪ₗ'-cool n _ a (loop i₁))
-    ∙∙ ∪ₗ'-cool-0 n zero a) i₁)
-∪ₗ'-cool (suc n) (suc m) north y = north
-∪ₗ'-cool (suc n) (suc m) south y = north
-∪ₗ'-cool (suc n) (suc m) (merid a i) north = north
-∪ₗ'-cool (suc n) (suc m) (merid a i) south = north
-∪ₗ'-cool (suc n) (suc m) (merid a i) (merid b j) =
-  ∪ₗ'-1-cool (suc (n + suc m)) (loop i)
-    ((sym (∪ₗ'-cool-0 n (suc m) a) ∙∙ (λ i → ∪ₗ'-cool n _ a (merid b i)) ∙∙ ∪ₗ'-cool-south n m a) j)
-∪ₗ'-cool-0 zero zero base = refl
-∪ₗ'-cool-0 zero zero (loop i) = refl
-∪ₗ'-cool-0 (suc n) zero north = refl
-∪ₗ'-cool-0 (suc n) zero south = refl
-∪ₗ'-cool-0 (suc n) zero (merid a i) = refl
-∪ₗ'-cool-0 zero (suc m) base = refl
-∪ₗ'-cool-0 zero (suc m) (loop i) = refl
-∪ₗ'-cool-0 (suc n) (suc m) north = refl
-∪ₗ'-cool-0 (suc n) (suc m) south = refl
-∪ₗ'-cool-0 (suc n) (suc m) (merid a i) = refl
-∪ₗ'-cool-south zero m base = refl
-∪ₗ'-cool-south zero m (loop i) = refl
-∪ₗ'-cool-south (suc n) m north = refl
-∪ₗ'-cool-south (suc n) m south = refl
-∪ₗ'-cool-south (suc n) m (merid a i) = refl
+cuPind : (n m : ℕ) → (f g : coHomK (suc n) → coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (n + m))))
+  → (fl : fst (f (0ₖ _)) ≡ (λ _ → 0ₖ _))
+  → (gl : fst (g (0ₖ _)) ≡ (λ _ → 0ₖ _))
+  → (fl≡gl : {!PathP fl!})
+  → ((x : _) → fst (g x) (0ₖ _) ≡ 0ₖ _)
+  → ((x : _) → fst (f ∣ x ∣) ≡ fst (g ∣ x ∣)) → (x : _) → fst (f x) ≡ fst (g x)
+cuPind n m f g fl gl fl≡gl gid ind x = {!!} -- cong fst (help3 x) ∙ {!!}
+  where
+  f2 : coHomK (suc m) → (S₊∙ (suc n) →∙ coHomK-ptd (suc (suc (n + m))))
+  fst (f2 y) x = fst (f ∣ x ∣) y
+  snd (f2 y) = {!!}
+
+  g2 : coHomK (suc m) → (S₊∙ (suc n) →∙ coHomK-ptd (suc (suc (n + m))))
+  fst (g2 y) x = fst (g ∣ x ∣) y
+  snd (g2 y) = {!!}
+
+  g2≡f2 : (x : _) → f2 x ≡ g2 x
+  g2≡f2 = {!!}
+
+  w : (a : _) → fst (f ∣ a ∣) ≡ fst (g ∣ a ∣)
+  w = ind
+
+  f' : (x : coHomK (suc n)) → coHomK-ptd (suc m) →∙ (coHomK (suc (suc (n + m))) , fst (f x) (0ₖ _))
+  f' x = (fst (f x)) , refl -- trRec (wow (suc n) m) λ a → (fst (g ∣ a ∣)) , (funExt⁻ (sym (ind a)) (0ₖ _) ∙ snd (f ∣ a ∣))
+
+  g' : (x : coHomK (suc n)) → coHomK-ptd (suc m) →∙ (coHomK (suc (suc (n + m))) , fst (f x) (0ₖ _))
+  g' x = (fst (g x)) , snd (g x) ∙ sym (snd (f x))
+
+  g≡h2 : f' ≡ g' -- g ≡ h2
+  g≡h2 = funExt (trElim {!!} λ a → ΣPathP ((ind a) , {!!}))
+
+  t : {!!} -- (x : _) → fst (h x) ≡ fst (h2 x)
+  t x = {!!}
+
+  {-
+
+  help3 : (x : _) → f x ≡ h x
+  help3 =
+    trElim (λ _ → isOfHLevelPath (3 + n) (wow (suc n) m) _ _)
+      λ a → ΣPathP ((ind a) , (compPathL→PathP (sym (cong (sym (λ i → ind a i (snd (coHomK-ptd (suc m)))) ∙_) (rUnit (snd (f ∣ a ∣)))))))
+
+  help4 : h ≡ g
+  help4 = funExt (trElim {!!} λ a → ΣPathP (refl , {!!})) -}
 
 cup∙ : (n m : ℕ) → coHomK (suc n) → coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (n + m)))
 cup∙ n m = trRec (wow (suc n) m) (cunt n m)
@@ -801,149 +594,492 @@ rUnit-⌣  n m x = snd (cup∙ n m x)
 lUnit-⌣ : (n m : ℕ) → (x : coHomK (suc m)) → ⌣ n m (0ₖ _) x ≡ 0ₖ _
 lUnit-⌣ n m = funExt⁻ (cong fst (snd (cup∙∙ n m)))
 
-⌣-distrFun :
-  (n m : ℕ) → (x y : coHomK (suc n)) → coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (m + n)))
-fst (⌣-distrFun n m x y) z =
-  ⌣ m n z (x +ₖ y)
-snd (⌣-distrFun n m x y) =
-  lUnit-⌣ m n (x +ₖ y)
+-- →∙Homogeneous≡
 
-⌣-distrFun2 :
-  (n m : ℕ) → (x y : coHomK (suc n)) → coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (m + n)))
-fst (⌣-distrFun2 n m x y) z =
-  ⌣ m n z x +ₖ ⌣ m n z y
-snd (⌣-distrFun2 n m x y) =
-  cong₂ _+ₖ_ (lUnit-⌣ m n x) (lUnit-⌣ m n y)
+private
+  ⌣-distrFun :
+    (n m : ℕ) → (x y : coHomK (suc n))
+      → coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (m + n)))
+  fst (⌣-distrFun n m x y) z =
+    ⌣ m n z (x +ₖ y)
+  snd (⌣-distrFun n m x y) =
+    lUnit-⌣ m n (x +ₖ y)
 
-coHomK-ptIso : (n : ℕ) (x : coHomK (suc n)) → coHomK-ptd (suc n) ≡ (coHomK (suc n) , x)
-coHomK-ptIso n x =
-  Iso.fun (IsoΣPathTransportPathΣ (coHomK-ptd (suc n)) (coHomK (suc n) , x))
-          ((isoToPath (addIso (suc n) x)) , (transportRefl (0ₖ _ +ₖ x) ∙ lUnitₖ _ x))
+  ⌣-distrFun2 :
+    (n m : ℕ) → (x y : coHomK (suc n))
+      → coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (m + n)))
+  fst (⌣-distrFun2 n m x y) z =
+    ⌣ m n z x +ₖ ⌣ m n z y
+  snd (⌣-distrFun2 n m x y) =
+    cong₂ _+ₖ_ (lUnit-⌣ m n x) (lUnit-⌣ m n y)
 
-myIso : {!!}
-myIso = {!!}
+  coHomK-ptIso : (n : ℕ) (x : coHomK (suc n)) → coHomK-ptd (suc n) ≡ (coHomK (suc n) , x)
+  coHomK-ptIso n x =
+    Iso.fun (IsoΣPathTransportPathΣ (coHomK-ptd (suc n)) (coHomK (suc n) , x))
+            ((isoToPath (addIso (suc n) x)) , (transportRefl (0ₖ _ +ₖ x) ∙ lUnitₖ _ x))
 
-t : (n m : ℕ) → Iso (S₊∙ (suc n) →∙ (coHomK-ptd (suc m) →∙ coHomK-ptd (2 + (n + m)) ∙)) Int
-t zero m = {!!}
-fun (t (suc n) m) (f , p) =
-  Iso.fun (t n m)
-    ((λ x → (λ y → ΩKn+1→Kn _ (sym (funExt⁻ (cong fst p) y)
-          ∙∙ (funExt⁻ (cong fst (cong f (merid x ∙ sym (merid (ptSn _))))) y)
-          ∙∙ funExt⁻ (cong fst p) y))
-          , (cong (ΩKn+1→Kn (suc (suc (n + m)))) {!cong snd p!} ∙∙ {!funExt⁻ (λ i₁ → fst (p i₁)) (snd (coHomK-ptd (suc m)))!} ∙∙ {!funExt⁻
-       (λ i →
-          fst (f ((merid x ∙ (λ i₁ → merid (ptSn (suc n)) (~ i₁))) i)))
-       (snd (coHomK-ptd (suc m)))!}))
-          , {!!})
-inv' (t (suc n) m) = {!!}
-rightInv (t (suc n) m) = {!!}
-leftInv (t (suc n) m) = {!!}
-
-myPal : {!(n m : ℕ) !}
-myPal = {!!}
-
-distrAlt' : (n m : ℕ) (a : coHomK (suc n)) → (Σ[ f ∈ ((z : coHomK (suc m)) → (coHomK-ptd (suc n)) →∙ (coHomK (suc (suc (m + n))) , ⌣ m n z a)) ]
-                                                 (f (0ₖ _) ≡ ((λ _ → 0ₖ _) , sym (lUnit-⌣ m n a))))
-            ≡ {!!}
-distrAlt' n m a =
-     (λ i → Σ[ f ∈ ((z : coHomK (suc m)) → (coHomK-ptd (suc n)) →∙ coHomK-ptIso _ (⌣ m n z a) (~ i)) ]
-              f (0ₖ _)
-            ≡ transp (λ j → coHomK-ptd (suc n) →∙ coHomK-ptIso (1 + (m + n)) (⌣ m n (0ₖ _) a) (~ j ∨ (~ i))) (~ i)
-                     ((λ _ → 0ₖ ((2 + (m + n)))) , sym (lUnit-⌣ m n a)))
-  ∙∙ {!λ i → ?!}
-  ∙∙ {!!}
-
-
-distrAlt : (n m : ℕ) → (a : coHomK (suc n))
-        → Σ[ f ∈ ((z : coHomK (suc m)) → (coHomK-ptd (suc n)) →∙ (coHomK (suc (suc (m + n))) , ⌣ m n z a)) ]
-            f (0ₖ _) ≡ ((λ _ → 0ₖ _) , sym (lUnit-⌣ m n a))
-fst (fst (distrAlt n m a) z) b = ⌣ m n z (a +ₖ b)
-snd (fst (distrAlt n m a) z) = cong (⌣ m n z) (rUnitₖ _ a)
-snd (distrAlt n m a) = ΣPathP ((funExt (λ z → lUnit-⌣ m n (a +ₖ z))) , {!!})
-
-⌣-distr : (n m : ℕ) (x y : coHomK (suc n)) → ⌣-distrFun n m x y ≡ ⌣-distrFun2 n m x y
-⌣-distr n m =
-  elim2
-    (λ _ _ → isOfHLevelPath (3 + n) (subst (isOfHLevel (3 + n))
-                (λ i → (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (+-comm n m i))))) (wow (suc n) m)) _ _)
-    (main n m)
-  where
-  funId : (n m : ℕ) → (a b : S₊ (suc n)) →
-      fst (⌣-distrFun n m ∣ a ∣ ∣ b ∣) ≡ fst (⌣-distrFun2 n m ∣ a ∣ ∣ b ∣)
-  funId n m = {!!}
-
-  p1 : (n m : ℕ) (x : _) →
-        (fst (⌣-distrFun (suc n) m ∣ ptSn (suc (suc n)) ∣ ∣ x ∣))
-     ≡ (fst (⌣-distrFun2 (suc n) m ∣ ptSn (suc (suc n)) ∣ ∣ x ∣))
-  p1 n m x = funExt (λ z → sym (lUnitₖ _ (⌣ m (suc n) z ∣ x ∣))
-           ∙ cong (_+ₖ (⌣ m (suc n) z ∣ x ∣)) (sym (rUnit-⌣ m (suc n) z)))
-
-  p2 : (n m : ℕ) (x : _) → (fst (⌣-distrFun (suc n) m ∣ x ∣ ∣ ptSn (suc (suc n)) ∣))
-     ≡ (fst (⌣-distrFun2 (suc n) m ∣ x ∣ ∣ ptSn (suc (suc n)) ∣))
-  p2 n m x = funExt (λ z → cong (⌣ m (suc n) z) (rUnitₖ _ ∣ x ∣)
-                          ∙∙ sym (rUnitₖ _ _)
-                          ∙∙ cong (⌣ m (suc n) z ∣ x ∣ +ₖ_) (sym (rUnit-⌣ m (suc n) z)))
-
-  p2P : (n m : ℕ) (x : _) → PathP
-      (λ i →
-         p2 n m x i (snd (coHomK-ptd (suc m))) ≡
-         snd (coHomK-ptd (suc (suc (m + suc n)))))
-      (snd (⌣-distrFun (suc n) m ∣ x ∣ ∣ ptSn (suc (suc n)) ∣))
-      (snd (⌣-distrFun2 (suc n) m ∣ x ∣ ∣ ptSn (suc (suc n)) ∣))
-  p2P n zero x = flipSquare (sym (rUnit refl))
-  p2P n (suc m) x = flipSquare (sym (rUnit refl))
-
-  p1P : (n m : ℕ) (x : _) → PathP (λ i → p1 n m x i (0ₖ _) ≡ 0ₖ _)
-                                (snd (⌣-distrFun (suc n) m ∣ ptSn (suc (suc n)) ∣ ∣ x ∣))
-                                (snd (⌣-distrFun2 (suc n) m ∣ ptSn (suc (suc n)) ∣ ∣ x ∣))
-  p1P n zero x = flipSquare (sym (rUnit refl))
-  p1P n (suc m) x = flipSquare (sym (rUnit refl))
-
-  helper : (n : ℕ) (x : coHomK (suc n)) (p : 0ₖ _ ≡ x)
-        → sym (lUnitₖ _ x) ∙ cong (_+ₖ x) p ≡ sym (rUnitₖ _ x) ∙ cong (x +ₖ_) p
-  helper n x = J (λ x p → sym (lUnitₖ _ x) ∙ cong (_+ₖ x) p ≡ sym (rUnitₖ _ x) ∙ cong (x +ₖ_) p)
-                 (helper' n)
+  ⌣-distr : (n m : ℕ) (x y : coHomK (suc n)) → ⌣-distrFun n m x y ≡ ⌣-distrFun2 n m x y
+  ⌣-distr n m =
+    elim2
+      (λ _ _ → isOfHLevelPath (3 + n) (subst (isOfHLevel (3 + n))
+                  (λ i → (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (+-comm n m i))))) (wow (suc n) m)) _ _)
+      (main n m)
     where
-    helper' : (n : ℕ) → (λ i → lUnitₖ (suc n) (0ₖ (suc n)) (~ i)) ∙
-             (λ i → 0ₖ (suc n) +ₖ 0ₖ (suc n))
-             ≡
-             (λ i → rUnitₖ (suc n) (0ₖ (suc n)) (~ i)) ∙
-             (λ i → 0ₖ (suc n) +ₖ 0ₖ (suc n))
-    helper' zero = refl
-    helper' (suc n) = refl
-
-  p1≡p2 : (n m : ℕ) → p1 n m north ≡ p2 n m north
-  p1≡p2 n m i j z = helper _ (⌣ m (suc n) z ∣ north ∣) (sym (rUnit-⌣ m (suc n) z)) i j
+    hLevHelp : (n m : ℕ) (x y : _) → isOfHLevel (2 + n) (⌣-distrFun n m x y ≡ ⌣-distrFun2 n m x y)
+    hLevHelp n m x y =
+      (subst (isOfHLevel (3 + n)) (λ i → (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (+-comm n m i))))) (wow (suc n) m)) _ _
 
 
-  final : (n m : ℕ) → PathP
-      (λ i →
-         PathP
-         (λ i₁ →
-            p1≡p2 n m (~ i) i₁ (snd (coHomK-ptd (suc m))) ≡
-            snd (coHomK-ptd (suc (suc (m + suc n)))))
-         (snd
-          (⌣-distrFun (suc n) m ∣ ptSn (suc (suc n)) ∣
-           ∣ ptSn (suc (suc n)) ∣))
-         (snd
-          (⌣-distrFun2 (suc n) m ∣ ptSn (suc (suc n)) ∣
-           ∣ ptSn (suc (suc n)) ∣)))
-      (p2P n m (ptSn (suc (suc n)))) (p1P n m (ptSn (suc (suc n))))
-  final n zero i j k = {!!}
-  final n (suc m) i j k = {!!}
+    helper : (n : ℕ) (x : coHomK (suc n)) (p : 0ₖ _ ≡ x)
+          → sym (lUnitₖ _ x) ∙ cong (_+ₖ x) p ≡ sym (rUnitₖ _ x) ∙ cong (x +ₖ_) p
+    helper n x = J (λ x p → sym (lUnitₖ _ x) ∙ cong (_+ₖ x) p ≡ sym (rUnitₖ _ x) ∙ cong (x +ₖ_) p)
+                   (helper' n)
+      where
+      helper' : (n : ℕ) → (λ i → lUnitₖ (suc n) (0ₖ (suc n)) (~ i)) ∙
+               (λ i → 0ₖ (suc n) +ₖ 0ₖ (suc n))
+               ≡
+               (λ i → rUnitₖ (suc n) (0ₖ (suc n)) (~ i)) ∙
+               (λ i → 0ₖ (suc n) +ₖ 0ₖ (suc n))
+      helper' zero = refl
+      helper' (suc n) = refl
 
-  p1≡p2-refl : (n m : ℕ) → funExt⁻ (p1 n m north) (0ₖ _) ≡ funExt⁻ (p2 n m north) (0ₖ _)
-  p1≡p2-refl n zero = refl
-  p1≡p2-refl n (suc m) = refl
+    p1-S¹ : (m : ℕ) (x : _) → (fst (⌣-distrFun zero m ∣ ptSn 1 ∣ ∣ x ∣))
+                     ≡ (fst (⌣-distrFun2 zero m ∣ ptSn 1 ∣ ∣ x ∣))
+    p1-S¹ m x = funExt λ z → sym (lUnitₖ _ (⌣ m zero z ∣ x ∣))
+                    ∙ cong (_+ₖ (⌣ m zero z ∣ x ∣)) (sym (rUnit-⌣ m zero z))
 
-  main : (n m : ℕ) → (a b : S₊ (suc n)) →
-      (⌣-distrFun n m ∣ a ∣ ∣ b ∣) ≡ ⌣-distrFun2 n m ∣ a ∣ ∣ b ∣
-  main zero m = {!!}
-  main (suc n) m =
-    wedgeconFun {!!} {!!} {!!}
-      (λ x → ΣPathP (p1 n m x , p1P n m x))
-      (λ x → ΣPathP (p2 n m x , p2P n m x))
-      (cong ΣPathP (ΣPathP (sym (p1≡p2 n m) , final n m)))
+    p2-S¹ : (m : ℕ) (x : _) → (fst (⌣-distrFun zero m ∣ x ∣ (0ₖ _)))
+                     ≡ (fst (⌣-distrFun2 zero m ∣ x ∣ (0ₖ _)))
+    p2-S¹ m x = funExt (λ z → cong (⌣ m zero z) (rUnitₖ _ ∣ x ∣)
+                            ∙∙ sym (rUnitₖ _ _)
+                            ∙∙ cong (⌣ m zero z ∣ x ∣ +ₖ_) (sym (rUnit-⌣ m zero z)))
+
+    p2P-S¹ : (m : ℕ) (x : _) → PathP
+        (λ i → p2-S¹ m x i (0ₖ _) ≡ 0ₖ _)
+        (snd (⌣-distrFun zero m ∣ x ∣ (0ₖ _)))
+        (snd (⌣-distrFun2 zero m ∣ x ∣ (0ₖ _)))
+    p2P-S¹ zero x = flipSquare (sym (rUnit refl))
+    p2P-S¹ (suc m) x = flipSquare (sym (rUnit refl))
+
+    p1P-S¹ : (m : ℕ) (x : _) → PathP (λ i → p1-S¹ m x i (0ₖ _) ≡ 0ₖ _)
+                                  (snd (⌣-distrFun zero m ∣ base ∣ ∣ x ∣))
+                                  (snd (⌣-distrFun2 zero m ∣ base ∣ ∣ x ∣))
+    p1P-S¹ zero x = flipSquare (sym (rUnit refl))
+    p1P-S¹ (suc m) x = flipSquare (sym (rUnit refl))
+
+    p1≡p2-S¹ : (m : ℕ) → p1-S¹ m base ≡ p2-S¹ m base
+    p1≡p2-S¹ m i j z = helper _ (⌣ m zero z (0ₖ _)) (sym (rUnit-⌣ m zero z)) i j
+
+    p1≡p2-S¹-0-1 : funExt⁻ (cong funExt⁻ (p1≡p2-S¹ zero)) (0ₖ _) ≡ refl
+    p1≡p2-S¹-0-1 = transportRefl refl
+
+    p1≡p2-S¹-0-suc : (m : ℕ) → funExt⁻ (cong funExt⁻ (p1≡p2-S¹ (suc m))) (0ₖ _) ≡ refl
+    p1≡p2-S¹-0-suc m = transportRefl refl
+
+    final-S¹ : (m : ℕ)
+      → PathP (λ i → PathP (λ i₁ →
+              p1≡p2-S¹ m (~ i) i₁ (snd (coHomK-ptd (suc m))) ≡ 0ₖ _)
+           (snd (⌣-distrFun zero m ∣ ptSn 1 ∣ ∣ ptSn 1 ∣))
+           (snd (⌣-distrFun2 zero m ∣ ptSn 1 ∣ ∣ ptSn 1 ∣)))
+        (p2P-S¹ m (ptSn 1)) (p1P-S¹ m (ptSn 1))
+    final-S¹ zero i j k =
+      hcomp
+        (λ r → λ {(i = i0) → rUnit (λ _ → ∣ north ∣) (~ k) j
+                 ; (i = i1) → rUnit (λ _ → ∣ north ∣) (~ k) j
+                 ; (j = i0) → ∣ north ∣
+                 ; (j = i1) → ∣ north ∣
+                 ; (k = i0) → p1≡p2-S¹-0-1 (~ r) (~ i) j
+                 ; (k = i1) → ∣ north ∣})
+            (rUnit (λ _ → ∣ north ∣) (~ k) j)
+    final-S¹ (suc m) i j k =
+      hcomp
+        (λ r → λ {(i = i0) → rUnit (λ _ → ∣ north ∣) (~ k) j
+                 ; (i = i1) → rUnit (λ _ → ∣ north ∣) (~ k) j
+                 ; (j = i0) → ∣ north ∣
+                 ; (j = i1) → ∣ north ∣
+                 ; (k = i0) → p1≡p2-S¹-0-suc m (~ r) (~ i) j
+                 ; (k = i1) → ∣ north ∣})
+            (rUnit (λ _ → ∣ north ∣) (~ k) j)
+
+  ----
+    p1 : (n m : ℕ) (x : _) →
+          (fst (⌣-distrFun (suc n) m ∣ ptSn (suc (suc n)) ∣ ∣ x ∣))
+       ≡ (fst (⌣-distrFun2 (suc n) m ∣ ptSn (suc (suc n)) ∣ ∣ x ∣))
+    p1 n m x = funExt (λ z → sym (lUnitₖ _ (⌣ m (suc n) z ∣ x ∣))
+             ∙ cong (_+ₖ (⌣ m (suc n) z ∣ x ∣)) (sym (rUnit-⌣ m (suc n) z)))
+
+    p2 : (n m : ℕ) (x : _) → (fst (⌣-distrFun (suc n) m ∣ x ∣ ∣ ptSn (suc (suc n)) ∣))
+       ≡ (fst (⌣-distrFun2 (suc n) m ∣ x ∣ ∣ ptSn (suc (suc n)) ∣))
+    p2 n m x = funExt (λ z → cong (⌣ m (suc n) z) (rUnitₖ _ ∣ x ∣)
+                            ∙∙ sym (rUnitₖ _ _)
+                            ∙∙ cong (⌣ m (suc n) z ∣ x ∣ +ₖ_) (sym (rUnit-⌣ m (suc n) z)))
+
+    p2P : (n m : ℕ) (x : _) → PathP
+        (λ i → p2 n m x i (snd (coHomK-ptd (suc m))) ≡
+           snd (coHomK-ptd (suc (suc (m + suc n)))))
+        (snd (⌣-distrFun (suc n) m ∣ x ∣ ∣ ptSn (suc (suc n)) ∣))
+        (snd (⌣-distrFun2 (suc n) m ∣ x ∣ ∣ ptSn (suc (suc n)) ∣))
+    p2P n zero x = flipSquare (sym (rUnit refl))
+    p2P n (suc m) x = flipSquare (sym (rUnit refl))
+
+    p1P : (n m : ℕ) (x : _) → PathP (λ i → p1 n m x i (0ₖ _) ≡ 0ₖ _)
+                                  (snd (⌣-distrFun (suc n) m ∣ ptSn (suc (suc n)) ∣ ∣ x ∣))
+                                  (snd (⌣-distrFun2 (suc n) m ∣ ptSn (suc (suc n)) ∣ ∣ x ∣))
+    p1P n zero x = flipSquare (sym (rUnit refl))
+    p1P n (suc m) x = flipSquare (sym (rUnit refl))
+
+    p1≡p2 : (n m : ℕ) → p1 n m north ≡ p2 n m north
+    p1≡p2 n m i j z = helper _ (⌣ m (suc n) z ∣ north ∣) (sym (rUnit-⌣ m (suc n) z)) i j
+
+    p1≡p2-0-1 : (n : ℕ) → funExt⁻ (cong funExt⁻ (p1≡p2 n zero)) (0ₖ _) ≡ refl
+    p1≡p2-0-1 n = transportRefl refl
+
+    p1≡p2-0-suc : (n m : ℕ) → funExt⁻ (cong funExt⁻ (p1≡p2 n (suc m))) (0ₖ _) ≡ refl
+    p1≡p2-0-suc n m = transportRefl refl
+
+
+    final : (n m : ℕ) → PathP
+        (λ i →
+           PathP
+           (λ i₁ →
+              p1≡p2 n m (~ i) i₁ (snd (coHomK-ptd (suc m))) ≡
+              snd (coHomK-ptd (suc (suc (m + suc n)))))
+           (snd
+            (⌣-distrFun (suc n) m ∣ ptSn (suc (suc n)) ∣
+             ∣ ptSn (suc (suc n)) ∣))
+           (snd
+            (⌣-distrFun2 (suc n) m ∣ ptSn (suc (suc n)) ∣
+             ∣ ptSn (suc (suc n)) ∣)))
+        (p2P n m (ptSn (suc (suc n)))) (p1P n m (ptSn (suc (suc n))))
+    final n zero i j k =
+      comp (λ _ → coHomK (3 + n))
+        (λ r → λ {(i = i0) → rUnit (λ _ → ∣ north ∣) (~ k) j
+                 ; (i = i1) → rUnit (λ _ → ∣ north ∣) (~ k) j
+                 ; (j = i0) → ∣ north ∣
+                 ; (j = i1) → ∣ north ∣
+                 ; (k = i0) → p1≡p2-0-1 n (~ r) (~ i) j
+                 ; (k = i1) → ∣ north ∣})
+            (rUnit (λ _ → ∣ north ∣) (~ k) j)
+    final n (suc m) i j k = 
+      comp (λ _ → coHomK (3 + (m + suc n)))
+        (λ r → λ {(i = i0) → rUnit (λ _ → ∣ north ∣) (~ k) j
+                 ; (i = i1) → rUnit (λ _ → ∣ north ∣) (~ k) j
+                 ; (j = i0) → ∣ north ∣
+                 ; (j = i1) → ∣ north ∣
+                 ; (k = i0) →  p1≡p2-0-suc n m (~ r) (~ i) j
+                 ; (k = i1) → ∣ north ∣})
+            (rUnit (λ _ → ∣ north ∣) (~ k) j)
+
+    p1≡p2-refl : (n m : ℕ) → funExt⁻ (p1 n m north) (0ₖ _) ≡ funExt⁻ (p2 n m north) (0ₖ _)
+    p1≡p2-refl n zero = refl
+    p1≡p2-refl n (suc m) = refl
+
+    main : (n m : ℕ) → (a b : S₊ (suc n)) →
+        (⌣-distrFun n m ∣ a ∣ ∣ b ∣) ≡ ⌣-distrFun2 n m ∣ a ∣ ∣ b ∣
+    main zero m =
+      wedgeconFun zero zero
+        (λ a b → hLevHelp zero m ∣ a ∣ ∣ b ∣)
+        (λ x → ΣPathP (p1-S¹ m x , p1P-S¹ m x))
+        (λ x → ΣPathP ((p2-S¹ m x) , (p2P-S¹ m x)))
+        (cong ΣPathP (ΣPathP ((sym (p1≡p2-S¹ m)) , final-S¹ m)))
+    main (suc n) m =
+      wedgeconFun (suc n) (suc n)
+        (λ x y → subst (λ l → isOfHLevel l ((⌣-distrFun (suc n) m ∣ x ∣ ∣ y ∣)
+                                           ≡  ⌣-distrFun2 (suc n) m ∣ x ∣ ∣ y ∣))
+                        (cong suc (+-suc n (2 + n)))
+                        (isOfHLevelPlus {n = 3 + n} (suc n) (hLevHelp (suc n) m ∣ x ∣ ∣ y ∣)))
+        (λ x → ΣPathP (p1 n m x , p1P n m x))
+        (λ x → ΣPathP (p2 n m x , p2P n m x))
+        (cong ΣPathP (ΣPathP (sym (p1≡p2 n m) , final n m)))
+
+l-distr-⌣ : (n m : ℕ) (z : coHomK (suc n)) (x y : coHomK (suc m))
+          → ⌣ n m z (x +ₖ y) ≡ ⌣ n m z x +ₖ ⌣ n m z y
+l-distr-⌣ n m z x y = funExt⁻ (cong fst (⌣-distr m n x y)) z
+
+rUnit-⌣≡lUnit-⌣ : (n m : ℕ) → rUnit-⌣ n m (0ₖ _) ≡ lUnit-⌣ n m (0ₖ _)
+rUnit-⌣≡lUnit-⌣ zero m = refl
+rUnit-⌣≡lUnit-⌣ (suc n) m = refl
+
+hLev-pFun : (n m : ℕ) → isOfHLevel (3 + m) (coHomK-ptd (suc n) →∙ Ω (coHomK-ptd (3 + (n + m))))
+hLev-pFun n m =
+  subst (isOfHLevel (3 + m))
+        (λ i → (coHomK-ptd (suc n) →∙ (isoToPath (Iso-Kn-ΩKn+1 (2 + (n + m))) i
+                                      , transp (λ j → isoToPath (stabSpheres (suc (n + m))) (~ j ∨ i)) i refl)))
+        (subst (isOfHLevel (3 + m)) (λ i → (coHomK-ptd (suc n) →∙ coHomK-ptd (suc (suc (+-comm m n i)))))
+               (wow (suc m) n))
+
+pFun : (n m : ℕ) → coHomK (suc n) → coHomK-ptd (suc m) →∙ Ω (coHomK-ptd (3 + (n + m)))
+fst (pFun n m a) b = Kn→ΩKn+1 _ (⌣ n m a b)
+snd (pFun n m a) = cong (Kn→ΩKn+1 _) (rUnit-⌣ n m a) ∙ Kn→ΩKn+10ₖ _
+
+pFun2 : (n m : ℕ) → coHomK (suc n) → coHomK-ptd (suc m) →∙ Ω (coHomK-ptd (3 + (n + m)))
+fst (pFun2 n m a) b i = ⌣ _ m (Kn→ΩKn+1 _ a i) b
+snd (pFun2 n m a) i j = rUnit-⌣ _ m (Kn→ΩKn+1 _ a j) i
+
+pFun≡ : (n m : ℕ) → (x : coHomK (suc n)) → pFun n m x ≡ pFun2 n m x
+pFun≡ n m =
+  trElim (λ _ → isOfHLevelPath (3 + n) (subst (isOfHLevel (3 + n))
+                    (λ i → (coHomK-ptd (suc m) →∙ Ω (coHomK-ptd (3 + (+-comm m n i)))))
+                    (hLev-pFun m n)) _ _)
+         λ a → ΣPathP ((funExt (helper n m a)) , {!!})
+  where
+  pm2 : (n m : ℕ) (b : coHomK (suc m)) → S₊∙ (suc n) →∙ Ω (coHomK-ptd (3 + (n + m)))
+  fst (pm2 n m b) a i = ⌣ _ m (Kn→ΩKn+1 _ ∣ a ∣ i) b
+  snd (pm2 n m b) j i = ⌣ _ m (∣ rCancel (merid (ptSn _)) j i ∣) b
+
+  pm1 : (n m : ℕ) (b : coHomK (suc m)) → S₊∙ (suc n) →∙ Ω (coHomK-ptd (3 + (n + m)))
+  fst (pm1 n m b) a = Kn→ΩKn+1 _ (⌣ n m ∣ a ∣ b)
+  snd (pm1 zero m b) = Kn→ΩKn+10ₖ _
+  snd (pm1 (suc n) m b) = Kn→ΩKn+10ₖ _
+
+  pm1≡pm2 : (n m : ℕ) (b : coHomK (suc m)) → pm1 n m b ≡ pm2 n m b
+  pm1≡pm2 n m = trElim {!i = i0 ⊢ help4 n zero a base j k
+i = i1 ⊢ help4 n zero a base j k
+j = i0 ⊢ Kn→ΩKn+1 (suc (suc (n + zero)))
+         (⌣ n zero ∣ a ∣ ∣ loop i ∣) k
+j = i1 ⊢ ⌣ (suc n) zero (Kn→ΩKn+1 (suc n) ∣ a ∣ k) ∣ loop i ∣
+k = i0 ⊢ snd (coHomK-ptd (suc (suc (suc (n + zero)))))
+k = i1 ⊢ snd (coHomK-ptd (suc (suc (suc (n + zero)))))!} {!!}
+    where
+    help4 : (n m : ℕ) (a : S₊ (suc n)) (b : S₊ (suc m)) → Kn→ΩKn+1 _ (⌣ n m ∣ a ∣ ∣ b ∣) ≡ (λ i → ⌣ _ m (Kn→ΩKn+1 _ ∣ a ∣ i) ∣ b ∣)
+    help4 n zero a base = cong (Kn→ΩKn+1 _) (rUnit-⌣ n zero ∣ a ∣) ∙∙ Kn→ΩKn+10ₖ _ ∙∙ λ j i → rUnit-⌣ (suc n) zero (Kn→ΩKn+1 (suc n) ∣ a ∣ i) (~ j)
+    help4 zero zero base (loop i) = Kn→ΩKn+10ₖ _ ∙ λ j i → rUnit-⌣ (suc zero) zero (Kn→ΩKn+1 (suc zero) ∣ base ∣ i) (~ j)
+    help4 zero zero (loop l) (loop i) j k =
+      hcomp (λ r → λ {(i = i0) → {!!}
+                     ; (i = i1) → {!⌣ 1 zero (congFunct ∣_∣ (merid (loop l)) (sym (merid base)) (~ r) k) ∣ loop i ∣!}
+                     ; (j = i0) → Kn→ΩKn+1 (suc (suc (zero + zero))) (⌣ zero zero ∣ loop l ∣ ∣ loop i ∣) k
+                     ; (j = i1) → ⌣ 1 zero (congFunct ∣_∣ (merid (loop l)) (sym (merid base)) (~ r) k) ∣ loop i ∣
+                     ; (l = i0) → {!!}
+                     ; (l = i1) → {!!}
+                     ; (k = i0) → {!!}
+                     ; (k = i1) → {!!}})
+            {!!}
+    help4 (suc n) zero a (loop i) j k = {!!}
+    help4 n (suc m) a b = {!l = i0 ⊢ help4 zero zero base (loop i) j k
+l = i1 ⊢ help4 zero zero base (loop i) j k
+i = i0 ⊢ help4 zero zero (loop l) base j k
+i = i1 ⊢ help4 zero zero (loop l) base j k
+j = i0 ⊢ Kn→ΩKn+1 (suc (suc (zero + zero)))
+         (⌣ zero zero ∣ loop l ∣ ∣ loop i ∣) k
+j = i1 ⊢ ⌣ 1 zero (Kn→ΩKn+1 1 ∣ loop l ∣ k) ∣ loop i ∣
+k = i0 ⊢ snd (coHomK-ptd (suc (suc (suc (zero + zero)))))
+k = i1 ⊢ snd (coHomK-ptd (suc (suc (suc (zero + zero)))))!}
+
+  helper-filler : (n m : ℕ) (a : S₊ (suc n)) (b : coHomK (suc m)) (k i j : I) → coHomK (3 + (n + m))
+  helper-filler zero m a b k i j =
+    hfill
+      (λ r → λ {(i = i0) → 0ₖ _
+               ; (i = i1) → ∣ rCancel (merid north) r (~ k) ∣
+               ; (k = i0) → Kn→ΩKn+1 _ (⌣ zero m ∣ a ∣ b) i
+               ; (k = i1) → ⌣ _ m (Kn→ΩKn+1 _ ∣ a ∣ i) b})
+      (inS (⌣ 1 m ∣ compPath-filler (merid a) (sym (merid base)) k i ∣ b))
+      j
+  helper-filler (suc n) m a b k i j =
+      hfill
+      (λ r → λ {(i = i0) → 0ₖ _
+               ; (i = i1) → ∣ rCancel (merid north) r (~ k) ∣
+               ; (k = i0) → Kn→ΩKn+1 _ (⌣ (suc n) m ∣ a ∣ b) i
+               ; (k = i1) → ⌣ _ m (Kn→ΩKn+1 _ ∣ a ∣ i) b})
+      (inS (⌣ (2 + n) m ∣ compPath-filler (merid a) (sym (merid north)) k i ∣ b))
+      j
+
+  helper : (n m : ℕ) (a : _) (b : _) → Kn→ΩKn+1 _ (⌣ n m ∣ a ∣ b) ≡ λ i → ⌣ _ m (Kn→ΩKn+1 _ ∣ a ∣ i) b
+  helper zero m a b k i = helper-filler zero m a b k i i1
+  helper (suc n) m a b = -- helper-filler (suc n) m a b k i i1
+       rUnit _ ∙
+       (cong (Kn→ΩKn+1 _ (⌣ (suc n) m ∣ a ∣ b) ∙_) (cong (cong ∣_∣) (cong sym (sym (rCancel (merid north)))))
+    ∙∙ sym (congFunct (λ x → ⌣ _ m x b) (cong ∣_∣ (merid a)) (cong ∣_∣ (sym (merid north))))
+    ∙∙ cong (cong (λ x → ⌣ _ m x b)) (sym (congFunct ∣_∣ (merid a) (sym (merid north)))))
+  helper3 : ∀ {A B : Type} {x y z : A} (f : A → B) (p : x ≡ y) (q : y ≡ z)
+    → PathP (λ i → PathP (λ j → f x ≡ f (q j))
+                          (cong f p)
+                          (congFunct f p q i))
+            (λ i j → f (compPath-filler p q i j)) (compPath-filler (cong f p) (cong f q))
+  helper3 = {!!}
+  -- Coherence paths should be easy, but Agda gets cranky
+  {-
+  helper2 : (n m : ℕ) (a : _) → PathP
+      (λ i → funExt (helper n m a) i (0ₖ _) ≡ refl)
+      (snd (pFun n m ∣ a ∣ₕ)) (snd (pFun2 n m ∣ a ∣ₕ))
+  helper2 zero m a i j k = {!!}
+  helper2 (suc n) m a i j k = ?
+ 
+    hcomp
+      (λ r → λ {(i = i0) → rUnit-⌣ _ m (∣ merid a k ∣) j
+               ; (i = i1) → {!help4 r j k!}
+               ; (j = i0) → compPath-filler (rUnit _)
+                                       (cong (Kn→ΩKn+1 _ (⌣ (suc n) m ∣ a ∣ (0ₖ _)) ∙_) (cong (cong ∣_∣) (cong sym (sym (rCancel (merid north)))))
+                                    ∙∙ sym (congFunct (λ x → ⌣ _ m x (0ₖ _)) (cong ∣_∣ (merid a)) (cong ∣_∣ (sym (merid north))))
+                                    ∙∙ cong (cong (λ x → ⌣ _ m x (0ₖ _))) (sym (congFunct ∣_∣ (merid a) (sym (merid north)))))
+                                    r i k
+               ; (j = i1) → 0ₖ _
+               ; (k = i0) → 0ₖ _
+               ; (k = i1) → 0ₖ _})
+              {!!}
+    where
+    help4 : Cube (λ j k → {!rUnit (cong (rUnit-⌣ (suc (suc n)) m) (cong ∣_∣ (merid a)))!}) (λ j k → rUnit-⌣ _ m (∣ (merid a ∙ sym (merid north)) k ∣) j)
+                      (λ r k → (cong (Kn→ΩKn+1 _ (⌣ (suc n) m ∣ a ∣ (0ₖ _)) ∙_) (cong (cong ∣_∣) (cong sym (sym (rCancel (merid north)))))
+                                    ∙∙ sym (congFunct (λ x → ⌣ _ m x (0ₖ _)) (cong ∣_∣ (merid a)) (cong ∣_∣ (sym (merid north))))
+                                    ∙∙ cong (cong (λ x → ⌣ _ m x (0ₖ _))) (sym (congFunct ∣_∣ (merid a) (sym (merid north))))) r k)
+                      (λ r k → 0ₖ _)
+                      (λ r k → 0ₖ _)
+                      λ r k → 0ₖ _
+    help4 = {!!} -}
+
+s : (n m : ℕ) (a : _) (b : _) → Kn→ΩKn+1 _ (⌣ n m ∣ a ∣ ∣ b ∣) ≡ λ i → ⌣ _ m (Kn→ΩKn+1 _ ∣ a ∣ i) ∣ b ∣
+s zero m = {!!}
+s (suc n) zero a b = {!⌣  ? ∣ a ∣ ∣ b ∣!}
+s (suc n) (suc m) a b = refl -- (λ k i → ⌣ (2 + n) (suc m) ∣ merid a i ∣ ∣ b ∣)
+                     ∙∙ rUnit _
+                     ∙∙ (λ r → cong ((λ z → ⌣ (2 + n) (suc m) z ∣ b ∣)) (cong ∣_∣ (merid a)) ∙ λ i → ∣ (rCancel (merid north)) (~ r) (~ i) ∣)
+                     ∙∙ sym (congFunct ((λ z → ⌣ (2 + n) (suc m) z ∣ b ∣)) (cong ∣_∣ (merid a)) (cong ∣_∣ (sym (merid (ptSn _)))))
+                     ∙∙ cong (cong (λ z → ⌣ (2 + n) (suc m) z ∣ b ∣)) λ k i → cong-∙ ∣_∣ (merid a) (sym (merid (ptSn _))) (~ k) i
+
+assocer : (n m k : ℕ) → coHomK (suc n)
+  →  coHomK-ptd (suc m)
+  →∙ (coHomK-ptd (suc k)
+  →∙ coHomK-ptd (2 + (n + (1 + (m + k)))) ∙) -- x ⌣ (y ⌣ z)
+fst (fst (assocer n m k x) y) z = ⌣ n (suc (m + k)) x (⌣ m k y z)
+snd (fst (assocer n m k x) y) = cong (⌣ n (suc (m + k)) x) (rUnit-⌣ m k y) ∙ rUnit-⌣ n (suc (m + k)) x
+snd (assocer n m k x) =
+  ΣPathP ((funExt (λ z → cong (⌣ n (suc (m + k)) x) (lUnit-⌣ m k z)
+                         ∙ rUnit-⌣ n (suc (m + k)) x))
+        , helper n m x)
+  where
+  helper : (n m : _) (x : _) →
+           PathP (λ i → funExt (λ z → (λ i₁ → ⌣ n (suc (m + k)) x (lUnit-⌣ m k z i₁))
+                       ∙ rUnit-⌣ n (suc (m + k)) x) i (0ₖ _) ≡ 0ₖ _)
+      ((λ i → ⌣ n (suc (m + k)) x (rUnit-⌣ m k (0ₖ _) i)) ∙ rUnit-⌣ n (suc (m + k)) x)
+      refl
+  helper zero zero x i j = lUnit (rUnit-⌣ zero (suc (zero + k)) x) (~ i ∨ ~ j) (i ∨ j)
+  helper zero (suc m) x i j = lUnit (rUnit-⌣ zero (suc (suc m + k)) x) (~ i ∨ ~ j) (i ∨ j)
+  helper (suc n) zero x i j = lUnit (rUnit-⌣ (suc n) (suc (zero + k)) x) (~ i ∨ ~ j) (i ∨ j)
+  helper (suc n) (suc m) x i j = lUnit (rUnit-⌣ (suc n) (suc ((suc m) + k)) x) (~ i ∨ ~ j) (i ∨ j)
+
+assoc2-sub : (n m k : ℕ) → _ → _
+assoc2-sub n m k = subst coHomK (cong (2 +_) (cong suc (sym (+-assoc n m k)) ∙ sym (+-suc n (m + k))))
+
+assoc2-sub-0 : (m k : ℕ) → assoc2-sub 0 m k ≡ idfun _
+assoc2-sub-0 m k i x =
+  transp (λ j → coHomK
+    (isSetℕ _ _ (cong (2 +_) (cong suc (sym (+-assoc zero m k))
+                             ∙ sym (+-suc zero (m + k)))) refl i j)) i x
+
+assocer2' : (n m k : ℕ)
+         → coHomK (suc n)
+         → coHomK-ptd (suc m) →∙ (coHomK-ptd (suc k) →∙ coHomK-ptd (3 + (n + m + k)) ∙)
+fst (fst (assocer2' n m k x) y) z = ⌣ _ k (⌣ n m x y) z
+snd (fst (assocer2' n m k x) y) = rUnit-⌣ _ k (⌣ n m x y)
+snd (assocer2' n m k x) =
+  ΣPathP (funExt (λ z → (cong (λ w → ⌣ _ k w z) (rUnit-⌣ n m x) ∙ lUnit-⌣ _ k z))
+       , helper n x)
+    where
+    helper : (n : ℕ) (x : _)
+      → PathP (λ i → funExt (λ z i₁ → (((λ i₂ → ⌣ (suc (n + m)) k (rUnit-⌣ n m x i₂) z)
+                ∙ lUnit-⌣ (suc (n + m)) k z) i₁)) i (0ₖ _) ≡ 0ₖ _)
+        (λ i → (rUnit-⌣ (suc (n + m)) k (⌣ n m x (snd (coHomK-ptd (suc m)))) i))
+        refl
+    helper zero x i j =
+        (hcomp (λ r → λ {(i = i0) → rUnit-⌣ (suc (zero + m)) k (⌣ zero m x (0ₖ _)) j
+                        ; (i = i1) → 0ₖ _
+                        ; (j = i1) → 0ₖ _})
+               (rUnit-⌣ (suc (zero + m)) k (rUnit-⌣ zero m x i) j))
+    helper (suc n) x i j =
+        (hcomp (λ r → λ {(i = i0) → rUnit-⌣ (suc ((suc n) + m)) k (⌣ (suc n) m x (0ₖ _)) j
+                        ; (i = i1) → 0ₖ _
+                        ; (j = i1) → 0ₖ _})
+               (rUnit-⌣ (suc ((suc n) + m)) k (rUnit-⌣ (suc n) m x i) j))
+{-
+assoc-⌣' : (n m k : ℕ) → (x : coHomK (suc n))
+         → PathP (λ i → coHomK-ptd (suc m) →∙ (coHomK-ptd (suc k) →∙ coHomK-ptd (2 + (+-suc n (m + k) ∙ cong suc (+-assoc n m k)) i) ∙))
+                  (assocer n m k x)
+                  (assocer2' n m k x)
+assoc-⌣' n m k = trElim {!!} ?
+  where
+  assocMain : (n m k : ℕ) → (x : coHomK (suc n))
+               → PathP (λ i → coHomK-ptd (suc m) →∙ (coHomK-ptd (suc k) →∙ coHomK-ptd (2 + (+-suc n (m + k) ∙ cong suc (+-assoc n m k)) i) ∙))
+                  (assocer n m k x)
+                  (assocer2' n m k x)
+  assocMain n m k = ?
+-}
+
+assocer2 : (n m k : ℕ)
+         → coHomK (suc n)
+         → coHomK-ptd (suc m) →∙ (coHomK-ptd (suc k) →∙ coHomK-ptd (2 + (n + (1 + (m + k)))) ∙) -- (x ⌣ y) ⌣ z
+fst (fst (assocer2 n m k x) y) z = (assoc2-sub n m k) (⌣ _ k (⌣ n m x y) z)
+snd (fst (assocer2 n m k x) y) =
+  cong (assoc2-sub n m k) (rUnit-⌣ _ k (⌣ n m x y))
+snd (assocer2 n m k x) =
+  ΣPathP (funExt (λ z → cong (assoc2-sub n m k) (cong (λ w → ⌣ _ k w z) (rUnit-⌣ n m x) ∙ lUnit-⌣ _ k z))
+       , helper n x)
+  where
+  helper : (n : ℕ) (x : _)
+    → PathP (λ i → funExt (λ z i₁ → assoc2-sub n m k (((λ i₂ → ⌣ (suc (n + m)) k (rUnit-⌣ n m x i₂) z)
+              ∙ lUnit-⌣ (suc (n + m)) k z) i₁)) i (0ₖ _) ≡ 0ₖ _)
+      (λ i → assoc2-sub n m k (rUnit-⌣ (suc (n + m)) k (⌣ n m x (snd (coHomK-ptd (suc m)))) i))
+      refl
+  helper zero x i j =
+    assoc2-sub zero m k
+      (hcomp (λ r → λ {(i = i0) → rUnit-⌣ (suc (zero + m)) k (⌣ zero m x (0ₖ _)) j
+                      ; (i = i1) → 0ₖ _
+                      ; (j = i1) → 0ₖ _})
+             (rUnit-⌣ (suc (zero + m)) k (rUnit-⌣ zero m x i) j))
+  helper (suc n) x i j =
+    assoc2-sub (suc n) m k
+      (hcomp (λ r → λ {(i = i0) → rUnit-⌣ (suc ((suc n) + m)) k (⌣ (suc n) m x (0ₖ _)) j
+                      ; (i = i1) → 0ₖ _
+                      ; (j = i1) → 0ₖ _})
+             (rUnit-⌣ (suc ((suc n) + m)) k (rUnit-⌣ (suc n) m x i) j))
+
+open import Cubical.Foundations.Pointed.Homogeneous
+
+assoc-⌣ : (n m k : ℕ) → (x : coHomK (suc n)) → assocer n m k x ≡ assocer2 n m k x 
+assoc-⌣ n m k =
+  trElim {!!} {!!}
+    where
+    funId : (n m k : ℕ) (a : S₊ (suc n)) (b : _) (c : _) → fst (fst (assocer n m k ∣ a ∣) b) c ≡ fst (fst (assocer2 n m k ∣ a ∣) b) c
+    funId zero m k a b c = w a b c ∙ sym (funExt⁻ (assoc2-sub-0 m k) _) -- sym (funExt⁻ (assoc2-sub-0 zero zero) _)
+      where
+      w : (a : S¹) (b : _) (c : _) → ⌣ zero _ ∣ a ∣ (⌣ _ _ b c) ≡ ⌣ _ _ (⌣ _ _ ∣ a ∣ b) c
+      w base b c = refl
+      w (loop i) b c l = fst (pFun≡ m k b l) c i
+    funId (suc n) m k north b c = refl
+    funId (suc n) m k south b c = refl
+    funId (suc n) m k (merid a i) b c j = help2 j i
+      where
+      assoc-mainLem : (n m : ℕ) (a : _) (b : _) → Kn→ΩKn+1 _ (⌣ n m a b) ≡ λ i → ⌣ _ m (Kn→ΩKn+1 _ a i) b
+      assoc-mainLem n m a b = funExt⁻ (cong fst (pFun≡ n m a)) b
+      
+      subAssoc : subst coHomK (cong (3 +_) (cong suc (sym (+-assoc n m k)) ∙ sym (+-suc n (m + k)))) ≡ assoc2-sub (suc n) m k
+      subAssoc = cong (subst coHomK) (isSetℕ _ _ _ _)
+
+      subAssoc0 : funExt⁻ subAssoc (0ₖ _) ≡ refl
+      subAssoc0 i j = {!!}
+
+      help2 : cong (λ x → ⌣ _ _ ∣ x ∣ (⌣ m k b c)) (merid a) ≡ cong (assoc2-sub (suc n) m k) (cong (λ x → ⌣ _ k (⌣ _ _ ∣ x ∣ b) c) (merid a))
+      help2 = (λ r → Kn→ΩKn+1 _ (funId n m k a b c r))
+            ∙∙ {!!}
+            ∙∙ cong (cong (assoc2-sub (suc n) m k))
+                    (assoc-mainLem _ _ ((⌣ n m ∣ a ∣ b)) c)
+      {- (λ _ → Kn→ΩKn+1 _ (⌣ _ _ ∣ a ∣ (⌣ m k b c)))
+           ∙∙ (λ r → Kn→ΩKn+1 _ (funId n m k a b c r))
+           ∙∙ (λ r i → transp (λ i → coHomK ((cong (3 +_) (cong suc (sym (+-assoc n m k)) ∙ sym (+-suc n (m + k)))) (i ∨ ~ r))) (~ r)
+                     ((Kn→ΩKn+1
+                      ((cong (2 +_) (cong suc (sym (+-assoc n m k)) ∙ sym (+-suc n (m + k)))) (~ r))
+                      (transp (λ i → coHomK ((cong (2 +_) (cong suc (sym (+-assoc n m k)) ∙ sym (+-suc n (m + k))))
+                      (i ∧ ~ r)))
+                      r
+                      (⌣ _ k (⌣ _ _ ∣ a ∣ b) c))) i))
+           ∙∙ rUnit _
+           ∙∙ (λ r → (λ i → subAssoc (i ∧ r) (0ₖ _))
+                   ∙∙ cong (subAssoc r) (Kn→ΩKn+1 _ (⌣ _ k (⌣ _ _ ∣ a ∣ b) c))
+                   ∙∙ λ i → subAssoc (~ i ∧ r) (0ₖ _))
+           ∙∙ ((λ r → subAssoc0 r
+                   ∙∙ cong (assoc2-sub (suc n) m k) (Kn→ΩKn+1 _ (⌣ _ k (⌣ _ _ ∣ a ∣ b) c))
+                   ∙∙ cong sym (subAssoc0) r))
+           ∙∙ sym (rUnit (cong (assoc2-sub (suc n) m k) (Kn→ΩKn+1 _ (⌣ _ k (⌣ _ _ ∣ a ∣ b) c))))
+           ∙∙ cong (cong (assoc2-sub (suc n) m k)) (assoc-mainLem _ _ ((⌣ n m ∣ a ∣ b)) c)
+           ∙∙ λ _ i → assoc2-sub (suc n) m k (⌣ _ k (Kn→ΩKn+1 _ (⌣ _ _ ∣ a ∣ b) i) c) -}
 
 anti-commer : (n m : ℕ) → coHomK (suc n) → coHomK (suc m) → coHomK (suc (suc (n + m)))
 anti-commer n m x y =

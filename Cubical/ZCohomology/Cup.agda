@@ -39,118 +39,6 @@ private
   variable
     ℓ ℓ' : Level
 
-isOfHLevelΩ→isOfHLevel :
-  ∀ {ℓ} {A : Type ℓ} (n : ℕ)
-  → ((x : A) → isOfHLevel (suc n) (x ≡ x)) → isOfHLevel (2 + n) A
-isOfHLevelΩ→isOfHLevel zero hΩ x y =
-  J (λ y p → (q : x ≡ y) → p ≡ q) (hΩ x refl)
-isOfHLevelΩ→isOfHLevel (suc n) hΩ x y =
-  J (λ y p → (q : x ≡ y) → isOfHLevel (suc n) (p ≡ q)) (hΩ x refl)
-
-contrMin : (n : ℕ) → isContr (coHomK-ptd (suc n) →∙ coHomK-ptd n)
-fst (contrMin zero) = (λ _ → 0) , refl
-snd (contrMin zero) (f , p) =
-  Σ≡Prop (λ f → isSetInt _ _)
-         (funExt (trElim (λ _ → isOfHLevelPath 3 (isOfHLevelSuc 2 isSetInt) _ _)
-                 (toPropElim (λ _ → isSetInt _ _) (sym p))))
-fst (contrMin (suc n)) = (λ _ → 0ₖ _) , refl
-snd (contrMin (suc n)) f =
-  ΣPathP ((funExt (trElim (λ _ → isOfHLevelPath (4 + n) (isOfHLevelSuc (3 + n) (isOfHLevelTrunc (3 + n))) _ _)
-         (sphereElim _ (λ _ → isOfHLevelTrunc (3 + n) _ _) (sym (snd f))))) ,
-         λ i j → snd f (~ i ∨ j))
-
-contrMin2 : (n : ℕ) → isContr (S₊∙ (suc n) →∙ coHomK-ptd n)
-fst (contrMin2 zero) = (λ _ → 0) , refl
-snd (contrMin2 zero) (f , p) =
-  Σ≡Prop (λ f → isSetInt _ _)
-         (funExt (toPropElim (λ _ → isSetInt _ _) (sym p)))
-fst (contrMin2 (suc n)) = (λ _ → 0ₖ _) , refl
-snd (contrMin2 (suc n)) (f , p) =
-  ΣPathP ((funExt (sphereElim _ (λ _ → isOfHLevelTrunc (3 + n) _ _) (sym p)))
-  , λ i j → p (~ i ∨ j))
-
-ΩfunExtIso : (A B : Pointed₀) → Iso (typ (Ω (A →∙ B ∙))) (A →∙ Ω B)
-fst (fun (ΩfunExtIso A B) p) x = funExt⁻ (cong fst p) x
-snd (fun (ΩfunExtIso A B) p) i j = snd (p j) i
-fst (inv' (ΩfunExtIso A B) (f , p) i) x = f x i
-snd (inv' (ΩfunExtIso A B) (f , p) i) j = p j i
-fst (rightInv (ΩfunExtIso A B) (f , p) i) x = f x
-snd (rightInv (ΩfunExtIso A B) (f , p) i) j = p j
-fst (leftInv (ΩfunExtIso A B) p i j) y = fst (p j) y
-snd (leftInv (ΩfunExtIso A B) p i j) k = snd (p j) k
-
-open import Cubical.Foundations.Univalence
-pointedEquiv→Path : {A B : Pointed₀} (e : fst A ≃ fst B) → fst e (snd A) ≡ snd B → A ≡ B
-fst (pointedEquiv→Path e p i) = ua e i
-snd (pointedEquiv→Path {A = A} e p i) = hcomp (λ k → λ {(i = i0) → snd A ; (i = i1) → (transportRefl (fst e (snd A)) ∙ p) k}) (transp (λ j → ua e (i ∧ j)) (~ i) (snd A))
-
-ind₂ : {A : Pointed₀} (n : ℕ) → Iso (A →∙ Ω (coHomK-ptd (suc n))) (typ (Ω (A →∙ coHomK-ptd (suc n) ∙)))
-fst (fun (ind₂ n) (f , p) i) x = f x i
-snd (fun (ind₂ n) (f , p) i) j = p j i
-fst (inv' (ind₂ n) p) x = funExt⁻ (cong fst p) x
-snd (inv' (ind₂ n) p) i j = snd (p j) i
-rightInv (ind₂ n) p = refl
-leftInv (ind₂ n) (f , p) = refl
-
-taha : {A : Pointed₀} (n : ℕ) (f : A →∙ coHomK-ptd (suc n)) → Iso (typ A → coHomK (suc n)) (typ A → coHomK (suc n))
-fun (taha n (f , p)) g a = g a +ₖ f a
-inv' (taha n (f , p)) g a = g a -ₖ f a
-rightInv (taha n (f , p)) g =
-  funExt λ x → sym (assocₖ (suc n) (g x) (-ₖ (f x)) (f x)) ∙∙ cong (g x +ₖ_) (lCancelₖ (suc n) (f x)) ∙∙ rUnitₖ (suc n) (g x)
-leftInv (taha n (f , p)) g =
-  funExt λ x → sym (assocₖ (suc n) (g x) (f x) (-ₖ (f x))) ∙∙ cong (g x +ₖ_) (rCancelₖ (suc n) (f x)) ∙∙ rUnitₖ (suc n) (g x)
-
-
-ind₁ : {A : Pointed₀} (n : ℕ) (f : A →∙ coHomK-ptd (suc n)) → (A →∙ coHomK-ptd (suc n) ∙) ≡ ((A →∙ coHomK-ptd (suc n) , f))
-ind₁ {A  = A} n (f , p) = pointedEquiv→Path (Σ-cong-equiv (isoToEquiv (taha n (f , p))) λ g → pathToEquiv λ i → (cong ((g (snd A)) +ₖ_) p ∙ rUnitₖ (suc n) (g (snd A))) (~ i) ≡ 0ₖ (suc n))
-                          (ΣPathP ((funExt (λ x → lUnitₖ (suc n) (f x)))
-                          , (toPathP ((λ j → transp (λ i → lUnitₖ (suc n) (f (snd A)) i ≡ ∣ ptSn (suc n) ∣) i0
-                                                   (transp
-                                                    (λ i →
-                                                       hcomp
-                                                       (doubleComp-faces (λ _ → ∣ ptSn (suc n) ∣ +ₖ f (snd A))
-                                                        (rUnitₖ (suc n) ∣ ptSn (suc n) ∣) (~ i ∧ ~ j))
-                                                       (∣ ptSn (suc n) ∣ +ₖ p (~ i ∧ ~ j))
-                                                       ≡ ∣ ptSn (suc n) ∣)
-                                                    j λ i → hcomp
-                                                       (doubleComp-faces (λ _ → ∣ ptSn (suc n) ∣ +ₖ f (snd A))
-                                                        (rUnitₖ (suc n) ∣ ptSn (suc n) ∣) (i ∨ ~ j))
-                                                       (∣ ptSn (suc n) ∣ +ₖ p (i ∨ ~ j))))
-                                                    ∙∙ (λ j → transp (λ i → lUnitₖ (suc n) (f (snd A)) (i ∨ j) ≡ ∣ ptSn (suc n) ∣) j
-                                                                      ((λ i → lUnitₖ (suc n) (f (snd A)) (~ i ∧ j)) ∙∙ (λ i → ∣ ptSn (suc n) ∣ +ₖ p i) ∙∙ (rUnitₖ (suc n) ∣ ptSn (suc n) ∣)))
-                                                    ∙∙ helper n (f (snd A)) (sym p)))))
-  where
-  helper : (n : ℕ) (x : coHomK (suc n)) (p : 0ₖ (suc n) ≡ x) → (sym (lUnitₖ (suc n) x) ∙∙ cong (0ₖ (suc n) +ₖ_) (sym p) ∙∙ rUnitₖ (suc n) (0ₖ _)) ≡ sym p
-  helper zero x =
-    J (λ x p → (sym (lUnitₖ 1 x) ∙∙ cong (0ₖ 1 +ₖ_) (sym p) ∙∙ rUnitₖ 1 (0ₖ _)) ≡ sym p)
-      (sym (rUnit refl))
-  helper (suc n) x =
-    J (λ x p → (sym (lUnitₖ (suc (suc n)) x) ∙∙ cong (0ₖ (suc (suc n)) +ₖ_) (sym p) ∙∙ rUnitₖ (suc (suc n)) (0ₖ _)) ≡ sym p)
-      (sym (rUnit refl))
-
-
-hlevStep₁ : {A : Pointed₀} (n m : ℕ) → isOfHLevel (suc m) (typ (Ω (A →∙ coHomK-ptd (suc n) ∙)))
-                                    → isOfHLevel (suc (suc m)) (A →∙ coHomK-ptd (suc n))
-hlevStep₁ n m hlev =
-  isOfHLevelΩ→isOfHLevel m λ f → subst (λ x → isOfHLevel (suc m) (typ (Ω x))) (ind₁ n f) hlev
-  
-hlevStep₂ : {A : Pointed₀} (n m : ℕ) → isOfHLevel (suc m) (A →∙ Ω (coHomK-ptd (suc n))) → isOfHLevel (suc m) (typ (Ω (A →∙ coHomK-ptd (suc n) ∙)))
-hlevStep₂ n m hlev = isOfHLevelRetractFromIso (suc m) (invIso (ind₂ n)) hlev
-
-hlevStep₃ :  {A : Pointed₀} (n m : ℕ) → isOfHLevel (suc m) (A →∙ coHomK-ptd n) → isOfHLevel (suc m) (A →∙ Ω (coHomK-ptd (suc n)))
-hlevStep₃ {A = A} n m hlev = subst (isOfHLevel (suc m)) (λ i → A →∙ pointedEquiv→Path {A = Ω (coHomK-ptd (suc n))} {B = coHomK-ptd n} (invEquiv Kn≃ΩKn+1) (ΩKn+1→Kn-refl n) (~ i)) hlev
-
-hlevTotal : {A : Pointed₀} (n m : ℕ) → isOfHLevel (suc m) (A →∙ coHomK-ptd n) → isOfHLevel (suc (suc m)) (A →∙ coHomK-ptd (suc n))
-hlevTotal n m hlev = hlevStep₁ n m (hlevStep₂ n m (hlevStep₃ n m hlev))
-
-wow : ∀ n m → isOfHLevel (2 + n) (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (n + m)))
-wow zero m = hlevTotal m 0 (isContr→isProp (contrMin m))
-wow (suc n) m = hlevTotal (suc (n + m)) (suc n) (wow n m)
-
-wow2 : ∀ n m → isOfHLevel (2 + n) (S₊∙ (suc m) →∙ coHomK-ptd (suc (n + m)))
-wow2 zero m = hlevTotal m 0 (isContr→isProp (contrMin2 m))
-wow2 (suc n) m = hlevTotal (suc (n + m)) (suc n) (wow2 n m)
-
 isOfHLevel→∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) → isOfHLevel n (fst B) → isOfHLevel n (A →∙ B)
 isOfHLevel→∙ n hlev = isOfHLevelΣ n (isOfHLevelΠ n (λ _ → hlev)) λ x → isOfHLevelPath n hlev _ _
 
@@ -333,7 +221,7 @@ prop-help (suc (suc m)) = prop-help m
 ∪ : {n m : ℕ} → coHomK (suc n) → coHomK-ptd (suc m) →∙ coHomK-ptd (suc n + suc m)
 ∪ {n = n} {m = m} = trRec (subst (isOfHLevel (3 + n))
                                  (λ i → (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (+-suc n m (~ i)))))
-                                 (wow (suc n) m))
+                                 (isOfHLevel↑∙ (suc n) m))
                           (main n m)
   where
   ptHelp : (n m : ℕ) (y : _) → ∪-help n m (snd (S₊∙ (suc n))) y ≡ 0ₖ _
@@ -345,7 +233,7 @@ prop-help (suc (suc m)) = prop-help m
   
   ∪fst : (n m : ℕ) → coHomK (suc m) → (S₊∙ (suc n) →∙ coHomK-ptd (suc (n + suc m)))
   ∪fst n m = trRec ((subst (isOfHLevel (3 + m)) (cong (λ x → S₊∙ (suc n) →∙ coHomK-ptd (suc x)) (cong suc (+-comm m n) ∙ sym (+-suc n m)))
-                                 (wow2 (suc m) n))) λ y → (λ x → ∪-help n m x y) , ptHelp n m y
+                                 (isOfHLevel↑∙' (suc m) n))) λ y → (λ x → ∪-help n m x y) , ptHelp n m y
 
   main : (n m : ℕ) →  S₊ (suc n) → coHomK-ptd (suc m) →∙ coHomK-ptd (suc (n + suc m))
   fst (main n m x) y = fst (∪fst n m y) x
@@ -773,7 +661,7 @@ miner≡minus {k = k} n m p q = {!!}
 ∪ₗ'-cool-south (suc n) m (merid a i) = refl
 
 cup∙ : (n m : ℕ) → coHomK (suc n) → coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (n + m)))
-cup∙ n m = trRec (wow (suc n) m)
+cup∙ n m = trRec (isOfHLevel↑∙ (suc n) m)
                  (sndP n m)
      where
 
@@ -994,7 +882,7 @@ anti-comm-main (suc n) zero a b = {!!}
 anti-comm-main (suc n) (suc m) a b = {!!}
 
 anti-comm : (n m : ℕ) → cup∙ n m ≡ anti-commer∙ n m
-anti-comm n m = funExt (trElim (λ _ → isOfHLevelPath (3 + n) (wow (suc n) m) _ _)
+anti-comm n m = funExt (trElim (λ _ → isOfHLevelPath (3 + n) (isOfHLevel↑∙ (suc n) m) _ _)
                        {!!})
   where
   firstInd : (n : ℕ) → (a : S₊ (suc n)) → cup∙ n m ∣ a ∣ ≡ anti-commer∙ n m ∣ a ∣
@@ -1019,7 +907,7 @@ anti-comm n m = funExt (trElim (λ _ → isOfHLevelPath (3 + n) (wow (suc n) m) 
     trElim (λ _ → isOfHLevelPath (3 + m)
               (subst (isOfHLevel (3 + m))
                 (λ i → (S₊∙ (suc n) →∙ coHomK-ptd (suc (suc (+-comm m n i)))))
-                  (wow2 (suc m) n)) _ _)
+                  (isOfHLevel↑∙' (suc m) n)) _ _)
            λ b → funExt∙ ((λ a → main n m a b)
                , {!!})
     where
@@ -2987,7 +2875,7 @@ anti-comm n m = funExt (trElim (λ _ → isOfHLevelPath (3 + n) (wow (suc n) m) 
 -- -- -- -- -- -- --         ((λ y → ^ₖ y x) , refl)
 -- -- -- -- -- -- -- ⌣ₖ' (suc n) (suc m) =
 -- -- -- -- -- -- --   trRec (subst (isOfHLevel (3 + n))
--- -- -- -- -- -- --             (λ i → (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (+-suc n m (~ i))))) (wow (suc n) m))
+-- -- -- -- -- -- --             (λ i → (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (+-suc n m (~ i))))) (isOfHLevel↑∙ (suc n) m))
 -- -- -- -- -- -- --     (k n m)
 -- -- -- -- -- -- -- _⌣ₖ_ : {n m : ℕ} → coHomK n → coHomK m → coHomK (n + m)
 -- -- -- -- -- -- -- _⌣ₖ_ {n = n} {m = m} x = fst (⌣ₖ' n m x)
@@ -3009,7 +2897,7 @@ anti-comm n m = funExt (trElim (λ _ → isOfHLevelPath (3 + n) (wow (suc n) m) 
 -- -- -- -- -- -- --   help n zero p = ⊥-rec (snotz p)
 -- -- -- -- -- -- --   help n (suc m) p = ⊥-rec (snotz p)
 -- -- -- -- -- -- -- ⌣2 (suc n) (suc m) (inl x) = trRec (subst (isOfHLevel (3 + n))
--- -- -- -- -- -- --             (λ i → (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (+-suc n m (~ i))))) (wow (suc n) m))
+-- -- -- -- -- -- --             (λ i → (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (+-suc n m (~ i))))) (isOfHLevel↑∙ (suc n) m))
 -- -- -- -- -- -- --     (k n m)
 -- -- -- -- -- -- -- ⌣2 zero m (inr x) y = (λ z → fst (⌣2 zero m (inl (m , +-comm m zero)) y) z) , {!!}
 -- -- -- -- -- -- -- ⌣2 (suc n) m (inr x) y = {!!}
@@ -3155,11 +3043,11 @@ anti-comm n m = funExt (trElim (λ _ → isOfHLevelPath (3 + n) (wow (suc n) m) 
 -- -- -- -- -- -- -- -- sisi (suc n) (suc m) = {!!}
 
 
--- -- -- -- -- -- -- -- wowzie : (n m : ℕ) → (x : S₊ (suc n)) → (y : S₊ (suc m)) → fst (⌣ₖ' (suc n) (suc m) ∣ x ∣) ∣ y ∣ ≡ -ₖ̂_ ((suc n) · (suc m)) (subst (coHomK) (+-comm (suc m) (suc n)) (fst (⌣ₖ' (suc m) (suc n) ∣ y ∣) ∣ x ∣))
--- -- -- -- -- -- -- -- wowzie zero zero x y = {!!}
--- -- -- -- -- -- -- -- wowzie zero (suc zero) = {!!}
--- -- -- -- -- -- -- -- wowzie zero (suc (suc m)) x y = {!!}
--- -- -- -- -- -- -- -- wowzie (suc n) m x y = {!!}
+-- -- -- -- -- -- -- -- isOfHLevel↑∙zie : (n m : ℕ) → (x : S₊ (suc n)) → (y : S₊ (suc m)) → fst (⌣ₖ' (suc n) (suc m) ∣ x ∣) ∣ y ∣ ≡ -ₖ̂_ ((suc n) · (suc m)) (subst (coHomK) (+-comm (suc m) (suc n)) (fst (⌣ₖ' (suc m) (suc n) ∣ y ∣) ∣ x ∣))
+-- -- -- -- -- -- -- -- isOfHLevel↑∙zie zero zero x y = {!!}
+-- -- -- -- -- -- -- -- isOfHLevel↑∙zie zero (suc zero) = {!!}
+-- -- -- -- -- -- -- -- isOfHLevel↑∙zie zero (suc (suc m)) x y = {!!}
+-- -- -- -- -- -- -- -- isOfHLevel↑∙zie (suc n) m x y = {!!}
 
 -- -- -- -- -- -- -- -- ptpt : (n m : ℕ) → (x : coHomK n) → (-ₖ̂ (n · m)) (subst coHomK (+-comm m n) (fst (⌣ₖ' m n (snd (coHomK-ptd m))) x)) ≡ 0ₖ _
 -- -- -- -- -- -- -- -- ptpt zero zero x = transportRefl (x ℤ∙ 0) ∙ ∙-comm x 0
@@ -3267,7 +3155,7 @@ anti-comm n m = funExt (trElim (λ _ → isOfHLevelPath (3 + n) (wow (suc n) m) 
 -- -- -- -- -- -- -- -- -- ⌣ₖ∙ (suc n) zero = {!!}
 -- -- -- -- -- -- -- -- -- ⌣ₖ∙ (suc zero) (suc m) = {!!}
 -- -- -- -- -- -- -- -- -- ⌣ₖ∙ (suc (suc n)) (suc zero) = {!!}
--- -- -- -- -- -- -- -- -- ⌣ₖ∙ (suc (suc n)) (suc (suc m)) = trRec {!wow (suc n) (suc m)!} {!!}
+-- -- -- -- -- -- -- -- -- ⌣ₖ∙ (suc (suc n)) (suc (suc m)) = trRec {!isOfHLevel↑∙ (suc n) (suc m)!} {!!}
 -- -- -- -- -- -- -- -- --   where
 -- -- -- -- -- -- -- -- --   helpME! : Susp (S₊ (suc n)) →
 -- -- -- -- -- -- -- -- --       coHomK (suc m) → coHomK (suc (suc (n + (suc m))))
