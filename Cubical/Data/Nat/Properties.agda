@@ -174,8 +174,8 @@ _! : ℕ → ℕ
 zero ! = 1
 suc n ! = (suc n) · (n !)
 
--- binomial coefficient:
-_C_ : ℕ → ℕ → ℕ
-n C zero = 1
-zero C suc k = 0
-suc n C suc k = n C (suc k) + (suc n) C k
+--binomial coefficient:
+_choose_ : ℕ → ℕ → ℕ
+n choose zero = 1
+zero choose suc k = 0
+suc n choose suc k = n choose (suc k) + (suc n) choose k

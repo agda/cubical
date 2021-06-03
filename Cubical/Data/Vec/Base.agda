@@ -10,7 +10,7 @@ open import Cubical.Data.FinData
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
 
     A : Type ℓ
 
@@ -40,6 +40,16 @@ replicate : ∀ {n} {A : Type ℓ} → A → Vec A n
 replicate {n = zero}  x = []
 replicate {n = suc n} x = x ∷ replicate x
 
+zipWith : ∀ {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {n : ℕ}
+        → (A → B → C) → Vec A n → Vec B n → Vec C n
+zipWith {n = zero} _∗_ [] [] = []
+zipWith {n = suc n} _∗_ (x ∷ xs) (y ∷ ys) = (x ∗ y) ∷ zipWith _∗_ xs ys
+
+foldr : ∀ {A : Type ℓ} {n : ℕ}
+      → (A → A → A) → A → Vec A n → A
+foldr {n = zero} _∗_ x [] = x
+foldr {n = suc n} _∗_ x (y ∷ xs) = y ∗ (foldr _∗_ x xs)
+
 -- Concatenation
 
 infixr 5 _++_
@@ -55,3 +65,31 @@ concat (xs ∷ xss) = xs ++ concat xss
 lookup : ∀ {n} {A : Type ℓ} → Fin n → Vec A n → A
 lookup zero    (x ∷ xs) = x
 lookup (suc i) (x ∷ xs) = lookup i xs
+
+
+module foldrZipWith≡foldr++ {A : Type ℓ} (a : A) (_∗_ : A → A → A)
+                            (∗Assoc : ∀ x y z → x ∗ (y ∗ z) ≡ (x ∗ y) ∗ z)
+                            (∗Comm : ∀ x y → x ∗ y ≡ y ∗ x) where
+
+ foldrLemma : ∀ {n m : ℕ} (xs : Vec A n) (y : A) (ys : Vec A m)
+            → y ∗ (foldr _∗_ a (xs ++ ys)) ≡ foldr _∗_ a (xs ++ y ∷ ys)
+ foldrLemma {n = zero} [] y ys = refl
+ foldrLemma {n = suc n} (x ∷ xs) y ys = path
+  where
+  path : (y ∗ (x ∗ foldr _∗_ a (xs ++ ys))) ≡ (x ∗ foldr _∗_ a (xs ++ y ∷ ys))
+  path = (y ∗ (x ∗ foldr _∗_ a (xs ++ ys))) ≡⟨ ∗Assoc _ _ _ ⟩
+         ((y ∗ x) ∗ foldr _∗_ a (xs ++ ys)) ≡⟨ cong (_∗ foldr _∗_ a (xs ++ ys)) (∗Comm _ _) ⟩
+         ((x ∗ y) ∗ foldr _∗_ a (xs ++ ys)) ≡⟨ sym (∗Assoc _ _ _) ⟩
+         (x ∗ (y ∗ foldr _∗_ a (xs ++ ys))) ≡⟨ cong (x ∗_) (foldrLemma xs y ys) ⟩
+         (x ∗ foldr _∗_ a (xs ++ y ∷ ys))   ∎
+
+ thm : ∀ {n : ℕ} (xs ys : Vec A n)
+      → foldr (_∗_) a (zipWith (_∗_) xs ys) ≡ foldr (_∗_) a (xs ++ ys)
+ thm {n = zero} [] [] = refl
+ thm {n = suc n} (x ∷ xs) (y ∷ ys) = path
+  where
+  path : ((x ∗ y) ∗ foldr _∗_ a (zipWith _∗_ xs ys)) ≡ (x ∗ foldr _∗_ a (xs ++ y ∷ ys))
+  path = ((x ∗ y) ∗ foldr _∗_ a (zipWith _∗_ xs ys)) ≡⟨ cong ((x ∗ y) ∗_) (thm xs ys) ⟩
+         ((x ∗ y) ∗ foldr _∗_ a (xs ++ ys))          ≡⟨ sym (∗Assoc _ _ _) ⟩
+         (x ∗ (y ∗ foldr _∗_ a (xs ++ ys)))          ≡⟨ cong (x ∗_) (foldrLemma xs y ys) ⟩
+         (x ∗ foldr _∗_ a (xs ++ y ∷ ys))            ∎
