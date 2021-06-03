@@ -178,4 +178,4 @@ suc n ! = (suc n) · (n !)
 _choose_ : ℕ → ℕ → ℕ
 n choose zero = 1
 zero choose suc k = 0
-suc n choose suc k = n choose (suc k) + (suc n) choose k
+suc n choose suc k = n choose (suc k) + n choose k
