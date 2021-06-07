@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.CumulativeHierarchy where
 
 open import Cubical.HITs.CumulativeHierarchy.Base public

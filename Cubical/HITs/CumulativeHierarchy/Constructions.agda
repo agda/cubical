@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 {-
 Constructions of "sets" in the cumulative hierarchy. Including:
 - the empty set
@@ -20,6 +20,7 @@ open import Cubical.Functions.Logic as L
 open import Cubical.Data.Sum hiding (elim)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat hiding (elim)
+open import Cubical.Data.Sum as ⊎ using (_⊎_)
 open import Cubical.Data.Bool
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty as E hiding (elim)
@@ -108,7 +109,7 @@ module UnionSet (S : V ℓ) where
       key = subst (λ v → Σ[ ix ∈ ⟪ v ⟫ ] ⟪ v ⟫↪ ix ≊ y) path xv
 
   union-ax : ⟨ ∀[ u ] (u ∈ₛ UNION ⇔ (∃[ v ] (v ∈ₛ S) ⊓ (u ∈ₛ v))) ⟩
-  union-ax u = classification u .fst , classification u .snd where
+  union-ax = classification where
     open SetPackage UnionPackage using (classification)
 open UnionSet renaming (UNION to infixr 9 ⋃_) using (union-ax) public
 
@@ -132,7 +133,7 @@ module PairingSet (a b : V ℓ) where
   PAIR = SetStructure.resSet PairingStructure
 
   pairing-ax : ⟨ ∀[ d ] (d ∈ₛ PAIR ⇔ (d ≡ₕ a) ⊔ (d ≡ₕ b)) ⟩
-  pairing-ax d = classification d .fst , classification d .snd where
+  pairing-ax = classification where
     open SetPackage PairingPackage using (classification)
 -- pairing TODO: notation?
 open PairingSet renaming (PAIR to infix 12 ⁅_,_⁆) using (pairing-ax) public
@@ -157,9 +158,12 @@ _∪_ : (a b : V ℓ) → V ℓ
 a ∪ b = ⋃ ⁅ a , b ⁆
 
 module InfinitySet {ℓ} where
+  sucV : V ℓ → V ℓ
+  sucV N = N ∪ ⁅ N ⁆s
+
   #_ : ℕ → V ℓ
   # zero = ∅
-  # suc n = (# n) ∪ ⁅ # n ⁆s
+  # suc n = sucV (# n)
 
   ωStructure : SetStructure ℓ
   SetStructure.X ωStructure = Lift ℕ
@@ -171,7 +175,7 @@ module InfinitySet {ℓ} where
   open PropMonad
   ωPackage : SetPackage _ (ℓ-suc ℓ)
   structure ωPackage = ωStructure
-  ∈-rep ωPackage d = (d ≡ₕ ∅) ⊔ (∃[ v ] (d ≡ₕ v ∪ ⁅ v ⁆s) ⊓ (v ∈ₛ ω))
+  ∈-rep ωPackage d = (d ≡ₕ ∅) ⊔ (∃[ v ] (d ≡ₕ sucV v) ⊓ (v ∈ₛ ω))
   unpack ωPackage (lift zero) = L.inl refl
   unpack ωPackage (lift (suc n)) = L.inr ∣ # n , refl , ∈∈ₛ {b = ω} .fst ∣ lift n , refl ∣ ∣
   repack ωPackage {y = y} = ⊔-elim (y ≡ₕ ∅) ∥ _ ∥ₚ (λ _ → ∥ fiber _ y ∥ₚ)
@@ -181,12 +185,21 @@ module InfinitySet {ℓ} where
               ∣ lift (suc n) , sym (subst (λ v → y ≡ (v ∪ ⁅ v ⁆s)) (sym eq) yv) ∣
     )
 
-  ω-empty : ⟨ ∅ ∈ₛ ω ⟩
-  ω-empty = SetPackage.classification ωPackage ∅ .snd (L.inl refl)
+  infinity-ax : ⟨ ∀[ y ] (y ∈ₛ ω ⇔ (y ≡ₕ ∅) ⊔ (∃[ v ] (y ≡ₕ sucV v) ⊓ (v ∈ₛ ω))) ⟩
+  infinity-ax = classification where
+    open SetPackage ωPackage using (classification)
 
-  ω-next : ⟨ ∀[ x ∶ V ℓ ] x ∈ₛ ω ⇒ (x ∪ ⁅ x ⁆s) ∈ₛ ω ⟩
-  ω-next x x∈ω = SetPackage.classification ωPackage (x ∪ ⁅ x ⁆s) .snd (L.inr ∣ x , refl , x∈ω ∣)
-open InfinitySet using (ω; ω-empty; ω-next) public
+  ω-empty : ⟨ ∅ ∈ₛ ω ⟩
+  ω-empty = infinity-ax ∅ .snd (L.inl refl)
+
+  ω-next : ⟨ ∀[ x ∶ V ℓ ] x ∈ₛ ω ⇒ sucV x ∈ₛ ω ⟩
+  ω-next x x∈ω = infinity-ax (sucV x) .snd (L.inr ∣ x , refl , x∈ω ∣)
+
+  #-in-ω : ∀ n → ⟨ # n ∈ₛ ω ⟩
+  #-in-ω zero = ω-empty
+  #-in-ω (suc n) = ω-next (# n) (#-in-ω n)
+
+open InfinitySet using (ω; ω-empty; ω-next; infinity-ax) public
 
 module ReplacementSet (r : V ℓ → V ℓ) (a : V ℓ) where
   ReplacementStructure : SetStructure ℓ
@@ -206,7 +219,7 @@ module ReplacementSet (r : V ℓ → V ℓ) (a : V ℓ) where
     ∣ a , cong r (equivFun identityPrinciple za) ∙ sym yr ∣
 
   replacement-ax : ⟨ ∀[ y ] (y ∈ₛ REPLACED ⇔ (∃[ z ] (z ∈ₛ a) ⊓ (y ≡ₕ r z))) ⟩
-  replacement-ax y = classification y .fst , classification y .snd where
+  replacement-ax y = classification y where
     open SetPackage ReplacementPackage using (classification)
 open ReplacementSet renaming (REPLACED to infix 12 ⁅_∣_⁆) using (replacement-ax) public
 
@@ -230,3 +243,18 @@ module SeparationSet (a : V ℓ) (ϕ : V ℓ → hProp ℓ) where
   separation-ax y = classification y .fst , classification y .snd where
     open SetPackage SeparationPackage using (classification)
 open SeparationSet renaming (SEPAREE to infix 12 ⁅_∶_⁆) using (separation-ax) public
+
+module Examples where
+  open InfinitySet
+
+  the1 : V ℓ-zero
+  the1 = # 1
+
+  1-ok? : ∥ Bool ∥
+  1-ok? = do
+    prf ← infinity-ax the1 .fst (#-in-ω 1)
+    case prf of λ { (⊎.inl _) → ∣ false ∣ ; (⊎.inr _) → ∣ true ∣ }
+    where
+    open PropMonad
+  test : 1-ok? ≡ ∣ true ∣
+  test = refl
