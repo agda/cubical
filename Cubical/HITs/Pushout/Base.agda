@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Pushout.Base where
 
 open import Cubical.Foundations.Prelude
@@ -14,6 +14,13 @@ data Pushout {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
   inl : B → Pushout f g
   inr : C → Pushout f g
   push : (a : A) → inl (f a) ≡ inr (g a)
+
+-- cofiber (equivalent to Cone in Cubical.HITs.MappingCones.Base)
+cofib : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type _
+cofib f = Pushout (λ _ → tt) f
+
+cfcod : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → B → cofib f
+cfcod f = inr
 
 -- Suspension defined as a pushout
 

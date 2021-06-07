@@ -12,7 +12,7 @@ is [constant (ℕ → ℕ)] rather than [function (constant ℕ) (constant ℕ)]
 Writing [auto* (λ X → ⋯)] doesn't seem to work, but [auto* (λ (X : Type ℓ) → ⋯)] does.
 
 -}
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Structures.Relational.Auto where
 
 open import Cubical.Foundations.Prelude
@@ -26,6 +26,7 @@ open import Cubical.Data.Maybe
 open import Cubical.Structures.Relational.Macro as Macro
 
 import Agda.Builtin.Reflection as R
+open import Cubical.Reflection.Base
 
 -- Magic number
 private
@@ -38,17 +39,6 @@ abstract
 
 -- Some reflection utilities
 private
-  _>>=_ = R.bindTC
-  _<|>_ = R.catchTC
-
-  _>>_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → R.TC A → R.TC B → R.TC B
-  f >> g = f >>= λ _ → g
-
-  infixl 4 _>>=_ _>>_ _<|>_
-
-  varg : ∀ {ℓ} {A : Type ℓ} → A → R.Arg A
-  varg = R.arg (R.arg-info R.visible R.relevant)
-
   tLevel = R.def (quote Level) []
 
   tType : R.Term → R.Term
@@ -57,19 +47,17 @@ private
   thSet : R.Term → R.Term
   thSet ℓ = R.def (quote hSet) [ varg ℓ ]
 
-  tPosRelDesc : R.Term → R.Term
-  tPosRelDesc ℓ = R.def (quote PosRelDesc) [ varg ℓ ]
+  tPosRelDesc : R.Term → R.Term → R.Term
+  tPosRelDesc ℓ ℓ₁ = R.def (quote PosRelDesc) (ℓ v∷ ℓ₁ v∷ [])
 
-  tRelDesc : R.Term → R.Term
-  tRelDesc ℓ = R.def (quote RelDesc) [ varg ℓ ]
+  tRelDesc : R.Term → R.Term → R.Term → R.Term
+  tRelDesc ℓ ℓ₁ ℓ₁' = R.def (quote RelDesc) (ℓ v∷ ℓ₁ v∷ ℓ₁' v∷ [])
 
   func : (ℓ ℓ' : Level) → Type (ℓ-suc (ℓ-max ℓ ℓ'))
   func ℓ ℓ' = Type ℓ → Type ℓ'
 
   tStruct : R.Term → R.Term → R.Term
   tStruct ℓ ℓ' = R.def (quote func) (varg ℓ ∷ varg ℓ' ∷ [])
-
-  newMeta = R.checkType R.unknown
 
 -- We try to build a descriptor by unifying the provided structure with combinators we're aware of. We
 -- redefine the structure combinators as the *Shape terms below so that we don't depend on the specific way
@@ -141,7 +129,7 @@ private
     R.inferType hole >>= λ H →
     newMeta tLevel >>= λ ℓ →
     newMeta tLevel >>= λ ℓ' →
-    R.unify (tPosRelDesc ℓ) H >>
+    R.unify (tPosRelDesc ℓ ℓ') H >>
     R.checkType t (tStruct ℓ ℓ') >>
     buildPosRelDesc FUEL ℓ ℓ' t >>= R.unify hole
 
@@ -208,7 +196,7 @@ private
     R.inferType hole >>= λ H →
     newMeta tLevel >>= λ ℓ →
     newMeta tLevel >>= λ ℓ' →
-    R.unify (tRelDesc ℓ) H >>
+    R.unify (tRelDesc ℓ ℓ' R.unknown) H >>
     R.checkType t (tStruct ℓ ℓ') >>
     buildRelDesc FUEL ℓ ℓ' t >>= R.unify hole
 
@@ -225,27 +213,27 @@ macro
   -- Sanity check: should be the identity
   AutoStructure : R.Term → R.Term → R.TC Unit
   AutoStructure t hole =
-    newMeta (tRelDesc R.unknown) >>= λ d →
+    newMeta (tRelDesc R.unknown R.unknown R.unknown) >>= λ d →
     R.unify hole (R.def (quote RelMacroStructure) [ varg d ]) >>
     autoRelDesc' t d
 
   -- (S : Type ℓ → Type ℓ₁) → StrRel S _
   AutoRelStr : R.Term → R.Term → R.TC Unit
   AutoRelStr t hole =
-    newMeta (tRelDesc R.unknown) >>= λ d →
+    newMeta (tRelDesc R.unknown R.unknown R.unknown) >>= λ d →
     R.unify hole (R.def (quote RelMacroRelStr) [ varg d ]) >>
     autoRelDesc' t d
 
   -- (S : Type ℓ → Type ℓ₁) → SuitableStrRel S (AutoStrRel S)
   autoSuitableRel : R.Term → R.Term → R.TC Unit
   autoSuitableRel t hole =
-    newMeta (tRelDesc R.unknown) >>= λ d →
+    newMeta (tRelDesc R.unknown R.unknown R.unknown) >>= λ d →
     R.unify hole (R.def (quote relMacroSuitableRel) [ varg d ]) >>
     autoRelDesc' t d
 
   -- (S : Type ℓ → Type ℓ₁) → StrRelMatchesEquiv (AutoRelStr S) (AutoEquivStr S)
   autoMatchesEquiv : R.Term → R.Term → R.TC Unit
   autoMatchesEquiv t hole =
-    newMeta (tRelDesc R.unknown) >>= λ d →
+    newMeta (tRelDesc R.unknown R.unknown R.unknown) >>= λ d →
     R.unify hole (R.def (quote relMacroMatchesEquiv) [ varg d ]) >>
     autoRelDesc' t d

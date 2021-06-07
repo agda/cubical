@@ -5,22 +5,25 @@ This file contains:
 - Properties of set truncations
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.SetTruncation.Properties where
 
 open import Cubical.HITs.SetTruncation.Base
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
 open import Cubical.Data.Sigma
+open import Cubical.HITs.PropositionalTruncation
+  renaming (rec to pRec ; elim to pElim) hiding (elim2 ; elim3 ; rec2 ; map)
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
     A B C D : Type ℓ
 
 rec : isSet B → (A → B) → ∥ A ∥₂ → B
@@ -72,6 +75,131 @@ elim3 : {B : (x y z : ∥ A ∥₂) → Type ℓ}
 elim3 Bset g = elim2 (λ _ _ → isSetΠ (λ _ → Bset _ _ _))
                      (λ a b → elim (λ _ → Bset _ _ _) (g a b))
 
+
+-- the recursor for maps into groupoids following the "HIT proof" in:
+-- https://arxiv.org/abs/1507.01150
+-- i.e. for any type A and groupoid B we can construct a map ∥ A ∥₂ → B
+-- from a map A → B satisfying the condition
+--    ∀ (a b : A) (p q : a ≡ b) → cong f p ≡ cong f q
+-- TODO: prove that this is an equivalence
+module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A → B)
+               (congFConst : ∀ (a b : A) (p q : a ≡ b) → cong f p ≡ cong f q) where
+
+ data H : Type ℓ where
+  η : A → H
+  ε : ∀ (a b : A) → ∥ a ≡ b ∥ → η a ≡ η b -- prop. trunc. of a≡b
+  δ : ∀ (a b : A) (p : a ≡ b) → ε a b ∣ p ∣ ≡ cong η p
+  gtrunc : isGroupoid H
+
+ -- write elimination principle for H
+ module Helim {P : H → Type ℓ''} (Pgpd : ∀ h → isGroupoid (P h))
+              (η* : (a : A) → P (η a))
+              (ε* : ∀ (a b : A) (∣p∣ : ∥ a ≡ b ∥)
+                  → PathP (λ i → P (ε a b ∣p∣ i)) (η* a) (η* b))
+              (δ* : ∀ (a b : A) (p : a ≡ b)
+                  → PathP (λ i → PathP (λ j → P (δ a b p i j)) (η* a) (η* b))
+                          (ε* a b ∣ p ∣) (cong η* p)) where
+
+  fun : (h : H) → P h
+  fun (η a) = η* a
+  fun (ε a b ∣p∣ i) = ε* a b ∣p∣ i
+  fun (δ a b p i j) = δ* a b p i j
+  fun (gtrunc x y p q α β i j k) = isOfHLevel→isOfHLevelDep 3 Pgpd
+                                   (fun x) (fun y)
+                                   (cong fun p) (cong fun q)
+                                   (cong (cong fun) α) (cong (cong fun) β)
+                                   (gtrunc x y p q α β) i j k
+
+ module Hrec {C : Type ℓ''} (Cgpd : isGroupoid C)
+             (η* : A → C)
+             (ε* : ∀ (a b : A) → ∥ a ≡ b ∥ → η* a ≡ η* b)
+             (δ* : ∀ (a b : A) (p : a ≡ b) → ε* a b ∣ p ∣ ≡ cong η* p) where
+
+  fun : H → C
+  fun (η a) = η* a
+  fun (ε a b ∣p∣ i) = ε* a b ∣p∣ i
+  fun (δ a b p i j) = δ* a b p i j
+  fun (gtrunc x y p q α β i j k) = Cgpd (fun x) (fun y) (cong fun p) (cong fun q)
+                                   (cong (cong fun) α) (cong (cong fun) β) i j k
+
+ module HelimProp {P : H → Type ℓ''} (Pprop : ∀ h → isProp (P h))
+                  (η* : (a : A) → P (η a)) where
+
+  fun : ∀ h → P h
+  fun = Helim.fun (λ _ → isSet→isGroupoid (isProp→isSet (Pprop _))) η*
+                  (λ a b ∣p∣ → isOfHLevel→isOfHLevelDep 1 Pprop _ _ (ε a b ∣p∣))
+                   λ a b p → isOfHLevel→isOfHLevelDep 1
+                              {B = λ p → PathP (λ i → P (p i)) (η* a) (η* b)}
+                              (λ _ → isOfHLevelPathP 1 (Pprop _) _ _) _ _ (δ a b p)
+
+ -- The main trick: eliminating into hsets is easy
+ -- i.e. H has the universal property of set truncation...
+ module HelimSet {P : H → Type ℓ''} (Pset : ∀ h → isSet (P h))
+                 (η* : ∀ a → P (η a)) where
+
+  fun : (h : H) → P h
+  fun = Helim.fun (λ _ → isSet→isGroupoid (Pset _)) η* ε*
+                   λ a b p → isOfHLevel→isOfHLevelDep 1
+                             {B = λ p → PathP (λ i → P (p i)) (η* a) (η* b)}
+                             (λ _ → isOfHLevelPathP' 1 (Pset _) _ _) _ _ (δ a b p)
+   where
+   ε* : (a b : A) (∣p∣ : ∥ a ≡ b ∥) → PathP (λ i → P (ε a b ∣p∣ i)) (η* a) (η* b)
+   ε* a b = pElim (λ _ → isOfHLevelPathP' 1 (Pset _) (η* a) (η* b))
+                   λ p → subst (λ x → PathP (λ i → P (x i)) (η* a) (η* b))
+                               (sym (δ a b p)) (cong η* p)
+
+
+ -- Now we need to prove that H is a set.
+ -- We start with a  little lemma:
+ localHedbergLemma : {X : Type ℓ''} (P : X → Type ℓ'')
+                   → (∀ x → isProp (P x))
+                   → ((x : X) → P x → (y : X) → P y → x ≡ y)
+                  --------------------------------------------------
+                   → (x : X) → P x → (y : X) → isProp (x ≡ y)
+ localHedbergLemma {X = X} P Pprop P→≡ x px y = isPropRetract
+                   (λ p → subst P p px) (λ py → sym (P→≡ x px x px) ∙ P→≡ x px y py)
+                   isRetract (Pprop y)
+  where
+  isRetract : (p : x ≡ y) → (sym (P→≡ x px x px)) ∙ P→≡ x px y (subst P p px) ≡ p
+  isRetract = J (λ y' p' → (sym (P→≡ x px x px)) ∙ P→≡ x px y' (subst P p' px) ≡ p')
+                (subst (λ px' → sym (P→≡ x px x px) ∙ P→≡ x px x px' ≡ refl)
+                (sym (substRefl {B = P} px)) (lCancel (P→≡ x px x px)))
+
+ Hset : isSet H
+ Hset = HelimProp.fun (λ _ → isPropΠ λ _ → isPropIsProp) baseCaseLeft
+  where
+  baseCaseLeft : (a₀ : A) (y : H) → isProp (η a₀ ≡ y)
+  baseCaseLeft a₀ = localHedbergLemma (λ x → Q x .fst) (λ x → Q x .snd) Q→≡ _ ∣ refl ∣
+   where
+   Q : H → hProp ℓ
+   Q = HelimSet.fun (λ _ → isSetHProp) λ b → ∥ a₀ ≡ b ∥ , propTruncIsProp
+   -- Q (η b) = ∥ a ≡ b ∥
+
+   Q→≡ : (x : H) → Q x .fst → (y : H) → Q y .fst → x ≡ y
+   Q→≡ = HelimSet.fun (λ _ → isSetΠ3 λ _ _ _ → gtrunc _ _)
+       λ a p → HelimSet.fun (λ _ → isSetΠ λ _ → gtrunc _ _)
+       λ b q → sym (ε a₀ a p) ∙ ε a₀ b q
+
+ -- our desired function will split through H,
+ -- i.e. we get a function ∥ A ∥₂ → H → B
+ fun : ∥ A ∥₂ → B
+ fun = f₁ ∘ f₂
+  where
+  f₁ : H → B
+  f₁ = Hrec.fun Bgpd f εᶠ λ _ _ _ → refl
+   where
+   εᶠ : (a b : A) → ∥ a ≡ b ∥ → f a ≡ f b
+   εᶠ a b = rec→Set (Bgpd _ _) (cong f) λ p q → congFConst a b p q
+   -- this is the inductive step,
+   -- we use that maps ∥ A ∥ → B for an hset B
+   -- correspond to 2-Constant maps A → B (which cong f is by assumption)
+  f₂ : ∥ A ∥₂ → H
+  f₂ = rec Hset η
+
+
+map : (A → B) → ∥ A ∥₂ → ∥ B ∥₂
+map f = rec squash₂ λ x → ∣ f x ∣₂
+
 setTruncUniversal : isSet B → (∥ A ∥₂ → B) ≃ (A → B)
 setTruncUniversal {B = B} Bset =
   isoToEquiv (iso (λ h x → h ∣ x ∣₂) (rec Bset) (λ _ → refl) rinv)
@@ -84,14 +212,14 @@ setTruncUniversal {B = B} Bset =
 setTruncIsSet : isSet ∥ A ∥₂
 setTruncIsSet a b p q = squash₂ a b p q
 
+setTruncIdempotentIso : isSet A → Iso ∥ A ∥₂ A
+Iso.fun (setTruncIdempotentIso hA) = rec hA (idfun _)
+Iso.inv (setTruncIdempotentIso hA) x = ∣ x ∣₂
+Iso.rightInv (setTruncIdempotentIso hA) _ = refl
+Iso.leftInv (setTruncIdempotentIso hA) = elim (λ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ → refl)
+
 setTruncIdempotent≃ : isSet A → ∥ A ∥₂ ≃ A
-setTruncIdempotent≃ {A = A} hA = isoToEquiv f
-  where
-  f : Iso ∥ A ∥₂ A
-  Iso.fun f = rec hA (idfun A)
-  Iso.inv f x = ∣ x ∣₂
-  Iso.rightInv f _ = refl
-  Iso.leftInv f = elim (λ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ → refl)
+setTruncIdempotent≃ {A = A} hA = isoToEquiv (setTruncIdempotentIso hA)
 
 setTruncIdempotent : isSet A → ∥ A ∥₂ ≡ A
 setTruncIdempotent hA = ua (setTruncIdempotent≃ hA)
@@ -169,3 +297,23 @@ Iso.rightInv setTruncOfProdIso =
   prodElim (λ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _) λ _ _ → refl
 Iso.leftInv setTruncOfProdIso =
   elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _) λ {(a , b) → refl}
+
+IsoSetTruncateSndΣ : {A : Type ℓ} {B : A → Type ℓ'} → Iso ∥ Σ A B ∥₂ ∥ Σ A (λ x → ∥ B x ∥₂) ∥₂
+Iso.fun IsoSetTruncateSndΣ = map λ a → (fst a) , ∣ snd a ∣₂
+Iso.inv IsoSetTruncateSndΣ = rec setTruncIsSet (uncurry λ x → map λ b → x , b)
+Iso.rightInv IsoSetTruncateSndΣ =
+  elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        (uncurry λ a → elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+        λ _ → refl)
+Iso.leftInv IsoSetTruncateSndΣ =
+  elim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+         λ _ → refl
+
+PathIdTrunc₀Iso : {a b : A} → Iso (∣ a ∣₂ ≡ ∣ b ∣₂) ∥ a ≡ b ∥
+Iso.fun (PathIdTrunc₀Iso {b = b}) p =
+  transport (λ i → rec {B = TypeOfHLevel _ 1} (isOfHLevelTypeOfHLevel 1)
+                        (λ a → ∥ a ≡ b ∥ , squash) (p (~ i)) .fst)
+            ∣ refl ∣
+Iso.inv PathIdTrunc₀Iso = pRec (squash₂ _ _) (cong ∣_∣₂)
+Iso.rightInv PathIdTrunc₀Iso _ = squash _ _
+Iso.leftInv PathIdTrunc₀Iso _ = squash₂ _ _ _ _

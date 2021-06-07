@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Data.Fin.Properties where
 
@@ -21,6 +21,7 @@ open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
+open import Cubical.Data.FinData.Base renaming (Fin to FinData) hiding (¬Fin0 ; toℕ)
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
@@ -514,3 +515,122 @@ factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddi
 
   isSurjectionIntro : isSurjection intro
   isSurjectionIntro = ∣_∣ ∘ elimF
+
+-- Fin (m + n) ≡ Fin m ⊎ Fin n
+-- ===========================
+
+o<m→o<m+n : (m n o : ℕ) → o < m → o < (m + n)
+o<m→o<m+n m n o (k , p) = (n + k) , (n + k + suc o    ≡⟨ sym (+-assoc n k _)  ⟩
+                                     n + (k + suc o)  ≡⟨ cong (λ - → n + -) p ⟩
+                                     n + m            ≡⟨ +-comm n m           ⟩
+                                     m + n            ∎)
+
+∸-<-lemma : (m n o : ℕ) → o < m + n → m ≤ o → o ∸ m < n
+∸-<-lemma zero    n o       o<m+n m<o = o<m+n
+∸-<-lemma (suc m) n zero    o<m+n m<o = Empty.rec (¬-<-zero m<o)
+∸-<-lemma (suc m) n (suc o) o<m+n m<o =
+  ∸-<-lemma m n o (pred-≤-pred o<m+n) (pred-≤-pred m<o)
+
+-- A convenient wrapper on top of trichotomy, as we will be interested in
+-- whether `m < n` or `n ≤ m`.
+_≤?_ : (m n : ℕ) → (m < n) ⊎ (n ≤ m)
+_≤?_ m n with m ≟ n
+_≤?_ m n | lt m<n = inl m<n
+_≤?_ m n | eq m=n = inr (subst (λ - → - ≤ m) m=n ≤-refl)
+_≤?_ m n | gt n<m = inr (<-weaken n<m)
+
+¬-<-and-≥ : {m n : ℕ} → m < n → ¬ n ≤ m
+¬-<-and-≥ {m}     {zero}  m<n n≤m = ¬-<-zero m<n
+¬-<-and-≥ {zero}  {suc n} m<n n≤m = ¬-<-zero n≤m
+¬-<-and-≥ {suc m} {suc n} m<n n≤m = ¬-<-and-≥ (pred-≤-pred m<n) (pred-≤-pred n≤m)
+
+m+n∸n=m : (n m : ℕ) → (m + n) ∸ n ≡ m
+m+n∸n=m zero    k = +-zero k
+m+n∸n=m (suc m) k = (k + suc m) ∸ suc m   ≡⟨ cong (λ - → - ∸ suc m) (+-suc k m) ⟩
+                    suc (k + m) ∸ (suc m) ≡⟨ refl                               ⟩
+                    (k + m) ∸ m           ≡⟨ m+n∸n=m m k                        ⟩
+                    k                     ∎
+
+∸-lemma : {m n : ℕ} → m ≤ n → m + (n ∸ m) ≡ n
+∸-lemma {zero}  {k}     _   = refl {x = k}
+∸-lemma {suc m} {zero}  m≤k = Empty.rec (¬-<-and-≥ (suc-≤-suc zero-≤) m≤k)
+∸-lemma {suc m} {suc k} m≤k =
+  suc m + (suc k ∸ suc m)   ≡⟨ refl                                 ⟩
+  suc (m + (suc k ∸ suc m)) ≡⟨ refl                                 ⟩
+  suc (m + (k ∸ m))         ≡⟨ cong suc (∸-lemma (pred-≤-pred m≤k)) ⟩
+  suc k                     ∎
+
+Fin+≅Fin⊎Fin : (m n : ℕ) → Iso (Fin (m + n)) (Fin m ⊎ Fin n)
+Iso.fun (Fin+≅Fin⊎Fin m n) = f
+  where
+    f : Fin (m + n) → Fin m ⊎ Fin n
+    f (k , k<m+n) with k ≤? m
+    f (k , k<m+n) | inl k<m = inl (k , k<m)
+    f (k , k<m+n) | inr k≥m = inr (k ∸ m , ∸-<-lemma m n k k<m+n k≥m)
+Iso.inv (Fin+≅Fin⊎Fin m n) = g
+  where
+    g :  Fin m  ⊎  Fin n  →  Fin (m + n)
+    g (inl (k , k<m)) = k     , o<m→o<m+n m n k k<m
+    g (inr (k , k<n)) = m + k , <-k+ k<n
+Iso.rightInv (Fin+≅Fin⊎Fin m n) = sec-f-g
+  where
+    sec-f-g : _
+    sec-f-g (inl (k , k<m)) with k ≤? m
+    sec-f-g (inl (k , k<m)) | inl _   = cong inl (Σ≡Prop (λ _ → m≤n-isProp) refl)
+    sec-f-g (inl (k , k<m)) | inr m≤k = Empty.rec (¬-<-and-≥ k<m m≤k)
+    sec-f-g (inr (k , k<n)) with (m + k) ≤? m
+    sec-f-g (inr (k , k<n)) | inl p   = Empty.rec (¬m+n<m {m} {k} p)
+    sec-f-g (inr (k , k<n)) | inr k≥m = cong inr (Σ≡Prop (λ _ → m≤n-isProp) rem)
+      where
+        rem : (m + k) ∸ m ≡ k
+        rem = subst (λ - → - ∸ m ≡ k) (+-comm k m) (m+n∸n=m m k)
+Iso.leftInv  (Fin+≅Fin⊎Fin m n) = ret-f-g
+  where
+    ret-f-g : _
+    ret-f-g (k , k<m+n) with k ≤? m
+    ret-f-g (k , k<m+n) | inl _   = Σ≡Prop (λ _ → m≤n-isProp) refl
+    ret-f-g (k , k<m+n) | inr m≥k = Σ≡Prop (λ _ → m≤n-isProp) (∸-lemma m≥k)
+
+Fin+≡Fin⊎Fin : (m n : ℕ) → Fin (m + n) ≡ Fin m ⊎ Fin n
+Fin+≡Fin⊎Fin m n = isoToPath (Fin+≅Fin⊎Fin m n)
+
+-- Equivalence between FinData and Fin
+
+sucFin : {N : ℕ} → Fin N → Fin (suc N)
+sucFin (k , n , p) = suc k , n , (+-suc _ _ ∙ cong suc p)
+
+FinData→Fin : (N : ℕ) → FinData N → Fin N
+FinData→Fin zero ()
+FinData→Fin (suc N) zero = 0 , suc-≤-suc zero-≤
+FinData→Fin (suc N) (suc k) = sucFin (FinData→Fin N k)
+
+Fin→FinData : (N : ℕ) → Fin N → FinData N
+Fin→FinData zero (k , n , p) = Empty.rec (snotz (sym (+-suc n k) ∙ p))
+Fin→FinData (suc N) (0 , n , p) = zero
+Fin→FinData (suc N) ((suc k) , n , p) = suc (Fin→FinData N (k , n , p')) where
+  p' : n + suc k ≡ N
+  p' = injSuc (sym (+-suc n (suc k)) ∙ p)
+
+secFin : (n : ℕ) → section (FinData→Fin n) (Fin→FinData n)
+secFin 0 (k , n , p) = Empty.rec (snotz (sym (+-suc n k) ∙ p))
+secFin (suc N) (0 , n , p) = Fin-fst-≡ refl
+secFin (suc N) (suc k , n , p) = Fin-fst-≡ (cong suc (cong fst (secFin N (k , n , p')))) where
+  p' : n + suc k ≡ N
+  p' = injSuc (sym (+-suc n (suc k)) ∙ p)
+
+retFin : (n : ℕ) → retract (FinData→Fin n) (Fin→FinData n)
+retFin 0 ()
+retFin (suc N) zero = refl
+retFin (suc N) (suc k) = cong FinData.suc (cong (Fin→FinData N) (Fin-fst-≡ refl) ∙ retFin N k)
+
+FinDataIsoFin : (N : ℕ) → Iso (FinData N) (Fin N)
+Iso.fun (FinDataIsoFin N) = FinData→Fin N
+Iso.inv (FinDataIsoFin N) = Fin→FinData N
+Iso.rightInv (FinDataIsoFin N) = secFin N
+Iso.leftInv (FinDataIsoFin N) = retFin N
+
+FinData≃Fin : (N : ℕ) → FinData N ≃ Fin N
+FinData≃Fin N = isoToEquiv (FinDataIsoFin N)
+
+FinData≡Fin : (N : ℕ) → FinData N ≡ Fin N
+FinData≡Fin N = ua (FinData≃Fin N)

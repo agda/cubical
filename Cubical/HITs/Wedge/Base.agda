@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Wedge.Base where
 
 open import Cubical.Foundations.Prelude
@@ -18,3 +18,9 @@ A ⋁∙ₗ B = (A ⋁ B) , (inl (snd A))
 _⋁∙ᵣ_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Pointed (ℓ-max ℓ ℓ')
 A ⋁∙ᵣ B = (A ⋁ B) , (inr (snd B))
 
+-- Wedge sum of Units is contractible
+isContr-Unit⋁Unit : isContr ((Unit , tt) ⋁ (Unit , tt))
+fst isContr-Unit⋁Unit = inl tt
+snd isContr-Unit⋁Unit (inl tt) = refl
+snd isContr-Unit⋁Unit (inr tt) = push tt
+snd isContr-Unit⋁Unit (push tt i) j = push tt (i ∧ j)

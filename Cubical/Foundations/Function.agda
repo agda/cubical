@@ -1,7 +1,7 @@
 {-
   Definitions for functions
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Function where
 
 open import Cubical.Foundations.Prelude
@@ -55,6 +55,9 @@ case x return P of f = f x
 
 uncurry : ((x : A) → (y : B x) → C x y) → (p : Σ A B) → C (fst p) (snd p)
 uncurry f (x , y) = f x y
+
+curry : ((p : Σ A B) → C (fst p) (snd p)) → (x : A) → (y : B x) → C x y
+curry f x y = f (x , y)
 
 module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
   -- Notions of 'coherently constant' functions for low dimensions.

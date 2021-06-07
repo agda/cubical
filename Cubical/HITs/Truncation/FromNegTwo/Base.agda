@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Truncation.FromNegTwo.Base where
 
 open import Cubical.Foundations.Prelude
@@ -6,7 +6,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Nat
 open import Cubical.Data.NatMinusOne
 open import Cubical.HITs.Nullification
-open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Base
 
 -- For the hub-and-spoke construction discussed in the HoTT book, which doesn't work in the base case
 --  of contractibility, see `HITs.Truncation.Base`. The definition of truncation here contains

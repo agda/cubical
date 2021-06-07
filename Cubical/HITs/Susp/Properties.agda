@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Susp.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -45,21 +45,18 @@ Susp≃joinBool = isoToEquiv Susp-iso-joinBool
 Susp≡joinBool : ∀ {ℓ} {A : Type ℓ} → Susp A ≡ join A Bool
 Susp≡joinBool = isoToPath Susp-iso-joinBool
 
+congSuspIso : ∀ {ℓ} {A B : Type ℓ} → Iso A B → Iso (Susp A) (Susp B)
+fun (congSuspIso is) = suspFun (fun is)
+inv (congSuspIso is) = suspFun (inv is)
+rightInv (congSuspIso is) north = refl
+rightInv (congSuspIso is) south = refl
+rightInv (congSuspIso is) (merid a i) j = merid (rightInv is a j) i
+leftInv (congSuspIso is) north = refl
+leftInv (congSuspIso is) south = refl
+leftInv (congSuspIso is) (merid a i) j = merid (leftInv is a j) i
+
 congSuspEquiv : ∀ {ℓ} {A B : Type ℓ} → A ≃ B → Susp A ≃ Susp B
-congSuspEquiv {ℓ} {A} {B} h = isoToEquiv isom
-  where isom : Iso (Susp A) (Susp B)
-        Iso.fun isom north = north
-        Iso.fun isom south = south
-        Iso.fun isom (merid a i) = merid (fst h a) i
-        Iso.inv isom north = north
-        Iso.inv isom south = south
-        Iso.inv isom (merid a i) = merid (invEq h a) i
-        Iso.rightInv isom north = refl
-        Iso.rightInv isom south = refl
-        Iso.rightInv isom (merid a i) j = merid (retEq h a j) i
-        Iso.leftInv isom north = refl
-        Iso.leftInv isom south = refl
-        Iso.leftInv isom (merid a i) j = merid (secEq h a j) i
+congSuspEquiv {ℓ} {A} {B} h = isoToEquiv (congSuspIso (equivToIso h))
 
 suspToPropElim : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Susp A → Type ℓ'} (a : A)
                  → ((x : Susp A) → isProp (B x))
@@ -109,3 +106,14 @@ suspToPropElim2 a isProp Bnorth =
   suspToPropElim a (λ x → isOfHLevelΠ 1 λ y → isProp x y)
                    (suspToPropElim a (λ x → isProp north x) Bnorth)
 -}
+
+funSpaceSuspIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+                   → Iso (Σ[ x ∈ B ] Σ[ y ∈ B ] (A → x ≡ y)) (Susp A → B)
+Iso.fun funSpaceSuspIso (x , y , f) north = x
+Iso.fun funSpaceSuspIso (x , y , f) south = y
+Iso.fun funSpaceSuspIso (x , y , f) (merid a i) = f a i
+Iso.inv funSpaceSuspIso f = (f north) , (f south , (λ x → cong f (merid x)))
+Iso.rightInv funSpaceSuspIso f = funExt λ {north → refl
+                                             ; south → refl
+                                             ; (merid a i) → refl}
+Iso.leftInv funSpaceSuspIso _ = refl

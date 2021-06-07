@@ -7,7 +7,7 @@ Half adjoint equivalences ([HAEquiv])
 - Cong is an equivalence ([congEquiv])
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Equiv.HalfAdjoint where
 
 open import Cubical.Foundations.Prelude
@@ -126,7 +126,7 @@ equiv→HAEquiv e = e .fst , λ where
   .isHAEquiv.g → invIsEq (snd e)
   .isHAEquiv.linv → retIsEq (snd e)
   .isHAEquiv.rinv → secIsEq (snd e)
-  .isHAEquiv.com a → flipSquare (slideSquare (commSqIsEq (snd e) a))
+  .isHAEquiv.com a → sym (commPathIsEq (snd e) a)
 
 congIso : {x y : A} (e : Iso A B) → Iso (x ≡ y) (Iso.fun e x ≡ Iso.fun e y)
 congIso {x = x} {y} e = goal
@@ -161,3 +161,6 @@ invCongFunct {x = x} e p q = helper (Iso.inv e) _ _ _
     → (sym r ∙∙ cong f (p ∙ q) ∙∙ r) ≡ (sym r ∙∙ cong f p ∙∙ r) ∙ (sym r ∙∙ cong f q ∙∙ r))
       λ p q → (λ i → rUnit (congFunct f p q i) (~ i))
              ∙ λ i → rUnit (cong f p) i ∙ rUnit (cong f q) i
+
+invCongRefl : {x : A} (e : Iso A B) → Iso.inv (congIso {x = x} {y = x} e) refl ≡ refl
+invCongRefl {x = x} e = (λ i → (λ j → Iso.leftInv e x (i ∨ ~ j)) ∙∙ refl ∙∙ (λ j → Iso.leftInv e x (i ∨ j))) ∙ sym (rUnit refl)

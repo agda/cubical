@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Truncation.FromNegTwo.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -17,7 +17,7 @@ open import Cubical.Data.Empty as ⊥ using (⊥)
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.NatMinusOne as ℕ₋₁
 open import Cubical.Data.Sigma
-open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Nullification as Null hiding (rec; elim)
 

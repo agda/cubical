@@ -1,6 +1,6 @@
 -- Two fun examples of generic programming using univalence
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Experiments.Generic where
 
 open import Agda.Builtin.String

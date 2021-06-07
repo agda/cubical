@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.AssocList.Properties where
 
 open import Cubical.HITs.AssocList.Base as AL

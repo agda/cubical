@@ -1,4 +1,5 @@
-{-# OPTIONS --cubical --no-import-sorts #-}
+{-# OPTIONS --guardedness #-}
+
 module Cubical.README where
 
 ------------------------------------------------------------------------
@@ -64,3 +65,6 @@ import Cubical.Talks.Everything
 
 -- Reflection
 import Cubical.Reflection.Everything
+
+-- Displayed univalent graphs
+import Cubical.Displayed.Everything

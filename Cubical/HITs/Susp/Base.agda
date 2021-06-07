@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Susp.Base where
 
 open import Cubical.Foundations.Prelude
@@ -23,6 +23,13 @@ data Susp {ℓ} (A : Type ℓ) : Type ℓ where
 
 ∙Susp : ∀ {ℓ} (A : Type ℓ) → Pointed ℓ
 ∙Susp A = Susp A , north
+
+-- induced function
+suspFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B)
+       → Susp A → Susp B
+suspFun f north = north
+suspFun f south = south
+suspFun f (merid a i) = merid (f a) i
 
 BoolIsoSusp⊥ : Iso Bool (Susp ⊥)
 fun BoolIsoSusp⊥ = λ {true  → north; false → south}

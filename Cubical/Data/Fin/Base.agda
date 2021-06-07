@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Data.Fin.Base where
 
@@ -9,6 +9,7 @@ open import Cubical.Foundations.HLevels
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat using (ℕ; zero; suc)
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat.Order.Recursive using () renaming (_≤_ to _≤′_)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum using (_⊎_; _⊎?_; inl; inr)
 
@@ -44,6 +45,12 @@ toℕ = fst
 -- ... and injective.
 toℕ-injective : ∀{fj fk : Fin k} → toℕ fj ≡ toℕ fk → fj ≡ fk
 toℕ-injective {fj = fj} {fk} = Σ≡Prop (λ _ → m≤n-isProp)
+
+-- Conversion from ℕ with a recursive definition of ≤
+
+fromℕ≤ : (m n : ℕ) → m ≤′ n → Fin (suc n)
+fromℕ≤ zero    _       _    = fzero
+fromℕ≤ (suc m) (suc n) m≤n = fsuc (fromℕ≤ m n m≤n)
 
 -- A case analysis helper for induction.
 fsplit

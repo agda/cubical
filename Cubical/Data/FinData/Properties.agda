@@ -1,5 +1,5 @@
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.FinData.Properties where
 
 open import Cubical.Foundations.Function

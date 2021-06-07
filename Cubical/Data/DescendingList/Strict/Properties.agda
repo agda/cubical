@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 open import Cubical.Foundations.Prelude
 
@@ -153,8 +153,8 @@ module IsoToLFSet
 
   Memˡ-inj : ∀ l₁ l₂ → Memˡ l₁ ≡ Memˡ l₂ → l₁ ≡ l₂
   Memˡ-inj [] [] eq = refl
-  Memˡ-inj [] (cons y ys y>ys) eq = ⊥.rec (transport (λ i → ⟨ eq (~ i) y ⟩) (inl ∣ refl ∣))
-  Memˡ-inj (cons y ys y>ys) [] eq = ⊥.rec (transport (λ i → ⟨ eq i y ⟩) (inl ∣ refl ∣))
+  Memˡ-inj [] (cons y ys y>ys) eq = ⊥.rec (lower (transport (λ i → ⟨ eq (~ i) y ⟩) (inl ∣ refl ∣)))
+  Memˡ-inj (cons y ys y>ys) [] eq = ⊥.rec (lower (transport (λ i → ⟨ eq i y ⟩) (inl ∣ refl ∣)))
   Memˡ-inj (cons x xs x>xs) (cons y ys y>ys) e =
      ⊔-elim (x ≡ₚ y) (x ∈ʰ unsort ys)
        (λ _ → ((cons x xs x>xs) ≡ (cons y ys y>ys)) , SDL-isSet _ _)
@@ -212,7 +212,7 @@ module IsoToLFSet
 
   unsort∘sort : ∀ x → unsort (sort x) ≡ x
   unsort∘sort =
-     LFSet.PropElim.f (λ x → unsort (sort x) ≡ x)
+     LFSet.PropElim.f
        refl
        (λ x {ys} ys-hyp → insert-correct x (sort ys) ∙ cong (λ q → x ∷ q) ys-hyp)
        (λ xs → trunc (unsort (sort xs)) xs)
