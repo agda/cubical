@@ -256,7 +256,7 @@ module experiment where
 
   replaceGoal : {A B : Type} {x y : A} → (e : A ≃ B)
                 (h : invEq e (equivFun e x) ≡ invEq e (equivFun e y)) → x ≡ y
-  replaceGoal e h = sym (secEq e _) ∙∙ h ∙∙ secEq e _
+  replaceGoal e h = sym (retEq e _) ∙∙ h ∙∙ retEq e _
 
   _ : addFinMatrix ℤ-AbGroup M N ≡ (λ _ _ → 1)
   _ = replaceGoal (FinMatrix≃VecMatrix) refl

@@ -59,12 +59,12 @@ inv (characFunSpace𝕂² A) (x , p , q , sq) (line2 i) = q i
 inv (characFunSpace𝕂² A) (x , p , q , sq) (square i j) =
   invEq (Square≃doubleComp q q (sym p) p) sq i j
 rightInv (characFunSpace𝕂² A) (x , (p , (q , sq))) =
-  ΣPathP (refl , (ΣPathP (refl , (ΣPathP (refl , retEq (Square≃doubleComp q q (sym p) p) sq)))))
+  ΣPathP (refl , (ΣPathP (refl , (ΣPathP (refl , secEq (Square≃doubleComp q q (sym p) p) sq)))))
 leftInv (characFunSpace𝕂² A) f _ point = f point
 leftInv (characFunSpace𝕂² A) f _ (line1 i) = f (line1 i)
 leftInv (characFunSpace𝕂² A) f _ (line2 i) = f (line2 i)
 leftInv (characFunSpace𝕂² A) f z (square i j) =
-  secEq (Square≃doubleComp
+  retEq (Square≃doubleComp
           (cong f line2) (cong f line2)
           (sym (cong f line1)) (cong f line1))
           (λ i j → f (square i j)) z i j

@@ -29,8 +29,8 @@ leftCancellable : {X : Type ℓ} {Y : Type ℓ'} → (X → Y) → Type (ℓ-max
 leftCancellable f = ∀ {x x'} → f x ≡ f x' → x ≡ x'
 
 equivLC : {X : Type ℓ} {Y : Type ℓ'} (f : X → Y) → isEquiv f → leftCancellable f
-equivLC f e {x} {x'} p i = hcomp (λ j → \ {(i = i0) → secEq (f , e) x j ;
-                                           (i = i1) → secEq (f , e) x' j})
+equivLC f e {x} {x'} p i = hcomp (λ j → \ {(i = i0) → retEq (f , e) x j ;
+                                           (i = i1) → retEq (f , e) x' j})
                                  (invEq (f , e) (p i))
 
 univalence-gives-funext : funext ℓ' ℓ

@@ -79,10 +79,10 @@ isOfHLevelProd {A = A} {B = B} n h1 h2 =
     ψ (c , d) = equivFun (invEquiv f) c , equivFun (invEquiv g) d
 
     η : section φ ψ
-    η (c , d) i = retEq f c i , retEq g d i
+    η (c , d) i = secEq f c i , secEq g d i
 
     ε : retract φ ψ
-    ε (a , b) i = secEq f a i , secEq g b i
+    ε (a , b) i = retEq f a i , retEq g b i
 
 
 {- Some simple ismorphisms -}

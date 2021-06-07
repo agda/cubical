@@ -307,7 +307,7 @@ module _ (spec : InternalSpec ℕ) where
 
     fwdBwdDatum : Vec R.Term 4 → R.Term → R.Term → InternalDatumField × ℕ → R.Term
     fwdBwdDatum (A ∷ B ∷ e ∷ q ∷ _) j i (dat , n) =
-      R.def (quote retEq)
+      R.def (quote secEq)
         (tApply
           (v n)
           (tStrProj A (dat .sfield) v∷ tStrProj B (dat .sfield) v∷ e v∷ [])
@@ -322,7 +322,7 @@ module _ (spec : InternalSpec ℕ) where
     bwdFwdClause : Vec R.Term 4 → R.Term → InternalDatumField × ℕ → R.Clause
     bwdFwdClause (A ∷ B ∷ e ∷ streq ∷ _) j (dat , n) =
       R.clause [] (R.proj (dat .efield) v∷ [])
-        (R.def (quote secEq)
+        (R.def (quote retEq)
           (tApply
             (v n)
             (tStrProj A (dat .sfield) v∷ tStrProj B (dat .sfield) v∷ e v∷ [])
