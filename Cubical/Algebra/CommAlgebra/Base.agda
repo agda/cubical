@@ -4,29 +4,31 @@ module Cubical.Algebra.CommAlgebra.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Reflection.StrictEquiv
-
-open import Cubical.Structures.Axioms
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
-open import Cubical.Algebra.Algebra hiding (⟨_⟩a)
+open import Cubical.Algebra.Algebra
+
+open import Cubical.Displayed.Base
+open import Cubical.Displayed.Auto
+open import Cubical.Displayed.Record
+open import Cubical.Displayed.Universe
+
+open import Cubical.Reflection.RecordEquiv
 
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ' : Level
 
-record IsCommAlgebra (R : CommRing {ℓ}) {A : Type ℓ}
+record IsCommAlgebra (R : CommRing ℓ) {A : Type ℓ'}
                      (0a : A) (1a : A)
                      (_+_ : A → A → A) (_·_ : A → A → A) (-_ : A → A)
-                     (_⋆_ : ⟨ R ⟩ → A → A) : Type ℓ where
+                     (_⋆_ : ⟨ R ⟩ → A → A) : Type (ℓ-max ℓ ℓ') where
 
   constructor iscommalgebra
 
@@ -36,41 +38,44 @@ record IsCommAlgebra (R : CommRing {ℓ}) {A : Type ℓ}
 
   open IsAlgebra isAlgebra public
 
-record CommAlgebra (R : CommRing {ℓ}) : Type (ℓ-suc ℓ) where
+unquoteDecl IsCommAlgebraIsoΣ = declareRecordIsoΣ IsCommAlgebraIsoΣ (quote IsCommAlgebra)
 
-  constructor commalgebra
+record CommAlgebraStr (R : CommRing ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ') where
+
+  constructor commalgebrastr
 
   field
-    Carrier        : Type ℓ
-    0a             : Carrier
-    1a             : Carrier
-    _+_            : Carrier → Carrier → Carrier
-    _·_            : Carrier → Carrier → Carrier
-    -_             : Carrier → Carrier
-    _⋆_            : ⟨ R ⟩ → Carrier → Carrier
-    isCommAlgebra  : IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_
+    0a             : A
+    1a             : A
+    _+_            : A → A → A
+    _·_            : A → A → A
+    -_             : A → A
+    _⋆_            : ⟨ R ⟩ → A → A
+    isCommAlgebra      : IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_
 
   open IsCommAlgebra isCommAlgebra public
 
-module _ {R : CommRing {ℓ}} where
+CommAlgebra : (R : CommRing ℓ) → ∀ ℓ' → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+CommAlgebra R ℓ' = Σ[ A ∈ Type ℓ' ] CommAlgebraStr R A
+
+module _ {R : CommRing ℓ} where
   open CommRingStr (snd R) using (1r) renaming (_+_ to _+r_; _·_ to _·s_)
 
-  ⟨_⟩a : CommAlgebra R → Type ℓ
-  ⟨_⟩a = CommAlgebra.Carrier
+  CommAlgebraStr→AlgebraStr : {A : Type ℓ'} → CommAlgebraStr R A → AlgebraStr (CommRing→Ring R) A
+  CommAlgebraStr→AlgebraStr (commalgebrastr _ _ _ _ _ _ (iscommalgebra isAlgebra ·-comm)) =
+    algebrastr _ _ _ _ _ _ isAlgebra
 
-  CommAlgebra→Algebra : (A : CommAlgebra R) → Algebra (CommRing→Ring R)
-  CommAlgebra→Algebra (commalgebra Carrier _ _ _ _ _ _ (iscommalgebra isAlgebra ·-comm)) =
-    algebra Carrier _ _ _ _ _ _ isAlgebra
+  CommAlgebra→Algebra : (A : CommAlgebra R ℓ') → Algebra (CommRing→Ring R) ℓ'
+  CommAlgebra→Algebra (_ , str) = (_ , CommAlgebraStr→AlgebraStr str)
 
-  CommAlgebra→CommRing : (A : CommAlgebra R) → CommRing {ℓ}
-  CommAlgebra→CommRing (commalgebra Carrier _ _ _ _ _ _
-                          (iscommalgebra isAlgebra ·-comm)) =
+  CommAlgebra→CommRing : (A : CommAlgebra R ℓ') → CommRing ℓ'
+  CommAlgebra→CommRing (_ , commalgebrastr  _ _ _ _ _ _ (iscommalgebra isAlgebra ·-comm)) =
     _ , commringstr _ _ _ _ _ (iscommring (IsAlgebra.isRing isAlgebra) ·-comm)
 
-  CommAlgebraEquiv : (R S : CommAlgebra R) → Type ℓ
-  CommAlgebraEquiv R S = AlgebraEquiv (CommAlgebra→Algebra R) (CommAlgebra→Algebra S)
+  isSetCommAlgebra : (A : CommAlgebra R ℓ') → isSet ⟨ A ⟩
+  isSetCommAlgebra A = isSetAlgebra (CommAlgebra→Algebra A)
 
-  makeIsCommAlgebra : {A : Type ℓ} {0a 1a : A}
+  makeIsCommAlgebra : {A : Type ℓ'} {0a 1a : A}
                       {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
                       (isSet-A : isSet A)
                       (+-assoc :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
@@ -87,7 +92,7 @@ module _ {R : CommRing {ℓ}} where
                       (⋆-lid   : (x : A) → 1r ⋆ x ≡ x)
                       (⋆-lassoc : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
                     → IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_
-  makeIsCommAlgebra {A} {0a} {1a} {_+_} {_·_} { -_} {_⋆_} isSet-A
+  makeIsCommAlgebra {A = A} {0a} {1a} {_+_} {_·_} { -_} {_⋆_} isSet-A
                     +-assoc +-rid +-rinv +-comm
                     ·-assoc ·-lid ·-ldist-+ ·-comm
                     ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid ⋆-lassoc
@@ -115,57 +120,56 @@ module _ {R : CommRing {ℓ}} where
                    x · (r ⋆ y) ∎)
      ·-comm
 
-module CommAlgebraΣTheory (R : CommRing {ℓ}) where
+  IsCommAlgebraEquiv : {A B : Type ℓ'}
+    (M : CommAlgebraStr R A) (e : A ≃ B) (N : CommAlgebraStr R B)
+    → Type (ℓ-max ℓ ℓ')
+  IsCommAlgebraEquiv M e N =
+    IsAlgebraHom (CommAlgebraStr→AlgebraStr M) (e .fst) (CommAlgebraStr→AlgebraStr N)
 
-  open AlgebraΣTheory (CommRing→Ring R)
+  CommAlgebraEquiv : (M N : CommAlgebra R ℓ') → Type (ℓ-max ℓ ℓ')
+  CommAlgebraEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsCommAlgebraEquiv (M .snd) e (N .snd)
 
-  CommAlgebraAxioms : (A : Type ℓ) (s : RawAlgebraStructure A) → Type ℓ
-  CommAlgebraAxioms A (_+_ , _·_ , 1a , _⋆_) = AlgebraAxioms A (_+_ , _·_ , 1a , _⋆_)
-                                      × ((x y : A) → x · y ≡ y · x)
+  IsCommAlgebraHom : {A B : Type ℓ'}
+    (M : CommAlgebraStr R A) (f : A → B) (N : CommAlgebraStr R B)
+    → Type (ℓ-max ℓ ℓ')
+  IsCommAlgebraHom M f N =
+    IsAlgebraHom (CommAlgebraStr→AlgebraStr M) f (CommAlgebraStr→AlgebraStr N)
 
-  CommAlgebraStructure : Type ℓ → Type ℓ
-  CommAlgebraStructure = AxiomsStructure RawAlgebraStructure CommAlgebraAxioms
+  CommAlgebraHom : (M N : CommAlgebra R ℓ') → Type (ℓ-max ℓ ℓ')
+  CommAlgebraHom M N = Σ[ f ∈ (⟨ M ⟩ → ⟨ N ⟩) ] IsCommAlgebraHom (M .snd) f (N .snd)
 
-  CommAlgebraΣ : Type (ℓ-suc ℓ)
-  CommAlgebraΣ = TypeWithStr ℓ CommAlgebraStructure
+isPropIsCommAlgebra : (R : CommRing ℓ) {A : Type ℓ'}
+  (0a 1a : A)
+  (_+_ _·_ : A → A → A)
+  (-_ : A → A)
+  (_⋆_ : ⟨ R ⟩ → A → A)
+  → isProp (IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_)
+isPropIsCommAlgebra R _ _ _ _ _ _ =
+  isOfHLevelRetractFromIso 1 IsCommAlgebraIsoΣ
+    (isPropΣ (isPropIsAlgebra _ _ _ _ _ _ _)
+      (λ alg → isPropΠ2 λ _ _ → alg .IsAlgebra.is-set _ _))
 
-  CommAlgebraEquivStr : StrEquiv CommAlgebraStructure ℓ
-  CommAlgebraEquivStr = AxiomsEquivStr RawAlgebraEquivStr CommAlgebraAxioms
+𝒮ᴰ-CommAlgebra : (R : CommRing ℓ) → DUARel (𝒮-Univ ℓ') (CommAlgebraStr R) (ℓ-max ℓ ℓ')
+𝒮ᴰ-CommAlgebra R =
+  𝒮ᴰ-Record (𝒮-Univ _) (IsCommAlgebraEquiv {R = R})
+    (fields:
+      data[ 0a ∣ nul ∣ pres0 ]
+      data[ 1a ∣ nul ∣ pres1 ]
+      data[ _+_ ∣ bin ∣ pres+ ]
+      data[ _·_ ∣ bin ∣ pres· ]
+      data[ -_ ∣ autoDUARel _ _ ∣ pres- ]
+      data[ _⋆_ ∣ autoDUARel _ _ ∣ pres⋆ ]
+      prop[ isCommAlgebra ∣ (λ _ _ → isPropIsCommAlgebra _ _ _ _ _ _ _) ])
+  where
+  open CommAlgebraStr
+  open IsAlgebraHom
 
-  isPropCommAlgebraAxioms : (A : Type ℓ) (s : RawAlgebraStructure A)
-                       → isProp (CommAlgebraAxioms A s)
-  isPropCommAlgebraAxioms A (_+_ , _·_ , 1a , _⋆_) =
-    isPropΣ (isPropAlgebraAxioms A (_+_ , _·_ , 1a , _⋆_))
-           λ isAlgebra → isPropΠ2 λ _ _ → (isSetAlgebraΣ (A , _ , isAlgebra)) _ _
+  -- faster with some sharing
+  nul = autoDUARel (𝒮-Univ _) (λ A → A)
+  bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
 
-  CommAlgebra→CommAlgebraΣ : CommAlgebra R → CommAlgebraΣ
-  CommAlgebra→CommAlgebraΣ (commalgebra _ _ _ _ _ _ _ (iscommalgebra G C)) =
-    _ , _ , Algebra→AlgebraΣ (algebra _ _ _ _ _ _ _ G) .snd .snd , C
+CommAlgebraPath : (R : CommRing ℓ) → (A B : CommAlgebra R ℓ') → (CommAlgebraEquiv A B) ≃ (A ≡ B)
+CommAlgebraPath R = ∫ (𝒮ᴰ-CommAlgebra R) .UARel.ua
 
-  CommAlgebraΣ→CommAlgebra : CommAlgebraΣ → CommAlgebra R
-  CommAlgebraΣ→CommAlgebra (_ , _ , G , C) =
-    commalgebra _ _ _ _ _ _ _ (iscommalgebra (AlgebraΣ→Algebra (_ , _ , G) .Algebra.isAlgebra) C)
-
-  CommAlgebraIsoCommAlgebraΣ : Iso (CommAlgebra R) CommAlgebraΣ
-  CommAlgebraIsoCommAlgebraΣ =
-    iso CommAlgebra→CommAlgebraΣ CommAlgebraΣ→CommAlgebra (λ _ → refl) (λ _ → refl)
-
-  commAlgebraUnivalentStr : UnivalentStr CommAlgebraStructure CommAlgebraEquivStr
-  commAlgebraUnivalentStr = axiomsUnivalentStr _ isPropCommAlgebraAxioms rawAlgebraUnivalentStr
-
-  CommAlgebraΣPath : (A B : CommAlgebraΣ) → (A ≃[ CommAlgebraEquivStr ] B) ≃ (A ≡ B)
-  CommAlgebraΣPath = SIP commAlgebraUnivalentStr
-
-  CommAlgebraEquivΣ : (A B : CommAlgebra R) → Type ℓ
-  CommAlgebraEquivΣ A B = CommAlgebra→CommAlgebraΣ A ≃[ CommAlgebraEquivStr ] CommAlgebra→CommAlgebraΣ B
-
-  CommAlgebraPath : (A B : CommAlgebra R) → (CommAlgebraEquiv A B) ≃ (A ≡ B)
-  CommAlgebraPath A B =
-    CommAlgebraEquiv A B   ≃⟨ strictIsoToEquiv AlgebraEquivΣPath ⟩
-    CommAlgebraEquivΣ A B  ≃⟨ CommAlgebraΣPath _ _ ⟩
-    CommAlgebra→CommAlgebraΣ A ≡ CommAlgebra→CommAlgebraΣ B
-      ≃⟨ isoToEquiv (invIso (congIso CommAlgebraIsoCommAlgebraΣ)) ⟩
-    A ≡ B ■
-
-CommAlgebraPath : (R : CommRing {ℓ}) → (A B : CommAlgebra R) → (CommAlgebraEquiv A B) ≃ (A ≡ B)
-CommAlgebraPath = CommAlgebraΣTheory.CommAlgebraPath
+isGroupoidCommAlgebra : {R : CommRing ℓ} → isGroupoid (CommAlgebra R ℓ')
+isGroupoidCommAlgebra A B = isOfHLevelRespectEquiv 2 (CommAlgebraPath _ _ _) (isSetAlgebraEquiv _ _)

@@ -29,7 +29,7 @@ private
   that should become obsolete or subject to change once we have a
   ring solver (see https://github.com/agda/cubical/issues/297)
 -}
-module RingTheory (R' : Ring {ℓ}) where
+module RingTheory (R' : Ring ℓ) where
 
   open RingStr (snd R')
   private R = ⟨ R' ⟩
@@ -156,45 +156,33 @@ module RingTheory (R' : Ring {ℓ}) where
   ·-assoc2 : (x y z w : R) → (x · y) · (z · w) ≡ x · (y · z) · w
   ·-assoc2 x y z w = ·Assoc (x · y) z w ∙ cong (_· w) (sym (·Assoc x y z))
 
-module HomTheory {R S : Ring {ℓ}} (f′ : RingHom  R S) where
+module HomTheory {R S : Ring ℓ} (f′ : RingHom  R S) where
   open RingTheory ⦃...⦄
   open RingStr ⦃...⦄
-  open RingHom f′
+  open IsRingHom (f′ .snd)
   private
     instance
       _ = R
       _ = S
       _ = snd R
       _ = snd S
-
-  homPres0 : f 0r ≡ 0r
-  homPres0 = +Idempotency→0 (f 0r)
-               (f 0r        ≡⟨ sym (cong f 0Idempotent) ⟩
-                f (0r + 0r) ≡⟨ isHom+ _ _ ⟩
-                f 0r + f 0r ∎)
-
-  -commutesWithHom : (x : ⟨ R ⟩) → f (- x) ≡ - (f x)
-  -commutesWithHom x = implicitInverse _ _
-                         (f x + f (- x)   ≡⟨ sym (isHom+ _ _) ⟩
-                          f (x + (- x))   ≡⟨ cong f (+Rinv x) ⟩
-                          f 0r            ≡⟨ homPres0 ⟩
-                          0r ∎)
+    f = fst f′
 
   ker≡0→inj : ({x : ⟨ R ⟩} → f x ≡ 0r → x ≡ 0r)
             → ({x y : ⟨ R ⟩} → f x ≡ f y → x ≡ y)
   ker≡0→inj ker≡0 {x} {y} p = equalByDifference _ _ (ker≡0 path)
    where
    path : f (x - y) ≡ 0r
-   path = f (x - y)     ≡⟨ isHom+ _ _ ⟩
-          f x + f (- y) ≡⟨ cong (f x +_) (-commutesWithHom _) ⟩
+   path = f (x - y)     ≡⟨ pres+ _ _ ⟩
+          f x + f (- y) ≡⟨ cong (f x +_) (pres- _) ⟩
           f x - f y     ≡⟨ cong (_- f y) p ⟩
           f y - f y     ≡⟨ +Rinv _ ⟩
           0r            ∎
 
 
-module _{R S : Ring {ℓ}} (φ ψ : RingHom  R S) where
+module _{R S : Ring ℓ} (φ ψ : RingHom R S) where
  open RingStr ⦃...⦄
- open RingHom
+ open IsRingHom
  private
    instance
      _ = R
@@ -202,12 +190,5 @@ module _{R S : Ring {ℓ}} (φ ψ : RingHom  R S) where
      _ = snd R
      _ = snd S
 
- RingHom≡f : f φ ≡ f ψ → φ ≡ ψ
- f (RingHom≡f p i) = p i
- pres1 (RingHom≡f p i) = isProp→PathP {B = λ i → p i 1r ≡ 1r}
-                                      (λ _ → is-set _ _) (pres1 φ) (pres1 ψ) i
- isHom+ (RingHom≡f p i) = isProp→PathP {B = λ i → ∀ x y → p i (x + y) ≡ (p i x) + (p i y) }
-                                      (λ _ → isPropΠ2 (λ _ _ → is-set _ _)) (isHom+ φ) (isHom+ ψ) i
- isHom· (RingHom≡f p i) = isProp→PathP {B = λ i → ∀ x y → p i (x · y) ≡ (p i x) · (p i y) }
-                                      (λ _ → isPropΠ2 (λ _ _ → is-set _ _)) (isHom· φ) (isHom· ψ) i
-
+ RingHom≡f : fst φ ≡ fst ψ → φ ≡ ψ
+ RingHom≡f = Σ≡Prop λ f → isPropIsRingHom _ f _

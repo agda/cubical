@@ -13,7 +13,7 @@ open import Cubical.Homotopy.Loopspace
 
 open import Cubical.HITs.SetTruncation as SetTrunc
 
-π^_ : ∀ {ℓ} → ℕ → Pointed ℓ → Group
+π^_ : ∀ {ℓ} → ℕ → Pointed ℓ → Group ℓ
 π^_ {ℓ} n p = makeGroup e _⨀_ _⁻¹ setTruncIsSet assoc rUnit lUnit rCancel lCancel
   where
     n' : ℕ

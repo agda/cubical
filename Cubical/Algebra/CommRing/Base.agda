@@ -12,9 +12,11 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Reflection.StrictEquiv
+open import Cubical.Displayed.Base
+open import Cubical.Displayed.Auto
+open import Cubical.Displayed.Record
+open import Cubical.Displayed.Universe
 
-open import Cubical.Structures.Axioms
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.AbGroup
@@ -24,7 +26,7 @@ open Iso
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 record IsCommRing {R : Type ℓ}
                   (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R) : Type ℓ where
@@ -55,8 +57,8 @@ record CommRingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
   open IsCommRing isCommRing public
 
-CommRing : Type (ℓ-suc ℓ)
-CommRing = TypeWithStr _ CommRingStr
+CommRing : ∀ ℓ → Type (ℓ-suc ℓ)
+CommRing ℓ = TypeWithStr ℓ CommRingStr
 
 
 makeIsCommRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
@@ -85,76 +87,25 @@ makeCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R →
                (·-rid : (x : R) → x · 1r ≡ x)
                (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
                (·-comm : (x y : R) → x · y ≡ y · x)
-             → CommRing
+             → CommRing ℓ
 makeCommRing 0r 1r _+_ _·_ -_ is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm =
   _ , commringstr _ _ _ _ _ (makeIsCommRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm)
 
-CommRing→Ring : CommRing {ℓ} → Ring
+CommRingStr→RingStr : {A : Type ℓ} → CommRingStr A → RingStr A
+CommRingStr→RingStr (commringstr _ _ _ _ _ H) = ringstr _ _ _ _ _ (IsCommRing.isRing H)
+
+CommRing→Ring : CommRing ℓ → Ring ℓ
 CommRing→Ring (_ , commringstr _ _ _ _ _ H) = _ , ringstr _ _ _ _ _ (IsCommRing.isRing H)
 
-CommRingEquiv : (R S : CommRing) (e : ⟨ R ⟩ ≃ ⟨ S ⟩) → Type ℓ
-CommRingEquiv R S e = RingEquiv (CommRing→Ring R) (CommRing→Ring S) e
-
-CommRingHom : (R S : CommRing) → Type ℓ
+CommRingHom : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
 CommRingHom R S = RingHom (CommRing→Ring R) (CommRing→Ring S)
 
-module CommRingΣTheory {ℓ} where
+IsCommRingEquiv : {A : Type ℓ} {B : Type ℓ'}
+  (R : CommRingStr A) (e : A ≃ B) (S : CommRingStr B) → Type (ℓ-max ℓ ℓ')
+IsCommRingEquiv R e S = IsRingHom (CommRingStr→RingStr R) (e .fst) (CommRingStr→RingStr S)
 
-  open RingΣTheory
-
-  CommRingAxioms : (R : Type ℓ) (s : RawRingStructure R) → Type ℓ
-  CommRingAxioms R (_+_ , 1r , _·_) = RingAxioms R (_+_ , 1r , _·_)
-                                      × ((x y : R) → x · y ≡ y · x)
-  CommRingStructure : Type ℓ → Type ℓ
-  CommRingStructure = AxiomsStructure RawRingStructure CommRingAxioms
-
-  CommRingΣ : Type (ℓ-suc ℓ)
-  CommRingΣ = TypeWithStr ℓ CommRingStructure
-
-  CommRingEquivStr : StrEquiv CommRingStructure ℓ
-  CommRingEquivStr = AxiomsEquivStr RawRingEquivStr CommRingAxioms
-
-  isPropCommRingAxioms : (R : Type ℓ) (s : RawRingStructure R)
-                       → isProp (CommRingAxioms R s)
-  isPropCommRingAxioms R (_·_ , 0r , _+_) =
-    isPropΣ (isPropRingAxioms R (_·_ , 0r , _+_))
-            λ { (_ , x , _) → isPropΠ2 λ _ _ →
-                  x .IsMonoid.isSemigroup .IsSemigroup.is-set _ _}
-
-  CommRing→CommRingΣ : CommRing → CommRingΣ
-  CommRing→CommRingΣ (_ , commringstr _ _ _ _ _ (iscommring G C)) =
-    _ , _ , Ring→RingΣ (_ , ringstr _ _ _ _ _ G) .snd .snd , C
-
-  CommRingΣ→CommRing : CommRingΣ → CommRing
-  CommRingΣ→CommRing (_ , _ , G , C) =
-    _ , commringstr _ _ _ _ _ (iscommring (RingΣ→Ring (_ , _ , G) .snd .RingStr.isRing) C)
-
-  CommRingIsoCommRingΣ : Iso CommRing CommRingΣ
-  CommRingIsoCommRingΣ =
-    iso CommRing→CommRingΣ CommRingΣ→CommRing (λ _ → refl) (λ _ → refl)
-
-  commRingUnivalentStr : UnivalentStr CommRingStructure CommRingEquivStr
-  commRingUnivalentStr = axiomsUnivalentStr _ isPropCommRingAxioms rawRingUnivalentStr
-
-  CommRingΣPath : (R S : CommRingΣ) → (R ≃[ CommRingEquivStr ] S) ≃ (R ≡ S)
-  CommRingΣPath = SIP commRingUnivalentStr
-
-  CommRingEquivΣ : (R S : CommRing) → Type ℓ
-  CommRingEquivΣ R S = CommRing→CommRingΣ R ≃[ CommRingEquivStr ] CommRing→CommRingΣ S
-
-  CommRingPath : (R S : CommRing) → (Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] CommRingEquiv R S e) ≃ (R ≡ S)
-  CommRingPath R S =
-    Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] CommRingEquiv R S e ≃⟨ strictIsoToEquiv RingIsoΣPath ⟩
-    CommRingEquivΣ R S  ≃⟨ CommRingΣPath _ _ ⟩
-    CommRing→CommRingΣ R ≡ CommRing→CommRingΣ S
-      ≃⟨ isoToEquiv (invIso (congIso CommRingIsoCommRingΣ)) ⟩
-    R ≡ S ■
-
-CommRingPath : (R S : CommRing {ℓ}) → (Σ[ e ∈ ⟨ R ⟩ ≃ ⟨ S ⟩ ] CommRingEquiv R S e) ≃ (R ≡ S)
-CommRingPath = CommRingΣTheory.CommRingPath
-
-isSetCommRing : ((R , str) : CommRing {ℓ}) → isSet R
-isSetCommRing (R , str) = str .CommRingStr.is-set
+CommRingEquiv : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
+CommRingEquiv R S = Σ[ e ∈ (R .fst ≃ S .fst) ] IsCommRingEquiv (R .snd) e (S .snd)
 
 isPropIsCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
              → isProp (IsCommRing 0r 1r _+_ _·_ -_)
@@ -167,3 +118,27 @@ isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
 
   isPropComm : isProp ((x y : _) → x · y ≡ y · x)
   isPropComm = isPropΠ2 λ _ _ → isSetR _ _
+
+𝒮ᴰ-CommRing : DUARel (𝒮-Univ ℓ) CommRingStr ℓ
+𝒮ᴰ-CommRing =
+  𝒮ᴰ-Record (𝒮-Univ _) IsCommRingEquiv
+    (fields:
+      data[ 0r ∣ null ∣ pres0 ]
+      data[ 1r ∣ null ∣ pres1 ]
+      data[ _+_ ∣ bin ∣ pres+ ]
+      data[ _·_ ∣ bin ∣ pres· ]
+      data[ -_ ∣ autoDUARel _ _ ∣ pres- ]
+      prop[ isCommRing ∣ (λ _ _ → isPropIsCommRing _ _ _ _ _) ])
+ where
+  open CommRingStr
+  open IsRingHom
+
+  -- faster with some sharing
+  null = autoDUARel (𝒮-Univ _) (λ A → A)
+  bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
+
+CommRingPath : (R S : CommRing ℓ) → CommRingEquiv R S ≃ (R ≡ S)
+CommRingPath = ∫ 𝒮ᴰ-CommRing .UARel.ua
+
+isSetCommRing : ((R , str) : CommRing ℓ) → isSet R
+isSetCommRing (R , str) = str .CommRingStr.is-set

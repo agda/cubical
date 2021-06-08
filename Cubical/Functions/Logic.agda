@@ -104,8 +104,8 @@ substₚ {x = x} {y = y} B = PropTrunc.elim (λ _ → isPropΠ λ _ → isProp�
 ⊥ : hProp _
 ⊥ = ⊥.⊥ , λ ()
 
-⊤ : hProp _
-⊤ = Unit , (λ _ _ _ → tt)
+⊤ : ∀ {ℓ} → hProp ℓ
+⊤ = Unit* , (λ _ _ _ → tt*)
 
 --------------------------------------------------------------------------------
 -- Pseudo-complement of mere propositions
@@ -248,11 +248,11 @@ Decₚ P = Dec ⟨ P ⟩ , isPropDec (isProp⟨⟩ P)
 ⊓-idem : (P : hProp ℓ) → P ⊓ P ≡ P
 ⊓-idem _ = ⇔toPath fst (λ x → x , x)
 
-⊓-identityˡ : (P : hProp ℓ) → ⊤ ⊓ P ≡ P
-⊓-identityˡ _ = ⇔toPath snd λ x → tt , x
+⊓-identityˡ : (P : hProp ℓ) → ⊤ {ℓ} ⊓ P ≡ P
+⊓-identityˡ _ = ⇔toPath snd λ x → tt* , x
 
-⊓-identityʳ : (P : hProp ℓ) → P ⊓ ⊤ ≡ P
-⊓-identityʳ _ = ⇔toPath fst λ x → x , tt
+⊓-identityʳ : (P : hProp ℓ) → P ⊓ ⊤ {ℓ} ≡ P
+⊓-identityʳ _ = ⇔toPath fst λ x → x , tt*
 
 --------------------------------------------------------------------------------
 -- Distributive laws

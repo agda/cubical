@@ -27,9 +27,6 @@ open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
 
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.RingSolver.ReflectionSolving
@@ -46,14 +43,14 @@ private
 
 
 -- A multiplicatively closed subset is assumed to contain 1
-record isMultClosedSubset (R' : CommRing {ℓ}) (S' : ℙ (fst R')) : Type ℓ where
+record isMultClosedSubset (R' : CommRing ℓ) (S' : ℙ (fst R')) : Type ℓ where
  constructor
    multclosedsubset
  field
    containsOne : (R' .snd .CommRingStr.1r) ∈ S'
    multClosed : ∀ {s t} → s ∈ S' → t ∈ S' → ((snd R') .CommRingStr._·_ s t) ∈ S'
 
-module Loc (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClosedSubset R' S') where
+module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClosedSubset R' S') where
  open isMultClosedSubset
  private R = fst R'
  open CommRingStr (snd R')
@@ -283,7 +280,7 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMult
 
 
  -- Commutative ring structure on S⁻¹R
- S⁻¹RAsCommRing : CommRing
+ S⁻¹RAsCommRing : CommRing ℓ
  S⁻¹RAsCommRing = S⁻¹R , S⁻¹RCommRingStr
   where
   open CommRingStr

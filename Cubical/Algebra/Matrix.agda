@@ -76,7 +76,7 @@ FinMatrix≡VecMatrix : (A : Type ℓ) (m n : ℕ) → FinMatrix A m n ≡ VecMa
 FinMatrix≡VecMatrix _ _ _ = ua FinMatrix≃VecMatrix
 
 -- Define abelian group structure on matrices
-module FinMatrixAbGroup (G' : AbGroup {ℓ}) where
+module FinMatrixAbGroup (G' : AbGroup ℓ) where
 
   open AbGroupStr (snd G') renaming ( is-set to isSetG )
   private G = ⟨ G' ⟩
@@ -117,7 +117,7 @@ module FinMatrixAbGroup (G' : AbGroup {ℓ}) where
                    → addFinMatrix M N ≡ addFinMatrix N M
   addFinMatrixComm M N i k l = comm (M k l) (N k l) i
 
-  FinMatrixAbGroup : (m n : ℕ) → AbGroup {ℓ}
+  FinMatrixAbGroup : (m n : ℕ) → AbGroup ℓ
   FinMatrixAbGroup m n =
     makeAbGroup {G = FinMatrix G m n} zeroFinMatrix addFinMatrix negFinMatrix
                 isSetFinMatrix addFinMatrixAssoc addFinMatrix0r
@@ -126,7 +126,7 @@ module FinMatrixAbGroup (G' : AbGroup {ℓ}) where
 
 -- Define a abelian group structure on vector matrices and prove that
 -- it is equal to FinMatrixAbGroup using the SIP
-module _ (G' : AbGroup {ℓ}) where
+module _ (G' : AbGroup ℓ) where
 
   open AbGroupStr (snd G')
   private G = ⟨ G' ⟩
@@ -162,20 +162,20 @@ module _ (G' : AbGroup {ℓ}) where
 
   -- Combine everything to get an induced abelian group structure of
   -- VecMatrix that is equal to the one on FinMatrix
-  VecMatrixAbGroup : (m n : ℕ) → AbGroup
+  VecMatrixAbGroup : (m n : ℕ) → AbGroup ℓ
   VecMatrixAbGroup m n =
-    InducedAbGroup (FinMatrixAbGroup G' m n) (_ , addVecMatrix)
-                    FinMatrix≃VecMatrix (FinMatrix→VecMatrixHomAdd m n)
+    InducedAbGroup (FinMatrixAbGroup G' m n) addVecMatrix
+      FinMatrix≃VecMatrix (FinMatrix→VecMatrixHomAdd m n)
 
   FinMatrixAbGroup≡VecMatrixAbGroup : (m n : ℕ) → FinMatrixAbGroup G' m n ≡ VecMatrixAbGroup m n
   FinMatrixAbGroup≡VecMatrixAbGroup m n =
-    InducedAbGroupPath (FinMatrixAbGroup G' m n) (_ , addVecMatrix)
-                        FinMatrix≃VecMatrix (FinMatrix→VecMatrixHomAdd m n)
+    InducedAbGroupPath (FinMatrixAbGroup G' m n) addVecMatrix
+      FinMatrix≃VecMatrix (FinMatrix→VecMatrixHomAdd m n)
 
 
 -- Define identity matrix and matrix multiplication for FinMatrix and
 -- prove that square matrices form a ring
-module _ (R' : Ring {ℓ}) where
+module _ (R' : Ring ℓ) where
 
   open RingStr (snd R') renaming ( is-set to isSetR )
   open RingTheory R'
@@ -293,7 +293,7 @@ module _ (R' : Ring {ℓ}) where
     ∑ (λ k → M i k · K k j + N i k · K k j)           ≡⟨ sumVecSplit (λ k → M i k · K k j) (λ k → N i k · K k j) ⟩
     ∑ (λ k → M i k · K k j) + ∑ (λ k → N i k · K k j) ∎
 
-  FinMatrixRing : (n : ℕ) → Ring {ℓ}
+  FinMatrixRing : (n : ℕ) → Ring ℓ
   FinMatrixRing n =
     makeRing {R = FinMatrix R n n} zeroFinMatrix oneFinMatrix addFinMatrix
              mulFinMatrix negFinMatrix isSetFinMatrix addFinMatrixAssoc

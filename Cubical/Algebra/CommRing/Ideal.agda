@@ -18,10 +18,10 @@ private
   variable
     ℓ : Level
 
-IdealsIn : (R : CommRing {ℓ}) → Type _
+IdealsIn : (R : CommRing ℓ) → Type _
 IdealsIn R = IdealsInRing (CommRing→Ring R)
 
-module _ (Ring@(R , str) : CommRing {ℓ}) where
+module _ (Ring@(R , str) : CommRing ℓ) where
   open CommRingStr str
   makeIdeal : (I : R → hProp ℓ)
               → (+-closed : {x y : R} → x ∈ I → y ∈ I → (x + y) ∈ I)

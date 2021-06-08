@@ -55,10 +55,10 @@ NatΣ τ (x , a) = (x , τ x a)
   g x = equivFun (invEquiv (φ x))
 
   η : (x : X) → (a : A x) → (g x) ((f x) a) ≡ a
-  η x = retEq (invEquiv (φ x))
+  η x = secEq (invEquiv (φ x))
 
   ε : (x : X) → (b : B x) → f x (g x b) ≡ b
-  ε x = secEq  (invEquiv (φ x))
+  ε x = retEq  (invEquiv (φ x))
 
   NatΣ-η : (w : Σ X A) → NatΣ g (NatΣ f w) ≡ w
   NatΣ-η (x , a)  = (x , g x (f x a)) ≡⟨ Σ-to-PathP (η x a)  ⟩

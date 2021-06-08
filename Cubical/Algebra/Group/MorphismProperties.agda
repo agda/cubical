@@ -30,55 +30,68 @@ open import Cubical.HITs.PropositionalTruncation hiding (map)
 private
   variable
     ℓ ℓ' ℓ'' ℓ''' : Level
-    F G H : Group {ℓ}
+    F G H : Group ℓ
 
 open Iso
 open GroupStr
-open GroupHom
-open GroupEquiv
-open GroupIso
+open IsGroupHom
 open BijectionIso
 
 
 -- Elementary properties of homomorphisms
-module _ {G : Group {ℓ}} {H : Group {ℓ'}} where
+module _ {A : Type ℓ} {B : Type ℓ'} (G : GroupStr A) (f : A → B) (H : GroupStr B)
+  (pres : (x y : A) → f (G ._·_ x y) ≡ H ._·_ (f x) (f y))
+  where
 
   private
-    module G = GroupStr (snd G)
-    module H = GroupStr (snd H)
+    module G = GroupStr G
+    module H = GroupStr H
 
   -- ϕ(1g) ≡ 1g
-  hom1g : (f : GroupHom G H) → f .fun G.1g ≡ H.1g
-  hom1g fh@(grouphom f _) =
+  hom1g : f G.1g ≡ H.1g
+  hom1g =
     f G.1g                                  ≡⟨ sym (H.rid _) ⟩
     f G.1g H.· H.1g                         ≡⟨ (λ i → f G.1g H.· H.invr (f G.1g) (~ i)) ⟩
     f G.1g H.· (f G.1g H.· H.inv (f G.1g))  ≡⟨ H.assoc _ _ _ ⟩
     (f G.1g H.· f G.1g) H.· H.inv (f G.1g)  ≡⟨ sym (cong (λ x → x H.· _)
-                                                (sym (cong f (G.lid _)) ∙ isHom fh G.1g G.1g)) ⟩
+                                                (sym (cong f (G.lid _)) ∙ pres G.1g G.1g)) ⟩
     f G.1g H.· H.inv (f G.1g)               ≡⟨ H.invr _ ⟩
     H.1g ∎
 
   -- ϕ(- x) = - ϕ(x)
-  homInv : (f : GroupHom G H) → (g : ⟨ G ⟩) → f .fun (G.inv g) ≡ H.inv (f .fun g)
-  homInv fc@(grouphom f fh) g =
+  homInv : ∀ g → f (G.inv g) ≡ H.inv (f g)
+  homInv g =
     f (G.inv g)                            ≡⟨ sym (H.rid _) ⟩
     f (G.inv g) H.· H.1g                   ≡⟨ cong (_ H.·_) (sym (H.invr _)) ⟩
     f (G.inv g) H.· (f g H.· H.inv (f g))  ≡⟨ H.assoc _ _ _ ⟩
-    (f (G.inv g) H.· f g) H.· H.inv (f g)  ≡⟨ cong (H._· _) (sym (fh _ g) ∙∙ cong f (G.invl g) ∙∙ hom1g fc) ⟩
+    (f (G.inv g) H.· f g) H.· H.inv (f g)  ≡⟨ cong (H._· _) (sym (pres _ g) ∙∙ cong f (G.invl g) ∙∙ hom1g) ⟩
     H.1g H.· H.inv (f g)                   ≡⟨ H.lid _ ⟩
     H.inv (f g) ∎
 
+module _ {A : Type ℓ} {B : Type ℓ'} {G : GroupStr A} {f : A → B} {H : GroupStr B}
+  (pres : (x y : A) → f (G ._·_ x y) ≡ H ._·_ (f x) (f y))
+  where
+
+  makeIsGroupHom : IsGroupHom G f H
+  makeIsGroupHom .pres· = pres
+  makeIsGroupHom .pres1 = hom1g G f H pres
+  makeIsGroupHom .presinv = homInv G f H pres
+
 
 -- H-level results
-isPropIsGroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) {f : ⟨ G ⟩ → ⟨ H ⟩}
-                 → isProp (isGroupHom G H f)
-isPropIsGroupHom G H = isPropΠ2 λ a b → GroupStr.is-set (snd H) _ _
+isPropIsGroupHom : (G : Group ℓ) (H : Group ℓ') {f : ⟨ G ⟩ → ⟨ H ⟩}
+                 → isProp (IsGroupHom (G .snd) f (H .snd))
+isPropIsGroupHom G H =
+  isOfHLevelRetractFromIso 1 IsGroupHomIsoΣ
+    (isProp×
+      (isPropΠ2 λ _ _ → GroupStr.is-set (snd H) _ _)
+      (isProp×
+        (GroupStr.is-set (snd H) _ _)
+        (isPropΠ λ _ → GroupStr.is-set (snd H) _ _)))
 
 isSetGroupHom : isSet (GroupHom G H)
 isSetGroupHom {G = G} {H = H} =
-  isSetRetract
-    (λ hom → fun hom , isHom hom) (λ (g , m) → grouphom g m) (λ _ → refl)
-    (isSetΣ (isSetΠ λ _ → is-set (snd H)) λ _ → isProp→isSet (isPropIsGroupHom G H))
+  isSetΣ (isSetΠ λ _ → is-set (snd H)) λ _ → isProp→isSet (isPropIsGroupHom G H)
 
 isPropIsInIm : (f : GroupHom G H) (x : ⟨ H ⟩) → isProp (isInIm f x)
 isPropIsInIm f x = squash
@@ -104,7 +117,7 @@ isPropIsMono {G = G} f = isPropImplicitΠ2 λ _ _ → isPropΠ (λ _ → is-set 
 
 -- Logically equivalent versions of isInjective
 isMono→isInjective : (f : GroupHom G H) → isMono f → isInjective f
-isMono→isInjective f h x p = h (p ∙ sym (hom1g f))
+isMono→isInjective f h x p = h (p ∙ sym (f .snd .pres1))
 
 isInjective→isMono : (f : GroupHom G H) → isInjective f → isMono f
 isInjective→isMono {G = G} {H = H} f h {x = x} {y = y} p =
@@ -119,148 +132,150 @@ isInjective→isMono {G = G} {H = H} f h {x = x} {y = y} p =
     module H = GroupStr (snd H)
 
     idHelper : x G.· G.inv y ≡ G.1g
-    idHelper = h _ (isHom f _ _ ∙
-                    cong (λ a → f .fun x H.· a) (homInv f y) ∙
-                    cong (H._· H.inv (f .fun y)) p ∙
+    idHelper = h _ (f .snd .pres· _ _ ∙
+                    cong (λ a → f .fst x H.· a) (f .snd .presinv y) ∙
+                    cong (H._· H.inv (f .fst y)) p ∙
                     H.invr _)
 
 -- TODO: maybe it would be better to take this as the definition of isInjective?
 isInjective→isContrKer : (f : GroupHom G H) → isInjective f → isContr (Ker f)
-fst (isInjective→isContrKer {G = G} f hf) = 1g (snd G) , hom1g f
+fst (isInjective→isContrKer {G = G} f hf) = 1g (snd G) , f .snd .pres1
 snd (isInjective→isContrKer {G = G} f hf) k =
-  Σ≡Prop (isPropIsInKer f) (sym (isInjective→isMono f hf (k .snd ∙ sym (hom1g f))))
+  Σ≡Prop (isPropIsInKer f) (sym (isInjective→isMono f hf (k .snd ∙ sym (f .snd .pres1))))
 
 isContrKer→isInjective : (f : GroupHom G H) → isContr (Ker f) → isInjective f
 isContrKer→isInjective {G = G} f ((a , b) , c) x y = cong fst (sym (c (x , y)) ∙ rem)
   where
-  rem : (a , b) ≡ (1g (snd G) , hom1g f)
-  rem = c (1g (snd G) , hom1g f)
+  rem : (a , b) ≡ (1g (snd G) , pres1 (snd f))
+  rem = c (1g (snd G) , pres1 (snd f))
 
 
 -- Special homomorphisms and operations (id, composition...)
 idGroupHom : GroupHom G G
-fun idGroupHom = λ x → x
-isHom idGroupHom _ _ = refl
+idGroupHom .fst x = x
+idGroupHom .snd = makeIsGroupHom λ _ _ → refl
 
-isGroupHomComp : (f : GroupHom F G) → (g : GroupHom G H) → isGroupHom F H (fun g ∘ fun f)
-isGroupHomComp f g x y = cong (fun g) (isHom f _ _) ∙ isHom g _ _
+isGroupHomComp : (f : GroupHom F G) → (g : GroupHom G H) → IsGroupHom (F .snd) (fst g ∘ fst f) (H .snd)
+isGroupHomComp f g = makeIsGroupHom λ _ _ → cong (fst g) (f .snd .pres· _ _) ∙ (g .snd .pres· _ _)
 
 compGroupHom : GroupHom F G → GroupHom G H → GroupHom F H
-fun (compGroupHom f g) = fun g ∘ fun f
-isHom (compGroupHom f g) = isGroupHomComp f g
+fst (compGroupHom f g) = fst g ∘ fst f
+snd (compGroupHom f g) = isGroupHomComp f g
 
-GroupHomDirProd : {A : Group {ℓ}} {B : Group {ℓ'}} {C : Group {ℓ''}} {D : Group {ℓ'''}}
+GroupHomDirProd : {A : Group ℓ} {B : Group ℓ'} {C : Group ℓ''} {D : Group ℓ'''}
                 → GroupHom A C → GroupHom B D → GroupHom (DirProd A B) (DirProd C D)
-fun (GroupHomDirProd mf1 mf2) = map-× (fun mf1) (fun mf2)
-isHom (GroupHomDirProd mf1 mf2) a b = ≡-× (isHom mf1 _ _) (isHom mf2 _ _)
+fst (GroupHomDirProd mf1 mf2) = map-× (fst mf1) (fst mf2)
+snd (GroupHomDirProd mf1 mf2) = makeIsGroupHom λ _ _ → ≡-× (mf1 .snd .pres· _ _) (mf2 .snd .pres· _ _)
 
-GroupHom≡ : {f g : GroupHom G H} → (fun f ≡ fun g) → f ≡ g
-fun (GroupHom≡ p i) = p i
-isHom (GroupHom≡ {G = G} {H = H} {f = f} {g = g} p i) = p-hom i
+GroupHom≡ : {f g : GroupHom G H} → (fst f ≡ fst g) → f ≡ g
+fst (GroupHom≡ p i) = p i
+snd (GroupHom≡ {G = G} {H = H} {f = f} {g = g} p i) = p-hom i
   where
-  p-hom : PathP (λ i → isGroupHom G H (p i)) (isHom f) (isHom g)
+  p-hom : PathP (λ i → IsGroupHom (G .snd) (p i) (H .snd)) (f .snd) (g .snd)
   p-hom = toPathP (isPropIsGroupHom G H _ _)
 
 
 -- GroupEquiv identity, composition and inversion
 idGroupEquiv : GroupEquiv G G
-eq (idGroupEquiv {G = G}) = idEquiv ⟨ G ⟩
-isHom idGroupEquiv = λ _ _ → refl
+fst (idGroupEquiv {G = G}) = idEquiv ⟨ G ⟩
+snd idGroupEquiv = makeIsGroupHom λ _ _ → refl
 
 compGroupEquiv : GroupEquiv F G → GroupEquiv G H → GroupEquiv F H
-eq (compGroupEquiv f g) = compEquiv (eq f) (eq g)
-isHom (compGroupEquiv f g) = isHom (compGroupHom (GroupEquiv.hom f) (GroupEquiv.hom g))
+fst (compGroupEquiv f g) = compEquiv (fst f) (fst g)
+snd (compGroupEquiv f g) = isGroupHomComp (_ , f .snd) (_ , g .snd)
 
 invGroupEquiv : GroupEquiv G H → GroupEquiv H G
-eq (invGroupEquiv f) = invEquiv (eq f)
-isHom (invGroupEquiv f) = isGroupHomInv f
+fst (invGroupEquiv f) = invEquiv (fst f)
+snd (invGroupEquiv f) = isGroupHomInv f
   where
-  isGroupHomInv : (f : GroupEquiv G H) → isGroupHom H G (invEq (GroupEquiv.eq f))
-  isGroupHomInv {G = G} {H = H} f h h' = isInj-f _ _ (
-    f' (g (h ⋆² h'))        ≡⟨ retEq (eq f) _ ⟩
-    (h ⋆² h')               ≡⟨ sym (cong₂ _⋆²_ (retEq (eq f) h) (retEq (eq f) h')) ⟩
-    (f' (g h) ⋆² f' (g h')) ≡⟨ sym (isHom (GroupEquiv.hom f) _ _) ⟩
-    f' (g h ⋆¹ g h') ∎)
+  isGroupHomInv : (f : GroupEquiv G H) → IsGroupHom (H .snd) (invEq (fst f)) (G .snd)
+  isGroupHomInv {G = G} {H = H} f = makeIsGroupHom λ h h' →
+    isInj-f _ _
+      (f' (g (h ⋆² h'))        ≡⟨ secEq (fst f) _ ⟩
+       (h ⋆² h')               ≡⟨ sym (cong₂ _⋆²_ (secEq (fst f) h) (secEq (fst f) h')) ⟩
+       (f' (g h) ⋆² f' (g h')) ≡⟨ sym (pres· (snd f) _ _) ⟩
+       f' (g h ⋆¹ g h') ∎)
     where
-    f' = fst (eq f)
+    f' = fst (fst f)
     _⋆¹_ = _·_ (snd G)
     _⋆²_ = _·_ (snd H)
-    g = invEq (eq f)
+    g = invEq (fst f)
 
     isInj-f : (x y : ⟨ G ⟩) → f' x ≡ f' y → x ≡ y
-    isInj-f x y = invEq (_ , isEquiv→isEmbedding (snd (eq f)) x y)
+    isInj-f x y = invEq (_ , isEquiv→isEmbedding (snd (fst f)) x y)
 
-GroupEquivDirProd : {A : Group {ℓ}} {B : Group {ℓ'}} {C : Group {ℓ''}} {D : Group {ℓ'''}}
+GroupEquivDirProd : {A : Group ℓ} {B : Group ℓ'} {C : Group ℓ''} {D : Group ℓ'''}
                   → GroupEquiv A C → GroupEquiv B D
                   → GroupEquiv (DirProd A B) (DirProd C D)
-eq (GroupEquivDirProd eq1 eq2) = ≃-× (eq eq1) (eq eq2)
-isHom (GroupEquivDirProd eq1 eq2) = isHom (GroupHomDirProd (GroupEquiv.hom eq1) (GroupEquiv.hom eq2))
+fst (GroupEquivDirProd eq1 eq2) = ≃-× (fst eq1) (fst eq2)
+snd (GroupEquivDirProd eq1 eq2) = GroupHomDirProd (_ , eq1 .snd) (_ , eq2 .snd) .snd
 
-GroupEquiv≡ : {f g : GroupEquiv G H} → eq f ≡ eq g → f ≡ g
-eq (GroupEquiv≡ p i) = p i
-isHom (GroupEquiv≡ {G = G} {H = H} {f} {g} p i) = p-hom i
+GroupEquiv≡ : {f g : GroupEquiv G H} → fst f ≡ fst g → f ≡ g
+fst (GroupEquiv≡ p i) = p i
+snd (GroupEquiv≡ {G = G} {H = H} {f} {g} p i) = p-hom i
   where
-  p-hom : PathP (λ i → isGroupHom G H (p i .fst)) (isHom f) (isHom g)
+  p-hom : PathP (λ i → IsGroupHom (G .snd) (p i .fst) (H .snd)) (snd f) (snd g)
   p-hom = toPathP (isPropIsGroupHom G H _ _)
 
 
 -- GroupIso identity, composition and inversion
 idGroupIso : GroupIso G G
-isom idGroupIso = idIso
-isHom idGroupIso = λ _ _ → refl
+fst idGroupIso = idIso
+snd idGroupIso = makeIsGroupHom λ _ _ → refl
 
 compGroupIso : GroupIso G H → GroupIso H F → GroupIso G F
-isom (compGroupIso iso1 iso2) = compIso (isom iso1) (isom iso2)
-isHom (compGroupIso iso1 iso2) = isGroupHomComp (GroupIso.hom iso1) (GroupIso.hom iso2)
+fst (compGroupIso iso1 iso2) = compIso (fst iso1) (fst iso2)
+snd (compGroupIso iso1 iso2) = isGroupHomComp (_ , snd iso1) (_ , snd iso2)
 
 invGroupIso : GroupIso G H → GroupIso H G
-isom (invGroupIso iso1) = invIso (isom iso1)
-isHom (invGroupIso iso1) = isGroupHomInv iso1
+fst (invGroupIso iso1) = invIso (fst iso1)
+snd (invGroupIso iso1) = isGroupHomInv iso1
   where
-  isGroupHomInv : (f : GroupIso G H) → isGroupHom H G (inv (isom f))
-  isGroupHomInv {G = G} {H = H}  f h h' = isInj-f _ _ (
-    f' (g (h ⋆² h')) ≡⟨ (rightInv (isom f)) _ ⟩
-    (h ⋆² h') ≡⟨ sym (cong₂ _⋆²_ (rightInv (isom f) h) (rightInv (isom f) h')) ⟩
-    (f' (g h) ⋆² f' (g h')) ≡⟨ sym (isHom f _ _) ⟩
-    f' (g h ⋆¹ g h') ∎)
+  isGroupHomInv : (f : GroupIso G H) → IsGroupHom (H .snd) (inv (fst f)) (G .snd)
+  isGroupHomInv {G = G} {H = H}  f = makeIsGroupHom λ h h' →
+    isInj-f _ _
+      (f' (g (h ⋆² h')) ≡⟨ (rightInv (fst f)) _ ⟩
+       (h ⋆² h') ≡⟨ sym (cong₂ _⋆²_ (rightInv (fst f) h) (rightInv (fst f) h')) ⟩
+       (f' (g h) ⋆² f' (g h')) ≡⟨ sym (f .snd .pres· _ _) ⟩
+       f' (g h ⋆¹ g h') ∎)
     where
-    f' = fun (isom f)
+    f' = fun (fst f)
     _⋆¹_ = GroupStr._·_ (snd G)
     _⋆²_ = GroupStr._·_ (snd H)
-    g = inv (isom f)
+    g = inv (fst f)
 
     isInj-f : (x y : ⟨ G ⟩) → f' x ≡ f' y → x ≡ y
-    isInj-f x y p = sym (leftInv (isom f) _) ∙∙ cong g p ∙∙ leftInv (isom f) _
+    isInj-f x y p = sym (leftInv (fst f) _) ∙∙ cong g p ∙∙ leftInv (fst f) _
 
-GroupIsoDirProd : {G : Group {ℓ}} {H : Group {ℓ'}} {A : Group {ℓ''}} {B : Group {ℓ'''}}
+GroupIsoDirProd : {G : Group ℓ} {H : Group ℓ'} {A : Group ℓ''} {B : Group ℓ'''}
                 → GroupIso G H → GroupIso A B → GroupIso (DirProd G A) (DirProd H B)
-fun (isom (GroupIsoDirProd iso1 iso2)) prod =
-  fun (isom iso1) (fst prod) , fun (isom iso2) (snd prod)
-inv (isom (GroupIsoDirProd iso1 iso2)) prod =
-  inv (isom iso1) (fst prod) , inv (isom iso2) (snd prod)
-rightInv (isom (GroupIsoDirProd iso1 iso2)) a =
-  ΣPathP (rightInv (isom iso1) (fst a) , (rightInv (isom iso2) (snd a)))
-leftInv (isom (GroupIsoDirProd iso1 iso2)) a =
-  ΣPathP (leftInv (isom iso1) (fst a) , (leftInv (isom iso2) (snd a)))
-isHom (GroupIsoDirProd iso1 iso2) a b =
-  ΣPathP (isHom iso1 (fst a) (fst b) , isHom iso2 (snd a) (snd b))
+fun (fst (GroupIsoDirProd iso1 iso2)) prod =
+  fun (fst iso1) (fst prod) , fun (fst iso2) (snd prod)
+inv (fst (GroupIsoDirProd iso1 iso2)) prod =
+  inv (fst iso1) (fst prod) , inv (fst iso2) (snd prod)
+rightInv (fst (GroupIsoDirProd iso1 iso2)) a =
+  ΣPathP (rightInv (fst iso1) (fst a) , (rightInv (fst iso2) (snd a)))
+leftInv (fst (GroupIsoDirProd iso1 iso2)) a =
+  ΣPathP (leftInv (fst iso1) (fst a) , (leftInv (fst iso2) (snd a)))
+snd (GroupIsoDirProd iso1 iso2) = makeIsGroupHom λ a b →
+  ΣPathP (pres· (snd iso1) (fst a) (fst b) , pres· (snd iso2) (snd a) (snd b))
 
 
 -- Conversion functions between different notions of group morphisms
 
 GroupIso→GroupEquiv : GroupIso G H → GroupEquiv G H
-GroupEquiv.eq (GroupIso→GroupEquiv i) = isoToEquiv (isom i)
-GroupEquiv.isHom (GroupIso→GroupEquiv i) = isHom i
+fst (GroupIso→GroupEquiv i) = isoToEquiv (fst i)
+snd (GroupIso→GroupEquiv i) = snd i
 
 GroupEquiv→GroupIso : GroupEquiv G H → GroupIso G H
-isom (GroupEquiv→GroupIso e) = equivToIso (eq e)
-isHom (GroupEquiv→GroupIso e) = isHom e
+fst (GroupEquiv→GroupIso e) = equivToIso (fst e)
+snd (GroupEquiv→GroupIso e) = snd e
 
 -- TODO: prove the converse
 BijectionIso→GroupIso : BijectionIso G H → GroupIso G H
 BijectionIso→GroupIso {G = G} {H = H} i = grIso
   where
-  f = fun (fun i)
+  f = fst (fun i)
 
   helper : (b : _) → isProp (Σ[ a ∈ ⟨ G ⟩ ] f a ≡ b)
   helper _ (a , ha) (b , hb) =
@@ -268,12 +283,12 @@ BijectionIso→GroupIso {G = G} {H = H} i = grIso
            (isInjective→isMono (fun i) (inj i) (ha ∙ sym hb) )
 
   grIso : GroupIso G H
-  fun (isom grIso) = fun (fun i)
-  inv (isom grIso) b = rec (helper b) (λ a → a) (surj i b) .fst
-  rightInv (isom grIso) b = rec (helper b) (λ a → a) (surj i b) .snd
-  leftInv (isom grIso) b j = rec (helper (f b)) (λ a → a)
+  fun (fst grIso) = f
+  inv (fst grIso) b = rec (helper b) (λ a → a) (surj i b) .fst
+  rightInv (fst grIso) b = rec (helper b) (λ a → a) (surj i b) .snd
+  leftInv (fst grIso) b j = rec (helper (f b)) (λ a → a)
                                  (propTruncIsProp (surj i (f b)) ∣ b , refl ∣ j) .fst
-  isHom grIso = isHom (fun i)
+  snd grIso = snd (fun i)
 
 BijectionIsoToGroupEquiv : BijectionIso G H → GroupEquiv G H
 BijectionIsoToGroupEquiv i = GroupIso→GroupEquiv (BijectionIso→GroupIso i)

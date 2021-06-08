@@ -11,6 +11,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
 
+open import Cubical.Data.Sigma
+
 open import Cubical.Relation.Binary
 
 private
@@ -60,7 +62,26 @@ record DUARel {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : UARel A ℓ≅A)
   uaᴰρ {a} b b' =
     compEquiv
       (uaᴰ b (ρ _) b')
-      (substEquiv (λ q → PathP (λ i → B (q i)) b b') (retEq (ua a a) refl))
+      (substEquiv (λ q → PathP (λ i → B (q i)) b b') (secEq (ua a a) refl))
 
   ρᴰ : {a : A} → (b : B a) → b ≅ᴰ⟨ ρ a ⟩ b
   ρᴰ {a} b = invEq (uaᴰρ b b) refl
+
+
+-- total UARel induced by a DUARel
+
+module _ {A : Type ℓA} {ℓ≅A : Level} {𝒮-A : UARel A ℓ≅A}
+  {B : A → Type ℓB} {ℓ≅B : Level}
+  (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
+  where
+
+  open UARel 𝒮-A
+  open DUARel 𝒮ᴰ-B
+
+  ∫ : UARel (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
+  UARel._≅_ ∫ (a , b) (a' , b') = Σ[ p ∈ a ≅ a' ] (b ≅ᴰ⟨ p ⟩ b')
+  UARel.ua ∫ (a , b) (a' , b') =
+    compEquiv
+      (Σ-cong-equiv (ua a a') (λ p → uaᴰ b p b'))
+      ΣPath≃PathΣ
+

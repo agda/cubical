@@ -35,7 +35,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Empty
-open import Cubical.Data.Nat hiding (+-assoc ; +-comm ; ·-comm) renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc)
+open import Cubical.Data.Nat hiding (+-assoc ; +-comm ; ·-comm)
+  renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc)
 open import Cubical.Data.Bool
 open import Cubical.Data.Sum
 open import Cubical.Data.Int.Base
@@ -135,6 +136,12 @@ m + negsuc n = m +negsuc n
 
 _-_ : Int → Int → Int
 m - n = m + (- n)
+
+_·_ : Int → Int → Int
+pos zero · m = pos zero
+pos (suc n) · m = m + (pos n · m)
+negsuc zero · m = (- m)
+negsuc (suc n) · m = (- m) + ((negsuc n) · m)
 
 -pos : ∀ n → - (pos n) ≡ neg n
 -pos zero    = refl
@@ -426,100 +433,7 @@ pos- (suc m) (suc n) =
    -  neg (suc n +ℕ suc m)     ≡⟨ pos+ (suc n) (suc m) ⟩
   (-  negsuc n) + (- negsuc m) ∎
 
-module lModuleℤ {ℓ : Level} (A : Type ℓ) (a₀ : A)
-  (_+A_ : A → A → A) (-A : A → A)
-  (lUnitA : (x : A) → a₀ +A x ≡ x) (rUnitA : (x : A) → x +A a₀ ≡ x)
-  (lCancelA : (x : A) → (-A x) +A x ≡ a₀) (rCancelA : (x : A) → x +A (-A x) ≡ a₀)
-  (assocA : (x y z : A) → x +A (y +A z) ≡ (x +A y) +A z)
-  (commA : (x y : A) → x +A y ≡ y +A x) where
-
-  a₀≡-a₀ : a₀ ≡ -A a₀
-  a₀≡-a₀ = sym (rCancelA a₀) ∙ lUnitA (-A a₀)
-
-  -DistrA : (x y : A) → -A (x +A y) ≡ (-A x +A -A y)
-  -DistrA x y =
-       (sym (rUnitA _)
-        ∙ cong (-A (x +A y) +A_) (sym (rCancelA _)))
-    ∙∙ cong ((-A (x +A y)) +A_) help
-    ∙∙ ((assocA (-A ((x +A y))) (x +A y) _)
-    ∙∙ cong (_+A (-A x +A -A y)) (lCancelA _)
-    ∙∙ lUnitA _)
-    where
-    help : (x +A y) +A (-A (x +A y)) ≡ ((x +A y) +A (-A x +A -A y))
-    help =
-         rCancelA _
-       ∙ sym (rCancelA y)
-      ∙∙ cong (_+A (-A y)) (sym (lUnitA y)
-                         ∙∙ cong (_+A y) (sym (rCancelA x))
-                         ∙∙ sym (assocA x (-A x) y)
-                         ∙∙ cong (x +A_) (commA _ _)
-                         ∙∙ assocA x y (-A x))
-      ∙∙ sym (assocA (x +A y) (-A x) (-A y))
-
-  _·A_ : Int → A → A
-  pos zero ·A a = a₀
-  pos (suc n) ·A a = (pos n ·A a) +A a
-  negsuc zero ·A a = -A a
-  negsuc (suc n) ·A a = (negsuc n ·A a) +A (-A a)
-
-  lUnit· : (a : A) → 0 ·A a ≡ a₀
-  lUnit· a = refl
-
-  rUnit· : (n : Int) → n ·A a₀ ≡ a₀
-  rUnit· (pos zero) = refl
-  rUnit· (pos (suc n)) = rUnitA _ ∙ rUnit· (pos n)
-  rUnit· (negsuc zero) = sym a₀≡-a₀
-  rUnit· (negsuc (suc n)) = cong ((negsuc n ·A a₀) +A_) (sym a₀≡-a₀) ∙∙ rUnitA _ ∙∙ rUnit· (negsuc n)
-
-  distrHelper : (x y z w : A) → (x +A y) +A (z +A w) ≡ ((x +A z) +A (y +A w))
-  distrHelper x y z w =
-      assocA (x +A y) z w
-   ∙∙ cong (_+A w) (sym (assocA x y z) ∙∙ cong (x +A_) (commA _ _) ∙∙ assocA _ _ _)
-   ∙∙ sym (assocA _ _ _)
-  lDistr· : (n : Int) (x y : A) → n ·A (x +A y) ≡ ((n ·A x) +A (n ·A y))
-  lDistr· (pos zero) x y = sym (rUnitA a₀)
-  lDistr· (pos (suc n)) x y =
-       cong (_+A (x +A y)) (lDistr· (pos n) x y)
-    ∙ distrHelper _ _ _ _
-  lDistr· (negsuc zero) x y = -DistrA x y
-  lDistr· (negsuc (suc n)) x y =
-       cong₂ _+A_ (lDistr· (negsuc n) x y) (-DistrA x y)
-     ∙ distrHelper _ _ _ _
-
-  rDistr· : (n m : Int) (x : A) → (n + m) ·A x ≡ ((n ·A x) +A (m ·A x))
-  rDistr· n (pos zero) x = sym (rUnitA _)
-  rDistr· n (pos (suc m)) x =
-    cong (_·A x) (sucInt+pos m n)
-      ∙∙ rDistr· (sucInt n) (pos m) x
-      ∙∙ cong (_+A (pos m ·A x)) (help n)
-      ∙∙ sym (assocA _ _ _)
-      ∙∙ cong ((n ·A x) +A_) (commA _ _)
-    where
-    help : (n : Int) → sucInt n ·A x ≡ (n ·A x) +A x
-    help (pos zero) = refl
-    help (pos (suc n)) = refl
-    help (negsuc zero) = sym (lCancelA _)
-    help (negsuc (suc n)) = sym (rUnitA _) ∙∙ cong ((negsuc n ·A x) +A_) (sym (lCancelA _)) ∙∙ assocA _ _ _
-  rDistr· n (negsuc m) x = main m
-    where
-    help : (n : Int) → (predInt n ·A x) ≡ ((n ·A x) +A -A x)
-    help (pos zero) = sym (lUnitA _)
-    help (pos (suc n)) = sym (rUnitA _) ∙∙ cong ((pos n ·A x) +A_) (sym (rCancelA _)) ∙∙ assocA _ _ _
-    help (negsuc n) = refl
-
-    main : (m : ℕ) → ((n +negsuc m) ·A x) ≡ ((n ·A x) +A (negsuc m ·A x))
-    main zero = help n
-    main (suc m) =
-         help (n +negsuc m)
-      ∙∙ cong (_+A (-A x)) (main m)
-      ∙∙ sym (assocA _ _ _)
-
-_·_ : Int → Int → Int
-pos zero · m = pos zero
-pos (suc n) · m = m + (pos n · m)
-negsuc zero · m = (- m)
-negsuc (suc n) · m = (- m) + ((negsuc n) · m)
-
+-- multiplication
 +·- : (n m : ℕ) → pos n · negsuc m ≡ (- (pos n · pos (suc m)))
 +·- zero m = refl
 +·- (suc n) m =
@@ -537,20 +451,20 @@ negsuc (suc n) · m = (- m) + ((negsuc n) · m)
 -·- (suc n) m = cong (pos (suc m) +_) (-·- n m)
 
 ·-comm : (x y : Int) → x · y ≡ y · x
-·-comm (pos n) (pos m) = p n m
+·-comm (pos n) (pos m) = lem n m
   where
-  p : (n m : ℕ) → (pos n · pos m) ≡ (pos m · pos n)
-  p zero zero = refl
-  p zero (suc m) i = +-comm (p zero m i) (pos zero) i
-  p (suc n) zero i = +-comm (pos zero) (p n zero i) i
-  p (suc n) (suc m) =
-       (λ i → pos (suc m) + (p n (suc m) i))
+  lem : (n m : ℕ) → (pos n · pos m) ≡ (pos m · pos n)
+  lem zero zero = refl
+  lem zero (suc m) i = +-comm (lem zero m i) (pos zero) i
+  lem (suc n) zero i = +-comm (pos zero) (lem n zero i) i
+  lem (suc n) (suc m) =
+       (λ i → pos (suc m) + (lem n (suc m) i))
     ∙∙ +-assoc (pos (suc m)) (pos n) (pos m · pos n)
     ∙∙ (λ i → sucInt+ (pos m) (pos n) (~ i)  + (pos m · pos n))
     ∙∙ (λ i → +-comm (pos m) (pos (suc n)) i + (pos m · pos n))
     ∙∙ sym (+-assoc (pos (suc n)) (pos m) (pos m · pos n))
-    ∙∙ (λ i → pos (suc n) + (pos m + (p n m (~ i))))
-    ∙∙ λ i → pos (suc n) + (p (suc n) m i)
+    ∙∙ (λ i → pos (suc n) + (pos m + (lem n m (~ i))))
+    ∙∙ λ i → pos (suc n) + (lem (suc n) m i)
 ·-comm (pos n) (negsuc m) =
      +·- n m
   ∙∙ cong -_ (·-comm (pos n) (pos (suc m)))
@@ -562,11 +476,12 @@ negsuc (suc n) · m = (- m) + ((negsuc n) · m)
 ·-comm (negsuc n) (negsuc m) =
   -·- n m ∙∙ ·-comm (pos (suc n)) (pos (suc m)) ∙∙ sym (-·- m n)
 
-distrHelper : (x y z w : Int) → (x + y) + (z + w) ≡ ((x + z) + (y + w))
-distrHelper x y z w =
-    +-assoc (x + y) z w
- ∙∙ cong (_+ w) (sym (+-assoc x y z) ∙∙ cong (x +_) (+-comm y z) ∙∙ +-assoc x z y)
- ∙∙ sym (+-assoc (x + z) y w)
+private
+  distrHelper : (x y z w : Int) → (x + y) + (z + w) ≡ ((x + z) + (y + w))
+  distrHelper x y z w =
+      +-assoc (x + y) z w
+   ∙∙ cong (_+ w) (sym (+-assoc x y z) ∙∙ cong (x +_) (+-comm y z) ∙∙ +-assoc x z y)
+   ∙∙ sym (+-assoc (x + z) y w)
 
 ·-lDist : (x y z : Int) → (x · (y + z)) ≡ (x · y) + (x · z)
 ·-lDist (pos zero) y z = refl
@@ -579,55 +494,38 @@ distrHelper x y z w =
   ∙ distrHelper (- y) (- z) (negsuc n · y) (negsuc n · z)
 
 ·-rDist : (x y z : Int) → ((x + y) · z) ≡ (x · z) + (y · z)
-·-rDist x y z = ·-comm (x + y) z
-             ∙∙ ·-lDist z x y
-             ∙∙ cong₂ _+_ (·-comm z x) (·-comm z y)
+·-rDist x y z =
+     ·-comm (x + y) z
+  ∙∙ ·-lDist z x y
+  ∙∙ cong₂ _+_ (·-comm z x) (·-comm z y)
+
+-DistL· : (b c : Int) → (- (b · c)) ≡ ((- b) · c)
+-DistL· (pos zero) c = refl
+-DistL· (pos (suc n)) (pos m) = sym (-·+ n m)
+-DistL· (pos (suc zero)) (negsuc m) =
+    -Dist+ (negsuc m) (pos zero · negsuc m)
+  ∙ cong (pos (suc m) +_) (-DistL· (pos zero) (negsuc m))
+-DistL· (pos (suc (suc n))) (negsuc m) =
+    -Dist+ (negsuc m) (pos (suc n) · negsuc m)
+  ∙ cong (pos (suc m) +_) (-DistL· (pos (suc n)) (negsuc m))
+-DistL· (negsuc zero) c = -Involutive c
+-DistL· (negsuc (suc n)) c =
+   -Dist+ (- c) (negsuc n · c)
+ ∙∙ cong (_+ (- (negsuc n · c))) (-Involutive c)
+ ∙∙ cong (c +_) (-DistL· (negsuc n) c)
+
+-DistR· : (b c : Int) → (- (b · c)) ≡ (b · (- c))
+-DistR· b c = cong (-_) (·-comm b c) ∙∙ -DistL· c b ∙∙ ·-comm (- c) b
 
 ·-assoc : (a b c : Int) → (a · (b · c)) ≡ ((a · b) · c)
 ·-assoc (pos zero) b c = refl
 ·-assoc (pos (suc n)) b c =
      cong ((b · c) +_) (·-assoc (pos n) b c)
    ∙∙ cong₂ _+_ (·-comm b c) (·-comm (pos n · b) c)
-   ∙∙ lem b c
+   ∙∙ sym (·-lDist c b (pos n · b))
     ∙ sym (·-comm _ c)
-  where
-  lem : (b c : Int) → ((c · b) + (c · ((pos n · b)))) ≡ c · ((b + (pos n · b)))
-  lem b (pos zero) = refl
-  lem b (pos (suc c)) =
-       (+-assoc (b + (pos c · b)) (pos n · b) (pos c · (pos n · b)))
-     ∙ cong (_+ (pos c · (pos n · b))) (sym (+-assoc b (pos c · b) (pos n · b))
-            ∙∙ cong (b +_) (+-comm (pos c · b) (pos n · b))
-            ∙∙ +-assoc b (pos n · b) (pos c · b))
-    ∙∙ sym (+-assoc (b + (pos n · b)) (pos c · b) (pos c · (pos n · b)))
-    ∙∙ sym (cong ((b + (pos n · b)) +_) (·-lDist (pos c) b (pos n · b)))
-  lem b (negsuc zero) = sym (-Dist+ b (pos n · b))
-  lem b (negsuc (suc c)) =
-       +-assoc ((- b) + (negsuc c · b)) (- (pos n · b)) (negsuc c · (pos n · b))
-    ∙∙ cong (_+ (negsuc c · (pos n · b))) (sym (+-assoc (- b) (negsuc c · b) (- (pos n · b)))
-         ∙∙ cong ((- b) +_) (+-comm (negsuc c · b) (- (pos n · b)))
-         ∙∙ (+-assoc (- b) (- (pos n · b)) (negsuc c · b))) -- sym (+-assoc (- b) {!!} {!!}))
-    ∙∙ sym (+-assoc (((- b) + (- (pos n · b)))) (negsuc c · b) (negsuc c · (pos n · b)))
-     ∙ cong₂ _+_ (sym (-Dist+ b (pos n · b))) (sym (·-lDist (negsuc c) b (pos n · b)))
-·-assoc (negsuc zero) = -·
-  module _ where
-  minusMinus : (c : Int) → - (- c) ≡ c
-  minusMinus (pos zero) = refl
-  minusMinus (pos (suc n)) = refl
-  minusMinus (negsuc n) = refl
-
-  -· : (b c : Int) → (- (b · c)) ≡ ((- b) · c)
-  -· (pos zero) c = refl
-  -· (pos (suc n)) (pos m) = sym (-·+ n m)
-  -· (pos (suc zero)) (negsuc m) =
-    -Dist+ (negsuc m) (pos zero · negsuc m) ∙ cong (pos (suc m) +_) (-· (pos zero) (negsuc m))
-  -· (pos (suc (suc n))) (negsuc m) =
-    -Dist+ (negsuc m) (pos (suc n) · negsuc m) ∙ cong (pos (suc m) +_) (-· (pos (suc n)) (negsuc m))
-  -· (negsuc zero) c = minusMinus c
-  -· (negsuc (suc n)) c =
-     -Dist+ (- c) (negsuc n · c)
-   ∙∙ cong (_+ (- (negsuc n · c))) (minusMinus c)
-   ∙∙ cong (c +_) (-· (negsuc n) c)
+·-assoc (negsuc zero) = -DistL·
 ·-assoc (negsuc (suc n)) b c =
   cong ((- (b · c)) +_) (·-assoc (negsuc n) b c)
-  ∙∙ cong (_+ ((negsuc n · b) · c)) (-· b c)
+  ∙∙ cong (_+ ((negsuc n · b) · c)) (-DistL· b c)
   ∙∙ sym (·-rDist (- b) (negsuc n · b) c)

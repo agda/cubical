@@ -9,6 +9,7 @@ open import Cubical.ZCohomology.MayerVietorisUnreduced
 open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.Groups.Prelims
+open import Cubical.ZCohomology.RingStructure.CupProduct
 
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
@@ -35,6 +36,13 @@ open import Cubical.HITs.Nullification
 open import Cubical.HITs.Truncation renaming (elim to trElim ; elim2 to trElim2 ; map to trMap ; rec to trRec)
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Loopspace
+
+open import Cubical.ZCohomology.Groups.WedgeOfSpheres
+  renaming (to₂ to to₂-∨ ; from₂ to from₂-∨ ; from₁ to from₁-∨ ; to₁ to to₁-∨) hiding (to₀ ; from₀)
+open import Cubical.Data.Empty
+open import Cubical.HITs.Wedge
+
+open import Cubical.Relation.Nullary
 
 open IsGroupHom
 open Iso
@@ -220,7 +228,6 @@ H²-T²≅ℤ = compGroupIso helper2 (Hⁿ-Sⁿ≅ℤ 0)
                                            +ₖ ΩKn+1→Kn 1 (sym (rCancel≡refl 0 (~ i))
                                                          ∙∙ cong (λ x → elimFunT²' 1 Q (a , x) +ₖ ∣ north ∣) loop
                                                          ∙∙ rCancel≡refl 0 (~ i)))) ∣₂))
--- >>>>>>> master
 
 private
   to₂ : coHom 2 (S₊ 1 × S₊ 1) → Int
@@ -263,3 +270,37 @@ test6 = refl
 test7 : to₂ (from₂ 1 +ₕ from₂ 0) ≡ 1
 test7 = refl
 -}
+{-
+⌣-gen : to₂ (from₁ (0 , 1) ⌣ from₁ (1 , 0)) ≡ 1
+⌣-gen = refl
+-}
+
+
+-- Proof (by computation) that T² ≠ S² ∨ S¹ ∨ S¹
+private
+  hasTrivial⌣₁ : ∀ {ℓ} (A : Type ℓ) → Type ℓ
+  hasTrivial⌣₁ A = (x y : coHom 1 A) → x ⌣ y ≡ 0ₕ 2
+
+  hasTrivial⌣₁S²∨S¹∨S¹ : hasTrivial⌣₁ S²⋁S¹⋁S¹
+  hasTrivial⌣₁S²∨S¹∨S¹ x y =
+    x ⌣ y                                                    ≡⟨ cong₂ _⌣_ (sym (leftInv (fst (H¹-S²⋁S¹⋁S¹)) x)) (sym (leftInv (fst (H¹-S²⋁S¹⋁S¹)) y)) ⟩
+    from₁-∨ (to₁-∨ x) ⌣ from₁-∨ (to₁-∨ y)                     ≡⟨ sym (leftInv (fst (H²-S²⋁S¹⋁S¹)) (from₁-∨ (to₁-∨ x) ⌣ from₁-∨ (to₁-∨ y))) ⟩
+    from₂-∨ (to₂-∨ (from₁-∨ (to₁-∨ x) ⌣ from₁-∨ (to₁-∨ y)))   ≡⟨ refl ⟩ -- holds by computation (even with open terms in the context)!
+    from₂-∨ 0                                                 ≡⟨ hom1g (snd IntGroup) from₂-∨ (snd (coHomGr 2 S²⋁S¹⋁S¹))
+                                                                       ((invGroupEquiv (GroupIso→GroupEquiv H²-S²⋁S¹⋁S¹)) .snd .pres·) ⟩
+    0ₕ 2 ∎
+
+  1≠0 : ¬ (Path Int 1 0)
+  1≠0 p = posNotnegsuc _ _ (cong predInt p)
+
+  ¬hasTrivial⌣₁T² : ¬ (hasTrivial⌣₁ (S¹ × S¹))
+  ¬hasTrivial⌣₁T² p = 1≠0 1=0
+    where
+    1=0 : pos 1 ≡ pos 0
+    1=0 =
+      1                                   ≡⟨ refl ⟩ -- holds by computation!
+      to₂ (from₁ (0 , 1) ⌣ from₁ (1 , 0)) ≡⟨ cong to₂ (p (from₁ (0 , 1)) (from₁ (1 , 0))) ⟩
+      0 ∎
+
+T²≠S²⋁S¹⋁S¹ : ¬ S¹ × S¹ ≡ S²⋁S¹⋁S¹
+T²≠S²⋁S¹⋁S¹ p = ¬hasTrivial⌣₁T² (subst hasTrivial⌣₁ (sym p) hasTrivial⌣₁S²∨S¹∨S¹)

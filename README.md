@@ -9,7 +9,7 @@ instructions see the
 [INSTALL](https://github.com/agda/cubical/blob/master/INSTALL.md)
 file.
 
-If you want to use Agda 2.6.3 instead of the latest development version, you
+If you want to use Agda 2.6.1.3 instead of the latest development version, you
 can check out the tag `v0.2` of this library.
 
 If you want to use Agda 2.6.0.1 instead of the latest development version, you

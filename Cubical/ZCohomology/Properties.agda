@@ -233,14 +233,14 @@ private
 
 coHomGr≅coHomRedGr : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
                   → GroupEquiv (coHomRedGrDir (suc n) A) (coHomGr (suc n) (typ A))
-GroupEquiv.eq (coHomGr≅coHomRedGr n A) = isoToEquiv (Iso-coHom-coHomRed n)
-GroupEquiv.isHom (coHomGr≅coHomRedGr n A) = +∙≡+ n
+fst (coHomGr≅coHomRedGr n A) = isoToEquiv (Iso-coHom-coHomRed n)
+snd (coHomGr≅coHomRedGr n A) = makeIsGroupHom (+∙≡+ n)
 
-coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → AbGroup {ℓ}
+coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → AbGroup ℓ
 coHomRedGroup zero A = coHomRedGroupDir zero A
 coHomRedGroup (suc n) A =
   InducedAbGroup (coHomGroup (suc n) (typ A))
-                 (coHomRed (suc n) A , _+ₕ∙_)
+                 _+ₕ∙_
                  (isoToEquiv (invIso (Iso-coHom-coHomRed n)))
                  (homhelp n A)
 
@@ -249,7 +249,7 @@ abstract
                           → coHomGroup (suc n) (typ A) ≡ coHomRedGroup (suc n) A
   coHomGroup≡coHomRedGroup n A =
     InducedAbGroupPath (coHomGroup (suc n) (typ A))
-              (coHomRed (suc n) A , _+ₕ∙_)
+              _+ₕ∙_
               (isoToEquiv (invIso (Iso-coHom-coHomRed n)))
               (homhelp n A)
 
@@ -303,7 +303,7 @@ private
 
   -- we define the code using addIso
   Code : (n : ℕ) →  coHomK (2 + n) → Type₀
-  Code n x = (trElim {B = λ _ → TypeOfHLevel ℓ-zero (3 + n)} (λ _ → isOfHLevelTypeOfHLevel (3 + n))
+  Code n x = (trRec {B = TypeOfHLevel ℓ-zero (3 + n)} (isOfHLevelTypeOfHLevel (3 + n))
                      λ a → Code' a , hLevCode' a) x .fst
     where
     Code' : (S₊ (2 + n)) → Type₀
@@ -486,21 +486,21 @@ isHomogeneousKn n =
     (isHomogeneousPath _ _)
 
 -- With the equivalence Kn≃ΩKn+1, we get that the two definitions of cohomology groups agree
-open GroupHom
-open GroupIso
+open IsGroupHom
 
 coHom≅coHomΩ : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → GroupIso (coHomGr n A) (coHomGrΩ n A)
-fun (isom (coHom≅coHomΩ n A)) = map λ f a → Kn→ΩKn+1 n (f a)
-inv' (isom (coHom≅coHomΩ n A)) = map λ f a → ΩKn+1→Kn n (f a)
-rightInv (isom (coHom≅coHomΩ n A)) =
+fun (fst (coHom≅coHomΩ n A)) = map λ f a → Kn→ΩKn+1 n (f a)
+inv' (fst (coHom≅coHomΩ n A)) = map λ f a → ΩKn+1→Kn n (f a)
+rightInv (fst (coHom≅coHomΩ n A)) =
   sElim (λ _ → isOfHLevelPath 2 § _ _)
         λ f → cong ∣_∣₂ (funExt λ x → rightInv (Iso-Kn-ΩKn+1 n) (f x))
-leftInv (isom (coHom≅coHomΩ n A)) =
+leftInv (fst (coHom≅coHomΩ n A)) =
   sElim (λ _ → isOfHLevelPath 2 § _ _)
         λ f → cong ∣_∣₂ (funExt λ x → leftInv (Iso-Kn-ΩKn+1 n) (f x))
-isHom (coHom≅coHomΩ n A) =
-  sElim2 (λ _ _ → isOfHLevelPath 2 § _ _)
-         λ f g → cong ∣_∣₂ (funExt λ x → Kn→ΩKn+1-hom n (f x) (g x))
+snd (coHom≅coHomΩ n A) =
+  makeIsGroupHom
+    (sElim2 (λ _ _ → isOfHLevelPath 2 § _ _)
+            λ f g → cong ∣_∣₂ (funExt λ x → Kn→ΩKn+1-hom n (f x) (g x)))
 
 module lockedKnIso (key : Unit') where
   Kn→ΩKn+1' : (n : ℕ) → coHomK n → typ (Ω (coHomK-ptd (suc n)))
@@ -523,12 +523,12 @@ module lockedKnIso (key : Unit') where
 
 -distrLemma : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n m : ℕ) (f : GroupHom (coHomGr n A) (coHomGr m B))
               (x y : coHom n A)
-            → fun f (x -[ n ]ₕ y) ≡ fun f x -[ m ]ₕ fun f y
+            → fst f (x -[ n ]ₕ y) ≡ fst f x -[ m ]ₕ fst f y
 -distrLemma n m f' x y = sym (-cancelRₕ m (f y) (f (x -[ n ]ₕ y)))
-                     ∙∙ cong (λ x → x -[ m ]ₕ f y) (sym (isHom f' (x -[ n ]ₕ y) y))
+                     ∙∙ cong (λ x → x -[ m ]ₕ f y) (sym (f' .snd .pres· (x -[ n ]ₕ y) y))
                      ∙∙ cong (λ x → x -[ m ]ₕ f y) ( cong f (-+cancelₕ n _ _))
   where
-  f = fun f'
+  f = fst f'
 
 -- HLevel stuff for cup product
 isContr-↓∙ : (n : ℕ) → isContr (coHomK-ptd (suc n) →∙ coHomK-ptd n)

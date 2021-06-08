@@ -22,21 +22,6 @@ private
 
 -- UARel on a Σ-type
 
-module _ {A : Type ℓA} {ℓ≅A : Level} {𝒮-A : UARel A ℓ≅A}
-  {B : A → Type ℓB} {ℓ≅B : Level}
-  (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
-  where
-
-  open UARel 𝒮-A
-  open DUARel 𝒮ᴰ-B
-
-  ∫ : UARel (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
-  UARel._≅_ ∫ (a , b) (a' , b') = Σ[ p ∈ a ≅ a' ] (b ≅ᴰ⟨ p ⟩ b')
-  UARel.ua ∫ (a , b) (a' , b') =
-    compEquiv
-      (Σ-cong-equiv (ua a a') (λ p → uaᴰ b p b'))
-      ΣPath≃PathΣ
-
 ∫ˢ : {A : Type ℓA} {𝒮-A : UARel A ℓ≅A} {B : A → Type ℓB} (𝒮ˢ-B : SubstRel 𝒮-A B)
   → UARel (Σ A B) (ℓ-max ℓ≅A ℓB)
 ∫ˢ 𝒮ˢ-B = ∫ (Subst→DUA 𝒮ˢ-B)

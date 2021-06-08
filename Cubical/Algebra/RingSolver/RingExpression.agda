@@ -26,7 +26,7 @@ data Expr {ℓ} (A : Type ℓ) (n : ℕ) : Type ℓ where
 --  _⊛_ : Expr A n → ℕ → Expr A n    -- exponentiation
   ⊝_ : Expr A n → Expr A n
 
-module Eval (R : RawRing {ℓ}) where
+module Eval (R : RawRing ℓ) where
   open import Cubical.Data.Vec
   open RawRing R
 

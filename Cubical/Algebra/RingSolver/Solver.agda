@@ -17,7 +17,7 @@ private
   variable
     ℓ : Level
 
-module EqualityToNormalform (R : AlmostRing {ℓ}) where
+module EqualityToNormalform (R : AlmostRing ℓ) where
   νR = AlmostRing→RawRing R
   open AlmostRing R
   open Theory R

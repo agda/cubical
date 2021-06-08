@@ -26,60 +26,56 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.DirProd
 open import Cubical.Data.Sigma
 
+open import Cubical.Reflection.RecordEquiv
+
 private
   variable
     ℓ ℓ' ℓ'' ℓ''' : Level
 
--- The following definition of GroupHom and GroupEquiv are level-wise heterogeneous.
--- This allows for example to deduce that G ≡ F from a chain of isomorphisms
--- G ≃ H ≃ F, even if H does not lie in the same level as G and F.
-isGroupHom : (G : Group {ℓ}) (H : Group {ℓ'}) (f : ⟨ G ⟩ → ⟨ H ⟩) → Type _
-isGroupHom G H f = (x y : ⟨ G ⟩) → f (x G.· y) ≡ (f x H.· f y) where
-  module G = GroupStr (snd G)
-  module H = GroupStr (snd H)
+record IsGroupHom {A : Type ℓ} {B : Type ℓ'}
+  (M : GroupStr A) (f : A → B) (N : GroupStr B)
+  : Type (ℓ-max ℓ ℓ')
+  where
 
-record GroupHom (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
-  constructor grouphom
-
-  field
-    fun : ⟨ G ⟩ → ⟨ H ⟩
-    isHom : isGroupHom G H fun
-
-record GroupEquiv (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
-  constructor groupequiv
+  -- Shorter qualified names
+  private
+    module M = GroupStr M
+    module N = GroupStr N
 
   field
-    eq : ⟨ G ⟩ ≃ ⟨ H ⟩
-    isHom : isGroupHom G H (equivFun eq)
+    pres· : (x y : A) → f (x M.· y) ≡ f x N.· f y
+    pres1 : f M.1g ≡ N.1g
+    presinv : (x : A) → f (M.inv x) ≡ N.inv (f x)
 
-  hom : GroupHom G H
-  hom = grouphom (equivFun eq) isHom
+unquoteDecl IsGroupHomIsoΣ = declareRecordIsoΣ IsGroupHomIsoΣ (quote IsGroupHom)
 
-record GroupIso (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
-  constructor groupiso
+GroupHom : (G : Group ℓ) (H : Group ℓ') → Type (ℓ-max ℓ ℓ')
+GroupHom G H = Σ[ f ∈ (G .fst → H .fst) ] IsGroupHom (G .snd) f (H .snd)
 
-  field
-    isom : Iso ⟨ G ⟩ ⟨ H ⟩
-    isHom : isGroupHom G H (Iso.fun isom)
+GroupIso : (G : Group ℓ) (H : Group ℓ') → Type (ℓ-max ℓ ℓ')
+GroupIso G H = Σ[ e ∈ Iso (G .fst) (H .fst) ] IsGroupHom (G .snd) (e .Iso.fun) (H .snd)
 
-  hom : GroupHom G H
-  hom = grouphom (Iso.fun isom) isHom
+IsGroupEquiv : {A : Type ℓ} {B : Type ℓ'}
+  (M : GroupStr A) (e : A ≃ B) (N : GroupStr B) → Type (ℓ-max ℓ ℓ')
+IsGroupEquiv M e N = IsGroupHom M (e .fst) N
 
+GroupEquiv : (G : Group ℓ) (H : Group ℓ') → Type (ℓ-max ℓ ℓ')
+GroupEquiv G H = Σ[ e ∈ (G .fst ≃ H .fst) ] IsGroupEquiv (G .snd) e (H .snd)
 
 -- Image, kernel, surjective, injective, and bijections
 
-open GroupHom
+open IsGroupHom
 open GroupStr
 
 private
   variable
-    G H : Group {ℓ}
+    G H : Group ℓ
 
 isInIm : GroupHom G H → ⟨ H ⟩ → Type _
-isInIm {G = G} ϕ h = ∃[ g ∈ ⟨ G ⟩ ] ϕ .fun g ≡ h
+isInIm {G = G} ϕ h = ∃[ g ∈ ⟨ G ⟩ ] ϕ .fst g ≡ h
 
 isInKer : GroupHom G H → ⟨ G ⟩ → Type _
-isInKer {H = H} ϕ g = ϕ .fun g ≡ 1g (snd H)
+isInKer {H = H} ϕ g = ϕ .fst g ≡ 1g (snd H)
 
 Ker : GroupHom G H → Type _
 Ker {G = G} ϕ = Σ[ x ∈ ⟨ G ⟩ ] isInKer ϕ x
@@ -94,10 +90,10 @@ isInjective : GroupHom G H → Type _
 isInjective {G = G} ϕ = (x : ⟨ G ⟩) → isInKer ϕ x → x ≡ 1g (snd G)
 
 isMono : GroupHom G H → Type _
-isMono {G = G} f = {x y : ⟨ G ⟩} → f .fun x ≡ f .fun y → x ≡ y
+isMono {G = G} f = {x y : ⟨ G ⟩} → f .fst x ≡ f .fst y → x ≡ y
 
 -- Group bijections
-record BijectionIso (G : Group {ℓ}) (H : Group {ℓ'}) : Type (ℓ-max ℓ ℓ') where
+record BijectionIso (G : Group ℓ) (H : Group ℓ') : Type (ℓ-max ℓ ℓ') where
 
   constructor bijIso
 

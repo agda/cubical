@@ -214,8 +214,8 @@ congPathIso {A = A} {B} e {a₀} {a₁} .Iso.fun p i = e i .fst (p i)
 congPathIso {A = A} {B} e {a₀} {a₁} .Iso.inv q i =
   hcomp
     (λ j → λ
-      { (i = i0) → secEq (e i0) a₀ j
-      ; (i = i1) → secEq (e i1) a₁ j
+      { (i = i0) → retEq (e i0) a₀ j
+      ; (i = i1) → retEq (e i1) a₁ j
       })
     (invEq (e i) (q i))
 congPathIso {A = A} {B} e {a₀} {a₁} .Iso.rightInv q k i =
@@ -227,23 +227,23 @@ congPathIso {A = A} {B} e {a₀} {a₁} .Iso.rightInv q k i =
         e i .fst
           (hfill
             (λ j → λ
-              { (i = i0) → secEq (e i0) a₀ j
-              ; (i = i1) → secEq (e i1) a₁ j
+              { (i = i0) → retEq (e i0) a₀ j
+              ; (i = i1) → retEq (e i1) a₁ j
               })
             (inS (invEq (e i) (q i)))
             j)
       ; (k = i1) → q i
       })
-    (retEq (e i) (q i) k)
+    (secEq (e i) (q i) k)
     where b = commSqIsEq
 congPathIso {A = A} {B} e {a₀} {a₁} .Iso.leftInv p k i =
   hcomp
     (λ j → λ
-      { (i = i0) → secEq (e i0) a₀ (j ∨ k)
-      ; (i = i1) → secEq (e i1) a₁ (j ∨ k)
+      { (i = i0) → retEq (e i0) a₀ (j ∨ k)
+      ; (i = i1) → retEq (e i1) a₁ (j ∨ k)
       ; (k = i1) → p i
       })
-    (secEq (e i) (p i) k)
+    (retEq (e i) (p i) k)
 
 congPathEquiv : ∀ {ℓ ℓ'} {A : I → Type ℓ} {B : I → Type ℓ'}
   (e : ∀ i → A i ≃ B i) {a₀ : A i0} {a₁ : A i1}

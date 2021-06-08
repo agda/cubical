@@ -40,18 +40,17 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.KleinBottle
 open import Cubical.HITs.RPn.Base
 
-open GroupHom
-open GroupIso
+open IsGroupHom
 open Iso
 
 -- S¹ (everything fast)
 module S1-tests where
 
   ϕ : coHom 1 (S₊ 1) → Int
-  ϕ = fun (isom (Hⁿ-Sⁿ≅ℤ 0))
+  ϕ = fun (fst (Hⁿ-Sⁿ≅ℤ 0))
 
   ϕ⁻¹ : Int → coHom 1 (S₊ 1)
-  ϕ⁻¹ = inv (isom (Hⁿ-Sⁿ≅ℤ 0))
+  ϕ⁻¹ = inv (fst (Hⁿ-Sⁿ≅ℤ 0))
 
   test₁ : ϕ (ϕ⁻¹ 0) ≡ 0    -- 30ms
   test₁ = refl
@@ -78,10 +77,10 @@ module S1-tests where
 module S2-tests where
 
   ϕ : coHom 2 (S₊ 2) → Int
-  ϕ = fun (isom (Hⁿ-Sⁿ≅ℤ 1))
+  ϕ = fun (fst (Hⁿ-Sⁿ≅ℤ 1))
 
   ϕ⁻¹ : Int → coHom 2 (S₊ 2)
-  ϕ⁻¹ = inv (isom (Hⁿ-Sⁿ≅ℤ 1))
+  ϕ⁻¹ = inv (fst (Hⁿ-Sⁿ≅ℤ 1))
 
   test₁ : ϕ (ϕ⁻¹ 0) ≡ 0    -- 13ms
   test₁ = refl
@@ -110,10 +109,10 @@ module S2-tests where
 module S1∨S1∨S2-tests₁ where -- everything fast
 
   ϕ : coHom 1 S²⋁S¹⋁S¹ → Int × Int
-  ϕ = fun (isom H¹-S²⋁S¹⋁S¹)
+  ϕ = fun (fst H¹-S²⋁S¹⋁S¹)
 
   ϕ⁻¹ : Int × Int → coHom 1 S²⋁S¹⋁S¹
-  ϕ⁻¹ = inv (isom H¹-S²⋁S¹⋁S¹)
+  ϕ⁻¹ = inv (fst H¹-S²⋁S¹⋁S¹)
 
   test₁ : ϕ (ϕ⁻¹ (0 , 0)) ≡ (0 , 0)    -- <10ms
   test₁ = refl
@@ -134,10 +133,10 @@ module S1∨S1∨S2-tests₁ where -- everything fast
 module S1∨S1∨S2-tests₂ where
 
   ϕ : coHom 2 S²⋁S¹⋁S¹ → Int
-  ϕ = fun (isom H²-S²⋁S¹⋁S¹)
+  ϕ = fun (fst H²-S²⋁S¹⋁S¹)
 
   ϕ⁻¹ : Int → coHom 2 S²⋁S¹⋁S¹
-  ϕ⁻¹ = inv (isom H²-S²⋁S¹⋁S¹)
+  ϕ⁻¹ = inv (fst H²-S²⋁S¹⋁S¹)
 
   test₁ : ϕ (ϕ⁻¹ 0) ≡ 0    -- 157ms
   test₁ = refl
@@ -152,10 +151,10 @@ module S1∨S1∨S2-tests₂ where
 module Torus-test₁ where -- fast
 
   ϕ : coHom 1 (S₊ 1 × S₊ 1) → Int × Int
-  ϕ = fun (isom H¹-T²≅ℤ×ℤ)
+  ϕ = fun (fst H¹-T²≅ℤ×ℤ)
 
   ϕ⁻¹ : Int × Int → coHom 1 (S₊ 1 × S₊ 1)
-  ϕ⁻¹ = inv (isom H¹-T²≅ℤ×ℤ)
+  ϕ⁻¹ = inv (fst H¹-T²≅ℤ×ℤ)
 
   test₁ : ϕ (ϕ⁻¹ (0 , 0)) ≡ (0 , 0)    -- <10ms
   test₁ = refl
@@ -176,10 +175,10 @@ module Torus-test₁ where -- fast
 module Torus-test₂ where
 
   ϕ : coHom 2 (S₊ 1 × S₊ 1) → Int
-  ϕ = fun (isom H²-T²≅ℤ)
+  ϕ = fun (fst H²-T²≅ℤ)
 
   ϕ⁻¹ : Int → coHom 2 (S₊ 1 × S₊ 1)
-  ϕ⁻¹ = inv (isom H²-T²≅ℤ)
+  ϕ⁻¹ = inv (fst H²-T²≅ℤ)
 
   test₁ : ϕ (ϕ⁻¹ 0) ≡ 0    -- 121ms
   test₁ = refl
@@ -201,10 +200,10 @@ module Torus-test₂ where
 module Klein-test₁ where -- fast
 
   ϕ : coHom 1 KleinBottle → Int
-  ϕ = fun (isom H¹-𝕂²≅ℤ)
+  ϕ = fun (fst H¹-𝕂²≅ℤ)
 
   ϕ⁻¹ : Int → coHom 1 KleinBottle
-  ϕ⁻¹ = inv (isom H¹-𝕂²≅ℤ)
+  ϕ⁻¹ = inv (fst H¹-𝕂²≅ℤ)
 
   test₁ : ϕ (ϕ⁻¹ 0) ≡ 0    -- <10ms
   test₁ = refl
@@ -234,10 +233,10 @@ module Klein-test₁ where -- fast
 
 module Klein-test₂ where
   ϕ : coHom 2 KleinBottle → Bool
-  ϕ = fun (isom H²-𝕂²≅Bool)
+  ϕ = fun (fst H²-𝕂²≅Bool)
 
   ϕ⁻¹ : Bool → coHom 2 KleinBottle
-  ϕ⁻¹ = inv (isom H²-𝕂²≅Bool)
+  ϕ⁻¹ = inv (fst H²-𝕂²≅Bool)
 
 {-
   test₀ : ϕ (0ₕ _) ≡ true -- fails already here...
@@ -246,10 +245,10 @@ module Klein-test₂ where
 
 module RP2-test₂ where
   ϕ : coHom 2 RP² → Bool
-  ϕ = fun (isom H²-RP²≅Bool)
+  ϕ = fun (fst H²-RP²≅Bool)
 
   ϕ⁻¹ : Bool → coHom 2 RP²
-  ϕ⁻¹ = inv (isom H²-RP²≅Bool)
+  ϕ⁻¹ = inv (fst H²-RP²≅Bool)
 
   test₀ : ϕ (0ₕ _) ≡ true    -- 1,210ms (unlike for Klein, this works)
   test₀ = refl

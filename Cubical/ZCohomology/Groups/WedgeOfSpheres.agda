@@ -72,24 +72,22 @@ H²-S²⋁S¹⋁S¹ =
     ((Hⁿ-⋁ _ _ 1)  □ GroupIsoDirProd (Hⁿ-S¹≅0 0) (Hⁿ-S¹≅0 0) □ rUnitGroupIso)
   □ rUnitGroupIso)
 
-private
-  open GroupIso
-  open Iso
+open Iso
 
-  to₂ : coHom 2 S²⋁S¹⋁S¹ → Int
-  to₂ = fun (isom H²-S²⋁S¹⋁S¹)
-  from₂ : Int → coHom 2 S²⋁S¹⋁S¹
-  from₂ = inv (isom H²-S²⋁S¹⋁S¹)
+to₂ : coHom 2 S²⋁S¹⋁S¹ → Int
+to₂ = fun (fst H²-S²⋁S¹⋁S¹)
+from₂ : Int → coHom 2 S²⋁S¹⋁S¹
+from₂ = inv (fst H²-S²⋁S¹⋁S¹)
 
-  to₁ : coHom 1 S²⋁S¹⋁S¹ → Int × Int
-  to₁ = fun (isom H¹-S²⋁S¹⋁S¹)
-  from₁ : Int × Int → coHom 1 S²⋁S¹⋁S¹
-  from₁ = inv (isom H¹-S²⋁S¹⋁S¹)
+to₁ : coHom 1 S²⋁S¹⋁S¹ → Int × Int
+to₁ = fun (fst H¹-S²⋁S¹⋁S¹)
+from₁ : Int × Int → coHom 1 S²⋁S¹⋁S¹
+from₁ = inv (fst H¹-S²⋁S¹⋁S¹)
 
-  to₀ : coHom 0 S²⋁S¹⋁S¹ → Int
-  to₀ = fun (isom H⁰-S²⋁S¹⋁S¹)
-  from₀ : Int → coHom 0 S²⋁S¹⋁S¹
-  from₀ = inv (isom H⁰-S²⋁S¹⋁S¹)
+to₀ : coHom 0 S²⋁S¹⋁S¹ → Int
+to₀ = fun (fst H⁰-S²⋁S¹⋁S¹)
+from₀ : Int → coHom 0 S²⋁S¹⋁S¹
+from₀ = inv (fst H⁰-S²⋁S¹⋁S¹)
 
 {-
 

@@ -9,7 +9,7 @@ open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.AbGroup
 
 
-ℕAsAlmostRing : AlmostRing {ℓ-zero}
+ℕAsAlmostRing : AlmostRing ℓ-zero
 ℕAsAlmostRing = almostring ℕ 0 1 _+_ _·_ (λ n → n) (isalmostring
                     (ismonoid (issemigroup isSetℕ +-assoc) (λ n → (+-zero n) , refl))
                     (ismonoid (issemigroup isSetℕ ·-assoc) λ n → (·-identityʳ n) , (·-identityˡ n))

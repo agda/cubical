@@ -41,15 +41,6 @@ private
     C : A / R → A / R → Type ℓ
     D : A / R → A / R → A / R → Type ℓ
 
-elimEq/ : (Bprop : (x : A / R ) → isProp (B x))
-          {x y : A / R}
-          (eq : x ≡ y)
-          (bx : B x)
-          (by : B y) →
-          PathP (λ i → B (eq i)) bx by
-elimEq/ {B = B} Bprop {x = x} =
-  J (λ y eq → ∀ bx by → PathP (λ i → B (eq i)) bx by) (λ bx by → Bprop x bx by)
-
 elimProp : ((x : A / R ) → isProp (B x))
          → ((a : A) → B ( [ a ]))
          → (x : A / R)
@@ -60,7 +51,7 @@ elimProp Bprop f (squash/ x y p q i j) =
     (g x) (g y) (cong g p) (cong g q) (squash/ x y p q) i j
     where
     g = elimProp Bprop f
-elimProp Bprop f (eq/ a b r i) = elimEq/ Bprop (eq/ a b r) (f a) (f b) i
+elimProp Bprop f (eq/ a b r i) = isProp→PathP (λ i → Bprop ((eq/ a b r) i)) (f a) (f b) i
 
 elimProp2 : ((x y : A / R ) → isProp (C x y))
           → ((a b : A) → C [ a ] [ b ])
@@ -75,6 +66,17 @@ elimProp3 : ((x y z : A / R ) → isProp (D x y z))
           → D x y z
 elimProp3 Dprop f = elimProp (λ x → isPropΠ2 (λ y z → Dprop x y z))
                              (λ x → elimProp2 (λ y z → Dprop [ x ] y z) (f x))
+
+-- sometimes more convenient:
+elimContr : (∀ (a : A) → isContr (B [ a ]))
+          → (x : A / R) → B x
+elimContr Bcontr = elimProp (elimProp (λ _ → isPropIsProp) λ _ → isContr→isProp (Bcontr _))
+                             λ _ → Bcontr _ .fst
+
+elimContr2 : (∀ (a b : A) → isContr (C [ a ] [ b ]))
+           → (x y : A / R) → C x y
+elimContr2 Ccontr = elimContr λ _ → isOfHLevelΠ 0
+                   (elimContr λ _ → inhProp→isContr (Ccontr _ _) isPropIsContr)
 
 -- lemma 6.10.2 in hott book
 []surjective : (x : A / R) → ∃[ a ∈ A ] [ a ] ≡ x
@@ -167,8 +169,12 @@ setQuotUniversal : {B : Type ℓ} (Bset : isSet B) →
                    (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
 setQuotUniversal Bset = isoToEquiv (setQuotUniversalIso Bset)
 
-
 open BinaryRelation
+
+setQuotUnaryOp : (-_ : A → A)
+               → (∀ a a' → R a a' → R (- a) (- a'))
+               → (A / R → A / R)
+setQuotUnaryOp -_ h = Iso.inv (setQuotUniversalIso squash/) ((λ a → [ - a ]) , λ a b x → eq/ _ _ (h _ _ x))
 
 -- characterisation of binary functions/operations on set-quotients
 setQuotUniversal2Iso : {B : Type ℓ} (Bset : isSet B) → isRefl R

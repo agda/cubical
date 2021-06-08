@@ -132,7 +132,7 @@ module MultivariateSolving where
               in solve lhs rhs (x ∷ y ∷ z ∷ []) {!!}
   -}
 
-module ExamplesForArbitraryRings (R : AlmostRing {ℓ}) where
+module ExamplesForArbitraryRings (R : AlmostRing ℓ) where
   open AlmostRing R
   open EqualityToNormalform R
 

@@ -13,7 +13,7 @@ open IsGroup hiding (rid ; lid ; invr ; invl)
 open IsMonoid hiding (rid ; lid)
 open IsSemigroup
 
-DirProd : ∀ {ℓ ℓ'} → Group {ℓ} → Group {ℓ'} → Group
+DirProd : ∀ {ℓ ℓ'} → Group ℓ → Group ℓ' → Group (ℓ-max ℓ ℓ')
 fst (DirProd G H) = fst G × fst H
 1g (snd (DirProd G H)) = (1g (snd G)) , (1g (snd H))
 _·_ (snd (DirProd G H)) x y = _·_ (snd G) (fst x) (fst y)

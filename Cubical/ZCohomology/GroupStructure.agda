@@ -587,9 +587,9 @@ assocₕ∙ (suc (suc n)) =
 open IsSemigroup
 open IsMonoid
 open GroupStr
-open GroupHom
+open IsGroupHom
 
-coHomGr : (n : ℕ) (A : Type ℓ) → Group {ℓ}
+coHomGr : (n : ℕ) (A : Type ℓ) → Group ℓ
 coHomGr n A = coHom n A , coHomGrnA
   where
   coHomGrnA : GroupStr (coHom n A)
@@ -602,10 +602,10 @@ coHomGr n A = coHom n A , coHomGrnA
       helper : IsGroup {G = coHom n A} (0ₕ n) (λ x y → x +[ n ]ₕ y) (λ x → -[ n ]ₕ x)
       helper = makeIsGroup § (assocₕ n) (rUnitₕ n) (lUnitₕ n) (rCancelₕ n) (lCancelₕ n)
 
-×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group
+×coHomGr : (n : ℕ) (A : Type ℓ) (B : Type ℓ') → Group _
 ×coHomGr n A B = DirProd (coHomGr n A) (coHomGr n B)
 
-coHomGroup : (n : ℕ) (A : Type ℓ) → AbGroup {ℓ}
+coHomGroup : (n : ℕ) (A : Type ℓ) → AbGroup ℓ
 fst (coHomGroup n A) = coHom n A
 AbGroupStr.0g (snd (coHomGroup n A)) = 0ₕ n
 AbGroupStr._+_ (snd (coHomGroup n A)) = _+ₕ_ {n = n}
@@ -615,7 +615,7 @@ IsAbGroup.comm (AbGroupStr.isAbGroup (snd (coHomGroup n A))) = commₕ n
 
 -- Reduced cohomology group (direct def)
 
-coHomRedGroupDir : (n : ℕ) (A : Pointed ℓ) → AbGroup {ℓ}
+coHomRedGroupDir : (n : ℕ) (A : Pointed ℓ) → AbGroup ℓ
 fst (coHomRedGroupDir n A) = coHomRed n A
 AbGroupStr.0g (snd (coHomRedGroupDir n A)) = 0ₕ∙ n
 AbGroupStr._+_ (snd (coHomRedGroupDir n A)) = _+ₕ∙_ {n = n}
@@ -627,7 +627,7 @@ IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (coHomRedGroupDir n A))) = helper
     helper = makeIsGroup § (assocₕ∙ n) (rUnitₕ∙ n) (lUnitₕ∙ n) (rCancelₕ∙ n) (lCancelₕ∙ n)
 IsAbGroup.comm (AbGroupStr.isAbGroup (snd (coHomRedGroupDir n A))) = commₕ∙ n
 
-coHomRedGrDir : (n : ℕ) (A : Pointed ℓ) → Group {ℓ}
+coHomRedGrDir : (n : ℕ) (A : Pointed ℓ) → Group ℓ
 coHomRedGrDir n A = AbGroup→Group (coHomRedGroupDir n A)
 
 -- Induced map
@@ -635,14 +635,17 @@ coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B)
 coHomFun n f = sRec § λ β → ∣ β ∘ f ∣₂
 
 coHomMorph : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → GroupHom (coHomGr n B) (coHomGr n A)
-fun (coHomMorph n f) = coHomFun n f
-isHom (coHomMorph zero f) = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
-isHom (coHomMorph (suc zero) f) = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
-isHom (coHomMorph (suc (suc n)) f) = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
+fst (coHomMorph n f) = coHomFun n f
+snd (coHomMorph n f) = makeIsGroupHom (helper n)
+  where
+  helper : ℕ → _
+  helper zero = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
+  helper (suc zero) = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
+  helper (suc (suc n)) = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
 
 -- Alternative definition of cohomology using ΩKₙ instead. Useful for breaking proofs of group isos
 -- up into smaller parts
-coHomGrΩ : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group {ℓ}
+coHomGrΩ : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group ℓ
 coHomGrΩ n A = ∥ (A → typ (Ω (coHomK-ptd (suc n)))) ∥₂ , coHomGrnA
   where
   coHomGrnA : GroupStr ∥ (A → typ (Ω (coHomK-ptd (suc n)))) ∥₂
@@ -812,34 +815,33 @@ module lockedCohom (key : Unit') where
 lUnitK≡rUnitK : (key : Unit') (n : ℕ) → lockedCohom.lUnitK key n (0ₖ n) ≡ lockedCohom.rUnitK key n (0ₖ n)
 lUnitK≡rUnitK unlock = lUnitₖ≡rUnitₖ
 
-open GroupIso
 open GroupStr renaming (_·_ to _+gr_)
-open GroupHom
+open IsGroupHom
 
-inducedCoHom : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
-  → GroupIso (coHomGr n A) G
-  → Group
-inducedCoHom {A = A} {G = G} {n = n} e =
-  InducedGroup (coHomGr n A)
-               (coHom n A , λ x y → Iso.inv (isom e) (_+gr_ (snd G) (fun (isom e) x)
-                                                         (fun (isom e) y)))
-               (idEquiv _)
-               λ x y → sym (leftInv (isom e) _)
-                      ∙ cong (Iso.inv (isom e)) (isHom e x y)
+-- inducedCoHom : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
+--   → GroupIso (coHomGr n A) G
+--   → Group
+-- inducedCoHom {A = A} {G = G} {n = n} e =
+--   InducedGroup (coHomGr n A)
+--                (coHom n A , λ x y → Iso.inv (isom e) (_+gr_ (snd G) (fun (isom e) x)
+--                                                          (fun (isom e) y)))
+--                (idEquiv _)
+--                λ x y → sym (leftInv (isom e) _)
+--                       ∙ cong (Iso.inv (isom e)) (isHom e x y)
 
-induced+ : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
-  → (e : GroupIso (coHomGr n A) G)
-  → fst (inducedCoHom e) → fst (inducedCoHom e) → fst (inducedCoHom e)
-induced+ e = _+gr_ (snd (inducedCoHom e))
+-- induced+ : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
+--   → (e : GroupIso (coHomGr n A) G)
+--   → fst (inducedCoHom e) → fst (inducedCoHom e) → fst (inducedCoHom e)
+-- induced+ e = _+gr_ (snd (inducedCoHom e))
 
-inducedCoHomIso : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
-               → (e : GroupIso (coHomGr n A) G)
-               → GroupIso (coHomGr n A) (inducedCoHom e)
-isom (inducedCoHomIso e) = idIso
-isHom (inducedCoHomIso e) x y = sym (leftInv (isom e) _)
-                              ∙ cong (Iso.inv (isom e)) (isHom e x y)
+-- inducedCoHomIso : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
+--                → (e : GroupIso (coHomGr n A) G)
+--                → GroupIso (coHomGr n A) (inducedCoHom e)
+-- isom (inducedCoHomIso e) = idIso
+-- isHom (inducedCoHomIso e) x y = sym (leftInv (isom e) _)
+--                               ∙ cong (Iso.inv (isom e)) (isHom e x y)
 
-inducedCoHomPath : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
-               → (e : GroupIso (coHomGr n A) G)
-               → coHomGr n A ≡ inducedCoHom e
-inducedCoHomPath e = InducedGroupPath _ _ _ _
+-- inducedCoHomPath : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
+--                → (e : GroupIso (coHomGr n A) G)
+--                → coHomGr n A ≡ inducedCoHom e
+-- inducedCoHomPath e = InducedGroupPath _ _ _ _

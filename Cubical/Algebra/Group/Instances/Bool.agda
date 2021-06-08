@@ -46,7 +46,7 @@ inverse (isGroup (snd Bool)) true = refl , refl
 -- Proof that any Group equivalent to Bool as types is also isomorhic to Bool as groups.
 open GroupStr renaming (assoc to assocG)
 
-module _ {ℓ : Level} {A : Group {ℓ}} (e : Iso (fst A) BoolType) where
+module _ {ℓ : Level} {A : Group ℓ} (e : Iso (fst A) BoolType) where
   private
     discreteA : Discrete (typ A)
     discreteA = IsoPresDiscrete (invIso e) _≟_
@@ -75,9 +75,10 @@ module _ {ℓ : Level} {A : Group {ℓ}} (e : Iso (fst A) BoolType) where
     ... | no p  | yes q = inl q
 
   ≅Bool : GroupIso Bool A
-  ≅Bool = groupiso IsoABool homHelp
+  ≅Bool .fst = IsoABool
+  ≅Bool .snd = makeIsGroupHom homHelp
     where
-    homHelp : isGroupHom Bool A (Iso.fun IsoABool)
+    homHelp : _
     homHelp false false with discreteA (Iso.fun IsoABool false) (1g (snd A))
                            | (decA ((Iso.fun IsoABool false) ·A Iso.fun IsoABool false))
     ... | yes p | _     = true→0 ∙∙ sym (GroupStr.rid (snd A) (1g (snd A))) ∙∙ cong₂ (_·A_) (sym p) (sym p)

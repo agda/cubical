@@ -16,7 +16,7 @@ private
   variable
     ℓ : Level
 
-module MultivariateSolving (R : CommRing {ℓ}) where
+module MultivariateSolving (R : CommRing ℓ) where
   -- In scope for debuggin:
 
   -- In scope for solver use:

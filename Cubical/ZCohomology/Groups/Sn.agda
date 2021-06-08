@@ -43,9 +43,7 @@ infixr 31 _□_
 _□_ : _
 _□_ = compGroupIso
 
-open GroupEquiv
-open GroupIso
-open GroupHom
+open IsGroupHom
 open BijectionIso
 open Iso
 
@@ -57,9 +55,8 @@ Sn-connected (suc (suc n)) = suspToPropElim north (λ _ → propTruncIsProp) ∣
 suspensionAx-Sn : (n m : ℕ) → GroupIso (coHomGr (2 + n) (S₊ (2 + m)))
                                          (coHomGr (suc n) (S₊ (suc m)))
 suspensionAx-Sn n m =
-  groupiso
-    (compIso (setTruncIso (invIso funSpaceSuspIso)) helperIso)
-    funIsHom
+  compIso (setTruncIso (invIso funSpaceSuspIso)) helperIso ,
+  makeIsGroupHom funIsHom
   where
   helperIso : Iso ∥ (Σ[ x ∈ coHomK (2 + n) ]
                   Σ[ y ∈ coHomK (2 + n) ]
@@ -123,11 +120,11 @@ S1Iso = S¹IsoSuspBool ⋄ invIso PushoutSuspIsoSusp
 coHomPushout≅coHomSn : (n m : ℕ) → GroupIso (coHomGr m (S₊ (suc n)))
                                              (coHomGr m (Pushout {A = S₊ n} (λ _ → tt) λ _ → tt))
 coHomPushout≅coHomSn zero m =
-  groupiso (setTruncIso (domIso S1Iso))
-                (sElim2 (λ _ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ _ → refl))
+  setTruncIso (domIso S1Iso) ,
+  makeIsGroupHom (sElim2 (λ _ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ _ → refl))
 coHomPushout≅coHomSn (suc n) m =
-  groupiso (setTruncIso (domIso (invIso PushoutSuspIsoSusp)))
-                (sElim2 (λ _ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ _ → refl))
+  setTruncIso (domIso (invIso PushoutSuspIsoSusp)) ,
+  makeIsGroupHom (sElim2 (λ _ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ _ → refl))
 
 -------------------------- H⁰(S⁰) -----------------------------
 S0→Int : (a : Int × Int) → S₊ 0 → Int
@@ -135,15 +132,15 @@ S0→Int a true = fst a
 S0→Int a false = snd a
 
 H⁰-S⁰≅ℤ×ℤ : GroupIso (coHomGr 0 (S₊ 0)) (DirProd IntGroup IntGroup)
-fun (isom H⁰-S⁰≅ℤ×ℤ) = sRec (isSet× isSetInt isSetInt) λ f → (f true) , (f false)
-inv (isom H⁰-S⁰≅ℤ×ℤ) a = ∣ S0→Int a ∣₂
-rightInv (isom H⁰-S⁰≅ℤ×ℤ) _ = refl
-leftInv (isom H⁰-S⁰≅ℤ×ℤ) =
+fun (fst H⁰-S⁰≅ℤ×ℤ) = sRec (isSet× isSetInt isSetInt) λ f → (f true) , (f false)
+inv (fst H⁰-S⁰≅ℤ×ℤ) a = ∣ S0→Int a ∣₂
+rightInv (fst H⁰-S⁰≅ℤ×ℤ) _ = refl
+leftInv (fst H⁰-S⁰≅ℤ×ℤ) =
   sElim (λ _ → isSet→isGroupoid setTruncIsSet _ _)
-                            λ f → cong ∣_∣₂ (funExt (λ {true → refl ; false → refl}))
-isHom H⁰-S⁰≅ℤ×ℤ =
-  sElim2 (λ _ _ → isSet→isGroupoid (isSet× isSetInt isSetInt) _ _)
-                                λ a b → refl
+        (λ f → cong ∣_∣₂ (funExt (λ {true → refl ; false → refl})))
+snd H⁰-S⁰≅ℤ×ℤ =
+  makeIsGroupHom
+    (sElim2 (λ _ _ → isSet→isGroupoid (isSet× isSetInt isSetInt) _ _) λ a b → refl)
 
 
 ------------------------- H¹(S⁰) ≅ 0 -------------------------------
@@ -262,21 +259,22 @@ coHom1S1≃ℤ = theIso
   F⁻ = Iso.inv S¹→S¹≡S¹×Int
 
   theIso : GroupIso (coHomGr 1 (S₊ 1)) IntGroup
-  fun (isom theIso) = sRec isSetInt (λ f → snd (F f))
-  inv (isom theIso) a = ∣ (F⁻ (base , a)) ∣₂
-  rightInv (isom theIso) a = cong snd (Iso.rightInv S¹→S¹≡S¹×Int (base , a))
-  leftInv (isom theIso) =
+  fun (fst theIso) = sRec isSetInt (λ f → snd (F f))
+  inv (fst theIso) a = ∣ (F⁻ (base , a)) ∣₂
+  rightInv (fst theIso) a = cong snd (Iso.rightInv S¹→S¹≡S¹×Int (base , a))
+  leftInv (fst theIso) =
     sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
                           λ f → cong ((sRec setTruncIsSet ∣_∣₂)
                                         ∘ sRec setTruncIsSet λ x → ∣ F⁻ (x , (snd (F f))) ∣₂)
                                       (Iso.inv PathIdTrunc₀Iso (isConnectedS¹ (fst (F f))))
                               ∙ cong ∣_∣₂ (Iso.leftInv S¹→S¹≡S¹×Int f)
-  isHom theIso =
-    coHomPointedElimS¹2 _ (λ _ _ → isSetInt _ _)
-      λ p q → (λ i → winding (guy ∣ base ∣ (cong S¹map (help p q i))))
-            ∙∙ (λ i → winding (guy ∣ base ∣ (congFunct S¹map p q i)))
-            ∙∙ winding-hom (guy ∣ base ∣ (cong S¹map p))
-                           (guy ∣ base ∣ (cong S¹map q))
+  snd theIso =
+    makeIsGroupHom
+      (coHomPointedElimS¹2 _ (λ _ _ → isSetInt _ _)
+        λ p q → (λ i → winding (guy ∣ base ∣ (cong S¹map (help p q i))))
+              ∙∙ (λ i → winding (guy ∣ base ∣ (congFunct S¹map p q i)))
+              ∙∙ winding-hom (guy ∣ base ∣ (cong S¹map p))
+                             (guy ∣ base ∣ (cong S¹map q)))
     where
     guy = basechange2⁻ ∘ S¹map
     help : (p q : Path (coHomK 1) ∣ base ∣ ∣ base ∣) → cong₂ _+ₖ_ p q ≡ p ∙ q
@@ -299,22 +297,22 @@ Hⁿ-Sᵐ≅0 (suc n) (suc m) pf = suspensionAx-Sn n m
 -- Test functions
 private
   to₁ : coHom 1 S¹ → Int
-  to₁ = Iso.fun (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 0))
+  to₁ = Iso.fun (fst (Hⁿ-Sⁿ≅ℤ 0))
 
   to₂ : coHom 2 (S₊ 2) → Int
-  to₂ = Iso.fun (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 1))
+  to₂ = Iso.fun (fst (Hⁿ-Sⁿ≅ℤ 1))
 
   to₃ : coHom 3 (S₊ 3) → Int
-  to₃ = Iso.fun (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 2))
+  to₃ = Iso.fun (fst (Hⁿ-Sⁿ≅ℤ 2))
 
   from₁ : Int → coHom 1 S¹
-  from₁ = Iso.inv (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 0))
+  from₁ = Iso.inv (fst (Hⁿ-Sⁿ≅ℤ 0))
 
   from₂ : Int → coHom 2 (S₊ 2)
-  from₂ = Iso.inv (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 1))
+  from₂ = Iso.inv (fst (Hⁿ-Sⁿ≅ℤ 1))
 
   from₃ : Int → coHom 3 (S₊ 3)
-  from₃ = Iso.inv (GroupIso.isom (Hⁿ-Sⁿ≅ℤ 2))
+  from₃ = Iso.inv (fst (Hⁿ-Sⁿ≅ℤ 2))
 
 {-
 Strangely, the following won't compute
