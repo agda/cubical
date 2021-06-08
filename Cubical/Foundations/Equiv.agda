@@ -96,10 +96,10 @@ module _ (w : A ≃ B) where
   invEq : B → A
   invEq = invIsEq (snd w)
 
-  retEq : section invEq (w .fst)
+  retEq : retract (w .fst) invEq
   retEq = retIsEq (snd w)
 
-  secEq : retract invEq (w .fst)
+  secEq : section (w .fst) invEq
   secEq = secIsEq (snd w)
 
 open Iso
