@@ -725,6 +725,8 @@ fst ((f , p) +ₕᵣ (g , q)) n = f n +ₕ g n
 fst (-ₕᵣ (f , p)) x = -ₕ (f x)
 snd (-ₕᵣ (f , p)) = pRec propTruncIsProp (λ {(x , q) → ∣ x , (λ m ineq → cong -ₕ_ (q m ineq) ∙ -0ₕ m) ∣}) p
 
+0ᵣ : {A : Type ℓ} → coHomR A
+0ᵣ = 0ₕ , ∣ 0 , (λ _ _ → refl) ∣
 
 charac≡ : {A : Type ℓ} {f g : coHomR A} → ((n : ℕ) → (fst f) n ≡ (fst g) n) → f ≡ g
 charac≡ ind = Σ≡Prop (λ _ → propTruncIsProp) (funExt ind)
@@ -764,16 +766,62 @@ snd (incl {n = n} x) =
 
 open import Cubical.Data.List
 
+asSum : {A : Type ℓ} → (f : coHomR A) → Σ[ x ∈ coHomR A ] (f ≡ x)
+asSum {A = A} = uncurry
+  λ f → pElim (λ _ → isPropSingl)
+                 λ p → (g (fst p) f (snd p)) , Σ≡Prop (λ _ → propTruncIsProp) (funExt λ x → sym (gId (fst p) f (snd p) x (decEqℕ _ _)))
+  where
+  ⊥-help : (x m : ℕ) → ¬ x ≡ suc (m + x)
+  ⊥-help zero m p = snotz (sym p)
+  ⊥-help (suc x) m p = ⊥-help x m (cong predℕ p ∙ +-suc m x)
+
+
+  g : (n : ℕ) (f : (n : ℕ) → coHom n A)  (p : (m : ℕ) → n < m → f m ≡ 0ₕ m) → coHomR A
+  g zero f p = incl (f zero)
+  g (suc x) f p = g x (λ n → help n (decEqℕ _ _)) help2 +ₕᵣ incl (f (suc x))
+    module _ where
+    help : (n : ℕ) → ((¬ (suc x) ≡ n) ⊎ ((suc x) ≡ n)) → coHom n A
+    help n (inl x) = f n
+    help n (inr x) = 0ₕ n
+
+    help2 : (n : ℕ) → x < n → help n (decEqℕ (suc x) n) ≡ 0ₕ n
+    help2 n (zero , diff) = cong (help n) (isProp-decEqℕ _ _ (decEqℕ (suc x) n) (inr diff))
+    help2 n (suc m , diff) = cong (help n) (isProp-decEqℕ _ _ (decEqℕ (suc x) n)
+            (inl λ p → ⊥-help _ _ (sym diff ∙ cong (λ x → suc (m + x)) p)))
+          ∙ p n (m , +-suc m (suc x) ∙ diff)
+
+  gId : (n : ℕ) (f : (n : ℕ) → coHom n A)  (p : (m : ℕ) → n < m → f m ≡ 0ₕ m)
+     → (m : ℕ) → ((¬ (m ≡ n)) ⊎ (m ≡ n))
+     → g n f p .fst m  ≡ f m
+  gId zero f p zero ineq = transportRefl _
+  gId zero f p (suc m) ineq = sym (p (suc m) (m , +-comm m 1))
+  gId (suc n) f p m (inl q) = (λ i → (help3 i +ₕᵣ {!!}) .fst m) ∙∙ {!!} ∙∙ {!!}
+    where
+    help3 : g n (λ m → help n f p m (decEqℕ _ _)) (help2 n f p) ≡ (f , ∣ (suc n) , p ∣)
+    help3 = Σ≡Prop (λ _ → propTruncIsProp)
+      (funExt λ x → ((gId n (λ m → help n f p m (decEqℕ _ _)) (help2 n f p)) x (decEqℕ _ _)) ∙ cong (help n f p x) (isProp-decEqℕ _ _ (decEqℕ _ _) (inl {!q!}))) -- (λ i → g n (λ m₁ → help n f p m₁ (isProp-decEqℕ _ _ (decEqℕ (suc n) m₁) {!!} i)) {!!}  .fst x) ∙ {!!})
+  gId (suc n) f p m (inr x) = {!!}
+
 sumList : {A : Type ℓ} {n : ℕ} → coHomR A → ∥ List (coHomR A) ∥
 sumList {A = A} = uncurry λ f → Cubical.HITs.PropositionalTruncation.map
   (uncurry (c f))
   where
   c : (f : (n : ℕ) → coHom n A) → (x : ℕ) (y : (m : ℕ) → x < m → f m ≡ 0ₕ m) → List (coHomR A)
   c f zero y = []
-  c f (suc x) y = {!c f x ?!} ++ [ incl (f (suc x)) ]
+  c f (suc x) y =
+    c (λ n → new (suc x) f n (decEqℕ _ _)) x
+        (λ { n (zero , diff) → cong (new (suc x) f n) (isProp-decEqℕ _ _ (decEqℕ (suc x) n) (inr diff))
+           ; n (suc m , diff) → cong (new (suc x) f n)
+                    (isProp-decEqℕ _ _ (decEqℕ (suc x) n)
+                    (inl (λ p → ⊥-help _ _ (sym diff ∙ cong (suc m +_) p)))) ∙ y n (m , +-suc m (suc x) ∙ diff)})
+      ++ [ incl (f (suc x)) ]
     where
-    new : {!!}
-    new = {!!}
+    ⊥-help : (n m : ℕ) → ¬ (n ≡ suc (m + n))
+    ⊥-help n m = {!!}
+
+    new : (m : ℕ) → (f : (n : ℕ) → coHom n A) → (n : ℕ) → (¬ m ≡ n) ⊎ (m ≡ n) → coHom n A
+    new m f n (inr x) = 0ₕ _
+    new m f n (inl x) = f n
 
 h : (n m : ℕ) → (n ≤ m) ⊎ (m < n)
 h n m = help (n ≟ m)
