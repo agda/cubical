@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.HITs.Ints.DiffInt.Base where
+module Cubical.Data.Int.MoreInts.DiffInt.Base where
 
 open import Cubical.Foundations.Prelude
 

@@ -3,7 +3,7 @@
 {-
 
 This file defines integers as equivalence classes of pairs of natural numbers
-using a direct & untruncated HIT definition (cf. HITs.Ints.DiffInt)
+using a direct & untruncated HIT definition (cf. Data.Int.MoreInts.DiffInt)
 
 and some basic operations, and the zero value:
 
@@ -23,7 +23,7 @@ cancelN : ∀ a b n → a ⊖ b ≡ (n + a) ⊖ n + b
 
 -}
 
-module Cubical.HITs.Ints.DeltaInt.Base where
+module Cubical.Data.Int.MoreInts.DeltaInt.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat hiding (zero)

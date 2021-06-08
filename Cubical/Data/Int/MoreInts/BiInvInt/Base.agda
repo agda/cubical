@@ -14,7 +14,7 @@ This file contains:
 
 -}
 {-# OPTIONS --safe #-}
-module Cubical.HITs.Ints.BiInvInt.Base where
+module Cubical.Data.Int.MoreInts.BiInvInt.Base where
 
 open import Cubical.Core.Everything
 

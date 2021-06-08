@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.HITs.Ints.BiInvInt.Properties where
+module Cubical.Data.Int.MoreInts.BiInvInt.Properties where
 
 open import Cubical.Core.Everything
 
@@ -14,7 +14,7 @@ open import Cubical.Data.Nat using (ℕ)
 import Cubical.Data.Int as Int
 open import Cubical.Data.Bool
 
-open import Cubical.HITs.Ints.BiInvInt.Base
+open import Cubical.Data.Int.MoreInts.BiInvInt.Base
 
 infixl 6 _+_ _-_
 infixl 7 _·_

@@ -4,7 +4,7 @@ module Cubical.HITs.Rationals.SigmaQ.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
-open import Cubical.HITs.Ints.QuoInt
+open import Cubical.Data.Int.MoreInts.QuoInt
 
 open import Cubical.Data.Nat as ℕ hiding (_·_)
 open import Cubical.Data.NatPlusOne

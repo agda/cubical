@@ -28,12 +28,12 @@ isSetDeltaInt : isSet DeltaInt
 
 -}
 
-module Cubical.HITs.Ints.DeltaInt.Properties where
+module Cubical.Data.Int.MoreInts.DeltaInt.Properties where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Nat hiding (zero)
 open import Cubical.Data.Int hiding (abs; sgn; _+_)
-open import Cubical.HITs.Ints.DeltaInt.Base
+open import Cubical.Data.Int.MoreInts.DeltaInt.Base
 open import Cubical.Relation.Nullary using (Discrete)
 
 deltaIntSec : ∀ b → toInt (fromInt b) ≡ b

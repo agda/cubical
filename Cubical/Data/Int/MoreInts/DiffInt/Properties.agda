@@ -1,10 +1,10 @@
 {-# OPTIONS --safe #-}
-module Cubical.HITs.Ints.DiffInt.Properties where
+module Cubical.Data.Int.MoreInts.DiffInt.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
 
-open import Cubical.HITs.Ints.DiffInt.Base
+open import Cubical.Data.Int.MoreInts.DiffInt.Base
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.Data.Bool

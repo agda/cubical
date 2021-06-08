@@ -1,6 +1,6 @@
 -- Define the integers as a HIT by identifying +0 and -0
 {-# OPTIONS --safe #-}
-module Cubical.HITs.Ints.QuoInt.Base where
+module Cubical.Data.Int.MoreInts.QuoInt.Base where
 
 open import Cubical.Core.Everything
 

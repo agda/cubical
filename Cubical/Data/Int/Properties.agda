@@ -531,3 +531,4 @@ private
   cong ((- (b · c)) +_) (·-assoc (negsuc n) b c)
   ∙∙ cong (_+ ((negsuc n · b) · c)) (-DistL· b c)
   ∙∙ sym (·-rDist (- b) (negsuc n · b) c)
+
