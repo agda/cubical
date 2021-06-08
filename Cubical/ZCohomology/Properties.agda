@@ -11,6 +11,7 @@ This module contains:
    and its inverse are morphisms
 6. A proof of coHomGr ≅ coHomGrΩ
 7. A locked (non-reducing) version of Kₙ ≃ ΩKₙ₊₁
+8. Some HLevel lemmas used for the cup product
 -}
 
 
@@ -529,7 +530,6 @@ module lockedKnIso (key : Unit') where
   where
   f = fun f'
 
-
 -- HLevel stuff for cup product
 isContr-↓∙ : (n : ℕ) → isContr (coHomK-ptd (suc n) →∙ coHomK-ptd n)
 fst (isContr-↓∙ zero) = (λ _ → 0) , refl
@@ -591,12 +591,12 @@ isOfHLevel↑∙' (suc n) m = isOfHLevel→∙Kn (suc (n + m)) (suc n) (isOfHLev
     ua∙ (isoToEquiv (ΩfunExtIso A (coHomK-ptd (suc n)))) refl
   ∙ (λ i → (A →∙ Kn≃ΩKn+1∙ {n = n} (~ i) ∙))
 
-
-whelp : (n m : ℕ) → isContr
-      (coHomK-ptd (suc n) →∙
-       (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (n + m)) ∙))
-fst (whelp n m) = (λ _ → (λ _ → 0ₖ _) , refl) , refl
-snd (whelp n m) (f , p) = →∙Homogeneous≡ (isHomogeneous→∙ (isHomogeneousKn _)) (sym (funExt help))
+contr∙-lem : (n m : ℕ)
+  → isContr (coHomK-ptd (suc n)
+           →∙ (coHomK-ptd (suc m)
+             →∙ coHomK-ptd (suc (n + m)) ∙))
+fst (contr∙-lem n m) = (λ _ → (λ _ → 0ₖ _) , refl) , refl
+snd (contr∙-lem n m) (f , p) = →∙Homogeneous≡ (isHomogeneous→∙ (isHomogeneousKn _)) (sym (funExt help))
   where
   help : (x : _) → (f x) ≡ ((λ _ → 0ₖ _) , refl)
   help =
@@ -605,7 +605,10 @@ snd (whelp n m) (f , p) = →∙Homogeneous≡ (isHomogeneous→∙ (isHomogeneo
              (isOfHLevelPlus' {n = 1} (2 + n) (isOfHLevel↑∙ n m))) _ _)
     (sphereElim _ (λ _ → isOfHLevel↑∙ n m _ _) p)
 
-isOfHLevel↑∙∙ : ∀ n m l → isOfHLevel (2 + l) (coHomK-ptd (suc n) →∙ (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (l + n + m))) ∙))
+isOfHLevel↑∙∙ : ∀ n m l
+  → isOfHLevel (2 + l) (coHomK-ptd (suc n)
+                      →∙ (coHomK-ptd (suc m)
+                       →∙ coHomK-ptd (suc (suc (l + n + m))) ∙))
 isOfHLevel↑∙∙ n m zero =
   isOfHLevelΩ→isOfHLevel 0 λ f
     → subst
@@ -613,10 +616,12 @@ isOfHLevel↑∙∙ n m zero =
         (isHomogeneous→∙ (isHomogeneous→∙ (isHomogeneousKn _)) f))
         (isOfHLevelRetractFromIso 1 (ΩfunExtIso _ _) h)
   where
-  h : isProp (coHomK-ptd (suc n) →∙ (Ω (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (n + m))) ∙)))
+  h : isProp (coHomK-ptd (suc n)
+           →∙ (Ω (coHomK-ptd (suc m)
+            →∙ coHomK-ptd (suc (suc (n + m))) ∙)))
   h =
     subst isProp (λ i → coHomK-ptd (suc n) →∙ (→∙KnPath (coHomK-ptd (suc m)) (suc (n + m)) (~ i)))
-      (isContr→isProp (whelp n m))
+      (isContr→isProp (contr∙-lem n m))
 isOfHLevel↑∙∙ n m (suc l) =
   isOfHLevelΩ→isOfHLevel (suc l)
     λ f →
@@ -625,7 +630,10 @@ isOfHLevel↑∙∙ n m (suc l) =
         (isHomogeneous→∙ (isHomogeneous→∙ (isHomogeneousKn _)) f))
         (isOfHLevelRetractFromIso (2 + l) (ΩfunExtIso _ _) h)
   where
-  h : isOfHLevel (2 + l) (coHomK-ptd (suc n) →∙ (Ω (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (suc (l + n + m)))) ∙)))
+  h : isOfHLevel (2 + l)
+       (coHomK-ptd (suc n)
+         →∙ (Ω (coHomK-ptd (suc m)
+           →∙ coHomK-ptd (suc (suc (suc (l + n + m)))) ∙)))
   h =
     subst (isOfHLevel (2 + l))
       (λ i → coHomK-ptd (suc n) →∙ →∙KnPath (coHomK-ptd (suc m)) (suc (suc (l + n + m))) (~ i))
