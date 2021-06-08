@@ -81,7 +81,7 @@ module _ {ℓ ℓ' ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} {X : 
   postcomp⁻¹ cl = invEq (_ , univ cl _ Y)
 
   postcomp⁻¹-inv : (cl : isColimit F X) (D : Cocone ℓ' F Y) → (postcomp (cone cl) (postcomp⁻¹ cl D)) ≡ D
-  postcomp⁻¹-inv cl D = retEq (_ , univ cl _ Y) D
+  postcomp⁻¹-inv cl D = secEq (_ , univ cl _ Y) D
 
   postcomp⁻¹-mor : (cl : isColimit F X) (D : Cocone ℓ' F Y) → CoconeMor (X , cone cl) (Y , D)
   postcomp⁻¹-mor cl D = (postcomp⁻¹ cl D) , (postcomp⁻¹-inv cl D)

@@ -191,8 +191,8 @@ snd (invGroupEquiv f) = isGroupHomInv f
   isGroupHomInv : (f : GroupEquiv G H) → IsGroupHom (H .snd) (invEq (fst f)) (G .snd)
   isGroupHomInv {G = G} {H = H} f = makeIsGroupHom λ h h' →
     isInj-f _ _
-      (f' (g (h ⋆² h'))        ≡⟨ retEq (fst f) _ ⟩
-       (h ⋆² h')               ≡⟨ sym (cong₂ _⋆²_ (retEq (fst f) h) (retEq (fst f) h')) ⟩
+      (f' (g (h ⋆² h'))        ≡⟨ secEq (fst f) _ ⟩
+       (h ⋆² h')               ≡⟨ sym (cong₂ _⋆²_ (secEq (fst f) h) (secEq (fst f) h')) ⟩
        (f' (g h) ⋆² f' (g h')) ≡⟨ sym (pres· (snd f) _ _) ⟩
        f' (g h ⋆¹ g h') ∎)
     where

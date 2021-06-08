@@ -246,7 +246,7 @@ Subset→Embedding→Subset _ = funExt λ x → Σ≡Prop (λ _ → isPropIsProp
 
 Embedding→Subset→Embedding : {X : Type ℓ} → retract (Embedding→Subset {ℓ} {X}) (Subset→Embedding {ℓ} {X})
 Embedding→Subset→Embedding {ℓ = ℓ} {X = X} (A , f , ψ) =
-  cong (equivFun Σ-assoc-≃) (Σ≡Prop (λ _ → isEmbeddingIsProp) (secEq (fibrationEquiv X ℓ) (A , f)))
+  cong (equivFun Σ-assoc-≃) (Σ≡Prop (λ _ → isEmbeddingIsProp) (retEq (fibrationEquiv X ℓ) (A , f)))
 
 Subset≃Embedding : {X : Type ℓ} → ℙ X ≃ (Σ[ A ∈ Type ℓ ] (A ↪ X))
 Subset≃Embedding = isoToEquiv (iso Subset→Embedding Embedding→Subset
