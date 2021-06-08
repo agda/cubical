@@ -166,14 +166,14 @@ isGroupoidRetract
   (h : (x : A) → g (f x) ≡ x)
   → isGroupoid B → isGroupoid A
 isGroupoidRetract f g h grp x y p q P Q i j k =
-  hcomp ((λ l → λ { (i = i0) → h (P j k) l
+  hcomp (λ l → λ { (i = i0) → h (P j k) l
                   ; (i = i1) → h (Q j k) l
                   ; (j = i0) → h (p k) l
                   ; (j = i1) → h (q k) l
                   ; (k = i0) → h x l
-                  ; (k = i1) → h y l}))
-       (g (grp (f x) (f y) (cong f p) (cong f q)
-                           (cong (cong f) P) (cong (cong f) Q) i j k))
+                  ; (k = i1) → h y l})
+        (g (grp (f x) (f y) (cong f p) (cong f q)
+                            (cong (cong f) P) (cong (cong f) Q) i j k))
 
 is2GroupoidRetract
   : {B : Type ℓ}
@@ -189,9 +189,9 @@ is2GroupoidRetract f g h grp x y p q P Q R S i j k l =
                  ; (k = i1) → h (q l) r
                  ; (l = i0) → h x r
                  ; (l = i1) → h y r})
-       (g (grp (f x) (f y) (cong f p) (cong f q)
-               (cong (cong f) P) (cong (cong f) Q)
-               (cong (cong (cong f)) R) (cong (cong (cong f)) S) i j k l))
+        (g (grp (f x) (f y) (cong f p) (cong f q)
+                (cong (cong f) P) (cong (cong f) Q)
+                (cong (cong (cong f)) R) (cong (cong (cong f)) S) i j k l))
 
 isOfHLevelRetract
   : (n : HLevel) {B : Type ℓ}
@@ -242,6 +242,114 @@ isContrRetractOfConstFun : {A : Type ℓ} {B : Type ℓ'} (b₀ : B)
    → isContr A
 fst (isContrRetractOfConstFun b₀ ret) = ret .fst b₀
 snd (isContrRetractOfConstFun b₀ ret) y = ret .snd y
+
+-- hlevels are preserved by sections
+
+isContrSection
+  : ∀ {B : Type ℓ}
+  → (f : A → B) (g : B → A)
+  → (h : section f g)
+  → (u : isContr A) → isContr B
+fst (isContrSection f g h (a , p)) = f a
+snd (isContrSection f g h (a , p)) y = cong f (p (g y)) ∙ h y
+
+isPropSection
+  : {B : Type ℓ}
+  (f : A → B) (g : B → A)
+  (h : (y : B) → f (g y) ≡ y)
+  → isProp A → isProp B
+isPropSection f g h p x y i =
+  hcomp
+    (λ j → λ
+      { (i = i0) → h x j
+      ; (i = i1) → h y j})
+    (f (p (g x) (g y) i))
+
+isSetSection
+  : {B : Type ℓ}
+  (f : A → B) (g : B → A)
+  (h : (y : B) → f (g y) ≡ y)
+  → isSet A → isSet B
+isSetSection f g h set x y p q i j =
+  hcomp (λ k → λ { (i = i0) → h (p j) k
+                 ; (i = i1) → h (q j) k
+                 ; (j = i0) → h x k
+                 ; (j = i1) → h y k})
+        (f (set (g x) (g y)
+                (cong g p) (cong g q) i j))
+
+isGroupoidSection
+  : {B : Type ℓ}
+  (f : A → B) (g : B → A)
+  (h : (y : B) → f (g y) ≡ y)
+  → isGroupoid A → isGroupoid B
+isGroupoidSection f g h grp x y p q P Q i j k =
+  hcomp (λ l → λ { (i = i0) → h (P j k) l
+                 ; (i = i1) → h (Q j k) l
+                 ; (j = i0) → h (p k) l
+                 ; (j = i1) → h (q k) l
+                 ; (k = i0) → h x l
+                 ; (k = i1) → h y l})
+        (f (grp (g x) (g y) (cong g p) (cong g q)
+                            (cong (cong g) P) (cong (cong g) Q) i j k))
+
+is2GroupoidSection
+  : {B : Type ℓ}
+  (f : A → B) (g : B → A)
+  (h : (y : B) → f (g y) ≡ y)
+  → is2Groupoid A → is2Groupoid B
+is2GroupoidSection f g h grp x y p q P Q R S i j k l =
+  hcomp (λ r → λ { (i = i0) → h (R j k l) r
+                 ; (i = i1) → h (S j k l) r
+                 ; (j = i0) → h (P k l) r
+                 ; (j = i1) → h (Q k l) r
+                 ; (k = i0) → h (p l) r
+                 ; (k = i1) → h (q l) r
+                 ; (l = i0) → h x r
+                 ; (l = i1) → h y r})
+        (f (grp (g x) (g y)
+                (cong g p) (cong g q)
+                (cong (cong g) P) (cong (cong g) Q)
+                (cong (cong (cong g)) R) (cong (cong (cong g)) S) i j k l))
+
+isOfHLevelSection
+  : (n : HLevel) {B : Type ℓ}
+  (f : A → B) (g : B → A)
+  (h : (y : B) → f (g y) ≡ y)
+  → isOfHLevel n A → isOfHLevel n B
+isOfHLevelSection 0 = isContrSection
+isOfHLevelSection 1 = isPropSection
+isOfHLevelSection 2 = isSetSection
+isOfHLevelSection 3 = isGroupoidSection
+isOfHLevelSection 4 = is2GroupoidSection
+isOfHLevelSection (suc (suc (suc (suc (suc n))))) f g h ofLevel x y p q P Q R S =
+  isOfHLevelSection (suc n)
+                    (λ s i j k l →
+                      hcomp (λ r → λ { (i = i0) → h (R j k l) r
+                                     ; (i = i1) → h (S j k l) r
+                                     ; (j = i0) → h (P k l) r
+                                     ; (j = i1) → h (Q k l) r
+                                     ; (k = i0) → h (p l) r
+                                     ; (k = i1) → h (q l) r
+                                     ; (l = i0) → h x r
+                                     ; (l = i1) → h y r})
+                            (f (s i j k l)))
+                    (cong (cong (cong (cong g))))
+                    (λ s i j k l m →
+                      hcomp (λ n → λ { (i = i1) → s j k l m
+                                     ; (j = i0) → h (R k l m) (i ∨ n)
+                                     ; (j = i1) → h (S k l m) (i ∨ n)
+                                     ; (k = i0) → h (P l m) (i ∨ n)
+                                     ; (k = i1) → h (Q l m) (i ∨ n)
+                                     ; (l = i0) → h (p m) (i ∨ n)
+                                     ; (l = i1) → h (q m) (i ∨ n)
+                                     ; (m = i0) → h x (i ∨ n )
+                                     ; (m = i1) → h y (i ∨ n) })
+                            (h (s j k l m) i))
+                    (ofLevel (g x) (g y)
+                             (cong g p) (cong g q)
+                             (cong (cong g) P) (cong (cong g) Q)
+                             (cong (cong (cong g)) R) (cong (cong (cong g)) S))
 
 -- h-level of dependent path types
 
