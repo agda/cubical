@@ -61,13 +61,6 @@ H¹-S²⋁S¹⋁S¹ =
   □ GroupIsoDirProd (H¹-Sⁿ≅0 0) H¹-S¹⋁S¹
   □ lUnitGroupIso
 
-genₗ : coHom 1 S²⋁S¹⋁S¹
-genₗ = ∣ (λ {(inl x) → 0ₖ _ ; (inr (inl x)) → ∣ x ∣ ; (inr (inr x)) → 0ₖ _ ; (inr (push a i)) → 0ₖ 1 ; (push a i) → 0ₖ 1}) ∣₂
-
-genᵣ : coHom 1 S²⋁S¹⋁S¹
-genᵣ = ∣ (λ {(inl x) → 0ₖ _ ; (inr (inl x)) → 0ₖ _ ; (inr (inr x)) → ∣ x ∣ ; (inr (push a i)) → 0ₖ 1 ; (push a i) → 0ₖ 1}) ∣₂
-
-
 ------------- H²(S²⋁S¹⋁S¹) ---------
 
 H²-S²⋁S¹⋁S¹ : GroupIso (coHomGr 2 S²⋁S¹⋁S¹) IntGroup
@@ -80,9 +73,6 @@ H²-S²⋁S¹⋁S¹ =
   □ rUnitGroupIso)
 
 private
-  open import Cubical.Data.Int
-  open import Cubical.Data.Sigma
-
   open GroupIso
   open Iso
 
@@ -120,7 +110,7 @@ test4 = refl
 test5 : to₂ (from₂ 1 +ₕ from₂ 1) ≡ 2
 test5 = refl
 -}
-
+{-
   g : S²⋁S¹⋁S¹ → ∥ Susp S¹ ∥ 4
   g (inl x) = ∣ x ∣
   g (inr x) = 0ₖ _
@@ -128,7 +118,7 @@ test5 = refl
 
   G = ∣ g ∣₂
 
-{- Does not compute:
+-- Does not compute:
 test₀ : to₂ (G +ₕ G) ≡ 2
 test₀ = refl
 
@@ -136,3 +126,11 @@ but this does:
 test₀ : to₂ (G +'ₕ G) ≡ 2
 test₀ = refl
 -}
+
+
+-- Cup product is trivial
+⌣-gen₁ : to₂ (from₁ (1 , 0) ⌣ from₁ (0 , 1)) ≡ 0
+⌣-gen₁ = refl
+
+⌣-gen₂ : to₂ (from₁ (0 , 1) ⌣ from₁ (1 , 0)) ≡ 0
+⌣-gen₂ = refl
