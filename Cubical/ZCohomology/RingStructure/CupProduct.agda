@@ -716,6 +716,16 @@ fst ((f , p) +ₕᵣ (g , q)) n = f n +ₕ g n
                     (snd q m (≤-trans (≤-k+ {k = 1} (right-≤-max {n = (fst q)} {m = fst p}))
                       (<≤-trans (0 , refl) ineq))) ∙ rUnitₕ _ (0ₕ _)) ∣₁) p q
 
+-0ₕ : ∀ {ℓ} {A : Type ℓ} (n : ℕ) → Path (coHom n A) (-[ n ]ₕ (0ₕ n)) (0ₕ n)
+-0ₕ zero = refl
+-0ₕ (suc zero) = refl
+-0ₕ (suc (suc n)) = refl
+
+-ₕᵣ_ : {A : Type ℓ} → coHomR A → coHomR A
+fst (-ₕᵣ (f , p)) x = -ₕ (f x)
+snd (-ₕᵣ (f , p)) = pRec propTruncIsProp (λ {(x , q) → ∣ x , (λ m ineq → cong -ₕ_ (q m ineq) ∙ -0ₕ m) ∣}) p
+
+
 charac≡ : {A : Type ℓ} {f g : coHomR A} → ((n : ℕ) → (fst f) n ≡ (fst g) n) → f ≡ g
 charac≡ ind = Σ≡Prop (λ _ → propTruncIsProp) (funExt ind)
 
@@ -751,11 +761,19 @@ incl : {A : Type ℓ} {n : ℕ}
 fst (incl {n = n} x) m = inclFun x m (decEqℕ n m)
 snd (incl {n = n} x) =
   ∣ n , (λ m p → cong (inclFun x m) (isProp-decEqℕ n m (decEqℕ n m) (inl (<→¬≡ n m p)))) ∣₁
-{-
+
 open import Cubical.Data.List
 
-sumList-coHom : ∀ {ℓ} → {!!} 
-sumList-coHom = {!!}
+sumList : {A : Type ℓ} {n : ℕ} → coHomR A → ∥ List (coHomR A) ∥
+sumList {A = A} = uncurry λ f → Cubical.HITs.PropositionalTruncation.map
+  (uncurry (c f))
+  where
+  c : (f : (n : ℕ) → coHom n A) → (x : ℕ) (y : (m : ℕ) → x < m → f m ≡ 0ₕ m) → List (coHomR A)
+  c f zero y = []
+  c f (suc x) y = {!c f x ?!} ++ [ incl (f (suc x)) ]
+    where
+    new : {!!}
+    new = {!!}
 
 h : (n m : ℕ) → (n ≤ m) ⊎ (m < n)
 h n m = help (n ≟ m)
@@ -832,7 +850,7 @@ elimCohomR {A = A} {P = P} prop ind1 ind2 =
     help2 : (f , ∣ zero , ineq ∣₁) ≡ {!!}
     help2 = {!!}
 
-
+{-
 -- pairs≤ : (n : ℕ) → Σ[ p ∈ ℕ × ℕ ] (fst p · snd p ≡ n)
 -- pairs≤ zero = {!0 , 0!}
 -- pairs≤ (suc n) = {!!}
