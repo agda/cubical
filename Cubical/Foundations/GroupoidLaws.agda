@@ -278,7 +278,7 @@ symDistr p q i j = symDistr-filler p q j i i1
 
 sym-∙∙ : ∀ {ℓ} {A : Type ℓ} {x y z w : A} → (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) → sym (p ∙∙ q ∙∙ r) ≡ (sym r ∙∙ sym q ∙∙ sym p)
 sym-∙∙ p q r i j =
-  hcomp (λ k → λ {(j = i0) → r k
+  hcomp (λ k → λ { (j = i0) → r k
                  ; (j = i1) → p (~ k)})
         (q (~ j))
 

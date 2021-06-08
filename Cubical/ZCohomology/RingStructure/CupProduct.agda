@@ -158,7 +158,7 @@ snd (snd (⌣ₖ∙∙ (suc (suc n)) (suc m)) i) = refl
 ⌣ₖ-0ₖ≡0ₖ-⌣ₖ (suc zero) (suc m) = refl
 ⌣ₖ-0ₖ≡0ₖ-⌣ₖ (suc (suc n)) (suc m) = refl
 
--- Left distributativity
+-- Left distributivity
 
 private
   ⌣ₖ-distrFun : -- z ⌣ₖ (x +ₖ y)
@@ -231,7 +231,7 @@ private
       (λ x → →∙Homogeneous≡ (isHomogeneousKn _) (right-fst n x))
       (cong (→∙Homogeneous≡ (isHomogeneousKn _)) (sym (left-fst≡right-fst n)))
 
-  -- Distributativity for 0 dimensional cases
+  -- Distributivity for 0 dimensional cases
   leftDistr₀n : (n : ℕ) → (z : coHomK 0) (x y : coHomK n)
     → z ·₀ (x +[ n ]ₖ y) ≡ z ·₀ x +[ n ]ₖ (z ·₀ y)
   leftDistr₀n n (pos zero) x y = sym (rUnitₖ n (0ₖ _))
@@ -286,7 +286,7 @@ leftDistr-⌣ₖ (suc n) zero z x y = leftDistrn₀ (suc n) z x y
 leftDistr-⌣ₖ (suc n) (suc m) z x y = funExt⁻ (cong fst (leftDistr-⌣ₖ· m n x y)) z
 
 
--- Right distributativity
+-- Right distributivity
 
 private
   ⌣ₖ-distrFun-r : -- (x +ₖ y) ⌣ₖ z
@@ -560,7 +560,7 @@ assoc-⌣ₖ· n m k =
             ∙∙ λ r i → subst coHomK (sym (+'-assoc (2 + n) (suc m) (suc k))) (assoc-helper _ _ (∣ a ∣ ⌣ₖ b) c r i)
 
 
--- Key distributativity lemmas (used
+-- Some key distributivity lemmas
 -Distₗ : (n m : ℕ) (x : coHomK n) (y : coHomK m) → (-ₖ (x ⌣ₖ y)) ≡ (-ₖ x) ⌣ₖ y
 -Distₗ n m x y =
        sym (rUnitₖ _ (-ₖ (x ⌣ₖ y)))

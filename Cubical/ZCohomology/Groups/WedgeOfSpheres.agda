@@ -130,5 +130,6 @@ test₀ = refl
 ⌣-gen₁ : to₂ (from₁ (1 , 0) ⌣ from₁ (0 , 1)) ≡ 0
 ⌣-gen₁ = refl
 
-⌣-gen₂ : to₂ (from₁ (0 , 1) ⌣ from₁ (1 , 0)) ≡ 0
-⌣-gen₂ = refl
+-- Even better:
+⌣-gen : (x y : Int × Int) → to₂ (from₁ x ⌣ from₁ y) ≡ 0
+⌣-gen x y = refl

@@ -252,27 +252,30 @@ private
 -- Compute fast:
 test : to₁ (from₁ (0 , 1) +ₕ from₁ (1 , 0)) ≡ (1 , 1)
 test = refl
+
 test2 : to₁ (from₁ (5 , 1) +ₕ from₁ (-2 , 3)) ≡ (3 , 4)
 test2 = refl
+
 -- Compute pretty fast
 test3 : to₂ (from₂ 1) ≡ 1
 test3 = refl
+
 test4 : to₂ (from₂ 2) ≡ 2
 test4 = refl
+
 test5 : to₂ (from₂ 3) ≡ 3
 test5 = refl
+
 -- Compute, but slower
 test6 : to₂ (from₂ 0 +ₕ from₂ 0) ≡ 0
 test6 = refl
+
 test6 : to₂ (from₂ 0 +ₕ from₂ 1) ≡ 1
 test6 = refl
+
 -- Does not compute
 test7 : to₂ (from₂ 1 +ₕ from₂ 0) ≡ 1
 test7 = refl
--}
-{-
-⌣-gen : to₂ (from₁ (0 , 1) ⌣ from₁ (1 , 0)) ≡ 1
-⌣-gen = refl
 -}
 
 

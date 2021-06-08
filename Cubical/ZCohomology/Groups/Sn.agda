@@ -305,6 +305,7 @@ private
   to₃ : coHom 3 (S₊ 3) → Int
   to₃ = Iso.fun (fst (Hⁿ-Sⁿ≅ℤ 2))
 
+
   from₁ : Int → coHom 1 S¹
   from₁ = Iso.inv (fst (Hⁿ-Sⁿ≅ℤ 0))
 

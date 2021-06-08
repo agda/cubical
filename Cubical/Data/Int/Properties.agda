@@ -62,8 +62,6 @@ predSuc (pos n)          = refl
 predSuc (negsuc zero)    = refl
 predSuc (negsuc (suc n)) = refl
 
--- TODO: define multiplication
-
 injPos : ∀ {a b : ℕ} → pos a ≡ pos b → a ≡ b
 injPos {a} h = subst T h refl
   where
@@ -433,7 +431,9 @@ pos- (suc m) (suc n) =
    -  neg (suc n +ℕ suc m)     ≡⟨ pos+ (suc n) (suc m) ⟩
   (-  negsuc n) + (- negsuc m) ∎
 
+
 -- multiplication
+
 +·- : (n m : ℕ) → pos n · negsuc m ≡ (- (pos n · pos (suc m)))
 +·- zero m = refl
 +·- (suc n) m =
