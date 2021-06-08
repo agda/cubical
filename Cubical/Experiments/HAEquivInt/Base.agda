@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Data.Int.MoreInts.HAEquivInt.Base where
+module Cubical.Experiments.HAEquivInt.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv.HalfAdjoint

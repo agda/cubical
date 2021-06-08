@@ -7,7 +7,7 @@ This file mainly contains a proof that IsoInt ≢ Int, and ends with a
 
 -}
 {-# OPTIONS --safe #-}
-module Cubical.Data.Int.MoreInts.IsoInt.Base where
+module Cubical.Experiments.IsoInt.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
