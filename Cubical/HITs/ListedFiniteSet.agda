@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.ListedFiniteSet where
 
 open import Cubical.HITs.ListedFiniteSet.Base public

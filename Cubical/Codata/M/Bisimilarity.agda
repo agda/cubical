@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --postfix-projections #-}
+{-# OPTIONS --postfix-projections --guardedness #-}
 module Cubical.Codata.M.Bisimilarity where
 
 open import Cubical.Core.Everything

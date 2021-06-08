@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.RingSolver.CommRingEvalHom where
 
 open import Cubical.Foundations.Prelude
@@ -17,7 +17,7 @@ private
   variable
     ℓ : Level
 
-module HomomorphismProperties (R : CommRing {ℓ}) where
+module HomomorphismProperties (R : CommRing ℓ) where
   private
     νR = CommRing→RawℤAlgebra R
   open CommRingStr (snd R)

@@ -3,7 +3,7 @@
 Constant structure: _ ↦ A
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Structures.Constant where
 
 open import Cubical.Foundations.Prelude

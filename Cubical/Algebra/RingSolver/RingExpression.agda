@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.RingSolver.RingExpression where
 
 open import Cubical.Foundations.Prelude
@@ -26,7 +26,7 @@ data Expr {ℓ} (A : Type ℓ) (n : ℕ) : Type ℓ where
 --  _⊛_ : Expr A n → ℕ → Expr A n    -- exponentiation
   ⊝_ : Expr A n → Expr A n
 
-module Eval (R : RawRing {ℓ}) where
+module Eval (R : RawRing ℓ) where
   open import Cubical.Data.Vec
   open RawRing R
 

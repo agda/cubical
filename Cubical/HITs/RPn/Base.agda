@@ -6,7 +6,7 @@
            (2017) https://arxiv.org/abs/1704.05770
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.RPn.Base where
 
 open import Cubical.Foundations.Prelude

@@ -3,7 +3,7 @@
 Some basic utilities for reflection
 
 -}
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Reflection.Base where
 
 open import Cubical.Foundations.Prelude
@@ -31,8 +31,8 @@ liftTC f ta = ta >>= λ a → R.returnTC (f a)
 v : ℕ → R.Term
 v n = R.var n []
 
-pattern varg t = R.arg (R.arg-info R.visible R.relevant) t
-pattern harg t = R.arg (R.arg-info R.hidden R.relevant) t
+pattern varg t = R.arg (R.arg-info R.visible (R.modality R.relevant R.quantity-ω)) t
+pattern harg t = R.arg (R.arg-info R.hidden (R.modality R.relevant R.quantity-ω)) t
 pattern _v∷_ a l = varg a ∷ l
 pattern _h∷_ a l = harg a ∷ l
 
@@ -49,3 +49,11 @@ newMeta = R.checkType R.unknown
 extend*Context : ∀ {ℓ} {A : Type ℓ} → List (R.Arg R.Type) → R.TC A → R.TC A
 extend*Context [] tac = tac
 extend*Context (a ∷ as) tac = R.extendContext a (extend*Context as tac)
+
+makeAuxiliaryDef : String → R.Type → R.Term → R.TC R.Term
+makeAuxiliaryDef s ty term =
+  R.freshName s >>= λ name →
+  R.declareDef (varg name) ty >>
+  R.defineFun name [ R.clause [] [] term ] >>
+  R.returnTC (R.def name [])
+

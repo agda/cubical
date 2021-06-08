@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 
 module Cubical.ZCohomology.EilenbergSteenrodZ where
 
@@ -46,8 +46,7 @@ open coHomTheory
 open Iso
 open IsGroup
 open GroupStr
-open GroupIso
-open GroupHom
+open IsGroupHom
 
 private
   suspΩFun' : ∀ {ℓ} {A : Type ℓ} (n : ℕ) (f : A → Path _ (0ₖ _) (0ₖ _))
@@ -79,12 +78,12 @@ SuspCohomElim {A = A} n {B = B} isprop f =
                                   ∙∙ sym (rUnit refl)))
 
 -- (Reduced) cohomology functor
-coHomFunctor : {ℓ : Level}  (n : Int) → Pointed ℓ → AbGroup {ℓ}
+coHomFunctor : {ℓ : Level}  (n : Int) → Pointed ℓ → AbGroup ℓ
 coHomFunctor (pos n) = coHomRedGroup n
 coHomFunctor (negsuc n) _ = trivialAbGroup
 
--- Alternative definition with reduced groups replaced by unrecued one for n ≥ 1
-coHomFunctor' : {ℓ : Level} (n : Int) → Pointed ℓ → AbGroup {ℓ}
+-- Alternative definition with reduced groups replaced by unreduced one for n ≥ 1
+coHomFunctor' : {ℓ : Level} (n : Int) → Pointed ℓ → AbGroup ℓ
 coHomFunctor' (pos zero) = coHomFunctor 0
 coHomFunctor' (pos (suc n)) A = coHomGroup (suc n) (typ A)
 coHomFunctor' (negsuc n) = coHomFunctor (negsuc n)
@@ -129,24 +128,22 @@ private
                        (fId : f (pt A) ≡ refl)
                      → Kn→ΩKn+1 n (suspFunCharacFun {A = A} n (suspΩFun' n f) a) ≡ f a
     helper zero a f fId =
-        Iso.rightInv (Iso-Kn-ΩKn+1 0) (sym (rCancelₖ _ (0ₖ 1))
+        Iso.rightInv (Iso-Kn-ΩKn+1 0) (sym (rCancelₖ 1 (0ₖ 1))
                                     ∙∙ cong (λ x → suspΩFun' 0 f x +ₖ 0ₖ 1) (merid a ∙ (sym (merid (pt A))))
-                                    ∙∙ rCancelₖ _ (0ₖ 1))
-     ∙∙ (λ i → sym (transportRefl (λ _ → 0ₖ 1) i)
-             ∙∙ cong (λ x → rUnitₖ 1 (suspΩFun' 0 f x) i) (merid a ∙ (sym (merid (pt A))))
-             ∙∙ transportRefl (λ _ → 0ₖ 1) i)
-     ∙∙ (λ i → rUnit (congFunct (suspΩFun' 0 f) (merid a) (sym (merid (pt A))) i) (~ i))
+                                    ∙∙ (rCancelₖ 1 (0ₖ 1)))
+     ∙∙ sym (rUnit _)
+     ∙∙ (λ j i → rUnitₖ 1 (congFunct (suspΩFun' 0 f) (merid a) (sym (merid (pt A))) j i) j)
      ∙∙ cong (λ p → f a ∙ sym p) fId
      ∙∙ sym (rUnit (f a))
     helper (suc n) a f fId =
          Iso.rightInv (Iso-Kn-ΩKn+1 (suc n))
-                           (sym (rCancelₖ _ (0ₖ (suc (suc n))))
+                           ((sym (rCancelₖ _ (0ₖ (suc (suc n))))
                         ∙∙ cong (λ x → suspΩFun' (suc n) f x +ₖ 0ₖ (suc (suc n))) (merid a ∙ (sym (merid (pt A))))
-                        ∙∙ rCancelₖ _ (0ₖ (suc (suc n))))
-      ∙∙ ((λ i → sym (transportRefl (λ _ → 0ₖ (suc (suc n))) i)
+                        ∙∙ rCancelₖ _ (0ₖ (suc (suc n)))))
+      ∙∙ (((λ i → sym (rCancel≡refl n i)
                    ∙∙ cong (λ x → rUnitₖ (suc (suc n)) (suspΩFun' (suc n) f x) i) (merid a ∙ (sym (merid (pt A))))
-                   ∙∙ transportRefl (λ _ → 0ₖ (suc (suc n))) i))
-      ∙∙ (λ i → rUnit (congFunct (suspΩFun' (suc n) f) (merid a) (sym (merid (pt A))) i) (~ i))
+                   ∙∙ rCancel≡refl n i)))
+      ∙∙ ((λ i → rUnit (congFunct (suspΩFun' (suc n) f) (merid a) (sym (merid (pt A))) i) (~ i)))
       ∙∙ cong (λ p → f a ∙ sym p) fId
       ∙∙ sym (rUnit (f a))
 
@@ -157,24 +154,23 @@ fun (suspFunCharac {A = A} n) =
 inv (suspFunCharac {A = A} n) = sMap (suspΩFun (suc n))
 rightInv (suspFunCharac {A = A} n) =
   sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-    (λ f → trRec (isProp→isOfHLevelSuc n (setTruncIsSet _ _))
-                  (λ fId → cong ∣_∣₂ (funExt λ x → (cong (ΩKn+1→Kn (suc n))
-                                                            ((λ i → (sym (transportRefl (λ _ → 0ₖ _) i)
-                                                                ∙∙ cong (λ x → suspΩFun (suc n) f x +ₖ 0ₖ _)
-                                                                        (merid x ∙ sym (merid (pt A)))
-                                                                ∙∙ transportRefl (λ _ → 0ₖ _) i))
-                                                         ∙∙ (sym (rUnit (cong (λ x → suspΩFun (suc n) f x +ₖ 0ₖ _)
-                                                                                          ((merid x) ∙ sym (merid (pt A))))))
-                                                         ∙∙ (λ i → congFunct (λ x → rUnitₖ _ (suspΩFun (suc n) f x) i)
-                                                                              (merid x) (sym (merid (pt A))) i)))
-                                                 ∙∙ ΩKn+1→Kn-hom (suc n) (Kn→ΩKn+1 (suc n) (f x))
+        λ f → trRec (isProp→isOfHLevelSuc n (setTruncIsSet _ _))
+                (λ fId → cong ∣_∣₂
+                (funExt (λ x → cong (ΩKn+1→Kn (suc n))
+                                      ((λ i → sym (rCancel≡refl n i) ∙∙ cong (λ x → suspΩFun (suc n) f x +ₖ 0ₖ _)
+                                                               (merid x ∙ sym (merid (pt A))) ∙∙ rCancel≡refl n i)
+                                    ∙∙ sym (rUnit (cong (λ x → suspΩFun (suc n) f x +ₖ 0ₖ _)
+                                                                       ((merid x) ∙ sym (merid (pt A)))))
+                                    ∙∙ λ i → congFunct (λ x → rUnitₖ _ (suspΩFun (suc n) f x) i)
+                                                                     (merid x) (sym (merid (pt A))) i)
+                             ∙∙ ΩKn+1→Kn-hom (suc n) (Kn→ΩKn+1 (suc n) (f x))
                                                                   (sym (Kn→ΩKn+1 (suc n) (f (pt A))))
-                                                 ∙∙ cong₂ _+ₖ_ (Iso.leftInv (Iso-Kn-ΩKn+1 (suc n)) (f x))
-                                                               (cong (λ x → ΩKn+1→Kn (suc n) (sym (Kn→ΩKn+1 (suc n) x))) fId)
-                                                 ∙∙ cong (λ y → f x +ₖ ΩKn+1→Kn (suc n) (sym y)) (Kn→ΩKn+10ₖ (suc n))
-                                                 ∙∙ cong (f x +ₖ_) (ΩKn+1→Kn-refl (suc n))
-                                                  ∙ rUnitₖ _ (f x)))
-                  (fst (isConnectedPathKn n (f (pt A)) (0ₖ _))))
+                             ∙∙ cong₂ _+ₖ_ (Iso.leftInv (Iso-Kn-ΩKn+1 (suc n)) (f x))
+                                           (cong (λ x → ΩKn+1→Kn (suc n) (sym (Kn→ΩKn+1 (suc n) x))) fId)
+                             ∙∙ cong (λ y → f x +ₖ ΩKn+1→Kn (suc n) (sym y)) (Kn→ΩKn+10ₖ (suc n))
+                             ∙∙ cong (f x +ₖ_) (ΩKn+1→Kn-refl (suc n))
+                              ∙ rUnitₖ _ (f x))))
+                     (fst (isConnectedPathKn n (f (pt A)) (0ₖ _)))
 leftInv (suspFunCharac {A = A} n) =
   SuspCohomElim {A = A} _ (λ _ → setTruncIsSet _ _)
     λ f fId → cong ∣_∣₂ (funExt (linvLem (suc n) f fId))
@@ -208,13 +204,14 @@ private
   -- First, we need to that coHomFunctor' is contravariant
   theMorph : ∀ {ℓ} (n : Int) {A B : Pointed ℓ} (f : A →∙ B)
           → AbGroupHom (coHomFunctor' n B) (coHomFunctor' n A)
-  fun (theMorph (pos zero) f) = sMap λ g → (λ x → fst g (fst f x)) , cong (fst g) (snd f) ∙ snd g
-  isHom (theMorph (pos zero) f) =
-    sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-           λ f g → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl)
+  fst (theMorph (pos zero) f) = sMap λ g → (λ x → fst g (fst f x)) , cong (fst g) (snd f) ∙ snd g
+  snd (theMorph (pos zero) f) =
+    makeIsGroupHom
+      (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+              λ f g → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl))
   theMorph (pos (suc n)) f = coHomMorph _ (fst f)
-  fun (theMorph (negsuc n) f) = idfun _
-  isHom (theMorph (negsuc n) f) _ _ = refl
+  fst (theMorph (negsuc n) f) = idfun _
+  snd (theMorph (negsuc n) f) = makeIsGroupHom λ _ _ → refl
 
   open coHomTheory
   isCohomTheoryZ' : ∀ {ℓ} → coHomTheory {ℓ} coHomFunctor'
@@ -225,11 +222,12 @@ private
   fst (Suspension isCohomTheoryZ') (pos zero) {A = A} =
       invGroupEquiv
       (GroupIso→GroupEquiv
-        (groupiso (invIso suspFunCharac0)
-                        (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                                λ f g → cong ∣_∣₂ (funExt λ { north → refl
-                                                           ; south → refl
-                                                           ; (merid a i) j → helper a (fst f) (fst g) j i}))))
+        ( invIso suspFunCharac0
+        , makeIsGroupHom
+            (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+              λ f g → cong ∣_∣₂ (funExt λ { north → refl
+                                          ; south → refl
+                                          ; (merid a i) j → helper a (fst f) (fst g) j i}))))
     where
     helper : (a : typ A) (f g : typ A → coHomK 0)
           → Kn→ΩKn+1 0 (f a +[ 0 ]ₖ g a)
@@ -239,11 +237,12 @@ private
   fst (Suspension isCohomTheoryZ') (pos (suc n)) {A = A} =
       invGroupEquiv
       (GroupIso→GroupEquiv
-        (groupiso (invIso (suspFunCharac {A = A} n))
-                        (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                                λ f g → cong ∣_∣₂ (funExt λ { north → refl
-                                                           ; south → refl
-                                                           ; (merid a i) j → helper a f g j i}))))
+        ( invIso (suspFunCharac {A = A} n)
+        , makeIsGroupHom
+            (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+              λ f g → cong ∣_∣₂ (funExt λ { north → refl
+                                          ; south → refl
+                                          ; (merid a i) j → helper a f g j i}))))
     where
     helper : (a : typ A) (f g : typ A → coHomK (suc n))
           → Kn→ΩKn+1 (suc n) (f a +ₖ g a)
@@ -251,8 +250,9 @@ private
     helper a f g = Kn→ΩKn+1-hom (suc n) (f a) (g a)
                 ∙ ∙≡+₂ n (Kn→ΩKn+1 _ (f a)) (Kn→ΩKn+1 _ (g a))
   fst (Suspension isCohomTheoryZ') (negsuc zero) {A = A} =
-      GroupIso→GroupEquiv (groupiso (isContr→Iso (H0-susp {A = _ , pt A}) isContrUnit*)
-                      λ _ _ → refl)
+      GroupIso→GroupEquiv
+        ( isContr→Iso (H0-susp {A = _ , pt A}) isContrUnit*
+        , makeIsGroupHom λ _ _ → refl)
   fst (Suspension isCohomTheoryZ') (negsuc (suc n)) = idGroupEquiv
 
   -- naturality of the suspension isomorphism

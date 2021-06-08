@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.RingSolver.Examples where
 
 open import Cubical.Foundations.Prelude
@@ -10,7 +10,7 @@ private
   variable
     ℓ : Level
 
-module Test (R : CommRing {ℓ}) where
+module Test (R : CommRing ℓ) where
   open CommRingStr (snd R)
 
   _ :   1r · (1r + 0r)

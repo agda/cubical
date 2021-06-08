@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.RingSolver.Solver where
 
 open import Cubical.Foundations.Prelude
@@ -17,7 +17,7 @@ private
   variable
     ℓ : Level
 
-module EqualityToNormalform (R : AlmostRing {ℓ}) where
+module EqualityToNormalform (R : AlmostRing ℓ) where
   νR = AlmostRing→RawRing R
   open AlmostRing R
   open Theory R

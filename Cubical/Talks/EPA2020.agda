@@ -13,7 +13,7 @@ Link to video: https://vimeo.com/459020971
 -}
 
 -- To make Agda cubical add the following options
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe --guardedness #-}
 module Cubical.Talks.EPA2020 where
 
 -- The "Foundations" package contain a lot of important results (in

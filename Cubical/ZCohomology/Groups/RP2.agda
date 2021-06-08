@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.RP2 where
 
 open import Cubical.ZCohomology.Base
@@ -27,9 +27,6 @@ open import Cubical.HITs.Sn
 open import Cubical.Foundations.Equiv
 open import Cubical.Homotopy.Connected
 open import Cubical.HITs.RPn.Base
-
-open GroupIso
-open GroupHom
 
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Bool

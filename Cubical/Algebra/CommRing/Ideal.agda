@@ -2,7 +2,7 @@
   This is mostly for convenience, when working with ideals
   (which are defined for general rings) in a commutative ring.
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Ideal where
 
 open import Cubical.Foundations.Prelude
@@ -18,10 +18,10 @@ private
   variable
     ℓ : Level
 
-IdealsIn : (R : CommRing {ℓ}) → Type _
+IdealsIn : (R : CommRing ℓ) → Type _
 IdealsIn R = IdealsInRing (CommRing→Ring R)
 
-module _ (Ring@(R , str) : CommRing {ℓ}) where
+module _ (Ring@(R , str) : CommRing ℓ) where
   open CommRingStr str
   makeIdeal : (I : R → hProp ℓ)
               → (+-closed : {x y : R} → x ∈ I → y ∈ I → (x + y) ∈ I)
