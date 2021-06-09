@@ -54,7 +54,7 @@ isEquiv≃isEmbedding×isSurjection : isEquiv f ≃ isEmbedding f × isSurjectio
 isEquiv≃isEmbedding×isSurjection = isoToEquiv (iso
   isEquiv→isEmbedding×isSurjection
   isEmbedding×isSurjection→isEquiv
-  (λ _ → isOfHLevelΣ 1 isEmbeddingIsProp (\ _ → isPropIsSurjection) _ _)
+  (λ _ → isOfHLevelΣ 1 isPropIsEmbedding (\ _ → isPropIsSurjection) _ _)
   (λ _ → isPropIsEquiv _ _ _))
 
 -- obs: for epi⇒surjective to go through we require a stronger
