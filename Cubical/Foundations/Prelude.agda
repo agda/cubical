@@ -20,7 +20,7 @@ This file proves a variety of basic results about paths:
 - Export universe lifting
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Prelude where
 
 open import Cubical.Core.Primitives public
@@ -239,6 +239,10 @@ subst2 B p q b = transport (λ i → B (p i) (q i)) b
 substRefl : (px : B x) → subst B refl px ≡ px
 substRefl px = transportRefl px
 
+subst-filler : (B : A → Type ℓ') (p : x ≡ y) (b : B x)
+  → PathP (λ i → B (p i)) b (subst B p b)
+subst-filler B p = transport-filler (cong B p)
+
 funExt : {B : A → I → Type ℓ'}
   {f : (x : A) → B x i0} {g : (x : A) → B x i1}
   → ((x : A) → PathP (B x) (f x) (g x))
@@ -400,13 +404,11 @@ isProp→PathP : ∀ {B : I → Type ℓ} → ((i : I) → isProp (B i))
 isProp→PathP hB b0 b1 = toPathP (hB _ _ _)
 
 isPropIsContr : isProp (isContr A)
-isPropIsContr z0 z1 j =
-  ( z0 .snd (z1 .fst) j
-  , λ x i → hcomp (λ k → λ { (i = i0) → z0 .snd (z1 .fst) j
-                           ; (i = i1) → z0 .snd x (j ∨ k)
-                           ; (j = i0) → z0 .snd x (i ∧ k)
-                           ; (j = i1) → z1 .snd x i })
-                  (z0 .snd (z1 .snd x i) j))
+isPropIsContr (c0 , h0) (c1 , h1) j =
+  h0 c1 j , λ y i → hcomp (λ k → λ { (i = i0) → h0 (h0 c1 j) k;
+                                     (i = i1) → h0 y k;
+                                     (j = i0) → h0 (h0 y i) k;
+                                     (j = i1) → h0 (h1 y i) k}) c0
 
 isContr→isProp : isContr A → isProp A
 isContr→isProp (x , p) a b i =

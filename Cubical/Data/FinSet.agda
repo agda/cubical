@@ -9,7 +9,7 @@ prove that both formulations are equivalent.
 
 -}
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Data.FinSet where
 

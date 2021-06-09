@@ -4,7 +4,7 @@
   Parts of this should be reusable for explicit constructions
   of free modules over a finite set.
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.FGIdeal where
 
 open import Cubical.Foundations.Prelude
@@ -27,12 +27,12 @@ private
   variable
     ℓ : Level
 
-module _ (Ring@(R , str) : CommRing {ℓ}) where
+module _ (Ring@(R , str) : CommRing ℓ) (r : R) where
   infixr 5 _holds
   _holds : hProp ℓ → Type ℓ
   P holds = fst P
   open CommRingStr str
-  open Theory (CommRing→Ring Ring)
+  open RingTheory (CommRing→Ring Ring)
 
   linearCombination : {n : ℕ} → Vec R n → Vec R n → R
   linearCombination [] [] = 0r
@@ -139,8 +139,7 @@ module _ (Ring@(R , str) : CommRing {ℓ}) where
       step1 ℕ.zero [] [] r = 0RightAnnihilates _
       step1 (ℕ.suc k) (c ∷ cx) (a ∷ l) r =
         r · (c · a + linearCombination cx l)               ≡⟨ step2 r c a _ ⟩
-        r · (c · a) + r · linearCombination cx l             ≡[ i ]⟨ r · (c · a)
-                                                                + step1 _ cx l r i ⟩
+        r · (c · a) + r · linearCombination cx l           ≡[ i ]⟨ r · (c · a) + step1 _ cx l r i ⟩
         r · (c · a) + linearCombination (map (_·_ r) cx) l ≡⟨ step3 r c a _ ⟩
         r · c · a + linearCombination (map (_·_ r) cx) l ∎
 

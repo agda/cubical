@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.RingSolver.CommRingEvalHom where
 
 open import Cubical.Foundations.Prelude
@@ -17,11 +17,11 @@ private
   variable
     ℓ : Level
 
-module HomomorphismProperties (R : CommRing {ℓ}) where
+module HomomorphismProperties (R : CommRing ℓ) where
   private
     νR = CommRing→RawℤAlgebra R
   open CommRingStr (snd R)
-  open Theory (CommRing→Ring R)
+  open RingTheory (CommRing→Ring R)
   open IteratedHornerOperations νR
 
   EvalHom+0 : (n : ℕ) (P : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)

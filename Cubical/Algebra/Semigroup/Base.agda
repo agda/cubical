@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.Semigroup.Base where
 
 open import Cubical.Foundations.Prelude
@@ -12,9 +12,13 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Structures.Axioms
-open import Cubical.Structures.Auto
-open import Cubical.Structures.Record
+open import Cubical.Reflection.RecordEquiv
+open import Cubical.Reflection.StrictEquiv
+
+open import Cubical.Displayed.Base
+open import Cubical.Displayed.Auto
+open import Cubical.Displayed.Record
+open import Cubical.Displayed.Universe
 
 open Iso
 
@@ -31,14 +35,16 @@ private
 -- Note that as we are using Path for all equations the IsMagma record
 -- would only contain isSet A if we had it.
 record IsSemigroup {A : Type ℓ} (_·_ : A → A → A) : Type ℓ where
-
+  no-eta-equality
   constructor issemigroup
 
   field
     is-set : isSet A
     assoc  : (x y z : A) → x · (y · z) ≡ (x · y) · z
 
-record SemigroupStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
+unquoteDecl IsSemigroupIsoΣ = declareRecordIsoΣ IsSemigroupIsoΣ (quote IsSemigroup)
+
+record SemigroupStr (A : Type ℓ) : Type ℓ where
 
   constructor semigroupstr
 
@@ -50,117 +56,45 @@ record SemigroupStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
   open IsSemigroup isSemigroup public
 
-Semigroup : Type (ℓ-suc ℓ)
-Semigroup = TypeWithStr _ SemigroupStr
+Semigroup : ∀ ℓ → Type (ℓ-suc ℓ)
+Semigroup ℓ = TypeWithStr ℓ SemigroupStr
 
-semigroup : (A : Type ℓ) (_·_ : A → A → A) (h : IsSemigroup _·_) → Semigroup
+semigroup : (A : Type ℓ) (_·_ : A → A → A) (h : IsSemigroup _·_) → Semigroup ℓ
 semigroup A _·_ h = A , semigroupstr _·_ h
 
-record SemigroupEquiv (M N : Semigroup {ℓ}) (e : ⟨ M ⟩ ≃ ⟨ N ⟩) : Type ℓ where
-
-  constructor semigroupequiv
+record IsSemigroupEquiv {A : Type ℓ} {B : Type ℓ}
+  (M : SemigroupStr A) (e : A ≃ B) (N : SemigroupStr B)
+  : Type ℓ
+  where
 
   -- Shorter qualified names
   private
-    module M = SemigroupStr (snd M)
-    module N = SemigroupStr (snd N)
+    module M = SemigroupStr M
+    module N = SemigroupStr N
 
   field
-    isHom : (x y : ⟨ M ⟩) → equivFun e (x M.· y) ≡ equivFun e x N.· equivFun e y
+    isHom : (x y : A) → equivFun e (x M.· y) ≡ equivFun e x N.· equivFun e y
 
 open SemigroupStr
 open IsSemigroup
-open SemigroupEquiv
+open IsSemigroupEquiv
 
--- Develop some theory about Semigroups using various general results
--- that are stated using Σ-types. For this we define Semigroup as a
--- nested Σ-type, prove that it's equivalent to the above record
--- definition and then transport results along this equivalence.
-module SemigroupΣTheory {ℓ} where
-
-  RawSemigroupStructure : Type ℓ → Type ℓ
-  RawSemigroupStructure X = X → X → X
-
-  RawSemigroupEquivStr = AutoEquivStr RawSemigroupStructure
-
-  rawSemigroupUnivalentStr : UnivalentStr _ RawSemigroupEquivStr
-  rawSemigroupUnivalentStr = autoUnivalentStr RawSemigroupStructure
-
-  SemigroupAxioms : (A : Type ℓ) → RawSemigroupStructure A → Type ℓ
-  SemigroupAxioms A _·_ = isSet A
-                        × ((x y z : A) → x · (y · z) ≡ (x · y) · z)
-
-  SemigroupStructure : Type ℓ → Type ℓ
-  SemigroupStructure = AxiomsStructure RawSemigroupStructure SemigroupAxioms
-
-  SemigroupΣ : Type (ℓ-suc ℓ)
-  SemigroupΣ = TypeWithStr ℓ SemigroupStructure
-
-  isPropSemigroupAxioms : (A : Type ℓ) (_·_ : RawSemigroupStructure A)
-                        → isProp (SemigroupAxioms A _·_)
-  isPropSemigroupAxioms _ _ = isPropΣ isPropIsSet λ isSetA → isPropΠ3 λ _ _ _ → isSetA _ _
-
-  SemigroupEquivStr : StrEquiv SemigroupStructure ℓ
-  SemigroupEquivStr = AxiomsEquivStr RawSemigroupEquivStr SemigroupAxioms
-
-  SemigroupAxiomsIsoIsSemigroup : {A : Type ℓ} (_·_ : RawSemigroupStructure A)
-                                → Iso (SemigroupAxioms A _·_) (IsSemigroup _·_)
-  fun (SemigroupAxiomsIsoIsSemigroup s) (x , y)           = issemigroup x y
-  inv (SemigroupAxiomsIsoIsSemigroup s) M                 = is-set M , assoc M
-  rightInv (SemigroupAxiomsIsoIsSemigroup s) _            = refl
-  leftInv (SemigroupAxiomsIsoIsSemigroup s) _             = refl
-
-  SemigroupAxioms≡IsSemigroup : {A : Type ℓ} (_·_ : RawSemigroupStructure A)
-                              → SemigroupAxioms _ _·_ ≡ IsSemigroup _·_
-  SemigroupAxioms≡IsSemigroup s = isoToPath (SemigroupAxiomsIsoIsSemigroup s)
-
-  Semigroup→SemigroupΣ : Semigroup → SemigroupΣ
-  Semigroup→SemigroupΣ (A , semigroupstr _·_ isSemigroup) =
-    A , _·_ , SemigroupAxiomsIsoIsSemigroup _ .inv isSemigroup
-
-  SemigroupΣ→Semigroup : SemigroupΣ → Semigroup
-  SemigroupΣ→Semigroup (A , _·_ , isSemigroupΣ) =
-    semigroup A _·_ (SemigroupAxiomsIsoIsSemigroup _ .fun isSemigroupΣ)
-
-  SemigroupIsoSemigroupΣ : Iso Semigroup SemigroupΣ
-  SemigroupIsoSemigroupΣ =
-    iso Semigroup→SemigroupΣ SemigroupΣ→Semigroup (λ _ → refl) (λ _ → refl)
-
-  semigroupUnivalentStr : UnivalentStr SemigroupStructure SemigroupEquivStr
-  semigroupUnivalentStr = axiomsUnivalentStr _ isPropSemigroupAxioms rawSemigroupUnivalentStr
-
-  SemigroupΣPath : (M N : SemigroupΣ) → (M ≃[ SemigroupEquivStr ] N) ≃ (M ≡ N)
-  SemigroupΣPath = SIP semigroupUnivalentStr
-
-  SemigroupEquivΣ : (M N : Semigroup) → Type ℓ
-  SemigroupEquivΣ M N = Semigroup→SemigroupΣ M ≃[ SemigroupEquivStr ] Semigroup→SemigroupΣ N
-
-  SemigroupIsoΣPath : {M N : Semigroup} → Iso (Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] SemigroupEquiv M N e) (SemigroupEquivΣ M N)
-  fun SemigroupIsoΣPath (e , x) = e , isHom x
-  inv SemigroupIsoΣPath (e , h) = e , semigroupequiv h
-  rightInv SemigroupIsoΣPath _  = refl
-  leftInv SemigroupIsoΣPath _   = refl
-
-  SemigroupPath : (M N : Semigroup) → (Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] SemigroupEquiv M N e) ≃ (M ≡ N)
-  SemigroupPath M N =
-    Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] SemigroupEquiv M N e ≃⟨ isoToEquiv SemigroupIsoΣPath ⟩
-    SemigroupEquivΣ M N ≃⟨ SemigroupΣPath _ _ ⟩
-    Semigroup→SemigroupΣ M ≡ Semigroup→SemigroupΣ N ≃⟨ isoToEquiv (invIso (congIso SemigroupIsoSemigroupΣ)) ⟩
-    M ≡ N ■
-
--- We now extract the important results from the above module
+SemigroupEquiv : (M N : Semigroup ℓ) → Type ℓ
+SemigroupEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsSemigroupEquiv (M .snd) e (N .snd)
 
 isPropIsSemigroup : {A : Type ℓ} (_·_ : A → A → A) → isProp (IsSemigroup _·_)
 isPropIsSemigroup _·_ =
-  subst isProp (SemigroupΣTheory.SemigroupAxioms≡IsSemigroup _·_)
-        (SemigroupΣTheory.isPropSemigroupAxioms _ _·_)
+  isOfHLevelRetractFromIso 1 IsSemigroupIsoΣ
+    (isPropΣ
+      isPropIsSet
+      (λ isSetA → isPropΠ3 λ _ _ _ → isSetA _ _))
 
-SemigroupPath : (M N : Semigroup {ℓ}) → (Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] SemigroupEquiv M N e) ≃ (M ≡ N)
-SemigroupPath {ℓ = ℓ} =
-  SIP
-    (autoUnivalentRecord
-      (autoRecordSpec (SemigroupStr {ℓ}) SemigroupEquiv
-        (fields:
-          data[ _·_ ∣ isHom ]
-          prop[ isSemigroup ∣ (λ _ → isPropIsSemigroup _) ]))
-      _ _)
+𝒮ᴰ-Semigroup : DUARel (𝒮-Univ ℓ) SemigroupStr ℓ
+𝒮ᴰ-Semigroup =
+  𝒮ᴰ-Record (𝒮-Univ _) IsSemigroupEquiv
+    (fields:
+      data[ _·_ ∣ autoDUARel _ _ ∣ isHom ]
+      prop[ isSemigroup ∣ (λ _ _ → isPropIsSemigroup _) ])
+
+SemigroupPath : (M N : Semigroup ℓ) → SemigroupEquiv M N ≃ (M ≡ N)
+SemigroupPath = ∫ 𝒮ᴰ-Semigroup .UARel.ua

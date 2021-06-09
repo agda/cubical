@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Morphism renaming (isIso to isIsoC)

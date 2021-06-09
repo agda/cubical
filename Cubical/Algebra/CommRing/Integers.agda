@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Integers where
 
 open import Cubical.Foundations.Prelude
@@ -12,7 +12,7 @@ open import Cubical.HITs.Ints.BiInvInt
     +-comm to +ℤ-comm
   )
 
-BiInvIntAsCommRing : CommRing {ℓ-zero}
+BiInvIntAsCommRing : CommRing ℓ-zero
 BiInvIntAsCommRing =
   makeCommRing
     zero (suc zero) _+ℤ_ _·_ _-ℤ_

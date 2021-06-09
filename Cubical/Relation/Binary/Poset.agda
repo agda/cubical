@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Poset where
 
 open import Cubical.Foundations.Prelude

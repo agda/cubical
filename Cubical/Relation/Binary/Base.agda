@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Base where
 
 open import Cubical.Core.Everything
@@ -59,6 +59,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isPropValued : Type (ℓ-max ℓ ℓ')
   isPropValued = (a b : A) → isProp (R a b)
 
+  isSetValued : Type (ℓ-max ℓ ℓ')
+  isSetValued = (a b : A) → isSet (R a b)
+
   isEffective : Type (ℓ-max ℓ ℓ')
   isEffective =
     (a b : A) → isEquiv (eq/ {R = R} a b)
@@ -104,8 +107,11 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
       abstract
         f : (x : A) → a ≡ x → R a x
         f x p = invEq (u a x) p
+
         t : singl a → relSinglAt a
         t (x , p) = x , f x p
+
+        q : isContr (relSinglAt a)
         q = isOfHLevelRespectEquiv 0 (t , totalEquiv _ _ f λ x → invEquiv (u a x) .snd)
                                    (isContrSingl a)
 

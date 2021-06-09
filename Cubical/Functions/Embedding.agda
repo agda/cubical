@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Functions.Embedding where
 
 open import Cubical.Foundations.Prelude
@@ -20,6 +20,8 @@ open import Cubical.Functions.Fibration
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Relation.Nullary using (Discrete; yes; no)
 open import Cubical.Structures.Axioms
+
+open import Cubical.Reflection.StrictEquiv
 
 open import Cubical.Data.Nat using (ℕ; zero; suc)
 open import Cubical.Data.Sigma
@@ -244,7 +246,7 @@ Subset→Embedding→Subset _ = funExt λ x → Σ≡Prop (λ _ → isPropIsProp
 
 Embedding→Subset→Embedding : {X : Type ℓ} → retract (Embedding→Subset {ℓ} {X}) (Subset→Embedding {ℓ} {X})
 Embedding→Subset→Embedding {ℓ = ℓ} {X = X} (A , f , ψ) =
-  cong (equivFun Σ-assoc-≃) (Σ≡Prop (λ _ → isEmbeddingIsProp) (secEq (fibrationEquiv X ℓ) (A , f)))
+  cong (equivFun Σ-assoc-≃) (Σ≡Prop (λ _ → isEmbeddingIsProp) (retEq (fibrationEquiv X ℓ) (A , f)))
 
 Subset≃Embedding : {X : Type ℓ} → ℙ X ≃ (Σ[ A ∈ Type ℓ ] (A ↪ X))
 Subset≃Embedding = isoToEquiv (iso Subset→Embedding Embedding→Subset
@@ -365,9 +367,10 @@ module FibrationIdentityPrinciple {B : Type ℓ} {ℓ₁} where
       ≃⟨ Σ-cong-equiv-snd (λ _ → Σ-cong-equiv-snd λ _ → transportEquiv (PathP≡Path⁻ _ _ _)) ⟩
         (Σ[ (E , eq) ∈ fiber L A ] fiber (_∘ lower) (transport⁻ (λ i → eq i → B) f))
       ■ where
-      boringSwap : _
-      boringSwap = isoToEquiv (iso (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p)))
-                                   (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p))) (λ _ → refl) (λ _ → refl))
+      unquoteDecl boringSwap =
+        declStrictEquiv boringSwap
+          (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p)))
+          (λ ((E , g) , (eq , p)) → ((E , eq) , (g , p)))
 
   isEmbeddingLiftFibration : isEmbedding liftFibration
   isEmbeddingLiftFibration = hasPropFibers→isEmbedding hasPropFibersLiftFibration
@@ -411,7 +414,7 @@ module EmbeddingIdentityPrinciple {B : Type ℓ} {ℓ₁} (f g : Embedding B ℓ
   EmbeddingIP : f≃g ≃ (f ≡ g)
   EmbeddingIP =
       f≃g
-    ≃⟨ isoToEquiv (invIso toProdIso) ⟩
+    ≃⟨ strictIsoToEquiv (invIso toProdIso) ⟩
       (∀ b → (fiber ffun b → fiber gfun b) × (fiber gfun b → fiber ffun b))
     ≃⟨ equivΠCod (λ _ → isEquivPropBiimpl→Equiv (isEmbedding→hasPropFibers isEmbF _)
                                                  (isEmbedding→hasPropFibers isEmbG _)) ⟩
