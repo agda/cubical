@@ -29,13 +29,13 @@ predInt (pos zero)    = negsuc zero
 predInt (pos (suc n)) = pos n
 predInt (negsuc n)    = negsuc (suc n)
 
--- TODO: define using isEven for nat
 isEven : Int → Bool
-isEven (pos zero) = true
-isEven (pos (suc zero)) = false
-isEven (pos (suc (suc n))) = isEven (pos n)
-isEven (negsuc zero) = false
-isEven (negsuc (suc n)) = isEven (pos n)
+isEven (pos n) = isEvenℕ n
+isEven (negsuc n) = isOddℕ n
+
+isOdd : Int → Bool
+isOdd (pos n) = isOddℕ n
+isOdd (negsuc n) = isEvenℕ n
 
 abs : Int → ℕ
 abs (pos n) = n
