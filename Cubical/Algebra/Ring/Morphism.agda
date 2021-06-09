@@ -9,5 +9,6 @@ private
   variable
     ℓ : Level
 
-identity : (R : Ring {ℓ}) → RingHom R R
-identity R = ringhom (λ x → x) refl (λ _ _ → refl) λ _ _ → refl
+identity : (R : Ring ℓ) → RingHom R R
+identity R = (λ x → x) , (record
+                            { pres0 = refl ; pres1 = refl ; pres+ = λ _ _ → refl ; pres· = λ _ _ → refl ; pres- = λ _ → refl })

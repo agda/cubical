@@ -143,6 +143,24 @@ module _ {R : CommRing ℓ} where
   CommAlgebraHom : (M N : CommAlgebra R ℓ') → Type (ℓ-max ℓ ℓ')
   CommAlgebraHom M N = Σ[ f ∈ (⟨ M ⟩ → ⟨ N ⟩) ] IsCommAlgebraHom (M .snd) f (N .snd)
 
+  isPropIsCommAlgebraHom : {M N : Type ℓ'} (A : CommAlgebraStr R N) (f : N → M) (B : CommAlgebraStr R M)
+                       → isProp (IsCommAlgebraHom A f B)
+  isPropIsCommAlgebraHom A f B = isPropIsAlgebraHom
+                                    (CommRing→Ring R)
+                                    (CommAlgebraStr→AlgebraStr A) f (CommAlgebraStr→AlgebraStr B)
+
+  CommAlgebraHomEq : (A B : CommAlgebra R ℓ') → (f g : CommAlgebraHom A B)
+        → ((x : fst A) → (f $a x) ≡ (g $a x)) → f ≡ g
+  CommAlgebraHomEq A B f g H i = homP i ,
+                                 isHomP i
+                                 where homP : (fst f) ≡ (fst g)
+                                       homP i x = H x i
+                                       pathDepIsHom : (j : I) → isProp (IsCommAlgebraHom (snd A) (homP j) (snd B))
+                                       pathDepIsHom j = isPropIsCommAlgebraHom (snd A) (homP j) (snd B)
+                                       isHomP : PathP _ (snd f) (snd g)
+                                       isHomP = isProp→PathP pathDepIsHom (snd f) (snd g)
+
+
 isPropIsCommAlgebra : (R : CommRing ℓ) {A : Type ℓ'}
   (0a 1a : A)
   (_+_ _·_ : A → A → A)

@@ -37,8 +37,9 @@ open import Cubical.Foundations.Function hiding (const)
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring        using ()
-open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.Algebra
+open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebra.Morphism
 open import Cubical.HITs.SetTruncation
 
 private
@@ -428,11 +429,8 @@ inducedHom : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
              → AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
 inducedHom A φ = Theory.inducedHom A φ
 
-CAlgHom : {R : CommRing ℓ} (A B : CommAlgebra R ℓ') → Type ℓ'
-CAlgHom A B = AlgebraHom (CommAlgebra→Algebra A) (CommAlgebra→Algebra B)
-
-homMapEq : {R : CommRing {ℓ}} {I : Type ℓ} (A : CommAlgebra R)
-             → CAlgHom (R [ I ]) A ≡ (I → (fst A))
+homMapEq : {R : CommRing ℓ} {I : Type ℓ} (A : CommAlgebra R ℓ)
+             → CommAlgebraHom (R [ I ]) A ≡ (I → (fst A))
 homMapEq A =
   isoToPath
     (iso
@@ -448,14 +446,14 @@ homMapEq A =
   free algebra. However, what we prove here could also be discribed
   as a special case of 'the yoneda embedding reflects isomorphisms'.
 -}
-isEquivFromUniversalProperty : {R : CommRing {ℓ}} {I : Type ℓ}
-  → (B : CommAlgebra R)
+isEquivFromUniversalProperty : {R : CommRing ℓ} {I : Type ℓ}
+  → (B : CommAlgebra R ℓ)
   → (ϕ : CAlgHom B (R [ I ]))
-  → ((A : CommAlgebra R) → isEquiv λ (f : CAlgHom (R [ I ]) A) → f ∘a ϕ)
-  → isEquiv (AlgebraHom.map ϕ)
+  → ((A : CommAlgebra R ℓ) → isEquiv λ (f : CAlgHom (R [ I ]) A) → f ∘a ϕ)
+  → isEquiv (fst ϕ)
 isEquivFromUniversalProperty {R = R} {I = I} B ϕ ϕinducesEquiv =
   let
-    open CommAlgebra
+    open CommAlgebraStr
     ψ : CAlgHom (R [ I ]) B
     ψ = fst (isEquiv→hasSection (ϕinducesEquiv B)) (idCAlg B)
     linv : ψ ∘a ϕ ≡ idCAlg B
@@ -473,20 +471,28 @@ isEquivFromUniversalProperty {R = R} {I = I} B ϕ ϕinducesEquiv =
     rinv : ϕ ∘a ψ ≡ idCAlg (R [ I ])
     rinv = cong fst (isContr→isProp (isEquiv.equiv-proof (ϕinducesEquiv (R [ I ])) ϕ)
                                     ((ϕ ∘a ψ) , ϕ∘aψIsInFiber) ((idCAlg (R [ I ])) , idIsInFiber))
-  in snd (isoToEquiv (iso (AlgebraHom.map ϕ) (AlgebraHom.map ψ)
+  in snd (isoToEquiv (iso (fst ϕ) (fst ψ)
                           (λ P → cong (_$a P) rinv)
                            λ b → cong (_$a b) linv))
 
-pathFromUniversalProperty : {R : CommRing {ℓ}} {I : Type ℓ}
-  → (B : CommAlgebra R)
+pathFromUniversalProperty : {R : CommRing ℓ} {I : Type ℓ}
+  → (B : CommAlgebra R ℓ)
   → (ϕ : CAlgHom B (R [ I ]))
-  → ((A : CommAlgebra R) → isEquiv λ (f : CAlgHom (R [ I ]) A) → f ∘a ϕ)
+  → ((A : CommAlgebra R ℓ) → isEquiv λ (f : CAlgHom (R [ I ]) A) → f ∘a ϕ)
   → B ≡ R [ I ]
 pathFromUniversalProperty {R = R} {I = I} B ϕ ϕinducesEquiv =
   let
+    open IsAlgebraHom ϕ
     ϕisEquiv = isEquivFromUniversalProperty B ϕ ϕinducesEquiv
     ϕ : CommAlgebraEquiv B (R [ I ])
-    ϕ = algebraiso ((AlgebraHom.map ϕ) , ϕisEquiv) (AlgebraHom.isHom+ ϕ) (AlgebraHom.isHom· ϕ) (AlgebraHom.pres1 ϕ) (AlgebraHom.comm⋆ ϕ)
+    ϕ = ((fst ϕ) , ϕisEquiv) , (record
+                                  { pres0 = {!pres0!}
+                                  ; pres1 = {!!}
+                                  ; pres+ = {!!}
+                                  ; pres· = {!!}
+                                  ; pres- = {!!}
+                                  ; pres⋆ = {!!}
+                                  }) -- algebraiso ((AlgebraHom.map ϕ) , ϕisEquiv) (AlgebraHom.isHom+ ϕ) (AlgebraHom.isHom· ϕ) (AlgebraHom.pres1 ϕ) (AlgebraHom.comm⋆ ϕ)
   in fst (CommAlgebraPath R B (R [ I ])) ϕ
 
 module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
