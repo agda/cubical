@@ -27,7 +27,7 @@ module Cubical.Data.Int.MoreInts.DeltaInt.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat hiding (zero)
-open import Cubical.Data.Int hiding (abs; sgn; _+_)
+open import Cubical.Data.Int hiding (abs; _+_)
 
 infixl 5 _⊖_
 data DeltaInt : Type₀ where

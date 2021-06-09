@@ -32,7 +32,7 @@ module Cubical.Data.Int.MoreInts.DeltaInt.Properties where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Nat hiding (zero)
-open import Cubical.Data.Int hiding (abs; sgn; _+_)
+open import Cubical.Data.Int hiding (abs; _+_)
 open import Cubical.Data.Int.MoreInts.DeltaInt.Base
 open import Cubical.Relation.Nullary using (Discrete)
 
