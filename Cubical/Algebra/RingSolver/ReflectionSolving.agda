@@ -17,8 +17,8 @@ open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.Data.List
 open import Cubical.Data.Nat.Literals
-open import Cubical.Data.Int.Base hiding (abs) renaming (Int to ℤ)
-open import Cubical.Data.Int using (fromNegInt; fromNatInt)
+open import Cubical.Data.Int.Base hiding (abs)
+open import Cubical.Data.Int using (fromNegℤ; fromNatℤ)
 open import Cubical.Data.Nat using (ℕ) renaming (_+_ to _+ℕ_)
 open import Cubical.Data.FinData using () renaming (zero to fzero; suc to fsuc)
 open import Cubical.Data.Bool

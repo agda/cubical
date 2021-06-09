@@ -4,7 +4,7 @@ module Cubical.Algebra.RingSolver.RawAlgebra where
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat using (ℕ)
-open import Cubical.Data.Int renaming (Int to ℤ ; _+_ to _+ℤ_ ; _·_ to _·ℤ_ ; -_ to -ℤ_ ; _-_ to _-ℤ_ ; +Assoc to +ℤAssoc ; +Comm to +ℤComm ; -DistL· to -ℤDistL·ℤ)
+open import Cubical.Data.Int renaming (_+_ to _+ℤ_ ; _·_ to _·ℤ_ ; -_ to -ℤ_ ; _-_ to _-ℤ_ ; +Assoc to +ℤAssoc ; +Comm to +ℤComm ; -DistL· to -ℤDistL·ℤ)
 
 open import Cubical.Algebra.RingSolver.AlmostRing hiding (⟨_⟩)
 open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
@@ -60,7 +60,7 @@ module _ (R : CommRing ℓ) where
   -DistScalar (negsuc n) = sym (-Idempotent _)
 
   lemmaSuc : (k : ℤ)
-          → scalar (sucInt k) ≡ 1r + scalar k
+          → scalar (sucℤ k) ≡ 1r + scalar k
   lemmaSuc (pos ℕ.zero) = sym (+Rid _)
   lemmaSuc (pos (ℕ.suc ℕ.zero)) = refl
   lemmaSuc (pos (ℕ.suc (ℕ.suc n))) = refl
@@ -75,14 +75,14 @@ module _ (R : CommRing ℓ) where
     1r + scalar (negsuc (ℕ.suc n)) ∎
 
   lemmaPred : (k : ℤ)
-          → scalar (predInt k) ≡ - 1r + scalar k
+          → scalar (predℤ k) ≡ - 1r + scalar k
   lemmaPred k = sym(
     - 1r + scalar k                      ≡[ i ]⟨ - 1r + scalar (sucPred k (~ i)) ⟩
-    - 1r + scalar (sucInt (predInt k))   ≡[ i ]⟨ - 1r + lemmaSuc (predInt k) i ⟩
-    - 1r + (1r + scalar (predInt k))     ≡⟨ +Assoc _ _ _ ⟩
-    (- 1r + 1r) + scalar (predInt k)     ≡[ i ]⟨ +Linv 1r i + scalar (predInt k) ⟩
-    0r + scalar (predInt k)              ≡⟨ +Lid _ ⟩
-    scalar (predInt k)  ∎)
+    - 1r + scalar (sucℤ (predℤ k))   ≡[ i ]⟨ - 1r + lemmaSuc (predℤ k) i ⟩
+    - 1r + (1r + scalar (predℤ k))     ≡⟨ +Assoc _ _ _ ⟩
+    (- 1r + 1r) + scalar (predℤ k)     ≡[ i ]⟨ +Linv 1r i + scalar (predℤ k) ⟩
+    0r + scalar (predℤ k)              ≡⟨ +Lid _ ⟩
+    scalar (predℤ k)  ∎)
 
   +HomScalar : (k l : ℤ)
                → scalar (k +ℤ l) ≡ (scalar k) + (scalar l)
@@ -95,7 +95,7 @@ module _ (R : CommRing ℓ) where
   +HomScalar (pos (ℕ.suc ℕ.zero)) l =
     scalar (1 +ℤ l)                         ≡[ i ]⟨ scalar (+ℤComm 1 l i) ⟩
     scalar (l  +ℤ 1)                        ≡⟨ refl ⟩
-    scalar (sucInt l)                       ≡⟨ lemmaSuc l ⟩
+    scalar (sucℤ l)                       ≡⟨ lemmaSuc l ⟩
     1r + scalar l                           ≡⟨ refl ⟩
     scalar (pos (ℕ.suc ℕ.zero)) + scalar l ∎
 
@@ -113,7 +113,7 @@ module _ (R : CommRing ℓ) where
   +HomScalar (negsuc ℕ.zero) l =
     scalar (-1 +ℤ l)                  ≡[ i ]⟨ scalar (+ℤComm -1 l i) ⟩
     scalar (l +ℤ -1)                  ≡⟨ refl ⟩
-    scalar (predInt l)                ≡⟨ lemmaPred l ⟩
+    scalar (predℤ l)                ≡⟨ lemmaPred l ⟩
     - 1r + scalar l                    ≡⟨ refl ⟩
     scalar -1 + scalar l ∎
 

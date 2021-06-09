@@ -4,7 +4,7 @@ module Cubical.Algebra.RingSolver.CommRingHornerForms where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat using (ℕ)
-open import Cubical.Data.Int renaming (Int to ℤ) hiding (_+_ ; _·_ ; -_)
+open import Cubical.Data.Int hiding (_+_ ; _·_ ; -_)
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec
 open import Cubical.Data.Bool using (Bool; true; false; if_then_else_; _and_)

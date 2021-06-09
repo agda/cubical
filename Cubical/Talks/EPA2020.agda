@@ -132,8 +132,8 @@ _ = refl
 
 -- Another example, integers:
 
-sucPath : Int ≡ Int
-sucPath = isoToPath' (iso sucInt predInt sucPred predSuc)
+sucPath : ℤ ≡ ℤ
+sucPath = isoToPath' (iso sucℤ predℤ sucPred predSuc)
 
 _ : transport sucPath (pos 0) ≡ pos 1
 _ = refl
@@ -203,13 +203,13 @@ double base = base
 double (loop i) = (loop ∙ loop) i
 
 helix : S¹ → Type
-helix base     = Int
-helix (loop i) = sucPathInt i
+helix base     = ℤ
+helix (loop i) = sucPathℤ i
 
 ΩS¹ : Type
 ΩS¹ = base ≡ base
 
-winding : ΩS¹ → Int
+winding : ΩS¹ → ℤ
 winding p = subst helix p (pos 0)
 
 _ : winding (λ i → double ((loop ∙ loop) i)) ≡ pos 4
@@ -253,7 +253,7 @@ Torus≡S¹×S¹ : Torus ≡ S¹ × S¹
 Torus≡S¹×S¹ = isoToPath' (iso t2c c2t t2c-c2t c2t-t2c)
 
 
-windingTorus : point ≡ point → Int × Int
+windingTorus : point ≡ point → ℤ × ℤ
 windingTorus l = ( winding (λ i → proj₁ (t2c (l i)))
                  , winding (λ i → proj₂ (t2c (l i))))
 
