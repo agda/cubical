@@ -44,14 +44,6 @@ open import Cubical.Data.Int.Base
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
 
-abs : Int → ℕ
-abs (pos n) = n
-abs (negsuc n) = suc n
-
-sgn : Int → Bool
-sgn (pos n) = true
-sgn (negsuc n) = false
-
 sucPred : ∀ i → sucInt (predInt i) ≡ i
 sucPred (pos zero)    = refl
 sucPred (pos (suc n)) = refl
@@ -61,8 +53,6 @@ predSuc : ∀ i → predInt (sucInt i) ≡ i
 predSuc (pos n)          = refl
 predSuc (negsuc zero)    = refl
 predSuc (negsuc (suc n)) = refl
-
--- TODO: define multiplication
 
 injPos : ∀ {a b : ℕ} → pos a ≡ pos b → a ≡ b
 injPos {a} h = subst T h refl
@@ -105,43 +95,6 @@ discreteInt (negsuc n) (negsuc m) with discreteℕ n m
 isSetInt : isSet Int
 isSetInt = Discrete→isSet discreteInt
 
-isEven : Int → Bool
-isEven (pos zero) = true
-isEven (pos (suc zero)) = false
-isEven (pos (suc (suc n))) = isEven (pos n)
-isEven (negsuc zero) = false
-isEven (negsuc (suc n)) = isEven (pos n)
-
-_ℕ-_ : ℕ → ℕ → Int
-a ℕ- 0 = pos a
-0 ℕ- suc b = negsuc b
-suc a ℕ- suc b = a ℕ- b
-
-_+pos_ : Int → ℕ  → Int
-z +pos 0 = z
-z +pos (suc n) = sucInt (z +pos n)
-
-_+negsuc_ : Int → ℕ → Int
-z +negsuc 0 = predInt z
-z +negsuc (suc n) = predInt (z +negsuc n)
-
-_+_ : Int → Int → Int
-m + pos n = m +pos n
-m + negsuc n = m +negsuc n
-
--_ : Int → Int
-- pos zero = pos zero
-- pos (suc n) = negsuc n
-- negsuc n = pos (suc n)
-
-_-_ : Int → Int → Int
-m - n = m + (- n)
-
-_·_ : Int → Int → Int
-pos zero · m = pos zero
-pos (suc n) · m = m + (pos n · m)
-negsuc zero · m = (- m)
-negsuc (suc n) · m = (- m) + ((negsuc n) · m)
 
 -pos : ∀ n → - (pos n) ≡ neg n
 -pos zero    = refl
