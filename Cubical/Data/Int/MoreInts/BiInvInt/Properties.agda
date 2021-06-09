@@ -1,14 +1,12 @@
 {-# OPTIONS --safe #-}
 module Cubical.Data.Int.MoreInts.BiInvInt.Properties where
 
-open import Cubical.Core.Everything
-
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat using (ℕ)
 import Cubical.Data.Int as Int
@@ -153,15 +151,12 @@ neg : ℕ → BiInvInt
 neg ℕ.zero = zero
 neg (ℕ.suc n) = pred (neg n)
 
--- absolute value and sign
+-- absolute value
 -- (Note that there doesn't appear to be any way around using
 --  bwd here! Any direct proof ends up doing the same work...)
 
 abs : BiInvInt → ℕ
 abs n = Int.abs (bwd n)
-
-sgn : BiInvInt → Bool
-sgn n = Int.sgn (bwd n)
 
 Iso-n+ : (n : BiInvInt) → Iso BiInvInt BiInvInt
 Iso.fun (Iso-n+ n) = n +_

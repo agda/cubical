@@ -1,5 +1,8 @@
+-- It is recommended to use Cubical.Algebra.CommRing.Instances.Int
+-- instead of this file.
+
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommRing.Integers where
+module Cubical.Algebra.CommRing.Instances.BiInvInt where
 
 open import Cubical.Foundations.Prelude
 

@@ -16,5 +16,6 @@ isGroup (snd Int) = isGroupInt
   where
   abstract
     isGroupInt : IsGroup (pos 0) _+Int_ (_-Int_ (pos 0))
-    isGroupInt = makeIsGroup isSetInt +-assoc (λ x → refl) (λ x → +-comm 0 x)
-                              (λ x → +-comm x (pos 0 -Int x) ∙ minusPlus x 0) (λ x → minusPlus x 0)
+    isGroupInt = makeIsGroup isSetInt +Assoc (λ _ → refl) (+Comm 0)
+                              (λ x → +Comm x (pos 0 -Int x) ∙ minusPlus x 0)
+                              (λ x → minusPlus x 0)

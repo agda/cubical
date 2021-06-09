@@ -64,11 +64,11 @@ m + negsuc n = m +negsuc n
 _-_ : Int → Int → Int
 m - n = m + (- n)
 
--- _·_ : Int → Int → Int
--- pos zero · m = pos zero
--- pos (suc n) · m = m + pos n · m
--- negsuc zero · m = - m
--- negsuc (suc n) · m = - m + negsuc n · m
+_·_ : Int → Int → Int
+pos zero · m = pos zero
+pos (suc n) · m = m + pos n · m
+negsuc zero · m = - m
+negsuc (suc n) · m = - m + negsuc n · m
 
 -- Natural number and negative integer literals for Int
 
