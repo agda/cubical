@@ -23,7 +23,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +Comm to +ℤ-comm ; +Assoc to +ℤ-assoc)
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit
-open import Cubical.Algebra.Group renaming (Int to IntGroup ; Bool to BoolGroup ; Unit to UnitGroup)
+open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup ; Unit to UnitGroup)
 
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.S1
@@ -132,7 +132,7 @@ private
                         (elimFunT²'≡elimFunT² (suc n) P) (ind P)
 
 --------- H⁰(T²) ------------
-H⁰-T²≅ℤ : GroupIso (coHomGr 0 (S₊ 1 × S₊ 1)) IntGroup
+H⁰-T²≅ℤ : GroupIso (coHomGr 0 (S₊ 1 × S₊ 1)) ℤGroup
 H⁰-T²≅ℤ =
   H⁰-connected (base , base)
     λ (a , b) → pRec propTruncIsProp
@@ -143,11 +143,11 @@ H⁰-T²≅ℤ =
 
 --------- H¹(T²) -------------------------------
 
-H¹-T²≅ℤ×ℤ : GroupIso (coHomGr 1 ((S₊ 1) × (S₊ 1))) (DirProd IntGroup IntGroup)
+H¹-T²≅ℤ×ℤ : GroupIso (coHomGr 1 ((S₊ 1) × (S₊ 1))) (DirProd ℤGroup ℤGroup)
 H¹-T²≅ℤ×ℤ = theIso □ GroupIsoDirProd (Hⁿ-Sⁿ≅ℤ 0) (H⁰-Sⁿ≅ℤ 0)
   where
   typIso : Iso _ _
-  typIso = setTruncIso (curryIso ⋄ codomainIso S1→K₁≡S1×Int ⋄ toProdIso)
+  typIso = setTruncIso (curryIso ⋄ codomainIso S1→K₁≡S1×ℤ ⋄ toProdIso)
                       ⋄ setTruncOfProdIso
 
   theIso : GroupIso _ _
@@ -162,23 +162,23 @@ H¹-T²≅ℤ×ℤ = theIso □ GroupIsoDirProd (Hⁿ-Sⁿ≅ℤ 0) (H⁰-Sⁿ�
      where
        module _ (pf qf pg qg : 0ₖ 1 ≡ 0ₖ 1) (Pg : Square qg qg pg pg) (Pf : Square qf qf pf pf) where
          helperFst : (x : S¹)
-                → fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pf qf Pf (x , y) +ₖ elimFunT² 0 pg qg  Pg (x , y)) .fst
-                 ≡ fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pf qf Pf (x , y)) .fst
-                +ₖ fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pg qg  Pg (x , y)) .fst
+                → fun S1→K₁≡S1×ℤ (λ y → elimFunT² 0 pf qf Pf (x , y) +ₖ elimFunT² 0 pg qg  Pg (x , y)) .fst
+                 ≡ fun S1→K₁≡S1×ℤ (λ y → elimFunT² 0 pf qf Pf (x , y)) .fst
+                +ₖ fun S1→K₁≡S1×ℤ (λ y → elimFunT² 0 pg qg  Pg (x , y)) .fst
          helperFst base = refl
          helperFst (loop i) j = loopLem j i
            where
-           loopLem : cong (λ x → fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pf qf Pf (x , y) +ₖ elimFunT² 0 pg qg  Pg (x , y)) .fst) loop
-                   ≡ cong (λ x → fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pf qf Pf (x , y)) .fst
-                               +ₖ fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pg qg  Pg (x , y)) .fst) loop
+           loopLem : cong (λ x → fun S1→K₁≡S1×ℤ (λ y → elimFunT² 0 pf qf Pf (x , y) +ₖ elimFunT² 0 pg qg  Pg (x , y)) .fst) loop
+                   ≡ cong (λ x → fun S1→K₁≡S1×ℤ (λ y → elimFunT² 0 pf qf Pf (x , y)) .fst
+                               +ₖ fun S1→K₁≡S1×ℤ (λ y → elimFunT² 0 pg qg  Pg (x , y)) .fst) loop
            loopLem = (λ i j → S¹map-id (pf j +ₖ pg j) i)
                    ∙ (λ i j → S¹map-id (pf j) (~ i) +ₖ S¹map-id (pg j) (~ i))
 
          helperSnd : (x : S¹)
-                → fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pf qf Pf (x , y) +ₖ elimFunT² 0 pg qg  Pg (x , y)) .snd
-                ≡ fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pf qf Pf (x , y)) .snd +ℤ fun S1→K₁≡S1×Int (λ y → elimFunT² 0 pg qg  Pg (x , y)) .snd
+                → fun S1→K₁≡S1×ℤ (λ y → elimFunT² 0 pf qf Pf (x , y) +ₖ elimFunT² 0 pg qg  Pg (x , y)) .snd
+                ≡ fun S1→K₁≡S1×ℤ (λ y → elimFunT² 0 pf qf Pf (x , y)) .snd +ℤ fun S1→K₁≡S1×ℤ (λ y → elimFunT² 0 pg qg  Pg (x , y)) .snd
          helperSnd =
-           toPropElim (λ _ → isSetInt _ _)
+           toPropElim (λ _ → isSetℤ _ _)
                       ((λ i → winding (basechange2⁻ base λ j → S¹map (∙≡+₁ qf qg (~ i) j)))
                     ∙∙ cong (winding ∘ basechange2⁻ base) (congFunct S¹map qf qg)
                     ∙∙ (cong winding (basechange2⁻-morph base (cong S¹map qf) (cong S¹map qg))
@@ -186,7 +186,7 @@ H¹-T²≅ℤ×ℤ = theIso □ GroupIsoDirProd (Hⁿ-Sⁿ≅ℤ 0) (H⁰-Sⁿ�
 
 ----------------------- H²(T²) ------------------------------
 
-H²-T²≅ℤ : GroupIso (coHomGr 2 (S₊ 1 × S₊ 1)) IntGroup
+H²-T²≅ℤ : GroupIso (coHomGr 2 (S₊ 1 × S₊ 1)) ℤGroup
 H²-T²≅ℤ = compGroupIso helper2 (Hⁿ-Sⁿ≅ℤ 0)
   where
   helper : Iso (∥ ((a : S¹) → coHomK 2) ∥₂ × ∥ ((a : S¹) → coHomK 1) ∥₂) (coHom 1 S¹)
@@ -223,22 +223,22 @@ H²-T²≅ℤ = compGroupIso helper2 (Hⁿ-Sⁿ≅ℤ 0)
 -- >>>>>>> master
 
 private
-  to₂ : coHom 2 (S₊ 1 × S₊ 1) → Int
+  to₂ : coHom 2 (S₊ 1 × S₊ 1) → ℤ
   to₂ = fun (fst H²-T²≅ℤ)
 
-  from₂ : Int → coHom 2 (S₊ 1 × S₊ 1)
+  from₂ : ℤ → coHom 2 (S₊ 1 × S₊ 1)
   from₂ = inv (fst H²-T²≅ℤ)
 
-  to₁ : coHom 1 (S₊ 1 × S₊ 1) → Int × Int
+  to₁ : coHom 1 (S₊ 1 × S₊ 1) → ℤ × ℤ
   to₁ = fun (fst H¹-T²≅ℤ×ℤ)
 
-  from₁ : Int × Int → coHom 1 (S₊ 1 × S₊ 1)
+  from₁ : ℤ × ℤ → coHom 1 (S₊ 1 × S₊ 1)
   from₁ = inv (fst H¹-T²≅ℤ×ℤ)
 
-  to₀ : coHom 0 (S₊ 1 × S₊ 1) → Int
+  to₀ : coHom 0 (S₊ 1 × S₊ 1) → ℤ
   to₀ = fun (fst H⁰-T²≅ℤ)
 
-  from₀ : Int → coHom 0 (S₊ 1 × S₊ 1)
+  from₀ : ℤ → coHom 0 (S₊ 1 × S₊ 1)
   from₀ = inv (fst H⁰-T²≅ℤ)
 
 {-

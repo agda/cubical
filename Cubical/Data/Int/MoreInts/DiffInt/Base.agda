@@ -8,7 +8,7 @@ open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat hiding (+-comm ; +-assoc) renaming (_+_ to _+ℕ_)
-open import Cubical.Data.Int
+open import Cubical.Data.Int renaming (ℤ to Int)
 
 rel : (ℕ × ℕ) → (ℕ × ℕ) → Type₀
 rel (a₀ , b₀) (a₁ , b₁) = x ≡ y
@@ -69,7 +69,7 @@ Int→ℤ n = [ Int→ℕ×ℕ n ]
                (pos b₀ + (pos a₁ - pos a₁)) - pos b₁     ≡[ i ]⟨ (pos b₀ + (-Cancel (pos a₁) i)) - pos b₁ ⟩
                 pos b₀ - pos b₁                          ≡[ i ]⟨ pos- b₀ b₁ (~ i) ⟩
                 b₀ ℕ- b₁                                 ∎
-ℤ→Int(squash/ x x₀ p q i j) = isSetInt (ℤ→Int x) (ℤ→Int x₀) (cong ℤ→Int p) (cong ℤ→Int q) i j
+ℤ→Int(squash/ x x₀ p q i j) = isSetℤ (ℤ→Int x) (ℤ→Int x₀) (cong ℤ→Int p) (cong ℤ→Int q) i j
 
 Int→ℤ→Int : ∀ z → ℤ→Int (Int→ℤ z) ≡ z
 Int→ℤ→Int (pos n)    = refl

@@ -24,7 +24,7 @@ private
 
 {- EM-spaces Kₙ from Brunerie 2016 -}
 coHomK : (n : ℕ) → Type₀
-coHomK zero = Int
+coHomK zero = ℤ
 coHomK (suc n) = ∥ S₊ (suc n) ∥ (2 + suc n)
 
 {- Cohomology -}

@@ -11,75 +11,75 @@ infix  8 -_
 infixl 7 _·_
 infixl 6 _+_ _-_
 
-data Int : Type₀ where
-  pos    : (n : ℕ) → Int
-  negsuc : (n : ℕ) → Int
+data ℤ : Type₀ where
+  pos    : (n : ℕ) → ℤ
+  negsuc : (n : ℕ) → ℤ
 
-neg : (n : ℕ) → Int
+neg : (n : ℕ) → ℤ
 neg zero    = pos zero
 neg (suc n) = negsuc n
 
-sucInt : Int → Int
-sucInt (pos n)          = pos (suc n)
-sucInt (negsuc zero)    = pos zero
-sucInt (negsuc (suc n)) = negsuc n
+sucℤ : ℤ → ℤ
+sucℤ (pos n)          = pos (suc n)
+sucℤ (negsuc zero)    = pos zero
+sucℤ (negsuc (suc n)) = negsuc n
 
-predInt : Int → Int
-predInt (pos zero)    = negsuc zero
-predInt (pos (suc n)) = pos n
-predInt (negsuc n)    = negsuc (suc n)
+predℤ : ℤ → ℤ
+predℤ (pos zero)    = negsuc zero
+predℤ (pos (suc n)) = pos n
+predℤ (negsuc n)    = negsuc (suc n)
 
-isEven : Int → Bool
+isEven : ℤ → Bool
 isEven (pos n) = isEvenℕ n
 isEven (negsuc n) = isOddℕ n
 
-isOdd : Int → Bool
+isOdd : ℤ → Bool
 isOdd (pos n) = isOddℕ n
 isOdd (negsuc n) = isEvenℕ n
 
-abs : Int → ℕ
+abs : ℤ → ℕ
 abs (pos n) = n
 abs (negsuc n) = suc n
 
-_ℕ-_ : ℕ → ℕ → Int
+_ℕ-_ : ℕ → ℕ → ℤ
 a ℕ- 0 = pos a
 0 ℕ- suc b = negsuc b
 suc a ℕ- suc b = a ℕ- b
 
-_+pos_ : Int → ℕ  → Int
+_+pos_ : ℤ → ℕ  → ℤ
 z +pos 0 = z
-z +pos (suc n) = sucInt (z +pos n)
+z +pos (suc n) = sucℤ (z +pos n)
 
-_+negsuc_ : Int → ℕ → Int
-z +negsuc 0 = predInt z
-z +negsuc (suc n) = predInt (z +negsuc n)
+_+negsuc_ : ℤ → ℕ → ℤ
+z +negsuc 0 = predℤ z
+z +negsuc (suc n) = predℤ (z +negsuc n)
 
-_+_ : Int → Int → Int
+_+_ : ℤ → ℤ → ℤ
 m + pos n = m +pos n
 m + negsuc n = m +negsuc n
 
--_ : Int → Int
+-_ : ℤ → ℤ
 - pos zero = pos zero
 - pos (suc n) = negsuc n
 - negsuc n = pos (suc n)
 
-_-_ : Int → Int → Int
+_-_ : ℤ → ℤ → ℤ
 m - n = m + (- n)
 
-_·_ : Int → Int → Int
+_·_ : ℤ → ℤ → ℤ
 pos zero · m = pos zero
 pos (suc n) · m = m + pos n · m
 negsuc zero · m = - m
 negsuc (suc n) · m = - m + negsuc n · m
 
--- Natural number and negative integer literals for Int
+-- Natural number and negative integer literals for ℤ
 
 open import Cubical.Data.Nat.Literals public
 
 instance
-  fromNatInt : HasFromNat Int
-  fromNatInt = record { Constraint = λ _ → Unit ; fromNat = λ n → pos n }
+  fromNatℤ : HasFromNat ℤ
+  fromNatℤ = record { Constraint = λ _ → Unit ; fromNat = λ n → pos n }
 
 instance
-  fromNegInt : HasFromNeg Int
-  fromNegInt = record { Constraint = λ _ → Unit ; fromNeg = λ n → neg n }
+  fromNegℤ : HasFromNeg ℤ
+  fromNegℤ = record { Constraint = λ _ → Unit ; fromNeg = λ n → neg n }

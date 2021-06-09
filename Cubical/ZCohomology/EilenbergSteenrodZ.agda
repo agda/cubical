@@ -39,7 +39,7 @@ open import Cubical.HITs.Wedge
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
 
-open import Cubical.Algebra.Group renaming (Int to IntGroup)
+open import Cubical.Algebra.Group renaming (ℤ to ℤGroup)
 open import Cubical.Algebra.AbGroup
 
 open coHomTheory
@@ -78,12 +78,12 @@ SuspCohomElim {A = A} n {B = B} isprop f =
                                   ∙∙ sym (rUnit refl)))
 
 -- (Reduced) cohomology functor
-coHomFunctor : {ℓ : Level}  (n : Int) → Pointed ℓ → AbGroup ℓ
+coHomFunctor : {ℓ : Level}  (n : ℤ) → Pointed ℓ → AbGroup ℓ
 coHomFunctor (pos n) = coHomRedGroup n
 coHomFunctor (negsuc n) _ = trivialAbGroup
 
 -- Alternative definition with reduced groups replaced by unreduced one for n ≥ 1
-coHomFunctor' : {ℓ : Level} (n : Int) → Pointed ℓ → AbGroup ℓ
+coHomFunctor' : {ℓ : Level} (n : ℤ) → Pointed ℓ → AbGroup ℓ
 coHomFunctor' (pos zero) = coHomFunctor 0
 coHomFunctor' (pos (suc n)) A = coHomGroup (suc n) (typ A)
 coHomFunctor' (negsuc n) = coHomFunctor (negsuc n)
@@ -99,10 +99,10 @@ fst H0-susp = 0ₕ∙ _
 snd (H0-susp {A = A}) =
   sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
         λ {(f , p)
-          → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _)
+          → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _)
                         (funExt λ {north → sym p
                                  ; south → sym p ∙ cong f (merid (pt A))
-                                 ; (merid a i) j → isSet→isSet' (isSetInt)
+                                 ; (merid a i) j → isSet→isSet' (isSetℤ)
                                                                   (sym p)
                                                                   (sym p ∙ cong f (merid (pt A)))
                                                                   refl (cong f (merid a)) i j}))}
@@ -176,7 +176,7 @@ leftInv (suspFunCharac {A = A} n) =
     λ f fId → cong ∣_∣₂ (funExt (linvLem (suc n) f fId))
 
 -- We also need that H¹(Susp A) ≃ Ĥ⁰(A)
-suspFunCharac0 : ∀ {ℓ} {A : Pointed ℓ} → Iso (∥ ((Susp (typ A)) → coHomK 1) ∥₂) ∥ A →∙ (Int , 0) ∥₂
+suspFunCharac0 : ∀ {ℓ} {A : Pointed ℓ} → Iso (∥ ((Susp (typ A)) → coHomK 1) ∥₂) ∥ A →∙ (ℤ , 0) ∥₂
 fun (suspFunCharac0 {A = A}) =
     sMap λ f → suspFunCharacFun {A = A} 0 f
   ,  (cong (ΩKn+1→Kn 0) ((λ i → sym (rCancelₖ _ (f north))
@@ -189,12 +189,12 @@ inv suspFunCharac0 = sMap λ f → suspΩFun 0 (fst f)
 rightInv (suspFunCharac0 {A = A}) =
   sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
     λ {(f , p)
-      → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _)
+      → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _)
                    (funExt (λ x → (λ j → transp (λ i → helix (wedgeMapS¹ (intLoop (p j) (~ i)) base)) j
                                              ((transport (λ i → helix (trRec isGroupoidS¹ (λ x → x)
                                                                               (rUnitₖ 1 ∣ intLoop (f x) i ∣ j)))
                                                          (pos 0))))
-                                 ∙ windingIntLoop (f x))))}
+                                 ∙ windingℤLoop (f x))))}
 leftInv (suspFunCharac0 {A = A}) =
   SuspCohomElim {A = A} _ (λ _ → setTruncIsSet _ _)
     λ f fId → cong ∣_∣₂ (funExt (linvLem 0 f fId))
@@ -202,13 +202,13 @@ leftInv (suspFunCharac0 {A = A}) =
 -- We now prove that the alternative definition of cohomology is a cohomology theory.
 private
   -- First, we need to that coHomFunctor' is contravariant
-  theMorph : ∀ {ℓ} (n : Int) {A B : Pointed ℓ} (f : A →∙ B)
+  theMorph : ∀ {ℓ} (n : ℤ) {A B : Pointed ℓ} (f : A →∙ B)
           → AbGroupHom (coHomFunctor' n B) (coHomFunctor' n A)
   fst (theMorph (pos zero) f) = sMap λ g → (λ x → fst g (fst f x)) , cong (fst g) (snd f) ∙ snd g
   snd (theMorph (pos zero) f) =
     makeIsGroupHom
       (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-              λ f g → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl))
+              λ f g → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl))
   theMorph (pos (suc n)) f = coHomMorph _ (fst f)
   fst (theMorph (negsuc n) f) = idfun _
   snd (theMorph (negsuc n) f) = makeIsGroupHom λ _ _ → refl
@@ -272,7 +272,7 @@ private
   -------------------------- Exactness ---------------------------
   Exactness isCohomTheoryZ' {A = A} {B = B} f n = isoToPath (exactnessIso n f)
     where
-    exactnessIso : (n : Int) (f : A →∙ B)
+    exactnessIso : (n : ℤ) (f : A →∙ B)
                 → Iso (Ker (theMorph n f)) (Im (theMorph n (cfcod (fst f) , refl)))
     fun (exactnessIso (pos zero) (f , p)) =
       uncurry (sElim (λ _ → isSetΠ λ _ → isSetΣ setTruncIsSet λ _ → isProp→isSet propTruncIsProp)
@@ -281,7 +281,7 @@ private
                                               (λ gId → ∣ ∣ (λ { (inl tt) → 0
                                                               ; (inr b) → g b
                                                               ; (push a i) → funExt⁻ (cong fst gId) a (~ i)}) , q ∣₂
-                                                       , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl) ∣)
+                                                       , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl) ∣)
                                               (Iso.fun PathIdTrunc₀Iso inker)})
     inv (exactnessIso (pos zero) (f , p)) =
       uncurry (sElim (λ _ → isSetΠ λ _ → isSetΣ setTruncIsSet λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
@@ -293,7 +293,7 @@ private
                                    (λ pushmap pushId'
                                      → pRec (setTruncIsSet _ _)
                                              (λ pushId
-                                               → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _)
+                                               → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _)
                                                              (funExt λ x → sym (funExt⁻ (cong fst pushId) (f x))
                                                                          ∙∙ cong (fst pushmap) (sym (push x) ∙ push (pt A))
                                                                          ∙∙ (cong (fst pushmap ∘ inr) p

@@ -21,7 +21,7 @@ open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Data.Nat
-open import Cubical.Data.Int
+open import Cubical.Data.Int renaming (ℤ to Int)
 
 open import Cubical.Foundations.GroupoidLaws
 
@@ -96,28 +96,28 @@ fwd (negsuc (suc n)) = pred (fwd (negsuc n))
 
 bwd : BiInvInt -> Int
 bwd zero            = pos zero
-bwd (suc z)         = sucInt (bwd z)
-bwd (predr z)       = predInt (bwd z)
+bwd (suc z)         = sucℤ (bwd z)
+bwd (predr z)       = predℤ (bwd z)
 bwd (suc-predr z i) = sucPred (bwd z) i
-bwd (predl z)       = predInt (bwd z)
+bwd (predl z)       = predℤ (bwd z)
 bwd (predl-suc z i) = predSuc (bwd z) i
 
 bwd-fwd : ∀ (x : Int) -> bwd (fwd x) ≡ x
 bwd-fwd (pos zero)       = refl
-bwd-fwd (pos (suc n))    = cong sucInt (bwd-fwd (pos n))
+bwd-fwd (pos (suc n))    = cong sucℤ (bwd-fwd (pos n))
 bwd-fwd (negsuc zero)    = refl
-bwd-fwd (negsuc (suc n)) = cong predInt (bwd-fwd (negsuc n))
+bwd-fwd (negsuc (suc n)) = cong predℤ (bwd-fwd (negsuc n))
 
 
-fwd-sucInt : ∀ (x : Int) → fwd (sucInt x) ≡ suc (fwd x)
-fwd-sucInt (pos n)          = refl
-fwd-sucInt (negsuc zero)    = sym (suc-pred (fwd (pos zero)))
-fwd-sucInt (negsuc (suc n)) = sym (suc-pred (fwd (negsuc n)))
+fwd-sucℤ : ∀ (x : Int) → fwd (sucℤ x) ≡ suc (fwd x)
+fwd-sucℤ (pos n)          = refl
+fwd-sucℤ (negsuc zero)    = sym (suc-pred (fwd (pos zero)))
+fwd-sucℤ (negsuc (suc n)) = sym (suc-pred (fwd (negsuc n)))
 
-fwd-predInt : ∀ (x : Int) → fwd (predInt x) ≡ pred (fwd x)
-fwd-predInt (pos zero)    = refl
-fwd-predInt (pos (suc n)) = sym (predl-suc (fwd (pos n)))
-fwd-predInt (negsuc n)    = refl
+fwd-predℤ : ∀ (x : Int) → fwd (predℤ x) ≡ pred (fwd x)
+fwd-predℤ (pos zero)    = refl
+fwd-predℤ (pos (suc n)) = sym (predl-suc (fwd (pos n)))
+fwd-predℤ (negsuc n)    = refl
 
 private
   sym-filler : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y)
@@ -131,7 +131,7 @@ private
                                             ; (j = i1) → p (i ∨ (~ k)) }) y
 
 fwd-sucPred : ∀ (x : Int)
-              → Square {- (i = i0) -} (fwd-sucInt (predInt x) ∙ (λ i → suc (fwd-predInt x i)))
+              → Square {- (i = i0) -} (fwd-sucℤ (predℤ x) ∙ (λ i → suc (fwd-predℤ x i)))
                        {- (i = i1) -} (λ _ → fwd x)
                        {- (j = i0) -} (λ i → fwd (sucPred x i))
                        {- (j = i1) -} (suc-pred (fwd x))
@@ -140,7 +140,7 @@ fwd-sucPred : ∀ (x : Int)
 fwd-sucPred (pos zero) i j
   = hcomp (λ k → λ { (j = i0) → fwd (pos zero)
                    ; (i = i0) → rUnit (sym (suc-pred (fwd (pos zero)))) k j
-                                -- because fwd-sucInt (predInt (pos zero)) ≡ sym (suc-pred (fwd (pos zero)))
+                                -- because fwd-sucℤ (predℤ (pos zero)) ≡ sym (suc-pred (fwd (pos zero)))
                    ; (i = i1) → fwd (pos zero)
                    ; (j = i1) → suc-pred (fwd (pos zero)) i
                    })
@@ -149,7 +149,7 @@ fwd-sucPred (pos zero) i j
 fwd-sucPred (pos (suc n)) i j
   = hcomp (λ k → λ { (j = i0) → suc (fwd (pos n))
                    ; (i = i0) → lUnit (λ i → suc (sym (predl-suc (fwd (pos n))) i)) k j
-                                -- because fwd-predInt (pos (suc n)) ≡ sym (predl-suc (fwd (pos n)))
+                                -- because fwd-predℤ (pos (suc n)) ≡ sym (predl-suc (fwd (pos n)))
                    ; (i = i1) → suc (fwd (pos n))
                    ; (j = i1) → suc-adj (fwd (pos n)) k i
                    })
@@ -158,7 +158,7 @@ fwd-sucPred (pos (suc n)) i j
 fwd-sucPred (negsuc n) i j
   = hcomp (λ k → λ { (j = i0) → fwd (negsuc n)
                    ; (i = i0) → rUnit (sym (suc-pred (fwd (negsuc n)))) k j
-                                -- because fwd-sucInt (predInt (negsuc n)) ≡ sym (suc-pred (fwd (negsuc n)))
+                                -- because fwd-sucℤ (predℤ (negsuc n)) ≡ sym (suc-pred (fwd (negsuc n)))
                    ; (i = i1) → fwd (negsuc n)
                    ; (j = i1) → suc-pred (fwd (negsuc n)) i
                    })
@@ -166,7 +166,7 @@ fwd-sucPred (negsuc n) i j
 
 
 fwd-predSuc : ∀ (x : Int)
-              → Square {- (i = i0) -} (fwd-predInt (sucInt x) ∙ (λ i → pred (fwd-sucInt x i)))
+              → Square {- (i = i0) -} (fwd-predℤ (sucℤ x) ∙ (λ i → pred (fwd-sucℤ x i)))
                        {- (i = i1) -} (λ _ → fwd x)
                        {- (j = i0) -} (λ i → fwd (predSuc x i))
                        {- (j = i1) -} (pred-suc (fwd x))
@@ -174,7 +174,7 @@ fwd-predSuc : ∀ (x : Int)
 fwd-predSuc (pos n) i j
   = hcomp (λ k → λ { (j = i0) → fwd (pos n)
                    ; (i = i0) → rUnit (sym (pred-suc (fwd (pos n)))) k j
-                                -- because fwd-predInt (sucInt (pos n)) ≡ sym (pred-suc (fwd (pos n)))
+                                -- because fwd-predℤ (sucℤ (pos n)) ≡ sym (pred-suc (fwd (pos n)))
                    ; (i = i1) → fwd (pos n)
                    ; (j = i1) → pred-suc (fwd (pos n)) i
                    })
@@ -183,7 +183,7 @@ fwd-predSuc (pos n) i j
 fwd-predSuc (negsuc zero) i j
   = hcomp (λ k → λ { (j = i0) → fwd (negsuc zero)
                    ; (i = i0) → lUnit (λ i → pred (sym (suc-pred (fwd (pos zero))) i)) k j
-                                -- because fwd-sucInt (negsuc zero) ≡ sym (suc-pred (fwd (pos zero)))
+                                -- because fwd-sucℤ (negsuc zero) ≡ sym (suc-pred (fwd (pos zero)))
                    ; (i = i1) → fwd (negsuc zero)
                    ; (j = i1) → pred-adj (fwd (pos zero)) k i
                    })
@@ -192,7 +192,7 @@ fwd-predSuc (negsuc zero) i j
 fwd-predSuc (negsuc (suc n)) i j
   = hcomp (λ k → λ { (j = i0) → fwd (negsuc (suc n))
                    ; (i = i0) → lUnit (λ i → pred (sym (suc-pred (fwd (negsuc n))) i)) k j
-                                -- because fwd-sucInt (negsuc (suc n)) ≡ sym (suc-pred (fwd (negsuc n)))
+                                -- because fwd-sucℤ (negsuc (suc n)) ≡ sym (suc-pred (fwd (negsuc n)))
                    ; (i = i1) → fwd (negsuc (suc n))
                    ; (j = i1) → pred-adj (fwd (negsuc n)) k i
                    })
@@ -201,13 +201,13 @@ fwd-predSuc (negsuc (suc n)) i j
 
 fwd-bwd : ∀ (z : BiInvInt) -> fwd (bwd z) ≡ z
 fwd-bwd zero      = refl
-fwd-bwd (suc z)   = fwd-sucInt  (bwd z) ∙ (λ i → suc (fwd-bwd z i))
-fwd-bwd (predr z) = fwd-predInt (bwd z) ∙ (λ i → predl≡predr (fwd-bwd z i) i)
-fwd-bwd (predl z) = fwd-predInt (bwd z) ∙ (λ i → pred (fwd-bwd z i))
+fwd-bwd (suc z)   = fwd-sucℤ  (bwd z) ∙ (λ i → suc (fwd-bwd z i))
+fwd-bwd (predr z) = fwd-predℤ (bwd z) ∙ (λ i → predl≡predr (fwd-bwd z i) i)
+fwd-bwd (predl z) = fwd-predℤ (bwd z) ∙ (λ i → pred (fwd-bwd z i))
 fwd-bwd (suc-predr z i) j
   = hcomp (λ k → λ { (j = i0) → fwd (sucPred (bwd z) i)
-                   ; (i = i0) → (fwd-sucInt (predInt (bwd z))
-                                 ∙ (λ i → suc (compPath-filler (fwd-predInt (bwd z))
+                   ; (i = i0) → (fwd-sucℤ (predℤ (bwd z))
+                                 ∙ (λ i → suc (compPath-filler (fwd-predℤ (bwd z))
                                                                (λ i' → predl≡predr (fwd-bwd z i') i')
                                                                k i))) j
                    ; (i = i1) → fwd-bwd z (j ∧ k)
@@ -215,8 +215,8 @@ fwd-bwd (suc-predr z i) j
           (fwd-sucPred (bwd z) i j)
 fwd-bwd (predl-suc z i) j
   = hcomp (λ k → λ { (j = i0) → fwd (predSuc (bwd z) i)
-                   ; (i = i0) → (fwd-predInt (sucInt (bwd z))
-                                 ∙ (λ i → pred (compPath-filler (fwd-sucInt (bwd z))
+                   ; (i = i0) → (fwd-predℤ (sucℤ (bwd z))
+                                 ∙ (λ i → pred (compPath-filler (fwd-sucℤ (bwd z))
                                                                 (λ i' → suc (fwd-bwd z i'))
                                                                 k i))) j
                    ; (i = i1) → fwd-bwd z (j ∧ k)
@@ -228,10 +228,10 @@ Int≡BiInvInt : Int ≡ BiInvInt
 Int≡BiInvInt = isoToPath (iso fwd bwd fwd-bwd bwd-fwd)
 
 discreteBiInvInt : Discrete BiInvInt
-discreteBiInvInt = subst Discrete Int≡BiInvInt discreteInt
+discreteBiInvInt = subst Discrete Int≡BiInvInt discreteℤ
 
 isSetBiInvInt : isSet BiInvInt
-isSetBiInvInt = subst isSet Int≡BiInvInt isSetInt
+isSetBiInvInt = subst isSet Int≡BiInvInt isSetℤ
 
 
 

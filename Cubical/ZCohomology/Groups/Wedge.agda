@@ -218,11 +218,11 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
   rightInv (fst H⁰Red-⋁) =
     uncurry
       (sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
-        λ {(_ , _) (_ , _) → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl)
-                                    , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl))})
+        λ {(_ , _) (_ , _) → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl)
+                                    , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl))})
   leftInv (fst H⁰Red-⋁) =
     sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-      λ {(f , p) → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _)
+      λ {(f , p) → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _)
                                  (funExt λ {(inl a) → refl
                                           ; (inr b) → refl
                                           ; (push tt i) j → (cong (p ∙_) (symDistr (cong f (sym (push tt))) p)
@@ -233,8 +233,8 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
   snd H⁰Red-⋁ =
     makeIsGroupHom
       (sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
-              λ {(f , p) (g , q) → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl)
-                                          , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl))})
+              λ {(f , p) (g , q) → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl)
+                                          , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl))})
 
   wedgeConnected : ((x : typ A) → ∥ pt A ≡ x ∥) → ((x : typ B) → ∥ pt B ≡ x ∥) → (x : A ⋁ B) → ∥ inl (pt A) ≡ x ∥
   wedgeConnected conA conB =
