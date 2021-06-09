@@ -72,8 +72,8 @@ module NonTrivial where
 ¬isSet-IsoInt : ¬ (isSet IsoInt)
 ¬isSet-IsoInt pf = NonTrivial.p₁≢p₂ (pf _ _ NonTrivial.p₁ NonTrivial.p₂)
 
-¬Int≡IsoInt : ¬ (Int ≡ IsoInt)
-¬Int≡IsoInt p = ¬isSet-IsoInt (subst isSet p isSetInt)
+¬Int≡IsoInt : ¬ (ℤ ≡ IsoInt)
+¬Int≡IsoInt p = ¬isSet-IsoInt (subst isSet p isSetℤ)
 
 
 
