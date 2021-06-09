@@ -141,7 +141,7 @@ winding-hom a b i =
 comm-ΩS¹ : (p q : ΩS¹) → p ∙ q ≡ q ∙ p
 comm-ΩS¹ p q = sym (cong₂ (_∙_) (decodeEncode base p) (decodeEncode base q))
              ∙ intLoop-hom (winding p) (winding q)
-             ∙ cong intLoop (+-comm (winding p) (winding q))
+             ∙ cong intLoop (+Comm (winding p) (winding q))
              ∙ sym (intLoop-hom (winding q) (winding p))
              ∙ (cong₂ (_∙_) (decodeEncode base q) (decodeEncode base p))
 
@@ -215,8 +215,8 @@ private
     ∙ (λ t → intLoop ((winding-hom (intLoop (pos (suc zero))) x t)
                       + (windingIntLoop (negsuc zero) t)))
     ∙ (λ t → intLoop (((windingIntLoop (pos (suc zero)) t) + (winding x)) + (negsuc zero)))
-    ∙ (λ t → intLoop ((+-comm (pos (suc zero)) (winding x) t) + (negsuc zero)))
-    ∙ (λ t → intLoop (+-assoc (winding x) (pos (suc zero)) (negsuc zero) (~ t)))
+    ∙ (λ t → intLoop ((+Comm (pos (suc zero)) (winding x) t) + (negsuc zero)))
+    ∙ (λ t → intLoop (+Assoc (winding x) (pos (suc zero)) (negsuc zero) (~ t)))
     ∙ (decodeEncode base x)) i
 
   refl-conjugation : basedΩS¹→ΩS¹ i0 ≡ λ x → x

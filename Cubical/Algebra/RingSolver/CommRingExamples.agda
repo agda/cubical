@@ -5,10 +5,12 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.FinData
 open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Int.Base hiding (_+_ ; _·_ ; -_ ; _-_)
 open import Cubical.Data.Vec.Base
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.RingSolver.NatAsAlmostRing
+open import Cubical.Algebra.RingSolver.AlgebraExpression
 open import Cubical.Algebra.RingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.RingSolver.CommRingSolver
 

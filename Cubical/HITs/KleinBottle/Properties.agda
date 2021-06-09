@@ -15,8 +15,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
-open import Cubical.Data.Nat
-open import Cubical.Data.Int renaming (_+_ to _+Int_ ; +-assoc to +Int-assoc; +-comm to +Int-comm)
+open import Cubical.Data.Int
 open import Cubical.Data.Sigma
 open import Cubical.HITs.S1
 open import Cubical.HITs.PropositionalTruncation as PropTrunc

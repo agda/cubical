@@ -160,7 +160,7 @@ syntax -'ₖ-syntax n x y = x -[ n ]ₖ y
 
 ------- Groupoid Laws for Kₙ ---------
 commₖ : (n : ℕ) → (x y : coHomK n) → x +[ n ]ₖ y ≡ y +[ n ]ₖ x
-commₖ zero = +-comm
+commₖ zero = +Comm
 commₖ (suc zero) =
   elim2 (λ _ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
         (wedgeconFun _ _
@@ -235,7 +235,7 @@ lCancelₖ (suc (suc n)) =
     ∙∙ λ i → sym (s x) ∙ rUnit (cong ∣_∣ (sym (merid (ptSn (suc n)))))  i)
 
 rCancelₖ : (n : ℕ) → (x : coHomK n) → x +ₖ (-ₖ_ {n = n} x) ≡ coHom-pt n
-rCancelₖ zero x = +-comm x (pos 0 - x) ∙ minusPlus x 0 -- +-comm x (pos 0 - x) ∙ minusPlus x 0
+rCancelₖ zero x = +Comm x (pos 0 - x) ∙ minusPlus x 0 -- +-comm x (pos 0 - x) ∙ minusPlus x 0
 rCancelₖ (suc zero) = trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
                               λ {base → refl ; (loop i) j → help j i}
   where
@@ -247,7 +247,7 @@ rCancel≡refl : (n : ℕ) → rCancelₖ (2 + n) (0ₖ _) ≡ refl
 rCancel≡refl n i = rUnit (rUnit refl (~ i)) (~ i)
 
 assocₖ : (n : ℕ) → (x y z : coHomK n) → x +[ n ]ₖ (y +[ n ]ₖ z) ≡ (x +[ n ]ₖ y) +[ n ]ₖ z
-assocₖ zero = +-assoc
+assocₖ zero = +Assoc
 assocₖ (suc zero) =
   trElim3 (λ _ _ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
           λ x → wedgeconFun _ _
@@ -335,7 +335,7 @@ isCommΩK (suc (suc n)) p q = ∙≡+₂ n p q ∙∙ cong+ₖ-comm (suc n) p q 
 -0ₖ {n = suc (suc n)} = refl
 
 -distrₖ : (n : ℕ) (x y : coHomK n) → -[ n ]ₖ (x +[ n ]ₖ y) ≡ (-[ n ]ₖ x) +[ n ]ₖ (-[ n ]ₖ y)
--distrₖ zero x y = GroupTheory.invDistr Int x y ∙ +-comm (0 - y) (0 - x)
+-distrₖ zero x y = GroupTheory.invDistr Int x y ∙ +Comm (0 - y) (0 - x)
 -distrₖ (suc zero) =
   elim2 (λ _ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
         (wedgeconFun _ _ (λ _ _ → isOfHLevelTrunc 3 _ _)
@@ -350,8 +350,8 @@ isCommΩK (suc (suc n)) p q = ∙≡+₂ n p q ∙∙ cong+ₖ-comm (suc n) p q 
                         (sym (rUnit refl)))
 
 -cancelRₖ : (n : ℕ) (x y : coHomK n) → (y +[ n ]ₖ x) -[ n ]ₖ x ≡ y
--cancelRₖ zero x y = sym (+-assoc y x (0 - x))
-                  ∙∙ cong (y ℤ+_) (+-comm x (0 - x))
+-cancelRₖ zero x y = sym (+Assoc y x (0 - x))
+                  ∙∙ cong (y ℤ+_) (+Comm x (0 - x))
                   ∙∙ cong (y ℤ+_) (minusPlus x (pos 0))
 -cancelRₖ (suc zero) =
   elim2 (λ _ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
@@ -370,7 +370,7 @@ isCommΩK (suc (suc n)) p q = ∙≡+₂ n p q ∙∙ cong+ₖ-comm (suc n) p q 
 -cancelLₖ n x y = cong (λ z → z -[ n ]ₖ x) (commₖ n x y) ∙ -cancelRₖ n x y
 
 -+cancelₖ : (n : ℕ) (x y : coHomK n) → (x -[ n ]ₖ y) +[ n ]ₖ y ≡ x
--+cancelₖ zero x y = sym (+-assoc x (0 - y) y) ∙ cong (x ℤ+_) (minusPlus y (pos 0))
+-+cancelₖ zero x y = sym (+Assoc x (0 - y) y) ∙ cong (x ℤ+_) (minusPlus y (pos 0))
 -+cancelₖ (suc zero) =
   elim2 (λ _ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
         (wedgeconFun _ _ (λ _ _ → wedgeConHLevPath 0 _ _)

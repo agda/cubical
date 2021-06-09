@@ -12,7 +12,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to pRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∣_∣ to ∣_∣₁)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; elim2 to trElim2)
-open import Cubical.Data.Nat hiding (+-assoc)
+open import Cubical.Data.Nat
 open import Cubical.Algebra.Group renaming (Int to IntGroup ; Bool to BoolGroup ; Unit to UnitGroup)
 
 open import Cubical.Foundations.Equiv.HalfAdjoint
@@ -31,7 +31,7 @@ open import Cubical.Homotopy.Connected
 
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Bool
-open import Cubical.Data.Int renaming (+-comm to +-commℤ ; _+_ to _+ℤ_)
+open import Cubical.Data.Int renaming (+Comm to +-commℤ ; _+_ to _+ℤ_)
 
 open import Cubical.HITs.KleinBottle
 open import Cubical.Data.Empty
@@ -137,7 +137,7 @@ nilpotent→≡0 (negsuc n) p = ⊥-rec (negsucNotpos _ _ (helper2 n p))
   where
   helper2 : (n : ℕ) → (negsuc n +negsuc n) ≡ pos 0 → negsuc n ≡ pos (suc n)
   helper2 n p = cong (negsuc n +ℤ_) (sym (helper3 n))
-              ∙ +-assoc (negsuc n) (negsuc n) (pos (suc n))
+              ∙ +Assoc (negsuc n) (negsuc n) (pos (suc n))
               ∙∙ cong (_+ℤ (pos (suc n))) p
               ∙∙ cong sucInt (+-commℤ (pos 0) (pos n))
     where

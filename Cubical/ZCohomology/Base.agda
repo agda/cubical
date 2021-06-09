@@ -1,7 +1,7 @@
 {-# OPTIONS --safe #-}
 module Cubical.ZCohomology.Base where
 
-open import Cubical.Data.Int.Base
+open import Cubical.Data.Int.Base hiding (_+_)
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Sigma
 

@@ -1,9 +1,11 @@
+-- This is the preferred version of the integers in the library. Other
+-- versions can be found in the MoreInts directory.
 {-# OPTIONS --safe #-}
 module Cubical.Data.Int.Base where
 
 open import Cubical.Core.Everything
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat hiding (_+_ ; _·_)
+open import Cubical.Data.Nat hiding (_+_ ; _·_) renaming (isEven to isEvenℕ ; isOdd to isOddℕ)
 
 infix  8 -_
 infixl 7 _·_

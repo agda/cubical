@@ -15,7 +15,7 @@ open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∥_∥
 open import Cubical.HITs.Nullification
 
 open import Cubical.Data.Sigma hiding (_×_)
-open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +-comm to +ℤ-comm ; +-assoc to +ℤ-assoc)
+open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +Comm to +ℤ-comm ; +Assoc to +ℤ-assoc)
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (rec₊ to trRec)
 open import Cubical.Algebra.Group renaming (Int to IntGroup)

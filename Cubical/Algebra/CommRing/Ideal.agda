@@ -11,8 +11,7 @@ open import Cubical.Foundations.Powerset
 
 open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.Ring.Ideal renaming (IdealsIn to IdealsInRing)
-open import Cubical.Algebra.RingSolver.ReflectionSolving hiding (∣)
-
+open import Cubical.Algebra.RingSolver.ReflectionSolving
 
 private
   variable
