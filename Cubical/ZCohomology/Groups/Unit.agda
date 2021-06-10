@@ -28,7 +28,7 @@ H⁰-Unit≅ℤ : GroupIso (coHomGr 0 Unit) Int
 fun (fst H⁰-Unit≅ℤ) = sRec isSetInt (λ f → f tt)
 inv (fst H⁰-Unit≅ℤ) a = ∣ (λ _ → a) ∣₂
 rightInv (fst H⁰-Unit≅ℤ) _ = refl
-leftInv (fst H⁰-Unit≅ℤ) = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _) λ a → refl
+leftInv (fst H⁰-Unit≅ℤ) = sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _) λ a → refl
 snd H⁰-Unit≅ℤ = makeIsGroupHom (sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _) λ a b → refl)
 
 {- Hⁿ(Unit) for n ≥ 1 -}
@@ -80,6 +80,6 @@ snd (Hⁿ-contrType≅0 n contr) = makeIsGroupHom λ _ _ → refl
 isContr-HⁿRed-Unit : (n : ℕ) → isContr (coHomRed n (Unit , tt))
 fst (isContr-HⁿRed-Unit n) = 0ₕ∙ _
 snd (isContr-HⁿRed-Unit n) =
-  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+  sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
         λ {(f , p) → cong ∣_∣₂ (ΣPathP (funExt (λ _ → sym p)
                                      , λ i j → p (~ i ∨ j)))}

@@ -23,11 +23,11 @@ private
     ℓ : Level
 
 module Embed where
-  isSetIsPropDep : isOfHLevelDep {ℓ' = ℓ} 1 isSet
-  isSetIsPropDep = isOfHLevel→isOfHLevelDep 1 (λ _ → isPropIsSet)
+  isPropDepIsSet : isOfHLevelDep {ℓ' = ℓ} 1 isSet
+  isPropDepIsSet = isOfHLevel→isOfHLevelDep 1 (λ _ → isPropIsSet)
 
   notSet : PathP (λ i → isSet (notEq i)) isSetBool isSetBool
-  notSet = isSetIsPropDep isSetBool isSetBool notEq
+  notSet = isPropDepIsSet isSetBool isSetBool notEq
 
   notNot² : Square notEq refl refl notEq
   notNot² = involPath² notnot
@@ -35,7 +35,7 @@ module Embed where
   notNotSet
     : SquareP (λ i j → isSet (notNot² i j)) notSet refl refl notSet
   notNotSet = isPropDep→isSetDep'
-                isSetIsPropDep
+                isPropDepIsSet
                 (involPath² notnot)
                 notSet refl refl notSet
 

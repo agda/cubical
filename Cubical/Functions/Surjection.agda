@@ -72,7 +72,7 @@ epi⇒surjective f rc y = transport (fact₂ y) tt*
 
           fact₁ : ∀ x → Unit* ≡ hasPreimage f (f x)
           fact₁ x = hPropExt isPropUnit*
-                             propTruncIsProp
+                             isPropPropTrunc
                              (λ _ → ∣ (x , refl) ∣)
                              (λ _ → tt*)
 

@@ -27,7 +27,7 @@ exact_ : ∥ P ∥ → ∥ P ∥
 exact p = p
 
 _>>=_ : ∥ P ∥ → (P → ∥ Q ∥) → ∥ Q ∥
-p >>= f = rec propTruncIsProp f p
+p >>= f = rec isPropPropTrunc f p
 
 _>>_ : ∥ P ∥ → ∥ Q ∥ → ∥ Q ∥
 _ >> q = q

@@ -98,7 +98,7 @@ module Presheaf (A' : CommRing ℓ) where
                                      , Trans≼ _ _ _  (Ryz .snd) (Rxy .snd)
 
  RpropValued : isPropValued R
- RpropValued x y = isProp× propTruncIsProp propTruncIsProp
+ RpropValued x y = isProp× isPropPropTrunc isPropPropTrunc
 
  powerIs≽ : (x a : A) → x ∈ ([_ⁿ|n≥0] A' a) → a ≼ x
  powerIs≽ x a = map powerIs≽Σ
@@ -181,7 +181,7 @@ module Presheaf (A' : CommRing ℓ) where
  ≼/CoincidesWith≼ x y = [ x ] ≼/ [ y ] -- ≡⟨ refl ⟩ [ x ] ≡ [ x ·r y ]
                       ≡⟨ isoToPath (isEquivRel→effectiveIso RpropValued RequivRel _ _) ⟩
                         R x (x ·r y)
-                      ≡⟨ hPropExt (RpropValued _ _) propTruncIsProp ·To≼ ≼To· ⟩
+                      ≡⟨ hPropExt (RpropValued _ _) isPropPropTrunc ·To≼ ≼To· ⟩
                         x ≼ y ∎
   where
   x≼xy→x≼yΣ : Σ[ n ∈ ℕ ] Σ[ z ∈ A ] x ^ n ≡ z ·r (x ·r y)

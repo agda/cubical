@@ -29,7 +29,7 @@ private
   Iso.inv (H⁰-connected-type a con) b = ∣ (λ x → b) ∣₂
   Iso.rightInv (H⁰-connected-type a con) b = refl
   Iso.leftInv (H⁰-connected-type a con) =
-    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+    sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
            λ f → cong ∣_∣₂ (funExt λ x → trRec (isSetInt _ _) (cong f) (isConnectedPath 1 con a x .fst))
 
 open IsGroupHom
@@ -40,6 +40,6 @@ fun (fst (H⁰-connected a con)) = sRec isSetInt (λ f → f a)
 inv (fst (H⁰-connected a con)) b = ∣ (λ _ → b) ∣₂
 rightInv (fst (H⁰-connected a con)) _ = refl
 leftInv (fst (H⁰-connected a con)) =
-  sElim (λ _ → isProp→isSet (setTruncIsSet _ _))
+  sElim (λ _ → isProp→isSet (isSetSetTrunc _ _))
         (λ f → cong ∣_∣₂ (funExt λ x → pRec (isSetInt _ _) (cong f) (con x)))
 snd (H⁰-connected a con) = makeIsGroupHom (sElim2 (λ _ _ → isProp→isSet (isSetInt _ _)) λ x y → refl)

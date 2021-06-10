@@ -96,7 +96,7 @@ fun (fst H⁰-𝕂²) = sRec isSetInt λ f → f point
 inv (fst H⁰-𝕂²) x = ∣ (λ _ → x) ∣₂
 rightInv (fst H⁰-𝕂²) _ = refl
 leftInv (fst H⁰-𝕂²) =
-  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+  sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
         λ f → cong ∣_∣₂ (funExt (λ {point → refl
                                  ; (line1 i) j → isSetInt (f point) (f point) refl (cong f line1) j i
                                  ; (line2 i) j → isSetInt (f point) (f point) refl (cong f line2) j i
@@ -187,7 +187,7 @@ H¹-𝕂²≅ℤ = compGroupIso theGroupIso (Hⁿ-Sⁿ≅ℤ 0)
   is-hom : IsGroupHom (coHomGr 1 KleinBottle .snd) (fun theIso) (coHomGr 1 S¹ .snd)
   is-hom =
     makeIsGroupHom
-      (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+      (sElim2 (λ _ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
         λ f g → cong ∣_∣₂ (funExt λ {base → refl ; (loop i) → refl}))
 
   theGroupIso : GroupIso (coHomGr 1 KleinBottle) (coHomGr 1 S¹)
@@ -208,22 +208,22 @@ H²(𝕂²) := ∥ 𝕂² → K₂ ∥₂
 Iso-H²-𝕂²₁ : Iso ∥ Σ[ x ∈ coHomK 2 ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙ p ≡ refl ∥₂
                   ∥ Σ[ p ∈ 0ₖ 2 ≡ 0ₖ 2 ] p ∙ p ≡ refl ∥₂
 fun Iso-H²-𝕂²₁ =
-  sRec setTruncIsSet
-    (uncurry (trElim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 2} 2 setTruncIsSet)
-                     (sphereElim _ (λ _ → isSetΠ λ _ → setTruncIsSet)
+  sRec isSetSetTrunc
+    (uncurry (trElim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 2} 2 isSetSetTrunc)
+                     (sphereElim _ (λ _ → isSetΠ λ _ → isSetSetTrunc)
                                  λ y → ∣ fst y , snd (snd y) ∣₂)))
 inv Iso-H²-𝕂²₁ =
   sMap λ p → (0ₖ 2) , ((fst p) , (refl , (snd p)))
 rightInv Iso-H²-𝕂²₁ =
-  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+  sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
         λ p → refl
 leftInv Iso-H²-𝕂²₁ =
-  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-        (uncurry (trElim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 1} 3 (setTruncIsSet _ _))
+  sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+        (uncurry (trElim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 1} 3 (isSetSetTrunc _ _))
                  (sphereToPropElim _
-                   (λ _ → isPropΠ λ _ → setTruncIsSet _ _)
+                   (λ _ → isPropΠ λ _ → isSetSetTrunc _ _)
                    λ {(p , (q , sq))
-                     → trRec (setTruncIsSet _ _)
+                     → trRec (isSetSetTrunc _ _)
                               (λ qid → cong ∣_∣₂ (ΣPathP (refl , (ΣPathP (refl , (ΣPathP (sym qid  , refl)))))))
                               (fun (PathIdTruncIso _)
                                        (isContr→isProp (isConnectedPathKn 1 (0ₖ 2) (0ₖ 2)) ∣ q ∣ ∣ refl ∣))})))
@@ -290,13 +290,13 @@ which is just ∣ (0 , p) ∣₂ * ∣ (0 , q) ∣₂ ≡ ∣ (0 , p ∙ q) ∣�
 
 private
   _*_ : ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂ → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂ → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
-  _*_ = sRec (isSetΠ (λ _ → setTruncIsSet)) λ a → sRec setTruncIsSet λ b → *' (fst a) (fst b) (snd a) (snd b)
+  _*_ = sRec (isSetΠ (λ _ → isSetSetTrunc)) λ a → sRec isSetSetTrunc λ b → *' (fst a) (fst b) (snd a) (snd b)
     where
     *' : (x y : coHomK 1) (p : x +ₖ x ≡ 0ₖ 1) (q : y +ₖ y ≡ 0ₖ 1) → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
     *' =
-      trElim2 (λ _ _ → isGroupoidΠ2 λ _ _ → isOfHLevelSuc 2 setTruncIsSet)
+      trElim2 (λ _ _ → isGroupoidΠ2 λ _ _ → isOfHLevelSuc 2 isSetSetTrunc)
               (wedgeconFun _ _
-                (λ _ _ → isSetΠ2 λ _ _ → setTruncIsSet)
+                (λ _ _ → isSetΠ2 λ _ _ → isSetSetTrunc)
                 (λ x p q → ∣ ∣ x ∣ , cong₂ _+ₖ_ p q ∣₂)
                 (λ y p q → ∣ ∣ y ∣ , sym (rUnitₖ 1 (∣ y ∣ +ₖ ∣ y ∣)) ∙ cong₂ _+ₖ_ p q ∣₂)
                 (funExt λ p → funExt λ q → cong ∣_∣₂ (ΣPathP (refl , (sym (lUnit _))))))
@@ -372,10 +372,10 @@ inv testIso = Bool→ΣKₙNilpot
 rightInv testIso false = refl
 rightInv testIso true = refl
 leftInv testIso =
-  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+  sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
         (uncurry (trElim
-          (λ _ → isGroupoidΠ λ _ → isOfHLevelPlus {n = 1} 2 (setTruncIsSet _ _))
-          (toPropElim (λ _ → isPropΠ (λ _ → setTruncIsSet _ _))
+          (λ _ → isGroupoidΠ λ _ → isOfHLevelPlus {n = 1} 2 (isSetSetTrunc _ _))
+          (toPropElim (λ _ → isPropΠ (λ _ → isSetSetTrunc _ _))
           (λ p → path p (isEven (ΩKn+1→Kn 0 p)) refl))))
   where
   path : (p : 0ₖ 1 ≡ 0ₖ 1) (b : Bool) → (isEven (ΩKn+1→Kn 0 p) ≡ b)
@@ -419,8 +419,8 @@ isContrHⁿ-𝕂² n =
               ∣ x , p , q , P ∣₂
               ∣ 0ₖ _ , refl , refl , sym (rUnit refl) ∣₂
   helper =
-    trElim (λ _ → isProp→isOfHLevelSuc (4 + n) (isPropΠ4 λ _ _ _ _ → isPropΠ λ _ → setTruncIsSet _ _))
-      (sphereToPropElim _ (λ _ → isPropΠ4 λ _ _ _ _ → isPropΠ λ _ → setTruncIsSet _ _)
+    trElim (λ _ → isProp→isOfHLevelSuc (4 + n) (isPropΠ4 λ _ _ _ _ → isPropΠ λ _ → isSetSetTrunc _ _))
+      (sphereToPropElim _ (λ _ → isPropΠ4 λ _ _ _ _ → isPropΠ λ _ → isSetSetTrunc _ _)
         λ p → J (λ p _ → (q : 0ₖ _ ≡ 0ₖ _) → (refl ≡ q)
                         → (P : p ∙∙ q ∙∙ p ≡ q)
                         → Path ∥ (Σ[ x ∈ coHomK (3 + n) ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙∙ q ∙∙ p ≡ q) ∥₂
@@ -430,7 +430,7 @@ isContrHⁿ-𝕂² n =
                                 → Path ∥ (Σ[ x ∈ coHomK (3 + n) ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙∙ q ∙∙ p ≡ q) ∥₂
                                         ∣ 0ₖ _ , refl , q , P ∣₂
                                         ∣ 0ₖ _ , refl , refl , sym (rUnit refl) ∣₂)
-                         λ P → trRec (isProp→isOfHLevelSuc n (setTruncIsSet _ _))
+                         λ P → trRec (isProp→isOfHLevelSuc n (isSetSetTrunc _ _))
                                       (λ P≡rUnitrefl i → ∣ 0ₖ (3 + n) , refl , refl , P≡rUnitrefl i ∣₂)
                                       (fun (PathIdTruncIso _)
                                                  (isContr→isProp (isConnectedPath _ (isConnectedPathKn (2 + n) _ _)
@@ -440,10 +440,10 @@ isContrHⁿ-𝕂² n =
   isContrΣ-help : isContr ∥ (Σ[ x ∈ coHomK (3 + n) ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙∙ q ∙∙ p ≡ q) ∥₂
   fst isContrΣ-help = ∣ 0ₖ _ , refl , refl , sym (rUnit refl) ∣₂
   snd isContrΣ-help =
-    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+    sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
       λ {(x , p , q , P)
-        → trRec (isProp→isOfHLevelSuc (suc n) (setTruncIsSet _ _))
-            (λ pId → trRec (isProp→isOfHLevelSuc (suc n) (setTruncIsSet _ _))
+        → trRec (isProp→isOfHLevelSuc (suc n) (isSetSetTrunc _ _))
+            (λ pId → trRec (isProp→isOfHLevelSuc (suc n) (isSetSetTrunc _ _))
                       (λ qId → sym (helper x p pId q qId P))
                       (fun (PathIdTruncIso (2 + n))
                                  (isContr→isProp (isConnectedPathKn (2 + n) _ _) ∣ refl ∣ ∣ q ∣)))
