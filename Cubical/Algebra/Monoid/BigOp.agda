@@ -27,13 +27,14 @@ private
     A : Type ℓ
 
 -- nothing is proved about this except equiv with Vec
+-- worth its own module?
 FinVec : (A : Type ℓ) (n : ℕ) → Type ℓ
 FinVec A n = Fin n → A
 
 replicateFinVec : (n : ℕ) → A → FinVec A n
 replicateFinVec _ a _ = a
 
-module _ (M' : Monoid ℓ) where
+module MonoidBigOp (M' : Monoid ℓ) where
  private M = ⟨ M' ⟩
  open MonoidStr (snd M')
 

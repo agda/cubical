@@ -92,6 +92,9 @@ makeGroup e _·_ inv is-setG assoc rid lid rinv linv = _ , helper
   GroupStr.inv helper = inv
   GroupStr.isGroup helper = makeIsGroup is-setG assoc rid lid rinv linv
 
+Group→Monoid : Group ℓ → Monoid ℓ
+Group→Monoid (A , groupstr  _ _ _ G) = A , monoidstr _ _ (IsGroup.isMonoid G)
+
 makeGroup-right : {A : Type ℓ}
   → (1g : A)
   → (_·_ : A → A → A)
