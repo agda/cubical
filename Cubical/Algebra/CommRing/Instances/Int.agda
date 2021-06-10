@@ -4,10 +4,8 @@ module Cubical.Algebra.CommRing.Instances.Int where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Data.Int
-  renaming ( ℤ to ℤType ; _+_ to _+ℤ_; _·_ to _·ℤ_; -_ to -ℤ_
-           ; +Assoc to +ℤAssoc ; +Comm to +ℤComm ; ·Assoc to ·ℤAssoc
-           ; ·Rid to ·ℤRid)
+open import Cubical.Data.Int as Int
+  renaming ( ℤ to ℤType ; _+_ to _+ℤ_; _·_ to _·ℤ_; -_ to -ℤ_)
 
 open CommRingStr
 
@@ -22,5 +20,7 @@ isCommRing (snd ℤ) = isCommRingℤ
   where
   abstract
     isCommRingℤ : IsCommRing 0 1 _+ℤ_ _·ℤ_ -ℤ_
-    isCommRingℤ = makeIsCommRing isSetℤ +ℤAssoc (λ _ → refl) -Cancel +ℤComm ·ℤAssoc ·ℤRid ·DistR+ ·Comm
+    isCommRingℤ = makeIsCommRing isSetℤ Int.+Assoc (λ _ → refl)
+                                 -Cancel Int.+Comm Int.·Assoc
+                                 Int.·Rid ·DistR+ ·Comm
 
