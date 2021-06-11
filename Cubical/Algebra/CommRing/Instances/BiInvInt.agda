@@ -15,11 +15,11 @@ open import Cubical.Data.Int.MoreInts.BiInvInt
     +-comm to +ℤ-comm
   )
 
-BiInvIntAsCommRing : CommRing ℓ-zero
-BiInvIntAsCommRing =
+BiInvℤAsCommRing : CommRing ℓ-zero
+BiInvℤAsCommRing =
   makeCommRing
     zero (suc zero) _+ℤ_ _·_ _-ℤ_
-    isSetBiInvInt
+    isSetBiInvℤ
     +ℤ-assoc +-zero +-invʳ +ℤ-comm
     ·-assoc ·-identityʳ
     (λ x y z → sym (·-distribˡ x y z))

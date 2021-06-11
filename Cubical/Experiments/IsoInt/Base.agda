@@ -81,8 +81,8 @@ private
 
   -- Note: this same proof strategy fails for BiInvℤ!
 
-  open import Cubical.Data.Int.MoreInts.BiInvℤ hiding (zero; suc; pred; suc-pred; pred-suc)
-  import Cubical.Data.Int.MoreInts.BiInvℤ as BiI
+  open import Cubical.Data.Int.MoreInts.BiInvInt hiding (zero; suc; pred; suc-pred; pred-suc)
+  import Cubical.Data.Int.MoreInts.BiInvInt as BiI
 
   p₁ p₂ : Path BiInvℤ (BiI.suc (BiI.pred (BiI.suc BiI.zero))) (BiI.suc BiI.zero)
   p₁ i = BiI.suc-pred (BiI.suc BiI.zero) i
