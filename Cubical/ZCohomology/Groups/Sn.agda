@@ -31,13 +31,13 @@ open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
-open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +-comm to +ℤ-comm ; +-assoc to +ℤ-assoc)
+open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +Comm to +ℤ-comm ; +Assoc to +ℤ-assoc)
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec)
 
 open import Cubical.Homotopy.Connected
 
-open import Cubical.Algebra.Group renaming (Int to IntGroup ; Unit to UnitGroup) hiding (Bool)
+open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Unit to UnitGroup) hiding (Bool)
 
 infixr 31 _□_
 _□_ : _
@@ -104,7 +104,7 @@ suspensionAx-Sn n m =
                                     ∙ ΩKn+1→Kn-hom (suc n) (f x) (g x))
 
 
-H⁰-Sⁿ≅ℤ : (n : ℕ) → GroupIso (coHomGr 0 (S₊ (suc n))) IntGroup
+H⁰-Sⁿ≅ℤ : (n : ℕ) → GroupIso (coHomGr 0 (S₊ (suc n))) ℤGroup
 H⁰-Sⁿ≅ℤ zero = H⁰-connected base (Sn-connected 0)
 H⁰-Sⁿ≅ℤ (suc n) = H⁰-connected north (Sn-connected (suc n))
 
@@ -127,20 +127,20 @@ coHomPushout≅coHomSn (suc n) m =
   makeIsGroupHom (sElim2 (λ _ _ → isSet→isGroupoid setTruncIsSet _ _) (λ _ _ → refl))
 
 -------------------------- H⁰(S⁰) -----------------------------
-S0→Int : (a : Int × Int) → S₊ 0 → Int
-S0→Int a true = fst a
-S0→Int a false = snd a
+S0→ℤ : (a : ℤ × ℤ) → S₊ 0 → ℤ
+S0→ℤ a true = fst a
+S0→ℤ a false = snd a
 
-H⁰-S⁰≅ℤ×ℤ : GroupIso (coHomGr 0 (S₊ 0)) (DirProd IntGroup IntGroup)
-fun (fst H⁰-S⁰≅ℤ×ℤ) = sRec (isSet× isSetInt isSetInt) λ f → (f true) , (f false)
-inv (fst H⁰-S⁰≅ℤ×ℤ) a = ∣ S0→Int a ∣₂
+H⁰-S⁰≅ℤ×ℤ : GroupIso (coHomGr 0 (S₊ 0)) (DirProd ℤGroup ℤGroup)
+fun (fst H⁰-S⁰≅ℤ×ℤ) = sRec (isSet× isSetℤ isSetℤ) λ f → (f true) , (f false)
+inv (fst H⁰-S⁰≅ℤ×ℤ) a = ∣ S0→ℤ a ∣₂
 rightInv (fst H⁰-S⁰≅ℤ×ℤ) _ = refl
 leftInv (fst H⁰-S⁰≅ℤ×ℤ) =
   sElim (λ _ → isSet→isGroupoid setTruncIsSet _ _)
         (λ f → cong ∣_∣₂ (funExt (λ {true → refl ; false → refl})))
 snd H⁰-S⁰≅ℤ×ℤ =
   makeIsGroupHom
-    (sElim2 (λ _ _ → isSet→isGroupoid (isSet× isSetInt isSetInt) _ _) λ a b → refl)
+    (sElim2 (λ _ _ → isSet→isGroupoid (isSet× isSetℤ isSetℤ) _ _) λ a b → refl)
 
 
 ------------------------- H¹(S⁰) ≅ 0 -------------------------------
@@ -252,25 +252,25 @@ H¹(S¹) := ∥ S¹ → K₁ ∥₂
         ≃ ∥ S¹ ∥₂ × ∥ ℤ ∥₂
         ≃ ℤ
 -}
-coHom1S1≃ℤ : GroupIso (coHomGr 1 (S₊ 1)) IntGroup
+coHom1S1≃ℤ : GroupIso (coHomGr 1 (S₊ 1)) ℤGroup
 coHom1S1≃ℤ = theIso
   where
-  F = Iso.fun S¹→S¹≡S¹×Int
-  F⁻ = Iso.inv S¹→S¹≡S¹×Int
+  F = Iso.fun S¹→S¹≡S¹×ℤ
+  F⁻ = Iso.inv S¹→S¹≡S¹×ℤ
 
-  theIso : GroupIso (coHomGr 1 (S₊ 1)) IntGroup
-  fun (fst theIso) = sRec isSetInt (λ f → snd (F f))
+  theIso : GroupIso (coHomGr 1 (S₊ 1)) ℤGroup
+  fun (fst theIso) = sRec isSetℤ (λ f → snd (F f))
   inv (fst theIso) a = ∣ (F⁻ (base , a)) ∣₂
-  rightInv (fst theIso) a = cong snd (Iso.rightInv S¹→S¹≡S¹×Int (base , a))
+  rightInv (fst theIso) a = cong snd (Iso.rightInv S¹→S¹≡S¹×ℤ (base , a))
   leftInv (fst theIso) =
     sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
                           λ f → cong ((sRec setTruncIsSet ∣_∣₂)
                                         ∘ sRec setTruncIsSet λ x → ∣ F⁻ (x , (snd (F f))) ∣₂)
                                       (Iso.inv PathIdTrunc₀Iso (isConnectedS¹ (fst (F f))))
-                              ∙ cong ∣_∣₂ (Iso.leftInv S¹→S¹≡S¹×Int f)
+                              ∙ cong ∣_∣₂ (Iso.leftInv S¹→S¹≡S¹×ℤ f)
   snd theIso =
     makeIsGroupHom
-      (coHomPointedElimS¹2 _ (λ _ _ → isSetInt _ _)
+      (coHomPointedElimS¹2 _ (λ _ _ → isSetℤ _ _)
         λ p q → (λ i → winding (guy ∣ base ∣ (cong S¹map (help p q i))))
               ∙∙ (λ i → winding (guy ∣ base ∣ (congFunct S¹map p q i)))
               ∙∙ winding-hom (guy ∣ base ∣ (cong S¹map p))
@@ -281,7 +281,7 @@ coHom1S1≃ℤ = theIso
     help p q = cong₂Funct _+ₖ_ p q ∙ (λ i → cong (λ x → rUnitₖ 1 x i) p ∙ cong (λ x → lUnitₖ 1 x i) q)
 
 ---------------------------- Hⁿ(Sⁿ) ≅ ℤ , n ≥ 1 -------------------
-Hⁿ-Sⁿ≅ℤ : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ (suc n))) IntGroup
+Hⁿ-Sⁿ≅ℤ : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ (suc n))) ℤGroup
 Hⁿ-Sⁿ≅ℤ zero = coHom1S1≃ℤ
 Hⁿ-Sⁿ≅ℤ (suc n) = suspensionAx-Sn n n □ Hⁿ-Sⁿ≅ℤ n
 
@@ -296,23 +296,23 @@ Hⁿ-Sᵐ≅0 (suc n) (suc m) pf = suspensionAx-Sn n m
 
 -- Test functions
 private
-  to₁ : coHom 1 S¹ → Int
+  to₁ : coHom 1 S¹ → ℤ
   to₁ = Iso.fun (fst (Hⁿ-Sⁿ≅ℤ 0))
 
-  to₂ : coHom 2 (S₊ 2) → Int
+  to₂ : coHom 2 (S₊ 2) → ℤ
   to₂ = Iso.fun (fst (Hⁿ-Sⁿ≅ℤ 1))
 
-  to₃ : coHom 3 (S₊ 3) → Int
+  to₃ : coHom 3 (S₊ 3) → ℤ
   to₃ = Iso.fun (fst (Hⁿ-Sⁿ≅ℤ 2))
 
 
-  from₁ : Int → coHom 1 S¹
+  from₁ : ℤ → coHom 1 S¹
   from₁ = Iso.inv (fst (Hⁿ-Sⁿ≅ℤ 0))
 
-  from₂ : Int → coHom 2 (S₊ 2)
+  from₂ : ℤ → coHom 2 (S₊ 2)
   from₂ = Iso.inv (fst (Hⁿ-Sⁿ≅ℤ 1))
 
-  from₃ : Int → coHom 3 (S₊ 3)
+  from₃ : ℤ → coHom 3 (S₊ 3)
   from₃ = Iso.inv (fst (Hⁿ-Sⁿ≅ℤ 2))
 
 {-

@@ -36,7 +36,7 @@ open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; map2 to trMap2; rec to trRec ; elim3 to trElim3)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
-open import Cubical.Algebra.Group hiding (Unit ; Int)
+open import Cubical.Algebra.Group hiding (Unit ; ℤ)
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
@@ -160,7 +160,7 @@ coHomK-elim n {B = B } hlev b =
 coHomRed+1Equiv : (n : ℕ) →
                   (A : Type ℓ) →
                   (coHom n A) ≡ (coHomRed n ((A ⊎ Unit , inr (tt))))
-coHomRed+1Equiv zero A i = ∥ helpLemma {C = (Int , pos 0)} i ∥₂
+coHomRed+1Equiv zero A i = ∥ helpLemma {C = (ℤ , pos 0)} i ∥₂
   module coHomRed+1 where
   helpLemma : {C : Pointed ℓ} → ( (A → (typ C)) ≡  ((((A ⊎ Unit) , inr (tt)) →∙ C)))
   helpLemma {C = C} = isoToPath (iso map1
@@ -429,7 +429,7 @@ leftInv (stabSpheres n) =
         ∙∙ rUnitₖ (suc n) ∣ a ∣)
 
 Iso-Kn-ΩKn+1 : (n : HLevel) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
-Iso-Kn-ΩKn+1 zero = invIso (compIso (congIso (truncIdempotentIso _ isGroupoidS¹)) ΩS¹IsoInt)
+Iso-Kn-ΩKn+1 zero = invIso (compIso (congIso (truncIdempotentIso _ isGroupoidS¹)) ΩS¹Isoℤ)
 Iso-Kn-ΩKn+1 (suc n) = stabSpheres n
 
 Kn≃ΩKn+1 : {n : ℕ} → coHomK n ≃ typ (Ω (coHomK-ptd (suc n)))

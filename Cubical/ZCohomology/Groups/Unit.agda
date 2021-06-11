@@ -12,7 +12,7 @@ open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
 open import Cubical.HITs.Nullification
-open import Cubical.Data.Int hiding (Int ; _+_ ; +-comm)
+open import Cubical.Data.Int hiding (ℤ ; _+_ ; +Comm)
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation
 open import Cubical.Homotopy.Connected
@@ -24,12 +24,12 @@ open import Cubical.Algebra.Group renaming (Unit to UnitGroup)
 open IsGroupHom
 open Iso
 
-H⁰-Unit≅ℤ : GroupIso (coHomGr 0 Unit) Int
-fun (fst H⁰-Unit≅ℤ) = sRec isSetInt (λ f → f tt)
+H⁰-Unit≅ℤ : GroupIso (coHomGr 0 Unit) ℤ
+fun (fst H⁰-Unit≅ℤ) = sRec isSetℤ (λ f → f tt)
 inv (fst H⁰-Unit≅ℤ) a = ∣ (λ _ → a) ∣₂
 rightInv (fst H⁰-Unit≅ℤ) _ = refl
 leftInv (fst H⁰-Unit≅ℤ) = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _) λ a → refl
-snd H⁰-Unit≅ℤ = makeIsGroupHom (sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _) λ a b → refl)
+snd H⁰-Unit≅ℤ = makeIsGroupHom (sElim2 (λ _ _ → isOfHLevelPath 2 isSetℤ _ _) λ a b → refl)
 
 {- Hⁿ(Unit) for n ≥ 1 -}
 isContrHⁿ-Unit : (n : ℕ) → isContr (coHom (suc n) Unit)

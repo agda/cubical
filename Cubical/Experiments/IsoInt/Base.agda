@@ -3,11 +3,11 @@
 The naive, but incorrect, way to define the integers as a HIT.
 
 This file mainly contains a proof that IsoInt ≢ Int, and ends with a
- demonstration of how the same proof strategy fails for BiInvInt.
+ demonstration of how the same proof strategy fails for BiInvℤ.
 
 -}
 {-# OPTIONS --safe #-}
-module Cubical.HITs.Ints.IsoInt.Base where
+module Cubical.Experiments.IsoInt.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -72,25 +72,25 @@ module NonTrivial where
 ¬isSet-IsoInt : ¬ (isSet IsoInt)
 ¬isSet-IsoInt pf = NonTrivial.p₁≢p₂ (pf _ _ NonTrivial.p₁ NonTrivial.p₂)
 
-¬Int≡IsoInt : ¬ (Int ≡ IsoInt)
-¬Int≡IsoInt p = ¬isSet-IsoInt (subst isSet p isSetInt)
+¬Int≡IsoInt : ¬ (ℤ ≡ IsoInt)
+¬Int≡IsoInt p = ¬isSet-IsoInt (subst isSet p isSetℤ)
 
 
 
 private
 
-  -- Note: this same proof strategy fails for BiInvInt!
+  -- Note: this same proof strategy fails for BiInvℤ!
 
-  open import Cubical.HITs.Ints.BiInvInt hiding (zero; suc; pred; suc-pred; pred-suc)
-  import Cubical.HITs.Ints.BiInvInt as BiI
+  open import Cubical.Data.Int.MoreInts.BiInvInt hiding (zero; suc; pred; suc-pred; pred-suc)
+  import Cubical.Data.Int.MoreInts.BiInvInt as BiI
 
-  p₁ p₂ : Path BiInvInt (BiI.suc (BiI.pred (BiI.suc BiI.zero))) (BiI.suc BiI.zero)
+  p₁ p₂ : Path BiInvℤ (BiI.suc (BiI.pred (BiI.suc BiI.zero))) (BiI.suc BiI.zero)
   p₁ i = BiI.suc-pred (BiI.suc BiI.zero) i
   p₂ i = BiI.suc (BiI.pred-suc BiI.zero i)
 
   open import Cubical.HITs.S1
 
-  toS¹ : BiInvInt → S¹
+  toS¹ : BiInvℤ → S¹
   toS¹ BiI.zero            = base
   toS¹ (BiI.suc x)         = toS¹ x
   toS¹ (BiI.predr x)       = toS¹ x

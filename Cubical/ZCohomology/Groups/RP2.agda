@@ -12,7 +12,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to pRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim) hiding (map)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; elim2 to trElim2)
-open import Cubical.Algebra.Group renaming (Int to IntGroup ; Bool to BoolGroup ; Unit to UnitGroup)
+open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup ; Unit to UnitGroup)
 
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Transport
@@ -55,7 +55,7 @@ private
                             (pathToIso (cong (p ∙ p ≡_) (lCancel p)))
 
 --- H⁰(RP²) ≅ ℤ ----
-H⁰-RP²≅ℤ : GroupIso (coHomGr 0 RP²) IntGroup
+H⁰-RP²≅ℤ : GroupIso (coHomGr 0 RP²) ℤGroup
 H⁰-RP²≅ℤ = H⁰-connected point connectedRP¹
   where
   connectedRP¹ : (x : RP²) → ∥ point ≡ x ∥

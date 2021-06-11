@@ -12,8 +12,8 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to pRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∣_∣ to ∣_∣₁)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; elim2 to trElim2)
-open import Cubical.Data.Nat hiding (+-assoc)
-open import Cubical.Algebra.Group renaming (Int to IntGroup ; Bool to BoolGroup ; Unit to UnitGroup)
+open import Cubical.Data.Nat hiding (isEven)
+open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup ; Unit to UnitGroup)
 
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Transport
@@ -31,7 +31,7 @@ open import Cubical.Homotopy.Connected
 
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Bool
-open import Cubical.Data.Int renaming (+-comm to +-commℤ ; _+_ to _+ℤ_)
+open import Cubical.Data.Int renaming (+Comm to +-commℤ ; _+_ to _+ℤ_)
 
 open import Cubical.HITs.KleinBottle
 open import Cubical.Data.Empty
@@ -91,27 +91,27 @@ private
     helper p = congIso (equivToIso (_ , compPathr-isEquiv (sym q)))
 
 ------ H¹(𝕂²) ≅ 0 --------------
-H⁰-𝕂² : GroupIso (coHomGr 0 KleinBottle) IntGroup
-fun (fst H⁰-𝕂²) = sRec isSetInt λ f → f point
+H⁰-𝕂² : GroupIso (coHomGr 0 KleinBottle) ℤGroup
+fun (fst H⁰-𝕂²) = sRec isSetℤ λ f → f point
 inv (fst H⁰-𝕂²) x = ∣ (λ _ → x) ∣₂
 rightInv (fst H⁰-𝕂²) _ = refl
 leftInv (fst H⁰-𝕂²) =
   sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
         λ f → cong ∣_∣₂ (funExt (λ {point → refl
-                                 ; (line1 i) j → isSetInt (f point) (f point) refl (cong f line1) j i
-                                 ; (line2 i) j → isSetInt (f point) (f point) refl (cong f line2) j i
+                                 ; (line1 i) j → isSetℤ (f point) (f point) refl (cong f line1) j i
+                                 ; (line2 i) j → isSetℤ (f point) (f point) refl (cong f line2) j i
                                  ; (square i j) z → helper f i j z}))
   where
-  helper : (f : KleinBottle → Int)
-        → Cube (λ j z → isSetInt (f point) (f point) refl (cong  f line2) z j)
-                (λ j z → isSetInt (f point) (f point) refl (cong  f line2) z j)
-                (λ i z → isSetInt (f point) (f point) refl (cong  f line1) z (~ i))
-                (λ i z → isSetInt (f point) (f point) refl (cong  f line1) z i)
+  helper : (f : KleinBottle → ℤ)
+        → Cube (λ j z → isSetℤ (f point) (f point) refl (cong  f line2) z j)
+                (λ j z → isSetℤ (f point) (f point) refl (cong  f line2) z j)
+                (λ i z → isSetℤ (f point) (f point) refl (cong  f line1) z (~ i))
+                (λ i z → isSetℤ (f point) (f point) refl (cong  f line1) z i)
                 refl
                 λ i j → f (square i j)
-  helper f = isGroupoid→isGroupoid' (isOfHLevelSuc 2 isSetInt) _ _ _ _ _ _
+  helper f = isGroupoid→isGroupoid' (isOfHLevelSuc 2 isSetℤ) _ _ _ _ _ _
 snd H⁰-𝕂² =
-  makeIsGroupHom (sElim2 (λ _ _ → isOfHLevelPath 2 isSetInt _ _) λ _ _ → refl)
+  makeIsGroupHom (sElim2 (λ _ _ → isOfHLevelPath 2 isSetℤ _ _) λ _ _ → refl)
 
 ------ H¹(𝕂¹) ≅ ℤ ------------
 {-
@@ -122,28 +122,28 @@ H¹(𝕂²) := ∥ 𝕂² → K₁ ∥₂
         ≡ ∥ Σ[ x ∈ K₁ ] (x ≡ x) ∥₂                                             (p ∙ p ≡ refl forces p ≡ refl. Also, p ∙ p ≡ refl is an hProp)
 -}
 
-nilpotent→≡0 : (x : Int) → x +ℤ x ≡ 0 → x ≡ 0
+nilpotent→≡0 : (x : ℤ) → x +ℤ x ≡ 0 → x ≡ 0
 nilpotent→≡0 (pos zero) p = refl
 nilpotent→≡0 (pos (suc n)) p =
   ⊥-rec (negsucNotpos _ _
-        (sym (cong (_- 1) (cong sucInt (sym (helper2 n)) ∙ p))))
+        (sym (cong (_- 1) (cong sucℤ (sym (helper2 n)) ∙ p))))
   where
   helper2 : (n : ℕ) → pos (suc n) +pos n ≡ pos (suc (n + n))
   helper2 zero = refl
-  helper2 (suc n) = cong sucInt (sym (sucInt+pos n (pos (suc n))))
-                 ∙∙ cong (sucInt ∘ sucInt) (helper2 n)
+  helper2 (suc n) = cong sucℤ (sym (sucℤ+pos n (pos (suc n))))
+                 ∙∙ cong (sucℤ ∘ sucℤ) (helper2 n)
                  ∙∙ cong (pos ∘ suc ∘ suc) (sym (+-suc n n))
 nilpotent→≡0 (negsuc n) p = ⊥-rec (negsucNotpos _ _ (helper2 n p))
   where
   helper2 : (n : ℕ) → (negsuc n +negsuc n) ≡ pos 0 → negsuc n ≡ pos (suc n)
   helper2 n p = cong (negsuc n +ℤ_) (sym (helper3 n))
-              ∙ +-assoc (negsuc n) (negsuc n) (pos (suc n))
+              ∙ +Assoc (negsuc n) (negsuc n) (pos (suc n))
               ∙∙ cong (_+ℤ (pos (suc n))) p
-              ∙∙ cong sucInt (+-commℤ (pos 0) (pos n))
+              ∙∙ cong sucℤ (+-commℤ (pos 0) (pos n))
     where
     helper3 : (n : ℕ) → negsuc n +pos (suc n) ≡ 0
     helper3 zero = refl
-    helper3 (suc n) = cong sucInt (sucInt+pos n (negsuc (suc n))) ∙ helper3 n
+    helper3 (suc n) = cong sucℤ (sucℤ+pos n (negsuc (suc n))) ∙ helper3 n
 
 nilpotent→≡refl : (x : coHomK 1) (p : x ≡ x) → p ∙ p ≡ refl → p ≡ refl
 nilpotent→≡refl =
@@ -170,7 +170,7 @@ leftInv Iso-H¹-𝕂²₁ (x , (p , (q , P))) =
 Iso-H¹-𝕂²₂ : Iso (Σ[ x ∈ coHomK 1 ] x ≡ x) (S¹ → coHomK 1)
 Iso-H¹-𝕂²₂ = invIso IsoFunSpaceS¹
 
-H¹-𝕂²≅ℤ : GroupIso (coHomGr 1 KleinBottle) IntGroup
+H¹-𝕂²≅ℤ : GroupIso (coHomGr 1 KleinBottle) ℤGroup
 H¹-𝕂²≅ℤ = compGroupIso theGroupIso (Hⁿ-Sⁿ≅ℤ 0)
   where
   theIso : Iso (coHom 1 KleinBottle) (coHom 1 S¹)
@@ -249,12 +249,12 @@ We also have to show that this map respects the loop
                         (isEven (ΩKn+1→Kn 0 (transp (λ j → ∣ (loop ∙ loop) (i ∨ j) ∣ ≡ 0ₖ 1) i
                                                       p)))})
   where
-  isEven-2 : (x : Int) → isEven (-2 +ℤ x) ≡ isEven x
+  isEven-2 : (x : ℤ) → isEven (-2 +ℤ x) ≡ isEven x
   isEven-2 (pos zero) = refl
   isEven-2 (pos (suc zero)) = refl
   isEven-2 (pos (suc (suc n))) =
-      cong isEven (cong sucInt (sucInt+pos _ _)
-              ∙∙ sucInt+pos _ _
+      cong isEven (cong sucℤ (sucℤ+pos _ _)
+              ∙∙ sucℤ+pos _ _
               ∙∙ +-commℤ 0 (pos n))
     ∙ lossy n
     where
@@ -262,7 +262,7 @@ We also have to show that this map respects the loop
     lossy n = refl
   isEven-2 (negsuc zero) = refl
   isEven-2 (negsuc (suc n)) =
-      cong isEven (predInt+negsuc n _
+      cong isEven (predℤ+negsuc n _
                ∙ +-commℤ -3 (negsuc n))
     ∙ lossy2 n
       where
@@ -281,7 +281,7 @@ We also have to show that this map respects the loop
      ∙ isEven-2 (ΩKn+1→Kn 0 p)
 
 {-
-We show that for any x : Int we have ∣ (0ₖ 1 , Kn→ΩKn+1 0 x) ∣₂ ≡ ∣ (0ₖ 1 , refl) ∣₂ when x is even
+We show that for any x : ℤ we have ∣ (0ₖ 1 , Kn→ΩKn+1 0 x) ∣₂ ≡ ∣ (0ₖ 1 , refl) ∣₂ when x is even
 and ∣ (0ₖ 1 , Kn→ΩKn+1 0 x) ∣₂ ≡ ∣ (0ₖ 1 , cong ∣_∣ loop) ∣₂ when x is odd
 
 This is done by induction on x. For the inductive step we define a multiplication _*_ on ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
@@ -312,7 +312,7 @@ isEvenNegsuc (suc n) p = p
 ¬isEvenNegSuc zero p = refl
 ¬isEvenNegSuc (suc n) p = p
 
-evenCharac : (x : Int) → isEven x ≡ true
+evenCharac : (x : ℤ) → isEven x ≡ true
     → Path ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
             ∣ (0ₖ 1 , Kn→ΩKn+1 0 x) ∣₂
             ∣ (0ₖ 1 , refl) ∣₂
@@ -337,7 +337,7 @@ evenCharac (negsuc (suc (suc n))) isisEven =
   ∙∙ sym (*=∙ (Kn→ΩKn+1 0 (negsuc n)) (Kn→ΩKn+1 0 -2))
   ∙∙ cong₂ _*_ (evenCharac (negsuc n) (isEvenNegsuc n isisEven)) (evenCharac -2 refl)
 
-oddCharac : (x : Int) → isEven x ≡ false
+oddCharac : (x : ℤ) → isEven x ≡ false
     → Path ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
             ∣ (0ₖ 1 , Kn→ΩKn+1 0 x) ∣₂
             ∣ (0ₖ 1 , cong ∣_∣ loop) ∣₂

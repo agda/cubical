@@ -216,7 +216,7 @@ codeS¹ s = ∥ helix s ∥₂ , squash₂
 codeTruncS¹ : ∥ S¹ ∥₃ → hSet _
 codeTruncS¹ = GroupoidTrunc.rec (isOfHLevelTypeOfHLevel 2) codeS¹
 
-encodeTruncS¹ : Ω ∥ S¹∙ ∥₃∙ .fst → ∥ Int ∥₂
+encodeTruncS¹ : Ω ∥ S¹∙ ∥₃∙ .fst → ∥ ℤ ∥₂
 encodeTruncS¹ p = transp (λ i → codeTruncS¹ (p i) .fst) i0 ∣ pos zero ∣₂
 
 
@@ -240,19 +240,19 @@ f7 = π₃S³
 g8 : Ω² ∥ S²∙ ∥₄∙ .fst → Ω ∥ S¹∙ ∥₃∙ .fst
 g8 = mapΩrefl encodeTruncS²
 
-g9 : Ω ∥ S¹∙ ∥₃∙ .fst → ∥ Int ∥₂
+g9 : Ω ∥ S¹∙ ∥₃∙ .fst → ∥ ℤ ∥₂
 g9 = encodeTruncS¹
 
-g10 : ∥ Int ∥₂ → Int
-g10 = SetTrunc.rec isSetInt (idfun Int)
+g10 : ∥ ℤ ∥₂ → ℤ
+g10 = SetTrunc.rec isSetℤ (idfun ℤ)
 
 -- don't run me
-brunerie : Int
+brunerie : ℤ
 brunerie = g10 (g9 (g8 (f7 (f6 (f5 (f4 (f3 (λ i j k → surf i j k))))))))
 
 -- simpler tests
 
-test63 : ℕ → Int
+test63 : ℕ → ℤ
 test63 n = g10 (g9 (g8 (f7 (63n n))))
   where
   63n : ℕ → Ω³ S³∙ .fst
@@ -294,5 +294,5 @@ sorghum i j k =
         })
       (surf k i))
 
-goo : Ω³ S²∙ .fst → Int
+goo : Ω³ S²∙ .fst → ℤ
 goo x = g10 (g9 (g8 (f7 (f6 (f5 x)))))

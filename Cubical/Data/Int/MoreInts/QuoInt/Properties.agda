@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.HITs.Ints.QuoInt.Properties where
+module Cubical.Data.Int.MoreInts.QuoInt.Properties where
 
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
@@ -13,7 +13,7 @@ open import Cubical.Data.Bool as Bool using (Bool; not; notnot)
 open import Cubical.Data.Empty
 open import Cubical.Data.Unit renaming (Unit to ⊤)
 
-open import Cubical.HITs.Ints.QuoInt.Base
+open import Cubical.Data.Int.MoreInts.QuoInt.Base
 
 ·S-comm : ∀ x y → x ·S y ≡ y ·S x
 ·S-comm = Bool.⊕-comm
