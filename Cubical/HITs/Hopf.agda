@@ -81,8 +81,8 @@ JoinS¹S¹→TotalHopf (push y x j) =
 
 -- this should be generalized to a constant fibration over a connected space with
 -- discrete fiber
-fibInt : S¹ → S¹ → Type₀
-fibInt _ _ = Int
+fibℤ : S¹ → S¹ → Type₀
+fibℤ _ _ = ℤ
 
 S¹→HSet : (A : Type₀) (p : isSet A) (F : S¹ → A) (x : S¹) → F base ≡ F x
 S¹→HSet A p F base = refl {x = F base}
@@ -95,17 +95,17 @@ S¹→HSet A p F (loop i) = f' i
   f' : PathP (λ i → F base ≡ F (loop i)) (refl {x = F base}) (refl {x = F base})
   f' = transport (λ i → PathP (λ j → F base ≡ F (loop j)) refl (L i)) f
 
-constant-loop : (F : S¹ → S¹ → Int) → (x y : S¹) → F base base ≡ F x y
+constant-loop : (F : S¹ → S¹ → ℤ) → (x y : S¹) → F base base ≡ F x y
 constant-loop F x y = L0 ∙ L1
   where
-  p : isSet (S¹ → Int)
-  p = isSetΠ (λ _ → isSetInt)
+  p : isSet (S¹ → ℤ)
+  p = isSetΠ (λ _ → isSetℤ)
   L : F base ≡ F x
-  L = S¹→HSet (S¹ → Int) p F x
+  L = S¹→HSet (S¹ → ℤ) p F x
   L0 : F base base ≡ F x base
   L0 i = L i base
   L1 : F x base ≡ F x y
-  L1 = S¹→HSet Int isSetInt (F x) y
+  L1 = S¹→HSet ℤ isSetℤ (F x) y
 
 discretefib : (F : S¹ → S¹ → Type₀) → Type₀
 discretefib F = (a : (x y : S¹) → F x y) →
@@ -113,8 +113,8 @@ discretefib F = (a : (x y : S¹) → F x y) →
         (a base base ≡ b base base) →
         (x y : S¹) → a x y ≡ b x y
 
-discretefib-fibInt : discretefib fibInt
-discretefib-fibInt a b h x y i =
+discretefib-fibℤ : discretefib fibℤ
+discretefib-fibℤ a b h x y i =
   hcomp (λ t → λ { (i = i0) → constant-loop a x y t
                  ; (i = i1) → constant-loop b x y t })
         (h i)
@@ -153,12 +153,12 @@ assocFiller-3 (loop x) (loop y) j i = assocFiller-3-aux x y j i
 assoc-3 : (_ y : S¹) → basedΩS¹ y
 assoc-3 x y i = assocFiller-3 x y i1 i
 
-fibInt≡fibAssoc-3 : fibInt ≡ (λ _ y → basedΩS¹ y)
-fibInt≡fibAssoc-3 i = λ x y → basedΩS¹≡Int y (~ i)
+fibℤ≡fibAssoc-3 : fibℤ ≡ (λ _ y → basedΩS¹ y)
+fibℤ≡fibAssoc-3 i = λ x y → basedΩS¹≡ℤ y (~ i)
 
 discretefib-fibAssoc-3 : discretefib (λ _ y → basedΩS¹ y)
 discretefib-fibAssoc-3 =
-  transp (λ i → discretefib (fibInt≡fibAssoc-3 i)) i0 discretefib-fibInt
+  transp (λ i → discretefib (fibℤ≡fibAssoc-3 i)) i0 discretefib-fibℤ
 
 assocConst-3 : (x y : S¹) → assoc-3 x y ≡ refl
 assocConst-3 x y = discretefib-fibAssoc-3 assoc-3 (λ _ _ → refl) refl x y
@@ -232,12 +232,12 @@ assocFiller-4 (loop x) (loop y) j i = assocFiller-4-aux x y j i
 assoc-4 : (x y : S¹) → basedΩS¹ (((invLooper (y · x · invLooper y)) · (y · x)) · x)
 assoc-4 x y i = assocFiller-4 x y i1 i
 
-fibInt≡fibAssoc-4 : fibInt ≡ (λ x y → basedΩS¹ (((invLooper (y · x · invLooper y)) · (y · x)) · x))
-fibInt≡fibAssoc-4 i = λ x y → basedΩS¹≡Int (((invLooper (y · x · invLooper y)) · (y · x)) · x) (~ i)
+fibℤ≡fibAssoc-4 : fibℤ ≡ (λ x y → basedΩS¹ (((invLooper (y · x · invLooper y)) · (y · x)) · x))
+fibℤ≡fibAssoc-4 i = λ x y → basedΩS¹≡ℤ (((invLooper (y · x · invLooper y)) · (y · x)) · x) (~ i)
 
 discretefib-fibAssoc-4 : discretefib (λ x y → basedΩS¹ (((invLooper (y · x · invLooper y)) · (y · x)) · x))
 discretefib-fibAssoc-4 =
-  transp (λ i → discretefib (fibInt≡fibAssoc-4 i)) i0 discretefib-fibInt
+  transp (λ i → discretefib (fibℤ≡fibAssoc-4 i)) i0 discretefib-fibℤ
 
 assocConst-4 : (x y : S¹) → assoc-4 x y ≡ refl
 assocConst-4 x y = discretefib-fibAssoc-4 assoc-4 (λ _ _ → refl) refl x y
