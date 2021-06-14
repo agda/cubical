@@ -97,7 +97,7 @@ coHomFunctor≡coHomFunctor' = funExt λ {(pos zero) → refl
 H0-susp : ∀ {ℓ} {A : Pointed ℓ} → isContr (coHomRed 0 (Susp (typ A) , north))
 fst H0-susp = 0ₕ∙ _
 snd (H0-susp {A = A}) =
-  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+  sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
         λ {(f , p)
           → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _)
                         (funExt λ {north → sym p
@@ -153,8 +153,8 @@ fun (suspFunCharac {A = A} n) =
   sMap λ f → suspFunCharacFun {A = A} (suc n) f
 inv (suspFunCharac {A = A} n) = sMap (suspΩFun (suc n))
 rightInv (suspFunCharac {A = A} n) =
-  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-        λ f → trRec (isProp→isOfHLevelSuc n (setTruncIsSet _ _))
+  sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+        λ f → trRec (isProp→isOfHLevelSuc n (isSetSetTrunc _ _))
                 (λ fId → cong ∣_∣₂
                 (funExt (λ x → cong (ΩKn+1→Kn (suc n))
                                       ((λ i → sym (rCancel≡refl n i) ∙∙ cong (λ x → suspΩFun (suc n) f x +ₖ 0ₖ _)
@@ -172,7 +172,7 @@ rightInv (suspFunCharac {A = A} n) =
                               ∙ rUnitₖ _ (f x))))
                      (fst (isConnectedPathKn n (f (pt A)) (0ₖ _)))
 leftInv (suspFunCharac {A = A} n) =
-  SuspCohomElim {A = A} _ (λ _ → setTruncIsSet _ _)
+  SuspCohomElim {A = A} _ (λ _ → isSetSetTrunc _ _)
     λ f fId → cong ∣_∣₂ (funExt (linvLem (suc n) f fId))
 
 -- We also need that H¹(Susp A) ≃ Ĥ⁰(A)
@@ -187,7 +187,7 @@ fun (suspFunCharac0 {A = A}) =
                        ∙ (lCancel (rCancelₖ _ (f north)))))
 inv suspFunCharac0 = sMap λ f → suspΩFun 0 (fst f)
 rightInv (suspFunCharac0 {A = A}) =
-  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+  sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
     λ {(f , p)
       → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _)
                    (funExt (λ x → (λ j → transp (λ i → helix (wedgeMapS¹ (intLoop (p j) (~ i)) base)) j
@@ -196,7 +196,7 @@ rightInv (suspFunCharac0 {A = A}) =
                                                          (pos 0))))
                                  ∙ windingℤLoop (f x))))}
 leftInv (suspFunCharac0 {A = A}) =
-  SuspCohomElim {A = A} _ (λ _ → setTruncIsSet _ _)
+  SuspCohomElim {A = A} _ (λ _ → isSetSetTrunc _ _)
     λ f fId → cong ∣_∣₂ (funExt (linvLem 0 f fId))
 
 -- We now prove that the alternative definition of cohomology is a cohomology theory.
@@ -207,7 +207,7 @@ private
   fst (theMorph (pos zero) f) = sMap λ g → (λ x → fst g (fst f x)) , cong (fst g) (snd f) ∙ snd g
   snd (theMorph (pos zero) f) =
     makeIsGroupHom
-      (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+      (sElim2 (λ _ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
               λ f g → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl))
   theMorph (pos (suc n)) f = coHomMorph _ (fst f)
   fst (theMorph (negsuc n) f) = idfun _
@@ -224,7 +224,7 @@ private
       (GroupIso→GroupEquiv
         ( invIso suspFunCharac0
         , makeIsGroupHom
-            (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+            (sElim2 (λ _ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
               λ f g → cong ∣_∣₂ (funExt λ { north → refl
                                           ; south → refl
                                           ; (merid a i) j → helper a (fst f) (fst g) j i}))))
@@ -239,7 +239,7 @@ private
       (GroupIso→GroupEquiv
         ( invIso (suspFunCharac {A = A} n)
         , makeIsGroupHom
-            (sElim2 (λ _ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+            (sElim2 (λ _ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
               λ f g → cong ∣_∣₂ (funExt λ { north → refl
                                           ; south → refl
                                           ; (merid a i) j → helper a f g j i}))))
@@ -257,12 +257,12 @@ private
 
   -- naturality of the suspension isomorphism
   snd (Suspension (isCohomTheoryZ' {ℓ})) (f , p) (pos zero) =
-    funExt (sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+    funExt (sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
            λ {(f , _) → cong ∣_∣₂ (funExt λ {north → refl
                                           ; south → refl
                                           ; (merid a i) → refl})})
   snd (Suspension (isCohomTheoryZ' {ℓ})) (f , p) (pos (suc n)) =
-    funExt (sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+    funExt (sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
            λ f → cong ∣_∣₂ (funExt λ {north → refl
                                     ; south → refl
                                     ; (merid a i) → refl}))
@@ -275,23 +275,23 @@ private
     exactnessIso : (n : ℤ) (f : A →∙ B)
                 → Iso (Ker (theMorph n f)) (Im (theMorph n (cfcod (fst f) , refl)))
     fun (exactnessIso (pos zero) (f , p)) =
-      uncurry (sElim (λ _ → isSetΠ λ _ → isSetΣ setTruncIsSet λ _ → isProp→isSet propTruncIsProp)
+      uncurry (sElim (λ _ → isSetΠ λ _ → isSetΣ isSetSetTrunc λ _ → isProp→isSet isPropPropTrunc)
                      λ {(g , q) inker → ∣ g , q ∣₂
-                                       , pRec propTruncIsProp
+                                       , pRec isPropPropTrunc
                                               (λ gId → ∣ ∣ (λ { (inl tt) → 0
                                                               ; (inr b) → g b
                                                               ; (push a i) → funExt⁻ (cong fst gId) a (~ i)}) , q ∣₂
                                                        , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl) ∣)
                                               (Iso.fun PathIdTrunc₀Iso inker)})
     inv (exactnessIso (pos zero) (f , p)) =
-      uncurry (sElim (λ _ → isSetΠ λ _ → isSetΣ setTruncIsSet λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+      uncurry (sElim (λ _ → isSetΠ λ _ → isSetΣ isSetSetTrunc λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
                 λ {(g , q) inim'
                   → ∣ g , q ∣₂
-                   , pRec (setTruncIsSet _ _)
+                   , pRec (isSetSetTrunc _ _)
                           (uncurry
-                            (sElim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 setTruncIsSet _ _))
+                            (sElim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _))
                                    (λ pushmap pushId'
-                                     → pRec (setTruncIsSet _ _)
+                                     → pRec (isSetSetTrunc _ _)
                                              (λ pushId
                                                → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _)
                                                              (funExt λ x → sym (funExt⁻ (cong fst pushId) (f x))
@@ -302,22 +302,22 @@ private
                           inim'})
     rightInv (exactnessIso (pos zero) (f , p)) =
       uncurry (sElim (λ _ → isSetΠ λ _ → isOfHLevelPath 2
-                                              (isSetΣ setTruncIsSet
-                                                      (λ _ → isProp→isSet propTruncIsProp)) _ _)
-                     λ {(p , q) _ → Σ≡Prop (λ _ → propTruncIsProp) refl})
+                                              (isSetΣ isSetSetTrunc
+                                                      (λ _ → isProp→isSet isPropPropTrunc)) _ _)
+                     λ {(p , q) _ → Σ≡Prop (λ _ → isPropPropTrunc) refl})
     leftInv (exactnessIso (pos zero) (f , p)) =
       uncurry (sElim (λ _ → isSetΠ λ _ → isOfHLevelPath 2
-                                              (isSetΣ setTruncIsSet
-                                                      (λ _ → isProp→isSet (setTruncIsSet _ _))) _ _)
-                     λ {(p , q) _ → Σ≡Prop (λ _ → setTruncIsSet _ _) refl})
+                                              (isSetΣ isSetSetTrunc
+                                                      (λ _ → isProp→isSet (isSetSetTrunc _ _))) _ _)
+                     λ {(p , q) _ → Σ≡Prop (λ _ → isSetSetTrunc _ _) refl})
     fun (exactnessIso (pos (suc n)) f) ker = (fst ker) , inIm-helper (fst ker) (snd ker)
       where
       inIm-helper : (x : coHom (suc n) (typ B))
                   → isInKer (theMorph (pos (suc n)) {A = A} {B = B} f) x
                   → isInIm (theMorph (pos (suc n)) {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl)) x
       inIm-helper =
-        coHomPointedElim _ (pt B) (λ _ → isPropΠ λ _ → propTruncIsProp)
-          λ g gId inker → pRec propTruncIsProp
+        coHomPointedElim _ (pt B) (λ _ → isPropΠ λ _ → isPropPropTrunc)
+          λ g gId inker → pRec isPropPropTrunc
                                (λ gIdTot → ∣ ∣ (λ { (inl tt) → 0ₖ _
                                                   ; (inr b) → g b
                                                   ; (push a i) → funExt⁻ gIdTot a (~ i)}) ∣₂
@@ -329,36 +329,36 @@ private
                   → isInIm (theMorph (pos (suc n)) {A = B} {B = _ , inr (pt B)} (cfcod (fst f) , refl)) x
                   → isInKer (theMorph (pos (suc n)) {A = A} {B = B} f) x
       inKer-helper =
-        coHomPointedElim _ (pt B) (λ _ → isPropΠ λ _ → setTruncIsSet _ _)
-          λ g gId → pRec (setTruncIsSet _ _)
+        coHomPointedElim _ (pt B) (λ _ → isPropΠ λ _ → isSetSetTrunc _ _)
+          λ g gId → pRec (isSetSetTrunc _ _)
                           (uncurry λ cg p
                             → subst (isInKer (coHomMorph (suc n) (fst f)))
                                      p
                                      (helper cg))
          where
          helper : (cg : _) → coHomFun (suc n) (fst f) (coHomFun (suc n) (cfcod (fst f)) cg) ≡ 0ₕ _
-         helper = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-                        λ cg → trRec (isProp→isOfHLevelSuc n (setTruncIsSet _ _))
+         helper = sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+                        λ cg → trRec (isProp→isOfHLevelSuc n (isSetSetTrunc _ _))
                                       (λ p → (cong ∣_∣₂ (funExt λ x → cong cg (sym (push x))
                                                                     ∙ p)))
                                       (isConnectedPathKn _ (cg (inl tt)) (0ₖ (suc n)) .fst)
-    rightInv (exactnessIso (pos (suc n)) f) _ = Σ≡Prop (λ _ → propTruncIsProp) refl
-    leftInv (exactnessIso (pos (suc n)) f) _ = Σ≡Prop (λ _ → setTruncIsSet _ _) refl
+    rightInv (exactnessIso (pos (suc n)) f) _ = Σ≡Prop (λ _ → isPropPropTrunc) refl
+    leftInv (exactnessIso (pos (suc n)) f) _ = Σ≡Prop (λ _ → isSetSetTrunc _ _) refl
     exactnessIso (negsuc n) (f , p) =
       isContr→Iso ((tt* , refl)
                    , λ {(tt* , p) → Σ≡Prop (λ _ → isOfHLevelPath 1 isPropUnit* _ _)
                                             refl})
                    ((tt* , ∣ tt* , refl ∣)
-                   , λ {(tt* , p) → Σ≡Prop (λ _ → propTruncIsProp)
+                   , λ {(tt* , p) → Σ≡Prop (λ _ → isPropPropTrunc)
                                             refl})
 
   -------------------------- Dimension ---------------------------
   Dimension isCohomTheoryZ' (pos zero) p = ⊥-rec (p refl)
   fst (Dimension isCohomTheoryZ' (pos (suc n)) _) = 0ₕ _
   snd (Dimension isCohomTheoryZ' (pos (suc n)) _) =
-    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-          (λ f → trRec (isProp→isOfHLevelSuc n (setTruncIsSet _ _))
-                        (λ f-true → trRec (isProp→isOfHLevelSuc n (setTruncIsSet _ _))
+    sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+          (λ f → trRec (isProp→isOfHLevelSuc n (isSetSetTrunc _ _))
+                        (λ f-true → trRec (isProp→isOfHLevelSuc n (isSetSetTrunc _ _))
                                           (λ f-false → cong ∣_∣₂ (funExt (λ {(lift true) → f-true
                                                                           ; (lift false) → f-false})))
                                           (isConnectedPathKn n (0ₖ _) (f (lift false)) .fst))

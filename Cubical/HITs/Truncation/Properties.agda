@@ -233,7 +233,7 @@ truncIdempotent n hA = ua (truncIdempotent≃ n hA)
 
 HLevelTruncModality : ∀ {ℓ} (n : HLevel) → Modality ℓ
 isModal       (HLevelTruncModality n) = isOfHLevel n
-isModalIsProp (HLevelTruncModality n) = isPropIsOfHLevel n
+isPropIsModal (HLevelTruncModality n) = isPropIsOfHLevel n
 ◯             (HLevelTruncModality n) = hLevelTrunc n
 ◯-isModal     (HLevelTruncModality n) = isOfHLevelTrunc n
 η (HLevelTruncModality zero) _ = tt*

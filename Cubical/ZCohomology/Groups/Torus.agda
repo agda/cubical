@@ -135,8 +135,8 @@ private
 H⁰-T²≅ℤ : GroupIso (coHomGr 0 (S₊ 1 × S₊ 1)) ℤGroup
 H⁰-T²≅ℤ =
   H⁰-connected (base , base)
-    λ (a , b) → pRec propTruncIsProp
-                     (λ id1 → pRec propTruncIsProp
+    λ (a , b) → pRec isPropPropTrunc
+                     (λ id1 → pRec isPropPropTrunc
                                    (λ id2 → ∣ ΣPathP (id1 , id2) ∣₁)
                                    (Sn-connected 0 b) )
                      (Sn-connected 0 a)
@@ -154,9 +154,9 @@ H¹-T²≅ℤ×ℤ = theIso □ GroupIsoDirProd (Hⁿ-Sⁿ≅ℤ 0) (H⁰-Sⁿ�
   fst theIso = typIso
   snd theIso =
     makeIsGroupHom
-      (coHomPointedElimT² _ (λ _ → isPropΠ λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
+      (coHomPointedElimT² _ (λ _ → isPropΠ λ _ → isSet× isSetSetTrunc isSetSetTrunc _ _)
         λ pf qf Pf →
-        coHomPointedElimT² _ (λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
+        coHomPointedElimT² _ (λ _ → isSet× isSetSetTrunc isSetSetTrunc _ _)
           λ pg qg Pg i → ∣ funExt (helperFst pf qf pg qg Pg Pf) i  ∣₂
                         , ∣ funExt (helperSnd pf qf pg qg Pg Pf) i ∣₂)
      where
@@ -204,8 +204,8 @@ H²-T²≅ℤ = compGroupIso helper2 (Hⁿ-Sⁿ≅ℤ 0)
   helper2 : GroupIso (coHomGr 2 (S¹ × S¹)) (coHomGr 1 S¹)
   helper2 .fst = theIso
   helper2 .snd = makeIsGroupHom (
-    coHomPointedElimT²'' 0 (λ _ → isPropΠ λ _ → setTruncIsSet _ _)
-      λ P → coHomPointedElimT²'' 0 (λ _ → setTruncIsSet _ _)
+    coHomPointedElimT²'' 0 (λ _ → isPropΠ λ _ → isSetSetTrunc _ _)
+      λ P → coHomPointedElimT²'' 0 (λ _ → isSetSetTrunc _ _)
       λ Q → ((λ i → ∣ (λ a → ΩKn+1→Kn 1 (sym (rCancel≡refl 0 i)
                                         ∙∙ cong (λ x → (elimFunT²' 1 P (a , x) +ₖ elimFunT²' 1 Q (a , x)) -ₖ ∣ north ∣) loop
                                         ∙∙ rCancel≡refl 0 i)) ∣₂))

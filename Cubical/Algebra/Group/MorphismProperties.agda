@@ -287,7 +287,7 @@ BijectionIso→GroupIso {G = G} {H = H} i = grIso
   inv (fst grIso) b = rec (helper b) (λ a → a) (surj i b) .fst
   rightInv (fst grIso) b = rec (helper b) (λ a → a) (surj i b) .snd
   leftInv (fst grIso) b j = rec (helper (f b)) (λ a → a)
-                                 (propTruncIsProp (surj i (f b)) ∣ b , refl ∣ j) .fst
+                                 (isPropPropTrunc (surj i (f b)) ∣ b , refl ∣ j) .fst
   snd grIso = snd (fun i)
 
 BijectionIsoToGroupEquiv : BijectionIso G H → GroupEquiv G H
