@@ -61,18 +61,30 @@ module _ (R' : CommRing ℓ) where
   ≡⟨ cong₂ (_+_) (∑Mulrdist _ (BinomialVec n x y)) (∑Mulrdist _ (BinomialVec n x y)) ⟩
      ∑ (λ i → x · BinomialVec n x y i)
    + ∑ (λ i → y · BinomialVec n x y i)
+  ≡⟨ refl ⟩
+     ∑ {n = suc n} (λ i → x · ((n choose (toℕ i)) · x ^ (toℕ i) · y ^ (n ∸ toℕ i)))
+   + ∑ {n = suc n} (λ i → y · ((n choose (toℕ i)) · x ^ (toℕ i) · y ^ (n ∸ toℕ i)))
   ≡⟨ {!!} ⟩
 {-
 first sum ≡ xⁿ⁺¹ (top element)
           + ∑ λ i → (n choose (toℕ toSuc i)) · x ^ (suc toℕ toSuc i) · y ^ (n ∸ toℕ toSuc i)
 need lemma:
 ∑ {suc n} V ≡ V topEl + ∑ {n} λ i → V (toSuc i)
+
 where toSuc : Fin n → Fin (suc n) id-embedding
 then toℕ {n} ∘ toSuc ≡ toℕ {suc n}
 and we can ignore the toSuc part...
 
+the top element topEl : Fin (suc n) is given by (fromℕ n)
+have weakenFin and weakenRespToℕ now
+lemma is called ∑Top
+
 second sum ≡ yⁿ⁺¹ (zero el ≡ (n choose 0) · x ^ 0 · y ^ (suc n ∸ toℕ zero))
            + ∑ λ i → (n choose (toℕ suc i)) · x ^ (toℕ suc i) · y ^ (suc n ∸ toℕ suc i)
+no need for lemma as
+ bigOpLeftRes : ∀ {n} (V : FinVec M (suc n)) → bigOp V ≡ V zero · bigOp (V ∘ suc)
+ bigOpLeftRes V = refl
+for any monoid M
 
 using split
 ... ≡ xⁿ⁺¹ + yⁿ⁺¹

@@ -49,7 +49,6 @@ module MonoidBigOp (M' : Monoid ℓ) where
  bigOpε zero = refl
  bigOpε (suc n) = cong (ε ·_) (bigOpε n) ∙ rid _
 
-
  -- requires a commutative monoid:
  bigOpSplit : (∀ x y → x · y ≡ y · x)
             → {n : ℕ} → (V W : FinVec M n) → bigOp (λ i → V i · W i) ≡ bigOp V · bigOp W
@@ -69,3 +68,18 @@ module MonoidBigOp (M' : Monoid ℓ) where
   ≡⟨ assoc _ _ _ ⟩
     V zero · bigOp (V ∘ suc) · (W zero · bigOp (W ∘ suc)) ∎
 
+ bigOpTop : (∀ x y → x · y ≡ y · x)
+          → {n : ℕ} → (V : FinVec M (suc n)) → bigOp V ≡ V (fromℕ n) · bigOp (V ∘ weakenFin)
+ bigOpTop comm {n = zero} V = refl
+ bigOpTop comm {n = suc n} V =
+    V zero · bigOp (V ∘ suc)
+  ≡⟨ cong (V zero ·_) (bigOpTop comm (V ∘ suc)) ⟩
+    V zero · (V (suc (fromℕ n)) · bigOp (V ∘ suc ∘ weakenFin))
+  ≡⟨ assoc _ _ _ ⟩
+    V zero · V (suc (fromℕ n)) · bigOp (V ∘ suc ∘ weakenFin)
+  ≡⟨ cong (_· bigOp (V ∘ suc ∘ weakenFin)) (comm _ _) ⟩
+    V (suc (fromℕ n)) · V zero · bigOp (V ∘ suc ∘ weakenFin)
+  ≡⟨ sym (assoc _ _ _) ⟩
+    V (suc (fromℕ n)) · (V zero · bigOp (V ∘ suc ∘ weakenFin))
+  ≡⟨ refl ⟩
+    V (fromℕ (suc n)) · bigOp (V ∘ weakenFin) ∎
