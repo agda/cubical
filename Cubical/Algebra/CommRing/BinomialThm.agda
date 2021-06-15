@@ -1,9 +1,10 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.CommRing.BinomialThm where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
@@ -27,7 +28,7 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.RingSolver.ReflectionSolving hiding (∣)
+open import Cubical.Algebra.RingSolver.ReflectionSolving
 
 private
   variable
@@ -45,8 +46,12 @@ module _ (R' : CommRing ℓ) where
  zero choose suc k = 0r
  suc n choose suc k = n choose (suc k) + n choose k
 
+ nChooseN+1 : ∀ n → n choose (suc n) ≡ 0r
+ nChooseN+1 zero = refl
+ nChooseN+1 (suc n) = {!!}
+
  BinomialVec : (n : ℕ) → R → R → FinVec R (suc n)
- BinomialVec n x y ind = (n choose (toℕ ind)) · x ^ (toℕ ind) · y ^ (n ∸ toℕ ind)
+ BinomialVec n x y i = (n choose (toℕ i)) · x ^ (toℕ i) · y ^ (n ∸ toℕ i)
 
  thm : ∀ (n : ℕ) (x y : R) → (x + y) ^ n ≡ ∑ (BinomialVec n x y)
  thm zero x y = solve R'
@@ -64,33 +69,71 @@ module _ (R' : CommRing ℓ) where
   ≡⟨ refl ⟩
      ∑ {n = suc n} (λ i → x · ((n choose (toℕ i)) · x ^ (toℕ i) · y ^ (n ∸ toℕ i)))
    + ∑ {n = suc n} (λ i → y · ((n choose (toℕ i)) · x ^ (toℕ i) · y ^ (n ∸ toℕ i)))
-  ≡⟨ {!!} ⟩
-{-
-first sum ≡ xⁿ⁺¹ (top element)
-          + ∑ λ i → (n choose (toℕ toSuc i)) · x ^ (suc toℕ toSuc i) · y ^ (n ∸ toℕ toSuc i)
-need lemma:
-∑ {suc n} V ≡ V topEl + ∑ {n} λ i → V (toSuc i)
-
-where toSuc : Fin n → Fin (suc n) id-embedding
-then toℕ {n} ∘ toSuc ≡ toℕ {suc n}
-and we can ignore the toSuc part...
-
-the top element topEl : Fin (suc n) is given by (fromℕ n)
-have weakenFin and weakenRespToℕ now
-lemma is called ∑Top
-
-second sum ≡ yⁿ⁺¹ (zero el ≡ (n choose 0) · x ^ 0 · y ^ (suc n ∸ toℕ zero))
-           + ∑ λ i → (n choose (toℕ suc i)) · x ^ (toℕ suc i) · y ^ (suc n ∸ toℕ suc i)
-no need for lemma as
- bigOpLeftRes : ∀ {n} (V : FinVec M (suc n)) → bigOp V ≡ V zero · bigOp (V ∘ suc)
- bigOpLeftRes V = refl
-for any monoid M
-
-using split
-... ≡ xⁿ⁺¹ + yⁿ⁺¹
-    + ∑ λ i → ((n choose toℕ i) + (n choose suc toℕ i)) · x ^ (toℕ suc i) · y ^ (suc n ∸ toℕ suc i)
-              ≡ (suc n choose toℕ suc i) by refl!!!
-... ≡ xⁿ⁺¹
-    + ∑ λ i → (suc n choose toℕ i) · x ^ (toℕ i) · y ^ (suc n ∸ toℕ i)
--}
+  ≡⟨ cong₂ (_+_) (∑Ext xVecPath) (∑Ext yVecPath) ⟩
+     ∑ xVec + ∑ yVec
+  ≡⟨ cong (_+ ∑ yVec) (∑Last xVec) ⟩
+     ∑ (xVec ∘ weakenFin) + xⁿ⁺¹ + (yⁿ⁺¹ + ∑ (yVec ∘ suc))
+  ≡⟨ solve3 _ _ _ _ ⟩
+     yⁿ⁺¹  + (∑ (xVec ∘ weakenFin) + ∑ (yVec ∘ suc)) + xⁿ⁺¹
+  ≡⟨ cong (λ s → yⁿ⁺¹  + s + xⁿ⁺¹) (sym (∑Split _ _))  ⟩
+     yⁿ⁺¹  + (∑ middleVec) + xⁿ⁺¹
+  ≡⟨ cong (λ s → yⁿ⁺¹  + s + xⁿ⁺¹) (∑Ext middlePath) ⟩
+     yⁿ⁺¹ + ∑ ((BinomialVec (suc n) x y) ∘ weakenFin ∘ suc) + xⁿ⁺¹
+  ≡⟨ refl ⟩
+     ∑ ((BinomialVec (suc n) x y) ∘ weakenFin) + xⁿ⁺¹
+  ≡⟨ cong (∑ ((BinomialVec (suc n) x y) ∘ weakenFin) +_) xⁿ⁺¹Path
+   ∙ sym (∑Last (BinomialVec (suc n) x y)) ⟩
      ∑ (BinomialVec (suc n) x y) ∎
+  where
+  xVec : FinVec R (suc n)
+  xVec i = (n choose (toℕ i)) · x ^ (suc (toℕ i)) · y ^ (n ∸ toℕ i)
+
+  solve1 : ∀ x nci xⁱ yⁿ⁻ⁱ → x · (nci · xⁱ · yⁿ⁻ⁱ) ≡ nci · (x · xⁱ) · yⁿ⁻ⁱ
+  solve1 = solve R'
+
+  xVecPath : ∀ (i : Fin (suc n)) → x · ((n choose (toℕ i)) · x ^ (toℕ i) · y ^ (n ∸ toℕ i)) ≡ xVec i
+  xVecPath i = solve1 _ _ _ _
+
+  yVec : FinVec R (suc n)
+  yVec i = (n choose (toℕ i)) · x ^ (toℕ i) · y ^ (suc (n ∸ toℕ i))
+
+  solve2 : ∀ y nci xⁱ yⁿ⁻ⁱ → y · (nci · xⁱ · yⁿ⁻ⁱ) ≡ nci · xⁱ · (y · yⁿ⁻ⁱ)
+  solve2 = solve R'
+
+  yVecPath : ∀ (i : Fin (suc n)) → y · ((n choose (toℕ i)) · x ^ (toℕ i) · y ^ (n ∸ toℕ i)) ≡ yVec i
+  yVecPath i = solve2 _ _ _ _
+
+  xⁿ⁺¹ : R
+  xⁿ⁺¹ = xVec (fromℕ n)
+  yⁿ⁺¹ : R
+  yⁿ⁺¹ = yVec zero
+
+  xⁿ⁺¹Path : xⁿ⁺¹ ≡ BinomialVec (suc n) x y (fromℕ (suc n))
+  xⁿ⁺¹Path = cong (λ m → m · (x · x ^ toℕ (fromℕ n)) · y ^ (n ∸ toℕ (fromℕ n)))
+                  (sym (+Lid _) ∙ cong (_+ (n choose toℕ (fromℕ n)))
+                  (sym (subst (λ m → (n choose suc m) ≡ 0r) (sym (toFromId n)) (nChooseN+1 n))))
+
+  solve3 : ∀ sx sy xⁿ⁺¹ yⁿ⁺¹ → sx + xⁿ⁺¹ + (yⁿ⁺¹ + sy) ≡ yⁿ⁺¹ + (sx + sy) + xⁿ⁺¹
+  solve3 = solve R'
+
+  middleVec : FinVec R n
+  middleVec i = xVec (weakenFin i) + yVec (suc i)
+
+  middlePath : ∀ (i : Fin n) → middleVec i ≡ BinomialVec (suc n) x y (weakenFin (suc i))
+  middlePath i = {!!}
+   where
+   foo : (y · y ^ (n ∸ suc (toℕ (weakenFin i)))) ≡ y ^ (n ∸ toℕ (weakenFin i))
+   foo = (y · y ^ (n ∸ suc (toℕ (weakenFin i)))) ≡⟨ refl ⟩
+         y ^ (suc (n ∸ suc (toℕ (weakenFin i)))) ≡⟨ cong (y ^_) {!!} ⟩
+         y ^ (suc n ∸ suc (toℕ (weakenFin i))) ≡⟨ refl ⟩
+         y ^ (n ∸ toℕ (weakenFin i)) ∎
+   --solve4 : ∀ ncwi xxʷⁱ
+   weakenedPath  :  (n choose toℕ (weakenFin i)) · (x · x ^ toℕ (weakenFin i))
+                  · y ^ (n ∸ toℕ (weakenFin i))
+                  + (n choose suc (toℕ (weakenFin i))) · (x · x ^ toℕ (weakenFin i))
+                  · (y · y ^ (n ∸ suc (toℕ (weakenFin i))))
+                 ≡
+                    ((n choose suc (toℕ (weakenFin i))) + (n choose toℕ (weakenFin i)))
+                  · (x · x ^ toℕ (weakenFin i)) · y ^ (n ∸ toℕ (weakenFin i))
+   weakenedPath = {!!}
+   --then use weakenRespToℕ

@@ -43,12 +43,10 @@ module Sum (R' : Ring ℓ) where
  ∑ = bigOp
  ∑Ext = bigOpExt
  ∑0r = bigOpε
+ ∑Last = bigOpLast
 
  ∑Split : ∀ {n} → (V W : FinVec R n) → ∑ (λ i → V i + W i) ≡ ∑ V + ∑ W
  ∑Split = bigOpSplit +Comm
-
- ∑Top : ∀ {n} → (V : FinVec R (suc n)) → ∑ V ≡ V (fromℕ n) + ∑ (V ∘ weakenFin)
- ∑Top = bigOpTop +Comm
 
  ∑Mulrdist : ∀ {n} → (x : R) → (V : FinVec R n)
                 → x · ∑ V ≡ ∑ λ i → x · V i

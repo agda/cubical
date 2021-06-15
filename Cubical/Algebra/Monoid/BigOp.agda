@@ -42,12 +42,16 @@ module MonoidBigOp (M' : Monoid ℓ) where
  bigOp = foldrFin _·_ ε
 
  bigOpExt : ∀ {n} {V W : FinVec M n} → ((i : Fin n) → V i ≡ W i) → bigOp V ≡ bigOp W
- bigOpExt {n = zero} _ = refl
- bigOpExt {n = suc n} h i = h zero i · bigOpExt (h ∘ suc) i
+ bigOpExt h = cong bigOp (funExt h)
 
  bigOpε : ∀ n → bigOp (replicateFinVec n ε) ≡ ε
  bigOpε zero = refl
  bigOpε (suc n) = cong (ε ·_) (bigOpε n) ∙ rid _
+
+ bigOpLast : ∀ {n} (V : FinVec M (suc n)) → bigOp V ≡ bigOp (V ∘ weakenFin) · V (fromℕ n)
+ bigOpLast {n = zero} V = rid _ ∙ sym (lid _)
+ bigOpLast {n = suc n} V = cong (V zero ·_) (bigOpLast (V ∘ suc)) ∙ assoc _ _ _
+
 
  -- requires a commutative monoid:
  bigOpSplit : (∀ x y → x · y ≡ y · x)
@@ -68,18 +72,3 @@ module MonoidBigOp (M' : Monoid ℓ) where
   ≡⟨ assoc _ _ _ ⟩
     V zero · bigOp (V ∘ suc) · (W zero · bigOp (W ∘ suc)) ∎
 
- bigOpTop : (∀ x y → x · y ≡ y · x)
-          → {n : ℕ} → (V : FinVec M (suc n)) → bigOp V ≡ V (fromℕ n) · bigOp (V ∘ weakenFin)
- bigOpTop comm {n = zero} V = refl
- bigOpTop comm {n = suc n} V =
-    V zero · bigOp (V ∘ suc)
-  ≡⟨ cong (V zero ·_) (bigOpTop comm (V ∘ suc)) ⟩
-    V zero · (V (suc (fromℕ n)) · bigOp (V ∘ suc ∘ weakenFin))
-  ≡⟨ assoc _ _ _ ⟩
-    V zero · V (suc (fromℕ n)) · bigOp (V ∘ suc ∘ weakenFin)
-  ≡⟨ cong (_· bigOp (V ∘ suc ∘ weakenFin)) (comm _ _) ⟩
-    V (suc (fromℕ n)) · V zero · bigOp (V ∘ suc ∘ weakenFin)
-  ≡⟨ sym (assoc _ _ _) ⟩
-    V (suc (fromℕ n)) · (V zero · bigOp (V ∘ suc ∘ weakenFin))
-  ≡⟨ refl ⟩
-    V (fromℕ (suc n)) · bigOp (V ∘ weakenFin) ∎

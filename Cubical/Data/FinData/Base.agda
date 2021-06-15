@@ -26,6 +26,10 @@ fromℕ : (n : ℕ) → Fin (suc n)
 fromℕ zero    = zero
 fromℕ (suc n) = suc (fromℕ n)
 
+toFromId : ∀ (n : ℕ) → toℕ (fromℕ n) ≡ n
+toFromId zero = refl
+toFromId (suc n) = cong suc (toFromId n)
+
 ¬Fin0 : ¬ Fin 0
 ¬Fin0 ()
 
