@@ -74,6 +74,15 @@ suc-predℕ (suc n) p = refl
 +-suc zero    n = refl
 +-suc (suc m) n = cong suc (+-suc m n)
 
++-one : ∀ m → m + 1 ≡ suc m
++-one zero = refl
++-one (suc m) = cong suc (+-one m)
+
++-two : ∀ m → m + 2 ≡ suc (suc m)
++-two zero = refl
++-two (suc m) = cong suc (+-two m)
+
+
 +-comm : ∀ m n → m + n ≡ n + m
 +-comm m zero = +-zero m
 +-comm m (suc n) = (+-suc m n) ∙ (cong suc (+-comm m n))

@@ -15,8 +15,10 @@ open import Cubical.Foundations.Powerset
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm
-                                      ; _choose_ to _ℕchoose_)
+                                      ; _choose_ to _ℕchoose_ ; snotz to ℕsnotz)
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.FinData
+open import Cubical.Data.Empty as ⊥
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
@@ -46,9 +48,19 @@ module _ (R' : CommRing ℓ) where
  zero choose suc k = 0r
  suc n choose suc k = n choose (suc k) + n choose k
 
+ n<k→nChooseK≡0 : ∀ n k → n < k → n choose k ≡ 0r
+ n<k→nChooseK≡0 zero zero (m , p) = ⊥.rec (ℕsnotz (sym (+-one _) ∙ p))
+ n<k→nChooseK≡0 zero (suc k) (m , p) = refl
+ n<k→nChooseK≡0 (suc n) zero (m , p) = ⊥.rec (ℕsnotz {n = m +ℕ (suc n)} (sym (+-suc _ _) ∙ p))
+ n<k→nChooseK≡0 (suc n) (suc k) (m , p) = cong₂ (_+_) p1 p2 ∙ +Lid 0r
+  where
+  p1 : n choose suc k ≡ 0r
+  p1 = n<k→nChooseK≡0 n (suc k) (suc m , sym (+-suc _ _) ∙ p)
+  p2 : n choose k ≡ 0r
+  p2 =  n<k→nChooseK≡0 n k (m , injSuc (sym (+-suc _ _) ∙ p))
+
  nChooseN+1 : ∀ n → n choose (suc n) ≡ 0r
- nChooseN+1 zero = refl
- nChooseN+1 (suc n) = {!!}
+ nChooseN+1 n = n<k→nChooseK≡0 n (suc n) (0 , refl)
 
  BinomialVec : (n : ℕ) → R → R → FinVec R (suc n)
  BinomialVec n x y i = (n choose (toℕ i)) · x ^ (toℕ i) · y ^ (n ∸ toℕ i)
