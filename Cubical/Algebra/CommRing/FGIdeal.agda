@@ -21,7 +21,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.Ring.QuotientRing
 open import Cubical.Algebra.Ring.Properties
-open import Cubical.Algebra.RingSolver.ReflectionSolving hiding (∣)
+open import Cubical.Algebra.RingSolver.ReflectionSolving
 
 private
   variable
@@ -91,8 +91,8 @@ module _ (Ring@(R , str) : CommRing ℓ) (r : R) where
                          → isLinearCombination l y
                          → isLinearCombination l (x + y)
   isLinearCombination+ l =
-    elim (λ _ → isOfHLevelΠ 1 (λ _ → propTruncIsProp))
-         (λ {(cx , px) → elim (λ _ → propTruncIsProp)
+    elim (λ _ → isOfHLevelΠ 1 (λ _ → isPropPropTrunc))
+         (λ {(cx , px) → elim (λ _ → isPropPropTrunc)
           λ {(cy , py) →
             ∣  coefficientSum cx cy ,
                 (_ + _                                           ≡[ i ]⟨ px i + py i ⟩
@@ -105,7 +105,7 @@ module _ (Ring@(R , str) : CommRing ℓ) (r : R) where
                          → isLinearCombination l x
                          → isLinearCombination l (- x)
   isLinearCombination- l =
-    elim (λ _ → propTruncIsProp)
+    elim (λ _ → isPropPropTrunc)
          λ {(cx , px) → ∣ map -_ cx ,
                          ( - _                             ≡⟨ cong -_ px ⟩
                            - linearCombination cx l        ≡⟨ sym (dist- _ cx l) ⟩
@@ -122,7 +122,7 @@ module _ (Ring@(R , str) : CommRing ℓ) (r : R) where
                         → isLinearCombination l x
                         → isLinearCombination l (r · x)
   isLinearCombinationL· l r x =
-    elim (λ _ → propTruncIsProp)
+    elim (λ _ → isPropPropTrunc)
          λ {(cx , px) →
             ∣ map (r ·_) cx ,
              (r · _                               ≡[ i ]⟨ r · px i ⟩
@@ -145,7 +145,7 @@ module _ (Ring@(R , str) : CommRing ℓ) (r : R) where
 
   generatedIdeal : {n : ℕ} → Vec R n → IdealsIn Ring
   generatedIdeal l = makeIdeal Ring
-                               (λ x → isLinearCombination l x , propTruncIsProp)
+                               (λ x → isLinearCombination l x , isPropPropTrunc)
                                (isLinearCombination+ l)
                                (isLinearCombination0 l)
                                λ r → isLinearCombinationL· l r _

@@ -235,15 +235,15 @@ open Matrices using (VecMatrix ; FinMatrix ; FinMatrix≡VecMatrix
 open Matrices.FinMatrixAbGroup using (addFinMatrix ; addFinMatrixComm) public
 
 -- example (not in the library)
-open import Cubical.Data.Int renaming (Int to ℤ ; isSetInt to isSetℤ) hiding (-_)
+open import Cubical.Data.Int hiding (-_)
 
 ℤ-AbGroup : AbGroup ℓ-zero
-ℤ-AbGroup = makeAbGroup {G = ℤ} 0 _+_ -_ isSetℤ +-assoc (λ x _ → x) rem +-comm
+ℤ-AbGroup = makeAbGroup {G = ℤ} 0 _+_ -_ isSetℤ +Assoc (λ x _ → x) rem +Comm
     where
     -_ : ℤ → ℤ
     - x = 0 - x
     rem : (x : ℤ) → x + (- x) ≡ 0
-    rem x =  +-comm x (pos 0 - x) Prelude.∙ minusPlus x 0
+    rem x =  +Comm x (pos 0 - x) Prelude.∙ minusPlus x 0
 
 module experiment where
   open Prelude

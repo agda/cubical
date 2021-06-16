@@ -62,10 +62,10 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
                            → (∀ s → s ∈ S' → fst ψ s ∈ B ˣ)
                            → ∃![ χ ∈ CommRingHom A B ] (fst χ) ∘ (fst φ) ≡ (fst ψ)
 
- UniversalPropIsProp : (A : CommRing ℓ) (φ : CommRingHom R' A)
+ isPropUniversalProp : (A : CommRing ℓ) (φ : CommRingHom R' A)
                      → (φS⊆Aˣ : ∀ s → s ∈ S' → fst φ s ∈ A ˣ)
                      → isProp (hasLocUniversalProp A φ φS⊆Aˣ)
- UniversalPropIsProp A φ φS⊆Aˣ = isPropΠ3 (λ _ _ _ → isPropIsContr)
+ isPropUniversalProp A φ φS⊆Aˣ = isPropΠ3 (λ _ _ _ → isPropIsContr)
 
  -- S⁻¹R has the universal property
  module S⁻¹RUniversalProp where
@@ -414,4 +414,4 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
                                     ∙∙ cong (_· s) (sym (0RightAnnihilates _))
 
    Surχ : isSurjection (fst χ)
-   Surχ a = PT.rec propTruncIsProp (λ x → PT.∣ [ x .fst ] , x .snd ∣) (surχ a)
+   Surχ a = PT.rec isPropPropTrunc (λ x → PT.∣ [ x .fst ] , x .snd ∣) (surχ a)

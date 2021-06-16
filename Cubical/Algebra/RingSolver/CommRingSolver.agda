@@ -10,7 +10,8 @@ open import Cubical.Data.Vec.Base
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.RingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ᵣ)
-open import Cubical.Algebra.RingSolver.AlgebraExpression public
+open import Cubical.Algebra.RingSolver.AlgebraExpression
+open import Cubical.Algebra.RingSolver.IntAsRawRing
 open import Cubical.Algebra.RingSolver.CommRingHornerForms
 open import Cubical.Algebra.RingSolver.CommRingEvalHom
 

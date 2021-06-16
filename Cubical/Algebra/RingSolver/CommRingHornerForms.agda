@@ -4,11 +4,13 @@ module Cubical.Algebra.RingSolver.CommRingHornerForms where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Int hiding (_+_ ; _·_ ; -_)
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec
 open import Cubical.Data.Bool using (Bool; true; false; if_then_else_; _and_)
 
 open import Cubical.Algebra.RingSolver.RawRing
+open import Cubical.Algebra.RingSolver.IntAsRawRing
 open import Cubical.Algebra.RingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ₐ)
 open import Cubical.Algebra.RingSolver.AlmostRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 
