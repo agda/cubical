@@ -2,32 +2,17 @@
 module Cubical.Algebra.CommRing.BinomialThm where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP
-open import Cubical.Foundations.Powerset
 
-open import Cubical.Data.Sigma
 open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
+                                      ; +-comm to +ℕ-comm
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm
                                       ; _choose_ to _ℕchoose_ ; snotz to ℕsnotz)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.FinData
 open import Cubical.Data.Empty as ⊥
 
-open import Cubical.Structures.Axioms
-open import Cubical.Structures.Auto
-open import Cubical.Structures.Macro
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Monoid.BigOp
-open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.RingSolver.ReflectionSolving
@@ -49,7 +34,7 @@ module _ (R' : CommRing ℓ) where
  suc n choose suc k = n choose (suc k) + n choose k
 
  n<k→nChooseK≡0 : ∀ n k → n < k → n choose k ≡ 0r
- n<k→nChooseK≡0 zero zero (m , p) = ⊥.rec (ℕsnotz (sym (+-one _) ∙ p))
+ n<k→nChooseK≡0 zero zero (m , p) = ⊥.rec (ℕsnotz (sym (+ℕ-comm m 1) ∙ p))
  n<k→nChooseK≡0 zero (suc k) (m , p) = refl
  n<k→nChooseK≡0 (suc n) zero (m , p) = ⊥.rec (ℕsnotz {n = m +ℕ (suc n)} (sym (+-suc _ _) ∙ p))
  n<k→nChooseK≡0 (suc n) (suc k) (m , p) = cong₂ (_+_) p1 p2 ∙ +Lid 0r
@@ -141,7 +126,7 @@ module _ (R' : CommRing ℓ) where
    where
    -- can't put this in FinData.Properties because of cyclic module dependency...
    toℕ<n : ∀ {n} (i : Fin n) → toℕ i < n
-   toℕ<n {n = suc n} zero = n , +-one _
+   toℕ<n {n = suc n} zero = n , +ℕ-comm _ _
    toℕ<n {n = suc n} (suc i) = toℕ<n i .fst , +-suc _ _ ∙ cong suc (toℕ<n i .snd)
 
    yHelper : (y · y ^ (n ∸ suc (toℕ i))) ≡ y ^ (n ∸ toℕ (weakenFin i))
