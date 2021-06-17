@@ -13,7 +13,6 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat hiding (_·_)
--- open import Cubical.Data.Vec -- upstream def of FinVec?
 open import Cubical.Data.FinData
 
 open import Cubical.Algebra.Semigroup
@@ -24,15 +23,6 @@ open Iso
 private
   variable
     ℓ : Level
-    A : Type ℓ
-
--- nothing is proved about this except equiv with Vec
--- worth its own module?
-FinVec : (A : Type ℓ) (n : ℕ) → Type ℓ
-FinVec A n = Fin n → A
-
-replicateFinVec : (n : ℕ) → A → FinVec A n
-replicateFinVec _ a _ = a
 
 module MonoidBigOp (M' : Monoid ℓ) where
  private M = ⟨ M' ⟩

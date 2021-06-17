@@ -124,11 +124,6 @@ module _ (R' : CommRing ℓ) where
    · (x · x ^ toℕ (weakenFin i)) · y ^ (n ∸ toℕ (weakenFin i)))
    (solve4 _ _ _ _)
    where
-   -- can't put this in FinData.Properties because of cyclic module dependency...
-   toℕ<n : ∀ {n} (i : Fin n) → toℕ i < n
-   toℕ<n {n = suc n} zero = n , +ℕ-comm _ _
-   toℕ<n {n = suc n} (suc i) = toℕ<n i .fst , +-suc _ _ ∙ cong suc (toℕ<n i .snd)
-
    yHelper : (y · y ^ (n ∸ suc (toℕ i))) ≡ y ^ (n ∸ toℕ (weakenFin i))
    yHelper = cong (λ m → y · y ^ (n ∸ suc m)) (sym (weakenRespToℕ i))
            ∙ cong (y ^_) (≤-∸-suc (subst (λ m → suc m ≤ n) (sym (weakenRespToℕ _)) (toℕ<n i)))

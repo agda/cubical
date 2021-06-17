@@ -7,6 +7,7 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.FinData.Base as Fin
 import Cubical.Data.Nat as ℕ
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty as Empty
 open import Cubical.Relation.Nullary
 
@@ -49,3 +50,7 @@ isSetFin = Discrete→isSet discreteFin
 weakenRespToℕ : ∀ {n} (i : Fin n) → toℕ (weakenFin i) ≡ toℕ i
 weakenRespToℕ zero = refl
 weakenRespToℕ (suc i) = cong ℕ.suc (weakenRespToℕ i)
+
+toℕ<n : ∀ {n} (i : Fin n) → toℕ i < n
+toℕ<n {n = ℕ.suc n} zero = n , ℕ.+-comm n 1
+toℕ<n {n = ℕ.suc n} (suc i) = toℕ<n i .fst , ℕ.+-suc _ _ ∙ cong ℕ.suc (toℕ<n i .snd)
