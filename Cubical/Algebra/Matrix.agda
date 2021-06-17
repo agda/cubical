@@ -180,13 +180,14 @@ module _ (R' : Ring ℓ) where
 
   open RingStr (snd R') renaming ( is-set to isSetR )
   open RingTheory R'
+  open KroneckerDelta R'
   open Sum R'
   open FinMatrixAbGroup (_ , abgroupstr _ _ _ (snd R' .RingStr.+IsAbGroup))
 
   private R = ⟨ R' ⟩
 
   oneFinMatrix : ∀ {n} → FinMatrix R n n
-  oneFinMatrix i j = if i == j then 1r else 0r
+  oneFinMatrix i j = δ i j
 
   mulFinMatrix : ∀ {m1 m2 m3} → FinMatrix R m1 m2 → FinMatrix R m2 m3 → FinMatrix R m1 m3
   mulFinMatrix M N i k = ∑ λ j → M i j · N j k

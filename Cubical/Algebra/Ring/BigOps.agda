@@ -33,12 +33,23 @@ private
   variable
     ℓ : Level
 
+module KroneckerDelta (R' : Ring ℓ) where
+ private
+  R = fst R'
+ open RingStr (snd R')
+
+ δ : {n : ℕ} (i j : Fin n) → R
+ δ i j = if i == j then 1r else 0r
+
+
+
 module Sum (R' : Ring ℓ) where
  private
   R = fst R'
  open RingStr (snd R')
  open MonoidBigOp (Ring→AddMonoid R')
  open RingTheory R'
+ open KroneckerDelta R'
 
  ∑ = bigOp
  ∑Ext = bigOpExt
@@ -70,16 +81,16 @@ module Sum (R' : Ring ℓ) where
  ∑Mul0r : ∀ {n} → (V : FinVec R n) → ∑ (λ i → 0r · V i) ≡ 0r
  ∑Mul0r V = sym (∑Mulrdist 0r V) ∙ 0LeftAnnihilates _
 
- ∑Mulr1 : (n : ℕ) (V : FinVec R n) → (j : Fin n) → ∑ (λ i → V i · (if i == j then 1r else 0r)) ≡ V j
+ ∑Mulr1 : (n : ℕ) (V : FinVec R n) → (j : Fin n) → ∑ (λ i → V i · δ i j) ≡ V j
  ∑Mulr1 (suc n) V zero = (λ k → ·Rid (V zero) k + ∑Mulr0 (V ∘ suc) k) ∙ +Rid (V zero)
  ∑Mulr1 (suc n) V (suc j) =
-    (λ i → 0RightAnnihilates (V zero) i + ∑ (λ x → V (suc x) · (if x == j then 1r else 0r)))
+    (λ i → 0RightAnnihilates (V zero) i + ∑ (λ x → V (suc x) · δ x j))
     ∙∙ +Lid _ ∙∙ ∑Mulr1 n (V ∘ suc) j
 
- ∑Mul1r : (n : ℕ) (V : FinVec R n) → (j : Fin n) → ∑ (λ i → (if j == i then 1r else 0r) · V i) ≡ V j
+ ∑Mul1r : (n : ℕ) (V : FinVec R n) → (j : Fin n) → ∑ (λ i → (δ j i) · V i) ≡ V j
  ∑Mul1r (suc n) V zero = (λ k → ·Lid (V zero) k + ∑Mul0r (V ∘ suc) k) ∙ +Rid (V zero)
  ∑Mul1r (suc n) V (suc j) =
-   (λ i → 0LeftAnnihilates (V zero) i + ∑ (λ i → (if j == i then 1r else 0r) · V (suc i)))
+   (λ i → 0LeftAnnihilates (V zero) i + ∑ (λ i → (δ j i) · V (suc i)))
    ∙∙ +Lid _ ∙∙ ∑Mul1r n (V ∘ suc) j
 
 
@@ -89,7 +100,12 @@ module Product (R' : Ring ℓ) where
   R = fst R'
  open RingStr (snd R')
  open RingTheory R'
- open MonoidBigOp (Ring→MultMonoid R') renaming (bigOp to ∏)
+ open MonoidBigOp (Ring→MultMonoid R')
+
+ ∏ = bigOp
+ ∏Ext = bigOpExt
+ ∏0r = bigOpε
+ ∏Last = bigOpLast
 
  -- only holds in CommRings!
  -- ∏Split : ∀ {n} → (V W : FinVec R n) → ∏ (λ i → V i · W i) ≡ ∏ V · ∏ W
