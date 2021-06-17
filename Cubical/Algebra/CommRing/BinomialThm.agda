@@ -50,13 +50,13 @@ module _ (R' : CommRing ℓ) where
  BinomialVec : (n : ℕ) → R → R → FinVec R (suc n)
  BinomialVec n x y i = (n choose (toℕ i)) · x ^ (toℕ i) · y ^ (n ∸ toℕ i)
 
- thm : ∀ (n : ℕ) (x y : R) → (x + y) ^ n ≡ ∑ (BinomialVec n x y)
- thm zero x y = solve R'
- thm (suc n) x y =
+ BinomialThm : ∀ (n : ℕ) (x y : R) → (x + y) ^ n ≡ ∑ (BinomialVec n x y)
+ BinomialThm zero x y = solve R'
+ BinomialThm (suc n) x y =
      (x + y) ^ suc n
   ≡⟨ refl ⟩
      (x + y) · (x + y) ^ n
-  ≡⟨ cong ((x + y) ·_) (thm n x y) ⟩
+  ≡⟨ cong ((x + y) ·_) (BinomialThm n x y) ⟩
      (x + y) · ∑ (BinomialVec n x y)
   ≡⟨ ·Ldist+ _ _ _ ⟩
      x · ∑ (BinomialVec n x y) + y · ∑ (BinomialVec n x y)
