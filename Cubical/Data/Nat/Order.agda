@@ -168,6 +168,11 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 ≤-∸-+-cancel {suc m} {zero} m≤n = ⊥.rec (¬-<-zero m≤n)
 ≤-∸-+-cancel {suc m} {suc n} m+1≤n+1 = +-suc _ _ ∙ cong suc (≤-∸-+-cancel (pred-≤-pred m+1≤n+1))
 
+≤-∸-suc : m ≤ n → suc (n ∸ m) ≡ suc n ∸ m
+≤-∸-suc {zero} {n} m≤n = refl
+≤-∸-suc {suc m} {zero} m≤n = ⊥.rec (¬-<-zero m≤n)
+≤-∸-suc {suc m} {suc n} m+1≤n+1 = ≤-∸-suc (pred-≤-pred m+1≤n+1)
+
 left-≤-max : m ≤ max m n
 left-≤-max {zero} {n} = zero-≤
 left-≤-max {suc m} {zero} = ≤-refl

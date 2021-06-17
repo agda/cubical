@@ -43,10 +43,6 @@ weakenFin : {n : ℕ} → Fin n → Fin (suc n)
 weakenFin zero = zero
 weakenFin (suc i) = suc (weakenFin i)
 
-weakenRespToℕ : ∀ {n : ℕ} (i : Fin n) → toℕ (weakenFin i) ≡ toℕ i
-weakenRespToℕ zero = refl
-weakenRespToℕ (suc i) = cong suc (weakenRespToℕ i)
-
 predFin : {n : ℕ} → Fin (suc (suc n)) → Fin (suc n)
 predFin zero = zero
 predFin (suc x) = x

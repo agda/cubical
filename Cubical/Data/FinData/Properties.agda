@@ -44,3 +44,8 @@ discreteFin (suc x) (suc y) with discreteFin x y
 
 isSetFin : ∀{k} → isSet (Fin k)
 isSetFin = Discrete→isSet discreteFin
+
+
+weakenRespToℕ : ∀ {n} (i : Fin n) → toℕ (weakenFin i) ≡ toℕ i
+weakenRespToℕ zero = refl
+weakenRespToℕ (suc i) = cong ℕ.suc (weakenRespToℕ i)

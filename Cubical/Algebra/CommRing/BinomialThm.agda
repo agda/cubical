@@ -132,20 +132,21 @@ module _ (R' : CommRing ℓ) where
   middleVec i = xVec (weakenFin i) + yVec (suc i)
 
   middlePath : ∀ (i : Fin n) → middleVec i ≡ BinomialVec (suc n) x y (weakenFin (suc i))
-  middlePath i = {!!}
+  middlePath i = transport (λ j →
+     (n choose toℕ (weakenFin i)) · (x · x ^ toℕ (weakenFin i)) · y ^ (n ∸ toℕ (weakenFin i))
+   + (n choose suc (weakenRespToℕ i j)) · (x · x ^ (weakenRespToℕ i j)) · sym yHelper j
+   ≡ ((n choose suc (toℕ (weakenFin i))) + (n choose toℕ (weakenFin i)))
+   · (x · x ^ toℕ (weakenFin i)) · y ^ (n ∸ toℕ (weakenFin i)))
+   (solve4 _ _ _ _)
    where
-   foo : (y · y ^ (n ∸ suc (toℕ (weakenFin i)))) ≡ y ^ (n ∸ toℕ (weakenFin i))
-   foo = (y · y ^ (n ∸ suc (toℕ (weakenFin i)))) ≡⟨ refl ⟩
-         y ^ (suc (n ∸ suc (toℕ (weakenFin i)))) ≡⟨ cong (y ^_) {!!} ⟩
-         y ^ (suc n ∸ suc (toℕ (weakenFin i))) ≡⟨ refl ⟩
-         y ^ (n ∸ toℕ (weakenFin i)) ∎
-   --solve4 : ∀ ncwi xxʷⁱ
-   weakenedPath  :  (n choose toℕ (weakenFin i)) · (x · x ^ toℕ (weakenFin i))
-                  · y ^ (n ∸ toℕ (weakenFin i))
-                  + (n choose suc (toℕ (weakenFin i))) · (x · x ^ toℕ (weakenFin i))
-                  · (y · y ^ (n ∸ suc (toℕ (weakenFin i))))
-                 ≡
-                    ((n choose suc (toℕ (weakenFin i))) + (n choose toℕ (weakenFin i)))
-                  · (x · x ^ toℕ (weakenFin i)) · y ^ (n ∸ toℕ (weakenFin i))
-   weakenedPath = {!!}
-   --then use weakenRespToℕ
+   -- can't put this in FinData.Properties because of cyclic module dependency...
+   toℕ<n : ∀ {n} (i : Fin n) → toℕ i < n
+   toℕ<n {n = suc n} zero = n , +-one _
+   toℕ<n {n = suc n} (suc i) = toℕ<n i .fst , +-suc _ _ ∙ cong suc (toℕ<n i .snd)
+
+   yHelper : (y · y ^ (n ∸ suc (toℕ i))) ≡ y ^ (n ∸ toℕ (weakenFin i))
+   yHelper = cong (λ m → y · y ^ (n ∸ suc m)) (sym (weakenRespToℕ i))
+           ∙ cong (y ^_) (≤-∸-suc (subst (λ m → suc m ≤ n) (sym (weakenRespToℕ _)) (toℕ<n i)))
+
+   solve4 : ∀ nci ncsi xxⁱ yⁿ⁻ⁱ → nci · xxⁱ · yⁿ⁻ⁱ + ncsi · xxⁱ · yⁿ⁻ⁱ ≡ (ncsi + nci) · xxⁱ · yⁿ⁻ⁱ
+   solve4 = solve R'
