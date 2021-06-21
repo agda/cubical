@@ -93,6 +93,9 @@ module Sum (R' : Ring ℓ) where
    (λ i → 0LeftAnnihilates (V zero) i + ∑ (λ i → (δ j i) · V (suc i)))
    ∙∙ +Lid _ ∙∙ ∑Mul1r n (V ∘ suc) j
 
+ ∑Dist- : ∀ {n : ℕ} (V : FinVec R n) → ∑ (λ i → - V i) ≡ - ∑ V
+ ∑Dist- V = ∑Ext (λ i → -IsMult-1 (V i)) ∙ sym (∑Mulrdist _ V) ∙ sym (-IsMult-1 _)
+
 
 -- anything interesting to prove here?
 module Product (R' : Ring ℓ) where
