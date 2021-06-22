@@ -154,6 +154,9 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 <-k+ : m < n → k + m < k + n
 <-k+ {m} {n} {k} p = subst (λ km → km ≤ k + n) (+-suc k m) (≤-k+ p)
 
++-<-+ : m < n → k < l → m + k < n + l
++-<-+  m<n k<l = <-trans (<-+k m<n) (<-k+ k<l)
+
 <-·sk : m < n → m · suc k < n · suc k
 <-·sk {m} {n} {k} (d , r) = (d · suc k + k) , reason where
   reason : (d · suc k + k) + suc (m · suc k) ≡ n · suc k
@@ -208,6 +211,17 @@ suc m ≟ suc n = Trichotomy-suc (m ≟ n)
 <-split {n = zero} = inr ∘ snd ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred
 <-split {zero} {suc n} = λ _ → inl (suc-≤-suc zero-≤)
 <-split {suc m} {suc n} = ⊎.map suc-≤-suc (cong suc) ∘ <-split ∘ pred-≤-pred
+
+≤-+-split : ∀ n m k → k ≤ n + m → (n ≤ k) ⊎ (m ≤ (n + m) ∸ k)
+≤-+-split n m k k≤n+m with n ≟ k
+... | eq p = inl (0 , p)
+... | lt n<k = inl (<-weaken n<k)
+... | gt k<n with m ≟ ((n + m) ∸ k)
+... | eq p = inr (0 , p)
+... | lt m<n+m∸k = inr (<-weaken m<n+m∸k)
+... | gt n+m∸k<m =
+      ⊥.rec (¬m<m (transport (λ i → ≤-∸-+-cancel k≤n+m i < +-comm m n i) (+-<-+ n+m∸k<m k<n)))
+
 
 private
   acc-suc : Acc _<_ n → Acc _<_ (suc n)
