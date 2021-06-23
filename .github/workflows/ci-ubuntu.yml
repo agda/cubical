@@ -108,14 +108,14 @@ jobs:
           ${{ env.CABAL_INSTALL }} fix-whitespace.cabal
           cd ..
 
-      # ########################################################################
-      # ## TESTING
-      # ########################################################################
+      ########################################################################
+      ## TESTING
+      ########################################################################
 
-      # # By default github actions do not pull the repo
-      # - name: Checkout cubical
-      #   uses: actions/checkout@v2
+      # By default github actions do not pull the repo
+      - name: Checkout cubical
+        uses: actions/checkout@v2
 
-      # - name: Test cubical
-      #   run: |
-      #     make test
+      - name: Test cubical
+        run: |
+          make test
