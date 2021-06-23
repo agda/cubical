@@ -1,7 +1,9 @@
-AGDA_EXEC=agda -W error
+AGDA_EXEC?=agda -W error
+FIX_WHITESPACE?=fix-whitespace
 RTS_OPTIONS=+RTS -H3G -RTS
 AGDA=$(AGDA_EXEC) $(RTS_OPTIONS)
-EVERYTHINGS=runhaskell ./Everythings.hs
+RUNHASKELL?=runhaskell
+EVERYTHINGS=$(RUNHASKELL) ./Everythings.hs
 
 .PHONY : all
 all : check
@@ -13,11 +15,11 @@ test: check-whitespace gen-and-check-everythings check-README check
 
 .PHONY : fix-whitespace
 fix-whitespace:
-	fix-whitespace
+	$(FIX_WHITESPACE)
 
 .PHONY : check-whitespace
 check-whitespace:
-	fix-whitespace --check
+	$(FIX_WHITESPACE) --check
 
 # checking and generating Everything files
 
@@ -56,3 +58,4 @@ listings: $(wildcard Cubical/**/*.agda)
 .PHONY : clean
 clean:
 	find . -type f -name '*.agdai' -delete
+
