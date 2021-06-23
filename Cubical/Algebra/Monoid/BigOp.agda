@@ -2,23 +2,13 @@
 module Cubical.Algebra.Monoid.BigOp where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP
 
-open import Cubical.Data.Sigma
 open import Cubical.Data.Nat hiding (_·_)
 open import Cubical.Data.FinData
 
-open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid.Base
-
-open Iso
 
 private
   variable
