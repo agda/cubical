@@ -13,11 +13,11 @@ test: check-whitespace gen-and-check-everythings check-README check
 
 .PHONY : fix-whitespace
 fix-whitespace:
-	cabal exec -- fix-whitespace
+	fix-whitespace
 
 .PHONY : check-whitespace
 check-whitespace:
-	cabal exec -- fix-whitespace --check
+	fix-whitespace --check
 
 # checking and generating Everything files
 
