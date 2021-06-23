@@ -53,7 +53,7 @@ jobs:
       - name: Initialise variables
         run: |
           # Pick Agda version
-          echo "AGDA_COMMIT=tags/v2.6.2" >> $GITHUB_ENV
+          echo "AGDA_BRANCH=v2.6.2" >> $GITHUB_ENV
 
       ########################################################################
       ## CACHING
@@ -93,7 +93,7 @@ jobs:
       - name: Download and install Agda from github
         if: steps.cache-cabal.outputs.cache-hit != 'true'
         run: |
-          git clone https://github.com/agda/agda --depth=1 --branch ${{ env.AGDA_COMMIT }}
+          git clone https://github.com/agda/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
           cd agda
           mkdir -p doc
           touch doc/user-manual.pdf
