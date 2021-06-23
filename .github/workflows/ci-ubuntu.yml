@@ -68,10 +68,11 @@ jobs:
         id: cache-cabal
         with:
           path: |
+            ~/.ghcup/bin
             ~/.cabal/packages
             ~/.cabal/store
             ~/.cabal/bin
-          key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_COMMIT }}
+          key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}
 
       ########################################################################
       ## INSTALLATION STEPS
@@ -118,4 +119,7 @@ jobs:
 
       - name: Test cubical
         run: |
-          make test
+          make test \
+            AGDA_EXEC='~/.cabal/bin/agda -W error' \
+            FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
+            RUNHASKELL='~/.ghcup/bin/runhaskell'
