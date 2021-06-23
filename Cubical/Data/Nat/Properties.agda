@@ -166,3 +166,16 @@ zero∸ (suc _) = refl
 ∸-distribʳ m       zero    k = refl
 ∸-distribʳ zero    (suc n) k = sym (zero∸ (k + n · k))
 ∸-distribʳ (suc m) (suc n) k = ∸-distribʳ m n k ∙ sym (∸-cancelˡ k (m · k) (n · k))
+
+
+
+-- factorial:
+_! : ℕ → ℕ
+zero ! = 1
+suc n ! = (suc n) · (n !)
+
+--binomial coefficient:
+_choose_ : ℕ → ℕ → ℕ
+n choose zero = 1
+zero choose suc k = 0
+suc n choose suc k = n choose (suc k) + n choose k

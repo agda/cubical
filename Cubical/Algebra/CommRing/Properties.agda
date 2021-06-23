@@ -222,3 +222,4 @@ module CommRingTheory (R' : CommRing ℓ) where
  ·-commAssocSwap : (x y z w : R) → (x · y) · (z · w) ≡ (x · z) · (y · w)
  ·-commAssocSwap x y z w = ·Assoc (x · y) z w ∙∙ cong (_· w) (·-commAssocr x y z)
                                                ∙∙ sym (·Assoc (x · z) y w)
+

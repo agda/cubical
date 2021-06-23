@@ -23,6 +23,7 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.BigOps
 
 open Iso
 
@@ -179,118 +180,64 @@ module _ (R' : Ring ℓ) where
 
   open RingStr (snd R') renaming ( is-set to isSetR )
   open RingTheory R'
+  open KroneckerDelta R'
+  open Sum R'
   open FinMatrixAbGroup (_ , abgroupstr _ _ _ (snd R' .RingStr.+IsAbGroup))
 
   private R = ⟨ R' ⟩
 
   oneFinMatrix : ∀ {n} → FinMatrix R n n
-  oneFinMatrix i j = if i == j then 1r else 0r
-
-  -- TODO: upstream and state for monoids
-  ∑ : ∀ {n} → FinVec R n → R
-  ∑ = foldrFin _+_ 0r
+  oneFinMatrix i j = δ i j
 
   mulFinMatrix : ∀ {m1 m2 m3} → FinMatrix R m1 m2 → FinMatrix R m2 m3 → FinMatrix R m1 m3
   mulFinMatrix M N i k = ∑ λ j → M i j · N j k
 
-
-  -- Properties
-  sumVecExt : ∀ {n} → {V W : FinVec R n} → ((i : Fin n) → V i ≡ W i) → ∑ V ≡ ∑ W
-  sumVecExt {n = zero} _    = refl
-  sumVecExt {n = suc n} h i = h zero i + sumVecExt (h ∘ suc) i
-
-  sumVecSplit : ∀ {n} → (V W : FinVec R n) → ∑ (λ i → V i + W i) ≡ ∑ V + ∑ W
-  sumVecSplit {n = zero}  V W = sym (+Rid 0r)
-  sumVecSplit {n = suc n} V W =
-    V zero + W zero + ∑ (λ i → V (suc i) + W (suc i)) ≡⟨ (λ i → V zero + W zero + sumVecSplit (V ∘ suc) (W ∘ suc) i) ⟩
-    V zero + W zero + (∑ (V ∘ suc) + ∑ (W ∘ suc))     ≡⟨ sym (+Assoc _ _ _) ⟩
-    V zero + (W zero + (∑ (V ∘ suc) + ∑ (W ∘ suc)))   ≡⟨ cong (λ x → V zero + x) (+Assoc-comm1 _ _ _) ⟩
-    V zero + (∑ (V ∘ suc) + (W zero + (∑ (W ∘ suc)))) ≡⟨ +Assoc _ _ _ ⟩
-    V zero + ∑ (V ∘ suc) + (W zero + ∑ (W ∘ suc))     ∎
-
-  sumVec0r : (n : ℕ) → ∑ (λ (i : Fin n) → 0r) ≡ 0r
-  sumVec0r zero    = refl
-  sumVec0r (suc n) = cong (λ x → 0r + x) (sumVec0r n) ∙ +Rid 0r
-
-  sumVecExchange : ∀ {m n} → (M : FinMatrix R m n) → ∑ (λ i → ∑ (λ j → M i j)) ≡ ∑ (λ j → ∑ (λ i → M i j))
-  sumVecExchange {m = zero}  {n = n}     M = sym (sumVec0r n)
-  sumVecExchange {m = suc m} {n = zero}  M = cong (λ x → 0r + x) (sumVec0r m) ∙ +Rid 0r
-  sumVecExchange {m = suc m} {n = suc n} M =
+  ∑Exchange : ∀ {m n} → (M : FinMatrix R m n) → ∑ (λ i → ∑ (λ j → M i j)) ≡ ∑ (λ j → ∑ (λ i → M i j))
+  ∑Exchange {m = zero}  {n = n}     M = sym (∑0r n)
+  ∑Exchange {m = suc m} {n = zero}  M = cong (λ x → 0r + x) (∑0r m) ∙ +Rid 0r
+  ∑Exchange {m = suc m} {n = suc n} M =
      let a  = M zero zero
          L  = ∑ λ j → M zero (suc j)
          C  = ∑ λ i → M (suc i) zero
          N  = ∑ λ i → ∑ λ j → M (suc i) (suc j)
          -- N reindexed
          N' = ∑ λ j → ∑ λ i → M (suc i) (suc j)
-     in a + L + ∑ (λ i → ∑ (λ j → M (suc i) j)) ≡⟨ (λ k → a + L + sumVecSplit (λ i → M (suc i) zero) (λ i → ∑ (λ j → M (suc i) (suc j))) k) ⟩
-        a + L + (C + N)                         ≡⟨ (λ k → a + L + (C + sumVecExchange (λ i j → M (suc i) (suc j)) k)) ⟩
+     in a + L + ∑ (λ i → ∑ (λ j → M (suc i) j)) ≡⟨ (λ k → a + L + ∑Split (λ i → M (suc i) zero) (λ i → ∑ (λ j → M (suc i) (suc j))) k) ⟩
+        a + L + (C + N)                         ≡⟨ (λ k → a + L + (C + ∑Exchange (λ i j → M (suc i) (suc j)) k)) ⟩
         a + L + (C + N')                        ≡⟨ sym (+Assoc _ _ _) ⟩
         a + (L + (C + N'))                      ≡⟨ (λ k → a + +Assoc-comm1 L C N' k) ⟩
         a + (C + (L + N'))                      ≡⟨ +Assoc _ _ _ ⟩
-        a + C + (L + N')                        ≡⟨ (λ k → a + C + sumVecSplit (λ j → M zero (suc j)) (λ j → ∑ (λ i → M (suc i) (suc j))) (~ k)) ⟩
+        a + C + (L + N')                        ≡⟨ (λ k → a + C + ∑Split (λ j → M zero (suc j)) (λ j → ∑ (λ i → M (suc i) (suc j))) (~ k)) ⟩
         a + C + ∑ (λ j → ∑ (λ i → M i (suc j))) ∎
 
-  sumVecMulrdist : ∀ {n} → (x : R) → (V : FinVec R n)
-                 → x · ∑ V ≡ ∑ λ i → x · V i
-  sumVecMulrdist {n = zero}  x _ = 0RightAnnihilates x
-  sumVecMulrdist {n = suc n} x V =
-    x · (V zero + ∑ (V ∘ suc))           ≡⟨ ·Rdist+ _ _ _ ⟩
-    x · V zero + x · ∑ (V ∘ suc)         ≡⟨ (λ i → x · V zero + sumVecMulrdist x (V ∘ suc) i) ⟩
-    x · V zero + ∑ (λ i → x · V (suc i)) ∎
-
-  sumVecMulldist : ∀ {n} → (x : R) → (V : FinVec R n)
-                 → (∑ V) · x ≡ ∑ λ i → V i · x
-  sumVecMulldist {n = zero}  x _ = 0LeftAnnihilates x
-  sumVecMulldist {n = suc n} x V =
-    (V zero + ∑ (V ∘ suc)) · x           ≡⟨ ·Ldist+ _ _ _ ⟩
-    V zero · x + (∑ (V ∘ suc)) · x       ≡⟨ (λ i → V zero · x + sumVecMulldist x (V ∘ suc) i) ⟩
-    V zero · x + ∑ (λ i → V (suc i) · x) ∎
-
-  sumVecMulr0 : ∀ {n} → (V : FinVec R n) → ∑ (λ i → V i · 0r) ≡ 0r
-  sumVecMulr0 V = sym (sumVecMulldist 0r V) ∙ 0RightAnnihilates _
-
-  sumVecMul0r : ∀ {n} → (V : FinVec R n) → ∑ (λ i → 0r · V i) ≡ 0r
-  sumVecMul0r V = sym (sumVecMulrdist 0r V) ∙ 0LeftAnnihilates _
-
-  sumVecMulr1 : (n : ℕ) (V : FinVec R n) → (j : Fin n) → ∑ (λ i → V i · (if i == j then 1r else 0r)) ≡ V j
-  sumVecMulr1 (suc n) V zero = (λ k → ·Rid (V zero) k + sumVecMulr0 (V ∘ suc) k) ∙ +Rid (V zero)
-  sumVecMulr1 (suc n) V (suc j) =
-     (λ i → 0RightAnnihilates (V zero) i + ∑ (λ x → V (suc x) · (if x == j then 1r else 0r)))
-     ∙∙ +Lid _ ∙∙ sumVecMulr1 n (V ∘ suc) j
-
-  sumVecMul1r : (n : ℕ) (V : FinVec R n) → (j : Fin n) → ∑ (λ i → (if j == i then 1r else 0r) · V i) ≡ V j
-  sumVecMul1r (suc n) V zero = (λ k → ·Lid (V zero) k + sumVecMul0r (V ∘ suc) k) ∙ +Rid (V zero)
-  sumVecMul1r (suc n) V (suc j) =
-    (λ i → 0LeftAnnihilates (V zero) i + ∑ (λ i → (if j == i then 1r else 0r) · V (suc i)))
-    ∙∙ +Lid _ ∙∙ sumVecMul1r n (V ∘ suc) j
 
   mulFinMatrixAssoc : ∀ {m n k l} → (M : FinMatrix R m n) → (N : FinMatrix R n k) → (K : FinMatrix R k l)
                    → mulFinMatrix M (mulFinMatrix N K) ≡ mulFinMatrix (mulFinMatrix M N) K
   mulFinMatrixAssoc M N K = funExt₂ λ i j →
-    ∑ (λ k → M i k · ∑ (λ l → N k l · K l j))   ≡⟨ sumVecExt (λ k → sumVecMulrdist (M i k) (λ l → N k l · K l j)) ⟩
-    ∑ (λ k → ∑ (λ l → M i k · (N k l · K l j))) ≡⟨ sumVecExt (λ k → sumVecExt (λ l → ·Assoc (M i k) (N k l) (K l j))) ⟩
-    ∑ (λ k → ∑ (λ l → M i k · N k l · K l j))   ≡⟨ sumVecExchange (λ k l → M i k · N k l · K l j) ⟩
-    ∑ (λ l → ∑ (λ k → M i k · N k l · K l j))   ≡⟨ sumVecExt (λ l → sym (sumVecMulldist (K l j) (λ k → M i k · N k l))) ⟩
+    ∑ (λ k → M i k · ∑ (λ l → N k l · K l j))   ≡⟨ ∑Ext (λ k → ∑Mulrdist (M i k) (λ l → N k l · K l j)) ⟩
+    ∑ (λ k → ∑ (λ l → M i k · (N k l · K l j))) ≡⟨ ∑Ext (λ k → ∑Ext (λ l → ·Assoc (M i k) (N k l) (K l j))) ⟩
+    ∑ (λ k → ∑ (λ l → M i k · N k l · K l j))   ≡⟨ ∑Exchange (λ k l → M i k · N k l · K l j) ⟩
+    ∑ (λ l → ∑ (λ k → M i k · N k l · K l j))   ≡⟨ ∑Ext (λ l → sym (∑Mulldist (K l j) (λ k → M i k · N k l))) ⟩
     ∑ (λ l → ∑ (λ k → M i k · N k l) · K l j)   ∎
 
   mulFinMatrixr1 : ∀ {m n} → (M : FinMatrix R m n) → mulFinMatrix M oneFinMatrix ≡ M
-  mulFinMatrixr1 M = funExt₂ λ i j → sumVecMulr1 _ (M i) j
+  mulFinMatrixr1 M = funExt₂ λ i j → ∑Mulr1 _ (M i) j
 
   mulFinMatrix1r : ∀ {m n} → (M : FinMatrix R m n) → mulFinMatrix oneFinMatrix M ≡ M
-  mulFinMatrix1r M = funExt₂ λ i j → sumVecMul1r _ (λ x → M x j) i
+  mulFinMatrix1r M = funExt₂ λ i j → ∑Mul1r _ (λ x → M x j) i
 
   mulFinMatrixrDistrAddFinMatrix : ∀ {n} (M N K : FinMatrix R n n)
                                  → mulFinMatrix M (addFinMatrix N K) ≡ addFinMatrix (mulFinMatrix M N) (mulFinMatrix M K)
   mulFinMatrixrDistrAddFinMatrix M N K = funExt₂ λ i j →
-    ∑ (λ k → M i k · (N k j + K k j))                 ≡⟨ sumVecExt (λ k → ·Rdist+ (M i k) (N k j) (K k j)) ⟩
-    ∑ (λ k → M i k · N k j + M i k · K k j)           ≡⟨ sumVecSplit (λ k → M i k · N k j) (λ k → M i k · K k j) ⟩
+    ∑ (λ k → M i k · (N k j + K k j))                 ≡⟨ ∑Ext (λ k → ·Rdist+ (M i k) (N k j) (K k j)) ⟩
+    ∑ (λ k → M i k · N k j + M i k · K k j)           ≡⟨ ∑Split (λ k → M i k · N k j) (λ k → M i k · K k j) ⟩
     ∑ (λ k → M i k · N k j) + ∑ (λ k → M i k · K k j) ∎
 
   mulFinMatrixlDistrAddFinMatrix : ∀ {n} (M N K : FinMatrix R n n)
                                  → mulFinMatrix (addFinMatrix M N) K ≡ addFinMatrix (mulFinMatrix M K) (mulFinMatrix N K)
   mulFinMatrixlDistrAddFinMatrix M N K = funExt₂ λ i j →
-    ∑ (λ k → (M i k + N i k) · K k j)                 ≡⟨ sumVecExt (λ k → ·Ldist+ (M i k) (N i k) (K k j)) ⟩
-    ∑ (λ k → M i k · K k j + N i k · K k j)           ≡⟨ sumVecSplit (λ k → M i k · K k j) (λ k → N i k · K k j) ⟩
+    ∑ (λ k → (M i k + N i k) · K k j)                 ≡⟨ ∑Ext (λ k → ·Ldist+ (M i k) (N i k) (K k j)) ⟩
+    ∑ (λ k → M i k · K k j + N i k · K k j)           ≡⟨ ∑Split (λ k → M i k · K k j) (λ k → N i k · K k j) ⟩
     ∑ (λ k → M i k · K k j) + ∑ (λ k → N i k · K k j) ∎
 
   FinMatrixRing : (n : ℕ) → Ring ℓ
