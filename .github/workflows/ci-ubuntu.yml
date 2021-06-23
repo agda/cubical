@@ -93,9 +93,8 @@ jobs:
       - name: Download and install Agda from github
         if: steps.cache-cabal.outputs.cache-hit != 'true'
         run: |
-          git clone https://github.com/agda/agda --depth=1
+          git clone https://github.com/agda/agda --depth=1 --branch ${{ env.AGDA_COMMIT }}
           cd agda
-          git checkout ${{ env.AGDA_COMMIT }}
           mkdir -p doc
           touch doc/user-manual.pdf
           ${{ env.CABAL_INSTALL }}
