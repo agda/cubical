@@ -235,7 +235,7 @@ isOfHLevelRetractFromIso : {A : Type ℓ} {B : Type ℓ'} (n : HLevel) → Iso A
 isOfHLevelRetractFromIso n e hlev = isOfHLevelRetract n (Iso.fun e) (Iso.inv e) (Iso.leftInv e) hlev
 
 isOfHLevelRespectEquiv : {A : Type ℓ} {B : Type ℓ'} → (n : HLevel) → A ≃ B → isOfHLevel n A → isOfHLevel n B
-isOfHLevelRespectEquiv n eq = isOfHLevelRetract n (invEq eq) (eq .fst) (retEq eq)
+isOfHLevelRespectEquiv n eq = isOfHLevelRetract n (invEq eq) (eq .fst) (secEq eq)
 
 isContrRetractOfConstFun : {A : Type ℓ} {B : Type ℓ'} (b₀ : B)
    → Σ[ f ∈ (B → A) ] ((x : A) → (f ∘ (λ _ → b₀)) x ≡ x)
@@ -489,9 +489,9 @@ isOfHLevel⁺≃ᵣ
   : ∀ n {A : Type ℓ} {B : Type ℓ'}
   → isOfHLevel (suc n) B → isOfHLevel (suc n) (A ≃ B)
 isOfHLevel⁺≃ᵣ zero pB e
-  = isOfHLevel≃ 1 (isPropRetract (e .fst) (invEq e) (secEq e) pB) pB e
+  = isOfHLevel≃ 1 (isPropRetract (e .fst) (invEq e) (retEq e) pB) pB e
 isOfHLevel⁺≃ᵣ (suc n) hB e
-  = isOfHLevel≃ m (isOfHLevelRetract m (e .fst) (invEq e) (secEq e) hB) hB e
+  = isOfHLevel≃ m (isOfHLevelRetract m (e .fst) (invEq e) (retEq e) hB) hB e
   where
   m = suc (suc n)
 

@@ -22,7 +22,7 @@ open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.Ring.QuotientRing
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
-open import Cubical.Algebra.RingSolver.ReflectionSolving hiding (∣)
+open import Cubical.Algebra.RingSolver.ReflectionSolving
 
 private
   variable
@@ -98,3 +98,4 @@ module _ (Ring@(R , str) : CommRing ℓ) (r : R) where
 
   FGIdeal : Type (ℓ-suc ℓ)
   FGIdeal = Σ[ I ∈ CommIdeal Ring ] ∃[ n ∈ ℕ ] ∃[ V ∈ FinVec R n ] I ≡ ⟨ V ⟩
+

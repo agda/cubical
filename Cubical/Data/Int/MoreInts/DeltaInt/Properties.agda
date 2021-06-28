@@ -28,15 +28,15 @@ isSetDeltaInt : isSet DeltaInt
 
 -}
 
-module Cubical.HITs.Ints.DeltaInt.Properties where
+module Cubical.Data.Int.MoreInts.DeltaInt.Properties where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Nat hiding (zero)
-open import Cubical.Data.Int hiding (abs; sgn; _+_)
-open import Cubical.HITs.Ints.DeltaInt.Base
+open import Cubical.Data.Int hiding (abs; _+_)
+open import Cubical.Data.Int.MoreInts.DeltaInt.Base
 open import Cubical.Relation.Nullary using (Discrete)
 
-deltaIntSec : ∀ b → toInt (fromInt b) ≡ b
+deltaIntSec : ∀ b → toℤ (fromℤ b) ≡ b
 deltaIntSec (pos n) = refl
 deltaIntSec (negsuc n) = refl
 
@@ -55,7 +55,7 @@ cancelTriangle a b i j = hcomp (λ k → λ
   ; (j = i1) → cancel a b (i ∧ k)
   }) (a ⊖ b)
 
-deltaIntRet : ∀ a → fromInt (toInt a) ≡ a
+deltaIntRet : ∀ a → fromℤ (toℤ a) ≡ a
 deltaIntRet (x ⊖ 0) = refl
 deltaIntRet (0 ⊖ suc y) = refl
 deltaIntRet (suc x ⊖ suc y) = deltaIntRet (x ⊖ y) ∙ cancel x y
@@ -63,14 +63,14 @@ deltaIntRet (cancel a 0 i) = cancelTriangle a 0 i
 deltaIntRet (cancel 0 (suc b) i) = cancelTriangle 0 (suc b) i
 deltaIntRet (cancel (suc a) (suc b) i) = deltaIntRet (cancel a b i) ∙ cancelDiamond a b i
 
-DeltaInt≡Int : DeltaInt ≡ Int
-DeltaInt≡Int = isoToPath (iso toInt fromInt deltaIntSec deltaIntRet)
+DeltaInt≡ℤ : DeltaInt ≡ ℤ
+DeltaInt≡ℤ = isoToPath (iso toℤ fromℤ deltaIntSec deltaIntRet)
 
 discreteDeltaInt : Discrete DeltaInt
-discreteDeltaInt = subst Discrete (sym DeltaInt≡Int) discreteInt
+discreteDeltaInt = subst Discrete (sym DeltaInt≡ℤ) discreteℤ
 
 isSetDeltaInt : isSet DeltaInt
-isSetDeltaInt = subst isSet (sym DeltaInt≡Int) isSetInt
+isSetDeltaInt = subst isSet (sym DeltaInt≡ℤ) isSetℤ
 
 succPred : ∀ n → succ (pred n) ≡ n
 succPred (x ⊖ y) i = cancel x y (~ i)

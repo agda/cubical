@@ -62,7 +62,7 @@ record DUARel {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : UARel A ℓ≅A)
   uaᴰρ {a} b b' =
     compEquiv
       (uaᴰ b (ρ _) b')
-      (substEquiv (λ q → PathP (λ i → B (q i)) b b') (retEq (ua a a) refl))
+      (substEquiv (λ q → PathP (λ i → B (q i)) b b') (secEq (ua a a) refl))
 
   ρᴰ : {a : A} → (b : B a) → b ≅ᴰ⟨ ρ a ⟩ b
   ρᴰ {a} b = invEq (uaᴰρ b b) refl

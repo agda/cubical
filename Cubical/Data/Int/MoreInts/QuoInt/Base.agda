@@ -1,6 +1,6 @@
 -- Define the integers as a HIT by identifying +0 and -0
 {-# OPTIONS --safe #-}
-module Cubical.HITs.Ints.QuoInt.Base where
+module Cubical.Data.Int.MoreInts.QuoInt.Base where
 
 open import Cubical.Core.Everything
 
@@ -11,7 +11,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Relation.Nullary
 
-open import Cubical.Data.Int as Int using (Int; sucInt; predInt; discreteInt; isSetInt)
+open import Cubical.Data.Int using () renaming (ℤ to Int ; discreteℤ to discreteInt ; isSetℤ to isSetInt)
 open import Cubical.Data.Nat as ℕ using (ℕ; zero; suc)
 open import Cubical.Data.Bool as Bool using (Bool; not; notnot)
 

@@ -51,7 +51,7 @@ congEquiv : {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (equivFun e x ≡ equivFun
 congEquiv e = isoToEquiv (congIso (equivToIso e))
 
 equivAdjointEquiv : (e : A ≃ B) → ∀ {a b} → (a ≡ invEq e b) ≃ (equivFun e a ≡ b)
-equivAdjointEquiv e = compEquiv (congEquiv e) (compPathrEquiv (retEq e _))
+equivAdjointEquiv e = compEquiv (congEquiv e) (compPathrEquiv (secEq e _))
 
 invEq≡→equivFun≡ : (e : A ≃ B) → ∀ {a b} → invEq e b ≡ a → equivFun e a ≡ b
 invEq≡→equivFun≡ e = equivFun (equivAdjointEquiv e) ∘ sym

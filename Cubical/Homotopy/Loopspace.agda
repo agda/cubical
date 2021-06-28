@@ -65,9 +65,9 @@ ptdIso→comm {A = (A , a)} {B = B} e comm p q =
 {- Homotopy group version -}
 π-comp : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → ∥ typ ((Ω^ (suc n)) A) ∥₂
       → ∥ typ ((Ω^ (suc n)) A) ∥₂ → ∥ typ ((Ω^ (suc n)) A) ∥₂
-π-comp n = elim2 (λ _ _ → setTruncIsSet) λ p q → ∣ p ∙ q ∣₂
+π-comp n = elim2 (λ _ _ → isSetSetTrunc) λ p q → ∣ p ∙ q ∣₂
 
 Eckmann-Hilton-π : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p q : ∥ typ ((Ω^ (2 + n)) A) ∥₂)
                → π-comp (1 + n) p q ≡ π-comp (1 + n) q p
-Eckmann-Hilton-π  n = elim2 (λ x y → isOfHLevelPath 2 setTruncIsSet _ _)
+Eckmann-Hilton-π  n = elim2 (λ x y → isOfHLevelPath 2 isSetSetTrunc _ _)
                              λ p q → cong ∣_∣₂ (Eckmann-Hilton n p q)

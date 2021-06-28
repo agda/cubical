@@ -19,7 +19,7 @@ open import Cubical.HITs.S1
 
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Data.Sigma
-open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +-comm to +ℤ-comm ; +-assoc to +ℤ-assoc)
+open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +Comm to +ℤ-comm ; +Assoc to +ℤ-assoc)
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec)
 open import Cubical.HITs.SetTruncation renaming (elim to sElim ; map to sMap ; rec to sRec)
@@ -98,14 +98,14 @@ S¹map-id = trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
 -- Given a map f : S¹ → S¹, the idea is to send this to (f(base) , winding (f(loop))). For this to be
 -- well-typed, we need to translate f(loop) into an element in Ω(S¹,base).
 
-S¹→S¹≡S¹×Int : Iso (S¹ → hLevelTrunc 3 S¹) (S¹ × Int)
-Iso.fun S¹→S¹≡S¹×Int f = S¹map (f base)
+S¹→S¹≡S¹×ℤ : Iso (S¹ → hLevelTrunc 3 S¹) (S¹ × ℤ)
+Iso.fun S¹→S¹≡S¹×ℤ f = S¹map (f base)
                  , winding (basechange2⁻ (S¹map (f base)) λ i → S¹map (f (loop i)))
-Iso.inv S¹→S¹≡S¹×Int (s , int) base = ∣ s ∣
-Iso.inv S¹→S¹≡S¹×Int (s , int) (loop i) = ∣ basechange2 s (intLoop int) i ∣
-Iso.rightInv S¹→S¹≡S¹×Int (s , int) = ΣPathP (refl , ((λ i → winding (basechange2-retr s (λ i → intLoop int i) i))
-                                                      ∙ windingIntLoop int))
-Iso.leftInv S¹→S¹≡S¹×Int f = funExt λ { base → S¹map-id (f base)
+Iso.inv S¹→S¹≡S¹×ℤ (s , int) base = ∣ s ∣
+Iso.inv S¹→S¹≡S¹×ℤ (s , int) (loop i) = ∣ basechange2 s (intLoop int) i ∣
+Iso.rightInv S¹→S¹≡S¹×ℤ (s , int) = ΣPathP (refl , ((λ i → winding (basechange2-retr s (λ i → intLoop int i) i))
+                                                      ∙ windingℤLoop int))
+Iso.leftInv S¹→S¹≡S¹×ℤ f = funExt λ { base → S¹map-id (f base)
                                       ; (loop i) j → helper j i}
   where
   helper : PathP (λ i → S¹map-id (f base) i ≡ S¹map-id (f base) i)
@@ -135,8 +135,8 @@ Iso.leftInv S¹→S¹≡S¹×Int f = funExt λ { base → S¹map-id (f base)
                                (λ i → S¹map (f (loop i)))) i) j ∣
 
 {- Proof that (S¹ → K₁) ≃ K₁ × ℤ. Needed for H¹(T²) -}
-S1→K₁≡S1×Int : Iso ((S₊ 1) → coHomK 1) (coHomK 1 × Int)
-S1→K₁≡S1×Int = S¹→S¹≡S¹×Int ⋄ prodIso (invIso (truncIdempotentIso 3 (isGroupoidS¹))) idIso
+S1→K₁≡S1×ℤ : Iso ((S₊ 1) → coHomK 1) (coHomK 1 × ℤ)
+S1→K₁≡S1×ℤ = S¹→S¹≡S¹×ℤ ⋄ prodIso (invIso (truncIdempotentIso 3 (isGroupoidS¹))) idIso
 
 module _ (key : Unit') where
   module P = lockedCohom key

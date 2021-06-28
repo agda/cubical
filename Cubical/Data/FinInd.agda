@@ -37,7 +37,7 @@ isFinSet→isFinInd : isFinSet A → isFinInd A
 isFinSet→isFinInd = PT.rec
   squash
   λ (n , equiv) →
-    ∣ n , invEq equiv , section→isSurjection (secEq equiv) ∣
+    ∣ n , invEq equiv , section→isSurjection (retEq equiv) ∣
 
 isFinInd-S¹ : isFinInd S¹
 isFinInd-S¹ = ∣ 1 , f , isSurjection-f ∣
