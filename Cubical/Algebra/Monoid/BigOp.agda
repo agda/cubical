@@ -24,7 +24,7 @@ module MonoidBigOp (M' : Monoid ℓ) where
  bigOpExt : ∀ {n} {V W : FinVec M n} → ((i : Fin n) → V i ≡ W i) → bigOp V ≡ bigOp W
  bigOpExt h = cong bigOp (funExt h)
 
- bigOpε : ∀ n → bigOp (replicateFinVec n ε) ≡ ε
+ bigOpε : ∀ n → bigOp (λ (_ : Fin n) → ε) ≡ ε
  bigOpε zero = refl
  bigOpε (suc n) = cong (ε ·_) (bigOpε n) ∙ rid _
 

@@ -173,7 +173,6 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
     postulate
       q : ∃[ I ∈ FinSubsetℕ ] ({j : ℕ} → j ∉ I .fst → p j ≡ 0g (G j .snd))
 
-  open IsMonoid
 
    -- foo : n ≤ m → 1⊕G' (m ∸ n)) ≡ δ m n
    -- foo = ?
@@ -186,8 +185,23 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
     help (suc n) = goal
       where
       open MonoidBigOp (Group→Monoid (AbGroup→Group (G (suc n)))) renaming (bigOp to ∑)
+
+
+      helper2 : (∑ ((λ i → subst (λ i → G i .fst) (helper i) (x (toℕ i) ·G 1⊕G' (suc n ∸ toℕ i))) ∘ weakenFin)) ≡ 0g (G (suc n) .snd)
+      helper2 = {!!}
+
       goal : (∑ λ i → subst (λ i → G i .fst) (helper i) (x (toℕ i) ·G 1⊕G' (suc n ∸ toℕ i))) ≡ x (suc n)
-      goal = {!!}
+      goal = (∑ λ i → subst (λ i → G i .fst) (helper i) (x (toℕ i) ·G 1⊕G' (suc n ∸ toℕ i)))
+        ≡⟨ bigOpLast (λ i → subst (λ i → G i .fst) (helper i) (x (toℕ i) ·G 1⊕G' (suc n ∸ toℕ i))) ⟩
+             G (suc n) .snd ._+G_ (∑ ((λ i → subst (λ i → G i .fst) (helper i) (x (toℕ i) ·G 1⊕G' (suc n ∸ toℕ i))) ∘ weakenFin))
+                                  (subst (λ i → G i .fst) (helper (fromℕ n)) (x (toℕ (fromℕ n)) ·G 1⊕G' (suc n ∸ toℕ (fromℕ n))))
+        ≡⟨ (λ i → G (suc n) .snd ._+G_ (helper2 i) (subst (λ i → G i .fst) (helper (fromℕ n)) (x (toℕ (fromℕ n)) ·G 1⊕G' (suc n ∸ toℕ (fromℕ n))))) ⟩
+             G (suc n) .snd ._+G_ (0g (G (suc n) .snd))
+                                  (subst (λ i → G i .fst) (helper (fromℕ n)) (x (toℕ (fromℕ n)) ·G 1⊕G' (suc n ∸ toℕ (fromℕ n))))
+        ≡⟨ lid (G (suc n) .snd) _ ⟩
+             subst (λ i → G i .fst) (helper (fromℕ n)) (x (toℕ (fromℕ n)) ·G 1⊕G' (suc n ∸ toℕ (fromℕ n)))
+        ≡⟨ {!!} ⟩
+             x (suc n)  ∎
 
   ·⊕G-lid : (x : ⊕G) → 1⊕G ·⊕G x ≡ x
   ·⊕G-lid (x , h) = Σ≡Prop (λ _ → squash) (funExt (λ i → help i))
