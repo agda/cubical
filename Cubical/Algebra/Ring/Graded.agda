@@ -129,12 +129,16 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
   - snd ⊕G-AbGroup = -⊕G_
   isAbGroup (snd ⊕G-AbGroup) = makeIsAbGroup isSet⊕G +⊕G-assoc +⊕G-rid +-⊕G +⊕G-comm
 
+  1⊕G' : (i : ℕ) → G i .fst
+  1⊕G' 0 = 1G
+  1⊕G' i = 0g (G i .snd)
+
   1⊕G : ⊕G
   1⊕G = (1⊕G' , ∣ X , hX ∣)
      where
-     1⊕G' : (i : ℕ) → G i .fst
-     1⊕G' 0 = 1G
-     1⊕G' i = 0g (G i .snd)
+ -- δ : {n : ℕ} (i j : Fin n) → R
+ -- δ i j = if i == j then 1r else 0r
+
 
      X : FinSubsetℕ
      X = X' , hX'
@@ -153,30 +157,37 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
      hX {zero} j∉X = ⊥-elim (j∉X tt)
      hX {suc j} j∉X = refl
 
+  abstract
+    helper : {n : ℕ} → (i : Fin (suc n)) → toℕ i +ℕ (suc n ∸ toℕ i) ≡ suc n
+    helper i = +-comm (toℕ i) _ ∙ ≤-∸-+-cancel (≤-suc (pred-≤-pred (toℕ<n i)))
+
   _·⊕G_ : ⊕G → ⊕G → ⊕G
   (x , Hx) ·⊕G (y , Hy) = p , q
     where
     p : (n : ℕ) → G n .fst
     p 0 = x 0 ·G y 0
-    p (suc n) = ∑ (λ (i : Fin (suc n)) → subst (λ i → G i .fst)
-                                               (help (toℕ i) (pred-≤-pred (toℕ<n i)))
-                                               (x (toℕ i) ·G y (suc n ∸ toℕ i)))
+    p (suc n) = ∑ (λ i → subst (λ i → G i .fst) (helper i) (x (toℕ i) ·G y (suc n ∸ toℕ i)))
       where
       open MonoidBigOp (Group→Monoid (AbGroup→Group (G (suc n)))) renaming (bigOp to ∑)
-      help : (m : ℕ) → m ≤ n → m +ℕ (suc n ∸ m) ≡ suc n
-      help m h = +-comm m _ ∙ ≤-∸-+-cancel {m} (≤-suc h)
 
     postulate
       q : ∃[ I ∈ FinSubsetℕ ] ({j : ℕ} → j ∉ I .fst → p j ≡ 0g (G j .snd))
 
   open IsMonoid
 
+   -- foo : n ≤ m → 1⊕G' (m ∸ n)) ≡ δ m n
+   -- foo = ?
+
   ·⊕G-rid : (x : ⊕G) → x ·⊕G 1⊕G ≡ x
   ·⊕G-rid (x , h) = Σ≡Prop (λ _ → squash) (funExt (λ i → help i))
     where
-    help : (i : ℕ) → ((x , h) ·⊕G 1⊕G) .fst i ≡ x i
+    help : (n : ℕ) → ((x , h) ·⊕G 1⊕G) .fst n ≡ x n
     help 0 = ·G-rid (x 0)
-    help (suc i) = {!help i!}
+    help (suc n) = goal
+      where
+      open MonoidBigOp (Group→Monoid (AbGroup→Group (G (suc n)))) renaming (bigOp to ∑)
+      goal : (∑ λ i → subst (λ i → G i .fst) (helper i) (x (toℕ i) ·G 1⊕G' (suc n ∸ toℕ i))) ≡ x (suc n)
+      goal = {!!}
 
   ·⊕G-lid : (x : ⊕G) → 1⊕G ·⊕G x ≡ x
   ·⊕G-lid (x , h) = Σ≡Prop (λ _ → squash) (funExt (λ i → help i))
@@ -193,6 +204,6 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
   _·_ (snd R) = _·⊕G_
   - snd R = -⊕G_
   +IsAbGroup (isRing (snd R)) = makeIsAbGroup isSet⊕G +⊕G-assoc +⊕G-rid +-⊕G +⊕G-comm
-  ·IsMonoid (isRing (snd R)) = makeIsMonoid isSet⊕G {!!} ·⊕G-rid {!!}
+  ·IsMonoid (isRing (snd R)) = makeIsMonoid isSet⊕G {!!} ·⊕G-rid ·⊕G-lid
   fst (dist (isRing (snd R)) x y z) = {!!}
   snd (dist (isRing (snd R)) x y z) = {!!}
