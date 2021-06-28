@@ -85,6 +85,7 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
                      (_·G_ : {m n : ℕ} → G m .fst → G n .fst → G (m +ℕ n) .fst)
                      (·G-rid : (x : G 0 .fst) → x ·G 1G ≡ x)
                      (·G-lid : (x : G 0 .fst) → 1G ·G x ≡ x)
+                     (·G-l0g : {m n : ℕ} (x : G m .fst) → x ·G 0g (G n .snd) ≡ 0g (G (m +ℕ n) .snd))
                      where
 
   ⊕G : Type (ℓ-max (ℓ-suc ℓ-zero) ℓ)
@@ -136,9 +137,6 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
   1⊕G : ⊕G
   1⊕G = (1⊕G' , ∣ X , hX ∣)
      where
- -- δ : {n : ℕ} (i j : Fin n) → R
- -- δ i j = if i == j then 1r else 0r
-
 
      X : FinSubsetℕ
      X = X' , hX'
@@ -158,15 +156,15 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
      hX {suc j} j∉X = refl
 
   abstract
-    helper : {n : ℕ} → (i : Fin (suc n)) → toℕ i +ℕ (suc n ∸ toℕ i) ≡ suc n
-    helper i = +-comm (toℕ i) _ ∙ ≤-∸-+-cancel (≤-suc (pred-≤-pred (toℕ<n i)))
+    helper : {n : ℕ} → (i : Fin (suc n)) → suc (toℕ i) +ℕ (suc n ∸ suc (toℕ i)) ≡ suc n
+    helper i = {!!} -- +-comm (toℕ i) _ ∙ ≤-∸-+-cancel (≤-suc (pred-≤-pred (toℕ<n i)))
 
   _·⊕G_ : ⊕G → ⊕G → ⊕G
   (x , Hx) ·⊕G (y , Hy) = p , q
     where
     p : (n : ℕ) → G n .fst
     p 0 = x 0 ·G y 0
-    p (suc n) = ∑ (λ i → subst (λ i → G i .fst) (helper i) (x (toℕ i) ·G y (suc n ∸ toℕ i)))
+    p (suc n) = ∑ (λ (i : Fin (suc n)) → subst (λ i → G i .fst) (helper i) (x (suc (toℕ i)) ·G y (suc n ∸ suc (toℕ i))))
       where
       open MonoidBigOp (Group→Monoid (AbGroup→Group (G (suc n)))) renaming (bigOp to ∑)
 
@@ -177,6 +175,11 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
    -- foo : n ≤ m → 1⊕G' (m ∸ n)) ≡ δ m n
    -- foo = ?
 
+  apa : {m n : ℕ} → (p : m ≡ n) (x : (i : ℕ) → G i .fst) → subst (λ x → G x .fst) p (x m) ≡ x n
+  apa p x = J (λ y q → subst (λ x → G x .fst) q (x _) ≡ x _) (transportRefl _) p
+
+-- subst  (helper (weakenFin i)) (0g (G (toℕ (weakenFin i) +ℕ (suc n ∸ toℕ (weakenFin i))) .snd))
+
   ·⊕G-rid : (x : ⊕G) → x ·⊕G 1⊕G ≡ x
   ·⊕G-rid (x , h) = Σ≡Prop (λ _ → squash) (funExt (λ i → help i))
     where
@@ -186,22 +189,62 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
       where
       open MonoidBigOp (Group→Monoid (AbGroup→Group (G (suc n)))) renaming (bigOp to ∑)
 
+      helper2 : (∑ ((λ i → subst (λ i → G i .fst) (helper i) (x (suc (toℕ i)) ·G 1⊕G' (suc n ∸ suc (toℕ i)))) ∘ weakenFin)) ≡ 0g (G (suc n) .snd)
+      helper2 =
+        ∑ ((λ i → subst (λ i₁ → G i₁ .fst) (helper i) (x (suc (toℕ i)) ·G 1⊕G' (suc n ∸ suc (toℕ i)))) ∘ weakenFin)
+         ≡⟨ bigOpExt helper3 ⟩
+        ∑ (λ (i : Fin n) → 0g (G (suc n) .snd)) ≡⟨ bigOpε n ⟩
+        0g (G (suc n) .snd) ∎
+        where
+        test : {n : ℕ} (i : Fin n) → 1⊕G' (suc n ∸ suc (toℕ (weakenFin i))) ≡ 0g (G (suc n ∸ suc (toℕ (weakenFin i))) .snd)
+        test zero = refl
+        test {suc n} (suc i) = test {n} i
 
-      helper2 : (∑ ((λ i → subst (λ i → G i .fst) (helper i) (x (toℕ i) ·G 1⊕G' (suc n ∸ toℕ i))) ∘ weakenFin)) ≡ 0g (G (suc n) .snd)
-      helper2 = {!!}
+        helper3 : (i : Fin n) → subst (λ x → G x .fst) (helper (weakenFin i)) (x (suc (toℕ (weakenFin i))) ·G 1⊕G' (suc n ∸ suc (toℕ (weakenFin i)))) ≡
+                                0g (G (suc n) .snd)
+        helper3 i =
+         subst (λ x → G x .fst) (helper (weakenFin i)) (x (suc (toℕ (weakenFin i))) ·G 1⊕G' (suc n ∸ suc (toℕ (weakenFin i))))
+         ≡⟨ (λ j → subst (λ x → G x .fst) (helper (weakenFin i)) (x (suc (toℕ (weakenFin i))) ·G test i j)) ⟩
+         subst (λ x → G x .fst) (helper (weakenFin i)) (x (suc (toℕ (weakenFin i))) ·G 0g (G (suc n ∸ suc (toℕ (weakenFin i))) .snd))
+         ≡⟨ (λ j → subst (λ x → G x .fst) (helper (weakenFin i)) (·G-l0g (x (suc (toℕ (weakenFin i)))) j)) ⟩
+         subst (λ x → G x .fst) (helper (weakenFin i)) (0g (G (suc (toℕ (weakenFin i)) +ℕ (suc n ∸ suc (toℕ (weakenFin i)))) .snd))
+         ≡⟨ apa (helper (weakenFin i)) (λ j → 0g (G j .snd)) ⟩
+            0g (G (suc n) .snd) ∎
 
-      goal : (∑ λ i → subst (λ i → G i .fst) (helper i) (x (toℕ i) ·G 1⊕G' (suc n ∸ toℕ i))) ≡ x (suc n)
-      goal = (∑ λ i → subst (λ i → G i .fst) (helper i) (x (toℕ i) ·G 1⊕G' (suc n ∸ toℕ i)))
-        ≡⟨ bigOpLast (λ i → subst (λ i → G i .fst) (helper i) (x (toℕ i) ·G 1⊕G' (suc n ∸ toℕ i))) ⟩
-             G (suc n) .snd ._+G_ (∑ ((λ i → subst (λ i → G i .fst) (helper i) (x (toℕ i) ·G 1⊕G' (suc n ∸ toℕ i))) ∘ weakenFin))
-                                  (subst (λ i → G i .fst) (helper (fromℕ n)) (x (toℕ (fromℕ n)) ·G 1⊕G' (suc n ∸ toℕ (fromℕ n))))
-        ≡⟨ (λ i → G (suc n) .snd ._+G_ (helper2 i) (subst (λ i → G i .fst) (helper (fromℕ n)) (x (toℕ (fromℕ n)) ·G 1⊕G' (suc n ∸ toℕ (fromℕ n))))) ⟩
+      bloop : (m n n' : ℕ) (p : n' ≡ n) (x y : (i : ℕ) → G i .fst) → x m ·G y n ≡ subst (λ x → G x .fst) (cong (m +ℕ_) p) (x m ·G y n')
+      bloop m n n' p = {!!}
+
+      froop : (m n : ℕ) (p : m ≡ 0) → x n ·G 1⊕G' m ≡ x (n +ℕ m)
+      froop zero n p = {! !}
+      froop (suc m) n p = {!!}
+
+      bepa : (n : ℕ) → x (suc (toℕ (fromℕ n))) ·G 1⊕G' (suc n ∸ suc (toℕ (fromℕ n))) ≡ x (suc (toℕ (fromℕ n) +ℕ (suc n ∸ suc (toℕ (fromℕ n)))))
+      bepa n = froop (suc n ∸ suc (toℕ (fromℕ n))) (suc (toℕ (fromℕ n))) {!!}
+        -- x (suc (toℕ (fromℕ n))) ·G 1⊕G' (suc n ∸ suc (toℕ (fromℕ n))) ≡⟨ bloop _ _ _ {!!} x 1⊕G' ⟩
+        -- subst (λ x → G x .fst) {!!} (x (suc (toℕ (fromℕ n))) ·G 1⊕G' 0) ≡⟨ {!!} ⟩
+        -- subst (λ x → G x .fst) {!!} (x (suc (toℕ (fromℕ n)))) ≡⟨ {!!} ⟩
+        -- x (suc (toℕ (fromℕ n) +ℕ (suc n ∸ suc (toℕ (fromℕ n))))) ∎
+        -- where
+        -- helpp : (n : ℕ) → suc (n +ℕ 0) ≡ suc (toℕ (fromℕ n) +ℕ (n ∸ toℕ (fromℕ n)))
+        -- helpp = {!!}
+
+      goal : (∑ λ (i : Fin (suc n)) → subst (λ i → G i .fst) (helper i) (x (suc (toℕ i)) ·G 1⊕G' (suc n ∸ suc (toℕ i)))) ≡ x (suc n)
+      goal = (∑ λ (i : Fin (suc n)) → subst (λ i → G i .fst) (helper i) (x (suc (toℕ i)) ·G 1⊕G' (suc n ∸ suc (toℕ i))))
+        ≡⟨ bigOpLast (λ i → subst (λ i → G i .fst) (helper i) (x (suc (toℕ i)) ·G 1⊕G' (suc n ∸ suc (toℕ i)))) ⟩
+             G (suc n) .snd ._+G_ (∑ ((λ i → subst (λ i → G i .fst) (helper i) (x (suc (toℕ i)) ·G 1⊕G' (suc n ∸ suc (toℕ i)))) ∘ weakenFin))
+                                  (subst (λ i → G i .fst) (helper (fromℕ n)) (x (suc (toℕ (fromℕ n))) ·G 1⊕G' (suc n ∸ suc (toℕ (fromℕ n)))))
+        ≡⟨ (λ i → G (suc n) .snd ._+G_ (helper2 i) (subst (λ i → G i .fst) (helper (fromℕ n)) (x (suc (toℕ (fromℕ n))) ·G 1⊕G' (suc n ∸ suc (toℕ (fromℕ n)))))) ⟩
              G (suc n) .snd ._+G_ (0g (G (suc n) .snd))
-                                  (subst (λ i → G i .fst) (helper (fromℕ n)) (x (toℕ (fromℕ n)) ·G 1⊕G' (suc n ∸ toℕ (fromℕ n))))
+                                  (subst (λ i → G i .fst) (helper (fromℕ n)) (x (suc (toℕ (fromℕ n))) ·G 1⊕G' (suc n ∸ suc (toℕ (fromℕ n)))))
         ≡⟨ lid (G (suc n) .snd) _ ⟩
-             subst (λ i → G i .fst) (helper (fromℕ n)) (x (toℕ (fromℕ n)) ·G 1⊕G' (suc n ∸ toℕ (fromℕ n)))
-        ≡⟨ {!!} ⟩
+             subst (λ i → G i .fst) (helper (fromℕ n)) (x (suc (toℕ (fromℕ n))) ·G 1⊕G' (suc n ∸ suc (toℕ (fromℕ n))))
+        ≡⟨ (λ i → subst (λ i → G i .fst) (helper (fromℕ n)) (bepa n i)) ⟩
+             subst (λ i → G i .fst) (helper (fromℕ n)) (x (suc (toℕ (fromℕ n) +ℕ (suc n ∸ suc (toℕ (fromℕ n))))))
+        ≡⟨ apa (helper (fromℕ n)) x ⟩
              x (suc n)  ∎
+
+
+
 
   ·⊕G-lid : (x : ⊕G) → 1⊕G ·⊕G x ≡ x
   ·⊕G-lid (x , h) = Σ≡Prop (λ _ → squash) (funExt (λ i → help i))

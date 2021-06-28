@@ -32,7 +32,6 @@ module MonoidBigOp (M' : Monoid ℓ) where
  bigOpLast {n = zero} V = rid _ ∙ sym (lid _)
  bigOpLast {n = suc n} V = cong (V zero ·_) (bigOpLast (V ∘ suc)) ∙ assoc _ _ _
 
-
  -- requires a commutative monoid:
  bigOpSplit : (∀ x y → x · y ≡ y · x)
             → {n : ℕ} → (V W : FinVec M n) → bigOp (λ i → V i · W i) ≡ bigOp V · bigOp W
