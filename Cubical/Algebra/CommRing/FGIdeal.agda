@@ -28,7 +28,7 @@ private
   variable
     ℓ : Level
 
-module _ (Ring@(R , str) : CommRing ℓ) (r : R) where
+module _ (Ring@(R , str) : CommRing ℓ) where
   infixr 5 _holds
   _holds : hProp ℓ → Type ℓ
   P holds = fst P
@@ -88,14 +88,14 @@ module _ (Ring@(R , str) : CommRing ℓ) (r : R) where
                                (isLinearCombination0 V)
                                λ r → isLinearCombinationL· V r
 
-  -- clash of notation?
-  open isCommIdeal
-  ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal Ring
-  fst ⟨ V ⟩ x = isLinearCombination V x , isPropPropTrunc
-  +Closed (snd ⟨ V ⟩) = isLinearCombination+ V
-  contains0 (snd ⟨ V ⟩) = isLinearCombination0 V
-  ·Closed (snd ⟨ V ⟩) r = isLinearCombinationL· V r
+-- bad notation?
+open isCommIdeal
+_-⟨_⟩ : {n : ℕ} (R : CommRing ℓ) → FinVec (fst R) n → CommIdeal R
+fst (R -⟨ V ⟩) x = isLinearCombination R V x , isPropPropTrunc
++Closed (snd (R -⟨ V ⟩)) = isLinearCombination+ R V
+contains0 (snd (R -⟨ V ⟩)) = isLinearCombination0 R V
+·Closed (snd (R -⟨ V ⟩)) r = isLinearCombinationL· R V r
 
-  FGIdeal : Type (ℓ-suc ℓ)
-  FGIdeal = Σ[ I ∈ CommIdeal Ring ] ∃[ n ∈ ℕ ] ∃[ V ∈ FinVec R n ] I ≡ ⟨ V ⟩
+FGIdealIn : (R : CommRing ℓ) → Type (ℓ-suc ℓ)
+FGIdealIn R = Σ[ I ∈ CommIdeal R ] ∃[ n ∈ ℕ ] ∃[ V ∈ FinVec (fst R) n ] I ≡ R -⟨ V ⟩
 

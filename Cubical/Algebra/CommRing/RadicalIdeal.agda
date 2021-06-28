@@ -2,6 +2,7 @@
 module Cubical.Algebra.CommRing.RadicalIdeal where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.HLevels
@@ -19,6 +20,7 @@ open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
+open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.BinomialThm
 open import Cubical.Algebra.Ring.QuotientRing
 open import Cubical.Algebra.Ring.Properties
@@ -42,6 +44,9 @@ module _ (R' : CommRing ℓ) where
  -- is there a sqrt character?
  rad : ℙ R → ℙ R
  rad I x = (∃[ n ∈ ℕ ] x ^ n ∈ I) , isPropPropTrunc
+
+ ∈→∈rad : ∀ (I : ℙ R) (x : R) → x ∈ I → x ∈ rad I
+ ∈→∈rad I _ x∈I = ∣ 1 , subst (_∈ I) (sym (·Rid _)) x∈I ∣
 
  radOfIdealIsIdeal : ∀ (I : ℙ R) → isCommIdeal R' I → isCommIdeal R' (rad I)
  +Closed (radOfIdealIsIdeal I ici) {x = x} {y = y} = map2 +ClosedΣ
@@ -88,3 +93,19 @@ module _ (R' : CommRing ℓ) where
    ∣ 1 , subst (_∈ I) (sym (0LeftAnnihilates 1r)) (ici .contains0) ∣
  ·Closed (radOfIdealIsIdeal I ici) r =
    map λ { (n , xⁿ∈I) → n , subst (_∈ I) (sym (^-ldist-· r _ n)) (ici .·Closed (r ^ n) xⁿ∈I) }
+
+
+ -- important lemma for characterization of th Zariski lattice
+ radFGIdealChar : {n : ℕ} (𝔞 : FinVec R n) (I : CommIdeal R')
+                → rad (fst (R' -⟨ 𝔞 ⟩)) ⊆ rad (fst I) ≃ (∀ i → 𝔞 i ∈ rad (fst I))
+ radFGIdealChar 𝔞 I = isEquivPropBiimpl→Equiv (⊆-isProp (rad (fst (R' -⟨ 𝔞 ⟩))) (rad (fst I)))
+                                              (isPropΠ (λ _ → rad (fst I) _ .snd)) .fst
+                                              (ltrImpl , rtlImpl)
+  where
+  open KroneckerDelta (CommRing→Ring R')
+  ltrImpl : rad (fst (R' -⟨ 𝔞 ⟩)) ⊆ rad (fst I) → (∀ i → 𝔞 i ∈ rad (fst I))
+  ltrImpl rad⟨𝔞⟩⊆radI i = rad⟨𝔞⟩⊆radI _ (∈→∈rad (fst (R' -⟨ 𝔞 ⟩)) (𝔞 i)
+                                        ∣ (λ j → δ i j) , sym (∑Mul1r _ _ i) ∣)
+
+  rtlImpl : (∀ i → 𝔞 i ∈ rad (fst I)) → rad (fst (R' -⟨ 𝔞 ⟩)) ⊆ rad (fst I)
+  rtlImpl ∀i→𝔞i∈radI x = {!!}
