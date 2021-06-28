@@ -16,8 +16,7 @@ open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
                                       ; _choose_ to _ℕchoose_ ; snotz to ℕsnotz)
 open import Cubical.Data.Nat.Order
 
-open import Cubical.HITs.PropositionalTruncation
-
+open import Cubical.HITs.PropositionalTruncation renaming (elim to PTelim)
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
@@ -41,15 +40,19 @@ module _ (R' : CommRing ℓ) where
  open BinomialThm R'
  open isCommIdeal
 
- -- is there a sqrt character?
- rad : ℙ R → ℙ R
- rad I x = (∃[ n ∈ ℕ ] x ^ n ∈ I) , isPropPropTrunc
 
- ∈→∈rad : ∀ (I : ℙ R) (x : R) → x ∈ I → x ∈ rad I
- ∈→∈rad I _ x∈I = ∣ 1 , subst (_∈ I) (sym (·Rid _)) x∈I ∣
+ √ : ℙ R → ℙ R --\surd
+ √ I x = (∃[ n ∈ ℕ ] x ^ n ∈ I) , isPropPropTrunc
 
- radOfIdealIsIdeal : ∀ (I : ℙ R) → isCommIdeal R' I → isCommIdeal R' (rad I)
- +Closed (radOfIdealIsIdeal I ici) {x = x} {y = y} = map2 +ClosedΣ
+ ^∈√→∈√ : ∀ (I : ℙ R) (x : R) (n : ℕ) → x ^ n ∈ √ I → x ∈ √ I
+ ^∈√→∈√ I x n =
+         map (λ { (m , [xⁿ]ᵐ∈I) → (n ·ℕ m) , subst (_∈ I) (sym (^-rdist-·ℕ x n m)) [xⁿ]ᵐ∈I })
+
+ ∈→∈√ : ∀ (I : ℙ R) (x : R) → x ∈ I → x ∈ √ I
+ ∈→∈√ I _ x∈I = ∣ 1 , subst (_∈ I) (sym (·Rid _)) x∈I ∣
+
+ √OfIdealIsIdeal : ∀ (I : ℙ R) → isCommIdeal R' I → isCommIdeal R' (√ I)
+ +Closed (√OfIdealIsIdeal I ici) {x = x} {y = y} = map2 +ClosedΣ
   where
   +ClosedΣ : Σ[ n ∈ ℕ ] x ^ n ∈ I → Σ[ n ∈ ℕ ] y ^ n ∈ I → Σ[ n ∈ ℕ ] (x + y) ^ n ∈ I
   +ClosedΣ (n , xⁿ∈I) (m , yᵐ∈I) = (n +ℕ m)
@@ -89,23 +92,32 @@ module _ (R' : CommRing ℓ) where
 
    ∑Binomial∈I : ∑ (BinomialVec (n +ℕ m) x y) ∈ I
    ∑Binomial∈I = ∑Closed R' (I , ici) (BinomialVec (n +ℕ m) _ _) binomialCoeff∈I
- contains0 (radOfIdealIsIdeal I ici) =
+ contains0 (√OfIdealIsIdeal I ici) =
    ∣ 1 , subst (_∈ I) (sym (0LeftAnnihilates 1r)) (ici .contains0) ∣
- ·Closed (radOfIdealIsIdeal I ici) r =
+ ·Closed (√OfIdealIsIdeal I ici) r =
    map λ { (n , xⁿ∈I) → n , subst (_∈ I) (sym (^-ldist-· r _ n)) (ici .·Closed (r ^ n) xⁿ∈I) }
 
 
  -- important lemma for characterization of th Zariski lattice
- radFGIdealChar : {n : ℕ} (𝔞 : FinVec R n) (I : CommIdeal R')
-                → rad (fst (R' -⟨ 𝔞 ⟩)) ⊆ rad (fst I) ≃ (∀ i → 𝔞 i ∈ rad (fst I))
- radFGIdealChar 𝔞 I = isEquivPropBiimpl→Equiv (⊆-isProp (rad (fst (R' -⟨ 𝔞 ⟩))) (rad (fst I)))
-                                              (isPropΠ (λ _ → rad (fst I) _ .snd)) .fst
+ √FGIdealChar : {n : ℕ} (𝔞 : FinVec R n) (I : CommIdeal R')
+                → √ (fst (R' -⟨ 𝔞 ⟩)) ⊆ √ (fst I) ≃ (∀ i → 𝔞 i ∈ √ (fst I))
+ √FGIdealChar 𝔞 I = isEquivPropBiimpl→Equiv (⊆-isProp (√ (fst (R' -⟨ 𝔞 ⟩))) (√ (fst I)))
+                                              (isPropΠ (λ _ → √ (fst I) _ .snd)) .fst
                                               (ltrImpl , rtlImpl)
   where
   open KroneckerDelta (CommRing→Ring R')
-  ltrImpl : rad (fst (R' -⟨ 𝔞 ⟩)) ⊆ rad (fst I) → (∀ i → 𝔞 i ∈ rad (fst I))
-  ltrImpl rad⟨𝔞⟩⊆radI i = rad⟨𝔞⟩⊆radI _ (∈→∈rad (fst (R' -⟨ 𝔞 ⟩)) (𝔞 i)
+  ltrImpl : √ (fst (R' -⟨ 𝔞 ⟩)) ⊆ √ (fst I) → (∀ i → 𝔞 i ∈ √ (fst I))
+  ltrImpl √⟨𝔞⟩⊆√I i = √⟨𝔞⟩⊆√I _ (∈→∈√ (fst (R' -⟨ 𝔞 ⟩)) (𝔞 i)
                                         ∣ (λ j → δ i j) , sym (∑Mul1r _ _ i) ∣)
 
-  rtlImpl : (∀ i → 𝔞 i ∈ rad (fst I)) → rad (fst (R' -⟨ 𝔞 ⟩)) ⊆ rad (fst I)
-  rtlImpl ∀i→𝔞i∈radI x = {!!}
+  rtlImpl : (∀ i → 𝔞 i ∈ √ (fst I)) → √ (fst (R' -⟨ 𝔞 ⟩)) ⊆ √ (fst I)
+  rtlImpl ∀i→𝔞i∈√I x = PTelim (λ _ → √ (fst I) x .snd)
+                                λ { (n , xⁿ∈⟨𝔞⟩) → ^∈√→∈√ (fst I) x n (elimHelper _ xⁿ∈⟨𝔞⟩) }
+   where
+   isCommIdeal√I = √OfIdealIsIdeal (fst I) (snd I)
+   elimHelper : ∀ (y : R) → y ∈ (fst (R' -⟨ 𝔞 ⟩)) → y ∈ √ (fst I)
+   elimHelper y = PTelim (λ _ → √ (fst I) y .snd)
+                   λ { (α , y≡∑α𝔞) → subst (_∈ √ (fst I)) (sym y≡∑α𝔞)
+                                           (∑Closed R' (√ (fst I) , isCommIdeal√I)
+                                           (λ i → α i · 𝔞 i)
+                                           (λ i → isCommIdeal√I .·Closed (α i) (∀i→𝔞i∈√I i))) }
