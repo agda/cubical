@@ -1,4 +1,5 @@
-{-# OPTIONS --safe #-}
+-- TODO: uncomment once finished!
+-- {-# OPTIONS --safe #-}
 module Cubical.Algebra.Ring.Graded where
 
 open import Cubical.Foundations.Prelude
@@ -10,10 +11,11 @@ open import Cubical.Relation.Nullary.Base
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.FinData
+open import Cubical.Data.FinData hiding (_==_)
 open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
-open import Cubical.Data.Empty.Base
+open import Cubical.Data.Empty renaming (elim to ⊥-elim)
+open import Cubical.Data.Unit
 open import Cubical.Data.Sum.Base hiding (map)
 
 open import Cubical.HITs.PropositionalTruncation renaming (rec to ∥-rec)
@@ -21,7 +23,7 @@ open import Cubical.HITs.PropositionalTruncation renaming (rec to ∥-rec)
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Monoid.BigOp
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group hiding (Bool ; Unit)
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring.Base
 open import Cubical.Algebra.Ring.Properties
@@ -33,6 +35,9 @@ private
 open AbGroupStr renaming (_+_ to _+G_)
 open RingStr
 open IsRing
+
+_==_ : ℕ → ℕ → Bool
+x == y = Dec→Bool (discreteℕ x y)
 
 isFiniteSubsetℕ : ℙ ℕ → Type₀
 isFiniteSubsetℕ X = ∃[ n ∈ ℕ ] ({x : ℕ} → x ∈ X → x < n)
@@ -75,7 +80,12 @@ x ∉ A = ¬ x ∈ A
 ∉∪ : (x : ℕ) (X Y : FinSubsetℕ) → x ∉ fst (X ∪ Y) → (x ∉ fst X) × (x ∉ fst Y)
 ∉∪ x X Y H = (λ HX → H ∣ inl HX ∣) , (λ HY → H ∣ inr HY ∣)
 
-module GradedRing (G : ℕ → AbGroup ℓ) where
+module GradedAbGroup (G : ℕ → AbGroup ℓ)
+                     (1G : G 0 .fst)
+                     (_·G_ : {m n : ℕ} → G m .fst → G n .fst → G (m +ℕ n) .fst)
+                     (·G-rid : (x : G 0 .fst) → x ·G 1G ≡ x)
+                     (·G-lid : (x : G 0 .fst) → 1G ·G x ≡ x)
+                     where
 
   ⊕G : Type (ℓ-max (ℓ-suc ℓ-zero) ℓ)
   ⊕G = Σ[ f ∈ ((i : ℕ) → G i .fst) ]
@@ -112,13 +122,77 @@ module GradedRing (G : ℕ → AbGroup ℓ) where
   +-⊕G : (x : ⊕G) → (x +⊕G (-⊕G x)) ≡ 0⊕G
   +-⊕G (x , _) = Σ≡Prop (λ _ → squash) (funExt (λ i → invr (G i .snd) _))
 
+  ⊕G-AbGroup : AbGroup (ℓ-max (ℓ-suc ℓ-zero) ℓ)
+  fst ⊕G-AbGroup = ⊕G
+  0g (snd ⊕G-AbGroup) = 0⊕G
+  _+G_ (snd ⊕G-AbGroup) = _+⊕G_
+  - snd ⊕G-AbGroup = -⊕G_
+  isAbGroup (snd ⊕G-AbGroup) = makeIsAbGroup isSet⊕G +⊕G-assoc +⊕G-rid +-⊕G +⊕G-comm
+
+  1⊕G : ⊕G
+  1⊕G = (1⊕G' , ∣ X , hX ∣)
+     where
+     1⊕G' : (i : ℕ) → G i .fst
+     1⊕G' 0 = 1G
+     1⊕G' i = 0g (G i .snd)
+
+     X : FinSubsetℕ
+     X = X' , hX'
+       where
+       X' : ℙ ℕ
+       X' 0 = Unit , isPropUnit
+       X' _ = ⊥ , isProp⊥
+
+       hX' : isFiniteSubsetℕ X'
+       hX' = ∣ 1 , foo ∣
+         where
+         foo : {x : ℕ} → x ∈ X' → x < 1
+         foo {zero} hx = 0 , refl
+
+     hX : {j : ℕ} → j ∉ X .fst → 1⊕G' j ≡ 0g (G j .snd)
+     hX {zero} j∉X = ⊥-elim (j∉X tt)
+     hX {suc j} j∉X = refl
+
+  _·⊕G_ : ⊕G → ⊕G → ⊕G
+  (x , Hx) ·⊕G (y , Hy) = p , q
+    where
+    p : (n : ℕ) → G n .fst
+    p 0 = x 0 ·G y 0
+    p (suc n) = ∑ (λ (i : Fin (suc n)) → subst (λ i → G i .fst)
+                                               (help (toℕ i) (pred-≤-pred (toℕ<n i)))
+                                               (x (toℕ i) ·G y (suc n ∸ toℕ i)))
+      where
+      open MonoidBigOp (Group→Monoid (AbGroup→Group (G (suc n)))) renaming (bigOp to ∑)
+      help : (m : ℕ) → m ≤ n → m +ℕ (suc n ∸ m) ≡ suc n
+      help m h = +-comm m _ ∙ ≤-∸-+-cancel {m} (≤-suc h)
+
+    postulate
+      q : ∃[ I ∈ FinSubsetℕ ] ({j : ℕ} → j ∉ I .fst → p j ≡ 0g (G j .snd))
+
+  open IsMonoid
+
+  ·⊕G-rid : (x : ⊕G) → x ·⊕G 1⊕G ≡ x
+  ·⊕G-rid (x , h) = Σ≡Prop (λ _ → squash) (funExt (λ i → help i))
+    where
+    help : (i : ℕ) → ((x , h) ·⊕G 1⊕G) .fst i ≡ x i
+    help 0 = ·G-rid (x 0)
+    help (suc i) = {!help i!}
+
+  ·⊕G-lid : (x : ⊕G) → 1⊕G ·⊕G x ≡ x
+  ·⊕G-lid (x , h) = Σ≡Prop (λ _ → squash) (funExt (λ i → help i))
+    where
+    help : (i : ℕ) → (1⊕G ·⊕G (x , h)) .fst i ≡ x i
+    help 0 = ·G-lid (x 0)
+    help (suc i) = {!!}
+
   R : Ring (ℓ-max (ℓ-suc ℓ-zero) ℓ)
   fst R = ⊕G
   0r (snd R) = 0⊕G
-  1r (snd R) = {!!}
-  RingStr._+_ (snd R) = _+⊕G_
-  _·_ (snd R) = {!!}
+  1r (snd R) = 1⊕G
+  _+_ (snd R) = _+⊕G_
+  _·_ (snd R) = _·⊕G_
   - snd R = -⊕G_
   +IsAbGroup (isRing (snd R)) = makeIsAbGroup isSet⊕G +⊕G-assoc +⊕G-rid +-⊕G +⊕G-comm
-  ·IsMonoid (isRing (snd R)) = {!!}
-  dist (isRing (snd R)) = {!!}
+  ·IsMonoid (isRing (snd R)) = makeIsMonoid isSet⊕G {!!} ·⊕G-rid {!!}
+  fst (dist (isRing (snd R)) x y z) = {!!}
+  snd (dist (isRing (snd R)) x y z) = {!!}
