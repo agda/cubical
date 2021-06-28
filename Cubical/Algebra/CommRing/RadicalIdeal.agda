@@ -23,7 +23,7 @@ open import Cubical.Algebra.CommRing.BinomialThm
 open import Cubical.Algebra.Ring.QuotientRing
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
-open import Cubical.Algebra.RingSolver.ReflectionSolving hiding (∣)
+open import Cubical.Algebra.RingSolver.ReflectionSolving
 
 private
   variable
@@ -41,7 +41,7 @@ module _ (R' : CommRing ℓ) where
 
  -- is there a sqrt character?
  rad : ℙ R → ℙ R
- rad I x = (∃[ n ∈ ℕ ] x ^ n ∈ I) , propTruncIsProp
+ rad I x = (∃[ n ∈ ℕ ] x ^ n ∈ I) , isPropPropTrunc
 
  radOfIdealIsIdeal : ∀ (I : ℙ R) → isCommIdeal R' I → isCommIdeal R' (rad I)
  +Closed (radOfIdealIsIdeal I ici) {x = x} {y = y} = map2 +ClosedΣ

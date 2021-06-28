@@ -83,7 +83,7 @@ module _ (Ring@(R , str) : CommRing ℓ) (r : R) where
 
   generatedIdeal : {n : ℕ} → FinVec R n → IdealsIn Ring
   generatedIdeal V = makeIdeal Ring
-                               (λ x → isLinearCombination V x , propTruncIsProp)
+                               (λ x → isLinearCombination V x , isPropPropTrunc)
                                (isLinearCombination+ V)
                                (isLinearCombination0 V)
                                λ r → isLinearCombinationL· V r
@@ -91,7 +91,7 @@ module _ (Ring@(R , str) : CommRing ℓ) (r : R) where
   -- clash of notation?
   open isCommIdeal
   ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal Ring
-  fst ⟨ V ⟩ x = isLinearCombination V x , propTruncIsProp
+  fst ⟨ V ⟩ x = isLinearCombination V x , isPropPropTrunc
   +Closed (snd ⟨ V ⟩) = isLinearCombination+ V
   contains0 (snd ⟨ V ⟩) = isLinearCombination0 V
   ·Closed (snd ⟨ V ⟩) r = isLinearCombinationL· V r
