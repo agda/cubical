@@ -88,7 +88,7 @@ module _ (Ring@(R , str) : CommRing ℓ) where
                                (isLinearCombination0 V)
                                λ r → isLinearCombinationL· V r
 
--- bad notation?
+
 open isCommIdeal
 genIdeal : {n : ℕ} (R : CommRing ℓ) → FinVec (fst R) n → CommIdeal R
 fst (genIdeal R V) x = isLinearCombination R V x , isPropPropTrunc
@@ -98,11 +98,6 @@ contains0 (snd (genIdeal R V)) = isLinearCombination0 R V
 
 syntax genIdeal R V = ⟨ V ⟩[ R ]
 
--- _-⟨_⟩ : {n : ℕ} (R : CommRing ℓ) → FinVec (fst R) n → CommIdeal R
--- fst (R -⟨ V ⟩) x = isLinearCombination R V x , isPropPropTrunc
--- +Closed (snd (R -⟨ V ⟩)) = isLinearCombination+ R V
--- contains0 (snd (R -⟨ V ⟩)) = isLinearCombination0 R V
--- ·Closed (snd (R -⟨ V ⟩)) r = isLinearCombinationL· R V r
 
 FGIdealIn : (R : CommRing ℓ) → Type (ℓ-suc ℓ)
 FGIdealIn R = Σ[ I ∈ CommIdeal R ] ∃[ n ∈ ℕ ] ∃[ V ∈ FinVec (fst R) n ] I ≡ ⟨ V ⟩[ R ]
