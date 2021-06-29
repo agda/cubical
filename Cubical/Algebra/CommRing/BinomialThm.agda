@@ -21,7 +21,7 @@ private
   variable
     ℓ : Level
 
-module _ (R' : CommRing ℓ) where
+module BinomialThm (R' : CommRing ℓ) where
  open CommRingStr (snd R')
  open Exponentiation R'
  open CommRingTheory R'

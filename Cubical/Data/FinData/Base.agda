@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
 import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Nat using (ℕ; zero; suc)
+open import Cubical.Data.Nat using (ℕ; zero; suc; _+_)
 open import Cubical.Data.Bool.Base
 open import Cubical.Relation.Nullary
 
@@ -73,3 +73,8 @@ FinVec A n = Fin n → A
 replicateFinVec : (n : ℕ) → A → FinVec A n
 replicateFinVec _ a _ = a
 
+
+_++Fin_ : {n m : ℕ} → FinVec A n → FinVec A m → FinVec A (n + m)
+_++Fin_ {n = zero} _ W i = W i
+_++Fin_ {n = suc n} V _ zero = V zero
+_++Fin_ {n = suc n} V W (suc i) = ((V ∘ suc) ++Fin W) i
