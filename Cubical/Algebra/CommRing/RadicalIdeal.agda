@@ -16,12 +16,11 @@ open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
                                       ; _choose_ to _ℕchoose_ ; snotz to ℕsnotz)
 open import Cubical.Data.Nat.Order
 
-open import Cubical.HITs.PropositionalTruncation renaming (elim to PTelim)
+open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.BinomialThm
-open import Cubical.Algebra.Ring.QuotientRing
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.RingSolver.ReflectionSolving
@@ -46,21 +45,21 @@ module _ (R' : CommRing ℓ) where
 
  ^∈√→∈√ : ∀ (I : ℙ R) (x : R) (n : ℕ) → x ^ n ∈ √ I → x ∈ √ I
  ^∈√→∈√ I x n =
-         map (λ { (m , [xⁿ]ᵐ∈I) → (n ·ℕ m) , subst (_∈ I) (sym (^-rdist-·ℕ x n m)) [xⁿ]ᵐ∈I })
+         map (λ { (m , [xⁿ]ᵐ∈I) → (n ·ℕ m) , subst-∈ I (sym (^-rdist-·ℕ x n m)) [xⁿ]ᵐ∈I })
 
  ∈→∈√ : ∀ (I : ℙ R) (x : R) → x ∈ I → x ∈ √ I
- ∈→∈√ I _ x∈I = ∣ 1 , subst (_∈ I) (sym (·Rid _)) x∈I ∣
+ ∈→∈√ I _ x∈I = ∣ 1 , subst-∈ I (sym (·Rid _)) x∈I ∣
 
  √OfIdealIsIdeal : ∀ (I : ℙ R) → isCommIdeal R' I → isCommIdeal R' (√ I)
  +Closed (√OfIdealIsIdeal I ici) {x = x} {y = y} = map2 +ClosedΣ
   where
   +ClosedΣ : Σ[ n ∈ ℕ ] x ^ n ∈ I → Σ[ n ∈ ℕ ] y ^ n ∈ I → Σ[ n ∈ ℕ ] (x + y) ^ n ∈ I
   +ClosedΣ (n , xⁿ∈I) (m , yᵐ∈I) = (n +ℕ m)
-                                  , subst (_∈ I) (sym (BinomialThm (n +ℕ m) _ _)) ∑Binomial∈I
+                                  , subst-∈ I (sym (BinomialThm (n +ℕ m) _ _)) ∑Binomial∈I
    where
    binomialCoeff∈I : ∀ i → ((n +ℕ m) choose toℕ i) · x ^ toℕ i · y ^ (n +ℕ m ∸ toℕ i) ∈ I
    binomialCoeff∈I i with ≤-+-split n m (toℕ i) (pred-≤-pred (toℕ<n i))
-   ... | inl n≤i = subst (_∈ I) (sym path) (·Closed ici _ xⁿ∈I)
+   ... | inl n≤i = subst-∈ I (sym path) (·Closed ici _ xⁿ∈I)
     where
     useSolver : ∀ a b c d → a · (b · c) · d ≡ a · b · d · c
     useSolver = solve R'
@@ -76,7 +75,7 @@ module _ (R' : CommRing ℓ) where
          ≡⟨ useSolver _ _ _ _ ⟩
            ((n +ℕ m) choose toℕ i) · x ^ (toℕ i ∸ n) · y ^ (n +ℕ m ∸ toℕ i) · x ^ n ∎
 
-   ... | inr m≤n+m-i = subst (_∈ I) (sym path) (·Closed ici _ yᵐ∈I)
+   ... | inr m≤n+m-i = subst-∈ I (sym path) (·Closed ici _ yᵐ∈I)
     where
     path : ((n +ℕ m) choose toℕ i) · x ^ toℕ i · y ^ (n +ℕ m ∸ toℕ i)
          ≡ ((n +ℕ m) choose toℕ i) · x ^ toℕ i · y ^ ((n +ℕ m ∸ toℕ i) ∸ m) · y ^ m
@@ -93,31 +92,31 @@ module _ (R' : CommRing ℓ) where
    ∑Binomial∈I : ∑ (BinomialVec (n +ℕ m) x y) ∈ I
    ∑Binomial∈I = ∑Closed R' (I , ici) (BinomialVec (n +ℕ m) _ _) binomialCoeff∈I
  contains0 (√OfIdealIsIdeal I ici) =
-   ∣ 1 , subst (_∈ I) (sym (0LeftAnnihilates 1r)) (ici .contains0) ∣
+   ∣ 1 , subst-∈ I (sym (0LeftAnnihilates 1r)) (ici .contains0) ∣
  ·Closed (√OfIdealIsIdeal I ici) r =
-   map λ { (n , xⁿ∈I) → n , subst (_∈ I) (sym (^-ldist-· r _ n)) (ici .·Closed (r ^ n) xⁿ∈I) }
+   map λ { (n , xⁿ∈I) → n , subst-∈ I (sym (^-ldist-· r _ n)) (ici .·Closed (r ^ n) xⁿ∈I) }
 
 
- -- important lemma for characterization of th Zariski lattice
- √FGIdealChar : {n : ℕ} (𝔞 : FinVec R n) (I : CommIdeal R')
-                → √ (fst (R' -⟨ 𝔞 ⟩)) ⊆ √ (fst I) ≃ (∀ i → 𝔞 i ∈ √ (fst I))
- √FGIdealChar 𝔞 I = isEquivPropBiimpl→Equiv (⊆-isProp (√ (fst (R' -⟨ 𝔞 ⟩))) (√ (fst I)))
+ -- important lemma for characterization of the Zariski lattice
+ √FGIdealChar : {n : ℕ} (V : FinVec R n) (I : CommIdeal R')
+                → √ (fst ⟨ V ⟩[ R' ]) ⊆ √ (fst I) ≃ (∀ i → V i ∈ √ (fst I))
+ √FGIdealChar V I = isEquivPropBiimpl→Equiv (⊆-isProp (√ (fst ⟨ V ⟩[ R' ])) (√ (fst I)))
                                               (isPropΠ (λ _ → √ (fst I) _ .snd)) .fst
                                               (ltrImpl , rtlImpl)
   where
   open KroneckerDelta (CommRing→Ring R')
-  ltrImpl : √ (fst (R' -⟨ 𝔞 ⟩)) ⊆ √ (fst I) → (∀ i → 𝔞 i ∈ √ (fst I))
-  ltrImpl √⟨𝔞⟩⊆√I i = √⟨𝔞⟩⊆√I _ (∈→∈√ (fst (R' -⟨ 𝔞 ⟩)) (𝔞 i)
+  ltrImpl : √ (fst ⟨ V ⟩[ R' ]) ⊆ √ (fst I) → (∀ i → V i ∈ √ (fst I))
+  ltrImpl √⟨V⟩⊆√I i = √⟨V⟩⊆√I _ (∈→∈√ (fst ⟨ V ⟩[ R' ]) (V i)
                                         ∣ (λ j → δ i j) , sym (∑Mul1r _ _ i) ∣)
 
-  rtlImpl : (∀ i → 𝔞 i ∈ √ (fst I)) → √ (fst (R' -⟨ 𝔞 ⟩)) ⊆ √ (fst I)
-  rtlImpl ∀i→𝔞i∈√I x = PTelim (λ _ → √ (fst I) x .snd)
-                                λ { (n , xⁿ∈⟨𝔞⟩) → ^∈√→∈√ (fst I) x n (elimHelper _ xⁿ∈⟨𝔞⟩) }
+  rtlImpl : (∀ i → V i ∈ √ (fst I)) → √ (fst ⟨ V ⟩[ R' ]) ⊆ √ (fst I)
+  rtlImpl ∀i→Vi∈√I x = PT.elim (λ _ → √ (fst I) x .snd)
+                                λ { (n , xⁿ∈⟨V⟩) → ^∈√→∈√ (fst I) x n (elimHelper _ xⁿ∈⟨V⟩) }
    where
    isCommIdeal√I = √OfIdealIsIdeal (fst I) (snd I)
-   elimHelper : ∀ (y : R) → y ∈ (fst (R' -⟨ 𝔞 ⟩)) → y ∈ √ (fst I)
-   elimHelper y = PTelim (λ _ → √ (fst I) y .snd)
-                   λ { (α , y≡∑α𝔞) → subst (_∈ √ (fst I)) (sym y≡∑α𝔞)
+   elimHelper : ∀ (y : R) → y ∈ (fst ⟨ V ⟩[ R' ]) → y ∈ √ (fst I)
+   elimHelper y = PT.elim (λ _ → √ (fst I) y .snd)
+                   λ { (α , y≡∑αV) → subst-∈ (√ (fst I)) (sym y≡∑αV)
                                            (∑Closed R' (√ (fst I) , isCommIdeal√I)
-                                           (λ i → α i · 𝔞 i)
-                                           (λ i → isCommIdeal√I .·Closed (α i) (∀i→𝔞i∈√I i))) }
+                                           (λ i → α i · V i)
+                                           (λ i → isCommIdeal√I .·Closed (α i) (∀i→Vi∈√I i))) }

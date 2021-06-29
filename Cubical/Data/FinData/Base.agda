@@ -73,7 +73,7 @@ FinVec A n = Fin n → A
 replicateFinVec : (n : ℕ) → A → FinVec A n
 replicateFinVec _ a _ = a
 
--- is this a good defintion?
+
 _++Fin_ : {n m : ℕ} → FinVec A n → FinVec A m → FinVec A (n + m)
 _++Fin_ {n = zero} _ W i = W i
 _++Fin_ {n = suc n} V _ zero = V zero

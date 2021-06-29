@@ -35,12 +35,12 @@ module _ (Ring@(R , str) : CommRing ℓ) where
   makeIdeal I +-closed 0r-closed ·-closedLeft = I ,
     (record
        { +-closed = +-closed
-       ; -closed = λ x∈I → subst (_∈ I) (useSolver _)
+       ; -closed = λ x∈I → subst-∈ I (useSolver _)
                              (·-closedLeft (- 1r) x∈I)
        ; 0r-closed = 0r-closed
        ; ·-closedLeft = ·-closedLeft
        ; ·-closedRight = λ r x∈I →
-                       subst (_∈ I)
+                       subst-∈ I
                              (·-comm r _)
                              (·-closedLeft r x∈I)
        })
@@ -73,7 +73,7 @@ module _ (R' : CommRing ℓ) where
  CommIdeal : Type _
  CommIdeal = Σ[ I ∈ ℙ R ] isCommIdeal I
 
- ∑Closed : (𝔞 : CommIdeal) {n : ℕ} (V : FinVec R n)
-         → (∀ i → V i ∈ 𝔞 .fst) → ∑ V ∈ 𝔞 .fst
- ∑Closed 𝔞 {n = zero} V h = 𝔞 .snd .contains0
- ∑Closed 𝔞 {n = suc n} V h = 𝔞 .snd .+Closed (h zero) (∑Closed 𝔞 (V ∘ suc) (h ∘ suc))
+ ∑Closed : (I : CommIdeal) {n : ℕ} (V : FinVec R n)
+         → (∀ i → V i ∈ fst I) → ∑ V ∈ fst I
+ ∑Closed I {n = zero} _ _ = I .snd .contains0
+ ∑Closed I {n = suc n} V h = I .snd .+Closed (h zero) (∑Closed I (V ∘ suc) (h ∘ suc))

@@ -90,12 +90,20 @@ module _ (Ring@(R , str) : CommRing ℓ) where
 
 -- bad notation?
 open isCommIdeal
-_-⟨_⟩ : {n : ℕ} (R : CommRing ℓ) → FinVec (fst R) n → CommIdeal R
-fst (R -⟨ V ⟩) x = isLinearCombination R V x , isPropPropTrunc
-+Closed (snd (R -⟨ V ⟩)) = isLinearCombination+ R V
-contains0 (snd (R -⟨ V ⟩)) = isLinearCombination0 R V
-·Closed (snd (R -⟨ V ⟩)) r = isLinearCombinationL· R V r
+genIdeal : {n : ℕ} (R : CommRing ℓ) → FinVec (fst R) n → CommIdeal R
+fst (genIdeal R V) x = isLinearCombination R V x , isPropPropTrunc
++Closed (snd (genIdeal R V)) = isLinearCombination+ R V
+contains0 (snd (genIdeal R V)) = isLinearCombination0 R V
+·Closed (snd (genIdeal R V)) r = isLinearCombinationL· R V r
+
+syntax genIdeal R V = ⟨ V ⟩[ R ]
+
+-- _-⟨_⟩ : {n : ℕ} (R : CommRing ℓ) → FinVec (fst R) n → CommIdeal R
+-- fst (R -⟨ V ⟩) x = isLinearCombination R V x , isPropPropTrunc
+-- +Closed (snd (R -⟨ V ⟩)) = isLinearCombination+ R V
+-- contains0 (snd (R -⟨ V ⟩)) = isLinearCombination0 R V
+-- ·Closed (snd (R -⟨ V ⟩)) r = isLinearCombinationL· R V r
 
 FGIdealIn : (R : CommRing ℓ) → Type (ℓ-suc ℓ)
-FGIdealIn R = Σ[ I ∈ CommIdeal R ] ∃[ n ∈ ℕ ] ∃[ V ∈ FinVec (fst R) n ] I ≡ R -⟨ V ⟩
+FGIdealIn R = Σ[ I ∈ CommIdeal R ] ∃[ n ∈ ℕ ] ∃[ V ∈ FinVec (fst R) n ] I ≡ ⟨ V ⟩[ R ]
 
