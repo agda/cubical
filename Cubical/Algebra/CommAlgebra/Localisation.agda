@@ -62,7 +62,7 @@ module AlgLoc (R' : CommRing ℓ)
                       → isContr (CommAlgebraHom A B)
 
  S⋆1⊆S⁻¹Rˣ : ∀ s → s ∈ S' → _⋆_ (snd S⁻¹RAsCommAlg) s (1a (snd S⁻¹RAsCommAlg)) ∈ S⁻¹Rˣ
- S⋆1⊆S⁻¹Rˣ s s∈S' = subst (_∈ S⁻¹Rˣ)
+ S⋆1⊆S⁻¹Rˣ s s∈S' = subst-∈ S⁻¹Rˣ
                     (cong [_] (≡-× (sym (·rRid s)) (Σ≡Prop (λ x → S' x .snd) (sym (·rRid _)))))
                     (S/1⊆S⁻¹Rˣ s s∈S')
 

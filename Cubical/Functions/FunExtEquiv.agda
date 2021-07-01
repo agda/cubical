@@ -8,7 +8,8 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
-open import Cubical.Data.Vec
+open import Cubical.Data.Vec.Base
+open import Cubical.Data.Vec.NAry
 open import Cubical.Data.Nat
 
 open import Cubical.Reflection.StrictEquiv
