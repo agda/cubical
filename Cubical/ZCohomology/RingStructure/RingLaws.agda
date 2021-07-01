@@ -352,39 +352,39 @@ private
   fst (assocer-helpFun2 n m a) b i = (Kn→ΩKn+1 _ a i) ⌣ₖ b
   snd (assocer-helpFun2 n m a) i j = ⌣ₖ-0ₖ _ (suc m) (Kn→ΩKn+1 _ a j) i
 
-  -- Key lemma for associativity
-  assocer-helpFun≡ : (n m : ℕ) → (x : coHomK (suc n)) → assocer-helpFun n m x ≡ assocer-helpFun2 n m x
-  assocer-helpFun≡ n m =
-    trElim (λ _ → isOfHLevelPath (3 + n) (hLev-assocer-helpFun n m) _ _)
-           λ a → →∙Homogeneous≡ (subst isHomogeneous Kn≃ΩKn+1∙ (isHomogeneousKn _))
-             (funExt (main n a))
-    where
-    hLev-assocer-helpFun : (n m : ℕ) → isOfHLevel (3 + n) (coHomK-ptd (suc m) →∙ Ω (coHomK-ptd (3 + (n + m))))
-    hLev-assocer-helpFun n m =
-      subst (isOfHLevel (3 + n)) (cong (coHomK-ptd (suc m) →∙_)
-        (Kn≃ΩKn+1∙))
-        (isOfHLevel↑∙ (suc n) m)
+-- Key lemma for associativity
+assocer-helpFun≡ : (n m : ℕ) → (x : coHomK (suc n)) → assocer-helpFun n m x ≡ assocer-helpFun2 n m x
+assocer-helpFun≡ n m =
+  trElim (λ _ → isOfHLevelPath (3 + n) (hLev-assocer-helpFun n m) _ _)
+         λ a → →∙Homogeneous≡ (subst isHomogeneous Kn≃ΩKn+1∙ (isHomogeneousKn _))
+           (funExt (main n a))
+  where
+  hLev-assocer-helpFun : (n m : ℕ) → isOfHLevel (3 + n) (coHomK-ptd (suc m) →∙ Ω (coHomK-ptd (3 + (n + m))))
+  hLev-assocer-helpFun n m =
+    subst (isOfHLevel (3 + n)) (cong (coHomK-ptd (suc m) →∙_)
+      (Kn≃ΩKn+1∙))
+      (isOfHLevel↑∙ (suc n) m)
 
-    main : (n : ℕ) (a : S₊ (suc n)) (b : _)
-      → fst (assocer-helpFun n m ∣ a ∣) b ≡ fst (assocer-helpFun2 n m ∣ a ∣) b
-    main zero a b k i =
-      hcomp
-        (λ r → λ {(i = i0) → 0ₖ _
-                 ; (i = i1) → ∣ rCancel (merid north) r (~ k) ∣
-                 ; (k = i0) → Kn→ΩKn+1 _ (∣ a ∣ ⌣ₖ b) i
-                 ; (k = i1) → (Kn→ΩKn+1 _ ∣ a ∣ i) ⌣ₖ b})
-        (∣ compPath-filler (merid a) (sym (merid base)) k i ∣ ⌣ₖ b)
-    main (suc n) a b k i =
-      hcomp
-        (λ r → λ {(i = i0) → 0ₖ _
-                 ; (i = i1) → ∣ rCancel (merid north) r (~ k) ∣
-                 ; (k = i0) → Kn→ΩKn+1 _ (∣ a ∣ ⌣ₖ b) i
-                 ; (k = i1) → (Kn→ΩKn+1 _ ∣ a ∣ i) ⌣ₖ b})
-        (∣ compPath-filler (merid a) (sym (merid north)) k i ∣ ⌣ₖ b)
+  main : (n : ℕ) (a : S₊ (suc n)) (b : _)
+    → fst (assocer-helpFun n m ∣ a ∣) b ≡ fst (assocer-helpFun2 n m ∣ a ∣) b
+  main zero a b k i =
+    hcomp
+      (λ r → λ {(i = i0) → 0ₖ _
+               ; (i = i1) → ∣ rCancel (merid north) r (~ k) ∣
+               ; (k = i0) → Kn→ΩKn+1 _ (∣ a ∣ ⌣ₖ b) i
+               ; (k = i1) → (Kn→ΩKn+1 _ ∣ a ∣ i) ⌣ₖ b})
+      (∣ compPath-filler (merid a) (sym (merid base)) k i ∣ ⌣ₖ b)
+  main (suc n) a b k i =
+    hcomp
+      (λ r → λ {(i = i0) → 0ₖ _
+               ; (i = i1) → ∣ rCancel (merid north) r (~ k) ∣
+               ; (k = i0) → Kn→ΩKn+1 _ (∣ a ∣ ⌣ₖ b) i
+               ; (k = i1) → (Kn→ΩKn+1 _ ∣ a ∣ i) ⌣ₖ b})
+      (∣ compPath-filler (merid a) (sym (merid north)) k i ∣ ⌣ₖ b)
 
-  assoc-helper : (n m : ℕ) (x : coHomK (suc n)) (y : coHomK (suc m))
-               → Kn→ΩKn+1 _ (x ⌣ₖ y) ≡ λ i → (Kn→ΩKn+1 _ x i) ⌣ₖ y
-  assoc-helper n m x y = funExt⁻ (cong fst (assocer-helpFun≡ n m x)) y
+assoc-helper : (n m : ℕ) (x : coHomK (suc n)) (y : coHomK (suc m))
+             → Kn→ΩKn+1 _ (x ⌣ₖ y) ≡ λ i → (Kn→ΩKn+1 _ x i) ⌣ₖ y
+assoc-helper n m x y = funExt⁻ (cong fst (assocer-helpFun≡ n m x)) y
 
 assoc-⌣ₖ· : (n m k : ℕ) → (x : coHomK (suc n)) → assocer n m k x ≡ assocer2 n m k x
 assoc-⌣ₖ· n m k =

@@ -24,53 +24,70 @@ open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
 -- II
-import Cubical.Foundations.Prelude                   as Prelude
-import Cubical.Foundations.GroupoidLaws              as GroupoidLaws
-import Cubical.Foundations.Path                      as Path
-open import Cubical.HITs.S1                          as S1
-open import Cubical.HITs.Susp                        as Suspension
-open import Cubical.HITs.Sn                          as Sn
-open import Cubical.Homotopy.Loopspace               as Loop
-open import Cubical.Foundations.HLevels              as n-types
-open import Cubical.HITs.Truncation                  as Trunc
-open import Cubical.Homotopy.Connected               as Connected
-import Cubical.HITs.Pushout                          as Push
-import Cubical.HITs.Wedge                            as ⋁
-import Cubical.Foundations.Univalence                as Unival
-import Cubical.Foundations.SIP                       as StructIdPrinc
-import Cubical.Algebra.Group                         as Gr
+open import Cubical.Core.Glue                                as Glue
+import Cubical.Foundations.Prelude                           as Prelude
+import Cubical.Foundations.GroupoidLaws                      as GroupoidLaws
+import Cubical.Foundations.Path                              as Path
+import Cubical.Foundations.Pointed                           as Pointed
+  renaming (Pointed to Type∙)
+open import Cubical.HITs.S1                                  as S1
+open import Cubical.HITs.Susp                                as Suspension
+open import Cubical.HITs.Sn                                  as Sn
+open import Cubical.Homotopy.Loopspace                       as Loop
+open import Cubical.Foundations.HLevels                      as n-types
+open import Cubical.HITs.Truncation                          as Trunc
+open import Cubical.Homotopy.Connected                       as Connected
+import Cubical.HITs.Pushout                                  as Push
+import Cubical.HITs.Wedge                                    as ⋁
+import Cubical.Foundations.Univalence                        as Unival
+import Cubical.Foundations.SIP                               as StructIdPrinc
+import Cubical.Algebra.Group                                 as Gr
+import Cubical.Algebra.Group.GroupPath                       as GrPath
 
 -- III
-import Cubical.ZCohomology.Base                      as coHom
-  renaming (coHomK to K)
-import Cubical.HITs.Sn.Properties                    as S
-import Cubical.ZCohomology.GroupStructure            as GroupStructure
-import Cubical.ZCohomology.Properties                as Properties
+import Cubical.ZCohomology.Base                              as coHom
+  renaming (coHomK to K ; coHomK-ptd to K∙)
+import Cubical.HITs.Sn.Properties                            as S
+import Cubical.ZCohomology.GroupStructure                    as GroupStructure
+import Cubical.ZCohomology.Properties                        as Properties
   renaming (Kn→ΩKn+1 to σ ; ΩKn+1→Kn to σ⁻¹)
 import Cubical.Experiments.ZCohomologyOld.Properties as oldCohom
 
--- IV
-import Cubical.Homotopy.EilenbergSteenrod            as ES-axioms
-import Cubical.ZCohomology.EilenbergSteenrodZ        as satisfies-ES-axioms
-  renaming (coHomFunctor to H^~ ; coHomFunctor' to Ĥ)
-import Cubical.ZCohomology.MayerVietorisUnreduced    as MayerVietoris
+-- 4
+import Cubical.ZCohomology.RingStructure.CupProduct          as Cup
+import Cubical.ZCohomology.RingStructure.RingLaws            as ⌣Ring
+import Cubical.ZCohomology.RingStructure.GradedCommutativity as ⌣Comm
+import Cubical.Foundations.Pointed.Homogeneous               as Homogen
 
--- V
-import Cubical.ZCohomology.Groups.Sn                 as HⁿSⁿ
+-- IV
+import Cubical.Homotopy.EilenbergSteenrod                    as ES-axioms
+import Cubical.ZCohomology.EilenbergSteenrodZ                as satisfies-ES-axioms
+  renaming (coHomFunctor to H^~ ; coHomFunctor' to Ĥ)
+import Cubical.ZCohomology.MayerVietorisUnreduced            as MayerVietoris
+
+-- 5
+import Cubical.HITs.Torus                                    as 𝕋²
+  renaming (Torus to 𝕋²)
+import Cubical.HITs.KleinBottle                              as 𝕂²
+  renaming (KleinBottle to 𝕂²)
+import Cubical.HITs.RPn                                      as ℝP
+  renaming (RP² to ℝP²)
+import Cubical.ZCohomology.Groups.Sn                         as HⁿSⁿ
   renaming (Hⁿ-Sᵐ≅0 to Hⁿ-Sᵐ≅1)
-import Cubical.ZCohomology.Groups.Torus              as HⁿT²
-import Cubical.ZCohomology.Groups.Wedge              as Hⁿ-wedge
-import Cubical.ZCohomology.Groups.KleinBottle        as Hⁿ𝕂²
-import Cubical.ZCohomology.Groups.RP2                as HⁿℝP²
+import Cubical.ZCohomology.Groups.Torus                      as HⁿT²
+import Cubical.ZCohomology.Groups.Wedge                      as Hⁿ-wedge
+import Cubical.ZCohomology.Groups.KleinBottle                as Hⁿ𝕂²
+import Cubical.ZCohomology.Groups.RP2                        as HⁿℝP²
   renaming (H¹-RP²≅0 to H¹-RP²≅1)
 
------ II. HOMOTOPY TYPE THEORY IN CUBICAL AGDA -----
+----- 2. HOMOTOPY TYPE THEORY IN CUBICAL AGDA -----
 
--- II.A Important notions in Cubical Agda
+-- 2.1 Important notions in Cubical Agda
 open Prelude using ( PathP
                    ; _≡_
                    ; refl
                    ; cong
+                   ; cong₂
                    ; funExt)
 
 open GroupoidLaws using (_⁻¹)
@@ -79,7 +96,10 @@ open Prelude using ( transport
                    ; subst
                    ; hcomp)
 
---- II.B Important concepts from HoTT/UF in Cubical Agda
+--- 2.2 Important concepts from HoTT/UF in Cubical Agda
+
+-- Pointed Types
+open Pointed using (Type∙)
 
 -- The circle, 𝕊¹
 open S1 using (S¹)
@@ -87,8 +107,8 @@ open S1 using (S¹)
 -- Suspensions
 open Suspension using (Susp)
 
--- n-spheres, 𝕊ⁿ
-open Sn using (S₊)
+-- (Pointed) n-spheres, 𝕊ⁿ
+open Sn using (S₊∙)
 
 -- Loop spaces
 open Loop using (Ω^_)
@@ -131,10 +151,13 @@ open Push using (Pushout)
 open ⋁ using (_⋁_)
 
 
--- III.C Univalence
+-- 2.3 Univalence
 
 -- Univalence and the ua function respectively
 open Unival using (univalence ; ua)
+
+-- Glue types
+open Glue using (Glue)
 
 -- The structure identity principle and the sip function
 -- respectively
@@ -143,19 +166,22 @@ open StructIdPrinc using (SIP ; sip)
 -- Groups
 open Gr using (Group)
 
+-- Isomorphic groups are path equal
+open GrPath using (GroupPath)
 
------ III. ℤ-COHOMOLOGY IN CUBICAL AGDA -----
+
+----- 3. ℤ-COHOMOLOGY IN CUBICAL AGDA -----
 
 
--- III.A Eilenberg-MacLane spaces
+-- 3.1 Eilenberg-MacLane spaces
 
--- Eilenberg-MacLane spaces Kₙ
-open coHom using (K)
+-- Eilenberg-MacLane spaces Kₙ (unpointed and pointed respectively) 
+open coHom using (K ; K∙)
 
--- Proposition 1
+-- Proposition 7
 open S using (sphereConnected)
 
--- Lemma 1
+-- Lemma 8
 open S using (wedgeconFun; wedgeconLeft ; wedgeconRight)
 
 -- restated to match the formulation in the paper
@@ -184,8 +210,14 @@ wedgeConSn' (suc n) m hlev fₗ fᵣ p =
    , λ _ → refl) -- right holds by refl
    , rUnit _
 
--- +ₖ (addition), -ₖ and 0ₖ
-open GroupStructure using (_+ₖ_ ; -ₖ_ ; 0ₖ)
+-- +ₖ (addition) and 0ₖ
+open GroupStructure using (_+ₖ_ ; 0ₖ)
+
+-- The function σ : Kₙ → ΩKₙ₊₁
+open Properties using (σ)
+
+-- -ₖ (subtraction)
+open GroupStructure using (-ₖ_)
 
 -- Group laws for +ₖ
 open GroupStructure using ( rUnitₖ ; lUnitₖ
@@ -226,8 +258,7 @@ n≥2-comm≡refl : {n : ℕ} → commₖ (2 + n) (0ₖ (2 + n)) (0ₖ (2 + n)) 
 1-comm≡refl = refl
 n≥2-comm≡refl = sym (rUnit refl)
 
--- lCancelₖ (≡ refl ∙ transport refl refl for n = 1
---         and transport refl refl ∙ transport refl refl for n ≥ 2)
+-- lCancelₖ (definitional)
 0-lCancel≡refl : lCancelₖ 0 (0ₖ 0) ≡ refl
 1-lCancel≡refl : lCancelₖ 1 (0ₖ 1) ≡ refl
 n≥2-lCancel≡refl : {n : ℕ} → lCancelₖ (2 + n) (0ₖ (2 + n)) ≡ refl
@@ -235,7 +266,7 @@ n≥2-lCancel≡refl : {n : ℕ} → lCancelₖ (2 + n) (0ₖ (2 + n)) ≡ refl
 1-lCancel≡refl = refl
 n≥2-lCancel≡refl = refl
 
--- rCancelₖ (≡ transport refl refl for n ≥ 1)
+-- rCancelₖ (≡ (refl ∙ refl) ∙ refl for n ≥ 1)
 0-rCancel≡refl : rCancelₖ 0 (0ₖ 0) ≡ refl
 1-rCancel≡refl : rCancelₖ 1 (0ₖ 1) ≡ refl
 n≥2-rCancel≡refl : {n : ℕ} → rCancelₖ (2 + n) (0ₖ (2 + n)) ≡ refl
@@ -262,23 +293,20 @@ additionsAgree (suc n) i x y =
               (sym (lUnitₖ≡rUnitₖ (suc n)))
               (rUnitlUnit0 (suc n)) x y i
 
--- The function σ : Kₙ → ΩKₙ₊₁
-open Properties using (σ)
-
--- Theorem 1 (Kₙ ≃ ΩKₙ₊₁)
+-- Theorem 9 (Kₙ ≃ ΩKₙ₊₁)
 open Properties using (Kn≃ΩKn+1)
 
 -- σ and σ⁻¹ are morphisms
 -- (for σ⁻¹ this is proved directly without using the fact that σ is a morphism)
 open Properties using (Kn→ΩKn+1-hom ; ΩKn+1→Kn-hom)
 
--- Lemma 2 (p ∙ q ≡ cong²₊(p,q)) for n = 1 and n ≥ 2 respectively
+-- Lemma 10 (p ∙ q ≡ cong²₊(p,q)) for n = 1 and n ≥ 2 respectively
 open GroupStructure using (∙≡+₁ ; ∙≡+₂)
 
--- Lemma 3 (cong²₊ is commutative) and Theorem 2 respectively
+-- Lemma 11 (cong²₊ is commutative) and Theorem 12 respectively
 open GroupStructure using (cong+ₖ-comm ; isCommΩK)
 
--- III.B Group structure on Hⁿ(A)
+-- 3.2 Group structure on Hⁿ(A)
 
 -- +ₕ (addition), -ₕ and 0ₕ
 open GroupStructure using (_+ₕ_ ; -ₕ_ ; 0ₕ)
@@ -289,14 +317,142 @@ open GroupStructure using ( rUnitₕ ; lUnitₕ
                           ; commₕ
                           ; assocₕ)
 
+-------------------------------------------------------------------- MOVE?
 -- Reduced cohomology, group structure
 open GroupStructure using (coHomRedGroupDir)
 
 -- Equality of unreduced and reduced cohmology
 open Properties using (coHomGroup≡coHomRedGroup)
+--------------------------------------------------------------------
+
+----- 4. The Cup Product and Cohomology Ring -----
+-- 4.1
+-- Lemma 13
+open Properties using (isOfHLevel↑∙)
+
+-- ⌣ₖ
+open Cup using (_⌣ₖ_)
+
+-- ⌣ₖ is pointed in both arguments 
+open ⌣Ring using (0ₖ-⌣ₖ ; ⌣ₖ-0ₖ)
+
+-- The cup product
+open Cup using (_⌣_)
+
+-- 4.2
+-- Lemma 14
+Lem14 : (n m : ℕ) (f g : K∙ n →∙ K∙ m) → fst f ≡ fst g → f ≡ g
+Lem14 n m f g p = Homogen.→∙Homogeneous≡ (Properties.isHomogeneousKn m) p
+
+-- Proposition 15
+open ⌣Ring using (leftDistr-⌣ₖ ; rightDistr-⌣ₖ)
+
+-- Lemma 16
+open ⌣Ring using (assocer-helpFun≡)
+
+-- Proposition 17
+open ⌣Ring using (assoc-⌣ₖ)
+
+-- Proposition 18
+open ⌣Comm using (gradedComm-⌣ₖ)
+
+-- Ring structure on ⌣
+-- Todo: Add multiplicative unit
+open ⌣Ring using (leftDistr-⌣ ; rightDistr-⌣ ; assoc-⌣)
+open ⌣Comm using (gradedComm-⌣)
+
+----- 5. CHARACTERIZING ℤ-COHOMOLOGY GROUPS -----
+
+-- 5.1
+-- Proposition 19
+open HⁿSⁿ using (Hⁿ-Sⁿ≅ℤ)
+
+-- 5.2
+-- The torus
+open 𝕋² using (𝕋²)
+
+-- Propositions 20 and 21 respectively
+open HⁿT² using (H¹-T²≅ℤ×ℤ ; H²-T²≅ℤ)
+
+-- 5.3
+-- The Klein bottle
+open 𝕂² using (𝕂²)
+
+-- The real projective plane
+open ℝP using (ℝP²)
+
+-- Proposition 22 and 23 respectively
+-- ℤ/2ℤ is represented by Bool with the unique group structure
+-- Lemma 23 is used implicitly in H²-𝕂²≅Bool
+open Hⁿ𝕂² using (H¹-𝕂²≅ℤ ; H²-𝕂²≅Bool)
+
+-- First and second cohomology groups of ℝP² respectively
+open HⁿℝP² using (H¹-RP²≅1 ; H²-RP²≅Bool)
 
 
------ IV. THE EILENBERG-STEENROD AXIOMS -----
+-- 5.4
+-- TODO : Add ℂP².
+
+-- 6 Proving by computations in Cubical Agda
+-- Proof of m = n = 1 case of graded commutativity (post truncation elimination):
+-- Uncomment and give it a minute. The proof is currently not running very fast.
+{-
+open ⌣Comm using (-ₖ^_·_ )
+n=m=1 : (a b : S¹)
+    → _⌣ₖ_ {n = 1} {m = 1} ∣ a ∣ ∣ b ∣
+     ≡ (-ₖ (_⌣ₖ_ {n = 1} {m = 1} ∣ b ∣ ∣ a ∣))
+n=m=1 base base = refl
+n=m=1 base (loop i) k = -ₖ (Properties.Kn→ΩKn+10ₖ _ (~ k) i)
+n=m=1 (loop i) base k = Properties.Kn→ΩKn+10ₖ _ k i
+n=m=1 (loop i) (loop j) k = -- This hcomp is just a simple rewriting to get paths in Ω²K₂
+  hcomp (λ r → λ { (i = i0) → -ₖ Properties.Kn→ΩKn+10ₖ _ (~ k ∨ ~ r) j
+                  ; (i = i1) → -ₖ Properties.Kn→ΩKn+10ₖ _ (~ k ∨ ~ r) j
+                  ; (j = i0) → Properties.Kn→ΩKn+10ₖ _ (k ∨ ~ r) i
+                  ; (j = i1) → Properties.Kn→ΩKn+10ₖ _ (k ∨ ~ r) i
+                  ; (k = i0) →
+                    doubleCompPath-filler
+                      (sym (Properties.Kn→ΩKn+10ₖ _))
+                      (λ j i →  _⌣ₖ_ {n = 1} {m = 1} ∣ loop i ∣ ∣ loop j ∣)
+                      (Properties.Kn→ΩKn+10ₖ _)
+                      (~ r) j i
+                  ; (k = i1) →
+                    -ₖ doubleCompPath-filler
+                      (sym (Properties.Kn→ΩKn+10ₖ _))
+                      (λ j i →  _⌣ₖ_ {n = 1} {m = 1} ∣ loop i ∣ ∣ loop j ∣)
+                      (Properties.Kn→ΩKn+10ₖ _)
+                      (~ r) i j})
+        ((main
+       ∙ sym (cong-∙∙ (cong (-ₖ_)) (sym (Properties.Kn→ΩKn+10ₖ _))
+             (λ j i →  (_⌣ₖ_ {n = 1} {m = 1} ∣ loop i ∣ ∣ loop j ∣))
+             (Properties.Kn→ΩKn+10ₖ _))) k i j)
+  where
+  open import Cubical.Foundations.Equiv.HalfAdjoint
+  t : Iso (typ ((Ω^ 2) (K∙ 2))) ℤ
+  t = compIso (congIso (invIso (Properties.Iso-Kn-ΩKn+1 1)))
+       (invIso (Properties.Iso-Kn-ΩKn+1 0))
+
+  p₁ = flipSquare ((sym (Properties.Kn→ΩKn+10ₖ _))
+                      ∙∙ (λ j i →  _⌣ₖ_ {n = 1} {m = 1} ∣ loop i ∣ ∣ loop j ∣)
+                      ∙∙ (Properties.Kn→ΩKn+10ₖ _))
+  p₂ = (cong (cong (-ₖ_))
+            ((sym (Properties.Kn→ΩKn+10ₖ _))))
+                      ∙∙ (λ j i →  -ₖ (_⌣ₖ_ {n = 1} {m = 1} ∣ loop i ∣ ∣ loop j ∣))
+                      ∙∙ (cong (cong (-ₖ_)) (Properties.Kn→ΩKn+10ₖ _))
+
+  computation : Iso.fun t p₁ ≡ Iso.fun t p₂
+  computation = refl
+
+  main : p₁ ≡ p₂ 
+  main = p₁                         ≡⟨ sym (Iso.leftInv t p₁) ⟩
+        (Iso.inv t (Iso.fun t p₁))  ≡⟨ cong (Iso.inv t) computation ⟩
+        Iso.inv t (Iso.fun t p₂)    ≡⟨ Iso.leftInv t p₂ ⟩
+        p₂ ∎
+-}
+
+-- 𝕋² !≡ S² ∨ S¹ ∨ S¹
+open HⁿT² using (T²≠S²⋁S¹⋁S¹)
+
+----- 5. THE EILENBERG-STEENROD AXIOMS -----
 
 -- IV.A The axioms in HoTT/UF
 
@@ -321,27 +477,6 @@ _ = satisfies-ES-axioms.isCohomTheoryZ
 open MayerVietoris.MV using ( Ker-i⊂Im-d ; Im-d⊂Ker-i
                             ; Ker-Δ⊂Im-i ; Im-i⊂Ker-Δ
                             ; Ker-d⊂Im-Δ ; Im-Δ⊂Ker-d)
-
-
------ V. CHARACTERIZING COHOMOLOGY GROUPS DIRECTLY -----
-
--- V.A
--- Proposition 4 and 5 respectively
-open HⁿSⁿ using (Hⁿ-Sⁿ≅ℤ ; Hⁿ-Sᵐ≅1)
-
--- V.B
--- Proposition 6 and 7 respectively
-open HⁿT² using (H¹-T²≅ℤ×ℤ ; H²-T²≅ℤ)
-
--- V.C
--- Proposition 8 and 9 respectively (Hⁿ(𝕂²))
--- ℤ/2ℤ is represented by Bool with the unique group structure
-open Hⁿ𝕂² using (H¹-𝕂²≅ℤ ; H²-𝕂²≅Bool)
-
--- First and second cohomology groups of ℝP² respectively
-open HⁿℝP² using (H¹-RP²≅1 ; H²-RP²≅Bool)
-
-
 
 
 ----- VI. COMPUTING WITH THE COHOMOLOGY GROUPS -----
