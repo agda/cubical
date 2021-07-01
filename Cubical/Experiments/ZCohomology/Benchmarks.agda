@@ -25,7 +25,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Bool
 open import Cubical.Data.Int
 open import Cubical.HITs.Sn
-open import Cubical.Algebra.Group hiding (Int ; Bool)
+open import Cubical.Algebra.Group hiding (ℤ ; Bool)
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.GroupStructure
@@ -46,10 +46,10 @@ open Iso
 -- S¹ (everything fast)
 module S1-tests where
 
-  ϕ : coHom 1 (S₊ 1) → Int
+  ϕ : coHom 1 (S₊ 1) → ℤ
   ϕ = fun (fst (Hⁿ-Sⁿ≅ℤ 0))
 
-  ϕ⁻¹ : Int → coHom 1 (S₊ 1)
+  ϕ⁻¹ : ℤ → coHom 1 (S₊ 1)
   ϕ⁻¹ = inv (fst (Hⁿ-Sⁿ≅ℤ 0))
 
   test₁ : ϕ (ϕ⁻¹ 0) ≡ 0    -- 30ms
@@ -76,10 +76,10 @@ module S1-tests where
 -- S²
 module S2-tests where
 
-  ϕ : coHom 2 (S₊ 2) → Int
+  ϕ : coHom 2 (S₊ 2) → ℤ
   ϕ = fun (fst (Hⁿ-Sⁿ≅ℤ 1))
 
-  ϕ⁻¹ : Int → coHom 2 (S₊ 2)
+  ϕ⁻¹ : ℤ → coHom 2 (S₊ 2)
   ϕ⁻¹ = inv (fst (Hⁿ-Sⁿ≅ℤ 1))
 
   test₁ : ϕ (ϕ⁻¹ 0) ≡ 0    -- 13ms
@@ -108,10 +108,10 @@ module S2-tests where
 
 module S1∨S1∨S2-tests₁ where -- everything fast
 
-  ϕ : coHom 1 S²⋁S¹⋁S¹ → Int × Int
+  ϕ : coHom 1 S²⋁S¹⋁S¹ → ℤ × ℤ
   ϕ = fun (fst H¹-S²⋁S¹⋁S¹)
 
-  ϕ⁻¹ : Int × Int → coHom 1 S²⋁S¹⋁S¹
+  ϕ⁻¹ : ℤ × ℤ → coHom 1 S²⋁S¹⋁S¹
   ϕ⁻¹ = inv (fst H¹-S²⋁S¹⋁S¹)
 
   test₁ : ϕ (ϕ⁻¹ (0 , 0)) ≡ (0 , 0)    -- <10ms
@@ -132,10 +132,10 @@ module S1∨S1∨S2-tests₁ where -- everything fast
 
 module S1∨S1∨S2-tests₂ where
 
-  ϕ : coHom 2 S²⋁S¹⋁S¹ → Int
+  ϕ : coHom 2 S²⋁S¹⋁S¹ → ℤ
   ϕ = fun (fst H²-S²⋁S¹⋁S¹)
 
-  ϕ⁻¹ : Int → coHom 2 S²⋁S¹⋁S¹
+  ϕ⁻¹ : ℤ → coHom 2 S²⋁S¹⋁S¹
   ϕ⁻¹ = inv (fst H²-S²⋁S¹⋁S¹)
 
   test₁ : ϕ (ϕ⁻¹ 0) ≡ 0    -- 157ms
@@ -150,10 +150,10 @@ module S1∨S1∨S2-tests₂ where
 
 module Torus-test₁ where -- fast
 
-  ϕ : coHom 1 (S₊ 1 × S₊ 1) → Int × Int
+  ϕ : coHom 1 (S₊ 1 × S₊ 1) → ℤ × ℤ
   ϕ = fun (fst H¹-T²≅ℤ×ℤ)
 
-  ϕ⁻¹ : Int × Int → coHom 1 (S₊ 1 × S₊ 1)
+  ϕ⁻¹ : ℤ × ℤ → coHom 1 (S₊ 1 × S₊ 1)
   ϕ⁻¹ = inv (fst H¹-T²≅ℤ×ℤ)
 
   test₁ : ϕ (ϕ⁻¹ (0 , 0)) ≡ (0 , 0)    -- <10ms
@@ -174,10 +174,10 @@ module Torus-test₁ where -- fast
 
 module Torus-test₂ where
 
-  ϕ : coHom 2 (S₊ 1 × S₊ 1) → Int
+  ϕ : coHom 2 (S₊ 1 × S₊ 1) → ℤ
   ϕ = fun (fst H²-T²≅ℤ)
 
-  ϕ⁻¹ : Int → coHom 2 (S₊ 1 × S₊ 1)
+  ϕ⁻¹ : ℤ → coHom 2 (S₊ 1 × S₊ 1)
   ϕ⁻¹ = inv (fst H²-T²≅ℤ)
 
   test₁ : ϕ (ϕ⁻¹ 0) ≡ 0    -- 121ms
@@ -199,10 +199,10 @@ module Torus-test₂ where
 
 module Klein-test₁ where -- fast
 
-  ϕ : coHom 1 KleinBottle → Int
+  ϕ : coHom 1 KleinBottle → ℤ
   ϕ = fun (fst H¹-𝕂²≅ℤ)
 
-  ϕ⁻¹ : Int → coHom 1 KleinBottle
+  ϕ⁻¹ : ℤ → coHom 1 KleinBottle
   ϕ⁻¹ = inv (fst H¹-𝕂²≅ℤ)
 
   test₁ : ϕ (ϕ⁻¹ 0) ≡ 0    -- <10ms

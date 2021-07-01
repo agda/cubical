@@ -276,12 +276,6 @@ symDistr-filler {A = A} {z = z} p q i j k =
 symDistr : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) → sym (p ∙ q) ≡ sym q ∙ sym p
 symDistr p q i j = symDistr-filler p q j i i1
 
-sym-∙∙ : ∀ {ℓ} {A : Type ℓ} {x y z w : A} → (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) → sym (p ∙∙ q ∙∙ r) ≡ (sym r ∙∙ sym q ∙∙ sym p)
-sym-∙∙ p q r i j =
-  hcomp (λ k → λ { (j = i0) → r k
-                 ; (j = i1) → p (~ k)})
-        (q (~ j))
-
 -- we can not write hcomp-isEquiv : {ϕ : I} → (p : I → Partial ϕ A) → isEquiv (λ (a : A [ ϕ ↦ p i0 ]) → hcomp p a)
 -- due to size issues. But what we can write (compare to hfill) is:
 hcomp-equivFillerSub : {ϕ : I} → (p : I → Partial ϕ A) → (a : A [ ϕ ↦ p i0 ])

@@ -12,7 +12,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to pRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim) hiding (map)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; elim2 to trElim2)
-open import Cubical.Algebra.Group renaming (Int to IntGroup ; Bool to BoolGroup ; Unit to UnitGroup)
+open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup ; Unit to UnitGroup)
 
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Transport
@@ -55,32 +55,32 @@ private
                             (pathToIso (cong (p ∙ p ≡_) (lCancel p)))
 
 --- H⁰(RP²) ≅ ℤ ----
-H⁰-RP²≅ℤ : GroupIso (coHomGr 0 RP²) IntGroup
+H⁰-RP²≅ℤ : GroupIso (coHomGr 0 RP²) ℤGroup
 H⁰-RP²≅ℤ = H⁰-connected point connectedRP¹
   where
   connectedRP¹ : (x : RP²) → ∥ point ≡ x ∥
   connectedRP¹ point = ∣ refl ∣
   connectedRP¹ (line i) =
     isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥}
-      (λ _ → propTruncIsProp) ∣ refl ∣ ∣ refl ∣ line i
+      (λ _ → isPropPropTrunc) ∣ refl ∣ ∣ refl ∣ line i
   connectedRP¹ (square i j) = helper i j
     where
     helper : SquareP (λ i j → ∥ point ≡ square i j ∥)
                      (isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥}
-                       (λ _ → propTruncIsProp) ∣ refl ∣ ∣ refl ∣ line)
+                       (λ _ → isPropPropTrunc) ∣ refl ∣ ∣ refl ∣ line)
                      (symP (isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥}
-                             (λ _ → propTruncIsProp) ∣ refl ∣ ∣ refl ∣ line))
+                             (λ _ → isPropPropTrunc) ∣ refl ∣ ∣ refl ∣ line))
                      refl refl
-    helper = toPathP (isOfHLevelPathP 1 propTruncIsProp _ _ _ _)
+    helper = toPathP (isOfHLevelPathP 1 isPropPropTrunc _ _ _ _)
 
 --- H¹(RP²) ≅ 0 ----
 isContr-H¹-RP²-helper : isContr ∥ Σ[ x ∈ coHomK 1 ] Σ[ p ∈ x ≡ x ] p ∙ p ≡ refl ∥₂
 fst isContr-H¹-RP²-helper = ∣ 0ₖ 1 , refl , sym (rUnit refl) ∣₂
 snd isContr-H¹-RP²-helper =
-  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+  sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
     (uncurry
-      (trElim (λ _ → isGroupoidΠ λ _ → isOfHLevelPlus {n = 1} 2 (setTruncIsSet _ _))
-      (toPropElim (λ _ → isPropΠ (λ _ → setTruncIsSet _ _))
+      (trElim (λ _ → isGroupoidΠ λ _ → isOfHLevelPlus {n = 1} 2 (isSetSetTrunc _ _))
+      (toPropElim (λ _ → isPropΠ (λ _ → isSetSetTrunc _ _))
          λ {(p , nilp)
             → cong ∣_∣₂ (ΣPathP (refl , Σ≡Prop (λ _ → isOfHLevelTrunc 3 _ _ _ _)
                                          (rUnit refl
@@ -102,18 +102,18 @@ H¹-RP²≅0 =
 Iso-H²-RP²₁ : Iso ∥ Σ[ x ∈ coHomK 2 ] Σ[ p ∈ x ≡ x ] p ≡ sym p ∥₂
                   ∥ Σ[ p ∈ 0ₖ 2 ≡ 0ₖ 2 ] p ≡ sym p ∥₂
 Iso.fun Iso-H²-RP²₁ =
-  sRec setTruncIsSet
+  sRec isSetSetTrunc
     (uncurry
-      (trElim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 2} 2 setTruncIsSet)
-        (sphereElim _ (λ _ → isSetΠ (λ _ → setTruncIsSet))
+      (trElim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 2} 2 isSetSetTrunc)
+        (sphereElim _ (λ _ → isSetΠ (λ _ → isSetSetTrunc))
           λ p → ∣ fst p , snd p ∣₂)))
 Iso.inv Iso-H²-RP²₁ = sMap λ p → (0ₖ 2) , p
-Iso.rightInv Iso-H²-RP²₁ = sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+Iso.rightInv Iso-H²-RP²₁ = sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
                            λ _ → refl
 Iso.leftInv Iso-H²-RP²₁ =
-  sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-    (uncurry (trElim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 1} 3 (setTruncIsSet _ _))
-      (sphereToPropElim _ (λ _ → isPropΠ (λ _ → setTruncIsSet _ _))
+  sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+    (uncurry (trElim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 1} 3 (isSetSetTrunc _ _))
+      (sphereToPropElim _ (λ _ → isPropΠ (λ _ → isSetSetTrunc _ _))
         λ p → refl)))
 
 Iso-H²-RP²₂ : Iso ∥ Σ[ p ∈ 0ₖ 2 ≡ 0ₖ 2 ] p ≡ sym p ∥₂ Bool

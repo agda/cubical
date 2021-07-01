@@ -225,8 +225,11 @@ Ring→AbGroup (A , ringstr _ _ _ _ _ R) = A , abgroupstr _ _ _ (IsRing.+IsAbGro
 Ring→Group : Ring ℓ → Group ℓ
 Ring→Group = AbGroup→Group ∘ Ring→AbGroup
 
-Ring→Monoid : Ring ℓ → Monoid ℓ
-Ring→Monoid (A , ringstr _ _ _ _ _ R) = monoid _ _ _ (IsRing.·IsMonoid R)
+Ring→AddMonoid : Ring ℓ → Monoid ℓ
+Ring→AddMonoid = Group→Monoid ∘ Ring→Group
+
+Ring→MultMonoid : Ring ℓ → Monoid ℓ
+Ring→MultMonoid (A , ringstr _ _ _ _ _ R) = monoid _ _ _ (IsRing.·IsMonoid R)
 
 -- Smart constructor for ring homomorphisms
 -- that infers the other equations from pres1, pres+, and pres·

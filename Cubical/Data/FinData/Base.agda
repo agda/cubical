@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
 import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Nat using (ℕ; zero; suc)
+open import Cubical.Data.Nat using (ℕ; zero; suc; _+_)
 open import Cubical.Data.Bool.Base
 open import Cubical.Relation.Nullary
 
@@ -26,6 +26,10 @@ fromℕ : (n : ℕ) → Fin (suc n)
 fromℕ zero    = zero
 fromℕ (suc n) = suc (fromℕ n)
 
+toFromId : ∀ (n : ℕ) → toℕ (fromℕ n) ≡ n
+toFromId zero = refl
+toFromId (suc n) = cong suc (toFromId n)
+
 ¬Fin0 : ¬ Fin 0
 ¬Fin0 ()
 
@@ -34,6 +38,10 @@ zero == zero   = true
 zero == suc _  = false
 suc _ == zero  = false
 suc m == suc n = m == n
+
+weakenFin : {n : ℕ} → Fin n → Fin (suc n)
+weakenFin zero = zero
+weakenFin (suc i) = suc (weakenFin i)
 
 predFin : {n : ℕ} → Fin (suc (suc n)) → Fin (suc n)
 predFin zero = zero
@@ -57,3 +65,16 @@ elim P fz fs {suc k} (suc fj) = fs (elim P fz fs fj)
 rec : ∀{k} → (a0 aS : A) → Fin k → A
 rec a0 aS zero = a0
 rec a0 aS (suc x) = aS
+
+
+FinVec : (A : Type ℓ) (n : ℕ) → Type ℓ
+FinVec A n = Fin n → A
+
+replicateFinVec : (n : ℕ) → A → FinVec A n
+replicateFinVec _ a _ = a
+
+
+_++Fin_ : {n m : ℕ} → FinVec A n → FinVec A m → FinVec A (n + m)
+_++Fin_ {n = zero} _ W i = W i
+_++Fin_ {n = suc n} V _ zero = V zero
+_++Fin_ {n = suc n} V W (suc i) = ((V ∘ suc) ++Fin W) i

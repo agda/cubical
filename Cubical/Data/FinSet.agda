@@ -35,7 +35,7 @@ isFinSet : Type ℓ → Type ℓ
 isFinSet A = ∃[ n ∈ ℕ ] A ≃ Fin n
 
 isProp-isFinSet : isProp (isFinSet A)
-isProp-isFinSet = propTruncIsProp
+isProp-isFinSet = isPropPropTrunc
 
 FinSet : Type (ℓ-suc ℓ)
 FinSet = TypeWithStr _ isFinSet
@@ -54,23 +54,23 @@ FinSetΣ = TypeWithStr _ isFinSetΣ
 
 isProp-isFinSetΣ : isProp (isFinSetΣ A)
 isProp-isFinSetΣ {A = A} (n , equivn) (m , equivm) =
-  Σ≡Prop (λ _ → propTruncIsProp) n≡m
+  Σ≡Prop (λ _ → isPropPropTrunc) n≡m
   where
     Fin-n≃Fin-m : ∥ Fin n ≃ Fin m ∥
     Fin-n≃Fin-m = rec
-      propTruncIsProp
+      isPropPropTrunc
       (rec
-        (isPropΠ λ _ → propTruncIsProp)
+        (isPropΠ λ _ → isPropPropTrunc)
         (λ hm hn → ∣ Fin n ≃⟨ invEquiv hn ⟩ A ≃⟨ hm ⟩ Fin m ■ ∣)
         equivm
       )
       equivn
 
     Fin-n≡Fin-m : ∥ Fin n ≡ Fin m ∥
-    Fin-n≡Fin-m = rec propTruncIsProp (∣_∣ ∘ ua) Fin-n≃Fin-m
+    Fin-n≡Fin-m = rec isPropPropTrunc (∣_∣ ∘ ua) Fin-n≃Fin-m
 
     ∥n≡m∥ : ∥ n ≡ m ∥
-    ∥n≡m∥ = rec propTruncIsProp (∣_∣ ∘ Fin-inj n m) Fin-n≡Fin-m
+    ∥n≡m∥ = rec isPropPropTrunc (∣_∣ ∘ Fin-inj n m) Fin-n≡Fin-m
 
     n≡m : n ≡ m
     n≡m = rec (isSetℕ n m) (λ p → p) ∥n≡m∥

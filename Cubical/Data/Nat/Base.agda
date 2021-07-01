@@ -8,6 +8,10 @@ open import Agda.Builtin.Nat public
   renaming (Nat to ℕ; _-_ to _∸_; _*_ to _·_)
 
 open import Cubical.Data.Nat.Literals public
+open import Cubical.Data.Bool.Base
+open import Cubical.Data.Sum.Base hiding (elim)
+open import Cubical.Data.Empty.Base hiding (elim)
+open import Cubical.Data.Unit.Base
 
 predℕ : ℕ → ℕ
 predℕ zero = zero
@@ -37,3 +41,18 @@ elim : ∀ {ℓ} {A : ℕ → Type ℓ}
   → (n : ℕ) → A n
 elim a₀ _ zero = a₀
 elim a₀ f (suc n) = f n (elim a₀ f n)
+
+isEven isOdd : ℕ → Bool
+isEven zero = true
+isEven (suc n) = isOdd n
+isOdd zero = false
+isOdd (suc n) = isEven n
+
+--Typed version
+isEven' : ℕ → Type
+isEven' zero = Unit
+isEven' (suc zero) = ⊥
+isEven' (suc (suc n)) = isEven' n
+
+isOdd' : ℕ → Type
+isOdd' n = isEven' (suc n)

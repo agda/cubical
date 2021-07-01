@@ -87,8 +87,11 @@ module commonExtractors {R : Ring ℓ} where
   Algebra→Group : (A : Algebra R ℓ') → Group ℓ'
   Algebra→Group A = Ring→Group (Algebra→Ring A)
 
-  Algebra→Monoid : (A : Algebra R ℓ') → Monoid ℓ'
-  Algebra→Monoid A = Ring→Monoid (Algebra→Ring A)
+  Algebra→AddMonoid : (A : Algebra R ℓ') → Monoid ℓ'
+  Algebra→AddMonoid A = Group→Monoid (Algebra→Group A)
+
+  Algebra→MultMonoid : (A : Algebra R ℓ') → Monoid ℓ'
+  Algebra→MultMonoid A = Ring→MultMonoid (Algebra→Ring A)
 
   isSetAlgebra : (A : Algebra R ℓ') → isSet ⟨ A ⟩
   isSetAlgebra A = isSetAbGroup (Algebra→AbGroup A)

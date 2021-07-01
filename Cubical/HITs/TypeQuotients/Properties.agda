@@ -19,7 +19,7 @@ open import Cubical.Foundations.HLevels
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥ ; ∣_∣ ; squash)
 open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂ ; ∣_∣₂ ; squash₂
-                                                              ; setTruncIsSet)
+                                                              ; isSetSetTrunc)
 
 private
   variable

@@ -1,10 +1,13 @@
+-- It is recommended to use Cubical.Algebra.CommRing.Instances.Int
+-- instead of this file.
+
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommRing.Integers where
+module Cubical.Algebra.CommRing.Instances.BiInvInt where
 
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Algebra.CommRing
-open import Cubical.HITs.Ints.BiInvInt
+open import Cubical.Data.Int.MoreInts.BiInvInt
   renaming (
     _+_ to _+ℤ_;
     -_ to _-ℤ_;
@@ -12,11 +15,11 @@ open import Cubical.HITs.Ints.BiInvInt
     +-comm to +ℤ-comm
   )
 
-BiInvIntAsCommRing : CommRing ℓ-zero
-BiInvIntAsCommRing =
+BiInvℤAsCommRing : CommRing ℓ-zero
+BiInvℤAsCommRing =
   makeCommRing
     zero (suc zero) _+ℤ_ _·_ _-ℤ_
-    isSetBiInvInt
+    isSetBiInvℤ
     +ℤ-assoc +-zero +-invʳ +ℤ-comm
     ·-assoc ·-identityʳ
     (λ x y z → sym (·-distribˡ x y z))

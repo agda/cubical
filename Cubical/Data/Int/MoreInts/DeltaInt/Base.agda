@@ -3,7 +3,7 @@
 {-
 
 This file defines integers as equivalence classes of pairs of natural numbers
-using a direct & untruncated HIT definition (cf. HITs.Ints.DiffInt)
+using a direct & untruncated HIT definition (cf. Data.Int.MoreInts.DiffInt)
 
 and some basic operations, and the zero value:
 
@@ -14,8 +14,8 @@ zero : {a : ℕ} → DeltaInt
 and conversion function for ℕ and Int:
 
 fromℕ : ℕ → DeltaInt
-fromInt : Int → DeltaInt
-toInt : DeltaInt → Int
+fromℤ : Int → DeltaInt
+toℤ : DeltaInt → Int
 
 and a generalized version of cancel:
 
@@ -23,11 +23,11 @@ cancelN : ∀ a b n → a ⊖ b ≡ (n + a) ⊖ n + b
 
 -}
 
-module Cubical.HITs.Ints.DeltaInt.Base where
+module Cubical.Data.Int.MoreInts.DeltaInt.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat hiding (zero)
-open import Cubical.Data.Int hiding (abs; sgn; _+_)
+open import Cubical.Data.Int hiding (abs; _+_) renaming (ℤ to Int)
 
 infixl 5 _⊖_
 data DeltaInt : Type₀ where
@@ -48,13 +48,13 @@ zero {a} = a ⊖ a
 fromℕ : ℕ → DeltaInt
 fromℕ n = n ⊖ 0
 
-fromInt : Int → DeltaInt
-fromInt (pos n) = fromℕ n
-fromInt (negsuc n) = 0 ⊖ suc n
+fromℤ : Int → DeltaInt
+fromℤ (pos n) = fromℕ n
+fromℤ (negsuc n) = 0 ⊖ suc n
 
-toInt : DeltaInt → Int
-toInt (x ⊖ y) = x ℕ- y
-toInt (cancel a b i) = a ℕ- b
+toℤ : DeltaInt → Int
+toℤ (x ⊖ y) = x ℕ- y
+toℤ (cancel a b i) = a ℕ- b
 
 cancelN : ∀ a b n → a ⊖ b ≡ (n + a) ⊖ n + b
 cancelN a b 0 = refl

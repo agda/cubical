@@ -31,13 +31,13 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
 open import Cubical.Foundations.Univalence
 open import Cubical.HITs.Susp
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; setTruncIsSet to §)
-open import Cubical.Data.Int renaming (_+_ to _ℤ+_ ; _·_ to _ℤ∙_ ; +-comm to +ℤ-comm ; ·-comm to ∙-comm) hiding (-_)
+open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; isSetSetTrunc to §)
+open import Cubical.Data.Int renaming (_+_ to _ℤ+_) hiding (-_)
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; map2 to trMap2; rec to trRec ; elim3 to trElim3)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
-open import Cubical.Algebra.Group hiding (Unit ; Int)
+open import Cubical.Algebra.Group hiding (Unit ; ℤ)
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
@@ -161,7 +161,7 @@ coHomK-elim n {B = B } hlev b =
 coHomRed+1Equiv : (n : ℕ) →
                   (A : Type ℓ) →
                   (coHom n A) ≡ (coHomRed n ((A ⊎ Unit , inr (tt))))
-coHomRed+1Equiv zero A i = ∥ helpLemma {C = (Int , pos 0)} i ∥₂
+coHomRed+1Equiv zero A i = ∥ helpLemma {C = (ℤ , pos 0)} i ∥₂
   module coHomRed+1 where
   helpLemma : {C : Pointed ℓ} → ( (A → (typ C)) ≡  ((((A ⊎ Unit) , inr (tt)) →∙ C)))
   helpLemma {C = C} = isoToPath (iso map1
@@ -430,7 +430,7 @@ leftInv (stabSpheres n) =
         ∙∙ rUnitₖ (suc n) ∣ a ∣)
 
 Iso-Kn-ΩKn+1 : (n : HLevel) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
-Iso-Kn-ΩKn+1 zero = invIso (compIso (congIso (truncIdempotentIso _ isGroupoidS¹)) ΩS¹IsoInt)
+Iso-Kn-ΩKn+1 zero = invIso (compIso (congIso (truncIdempotentIso _ isGroupoidS¹)) ΩS¹Isoℤ)
 Iso-Kn-ΩKn+1 (suc n) = stabSpheres n
 
 Kn≃ΩKn+1 : {n : ℕ} → coHomK n ≃ typ (Ω (coHomK-ptd (suc n)))
@@ -534,9 +534,9 @@ module lockedKnIso (key : Unit') where
 isContr-↓∙ : (n : ℕ) → isContr (coHomK-ptd (suc n) →∙ coHomK-ptd n)
 fst (isContr-↓∙ zero) = (λ _ → 0) , refl
 snd (isContr-↓∙ zero) (f , p) =
-  Σ≡Prop (λ f → isSetInt _ _)
-         (funExt (trElim (λ _ → isOfHLevelPath 3 (isOfHLevelSuc 2 isSetInt) _ _)
-                 (toPropElim (λ _ → isSetInt _ _) (sym p))))
+  Σ≡Prop (λ f → isSetℤ _ _)
+         (funExt (trElim (λ _ → isOfHLevelPath 3 (isOfHLevelSuc 2 isSetℤ) _ _)
+                 (toPropElim (λ _ → isSetℤ _ _) (sym p))))
 fst (isContr-↓∙ (suc n)) = (λ _ → 0ₖ _) , refl
 fst (snd (isContr-↓∙ (suc n)) f i) x =
   trElim {B = λ x → 0ₖ (suc n) ≡ fst f x}
@@ -548,8 +548,8 @@ snd (snd (isContr-↓∙ (suc n)) f i) j = snd f (~ i ∨ j)
 isContr-↓∙' : (n : ℕ) → isContr (S₊∙ (suc n) →∙ coHomK-ptd n)
 fst (isContr-↓∙' zero) = (λ _ → 0) , refl
 snd (isContr-↓∙' zero) (f , p) =
-  Σ≡Prop (λ f → isSetInt _ _)
-         (funExt (toPropElim (λ _ → isSetInt _ _) (sym p)))
+  Σ≡Prop (λ f → isSetℤ _ _)
+         (funExt (toPropElim (λ _ → isSetℤ _ _) (sym p)))
 fst (isContr-↓∙' (suc n)) = (λ _ → 0ₖ _) , refl
 fst (snd (isContr-↓∙' (suc n)) f i) x =
   sphereElim _ {A = λ x → 0ₖ (suc n) ≡ fst f x}

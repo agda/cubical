@@ -8,6 +8,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum.Base
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
@@ -166,3 +167,45 @@ zero∸ (suc _) = refl
 ∸-distribʳ m       zero    k = refl
 ∸-distribʳ zero    (suc n) k = sym (zero∸ (k + n · k))
 ∸-distribʳ (suc m) (suc n) k = ∸-distribʳ m n k ∙ sym (∸-cancelˡ k (m · k) (n · k))
+
+
+
+-- factorial:
+_! : ℕ → ℕ
+zero ! = 1
+suc n ! = (suc n) · (n !)
+
+--binomial coefficient:
+_choose_ : ℕ → ℕ → ℕ
+n choose zero = 1
+zero choose suc k = 0
+suc n choose suc k = n choose (suc k) + n choose k
+
+isEven'-suc : (n : ℕ) → isOdd' n → isEven' (suc n)
+isEven'-suc (suc zero) p = tt
+isEven'-suc (suc (suc n)) p = isEven'-suc n p
+
+isOdd'-suc : (n : ℕ) → isEven' n → isOdd' (suc n)
+isOdd'-suc zero p = tt
+isOdd'-suc (suc (suc n)) p = isOdd'-suc n p
+
+evenOrOdd : (n : ℕ) → isEven' n ⊎ isOdd' n
+evenOrOdd zero = inl tt
+evenOrOdd (suc zero) = inr tt
+evenOrOdd (suc (suc n)) = evenOrOdd n
+
+¬evenAndOdd : (n : ℕ) → ¬ isEven' n × isOdd' n
+¬evenAndOdd zero (p , ())
+¬evenAndOdd (suc zero) ()
+¬evenAndOdd (suc (suc n)) = ¬evenAndOdd n
+
+isPropIsEven' : (n : ℕ) → isProp (isEven' n)
+isPropIsEven' zero x y = refl
+isPropIsEven' (suc zero) = isProp⊥
+isPropIsEven' (suc (suc n)) = isPropIsEven' n
+
+isPropEvenOrOdd : (n : ℕ) → isProp (isEven' n ⊎ isOdd' n)
+isPropEvenOrOdd n (inl x) (inl x₁) = cong inl (isPropIsEven' n x x₁)
+isPropEvenOrOdd n (inl x) (inr x₁) = ⊥.rec (¬evenAndOdd n (x , x₁))
+isPropEvenOrOdd n (inr x) (inl x₁) = ⊥.rec (¬evenAndOdd (suc n) (x , x₁))
+isPropEvenOrOdd n (inr x) (inr x₁) = cong inr (isPropIsEven' (suc n) x x₁)

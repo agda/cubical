@@ -3,6 +3,7 @@ module Cubical.ZCohomology.Groups.WedgeOfSpheres where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Data.Sigma.Base
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
@@ -18,7 +19,7 @@ open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Truncation renaming (elim to trElim) hiding (map ; elim2)
-open import Cubical.Algebra.Group renaming (Int to IntGroup ; Bool to BoolGroup ; Unit to UnitGroup)
+open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup ; Unit to UnitGroup)
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim)
 
 open import Cubical.ZCohomology.Properties
@@ -38,15 +39,15 @@ S²⋁S¹⋁S¹ : Type₀
 S²⋁S¹⋁S¹ = S₊∙ 2 ⋁ (S¹⋁S¹ , inl base)
 
 ------------- H⁰(S¹⋁S¹) ------------
-H⁰-S¹⋁S¹ : GroupIso (coHomGr 0 S¹⋁S¹) IntGroup
+H⁰-S¹⋁S¹ : GroupIso (coHomGr 0 S¹⋁S¹) ℤGroup
 H⁰-S¹⋁S¹ = H⁰-connected (inl base) (wedgeConnected _ _ (Sn-connected 0) (Sn-connected 0))
 
 ------------- H¹(S¹⋁S¹) ------------
-H¹-S¹⋁S¹ : GroupIso (coHomGr 1 S¹⋁S¹) (DirProd IntGroup IntGroup)
+H¹-S¹⋁S¹ : GroupIso (coHomGr 1 S¹⋁S¹) (DirProd ℤGroup ℤGroup)
 H¹-S¹⋁S¹ =  (Hⁿ-⋁ _ _ 0) □ GroupIsoDirProd coHom1S1≃ℤ coHom1S1≃ℤ
 
 ------------- H⁰(S²⋁S¹⋁S¹) ---------
-H⁰-S²⋁S¹⋁S¹ : GroupIso (coHomGr 0 S²⋁S¹⋁S¹) IntGroup
+H⁰-S²⋁S¹⋁S¹ : GroupIso (coHomGr 0 S²⋁S¹⋁S¹) ℤGroup
 H⁰-S²⋁S¹⋁S¹ = H⁰-connected (inl north)
                   (wedgeConnected _ _
                     (Sn-connected 1)
@@ -55,7 +56,7 @@ H⁰-S²⋁S¹⋁S¹ = H⁰-connected (inl north)
                       (Sn-connected 0)))
 
 ------------- H¹(S²⋁S¹⋁S¹) ---------
-H¹-S²⋁S¹⋁S¹ : GroupIso (coHomGr 1 S²⋁S¹⋁S¹) (DirProd IntGroup IntGroup)
+H¹-S²⋁S¹⋁S¹ : GroupIso (coHomGr 1 S²⋁S¹⋁S¹) (DirProd ℤGroup ℤGroup)
 H¹-S²⋁S¹⋁S¹ =
     Hⁿ-⋁ (S₊∙ 2) (S¹⋁S¹ , inl base) 0
   □ GroupIsoDirProd (H¹-Sⁿ≅0 0) H¹-S¹⋁S¹
@@ -63,7 +64,7 @@ H¹-S²⋁S¹⋁S¹ =
 
 ------------- H²(S²⋁S¹⋁S¹) ---------
 
-H²-S²⋁S¹⋁S¹ : GroupIso (coHomGr 2 S²⋁S¹⋁S¹) IntGroup
+H²-S²⋁S¹⋁S¹ : GroupIso (coHomGr 2 S²⋁S¹⋁S¹) ℤGroup
 H²-S²⋁S¹⋁S¹ =
   compGroupIso
   (Hⁿ-⋁ _ _ 1)
@@ -74,19 +75,19 @@ H²-S²⋁S¹⋁S¹ =
 
 open Iso
 
-to₂ : coHom 2 S²⋁S¹⋁S¹ → Int
+to₂ : coHom 2 S²⋁S¹⋁S¹ → ℤ
 to₂ = fun (fst H²-S²⋁S¹⋁S¹)
-from₂ : Int → coHom 2 S²⋁S¹⋁S¹
+from₂ : ℤ → coHom 2 S²⋁S¹⋁S¹
 from₂ = inv (fst H²-S²⋁S¹⋁S¹)
 
-to₁ : coHom 1 S²⋁S¹⋁S¹ → Int × Int
+to₁ : coHom 1 S²⋁S¹⋁S¹ → ℤ × ℤ
 to₁ = fun (fst H¹-S²⋁S¹⋁S¹)
-from₁ : Int × Int → coHom 1 S²⋁S¹⋁S¹
+from₁ : ℤ × ℤ → coHom 1 S²⋁S¹⋁S¹
 from₁ = inv (fst H¹-S²⋁S¹⋁S¹)
 
-to₀ : coHom 0 S²⋁S¹⋁S¹ → Int
+to₀ : coHom 0 S²⋁S¹⋁S¹ → ℤ
 to₀ = fun (fst H⁰-S²⋁S¹⋁S¹)
-from₀ : Int → coHom 0 S²⋁S¹⋁S¹
+from₀ : ℤ → coHom 0 S²⋁S¹⋁S¹
 from₀ = inv (fst H⁰-S²⋁S¹⋁S¹)
 
 {-
@@ -131,5 +132,5 @@ test₀ = refl
 ⌣-gen₁ = refl
 
 -- Even better:
-⌣-gen : (x y : Int × Int) → to₂ (from₁ x ⌣ from₁ y) ≡ 0
+⌣-gen : (x y : ℤ × ℤ) → to₂ (from₁ x ⌣ from₁ y) ≡ 0
 ⌣-gen x y = refl
