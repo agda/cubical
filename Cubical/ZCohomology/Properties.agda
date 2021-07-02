@@ -643,3 +643,12 @@ isOfHLevel↑∙∙ n m (suc l) =
     subst (isOfHLevel (2 + l))
       (λ i → coHomK-ptd (suc n) →∙ →∙KnPath (coHomK-ptd (suc m)) (suc (suc (l + n + m))) (~ i))
       (isOfHLevel↑∙∙ n m l)
+
+-- Misc.
+isoType→isoCohom : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ)
+  → Iso A B
+  → GroupIso (coHomGr n A) (coHomGr n B)
+fst (isoType→isoCohom n is) = setTruncIso (domIso is)
+snd (isoType→isoCohom n is) =
+  makeIsGroupHom (sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+    (λ _ _ → refl))
