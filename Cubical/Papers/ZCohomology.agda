@@ -23,7 +23,7 @@ open import Cubical.HITs.S1
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
--- II
+-- 2
 open import Cubical.Core.Glue                                as Glue
 import Cubical.Foundations.Prelude                           as Prelude
 import Cubical.Foundations.GroupoidLaws                      as GroupoidLaws
@@ -44,7 +44,7 @@ import Cubical.Foundations.SIP                               as StructIdPrinc
 import Cubical.Algebra.Group                                 as Gr
 import Cubical.Algebra.Group.GroupPath                       as GrPath
 
--- III
+-- 3
 import Cubical.ZCohomology.Base                              as coHom
   renaming (coHomK to K ; coHomK-ptd to K∙)
 import Cubical.HITs.Sn.Properties                            as S
@@ -58,12 +58,6 @@ import Cubical.ZCohomology.RingStructure.CupProduct          as Cup
 import Cubical.ZCohomology.RingStructure.RingLaws            as ⌣Ring
 import Cubical.ZCohomology.RingStructure.GradedCommutativity as ⌣Comm
 import Cubical.Foundations.Pointed.Homogeneous               as Homogen
-
--- IV
-import Cubical.Homotopy.EilenbergSteenrod                    as ES-axioms
-import Cubical.ZCohomology.EilenbergSteenrodZ                as satisfies-ES-axioms
-  renaming (coHomFunctor to H^~ ; coHomFunctor' to Ĥ)
-import Cubical.ZCohomology.MayerVietorisUnreduced            as MayerVietoris
 
 -- 5
 import Cubical.HITs.Torus                                    as 𝕋²
@@ -79,6 +73,14 @@ import Cubical.ZCohomology.Groups.Wedge                      as Hⁿ-wedge
 import Cubical.ZCohomology.Groups.KleinBottle                as Hⁿ𝕂²
 import Cubical.ZCohomology.Groups.RP2                        as HⁿℝP²
   renaming (H¹-RP²≅0 to H¹-RP²≅1)
+import Cubical.ZCohomology.Groups.CP2                        as HⁿℂP²
+  renaming (CP² to ℂP² ; ℤ→HⁿCP²→ℤ to g)
+
+-- Appendix
+import Cubical.Homotopy.EilenbergSteenrod                    as ES-axioms
+import Cubical.ZCohomology.EilenbergSteenrodZ                as satisfies-ES-axioms
+  renaming (coHomFunctor to H^~ ; coHomFunctor' to Ĥ)
+import Cubical.ZCohomology.MayerVietorisUnreduced            as MayerVietoris
 
 ----- 2. HOMOTOPY TYPE THEORY IN CUBICAL AGDA -----
 
@@ -357,8 +359,10 @@ open ⌣Ring using (assoc-⌣ₖ)
 open ⌣Comm using (gradedComm-⌣ₖ)
 
 -- Ring structure on ⌣
--- Todo: Add multiplicative unit
-open ⌣Ring using (leftDistr-⌣ ; rightDistr-⌣ ; assoc-⌣)
+open ⌣Ring using (leftDistr-⌣ ; rightDistr-⌣
+                ; assoc-⌣ ; 1⌣
+                ; rUnit⌣ ; lUnit⌣
+                ; ⌣0 ; 0⌣)
 open ⌣Comm using (gradedComm-⌣)
 
 ----- 5. CHARACTERIZING ℤ-COHOMOLOGY GROUPS -----
@@ -389,13 +393,17 @@ open Hⁿ𝕂² using (H¹-𝕂²≅ℤ ; H²-𝕂²≅Bool)
 -- First and second cohomology groups of ℝP² respectively
 open HⁿℝP² using (H¹-RP²≅1 ; H²-RP²≅Bool)
 
-
 -- 5.4
--- TODO : Add ℂP².
+-- The complex projective plane
+open HⁿℂP² using (ℂP²)
+
+-- Second and fourth cohomology groups ℂP² respectively
+open HⁿℂP² using (H²CP²≅ℤ ;  H⁴CP²≅ℤ)
 
 -- 6 Proving by computations in Cubical Agda
 -- Proof of m = n = 1 case of graded commutativity (post truncation elimination):
 -- Uncomment and give it a minute. The proof is currently not running very fast.
+
 {-
 open ⌣Comm using (-ₖ^_·_ )
 n=m=1 : (a b : S¹)
@@ -449,12 +457,42 @@ n=m=1 (loop i) (loop j) k = -- This hcomp is just a simple rewriting to get path
         p₂ ∎
 -}
 
--- 𝕋² !≡ S² ∨ S¹ ∨ S¹
+-- 𝕋² ≠ S² ∨ S¹ ∨ S¹
 open HⁿT² using (T²≠S²⋁S¹⋁S¹)
 
------ 5. THE EILENBERG-STEENROD AXIOMS -----
+-- Second "Brunerie number"
+open HⁿℂP² using (g)
+brunerie2 : ℤ
+brunerie2 = g 1
 
--- IV.A The axioms in HoTT/UF
+----- A. Proofs -----
+
+-- A.2 Proofs for Section 4
+
+-- Lemma 27
+open Homogen using (→∙Homogeneous≡)
+
+-- Lemma 28
+open Homogen using (isHomogeneous→∙)
+
+-- Lemma 29
+open Properties using (isHomogeneousKn)
+
+-- Lemma 30, parts 1-3 respectively
+open Path using (sym≡flipSquare ; sym-cong-sym≡id ; sym≡cong-sym)
+
+-- Lemma 31
+open ⌣Comm using (cong-ₖ-gen-inr)
+
+
+-- A.3 Proofs for Section 5
+
+-- Proposition 32
+open HⁿSⁿ using (Hⁿ-Sᵐ≅1)
+
+----- B. THE EILENBERG-STEENROD AXIOMS -----
+
+-- B.1 The axioms in HoTT/UF
 
 -- The axioms are defined as a record type
 open ES-axioms.coHomTheory
@@ -464,21 +502,21 @@ open ES-axioms.coHomTheory
 _ : ∀ {ℓ} → satisfies-ES-axioms.H^~ {ℓ} ≡ satisfies-ES-axioms.Ĥ
 _ = satisfies-ES-axioms.coHomFunctor≡coHomFunctor'
 
--- IV.B Verifying the axioms
+-- B.2 Verifying the axioms
 
--- Propositions 2 and 3.
+-- Propositions 35 and 36.
 _ : ∀ {ℓ} → ES-axioms.coHomTheory {ℓ} satisfies-ES-axioms.H^~
 _ = satisfies-ES-axioms.isCohomTheoryZ
 
 
--- III.C Characterizing Z-cohomology groups using the axioms
+-- B.3 Characterizing Z-cohomology groups using the axioms
 
--- Theorem 3
+-- Theorem 37
 open MayerVietoris.MV using ( Ker-i⊂Im-d ; Im-d⊂Ker-i
                             ; Ker-Δ⊂Im-i ; Im-i⊂Ker-Δ
                             ; Ker-d⊂Im-Δ ; Im-Δ⊂Ker-d)
 
 
------ VI. COMPUTING WITH THE COHOMOLOGY GROUPS -----
+----- C. BENCHMARKING COMPUTATIONS WITH THE COHOMOLOGY GROUPS -----
 
 import Cubical.Experiments.ZCohomology.Benchmarks

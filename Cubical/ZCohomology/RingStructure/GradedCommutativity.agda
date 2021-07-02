@@ -209,6 +209,7 @@ transpΩ² : {n m : ℕ} (p q : n ≡ m) → (P : _)
 transpΩ² p q P k = subst (λ n → refl {x = 0ₖ n} ≡ refl {x = 0ₖ n}) (isSetℕ _ _ p q k) P
 
 -- Some technical lemmas about Kn→Ω²Kn+2 and its interaction with -ₖⁿ̇*ᵐ and transports
+-- TODO : Check if this can be cleaned up more by having more general lemmas
 private
   lem₁ : (n : ℕ) (a : _)
     → (cong (cong (subst coHomK (+'-comm (suc zero) (suc (suc n)))))

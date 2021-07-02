@@ -617,4 +617,41 @@ module _ {A : Type ℓ} (n m : ℕ) where
                      λ i → (f (transportRefl x (~ i)) ⌣ₖ g (transportRefl x (~ i)))
                          ⌣ₖ (h (transportRefl x (~ i))))))
 
+-- Additive unit(s)
+0⌣ :  ∀ {ℓ} {A : Type ℓ} (n m : ℕ) (x : coHom n A)
+     → x ⌣ (0ₕ m) ≡ 0ₕ _
+0⌣ n m = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+                λ f → cong ∣_∣₂ (funExt λ x → ⌣ₖ-0ₖ n m (f x))
+
+⌣0 :  ∀ {ℓ} {A : Type ℓ} (n m : ℕ) (x : coHom n A)
+     → (0ₕ m) ⌣ x ≡ 0ₕ _
+⌣0 n m = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+                λ f → cong ∣_∣₂ (funExt λ x → 0ₖ-⌣ₖ m n (f x))
+
+-- Multiplicative unit
+1⌣ : ∀ {ℓ} {A : Type ℓ} → coHom 0 A
+1⌣ = ∣ (λ _ → 1) ∣₂
+
+private
+  n+'0 : (n : ℕ) → n +' 0 ≡ n
+  n+'0 zero = refl
+  n+'0 (suc n) = refl
+
+lUnit⌣ : ∀ {ℓ} {A : Type ℓ} (n : ℕ) (x : coHom n A)
+  → x ⌣ 1⌣ ≡ subst (λ n → coHom n A) (sym (n+'0 n)) x
+lUnit⌣ zero = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+  λ f → cong ∣_∣₂ (funExt (λ x → comm-·₀ (f x) (pos 1))) ∙ sym (transportRefl ∣ f ∣₂)
+lUnit⌣ (suc n) =
+  sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+  λ f → cong ∣_∣₂ (funExt (λ x → cong (f x +ₖ_) (0ₖ-⌣ₖ zero _ (f x)) ∙ rUnitₖ _ (f x)))
+       ∙ sym (transportRefl ∣ f ∣₂)
+
+rUnit⌣ : ∀ {ℓ} {A : Type ℓ} (n : ℕ) (x : coHom n A)
+       → 1⌣ ⌣ x ≡ x
+rUnit⌣ zero = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+               λ f → refl
+rUnit⌣ (suc n) =
+  sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+               λ f → cong ∣_∣₂ (funExt λ x → rUnitₖ _ (f x))
+
 -- TODO : Graded ring structure
