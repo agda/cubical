@@ -189,7 +189,7 @@ Square≃doubleComp : {a₀₀ a₀₁ a₁₀ a₁₁ : A}
 Square≃doubleComp a₀₋ a₁₋ a₋₀ a₋₁ = transportEquiv (PathP≡doubleCompPathˡ a₋₀ a₀₋ a₁₋ a₋₁)
 
 -- Flipping a square in Ω²A is the same as inverting it
-sym≡flipSquare : ∀ {ℓ} {A : Type ℓ} {x : A} (P : Square (refl {x = x}) refl refl refl)
+sym≡flipSquare : {x : A} (P : Square (refl {x = x}) refl refl refl)
   → sym P ≡ flipSquare P
 sym≡flipSquare {x = x} = helper x x refl refl
   where
@@ -211,7 +211,7 @@ sym≡flipSquare {x = x} = helper x x refl refl
                              (λ i → P (~ i)) λ i j → P j i) refl
 
 -- Inverting both interval arguments of a square in Ω²A is the same as doing nothing
-sym-cong-sym≡id : ∀ {ℓ} {A : Type ℓ} {x : A} (P : Square (refl {x = x}) refl refl refl)
+sym-cong-sym≡id : {x : A} (P : Square (refl {x = x}) refl refl refl)
   → P ≡ λ i j → P (~ i) (~ j)
 sym-cong-sym≡id P =
   transport (λ i → doubleCompPath-filler (sym (rUnit refl)) P (lUnit refl) (~ i)

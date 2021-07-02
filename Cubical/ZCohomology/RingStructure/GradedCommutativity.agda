@@ -59,26 +59,18 @@ private
 
 -- Recurring expressions
 private
-  ΩKn+1→Ω²Kn+2 : {k : ℕ} → typ (Ω (coHomK-ptd k))
-    → typ ((Ω^ 2) (coHomK-ptd (suc k)))
-  ΩKn+1→Ω²Kn+2 x =
-       sym (Kn→ΩKn+10ₖ _)
-    ∙∙ cong (Kn→ΩKn+1 _) x
-    ∙∙ Kn→ΩKn+10ₖ _
+  ΩKn+1→Ω²Kn+2 : {k : ℕ} → typ (Ω (coHomK-ptd k)) → typ ((Ω^ 2) (coHomK-ptd (suc k)))
+  ΩKn+1→Ω²Kn+2 x = sym (Kn→ΩKn+10ₖ _) ∙∙ cong (Kn→ΩKn+1 _) x ∙∙ Kn→ΩKn+10ₖ _
 
-  ΩKn+1→Ω²Kn+2' : {k : ℕ} → Kn→ΩKn+1 k (0ₖ k) ≡ Kn→ΩKn+1 k (0ₖ k)
-    → typ ((Ω^ 2) (coHomK-ptd (suc k)))
-  ΩKn+1→Ω²Kn+2' x =
-    sym (Kn→ΩKn+10ₖ _)
-    ∙∙ x
-    ∙∙ Kn→ΩKn+10ₖ _
+  ΩKn+1→Ω²Kn+2' : {k : ℕ} → Kn→ΩKn+1 k (0ₖ k) ≡ Kn→ΩKn+1 k (0ₖ k) → typ ((Ω^ 2) (coHomK-ptd (suc k)))
+  ΩKn+1→Ω²Kn+2' p = sym (Kn→ΩKn+10ₖ _) ∙∙ p ∙∙ Kn→ΩKn+10ₖ _
 
   Kn→Ω²Kn+2 : {k : ℕ} → coHomK k → typ ((Ω^ 2) (coHomK-ptd (2 + k)))
   Kn→Ω²Kn+2 x = ΩKn+1→Ω²Kn+2 (Kn→ΩKn+1 _ x)
 
 -- Definition of of -ₖⁿ̇*ᵐ
 -ₖ-helper : {k : ℕ} (n m : ℕ)
-  → isEven' n ⊎ isOdd' n → isEven' m ⊎ isOdd' m
+  → isEvenT n ⊎ isOddT n → isEvenT m ⊎ isOddT m
   → coHomKType k → coHomKType k
 -ₖ-helper {k = zero} n m (inl x₁) q x = x
 -ₖ-helper {k = zero} n m (inr x₁) (inl x₂) x = x
@@ -97,8 +89,8 @@ private
   (merid a ∙ sym (merid (ptSn (suc k)))) (~ i)
 
 -ₖ-gen : {k : ℕ} (n m : ℕ)
-         (p : isEven' n ⊎ isOdd' n)
-         (q : isEven' m ⊎ isOdd' m)
+         (p : isEvenT n ⊎ isOddT n)
+         (q : isEvenT m ⊎ isOddT m)
        → coHomK k → coHomK k
 -ₖ-gen {k = zero} = -ₖ-helper {k = zero}
 -ₖ-gen {k = suc k} n m p q = trMap (-ₖ-helper {k = suc k} n m p q)
@@ -278,7 +270,7 @@ private
                   (Kn→ΩKn+1 (suc n) ∣ a ∣) (~ k))
                  ∙∙ transp0₁ n)
 
-  lem₃ : (n m : ℕ) (q : _) (p : isEven' (suc (suc n)) ⊎ isOdd' (suc (suc n))) (x : _)
+  lem₃ : (n m : ℕ) (q : _) (p : isEvenT (suc (suc n)) ⊎ isOddT (suc (suc n))) (x : _)
     → (((sym (cong (-ₖ-gen (suc n) (suc (suc m)) (evenOrOdd (suc n)) q) (transp0₂ m n))
                                  ∙∙ (λ j → -ₖ-gen (suc n) (suc (suc m)) (evenOrOdd (suc n)) q
                                 (subst coHomK (+'-comm (suc (suc m)) (suc n)) (Kn→ΩKn+1 _ x j)))
@@ -315,7 +307,7 @@ private
           (λ k → subst coHomK (isSetℕ _ _ (cong predℕ (+'-comm (suc (suc m)) (suc (suc n))))
                                             (cong suc (+-comm (suc m) (suc n))) k) x)
 
-    h : (n m : ℕ) (p : isEven' (suc (suc n)) ⊎ isOdd' (suc (suc n))) (q : _) (x : _)
+    h : (n m : ℕ) (p : isEvenT (suc (suc n)) ⊎ isOddT (suc (suc n))) (q : _) (x : _)
       →  cong (-ₖ-gen (suc n) (suc (suc m)) (evenOrOdd (suc n)) q)
            (sym (transp0₂ m n)
             ∙∙ (λ j → subst coHomK (+'-comm (suc (suc m)) (suc n))
@@ -359,7 +351,7 @@ private
         (-ₖ-gen (suc n) (suc (suc m)) (isPropEvenOrOdd (suc n) (inl p) (evenOrOdd (suc n)) k) (inr q)
          (subst coHomK (cong suc (+-comm (suc m) n)) x))
 
-  lem₄ : (n m : ℕ) (q : _) (p : isEven' (suc (suc n)) ⊎ isOdd' (suc (suc n))) (a : _) (b : _)
+  lem₄ : (n m : ℕ) (q : _) (p : isEvenT (suc (suc n)) ⊎ isOddT (suc (suc n))) (a : _) (b : _)
           → cong (Kn→ΩKn+1 _) (((sym (cong (-ₖ-gen (suc n) (suc (suc m)) (evenOrOdd (suc n)) q) (transp0₂ m n))
                                  ∙∙ (λ j → -ₖ-gen (suc n) (suc (suc m)) (evenOrOdd (suc n)) q
                                 (subst coHomK (+'-comm (suc (suc m)) (suc n))

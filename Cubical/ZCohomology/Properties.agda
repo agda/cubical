@@ -474,7 +474,12 @@ Kn→ΩKn+1-hom (suc n) = σ-hom
 ΩKn+1→Kn-hom (suc n) = encode-hom
 
 Kn→ΩKn+1-ₖ : (n : ℕ) (x : coHomK n) → Kn→ΩKn+1 n (-ₖ x) ≡ sym (Kn→ΩKn+1 n x)
-Kn→ΩKn+1-ₖ n x = (lUnit _ ∙∙ cong (_∙ Kn→ΩKn+1 n (-ₖ x)) (sym (lCancel _)) ∙∙ sym (assoc∙ _ _ _)) ∙∙ cong (sym (Kn→ΩKn+1 n x) ∙_) help ∙∙ sym (rUnit _)
+Kn→ΩKn+1-ₖ n x =
+     lUnit _
+  ∙∙ cong (_∙ Kn→ΩKn+1 n (-ₖ x)) (sym (lCancel _))
+  ∙∙ sym (assoc∙ _ _ _)
+  ∙∙ cong (sym (Kn→ΩKn+1 n x) ∙_) help
+  ∙∙ sym (rUnit _)
   where
   help : Kn→ΩKn+1 n x ∙ Kn→ΩKn+1 n (-ₖ x) ≡ refl
   help = sym (Kn→ΩKn+1-hom n x (-ₖ x)) ∙∙ cong (Kn→ΩKn+1 n) (rCancelₖ n x) ∙∙ Kn→ΩKn+10ₖ n

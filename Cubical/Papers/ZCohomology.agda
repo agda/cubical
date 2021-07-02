@@ -175,7 +175,7 @@ open GrPath using (GroupPath)
 
 -- 3.1 Eilenberg-MacLane spaces
 
--- Eilenberg-MacLane spaces Kₙ (unpointed and pointed respectively) 
+-- Eilenberg-MacLane spaces Kₙ (unpointed and pointed respectively)
 open coHom using (K ; K∙)
 
 -- Proposition 7
@@ -333,7 +333,7 @@ open Properties using (isOfHLevel↑∙)
 -- ⌣ₖ
 open Cup using (_⌣ₖ_)
 
--- ⌣ₖ is pointed in both arguments 
+-- ⌣ₖ is pointed in both arguments
 open ⌣Ring using (0ₖ-⌣ₖ ; ⌣ₖ-0ₖ)
 
 -- The cup product
@@ -442,7 +442,7 @@ n=m=1 (loop i) (loop j) k = -- This hcomp is just a simple rewriting to get path
   computation : Iso.fun t p₁ ≡ Iso.fun t p₂
   computation = refl
 
-  main : p₁ ≡ p₂ 
+  main : p₁ ≡ p₂
   main = p₁                         ≡⟨ sym (Iso.leftInv t p₁) ⟩
         (Iso.inv t (Iso.fun t p₁))  ≡⟨ cong (Iso.inv t) computation ⟩
         Iso.inv t (Iso.fun t p₂)    ≡⟨ Iso.leftInv t p₂ ⟩

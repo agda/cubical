@@ -3,15 +3,21 @@ module Cubical.ZCohomology.Groups.WedgeOfSpheres where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Data.Sigma.Base
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.HLevels
+open import Cubical.Data.Sigma
+open import Cubical.Data.Nat
+open import Cubical.Data.Int renaming (_+_ to _ℤ+_)
 
 open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.Groups.Wedge
 open import Cubical.ZCohomology.Groups.Connected
-open import Cubical.Data.Int renaming (_+_ to _ℤ+_)
+open import Cubical.ZCohomology.RingStructure.CupProduct
 
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
@@ -19,17 +25,9 @@ open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Truncation renaming (elim to trElim) hiding (map ; elim2)
-open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup ; Unit to UnitGroup)
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim)
 
-open import Cubical.ZCohomology.Properties
-open import Cubical.Data.Nat
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.Pointed
-open import Cubical.Data.Sigma
-open import Cubical.Homotopy.WedgeConnectivity
-open import Cubical.Foundations.HLevels
-open import Cubical.ZCohomology.RingStructure.CupProduct
+open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup ; Unit to UnitGroup)
 
 
 S¹⋁S¹ : Type₀

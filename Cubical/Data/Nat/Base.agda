@@ -49,10 +49,13 @@ isOdd zero = false
 isOdd (suc n) = isEven n
 
 --Typed version
-isEven' : ℕ → Type
-isEven' zero = Unit
-isEven' (suc zero) = ⊥
-isEven' (suc (suc n)) = isEven' n
+private
+  toType : Bool → Type
+  toType false = ⊥
+  toType true = Unit
 
-isOdd' : ℕ → Type
-isOdd' n = isEven' (suc n)
+isEvenT : ℕ → Type
+isEvenT n = toType (isEven n)
+
+isOddT : ℕ → Type
+isOddT n = isEvenT (suc n)

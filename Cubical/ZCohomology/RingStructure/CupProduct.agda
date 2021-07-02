@@ -41,12 +41,8 @@ _·₀_ {n = n} (negsuc (suc m)) x = (negsuc m ·₀ x) -ₖ x
 ·₀-0ₖ : {n : ℕ} (m : ℤ) → _·₀_ m (0ₖ n) ≡ 0ₖ n
 ·₀-0ₖ (pos zero) = refl
 ·₀-0ₖ (pos (suc n)) = cong (0ₖ _ +ₖ_) (·₀-0ₖ (pos n)) ∙ rUnitₖ _ (0ₖ _)
-·₀-0ₖ {n = zero} (negsuc zero) = refl
-·₀-0ₖ {n = suc zero} (negsuc zero) = refl
-·₀-0ₖ {n = suc (suc k)} (negsuc zero) = refl
-·₀-0ₖ {n = zero} (negsuc (suc n)) = cong (λ x → x -ₖ (0ₖ _)) (·₀-0ₖ (negsuc n))
-·₀-0ₖ {n = suc zero} (negsuc (suc n)) = cong (λ x → x -ₖ (0ₖ _)) (·₀-0ₖ (negsuc n))
-·₀-0ₖ {n = suc (suc k)} (negsuc (suc n)) = cong (λ x → x -ₖ (0ₖ _)) (·₀-0ₖ (negsuc n))
+·₀-0ₖ (negsuc zero) = -0ₖ
+·₀-0ₖ (negsuc (suc n)) = cong (λ x → x -ₖ (0ₖ _)) (·₀-0ₖ (negsuc n)) ∙ rCancelₖ _ (0ₖ _)
 
 -- Pointed version first (enables truncation elimination)
 ⌣ₖ∙ : (n m : ℕ) → coHomK n → coHomK-ptd m →∙ coHomK-ptd (n +' m)
