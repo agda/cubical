@@ -109,6 +109,9 @@ isOfHLevelTrunc : (n : ℕ) → isOfHLevel n (∥ A ∥ n)
 isOfHLevelTrunc zero = isOfHLevelUnit* 0
 isOfHLevelTrunc (suc n) = isSphereFilled→isOfHLevel n isSphereFilled∥∥
 
+isOfHLevelTruncPath : {n : ℕ} {x y : hLevelTrunc n A} → isOfHLevel n (x ≡ y)
+isOfHLevelTruncPath {n = n} = isOfHLevelPath n (isOfHLevelTrunc n) _ _
+
 rec₊ : {n : HLevel}
        {B : Type ℓ'} →
        isOfHLevel (suc n) B →

@@ -44,3 +44,8 @@ coHomK-ptd n = coHomK n , coHom-pt n
 {- Reduced cohomology -}
 coHomRed : (n : ℕ) → (A : Pointed ℓ) → Type ℓ
 coHomRed n A = ∥ A →∙ coHomK-ptd n ∥₂
+
+{- Kₙ, untruncated version -}
+coHomKType : (n : ℕ) → Type
+coHomKType zero = ℤ
+coHomKType (suc n) = S₊ (suc n)
