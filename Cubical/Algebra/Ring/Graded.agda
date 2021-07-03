@@ -11,10 +11,10 @@ open import Cubical.Relation.Nullary.Base
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.FinData hiding (_==_)
+open import Cubical.Data.FinData hiding (_==_ ; snotz)
 open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
-open import Cubical.Data.Empty renaming (elim to ⊥-elim)
+open import Cubical.Data.Empty renaming (elim to ⊥-elim ; rec to ⊥-rec)
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum.Base hiding (map)
 
@@ -38,6 +38,10 @@ open IsRing
 
 _==_ : ℕ → ℕ → Bool
 x == y = Dec→Bool (discreteℕ x y)
+
+∸Cancel : ∀ n → n ∸ n ≡ 0
+∸Cancel zero = refl
+∸Cancel (suc n) = ∸Cancel n
 
 isFiniteSubsetℕ : ℙ ℕ → Type₀
 isFiniteSubsetℕ X = ∃[ n ∈ ℕ ] ({x : ℕ} → x ∈ X → x < n)
@@ -83,7 +87,7 @@ x ∉ A = ¬ x ∈ A
 module GradedAbGroup (G : ℕ → AbGroup ℓ)
                      (1G : G 0 .fst)
                      (_·G_ : {m n : ℕ} → G m .fst → G n .fst → G (m +ℕ n) .fst)
-                     (·G-rid : (x : G 0 .fst) → x ·G 1G ≡ x)
+                     (·G-rid : {m : ℕ} (x : G m .fst) → x ·G 1G ≡ subst (λ y → G y .fst) (sym (+-zero m)) x)
                      (·G-lid : (x : G 0 .fst) → 1G ·G x ≡ x)
                      (·G-l0g : {m n : ℕ} (x : G m .fst) → x ·G 0g (G n .snd) ≡ 0g (G (m +ℕ n) .snd))
                      where
@@ -157,7 +161,7 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
 
   abstract
     helper : {n : ℕ} → (i : Fin (suc n)) → suc (toℕ i) +ℕ (suc n ∸ suc (toℕ i)) ≡ suc n
-    helper i = {!!} -- +-comm (toℕ i) _ ∙ ≤-∸-+-cancel (≤-suc (pred-≤-pred (toℕ<n i)))
+    helper {n} i = +-comm (suc (toℕ i)) _ ∙ ≤-∸-+-cancel (toℕ<n i)
 
   _·⊕G_ : ⊕G → ⊕G → ⊕G
   (x , Hx) ·⊕G (y , Hy) = p , q
@@ -171,20 +175,14 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
     postulate
       q : ∃[ I ∈ FinSubsetℕ ] ({j : ℕ} → j ∉ I .fst → p j ≡ 0g (G j .snd))
 
-
-   -- foo : n ≤ m → 1⊕G' (m ∸ n)) ≡ δ m n
-   -- foo = ?
-
   apa : {m n : ℕ} → (p : m ≡ n) (x : (i : ℕ) → G i .fst) → subst (λ x → G x .fst) p (x m) ≡ x n
   apa p x = J (λ y q → subst (λ x → G x .fst) q (x _) ≡ x _) (transportRefl _) p
-
--- subst  (helper (weakenFin i)) (0g (G (toℕ (weakenFin i) +ℕ (suc n ∸ toℕ (weakenFin i))) .snd))
 
   ·⊕G-rid : (x : ⊕G) → x ·⊕G 1⊕G ≡ x
   ·⊕G-rid (x , h) = Σ≡Prop (λ _ → squash) (funExt (λ i → help i))
     where
     help : (n : ℕ) → ((x , h) ·⊕G 1⊕G) .fst n ≡ x n
-    help 0 = ·G-rid (x 0)
+    help 0 = ·G-rid (x 0) ∙ transportRefl _
     help (suc n) = goal
       where
       open MonoidBigOp (Group→Monoid (AbGroup→Group (G (suc n)))) renaming (bigOp to ∑)
@@ -211,22 +209,12 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
          ≡⟨ apa (helper (weakenFin i)) (λ j → 0g (G j .snd)) ⟩
             0g (G (suc n) .snd) ∎
 
-      bloop : (m n n' : ℕ) (p : n' ≡ n) (x y : (i : ℕ) → G i .fst) → x m ·G y n ≡ subst (λ x → G x .fst) (cong (m +ℕ_) p) (x m ·G y n')
-      bloop m n n' p = {!!}
-
-      froop : (m n : ℕ) (p : m ≡ 0) → x n ·G 1⊕G' m ≡ x (n +ℕ m)
-      froop zero n p = {! !}
-      froop (suc m) n p = {!!}
+      froop : (m n : ℕ) → (h : m ≡ 0) → x n ·G 1⊕G' m ≡ x (n +ℕ m)
+      froop zero n h = ·G-rid (x n) ∙ apa (sym (+-zero n)) x
+      froop (suc m) n h = ⊥-rec (snotz h)
 
       bepa : (n : ℕ) → x (suc (toℕ (fromℕ n))) ·G 1⊕G' (suc n ∸ suc (toℕ (fromℕ n))) ≡ x (suc (toℕ (fromℕ n) +ℕ (suc n ∸ suc (toℕ (fromℕ n)))))
-      bepa n = froop (suc n ∸ suc (toℕ (fromℕ n))) (suc (toℕ (fromℕ n))) {!!}
-        -- x (suc (toℕ (fromℕ n))) ·G 1⊕G' (suc n ∸ suc (toℕ (fromℕ n))) ≡⟨ bloop _ _ _ {!!} x 1⊕G' ⟩
-        -- subst (λ x → G x .fst) {!!} (x (suc (toℕ (fromℕ n))) ·G 1⊕G' 0) ≡⟨ {!!} ⟩
-        -- subst (λ x → G x .fst) {!!} (x (suc (toℕ (fromℕ n)))) ≡⟨ {!!} ⟩
-        -- x (suc (toℕ (fromℕ n) +ℕ (suc n ∸ suc (toℕ (fromℕ n))))) ∎
-        -- where
-        -- helpp : (n : ℕ) → suc (n +ℕ 0) ≡ suc (toℕ (fromℕ n) +ℕ (n ∸ toℕ (fromℕ n)))
-        -- helpp = {!!}
+      bepa n = froop (suc n ∸ suc (toℕ (fromℕ n))) (suc (toℕ (fromℕ n))) (cong (n ∸_) (toFromId n) ∙ ∸Cancel n)
 
       goal : (∑ λ (i : Fin (suc n)) → subst (λ i → G i .fst) (helper i) (x (suc (toℕ i)) ·G 1⊕G' (suc n ∸ suc (toℕ i)))) ≡ x (suc n)
       goal = (∑ λ (i : Fin (suc n)) → subst (λ i → G i .fst) (helper i) (x (suc (toℕ i)) ·G 1⊕G' (suc n ∸ suc (toℕ i))))
