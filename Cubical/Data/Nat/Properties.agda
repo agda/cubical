@@ -8,6 +8,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum.Base
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
@@ -179,3 +180,27 @@ _choose_ : ℕ → ℕ → ℕ
 n choose zero = 1
 zero choose suc k = 0
 suc n choose suc k = n choose (suc k) + n choose k
+
+evenOrOdd : (n : ℕ) → isEvenT n ⊎ isOddT n
+evenOrOdd zero = inl tt
+evenOrOdd (suc zero) = inr tt
+evenOrOdd (suc (suc n)) = evenOrOdd n
+
+¬evenAndOdd : (n : ℕ) → ¬ isEvenT n × isOddT n
+¬evenAndOdd zero (p , ())
+¬evenAndOdd (suc zero) ()
+¬evenAndOdd (suc (suc n)) = ¬evenAndOdd n
+
+isPropIsEvenT : (n : ℕ) → isProp (isEvenT n)
+isPropIsEvenT zero x y = refl
+isPropIsEvenT (suc zero) = isProp⊥
+isPropIsEvenT (suc (suc n)) = isPropIsEvenT n
+
+isPropIsOddT : (n : ℕ) → isProp (isOddT n)
+isPropIsOddT n = isPropIsEvenT (suc n)
+
+isPropEvenOrOdd : (n : ℕ) → isProp (isEvenT n ⊎ isOddT n)
+isPropEvenOrOdd n (inl x) (inl x₁) = cong inl (isPropIsEvenT n x x₁)
+isPropEvenOrOdd n (inl x) (inr x₁) = ⊥.rec (¬evenAndOdd n (x , x₁))
+isPropEvenOrOdd n (inr x) (inl x₁) = ⊥.rec (¬evenAndOdd (suc n) (x , x₁))
+isPropEvenOrOdd n (inr x) (inr x₁) = cong inr (isPropIsEvenT (suc n) x x₁)

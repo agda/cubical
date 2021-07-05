@@ -9,6 +9,9 @@ open import Agda.Builtin.Nat public
 
 open import Cubical.Data.Nat.Literals public
 open import Cubical.Data.Bool.Base
+open import Cubical.Data.Sum.Base hiding (elim)
+open import Cubical.Data.Empty.Base hiding (elim)
+open import Cubical.Data.Unit.Base
 
 predℕ : ℕ → ℕ
 predℕ zero = zero
@@ -44,3 +47,15 @@ isEven zero = true
 isEven (suc n) = isOdd n
 isOdd zero = false
 isOdd (suc n) = isEven n
+
+--Typed version
+private
+  toType : Bool → Type
+  toType false = ⊥
+  toType true = Unit
+
+isEvenT : ℕ → Type
+isEvenT n = toType (isEven n)
+
+isOddT : ℕ → Type
+isOddT n = isEvenT (suc n)

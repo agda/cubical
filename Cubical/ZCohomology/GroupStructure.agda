@@ -15,7 +15,7 @@ open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; isSetSetTrunc to §)
-open import Cubical.Data.Int hiding (-_) renaming (_+_ to _ℤ+_)
+open import Cubical.Data.Int renaming (_+_ to _ℤ+_ ; -_ to -ℤ_)
 open import Cubical.Data.Nat renaming (+-assoc to +-assocℕ ; +-comm to +-commℕ)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3 ; map2 to trMap2)
 open import Cubical.Homotopy.Loopspace
@@ -157,6 +157,32 @@ _-ₖ_ {n = n} x y = _+ₖ_ {n = n} x (-ₖ_ {n = n} y)
 syntax +ₖ-syntax n x y = x +[ n ]ₖ y
 syntax -ₖ-syntax n x = -[ n ]ₖ x
 syntax -'ₖ-syntax n x y = x -[ n ]ₖ y
+
+-ₖ^2 : {n : ℕ} → (x : coHomK n) → (-ₖ (-ₖ x)) ≡ x
+-ₖ^2 {n = zero} x =
+  +Comm (pos zero) (-ℤ (pos zero ℤ+ (-ℤ x))) ∙∙ -Dist+  (pos zero) (-ℤ x)
+     ∙∙ (+Comm (pos zero) (-ℤ (-ℤ x)) ∙ -Involutive x)
+-ₖ^2 {n = suc zero} =
+  trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) λ { base → refl ; (loop i) → refl}
+-ₖ^2 {n = suc (suc n)} =
+  trElim (λ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (4 + n)) _ _)
+              λ { north → refl
+                ; south j → ∣ merid (ptSn _) j ∣ₕ
+                ; (merid a i) j
+                  → hcomp (λ k → λ { (i = i0) → ∣ north ∣
+                                     ; (i = i1) → ∣ compPath-filler' (merid a) (sym (merid (ptSn _))) (~ k) (~ j) ∣ₕ
+                                     ; (j = i0) → help a (~ k) i
+                                     ; (j = i1) → ∣ merid a (i ∧ k) ∣})
+                            ∣ (merid a ∙ sym (merid (ptSn _))) (i ∧ ~ j) ∣ₕ}
+  where
+  help : (a : _) → cong (-ₖ_ ∘ (-ₖ_ {n = suc (suc n)})) (cong ∣_∣ₕ (merid a))
+       ≡ cong ∣_∣ₕ (merid a ∙ sym (merid (ptSn _)))
+  help a = cong (cong ((-ₖ_ {n = suc (suc n)}))) (cong-∙ ∣_∣ₕ (merid (ptSn (suc n))) (sym (merid a)))
+        ∙∙ cong-∙ (-ₖ_ {n = suc (suc n)}) (cong ∣_∣ₕ (merid (ptSn (suc n)))) (cong ∣_∣ₕ (sym (merid a)))
+        ∙∙ (λ i → (λ j → ∣ rCancel (merid (ptSn (suc n))) i j ∣ₕ)
+                 ∙ λ j → ∣ symDistr (merid (ptSn (suc n))) (sym (merid a)) i j ∣ₕ)
+         ∙ sym (lUnit _)
+
 
 ------- Groupoid Laws for Kₙ ---------
 commₖ : (n : ℕ) → (x y : coHomK n) → x +[ n ]ₖ y ≡ y +[ n ]ₖ x
@@ -671,6 +697,61 @@ fun (addIso n x) y = y +[ n ]ₖ x
 inv' (addIso n x) y = y -[ n ]ₖ x
 rightInv (addIso n x) y = -+cancelₖ n y x
 leftInv (addIso n x) y = -cancelRₖ n x y
+
+baseChange : (n : ℕ) (x : coHomK (suc n)) → (0ₖ (suc n) ≡ 0ₖ (suc n)) ≃ (x ≡ x)
+baseChange n x = isoToEquiv is
+  where
+  f : (n : ℕ) (x : coHomK (suc n)) → (0ₖ (suc n) ≡ 0ₖ (suc n)) → (x ≡ x)
+  f n x p = sym (rUnitₖ _ x) ∙∙ cong (x +ₖ_) p ∙∙ rUnitₖ _ x
+
+  g : (n : ℕ) (x : coHomK (suc n)) → (x ≡ x) → (0ₖ (suc n) ≡ 0ₖ (suc n))
+  g n x p = sym (rCancelₖ _ x) ∙∙ cong (λ y → y -ₖ x) p ∙∙ rCancelₖ _ x
+
+  f-g : (n : ℕ) (x : coHomK (suc n)) (p : x ≡ x) → f n x (g n x p) ≡ p
+  f-g n =
+    trElim (λ _ → isOfHLevelΠ (3 + n) λ _ → isOfHLevelPath (3 + n)
+      (isOfHLevelPath (3 + n) (isOfHLevelTrunc (3 + n)) _ _) _ _)
+        (ind n)
+    where
+    ind : (n : ℕ) (a : S₊ (suc n)) (p : ∣ a ∣ₕ ≡ ∣ a ∣ₕ) → f n ∣ a ∣ₕ (g n ∣ a ∣ₕ p) ≡ p
+    ind zero =
+      toPropElim (λ _ → isPropΠ λ _ → isOfHLevelTrunc 3 _ _ _ _)
+        λ p → cong (f zero (0ₖ 1)) (sym (rUnit _) ∙ (λ k i → rUnitₖ _ (p i) k))
+            ∙∙ sym (rUnit _)
+            ∙∙ λ k i → lUnitₖ _ (p i) k
+    ind (suc n) =
+      sphereElim (suc n) (λ _ → isOfHLevelΠ (2 + n) λ _ → isOfHLevelTrunc (4 + n) _ _ _ _)
+        λ p → cong (f (suc n) (0ₖ (2 + n)))
+                ((λ k → (sym (rUnit (refl ∙ refl)) ∙ sym (rUnit refl)) k
+                     ∙∙ (λ i → p i +ₖ 0ₖ (2 + n)) ∙∙ (sym (rUnit (refl ∙ refl)) ∙ sym (rUnit refl)) k)
+              ∙ (λ k → rUnit (λ i → rUnitₖ _ (p i) k) (~ k)))
+              ∙ λ k → rUnit (λ i → lUnitₖ _ (p i) k) (~ k)
+
+  g-f : (n : ℕ) (x : coHomK (suc n)) (p : 0ₖ _ ≡ 0ₖ _) → g n x (f n x p) ≡ p
+  g-f n =
+    trElim (λ _ → isOfHLevelΠ (3 + n) λ _ → isOfHLevelPath (3 + n)
+      (isOfHLevelPath (3 + n) (isOfHLevelTrunc (3 + n)) _ _) _ _)
+        (ind n)
+    where
+    ind : (n : ℕ) (a : S₊ (suc n)) (p : 0ₖ (suc n) ≡ 0ₖ (suc n)) → g n ∣ a ∣ₕ (f n ∣ a ∣ₕ p) ≡ p
+    ind zero =
+      toPropElim (λ _ → isPropΠ λ _ → isOfHLevelTrunc 3 _ _ _ _)
+        λ p → cong (g zero (0ₖ 1)) (λ k → rUnit (λ i → lUnitₖ _ (p i) k) (~ k))
+            ∙ (λ k → rUnit (λ i → rUnitₖ _ (p i) k) (~ k))
+    ind (suc n) =
+      sphereElim (suc n) (λ _ → isOfHLevelΠ (2 + n) λ _ → isOfHLevelTrunc (4 + n) _ _ _ _)
+        λ p → cong (g (suc n) (0ₖ (2 + n)))
+                (λ k → rUnit (λ i → lUnitₖ _ (p i) k) (~ k))
+            ∙∙ (λ k → (sym (rUnit (refl ∙ refl)) ∙ sym (rUnit refl)) k
+                    ∙∙ (λ i → p i +ₖ 0ₖ (2 + n))
+                    ∙∙ (sym (rUnit (refl ∙ refl)) ∙ sym (rUnit refl)) k)
+            ∙∙ λ k → rUnit (λ i → rUnitₖ _ (p i) k) (~ k)
+
+  is : Iso _ _
+  fun is = f n x
+  inv' is = g n x
+  rightInv is = f-g n x
+  leftInv is = g-f n x
 
 isCommΩK-based : (n : ℕ) (x : coHomK n) → isComm∙ (coHomK n , x)
 isCommΩK-based zero x p q = isSetℤ _ _ (p ∙ q) (q ∙ p)

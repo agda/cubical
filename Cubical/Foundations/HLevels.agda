@@ -46,6 +46,14 @@ isOfHLevel (suc (suc n)) A = (x y : A) → isOfHLevel (suc n) (x ≡ y)
 isOfHLevelFun : (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
 isOfHLevelFun n f = ∀ b → isOfHLevel n (fiber f b)
 
+isOfHLevelΩ→isOfHLevel :
+  ∀ {ℓ} {A : Type ℓ} (n : ℕ)
+  → ((x : A) → isOfHLevel (suc n) (x ≡ x)) → isOfHLevel (2 + n) A
+isOfHLevelΩ→isOfHLevel zero hΩ x y =
+  J (λ y p → (q : x ≡ y) → p ≡ q) (hΩ x refl)
+isOfHLevelΩ→isOfHLevel (suc n) hΩ x y =
+  J (λ y p → (q : x ≡ y) → isOfHLevel (suc n) (p ≡ q)) (hΩ x refl)
+
 TypeOfHLevel : ∀ ℓ → HLevel → Type (ℓ-suc ℓ)
 TypeOfHLevel ℓ n = TypeWithStr ℓ (isOfHLevel n)
 
