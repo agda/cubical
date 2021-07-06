@@ -258,12 +258,7 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
   ·⊕G-rid (x , h) = Σ≡Prop (λ _ → squash) (funExt rem)
     where
     rem : (n : ℕ) → ((x , h) ·⊕G 1⊕G) .fst n ≡ x n
-    rem n = goal
-      where
-      open MonoidBigOp (Group→Monoid (AbGroup→Group (G n))) renaming (bigOp to ∑)
-
-      goal : (∑ λ i → cast· i (x (toℕ i) ·G 1⊕G' _)) ≡ x n
-      goal = (∑ λ i → cast· i (x (toℕ i) ·G 1⊕G' _))
+    rem n = (∑ λ i → cast· i (x (toℕ i) ·G 1⊕G' _))
         ≡⟨ bigOpLast (λ i → cast· i (x (toℕ i) ·G 1⊕G' _)) ⟩
              (∑ ((λ i → cast· i (x (toℕ i) ·G 1⊕G' _)) ∘ weakenFin)) +G
              cast· (fromℕ n) (x (toℕ (fromℕ n)) ·G 1⊕G' _)
@@ -275,63 +270,108 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
              cast· (fromℕ n) (x _)
         ≡⟨ cast≡ (helper (fromℕ n)) x ⟩
              x n  ∎
+      where
+      open MonoidBigOp (Group→Monoid (AbGroup→Group (G n))) renaming (bigOp to ∑)
+
+      rem0 : (∑ ((λ i → cast· i (x (toℕ i) ·G 1⊕G' _)) ∘ weakenFin)) ≡ 0G
+      rem0 = bigOpExt path ∙ bigOpε n
         where
-        rem0 : (∑ ((λ i → cast· i (x (toℕ i) ·G 1⊕G' _)) ∘ weakenFin)) ≡ 0G
-        rem0 = bigOpExt path ∙ bigOpε n
-          where
-          rem1 : {n : ℕ} (i : Fin n) → 1⊕G' (suc n ∸ suc (toℕ (weakenFin i))) ≡ 0G
-          rem1 zero = refl
-          rem1 {suc n} (suc i) = rem1 {n} i
+        rem1 : {n : ℕ} (i : Fin n) → 1⊕G' (suc n ∸ suc (toℕ (weakenFin i))) ≡ 0G
+        rem1 zero = refl
+        rem1 {suc n} (suc i) = rem1 {n} i
 
-          path : (i : Fin n) → cast· (weakenFin i) (x (toℕ (weakenFin i)) ·G 1⊕G' _) ≡ 0G
-          path i = cast· (weakenFin i) (x (toℕ (weakenFin i)) ·G 1⊕G' _)
-                 ≡⟨ (λ j → cast· (weakenFin i) (x (toℕ (weakenFin i)) ·G rem1 i j)) ⟩
-                   cast· (weakenFin i) (x (toℕ (weakenFin i)) ·G 0G)
-                 ≡⟨ (λ j → cast· (weakenFin i) (·G-l0g (x (toℕ (weakenFin i))) j)) ⟩
-                   cast· (weakenFin i) 0G
-                ≡⟨ cast≡ (helper (weakenFin i)) (λ _ → 0G) ⟩
-                   0G ∎
+        path : (i : Fin n) → cast· (weakenFin i) (x (toℕ (weakenFin i)) ·G 1⊕G' _) ≡ 0G
+        path i = cast· (weakenFin i) (x (toℕ (weakenFin i)) ·G 1⊕G' _)
+               ≡⟨ (λ j → cast· (weakenFin i) (x (toℕ (weakenFin i)) ·G rem1 i j)) ⟩
+                 cast· (weakenFin i) (x (toℕ (weakenFin i)) ·G 0G)
+               ≡⟨ (λ j → cast· (weakenFin i) (·G-l0g (x (toℕ (weakenFin i))) j)) ⟩
+                 cast· (weakenFin i) 0G
+               ≡⟨ cast≡ (helper (weakenFin i)) (λ _ → 0G) ⟩
+                 0G ∎
 
-        simpl : (m n : ℕ) → (h : m ≡ 0) → x n ·G 1⊕G' m ≡ x (n +ℕ m)
-        simpl zero n h = ·G-rid (x n) ∙ cast≡ (sym (+-zero n)) x
-        simpl (suc m) n h = ⊥-rec (snotz h)
+      simpl : (m n : ℕ) → (h : m ≡ 0) → x n ·G 1⊕G' m ≡ x (n +ℕ m)
+      simpl zero n h = ·G-rid (x n) ∙ cast≡ (sym (+-zero n)) x
+      simpl (suc m) n h = ⊥-rec (snotz h)
 
   ·⊕G-lid : (x : ⊕G) → 1⊕G ·⊕G x ≡ x
   ·⊕G-lid (x , h) = Σ≡Prop (λ _ → squash) (funExt rem)
     where
     rem : (n : ℕ) → (1⊕G ·⊕G (x , h)) .fst n ≡ x n
-    rem n = goal
+    rem n = (∑ λ i → cast· i (1⊕G' (toℕ i) ·G x (n ∸ toℕ i)))
+          ≡⟨ refl ⟩
+             cast· zero (1G ·G x n) +G
+               (∑ (λ i → cast· (suc i) (1⊕G' (toℕ (suc i)) ·G x (n ∸ toℕ (suc i)))))
+          ≡⟨ (λ i → cast· zero (1G ·G x n) +G rem0 i) ⟩
+             cast· zero (1G ·G x n) +G 0G
+          ≡⟨ rid (G n .snd) (cast· zero (1G ·G x n)) ⟩
+             cast· zero (1G ·G x n)
+          ≡⟨ cong (cast· zero) (·G-lid (x n)) ⟩
+             cast· zero (x n)
+          ≡⟨ cast≡ (helper zero) x ⟩
+            x n  ∎
       where
       open MonoidBigOp (Group→Monoid (AbGroup→Group (G n))) renaming (bigOp to ∑)
 
-      goal : (∑ λ i → cast· i (1⊕G' (toℕ i) ·G x _)) ≡ x n
-      goal = (∑ λ i → cast· i (1⊕G' (toℕ i) ·G x (n ∸ toℕ i)))
-              ≡⟨ refl ⟩
-                cast· zero (1G ·G x n) +G
-                (∑ (λ i → cast· (suc i) (1⊕G' (toℕ (suc i)) ·G x (n ∸ toℕ (suc i)))))
-              ≡⟨ (λ i → cast· zero (1G ·G x n) +G rem0 i) ⟩
-                cast· zero (1G ·G x n) +G 0G
-              ≡⟨ rid (G n .snd) (cast· zero (1G ·G x n)) ⟩
-              cast· zero (1G ·G x n)
-              ≡⟨ cong (cast· zero) (·G-lid (x n)) ⟩
-              cast· zero (x n)
-             ≡⟨ cast≡ (helper zero) x ⟩
-              x n  ∎
+      rem0 : ∑ (λ i → cast· (suc i) (1⊕G' (toℕ (suc i)) ·G x (n ∸ toℕ (suc i)))) ≡ 0G
+      rem0 = bigOpExt path ∙ bigOpε n
         where
-        rem0 : ∑ (λ i → cast· (suc i) (1⊕G' (toℕ (suc i)) ·G x (n ∸ toℕ (suc i)))) ≡ 0G
-        rem0 = bigOpExt path ∙ bigOpε n
-          where
-          path : (i : Fin n) → cast· (suc i) (1⊕G' (toℕ (suc i)) ·G x (n ∸ toℕ (suc i))) ≡ 0G
-          path i = cong (cast· (suc i)) (·G-r0g (x (n ∸ toℕ (suc i)))) ∙ cast≡ (helper (suc i)) (λ _ → 0G)
+        path : (i : Fin n) → cast· (suc i) (1⊕G' (toℕ (suc i)) ·G x (n ∸ toℕ (suc i))) ≡ 0G
+        path i = cong (cast· (suc i)) (·G-r0g (x (n ∸ toℕ (suc i)))) ∙ cast≡ (helper (suc i)) (λ _ → 0G)
 
-  -- TODO: do I really need to do induction here?
   ·⊕G-assoc : (x y z : ⊕G) → x ·⊕G (y ·⊕G z) ≡ (x ·⊕G y) ·⊕G z
-  ·⊕G-assoc (x , hx) (y , hy) (z , hz) = {!!}
-  {- Σ≡Prop (λ _ → squash) (funExt rem)
+  ·⊕G-assoc (x , hx) (y , hy) (z , hz) = Σ≡Prop (λ _ → squash) (funExt rem)
     where
     rem : (n : ℕ) → ((x , hx) ·⊕G ((y , hy) ·⊕G (z , hz))) .fst n ≡
                     (((x , hx) ·⊕G (y , hy)) ·⊕G (z , hz)) .fst n
-    rem 0 = cong (λ x → G 0 .snd ._+G_ x (G 0 .snd .0g)) goal
+    rem n = ((x , hx) ·⊕G ((y , hy) ·⊕G (z , hz))) .fst n
+           ≡⟨ refl ⟩
+             ∑ (λ (i : Fin (suc n)) →
+                      cast· i (x (toℕ i) ·G
+                               foldrFin _+G_ 0G (λ j → cast· j (y (toℕ j) ·G z (n ∸ toℕ i ∸ toℕ j)))))
+           ≡⟨ bigOpExt (λ i j → cast· i (step1 i j)) ⟩
+             ∑ (λ i → cast· i (foldrFin _+G_ 0G (λ j → x (toℕ i) ·G (cast· j (y (toℕ j) ·G z (n ∸ toℕ i ∸ toℕ j))))))
+           ≡⟨ bigOpExt (λ i k → cast· i {!bigOpExt (λ j → step2 i j)!}) ⟩
+             ∑ (λ i → cast· i (foldrFin _+G_ 0G (λ j → cast (cong (toℕ i +ℕ_) (helper j))
+                                                            (x (toℕ i) ·G (y (toℕ j) ·G z (n ∸ toℕ i ∸ toℕ j))))))
+           ≡⟨ {!!} ⟩
+             ∑ (λ i → cast· i (foldrFin _+G_ 0G (λ j → cast (cong (toℕ i +ℕ_) (helper j))
+                                                            (cast (sym (+-assoc (toℕ i) (toℕ j) (n ∸ toℕ i ∸ toℕ j)))
+                                                                  ((x (toℕ i) ·G y (toℕ j)) ·G z (n ∸ toℕ i ∸ toℕ j))))))
+           ≡⟨ {!!} ⟩
+             ∑ (λ i → cast· i (foldrFin _+G_ 0G (λ j → cast (sym (+-assoc (toℕ i) (toℕ j) (n ∸ toℕ i ∸ toℕ j)) ∙ cong (toℕ i +ℕ_) (helper j))
+                                                            ((x (toℕ i) ·G y (toℕ j)) ·G z (n ∸ toℕ i ∸ toℕ j)))))
+           ≡⟨ {!!} ⟩
+             ∑ (λ (i : Fin (suc n)) → cast· i (foldrFin _+G_ 0G (λ (j : Fin (n ∸ toℕ i)) →
+                                                        cast (+-comm (toℕ j) _ ∙ ≤-∸-+-cancel (foo i j))
+                                                             (x (toℕ j) ·G y (toℕ i ∸ toℕ j)) ·G z (n ∸ toℕ i))))
+           ≡⟨ {!!} ⟩
+             ∑ (λ (i : Fin (suc n)) → cast· i (foldrFin _+G_ 0G (λ (j : Fin (suc (toℕ i))) →
+                                                        cast (+-comm (toℕ j) _ ∙ ≤-∸-+-cancel (foo2 i j))
+                                                             (x (toℕ j) ·G y (toℕ i ∸ toℕ j)) ·G z (n ∸ toℕ i))))
+           ≡⟨ {!!} ⟩
+             ∑ (λ (i : Fin (suc n)) → cast· i (foldrFin _+G_ 0G (λ (j : Fin (suc (toℕ i))) → cast· j (x (toℕ j) ·G y (toℕ i ∸ toℕ j)))
+                                             ·G z (n ∸ toℕ i)))
+           ≡⟨ refl ⟩
+             (((x , hx) ·⊕G (y , hy)) ·⊕G (z , hz)) .fst n ∎
+      where
+      open MonoidBigOp (Group→Monoid (AbGroup→Group (G n))) renaming (bigOp to ∑)
+
+      foo : (i : Fin (suc n)) (j : Fin (n ∸ toℕ i)) → toℕ j ≤ toℕ i
+      foo i j = {!!}
+
+      foo2 : (i : Fin (suc n)) (j : Fin (suc (toℕ i))) → toℕ j ≤ toℕ i
+      foo2 i j = {!!}
+
+      step1 : (i : Fin (suc n)) → x (toℕ i) ·G foldrFin _+G_ 0G (λ j → cast· j (y (toℕ j) ·G z (n ∸ toℕ i ∸ toℕ j)))
+                                ≡ foldrFin _+G_ 0G (λ j → x (toℕ i) ·G (cast· j (y (toℕ j) ·G z (n ∸ toℕ i ∸ toℕ j))))
+      step1 i = {!!}
+
+      step2 : (i : Fin (suc n)) (j : Fin (suc (n ∸ toℕ i)))
+            → x (toℕ i) ·G (cast· j (y (toℕ j) ·G z (n ∸ toℕ i ∸ toℕ j)))
+            ≡ cast (cong (toℕ i +ℕ_) (helper j)) (x (toℕ i) ·G (y (toℕ j) ·G z (n ∸ toℕ i ∸ toℕ j)))
+      step2 i j = {!!}
+
+{-    rem 0 = cong (λ x → G 0 .snd ._+G_ x (G 0 .snd .0g)) goal
       where
       0G = G 0 .snd .0g
       _+G0_ = G 0 .snd ._+G_
@@ -360,59 +400,7 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
       open MonoidBigOp (Group→Monoid (AbGroup→Group (G ( n)))) renaming (bigOp to ∑')
 
       goal : ((x , hx) ·⊕G ((y , hy) ·⊕G (z , hz))) .fst (suc n) ≡ (((x , hx) ·⊕G (y , hy)) ·⊕G (z , hz)) .fst (suc n)
-      goal = ((x , hx) ·⊕G ((y , hy) ·⊕G (z , hz))) .fst (suc n)
-           ≡⟨ refl ⟩
-             ∑ (λ (i : Fin (suc (suc n))) →
-                      cast· i (x (toℕ i) ·G
-                               foldrFin (snd (G (suc n ∸ toℕ i)) ._+G_) (snd (G (suc n ∸ toℕ i)) .0g)
-                                        (λ (j : Fin (suc (suc n ∸ toℕ i))) → cast· j (y (toℕ j) ·G z (suc n ∸ toℕ i ∸ toℕ j)))))
-           ≡⟨ {!!} ⟩
-             ∑ (λ (i : Fin (suc (suc n))) →
-                      cast· i (
-                               foldrFin (snd (G (toℕ i +ℕ (suc n ∸ toℕ i))) ._+G_) (snd (G (toℕ i +ℕ (suc n ∸ toℕ i))) .0g)
-                                        (λ (j : Fin (suc (suc n ∸ toℕ i))) → x (toℕ i) ·G (cast· j (y (toℕ j) ·G z (suc n ∸ toℕ i ∸ toℕ j))))))
-
-           ≡⟨ {!!} ⟩
-             ∑ (λ (i : Fin (suc (suc n))) →
-                      cast· i (
-                               foldrFin (snd (G (toℕ i +ℕ (suc n ∸ toℕ i))) ._+G_) (snd (G (toℕ i +ℕ (suc n ∸ toℕ i))) .0g)
-                                        (λ (j : Fin (suc (suc n ∸ toℕ i))) →
-                                           cast (cong (toℕ i +ℕ_) (helper j))
-                                                (x (toℕ i) ·G (y (toℕ j) ·G z (suc n ∸ toℕ i ∸ toℕ j))))))
-
-           ≡⟨ {!!} ⟩
-             ∑ (λ (i : Fin (suc (suc n))) →
-                      cast· i (
-                               foldrFin (snd (G (toℕ i +ℕ (suc n ∸ toℕ i))) ._+G_) (snd (G (toℕ i +ℕ (suc n ∸ toℕ i))) .0g)
-                                        (λ (j : Fin (suc (suc n ∸ toℕ i))) →
-                                           cast (cong (toℕ i +ℕ_) (helper j))
-                                                (cast (sym (+-assoc (toℕ i) (toℕ j) (suc n ∸ toℕ i ∸ toℕ j)))
-                                                      ((x (toℕ i) ·G y (toℕ j)) ·G z (suc n ∸ toℕ i ∸ toℕ j))))))
-           ≡⟨ {!!} ⟩
-             ∑ (λ (i : Fin (suc (suc n))) →
-                      cast· i (
-                               foldrFin (snd (G (toℕ i +ℕ (suc n ∸ toℕ i))) ._+G_) (snd (G (toℕ i +ℕ (suc n ∸ toℕ i))) .0g)
-                                        (λ (j : Fin (suc (suc n ∸ toℕ i))) →
-                                           cast (cong (_+ℕ (suc n ∸ toℕ i)) refl)
-                                             (cast (+-comm (toℕ j) _ ∙ (≤-∸-+-cancel {m = toℕ j} {n = toℕ i} {!!})) (x (toℕ j) ·G y (toℕ i ∸ toℕ j)) ·G z (suc n ∸ toℕ i)))))
-
-           ≡⟨ {!!} ⟩
-             ∑ (λ (i : Fin (suc (suc n))) →
-                      cast· i (
-                               foldrFin (snd (G (toℕ i +ℕ (suc n ∸ toℕ i))) ._+G_) (snd (G (toℕ i +ℕ (suc n ∸ toℕ i))) .0g)
-                                        (λ (j : Fin (suc (suc n ∸ toℕ i))) →
-                                             (cast (+-comm (toℕ j) _ ∙ (≤-∸-+-cancel {m = toℕ j} {n = toℕ i} {!!}))
-                                                   (x (toℕ j) ·G y (toℕ i ∸ toℕ j))) ·G z (suc n ∸ toℕ i))))
-           ≡⟨ {!!} ⟩
-             {!!}
-           ≡⟨ {!!} ⟩
-             ∑ (λ (j : Fin (suc (suc n))) →
-               cast· j (foldrFin (snd (G (toℕ j)) ._+G_) (snd (G (toℕ j)) .0g)
-                                 (λ (i : Fin (suc (toℕ j))) → cast· i (x (toℕ i) ·G y (toℕ j ∸ toℕ i)))
-                        ·G z (suc n ∸ toℕ j)))
-           ≡⟨ refl ⟩
-             (((x , hx) ·⊕G (y , hy)) ·⊕G (z , hz)) .fst (suc n) ∎
-
+      goal =
 ---    p n = ∑ (λ (i : Fin (suc n)) → cast· i (x (toℕ i) ·G y (n ∸ toℕ i)))
 
             --   snd (G (suc n)) ._+G_
