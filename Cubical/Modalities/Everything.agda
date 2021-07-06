@@ -1,4 +1,5 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe --guardedness #-}
 module Cubical.Modalities.Everything where
 
-open import Cubical.Modalities.Modality public
+import Cubical.Modalities.Lex
+import Cubical.Modalities.Modality

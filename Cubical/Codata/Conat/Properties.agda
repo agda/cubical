@@ -20,12 +20,12 @@ The standard library also defines bisimulation on conaturals:
 https://github.com/agda/agda-stdlib/blob/master/src/Codata/Conat/Bisimilarity.agda
 -}
 
-{-# OPTIONS --cubical --safe --guardedness #-}
+{-# OPTIONS --safe --guardedness #-}
 module Cubical.Codata.Conat.Properties where
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as ⊥
 
 open import Cubical.Core.Everything
 
@@ -36,7 +36,6 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 open import Cubical.Codata.Conat.Base
 
 Unwrap-prev : Conat′ → Type₀
@@ -84,8 +83,26 @@ n+′∞≡∞′ (suc n) = λ i → suc (n+∞≡∞ n i)
 ∞+∞≡∞ : ∞ + ∞ ≡ ∞
 force (∞+∞≡∞ i) = suc (∞+∞≡∞ i)
 
++-zeroˡ : ∀ n → 𝟘 + n ≡ n
+force (+-zeroˡ n _) = force n
+
++-zeroʳ : ∀ n → n + 𝟘 ≡ n
++′-zeroʳ : ∀ n → n +′ 𝟘 ≡ n
+
+force (+-zeroʳ n i) = +′-zeroʳ (force n) i
++′-zeroʳ zero _ = zero
++′-zeroʳ (suc n) i = suc (+-zeroʳ n i)
+
++-assoc : ∀ m n p → (m + n) + p ≡ m + (n + p)
++′-assoc : ∀ m n p → (m +′ n) +′ p ≡ m +′ (n + p)
+
+force (+-assoc m n p i) = +′-assoc (force m) n p i
++′-assoc zero _ _ = refl
++′-assoc (suc m) n p i = suc (+-assoc m n p i)
+
+
 conat-absurd : ∀ {y : Conat} {ℓ} {Whatever : Type ℓ} → zero ≡ suc y → Whatever
-conat-absurd eq = ⊥-elim (transport (cong diag eq) tt)
+conat-absurd eq = ⊥.rec (transport (cong diag eq) tt)
   where
   diag : Conat′ → Type₀
   diag zero = Unit
@@ -99,11 +116,11 @@ module IsSet where
   ≡′-stable {zero}  {zero}  ¬¬p′ = refl
   ≡′-stable {suc x} {suc y} ¬¬p′ =
      cong′ suc (≡-stable λ ¬p → ¬¬p′ λ p → ¬p (cong pred′′ p))
-  ≡′-stable {zero}  {suc y} ¬¬p′ = ⊥-elim (¬¬p′ conat-absurd)
-  ≡′-stable {suc x} {zero}  ¬¬p′ = ⊥-elim (¬¬p′ λ p → conat-absurd (sym p))
+  ≡′-stable {zero}  {suc y} ¬¬p′ = ⊥.rec (¬¬p′ conat-absurd)
+  ≡′-stable {suc x} {zero}  ¬¬p′ = ⊥.rec (¬¬p′ λ p → conat-absurd (sym p))
 
   isSetConat : isSet Conat
-  isSetConat _ _ = Stable≡→isSet (λ _ _ → ≡-stable) _ _
+  isSetConat _ _ = Separated→isSet (λ _ _ → ≡-stable) _ _
 
   isSetConat′ : isSet Conat′
   isSetConat′ m n p′ q′ = cong (cong force) (isSetConat (conat m) (conat n) p q)

@@ -1,19 +1,22 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 
-open import Cubical.Core.Everything
-open import Cubical.Foundations.Everything
-open import Agda.Primitive using (lzero)
+open import Cubical.Foundations.Prelude
 
 module Cubical.Data.DescendingList.Strict.Properties
  (A : Type₀)
  (_>_ : A → A → Type₀)
  where
 
-open import Cubical.Data.DescendingList.Strict A _>_
-open import Cubical.HITs.ListedFiniteSet renaming (_∈_ to _∈ʰ_)
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
 
-import Cubical.Data.Empty as Empty
-open Empty using (⊥-elim)
+open import Cubical.Data.DescendingList.Strict A _>_
+open import Cubical.HITs.ListedFiniteSet as LFSet renaming (_∈_ to _∈ʰ_)
+
+import Cubical.Data.Empty as ⊥
 open import Cubical.Relation.Nullary.DecidableEq
 
 open import Cubical.Relation.Nullary using (Dec; Discrete) renaming (¬_ to Type¬_)
@@ -24,7 +27,7 @@ unsort (cons x xs x>xs) = x ∷ unsort xs
 
 module _ where
   open import Cubical.Relation.Nullary
-  data Tri (A B C : Set) : Set where
+  data Tri (A B C : Type) : Type where
     tri-< : A → ¬ B → ¬ C → Tri A B C
     tri-≡ : ¬ A → B → ¬ C → Tri A B C
     tri-> : ¬ A → ¬ B → C → Tri A B C
@@ -37,41 +40,41 @@ module IsoToLFSet
    (>-irreflexive : ∀ {x} → Type¬ x > x)
   where
 
-  Tri' : A → A → Set
+  Tri' : A → A → Type
   Tri' x y = Tri (y > x) (x ≡ y) (x > y)
 
-  open import Cubical.Foundations.Logic
-  open import Cubical.HITs.PropositionalTruncation
+  open import Cubical.HITs.PropositionalTruncation as PropTrunc
+  open import Cubical.Functions.Logic
 
   -- Membership is defined via `LFSet`.
   -- This computes just as well as a direct inductive definition,
   -- and additionally lets us use the extra `comm` and `dup` paths to prove
   -- things about membership.
-  _∈ˡ_ : A → SDL → hProp lzero
+  _∈ˡ_ : A → SDL → hProp ℓ-zero
   a ∈ˡ l = a ∈ʰ unsort l
 
-  Memˡ : SDL → A → hProp lzero
+  Memˡ : SDL → A → hProp ℓ-zero
   Memˡ l a = a ∈ˡ l
 
-  Memʰ : LFSet A → A → hProp lzero
+  Memʰ : LFSet A → A → hProp ℓ-zero
   Memʰ l a = a ∈ʰ l
 
   >ᴴ-trans : ∀ x y zs → x > y → y >ᴴ zs → x >ᴴ zs
   >ᴴ-trans x y [] x>y y>zs = >ᴴ[]
   >ᴴ-trans x y (cons z zs _) x>y (>ᴴcons y>z) = >ᴴcons (>-trans x>y y>z)
 
-  ≡ₚ-sym : ∀ {A : Set} {x y : A} → [ x ≡ₚ y ] → [ y ≡ₚ x ]
-  ≡ₚ-sym p = recPropTrunc squash (λ p → ∣ sym p ∣) p
+  ≡ₚ-sym : ∀ {A : Type} {x y : A} → ⟨ x ≡ₚ y ⟩ → ⟨ y ≡ₚ x ⟩
+  ≡ₚ-sym p = PropTrunc.rec squash (λ p → ∣ sym p ∣) p
 
-  >-all : ∀ x l → x >ᴴ l → ∀ a → [ a ∈ˡ l ] → x > a
+  >-all : ∀ x l → x >ᴴ l → ∀ a → ⟨ a ∈ˡ l ⟩ → x > a
   >-all x (cons y zs y>zs) (>ᴴcons x>y) a a∈l =
      ⊔-elim (a ≡ₚ y) (a ∈ˡ zs) (λ _ → (x > a) , >-isProp {x} {a})
        (λ a≡ₚy → substₚ (λ q → x > q , >-isProp) (≡ₚ-sym a≡ₚy) x>y)
        (λ a∈zs → >-all x zs (>ᴴ-trans x y zs x>y y>zs) a a∈zs)
        a∈l
 
-  >-absent : ∀ x l → x >ᴴ l → [ ¬ (x ∈ˡ l) ]
-  >-absent x l x>l x∈l = ⊥-elim (>-irreflexive (>-all x l x>l x x∈l))
+  >-absent : ∀ x l → x >ᴴ l → ⟨ ¬ (x ∈ˡ l) ⟩
+  >-absent x l x>l x∈l = ⊥.rec (>-irreflexive (>-all x l x>l x x∈l))
 
   >ᴴ-isProp : ∀ x xs → isProp (x >ᴴ xs)
   >ᴴ-isProp x _ >ᴴ[] >ᴴ[] = refl
@@ -112,23 +115,23 @@ module IsoToLFSet
   abstract
     -- for some reason, making [exclude] non-abstract makes
     -- typechecking noticeably slower
-    exclude : A → (A → hProp lzero) → (A → hProp lzero)
+    exclude : A → (A → hProp ℓ-zero) → (A → hProp ℓ-zero)
     exclude x h a = ¬ a ≡ₚ x ⊓ h a
 
     >-excluded : ∀ x xs → x >ᴴ xs → exclude x (Memʰ (x ∷ unsort xs)) ≡ Memˡ xs
     >-excluded x xs x>xs = funExt (λ a → ⇔toPath (to a) (from a)) where
 
-     import Cubical.Data.Prod  as D
+     import Cubical.Data.Sigma as D
      import Cubical.Data.Sum   as D
 
-     from : ∀ a → [ a ∈ˡ xs ] → [ ¬ a ≡ₚ x ⊓ (a ≡ₚ x ⊔ a ∈ˡ xs) ]
-     from a a∈xs = (recPropTrunc (snd ⊥) a≢x) D., inr a∈xs where
+     from : ∀ a → ⟨ a ∈ˡ xs ⟩ → ⟨ ¬ a ≡ₚ x ⊓ (a ≡ₚ x ⊔ a ∈ˡ xs) ⟩
+     from a a∈xs = (PropTrunc.rec (snd ⊥) a≢x) D., inr a∈xs where
        a≢x : Type¬ (a ≡ x)
-       a≢x = λ a≡x → (>-absent x xs x>xs (transport (λ i → [ a≡x i ∈ˡ xs ]) a∈xs ))
+       a≢x = λ a≡x → (>-absent x xs x>xs (transport (λ i → ⟨ a≡x i ∈ˡ xs ⟩) a∈xs ))
 
-     to : ∀ a → [ ¬ a ≡ₚ x ⊓ (a ≡ₚ x ⊔ a ∈ˡ xs) ] → [ a ∈ˡ xs ]
-     to a (a≢x D., x) = recPropTrunc (snd (a ∈ˡ xs)) (λ {
-       (D.inl a≡x) → ⊥-elim (a≢x a≡x);
+     to : ∀ a → ⟨ ¬ a ≡ₚ x ⊓ (a ≡ₚ x ⊔ a ∈ˡ xs) ⟩ → ⟨ a ∈ˡ xs ⟩
+     to a (a≢x D., x) = PropTrunc.rec (snd (a ∈ˡ xs)) (λ {
+       (D.inl a≡x) → ⊥.rec (a≢x a≡x);
        (D.inr x) → x }) x
 
   cons-eq : ∀ x xs x>xs y ys y>ys → x ≡ y → xs ≡ ys → cons x xs x>xs ≡ cons y ys y>ys
@@ -150,24 +153,24 @@ module IsoToLFSet
 
   Memˡ-inj : ∀ l₁ l₂ → Memˡ l₁ ≡ Memˡ l₂ → l₁ ≡ l₂
   Memˡ-inj [] [] eq = refl
-  Memˡ-inj [] (cons y ys y>ys) eq = ⊥-elim (transport (λ i → [ eq (~ i) y ]) (inl ∣ refl ∣))
-  Memˡ-inj (cons y ys y>ys) [] eq = ⊥-elim (transport (λ i → [ eq i y ]) (inl ∣ refl ∣))
+  Memˡ-inj [] (cons y ys y>ys) eq = ⊥.rec (lower (transport (λ i → ⟨ eq (~ i) y ⟩) (inl ∣ refl ∣)))
+  Memˡ-inj (cons y ys y>ys) [] eq = ⊥.rec (lower (transport (λ i → ⟨ eq i y ⟩) (inl ∣ refl ∣)))
   Memˡ-inj (cons x xs x>xs) (cons y ys y>ys) e =
      ⊔-elim (x ≡ₚ y) (x ∈ʰ unsort ys)
        (λ _ → ((cons x xs x>xs) ≡ (cons y ys y>ys)) , SDL-isSet _ _)
-       (recPropTrunc (SDL-isSet _ _) with-x≡y)
-       (⊥-elim ∘ x∉ys)
-       (transport (λ i → [ e i x ]) (inl ∣ refl ∣)) where
+       (PropTrunc.rec (SDL-isSet _ _) with-x≡y)
+       (⊥.rec ∘ x∉ys)
+       (transport (λ i → ⟨ e i x ⟩) (inl ∣ refl ∣)) where
 
     xxs = cons x xs x>xs
 
-    x∉ys : [ ¬ x ∈ˡ ys ]
-    x∉ys x∈ys = ⊥-elim (>-irreflexive y>y) where
+    x∉ys : ⟨ ¬ x ∈ˡ ys ⟩
+    x∉ys x∈ys = ⊥.rec (>-irreflexive y>y) where
         y>x : y > x
         y>x = (>-all y ys y>ys x x∈ys)
 
-        y∈xxs : [ y ∈ˡ (cons x xs x>xs) ]
-        y∈xxs = (transport (λ i → [ e (~ i) y ]) (inl ∣ refl ∣))
+        y∈xxs : ⟨ y ∈ˡ (cons x xs x>xs) ⟩
+        y∈xxs = (transport (λ i → ⟨ e (~ i) y ⟩) (inl ∣ refl ∣))
 
         y>y : y > y
         y>y = >-all y xxs (>ᴴcons y>x) y y∈xxs
@@ -205,11 +208,11 @@ module IsoToLFSet
     )
 
   sort : LFSet A → SDL
-  sort = LFSetRec.f [] insert insert-swap insert-dup SDL-isSet
+  sort = LFSet.Rec.f [] insert insert-swap insert-dup SDL-isSet
 
   unsort∘sort : ∀ x → unsort (sort x) ≡ x
   unsort∘sort =
-     LFPropElim.f (λ x → unsort (sort x) ≡ x)
+     LFSet.PropElim.f
        refl
        (λ x {ys} ys-hyp → insert-correct x (sort ys) ∙ cong (λ q → x ∷ q) ys-hyp)
        (λ xs → trunc (unsort (sort xs)) xs)

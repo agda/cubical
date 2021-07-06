@@ -4,7 +4,7 @@ This file document and export the main primitives of Cubical Agda. It
 also defines some basic derived operations (composition and filling).
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Core.Primitives where
 
 open import Agda.Builtin.Cubical.Path public
@@ -21,22 +21,22 @@ open import Agda.Primitive.Cubical public
            ; primHComp      to hcomp
            ; primTransp     to transp
            ; itIsOne        to 1=1 )
+
+-- These two are to make sure all the primitives are loaded and ready
+-- to compute hcomp/transp for the universe.
+import Agda.Builtin.Cubical.Glue
+-- HCompU is already imported from Glue, and older Agda versions do
+-- not have it. So we comment it out for now.
+-- import Agda.Builtin.Cubical.HCompU
+
 open import Agda.Primitive public
   using    ( Level )
   renaming ( lzero to ℓ-zero
            ; lsuc  to ℓ-suc
            ; _⊔_   to ℓ-max
+           ; Set   to Type
            ; Setω  to Typeω )
 open import Agda.Builtin.Sigma public
-
-Type : (ℓ : Level) → Set (ℓ-suc ℓ)
-Type ℓ = Set ℓ
-
-Type₀ : Type (ℓ-suc ℓ-zero)
-Type₀ = Type ℓ-zero
-
-Type₁ : Type (ℓ-suc (ℓ-suc ℓ-zero))
-Type₁ = Type (ℓ-suc ℓ-zero)
 
 -- This file document the Cubical Agda primitives. The primitives
 -- themselves are bound by the Agda files imported above.
@@ -120,7 +120,7 @@ private
 -- * There are cubical subtypes as in CCHM. Note that these are not
 -- fibrant (hence in Typeω):
 
-_[_↦_] : ∀ {ℓ} (A : Type ℓ) (φ : I) (u : Partial φ A) → Typeω
+_[_↦_] : ∀ {ℓ} (A : Type ℓ) (φ : I) (u : Partial φ A) → _
 A [ φ ↦ u ] = Sub A φ u
 
 infix 4 _[_↦_]
@@ -146,8 +146,15 @@ infix 4 _[_↦_]
 
 -- * Generalized transport and homogeneous composition [CHM 18].
 
--- When calling "transp A φ a" Agda makes sure that "A" is constant on "φ".
+-- When calling "transp A φ a" Agda makes sure that "A" is constant on "φ" (see below).
 -- transp : ∀ {ℓ} (A : I → Type ℓ) (φ : I) (a : A i0) → A i1
+
+-- "A" being constant on "φ" means that "A" should be a constant function whenever the
+-- constraint "φ = i1" is satisfied. For example:
+-- - If "φ" is "i0" then "A" can be anything, since this condition is vacuously true.
+-- - If "φ" is "i1" then "A" must be a constant function.
+-- - If "φ" is some in-scope variable "i" then "A" only needs to be a constant function
+--   when substituting "i1" for "i".
 
 -- When calling "hcomp A φ u a" Agda makes sure that "a" agrees with "u i0" on "φ".
 -- hcomp : ∀ {ℓ} {A : Type ℓ} {φ : I} (u : I → Partial φ A) (a : A) → A
@@ -202,4 +209,3 @@ infix 2 Σ-syntax
 Σ-syntax = Σ
 
 syntax Σ-syntax A (λ x → B) = Σ[ x ∈ A ] B
-

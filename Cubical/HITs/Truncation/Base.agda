@@ -1,24 +1,36 @@
-{-# OPTIONS --cubical --safe #-}
+{-
+
+A simpler definition of truncation ∥ A ∥ n from n ≥ -1
+
+Note that this uses the HoTT book's indexing, so it will be off
+ from `∥_∥_` in HITs.Truncation.Base by -2
+
+-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Truncation.Base where
 
+open import Cubical.Data.NatMinusOne
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.NatMinusOne using (ℕ₋₁; neg1; suc)
-open import Cubical.Data.NatMinusTwo
-open import Cubical.HITs.Nullification
-open import Cubical.HITs.Sn
+open import Cubical.Foundations.HLevels
+open import Cubical.HITs.Sn.Base
+open import Cubical.Data.Nat.Base
+open import Cubical.Data.Unit.Base
+open import Cubical.Data.Empty
 
--- For the hub-and-spoke construction discussed in the HoTT book, which only works for n ≥ -1, see
---  `HITs.Truncation.FromNegOne`. The definition of truncation here contains two more constructors
---  which are redundant when n ≥ -1 but give contractibility when n = -2.
+-- this definition is off by one. Use hLevelTrunc or ∥_∥ for truncations
+-- (off by 2 w.r.t. the HoTT-book)
+data HubAndSpoke {ℓ} (A : Type ℓ) (n : ℕ) : Type ℓ where
+  ∣_∣ : A → HubAndSpoke A n
+  hub : (f : S₊ n → HubAndSpoke A n) → HubAndSpoke A n
+  spoke : (f : S₊ n → HubAndSpoke A n) (x : S₊ n) → hub f ≡ f x
 
--- data ∥_∥_ {ℓ} (A : Type ℓ) (n : ℕ₋₂) : Type (ℓ-max ℓ ℓ') where
---   -- the hub-and-spoke definition in `Truncation.FromNegOne`
---   ∣_∣ : A → Null S A
---   hub   : (f : S (1+ n) → ∥ A ∥ n) → ∥ A ∥ n
---   spoke : (f : S (1+ n) → ∥ A ∥ n) (s : S) → hub f ≡ f s
---   -- two additional constructors needed to ensure that ∥ A ∥ -2 is contractible
---   ≡hub   : ∀ {x y} (p : S (1+ n) → x ≡ y) → x ≡ y
---   ≡spoke : ∀ {x y} (p : S (1+ n) → x ≡ y) (s : S) → ≡hub p ≡ p s
+hLevelTrunc : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Type ℓ
+hLevelTrunc zero A = Unit*
+hLevelTrunc (suc n) A = HubAndSpoke A n
 
-∥_∥_ : ∀ {ℓ} → Type ℓ → ℕ₋₂ → Type ℓ
-∥ A ∥ n = Null (S (1+ n)) A
+∥_∥_ : ∀ {ℓ} (A : Type ℓ) (n : ℕ) → Type ℓ
+∥ A ∥ n = hLevelTrunc n A
+
+∣_∣ₕ : ∀ {ℓ} {A : Type ℓ} {n : ℕ} → A → ∥ A ∥ n
+∣_∣ₕ {n = zero} a = tt*
+∣_∣ₕ {n = suc n} a = ∣ a ∣

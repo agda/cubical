@@ -20,7 +20,7 @@ This file proves a variety of basic results about paths:
 - Export universe lifting
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Prelude where
 
 open import Cubical.Core.Primitives public
@@ -28,6 +28,7 @@ open import Cubical.Core.Primitives public
 infixr 30 _∙_
 infix  3 _∎
 infixr 2 _≡⟨_⟩_
+infixr 2.5 _≡⟨_⟩≡⟨_⟩_
 
 -- Basic theory about paths. These proofs should typically be
 -- inlined. This module also makes equational reasoning work with
@@ -38,13 +39,15 @@ private
     ℓ ℓ' : Level
     A : Type ℓ
     B : A → Type ℓ
-    x y z : A
+    x y z w : A
 
 refl : x ≡ x
 refl {x = x} = λ _ → x
+{-# INLINE refl #-}
 
 sym : x ≡ y → y ≡ x
 sym p i = p (~ i)
+{-# INLINE sym #-}
 
 symP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} →
        (p : PathP A x y) → PathP (λ i → A (~ i)) y x
@@ -53,6 +56,7 @@ symP p j = p (~ j)
 cong : ∀ (f : (a : A) → B a) (p : x ≡ y) →
        PathP (λ i → B (p i)) (f x) (f y)
 cong f p i = f (p i)
+{-# INLINE cong #-}
 
 cong₂ : ∀ {C : (a : A) → (b : B a) → Type ℓ} →
         (f : (a : A) → (b : B a) → C a b) →
@@ -60,65 +64,154 @@ cong₂ : ∀ {C : (a : A) → (b : B a) → Type ℓ} →
         {u : B x} {v : B y} (q : PathP (λ i → B (p i)) u v) →
         PathP (λ i → C (p i) (q i)) (f x u) (f y v)
 cong₂ f p q i = f (p i) (q i)
+{-# INLINE cong₂ #-}
 
--- The filler of homogeneous path composition:
--- compPath-filler p q = PathP (λ i → x ≡ q i) p (p ∙ q)
+{- The most natural notion of homogenous path composition
+    in a cubical setting is double composition:
 
-compPath-filler : ∀ {x y z : A} → x ≡ y → y ≡ z → I → I → A
-compPath-filler {x = x} p q j i =
-  hfill (λ j → λ { (i = i0) → x
-                  ; (i = i1) → q j }) (inS (p i)) j
+       x ∙ ∙ ∙ > w
+       ^         ^
+   p⁻¹ |         | r        ^
+       |         |        j |
+       y — — — > z          ∙ — >
+            q                 i
+
+   `p ∙∙ q ∙∙ r` gives the line at the top,
+   `doubleCompPath-filler p q r` gives the whole square
+-}
+
+doubleComp-faces : {x y z w : A } (p : x ≡ y) (r : z ≡ w)
+                 → (i : I) (j : I) → Partial (i ∨ ~ i) A
+doubleComp-faces p r i j (i = i0) = p (~ j)
+doubleComp-faces p r i j (i = i1) = r j
+
+_∙∙_∙∙_ : w ≡ x → x ≡ y → y ≡ z → w ≡ z
+(p ∙∙ q ∙∙ r) i =
+  hcomp (doubleComp-faces p r i) (q i)
+
+doubleCompPath-filler : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w)
+                      → PathP (λ j → p (~ j) ≡ r j) q (p ∙∙ q ∙∙ r)
+doubleCompPath-filler p q r j i =
+  hfill (doubleComp-faces p r i) (inS (q i)) j
+
+-- any two definitions of double composition are equal
+compPath-unique : ∀ (p : x ≡ y) (q : y ≡ z) (r : z ≡ w)
+                  → (α β : Σ[ s ∈ x ≡ w ] PathP (λ j → p (~ j) ≡ r j) q s)
+                  → α ≡ β
+compPath-unique p q r (α , α-filler) (β , β-filler) t
+  = (λ i → cb i1 i) , (λ j i → cb j i)
+  where cb : I → I → _
+        cb j i = hfill (λ j → λ { (t = i0) → α-filler j i
+                                ; (t = i1) → β-filler j i
+                                ; (i = i0) → p (~ j)
+                                ; (i = i1) → r j })
+                       (inS (q i)) j
+
+{- For single homogenous path composition, we take `p = refl`:
+
+     x ∙ ∙ ∙ > z
+     ‖         ^
+     ‖         | r        ^
+     ‖         |        j |
+     x — — — > y          ∙ — >
+          q                 i
+
+   `q ∙ r` gives the line at the top,
+   `compPath-filler q r` gives the whole square
+-}
 
 _∙_ : x ≡ y → y ≡ z → x ≡ z
-(p ∙ q) j = compPath-filler p q i1 j
+p ∙ q = refl ∙∙ p ∙∙ q
 
--- The filler of heterogeneous path composition:
--- compPathP-filler p q = PathP (λ i → PathP (λ j → (compPath-filler (λ i → A i) B i j)) x (q i)) p (compPathP p q)
+compPath-filler : (p : x ≡ y) (q : y ≡ z) → PathP (λ j → x ≡ q j) p (p ∙ q)
+compPath-filler p q = doubleCompPath-filler refl p q
 
-compPathP-filler : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → {B_i1 : Type ℓ} {B : A i1 ≡ B_i1} → {z : B i1} →
-  (p : PathP A x y) → (q : PathP (λ i → B i) y z) → ∀ (i j : I) → compPath-filler (λ i → A i) B j i
-compPathP-filler {A = A} {x = x} {B = B} p q i =
+-- We could have also defined single composition by taking `r = refl`:
+
+_∙'_ : x ≡ y → y ≡ z → x ≡ z
+p ∙' q = p ∙∙ q ∙∙ refl
+
+compPath'-filler : (p : x ≡ y) (q : y ≡ z) → PathP (λ j → p (~ j) ≡ z) q (p ∙' q)
+compPath'-filler p q = doubleCompPath-filler p q refl
+
+-- It's easy to show that `p ∙ q` also has such a filler:
+compPath-filler' : (p : x ≡ y) (q : y ≡ z) → PathP (λ j → p (~ j) ≡ z) q (p ∙ q)
+compPath-filler' {z = z} p q j i =
+  hcomp (λ k → λ { (i = i0) → p (~ j)
+                 ; (i = i1) → q k
+                 ; (j = i0) → q (i ∧ k) })
+        (p (i ∨ ~ j))
+-- Note: We can omit a (j = i1) case here since when (j = i1), the whole expression is
+--  definitionally equal to `p ∙ q`. (Notice that `p ∙ q` is also an hcomp.) Nevertheless,
+--  we could have given `compPath-filler p q k i` as the (j = i1) case.
+
+-- From this, we can show that these two notions of composition are the same
+compPath≡compPath' : (p : x ≡ y) (q : y ≡ z) → p ∙ q ≡ p ∙' q
+compPath≡compPath' p q j =
+  compPath-unique p q refl (p ∙ q  , compPath-filler' p q)
+                           (p ∙' q , compPath'-filler p q) j .fst
+
+-- Heterogeneous path composition and its filler:
+
+compPathP : ∀ {A : I → Type ℓ} {x : A i0} {y : A i1} {B_i1 : Type ℓ} {B : (A i1) ≡ B_i1} {z : B i1}
+            → PathP A x y → PathP (λ i → B i) y z → PathP (λ j → ((λ i → A i) ∙ B) j) x z
+compPathP {A = A} {x = x} {B = B} p q i =
+  comp (λ j → compPath-filler (λ i → A i) B j i)
+       (λ j → λ { (i = i0) → x ;
+                  (i = i1) → q j })
+       (p i)
+
+
+compPathP' : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y z : A} {x' : B x} {y' : B y} {z' : B z} {p : x ≡ y} {q : y ≡ z}
+             (P : PathP (λ i → B (p i)) x' y') (Q : PathP (λ i → B (q i)) y' z')
+          → PathP (λ i → B ((p ∙ q) i)) x' z'
+compPathP' {B = B} {x' = x'} {p = p} {q = q} P Q i =
+  comp (λ j → B (compPath-filler p q j i))
+       (λ j → λ { (i = i0) → x'  ;
+                  (i = i1) → Q j })
+       (P i)
+
+
+compPathP-filler : ∀ {A : I → Type ℓ} {x : A i0} {y : A i1} {B_i1 : Type ℓ} {B : A i1 ≡ B_i1} {z : B i1}
+                   → (p : PathP A x y) (q : PathP (λ i → B i) y z)
+                   → PathP (λ j → PathP (λ k → (compPath-filler (λ i → A i) B j k)) x (q j)) p (compPathP p q)
+compPathP-filler {A = A} {x = x} {B = B} p q j i =
   fill (λ j → compPath-filler (λ i → A i) B j i)
        (λ j → λ { (i = i0) → x ;
-                   (i = i1) → q j }) (inS (p i))
+                  (i = i1) → q j })
+       (inS (p i)) j
 
-compPathP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → {B_i1 : Type ℓ} {B : (A i1) ≡ B_i1} → {z : B i1} →
-  (p : PathP A x y) → (q : PathP (λ i → B i) y z) → PathP (λ j → ((λ i → A i) ∙ B) j) x z
-compPathP p q j = compPathP-filler p q j i1
+
+
+compPathP'-filler : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} {x y z : A} {x' : B x} {y' : B y} {z' : B z} {p : x ≡ y} {q : y ≡ z}
+             (P : PathP (λ i → B (p i)) x' y') (Q : PathP (λ i → B (q i)) y' z')
+          → PathP (λ j → PathP (λ i → B (compPath-filler p q j i)) x' (Q j)) P (compPathP' {x = x} {y = y} {x' = x'} {y' = y'} P Q)
+compPathP'-filler {B = B} {x' = x'} {p = p} {q = q} P Q j i =
+  fill (λ j → B (compPath-filler p q j i))
+       (λ j → λ { (i = i0) → x'  ;
+                  (i = i1) → Q j })
+       (inS (P i))
+       j
 
 _≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → x ≡ z
 _ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
-
 
 ≡⟨⟩-syntax : (x : A) → x ≡ y → y ≡ z → x ≡ z
 ≡⟨⟩-syntax = _≡⟨_⟩_
 infixr 2 ≡⟨⟩-syntax
 syntax ≡⟨⟩-syntax x (λ i → B) y = x ≡[ i ]⟨ B ⟩ y
 
+≡⟨⟩⟨⟩-syntax : (x y : A) → x ≡ y → y ≡ z → z ≡ w → x ≡ w
+≡⟨⟩⟨⟩-syntax x y p q r = p ∙∙ q ∙∙ r
+infixr 3 ≡⟨⟩⟨⟩-syntax
+syntax ≡⟨⟩⟨⟩-syntax x y B C = x ≡⟨ B ⟩≡ y ≡⟨ C ⟩≡
+
+_≡⟨_⟩≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → z ≡ w → x ≡ w
+_ ≡⟨ x≡y ⟩≡⟨ y≡z ⟩ z≡w = x≡y ∙∙ y≡z ∙∙ z≡w
+
 _∎ : (x : A) → x ≡ x
 _ ∎ = refl
 
--- another definition of composition, useful for some proofs
-compPath'-filler : ∀ {x y z : A} → x ≡ y → y ≡ z → I → I → A
-compPath'-filler {z = z} p q j i =
-  hfill (λ j → λ { (i = i0) → p (~ j)
-                 ; (i = i1) → z }) (inS (q i)) j
-
-_□_ : x ≡ y → y ≡ z → x ≡ z
-(p □ q) j = compPath'-filler p q i1 j
-
-□≡∙ : (p : x ≡ y) (q : y ≡ z) → p □ q ≡ p ∙ q
-□≡∙ {x = x} {y = y} {z = z} p q i j = hcomp (λ k → \ { (i = i0) → compPath'-filler p q k j
-                                             ; (i = i1) → compPath-filler p q k j
-                                             ; (j = i0) → p ( ~ i ∧ ~ k)
-                                             ; (j = i1) → q (k ∨ ~ i) }) (helper i j)
-  where
-    helper : PathP (λ i → p (~ i) ≡ q (~ i)) q p
-    helper i j = hcomp (λ k → \ { (i = i0) → q (k ∧ j)
-                                ; (i = i1) → p (~ k ∨ j)
-                                ; (j = i0) → p (~ i ∨ ~ k)
-                                ; (j = i1) → q (~ i ∧ k) })
-                       y
 
 -- Transport, subst and functional extensionality
 
@@ -131,18 +224,45 @@ transport p a = transp (λ i → p i) i0 a
 transportRefl : (x : A) → transport refl x ≡ x
 transportRefl {A = A} x i = transp (λ _ → A) i x
 
+transport-filler : ∀ {ℓ} {A B : Type ℓ} (p : A ≡ B) (x : A)
+                   → PathP (λ i → p i) x (transport p x)
+transport-filler p x i = transp (λ j → p (i ∧ j)) (~ i) x
+
 -- We want B to be explicit in subst
 subst : (B : A → Type ℓ') (p : x ≡ y) → B x → B y
 subst B p pa = transport (λ i → B (p i)) pa
 
+subst2 : ∀ {ℓ' ℓ''} {B : Type ℓ'} {z w : B} (C : A → B → Type ℓ'')
+        (p : x ≡ y) (q : z ≡ w) → C x z → C y w
+subst2 B p q b = transport (λ i → B (p i) (q i)) b
+
 substRefl : (px : B x) → subst B refl px ≡ px
 substRefl px = transportRefl px
 
-funExt : {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
+subst-filler : (B : A → Type ℓ') (p : x ≡ y) (b : B x)
+  → PathP (λ i → B (p i)) b (subst B p b)
+subst-filler B p = transport-filler (cong B p)
+
+funExt : {B : A → I → Type ℓ'}
+  {f : (x : A) → B x i0} {g : (x : A) → B x i1}
+  → ((x : A) → PathP (B x) (f x) (g x))
+  → PathP (λ i → (x : A) → B x i) f g
 funExt p i x = p x i
 
--- the inverse to funExt (see Foundations.FunExtEquiv)
-funExt⁻ : ∀ {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
+implicitFunExt : {B : A → I → Type ℓ'}
+  {f : {x : A} → B x i0} {g : {x : A} → B x i1}
+  → ({x : A} → PathP (B x) (f {x}) (g {x}))
+  → PathP (λ i → {x : A} → B x i) f g
+implicitFunExt p i {x} = p {x} i
+
+-- the inverse to funExt (see Functions.FunExtEquiv), converting paths
+-- between functions to homotopies; `funExt⁻` is called `happly` and
+-- defined by path induction in the HoTT book (see function 2.9.2 in
+-- section 2.9)
+funExt⁻ : {B : A → I → Type ℓ'}
+  {f : (x : A) → B x i0} {g : (x : A) → B x i1}
+  → PathP (λ i → (x : A) → B x i) f g
+  → ((x : A) → PathP (B x) (f x) (g x))
 funExt⁻ eq x i = eq i x
 
 -- J for paths and its computation rule
@@ -154,26 +274,36 @@ module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
   JRefl : J refl ≡ d
   JRefl = transportRefl d
 
--- Contractibility of singletons
-
-singl : (a : A) → Type _
-singl {A = A} a = Σ[ x ∈ A ] (a ≡ x)
-
-contrSingl : (p : x ≡ y) → Path (singl x) (x , refl) (y , p)
-contrSingl p i = (p i , λ j → p (i ∧ j))
-
+  J-∙ : (p : x ≡ y) (q : y ≡ z)
+    → J (p ∙ q) ≡ transport (λ i → P (q i) (λ j → compPath-filler p q i j)) (J p)
+  J-∙ p q k =
+    transp
+      (λ i → P (q (i ∨ ~ k))
+      (λ j → compPath-filler p q (i ∨ ~ k) j)) (~ k)
+      (J (λ j → compPath-filler p q (~ k) j))
 
 -- Converting to and from a PathP
 
 module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
-  toPathP : transp A i0 x ≡ y → PathP A x y
+  toPathP : transp (\ i → A i) i0 x ≡ y → PathP A x y
   toPathP p i = hcomp (λ j → λ { (i = i0) → x
                                ; (i = i1) → p j })
                       (transp (λ j → A (i ∧ j)) (~ i) x)
 
-  fromPathP : PathP A x y → transp A i0 x ≡ y
+  fromPathP : PathP A x y → transp (\ i → A i) i0 x ≡ y
   fromPathP p i = transp (λ j → A (i ∨ j)) i (p i)
 
+-- Whiskering a dependent path by a path
+
+_◁_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ : A i1}
+  → a₀ ≡ a₀' → PathP A a₀' a₁ → PathP A a₀ a₁
+(p ◁ q) i =
+  hcomp (λ j → λ {(i = i0) → p (~ j); (i = i1) → q i1}) (q i)
+
+_▷_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ : A i0} {a₁ a₁' : A i1}
+  → PathP A a₀ a₁ → a₁ ≡ a₁' → PathP A a₀ a₁'
+(p ▷ q) i =
+  hcomp (λ j → λ {(i = i0) → p i0; (i = i1) → q j}) (p i)
 
 -- Direct definitions of lower h-levels
 
@@ -185,6 +315,36 @@ isProp A = (x y : A) → x ≡ y
 
 isSet : Type ℓ → Type ℓ
 isSet A = (x y : A) → isProp (x ≡ y)
+
+isGroupoid : Type ℓ → Type ℓ
+isGroupoid A = ∀ a b → isSet (Path A a b)
+
+is2Groupoid : Type ℓ → Type ℓ
+is2Groupoid A = ∀ a b → isGroupoid (Path A a b)
+
+-- Contractibility of singletons
+
+singlP : (A : I → Type ℓ) (a : A i0) → Type _
+singlP A a = Σ[ x ∈ A i1 ] PathP A a x
+
+singl : (a : A) → Type _
+singl {A = A} a = singlP (λ _ → A) a
+
+isContrSingl : (a : A) → isContr (singl a)
+isContrSingl a = (a , refl) , λ p i → p .snd i , λ j → p .snd (i ∧ j)
+
+isContrSinglP : (A : I → Type ℓ) (a : A i0) → isContr (singlP A a)
+isContrSinglP A a .fst = _ , transport-filler (λ i → A i) a
+isContrSinglP A a .snd (x , p) i =
+  _ , λ j → fill (\ i → A i) (λ j → λ {(i = i0) → transport-filler (λ i → A i) a j; (i = i1) → p j}) (inS a) j
+
+SquareP :
+  (A : I → I → Type ℓ)
+  {a₀₀ : A i0 i0} {a₀₁ : A i0 i1} (a₀₋ : PathP (λ j → A i0 j) a₀₀ a₀₁)
+  {a₁₀ : A i1 i0} {a₁₁ : A i1 i1} (a₁₋ : PathP (λ j → A i1 j) a₁₀ a₁₁)
+  (a₋₀ : PathP (λ i → A i i0) a₀₀ a₁₀) (a₋₁ : PathP (λ i → A i i1) a₀₁ a₁₁)
+  → Type ℓ
+SquareP A a₀₋ a₁₋ a₋₀ a₋₁ = PathP (λ i → PathP (λ j → A i j) (a₋₀ i) (a₋₁ i)) a₀₋ a₁₋
 
 Square :
   {a₀₀ a₀₁ : A} (a₀₋ : a₀₀ ≡ a₀₁)
@@ -199,9 +359,6 @@ isSet' A =
   {a₁₀ a₁₁ : A} (a₁₋ : a₁₀ ≡ a₁₁)
   (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
   → Square a₀₋ a₁₋ a₋₀ a₋₁
-
-isGroupoid : Type ℓ → Type ℓ
-isGroupoid A = ∀ a b → isSet (Path A a b)
 
 Cube :
   {a₀₀₀ a₀₀₁ : A} {a₀₀₋ : a₀₀₀ ≡ a₀₀₁}
@@ -222,7 +379,7 @@ Cube :
 Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ =
   PathP (λ i → Square (a₋₀₋ i) (a₋₁₋ i) (a₋₋₀ i) (a₋₋₁ i)) a₀₋₋ a₁₋₋
 
-isGroupoid' : Set ℓ → Set ℓ
+isGroupoid' : Type ℓ → Type ℓ
 isGroupoid' A =
   {a₀₀₀ a₀₀₁ : A} {a₀₀₋ : a₀₀₀ ≡ a₀₀₁}
   {a₀₁₀ a₀₁₁ : A} {a₀₁₋ : a₀₁₀ ≡ a₀₁₁}
@@ -240,9 +397,6 @@ isGroupoid' A =
   (a₋₋₁ : Square a₀₋₁ a₁₋₁ a₋₀₁ a₋₁₁)
   → Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁
 
-is2Groupoid : Type ℓ → Type ℓ
-is2Groupoid A = ∀ a b → isGroupoid (Path A a b)
-
 -- Essential consequences of isProp and isContr
 isProp→PathP : ∀ {B : I → Type ℓ} → ((i : I) → isProp (B i))
                → (b0 : B i0) (b1 : B i1)
@@ -250,13 +404,11 @@ isProp→PathP : ∀ {B : I → Type ℓ} → ((i : I) → isProp (B i))
 isProp→PathP hB b0 b1 = toPathP (hB _ _ _)
 
 isPropIsContr : isProp (isContr A)
-isPropIsContr z0 z1 j =
-  ( z0 .snd (z1 .fst) j
-  , λ x i → hcomp (λ k → λ { (i = i0) → z0 .snd (z1 .fst) j
-                           ; (i = i1) → z0 .snd x (j ∨ k)
-                           ; (j = i0) → z0 .snd x (i ∧ k)
-                           ; (j = i1) → z1 .snd x i })
-                  (z0 .snd (z1 .snd x i) j))
+isPropIsContr (c0 , h0) (c1 , h1) j =
+  h0 c1 j , λ y i → hcomp (λ k → λ { (i = i0) → h0 (h0 c1 j) k;
+                                     (i = i1) → h0 y k;
+                                     (j = i0) → h0 (h0 y i) k;
+                                     (j = i1) → h0 (h1 y i) k}) c0
 
 isContr→isProp : isContr A → isProp A
 isContr→isProp (x , p) a b i =
@@ -270,8 +422,21 @@ isProp→isSet h a b p q j i =
                  ; (j = i0) → h a (p i) k
                  ; (j = i1) → h a (q i) k }) a
 
+isProp→isSet' : isProp A → isSet' A
+isProp→isSet' h {a} p q r s i j =
+  hcomp (λ k → λ { (i = i0) → h a (p j) k
+                 ; (i = i1) → h a (q j) k
+                 ; (j = i0) → h a (r i) k
+                 ; (j = i1) → h a (s i) k}) a
+
 isPropIsProp : isProp (isProp A)
 isPropIsProp f g i a b = isProp→isSet f a b (f a b) (g a b) i
+
+isPropSingl : {a : A} → isProp (singl a)
+isPropSingl = isContr→isProp (isContrSingl _)
+
+isPropSinglP : {A : I → Type ℓ} {a : A i0} → isProp (singlP A a)
+isPropSinglP = isContr→isProp (isContrSinglP _ _)
 
 -- Universe lifting
 
@@ -281,3 +446,74 @@ record Lift {i j} (A : Type i) : Type (ℓ-max i j) where
     lower : A
 
 open Lift public
+
+liftExt : ∀ {A : Type ℓ} {a b : Lift {ℓ} {ℓ'} A} → (lower a ≡ lower b) → a ≡ b
+liftExt x i = lift (x i)
+
+doubleCompPath-filler∙ : {a b c d : A} (p : a ≡ b) (q : b ≡ c) (r : c ≡ d)
+                       → PathP (λ i → p i ≡ r (~ i)) (p ∙ q ∙ r) q
+doubleCompPath-filler∙ {A = A} {b = b} p q r j i =
+  hcomp (λ k → λ { (i = i0) → p j
+                  ; (i = i1) → side j k
+                  ; (j = i1) → q (i ∧ k)})
+        (p (j ∨ i))
+  where
+  side : I → I → A
+  side i j =
+    hcomp (λ k → λ { (i = i1) → q j
+                    ; (j = i0) → b
+                    ; (j = i1) → r (~ i ∧ k)})
+          (q j)
+
+PathP→compPathL : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+           → PathP (λ i → p i ≡ q i) r s
+           → sym p ∙ r ∙ q ≡ s
+PathP→compPathL {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (j ∨ k)
+                  ; (i = i1) → q (j ∨ k)
+                  ; (j = i0) → doubleCompPath-filler∙ (sym p) r q (~ k) i
+                  ; (j = i1) → s i })
+        (P j i)
+
+PathP→compPathR : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+           → PathP (λ i → p i ≡ q i) r s
+           → r ≡ p ∙ s ∙ sym q
+PathP→compPathR {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (j ∧ (~ k))
+                  ; (i = i1) → q (j ∧ (~ k))
+                  ; (j = i0) → r i
+                  ; (j = i1) → doubleCompPath-filler∙ p s (sym q) (~ k) i})
+        (P j i)
+
+
+-- otherdir
+
+compPathL→PathP : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+           → sym p ∙ r ∙ q ≡ s
+           → PathP (λ i → p i ≡ q i) r s
+compPathL→PathP {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (~ k ∨ j)
+                  ; (i = i1) → q (~ k ∨ j)
+                  ; (j = i0) → doubleCompPath-filler∙ (sym p) r q k i
+                  ; (j = i1) → s i})
+        (P j i)
+
+compPathR→PathP : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+                → r ≡ p ∙ s ∙ sym q
+                → PathP (λ i → p i ≡ q i) r s
+compPathR→PathP {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (k ∧ j)
+                  ; (i = i1) → q (k ∧ j)
+                  ; (j = i0) → r i
+                  ; (j = i1) → doubleCompPath-filler∙  p s (sym q) k i})
+        (P j i)
+
+compPathR→PathP∙∙ : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+                → r ≡ p ∙∙ s ∙∙ sym q
+                → PathP (λ i → p i ≡ q i) r s
+compPathR→PathP∙∙ {p = p} {q = q} {r = r} {s = s} P j i =
+    hcomp (λ k → λ { (i = i0) → p (k ∧ j)
+                    ; (i = i1) → q (k ∧ j)
+                    ; (j = i0) → r i
+                    ; (j = i1) → doubleCompPath-filler  p s (sym q) (~ k) i})
+          (P j i)

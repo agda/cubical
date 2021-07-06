@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe --guardedness #-}
 module Cubical.Induction.Everything where
 
-open import Cubical.Induction.WellFounded public
+import Cubical.Induction.WellFounded

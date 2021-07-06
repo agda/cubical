@@ -1,10 +1,10 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.Sum.Properties where
 
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Embedding
+open import Cubical.Functions.Embedding
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Empty
@@ -12,8 +12,20 @@ open import Cubical.Data.Nat
 
 open import Cubical.Data.Sum.Base
 
+open Iso
+
+
+private
+  variable
+    ℓa ℓb ℓc ℓd : Level
+    A : Type ℓa
+    B : Type ℓb
+    C : Type ℓc
+    D : Type ℓd
+
+
 -- Path space of sum type
-module SumPath {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
+module ⊎Path {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
 
   Cover : A ⊎ B → A ⊎ B → Type (ℓ-max ℓ ℓ')
   Cover (inl a) (inl a') = Lift {j = ℓ-max ℓ ℓ'} (a ≡ a')
@@ -56,7 +68,7 @@ module SumPath {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
   Cover≃Path c c' =
     isoToEquiv (iso (decode c c') (encode c c') (decodeEncode c c') (encodeDecode c c'))
 
-  isOfHLevelCover : (n : ℕ)
+  isOfHLevelCover : (n : HLevel)
     → isOfHLevel (suc (suc n)) A
     → isOfHLevel (suc (suc n)) B
     → ∀ c c' → isOfHLevel (suc n) (Cover c c')
@@ -67,19 +79,77 @@ module SumPath {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
     isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥)
   isOfHLevelCover n p q (inr b) (inr b') = isOfHLevelLift (suc n) (q b b')
 
-isEmbedding-inl : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isEmbedding (inl {A = A} {B = B})
-isEmbedding-inl w z = snd (compEquiv LiftEquiv (SumPath.Cover≃Path (inl w) (inl z)))
+isEmbedding-inl : isEmbedding (inl {A = A} {B = B})
+isEmbedding-inl w z = snd (compEquiv LiftEquiv (⊎Path.Cover≃Path (inl w) (inl z)))
 
-isEmbedding-inr : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → isEmbedding (inr {A = A} {B = B})
-isEmbedding-inr w z = snd (compEquiv LiftEquiv (SumPath.Cover≃Path (inr w) (inr z)))
+isEmbedding-inr : isEmbedding (inr {A = A} {B = B})
+isEmbedding-inr w z = snd (compEquiv LiftEquiv (⊎Path.Cover≃Path (inr w) (inr z)))
 
-isOfHLevelSum : ∀ {ℓ ℓ'} (n : ℕ) {A : Type ℓ} {B : Type ℓ'}
+isOfHLevel⊎ : (n : HLevel)
   → isOfHLevel (suc (suc n)) A
   → isOfHLevel (suc (suc n)) B
   → isOfHLevel (suc (suc n)) (A ⊎ B)
-isOfHLevelSum n lA lB c c' =
+isOfHLevel⊎ n lA lB c c' =
   isOfHLevelRetract (suc n)
-    (SumPath.encode c c')
-    (SumPath.decode c c')
-    (SumPath.decodeEncode c c')
-    (SumPath.isOfHLevelCover n lA lB c c')
+    (⊎Path.encode c c')
+    (⊎Path.decode c c')
+    (⊎Path.decodeEncode c c')
+    (⊎Path.isOfHLevelCover n lA lB c c')
+
+isSet⊎ : isSet A → isSet B → isSet (A ⊎ B)
+isSet⊎ = isOfHLevel⊎ 0
+
+isGroupoid⊎ : isGroupoid A → isGroupoid B → isGroupoid (A ⊎ B)
+isGroupoid⊎ = isOfHLevel⊎ 1
+
+is2Groupoid⊎ : is2Groupoid A → is2Groupoid B → is2Groupoid (A ⊎ B)
+is2Groupoid⊎ = isOfHLevel⊎ 2
+
+⊎Iso : Iso A C → Iso B D → Iso (A ⊎ B) (C ⊎ D)
+fun (⊎Iso iac ibd) (inl x) = inl (iac .fun x)
+fun (⊎Iso iac ibd) (inr x) = inr (ibd .fun x)
+inv (⊎Iso iac ibd) (inl x) = inl (iac .inv x)
+inv (⊎Iso iac ibd) (inr x) = inr (ibd .inv x)
+rightInv (⊎Iso iac ibd) (inl x) = cong inl (iac .rightInv x)
+rightInv (⊎Iso iac ibd) (inr x) = cong inr (ibd .rightInv x)
+leftInv (⊎Iso iac ibd) (inl x)  = cong inl (iac .leftInv x)
+leftInv (⊎Iso iac ibd) (inr x)  = cong inr (ibd .leftInv x)
+
+⊎-swap-Iso : Iso (A ⊎ B) (B ⊎ A)
+fun ⊎-swap-Iso (inl x) = inr x
+fun ⊎-swap-Iso (inr x) = inl x
+inv ⊎-swap-Iso (inl x) = inr x
+inv ⊎-swap-Iso (inr x) = inl x
+rightInv ⊎-swap-Iso (inl _) = refl
+rightInv ⊎-swap-Iso (inr _) = refl
+leftInv ⊎-swap-Iso (inl _)  = refl
+leftInv ⊎-swap-Iso (inr _)  = refl
+
+⊎-swap-≃ : A ⊎ B ≃ B ⊎ A
+⊎-swap-≃ = isoToEquiv ⊎-swap-Iso
+
+⊎-assoc-Iso : Iso ((A ⊎ B) ⊎ C) (A ⊎ (B ⊎ C))
+fun ⊎-assoc-Iso (inl (inl x)) = inl x
+fun ⊎-assoc-Iso (inl (inr x)) = inr (inl x)
+fun ⊎-assoc-Iso (inr x)       = inr (inr x)
+inv ⊎-assoc-Iso (inl x)       = inl (inl x)
+inv ⊎-assoc-Iso (inr (inl x)) = inl (inr x)
+inv ⊎-assoc-Iso (inr (inr x)) = inr x
+rightInv ⊎-assoc-Iso (inl _)       = refl
+rightInv ⊎-assoc-Iso (inr (inl _)) = refl
+rightInv ⊎-assoc-Iso (inr (inr _)) = refl
+leftInv ⊎-assoc-Iso (inl (inl _))  = refl
+leftInv ⊎-assoc-Iso (inl (inr _))  = refl
+leftInv ⊎-assoc-Iso (inr _)        = refl
+
+⊎-assoc-≃ : (A ⊎ B) ⊎ C ≃ A ⊎ (B ⊎ C)
+⊎-assoc-≃ = isoToEquiv ⊎-assoc-Iso
+
+⊎-⊥-Iso : Iso (A ⊎ ⊥) A
+fun ⊎-⊥-Iso (inl x) = x
+inv ⊎-⊥-Iso x       = inl x
+rightInv ⊎-⊥-Iso _      = refl
+leftInv ⊎-⊥-Iso (inl _) = refl
+
+⊎-⊥-≃ : A ⊎ ⊥ ≃ A
+⊎-⊥-≃ = isoToEquiv ⊎-⊥-Iso

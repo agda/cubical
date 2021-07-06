@@ -2,7 +2,7 @@
 -- Descending lists
 ------------------------------------------------------------------------
 
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 
 open import Cubical.Foundations.Everything
 

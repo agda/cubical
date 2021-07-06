@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --safe #-}
 module Cubical.Experiments.Brunerie where
 
 open import Cubical.Foundations.Everything
@@ -11,9 +11,10 @@ open import Cubical.HITs.S2
 open import Cubical.HITs.S3
 open import Cubical.HITs.Join
 open import Cubical.HITs.Hopf
-open import Cubical.HITs.SetTruncation
-open import Cubical.HITs.GroupoidTruncation
-open import Cubical.HITs.2GroupoidTruncation
+open import Cubical.HITs.SetTruncation as SetTrunc
+open import Cubical.HITs.GroupoidTruncation as GroupoidTrunc
+open import Cubical.HITs.2GroupoidTruncation as 2GroupoidTrunc
+open import Cubical.Homotopy.Loopspace
 
 -- This code is adapted from examples/brunerie3.ctt on the pi4s3_nobug branch of cubicaltt
 
@@ -23,9 +24,9 @@ S¹∙ = (S¹ , base)
 S²∙ = (S² , base)
 S³∙ = (S³ , base)
 
-∥_∥₁∙ ∥_∥₂∙ : Pointed₀ → Pointed₀
-∥ A , a ∥₁∙ = ∥ A ∥₁ , ∣ a ∣₁
-∥ A , a ∥₂∙ = ∥ A ∥₂ , ∣ a ∣₂
+∥_∥₃∙ ∥_∥₄∙ : Pointed₀ → Pointed₀
+∥ A , a ∥₃∙ = ∥ A ∥₃ , ∣ a ∣₃
+∥ A , a ∥₄∙ = ∥ A ∥₄ , ∣ a ∣₄
 
 join∙ : Pointed₀ → Type₀ → Pointed₀
 join∙ (A , a) B = join A B , inl a
@@ -126,46 +127,46 @@ fibContrΩ³Hopf p i j k =
 h : Ω³ S²∙ .fst → Ω³ (join∙ S¹∙ S¹) .fst
 h p i j k = tee (p i j k) (fibContrΩ³Hopf p i j k)
 
-multTwoAux : (x : S²) → Path (Path ∥ S² ∥₂ ∣ x ∣₂ ∣ x ∣₂) refl refl
-multTwoAux base i j = ∣ surf i j ∣₂
+multTwoAux : (x : S²) → Path (Path ∥ S² ∥₄ ∣ x ∣₄ ∣ x ∣₄) refl refl
+multTwoAux base i j = ∣ surf i j ∣₄
 multTwoAux (surf k l) i j =
   hcomp
     (λ m → λ
-      { (i = i0) → ∣ surf k l ∣₂
-      ; (i = i1) → ∣ surf k l ∣₂
-      ; (j = i0) → ∣ surf k l ∣₂
-      ; (j = i1) → ∣ surf k l ∣₂
-      ; (k = i0) → ∣ surf i j ∣₂
-      ; (k = i1) → ∣ surf i j ∣₂
-      ; (l = i0) → ∣ surf i j ∣₂
-      ; (l = i1) → squash₂ _ _ _ _ _ _ (λ k i j → step₁ k i j) refl m k i j
+      { (i = i0) → ∣ surf k l ∣₄
+      ; (i = i1) → ∣ surf k l ∣₄
+      ; (j = i0) → ∣ surf k l ∣₄
+      ; (j = i1) → ∣ surf k l ∣₄
+      ; (k = i0) → ∣ surf i j ∣₄
+      ; (k = i1) → ∣ surf i j ∣₄
+      ; (l = i0) → ∣ surf i j ∣₄
+      ; (l = i1) → squash₄ _ _ _ _ _ _ (λ k i j → step₁ k i j) refl m k i j
       })
     (step₁ k i j)
 
   where
-  step₁ : I → I → I → ∥ S² ∥₂
+  step₁ : I → I → I → ∥ S² ∥₄
   step₁ k i j =
-    hcomp {A = ∥ S² ∥₂}
+    hcomp {A = ∥ S² ∥₄}
       (λ m → λ
-        { (i = i0) → ∣ surf k (l ∧ m) ∣₂
-        ; (i = i1) → ∣ surf k (l ∧ m) ∣₂
-        ; (j = i0) → ∣ surf k (l ∧ m) ∣₂
-        ; (j = i1) → ∣ surf k (l ∧ m) ∣₂
-        ; (k = i0) → ∣ surf i j ∣₂
-        ; (k = i1) → ∣ surf i j ∣₂
-        ; (l = i0) → ∣ surf i j ∣₂
+        { (i = i0) → ∣ surf k (l ∧ m) ∣₄
+        ; (i = i1) → ∣ surf k (l ∧ m) ∣₄
+        ; (j = i0) → ∣ surf k (l ∧ m) ∣₄
+        ; (j = i1) → ∣ surf k (l ∧ m) ∣₄
+        ; (k = i0) → ∣ surf i j ∣₄
+        ; (k = i1) → ∣ surf i j ∣₄
+        ; (l = i0) → ∣ surf i j ∣₄
         })
-     ∣ surf i j ∣₂
+     ∣ surf i j ∣₄
 
-multTwoTildeAux : (t : ∥ S² ∥₂) → Path (Path ∥ S² ∥₂ t t) refl refl
-multTwoTildeAux ∣ x ∣₂ = multTwoAux x
-multTwoTildeAux (squash₂ _ _ _ _ _ _ t u k l m n) i j =
-  squash₂ _ _ _ _ _ _
+multTwoTildeAux : (t : ∥ S² ∥₄) → Path (Path ∥ S² ∥₄ t t) refl refl
+multTwoTildeAux ∣ x ∣₄ = multTwoAux x
+multTwoTildeAux (squash₄ _ _ _ _ _ _ t u k l m n) i j =
+  squash₄ _ _ _ _ _ _
     (λ k l m → multTwoTildeAux (t k l m) i j)
     (λ k l m → multTwoTildeAux (u k l m) i j)
     k l m n
 
-multTwoEquivAux : Path (Path (∥ S² ∥₂ ≃ ∥ S² ∥₂) (idEquiv _) (idEquiv _)) refl refl
+multTwoEquivAux : Path (Path (∥ S² ∥₄ ≃ ∥ S² ∥₄) (idEquiv _) (idEquiv _)) refl refl
 multTwoEquivAux i j =
   ( f i j
   , hcomp
@@ -182,41 +183,41 @@ multTwoEquivAux i j =
       (transp (λ k → isEquiv (f i (j ∧ k))) (i ∨ ~ i ∨ ~ j) (idIsEquiv _))
   )
   where
-  f : I → I → ∥ S² ∥₂ → ∥ S² ∥₂
+  f : I → I → ∥ S² ∥₄ → ∥ S² ∥₄
   f i j t = multTwoTildeAux t i j
 
 tHopf³ : S³ → Type₀
-tHopf³ base = ∥ S² ∥₂
+tHopf³ base = ∥ S² ∥₄
 tHopf³ (surf i j k) =
-  Glue ∥ S² ∥₂
-    (λ { (i = i0) → (∥ S² ∥₂ , idEquiv _)
-       ; (i = i1) → (∥ S² ∥₂ , idEquiv _)
-       ; (j = i0) → (∥ S² ∥₂ , idEquiv _)
-       ; (j = i1) → (∥ S² ∥₂ , idEquiv _)
-       ; (k = i0) → (∥ S² ∥₂ , multTwoEquivAux i j)
-       ; (k = i1) → (∥ S² ∥₂ , idEquiv _)
+  Glue ∥ S² ∥₄
+    (λ { (i = i0) → (∥ S² ∥₄ , idEquiv _)
+       ; (i = i1) → (∥ S² ∥₄ , idEquiv _)
+       ; (j = i0) → (∥ S² ∥₄ , idEquiv _)
+       ; (j = i1) → (∥ S² ∥₄ , idEquiv _)
+       ; (k = i0) → (∥ S² ∥₄ , multTwoEquivAux i j)
+       ; (k = i1) → (∥ S² ∥₄ , idEquiv _)
        })
 
-π₃S³ : Ω³ S³∙ .fst → Ω² ∥ S²∙ ∥₂∙ .fst
-π₃S³ p i j = transp (λ k → tHopf³ (p j k i)) i0 ∣ base ∣₂
+π₃S³ : Ω³ S³∙ .fst → Ω² ∥ S²∙ ∥₄∙ .fst
+π₃S³ p i j = transp (λ k → tHopf³ (p j k i)) i0 ∣ base ∣₄
 
 codeS² : S² → hGroupoid _
-codeS² s = ∥ HopfS² s ∥₁ , squash₁
+codeS² s = ∥ HopfS² s ∥₃ , squash₃
 
-codeTruncS² : ∥ S² ∥₂ → hGroupoid _
-codeTruncS² = rec2GroupoidTrunc (isOfHLevelHLevel 3) codeS²
+codeTruncS² : ∥ S² ∥₄ → hGroupoid _
+codeTruncS² = 2GroupoidTrunc.rec (isOfHLevelTypeOfHLevel 3) codeS²
 
-encodeTruncS² : Ω ∥ S²∙ ∥₂∙ .fst → ∥ S¹ ∥₁
-encodeTruncS² p = transp (λ i → codeTruncS² (p i) .fst) i0 ∣ base ∣₁
+encodeTruncS² : Ω ∥ S²∙ ∥₄∙ .fst → ∥ S¹ ∥₃
+encodeTruncS² p = transp (λ i → codeTruncS² (p i) .fst) i0 ∣ base ∣₃
 
 codeS¹ : S¹ → hSet _
-codeS¹ s = ∥ helix s ∥₀ , squash₀
+codeS¹ s = ∥ helix s ∥₂ , squash₂
 
-codeTruncS¹ : ∥ S¹ ∥₁ → hSet _
-codeTruncS¹ = recGroupoidTrunc (isOfHLevelHLevel 2) codeS¹
+codeTruncS¹ : ∥ S¹ ∥₃ → hSet _
+codeTruncS¹ = GroupoidTrunc.rec (isOfHLevelTypeOfHLevel 2) codeS¹
 
-encodeTruncS¹ : Ω ∥ S¹∙ ∥₁∙ .fst → ∥ Int ∥₀
-encodeTruncS¹ p = transp (λ i → codeTruncS¹ (p i) .fst) i0 ∣ pos zero ∣₀
+encodeTruncS¹ : Ω ∥ S¹∙ ∥₃∙ .fst → ∥ ℤ ∥₂
+encodeTruncS¹ p = transp (λ i → codeTruncS¹ (p i) .fst) i0 ∣ pos zero ∣₂
 
 
 -- THE BIG GAME
@@ -233,25 +234,25 @@ f5 = h
 f6 : Ω³ (join∙ S¹∙ S¹) .fst → Ω³ S³∙ .fst
 f6 = mapΩ³refl joinS¹S¹→S³
 
-f7 : Ω³ S³∙ .fst → Ω² ∥ S²∙ ∥₂∙ .fst
+f7 : Ω³ S³∙ .fst → Ω² ∥ S²∙ ∥₄∙ .fst
 f7 = π₃S³
 
-g8 : Ω² ∥ S²∙ ∥₂∙ .fst → Ω ∥ S¹∙ ∥₁∙ .fst
+g8 : Ω² ∥ S²∙ ∥₄∙ .fst → Ω ∥ S¹∙ ∥₃∙ .fst
 g8 = mapΩrefl encodeTruncS²
 
-g9 : Ω ∥ S¹∙ ∥₁∙ .fst → ∥ Int ∥₀
+g9 : Ω ∥ S¹∙ ∥₃∙ .fst → ∥ ℤ ∥₂
 g9 = encodeTruncS¹
 
-g10 : ∥ Int ∥₀ → Int
-g10 = elimSetTrunc (λ _ → isSetInt) (idfun Int)
+g10 : ∥ ℤ ∥₂ → ℤ
+g10 = SetTrunc.rec isSetℤ (idfun ℤ)
 
 -- don't run me
-brunerie : Int
+brunerie : ℤ
 brunerie = g10 (g9 (g8 (f7 (f6 (f5 (f4 (f3 (λ i j k → surf i j k))))))))
 
 -- simpler tests
 
-test63 : ℕ → Int
+test63 : ℕ → ℤ
 test63 n = g10 (g9 (g8 (f7 (63n n))))
   where
   63n : ℕ → Ω³ S³∙ .fst
@@ -293,5 +294,5 @@ sorghum i j k =
         })
       (surf k i))
 
-goo : Ω³ S²∙ .fst → Int
+goo : Ω³ S²∙ .fst → ℤ
 goo x = g10 (g9 (g8 (f7 (f6 (f5 x)))))

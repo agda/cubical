@@ -1,9 +1,9 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Nullification.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.PathSplitEquiv
+open import Cubical.Foundations.Equiv.PathSplit
 open isPathSplitEquiv
 
 isNull : ∀ {ℓ ℓ'} (S : Type ℓ) (A : Type ℓ') → Type (ℓ-max ℓ ℓ')

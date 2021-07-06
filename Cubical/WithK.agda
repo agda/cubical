@@ -9,7 +9,7 @@ incompatible flags.
 
 -}
 
-{-# OPTIONS --cubical --with-K #-}
+{-# OPTIONS --with-K #-}
 
 module Cubical.WithK where
 
@@ -21,7 +21,7 @@ open import Cubical.Data.Empty
 private
  variable
   ℓ : Level
-  A : Set ℓ
+  A : Type ℓ
   x y : A
 
 uip : (prf : x ≡p x) → prf ≡c reflp
@@ -37,10 +37,10 @@ transport-not = cong (λ a → transport a true) (ptoc-ctop notEq)
 false-true : false ≡c true
 false-true = sym transport-not ∙ transport-uip (ctop notEq)
 
-absurd : (X : Set) → X
+absurd : (X : Type) → X
 absurd X = transport (cong sel false-true) true
   where
-    sel : Bool → Set
+    sel : Bool → Type
     sel false = Bool
     sel true = X
 

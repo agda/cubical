@@ -7,7 +7,7 @@ This file contains:
 - Glue types
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Core.Glue where
 
 open import Cubical.Core.Primitives
@@ -64,22 +64,78 @@ unglue φ = prim^unglue {φ = φ}
 -- Cyril Cohen, Thierry Coquand, Simon Huber, Anders Mörtberg
 private
 
-  Glue-S : (A : Type ℓ) {φ : I}
-         → (Te : Partial φ (Σ[ T ∈ Type ℓ' ] T ≃ A))
-         → Sub (Type ℓ') φ (λ { (φ = i1) → Te 1=1 .fst })
-  Glue-S A Te = inS (Glue A Te)
+  module GluePrims (A : Type ℓ) {φ : I} (Te : Partial φ (Σ[ T ∈ Type ℓ' ] T ≃ A)) where
+    T : Partial φ (Type ℓ')
+    T φ1 = Te φ1 .fst
+    e : PartialP φ (λ φ → T φ ≃ A)
+    e φ1 = Te φ1 .snd
 
-  glue-S :
-   ∀ {A : Type ℓ} {φ : I}
-   → {T : Partial φ (Type ℓ')} {e : PartialP φ (λ o → T o ≃ A)}
-   → (t : PartialP φ T)
-   → Sub A φ (λ { (φ = i1) → e 1=1 .fst (t 1=1) })
-   → Sub (primGlue A T e) φ (λ { (φ = i1) → t 1=1 })
-  glue-S t s = inS (glue t (outS s))
+    -- Glue can be seen as a subtype of Type that, at φ, is definitionally equal to the left type
+    -- of the given equivalences.
+    Glue-S : Type ℓ' [ φ ↦ T ]
+    Glue-S = inS (Glue A Te)
 
-  unglue-S :
-    ∀ {A : Type ℓ} (φ : I)
-    {T : Partial φ (Type ℓ')} {e : PartialP φ (λ o → T o ≃ A)}
-    → (x : primGlue A T e)
-    → Sub A φ (λ { (φ = i1) → e 1=1 .fst x })
-  unglue-S φ x = inS (prim^unglue {φ = φ} x)
+    -- Which means partial elements of T are partial elements of Glue
+    coeT→G :
+      ∀ (t : PartialP φ T)
+      → Partial φ (Glue A Te)
+    coeT→G t (φ = i1) = t 1=1
+
+    -- ... and elements of Glue can be seen as partial elements of T
+    coeG→T :
+      ∀ (g : Glue A Te)
+      → PartialP φ T
+    coeG→T g (φ = i1) = g
+
+    -- What about elements that are applied to the equivalences?
+    trans-e :
+      ∀ (t : PartialP φ T)
+      → Partial φ A
+    trans-e t ϕ1 = equivFun (e ϕ1) (t ϕ1)
+
+    -- glue gives a partial element of Glue given an element of A. Note that it "undoes"
+    -- the application of the equivalences!
+    glue-S :
+      ∀ (t : PartialP φ T)
+      → A [ φ ↦ trans-e t ]
+      → Glue A Te [ φ ↦ coeT→G t ]
+    glue-S t s = inS (glue t (outS s))
+
+    -- typechecking glue enforces this, e.g. you can not simply write
+    -- glue-bad : (t : PartialP φ T) → A → Glue A Te
+    -- glue-bad t s = glue t s
+
+    -- unglue does the inverse:
+    unglue-S :
+      ∀ (b : Glue A Te)
+      → A [ φ ↦ trans-e (coeG→T b) ]
+    unglue-S b = inS (unglue φ b)
+
+  module GlueTransp (A : I → Type ℓ) (Te : (i : I) → Partial (i ∨ ~ i) (Σ[ T ∈ Type ℓ' ] T ≃ A i)) where
+    A0 A1 : Type ℓ
+    A0 = A i0
+    A1 = A i1
+    T : (i : I) → Partial (i ∨ ~ i) (Type ℓ')
+    T i φ = Te i φ .fst
+    e : (i : I) → PartialP (i ∨ ~ i) (λ φ → T i φ ≃ A i)
+    e i φ = Te i φ .snd
+    T0 T1 : Type ℓ'
+    T0 = T i0 1=1
+    T1 = T i1 1=1
+    e0 : T0 ≃ A0
+    e0 = e i0 1=1
+    e1 : T1 ≃ A1
+    e1 = e i1 1=1
+
+    open import Cubical.Foundations.Prelude using (transport)
+    transportA : A0 → A1
+    transportA = transport (λ i → A i)
+
+    -- copied over from Foundations/Equiv for readability, can't directly import due to cyclic dependency
+    invEq : ∀ {X : Type ℓ'} {ℓ''} {Y : Type ℓ''} (w : X ≃ Y) → Y → X
+    invEq w y = w .snd .equiv-proof y .fst .fst
+
+    -- transport in Glue reduces to transport in A + the application of the equivalences in forward and backward
+    -- direction.
+    transp-S : (t0 : T0) → T1 [ i1 ↦ (λ _ → invEq e1 (transportA (equivFun e0 t0))) ]
+    transp-S t0 = inS (transport (λ i → Glue (A i) (Te i)) t0)
