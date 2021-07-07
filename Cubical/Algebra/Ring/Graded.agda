@@ -7,6 +7,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.GroupoidLaws using (rUnit)
 
 open import Cubical.Relation.Nullary.Base
 
@@ -84,6 +85,9 @@ _∪_ : FinSubsetℕ → FinSubsetℕ → FinSubsetℕ
 _Πℙ_ : ℙ ℕ → ℙ ℕ → ℙ ℕ
 X Πℙ Y = λ n → (∃[ ij ∈ (ℕ × ℕ) ] (fst ij ·ℕ snd ij ≡ n) × (fst ij ∈ X) × (snd ij ∈ Y)) , squash
 
+postulate
+  todo : {a b c d : ℕ} → a < c → b < d → a ·ℕ b < c ·ℕ d
+
 _Π_ : FinSubsetℕ → FinSubsetℕ → FinSubsetℕ
 (X , hX) Π (Y , hY) = (X Πℙ Y , map2 (λ x y → (fst x ·ℕ fst y) , foo x y) hX hY)
   where
@@ -94,20 +98,7 @@ _Π_ : FinSubsetℕ → FinSubsetℕ → FinSubsetℕ
     where
     helper : {z : ℕ} → Σ[ ij ∈ ℕ × ℕ ] ((fst ij ·ℕ snd ij ≡ z) × (fst ij ∈ X) × (snd ij ∈ Y)) → z < x ·ℕ y
     helper {z} ((i , j) , h1 , h2 , h3) =
-      let rem1 : i < x
-          rem1 = Hx h2
-          rem2 : j < y
-          rem2 = Hy h3
-          rem3 : i ·ℕ j ≡ z
-          rem3 = h1
-          apa : i ·ℕ y < x ·ℕ y
-          apa = {!!}
-          suff : i ·ℕ j < x ·ℕ y
-          suff = {!!}
-          goal : z < x ·ℕ y
-          goal = subst (λ a → a < x ·ℕ y) rem3 suff
-      in goal
-
+      subst (λ a → a < x ·ℕ y) h1 (todo (Hx h2) (Hy h3))
 
 infix 5 _∉_
 
@@ -207,7 +198,10 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
 
   abstract
     helper : {n : ℕ} → (i : Fin (suc n)) → toℕ i +ℕ (n ∸ toℕ i) ≡ n
-    helper {n} i = +-comm (toℕ i) _ ∙ ≤-∸-+-cancel {m = toℕ i} (pred-≤-pred (toℕ<n i))  -- +-comm (suc (toℕ i)) _ ∙ ≤-∸-+-cancel (toℕ<n i)
+    helper {n} i = +-comm (toℕ i) _ ∙ ≤-∸-+-cancel {m = toℕ i} (pred-≤-pred (toℕ<n i))
+
+  -- asdnasd : {n : ℕ} → (i : Fin n) → toℕ i +ℕ (n ∸ toℕ i) ≡ n
+  -- asdnasd {n} i = +-comm (toℕ i) _ ∙ ≤-∸-+-cancel {m = toℕ i} {!toℕ<n i!}
 
   cast : {m n : ℕ} → m ≡ n → G m .fst → G n .fst
   cast p = subst (λ x → G x .fst) p
@@ -217,12 +211,20 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
 
   cast·G-right : {m n n' : ℕ} (x : G m .fst) (y : G n .fst) (p : n ≡ n')
                → x ·G cast p y ≡ cast (cong (m +ℕ_) p) (x ·G y)
-  cast·G-right {m} x y p = J (λ z q → x ·G cast q y ≡ cast (cong (m +ℕ_) q) (x ·G y)) (cong (x ·G_) (transportRefl y) ∙ sym (transportRefl _)) p
+  cast·G-right {m} x y p =
+    J (λ z q → x ·G cast q y ≡ cast (cong (m +ℕ_) q) (x ·G y))
+      (cong (x ·G_) (transportRefl y) ∙ sym (transportRefl _)) p
 
-  cast·G-left : {m m' n : ℕ} (x : G m .fst) (y : G n .fst) (p : m ≡ m')
-              → cast p x ·G y ≡ cast (cong (_+ℕ n) p) (x ·G y)
-  cast·G-left x y p = {!!}
+  -- cast·G-left : {m m' n : ℕ} (x : G m .fst) (y : G n .fst) (p : m ≡ m')
+  --             → cast p x ·G y ≡ cast (cong (_+ℕ n) p) (x ·G y)
+  -- cast·G-left x y p = {!!}
 
+  cast-comp : {m n k : ℕ} (x : G m .fst) (p : n ≡ k) (q : m ≡ n)
+              → cast p (cast q x) ≡ cast (q ∙ p) x
+  cast-comp x p q = J (λ y r → cast r (cast q x) ≡ cast (q ∙ r) x) rem p
+    where
+    rem : cast refl (cast q x) ≡ cast (q ∙ refl) x
+    rem = transportRefl _ ∙ cong (λ p → cast p x) (rUnit q)
 
   cast≡ : {m n : ℕ} → (p : m ≡ n) (x : (i : ℕ) → G i .fst) → cast p (x m) ≡ x n
   cast≡ p x = J (λ y q → cast q (x _) ≡ x _) (transportRefl _) p
@@ -346,17 +348,19 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
                                                        cast (cong (toℕ i +ℕ_) (helper j))
                                                             (cast (sym (+-assoc (toℕ i) (toℕ j) (n ∸ toℕ i ∸ toℕ j)))
                                                                   ((x (toℕ i) ·G y (toℕ j)) ·G z (n ∸ toℕ i ∸ toℕ j))))))
-           ≡⟨ {!!} ⟩
+           ≡⟨ bigOpExt (λ i k → cast· i (bigOpExtGen (λ j l → cast-comp ((x (toℕ i) ·G y (toℕ j)) ·G z (n ∸ toℕ i ∸ toℕ j)) (cong (toℕ i +ℕ_) (helper j)) (sym (+-assoc (toℕ i) (toℕ j) (n ∸ toℕ i ∸ toℕ j))) l) k)) ⟩
              ∑ (λ (i : Fin (suc n)) → cast· i (foldrFin _+G_ 0G (λ (j : Fin (suc (n ∸ toℕ i))) →
-                                                        cast (sym (+-assoc (toℕ i) (toℕ j) (n ∸ toℕ i ∸ toℕ j)) ∙ cong (toℕ i +ℕ_) (helper j))
+                                                        cast (helper2 i j)
                                                             ((x (toℕ i) ·G y (toℕ j)) ·G z (n ∸ toℕ i ∸ toℕ j)))))
-           ≡⟨ {!!} ⟩
-             ∑ (λ (i : Fin (suc n)) → cast· i (foldrFin _+G_ 0G (λ (j : Fin (suc (n ∸ toℕ i))) →
-                                                        cast (+-comm (toℕ j) _ ∙ ≤-∸-+-cancel (foo i j))
-                                                             (x (toℕ j) ·G y (toℕ i ∸ toℕ j)) ·G z (n ∸ toℕ i))))
-           ≡⟨ {!!} ⟩
+           -- ≡⟨ {!!} ⟩
+           --   ∑ (λ (i : Fin (suc n)) → cast· i (foldrFin _+G_ 0G (λ (j : Fin (suc (n ∸ toℕ i))) →
+           --                                              cast (+-comm (toℕ j) _ ∙ ≤-∸-+-cancel (foo i j))
+           --                                                   (x (toℕ j) ·G y (toℕ i ∸ toℕ j)) ·G z (n ∸ toℕ i))))
+           -- ≡⟨ bigOpExt (λ i k → cast· i (final i k)) ⟩
+           ≡⟨ finalstep ⟩
              ∑ (λ (i : Fin (suc n)) → cast· i (foldrFin _+G_ 0G (λ (j : Fin (suc (toℕ i))) →
                                                         cast· j (x (toℕ j) ·G y (toℕ i ∸ toℕ j)) ·G z (n ∸ toℕ i))))
+
            ≡⟨ bigOpExt (λ i j → cast· i (laststepGen (suc (toℕ i)) (n ∸ toℕ i) (toℕ i) (z (n ∸ toℕ i))
                                                      (λ j → cast· j (x (toℕ j) ·G y (toℕ i ∸ toℕ j))) (~ j))) ⟩
              ∑ (λ (i : Fin (suc n)) → cast· i (foldrFin _+G_ 0G (λ (j : Fin (suc (toℕ i))) → cast· j (x (toℕ j) ·G y (toℕ i ∸ toℕ j)))
@@ -366,8 +370,119 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
       where
       open MonoidBigOp (Group→Monoid (AbGroup→Group (G n))) renaming (bigOp to ∑)
 
-      foo : (i : Fin (suc n)) (j : Fin (suc (n ∸ toℕ i))) → toℕ j ≤ toℕ i
-      foo i j = {!!}
+      helper2 : {n : ℕ} (i : Fin (suc n)) → (j : Fin (suc (n ∸ toℕ i))) → toℕ i +ℕ toℕ j +ℕ (n ∸ toℕ i ∸ toℕ j) ≡ toℕ i +ℕ (n ∸ toℕ i)
+      helper2 {n} i j = (sym (+-assoc (toℕ i) (toℕ j) (n ∸ toℕ i ∸ toℕ j)) ∙ cong (toℕ i +ℕ_) (helper j))
+
+      finalstepGen : (n : ℕ)
+                     (p : {n : ℕ} (i : Fin (suc n)) → toℕ i +ℕ (n ∸ toℕ i) ≡ n)
+                     (q : {n : ℕ} (i : Fin (suc n)) (j : Fin (suc (n ∸ toℕ i))) → toℕ i +ℕ toℕ j +ℕ (n ∸ toℕ i ∸ toℕ j) ≡ toℕ i +ℕ (n ∸ toℕ i))
+                     (r : {n : ℕ} (i : Fin (suc n)) (j : Fin (suc (toℕ i))) → toℕ j +ℕ (toℕ i ∸ toℕ j) ≡ toℕ i)
+                →
+                  foldrFin _+G_ 0G
+                    (λ (i : Fin (suc n)) → cast (p i) (foldrFin _+G_ 0G (λ (j : Fin (suc (n ∸ toℕ i))) →
+                                                        cast (q i j) ((x (toℕ i) ·G y (toℕ j)) ·G z (n ∸ toℕ i ∸ toℕ j)))))
+                ≡ foldrFin _+G_ 0G
+                    (λ (i : Fin (suc n)) → cast (p i) (foldrFin _+G_ 0G (λ (j : Fin (suc (toℕ i))) →
+                                                        cast (r i j) (x (toℕ j) ·G y (toℕ i ∸ toℕ j)) ·G z (n ∸ toℕ i))))
+      finalstepGen n p q r = goal
+        where
+        goal : cast (p zero) (cast (q zero zero) ((x 0 ·G y 0) ·G z n)
+                 +G foldrFin _+G_ 0G (λ i → cast (q zero (suc i)) ((x 0 ·G y (suc (toℕ i))) ·G z (n ∸ suc (toℕ i)))))
+             +G foldrFin _+G_ 0G
+                  (λ (i : Fin n) →
+                     cast (p (suc i))
+                          (foldrFin _+G_ 0G
+                             (λ j → cast (q (suc i) j) ((x (toℕ (suc i)) ·G y (toℕ j)) ·G z (n ∸ toℕ (suc i) ∸ toℕ j)))))
+             ≡ cast (p zero) ((cast (r zero zero) (x 0 ·G y 0) ·G z n) +G 0G)
+             +G foldrFin _+G_ 0G
+                  (λ (i : Fin n) →
+                     cast (p (suc i))
+                          (foldrFin _+G_ 0G
+                             (λ j → cast (r (suc i) j) (x (toℕ j) ·G y (toℕ (suc i) ∸ toℕ j)) ·G z (n ∸ toℕ (suc i)))))
+        goal = {!!}
+
+        -- Have used ∑split here
+        suff : (n : ℕ) →
+              foldrFin _+G_ 0G
+                  (λ (i : Fin n) → cast (q zero (suc i)) ((x 0 ·G y (suc (toℕ i))) ·G z (n ∸ suc (toℕ i))) +G
+                     cast (p (suc i))
+                          (foldrFin _+G_ 0G
+                             (λ (j : Fin (suc (n ∸ suc (toℕ i)))) → cast (q (suc i) j) ((x (suc (toℕ i)) ·G y (toℕ j)) ·G z (n ∸ suc (toℕ i) ∸ toℕ j)))))
+             ≡ foldrFin _+G_ 0G
+                  (λ (i : Fin n) →
+                     cast (p (suc i))
+                          (foldrFin _+G_ 0G
+                             (λ (j : Fin (suc (suc (toℕ i)))) → cast (r (suc i) j) (x (toℕ j) ·G y (suc (toℕ i) ∸ toℕ j)) ·G z (n ∸ suc (toℕ i)))))
+        suff zero = refl
+        suff (suc n) =
+          let ih : foldrFin _+G_ 0G (λ (i : Fin n) → cast (q zero (suc i)) ((x 0 ·G y (suc (toℕ i))) ·G z (n ∸ suc (toℕ i)))
+                                        +G cast (p (suc i))
+                                                (foldrFin _+G_ 0G (λ j → cast (q (suc i) j) ((x (suc (toℕ i)) ·G y (toℕ j)) ·G z (n ∸ suc (toℕ i) ∸ toℕ j)))))
+                     ≡ _
+              ih = suff n
+          in
+          foldrFin _+G_ 0G
+            (λ (i : Fin (suc n)) → cast (q zero (suc i)) ((x 0 ·G y (suc (toℕ i))) ·G z (suc n ∸ suc (toℕ i)))
+                +G cast (p (suc i)) (foldrFin _+G_ 0G (λ j → cast (q (suc i) j) ((x (toℕ (suc i)) ·G y (toℕ j)) ·G z (suc n ∸ toℕ (suc i) ∸ toℕ j)))))
+            ≡⟨ refl ⟩
+          (_ +G foldrFin _+G_ 0G (λ (i : Fin n) → cast (q zero (suc (suc i))) ((x 0 ·G y (suc (toℕ (suc i)))) ·G z (suc n ∸ suc (toℕ (suc i))))
+                                     +G cast (p (suc (suc i))) (foldrFin _+G_ 0G (λ j → cast (q (suc (suc i)) j) ((x (toℕ (suc (suc i))) ·G y (toℕ j)) ·G z (suc n ∸ toℕ (suc (suc i)) ∸ toℕ j))))))
+            ≡⟨ {!!} ⟩
+          {!!}
+            ≡⟨ {!!} ⟩
+          {!!} ∎
+
+      finalstep : ∑ (λ (i : Fin (suc n)) → cast· i (foldrFin _+G_ 0G (λ (j : Fin (suc (n ∸ toℕ i))) →
+                                                        cast (helper2 i j)
+                                                             ((x (toℕ i) ·G y (toℕ j)) ·G z (n ∸ toℕ i ∸ toℕ j)))))
+                ≡ ∑ (λ (i : Fin (suc n)) → cast· i (foldrFin _+G_ 0G (λ (j : Fin (suc (toℕ i))) →
+                                                        cast· j (x (toℕ j) ·G y (toℕ i ∸ toℕ j)) ·G z (n ∸ toℕ i))))
+      finalstep = finalstepGen n helper helper2 (λ i j → helper j)
+
+
+
+      -- finalGen2 : (n m : ℕ) (h : m < suc n)
+      --            (p : (j : Fin (suc (n ∸ m))) → m +ℕ toℕ j +ℕ (n ∸ m ∸ toℕ j) ≡ m +ℕ (n ∸ m))
+      --            (q : (j : Fin (suc m)) → toℕ j +ℕ (m ∸ toℕ j) ≡ m)
+      --       → foldrFin _+G_ 0G (λ (j : Fin (suc (n ∸ m))) →
+      --           cast (p j) ((x m ·G y (toℕ j)) ·G z (n ∸ m ∸ toℕ j)))
+      --       ≡ foldrFin _+G_ 0G (λ (j : Fin (suc m)) →
+      --           cast (q j) (x (toℕ j) ·G y (m ∸ toℕ j)) ·G z (n ∸ m))
+      -- finalGen2 zero zero h p q = {!!}
+      -- finalGen2 zero (suc m) h p q = ⊥-rec (¬-<-zero (pred-≤-pred h))
+      -- finalGen2 (suc n) zero h p q = goal
+      --   where
+      --   goal : foldrFin _+G_ 0G
+      --            (λ j → cast (p j) ((x zero ·G y (toℕ j)) ·G z (suc n ∸ zero ∸ toℕ j)))
+      --        ≡ foldrFin _+G_ 0G
+      --            (λ j → cast (q j) (x (toℕ j) ·G y (zero ∸ toℕ j)) ·G z (suc n ∸ zero))
+      --   goal = {!!}
+      -- finalGen2 (suc n) (suc m) h p q = {!!}
+
+      final : (i : Fin (suc n))
+            → foldrFin _+G_ 0G (λ (j : Fin (suc (n ∸ toℕ i))) →
+                cast (helper2 i j) ((x (toℕ i) ·G y (toℕ j)) ·G z (n ∸ toℕ i ∸ toℕ j)))
+            ≡ foldrFin _+G_ 0G (λ (j : Fin (suc (toℕ i))) →
+                cast (helper j) (x (toℕ j) ·G y (toℕ i ∸ toℕ j)) ·G z (n ∸ toℕ i))
+      final i = {!!} -- finalGen2 n (toℕ i) (toℕ<n i) (helper2 i) helper
+
+
+
+      -- Kan vi vända på den?
+      -- helper3 : (i : Fin (suc n)) (j : Fin (suc (n ∸ toℕ i))) → toℕ j +ℕ (n ∸ toℕ i ∸ toℕ j) +ℕ (n ∸ (n ∸ toℕ i)) ≡ {!!}
+      -- helper3 i j = {!!}
+
+      -- revstep : ∑ (λ (i : Fin (suc n)) →
+      --             cast· i (foldrFin _+G_ 0G (λ (j : Fin (suc (toℕ i))) →
+      --                                        cast· j (x (toℕ j) ·G y (toℕ i ∸ toℕ j)) ·G z (n ∸ toℕ i))))
+      --         ≡ ∑ (λ (i : Fin (suc n)) →
+      --              cast· {!!} (foldrFin _+G_ 0G (λ (j : Fin (suc (n ∸ toℕ i))) →
+      --                                           cast (helper3 i j) ((x (toℕ j) ·G y ((n ∸ toℕ i) ∸ toℕ j)) ·G z (n ∸ (n ∸ toℕ i))))))
+      -- revstep = {!!}
+
+
+      -- foo : (i : Fin (suc n)) (j : Fin (suc (n ∸ toℕ i))) → toℕ j ≤ toℕ i
+      -- foo i j = {!!}
 
       -- foo2 : (i : Fin (suc n)) (j : Fin (suc (toℕ i))) → toℕ j ≤ toℕ i
       -- foo2 i j = {!!}
@@ -400,6 +515,49 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
             → foldrFin _+G_ 0G (λ j → x (toℕ i) ·G (cast· j (y (toℕ j) ·G z _)))
             ≡ foldrFin _+G_ 0G (λ j → cast (cong (toℕ i +ℕ_) (helper j)) (x (toℕ i) ·G (y (toℕ j) ·G z _)))
       step2 i = bigOpExtGen (λ j → cast·G-right (x (toℕ i)) (y (toℕ j) ·G z (n ∸ toℕ i ∸ toℕ j)) (helper j))
+
+
+      -- finalGen2 : (n m : ℕ) (h : m < suc n)
+      --            (p : (j : Fin (suc (n ∸ m))) → m +ℕ toℕ j +ℕ (n ∸ m ∸ toℕ j) ≡ m +ℕ (n ∸ m))
+      --            (q : (j : Fin (suc m)) → toℕ j +ℕ (m ∸ toℕ j) ≡ m)
+      --       → foldrFin _+G_ 0G (λ (j : Fin (suc (n ∸ m))) →
+      --           cast (p j) ((x m ·G y (toℕ j)) ·G z (n ∸ m ∸ toℕ j)))
+      --       ≡ foldrFin _+G_ 0G (λ (j : Fin (suc m)) →
+      --           cast (q j) (x (toℕ j) ·G y (m ∸ toℕ j)) ·G z (n ∸ m))
+      -- finalGen2 zero zero h p q = {!!}
+      -- finalGen2 zero (suc m) h p q = ⊥-rec (¬-<-zero (pred-≤-pred h))
+      -- finalGen2 (suc n) zero h p q = goal
+      --   where
+      --   goal : foldrFin _+G_ 0G
+      --            (λ j → cast (p j) ((x zero ·G y (toℕ j)) ·G z (suc n ∸ zero ∸ toℕ j)))
+      --        ≡ foldrFin _+G_ 0G
+      --            (λ j → cast (q j) (x (toℕ j) ·G y (zero ∸ toℕ j)) ·G z (suc n ∸ zero))
+      --   goal = {!!}
+      -- finalGen2 (suc n) (suc m) h p q = {!!}
+
+      -- finalGen : (m n : ℕ) (h : m < suc n)
+      --            (p : (j : Fin (suc (n ∸ m))) → m +ℕ toℕ j +ℕ (n ∸ m ∸ toℕ j) ≡ m +ℕ (n ∸ m))
+      --            (q : (j : Fin (suc m)) → toℕ j +ℕ (m ∸ toℕ j) ≡ m)
+      --       → foldrFin _+G_ 0G (λ (j : Fin (suc (n ∸ m))) →
+      --           cast (p j) ((x m ·G y (toℕ j)) ·G z (n ∸ m ∸ toℕ j)))
+      --       ≡ foldrFin _+G_ 0G (λ (j : Fin (suc m)) →
+      --           cast (q j) (x (toℕ j) ·G y (m ∸ toℕ j)) ·G z (n ∸ m))
+      -- finalGen 0 n h p q = cong₂ _+G_ {!!} rem0
+      --   where
+      --   rem0 : foldrFin _+G_ 0G (λ j →
+      --            cast (p (suc j)) ((x zero ·G y (suc (toℕ j))) ·G z (n ∸ suc (toℕ j)))) ≡ 0G
+      --   rem0 = {!!}
+      -- finalGen (suc m) n h p q = {!!}
+
+      -- final : (i : Fin (suc n))
+      --       → foldrFin _+G_ 0G (λ (j : Fin (suc (n ∸ toℕ i))) →
+      --           cast (helper2 i j) ((x (toℕ i) ·G y (toℕ j)) ·G z (n ∸ toℕ i ∸ toℕ j)))
+      --       ≡ foldrFin _+G_ 0G (λ (j : Fin (suc (toℕ i))) →
+      --           cast (helper j) (x (toℕ j) ·G y (toℕ i ∸ toℕ j)) ·G z (n ∸ toℕ i))
+      -- final i = {!!} -- finalGen2 n (toℕ i) (toℕ<n i) (helper2 i) helper
+
+
+
 
 
 
@@ -439,16 +597,16 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
             --   snd (G (suc n)) ._+G_
             --     (cast· zero (x 0 ·G snd (G (suc n)) ._+G_ (cast· zero (y 0 ·G z (suc n)))
             --                                               (snd (G (suc n)) ._+G_ (cast· (suc zero) (y 1 ·G z n))
-            --                                               (∑ (λ x₁ → cast· x₁ (y (toℕ x₁) ·G z (suc n ∸ toℕ x₁)))))))
+            --                                               (∑ (λ i → cast· i (y (toℕ i) ·G z (suc n ∸ toℕ i)))))))
             --     (snd (G (suc n)) ._+G_
             --       (cast· (suc zero) (x 1 ·G snd (G n) ._+G_
             --                                   (cast· zero (y 0 ·G z n))
-            --                                   (∑' (λ x₁ → cast· (suc x₁) (y (suc (toℕ x₁)) ·G z (n ∸ suc (toℕ x₁)))))))
+            --                                   (∑' (λ i → cast· (suc i) (y (suc (toℕ i)) ·G z (n ∸ suc (toℕ i)))))))
             --       (foldrFin (snd (G (suc n)) ._+G_) (snd (G (suc n)) .0g)
-            --         (λ x₁ → cast· (suc (suc x₁)) (x (suc (suc (toℕ x₁))) ·G snd (G (n ∸ suc (toℕ x₁))) ._+G_ (cast· zero (y 0 ·G z (n ∸ suc (toℕ x₁))))
-            -- (foldrFin (snd (G (n ∸ suc (toℕ x₁))) ._+G_)
-            --    (snd (G (n ∸ suc (toℕ x₁))) .0g)
-            --    (λ x₂ → cast· (suc x₂) (y (suc (toℕ x₂)) ·G z (n ∸ suc (toℕ x₁) ∸ suc (toℕ x₂)))))))))
+            --         (λ i → cast· (suc (suc i)) (x (suc (suc (toℕ i))) ·G snd (G (n ∸ suc (toℕ i))) ._+G_ (cast· zero (y 0 ·G z (n ∸ suc (toℕ i))))
+            -- (foldrFin (snd (G (n ∸ suc (toℕ i))) ._+G_)
+            --    (snd (G (n ∸ suc (toℕ i))) .0g)
+            --    (λ j → cast· (suc j) (y (suc (toℕ j)) ·G z (n ∸ suc (toℕ i) ∸ suc (toℕ j)))))))))
 -}
 
   ·⊕G-distRight : (x y z : ⊕G) → x ·⊕G (y +⊕G z) ≡ (x ·⊕G y) +⊕G (x ·⊕G z)
