@@ -85,8 +85,30 @@ _∪_ : FinSubsetℕ → FinSubsetℕ → FinSubsetℕ
 _Πℙ_ : ℙ ℕ → ℙ ℕ → ℙ ℕ
 X Πℙ Y = λ n → (∃[ ij ∈ (ℕ × ℕ) ] (fst ij ·ℕ snd ij ≡ n) × (fst ij ∈ X) × (snd ij ∈ Y)) , squash
 
-postulate
-  todo : {a b c d : ℕ} → a < c → b < d → a ·ℕ b < c ·ℕ d
+·ℕ<·ℕ : {a b c d : ℕ} → a < c → b < d → a ·ℕ b < c ·ℕ d
+·ℕ<·ℕ {a} {b} {c} {d} (x , hx) (y , hy) = z , sym hz
+  where
+  z : ℕ
+  z = (x +ℕ suc a) ·ℕ y +ℕ x ·ℕ suc b +ℕ (b +ℕ a)
+
+  hz : c ·ℕ d ≡ z +ℕ suc (a ·ℕ b)
+  hz =
+    c ·ℕ d ≡⟨ (λ i → (hx (~ i)) ·ℕ (hy (~ i))) ⟩
+    (x +ℕ suc a) ·ℕ (y +ℕ suc b)
+      ≡⟨ sym (·-distribˡ (x +ℕ suc a) y (suc b)) ⟩
+    ((x +ℕ suc a) ·ℕ y) +ℕ ((x +ℕ suc a) ·ℕ suc b)
+      ≡⟨ (λ i → ((x +ℕ suc a) ·ℕ y) +ℕ ·-distribʳ x (suc a) (suc b) (~ i)) ⟩
+    ((x +ℕ suc a) ·ℕ y) +ℕ ((x ·ℕ suc b) +ℕ (suc a ·ℕ suc b))
+      ≡⟨ +-assoc ((x +ℕ suc a) ·ℕ y) (x ·ℕ suc b) (suc a ·ℕ suc b) ⟩
+    ((x +ℕ suc a) ·ℕ y +ℕ x ·ℕ suc b) +ℕ suc a ·ℕ suc b
+      ≡⟨ (λ i → (x +ℕ suc a) ·ℕ y +ℕ x ·ℕ suc b +ℕ suc (b +ℕ ·-suc a b i)) ⟩
+    (x +ℕ suc a) ·ℕ y +ℕ x ·ℕ suc b +ℕ suc (b +ℕ (a +ℕ a ·ℕ b))
+      ≡⟨ (λ i → (x +ℕ suc a) ·ℕ y +ℕ x ·ℕ suc b +ℕ suc (+-assoc b a (a ·ℕ b) i)) ⟩
+    (x +ℕ suc a) ·ℕ y +ℕ x ·ℕ suc b +ℕ suc ((b +ℕ a) +ℕ a ·ℕ b)
+      ≡⟨ cong ((x +ℕ suc a) ·ℕ y +ℕ x ·ℕ suc b +ℕ_) (sym (+-suc (b +ℕ a) (a ·ℕ b))) ⟩
+    ((x +ℕ suc a) ·ℕ y +ℕ x ·ℕ suc b) +ℕ ((b +ℕ a) +ℕ suc (a ·ℕ b))
+      ≡⟨ +-assoc ((x +ℕ suc a) ·ℕ y +ℕ x ·ℕ suc b) (b +ℕ a) (suc (a ·ℕ b))  ⟩
+    ((x +ℕ suc a) ·ℕ y +ℕ x ·ℕ suc b +ℕ (b +ℕ a)) +ℕ suc (a ·ℕ b) ∎
 
 _Π_ : FinSubsetℕ → FinSubsetℕ → FinSubsetℕ
 (X , hX) Π (Y , hY) = (X Πℙ Y , map2 (λ x y → (fst x ·ℕ fst y) , foo x y) hX hY)
@@ -98,7 +120,7 @@ _Π_ : FinSubsetℕ → FinSubsetℕ → FinSubsetℕ
     where
     helper : {z : ℕ} → Σ[ ij ∈ ℕ × ℕ ] ((fst ij ·ℕ snd ij ≡ z) × (fst ij ∈ X) × (snd ij ∈ Y)) → z < x ·ℕ y
     helper {z} ((i , j) , h1 , h2 , h3) =
-      subst (λ a → a < x ·ℕ y) h1 (todo (Hx h2) (Hy h3))
+      subst (λ a → a < x ·ℕ y) h1 (·ℕ<·ℕ (Hx h2) (Hy h3))
 
 infix 5 _∉_
 
@@ -242,17 +264,23 @@ module GradedAbGroup (G : ℕ → AbGroup ℓ)
   (x , Hx) ·⊕G (y , Hy) = p , q
     where
     p : (n : ℕ) → G n .fst
---    p 0 = x 0 ·G y 0
     p n = ∑ (λ (i : Fin (suc n)) → cast· i (x (toℕ i) ·G y (n ∸ toℕ i)))
       where
       open MonoidBigOp (Group→Monoid (AbGroup→Group (G n))) renaming (bigOp to ∑)
 
-    postulate
-      q : ∃[ I ∈ FinSubsetℕ ] ({j : ℕ} → j ∉ I .fst → p j ≡ 0G)
---    q = map2 (λ { (I , hI) (J , hJ) → (I Π J) , {!!}}) Hx Hy
+    q : ∃[ I ∈ FinSubsetℕ ] ({j : ℕ} → j ∉ I .fst → p j ≡ 0G)
+    q = map2 (λ { (I , hI) (J , hJ) → (I Π J) ,
+                  let suff : (n : ℕ) (i : Fin (suc n)) (hn : n ∉ (I Π J) .fst) → (toℕ i ∉ I .fst) × ((n ∸ toℕ i) ∉ J .fst)
+                      suff n i hn = (λ x → hn ∣ {!!} ∣) , {!!}
 
-  -- cast≡Gen : {m n : ℕ} → (p : m ≡ n) (x : G m .fst) (y : G n .fst) (q : PathP (λ i → G (p i) .fst) x y) → cast p x ≡ y
-  -- cast≡Gen p x = {!!}
+                      help : (n : ℕ) (hn : n ∉ (I Π J) .fst) (i : Fin (suc n)) → cast· i (x (toℕ i) ·G y (n ∸ toℕ i)) ≡ 0G
+                      help n hn i = {!!}
+
+                      H : {n : ℕ} → n ∉ (I Π J) .fst → p n ≡ 0G
+                      H {j} hj = MonoidBigOp.bigOpExt ((Group→Monoid (AbGroup→Group (G j)))) (help j hj)
+                               ∙ MonoidBigOp.bigOpε (((Group→Monoid (AbGroup→Group (G j))))) (suc j)
+                  in H
+                }) Hx Hy
 
   -- Algebraic properties of ·⊕G
 
