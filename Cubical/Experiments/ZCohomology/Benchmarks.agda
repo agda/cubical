@@ -380,6 +380,6 @@ module CP2-test₄ where
   ϕ⁻¹ = inv (fst H⁴CP²≅ℤ)
 
 {-
-  test₀ : ϕ (0ₕ _) ≡ true -- fails already here...
+  test₀ : ϕ (0ₕ _) ≡ 0 -- fails already here...
   test₀ = refl
 -}

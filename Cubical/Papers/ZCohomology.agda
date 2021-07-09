@@ -236,7 +236,7 @@ open GroupStructure using ( rUnitₖ ; lUnitₖ
 n≥2-rUnit≡refl : {n : ℕ} → rUnitₖ (2 + n) (0ₖ (2 + n)) ≡ refl
 n≥2-rUnit≡refl = refl
 
--- rUnitₖ (definitional)
+-- lUnitₖ (definitional)
 0-lUnit≡refl : lUnitₖ 0 (0ₖ 0) ≡ refl
 1-lUnit≡refl : lUnitₖ 1 (0ₖ 1) ≡ refl
 n≥2-lUnit≡refl : {n : ℕ} → lUnitₖ (2 + n) (0ₖ (2 + n)) ≡ refl
@@ -343,8 +343,8 @@ open Cup using (_⌣_)
 
 -- 4.2
 -- Lemma 14
-Lem14 : (n m : ℕ) (f g : K∙ n →∙ K∙ m) → fst f ≡ fst g → f ≡ g
-Lem14 n m f g p = Homogen.→∙Homogeneous≡ (Properties.isHomogeneousKn m) p
+Lem14 : ∀ {ℓ} {A : Type∙ ℓ} (n : ℕ) (f g : A →∙ K∙ n) → fst f ≡ fst g → f ≡ g
+Lem14 n f g p = Homogen.→∙Homogeneous≡ (Properties.isHomogeneousKn n) p
 
 -- Proposition 15
 open ⌣Ring using (leftDistr-⌣ₖ ; rightDistr-⌣ₖ)
