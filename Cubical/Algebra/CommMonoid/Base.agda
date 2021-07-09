@@ -36,6 +36,8 @@ record IsCommMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ wh
    isMonoid : IsMonoid ε _·_
    comm :  (x y : A) → x · y ≡ y · x
 
+  open IsMonoid isMonoid public
+
 unquoteDecl IsCommMonoidIsoΣ = declareRecordIsoΣ IsCommMonoidIsoΣ (quote IsCommMonoid)
 
 record CommMonoidStr (A : Type ℓ) : Type ℓ where
