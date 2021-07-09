@@ -17,7 +17,7 @@ then it should be removed before the above command is run.
 
 -}
 
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Experiments.ZCohomology.Benchmarks where
 
 open import Cubical.Foundations.Everything
@@ -340,7 +340,7 @@ module CP2-test₂ where
   ϕ⁻¹ : ℤ → coHom 2 CP²
   ϕ⁻¹ = inv (fst H²CP²≅ℤ)
 
-  -- For explicitly constructed elmenet g : H²CP², ϕ works well
+  -- For explicitly constructed elements g : H²CP², ϕ works well
   test₀ : ϕ (0ₕ _) ≡ 0    -- <10ms
   test₀ = refl
 

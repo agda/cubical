@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.CP2 where
 
 open import Cubical.ZCohomology.Base
@@ -40,11 +40,26 @@ open import Cubical.HITs.PropositionalTruncation
   renaming (rec to pRec ; elim2 to pElim2 ; ∣_∣ to ∣_∣₁ ; map to pMap)
 open import Cubical.HITs.Truncation
 
+open import Cubical.Relation.Nullary
+
 open IsGroupHom
 open Iso
 
 CP² : Type
 CP² = Pushout {A = TotalHopf} fst λ _ → tt
+
+characFunSpaceCP² : ∀ {ℓ} {A : Type ℓ}
+  → Iso (CP² → A) (Σ[ x ∈ A ] Σ[ f ∈ (S₊ (suc (suc zero)) → A) ]
+         ((y : TotalHopf) → f (fst y) ≡ x))
+fun characFunSpaceCP² f = (f (inr tt)) , ((f ∘ inl ) , (λ a → cong f (push a)))
+inv characFunSpaceCP² (a , f , p) (inl x) = f x
+inv characFunSpaceCP² (a , f , p) (inr x) = a
+inv characFunSpaceCP² (a , f , p) (push b i) = p b i
+rightInv characFunSpaceCP² _ = refl
+leftInv characFunSpaceCP² _ =
+  funExt λ { (inl x) → refl
+           ; (inr x) → refl
+           ; (push a i) → refl}
 
 H⁰CP²≅ℤ : GroupIso (coHomGr 0 CP²) ℤGroup
 H⁰CP²≅ℤ =
@@ -121,19 +136,8 @@ H⁴CP²≅ℤ = compGroupIso (invGroupIso (BijectionIso→GroupIso bij))
         (fst (Hⁿ-Sᵐ≅0 3 1 λ p → snotz (cong predℕ p))) isContrUnit))
         (λ _ → isContr→isProp (isContrHⁿ-Unit _)) _ _)
 
--- trivial guys
-characFunSpaceCP² : ∀ {ℓ} {A : Type ℓ}
-  → Iso (CP² → A) (Σ[ x ∈ A ] Σ[ f ∈ (S₊ (suc (suc zero)) → A) ]
-         ((y : TotalHopf) → f (fst y) ≡ x))
-fun characFunSpaceCP² f = (f (inr tt)) , ((f ∘ inl ) , (λ a → cong f (push a)))
-inv characFunSpaceCP² (a , f , p) (inl x) = f x
-inv characFunSpaceCP² (a , f , p) (inr x) = a
-inv characFunSpaceCP² (a , f , p) (push b i) = p b i
-rightInv characFunSpaceCP² _ = refl
-leftInv characFunSpaceCP² _ =
-  funExt λ { (inl x) → refl
-           ; (inr x) → refl
-           ; (push a i) → refl}
+
+-- Characterisations of the trivial groups
 
 private
     ind : (B : TotalHopf → Type) → ((x : _) → isOfHLevel 3 (B x)) → B (north , base) → (x : _) → B x
@@ -147,105 +151,82 @@ H¹-CP²≅0 : GroupIso (coHomGr 1 CP²) UnitGroup
 H¹-CP²≅0 =
   contrGroupIsoUnit
     (isOfHLevelRetractFromIso 0 (setTruncIso characFunSpaceCP²)
-    (isOfHLevelRetractFromIso 0 help t))
+    (isOfHLevelRetractFromIso 0 lem₂ lem₃))
   where
-  waho : (f : (Susp S¹ → coHomK 1)) → ∥ (λ _ → 0ₖ _) ≡ f ∥
-  waho f = pMap (λ p → p)
+  lem₁ : (f : (Susp S¹ → coHomK 1)) → ∥ (λ _ → 0ₖ _) ≡ f ∥
+  lem₁ f = pMap (λ p → p)
                 (Iso.fun PathIdTrunc₀Iso (isOfHLevelRetractFromIso 1
                   (fst (Hⁿ-Sᵐ≅0 0 1 (λ p → snotz (sym p)))) isPropUnit (0ₕ _) ∣ f ∣₂))
 
-  help : Iso ∥ (Σ[ x ∈ coHomK 1 ] ( Σ[ f ∈ (Susp S¹ → coHomK 1) ] ((y : TotalHopf) → f (fst y) ≡ x))) ∥₂
+  lem₂ : Iso ∥ (Σ[ x ∈ coHomK 1 ] ( Σ[ f ∈ (Susp S¹ → coHomK 1) ] ((y : TotalHopf) → f (fst y) ≡ x))) ∥₂
              ∥ (Σ[ f ∈ (Susp S¹ → coHomK 1) ] ((y : TotalHopf) → f (fst y) ≡ 0ₖ 1)) ∥₂
-  fun help = sMap (uncurry λ x → uncurry λ f p → (λ y → (-ₖ x) +ₖ f y) , λ y → cong ((-ₖ x) +ₖ_) (p y) ∙ lCancelₖ _ x)
-  inv help = sMap λ p → 0ₖ _ , p
-  rightInv help =
+  fun lem₂ = sMap (uncurry λ x → uncurry λ f p → (λ y → (-ₖ x) +ₖ f y) , λ y → cong ((-ₖ x) +ₖ_) (p y) ∙ lCancelₖ _ x)
+  inv lem₂ = sMap λ p → 0ₖ _ , p
+  rightInv lem₂ =
     sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
           λ {(f , p) → cong ∣_∣₂ (ΣPathP ((funExt (λ x → lUnitₖ _ (f x)))
-          , (funExt (λ y → sym (rUnit (λ i → (-ₖ 0ₖ 1) +ₖ p y i))) ◁ λ j y i → lUnitₖ _ (p y i) j)))}
-  leftInv help =
+          , (funExt (λ y → sym (rUnit (λ i → (-ₖ 0ₖ 1) +ₖ p y i)))
+           ◁ λ j y i → lUnitₖ _ (p y i) j)))}
+  leftInv lem₂ =
     sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
       (uncurry (coHomK-elim _ (λ _ → isPropΠ (λ _ → squash₂ _ _))
       (uncurry λ f p → cong ∣_∣₂ (ΣPathP (refl , (ΣPathP ((funExt (λ x → lUnitₖ _ (f x)))
-      , ((funExt (λ y → sym (rUnit (λ i → (-ₖ 0ₖ 1) +ₖ p y i))) ◁ λ j y i → lUnitₖ _ (p y i) j)))))))))
+      , ((funExt (λ y → sym (rUnit (λ i → (-ₖ 0ₖ 1) +ₖ p y i)))
+        ◁ λ j y i → lUnitₖ _ (p y i) j)))))))))
 
-  t : isContr _
-  fst t = ∣ (λ _ → 0ₖ 1) , (λ _ → refl) ∣₂
-  snd t =
+  lem₃ : isContr _
+  fst lem₃ = ∣ (λ _ → 0ₖ 1) , (λ _ → refl) ∣₂
+  snd lem₃ =
     sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
       (uncurry λ f → pRec (isPropΠ (λ _ → squash₂ _ _))
       (J (λ f _ → (y : (y₁ : TotalHopf) → f (fst y₁) ≡ 0ₖ 1) →
       ∣ (λ _ → 0ₖ 1) , (λ _ _ → 0ₖ 1) ∣₂ ≡ ∣ f , y ∣₂)
       (λ y → cong ∣_∣₂ (ΣPathP ((funExt (λ z → sym (y (north , base)))) , toPathP (s y)))))
-      (waho f))
+      (lem₁ f))
 
     where
-    s : (y : TotalHopf → 0ₖ 1 ≡ 0ₖ 1) → transp
-      (λ i →
-         (y₁ : Σ (Susp S¹) HopfSuspS¹) →
-         funExt (λ z₁ → y (north , base)) (~ i) (fst y₁) ≡ ∣ base ∣)
-      i0 (λ _ _ → 0ₖ 1)
-      ≡ y
+    s : (y : TotalHopf → 0ₖ 1 ≡ 0ₖ 1)
+     → transport (λ i → (_ : TotalHopf) → y (north , base) (~ i) ≡ ∣ base ∣)
+                  (λ _ _ → 0ₖ 1) ≡ y
     s y = funExt (ind _ (λ _ → isOfHLevelPath 3 (isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) _ _)
-                 λ k → transp
-       (λ i → y (north , base) (~ i ∧ ~ k) ≡ ∣ base ∣)
-       k λ j → y (north , base) (~ k ∨ j))
+                 λ k → transp (λ i → y (north , base) (~ i ∧ ~ k) ≡ ∣ base ∣) k
+                                λ j → y (north , base) (~ k ∨ j))
 
-H³-CP²≅0 : GroupIso (coHomGr 3 CP²) UnitGroup
-H³-CP²≅0 = contrGroupIsoUnit ((0ₕ _) , (λ x → sym (g x)))
+Hⁿ-CP²≅0-higher : (n : ℕ) → ¬ (n ≡ 1) → GroupIso (coHomGr (3 +ℕ n) CP²) UnitGroup
+Hⁿ-CP²≅0-higher n p = contrGroupIsoUnit ((0ₕ _) , (λ x → sym (main x)))
   where
-  h : GroupHom (coHomGr 2 TotalHopf) (coHomGr 3 CP²)
-  h = M.d 2
+  h : GroupHom (coHomGr (2 +ℕ n) TotalHopf) (coHomGr (3 +ℕ n) CP²)
+  h = M.d (2 +ℕ n)
 
-  waho : isProp (fst (×coHomGr 3 (Susp S¹) Unit))
-  waho =
+  propᵣ : isProp (fst (×coHomGr (3 +ℕ n) (Susp S¹) Unit))
+  propᵣ =
     isPropΣ
       (isOfHLevelRetractFromIso 1
-         (fst (Hⁿ-Sᵐ≅0 2 1 λ p → snotz (cong predℕ p))) isPropUnit)
-      λ _ → isContr→isProp (isContrHⁿ-Unit 2)
+         (fst (Hⁿ-Sᵐ≅0 (2 +ℕ n) 1 λ p → ⊥-rec (snotz (cong predℕ p)))) isPropUnit)
+      λ _ → isContr→isProp (isContrHⁿ-Unit _)
 
-  wahi : isProp (coHom 2 TotalHopf)
-  wahi = subst (λ x → isProp (coHom 2 x)) (isoToPath IsoS³TotalHopf)
-               (isOfHLevelRetractFromIso 1 (fst (Hⁿ-Sᵐ≅0 1 2 (λ p → snotz (sym (cong predℕ p))))) isPropUnit)
+  propₗ : isProp (coHom (2 +ℕ n) TotalHopf)
+  propₗ = subst (λ x → isProp (coHom (2 +ℕ n) x)) (isoToPath IsoS³TotalHopf)
+               (isOfHLevelRetractFromIso 1 (fst (Hⁿ-Sᵐ≅0 (suc n) 2 λ q → p (cong predℕ q))) isPropUnit)
 
-  wal : (x : coHom 3 CP²) → isInIm (M.d 2) x
-  wal x = M.Ker-i⊂Im-d 2 x (waho _ _)
+  inIm : (x : coHom (3 +ℕ n) CP²) → isInIm h x
+  inIm x = M.Ker-i⊂Im-d (2 +ℕ n) x (propᵣ _ _)
 
-  g : (x : coHom 3 CP²) → x ≡ 0ₕ _
-  g x = pRec (squash₂ _ _) (uncurry (λ f p → sym p ∙∙ cong (M.d 2 .fst) (wahi f (0ₕ _))  ∙∙ pres1 (snd (M.d 2)))) (wal x)
-
-Hⁿ-CP²≅0-higher : (n : ℕ) → GroupIso (coHomGr (5 +ℕ n) CP²) UnitGroup
-Hⁿ-CP²≅0-higher n = contrGroupIsoUnit ((0ₕ _) , (λ x → sym (g x)))
-  where
-  h : GroupHom (coHomGr (4 +ℕ n) TotalHopf) (coHomGr (5 +ℕ n) CP²)
-  h = M.d (4 +ℕ n)
-
-  waho : isProp (fst (×coHomGr (5 +ℕ n) (S₊ 2) Unit))
-  waho =
-    isPropΣ ((isOfHLevelRetractFromIso 1
-         (fst (Hⁿ-Sᵐ≅0 _ _ λ p → snotz (cong predℕ p))) isPropUnit))
-            λ _ → isContr→isProp (isContrHⁿ-Unit _)
-
-  wahi : isProp (coHom (4 +ℕ n) TotalHopf)
-  wahi = subst (λ x → isProp (coHom (4 +ℕ n) x)) (isoToPath IsoS³TotalHopf)
-               (isOfHLevelRetractFromIso 1 (fst (Hⁿ-Sᵐ≅0 _ _ λ p → snotz (cong (predℕ ∘ predℕ) p))) isPropUnit)
-
-  wal : (x : coHom (5 +ℕ n) CP²) → isInIm h x
-  wal x = M.Ker-i⊂Im-d _ x (waho _ _)
-
-  g : (x : coHom (5 +ℕ n) CP²) → x ≡ 0ₕ _
-  g x = pRec (squash₂ _ _) (uncurry λ f p → sym p ∙∙ cong (h .fst) (wahi f (0ₕ _)) ∙∙ pres1 (snd h)) (wal x)
+  main : (x : coHom (3 +ℕ n) CP²) → x ≡ 0ₕ _
+  main x =
+    pRec (squash₂ _ _)
+      (uncurry (λ f p → sym p ∙∙ cong (h .fst) (propₗ f (0ₕ _)) ∙∙ pres1 (snd h))) (inIm x)
 
 -- All trivial groups:
-open import Cubical.Relation.Nullary
-Hⁿ-CP²≅0 : (n : ℕ)
-       → ¬ suc n ≡ 2
-       → ¬ suc n ≡ 4
+Hⁿ-CP²≅0 : (n : ℕ) → ¬ suc n ≡ 2 → ¬ suc n ≡ 4
        → GroupIso (coHomGr (suc n) CP²) UnitGroup
 Hⁿ-CP²≅0 zero p q = H¹-CP²≅0
 Hⁿ-CP²≅0 (suc zero) p q = ⊥-rec (p refl)
-Hⁿ-CP²≅0 (suc (suc zero)) p q = H³-CP²≅0
+Hⁿ-CP²≅0 (suc (suc zero)) p q = Hⁿ-CP²≅0-higher 0 λ p → snotz (sym p)
 Hⁿ-CP²≅0 (suc (suc (suc zero))) p q = ⊥-rec (q refl)
-Hⁿ-CP²≅0 (suc (suc (suc (suc n)))) p q = Hⁿ-CP²≅0-higher n
+Hⁿ-CP²≅0 (suc (suc (suc (suc n)))) p q =
+  Hⁿ-CP²≅0-higher (suc (suc n))
+    λ p → snotz (cong predℕ p)
 
 -- Another Brunerie number
 ℤ→HⁿCP²→ℤ : ℤ → ℤ
