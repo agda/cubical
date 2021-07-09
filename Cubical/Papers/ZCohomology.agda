@@ -75,6 +75,12 @@ import Cubical.ZCohomology.Groups.RP2                        as HⁿℝP²
   renaming (H¹-RP²≅0 to H¹-RP²≅1)
 import Cubical.ZCohomology.Groups.CP2                        as HⁿℂP²
   renaming (CP² to ℂP² ; ℤ→HⁿCP²→ℤ to g)
+  {- Remark: ℂP² is defined as the pushout S² ← TotalHopf → 1 in
+  the formalisation. TotalHopf is just the total space from the Hopf
+  fibration. We have TotalHopf ≃ S³, and the map TotalHopf → S²
+  is given by taking the first projection. This is equivalent to the
+  description given in the paper, since h : S³ → S² is given by
+  S³ ≃ TotalHopf → S² -}
 
 -- Appendix
 import Cubical.Homotopy.EilenbergSteenrod                    as ES-axioms
@@ -236,7 +242,7 @@ open GroupStructure using ( rUnitₖ ; lUnitₖ
 n≥2-rUnit≡refl : {n : ℕ} → rUnitₖ (2 + n) (0ₖ (2 + n)) ≡ refl
 n≥2-rUnit≡refl = refl
 
--- rUnitₖ (definitional)
+-- lUnitₖ (definitional)
 0-lUnit≡refl : lUnitₖ 0 (0ₖ 0) ≡ refl
 1-lUnit≡refl : lUnitₖ 1 (0ₖ 1) ≡ refl
 n≥2-lUnit≡refl : {n : ℕ} → lUnitₖ (2 + n) (0ₖ (2 + n)) ≡ refl
@@ -343,8 +349,8 @@ open Cup using (_⌣_)
 
 -- 4.2
 -- Lemma 14
-Lem14 : (n m : ℕ) (f g : K∙ n →∙ K∙ m) → fst f ≡ fst g → f ≡ g
-Lem14 n m f g p = Homogen.→∙Homogeneous≡ (Properties.isHomogeneousKn m) p
+Lem14 : ∀ {ℓ} {A : Type∙ ℓ} (n : ℕ) (f g : A →∙ K∙ n) → fst f ≡ fst g → f ≡ g
+Lem14 n f g p = Homogen.→∙Homogeneous≡ (Properties.isHomogeneousKn n) p
 
 -- Proposition 15
 open ⌣Ring using (leftDistr-⌣ₖ ; rightDistr-⌣ₖ)

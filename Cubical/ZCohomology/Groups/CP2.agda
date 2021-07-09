@@ -140,12 +140,14 @@ H⁴CP²≅ℤ = compGroupIso (invGroupIso (BijectionIso→GroupIso bij))
 -- Characterisations of the trivial groups
 
 private
-    ind : (B : TotalHopf → Type) → ((x : _) → isOfHLevel 3 (B x)) → B (north , base) → (x : _) → B x
-    ind =
+    elim-TotalHopf : (B : TotalHopf → Type)
+      → ((x : _) → isOfHLevel 3 (B x)) → B (north , base)
+      → (x : _) → B x
+    elim-TotalHopf =
       transport (λ i → (B : isoToPath IsoS³TotalHopf i → Type)
         → ((x : _) → isOfHLevel 3 (B x))
           → B (transp (λ j → isoToPath IsoS³TotalHopf (i ∨ ~ j)) i (north , base)) → (x : _) → B x)
-          λ B hLev ind → sphereElim _ (λ _ → hLev _) ind
+          λ B hLev elim-TotalHopf → sphereElim _ (λ _ → hLev _) elim-TotalHopf
 
 H¹-CP²≅0 : GroupIso (coHomGr 1 CP²) UnitGroup
 H¹-CP²≅0 =
@@ -170,9 +172,9 @@ H¹-CP²≅0 =
   leftInv lem₂ =
     sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
       (uncurry (coHomK-elim _ (λ _ → isPropΠ (λ _ → squash₂ _ _))
-      (uncurry λ f p → cong ∣_∣₂ (ΣPathP (refl , (ΣPathP ((funExt (λ x → lUnitₖ _ (f x)))
-      , ((funExt (λ y → sym (rUnit (λ i → (-ₖ 0ₖ 1) +ₖ p y i)))
-        ◁ λ j y i → lUnitₖ _ (p y i) j)))))))))
+       (uncurry λ f p → cong ∣_∣₂ (ΣPathP (refl , (ΣPathP ((funExt (λ x → lUnitₖ _ (f x)))
+       , ((funExt (λ y → sym (rUnit (λ i → (-ₖ 0ₖ 1) +ₖ p y i)))
+         ◁ λ j y i → lUnitₖ _ (p y i) j)))))))))
 
   lem₃ : isContr _
   fst lem₃ = ∣ (λ _ → 0ₖ 1) , (λ _ → refl) ∣₂
@@ -188,7 +190,7 @@ H¹-CP²≅0 =
     s : (y : TotalHopf → 0ₖ 1 ≡ 0ₖ 1)
      → transport (λ i → (_ : TotalHopf) → y (north , base) (~ i) ≡ ∣ base ∣)
                   (λ _ _ → 0ₖ 1) ≡ y
-    s y = funExt (ind _ (λ _ → isOfHLevelPath 3 (isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) _ _)
+    s y = funExt (elim-TotalHopf _ (λ _ → isOfHLevelPath 3 (isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) _ _)
                  λ k → transp (λ i → y (north , base) (~ i ∧ ~ k) ≡ ∣ base ∣) k
                                 λ j → y (north , base) (~ k ∨ j))
 
@@ -207,7 +209,8 @@ Hⁿ-CP²≅0-higher n p = contrGroupIsoUnit ((0ₕ _) , (λ x → sym (main x))
 
   propₗ : isProp (coHom (2 +ℕ n) TotalHopf)
   propₗ = subst (λ x → isProp (coHom (2 +ℕ n) x)) (isoToPath IsoS³TotalHopf)
-               (isOfHLevelRetractFromIso 1 (fst (Hⁿ-Sᵐ≅0 (suc n) 2 λ q → p (cong predℕ q))) isPropUnit)
+               (isOfHLevelRetractFromIso 1
+                 (fst (Hⁿ-Sᵐ≅0 (suc n) 2 λ q → p (cong predℕ q))) isPropUnit)
 
   inIm : (x : coHom (3 +ℕ n) CP²) → isInIm h x
   inIm x = M.Ker-i⊂Im-d (2 +ℕ n) x (propᵣ _ _)
@@ -215,7 +218,8 @@ Hⁿ-CP²≅0-higher n p = contrGroupIsoUnit ((0ₕ _) , (λ x → sym (main x))
   main : (x : coHom (3 +ℕ n) CP²) → x ≡ 0ₕ _
   main x =
     pRec (squash₂ _ _)
-      (uncurry (λ f p → sym p ∙∙ cong (h .fst) (propₗ f (0ₕ _)) ∙∙ pres1 (snd h))) (inIm x)
+      (uncurry (λ f p → sym p ∙∙ cong (h .fst) (propₗ f (0ₕ _)) ∙∙ pres1 (snd h)))
+      (inIm x)
 
 -- All trivial groups:
 Hⁿ-CP²≅0 : (n : ℕ) → ¬ suc n ≡ 2 → ¬ suc n ≡ 4
