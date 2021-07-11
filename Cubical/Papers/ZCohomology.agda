@@ -75,6 +75,12 @@ import Cubical.ZCohomology.Groups.RP2                        as HⁿℝP²
   renaming (H¹-RP²≅0 to H¹-RP²≅1)
 import Cubical.ZCohomology.Groups.CP2                        as HⁿℂP²
   renaming (CP² to ℂP² ; ℤ→HⁿCP²→ℤ to g)
+  {- Remark: ℂP² is defined as the pushout S² ← TotalHopf → 1 in
+  the formalisation. TotalHopf is just the total space from the Hopf
+  fibration. We have TotalHopf ≃ S³, and the map TotalHopf → S²
+  is given by taking the first projection. This is equivalent to the
+  description given in the paper, since h : S³ → S² is given by
+  S³ ≃ TotalHopf → S² -}
 
 -- Appendix
 import Cubical.Homotopy.EilenbergSteenrod                    as ES-axioms
