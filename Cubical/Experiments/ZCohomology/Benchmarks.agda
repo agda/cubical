@@ -29,14 +29,9 @@ open import Cubical.Algebra.Group hiding (ℤ ; Bool)
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.GroupStructure hiding (_+ₕ_) renaming (_+'ₕ_ to _+ₕ_)
-<<<<<<< HEAD
--- _+'ₕ_ is just (λ x y → (x +ₕ 0ₕ) +ₕ (x +ₕ 0ₕ))
--- For technical reason, this gives nicer reductions and computes better
-=======
 {- _+'ₕ_ is just (λ x y → (x +ₕ 0ₕ) +ₕ (y +ₕ 0ₕ))
    For technical reason, this gives nicer reductions and computes better in
    higher dimensions. -}
->>>>>>> ff94da5ddbae97b810c2d8d67802dcde6792e9de
 open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.Groups.Wedge
 open import Cubical.ZCohomology.Groups.Torus
