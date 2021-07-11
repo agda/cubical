@@ -17,7 +17,7 @@ then it should be removed before the above command is run.
 
 -}
 
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Experiments.ZCohomology.Benchmarks where
 
 open import Cubical.Foundations.Everything
@@ -29,8 +29,9 @@ open import Cubical.Algebra.Group hiding (ℤ ; Bool)
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.GroupStructure hiding (_+ₕ_) renaming (_+'ₕ_ to _+ₕ_)
--- _+'ₕ_ is just (λ x y → (x +ₕ 0ₕ) +ₕ (x +ₕ 0ₕ))
--- For technical reason, this gives nicer reductions and computes better
+{- _+'ₕ_ is just (λ x y → (x +ₕ 0ₕ) +ₕ (y +ₕ 0ₕ))
+   For technical reason, this gives nicer reductions and computes better in
+   higher dimensions. -}
 open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.Groups.Wedge
 open import Cubical.ZCohomology.Groups.Torus
@@ -340,7 +341,7 @@ module CP2-test₂ where
   ϕ⁻¹ : ℤ → coHom 2 CP²
   ϕ⁻¹ = inv (fst H²CP²≅ℤ)
 
-  -- For explicitly constructed elmenet g : H²CP², ϕ works well
+  -- For explicitly constructed elements g : H²CP², ϕ works well
   test₀ : ϕ (0ₕ _) ≡ 0    -- <10ms
   test₀ = refl
 
@@ -380,6 +381,6 @@ module CP2-test₄ where
   ϕ⁻¹ = inv (fst H⁴CP²≅ℤ)
 
 {-
-  test₀ : ϕ (0ₕ _) ≡ true -- fails already here...
+  test₀ : ϕ (0ₕ _) ≡ 0 -- fails already here...
   test₀ = refl
 -}
