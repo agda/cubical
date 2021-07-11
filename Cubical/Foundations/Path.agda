@@ -191,51 +191,24 @@ Square≃doubleComp a₀₋ a₁₋ a₋₀ a₋₁ = transportEquiv (PathP≡do
 -- Flipping a square in Ω²A is the same as inverting it
 sym≡flipSquare : {x : A} (P : Square (refl {x = x}) refl refl refl)
   → sym P ≡ flipSquare P
-sym≡flipSquare {x = x} = helper x x refl refl
+sym≡flipSquare {x = x} P = sym (main refl P)
   where
-  helper : ∀ {ℓ} {A : Type ℓ} (x y : A) (p q : x ≡ y) (P : Square p q refl refl)
-    → PathP (λ j → PathP (λ i → Path A (p (i ∧ j)) (q (i ∨ ~ j)))
-                      (λ k → q (~ j ∧ k))
-                       λ k → p (j ∨ k))
-        (sym P)
-        (flipSquare P)
-  helper {A = A} x y =
-      J (λ y p → (q : x ≡ y) → (P : Square p q refl refl) →
-          PathP (λ j → PathP (λ i → Path A (p (i ∧ j)) (q (i ∨ ~ j)))
-                         (λ k → q (~ j ∧ k))
-                         (λ k → p (j ∨ k)))
-           (sym P)
-           (flipSquare P))
-         λ q → J (λ q P → PathP (λ j → PathP (λ i → Path A x (q (i ∨ ~ j)))
-                             (λ k → q (~ j ∧ k)) refl)
-                             (λ i → P (~ i)) λ i j → P j i) refl
+  B : (q : x ≡ x) → I → Type _
+  B q i = PathP (λ j → x ≡ q (i ∨ j)) (λ k → q (i ∧ k)) refl
+
+  main : (q : x ≡ x) (p : refl ≡ q) → PathP (λ i → B q i) (λ i j → p j i) (sym p)
+  main q = J (λ q p → PathP (λ i → B q i) (λ i j → p j i) (sym p)) refl
 
 -- Inverting both interval arguments of a square in Ω²A is the same as doing nothing
 sym-cong-sym≡id : {x : A} (P : Square (refl {x = x}) refl refl refl)
   → P ≡ λ i j → P (~ i) (~ j)
-sym-cong-sym≡id P =
-  transport (λ i → doubleCompPath-filler (sym (rUnit refl)) P (lUnit refl) (~ i)
-                  ≡ doubleCompPath-filler (sym (rUnit refl))
-            (λ i j → P (~ i) (~ j)) (lUnit refl) (~ i)) (helper _ _ refl refl P)
+sym-cong-sym≡id {x = x} P = sym (main refl P)
   where
-  helper : ∀ {ℓ} {A : Type ℓ} (x y : A) → (p q : x ≡ y) (P : Square p q refl refl)
-    → PathP (λ i → PathP (λ j → p i ≡ q (~ i))
-                      ((λ j → p (i ∨ j)) ∙ (λ j → q (~ i ∨ ~ j)))
-                      ((λ j → p (i ∧ ~ j)) ∙ (λ j → q (~ i ∧ j))))
-         (sym (rUnit p) ∙∙ P ∙∙ lUnit _)
-         (sym (lUnit (sym q)) ∙∙ (λ i j → P (~ i) (~ j)) ∙∙ rUnit (sym p))
-  helper x y =
-    J (λ y p → (q : x ≡ y) (P : Square p q refl refl)
-        → PathP (λ i → PathP (λ j → p i ≡ q (~ i)) ((λ j → p (i ∨ j)) ∙ (λ j → q (~ i ∨ ~ j)))
-                                                      ((λ j → p (i ∧ ~ j)) ∙ (λ j → q (~ i ∧ j))))
-                 (sym (rUnit p) ∙∙ P ∙∙ lUnit _)
-                 (sym (lUnit (sym q)) ∙∙ (λ i j → P (~ i) (~ j)) ∙∙ rUnit (sym p)))
-        λ q →
-        J (λ q P → PathP (λ i → (λ j → x) ∙ (λ j → q (~ i ∨ ~ j)) ≡
-                                  (λ j → x) ∙ (λ j → q (~ i ∧ j)))
-                    ((λ i → rUnit refl (~ i)) ∙∙ P ∙∙ lUnit q)
-                    ((λ i → lUnit (λ i₁ → q (~ i₁)) (~ i)) ∙∙ (λ i j → P (~ i) (~ j)) ∙∙ rUnit refl))
-          refl
+  B : (q : x ≡ x) → I → Type _
+  B q i = Path (x ≡ q i) (λ j → q (i ∨ ~ j)) λ j → q (i ∧ j)
+
+  main : (q : x ≡ x) (p : refl ≡ q) → PathP (λ i → B q i) (λ i j → p (~ i) (~ j)) p
+  main q = J (λ q p → PathP (λ i → B q i) (λ i j → p (~ i) (~ j)) p) refl
 
 -- Applying cong sym is the same as flipping a square in Ω²A
 flipSquare≡cong-sym : ∀ {ℓ} {A : Type ℓ} {x : A} (P : Square (refl {x = x}) refl refl refl)
@@ -245,7 +218,7 @@ flipSquare≡cong-sym P = sym (sym≡flipSquare P) ∙ sym (sym-cong-sym≡id (c
 -- Applying cong sym is the same as inverting a square in Ω²A
 sym≡cong-sym : ∀ {ℓ} {A : Type ℓ} {x : A} (P : Square (refl {x = x}) refl refl refl)
   → sym P ≡ cong sym P
-sym≡cong-sym P = sym≡flipSquare _ ∙ flipSquare≡cong-sym P
+sym≡cong-sym P = sym-cong-sym≡id (sym P)
 
 -- sym induces an equivalence on identity types of paths
 symIso : {a b : A} (p q : a ≡ b) → Iso (p ≡ q) (q ≡ p)
