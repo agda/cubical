@@ -96,8 +96,7 @@ Lattice : ∀ ℓ → Type (ℓ-suc ℓ)
 Lattice ℓ = TypeWithStr ℓ LatticeStr
 
 isSetLattice : (L : Lattice ℓ) → isSet ⟨ L ⟩
-isSetLattice L = L .snd .LatticeStr.isLattice .IsLattice.joinSemilattice .IsSemilattice.isCommMonoid
-                        .IsCommMonoid.isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+isSetLattice L = L .snd .LatticeStr.is-set
 
 makeIsLattice : {L : Type ℓ} {0l 1l : L} {_∨l_ _∧l_ : L → L → L}
              (is-setL : isSet L)
