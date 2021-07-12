@@ -41,7 +41,7 @@ record IsLattice {L : Type ℓ}
    joinSemilattice : IsSemilattice 0l _∨l_
    meetSemilattice : IsSemilattice 1l _∧l_
    absorb : (x y : L) → (x ∨l (x ∧l y) ≡ x)
-                      × (x ∧l (x ∨l y) ≡ y)
+                      × (x ∧l (x ∨l y) ≡ x)
 
   open IsSemilattice joinSemilattice public
    renaming
@@ -72,7 +72,7 @@ record IsLattice {L : Type ℓ}
   ∨lAbsorb∧l : (x y : L) → x ∨l (x ∧l y) ≡ x
   ∨lAbsorb∧l x y = absorb x y .fst
 
-  ∧lAbsorb∨l : (x y : L) → x ∧l (x ∨l y) ≡ y
+  ∧lAbsorb∨l : (x y : L) → x ∧l (x ∨l y) ≡ x
   ∧lAbsorb∨l x y = absorb x y .snd
 
 record LatticeStr (A : Type ℓ)  : Type (ℓ-suc ℓ) where
@@ -112,7 +112,7 @@ makeIsLattice : {L : Type ℓ} {0l 1l : L} {_∨l_ _∧l_ : L → L → L}
              (∧l-comm : (x y : L) → x ∧l y ≡ y ∧l x)
              (∧l-idem : (x : L) → x ∧l x ≡ x)
              (∨l-absorb-∧l : (x y : L) → x ∨l (x ∧l y) ≡ x)
-             (∧l-absorb-∨l : (x y : L) → x ∧l (x ∨l y) ≡ y)
+             (∧l-absorb-∨l : (x y : L) → x ∧l (x ∨l y) ≡ x)
            → IsLattice 0l 1l _∨l_ _∧l_
 makeIsLattice is-setL ∨l-assoc ∨l-rid ∨l-lid ∨l-comm ∨l-idem
                       ∧l-assoc ∧l-rid ∧l-lid ∧l-comm ∧l-idem ∨l-absorb-∧l ∧l-absorb-∨l =
@@ -133,7 +133,7 @@ makeLattice : {L : Type ℓ} (0l 1l : L) (_∨l_ _∧l_ : L → L → L)
              (∧l-comm : (x y : L) → x ∧l y ≡ y ∧l x)
              (∧l-idem : (x : L) → x ∧l x ≡ x)
              (∨l-absorb-∧l : (x y : L) → x ∨l (x ∧l y) ≡ x)
-             (∧l-absorb-∨l : (x y : L) → x ∧l (x ∨l y) ≡ y)
+             (∧l-absorb-∨l : (x y : L) → x ∧l (x ∨l y) ≡ x)
            → Lattice ℓ
 makeLattice 0l 1l _∨l_ _∧l_ is-setL ∨l-assoc ∨l-rid ∨l-lid ∨l-comm ∨l-idem
             ∧l-assoc ∧l-rid ∧l-lid ∧l-comm ∧l-idem ∨l-absorb-∧l ∧l-absorb-∨l =
@@ -180,7 +180,7 @@ isPropIsLattice 0l 1l _∨l_ _∧l_ (islattice LJ LM LA) (islattice MJ MM MA) =
   isSetL = LJ .IsSemilattice.isCommMonoid .IsCommMonoid.isMonoid
               .IsMonoid.isSemigroup .IsSemigroup.is-set
 
-  isPropAbsorb : isProp ((x y : _) → (x ∨l (x ∧l y) ≡ x) × (x ∧l (x ∨l y) ≡ y))
+  isPropAbsorb : isProp ((x y : _) → (x ∨l (x ∧l y) ≡ x) × (x ∧l (x ∨l y) ≡ x))
   isPropAbsorb = isPropΠ2 λ _ _ → isProp× (isSetL _ _) (isSetL _ _)
 
 
@@ -203,3 +203,10 @@ isPropIsLattice 0l 1l _∨l_ _∧l_ (islattice LJ LM LA) (islattice MJ MM MA) =
 
 LatticePath : (L M : Lattice ℓ) → LatticeEquiv L M ≃ (L ≡ M)
 LatticePath = ∫ 𝒮ᴰ-Lattice .UARel.ua
+
+
+Lattice→JoinSemilattice : Lattice ℓ → Semilattice ℓ
+Lattice→JoinSemilattice (A , latticestr _ _ _ _ L) = semilattice _ _ _ (L .IsLattice.joinSemilattice )
+
+Lattice→MeetSemilattice : Lattice ℓ → Semilattice ℓ
+Lattice→MeetSemilattice (A , latticestr _ _ _ _ L) = semilattice _ _ _ (L .IsLattice.meetSemilattice )
