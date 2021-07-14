@@ -16,6 +16,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty renaming (rec to ⊥-rec) hiding (elim)
@@ -25,6 +26,8 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 
 open import Cubical.Algebra.AbGroup.Base
+
+open import Cubical.Functions.Morphism
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
 open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂; ∣_∣₂; squash₂)
@@ -171,6 +174,24 @@ EM : (G : AbGroup ℓG) (n : ℕ) → Type ℓG
 EM G zero = EM-raw G zero
 EM G (suc zero) = EM-raw G 1
 EM G (suc (suc n)) = hLevelTrunc (4 + n) (EM-raw G (suc (suc n)))
+
+hLevelEM : (G : AbGroup ℓG) (n : ℕ) → isOfHLevel (2 + n) (EM G n)
+hLevelEM G zero = AbGroupStr.is-set (snd G)
+hLevelEM G (suc zero) = emsquash
+hLevelEM G (suc (suc n)) = isOfHLevelTrunc (4 + n)
+
+EM-raw→EM : (G : AbGroup ℓG) (n : ℕ) → EM-raw G n → EM G n
+EM-raw→EM G zero x = x
+EM-raw→EM G (suc zero) x = x
+EM-raw→EM G (suc (suc n)) = ∣_∣
+
+EM-elim : {G : AbGroup ℓG} (n : ℕ) {A : EM G n → Type ℓ}
+        → ((x : _) → isOfHLevel (2 + n) (A x))
+        → ((x : EM-raw G n) → A (EM-raw→EM G n x))
+        → (x : _) → A x
+EM-elim zero hlev hyp x = hyp x
+EM-elim (suc zero) hlev hyp x = hyp x
+EM-elim (suc (suc n)) hlev hyp = trElim (λ _ → hlev _) hyp
 
 wedgeConFun' : (G H : AbGroup ℓG) (n : ℕ) → {A : EM-raw G (suc n) → EM-raw H (suc zero) → Type ℓ}
             → ((x : _) (y : _) → isOfHLevel (suc n + suc zero) (A x y))
@@ -699,6 +720,93 @@ module _ {G : AbGroup ℓG} where
     main south a b = lem ptS a b i1
     main (merid c i) a b = lem c a b i
 
+  σ-EM' : (n : ℕ) (x : EM G (suc n))
+        → Path (EM G (suc (suc n)))
+                (0ₖ (suc (suc n)))
+                (0ₖ (suc (suc n)))
+  σ-EM' zero x = cong ∣_∣ₕ (σ-EM zero x)
+  σ-EM' (suc n) =
+    trElim (λ _ → isOfHLevelTrunc (5 + n) _ _)
+      λ x → cong ∣_∣ₕ (σ-EM (suc n) x)
+
+  σ-EM'-0ₖ : (n : ℕ) → σ-EM' n (0ₖ (suc n)) ≡ refl
+  σ-EM'-0ₖ zero = cong (cong ∣_∣ₕ) (rCancel (merid ptS))
+  σ-EM'-0ₖ (suc n) = cong (cong ∣_∣ₕ) (rCancel (merid ptS))
+
+  private
+    P : ∀ {ℓ} {A : Type ℓ} {x : A} (p : x ≡ x) (r : refl ≡ p)
+        → lUnit p ∙ cong (_∙ p) r
+         ≡ rUnit p ∙ cong (p ∙_) r
+    P p = J (λ p r → lUnit p ∙ cong (_∙ p) r ≡ rUnit p ∙ cong (p ∙_) r) refl
+
+  σ-EM'-hom : (n : ℕ) → (a b : _) → σ-EM' n (a +ₖ b) ≡ σ-EM' n a ∙ σ-EM' n b
+  σ-EM'-hom zero =
+    wedgeConEM.fun G G 0 0 (λ _ _ → isOfHLevelTrunc 4 _ _ _ _) l r p
+    where
+    l : _
+    l x = cong (σ-EM' zero) (lUnitₖ 1 x)
+        ∙∙ lUnit (σ-EM' zero x)
+        ∙∙ cong (_∙ σ-EM' zero x) (sym (σ-EM'-0ₖ zero))
+
+    r : _
+    r x =
+         cong (σ-EM' zero) (rUnitₖ 1 x) 
+      ∙∙ rUnit (σ-EM' zero x)
+      ∙∙ cong (σ-EM' zero x ∙_) (sym (σ-EM'-0ₖ zero))
+
+    p : _
+    p = P (σ-EM' zero embase) (sym (σ-EM'-0ₖ zero))
+  σ-EM'-hom (suc n) =
+    elim2 (λ _ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (5 + n) _ _) _ _)
+      (wedgeConEM.fun G G _ _
+        (λ x y → transport (λ i → isOfHLevel (help n i)
+                            ((σ-EM' (suc n) (∣ x ∣ₕ +ₖ ∣ y ∣ₕ)
+                           ≡ σ-EM' (suc n) ∣ x ∣ₕ ∙ σ-EM' (suc n) ∣ y ∣ₕ)))
+                    (isOfHLevelPlus {n = 4 + n} n
+                      (isOfHLevelPath (4 + n)
+                        (isOfHLevelTrunc (5 + n) _ _) _ _)))
+        (λ x → cong (σ-EM' (suc n)) (lUnitₖ (suc (suc n)) ∣ x ∣)
+            ∙∙ lUnit (σ-EM' (suc n) ∣ x ∣)
+            ∙∙ cong (_∙ σ-EM' (suc n) ∣ x ∣) (sym (σ-EM'-0ₖ (suc n))))
+        (λ x → cong (σ-EM' (suc n)) (rUnitₖ (2 + n) ∣ x ∣) 
+      ∙∙ rUnit (σ-EM' (suc n) ∣ x ∣)
+      ∙∙ cong (σ-EM' (suc n) ∣ x ∣ ∙_) (sym (σ-EM'-0ₖ (suc n))))
+        (P (σ-EM' (suc n) (0ₖ (2 + n))) (sym (σ-EM'-0ₖ (suc n)))))
+
+  σ-EM'-ₖ : (n : ℕ) → (a : _) → σ-EM' n (-ₖ a) ≡ sym (σ-EM' n a)
+  σ-EM'-ₖ n = 
+    morphLemmas.distrMinus
+      (λ x y → x +[ suc n ]ₖ y) (_∙_)
+      (σ-EM' n) (σ-EM'-hom n)
+      (0ₖ (suc n)) refl
+      (λ x → -ₖ x) sym
+      (λ x → sym (lUnit x)) (λ x → sym (rUnit x))
+      (lCancelₖ (suc n)) rCancel
+      assoc (σ-EM'-0ₖ n)
+
+  -Dist : (n : ℕ) (x y : EM G n) → -[ n ]ₖ (x +[ n ]ₖ y) ≡ (-[ n ]ₖ x) +[ n ]ₖ (-[ n ]ₖ y)
+  -Dist zero x y = (GroupTheory.invDistr (AbGroup→Group G) x y) ∙ commₖ zero _ _
+  -Dist (suc zero) = k
+    where -- useless where clause. Needed for fast type checking for some reason.
+    l : _
+    l x = refl
+
+    r : _
+    r x = cong (λ z → -[ 1 ]ₖ z) (rUnitₖ 1 x) ∙ sym (rUnitₖ 1 (-[ 1 ]ₖ x))
+
+    p : r ptS ≡ l ptS
+    p = sym (rUnit refl)
+
+    k = wedgeConEM.fun G G 0 0 (λ _ _ → emsquash _ _) l r (sym p)
+
+  -Dist (suc (suc n)) =
+    elim2 (λ _ _ → isOfHLevelTruncPath {n = 4 + n})
+      (wedgeConEM.fun G G (suc n) (suc n)
+        (λ _ _ → isOfHLevelPath ((2 + n) + (2 + n)) (hLevHelp n) _ _)
+        (λ x → refl)
+        (λ x → cong (λ z → -[ (suc (suc n)) ]ₖ z) (rUnitₖ (suc (suc n)) ∣ x ∣ₕ) ∙ sym (rUnitₖ (suc (suc n)) (-[ (suc (suc n)) ]ₖ ∣ x ∣ₕ)))
+        (rUnit refl))
+
   addIso : (n : ℕ) (x : EM G n) → Iso (EM G n) (EM G n)
   Iso.fun (addIso n x) y = y +[ n ]ₖ x
   Iso.inv (addIso n x) y = y -[ n ]ₖ x
@@ -707,8 +815,217 @@ module _ {G : AbGroup ℓG} where
     ∙∙ cong (λ x → y +[ n ]ₖ x) (lCancelₖ n x)
     ∙∙ rUnitₖ n y
   Iso.leftInv (addIso n x) y =
-    {!!}
+    sym (assocₖ n y x (-[ n ]ₖ x))
+    ∙∙ cong (λ x → y +[ n ]ₖ x) (rCancelₖ n x)
+    ∙∙ rUnitₖ n y
 
+  CODE : (n : ℕ) → EM G (suc n) → TypeOfHLevel ℓG (2 + n)
+  CODE zero =
+    rec _ (isOfHLevelTypeOfHLevel 2)
+      (typ G , is-set)
+      (λ g → Σ≡Prop (λ _ → isPropIsOfHLevel 2)
+                     (isoToPath (addIso 0 g)))
+      (λ g h → ΣSquareSet {B = isOfHLevel 2}
+               (λ _ → isSetΠ2 λ _ _ → isProp→isOfHLevelSuc 1 isPropIsProp)
+               (without g h))
+    where
+    ΣSquareSet : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} (prop : (x : A) → isSet (B x))
+               → {x y z w : Σ A B} {p : x ≡ y} {q : y ≡ z} {r : w ≡ z} {s : x ≡ w}
+               → Square (cong fst s) (cong fst q) (cong fst p) (cong fst r)
+               → Square s q p r
+    fst (ΣSquareSet prop sq i j) = sq i j
+    snd (ΣSquareSet {B = B} prop {p = p} {q = q} {r = r} {s = s} sq i j) = sqP i j
+      where
+      sqP : SquareP (λ i j → B (sq i j))
+            (cong snd s) (cong snd q) (cong snd p) (cong snd r)
+      sqP = toPathP (isOfHLevelPathP' 1 (prop _) _ _ _ _)
 
-  CODE : {!!}
-  CODE = {!!}
+    lem : (g h : fst G) → compEquiv (isoToEquiv (addIso 0 g)) (isoToEquiv (addIso 0 h))
+                        ≡ isoToEquiv (addIso 0 (snd G .AbGroupStr._+_ g h))
+    lem g h =
+      Σ≡Prop (λ _ → isPropIsEquiv _)
+        (funExt λ x → sym (assocₖ 0 x g h))
+
+    without : (g h : fst G) →
+      Square (isoToPath (addIso 0 g))
+       (isoToPath (addIso 0 ((snd (AbGroup→Group G) GroupStr.· g) h)))
+      refl (isoToPath (addIso 0 h))
+    without g h =
+      compPathL→PathP
+        (sym (lUnit _)
+      ∙∙ sym (uaCompEquiv (isoToEquiv (addIso 0 g)) (isoToEquiv (addIso 0 h)))
+      ∙∙ cong ua (lem g h))
+
+  CODE (suc n) =
+    trElim (λ _ → isOfHLevelTypeOfHLevel (3 + n))
+      λ { north → EM G (suc n) , hLevelEM G (suc n)
+        ; south → EM G (suc n) , hLevelEM G (suc n)
+        ; (merid a i) → fib n a i}
+    where
+    fib : (n : ℕ) → (a : EM-raw G (suc n))
+        → Path (TypeOfHLevel _ (3 + n)) (EM G (suc n) , hLevelEM G (suc n)) (EM G (suc n) , hLevelEM G (suc n))
+    fib zero a = Σ≡Prop (λ _ → isPropIsOfHLevel 3)
+                   (isoToPath (addIso 1 a))
+    fib (suc n) a = Σ≡Prop (λ _ → isPropIsOfHLevel (4 + n))
+                            (isoToPath (addIso (suc (suc n)) ∣ a ∣))
+
+  decode : (n : ℕ) (x : EM G (suc n)) → CODE n x .fst → 0ₖ (suc n) ≡ x
+  decode zero =
+    elimSet _ (λ _ → isSetΠ (λ _ → emsquash _ _))
+      emloop main
+    where
+    main : (g : _) → PathP (λ i → CODE zero (emloop g i) .fst → 0ₖ 1 ≡ emloop g i)
+                            emloop emloop
+    main g =
+      toPathP
+        (funExt λ x
+            → (λ j → transp (λ i → Path (EM-raw G 1) ptS (emloop g (i ∨ j))) j
+                      (compPath-filler (emloop ((transportRefl x j) +G -G g)) (emloop g) j))
+            ∙∙ sym (emloop-comp _ (x +G -G g) g)
+            ∙∙ cong emloop (sym (assocG x (-G g) g) ∙∙ cong (x +G_) (invl g) ∙∙ rid x))
+  decode (suc n) =
+    trElim (λ _ → isOfHLevelΠ (4 + n)
+            λ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (4 + n)) _ _)
+           λ { north → f n
+             ; south → g n
+             ; (merid a i) → main a i}
+     where
+     f : (n : ℕ) → _
+     f n = σ-EM' n
+
+     g : (n : ℕ) → EM G (suc n) → ∣ ptS ∣ ≡ ∣ south ∣
+     g n x = σ-EM' n x ∙ cong ∣_∣ₕ (merid ptS)
+
+     lem₂ : (n : ℕ) (a x : _)
+       → Path (Path (EM G (suc (suc n))) _ _)
+               ((λ i → cong ∣_∣ₕ (σ-EM n x) i) ∙ sym (cong ∣_∣ₕ (σ-EM n a)) ∙ (λ i → ∣ merid a i ∣ₕ))
+               (g n (EM-raw→EM G (suc n) x))
+     lem₂ zero a x =
+       cong (f zero x ∙_)
+         (cong (_∙ cong ∣_∣ₕ (merid a)) (cong (cong ∣_∣ₕ) (symDistr (merid a) (sym (merid ptS)))
+                                     ∙ cong-∙ ∣_∣ₕ (merid (ptS)) (sym (merid a)))
+          ∙∙ sym (assoc _ _ _)
+          ∙∙ cong (cong ∣_∣ₕ (merid ptS) ∙_) (lCancel (cong ∣_∣ₕ (merid a)))
+           ∙ sym (rUnit _))
+     lem₂ (suc n) a x =
+       cong (f (suc n) ∣ x ∣ ∙_)
+         ((cong (_∙ cong ∣_∣ₕ (merid a)) (cong (cong ∣_∣ₕ) (symDistr (merid a) (sym (merid ptS)))
+                                      ∙ cong-∙ ∣_∣ₕ (merid (ptS)) (sym (merid a)))
+          ∙∙ sym (assoc _ _ _)
+          ∙∙ cong (cong ∣_∣ₕ (merid ptS) ∙_) (lCancel (cong ∣_∣ₕ (merid a)))
+           ∙ sym (rUnit _)))
+
+     lem : (n : ℕ) (x a : EM-raw G (suc n))
+             → f n (transport (sym (cong (λ x → CODE (suc n) x .fst) (cong ∣_∣ₕ (merid a)))) (EM-raw→EM G (suc n) x))
+                ≡ cong ∣_∣ₕ (σ-EM n x) ∙ sym (cong ∣_∣ₕ (σ-EM n a))
+     lem zero x a = (λ i → cong ∣_∣ₕ (merid (transportRefl x i -[ 1 ]ₖ a) ∙ sym (merid embase)))
+                  ∙∙ σ-EM'-hom zero x (-ₖ a)
+                  ∙∙ cong (f zero x ∙_) (σ-EM'-ₖ zero a)
+     lem (suc n) x a =
+          cong (f (suc n)) (λ i → transportRefl ∣ x ∣ i -[ 2 + n ]ₖ ∣ a ∣)
+        ∙∙ σ-EM'-hom (suc n) ∣ x ∣ (-ₖ ∣ a ∣)
+        ∙∙ cong (f (suc n) ∣ x ∣ ∙_) (σ-EM'-ₖ (suc n) ∣ a ∣)
+
+     main : (a : _)
+         → PathP (λ i → CODE (suc n) ∣ merid a i ∣ₕ .fst
+                       → 0ₖ (suc (suc n)) ≡ ∣ merid a i ∣ₕ) (f n) (g n)
+     main a =
+       toPathP (funExt
+         (EM-elim _ (λ _ → isOfHLevelPathP (2 + (suc n)) (isOfHLevelTrunc (4 + n) _ _) _ _)
+           λ x →
+            (λ i → transp (λ j → Path (EM G (2 + n)) ∣ ptS ∣ ∣ merid a (i ∨ j) ∣)
+                         i (compPath-filler (lem n x a i) (cong ∣_∣ₕ (merid a)) i) )
+         ∙∙ sym (assoc _ _ _)
+         ∙∙ lem₂ n a x))
+
+  private
+    ptCode0 : (n : ℕ) → CODE n (0ₖ (suc n)) .fst
+    ptCode0 zero = 0g
+    ptCode0 (suc n) = 0ₖ (suc n)
+
+  encode : (n : ℕ) (x : EM G (suc n)) → 0ₖ (suc n) ≡ x → CODE n x .fst
+  encode n x p = subst (λ x → CODE n x .fst) p (ptCode0 n)
+
+  open import Cubical.Foundations.Transport
+
+  encode-morph : (n : ℕ) → (p q : 0ₖ (suc (suc n)) ≡ 0ₖ (suc (suc n)))
+              → (encode (suc n) _ (p ∙ q)) ≡ (encode (suc n) _ p) +[ suc n ]ₖ (encode (suc n) _ q)
+  encode-morph n p q =
+    substComposite (λ x → CODE (suc n) x .fst) p q (0ₖ (suc n))
+    ∙∙ {!!}
+    ∙∙ {!!}
+
+  decode-encode : (n : ℕ) (x : EM G (suc n)) (p : 0ₖ (suc n) ≡ x) → decode n x (encode n x p) ≡ p
+  decode-encode zero x =
+    J (λ x p → decode zero x (encode zero x p) ≡ p)
+      (cong emloop (transportRefl 0g) ∙ emloop-1g (AbGroup→Group G))
+  decode-encode (suc zero) x =
+    J (λ x p → decode 1 x (encode 1 x p) ≡ p)
+      (σ-EM'-0ₖ 0)
+  decode-encode (suc (suc n)) x =
+    J (λ x p → decode (2 + n) x (encode (2 + n) x p) ≡ p)
+       (σ-EM'-0ₖ (suc n))
+
+  encode-decode : (n : ℕ) (x : _) → encode n (0ₖ (suc n)) (decode n (0ₖ (suc n)) x) ≡ x
+  encode-decode zero x i = transportRefl (lid x i) i
+  encode-decode (suc zero) x =
+      cong (encode 1 (0ₖ 2)) (cong-∙ ∣_∣ₕ (merid x) (sym (merid ptS)))
+    ∙∙ substComposite (λ x → CODE (suc zero) x .fst)
+         (cong ∣_∣ₕ (merid x)) (sym (cong ∣_∣ₕ (merid ptS))) ptS
+    ∙∙ cong (subst (λ x₁ → CODE 1 x₁ .fst) (λ i → ∣ merid ptS (~ i) ∣ₕ))
+            (λ i → lUnitₖ 1 (transportRefl x i) i)
+     ∙ (λ i → rUnitₖ 1 (transportRefl x i) i)
+  encode-decode (suc (suc n)) =
+    trElim (λ _ → isOfHLevelTruncPath {n = 4 + n})
+      λ x → cong (encode (2 + n) (0ₖ (3 + n))) (cong-∙ ∣_∣ₕ (merid x) (sym (merid ptS)))
+    ∙∙ substComposite (λ x → CODE (suc (suc n)) x .fst)
+         (cong ∣_∣ₕ (merid x)) (sym (cong ∣_∣ₕ (merid ptS))) (0ₖ (2 + n))
+    ∙∙ cong (subst (λ x₁ → CODE (2 + n) x₁ .fst) (λ i → ∣ merid ptS (~ i) ∣ₕ))
+            (λ i → lUnitₖ (2 + n) (transportRefl ∣ x ∣ₕ i) i)
+     ∙ (λ i → rUnitₖ (2 + n) (transportRefl ∣ x ∣ₕ i) i)
+
+  EM∙' : (n : ℕ) → Pointed _
+  EM∙' n = EM G n , 0ₖ n
+
+  Iso-EM-ΩEM+1 : (n : ℕ) → Iso (EM G n) (typ (Ω (EM∙' (suc n))))
+  Iso.fun (Iso-EM-ΩEM+1 zero) = decode zero (0ₖ 1)
+  Iso.inv (Iso-EM-ΩEM+1 zero) = encode zero (0ₖ 1)
+  Iso.rightInv (Iso-EM-ΩEM+1 zero) = decode-encode zero (0ₖ 1)
+  Iso.leftInv (Iso-EM-ΩEM+1 zero) = encode-decode zero
+  Iso.fun (Iso-EM-ΩEM+1 (suc zero)) = decode 1 (0ₖ 2)
+  Iso.inv (Iso-EM-ΩEM+1 (suc zero)) = encode 1 (0ₖ 2)
+  Iso.rightInv (Iso-EM-ΩEM+1 (suc zero)) = decode-encode 1 (0ₖ 2)
+  Iso.leftInv (Iso-EM-ΩEM+1 (suc zero)) = encode-decode 1
+  Iso.fun (Iso-EM-ΩEM+1 (suc (suc n))) = decode (2 + n) (0ₖ (3 + n))
+  Iso.inv (Iso-EM-ΩEM+1 (suc (suc n))) = encode (2 + n) (0ₖ (3 + n))
+  Iso.rightInv (Iso-EM-ΩEM+1 (suc (suc n))) = decode-encode (2 + n) (0ₖ (3 + n))
+  Iso.leftInv (Iso-EM-ΩEM+1 (suc (suc n))) = encode-decode (2 + n)
+
+  EM→ΩEM+1 : (n : ℕ) → EM G n → typ (Ω (EM∙' (suc n)))
+  EM→ΩEM+1 n = Iso.fun (Iso-EM-ΩEM+1 n)
+
+  ΩEM+1→EM : (n : ℕ) → typ (Ω (EM∙' (suc n))) → EM G n
+  ΩEM+1→EM n = Iso.inv (Iso-EM-ΩEM+1 n)
+
+  EM→ΩEM+1-hom : (n : ℕ) (x y : EM G n)
+    → EM→ΩEM+1 n (x +[ n ]ₖ y) ≡ EM→ΩEM+1 n x ∙ EM→ΩEM+1 n y
+  EM→ΩEM+1-hom zero x y = emloop-comp _ x y
+  EM→ΩEM+1-hom (suc zero) x y = σ-EM'-hom zero x y
+  EM→ΩEM+1-hom (suc (suc n)) x y = σ-EM'-hom (suc n) x y
+
+  ΩEM+1→EM-hom : (n : ℕ) → (p q : typ (Ω (EM∙' (suc n))))
+    → ΩEM+1→EM n (p ∙ q) ≡ (ΩEM+1→EM n p) +[ n ]ₖ (ΩEM+1→EM n q)
+  ΩEM+1→EM-hom n =
+    morphLemmas.isMorphInv (λ x y → x +[ n ]ₖ y) (_∙_) (EM→ΩEM+1 n)
+      (EM→ΩEM+1-hom n) (ΩEM+1→EM n)
+      (Iso.rightInv (Iso-EM-ΩEM+1 n)) (Iso.leftInv (Iso-EM-ΩEM+1 n))
+
+  EM→ΩEM+1-0ₖ : (n : ℕ) → EM→ΩEM+1 n (0ₖ n) ≡ refl
+  EM→ΩEM+1-0ₖ zero = emloop-1g _
+  EM→ΩEM+1-0ₖ (suc zero) = cong (cong ∣_∣ₕ) (rCancel (merid ptS))
+  EM→ΩEM+1-0ₖ (suc (suc n)) = cong (cong ∣_∣ₕ) (rCancel (merid ptS))
+
+  ΩEM+1→EM-refl : (n : ℕ) → ΩEM+1→EM n refl ≡ 0ₖ n
+  ΩEM+1→EM-refl zero = transportRefl 0g
+  ΩEM+1→EM-refl (suc zero) = refl
+  ΩEM+1→EM-refl (suc (suc n)) = refl
