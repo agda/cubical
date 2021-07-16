@@ -74,86 +74,125 @@ record DistLatticeStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 DistLattice : ∀ ℓ → Type (ℓ-suc ℓ)
 DistLattice ℓ = TypeWithStr ℓ DistLatticeStr
 
+isSetDistLattice : (L : DistLattice ℓ) → isSet ⟨ L ⟩
+isSetDistLattice L = L .snd .DistLatticeStr.is-set
 
--- makeIsDistLattice : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
---                  (is-setR : isSet R)
---                  (+-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
---                  (+-rid : (x : R) → x + 0r ≡ x)
---                  (+-rinv : (x : R) → x + (- x) ≡ 0r)
---                  (+-comm : (x y : R) → x + y ≡ y + x)
---                  (·-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
---                  (·-rid : (x : R) → x · 1r ≡ x)
---                  (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
---                  (·-comm : (x y : R) → x · y ≡ y · x)
---                → IsDistLattice 0r 1r _+_ _·_ -_
--- makeIsDistLattice {_+_ = _+_} is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm =
---   iscommring (makeIsLattice is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid
---                          (λ x → ·-comm _ _ ∙ ·-rid x) ·-rdist-+
---                          (λ x y z → ·-comm _ _ ∙∙ ·-rdist-+ z x y ∙∙ λ i → (·-comm z x i) + (·-comm z y i))) ·-comm
+makeIsDistLattice : {L : Type ℓ} {0l 1l : L} {_∨l_ _∧l_ : L → L → L}
+             (is-setL : isSet L)
+             (∨l-assoc : (x y z : L) → x ∨l (y ∨l z) ≡ (x ∨l y) ∨l z)
+             (∨l-rid : (x : L) → x ∨l 0l ≡ x)
+             (∨l-comm : (x y : L) → x ∨l y ≡ y ∨l x)
+             (∨l-idem : (x : L) → x ∨l x ≡ x)
+             (∧l-assoc : (x y z : L) → x ∧l (y ∧l z) ≡ (x ∧l y) ∧l z)
+             (∧l-rid : (x : L) → x ∧l 1l ≡ x)
+             (∧l-comm : (x y : L) → x ∧l y ≡ y ∧l x)
+             (∧l-idem : (x : L) → x ∧l x ≡ x)
+             (∧l-absorb-∨l : (x y : L) → x ∧l (x ∨l y) ≡ x)
+             (∧l-ldist-∨l : (x y z : L) → x ∧l (y ∨l z) ≡ (x ∧l y) ∨l (x ∧l z))
+           → IsDistLattice 0l 1l _∨l_ _∧l_
+makeIsDistLattice {_∨l_ = _∨l_} {_∧l_ = _∧l_} is-setL ∨l-assoc ∨l-rid ∨l-comm ∨l-idem
+                                                      ∧l-assoc ∧l-rid ∧l-comm ∧l-idem
+                                                      ∧l-absorb-∨l ∧l-ldist-∨l =
+ isdistlattice (makeIsLattice is-setL ∨l-assoc ∨l-rid (λ x → ∨l-comm _ x ∙ ∨l-rid x) ∨l-comm ∨l-idem
+                                      ∧l-assoc ∧l-rid (λ x → ∧l-comm _ x ∙ ∧l-rid x) ∧l-comm ∧l-idem
+                                      ∨l-absorb-∧l ∧l-absorb-∨l)
+ (λ x y z → ∨l-ldist-∧l _ _ _ , ∨l-rdist-∧l _ _ _) (λ x y z → ∧l-ldist-∨l _ _ _ , ∧l-rdist-∨l _ _ _)
+ where
+ ∨l-absorb-∧l : ∀ x y → x ∨l (x ∧l y) ≡ x
+ ∨l-absorb-∧l x y =
+              cong (_∨l (x ∧l y)) (sym (∧l-idem _)) ∙∙ sym (∧l-ldist-∨l _ _ _) ∙∙ ∧l-absorb-∨l _ _
 
--- makeDistLattice : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
---                (is-setR : isSet R)
---                (+-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
---                (+-rid : (x : R) → x + 0r ≡ x)
---                (+-rinv : (x : R) → x + (- x) ≡ 0r)
---                (+-comm : (x y : R) → x + y ≡ y + x)
---                (·-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
---                (·-rid : (x : R) → x · 1r ≡ x)
---                (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
---                (·-comm : (x y : R) → x · y ≡ y · x)
---              → DistLattice ℓ
--- makeDistLattice 0r 1r _+_ _·_ -_ is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm =
---   _ , commringstr _ _ _ _ _ (makeIsDistLattice is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm)
+ ∧l-rdist-∨l : ∀ x y z → (y ∨l z) ∧l x ≡ (y ∧l x) ∨l (z ∧l x)
+ ∧l-rdist-∨l _ _ _ = ∧l-comm _ _ ∙∙ ∧l-ldist-∨l _ _ _ ∙∙ cong₂ (_∨l_) (∧l-comm _ _) (∧l-comm _ _)
 
--- DistLatticeStr→LatticeStr : {A : Type ℓ} → DistLatticeStr A → LatticeStr A
--- DistLatticeStr→LatticeStr (commringstr _ _ _ _ _ H) = ringstr _ _ _ _ _ (IsDistLattice.isLattice H)
+ ∨l-ldist-∧l : ∀ x y z → x ∨l (y ∧l z) ≡ (x ∨l y) ∧l (x ∨l z)
+ ∨l-ldist-∧l x y z = x ∨l (y ∧l z)
+                   ≡⟨ cong (_∨l (y ∧l z)) (sym (∨l-absorb-∧l _ _)) ⟩
+                     (x ∨l (x ∧l z)) ∨l (y ∧l z)
+                   ≡⟨ sym (∨l-assoc _ _ _) ⟩
+                     x ∨l ((x ∧l z) ∨l (y ∧l z))
+                   ≡⟨ cong (_∨l ((x ∧l z) ∨l (y ∧l z))) (sym (∧l-comm _ _ ∙ ∧l-absorb-∨l _ _)) ⟩
+                     ((x ∨l y) ∧l x) ∨l ((x ∧l z) ∨l (y ∧l z))
+                   ≡⟨ cong (((x ∨l y) ∧l x) ∨l_) (sym (∧l-rdist-∨l _ _ _)) ⟩
+                     ((x ∨l y) ∧l x) ∨l ((x ∨l y) ∧l z)
+                   ≡⟨ sym (∧l-ldist-∨l _ _ _) ⟩
+                     (x ∨l y) ∧l (x ∨l z) ∎
 
--- DistLattice→Lattice : DistLattice ℓ → Lattice ℓ
--- DistLattice→Lattice (_ , commringstr _ _ _ _ _ H) = _ , ringstr _ _ _ _ _ (IsDistLattice.isLattice H)
+ ∨l-rdist-∧l : ∀ x y z → (y ∧l z) ∨l x ≡ (y ∨l x) ∧l (z ∨l x)
+ ∨l-rdist-∧l x y z = ∨l-comm _ x ∙∙ ∨l-ldist-∧l _ _ _ ∙∙ cong₂ (_∧l_) (∨l-comm _ _) (∨l-comm _ _)
 
--- DistLatticeHom : (R : DistLattice ℓ) (S : DistLattice ℓ') → Type (ℓ-max ℓ ℓ')
--- DistLatticeHom R S = LatticeHom (DistLattice→Lattice R) (DistLattice→Lattice S)
+makeDistLattice : {L : Type ℓ} (0l 1l : L) (_∨l_ _∧l_ : L → L → L)
+             (is-setL : isSet L)
+             (∨l-assoc : (x y z : L) → x ∨l (y ∨l z) ≡ (x ∨l y) ∨l z)
+             (∨l-rid : (x : L) → x ∨l 0l ≡ x)
+             (∨l-comm : (x y : L) → x ∨l y ≡ y ∨l x)
+             (∨l-idem : (x : L) → x ∨l x ≡ x)
+             (∧l-assoc : (x y z : L) → x ∧l (y ∧l z) ≡ (x ∧l y) ∧l z)
+             (∧l-rid : (x : L) → x ∧l 1l ≡ x)
+             (∧l-comm : (x y : L) → x ∧l y ≡ y ∧l x)
+             (∧l-idem : (x : L) → x ∧l x ≡ x)
+             (∧l-absorb-∨l : (x y : L) → x ∧l (x ∨l y) ≡ x)
+             (∧l-ldist-∨l : (x y z : L) → x ∧l (y ∨l z) ≡ (x ∧l y) ∨l (x ∧l z))
+           → DistLattice ℓ
+makeDistLattice 0l 1l _∨l_ _∧l_ is-setL ∨l-assoc ∨l-rid ∨l-comm ∨l-idem
+                                        ∧l-assoc ∧l-rid ∧l-comm ∧l-idem
+                                        ∧l-absorb-∨l ∧l-ldist-∨l = _ , distlatticestr _ _ _ _
+                (makeIsDistLattice is-setL ∨l-assoc ∨l-rid ∨l-comm ∨l-idem
+                                           ∧l-assoc ∧l-rid ∧l-comm ∧l-idem ∧l-absorb-∨l ∧l-ldist-∨l)
 
--- IsDistLatticeEquiv : {A : Type ℓ} {B : Type ℓ'}
---   (R : DistLatticeStr A) (e : A ≃ B) (S : DistLatticeStr B) → Type (ℓ-max ℓ ℓ')
--- IsDistLatticeEquiv R e S = IsLatticeHom (DistLatticeStr→LatticeStr R) (e .fst) (DistLatticeStr→LatticeStr S)
+DistLatticeStr→LatticeStr : {A : Type ℓ} → DistLatticeStr A → LatticeStr A
+DistLatticeStr→LatticeStr (distlatticestr  _ _ _ _ H) =
+                           latticestr  _ _ _ _ (IsDistLattice.isLattice H)
 
--- DistLatticeEquiv : (R : DistLattice ℓ) (S : DistLattice ℓ') → Type (ℓ-max ℓ ℓ')
--- DistLatticeEquiv R S = Σ[ e ∈ (R .fst ≃ S .fst) ] IsDistLatticeEquiv (R .snd) e (S .snd)
+DistLattice→Lattice : DistLattice ℓ → Lattice ℓ
+DistLattice→Lattice (_ , distlatticestr _ _ _ _  H) =
+                     _ , latticestr  _ _ _ _ (IsDistLattice.isLattice H)
 
--- isPropIsDistLattice : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
---              → isProp (IsDistLattice 0r 1r _+_ _·_ -_)
--- isPropIsDistLattice 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
---   λ i → iscommring (isPropIsLattice _ _ _ _ _ RR SR i)
---                    (isPropComm RC SC i)
---   where
---   isSetR : isSet _
---   isSetR = RR .IsLattice.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+DistLatticeHom : (L : DistLattice ℓ) (M : DistLattice ℓ') → Type (ℓ-max ℓ ℓ')
+DistLatticeHom L M = LatticeHom (DistLattice→Lattice L) (DistLattice→Lattice M)
 
---   isPropComm : isProp ((x y : _) → x · y ≡ y · x)
---   isPropComm = isPropΠ2 λ _ _ → isSetR _ _
+IsDistLatticeEquiv : {A : Type ℓ} {B : Type ℓ'}
+  (L : DistLatticeStr A) (e : A ≃ B) (M : DistLatticeStr B) → Type (ℓ-max ℓ ℓ')
+IsDistLatticeEquiv L e M =
+                   IsLatticeHom (DistLatticeStr→LatticeStr L) (e .fst) (DistLatticeStr→LatticeStr M)
 
--- 𝒮ᴰ-DistLattice : DUARel (𝒮-Univ ℓ) DistLatticeStr ℓ
--- 𝒮ᴰ-DistLattice =
---   𝒮ᴰ-Record (𝒮-Univ _) IsDistLatticeEquiv
---     (fields:
---       data[ 0r ∣ null ∣ pres0 ]
---       data[ 1r ∣ null ∣ pres1 ]
---       data[ _+_ ∣ bin ∣ pres+ ]
---       data[ _·_ ∣ bin ∣ pres· ]
---       data[ -_ ∣ autoDUARel _ _ ∣ pres- ]
---       prop[ isDistLattice ∣ (λ _ _ → isPropIsDistLattice _ _ _ _ _) ])
---  where
---   open DistLatticeStr
---   open IsLatticeHom
+DistLatticeEquiv : (L : DistLattice ℓ) (M : DistLattice ℓ') → Type (ℓ-max ℓ ℓ')
+DistLatticeEquiv L M = Σ[ e ∈ (L .fst ≃ M .fst) ] IsDistLatticeEquiv (L .snd) e (M .snd)
 
---   -- faster with some sharing
---   null = autoDUARel (𝒮-Univ _) (λ A → A)
---   bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
+isPropIsDistLattice : {L : Type ℓ} (0l 1l : L) (_∨l_ _∧l_ : L → L → L)
+             → isProp (IsDistLattice 0l 1l _∨l_ _∧l_)
+isPropIsDistLattice 0l 1l _∨l_ _∧l_ (isdistlattice LL LD1 LD2) (isdistlattice ML MD1 MD2) =
+  λ i → isdistlattice (isPropIsLattice _ _ _ _ LL ML i) (isPropDist1 LD1 MD1 i)
+                                                        (isPropDist2 LD2 MD2 i)
+  where
+  isSetL : isSet _
+  isSetL = LL .IsLattice.joinSemilattice .IsSemilattice.isCommMonoid .IsCommMonoid.isMonoid
+              .IsMonoid.isSemigroup .IsSemigroup.is-set
 
--- DistLatticePath : (R S : DistLattice ℓ) → DistLatticeEquiv R S ≃ (R ≡ S)
--- DistLatticePath = ∫ 𝒮ᴰ-DistLattice .UARel.ua
+  isPropDist1 : isProp ((x y z : _) → (x ∨l (y ∧l z) ≡ (x ∨l y) ∧l (x ∨l z))
+                                    × ((y ∧l z) ∨l x ≡ (y ∨l x) ∧l (z ∨l x)))
+  isPropDist1 = isPropΠ3 (λ _ _ _ → isProp× (isSetL _ _) (isSetL _ _))
 
--- isSetDistLattice : ((R , str) : DistLattice ℓ) → isSet R
--- isSetDistLattice (R , str) = str .DistLatticeStr.is-set
+  isPropDist2 : isProp ((x y z : _) → (x ∧l (y ∨l z) ≡ (x ∧l y) ∨l (x ∧l z))
+                                    × ((y ∨l z) ∧l x ≡ (y ∧l x) ∨l (z ∧l x)))
+  isPropDist2 = isPropΠ3 (λ _ _ _ → isProp× (isSetL _ _) (isSetL _ _))
 
+𝒮ᴰ-DistLattice : DUARel (𝒮-Univ ℓ) DistLatticeStr ℓ
+𝒮ᴰ-DistLattice =
+  𝒮ᴰ-Record (𝒮-Univ _) IsDistLatticeEquiv
+    (fields:
+      data[ 0l ∣ null ∣ pres0 ]
+      data[ 1l ∣ null ∣ pres1 ]
+      data[ _∨l_ ∣ bin ∣ pres∨l ]
+      data[ _∧l_ ∣ bin ∣ pres∧l ]
+      prop[ isDistLattice ∣ (λ _ _ → isPropIsDistLattice  _ _ _ _) ])
+ where
+  open DistLatticeStr
+  open IsLatticeHom
+
+  -- faster with some sharing
+  null = autoDUARel (𝒮-Univ _) (λ A → A)
+  bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
+
+DistLatticePath : (L M : DistLattice ℓ) → DistLatticeEquiv L M ≃ (L ≡ M)
+DistLatticePath = ∫ 𝒮ᴰ-DistLattice .UARel.ua
