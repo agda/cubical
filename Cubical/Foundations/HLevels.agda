@@ -637,3 +637,19 @@ isOfHLevelΣ' {A = A} {B = B} (suc (suc n)) Alvl Blvl (w , y) (x , z)
       ΣPathP
       (λ x → refl)
       (isOfHLevelΣ' (suc n) (Alvl w x) (Blvl y z))
+
+Σ≡Set : ((x : A) → isSet (B x))
+      → {a₀₀ a₀₁ : Σ A B} (p₀₋ : a₀₀ ≡ a₀₁)
+      → {a₁₀ a₁₁ : Σ A B} (p₁₋ : a₁₀ ≡ a₁₁)
+      → (p₋₀ : a₀₀ ≡ a₁₀) (p₋₁ : a₀₁ ≡ a₁₁)
+      → Square (cong fst p₀₋) (cong fst p₁₋) (cong fst p₋₀) (cong fst p₋₁)
+      → Square p₀₋ p₁₋ p₋₀ p₋₁ 
+fst (Σ≡Set set p₀₋ p₁₋ p₋₀ p₋₁ sq i j) = sq i j
+snd (Σ≡Set {B = B} set p₀₋ p₁₋ p₋₀ p₋₁ sq i j) = sq2 i j
+  where
+  sq2 : SquareP (λ i j → B (sq i j))
+                (λ j → snd (p₀₋ j))
+                (λ j → snd (p₁₋ j))
+                (λ i → snd (p₋₀ i))
+                (λ i → snd (p₋₁ i))
+  sq2 = toPathP (isOfHLevelPathP' 1 (set _) _ _ _ _)
