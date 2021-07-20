@@ -14,7 +14,7 @@ private
   variable
     ℓ : Level
 
-_/_ : (R : CommRing {ℓ}) → (I : IdealsIn R) → CommRing {ℓ}
+_/_ : (R : CommRing ℓ) → (I : IdealsIn R) → CommRing ℓ
 R / I =
   fst asRing , commringstr _ _ _ _ _
                  (iscommring (RingStr.isRing (snd asRing))
@@ -27,5 +27,5 @@ R / I =
        commEq : (x y : fst R) → ([ x ] ·/ [ y ]) ≡ ([ y ] ·/ [ x ])
        commEq x y i = [ CommRingStr.·-comm (snd R) x y i ]
 
-[_]/ : {R : CommRing {ℓ}} {I : IdealsIn R} → (a : fst R) → fst (R / I)
+[_]/ : {R : CommRing ℓ} {I : IdealsIn R} → (a : fst R) → fst (R / I)
 [ a ]/ = [ a ]
