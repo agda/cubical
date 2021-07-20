@@ -14,8 +14,8 @@ private
     ℓ : Level
 
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
-  Ideals : Type _
-  Ideals = IdealsInCommRing (CommAlgebra→CommRing A)
+  IdealsIn : Type _
+  IdealsIn = IdealsInCommRing (CommAlgebra→CommRing A)
 
   open CommAlgebraStr (snd A)
 
@@ -23,5 +23,5 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
               → (+-closed : {x y : fst A} → x ∈ I → y ∈ I → (x + y) ∈ I)
               → (0-closed : 0a ∈ I)
               → (·-closedLeft : {x : fst A} → (r : fst A) → x ∈ I → r · x ∈ I)
-              → Ideals
+              → IdealsIn
   makeIdeal = makeIdealCommRing (CommAlgebra→CommRing A)
