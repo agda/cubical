@@ -29,7 +29,7 @@ open import Cubical.Relation.Binary.Base
 open import Cubical.HITs.TypeQuotients as TypeQuot using (_/ₜ_ ; [_] ; eq/)
 open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥ ; ∣_∣ ; squash)
 open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂ ; ∣_∣₂ ; squash₂
-                                                              ; setTruncIsSet)
+                                                              ; isSetSetTrunc)
 
 
 private
@@ -66,6 +66,17 @@ elimProp3 : ((x y z : A / R ) → isProp (D x y z))
           → D x y z
 elimProp3 Dprop f = elimProp (λ x → isPropΠ2 (λ y z → Dprop x y z))
                              (λ x → elimProp2 (λ y z → Dprop [ x ] y z) (f x))
+
+-- sometimes more convenient:
+elimContr : (∀ (a : A) → isContr (B [ a ]))
+          → (x : A / R) → B x
+elimContr Bcontr = elimProp (elimProp (λ _ → isPropIsProp) λ _ → isContr→isProp (Bcontr _))
+                             λ _ → Bcontr _ .fst
+
+elimContr2 : (∀ (a b : A) → isContr (C [ a ] [ b ]))
+           → (x y : A / R) → C x y
+elimContr2 Ccontr = elimContr λ _ → isOfHLevelΠ 0
+                   (elimContr λ _ → inhProp→isContr (Ccontr _ _) isPropIsContr)
 
 -- lemma 6.10.2 in hott book
 []surjective : (x : A / R) → ∃[ a ∈ A ] [ a ] ≡ x
@@ -114,7 +125,7 @@ rec2 Bset f feql feqr = rec (isSetΠ (λ _ → Bset))
 -- We start by proving that we can recover the set-quotient
 -- by set-truncating the (non-truncated type quotient)
 typeQuotSetTruncIso : Iso (A / R) ∥ A /ₜ R ∥₂
-Iso.fun typeQuotSetTruncIso = rec setTruncIsSet (λ a → ∣ [ a ] ∣₂)
+Iso.fun typeQuotSetTruncIso = rec isSetSetTrunc (λ a → ∣ [ a ] ∣₂)
                                                  λ a b r → cong ∣_∣₂ (eq/ a b r)
 Iso.inv typeQuotSetTruncIso = SetTrunc.rec squash/ (TypeQuot.rec [_] eq/)
 Iso.rightInv typeQuotSetTruncIso = SetTrunc.elim (λ _ → isProp→isSet (squash₂ _ _))
@@ -278,7 +289,7 @@ truncRelEquiv = isoToEquiv truncRelIso
 isEquivRel→TruncIso : isEquivRel R → (a b : A) → Iso ([ a ] ≡ [ b ])  ∥ R a b ∥
 isEquivRel→TruncIso {A = A} {R = R} Req a b = compIso (isProp→Iso (squash/ _ _) (squash/ _ _)
                                    (cong (Iso.fun truncRelIso)) (cong (Iso.inv truncRelIso)))
-                      (isEquivRel→effectiveIso  (λ _ _ → PropTrunc.propTruncIsProp) ∥R∥eq a b)
+                      (isEquivRel→effectiveIso  (λ _ _ → PropTrunc.isPropPropTrunc) ∥R∥eq a b)
  where
  open isEquivRel
  ∥R∥eq : isEquivRel  λ a b → ∥ R a b ∥

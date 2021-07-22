@@ -44,8 +44,8 @@ private
 isEmbedding : (A → B) → Type _
 isEmbedding f = ∀ w x → isEquiv {A = w ≡ x} (cong f)
 
-isEmbeddingIsProp : isProp (isEmbedding f)
-isEmbeddingIsProp {f = f} = isPropΠ2 λ _ _ → isPropIsEquiv (cong f)
+isPropIsEmbedding : isProp (isEmbedding f)
+isPropIsEmbedding {f = f} = isPropΠ2 λ _ _ → isPropIsEquiv (cong f)
 
 -- If A and B are h-sets, then injective functions between
 -- them are embeddings.
@@ -152,7 +152,7 @@ isEmbedding≡hasPropFibers
       (iso isEmbedding→hasPropFibers
            hasPropFibers→isEmbedding
            (λ _ → hasPropFibersIsProp _ _)
-           (λ _ → isEmbeddingIsProp _ _))
+           (λ _ → isPropIsEmbedding _ _))
 
 isEquiv→hasPropFibers : isEquiv f → hasPropFibers f
 isEquiv→hasPropFibers e b = isContr→isProp (equiv-proof e b)
@@ -246,7 +246,7 @@ Subset→Embedding→Subset _ = funExt λ x → Σ≡Prop (λ _ → isPropIsProp
 
 Embedding→Subset→Embedding : {X : Type ℓ} → retract (Embedding→Subset {ℓ} {X}) (Subset→Embedding {ℓ} {X})
 Embedding→Subset→Embedding {ℓ = ℓ} {X = X} (A , f , ψ) =
-  cong (equivFun Σ-assoc-≃) (Σ≡Prop (λ _ → isEmbeddingIsProp) (secEq (fibrationEquiv X ℓ) (A , f)))
+  cong (equivFun Σ-assoc-≃) (Σ≡Prop (λ _ → isPropIsEmbedding) (retEq (fibrationEquiv X ℓ) (A , f)))
 
 Subset≃Embedding : {X : Type ℓ} → ℙ X ≃ (Σ[ A ∈ Type ℓ ] (A ↪ X))
 Subset≃Embedding = isoToEquiv (iso Subset→Embedding Embedding→Subset
@@ -409,7 +409,7 @@ module EmbeddingIdentityPrinciple {B : Type ℓ} {ℓ₁} (f g : Embedding B ℓ
   isEmbeddingToFibr w x = fullEquiv .snd where
     -- carefully managed such that (cong toFibr) is the equivalence
     fullEquiv : (w ≡ x) ≃ (toFibr w ≡ toFibr x)
-    fullEquiv = compEquiv (congEquiv (invEquiv Σ-assoc-≃)) (invEquiv (Σ≡PropEquiv (λ _ → isEmbeddingIsProp)))
+    fullEquiv = compEquiv (congEquiv (invEquiv Σ-assoc-≃)) (invEquiv (Σ≡PropEquiv (λ _ → isPropIsEmbedding)))
 
   EmbeddingIP : f≃g ≃ (f ≡ g)
   EmbeddingIP =

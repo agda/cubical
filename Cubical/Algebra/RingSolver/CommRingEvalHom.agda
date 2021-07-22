@@ -4,11 +4,13 @@ module Cubical.Algebra.RingSolver.CommRingEvalHom where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Int.Base hiding (_+_ ; _·_ ; -_)
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec
 open import Cubical.Data.Bool.Base
 
 open import Cubical.Algebra.RingSolver.RawAlgebra
+open import Cubical.Algebra.RingSolver.IntAsRawRing
 open import Cubical.Algebra.RingSolver.CommRingHornerForms
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring

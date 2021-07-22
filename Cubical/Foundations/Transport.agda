@@ -97,8 +97,8 @@ isInjectiveTransport : ∀ {ℓ : Level} {A B : Type ℓ} {p q : A ≡ B}
 isInjectiveTransport {p = p} {q} α i =
   hcomp
     (λ j → λ
-      { (i = i0) → secEq univalence p j
-      ; (i = i1) → secEq univalence q j
+      { (i = i0) → retEq univalence p j
+      ; (i = i1) → retEq univalence q j
       })
     (invEq univalence ((λ a → α i a) , t i))
   where

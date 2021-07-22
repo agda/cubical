@@ -108,6 +108,12 @@ module RingTheory (R' : Ring ℓ) where
                               0r · y                 ≡⟨ 0LeftAnnihilates y ⟩
                               0r ∎)
 
+  -Swap· : (x y : R) → (- x) · y ≡ x · (- y)
+  -Swap· _ _ = -DistL· _ _ ∙ sym (-DistR· _ _)
+
+  -IsMult-1 : (x : R) → - x ≡ (- 1r) · x
+  -IsMult-1 _ = sym (·Lid _) ∙ sym (-Swap· _ _)
+
   -Dist : (x y : R) → (- x) + (- y) ≡ - (x + y)
   -Dist x y =
     implicitInverse _ _
@@ -155,6 +161,7 @@ module RingTheory (R' : Ring ℓ) where
 
   ·-assoc2 : (x y z w : R) → (x · y) · (z · w) ≡ x · (y · z) · w
   ·-assoc2 x y z w = ·Assoc (x · y) z w ∙ cong (_· w) (sym (·Assoc x y z))
+
 
 module HomTheory {R S : Ring ℓ} (f′ : RingHom  R S) where
   open RingTheory ⦃...⦄

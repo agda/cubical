@@ -2,6 +2,7 @@
 module Cubical.Algebra.RingSolver.Examples where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Data.Int.Base hiding (_+_ ; _·_ ; _-_)
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.RingSolver.ReflectionSolving

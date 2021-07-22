@@ -7,7 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 
-open import Cubical.HITs.Ints.QuoInt
+open import Cubical.Data.Int.MoreInts.QuoInt
 import Cubical.HITs.SetQuotients as SetQuotient
 
 open import Cubical.Data.Nat as ℕ hiding (_·_)

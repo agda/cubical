@@ -139,12 +139,12 @@ instance
       B = λ v → v ⋆⟨ C ⟩ (S-arr b) ≡ S-arr a
 
       -- need the groupoidness for dependent paths
-      homIsGroupoidDep : isOfHLevelDep 2 B
-      homIsGroupoidDep = isOfHLevel→isOfHLevelDep 2 (λ v x y → isSet→isGroupoid (isC .isSetHom) _ _ x y)
+      isGroupoidDepHom : isOfHLevelDep 2 B
+      isGroupoidDepHom = isOfHLevel→isOfHLevelDep 2 (λ v x y → isSet→isGroupoid (isC .isSetHom) _ _ x y)
 
       -- we first prove that the projected paths are equal
       p'≡q' : p' ≡ q'
-      p'≡q' = ΣPathP ((isC .isSetHom _ _ _ _) , toPathP (homIsGroupoidDep _ _ _ _ _))
+      p'≡q' = ΣPathP ((isC .isSetHom _ _ _ _) , toPathP (isGroupoidDepHom _ _ _ _ _))
 
       -- and then we can use equivalence to lift these paths up
       -- to actual SliceHom paths

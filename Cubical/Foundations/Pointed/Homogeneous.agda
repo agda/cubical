@@ -18,6 +18,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Relation.Nullary
 
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Pointed.Base
 open import Cubical.Foundations.Pointed.Properties
 open import Cubical.Structures.Pointed
@@ -25,11 +26,47 @@ open import Cubical.Structures.Pointed
 isHomogeneous : ∀ {ℓ} → Pointed ℓ → Type (ℓ-suc ℓ)
 isHomogeneous {ℓ} (A , x) = ∀ y → Path (Pointed ℓ) (A , x) (A , y)
 
+-- Pointed functions into a homogeneous type are equal as soon as they are equal
+-- as unpointed functions
+→∙Homogeneous≡ : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'} {f∙ g∙ : A∙ →∙ B∙}
+  (h : isHomogeneous B∙) → f∙ .fst ≡ g∙ .fst → f∙ ≡ g∙
+→∙Homogeneous≡ {A∙ = A∙@(_ , a₀)} {B∙@(B , _)} {f∙@(_ , f₀)} {g∙@(_ , g₀)} h p =
+  subst (λ Q∙ → PathP (λ i → A∙ →∙ Q∙ i) f∙ g∙) (sym (flipSquare fix)) badPath
+  where
+  badPath : PathP (λ i → A∙ →∙ (B , (sym f₀ ∙∙ funExt⁻ p a₀ ∙∙ g₀) i)) f∙ g∙
+  badPath i .fst = p i
+  badPath i .snd j = doubleCompPath-filler (sym f₀) (funExt⁻ p a₀) g₀ j i
+
+  fix : PathP (λ i → B∙ ≡ (B , (sym f₀ ∙∙ funExt⁻ p a₀ ∙∙ g₀) i)) refl refl
+  fix i =
+    hcomp
+      (λ j → λ
+        { (i = i0) → lCancel (h (pt B∙)) j
+        ; (i = i1) → lCancel (h (pt B∙)) j
+        })
+      (sym (h (pt B∙)) ∙ h ((sym f₀ ∙∙ funExt⁻ p a₀ ∙∙ g₀) i))
 
 isHomogeneousPi : ∀ {ℓ ℓ'} {A : Type ℓ} {B∙ : A → Pointed ℓ'}
                  → (∀ a → isHomogeneous (B∙ a)) → isHomogeneous (Πᵘ∙ A B∙)
 isHomogeneousPi h f i .fst = ∀ a → typ (h a (f a) i)
 isHomogeneousPi h f i .snd a = pt (h a (f a) i)
+
+isHomogeneous→∙ : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'}
+  → isHomogeneous B∙ → isHomogeneous (A∙ →∙ B∙ ∙)
+isHomogeneous→∙ {A∙ = A∙} {B∙} h f∙ =
+  ΣPathP
+    ( (λ i → Π∙ A∙ (λ a → T a i) (t₀ i))
+    , PathPIsoPath _ _ _ .Iso.inv
+        (→∙Homogeneous≡ h
+          (PathPIsoPath (λ i → (a : typ A∙) → T a i) (λ _ → pt B∙) _ .Iso.fun
+            (λ i a → pt (h (f∙ .fst a) i))))
+    )
+  where
+  T : ∀ a → typ B∙ ≡ typ B∙
+  T a i = typ (h (f∙ .fst a) i)
+
+  t₀ : PathP (λ i → T (pt A∙) i) (pt B∙) (pt B∙)
+  t₀ = cong pt (h (f∙ .fst (pt A∙))) ▷ f∙ .snd
 
 isHomogeneousProd : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'}
                    → isHomogeneous A∙ → isHomogeneous B∙ → isHomogeneous (A∙ ×∙ B∙)

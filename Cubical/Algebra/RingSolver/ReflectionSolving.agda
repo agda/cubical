@@ -16,15 +16,16 @@ open import Cubical.Reflection.Base
 open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.Data.List
-open import Cubical.Data.Nat.Literals public
-open import Cubical.Data.Int using (fromNegInt; fromNatInt) public
+open import Cubical.Data.Nat.Literals
+open import Cubical.Data.Int.Base hiding (abs)
+open import Cubical.Data.Int using (fromNegℤ; fromNatℤ)
 open import Cubical.Data.Nat using (ℕ) renaming (_+_ to _+ℕ_)
-open import Cubical.Data.FinData using () renaming (zero to fzero; suc to fsuc) public
+open import Cubical.Data.FinData using () renaming (zero to fzero; suc to fsuc)
 open import Cubical.Data.Bool
 open import Cubical.Data.Bool.SwitchStatement
 open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_) public
 
-open import Cubical.Algebra.RingSolver.AlgebraExpression public
+open import Cubical.Algebra.RingSolver.AlgebraExpression
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.RingSolver.RawAlgebra
 open import Cubical.Algebra.RingSolver.IntAsRawRing

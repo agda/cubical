@@ -191,8 +191,8 @@ snd (invGroupEquiv f) = isGroupHomInv f
   isGroupHomInv : (f : GroupEquiv G H) → IsGroupHom (H .snd) (invEq (fst f)) (G .snd)
   isGroupHomInv {G = G} {H = H} f = makeIsGroupHom λ h h' →
     isInj-f _ _
-      (f' (g (h ⋆² h'))        ≡⟨ retEq (fst f) _ ⟩
-       (h ⋆² h')               ≡⟨ sym (cong₂ _⋆²_ (retEq (fst f) h) (retEq (fst f) h')) ⟩
+      (f' (g (h ⋆² h'))        ≡⟨ secEq (fst f) _ ⟩
+       (h ⋆² h')               ≡⟨ sym (cong₂ _⋆²_ (secEq (fst f) h) (secEq (fst f) h')) ⟩
        (f' (g h) ⋆² f' (g h')) ≡⟨ sym (pres· (snd f) _ _) ⟩
        f' (g h ⋆¹ g h') ∎)
     where
@@ -287,7 +287,7 @@ BijectionIso→GroupIso {G = G} {H = H} i = grIso
   inv (fst grIso) b = rec (helper b) (λ a → a) (surj i b) .fst
   rightInv (fst grIso) b = rec (helper b) (λ a → a) (surj i b) .snd
   leftInv (fst grIso) b j = rec (helper (f b)) (λ a → a)
-                                 (propTruncIsProp (surj i (f b)) ∣ b , refl ∣ j) .fst
+                                 (isPropPropTrunc (surj i (f b)) ∣ b , refl ∣ j) .fst
   snd grIso = snd (fun i)
 
 BijectionIsoToGroupEquiv : BijectionIso G H → GroupEquiv G H
