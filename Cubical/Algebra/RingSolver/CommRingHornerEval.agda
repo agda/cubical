@@ -6,15 +6,16 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Int hiding (_+_ ; _·_ ; -_)
 open import Cubical.Data.Vec
-open import Cubical.Data.Bool using (Bool; true; false; if_then_else_; _and_; false≢true; ¬true→false)
+open import Cubical.Data.Bool
 open import Cubical.Data.Empty hiding () renaming (rec to recEmpty)
 open import Cubical.Data.Sigma
-open import Cubical.Relation.Nullary.Base using (¬_)
+open import Cubical.Relation.Nullary.Base
 
-open import Cubical.Algebra.RingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ₐ)
+open import Cubical.Algebra.RingSolver.RawAlgebra
 open import Cubical.Algebra.RingSolver.IntAsRawRing
 open import Cubical.Algebra.RingSolver.CommRingHornerForms
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.Ring
 
 private
   variable
@@ -22,7 +23,7 @@ private
 
 eval : {A : RawAlgebra ℤAsRawRing ℓ′}
        (n : ℕ) (P : IteratedHornerForms A n)
-       → Vec ⟨ A ⟩ₐ n → ⟨ A ⟩ₐ
+       → Vec ⟨ A ⟩ n → ⟨ A ⟩
 eval {A = A} ℕ.zero (const r) [] = RawAlgebra.scalar A r
 eval {A = A} .(ℕ.suc _) 0H (_ ∷ _) = RawAlgebra.0r A
 eval {A = A} (ℕ.suc n) (P ·X+ Q) (x ∷ xs) =
@@ -37,6 +38,7 @@ module _ (R : CommRing ℓ) where
   private
     νR = CommRing→RawℤAlgebra R
   open CommRingStr (snd R)
+  open RingTheory (CommRing→Ring R)
 
   private
     byAbsurdity : {Anything : Type ℓ′} → false ≡ true → Anything
@@ -51,7 +53,7 @@ module _ (R : CommRing ℓ) where
     extract true true eq = eq , eq
 
   evalIsZero : {n : ℕ} (P : IteratedHornerForms νR n)
-             → (l : Vec ⟨ νR ⟩ₐ n)
+             → (l : Vec ⟨ νR ⟩ n)
              → isZero νR P ≡ true
              → eval n P l ≡ 0r
   evalIsZero (const (pos ℕ.zero)) [] isZeroP = refl
@@ -69,8 +71,8 @@ module _ (R : CommRing ℓ) where
                {n : ℕ}
                (P : IteratedHornerForms νR (ℕ.suc n))
                (Q : IteratedHornerForms νR n)
-             → (xs : Vec ⟨ νR ⟩ₐ n)
-             → (x : ⟨ νR ⟩ₐ)
+             → (xs : Vec ⟨ νR ⟩ n)
+             → (x : ⟨ νR ⟩)
              → isZero νR P ≡ true
              → eval _ (P ·X+ Q) (x ∷ xs) ≡ eval n Q xs
   computeEvalIsZero P Q xs x isZeroP with isZero νR P
@@ -81,10 +83,25 @@ module _ (R : CommRing ℓ) where
                {n : ℕ}
                (P : IteratedHornerForms νR (ℕ.suc n))
                (Q : IteratedHornerForms νR n)
-             → (xs : Vec ⟨ νR ⟩ₐ n)
-             → (x : ⟨ νR ⟩ₐ)
+             → (xs : Vec ⟨ νR ⟩ n)
+             → (x : ⟨ νR ⟩)
              → ¬ (isZero νR P ≡ true)
              → eval _ (P ·X+ Q) (x ∷ xs) ≡ (eval _ P (x ∷ xs)) · x + eval n Q xs
   computeEvalNotZero P Q xs x notZeroP with isZero νR P
   ... | true = byAbsurdity (sym (¬true→false true notZeroP))
   ... | false = refl
+
+  combineCasesEval :
+    {n : ℕ}  (P : IteratedHornerForms νR (ℕ.suc n)) (Q : IteratedHornerForms νR n)
+    (x : (fst R)) (xs : Vec ⟨ νR ⟩ n)
+    →   eval _ (P ·X+ Q) (x ∷ xs)
+      ≡ (eval _ P (x ∷ xs)) · x + eval n Q xs
+  combineCasesEval P Q x xs with isZero νR P  ≟ true
+  ... | yes p =
+       eval _ (P ·X+ Q) (x ∷ xs)            ≡⟨ computeEvalIsZero P Q xs x p ⟩
+       eval _ Q xs                          ≡⟨ sym (+Lid _) ⟩
+       0r + eval _ Q xs                     ≡[ i ]⟨ 0LeftAnnihilates x (~ i) + eval _ Q xs ⟩
+       0r · x + eval _ Q xs                 ≡[ i ]⟨ (evalIsZero P (x ∷ xs) p (~ i)) · x + eval _ Q xs ⟩
+       (eval _ P (x ∷ xs)) · x + eval _ Q xs ∎
+  ... | no p  = computeEvalNotZero P Q xs x p
+
