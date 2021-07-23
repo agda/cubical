@@ -181,14 +181,22 @@ module _ {AGr : AbGroup ℓ} {BGr : AbGroup ℓ'} where
                       (slick y))
                     (slick x)
 
-  rCancelPrim : (x : B) → (0A ⊗ x) ≡ 0⊗
-  rCancelPrim x =
+  lCancelPrim : (x : B) → (0A ⊗ x) ≡ 0⊗
+  lCancelPrim x =
        (λ i → rid strA 0A (~ i) ⊗ x)
     ∙∙ linl 0A 0A x
     ∙∙ cong ((0A ⊗ x) +⊗_) (cong (_⊗ x) (sym (GroupTheory.inv1g (AbGroup→Group AGr)))
                           ∙ sym (flip 0A x))
     ∙∙ sym (linr 0A x (-B x))
     ∙∙ (λ i → 0A ⊗ (invr strB x i))
+
+  rCancelPrim : (x : A) → (x ⊗ 0B) ≡ 0⊗
+  rCancelPrim x =
+       (λ i → x ⊗ rid strB 0B (~ i))
+    ∙∙ linr x 0B 0B
+    ∙∙ cong ((x ⊗ 0B) +⊗_) (cong (x ⊗_) (sym (GroupTheory.inv1g (AbGroup→Group BGr))) ∙ flip x 0B)
+    ∙∙ sym (linl x (-A x) 0B)
+    ∙∙ (λ i → (invr strA x i) ⊗ 0B)
 
   ⊗rCancel : (x : AGr ⨂₁ BGr) → (x +⊗ -⊗ x) ≡ 0⊗
   ⊗rCancel =
@@ -202,7 +210,7 @@ module _ {AGr : AbGroup ℓ} {BGr : AbGroup ℓ'} where
             _+⊗_ ⊗assoc ⊗comm
       ∙∙ cong₂ _+⊗_ (sym (linl (fst x) (-A (fst x)) (snd x))
                    ∙∙ (λ i → invr strA (fst x) i ⊗ (snd x))
-                   ∙∙ rCancelPrim (snd x))
+                   ∙∙ lCancelPrim (snd x))
                     (h x₁)
       ∙∙ ⊗rUnit 0⊗
 
@@ -236,7 +244,7 @@ open import Cubical.Algebra.Group.MorphismProperties
 _* : AbGroup ℓ → Group ℓ
 _* = AbGroup→Group
 
-module _ (AGr : Group ℓ) (BGr : AbGroup ℓ') where
+module _ {ℓ ℓ' : Level} (AGr : Group ℓ) (BGr : AbGroup ℓ') where
   private
     strA = snd AGr
     strB = snd BGr
@@ -401,454 +409,170 @@ module UP (AGr : AbGroup ℓ) (BGr : AbGroup ℓ') where
              (funExt (⊗elimProp (λ _ → is-set (snd C) _ _)
                (λ _ _ → refl)
                λ x y ind1 ind2 → cong₂ (_+G_ (snd C)) ind1 ind2 ∙ sym (IsGroupHom.pres· p x y)))
-  
---   CODE : (z x : FMSet (A × B)) (y : _⨂₁_) → TypeOfHLevel (ℓ-max ℓ ℓ') 1
---   JFun : (z x : {!!}) → {!!} → {!!}
---   JFun = {!!}
---   CODE z x (inc x₁) = Path _⨂₁_ (inc (z ++ x)) (inc (z ++ x₁)) , ⊗squash _ _
---   CODE z x (unit i) = {!!}
---   CODE z x (lin-l x₁ y b i) = {!!}
---     where
---     h : (z : _) → Path (TypeOfHLevel (ℓ-max ℓ ℓ') 1)
---              (Path _⨂₁_ (inc (z ++ x)) (inc (z ++ [ (x₁ +A y) , b ])) ,
---                ⊗squash (inc (z ++ x)) (inc (z ++ [ (x₁ +A y) , b ])))
---              (Path _⨂₁_ (inc (z ++ x))
---          (inc (z ++ ((x₁ , b) ∷ [ y , b ])))
---          , ⊗squash (inc (z ++ x)) (inc (z ++ ((x₁ , b) ∷ [ y , b ]))))
---     h = ElimProp.f {!λ xs → ?!}
---           (Σ≡Prop {!!} {!!})
---           λ m {xs} p → Σ≡Prop {!!} (cong (Path _⨂₁_ (inc ((m ∷ xs) ++ x))) {!p!}) -- λ m xss → Σ≡Prop {!!} (cong (Path _⨂₁_ (inc ((m ∷ xs) ++ x))) {!!}) -- Σ≡Prop {!!} {!!}
---   CODE z x (lin-r x₁ y z₁ i) = {!!}
---   CODE z x (⊗squash y y₁ x₁ y₂ i i₁) = {!!}
-  
 
---   inclem : (x y z : FMSet (A × B)) → Path _⨂₁_ (inc x) (inc y) → Path _⨂₁_ (inc (z ++ x)) (inc (z ++ y))
---   inclem x y z = {!!}
+commFun : ∀ {ℓ ℓ'} {A : AbGroup ℓ}  {B : AbGroup ℓ'} → A ⨂₁ B → B ⨂₁ A
+commFun (a ⊗ b) = b ⊗ a
+commFun (x +⊗ x₁) = commFun x +⊗ commFun x₁
+commFun (⊗comm x x₁ i) = ⊗comm (commFun x) (commFun x₁) i
+commFun (⊗assoc x x₁ x₂ i) = ⊗assoc (commFun x) (commFun x₁) (commFun x₂) i
+commFun (⊗lUnit x i) = ⊗lUnit (commFun x) i
+commFun (linl x y z i) = linr z x y i
+commFun (linr x y z i) = linl y z x i
+commFun (flip x b i) = flip b x (~ i)
+commFun (⊗squash x x₁ x₂ y i i₁) =
+  ⊗squash (commFun x) (commFun x₁)
+          (λ i → commFun (x₂ i)) (λ i → commFun (y i)) i i₁
 
---   _+⊗_ : _⨂₁_ → _⨂₁_ → _⨂₁_
---   inc x +⊗ inc x₁ = inc (x ++ x₁)
---   inc x +⊗ unit i = {!!}
---   inc x +⊗ lin-l y z b i = {!!}
---     where
---     lem : (x : _) → inc (x ++ [ (y +A z) , b ]) ≡ inc (x ++ ((y , b) ∷ [ z , b ]))
---     lem =
---       ElimProp.f {!!}
---         (lin-l y z b)
---         λ x {xs} p → inclem _ _ [ x ] p -- inclem _ _ {!x ∷ xs!} p 
---   inc x +⊗ lin-r x₁ y z i = {!!}
---   inc x +⊗ ⊗squash y y₁ x₁ y₂ i i₁ = {!!}
---   unit i +⊗ y = {!!}
---   lin-l x y₁ b i +⊗ y = {!!}
---   lin-r x y₁ z i +⊗ y = {!!}
---   ⊗squash x x₁ x₂ y₁ i i₁ +⊗ y = {!!}
-
--- -- Word : (A : Type ℓ) → Type ℓ
--- -- Word A = List (A ⊎ A)
-
--- -- module _ {A : Type ℓ} where
--- --   pm = A ⊎ A
-
--- --   flip : pm → pm
--- --   flip (inl x) = inr x
--- --   flip (inr x) = inl x
-
--- --   flip-flip : (x : pm) → flip (flip x) ≡ x
--- --   flip-flip (inl x) = refl
--- --   flip-flip (inr x) = refl
-
--- --   wordFlip : Word A → Word A
--- --   wordFlip = map flip
-
--- --   wordInverse : Word A → Word A
--- --   wordInverse = rev ∘ wordFlip
-
--- --   map++ : {B : Type ℓ} (v w : Word A)
--- --        → (f : _ → B) → map f (v ++ w)
--- --        ≡ map f v ++ map f w
--- --   map++ [] w f = refl
--- --   map++ (x ∷ v) w f = cong (f x ∷_) (map++ v w f)
-
--- --   wordInverseInverse : (x : Word A) → wordInverse (wordInverse x) ≡ x
--- --   wordInverseInverse [] = refl
--- --   wordInverseInverse (x ∷ x₁) =
--- --        cong rev (map++ (rev (map flip x₁)) (flip x ∷ []) flip)
--- --     ∙∙ rev-++ (map flip (rev (map flip x₁))) (flip (flip x) ∷ [])
--- --     ∙∙ cong₂ _∷_ (flip-flip x) (wordInverseInverse x₁)
-
--- --   wordExp : A → ℤ → Word A
--- --   wordExp a (pos zero) = []
--- --   wordExp a (pos (suc n)) = inl a ∷ wordExp a (pos n)
--- --   wordExp a (negsuc zero) = [ inr a ]
--- --   wordExp a (negsuc (suc n)) = inr a ∷ wordExp a (negsuc n)
-
--- -- module _ {A : Type ℓ} (G : Group ℓ') (f : A → fst G) where
--- --   private
--- --     str = snd G
--- --   open GroupStr str renaming (_·_ to _·G_)
-
--- --   PlusMinus-extendᴳ : A ⊎ A → fst G
--- --   PlusMinus-extendᴳ (inl x) = f x
--- --   PlusMinus-extendᴳ (inr x) = inv (f x)
-
--- --   PlusMinus-extendᴳ-flip : ∀ x → PlusMinus-extendᴳ (flip x)
--- --                                 ≡ inv (PlusMinus-extendᴳ x)
--- --   PlusMinus-extendᴳ-flip (inl x) = refl
--- --   PlusMinus-extendᴳ-flip (inr x) = sym (GroupTheory.invInv G (f x))
-
--- --   Word-extendᴳ : Word A → fst G
--- --   Word-extendᴳ = foldr _·G_ 1g ∘ map PlusMinus-extendᴳ
-
--- --   Word-extendᴳ-++ : ∀ x y → Word-extendᴳ (x ++ y)
--- --                           ≡ (Word-extendᴳ x ·G Word-extendᴳ y)
--- --   Word-extendᴳ-++ [] y = sym (lid (Word-extendᴳ y))
--- --   Word-extendᴳ-++ (x ∷ x₁) y =
--- --        cong (PlusMinus-extendᴳ x ·G_) (Word-extendᴳ-++ x₁ y)
--- --     ∙∙ assoc _ _ _
--- --     ∙∙ cong (_·G Word-extendᴳ y) (help x x₁)
--- --     where
--- --     help : (x : _) (y : _)
--- --       → PlusMinus-extendᴳ x ·G Word-extendᴳ y ≡ Word-extendᴳ (x ∷ y)
--- --     help x [] = refl
--- --     help x (z ∷ y) = refl
+commFunx2 : ∀ {ℓ ℓ'} {A : AbGroup ℓ}  {B : AbGroup ℓ'} (x : A ⨂₁ B) → commFun (commFun x) ≡ x
+commFunx2 =
+  ⊗elimProp (λ _ → ⊗squash _ _)
+    (λ _ _ → refl)
+    λ _ _ p q → cong₂ _+⊗_ p q
 
 
--- -- module _ {A : Type ℓ} (G : AbGroup ℓ') where
--- --   private
--- --     str = snd G
--- --     open AbGroupStr str renaming (_+_ to _+G_ ; -_ to -G_)
--- --   G' = AbGroup→Group G
+⨂-commIso : ∀ {ℓ ℓ'} {A : AbGroup ℓ} {B : AbGroup ℓ'} → GroupIso ((A ⨂ B) *) ((B ⨂ A) *)
+Iso.fun (fst ⨂-commIso) = commFun
+Iso.inv (fst ⨂-commIso) = commFun
+Iso.rightInv (fst ⨂-commIso) = commFunx2
+Iso.leftInv (fst ⨂-commIso) = commFunx2
+snd ⨂-commIso = makeIsGroupHom λ x y → refl
 
--- --   PlusMinus-extendᴳ-comp :  (f g : A → fst G) (x : _)
--- --     → PlusMinus-extendᴳ G' (λ a → f a +G g a) x
--- --     ≡ (PlusMinus-extendᴳ G' f x +G PlusMinus-extendᴳ G' g x)
--- --   PlusMinus-extendᴳ-comp f g (inl x) = refl
--- --   PlusMinus-extendᴳ-comp f g (inr x) =
--- --     GroupTheory.invDistr G' (f x) (g x) ∙ comm _ _
+⨂-comm : ∀ {ℓ ℓ'} {A : AbGroup ℓ} {B : AbGroup ℓ'} → AbGroupEquiv (A ⨂ B) (B ⨂ A)
+fst ⨂-comm = isoToEquiv (fst (⨂-commIso))
+snd ⨂-comm = snd ⨂-commIso
 
--- --   Word-extendᴳ-comp :  (f g : A → fst G) (x : _) → Word-extendᴳ G' (λ a → f a +G g a) x
--- --                               ≡ (Word-extendᴳ G' f x +G Word-extendᴳ G' g x)
--- --   Word-extendᴳ-comp f g [] = sym (lid 0g)
--- --   Word-extendᴳ-comp f g (x ∷ x₁) =
--- --     cong₂ _+G_ (PlusMinus-extendᴳ-comp f g x)
--- --                (Word-extendᴳ-comp f g x₁)
--- --        ∙∙ sym (assoc pm-fx pm-gx _)
--- --        ∙∙ cong (pm-fx +G_) (assoc _ _ _
--- --                         ∙∙ cong (_+G we-gx) (comm _ _)
--- --                         ∙∙ sym (assoc _ _ _))
--- --        ∙∙ assoc pm-fx we-fx _
--- --        ∙∙ cong₂ _+G_ (main x x₁ f) (main x x₁ g)
--- --      where
--- --      main : (x : _) (y : _) (f : _)
--- --          → (PlusMinus-extendᴳ G' f x +G Word-extendᴳ G' f y)
--- --          ≡ Word-extendᴳ G' f (x ∷ y)
--- --      main x [] f = refl
--- --      main x (x₁ ∷ y) f = refl
+module _ {ℓ ℓ' : Level} {A : AbGroup ℓ}  {B : AbGroup ℓ'} where
+  open AbGroupStr renaming (_+_ to _+G_ ; -_ to -G)
+  _+A_ = _+G_ (snd A)
+  _+B_ = _+G_ (snd B)
 
--- --      pm-fx = PlusMinus-extendᴳ G' f x
--- --      pm-gx = PlusMinus-extendᴳ G' g x
--- --      we-fx = Word-extendᴳ G' f x₁
--- --      we-gx = Word-extendᴳ G' g x₁
-
--- -- module GeneratedGroup (A : Type ℓ) (R : Rel (Word A) (Word A) ℓ') where
--- --   data QuotWordRel : Word A → Word A → Type (ℓ-max ℓ ℓ') where
--- --     qwr-refl : ∀ {x} → QuotWordRel x x
--- --     qwr-trans : ∀ {x y z} → QuotWordRel x y → QuotWordRel y z → QuotWordRel x z
--- --     qwr-sym : ∀ {x y} → QuotWordRel x y → QuotWordRel y x
--- --     qwr-cong : ∀ {x y z w} → QuotWordRel x y → QuotWordRel z w → QuotWordRel (x ++ z) (y ++ w)
--- --     qwr-flip-r : ∀ x → QuotWordRel (x ∷ flip x ∷ []) []
--- --     qwr-rel : ∀ {x y} → R x y → QuotWordRel x y
-
--- --   qwr-cong-refl : {!!}
--- --   qwr-cong-refl = {!!}
-
--- --   qwr-cong-l : {!!}
--- --   qwr-cong-l = {!!}
+  0A = 0g (snd A)
+  0B = 0g (snd B)
 
 
+  ⨂→AbGroup-elim : ∀ {ℓ} (C : AbGroup ℓ)
+         → (f : (fst A × fst B) → fst C)
+         → (f (0A , 0B) ≡ 0g (snd C))
+         → (linL : (x y : fst A) (b : fst B) → f (x +A y , b) ≡ _+G_ (snd C) (f (x , b)) (f (y , b)))
+         → (linR : (a : fst A) (x y : fst B) → f (a , x +B y) ≡ _+G_ (snd C) (f (a , x)) (f (a , y)))
+         → (fl : (x : fst A) (y : fst B) → f (x , -G (snd B) y) ≡ f ((-G (snd A) x) , y))
+         → A ⨂₁ B → fst C
+  ⨂→AbGroup-elim C f p linL linR fl (a ⊗ b) = f (a , b)
+  ⨂→AbGroup-elim C f p linL linR fl (x +⊗ x₁) =
+    _+G_ (snd C) (⨂→AbGroup-elim C f p linL linR fl x) (⨂→AbGroup-elim C f p linL linR fl x₁)
+  ⨂→AbGroup-elim C f p linL linR fl (⊗comm x x₁ i) =
+    comm (snd C) (⨂→AbGroup-elim C f p linL linR fl x) (⨂→AbGroup-elim C f p linL linR fl x₁) i
+  ⨂→AbGroup-elim C f p linL linR fl (⊗assoc x x₁ x₂ i) =
+    assoc (snd C) (⨂→AbGroup-elim C f p linL linR fl x) (⨂→AbGroup-elim C f p linL linR fl x₁) (⨂→AbGroup-elim C f p linL linR fl x₂) i
+  ⨂→AbGroup-elim C f p linL linR fl (⊗lUnit x i) =
+    (cong (λ y → (snd C +G y) (⨂→AbGroup-elim C f p linL linR fl x)) p
+                     ∙ (lid (snd C) (⨂→AbGroup-elim C f p linL linR fl x))) i
+  ⨂→AbGroup-elim C f p linL linR fl (linl x y z i) = linL x y z i
+  ⨂→AbGroup-elim C f p linL linR fl (linr x y z i) = linR x y z i
+  ⨂→AbGroup-elim C f p linL linR fl (flip x b i) = fl x b i
+  ⨂→AbGroup-elim C f p linL linR fl (⊗squash x x₁ x₂ y i i₁) =
+    is-set (snd C) _ _ (λ i → ⨂→AbGroup-elim C f p linL linR fl (x₂ i)) (λ i → ⨂→AbGroup-elim C f p linL linR fl (y i)) i i₁
 
+  ⨂→AbGroup-elim-hom : ∀ {ℓ} (C : AbGroup ℓ) → (f : (fst A × fst B) → fst C) (linL : _) (linR : _) (fl : _) (p : _)
+        → AbGroupHom (A ⨂ B) C
+  fst (⨂→AbGroup-elim-hom C f linL linR fl p) = ⨂→AbGroup-elim C f p linL linR fl
+  snd (⨂→AbGroup-elim-hom C f linL linR fl p) =
+    makeIsGroupHom
+      (λ x y → refl)
 
+module _ {ℓ ℓ' ℓ'' : Level} {A : AbGroup ℓ} {B : AbGroup ℓ'} {C : AbGroup ℓ''} where
+  private
+    open AbGroupStr renaming (_+_ to +G ; -_ to -G)
+    _+A'_ = +G (snd A)
+    _+B'_ = +G (snd B)
+    _+C'_ = +G (snd C)
+    -A = -G (snd A)
+    -B = -G (snd B)
+    -C = -G (snd C)
 
--- -- {-
--- -- module _ {ℓ : Level} where
--- --   ℤmult : {A : Type ℓ} (_+_ : A → A → A) (-A_ : A → A) (0A : A) (n : ℤ) → A → A
--- --   ℤmult _+_ -A_ 0A (pos zero) a = 0A
--- --   ℤmult _+_ -A_ 0A (pos (suc n)) a = a + ℤmult _+_ -A_ 0A (pos n) a
--- --   ℤmult _+_ -A_ 0A (negsuc zero) a = -A a
--- --   ℤmult _+_ -A_ 0A (negsuc (suc n)) a = (-A a) + ℤmult _+_ -A_ 0A (negsuc n) a
+    f : (c : fst C) → AbGroupHom (A ⨂ B) (A ⨂ (B ⨂ C))
+    f c = ⨂→AbGroup-elim-hom (A ⨂ (B ⨂ C)) ((λ ab → fst ab ⊗ (snd ab ⊗ c)))
+                  (λ x y b → linl x y (b ⊗ c))
+                  (λ x y b → (λ i → x ⊗ (linl y b c i)) ∙ linr x (y ⊗ c) (b ⊗ c))
+                  (λ _ _ → flip _ _)
+                  (λ i → 0g (snd A) ⊗ (lCancelPrim c i))
 
--- --   data commList (A : Type ℓ) : Type ℓ where
--- --     [] : commList A
--- --     _∷_ : A → commList A → commList A
--- --     isComm : (a b : A) (w : commList A) → a ∷ b ∷ w ≡ b ∷ a ∷ w
--- --     squashCommList : isSet (commList A)
+  assocHom : AbGroupHom ((A ⨂ B) ⨂ C) (A ⨂ (B ⨂ C))
+  assocHom =
+    ⨂→AbGroup-elim-hom _ (λ x → f (snd x) .fst (fst x))
+             (λ x y b → IsGroupHom.pres· (snd (f b)) x y)
+             (⊗elimProp (λ _ → isPropΠ2 λ _ _ → ⊗squash _ _)
+                        (λ a b x y → (λ i → a ⊗ (linr b x y i))
+                                   ∙∙ linr a (b ⊗ x) (b ⊗ y)
+                                   ∙∙ refl)
+                        λ a b ind1 ind2 x y → cong₂ _+⊗_ (ind1 x y) (ind2 x y)
+                              ∙∙ move4 (f x .fst a) (f y .fst a) (f x .fst b) (f y .fst b) _+⊗_ ⊗assoc ⊗comm
+                              ∙∙ cong₂ _+⊗_ (sym (IsGroupHom.pres· (snd (f x)) a b)) (IsGroupHom.pres· (snd (f y)) a b))
+             (⊗elimProp (λ _ → isPropΠ λ _ → ⊗squash _ _)
+                        (λ a b c → (λ i → a ⊗ (flip b c i))
+                                  ∙ flip a (b ⊗ c))
+                        (λ x y ind1 ind2 c → cong₂ _+⊗_ (ind1 c) (ind2 c)
+                                            ∙ IsGroupHom.pres· (snd (f c)) (-⊗ x) (-⊗ y)))
+             refl
 
--- --   _++'_ : {A : Type ℓ} → commList A → commList A → commList A
--- --   [] ++' y = y
--- --   (x ∷ x₁) ++' y = x ∷ (x₁ ++' y)
--- --   isComm a b w i ++' y = isComm a b (w ++' y) i
--- --   squashCommList x y p q i j ++' z =
--- --     squashCommList _ _ (λ j → p j ++' z) (λ j → q j ++' z) i j
+module _ {ℓ ℓ' ℓ'' : Level} {A : AbGroup ℓ} {B : AbGroup ℓ'} {C : AbGroup ℓ''} where
+  private
+    open AbGroupStr renaming (_+_ to +G ; -_ to -G)
+    _+A'_ = +G (snd A)
+    _+B'_ = +G (snd B)
+    _+C'_ = +G (snd C)
+    -A = -G (snd A)
+    -B = -G (snd B)
+    -C = -G (snd C)
 
--- --   propElimCommList : ∀ {ℓ'} {A : Type ℓ} {B : (x : commList A) → Type ℓ'}
--- --                   → ((x : _) → isProp (B x))
--- --                   → B []
--- --                   → ((x : A) (y : commList A) → B y → B (x ∷ y))
--- --                   → (x : _) → B x
--- --   propElimCommList {B = B} prop c l [] = c
--- --   propElimCommList {B = B} prop c l (x ∷ x₁) = l x x₁ (propElimCommList {B = B} prop c l x₁)
--- --   propElimCommList {B = B} prop c l (isComm a b x i) =
--- --     isOfHLevel→isOfHLevelDep 1 prop
--- --       (l a (b ∷ x) (l b x (propElimCommList prop c l x))) (l b (a ∷ x) (l a x (propElimCommList prop c l x)))
--- --       (isComm a b x) i
--- --   propElimCommList {B = B} prop c l (squashCommList x y p q i j) =
--- --     isOfHLevel→isOfHLevelDep 2 {B = B} (λ _ → isProp→isSet (prop _))
--- --       _ _ (λ j → propElimCommList prop c l (p j))
--- --           (λ j → propElimCommList prop c l (q j))
--- --           (squashCommList x y p q) i j
+    f' : (a : fst A) → AbGroupHom (B ⨂ C) ((A ⨂ B) ⨂ C)
+    f' a = ⨂→AbGroup-elim-hom ((A ⨂ B) ⨂ C)
+                  (λ bc → (a ⊗ fst bc) ⊗ snd bc)
+                  (λ x y b → (λ i → (linr a x y i) ⊗ b) ∙ linl (a ⊗ x) (a ⊗ y) b)
+                  (λ x y b → linr (a ⊗ x) y b)
+                  (λ b c → flip (a ⊗ b) c ∙ λ i → flip a b (~ i) ⊗ c)
+                  λ i → rCancelPrim a i ⊗ (0g (snd C))
 
--- --   propElimCommList' :
--- --     ∀ {ℓ'} {A : Type ℓ} {B : (x : commList A) → Type ℓ'}
--- --                   → ((x : _) → isProp (B x))
--- --                   → B []
--- --                   → ((x : A) → B (x ∷ []))
--- --                   → ((x : A) (y : commList A) → B (x ∷ []) → B y → B (x ∷ y))
--- --                   → (x : _) → B x
--- --   propElimCommList' {B = B} prop b ind1 ind2 =
--- --     propElimCommList prop b h
--- --     where
--- --     h : (x : _) (y : commList _) → B y → B (x ∷ y)
--- --     h x [] _ = ind1 x
--- --     h x (x₁ ∷ y) l = ind2 x (x₁ ∷ y) (h x [] b) l
--- --     h x (isComm a b y i) = K i
--- --       where
--- --       K : PathP (λ i → B (isComm a b y i) → B (x ∷ isComm a b y i))
--- --                 (ind2 x (a ∷ (b ∷ y)) (ind1 x)) (ind2 x (b ∷ (a ∷ y)) (ind1 x))
--- --       K = isProp→PathP (λ _ → isPropΠ λ _ → prop _) _ _
--- --     h x (squashCommList w z p q i j) = K i j
--- --       where
--- --       K : SquareP (λ i j → B (squashCommList w z p q i j) → B (x ∷ squashCommList w z p q i j))
--- --                   (λ j → h x (p j))
--- --                   (λ j → h x (q j))
--- --                   (λ _ → h x w)
--- --                   λ _ → h x z
--- --       K = toPathP (isOfHLevelPathP' 1 (isProp→isSet (isPropΠ (λ _ → prop _))) _ _ _ _)
+  assocHom⁻ : AbGroupHom (A ⨂ (B ⨂ C)) ((A ⨂ B) ⨂ C)
+  assocHom⁻ = ⨂→AbGroup-elim-hom _ (λ abc → f' (fst abc) .fst (snd abc))
+                       (λ x y → ⊗elimProp (λ _ → ⊗squash _ _)
+                                   (λ b c → (λ i → linl x y b i ⊗ c) ∙ linl (x ⊗ b) (y ⊗ b) c)
+                                   λ a b ind1 ind2 → cong₂ _+⊗_ ind1 ind2
+                                                  ∙∙ move4 _ _ _ _ _+⊗_ ⊗assoc ⊗comm
+                                                  ∙∙ cong₂ _+⊗_ (IsGroupHom.pres· (snd (f' x)) a b)
+                                                                (IsGroupHom.pres· (snd (f' y)) a b))
+                       (λ a → IsGroupHom.pres· (snd (f' a)))
+                       (λ a → ⊗elimProp (λ _ → ⊗squash _ _)
+                                         (λ b c → λ i → flip a b i ⊗ c)
+                                         λ x y ind1 ind2 → IsGroupHom.pres· (snd (f' a)) (-⊗ x) (-⊗ y)
+                                                          ∙ cong₂ _+⊗_ ind1 ind2)
+                       refl
 
--- --   ++'-assoc : {A : Type ℓ} → (x y z : commList A) → x ++' (y ++' z) ≡ ((x ++' y) ++' z)
--- --   ++'-assoc =
--- --     propElimCommList'
--- --       (λ _ → isPropΠ2 λ _ _ → squashCommList _ _)
--- --       (λ _ _ → refl)
--- --       (λ x → propElimCommList' (λ _ → isPropΠ λ _ → squashCommList _ _)
--- --                  (λ _ → refl)
--- --                  (λ _ _ → refl)
--- --                  λ x y p q → propElimCommList' (λ _ → squashCommList _ _)
--- --                        refl
--- --                        (λ _ → refl)
--- --                        λ z w P Q → refl)
--- --       λ x y p q z w → cong (x ∷_) (q z w)
+  ⨂AssocIso : Iso (A ⨂₁ (B ⨂ C)) ((A ⨂ B) ⨂₁ C)
+  Iso.fun ⨂AssocIso = fst assocHom⁻
+  Iso.inv ⨂AssocIso = fst assocHom
+  Iso.rightInv ⨂AssocIso =
+    ⊗elimProp (λ _ → ⊗squash _ _)
+      (⊗elimProp (λ _ → isPropΠ (λ _ → ⊗squash _ _))
+        (λ a b c → refl)
+        λ a b ind1 ind2 c → cong₂ _+⊗_ (ind1 c) (ind2 c) ∙ sym (linl a b c))
+      λ x y p q → cong (fst assocHom⁻) (IsGroupHom.pres· (snd assocHom) x y)
+               ∙∙ IsGroupHom.pres· (snd assocHom⁻) (fst assocHom x) (fst assocHom y)
+               ∙∙ cong₂ _+⊗_ p q
+  Iso.leftInv ⨂AssocIso =
+    ⊗elimProp (λ _ → ⊗squash _ _)
+      (λ a → ⊗elimProp (λ _ → ⊗squash _ _)
+              (λ b c → refl)
+              λ x y ind1 ind2 →
+                   cong (fst assocHom ∘ fst assocHom⁻) (linr a x y)
+                ∙∙ cong (fst assocHom) (IsGroupHom.pres· (snd assocHom⁻) (a ⊗ x) (a ⊗ y))
+                ∙∙ IsGroupHom.pres· (snd assocHom) (fst assocHom⁻ (a ⊗ x)) (fst assocHom⁻ (a ⊗ y))
+                ∙∙ cong₂ _+⊗_ ind1 ind2
+                ∙∙ sym (linr a x y))
+      λ x y p q → cong (fst assocHom) (IsGroupHom.pres· (snd assocHom⁻) x y)
+               ∙∙ IsGroupHom.pres· (snd assocHom) (fst assocHom⁻ x) (fst assocHom⁻ y)
+               ∙∙ cong₂ _+⊗_ p q
 
--- --   ++'-comm : {A : Type ℓ} → (x y : commList A) → x ++' y ≡ y ++' x
--- --   ++'-comm =
--- --     propElimCommList' (λ _ → isPropΠ λ _ → squashCommList _ _)
--- --       (propElimCommList' (λ _ → squashCommList _ _)
--- --         refl
--- --         (λ _ → refl)
--- --         (λ x y p q → cong (x ∷_) q))
--- --       (λ x → propElimCommList'
--- --                (λ _ → squashCommList _ _)
--- --                refl
--- --                (λ _ → isComm _ _ _)
--- --                λ y w p q → isComm x y w ∙ cong (y ∷_) q)
--- --       λ x y p q r → p (y ++' r)
--- --       ∙∙ cong (_++' (x ∷ [])) (q r)
--- --       ∙∙ (sym (++'-assoc r y (x ∷ [])) ∙ cong (r ++'_) (q (x ∷ [])))
-
--- --   len : {A : Type ℓ} → (x : commList A) → ℕ
--- --   len [] = 0
--- --   len (x ∷ x₁) = ℕ._+_ 1 (len x₁)
--- --   len (isComm a b x i) = suc (suc (len x))
--- --   len (squashCommList x x₁ x₂ y i i₁) =
--- --     isSetℕ (len x) (len x₁) (λ i → len (x₂ i)) (λ i → len (y i)) i i₁
-
--- -- module _ (A : AbGroup ℓ) (B : AbGroup ℓ') where
--- --   private
--- --     strA = snd A
--- --     strB = snd B
--- --   open AbGroupStr renaming (_+_ to +G ; -_ to -G)
-
--- --   _⨂₁-raw2_ : Type _
--- --   _⨂₁-raw2_ = List (fst A × fst B)
-
--- --   A' = fst A
--- --   B' = fst B
-
--- --   data _⨂₁_  : Type (ℓ-max ℓ ℓ') where
--- --     inc : commList (A' × B') → _⨂₁_
--- --     bilinl : (x y : A') (b : B') (w : _)
--- --       → inc ((+G strA x y , b) ∷ w) ≡ inc (((x , b) ∷ w) ++' ((y , b) ∷ w))
--- --     bilinr : (x : A') (y z : B') (w : _)
--- --       → inc ((x , +G strB y z) ∷ w) ≡ inc (((x , y) ∷ w) ++' ((x , z) ∷ w))
--- --     l : (x : A') (y : B') → inc ((x , y) ∷ []) ≡ inc []
--- --     ⊗squash : isSet _⨂₁_
-
--- --   +⊗ : _⨂₁_ → _⨂₁_ → _⨂₁_
--- --   +⊗ x y = {!!}
-  
--- -- --   (inc x) (inc y) = inc (x ++' y)
--- -- --   +⊗ (inc x) (bilinl y z w r i) = commListInd x i
--- -- --     where
--- -- --     commListInd : (x : _) → inc (x ++' ((+G strA y z , w) ∷ r)) ≡ inc (x ++' ((y , w) ∷ (r ++' ((z , w) ∷ r))))
--- -- --     commListInd =
--- -- --       propElimCommList' (λ _ → ⊗squash _ _)
--- -- --         (bilinl y z w r)
--- -- --         (λ l → (λ i → inc ((l ∷ []) ++' (((+G strA y z , w) ∷ []) ++' r))) ∙∙ {!((+G strA y z , w₁) ∷ r)!} ∙∙ {!!})
--- -- --         λ x y p q → {!!}
--- -- --                   ∙∙ {!!}
--- -- --                   ∙∙ {!!}
-
--- -- --     lem : ((r ++' x) ++' ((z , w) ∷ (r ++' x))) ≡ ((r ++' ((z , w) ∷ r)) ++' x)
--- -- --     lem = {!!}
--- -- --        ∙∙ {!!}
--- -- --        ∙∙ ++'-assoc r ((z , w) ∷ r) x
--- -- --     help : inc (x ++' ((+G strA y z , w) ∷ r)) ≡ inc (x ++' ((y , w) ∷ (r ++' ((z , w) ∷ r))))
--- -- --     help = cong inc (++'-comm x _)
--- -- --         ∙∙ bilinl y z w (r ++' x)
--- -- --         ∙∙ (λ i → inc (((y , w) ∷ []) ++' ((r ++' x) ++' (((z , w) ∷ []) ++' (r ++' x)))))
--- -- --         ∙∙ cong inc (cong (((y , w) ∷ []) ++'_) {!!})
--- -- --         ∙∙ {!!}
--- -- --         ∙∙ {!!}
--- -- --         ∙∙ cong inc (cong (((y , w) ∷ []) ++'_) {!!})
--- -- --         ∙∙ (λ i → inc (((y , w) ∷ []) ++' ((r ++' (((z , w) ∷ []) ++' r)) ++' x)))
--- -- --         ∙∙ cong inc (sym (++'-comm x ((y , w) ∷ (r ++' ((z , w) ∷ r)))))
--- -- --   +⊗ (inc x) (bilinr y z w r i) = {!!}
--- -- --   +⊗ (inc x) (⊗squash y y₁ x₁ y₂ i i₁) = {!!}
--- -- --   +⊗ (bilinl x y z w i) r = {!!}
--- -- --   +⊗ (bilinr x y₁ z w i) y = {!!}
--- -- --   +⊗ (⊗squash x x₁ x₂ y₁ i i₁) y = {!!}
-  
-    
-
--- -- -- --   _⊗_ : A' → B' → _⨂₁-raw_ 
--- -- -- --   a ⊗ b = inc [ a , b ]
-
--- -- -- --   invList : _⨂₁-raw2_ → _⨂₁-raw2_
--- -- -- --   invList [] = []
--- -- -- --   invList (x ∷ x₁) =
--- -- -- --     ((-G strA (fst x)) , (snd x)) ∷ invList x₁
-
-
-
--- -- -- --   _ℤ∙_ : ℤ → _⨂₁-raw2_ → _⨂₁-raw2_
--- -- -- --   pos zero ℤ∙ y = []
--- -- -- --   pos (suc n) ℤ∙ y = y ++ (pos n ℤ∙ y)
--- -- -- --   negsuc zero ℤ∙ y = invList y
--- -- -- --   negsuc (suc n) ℤ∙ y = (invList y) ++ (negsuc n ℤ∙ y)
-
--- -- -- --   0⊗ₗ : (b : B') → 0g strA ⊗ b ≡ (0g strA ⊗ 0g strB)
--- -- -- --   0⊗ₗ b = {!!}
--- -- -- --     where
--- -- -- --     lem : (0g strA ⊗ b) ≡ inc ([ 0g strA , b ] ++ [ 0g strA , b ])
--- -- -- --     lem = cong (_⊗ b) (sym (rid strA (0g strA))) ∙ bilinl (0g strA) (0g strA) b
-
--- -- -- -- module _ {A : AbGroup ℓ} {B : AbGroup ℓ'} where
--- -- -- --   private
--- -- -- --     strA = snd A
--- -- -- --     strB = snd B
--- -- -- --     open AbGroupStr renaming (_+_ to +G ; -_ to -G)
-
--- -- -- --   rec⨂₁ : ∀ {ℓ'} {C : Type ℓ'}
--- -- -- --        → isSet C
--- -- -- --        → (c : C)
--- -- -- --        → (f : fst A → fst B → C → C)
--- -- -- --        → (((x y : fst A) (z : fst B) → f (+G strA x y) z c ≡ f x z (f y z c)))
--- -- -- --        → ((x : fst A) (y z : fst B) → f x (+G strB y z) c ≡ f x y (f x z c))
--- -- -- --        → (x : A ⨂₁-raw B) → C
--- -- -- --   rec⨂₁ {ℓ'} {C} set c f bil bir x = {!!}
--- -- -- --     -- set _ _ (λ j → rec⨂₁ set c f bil bir (p j)) (λ j → rec⨂₁ set c f bil bir (q j)) i j
-
--- -- -- --   elimProp : ∀ {ℓ'} {C : A ⨂₁-raw B → Type ℓ'}
--- -- -- --           → ((x : _) → isProp (C x))
--- -- -- --           → ((x : A ⨂₁-raw2 B) → C (inc x))
--- -- -- --           → (x : _) → C x
--- -- -- --   elimProp {C = C} prop ind (inc x) = ind x
--- -- -- --   elimProp {C = C} prop ind (bilinl x y z i) =
--- -- -- --     isOfHLevel→isOfHLevelDep 1 {B = C} prop
--- -- -- --       (ind (((+G strA x y) , z) ∷ []))
--- -- -- --       (ind ((x , z) ∷ (y , z) ∷ [])) (bilinl x y z) i
--- -- -- --   elimProp {C = C} prop ind (bilinr x y z i) =
--- -- -- --     isOfHLevel→isOfHLevelDep 1 {B = C} prop
--- -- -- --       (ind ((x , (+G strB y z)) ∷ []))
--- -- -- --       (ind ((x , y) ∷ (x , z) ∷ [])) (bilinr x y z) i
--- -- -- --   elimProp {C = C} prop ind (⊗squash x y p q i j) =
--- -- -- --     isOfHLevel→isOfHLevelDep 2 {B = C} (λ x → isProp→isSet (prop x)) _ _
--- -- -- --       (λ j → elimProp prop ind (p j))
--- -- -- --       (λ j → elimProp prop ind (q j))
--- -- -- --       (⊗squash x y p q) i j
-
--- -- -- --   AA = fst A
--- -- -- --   BB = fst B
-
--- -- -- --   bilinRGen : (x : fst A) (y z : fst B) (w : _) → Path (A ⨂₁-raw B) (inc ((x , +G strB y z) ∷ w)) (inc ((x , y) ∷ (x , z) ∷ w))
--- -- -- --   bilinRGen x y z [] = bilinr x y z
--- -- -- --   bilinRGen x y z (x₁ ∷ w) = {!bilinRGen x y z w!}
-
--- -- -- --   pre-comm : (x y : A ⨂₁-raw2 B) → Path (A ⨂₁-raw B) (inc (x ++ y)) (inc (y ++ x))
--- -- -- --   pre-comm [] [] = refl
--- -- -- --   pre-comm [] (x ∷ y) = {!!} -- cong inc (cong (x ∷_) {!pre-comm [] y!})
--- -- -- --   pre-comm (x ∷ x₁) y = {!!}
-
--- -- -- --   +⊗-mere : (x y : A ⨂₁-raw2 B) (z : _) → Path (A ⨂₁-raw B) (inc x) (inc y) → Path (A ⨂₁-raw B) (inc (z ∷ x)) (inc (z ∷ y))
--- -- -- --   +⊗-mere [] [] z p = refl
--- -- -- --   +⊗-mere [] (x ∷ y) z p = {!!}
--- -- -- --   +⊗-mere (x ∷ x₁) y z = {!!}
-
--- -- -- --   +⊗-merecomm' : (x y : fst A × fst B) → Path (A ⨂₁-raw B) (inc ([ x ] ++ [ y ])) (inc ([ y ] ++ [ x ])) 
--- -- -- --   +⊗-merecomm' (a , b) (c , d) =
--- -- -- --        cong inc (cong (_∷ (c , d) ∷ []) (cong (_, b) (sym (rid strA a)
--- -- -- --                                                    ∙∙ cong (+G strA a) (sym (invr strA c))
--- -- -- --                                                    ∙∙ {!!})))
--- -- -- --     ∙∙ {!!}
--- -- -- --     ∙∙ {!!}
-  
-
--- -- -- --   _+⊗_ : A ⨂₁-raw B → A ⨂₁-raw B → A ⨂₁-raw B
--- -- -- --   inc x +⊗ inc x₁ = inc (x ++ x₁)
--- -- -- --   inc [] +⊗ bilinl x₁ y z i = bilinl x₁ y z i
--- -- -- --   inc ((a , b) ∷ []) +⊗ bilinl x₁ y z i = {!!} -- help i
--- -- -- --     where
--- -- -- --     help : inc
--- -- -- --          ((a , b) ∷
--- -- -- --           (+G strA x₁ y , z) ∷
--- -- -- --           []) ≡ inc ((a , b) ∷ (x₁ , z) ∷ (y , z) ∷ [])
--- -- -- --     help = {!sym (bilinl a _ b)!} ∙ {!!}
--- -- -- --   inc (x ∷ y ∷ z) +⊗ bilinl a b c i = {!!} -- inc (x ∷ x₃) +⊗ {!!}
--- -- -- --   inc x +⊗ bilinr x₁ y z i = {!!}
--- -- -- --   inc x +⊗ ⊗squash y y₁ x₁ y₂ i i₁ = {!!}
--- -- -- --   bilinl x y₁ z i +⊗ y = {!!}
--- -- -- --   bilinr x y₁ z i +⊗ y = {!!}
--- -- -- --   ⊗squash x x₁ x₂ y₁ i i₁ +⊗ y = {!!}
-
--- -- -- -- -- module _ (A : Type ℓ) (R : Rel (Word A) (Word A) ℓ') where
--- -- -- -- --   data AbGroupRel : Word A → Word A → Type (ℓ-max ℓ ℓ') where
--- -- -- -- --     agr-commutes : ∀ x y → AbGroupRel (x ++ y) (y ++ x)
--- -- -- -- --     agr-refl : ∀ {x y} → R x y → AbGroupRel x y
-
--- -- -- -- --   agr-rev : (w : Word A) → {!⨂₁!} -- QuotWordRel (rev w) w
--- -- -- -- --   agr-rev = {!!}
-
--- -- -- -- -- module _ (G H : AbGroup ℓ) where
--- -- -- -- --   TensorCarrier : Type _
--- -- -- -- --   TensorCarrier =
--- -- -- -- --     Σ[ T ∈ AbGroup ℓ ]
--- -- -- -- --      (Σ[ t ∈ (fst G → fst H → fst T) ]
--- -- -- -- --        ((C : AbGroup ℓ)
--- -- -- -- --          → isEquiv {A = fst T → fst C} {B = fst G → fst H → fst C}
--- -- -- -- --                     λ f a b → f (t a b)))
--- -- -- -- --   anIso : {!!}
--- -- -- -- --   anIso = {!!}
-
--- -- -- -- --   -- 0⊗ : TensorCarrier
--- -- -- -- --   -- fst 0⊗ = dirProdAb G H
--- -- -- -- --   -- fst (snd 0⊗) x y = x , y
--- -- -- -- --   -- snd (snd 0⊗) C = isoToIsEquiv {!0⊗!}
--- -- -}
+  ⨂assoc : AbGroupEquiv (A ⨂ (B ⨂ C)) ((A ⨂ B) ⨂ C)
+  fst ⨂assoc = isoToEquiv ⨂AssocIso
+  snd ⨂assoc = snd assocHom⁻

@@ -37,8 +37,7 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Pointed.Homogeneous
 
 private
-  variable ℓ : Level
-
+  variable ℓ ℓ' ℓ'' : Level
 
 isConnectedEM₁ : (G : Group ℓ) → isConnected 2 (EM₁ G)
 isConnectedEM₁ G = ∣ embase ∣ , h
@@ -280,10 +279,7 @@ module _ {G : AbGroup ℓ} where
             (λ i → lUnitₖ (2 + n) (transportRefl ∣ x ∣ₕ i) i)
      ∙ (λ i → rUnitₖ (2 + n) (transportRefl ∣ x ∣ₕ i) i)
 
-  EM∙' : (n : ℕ) → Pointed _
-  EM∙' n = EM G n , 0ₖ n
-
-  Iso-EM-ΩEM+1 : (n : ℕ) → Iso (EM G n) (typ (Ω (EM∙' (suc n))))
+  Iso-EM-ΩEM+1 : (n : ℕ) → Iso (EM G n) (typ (Ω (EM∙ G (suc n))))
   Iso-EM-ΩEM+1 zero = invIso (ΩEM₁Iso (AbGroup→Group G))
   Iso.fun (Iso-EM-ΩEM+1 (suc zero)) = decode' 0 (0ₖ 2)
   Iso.inv (Iso-EM-ΩEM+1 (suc zero)) = encode' 0 (0ₖ 2)
@@ -294,11 +290,16 @@ module _ {G : AbGroup ℓ} where
   Iso.rightInv (Iso-EM-ΩEM+1 (suc (suc n))) = decode'-encode' (suc n) (0ₖ (3 + n))
   Iso.leftInv (Iso-EM-ΩEM+1 (suc (suc n))) = encode'-decode' (suc n)
 
-  EM→ΩEM+1 : (n : ℕ) → EM G n → typ (Ω (EM∙' (suc n)))
+  EM→ΩEM+1 : (n : ℕ) → EM G n → typ (Ω (EM∙ G (suc n)))
   EM→ΩEM+1 n = Iso.fun (Iso-EM-ΩEM+1 n)
 
-  ΩEM+1→EM : (n : ℕ) → typ (Ω (EM∙' (suc n))) → EM G n
+  ΩEM+1→EM : (n : ℕ) → typ (Ω (EM∙ G (suc n))) → EM G n
   ΩEM+1→EM n = Iso.inv (Iso-EM-ΩEM+1 n)
+
+  EM→ΩEM+1-0ₖ : (n : ℕ) → EM→ΩEM+1 n (0ₖ n) ≡ refl
+  EM→ΩEM+1-0ₖ zero = emloop-1g _
+  EM→ΩEM+1-0ₖ (suc zero) = cong (cong ∣_∣ₕ) (rCancel (merid ptS))
+  EM→ΩEM+1-0ₖ (suc (suc n)) = cong (cong ∣_∣ₕ) (rCancel (merid ptS))
 
   EM→ΩEM+1-hom : (n : ℕ) (x y : EM G n)
     → EM→ΩEM+1 n (x +[ n ]ₖ y) ≡ EM→ΩEM+1 n x ∙ EM→ΩEM+1 n y
@@ -306,149 +307,142 @@ module _ {G : AbGroup ℓ} where
   EM→ΩEM+1-hom (suc zero) x y = σ-EM'-hom zero x y
   EM→ΩEM+1-hom (suc (suc n)) x y = σ-EM'-hom (suc n) x y
 
-  ΩEM+1→EM-hom : (n : ℕ) → (p q : typ (Ω (EM∙' (suc n))))
+  ΩEM+1→EM-hom : (n : ℕ) → (p q : typ (Ω (EM∙ G (suc n))))
     → ΩEM+1→EM n (p ∙ q) ≡ (ΩEM+1→EM n p) +[ n ]ₖ (ΩEM+1→EM n q)
   ΩEM+1→EM-hom n =
     morphLemmas.isMorphInv (λ x y → x +[ n ]ₖ y) (_∙_) (EM→ΩEM+1 n)
       (EM→ΩEM+1-hom n) (ΩEM+1→EM n)
       (Iso.rightInv (Iso-EM-ΩEM+1 n)) (Iso.leftInv (Iso-EM-ΩEM+1 n))
 
-  EM→ΩEM+1-0ₖ : (n : ℕ) → EM→ΩEM+1 n (0ₖ n) ≡ refl
-  EM→ΩEM+1-0ₖ zero = emloop-1g _
-  EM→ΩEM+1-0ₖ (suc zero) = cong (cong ∣_∣ₕ) (rCancel (merid ptS))
-  EM→ΩEM+1-0ₖ (suc (suc n)) = cong (cong ∣_∣ₕ) (rCancel (merid ptS))
+  
 
   ΩEM+1→EM-refl : (n : ℕ) → ΩEM+1→EM n refl ≡ 0ₖ n
   ΩEM+1→EM-refl zero = transportRefl 0g
   ΩEM+1→EM-refl (suc zero) = refl
   ΩEM+1→EM-refl (suc (suc n)) = refl
 
+
+  EM≃ΩEM+1 : (n : ℕ) → EM G n ≃ typ (Ω (EM∙ G (suc n)))
+  EM≃ΩEM+1 n = isoToEquiv (Iso-EM-ΩEM+1 n)
+
+  EM≃ΩEM+1∙ : (n : ℕ) → EM∙ G n ≡ Ω (EM∙ G (suc n))
+  EM≃ΩEM+1∙ n = ua∙ (EM≃ΩEM+1 n) (EM→ΩEM+1-0ₖ n)
+
   isHomogeneousEM : (n : ℕ) → isHomogeneous (EM∙ G n)
   isHomogeneousEM n x =
     ua∙ (isoToEquiv (addIso n x)) (lUnitₖ n x)
 
-  isContr-↓∙ : (n : ℕ) → isContr (EM∙ G (suc n) →∙ EM∙ G n)
-  fst (isContr-↓∙ zero) = (λ _ → 0g) , refl
-  snd (isContr-↓∙ zero) (f , p) =
-    Σ≡Prop (λ x → is-set _ _)
-      (funExt (EM-raw-elim G 0 (λ _ → is-set _ _)
-        (sym p)))
-  fst (isContr-↓∙ (suc n)) = (λ _ → 0ₖ (suc n)) , refl
-  snd (isContr-↓∙ (suc n)) (f , p) =
-    →∙Homogeneous≡ (isHomogeneousEM _)
-      (funExt
-        (trElim (λ _ → isOfHLevelPath (4 + n) (isOfHLevelSuc (3 + n) (hLevelEM G (suc n))) _ _)
-                (EM-raw-elim _ _ (λ _ → hLevelEM G (suc n) _ _)
-                (sym p))))
 
 
-{-
--- HLevel stuff for cup product
-isContr-↓∙ : (n : ℕ) → isContr (coHomK-ptd (suc n) →∙ coHomK-ptd n)
-fst (isContr-↓∙ zero) = (λ _ → 0) , refl
-snd (isContr-↓∙ zero) (f , p) =
-  Σ≡Prop (λ f → isSetℤ _ _)
-         (funExt (trElim (λ _ → isOfHLevelPath 3 (isOfHLevelSuc 2 isSetℤ) _ _)
-                 (toPropElim (λ _ → isSetℤ _ _) (sym p))))
-fst (isContr-↓∙ (suc n)) = (λ _ → 0ₖ _) , refl
-fst (snd (isContr-↓∙ (suc n)) f i) x =
-  trElim {B = λ x → 0ₖ (suc n) ≡ fst f x}
-    (λ _ → isOfHLevelPath (4 + n) (isOfHLevelSuc (3 + n) (isOfHLevelTrunc (3 + n))) _ _)
-    (sphereElim _ (λ _ → isOfHLevelTrunc (3 + n) _ _)
-    (sym (snd f))) x i
-snd (snd (isContr-↓∙ (suc n)) f i) j = snd f (~ i ∨ j)
+module _ where
+  open AbGroupStr renaming (_+_ to comp)
 
-isContr-↓∙' : (n : ℕ) → isContr (S₊∙ (suc n) →∙ coHomK-ptd n)
-fst (isContr-↓∙' zero) = (λ _ → 0) , refl
-snd (isContr-↓∙' zero) (f , p) =
-  Σ≡Prop (λ f → isSetℤ _ _)
-         (funExt (toPropElim (λ _ → isSetℤ _ _) (sym p)))
-fst (isContr-↓∙' (suc n)) = (λ _ → 0ₖ _) , refl
-fst (snd (isContr-↓∙' (suc n)) f i) x =
-  sphereElim _ {A = λ x → 0ₖ (suc n) ≡ fst f x}
-    (λ _ → isOfHLevelTrunc (3 + n) _ _)
-    (sym (snd f)) x i
-snd (snd (isContr-↓∙' (suc n)) f i) j = snd f (~ i ∨ j)
+  isContr-↓∙ : {G : AbGroup ℓ} {H : AbGroup ℓ'} (n : ℕ) → isContr (EM∙ G (suc n) →∙ EM∙ H n)
+  fst (isContr-↓∙ {G = G} {H = H} zero) = (λ _ → 0g (snd H)) , refl
+  snd (isContr-↓∙{G = G} {H = H} zero) (f , p) =
+    Σ≡Prop (λ x → is-set (snd H) _ _)
+      (funExt (EM-raw-elim G 0 (λ _ → is-set (snd H) _ _) (sym p)))
+  fst (isContr-↓∙ {G = G} {H = H} (suc n)) = (λ _ → 0ₖ (suc n)) , refl
+  fst (snd (isContr-↓∙ {G = G} {H = H} (suc n)) f i) x =
+    trElim {B = λ x → 0ₖ (suc n) ≡ fst f x}
+    (λ _ → isOfHLevelPath (4 + n) (isOfHLevelSuc (3 + n) (hLevelEM H (suc n))) _ _)
+    (EM-raw-elim _ _ (λ _ → hLevelEM H (suc n) _ _) (sym (snd f)))
+    x i
+  snd (snd (isContr-↓∙ (suc n)) f i) j = snd f (~ i ∨ j)
 
-isOfHLevel→∙Kn : {A : Pointed₀} (n m : ℕ)
-  → isOfHLevel (suc m) (A →∙ coHomK-ptd n) → isOfHLevel (suc (suc m)) (A →∙ coHomK-ptd (suc n))
-isOfHLevel→∙Kn {A = A} n m hlev = step₃
-  where
-  step₁ : isOfHLevel (suc m) (A →∙ Ω (coHomK-ptd (suc n)))
-  step₁ =
-    subst (isOfHLevel (suc m))
-      (λ i → A →∙ ua∙ {A = Ω (coHomK-ptd (suc n))} {B = coHomK-ptd n}
-      (invEquiv Kn≃ΩKn+1)
-      (ΩKn+1→Kn-refl n) (~ i)) hlev
+  isContr-↓∙' : {G : AbGroup ℓ} {H : AbGroup ℓ'} (n : ℕ) → isContr ((EM-raw G (suc n) , ptS) →∙ EM∙ H n)
+  isContr-↓∙' zero = isContr-↓∙ zero
+  fst (isContr-↓∙' (suc n)) = (λ _ → 0ₖ (suc n)) , refl
+  fst (snd (isContr-↓∙' {H = H} (suc n)) f i) x =
+    (EM-raw-elim _  _ {A = λ x → 0ₖ (suc n) ≡ fst f x} (λ _ → hLevelEM H (suc n) _ _) (sym (snd f))) x i
+  snd (snd (isContr-↓∙' (suc n)) f i) j = snd f (~ i ∨ j)
 
-  step₂ : isOfHLevel (suc m) (typ (Ω (A →∙ coHomK-ptd (suc n) ∙)))
-  step₂ = isOfHLevelRetractFromIso (suc m) (invIso (invIso (ΩfunExtIso _ _))) step₁
+  isOfHLevel→∙EM : ∀ {ℓ} {A : Pointed ℓ} {G : AbGroup ℓ'} (n m : ℕ)
+    → isOfHLevel (suc m) (A →∙ EM∙ G n) → isOfHLevel (suc (suc m)) (A →∙ EM∙ G (suc n))
+  isOfHLevel→∙EM {A = A} {G = G} n m hlev = step₃
+    where
+    step₁ : isOfHLevel (suc m) (A →∙ Ω (EM∙ G (suc n)))
+    step₁ =
+      subst (isOfHLevel (suc m))
+      (λ i → A →∙ ua∙ {A = Ω (EM∙ G (suc n))} {B = EM∙ G n}
+      (invEquiv (EM≃ΩEM+1 n))
+      (ΩEM+1→EM-refl n) (~ i)) hlev
 
-  step₃ : isOfHLevel (suc (suc m)) (A →∙ coHomK-ptd (suc n))
-  step₃ =
-    isOfHLevelΩ→isOfHLevel m
+    step₂ : isOfHLevel (suc m) (typ (Ω (A →∙ EM∙ G (suc n) ∙)))
+    step₂ = isOfHLevelRetractFromIso (suc m) (invIso (invIso (ΩfunExtIso _ _))) step₁
+
+    step₃ : isOfHLevel (suc (suc m)) (A →∙ EM∙ G (suc n))
+    step₃ = isOfHLevelΩ→isOfHLevel m
       λ f → subst (λ x → isOfHLevel (suc m) (typ (Ω x)))
-               (isHomogeneous→∙ (isHomogeneousKn (suc n)) f)
+               (isHomogeneous→∙ (isHomogeneousEM (suc n)) f)
                 step₂
 
-isOfHLevel↑∙ : ∀ n m → isOfHLevel (2 + n) (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (n + m)))
-isOfHLevel↑∙ zero m = isOfHLevel→∙Kn m 0 (isContr→isProp (isContr-↓∙ m))
-isOfHLevel↑∙ (suc n) m = isOfHLevel→∙Kn (suc (n + m)) (suc n) (isOfHLevel↑∙ n m)
+  isOfHLevel↑∙ : {G : AbGroup ℓ} {H : AbGroup ℓ'}
+            → ∀ n m → isOfHLevel (2 + n) (EM∙ G (suc m) →∙ EM∙ H (suc (n + m)))
+  isOfHLevel↑∙ zero m = isOfHLevel→∙EM m 0 (isContr→isProp (isContr-↓∙ m))
+  isOfHLevel↑∙ (suc n) m = isOfHLevel→∙EM (suc (n + m)) (suc n) (isOfHLevel↑∙ n m)
 
-isOfHLevel↑∙' : ∀ n m → isOfHLevel (2 + n) (S₊∙ (suc m) →∙ coHomK-ptd (suc (n + m)))
-isOfHLevel↑∙' zero m = isOfHLevel→∙Kn m 0 (isContr→isProp (isContr-↓∙' m))
-isOfHLevel↑∙' (suc n) m = isOfHLevel→∙Kn (suc (n + m)) (suc n) (isOfHLevel↑∙' n m)
+  isOfHLevel↑∙' : {G : AbGroup ℓ} {H : AbGroup ℓ'}
+            → ∀ n m → isOfHLevel (2 + n) (EM-raw∙ G (suc m) →∙ EM∙ H (suc (n + m)))
+  isOfHLevel↑∙' zero m = isOfHLevel→∙EM m 0 (isContr→isProp (isContr-↓∙' m))
+  isOfHLevel↑∙' (suc n) m = isOfHLevel→∙EM (suc (n + m)) (suc n) (isOfHLevel↑∙' n m)
 
-→∙KnPath : (A : Pointed₀) (n : ℕ) → Ω (A →∙ coHomK-ptd (suc n) ∙) ≡ (A →∙ coHomK-ptd n ∙)
-→∙KnPath A n =
-    ua∙ (isoToEquiv (ΩfunExtIso A (coHomK-ptd (suc n)))) refl
-  ∙ (λ i → (A →∙ Kn≃ΩKn+1∙ {n = n} (~ i) ∙))
+  →∙EMPath : ∀ {ℓ} {G : AbGroup ℓ} (A : Pointed ℓ') (n : ℕ) → Ω (A →∙ EM∙ G (suc n) ∙) ≡ (A →∙ EM∙ G n ∙)
+  →∙EMPath {G = G} A n =
+      ua∙ (isoToEquiv (ΩfunExtIso A (EM∙ G (suc n)))) refl
+    ∙ (λ i → (A →∙ EM≃ΩEM+1∙ {G = G} n (~ i) ∙))
 
-contr∙-lem : (n m : ℕ)
-  → isContr (coHomK-ptd (suc n)
-           →∙ (coHomK-ptd (suc m)
-             →∙ coHomK-ptd (suc (n + m)) ∙))
-fst (contr∙-lem n m) = (λ _ → (λ _ → 0ₖ _) , refl) , refl
-snd (contr∙-lem n m) (f , p) = →∙Homogeneous≡ (isHomogeneous→∙ (isHomogeneousKn _)) (sym (funExt help))
-  where
-  help : (x : _) → (f x) ≡ ((λ _ → 0ₖ _) , refl)
-  help =
-    trElim (λ _ → isOfHLevelPath (3 + n)
-      (subst (λ x → isOfHLevel x (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (n + m)))) (λ i → suc (suc (+-comm n 1 i)))
-             (isOfHLevelPlus' {n = 1} (2 + n) (isOfHLevel↑∙ n m))) _ _)
-    (sphereElim _ (λ _ → isOfHLevel↑∙ n m _ _) p)
+  contr∙-lem : {G : AbGroup ℓ} {H : AbGroup ℓ'} {L : AbGroup ℓ''} (n m : ℕ)
+    → isContr (EM∙ G (suc n) →∙ (EM∙ H (suc m) →∙ EM∙ L (suc (n + m)) ∙))
+  fst (contr∙-lem n m) = (λ _ → (λ _ → 0ₖ _) , refl), refl 
+  snd (contr∙-lem {G = G} {H = H} {L = L} n m) (f , p) =
+    →∙Homogeneous≡ (isHomogeneous→∙ (isHomogeneousEM _))
+      (sym (funExt (help n f p)))
+    where
+    help : (n : ℕ) → (f : EM G (suc n) → EM∙ H (suc m) →∙ EM∙ L (suc (n + m)))
+        → f (snd (EM∙ G (suc n))) ≡ snd (EM∙ H (suc m) →∙ EM∙ L (suc (n + m)) ∙) 
+        → (x : _) → (f x) ≡ ((λ _ → 0ₖ _) , refl)
+    help zero f p =
+      EM-raw-elim G zero
+        (λ _ → isOfHLevel↑∙ zero m _ _) p
+    help (suc n) f p =
+      trElim (λ _ → isOfHLevelPath (4 + n)
+             (subst (λ x → isOfHLevel x (EM∙ H (suc m) →∙ EM∙ L (suc ((suc n) + m))))
+                    (λ i → suc (suc (+-comm (suc n) 1 i)))
+                    (isOfHLevelPlus' {n = 1} (3 + n) (isOfHLevel↑∙ (suc n) m))) _ _)
+        (EM-raw-elim G (suc n)
+          (λ _ → isOfHLevel↑∙ (suc n) m _ _) p)
 
-isOfHLevel↑∙∙ : ∀ n m l
-  → isOfHLevel (2 + l) (coHomK-ptd (suc n)
-                      →∙ (coHomK-ptd (suc m)
-                       →∙ coHomK-ptd (suc (suc (l + n + m))) ∙))
-isOfHLevel↑∙∙ n m zero =
-  isOfHLevelΩ→isOfHLevel 0 λ f
-    → subst
-        isProp (cong (λ x → typ (Ω x))
-        (isHomogeneous→∙ (isHomogeneous→∙ (isHomogeneousKn _)) f))
-        (isOfHLevelRetractFromIso 1 (ΩfunExtIso _ _) h)
-  where
-  h : isProp (coHomK-ptd (suc n)
-           →∙ (Ω (coHomK-ptd (suc m)
-            →∙ coHomK-ptd (suc (suc (n + m))) ∙)))
-  h =
-    subst isProp (λ i → coHomK-ptd (suc n) →∙ (→∙KnPath (coHomK-ptd (suc m)) (suc (n + m)) (~ i)))
-      (isContr→isProp (contr∙-lem n m))
-isOfHLevel↑∙∙ n m (suc l) =
-  isOfHLevelΩ→isOfHLevel (suc l)
-    λ f →
-    subst
-        (isOfHLevel (2 + l)) (cong (λ x → typ (Ω x))
-        (isHomogeneous→∙ (isHomogeneous→∙ (isHomogeneousKn _)) f))
-        (isOfHLevelRetractFromIso (2 + l) (ΩfunExtIso _ _) h)
-  where
-  h : isOfHLevel (2 + l)
-       (coHomK-ptd (suc n)
-         →∙ (Ω (coHomK-ptd (suc m)
-           →∙ coHomK-ptd (suc (suc (suc (l + n + m)))) ∙)))
-  h =
-    subst (isOfHLevel (2 + l))
-      (λ i → coHomK-ptd (suc n) →∙ →∙KnPath (coHomK-ptd (suc m)) (suc (suc (l + n + m))) (~ i))
-      (isOfHLevel↑∙∙ n m l)
--}
+  isOfHLevel↑∙∙ : {G : AbGroup ℓ} {H : AbGroup ℓ'} {L : AbGroup ℓ''}
+     → ∀ n m l → isOfHLevel (2 + l) (EM∙ G (suc n)
+                                  →∙ (EM∙ H (suc m)
+                                   →∙ EM∙ L (suc (suc (l + n + m))) ∙))
+  isOfHLevel↑∙∙ {G = G} {H = H} {L = L} n m zero =
+    isOfHLevelΩ→isOfHLevel 0 λ f
+      → subst
+          isProp (cong (λ x → typ (Ω x))
+          (isHomogeneous→∙ (isHomogeneous→∙ (isHomogeneousEM _)) f))
+          (isOfHLevelRetractFromIso 1 (ΩfunExtIso _ _) h)
+    where
+    h : isProp (EM∙ G (suc n)
+             →∙ (Ω (EM∙ H (suc m)
+              →∙ EM∙ L (suc (suc (n + m))) ∙)))
+    h =
+      subst isProp (λ i → EM∙ G (suc n) →∙ (→∙EMPath {G = L} (EM∙ H (suc m)) (suc (n + m)) (~ i)))
+        (isContr→isProp (contr∙-lem n m))
+  isOfHLevel↑∙∙ {G = G} {H = H} {L = L} n m (suc l) =
+    isOfHLevelΩ→isOfHLevel (suc l)
+      λ f →
+      subst
+          (isOfHLevel (2 + l)) (cong (λ x → typ (Ω x))
+          (isHomogeneous→∙ (isHomogeneous→∙ (isHomogeneousEM _)) f))
+          (isOfHLevelRetractFromIso (2 + l) (ΩfunExtIso _ _) h)
+    where
+    h : isOfHLevel (2 + l)
+         (EM∙ G (suc n)
+           →∙ (Ω (EM∙ H (suc m)
+             →∙ EM∙ L (suc (suc (suc (l + n + m)))) ∙)))
+    h =
+      subst (isOfHLevel (2 + l))
+        (λ i → EM∙ G (suc n) →∙ →∙EMPath {G = L} (EM∙ H (suc m)) (suc (suc (l + n + m))) (~ i))
+        (isOfHLevel↑∙∙ n m l)

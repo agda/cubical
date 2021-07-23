@@ -31,7 +31,7 @@ open import Cubical.Functions.Morphism
 open import Cubical.Foundations.Path
 
 private
-  variable ℓ : Level
+  variable ℓ ℓ' : Level
 
   _* = AbGroup→Group
 
@@ -45,7 +45,7 @@ ptS {n = zero} {G = G} = AbGroupStr.0g (snd G)
 ptS {n = suc zero} {G = G} = embase
 ptS {n = suc (suc n)} {G = G} = north
 
-EM-raw-elim : (G : AbGroup ℓ) (n : ℕ) {A : EM-raw G (suc n) → Type ℓ}
+EM-raw-elim : (G : AbGroup ℓ) (n : ℕ) {A : EM-raw G (suc n) → Type ℓ'}
             → ((x : _) → isOfHLevel (suc n) (A x) )
             → A ptS
             → (x : _) → A x
@@ -71,6 +71,9 @@ EM G (suc (suc n)) = hLevelTrunc (4 + n) (EM-raw G (suc (suc n)))
 EM∙ : (G : AbGroup ℓ) (n : ℕ) → Pointed ℓ
 EM∙ G n = EM G n , (0ₖ n)
 
+EM-raw∙ : (G : AbGroup ℓ) (n : ℕ) → Pointed ℓ
+EM-raw∙ G n = EM-raw G n , ptS 
+
 hLevelEM : (G : AbGroup ℓ) (n : ℕ) → isOfHLevel (2 + n) (EM G n)
 hLevelEM G zero = AbGroupStr.is-set (snd G)
 hLevelEM G (suc zero) = emsquash
@@ -81,7 +84,7 @@ EM-raw→EM G zero x = x
 EM-raw→EM G (suc zero) x = x
 EM-raw→EM G (suc (suc n)) = ∣_∣
 
-EM-elim : {G : AbGroup ℓ} (n : ℕ) {A : EM G n → Type ℓ}
+EM-elim : {G : AbGroup ℓ} (n : ℕ) {A : EM G n → Type ℓ'}
         → ((x : _) → isOfHLevel (2 + n) (A x))
         → ((x : EM-raw G n) → A (EM-raw→EM G n x))
         → (x : _) → A x

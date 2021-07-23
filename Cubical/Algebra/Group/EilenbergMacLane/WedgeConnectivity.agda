@@ -32,17 +32,17 @@ open import Cubical.Functions.Morphism
 open import Cubical.Foundations.Path
 
 private
-  variable ℓ : Level
+  variable ℓ ℓ' ℓ'' : Level
 
-  wedgeConFun' : (G H : AbGroup ℓ) (n : ℕ)
-              → {A : EM-raw G (suc n) → EM-raw H (suc zero) → Type ℓ}
+  wedgeConFun' : (G : AbGroup ℓ) (H : AbGroup ℓ') (n : ℕ)
+              → {A : EM-raw G (suc n) → EM-raw H (suc zero) → Type ℓ''}
               → ((x : _) (y : _) → isOfHLevel (suc n + suc zero) (A x y))
               → (f : (x : _) → A ptS x)
               → (g : (x : _) → A x ptS)
               → f ptS ≡ g ptS
               → (x : _) (y : _) → A x y
-  wedgeConFun'ᵣ : (G H : AbGroup ℓ) (n : ℕ)
-              → {A : EM-raw G (suc n) → EM-raw H (suc zero) → Type ℓ}
+  wedgeConFun'ᵣ : (G : AbGroup ℓ) (H : AbGroup ℓ') (n : ℕ)
+              → {A : EM-raw G (suc n) → EM-raw H (suc zero) → Type ℓ''}
               → (hLev : ((x : _) (y : _) → isOfHLevel (suc n + suc zero) (A x y)))
               → (f : (x : _) → A ptS x)
               → (g : (x : _) → A x ptS)
@@ -163,19 +163,21 @@ private
     P = mainP G H n hLev f g p a i0 ptS a ◁ lem
 
 private
-  wedgeConFun : (G H : AbGroup ℓ) (k n m : ℕ) → (n + m ≡ k) → {A : EM-raw G (suc n) → EM-raw H (suc m) → Type ℓ}
+  wedgeConFun : (G : AbGroup ℓ) (H : AbGroup ℓ')
+                 (k n m : ℕ) → (n + m ≡ k) → {A : EM-raw G (suc n) → EM-raw H (suc m) → Type ℓ''}
               → ((x : _) (y : _) → isOfHLevel (suc n + suc m) (A x y))
               → (f : (x : _) → A ptS x)
               → (g : (x : _) → A x ptS)
               → f ptS ≡ g ptS
               → (x : _) (y : _) → A x y
-  wedgeconLeft : (G H : AbGroup ℓ) (k n m : ℕ) (P : n + m ≡ k) {A : EM-raw G (suc n) → EM-raw H (suc m) → Type ℓ}
+  wedgeconLeft : (G : AbGroup ℓ) (H : AbGroup ℓ') (k n m : ℕ) (P : n + m ≡ k)
+                 {A : EM-raw G (suc n) → EM-raw H (suc m) → Type ℓ''}
               → (hLev : ((x : _) (y : _) → isOfHLevel (suc n + suc m) (A x y)))
               → (f : (x : _) → A ptS x)
               → (g : (x : _) → A x ptS)
               → (p : f ptS ≡ g ptS)
                → (x : _) → wedgeConFun G H k n m P hLev f g p ptS x ≡ f x
-  wedgeconRight : (G H : AbGroup ℓ) (k n m : ℕ) (P : n + m ≡ k) {A : EM-raw G (suc n) → EM-raw H (suc m) → Type ℓ}
+  wedgeconRight : (G : AbGroup ℓ) (H : AbGroup ℓ') (k n m : ℕ) (P : n + m ≡ k) {A : EM-raw G (suc n) → EM-raw H (suc m) → Type ℓ''}
               → (hLev : ((x : _) (y : _) → isOfHLevel (suc n + suc m) (A x y)))
               → (f : (x : _) → A ptS x)
               → (g : (x : _) → A x ptS)
@@ -272,7 +274,7 @@ private
                  (λ i → main* G H l n m P hLev f g p a i north a north i) (cong g (merid a))
     help = mainR G H l n m P hLev f g p a i0 ptS a ◁ lem
 
-module wedgeConEM (G H : AbGroup ℓ) (n m : ℕ) {A : EM-raw G (suc n) → EM-raw H (suc m) → Type ℓ}
+module wedgeConEM (G : AbGroup ℓ) (H : AbGroup ℓ') (n m : ℕ) {A : EM-raw G (suc n) → EM-raw H (suc m) → Type ℓ''}
                   (hLev : ((x : _) (y : _) → isOfHLevel (suc n + suc m) (A x y)))
                   (f : (x : _) → A ptS x)
                   (g : (x : _) → A x ptS)

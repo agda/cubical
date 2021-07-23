@@ -201,6 +201,15 @@ cong-∙ : ∀ {B : Type ℓ} (f : A → B) (p : x ≡ y) (q : y ≡ z)
          → cong f (p ∙ q) ≡ (cong f p) ∙ (cong f q)
 cong-∙ f p q = cong-∙∙ f refl p q
 
+cong-compPathP : ∀ {B : A → Type ℓ} (f : (x : A) → B x) (p : x ≡ y) (q : y ≡ z)
+         → cong f (p ∙ q) ≡ compPathP' {B = B} (cong f p) (cong f q)
+cong-compPathP {x = x} {B = B} f p q i j =
+  comp (λ k → B (compPath-filler p q k j))
+        (λ k → λ { (j = i0) → f x
+                  ; (j = i1) → f (q k)
+                  ; (i = i0) → f (compPath-filler p q k j) })
+         (f (p j))
+
 hcomp-unique : ∀ {ℓ} {A : Type ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
                (h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
                → (hcomp u (outS u0) ≡ outS (h2 i1)) [ φ ↦ (\ { (φ = i1) → (\ i → u i1 1=1)}) ]
