@@ -84,18 +84,9 @@ module HomomorphismProperties (R : CommRing ℓ) where
                   (xs : Vec ⟨ νR ⟩ (ℕ.suc n))
                   → eval (ℕ.suc n) ((P ·X+ r) +ₕ (Q ·X+ s)) xs
                   ≡ eval (ℕ.suc n) ((P +ₕ Q) ·X+ (r +ₕ s)) xs
-  combineCases+ ℕ.zero P Q r s xs with (P +ₕ Q) | (r +ₕ s)
-  ... | (_ ·X+ _) | const (pos (ℕ.suc _)) = {!!}
-  ... | (_ ·X+ _) | const (negsuc _) = {!!}
-  ... | (_ ·X+ _) | const (pos ℕ.zero)  = {!!}
-  ... | 0H  | const (pos (ℕ.suc _)) = refl
-  ... | 0H  | const (negsuc _) = refl
-  combineCases+ ℕ.zero P Q r s (x ∷ []) | 0H  | const (pos ℕ.zero) = refl
-  combineCases+ (ℕ.suc n) P Q r s (x ∷ xs) with (P +ₕ Q) | (r +ₕ s)
-  ... | (_ ·X+ _) | (_ ·X+ _) = {!!}
-  ... | (_ ·X+ _) | 0H  = {!!}
-  ... | 0H        | (_ ·X+ _) = {!!}
-  ... | 0H        | 0H  = sym (Eval0H (ℕ.suc n) xs)
+  combineCases+ n P Q r s xs with (isZero νR (P +ₕ Q) and isZero νR (r +ₕ s)) ≟ true
+  ... | yes p = {!p!}
+  ... | no p = {!!}
 
   +Homeval :
     (n : ℕ) (P Q : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)

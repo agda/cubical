@@ -7,8 +7,7 @@ open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Int hiding (_+_ ; _·_ ; -_)
 open import Cubical.Data.Vec
 open import Cubical.Data.Bool
-open import Cubical.Data.Empty hiding () renaming (rec to recEmpty)
-open import Cubical.Data.Sigma
+
 open import Cubical.Relation.Nullary.Base
 
 open import Cubical.Algebra.RingSolver.RawAlgebra
@@ -39,18 +38,7 @@ module _ (R : CommRing ℓ) where
     νR = CommRing→RawℤAlgebra R
   open CommRingStr (snd R)
   open RingTheory (CommRing→Ring R)
-
-  private
-    byAbsurdity : {Anything : Type ℓ′} → false ≡ true → Anything
-    byAbsurdity p = recEmpty (false≢true p)
-
-    extract : (P Q : Bool)
-                  → P and Q ≡ true
-                  → (P ≡ true) × (Q ≡ true)
-    extract false false eq = byAbsurdity eq
-    extract false true eq = byAbsurdity eq
-    extract true false eq = byAbsurdity eq
-    extract true true eq = eq , eq
+  open IteratedHornerOperations νR
 
   evalIsZero : {n : ℕ} (P : IteratedHornerForms νR n)
              → (l : Vec ⟨ νR ⟩ n)
@@ -67,7 +55,7 @@ module _ (R : CommRing ℓ) where
   ... | false = byAbsurdity isZeroP
                where isZeroP = fst (extract _ _ isZeroPandQ)
 
-  computeEvalIsZero :
+  computeEvalSummandIsZero :
                {n : ℕ}
                (P : IteratedHornerForms νR (ℕ.suc n))
                (Q : IteratedHornerForms νR n)
@@ -75,7 +63,7 @@ module _ (R : CommRing ℓ) where
              → (x : ⟨ νR ⟩)
              → isZero νR P ≡ true
              → eval _ (P ·X+ Q) (x ∷ xs) ≡ eval n Q xs
-  computeEvalIsZero P Q xs x isZeroP with isZero νR P
+  computeEvalSummandIsZero P Q xs x isZeroP with isZero νR P
   ... | true = refl
   ... | false = byAbsurdity isZeroP
 
@@ -98,10 +86,31 @@ module _ (R : CommRing ℓ) where
       ≡ (eval _ P (x ∷ xs)) · x + eval n Q xs
   combineCasesEval P Q x xs with isZero νR P  ≟ true
   ... | yes p =
-       eval _ (P ·X+ Q) (x ∷ xs)            ≡⟨ computeEvalIsZero P Q xs x p ⟩
+       eval _ (P ·X+ Q) (x ∷ xs)            ≡⟨ computeEvalSummandIsZero P Q xs x p ⟩
        eval _ Q xs                          ≡⟨ sym (+Lid _) ⟩
        0r + eval _ Q xs                     ≡[ i ]⟨ 0LeftAnnihilates x (~ i) + eval _ Q xs ⟩
        0r · x + eval _ Q xs                 ≡[ i ]⟨ (evalIsZero P (x ∷ xs) p (~ i)) · x + eval _ Q xs ⟩
        (eval _ P (x ∷ xs)) · x + eval _ Q xs ∎
   ... | no p  = computeEvalNotZero P Q xs x p
+
+
+  compute+ₕEvalBothZero :
+    (n : ℕ) (P Q : IteratedHornerForms νR (ℕ.suc n))
+    (r s : IteratedHornerForms νR n)
+    (x : (fst R)) (xs : Vec (fst R) n)
+    → (isZero νR (P +ₕ Q) and isZero νR (r +ₕ s)) ≡ true
+    → eval _ ((P ·X+ r) +ₕ (Q ·X+ s)) (x ∷ xs) ≡ eval _ ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs)
+  compute+ₕEvalBothZero n P Q r s x xs bothZero with isZero νR (P +ₕ Q) and isZero νR (r +ₕ s) | bothZero
+  ... | true | p =
+               eval {A = νR} _ 0H (x ∷ xs)                            ≡⟨ refl ⟩
+               0r                                                     ≡⟨ sym (+Rid 0r) ⟩
+               0r + 0r                                                ≡[ i ]⟨ 0LeftAnnihilates x (~ i) + 0r ⟩
+               0r · x + 0r                                            ≡⟨ step1  ⟩
+               (eval _ (P +ₕ Q) (x ∷ xs)) · x + eval _ (r +ₕ s) xs     ≡⟨ step2 ⟩
+               eval _ ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs) ∎
+            where step1 : 0r · x + 0r ≡ (eval _ (P +ₕ Q) (x ∷ xs)) · x + eval _ (r +ₕ s) xs
+                  step1 i = (evalIsZero (P +ₕ Q) (x ∷ xs) (fst (extract _ _ (bothZero))) (~ i)) · x
+                    + (evalIsZero (r +ₕ s) xs (snd (extract _ _ (bothZero))) (~ i))
+                  step2 = sym (combineCasesEval (P +ₕ Q) (r +ₕ s) x xs)
+  ... | false | p = byAbsurdity p
 
