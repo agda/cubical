@@ -72,25 +72,6 @@ extract false true eq = byAbsurdity eq
 extract true false eq = byAbsurdity eq
 extract true true eq = eq , eq
 
-------------------------------------------------------------------------
--- Inspect (copied from agda-stdlib)
-
--- Inspect can be used when you want to pattern match on the result r
--- of some expression e, and you also need to "remember" that r ≡ e.
-
--- See README.Inspect for an explanation of how/why to use this.
-
-record Reveal_·_is_ {A : Type ℓ} {B : A → Type ℓ′}
-                    (f : (x : A) → B x) (x : A) (y : B x) :
-                    Type (ℓ-max ℓ ℓ′) where
-  constructor [_]
-  field eq : f x ≡ y
-
-inspect : ∀ {A : Type ℓ} {B : A → Type ℓ′}
-          (f : (x : A) → B x) (x : A) → Reveal f · x is f x
-inspect f x = [ refl ]
-
-
 module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   open RawRing ℤAsRawRing
 
