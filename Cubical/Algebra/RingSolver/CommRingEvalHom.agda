@@ -8,6 +8,7 @@ open import Cubical.Data.Int.Base hiding (_+_ ; _·_ ; -_)
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec
 open import Cubical.Data.Bool.Base
+open import Cubical.Relation.Nullary.Base
 
 open import Cubical.Algebra.RingSolver.RawAlgebra
 open import Cubical.Algebra.RingSolver.IntAsRawRing
@@ -39,13 +40,16 @@ module HomomorphismProperties (R : CommRing ℓ) where
   combineCasesEval :
     {n : ℕ}  (P : IteratedHornerForms νR (ℕ.suc n)) (Q : IteratedHornerForms νR n)
     (x : (fst R)) (xs : Vec ⟨ νR ⟩ n)
-    → eval (ℕ.suc n) (P ·X+ Q) (x ∷ xs) ≡ (eval (ℕ.suc n) P (x ∷ xs)) · x + eval n Q xs
-  combineCasesEval {n = n} 0H Q x xs =
-    eval n Q xs               ≡⟨ sym (+Lid _) ⟩
-    0r + eval n Q xs          ≡[ i ]⟨ 0LeftAnnihilates x (~ i) + eval n Q xs ⟩
-    0r · x + eval n Q xs ∎
-  combineCasesEval {n = n} (P ·X+ P₁) Q x xs = ?
-
+    →   eval _ (P ·X+ Q) (x ∷ xs)
+      ≡ (eval _ P (x ∷ xs)) · x + eval n Q xs
+  combineCasesEval P Q x xs with isZero νR P  ≟ true
+  ... | yes p =
+       eval _ (P ·X+ Q) (x ∷ xs)            ≡⟨ computeEvalIsZero R P Q xs x p ⟩
+       eval _ Q xs                          ≡⟨ sym (+Lid _) ⟩
+       0r + eval _ Q xs                     ≡[ i ]⟨ 0LeftAnnihilates x (~ i) + eval _ Q xs ⟩
+       0r · x + eval _ Q xs                 ≡[ i ]⟨ (evalIsZero R P (x ∷ xs) p (~ i)) · x + eval _ Q xs ⟩
+       (eval _ P (x ∷ xs)) · x + eval _ Q xs ∎
+  ... | no p  = computeEvalNotZero R P Q xs x p
 
   Eval1ₕ : (n : ℕ) (xs : Vec ⟨ νR ⟩ n)
          → eval {A = νR} n 1ₕ xs ≡ 1r
@@ -94,16 +98,16 @@ module HomomorphismProperties (R : CommRing ℓ) where
                   → eval (ℕ.suc n) ((P ·X+ r) +ₕ (Q ·X+ s)) xs
                   ≡ eval (ℕ.suc n) ((P +ₕ Q) ·X+ (r +ₕ s)) xs
   combineCases+ ℕ.zero P Q r s xs with (P +ₕ Q) | (r +ₕ s)
-  ... | (_ ·X+ _) | const (pos (ℕ.suc _)) = ?
-  ... | (_ ·X+ _) | const (negsuc _) = ?
-  ... | (_ ·X+ _) | const (pos ℕ.zero)  = ?
+  ... | (_ ·X+ _) | const (pos (ℕ.suc _)) = {!!}
+  ... | (_ ·X+ _) | const (negsuc _) = {!!}
+  ... | (_ ·X+ _) | const (pos ℕ.zero)  = {!!}
   ... | 0H  | const (pos (ℕ.suc _)) = refl
   ... | 0H  | const (negsuc _) = refl
   combineCases+ ℕ.zero P Q r s (x ∷ []) | 0H  | const (pos ℕ.zero) = refl
   combineCases+ (ℕ.suc n) P Q r s (x ∷ xs) with (P +ₕ Q) | (r +ₕ s)
-  ... | (_ ·X+ _) | (_ ·X+ _) = ?
-  ... | (_ ·X+ _) | 0H  = ?
-  ... | 0H        | (_ ·X+ _) = ?
+  ... | (_ ·X+ _) | (_ ·X+ _) = {!!}
+  ... | (_ ·X+ _) | 0H  = {!!}
+  ... | 0H        | (_ ·X+ _) = {!!}
   ... | 0H        | 0H  = sym (Eval0H (ℕ.suc n) xs)
 
   +Homeval :
@@ -191,7 +195,7 @@ module HomomorphismProperties (R : CommRing ℓ) where
       eval _ (0H ⋆ P) (x ∷ xs) · x + eval _ (0H ·ₕ Q) xs
     ≡⟨ sym (combineCasesEval (0H ⋆ P) (0H ·ₕ Q) x xs) ⟩
       eval _ ((0H ⋆ P) ·X+ (0H ·ₕ Q))  (x ∷ xs) ∎
-  combineCases⋆ .(ℕ.suc _) (x ∷ xs) (r ·X+ r₁) P Q = ?
+  combineCases⋆ .(ℕ.suc _) (x ∷ xs) (r ·X+ r₁) P Q = {!!}
 
   ⋆Homeval n r 0H x xs =
     eval (ℕ.suc n) (r ⋆ 0H) (x ∷ xs)         ≡⟨ refl ⟩
@@ -238,7 +242,7 @@ module HomomorphismProperties (R : CommRing ℓ) where
                   eval {A = νR} (ℕ.suc n) 0H (x ∷ xs) · x + eval n 0ₕ xs
                 ≡[ i ]⟨ combineCasesEval 0H 0ₕ x xs (~ i) ⟩
                   eval (ℕ.suc n) (0H ·X+ 0ₕ) (x ∷ xs) ∎
-  ... | (_ ·X+ _) = ?
+  ... | (_ ·X+ _) = {!!}
 
   ·Homeval .ℕ.zero (const x) (const y) [] = ·HomScalar R x y
   ·Homeval (ℕ.suc n) 0H Q xs =

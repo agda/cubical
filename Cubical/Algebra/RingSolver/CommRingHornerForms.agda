@@ -7,9 +7,10 @@ open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Int hiding (_+_ ; _·_ ; -_)
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec
-open import Cubical.Data.Bool using (Bool; true; false; if_then_else_; _and_; false≢true)
+open import Cubical.Data.Bool using (Bool; true; false; if_then_else_; _and_; false≢true; ¬true→false)
 open import Cubical.Data.Empty hiding () renaming (rec to recEmpty)
 open import Cubical.Data.Sigma
+open import Cubical.Relation.Nullary.Base using (¬_)
 
 open import Cubical.Algebra.RingSolver.RawRing
 open import Cubical.Algebra.RingSolver.IntAsRawRing
@@ -45,6 +46,13 @@ data IteratedHornerForms (A : RawAlgebra ℤAsRawRing ℓ) : ℕ → Type ℓ wh
   _·X+_ : {n : ℕ} → IteratedHornerForms A (ℕ.suc n) → IteratedHornerForms A n
                   → IteratedHornerForms A (ℕ.suc n)
 
+
+{-
+  The following function returns true, if there is some
+  obvious reason that the Horner-Expression should be zero.
+  Since Equality is undecidable in a general RawAlgebra, we cannot
+  have a function that fully lives up to the name 'isZero'.
+-}
 module _ (A : RawAlgebra ℤAsRawRing ℓ′) where
   open RawRing ℤAsRawRing
   isZero : {n : ℕ} → IteratedHornerForms A n
@@ -99,6 +107,30 @@ module _ (R : CommRing ℓ) where
                where isZeroQ = snd (extract _ _ isZeroPandQ)
   ... | false = byAbsurdity isZeroP
                where isZeroP = fst (extract _ _ isZeroPandQ)
+
+  computeEvalIsZero :
+               {n : ℕ}
+               (P : IteratedHornerForms νR (ℕ.suc n))
+               (Q : IteratedHornerForms νR n)
+             → (xs : Vec ⟨ νR ⟩ₐ n)
+             → (x : ⟨ νR ⟩ₐ)
+             → isZero νR P ≡ true
+             → eval _ (P ·X+ Q) (x ∷ xs) ≡ eval n Q xs
+  computeEvalIsZero P Q xs x isZeroP with isZero νR P
+  ... | true = refl
+  ... | false = byAbsurdity isZeroP
+
+  computeEvalNotZero :
+               {n : ℕ}
+               (P : IteratedHornerForms νR (ℕ.suc n))
+               (Q : IteratedHornerForms νR n)
+             → (xs : Vec ⟨ νR ⟩ₐ n)
+             → (x : ⟨ νR ⟩ₐ)
+             → ¬ (isZero νR P ≡ true)
+             → eval _ (P ·X+ Q) (x ∷ xs) ≡ (eval _ P (x ∷ xs)) · x + eval n Q xs
+  computeEvalNotZero P Q xs x notZeroP with isZero νR P
+  ... | true = byAbsurdity (sym (¬true→false true notZeroP))
+  ... | false = refl
 
 module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   open RawRing ℤAsRawRing
