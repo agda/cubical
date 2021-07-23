@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe #-}
 module Cubical.Algebra.RingSolver.CommRingEvalHom where
 
 open import Cubical.Foundations.Prelude
@@ -13,6 +13,7 @@ open import Cubical.Relation.Nullary.Base
 open import Cubical.Algebra.RingSolver.RawAlgebra
 open import Cubical.Algebra.RingSolver.IntAsRawRing
 open import Cubical.Algebra.RingSolver.CommRingHornerForms
+open import Cubical.Algebra.RingSolver.CommRingHornerEval
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 
