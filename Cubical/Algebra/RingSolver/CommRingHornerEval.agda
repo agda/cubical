@@ -8,8 +8,9 @@ open import Cubical.Data.Int hiding (_+_ ; _·_ ; -_)
 open import Cubical.Data.Vec
 open import Cubical.Data.Bool
 
-open import Cubical.Relation.Nullary.Base
+open import Cubical.Relation.Nullary.Base using (¬_; yes; no)
 
+open import Cubical.Algebra.RingSolver.Utility
 open import Cubical.Algebra.RingSolver.RawAlgebra
 open import Cubical.Algebra.RingSolver.IntAsRawRing
 open import Cubical.Algebra.RingSolver.CommRingHornerForms

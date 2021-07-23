@@ -7,9 +7,9 @@ open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Int hiding (_+_ ; _·_ ; -_)
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec
-open import Cubical.Data.Bool using (Bool; true; false; if_then_else_; _and_; false≢true)
-open import Cubical.Data.Empty hiding () renaming (rec to recEmpty)
-open import Cubical.Data.Sigma
+open import Cubical.Data.Bool using (Bool; true; false; if_then_else_; _and_)
+
+open import Cubical.Algebra.RingSolver.Utility
 
 open import Cubical.Algebra.RingSolver.RawRing
 open import Cubical.Algebra.RingSolver.IntAsRawRing
@@ -60,17 +60,6 @@ module _ (A : RawAlgebra ℤAsRawRing ℓ) where
   isZero (const (negsuc _)) = false
   isZero 0H = true
   isZero (P ·X+ Q) = (isZero P) and (isZero Q)
-
-byAbsurdity : {Anything : Type ℓ} → false ≡ true → Anything
-byAbsurdity p = recEmpty (false≢true p)
-
-extract : (P Q : Bool)
-              → P and Q ≡ true
-              → (P ≡ true) × (Q ≡ true)
-extract false false eq = byAbsurdity eq
-extract false true eq = byAbsurdity eq
-extract true false eq = byAbsurdity eq
-extract true true eq = eq , eq
 
 module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   open RawRing ℤAsRawRing
