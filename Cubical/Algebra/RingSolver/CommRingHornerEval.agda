@@ -114,3 +114,13 @@ module _ (R : CommRing ℓ) where
                   step2 = sym (combineCasesEval (P +ₕ Q) (r +ₕ s) x xs)
   ... | false | p = byAbsurdity p
 
+  compute+ₕEvalNotBothZero :
+    (n : ℕ) (P Q : IteratedHornerForms νR (ℕ.suc n))
+    (r s : IteratedHornerForms νR n)
+    (x : (fst R)) (xs : Vec (fst R) n)
+    → (isZero νR (P +ₕ Q) and isZero νR (r +ₕ s)) ≡ false
+    → eval _ ((P ·X+ r) +ₕ (Q ·X+ s)) (x ∷ xs) ≡ eval _ ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs)
+  compute+ₕEvalNotBothZero n P Q r s _ _ notBothZero
+    with isZero νR (P +ₕ Q) and isZero νR (r +ₕ s) | notBothZero
+  ... | true | p = byAbsurdity (sym p)
+  ... | false | p = refl

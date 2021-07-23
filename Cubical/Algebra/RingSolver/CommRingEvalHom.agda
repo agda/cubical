@@ -7,7 +7,7 @@ open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Int.Base hiding (_+_ ; _·_ ; -_)
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec
-open import Cubical.Data.Bool.Base
+open import Cubical.Data.Bool
 open import Cubical.Relation.Nullary.Base
 
 open import Cubical.Algebra.RingSolver.RawAlgebra
@@ -81,12 +81,12 @@ module HomomorphismProperties (R : CommRing ℓ) where
 
   combineCases+ : (n : ℕ) (P Q : IteratedHornerForms νR (ℕ.suc n))
                   (r s : IteratedHornerForms νR n)
-                  (xs : Vec ⟨ νR ⟩ (ℕ.suc n))
-                  → eval (ℕ.suc n) ((P ·X+ r) +ₕ (Q ·X+ s)) xs
-                  ≡ eval (ℕ.suc n) ((P +ₕ Q) ·X+ (r +ₕ s)) xs
-  combineCases+ n P Q r s xs with (isZero νR (P +ₕ Q) and isZero νR (r +ₕ s)) ≟ true
-  ... | yes p = {!p!}
-  ... | no p = {!!}
+                  (x : fst R) (xs : Vec (fst R) n)
+                  → eval (ℕ.suc n) ((P ·X+ r) +ₕ (Q ·X+ s)) (x ∷ xs)
+                  ≡ eval (ℕ.suc n) ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs)
+  combineCases+ n P Q r s x xs with (isZero νR (P +ₕ Q) and isZero νR (r +ₕ s)) ≟ true
+  ... | yes p = compute+ₕEvalBothZero R n P Q r s x xs p
+  ... | no p = compute+ₕEvalNotBothZero R n P Q r s x xs (¬true→false _ p)
 
   +Homeval :
     (n : ℕ) (P Q : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)
@@ -105,7 +105,7 @@ module HomomorphismProperties (R : CommRing ℓ) where
     eval (ℕ.suc _) (P ·X+ Q) xs + eval (ℕ.suc _) 0H xs ∎
   +Homeval .(ℕ.suc _) (P ·X+ Q) (S ·X+ T) (x ∷ xs) =
     eval (ℕ.suc _) ((P ·X+ Q) +ₕ (S ·X+ T)) (x ∷ xs)
-   ≡⟨ combineCases+ _ P S Q T (x ∷ xs) ⟩
+   ≡⟨ combineCases+ _ P S Q T x xs ⟩
     eval (ℕ.suc _) ((P +ₕ S) ·X+ (Q +ₕ T)) (x ∷ xs)
    ≡⟨ combineCasesEval R (P +ₕ S) (Q +ₕ T) x xs ⟩
     (eval (ℕ.suc _) (P +ₕ S) (x ∷ xs)) · x + eval _ (Q +ₕ T) xs
