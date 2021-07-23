@@ -7,13 +7,15 @@ open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Int hiding (_+_ ; _·_ ; -_)
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec
-open import Cubical.Data.Bool using (Bool; true; false; if_then_else_; _and_)
+open import Cubical.Data.Bool using (Bool; true; false; if_then_else_; _and_; false≢true)
+open import Cubical.Data.Empty hiding () renaming (rec to recEmpty)
+open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.RingSolver.RawRing
 open import Cubical.Algebra.RingSolver.IntAsRawRing
 open import Cubical.Algebra.RingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ₐ)
-open import Cubical.Algebra.RingSolver.AlmostRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.RingSolver.AlgebraExpression public
+open import Cubical.Algebra.CommRing
 
 private
   variable
@@ -65,6 +67,38 @@ eval {A = A} (ℕ.suc n) (P ·X+ Q) (x ∷ xs) =
      in if (isZero A P)
         then Q'
         else P' · x + Q'
+
+module _ (R : CommRing ℓ) where
+  private
+    νR = CommRing→RawℤAlgebra R
+  open CommRingStr (snd R)
+
+  private
+    byAbsurdity : {Anything : Type ℓ′} → false ≡ true → Anything
+    byAbsurdity p = recEmpty (false≢true p)
+
+    extract : (P Q : Bool)
+                  → P and Q ≡ true
+                  → (P ≡ true) × (Q ≡ true)
+    extract false false eq = byAbsurdity eq
+    extract false true eq = byAbsurdity eq
+    extract true false eq = byAbsurdity eq
+    extract true true eq = eq , eq
+
+  evalIsZero : {n : ℕ} (P : IteratedHornerForms νR n)
+             → (l : Vec ⟨ νR ⟩ₐ n)
+             → isZero νR P ≡ true
+             → eval n P l ≡ 0r
+  evalIsZero (const (pos ℕ.zero)) [] isZeroP = refl
+  evalIsZero (const (pos (ℕ.suc n))) [] isZeroP = byAbsurdity isZeroP
+  evalIsZero (const (negsuc _)) [] isZeroP = byAbsurdity isZeroP
+  evalIsZero 0H (x ∷ xs) _ = refl
+  evalIsZero {n = ℕ.suc n} (P ·X+ Q) (x ∷ xs) isZeroPandQ with isZero νR P
+  ... | true = eval n Q xs   ≡⟨ evalIsZero Q xs isZeroQ ⟩
+               0r ∎
+               where isZeroQ = snd (extract _ _ isZeroPandQ)
+  ... | false = byAbsurdity isZeroP
+               where isZeroP = fst (extract _ _ isZeroPandQ)
 
 module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   open RawRing ℤAsRawRing
