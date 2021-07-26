@@ -172,8 +172,7 @@ module HomomorphismProperties (R : CommRing ℓ) where
   combineCases⋆ n x xs r P Q with isZero νR r ≟ true
   ... | yes p =
     eval (ℕ.suc n) (r ⋆ (P ·X+ Q)) (x ∷ xs)                  ≡⟨ ⋆isZeroLeftAnnihilates r (P ·X+ Q) (x ∷ xs) p ⟩
-    0r                                                        ≡⟨ sym (+Rid 0r) ⟩
-    0r + 0r                                                   ≡[ i ]⟨ 0LeftAnnihilates x (~ i) + 0r ⟩
+    0r                                                        ≡⟨ someCalculation R ⟩
     0r · x + 0r                                               ≡⟨ step1 ⟩
     eval (ℕ.suc n) (r ⋆ P) (x ∷ xs) · x + eval n (r ·ₕ Q) xs  ≡⟨ sym (combineCasesEval R (r ⋆ P) (r ·ₕ Q) x xs) ⟩
     eval (ℕ.suc n) ((r ⋆ P) ·X+ (r ·ₕ Q)) (x ∷ xs) ∎
@@ -205,31 +204,39 @@ module HomomorphismProperties (R : CommRing ℓ) where
     ≡[ i ]⟨ eval n r xs · combineCasesEval R P Q x xs (~ i) ⟩
       eval n r xs · eval (ℕ.suc n) (P ·X+ Q) (x ∷ xs) ∎
 
-  combineCases :
+  lemmaForCombineCases· :
+    {n : ℕ} (Q : IteratedHornerForms νR n) (P S : IteratedHornerForms νR (ℕ.suc n))
+    (xs : Vec (fst R) (ℕ.suc n))
+    →  isZero νR (P ·ₕ S) ≡ true
+    → eval (ℕ.suc _) ((P ·X+ Q) ·ₕ S) xs
+      ≡ eval (ℕ.suc _) (Q ⋆ S) xs
+  lemmaForCombineCases· Q P S xs isZeroProd with isZero νR (P ·ₕ S)
+  ... | true = refl
+  ... | false = byBoolAbsurdity isZeroProd
+
+  combineCases· :
     (n : ℕ) (Q : IteratedHornerForms νR n) (P S : IteratedHornerForms νR (ℕ.suc n))
     (xs : Vec (fst R) (ℕ.suc n))
     → eval (ℕ.suc n) ((P ·X+ Q) ·ₕ S) xs ≡ eval (ℕ.suc n) (((P ·ₕ S) ·X+ 0ₕ) +ₕ (Q ⋆ S)) xs
-  combineCases n Q P S (x ∷ xs) with (P ·ₕ S)
-  ... | 0H =
-    eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs)                ≡⟨ sym (+Lid _) ⟩
-    0r + eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs)           ≡⟨ cong (λ u → u + eval _ (Q ⋆ S) (x ∷ xs)) lemma ⟩
-    eval (ℕ.suc n) (0H ·X+ 0ₕ) (x ∷ xs)
-    + eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs)              ≡⟨ sym (+Homeval (ℕ.suc n)
-                                                      (0H ·X+ 0ₕ) (Q ⋆ S) (x ∷ xs)) ⟩
-    eval (ℕ.suc n) ((0H ·X+ 0ₕ) +ₕ (Q ⋆ S)) (x ∷ xs) ∎
-    where lemma : 0r ≡ eval (ℕ.suc n) (0H ·X+ 0ₕ) (x ∷ xs)
-          lemma = 0r
-                ≡⟨ sym (+Rid _) ⟩
-                  0r + 0r
-                ≡⟨ cong (λ u → u + 0r) (sym (0LeftAnnihilates _)) ⟩
-                  0r · x + 0r
-                ≡⟨ cong (λ u → 0r · x + u) (sym (Eval0H _ xs)) ⟩
-                  0r · x + eval n 0ₕ xs
-                ≡⟨ cong (λ u → u · x + eval n 0ₕ xs) (sym (Eval0H _ (x ∷ xs))) ⟩
-                  eval {A = νR} (ℕ.suc n) 0H (x ∷ xs) · x + eval n 0ₕ xs
-                ≡[ i ]⟨ combineCasesEval R 0H 0ₕ x xs (~ i) ⟩
-                  eval (ℕ.suc n) (0H ·X+ 0ₕ) (x ∷ xs) ∎
-  ... | (_ ·X+ _) = {!!}
+  combineCases· _ Q P S (x ∷ xs) with isZero νR (P ·ₕ S) ≟ true
+  ... | yes p =
+        eval (ℕ.suc _) ((P ·X+ Q) ·ₕ S) (x ∷ xs)                                     ≡⟨ lemmaForCombineCases· Q P S (x ∷ xs) p ⟩
+        eval (ℕ.suc _) (Q ⋆ S) (x ∷ xs)                                              ≡⟨ sym (+Lid _) ⟩
+        0r + eval (ℕ.suc _) (Q ⋆ S) (x ∷ xs)                                         ≡⟨ step1 ⟩
+        eval (ℕ.suc _) ((P ·ₕ S) ·X+ 0ₕ) (x ∷ xs) + eval (ℕ.suc _) (Q ⋆ S) (x ∷ xs)  ≡⟨ step2 ⟩
+        eval (ℕ.suc _) (((P ·ₕ S) ·X+ 0ₕ) +ₕ (Q ⋆ S)) (x ∷ xs)                        ∎
+        where
+          lemma =
+            eval (ℕ.suc _) ((P ·ₕ S) ·X+ 0ₕ) (x ∷ xs)            ≡⟨ combineCasesEval R (P ·ₕ S) 0ₕ x xs ⟩
+            eval (ℕ.suc _) (P ·ₕ S) (x ∷ xs) · x + eval _ 0ₕ xs  ≡[ i ]⟨ evalIsZero R (P ·ₕ S) (x ∷ xs) p i · x + Eval0H _ xs i ⟩
+            0r · x + 0r                                         ≡⟨ sym (someCalculation R) ⟩
+            0r                                                  ∎
+          step1 : _ ≡ _
+          step1 i = lemma (~ i) + eval (ℕ.suc _) (Q ⋆ S) (x ∷ xs)
+          step2 = sym (+Homeval _ ((P ·ₕ S) ·X+ 0ₕ) (Q ⋆ S) (x ∷ xs))
+  ... | no p with isZero νR (P ·ₕ S)
+  ...           | true = byAbsurdity (p refl)
+  ...           | false = refl
 
   ·Homeval .ℕ.zero (const x) (const y) [] = ·HomScalar R x y
   ·Homeval (ℕ.suc n) 0H Q xs =
@@ -239,7 +246,7 @@ module HomomorphismProperties (R : CommRing ℓ) where
     eval (ℕ.suc n) 0H xs · eval (ℕ.suc n) Q xs ∎
   ·Homeval (ℕ.suc n) (P ·X+ Q) S (x ∷ xs) =
       eval (ℕ.suc n) ((P ·X+ Q) ·ₕ S) (x ∷ xs)
-    ≡⟨ combineCases n Q P S (x ∷ xs) ⟩
+    ≡⟨ combineCases· n Q P S (x ∷ xs) ⟩
       eval (ℕ.suc n) (((P ·ₕ S) ·X+ 0ₕ) +ₕ (Q ⋆ S)) (x ∷ xs)
     ≡⟨ +Homeval (ℕ.suc n) ((P ·ₕ S) ·X+ 0ₕ) (Q ⋆ S) (x ∷ xs) ⟩
       eval (ℕ.suc n) ((P ·ₕ S) ·X+ 0ₕ) (x ∷ xs) + eval (ℕ.suc n) (Q ⋆ S) (x ∷ xs)

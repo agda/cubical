@@ -41,6 +41,13 @@ module _ (R : CommRing ℓ) where
   open RingTheory (CommRing→Ring R)
   open IteratedHornerOperations νR
 
+  someCalculation : {x : fst R} → _ ≡ _
+  someCalculation {x = x} =
+    0r                   ≡⟨ sym (+Rid 0r) ⟩
+    0r + 0r              ≡[ i ]⟨ 0LeftAnnihilates x (~ i) + 0r ⟩
+    0r · x + 0r          ∎
+
+
   evalIsZero : {n : ℕ} (P : IteratedHornerForms νR n)
              → (l : Vec (fst R) n)
              → isZero νR P ≡ true
@@ -104,8 +111,7 @@ module _ (R : CommRing ℓ) where
   compute+ₕEvalBothZero n P Q r s x xs bothZero with isZero νR (P +ₕ Q) and isZero νR (r +ₕ s) | bothZero
   ... | true | p =
                eval {A = νR} _ 0H (x ∷ xs)                            ≡⟨ refl ⟩
-               0r                                                     ≡⟨ sym (+Rid 0r) ⟩
-               0r + 0r                                                ≡[ i ]⟨ 0LeftAnnihilates x (~ i) + 0r ⟩
+               0r                                                     ≡⟨ someCalculation ⟩
                0r · x + 0r                                            ≡⟨ step1  ⟩
                (eval _ (P +ₕ Q) (x ∷ xs)) · x + eval _ (r +ₕ s) xs     ≡⟨ step2 ⟩
                eval _ ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs) ∎
