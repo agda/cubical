@@ -12,6 +12,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.FinData
 open import Cubical.Data.Nat
 open import Cubical.Data.Vec
+open import Cubical.Data.Sigma
+
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.CommRing
@@ -34,9 +36,8 @@ module _ {R : CommRing ℓ} where
   makeFPAlgebra n l = freeAlgebra n / generatedIdeal (freeAlgebra n) l
 
   isFPAlgebra : (A : CommAlgebra R ℓ) → Type _
-  isFPAlgebra A = ∥ (Σ[ n ∈ ℕ ]
-                      Σ[ m ∈ ℕ ]
-                      Σ[ l ∈ FinVec (fst (freeAlgebra n)) m ]  makeFPAlgebra n l ≡ A)  ∥
+  isFPAlgebra A = ∃[ ((n , m) , l) ∈ Σ[ (n , m) ∈ ℕ × ℕ ] FinVec (fst (freeAlgebra n)) m ]
+                   makeFPAlgebra n l ≡ A
 
   isFPAlgebraIsProp : {A : CommAlgebra R ℓ} → isProp (isFPAlgebra A)
   isFPAlgebraIsProp = isPropPropTrunc
