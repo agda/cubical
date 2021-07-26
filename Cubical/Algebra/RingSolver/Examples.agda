@@ -43,7 +43,7 @@ module Test (R : CommRing ℓ) where
   _ = solve R
 
   {-
-    An example that currently fails (see #513):
+    An example that used to fail (see #513):
   -}
 
   _ : (x : (fst R)) → x · 0r ≡ 0r
