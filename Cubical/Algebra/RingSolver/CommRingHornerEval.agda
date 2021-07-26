@@ -42,7 +42,7 @@ module _ (R : CommRing ℓ) where
   open IteratedHornerOperations νR
 
   evalIsZero : {n : ℕ} (P : IteratedHornerForms νR n)
-             → (l : Vec ⟨ νR ⟩ n)
+             → (l : Vec (fst R) n)
              → isZero νR P ≡ true
              → eval n P l ≡ 0r
   evalIsZero (const (pos ℕ.zero)) [] isZeroP = refl
@@ -60,8 +60,8 @@ module _ (R : CommRing ℓ) where
                {n : ℕ}
                (P : IteratedHornerForms νR (ℕ.suc n))
                (Q : IteratedHornerForms νR n)
-             → (xs : Vec ⟨ νR ⟩ n)
-             → (x : ⟨ νR ⟩)
+             → (xs : Vec (fst R) n)
+             → (x : (fst R))
              → isZero νR P ≡ true
              → eval _ (P ·X+ Q) (x ∷ xs) ≡ eval n Q xs
   computeEvalSummandIsZero P Q xs x isZeroP with isZero νR P
@@ -72,8 +72,8 @@ module _ (R : CommRing ℓ) where
                {n : ℕ}
                (P : IteratedHornerForms νR (ℕ.suc n))
                (Q : IteratedHornerForms νR n)
-             → (xs : Vec ⟨ νR ⟩ n)
-             → (x : ⟨ νR ⟩)
+             → (xs : Vec (fst R) n)
+             → (x : (fst R))
              → ¬ (isZero νR P ≡ true)
              → eval _ (P ·X+ Q) (x ∷ xs) ≡ (eval _ P (x ∷ xs)) · x + eval n Q xs
   computeEvalNotZero P Q xs x notZeroP with isZero νR P

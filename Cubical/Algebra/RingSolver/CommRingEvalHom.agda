@@ -207,7 +207,7 @@ module HomomorphismProperties (R : CommRing ℓ) where
 
   combineCases :
     (n : ℕ) (Q : IteratedHornerForms νR n) (P S : IteratedHornerForms νR (ℕ.suc n))
-    (xs : Vec ⟨ νR ⟩ (ℕ.suc n))
+    (xs : Vec (fst R) (ℕ.suc n))
     → eval (ℕ.suc n) ((P ·X+ Q) ·ₕ S) xs ≡ eval (ℕ.suc n) (((P ·ₕ S) ·X+ 0ₕ) +ₕ (Q ⋆ S)) xs
   combineCases n Q P S (x ∷ xs) with (P ·ₕ S)
   ... | 0H =
