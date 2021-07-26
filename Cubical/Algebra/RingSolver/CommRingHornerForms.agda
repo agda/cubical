@@ -70,7 +70,7 @@ module _ (A : RawAlgebra ℤAsRawRing ℓ) where
                → isZero P ≡ true
   leftIsZero P Q isZeroSum with isZero P
   ... | true = refl
-  ... | false = byAbsurdity (fst (extract _ _ isZeroSum))
+  ... | false = byBoolAbsurdity (fst (extract _ _ isZeroSum))
 
   rightIsZero : {n : ℕ}
                (P : IteratedHornerForms A (ℕ.suc n))
@@ -79,7 +79,7 @@ module _ (A : RawAlgebra ℤAsRawRing ℓ) where
                → isZero Q ≡ true
   rightIsZero P Q isZeroSum with isZero Q
   ... | true = refl
-  ... | false = byAbsurdity (snd (extract _ _ isZeroSum))
+  ... | false = byBoolAbsurdity (snd (extract _ _ isZeroSum))
 
 module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   open RawRing ℤAsRawRing
@@ -148,25 +148,25 @@ module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   isZeroPresLeft⋆ r 0H isZero-r = refl
   isZeroPresLeft⋆ r (P ·X+ Q) isZero-r with isZero A r
   ...  | true = refl
-  ...  | false = byAbsurdity isZero-r
+  ...  | false = byBoolAbsurdity isZero-r
   
   isZeroPresLeft·ₕ :
     {n : ℕ} (P Q : IteratedHornerForms A n)
     → isZero A P ≡ true
     → isZero A (P ·ₕ Q) ≡ true
   isZeroPresLeft·ₕ (const (pos ℕ.zero)) (const _) isZeroP = refl
-  isZeroPresLeft·ₕ (const (pos (ℕ.suc n))) (const _) isZeroP = byAbsurdity isZeroP
-  isZeroPresLeft·ₕ (const (negsuc n)) (const _) isZeroP = byAbsurdity isZeroP
+  isZeroPresLeft·ₕ (const (pos (ℕ.suc n))) (const _) isZeroP = byBoolAbsurdity isZeroP
+  isZeroPresLeft·ₕ (const (negsuc n)) (const _) isZeroP = byBoolAbsurdity isZeroP
   isZeroPresLeft·ₕ 0H Q isZeroP = refl
   isZeroPresLeft·ₕ (P ·X+ Q) S isZeroSum with isZero A (P ·ₕ S) ≟ true
-  ... | no p = byAbsurdity (sym notZeroProd ∙ isZeroProd)
+  ... | no p = byBoolAbsurdity (sym notZeroProd ∙ isZeroProd)
                where notZeroProd = ¬true→false _ p
                      isZeroP = extractLeft isZeroSum
                      isZeroProd = isZeroPresLeft·ₕ P S isZeroP
   ... | yes p with isZero A (P ·ₕ S)
   ...        | true = isZeroPresLeft⋆ Q S isZeroQ
                       where isZeroQ = extractRight isZeroSum
-  ...        | false = byAbsurdity p
+  ...        | false = byBoolAbsurdity p
 
   asRawRing : (n : ℕ) → RawRing ℓ
   RawRing.Carrier (asRawRing n) = IteratedHornerForms A n

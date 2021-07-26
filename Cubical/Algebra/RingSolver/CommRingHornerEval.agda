@@ -46,14 +46,14 @@ module _ (R : CommRing ℓ) where
              → isZero νR P ≡ true
              → eval n P l ≡ 0r
   evalIsZero (const (pos ℕ.zero)) [] isZeroP = refl
-  evalIsZero (const (pos (ℕ.suc n))) [] isZeroP = byAbsurdity isZeroP
-  evalIsZero (const (negsuc _)) [] isZeroP = byAbsurdity isZeroP
+  evalIsZero (const (pos (ℕ.suc n))) [] isZeroP = byBoolAbsurdity isZeroP
+  evalIsZero (const (negsuc _)) [] isZeroP = byBoolAbsurdity isZeroP
   evalIsZero 0H (x ∷ xs) _ = refl
   evalIsZero {n = ℕ.suc n} (P ·X+ Q) (x ∷ xs) isZeroPandQ with isZero νR P
   ... | true = eval n Q xs   ≡⟨ evalIsZero Q xs isZeroQ ⟩
                0r ∎
                where isZeroQ = snd (extract _ _ isZeroPandQ)
-  ... | false = byAbsurdity isZeroP
+  ... | false = byBoolAbsurdity isZeroP
                where isZeroP = fst (extract _ _ isZeroPandQ)
 
   computeEvalSummandIsZero :
@@ -66,7 +66,7 @@ module _ (R : CommRing ℓ) where
              → eval _ (P ·X+ Q) (x ∷ xs) ≡ eval n Q xs
   computeEvalSummandIsZero P Q xs x isZeroP with isZero νR P
   ... | true = refl
-  ... | false = byAbsurdity isZeroP
+  ... | false = byBoolAbsurdity isZeroP
 
   computeEvalNotZero :
                {n : ℕ}
@@ -77,15 +77,15 @@ module _ (R : CommRing ℓ) where
              → ¬ (isZero νR P ≡ true)
              → eval _ (P ·X+ Q) (x ∷ xs) ≡ (eval _ P (x ∷ xs)) · x + eval n Q xs
   computeEvalNotZero P Q xs x notZeroP with isZero νR P
-  ... | true = byAbsurdity (sym (¬true→false true notZeroP))
+  ... | true = byBoolAbsurdity (sym (¬true→false true notZeroP))
   ... | false = refl
 
   combineCasesEval :
     {n : ℕ}  (P : IteratedHornerForms νR (ℕ.suc n)) (Q : IteratedHornerForms νR n)
-    (x : (fst R)) (xs : Vec ⟨ νR ⟩ n)
+    (x : (fst R)) (xs : Vec (fst R) n)
     →   eval _ (P ·X+ Q) (x ∷ xs)
       ≡ (eval _ P (x ∷ xs)) · x + eval n Q xs
-  combineCasesEval P Q x xs with isZero νR P  ≟ true
+  combineCasesEval P Q x xs with isZero νR P ≟ true
   ... | yes p =
        eval _ (P ·X+ Q) (x ∷ xs)            ≡⟨ computeEvalSummandIsZero P Q xs x p ⟩
        eval _ Q xs                          ≡⟨ sym (+Lid _) ⟩
@@ -113,7 +113,7 @@ module _ (R : CommRing ℓ) where
                   step1 i = (evalIsZero (P +ₕ Q) (x ∷ xs) (fst (extract _ _ (bothZero))) (~ i)) · x
                     + (evalIsZero (r +ₕ s) xs (snd (extract _ _ (bothZero))) (~ i))
                   step2 = sym (combineCasesEval (P +ₕ Q) (r +ₕ s) x xs)
-  ... | false | p = byAbsurdity p
+  ... | false | p = byBoolAbsurdity p
 
   compute+ₕEvalNotBothZero :
     (n : ℕ) (P Q : IteratedHornerForms νR (ℕ.suc n))
@@ -123,5 +123,5 @@ module _ (R : CommRing ℓ) where
     → eval _ ((P ·X+ r) +ₕ (Q ·X+ s)) (x ∷ xs) ≡ eval _ ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs)
   compute+ₕEvalNotBothZero n P Q r s _ _ notBothZero
     with isZero νR (P +ₕ Q) and isZero νR (r +ₕ s) | notBothZero
-  ... | true | p = byAbsurdity (sym p)
+  ... | true | p = byBoolAbsurdity (sym p)
   ... | false | p = refl
