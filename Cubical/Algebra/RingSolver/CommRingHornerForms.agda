@@ -7,7 +7,9 @@ open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Int hiding (_+_ ; _·_ ; -_)
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec
-open import Cubical.Data.Bool using (Bool; true; false; if_then_else_; _and_)
+open import Cubical.Data.Bool
+
+open import Cubical.Relation.Nullary.Base using (yes; no)
 
 open import Cubical.Algebra.RingSolver.Utility
 
@@ -60,6 +62,24 @@ module _ (A : RawAlgebra ℤAsRawRing ℓ) where
   isZero (const (negsuc _)) = false
   isZero 0H = true
   isZero (P ·X+ Q) = (isZero P) and (isZero Q)
+
+  leftIsZero : {n : ℕ}
+               (P : IteratedHornerForms A (ℕ.suc n))
+               (Q : IteratedHornerForms A n)
+               → isZero (P ·X+ Q) ≡ true
+               → isZero P ≡ true
+  leftIsZero P Q isZeroSum with isZero P
+  ... | true = refl
+  ... | false = byAbsurdity (fst (extract _ _ isZeroSum))
+
+  rightIsZero : {n : ℕ}
+               (P : IteratedHornerForms A (ℕ.suc n))
+               (Q : IteratedHornerForms A n)
+               → isZero (P ·X+ Q) ≡ true
+               → isZero Q ≡ true
+  rightIsZero P Q isZeroSum with isZero Q
+  ... | true = refl
+  ... | false = byAbsurdity (snd (extract _ _ isZeroSum))
 
 module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   open RawRing ℤAsRawRing
@@ -118,6 +138,35 @@ module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
      in if (isZero A z)
         then (Q ⋆ S)
         else (z ·X+ 0ₕ) +ₕ (Q ⋆ S)
+
+  isZeroPresLeft⋆ :
+    {n : ℕ}
+    (r : IteratedHornerForms A n)
+    (P : IteratedHornerForms A (ℕ.suc n))
+    → isZero A r ≡ true
+    → isZero A (r ⋆ P) ≡ true
+  isZeroPresLeft⋆ r 0H isZero-r = refl
+  isZeroPresLeft⋆ r (P ·X+ Q) isZero-r with isZero A r
+  ...  | true = refl
+  ...  | false = byAbsurdity isZero-r
+  
+  isZeroPresLeft·ₕ :
+    {n : ℕ} (P Q : IteratedHornerForms A n)
+    → isZero A P ≡ true
+    → isZero A (P ·ₕ Q) ≡ true
+  isZeroPresLeft·ₕ (const (pos ℕ.zero)) (const _) isZeroP = refl
+  isZeroPresLeft·ₕ (const (pos (ℕ.suc n))) (const _) isZeroP = byAbsurdity isZeroP
+  isZeroPresLeft·ₕ (const (negsuc n)) (const _) isZeroP = byAbsurdity isZeroP
+  isZeroPresLeft·ₕ 0H Q isZeroP = refl
+  isZeroPresLeft·ₕ (P ·X+ Q) S isZeroSum with isZero A (P ·ₕ S) ≟ true
+  ... | no p = byAbsurdity (sym notZeroProd ∙ isZeroProd)
+               where notZeroProd = ¬true→false _ p
+                     isZeroP = extractLeft isZeroSum
+                     isZeroProd = isZeroPresLeft·ₕ P S isZeroP
+  ... | yes p with isZero A (P ·ₕ S)
+  ...        | true = isZeroPresLeft⋆ Q S isZeroQ
+                      where isZeroQ = extractRight isZeroSum
+  ...        | false = byAbsurdity p
 
   asRawRing : (n : ℕ) → RawRing ℓ
   RawRing.Carrier (asRawRing n) = IteratedHornerForms A n

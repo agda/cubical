@@ -22,3 +22,13 @@ extract false false eq = byAbsurdity eq
 extract false true eq = byAbsurdity eq
 extract true false eq = byAbsurdity eq
 extract true true eq = eq , eq
+
+extractLeft : {P Q : Bool}
+             → P and Q ≡ true
+             → P ≡ true
+extractLeft eq = fst (extract _ _ eq)
+
+extractRight : {P Q : Bool}
+             → P and Q ≡ true
+             → Q ≡ true
+extractRight eq = snd (extract _ _ eq)

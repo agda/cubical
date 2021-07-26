@@ -10,6 +10,7 @@ open import Cubical.Data.Vec
 open import Cubical.Data.Bool
 open import Cubical.Relation.Nullary.Base
 
+open import Cubical.Algebra.RingSolver.Utility
 open import Cubical.Algebra.RingSolver.RawAlgebra
 open import Cubical.Algebra.RingSolver.IntAsRawRing
 open import Cubical.Algebra.RingSolver.CommRingHornerForms
@@ -136,6 +137,17 @@ module HomomorphismProperties (R : CommRing ℓ) where
   ⋆0LeftAnnihilates n 0H xs = Eval0H (ℕ.suc n) xs
   ⋆0LeftAnnihilates ℕ.zero (P ·X+ Q) (x ∷ xs) = refl
   ⋆0LeftAnnihilates (ℕ.suc n) (P ·X+ Q) (x ∷ xs) = refl
+
+  ⋆isZeroLeftAnnihilates :
+    (n : ℕ) (r : IteratedHornerForms νR n)
+            (P : IteratedHornerForms νR (ℕ.suc n))
+    (xs : Vec ⟨ νR ⟩ (ℕ.suc n))
+    → isZero νR r ≡ true
+    → eval (ℕ.suc n) (r ⋆ P) xs ≡ 0r
+  ⋆isZeroLeftAnnihilates n r 0H xs isZero-r = ⋆0LeftAnnihilates n 0H xs
+  ⋆isZeroLeftAnnihilates n r (P ·X+ P₁) xs isZero-r  with isZero νR r
+  ... | true =  Eval0H (ℕ.suc n) xs
+  ... | false = byAbsurdity isZero-r
 
   ·0LeftAnnihilates :
     (n : ℕ) (P : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)
