@@ -149,7 +149,7 @@ module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   isZeroPresLeft⋆ r (P ·X+ Q) isZero-r with isZero A r
   ...  | true = refl
   ...  | false = byBoolAbsurdity isZero-r
-  
+
   isZeroPresLeft·ₕ :
     {n : ℕ} (P Q : IteratedHornerForms A n)
     → isZero A P ≡ true
