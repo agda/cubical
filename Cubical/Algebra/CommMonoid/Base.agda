@@ -1,25 +1,16 @@
+{-
+Module in which commutative monoids are defined.
+-}
+
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.CommMonoid.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP
-open import Cubical.Data.Sigma
-open import Cubical.Data.Unit
+
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 
-open import Cubical.Displayed.Base
-open import Cubical.Displayed.Auto
-open import Cubical.Displayed.Record
-open import Cubical.Displayed.Universe
-
-open Iso
 
 private
   variable
@@ -34,7 +25,7 @@ record IsCommMonoid {M : Type ℓ}
     isMonoid : IsMonoid ε _·_
     comm     : (x y : M) → x · y ≡ y · x
 
-  open IsGroup isGroup public
+  open IsMonoid isMonoid public
 
 record CommMonoidStr (M : Type ℓ) : Type (ℓ-suc ℓ) where
 
