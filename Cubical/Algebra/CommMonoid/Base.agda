@@ -1,3 +1,4 @@
+
 {-
 Module in which commutative monoids are defined.
 -}
@@ -47,18 +48,16 @@ makeIsCommMonoid : {M : Type ℓ} {ε : M} {_·_ : M → M → M}
                  (is-setM : isSet M)
                  (assoc   : (x y z : M) → x · (y · z) ≡ (x · y) · z)
                  (rid     : (x : M) → x · ε ≡ x)
-                 (lid     : (x : M) → ε · x ≡ x)
                  (comm    : (x y : M) → x · y ≡ y · x)
                → IsCommMonoid ε _·_
-makeIsCommMonoid is-setM assoc rid lid comm =
+makeIsCommMonoid is-setM assoc rid comm =
   iscommmonoid (makeIsMonoid is-setM assoc rid (λ x → comm _ _ ∙ rid x)) comm
 
 makeCommMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
                (is-setM : isSet M)
                (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
                (rid : (x : M) → x · ε ≡ x)
-               (lid : (x : M) → ε · x ≡ x)
                (comm    : (x y : M) → x · y ≡ y · x)
              → CommMonoid ℓ
-makeCommMonoid ε _·_ is-setM assoc rid lid comm =
-  _ , commmonoidstr ε _·_ (makeIsCommMonoid is-setM assoc rid lid comm)
+makeCommMonoid ε _·_ is-setM assoc rid comm =
+  _ , commmonoidstr ε _·_ (makeIsCommMonoid is-setM assoc rid comm)
