@@ -39,9 +39,10 @@ When preparing a PR here are some general guidelines:
 
 - All files should start with
 
-  `{-# OPTIONS --cubical --no-import-sorts --safe #-}`
+  `{-# OPTIONS --safe #-}`
 
-  unless there is a good reason for it not to.
+  unless there is a good reason for it not to. The `--cubical` and
+  `--no-import-sorts` are added in the `cubical.agda-lib` file.
 
 - It is much easier for us to review and merge smaller and
   self-contained PRs. If a PR changes a lot of files all over the
