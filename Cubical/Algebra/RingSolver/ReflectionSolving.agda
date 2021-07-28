@@ -2,6 +2,9 @@
 {-
   This is inspired by/copied from:
   https://github.com/agda/agda-stdlib/blob/master/src/Tactic/MonoidSolver.agda
+
+  Boilerplate code for calling the ring solver is constructed automatically
+  with agda's reflection features.
 -}
 module Cubical.Algebra.RingSolver.ReflectionSolving where
 
@@ -44,6 +47,9 @@ private
       varType : Arg Term
       index : ℕ
 
+  {-
+    `getArgs` maps a term 'x ≡ y' to the pair '(x,y)'
+  -}
   getArgs : Term → Maybe (Term × Term)
   getArgs (def n xs) =
     if n == (quote PathP)
@@ -74,6 +80,22 @@ private
          (varg R ∷ varg lhs ∷ varg rhs
            ∷ variableList (rev varInfos)
            ∷ varg (def (quote refl) []) ∷ [])
+
+  constructInPlaceSolution : ℕ → List ℕ → Term → Term → Term → Term
+  constructInPlaceSolution n varIndices R lhs rhs =
+    solverCall
+    where
+      variableList : List ℕ → Arg Term
+      variableList [] = varg (con (quote emptyVec) [])
+      variableList (varIndex ∷ varIndices)
+        = varg (con (quote _∷vec_) (varg (var (varIndex) []) ∷ (variableList varIndices) ∷ []))
+
+      solverCall = def
+         (quote ringSolve)
+         (varg R ∷ varg lhs ∷ varg rhs
+           ∷ variableList (rev varIndices)
+           ∷ varg (def (quote refl) []) ∷ [])
+
 
 module pr (R : CommRing ℓ) {n : ℕ} where
   private
@@ -163,6 +185,10 @@ private
   adjustDeBruijnIndex n (var k args) = var (k +ℕ n) args
   adjustDeBruijnIndex n _ = unknown
 
+  extractVarIndex : Term → Maybe ℕ
+  extractVarIndex (var index _) = just index
+  extractVarIndex     _ = nothing
+
   getVarsAndEquation : Term → Maybe (List VarInfo × Term)
   getVarsAndEquation t =
     let
@@ -184,26 +210,54 @@ private
           addIndices _ _ = nothing
 
   solve-macro : Term → Term → TC Unit
-  solve-macro cring hole = do
-    hole′ ← inferType hole >>= normalise
-    just (varInfos , equation) ← returnTC (getVarsAndEquation hole′)
-      where
-        nothing
-          → typeError (strErr "Something went wrong when getting the variable names in "
-                         ∷ termErr hole′ ∷ [])
-    adjustedCring ← returnTC (adjustDeBruijnIndex (length varInfos) cring)
-    just (lhs , rhs) ← returnTC (toAlgebraExpression adjustedCring (getArgs equation))
-      where
-        nothing
-          → typeError(
-              strErr "Error while trying to buils ASTs for the equation " ∷
-              termErr equation ∷ [])
-    let solution = constructSolution (length varInfos) varInfos adjustedCring lhs rhs
-    unify hole solution
+  solve-macro cring hole =
+    do
+      hole′ ← inferType hole >>= normalise
+      just (varInfos , equation) ← returnTC (getVarsAndEquation hole′)
+        where
+          nothing
+            → typeError (strErr "Something went wrong when getting the variable names in "
+                           ∷ termErr hole′ ∷ [])
+      {-
+        The call to the ring solver will be inside a lamba-expression.
+        That means, that we have to adjust the deBruijn-indices of the variables in 'cring'
+      -}
+      adjustedCring ← returnTC (adjustDeBruijnIndex (length varInfos) cring)
+      just (lhs , rhs) ← returnTC (toAlgebraExpression adjustedCring (getArgs equation))
+        where
+          nothing
+            → typeError(
+                strErr "Error while trying to buils ASTs for the equation " ∷
+                termErr equation ∷ [])
+      let solution = constructSolution (length varInfos) varInfos adjustedCring lhs rhs
+      unify hole solution
+
+  solveInPlace-macro : Term → Term → Term → TC Unit
+  solveInPlace-macro cring varToSolve hole =
+    do
+      equation ← inferType hole >>= normalise
+      just varIndex ← returnTC (extractVarIndex varToSolve)
+        where
+          nothing
+            → typeError(
+                strErr "Error reading variable to solve " ∷
+                termErr varToSolve ∷ [])
+      just (lhs , rhs) ← returnTC (toAlgebraExpression cring (getArgs equation))
+        where
+          nothing
+            → typeError(
+                strErr "Error while trying to buils ASTs for the equation " ∷
+                termErr equation ∷ [])
+      let solution = constructInPlaceSolution (ℕ.suc ℕ.zero) (varIndex ∷ []) cring lhs rhs
+      unify hole solution
 
 macro
   solve : Term → Term → TC _
   solve = solve-macro
 
+  solveInPlace : Term → Term → Term → TC _
+  solveInPlace = solveInPlace-macro
+
 fromℤ : (R : CommRing ℓ) → ℤ → fst R
 fromℤ = scalar
+

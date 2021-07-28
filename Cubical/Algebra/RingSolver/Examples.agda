@@ -11,8 +11,17 @@ private
   variable
     ℓ : Level
 
+
+module _ (R : CommRing ℓ) where
+   open CommRingStr (snd R)
+   test : (x : fst R) → 0r ≡ 0r
+   test x = 0r ≡⟨ solveInPlace R x ⟩ 0r  ∎
+
 module Test (R : CommRing ℓ) where
   open CommRingStr (snd R)
+
+  _ : 0r ≡ 0r
+  _ = solve R
 
   _ :   1r · (1r + 0r)
       ≡ (1r · 0r) + 1r
