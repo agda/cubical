@@ -3,6 +3,7 @@ module Cubical.Algebra.RingSolver.Examples where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Int.Base hiding (_+_ ; _·_ ; _-_)
+open import Cubical.Data.List
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.RingSolver.ReflectionSolving
@@ -59,7 +60,7 @@ module TestInPlaceSolving (R : CommRing ℓ) where
    open CommRingStr (snd R)
 
    testWithOneVariabl : (x : fst R) → x + 0r ≡ 0r + x
-   testWithOneVariabl x = solveInPlace R x
+   testWithOneVariabl x = solveInPlace R (x ∷ [])
 
 
    {-
@@ -67,4 +68,4 @@ module TestInPlaceSolving (R : CommRing ℓ) where
      when the macro is called.
    -}
    testWithOneVariabl' : (x : fst R) → x + 0r ≡ 0r + x
-   testWithOneVariabl' x = x + 0r ≡⟨ solveInPlace R x ⟩ 0r + x ∎
+   testWithOneVariabl' x = x + 0r ≡⟨ solveInPlace R (x ∷ []) ⟩ 0r + x ∎

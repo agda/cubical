@@ -185,9 +185,9 @@ private
   adjustDeBruijnIndex n (var k args) = var (k +ℕ n) args
   adjustDeBruijnIndex n _ = unknown
 
-  extractVarIndex : Term → Maybe ℕ
-  extractVarIndex (var index _) = just index
-  extractVarIndex     _ = nothing
+  extractVarIndices : Maybe (List Term) → Maybe (List ℕ)
+  extractVarIndices (just ((var index _) ∷ _)) = just (index ∷ [])
+  extractVarIndices _ = nothing
 
   getVarsAndEquation : Term → Maybe (List VarInfo × Term)
   getVarsAndEquation t =
@@ -232,23 +232,31 @@ private
       let solution = constructSolution (length varInfos) varInfos adjustedCring lhs rhs
       unify hole solution
 
+  toListOfTerms : Term → Maybe (List Term)
+  toListOfTerms (con c ((arg (arg-info visible _) t) ∷ args)) =
+    if (c == (quote _∷_))
+    then just (t ∷ [])
+    else nothing
+  toListOfTerms (con c ((arg (arg-info _ _) t) ∷ args)) = toListOfTerms (con c args)
+  toListOfTerms _ = nothing
+
   solveInPlace-macro : Term → Term → Term → TC Unit
-  solveInPlace-macro cring varToSolve hole =
+  solveInPlace-macro cring varsToSolve hole =
     do
       equation ← inferType hole >>= normalise
-      just varIndex ← returnTC (extractVarIndex varToSolve)
+      just varIndices ← returnTC (extractVarIndices (toListOfTerms varsToSolve))
         where
           nothing
             → typeError(
-                strErr "Error reading variable to solve " ∷
-                termErr varToSolve ∷ [])
+                strErr "Error reading variables to solve " ∷
+                termErr varsToSolve ∷ [])
       just (lhs , rhs) ← returnTC (toAlgebraExpression cring (getArgs equation))
         where
           nothing
             → typeError(
                 strErr "Error while trying to buils ASTs for the equation " ∷
                 termErr equation ∷ [])
-      let solution = constructInPlaceSolution (ℕ.suc ℕ.zero) (varIndex ∷ []) cring lhs rhs
+      let solution = constructInPlaceSolution (length varIndices) varIndices cring lhs rhs
       unify hole solution
 
 macro
