@@ -61,3 +61,5 @@ module TestInPlaceSolving (R : CommRing ℓ) where
    testWithOneVariabl : (x : fst R) → x + 0r ≡ 0r + x
    testWithOneVariabl x = solveInPlace R x
 
+   testWithOneVariabl' : (x : fst R) → x + 0r ≡ 0r + x
+   testWithOneVariabl' x = x + 0r ≡⟨ solveInPlace R x ⟩ 0r + x ≡⟨ refl ⟩ 0r + x ∎
