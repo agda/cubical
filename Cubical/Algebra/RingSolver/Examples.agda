@@ -58,6 +58,6 @@ module Test (R : CommRing ℓ) where
 module TestInPlaceSolving (R : CommRing ℓ) where
    open CommRingStr (snd R)
 
-   test : (x : fst R) → x + 0r ≡ 0r + x
-   test x = solveInPlace R x
+   testWithOneVariabl : (x : fst R) → x + 0r ≡ 0r + x
+   testWithOneVariabl x = solveInPlace R x
 
