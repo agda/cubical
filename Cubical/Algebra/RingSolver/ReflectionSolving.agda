@@ -260,4 +260,3 @@ macro
 
 fromℤ : (R : CommRing ℓ) → ℤ → fst R
 fromℤ = scalar
-

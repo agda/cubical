@@ -12,11 +12,6 @@ private
     ℓ : Level
 
 
-module _ (R : CommRing ℓ) where
-   open CommRingStr (snd R)
-   test : (x : fst R) → 0r ≡ 0r
-   test x = 0r ≡⟨ solveInPlace R x ⟩ 0r  ∎
-
 module Test (R : CommRing ℓ) where
   open CommRingStr (snd R)
 
@@ -59,3 +54,10 @@ module Test (R : CommRing ℓ) where
   _ : (x y : (fst R)) → x ≡ y
   _ = solve R
   -}
+
+module TestInPlaceSolving (R : CommRing ℓ) where
+   open CommRingStr (snd R)
+
+   test : (x : fst R) → x + 0r ≡ 0r + x
+   test x = solveInPlace R x
+
