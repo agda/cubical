@@ -66,13 +66,14 @@ When preparing a PR here are some general guidelines:
   very useful. It is possible to add a hook that runs this command
   automatically when saving Agda files, by adding the following to your
   `~/.emacs`:
-  `;; delete trailing whitespace before saving in agda-mode
-   (defun agda-mode-delete-whitespace-before-save ()
-   	  (when (eq major-mode 'agda2-mode)
-    	  	(delete-trailing-whitespace)))
+  ```
+  ;; delete trailing whitespace before saving in agda-mode
+  (defun agda-mode-delete-whitespace-before-save ()
+    (when (eq major-mode 'agda2-mode)
+    	(delete-trailing-whitespace)))
 
-    (add-hook 'before-save-hook #'agda-mode-delete-whitespace-before-save)
-  `
+  (add-hook 'before-save-hook #'agda-mode-delete-whitespace-before-save)
+  ```
 
 - Use copattern-matching when instantiating records for efficiency.
   This seems especially important when constructing Iso's.
