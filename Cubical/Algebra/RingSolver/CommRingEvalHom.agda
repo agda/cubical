@@ -144,7 +144,7 @@ module HomomorphismProperties (R : CommRing ℓ) where
     (xs : Vec ⟨ νR ⟩ (ℕ.suc n))
     → isZero νR r ≡ true
     → eval (ℕ.suc n) (r ⋆ P) xs ≡ 0r
-  ⋆isZeroLeftAnnihilates r P xs isZero-r = evalIsZero R (r ⋆ P) xs (isZeroPresLeft⋆ r P isZero-r) 
+  ⋆isZeroLeftAnnihilates r P xs isZero-r = evalIsZero R (r ⋆ P) xs (isZeroPresLeft⋆ r P isZero-r)
 
   ·0LeftAnnihilates :
     (n : ℕ) (P : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)
@@ -178,7 +178,7 @@ module HomomorphismProperties (R : CommRing ℓ) where
     eval (ℕ.suc n) ((r ⋆ P) ·X+ (r ·ₕ Q)) (x ∷ xs) ∎
     where
       step1 : 0r · x + 0r ≡ eval (ℕ.suc n) (r ⋆ P) (x ∷ xs) · x + eval n (r ·ₕ Q) xs
-      step1 i = ⋆isZeroLeftAnnihilates r P (x ∷ xs) p (~ i) · x + ·isZeroLeftAnnihilates r Q xs p (~ i) 
+      step1 i = ⋆isZeroLeftAnnihilates r P (x ∷ xs) p (~ i) · x + ·isZeroLeftAnnihilates r Q xs p (~ i)
   ... | no p with isZero νR r
   ...           | true = byAbsurdity (p refl)
   ...           | false = refl
