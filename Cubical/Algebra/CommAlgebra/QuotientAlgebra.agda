@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --no-import-sorts #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebra.QuotientAlgebra where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --no-import-sorts #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebra.FGIdeal where
 open import Cubical.Foundations.Prelude
 

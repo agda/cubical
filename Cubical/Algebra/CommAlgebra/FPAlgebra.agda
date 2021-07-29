@@ -5,7 +5,7 @@
 
     (a₁,⋯,aₘ) → R[X₁,⋯,Xₙ] → A → 0
 -}
-{-# OPTIONS --cubical --safe --no-import-sorts #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebra.FPAlgebra where
 open import Cubical.Foundations.Prelude
 
