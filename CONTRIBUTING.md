@@ -70,7 +70,7 @@ When preparing a PR here are some general guidelines:
   ;; delete trailing whitespace before saving in agda-mode
   (defun agda-mode-delete-whitespace-before-save ()
     (when (eq major-mode 'agda2-mode)
-    	(delete-trailing-whitespace)))
+      (delete-trailing-whitespace)))
 
   (add-hook 'before-save-hook #'agda-mode-delete-whitespace-before-save)
   ```
