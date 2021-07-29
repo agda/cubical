@@ -59,9 +59,9 @@ module _ (R : CommRing ℓ) where
   evalIsZero {n = ℕ.suc n} (P ·X+ Q) (x ∷ xs) isZeroPandQ with isZero νR P
   ... | true = eval n Q xs   ≡⟨ evalIsZero Q xs isZeroQ ⟩
                0r ∎
-               where isZeroQ = snd (extract _ _ isZeroPandQ)
+               where isZeroQ = snd (extractFromAnd _ _ isZeroPandQ)
   ... | false = byBoolAbsurdity isZeroP
-               where isZeroP = fst (extract _ _ isZeroPandQ)
+               where isZeroP = fst (extractFromAnd _ _ isZeroPandQ)
 
   computeEvalSummandIsZero :
                {n : ℕ}
@@ -116,8 +116,8 @@ module _ (R : CommRing ℓ) where
                (eval _ (P +ₕ Q) (x ∷ xs)) · x + eval _ (r +ₕ s) xs     ≡⟨ step2 ⟩
                eval _ ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs) ∎
             where step1 : 0r · x + 0r ≡ (eval _ (P +ₕ Q) (x ∷ xs)) · x + eval _ (r +ₕ s) xs
-                  step1 i = (evalIsZero (P +ₕ Q) (x ∷ xs) (fst (extract _ _ (bothZero))) (~ i)) · x
-                    + (evalIsZero (r +ₕ s) xs (snd (extract _ _ (bothZero))) (~ i))
+                  step1 i = (evalIsZero (P +ₕ Q) (x ∷ xs) (fst (extractFromAnd _ _ (bothZero))) (~ i)) · x
+                    + (evalIsZero (r +ₕ s) xs (snd (extractFromAnd _ _ (bothZero))) (~ i))
                   step2 = sym (combineCasesEval (P +ₕ Q) (r +ₕ s) x xs)
   ... | false | p = byBoolAbsurdity p
 

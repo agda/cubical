@@ -18,20 +18,20 @@ byBoolAbsurdity p = recEmpty (false≢true p)
 byAbsurdity : {Anything : Type ℓ} → ⊥ → Anything
 byAbsurdity x = recEmpty x
 
-extract : (P Q : Bool)
+extractFromAnd : (P Q : Bool)
               → P and Q ≡ true
               → (P ≡ true) × (Q ≡ true)
-extract false false eq = byBoolAbsurdity eq
-extract false true eq = byBoolAbsurdity eq
-extract true false eq = byBoolAbsurdity eq
-extract true true eq = eq , eq
+extractFromAnd false false eq = byBoolAbsurdity eq
+extractFromAnd false true eq = byBoolAbsurdity eq
+extractFromAnd true false eq = byBoolAbsurdity eq
+extractFromAnd true true eq = eq , eq
 
-extractLeft : {P Q : Bool}
+extractFromAndLeft : {P Q : Bool}
              → P and Q ≡ true
              → P ≡ true
-extractLeft eq = fst (extract _ _ eq)
+extractFromAndLeft eq = fst (extractFromAnd _ _ eq)
 
-extractRight : {P Q : Bool}
+extractFromAndRight : {P Q : Bool}
              → P and Q ≡ true
              → Q ≡ true
-extractRight eq = snd (extract _ _ eq)
+extractFromAndRight eq = snd (extractFromAnd _ _ eq)

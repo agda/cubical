@@ -70,7 +70,7 @@ module _ (A : RawAlgebra ℤAsRawRing ℓ) where
                → isZero P ≡ true
   leftIsZero P Q isZeroSum with isZero P
   ... | true = refl
-  ... | false = byBoolAbsurdity (fst (extract _ _ isZeroSum))
+  ... | false = byBoolAbsurdity (fst (extractFromAnd _ _ isZeroSum))
 
   rightIsZero : {n : ℕ}
                (P : IteratedHornerForms A (ℕ.suc n))
@@ -79,7 +79,7 @@ module _ (A : RawAlgebra ℤAsRawRing ℓ) where
                → isZero Q ≡ true
   rightIsZero P Q isZeroSum with isZero Q
   ... | true = refl
-  ... | false = byBoolAbsurdity (snd (extract _ _ isZeroSum))
+  ... | false = byBoolAbsurdity (snd (extractFromAnd _ _ isZeroSum))
 
 module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   open RawRing ℤAsRawRing
@@ -161,11 +161,11 @@ module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   isZeroPresLeft·ₕ (P ·X+ Q) S isZeroSum with isZero A (P ·ₕ S) ≟ true
   ... | no p = byBoolAbsurdity (sym notZeroProd ∙ isZeroProd)
                where notZeroProd = ¬true→false _ p
-                     isZeroP = extractLeft isZeroSum
+                     isZeroP = extractFromAndLeft isZeroSum
                      isZeroProd = isZeroPresLeft·ₕ P S isZeroP
   ... | yes p with isZero A (P ·ₕ S)
   ...        | true = isZeroPresLeft⋆ Q S isZeroQ
-                      where isZeroQ = extractRight isZeroSum
+                      where isZeroQ = extractFromAndRight isZeroSum
   ...        | false = byBoolAbsurdity p
 
   asRawRing : (n : ℕ) → RawRing ℓ
