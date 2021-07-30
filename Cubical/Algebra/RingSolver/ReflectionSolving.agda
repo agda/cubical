@@ -48,11 +48,12 @@ private
       index : ℕ
 
   {-
-    `getArgs` maps a term 'x ≡ y' to the pair '(x,y)'
+    `getTheTwoArgsOf` maps a term 'def n (x ∷ y ∷ [])' to the pair '(x,y)'
+    non-visible arguments are ignored.
   -}
-  getArgs : Term → Maybe (Term × Term)
-  getArgs (def n xs) =
-    if n == (quote PathP)
+  getTheTwoArgsOf : Name → Term → Maybe (Term × Term)
+  getTheTwoArgsOf n' (def n xs) =
+    if n == n'
     then go xs
     else nothing
       where
@@ -60,7 +61,14 @@ private
       go (varg x ∷ varg y ∷ []) = just (x , y)
       go (x ∷ xs)               = go xs
       go _                      = nothing
-  getArgs _ = nothing
+  getTheTwoArgsOf n' _ = nothing
+
+  {-
+    `getArgs` maps a term 'x ≡ y' to the pair '(x,y)'
+  -}
+  getArgs : Term → Maybe (Term × Term)
+  getArgs = getTheTwoArgsOf (quote PathP)
+
 
   constructSolution : ℕ → List VarInfo → Term → Term → Term → Term
   constructSolution n varInfos R lhs rhs =
