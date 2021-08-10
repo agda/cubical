@@ -3,6 +3,7 @@ module Cubical.Algebra.RingSolver.Examples where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Int.Base hiding (_+_ ; _·_ ; _-_)
+open import Cubical.Data.List
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.RingSolver.ReflectionSolving
@@ -58,6 +59,13 @@ module Test (R : CommRing ℓ) where
 module TestInPlaceSolving (R : CommRing ℓ) where
    open CommRingStr (snd R)
 
-   test : (x : fst R) → x + 0r ≡ 0r + x
-   test x = solveInPlace R x
+   testWithOneVariabl : (x : fst R) → x + 0r ≡ 0r + x
+   testWithOneVariabl x = solveInPlace R (x ∷ [])
 
+
+   {-
+     This is problematic. The type of the hole is something like 'x + 0r ≡ _'
+     when the macro is called.
+   -}
+   testWithOneVariabl' : (x : fst R) → x + 0r ≡ 0r + x
+   testWithOneVariabl' x = x + 0r ≡⟨ solveInPlace R (x ∷ []) ⟩ 0r + x ∎
