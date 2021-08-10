@@ -62,10 +62,9 @@ module TestInPlaceSolving (R : CommRing ℓ) where
    testWithOneVariabl : (x : fst R) → x + 0r ≡ 0r + x
    testWithOneVariabl x = solveInPlace R (x ∷ [])
 
-
    {-
      This is problematic. The type of the hole is something like 'x + 0r ≡ _'
      when the macro is called.
    -}
    testWithOneVariabl' : (x : fst R) → x + 0r ≡ 0r + x
-   testWithOneVariabl' x = x + 0r ≡⟨ solveInPlace R (x ∷ []) ⟩ 0r + x ∎
+   testWithOneVariabl' x = x + 0r ≡⟨solve R withVars (x ∷ []) ⟩ 0r + x ∎

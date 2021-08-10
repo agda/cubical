@@ -62,6 +62,28 @@ private
       go _                      = nothing
   getArgs _ = nothing
 
+  firstVisibleArg : List (Arg Term) → Maybe Term
+  firstVisibleArg [] = nothing
+  firstVisibleArg (varg x ∷ l) = just x
+  firstVisibleArg (x ∷ l) = firstVisibleArg l
+
+  {-
+    If the solver needs to be applied during equational reasoning,
+    the right hand side of the equation to solve cannot be given to
+    the solver directly. The folllowing function extracts this term y
+    from a more complex expression as in:
+      x ≡⟨ solve ... ⟩ (y ≡⟨ ... ⟩ z ∎)
+  -}
+  getRhs : Term → Maybe Term
+  getRhs reasoningToTheRight@(def n xs) =
+    if n == (quote _∎)
+    then firstVisibleArg xs
+    else (if n == (quote _≡⟨_⟩_)
+         then firstVisibleArg xs
+         else nothing)
+  getRhs _ = nothing
+
+
   private
     solverCallAsTerm : Term → Arg Term → Term → Term → Term
     solverCallAsTerm R varList lhs rhs =
@@ -209,6 +231,15 @@ private
                       (addIndices countVar list)
           addIndices _ _ = nothing
 
+  toListOfTerms : Term → Maybe (List Term)
+  toListOfTerms (con c ((arg (arg-info visible _) t) ∷ args)) =
+    if (c == (quote _∷_))
+    then just (t ∷ [])
+    else nothing
+  toListOfTerms (con c ((arg (arg-info _ _) t) ∷ args)) = toListOfTerms (con c args)
+  toListOfTerms _ = nothing
+
+
   solve-macro : Term → Term → TC Unit
   solve-macro cring hole =
     do
@@ -232,14 +263,6 @@ private
       let solution = solverCallWithLambdas (length varInfos) varInfos adjustedCring lhs rhs
       unify hole solution
 
-  toListOfTerms : Term → Maybe (List Term)
-  toListOfTerms (con c ((arg (arg-info visible _) t) ∷ args)) =
-    if (c == (quote _∷_))
-    then just (t ∷ [])
-    else nothing
-  toListOfTerms (con c ((arg (arg-info _ _) t) ∷ args)) = toListOfTerms (con c args)
-  toListOfTerms _ = nothing
-
   solveInPlace-macro : Term → Term → Term → TC Unit
   solveInPlace-macro cring varsToSolve hole =
     do
@@ -259,12 +282,61 @@ private
       let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs rhs
       unify hole solution
 
+  solveExplicit-macro : Term → Term → Term → Term → Term → TC Unit
+  solveExplicit-macro cring varsToSolve lhs rhs hole =
+    do
+      equation ← inferType hole >>= normalise
+      just varIndices ← returnTC (extractVarIndices (toListOfTerms varsToSolve))
+        where
+          nothing
+            → typeError(
+                strErr "Error reading variables to solve " ∷
+                termErr varsToSolve ∷ [])
+      just (lhs' , rhs') ← returnTC (toAlgebraExpression cring (just (lhs , rhs)))
+        where
+          nothing
+            → typeError(
+                strErr "Error while trying to buils ASTs for the equation " ∷
+                termErr equation ∷ [])
+      let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs' rhs'
+      unify hole solution
+
 macro
   solve : Term → Term → TC _
   solve = solve-macro
 
   solveInPlace : Term → Term → Term → TC _
   solveInPlace = solveInPlace-macro
+
+  solveExplicit : Term → Term → Term → Term → Term → TC _
+  solveExplicit = solveExplicit-macro
+
+  infixr 2 _≡⟨solve_withVars_⟩_
+  _≡⟨solve_withVars_⟩_ : Term → Term → Term → Term → Term → TC Unit
+  _≡⟨solve_withVars_⟩_ lhs cring varsToSolve reasoningToTheRight hole =
+    do
+      just varIndices ← returnTC (extractVarIndices (toListOfTerms varsToSolve))
+        where
+          nothing
+            → typeError(
+                strErr "Error reading variables to solve " ∷
+                termErr varsToSolve ∷ [])
+      just rhs ← returnTC (getRhs reasoningToTheRight)
+        where
+          nothing
+            → typeError(
+                strErr "Failed to extract right hand side of equation to solve from " ∷
+                termErr reasoningToTheRight ∷ [])
+      just (lhsAsAST , rhsAsAST) ← returnTC (toAlgebraExpression cring (just (lhs , rhs)))
+        where
+          nothing
+            → typeError(
+                strErr "Error while trying to build ASTs from " ∷
+                termErr lhs ∷
+                strErr " and " ∷
+                termErr rhs ∷ [])
+      let solverCall = solverCallByVarIndices (length varIndices) varIndices cring lhsAsAST rhsAsAST
+      unify hole (def (quote _≡⟨_⟩_) (varg lhs ∷ varg solverCall ∷ varg reasoningToTheRight ∷ []))
 
 fromℤ : (R : CommRing ℓ) → ℤ → fst R
 fromℤ = scalar
