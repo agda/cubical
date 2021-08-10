@@ -21,6 +21,7 @@ private
   variable
     ℓ ℓ₀ ℓ₁ ℓ₀′ ℓ₁′ ℓ₀′′ ℓ₁′′ : Level
 
+-- Max: Should just use PropRel from Base
 Order : (ℓ₁ : Level) → Type ℓ₀ → Type (ℓ-max ℓ₀ (ℓ-suc ℓ₁))
 Order ℓ₁ A = A → A → hProp ℓ₁
 
