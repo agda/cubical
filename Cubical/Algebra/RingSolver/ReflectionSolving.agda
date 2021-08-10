@@ -62,9 +62,20 @@ private
       go _                      = nothing
   getArgs _ = nothing
 
-  constructSolution : ℕ → List VarInfo → Term → Term → Term → Term
-  constructSolution n varInfos R lhs rhs =
-    encloseWithIteratedLambda (map VarInfo.varName varInfos) solverCall
+  private
+    solverCallAsTerm : Term → Arg Term → Term → Term → Term
+    solverCallAsTerm R varList lhs rhs =
+      def
+         (quote ringSolve)
+         (varg R ∷ varg lhs ∷ varg rhs
+           ∷ varList
+           ∷ varg (def (quote refl) []) ∷ [])
+
+  solverCallWithLambdas : ℕ → List VarInfo → Term → Term → Term → Term
+  solverCallWithLambdas n varInfos R lhs rhs =
+    encloseWithIteratedLambda
+      (map VarInfo.varName varInfos)
+      (solverCallAsTerm R (variableList (rev varInfos)) lhs rhs)
     where
       encloseWithIteratedLambda : List String → Term → Term
       encloseWithIteratedLambda (varName ∷ xs) t = lam visible (abs varName (encloseWithIteratedLambda xs t))
@@ -75,26 +86,15 @@ private
       variableList (varInfo ∷ varInfos)
         = varg (con (quote _∷vec_) (varg (var (VarInfo.index varInfo) []) ∷ (variableList varInfos) ∷ []))
 
-      solverCall = def
-         (quote ringSolve)
-         (varg R ∷ varg lhs ∷ varg rhs
-           ∷ variableList (rev varInfos)
-           ∷ varg (def (quote refl) []) ∷ [])
+  solverCallByVarIndices : ℕ → List ℕ → Term → Term → Term → Term
+  solverCallByVarIndices n varIndices R lhs rhs =
+      solverCallAsTerm R (variableList (rev varIndices)) lhs rhs
+      where
+        variableList : List ℕ → Arg Term
+        variableList [] = varg (con (quote emptyVec) [])
+        variableList (varIndex ∷ varIndices)
+          = varg (con (quote _∷vec_) (varg (var (varIndex) []) ∷ (variableList varIndices) ∷ []))
 
-  constructInPlaceSolution : ℕ → List ℕ → Term → Term → Term → Term
-  constructInPlaceSolution n varIndices R lhs rhs =
-    solverCall
-    where
-      variableList : List ℕ → Arg Term
-      variableList [] = varg (con (quote emptyVec) [])
-      variableList (varIndex ∷ varIndices)
-        = varg (con (quote _∷vec_) (varg (var (varIndex) []) ∷ (variableList varIndices) ∷ []))
-
-      solverCall = def
-         (quote ringSolve)
-         (varg R ∷ varg lhs ∷ varg rhs
-           ∷ variableList (rev varIndices)
-           ∷ varg (def (quote refl) []) ∷ [])
 
 
 module pr (R : CommRing ℓ) {n : ℕ} where
@@ -229,7 +229,7 @@ private
             → typeError(
                 strErr "Error while trying to buils ASTs for the equation " ∷
                 termErr equation ∷ [])
-      let solution = constructSolution (length varInfos) varInfos adjustedCring lhs rhs
+      let solution = solverCallWithLambdas (length varInfos) varInfos adjustedCring lhs rhs
       unify hole solution
 
   toListOfTerms : Term → Maybe (List Term)
@@ -256,7 +256,7 @@ private
             → typeError(
                 strErr "Error while trying to buils ASTs for the equation " ∷
                 termErr equation ∷ [])
-      let solution = constructInPlaceSolution (length varIndices) varIndices cring lhs rhs
+      let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs rhs
       unify hole solution
 
 macro
