@@ -208,7 +208,10 @@ private
   adjustDeBruijnIndex n _ = unknown
 
   extractVarIndices : Maybe (List Term) → Maybe (List ℕ)
-  extractVarIndices (just ((var index _) ∷ _)) = just (index ∷ [])
+  extractVarIndices (just ((var index _) ∷ l)) with extractVarIndices (just l)
+  ... | just indices = just (index ∷ indices)
+  ... | nothing = nothing
+  extractVarIndices (just []) = just []
   extractVarIndices _ = nothing
 
   getVarsAndEquation : Term → Maybe (List VarInfo × Term)
@@ -232,13 +235,12 @@ private
           addIndices _ _ = nothing
 
   toListOfTerms : Term → Maybe (List Term)
-  toListOfTerms (con c ((arg (arg-info visible _) t) ∷ args)) =
-    if (c == (quote _∷_))
-    then just (t ∷ [])
-    else nothing
-  toListOfTerms (con c ((arg (arg-info _ _) t) ∷ args)) = toListOfTerms (con c args)
+  toListOfTerms (con c []) = if (c == (quote [])) then just [] else nothing
+  toListOfTerms (con c (varg t ∷ varg s ∷ args)) with toListOfTerms s
+  ... | just terms = if (c == (quote _∷_)) then just (t ∷ terms) else nothing
+  ... | nothing = nothing
+  toListOfTerms (con c (harg t ∷ args)) = toListOfTerms (con c args)
   toListOfTerms _ = nothing
-
 
   solve-macro : Term → Term → TC Unit
   solve-macro cring hole =
@@ -281,6 +283,9 @@ private
                 termErr equation ∷ [])
       let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs rhs
       unify hole solution
+  maybeListToList : Maybe (List Term) → List Term
+  maybeListToList nothing = []
+  maybeListToList (just x) = x
 
 macro
   solve : Term → Term → TC _
@@ -313,6 +318,7 @@ macro
                 termErr lhs ∷ strErr " and " ∷ termErr rhs ∷ [])
       let solverCall = solverCallByVarIndices (length varIndices) varIndices cring lhsAST rhsAST
       unify hole (def (quote _≡⟨_⟩_) (varg lhs ∷ varg solverCall ∷ varg reasoningToTheRight ∷ []))
+
 
 fromℤ : (R : CommRing ℓ) → ℤ → fst R
 fromℤ = scalar

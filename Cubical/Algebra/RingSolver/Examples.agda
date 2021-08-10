@@ -67,11 +67,13 @@ module TestInPlaceSolving (R : CommRing ℓ) where
      x + 0r                       ≡⟨solve R withVars (x ∷ []) ⟩
      0r + x ∎
 
+   testWithTwoVariables :  (x y : fst R) → x + y ≡ y + x
+   testWithTwoVariables x y = x + y ≡⟨solve R withVars (x ∷ y ∷ []) ⟩ y + x ∎
+{-
    testEquationalReasoning' : (x : fst R) (p : 0r + x ≡ 1r) → x + 0r ≡ 0r + x
    testEquationalReasoning' x p =
      x + 0r              ≡⟨solve R withVars (x ∷ []) ⟩
      0r + x              ≡⟨ refl ⟩
      0r + x ∎
+-}
 
-   testWithTwoVariables :  (x y : fst R) → x + y ≡ y + x
-   testWithTwoVariables x y = (x + y) ≡⟨solve R withVars (x ∷ y ∷ []) ⟩ (y + x) ∎
