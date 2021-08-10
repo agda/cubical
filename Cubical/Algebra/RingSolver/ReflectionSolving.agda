@@ -258,7 +258,7 @@ private
         where
           nothing
             → typeError(
-                strErr "Error while trying to buils ASTs for the equation " ∷
+                strErr "Error while trying to build ASTs for the equation " ∷
                 termErr equation ∷ [])
       let solution = solverCallWithLambdas (length varInfos) varInfos adjustedCring lhs rhs
       unify hole solution
@@ -277,7 +277,7 @@ private
         where
           nothing
             → typeError(
-                strErr "Error while trying to buils ASTs for the equation " ∷
+                strErr "Error while trying to build ASTs for the equation " ∷
                 termErr equation ∷ [])
       let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs rhs
       unify hole solution
@@ -327,15 +327,13 @@ macro
             → typeError(
                 strErr "Failed to extract right hand side of equation to solve from " ∷
                 termErr reasoningToTheRight ∷ [])
-      just (lhsAsAST , rhsAsAST) ← returnTC (toAlgebraExpression cring (just (lhs , rhs)))
+      just (lhsAST , rhsAST) ← returnTC (toAlgebraExpression cring (just (lhs , rhs)))
         where
           nothing
             → typeError(
                 strErr "Error while trying to build ASTs from " ∷
-                termErr lhs ∷
-                strErr " and " ∷
-                termErr rhs ∷ [])
-      let solverCall = solverCallByVarIndices (length varIndices) varIndices cring lhsAsAST rhsAsAST
+                termErr lhs ∷ strErr " and " ∷ termErr rhs ∷ [])
+      let solverCall = solverCallByVarIndices (length varIndices) varIndices cring lhsAST rhsAST
       unify hole (def (quote _≡⟨_⟩_) (varg lhs ∷ varg solverCall ∷ varg reasoningToTheRight ∷ []))
 
 fromℤ : (R : CommRing ℓ) → ℤ → fst R
