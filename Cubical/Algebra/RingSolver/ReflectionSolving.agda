@@ -282,34 +282,12 @@ private
       let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs rhs
       unify hole solution
 
-  solveExplicit-macro : Term → Term → Term → Term → Term → TC Unit
-  solveExplicit-macro cring varsToSolve lhs rhs hole =
-    do
-      equation ← inferType hole >>= normalise
-      just varIndices ← returnTC (extractVarIndices (toListOfTerms varsToSolve))
-        where
-          nothing
-            → typeError(
-                strErr "Error reading variables to solve " ∷
-                termErr varsToSolve ∷ [])
-      just (lhs' , rhs') ← returnTC (toAlgebraExpression cring (just (lhs , rhs)))
-        where
-          nothing
-            → typeError(
-                strErr "Error while trying to buils ASTs for the equation " ∷
-                termErr equation ∷ [])
-      let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs' rhs'
-      unify hole solution
-
 macro
   solve : Term → Term → TC _
   solve = solve-macro
 
   solveInPlace : Term → Term → Term → TC _
   solveInPlace = solveInPlace-macro
-
-  solveExplicit : Term → Term → Term → Term → Term → TC _
-  solveExplicit = solveExplicit-macro
 
   infixr 2 _≡⟨solve_withVars_⟩_
   _≡⟨solve_withVars_⟩_ : Term → Term → Term → Term → Term → TC Unit
