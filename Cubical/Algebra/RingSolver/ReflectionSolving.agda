@@ -283,9 +283,6 @@ private
                 termErr equation ∷ [])
       let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs rhs
       unify hole solution
-  maybeListToList : Maybe (List Term) → List Term
-  maybeListToList nothing = []
-  maybeListToList (just x) = x
 
 macro
   solve : Term → Term → TC _
