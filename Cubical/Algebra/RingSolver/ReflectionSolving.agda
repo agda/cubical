@@ -284,16 +284,8 @@ private
       let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs rhs
       unify hole solution
 
-macro
-  solve : Term → Term → TC _
-  solve = solve-macro
-
-  solveInPlace : Term → Term → Term → TC _
-  solveInPlace = solveInPlace-macro
-
-  infixr 2 _≡⟨solve_withVars_⟩_
-  _≡⟨solve_withVars_⟩_ : Term → Term → Term → Term → Term → TC Unit
-  _≡⟨solve_withVars_⟩_ lhs cring varsToSolve reasoningToTheRight hole =
+  solveEqReasoning-macro : Term → Term → Term → Term → Term → TC Unit
+  solveEqReasoning-macro lhs cring varsToSolve reasoningToTheRight hole =
     do
       just varIndices ← returnTC (extractVarIndices (toListOfTerms varsToSolve))
         where
@@ -315,6 +307,17 @@ macro
                 termErr lhs ∷ strErr " and " ∷ termErr rhs ∷ [])
       let solverCall = solverCallByVarIndices (length varIndices) varIndices cring lhsAST rhsAST
       unify hole (def (quote _≡⟨_⟩_) (varg lhs ∷ varg solverCall ∷ varg reasoningToTheRight ∷ []))
+
+macro
+  solve : Term → Term → TC _
+  solve = solve-macro
+
+  solveInPlace : Term → Term → Term → TC _
+  solveInPlace = solveInPlace-macro
+
+  infixr 2 _≡⟨solve_withVars_⟩_
+  _≡⟨solve_withVars_⟩_ : Term → Term → Term → Term → Term → TC Unit
+  _≡⟨solve_withVars_⟩_ = solveEqReasoning-macro
 
 
 fromℤ : (R : CommRing ℓ) → ℤ → fst R
