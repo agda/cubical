@@ -23,25 +23,27 @@ private
   variable
     ℓ ℓ′ : Level
 
-record Prespectrum (ℓ′ : Level) (S : SuccStr ℓ) : Type (ℓ-max (ℓ-suc ℓ′) ℓ) where
+record GenericPrespectrum (S : SuccStr ℓ) (ℓ′ : Level) : Type (ℓ-max (ℓ-suc ℓ′) ℓ) where
   open SuccStr S
   field
     space : Index → Pointed ℓ′
     map : (i : Index) → (space i →∙ Ω (space (succ i)))
+
+Prespectrum = GenericPrespectrum ℤ+
 
 Unit∙→ΩUnit∙ : {ℓ : Level} → (Unit∙ {ℓ = ℓ}) →∙ Ω (Unit∙ {ℓ = ℓ})
 Unit∙→ΩUnit∙ = (λ {tt* → refl}) , refl
 
 makeℤPrespectrum : (space : ℕ → Pointed ℓ)
                   (map : (i : ℕ) → (space i) →∙ Ω (space (suc i)))
-                → Prespectrum ℓ ℤ+
-Prespectrum.space (makeℤPrespectrum space map) (pos n) = space n
-Prespectrum.space (makeℤPrespectrum space map) (negsuc n) = Unit∙
-Prespectrum.map (makeℤPrespectrum space map) (pos n) = map n
-Prespectrum.map (makeℤPrespectrum space map) (negsuc zero) = (λ {tt* → refl}) , refl
-Prespectrum.map (makeℤPrespectrum space map) (negsuc (suc n)) = Unit∙→ΩUnit∙
+                → Prespectrum ℓ
+GenericPrespectrum.space (makeℤPrespectrum space map) (pos n) = space n
+GenericPrespectrum.space (makeℤPrespectrum space map) (negsuc n) = Unit∙
+GenericPrespectrum.map (makeℤPrespectrum space map) (pos n) = map n
+GenericPrespectrum.map (makeℤPrespectrum space map) (negsuc zero) = (λ {tt* → refl}) , refl
+GenericPrespectrum.map (makeℤPrespectrum space map) (negsuc (suc n)) = Unit∙→ΩUnit∙
 
-SuspensionPrespectrum : Pointed ℓ → Prespectrum ℓ ℤ+
+SuspensionPrespectrum : Pointed ℓ → Prespectrum ℓ
 SuspensionPrespectrum A = makeℤPrespectrum space map
           where
             space : ℕ → Pointed _
