@@ -85,5 +85,3 @@ module TestInPlaceSolving (R : CommRing ℓ) where
      x + 0r              ≡⟨solveIn R withVars (x ∷ []) ⟩
      0r + x              ≡⟨ p x ⟩
      1r ∎
-
-
