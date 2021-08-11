@@ -16,5 +16,5 @@ private
 record Prespectrum {S' : SuccStr ℓ} : Type (ℓ-max (ℓ-suc ℓ′) ℓ) where
   open SuccStr S'
   field
-    Space : S → Type ℓ′
-    maps : (i : S) → (Space i → Space (succ i))
+    Space : S → Pointed ℓ′
+    maps : (i : S) → (Space i →∙ Space (succ i))
