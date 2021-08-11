@@ -8,7 +8,7 @@ module Cubical.Homotopy.Prespectrum where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Pointed
-open import Cubical.Foundations.Pointed.Instances
+open import Cubical.Data.Unit.Pointed
 
 open import Cubical.Structures.Successor
 

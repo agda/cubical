@@ -6,7 +6,7 @@
 module Cubical.Homotopy.Spectrum where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Pointed
+open import Cubical.Data.Unit.Pointed
 open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Int
