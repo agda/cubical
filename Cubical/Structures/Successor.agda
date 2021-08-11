@@ -15,15 +15,15 @@ private
 
 record SuccStr (ℓ : Level) : Type (ℓ-suc ℓ) where
   field
-    S : Type ℓ
-    succ : S → S
+    Index : Type ℓ
+    succ : Index → Index
 
 open SuccStr
 
 ℤ+ : SuccStr ℓ-zero
-ℤ+ .S = ℤ
+ℤ+ .Index = ℤ
 ℤ+ .succ = sucℤ
 
 ℕ+ : SuccStr ℓ-zero
-ℕ+ .S = ℕ
+ℕ+ .Index = ℕ
 ℕ+ .succ = suc
