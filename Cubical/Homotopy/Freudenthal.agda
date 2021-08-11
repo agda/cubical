@@ -26,7 +26,7 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 
 module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n)) (typ A)) where
 
-  σ : typ A → typ (Ω (∙Susp (typ A)))
+  σ : typ A → typ (Ω (Susp∙ (typ A)))
   σ a = merid a ∙ merid (pt A) ⁻¹
 
   private
