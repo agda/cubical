@@ -11,12 +11,16 @@ open import Cubical.Data.Nat
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ′ : Level
 
 record SuccStr (ℓ : Level) : Type (ℓ-suc ℓ) where
   field
     Index : Type ℓ
     succ : Index → Index
+
+TypeSeq : (ℓ″ : Level) (S : SuccStr ℓ) → Type _
+TypeSeq ℓ″ S = let open SuccStr S
+               in Σ[ seq ∈ (Index → Type ℓ″) ] ((i : Index) → (seq i) → (seq (succ i)))
 
 open SuccStr
 
