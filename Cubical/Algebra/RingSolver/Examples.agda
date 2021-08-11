@@ -64,16 +64,26 @@ module TestInPlaceSolving (R : CommRing ℓ) where
 
    testEquationalReasoning : (x : fst R) → x + 0r ≡ 0r + x
    testEquationalReasoning x =
-     x + 0r                       ≡⟨solve R withVars (x ∷ []) ⟩
+     x + 0r                       ≡⟨solveIn R withVars (x ∷ []) ⟩
      0r + x ∎
 
    testWithTwoVariables :  (x y : fst R) → x + y ≡ y + x
-   testWithTwoVariables x y = x + y ≡⟨solve R withVars (x ∷ y ∷ []) ⟩ y + x ∎
-{-
-   testEquationalReasoning' : (x : fst R) (p : 0r + x ≡ 1r) → x + 0r ≡ 0r + x
-   testEquationalReasoning' x p =
-     x + 0r              ≡⟨solve R withVars (x ∷ []) ⟩
-     0r + x              ≡⟨ refl ⟩
-     0r + x ∎
--}
+   testWithTwoVariables x y =
+     x + y                      ≡⟨solveIn R withVars (x ∷ y ∷ []) ⟩
+     y + x ∎
+
+   {-
+     So far, solving during equational reasoning has a serious
+     restriction:
+     The solver identifies variables by deBruijn indices and the variables
+     appearing in the equations to solve need to have indices 0,...,n. This
+     entails that in the following code, the order of 'p' and 'x' cannot be
+     switched.
+   -}
+   testEquationalReasoning' :  (p : (y : fst R) → 0r + y ≡ 1r) (x : fst R) → x + 0r ≡ 1r
+   testEquationalReasoning' p x =
+     x + 0r              ≡⟨solveIn R withVars (x ∷ []) ⟩
+     0r + x              ≡⟨ p x ⟩
+     1r ∎
+
 

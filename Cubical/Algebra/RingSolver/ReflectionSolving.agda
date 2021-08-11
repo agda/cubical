@@ -137,18 +137,19 @@ module _ (cring : Term) where
 
   open pr
 
-  mutual
-    `0` : List (Arg Term) → Term
-    `0` [] = def (quote 0') (varg cring ∷ [])
-    `0` (varg fstcring ∷ xs) = `0` xs
-    `0` (harg _ ∷ xs) = `0` xs
-    `0` _ = unknown
+  `0` : List (Arg Term) → Term
+  `0` [] = def (quote 0') (varg cring ∷ [])
+  `0` (varg fstcring ∷ xs) = `0` xs
+  `0` (harg _ ∷ xs) = `0` xs
+  `0` _ = unknown
 
-    `1` : List (Arg Term) → Term
-    `1` [] = def (quote 1') (varg cring ∷ [])
-    `1` (varg fstcring ∷ xs) = `1` xs
-    `1` (harg _ ∷ xs) = `1` xs
-    `1` _ = unknown
+  `1` : List (Arg Term) → Term
+  `1` [] = def (quote 1') (varg cring ∷ [])
+  `1` (varg fstcring ∷ xs) = `1` xs
+  `1` (harg _ ∷ xs) = `1` xs
+  `1` _ = unknown
+
+  mutual
 
     `_·_` : List (Arg Term) → Term
     `_·_` (harg _ ∷ xs) = `_·_` xs
@@ -223,7 +224,8 @@ private
     where
           extractVars : Term → List (String × Arg Term) × Term
           extractVars (pi argType (abs varName t)) with extractVars t
-          ...                                         | xs , equation = (varName , argType) ∷ xs , equation
+          ...                                         | xs , equation
+                                                        = (varName , argType) ∷ xs , equation
           extractVars equation = [] , equation
 
           addIndices : ℕ → List (String × Arg Term) → Maybe (List VarInfo)
@@ -315,9 +317,9 @@ macro
   solveInPlace : Term → Term → Term → TC _
   solveInPlace = solveInPlace-macro
 
-  infixr 2 _≡⟨solve_withVars_⟩_
-  _≡⟨solve_withVars_⟩_ : Term → Term → Term → Term → Term → TC Unit
-  _≡⟨solve_withVars_⟩_ = solveEqReasoning-macro
+  infixr 2 _≡⟨solveIn_withVars_⟩_
+  _≡⟨solveIn_withVars_⟩_ : Term → Term → Term → Term → Term → TC Unit
+  _≡⟨solveIn_withVars_⟩_ = solveEqReasoning-macro
 
 
 fromℤ : (R : CommRing ℓ) → ℤ → fst R
