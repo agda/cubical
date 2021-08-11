@@ -1,13 +1,21 @@
 {-# OPTIONS --safe #-}
 {-
-  This uses ideas from Floris van Doorn's phd thesis.
+  This uses ideas from Floris van Doorn's phd thesis and the code in
+  https://github.com/cmu-phil/Spectral/blob/master/spectrum/basic.hlean
 -}
 module Cubical.Homotopy.Prespectrum where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Pointed.Instances
 
 open import Cubical.Structures.Successor
+
+open import Cubical.Data.Nat
+open import Cubical.Data.Int
+
+open import Cubical.HITs.Susp
 
 open import Cubical.Homotopy.Loopspace
 
@@ -15,8 +23,30 @@ private
   variable
     ℓ ℓ′ : Level
 
-record Prespectrum {S : SuccStr ℓ} : Type (ℓ-max (ℓ-suc ℓ′) ℓ) where
+record Prespectrum (ℓ′ : Level) (S : SuccStr ℓ) : Type (ℓ-max (ℓ-suc ℓ′) ℓ) where
   open SuccStr S
   field
-    Space : Index → Pointed ℓ′
-    map : (i : Index) → (Space i →∙ Ω (Space (succ i)))
+    space : Index → Pointed ℓ′
+    map : (i : Index) → (space i →∙ Ω (space (succ i)))
+
+Unit∙→ΩUnit∙ : {ℓ : Level} → (Unit∙ {ℓ = ℓ}) →∙ Ω (Unit∙ {ℓ = ℓ})
+Unit∙→ΩUnit∙ = (λ {tt* → refl}) , refl
+
+makeℤPrespectrum : (space : ℕ → Pointed ℓ)
+                  (map : (i : ℕ) → (space i) →∙ Ω (space (suc i)))
+                → Prespectrum ℓ ℤ+
+Prespectrum.space (makeℤPrespectrum space map) (pos n) = space n
+Prespectrum.space (makeℤPrespectrum space map) (negsuc n) = Unit∙
+Prespectrum.map (makeℤPrespectrum space map) (pos n) = map n
+Prespectrum.map (makeℤPrespectrum space map) (negsuc zero) = (λ {tt* → refl}) , refl
+Prespectrum.map (makeℤPrespectrum space map) (negsuc (suc n)) = Unit∙→ΩUnit∙
+
+SuspensionPrespectrum : Pointed ℓ → Prespectrum ℓ ℤ+
+SuspensionPrespectrum A = makeℤPrespectrum space map
+          where
+            space : ℕ → Pointed _
+            space zero = A
+            space (suc n) = Susp∙ (typ (space n))
+
+            map : (n : ℕ) → _
+            map n = (λ a → merid a ∙ merid (pt (space n)) ⁻¹) , rCancel (merid (pt (space n)))
