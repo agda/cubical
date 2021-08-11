@@ -13,11 +13,17 @@ private
   variable
     ℓ : Level
 
-SuccStr : {A : Type ℓ} → Type _
-SuccStr {A = A} = A → A
+record SuccStr (ℓ : Level) : Type (ℓ-suc ℓ) where
+  field
+    S : Type ℓ
+    succ : S → S
 
-ℤ+ : SuccStr
-ℤ+ = sucℤ
+open SuccStr
 
-ℕ+ : SuccStr
-ℕ+ = suc
+ℤ+ : SuccStr ℓ-zero
+ℤ+ .S = ℤ
+ℤ+ .succ = sucℤ
+
+ℕ+ : SuccStr ℓ-zero
+ℕ+ .S = ℕ
+ℕ+ .succ = suc
