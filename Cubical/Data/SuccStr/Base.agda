@@ -14,6 +14,7 @@ private
     ℓ ℓ′ : Level
 
 record SuccStr (ℓ : Level) : Type (ℓ-suc ℓ) where
+  constructor succstr
   field
     Index : Type ℓ
     succ : Index → Index
