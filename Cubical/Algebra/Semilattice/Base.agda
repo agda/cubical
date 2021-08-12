@@ -30,6 +30,7 @@ open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
 open import Cubical.Relation.Binary
+open import Cubical.Relation.Binary.Poset2
 
 open import Cubical.Reflection.RecordEquiv
 
@@ -142,6 +143,23 @@ module JoinSemilattice (L' : Semilattice ℓ) where
  _≤_ : L → L → Type ℓ
  x ≤ y = x ∨l y ≡ y
 
+ JoinSemilattice→Poset : Poset ℓ ℓ
+ fst JoinSemilattice→Poset = L
+ PosetStr._≤_ (snd JoinSemilattice→Poset) = _≤_
+ IsPoset.is-set (PosetStr.isPoset (snd JoinSemilattice→Poset)) = is-set
+ IsPoset.is-prop-valued (PosetStr.isPoset (snd JoinSemilattice→Poset)) = λ _ _ → is-set _ _
+ IsPoset.is-refl (PosetStr.isPoset (snd JoinSemilattice→Poset)) = idem
+ IsPoset.is-trans (PosetStr.isPoset (snd JoinSemilattice→Poset)) = path
+  where
+  path : (a b c : L) → a ∨l b ≡ b → b ∨l c ≡ c → a ∨l c ≡ c
+  path a b c a∨b≡b b∨c≡c = a ∨l c ≡⟨ cong (a ∨l_) (sym b∨c≡c) ⟩
+                            a ∨l (b ∨l c) ≡⟨ assoc _ _ _ ⟩
+                            (a ∨l b) ∨l c ≡⟨ cong (_∨l c) a∨b≡b ⟩
+                            b ∨l c ≡⟨ b∨c≡c ⟩
+                            c ∎
+ IsPoset.is-antisym (PosetStr.isPoset (snd JoinSemilattice→Poset)) =
+   λ _ _ a∨b≡b b∨a≡a → sym b∨a≡a ∙∙ comm _ _ ∙∙ a∨b≡b
+
 
 module MeetSemilattice (L' : Semilattice ℓ) where
  private L = fst L'
@@ -149,3 +167,20 @@ module MeetSemilattice (L' : Semilattice ℓ) where
 
  _≤_ : L → L → Type ℓ
  x ≤ y = x ∧l y ≡ x
+
+ MeetSemilattice→Poset : Poset ℓ ℓ
+ fst MeetSemilattice→Poset = L
+ PosetStr._≤_ (snd MeetSemilattice→Poset) = _≤_
+ IsPoset.is-set (PosetStr.isPoset (snd MeetSemilattice→Poset)) = is-set
+ IsPoset.is-prop-valued (PosetStr.isPoset (snd MeetSemilattice→Poset)) = λ _ _ → is-set _ _
+ IsPoset.is-refl (PosetStr.isPoset (snd MeetSemilattice→Poset)) = idem
+ IsPoset.is-trans (PosetStr.isPoset (snd MeetSemilattice→Poset)) = path
+  where
+  path : (a b c : L) → a ∧l b ≡ a → b ∧l c ≡ b → a ∧l c ≡ a
+  path a b c a∧b≡a b∧c≡b = a ∧l c ≡⟨ cong (_∧l c) (sym a∧b≡a) ⟩
+                            (a ∧l b) ∧l c ≡⟨ sym (assoc _ _ _) ⟩
+                            a ∧l (b ∧l c) ≡⟨ cong (a ∧l_) b∧c≡b ⟩
+                            a ∧l b ≡⟨ a∧b≡a ⟩
+                            a ∎
+ IsPoset.is-antisym (PosetStr.isPoset (snd MeetSemilattice→Poset)) =
+   λ _ _ a∧b≡a b∧a≡b → sym a∧b≡a ∙∙ comm _ _ ∙∙ b∧a≡b
