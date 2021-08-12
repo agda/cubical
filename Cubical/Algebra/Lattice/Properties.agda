@@ -21,6 +21,8 @@ open import Cubical.Algebra.CommMonoid
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice.Base
 
+open import Cubical.Relation.Binary.Poset2
+
 private
   variable
     ℓ : Level
@@ -50,8 +52,8 @@ module LatticeTheory (L' : Lattice ℓ) where
 module Order (L' : Lattice ℓ) where
  private L = fst L'
  open LatticeStr (snd L')
- open JoinSemilattice (Lattice→JoinSemilattice L') renaming (_≤_ to _≤j_)
- open MeetSemilattice (Lattice→MeetSemilattice L') renaming (_≤_ to _≤m_)
+ open JoinSemilattice (Lattice→JoinSemilattice L') renaming (_≤_ to _≤j_ ; IndPoset to JoinPoset)
+ open MeetSemilattice (Lattice→MeetSemilattice L') renaming (_≤_ to _≤m_ ; IndPoset to MeetPoset)
 
  ≤Equiv : ∀ (x y : L) → (x ≤j y) ≃ (x ≤m y)
  ≤Equiv x y = propBiimpl→Equiv (isSetLattice L' _ _) (isSetLattice L' _ _) ≤j→≤m ≤m→≤j
@@ -67,3 +69,6 @@ module Order (L' : Lattice ℓ) where
                   y ∨l (x ∧l y) ≡⟨ cong (y ∨l_) (∧lComm _ _) ⟩
                   y ∨l (y ∧l x) ≡⟨ ∨lAbsorb∧l _ _ ⟩
                   y ∎
+
+ IndPosetPath : JoinPoset ≡ MeetPoset
+ IndPosetPath = PosetPath _ _ .fst ((idEquiv _) , record { pres≤ = ≤Equiv })
