@@ -11,6 +11,8 @@ open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/ₛ_)
 open import Cubical.HITs.SetQuotients.Properties
 
 open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.Ideal
+open import Cubical.Algebra.Ring.Kernel
 
 private
   variable
