@@ -3,7 +3,7 @@
   Successor structures for spectra, chain complexes and fiber sequences.
   This is an idea from Floris van Doorn's phd thesis.
 -}
-module Cubical.Structures.Successor where
+module Cubical.Data.SuccStr.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Int

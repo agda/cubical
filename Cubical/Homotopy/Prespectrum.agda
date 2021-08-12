@@ -10,7 +10,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Pointed
 open import Cubical.Data.Unit.Pointed
 
-open import Cubical.Structures.Successor
+open import Cubical.Data.SuccStr
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Int

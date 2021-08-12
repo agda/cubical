@@ -6,7 +6,7 @@
 module Cubical.HITs.SequentialColimit.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Structures.Successor
+open import Cubical.Data.SuccStr
 
 private
   variable
