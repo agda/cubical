@@ -51,7 +51,7 @@ Eckmann-Hilton : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ ((Ω^ (suc 
 Eckmann-Hilton n α β =
   transport (λ i → cong (λ x → rUnit x (~ i)) α ∙ cong (λ x → lUnit x (~ i)) β
                  ≡ cong (λ x → lUnit x (~ i)) β ∙ cong (λ x → rUnit x (~ i)) α)
-        λ i → (λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j)     
+        λ i → (λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j)
   where
   h : PathP (λ i → rUnit refl (~ i) ≡ lUnit refl (~ i))
             (cong (_∙ refl) α ∙ cong (refl ∙_) β)
@@ -94,7 +94,7 @@ EH-alt-refl-β {A = A} n β k i j =
   where
   endP≡ : (λ i j → ((λ j → refl ∙ β (j ∧ i)) ∙ λ j → refl ∙ β (i ∨ j)) j)
         ≡ sym (lUnit _) ∙ rUnit (cong (λ x → refl ∙ x) β)
-  endP≡ k i j = 
+  endP≡ k i j =
     hcomp (λ r → λ { (i = i0) → (refl ∙ (cong (λ x → refl ∙ x) β)) j
                     ; (i = i1) → rUnit (cong (λ x → refl ∙ x) β) r j
                     ; (j = i0) → refl ∙ refl
