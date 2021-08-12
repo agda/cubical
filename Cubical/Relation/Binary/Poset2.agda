@@ -73,7 +73,8 @@ record IsPosetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
     module N = PosetStr N
 
   field
-    isMon : (x y : A) → x M.≤ y → equivFun e x N.≤ equivFun e y
+    pres≤ : (x y : A) → x M.≤ y ≃ equivFun e x N.≤ equivFun e y
+
 
 open PosetStr
 open IsPoset
@@ -91,13 +92,29 @@ isPropIsPoset _≤_ = isOfHLevelRetractFromIso 1 IsPosetIsoΣ
                            (isPropΠ5 λ _ _ _ _ _ → isPropValued≤ _ _)
                              (isPropΠ4 λ _ _ _ _ → isSetA _ _))
 
--- help Evan!!!
--- 𝒮ᴰ-Poset : DUARel (𝒮-Univ (ℓ-max (ℓ-max ℓ ℓ') ℓ')) (PosetStr ℓ') (ℓ-max ℓ ℓ')
--- 𝒮ᴰ-Poset =
---   𝒮ᴰ-Record (𝒮-Univ _) IsPosetEquiv
---     (fields:
---       data[ _≤_ ∣ autoDUARel _ _ ∣ isMon ]
---       prop[ isPoset ∣ (λ _ _ → isPropIsPoset _) ])
+𝒮ᴰ-Poset : DUARel (𝒮-Univ ℓ) (PosetStr ℓ') (ℓ-max ℓ ℓ')
+𝒮ᴰ-Poset =
+  𝒮ᴰ-Record (𝒮-Univ _) IsPosetEquiv
+    (fields:
+      data[ _≤_ ∣ autoDUARel _ _ ∣ pres≤ ]
+      prop[ isPoset ∣ (λ _ _ → isPropIsPoset _) ])
 
--- PosetPath : (M N : Poset ℓ) → PosetEquiv M N ≃ (M ≡ N)
--- PosetPath = ∫ 𝒮ᴰ-Poset .UARel.ua
+PosetPath : (M N : Poset ℓ ℓ') → PosetEquiv M N ≃ (M ≡ N)
+PosetPath = ∫ 𝒮ᴰ-Poset .UARel.ua
+
+
+module _ {P : Poset ℓ₀ ℓ₀'} {S : Poset ℓ₁ ℓ₁'} (e : ⟨ P ⟩ ≃ ⟨ S ⟩) where
+  private
+    module P = PosetStr (P .snd)
+    module S = PosetStr (S .snd)
+
+  module _ (isMon : ∀ x y → x P.≤ y → equivFun e x S.≤ equivFun e y)
+           (isMonInv : ∀ x y → x S.≤ y → invEq e x P.≤ invEq e y) where
+
+    makeIsPosetEquiv : IsPosetEquiv (P .snd) e (S .snd)
+    pres≤ makeIsPosetEquiv x y = propBiimpl→Equiv (P.isPoset .is-prop-valued _ _)
+                                                  (S.isPoset .is-prop-valued _ _)
+                                                  (isMon _ _) (isMonInv' _ _)
+      where
+      isMonInv' : ∀ x y → equivFun e x S.≤ equivFun e y → x P.≤ y
+      isMonInv' x y ex≤ey = transport (λ i → retEq e x i P.≤ retEq e y i) (isMonInv _ _ ex≤ey)

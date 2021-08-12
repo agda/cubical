@@ -54,8 +54,7 @@ module Order (L' : Lattice ℓ) where
  open MeetSemilattice (Lattice→MeetSemilattice L') renaming (_≤_ to _≤m_)
 
  ≤Equiv : ∀ (x y : L) → (x ≤j y) ≃ (x ≤m y)
- ≤Equiv x y = isEquivPropBiimpl→Equiv (isSetLattice L' _ _) (isSetLattice L' _ _) .fst
-                                      (≤j→≤m , ≤m→≤j)
+ ≤Equiv x y = propBiimpl→Equiv (isSetLattice L' _ _) (isSetLattice L' _ _) ≤j→≤m ≤m→≤j
   where
   ≤j→≤m : (x ≤j y) → (x ≤m y)
   ≤j→≤m x∨ly≡y = x ∧l y         ≡⟨ cong (x ∧l_) (sym x∨ly≡y) ⟩
