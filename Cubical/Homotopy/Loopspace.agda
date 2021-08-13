@@ -47,181 +47,159 @@ leftInv (ΩfunExtIso A B) _ = refl
 isComm∙ : ∀ {ℓ} (A : Pointed ℓ) → Type ℓ
 isComm∙ A = (p q : typ (Ω A)) → p ∙ q ≡ q ∙ p
 
-Eckmann-Hilton : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ ((Ω^ (suc n)) A)
-Eckmann-Hilton n α β =
-  transport (λ i → cong (λ x → rUnit x (~ i)) α ∙ cong (λ x → lUnit x (~ i)) β
-                 ≡ cong (λ x → lUnit x (~ i)) β ∙ cong (λ x → rUnit x (~ i)) α)
-        λ i → (λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j)
-  where
-  h : PathP (λ i → rUnit refl (~ i) ≡ lUnit refl (~ i))
-            (cong (_∙ refl) α ∙ cong (refl ∙_) β)
-            (α ∙ β)
-  h i = cong (λ x → rUnit x (~ i)) α ∙ cong (λ x → lUnit x (~ i)) β
+private
+  mainPath : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → (α β : typ ((Ω^ (2 + n)) A))
+           → (λ i → α i ∙ refl) ∙ (λ i → refl ∙ β i)
+            ≡ (λ i → refl ∙ β i) ∙ (λ i → α i ∙ refl)
+  mainPath n α β i = (λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j)
 
-EH = Eckmann-Hilton
-
-EH-alt-filler : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → typ ((Ω^ (2 + n)) A) → typ ((Ω^ (2 + n)) A) → I → I → I → _
-EH-alt-filler {A = A} n α β i j z =
+EH-filler : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → typ ((Ω^ (2 + n)) A) → typ ((Ω^ (2 + n)) A) → I → I → I → _
+EH-filler {A = A} n α β i j z =
   hfill (λ k → λ { (i = i0) → ((cong (λ x → rUnit x (~ k)) α) ∙ cong (λ x → lUnit x (~ k)) β) j
                   ; (i = i1) → ((cong (λ x → lUnit x (~ k)) β) ∙ cong (λ x → rUnit x (~ k)) α) j
                   ; (j = i0) → rUnit refl (~ k)
                   ; (j = i1) → rUnit refl (~ k)})
-        (inS (((λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j)) j))
-        z
+        (inS (mainPath n α β i j)) z
 
-EH-alt : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ ((Ω^ (suc n)) A)
-EH-alt {A = A} n α β i j = EH-alt-filler n α β i j i1
+{- Eckmann-Hilton -}
+EH : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ ((Ω^ (suc n)) A)
+EH {A = A} n α β i j = EH-filler n α β i j i1
 
-EH-alt-refl-β : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
-             → (β : typ ((Ω^ (2 + n)) A))
-             → EH-alt n refl β ≡ sym (lUnit β) ∙ rUnit β
-EH-alt-refl-β {A = A} n β k i j =
-  hcomp (λ r → λ { (i = i0) → (refl ∙ cong (λ x → lUnit x (~ k ∧ ~ r)) β) j
-                  ; (i = i1) → (cong (λ x → lUnit x (~ k ∧ ~ r)) β ∙ refl) j
-                  ; (j = i0) → rUnit refl (~ k ∧ ~ r)
-                  ; (j = i1) → rUnit refl (~ k ∧ ~ r)
-                  ; (k = i0) → EH-alt-filler n refl β i j r
-                  ; (k = i1) → (sym (lUnit β) ∙ rUnit β) i j})
-    (hcomp (λ r → λ { (i = i0) → lUnit ((cong (λ x → lUnit x (~ k)) β)) r j
-                     ; (i = i1) → (cong (λ x → lUnit x (~ k)) β ∙ refl) j
-                     ; (j = i0) → rUnit refl (~ k)
-                     ; (j = i1) → rUnit refl (~ k)
-                     ; (k = i0) → (compPath-filler' (sym (lUnit (cong (λ x → refl ∙ x) β)))
-                                                     (rUnit (cong (λ x → refl ∙ x) β))
-                                  ▷ sym (endP≡)) r i j
-                     ; (k = i1) → compPath-filler' (sym (lUnit β)) (rUnit β) r i j})
-           (rUnit (cong (λ x → lUnit x (~ k)) β) i j))
+{- Lemmas for the syllepsis : EH α β ≡ (EH β α) ⁻¹ -}
+
+EH-refl-refl : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+             → EH {A = A} n refl refl ≡ refl
+EH-refl-refl {A = A} n k i j =
+  hcomp (λ r → λ { (k = i1) → (refl ∙ (λ _ → basep)) j
+                  ; (j = i0) → rUnit basep (~ r ∧ ~ k)
+                  ; (j = i1) → rUnit basep (~ r ∧ ~ k)
+                  ; (i = i0) → (refl ∙ (λ _ → lUnit basep (~ r ∧ ~ k))) j
+                  ; (i = i1) → (refl ∙ (λ _ → lUnit basep (~ r ∧ ~ k))) j})
+        (((cong (λ x → rUnit x (~ k)) (λ _ → basep))
+         ∙ cong (λ x → lUnit x (~ k)) (λ _ → basep)) j)
   where
-  endP≡ : (λ i j → ((λ j → refl ∙ β (j ∧ i)) ∙ λ j → refl ∙ β (i ∨ j)) j)
-        ≡ sym (lUnit _) ∙ rUnit (cong (λ x → refl ∙ x) β)
-  endP≡ k i j =
-    hcomp (λ r → λ { (i = i0) → (refl ∙ (cong (λ x → refl ∙ x) β)) j
-                    ; (i = i1) → rUnit (cong (λ x → refl ∙ x) β) r j
-                    ; (j = i0) → refl ∙ refl
-                    ; (j = i1) → refl ∙ refl
-                    ; (k = i0) → lem r i j
-                    ; (k = i1) → compPath-filler (sym (lUnit (cong (λ x → refl ∙ x) β)))
-                                                  (rUnit (cong (λ x → refl ∙ x) β)) r i j})
-          (lUnit (cong (λ x → refl ∙ x) β) (~ i) j)
-    where
-    lem : I → I → I → typ ((Ω^ (suc n)) A)
-    lem k i j =
-      hcomp (λ r → λ { (i = i0) → compPath-filler refl ((λ j → refl ∙ β j)) (~ k ∨ r) j
-                      ; (i = i1) → rUnit (cong (_∙_ refl) β) (k ∧ r) j
-                      ; (j = i0) → refl ∙ refl
-                      ; (j = i1) → refl ∙ β (i ∨ r ∨ ~ k)
-                      ; (k = i0) → lUnit (cong (λ x → refl ∙ x) β) (~ i) j
-                      ; (k = i1) → compPath-filler (λ j → refl ∙ β (j ∧ i)) (λ j → refl ∙ β (i ∨ j)) r j})
-            (lUnit-filler (cong (λ x → refl ∙ x) β) (~ k) (~ i) j)
+  basep = snd (Ω ((Ω^ n) A))
 
-EH-alt-α-refl : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+{- Generalisations of EH α β when α or β is refl -}
+EH-gen-l : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → {x y : typ ((Ω^ (suc n)) A)} (α : x ≡ y)
+       → α ∙ refl ≡ refl ∙ α
+EH-gen-l {ℓ = ℓ} {A = A} n {x = x} {y = y} α i j z =
+  hcomp (λ k → λ { (i = i0) → ((cong (λ x → rUnit x (~ k)) α) ∙ refl) j z
+                  ; (i = i1) → (refl ∙ cong (λ x → rUnit x (~ k)) α) j z
+                  ; (j = i0) → rUnit (refl {x = x z}) (~ k) z
+                  ; (j = i1) → rUnit (refl {x = y z}) (~ k) z
+                  ; (z = i0) → x i1
+                  ; (z = i1) → y i1})
+        (((λ j → α (j ∧ ~ i) ∙ refl) ∙ λ j → α (~ i ∨ j) ∙ refl) j z)
+
+EH-gen-r : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → {x y : typ ((Ω^ (suc n)) A)} (β : x ≡ y)
+        → refl ∙ β ≡ β ∙ refl
+EH-gen-r {A = A} n {x = x} {y = y} β i j z =
+  hcomp (λ k → λ { (i = i0) → (refl ∙ cong (λ x → lUnit x (~ k)) β) j z
+                  ; (i = i1) → ((cong (λ x → lUnit x (~ k)) β) ∙ refl) j z
+                  ; (j = i0) → lUnit (λ k → x (k ∧ z)) (~ k) z
+                  ; (j = i1) → lUnit (λ k → y (k ∧ z)) (~ k) z
+                  ; (z = i0) → x i1
+                  ; (z = i1) → y i1})
+        (((λ j → refl ∙ β (j ∧ i)) ∙ λ j → refl ∙ β (i ∨ j)) j z)
+
+{- characerisations of EH α β when α or β is refl  -}
+EH-α-refl : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
              → (α : typ ((Ω^ (2 + n)) A))
-             → EH-alt n α refl ≡ sym (rUnit α) ∙ lUnit α
-EH-alt-α-refl {A = A} n α k i j =
-  hcomp (λ r → λ { (i = i0) → ((cong (λ x → rUnit x (~ k ∧ ~ r)) α) ∙ refl) j
-                  ; (i = i1) → (refl ∙ cong (λ x → rUnit x (~ k ∧ ~ r)) α) j
-                  ; (j = i0) → rUnit refl (~ k ∧ ~ r)
-                  ; (j = i1) → rUnit refl (~ k ∧ ~ r)
-                  ; (k = i0) → EH-alt-filler n α refl i j r
-                  ; (k = i1) → (sym (rUnit α) ∙ lUnit α) i j})
-        (hcomp (λ r → λ { (i = i0) → rUnit ((cong (λ x → rUnit x (~ k)) α)) r j
-                         ; (i = i1) → (refl ∙ (cong (λ x → rUnit x (~ k)) α)) j
-                         ; (j = i0) → rUnit refl (~ k)
-                         ; (j = i1) → rUnit refl (~ k)
-                         ; (k = i0) → s i j r
-                         ; (k = i1) → compPath-filler' (sym (rUnit α)) (lUnit α) r i j})
-               (lUnit (cong (λ x → rUnit x (~ k)) α) i j))
+             → EH n α refl ≡ sym (rUnit α) ∙ lUnit α
+EH-α-refl {A = A} n α i j k =
+  hcomp (λ r → λ { (i = i0) → EH-gen-l n (λ i → α (i ∧ r)) j k
+                  ; (i = i1) → (sym (rUnit λ i → α (i ∧ r)) ∙ lUnit λ i → α (i ∧ r)) j k
+                  ; (j = i0) → ((λ i → α (i ∧ r)) ∙ refl) k
+                  ; (j = i1) → (refl ∙ (λ i → α (i ∧ r))) k
+                  ; (k = i0) → refl
+                  ; (k = i1) → α r})
+        ((EH-refl-refl n ∙ sym (lCancel (rUnit refl))) i j k)
+
+EH-refl-β : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+             → (β : typ ((Ω^ (2 + n)) A))
+             → EH n refl β ≡ sym (lUnit β) ∙ rUnit β
+EH-refl-β {A = A} n β i j k =
+  hcomp (λ r → λ { (i = i0) → EH-gen-r n (λ i → β (i ∧ r)) j k
+                  ; (i = i1) → (sym (lUnit λ i → β (i ∧ r)) ∙ rUnit λ i → β (i ∧ r)) j k
+                  ; (j = i0) → (refl ∙ (λ i → β (i ∧ r))) k
+                  ; (j = i1) → ((λ i → β (i ∧ r)) ∙ refl) k
+                  ; (k = i0) → refl
+                  ; (k = i1) → β r})
+        ((EH-refl-refl n ∙ sym (lCancel (rUnit refl))) i j k)
+
+syllepsis : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (α β : typ ((Ω^ 3) A))
+         → EH 0 α β ≡ sym (EH 0 β α)
+syllepsis {A = A} n α β k i j =
+  hcomp (λ r → λ { (i = i0) → i=i0 r j k
+                  ; (i = i1) → i=i1 r j k
+                  ; (j = i0) → j-filler r j k
+                  ; (j = i1) → j-filler r j k
+                  ; (k = i0) → EH-filler 1 α β i j r
+                  ; (k = i1) → EH-filler 1 β α (~ i) j r})
+        (btm-filler (~ k) i j)
   where
-  endP≡ : (λ i j → ((λ j → α (j ∧ ~ i) ∙ refl) ∙ λ j → α (~ i ∨ j) ∙ refl) j) ≡ sym (rUnit _) ∙ lUnit _
-  endP≡ k i j =
-    hcomp (λ r → λ { (i = i0) → (cong (λ x → x ∙ refl) α ∙ refl) j
-                    ; (i = i1) → (lUnit (cong (λ x → x ∙ refl) α)) r j
-                    ; (j = i0) → refl ∙ refl
-                    ; (j = i1) → refl ∙ refl
-                    ; (k = i0) → lem r i j
-                    ; (k = i1) → compPath-filler (sym (rUnit (cong (λ x → x ∙ refl) α)))
-                                                  (lUnit (cong (λ x → x ∙ refl) α)) r i j})
-          (rUnit (cong (λ x → x ∙ refl) α) (~ i) j)
-    where
-    lem : I → I → I → typ ((Ω^ (suc n)) A)
-    lem k i j =
-      hcomp (λ r → λ { (i = i0) → compPath-filler ((λ j → α j ∙ refl)) (λ j → refl ∙ refl) (~ k ∨ r) j
-                      ; (i = i1) → lUnit-filler (cong (λ x → x ∙ refl) α) r k j
-                      ; (j = i0) → refl ∙ refl
-                      ; (j = i1) → (α (~ i ∨ ~ k ∨ r) ∙ refl)
-                      ; (k = i0) → rUnit (cong (λ x → x ∙ refl) α) (~ i) j
-                      ; (k = i1) → compPath-filler ((λ j → α (j ∧ ~ i) ∙ refl)) (λ j → α (~ i ∨ j) ∙ refl) r j})
-            (rUnit (λ j → α (j ∧ (~ i ∨ ~ k)) ∙ refl) (~ i ∧ ~ k) j)
+  guy = snd (Ω (Ω A))
 
-  s : I → I → I → typ ((Ω^ (suc n)) A)
-  s i j k = (compPath-filler' (sym (rUnit (cong (λ x → x ∙ refl) α))) (lUnit (cong (λ x → x ∙ refl) α))
-                             ▷ sym (endP≡)) k i j
+  btm-filler : I → I → I → typ (Ω (Ω A))
+  btm-filler j i k =
+    hcomp (λ r
+      → λ {(j = i0) → mainPath 1 β α (~ i) k
+          ; (j = i1) → mainPath 1 α β i k
+          ; (i = i0) → (cong (λ x → EH-α-refl 0 x r (~ j)) α
+                       ∙ cong (λ x → EH-refl-β 0 x r (~ j)) β) k
+          ; (i = i1) → (cong (λ x → EH-refl-β 0 x r (~ j)) β
+                       ∙ cong (λ x → EH-α-refl 0 x r (~ j)) α) k
+          ; (k = i0) → EH-α-refl 0 guy r (~ j)
+          ; (k = i1) → EH-α-refl 0 guy r (~ j)})
+      (((λ l → EH 0 (α (l ∧ ~ i)) (β (l ∧ i)) (~ j))
+       ∙ λ l → EH 0 (α (l ∨ ~ i)) (β (l ∨ i)) (~ j)) k)
 
-module _ {ℓ : Level} {A : Pointed ℓ} (α β : typ ((Ω^ 3) A)) where
-  btm : cong (λ x → refl ∙ x) α ∙ cong (λ x → x ∙ refl) β ≡
-        cong (λ x → x ∙ refl) β ∙ cong (λ x → refl ∙ x) α
-  btm = (λ i → (λ j → β (j ∧ i) ∙ α (j ∧ ~ i)) ∙ λ j → β (i ∨ j) ∙ α (~ i ∨ j))
+  link : I → I → I → _
+  link z i j =
+    hfill (λ k → λ { (i = i1) → refl
+                    ; (j = i0) → rUnit refl (~ i)
+                    ; (j = i1) → lUnit guy (~ i ∧ k)})
+          (inS (rUnit refl (~ i ∧ ~ j))) z
 
-  btm-transp1 : cong (λ x → refl ∙ x) α ∙ cong (λ x → x ∙ refl) β ≡
-                cong (λ x → x ∙ refl) β ∙ cong (λ x → refl ∙ x) α
-  btm-transp1 =
-    transport (λ i → cong (λ x → EH-alt 0 x refl i) α ∙ cong (λ x → EH-alt 0 refl x i) β
-                    ≡ cong (λ x → EH-alt 0 refl x i) β ∙ cong (λ x → EH-alt 0 x refl i) α)
-              (λ i → (λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j))
+  i=i1 : I → I → I → typ (Ω (Ω A))
+  i=i1 r j k =
+    hcomp (λ i → λ { (r = i0) → (cong (λ x → compPath-filler (sym (lUnit x)) (rUnit x) i k) β
+                                ∙ cong (λ x → compPath-filler (sym (rUnit x)) (lUnit x) i k) α) j
+                    ; (r = i1) → (β ∙ α) j
+                    ; (k = i0) → (cong (λ x → lUnit x (~ r)) β ∙
+                                   cong (λ x → rUnit x (~ r)) α) j
+                    ; (k = i1) → (cong (λ x → rUnit x (~ r ∧ i)) β ∙
+                                   cong (λ x → lUnit x (~ r ∧ i)) α) j
+                    ; (j = i0) → link i r k
+                    ; (j = i1) → link i r k})
+          (((cong (λ x → lUnit x (~ r ∧ ~ k)) β
+           ∙ cong (λ x → rUnit x (~ r ∧ ~ k)) α)) j)
 
-  btm≡ : btm ≡ btm-transp1
-  btm≡ k =
-    transp (λ i → cong (λ x → EH-alt 0 x refl (i ∨ ~ k)) α ∙ cong (λ x → EH-alt 0 refl x (i ∨ ~ k)) β
-          ≡ cong (λ x → EH-alt 0 refl x (i ∨ ~ k)) β ∙ cong (λ x → EH-alt 0 x refl (i ∨ ~ k)) α)
-      (~ k)
-      λ i → (λ j → EH-alt 0 (α ( j ∧ ~ i)) (β (j ∧ i)) (~ k))
-            ∙ λ j → EH-alt 0 (α ( j ∨ ~ i)) (β (j ∨ i)) (~ k)
+  i=i0 : I → I → I → typ (Ω (Ω A))
+  i=i0 r j k =
+    hcomp (λ i → λ { (r = i0) → (cong (λ x → compPath-filler (sym (rUnit x)) (lUnit x) i k) α
+                                ∙ cong (λ x → compPath-filler (sym (lUnit x)) (rUnit x) i k) β) j
+                    ; (r = i1) → (α ∙ β) j
+                    ; (k = i0) → (cong (λ x → rUnit x (~ r)) α ∙
+                                   cong (λ x → lUnit x (~ r)) β) j
+                    ; (k = i1) → (cong (λ x → lUnit x (~ r ∧ i)) α ∙
+                                   cong (λ x → rUnit x (~ r ∧ i)) β) j
+                    ; (j = i0) → link i r k
+                    ; (j = i1) → link i r k})
+          ((cong (λ x → rUnit x (~ r ∧ ~ k)) α
+           ∙ cong (λ x → lUnit x (~ r ∧ ~ k)) β) j)
 
-  btm≡₂ : btm-transp1
-        ≡ transport (λ i → cong (λ x → (sym (rUnit x) ∙ lUnit x) i) α
-                          ∙ cong (λ x → (sym (lUnit x) ∙ rUnit x) i) β
-                    ≡ cong (λ x → (sym (lUnit x) ∙ rUnit x) i) β
-                    ∙ cong (λ x → (sym (rUnit x) ∙ lUnit x) i) α)
-             (λ i → (λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j))
-  btm≡₂ k = transport (λ i → cong (λ x → EH-alt-α-refl 0 x k i) α ∙ cong (λ x → EH-alt-refl-β 0 x k i) β
-                    ≡ cong (λ x → EH-alt-refl-β 0 x k i) β ∙ cong (λ x → EH-alt-α-refl 0 x k i) α)
-              (λ i → (λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j))
-  F : _ → _
-  F = λ x → (transport (λ i → cong (λ x → lUnit x (~ i)) α ∙ cong (λ x → rUnit x (~ i)) β
-                        ≡ cong (λ x → rUnit x (~ i)) β ∙ cong (λ x → lUnit x (~ i)) α))
-                  (transport (λ i → cong (λ x → (sym (rUnit x) ∙ lUnit x) i) α
-                          ∙ cong (λ x → (sym (lUnit x) ∙ rUnit x) i) β
-                    ≡ cong (λ x → (sym (lUnit x) ∙ rUnit x) i) β
-                    ∙ cong (λ x → (sym (rUnit x) ∙ lUnit x) i) α)
-                             x)
-  G : _ → _
-  G = λ x → (transport (λ i → cong (λ x → rUnit x (~ i)) α ∙ cong (λ x → lUnit x (~ i)) β
-                 ≡ cong (λ x → lUnit x (~ i)) β ∙ cong (λ x → rUnit x (~ i)) α)) x
-
-  F≡G : (x : _ )→ F x ≡ G x
-  F≡G p k =
-    transp ((λ i → cong (λ x → lUnit x (~ i ∧ ~ k)) α ∙ cong (λ x → rUnit x (~ i ∧ ~ k)) β
-                  ≡ cong (λ x → rUnit x (~ i ∧ ~ k)) β ∙ cong (λ x → lUnit x (~ i ∧ ~ k)) α))
-         k
-         ((transport (λ i → cong (λ x → compPath-filler (sym (rUnit x)) (lUnit x) (~ k) i) α
-                          ∙ cong (λ x → compPath-filler (sym (lUnit x)) (rUnit x) (~ k) i) β
-                    ≡ cong (λ x → compPath-filler (sym (lUnit x)) (rUnit x) (~ k) i) β
-                    ∙ cong (λ x → compPath-filler (sym (rUnit x)) (lUnit x) (~ k) i) α)
-                             p))
-
-  btm≡₃ : btm ≡ transport (λ i → cong (λ x → (sym (rUnit x) ∙ lUnit x) i) α
-                          ∙ cong (λ x → (sym (lUnit x) ∙ rUnit x) i) β
-                    ≡ cong (λ x → (sym (lUnit x) ∙ rUnit x) i) β
-                    ∙ cong (λ x → (sym (rUnit x) ∙ lUnit x) i) α)
-             (λ i → (λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j))
-  btm≡₃ = btm≡ ∙ btm≡₂
-
-  syllepsis : EH 1 α β ≡ sym (EH 1 β α)
-  syllepsis =
-       sym (F≡G (λ i → (λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j)))
-     ∙ cong (transport (λ i → cong (λ x → lUnit x (~ i)) α ∙ cong (λ x → rUnit x (~ i)) β
-                        ≡ cong (λ x → rUnit x (~ i)) β ∙ cong (λ x → lUnit x (~ i)) α))
-             (sym btm≡₃)
+  j-filler : I → I → I → typ (Ω (Ω A))
+  j-filler r i k =
+    hcomp (λ j → λ { (i = i0) → link j r k
+                    ; (i = i1) → link j r k
+                    ; (r = i0) → compPath-filler (sym (rUnit guy))
+                                                  (lUnit guy) j k
+                    ; (r = i1) → refl
+                    ; (k = i0) → rUnit guy (~ r)
+                    ; (k = i1) → rUnit guy (j ∧ ~ r)})
+          (rUnit guy (~ r ∧ ~ k))
 
 isCommA→isCommTrunc : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ A
                     → isOfHLevel (suc n) (typ A)
@@ -247,7 +225,7 @@ ptdIso→comm {A = (A , a)} {B = B} e comm p q =
       → ∥ typ ((Ω^ (suc n)) A) ∥₂ → ∥ typ ((Ω^ (suc n)) A) ∥₂
 π-comp n = elim2 (λ _ _ → isSetSetTrunc) λ p q → ∣ p ∙ q ∣₂
 
-Eckmann-Hilton-π : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p q : ∥ typ ((Ω^ (2 + n)) A) ∥₂)
+EH-π : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p q : ∥ typ ((Ω^ (2 + n)) A) ∥₂)
                → π-comp (1 + n) p q ≡ π-comp (1 + n) q p
-Eckmann-Hilton-π  n = elim2 (λ x y → isOfHLevelPath 2 isSetSetTrunc _ _)
-                             λ p q → cong ∣_∣₂ (Eckmann-Hilton n p q)
+EH-π  n = elim2 (λ x y → isOfHLevelPath 2 isSetSetTrunc _ _)
+                             λ p q → cong ∣_∣₂ (EH n p q)
