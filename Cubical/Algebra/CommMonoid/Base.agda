@@ -88,9 +88,13 @@ CommMonoidStr→MonoidStr (commmonoidstr _ _ H) = monoidstr _ _ (IsCommMonoid.is
 CommMonoid→Monoid : CommMonoid ℓ → Monoid ℓ
 CommMonoid→Monoid (_ , commmonoidstr _ _ H) = _ , monoidstr _ _ (IsCommMonoid.isMonoid H)
 
+
+CommMonoidHom : (L : CommMonoid ℓ) (M : CommMonoid ℓ') → Type (ℓ-max ℓ ℓ')
+CommMonoidHom L M = MonoidHom (CommMonoid→Monoid L) (CommMonoid→Monoid M)
+
 IsCommMonoidEquiv : {A : Type ℓ} {B : Type ℓ'}
   (M : CommMonoidStr A) (e : A ≃ B) (N : CommMonoidStr B) → Type (ℓ-max ℓ ℓ')
-IsCommMonoidEquiv M e N = IsMonoidEquiv (CommMonoidStr→MonoidStr M) e (CommMonoidStr→MonoidStr N)
+IsCommMonoidEquiv M e N = IsMonoidHom (CommMonoidStr→MonoidStr M) (e .fst) (CommMonoidStr→MonoidStr N)
 
 CommMonoidEquiv : (M : CommMonoid ℓ) (N : CommMonoid ℓ') → Type (ℓ-max ℓ ℓ')
 CommMonoidEquiv M N = Σ[ e ∈ (M .fst ≃ N .fst) ] IsCommMonoidEquiv (M .snd) e (N .snd)
@@ -115,7 +119,7 @@ isPropIsCommMonoid ε _·_ (iscommmonoid MM MC) (iscommmonoid SM SC) =
       prop[ isCommMonoid ∣ (λ _ _ → isPropIsCommMonoid _ _) ])
   where
   open CommMonoidStr
-  open IsMonoidEquiv
+  open IsMonoidHom
 
 CommMonoidPath : (M N : CommMonoid ℓ) → CommMonoidEquiv M N ≃ (M ≡ N)
 CommMonoidPath = ∫ 𝒮ᴰ-CommMonoid .UARel.ua

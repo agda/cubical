@@ -41,19 +41,23 @@ module _ (L' : DistLattice ℓ) where
  open DistLatticeStr (snd L')
  open Join L'
 
- record IsSublattice (S : ℙ L) : Type ℓ where
-  constructor
-   issublattice
-  field
-   contains0 : 0l ∈ S
-   ∧lClosed : ∀ (x y : L) → x ∈ S → y ∈ S → x ∧l y ∈ S
-   ⋁Gen : ∀ (x : L) → ∃[ n ∈ ℕ ] Σ[ α ∈ FinVec L n ] (∀ i → α i ∈ S) × (⋁ α ≡ x)
+ -- -- better?
+ -- record IsSublattice (S : ℙ L) : Type ℓ where
+ --  constructor
+ --   issublattice
+ --  field
+ --   contains0 : 0l ∈ S
+ --   ∧lClosed : ∀ (x y : L) → x ∈ S → y ∈ S → x ∧l y ∈ S
+ --   ⋁Gen : ∀ (x : L) → ∃[ n ∈ ℕ ] Σ[ α ∈ FinVec L n ] (∀ i → α i ∈ S) × (⋁ α ≡ x)
 
- record IsSublattice' (M : Semilattice ℓ) (e : fst M ↪ L) : Type ℓ where
+ record IsSublattice (M : Semilattice ℓ) (e : fst M → L) : Type ℓ where
   constructor
    issublattice'
   open SemilatticeStr (snd M) renaming (ε to 0s ; _·_ to _∧s_)
   field
-   pres0 : fst e 0s ≡ 0l
-   resp∧ : ∀ x y → fst e (x ∧s y) ≡ fst e x ∧l fst e y
-   ⋁Gen' : ∀ (x : L) → ∃[ n ∈ ℕ ] Σ[ α ∈ FinVec (fst M) n ] (⋁ (fst e ∘ α) ≡ x)
+   isInj : ∀ x y → e x ≡ e y → x ≡ y
+   pres0 : e 0s ≡ 0l
+   resp∧ : ∀ x y → e (x ∧s y) ≡ e x ∧l e y
+   ⋁Gen' : ∀ (x : L) → ∃[ n ∈ ℕ ] Σ[ α ∈ FinVec (fst M) n ] (⋁ (e ∘ α) ≡ x)
+
+ -- anything interesting to prove here?

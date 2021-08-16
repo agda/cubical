@@ -102,9 +102,14 @@ Semilattice→Monoid : Semilattice ℓ → Monoid ℓ
 Semilattice→Monoid (_ , semilatticestr _ _ H) =
                     _ , monoidstr _ _ (H .IsSemilattice.isCommMonoid .IsCommMonoid.isMonoid)
 
+
+SemilatticeHom : (L : Semilattice ℓ) (M : Semilattice ℓ') → Type (ℓ-max ℓ ℓ')
+SemilatticeHom L M = MonoidHom (Semilattice→Monoid L) (Semilattice→Monoid M)
+
 IsSemilatticeEquiv : {A : Type ℓ} {B : Type ℓ'}
   (M : SemilatticeStr A) (e : A ≃ B) (N : SemilatticeStr B) → Type (ℓ-max ℓ ℓ')
-IsSemilatticeEquiv M e N = IsMonoidEquiv (SemilatticeStr→MonoidStr M) e (SemilatticeStr→MonoidStr N)
+IsSemilatticeEquiv M e N =
+                   IsMonoidHom (SemilatticeStr→MonoidStr M) (e .fst) (SemilatticeStr→MonoidStr N)
 
 SemilatticeEquiv : (M : Semilattice ℓ) (N : Semilattice ℓ') → Type (ℓ-max ℓ ℓ')
 SemilatticeEquiv M N = Σ[ e ∈ (M .fst ≃ N .fst) ] IsSemilatticeEquiv (M .snd) e (N .snd)
@@ -129,7 +134,7 @@ isPropIsSemilattice ε _·_ (issemilattice LL LC) (issemilattice SL SC) =
       prop[ isSemilattice ∣ (λ _ _ → isPropIsSemilattice _ _) ])
   where
   open SemilatticeStr
-  open IsMonoidEquiv
+  open IsMonoidHom
 
 SemilatticePath : (L K : Semilattice ℓ) → SemilatticeEquiv L K ≃ (L ≡ K)
 SemilatticePath = ∫ 𝒮ᴰ-Semilattice .UARel.ua
