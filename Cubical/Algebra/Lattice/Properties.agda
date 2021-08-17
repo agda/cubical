@@ -21,7 +21,7 @@ open import Cubical.Algebra.CommMonoid
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice.Base
 
-open import Cubical.Relation.Binary.Poset2
+open import Cubical.Relation.Binary.Poset
 
 private
   variable
@@ -71,4 +71,4 @@ module Order (L' : Lattice ℓ) where
                   y ∎
 
  IndPosetPath : JoinPoset ≡ MeetPoset
- IndPosetPath = PosetPath _ _ .fst ((idEquiv _) , record { pres≤ = ≤Equiv })
+ IndPosetPath = PosetPath _ _ .fst ((idEquiv _) , isposetequiv ≤Equiv )
