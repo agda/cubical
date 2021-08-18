@@ -53,3 +53,10 @@ module Cofinality (s : TypeSeq ℓ ℕ+) where
     From : SeqColimit (ShiftSeq s) → SeqColimit s
     From (ι l x) = ι (suc l) x
     From (glue l x i) = glue (suc l) x i
+
+    ToFrom : (x : SeqColimit (ShiftSeq s)) → To (From x) ≡ x
+    ToFrom = {!   !}
+
+    FromTo : (x : SeqColimit s) → From (To x) ≡ x
+    FromTo (ι l x) = sym (glue l x)
+    FromTo (glue l x i) = {!   !}
