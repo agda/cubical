@@ -1,8 +1,9 @@
 {-
- following Johnstone we define semilattices to be commutative monoids
- such that every element is idempotent. In particular, we take every
- semilattice to have a neutral element that is either the maximal or
- minimal element depending on whether we have a join or meet semilattice
+ following Johnstone's book "Stone Spaces" we define semilattices
+ to be commutative monoids such that every element is idempotent.
+ In particular, we take every semilattice to have a neutral element
+ that is either the maximal or minimal element depending on whether
+ we have a join or meet semilattice.
 -}
 
 {-# OPTIONS --safe #-}
