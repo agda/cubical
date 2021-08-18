@@ -14,6 +14,7 @@ open import Cubical.Algebra.RingSolver.AlgebraExpression
 open import Cubical.Algebra.RingSolver.IntAsRawRing
 open import Cubical.Algebra.RingSolver.CommRingHornerForms
 open import Cubical.Algebra.RingSolver.CommRingEvalHom
+open import Cubical.Algebra.RingSolver.CommRingHornerEval
 
 private
   variable
@@ -46,7 +47,7 @@ module EqualityToNormalform (R : CommRing ℓ) where
   isEqualToNormalform ℕ.zero (K r) [] = refl
   isEqualToNormalform (ℕ.suc n) (K r) (x ∷ xs) =
      eval (ℕ.suc n) (Constant (ℕ.suc n) νR r) (x ∷ xs)           ≡⟨ refl ⟩
-     eval (ℕ.suc n) (0ₕ ·X+ Constant n νR r) (x ∷ xs)             ≡⟨ combineCasesEval 0ₕ (Constant n νR r) x xs ⟩
+     eval (ℕ.suc n) (0ₕ ·X+ Constant n νR r) (x ∷ xs)             ≡⟨ combineCasesEval R 0ₕ (Constant n νR r) x xs ⟩
      eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + eval n (Constant n νR r) xs
     ≡⟨ cong (λ u → u · x + eval n (Constant n νR r) xs) (Eval0H _ (x ∷ xs)) ⟩
      0r · x + eval n (Constant n νR r) xs
@@ -56,7 +57,7 @@ module EqualityToNormalform (R : CommRing ℓ) where
      _ ∎
 
   isEqualToNormalform (ℕ.suc n) (∣ zero) (x ∷ xs) =
-    eval (ℕ.suc n) (1ₕ ·X+ 0ₕ) (x ∷ xs)           ≡⟨ refl ⟩
+    eval (ℕ.suc n) (1ₕ ·X+ 0ₕ) (x ∷ xs)           ≡⟨ combineCasesEval R 1ₕ 0ₕ x xs ⟩
     eval (ℕ.suc n) 1ₕ (x ∷ xs) · x + eval n 0ₕ xs ≡⟨ cong (λ u → u · x + eval n 0ₕ xs)
                                                           (Eval1ₕ _ (x ∷ xs)) ⟩
     1r · x + eval n 0ₕ xs                         ≡⟨ cong (λ u → 1r · x + u ) (Eval0H _ xs) ⟩
@@ -64,7 +65,7 @@ module EqualityToNormalform (R : CommRing ℓ) where
     1r · x                                        ≡⟨ ·Lid _ ⟩
     x ∎
   isEqualToNormalform (ℕ.suc n) (∣ (suc k)) (x ∷ xs) =
-      eval (ℕ.suc n) (0ₕ ·X+ Variable n νR k) (x ∷ xs)             ≡⟨ combineCasesEval 0ₕ (Variable n νR k) x xs ⟩
+      eval (ℕ.suc n) (0ₕ ·X+ Variable n νR k) (x ∷ xs)             ≡⟨ combineCasesEval R 0ₕ (Variable n νR k) x xs ⟩
       eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + eval n (Variable n νR k) xs
     ≡⟨ cong (λ u → u · x + eval n (Variable n νR k) xs) (Eval0H _ (x ∷ xs)) ⟩
       0r · x + eval n (Variable n νR k) xs
