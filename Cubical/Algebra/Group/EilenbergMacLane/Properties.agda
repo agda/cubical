@@ -1,40 +1,39 @@
-{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 
 module Cubical.Algebra.Group.EilenbergMacLane.Properties where
 
 open import Cubical.Algebra.Group.EilenbergMacLane.Base
 open import Cubical.Algebra.Group.EilenbergMacLane.WedgeConnectivity
 open import Cubical.Algebra.Group.EilenbergMacLane.GroupStructure
+open import Cubical.Algebra.Group.Base
+open import Cubical.Algebra.Group.Properties
+open import Cubical.Algebra.AbGroup.Base
+
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Pointed.Homogeneous
+
+open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Loopspace
 
-open import Cubical.Data.Unit
+open import Cubical.Functions.Morphism
+
 open import Cubical.Data.Sigma
-open import Cubical.Algebra.Group.Base
-open import Cubical.Algebra.Group.Properties
-open import Cubical.Homotopy.Connected
-open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec; elim to trElim)
+open import Cubical.Data.Nat hiding (_·_)
+
+open import Cubical.HITs.Truncation as Trunc
+  renaming (rec to trRec; elim to trElim)
 open import Cubical.HITs.EilenbergMacLane1
-open import Cubical.Algebra.AbGroup.Base
-open import Cubical.Data.Empty
-  renaming (rec to ⊥-rec)
 open import Cubical.HITs.Truncation
   renaming (elim to trElim ; rec to trRec ; rec2 to trRec2)
-open import Cubical.Data.Nat hiding (_·_)
 open import Cubical.HITs.Susp
-open import Cubical.Functions.Morphism
-open import Cubical.Foundations.Path
-
-open import Cubical.Foundations.Pointed.Homogeneous
 
 private
   variable ℓ ℓ' ℓ'' : Level
@@ -101,6 +100,8 @@ module _ (Ĝ : Group ℓ) where
 
   isGroupoidEM₁ : isGroupoid (EM₁ Ĝ)
   isGroupoidEM₁ = emsquash
+
+  --------- Ω (EM₁ G) ≃ G ---------
 
   {- since we write composition in diagrammatic order,
      and function composition in the other order,
@@ -177,6 +178,7 @@ module _ (Ĝ : Group ℓ) where
   ΩEM₁≡ : (Path (EM₁ Ĝ) embase embase) ≡ G
   ΩEM₁≡ = isoToPath ΩEM₁Iso
 
+--------- Ω (EMₙ₊₁ G) ≃ EMₙ G ---------
 module _ {G : AbGroup ℓ} where
   open AbGroupStr (snd G)
     renaming (_+_ to _+G_ ; -_ to -G_ ; assoc to assocG)
@@ -189,7 +191,9 @@ module _ {G : AbGroup ℓ} where
         ; (merid a i) → fib n a i}
     where
     fib : (n : ℕ) → (a : EM-raw G (suc n))
-        → Path (TypeOfHLevel _ (3 + n)) (EM G (suc n) , hLevelEM G (suc n)) (EM G (suc n) , hLevelEM G (suc n))
+        → Path (TypeOfHLevel _ (3 + n))
+                (EM G (suc n) , hLevelEM G (suc n))
+                (EM G (suc n) , hLevelEM G (suc n))
     fib zero a = Σ≡Prop (λ _ → isPropIsOfHLevel 3)
                    (isoToPath (addIso 1 a))
     fib (suc n) a = Σ≡Prop (λ _ → isPropIsOfHLevel (4 + n))
@@ -229,7 +233,8 @@ module _ {G : AbGroup ℓ} where
            ∙ sym (rUnit _)))
 
      lem : (n : ℕ) (x a : EM-raw G (suc n))
-             → f n (transport (sym (cong (λ x → CODE n x .fst) (cong ∣_∣ₕ (merid a)))) (EM-raw→EM G (suc n) x))
+             → f n (transport (sym (cong (λ x → CODE n x .fst) (cong ∣_∣ₕ (merid a))))
+                    (EM-raw→EM G (suc n) x))
                 ≡ cong ∣_∣ₕ (σ-EM n x) ∙ sym (cong ∣_∣ₕ (σ-EM n a))
      lem zero x a = (λ i → cong ∣_∣ₕ (merid (transportRefl x i -[ 1 ]ₖ a) ∙ sym (merid embase)))
                   ∙∙ σ-EM'-hom zero x (-ₖ a)
@@ -254,7 +259,8 @@ module _ {G : AbGroup ℓ} where
   encode' : (n : ℕ) (x : EM G (suc (suc n))) → 0ₖ (suc (suc n)) ≡ x → CODE n x .fst
   encode' n x p = subst (λ x → CODE n x .fst) p (0ₖ (suc n))
 
-  decode'-encode' : (n : ℕ) (x : EM G (2 + n)) (p : 0ₖ (2 + n) ≡ x) → decode' n x (encode' n x p) ≡ p
+  decode'-encode' : (n : ℕ) (x : EM G (2 + n)) (p : 0ₖ (2 + n) ≡ x)
+    → decode' n x (encode' n x p) ≡ p
   decode'-encode' zero x =
     J (λ x p → decode' 0 x (encode' 0 x p) ≡ p)
       (σ-EM'-0ₖ 0)
@@ -262,7 +268,8 @@ module _ {G : AbGroup ℓ} where
     J (λ x p → decode' (suc n) x (encode' (suc n) x p) ≡ p)
        (σ-EM'-0ₖ (suc n))
 
-  encode'-decode' : (n : ℕ) (x : _) → encode' n (0ₖ (suc (suc n))) (decode' n (0ₖ (suc (suc n))) x) ≡ x
+  encode'-decode' : (n : ℕ) (x : _)
+    → encode' n (0ₖ (suc (suc n))) (decode' n (0ₖ (suc (suc n))) x) ≡ x
   encode'-decode' zero x =
         cong (encode' zero (0ₖ 2)) (cong-∙ ∣_∣ₕ (merid x) (sym (merid embase)))
      ∙∙ substComposite (λ x → CODE zero x .fst)
@@ -290,6 +297,10 @@ module _ {G : AbGroup ℓ} where
   Iso.rightInv (Iso-EM-ΩEM+1 (suc (suc n))) = decode'-encode' (suc n) (0ₖ (3 + n))
   Iso.leftInv (Iso-EM-ΩEM+1 (suc (suc n))) = encode'-decode' (suc n)
 
+  EM≃ΩEM+1 : (n : ℕ) → EM G n ≃ typ (Ω (EM∙ G (suc n)))
+  EM≃ΩEM+1 n = isoToEquiv (Iso-EM-ΩEM+1 n)
+
+  -- Some properties of the isomorphism
   EM→ΩEM+1 : (n : ℕ) → EM G n → typ (Ω (EM∙ G (suc n)))
   EM→ΩEM+1 n = Iso.fun (Iso-EM-ΩEM+1 n)
 
@@ -314,16 +325,10 @@ module _ {G : AbGroup ℓ} where
       (EM→ΩEM+1-hom n) (ΩEM+1→EM n)
       (Iso.rightInv (Iso-EM-ΩEM+1 n)) (Iso.leftInv (Iso-EM-ΩEM+1 n))
 
-  
-
   ΩEM+1→EM-refl : (n : ℕ) → ΩEM+1→EM n refl ≡ 0ₖ n
   ΩEM+1→EM-refl zero = transportRefl 0g
   ΩEM+1→EM-refl (suc zero) = refl
   ΩEM+1→EM-refl (suc (suc n)) = refl
-
-
-  EM≃ΩEM+1 : (n : ℕ) → EM G n ≃ typ (Ω (EM∙ G (suc n)))
-  EM≃ΩEM+1 n = isoToEquiv (Iso-EM-ΩEM+1 n)
 
   EM≃ΩEM+1∙ : (n : ℕ) → EM∙ G n ≡ Ω (EM∙ G (suc n))
   EM≃ΩEM+1∙ n = ua∙ (EM≃ΩEM+1 n) (EM→ΩEM+1-0ₖ n)
@@ -333,7 +338,8 @@ module _ {G : AbGroup ℓ} where
     ua∙ (isoToEquiv (addIso n x)) (lUnitₖ n x)
 
 
-
+-- Some HLevel lemmas about function spaces (EM∙ G n →∙ EM∙ H m), mainly used for
+-- the cup product
 module _ where
   open AbGroupStr renaming (_+_ to comp)
 
@@ -350,15 +356,18 @@ module _ where
     x i
   snd (snd (isContr-↓∙ (suc n)) f i) j = snd f (~ i ∨ j)
 
-  isContr-↓∙' : {G : AbGroup ℓ} {H : AbGroup ℓ'} (n : ℕ) → isContr ((EM-raw G (suc n) , ptS) →∙ EM∙ H n)
+  isContr-↓∙' : {G : AbGroup ℓ} {H : AbGroup ℓ'} (n : ℕ)
+              → isContr ((EM-raw G (suc n) , ptS) →∙ EM∙ H n)
   isContr-↓∙' zero = isContr-↓∙ zero
   fst (isContr-↓∙' (suc n)) = (λ _ → 0ₖ (suc n)) , refl
   fst (snd (isContr-↓∙' {H = H} (suc n)) f i) x =
-    (EM-raw-elim _  _ {A = λ x → 0ₖ (suc n) ≡ fst f x} (λ _ → hLevelEM H (suc n) _ _) (sym (snd f))) x i
+    EM-raw-elim _  _ {A = λ x → 0ₖ (suc n) ≡ fst f x}
+      (λ _ → hLevelEM H (suc n) _ _) (sym (snd f)) x i
   snd (snd (isContr-↓∙' (suc n)) f i) j = snd f (~ i ∨ j)
 
   isOfHLevel→∙EM : ∀ {ℓ} {A : Pointed ℓ} {G : AbGroup ℓ'} (n m : ℕ)
-    → isOfHLevel (suc m) (A →∙ EM∙ G n) → isOfHLevel (suc (suc m)) (A →∙ EM∙ G (suc n))
+    → isOfHLevel (suc m) (A →∙ EM∙ G n)
+    → isOfHLevel (suc (suc m)) (A →∙ EM∙ G (suc n))
   isOfHLevel→∙EM {A = A} {G = G} n m hlev = step₃
     where
     step₁ : isOfHLevel (suc m) (A →∙ Ω (EM∙ G (suc n)))
@@ -387,20 +396,21 @@ module _ where
   isOfHLevel↑∙' zero m = isOfHLevel→∙EM m 0 (isContr→isProp (isContr-↓∙' m))
   isOfHLevel↑∙' (suc n) m = isOfHLevel→∙EM (suc (n + m)) (suc n) (isOfHLevel↑∙' n m)
 
-  →∙EMPath : ∀ {ℓ} {G : AbGroup ℓ} (A : Pointed ℓ') (n : ℕ) → Ω (A →∙ EM∙ G (suc n) ∙) ≡ (A →∙ EM∙ G n ∙)
+  →∙EMPath : ∀ {ℓ} {G : AbGroup ℓ} (A : Pointed ℓ') (n : ℕ)
+           → Ω (A →∙ EM∙ G (suc n) ∙) ≡ (A →∙ EM∙ G n ∙)
   →∙EMPath {G = G} A n =
       ua∙ (isoToEquiv (ΩfunExtIso A (EM∙ G (suc n)))) refl
     ∙ (λ i → (A →∙ EM≃ΩEM+1∙ {G = G} n (~ i) ∙))
 
   contr∙-lem : {G : AbGroup ℓ} {H : AbGroup ℓ'} {L : AbGroup ℓ''} (n m : ℕ)
     → isContr (EM∙ G (suc n) →∙ (EM∙ H (suc m) →∙ EM∙ L (suc (n + m)) ∙))
-  fst (contr∙-lem n m) = (λ _ → (λ _ → 0ₖ _) , refl), refl 
+  fst (contr∙-lem n m) = (λ _ → (λ _ → 0ₖ _) , refl), refl
   snd (contr∙-lem {G = G} {H = H} {L = L} n m) (f , p) =
     →∙Homogeneous≡ (isHomogeneous→∙ (isHomogeneousEM _))
       (sym (funExt (help n f p)))
     where
     help : (n : ℕ) → (f : EM G (suc n) → EM∙ H (suc m) →∙ EM∙ L (suc (n + m)))
-        → f (snd (EM∙ G (suc n))) ≡ snd (EM∙ H (suc m) →∙ EM∙ L (suc (n + m)) ∙) 
+        → f (snd (EM∙ G (suc n))) ≡ snd (EM∙ H (suc m) →∙ EM∙ L (suc (n + m)) ∙)
         → (x : _) → (f x) ≡ ((λ _ → 0ₖ _) , refl)
     help zero f p =
       EM-raw-elim G zero
@@ -428,13 +438,15 @@ module _ where
              →∙ (Ω (EM∙ H (suc m)
               →∙ EM∙ L (suc (suc (n + m))) ∙)))
     h =
-      subst isProp (λ i → EM∙ G (suc n) →∙ (→∙EMPath {G = L} (EM∙ H (suc m)) (suc (n + m)) (~ i)))
+      subst isProp
+        (λ i → EM∙ G (suc n)
+            →∙ (→∙EMPath {G = L} (EM∙ H (suc m)) (suc (n + m)) (~ i)))
         (isContr→isProp (contr∙-lem n m))
   isOfHLevel↑∙∙ {G = G} {H = H} {L = L} n m (suc l) =
     isOfHLevelΩ→isOfHLevel (suc l)
       λ f →
-      subst
-          (isOfHLevel (2 + l)) (cong (λ x → typ (Ω x))
+      subst (isOfHLevel (2 + l))
+          (cong (λ x → typ (Ω x))
           (isHomogeneous→∙ (isHomogeneous→∙ (isHomogeneousEM _)) f))
           (isOfHLevelRetractFromIso (2 + l) (ΩfunExtIso _ _) h)
     where
@@ -444,5 +456,6 @@ module _ where
              →∙ EM∙ L (suc (suc (suc (l + n + m)))) ∙)))
     h =
       subst (isOfHLevel (2 + l))
-        (λ i → EM∙ G (suc n) →∙ →∙EMPath {G = L} (EM∙ H (suc m)) (suc (suc (l + n + m))) (~ i))
+        (λ i → EM∙ G (suc n)
+             →∙ →∙EMPath {G = L} (EM∙ H (suc m)) (suc (suc (l + n + m))) (~ i))
         (isOfHLevel↑∙∙ n m l)

@@ -18,11 +18,14 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Int
 open import Cubical.Data.Sum hiding (map)
 
-open import Cubical.HITs.PropositionalTruncation renaming (map to pMap ; rec to pRec ; elim to pElim ; elim2 to pElim2)
+open import Cubical.HITs.PropositionalTruncation
+  renaming (map to pMap ; rec to pRec ; elim to pElim ; elim2 to pElim2)
 
 open import Cubical.Algebra.Group hiding (ℤ)
-
--- open import Cubical.HITs.SetQuotients
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.Semigroup
 
 private
   variable
@@ -63,16 +66,6 @@ module _ (AGr : AbGroup ℓ) (BGr : AbGroup ℓ') where
 
    ⊗squash : isSet _⨂₁_
 
-
-move4 : ∀ {ℓ} {A : Type ℓ} (x y z w : A) (_+_ : A → A → A)
-       → ((x y z : A) → x + (y + z) ≡ (x + y) + z)
-       → ((x y : A) → x + y ≡ y + x)
-      → (x + y) + (z + w) ≡ ((x + z) + (y + w)) 
-move4 x y z w _+_ assoc comm =
-     sym (assoc x y (z + w))
-  ∙∙ cong (x +_) (assoc y z w ∙∙ cong (_+ w) (comm y z) ∙∙ sym (assoc z y w))
-  ∙∙ assoc x z (y + w)
-
 module _ {AGr : AbGroup ℓ} {BGr : AbGroup ℓ'} where
   private
     open AbGroupStr renaming (_+_ to _+G_ ; -_ to -G_)
@@ -93,9 +86,6 @@ module _ {AGr : AbGroup ℓ} {BGr : AbGroup ℓ'} where
     -B_ = -G_ strB
 
   A⊗B = AGr ⨂₁ BGr
-
-  0⊗ : AGr ⨂₁ BGr
-  0⊗ = 0A ⊗ 0B
 
   ⊗elimProp : ∀ {ℓ} {C : AGr ⨂₁ BGr → Type ℓ}
            → ((x : _) → isProp (C x))
@@ -130,7 +120,12 @@ module _ {AGr : AbGroup ℓ} {BGr : AbGroup ℓ'} where
       (f x (-B b)) (f (-A x) b) (flip x b) i
   ⊗elimProp {C = C} p f g (⊗squash x y q r i j) =
     isOfHLevel→isOfHLevelDep 2 {B = C} (λ x → isProp→isSet (p x))
-      _ _ (λ j → ⊗elimProp p f g (q j)) (λ j → ⊗elimProp p f g (r j)) (⊗squash x y q r) i j
+      _ _ (λ j → ⊗elimProp p f g (q j)) (λ j → ⊗elimProp p f g (r j))
+          (⊗squash x y q r) i j
+
+  -- Group structure
+  0⊗ : AGr ⨂₁ BGr
+  0⊗ = 0A ⊗ 0B
 
   -⊗ : AGr ⨂₁ BGr → AGr ⨂₁ BGr
   -⊗ (a ⊗ b) = (-A a) ⊗ b
@@ -152,22 +147,26 @@ module _ {AGr : AbGroup ℓ} {BGr : AbGroup ℓ'} where
   ⊗rUnit : (x : A⊗B) → x +⊗ 0⊗ ≡ x
   ⊗rUnit x = ⊗comm x 0⊗ ∙ ⊗lUnit x
 
+  -------------------------------------------------------------------------------
+  -- Useful induction principle, which lets us view elements of A ⨂ B as lists
+  -- over (A × B). Used for the right cancellation law
   listify : List (A × B) → AGr ⨂₁ BGr
   listify [] = 0A ⊗ 0B
   listify (x ∷ x₁) = (fst x ⊗ snd x) +⊗ listify x₁
 
-  listify++ : (x y : List (A × B)) → listify (x ++ y) ≡ (listify x +⊗ listify y)
+  listify++ : (x y : List (A × B))
+            → listify (x ++ y) ≡ (listify x +⊗ listify y)
   listify++ [] y = sym (⊗lUnit (listify y))
   listify++ (x ∷ x₁) y =
        (λ i → (fst x ⊗ snd x) +⊗ (listify++ x₁ y i))
      ∙ ⊗assoc (fst x ⊗ snd x) (listify x₁) (listify y)
 
-  slick : (x : AGr ⨂₁ BGr) → ∃[ l ∈ List (A × B) ] listify l ≡ x
+  slick : (x : AGr ⨂₁ BGr) → ∃[ l ∈ List (A × B) ] (listify l ≡ x)
   slick =
     ⊗elimProp (λ _ → squash)
       (λ a b → ∣ [ a , b ] , ⊗rUnit (a ⊗ b) ∣)
-      λ x y → rec2 squash λ {(l1 , p) (l2 , q) → ∣ (l1 ++ l2) , listify++ l1 l2 ∙ cong₂ _+⊗_ p q ∣}
-
+      λ x y → rec2 squash λ {(l1 , p) (l2 , q)
+                          → ∣ (l1 ++ l2) , listify++ l1 l2 ∙ cong₂ _+⊗_ p q ∣}
 
   ⊗elimPropCool : ∀ {ℓ} {C : AGr ⨂₁ BGr → Type ℓ}
            → ((x : _) → isProp (C x))
@@ -177,9 +176,11 @@ module _ {AGr : AbGroup ℓ} {BGr : AbGroup ℓ'} where
     ⊗elimProp p (λ x y → subst C (⊗rUnit (x ⊗ y)) (f [ x , y ]))
       λ x y → pRec (isPropΠ2 λ _ _ → p _)
                     (pRec (isPropΠ3 λ _ _ _ → p _)
-                      (λ {(l1 , p) (l2 , q) ind1 ind2 → subst C (listify++ l2 l1 ∙ cong₂ _+⊗_ q p) (f (l2 ++ l1))})
+                      (λ {(l1 , p) (l2 , q) ind1 ind2
+                        → subst C (listify++ l2 l1 ∙ cong₂ _+⊗_ q p) (f (l2 ++ l1))})
                       (slick y))
                     (slick x)
+  -----------------------------------------------------------------------------------
 
   lCancelPrim : (x : B) → (0A ⊗ x) ≡ 0⊗
   lCancelPrim x =
@@ -194,7 +195,9 @@ module _ {AGr : AbGroup ℓ} {BGr : AbGroup ℓ'} where
   rCancelPrim x =
        (λ i → x ⊗ rid strB 0B (~ i))
     ∙∙ linr x 0B 0B
-    ∙∙ cong ((x ⊗ 0B) +⊗_) (cong (x ⊗_) (sym (GroupTheory.inv1g (AbGroup→Group BGr))) ∙ flip x 0B)
+    ∙∙ cong ((x ⊗ 0B) +⊗_)
+        (cong (x ⊗_)
+         (sym (GroupTheory.inv1g (AbGroup→Group BGr))) ∙ flip x 0B)
     ∙∙ sym (linl x (-A x) 0B)
     ∙∙ (λ i → (invr strA x i) ⊗ 0B)
 
@@ -218,13 +221,12 @@ module _ {AGr : AbGroup ℓ} {BGr : AbGroup ℓ'} where
   ⊗lCancel x = ⊗comm _ _ ∙ ⊗rCancel x
 
 module _ where
-  open import Cubical.Algebra.Monoid
-  open import Cubical.Algebra.Semigroup
   open AbGroupStr
   open IsAbGroup
   open IsGroup
   open IsMonoid
   open IsSemigroup
+
   _⨂_ : AbGroup ℓ → AbGroup ℓ' → AbGroup (ℓ-max ℓ ℓ')
   fst (A ⨂ B) = A ⨂₁ B
   0g (snd (A ⨂ B)) = 0⊗
@@ -238,74 +240,61 @@ module _ where
   snd (inverse (isGroup (isAbGroup (snd (A ⨂ B)))) x) = ⊗lCancel x
   comm (isAbGroup (snd (A ⨂ B))) = ⊗comm
 
-open import Cubical.Algebra.Group.Morphisms
-open import Cubical.Algebra.Group.MorphismProperties
-
-_* : AbGroup ℓ → Group ℓ
-_* = AbGroup→Group
-
-module _ {ℓ ℓ' : Level} (AGr : Group ℓ) (BGr : AbGroup ℓ') where
+-------------- Elimination principle into AbGroups --------------
+module _ {ℓ ℓ' : Level} {A : AbGroup ℓ}  {B : AbGroup ℓ'} where
   private
-    strA = snd AGr
-    strB = snd BGr
+    open AbGroupStr renaming (_+_ to _+G_ ; -_ to -G)
+    _+A_ = _+G_ (snd A)
+    _+B_ = _+G_ (snd B)
 
-    A = fst AGr
-    B = fst BGr
-    open IsGroupHom
+    0A = 0g (snd A)
+    0B = 0g (snd B)
 
-    open AbGroupStr strB renaming (_+_ to _+B_ ; -_ to -B_ ; 0g to 0B ; rid to ridB ; lid to lidB ; assoc to assocB ; comm to commB ; invr to invrB ; invl to invlB)
-    open GroupStr strA renaming (_·_ to _∙A_ ; inv to -A_ ; 1g to 1A ; rid to ridA)
+  ⨂→AbGroup-elim : ∀ {ℓ} (C : AbGroup ℓ)
+         → (f : (fst A × fst B) → fst C)
+         → (f (0A , 0B) ≡ 0g (snd C))
+         → (linL : (x y : fst A) (b : fst B)
+                 → f (x +A y , b) ≡ _+G_ (snd C) (f (x , b)) (f (y , b)))
+         → (linR : (a : fst A) (x y : fst B)
+                 → f (a , x +B y) ≡ _+G_ (snd C) (f (a , x)) (f (a , y)))
+         → (fl : (x : fst A) (y : fst B)
+                 → f (x , -G (snd B) y) ≡ f ((-G (snd A) x) , y))
+         → A ⨂₁ B → fst C
+  ⨂→AbGroup-elim C f p linL linR fl (a ⊗ b) = f (a , b)
+  ⨂→AbGroup-elim C f p linL linR fl (x +⊗ x₁) =
+    _+G_ (snd C) (⨂→AbGroup-elim C f p linL linR fl x)
+                 (⨂→AbGroup-elim C f p linL linR fl x₁)
+  ⨂→AbGroup-elim C f p linL linR fl (⊗comm x x₁ i) =
+    comm (snd C) (⨂→AbGroup-elim C f p linL linR fl x)
+                 (⨂→AbGroup-elim C f p linL linR fl x₁) i
+  ⨂→AbGroup-elim C f p linL linR fl (⊗assoc x x₁ x₂ i) =
+    assoc (snd C) (⨂→AbGroup-elim C f p linL linR fl x)
+                  (⨂→AbGroup-elim C f p linL linR fl x₁)
+                  (⨂→AbGroup-elim C f p linL linR fl x₂) i
+  ⨂→AbGroup-elim C f p linL linR fl (⊗lUnit x i) =
+    (cong (λ y → (snd C +G y) (⨂→AbGroup-elim C f p linL linR fl x)) p
+                     ∙ (lid (snd C) (⨂→AbGroup-elim C f p linL linR fl x))) i
+  ⨂→AbGroup-elim C f p linL linR fl (linl x y z i) = linL x y z i
+  ⨂→AbGroup-elim C f p linL linR fl (linr x y z i) = linR x y z i
+  ⨂→AbGroup-elim C f p linL linR fl (flip x b i) = fl x b i
+  ⨂→AbGroup-elim C f p linL linR fl (⊗squash x x₁ x₂ y i i₁) =
+    is-set (snd C) _ _
+           (λ i → ⨂→AbGroup-elim C f p linL linR fl (x₂ i))
+           (λ i → ⨂→AbGroup-elim C f p linL linR fl (y i)) i i₁
 
-  trivGroupHom : GroupHom AGr (BGr *)
-  fst trivGroupHom x = 0B
-  snd trivGroupHom = makeIsGroupHom λ _ _ → sym (ridB 0B)
-
-  compHom : GroupHom AGr (BGr *) → GroupHom AGr (BGr *) → GroupHom AGr (BGr *)
-  fst (compHom f g) x = fst f x +B fst g x
-  snd (compHom f g) =
-      makeIsGroupHom λ x y
-      → cong₂ _+B_ (pres· (snd f) x y) (pres· (snd g) x y)
-      ∙ move4 (fst f x) (fst f y) (fst g x) (fst g y)
-              _+B_ assocB commB
-
-  invHom : GroupHom AGr (BGr *) → GroupHom AGr (BGr *)
-  fst (invHom (f , p)) x = -B f x
-  snd (invHom (f , p)) =
+  ⨂→AbGroup-elim-hom : ∀ {ℓ} (C : AbGroup ℓ)
+        → (f : (fst A × fst B) → fst C) (linL : _) (linR : _) (fl : _) (p : _)
+        → AbGroupHom (A ⨂ B) C
+  fst (⨂→AbGroup-elim-hom C f linL linR fl p) = ⨂→AbGroup-elim C f p linL linR fl
+  snd (⨂→AbGroup-elim-hom C f linL linR fl p) =
     makeIsGroupHom
-      λ x y → cong -B_ (pres· p x y)
-            ∙∙ GroupTheory.invDistr (BGr *) (f x) (f y)
-            ∙∙ commB _ _
+      (λ x y → refl)
 
-  open import Cubical.Algebra.Monoid
-  open import Cubical.Algebra.Semigroup
-  open AbGroupStr
-  open IsAbGroup
-  open IsGroup
-  open IsMonoid
-  open IsSemigroup
+private
+  _* = AbGroup→Group
 
-  HomGroup : AbGroup (ℓ-max ℓ ℓ')
-  fst HomGroup = GroupHom AGr (BGr *)
-  0g (snd HomGroup) = trivGroupHom
-  AbGroupStr._+_ (snd HomGroup) = compHom
-  AbGroupStr.- snd HomGroup = invHom
-  is-set (isSemigroup (isMonoid (isGroup (isAbGroup (snd HomGroup))))) =
-    isSetGroupHom
-  assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd HomGroup))))) (f , p) (g , q) (h , r) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _)
-      (funExt λ x → assocB _ _ _)
-  fst (identity (isMonoid (isGroup (isAbGroup (snd HomGroup)))) (f , p)) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ y → ridB _)
-  snd (identity (isMonoid (isGroup (isAbGroup (snd HomGroup)))) (f , p)) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → lidB _)
-  fst (inverse (isGroup (isAbGroup (snd HomGroup))) (f , p)) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → invrB (f x))
-  snd (inverse (isGroup (isAbGroup (snd HomGroup))) (f , p)) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → invlB (f x))
-  comm (isAbGroup (snd HomGroup)) (f , p) (g , q) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _)
-      (funExt λ x → commB _ _)
 
+----------- Definition of universal property ------------
 tensorFun : (A : Group ℓ) (B : Group ℓ') (T C : AbGroup (ℓ-max ℓ ℓ'))
     (f : GroupHom A (HomGroup B T *))
   → GroupHom (T *) (C *)
@@ -320,21 +309,7 @@ snd (tensorFun A B T C (f , p) (g , q)) =
       → Σ≡Prop (λ _ → isPropIsGroupHom _ _)
            (funExt λ b
              → cong g (funExt⁻ (cong fst (IsGroupHom.pres· p x y)) b)
-              ∙ IsGroupHom.pres· q _ _) 
-{-
-  makeIsGroupHom λ x y
-      → cong g (IsGroupHom.pres· (snd (f a)) x y)
-       ∙ IsGroupHom.pres· q _ _
-snd (tensorFun A B T C (f , p) (g , q)) =
-    makeIsGroupHom λ x y
-      → cong g (IsGroupHom.pres· (snd (f a)) x y)
-       ∙ IsGroupHom.pres· q _ _
-snd (h (f , p) C (g , q)) =
-    makeIsGroupHom λ x y
-      → Σ≡Prop (λ _ → isPropIsGroupHom _ _)
-           (funExt λ b
-             → cong g (funExt⁻ (cong fst (IsGroupHom.pres· p x y)) b)
-              ∙ IsGroupHom.pres· q _ _)  -}
+              ∙ IsGroupHom.pres· q _ _)
 
 isTensorProductOf_and_ : AbGroup ℓ → AbGroup ℓ' → AbGroup (ℓ-max ℓ ℓ')→ Type _
 isTensorProductOf_and_ {ℓ} {ℓ'} A B T =
@@ -344,6 +319,7 @@ isTensorProductOf_and_ {ℓ} {ℓ'} A B T =
                  {B = GroupHom (A *) ((HomGroup (B *) C) *)}
           (tensorFun (A *) (B *) T C f))
 
+------ _⨂_ satisfies the universal property --------
 module UP (AGr : AbGroup ℓ) (BGr : AbGroup ℓ') where
   private
     open AbGroupStr renaming (_+_ to _+G_ ; -_ to -G_)
@@ -410,6 +386,7 @@ module UP (AGr : AbGroup ℓ) (BGr : AbGroup ℓ') where
                (λ _ _ → refl)
                λ x y ind1 ind2 → cong₂ (_+G_ (snd C)) ind1 ind2 ∙ sym (IsGroupHom.pres· p x y)))
 
+-------------------- Commutativity ------------------------
 commFun : ∀ {ℓ ℓ'} {A : AbGroup ℓ}  {B : AbGroup ℓ'} → A ⨂₁ B → B ⨂₁ A
 commFun (a ⊗ b) = b ⊗ a
 commFun (x +⊗ x₁) = commFun x +⊗ commFun x₁
@@ -423,73 +400,30 @@ commFun (⊗squash x x₁ x₂ y i i₁) =
   ⊗squash (commFun x) (commFun x₁)
           (λ i → commFun (x₂ i)) (λ i → commFun (y i)) i i₁
 
-commFunx2 : ∀ {ℓ ℓ'} {A : AbGroup ℓ}  {B : AbGroup ℓ'} (x : A ⨂₁ B) → commFun (commFun x) ≡ x
-commFunx2 =
+commFun²≡id : ∀ {ℓ ℓ'} {A : AbGroup ℓ}  {B : AbGroup ℓ'} (x : A ⨂₁ B)
+          → commFun (commFun x) ≡ x
+commFun²≡id =
   ⊗elimProp (λ _ → ⊗squash _ _)
     (λ _ _ → refl)
     λ _ _ p q → cong₂ _+⊗_ p q
 
-
-⨂-commIso : ∀ {ℓ ℓ'} {A : AbGroup ℓ} {B : AbGroup ℓ'} → GroupIso ((A ⨂ B) *) ((B ⨂ A) *)
+⨂-commIso : ∀ {ℓ ℓ'} {A : AbGroup ℓ} {B : AbGroup ℓ'}
+          → GroupIso ((A ⨂ B) *) ((B ⨂ A) *)
 Iso.fun (fst ⨂-commIso) = commFun
 Iso.inv (fst ⨂-commIso) = commFun
-Iso.rightInv (fst ⨂-commIso) = commFunx2
-Iso.leftInv (fst ⨂-commIso) = commFunx2
+Iso.rightInv (fst ⨂-commIso) = commFun²≡id
+Iso.leftInv (fst ⨂-commIso) = commFun²≡id
 snd ⨂-commIso = makeIsGroupHom λ x y → refl
 
 ⨂-comm : ∀ {ℓ ℓ'} {A : AbGroup ℓ} {B : AbGroup ℓ'} → AbGroupEquiv (A ⨂ B) (B ⨂ A)
 fst ⨂-comm = isoToEquiv (fst (⨂-commIso))
 snd ⨂-comm = snd ⨂-commIso
 
-module _ {ℓ ℓ' : Level} {A : AbGroup ℓ}  {B : AbGroup ℓ'} where
-  open AbGroupStr renaming (_+_ to _+G_ ; -_ to -G)
-  _+A_ = _+G_ (snd A)
-  _+B_ = _+G_ (snd B)
+open AbGroupStr
 
-  0A = 0g (snd A)
-  0B = 0g (snd B)
-
-
-  ⨂→AbGroup-elim : ∀ {ℓ} (C : AbGroup ℓ)
-         → (f : (fst A × fst B) → fst C)
-         → (f (0A , 0B) ≡ 0g (snd C))
-         → (linL : (x y : fst A) (b : fst B) → f (x +A y , b) ≡ _+G_ (snd C) (f (x , b)) (f (y , b)))
-         → (linR : (a : fst A) (x y : fst B) → f (a , x +B y) ≡ _+G_ (snd C) (f (a , x)) (f (a , y)))
-         → (fl : (x : fst A) (y : fst B) → f (x , -G (snd B) y) ≡ f ((-G (snd A) x) , y))
-         → A ⨂₁ B → fst C
-  ⨂→AbGroup-elim C f p linL linR fl (a ⊗ b) = f (a , b)
-  ⨂→AbGroup-elim C f p linL linR fl (x +⊗ x₁) =
-    _+G_ (snd C) (⨂→AbGroup-elim C f p linL linR fl x) (⨂→AbGroup-elim C f p linL linR fl x₁)
-  ⨂→AbGroup-elim C f p linL linR fl (⊗comm x x₁ i) =
-    comm (snd C) (⨂→AbGroup-elim C f p linL linR fl x) (⨂→AbGroup-elim C f p linL linR fl x₁) i
-  ⨂→AbGroup-elim C f p linL linR fl (⊗assoc x x₁ x₂ i) =
-    assoc (snd C) (⨂→AbGroup-elim C f p linL linR fl x) (⨂→AbGroup-elim C f p linL linR fl x₁) (⨂→AbGroup-elim C f p linL linR fl x₂) i
-  ⨂→AbGroup-elim C f p linL linR fl (⊗lUnit x i) =
-    (cong (λ y → (snd C +G y) (⨂→AbGroup-elim C f p linL linR fl x)) p
-                     ∙ (lid (snd C) (⨂→AbGroup-elim C f p linL linR fl x))) i
-  ⨂→AbGroup-elim C f p linL linR fl (linl x y z i) = linL x y z i
-  ⨂→AbGroup-elim C f p linL linR fl (linr x y z i) = linR x y z i
-  ⨂→AbGroup-elim C f p linL linR fl (flip x b i) = fl x b i
-  ⨂→AbGroup-elim C f p linL linR fl (⊗squash x x₁ x₂ y i i₁) =
-    is-set (snd C) _ _ (λ i → ⨂→AbGroup-elim C f p linL linR fl (x₂ i)) (λ i → ⨂→AbGroup-elim C f p linL linR fl (y i)) i i₁
-
-  ⨂→AbGroup-elim-hom : ∀ {ℓ} (C : AbGroup ℓ) → (f : (fst A × fst B) → fst C) (linL : _) (linR : _) (fl : _) (p : _)
-        → AbGroupHom (A ⨂ B) C
-  fst (⨂→AbGroup-elim-hom C f linL linR fl p) = ⨂→AbGroup-elim C f p linL linR fl
-  snd (⨂→AbGroup-elim-hom C f linL linR fl p) =
-    makeIsGroupHom
-      (λ x y → refl)
-
+-------------------- Associativity ------------------------
 module _ {ℓ ℓ' ℓ'' : Level} {A : AbGroup ℓ} {B : AbGroup ℓ'} {C : AbGroup ℓ''} where
   private
-    open AbGroupStr renaming (_+_ to +G ; -_ to -G)
-    _+A'_ = +G (snd A)
-    _+B'_ = +G (snd B)
-    _+C'_ = +G (snd C)
-    -A = -G (snd A)
-    -B = -G (snd B)
-    -C = -G (snd C)
-
     f : (c : fst C) → AbGroupHom (A ⨂ B) (A ⨂ (B ⨂ C))
     f c = ⨂→AbGroup-elim-hom (A ⨂ (B ⨂ C)) ((λ ab → fst ab ⊗ (snd ab ⊗ c)))
                   (λ x y b → linl x y (b ⊗ c))
@@ -500,58 +434,54 @@ module _ {ℓ ℓ' ℓ'' : Level} {A : AbGroup ℓ} {B : AbGroup ℓ'} {C : AbGr
   assocHom : AbGroupHom ((A ⨂ B) ⨂ C) (A ⨂ (B ⨂ C))
   assocHom =
     ⨂→AbGroup-elim-hom _ (λ x → f (snd x) .fst (fst x))
-             (λ x y b → IsGroupHom.pres· (snd (f b)) x y)
-             (⊗elimProp (λ _ → isPropΠ2 λ _ _ → ⊗squash _ _)
-                        (λ a b x y → (λ i → a ⊗ (linr b x y i))
-                                   ∙∙ linr a (b ⊗ x) (b ⊗ y)
-                                   ∙∙ refl)
-                        λ a b ind1 ind2 x y → cong₂ _+⊗_ (ind1 x y) (ind2 x y)
-                              ∙∙ move4 (f x .fst a) (f y .fst a) (f x .fst b) (f y .fst b) _+⊗_ ⊗assoc ⊗comm
-                              ∙∙ cong₂ _+⊗_ (sym (IsGroupHom.pres· (snd (f x)) a b)) (IsGroupHom.pres· (snd (f y)) a b))
-             (⊗elimProp (λ _ → isPropΠ λ _ → ⊗squash _ _)
-                        (λ a b c → (λ i → a ⊗ (flip b c i))
-                                  ∙ flip a (b ⊗ c))
-                        (λ x y ind1 ind2 c → cong₂ _+⊗_ (ind1 c) (ind2 c)
-                                            ∙ IsGroupHom.pres· (snd (f c)) (-⊗ x) (-⊗ y)))
-             refl
+      (λ x y b → IsGroupHom.pres· (snd (f b)) x y)
+      (⊗elimProp (λ _ → isPropΠ2 λ _ _ → ⊗squash _ _)
+                 (λ a b x y → (λ i → a ⊗ (linr b x y i))
+                            ∙∙ linr a (b ⊗ x) (b ⊗ y)
+                            ∙∙ refl)
+                 λ a b ind1 ind2 x y → cong₂ _+⊗_ (ind1 x y) (ind2 x y)
+                       ∙∙ move4 (f x .fst a) (f y .fst a) (f x .fst b) (f y .fst b)
+                                _+⊗_ ⊗assoc ⊗comm
+                       ∙∙ cong₂ _+⊗_ (sym (IsGroupHom.pres· (snd (f x)) a b))
+                                     (IsGroupHom.pres· (snd (f y)) a b))
+      (⊗elimProp (λ _ → isPropΠ λ _ → ⊗squash _ _)
+                 (λ a b c → (λ i → a ⊗ (flip b c i))
+                           ∙ flip a (b ⊗ c))
+                 (λ x y ind1 ind2 c → cong₂ _+⊗_ (ind1 c) (ind2 c)
+                                     ∙ IsGroupHom.pres· (snd (f c)) (-⊗ x) (-⊗ y)))
+      refl
 
 module _ {ℓ ℓ' ℓ'' : Level} {A : AbGroup ℓ} {B : AbGroup ℓ'} {C : AbGroup ℓ''} where
   private
-    open AbGroupStr renaming (_+_ to +G ; -_ to -G)
-    _+A'_ = +G (snd A)
-    _+B'_ = +G (snd B)
-    _+C'_ = +G (snd C)
-    -A = -G (snd A)
-    -B = -G (snd B)
-    -C = -G (snd C)
-
     f' : (a : fst A) → AbGroupHom (B ⨂ C) ((A ⨂ B) ⨂ C)
-    f' a = ⨂→AbGroup-elim-hom ((A ⨂ B) ⨂ C)
-                  (λ bc → (a ⊗ fst bc) ⊗ snd bc)
-                  (λ x y b → (λ i → (linr a x y i) ⊗ b) ∙ linl (a ⊗ x) (a ⊗ y) b)
-                  (λ x y b → linr (a ⊗ x) y b)
-                  (λ b c → flip (a ⊗ b) c ∙ λ i → flip a b (~ i) ⊗ c)
-                  λ i → rCancelPrim a i ⊗ (0g (snd C))
+    f' a =
+      ⨂→AbGroup-elim-hom ((A ⨂ B) ⨂ C)
+         (λ bc → (a ⊗ fst bc) ⊗ snd bc)
+         (λ x y b → (λ i → (linr a x y i) ⊗ b) ∙ linl (a ⊗ x) (a ⊗ y) b)
+         (λ x y b → linr (a ⊗ x) y b)
+         (λ b c → flip (a ⊗ b) c ∙ λ i → flip a b (~ i) ⊗ c)
+         λ i → rCancelPrim a i ⊗ (0g (snd C))
 
   assocHom⁻ : AbGroupHom (A ⨂ (B ⨂ C)) ((A ⨂ B) ⨂ C)
-  assocHom⁻ = ⨂→AbGroup-elim-hom _ (λ abc → f' (fst abc) .fst (snd abc))
-                       (λ x y → ⊗elimProp (λ _ → ⊗squash _ _)
-                                   (λ b c → (λ i → linl x y b i ⊗ c) ∙ linl (x ⊗ b) (y ⊗ b) c)
-                                   λ a b ind1 ind2 → cong₂ _+⊗_ ind1 ind2
-                                                  ∙∙ move4 _ _ _ _ _+⊗_ ⊗assoc ⊗comm
-                                                  ∙∙ cong₂ _+⊗_ (IsGroupHom.pres· (snd (f' x)) a b)
-                                                                (IsGroupHom.pres· (snd (f' y)) a b))
-                       (λ a → IsGroupHom.pres· (snd (f' a)))
-                       (λ a → ⊗elimProp (λ _ → ⊗squash _ _)
-                                         (λ b c → λ i → flip a b i ⊗ c)
-                                         λ x y ind1 ind2 → IsGroupHom.pres· (snd (f' a)) (-⊗ x) (-⊗ y)
-                                                          ∙ cong₂ _+⊗_ ind1 ind2)
-                       refl
+  assocHom⁻ =
+    ⨂→AbGroup-elim-hom _ (λ abc → f' (fst abc) .fst (snd abc))
+       (λ x y → ⊗elimProp (λ _ → ⊗squash _ _)
+                   (λ b c → (λ i → linl x y b i ⊗ c) ∙ linl (x ⊗ b) (y ⊗ b) c)
+                   λ a b ind1 ind2 → cong₂ _+⊗_ ind1 ind2
+                                  ∙∙ move4 _ _ _ _ _+⊗_ ⊗assoc ⊗comm
+                                  ∙∙ cong₂ _+⊗_ (IsGroupHom.pres· (snd (f' x)) a b)
+                                                (IsGroupHom.pres· (snd (f' y)) a b))
+       (λ a → IsGroupHom.pres· (snd (f' a)))
+       (λ a → ⊗elimProp (λ _ → ⊗squash _ _)
+                         (λ b c → λ i → flip a b i ⊗ c)
+                         λ x y ind1 ind2 → IsGroupHom.pres· (snd (f' a)) (-⊗ x) (-⊗ y)
+                                          ∙ cong₂ _+⊗_ ind1 ind2)
+       refl
 
-  ⨂AssocIso : Iso (A ⨂₁ (B ⨂ C)) ((A ⨂ B) ⨂₁ C)
-  Iso.fun ⨂AssocIso = fst assocHom⁻
-  Iso.inv ⨂AssocIso = fst assocHom
-  Iso.rightInv ⨂AssocIso =
+  ⨂assocIso : Iso (A ⨂₁ (B ⨂ C)) ((A ⨂ B) ⨂₁ C)
+  Iso.fun ⨂assocIso = fst assocHom⁻
+  Iso.inv ⨂assocIso = fst assocHom
+  Iso.rightInv ⨂assocIso =
     ⊗elimProp (λ _ → ⊗squash _ _)
       (⊗elimProp (λ _ → isPropΠ (λ _ → ⊗squash _ _))
         (λ a b c → refl)
@@ -559,7 +489,7 @@ module _ {ℓ ℓ' ℓ'' : Level} {A : AbGroup ℓ} {B : AbGroup ℓ'} {C : AbGr
       λ x y p q → cong (fst assocHom⁻) (IsGroupHom.pres· (snd assocHom) x y)
                ∙∙ IsGroupHom.pres· (snd assocHom⁻) (fst assocHom x) (fst assocHom y)
                ∙∙ cong₂ _+⊗_ p q
-  Iso.leftInv ⨂AssocIso =
+  Iso.leftInv ⨂assocIso =
     ⊗elimProp (λ _ → ⊗squash _ _)
       (λ a → ⊗elimProp (λ _ → ⊗squash _ _)
               (λ b c → refl)
@@ -574,5 +504,5 @@ module _ {ℓ ℓ' ℓ'' : Level} {A : AbGroup ℓ} {B : AbGroup ℓ'} {C : AbGr
                ∙∙ cong₂ _+⊗_ p q
 
   ⨂assoc : AbGroupEquiv (A ⨂ (B ⨂ C)) ((A ⨂ B) ⨂ C)
-  fst ⨂assoc = isoToEquiv ⨂AssocIso
+  fst ⨂assoc = isoToEquiv ⨂assocIso
   snd ⨂assoc = snd assocHom⁻

@@ -517,3 +517,13 @@ compPathR→PathP∙∙ {p = p} {q = q} {r = r} {s = s} P j i =
                     ; (j = i0) → r i
                     ; (j = i1) → doubleCompPath-filler  p s (sym q) (~ k) i})
           (P j i)
+
+-- useful lemma... TODO: move
+move4 : ∀ {ℓ} {A : Type ℓ} (x y z w : A) (_+_ : A → A → A)
+       → ((x y z : A) → x + (y + z) ≡ (x + y) + z)
+       → ((x y : A) → x + y ≡ y + x)
+      → (x + y) + (z + w) ≡ ((x + z) + (y + w))
+move4 x y z w _+_ assoc comm =
+     sym (assoc x y (z + w))
+  ∙∙ cong (x +_) (assoc y z w ∙∙ cong (_+ w) (comm y z) ∙∙ sym (assoc z y w))
+  ∙∙ assoc x z (y + w)

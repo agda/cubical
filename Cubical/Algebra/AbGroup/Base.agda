@@ -190,3 +190,72 @@ assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd trivialAbGroup))))) _ _ _ 
 identity (isMonoid (isGroup (isAbGroup (snd trivialAbGroup)))) _ = refl , refl
 inverse (isGroup (isAbGroup (snd trivialAbGroup))) _ = refl , refl
 comm (isAbGroup (snd trivialAbGroup)) _ _ = refl
+
+---- The type of homomorphisms A → B is an AbGroup if B is -----
+module _ {ℓ ℓ' : Level} (AGr : Group ℓ) (BGr : AbGroup ℓ') where
+  private
+    strA = snd AGr
+    strB = snd BGr
+
+    _* = AbGroup→Group
+
+    A = fst AGr
+    B = fst BGr
+    open IsGroupHom
+
+    open AbGroupStr strB
+      renaming (_+_ to _+B_ ; -_ to -B_ ; 0g to 0B
+              ; rid to ridB ; lid to lidB
+              ; assoc to assocB ; comm to commB
+              ; invr to invrB ; invl to invlB)
+    open GroupStr strA
+      renaming (_·_ to _∙A_ ; inv to -A_
+                ; 1g to 1A ; rid to ridA)
+
+  trivGroupHom : GroupHom AGr (BGr *)
+  fst trivGroupHom x = 0B
+  snd trivGroupHom = makeIsGroupHom λ _ _ → sym (ridB 0B)
+
+  compHom : GroupHom AGr (BGr *) → GroupHom AGr (BGr *) → GroupHom AGr (BGr *)
+  fst (compHom f g) x = fst f x +B fst g x
+  snd (compHom f g) =
+      makeIsGroupHom λ x y
+      → cong₂ _+B_ (pres· (snd f) x y) (pres· (snd g) x y)
+      ∙ move4 (fst f x) (fst f y) (fst g x) (fst g y)
+              _+B_ assocB commB
+
+  invHom : GroupHom AGr (BGr *) → GroupHom AGr (BGr *)
+  fst (invHom (f , p)) x = -B f x
+  snd (invHom (f , p)) =
+    makeIsGroupHom
+      λ x y → cong -B_ (pres· p x y)
+            ∙∙ GroupTheory.invDistr (BGr *) (f x) (f y)
+            ∙∙ commB _ _
+
+  open AbGroupStr
+  open IsAbGroup
+  open IsGroup
+  open IsMonoid
+  open IsSemigroup
+
+  HomGroup : AbGroup (ℓ-max ℓ ℓ')
+  fst HomGroup = GroupHom AGr (BGr *)
+  0g (snd HomGroup) = trivGroupHom
+  AbGroupStr._+_ (snd HomGroup) = compHom
+  AbGroupStr.- snd HomGroup = invHom
+  is-set (isSemigroup (isMonoid (isGroup (isAbGroup (snd HomGroup))))) =
+    isSetGroupHom
+  assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd HomGroup))))) (f , p) (g , q) (h , r) =
+    Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+      (funExt λ x → assocB _ _ _)
+  fst (identity (isMonoid (isGroup (isAbGroup (snd HomGroup)))) (f , p)) =
+    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ y → ridB _)
+  snd (identity (isMonoid (isGroup (isAbGroup (snd HomGroup)))) (f , p)) =
+    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → lidB _)
+  fst (inverse (isGroup (isAbGroup (snd HomGroup))) (f , p)) =
+    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → invrB (f x))
+  snd (inverse (isGroup (isAbGroup (snd HomGroup))) (f , p)) =
+    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → invlB (f x))
+  comm (isAbGroup (snd HomGroup)) (f , p) (g , q) =
+    Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+      (funExt λ x → commB _ _)
