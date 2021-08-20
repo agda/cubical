@@ -126,7 +126,7 @@ private
       ≡ λ i → hcomp (λ k → λ { (i = i0) → p (~ k)
                                ; (i = i1) → llem₁ k})
                       (g (merid y i))
-    mainP y = 
+    mainP y =
       wedgeConFun'ᵣ G H n
         (λ _ _ → isOfHLevelPathP' (suc (n + 1)) (hLev _ _) _ _)
         (λ x i → transp (λ j → A (merid ptS (i ∧ j)) x) (~ i) (f x))

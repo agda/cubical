@@ -10,7 +10,7 @@ module Cubical.HITs.EilenbergMacLane1.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
-  renaming (assoc to assoc∙) 
+  renaming (assoc to assoc∙)
 open import Cubical.Algebra.Group.Base
 
 private

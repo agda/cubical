@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 
 module Cubical.Algebra.Group.EilenbergMacLane.Base where
 
@@ -72,7 +72,7 @@ EM∙ : (G : AbGroup ℓ) (n : ℕ) → Pointed ℓ
 EM∙ G n = EM G n , (0ₖ n)
 
 EM-raw∙ : (G : AbGroup ℓ) (n : ℕ) → Pointed ℓ
-EM-raw∙ G n = EM-raw G n , ptS 
+EM-raw∙ G n = EM-raw G n , ptS
 
 hLevelEM : (G : AbGroup ℓ) (n : ℕ) → isOfHLevel (2 + n) (EM G n)
 hLevelEM G zero = AbGroupStr.is-set (snd G)

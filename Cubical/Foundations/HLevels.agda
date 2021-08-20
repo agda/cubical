@@ -643,7 +643,7 @@ isOfHLevelΣ' {A = A} {B = B} (suc (suc n)) Alvl Blvl (w , y) (x , z)
       → {a₁₀ a₁₁ : Σ A B} (p₁₋ : a₁₀ ≡ a₁₁)
       → (p₋₀ : a₀₀ ≡ a₁₀) (p₋₁ : a₀₁ ≡ a₁₁)
       → Square (cong fst p₀₋) (cong fst p₁₋) (cong fst p₋₀) (cong fst p₋₁)
-      → Square p₀₋ p₁₋ p₋₀ p₋₁ 
+      → Square p₀₋ p₁₋ p₋₀ p₋₁
 fst (Σ≡Set set p₀₋ p₁₋ p₋₀ p₋₁ sq i j) = sq i j
 snd (Σ≡Set {B = B} set p₀₋ p₁₋ p₋₀ p₋₁ sq i j) = sq2 i j
   where
