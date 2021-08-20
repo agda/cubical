@@ -35,6 +35,8 @@ open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
 open import Cubical.Algebra.RingSolver.ReflectionSolving
 
+open import Cubical.Algebra.Semilattice
+
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
 
@@ -172,9 +174,25 @@ module Presheaf (A' : CommRing ℓ) where
   ·r-lcoh : (x y z : A) → R x y → R (x ·r z) (y ·r z)
   ·r-lcoh x y z Rxy = ·r-lcoh-≼ x y z (Rxy .fst) , ·r-lcoh-≼ y x z (Rxy .snd)
 
+ BasicOpens : Semilattice ℓ
+ BasicOpens = A / R , A/RSemilatticeStr
+  where
+  A/RSemilatticeStr : SemilatticeStr (A / R)
+  SemilatticeStr.ε A/RSemilatticeStr = [ 1r ]
+  SemilatticeStr._·_ A/RSemilatticeStr = _∧/_
+  SemilatticeStr.isSemilattice A/RSemilatticeStr = makeIsSemilattice squash/
+    (elimProp3 (λ _ _ _ → squash/ _ _) λ _ _ _ → cong [_] (·rAssoc _ _ _))
+    (elimProp (λ _ → squash/ _ _) λ _ → cong [_] (·rRid _))
+    (elimProp (λ _ → squash/ _ _) λ _ → cong [_] (·rLid _))
+    (elimProp2 (λ _ _ → squash/ _ _) λ _ _ → cong [_] (·r-comm _ _))
+    (elimProp (λ _ → squash/ _ _) λ a → eq/ _ _
+              (∣ 1 , a , ·rRid _ ∣ , ∣ 2 , 1r , cong (a ·r_) (·rRid a) ∙ sym (·rLid _) ∣))
+
  -- The induced partial order
  _≼/_ : A / R → A / R → Type ℓ
  x ≼/ y = x ≡ (x ∧/ y)
+ -- TODO: use instead
+ -- open MeetSemilattice BasicOpens renaming (_≤_ to _≼/_)
 
  -- coincides with our ≼
  ≼/CoincidesWith≼ : ∀ (x y : A) → [ x ] ≼/ [ y ] ≡ x ≼ y
