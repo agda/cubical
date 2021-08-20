@@ -161,25 +161,25 @@ module _ {AGr : AbGroup ℓ} {BGr : AbGroup ℓ'} where
        (λ i → (fst x ⊗ snd x) +⊗ (listify++ x₁ y i))
      ∙ ⊗assoc (fst x ⊗ snd x) (listify x₁) (listify y)
 
-  slick : (x : AGr ⨂₁ BGr) → ∃[ l ∈ List (A × B) ] (listify l ≡ x)
-  slick =
+  ∃List : (x : AGr ⨂₁ BGr) → ∃[ l ∈ List (A × B) ] (listify l ≡ x)
+  ∃List =
     ⊗elimProp (λ _ → squash)
       (λ a b → ∣ [ a , b ] , ⊗rUnit (a ⊗ b) ∣)
       λ x y → rec2 squash λ {(l1 , p) (l2 , q)
                           → ∣ (l1 ++ l2) , listify++ l1 l2 ∙ cong₂ _+⊗_ p q ∣}
 
-  ⊗elimPropCool : ∀ {ℓ} {C : AGr ⨂₁ BGr → Type ℓ}
+  ⊗elimPropListify : ∀ {ℓ} {C : AGr ⨂₁ BGr → Type ℓ}
            → ((x : _) → isProp (C x))
            → ((x : _) → C (listify x))
            → (x : _) → C x
-  ⊗elimPropCool {C = C} p f =
+  ⊗elimPropListify {C = C} p f =
     ⊗elimProp p (λ x y → subst C (⊗rUnit (x ⊗ y)) (f [ x , y ]))
       λ x y → pRec (isPropΠ2 λ _ _ → p _)
                     (pRec (isPropΠ3 λ _ _ _ → p _)
                       (λ {(l1 , p) (l2 , q) ind1 ind2
                         → subst C (listify++ l2 l1 ∙ cong₂ _+⊗_ q p) (f (l2 ++ l1))})
-                      (slick y))
-                    (slick x)
+                      (∃List y))
+                    (∃List x)
   -----------------------------------------------------------------------------------
 
   lCancelPrim : (x : B) → (0A ⊗ x) ≡ 0⊗
@@ -203,7 +203,7 @@ module _ {AGr : AbGroup ℓ} {BGr : AbGroup ℓ'} where
 
   ⊗rCancel : (x : AGr ⨂₁ BGr) → (x +⊗ -⊗ x) ≡ 0⊗
   ⊗rCancel =
-    ⊗elimPropCool (λ _ → ⊗squash _ _) h
+    ⊗elimPropListify (λ _ → ⊗squash _ _) h
     where
     h : (x : List (A × B)) → (listify x +⊗ -⊗ (listify x)) ≡ 0⊗
     h [] = sym (linl 0A (-A 0A) (0B))
@@ -349,8 +349,7 @@ module UP (AGr : AbGroup ℓ) (BGr : AbGroup ℓ') where
 
   isTensorProduct⨂ : (isTensorProductOf AGr and BGr) (AGr ⨂ BGr)
   fst isTensorProduct⨂ = mainF
-  snd isTensorProduct⨂ C =
-    isoToIsEquiv mainIso
+  snd isTensorProduct⨂ C = isoToIsEquiv mainIso
     where
     invF : GroupHom (AGr *) (HomGroup (BGr *) C *) → GroupHom ((AGr ⨂ BGr) *) (C *)
     fst (invF (f , p)) = F

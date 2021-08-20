@@ -1,39 +1,31 @@
-{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 
 module Cubical.Algebra.Group.EilenbergMacLane.WedgeConnectivity where
 
 open import Cubical.Algebra.Group.EilenbergMacLane.Base
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
-open import Cubical.Foundations.Path
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Pointed
-open import Cubical.Foundations.Transport
 
-open import Cubical.Data.Unit
-open import Cubical.Data.Sigma
 open import Cubical.Algebra.Group.Base
-open import Cubical.Algebra.Group.Properties
-open import Cubical.Homotopy.Connected
 open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec; elim to trElim)
 open import Cubical.HITs.EilenbergMacLane1
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Data.Empty
   renaming (rec to ⊥-rec)
-open import Cubical.HITs.Truncation
-  renaming (elim to trElim ; rec to trRec ; rec2 to trRec2)
-open import Cubical.Data.Nat hiding (_·_)
+open import Cubical.Data.Nat
 open import Cubical.HITs.Susp
-open import Cubical.Functions.Morphism
-open import Cubical.Foundations.Path
+
+{-
+This file contains a direct construction of the wedge connectivity lemma for EM
+spaces. This direct construction gives nicer reductions and computes better than
+the more general theorem. The main results are in the module "wedgeConEM" at the
+end of this file.
+-}
 
 private
   variable ℓ ℓ' ℓ'' : Level
 
+-- One of the base cases, stated separately to avoid termination issues
   wedgeConFun' : (G : AbGroup ℓ) (H : AbGroup ℓ') (n : ℕ)
               → {A : EM-raw G (suc n) → EM-raw H (suc zero) → Type ℓ''}
               → ((x : _) (y : _) → isOfHLevel (suc n + suc zero) (A x y))
@@ -49,7 +41,7 @@ private
               → (p : f ptS ≡ g ptS)
               → (x : _) → wedgeConFun' G H n hLev f g p x ptS ≡ g x
   wedgeConFun' G H zero {A = A} hlev f g p =
-    elimSet _ (λ _ → isSetΠ λ _ → hlev _ _) f k
+    elimSet _ (λ _ → isSetΠ λ _ → hlev _ _) f mainpath
     where
     I→A : (x : fst G) → (i : I) → A (emloop x i) embase
     I→A x i =
@@ -70,25 +62,23 @@ private
               (λ _ i → I→A x i) λ j i → SquareP2 x h i j
     CubeP2 x g h = toPathP (isOfHLevelPathP' 1 (isOfHLevelPathP 2 (hlev _ _) _ _) _ _ _ _)
 
-    k : (x : _) → PathP (λ i → (y : EM₁ (AbGroup→Group H)) → A (emloop x i) y)  f f
-    k x i embase = I→A x i
-    k x i (emloop z j) = SquareP2 x z i j
-    k x i (emcomp g h j k) = CubeP2 x g h k j i
-    k x i (emsquash y z p q r s j k' l) = mega i j k' l
+    mainpath : (x : _) → PathP (λ i → (y : EM₁ (AbGroup→Group H)) → A (emloop x i) y) f f
+    mainpath x i embase = I→A x i
+    mainpath x i (emloop z j) = SquareP2 x z i j
+    mainpath x i (emcomp g h j k) = CubeP2 x g h k j i
+    mainpath x i (emsquash y z p q r s j k' l) = mega i j k' l
       where
       mega :
-        PathP (λ i →
-          PathP (λ j →
-            PathP (λ k' →
-              PathP (λ l → A (emloop x i) (emsquash y z p q r s j k' l))
-                    (k x i y)
-                    (k x i z))
-                   (λ l → k x i (p l))
-                   λ l → k x i (q l))
-                 (λ k' l → k x i (r k' l))
-                 λ k' l → k x i (s k' l))
-               (λ j k l → f (emsquash y z p q r s j k l))
-               λ j k l → f (emsquash y z p q r s j k l)
+        PathP (λ i → PathP (λ j → PathP (λ k →
+          PathP (λ l → A (emloop x i) (emsquash y z p q r s j k l))
+                    (mainpath x i y)
+                    (mainpath x i z))
+                    (λ l → mainpath x i (p l))
+                     λ l → mainpath x i (q l))
+                    (λ k l → mainpath x i (r k l))
+                     λ k l → mainpath x i (s k l))
+                    (λ j mainpath l → f (emsquash y z p q r s j mainpath l))
+                     λ j mainpath l → f (emsquash y z p q r s j mainpath l)
       mega =
         toPathP (isOfHLevelPathP' 1
           (isOfHLevelPathP 2 (isOfHLevelPathP 2 (hlev _ _) _ _) _ _) _ _ _ _)
@@ -100,11 +90,11 @@ private
     llem₁ = (λ i → transp (λ j → A (merid ptS (j ∨ ~ i)) ptS) (~ i) (g (merid ptS (~ i))))
           ∙ cong (subst (λ x₁ → A x₁ ptS) (merid ptS)) (sym p)
 
-    llem₂' :
+    llem₁' :
       Square
        (λ i → transp (λ j → A (merid ptS (i ∨ j)) ptS) i (g (merid ptS i))) refl
        (cong (subst (λ x → A x ptS) (merid ptS)) (sym p)) llem₁
-    llem₂' i j =
+    llem₁' i j =
       hcomp (λ k → λ { (i = i0) → transp (λ z → A (merid ptS (j ∨ z)) ptS) j
                                             (g (merid ptS j))
                       ; (i = i1) → subst (λ x₁ → A x₁ ptS) (merid ptS) (p (~ k))
@@ -117,7 +107,7 @@ private
     llem₂ i j =
       hcomp (λ k → λ { (i = i0) → transp (λ j₁ → A (merid ptS (j ∧ j₁)) ptS) (~ j) (p (~ k))
                       ; (j = i0) → p (~ k)
-                      ; (j = i1) → llem₂' k i})
+                      ; (j = i1) → llem₁' k i})
         (transp (λ k → A (merid ptS ((i ∨ k) ∧ j)) ptS) (i ∨ ~ j) (g (merid ptS (i ∧ j))))
 
     mainₗ : (a : _) (y : _)
@@ -150,8 +140,8 @@ private
   wedgeConFun'ᵣ G H (suc n) {A = A} hLev f g p south = sym (llem₁ G H n hLev f g p ptS i0 ptS)
   wedgeConFun'ᵣ G H (suc n) {A = A} hLev f g p (merid a i) k = P k i
     where
-    lem : _
-    lem i j =
+    llem : _
+    llem i j =
       hcomp (λ k → λ { (i = i1) → g (merid a j)
                       ; (j = i0) → p (i ∨ ~ k)
                       ; (j = i1) → llem₁ G H n hLev f g p ptS i0 ptS (~ i ∧ k)})
@@ -160,8 +150,10 @@ private
     P : PathP (λ k → PathP (λ i → A (merid a i) ptS)
               (p k) (llem₁ G H n hLev f g p ptS i0 ptS (~ k)))
               (λ i → mainₗ G H n hLev f g p a i ptS a ptS i) λ i → g (merid a i)
-    P = mainP G H n hLev f g p a i0 ptS a ◁ lem
+    P = mainP G H n hLev f g p a i0 ptS a ◁ llem
 
+-- Here, the actual stuff gets proved. However an additional natural number is stuck into the context
+-- to convince the termination checker
 private
   wedgeConFun : (G : AbGroup ℓ) (H : AbGroup ℓ')
                  (k n m : ℕ) → (n + m ≡ k) → {A : EM-raw G (suc n) → EM-raw H (suc m) → Type ℓ''}
@@ -177,7 +169,8 @@ private
               → (g : (x : _) → A x ptS)
               → (p : f ptS ≡ g ptS)
                → (x : _) → wedgeConFun G H k n m P hLev f g p ptS x ≡ f x
-  wedgeconRight : (G : AbGroup ℓ) (H : AbGroup ℓ') (k n m : ℕ) (P : n + m ≡ k) {A : EM-raw G (suc n) → EM-raw H (suc m) → Type ℓ''}
+  wedgeconRight : (G : AbGroup ℓ) (H : AbGroup ℓ')
+                 (k n m : ℕ) (P : n + m ≡ k) {A : EM-raw G (suc n) → EM-raw H (suc m) → Type ℓ''}
               → (hLev : ((x : _) (y : _) → isOfHLevel (suc n + suc m) (A x y)))
               → (f : (x : _) → A ptS x)
               → (g : (x : _) → A x ptS)
@@ -190,60 +183,62 @@ private
       g f (sym p) y x
   wedgeConFun G H l (suc n) (suc m) P {A = A} hlev f g p north y = f y
   wedgeConFun G H l (suc n) (suc m) P {A = A} hlev f g p south y = subst (λ x → A x y) (merid ptS) (f y)
-  wedgeConFun G H zero (suc n) (suc m) P {A = A} hlev f g p (merid a i) y = main** i
+  wedgeConFun G H zero (suc n) (suc m) P {A = A} hlev f g p (merid a i) y = ⊥-path i
+    where
+    ⊥-path : PathP (λ i → A (merid a i) y) (f y) (subst (λ x → A x y) (merid ptS) (f y))
+    ⊥-path = ⊥-rec (snotz P)
+  wedgeConFun G H (suc l) (suc n) (suc m) P {A = A} hlev f g p (merid a i) y = mmain a y i
     module _ where
-    main** : PathP (λ i → A (merid a i) y) (f y) (subst (λ x → A x y) (merid ptS) (f y))
-    main** = ⊥-rec (snotz P)
-  wedgeConFun G H (suc l) (suc n) (suc m) P {A = A} hlev f g p (merid a i) y = main* a y i
-    module _ where
-    lem₁* : g south ≡ (subst (λ x → A x ptS) (merid ptS) (f ptS))
-    lem₁* = ((λ i → transp (λ j → A (merid ptS (~ i ∨ j)) ptS) (~ i) (g (merid ptS (~ i)))))
+    llem₃ : g south ≡ (subst (λ x → A x ptS) (merid ptS) (f ptS))
+    llem₃ = ((λ i → transp (λ j → A (merid ptS (~ i ∨ j)) ptS) (~ i) (g (merid ptS (~ i)))))
           ∙ cong (subst (λ x → A x ptS) (merid ptS)) (sym p)
 
-    lem₁'* :
+    llem₃' :
       Square
         (λ i → transp (λ j → A (merid ptS (~ i ∨ j)) ptS) (~ i) (g (merid ptS (~ i))))
         (refl {x = subst (λ x → A x ptS) (merid ptS) (f ptS)})
-        lem₁*
+        llem₃
         ((cong (transport (λ z → A (merid ptS z) ptS)) (sym p)))
-    lem₁'* i j =
+    llem₃' i j =
       hcomp (λ k → λ { (i = i0) → transp (λ j₁ → A (merid ptS (~ j ∨ j₁)) ptS) (~ j) (g (merid ptS (~ j)))
                       ; (i = i1) → subst (λ x → A x ptS) (merid ptS) (p (~ k))
                       ; (j = i1) → cong (transport (λ z → A (merid ptS z) ptS)) (sym p) (i ∧ k)})
              (transp (λ j₁ → A (merid ptS ((~ j ∧ ~ i) ∨ j₁)) ptS) (~ j ∧ ~ i) (g (merid ptS (~ j ∧ ~ i))))
 
 
-    lem₂* : (λ i₁ → transp (λ j → A (merid ptS (j ∧ i₁)) ptS) (~ i₁) (f ptS))
-        ≡ (λ i₁ → hcomp (λ k → λ { (i₁ = i0) → p (~ k) ; (i₁ = i1) → lem₁* k })
+    llem₄ : (λ i₁ → transp (λ j → A (merid ptS (j ∧ i₁)) ptS) (~ i₁) (f ptS))
+        ≡ (λ i₁ → hcomp (λ k → λ { (i₁ = i0) → p (~ k) ; (i₁ = i1) → llem₃ k })
            (g (merid ptS i₁)))
-    lem₂* i j =
+    llem₄ i j =
       hcomp (λ k → λ { (i = i0) → transp (λ z → A (merid ptS (z ∧ j)) ptS) (~ j) (p (~ k))
                       ; (j = i0) → p (~ k)
-                      ; (j = i1) → lem₁'* k (~ i)})
+                      ; (j = i1) → llem₃' k (~ i)})
             (transp (λ z → A (merid ptS ((i ∨ z) ∧ j)) ptS) (i ∨ ~ j) (g (merid ptS (i ∧ j))))
 
-    main* : (a : _) (y : _) → PathP (λ i → A (merid a i) y) (f y) (subst (λ x → A x y) (merid ptS) (f y))
-    main* =
+    mmain : (a : _) (y : _)
+          → PathP (λ i → A (merid a i) y) (f y)
+                   (subst (λ x → A x y) (merid ptS) (f y))
+    mmain =
       wedgeConFun G H l n (suc m) (cong predℕ P)
         (λ _ _ → isOfHLevelPathP' (suc (n + (suc (suc m)))) (hlev _ _) _ _)
         (λ x i → transp (λ j → A (merid ptS (j ∧ i)) x) (~ i) (f x))
         (λ y i → hcomp (λ k → λ { (i = i0) → p (~ k)
-                                  ; (i = i1) → lem₁* k})
+                                  ; (i = i1) → llem₃ k})
                        (g (merid y i)))
-        lem₂*
+        llem₄
 
-    mainR : (x : _) → main* x ptS
+    mainR : (x : _) → mmain x ptS
                     ≡ λ i → hcomp (λ k → λ { (i = i0) → p (~ k)
-                                             ; (i = i1) → lem₁* k})
+                                             ; (i = i1) → llem₃ k})
                                                (g (merid x i))
     mainR x =
       wedgeconRight G H l n (suc m) (cong predℕ P)
         (λ _ _ → isOfHLevelPathP' (suc (n + (suc (suc m)))) (hlev _ _) _ _)
         (λ x i → transp (λ j → A (merid ptS (j ∧ i)) x) (~ i) (f x))
         (λ y i → hcomp (λ k → λ { (i = i0) → p (~ k)
-                                  ; (i = i1) → lem₁* k})
+                                  ; (i = i1) → llem₃ k})
                        (g (merid y i)))
-        lem₂* x
+        llem₄ x
   wedgeconLeft G H k zero zero P {A = A} hLev f g p _ = refl
   wedgeconLeft G H k (suc n) zero P {A = A} hLev f g p _ = refl
   wedgeconLeft G H k zero (suc m) P {A = A} hLev f g p x =
@@ -258,23 +253,24 @@ private
   wedgeconRight G H zero (suc n) (suc m) P {A = A} hLev f g p x = ⊥-rec (snotz P)
   wedgeconRight G H l (suc n) (suc m) P {A = A} hLev f g p north = p
   wedgeconRight G H l (suc n) (suc m) P {A = A} hLev f g p south =
-    sym (lem₁* G H _ n m refl hLev f g p ptS i0 ptS)
+    sym (llem₃ G H _ n m refl hLev f g p ptS i0 ptS)
   wedgeconRight G H (suc l) (suc n) (suc m) P {A = A} hLev f g p (merid a i) k =
     help k i
     where
-    lem : _
-    lem i j =
+    llem : _
+    llem i j =
       hcomp (λ k → λ { (i = i1) → g (merid a j)
                       ; (j = i0) → p (i ∨ ~ k)
-                      ; (j = i1) → lem₁* G H l n m P hLev f g p ptS i0 ptS (~ i ∧ k)})
+                      ; (j = i1) → llem₃ G H l n m P hLev f g p ptS i0 ptS (~ i ∧ k)})
             (g (merid a j))
 
     help : PathP (λ k → PathP (λ i → A (merid a i) ptS)
-                 (p k) (lem₁* G H l n m P hLev f g p ptS i0 ptS (~ k)))
-                 (λ i → main* G H l n m P hLev f g p a i north a north i) (cong g (merid a))
-    help = mainR G H l n m P hLev f g p a i0 ptS a ◁ lem
+                 (p k) (llem₃ G H l n m P hLev f g p ptS i0 ptS (~ k)))
+                 (λ i → mmain G H l n m P hLev f g p a i north a north i) (cong g (merid a))
+    help = mainR G H l n m P hLev f g p a i0 ptS a ◁ llem
 
-module wedgeConEM (G : AbGroup ℓ) (H : AbGroup ℓ') (n m : ℕ) {A : EM-raw G (suc n) → EM-raw H (suc m) → Type ℓ''}
+module wedgeConEM (G : AbGroup ℓ) (H : AbGroup ℓ') (n m : ℕ)
+                  {A : EM-raw G (suc n) → EM-raw H (suc m) → Type ℓ''}
                   (hLev : ((x : _) (y : _) → isOfHLevel (suc n + suc m) (A x y)))
                   (f : (x : _) → A ptS x)
                   (g : (x : _) → A x ptS)
