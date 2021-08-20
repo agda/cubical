@@ -98,47 +98,29 @@ Lattice ℓ = TypeWithStr ℓ LatticeStr
 isSetLattice : (L : Lattice ℓ) → isSet ⟨ L ⟩
 isSetLattice L = L .snd .LatticeStr.is-set
 
-makeIsLattice : {L : Type ℓ} {0l 1l : L} {_∨l_ _∧l_ : L → L → L}
-             (is-setL : isSet L)
-             (∨l-assoc : (x y z : L) → x ∨l (y ∨l z) ≡ (x ∨l y) ∨l z)
-             (∨l-rid : (x : L) → x ∨l 0l ≡ x)
-             (∨l-lid : (x : L) → 0l ∨l x ≡ x)
-             (∨l-comm : (x y : L) → x ∨l y ≡ y ∨l x)
-             (∨l-idem : (x : L) → x ∨l x ≡ x)
-             (∧l-assoc : (x y z : L) → x ∧l (y ∧l z) ≡ (x ∧l y) ∧l z)
-             (∧l-rid : (x : L) → x ∧l 1l ≡ x)
-             (∧l-lid : (x : L) → 1l ∧l x ≡ x)
-             (∧l-comm : (x y : L) → x ∧l y ≡ y ∧l x)
-             (∧l-idem : (x : L) → x ∧l x ≡ x)
-             (∨l-absorb-∧l : (x y : L) → x ∨l (x ∧l y) ≡ x)
-             (∧l-absorb-∨l : (x y : L) → x ∧l (x ∨l y) ≡ x)
-           → IsLattice 0l 1l _∨l_ _∧l_
-makeIsLattice is-setL ∨l-assoc ∨l-rid ∨l-lid ∨l-comm ∨l-idem
-                      ∧l-assoc ∧l-rid ∧l-lid ∧l-comm ∧l-idem ∨l-absorb-∧l ∧l-absorb-∨l =
-     islattice (makeIsSemilattice is-setL ∨l-assoc ∨l-rid ∨l-lid ∨l-comm ∨l-idem)
-               (makeIsSemilattice is-setL ∧l-assoc ∧l-rid ∧l-lid ∧l-comm ∧l-idem)
-               λ x y → ∨l-absorb-∧l x y , ∧l-absorb-∨l x y
+module _ {L : Type ℓ} {0l 1l : L} {_∨l_ _∧l_ : L → L → L}
+         (is-setL : isSet L)
+         (∨l-assoc : (x y z : L) → x ∨l (y ∨l z) ≡ (x ∨l y) ∨l z)
+         (∨l-rid : (x : L) → x ∨l 0l ≡ x)
+         (∨l-lid : (x : L) → 0l ∨l x ≡ x)
+         (∨l-comm : (x y : L) → x ∨l y ≡ y ∨l x)
+         (∨l-idem : (x : L) → x ∨l x ≡ x)
+         (∧l-assoc : (x y z : L) → x ∧l (y ∧l z) ≡ (x ∧l y) ∧l z)
+         (∧l-rid : (x : L) → x ∧l 1l ≡ x)
+         (∧l-lid : (x : L) → 1l ∧l x ≡ x)
+         (∧l-comm : (x y : L) → x ∧l y ≡ y ∧l x)
+         (∧l-idem : (x : L) → x ∧l x ≡ x)
+         (∨l-absorb-∧l : (x y : L) → x ∨l (x ∧l y) ≡ x)
+         (∧l-absorb-∨l : (x y : L) → x ∧l (x ∨l y) ≡ x) where
+  makeIsLattice : IsLattice 0l 1l _∨l_ _∧l_
+  makeIsLattice =
+       islattice (makeIsSemilattice is-setL ∨l-assoc ∨l-rid ∨l-lid ∨l-comm ∨l-idem)
+                 (makeIsSemilattice is-setL ∧l-assoc ∧l-rid ∧l-lid ∧l-comm ∧l-idem)
+                 λ x y → ∨l-absorb-∧l x y , ∧l-absorb-∨l x y
 
-makeLattice : {L : Type ℓ} (0l 1l : L) (_∨l_ _∧l_ : L → L → L)
-             (is-setL : isSet L)
-             (∨l-assoc : (x y z : L) → x ∨l (y ∨l z) ≡ (x ∨l y) ∨l z)
-             (∨l-rid : (x : L) → x ∨l 0l ≡ x)
-             (∨l-lid : (x : L) → 0l ∨l x ≡ x)
-             (∨l-comm : (x y : L) → x ∨l y ≡ y ∨l x)
-             (∨l-idem : (x : L) → x ∨l x ≡ x)
-             (∧l-assoc : (x y z : L) → x ∧l (y ∧l z) ≡ (x ∧l y) ∧l z)
-             (∧l-rid : (x : L) → x ∧l 1l ≡ x)
-             (∧l-lid : (x : L) → 1l ∧l x ≡ x)
-             (∧l-comm : (x y : L) → x ∧l y ≡ y ∧l x)
-             (∧l-idem : (x : L) → x ∧l x ≡ x)
-             (∨l-absorb-∧l : (x y : L) → x ∨l (x ∧l y) ≡ x)
-             (∧l-absorb-∨l : (x y : L) → x ∧l (x ∨l y) ≡ x)
-           → Lattice ℓ
-makeLattice 0l 1l _∨l_ _∧l_ is-setL ∨l-assoc ∨l-rid ∨l-lid ∨l-comm ∨l-idem
-            ∧l-assoc ∧l-rid ∧l-lid ∧l-comm ∧l-idem ∨l-absorb-∧l ∧l-absorb-∨l =
-   _ , latticestr 0l 1l _∨l_ _∧l_
-   (makeIsLattice is-setL ∨l-assoc ∨l-rid ∨l-lid ∨l-comm ∨l-idem
-                          ∧l-assoc ∧l-rid ∧l-lid ∧l-comm ∧l-idem ∨l-absorb-∧l ∧l-absorb-∨l)
+  makeLattice : Lattice ℓ
+  makeLattice = _ , latticestr _ _ _ _ makeIsLattice
+
 
 record IsLatticeHom {A : Type ℓ} {B : Type ℓ'} (L : LatticeStr A) (f : A → B) (M : LatticeStr B)
   : Type (ℓ-max ℓ ℓ')

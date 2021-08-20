@@ -65,23 +65,19 @@ monoid A ε _·_ h = A , monoidstr ε _·_ h
 
 -- Easier to use constructors
 
-makeIsMonoid : {M : Type ℓ} {ε : M} {_·_ : M → M → M}
-               (is-setM : isSet M)
-               (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
-               (rid : (x : M) → x · ε ≡ x)
-               (lid : (x : M) → ε · x ≡ x)
-             → IsMonoid ε _·_
-IsMonoid.isSemigroup (makeIsMonoid is-setM assoc rid lid) = issemigroup is-setM assoc
-IsMonoid.identity (makeIsMonoid is-setM assoc rid lid) = λ x → rid x , lid x
+module _ {M : Type ℓ} {ε : M} {_·_ : M → M → M}
+         (is-setM : isSet M)
+         (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
+         (rid : (x : M) → x · ε ≡ x)
+         (lid : (x : M) → ε · x ≡ x) where
 
-makeMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
-             (is-setM : isSet M)
-             (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
-             (rid : (x : M) → x · ε ≡ x)
-             (lid : (x : M) → ε · x ≡ x)
-           → Monoid ℓ
-makeMonoid ε _·_ is-setM assoc rid lid =
-  monoid _ ε _·_ (makeIsMonoid is-setM assoc rid lid)
+  makeIsMonoid : IsMonoid ε _·_
+  IsMonoid.isSemigroup makeIsMonoid = issemigroup is-setM assoc
+  IsMonoid.identity makeIsMonoid = λ x → rid x , lid x
+
+  makeMonoid : Monoid ℓ
+  makeMonoid = monoid _ _ _ makeIsMonoid
+
 
 record IsMonoidHom {A : Type ℓ} {B : Type ℓ'}
   (M : MonoidStr A) (f : A → B) (N : MonoidStr B)
@@ -148,4 +144,3 @@ module MonoidTheory {ℓ} (M : Monoid ℓ) where
     (y · x) · z ≡⟨ cong (λ - → - · z) left-inverse ⟩
     ε · z       ≡⟨ lid z ⟩
     z ∎
-
