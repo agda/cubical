@@ -53,38 +53,6 @@ SmashPt A B = (Smash A B , basel)
 SmashPtProj : (A : Pointed ℓ) (B : Pointed ℓ') → Pointed (ℓ-max ℓ ℓ')
 SmashPtProj A B = Smash A B , (proj (snd A) (snd B))
 
-private
-  rCancelPathP : ∀ {ℓ} {A B : Type ℓ} {x y : A} (p : x ≡ y) (f : A → B)
-              → PathP (λ i → cong-∙ f p (sym p) i ≡ refl)
-                       (cong (cong f) (rCancel p))
-                       (rCancel (cong f p))
-  rCancelPathP {x = x} {y = y} p f i j k =
-    hcomp (λ r → λ { (i = i0) → f (rCancel-filler p r j k)
-                    ; (j = i1) → f x
-                    ; (k = i0) → f x
-                    ; (k = i1) → f (p (~ r ∧ ~ j))})
-          (f (p (k ∧ ~ j)))
-
-  mainGen : ∀ {ℓ} {A : Type ℓ} {x : A} (p : x ≡ x)
-          → (P : refl ≡ p)
-          → Cube (λ j k → (cong (p ∙_) (cong sym (sym P)) ∙ sym (rUnit _)) k j)
-                  refl
-                  refl
-                  refl
-                  (rCancel p)
-                  (sym P)
-  mainGen {x = x} p = J (λ p P → Cube (λ j k → (cong (p ∙_) (cong sym (sym P)) ∙ sym (rUnit _)) k j)
-                  refl
-                  refl
-                  refl
-                  (rCancel p)
-                  (sym P))
-                 (transport (λ i → Cube (λ j k → (lUnit (sym (rUnit (refl {x = x}))) i) k j)
-                            l l l (rCancel (λ _ → x)) l)
-                            λ i j k → rCancel (λ _ → x) (k ∨ i) j)
-    where
-    l = refl {x = refl {x = x}}
-
 --- Alternative definition
 
 i∧ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} → A ⋁ B → (typ A) × (typ B)
@@ -131,8 +99,7 @@ Smash→⋀ (proj x y) = inr (x , y)
 Smash→⋀ (gluel a i) = push (inl a) (~ i)
 Smash→⋀ (gluer b i) = push (inr b) (~ i)
 
-{- associativity maps for smash produts. Proof pretty much direcly translated from
-   https://github.com/ecavallo/redtt/blob/master/library/pointed/smash.red -}
+{- associativity maps for smash produts. Proof pretty much direcly translated from https://github.com/ecavallo/redtt/blob/master/library/pointed/smash.red -}
 private
   pivotl : (b b' : typ B)
          → Path (Smash A B) (proj (snd A) b) (proj (snd A) b')

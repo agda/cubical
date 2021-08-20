@@ -6,14 +6,13 @@ Portions of this file adapted from Nicolai Kraus' code here:
   https://bitbucket.org/nicolaikraus/agda/src/e30d70c72c6af8e62b72eefabcc57623dd921f04/trunc-inverse.lagda
 
 -}
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Pointed.Homogeneous where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Path
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
@@ -27,14 +26,11 @@ open import Cubical.Structures.Pointed
 isHomogeneous : ∀ {ℓ} → Pointed ℓ → Type (ℓ-suc ℓ)
 isHomogeneous {ℓ} (A , x) = ∀ y → Path (Pointed ℓ) (A , x) (A , y)
 
-_→∙Dep_ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : typ A → Pointed ℓ') → Type _
-A →∙Dep B = Σ[ f ∈ ((x : typ A) → B x .fst) ] f (snd A) ≡ snd (B (snd A))
-
 -- Pointed functions into a homogeneous type are equal as soon as they are equal
 -- as unpointed functions
 →∙Homogeneous≡ : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'} {f∙ g∙ : A∙ →∙ B∙}
   (h : isHomogeneous B∙) → f∙ .fst ≡ g∙ .fst → f∙ ≡ g∙
-→∙Homogeneous≡ {A∙ = A∙@(A , a₀)} {B∙@(B , b)} {f∙@(_ , f₀)} {g∙@(_ , g₀)} h p =
+→∙Homogeneous≡ {A∙ = A∙@(_ , a₀)} {B∙@(B , _)} {f∙@(_ , f₀)} {g∙@(_ , g₀)} h p =
   subst (λ Q∙ → PathP (λ i → A∙ →∙ Q∙ i) f∙ g∙) (sym (flipSquare fix)) badPath
   where
   badPath : PathP (λ i → A∙ →∙ (B , (sym f₀ ∙∙ funExt⁻ p a₀ ∙∙ g₀) i)) f∙ g∙
