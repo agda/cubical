@@ -8,7 +8,7 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.AbGroup.Base
 
-open import Cubical.Data.Nat hiding (_·_)
+open import Cubical.Data.Nat
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -16,8 +16,9 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Path
 
-open import Cubical.Homotopy.Connected
+open import Cubical.Homotopy.Loopspace
 
 open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec; elim to trElim)
 open import Cubical.HITs.EilenbergMacLane1
@@ -26,7 +27,6 @@ open import Cubical.HITs.Truncation
 open import Cubical.HITs.Susp
 
 open import Cubical.Functions.Morphism
-open import Cubical.Foundations.Path
 
 private
   variable ℓ : Level
@@ -159,7 +159,6 @@ module _ {G : AbGroup ℓ} where
       (λ x → rUnitₖ (2 + n) ∣ x ∣)
       refl)
 
-  open import Cubical.Homotopy.Loopspace
   cong₂+₁ : (p q : typ (Ω (EM∙ G 1)))
           → cong₂ (λ x y → x +[ 1 ]ₖ y) p q ≡ p ∙ q
   cong₂+₁ p q =
