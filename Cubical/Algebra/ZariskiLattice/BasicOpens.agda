@@ -23,6 +23,7 @@ open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
+open import Cubical.Relation.Binary.Poset
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra
@@ -34,7 +35,6 @@ open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
 open import Cubical.Algebra.RingSolver.ReflectionSolving
-
 open import Cubical.Algebra.Semilattice
 
 open import Cubical.HITs.SetQuotients as SQ
@@ -175,29 +175,26 @@ module Presheaf (A' : CommRing ℓ) where
   ·r-lcoh x y z Rxy = ·r-lcoh-≼ x y z (Rxy .fst) , ·r-lcoh-≼ y x z (Rxy .snd)
 
  BasicOpens : Semilattice ℓ
- BasicOpens = A / R , A/RSemilatticeStr
-  where
-  A/RSemilatticeStr : SemilatticeStr (A / R)
-  SemilatticeStr.ε A/RSemilatticeStr = [ 1r ]
-  SemilatticeStr._·_ A/RSemilatticeStr = _∧/_
-  SemilatticeStr.isSemilattice A/RSemilatticeStr = makeIsSemilattice squash/
-    (elimProp3 (λ _ _ _ → squash/ _ _) λ _ _ _ → cong [_] (·rAssoc _ _ _))
-    (elimProp (λ _ → squash/ _ _) λ _ → cong [_] (·rRid _))
-    (elimProp (λ _ → squash/ _ _) λ _ → cong [_] (·rLid _))
-    (elimProp2 (λ _ _ → squash/ _ _) λ _ _ → cong [_] (·r-comm _ _))
-    (elimProp (λ _ → squash/ _ _) λ a → eq/ _ _
+ BasicOpens = makeSemilattice [ 1r ] _∧/_ squash/
+   (elimProp3 (λ _ _ _ → squash/ _ _) λ _ _ _ → cong [_] (·rAssoc _ _ _))
+     (elimProp (λ _ → squash/ _ _) λ _ → cong [_] (·rRid _))
+       (elimProp (λ _ → squash/ _ _) λ _ → cong [_] (·rLid _))
+         (elimProp2 (λ _ _ → squash/ _ _) λ _ _ → cong [_] (·r-comm _ _))
+           (elimProp (λ _ → squash/ _ _) λ a → eq/ _ _ -- R a a²
               (∣ 1 , a , ·rRid _ ∣ , ∣ 2 , 1r , cong (a ·r_) (·rRid a) ∙ sym (·rLid _) ∣))
 
  -- The induced partial order
- _≼/_ : A / R → A / R → Type ℓ
- x ≼/ y = x ≡ (x ∧/ y)
- -- TODO: use instead
- -- open MeetSemilattice BasicOpens renaming (_≤_ to _≼/_)
+ -- _≼/_ : A / R → A / R → Type ℓ
+ -- x ≼/ y = x ≡ (x ∧/ y)
+ -- -- TODO: use instead
+ open MeetSemilattice BasicOpens renaming (_≤_ to _≼/_ ; IndPoset to BasicOpensAsPoset)
 
  -- coincides with our ≼
  ≼/CoincidesWith≼ : ∀ (x y : A) → [ x ] ≼/ [ y ] ≡ x ≼ y
- ≼/CoincidesWith≼ x y = [ x ] ≼/ [ y ] -- ≡⟨ refl ⟩ [ x ] ≡ [ x ·r y ]
+ ≼/CoincidesWith≼ x y = [ x ] ≼/ [ y ] -- ≡⟨ refl ⟩ [ x ·r y ] ≡ [ x ]
                       ≡⟨ isoToPath (isEquivRel→effectiveIso RpropValued RequivRel _ _) ⟩
+                        R (x ·r y) x
+                      ≡⟨ isoToPath Σ-swap-Iso ⟩
                         R x (x ·r y)
                       ≡⟨ hPropExt (RpropValued _ _) isPropPropTrunc ·To≼ ≼To· ⟩
                         x ≼ y ∎
@@ -216,14 +213,13 @@ module Presheaf (A' : CommRing ℓ) where
   ≼To· : x ≼ y → R x ( x ·r y)
   ≼To· x≼y = PT.map x≼y→x≼xyΣ x≼y , PT.∣ 1 , y , ·rRid _ ∙ ·r-comm _ _ ∣
 
+ open IsPoset
+ open PosetStr
  Refl≼/ : isRefl _≼/_
- Refl≼/ = SQ.elimProp (λ _ → squash/ _ _) λ _ → transport⁻ (≼/CoincidesWith≼ _ _) (Refl≼ _)
+ Refl≼/ = BasicOpensAsPoset .snd .isPoset .is-refl
 
  Trans≼/ : isTrans _≼/_
- Trans≼/ = SQ.elimProp3 (λ _ _ _ → isPropΠ2 (λ _ _ → squash/ _ _))
-             λ _ _ _ [a]≼/[b] [b]≼/[c] → transport⁻ (≼/CoincidesWith≼ _ _)
-                                         (Trans≼ _ _ _ (transport (≼/CoincidesWith≼ _ _) [a]≼/[b])
-                                                       (transport (≼/CoincidesWith≼ _ _) [b]≼/[c]))
+ Trans≼/ = BasicOpensAsPoset .snd .isPoset .is-trans
 
  -- The restrictions:
  ρᴰᴬ : (a b : A) → a ≼ b → isContr (CommAlgebraHom A[1/ b ] A[1/ a ])
