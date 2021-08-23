@@ -184,9 +184,6 @@ module Presheaf (A' : CommRing ℓ) where
               (∣ 1 , a , ·rRid _ ∣ , ∣ 2 , 1r , cong (a ·r_) (·rRid a) ∙ sym (·rLid _) ∣))
 
  -- The induced partial order
- -- _≼/_ : A / R → A / R → Type ℓ
- -- x ≼/ y = x ≡ (x ∧/ y)
- -- -- TODO: use instead
  open MeetSemilattice BasicOpens renaming (_≤_ to _≼/_ ; IndPoset to BasicOpensAsPoset)
 
  -- coincides with our ≼
@@ -237,7 +234,7 @@ module Presheaf (A' : CommRing ℓ) where
 
 
  ρᴰ : (x y : A / R) → x ≼/ y → CommAlgebraHom (𝓞ᴰ y) (𝓞ᴰ x)
- ρᴰ = elimContr2 λ _ _ → isOfHLevelΠ 0
+ ρᴰ = elimContr2 λ _ _ → isContrΠ
                  λ [a]≼/[b] → ρᴰᴬ _ _ (transport (≼/CoincidesWith≼ _ _) [a]≼/[b])
 
  ρᴰId : ∀ (x : A / R) (r : x ≼/ x) → ρᴰ x x r ≡ idAlgHom
