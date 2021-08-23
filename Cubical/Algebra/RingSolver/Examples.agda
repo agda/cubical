@@ -48,6 +48,16 @@ module Test (R : CommRing ℓ) where
   _ = solve R
 
   {-
+    Examples that used to fail (see #513):
+  -}
+
+  _ : (x : (fst R)) → x · 0r ≡ 0r
+  _ = solve R
+
+  _ : (x y z : (fst R)) → x · (y - z) ≡ x · y - x · z
+  _ = solve R
+
+  {-
     Keep in mind, that the solver can lead to wrong error locations.
     For example, the commented code below tries to solve an equation that does not hold,
     with the result of an error at the wrong location.
@@ -62,10 +72,26 @@ module TestInPlaceSolving (R : CommRing ℓ) where
    testWithOneVariabl : (x : fst R) → x + 0r ≡ 0r + x
    testWithOneVariabl x = solveInPlace R (x ∷ [])
 
+   testEquationalReasoning : (x : fst R) → x + 0r ≡ 0r + x
+   testEquationalReasoning x =
+     x + 0r                       ≡⟨solveIn R withVars (x ∷ []) ⟩
+     0r + x ∎
+
+   testWithTwoVariables :  (x y : fst R) → x + y ≡ y + x
+   testWithTwoVariables x y =
+     x + y                      ≡⟨solveIn R withVars (x ∷ y ∷ []) ⟩
+     y + x ∎
 
    {-
-     This is problematic. The type of the hole is something like 'x + 0r ≡ _'
-     when the macro is called.
+     So far, solving during equational reasoning has a serious
+     restriction:
+     The solver identifies variables by deBruijn indices and the variables
+     appearing in the equations to solve need to have indices 0,...,n. This
+     entails that in the following code, the order of 'p' and 'x' cannot be
+     switched.
    -}
-   testWithOneVariabl' : (x : fst R) → x + 0r ≡ 0r + x
-   testWithOneVariabl' x = x + 0r ≡⟨ solveInPlace R (x ∷ []) ⟩ 0r + x ∎
+   testEquationalReasoning' :  (p : (y : fst R) → 0r + y ≡ 1r) (x : fst R) → x + 0r ≡ 1r
+   testEquationalReasoning' p x =
+     x + 0r              ≡⟨solveIn R withVars (x ∷ []) ⟩
+     0r + x              ≡⟨ p x ⟩
+     1r ∎

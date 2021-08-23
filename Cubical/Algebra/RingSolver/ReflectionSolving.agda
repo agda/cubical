@@ -70,9 +70,42 @@ private
   getArgs = getTheTwoArgsOf (quote PathP)
 
 
-  constructSolution : ℕ → List VarInfo → Term → Term → Term → Term
-  constructSolution n varInfos R lhs rhs =
-    encloseWithIteratedLambda (map VarInfo.varName varInfos) solverCall
+  firstVisibleArg : List (Arg Term) → Maybe Term
+  firstVisibleArg [] = nothing
+  firstVisibleArg (varg x ∷ l) = just x
+  firstVisibleArg (x ∷ l) = firstVisibleArg l
+
+  {-
+    If the solver needs to be applied during equational reasoning,
+    the right hand side of the equation to solve cannot be given to
+    the solver directly. The folllowing function extracts this term y
+    from a more complex expression as in:
+      x ≡⟨ solve ... ⟩ (y ≡⟨ ... ⟩ z ∎)
+  -}
+  getRhs : Term → Maybe Term
+  getRhs reasoningToTheRight@(def n xs) =
+    if n == (quote _∎)
+    then firstVisibleArg xs
+    else (if n == (quote _≡⟨_⟩_)
+         then firstVisibleArg xs
+         else nothing)
+  getRhs _ = nothing
+
+
+  private
+    solverCallAsTerm : Term → Arg Term → Term → Term → Term
+    solverCallAsTerm R varList lhs rhs =
+      def
+         (quote ringSolve)
+         (varg R ∷ varg lhs ∷ varg rhs
+           ∷ varList
+           ∷ varg (def (quote refl) []) ∷ [])
+
+  solverCallWithLambdas : ℕ → List VarInfo → Term → Term → Term → Term
+  solverCallWithLambdas n varInfos R lhs rhs =
+    encloseWithIteratedLambda
+      (map VarInfo.varName varInfos)
+      (solverCallAsTerm R (variableList (rev varInfos)) lhs rhs)
     where
       encloseWithIteratedLambda : List String → Term → Term
       encloseWithIteratedLambda (varName ∷ xs) t = lam visible (abs varName (encloseWithIteratedLambda xs t))
@@ -83,26 +116,15 @@ private
       variableList (varInfo ∷ varInfos)
         = varg (con (quote _∷vec_) (varg (var (VarInfo.index varInfo) []) ∷ (variableList varInfos) ∷ []))
 
-      solverCall = def
-         (quote ringSolve)
-         (varg R ∷ varg lhs ∷ varg rhs
-           ∷ variableList (rev varInfos)
-           ∷ varg (def (quote refl) []) ∷ [])
+  solverCallByVarIndices : ℕ → List ℕ → Term → Term → Term → Term
+  solverCallByVarIndices n varIndices R lhs rhs =
+      solverCallAsTerm R (variableList (rev varIndices)) lhs rhs
+      where
+        variableList : List ℕ → Arg Term
+        variableList [] = varg (con (quote emptyVec) [])
+        variableList (varIndex ∷ varIndices)
+          = varg (con (quote _∷vec_) (varg (var (varIndex) []) ∷ (variableList varIndices) ∷ []))
 
-  constructInPlaceSolution : ℕ → List ℕ → Term → Term → Term → Term
-  constructInPlaceSolution n varIndices R lhs rhs =
-    solverCall
-    where
-      variableList : List ℕ → Arg Term
-      variableList [] = varg (con (quote emptyVec) [])
-      variableList (varIndex ∷ varIndices)
-        = varg (con (quote _∷vec_) (varg (var (varIndex) []) ∷ (variableList varIndices) ∷ []))
-
-      solverCall = def
-         (quote ringSolve)
-         (varg R ∷ varg lhs ∷ varg rhs
-           ∷ variableList (rev varIndices)
-           ∷ varg (def (quote refl) []) ∷ [])
 
 
 module pr (R : CommRing ℓ) {n : ℕ} where
@@ -123,18 +145,19 @@ module _ (cring : Term) where
 
   open pr
 
-  mutual
-    `0` : List (Arg Term) → Term
-    `0` [] = def (quote 0') (varg cring ∷ [])
-    `0` (varg fstcring ∷ xs) = `0` xs
-    `0` (harg _ ∷ xs) = `0` xs
-    `0` _ = unknown
+  `0` : List (Arg Term) → Term
+  `0` [] = def (quote 0') (varg cring ∷ [])
+  `0` (varg fstcring ∷ xs) = `0` xs
+  `0` (harg _ ∷ xs) = `0` xs
+  `0` _ = unknown
 
-    `1` : List (Arg Term) → Term
-    `1` [] = def (quote 1') (varg cring ∷ [])
-    `1` (varg fstcring ∷ xs) = `1` xs
-    `1` (harg _ ∷ xs) = `1` xs
-    `1` _ = unknown
+  `1` : List (Arg Term) → Term
+  `1` [] = def (quote 1') (varg cring ∷ [])
+  `1` (varg fstcring ∷ xs) = `1` xs
+  `1` (harg _ ∷ xs) = `1` xs
+  `1` _ = unknown
+
+  mutual
 
     `_·_` : List (Arg Term) → Term
     `_·_` (harg _ ∷ xs) = `_·_` xs
@@ -194,7 +217,10 @@ private
   adjustDeBruijnIndex n _ = unknown
 
   extractVarIndices : Maybe (List Term) → Maybe (List ℕ)
-  extractVarIndices (just ((var index _) ∷ _)) = just (index ∷ [])
+  extractVarIndices (just ((var index _) ∷ l)) with extractVarIndices (just l)
+  ... | just indices = just (index ∷ indices)
+  ... | nothing = nothing
+  extractVarIndices (just []) = just []
   extractVarIndices _ = nothing
 
   getVarsAndEquation : Term → Maybe (List VarInfo × Term)
@@ -206,7 +232,8 @@ private
     where
           extractVars : Term → List (String × Arg Term) × Term
           extractVars (pi argType (abs varName t)) with extractVars t
-          ...                                         | xs , equation = (varName , argType) ∷ xs , equation
+          ...                                         | xs , equation
+                                                        = (varName , argType) ∷ xs , equation
           extractVars equation = [] , equation
 
           addIndices : ℕ → List (String × Arg Term) → Maybe (List VarInfo)
@@ -216,6 +243,14 @@ private
                                    ∷ varList)
                       (addIndices countVar list)
           addIndices _ _ = nothing
+
+  toListOfTerms : Term → Maybe (List Term)
+  toListOfTerms (con c []) = if (c == (quote [])) then just [] else nothing
+  toListOfTerms (con c (varg t ∷ varg s ∷ args)) with toListOfTerms s
+  ... | just terms = if (c == (quote _∷_)) then just (t ∷ terms) else nothing
+  ... | nothing = nothing
+  toListOfTerms (con c (harg t ∷ args)) = toListOfTerms (con c args)
+  toListOfTerms _ = nothing
 
   solve-macro : Term → Term → TC Unit
   solve-macro cring hole =
@@ -235,18 +270,10 @@ private
         where
           nothing
             → typeError(
-                strErr "Error while trying to buils ASTs for the equation " ∷
+                strErr "Error while trying to build ASTs for the equation " ∷
                 termErr equation ∷ [])
-      let solution = constructSolution (length varInfos) varInfos adjustedCring lhs rhs
+      let solution = solverCallWithLambdas (length varInfos) varInfos adjustedCring lhs rhs
       unify hole solution
-
-  toListOfTerms : Term → Maybe (List Term)
-  toListOfTerms (con c ((arg (arg-info visible _) t) ∷ args)) =
-    if (c == (quote _∷_))
-    then just (t ∷ [])
-    else nothing
-  toListOfTerms (con c ((arg (arg-info _ _) t) ∷ args)) = toListOfTerms (con c args)
-  toListOfTerms _ = nothing
 
   solveInPlace-macro : Term → Term → Term → TC Unit
   solveInPlace-macro cring varsToSolve hole =
@@ -262,10 +289,34 @@ private
         where
           nothing
             → typeError(
-                strErr "Error while trying to buils ASTs for the equation " ∷
+                strErr "Error while trying to build ASTs for the equation " ∷
                 termErr equation ∷ [])
-      let solution = constructInPlaceSolution (length varIndices) varIndices cring lhs rhs
+      let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs rhs
       unify hole solution
+
+  solveEqReasoning-macro : Term → Term → Term → Term → Term → TC Unit
+  solveEqReasoning-macro lhs cring varsToSolve reasoningToTheRight hole =
+    do
+      just varIndices ← returnTC (extractVarIndices (toListOfTerms varsToSolve))
+        where
+          nothing
+            → typeError(
+                strErr "Error reading variables to solve " ∷
+                termErr varsToSolve ∷ [])
+      just rhs ← returnTC (getRhs reasoningToTheRight)
+        where
+          nothing
+            → typeError(
+                strErr "Failed to extract right hand side of equation to solve from " ∷
+                termErr reasoningToTheRight ∷ [])
+      just (lhsAST , rhsAST) ← returnTC (toAlgebraExpression cring (just (lhs , rhs)))
+        where
+          nothing
+            → typeError(
+                strErr "Error while trying to build ASTs from " ∷
+                termErr lhs ∷ strErr " and " ∷ termErr rhs ∷ [])
+      let solverCall = solverCallByVarIndices (length varIndices) varIndices cring lhsAST rhsAST
+      unify hole (def (quote _≡⟨_⟩_) (varg lhs ∷ varg solverCall ∷ varg reasoningToTheRight ∷ []))
 
 macro
   solve : Term → Term → TC _
@@ -273,6 +324,11 @@ macro
 
   solveInPlace : Term → Term → Term → TC _
   solveInPlace = solveInPlace-macro
+
+  infixr 2 _≡⟨solveIn_withVars_⟩_
+  _≡⟨solveIn_withVars_⟩_ : Term → Term → Term → Term → Term → TC Unit
+  _≡⟨solveIn_withVars_⟩_ = solveEqReasoning-macro
+
 
 fromℤ : (R : CommRing ℓ) → ℤ → fst R
 fromℤ = scalar
