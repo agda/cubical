@@ -77,107 +77,68 @@ DistLattice ℓ = TypeWithStr ℓ DistLatticeStr
 isSetDistLattice : (L : DistLattice ℓ) → isSet ⟨ L ⟩
 isSetDistLattice L = L .snd .DistLatticeStr.is-set
 
--- when proving the axioms for a distributive lattice
--- we use the fact that from distributivity and absorption
--- of ∧l over ∨l we can derive distributivity and absorption
--- of ∨l over ∧l and vice versa. We give provide thus two
--- ways of making a distributive lattice...
-module Make∧lOver∨l {L : Type ℓ} {0l 1l : L} {_∨l_ _∧l_ : L → L → L}
-                    (is-setL : isSet L)
-                    (∨l-assoc : (x y z : L) → x ∨l (y ∨l z) ≡ (x ∨l y) ∨l z)
-                    (∨l-rid : (x : L) → x ∨l 0l ≡ x)
-                    (∨l-comm : (x y : L) → x ∨l y ≡ y ∨l x)
-                    (∨l-idem : (x : L) → x ∨l x ≡ x)
-                    (∧l-assoc : (x y z : L) → x ∧l (y ∧l z) ≡ (x ∧l y) ∧l z)
-                    (∧l-rid : (x : L) → x ∧l 1l ≡ x)
-                    (∧l-comm : (x y : L) → x ∧l y ≡ y ∧l x)
-                    (∧l-idem : (x : L) → x ∧l x ≡ x)
-                    (∧l-absorb-∨l : (x y : L) → x ∧l (x ∨l y) ≡ x)
-                    (∧l-ldist-∨l : (x y z : L) → x ∧l (y ∨l z) ≡ (x ∧l y) ∨l (x ∧l z)) where
+makeIsDistLattice : {L : Type ℓ} {0l 1l : L} {_∨l_ _∧l_ : L → L → L}
+             (is-setL : isSet L)
+             (∨l-assoc : (x y z : L) → x ∨l (y ∨l z) ≡ (x ∨l y) ∨l z)
+             (∨l-rid : (x : L) → x ∨l 0l ≡ x)
+             (∨l-comm : (x y : L) → x ∨l y ≡ y ∨l x)
+             (∨l-idem : (x : L) → x ∨l x ≡ x)
+             (∧l-assoc : (x y z : L) → x ∧l (y ∧l z) ≡ (x ∧l y) ∧l z)
+             (∧l-rid : (x : L) → x ∧l 1l ≡ x)
+             (∧l-comm : (x y : L) → x ∧l y ≡ y ∧l x)
+             (∧l-idem : (x : L) → x ∧l x ≡ x)
+             (∧l-absorb-∨l : (x y : L) → x ∧l (x ∨l y) ≡ x)
+             (∧l-ldist-∨l : (x y z : L) → x ∧l (y ∨l z) ≡ (x ∧l y) ∨l (x ∧l z))
+           → IsDistLattice 0l 1l _∨l_ _∧l_
+makeIsDistLattice {_∨l_ = _∨l_} {_∧l_ = _∧l_} is-setL ∨l-assoc ∨l-rid ∨l-comm ∨l-idem
+                                                      ∧l-assoc ∧l-rid ∧l-comm ∧l-idem
+                                                      ∧l-absorb-∨l ∧l-ldist-∨l =
+ isdistlattice (makeIsLattice is-setL ∨l-assoc ∨l-rid (λ x → ∨l-comm _ x ∙ ∨l-rid x) ∨l-comm ∨l-idem
+                                      ∧l-assoc ∧l-rid (λ x → ∧l-comm _ x ∙ ∧l-rid x) ∧l-comm ∧l-idem
+                                      ∨l-absorb-∧l ∧l-absorb-∨l)
+ (λ x y z → ∨l-ldist-∧l _ _ _ , ∨l-rdist-∧l _ _ _) (λ x y z → ∧l-ldist-∨l _ _ _ , ∧l-rdist-∨l _ _ _)
+ where
+ ∨l-absorb-∧l : ∀ x y → x ∨l (x ∧l y) ≡ x
+ ∨l-absorb-∧l x y =
+              cong (_∨l (x ∧l y)) (sym (∧l-idem _)) ∙∙ sym (∧l-ldist-∨l _ _ _) ∙∙ ∧l-absorb-∨l _ _
 
-  makeIsDistLattice : IsDistLattice 0l 1l _∨l_ _∧l_
-  makeIsDistLattice = isdistlattice
-    (makeIsLattice is-setL ∨l-assoc ∨l-rid (λ x → ∨l-comm _ x ∙ ∨l-rid x) ∨l-comm ∨l-idem
-                           ∧l-assoc ∧l-rid (λ x → ∧l-comm _ x ∙ ∧l-rid x) ∧l-comm ∧l-idem
-                           ∨l-absorb-∧l ∧l-absorb-∨l)
-                           (λ x y z → ∨l-ldist-∧l _ _ _ , ∨l-rdist-∧l _ _ _)
-                           (λ x y z → ∧l-ldist-∨l _ _ _ , ∧l-rdist-∨l _ _ _)
-    where
-    ∨l-absorb-∧l : ∀ x y → x ∨l (x ∧l y) ≡ x
-    ∨l-absorb-∧l x y =
-      cong (_∨l (x ∧l y)) (sym (∧l-idem _)) ∙∙ sym (∧l-ldist-∨l _ _ _) ∙∙ ∧l-absorb-∨l _ _
+ ∧l-rdist-∨l : ∀ x y z → (y ∨l z) ∧l x ≡ (y ∧l x) ∨l (z ∧l x)
+ ∧l-rdist-∨l _ _ _ = ∧l-comm _ _ ∙∙ ∧l-ldist-∨l _ _ _ ∙∙ cong₂ (_∨l_) (∧l-comm _ _) (∧l-comm _ _)
 
-    ∧l-rdist-∨l : ∀ x y z → (y ∨l z) ∧l x ≡ (y ∧l x) ∨l (z ∧l x)
-    ∧l-rdist-∨l _ _ _ = ∧l-comm _ _ ∙∙ ∧l-ldist-∨l _ _ _ ∙∙ cong₂ (_∨l_) (∧l-comm _ _) (∧l-comm _ _)
+ ∨l-ldist-∧l : ∀ x y z → x ∨l (y ∧l z) ≡ (x ∨l y) ∧l (x ∨l z)
+ ∨l-ldist-∧l x y z = x ∨l (y ∧l z)
+                   ≡⟨ cong (_∨l (y ∧l z)) (sym (∨l-absorb-∧l _ _)) ⟩
+                     (x ∨l (x ∧l z)) ∨l (y ∧l z)
+                   ≡⟨ sym (∨l-assoc _ _ _) ⟩
+                     x ∨l ((x ∧l z) ∨l (y ∧l z))
+                   ≡⟨ cong (_∨l ((x ∧l z) ∨l (y ∧l z))) (sym (∧l-comm _ _ ∙ ∧l-absorb-∨l _ _)) ⟩
+                     ((x ∨l y) ∧l x) ∨l ((x ∧l z) ∨l (y ∧l z))
+                   ≡⟨ cong (((x ∨l y) ∧l x) ∨l_) (sym (∧l-rdist-∨l _ _ _)) ⟩
+                     ((x ∨l y) ∧l x) ∨l ((x ∨l y) ∧l z)
+                   ≡⟨ sym (∧l-ldist-∨l _ _ _) ⟩
+                     (x ∨l y) ∧l (x ∨l z) ∎
 
-    ∨l-ldist-∧l : ∀ x y z → x ∨l (y ∧l z) ≡ (x ∨l y) ∧l (x ∨l z)
-    ∨l-ldist-∧l x y z = x ∨l (y ∧l z)
-                      ≡⟨ cong (_∨l (y ∧l z)) (sym (∨l-absorb-∧l _ _)) ⟩
-                        (x ∨l (x ∧l z)) ∨l (y ∧l z)
-                      ≡⟨ sym (∨l-assoc _ _ _) ⟩
-                        x ∨l ((x ∧l z) ∨l (y ∧l z))
-                      ≡⟨ cong (_∨l ((x ∧l z) ∨l (y ∧l z))) (sym (∧l-comm _ _ ∙ ∧l-absorb-∨l _ _)) ⟩
-                        ((x ∨l y) ∧l x) ∨l ((x ∧l z) ∨l (y ∧l z))
-                      ≡⟨ cong (((x ∨l y) ∧l x) ∨l_) (sym (∧l-rdist-∨l _ _ _)) ⟩
-                        ((x ∨l y) ∧l x) ∨l ((x ∨l y) ∧l z)
-                      ≡⟨ sym (∧l-ldist-∨l _ _ _) ⟩
-                        (x ∨l y) ∧l (x ∨l z) ∎
+ ∨l-rdist-∧l : ∀ x y z → (y ∧l z) ∨l x ≡ (y ∨l x) ∧l (z ∨l x)
+ ∨l-rdist-∧l x y z = ∨l-comm _ x ∙∙ ∨l-ldist-∧l _ _ _ ∙∙ cong₂ (_∧l_) (∨l-comm _ _) (∨l-comm _ _)
 
-    ∨l-rdist-∧l : ∀ x y z → (y ∧l z) ∨l x ≡ (y ∨l x) ∧l (z ∨l x)
-    ∨l-rdist-∧l x y z = ∨l-comm _ x ∙∙ ∨l-ldist-∧l _ _ _ ∙∙ cong₂ (_∧l_) (∨l-comm _ _) (∨l-comm _ _)
-
-  makeDistLattice : DistLattice ℓ
-  makeDistLattice = _ , distlatticestr _ _ _ _ makeIsDistLattice
-
-
-module Make∨lOver∧l {L : Type ℓ} {0l 1l : L} {_∨l_ _∧l_ : L → L → L}
-                    (is-setL : isSet L)
-                    (∨l-assoc : (x y z : L) → x ∨l (y ∨l z) ≡ (x ∨l y) ∨l z)
-                    (∨l-rid : (x : L) → x ∨l 0l ≡ x)
-                    (∨l-comm : (x y : L) → x ∨l y ≡ y ∨l x)
-                    (∨l-idem : (x : L) → x ∨l x ≡ x)
-                    (∧l-assoc : (x y z : L) → x ∧l (y ∧l z) ≡ (x ∧l y) ∧l z)
-                    (∧l-rid : (x : L) → x ∧l 1l ≡ x)
-                    (∧l-comm : (x y : L) → x ∧l y ≡ y ∧l x)
-                    (∧l-idem : (x : L) → x ∧l x ≡ x)
-                    (∨l-absorb-∧l : (x y : L) → x ∨l (x ∧l y) ≡ x)
-                    (∨l-ldist-∧l : (x y z : L) → x ∨l (y ∧l z) ≡ (x ∨l y) ∧l (x ∨l z)) where
-
-  makeIsDistLattice : IsDistLattice 0l 1l _∨l_ _∧l_
-  makeIsDistLattice = isdistlattice
-    (makeIsLattice is-setL ∨l-assoc ∨l-rid (λ x → ∨l-comm _ x ∙ ∨l-rid x) ∨l-comm ∨l-idem
-                           ∧l-assoc ∧l-rid (λ x → ∧l-comm _ x ∙ ∧l-rid x) ∧l-comm ∧l-idem
-                           ∨l-absorb-∧l ∧l-absorb-∨l)
-                           (λ x y z → ∨l-ldist-∧l _ _ _ , ∨l-rdist-∧l _ _ _)
-                           (λ x y z → ∧l-ldist-∨l _ _ _ , ∧l-rdist-∨l _ _ _)
-    where
-    ∧l-absorb-∨l : ∀ x y → x ∧l (x ∨l y) ≡ x
-    ∧l-absorb-∨l x y =
-      cong (_∧l (x ∨l y)) (sym (∨l-idem _)) ∙∙ sym (∨l-ldist-∧l _ _ _) ∙∙ ∨l-absorb-∧l _ _
-
-    ∨l-rdist-∧l : ∀ x y z → (y ∧l z) ∨l x ≡ (y ∨l x) ∧l (z ∨l x)
-    ∨l-rdist-∧l _ _ _ = ∨l-comm _ _ ∙∙ ∨l-ldist-∧l _ _ _ ∙∙ cong₂ (_∧l_) (∨l-comm _ _) (∨l-comm _ _)
-
-    ∧l-ldist-∨l : ∀ x y z → x ∧l (y ∨l z) ≡ (x ∧l y) ∨l (x ∧l z)
-    ∧l-ldist-∨l x y z = x ∧l (y ∨l z)
-                      ≡⟨ cong (_∧l (y ∨l z)) (sym (∧l-absorb-∨l _ _)) ⟩
-                        (x ∧l (x ∨l z)) ∧l (y ∨l z)
-                      ≡⟨ sym (∧l-assoc _ _ _) ⟩
-                        x ∧l ((x ∨l z) ∧l (y ∨l z))
-                      ≡⟨ cong (_∧l ((x ∨l z) ∧l (y ∨l z))) (sym (∨l-comm _ _ ∙ ∨l-absorb-∧l _ _)) ⟩
-                        ((x ∧l y) ∨l x) ∧l ((x ∨l z) ∧l (y ∨l z))
-                      ≡⟨ cong (((x ∧l y) ∨l x) ∧l_) (sym (∨l-rdist-∧l _ _ _)) ⟩
-                        ((x ∧l y) ∨l x) ∧l ((x ∧l y) ∨l z)
-                      ≡⟨ sym (∨l-ldist-∧l _ _ _) ⟩
-                        (x ∧l y) ∨l (x ∧l z) ∎
-
-    ∧l-rdist-∨l : ∀ x y z → (y ∨l z) ∧l x ≡ (y ∧l x) ∨l (z ∧l x)
-    ∧l-rdist-∨l x y z = ∧l-comm _ x ∙∙ ∧l-ldist-∨l _ _ _ ∙∙ cong₂ (_∨l_) (∧l-comm _ _) (∧l-comm _ _)
-
-  makeDistLattice : DistLattice ℓ
-  makeDistLattice = _ , distlatticestr _ _ _ _ makeIsDistLattice
-
-
+makeDistLattice : {L : Type ℓ} (0l 1l : L) (_∨l_ _∧l_ : L → L → L)
+             (is-setL : isSet L)
+             (∨l-assoc : (x y z : L) → x ∨l (y ∨l z) ≡ (x ∨l y) ∨l z)
+             (∨l-rid : (x : L) → x ∨l 0l ≡ x)
+             (∨l-comm : (x y : L) → x ∨l y ≡ y ∨l x)
+             (∨l-idem : (x : L) → x ∨l x ≡ x)
+             (∧l-assoc : (x y z : L) → x ∧l (y ∧l z) ≡ (x ∧l y) ∧l z)
+             (∧l-rid : (x : L) → x ∧l 1l ≡ x)
+             (∧l-comm : (x y : L) → x ∧l y ≡ y ∧l x)
+             (∧l-idem : (x : L) → x ∧l x ≡ x)
+             (∧l-absorb-∨l : (x y : L) → x ∧l (x ∨l y) ≡ x)
+             (∧l-ldist-∨l : (x y z : L) → x ∧l (y ∨l z) ≡ (x ∧l y) ∨l (x ∧l z))
+           → DistLattice ℓ
+makeDistLattice 0l 1l _∨l_ _∧l_ is-setL ∨l-assoc ∨l-rid ∨l-comm ∨l-idem
+                                        ∧l-assoc ∧l-rid ∧l-comm ∧l-idem
+                                        ∧l-absorb-∨l ∧l-ldist-∨l = _ , distlatticestr _ _ _ _
+                (makeIsDistLattice is-setL ∨l-assoc ∨l-rid ∨l-comm ∨l-idem
+                                           ∧l-assoc ∧l-rid ∧l-comm ∧l-idem ∧l-absorb-∨l ∧l-ldist-∨l)
 
 DistLatticeStr→LatticeStr : {A : Type ℓ} → DistLatticeStr A → LatticeStr A
 DistLatticeStr→LatticeStr (distlatticestr  _ _ _ _ H) =

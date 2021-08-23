@@ -59,19 +59,27 @@ commmonoid : (A : Type ℓ) (ε : A) (_·_ : A → A → A) (h : IsCommMonoid ε
 commmonoid A ε _·_ h = A , commmonoidstr ε _·_ h
 
 -- Easier to use constructors
-module _ {M : Type ℓ} {ε : M} {_·_ : M → M → M}
-         (is-setM : isSet M)
-         (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
-         (rid : (x : M) → x · ε ≡ x)
-         (lid : (x : M) → ε · x ≡ x)
-         (comm : (x y : M) → x · y ≡ y · x) where
+makeIsCommMonoid : {M : Type ℓ} {ε : M} {_·_ : M → M → M}
+               (is-setM : isSet M)
+               (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
+               (rid : (x : M) → x · ε ≡ x)
+               (lid : (x : M) → ε · x ≡ x)
+               (comm : (x y : M) → x · y ≡ y · x)
+             → IsCommMonoid ε _·_
+IsCommMonoid.isMonoid (makeIsCommMonoid is-setM assoc rid lid comm) =
+                                        makeIsMonoid is-setM assoc rid lid
+IsCommMonoid.comm (makeIsCommMonoid is-setM assoc rid lid comm) = comm
 
-  makeIsCommMonoid : IsCommMonoid ε _·_
-  IsCommMonoid.isMonoid makeIsCommMonoid = makeIsMonoid is-setM assoc rid lid
-  IsCommMonoid.comm makeIsCommMonoid = comm
+makeCommMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
+             (is-setM : isSet M)
+             (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
+             (rid : (x : M) → x · ε ≡ x)
+             (lid : (x : M) → ε · x ≡ x)
+             (comm : (x y : M) → x · y ≡ y · x)
+           → CommMonoid ℓ
+makeCommMonoid ε _·_ is-setM assoc rid lid comm =
+  commmonoid _ ε _·_ (makeIsCommMonoid is-setM assoc rid lid comm)
 
-  makeCommMonoid : CommMonoid ℓ
-  makeCommMonoid = commmonoid _ _ _ makeIsCommMonoid
 
 
 CommMonoidStr→MonoidStr : {A : Type ℓ} → CommMonoidStr A → MonoidStr A

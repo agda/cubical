@@ -71,20 +71,28 @@ semilattice : (A : Type ℓ) (ε : A) (_·_ : A → A → A) (h : IsSemilattice 
 semilattice A ε _·_ h = A , semilatticestr ε _·_ h
 
 -- Easier to use constructors
-module _ {L : Type ℓ} {ε : L} {_·_ : L → L → L}
-         (is-setL : isSet L)
-         (assoc : (x y z : L) → x · (y · z) ≡ (x · y) · z)
-         (rid : (x : L) → x · ε ≡ x)
-         (lid : (x : L) → ε · x ≡ x)
-         (comm : (x y : L) → x · y ≡ y · x)
-         (idem : (x : L) → x · x ≡ x) where
+makeIsSemilattice : {L : Type ℓ} {ε : L} {_·_ : L → L → L}
+               (is-setL : isSet L)
+               (assoc : (x y z : L) → x · (y · z) ≡ (x · y) · z)
+               (rid : (x : L) → x · ε ≡ x)
+               (lid : (x : L) → ε · x ≡ x)
+               (comm : (x y : L) → x · y ≡ y · x)
+               (idem : (x : L) → x · x ≡ x)
+             → IsSemilattice ε _·_
+IsSemilattice.isCommMonoid (makeIsSemilattice is-setL assoc rid lid comm idem) =
+                                        makeIsCommMonoid is-setL assoc rid lid comm
+IsSemilattice.idem (makeIsSemilattice is-setL assoc rid lid comm idem) = idem
 
-  makeIsSemilattice : IsSemilattice ε _·_
-  IsSemilattice.isCommMonoid makeIsSemilattice = makeIsCommMonoid is-setL assoc rid lid comm
-  IsSemilattice.idem makeIsSemilattice = idem
-
-  makeSemilattice : Semilattice ℓ
-  makeSemilattice = semilattice _ _ _ makeIsSemilattice
+makeSemilattice : {L : Type ℓ} (ε : L) (_·_ : L → L → L)
+             (is-setL : isSet L)
+             (assoc : (x y z : L) → x · (y · z) ≡ (x · y) · z)
+             (rid : (x : L) → x · ε ≡ x)
+             (lid : (x : L) → ε · x ≡ x)
+             (comm : (x y : L) → x · y ≡ y · x)
+             (idem : (x : L) → x · x ≡ x)
+             → Semilattice ℓ
+makeSemilattice ε _·_ is-setL assoc rid lid comm idem =
+  semilattice _ ε _·_ (makeIsSemilattice is-setL assoc rid lid comm idem)
 
 
 SemilatticeStr→MonoidStr : {A : Type ℓ} → SemilatticeStr A → MonoidStr A
