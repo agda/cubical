@@ -14,6 +14,8 @@ open import Cubical.HITs.SetTruncation
 open import Cubical.HITs.Truncation hiding (elim2) renaming (rec to trRec)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Path
 open Iso
 
 {- loop space of a pointed type -}
@@ -45,11 +47,159 @@ leftInv (ΩfunExtIso A B) _ = refl
 isComm∙ : ∀ {ℓ} (A : Pointed ℓ) → Type ℓ
 isComm∙ A = (p q : typ (Ω A)) → p ∙ q ≡ q ∙ p
 
-Eckmann-Hilton : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ ((Ω^ (suc n)) A)
-Eckmann-Hilton n α β =
-  transport (λ i → cong (λ x → rUnit x (~ i)) α ∙ cong (λ x → lUnit x (~ i)) β
-                 ≡ cong (λ x → lUnit x (~ i)) β ∙ cong (λ x → rUnit x (~ i)) α)
-             λ i → (λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j)
+private
+  mainPath : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → (α β : typ ((Ω^ (2 + n)) A))
+           → (λ i → α i ∙ refl) ∙ (λ i → refl ∙ β i)
+            ≡ (λ i → refl ∙ β i) ∙ (λ i → α i ∙ refl)
+  mainPath n α β i = (λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j)
+
+EH-filler : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → typ ((Ω^ (2 + n)) A) → typ ((Ω^ (2 + n)) A) → I → I → I → _
+EH-filler {A = A} n α β i j z =
+  hfill (λ k → λ { (i = i0) → ((cong (λ x → rUnit x (~ k)) α) ∙ cong (λ x → lUnit x (~ k)) β) j
+                  ; (i = i1) → ((cong (λ x → lUnit x (~ k)) β) ∙ cong (λ x → rUnit x (~ k)) α) j
+                  ; (j = i0) → rUnit refl (~ k)
+                  ; (j = i1) → rUnit refl (~ k)})
+        (inS (mainPath n α β i j)) z
+
+{- Eckmann-Hilton -}
+EH : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ ((Ω^ (suc n)) A)
+EH {A = A} n α β i j = EH-filler n α β i j i1
+
+{- Lemmas for the syllepsis : EH α β ≡ (EH β α) ⁻¹ -}
+
+EH-refl-refl : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+             → EH {A = A} n refl refl ≡ refl
+EH-refl-refl {A = A} n k i j =
+  hcomp (λ r → λ { (k = i1) → (refl ∙ (λ _ → basep)) j
+                  ; (j = i0) → rUnit basep (~ r ∧ ~ k)
+                  ; (j = i1) → rUnit basep (~ r ∧ ~ k)
+                  ; (i = i0) → (refl ∙ (λ _ → lUnit basep (~ r ∧ ~ k))) j
+                  ; (i = i1) → (refl ∙ (λ _ → lUnit basep (~ r ∧ ~ k))) j})
+        (((cong (λ x → rUnit x (~ k)) (λ _ → basep))
+         ∙ cong (λ x → lUnit x (~ k)) (λ _ → basep)) j)
+  where
+  basep = snd (Ω ((Ω^ n) A))
+
+{- Generalisations of EH α β when α or β is refl -}
+EH-gen-l : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → {x y : typ ((Ω^ (suc n)) A)} (α : x ≡ y)
+       → α ∙ refl ≡ refl ∙ α
+EH-gen-l {ℓ = ℓ} {A = A} n {x = x} {y = y} α i j z =
+  hcomp (λ k → λ { (i = i0) → ((cong (λ x → rUnit x (~ k)) α) ∙ refl) j z
+                  ; (i = i1) → (refl ∙ cong (λ x → rUnit x (~ k)) α) j z
+                  ; (j = i0) → rUnit (refl {x = x z}) (~ k) z
+                  ; (j = i1) → rUnit (refl {x = y z}) (~ k) z
+                  ; (z = i0) → x i1
+                  ; (z = i1) → y i1})
+        (((λ j → α (j ∧ ~ i) ∙ refl) ∙ λ j → α (~ i ∨ j) ∙ refl) j z)
+
+EH-gen-r : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → {x y : typ ((Ω^ (suc n)) A)} (β : x ≡ y)
+        → refl ∙ β ≡ β ∙ refl
+EH-gen-r {A = A} n {x = x} {y = y} β i j z =
+  hcomp (λ k → λ { (i = i0) → (refl ∙ cong (λ x → lUnit x (~ k)) β) j z
+                  ; (i = i1) → ((cong (λ x → lUnit x (~ k)) β) ∙ refl) j z
+                  ; (j = i0) → lUnit (λ k → x (k ∧ z)) (~ k) z
+                  ; (j = i1) → lUnit (λ k → y (k ∧ z)) (~ k) z
+                  ; (z = i0) → x i1
+                  ; (z = i1) → y i1})
+        (((λ j → refl ∙ β (j ∧ i)) ∙ λ j → refl ∙ β (i ∨ j)) j z)
+
+{- characerisations of EH α β when α or β is refl  -}
+EH-α-refl : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+             → (α : typ ((Ω^ (2 + n)) A))
+             → EH n α refl ≡ sym (rUnit α) ∙ lUnit α
+EH-α-refl {A = A} n α i j k =
+  hcomp (λ r → λ { (i = i0) → EH-gen-l n (λ i → α (i ∧ r)) j k
+                  ; (i = i1) → (sym (rUnit λ i → α (i ∧ r)) ∙ lUnit λ i → α (i ∧ r)) j k
+                  ; (j = i0) → ((λ i → α (i ∧ r)) ∙ refl) k
+                  ; (j = i1) → (refl ∙ (λ i → α (i ∧ r))) k
+                  ; (k = i0) → refl
+                  ; (k = i1) → α r})
+        ((EH-refl-refl n ∙ sym (lCancel (rUnit refl))) i j k)
+
+EH-refl-β : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+             → (β : typ ((Ω^ (2 + n)) A))
+             → EH n refl β ≡ sym (lUnit β) ∙ rUnit β
+EH-refl-β {A = A} n β i j k =
+  hcomp (λ r → λ { (i = i0) → EH-gen-r n (λ i → β (i ∧ r)) j k
+                  ; (i = i1) → (sym (lUnit λ i → β (i ∧ r)) ∙ rUnit λ i → β (i ∧ r)) j k
+                  ; (j = i0) → (refl ∙ (λ i → β (i ∧ r))) k
+                  ; (j = i1) → ((λ i → β (i ∧ r)) ∙ refl) k
+                  ; (k = i0) → refl
+                  ; (k = i1) → β r})
+        ((EH-refl-refl n ∙ sym (lCancel (rUnit refl))) i j k)
+
+syllepsis : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (α β : typ ((Ω^ 3) A))
+         → EH 0 α β ≡ sym (EH 0 β α)
+syllepsis {A = A} n α β k i j =
+  hcomp (λ r → λ { (i = i0) → i=i0 r j k
+                  ; (i = i1) → i=i1 r j k
+                  ; (j = i0) → j-filler r j k
+                  ; (j = i1) → j-filler r j k
+                  ; (k = i0) → EH-filler 1 α β i j r
+                  ; (k = i1) → EH-filler 1 β α (~ i) j r})
+        (btm-filler (~ k) i j)
+  where
+  guy = snd (Ω (Ω A))
+
+  btm-filler : I → I → I → typ (Ω (Ω A))
+  btm-filler j i k =
+    hcomp (λ r
+      → λ {(j = i0) → mainPath 1 β α (~ i) k
+          ; (j = i1) → mainPath 1 α β i k
+          ; (i = i0) → (cong (λ x → EH-α-refl 0 x r (~ j)) α
+                       ∙ cong (λ x → EH-refl-β 0 x r (~ j)) β) k
+          ; (i = i1) → (cong (λ x → EH-refl-β 0 x r (~ j)) β
+                       ∙ cong (λ x → EH-α-refl 0 x r (~ j)) α) k
+          ; (k = i0) → EH-α-refl 0 guy r (~ j)
+          ; (k = i1) → EH-α-refl 0 guy r (~ j)})
+      (((λ l → EH 0 (α (l ∧ ~ i)) (β (l ∧ i)) (~ j))
+       ∙ λ l → EH 0 (α (l ∨ ~ i)) (β (l ∨ i)) (~ j)) k)
+
+  link : I → I → I → _
+  link z i j =
+    hfill (λ k → λ { (i = i1) → refl
+                    ; (j = i0) → rUnit refl (~ i)
+                    ; (j = i1) → lUnit guy (~ i ∧ k)})
+          (inS (rUnit refl (~ i ∧ ~ j))) z
+
+  i=i1 : I → I → I → typ (Ω (Ω A))
+  i=i1 r j k =
+    hcomp (λ i → λ { (r = i0) → (cong (λ x → compPath-filler (sym (lUnit x)) (rUnit x) i k) β
+                                ∙ cong (λ x → compPath-filler (sym (rUnit x)) (lUnit x) i k) α) j
+                    ; (r = i1) → (β ∙ α) j
+                    ; (k = i0) → (cong (λ x → lUnit x (~ r)) β ∙
+                                   cong (λ x → rUnit x (~ r)) α) j
+                    ; (k = i1) → (cong (λ x → rUnit x (~ r ∧ i)) β ∙
+                                   cong (λ x → lUnit x (~ r ∧ i)) α) j
+                    ; (j = i0) → link i r k
+                    ; (j = i1) → link i r k})
+          (((cong (λ x → lUnit x (~ r ∧ ~ k)) β
+           ∙ cong (λ x → rUnit x (~ r ∧ ~ k)) α)) j)
+
+  i=i0 : I → I → I → typ (Ω (Ω A))
+  i=i0 r j k =
+    hcomp (λ i → λ { (r = i0) → (cong (λ x → compPath-filler (sym (rUnit x)) (lUnit x) i k) α
+                                ∙ cong (λ x → compPath-filler (sym (lUnit x)) (rUnit x) i k) β) j
+                    ; (r = i1) → (α ∙ β) j
+                    ; (k = i0) → (cong (λ x → rUnit x (~ r)) α ∙
+                                   cong (λ x → lUnit x (~ r)) β) j
+                    ; (k = i1) → (cong (λ x → lUnit x (~ r ∧ i)) α ∙
+                                   cong (λ x → rUnit x (~ r ∧ i)) β) j
+                    ; (j = i0) → link i r k
+                    ; (j = i1) → link i r k})
+          ((cong (λ x → rUnit x (~ r ∧ ~ k)) α
+           ∙ cong (λ x → lUnit x (~ r ∧ ~ k)) β) j)
+
+  j-filler : I → I → I → typ (Ω (Ω A))
+  j-filler r i k =
+    hcomp (λ j → λ { (i = i0) → link j r k
+                    ; (i = i1) → link j r k
+                    ; (r = i0) → compPath-filler (sym (rUnit guy))
+                                                  (lUnit guy) j k
+                    ; (r = i1) → refl
+                    ; (k = i0) → rUnit guy (~ r)
+                    ; (k = i1) → rUnit guy (j ∧ ~ r)})
+          (rUnit guy (~ r ∧ ~ k))
 
 isCommA→isCommTrunc : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ A
                     → isOfHLevel (suc n) (typ A)
@@ -75,7 +225,7 @@ ptdIso→comm {A = (A , a)} {B = B} e comm p q =
       → ∥ typ ((Ω^ (suc n)) A) ∥₂ → ∥ typ ((Ω^ (suc n)) A) ∥₂
 π-comp n = elim2 (λ _ _ → isSetSetTrunc) λ p q → ∣ p ∙ q ∣₂
 
-Eckmann-Hilton-π : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p q : ∥ typ ((Ω^ (2 + n)) A) ∥₂)
+EH-π : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p q : ∥ typ ((Ω^ (2 + n)) A) ∥₂)
                → π-comp (1 + n) p q ≡ π-comp (1 + n) q p
-Eckmann-Hilton-π  n = elim2 (λ x y → isOfHLevelPath 2 isSetSetTrunc _ _)
-                             λ p q → cong ∣_∣₂ (Eckmann-Hilton n p q)
+EH-π  n = elim2 (λ x y → isOfHLevelPath 2 isSetSetTrunc _ _)
+                             λ p q → cong ∣_∣₂ (EH n p q)
