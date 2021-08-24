@@ -13,7 +13,10 @@ open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat hiding (_+_ ; _·_; +-comm ; +-assoc; ·-assoc)
+open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
+                                       ; +-comm to +ℕ-comm
+                                       ; +-assoc to +ℕ-assoc
+                                       ; ·-assoc to ·ℕ-assoc)
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.FinData
@@ -24,6 +27,7 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.BigOps
+open import Cubical.Algebra.CommRing
 
 open Iso
 
@@ -247,3 +251,16 @@ module _ (R' : Ring ℓ) where
              addFinMatrix0r addFinMatrixNegMatrixr addFinMatrixComm
              mulFinMatrixAssoc mulFinMatrixr1 mulFinMatrix1r
              mulFinMatrixrDistrAddFinMatrix mulFinMatrixlDistrAddFinMatrix
+
+
+-- Generators of product of two ideals
+module _ (R' : CommRing ℓ) where
+ private R = fst R'
+ open CommRingStr (snd R')
+
+ toMatrix : {n m : ℕ} → FinVec R n → FinVec R m → FinMatrix R n m
+ toMatrix V W i j = V i · W j
+
+ flatten : {n m : ℕ} → FinMatrix R n m → FinVec R (n ·ℕ m)
+ flatten {n = zero} _ i₀ = ⊥.rec (¬Fin0 i₀)
+ flatten {n = suc n} M = M zero ++Fin flatten (M ∘ suc)
