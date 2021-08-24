@@ -53,3 +53,16 @@ module Cofinality (s : TypeSeq ℓ ℕ+) where
     From : SeqColimit (ShiftSeq s) → SeqColimit s
     From (ι l x) = ι (suc l) x
     From (glue l x i) = glue (suc l) x i
+
+    ToFrom : (x : SeqColimit (ShiftSeq s)) → x ≡ To (From x)
+    ToFrom (ι l x) = glue l x
+    ToFrom (glue l x i) j = square i j
+           where  g1 = glue l x
+                  g2 = glue (suc l) (snd (ShiftSeq s) l x)
+                  square : Square g1 g2 g1 g2
+                  square i j = hcomp (λ k → λ {
+                                      (i = i0) → g1 (~ (~ j ∧ k)); 
+                                      (i = i1) → g2 (j ∧ k); 
+                                      (j = i0) → g1 (~ (~ i ∧ k)); 
+                                      (j = i1) → g2 (i ∧ k)}) 
+                                (ι (suc l) (snd s (suc l) x))
