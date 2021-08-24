@@ -117,7 +117,7 @@ module SquareRotation
   rotateSquare≃-≡rotateSquare-lemma = equivEq (funExt p)
     where
 
-      p : (x : Square _ _ _ _) → rotateSquare x ≡ pathToEquiv ≡rotateSquare .fst x
+      p : (x : Square _ _ _ _) → rotateSquare x ≡ transp (λ i → ≡rotateSquare i) i0 x
       p x k i j =
          hcomp
            (λ l →
