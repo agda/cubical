@@ -6,7 +6,7 @@
     - from path obtained via applying Square to 4 paths
 
   This module shows that those equivalences are equal.
-  
+
 
 -}
 
