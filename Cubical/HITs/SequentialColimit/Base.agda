@@ -66,3 +66,16 @@ module Cofinality (s : TypeSeq ℓ ℕ+) where
                                       (j = i0) → g1 (~ (~ i ∧ k)); 
                                       (j = i1) → g2 (i ∧ k)}) 
                                 (ι (suc l) (snd s (suc l) x))
+
+    FromTo : (x : SeqColimit s) → x ≡ From (To x)
+    FromTo (ι l x) = glue l x
+    FromTo (glue l x i) j = square i j
+            where  g1 = glue l x
+                   g2 = glue (suc l) (snd s l x)
+                   square : Square g1 g2 g1 g2
+                   square i j = hcomp (λ k → λ {
+                                      (i = i0) → g1 (~ (~ j ∧ k)); 
+                                      (i = i1) → g2 (j ∧ k); 
+                                      (j = i0) → g1 (~ (~ i ∧ k)); 
+                                      (j = i1) → g2 (i ∧ k)}) 
+                                (ι (suc l) (snd s l x))
