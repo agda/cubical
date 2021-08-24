@@ -10,6 +10,7 @@ module Cubical.HITs.SequentialColimit.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.SuccStr
 open import Cubical.Data.Nat
@@ -44,15 +45,6 @@ InducedMap {S = S} {s = s} {s′ = s′} η (glue l x i) =
 
 ShiftSeq : TypeSeq ℓ S → TypeSeq ℓ S
 ShiftSeq {S = S} s = (λ n → fst s (succ S n)) , λ n → snd s (succ S n)
-
-compositionReflSquare : {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z)
-                        → Square p q p q
-compositionReflSquare {y = y} p q i j = hcomp (λ k → λ {
-                                      (i = i0) → p (~ (~ j ∧ k)); 
-                                      (i = i1) → q (j ∧ k); 
-                                      (j = i0) → p (~ (~ i ∧ k)); 
-                                      (j = i1) → q (i ∧ k)}) 
-                                y
 
 module Cofinality (s : TypeSeq ℓ ℕ+) where
     To : SeqColimit s → SeqColimit (ShiftSeq s)
