@@ -2,11 +2,11 @@
 
   Equivalence of rotating the Square by 90deg can be easily constructed in two ways:
 
-    - from isomorphism of substituting variables (sq i j ⇄ sq (~ j) i)
-    - from path obtained via substitution of 4 arguments of Square
+    - from isomorphism of switching dimensions  (sq i j ⇄ sq (~ j) i)
+    - from path obtained via applying Square to 4 paths
 
   This module shows that those equivalences are equal.
-
+  
 
 -}
 
