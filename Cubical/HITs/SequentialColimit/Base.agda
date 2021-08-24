@@ -45,6 +45,15 @@ InducedMap {S = S} {s = s} {s′ = s′} η (glue l x i) =
 ShiftSeq : TypeSeq ℓ S → TypeSeq ℓ S
 ShiftSeq {S = S} s = (λ n → fst s (succ S n)) , λ n → snd s (succ S n)
 
+compositionReflSquare : {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z)
+                        → Square p q p q
+compositionReflSquare {y = y} p q i j = hcomp (λ k → λ {
+                                      (i = i0) → p (~ (~ j ∧ k)); 
+                                      (i = i1) → q (j ∧ k); 
+                                      (j = i0) → p (~ (~ i ∧ k)); 
+                                      (j = i1) → q (i ∧ k)}) 
+                                y
+
 module Cofinality (s : TypeSeq ℓ ℕ+) where
     To : SeqColimit s → SeqColimit (ShiftSeq s)
     To (ι l x) = ι l (snd s l x)
@@ -57,25 +66,19 @@ module Cofinality (s : TypeSeq ℓ ℕ+) where
     ToFrom : (x : SeqColimit (ShiftSeq s)) → x ≡ To (From x)
     ToFrom (ι l x) = glue l x
     ToFrom (glue l x i) j = square i j
-           where  g1 = glue l x
+           where  g1 : ι l  x ≡ ι (suc l) (snd (ShiftSeq s) l x)
+                  g1 = glue l x
+                  g2 : _ ≡ ι _ (snd (ShiftSeq s) _ (snd (ShiftSeq s) l x))
                   g2 = glue (suc l) (snd (ShiftSeq s) l x)
                   square : Square g1 g2 g1 g2
-                  square i j = hcomp (λ k → λ {
-                                      (i = i0) → g1 (~ (~ j ∧ k)); 
-                                      (i = i1) → g2 (j ∧ k); 
-                                      (j = i0) → g1 (~ (~ i ∧ k)); 
-                                      (j = i1) → g2 (i ∧ k)}) 
-                                (ι (suc l) (snd s (suc l) x))
+                  square = compositionReflSquare g1 g2
 
     FromTo : (x : SeqColimit s) → x ≡ From (To x)
     FromTo (ι l x) = glue l x
     FromTo (glue l x i) j = square i j
-            where  g1 = glue l x
+            where  g1 : ι l x ≡ ι (suc l) (snd s l x)
+                   g1 = glue l x
+                   g2 : _ ≡ _
                    g2 = glue (suc l) (snd s l x)
                    square : Square g1 g2 g1 g2
-                   square i j = hcomp (λ k → λ {
-                                      (i = i0) → g1 (~ (~ j ∧ k)); 
-                                      (i = i1) → g2 (j ∧ k); 
-                                      (j = i0) → g1 (~ (~ i ∧ k)); 
-                                      (j = i1) → g2 (i ∧ k)}) 
-                                (ι (suc l) (snd s l x))
+                   square = compositionReflSquare g1 g2 
