@@ -56,7 +56,7 @@ module Cofinality (s : TypeSeq ℓ ℕ+) where
                    g2 : _ ≡ _
                    g2 = glue (suc l) (snd s l x)
                    square : Square g1 g2 g1 g2
-                   square = compositionReflSquare g1 g2 
+                   square = compositionReflSquare g1 g2
 
 ShiftSeqColimit : (s : TypeSeq ℓ ℕ+) (n : ℕ) 
                     → SeqColimit s → SeqColimit (ShiftedSeq s n)
