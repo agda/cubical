@@ -73,3 +73,8 @@ ShiftEquiv s (suc n) =
                          (λ x → sym (Cofinality.ToFrom seq x))
                          λ y → sym (Cofinality.FromTo seq y)))
     where seq = ShiftedSeq s n
+
+{- Induction data for sequential colimits -}
+IndData : (s : TypeSeq ℓ S) → Type _
+IndData {ℓ = ℓ} {S = S} s = Σ[ B ∈ ((i : Index S) → (x : fst s i) → Type ℓ) ]
+                            ((i : Index S) → (x : fst s i) → B i x → B (succ S i) (snd s i x))
