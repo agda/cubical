@@ -41,6 +41,3 @@ InducedMap {S = S} {s = s} {s′ = s′} η (glue l x i) =
         (ι l (fst η l x)                            ≡⟨ glue l (fst η l x) ⟩
         ι (succ S l) (snd s′ l (fst η l x))         ≡[ j ]⟨ ι _ (snd η l j x) ⟩
         ι (succ S l) (fst η (succ S l) (snd s l x)) ∎) i
-
-ShiftSeq : TypeSeq ℓ S → TypeSeq ℓ S
-ShiftSeq {S = S} s = (λ n → fst s (succ S n)) , λ n → snd s (succ S n)

@@ -23,6 +23,14 @@ TypeSeq : (ℓ″ : Level) (S : SuccStr ℓ) → Type _
 TypeSeq ℓ″ S = let open SuccStr S
                in Σ[ seq ∈ (Index → Type ℓ″) ] ((i : Index) → (seq i) → (seq (succ i)))
 
+
+ShiftedSeq : {S : SuccStr ℓ′} (s : TypeSeq ℓ S) (n : ℕ)
+             → TypeSeq ℓ S
+ShiftedSeq s zero = s
+ShiftedSeq {S = S} s (suc n) with ShiftedSeq s n 
+... | (seq , map) = let open SuccStr S
+                    in (λ i → seq (succ i)) , λ i →  (λ x → map (succ i) x)
+
 open SuccStr
 
 ℤ+ : SuccStr ℓ-zero
