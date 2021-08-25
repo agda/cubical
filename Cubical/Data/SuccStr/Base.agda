@@ -19,17 +19,23 @@ record SuccStr (ℓ : Level) : Type (ℓ-suc ℓ) where
     Index : Type ℓ
     succ : Index → Index
 
+private
+  variable
+    S : SuccStr ℓ
+
+open SuccStr
+
 TypeSeq : (ℓ″ : Level) (S : SuccStr ℓ) → Type _
-TypeSeq ℓ″ S = let open SuccStr S
-               in Σ[ seq ∈ (Index → Type ℓ″) ] ((i : Index) → (seq i) → (seq (succ i)))
+TypeSeq ℓ″ S = Σ[ seq ∈ (Index S → Type ℓ″) ] ((i : Index S) → (seq i) → (seq (succ S i)))
 
-
-ShiftedSeq : {S : SuccStr ℓ′} (s : TypeSeq ℓ S) (n : ℕ)
+ShiftedSeq : (s : TypeSeq ℓ S) (n : ℕ)
              → TypeSeq ℓ S
 ShiftedSeq s zero = s
-ShiftedSeq {S = S} s (suc n) with ShiftedSeq s n 
-... | (seq , map) = let open SuccStr S
-                    in (λ i → seq (succ i)) , λ i →  (λ x → map (succ i) x)
+ShiftedSeq {S = S} s (suc n) with ShiftedSeq s n
+... | (seq , map) = (λ i → seq (succ S i)) , λ i →  (λ x → map (succ S i) x)
+
+ΣSeq : (s : TypeSeq ℓ S) → Type _
+ΣSeq {S = S} s = Σ[ i ∈ (Index S) ] (fst s i)
 
 open SuccStr
 
