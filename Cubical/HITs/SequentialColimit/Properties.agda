@@ -12,7 +12,6 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 
-
 open import Cubical.HITs.SequentialColimit.Base
 
 open import Cubical.Data.SuccStr
