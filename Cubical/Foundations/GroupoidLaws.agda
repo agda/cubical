@@ -162,10 +162,10 @@ invSides-filler {x = x} p q i j =
 compositionReflSquare : {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z)
                         → Square p q p q
 compositionReflSquare {y = y} p q i j = hcomp (λ k → λ {
-                                      (i = i0) → p (~ (~ j ∧ k)); 
-                                      (i = i1) → q (j ∧ k); 
-                                      (j = i0) → p (~ (~ i ∧ k)); 
-                                      (j = i1) → q (i ∧ k)}) 
+                                      (i = i0) → p (~ (~ j ∧ k));
+                                      (i = i1) → q (j ∧ k);
+                                      (j = i0) → p (~ (~ i ∧ k));
+                                      (j = i1) → q (i ∧ k)})
                                 y
 
 leftright : {ℓ : Level} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) →

@@ -13,7 +13,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 
 
-open import Cubical.HITs.SequentialColimit.Base 
+open import Cubical.HITs.SequentialColimit.Base
 
 open import Cubical.Data.SuccStr
 open import Cubical.Data.Nat
@@ -58,7 +58,7 @@ module Cofinality (s : TypeSeq ℓ ℕ+) where
                    square : Square g1 g2 g1 g2
                    square = compositionReflSquare g1 g2
 
-ShiftSeqColimit : (s : TypeSeq ℓ ℕ+) (n : ℕ) 
+ShiftSeqColimit : (s : TypeSeq ℓ ℕ+) (n : ℕ)
                     → SeqColimit s → SeqColimit (ShiftedSeq s n)
 ShiftSeqColimit s zero = λ x → x
 ShiftSeqColimit s (suc n) = Cofinality.To (ShiftedSeq s n) ∘ ShiftSeqColimit s n
@@ -67,10 +67,10 @@ ShiftSeqColimit s (suc n) = Cofinality.To (ShiftedSeq s n) ∘ ShiftSeqColimit s
 ShiftEquiv : (s : TypeSeq ℓ ℕ+) (n : ℕ)
             → SeqColimit s ≃ SeqColimit (ShiftedSeq s n)
 ShiftEquiv s zero = ShiftSeqColimit s zero , idIsEquiv _
-ShiftEquiv s (suc n) = 
-    compEquiv 
-        (ShiftEquiv s n) 
-        (isoToEquiv (iso (Cofinality.To seq) (Cofinality.From seq) 
-                         (λ x → sym (Cofinality.ToFrom seq x)) 
+ShiftEquiv s (suc n) =
+    compEquiv
+        (ShiftEquiv s n)
+        (isoToEquiv (iso (Cofinality.To seq) (Cofinality.From seq)
+                         (λ x → sym (Cofinality.ToFrom seq x))
                          λ y → sym (Cofinality.FromTo seq y)))
     where seq = ShiftedSeq s n
