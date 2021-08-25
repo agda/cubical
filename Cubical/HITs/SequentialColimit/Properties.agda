@@ -63,6 +63,7 @@ ShiftSeqColimit : (s : TypeSeq ℓ ℕ+) (n : ℕ)
 ShiftSeqColimit s zero = λ x → x
 ShiftSeqColimit s (suc n) = Cofinality.To (ShiftedSeq s n) ∘ ShiftSeqColimit s n
 
+{- Lemma 3.7 in the paper -}
 ShiftEquiv : (s : TypeSeq ℓ ℕ+) (n : ℕ)
             → SeqColimit s ≃ SeqColimit (ShiftedSeq s n)
 ShiftEquiv s zero = ShiftSeqColimit s zero , idIsEquiv _
