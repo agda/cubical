@@ -264,3 +264,6 @@ module _ (R' : CommRing ℓ) where
  flatten : {n m : ℕ} → FinMatrix R n m → FinVec R (n ·ℕ m)
  flatten {n = zero} _ i₀ = ⊥.rec (¬Fin0 i₀)
  flatten {n = suc n} M = M zero ++Fin flatten (M ∘ suc)
+
+ mulFinVec : {n m : ℕ} → FinVec R n → FinVec R m → FinVec R (n ·ℕ m)
+ mulFinVec V W = flatten (toMatrix V W)

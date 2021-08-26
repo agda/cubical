@@ -78,9 +78,3 @@ _++Fin_ : {n m : ℕ} → FinVec A n → FinVec A m → FinVec A (n + m)
 _++Fin_ {n = zero} _ W i = W i
 _++Fin_ {n = suc n} V _ zero = V zero
 _++Fin_ {n = suc n} V W (suc i) = ((V ∘ suc) ++Fin W) i
-
-++FinAssoc : {n m k : ℕ} (U : FinVec A n) (V : FinVec A m) (W : FinVec A k)
-           → PathP (λ i → FinVec A (+-assoc n m k i)) (U ++Fin (V ++Fin W)) ((U ++Fin V) ++Fin W)
-++FinAssoc {n = zero} _ _ _ = refl
-++FinAssoc {n = suc n} U V W i zero = U zero
-++FinAssoc {n = suc n} U V W i (suc ind) = ++FinAssoc (U ∘ suc) V W i ind

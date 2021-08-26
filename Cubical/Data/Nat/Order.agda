@@ -196,6 +196,13 @@ min-≤-right {zero} {n} = zero-≤
 min-≤-right {suc m} {zero} = ≤-refl
 min-≤-right {suc m} {suc n} = suc-≤-suc min-≤-right
 
+≤Dec : ∀ m n → Dec (m ≤ n)
+≤Dec zero n = yes (n , +-zero _)
+≤Dec (suc m) zero = no ¬-<-zero
+≤Dec (suc m) (suc n) with ≤Dec m n
+... | yes m≤n = yes (suc-≤-suc m≤n)
+... | no m≰n = no λ m+1≤n+1 → m≰n (pred-≤-pred m+1≤n+1 )
+
 Trichotomy-suc : Trichotomy m n → Trichotomy (suc m) (suc n)
 Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)
 Trichotomy-suc (eq m=n) = eq (cong suc m=n)

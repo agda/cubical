@@ -102,3 +102,21 @@ syntax genIdeal R V = ⟨ V ⟩[ R ]
 FGIdealIn : (R : CommRing ℓ) → Type (ℓ-suc ℓ)
 FGIdealIn R = Σ[ I ∈ CommIdeal R ] ∃[ n ∈ ℕ ] ∃[ V ∈ FinVec (fst R) n ] I ≡ ⟨ V ⟩[ R ]
 
+-- The lattice laws
+module _ (R' : CommRing ℓ) where
+ private
+  R = fst R'
+ open CommRingStr (snd R')
+
+ foo : {n : ℕ} (V : FinVec R n) (I : CommIdeal R')
+     → (∀ i → V i ∈ I .fst) → ⟨ V ⟩[ R' ] .fst ⊆ I .fst
+ foo V I ∀i→Vi∈I x = elim (λ _ → I .fst x .snd) fooΣ
+  where
+  fooΣ : Σ[ α ∈ FinVec R _ ] x ≡ linearCombination R' α V → x ∈ I .fst
+  fooΣ (α , x≡α·V) = subst-∈ (I .fst) (sym x≡α·V) (∑Closed R' I (λ i → α i · V i)
+                     λ i → ·Closed (I .snd) _ (∀i→Vi∈I i))
+
+ -- ++FinComm : ∀ {n m : ℕ} (V : FinVec R n) (W : FinVec R m)
+ --           → ⟨ V ++Fin W ⟩[ R' ] ≡ ⟨ W ++Fin V ⟩[ R' ]
+ -- ++FinComm V W = Σ≡Prop (isPropIsCommIdeal _) (⊆-extensionality _ _ (foo _ (⟨ W ++Fin V ⟩[ R' ])
+ --                                                                    (λ i → {!!}) , {!!}))
