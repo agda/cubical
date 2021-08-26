@@ -193,7 +193,6 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
   +ₗ-rinv[] : (a : R × S) → ([ a ] +ₗ (-ₗ [ a ])) ≡ 0ₗ
   +ₗ-rinv[] (r , s , s∈S) = eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path r s)
    where
-   -- not yet possible with ring solver
    path : (r s : R) → 1r · (r · s + - r · s) · 1r ≡ 1r · 0r · (s · s)
    path = solve R'
 
