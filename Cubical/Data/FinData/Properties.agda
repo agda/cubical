@@ -56,10 +56,10 @@ toℕ<n : ∀ {n} (i : Fin n) → toℕ i < n
 toℕ<n {n = ℕsuc n} zero = n , +-comm n 1
 toℕ<n {n = ℕsuc n} (suc i) = toℕ<n i .fst , +-suc _ _ ∙ cong ℕsuc (toℕ<n i .snd)
 
-toFin : {m n : ℕ} → m < n → Fin n
-toFin {n = ℕzero} m<0 = Empty.rec (¬-<-zero m<0)
-toFin {n = ℕsuc n} (ℕzero , _) = fromℕ n
-toFin {n = ℕsuc n} (ℕsuc k , p) = weakenFin (toFin (k , cong predℕ p))
+toFin : {n : ℕ} (m : ℕ) → m < n → Fin n
+toFin {n = ℕzero} _ m<0 = Empty.rec (¬-<-zero m<0)
+toFin {n = ℕsuc n} _ (ℕzero , _) = fromℕ n -- m≡n
+toFin {n = ℕsuc n} m (ℕsuc k , p) = weakenFin (toFin m (k , cong predℕ p))
 
 ++FinAssoc : {n m k : ℕ} (U : FinVec A n) (V : FinVec A m) (W : FinVec A k)
            → PathP (λ i → FinVec A (+-assoc n m k i)) (U ++Fin (V ++Fin W)) ((U ++Fin V) ++Fin W)
@@ -70,5 +70,13 @@ toFin {n = ℕsuc n} (ℕsuc k , p) = weakenFin (toFin (k , cong predℕ p))
 -- sends i to n+i if toℕ i < m and to i∸n otherwise
 -- then +Shuffle²≡id and over the induced path (i.e. in PathP (ua +ShuffleEquiv))
 -- ++Fin is commutative...
--- +Shuffle : {m n : ℕ} → Fin (m + n) → Fin (n + m)
--- +Shuffle {m = m} {n = n} i = {!!}
++Shuffle : (m n : ℕ) → Fin (m + n) → Fin (n + m)
++Shuffle m n i with <Dec (toℕ i) m
+... | yes i<m = toFin (n + (toℕ i)) (<-k+ i<m)
+... | no ¬i<m = toFin (toℕ i ∸ m)
+                  (subst (λ x → toℕ i ∸ m < x) (+-comm m n) (≤<-trans (∸-≤ (toℕ i) m) (toℕ<n i)))
+
+-- or maybe more useful
+++FinShuffleComm : ∀ {m n : ℕ} (U : FinVec A m) (V : FinVec A n) (i : Fin (m + n))
+                 → (U ++Fin V) i ≡ (V ++Fin U) (+Shuffle m n i)
+++FinShuffleComm U V i = {!!}

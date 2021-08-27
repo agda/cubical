@@ -166,6 +166,11 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
            (d + suc m) · suc k               ≡⟨ cong (_· suc k) r ⟩
            n · suc k                         ∎
 
+∸-≤ : ∀ m n → m ∸ n ≤ m
+∸-≤ m zero = ≤-refl
+∸-≤ zero (suc n) = ≤-refl
+∸-≤ (suc m) (suc n) = ≤-trans (∸-≤ m n) (1 , refl)
+
 ≤-∸-+-cancel : m ≤ n → (n ∸ m) + m ≡ n
 ≤-∸-+-cancel {zero} {n} _ = +-zero _
 ≤-∸-+-cancel {suc m} {zero} m≤n = ⊥.rec (¬-<-zero m≤n)
@@ -202,6 +207,9 @@ min-≤-right {suc m} {suc n} = suc-≤-suc min-≤-right
 ≤Dec (suc m) (suc n) with ≤Dec m n
 ... | yes m≤n = yes (suc-≤-suc m≤n)
 ... | no m≰n = no λ m+1≤n+1 → m≰n (pred-≤-pred m+1≤n+1 )
+
+<Dec : ∀ m n → Dec (m < n)
+<Dec m n = ≤Dec (suc m) n
 
 Trichotomy-suc : Trichotomy m n → Trichotomy (suc m) (suc n)
 Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)

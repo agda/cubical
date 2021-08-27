@@ -8,13 +8,17 @@
 module Cubical.Algebra.CommRing.FGIdeal where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData hiding (elim)
-open import Cubical.Data.Nat using (ℕ)
-
+open import Cubical.Data.Nat renaming ( zero to ℕzero ; suc to ℕsuc
+                                      ; _+_ to _+ℕ_ ; _·_ to _·ℕ_
+                                      ; +-assoc to +ℕ-assoc ; +-comm to +ℕ-comm
+                                      ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
+                             hiding (elim)
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.CommRing
@@ -107,6 +111,8 @@ module _ (R' : CommRing ℓ) where
  private
   R = fst R'
  open CommRingStr (snd R')
+ open Sum (CommRing→Ring R')
+ open KroneckerDelta (CommRing→Ring R')
 
  foo : {n : ℕ} (V : FinVec R n) (I : CommIdeal R')
      → (∀ i → V i ∈ I .fst) → ⟨ V ⟩[ R' ] .fst ⊆ I .fst
@@ -120,3 +126,24 @@ module _ (R' : CommRing ℓ) where
  --           → ⟨ V ++Fin W ⟩[ R' ] ≡ ⟨ W ++Fin V ⟩[ R' ]
  -- ++FinComm V W = Σ≡Prop (isPropIsCommIdeal _) (⊆-extensionality _ _ (foo _ (⟨ W ++Fin V ⟩[ R' ])
  --                                                                    (λ i → {!!}) , {!!}))
+
+ -- ough, is this gonna work?
+ -- IdealAddAssoc : {n m k : ℕ} (U : FinVec R n) (V : FinVec R m) (W : FinVec R k)
+ --               → ⟨ U ++Fin (V ++Fin W) ⟩[ R' ] ≡  ⟨ (U ++Fin V) ++Fin W ⟩[ R' ]
+ -- IdealAddAssoc U V W = {!!}  ∙ cong (λ α → ⟨ α ⟩[ R' ]) (fromPathP (++FinAssoc U V W))
+
+ IdealAddAssoc :  {n m k : ℕ} (U : FinVec R n) (V : FinVec R m) (W : FinVec R k)
+               → ⟨ U ++Fin (V ++Fin W) ⟩[ R' ] ≡  ⟨ (U ++Fin V) ++Fin W ⟩[ R' ]
+ IdealAddAssoc {n = n} {m = m} {k = k} U V W = Σ≡Prop (isPropIsCommIdeal _) (⊆-extensionality _ _
+                     ((foo _ (⟨ (U ++Fin V) ++Fin W ⟩[ R' ])
+   λ i → let i' = transport (λ j → Fin (+ℕ-assoc n m k j)) i
+             i'' = transport (λ j → Fin (+ℕ-assoc n m k (~ j))) i'
+             i''≡i = transport⁻Transport {B = Fin ((n +ℕ m) +ℕ k)} (λ j → Fin (+ℕ-assoc n m k j)) i in
+             -- [U++[V++W]]' =  transport (λ j → FinVec R (+ℕ-assoc n m k j)) (U ++Fin (V ++Fin W)) in
+         ∣ δ i'
+                              , ({!!}
+          -- ((λ j →  transportRefl (U ++Fin (V ++Fin W)) (~ j) (transport⁻Transport {B = Fin ((n +ℕ m) +ℕ k)} _ i (~ j)) )
+                              ∙ funExt⁻ (fromPathP (++FinAssoc U V W)) i')
+                              ∙ sym (∑Mul1r _ ((U ++Fin V) ++Fin W) i') ∣)
+                     , foo _ (⟨ U ++Fin (V ++Fin W) ⟩[ R' ])
+                       λ i → {!!}))
