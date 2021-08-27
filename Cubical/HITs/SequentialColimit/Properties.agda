@@ -79,11 +79,23 @@ IndData : (s : TypeSeq ℓ S) → Type _
 IndData {ℓ = ℓ} {S = S} s = Σ[ B ∈ ((i : Index S) → (x : fst s i) → Type ℓ) ]
                             ((i : Index S) → (x : fst s i) → B i x → B (succ S i) (snd s i x))
 
-{-
-  Summing a dependent type over a sequence,
-  gives a sequence of types.
--}
-ΣSeqFromIndData : (s : TypeSeq ℓ S) (ind : IndData s) → TypeSeq ℓ S
-ΣSeqFromIndData s ind =
-  (λ i → Σ[ x ∈ fst s i ] fst ind i x) ,
-  (λ i → λ { (x , b) → (snd s i x) , (snd ind i x b) })
+{- Towards main theorem 5.1 -}
+module _ {S : SuccStr ℓ′} (s : TypeSeq ℓ S) (ind : IndData s) where
+  {-
+    Summing a dependent type over a sequence,
+    gives a sequence of types.
+  -}
+  ΣSeqFromIndData : TypeSeq ℓ S
+  ΣSeqFromIndData =
+    (λ i → Σ[ x ∈ fst s i ] fst ind i x) ,
+    (λ i → λ { (x , b) → (snd s i x) , (snd ind i x b) })
+
+  {-
+    An induction datum yields an ℕ-indexed type sequence for any index
+    and point in the base
+  -}
+  SeqBehindPoint : (i : Index S) (x : fst s i) → TypeSeq ℓ ℕ+
+  SeqBehindPoint i x = newSeq
+                              , {! snd ind  (ShiftedSeq s )  !}
+                      where newSeq : ℕ → _
+                            newSeq n = {! fst ind (TimesSucc n) !}
