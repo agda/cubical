@@ -61,3 +61,23 @@ makeCommMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
              → CommMonoid ℓ
 makeCommMonoid ε _·_ is-setM assoc rid comm =
   _ , commmonoidstr ε _·_ (makeIsCommMonoid is-setM assoc rid comm)
+
+CommMonoid→Monoid : CommMonoid ℓ → Monoid ℓ
+CommMonoid→Monoid (A , commmonoidstr  _ _ M) = A , monoidstr _ _ (IsCommMonoid.isMonoid M)
+
+record IsCommMonoidHom {A : Type ℓ} {B : Type ℓ'}
+                          (M : CommMonoidStr A) (f : A → B) (N : CommMonoidStr B)
+  : Type (ℓ-max ℓ ℓ')
+  where
+
+  private
+    module M = CommMonoidStr M
+    module N = CommMonoidStr N
+
+  field
+    pres-ε : f M.ε ≡ N.ε
+    pres· : (x y : A) → f (x M.· y) ≡ f x N.· f y
+
+
+CommMonoidHom : (M : CommMonoid ℓ) (N : CommMonoid ℓ') → Type (ℓ-max ℓ ℓ')
+CommMonoidHom M N = Σ[ f ∈ (⟨ M ⟩ → ⟨ N ⟩) ] IsCommMonoidHom (M .snd) f (N .snd)
