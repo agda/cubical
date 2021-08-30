@@ -4,10 +4,11 @@ module Cubical.Data.FinData.Properties where
 
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Transport
 
 open import Cubical.Data.FinData.Base as Fin
-open import Cubical.Data.Nat renaming (zero to ℕzero ; suc to ℕsuc)
-                             hiding (znots ; snotz)
+open import Cubical.Data.Nat renaming (zero to ℕzero ; suc to ℕsuc
+                                      ;znots to ℕznots ; snotz to  ℕsnotz)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty as Empty
 open import Cubical.Relation.Nullary
@@ -58,8 +59,14 @@ toℕ<n {n = ℕsuc n} (suc i) = toℕ<n i .fst , +-suc _ _ ∙ cong ℕsuc (to�
 
 toFin : {n : ℕ} (m : ℕ) → m < n → Fin n
 toFin {n = ℕzero} _ m<0 = Empty.rec (¬-<-zero m<0)
-toFin {n = ℕsuc n} _ (ℕzero , _) = fromℕ n -- m≡n
+toFin {n = ℕsuc n} _ (ℕzero , _) = fromℕ n --in this case we have m≡n
 toFin {n = ℕsuc n} m (ℕsuc k , p) = weakenFin (toFin m (k , cong predℕ p))
+
+toFin0≡0 : {n : ℕ} (p : 0 < ℕsuc n) → toFin 0 p ≡ zero
+toFin0≡0 (ℕzero , p) = subst (λ x → fromℕ x ≡ zero) (cong predℕ p) refl
+toFin0≡0 {ℕzero} (ℕsuc k , p) = Empty.rec (ℕsnotz (+-comm 1 k ∙ (cong predℕ p)))
+toFin0≡0 {ℕsuc n} (ℕsuc k , p) =
+         subst (λ x → weakenFin x ≡ zero) (sym (toFin0≡0 (k , cong predℕ p))) refl
 
 ++FinAssoc : {n m k : ℕ} (U : FinVec A n) (V : FinVec A m) (W : FinVec A k)
            → PathP (λ i → FinVec A (+-assoc n m k i)) (U ++Fin (V ++Fin W)) ((U ++Fin V) ++Fin W)
@@ -69,7 +76,7 @@ toFin {n = ℕsuc n} m (ℕsuc k , p) = weakenFin (toFin m (k , cong predℕ p))
 
 -- sends i to n+i if toℕ i < m and to i∸n otherwise
 -- then +Shuffle²≡id and over the induced path (i.e. in PathP (ua +ShuffleEquiv))
--- ++Fin is commutative...
+-- ++Fin is commutative, but how to go from there?
 +Shuffle : (m n : ℕ) → Fin (m + n) → Fin (n + m)
 +Shuffle m n i with <Dec (toℕ i) m
 ... | yes i<m = toFin (n + (toℕ i)) (<-k+ i<m)
@@ -77,6 +84,19 @@ toFin {n = ℕsuc n} m (ℕsuc k , p) = weakenFin (toFin m (k , cong predℕ p))
                   (subst (λ x → toℕ i ∸ m < x) (+-comm m n) (≤<-trans (∸-≤ (toℕ i) m) (toℕ<n i)))
 
 -- or maybe more useful
-++FinShuffleComm : ∀ {m n : ℕ} (U : FinVec A m) (V : FinVec A n) (i : Fin (m + n))
+++FinShuffleComm : ∀ (m n : ℕ) (U : FinVec A m) (V : FinVec A n) (i : Fin (m + n))
                  → (U ++Fin V) i ≡ (V ++Fin U) (+Shuffle m n i)
-++FinShuffleComm U V i = {!!}
+-- ++FinShuffleComm ℕzero n U V i = {!!} --  with (<Dec (toℕ i) ℕzero)
+-- -- ... | x = ?
+-- -- ... | no ¬i<0 = ?
+-- ++FinShuffleComm (ℕsuc m) n U V zero = {!!}
+-- ++FinShuffleComm (ℕsuc m) n U V (suc i) = {!!}
+++FinShuffleComm m n U V i with <Dec (toℕ i) m
+++FinShuffleComm ℕzero n U V i | yes i<0 = Empty.rec (¬-<-zero i<0)
+++FinShuffleComm (ℕsuc m) ℕzero U V zero | yes 0<m = cong U (sym (toFin0≡0 (<-k+ 0<m)))
+++FinShuffleComm (ℕsuc m) (ℕsuc n) U V zero | yes 0<m = {!!}
+++FinShuffleComm (ℕsuc m) n U V (suc i) | yes i+1<m+1 = ++FinShuffleComm m n (U ∘ suc) V i ∙ {!!}
+-- ++FinShuffleComm (ℕsuc m) ℕzero U V (suc i) | yes _ = {!!}
+-- ++FinShuffleComm (ℕsuc m) (ℕsuc n) U V (suc i) | yes i+1<m+1 =
+--   ++FinShuffleComm m (ℕsuc n) (U ∘ suc) V i ∙ {!!}
+... | no y = {!!}

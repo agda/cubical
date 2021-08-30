@@ -122,28 +122,15 @@ module _ (R' : CommRing ℓ) where
   fooΣ (α , x≡α·V) = subst-∈ (I .fst) (sym x≡α·V) (∑Closed R' I (λ i → α i · V i)
                      λ i → ·Closed (I .snd) _ (∀i→Vi∈I i))
 
- -- ++FinComm : ∀ {n m : ℕ} (V : FinVec R n) (W : FinVec R m)
- --           → ⟨ V ++Fin W ⟩[ R' ] ≡ ⟨ W ++Fin V ⟩[ R' ]
- -- ++FinComm V W = Σ≡Prop (isPropIsCommIdeal _) (⊆-extensionality _ _ (foo _ (⟨ W ++Fin V ⟩[ R' ])
- --                                                                    (λ i → {!!}) , {!!}))
-
- -- ough, is this gonna work?
- -- IdealAddAssoc : {n m k : ℕ} (U : FinVec R n) (V : FinVec R m) (W : FinVec R k)
- --               → ⟨ U ++Fin (V ++Fin W) ⟩[ R' ] ≡  ⟨ (U ++Fin V) ++Fin W ⟩[ R' ]
- -- IdealAddAssoc U V W = {!!}  ∙ cong (λ α → ⟨ α ⟩[ R' ]) (fromPathP (++FinAssoc U V W))
-
  IdealAddAssoc :  {n m k : ℕ} (U : FinVec R n) (V : FinVec R m) (W : FinVec R k)
                → ⟨ U ++Fin (V ++Fin W) ⟩[ R' ] ≡  ⟨ (U ++Fin V) ++Fin W ⟩[ R' ]
- IdealAddAssoc {n = n} {m = m} {k = k} U V W = Σ≡Prop (isPropIsCommIdeal _) (⊆-extensionality _ _
-                     ((foo _ (⟨ (U ++Fin V) ++Fin W ⟩[ R' ])
-   λ i → let i' = transport (λ j → Fin (+ℕ-assoc n m k j)) i
-             i'' = transport (λ j → Fin (+ℕ-assoc n m k (~ j))) i'
-             i''≡i = transport⁻Transport {B = Fin ((n +ℕ m) +ℕ k)} (λ j → Fin (+ℕ-assoc n m k j)) i in
-             -- [U++[V++W]]' =  transport (λ j → FinVec R (+ℕ-assoc n m k j)) (U ++Fin (V ++Fin W)) in
-         ∣ δ i'
-                              , ({!!}
-          -- ((λ j →  transportRefl (U ++Fin (V ++Fin W)) (~ j) (transport⁻Transport {B = Fin ((n +ℕ m) +ℕ k)} _ i (~ j)) )
-                              ∙ funExt⁻ (fromPathP (++FinAssoc U V W)) i')
-                              ∙ sym (∑Mul1r _ ((U ++Fin V) ++Fin W) i') ∣)
-                     , foo _ (⟨ U ++Fin (V ++Fin W) ⟩[ R' ])
-                       λ i → {!!}))
+ IdealAddAssoc {n = n} {m = m} {k = k} U V W =
+   let genIdealExpl : (n : ℕ) → FinVec R n → CommIdeal R'
+       genIdealExpl _ V = ⟨ V ⟩[ R' ]
+   in  cong₂ genIdealExpl (+ℕ-assoc n m k) (++FinAssoc U V W)
+
+ ++FinComm : ∀ {n m : ℕ} (V : FinVec R n) (W : FinVec R m)
+           → ⟨ V ++Fin W ⟩[ R' ] ≡ ⟨ W ++Fin V ⟩[ R' ]
+ ++FinComm V W = Σ≡Prop (isPropIsCommIdeal _) (⊆-extensionality _ _
+                                              (foo _ (⟨ W ++Fin V ⟩[ R' ]) (λ i → {!!})
+                                             , foo _ (⟨ V ++Fin W ⟩[ R' ]) (λ i → {!!})))
