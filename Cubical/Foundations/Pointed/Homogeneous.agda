@@ -46,6 +46,49 @@ isHomogeneous {ℓ} (A , x) = ∀ y → Path (Pointed ℓ) (A , x) (A , y)
         })
       (sym (h (pt B∙)) ∙ h ((sym f₀ ∙∙ funExt⁻ p a₀ ∙∙ g₀) i))
 
+→∙Homogeneous≡Path : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'} {f∙ g∙ : A∙ →∙ B∙}
+  (h : isHomogeneous B∙) → (p q : f∙ ≡ g∙) → cong fst p ≡ cong fst q → p ≡ q
+→∙Homogeneous≡Path {A∙ = A∙@(A , a₀)} {B∙@(B , b)} {f∙@(f , f₀)} {g∙@(g , g₀)} h p q r =
+  transport (λ k
+      → PathP (λ i
+        → PathP (λ j → (A , a₀) →∙ newPath-refl p q r i j (~ k))
+                 (f , f₀) (g , g₀)) p q)
+      (badPath p q r)
+  where
+  newPath : (p q : f∙ ≡ g∙) (r : cong fst p ≡ cong fst q)
+    → Square (refl {x = b}) refl refl refl
+  newPath p q r i j =
+    hcomp (λ k → λ {(i = i0) → cong snd p j k
+                   ; (i = i1) → cong snd q j k
+                   ; (j = i0) → f₀ k
+                   ; (j = i1) → g₀ k})
+          (r i j a₀)
+
+  newPath-refl : (p q : f∙ ≡ g∙) (r : cong fst p ≡ cong fst q)
+         → PathP (λ i → (PathP (λ j → B∙ ≡ (B , newPath p q r i j))) refl refl) refl refl
+  newPath-refl p q r i j k =
+    hcomp (λ w → λ { (i = i0) → lCancel (h b) w k
+                    ; (i = i1) → lCancel (h b) w k
+                    ; (j = i0) → lCancel (h b) w k
+                    ; (j = i1) → lCancel (h b) w k
+                    ; (k = i0) → lCancel (h b) w k
+                    ; (k = i1) → B , newPath p q r i j})
+          ((sym (h b) ∙ h (newPath p q r i j)) k)
+
+  badPath : (p q : f∙ ≡ g∙) (r : cong fst p ≡ cong fst q)
+    → PathP (λ i →
+        PathP (λ j → A∙ →∙ (B , newPath p q r i j))
+             (f , f₀) (g , g₀))
+              p q
+  fst (badPath p q r i j) = r i j
+  snd (badPath p q s i j) k =
+    hcomp (λ r → λ { (i = i0) → snd (p j) (r ∧ k)
+                    ; (i = i1) → snd (q j) (r ∧ k)
+                    ; (j = i0) → f₀ (k ∧ r)
+                    ; (j = i1) → g₀ (k ∧ r)
+                    ; (k = i0) → s i j a₀})
+          (s i j a₀)
+
 isHomogeneousPi : ∀ {ℓ ℓ'} {A : Type ℓ} {B∙ : A → Pointed ℓ'}
                  → (∀ a → isHomogeneous (B∙ a)) → isHomogeneous (Πᵘ∙ A B∙)
 isHomogeneousPi h f i .fst = ∀ a → typ (h a (f a) i)

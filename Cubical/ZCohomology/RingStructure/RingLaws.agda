@@ -637,6 +637,10 @@ private
   n+'0 zero = refl
   n+'0 (suc n) = refl
 
+lUnit⌣ₖ : (n : ℕ) (x : coHomK n) → _⌣ₖ_ {n = 0} (pos 1) x ≡ x
+lUnit⌣ₖ zero = λ _ → refl
+lUnit⌣ₖ (suc n) x = rUnitₖ _ x
+
 lUnit⌣ : ∀ {ℓ} {A : Type ℓ} (n : ℕ) (x : coHom n A)
   → x ⌣ 1⌣ ≡ subst (λ n → coHom n A) (sym (n+'0 n)) x
 lUnit⌣ zero = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
