@@ -43,10 +43,10 @@ TimesSucc : (n : ℕ) (S : SuccStr ℓ) (i : Index S) → Index S
 TimesSucc zero S i = i
 TimesSucc (suc n) S i = succ S (TimesSucc n S i)
 
-TimesSeqOp : (n : ℕ) (s : TypeSeq ℓ S)
-              → (i : Index S) → (x : fst s i) → fst s (TimesSucc n S i)
-TimesSeqOp zero s i x = x
-TimesSeqOp (suc n) s i x = {!   !}
+TimesSeqOp : (n : ℕ) (s : TypeSeq ℓ S) {i : Index S}
+              → (x : fst s i) → fst s (TimesSucc n S i)
+TimesSeqOp zero s x = x
+TimesSeqOp (suc n) s x = snd s _ (TimesSeqOp n s x)
 
 ℤ+ : SuccStr ℓ-zero
 ℤ+ .Index = ℤ

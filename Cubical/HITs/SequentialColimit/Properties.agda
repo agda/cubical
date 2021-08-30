@@ -92,10 +92,12 @@ module _ {S : SuccStr ℓ′} (s : TypeSeq ℓ S) (ind : IndData s) where
 
   {-
     An induction datum yields an ℕ-indexed type sequence for any index
-    and point in the base
+    and point in the base. This is described and used on page 2 of the
+    paper.
   -}
-  SeqBehindPoint : (i : Index S) (x : fst s i) → TypeSeq ℓ ℕ+
-  SeqBehindPoint i x = newSeq
-                              , {! snd ind  (ShiftedSeq s )  !}
-                      where newSeq : ℕ → _
-                            newSeq n = {! fst ind (TimesSucc n) !}
+  SeqAt : {i : Index S} (x : fst s i) → TypeSeq ℓ ℕ+
+  SeqAt x = seq , op
+          where seq : ℕ → _
+                seq n = fst ind (TimesSucc n S _) (TimesSeqOp n s x)
+                op : (n : ℕ) → seq n → seq (suc n)
+                op n = snd ind (TimesSucc n S _) (TimesSeqOp n s x)
