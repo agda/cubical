@@ -46,6 +46,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isSym : Type (ℓ-max ℓ ℓ')
   isSym = (a b : A) → R a b → R b a
 
+  isAntisym : Type (ℓ-max ℓ ℓ')
+  isAntisym = (a b : A) → R a b → R b a → a ≡ b
+
   isTrans : Type (ℓ-max ℓ ℓ')
   isTrans = (a b c : A)  → R a b → R b c → R a c
 
