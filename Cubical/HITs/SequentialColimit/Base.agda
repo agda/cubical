@@ -22,16 +22,16 @@ private
 open SuccStr
 
 data GenericSeqColimit (S : SuccStr ℓ) (s : TypeSeq ℓ′ S) : Type (ℓ-max ℓ ℓ′) where
-    ι : (l : Index S) → fst s l → GenericSeqColimit S s
-    glue : (l : Index S) (x : fst s l) → ι l x ≡ ι (succ S l) (snd s l x)
+    ι : (l : index S) → fst s l → GenericSeqColimit S s
+    glue : (l : index S) (x : fst s l) → ι l x ≡ ι (succ S l) (snd s l x)
 
 SeqColimit : (s : TypeSeq ℓ′ ℕ+) → Type _
 SeqColimit = GenericSeqColimit ℕ+
 
 NatTransform : (s : TypeSeq ℓ S) (s′ : TypeSeq ℓ′ S)
               → Type _
-NatTransform {S = S} s s′ = Σ[ η ∈ ((n : Index S) → fst s n → fst s′ n) ]
-                    ((n : Index S) → snd s′ n ∘ η n ≡ η (succ S n) ∘ snd s n)
+NatTransform {S = S} s s′ = Σ[ η ∈ ((n : index S) → fst s n → fst s′ n) ]
+                    ((n : index S) → snd s′ n ∘ η n ≡ η (succ S n) ∘ snd s n)
 
 InducedMap : {s : TypeSeq ℓ S} {s′ : TypeSeq ℓ′ S}
              (η : NatTransform s s′)

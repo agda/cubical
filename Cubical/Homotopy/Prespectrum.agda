@@ -26,8 +26,8 @@ private
 record GenericPrespectrum (S : SuccStr ℓ) (ℓ′ : Level) : Type (ℓ-max (ℓ-suc ℓ′) ℓ) where
   open SuccStr S
   field
-    space : Index → Pointed ℓ′
-    map : (i : Index) → (space i →∙ Ω (space (succ i)))
+    space : index → Pointed ℓ′
+    map : (i : index) → (space i →∙ Ω (space (succ i)))
 
 Prespectrum = GenericPrespectrum ℤ+
 
