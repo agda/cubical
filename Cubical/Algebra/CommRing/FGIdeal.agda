@@ -8,12 +8,13 @@
 module Cubical.Algebra.CommRing.FGIdeal where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
-open import Cubical.Data.FinData hiding (elim)
+open import Cubical.Data.FinData hiding (elim ; rec)
 open import Cubical.Data.Nat renaming ( zero to ℕzero ; suc to ℕsuc
                                       ; _+_ to _+ℕ_ ; _·_ to _·ℕ_
                                       ; +-assoc to +ℕ-assoc ; +-comm to +ℕ-comm
@@ -93,8 +94,9 @@ module _ (Ring@(R , str) : CommRing ℓ) where
                                λ r → isLinearCombinationL· V r
 
 
-open isCommIdeal
-genIdeal : {n : ℕ} (R : CommRing ℓ) → FinVec (fst R) n → CommIdeal R
+--open CommIdeal
+open CommIdeal.isCommIdeal
+genIdeal : {n : ℕ} (R : CommRing ℓ) → FinVec (fst R) n → CommIdeal.CommIdeal R
 fst (genIdeal R V) x = isLinearCombination R V x , isPropPropTrunc
 +Closed (snd (genIdeal R V)) = isLinearCombination+ R V
 contains0 (snd (genIdeal R V)) = isLinearCombination0 R V
@@ -104,33 +106,61 @@ syntax genIdeal R V = ⟨ V ⟩[ R ]
 
 
 FGIdealIn : (R : CommRing ℓ) → Type (ℓ-suc ℓ)
-FGIdealIn R = Σ[ I ∈ CommIdeal R ] ∃[ n ∈ ℕ ] ∃[ V ∈ FinVec (fst R) n ] I ≡ ⟨ V ⟩[ R ]
+FGIdealIn R = Σ[ I ∈ CommIdeal.CommIdeal R ] ∃[ n ∈ ℕ ] ∃[ V ∈ FinVec (fst R) n ] I ≡ ⟨ V ⟩[ R ]
 
 -- The lattice laws
 module _ (R' : CommRing ℓ) where
- private
-  R = fst R'
  open CommRingStr (snd R')
+ open CommIdeal R'
  open Sum (CommRing→Ring R')
  open KroneckerDelta (CommRing→Ring R')
+ private
+  R = fst R'
+  ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
+  ⟨ V ⟩ = ⟨ V ⟩[ R' ]
 
- foo : {n : ℕ} (V : FinVec R n) (I : CommIdeal R')
-     → (∀ i → V i ∈ I .fst) → ⟨ V ⟩[ R' ] .fst ⊆ I .fst
+ foo : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
+     → (∀ i → V i ∈ I .fst) → ⟨ V ⟩ .fst ⊆ I .fst
  foo V I ∀i→Vi∈I x = elim (λ _ → I .fst x .snd) fooΣ
   where
   fooΣ : Σ[ α ∈ FinVec R _ ] x ≡ linearCombination R' α V → x ∈ I .fst
-  fooΣ (α , x≡α·V) = subst-∈ (I .fst) (sym x≡α·V) (∑Closed R' I (λ i → α i · V i)
+  fooΣ (α , x≡α·V) = subst-∈ (I .fst) (sym x≡α·V) (∑Closed I (λ i → α i · V i)
                      λ i → ·Closed (I .snd) _ (∀i→Vi∈I i))
 
+ emptyFGIdeal : ∀ (V : FinVec R 0) → ⟨ V ⟩ ≡ 0Ideal
+ emptyFGIdeal V = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (incl1 , incl2))
+  where
+  incl1 : ⟨ V ⟩ .fst ⊆ 0Ideal .fst
+  incl1 x = rec (is-set _ _) λ (_ , p) → p
+
+  incl2 : 0Ideal .fst ⊆ ⟨ V ⟩ .fst
+  incl2 x x≡0 = ∣ (λ ()) , x≡0 ∣
+
+ FGIdealAddLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
+                 → ⟨ U ++Fin V ⟩ ≡ ⟨ U ⟩ +i ⟨ V ⟩
+ FGIdealAddLemma {n = ℕzero} U V = sym (cong (_+i ⟨ V ⟩) (emptyFGIdeal U) ∙ +iLid ⟨ V ⟩)
+ FGIdealAddLemma {n = ℕsuc n} U V = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (incl1 , {!!}))
+  where
+  incl1 : ⟨ U ++Fin V ⟩ .fst ⊆ (⟨ U ⟩ +i ⟨ V ⟩) .fst
+  incl1 x = rec isPropPropTrunc incl1Σ
+   where
+   incl1Σ : Σ[ α ∈ FinVec R _ ] (x ≡ ∑ λ i → α i · (U ++Fin V) i) → x ∈ (⟨ U ⟩ +i ⟨ V ⟩) .fst
+   incl1Σ (α , p) = subst-∈ ((⟨ U ⟩ +i ⟨ V ⟩) .fst) (sym p) ((⟨ U ⟩ +i ⟨ V ⟩) .snd .+Closed baz bar)
+    where
+    baz : α zero · U zero ∈ (⟨ U ⟩ +i ⟨ V ⟩) .fst
+    baz = {!!}
+    bar : (∑ λ i → (α ∘ suc) i · ((U ∘ suc) ++Fin V) i) ∈ (⟨ U ⟩ +i ⟨ V ⟩) .fst
+    bar = {!!}
+
  IdealAddAssoc :  {n m k : ℕ} (U : FinVec R n) (V : FinVec R m) (W : FinVec R k)
-               → ⟨ U ++Fin (V ++Fin W) ⟩[ R' ] ≡  ⟨ (U ++Fin V) ++Fin W ⟩[ R' ]
+               → ⟨ U ++Fin (V ++Fin W) ⟩ ≡  ⟨ (U ++Fin V) ++Fin W ⟩
  IdealAddAssoc {n = n} {m = m} {k = k} U V W =
-   let genIdealExpl : (n : ℕ) → FinVec R n → CommIdeal R'
-       genIdealExpl _ V = ⟨ V ⟩[ R' ]
+   let genIdealExpl : (n : ℕ) → FinVec R n → CommIdeal
+       genIdealExpl _ V = ⟨ V ⟩
    in  cong₂ genIdealExpl (+ℕ-assoc n m k) (++FinAssoc U V W)
 
- ++FinComm : ∀ {n m : ℕ} (V : FinVec R n) (W : FinVec R m)
-           → ⟨ V ++Fin W ⟩[ R' ] ≡ ⟨ W ++Fin V ⟩[ R' ]
- ++FinComm V W = Σ≡Prop (isPropIsCommIdeal _) (⊆-extensionality _ _
-                                              (foo _ (⟨ W ++Fin V ⟩[ R' ]) (λ i → {!!})
-                                             , foo _ (⟨ V ++Fin W ⟩[ R' ]) (λ i → {!!})))
+ -- ++FinComm : ∀ {n m : ℕ} (V : FinVec R n) (W : FinVec R m)
+ --           → ⟨ V ++Fin W ⟩ ≡ ⟨ W ++Fin V ⟩
+ -- ++FinComm V W = Σ≡Prop (isPropIsCommIdeal _) (⊆-extensionality _ _
+ --                                              (foo _ (⟨ W ++Fin V ⟩) (λ i → {!!})
+ --                                             , foo _ (⟨ V ++Fin W ⟩) (λ i → {!!})))
