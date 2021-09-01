@@ -358,3 +358,10 @@ module _ {A : Type ℓ} {B : A → Type ℓ'} {C : ∀ a → B a → Type ℓ''}
   Iso.leftInv curryIso f = refl
 
   unquoteDecl curryEquiv = declStrictIsoToEquiv curryEquiv curryIso
+
+ΣΣ : Iso (Σ[ x ∈ A ] (Σ[ y ∈ B x ] (C x y)))
+         (Σ[ x ∈ Σ A B ] C (fst x) (snd x))
+fun ΣΣ (x , y , p) = (x , y) , p
+inv ΣΣ ((x , y) , p) = x , y , p
+rightInv ΣΣ _ = refl
+leftInv ΣΣ _ = refl

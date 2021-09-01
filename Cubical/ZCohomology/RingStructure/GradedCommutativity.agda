@@ -39,7 +39,7 @@ private
   variable
     ℓ : Level
 
-natTranspLem : ∀ {A B : ℕ → Type} {n m : ℕ} (a : A n)
+natTranspLem : ∀ {ℓ} {A B : ℕ → Type ℓ} {n m : ℕ} (a : A n)
   (f : (n : ℕ) → (a : A n) → B n) (p : n ≡ m)
   → f m (subst A p a) ≡ subst B p (f n a)
 natTranspLem {A = A} {B = B} a f p = sym (substCommSlice A B f p a)
