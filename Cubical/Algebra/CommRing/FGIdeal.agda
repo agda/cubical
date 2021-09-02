@@ -127,6 +127,15 @@ module _ (R' : CommRing ℓ) where
   fooΣ (α , x≡α·V) = subst-∈ (I .fst) (sym x≡α·V) (∑Closed I (λ i → α i · V i)
                      λ i → ·Closed (I .snd) _ (∀i→Vi∈I i))
 
+ indInIdeal : ∀ {n : ℕ} (U : FinVec R n) (i : Fin n) → U i ∈ ⟨ U ⟩ .fst
+ indInIdeal U i = ∣ (δ i) , sym (∑Mul1r _ U i) ∣
+
+ sucIncl : ∀ {n : ℕ} (U : FinVec R (ℕsuc n)) → ⟨ U ∘ suc ⟩ .fst ⊆ ⟨ U ⟩ .fst
+ sucIncl U x = map λ (α , x≡∑αUsuc) → (λ { zero → 0r ; (suc i) → α i }) , x≡∑αUsuc ∙ path _ _
+  where
+  path : ∀ s u₀ → s ≡ 0r · u₀ + s
+  path = solve R'
+
  emptyFGIdeal : ∀ (V : FinVec R 0) → ⟨ V ⟩ ≡ 0Ideal
  emptyFGIdeal V = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (incl1 , incl2))
   where
@@ -139,7 +148,7 @@ module _ (R' : CommRing ℓ) where
  FGIdealAddLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                  → ⟨ U ++Fin V ⟩ ≡ ⟨ U ⟩ +i ⟨ V ⟩
  FGIdealAddLemma {n = ℕzero} U V = sym (cong (_+i ⟨ V ⟩) (emptyFGIdeal U) ∙ +iLid ⟨ V ⟩)
- FGIdealAddLemma {n = ℕsuc n} U V = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (incl1 , {!!}))
+ FGIdealAddLemma {n = ℕsuc n} U V = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (incl1 , incl2))
   where
   incl1 : ⟨ U ++Fin V ⟩ .fst ⊆ (⟨ U ⟩ +i ⟨ V ⟩) .fst
   incl1 x = rec isPropPropTrunc incl1Σ
@@ -148,9 +157,15 @@ module _ (R' : CommRing ℓ) where
    incl1Σ (α , p) = subst-∈ ((⟨ U ⟩ +i ⟨ V ⟩) .fst) (sym p) ((⟨ U ⟩ +i ⟨ V ⟩) .snd .+Closed baz bar)
     where
     baz : α zero · U zero ∈ (⟨ U ⟩ +i ⟨ V ⟩) .fst
-    baz = {!!}
+    baz = +iLincl ⟨ U ⟩ ⟨ V ⟩ (α zero · U zero) (⟨ U ⟩ .snd .·Closed (α zero) (indInIdeal U zero))
+
     bar : (∑ λ i → (α ∘ suc) i · ((U ∘ suc) ++Fin V) i) ∈ (⟨ U ⟩ +i ⟨ V ⟩) .fst
-    bar = {!!}
+    bar = let sum = ∑ λ i → (α ∘ suc) i · ((U ∘ suc) ++Fin V) i in
+       +iRespLincl ⟨ U ∘ suc ⟩ ⟨ U ⟩ ⟨ V ⟩ (sucIncl U) sum
+          (subst (λ I → sum ∈ I .fst) (FGIdealAddLemma (U ∘ suc) V) ∣ (α ∘ suc) , refl ∣)
+
+  incl2 : (⟨ U ⟩ +i ⟨ V ⟩) .fst ⊆  ⟨ U ++Fin V ⟩ .fst
+  incl2 = {!!}
 
  IdealAddAssoc :  {n m k : ℕ} (U : FinVec R n) (V : FinVec R m) (W : FinVec R k)
                → ⟨ U ++Fin (V ++Fin W) ⟩ ≡  ⟨ (U ++Fin V) ++Fin W ⟩

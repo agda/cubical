@@ -126,3 +126,9 @@ module CommIdeal (R' : CommRing ℓ) where
 
   incl2 : I .fst ⊆ (0Ideal +i I) .fst
   incl2 x x∈I = ∣ (0r , x) , refl , x∈I , sym (+Lid _) ∣
+
+ +iLincl : ∀ (I J : CommIdeal) → I .fst ⊆ (I +i J) .fst
+ +iLincl I J x x∈I = ∣ (x , 0r) , x∈I , J .snd .contains0 , sym (+Rid x) ∣
+
+ +iRespLincl : ∀ (I J K : CommIdeal) → I .fst ⊆ J .fst → (I +i K) .fst ⊆ (J +i K) .fst
+ +iRespLincl I J K I⊆J x = map λ ((y , z) , y∈I , z∈K , x≡y+z) → ((y , z) , I⊆J y y∈I , z∈K , x≡y+z)
