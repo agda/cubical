@@ -31,8 +31,9 @@ TypeSeq ℓ″ S = Σ[ seq ∈ (index S → Type ℓ″) ] ((i : index S) → (s
 ShiftedSeq : (s : TypeSeq ℓ S) (n : ℕ)
              → TypeSeq ℓ S
 ShiftedSeq s zero = s
-ShiftedSeq {S = S} s (suc n) with ShiftedSeq s n
-... | (seq , map) = (λ i → seq (succ S i)) , λ i →  (λ x → map (succ S i) x)
+ShiftedSeq {S = S} s (suc n) = let seq = fst (ShiftedSeq s n)
+                                   map = snd (ShiftedSeq s n)
+                               in (λ i → seq (succ S i)) , λ i →  (λ x → map (succ S i) x)
 
 ΣSeq : (s : TypeSeq ℓ S) → Type _
 ΣSeq {S = S} s = Σ[ i ∈ (index S) ] (fst s i)

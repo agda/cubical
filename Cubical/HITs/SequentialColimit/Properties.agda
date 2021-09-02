@@ -76,9 +76,10 @@ ShiftEquiv s (suc n) =
     where seq = ShiftedSeq s n
 
 {- Induction data for sequential colimits -}
-IndData : (s : TypeSeq ℓ S) → Type _
-IndData {ℓ = ℓ} {S = S} s = Σ[ B ∈ ((i : index S) → (x : fst s i) → Type ℓ) ]
-                            ((i : index S) → (x : fst s i) → B i x → B (succ S i) (snd s i x))
+module _ {S : SuccStr ℓ′} (s : TypeSeq ℓ S) where
+  IndData : Type _
+  IndData = Σ[ B ∈ ((i : index S) → (x : fst s i) → Type ℓ) ]
+            ((i : index S) → (x : fst s i) → B i x → B (succ S i) (snd s i x))
 
 {- Towards main theorem 5.1 -}
 module _ {S : SuccStr ℓ′} (s : TypeSeq ℓ S) (ind : IndData s) where
@@ -96,12 +97,16 @@ module _ {S : SuccStr ℓ′} (s : TypeSeq ℓ S) (ind : IndData s) where
     and point in the base. This is described and used on page 2 of the
     paper.
   -}
-  SeqAt : (x : fst s i) → TypeSeq ℓ ℕ+
+  SeqAt : {i : index S} (x : fst s i) → TypeSeq ℓ ℕ+
   SeqAt x = seq , op
           where seq : ℕ → _
                 seq n = fst ind (TimesSucc n S _) (TimesSeqOp n s x)
                 op : (n : ℕ) → seq n → seq (suc n)
                 op n = snd ind (TimesSucc n S _) (TimesSeqOp n s x)
 
-  ColimSeqAt : (x : fst s i) → Type _
-  ColimSeqAt x = {!   !}
+  ColimSeqAt : {i : index S} (x : fst s i) → Type ℓ
+  ColimSeqAt x = SeqColimit (SeqAt x)
+
+  EquivColimSeq : {i : index S} (x : fst s i)
+                  → ColimSeqAt x ≃ ColimSeqAt (snd s i x)
+  EquivColimSeq x = {! ShiftEquiv (SeqAt x) 1 !}
