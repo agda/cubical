@@ -145,27 +145,59 @@ module _ (R' : CommRing ℓ) where
   incl2 : 0Ideal .fst ⊆ ⟨ V ⟩ .fst
   incl2 x x≡0 = ∣ (λ ()) , x≡0 ∣
 
+ -- where to put this?
+ mul++dist : ∀ {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m) (j : Fin (n +ℕ m))
+            → ((λ i → α i · U i) ++Fin (λ i → β i · V i)) j ≡ (α ++Fin β) j · (U ++Fin V) j
+ mul++dist {n = ℕzero} α U β V j = refl
+ mul++dist {n = ℕsuc n} α U β V zero = refl
+ mul++dist {n = ℕsuc n} α U β V (suc j) = mul++dist (α ∘ suc) (U ∘ suc) β V j
+
+ -- better syntax for ∑ λ i → ... ???
+
  FGIdealAddLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                  → ⟨ U ++Fin V ⟩ ≡ ⟨ U ⟩ +i ⟨ V ⟩
- FGIdealAddLemma {n = ℕzero} U V = sym (cong (_+i ⟨ V ⟩) (emptyFGIdeal U) ∙ +iLid ⟨ V ⟩)
- FGIdealAddLemma {n = ℕsuc n} U V = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (incl1 , incl2))
+ FGIdealAddLemma U V = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (ltrIncl U V , rtlIncl U V))
   where
-  incl1 : ⟨ U ++Fin V ⟩ .fst ⊆ (⟨ U ⟩ +i ⟨ V ⟩) .fst
-  incl1 x = rec isPropPropTrunc incl1Σ
-   where
-   incl1Σ : Σ[ α ∈ FinVec R _ ] (x ≡ ∑ λ i → α i · (U ++Fin V) i) → x ∈ (⟨ U ⟩ +i ⟨ V ⟩) .fst
-   incl1Σ (α , p) = subst-∈ ((⟨ U ⟩ +i ⟨ V ⟩) .fst) (sym p) ((⟨ U ⟩ +i ⟨ V ⟩) .snd .+Closed baz bar)
+  ltrIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) → ⟨ U ++Fin V ⟩ .fst ⊆ (⟨ U ⟩ +i ⟨ V ⟩) .fst
+  ltrIncl {n = ℕzero} U V x x∈⟨V⟩ = ∣ (0r , x) , ⟨ U ⟩ .snd .contains0 , x∈⟨V⟩ , sym (+Lid x) ∣
+  ltrIncl {n = ℕsuc n} U V x = rec isPropPropTrunc helperΣ
     where
-    baz : α zero · U zero ∈ (⟨ U ⟩ +i ⟨ V ⟩) .fst
-    baz = +iLincl ⟨ U ⟩ ⟨ V ⟩ (α zero · U zero) (⟨ U ⟩ .snd .·Closed (α zero) (indInIdeal U zero))
+    helperΣ : Σ[ α ∈ FinVec R _ ] (x ≡ ∑ λ i → α i · (U ++Fin V) i) → x ∈ (⟨ U ⟩ +i ⟨ V ⟩) .fst
+    helperΣ (α , p) = subst-∈ ((⟨ U ⟩ +i ⟨ V ⟩) .fst) (sym p)
+                               ((⟨ U ⟩ +i ⟨ V ⟩) .snd .+Closed zeroIncl sumIncl)
+     where
+     zeroIncl : α zero · U zero ∈ (⟨ U ⟩ +i ⟨ V ⟩) .fst
+     zeroIncl = +iLincl ⟨ U ⟩ ⟨ V ⟩ (α zero · U zero) (⟨ U ⟩ .snd .·Closed (α zero) (indInIdeal U zero))
 
-    bar : (∑ λ i → (α ∘ suc) i · ((U ∘ suc) ++Fin V) i) ∈ (⟨ U ⟩ +i ⟨ V ⟩) .fst
-    bar = let sum = ∑ λ i → (α ∘ suc) i · ((U ∘ suc) ++Fin V) i in
-       +iRespLincl ⟨ U ∘ suc ⟩ ⟨ U ⟩ ⟨ V ⟩ (sucIncl U) sum
-          (subst (λ I → sum ∈ I .fst) (FGIdealAddLemma (U ∘ suc) V) ∣ (α ∘ suc) , refl ∣)
+     sumIncl : (∑ λ i → (α ∘ suc) i · ((U ∘ suc) ++Fin V) i) ∈ (⟨ U ⟩ +i ⟨ V ⟩) .fst
+     sumIncl = let sum = ∑ λ i → (α ∘ suc) i · ((U ∘ suc) ++Fin V) i in
+          +iRespLincl ⟨ U ∘ suc ⟩ ⟨ U ⟩ ⟨ V ⟩ (sucIncl U) sum
+            (ltrIncl (U ∘ suc) V _ ∣ (α ∘ suc) , refl ∣)
 
-  incl2 : (⟨ U ⟩ +i ⟨ V ⟩) .fst ⊆  ⟨ U ++Fin V ⟩ .fst
-  incl2 = {!!}
+  rtlIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) → (⟨ U ⟩ +i ⟨ V ⟩) .fst ⊆ ⟨ U ++Fin V ⟩ .fst
+  rtlIncl U V x =  rec isPropPropTrunc (uncurry3 helper)
+    where
+    helperΣ : ((y , z) : R × R)
+            → Σ[ α ∈ FinVec R _ ] (y ≡ ∑ λ i → α i · U i)
+            → Σ[ β ∈ FinVec R _ ] (z ≡ ∑ λ i → β i · V i)
+            → x ≡ y + z
+            → x ∈ ⟨ U ++Fin V ⟩ .fst
+    helperΣ (y , z) (α , y≡∑αU) (β , z≡∑βV) x≡y+z = ∣ (α ++Fin β) , path ∣
+     where
+     path : x ≡ ∑ λ i → (α ++Fin β) i · (U ++Fin V) i
+     path = x                                               ≡⟨ x≡y+z ⟩
+            y + z                                           ≡⟨ cong₂ (_+_) y≡∑αU z≡∑βV ⟩
+            (∑ λ i → α i · U i) + (∑ λ i → β i · V i)       ≡⟨ sym (∑Split++ (λ i → α i · U i) _) ⟩
+            (∑ ((λ i → α i · U i) ++Fin (λ i → β i · V i))) ≡⟨ ∑Ext (mul++dist α U β V) ⟩
+            (∑ λ i → (α ++Fin β) i · (U ++Fin V) i)         ∎
+
+    helper : ((y , z) : R × R)
+           → ∃[ α ∈ FinVec R _ ] (y ≡ ∑ λ i → α i · U i)
+           → ∃[ β ∈ FinVec R _ ] (z ≡ ∑ λ i → β i · V i)
+           → x ≡ y + z
+           → x ∈ ⟨ U ++Fin V ⟩ .fst
+    helper _ = rec2 (isPropΠ (λ _ → isPropPropTrunc)) (helperΣ _)
+
 
  IdealAddAssoc :  {n m k : ℕ} (U : FinVec R n) (V : FinVec R m) (W : FinVec R k)
                → ⟨ U ++Fin (V ++Fin W) ⟩ ≡  ⟨ (U ++Fin V) ++Fin W ⟩
