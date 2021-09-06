@@ -38,16 +38,24 @@ ShiftedSeq {S = S} s (suc n) = let seq = fst (ShiftedSeq s n)
 ΣSeq : (s : TypeSeq ℓ S) → Type _
 ΣSeq {S = S} s = Σ[ i ∈ (index S) ] (fst s i)
 
-open SuccStr
-
 TimesSucc : (n : ℕ) (S : SuccStr ℓ) (i : index S) → index S
 TimesSucc zero S i = i
 TimesSucc (suc n) S i = succ S (TimesSucc n S i)
+
+TimesCommSucc : (n : ℕ) (S : SuccStr ℓ) (i : index S)
+                → succ S (TimesSucc n S i) ≡ TimesSucc n S (succ S i)
+TimesCommSucc zero S i = refl
+TimesCommSucc (suc n) S i = cong (succ S) (TimesCommSucc n S i)
 
 TimesSeqOp : (n : ℕ) (s : TypeSeq ℓ S) {i : index S}
               → (x : fst s i) → fst s (TimesSucc n S i)
 TimesSeqOp zero s x = x
 TimesSeqOp (suc n) s x = snd s _ (TimesSeqOp n s x)
+
+TimesOpComm : {S : SuccStr ℓ′} (n : ℕ) (s : TypeSeq ℓ S) {i : index S}
+              → (x : fst s i) → snd s _ (TimesSeqOp n s x) ≡ TimesSeqOp n (ShiftedSeq s 1) (snd s i x)
+TimesOpComm zero s x i = snd s _ x
+TimesOpComm (suc n) s x i = snd s _ (TimesOpComm n s x i)
 
 ℤ+ : SuccStr ℓ-zero
 ℤ+ .index = ℤ
