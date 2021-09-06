@@ -100,9 +100,9 @@ module _ (R' : CommRing ℓ) where
  -- important lemma for characterization of the Zariski lattice
  √FGIdealChar : {n : ℕ} (V : FinVec R n) (I : CommIdeal R')
                 → √ (fst ⟨ V ⟩[ R' ]) ⊆ √ (fst I) ≃ (∀ i → V i ∈ √ (fst I))
- √FGIdealChar V I = isEquivPropBiimpl→Equiv (⊆-isProp (√ (fst ⟨ V ⟩[ R' ])) (√ (fst I)))
-                                              (isPropΠ (λ _ → √ (fst I) _ .snd)) .fst
-                                              (ltrImpl , rtlImpl)
+ √FGIdealChar V I = propBiimpl→Equiv (⊆-isProp (√ (fst ⟨ V ⟩[ R' ])) (√ (fst I)))
+                                     (isPropΠ (λ _ → √ (fst I) _ .snd))
+                                     ltrImpl rtlImpl
   where
   open KroneckerDelta (CommRing→Ring R')
   ltrImpl : √ (fst ⟨ V ⟩[ R' ]) ⊆ √ (fst I) → (∀ i → V i ∈ √ (fst I))
