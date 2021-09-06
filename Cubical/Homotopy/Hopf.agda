@@ -58,7 +58,6 @@ open import Cubical.Homotopy.Loopspace
 
 open import Cubical.HITs.Join
 
-
 retEq≡secEq : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B)
                 → (x : _) → secEq e (e .fst x) ≡ cong (e .fst) (retEq e x)
 retEq≡secEq {A = A} =

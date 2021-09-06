@@ -32,7 +32,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int hiding (_+'_)
-open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
+open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
 open import Cubical.Data.Bool
@@ -60,6 +60,186 @@ open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.Join
 
 open import Cubical.Homotopy.Hopf
+
+SES→Iso : ∀ {ℓ ℓ'} {L R : Group ℓ-zero}
+  → {G : Group ℓ} {H : Group ℓ'}
+  → UnitGroup ≡ L
+  → UnitGroup ≡ R
+  → (lhom : GroupHom L G) (midhom : GroupHom G H) (rhom : GroupHom H R)
+  → ((x : _) → isInKer midhom x → isInIm lhom x)
+  → ((x : _) → isInKer rhom x → isInIm midhom x)
+  → isEquiv (fst midhom)
+SES→Iso {R = R} {G = G} {H = H} =
+  J (λ L _ → UnitGroup ≡ R →
+      (lhom : GroupHom L G) (midhom : GroupHom G H)
+      (rhom : GroupHom H R) →
+      ((x : fst G) → isInKer midhom x → isInIm lhom x) →
+      ((x : fst H) → isInKer rhom x → isInIm midhom x) →
+      isEquiv (fst midhom))
+      ((J (λ R _ → (lhom : GroupHom UnitGroup G) (midhom : GroupHom G H)
+                   (rhom : GroupHom H R) →
+                   ((x : fst G) → isInKer midhom x → isInIm lhom x) →
+                   ((x : _) → isInKer rhom x → isInIm midhom x) →
+                   isEquiv (fst midhom))
+         main))
+  where
+  main : (lhom : GroupHom UnitGroup G) (midhom : GroupHom G H)
+         (rhom : GroupHom H UnitGroup) →
+         ((x : fst G) → isInKer midhom x → isInIm lhom x) →
+         ((x : fst H) → isInKer rhom x → isInIm midhom x) →
+         isEquiv (fst midhom)
+  main lhom midhom rhom lexact rexact =
+    BijectionIsoToGroupEquiv {G = G} {H = H}
+      bijIso' .fst .snd
+    where
+    bijIso' : BijectionIso G H
+    BijectionIso.fun bijIso' = midhom
+    BijectionIso.inj bijIso' x inker =
+      pRec (GroupStr.is-set (snd G) _ _)
+           (λ s → sym (snd s) ∙ IsGroupHom.pres1 (snd lhom)) (lexact _ inker)
+    BijectionIso.surj bijIso' x = rexact x refl
+
+pres- : (e : GroupHom ℤGroup ℤGroup) → (a : ℤ) → fst e (- a) ≡ - fst e a
+pres- e a = +Comm (fst e (- a)) (pos 0)
+           ∙ cong (_+ (fst e (- a))) (sym (l (fst e a)) ∙ +Comm (fst e a) (- fst e a))
+          ∙∙ sym (+Assoc _ _ _)
+          ∙∙ cong (- (fst e a) +_) (pp ∙ l (fst e a))
+  where
+  l : (a : ℤ) → a + (- a) ≡ 0
+  l (pos zero) = refl
+  l (pos (suc zero)) = refl
+  l (pos (suc (suc n))) = predℤ+negsuc n (pos (suc (suc n))) ∙ l (pos (suc n))
+  l (negsuc zero) = refl
+  l (negsuc (suc n)) = (cong sucℤ (sucℤ+pos n (negsuc (suc n)))) ∙ l (negsuc n)
+
+  pp : fst e a + fst e (- a) ≡ fst e a + (- fst e a)
+  pp = sym (IsGroupHom.pres· (snd e) a (- a))
+    ∙∙ cong (fst e) (l a)
+    ∙∙ (IsGroupHom.pres1 (snd e)
+      ∙ sym (l _))
+
+GroupHomPres· : (e : GroupHom ℤGroup ℤGroup) → (a b : ℤ) → fst e (a · b) ≡ a · fst e b
+GroupHomPres· e (pos zero) b = IsGroupHom.pres1 (snd e)
+GroupHomPres· e (pos (suc n)) b =
+  IsGroupHom.pres· (snd e) b (pos n · b) ∙ cong (fst e b +_) (GroupHomPres· e (pos n) b)
+GroupHomPres· e (negsuc zero) b = pres- e b
+GroupHomPres· e (negsuc (suc n)) b =
+              IsGroupHom.pres· (snd e) (- b) (negsuc n · b)
+            ∙ cong₂ _+_ (pres- e b) (GroupHomPres· e (negsuc n) b)
+
+open import Cubical.Data.Sum
+open import Cubical.Relation.Nullary
+l2 : (n m : ℕ) → Σ[ a ∈ ℕ ] (negsuc n · pos (suc m)) ≡ negsuc a
+l2 n zero = n , ·Comm  (negsuc n) (pos 1)
+l2 n (suc m) = h _ _ .fst ,
+     (·Comm (negsuc n) (pos (suc (suc m)))
+  ∙∙ cong (negsuc n +_) (·Comm (pos (suc m)) (negsuc n) ∙ (l2 n m .snd))
+  ∙∙ h _ _ .snd)
+  where
+  h : (x y : ℕ) → Σ[ a ∈ ℕ ] negsuc x + negsuc y ≡ negsuc a
+  h zero zero = 1 , refl
+  h zero (suc y) = (suc (suc y)) , +Comm (negsuc zero) (negsuc (suc y))
+  h (suc x) zero = (suc (suc x)) , refl
+  h (suc x) (suc y) = (h (suc (suc x)) y .fst) , (predℤ+negsuc y (negsuc (suc x)) ∙ snd ((h (suc (suc x))) y))
+
+zz : (n x : ℕ) → Σ[ a ∈ ℕ ] ((pos (suc x)) · pos (suc (suc n)) ≡ pos (suc (suc a)))
+zz n zero = n , refl
+zz n (suc x) = h _ _ (zz n x)
+  where
+  h : (x : ℤ) (n : ℕ) → Σ[ a ∈ ℕ ] (x ≡ pos (suc (suc a)))
+                → Σ[ a ∈ ℕ ] pos n + x ≡ pos (suc (suc a))
+  h x n (a , p) = n +ℕ a
+    , cong (pos n +_) p ∙ cong sucℤ (sucℤ+pos a (pos n))
+       ∙ sucℤ+pos a (pos (suc n)) ∙ (sym (pos+ (suc (suc n)) a))
+
+lem22 : (n : ℕ) (x : ℤ) → ¬ pos 1 ≡ x · pos (suc (suc n))
+lem22 n (pos zero) p = snotz (injPos p)
+lem22 n (pos (suc n₁)) p = snotz (injPos (sym (cong predℤ (snd (zz n n₁))) ∙ sym (cong predℤ p)))
+lem22 n (negsuc n₁) p = posNotnegsuc _ _ (p ∙ l2 _ _ .snd)
+
+
+grr : (e : GroupEquiv ℤGroup ℤGroup) (x : ℤ) → (fst (fst e) 1) ≡ x → abs (fst (fst e) 1) ≡ 1
+grr e (pos zero) p =
+  ⊥-rec (snotz (injPos (sym (retEq (fst e) 1)
+            ∙∙ (cong (fst (fst (invGroupEquiv e))) p)
+            ∙∙ IsGroupHom.pres1 (snd (invGroupEquiv e)))))
+grr e (pos (suc zero)) p = cong abs p
+grr e (pos (suc (suc n))) p = ⊥-rec (lem22 _ _ (h ∙ ·Comm (pos (suc (suc n))) (invEq (fst e) 1)))
+  where
+
+  h : pos 1 ≡ _
+  h = sym (retEq (fst e) 1)
+    ∙∙ (cong (fst (fst (invGroupEquiv e))) (p ∙ ·Comm 1 (pos (suc (suc n)))))
+    ∙∙ GroupHomPres· (_ , snd (invGroupEquiv e)) (pos (suc (suc n))) 1
+grr e (negsuc zero) p = cong abs p
+grr e (negsuc (suc n)) p = ⊥-rec (lem22 _ _ l33)
+  where
+  h : fst (fst e) (negsuc zero) ≡ pos (suc (suc n))
+  h = pres- (_ , snd e) (pos 1) ∙ cong -_ p
+
+  compGroup : GroupEquiv ℤGroup ℤGroup
+  fst compGroup = isoToEquiv (iso -_ -_ -Involutive -Involutive)
+  snd compGroup = makeIsGroupHom -Dist+
+
+  compHom : GroupEquiv ℤGroup ℤGroup
+  compHom = compGroupEquiv compGroup e
+
+  l32 : fst (fst compHom) (pos 1) ≡ pos (suc (suc n))
+  l32 = h
+
+  l33 : pos 1 ≡ invEq (fst compHom) (pos 1) · pos (suc (suc n))
+  l33 = sym (retEq (fst compHom) (pos 1))
+     ∙∙ cong (invEq (fst compHom)) l32
+     ∙∙ (cong (invEq (fst compHom)) (·Comm (pos 1) (pos (suc (suc n))))
+       ∙ GroupHomPres· (_ , (snd (invGroupEquiv compHom))) (pos (suc (suc n))) (pos 1)
+       ∙ ·Comm (pos (suc (suc n))) (invEq (fst compHom) (pos 1)))
+
+abs→⊎ : (x : ℤ) (n : ℕ) → abs x ≡ n → (x ≡ pos n) ⊎ (x ≡ - pos n)
+abs→⊎ x n = J (λ n _ → (x ≡ pos n) ⊎ (x ≡ - pos n)) (help x)
+  where
+  help : (x : ℤ) → (x ≡ pos (abs x)) ⊎ (x ≡ - pos (abs x))
+  help (pos n) = inl refl
+  help (negsuc n) = inr refl
+
+JGroupEquiv : ∀ {ℓ ℓ'} {G : Group ℓ} (P : (H : Group ℓ) → GroupEquiv G H → Type ℓ')
+            → P G idGroupEquiv
+            → ∀ {H} e → P H e
+JGroupEquiv {G = G} P p {H} e =
+  transport (λ i → P (GroupPath G H .fst e i)
+    (transp (λ j → GroupEquiv G (GroupPath G H .fst e (i ∨ ~ j))) i e))
+      (subst (P G) (sym l) p)
+  where
+  l : (transp (λ j → GroupEquiv G (GroupPath G H .fst e (~ j))) i0 e) ≡ idGroupEquiv
+  l = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+       (Σ≡Prop (λ _ → isPropIsEquiv _)
+         (funExt λ x → (λ i → fst (fst (fst e .snd .equiv-proof
+                          (transportRefl (fst (fst e) (transportRefl x i)) i))))
+                         ∙ retEq (fst e) x))
+
+sesIsoPresGen :
+   ∀ (G : Group ℓ-zero)
+  → (iso : GroupEquiv ℤGroup G)
+  → (H : Group ℓ-zero)
+  → (iso2 : GroupEquiv ℤGroup H)
+  → (e : fst G)
+  → invEq (fst iso) e ≡ 1
+  → (hom : GroupEquiv G H)
+  → abs (invEq (fst iso2) (fst (fst hom) e)) ≡ 1
+sesIsoPresGen G = JGroupEquiv (λ G iso →
+    (H : Group ℓ-zero)
+    (iso2 : GroupEquiv ℤGroup H)
+  → (e : fst G)
+  → invEq (fst iso) e ≡ 1
+  → (hom : GroupEquiv G H)
+  → abs (invEq (fst iso2) (fst (fst hom) e)) ≡ 1)
+  λ H → JGroupEquiv (λ H iso2 → (e : ℤ) → e ≡ pos 1 →
+      (hom : GroupEquiv ℤGroup H) →
+      abs (invEq (fst iso2) (fst (fst hom) e)) ≡ 1)
+      λ e p hom → cong (abs ∘ (fst (fst hom))) p ∙ autoPres1 hom
+  where
+  autoPres1 : (e : GroupEquiv ℤGroup ℤGroup)
+           → abs (fst (fst e) 1) ≡ 1
+  autoPres1 e = grr e _ refl
 
 characFunSpaceS¹ : ∀ {ℓ} {A : Type ℓ} →
   Iso (S₊ 1 → A) (Σ[ x ∈ A ] x ≡ x)
@@ -661,6 +841,18 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
               (isOfHLevelRetractFromIso 2 (fst (S1' n)) isSetℤ)))
           (conB (pt B) b)
 
+
+  isConnB : isConnected 3 (typ B)
+  fst isConnB = ∣ pt B ∣
+  snd isConnB =
+    trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
+           λ a → sRec (isOfHLevelTrunc 3 _ _) (cong ∣_∣ₕ) (conB (pt B) a)
+
+  isPropPath : isProp (∥ pt B ≡ pt B ∥₂)
+  isPropPath =
+    isOfHLevelRetractFromIso 1 setTruncTrunc2Iso
+      (isContr→isProp (isConnectedPath _ isConnB (pt B) (pt B)))
+
   c* : Σ[ c ∈ ((b : typ B) → (Q b →∙ coHomK-ptd n)) ] 
          (c (pt B) .fst ≡ ((λ x → genFunSpace n .fst (Iso.fun Q-is x))))
   fst c* b =
@@ -675,17 +867,35 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
                     (λ i → genFunSpace n .fst (Q-is-ptd i)) ∙ genFunSpace n .snd))
                   (isPropPath (conB (pt B) (pt B)) ∣ refl ∣₂ i) .fst x)
       ∙ (λ i → transportRefl (genFunSpace n .fst (Iso.fun Q-is (transportRefl x i))) i)
-    where
-    isConnB : isConnected 3 (typ B)
-    fst isConnB = ∣ pt B ∣
-    snd isConnB =
-      trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
-             λ a → sRec (isOfHLevelTrunc 3 _ _) (cong ∣_∣ₕ) (conB (pt B) a)
 
-    isPropPath : isProp (∥ pt B ≡ pt B ∥₂)
-    isPropPath =
-      isOfHLevelRetractFromIso 1 setTruncTrunc2Iso
-        (isContr→isProp (isConnectedPath _ isConnB (pt B) (pt B)))
+  p-help : {b : fst B} (p : pt B ≡ b) → (subst (fst ∘ Q) (sym p) (snd (Q b))) ≡ (snd (Q (pt B)))
+  p-help {b = b} =
+    J (λ b p → subst (fst ∘ Q) (sym p) (snd (Q b)) ≡ snd (Q (pt B))) (transportRefl _)
+
+  cEquiv : (b : fst B) (p : ∥ pt B ≡ b ∥₂)
+    → (c* .fst b)
+      ≡ sRec (is-setQ→K b)
+             (λ pp → (λ qb → genFunSpace n .fst (Iso.fun Q-is (subst (fst ∘ Q) (sym pp) qb)))
+             , cong (genFunSpace n .fst ∘ Iso.fun Q-is) (p-help pp)
+             ∙ ((λ i → genFunSpace n .fst (Q-is-ptd i)) ∙ genFunSpace n .snd)) p
+  cEquiv b =
+    sElim (λ _ → isOfHLevelPath 2 (is-setQ→K b) _ _)
+          (J (λ b a → c* .fst b ≡
+      sRec (is-setQ→K b) (λ pp →
+         (λ qb →
+            genFunSpace n .fst (Iso.fun Q-is (subst (fst ∘ Q) (sym pp) qb)))
+         ,
+         cong (genFunSpace n .fst ∘ Iso.fun Q-is) (p-help pp) ∙
+         (λ i → genFunSpace n .fst (Q-is-ptd i)) ∙ genFunSpace n .snd)
+      ∣ a ∣₂)
+      ((λ i → sRec (is-setQ→K (pt B))
+      (J (λ b₁ _ → Q b₁ →∙ coHomK-ptd n)
+       ((λ x → genFunSpace n .fst (Iso.fun Q-is x)) ,
+        (λ i → genFunSpace n .fst (Q-is-ptd i)) ∙ genFunSpace n .snd))
+          (isPropPath (conB (pt B) (pt B)) ∣ refl ∣₂ i))
+          ∙ →∙Homogeneous≡ (isHomogeneousKn n)
+            (transportRefl ((λ x → genFunSpace n .fst (Iso.fun Q-is x)))
+            ∙ funExt λ x → cong (genFunSpace n .fst ∘ Iso.fun Q-is) (sym (transportRefl x)))))
 
 module _ {ℓ ℓ'} (B : Pointed ℓ) (P : typ B → Type ℓ') where
   E : Type _
@@ -860,6 +1070,7 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
 
   c = (c* B (Q B P) conB n Q-is Q-is-ptd .fst)
   c-ptd = (c* B (Q B P) conB n Q-is Q-is-ptd .snd)
+  cEq = cEquiv B (Q B P) conB n Q-is Q-is-ptd
 
   module w = Thom B P 0-connB n Q-is Q-is-ptd c c-ptd
 
@@ -1135,6 +1346,9 @@ IsoE' = fibS1.IsoJoin₁
 IsoE2 : (join S¹ (join S¹ S¹)) ≡ join S¹ (S₊ 3)
 IsoE2 = cong (join S¹) (sym S³≡joinS¹S¹ ∙ isoToPath IsoS³S3)
 
+IsoTotalHopf' : Iso fibS1.TotalSpaceHopf' (join S¹ S¹)
+IsoTotalHopf' = fibS1.joinIso₁
+
 CP' : Type _
 CP' = Pushout (λ _ → tt) hopf
 
@@ -1172,20 +1386,298 @@ isContrH³E =
        ∙ cong (coHom 3) (sym (isoToPath IsoE' ∙ IsoE2)))
     (ll5 0 (snotz ∘ sym))
 
-isContrH⁵E : isContr (coHom 4 (GysinS1.E'))
-isContrH⁵E =
+isContrH⁴E : isContr (coHom 4 (GysinS1.E'))
+isContrH⁴E =
   subst isContr
         (sym (isoToPath (compIso (Iso1 1) (Iso2' 1)))
        ∙ cong (coHom 4) (sym (isoToPath IsoE' ∙ IsoE2)))
     (ll5 1 λ p → snotz (sym (cong predℕ p)))
 
+genH2 = GysinS1.e
+
+S³→Groupoid : ∀ {ℓ} (P : join S¹ S¹ → Type ℓ)
+            → ((x : _) → isGroupoid (P x))
+            → P (inl base)
+            → (x : _) → P x
+S³→Groupoid P grp b =
+  transport (λ i → (x : (sym (isoToPath S³IsojoinS¹S¹) ∙ isoToPath IsoS³S3) (~ i))
+                 → P (transp (λ j → (sym (isoToPath S³IsojoinS¹S¹) ∙ isoToPath IsoS³S3) (~ i ∧ ~ j)) i x))
+            (sphereElim _ (λ _ → grp _) b)
+
+TotalHopf→Gpd : ∀ {ℓ} (P : fibS1.TotalSpaceHopf' → Type ℓ)
+            → ((x : _) → isGroupoid (P x))
+            → P (inl base)
+            → (x : _) → P x
+TotalHopf→Gpd P grp b =
+  transport (λ i → (x : sym (isoToPath IsoTotalHopf') i)
+                 → P (transp (λ j → isoToPath IsoTotalHopf' (~ i ∧ ~ j)) i x))
+    (S³→Groupoid _ (λ _ → grp _) b)
+
+TotalHopf→Gpd' : ∀ {ℓ} (P : Σ (S₊ 2) fibS1.Hopf → Type ℓ)
+            → ((x : _) → isGroupoid (P x))
+            → P (north , base)
+            → (x : _) → P x
+TotalHopf→Gpd' P grp b =
+  transport (λ i → (x : ua (_ , fibS1.isEquivTotalSpaceHopf'→TotalSpace) i)
+          → P (transp (λ j → ua (_ , fibS1.isEquivTotalSpaceHopf'→TotalSpace) (i ∨ j)) i x))
+          (TotalHopf→Gpd _ (λ _ → grp _) b)
+
+CP2→Groupoid : ∀ {ℓ} {P : CP2 → Type ℓ}
+               → ((x : _) → is2Groupoid (P x))
+               → (b : P (inl tt))
+               → (s2 : ((x : _) → P (inr x)))
+               → PathP (λ i → P (push (inl base) i)) b (s2 north)
+               → (x : _) → P x
+CP2→Groupoid {P = P} grp b s2 pp (inl x) = b
+CP2→Groupoid {P = P} grp b s2 pp (inr x) = s2 x
+CP2→Groupoid {P = P} grp b s2 pp (push a i₁) = h23 a i₁
+  where
+  h23 : (a : fibS1.TotalSpaceHopf') → PathP (λ i → P (push a i)) b (s2 _) 
+  h23 = TotalHopf→Gpd _  (λ _ → isOfHLevelPathP' 3 (grp _) _ _) pp
+
+mm : (S₊ 2 → coHomK 2) → (CP2 → coHomK 2)
+mm f =  λ { (inl x) → 0ₖ _
+          ; (inr x) → f x -ₖ f north
+          ; (push a i) → TotalHopf→Gpd (λ x → 0ₖ 2 ≡ f (fibS1.TotalSpaceHopf'→TotalSpace x .fst) -ₖ f north)
+                                         (λ _ → isOfHLevelTrunc 4 _ _)
+                                         (sym (rCancelₖ 2 (f north)))
+                                         a i}
+
+e-inv : coHomGr 2 (S₊ 2) .fst → coHomGr 2 CP2 .fst
+e-inv = sMap mm
+
+cancel : (f : CP2 → coHomK 2) → ∥ mm (f ∘ inr) ≡ f ∥
+cancel f =
+  pRec squash
+    (λ p → pRec squash
+                (λ f → ∣ funExt f ∣)
+                (zz2 p))
+    (h1 (f (inl tt)))
+  where
+  h1 : (x : coHomK 2) →  ∥ x ≡ 0ₖ 2 ∥
+  h1 = coHomK-elim _ (λ _ → isOfHLevelSuc 1 squash) ∣ refl ∣ 
+
+  zz2 : (p : f (inl tt) ≡ 0ₖ 2) → ∥ ((x : CP2) → mm (f ∘ inr) x ≡ f x) ∥
+  zz2 p = trRec squash (λ pp → 
+    ∣ CP2→Groupoid (λ _ → isOfHLevelPath 4 (isOfHLevelTrunc 4) _ _)
+                 (sym p)
+                 (λ x → (λ i → f (inr x) -ₖ f (push (inl base) (~ i)))
+                       ∙∙ (λ i → f (inr x) -ₖ p i)
+                       ∙∙ rUnitₖ 2 (f (inr x)))
+                 pp ∣)
+                l
+    where
+    l : hLevelTrunc 1 (PathP ((λ i₁ → mm (f ∘ inr) (push (inl base) i₁) ≡ f (push (inl base) i₁)))
+              (sym p)
+              (((λ i₁ → f (inr north) -ₖ f (push (inl base) (~ i₁))) ∙∙
+                (λ i₁ → f (inr north) -ₖ p i₁) ∙∙ rUnitₖ 2 (f (inr north)))))
+    l = isConnectedPathP 1 (isConnectedPath 2 (isConnectedKn 1) _ _) _ _ .fst
+
+e' : GroupIso (coHomGr 2 CP2) (coHomGr 2 (S₊ 2))
+Iso.fun (fst e') = sMap (_∘ inr)
+Iso.inv (fst e') = e-inv
+Iso.rightInv (fst e') =
+  sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+      λ f → trRec {B = Iso.fun (fst e') (Iso.inv (fst e') ∣ f ∣₂) ≡ ∣ f ∣₂}
+      (isOfHLevelPath 2 squash₂ _ _)
+      (λ p → cong ∣_∣₂ (funExt λ x → cong (λ y → (f x) -ₖ y) p ∙ rUnitₖ 2 (f x)))
+      (Iso.fun (PathIdTruncIso _) (isContr→isProp (isConnectedKn 1) ∣ f north ∣ ∣ 0ₖ 2 ∣))
+Iso.leftInv (fst e') =
+  sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+    λ f → pRec (squash₂ _ _) (cong ∣_∣₂) (cancel f)
+snd e' =
+  makeIsGroupHom
+    (sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _) λ f g → refl)
+
+grrg : GroupIso (coHomGr 2 CP2) ℤGroup
+grrg = compGroupIso e' (Hⁿ-Sⁿ≅ℤ 1)
+
+⌣hom : GroupEquiv (coHomGr 2 CP2) (coHomGr 4 CP2)
+fst (fst ⌣hom) = GysinS1.⌣-hom 2 .fst
+snd (fst ⌣hom) = subst isEquiv (cong fst (GysinS1.ϕ∘j≡ 2)) h23
+  where
+  h23 : isEquiv (GysinS1.ϕ∘j 2 .fst)
+  h23 =
+    SES→Iso
+      (GroupPath _ _ .fst (invGroupEquiv
+        (isContr→≃Unit isContrH³E
+        , makeIsGroupHom λ _ _ → refl)))
+      (GroupPath _ _ .fst (invGroupEquiv
+        (isContr→≃Unit isContrH⁴E
+        , makeIsGroupHom λ _ _ → refl)))
+      (GysinS1.susp∘ϕ 1)
+      (GysinS1.ϕ∘j 2)
+      (GysinS1.p-hom 4)
+      (GysinS1.Ker-ϕ∘j⊂Im-Susp∘ϕ _)
+      (GysinS1.Ker-p⊂Im-ϕ∘j _)
+snd ⌣hom = GysinS1.⌣-hom 2 .snd
+
+⌣hom2 : GroupEquiv (coHomGr 0 CP2) (coHomGr 2 CP2)
+fst (fst ⌣hom2) = GysinS1.⌣-hom 0 .fst
+snd (fst ⌣hom2) = subst isEquiv (cong fst (GysinS1.ϕ∘j≡ 0)) h23
+  where
+  cr : GroupHom (coHomGr 1 (S₊ 2)) (coHomGr 0 CP2)
+  fst cr =
+    sMap λ f → λ { (inl x) → 0
+                  ; (inr x) → ΩKn+1→Kn 0 ({!!} ∙∙ cong f {!merid x!} ∙∙ {!!})
+                  ; (push a i₁) → {!!}}
+  snd cr = {!!}
+  h23 : isEquiv (GysinS1.ϕ∘j 0 .fst)
+  h23 =
+    SES→Iso
+      {!!}
+      {!!}
+      cr
+      (GysinS1.ϕ∘j 0)
+      (GysinS1.p-hom 2)
+      (sElim {!!} (λ f inker → pRec {!!} (λ g → {!funExt⁻ g (inl tt)!}) (Iso.fun PathIdTrunc₀Iso inker)))
+      (GysinS1.Ker-p⊂Im-ϕ∘j _)
+snd ⌣hom2 = {!!}
+
+isGenerator≃ℤ : ∀ {ℓ} (G : Group ℓ) (g : fst G)
+               → Type _
+isGenerator≃ℤ G g =
+  Σ[ e ∈ GroupIso G ℤGroup ] abs (Iso.fun (fst e) g) ≡ 1
+
+⌣-pres1 : ∀ {ℓ} (G : Type ℓ) (n : ℕ) → Type _
+⌣-pres1 G n =
+     (z : Σ[ x ∈ coHomGr n G .fst ] isGenerator≃ℤ (coHomGr n G) x)
+  → isGenerator≃ℤ (coHomGr (n +' n) G) (z .fst ⌣ z .fst)
+
+
+genr : coHom 2 CP2
+genr = ∣ CP2→Groupoid (λ _ → isOfHLevelTrunc 4)
+                      (0ₖ _)
+                      ∣_∣
+                      refl ∣₂
+
+≡CP2 : (f g : CP2 → coHomK 2) → ∥ f ∘ inr ≡ g ∘ inr ∥ → Path (coHom 2 CP2) ∣ f ∣₂ ∣ g ∣₂
+≡CP2 f g = pRec (squash₂ _ _)
+           (λ p → pRec (squash₂ _ _) (λ id → trRec (squash₂ _ _)
+                                          (λ pp → cong ∣_∣₂
+                                            (funExt (CP2→Groupoid (λ _ → isOfHLevelPath 4 (isOfHLevelTrunc 4) _ _)
+                                                    id
+                                                    (funExt⁻ p)
+                                                    (compPathR→PathP pp))))
+                                              (pp2 (f (inl tt)) (g (inl tt)) id
+                                                (cong f (push (inl base)) ∙ (funExt⁻ p north) ∙ cong g (sym (push (inl base))))))
+                                          (conn (f (inl tt)) (g (inl tt))))
+
+  where
+  conn : (x y : coHomK 2) → ∥ x ≡ y ∥
+  conn = coHomK-elim _ (λ _ → isSetΠ λ _ → isOfHLevelSuc 1 squash)
+           (coHomK-elim _ (λ _ → isOfHLevelSuc 1 squash) ∣ refl ∣)
+
+  pp2 : (x y : coHomK 2) (p q : x ≡ y) → hLevelTrunc 1 (p ≡ q)
+  pp2 x y = λ p q → Iso.fun (PathIdTruncIso _) (isContr→isProp (isConnectedPath _ (isConnectedKn 1) x y) ∣ p ∣ ∣ q ∣)
+
+s2 : ℤ
+s2 = Iso.fun (fst grrg) (genr)
+
+-* : S¹ → S¹
+-* x = {!!}
+
+rUnit* : (x : S¹) → x * base ≡ x
+rUnit* base = refl
+rUnit* (loop i₁) = refl
+
+
+mmInv : (x : S¹) → (merid (invLooper x) ∙ sym (merid base)) ≡ sym (merid x ∙ sym (merid base))
+mmInv x = {!!}
+
+meridP : (a x : S¹) → Path (Path (coHomK 2) _ _) (cong ∣_∣ₕ (merid (a * x) ∙ sym (merid base)))
+                                                  ((cong ∣_∣ₕ (merid a ∙ sym (merid base))) ∙ (cong ∣_∣ₕ (merid x ∙ sym (merid base))))
+meridP = wedgeconFun _ _ (λ _ _ → isOfHLevelTrunc 4 _ _ _ _)
+           (λ x → {!!})
+           {!!}
+           {!!}
+
+commS1 : (a x : S¹) → a * x ≡ x * a
+commS1 = wedgeconFun _ _ (λ _ _ → isGroupoidS¹ _ _)
+         (sym ∘ rUnit*)
+         rUnit*
+         refl
+
+s233 : (a x : S¹) → (invEq (fibS1.μ-eq a) x) * a ≡ (invLooper a * x) * a
+s233 a x = secEq (fibS1.μ-eq a) x ∙∙ cong (_* x) (lemmie a) ∙∙ assocHSpace.μ-assoc S1-AssocHSpace a (invLooper a) x ∙ commS1 _ _
+  where
+  lemmie : (x : S¹) → ptSn 1 ≡ x * (invLooper x)
+  lemmie base = refl
+  lemmie (loop i) j =
+    hcomp (λ r → λ {(i = i0) → base ; (i = i1) → base ; (j = i0) → base})
+          base
+
+ss23 : (a x : S¹) → invEq (fibS1.μ-eq a) x ≡ invLooper a * x
+ss23 a x = sym (retEq (fibS1.μ-eq a) (invEq (fibS1.μ-eq a) x))
+        ∙∙ cong (invEq (fibS1.μ-eq a)) (s233 a x)
+        ∙∙ retEq (fibS1.μ-eq a) (invLooper a * x)
+
+ll : GysinS1.e ≡ genr
+ll = ≡CP2 _ _ ∣ funExt (λ x → funExt⁻ (cong fst (ll32 x)) south) ∣
+  where
+  merid* : (a b : S¹) → Path (Path (coHomK 2) _ _) {!!} {!!}
+  merid* = {!!}
+
+  kr : (x : Σ (S₊ 2) fibS1.Hopf) → Path (hLevelTrunc 4 _) ∣ fst x ∣ ∣ north ∣
+  kr = uncurry λ { north → λ y → cong ∣_∣ₕ (merid base ∙ sym (merid y))
+                 ; south → λ y → cong ∣_∣ₕ (sym (merid y))
+                 ; (merid a i) → lem a i}
+    where
+    lem : (a : S¹) → PathP (λ i → (y : fibS1.Hopf (merid a i)) → Path (HubAndSpoke (Susp S¹) 3) ∣ merid a i ∣ ∣ north ∣)
+                            (λ y → cong ∣_∣ₕ (merid base ∙ sym (merid y)))
+                            λ y → cong ∣_∣ₕ (sym (merid y))
+    lem a = toPathP (funExt λ x → cong (transport ((λ i₁ → Path (HubAndSpoke (Susp S¹) 3) ∣ merid a i₁ ∣ ∣ north ∣)))
+                                        ((λ i → (λ z → cong ∣_∣ₕ (merid base
+                                                               ∙ sym (merid (transport (λ j → uaInvEquiv (fibS1.μ-eq a) (~ i) j) x))) z))
+                                        ∙ λ i → cong ∣_∣ₕ (merid base
+                                               ∙ sym (merid (transportRefl (invEq (fibS1.μ-eq a) x) i))))
+                               ∙∙ (λ i → transp (λ i₁ → Path (HubAndSpoke (Susp S¹) 3) ∣ merid a (i₁ ∨ i) ∣ ∣ north ∣) i
+                                                 (compPath-filler' (cong ∣_∣ₕ (sym (merid a)))
+                                                   (cong ∣_∣ₕ (merid base ∙ sym (merid (ss23 a x i)))) i))
+                               ∙∙ {!!}
+                               ∙∙ {!!}
+                               ∙∙ {!!})
+
+  psst : (x : S₊ 2) → Q (CP2 , inl tt) fibr (inr x) →∙ coHomK-ptd 2
+  fst (psst x) north = ∣ north ∣
+  fst (psst x) south = ∣ x ∣
+  fst (psst x) (merid a i₁) = kr (x , a) (~ i₁)
+  snd (psst x) = refl
+
+  ll32-fst : GysinS1.c (inr north) .fst ≡ psst north .fst
+  ll32-fst = cong fst (GysinS1.cEq (inr north) ∣ push (inl base) ∣₂)
+           ∙ (funExt l)
+    where
+    l : (qb : _) →
+         ∣ (subst (fst ∘ Q (CP2 , inl tt) fibr) (sym (push (inl base))) qb) ∣
+      ≡ psst north .fst qb
+    l north = refl
+    l south = cong ∣_∣ₕ (sym (merid base))
+    l (merid a i) j =
+      hcomp (λ k → λ { (i = i0) → ∣ merid a (~ k ∧ j) ∣
+                      ; (i  = i1) → ∣ merid base (~ j) ∣
+                      ; (j = i0) → ∣ transportRefl (merid a i) (~ k) ∣
+                      ; (j = i1) → ∣ compPath-filler (merid base) (sym (merid a)) k (~ i) ∣ₕ})
+            (hcomp (λ k → λ { (i = i0) → ∣ merid a (j ∨ ~ k) ∣
+                      ; (i  = i1) → ∣ merid base (~ j ∨ ~ k) ∣
+                      ; (j = i0) → ∣ merid a (~ k ∨ i) ∣
+                      ; (j = i1) → ∣ merid base (~ i ∨ ~ k) ∣ₕ})
+                   ∣ south ∣)
+
+  is-setHepl : (x : S₊ 2) → isSet (Q (CP2 , inl tt) fibr (inr x) →∙ coHomK-ptd 2)
+  is-setHepl = sphereElim _ (λ _ → isProp→isOfHLevelSuc 1 (isPropIsOfHLevel 2))
+                            (isOfHLevel↑∙' 0 1)
+
+  ll32 : (x : S₊ 2) →  (GysinS1.c (inr x) ≡ psst x)
+  ll32 = sphereElim _ (λ x → isOfHLevelPath 2 (is-setHepl x) _ _)
+         (→∙Homogeneous≡ (isHomogeneousKn _) ll32-fst)
 HopfA*A : ∀ {ℓ} {A : Type ℓ}
         → (join A A → Type ℓ)
-        → {!GysinS1.susp∘ϕ 1!}
+        → {!(funExt⁻ (λ i₁ → fst (ll32 north i₁)) south)!}
 HopfA*A = {!!}
 
 S₊2→S₊2 : CP' → Type ℓ-zero
-S₊2→S₊2 (inl x) = {!!}
+S₊2→S₊2 (inl x) = {!hopfBase.joinIso₁!}
 S₊2→S₊2 (inr x) = {!x!}
 S₊2→S₊2 (push a i₁) = {!!}
 
