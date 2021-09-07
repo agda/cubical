@@ -8,6 +8,7 @@ module Cubical.HITs.SequentialColimit.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence using (pathToEquiv)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
@@ -76,12 +77,15 @@ ShiftEquiv s (suc n) =
     where seq = ShiftedSeq s n
 
 {- Induction data for sequential colimits -}
-module _ {S : SuccStr ℓ′} (s : TypeSeq ℓ S) where
-  IndData : Type _
-  IndData = Σ[ B ∈ ((i : index S) → (x : fst s i) → Type ℓ) ]
+module _ {S : SuccStr ℓ′}  where
+  IndData : (s : TypeSeq ℓ S) → Type _
+  IndData {ℓ = ℓ} s = Σ[ B ∈ ((i : index S) → (x : fst s i) → Type ℓ) ]
             ((i : index S) → (x : fst s i) → B i x → B (succ S i) (snd s i x))
 
-{- Towards main theorem 5.1 -}
+  ShiftedIndData : (s : TypeSeq ℓ S) → IndData s → IndData (ShiftedSeq s 1)
+  ShiftedIndData s (fib , map) = {!   !}
+
+{- Ingrdients for the main theorem (5.1) -}
 module _ {S : SuccStr ℓ′} (s : TypeSeq ℓ S) (ind : IndData s) where
   {-
     Summing a dependent type over a sequence,
@@ -107,6 +111,30 @@ module _ {S : SuccStr ℓ′} (s : TypeSeq ℓ S) (ind : IndData s) where
   ColimSeqAt : {i : index S} (x : fst s i) → Type ℓ
   ColimSeqAt x = SeqColimit (SeqAt x)
 
+
+module _ {S : SuccStr ℓ′} (s : TypeSeq ℓ S) (ind : IndData s) where
+  private
+    SeqAtCommShift : {j : index S} (x : fst s j)
+            → ShiftedSeq (SeqAt s ind x) 1 ≡ SeqAt (ShiftedSeq s 1) (ShiftedIndData s ind) (snd s j x)
+    SeqAtCommShift  x i = fstEq i , sndEq i
+        where fstEq : fst (ShiftedSeq (SeqAt s ind x) 1) ≡ fst (SeqAt (ShiftedSeq s 1) (ShiftedIndData s ind) (snd s _ x))
+              fstEq i zero = fst ind _ (snd s _ x)
+              fstEq i (suc n) = (
+                fst (SeqAt s ind x) (suc (suc n))                                           ≡⟨ refl ⟩
+                fst ind (succ S (TimesSucc (suc n) S _)) (snd s _ (TimesSeqOp (suc n) s x)) ≡⟨ {!  !} ⟩
+                fst ind (TimesSucc (suc n) S (succ S _)) (TimesSeqOp (suc n) s (snd s _ x)) ≡⟨ refl ⟩
+                fst (SeqAt (ShiftedSeq s 1) (ShiftedIndData s ind) (snd s _ x)) (suc n) ∎) i
+
+              sndEq : PathP (λ i → (n : ℕ) → fstEq i n → fstEq i (suc n))
+                            (snd (ShiftedSeq (SeqAt s ind x) 1))
+                            (snd (SeqAt (ShiftedSeq s 1) (ShiftedIndData s ind) (snd s _ x)))
+              sndEq i zero = {!  !}  -- snd (ShiftedSeq (SeqAt x) 1) zero
+              sndEq i (suc n) = {!   !}
+{-
   EquivColimSeq : {i : index S} (x : fst s i)
                   → ColimSeqAt x ≃ ColimSeqAt (snd s i x)
-  EquivColimSeq x = {! ShiftEquiv (SeqAt x) 1 !}
+  EquivColimSeq x =
+    ColimSeqAt x                         ≃⟨ ShiftEquiv (SeqAt x) 1 ⟩
+    SeqColimit (ShiftedSeq (SeqAt x) 1)  ≃⟨ pathToEquiv (λ i → SeqColimit (SeqAtCommShift x i)) ⟩
+    ColimSeqAt (snd s _ x) ■
+-}
