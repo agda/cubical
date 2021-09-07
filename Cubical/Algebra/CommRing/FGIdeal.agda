@@ -146,11 +146,11 @@ module _ (R' : CommRing ℓ) where
   incl2 x x≡0 = ∣ (λ ()) , x≡0 ∣
 
  -- where to put this?
- mul++dist : ∀ {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m) (j : Fin (n +ℕ m))
-            → ((λ i → α i · U i) ++Fin (λ i → β i · V i)) j ≡ (α ++Fin β) j · (U ++Fin V) j
- mul++dist {n = ℕzero} α U β V j = refl
- mul++dist {n = ℕsuc n} α U β V zero = refl
- mul++dist {n = ℕsuc n} α U β V (suc j) = mul++dist (α ∘ suc) (U ∘ suc) β V j
+ -- mul++dist : ∀ {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m) (j : Fin (n +ℕ m))
+ --            → ((λ i → α i · U i) ++Fin (λ i → β i · V i)) j ≡ (α ++Fin β) j · (U ++Fin V) j
+ -- mul++dist {n = ℕzero} α U β V j = refl
+ -- mul++dist {n = ℕsuc n} α U β V zero = refl
+ -- mul++dist {n = ℕsuc n} α U β V (suc j) = mul++dist (α ∘ suc) (U ∘ suc) β V j
 
  -- better syntax for ∑ λ i → ... ???
 
@@ -206,8 +206,6 @@ module _ (R' : CommRing ℓ) where
        genIdealExpl _ V = ⟨ V ⟩
    in  cong₂ genIdealExpl (+ℕ-assoc n m k) (++FinAssoc U V W)
 
- -- ++FinComm : ∀ {n m : ℕ} (V : FinVec R n) (W : FinVec R m)
- --           → ⟨ V ++Fin W ⟩ ≡ ⟨ W ++Fin V ⟩
- -- ++FinComm V W = Σ≡Prop (isPropIsCommIdeal _) (⊆-extensionality _ _
- --                                              (foo _ (⟨ W ++Fin V ⟩) (λ i → {!!})
- --                                             , foo _ (⟨ V ++Fin W ⟩) (λ i → {!!})))
+ ++FinComm : ∀ {n m : ℕ} (V : FinVec R n) (W : FinVec R m)
+           → ⟨ V ++Fin W ⟩ ≡ ⟨ W ++Fin V ⟩
+ ++FinComm V W = FGIdealAddLemma V W ∙∙ +iComm ⟨ V ⟩ ⟨ W ⟩ ∙∙ sym (FGIdealAddLemma W V)

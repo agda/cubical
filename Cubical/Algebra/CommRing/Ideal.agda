@@ -11,6 +11,11 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.Nat using (ℕ ; zero ; suc)
+                             renaming ( --zero to ℕzero ; suc to ℕsuc
+                                        _+_ to _+ℕ_ ; _·_ to _·ℕ_
+                                      ; +-assoc to +ℕ-assoc ; +-comm to +ℕ-comm
+                                      ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
+
 open import Cubical.Data.FinData hiding (rec ; elim)
 open import Cubical.Data.Sigma
 
@@ -111,6 +116,8 @@ module CommIdeal (R' : CommRing ℓ) where
     (r · y₁ , r · z₁) , ·Closed (snd I) r y₁∈I , ·Closed (snd J) r z₁∈J
                      , cong (r ·_) x≡y₁+z₁ ∙ ·Rdist+ _ _ _
 
+ infixl 6 _+i_
+
  +iComm⊆ : ∀ (I J : CommIdeal) → (I +i J) .fst ⊆ (J +i I) .fst
  +iComm⊆ I J x = map λ ((y , z) , y∈I , z∈J , x≡y+z) → (z , y) , z∈J , y∈I , x≡y+z ∙ +Comm _ _
 
@@ -132,3 +139,40 @@ module CommIdeal (R' : CommRing ℓ) where
 
  +iRespLincl : ∀ (I J K : CommIdeal) → I .fst ⊆ J .fst → (I +i K) .fst ⊆ (J +i K) .fst
  +iRespLincl I J K I⊆J x = map λ ((y , z) , y∈I , z∈K , x≡y+z) → ((y , z) , I⊆J y y∈I , z∈K , x≡y+z)
+
+ -- +iAssoc : ∀ (I J K : CommIdeal) → I +i (J +i K) ≡ (I +i J) +i K
+ -- +iAssoc I J K = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (incl1 , incl2))
+ --  where
+ --  incl1 : (I +i (J +i K)) .fst ⊆ ((I +i J) +i K) .fst
+ --  incl1 x = {!!}
+ --  incl2 : ((I +i J) +i K) .fst ⊆ (I +i (J +i K)) .fst
+ --  incl2 = {!!}
+
+ +iIdem : ∀ (I : CommIdeal) → I +i I ≡ I
+ +iIdem I = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (incl1 , incl2))
+  where
+  incl1 : (I +i I) .fst ⊆ I .fst
+  incl1 x = rec (I .fst x .snd) λ ((y , z) , y∈I , z∈I , x≡y+z)
+                                  → subst-∈ (I .fst) (sym x≡y+z) (I .snd .+Closed y∈I z∈I)
+
+  incl2 : I .fst ⊆ (I +i I) .fst
+  incl2 x x∈I = ∣ (0r , x) , I .snd .contains0 , x∈I , sym (+Lid _) ∣
+
+
+ -- where to put this?
+ mul++dist : ∀ {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m) (j : Fin (n +ℕ m))
+            → ((λ i → α i · U i) ++Fin (λ i → β i · V i)) j ≡ (α ++Fin β) j · (U ++Fin V) j
+ mul++dist {n = zero} α U β V j = refl
+ mul++dist {n = suc n} α U β V zero = refl
+ mul++dist {n = suc n} α U β V (suc j) = mul++dist (α ∘ suc) (U ∘ suc) β V j
+
+ -- define multiplication of ideals
+ -- _·i_ : CommIdeal → CommIdeal → CommIdeal
+ -- fst (I ·i J) x = (∃[ n ∈ ℕ ] Σ[ (α , β) ∈ (FinVec R n × FinVec R n) ]
+ --                   (∀ i → α i ∈ I .fst) × (∀ i → β i ∈ J .fst) × (x ≡ ∑ λ i → α i · β i))
+ --                    , isPropPropTrunc
+ -- +Closed (snd (I ·i J)) {x = x} {y = y} = map2
+ --   λ { (n , (α , β) , ∀αi∈I , ∀βi∈J , x≡∑αβ) (m , (γ , δ) , ∀γi∈I , ∀δi∈J , y≡∑γδ)
+ --      → n +ℕ m , (α ++Fin γ , β ++Fin δ) , {!!} , {!!} , cong₂ (_+_) x≡∑αβ y≡∑γδ ∙ sym (∑Split++ (λ i → α i · β i) (λ i → γ i · δ i)) ∙ ∑Ext (mul++dist α β γ δ) }
+ -- contains0 (snd (I ·i J)) = {!!}
+ -- ·Closed (snd (I ·i J)) = {!!}
