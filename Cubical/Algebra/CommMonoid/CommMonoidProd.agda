@@ -19,10 +19,10 @@ open IsSemigroup
 
 private
   variable
-    𝓁 𝓁' : Level
+    ℓ ℓ' : Level
 
 
-CommMonoidProd : ∀ {ℓ ℓ'} → CommMonoid ℓ → CommMonoid ℓ' → CommMonoid (ℓ-max ℓ ℓ')
+CommMonoidProd : CommMonoid ℓ → CommMonoid ℓ' → CommMonoid (ℓ-max ℓ ℓ')
 CommMonoidProd M N = makeCommMonoid εΠ _·Π_ is-setΠ assocΠ ridΠ commΠ
   where
   εΠ = (ε (snd M)) , (ε (snd N))
