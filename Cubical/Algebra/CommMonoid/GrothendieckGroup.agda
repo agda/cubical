@@ -10,6 +10,7 @@ open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Monoid.Base
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -28,15 +29,17 @@ private
 
 
 module _ (M : CommMonoid ℓ) where
-
   open BinaryRelation
-  open CommMonoidStr (snd M)
 
   M² : CommMonoid _
   M² = CommMonoidProd M M
 
-  open CommMonoidStr (snd M²)
-    renaming (ε to εM²; _·_ to _·²_; assoc to assoc²; rid to rid²; comm to comm²)
+  open CommMonoidStr ⦃...⦄
+  private
+    instance
+      _ = snd M
+      _ = snd M²
+
 
   R : ⟨ M² ⟩  → ⟨ M² ⟩ → Type _
   R (a₁ , b₁) (a₂ , b₂) =  Σ ⟨ M ⟩ (λ k → k · (a₁ · b₂) ≡ k · (b₁ · a₂))
@@ -45,16 +48,16 @@ module _ (M : CommMonoid ℓ) where
   M²/R = ⟨ M² ⟩ / R
 
   0/R : M²/R
-  0/R = [ εM² ]
+  0/R = [ ε , ε ]
 
   private
     _+/_ : M²/R → M²/R → M²/R
-    x +/ y = setQuotBinOp isReflR _·²_ isCongR x y
+    x +/ y = setQuotBinOp isReflR _·_ isCongR x y
       where
       isReflR : isRefl R
       isReflR (a , b) = ε , cong (ε ·_) (comm a b)
 
-      isCongR : ∀ u u' v v' → R u u' → R v v' → R (u ·² v) (u' ·² v')
+      isCongR : ∀ u u' v v' → R u u' → R v v' → R (u · v) (u' · v')
       isCongR (a₁ , b₁) (a₂ , b₂) (a₃ , b₃) (a₄ , b₄) (k , p) (s , q) = k · s , proof
         where
         proof =
@@ -91,17 +94,17 @@ module _ (M : CommMonoid ℓ) where
       h _ _ (k , p) = k , sym p
 
     assoc/R : (x y z : M²/R) → x +/ ( y +/ z) ≡ (x +/ y) +/ z
-    assoc/R = elimProp3 (λ x y z → squash/ _ _) (λ u v w → cong [_] (assoc² _ _ _))
+    assoc/R = elimProp3 (λ x y z → squash/ _ _) (λ u v w → cong [_] (assoc _ _ _))
 
     rid/R : (x : M²/R) → x +/ 0/R ≡ x
-    rid/R = elimProp (λ x → squash/ _ _) (λ u → cong [_] (rid² u))
+    rid/R = elimProp (λ x → squash/ _ _) (λ u → cong [_] (rid u))
 
     rinv/R : (x : M²/R) → x +/ (-/ x) ≡ 0/R
     rinv/R = elimProp (λ x → squash/ _ _)
                       (λ (a , b) →  eq/ _ _ (ε , cong (λ x → ε · x · ε) (comm _ _)))
 
     comm/R : (x y : M²/R) → x +/ y ≡ y +/ x
-    comm/R = elimProp2 (λ x y → squash/ _ _) (λ u v → cong [_] (comm² _ _))
+    comm/R = elimProp2 (λ x y → squash/ _ _) (λ u v → cong [_] (comm _ _))
 
   asAbGroup : AbGroup ℓ
   asAbGroup = makeAbGroup 0/R _+/_ -/_ squash/ assoc/R rid/R rinv/R comm/R
@@ -114,37 +117,31 @@ Groupification M = asAbGroup M
 
 -- might be a better idea to move this into AbGroup.Base, but that file doesn't import CommMonoid.Base (yet?)
 AbGroup→CommMonoid : AbGroup ℓ → CommMonoid ℓ
-AbGroup→CommMonoid (A , abgroupstr  _ _ _ G) =
-  A , commmonoidstr _ _ (iscommmonoid (IsAbGroup.isMonoid G) (IsAbGroup.comm G))
+AbGroup→CommMonoid (_ , abgroupstr  _ _ _ G) =
+  _ , commmonoidstr _ _ (iscommmonoid (IsAbGroup.isMonoid G) (IsAbGroup.comm G))
 
 
 module UniversalProperty (M : CommMonoid ℓ) where
-  open CommMonoidStr ⦃...⦄
-  private
-    instance
-      _ = M
-      _ = snd M
+  open CommMonoidStr (snd M)
 
   module _ {A : AbGroup ℓ} (φ : CommMonoidHom M (AbGroup→CommMonoid A)) where
-    open IsCommMonoidHom
+    open IsMonoidHom
     open IsGroupHom
 
     open AbGroupStr (snd A)
       renaming (rid to ridA; invr to invrA; comm to commA; assoc to assocA)
 
     open GroupTheory (AbGroup→Group A)
+
     private
-      --instance
-        --_ = A
-        --_ = snd A
-      module φ = IsCommMonoidHom (snd φ)
+      module φ = IsMonoidHom (snd φ)
       f = fst φ
 
     universalHom : CommMonoidHom M (AbGroup→CommMonoid (Groupification M))
     fst universalHom = λ m → [ m , ε ]
-    pres· (snd universalHom) = λ _ _ → eq/ _ _ (ε , cong (ε ·_)
+    isHom (snd universalHom) = λ _ _ → eq/ _ _ (ε , cong (ε ·_)
                                                          (comm _ _ ∙ cong₂ _·_ (rid ε) refl))
-    pres-ε (snd universalHom) = refl
+    presε (snd universalHom) = refl
 
     private
       i = fst universalHom
@@ -158,9 +155,9 @@ module UniversalProperty (M : CommMonoid ℓ) where
             where         
             lemma₂ : ∀ {k a b c d} → k · (a · d) ≡ k · (b · c) → f a + f d ≡ f b + f c
             lemma₂ {k} {a} {b} {c} {d} p =
-              f a + f d   ≡⟨ sym (φ.pres· _ _) ⟩
-              f (a · d)   ≡⟨ ·CancelL _ (sym (φ.pres· _ _) ∙ (cong f p) ∙ φ.pres· _ _) ⟩
-              f (b · c)   ≡⟨ φ.pres· _ _ ⟩
+              f a + f d   ≡⟨ sym (φ.isHom _ _) ⟩
+              f (a · d)   ≡⟨ ·CancelL _ (sym (φ.isHom _ _) ∙ (cong f p) ∙ φ.isHom _ _) ⟩
+              f (b · c)   ≡⟨ φ.isHom _ _ ⟩
               f b + f c   ∎
 
             lemma : ∀ {a b c d} → f a + f d ≡ f b + f c → f a - f b ≡ f c - f d
@@ -178,7 +175,7 @@ module UniversalProperty (M : CommMonoid ℓ) where
 
         proof : ((a , b) (c , d) : ⟨ M² M ⟩) → (f (a · c)) - (f (b · d)) ≡ (f a - f b) + (f c - f d)
         proof (a , b) (c , d) =
-          f (a · c) - f (b · d)     ≡⟨ cong₂ _-_ (φ.pres· _ _) (φ.pres· _ _) ⟩
+          f (a · c) - f (b · d)     ≡⟨ cong₂ _-_ (φ.isHom _ _) (φ.isHom _ _) ⟩
           (f a + f c) - (f b + f d) ≡⟨ lExp (invDistr _ _ ∙ commA _ _) ∙ assocA _ _ _ ⟩
           ((f a + f c) - f b) - f d ≡⟨ rExp (sym (assocA _ _ _) ∙ lExp (commA _ _) ∙ assocA _ _ _) ∙ sym (assocA _ _ _) ⟩
           (f a - f b) + (f c - f d) ∎
@@ -198,7 +195,7 @@ module UniversalProperty (M : CommMonoid ℓ) where
 -}
 
     solution : (m : ⟨ M ⟩) → (fst inducedHom) (i m) ≡ f m
-    solution m = cong ((f m)+_) ((cong (-_) φ.pres-ε) ∙ inv1g) ∙ ridA _ 
+    solution m = cong ((f m)+_) ((cong (-_) φ.presε) ∙ inv1g) ∙ ridA _ 
 
     private
       module G = AbGroupStr (snd (Groupification M)) using (_+_; _-_)
