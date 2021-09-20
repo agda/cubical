@@ -5,6 +5,7 @@ module Cubical.Data.FinData.Properties where
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.FinData.Base as Fin
 open import Cubical.Data.Nat renaming (zero to ℕzero ; suc to ℕsuc
@@ -73,6 +74,12 @@ toFin0≡0 {ℕsuc n} (ℕsuc k , p) =
 ++FinAssoc {n = ℕzero} _ _ _ = refl
 ++FinAssoc {n = ℕsuc n} U V W i zero = U zero
 ++FinAssoc {n = ℕsuc n} U V W i (suc ind) = ++FinAssoc (U ∘ suc) V W i ind
+
+++FinPres∈ : {n m : ℕ} {α : FinVec A n} {β : FinVec A m} (S : ℙ A)
+           → (∀ i → α i ∈ S) → (∀ i → β i ∈ S) → ∀ i → (α ++Fin β) i ∈ S
+++FinPres∈ {n = ℕzero} S hα hβ i = hβ i
+++FinPres∈ {n = ℕsuc n} S hα hβ zero = hα zero
+++FinPres∈ {n = ℕsuc n} S hα hβ (suc i) = ++FinPres∈ S (λ j → hα (suc j)) hβ i
 
 -- sends i to n+i if toℕ i < m and to i∸n otherwise
 -- then +Shuffle²≡id and over the induced path (i.e. in PathP (ua +ShuffleEquiv))

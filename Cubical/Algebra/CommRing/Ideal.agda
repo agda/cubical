@@ -167,12 +167,16 @@ module CommIdeal (R' : CommRing ℓ) where
  mul++dist {n = suc n} α U β V (suc j) = mul++dist (α ∘ suc) (U ∘ suc) β V j
 
  -- define multiplication of ideals
- -- _·i_ : CommIdeal → CommIdeal → CommIdeal
- -- fst (I ·i J) x = (∃[ n ∈ ℕ ] Σ[ (α , β) ∈ (FinVec R n × FinVec R n) ]
- --                   (∀ i → α i ∈ I .fst) × (∀ i → β i ∈ J .fst) × (x ≡ ∑ λ i → α i · β i))
- --                    , isPropPropTrunc
- -- +Closed (snd (I ·i J)) {x = x} {y = y} = map2
- --   λ { (n , (α , β) , ∀αi∈I , ∀βi∈J , x≡∑αβ) (m , (γ , δ) , ∀γi∈I , ∀δi∈J , y≡∑γδ)
- --      → n +ℕ m , (α ++Fin γ , β ++Fin δ) , {!!} , {!!} , cong₂ (_+_) x≡∑αβ y≡∑γδ ∙ sym (∑Split++ (λ i → α i · β i) (λ i → γ i · δ i)) ∙ ∑Ext (mul++dist α β γ δ) }
- -- contains0 (snd (I ·i J)) = {!!}
- -- ·Closed (snd (I ·i J)) = {!!}
+ _·i_ : CommIdeal → CommIdeal → CommIdeal
+ fst (I ·i J) x = (∃[ n ∈ ℕ ] Σ[ (α , β) ∈ (FinVec R n × FinVec R n) ]
+                   (∀ i → α i ∈ I .fst) × (∀ i → β i ∈ J .fst) × (x ≡ ∑ λ i → α i · β i))
+                    , isPropPropTrunc
+ +Closed (snd (I ·i J)) = map2
+  λ (n , (α , β) , ∀αi∈I , ∀βi∈J , x≡∑αβ) (m , (γ , δ) , ∀γi∈I , ∀δi∈J , y≡∑γδ)
+   → n +ℕ m , (α ++Fin γ , β ++Fin δ) , ++FinPres∈ (I .fst) ∀αi∈I ∀γi∈I , ++FinPres∈ (J .fst) ∀βi∈J ∀δi∈J
+    , cong₂ (_+_) x≡∑αβ y≡∑γδ ∙∙ sym (∑Split++ (λ i → α i · β i) (λ i → γ i · δ i)) ∙∙ ∑Ext (mul++dist α β γ δ)
+ contains0 (snd (I ·i J)) = ∣ 0 , ((λ ()) , (λ ())) , (λ ()) , (λ ()) , refl ∣
+ ·Closed (snd (I ·i J)) r = map
+  λ (n , (α , β) , ∀αi∈I , ∀βi∈J , x≡∑αβ)
+   → n , ((λ i → r · α i) , β) , (λ i → I .snd .·Closed r (∀αi∈I i)) , ∀βi∈J
+    , cong (r ·_) x≡∑αβ ∙ ∑Mulrdist r (λ i → α i · β i) ∙ ∑Ext λ i → ·Assoc r (α i) (β i)
