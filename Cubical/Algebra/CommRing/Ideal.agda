@@ -140,13 +140,21 @@ module CommIdeal (R' : CommRing ℓ) where
  +iRespLincl : ∀ (I J K : CommIdeal) → I .fst ⊆ J .fst → (I +i K) .fst ⊆ (J +i K) .fst
  +iRespLincl I J K I⊆J x = map λ ((y , z) , y∈I , z∈K , x≡y+z) → ((y , z) , I⊆J y y∈I , z∈K , x≡y+z)
 
- -- +iAssoc : ∀ (I J K : CommIdeal) → I +i (J +i K) ≡ (I +i J) +i K
- -- +iAssoc I J K = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (incl1 , incl2))
- --  where
- --  incl1 : (I +i (J +i K)) .fst ⊆ ((I +i J) +i K) .fst
- --  incl1 x = {!!}
- --  incl2 : ((I +i J) +i K) .fst ⊆ (I +i (J +i K)) .fst
- --  incl2 = {!!}
+ +iAssoc : ∀ (I J K : CommIdeal) → I +i (J +i K) ≡ (I +i J) +i K
+ +iAssoc I J K = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (incl1 , incl2))
+  where
+  incl1 : (I +i (J +i K)) .fst ⊆ ((I +i J) +i K) .fst
+  incl1 x = elim (λ _ → ((I +i J) +i K) .fst x .snd) (uncurry3
+            λ (y , z) y∈I → elim (λ _ → isPropΠ λ _ → ((I +i J) +i K) .fst x .snd)
+              λ ((u , v) , u∈J , v∈K , z≡u+v) x≡y+z
+                → ∣ (y + u , v) , ∣ _ , y∈I , u∈J , refl ∣ , v∈K
+                                 , x≡y+z ∙∙ cong (y +_) z≡u+v ∙∙ +Assoc _ _ _ ∣)
+  incl2 : ((I +i J) +i K) .fst ⊆ (I +i (J +i K)) .fst
+  incl2 x = elim (λ _ → (I +i (J +i K)) .fst x .snd) (uncurry3
+            λ (y , z) → elim (λ _ → isPropΠ2 λ _ _ → (I +i (J +i K)) .fst x .snd)
+              λ ((u , v) , u∈I , v∈J , y≡u+v) z∈K x≡y+z
+                → ∣ (u , v + z) , u∈I , ∣ _ , v∈J , z∈K , refl ∣
+                                       , x≡y+z ∙∙ cong (_+ z) y≡u+v ∙∙ sym (+Assoc _ _ _) ∣)
 
  +iIdem : ∀ (I : CommIdeal) → I +i I ≡ I
  +iIdem I = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (incl1 , incl2))
@@ -173,10 +181,19 @@ module CommIdeal (R' : CommRing ℓ) where
                     , isPropPropTrunc
  +Closed (snd (I ·i J)) = map2
   λ (n , (α , β) , ∀αi∈I , ∀βi∈J , x≡∑αβ) (m , (γ , δ) , ∀γi∈I , ∀δi∈J , y≡∑γδ)
-   → n +ℕ m , (α ++Fin γ , β ++Fin δ) , ++FinPres∈ (I .fst) ∀αi∈I ∀γi∈I , ++FinPres∈ (J .fst) ∀βi∈J ∀δi∈J
-    , cong₂ (_+_) x≡∑αβ y≡∑γδ ∙∙ sym (∑Split++ (λ i → α i · β i) (λ i → γ i · δ i)) ∙∙ ∑Ext (mul++dist α β γ δ)
+   → n +ℕ m , (α ++Fin γ , β ++Fin δ) , ++FinPres∈ (I .fst) ∀αi∈I ∀γi∈I
+                                      , ++FinPres∈ (J .fst) ∀βi∈J ∀δi∈J
+    , cong₂ (_+_) x≡∑αβ y≡∑γδ ∙∙ sym (∑Split++ (λ i → α i · β i) (λ i → γ i · δ i))
+                              ∙∙ ∑Ext (mul++dist α β γ δ)
  contains0 (snd (I ·i J)) = ∣ 0 , ((λ ()) , (λ ())) , (λ ()) , (λ ()) , refl ∣
  ·Closed (snd (I ·i J)) r = map
   λ (n , (α , β) , ∀αi∈I , ∀βi∈J , x≡∑αβ)
    → n , ((λ i → r · α i) , β) , (λ i → I .snd .·Closed r (∀αi∈I i)) , ∀βi∈J
     , cong (r ·_) x≡∑αβ ∙ ∑Mulrdist r (λ i → α i · β i) ∙ ∑Ext λ i → ·Assoc r (α i) (β i)
+
+ ·iComm⊆ : ∀ (I J : CommIdeal) → (I ·i J) .fst ⊆ (J ·i I) .fst
+ ·iComm⊆ I J x = map λ (n , (α , β) , ∀αi∈I , ∀βi∈J , x≡∑αβ)
+                      → (n , (β , α) , ∀βi∈J , ∀αi∈I , x≡∑αβ ∙ ∑Ext (λ i → ·-comm (α i) (β i)))
+
+ ·iComm : ∀ (I J : CommIdeal) → I ·i J ≡ J ·i I
+ ·iComm I J = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (·iComm⊆ I J , ·iComm⊆ J I))

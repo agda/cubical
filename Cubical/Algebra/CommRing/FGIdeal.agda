@@ -145,12 +145,6 @@ module _ (R' : CommRing ℓ) where
   incl2 : 0Ideal .fst ⊆ ⟨ V ⟩ .fst
   incl2 x x≡0 = ∣ (λ ()) , x≡0 ∣
 
- -- where to put this?
- -- mul++dist : ∀ {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m) (j : Fin (n +ℕ m))
- --            → ((λ i → α i · U i) ++Fin (λ i → β i · V i)) j ≡ (α ++Fin β) j · (U ++Fin V) j
- -- mul++dist {n = ℕzero} α U β V j = refl
- -- mul++dist {n = ℕsuc n} α U β V zero = refl
- -- mul++dist {n = ℕsuc n} α U β V (suc j) = mul++dist (α ∘ suc) (U ∘ suc) β V j
 
  -- better syntax for ∑ λ i → ... ???
 
