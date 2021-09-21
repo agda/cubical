@@ -10,7 +10,9 @@ module Cubical.Algebra.UpperNat.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+
 open import Cubical.Functions.Logic
+open import Cubical.Functions.Embedding
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
@@ -22,7 +24,7 @@ open import Cubical.HITs.PropositionalTruncation renaming (rec to propTruncRec)
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ′ : Level
 
 hProp₀ = hProp ℓ-zero
 
@@ -92,7 +94,30 @@ s +↑ l = seq , seqIsUpwardClosed
          seqIsUpwardClosed n m n≤m =
            propTruncRec
              isPropPropTrunc
-             λ {((a , b) , wa , (wb , a+b≤n)) → ∣ (a , b) , wa , (wb , ≤-trans a+b≤n n≤m) ∣ }
+             λ {((a , b) , wa , (wb , a+b≤n)) → ∣ (a , b) , wa , (wb , ≤-trans a+b≤n n≤m) ∣}
+
+-- hasPropFibers→isEmbedding
+ℕ↑Path : {s l : ℕ↑} → ((n : ℕ) → fst (fst s n) ≡ fst (fst l n)) → s ≡ l
+ℕ↑Path {s = s} {l = l} pwPath = path
+   where
+     seqPath : fst s ≡ fst l
+     seqPath i n = subtypePathReflection (λ A → isProp A , isPropIsProp)
+                                         (fst s n)
+                                         (fst l n)
+                                         (pwPath n) i
+     path : s ≡ l
+     path = subtypePathReflection (λ s → isUpwardClosed s , isPropUpwardClosed s) s l seqPath
+
++↑Comm : (s l : ℕ↑) → s +↑ l ≡ l +↑ s
++↑Comm s l = ℕ↑Path λ n → cong fst (propPath n)
+  where implication : (s l : ℕ↑) (n : ℕ) → fst (fst (s +↑ l) n) → fst (fst (l +↑ s) n)
+        implication s l n = propTruncRec
+                           isPropPropTrunc
+                           (λ {((a , b) , wa , (wb , a+b≤n))
+                             → ∣ (b , a) , wb , (wa , subst (λ k → fst (k ≤p n)) (+-comm a b) a+b≤n) ∣ })
+        propPath : (n : ℕ) → fst (s +↑ l) n ≡ fst (l +↑ s) n
+        propPath n = ⇒∶ implication s l n
+                     ⇐∶ implication l s n
 
 _·↑_ : ℕ↑ → ℕ↑ → ℕ↑
 s ·↑ l = seq , seqIsUpwardClosed
@@ -104,4 +129,4 @@ s ·↑ l = seq , seqIsUpwardClosed
          seqIsUpwardClosed n m n≤m =
            propTruncRec
              isPropPropTrunc
-             λ {((a , b) , wa , (wb , a·b≤n)) → ∣ (a , b) , wa , (wb , ≤-trans a·b≤n n≤m) ∣ }
+             λ {((a , b) , wa , (wb , a·b≤n)) → ∣ (a , b) , wa , (wb , ≤-trans a·b≤n n≤m) ∣}
