@@ -79,7 +79,7 @@ toFin0≡0 {ℕsuc n} (ℕsuc k , p) =
            → (∀ i → α i ∈ S) → (∀ i → β i ∈ S) → ∀ i → (α ++Fin β) i ∈ S
 ++FinPres∈ {n = ℕzero} S hα hβ i = hβ i
 ++FinPres∈ {n = ℕsuc n} S hα hβ zero = hα zero
-++FinPres∈ {n = ℕsuc n} S hα hβ (suc i) = ++FinPres∈ S (λ j → hα (suc j)) hβ i
+++FinPres∈ {n = ℕsuc n} S hα hβ (suc i) = ++FinPres∈ S (hα ∘ suc) hβ i
 
 -- sends i to n+i if toℕ i < m and to i∸n otherwise
 -- then +Shuffle²≡id and over the induced path (i.e. in PathP (ua +ShuffleEquiv))
