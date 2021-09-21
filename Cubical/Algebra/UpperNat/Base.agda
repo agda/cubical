@@ -93,3 +93,15 @@ s +↑ l = seq , seqIsUpwardClosed
            propTruncRec
              isPropPropTrunc
              λ {((a , b) , wa , (wb , a+b≤n)) → ∣ (a , b) , wa , (wb , ≤-trans a+b≤n n≤m) ∣ }
+
+_·↑_ : ℕ↑ → ℕ↑ → ℕ↑
+s ·↑ l = seq , seqIsUpwardClosed
+       where
+         seq : ℕ → hProp₀
+         seq n = (∃[ (a , b) ∈ ℕ × ℕ ] fst ((fst s a) ⊓ (fst l b) ⊓ ((a · b) ≤p n) )) ,
+                 isPropPropTrunc
+         seqIsUpwardClosed : isUpwardClosed seq
+         seqIsUpwardClosed n m n≤m =
+           propTruncRec
+             isPropPropTrunc
+             λ {((a , b) , wa , (wb , a·b≤n)) → ∣ (a , b) , wa , (wb , ≤-trans a·b≤n n≤m) ∣ }
