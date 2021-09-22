@@ -108,16 +108,33 @@ s +↑ l = seq , seqIsUpwardClosed
      path : s ≡ l
      path = subtypePathReflection (λ s → isUpwardClosed s , isPropUpwardClosed s) s l seqPath
 
+
+pathFromImplications : (s l : ℕ↑)
+         → ((n : ℕ) → fst (fst s n) → fst (fst l n))
+         → ((n : ℕ) → fst (fst l n) → fst (fst s n))
+         → s ≡ l
+pathFromImplications s l s→l l→s =
+    ℕ↑Path λ n → cong fst (propPath n)
+          where propPath : (n : ℕ) → fst s n ≡ fst l n
+                propPath n = ⇒∶ s→l n
+                             ⇐∶ l→s n
+
 +↑Comm : (s l : ℕ↑) → s +↑ l ≡ l +↑ s
-+↑Comm s l = ℕ↑Path λ n → cong fst (propPath n)
++↑Comm s l = pathFromImplications (s +↑ l) (l +↑ s) (implication s l) (implication l s)
   where implication : (s l : ℕ↑) (n : ℕ) → fst (fst (s +↑ l) n) → fst (fst (l +↑ s) n)
         implication s l n = propTruncRec
                            isPropPropTrunc
                            (λ {((a , b) , wa , (wb , a+b≤n))
                              → ∣ (b , a) , wb , (wa , subst (λ k → fst (k ≤p n)) (+-comm a b) a+b≤n) ∣ })
-        propPath : (n : ℕ) → fst (s +↑ l) n ≡ fst (l +↑ s) n
-        propPath n = ⇒∶ implication s l n
-                     ⇐∶ implication l s n
+
++↑Rid : (s : ℕ↑) → s +↑ 0↑ ≡ s
++↑Rid s = pathFromImplications (s +↑ 0↑) s (⇒) ⇐
+  where ⇒ : (n : ℕ) → fst (fst (s +↑ 0↑) n) → fst (fst s n)
+        ⇒ n = propTruncRec (snd (fst s n))
+                           (λ {((a , b) , sa , ((b' , b'+0≡b) , a+b≤n))
+                                → (snd s) a n (≤-trans ≤SumLeft a+b≤n) sa })
+        ⇐ : (n : ℕ) → fst (fst s n) → fst (fst (s +↑ 0↑) n)
+        ⇐ n = λ sn → ∣ (n , 0) , (sn , (zero-≤ , subst (_≤ n) (sym (+-zero n)) ≤-refl)) ∣
 
 _·↑_ : ℕ↑ → ℕ↑ → ℕ↑
 s ·↑ l = seq , seqIsUpwardClosed
@@ -130,3 +147,14 @@ s ·↑ l = seq , seqIsUpwardClosed
            propTruncRec
              isPropPropTrunc
              λ {((a , b) , wa , (wb , a·b≤n)) → ∣ (a , b) , wa , (wb , ≤-trans a·b≤n n≤m) ∣}
+
+·↑Comm : (s l : ℕ↑) → s ·↑ l ≡ l ·↑ s
+·↑Comm s l = ℕ↑Path λ n → cong fst (propPath n)
+  where implication : (s l : ℕ↑) (n : ℕ) → fst (fst (s ·↑ l) n) → fst (fst (l ·↑ s) n)
+        implication s l n = propTruncRec
+                           isPropPropTrunc
+                           (λ {((a , b) , wa , (wb , a·b≤n))
+                             → ∣ (b , a) , wb , (wa , subst (λ k → fst (k ≤p n)) (·-comm a b) a·b≤n) ∣ })
+        propPath : (n : ℕ) → fst (s ·↑ l) n ≡ fst (l ·↑ s) n
+        propPath n = ⇒∶ implication s l n
+                     ⇐∶ implication l s n

@@ -55,11 +55,17 @@ suc-≤-suc (k , p) = k , (+-suc k _) ∙ (cong suc p)
 ≤-+k {m} {k = k} (i , p)
   = i , +-assoc i m k ∙ cong (_+ k) p
 
+≤SumRight : n ≤ k + n
+≤SumRight {n} {k} = ≤-+k zero-≤
+
 ≤-k+ : m ≤ n → k + m ≤ k + n
 ≤-k+ {m} {n} {k}
   = subst (_≤ k + n) (+-comm m k)
   ∘ subst (m + k ≤_) (+-comm n k)
   ∘ ≤-+k
+
+≤SumLeft : n ≤ n + k
+≤SumLeft {n} {k} = subst (n ≤_) (+-comm k n) (≤-+k zero-≤)
 
 pred-≤-pred : suc m ≤ suc n → m ≤ n
 pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
