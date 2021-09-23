@@ -197,3 +197,7 @@ module CommIdeal (R' : CommRing ℓ) where
 
  ·iComm : ∀ (I J : CommIdeal) → I ·i J ≡ J ·i I
  ·iComm I J = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (·iComm⊆ I J , ·iComm⊆ J I))
+
+ prodInProd : ∀ (I J : CommIdeal) (x y : R) → x ∈ I .fst → y ∈ J .fst → (x · y) ∈ (I ·i J) .fst
+ prodInProd _ _ x y x∈I y∈J =
+            ∣ 1 , ((λ _ → x) , λ _ → y) , (λ _ → x∈I) , (λ _ → y∈J) , sym (+Rid _) ∣

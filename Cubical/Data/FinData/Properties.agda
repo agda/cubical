@@ -16,7 +16,7 @@ open import Cubical.Relation.Nullary
 
 private
  variable
-   ℓ : Level
+   ℓ ℓ' : Level
    A : Type ℓ
 
 
@@ -75,6 +75,13 @@ toFin0≡0 {ℕsuc n} (ℕsuc k , p) =
 ++FinAssoc {n = ℕsuc n} U V W i zero = U zero
 ++FinAssoc {n = ℕsuc n} U V W i (suc ind) = ++FinAssoc (U ∘ suc) V W i ind
 
+++FinElim : {P : A → Type ℓ'} {n m : ℕ} (U : FinVec A n) (V : FinVec A m)
+          → (∀ i → P (U i)) → (∀ i → P (V i)) → ∀ i → P ((U ++Fin V) i)
+++FinElim {n = ℕzero} _ _ _ PVHyp i = PVHyp i
+++FinElim {n = ℕsuc n} _ _ PUHyp _ zero = PUHyp zero
+++FinElim {P = P} {n = ℕsuc n} U V PUHyp PVHyp (suc i) =
+          ++FinElim {P = P} (U ∘ suc) V (λ i → PUHyp (suc i)) PVHyp i
+
 ++FinPres∈ : {n m : ℕ} {α : FinVec A n} {β : FinVec A m} (S : ℙ A)
            → (∀ i → α i ∈ S) → (∀ i → β i ∈ S) → ∀ i → (α ++Fin β) i ∈ S
 ++FinPres∈ {n = ℕzero} S hα hβ i = hβ i
@@ -89,21 +96,3 @@ toFin0≡0 {ℕsuc n} (ℕsuc k , p) =
 ... | yes i<m = toFin (n + (toℕ i)) (<-k+ i<m)
 ... | no ¬i<m = toFin (toℕ i ∸ m)
                   (subst (λ x → toℕ i ∸ m < x) (+-comm m n) (≤<-trans (∸-≤ (toℕ i) m) (toℕ<n i)))
-
--- or maybe more useful
--- ++FinShuffleComm : ∀ (m n : ℕ) (U : FinVec A m) (V : FinVec A n) (i : Fin (m + n))
---                  → (U ++Fin V) i ≡ (V ++Fin U) (+Shuffle m n i)
--- -- ++FinShuffleComm ℕzero n U V i = {!!} --  with (<Dec (toℕ i) ℕzero)
--- -- -- ... | x = ?
--- -- -- ... | no ¬i<0 = ?
--- -- ++FinShuffleComm (ℕsuc m) n U V zero = {!!}
--- -- ++FinShuffleComm (ℕsuc m) n U V (suc i) = {!!}
--- ++FinShuffleComm m n U V i with <Dec (toℕ i) m
--- ++FinShuffleComm ℕzero n U V i | yes i<0 = Empty.rec (¬-<-zero i<0)
--- ++FinShuffleComm (ℕsuc m) ℕzero U V zero | yes 0<m = cong U (sym (toFin0≡0 (<-k+ 0<m)))
--- ++FinShuffleComm (ℕsuc m) (ℕsuc n) U V zero | yes 0<m = {!!}
--- ++FinShuffleComm (ℕsuc m) n U V (suc i) | yes i+1<m+1 = ++FinShuffleComm m n (U ∘ suc) V i ∙ {!!}
--- -- ++FinShuffleComm (ℕsuc m) ℕzero U V (suc i) | yes _ = {!!}
--- -- ++FinShuffleComm (ℕsuc m) (ℕsuc n) U V (suc i) | yes i+1<m+1 =
--- --   ++FinShuffleComm m (ℕsuc n) (U ∘ suc) V i ∙ {!!}
--- ... | no y = {!!}

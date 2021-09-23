@@ -28,6 +28,7 @@ open import Cubical.Algebra.Ring.QuotientRing
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.RingSolver.ReflectionSolving
+open import Cubical.Algebra.Matrix
 
 private
   variable
@@ -203,3 +204,21 @@ module _ (R' : CommRing ℓ) where
  ++FinComm : ∀ {n m : ℕ} (V : FinVec R n) (W : FinVec R m)
            → ⟨ V ++Fin W ⟩ ≡ ⟨ W ++Fin V ⟩
  ++FinComm V W = FGIdealAddLemma V W ∙∙ +iComm ⟨ V ⟩ ⟨ W ⟩ ∙∙ sym (FGIdealAddLemma W V)
+
+ open ProdFin R'
+ FGIdealMultLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
+                 → ⟨ U ··Fin V ⟩ ≡ ⟨ U ⟩ ·i ⟨ V ⟩
+ FGIdealMultLemma U V = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (ltrIncl U V , rtlIncl U V))
+  where
+  ltrIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) → ⟨ U ··Fin V ⟩ .fst ⊆ (⟨ U ⟩ ·i ⟨ V ⟩) .fst
+  ltrIncl U V x = elim (λ _ → isPropPropTrunc)
+    λ (α , x≡∑αUV) → subst-∈ ((⟨ U ⟩ ·i ⟨ V ⟩) .fst)  (sym x≡∑αUV) --replace x by ∑αᵢⱼUᵢVⱼ
+      (∑Closed (⟨ U ⟩ ·i ⟨ V ⟩) (λ i → α i · (U ··Fin V) i) --show that each αᵢⱼ UᵢVⱼ is in product
+        λ i → (⟨ U ⟩ ·i ⟨ V ⟩) .snd .·Closed (α i) --drop the α's
+          (flattenElim {P = _∈ (⟨ U ⟩ ·i ⟨ V ⟩) .fst} (toMatrix U V) --show theat UᵢVⱼ is in product
+            (λ j k → prodInProd ⟨ U ⟩ ⟨ V ⟩ (U j) (V k) (indInIdeal U j) (indInIdeal V k)) i))
+
+  rtlIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) → (⟨ U ⟩ ·i ⟨ V ⟩) .fst ⊆ ⟨ U ··Fin V ⟩ .fst
+  rtlIncl U V x = elim (λ _ → isPropPropTrunc)
+    λ (k , (α , β) , ∀α∈⟨U⟩ , ∀β∈⟨V⟩ , x≡∑αβ) → subst-∈ (⟨ U ··Fin V ⟩ .fst) (sym x≡∑αβ)
+      (∑Closed ⟨ U ··Fin V ⟩ (λ i → α i · β i) {!!})

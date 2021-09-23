@@ -33,7 +33,7 @@ open Iso
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A : Type ℓ
 
 -- Equivalence between Vec matrix and Fin function matrix
@@ -254,16 +254,29 @@ module _ (R' : Ring ℓ) where
 
 
 -- Generators of product of two ideals
-module _ (R' : CommRing ℓ) where
+
+flatten : {n m : ℕ} → FinMatrix A n m → FinVec A (n ·ℕ m)
+flatten {n = zero} _ ()
+flatten {n = suc n} M = M zero ++Fin flatten (M ∘ suc)
+
+
+flattenElim : {P : A → Type ℓ'} {n m : ℕ} (M : FinMatrix A n m)
+          → (∀ i j → P (M i j))
+          → (∀ i → P (flatten M i))
+flattenElim {n = zero} M PMHyp ()
+flattenElim {n = suc n} {m = zero} M PMHyp ind =
+  ⊥.rec (¬Fin0 (transport (λ i → Fin (0≡m·0 n (~ i))) ind))
+flattenElim {n = suc n} {m = suc m} M PMHyp zero = PMHyp zero zero
+flattenElim {P = P} {n = suc n} {m = suc m} M PMHyp (suc i) =
+  ++FinElim {P = P} (M zero ∘ suc) (flatten (M ∘ suc)) (PMHyp zero ∘ suc)
+    (flattenElim {P = P} (M ∘ suc) (PMHyp ∘ suc)) i
+
+module ProdFin (R' : CommRing ℓ) where
  private R = fst R'
  open CommRingStr (snd R')
 
  toMatrix : {n m : ℕ} → FinVec R n → FinVec R m → FinMatrix R n m
  toMatrix V W i j = V i · W j
-
- flatten : {n m : ℕ} → FinMatrix R n m → FinVec R (n ·ℕ m)
- flatten {n = zero} _ i₀ = ⊥.rec (¬Fin0 i₀)
- flatten {n = suc n} M = M zero ++Fin flatten (M ∘ suc)
 
  _··Fin_ : {n m : ℕ} → FinVec R n → FinVec R m → FinVec R (n ·ℕ m)
  V ··Fin W = flatten (toMatrix V W)
