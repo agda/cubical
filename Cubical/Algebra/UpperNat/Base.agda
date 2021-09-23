@@ -120,12 +120,40 @@ pathFromImplications s l s→l l→s =
                              ⇐∶ l→s n
 
 +↑Comm : (s l : ℕ↑) → s +↑ l ≡ l +↑ s
-+↑Comm s l = pathFromImplications (s +↑ l) (l +↑ s) (implication s l) (implication l s)
-  where implication : (s l : ℕ↑) (n : ℕ) → fst (fst (s +↑ l) n) → fst (fst (l +↑ s) n)
-        implication s l n = propTruncRec
++↑Comm s l = pathFromImplications (s +↑ l) (l +↑ s) (⇒ s l) (⇒ l s)
+  where ⇒ : (s l : ℕ↑) (n : ℕ) → fst (fst (s +↑ l) n) → fst (fst (l +↑ s) n)
+        ⇒ s l n = propTruncRec
                            isPropPropTrunc
                            (λ {((a , b) , wa , (wb , a+b≤n))
                              → ∣ (b , a) , wb , (wa , subst (λ k → fst (k ≤p n)) (+-comm a b) a+b≤n) ∣ })
+
++↑Assoc : (s l k : ℕ↑) → s +↑ (l +↑ k) ≡ (s +↑ l) +↑ k
++↑Assoc s l k = pathFromImplications (s +↑ (l +↑ k)) ((s +↑ l) +↑ k) (⇒) ⇐
+  where ⇒ : (n : ℕ) → fst (fst (s +↑ (l +↑ k)) n) → fst (fst ((s +↑ l) +↑ k) n)
+        ⇒ n = propTruncRec
+                isPropPropTrunc
+                λ {((a , b) , sa , (l+kb , a+b≤n))
+                     → propTruncRec
+                         isPropPropTrunc
+                         (λ {((a' , b') , la' , (kb' , a'+b'≤b))
+                         → ∣ ((a + a') , b') , ∣ (a , a') , (sa , (la' , ≤-refl)) ∣ , kb' ,
+                             (let a+⟨a'+b'⟩≤n = (≤-trans (≤-k+ a'+b'≤b) a+b≤n)
+                              in subst (_≤ n) (+-assoc a a' b') a+⟨a'+b'⟩≤n) ∣
+                            }) l+kb
+                   }
+        ⇐ : _
+        ⇐ n = propTruncRec
+                isPropPropTrunc
+                λ {((a , b) , s+l≤a , (k≤b , a+b≤n))
+                     → propTruncRec
+                         isPropPropTrunc
+                         (λ {((a' , b') , s≤a' , (l≤b' , a'+b'≤a))
+                         → ∣ (a' , b' + b) , s≤a' , ( ∣ (b' , b) , l≤b' , (k≤b , ≤-refl) ∣ ,
+                             (let ⟨a'+b'⟩+b≤n = (≤-trans (≤-+k a'+b'≤a) a+b≤n)
+                              in subst (_≤ n) (sym (+-assoc a' b' b)) ⟨a'+b'⟩+b≤n) ) ∣
+                            }) s+l≤a
+                   }
+
 
 +↑Rid : (s : ℕ↑) → s +↑ 0↑ ≡ s
 +↑Rid s = pathFromImplications (s +↑ 0↑) s (⇒) ⇐
