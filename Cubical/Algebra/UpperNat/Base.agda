@@ -96,8 +96,11 @@ s +↑ l = seq , seqIsUpwardClosed
              isPropPropTrunc
              λ {((a , b) , wa , (wb , a+b≤n)) → ∣ (a , b) , wa , (wb , ≤-trans a+b≤n n≤m) ∣}
 
--- hasPropFibers→isEmbedding
-ℕ↑Path : {s l : ℕ↑} → ((n : ℕ) → fst (fst s n) ≡ fst (fst l n)) → s ≡ l
+private
+  typeAt : ℕ → ℕ↑ → Type _
+  typeAt n s = fst (fst s n)
+
+ℕ↑Path : {s l : ℕ↑} → ((n : ℕ) → typeAt n s ≡ typeAt n l) → s ≡ l
 ℕ↑Path {s = s} {l = l} pwPath = path
    where
      seqPath : fst s ≡ fst l
@@ -110,8 +113,8 @@ s +↑ l = seq , seqIsUpwardClosed
 
 
 pathFromImplications : (s l : ℕ↑)
-         → ((n : ℕ) → fst (fst s n) → fst (fst l n))
-         → ((n : ℕ) → fst (fst l n) → fst (fst s n))
+         → ((n : ℕ) → typeAt n s → typeAt n l)
+         → ((n : ℕ) → typeAt n l → typeAt n s)
          → s ≡ l
 pathFromImplications s l s→l l→s =
     ℕ↑Path λ n → cong fst (propPath n)
@@ -121,7 +124,7 @@ pathFromImplications s l s→l l→s =
 
 +↑Comm : (s l : ℕ↑) → s +↑ l ≡ l +↑ s
 +↑Comm s l = pathFromImplications (s +↑ l) (l +↑ s) (⇒ s l) (⇒ l s)
-  where ⇒ : (s l : ℕ↑) (n : ℕ) → fst (fst (s +↑ l) n) → fst (fst (l +↑ s) n)
+  where ⇒ : (s l : ℕ↑) (n : ℕ) → typeAt n (s +↑ l) → typeAt n (l +↑ s)
         ⇒ s l n = propTruncRec
                            isPropPropTrunc
                            (λ {((a , b) , wa , (wb , a+b≤n))
@@ -129,7 +132,7 @@ pathFromImplications s l s→l l→s =
 
 +↑Assoc : (s l k : ℕ↑) → s +↑ (l +↑ k) ≡ (s +↑ l) +↑ k
 +↑Assoc s l k = pathFromImplications (s +↑ (l +↑ k)) ((s +↑ l) +↑ k) (⇒) ⇐
-  where ⇒ : (n : ℕ) → fst (fst (s +↑ (l +↑ k)) n) → fst (fst ((s +↑ l) +↑ k) n)
+  where ⇒ : (n : ℕ) → typeAt n (s +↑ (l +↑ k)) → typeAt n ((s +↑ l) +↑ k)
         ⇒ n = propTruncRec
                 isPropPropTrunc
                 λ {((a , b) , sa , (l+kb , a+b≤n))
@@ -157,11 +160,11 @@ pathFromImplications s l s→l l→s =
 
 +↑Rid : (s : ℕ↑) → s +↑ 0↑ ≡ s
 +↑Rid s = pathFromImplications (s +↑ 0↑) s (⇒) ⇐
-  where ⇒ : (n : ℕ) → fst (fst (s +↑ 0↑) n) → fst (fst s n)
+  where ⇒ : (n : ℕ) → typeAt n (s +↑ 0↑) → typeAt n s
         ⇒ n = propTruncRec (snd (fst s n))
                            (λ {((a , b) , sa , ((b' , b'+0≡b) , a+b≤n))
                                 → (snd s) a n (≤-trans ≤SumLeft a+b≤n) sa })
-        ⇐ : (n : ℕ) → fst (fst s n) → fst (fst (s +↑ 0↑) n)
+        ⇐ : (n : ℕ) → typeAt n s → typeAt n (s +↑ 0↑)
         ⇐ n = λ sn → ∣ (n , 0) , (sn , (zero-≤ , subst (_≤ n) (sym (+-zero n)) ≤-refl)) ∣
 
 _·↑_ : ℕ↑ → ℕ↑ → ℕ↑
