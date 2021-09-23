@@ -658,4 +658,9 @@ rUnit⌣ (suc n) =
   sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
                λ f → cong ∣_∣₂ (funExt λ x → rUnitₖ _ (f x))
 
+-ₕDistᵣ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ) (x : coHom n A) (y : coHom m A) → (-ₕ (x ⌣ y)) ≡ x ⌣ (-ₕ y)
+-ₕDistᵣ n m =
+  sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+    λ f g → cong ∣_∣₂ (funExt λ x → -Distᵣ n m (f x) (g x))
+
 -- TODO : Graded ring structure
