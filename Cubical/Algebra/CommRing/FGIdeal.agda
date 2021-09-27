@@ -206,6 +206,21 @@ module _ (R' : CommRing ℓ) where
  ++FinComm V W = FGIdealAddLemma V W ∙∙ +iComm ⟨ V ⟩ ⟨ W ⟩ ∙∙ sym (FGIdealAddLemma W V)
 
  open ProdFin R'
+ prodIn··Ideal : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) (x y : R)
+          → (x ∈ ⟨ U ⟩ .fst) → (y ∈ ⟨ V ⟩ .fst) → (x · y) ∈ ⟨ U ··Fin V ⟩ .fst
+ prodIn··Ideal {n = n} {m = m} U V x y = map2 Σhelper
+  where
+  Σhelper : Σ[ α ∈ FinVec R n ] x ≡ linearCombination R' α U
+          → Σ[ β ∈ FinVec R m ] y ≡ linearCombination R' β V
+          → Σ[ γ ∈ FinVec R (n ·ℕ m) ] (x · y) ≡ linearCombination R' γ (U ··Fin V)
+  Σhelper (α , x≡∑αU) (β , y≡∑βV) = α ··Fin β , path
+   where
+   path : x · y ≡ ∑ λ i → (α ··Fin β) i · (U ··Fin V) i
+   path = x · y ≡⟨ cong₂ (_·_) x≡∑αU y≡∑βV ⟩
+          (∑ λ i → α i · U i) · (∑ λ i → β i · V i) ≡⟨ ∑Dist··Fin (λ i → α i · U i) _ ⟩
+          (∑ λ j → ((λ i → α i · U i) ··Fin (λ i → β i · V i)) j) ≡⟨ {!!} ⟩
+          (∑ λ i → (α ··Fin β) i · (U ··Fin V) i) ∎
+
  FGIdealMultLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                  → ⟨ U ··Fin V ⟩ ≡ ⟨ U ⟩ ·i ⟨ V ⟩
  FGIdealMultLemma U V = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (ltrIncl U V , rtlIncl U V))
@@ -213,12 +228,12 @@ module _ (R' : CommRing ℓ) where
   ltrIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) → ⟨ U ··Fin V ⟩ .fst ⊆ (⟨ U ⟩ ·i ⟨ V ⟩) .fst
   ltrIncl U V x = elim (λ _ → isPropPropTrunc)
     λ (α , x≡∑αUV) → subst-∈ ((⟨ U ⟩ ·i ⟨ V ⟩) .fst)  (sym x≡∑αUV) --replace x by ∑αᵢⱼUᵢVⱼ
-      (∑Closed (⟨ U ⟩ ·i ⟨ V ⟩) (λ i → α i · (U ··Fin V) i) --show that each αᵢⱼ UᵢVⱼ is in product
+      (∑Closed (⟨ U ⟩ ·i ⟨ V ⟩) (λ i → α i · (U ··Fin V) i) --show that each αᵢ(U··V)ᵢ is in product
         λ i → (⟨ U ⟩ ·i ⟨ V ⟩) .snd .·Closed (α i) --drop the α's
           (flattenElim {P = _∈ (⟨ U ⟩ ·i ⟨ V ⟩) .fst} (toMatrix U V) --show theat UᵢVⱼ is in product
             (λ j k → prodInProd ⟨ U ⟩ ⟨ V ⟩ (U j) (V k) (indInIdeal U j) (indInIdeal V k)) i))
 
   rtlIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) → (⟨ U ⟩ ·i ⟨ V ⟩) .fst ⊆ ⟨ U ··Fin V ⟩ .fst
   rtlIncl U V x = elim (λ _ → isPropPropTrunc)
-    λ (k , (α , β) , ∀α∈⟨U⟩ , ∀β∈⟨V⟩ , x≡∑αβ) → subst-∈ (⟨ U ··Fin V ⟩ .fst) (sym x≡∑αβ)
-      (∑Closed ⟨ U ··Fin V ⟩ (λ i → α i · β i) {!!})
+    λ (_ , (α , β) , ∀α∈⟨U⟩ , ∀β∈⟨V⟩ , x≡∑αβ) → subst-∈ (⟨ U ··Fin V ⟩ .fst) (sym x≡∑αβ)
+      (∑Closed ⟨ U ··Fin V ⟩ _ (λ i → prodIn··Ideal U V (α i) (β i) (∀α∈⟨U⟩ i) (∀β∈⟨V⟩ i)))

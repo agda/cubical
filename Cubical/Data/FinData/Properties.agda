@@ -5,8 +5,11 @@ module Cubical.Data.FinData.Properties where
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv.Base
 open import Cubical.Foundations.Powerset
 
+open import Cubical.Data.Sum
 open import Cubical.Data.FinData.Base as Fin
 open import Cubical.Data.Nat renaming (zero to ℕzero ; suc to ℕsuc
                                       ;znots to ℕznots ; snotz to  ℕsnotz)
@@ -96,3 +99,48 @@ toFin0≡0 {ℕsuc n} (ℕsuc k , p) =
 ... | yes i<m = toFin (n + (toℕ i)) (<-k+ i<m)
 ... | no ¬i<m = toFin (toℕ i ∸ m)
                   (subst (λ x → toℕ i ∸ m < x) (+-comm m n) (≤<-trans (∸-≤ (toℕ i) m) (toℕ<n i)))
+
+
+-- Proof that Fin n ⊎ Fin m ≃ Fin (n+m)
+module FinSumChar where
+
+ fun : (n m : ℕ) → Fin n ⊎ Fin m → Fin (n + m)
+ fun ℕzero m (inr i) = i
+ fun (ℕsuc n) m (inl zero) = zero
+ fun (ℕsuc n) m (inl (suc i)) = suc (fun n m (inl i))
+ fun (ℕsuc n) m (inr i) = suc (fun n m (inr i))
+
+ invSucAux : (n m : ℕ) → Fin n ⊎ Fin m → Fin (ℕsuc n) ⊎ Fin m
+ invSucAux n m (inl i) = inl (suc i)
+ invSucAux n m (inr i) = inr i
+
+ inv : (n m : ℕ) → Fin (n + m) → Fin n ⊎ Fin m
+ inv ℕzero m i = inr i
+ inv (ℕsuc n) m zero = inl zero
+ inv (ℕsuc n) m (suc i) = invSucAux n m (inv n m i)
+
+ ret : (n m : ℕ) (i : Fin n ⊎ Fin m) → inv n m (fun n m i) ≡ i
+ ret ℕzero m (inr i) = refl
+ ret (ℕsuc n) m (inl zero) = refl
+ ret (ℕsuc n) m (inl (suc i)) = subst (λ x → invSucAux n m x ≡ inl (suc i))
+                                       (sym (ret n m (inl i))) refl
+ ret (ℕsuc n) m (inr i) = subst (λ x → invSucAux n m x ≡ inr i) (sym (ret n m (inr i))) refl
+
+ sec : (n m : ℕ) (i : Fin (n + m)) → fun n m (inv n m i) ≡ i
+ sec ℕzero m i = refl
+ sec (ℕsuc n) m zero = refl
+ sec (ℕsuc n) m (suc i) = helperPath (inv n m i) ∙ cong suc (sec n m i)
+  where
+  helperPath : ∀ x → fun (ℕsuc n) m (invSucAux n m x) ≡ suc (fun n m x)
+  helperPath (inl _) = refl
+  helperPath (inr _) = refl
+
+ Equiv : (n m : ℕ) → Fin n ⊎ Fin m ≃ Fin (n + m)
+ Equiv n m = isoToEquiv (iso (fun n m) (inv n m) (sec n m) (ret n m))
+
+-- Proof that Fin n × Fin m ≃ Fin nm
+module FinProdChar where
+
+ fun : (n m : ℕ) → Fin n → Fin m → Fin (n · m)
+ fun (ℕsuc n) m zero j = FinSumChar.fun m (n · m) (inl j)
+ fun (ℕsuc n) m (suc i) j = FinSumChar.fun m (n · m) (inr (fun n m i j))

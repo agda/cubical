@@ -273,10 +273,32 @@ flattenElim {P = P} {n = suc n} {m = suc m} M PMHyp (suc i) =
 
 module ProdFin (R' : CommRing ℓ) where
  private R = fst R'
- open CommRingStr (snd R')
+ open CommRingStr (snd R') renaming ( is-set to isSetR )
+ open CommRingTheory R'
+ open RingTheory (CommRing→Ring R')
+ open KroneckerDelta (CommRing→Ring R')
+ open Sum (CommRing→Ring R')
 
  toMatrix : {n m : ℕ} → FinVec R n → FinVec R m → FinMatrix R n m
  toMatrix V W i j = V i · W j
 
  _··Fin_ : {n m : ℕ} → FinVec R n → FinVec R m → FinVec R (n ·ℕ m)
  V ··Fin W = flatten (toMatrix V W)
+
+ ∑Dist··Fin : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
+            → (∑ U) · (∑ V) ≡ ∑ (U ··Fin V)
+ ∑Dist··Fin {n = zero} U V = 0LeftAnnihilates _
+ ∑Dist··Fin {n = suc n} U V =
+  (U zero + ∑ (U ∘ suc)) · (∑ V) ≡⟨ ·Ldist+ _ _ _ ⟩
+  U zero · (∑ V) + (∑ (U ∘ suc)) · (∑ V) ≡⟨ cong₂ (_+_) (∑Mulrdist _ V) (∑Dist··Fin (U ∘ suc) V) ⟩
+  ∑ (λ j → U zero · V j) + ∑ ((U ∘ suc) ··Fin V) ≡⟨ sym (∑Split++ (λ j → U zero · V j) _) ⟩
+  ∑ ((λ j → U zero · V j) ++Fin ((U ∘ suc) ··Fin V)) ∎
+
+
+ -- ·Dist··Fin : {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m)
+ --            → ∀ j → ((λ i → α i · U i) ··Fin (λ i → β i · V i)) j ≡ (α ··Fin β) j · (U ··Fin V) j
+ -- ·Dist··Fin {n = suc n} {m = zero} α U β V ind =
+ --   ⊥.rec (¬Fin0 (transport (λ i → Fin (0≡m·0 n (~ i))) ind))
+ -- ·Dist··Fin {n = suc n} {m = suc m} α U β V zero = ·-commAssocSwap _ _ _ _
+ -- ·Dist··Fin {n = suc n} {m = suc m} α U β V (suc j) = {!·Dist··Fin (α ∘ suc) (U ∘ suc) β V!}
+ --flattenElim (λ i j → (α i · U i) · (β j · V j)) {!!}
