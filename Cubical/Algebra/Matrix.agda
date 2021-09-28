@@ -297,6 +297,21 @@ module ProdFin (R' : CommRing ℓ) where
 
  -- ·Dist··Fin : {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m)
  --            → ∀ j → ((λ i → α i · U i) ··Fin (λ i → β i · V i)) j ≡ (α ··Fin β) j · (U ··Fin V) j
+ -- ·Dist··Fin {n = n} {m = m} α U β V = equivΠ
+ --   {B = λ i → (α (fst i) · U (fst i)) · (β (snd i) · V (snd i)) ≡ (α (fst i) · β (snd i)) · (U (fst i) · V (snd i))}
+ --   e (equivHelper α U β V ) .fst
+ --   λ _ → ·-commAssocSwap _ _ _ _
+ --     where
+ --     e = (FinProdChar.Equiv n m)
+ --     equivHelper : {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m) (a : Fin n × Fin m) →
+ --        (α (fst a) · U (fst a) · (β (snd a) · V (snd a)) ≡ α (fst a) · β (snd a) · (U (fst a) · V (snd a)))
+ --      ≃ (((λ i → α i · U i) ··Fin (λ i → β i · V i)) (FinProdChar.Equiv n m .fst a)
+ --      ≡ (α ··Fin β) (FinProdChar.Equiv n m .fst a) · (U ··Fin V) (FinProdChar.Equiv n m .fst a))
+ --     equivHelper {n = suc n} {m = suc m} α U β V (zero , zero) = idEquiv _
+ --     equivHelper {n = suc n} {m = suc m} α U β V (zero , suc j) = {!!}
+ --     equivHelper {n = suc n} {m = suc m} α U β V (suc i , zero) = {!!}
+ --     equivHelper {n = suc n} {m = suc m} α U β V (suc i , suc j) = {!!}
+
  -- ·Dist··Fin {n = suc n} {m = zero} α U β V ind =
  --   ⊥.rec (¬Fin0 (transport (λ i → Fin (0≡m·0 n (~ i))) ind))
  -- ·Dist··Fin {n = suc n} {m = suc m} α U β V zero = ·-commAssocSwap _ _ _ _
