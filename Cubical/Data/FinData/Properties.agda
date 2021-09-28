@@ -6,10 +6,12 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv.Base
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Powerset
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sum
+open import Cubical.Data.Sigma
 open import Cubical.Data.FinData.Base as Fin
 open import Cubical.Data.Nat renaming (zero to ℕzero ; suc to ℕsuc
                                       ;znots to ℕznots ; snotz to  ℕsnotz)
@@ -141,6 +143,20 @@ module FinSumChar where
 -- Proof that Fin n × Fin m ≃ Fin nm
 module FinProdChar where
 
- fun : (n m : ℕ) → Fin n → Fin m → Fin (n · m)
- fun (ℕsuc n) m zero j = FinSumChar.fun m (n · m) (inl j)
- fun (ℕsuc n) m (suc i) j = FinSumChar.fun m (n · m) (inr (fun n m i j))
+ open Iso
+ sucProdToSumIso : (n m : ℕ) → Iso (Fin (ℕsuc n) × Fin m) (Fin m ⊎ (Fin n × Fin m))
+ fun (sucProdToSumIso n m) (zero , j) = inl j
+ fun (sucProdToSumIso n m) (suc i , j) = inr (i , j)
+ inv (sucProdToSumIso n m) (inl j) = zero , j
+ inv (sucProdToSumIso n m) (inr (i , j)) = suc i , j
+ rightInv (sucProdToSumIso n m) (inl j) = refl
+ rightInv (sucProdToSumIso n m) (inr (i , j)) = refl
+ leftInv (sucProdToSumIso n m) (zero , j) = refl
+ leftInv (sucProdToSumIso n m) (suc i , j) = refl
+
+ Equiv : (n m : ℕ) → (Fin n × Fin m) ≃ Fin (n · m)
+ Equiv ℕzero m = uninhabEquiv (λ x → ¬Fin0 (fst x)) ¬Fin0
+ Equiv (ℕsuc n) m = Fin (ℕsuc n) × Fin m    ≃⟨ isoToEquiv (sucProdToSumIso n m) ⟩
+                    Fin m ⊎ (Fin n × Fin m) ≃⟨ isoToEquiv (⊎Iso idIso (equivToIso (Equiv n m))) ⟩
+                    Fin m ⊎ Fin (n · m)     ≃⟨ FinSumChar.Equiv m (n · m) ⟩
+                    Fin (m + n · m)         ■
