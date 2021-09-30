@@ -338,3 +338,44 @@ leftInv IsoS³TotalHopf x =
           (JoinS¹S¹→TotalHopf→JoinS¹S¹ (S³→joinS¹S¹ (inv IsoS³S3 x)))
   ∙∙ cong (fun IsoS³S3) (S³→joinS¹S¹→S³ (inv IsoS³S3 x))
   ∙∙ Iso.rightInv IsoS³S3 x
+
+-- kebab : TotalHopf → TotalHopf → TotalHopf
+-- kebab (north , b) (c , d) = c , {!b!}
+-- kebab (south , b) (c , d) = {!!}
+-- kebab (merid a i , b) (c , d) = {!!}
+
+-- S¹→Space : (x : S¹) → Type
+-- S¹→Space base = TotalHopf
+-- S¹→Space (loop i) = {!!}
+
+-- TotalHopf→TotalHopf : TotalHopf → TotalHopf
+-- TotalHopf→TotalHopf (north , p) = north , invLooper p
+-- TotalHopf→TotalHopf (south , p) = south , p
+-- TotalHopf→TotalHopf (merid a i , p) = {!transport (λ i → Glue S¹ (Border a i) → TotalHopf) (λ x → north , invLooper x)!}
+--   where
+--   kebab2 : PathP (λ i → Glue S¹ (Border a i) → TotalHopf) (λ x → north , invLooper x) λ p → south , p
+--   kebab2 = toPathP (funExt λ x → transportRefl _ ∙ ΣPathP (refl , {!p!}) ∙ {!!})
+
+
+-- open import Cubical.Data.Sum
+
+-- code : ∀ {ℓ} {A : Type ℓ} {B : Type ℓ} (x : A) → A ⊎ B →  Type _
+-- code {A = A} {B = B} x (inl y) = x ≡ y
+-- code {A = A} {B = B} y (inr x) = Path (A ⊎ B) (inl y) (inr x)
+
+-- decode' : ∀ {ℓ} {A : Type ℓ} {B : Type ℓ} → (y : A ⊎ B) (x : A) → code x y → inl x ≡ y 
+-- decode' (inl x₁) x p = cong inl p
+-- decode' (inr x₁) x p = p
+
+-- encode' : ∀ {ℓ} {A : Type ℓ} {B : Type ℓ} (x : A) (y : A ⊎ B) → inl x ≡ y → code x y
+-- encode' x y = J (λ y _ → code x y) refl
+
+-- encode-decode : ∀ {ℓ} {A : Type ℓ} {B : Type ℓ} (x : A) (y : A) → (s : code {A = A} {B = B} x (inl y)) → encode' {A = A} {B = B} x (inl y) (decode' (inl y) x s) ≡ s
+-- encode-decode {A = A} {B = B} x y = J (λ y s → encode' {A = A} {B = B} x (inl y) (λ i → inl (s i)) ≡ s) (transportRefl refl)
+
+-- en
+
+-- lal : S₊ 1 → TotalHopf → TotalHopf
+-- lal a (north , p) = {!merid a ?!} , {!!}
+-- lal a (south , p) = {!!}
+-- lal a (merid a₁ i , p) = {!!}

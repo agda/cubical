@@ -70,6 +70,20 @@ open import Cubical.Homotopy.Hopf
 
 open import Cubical.HITs.SetQuotients renaming (_/_ to _/'_)
 
+-- move to Sigma
+contrFstΣ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'}
+          → (e : isContr A)
+          → Iso (Σ A B) (B (fst e))
+Iso.fun (contrFstΣ {B = B} e) (a , b) = subst B (sym (snd e a)) b
+Iso.inv (contrFstΣ {B = B} e) b = (fst e) , b
+Iso.rightInv (contrFstΣ {B = B} e) b = cong (λ x → subst B x b) h3 ∙ transportRefl b
+  where
+  h3 : sym (snd e (fst e)) ≡ refl
+  h3 = isProp→isSet (isContr→isProp e) _ _ _ _
+Iso.leftInv (contrFstΣ {B = B} e) b =
+  ΣPathP ((snd e (fst b))
+        , (λ j → transp (λ i → B (snd e (fst b) (~ i ∨ j))) j (snd b)))
+
 -- move to group stuff
 SES→isEquiv : ∀ {ℓ ℓ'} {L R : Group ℓ-zero}
   → {G : Group ℓ} {H : Group ℓ'}
@@ -309,9 +323,31 @@ Hopfα-Iso-α n f =
   hz : Iso.fun (h n f) (Hopfα n f) ≡ ∣ ∣_∣ ∣₂
   hz = refl
 
-_·₀ₕ_ : ∀ {ℓ} {n : ℕ} {A : Type ℓ} → ℤ → coHom n A → coHom n A
-_·₀ₕ_ {n = n} a = sMap λ f x → a ·₀ f x
 
+⌣-α : (n : ℕ) → (f : S₊∙ (3 +ℕ (n +ℕ n)) →∙ S₊∙ (2 +ℕ n)) → _
+⌣-α n f = Hopfα n f ⌣ Hopfα n f
+
+HopfFunction : (n : ℕ)
+             → (f : S₊∙ (3 +ℕ (n +ℕ n)) →∙ S₊∙ (2 +ℕ n))
+             → ℤ
+HopfFunction n f = Iso.fun (fst (Hopfβ-Iso n f))
+  ((subst (λ x → coHom x (HopfInvariantPush n (fst f)))
+                   (λ i → suc (suc (suc (+-suc n n i))))) (⌣-α n f))
+
+
+open import Cubical.Algebra.AbGroup
+
+open import Cubical.Homotopy.Loopspace
+
+open import Cubical.HITs.Join
+
+open import Cubical.Homotopy.Hopf
+
+open import Cubical.HITs.SetQuotients renaming (_/_ to _/'_)
+-- open import Cubical.ZCohomology.Gysin
+
+_·₀ₕ_ : ∀ {ℓ} {n : ℕ} {A : Type ℓ} → ℤ → coHom n A → coHom n A
+_·₀ₕ_ {n = n} a b = a ℤ[ coHomGr n _ ]· b
 
 -- remove
 HopfInvariant : (n : ℕ)
@@ -324,79 +360,15 @@ HopfInvariant n f =
                    (λ i → suc (suc (suc (+-suc n n (~ i)))))
                    (Hopfβ n f))
 
-
-⌣-α : (n : ℕ) → (f : S₊∙ (3 +ℕ (n +ℕ n)) →∙ S₊∙ (2 +ℕ n)) → _
-⌣-α n f = Hopfα n f ⌣ Hopfα n f
-
-HopfFunction : (n : ℕ)
-             → (f : S₊∙ (3 +ℕ (n +ℕ n)) →∙ S₊∙ (2 +ℕ n))
-             → ℤ
-HopfFunction n f = Iso.fun (fst (Hopfβ-Iso n f))
-  ((subst (λ x → coHom x (HopfInvariantPush n (fst f)))
-                   (λ i → suc (suc (suc (+-suc n n i))))) (⌣-α n f))
-
-pres- : (e : GroupHom ℤGroup ℤGroup) → (a : ℤ) → fst e (- a) ≡ - fst e a
-pres- e a = +Comm (fst e (- a)) (pos 0)
-           ∙ cong (_+ (fst e (- a))) (sym (l (fst e a)) ∙ +Comm (fst e a) (- fst e a))
-          ∙∙ sym (+Assoc _ _ _)
-          ∙∙ cong (- (fst e a) +_) (pp ∙ l (fst e a))
-  where
-  l : (a : ℤ) → a + (- a) ≡ 0
-  l (pos zero) = refl
-  l (pos (suc zero)) = refl
-  l (pos (suc (suc n))) = predℤ+negsuc n (pos (suc (suc n))) ∙ l (pos (suc n))
-  l (negsuc zero) = refl
-  l (negsuc (suc n)) = (cong sucℤ (sucℤ+pos n (negsuc (suc n)))) ∙ l (negsuc n)
-
-  pp : fst e a + fst e (- a) ≡ fst e a + (- fst e a)
-  pp = sym (IsGroupHom.pres· (snd e) a (- a))
-    ∙∙ cong (fst e) (l a)
-    ∙∙ (IsGroupHom.pres1 (snd e)
-      ∙ sym (l _))
-
-GroupHomPres· : (e : GroupHom ℤGroup ℤGroup) → (a b : ℤ) → fst e (a · b) ≡ a · fst e b
-GroupHomPres· e (pos zero) b = IsGroupHom.pres1 (snd e)
-GroupHomPres· e (pos (suc n)) b =
-  IsGroupHom.pres· (snd e) b (pos n · b) ∙ cong (fst e b +_) (GroupHomPres· e (pos n) b)
-GroupHomPres· e (negsuc zero) b = pres- e b
-GroupHomPres· e (negsuc (suc n)) b =
-              IsGroupHom.pres· (snd e) (- b) (negsuc n · b)
-            ∙ cong₂ _+_ (pres- e b) (GroupHomPres· e (negsuc n) b)
-
-lUnit·₀ₕ : ∀ {ℓ} {A : Type ℓ} (n : ℕ) → (x : coHom n A) → (pos zero) ·₀ₕ x ≡ 0ₕ _
-lUnit·₀ₕ n = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _) λ _ → refl
-
-minus≡0- : (x : ℤ) → - x ≡ (0 - x)
-minus≡0- x = sym (GroupStr.lid (snd ℤGroup) (- x))
-
-GroupHomPres·₀ : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
+GroupHomℤ→ℤPres·₀ : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
   (e : GroupHom ℤGroup (coHomGr n A))
   → (a b : ℤ)
   → fst e (a · b)
-  ≡ (a ·₀ₕ fst e b) 
-GroupHomPres·₀ n e (pos zero) b = IsGroupHom.pres1 (snd e) ∙ sym (lUnit·₀ₕ n (fst e b))
-GroupHomPres·₀ {A = A} n e (pos (suc a)) b =
-  IsGroupHom.pres· (snd e) b (pos a · b)
-  ∙ (λ i → fst e b +ₕ GroupHomPres·₀ n e (pos a) b i)
-  ∙ s (fst e b)
-  where
-  s : (x : coHom n A) → x +ₕ (pos a ·₀ₕ x) ≡ pos (suc a) ·₀ₕ x
-  s = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _) λ _ → refl
-GroupHomPres·₀ n e (negsuc zero) b =
-    (cong (fst e) (sym (GroupStr.lid (snd ℤGroup) (- b)))
-  ∙ IsGroupHom.presinv (snd e) b)
-GroupHomPres·₀ {A = A} n e (negsuc (suc a)) b =
-     IsGroupHom.pres· (snd e) (- b) (negsuc a · b)
-  ∙∙ cong₂ _+ₕ_ ((cong (fst e) (sym (GroupStr.lid (snd ℤGroup) (- b)))
-               ∙ IsGroupHom.presinv (snd e) b))
-               (GroupHomPres·₀ n e (negsuc a) b)
-  ∙∙ helper (fst e b)
-  where
-  helper : (x : coHom n A) → (-ₕ x) +ₕ (negsuc a ·₀ₕ x) ≡ (negsuc (suc a) ·₀ₕ x)
-  helper =
-    sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
-          λ f → cong ∣_∣₂ (funExt λ x → commₖ n (-ₖ (f x)) (negsuc a ·₀ f x))
+  ≡ (a ·₀ₕ fst e b)
+GroupHomℤ→ℤPres·₀ {A = A} n e a b =  cong (fst e) (ℤ·≡· a b) ∙ hompres· {H = coHomGr n A} (_ , snd e) b a
 
+
+-- goal: remove
 genH : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
      → (e : GroupIso (coHomGr n A)
                  ℤGroup)
@@ -405,57 +377,72 @@ genH : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
             → Σ[ a ∈ ℤ ] a ·₀ₕ x ≡ y)
 genH {A = A} n e = (Iso.inv (fst e) 1)
          , λ y → (Iso.fun (fst e) y)
-         , (sym (GroupHomPres·₀ n (_ , snd (invGroupIso e)) (Iso.fun (fst e) y) (pos 1))
+         , (sym (GroupHomℤ→ℤPres·₀ n (_ , snd (invGroupIso e)) (Iso.fun (fst e) y) (pos 1))
          ∙∙ cong (Iso.inv (fst e)) (·Comm (Iso.fun (fst e) y) (pos 1))
          ∙∙ Iso.leftInv (fst e) y)
+-- keep
+genH' : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
+     → (e : GroupIso (coHomGr n A)
+                 ℤGroup)
+     → Σ[ x ∈ coHom n A ]
+          gen₁-by (coHomGr n A) x
+genH' {A = A} n e = (Iso.inv (fst e) 1)
+         , λ h → (Iso.fun (fst e) h) ,
+           (sym (Iso.leftInv (fst e) h)
+         ∙∙ sym (cong (Iso.inv (fst e)) (·Comm (Iso.fun (fst e) h) (pos 1)))
+         ∙∙ (cong (Iso.inv (fst e)) (ℤ·≡· _ _)
+          ∙ (hompres· (_ , snd (invGroupIso e)) (pos 1) (Iso.fun (fst e) h))))
 
-l2 : (n m : ℕ) → Σ[ a ∈ ℕ ] (negsuc n · pos (suc m)) ≡ negsuc a
-l2 n zero = n , ·Comm  (negsuc n) (pos 1)
-l2 n (suc m) = h3 _ _ .fst ,
-     (·Comm (negsuc n) (pos (suc (suc m)))
-  ∙∙ cong (negsuc n +_) (·Comm (pos (suc m)) (negsuc n) ∙ (l2 n m .snd))
-  ∙∙ h3 _ _ .snd)
-  where
-  h3 : (x y : ℕ) → Σ[ a ∈ ℕ ] negsuc x + negsuc y ≡ negsuc a
-  h3 zero zero = 1 , refl
-  h3 zero (suc y) = (suc (suc y)) , +Comm (negsuc zero) (negsuc (suc y))
-  h3 (suc x) zero = (suc (suc x)) , refl
-  h3 (suc x) (suc y) = (h3 (suc (suc x)) y .fst) , (predℤ+negsuc y (negsuc (suc x)) ∙ snd ((h3 (suc (suc x))) y))
+-- Move to intGroup
+private
+  l2 : (n m : ℕ) → Σ[ a ∈ ℕ ] (negsuc n · pos (suc m)) ≡ negsuc a
+  l2 n zero = n , ·Comm  (negsuc n) (pos 1)
+  l2 n (suc m) = h3 _ _ .fst ,
+       (·Comm (negsuc n) (pos (suc (suc m)))
+    ∙∙ cong (negsuc n +_) (·Comm (pos (suc m)) (negsuc n) ∙ (l2 n m .snd))
+    ∙∙ h3 _ _ .snd)
+    where
+    h3 : (x y : ℕ) → Σ[ a ∈ ℕ ] negsuc x + negsuc y ≡ negsuc a
+    h3 zero zero = 1 , refl
+    h3 zero (suc y) = (suc (suc y)) , +Comm (negsuc zero) (negsuc (suc y))
+    h3 (suc x) zero = (suc (suc x)) , refl
+    h3 (suc x) (suc y) = (h3 (suc (suc x)) y .fst) , (predℤ+negsuc y (negsuc (suc x)) ∙ snd ((h3 (suc (suc x))) y))
 
-zz : (n x : ℕ) → Σ[ a ∈ ℕ ] ((pos (suc x)) · pos (suc (suc n)) ≡ pos (suc (suc a)))
-zz n zero = n , refl
-zz n (suc x) = h3 _ _ (zz n x)
-  where
-  h3 : (x : ℤ) (n : ℕ) → Σ[ a ∈ ℕ ] (x ≡ pos (suc (suc a)))
-                → Σ[ a ∈ ℕ ] pos n + x ≡ pos (suc (suc a))
-  h3 x n (a , p) = n +ℕ a
-    , cong (pos n +_) p ∙ cong sucℤ (sucℤ+pos a (pos n))
-       ∙ sucℤ+pos a (pos (suc n)) ∙ (sym (pos+ (suc (suc n)) a))
+  zz : (n x : ℕ) → Σ[ a ∈ ℕ ] ((pos (suc x)) · pos (suc (suc n)) ≡ pos (suc (suc a)))
+  zz n zero = n , refl
+  zz n (suc x) = h3 _ _ (zz n x)
+    where
+    h3 : (x : ℤ) (n : ℕ) → Σ[ a ∈ ℕ ] (x ≡ pos (suc (suc a)))
+                  → Σ[ a ∈ ℕ ] pos n + x ≡ pos (suc (suc a))
+    h3 x n (a , p) = n +ℕ a
+      , cong (pos n +_) p ∙ cong sucℤ (sucℤ+pos a (pos n))
+         ∙ sucℤ+pos a (pos (suc n)) ∙ (sym (pos+ (suc (suc n)) a))
 
-lem22 : (n : ℕ) (x : ℤ) → ¬ pos 1 ≡ x · pos (suc (suc n))
-lem22 n (pos zero) p = snotz (injPos p)
-lem22 n (pos (suc n₁)) p = snotz (injPos (sym (cong predℤ (snd (zz n n₁))) ∙ sym (cong predℤ p)))
-lem22 n (negsuc n₁) p = posNotnegsuc _ _ (p ∙ l2 _ _ .snd)
+  lem22 : (n : ℕ) (x : ℤ) → ¬ pos 1 ≡ x · pos (suc (suc n))
+  lem22 n (pos zero) p = snotz (injPos p)
+  lem22 n (pos (suc n₁)) p = snotz (injPos (sym (cong predℤ (snd (zz n n₁))) ∙ sym (cong predℤ p)))
+  lem22 n (negsuc n₁) p = posNotnegsuc _ _ (p ∙ l2 _ _ .snd)
 
 
-grr : (e : GroupEquiv ℤGroup ℤGroup) (x : ℤ) → (fst (fst e) 1) ≡ x → abs (fst (fst e) 1) ≡ 1
-grr e (pos zero) p =
+-- Move to intGroup
+GroupEquivℤ-pres1 : (e : GroupEquiv ℤGroup ℤGroup) (x : ℤ) → (fst (fst e) 1) ≡ x → abs (fst (fst e) 1) ≡ 1
+GroupEquivℤ-pres1 e (pos zero) p =
   ⊥-rec (snotz (injPos (sym (retEq (fst e) 1)
             ∙∙ (cong (fst (fst (invGroupEquiv e))) p)
             ∙∙ IsGroupHom.pres1 (snd (invGroupEquiv e)))))
-grr e (pos (suc zero)) p = cong abs p
-grr e (pos (suc (suc n))) p = ⊥-rec (lem22 _ _ (h3 ∙ ·Comm (pos (suc (suc n))) (invEq (fst e) 1)))
+GroupEquivℤ-pres1 e (pos (suc zero)) p = cong abs p
+GroupEquivℤ-pres1 e (pos (suc (suc n))) p = ⊥-rec (lem22 _ _ (h3 ∙ ·Comm (pos (suc (suc n))) (invEq (fst e) 1)))
   where
 
   h3 : pos 1 ≡ _
   h3 = sym (retEq (fst e) 1)
     ∙∙ (cong (fst (fst (invGroupEquiv e))) (p ∙ ·Comm 1 (pos (suc (suc n)))))
-    ∙∙ GroupHomPres· (_ , snd (invGroupEquiv e)) (pos (suc (suc n))) 1
-grr e (negsuc zero) p = cong abs p
-grr e (negsuc (suc n)) p = ⊥-rec (lem22 _ _ l33)
+    ∙∙ GroupHomℤ→ℤPres· (_ , snd (invGroupEquiv e)) (pos (suc (suc n))) 1
+GroupEquivℤ-pres1 e (negsuc zero) p = cong abs p
+GroupEquivℤ-pres1 e (negsuc (suc n)) p = ⊥-rec (lem22 _ _ l33)
   where
   h3 : fst (fst e) (negsuc zero) ≡ pos (suc (suc n))
-  h3 = pres- (_ , snd e) (pos 1) ∙ cong -_ p
+  h3 = GroupHomℤ→ℤpres- (_ , snd e) (pos 1) ∙ cong -_ p
 
   compGroup : GroupEquiv ℤGroup ℤGroup
   fst compGroup = isoToEquiv (iso -_ -_ -Involutive -Involutive)
@@ -471,9 +458,10 @@ grr e (negsuc (suc n)) p = ⊥-rec (lem22 _ _ l33)
   l33 = sym (retEq (fst compHom) (pos 1))
      ∙∙ cong (invEq (fst compHom)) l32
      ∙∙ (cong (invEq (fst compHom)) (·Comm (pos 1) (pos (suc (suc n))))
-       ∙ GroupHomPres· (_ , (snd (invGroupEquiv compHom))) (pos (suc (suc n))) (pos 1)
+       ∙ GroupHomℤ→ℤPres· (_ , (snd (invGroupEquiv compHom))) (pos (suc (suc n))) (pos 1)
        ∙ ·Comm (pos (suc (suc n))) (invEq (fst compHom) (pos 1)))
 
+-- move to Int
 abs→⊎ : (x : ℤ) (n : ℕ) → abs x ≡ n → (x ≡ pos n) ⊎ (x ≡ - pos n)
 abs→⊎ x n = J (λ n _ → (x ≡ pos n) ⊎ (x ≡ - pos n)) (help x)
   where
@@ -487,6 +475,7 @@ abs→⊎ x n = J (λ n _ → (x ≡ pos n) ⊎ (x ≡ - pos n)) (help x)
 ⊎→abs x zero (inr x₁) = cong abs x₁
 ⊎→abs x (suc n) (inr x₁) = cong abs x₁
 
+-- Move to group
 JGroupEquiv : ∀ {ℓ ℓ'} {G : Group ℓ} (P : (H : Group ℓ) → GroupEquiv G H → Type ℓ')
             → P G idGroupEquiv
             → ∀ {H} e → P H e
@@ -502,6 +491,8 @@ JGroupEquiv {G = G} P p {H} e =
                           (transportRefl (fst (fst e) (transportRefl x i)) i))))
                          ∙ retEq (fst e) x))
 
+-- really needed?
+{-
 sesIsoPresGen :
    ∀ (G : Group ℓ-zero)
   → (iso : GroupEquiv ℤGroup G)
@@ -525,20 +516,22 @@ sesIsoPresGen G = JGroupEquiv (λ G iso →
   where
   autoPres1 : (e : GroupEquiv ℤGroup ℤGroup)
            → abs (fst (fst e) 1) ≡ 1
-  autoPres1 e = grr e _ refl
+  autoPres1 e = GroupEquivℤ-pres1 e _ refl
+-}
 
-
+-- move to intGroup
 allisoPresGen : ∀ {ℓ} (G : Group ℓ) (ϕ : GroupEquiv G ℤGroup) (x : fst G)
               → (fst (fst ϕ) x ≡ 1) ⊎ (fst (fst ϕ) x ≡ - 1)
-              → (ψ : GroupEquiv G ℤGroup) → (fst (fst ψ) x ≡ 1) ⊎ (fst (fst ψ) x ≡ - 1)
+              → (ψ : GroupEquiv G ℤGroup)
+              → (fst (fst ψ) x ≡ 1) ⊎ (fst (fst ψ) x ≡ - 1)
 allisoPresGen G (ϕeq , ϕhom) x (inl r) (ψeq , ψhom) =
      abs→⊎ _ _ (cong abs (cong (fst ψeq) (sym (retEq ϕeq x) ∙ cong (invEq ϕeq) r))
-   ∙ grr (compGroupEquiv (invGroupEquiv (ϕeq , ϕhom)) (ψeq , ψhom)) _ refl)
+   ∙ GroupEquivℤ-pres1 (compGroupEquiv (invGroupEquiv (ϕeq , ϕhom)) (ψeq , ψhom)) _ refl)
 allisoPresGen G (ϕeq , ϕhom) x (inr r) (ψeq , ψhom) =
   abs→⊎ _ _
     (cong abs (cong (fst ψeq) (sym (retEq ϕeq x) ∙ cong (invEq ϕeq) r))
     ∙ cong abs (IsGroupHom.presinv (snd (compGroupEquiv (invGroupEquiv (ϕeq , ϕhom)) (ψeq , ψhom))) 1)
-    ∙ absLem _ (grr (compGroupEquiv (invGroupEquiv (ϕeq , ϕhom)) (ψeq , ψhom)) _ refl))
+    ∙ absLem _ (GroupEquivℤ-pres1 (compGroupEquiv (invGroupEquiv (ϕeq , ϕhom)) (ψeq , ψhom)) _ refl))
   where
   absLem : ∀ x → abs x ≡ 1 → abs (pos 0 - x) ≡ 1
   absLem (pos zero) p = ⊥-rec (snotz (sym p))
@@ -547,14 +540,13 @@ allisoPresGen G (ϕeq , ϕhom) x (inr r) (ψeq , ψhom) =
   absLem (negsuc zero) p = refl
   absLem (negsuc (suc n)) p = ⊥-rec (snotz (cong predℕ p))
 
-
-l3 : ∀ {ℓ} {G H : Type ℓ} → (G ≡ H) → (g₁ : coHom 2 G) (h₁ : coHom 2 H)
+⌣equiv→pres1 : ∀ {ℓ} {G H : Type ℓ} → (G ≡ H) → (g₁ : coHom 2 G) (h₁ : coHom 2 H)
         → (fstEq : (Σ[ ϕ ∈ GroupEquiv (coHomGr 2 G) ℤGroup ] abs (fst (fst ϕ) g₁) ≡ 1))
         → (sndEq : ((Σ[ ϕ ∈ GroupEquiv (coHomGr 2 H) ℤGroup ] abs (fst (fst ϕ) h₁) ≡ 1)))
         → isEquiv {A = coHom 2 G} {B = coHom 4 G} (_⌣ g₁)
         → (3rdEq : GroupEquiv (coHomGr 4 H) ℤGroup)
         → abs (fst (fst 3rdEq) (h₁ ⌣ h₁)) ≡ 1
-l3 {G = G} = J (λ H _ → (g₁ : coHom 2 G) (h₁ : coHom 2 H)
+⌣equiv→pres1 {G = G} = J (λ H _ → (g₁ : coHom 2 G) (h₁ : coHom 2 H)
         → (fstEq : (Σ[ ϕ ∈ GroupEquiv (coHomGr 2 G) ℤGroup ] abs (fst (fst ϕ) g₁) ≡ 1))
         → (sndEq : ((Σ[ ϕ ∈ GroupEquiv (coHomGr 2 H) ℤGroup ] abs (fst (fst ϕ) h₁) ≡ 1)))
         → isEquiv {A = coHom 2 G} {B = coHom 4 G} (_⌣ g₁)
@@ -610,7 +602,7 @@ l3 {G = G} = J (λ H _ → (g₁ : coHom 2 G) (h₁ : coHom 2 H)
       sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
         λ f → cong ∣_∣₂ (funExt λ x → -ₖ^2 (f x))
 
-    theEq : coHom 2 G ≃ coHom 4 G -- (λ x → -ₕ (x ⌣ g))
+    theEq : coHom 2 G ≃ coHom 4 G
     theEq = compEquiv (_ , ⌣eq) (isoToEquiv (-ₕeq 4))
 
     main3 : (h ≡ g) ⊎ (h ≡ (-ₕ g)) → isEquiv {A = coHom 2 G} (_⌣ h)
@@ -624,6 +616,7 @@ l3 {G = G} = J (λ H _ → (g₁ : coHom 2 G) (h₁ : coHom 2 H)
     snd main4 =
       makeIsGroupHom λ g1 g2 → rightDistr-⌣ _ _ g1 g2 h
 
+-- move to S1 (not there already -- check Sn?)
 characFunSpaceS¹ : ∀ {ℓ} {A : Type ℓ} →
   Iso (S₊ 1 → A) (Σ[ x ∈ A ] x ≡ x)
 Iso.fun characFunSpaceS¹ f = f base , cong f loop
@@ -652,19 +645,6 @@ fib n x =
   trRec {B = TypeOfHLevel ℓ-zero 2} (isOfHLevelTypeOfHLevel 2)
         (λ f → ∥ (Σ[ g ∈ (S₊ 3 → coHomK (3 +ℕ n)) ]
           ((a : S₊ 1) (b : S₊ 3) → f a ≡ g b)) ∥₂ , squash₂) x .fst
-
-contrFstΣ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'}
-          → (e : isContr A)
-          → Iso (Σ A B) (B (fst e))
-Iso.fun (contrFstΣ {B = B} e) (a , b) = subst B (sym (snd e a)) b
-Iso.inv (contrFstΣ {B = B} e) b = (fst e) , b
-Iso.rightInv (contrFstΣ {B = B} e) b = cong (λ x → subst B x b) h3 ∙ transportRefl b
-  where
-  h3 : sym (snd e (fst e)) ≡ refl
-  h3 = isProp→isSet (isContr→isProp e) _ _ _ _
-Iso.leftInv (contrFstΣ {B = B} e) b =
-  ΣPathP ((snd e (fst b))
-        , (λ j → transp (λ i → B (snd e (fst b) (~ i ∨ j))) j (snd b)))
 
 Iso1 : (n : ℕ) → Iso (coHom (3 +ℕ n) (join S¹ (S₊ 3))) ∥ Σ (coHomS¹-ish n) (fib n) ∥₂
 Iso1 n = compIso (setTruncIso characFunSpace) Iso2
@@ -1872,8 +1852,8 @@ snd e' =
   makeIsGroupHom
     (sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _) λ f g → refl)
 
-grrg : GroupIso (coHomGr 2 CP2) ℤGroup
-grrg = compGroupIso e' (Hⁿ-Sⁿ≅ℤ 1)
+GroupEquivℤ-pres1g : GroupIso (coHomGr 2 CP2) ℤGroup
+GroupEquivℤ-pres1g = compGroupIso e' (Hⁿ-Sⁿ≅ℤ 1)
 
 ⌣hom : GroupEquiv (coHomGr 2 CP2) (coHomGr 4 CP2)
 fst (fst ⌣hom) = GysinS1.⌣-hom 2 .fst
@@ -2059,7 +2039,7 @@ ll = ≡CP2 _ _ ∣ funExt (λ x → funExt⁻ (cong fst (ll32 x)) south) ∣
 isGenerator≃ℤ-e : isGenerator≃ℤ (coHomGr 2 CP2) GysinS1.e
 isGenerator≃ℤ-e =
   subst (isGenerator≃ℤ (coHomGr 2 CP2)) (sym ll)
-    (grrg , refl)
+    (GroupEquivℤ-pres1g , refl)
 
 hopfFun : S₊ 3 → S₊ 2
 hopfFun x = fibS1.TotalSpaceHopf'→TotalSpace
@@ -2083,15 +2063,15 @@ fst (snd ⌣-pres1-CP2) = isGenerator≃ℤ-e
 snd (snd ⌣-pres1-CP2) = ∣ p ∣
   where
   p : Σ _ _
-  fst p = compGroupIso (GroupEquiv→GroupIso (invGroupEquiv ⌣hom)) grrg
+  fst p = compGroupIso (GroupEquiv→GroupIso (invGroupEquiv ⌣hom)) GroupEquivℤ-pres1g
   snd p = {!!}
-         ∙ sesIsoPresGen _ (invGroupEquiv (GroupIso→GroupEquiv grrg)) _
-                           (compGroupEquiv (invGroupEquiv (GroupIso→GroupEquiv grrg)) (invGroupEquiv (invGroupEquiv ⌣hom)))
+         ∙ sesIsoPresGen _ (invGroupEquiv (GroupIso→GroupEquiv GroupEquivℤ-pres1g)) _
+                           (compGroupEquiv (invGroupEquiv (GroupIso→GroupEquiv GroupEquivℤ-pres1g)) (invGroupEquiv (invGroupEquiv ⌣hom)))
                              GysinS1.e {!!} ⌣hom
 {-
     GysinS1.e
   , (isGenerator≃ℤ-e
-  , ∣ compGroupIso (GroupEquiv→GroupIso (invGroupEquiv ⌣hom)) grrg
+  , ∣ compGroupIso (GroupEquiv→GroupIso (invGroupEquiv ⌣hom)) GroupEquivℤ-pres1g
   , {!!} ∣)
   -}
 
@@ -2152,108 +2132,6 @@ snd (snd ⌣-pres1-CP2) = ∣ p ∣
 --   -- P (inr x) = Hopf x
 --   -- P (push a i₁) = ua (v a) i₁
 
-
-
-open import Cubical.Algebra.AbGroup
-
-open import Cubical.Homotopy.Loopspace
-
-open import Cubical.HITs.Join
-
-open import Cubical.Homotopy.Hopf
-
-open import Cubical.HITs.SetQuotients renaming (_/_ to _/'_)
--- open import Cubical.ZCohomology.Gysin
-
-rUnitℤ· : ∀ {ℓ} (G : Group ℓ) → (x : ℤ) → (x ℤ[ G ]· GroupStr.1g (snd G))
-                                                     ≡ GroupStr.1g (snd G)
-rUnitℤ· G (pos zero) = refl
-rUnitℤ· G (pos (suc n)) =
-    cong (GroupStr._·_ (snd G) (GroupStr.1g (snd G)))
-      (rUnitℤ· G (pos n))
-  ∙ GroupStr.lid (snd G) (GroupStr.1g (snd G))
-rUnitℤ· G (negsuc zero) = GroupTheory.inv1g G
-rUnitℤ· G (negsuc (suc n)) =
-    cong₂ (GroupStr._·_ (snd G)) (GroupTheory.inv1g G) (rUnitℤ· G (negsuc n))
-  ∙ GroupStr.lid (snd G) (GroupStr.1g (snd G))
-
-rUnitℤ·ℤ : (x : ℤ) → (x ℤ[ ℤGroup ]· 1) ≡ x
-rUnitℤ·ℤ (pos zero) = refl
-rUnitℤ·ℤ (pos (suc n)) = cong (pos 1 +_) (rUnitℤ·ℤ (pos n)) ∙ sym (pos+ 1 n)
-rUnitℤ·ℤ (negsuc zero) = refl
-rUnitℤ·ℤ (negsuc (suc n)) = cong (-1 +_) (rUnitℤ·ℤ (negsuc n)) ∙ +Comm (negsuc 0) (negsuc n)
-
-private
-  precommℤ : ∀ {ℓ} (G : Group ℓ) → (g : fst G) (y : ℤ) → (snd G GroupStr.· (y ℤ[ G ]· g)) g
-                                                         ≡ (sucℤ y ℤ[ G ]· g)
-  precommℤ G g (pos zero) = GroupStr.lid (snd G) g
-                         ∙ sym (GroupStr.rid (snd G) g)
-  precommℤ G g (pos (suc n)) =
-       sym (GroupStr.assoc (snd G) _ _ _)
-     ∙ cong ((snd G GroupStr.· g)) (precommℤ G g (pos n))
-  precommℤ G g (negsuc zero) =
-    GroupStr.invl (snd G) g
-  precommℤ G g (negsuc (suc n)) =
-    sym (GroupStr.assoc (snd G) _ _ _)
-    ∙ cong ((snd G GroupStr.· GroupStr.inv (snd G) g)) (precommℤ G g (negsuc n))
-    ∙ negsucLem n
-    where
-    negsucLem : (n : ℕ) → (snd G GroupStr.· GroupStr.inv (snd G) g)
-      (sucℤ (negsuc n) ℤ[ G ]· g)
-      ≡ (sucℤ (negsuc (suc n)) ℤ[ G ]· g)
-    negsucLem zero = (GroupStr.rid (snd G) _)
-    negsucLem (suc n) = refl
-
-distrℤ· : ∀ {ℓ} (G : Group ℓ) → (g : fst G) (x y : ℤ)
-       → ((x + y) ℤ[ G ]· g)
-         ≡ GroupStr._·_ (snd G) (x ℤ[ G ]· g) (y ℤ[ G ]· g)
-distrℤ· G' g (pos zero) y = cong (_ℤ[ G' ]· g) (+Comm 0 y)
-                          ∙ sym (GroupStr.lid (snd G') _)
-distrℤ· G' g (pos (suc n)) (pos n₁) =
-    cong (_ℤ[ G' ]· g) (sym (pos+ (suc n) n₁))
-  ∙ cong (GroupStr._·_ (snd G') g) (cong (_ℤ[ G' ]· g) (pos+ n n₁) ∙ distrℤ· G' g (pos n) (pos n₁))
-  ∙ GroupStr.assoc (snd G') _ _ _
-distrℤ· G' g (pos (suc n)) (negsuc zero) =
-    distrℤ· G' g (pos n) 0
-  ∙ ((GroupStr.rid (snd G') (pos n ℤ[ G' ]· g) ∙ sym (GroupStr.lid (snd G') (pos n ℤ[ G' ]· g)))
-  ∙ cong (λ x → GroupStr._·_ (snd G') x (pos n ℤ[ G' ]· g))
-         (sym (GroupStr.invl (snd G') g)) ∙ sym (GroupStr.assoc (snd G') _ _ _))
-  ∙ (GroupStr.assoc (snd G') _ _ _)
-  ∙ cong (λ x → GroupStr._·_ (snd G')  x (pos n ℤ[ G' ]· g)) (GroupStr.invl (snd G') g)
-  ∙ GroupStr.lid (snd G') _
-  ∙ sym (GroupStr.rid (snd G') _)
-  ∙ (cong (GroupStr._·_ (snd G') (pos n ℤ[ G' ]· g)) (sym (GroupStr.invr (snd G') g))
-  ∙ GroupStr.assoc (snd G') _ _ _)
-  ∙ cong (λ x → GroupStr._·_ (snd G')  x (GroupStr.inv (snd G') g))
-         (precommℤ G' g (pos n))
-distrℤ· G' g (pos (suc n)) (negsuc (suc n₁)) =
-     cong (_ℤ[ G' ]· g) (predℤ+negsuc n₁ (pos (suc n)))
-  ∙∙ distrℤ· G' g (pos n) (negsuc n₁)
-  ∙∙ (cong (λ x → GroupStr._·_ (snd G') x (negsuc n₁ ℤ[ G' ]· g))
-           ((sym (GroupStr.rid (snd G') (pos n ℤ[ G' ]· g))
-           ∙ cong (GroupStr._·_ (snd G') (pos n ℤ[ G' ]· g)) (sym (GroupStr.invr (snd G') g)))
-         ∙∙ GroupStr.assoc (snd G') _ _ _
-         ∙∙ cong (λ x → GroupStr._·_ (snd G') x (GroupStr.inv (snd G') g)) (precommℤ G' g (pos n) ))
-    ∙ sym (GroupStr.assoc (snd G') _ _ _))
-distrℤ· G' g (negsuc zero) y =
-    cong (_ℤ[ G' ]· g) (+Comm -1 y) ∙ lol1 y
-  module _ where
-  lol1 : (y : ℤ) → (predℤ y ℤ[ G' ]· g) ≡ (snd G' GroupStr.· GroupStr.inv (snd G') g) (y ℤ[ G' ]· g)
-  lol1 (pos zero) = sym (GroupStr.rid (snd G') _)
-  lol1 (pos (suc n)) =
-       sym (GroupStr.lid (snd G') ((pos n ℤ[ G' ]· g)))
-    ∙∙ cong (λ x → GroupStr._·_ (snd G') x (pos n ℤ[ G' ]· g)) (sym (GroupStr.invl (snd G') g))
-    ∙∙ sym (GroupStr.assoc (snd G') _ _ _)
-  lol1 (negsuc n) = refl
-distrℤ· G' g (negsuc (suc n)) y =
-     cong (_ℤ[ G' ]· g) (+Comm (negsuc (suc n)) y)
-  ∙∙ lol1 G' g 0 (y +negsuc n)
-  ∙∙ cong (snd G' GroupStr.· GroupStr.inv (snd G') g)
-          (cong (_ℤ[ G' ]· g) (+Comm y (negsuc n)) ∙ distrℤ· G' g (negsuc n) y)
-   ∙ (GroupStr.assoc (snd G') _ _ _)
-
-
-
 HopfInvariantPushElim : ∀ {ℓ} n → (f : _) → {P : HopfInvariantPush n f → Type ℓ}
                         → (isOfHLevel (suc (suc (suc (suc (n +ℕ n))))) (P (inl tt)))
                         →  (e : P (inl tt))
@@ -2289,7 +2167,7 @@ snd (transportCohomIso {A = A} {n = n} {m = m} p) =
 
 α-hopfMap : abs (HopfFunction zero (hopfFun , λ _ → hopfFun (snd (S₊∙ 3)))) ≡ suc zero
 α-hopfMap = cong abs (cong (Iso.fun (fst (Hopfβ-Iso zero (hopfFun , refl))))
-                     (transportRefl (⌣-α 0 (hopfFun , refl)))) ∙ l3 (sym CP2≡CP2') GysinS1.e (Hopfα zero (hopfFun , refl))
+                     (transportRefl (⌣-α 0 (hopfFun , refl)))) ∙ ⌣equiv→pres1 (sym CP2≡CP2') GysinS1.e (Hopfα zero (hopfFun , refl))
                (l isGenerator≃ℤ-e)
                (GroupIso→GroupEquiv (Hopfα-Iso 0 (hopfFun , refl)) , refl)
                (snd (fst ⌣hom))

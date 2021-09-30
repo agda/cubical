@@ -195,101 +195,104 @@ snd (Iso-pres-gen₂ G H g₁ g₂ genG is h) =
           (hompres· (_ , snd is) g₁ (fst (fst (genG (inv (fst is) h)))))
           (hompres· (_ , snd is) g₂ (snd (fst (genG (inv (fst is) h))))))
 
--- module _ {ℓ : Level} {G' : Group ℓ} where
---   private
---     G = fst G'
+rUnitℤ· : ∀ {ℓ} (G : Group ℓ) → (x : ℤ) → (x ℤ[ G ]· GroupStr.1g (snd G))
+                                                     ≡ GroupStr.1g (snd G)
+rUnitℤ· G (pos zero) = refl
+rUnitℤ· G (pos (suc n)) =
+    cong (GroupStr._·_ (snd G) (GroupStr.1g (snd G)))
+      (rUnitℤ· G (pos n))
+  ∙ GroupStr.lid (snd G) (GroupStr.1g (snd G))
+rUnitℤ· G (negsuc zero) = GroupTheory.inv1g G
+rUnitℤ· G (negsuc (suc n)) =
+    cong₂ (GroupStr._·_ (snd G)) (GroupTheory.inv1g G) (rUnitℤ· G (negsuc n))
+  ∙ GroupStr.lid (snd G) (GroupStr.1g (snd G))
 
---     _+G_ = GroupStr._·_ (snd G')
---     -G = GroupStr.inv (snd G')
---     1G = GroupStr.1g (snd G')
+rUnitℤ·ℤ : (x : ℤ) → (x ℤ[ ℤGroup ]· 1) ≡ x
+rUnitℤ·ℤ (pos zero) = refl
+rUnitℤ·ℤ (pos (suc n)) = cong (pos 1 +ℤ_) (rUnitℤ·ℤ (pos n)) ∙ sym (pos+ 1 n)
+rUnitℤ·ℤ (negsuc zero) = refl
+rUnitℤ·ℤ (negsuc (suc n)) = cong (-1 +ℤ_) (rUnitℤ·ℤ (negsuc n)) ∙ +Comm (negsuc 0) (negsuc n)
 
---   _ℤ·_ : ℤ → G → G
---   pos zero ℤ· g = 1G
---   pos (suc n) ℤ· g = g +G (pos n ℤ· g)
---   negsuc zero ℤ· g = -G g
---   negsuc (suc n) ℤ· g = -G g +G (negsuc n ℤ· g)
+private
+  precommℤ : ∀ {ℓ} (G : Group ℓ) → (g : fst G) (y : ℤ) → (snd G GroupStr.· (y ℤ[ G ]· g)) g
+                                                         ≡ (sucℤ y ℤ[ G ]· g)
+  precommℤ G g (pos zero) = GroupStr.lid (snd G) g
+                         ∙ sym (GroupStr.rid (snd G) g)
+  precommℤ G g (pos (suc n)) =
+       sym (GroupStr.assoc (snd G) _ _ _)
+     ∙ cong ((snd G GroupStr.· g)) (precommℤ G g (pos n))
+  precommℤ G g (negsuc zero) =
+    GroupStr.invl (snd G) g
+  precommℤ G g (negsuc (suc n)) =
+    sym (GroupStr.assoc (snd G) _ _ _)
+    ∙ cong ((snd G GroupStr.· GroupStr.inv (snd G) g)) (precommℤ G g (negsuc n))
+    ∙ negsucLem n
+    where
+    negsucLem : (n : ℕ) → (snd G GroupStr.· GroupStr.inv (snd G) g)
+      (sucℤ (negsuc n) ℤ[ G ]· g)
+      ≡ (sucℤ (negsuc (suc n)) ℤ[ G ]· g)
+    negsucLem zero = (GroupStr.rid (snd G) _)
+    negsucLem (suc n) = refl
 
---   rUnitℤ : (g : G) → 1 ℤ· g ≡ g
---   rUnitℤ = {!!}
+distrℤ· : ∀ {ℓ} (G : Group ℓ) → (g : fst G) (x y : ℤ)
+       → ((x +ℤ y) ℤ[ G ]· g)
+         ≡ GroupStr._·_ (snd G) (x ℤ[ G ]· g) (y ℤ[ G ]· g)
+distrℤ· G' g (pos zero) y = cong (_ℤ[ G' ]· g) (+Comm 0 y)
+                          ∙ sym (GroupStr.lid (snd G') _)
+distrℤ· G' g (pos (suc n)) (pos n₁) =
+    cong (_ℤ[ G' ]· g) (sym (pos+ (suc n) n₁))
+  ∙ cong (GroupStr._·_ (snd G') g) (cong (_ℤ[ G' ]· g) (pos+ n n₁) ∙ distrℤ· G' g (pos n) (pos n₁))
+  ∙ GroupStr.assoc (snd G') _ _ _
+distrℤ· G' g (pos (suc n)) (negsuc zero) =
+    distrℤ· G' g (pos n) 0
+  ∙ ((GroupStr.rid (snd G') (pos n ℤ[ G' ]· g) ∙ sym (GroupStr.lid (snd G') (pos n ℤ[ G' ]· g)))
+  ∙ cong (λ x → GroupStr._·_ (snd G') x (pos n ℤ[ G' ]· g))
+         (sym (GroupStr.invl (snd G') g)) ∙ sym (GroupStr.assoc (snd G') _ _ _))
+  ∙ (GroupStr.assoc (snd G') _ _ _)
+  ∙ cong (λ x → GroupStr._·_ (snd G')  x (pos n ℤ[ G' ]· g)) (GroupStr.invl (snd G') g)
+  ∙ GroupStr.lid (snd G') _
+  ∙ sym (GroupStr.rid (snd G') _)
+  ∙ (cong (GroupStr._·_ (snd G') (pos n ℤ[ G' ]· g)) (sym (GroupStr.invr (snd G') g))
+  ∙ GroupStr.assoc (snd G') _ _ _)
+  ∙ cong (λ x → GroupStr._·_ (snd G')  x (GroupStr.inv (snd G') g))
+         (precommℤ G' g (pos n))
+distrℤ· G' g (pos (suc n)) (negsuc (suc n₁)) =
+     cong (_ℤ[ G' ]· g) (predℤ+negsuc n₁ (pos (suc n)))
+  ∙∙ distrℤ· G' g (pos n) (negsuc n₁)
+  ∙∙ (cong (λ x → GroupStr._·_ (snd G') x (negsuc n₁ ℤ[ G' ]· g))
+           ((sym (GroupStr.rid (snd G') (pos n ℤ[ G' ]· g))
+           ∙ cong (GroupStr._·_ (snd G') (pos n ℤ[ G' ]· g)) (sym (GroupStr.invr (snd G') g)))
+         ∙∙ GroupStr.assoc (snd G') _ _ _
+         ∙∙ cong (λ x → GroupStr._·_ (snd G') x (GroupStr.inv (snd G') g)) (precommℤ G' g (pos n) ))
+    ∙ sym (GroupStr.assoc (snd G') _ _ _))
+distrℤ· G' g (negsuc zero) y =
+    cong (_ℤ[ G' ]· g) (+Comm -1 y) ∙ lol1 y
+  module _ where
+  lol1 : (y : ℤ) → (predℤ y ℤ[ G' ]· g) ≡ (snd G' GroupStr.· GroupStr.inv (snd G') g) (y ℤ[ G' ]· g)
+  lol1 (pos zero) = sym (GroupStr.rid (snd G') _)
+  lol1 (pos (suc n)) =
+       sym (GroupStr.lid (snd G') ((pos n ℤ[ G' ]· g)))
+    ∙∙ cong (λ x → GroupStr._·_ (snd G') x (pos n ℤ[ G' ]· g)) (sym (GroupStr.invl (snd G') g))
+    ∙∙ sym (GroupStr.assoc (snd G') _ _ _)
+  lol1 (negsuc n) = refl
+distrℤ· G' g (negsuc (suc n)) y =
+     cong (_ℤ[ G' ]· g) (+Comm (negsuc (suc n)) y)
+  ∙∙ lol1 G' g 0 (y +negsuc n)
+  ∙∙ cong (snd G' GroupStr.· GroupStr.inv (snd G') g)
+          (cong (_ℤ[ G' ]· g) (+Comm y (negsuc n)) ∙ distrℤ· G' g (negsuc n) y)
+   ∙ (GroupStr.assoc (snd G') _ _ _)
 
--- copyList : {!length!}
--- copyList = {!!}
--- open import Cubical.Data.Empty renaming (rec to ⊥-rec)
--- module _ {ℓ : Level} (G' : Group ℓ) where
---   private
---     G = fst G'
+minus≡0- : (x : ℤ) → - x ≡ (0 -ℤ x)
+minus≡0- x = sym (GroupStr.lid (snd ℤGroup) (- x))
 
---     _+G_ = GroupStr._·_ (snd G')
---     -G = GroupStr.inv (snd G')
---     1G = GroupStr.1g (snd G')
---   sum : List (ℤ × G) → G
---   sum [] = 1G
---   sum (x ∷ x₁) = (_ℤ·_ {G' = G'} (fst x) (snd x)) +G sum x₁
+GroupHomℤ→ℤpres- : (e : GroupHom ℤGroup ℤGroup) → (a : ℤ) → fst e (- a) ≡ - fst e a
+GroupHomℤ→ℤpres- e a = cong (fst e) (minus≡0- a) ∙∙ IsGroupHom.presinv (snd e) a ∙∙ sym (minus≡0- _)
 
---   sum'help : (l1 : List ℤ) (l2 : List G) (n m : ℕ)
---           → (n ≡ m)
---           → length l1 ≡ n
---           → length l2 ≡ m
---           → G
---   sum'help [] [] n m p q r = 1G
---   sum'help [] (x ∷ l2) n m p q r =
---     ⊥-rec (snotz (r ∙∙ sym p ∙∙ sym q))
---   sum'help (x ∷ l1) [] n m p q r =
---     ⊥-rec (snotz (q ∙∙ p ∙∙ sym r))
---   sum'help (x ∷ l1) (x₁ ∷ l2) n m p q r =
---     _ℤ·_ {G' = G'} x x₁ +G sum'help l1 l2 _ _ (cong predℕ p) (cong predℕ q) (cong predℕ r)
+ℤ·≡· : (a b : ℤ) → a * b ≡ (a ℤ[ ℤGroup ]· b)
+ℤ·≡· (pos zero) b = refl
+ℤ·≡· (pos (suc n)) b = cong (b +ℤ_) (ℤ·≡· (pos n) b)
+ℤ·≡· (negsuc zero) b = minus≡0- b
+ℤ·≡· (negsuc (suc n)) b = cong₂ _+ℤ_ (minus≡0- b) (ℤ·≡· (negsuc n) b)
 
---   sum' : (l1 : List ℤ) (l2 : List G) → length l1 ≡ length l2
---       → G
---   sum' l1 l2 p = sum'help l1 l2 _ _ p refl refl
-
---   isFinGen : Type _
---   isFinGen =
---     Σ[ l ∈ List G ]
---      ((g : G) → Σ[ l2 ∈ List ℤ ]
---                   Σ[ p ∈ (length l2 ≡ length l) ]
---                     sum' l2 l p ≡ g)
-
--- isFinGenℤ : isFinGen ℤGroup
--- isFinGenℤ = (1 ∷ [])
---           , λ g → (g ∷ []) , refl , help g
---   where
---   help : (g : ℤ) → sum' ℤGroup (g ∷ []) (pos 1 ∷ []) (λ _ → 1) ≡ g
---   help (pos zero) = refl
---   help (pos (suc n)) = cong (pos 1 +ℤ_) (help (pos n)) ∙ +Comm (pos 1) (pos n)
---   help (negsuc zero) = refl
---   help (negsuc (suc n)) = cong (negsuc 0 +ℤ_) (help (negsuc n)) ∙ +Comm (negsuc 0) (negsuc n)
-
--- open import Cubical.Algebra.Group.DirProd
--- isFinGenℤ×ℤ : isFinGen (DirProd ℤGroup ℤGroup)
--- fst isFinGenℤ×ℤ = (1 , 0) ∷ (0 , 1) ∷ []
--- fst (snd isFinGenℤ×ℤ (x , y)) = x ∷ y ∷ []
--- fst (snd (snd isFinGenℤ×ℤ (x , y))) = refl
--- snd (snd (snd isFinGenℤ×ℤ (x , y))) =
---   ΣPathP ((λ i → fst ((distrLem 1 0 x) i) +ℤ fst (distrLem 0 1 y i))
---        ∙ (λ i → (·Comm x 1 i) +ℤ (·Comm y 0 i))
---        , (λ i → snd ((distrLem 1 0 x) i) +ℤ snd (distrLem 0 1 y i))
---        ∙ (λ i → (·Comm x 0 i) +ℤ (·Comm y 1 i))
---        ∙ sym (+Comm y 0))
---   where
---   ll : (x : ℤ) → - x ≡ 0 -ℤ x
---   ll (pos zero) = refl
---   ll (pos (suc zero)) = refl
---   ll (pos (suc (suc n))) =
---     cong predℤ (ll (pos (suc n)))
---   ll (negsuc zero) = refl
---   ll (negsuc (suc n)) = cong sucℤ (ll (negsuc n))
-
---   ℤ×ℤ = DirProd ℤGroup ℤGroup
---   _+''_ = GroupStr._·_ (snd ℤ×ℤ)
---   distrLem : (x y : ℤ) (z : ℤ)
---            → Path (ℤ × ℤ) (_ℤ·_ {G' = DirProd ℤGroup ℤGroup} z (x , y)) (z * x , z * y)
---   distrLem x y (pos zero) = refl
---   distrLem x y (pos (suc n)) = cong ((x , y) +''_) (distrLem x y (pos n))
---   distrLem x y (negsuc zero) = ΣPathP (sym (ll x) , sym (ll y)) 
---   distrLem x y (negsuc (suc n)) =
---       cong₂ _+''_ (ΣPathP (sym (ll x) , sym (ll y))) (distrLem x y (negsuc n))
-
--- maini : ∀ {ℓ} {G : Type ℓ}
---      → {!GroupIso!}
--- maini = {!!}
+GroupHomℤ→ℤPres· : (e : GroupHom ℤGroup ℤGroup) → (a b : ℤ) → fst e (a * b) ≡ a * fst e b
+GroupHomℤ→ℤPres· e a b = cong (fst e) (ℤ·≡· a b) ∙∙ hompres· e b a ∙∙ sym (ℤ·≡· a (fst e b))
