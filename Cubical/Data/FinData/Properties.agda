@@ -140,6 +140,16 @@ module FinSumChar where
  Equiv : (n m : ℕ) → Fin n ⊎ Fin m ≃ Fin (n + m)
  Equiv n m = isoToEquiv (iso (fun n m) (inv n m) (sec n m) (ret n m))
 
+ ++FinInl : (n m : ℕ) (U : FinVec A n) (W : FinVec A m) (i : Fin n)
+          → U i ≡ (U ++Fin W) (fun n m (inl i))
+ ++FinInl (ℕsuc n) m U W zero = refl
+ ++FinInl (ℕsuc n) m U W (suc i) = ++FinInl n m (U ∘ suc) W i
+
+ ++FinInr : (n m : ℕ) (U : FinVec A n) (W : FinVec A m) (i : Fin m)
+          → W i ≡ (U ++Fin W) (fun n m (inr i))
+ ++FinInr ℕzero (ℕsuc m) U W i = refl
+ ++FinInr (ℕsuc n) m U W i = ++FinInr n m (U ∘ suc) W i
+
 -- Proof that Fin n × Fin m ≃ Fin nm
 module FinProdChar where
 

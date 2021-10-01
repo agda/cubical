@@ -295,25 +295,38 @@ module ProdFin (R' : CommRing ℓ) where
   ∑ ((λ j → U zero · V j) ++Fin ((U ∘ suc) ··Fin V)) ∎
 
 
- -- ·Dist··Fin : {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m)
- --            → ∀ j → ((λ i → α i · U i) ··Fin (λ i → β i · V i)) j ≡ (α ··Fin β) j · (U ··Fin V) j
- -- ·Dist··Fin {n = n} {m = m} α U β V = equivΠ
- --   {B = λ i → (α (fst i) · U (fst i)) · (β (snd i) · V (snd i)) ≡ (α (fst i) · β (snd i)) · (U (fst i) · V (snd i))}
- --   e (equivHelper α U β V ) .fst
- --   λ _ → ·-commAssocSwap _ _ _ _
- --     where
- --     e = (FinProdChar.Equiv n m)
- --     equivHelper : {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m) (a : Fin n × Fin m) →
- --        (α (fst a) · U (fst a) · (β (snd a) · V (snd a)) ≡ α (fst a) · β (snd a) · (U (fst a) · V (snd a)))
- --      ≃ (((λ i → α i · U i) ··Fin (λ i → β i · V i)) (FinProdChar.Equiv n m .fst a)
- --      ≡ (α ··Fin β) (FinProdChar.Equiv n m .fst a) · (U ··Fin V) (FinProdChar.Equiv n m .fst a))
- --     equivHelper {n = suc n} {m = suc m} α U β V (zero , zero) = idEquiv _
- --     equivHelper {n = suc n} {m = suc m} α U β V (zero , suc j) = {!!}
- --     equivHelper {n = suc n} {m = suc m} α U β V (suc i , zero) = {!!}
- --     equivHelper {n = suc n} {m = suc m} α U β V (suc i , suc j) = {!!}
-
- -- ·Dist··Fin {n = suc n} {m = zero} α U β V ind =
- --   ⊥.rec (¬Fin0 (transport (λ i → Fin (0≡m·0 n (~ i))) ind))
- -- ·Dist··Fin {n = suc n} {m = suc m} α U β V zero = ·-commAssocSwap _ _ _ _
- -- ·Dist··Fin {n = suc n} {m = suc m} α U β V (suc j) = {!·Dist··Fin (α ∘ suc) (U ∘ suc) β V!}
- --flattenElim (λ i j → (α i · U i) · (β j · V j)) {!!}
+ ·Dist··Fin : {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m)
+            → ∀ j → ((λ i → α i · U i) ··Fin (λ i → β i · V i)) j ≡ (α ··Fin β) j · (U ··Fin V) j
+ ·Dist··Fin {n = n} {m = m} α U β V = equivΠ e (equivHelper α U β V ) .fst
+                                                λ _ → ·-commAssocSwap _ _ _ _
+     where
+     e = (FinProdChar.Equiv n m)
+     equivHelper : {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m) (a : Fin n × Fin m) →
+        (α (fst a) · U (fst a) · (β (snd a) · V (snd a))
+       ≡ α (fst a) · β (snd a) · (U (fst a) · V (snd a)))
+      ≃ (((λ i → α i · U i) ··Fin (λ i → β i · V i)) (FinProdChar.Equiv n m .fst a)
+       ≡ (α ··Fin β) (FinProdChar.Equiv n m .fst a) · (U ··Fin V) (FinProdChar.Equiv n m .fst a))
+     equivHelper {n = suc n} {m = suc m} α U β V (zero , zero) = idEquiv _
+     equivHelper {n = suc n} {m = suc m} α U β V (zero , suc j) = transport
+      (λ 𝕚 → (α zero · U zero · (β (suc j) · V (suc j)) ≡ α zero · β (suc j) · (U zero · V (suc j)))
+           ≃ (FinSumChar.++FinInl m (n ·ℕ suc m)
+               (λ x → α zero · U zero · (β (suc x) · V (suc x)))
+               (flatten (λ x y → α (suc x) · U (suc x) · (β y · V y))) j 𝕚
+           ≡ (FinSumChar.++FinInl m (n ·ℕ suc m)
+               (λ x → α zero · β (suc x)) (flatten (λ x y → α (suc x) · β y)) j 𝕚)
+           · (FinSumChar.++FinInl m (n ·ℕ suc m)
+               (λ x → U zero · V (suc x)) (flatten (λ x y → U (suc x) · V y)) j 𝕚)))
+      (idEquiv _)
+     equivHelper {n = suc n} {m = suc m} α U β V (suc i , j) = transport
+      (λ 𝕚 → (α (suc i) · U (suc i) · (β j · V j) ≡ α (suc i) · β j · (U (suc i) · V j))
+           ≃ (FinSumChar.++FinInr m (n ·ℕ suc m)
+               (λ x → α zero · U zero · (β (suc x) · V (suc x)))
+               (flatten (λ x y → α (suc x) · U (suc x) · (β y · V y)))
+               (FinProdChar.Equiv n (suc m) .fst (i , j)) 𝕚
+           ≡ (FinSumChar.++FinInr m (n ·ℕ suc m)
+               (λ x → α zero · β (suc x)) (flatten (λ x y → α (suc x) · β y))
+               (FinProdChar.Equiv n (suc m) .fst (i , j)) 𝕚)
+           · (FinSumChar.++FinInr m (n ·ℕ suc m)
+               (λ x → U zero · V (suc x)) (flatten (λ x y → U (suc x) · V y))
+               (FinProdChar.Equiv n (suc m) .fst (i , j)) 𝕚)))
+       (equivHelper (α ∘ suc) (U ∘ suc) β V _)

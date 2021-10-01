@@ -218,7 +218,7 @@ module _ (R' : CommRing ℓ) where
    path : x · y ≡ ∑ λ i → (α ··Fin β) i · (U ··Fin V) i
    path = x · y ≡⟨ cong₂ (_·_) x≡∑αU y≡∑βV ⟩
           (∑ λ i → α i · U i) · (∑ λ i → β i · V i) ≡⟨ ∑Dist··Fin (λ i → α i · U i) _ ⟩
-          (∑ λ j → ((λ i → α i · U i) ··Fin (λ i → β i · V i)) j) ≡⟨ {!!} ⟩
+          (∑ λ j → ((λ i → α i · U i) ··Fin (λ i → β i · V i)) j) ≡⟨ ∑Ext (·Dist··Fin α U β V) ⟩
           (∑ λ i → (α ··Fin β) i · (U ··Fin V) i) ∎
 
  FGIdealMultLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
