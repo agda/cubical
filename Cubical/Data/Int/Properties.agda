@@ -456,3 +456,17 @@ private
      cong ((- (b · c)) +_) (·Assoc (negsuc n) b c)
   ∙∙ cong (_+ ((negsuc n · b) · c)) (-DistL· b c)
   ∙∙ sym (·DistL+ (- b) (negsuc n · b) c)
+
+-- Absolute values
+abs→⊎ : (x : ℤ) (n : ℕ) → abs x ≡ n → (x ≡ pos n) ⊎ (x ≡ - pos n)
+abs→⊎ x n = J (λ n _ → (x ≡ pos n) ⊎ (x ≡ - pos n)) (help x)
+  where
+  help : (x : ℤ) → (x ≡ pos (abs x)) ⊎ (x ≡ - pos (abs x))
+  help (pos n) = inl refl
+  help (negsuc n) = inr refl
+
+⊎→abs : (x : ℤ) (n : ℕ) → (x ≡ pos n) ⊎ (x ≡ - pos n) → abs x ≡ n
+⊎→abs (pos n₁) n (inl x₁) = cong abs x₁
+⊎→abs (negsuc n₁) n (inl x₁) = cong abs x₁
+⊎→abs x zero (inr x₁) = cong abs x₁
+⊎→abs x (suc n) (inr x₁) = cong abs x₁
