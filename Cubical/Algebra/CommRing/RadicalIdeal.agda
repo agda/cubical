@@ -37,6 +37,7 @@ module _ (R' : CommRing ℓ) where
  open CommRingTheory R'
  open Exponentiation R'
  open BinomialThm R'
+ open CommIdeal R'
  open isCommIdeal
 
 
@@ -50,7 +51,7 @@ module _ (R' : CommRing ℓ) where
  ∈→∈√ : ∀ (I : ℙ R) (x : R) → x ∈ I → x ∈ √ I
  ∈→∈√ I _ x∈I = ∣ 1 , subst-∈ I (sym (·Rid _)) x∈I ∣
 
- √OfIdealIsIdeal : ∀ (I : ℙ R) → isCommIdeal R' I → isCommIdeal R' (√ I)
+ √OfIdealIsIdeal : ∀ (I : ℙ R) → isCommIdeal I → isCommIdeal (√ I)
  +Closed (√OfIdealIsIdeal I ici) {x = x} {y = y} = map2 +ClosedΣ
   where
   +ClosedΣ : Σ[ n ∈ ℕ ] x ^ n ∈ I → Σ[ n ∈ ℕ ] y ^ n ∈ I → Σ[ n ∈ ℕ ] (x + y) ^ n ∈ I
@@ -90,7 +91,7 @@ module _ (R' : CommRing ℓ) where
            ((n +ℕ m) choose toℕ i) · x ^ toℕ i · y ^ ((n +ℕ m ∸ toℕ i) ∸ m) · y ^ m ∎
 
    ∑Binomial∈I : ∑ (BinomialVec (n +ℕ m) x y) ∈ I
-   ∑Binomial∈I = ∑Closed R' (I , ici) (BinomialVec (n +ℕ m) _ _) binomialCoeff∈I
+   ∑Binomial∈I = ∑Closed (I , ici) (BinomialVec (n +ℕ m) _ _) binomialCoeff∈I
  contains0 (√OfIdealIsIdeal I ici) =
    ∣ 1 , subst-∈ I (sym (0LeftAnnihilates 1r)) (ici .contains0) ∣
  ·Closed (√OfIdealIsIdeal I ici) r =
@@ -98,7 +99,7 @@ module _ (R' : CommRing ℓ) where
 
 
  -- important lemma for characterization of the Zariski lattice
- √FGIdealChar : {n : ℕ} (V : FinVec R n) (I : CommIdeal R')
+ √FGIdealChar : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
                 → √ (fst ⟨ V ⟩[ R' ]) ⊆ √ (fst I) ≃ (∀ i → V i ∈ √ (fst I))
  √FGIdealChar V I = propBiimpl→Equiv (⊆-isProp (√ (fst ⟨ V ⟩[ R' ])) (√ (fst I)))
                                      (isPropΠ (λ _ → √ (fst I) _ .snd))
@@ -117,6 +118,6 @@ module _ (R' : CommRing ℓ) where
    elimHelper : ∀ (y : R) → y ∈ (fst ⟨ V ⟩[ R' ]) → y ∈ √ (fst I)
    elimHelper y = PT.elim (λ _ → √ (fst I) y .snd)
                    λ { (α , y≡∑αV) → subst-∈ (√ (fst I)) (sym y≡∑αV)
-                                           (∑Closed R' (√ (fst I) , isCommIdeal√I)
+                                           (∑Closed (√ (fst I) , isCommIdeal√I)
                                            (λ i → α i · V i)
                                            (λ i → isCommIdeal√I .·Closed (α i) (∀i→Vi∈√I i))) }
