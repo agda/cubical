@@ -27,10 +27,6 @@ open Iso
 (Ω^ 0) p = p
 (Ω^ (suc n)) p = Ω ((Ω^ n) p)
 
-{- homotopy Group -}
-π : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → Type ℓ
-π n A = ∥ typ ((Ω^ n) A) ∥ 2
-
 {- loop space map -}
 Ω→ : ∀ {ℓA ℓB} {A : Pointed ℓA} {B : Pointed ℓB} (f : A →∙ B) → (Ω A →∙ Ω B)
 Ω→ (f , f∙) = (λ p → (sym f∙ ∙ cong f p) ∙ f∙) , cong (λ q → q ∙ f∙) (sym (rUnit (sym f∙))) ∙ lCancel f∙

@@ -19,10 +19,16 @@ open import Cubical.HITs.Susp
 open import Cubical.HITs.Truncation
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
+open import Cubical.HITs.Join
+open import Cubical.Data.Bool
 
 private
   variable
     ℓ : Level
+
+IsoSucSphereSusp : (n : ℕ) → Iso (S₊ (suc n)) (Susp (S₊ n))
+IsoSucSphereSusp zero = S¹IsoSuspBool
+IsoSucSphereSusp (suc n) = idIso
 
 -- Elimination principles for spheres
 sphereElim : (n : ℕ) {A : (S₊ (suc n)) → Type ℓ} → ((x : S₊ (suc n)) → isOfHLevel (suc n) (A x))
@@ -308,3 +314,20 @@ isConnectedPathSⁿ n x y =
    (pathIdTruncSⁿretract n x y)
      ((isContr→isProp (sphereConnected (suc n)) ∣ x ∣ ∣ y ∣)
       , isProp→isSet (isContr→isProp (sphereConnected (suc n))) _ _ _)
+
+
+-- Equivalence Sⁿ*Sᵐ≃Sⁿ⁺ᵐ⁺¹
+IsoSphereJoin : (n m : ℕ) → Iso (join (S₊ n) (S₊ m)) (S₊ (suc (n + m)))
+IsoSphereJoin zero m =
+  compIso join-comm
+    (compIso (invIso Susp-iso-joinBool)
+             (invIso (IsoSucSphereSusp m)))
+IsoSphereJoin (suc n) m =
+  compIso (Iso→joinIso
+            (subst (λ x → Iso (S₊ (suc x)) (join (S₊ n) Bool)) (+-comm n 0) (invIso (IsoSphereJoin n 0)))
+            idIso)
+          (compIso (equivToIso joinAssocDirect)
+            (compIso (Iso→joinIso idIso (compIso join-comm (compIso (invIso Susp-iso-joinBool) (invIso (IsoSucSphereSusp m)))))
+                (compIso
+                  (IsoSphereJoin n (suc m))
+                    (pathToIso λ i → S₊ (suc (+-suc n m i))))))
