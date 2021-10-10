@@ -247,5 +247,6 @@ IsGroup.inverse ℤ-isGroup = λ x → (-ℤ'-invʳ x , -ℤ'-invˡ x)
 IsAbGroup.isGroup ℤ-isAbGroup = ℤ-isGroup
 IsAbGroup.comm ℤ-isAbGroup = ℤ+comm
 
-Int : Group ℓ-zero
-Int = group ℤ [ 0 , 0 ] _+_ -ℤ'_ ℤ-isGroup
+Int : AbGroup ℓ-zero
+Int = makeAbGroup {G = ℤ} [ 0 , 0 ] _+_ -ℤ'_ ℤ-isSet
+      ℤ+-assoc (λ x → zero-identityʳ 0 x) (λ x → -ℤ'-invʳ x) ℤ+comm
