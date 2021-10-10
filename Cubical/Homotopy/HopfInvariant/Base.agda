@@ -332,3 +332,9 @@ HopfInvariant : (n : ℕ)
 HopfInvariant n f = Iso.fun (fst (Hopfβ-Iso n f))
   ((subst (λ x → coHom x (HopfInvariantPush n (fst f)))
                    (λ i → suc (suc (suc (+-suc n n i))))) (⌣-α n f))
+
+HopfInvariant-π' : (n : ℕ) → π' (3 +ℕ (n +ℕ n)) (S₊∙ (2 +ℕ n)) → ℤ
+HopfInvariant-π' n = sRec isSetℤ (HopfInvariant n)
+
+HopfInvariant-π : (n : ℕ) → π (3 +ℕ (n +ℕ n)) (S₊∙ (2 +ℕ n)) → ℤ
+HopfInvariant-π n =  sRec isSetℤ λ x → HopfInvariant-π' n ∣ Ω→SphereMap _ x ∣₂

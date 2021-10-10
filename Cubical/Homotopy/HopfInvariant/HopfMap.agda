@@ -91,33 +91,18 @@ snd HopfMap = refl
 
 -- We use the Hopf fibration in order to connect it to the Gysin Sequence
 module hopfS¹ = hopfBase S1-AssocHSpace (sphereElim2 _ (λ _ _ → squash) ∣ refl ∣)
-S¹Hopf : S₊ 2 → Type
 S¹Hopf = hopfS¹.Hopf
+E* = hopfS¹.totalSpaceMegaPush
+IsoE*join = hopfS¹.IsoJoin₁
+IsoTotalHopf' = hopfS¹.joinIso₁
+CP² = hopfS¹.megaPush
+fibr = hopfS¹.P
 
 TotalHopf' : Type _
 TotalHopf' = Σ (S₊ 2) S¹Hopf
 
-CP² : Type _
-CP² = hopfS¹.megaPush
-
-fibr : CP² → Type _
-fibr = hopfS¹.P
-
--- Remove
-hopf : join S¹ S¹ → S₊ 2
-hopf x = fst (JoinS¹S¹→TotalHopf x)
-
-E* : Type _
-E* = hopfS¹.totalSpaceMegaPush
-
-IsoE*join : Iso E* (join S¹ (join S¹ S¹))
-IsoE*join = hopfS¹.IsoJoin₁
-
 IsoJoins : (join S¹ (join S¹ S¹)) ≡ join S¹ (S₊ 3)
 IsoJoins = cong (join S¹) (isoToPath (IsoSphereJoin 1 1))
-
-IsoTotalHopf' : Iso hopfS¹.TotalSpaceHopf' (join S¹ S¹)
-IsoTotalHopf' = hopfS¹.joinIso₁
 
 -- CP² is 1-connected
 conCP² : (x y : CP²) → ∥ x ≡ y ∥₂
@@ -142,15 +127,15 @@ conCP² x y = sRec2 squash₂ (λ p q → ∣ p ∙ sym q ∣₂) (conCP²' x) (
     main = indLem (λ _ → isOfHLevelPathP' 1 squash₂ _ _)
                    λ j → ∣ (λ i → push (inl base) (~ i ∧ j)) ∣₂
 
-module GysinS¹ = Gysin (CP² , inl tt) fibr conCP² 2 idIso refl
+module GysinS² = Gysin (CP² , inl tt) fibr conCP² 2 idIso refl
 
-E'S⁴Iso : Iso GysinS¹.E' (S₊ 5)
+E'S⁴Iso : Iso GysinS².E' (S₊ 5)
 E'S⁴Iso =
   compIso IsoE*join
     (compIso (Iso→joinIso idIso (IsoSphereJoin 1 1))
              (IsoSphereJoin 1 3))
 
-isContrH³E : isContr (coHom 3 (GysinS¹.E'))
+isContrH³E : isContr (coHom 3 (GysinS².E'))
 isContrH³E =
   subst isContr (sym (isoToPath
                       (fst (Hⁿ-Sᵐ≅0 2 4
@@ -158,7 +143,7 @@ isContrH³E =
                ∙ cong (coHom 3) (sym (isoToPath E'S⁴Iso)))
         isContrUnit
 
-isContrH⁴E : isContr (coHom 4 (GysinS¹.E'))
+isContrH⁴E : isContr (coHom 4 (GysinS².E'))
 isContrH⁴E =
   subst isContr (sym (isoToPath
                      (fst (Hⁿ-Sᵐ≅0 3 4
@@ -166,6 +151,7 @@ isContrH⁴E =
                ∙ cong (coHom 4) (sym (isoToPath E'S⁴Iso)))
         isContrUnit
 
+-- We will need a bunch of elimination principles
 joinS¹S¹→Groupoid : ∀ {ℓ} (P : join S¹ S¹ → Type ℓ)
             → ((x : _) → isGroupoid (P x))
             → P (inl base)
@@ -201,10 +187,10 @@ CP²→Groupoid : ∀ {ℓ} {P : CP² → Type ℓ}
                → (x : _) → P x
 CP²→Groupoid {P = P} grp b s2 pp (inl x) = b
 CP²→Groupoid {P = P} grp b s2 pp (inr x) = s2 x
-CP²→Groupoid {P = P} grp b s2 pp (push a i₁) = h3 a i₁
+CP²→Groupoid {P = P} grp b s2 pp (push a i₁) = lem a i₁
   where
-  h3 : (a : hopfS¹.TotalSpaceHopf') → PathP (λ i → P (push a i)) b (s2 _) 
-  h3 = TotalHopf→Gpd _  (λ _ → isOfHLevelPathP' 3 (grp _) _ _) pp
+  lem : (a : hopfS¹.TotalSpaceHopf') → PathP (λ i → P (push a i)) b (s2 _) 
+  lem = TotalHopf→Gpd _  (λ _ → isOfHLevelPathP' 3 (grp _) _ _) pp
 
 -- The function inducing the iso H²(S²) ≅ H²(CP²)
 H²S²→H²CP²-raw : (S₊ 2 → coHomK 2) → (CP² → coHomK 2)
@@ -264,11 +250,12 @@ snd H²CP²≅H²S² =
 H²CP²≅ℤ : GroupIso (coHomGr 2 CP²) ℤGroup
 H²CP²≅ℤ = compGroupIso H²CP²≅H²S² (Hⁿ-Sⁿ≅ℤ 1)
 
+-- ⌣ gives a groupEquiv H²(CP²) ≃ H⁴(CP²)
 ⌣Equiv : GroupEquiv (coHomGr 2 CP²) (coHomGr 4 CP²)
-fst (fst ⌣Equiv) = GysinS¹.⌣-hom 2 .fst
-snd (fst ⌣Equiv) = subst isEquiv (cong fst (GysinS¹.ϕ∘j≡ 2)) eq'
+fst (fst ⌣Equiv) = GysinS².⌣-hom 2 .fst
+snd (fst ⌣Equiv) = subst isEquiv (cong fst (GysinS².ϕ∘j≡ 2)) eq'
   where
-  eq' : isEquiv (GysinS¹.ϕ∘j 2 .fst)
+  eq' : isEquiv (GysinS².ϕ∘j 2 .fst)
   eq' =
     SES→isEquiv
       (GroupPath _ _ .fst (invGroupEquiv
@@ -277,13 +264,14 @@ snd (fst ⌣Equiv) = subst isEquiv (cong fst (GysinS¹.ϕ∘j≡ 2)) eq'
       (GroupPath _ _ .fst (invGroupEquiv
         (isContr→≃Unit isContrH⁴E
         , makeIsGroupHom λ _ _ → refl)))
-      (GysinS¹.susp∘ϕ 1)
-      (GysinS¹.ϕ∘j 2)
-      (GysinS¹.p-hom 4)
-      (GysinS¹.Ker-ϕ∘j⊂Im-Susp∘ϕ _)
-      (GysinS¹.Ker-p⊂Im-ϕ∘j _)
-snd ⌣Equiv = GysinS¹.⌣-hom 2 .snd
+      (GysinS².susp∘ϕ 1)
+      (GysinS².ϕ∘j 2)
+      (GysinS².p-hom 4)
+      (GysinS².Ker-ϕ∘j⊂Im-Susp∘ϕ _)
+      (GysinS².Ker-p⊂Im-ϕ∘j _)
+snd ⌣Equiv = GysinS².⌣-hom 2 .snd
 
+-- The generator of H²(CP²)
 genCP² : coHom 2 CP²
 genCP² = ∣ CP²→Groupoid (λ _ → isOfHLevelTrunc 4)
                       (0ₖ _)
@@ -292,15 +280,15 @@ genCP² = ∣ CP²→Groupoid (λ _ → isOfHLevelTrunc 4)
 
 inrInjective : (f g : CP² → coHomK 2) → ∥ f ∘ inr ≡ g ∘ inr ∥ → Path (coHom 2 CP²) ∣ f ∣₂ ∣ g ∣₂
 inrInjective f g = pRec (squash₂ _ _)
-           (λ p → pRec (squash₂ _ _) (λ id → trRec (squash₂ _ _)
-                                          (λ pp → cong ∣_∣₂
-                                            (funExt (CP²→Groupoid (λ _ → isOfHLevelPath 4 (isOfHLevelTrunc 4) _ _)
-                                                    id
-                                                    (funExt⁻ p)
-                                                    (compPathR→PathP pp))))
-                                              (conn2 (f (inl tt)) (g (inl tt)) id
-                                                (cong f (push (inl base)) ∙ (funExt⁻ p north) ∙ cong g (sym (push (inl base))))))
-                                          (conn (f (inl tt)) (g (inl tt))))
+  (λ p → pRec (squash₂ _ _) (λ id → trRec (squash₂ _ _)
+               (λ pp → cong ∣_∣₂
+                 (funExt (CP²→Groupoid (λ _ → isOfHLevelPath 4 (isOfHLevelTrunc 4) _ _)
+                         id
+                         (funExt⁻ p)
+                         (compPathR→PathP pp))))
+                   (conn2 (f (inl tt)) (g (inl tt)) id
+                     (cong f (push (inl base)) ∙ (funExt⁻ p north) ∙ cong g (sym (push (inl base))))))
+               (conn (f (inl tt)) (g (inl tt))))
 
   where
   conn : (x y : coHomK 2) → ∥ x ≡ y ∥
@@ -310,6 +298,7 @@ inrInjective f g = pRec (squash₂ _ _)
   conn2 : (x y : coHomK 2) (p q : x ≡ y) → hLevelTrunc 1 (p ≡ q)
   conn2 x y = λ p q → Iso.fun (PathIdTruncIso _) (isContr→isProp (isConnectedPath _ (isConnectedKn 1) x y) ∣ p ∣ ∣ q ∣)
 
+-- A couple of basic lemma concerning the hSpace structure on S¹
 private
   rUnit* : (x : S¹) → x * base ≡ x
   rUnit* base = refl
@@ -341,15 +330,19 @@ private
                            (cong ∣_∣ₕ (merid (invLooper x) ∙ sym (merid base)))
                            (cong ∣_∣ₕ (sym (merid x ∙ sym (merid base))))
   meridInvLooperLem x = (lUnit _
-         ∙∙ cong (_∙ cong ∣_∣ₕ (merid (invLooper x) ∙ sym (merid base))) (sym (lCancel (cong ∣_∣ₕ (merid x ∙ sym (merid base))))) ∙∙ sym (assoc _ _ _))
-         ∙∙ cong (sym (cong ∣_∣ₕ (merid x ∙ sym (merid base))) ∙_) hh
+         ∙∙ cong (_∙ cong ∣_∣ₕ (merid (invLooper x) ∙ sym (merid base)))
+                 (sym (lCancel (cong ∣_∣ₕ (merid x ∙ sym (merid base))))) ∙∙ sym (assoc _ _ _))
+         ∙∙ cong (sym (cong ∣_∣ₕ (merid x ∙ sym (merid base))) ∙_) lem
          ∙∙ (assoc _ _ _
-         ∙∙ cong (_∙ (cong ∣_∣ₕ (sym (merid x ∙ sym (merid base))))) (lCancel (cong ∣_∣ₕ (merid x ∙ sym (merid base))))
+         ∙∙ cong (_∙ (cong ∣_∣ₕ (sym (merid x ∙ sym (merid base)))))
+                 (lCancel (cong ∣_∣ₕ (merid x ∙ sym (merid base))))
          ∙∙ sym (lUnit _))
     where
-    hh : cong ∣_∣ₕ (merid x ∙ sym (merid base)) ∙ cong ∣_∣ₕ (merid (invLooper x) ∙ sym (merid base))
+    lem : cong ∣_∣ₕ (merid x ∙ sym (merid base)) ∙ cong ∣_∣ₕ (merid (invLooper x) ∙ sym (merid base))
        ≡ cong ∣_∣ₕ (merid x ∙ sym (merid base)) ∙ cong ∣_∣ₕ (sym (merid x ∙ sym (merid base)))
-    hh = sym (merid*-lem x (invLooper x)) ∙ ((λ i → cong ∣_∣ₕ (merid (lemmie x (~ i)) ∙ sym (merid base))) ∙ cong (cong ∣_∣ₕ) (rCancel (merid base))) ∙ sym (rCancel _)
+    lem = sym (merid*-lem x (invLooper x))
+       ∙ ((λ i → cong ∣_∣ₕ (merid (lemmie x (~ i)) ∙ sym (merid base)))
+       ∙ cong (cong ∣_∣ₕ) (rCancel (merid base))) ∙ sym (rCancel _)
 
   comm·S¹ : (a x : S¹) → a * x ≡ x * a
   comm·S¹ = wedgeconFun _ _ (λ _ _ → isGroupoidS¹ _ _)
@@ -358,65 +351,82 @@ private
            refl
 
   invLooperLem₁ : (a x : S¹) → (invEq (hopfS¹.μ-eq a) x) * a ≡ (invLooper a * x) * a
-  invLooperLem₁ a x = secEq (hopfS¹.μ-eq a) x ∙∙ cong (_* x) (lemmie a) ∙∙ assocHSpace.μ-assoc S1-AssocHSpace a (invLooper a) x ∙ comm·S¹ _ _
+  invLooperLem₁ a x =
+       secEq (hopfS¹.μ-eq a) x
+    ∙∙ cong (_* x) (lemmie a)
+    ∙∙ assocHSpace.μ-assoc S1-AssocHSpace a (invLooper a) x
+     ∙ comm·S¹ _ _
 
   invLooperLem₂ : (a x : S¹) → invEq (hopfS¹.μ-eq a) x ≡ invLooper a * x
   invLooperLem₂ a x = sym (retEq (hopfS¹.μ-eq a) (invEq (hopfS¹.μ-eq a) x))
           ∙∙ cong (invEq (hopfS¹.μ-eq a)) (invLooperLem₁ a x)
           ∙∙ retEq (hopfS¹.μ-eq a) (invLooper a * x)
 
+  rotLoop² : (a : S¹) → Path (a ≡ a) (λ i → rotLoop (rotLoop a i) (~ i)) refl
+  rotLoop² =
+    sphereElim 0 (λ _ → isGroupoidS¹ _ _ _ _)
+      λ i j → hcomp (λ {k → λ { (i = i1) → base
+                                ; (j = i0) → base
+                                ; (j = i1) → base}})
+                    base
+
+
 -- We prove that the generator of CP² given by Gysin is the same one
 -- as genCP², which is much easier to work with
-Gysin-e≡genCP² : GysinS¹.e ≡ genCP²
-Gysin-e≡genCP² = inrInjective _ _ ∣ funExt (λ x → funExt⁻ (cong fst (ll32 x)) south) ∣
+Gysin-e≡genCP² : GysinS².e ≡ genCP²
+Gysin-e≡genCP² = inrInjective _ _ ∣ funExt (λ x → funExt⁻ (cong fst (main x)) south) ∣
   where
   mainId : (x : Σ (S₊ 2) hopfS¹.Hopf) → Path (hLevelTrunc 4 _) ∣ fst x ∣ ∣ north ∣
   mainId = uncurry λ { north → λ y → cong ∣_∣ₕ (merid base ∙ sym (merid y))
-                 ; south → λ y → cong ∣_∣ₕ (sym (merid y))
-                 ; (merid a i) → main a i}
+                     ; south → λ y → cong ∣_∣ₕ (sym (merid y))
+                     ; (merid a i) → main a i}
     where
-    main : (a : S¹) → PathP (λ i → (y : hopfS¹.Hopf (merid a i)) → Path (HubAndSpoke (Susp S¹) 3) ∣ merid a i ∣ ∣ north ∣)
+    main : (a : S¹) → PathP (λ i → (y : hopfS¹.Hopf (merid a i))
+                    → Path (HubAndSpoke (Susp S¹) 3) ∣ merid a i ∣ ∣ north ∣)
                             (λ y → cong ∣_∣ₕ (merid base ∙ sym (merid y)))
                             λ y → cong ∣_∣ₕ (sym (merid y))
-    main a = toPathP (funExt λ x → cong (transport ((λ i₁ → Path (HubAndSpoke (Susp S¹) 3) ∣ merid a i₁ ∣ ∣ north ∣)))
-                                        ((λ i → (λ z → cong ∣_∣ₕ (merid base
-                                                               ∙ sym (merid (transport (λ j → uaInvEquiv (hopfS¹.μ-eq a) (~ i) j) x))) z))
-                                        ∙ λ i → cong ∣_∣ₕ (merid base
-                                               ∙ sym (merid (transportRefl (invEq (hopfS¹.μ-eq a) x) i))))
-                               ∙∙ (λ i → transp (λ i₁ → Path (HubAndSpoke (Susp S¹) 3) ∣ merid a (i₁ ∨ i) ∣ ∣ north ∣) i
-                                                 (compPath-filler' (cong ∣_∣ₕ (sym (merid a)))
-                                                   (cong ∣_∣ₕ (merid base ∙ sym (merid (invLooperLem₂ a x i)))) i))
-                               ∙∙ cong ((cong ∣_∣ₕ) (sym (merid a)) ∙_) (cong (cong ∣_∣ₕ) (cong sym (symDistr (merid base) (sym (merid (invLooper a * x)))))
-                                                                     ∙ cong sym (merid*-lem (invLooper a) x)
-                                                                     ∙ symDistr ((cong ∣_∣ₕ) (merid (invLooper a) ∙ sym (merid base)))
-                                                                                 ((cong ∣_∣ₕ) (merid x ∙ sym (merid base)))
-                                                                     ∙ isCommΩK 2 (sym (λ i₁ → ∣ (merid x ∙ (λ i₂ → merid base (~ i₂))) i₁ ∣))
-                                                                                  (sym (λ i₁ → ∣ (merid (invLooper a) ∙ (λ i₂ → merid base (~ i₂))) i₁ ∣))
-                                                                     ∙ cong₂ _∙_ (cong sym (meridInvLooperLem a) ∙ cong-∙ ∣_∣ₕ (merid a) (sym (merid base)))
-                                                                                 (cong (cong ∣_∣ₕ) (symDistr (merid x) (sym (merid base))) ∙ cong-∙ ∣_∣ₕ (merid base) (sym (merid x))))
-                               ∙∙ (λ j → (λ i₁ → ∣ merid a (~ i₁ ∨ j) ∣) ∙
-                                          ((λ i₁ → ∣ merid a (i₁ ∨ j) ∣) ∙
-                                           (λ i₁ → ∣ merid base (~ i₁ ∨ j) ∣))
-                                          ∙
-                                          (λ i₁ → ∣ merid base (i₁ ∨ j) ∣) ∙
-                                           (λ i₁ → ∣ merid x (~ i₁) ∣ₕ))
-                               ∙∙ sym (lUnit _)
-                               ∙∙ sym (assoc _ _ _)
-                               ∙∙ (sym (lUnit _) ∙ sym (lUnit _) ∙ sym (lUnit _)))
+    main a =
+      toPathP
+        (funExt λ x →
+          cong (transport (λ i₁ → Path (HubAndSpoke (Susp S¹) 3) ∣ merid a i₁ ∣ ∣ north ∣))
+               ((λ i → (λ z → cong ∣_∣ₕ
+                         (merid base ∙ sym (merid (transport (λ j → uaInvEquiv (hopfS¹.μ-eq a) (~ i) j) x))) z))
+               ∙ λ i → cong ∣_∣ₕ (merid base
+                      ∙ sym (merid (transportRefl (invEq (hopfS¹.μ-eq a) x) i))))
+      ∙∙ (λ i → transp (λ i₁ → Path (HubAndSpoke (Susp S¹) 3) ∣ merid a (i₁ ∨ i) ∣ ∣ north ∣) i
+                        (compPath-filler' (cong ∣_∣ₕ (sym (merid a)))
+                          (cong ∣_∣ₕ (merid base ∙ sym (merid (invLooperLem₂ a x i)))) i))
+      ∙∙ cong ((cong ∣_∣ₕ) (sym (merid a)) ∙_)
+              (cong (cong ∣_∣ₕ) (cong sym (symDistr (merid base) (sym (merid (invLooper a * x)))))
+                              ∙ cong sym (merid*-lem (invLooper a) x)
+                              ∙ symDistr ((cong ∣_∣ₕ) (merid (invLooper a) ∙ sym (merid base)))
+                                          ((cong ∣_∣ₕ) (merid x ∙ sym (merid base)))
+                              ∙ isCommΩK 2 (sym (λ i₁ → ∣ (merid x ∙ (λ i₂ → merid base (~ i₂))) i₁ ∣))
+                                           (sym (λ i₁ → ∣ (merid (invLooper a) ∙ (λ i₂ → merid base (~ i₂))) i₁ ∣))
+                              ∙ cong₂ _∙_ (cong sym (meridInvLooperLem a)
+                                            ∙ cong-∙ ∣_∣ₕ (merid a) (sym (merid base)))
+                                          (cong (cong ∣_∣ₕ) (symDistr (merid x) (sym (merid base)))
+                                            ∙ cong-∙ ∣_∣ₕ (merid base) (sym (merid x))))
+      ∙∙ (λ j → (λ i₁ → ∣ merid a (~ i₁ ∨ j) ∣) ∙ ((λ i₁ → ∣ merid a (i₁ ∨ j) ∣)
+                 ∙ (λ i₁ → ∣ merid base (~ i₁ ∨ j) ∣)) ∙ (λ i₁ → ∣ merid base (i₁ ∨ j) ∣)
+                 ∙ (λ i₁ → ∣ merid x (~ i₁) ∣ₕ))
+      ∙∙ sym (lUnit _)
+      ∙∙ sym (assoc _ _ _)
+      ∙∙ (sym (lUnit _) ∙ sym (lUnit _) ∙ sym (lUnit _)))
 
-  psst : (x : S₊ 2) → preThom.Q (CP² , inl tt) fibr (inr x) →∙ coHomK-ptd 2
-  fst (psst x) north = ∣ north ∣
-  fst (psst x) south = ∣ x ∣
-  fst (psst x) (merid a i₁) = mainId (x , a) (~ i₁)
-  snd (psst x) = refl
+  gen' : (x : S₊ 2) → preThom.Q (CP² , inl tt) fibr (inr x) →∙ coHomK-ptd 2
+  fst (gen' x) north = ∣ north ∣
+  fst (gen' x) south = ∣ x ∣
+  fst (gen' x) (merid a i₁) = mainId (x , a) (~ i₁)
+  snd (gen' x) = refl
 
-  ll32-fst : GysinS¹.c (inr north) .fst ≡ psst north .fst
-  ll32-fst = cong fst (GysinS¹.cEq (inr north) ∣ push (inl base) ∣₂)
+  gen'Id : GysinS².c (inr north) .fst ≡ gen' north .fst
+  gen'Id = cong fst (GysinS².cEq (inr north) ∣ push (inl base) ∣₂)
            ∙ (funExt l)
     where
     l : (qb : _) →
          ∣ (subst (fst ∘ preThom.Q (CP² , inl tt) fibr) (sym (push (inl base))) qb) ∣
-      ≡ psst north .fst qb
+      ≡ gen' north .fst qb
     l north = refl
     l south = cong ∣_∣ₕ (sym (merid base))
     l (merid a i) j =
@@ -425,146 +435,64 @@ Gysin-e≡genCP² = inrInjective _ _ ∣ funExt (λ x → funExt⁻ (cong fst (l
                       ; (j = i0) → ∣ transportRefl (merid a i) (~ k) ∣
                       ; (j = i1) → ∣ compPath-filler (merid base) (sym (merid a)) k (~ i) ∣ₕ})
             (hcomp (λ k → λ { (i = i0) → ∣ merid a (j ∨ ~ k) ∣
-                      ; (i  = i1) → ∣ merid base (~ j ∨ ~ k) ∣
-                      ; (j = i0) → ∣ merid a (~ k ∨ i) ∣
-                      ; (j = i1) → ∣ merid base (~ i ∨ ~ k) ∣ₕ})
-                   ∣ south ∣)
+                             ; (i  = i1) → ∣ merid base (~ j ∨ ~ k) ∣
+                             ; (j = i0) → ∣ merid a (~ k ∨ i) ∣
+                             ; (j = i1) → ∣ merid base (~ i ∨ ~ k) ∣ₕ})
+                          ∣ south ∣)
 
-  is-setHepl : (x : S₊ 2) → isSet (preThom.Q (CP² , inl tt) fibr (inr x) →∙ coHomK-ptd 2)
-  is-setHepl = sphereElim _ (λ _ → isProp→isOfHLevelSuc 1 (isPropIsOfHLevel 2))
+  setHelp : (x : S₊ 2) → isSet (preThom.Q (CP² , inl tt) fibr (inr x) →∙ coHomK-ptd 2)
+  setHelp = sphereElim _ (λ _ → isProp→isOfHLevelSuc 1 (isPropIsOfHLevel 2))
                             (isOfHLevel↑∙' 0 1)
 
-  ll32 : (x : S₊ 2) →  (GysinS¹.c (inr x) ≡ psst x)
-  ll32 = sphereElim _ (λ x → isOfHLevelPath 2 (is-setHepl x) _ _)
-         (→∙Homogeneous≡ (isHomogeneousKn _) ll32-fst)
+  main : (x : S₊ 2) →  (GysinS².c (inr x) ≡ gen' x)
+  main = sphereElim _ (λ x → isOfHLevelPath 2 (setHelp x) _ _)
+         (→∙Homogeneous≡ (isHomogeneousKn _) gen'Id)
 
-isGenerator≃ℤ : ∀ {ℓ} (G : Group ℓ) (g : fst G)
-               → Type _
+isGenerator≃ℤ : ∀ {ℓ} (G : Group ℓ) (g : fst G) → Type ℓ
 isGenerator≃ℤ G g =
   Σ[ e ∈ GroupIso G ℤGroup ] abs (Iso.fun (fst e) g) ≡ 1
 
-isGenerator≃ℤ-e : isGenerator≃ℤ (coHomGr 2 CP²) GysinS¹.e
+isGenerator≃ℤ-e : isGenerator≃ℤ (coHomGr 2 CP²) GysinS².e
 isGenerator≃ℤ-e =
   subst (isGenerator≃ℤ (coHomGr 2 CP²)) (sym Gysin-e≡genCP²)
     (H²CP²≅ℤ , refl)
 
+-- Alternative definition of the hopfMap
 HopfMap' : S₊ 3 → S₊ 2
 HopfMap' x =
   hopfS¹.TotalSpaceHopf'→TotalSpace
     (Iso.inv IsoTotalHopf'
       (Iso.inv (IsoSphereJoin 1 1) x)) .fst
 
-
-rotLoop² : (a : _) → Path (Path S¹ _ _) (λ i → rotLoop (rotLoop a i) (~ i)) refl
-rotLoop² =
-  sphereElim 0 (λ _ → isGroupoidS¹ _ _ _ _)
-    λ i j → hcomp (λ {k → λ {(i = i1) → base ; (j = i0) → base ; (j = i1) → base}})
-                  base
-
-id1 : (x : _) → hopfS¹.TotalSpaceHopf'→TotalSpace x .fst ≡ JoinS¹S¹→TotalHopf (Iso.fun IsoTotalHopf' x) .fst
-id1 (inl x) = refl
-id1 (inr x) = refl
-id1 (push (base , snd₁) i) = refl
-id1 (push (loop i₁ , a) i) k = merid (rotLoop² a (~ k) i₁) i
-
-CP2' : Type _
-CP2' = Pushout {A = S₊ 3} (λ _ → tt) HopfMap'
-
 hopfMap≡HopfMap' : HopfMap ≡ (HopfMap' , refl)
 hopfMap≡HopfMap' =
   ΣPathP ((funExt (λ x → cong (λ x → JoinS¹S¹→TotalHopf x .fst)
                                (sym (Iso.rightInv IsoTotalHopf' (Iso.inv (IsoSphereJoin 1 1) x)))
-                        ∙ sym (id1 (Iso.inv IsoTotalHopf' (Iso.inv (IsoSphereJoin 1 1) x)))))
+                        ∙ sym (lem (Iso.inv IsoTotalHopf' (Iso.inv (IsoSphereJoin 1 1) x)))))
          , flipSquare (sym (rUnit refl) ◁ λ _ _ → north))
+  where
+  lem : (x : _) → hopfS¹.TotalSpaceHopf'→TotalSpace x .fst
+               ≡ JoinS¹S¹→TotalHopf (Iso.fun IsoTotalHopf' x) .fst
+  lem (inl x) = refl
+  lem (inr x) = refl
+  lem (push (base , snd₁) i) = refl
+  lem (push (loop i₁ , a) i) k = merid (rotLoop² a (~ k) i₁) i
+
+CP²' : Type _
+CP²' = Pushout {A = S₊ 3} (λ _ → tt) HopfMap'
 
 PushoutReplaceBase :
   ∀ {ℓ ℓ' ℓ''} {A B : Type ℓ} {C : Type ℓ'} {D : Type ℓ''} {f : A → C} {g : A → D}
     (e : B ≃ A) → Pushout (f ∘ fst e) (g ∘ fst e) ≡ Pushout f g
 PushoutReplaceBase {f = f} {g = g} =
-  EquivJ (λ _ e → Pushout (f ∘ fst e) (g ∘ fst e) ≡ Pushout f g)
-         refl
+  EquivJ (λ _ e → Pushout (f ∘ fst e) (g ∘ fst e) ≡ Pushout f g) refl
 
-CP2≡CP2' : CP2' ≡ CP²
-CP2≡CP2' =
+CP2≡CP²' : CP²' ≡ CP²
+CP2≡CP²' =
   PushoutReplaceBase
     (isoToEquiv (compIso (invIso (IsoSphereJoin 1 1)) (invIso IsoTotalHopf')))
 
-{-
-⌣-pres1-CP² : ⌣-pres1 CP² 2
-fst ⌣-pres1-CP² = GysinS¹.e
-fst (snd ⌣-pres1-CP2) = isGenerator≃ℤ-e
-snd (snd ⌣-pres1-CP2) = ∣ p ∣
-  where
-  p : Σ _ _
-  fst p = compGroupIso (GroupEquiv→GroupIso (invGroupEquiv ⌣Equiv)) H²CP²≅ℤ
-  snd p = {!!}
-         ∙ sesIsoPresGen _ (invGroupEquiv (GroupIso→GroupEquiv H²CP²≅ℤ)) _
-                           (compGroupEquiv (invGroupEquiv (GroupIso→GroupEquiv H²CP²≅ℤ)) (invGroupEquiv (invGroupEquiv ⌣Equiv)))
-                             GysinS¹.e {!!} ⌣Equiv
-{-
-    GysinS¹.e
-  , (isGenerator≃ℤ-e
-  , ∣ compGroupIso (GroupEquiv→GroupIso (invGroupEquiv ⌣Equiv)) H²CP²≅ℤ
-  , {!!} ∣)
-  -}
-
-⌣-pres1-CP2' : ⌣-pres1 CP2' 2
-⌣-pres1-CP2' = subst (λ x → ⌣-pres1 x 2) (sym CP2≡CP2') ⌣-pres1-CP2
- -}
--- {-
--- Goal: snd (v' (pt A) (push a i₁)) ≡
---       ua-gluePt (μ-eq (snd a)) i₁ (fst a)
--- ———— Boundary ——————————————————————————————————————————————
--- i₁ = i0 ⊢ HSpace.μₗ e (fst a)
--- i₁ = i1 ⊢ HSpace.μₗ e (HSpace.μ e (fst a) (snd a))
--- -}
-    
---   --   help : (x : _) → (v' (pt A)) x ≡ TotalSpaceHopf'→TotalSpace x
---   --   help (inl x) = ΣPathP (refl , HSpace.μₗ e x)
---   --   help (inr x) = ΣPathP (refl , (HSpace.μₗ e x))
---   --   help (push (x , y) i) j =
---   --     comp (λ _ → Σ (Susp (typ A)) Hopf)
---   --          (λ k → λ {(i = i0) → merid y i , HSpace.μₗ e x j
---   --                   ; (i = i1) → merid y i , assocHSpace.μ-assoc-filler e-ass x y j k
---   --                   ; (j = i0) → merid y i , hfill
---   --                                             (λ j → λ { (i = i0) → HSpace.μ e (pt A) x
---   --                                                       ; (i = i1) → assocHSpace.μ-assoc e-ass (pt A) x y j
---   --                                                })
---   --                                             (inS (ua-gluePt (μ-eq y) i (HSpace.μ e (pt A) x)))
---   --                                             k
---   --                   ; (j = i1) → merid y i , ua-gluePt (μ-eq y) i x})
---   --          (merid y i , ua-gluePt (μ-eq y) i (HSpace.μₗ e x j))
---   --     where
---   --     open import Cubical.Foundations.Path
-
---   --     PPΣ : ∀ {ℓ} {A : Type ℓ} {f : A ≃ A} (p : f ≡ f) → {!!}
---   --     PPΣ = {!!}
-
---   --     V : PathP (λ i₁ → hcomp
---   --                      (λ { j (i₁ = i0) → HSpace.μ e (pt A) x
---   --                         ; j (i₁ = i1) → assocHSpace.μ-assoc e-ass (pt A) x y j
---   --                         })
---   --                      (ua-gluePt (μ-eq y) i₁ (HSpace.μ e (pt A) x)) ≡
---   --                         ua-gluePt (μ-eq y) i₁ x)
---   --                (HSpace.μₗ e x)
---   --                (HSpace.μₗ e (HSpace.μ e x y)) -- (HSpace.μₗ e (HSpace.μ e (fst a) (snd a)))
---   --     V = transport (λ z → {!PathP (λ i₁ → hfill
---   --                      (λ { j (i₁ = i0) → HSpace.μ e (pt A) x
---   --                         ; j (i₁ = i1) → assocHSpace.μ-assoc e-ass (pt A) x y j
---   --                         })
---   --                      (inS (ua-gluePt (μ-eq y) i₁ (HSpace.μ e (pt A) x))) z ≡ ua-gluePt (μ-eq y) i₁ x)
---   --                                 ? ?!})
---   --                   {!hfill
---   --                      (λ { j (i₁ = i0) → HSpace.μ e (pt A) x
---   --                         ; j (i₁ = i1) → assocHSpace.μ-assoc e-ass (pt A) x y j
---   --                         })
---   --                      (inS (ua-gluePt (μ-eq y) i₁ (HSpace.μ e (pt A) x))) ?!} -- toPathP ({!!} ∙∙ {!!} ∙∙ {!!}) -- toPathP (flipSquare {!!}) -- hcomp {!!} {!!}
-
---   -- P : Pushout {A = TotalSpaceHopf'} (λ _ → tt) induced → Type _
---   -- P (inl x) = typ A
---   -- P (inr x) = Hopf x
---   -- P (push a i₁) = ua (v a) i₁
-
+-- packaging everything up:
 ⌣equiv→pres1 : ∀ {ℓ} {G H : Type ℓ} → (G ≡ H) → (g₁ : coHom 2 G) (h₁ : coHom 2 H)
         → (fstEq : (Σ[ ϕ ∈ GroupEquiv (coHomGr 2 G) ℤGroup ] abs (fst (fst ϕ) g₁) ≡ 1))
         → (sndEq : ((Σ[ ϕ ∈ GroupEquiv (coHomGr 2 H) ℤGroup ] abs (fst (fst ϕ) h₁) ≡ 1)))
@@ -641,6 +569,30 @@ snd (snd ⌣-pres1-CP2) = ∣ p ∣
     snd main4 =
       makeIsGroupHom λ g1 g2 → rightDistr-⌣ _ _ g1 g2 h
 
+-- The hopf invariant is ±1 for both definitions of the hopf map
+HopfInvariant-HopfMap' : abs (HopfInvariant zero (HopfMap' , λ _ → HopfMap' (snd (S₊∙ 3))))
+                       ≡ suc zero
+HopfInvariant-HopfMap' =
+  cong abs (cong (Iso.fun (fst (Hopfβ-Iso zero (HopfMap' , refl))))
+           (transportRefl (⌣-α 0 (HopfMap' , refl))))
+            ∙ ⌣equiv→pres1 (sym CP2≡CP²') GysinS².e (Hopfα zero (HopfMap' , refl))
+           (l isGenerator≃ℤ-e)
+           (GroupIso→GroupEquiv (Hopfα-Iso 0 (HopfMap' , refl)) , refl)
+           (snd (fst ⌣Equiv))
+           (GroupIso→GroupEquiv (Hopfβ-Iso zero (HopfMap' , refl)))
+  where
+  l : Σ[ ϕ ∈ GroupIso (coHomGr 2 CP²) ℤGroup ]
+       (abs (Iso.fun (fst ϕ) GysinS².e) ≡ 1)
+      → Σ[ ϕ ∈ GroupEquiv (coHomGr 2 CP²) ℤGroup ]
+          (abs (fst (fst ϕ) GysinS².e) ≡ 1)
+  l p = (GroupIso→GroupEquiv (fst p)) , (snd p)
+
+HopfInvariant-HopfMap : abs (HopfInvariant zero HopfMap) ≡ suc zero
+HopfInvariant-HopfMap = cong abs (cong (HopfInvariant zero) hopfMap≡HopfMap')
+                      ∙ HopfInvariant-HopfMap'
+
+
+
 HopfInvariantPushElim : ∀ {ℓ} n → (f : _) → {P : HopfInvariantPush n f → Type ℓ}
                         → (isOfHLevel (suc (suc (suc (suc (n +ℕ n))))) (P (inl tt)))
                         →  (e : P (inl tt))
@@ -657,26 +609,6 @@ HopfInvariantPushElim n f {P = P} hlev e g r (push a i₁) = help a i₁
                         (subst (isOfHLevel (suc (suc (suc (suc (n +ℕ n))))))
                                (cong P (push north))
                                hlev) _ _)) r
-
-HopfInvariant-HopfMap' : abs (HopfInvariant zero (HopfMap' , λ _ → HopfMap' (snd (S₊∙ 3)))) ≡ suc zero
-HopfInvariant-HopfMap' =
-  cong abs (cong (Iso.fun (fst (Hopfβ-Iso zero (HopfMap' , refl))))
-           (transportRefl (⌣-α 0 (HopfMap' , refl)))) ∙ ⌣equiv→pres1 (sym CP2≡CP2') GysinS¹.e (Hopfα zero (HopfMap' , refl))
-           (l isGenerator≃ℤ-e)
-           (GroupIso→GroupEquiv (Hopfα-Iso 0 (HopfMap' , refl)) , refl)
-           (snd (fst ⌣Equiv))
-           (GroupIso→GroupEquiv (Hopfβ-Iso zero (HopfMap' , refl)))
-  where
-  l : Σ-syntax (GroupIso (coHomGr 2 CP²) ℤGroup)
-      (λ ϕ → abs (Iso.fun (fst ϕ) GysinS¹.e) ≡ 1)
-      → Σ-syntax (GroupEquiv (coHomGr 2 CP²) ℤGroup)
-      (λ ϕ → abs (fst (fst ϕ) GysinS¹.e) ≡ 1)
-  l p = (GroupIso→GroupEquiv (fst p)) , (snd p)
-
-HopfInvariant-HopfMap : abs (HopfInvariant zero HopfMap) ≡ suc zero
-HopfInvariant-HopfMap = cong abs (cong (HopfInvariant zero) hopfMap≡HopfMap')
-                      ∙ HopfInvariant-HopfMap'
-
 
 
 -- open import Cubical.HITs.Wedge
