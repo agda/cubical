@@ -12,10 +12,21 @@ module Cubical.HITs.Pushout.KrausVonRaumer where
 open import Cubical.Foundations.Everything
 open import Cubical.Functions.Embedding
 open import Cubical.Data.Sigma
+open import Cubical.Data.Nat
+open import Cubical.Data.Sum using (_⊎_) renaming (rec to sumRec; inl to inlSum; inr to inrSum)
+open import Cubical.HITs.PropositionalTruncation renaming (elim to elimPropTrunc)
 open import Cubical.HITs.Pushout.Base
+open import Cubical.HITs.Pushout.Properties using (elimProp; pushoutSwitchEquiv)
 
 private
-  interpolate : ∀ {ℓ} {A : Type ℓ} {x y z : A} (q : y ≡ z)
+  variable
+    ℓ ℓ' ℓ'' ℓ''' : Level
+    A : Type ℓ
+    B : Type ℓ'
+    C : Type ℓ''
+
+private
+  interpolate : {x y z : A} (q : y ≡ z)
     → PathP (λ i → x ≡ q i → x ≡ z) (_∙ q) (idfun _)
   interpolate q i p j =
     hcomp
@@ -26,13 +37,13 @@ private
         })
       (p j)
 
-  interpolateCompPath : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) {z : A} (q : y ≡ z)
+  interpolateCompPath : {x y : A} (p : x ≡ y) {z : A} (q : y ≡ z)
    → (λ i → interpolate q i (λ j → compPath-filler p q i j)) ≡ refl
   interpolateCompPath p =
     J (λ z q → (λ i → interpolate q i (λ j → compPath-filler p q i j)) ≡ refl)
       (homotopySymInv (λ p i j → compPath-filler p refl (~ i) j) p)
 
-module ElimL {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+module ElimL
   {f : A → B} {g : A → C} {b₀ : B}
   (P : ∀ b → Path (Pushout f g) (inl b₀) (inl b) → Type ℓ''')
   (Q : ∀ c → Path (Pushout f g) (inl b₀) (inr c) → Type ℓ''')
@@ -70,7 +81,7 @@ module ElimL {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type �
        (interpolateCompPath q (push a) ⁻¹)
        refl)
 
-module ElimR {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+module ElimR
   {f : A → B} {g : A → C} {c₀ : C}
   (P : ∀ b → Path (Pushout f g) (inr c₀) (inl b) → Type ℓ''')
   (Q : ∀ c → Path (Pushout f g) (inr c₀) (inr c) → Type ℓ''')
@@ -110,10 +121,10 @@ module ElimR {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type �
 
 -- Example application: pushouts preserve embeddings
 
-isEmbeddingInr : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
-  {f : A → B} (g : A → C)
+isEmbeddingInr :
+  (f : A → B) (g : A → C)
   → isEmbedding f → isEmbedding (inr {f = f} {g = g})
-isEmbeddingInr {f = f} g fEmb c₀ c₁ =
+isEmbeddingInr f g fEmb c₀ c₁ =
   isoToIsEquiv (iso _ (fst ∘ bwd c₁) (snd ∘ bwd c₁) bwdCong)
   where
   Q : ∀ c → inr c₀ ≡ inr c → Type _
@@ -135,3 +146,53 @@ isEmbeddingInr {f = f} g fEmb c₀ c₁ =
 
   bwdCong : ∀ {c} → (r : c₀ ≡ c) → bwd c (cong inr r) .fst ≡ r
   bwdCong = J (λ c r → bwd c (cong inr r) .fst ≡ r) (cong fst Bwd.refl-β)
+
+
+-- Further Application: Pushouts of emedding-spans of n-Types are n-Types, for n≥0
+module _ (f : A → B) (g : A → C) where
+  inlrJointlySurjective :
+    (z : Pushout f g) → ∥ Σ[ x ∈ (B ⊎ C) ] (sumRec inl inr x) ≡ z ∥
+  inlrJointlySurjective =
+    elimProp _
+             (λ _ → isPropPropTrunc)
+             (λ b → ∣ inlSum b , refl ∣)
+             λ c → ∣ inrSum c , refl ∣
+
+  preserveHLevelEmbedding :
+    {n : HLevel}
+    → isEmbedding f
+    → isEmbedding g
+    → isOfHLevel (2 + n) B
+    → isOfHLevel (2 + n) C
+    → isOfHLevel (2 + n) (Pushout f g)
+  preserveHLevelEmbedding {n = n} fEmb gEmb isOfHLB isOfHLC =
+    isOfHLevelΩ→isOfHLevel n ΩHLevelPushout
+    where isEmbInr = isEmbeddingInr f g fEmb
+          isEmbInrSwitched = isEmbeddingInr g f gEmb
+
+          equivΩC :  {x : Pushout f g} (c : C) (p : inr c ≡ x)
+                    → (c ≡ c) ≃ (x ≡ x)
+          equivΩC c p = compEquiv (_ , isEmbInr c c) (conjugatePathEquiv p)
+
+          equivΩB :  {x : Pushout f g} (b : B) (p : inl b ≡ x)
+                    → (b ≡ b) ≃ (x ≡ x)
+          equivΩB b p = compEquiv
+                          (compEquiv (_ , isEmbInrSwitched b b)
+                                     (congEquiv pushoutSwitchEquiv))
+                          (conjugatePathEquiv p)
+
+          ΩHLevelPushout : (x : Pushout f g) → isOfHLevel (suc n) (x ≡ x)
+          ΩHLevelPushout x =
+            elimPropTrunc
+              (λ _ → isPropIsOfHLevel {A = (x ≡ x)} (suc n))
+              (λ {(inlSum b , p) →
+                    isOfHLevelRespectEquiv
+                      (suc n)
+                      (equivΩB b p)
+                      (isOfHLB b b);
+                  (inrSum c , p) →
+                    isOfHLevelRespectEquiv
+                      (suc n)
+                      (equivΩC c p)
+                      (isOfHLC c c)})
+              (inlrJointlySurjective x)
