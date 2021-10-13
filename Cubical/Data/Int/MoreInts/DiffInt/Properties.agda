@@ -18,11 +18,6 @@ open import Cubical.HITs.SetQuotients as SetQuotients
 open import Cubical.HITs.PropositionalTruncation as PropositionalTruncation
 open import Cubical.Foundations.Isomorphism
 
-open import Cubical.Algebra.Group.Base
-open import Cubical.Algebra.Monoid.Base
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.AbGroup.Base
-
 open BinaryRelation
 
 relIsEquiv : isEquivRel rel
@@ -125,20 +120,18 @@ private
       ≡⟨ cong (λ x' → x' +ℕ (snd x +ℕ snd z)) (ℕ.+-comm (fst z) (fst y)) ⟩
     fst y +ℕ fst z +ℕ (snd x +ℕ snd z) ∎
 
-  ℤ-isSet : isSet ℤ
-  ℤ-isSet m n p q = squash/ m n p q
+ℤ-isSet : isSet ℤ
+ℤ-isSet m n p q = squash/ m n p q
 
-  _+_ : ℤ → ℤ → ℤ
-  _+_ = SetQuotients.rec2 ℤ-isSet (λ x y → [ x +ℕ' y ]) feql feqr
+_+_ : ℤ → ℤ → ℤ
+_+_ = SetQuotients.rec2 ℤ-isSet (λ x y → [ x +ℕ' y ]) feql feqr
     where
       feql : (a b c : ℕ × ℕ) (r : rel a b) → [ a +ℕ' c ] ≡ [ b +ℕ' c ]
       feql a b c r = eq/ (a +ℕ' c) (b +ℕ' c) (+-left-congruence a b c r)
       feqr : (a b c : ℕ × ℕ) (r : rel b c) → [ a +ℕ' b ] ≡ [ a +ℕ' c ]
       feqr a b c r = eq/ (a +ℕ' b) (a +ℕ' c) (+-right-congruence a b c r)
 
-  test : [ 3 , 9 ] + [ 10 , 14 ] ≡ [ 0 , 10 ]
-  test = ℤ-cancelˡ 13
-
+private
   zero-identityˡ-lem : (a : ℕ)(b : ℤ) → (Σ (ℕ × ℕ) ( λ (c , d) → [ (c , d) ]  ≡ b )) → [ a , a ] + b ≡ b
   zero-identityˡ-lem a b ( (c , d) , p ) =
     [ a , a ] + b           ≡⟨ cong (λ x → [ a , a ] + x) (sym p) ⟩
@@ -153,40 +146,37 @@ private
     [ c , d ]               ≡⟨ p ⟩
     b ∎
 
+zero-identityˡ : (a : ℕ) (b : ℤ) → [ a , a ] + b ≡ b
+zero-identityˡ a b = PropositionalTruncation.rec (lem2 a b) (zero-identityˡ-lem a b) ([]surjective b)
+                     where
+                       lem2 : (a : ℕ) (b : ℤ) → isProp ([ a , a ] + b ≡ b)
+                       lem2 a b = ℤ-isSet ([ a , a ] + b) b
 
-  zero-identityˡ : (a : ℕ) (b : ℤ) → [ a , a ] + b ≡ b
-  zero-identityˡ a b = PropositionalTruncation.rec (lem2 a b) (zero-identityˡ-lem a b) ([]surjective b)
-                       where
-                         lem2 : (a : ℕ) (b : ℤ) → isProp ([ a , a ] + b ≡ b)
-                         lem2 a b = ℤ-isSet ([ a , a ] + b) b
+zero-identityʳ : (a : ℕ)(b : ℤ) → b + [ a , a ] ≡ b
+zero-identityʳ a b = PropositionalTruncation.rec (lem2 a b) (zero-identityʳ-lem a b) ([]surjective b)
+                     where
+                       lem2 : (a : ℕ) (b : ℤ) → isProp (b + [ a , a ] ≡ b)
+                       lem2 a b = ℤ-isSet (b + [ a , a ]) b
 
-  zero-identityʳ : (a : ℕ)(b : ℤ) → b + [ a , a ] ≡ b
-  zero-identityʳ a b = PropositionalTruncation.rec (lem2 a b) (zero-identityʳ-lem a b) ([]surjective b)
-                       where
-                         lem2 : (a : ℕ) (b : ℤ) → isProp (b + [ a , a ] ≡ b)
-                         lem2 a b = ℤ-isSet (b + [ a , a ]) b
+-ℤ_  : ℤ → ℤ
+-ℤ [ a ] = [ snd a , fst a ]
+-ℤ eq/ a b r i = eq/ (snd a , fst a) (snd b , fst b) (tmp a b r) i
+                  where
+                    tmp : ∀ a b → fst a +ℕ snd b ≡ fst b +ℕ snd a → snd a +ℕ fst b ≡ snd b +ℕ fst a
+                    tmp a b r =
+                      snd a +ℕ fst b ≡⟨ ℕ.+-comm (snd a) (fst b) ⟩
+                      fst b +ℕ snd a ≡⟨ sym r ⟩
+                      fst a +ℕ snd b ≡⟨ ℕ.+-comm (fst a) (snd b) ⟩
+                      snd b +ℕ fst a ∎
+-ℤ squash/ a a₁ p q i i₁ = squash/ (-ℤ a) (-ℤ a₁) (cong (λ x → -ℤ x) p) (cong (λ x → -ℤ x) q) i i₁
 
-  -ℤ'_  : ℤ → ℤ
-  -ℤ' [ a ] = [ snd a , fst a ]
-  -ℤ' eq/ a b r i = eq/ (snd a , fst a) (snd b , fst b) (tmp a b r) i
-                    where
-                      tmp : ∀ a b → fst a +ℕ snd b ≡ fst b +ℕ snd a → snd a +ℕ fst b ≡ snd b +ℕ fst a
-                      tmp a b r =
-                        snd a +ℕ fst b ≡⟨ ℕ.+-comm (snd a) (fst b) ⟩
-                        fst b +ℕ snd a ≡⟨ sym r ⟩
-                        fst a +ℕ snd b ≡⟨ ℕ.+-comm (fst a) (snd b) ⟩
-                        snd b +ℕ fst a ∎
-  -ℤ' squash/ a a₁ p q i i₁ = squash/ (-ℤ' a) (-ℤ' a₁) (cong (λ x → -ℤ' x) p) (cong (λ x → -ℤ' x) q) i i₁
-
-  _-_ : ℤ → ℤ → ℤ
-  a - b = a + (-ℤ' b)
-
-  -ℤ'-invʳ-lem : (b : ℤ) → (Σ (ℕ × ℕ) ( λ (c , d) → [ (c , d) ]  ≡ b )) → b + (-ℤ' b) ≡ [ 0 , 0 ]
-  -ℤ'-invʳ-lem b ( (c , d) , p ) =
-    b + (-ℤ' b)
-      ≡⟨ cong (λ x → x + (-ℤ' b)) (sym p) ⟩
-    [ c , d ] + (-ℤ' b)
-      ≡⟨ cong (λ x → [ c , d ] + (-ℤ' x)) (sym p) ⟩
+private
+  -ℤ-invʳ-lem : (b : ℤ) → (Σ (ℕ × ℕ) ( λ (c , d) → [ (c , d) ]  ≡ b )) → b + (-ℤ b) ≡ [ 0 , 0 ]
+  -ℤ-invʳ-lem b ( (c , d) , p ) =
+    b + (-ℤ b)
+      ≡⟨ cong (λ x → x + (-ℤ b)) (sym p) ⟩
+    [ c , d ] + (-ℤ b)
+      ≡⟨ cong (λ x → [ c , d ] + (-ℤ x)) (sym p) ⟩
     [ c +ℕ d , d +ℕ c ]
       ≡⟨ cong (λ x → [ c +ℕ d , x ]) (ℕ.+-comm d c) ⟩
     [ c +ℕ d , c +ℕ d ]
@@ -197,12 +187,12 @@ private
       ≡⟨ ℤ-cancelˡ d ⟩
     [ 0 , 0 ] ∎
 
-  -ℤ'-invˡ-lem : (b : ℤ) → (Σ (ℕ × ℕ) ( λ (c , d) → [ (c , d) ]  ≡ b )) → (-ℤ' b) + b ≡ [ 0 , 0 ]
-  -ℤ'-invˡ-lem b ( (c , d) , p ) =
-    (-ℤ' b) + b
-      ≡⟨ cong (λ x → (-ℤ' b) + x) (sym p) ⟩
-    (-ℤ' b) + [ c , d ]
-      ≡⟨ cong (λ x → (-ℤ' x) + [ c , d ]) (sym p) ⟩
+  -ℤ-invˡ-lem : (b : ℤ) → (Σ (ℕ × ℕ) ( λ (c , d) → [ (c , d) ]  ≡ b )) → (-ℤ b) + b ≡ [ 0 , 0 ]
+  -ℤ-invˡ-lem b ( (c , d) , p ) =
+    (-ℤ b) + b
+      ≡⟨ cong (λ x → (-ℤ b) + x) (sym p) ⟩
+    (-ℤ b) + [ c , d ]
+      ≡⟨ cong (λ x → (-ℤ x) + [ c , d ]) (sym p) ⟩
     [ d +ℕ c , c +ℕ d ]
       ≡⟨ cong (λ x → [ x , c +ℕ d ]) (ℕ.+-comm d c) ⟩
     [ c +ℕ d , c +ℕ d ]
@@ -213,36 +203,25 @@ private
       ≡⟨ ℤ-cancelˡ d ⟩
     [ 0 , 0 ] ∎
 
-  -ℤ'-invʳ : (b : ℤ) → b + (-ℤ' b) ≡ [ 0 , 0 ]
-  -ℤ'-invʳ b = PropositionalTruncation.rec (lem2 b) (-ℤ'-invʳ-lem b) ([]surjective b)
-               where
-                 lem2 : (b : ℤ) → isProp (b + (-ℤ' b) ≡ [ 0 , 0 ])
-                 lem2 b = ℤ-isSet (b + (-ℤ' b)) [ 0 , 0 ]
+_-_ : ℤ → ℤ → ℤ
+a - b = a + (-ℤ b)
 
-  -ℤ'-invˡ : (b : ℤ) → (-ℤ' b) + b ≡ [ 0 , 0 ]
-  -ℤ'-invˡ b = PropositionalTruncation.rec (lem2 b) (-ℤ'-invˡ-lem b) ([]surjective b)
-               where
-                 lem2 : (b : ℤ) → isProp ((-ℤ' b) + b ≡ [ 0 , 0 ])
-                 lem2 b = ℤ-isSet ((-ℤ' b) + b) [ 0 , 0 ]
+-ℤ-invʳ : (b : ℤ) → b + (-ℤ b) ≡ [ 0 , 0 ]
+-ℤ-invʳ b = PropositionalTruncation.rec (lem2 b) (-ℤ-invʳ-lem b) ([]surjective b)
+             where
+               lem2 : (b : ℤ) → isProp (b + (-ℤ b) ≡ [ 0 , 0 ])
+               lem2 b = ℤ-isSet (b + (-ℤ b)) [ 0 , 0 ]
 
-  ℤ+-assoc : ∀ x y z → x + (y + z) ≡ (x + y) + z
-  ℤ+-assoc = elimProp3 (λ _ _ _ → ℤ-isSet _ _)
+-ℤ-invˡ : (b : ℤ) → (-ℤ b) + b ≡ [ 0 , 0 ]
+-ℤ-invˡ b = PropositionalTruncation.rec (lem2 b) (-ℤ-invˡ-lem b) ([]surjective b)
+             where
+               lem2 : (b : ℤ) → isProp ((-ℤ b) + b ≡ [ 0 , 0 ])
+               lem2 b = ℤ-isSet ((-ℤ b) + b) [ 0 , 0 ]
+
++ℤ-assoc : ∀ x y z → x + (y + z) ≡ (x + y) + z
++ℤ-assoc = elimProp3 (λ _ _ _ → ℤ-isSet _ _)
     (λ { (a , b) (c , d) (e , f) i → [ ℕ.+-assoc a c e i -ℕ' ℕ.+-assoc b d f i ] })
 
-  ℤ+comm : ∀ x y → x + y ≡ y + x
-  ℤ+comm = elimProp2 (λ _ _ → ℤ-isSet _ _)
-           λ ( a , b ) ( c , d ) i → [ ℕ.+-comm a c i -ℕ'  ℕ.+-comm b d i ]
-
-  ℤ-isGroup : IsGroup {G = ℤ} [ 0 , 0 ] _+_ -ℤ'_
-  IsSemigroup.is-set (IsMonoid.isSemigroup (IsGroup.isMonoid ℤ-isGroup)) = ℤ-isSet
-  IsSemigroup.assoc (IsMonoid.isSemigroup (IsGroup.isMonoid ℤ-isGroup)) = ℤ+-assoc
-  IsMonoid.identity (IsGroup.isMonoid ℤ-isGroup) = λ x → (zero-identityʳ 0 x  , zero-identityˡ 0 x)
-  IsGroup.inverse ℤ-isGroup = λ x → (-ℤ'-invʳ x , -ℤ'-invˡ x)
-
-  ℤ-isAbGroup : IsAbGroup {G = ℤ} [ 0 , 0 ] _+_ -ℤ'_
-  IsAbGroup.isGroup ℤ-isAbGroup = ℤ-isGroup
-  IsAbGroup.comm ℤ-isAbGroup = ℤ+comm
-
-Int : AbGroup ℓ-zero
-Int = makeAbGroup {G = ℤ} [ 0 , 0 ] _+_ -ℤ'_ ℤ-isSet
-      ℤ+-assoc (λ x → zero-identityʳ 0 x) (λ x → -ℤ'-invʳ x) ℤ+comm
++ℤ-comm : ∀ x y → x + y ≡ y + x
++ℤ-comm = elimProp2 (λ _ _ → ℤ-isSet _ _)
+         λ ( a , b ) ( c , d ) i → [ ℕ.+-comm a c i -ℕ'  ℕ.+-comm b d i ]
