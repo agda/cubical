@@ -97,6 +97,8 @@ module _ (R' : CommRing ℓ) where
  ·Closed (√OfIdealIsIdeal I ici) r =
    map λ { (n , xⁿ∈I) → n , subst-∈ I (sym (^-ldist-· r _ n)) (ici .·Closed (r ^ n) xⁿ∈I) }
 
+ √i : CommIdeal → CommIdeal
+ √i I = √ (I .fst) , √OfIdealIsIdeal (I .fst) (I .snd)
 
  -- important lemma for characterization of the Zariski lattice
  √FGIdealChar : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
@@ -121,3 +123,76 @@ module _ (R' : CommRing ℓ) where
                                            (∑Closed (√ (fst I) , isCommIdeal√I)
                                            (λ i → α i · V i)
                                            (λ i → isCommIdeal√I .·Closed (α i) (∀i→Vi∈√I i))) }
+
+ √+Contr : (I J : CommIdeal) → √i (I +i √i J) ≡ √i (I +i J)
+ √+Contr I J = CommIdeal≡Char _ _ incl1 incl2
+  where
+  incl1 : √i (I +i √i J) .fst ⊆ √i (I +i J) .fst
+  incl1 x = PT.elim (λ _ → isPropPropTrunc)
+              (uncurry (λ n → PT.elim (λ _ → isPropPropTrunc)
+                (uncurry3 (curriedIncl1 n))))
+   where
+   curriedIncl1 : (n : ℕ) (y : R × R)
+                → (y .fst ∈ I .fst)
+                → (y . snd ∈ √ (J .fst))
+                → (x ^ n ≡ y .fst + y .snd)
+                → x ∈ √i (I +i J) .fst
+   curriedIncl1 n (y , z) y∈I = PT.elim (λ _ → isPropΠ λ _ → isPropPropTrunc) Σhelper
+    where
+    yVec : (m : ℕ) → FinVec R m
+    yVec m = (BinomialVec m y z) ∘ suc
+
+    ∑yVec∈I : ∀ m → ∑ (yVec m) ∈ I .fst
+    ∑yVec∈I zero = I .snd .contains0
+    ∑yVec∈I (suc m) = ∑Closed I (yVec (suc m))
+                         λ _ → subst-∈ (I .fst) (useSolver _ _ _ _) (I .snd .·Closed _ y∈I)
+     where
+     useSolver : (bc y y^i z^m-i : R) → (bc · y^i · z^m-i) · y ≡ bc · (y · y^i) · z^m-i
+     useSolver = solve R'
+
+    path : (m : ℕ) → x ^ n ≡ y + z → x ^ (n ·ℕ m) ≡ ∑ (yVec m) + z ^ m
+    path m p = x ^ (n ·ℕ m) ≡⟨ ^-rdist-·ℕ x n m ⟩
+               (x ^ n) ^ m ≡⟨ cong (_^ m) p ⟩
+               (y + z) ^ m ≡⟨ BinomialThm m y z ⟩
+               ∑ (BinomialVec m y z) ≡⟨ useSolver _ _ ⟩
+               ∑ (yVec m) + z ^ m ∎
+     where
+     useSolver : (zm ∑yVec : R) → 1r · 1r · zm + ∑yVec ≡ ∑yVec + zm
+     useSolver = solve R'
+
+    Σhelper : Σ[ m ∈ ℕ ] (z ^ m ∈ J .fst) → x ^ n ≡ y + z → x ∈ √i (I +i J) .fst
+    Σhelper (m , z^m∈J) x^n≡y+z =
+      ∣ n ·ℕ m , ∣ (∑ (yVec m) , z ^ m) , ∑yVec∈I m  , z^m∈J , path m x^n≡y+z ∣ ∣
+
+  incl2 : √ ((I +i J) .fst) ⊆ √ ((I +i √i J) .fst)
+  incl2 x = PT.elim (λ _ → isPropPropTrunc) (uncurry curriedIncl2)
+   where
+   curriedIncl2 : (n : ℕ) → (x ^ n ∈ (I +i J) .fst) → x ∈ √ ((I +i √i J) .fst)
+   curriedIncl2 n = map λ ((y , z) , y∈I , z∈J , x≡y+z)
+                           → n , ∣ (y , z) , y∈I , ∈→∈√ (J .fst) z z∈J , x≡y+z ∣
+
+
+ √·Contr : (I J : CommIdeal) → √i (I ·i √i J) ≡ √i (I ·i J)
+ √·Contr I J = CommIdeal≡Char _ _ incl1 incl2
+  where
+  incl1 : √i (I ·i √i J) .fst ⊆ √i (I ·i J) .fst
+  incl1 x = PT.elim (λ _ → isPropPropTrunc) {!!}
+   where
+   curriedIncl1 : (n m : ℕ) (α : FinVec R m × FinVec R m)
+                → (∀ i → α .fst i ∈ I .fst)
+                → (∀ i → α .snd i ∈ √ (J .fst))
+                → (x ^ n ≡ linearCombination R' (α .fst) (α .snd))
+                → x ∈ √i (I ·i J) .fst
+   curriedIncl1 n m (α , β) α∈I β∈√J xⁿ≡∑αβ = ^∈√→∈√ ((I ·i J) .fst) x n
+    (subst-∈ (√i (I ·i J) .fst) (sym xⁿ≡∑αβ)
+    (∑Closed (√i (I ·i J)) (λ i → α i · β i) λ i → prodHelper i (β∈√J i)))
+    where
+    prodHelper : ∀ i → β i ∈ √ (J .fst) → α i · β i ∈ √ ((I ·i J) .fst)
+    prodHelper i = map λ (mi , βi^mi∈J) → mi , subst-∈ ((I ·i J) .fst) (sym (^-ldist-· _ _ mi)) (prodInProd I J _ _ {!!} {!!}) --case distinction mi≠0
+
+  incl2 : √ ((I ·i J) .fst) ⊆ √ ((I ·i √i J) .fst)
+  incl2 x =  PT.elim (λ _ → isPropPropTrunc) (uncurry curriedIncl2)
+   where
+   curriedIncl2 : (n : ℕ) → (x ^ n ∈ (I ·i J) .fst) → x ∈ √ ((I ·i √i J) .fst)
+   curriedIncl2 n = map λ (m , (α , β) , α∈I , β∈J , xⁿ≡∑αβ)
+                    → n , ∣ m , (α , β) , α∈I , (λ i → ∈→∈√ (J .fst) (β i) (β∈J i)) , xⁿ≡∑αβ ∣

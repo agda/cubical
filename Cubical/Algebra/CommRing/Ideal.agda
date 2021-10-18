@@ -84,6 +84,9 @@ module CommIdeal (R' : CommRing ℓ) where
  CommIdeal : Type _
  CommIdeal = Σ[ I ∈ ℙ R ] isCommIdeal I
 
+ CommIdeal≡Char : (I J : CommIdeal) → (I .fst ⊆ J .fst) → (J .fst ⊆ I .fst) → I ≡ J
+ CommIdeal≡Char I J I⊆J J⊆I = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (I⊆J , J⊆I))
+
  ∑Closed : (I : CommIdeal) {n : ℕ} (V : FinVec R n)
          → (∀ i → V i ∈ fst I) → ∑ V ∈ fst I
  ∑Closed I {n = zero} _ _ = I .snd .contains0
@@ -122,10 +125,10 @@ module CommIdeal (R' : CommRing ℓ) where
  +iComm⊆ I J x = map λ ((y , z) , y∈I , z∈J , x≡y+z) → (z , y) , z∈J , y∈I , x≡y+z ∙ +Comm _ _
 
  +iComm : ∀ (I J : CommIdeal) → I +i J ≡ J +i I
- +iComm I J = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (+iComm⊆ I J , +iComm⊆ J I))
+ +iComm I J = CommIdeal≡Char _ _ (+iComm⊆ I J)  (+iComm⊆ J I)
 
  +iLid : ∀ (I : CommIdeal) → 0Ideal +i I ≡ I
- +iLid I = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (incl1 , incl2))
+ +iLid I = CommIdeal≡Char _ _ incl1 incl2
   where
   incl1 : (0Ideal +i I) .fst ⊆ I .fst
   incl1 x = rec (I .fst x .snd) λ ((y , z) , y≡0 , z∈I , x≡y+z)
@@ -141,7 +144,7 @@ module CommIdeal (R' : CommRing ℓ) where
  +iRespLincl I J K I⊆J x = map λ ((y , z) , y∈I , z∈K , x≡y+z) → ((y , z) , I⊆J y y∈I , z∈K , x≡y+z)
 
  +iAssoc : ∀ (I J K : CommIdeal) → I +i (J +i K) ≡ (I +i J) +i K
- +iAssoc I J K = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (incl1 , incl2))
+ +iAssoc I J K = CommIdeal≡Char _ _ incl1 incl2
   where
   incl1 : (I +i (J +i K)) .fst ⊆ ((I +i J) +i K) .fst
   incl1 x = elim (λ _ → ((I +i J) +i K) .fst x .snd) (uncurry3
@@ -157,7 +160,7 @@ module CommIdeal (R' : CommRing ℓ) where
                                        , x≡y+z ∙∙ cong (_+ z) y≡u+v ∙∙ sym (+Assoc _ _ _) ∣)
 
  +iIdem : ∀ (I : CommIdeal) → I +i I ≡ I
- +iIdem I = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (incl1 , incl2))
+ +iIdem I = CommIdeal≡Char _ _ incl1 incl2
   where
   incl1 : (I +i I) .fst ⊆ I .fst
   incl1 x = rec (I .fst x .snd) λ ((y , z) , y∈I , z∈I , x≡y+z)
@@ -196,7 +199,7 @@ module CommIdeal (R' : CommRing ℓ) where
                       → (n , (β , α) , ∀βi∈J , ∀αi∈I , x≡∑αβ ∙ ∑Ext (λ i → ·-comm (α i) (β i)))
 
  ·iComm : ∀ (I J : CommIdeal) → I ·i J ≡ J ·i I
- ·iComm I J = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (·iComm⊆ I J , ·iComm⊆ J I))
+ ·iComm I J = CommIdeal≡Char _ _ (·iComm⊆ I J) (·iComm⊆ J I)
 
  prodInProd : ∀ (I J : CommIdeal) (x y : R) → x ∈ I .fst → y ∈ J .fst → (x · y) ∈ (I ·i J) .fst
  prodInProd _ _ x y x∈I y∈J =
