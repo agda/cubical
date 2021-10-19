@@ -10,7 +10,9 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
 
-open import Cubical.Data.Nat using (ℕ ; zero ; suc)
+open import Cubical.Functions.Logic
+
+open import Cubical.Data.Nat using (ℕ ; zero ; suc ; tt)
                              renaming ( --zero to ℕzero ; suc to ℕsuc
                                         _+_ to _+ℕ_ ; _·_ to _·ℕ_
                                       ; +-assoc to +ℕ-assoc ; +-comm to +ℕ-comm
@@ -73,6 +75,9 @@ module CommIdeal (R' : CommRing ℓ) where
    contains0 : 0r ∈ I
    ·Closed : ∀ {x : R} (r : R) → x ∈ I → r · x ∈ I
 
+  ·RClosed :  ∀ {x : R} (r : R) → x ∈ I → x · r ∈ I
+  ·RClosed r x∈I = subst-∈ I (·-comm _ _) (·Closed r x∈I)
+
  open isCommIdeal
  isPropIsCommIdeal : (I : ℙ R) → isProp (isCommIdeal I)
  +Closed (isPropIsCommIdeal I ici₁ ici₂ i) x∈I y∈I =
@@ -84,8 +89,8 @@ module CommIdeal (R' : CommRing ℓ) where
  CommIdeal : Type _
  CommIdeal = Σ[ I ∈ ℙ R ] isCommIdeal I
 
- CommIdeal≡Char : (I J : CommIdeal) → (I .fst ⊆ J .fst) → (J .fst ⊆ I .fst) → I ≡ J
- CommIdeal≡Char I J I⊆J J⊆I = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (I⊆J , J⊆I))
+ CommIdeal≡Char : {I J : CommIdeal} → (I .fst ⊆ J .fst) → (J .fst ⊆ I .fst) → I ≡ J
+ CommIdeal≡Char I⊆J J⊆I = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (I⊆J , J⊆I))
 
  ∑Closed : (I : CommIdeal) {n : ℕ} (V : FinVec R n)
          → (∀ i → V i ∈ fst I) → ∑ V ∈ fst I
@@ -97,6 +102,16 @@ module CommIdeal (R' : CommRing ℓ) where
  +Closed (snd 0Ideal) x≡0 y≡0 = cong₂ (_+_) x≡0 y≡0 ∙ +Rid _
  contains0 (snd 0Ideal) = refl
  ·Closed (snd 0Ideal) r x≡0 = cong (r ·_) x≡0 ∙ 0RightAnnihilates _
+
+ 1Ideal : CommIdeal
+ fst 1Ideal x = ⊤
+ +Closed (snd 1Ideal) _ _ = lift tt
+ contains0 (snd 1Ideal) = lift tt
+ ·Closed (snd 1Ideal) _ _ = lift tt
+
+ contains1Is1 : (I : CommIdeal) → 1r ∈ I .fst → I ≡ 1Ideal
+ contains1Is1 I 1∈I = CommIdeal≡Char (λ _ _ → lift tt)
+   λ x _ → subst-∈ (I .fst) (·Rid _) (I .snd .·Closed x 1∈I) -- x≡x·1 ∈ I
 
  _+i_ : CommIdeal → CommIdeal → CommIdeal
  fst (I +i J) x =
@@ -125,10 +140,10 @@ module CommIdeal (R' : CommRing ℓ) where
  +iComm⊆ I J x = map λ ((y , z) , y∈I , z∈J , x≡y+z) → (z , y) , z∈J , y∈I , x≡y+z ∙ +Comm _ _
 
  +iComm : ∀ (I J : CommIdeal) → I +i J ≡ J +i I
- +iComm I J = CommIdeal≡Char _ _ (+iComm⊆ I J)  (+iComm⊆ J I)
+ +iComm I J = CommIdeal≡Char (+iComm⊆ I J)  (+iComm⊆ J I)
 
  +iLid : ∀ (I : CommIdeal) → 0Ideal +i I ≡ I
- +iLid I = CommIdeal≡Char _ _ incl1 incl2
+ +iLid I = CommIdeal≡Char incl1 incl2
   where
   incl1 : (0Ideal +i I) .fst ⊆ I .fst
   incl1 x = rec (I .fst x .snd) λ ((y , z) , y≡0 , z∈I , x≡y+z)
@@ -144,7 +159,7 @@ module CommIdeal (R' : CommRing ℓ) where
  +iRespLincl I J K I⊆J x = map λ ((y , z) , y∈I , z∈K , x≡y+z) → ((y , z) , I⊆J y y∈I , z∈K , x≡y+z)
 
  +iAssoc : ∀ (I J K : CommIdeal) → I +i (J +i K) ≡ (I +i J) +i K
- +iAssoc I J K = CommIdeal≡Char _ _ incl1 incl2
+ +iAssoc I J K = CommIdeal≡Char incl1 incl2
   where
   incl1 : (I +i (J +i K)) .fst ⊆ ((I +i J) +i K) .fst
   incl1 x = elim (λ _ → ((I +i J) +i K) .fst x .snd) (uncurry3
@@ -160,7 +175,7 @@ module CommIdeal (R' : CommRing ℓ) where
                                        , x≡y+z ∙∙ cong (_+ z) y≡u+v ∙∙ sym (+Assoc _ _ _) ∣)
 
  +iIdem : ∀ (I : CommIdeal) → I +i I ≡ I
- +iIdem I = CommIdeal≡Char _ _ incl1 incl2
+ +iIdem I = CommIdeal≡Char incl1 incl2
   where
   incl1 : (I +i I) .fst ⊆ I .fst
   incl1 x = rec (I .fst x .snd) λ ((y , z) , y∈I , z∈I , x≡y+z)
@@ -194,13 +209,30 @@ module CommIdeal (R' : CommRing ℓ) where
    → n , ((λ i → r · α i) , β) , (λ i → I .snd .·Closed r (∀αi∈I i)) , ∀βi∈J
     , cong (r ·_) x≡∑αβ ∙ ∑Mulrdist r (λ i → α i · β i) ∙ ∑Ext λ i → ·Assoc r (α i) (β i)
 
+ prodInProd : ∀ (I J : CommIdeal) (x y : R) → x ∈ I .fst → y ∈ J .fst → (x · y) ∈ (I ·i J) .fst
+ prodInProd _ _ x y x∈I y∈J =
+            ∣ 1 , ((λ _ → x) , λ _ → y) , (λ _ → x∈I) , (λ _ → y∈J) , sym (+Rid _) ∣
+
+ ·iLincl : ∀ (I J : CommIdeal) → (I ·i J) .fst ⊆ I .fst
+ ·iLincl I J x = elim (λ _ → I .fst x .snd)
+   λ (_ , (α , β) , α∈I , _ , x≡∑αβ) → subst-∈ (I .fst) (sym x≡∑αβ)
+                                     (∑Closed I (λ i → α i · β i) λ i → ·RClosed (I .snd) _ (α∈I i))
+
  ·iComm⊆ : ∀ (I J : CommIdeal) → (I ·i J) .fst ⊆ (J ·i I) .fst
  ·iComm⊆ I J x = map λ (n , (α , β) , ∀αi∈I , ∀βi∈J , x≡∑αβ)
                       → (n , (β , α) , ∀βi∈J , ∀αi∈I , x≡∑αβ ∙ ∑Ext (λ i → ·-comm (α i) (β i)))
 
  ·iComm : ∀ (I J : CommIdeal) → I ·i J ≡ J ·i I
- ·iComm I J = CommIdeal≡Char _ _ (·iComm⊆ I J) (·iComm⊆ J I)
+ ·iComm I J = CommIdeal≡Char (·iComm⊆ I J) (·iComm⊆ J I)
 
- prodInProd : ∀ (I J : CommIdeal) (x y : R) → x ∈ I .fst → y ∈ J .fst → (x · y) ∈ (I ·i J) .fst
- prodInProd _ _ x y x∈I y∈J =
-            ∣ 1 , ((λ _ → x) , λ _ → y) , (λ _ → x∈I) , (λ _ → y∈J) , sym (+Rid _) ∣
+ ·iRid : ∀ (I : CommIdeal) → I ·i 1Ideal ≡ I
+ ·iRid I = CommIdeal≡Char (·iLincl I 1Ideal) I1⊆I
+  where
+  useSolver : ∀ x → x ≡ x · 1r + 0r
+  useSolver = solve R'
+
+  I1⊆I : I .fst ⊆ (I ·i 1Ideal) .fst
+  I1⊆I x x∈I = ∣ 1 , ((λ _ → x) , λ _ → 1r) , (λ _ → x∈I) , (λ _ → lift tt) , useSolver x ∣
+
+ ·iRContains1id : ∀ (I J : CommIdeal) → 1r ∈ J .fst → I ·i J ≡ I
+ ·iRContains1id I J 1∈J = cong (I ·i_) (contains1Is1 J 1∈J) ∙ ·iRid I

@@ -125,7 +125,7 @@ module _ (R' : CommRing ℓ) where
                                            (λ i → isCommIdeal√I .·Closed (α i) (∀i→Vi∈√I i))) }
 
  √+Contr : (I J : CommIdeal) → √i (I +i √i J) ≡ √i (I +i J)
- √+Contr I J = CommIdeal≡Char _ _ incl1 incl2
+ √+Contr I J = CommIdeal≡Char incl1 incl2
   where
   incl1 : √i (I +i √i J) .fst ⊆ √i (I +i J) .fst
   incl1 x = PT.elim (λ _ → isPropPropTrunc)
@@ -173,10 +173,12 @@ module _ (R' : CommRing ℓ) where
 
 
  √·Contr : (I J : CommIdeal) → √i (I ·i √i J) ≡ √i (I ·i J)
- √·Contr I J = CommIdeal≡Char _ _ incl1 incl2
+ √·Contr I J = CommIdeal≡Char incl1 incl2
   where
   incl1 : √i (I ·i √i J) .fst ⊆ √i (I ·i J) .fst
-  incl1 x = PT.elim (λ _ → isPropPropTrunc) {!!}
+  incl1 x = PT.elim (λ _ → isPropPropTrunc)
+              (uncurry (λ n → PT.elim (λ _ → isPropPropTrunc)
+                (uncurry4 (curriedIncl1 n))))
    where
    curriedIncl1 : (n m : ℕ) (α : FinVec R m × FinVec R m)
                 → (∀ i → α .fst i ∈ I .fst)
@@ -187,8 +189,16 @@ module _ (R' : CommRing ℓ) where
     (subst-∈ (√i (I ·i J) .fst) (sym xⁿ≡∑αβ)
     (∑Closed (√i (I ·i J)) (λ i → α i · β i) λ i → prodHelper i (β∈√J i)))
     where
+    curriedHelper : ∀ x y → x ∈ I .fst → ∀ l → y ^ l ∈ J .fst → (x · y)  ∈ √ ((I ·i J) .fst)
+    curriedHelper x y x∈I zero 1∈J = subst (λ K → (x · y) ∈ √ (K .fst))
+                                       (sym (·iRContains1id I J 1∈J)) --1∈J → √IJ ≡ √I ⊃ I
+                                       (∈→∈√ (I .fst) _ (·RClosed (I .snd) y x∈I))
+    curriedHelper x y x∈I (suc l) y^l+1∈J = -- (xy)^l+1 ≡ x^l · x (∈I) · y^l+1 (∈J)
+      ∣ suc l , subst-∈ ((I ·i J) .fst) (sym (^-ldist-· _ _ (suc l)))
+      (prodInProd I J _ _ (subst-∈ (I .fst) (·-comm _ _) (I .snd .·Closed (x ^ l) x∈I)) y^l+1∈J) ∣
+
     prodHelper : ∀ i → β i ∈ √ (J .fst) → α i · β i ∈ √ ((I ·i J) .fst)
-    prodHelper i = map λ (mi , βi^mi∈J) → mi , subst-∈ ((I ·i J) .fst) (sym (^-ldist-· _ _ mi)) (prodInProd I J _ _ {!!} {!!}) --case distinction mi≠0
+    prodHelper i = PT.elim (λ _ → isPropPropTrunc) (uncurry (curriedHelper (α i) (β i) (α∈I i)))
 
   incl2 : √ ((I ·i J) .fst) ⊆ √ ((I ·i √i J) .fst)
   incl2 x =  PT.elim (λ _ → isPropPropTrunc) (uncurry curriedIncl2)
