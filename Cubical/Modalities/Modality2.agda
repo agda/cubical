@@ -19,6 +19,9 @@ record ModalOperator : Typeω where
 
   isModal : Type ℓ → Type ℓ
   isModal A = isEquiv (η {A = A})
+
+  η⁻¹ : {modalWitness : isModal A} → ◯ A → A
+  η⁻¹ {modalWitness = modalWitness} = Iso.inv (equivToIso (η , modalWitness))
   
   ModalType : Type (ℓ-suc ℓ)
   ModalType {ℓ = ℓ} = Σ (Type ℓ) (λ X → isModal X)
@@ -48,14 +51,14 @@ record Modality : Typeω where
 
       f = ◯-rec (idfun (◯ A))
       H = ◯-comp (idfun (◯ A))
-      η=⁻¹ : {B : Type ℓ} {x y : ◯ B} → ◯ (x ≡ y) → x ≡ y
-      η=⁻¹ = Iso.inv (equivToIso (η , ◯=-isModal))
+      η≡⁻¹ : {B : Type ℓ} {x y : ◯ B} → ◯ (x ≡ y) → x ≡ y
+      η≡⁻¹ = η⁻¹ {modalWitness = ◯≡-isModal}
 
       φ : Iso (◯ A) (◯ (◯ A))
       fun φ = η {A = ◯ A}
       inv φ = f
       leftInv φ = H
-      rightInv φ = η=⁻¹ ∘ (◯-ind {P = P} s)
+      rightInv φ = η≡⁻¹ ∘ (◯-ind {P = P} s)
         where
         P = λ (z : ◯ (◯ A)) → (η (f z) ≡ z)
         s = λ (a : ◯ A) → η (cong η (H a))
