@@ -206,3 +206,25 @@ module _ (R' : CommRing ℓ) where
    curriedIncl2 : (n : ℕ) → (x ^ n ∈ (I ·i J) .fst) → x ∈ √ ((I ·i √i J) .fst)
    curriedIncl2 n = map λ (m , (α , β) , α∈I , β∈J , xⁿ≡∑αβ)
                     → n , ∣ m , (α , β) , α∈I , (λ i → ∈→∈√ (J .fst) (β i) (β∈J i)) , xⁿ≡∑αβ ∣
+
+ √·Idem : ∀ (I : CommIdeal) → √i (I ·i I) ≡ √i I
+ √·Idem I = CommIdeal≡Char incl1 incl2
+  where
+  incl1 : √ ((I ·i I) .fst) ⊆ √ (I .fst)
+  incl1 x = map λ (n , x^n∈II) → (n , ·iLincl I I _ x^n∈II)
+
+  incl2 : √ (I .fst) ⊆ √ ((I ·i I) .fst)
+  incl2 x = map λ (n , x^n∈I) → (n +ℕ n , subst-∈ ((I ·i I) .fst)
+                                 (·-of-^-is-^-of-+ x n n) -- x²ⁿ≡xⁿ (∈I) · xⁿ (∈I)
+                                 (prodInProd I I _ _ x^n∈I x^n∈I))
+
+ √·Absorb+ : ∀ (I J : CommIdeal) → √i (I ·i (I +i J)) ≡ √i I
+ √·Absorb+ I J = CommIdeal≡Char incl1 incl2
+  where
+  incl1 : √ ((I ·i (I +i J)) .fst) ⊆ √ (I .fst)
+  incl1 x = map λ (n , x^n∈I[I+J]) → (n , ·iLincl I (I +i J) _ x^n∈I[I+J])
+
+  incl2 : √ (I .fst) ⊆ √ ((I ·i (I +i J)) .fst)
+  incl2 x = map λ (n , x^n∈I) → (n +ℕ n , subst-∈ ((I ·i (I +i J)) .fst)
+                                 (·-of-^-is-^-of-+ x n n) -- x²ⁿ≡xⁿ (∈I) · xⁿ (∈I⊆I+J)
+                                 (prodInProd I (I +i J) _ _ x^n∈I (+iLincl I J _ x^n∈I)))

@@ -155,6 +155,9 @@ module CommIdeal (R' : CommRing ℓ) where
  +iLincl : ∀ (I J : CommIdeal) → I .fst ⊆ (I +i J) .fst
  +iLincl I J x x∈I = ∣ (x , 0r) , x∈I , J .snd .contains0 , sym (+Rid x) ∣
 
+ +iRincl : ∀ (I J : CommIdeal) → J .fst ⊆ (I +i J) .fst
+ +iRincl I J x x∈J = ∣ (0r , x) , I .snd .contains0 , x∈J ,  sym (+Lid x) ∣
+
  +iRespLincl : ∀ (I J K : CommIdeal) → I .fst ⊆ J .fst → (I +i K) .fst ⊆ (J +i K) .fst
  +iRespLincl I J K I⊆J x = map λ ((y , z) , y∈I , z∈K , x≡y+z) → ((y , z) , I⊆J y y∈I , z∈K , x≡y+z)
 
@@ -209,9 +212,20 @@ module CommIdeal (R' : CommRing ℓ) where
    → n , ((λ i → r · α i) , β) , (λ i → I .snd .·Closed r (∀αi∈I i)) , ∀βi∈J
     , cong (r ·_) x≡∑αβ ∙ ∑Mulrdist r (λ i → α i · β i) ∙ ∑Ext λ i → ·Assoc r (α i) (β i)
 
+ infixl 7 _·i_
+
  prodInProd : ∀ (I J : CommIdeal) (x y : R) → x ∈ I .fst → y ∈ J .fst → (x · y) ∈ (I ·i J) .fst
  prodInProd _ _ x y x∈I y∈J =
             ∣ 1 , ((λ _ → x) , λ _ → y) , (λ _ → x∈I) , (λ _ → y∈J) , sym (+Rid _) ∣
+
+ -- a non-dep version that works?
+ -- ·iElim : {I J : CommIdeal} {P : (x : R) → x ∈ (I ·i J) .fst → Type ℓ}
+ --        → (∀ x x∈IJ → isProp (P x x∈IJ))
+ --        → (∀ x y x∈I y∈J → P (x · y) (prodInProd I J x y x∈I y∈J))
+ --        ---------------------------------------------------------
+ --        → ∀ x x∈IJ → P x x∈IJ
+ -- ·iElim {I = I} {J = J} {P = P} isPropP h x = elim (isPropP x) λ (_ , (α , β) , α∈I , β∈J , x≡∑αβ)
+ --                    → subst (λ x → (x∈IJ : x ∈ (I ·i J) .fst) → P x x∈IJ) (sym x≡∑αβ) {!!} {!!}
 
  ·iLincl : ∀ (I J : CommIdeal) → (I ·i J) .fst ⊆ I .fst
  ·iLincl I J x = elim (λ _ → I .fst x .snd)
@@ -234,5 +248,61 @@ module CommIdeal (R' : CommRing ℓ) where
   I1⊆I : I .fst ⊆ (I ·i 1Ideal) .fst
   I1⊆I x x∈I = ∣ 1 , ((λ _ → x) , λ _ → 1r) , (λ _ → x∈I) , (λ _ → lift tt) , useSolver x ∣
 
+ -- a useful corollary
  ·iRContains1id : ∀ (I J : CommIdeal) → 1r ∈ J .fst → I ·i J ≡ I
  ·iRContains1id I J 1∈J = cong (I ·i_) (contains1Is1 J 1∈J) ∙ ·iRid I
+
+ ·iAssoc : ∀ (I J K : CommIdeal) → I ·i (J ·i K) ≡ (I ·i J) ·i K
+ ·iAssoc I J K = CommIdeal≡Char incl1 incl2
+  where
+  incl1 : (I ·i (J ·i K)) .fst ⊆ ((I ·i J) ·i K) .fst
+  incl1 x = rec isPropPropTrunc λ (_ , (α , β) , α∈I , β∈JK , x≡∑αβ)
+              → subst-∈ (((I ·i J) ·i K) .fst) (sym x≡∑αβ)
+                (∑Closed ((I ·i J) ·i K) (λ i → α i · β i)
+          λ i → rec {A = Σ[ n ∈ ℕ ] Σ[ (γ , δ) ∈ (FinVec R n × FinVec R n) ] (∀ j → γ j ∈ J .fst) × (∀ j → δ j ∈ K .fst) × (β i ≡ ∑ λ j → γ j · δ j)} isPropPropTrunc
+                (λ (_ , (γ , δ) , γ∈J , δ∈K , βi≡∑γδ)
+                   → subst-∈ (((I ·i J) ·i K) .fst)
+                              (sym (cong (α i ·_) βi≡∑γδ ∙ ∑Mulrdist (α i) (λ j → γ j · δ j)))
+                              (∑Closed (((I ·i J) ·i K)) (λ j → α i · (γ j · δ j)) {!!}))
+                (β∈JK i))
+
+  incl2 : ((I ·i J) ·i K) .fst ⊆ (I ·i (J ·i K)) .fst
+  incl2 x = {!!}
+
+ ·iRdist+i : ∀ (I J K : CommIdeal) → I ·i (J +i K) ≡ I ·i J +i I ·i K
+ ·iRdist+i I J K = CommIdeal≡Char incl1 incl2
+  where
+  incl1 : (I ·i (J +i K)) .fst ⊆ (I ·i J +i I ·i K) .fst
+  incl1 x = rec isPropPropTrunc
+    λ (n , (α , β) , α∈I , β∈J+K , x≡∑αβ) → subst-∈ (((I ·i J) +i (I ·i K)) .fst) (sym x≡∑αβ)
+      (∑Closed ((I ·i J) +i (I ·i K)) (λ i → α i · β i) -- each αi·βi ∈ IJ+IK
+      λ i → rec isPropPropTrunc
+            (λ ((γi , δi) , γi∈J , δi∈K , βi≡γi+δi) →
+               ∣ (α i · γi , α i · δi) , prodInProd I J _ _ (α∈I i) γi∈J
+                                        , prodInProd I K _ _ (α∈I i) δi∈K
+                                        , cong (α i ·_) βi≡γi+δi ∙ ·Rdist+ _ _ _ ∣)
+            (β∈J+K i))
+
+  incl2 : ((I ·i J) +i (I ·i K)) .fst ⊆ (I ·i (J +i K)) .fst
+  incl2 x = rec isPropPropTrunc λ ((y , z) , y∈IJ , z∈IK , x≡y+z)
+          → subst-∈ ((I ·i (J +i K)) .fst) (sym x≡y+z)
+              ((I ·i (J +i K)) .snd .+Closed (inclHelperLeft _ y∈IJ) (inclHelperRight _ z∈IK))
+   where
+   inclHelperLeft : (I ·i J) .fst ⊆ (I ·i (J +i K)) .fst
+   inclHelperLeft x' = map (λ (n , (α , β) , α∈I , β∈J , x'≡∑αβ)
+                     → n , (α , β) , α∈I , (λ i → +iLincl J K _ (β∈J i)) , x'≡∑αβ)
+
+   inclHelperRight : (I ·i K) .fst ⊆ (I ·i (J +i K)) .fst
+   inclHelperRight x' = map (λ (n , (α , β) , α∈I , β∈K , x'≡∑αβ)
+                      → n , (α , β) , α∈I , (λ i → +iRincl J K _ (β∈K i)) , x'≡∑αβ)
+
+ -- only one absorption law, i.e. CommIdeal , +i , ·i does not form a dist. lattice
+ ·iAbsorb+i : ∀ (I J : CommIdeal) → I +i (I ·i J) ≡ I
+ ·iAbsorb+i I J = CommIdeal≡Char incl1 incl2
+  where
+  incl1 : (I +i (I ·i J)) .fst ⊆ I .fst
+  incl1 x = rec (I .fst x .snd) λ ((y , z) , y∈I , z∈IJ , x≡y+z)
+          → subst-∈ (I .fst) (sym x≡y+z) (I .snd .+Closed y∈I (·iLincl I J _ z∈IJ))
+
+  incl2 : I .fst ⊆ (I +i (I ·i J)) .fst
+  incl2 = +iLincl I (I ·i J)
