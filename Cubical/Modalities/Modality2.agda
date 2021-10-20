@@ -23,8 +23,8 @@ record ModalOperator : Typeω where
   η⁻¹ : {modalWitness : isModal A} → ◯ A → A
   η⁻¹ {modalWitness = modalWitness} = Iso.inv (equivToIso (η , modalWitness))
   
-  ModalType : Type (ℓ-suc ℓ)
-  ModalType {ℓ = ℓ} = Σ (Type ℓ) (λ X → isModal X)
+  ModalType : (ℓ : Level) → Type (ℓ-suc ℓ)
+  ModalType ℓ = Σ (Type ℓ) (λ X → isModal X)
 
 
 record Modality : Typeω where
