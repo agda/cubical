@@ -36,13 +36,12 @@ record Modality : Typeω where
     ◯-comp : {P : ModalOperator.◯ M A → Type ℓ}
              → (s : (a : A) → ModalOperator.◯ M (P (ModalOperator.η M a)))
              → (x : A) → ◯-ind {P = P} s (ModalOperator.η M x) ≡ s x
-    ◯=-isModal : {x y : ModalOperator.◯ M A} → isEquiv (ModalOperator.η M {A = x ≡ y})
+    ◯≡-isModal : {x y : ModalOperator.◯ M A} → ModalOperator.isModal M (x ≡ y)
 
   open ModalOperator M public
 
   ◯-rec : (A → ◯ B) → (◯ A → ◯ B)
   ◯-rec {A = A} {B = B} = ◯-ind {P = λ (z : ◯ A) → B}
-
 
   ◯-isModal : isModal (◯ A)
   ◯-isModal {A = A} = snd (isoToEquiv φ)
