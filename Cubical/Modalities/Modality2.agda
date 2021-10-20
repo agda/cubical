@@ -62,6 +62,12 @@ record Modality : Typeω where
         P = λ (z : ◯ (◯ A)) → (η (f z) ≡ z)
         s = λ (a : ◯ A) → η (cong η (H a))
 
+  -- eliminate into modal type
+  ◯-ind' : {P : ◯ A → Type ℓ} {depModalWitness : (z : ◯ A) → isModal (P z)}
+         → ((a : A) → P (η a))
+         → ((z : ◯ A) → P z)
+  ◯-ind' {depModalWitness = W} s z = η⁻¹ {modalWitness = W z} (◯-ind (η ∘ s) z)
+
 
 
 --record UniquelyEliminatingModality : Typeω where
