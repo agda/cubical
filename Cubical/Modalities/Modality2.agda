@@ -68,16 +68,18 @@ record Modality : Typeω where
          → ((z : ◯ A) → P z)
   ◯-ind' {depModalWitness = W} s z = η⁻¹ {modalWitness = W z} (◯-ind (η ∘ s) z)
 
+  ◯-isUniquelyEliminating : {P : ◯ A → Type ℓ}
+                          → isEquiv (λ (s : (z : ◯ A) → ◯ (P z)) → s ∘ η)
+  ◯-isUniquelyEliminating {A = A} {P = P} = snd (isoToEquiv φ) where
+    open Iso
+    φ : Iso ((z : ◯ A) → ◯ (P z)) ((a : A) → ◯ (P (η a)))
+    Iso.fun φ = λ (s : (z : ◯ A) → ◯ (P z)) → s ∘ η
+    Iso.inv φ = ◯-ind
+    Iso.rightInv φ s = funExt (◯-comp s)
+    Iso.leftInv φ s = funExt H where
+      H : (x : ◯ A) → ◯-ind (λ x₁ → s (η x₁)) x ≡ s x
+      H = ◯-ind' {depModalWitness = λ z → ◯≡-isModal} (◯-comp (λ x₁ → s (η x₁)))
 
-
---record UniquelyEliminatingModality : Typeω where
---  open ModalOperator
---  field
---    M : ModalOperator
---    depUniversalProperty : {P : ◯ M A → Type ℓ}
---                         → isEquiv (λ (s : (z : ◯ M A) → ◯ M (P z)) → s ∘ η M)
---
---  open ModalOperator M public
 
 --record ReflectiveSubuniverse : Typeω where
 --  open ModalOperator
