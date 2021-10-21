@@ -48,7 +48,7 @@ module Construction where
   ℕ↑-+ = PropCompletion ℕ≤+
   ℕ↑-· = PropCompletion ℕ≤·
 
-  open CommMonoidStr (snd ℕ↑-+)
+  open OrderedCommMonoidStr (snd ℕ↑-+)
     using ()
     renaming (_·_ to _+_; assoc to +Assoc; comm to +Comm; rid to +Rid)
 
@@ -59,16 +59,16 @@ module Construction where
    using ()
    renaming (_·_ to _+ℕ_; isLMonotone to +isLMonotone; isRMonotone to +isRMonotone)
 
-  open CommMonoidStr ⦃...⦄
+  open OrderedCommMonoidStr ⦃...⦄
     using (_·_)
     renaming (assoc to ·Assoc; comm to ·Comm; rid to ·Rid)
 
   private
     instance
-      _ : CommMonoidStr _
+      _ : OrderedCommMonoidStr _ _
       _  = snd ℕ↑-·
-      _ : CommMonoidStr _
-      _ = snd (OrderedCommMonoid→CommMonoid ℕ≤·)
+      _ : OrderedCommMonoidStr _ _
+      _ = snd ℕ≤·
 
   ℕ↑ : Type₁
   ℕ↑ = fst ℕ↑-+

@@ -53,14 +53,20 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
   isSetM↑ : isSet M↑
   isSetM↑ = isOfHLevelΣ 2 isSetM→Prop λ s → isOfHLevelSuc 1 (isPropUpwardClosed s)
 
-  _isUpperBoundOf_ : fst M → M↑ → hProp ℓ
-  n isUpperBoundOf s = (fst s) n
+  _isUpperBoundOf_ : fst M → M↑ → Type ℓ
+  n isUpperBoundOf s = fst (fst s n)
+
+  isBounded : (s : M↑) → Type _
+  isBounded s = Σ[ m ∈ (fst M) ] (m isUpperBoundOf s)
 
   _^↑ : fst M → M↑
   n ^↑ = n ≤p_ , isUpwardClosed≤
     where
       isUpwardClosed≤ : {m : fst M} → isUpwardClosed (m ≤p_)
       isUpwardClosed≤ = λ {_ _ n≤k m≤n → is-trans _ _ _ m≤n n≤k}
+
+  isBounded^ : (m : fst M) → isBounded (m ^↑)
+  isBounded^ m = m , (is-refl m)
 
   1↑ : M↑
   1↑ = 1m ^↑
@@ -76,6 +82,9 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
              propTruncRec
                isPropPropTrunc
                λ {((a , b) , wa , (wb , a·b≤n)) → ∣ (a , b) , wa , (wb , is-trans _ _ _ a·b≤n n≤m) ∣}
+
+  ·presBounded : (s l : M↑) (bs : isBounded s) (bl : isBounded l) → isBounded (s ·↑ l)
+  ·presBounded s l (m , s≤m) (k , l≤k) = (m · k) , ∣ (m , k) , (s≤m , (l≤k , (is-refl (m · k)))) ∣
 
   {- convenience functions for the proof that ·↑ is the multiplication of a monoid -}
   typeAt : fst M → M↑ → Type _
@@ -197,5 +206,5 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
           ≤↑IsProp ≤↑IsRefl ≤↑IsTrans ≤↑IsAntisym ·↑IsRMonotone ·↑IsLMonotone
     })
 
-PropCompletion : OrderedCommMonoid ℓ ℓ → CommMonoid (ℓ-suc ℓ)
-PropCompletion M = PropCompletion.asCommMonoid _ M
+PropCompletion : OrderedCommMonoid ℓ ℓ → OrderedCommMonoid (ℓ-suc ℓ) ℓ
+PropCompletion M = PropCompletion.asOrderedCommMonoid _ M
