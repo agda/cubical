@@ -14,6 +14,7 @@ module Cubical.Algebra.OrderedCommMonoid.PropCompletion where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 
 open import Cubical.Functions.Logic
 open import Cubical.Functions.Embedding
@@ -150,6 +151,24 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
 
   asCommMonoid : CommMonoid (ℓ-suc ℓ)
   asCommMonoid = makeCommMonoid 1↑ _·↑_ isSetM↑ ·↑Assoc ·↑Rid ·↑Comm
+
+  {-
+    Poset structure on M↑
+  -}
+  _≤↑_ : (s l : M↑) → Type _
+  s ≤↑ l = (m : fst M) → fst ((fst s) m) → fst ((fst l) m)
+
+  ≤↑IsProp : (s l : M↑) → isProp (s ≤↑ l)
+  ≤↑IsProp s l = isPropΠ2 (λ x p → snd (fst l x))
+
+  ≤↑IsRefl : {s : M↑} → s ≤↑ s
+  ≤↑IsRefl = λ m x → x
+
+  ≤↑IsTrans : {s l t : M↑} → s ≤↑ l → l ≤↑ t → s ≤↑ t
+  ≤↑IsTrans p q x = (q x) ∘ (p x)
+
+  ≤↑IsAntisym : {s l : M↑} → s ≤↑ l → l ≤↑ s → s ≡ l
+  ≤↑IsAntisym p q = pathFromImplications _ _ p q
 
 PropCompletion : OrderedCommMonoid ℓ ℓ → CommMonoid (ℓ-suc ℓ)
 PropCompletion M = PropCompletion.asCommMonoid _ M
