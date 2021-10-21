@@ -256,18 +256,34 @@ module CommIdeal (R' : CommRing ℓ) where
  ·iAssoc I J K = CommIdeal≡Char incl1 incl2
   where
   incl1 : (I ·i (J ·i K)) .fst ⊆ ((I ·i J) ·i K) .fst
-  incl1 x = rec isPropPropTrunc λ (_ , (α , β) , α∈I , β∈JK , x≡∑αβ)
+  incl1 x = rec isPropPropTrunc
+          λ (_ , (α , β) , α∈I , β∈JK , x≡∑αβ)
               → subst-∈ (((I ·i J) ·i K) .fst) (sym x≡∑αβ)
                 (∑Closed ((I ·i J) ·i K) (λ i → α i · β i)
-          λ i → rec {A = Σ[ n ∈ ℕ ] Σ[ (γ , δ) ∈ (FinVec R n × FinVec R n) ] (∀ j → γ j ∈ J .fst) × (∀ j → δ j ∈ K .fst) × (β i ≡ ∑ λ j → γ j · δ j)} isPropPropTrunc
+          λ i → rec isPropPropTrunc
                 (λ (_ , (γ , δ) , γ∈J , δ∈K , βi≡∑γδ)
-                   → subst-∈ (((I ·i J) ·i K) .fst)
-                              (sym (cong (α i ·_) βi≡∑γδ ∙ ∑Mulrdist (α i) (λ j → γ j · δ j)))
-                              (∑Closed (((I ·i J) ·i K)) (λ j → α i · (γ j · δ j)) {!!}))
+                   → subst-∈ (((I ·i J) ·i K) .fst) -- each αᵢβᵢ ≡...≡ ∑αᵢγⱼδⱼ ∈IJK
+                              (sym (cong (α i ·_) βi≡∑γδ ∙∙ ∑Mulrdist (α i) (λ j → γ j · δ j)
+                                                         ∙∙ ∑Ext (λ j → ·Assoc (α i) (γ j) (δ j))))
+                              (∑Closed ((I ·i J) ·i K) (λ j → α i · γ j · δ j) -- each αᵢγⱼδⱼ∈IJK
+                                       λ j → prodInProd (I ·i J) K _ _
+                                               (prodInProd I J _ _ (α∈I i) (γ∈J j)) (δ∈K j)))
                 (β∈JK i))
 
   incl2 : ((I ·i J) ·i K) .fst ⊆ (I ·i (J ·i K)) .fst
-  incl2 x = {!!}
+  incl2 x = rec isPropPropTrunc
+          λ (_ , (α , β) , α∈IJ , β∈K , x≡∑αβ)
+              → subst-∈ ((I ·i (J ·i K)) .fst) (sym x≡∑αβ)
+                (∑Closed (I ·i (J ·i K)) (λ i → α i · β i)
+          λ i → rec isPropPropTrunc
+                (λ (_ , (γ , δ) , γ∈I , δ∈J , αi≡∑γδ)
+                   → subst-∈ ((I ·i (J ·i K)) .fst)
+                              (sym (cong (_· β i) αi≡∑γδ ∙∙ ∑Mulldist (β i) (λ j → γ j · δ j)
+                                         ∙∙ ∑Ext (λ j → sym (·Assoc (γ j) (δ j) (β i)))))
+                              (∑Closed (I ·i (J ·i K)) (λ j → γ j · (δ j · β i))
+                                       λ j → prodInProd I (J ·i K) _ _ (γ∈I j)
+                                               (prodInProd J K _ _ (δ∈J j) (β∈K i))))
+                (α∈IJ i))
 
  ·iRdist+i : ∀ (I J K : CommIdeal) → I ·i (J +i K) ≡ I ·i J +i I ·i K
  ·iRdist+i I J K = CommIdeal≡Char incl1 incl2
@@ -279,8 +295,8 @@ module CommIdeal (R' : CommRing ℓ) where
       λ i → rec isPropPropTrunc
             (λ ((γi , δi) , γi∈J , δi∈K , βi≡γi+δi) →
                ∣ (α i · γi , α i · δi) , prodInProd I J _ _ (α∈I i) γi∈J
-                                        , prodInProd I K _ _ (α∈I i) δi∈K
-                                        , cong (α i ·_) βi≡γi+δi ∙ ·Rdist+ _ _ _ ∣)
+                                       , prodInProd I K _ _ (α∈I i) δi∈K
+                                       , cong (α i ·_) βi≡γi+δi ∙ ·Rdist+ _ _ _ ∣)
             (β∈J+K i))
 
   incl2 : ((I ·i J) +i (I ·i K)) .fst ⊆ (I ·i (J +i K)) .fst
