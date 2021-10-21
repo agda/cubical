@@ -161,14 +161,41 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
   ≤↑IsProp : (s l : M↑) → isProp (s ≤↑ l)
   ≤↑IsProp s l = isPropΠ2 (λ x p → snd (fst l x))
 
-  ≤↑IsRefl : {s : M↑} → s ≤↑ s
-  ≤↑IsRefl = λ m x → x
+  ≤↑IsRefl : (s : M↑) → s ≤↑ s
+  ≤↑IsRefl s = λ m x → x
 
-  ≤↑IsTrans : {s l t : M↑} → s ≤↑ l → l ≤↑ t → s ≤↑ t
-  ≤↑IsTrans p q x = (q x) ∘ (p x)
+  ≤↑IsTrans : (s l t : M↑) → s ≤↑ l → l ≤↑ t → s ≤↑ t
+  ≤↑IsTrans s l t p q x = (q x) ∘ (p x)
 
-  ≤↑IsAntisym : {s l : M↑} → s ≤↑ l → l ≤↑ s → s ≡ l
-  ≤↑IsAntisym p q = pathFromImplications _ _ p q
+  ≤↑IsAntisym : (s l : M↑) → s ≤↑ l → l ≤↑ s → s ≡ l
+  ≤↑IsAntisym s l p q = pathFromImplications _ _ p q
+
+  {-
+    Compatability with the monoid structure
+  -}
+  ·↑IsRMonotone : (l t s : M↑) → l ≤↑ t → (l ·↑ s) ≤↑ (t ·↑ s)
+  ·↑IsRMonotone l t s p x =
+    propTruncRec
+      isPropPropTrunc
+      λ { ((a , b) , l≤a , (s≤b , a·b≤x)) → ∣ (a , b) , p a l≤a , s≤b , a·b≤x ∣}
+
+  ·↑IsLMonotone : (l t s : M↑) → l ≤↑ t → (s ·↑ l) ≤↑ (s ·↑ t)
+  ·↑IsLMonotone l t s p x =
+    propTruncRec
+      isPropPropTrunc
+      λ {((a , b) , s≤a , (l≤b , a·b≤x)) → ∣ (a , b) , s≤a , p b l≤b , a·b≤x ∣}
+
+  asOrderedCommMonoid : OrderedCommMonoid (ℓ-suc ℓ) ℓ
+  asOrderedCommMonoid = _ ,
+    (record {
+      _≤_ = _≤↑_ ;
+      _·_ = _·↑_ ;
+      1m = 1↑ ;
+      isOrderedCommMonoid =
+        IsOrderedCommMonoidFromIsCommMonoid
+          (CommMonoidStr.isCommMonoid (snd asCommMonoid))
+          ≤↑IsProp ≤↑IsRefl ≤↑IsTrans ≤↑IsAntisym ·↑IsRMonotone ·↑IsLMonotone
+    })
 
 PropCompletion : OrderedCommMonoid ℓ ℓ → CommMonoid (ℓ-suc ℓ)
 PropCompletion M = PropCompletion.asCommMonoid _ M

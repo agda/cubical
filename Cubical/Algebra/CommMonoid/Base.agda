@@ -79,13 +79,18 @@ makeCommMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
 makeCommMonoid ε _·_ is-setM assoc rid comm =
   commmonoid _ ε _·_ (makeIsCommMonoid is-setM assoc rid (λ x → (comm _ _) ∙ rid x) comm)
 
-
 CommMonoidStr→MonoidStr : {A : Type ℓ} → CommMonoidStr A → MonoidStr A
 CommMonoidStr→MonoidStr (commmonoidstr _ _ H) = monoidstr _ _ (IsCommMonoid.isMonoid H)
 
 CommMonoid→Monoid : CommMonoid ℓ → Monoid ℓ
 CommMonoid→Monoid (_ , commmonoidstr _ _ H) = _ , monoidstr _ _ (IsCommMonoid.isMonoid H)
 
+isSetFromIsCommMonoid :
+  {M : Type ℓ} {ε : M} {_·_ : M → M → M}
+  (isCommMonoid : IsCommMonoid ε _·_)
+  → isSet M
+isSetFromIsCommMonoid isCommMonoid =
+  isSetFromIsMonoid (MonoidStr.isMonoid (CommMonoidStr→MonoidStr (commmonoidstr _ _ isCommMonoid)))
 
 CommMonoidHom : (L : CommMonoid ℓ) (M : CommMonoid ℓ') → Type (ℓ-max ℓ ℓ')
 CommMonoidHom L M = MonoidHom (CommMonoid→Monoid L) (CommMonoid→Monoid M)

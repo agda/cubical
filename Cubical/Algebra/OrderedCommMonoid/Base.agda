@@ -35,6 +35,9 @@ record OrderedCommMonoidStr (ℓ' : Level) (M : Type ℓ) : Type (ℓ-suc (ℓ-m
 
   infixl 4 _≤_
 
+OrderedCommMonoid : (ℓ ℓ' : Level) → Type (ℓ-suc (ℓ-max ℓ ℓ'))
+OrderedCommMonoid ℓ ℓ' = TypeWithStr ℓ (OrderedCommMonoidStr ℓ')
+
 module _ where
   open IsOrderedCommMonoid
 
@@ -60,8 +63,22 @@ module _ where
   isLMonotone (makeIsOrderedCommMonoid is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone) =
     lmonotone _ _ _
 
-OrderedCommMonoid : (ℓ ℓ' : Level) → Type (ℓ-suc (ℓ-max ℓ ℓ'))
-OrderedCommMonoid ℓ ℓ' = TypeWithStr ℓ (OrderedCommMonoidStr ℓ')
+  IsOrderedCommMonoidFromIsCommMonoid :
+    {M : Type ℓ} {1m : M} {_·_ : M → M → M} {_≤_ : M → M → Type ℓ'}
+    (isCommMonoid : IsCommMonoid 1m _·_)
+    (isProp≤ : (x y : M) → isProp (x ≤ y))
+    (isRefl : (x : M) → x ≤ x)
+    (isTrans : (x y z : M) → x ≤ y → y ≤ z → x ≤ z)
+    (isAntisym : (x y : M) → x ≤ y → y ≤ x → x ≡ y)
+    (rmonotone : (x y z : M) → x ≤ y → (x · z) ≤ (y · z))
+    (lmonotone : (x y z : M) → x ≤ y → (z · x) ≤ (z · y))
+    → IsOrderedCommMonoid _·_ 1m _≤_
+  isPoset (IsOrderedCommMonoidFromIsCommMonoid isCommMonoid isProp≤ isRefl isTrans isAntisym _ _) =
+    isposet (isSetFromIsCommMonoid isCommMonoid) isProp≤ isRefl isTrans isAntisym
+  isCommMonoid (IsOrderedCommMonoidFromIsCommMonoid isCommMonoid _ _ _ _ _ _) = isCommMonoid
+  isRMonotone (IsOrderedCommMonoidFromIsCommMonoid isCommMonoid _ _ _ _ rmonotone _) = rmonotone _ _ _
+  isLMonotone (IsOrderedCommMonoidFromIsCommMonoid isCommMonoid _ _ _ _ _ lmonotone) = lmonotone _ _ _
+
 
 
 OrderedCommMonoid→CommMonoid : OrderedCommMonoid ℓ ℓ' → CommMonoid ℓ
