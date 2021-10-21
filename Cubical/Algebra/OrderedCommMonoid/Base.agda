@@ -18,7 +18,7 @@ private
 record IsOrderedCommMonoid {M : Type ℓ} (_·_ : M → M → M) (1m : M) (_≤_ : M → M → Type ℓ') : Type (ℓ-max ℓ ℓ') where
   field
     isPoset     : IsPoset _≤_
-    isCMonoid   : IsCommMonoid 1m _·_
+    isCommMonoid   : IsCommMonoid 1m _·_
     isRMonotone  : {x y z : M} → x ≤ y → (x · z) ≤ (y · z) -- both versions, just for convenience
     isLMonotone  : {x y z : M} → x ≤ y → (z · x) ≤ (z · y)
 
@@ -31,7 +31,7 @@ record OrderedCommMonoidStr (ℓ' : Level) (M : Type ℓ) : Type (ℓ-suc (ℓ-m
 
   open IsOrderedCommMonoid isOrderedCommMonoid public
   open IsPoset isPoset public
-  open IsCommMonoid isCMonoid public
+  open IsCommMonoid isCommMonoid public
 
   infixl 4 _≤_
 
@@ -51,7 +51,7 @@ module _ where
                  (rmonotone : (x y z : M) → x ≤ y → (x · z) ≤ (y · z))
                  (lmonotone : (x y z : M) → x ≤ y → (z · x) ≤ (z · y))
                → IsOrderedCommMonoid _·_ 1m _≤_
-  isCMonoid (makeIsOrderedCommMonoid is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone) =
+  isCommMonoid (makeIsOrderedCommMonoid is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone) =
     makeIsCommMonoid is-setM assoc rid lid comm
   isPoset (makeIsOrderedCommMonoid is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone) =
     isposet is-setM isProp≤ isRefl isTrans isAntisym
@@ -62,3 +62,15 @@ module _ where
 
 OrderedCommMonoid : (ℓ ℓ' : Level) → Type (ℓ-suc (ℓ-max ℓ ℓ'))
 OrderedCommMonoid ℓ ℓ' = TypeWithStr ℓ (OrderedCommMonoidStr ℓ')
+
+
+OrderedCommMonoid→CommMonoid : OrderedCommMonoid ℓ ℓ' → CommMonoid ℓ
+OrderedCommMonoid→CommMonoid
+  (M , record {
+         _≤_ = _;
+         _·_ = _·_;
+         1m = 1m;
+         isOrderedCommMonoid = isOrderedCommMonoid
+       })
+   = let open IsOrderedCommMonoid isOrderedCommMonoid
+     in M , (commmonoidstr 1m _·_ isCommMonoid)

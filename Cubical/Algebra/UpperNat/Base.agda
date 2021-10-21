@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.UpperNat.Base where
 {-
   based on:
@@ -14,7 +14,12 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Functions.Logic
 open import Cubical.Functions.Embedding
 
-open import Cubical.Data.Nat
+open import Cubical.Algebra.CommMonoid
+open import Cubical.Algebra.OrderedCommMonoid
+open import Cubical.Algebra.OrderedCommMonoid.PropCompletion
+open import Cubical.Algebra.OrderedCommMonoid.Instances
+
+open import Cubical.Data.Nat using (ℕ; ·-distribˡ)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty hiding (⊥)
 open import Cubical.Data.Sigma
@@ -24,23 +29,7 @@ open import Cubical.HITs.PropositionalTruncation renaming (rec to propTruncRec)
 
 private
   variable
-    ℓ ℓ′ : Level
-
-hProp₀ = hProp ℓ-zero
-
--- A propositional version of _≤_
-_≤p_ : ℕ → ℕ → hProp₀
-n ≤p m = (n ≤ m) , m≤n-isProp
-
-isUpwardClosed : (s : ℕ → hProp₀) → Type₀
-isUpwardClosed s = (n m : ℕ) → n ≤ m → fst (s n) → fst (s m)
-
-isPropUpwardClosed : (N : ℕ → hProp₀) → isProp (isUpwardClosed N)
-isPropUpwardClosed N =
-  isPropΠ4 (λ _ m _ _ → snd (N m))
-
-isSetℕ→Prop₀ : isSet (ℕ → hProp₀)
-isSetℕ→Prop₀ = isOfHLevelΠ 2 λ _ → isSetHProp
+    ℓ : Level
 
 {- The Upper Naturals
    An upper natural is an upward closed proposition on natural numbers.
@@ -52,140 +41,88 @@ isSetℕ→Prop₀ = isOfHLevelΠ 2 λ _ → isSetHProp
    Example Application:
    The degree of a (constructive!) polynomial may be defined as an upper natural:
 
-     deg(∑_{i=0}^{n} aᵢ · Xⁱ) :≡ λ (k : ℕ) → ∀ (k ≤ i ≤ n) aₖ≡0
+     deg(∑_{i=0}^{n} aᵢ · Xⁱ) :≡ λ (k : ℕ) → ∀ (k+1 ≤ i ≤ n) aᵢ≡0
 -}
 
-ℕ↑ : Type₁
-ℕ↑ = Σ[ s ∈ (ℕ → hProp₀)] isUpwardClosed s
+module Construction where
+  ℕ↑-+ = PropCompletion ℕ≤+
+  ℕ↑-· = PropCompletion ℕ≤·
 
-isSetℕ↑ : isSet ℕ↑
-isSetℕ↑ = isOfHLevelΣ 2 isSetℕ→Prop₀ λ s → isOfHLevelSuc 1 (isPropUpwardClosed s)
+  open CommMonoidStr (snd ℕ↑-+)
+    using ()
+    renaming (_·_ to _+_; assoc to +Assoc; comm to +Comm; rid to +Rid)
 
-_isUpperBoundOf_ : ℕ → ℕ↑ → hProp₀
-n isUpperBoundOf s = (fst s) n
+  open OrderedCommMonoidStr (snd ℕ≤·)
+   using (isLMonotone; isRMonotone)
 
-_^↑ : ℕ → ℕ↑
-n ^↑ = (n ≤p_) , isUpwardClosed≤p
-  where
-    isUpwardClosed≤p : {n : ℕ} → isUpwardClosed (n ≤p_)
-    isUpwardClosed≤p = λ _ _ z z₁ → ≤-trans z₁ z
+  open OrderedCommMonoidStr (snd ℕ≤+)
+   using ()
+   renaming (_·_ to _+ℕ_; isLMonotone to +isLMonotone; isRMonotone to +isRMonotone)
 
-0↑ : ℕ↑
-0↑ = 0 ^↑
+  open CommMonoidStr ⦃...⦄
+    using (_·_)
+    renaming (assoc to ·Assoc; comm to ·Comm; rid to ·Rid)
 
-1↑ : ℕ↑
-1↑ = 1 ^↑
+  private
+    instance
+      _ : CommMonoidStr _
+      _  = snd ℕ↑-·
+      _ : CommMonoidStr _
+      _ = snd (OrderedCommMonoid→CommMonoid ℕ≤·)
 
--- Infinity is defined to be the number with no upper bounds.
-∞↑ : ℕ↑
-∞↑ = (λ _ → false) , proof
-  where false : hProp₀
-        false = ⊥
-        proof : isUpwardClosed (λ _ → false)
-        proof = λ n m _ z → z
+  ℕ↑ : Type₁
+  ℕ↑ = fst ℕ↑-+
 
-_+↑_ : ℕ↑ → ℕ↑ → ℕ↑
-s +↑ l = seq , seqIsUpwardClosed
-       where
-         seq : ℕ → hProp₀
-         seq n = (∃[ (a , b) ∈ ℕ × ℕ ] fst ((fst s a) ⊓ (fst l b) ⊓ ((a + b) ≤p n) )) ,
-                 isPropPropTrunc
-         seqIsUpwardClosed : isUpwardClosed seq
-         seqIsUpwardClosed n m n≤m =
-           propTruncRec
+  open PropCompletion ℓ-zero ℕ≤+
+    using (typeAt; pathFromImplications)
+
+  open <-Reasoning using (_≤⟨_⟩_)
+
+  +LDist· : (x y z : ℕ↑) →
+            x · (y + z) ≡ (x · y) + (x · z)
+  +LDist· x y z =
+    pathFromImplications
+      (x · (y + z)) ((x · y) + (x · z))
+      (⇒) ⇐
+    where
+      ⇒ : (n : ℕ) → typeAt n (x · (y + z))  → typeAt n ((x · y) + (x · z))
+      ⇒ n = propTruncRec
              isPropPropTrunc
-             λ {((a , b) , wa , (wb , a+b≤n)) → ∣ (a , b) , wa , (wb , ≤-trans a+b≤n n≤m) ∣}
-
-private
-  typeAt : ℕ → ℕ↑ → Type _
-  typeAt n s = fst (fst s n)
-
-ℕ↑Path : {s l : ℕ↑} → ((n : ℕ) → typeAt n s ≡ typeAt n l) → s ≡ l
-ℕ↑Path {s = s} {l = l} pwPath = path
-   where
-     seqPath : fst s ≡ fst l
-     seqPath i n = subtypePathReflection (λ A → isProp A , isPropIsProp)
-                                         (fst s n)
-                                         (fst l n)
-                                         (pwPath n) i
-     path : s ≡ l
-     path = subtypePathReflection (λ s → isUpwardClosed s , isPropUpwardClosed s) s l seqPath
-
-
-pathFromImplications : (s l : ℕ↑)
-         → ((n : ℕ) → typeAt n s → typeAt n l)
-         → ((n : ℕ) → typeAt n l → typeAt n s)
-         → s ≡ l
-pathFromImplications s l s→l l→s =
-    ℕ↑Path λ n → cong fst (propPath n)
-          where propPath : (n : ℕ) → fst s n ≡ fst l n
-                propPath n = ⇒∶ s→l n
-                             ⇐∶ l→s n
-
-+↑Comm : (s l : ℕ↑) → s +↑ l ≡ l +↑ s
-+↑Comm s l = pathFromImplications (s +↑ l) (l +↑ s) (⇒ s l) (⇒ l s)
-  where ⇒ : (s l : ℕ↑) (n : ℕ) → typeAt n (s +↑ l) → typeAt n (l +↑ s)
-        ⇒ s l n = propTruncRec
-                           isPropPropTrunc
-                           (λ {((a , b) , wa , (wb , a+b≤n))
-                             → ∣ (b , a) , wb , (wa , subst (λ k → fst (k ≤p n)) (+-comm a b) a+b≤n) ∣ })
-
-+↑Assoc : (s l k : ℕ↑) → s +↑ (l +↑ k) ≡ (s +↑ l) +↑ k
-+↑Assoc s l k = pathFromImplications (s +↑ (l +↑ k)) ((s +↑ l) +↑ k) (⇒) ⇐
-  where ⇒ : (n : ℕ) → typeAt n (s +↑ (l +↑ k)) → typeAt n ((s +↑ l) +↑ k)
-        ⇒ n = propTruncRec
-                isPropPropTrunc
-                λ {((a , b) , sa , (l+kb , a+b≤n))
-                     → propTruncRec
-                         isPropPropTrunc
-                         (λ {((a' , b') , la' , (kb' , a'+b'≤b))
-                         → ∣ ((a + a') , b') , ∣ (a , a') , (sa , (la' , ≤-refl)) ∣ , kb' ,
-                             (let a+⟨a'+b'⟩≤n = (≤-trans (≤-k+ a'+b'≤b) a+b≤n)
-                              in subst (_≤ n) (+-assoc a a' b') a+⟨a'+b'⟩≤n) ∣
-                            }) l+kb
-                   }
-        ⇐ : _
-        ⇐ n = propTruncRec
-                isPropPropTrunc
-                λ {((a , b) , s+l≤a , (k≤b , a+b≤n))
-                     → propTruncRec
-                         isPropPropTrunc
-                         (λ {((a' , b') , s≤a' , (l≤b' , a'+b'≤a))
-                         → ∣ (a' , b' + b) , s≤a' , ( ∣ (b' , b) , l≤b' , (k≤b , ≤-refl) ∣ ,
-                             (let ⟨a'+b'⟩+b≤n = (≤-trans (≤-+k a'+b'≤a) a+b≤n)
-                              in subst (_≤ n) (sym (+-assoc a' b' b)) ⟨a'+b'⟩+b≤n) ) ∣
-                            }) s+l≤a
-                   }
-
-
-+↑Rid : (s : ℕ↑) → s +↑ 0↑ ≡ s
-+↑Rid s = pathFromImplications (s +↑ 0↑) s (⇒) ⇐
-  where ⇒ : (n : ℕ) → typeAt n (s +↑ 0↑) → typeAt n s
-        ⇒ n = propTruncRec (snd (fst s n))
-                           (λ {((a , b) , sa , ((b' , b'+0≡b) , a+b≤n))
-                                → (snd s) a n (≤-trans ≤SumLeft a+b≤n) sa })
-        ⇐ : (n : ℕ) → typeAt n s → typeAt n (s +↑ 0↑)
-        ⇐ n = λ sn → ∣ (n , 0) , (sn , (zero-≤ , subst (_≤ n) (sym (+-zero n)) ≤-refl)) ∣
-
-_·↑_ : ℕ↑ → ℕ↑ → ℕ↑
-s ·↑ l = seq , seqIsUpwardClosed
-       where
-         seq : ℕ → hProp₀
-         seq n = (∃[ (a , b) ∈ ℕ × ℕ ] fst ((fst s a) ⊓ (fst l b) ⊓ ((a · b) ≤p n) )) ,
-                 isPropPropTrunc
-         seqIsUpwardClosed : isUpwardClosed seq
-         seqIsUpwardClosed n m n≤m =
-           propTruncRec
-             isPropPropTrunc
-             λ {((a , b) , wa , (wb , a·b≤n)) → ∣ (a , b) , wa , (wb , ≤-trans a·b≤n n≤m) ∣}
-
-·↑Comm : (s l : ℕ↑) → s ·↑ l ≡ l ·↑ s
-·↑Comm s l = ℕ↑Path λ n → cong fst (propPath n)
-  where implication : (s l : ℕ↑) (n : ℕ) → fst (fst (s ·↑ l) n) → fst (fst (l ·↑ s) n)
-        implication s l n = propTruncRec
-                           isPropPropTrunc
-                           (λ {((a , b) , wa , (wb , a·b≤n))
-                             → ∣ (b , a) , wb , (wa , subst (λ k → fst (k ≤p n)) (·-comm a b) a·b≤n) ∣ })
-        propPath : (n : ℕ) → fst (s ·↑ l) n ≡ fst (l ·↑ s) n
-        propPath n = ⇒∶ implication s l n
-                     ⇐∶ implication l s n
+             λ {((a , b) , xa , (y+zb , a·b≤n)) →
+                 propTruncRec
+                   isPropPropTrunc
+                   (λ {((a' , b') , ya' , (zb' , a'+b'≤b))
+                     → ∣ ((a · a') , (a · b')) ,
+                          ∣ (a , a') , (xa , (ya' , ≤-refl)) ∣ ,
+                          (∣ (a , b') , (xa , (zb' , ≤-refl)) ∣ ,
+                          subst (_≤ n) (sym (·-distribˡ a a' b'))
+                            (≤-trans (isLMonotone {z = a} a'+b'≤b) a·b≤n)) ∣ })
+                   y+zb}
+      ⇐ : (n : ℕ) → _
+      ⇐ n = propTruncRec
+              isPropPropTrunc
+              λ {((a , b) , x·ya , (x·zb , a+b≤n))
+                → propTruncRec
+                    isPropPropTrunc
+                    (λ {((a' , b') , a'x , (b'y , a'·b'≤a))
+                    → propTruncRec
+                        isPropPropTrunc
+                        (λ {((a″ , b″) , a″x , (zb″ , a″·b″≤b))
+                          → ∣ ≤CaseInduction {n = a'} {m = a″}
+                                (λ a'≤a″ → (a' , (b' +ℕ b″)) , a'x ,
+                                           (∣ (b' , b″) , (b'y , (zb″ , ≤-refl)) ∣ ,
+                                            (a' · (b' +ℕ b″)       ≤⟨ subst (_≤ (a' · b') +ℕ (a' · b″)) (·-distribˡ a' b' b″) ≤-refl ⟩
+                                            (a' · b') +ℕ (a' · b″) ≤⟨ +isRMonotone a'·b'≤a ⟩
+                                             a +ℕ (a' · b″)        ≤⟨ +isLMonotone (≤-trans (isRMonotone a'≤a″) a″·b″≤b) ⟩
+                                             a+b≤n ))
+                                )
+                                (λ a″≤a' → (a″ , (b' +ℕ b″)) , (a″x ,
+                                           (∣ (b' , b″) , (b'y , (zb″ , ≤-refl)) ∣ ,
+                                             ((a″ · (b' +ℕ b″))      ≤⟨ subst (_≤ (a″ · b') +ℕ (a″ · b″)) (·-distribˡ a″ b' b″) ≤-refl ⟩
+                                              (a″ · b') +ℕ (a″ · b″) ≤⟨ +isRMonotone ((a″ · b') ≤⟨ isRMonotone a″≤a' ⟩ a'·b'≤a) ⟩
+                                              a +ℕ (a″ · b″)         ≤⟨ +isLMonotone a″·b″≤b  ⟩
+                                              a+b≤n)))
+                                )
+                            ∣})
+                        x·zb})
+                    x·ya}

@@ -17,6 +17,10 @@ open import Cubical.Induction.WellFounded
 
 open import Cubical.Relation.Nullary
 
+private
+  variable
+    ℓ : Level
+
 infix 4 _≤_ _<_
 
 _≤_ : ℕ → ℕ → Type₀
@@ -212,6 +216,14 @@ zero ≟ zero = eq refl
 zero ≟ suc n = lt (n , +-comm n 1)
 suc m ≟ zero = gt (m , +-comm m 1)
 suc m ≟ suc n = Trichotomy-suc (m ≟ n)
+
+≤CaseInduction : {P : ℕ → ℕ → Type ℓ} {n m : ℕ}
+  → (n ≤ m → P n m) → (m ≤ n → P n m)
+  → P n m
+≤CaseInduction {n = n} {m = m} p q with n ≟ m
+... | lt x = p (<-weaken x)
+... | eq x = p (subst (n ≤_) x ≤-refl)
+... | gt x = q (<-weaken x)
 
 <-split : m < suc n → (m < n) ⊎ (m ≡ n)
 <-split {n = zero} = inr ∘ snd ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred
