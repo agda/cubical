@@ -48,11 +48,11 @@ private
       index : ℕ
 
   {-
-    `getTheTwoArgsOf` maps a term 'def n (x ∷ y ∷ [])' to the pair '(x,y)'
+    `getLastTwoArgsOf` maps a term 'def n (z₁ ∷ … ∷ zₙ ∷ x ∷ y ∷ [])' to the pair '(x,y)'
     non-visible arguments are ignored.
   -}
-  getTheTwoArgsOf : Name → Term → Maybe (Term × Term)
-  getTheTwoArgsOf n' (def n xs) =
+  getLastTwoArgsOf : Name → Term → Maybe (Term × Term)
+  getLastTwoArgsOf n' (def n xs) =
     if n == n'
     then go xs
     else nothing
@@ -61,13 +61,13 @@ private
       go (varg x ∷ varg y ∷ []) = just (x , y)
       go (x ∷ xs)               = go xs
       go _                      = nothing
-  getTheTwoArgsOf n' _ = nothing
+  getLastTwoArgsOf n' _ = nothing
 
   {-
     `getArgs` maps a term 'x ≡ y' to the pair '(x,y)'
   -}
   getArgs : Term → Maybe (Term × Term)
-  getArgs = getTheTwoArgsOf (quote PathP)
+  getArgs = getLastTwoArgsOf (quote PathP)
 
 
   firstVisibleArg : List (Arg Term) → Maybe Term
