@@ -23,7 +23,7 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Unit
 open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.S1
-open import Cubical.HITs.Susp
+open import Cubical.HITs.Susp.Base
 open import Cubical.HITs.Nullification as Null hiding (rec; elim)
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
