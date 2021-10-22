@@ -51,4 +51,4 @@ SuspensionPrespectrum A = makeℤPrespectrum space map
             space (suc n) = Susp∙ (typ (space n))
 
             map : (n : ℕ) → _
-            map n = ToSuspPointed (space n)
+            map n = toSuspPointed (space n)

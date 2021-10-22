@@ -11,7 +11,7 @@ open import Cubical.Foundations.Everything
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Nullification
-open import Cubical.HITs.Susp renaming (ToSusp to σ)
+open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec ; elim to trElim)
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity

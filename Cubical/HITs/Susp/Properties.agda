@@ -126,8 +126,8 @@ Iso.rightInv funSpaceSuspIso f = funExt λ {north → refl
                                              ; (merid a i) → refl}
 Iso.leftInv funSpaceSuspIso _ = refl
 
-ToSusp : (A : Pointed ℓ) → typ A → typ (Ω (Susp∙ (typ A)))
-ToSusp A a = merid a ∙ merid (pt A) ⁻¹
+toSusp : (A : Pointed ℓ) → typ A → typ (Ω (Susp∙ (typ A)))
+toSusp A a = merid a ∙ merid (pt A) ⁻¹
 
-ToSuspPointed : (A : Pointed ℓ) → A →∙ Ω (Susp∙ (typ A))
-ToSuspPointed A = (λ a → merid a ∙ merid (pt A) ⁻¹) , rCancel (merid (pt A))
+toSuspPointed : (A : Pointed ℓ) → A →∙ Ω (Susp∙ (typ A))
+toSuspPointed A = (λ a → merid a ∙ merid (pt A) ⁻¹) , rCancel (merid (pt A))
