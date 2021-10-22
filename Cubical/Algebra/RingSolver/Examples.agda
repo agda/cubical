@@ -3,6 +3,7 @@ module Cubical.Algebra.RingSolver.Examples where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Int.Base hiding (_+_ ; _·_ ; _-_)
+open import Cubical.Data.List
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.RingSolver.ReflectionSolving
@@ -11,8 +12,12 @@ private
   variable
     ℓ : Level
 
+
 module Test (R : CommRing ℓ) where
   open CommRingStr (snd R)
+
+  _ : 0r ≡ 0r
+  _ = solve R
 
   _ :   1r · (1r + 0r)
       ≡ (1r · 0r) + 1r
@@ -60,3 +65,33 @@ module Test (R : CommRing ℓ) where
   _ : (x y : (fst R)) → x ≡ y
   _ = solve R
   -}
+
+module TestInPlaceSolving (R : CommRing ℓ) where
+   open CommRingStr (snd R)
+
+   testWithOneVariabl : (x : fst R) → x + 0r ≡ 0r + x
+   testWithOneVariabl x = solveInPlace R (x ∷ [])
+
+   testEquationalReasoning : (x : fst R) → x + 0r ≡ 0r + x
+   testEquationalReasoning x =
+     x + 0r                       ≡⟨solveIn R withVars (x ∷ []) ⟩
+     0r + x ∎
+
+   testWithTwoVariables :  (x y : fst R) → x + y ≡ y + x
+   testWithTwoVariables x y =
+     x + y                      ≡⟨solveIn R withVars (x ∷ y ∷ []) ⟩
+     y + x ∎
+
+   {-
+     So far, solving during equational reasoning has a serious
+     restriction:
+     The solver identifies variables by deBruijn indices and the variables
+     appearing in the equations to solve need to have indices 0,...,n. This
+     entails that in the following code, the order of 'p' and 'x' cannot be
+     switched.
+   -}
+   testEquationalReasoning' :  (p : (y : fst R) → 0r + y ≡ 1r) (x : fst R) → x + 0r ≡ 1r
+   testEquationalReasoning' p x =
+     x + 0r              ≡⟨solveIn R withVars (x ∷ []) ⟩
+     0r + x              ≡⟨ p x ⟩
+     1r ∎
