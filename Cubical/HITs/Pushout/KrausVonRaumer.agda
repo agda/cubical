@@ -13,10 +13,10 @@ open import Cubical.Foundations.Everything
 open import Cubical.Functions.Embedding
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
-open import Cubical.Data.Sum using (_⊎_) renaming (rec to sumRec; inl to inlSum; inr to inrSum)
-open import Cubical.HITs.PropositionalTruncation renaming (elim to elimPropTrunc)
-open import Cubical.HITs.Pushout.Base
-open import Cubical.HITs.Pushout.Properties using (elimProp; pushoutSwitchEquiv)
+open import Cubical.Data.Sum as ⊎
+open import Cubical.HITs.PropositionalTruncation as Trunc
+open import Cubical.HITs.Pushout.Base as ⊔
+open import Cubical.HITs.Pushout.Properties
 
 private
   variable
@@ -123,40 +123,40 @@ module ElimR
 
 isEmbeddingInr :
   (f : A → B) (g : A → C)
-  → isEmbedding f → isEmbedding (inr {f = f} {g = g})
+  → isEmbedding f → isEmbedding (⊔.inr {f = f} {g = g})
 isEmbeddingInr f g fEmb c₀ c₁ =
   isoToIsEquiv (iso _ (fst ∘ bwd c₁) (snd ∘ bwd c₁) bwdCong)
   where
-  Q : ∀ c → inr c₀ ≡ inr c → Type _
-  Q _ q = fiber (cong inr) q
+  Q : ∀ c → ⊔.inr c₀ ≡ ⊔.inr c → Type _
+  Q _ q = fiber (cong ⊔.inr) q
 
-  P : ∀ b → inr c₀ ≡ inl b → Type _
-  P b p = Σ[ u ∈ fiber f b ] Q _ (p ∙ cong inl (u .snd ⁻¹) ∙ push (u .fst))
+  P : ∀ b → ⊔.inr c₀ ≡ ⊔.inl b → Type _
+  P b p = Σ[ u ∈ fiber f b ] Q _ (p ∙ cong ⊔.inl (u .snd ⁻¹) ∙ push (u .fst))
 
   module Bwd = ElimR P Q
     (refl , refl)
     (λ a p →
       subst
         (P (f a) p  ≃_)
-        (cong (λ w → fiber (cong inr) (p ∙ w)) (lUnit (push a) ⁻¹))
+        (cong (λ w → fiber (cong ⊔.inr) (p ∙ w)) (lUnit (push a) ⁻¹))
         (Σ-contractFst (inhProp→isContr (a , refl) (isEmbedding→hasPropFibers fEmb (f a)))))
 
-  bwd : ∀ c → (t : inr c₀ ≡ inr c) → fiber (cong inr) t
+  bwd : ∀ c → (t : ⊔.inr c₀ ≡ ⊔.inr c) → fiber (cong ⊔.inr) t
   bwd = Bwd.elimR
 
-  bwdCong : ∀ {c} → (r : c₀ ≡ c) → bwd c (cong inr r) .fst ≡ r
-  bwdCong = J (λ c r → bwd c (cong inr r) .fst ≡ r) (cong fst Bwd.refl-β)
+  bwdCong : ∀ {c} → (r : c₀ ≡ c) → bwd c (cong ⊔.inr r) .fst ≡ r
+  bwdCong = J (λ c r → bwd c (cong ⊔.inr r) .fst ≡ r) (cong fst Bwd.refl-β)
 
 
 -- Further Application: Pushouts of emedding-spans of n-Types are n-Types, for n≥0
 module _ (f : A → B) (g : A → C) where
   inlrJointlySurjective :
-    (z : Pushout f g) → ∥ Σ[ x ∈ (B ⊎ C) ] (sumRec inl inr x) ≡ z ∥
+    (z : Pushout f g) → ∥ Σ[ x ∈ (B ⊎ C) ] (⊎.rec inl inr x) ≡ z ∥
   inlrJointlySurjective =
     elimProp _
              (λ _ → isPropPropTrunc)
-             (λ b → ∣ inlSum b , refl ∣)
-             λ c → ∣ inrSum c , refl ∣
+             (λ b → ∣ ⊎.inl b , refl ∣)
+             (λ c → ∣ ⊎.inr c , refl ∣)
 
   preserveHLevelEmbedding :
     {n : HLevel}
@@ -183,14 +183,14 @@ module _ (f : A → B) (g : A → C) where
 
           ΩHLevelPushout : (x : Pushout f g) → isOfHLevel (suc n) (x ≡ x)
           ΩHLevelPushout x =
-            elimPropTrunc
+            Trunc.elim
               (λ _ → isPropIsOfHLevel {A = (x ≡ x)} (suc n))
-              (λ {(inlSum b , p) →
+              (λ {(⊎.inl b , p) →
                     isOfHLevelRespectEquiv
                       (suc n)
                       (equivΩB b p)
                       (isOfHLB b b);
-                  (inrSum c , p) →
+                  (⊎.inr c , p) →
                     isOfHLevelRespectEquiv
                       (suc n)
                       (equivΩC c p)
