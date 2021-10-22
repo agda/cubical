@@ -27,15 +27,15 @@ private
 Ω∙ (suc (suc n)) X = Ω∙ 1 (Ω∙ (suc n) X)
 
 ΣX→∙YEquiv : ((X , x₀) : Pointed ℓ) ((Y , y₀) : Pointed ℓ')
-           → (∙Susp X →∙ (Y , y₀)) ≃ (Σ[ y ∈ Y ] (X → (y₀ ≡ y)))
+           → (Susp∙ X →∙ (Y , y₀)) ≃ (Σ[ y ∈ Y ] (X → (y₀ ≡ y)))
 ΣX→∙YEquiv (X , x₀) (Y , y₀) =
   isoToEquiv (iso left→right right→left right→left→right left→right→left)
   where
-    left→right : (∙Susp X →∙ (Y , y₀)) → Σ[ y ∈ Y ] (X → (y₀ ≡ y))
+    left→right : (Susp∙ X →∙ (Y , y₀)) → Σ[ y ∈ Y ] (X → (y₀ ≡ y))
     left→right (f , b) .fst = f south
     left→right (f , b) .snd x = sym b ∙ cong f (merid x)
 
-    right→left : (Σ[ y ∈ Y ] (X → (y₀ ≡ y))) → (∙Susp X →∙ (Y , y₀))
+    right→left : (Σ[ y ∈ Y ] (X → (y₀ ≡ y))) → (Susp∙ X →∙ (Y , y₀))
     right→left (y , g) .fst north = y₀
     right→left (y , g) .fst south = y
     right→left (y , g) .fst (merid x i) = g x i
@@ -45,7 +45,7 @@ private
     right→left→right (y , g) i .fst = y
     right→left→right (y , g) i .snd x = lUnit (g x) (~ i)
 
-    left→right→left : (f : ∙Susp X →∙ (Y , y₀)) → right→left (left→right f) ≡ f
+    left→right→left : (f : Susp∙ X →∙ (Y , y₀)) → right→left (left→right f) ≡ f
     left→right→left (f , b) i .fst north = b (~ i)
     left→right→left (f , b) i .fst south = f south
     left→right→left (f , b) i .fst (merid x j) =
@@ -109,5 +109,5 @@ X→∙ΩYEquiv (X , x₀) (Y , y₀) =
             (bottom (f , b) i j k)
 
 {- The Main Theorem -}
-ΣΩAdjunction : ((X , x₀) : Pointed ℓ) (Y : Pointed ℓ') → (∙Susp X →∙ Y) ≃ ((X , x₀) →∙ Ω∙ 1 Y)
+ΣΩAdjunction : ((X , x₀) : Pointed ℓ) (Y : Pointed ℓ') → (Susp∙ X →∙ Y) ≃ ((X , x₀) →∙ Ω∙ 1 Y)
 ΣΩAdjunction X Y = compEquiv (ΣX→∙YEquiv X Y) (invEquiv (X→∙ΩYEquiv X Y))
