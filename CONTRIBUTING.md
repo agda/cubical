@@ -22,7 +22,7 @@ When preparing a PR here are some general guidelines:
   instead have informative names and put pointers to the theorems and
   lemmas in comments above the definition.
 
-- No global naming scheme for the library was enforce in the past, but new
+- No global naming scheme for the library was enforced in the past, but new
   contributions should only use names in camel-case. Names of types should
   start with a capital letter and names of terms which are not types should
   start with a lower case letter. However, for names of types that encode a
