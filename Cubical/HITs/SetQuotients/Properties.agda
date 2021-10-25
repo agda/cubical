@@ -213,14 +213,15 @@ setQuotBinOp isReflR _∗_ h = Iso.inv (setQuotUniversal2Iso squash/ isReflR)
 
 setQuotSymmBinOp : isRefl R → isTrans R
                  → (_∗_ : A → A → A)
-                 → (∀ a b → a ∗ b ≡ b ∗ a)
+                 → (∀ a b → R (a ∗ b) (b ∗ a))
                  → (∀ a a' b → R a a' → R (a ∗ b) (a' ∗ b))
                  → (A / R → A / R → A / R)
-setQuotSymmBinOp {A = A} {R = R} isReflR isTransR _∗_ ∗-symm h = setQuotBinOp isReflR _∗_ h'
+setQuotSymmBinOp {A = A} {R = R} isReflR isTransR _∗_ ∗Rsymm h = setQuotBinOp isReflR _∗_ h'
   where
   h' : ∀ a a' b b' → R a a' → R b b' → R (a ∗ b) (a' ∗ b')
   h' a a' b b' ra rb = isTransR _ _ _ (h a a' b ra)
-                               (transport (λ i → R (∗-symm b a' i) (∗-symm b' a' i)) (h b b' a' rb))
+                        (isTransR _ _ _ (∗Rsymm a' b)
+                          (isTransR _ _ _ (h b b' a' rb) (∗Rsymm b' a')))
 
 
 effective : (Rprop : isPropValued R) (Requiv : isEquivRel R) (a b : A) → [ a ] ≡ [ b ] → R a b

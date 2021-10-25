@@ -86,7 +86,7 @@ module CommIdeal (R' : CommRing ℓ) where
  ·Closed (isPropIsCommIdeal I ici₁ ici₂ i) r x∈I =
          I _ .snd (ici₁ .·Closed r x∈I) (ici₂ .·Closed r x∈I) i
 
- CommIdeal : Type _
+ CommIdeal : Type (ℓ-suc ℓ)
  CommIdeal = Σ[ I ∈ ℙ R ] isCommIdeal I
 
  CommIdeal≡Char : {I J : CommIdeal} → (I .fst ⊆ J .fst) → (J .fst ⊆ I .fst) → I ≡ J

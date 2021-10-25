@@ -120,13 +120,13 @@ module _ (R' : CommRing ℓ) where
   ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
   ⟨ V ⟩ = ⟨ V ⟩[ R' ]
 
- foo : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
-     → (∀ i → V i ∈ I .fst) → ⟨ V ⟩ .fst ⊆ I .fst
- foo V I ∀i→Vi∈I x = elim (λ _ → I .fst x .snd) fooΣ
-  where
-  fooΣ : Σ[ α ∈ FinVec R _ ] x ≡ linearCombination R' α V → x ∈ I .fst
-  fooΣ (α , x≡α·V) = subst-∈ (I .fst) (sym x≡α·V) (∑Closed I (λ i → α i · V i)
-                     λ i → ·Closed (I .snd) _ (∀i→Vi∈I i))
+ -- foo : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
+ --     → (∀ i → V i ∈ I .fst) → ⟨ V ⟩ .fst ⊆ I .fst
+ -- foo V I ∀i→Vi∈I x = elim (λ _ → I .fst x .snd) fooΣ
+ --  where
+ --  fooΣ : Σ[ α ∈ FinVec R _ ] x ≡ linearCombination R' α V → x ∈ I .fst
+ --  fooΣ (α , x≡α·V) = subst-∈ (I .fst) (sym x≡α·V) (∑Closed I (λ i → α i · V i)
+ --                     λ i → ·Closed (I .snd) _ (∀i→Vi∈I i))
 
  indInIdeal : ∀ {n : ℕ} (U : FinVec R n) (i : Fin n) → U i ∈ ⟨ U ⟩ .fst
  indInIdeal U i = ∣ (δ i) , sym (∑Mul1r _ U i) ∣
@@ -138,7 +138,7 @@ module _ (R' : CommRing ℓ) where
   path = solve R'
 
  emptyFGIdeal : ∀ (V : FinVec R 0) → ⟨ V ⟩ ≡ 0Ideal
- emptyFGIdeal V = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (incl1 , incl2))
+ emptyFGIdeal V = CommIdeal≡Char incl1 incl2
   where
   incl1 : ⟨ V ⟩ .fst ⊆ 0Ideal .fst
   incl1 x = rec (is-set _ _) λ (_ , p) → p
@@ -151,7 +151,7 @@ module _ (R' : CommRing ℓ) where
 
  FGIdealAddLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                  → ⟨ U ++Fin V ⟩ ≡ ⟨ U ⟩ +i ⟨ V ⟩
- FGIdealAddLemma U V = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (ltrIncl U V , rtlIncl U V))
+ FGIdealAddLemma U V = CommIdeal≡Char (ltrIncl U V) (rtlIncl U V)
   where
   ltrIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) → ⟨ U ++Fin V ⟩ .fst ⊆ (⟨ U ⟩ +i ⟨ V ⟩) .fst
   ltrIncl {n = ℕzero} U V x x∈⟨V⟩ = ∣ (0r , x) , ⟨ U ⟩ .snd .contains0 , x∈⟨V⟩ , sym (+Lid x) ∣
@@ -170,7 +170,7 @@ module _ (R' : CommRing ℓ) where
             (ltrIncl (U ∘ suc) V _ ∣ (α ∘ suc) , refl ∣)
 
   rtlIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) → (⟨ U ⟩ +i ⟨ V ⟩) .fst ⊆ ⟨ U ++Fin V ⟩ .fst
-  rtlIncl U V x =  rec isPropPropTrunc (uncurry3 helper)
+  rtlIncl U V x = rec isPropPropTrunc (uncurry3 helper)
     where
     helperΣ : ((y , z) : R × R)
             → Σ[ α ∈ FinVec R _ ] (y ≡ ∑ λ i → α i · U i)
@@ -223,7 +223,7 @@ module _ (R' : CommRing ℓ) where
 
  FGIdealMultLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                  → ⟨ U ··Fin V ⟩ ≡ ⟨ U ⟩ ·i ⟨ V ⟩
- FGIdealMultLemma U V = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (ltrIncl U V , rtlIncl U V))
+ FGIdealMultLemma U V = CommIdeal≡Char (ltrIncl U V) (rtlIncl U V)
   where
   ltrIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) → ⟨ U ··Fin V ⟩ .fst ⊆ (⟨ U ⟩ ·i ⟨ V ⟩) .fst
   ltrIncl U V x = elim (λ _ → isPropPropTrunc)

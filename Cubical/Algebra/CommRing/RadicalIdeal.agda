@@ -29,7 +29,7 @@ private
   variable
     ℓ : Level
 
-module _ (R' : CommRing ℓ) where
+module RadicalIdeal (R' : CommRing ℓ) where
  private R = fst R'
  open CommRingStr (snd R')
  open RingTheory (CommRing→Ring R')
@@ -124,8 +124,8 @@ module _ (R' : CommRing ℓ) where
                                            (λ i → α i · V i)
                                            (λ i → isCommIdeal√I .·Closed (α i) (∀i→Vi∈√I i))) }
 
- √+Contr : (I J : CommIdeal) → √i (I +i √i J) ≡ √i (I +i J)
- √+Contr I J = CommIdeal≡Char incl1 incl2
+ √+RContr : (I J : CommIdeal) → √i (I +i √i J) ≡ √i (I +i J)
+ √+RContr I J = CommIdeal≡Char incl1 incl2
   where
   incl1 : √i (I +i √i J) .fst ⊆ √i (I +i J) .fst
   incl1 x = PT.elim (λ _ → isPropPropTrunc)
@@ -171,9 +171,11 @@ module _ (R' : CommRing ℓ) where
    curriedIncl2 n = map λ ((y , z) , y∈I , z∈J , x≡y+z)
                            → n , ∣ (y , z) , y∈I , ∈→∈√ (J .fst) z z∈J , x≡y+z ∣
 
+ √+LContr : (I J : CommIdeal) → √i (√i I +i J) ≡ √i (I +i J)
+ √+LContr I J = cong √i (+iComm (√i I) J) ∙∙ √+RContr J I ∙∙ cong √i (+iComm J I)
 
- √·Contr : (I J : CommIdeal) → √i (I ·i √i J) ≡ √i (I ·i J)
- √·Contr I J = CommIdeal≡Char incl1 incl2
+ √·RContr : (I J : CommIdeal) → √i (I ·i √i J) ≡ √i (I ·i J)
+ √·RContr I J = CommIdeal≡Char incl1 incl2
   where
   incl1 : √i (I ·i √i J) .fst ⊆ √i (I ·i J) .fst
   incl1 x = PT.elim (λ _ → isPropPropTrunc)
@@ -206,6 +208,9 @@ module _ (R' : CommRing ℓ) where
    curriedIncl2 : (n : ℕ) → (x ^ n ∈ (I ·i J) .fst) → x ∈ √ ((I ·i √i J) .fst)
    curriedIncl2 n = map λ (m , (α , β) , α∈I , β∈J , xⁿ≡∑αβ)
                     → n , ∣ m , (α , β) , α∈I , (λ i → ∈→∈√ (J .fst) (β i) (β∈J i)) , xⁿ≡∑αβ ∣
+
+ √·LContr : (I J : CommIdeal) → √i (√i I ·i J) ≡ √i (I ·i J)
+ √·LContr I J = cong √i (·iComm (√i I) J) ∙∙ √·RContr J I ∙∙ cong √i (·iComm J I)
 
  √·Idem : ∀ (I : CommIdeal) → √i (I ·i I) ≡ √i I
  √·Idem I = CommIdeal≡Char incl1 incl2

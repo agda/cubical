@@ -157,7 +157,8 @@ module Presheaf (A' : CommRing ℓ) where
  -- Multiplication lifts to the quotient and corresponds to intersection
  -- of basic opens, i.e. we get a meet-semilattice with:
  _∧/_ : A / R → A / R → A / R
- _∧/_ = setQuotSymmBinOp (RequivRel .reflexive) (RequivRel .transitive) _·r_ ·r-comm ·r-lcoh
+ _∧/_ = setQuotSymmBinOp (RequivRel .reflexive) (RequivRel .transitive) _·r_
+          (λ a b → subst (λ x → R (a ·r b) x) (·r-comm a b) (RequivRel .reflexive (a ·r b))) ·r-lcoh
   where
   ·r-lcoh-≼ : (x y z : A) → x ≼ y → (x ·r z) ≼ (y ·r z)
   ·r-lcoh-≼ x y z = map ·r-lcoh-≼Σ
