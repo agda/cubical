@@ -1,4 +1,4 @@
--- {-# OPTIONS --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Modalities.Flat where
 
 open import Cubical.Foundations.Prelude
