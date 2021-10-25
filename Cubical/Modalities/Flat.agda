@@ -9,6 +9,8 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Unit
 open import Cubical.Data.Nat
 open import Cubical.Data.Int
+open import Cubical.Data.Sigma
+open import Cubical.HITs.PropositionalTruncation
 
 {-
   In Mike Shulman's real cohesive homotopty type theory,
