@@ -1,5 +1,5 @@
 -- {-# OPTIONS --safe #-}
-module Cubical.AlgebraicGeometry.NatDiscrete where
+module Cubical.Modalities.Flat where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
