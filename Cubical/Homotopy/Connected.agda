@@ -181,29 +181,10 @@ isConnectedPathP n con a₀ a₁ =
 isConnectedCong : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B)
   → isConnectedFun (suc n) f
   → ∀ {a₀ a₁} → isConnectedFun n {A = a₀ ≡ a₁} (cong f)
-isConnectedCong zero f cf {a₀} {a₁} q = isOfHLevelTrunc {A = fiber (cong f) q} 0
-isConnectedCong (suc n) f cf {a₀} {a₁} q =
-  Trunc.rec
-    (isProp→isOfHLevelSuc n isPropIsContr)
-    withContractor
-    contractFiber
-  where
-  open Iso
-
-  contractFiber : ∥ (a₁ , refl) ≡ (a₀ , q) ∥ (suc n)
-  contractFiber =
-    PathIdTruncIso (suc n) .fun
-      (sym (cf (f a₁) .snd ∣ a₁ , refl ∣) ∙ cf (f a₁) .snd ∣ a₀ , q ∣)
-
-  withContractor : (a₁ , refl) ≡ (a₀ , q) → isConnected (suc n) (fiber (cong f) q)
-  withContractor α =
-    subst
-      (λ (_ , q) → isConnected (suc n) (fiber (cong f) q))
-      α
-      (subst
-        (isConnected (suc n))
-        (fiber≡ (a₁ , refl) (a₁ , refl) ∙ cong (fiber (cong f)) (sym (rUnit refl)))
-        (isConnectedPath (suc n) (cf _) (a₁ , refl) (a₁ , refl)))
+isConnectedCong n f cf {a₀} {a₁} q =
+  subst (isConnected n)
+    (sym (fiberCong f q))
+    (isConnectedPath n (cf (f a₁)) (a₀ , q) (a₁ , refl))
 
 isConnectedRetract : ∀ {ℓ ℓ'} (n : HLevel)
   {A : Type ℓ} {B : Type ℓ'}
