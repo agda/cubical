@@ -7,7 +7,6 @@ Freudenthal suspension theorem
 module Cubical.Homotopy.Freudenthal where
 
 open import Cubical.Foundations.Everything
--- open import Cubical.Data.HomotopyGroup
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Nullification

@@ -25,6 +25,12 @@ _∨→_ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointe
 (f ∨→ g) (inr x) = fst g x
 (f ∨→ g) (push a i₁) = (snd f ∙ sym (snd g)) i₁
 
+-- Pointed version
+∨→∙ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
+   → (f : A →∙ C) (g : B →∙ C) → ((A ⋁∙ₗ B) →∙ C)
+fst (∨→∙ {A = A} f g) = f ∨→ g
+snd (∨→∙ {A = A} f g) = snd f
+
 -- Wedge sum of Units is contractible
 isContr-Unit⋁Unit : isContr ((Unit , tt) ⋁ (Unit , tt))
 fst isContr-Unit⋁Unit = inl tt

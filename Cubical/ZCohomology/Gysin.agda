@@ -13,7 +13,7 @@ open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.RingLaws
 open import Cubical.ZCohomology.RingStructure.GradedCommutativity
 open import Cubical.Relation.Nullary
-open import Cubical.Homotopy.HomotopyGroup
+open import Cubical.Homotopy.Group.Base
 
 open import Cubical.Functions.Embedding
 
@@ -97,62 +97,6 @@ private
   Int-ind P z one min ind (negsuc (suc n)) =
     ind (negsuc n) (negsuc zero) (Int-ind P z one min ind (negsuc n)) min
 
-
--- Move to embedding?
-Whitehead : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
-          → (f : A → B)
-          → isEmbedding f
-          → (∀ (b : B) → ∃[ a ∈ A ] f a ≡ b)
-          → isEquiv f
-equiv-proof (Whitehead f emb p) b =
-  pRec isPropIsContr
-    (λ fib → fib , isEmbedding→hasPropFibers emb b fib)
-    (p b)
-
--- move to cohom?
-transportCohomIso : ∀ {ℓ} {A : Type ℓ} {n m : ℕ}
-                  → (p : n ≡ m)
-                  → GroupIso (coHomGr n A) (coHomGr m A)
-Iso.fun (fst (transportCohomIso {A = A} p)) = subst (λ n → coHom n A) p
-Iso.inv (fst (transportCohomIso {A = A} p)) = subst (λ n → coHom n A) (sym p)
-Iso.rightInv (fst (transportCohomIso p)) = transportTransport⁻ _
-Iso.leftInv (fst (transportCohomIso p)) = transportTransport⁻ _
-snd (transportCohomIso {A = A} {n = n} {m = m} p) =
-  makeIsGroupHom (λ x y → help x y p)
-  where
-  help : (x y : coHom n A) (p : n ≡ m) → subst (λ n → coHom n A) p (x +ₕ y)
-                                        ≡ subst (λ n → coHom n A) p x +ₕ subst (λ n → coHom n A) p y
-  help x y = J (λ m p → subst (λ n → coHom n A) p (x +ₕ y)
-                       ≡ subst (λ n → coHom n A) p x +ₕ subst (λ n → coHom n A) p y)
-               (transportRefl (x +ₕ y) ∙ cong₂ _+ₕ_ (sym (transportRefl x)) (sym (transportRefl y)))
-
-
-private
-  _·₀ₕ_ : ∀ {ℓ} {n : ℕ} {A : Type ℓ} → ℤ → coHom n A → coHom n A
-  _·₀ₕ_ {n = n} a b = a ℤ[ coHomGr n _ ]· b
-
-  GroupHomℤ→ℤPres·₀ : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
-    (e : GroupHom ℤGroup (coHomGr n A))
-    → (a b : ℤ)
-    → fst e (a · b)
-    ≡ (a ·₀ₕ fst e b)
-  GroupHomℤ→ℤPres·₀ {A = A} n e a b =
-      cong (fst e) (ℤ·≡· a b)
-    ∙ homPresℤ· {H = coHomGr n A} (_ , snd e) b a
-
--- keep
-genH : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
-     → (e : GroupIso (coHomGr n A)
-                 ℤGroup)
-     → Σ[ x ∈ coHom n A ]
-          gen₁-by (coHomGr n A) x
-genH {A = A} n e = (Iso.inv (fst e) 1)
-         , λ h → (Iso.fun (fst e) h) ,
-           (sym (Iso.leftInv (fst e) h)
-         ∙∙ sym (cong (Iso.inv (fst e)) (·Comm (Iso.fun (fst e) h) (pos 1)))
-         ∙∙ (cong (Iso.inv (fst e)) (ℤ·≡· _ _)
-          ∙ (homPresℤ· (_ , snd (invGroupIso e)) (pos 1) (Iso.fun (fst e) h))))
-
 -- The untruncated version (coHomRed n (S₊ n)), i.e.
 -- (S₊∙ n →∙ coHomK-ptd n) is in fact equal to
 -- (coHomRed n (S₊ n)). Its useful to formulate
@@ -197,9 +141,11 @@ module _ where
   is-set (isSemigroup (isMonoid (isGroup (snd (πS zero))))) =
     isOfHLevelΣ 2 (isSetΠ (λ _ → isSetℤ))
       λ _ → isOfHLevelPath 2 isSetℤ _ _
-  is-set (isSemigroup (isMonoid (isGroup (snd (πS (suc n)))))) = isOfHLevel↑∙' 0 n
+  is-set (isSemigroup (isMonoid (isGroup (snd (πS (suc n)))))) =
+    isOfHLevel↑∙' 0 n
   IsSemigroup.assoc (isSemigroup (isMonoid (isGroup (snd (πS n))))) x y z =
-    →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ w → assocₖ n (fst x w) (fst y w) (fst z w))
+    →∙Homogeneous≡ (isHomogeneousKn n)
+                    (funExt λ w → assocₖ n (fst x w) (fst y w) (fst z w))
   fst (identity (isMonoid (isGroup (snd (πS n)))) (f , p)) =
     →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → rUnitₖ n (f x))
   snd (identity (isMonoid (isGroup (snd (πS n)))) (f , p)) =
@@ -264,19 +210,25 @@ Iso-πS-ℤ n = compIso (invIso (setTruncIdempotentIso (isOfHLevel↑∙' 0 n)))
 
 Iso-πS-ℤPres1 : (n : ℕ) → Iso.fun (fst (πS≅ℤ (suc n))) (∣_∣ , refl) ≡ pos 1
 Iso-πS-ℤPres1 zero = refl
-Iso-πS-ℤPres1 (suc n) = cong (Iso.fun (fst (Hⁿ-Sⁿ≅ℤ n))) (lem n) ∙ Iso-πS-ℤPres1 n
+Iso-πS-ℤPres1 (suc n) =
+  cong (Iso.fun (fst (Hⁿ-Sⁿ≅ℤ n))) (lem n) ∙ Iso-πS-ℤPres1 n
   where
   lem : (n : ℕ) → Iso.fun (fst (suspensionAx-Sn n n)) ∣ ∣_∣ ∣₂ ≡ ∣ ∣_∣ ∣₂
-  lem zero = cong ∣_∣₂ (funExt λ x → transportRefl (∣ x ∣ +ₖ (0ₖ 1)) ∙ rUnitₖ 1 ∣ x ∣)
+  lem zero =
+    cong ∣_∣₂ (funExt λ x → transportRefl (∣ x ∣ +ₖ (0ₖ 1)) ∙ rUnitₖ 1 ∣ x ∣)
   lem (suc n) = cong ∣_∣₂
     (funExt λ x → (λ i → transportRefl ((ΩKn+1→Kn (suc (suc n))
        (transp (λ j → 0ₖ (suc (suc (suc n))) ≡ ∣ merid north (~ j ∧ ~ i) ∣) i
-        (λ z → ∣ compPath-filler (merid (transportRefl (transportRefl x i) i)) (sym (merid north)) i z
+        (λ z → ∣ compPath-filler
+                  (merid (transportRefl (transportRefl x i) i))
+                  (sym (merid north)) i z
            ∣)))) i)
     ∙ Iso.leftInv (Iso-Kn-ΩKn+1 (suc (suc n))) ∣ x ∣)
 
-Iso-πS-ℤPres1← : (n : ℕ) → Iso.inv (fst (πS≅ℤ (suc n))) (pos 1) ≡ (∣_∣ , refl)
-Iso-πS-ℤPres1← n = sym (cong (Iso.inv (fst (πS≅ℤ (suc n)))) (Iso-πS-ℤPres1 n)) ∙ Iso.leftInv (fst (πS≅ℤ (suc n))) (∣_∣ , refl)
+Iso-πS-ℤPres1← : (n : ℕ)
+  → Iso.inv (fst (πS≅ℤ (suc n))) (pos 1) ≡ (∣_∣ , refl)
+Iso-πS-ℤPres1← n = sym (cong (Iso.inv (fst (πS≅ℤ (suc n)))) (Iso-πS-ℤPres1 n))
+                   ∙ Iso.leftInv (fst (πS≅ℤ (suc n))) (∣_∣ , refl)
 
 IsoFunSpace : (n : ℕ) → Iso (S₊∙ n →∙ coHomK-ptd n) ℤ
 IsoFunSpace n = fst (πS≅ℤ n)
@@ -293,7 +245,8 @@ module g-base where
   fst (G n i x) y = (genFunSpace n) .fst y ⌣ₖ x
   snd (G n i x) = cong (_⌣ₖ x) ((genFunSpace n) .snd) ∙ 0ₖ-⌣ₖ n i x
 
-  -ₖ^-Iso : (n : ℕ) (i : ℕ) → (S₊∙ n →∙ coHomK-ptd (i +' n)) ≃ (S₊∙ n →∙ coHomK-ptd (i +' n))
+  -ₖ^-Iso : (n : ℕ) (i : ℕ)
+    → (S₊∙ n →∙ coHomK-ptd (i +' n)) ≃ (S₊∙ n →∙ coHomK-ptd (i +' n))
   -ₖ^-Iso n i = isoToEquiv (iso F F FF FF)
     where
     lem : (i n : ℕ) → (-ₖ^ i · n) (snd (coHomK-ptd (i +' n))) ≡ 0ₖ _
@@ -313,30 +266,38 @@ module g-base where
       →∙Homogeneous≡ (isHomogeneousKn _)
         (funExt λ y → -ₖ-gen² i n _ _ (fst x y))
 
-  rCancel'' : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) → sym p ∙∙ refl ∙∙ p ≡ refl
-  rCancel'' p = (λ j → (λ i → p (~ i ∨ j)) ∙∙ refl ∙∙ λ i → p (i ∨ j)) ∙ sym (rUnit refl)
+  rCancel'' : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y)
+    → sym p ∙∙ refl ∙∙ p ≡ refl
+  rCancel'' p = (λ j → (λ i → p (~ i ∨ j)) ∙∙ refl ∙∙ λ i → p (i ∨ j))
+              ∙ sym (rUnit refl)
 
   transpPres0ₖ : ∀ {k m : ℕ} (p : k ≡ m) → subst coHomK p (0ₖ k) ≡ 0ₖ m
-  transpPres0ₖ {k = k} = J (λ m p → subst coHomK p (0ₖ k) ≡ 0ₖ m) (transportRefl _)
+  transpPres0ₖ {k = k} =
+    J (λ m p → subst coHomK p (0ₖ k) ≡ 0ₖ m) (transportRefl _)
 
   -- There will be some index swapping going on. We statet this explicitly, since we will
   -- need to trace the maps later
-  indexSwap : (n : ℕ) (i : ℕ) → (S₊∙ n →∙ coHomK-ptd (n +' i)) ≃ (S₊∙ n →∙ coHomK-ptd (i +' n))
+  indexSwap : (n : ℕ) (i : ℕ)
+    → (S₊∙ n →∙ coHomK-ptd (n +' i)) ≃ (S₊∙ n →∙ coHomK-ptd (i +' n))
   indexSwap n i =
     isoToEquiv (iso (λ f → (λ x → subst coHomK (+'-comm n i) (fst f x)) ,
-                    cong (subst coHomK (+'-comm n i)) (snd f) ∙ transpPres0ₖ (+'-comm n i))
-                    (λ f → (λ x → subst coHomK (sym (+'-comm n i)) (fst f x))
-                          , (cong (subst coHomK (sym (+'-comm n i))) (snd f) ∙ transpPres0ₖ (sym (+'-comm n i))))
-                    (λ f → →∙Homogeneous≡ (isHomogeneousKn _) (funExt λ x → transportTransport⁻ _ (f .fst x)))
-                    λ f → →∙Homogeneous≡ (isHomogeneousKn _) (funExt λ x → transportTransport⁻ _ (f .fst x)))
+      cong (subst coHomK (+'-comm n i)) (snd f) ∙ transpPres0ₖ (+'-comm n i))
+      (λ f → (λ x → subst coHomK (sym (+'-comm n i)) (fst f x))
+            , (cong (subst coHomK (sym (+'-comm n i))) (snd f)
+                    ∙ transpPres0ₖ (sym (+'-comm n i))))
+      (λ f → →∙Homogeneous≡ (isHomogeneousKn _)
+                (funExt λ x → transportTransport⁻ _ (f .fst x)))
+      λ f → →∙Homogeneous≡ (isHomogeneousKn _)
+                (funExt λ x → transportTransport⁻ _ (f .fst x)))
 
   -- g is a composition of G and our two previous equivs.
-  g≡ : (n : ℕ) (i : ℕ) → g n i ≡ λ x → fst (compEquiv (indexSwap n i) (-ₖ^-Iso n i)) ((G n i) x)
+  g≡ : (n : ℕ) (i : ℕ) → g n i ≡ λ x
+    → fst (compEquiv (indexSwap n i) (-ₖ^-Iso n i)) ((G n i) x)
   g≡ n i = funExt (λ f → →∙Homogeneous≡ (isHomogeneousKn _)
              (funExt λ y → gradedComm-⌣ₖ _ _ f (genFunSpace n .fst y)))
 
   -- We need a third Iso.
-  
+
   suspKn-Iso-fun : (n m : ℕ) →
     (S₊∙ (suc n) →∙ coHomK-ptd (suc m))
         → (S₊ n → coHomK m)
@@ -348,11 +309,13 @@ module g-base where
   suspKn-Iso-fun∙ : (n m : ℕ) → (f : _) → suspKn-Iso-fun n m f (ptSn _) ≡ 0ₖ m
   suspKn-Iso-fun∙ zero m = λ _ → refl
   suspKn-Iso-fun∙ (suc n) m (f , p) =
-    cong (ΩKn+1→Kn m) (cong (sym p ∙∙_∙∙ p) (cong (cong f) (rCancel (merid (ptSn _)))))
-     ∙∙ cong (ΩKn+1→Kn m) (rCancel'' p) 
+    cong (ΩKn+1→Kn m)
+      (cong (sym p ∙∙_∙∙ p) (cong (cong f) (rCancel (merid (ptSn _)))))
+     ∙∙ cong (ΩKn+1→Kn m) (rCancel'' p)
      ∙∙ ΩKn+1→Kn-refl m
 
-  suspKn-Iso-inv : (n m : ℕ) → (S₊∙ n →∙ coHomK-ptd m) → (S₊∙ (suc n) →∙ coHomK-ptd (suc m))
+  suspKn-Iso-inv : (n m : ℕ) → (S₊∙ n →∙ coHomK-ptd m)
+    → (S₊∙ (suc n) →∙ coHomK-ptd (suc m))
   fst (suspKn-Iso-inv zero m (f , p)) base = 0ₖ _
   fst (suspKn-Iso-inv zero m (f , p)) (loop i) = Kn→ΩKn+1 m (f false) i
   snd (suspKn-Iso-inv zero m (f , p)) = refl
@@ -364,38 +327,55 @@ module g-base where
   suspKn-Iso : (n m : ℕ) →
     Iso (S₊∙ (suc n) →∙ coHomK-ptd (suc m))
         (S₊∙ n →∙ coHomK-ptd m)
-  Iso.fun (suspKn-Iso n m) f = (suspKn-Iso-fun n m f) , (suspKn-Iso-fun∙ n m f)
+  Iso.fun (suspKn-Iso n m) f = (suspKn-Iso-fun n m f)
+                             , (suspKn-Iso-fun∙ n m f)
   Iso.inv (suspKn-Iso n m) = suspKn-Iso-inv n m
   Iso.rightInv (suspKn-Iso zero m) (f , p) =
     →∙Homogeneous≡ (isHomogeneousKn _)
-      (funExt λ { false → cong (ΩKn+1→Kn m) (sym (rUnit _)) ∙ Iso.leftInv (Iso-Kn-ΩKn+1 _) (f false)
+      (funExt λ { false → cong (ΩKn+1→Kn m) (sym (rUnit _))
+                         ∙ Iso.leftInv (Iso-Kn-ΩKn+1 _) (f false)
                 ; true → sym p})
   Iso.rightInv (suspKn-Iso (suc n) m) (f , p) =
     →∙Homogeneous≡ (isHomogeneousKn _)
-      (funExt λ x → (λ i → ΩKn+1→Kn m (sym (rUnit (cong-∙ (suspKn-Iso-inv (suc n) m (f , p) .fst) (merid x) (sym (merid (ptSn _))) i)) i))
-      ∙∙ cong (ΩKn+1→Kn m) (cong (Kn→ΩKn+1 m (f x) ∙_) (cong sym (cong (Kn→ΩKn+1 m) p ∙ Kn→ΩKn+10ₖ m)) ∙ sym (rUnit _))
+      (funExt λ x →
+         (λ i → ΩKn+1→Kn m
+           (sym (rUnit
+             (cong-∙
+               (suspKn-Iso-inv (suc n) m (f , p) .fst)
+                 (merid x) (sym (merid (ptSn _))) i)) i))
+      ∙∙ cong (ΩKn+1→Kn m)
+          (cong (Kn→ΩKn+1 m (f x) ∙_)
+            (cong sym (cong (Kn→ΩKn+1 m) p ∙ Kn→ΩKn+10ₖ m))
+             ∙ sym (rUnit _))
       ∙∙ Iso.leftInv (Iso-Kn-ΩKn+1 _)  (f x))
   Iso.leftInv (suspKn-Iso zero m) (f , p) = →∙Homogeneous≡ (isHomogeneousKn _)
     (funExt λ { base → sym p
-              ; (loop i) j → h3 j i})
+              ; (loop i) j → lem j i})
     where
-    h3 : PathP (λ i → p (~ i) ≡ p (~ i)) (Kn→ΩKn+1 m (ΩKn+1→Kn m (sym p ∙∙ cong f loop ∙∙ p))) (cong f loop)
-    h3 = Iso.rightInv (Iso-Kn-ΩKn+1 _) _
+    lem : PathP (λ i → p (~ i) ≡ p (~ i))
+               (Kn→ΩKn+1 m (ΩKn+1→Kn m (sym p ∙∙ cong f loop ∙∙ p)))
+               (cong f loop)
+    lem = Iso.rightInv (Iso-Kn-ΩKn+1 _) _
       ◁ λ i → doubleCompPath-filler (sym p) (cong f loop) p (~ i)
   Iso.leftInv (suspKn-Iso (suc n) m) (f , p) =
     →∙Homogeneous≡ (isHomogeneousKn _)
      (funExt λ { north → sym p
                ; south → sym p ∙ cong f (merid (ptSn _))
-               ; (merid a i) j → h3 a j i})
+               ; (merid a i) j → lem a j i})
     where
-    h3 : (a : S₊ (suc n)) → PathP (λ i → p (~ i) ≡ (sym p ∙ cong f (merid (ptSn (suc n)))) i)
-                                 (Kn→ΩKn+1 m (ΩKn+1→Kn m (sym p ∙∙ cong f (merid a ∙ sym (merid (ptSn _))) ∙∙ p)))
-                                 (cong f (merid a))
-    h3 a = Iso.rightInv (Iso-Kn-ΩKn+1 _) _
-        ◁ λ i j → hcomp (λ k → λ { (i = i1) → (f (merid a j))
-                                   ; (j = i0) → p (k ∧ ~ i)
-                                   ; (j = i1) → compPath-filler' (sym p) (cong f (merid (ptSn _))) k i })
-                         (f (compPath-filler (merid a) (sym (merid (ptSn _))) (~ i) j))
+    lem : (a : S₊ (suc n))
+      → PathP (λ i → p (~ i) ≡ (sym p ∙ cong f (merid (ptSn (suc n)))) i)
+               (Kn→ΩKn+1 m
+                 (ΩKn+1→Kn m
+                   (sym p ∙∙ cong f (merid a ∙ sym (merid (ptSn _))) ∙∙ p)))
+               (cong f (merid a))
+    lem a = Iso.rightInv (Iso-Kn-ΩKn+1 _) _
+        ◁ λ i j → hcomp (λ k →
+             λ { (i = i1) → (f (merid a j))
+               ; (j = i0) → p (k ∧ ~ i)
+               ; (j = i1) → compPath-filler'
+                              (sym p) (cong f (merid (ptSn _))) k i })
+               (f (compPath-filler (merid a) (sym (merid (ptSn _))) (~ i) j))
 
   glIsoInvHom : (n m : ℕ) (x y : coHomK n) (z : S₊ (suc m))
     → Iso.inv (suspKn-Iso _ _) (G m n (x +ₖ y)) .fst z
@@ -403,41 +383,46 @@ module g-base where
     +ₖ Iso.inv (suspKn-Iso _ _) (G m n y) .fst z
   glIsoInvHom zero zero x y base = refl
   glIsoInvHom (suc n) zero x y base = refl
-  glIsoInvHom zero zero x y (loop i) j = h3 j i
+  glIsoInvHom zero zero x y (loop i) j = lem j i
     where
-    h3 : (cong (Iso.inv (suspKn-Iso _ _) (G zero zero (x + y)) .fst) loop)
-      ≡ cong₂ _+ₖ_ (cong (Iso.inv (suspKn-Iso _ _) (G zero zero x) .fst) loop)
-                   (cong (Iso.inv (suspKn-Iso _ _) (G zero zero y) .fst) loop)
-    h3 = Kn→ΩKn+1-hom 0 x y
+    lem : (cong (Iso.inv (suspKn-Iso _ _) (G zero zero (x + y)) .fst) loop)
+        ≡ cong₂ _+ₖ_ (cong (Iso.inv (suspKn-Iso _ _) (G zero zero x) .fst) loop)
+                     (cong (Iso.inv (suspKn-Iso _ _) (G zero zero y) .fst) loop)
+    lem = Kn→ΩKn+1-hom 0 x y
      ∙ ∙≡+₁ (cong (Iso.inv (suspKn-Iso _ _) (G zero zero x) .fst) loop)
             (cong (Iso.inv (suspKn-Iso _ _) (G zero zero y) .fst) loop)
-  glIsoInvHom (suc n) zero x y (loop i) j = h3 j i
+  glIsoInvHom (suc n) zero x y (loop i) j = lem j i
     where
-    h3 : Kn→ΩKn+1 (suc n) ((pos (suc zero)) ·₀ (x +ₖ y))
-      ≡ cong₂ _+ₖ_ (cong (Iso.inv (suspKn-Iso zero (zero +' suc n)) (G zero (suc n) x) .fst) loop)
-                   (cong (Iso.inv (suspKn-Iso zero (zero +' suc n)) (G zero (suc n) y) .fst) loop)
-    h3 = cong (Kn→ΩKn+1 (suc n)) (lUnit⌣ₖ _ (x +ₖ y))
+    lem : Kn→ΩKn+1 (suc n) ((pos (suc zero)) ·₀ (x +ₖ y))
+      ≡ cong₂ _+ₖ_ (cong (Iso.inv (suspKn-Iso zero (zero +' suc n))
+                         (G zero (suc n) x) .fst) loop)
+                   (cong (Iso.inv (suspKn-Iso zero (zero +' suc n))
+                         (G zero (suc n) y) .fst) loop)
+    lem = cong (Kn→ΩKn+1 (suc n)) (lUnit⌣ₖ _ (x +ₖ y))
      ∙∙ Kn→ΩKn+1-hom (suc n) x y
      ∙∙ (λ i → ∙≡+₂ n (Kn→ΩKn+1 (suc n) (lUnit⌣ₖ _ x (~ i)))
                        (Kn→ΩKn+1 (suc n) (lUnit⌣ₖ _ y (~ i))) i)
   glIsoInvHom zero (suc m) x y north = refl
   glIsoInvHom zero (suc m) x y south = refl
-  glIsoInvHom zero (suc m) x y (merid a i) j = h3 j i
+  glIsoInvHom zero (suc m) x y (merid a i) j = lem j i
     where
-    h3 : Kn→ΩKn+1 (suc m) (_⌣ₖ_ {n = suc m} {m = zero} ∣ a ∣ (x + y))
+    lem : Kn→ΩKn+1 (suc m) (_⌣ₖ_ {n = suc m} {m = zero} ∣ a ∣ (x + y))
       ≡ cong₂ _+ₖ_ (Kn→ΩKn+1 (suc m) (_⌣ₖ_ {n = suc m} {m = zero} ∣ a ∣ x))
                    (Kn→ΩKn+1 (suc m) (_⌣ₖ_ {n = suc m} {m = zero} ∣ a ∣ y))
-    h3 = cong (Kn→ΩKn+1 (suc m)) (leftDistr-⌣ₖ (suc m) 0 ∣ a ∣ x y)
+    lem = cong (Kn→ΩKn+1 (suc m)) (leftDistr-⌣ₖ (suc m) 0 ∣ a ∣ x y)
      ∙∙ Kn→ΩKn+1-hom (suc m) _ _
      ∙∙ ∙≡+₂ _ _ _
   glIsoInvHom (suc n) (suc m) x y north = refl
   glIsoInvHom (suc n) (suc m) x y south = refl
-  glIsoInvHom (suc n) (suc m) x y (merid a i) j = h3 j i
+  glIsoInvHom (suc n) (suc m) x y (merid a i) j = lem j i
     where
-    h3 : Kn→ΩKn+1 (suc (suc (m +ℕ n))) (_⌣ₖ_ {n = suc m} {m = suc n} ∣ a ∣ (x +ₖ y))
-      ≡ cong₂ _+ₖ_ (Kn→ΩKn+1 (suc (suc (m +ℕ n))) (_⌣ₖ_ {n = suc m} {m = suc n} ∣ a ∣ x))
-                   (Kn→ΩKn+1 (suc (suc (m +ℕ n))) (_⌣ₖ_ {n = suc m} {m = suc n} ∣ a ∣ y))
-    h3 = cong (Kn→ΩKn+1 (suc (suc (m +ℕ n))))
+    lem : Kn→ΩKn+1 (suc (suc (m +ℕ n)))
+                   (_⌣ₖ_ {n = suc m} {m = suc n} ∣ a ∣ (x +ₖ y))
+      ≡ cong₂ _+ₖ_ (Kn→ΩKn+1 (suc (suc (m +ℕ n)))
+                     (_⌣ₖ_ {n = suc m} {m = suc n} ∣ a ∣ x))
+                   (Kn→ΩKn+1 (suc (suc (m +ℕ n)))
+                     (_⌣ₖ_ {n = suc m} {m = suc n} ∣ a ∣ y))
+    lem = cong (Kn→ΩKn+1 (suc (suc (m +ℕ n))))
              (leftDistr-⌣ₖ (suc m) (suc n) ∣ a ∣ x y)
      ∙∙ Kn→ΩKn+1-hom _ _ _
      ∙∙ ∙≡+₂ _ _ _
@@ -458,64 +443,83 @@ module g-base where
     →∙Homogeneous≡ (isHomogeneousKn _)
       (funExt λ z → (λ i → x ·₀ ∣ z ∣) ∙ h3 x z ∙ sym (transportRefl _))
       where
-      h3 : (x : ℤ) (z : S¹) → _·₀_ {n = 1} x ∣ z ∣ ≡ fst (Iso.inv (suspKn-Iso 0 zero) (G zero zero x)) z
-      h3 = Int-ind _ (λ { base → refl ; (loop i) j → Kn→ΩKn+10ₖ zero (~ j) i})
-                    (λ { base → refl ; (loop i) j → rUnit (cong ∣_∣ₕ (lUnit loop j)) j i})
-                    (λ { base → refl ; (loop i) j → rUnit (cong ∣_∣ₕ (sym loop)) j i})
-                    λ x y inx iny z
-                      → rightDistr-⌣ₖ 0 1 x y ∣ z ∣
-                      ∙∙ cong₂ _+ₖ_ (inx z) (iny z)
-                      ∙∙ sym (glIsoInvHom zero zero x y z)
+      h3 : (x : ℤ) (z : S¹)
+        → _·₀_ {n = 1} x ∣ z ∣
+          ≡ fst (Iso.inv (suspKn-Iso 0 zero) (G zero zero x)) z
+      h3 =
+        Int-ind _
+          (λ { base → refl ; (loop i) j → Kn→ΩKn+10ₖ zero (~ j) i})
+          (λ { base → refl ; (loop i) j → rUnit (cong ∣_∣ₕ (lUnit loop j)) j i})
+          (λ { base → refl ; (loop i) j → rUnit (cong ∣_∣ₕ (sym loop)) j i})
+          λ x y inx iny z
+            → rightDistr-⌣ₖ 0 1 x y ∣ z ∣
+            ∙∙ cong₂ _+ₖ_ (inx z) (iny z)
+            ∙∙ sym (glIsoInvHom zero zero x y z)
   decomposeG (suc i) zero x =
     →∙Homogeneous≡ (isHomogeneousKn _)
-      (funExt λ z → h3 z
+      (funExt λ z → lem z
             ∙ sym (transportRefl
                ((Iso.inv (suspKn-Iso zero (suc i)) (G zero (suc i) x)) .fst z)))
     where
-    h3 : (z : S₊ 1) → _ ≡ Iso.inv (suspKn-Iso zero (suc i)) (G zero (suc i) x) .fst z
-    h3 base = refl
-    h3 (loop k) j = Kn→ΩKn+1 (suc i) (lUnit⌣ₖ _ x (~ j)) k
+    lem : (z : S₊ 1)
+      → _ ≡ Iso.inv (suspKn-Iso zero (suc i)) (G zero (suc i) x) .fst z
+    lem base = refl
+    lem (loop k) j = Kn→ΩKn+1 (suc i) (lUnit⌣ₖ _ x (~ j)) k
   decomposeG zero (suc n) x =
     →∙Homogeneous≡ (isHomogeneousKn _)
-      (funExt λ z → h3 x z ∙ λ i → transportRefl (Iso.inv (suspKn-Iso (suc n) (suc n)) (G (suc n) zero x)) (~ i) .fst z)
+      (funExt λ z → main x z
+        ∙ λ i → transportRefl
+                  (Iso.inv (suspKn-Iso (suc n) (suc n))
+                           (G (suc n) zero x)) (~ i) .fst z)
       where
       +merid : rUnitₖ (suc (suc n)) ∣ south ∣ ≡ cong ∣_∣ₕ (merid (ptSn _))
       +merid = sym (lUnit _)
              ∙ cong (cong ∣_∣ₕ)
-             λ j i → transp (λ _ → S₊ (suc (suc n))) (i ∨ j) (merid (ptSn (suc n)) i)
+             λ j i → transp (λ _ → S₊ (suc (suc n))) (i ∨ j)
+                             (merid (ptSn (suc n)) i)
 
-      pp : (a : S₊ (suc n)) → PathP (λ i → ∣ merid a i ∣ₕ ≡ Kn→ΩKn+1 (suc n) (∣ a ∣ +ₖ (0ₖ _)) i)
-                                     refl (sym (rUnitₖ (suc (suc n)) ∣ south ∣))
-      pp a = flipSquare ((λ i j → ∣ compPath-filler (merid a) (sym (merid (ptSn _))) i j ∣ₕ )
+      lem : (a : S₊ (suc n))
+        → PathP (λ i → ∣ merid a i ∣ₕ
+                       ≡ Kn→ΩKn+1 (suc n) (∣ a ∣ +ₖ (0ₖ _)) i)
+                 refl (sym (rUnitₖ (suc (suc n)) ∣ south ∣))
+      lem a =
+        flipSquare ((λ i j → ∣ compPath-filler (merid a)
+                                 (sym (merid (ptSn _))) i j ∣ₕ)
               ▷ cong (Kn→ΩKn+1 (suc n)) (sym (rUnitₖ (suc n) ∣ a ∣ₕ)))
             ▷ sym (cong sym +merid)
 
-      pp2 : (a : S₊ (suc n)) → (λ i → -ₖ ∣ merid a i ∣)
+      lem₂ : (a : S₊ (suc n)) → (λ i → -ₖ ∣ merid a i ∣)
                                ≡ Kn→ΩKn+1 (suc n) (-ₖ ∣ a ∣)
-      pp2 a = cong (cong ∣_∣ₕ) (sym (symDistr (merid a) (sym (merid (ptSn (suc n))))))
+      lem₂ a =
+        cong (cong ∣_∣ₕ) (sym (symDistr (merid a)
+                       (sym (merid (ptSn (suc n))))))
             ∙ sym (Kn→ΩKn+1-ₖ (suc n) ∣ a ∣)
 
-      h3 : (x : ℤ) (z : S₊ (suc (suc n)))
+      main : (x : ℤ) (z : S₊ (suc (suc n)))
        → _⌣ₖ_ {n = suc (suc n)} {m = 0} ∣ z ∣ x
         ≡ Iso.inv (suspKn-Iso (suc n) (suc n)) (G (suc n) zero x) .fst z
-      h3 = Int-ind _
-            (λ { north → refl ; south → refl ; (merid a i) j → Kn→ΩKn+10ₖ (suc n) (~ j) i})
+      main = Int-ind _
             (λ { north → refl ; south → refl
-               ; (merid a i) j → hcomp (λ k → λ { (i = i0) → ∣ north ∣
-                                                  ; (i = i1) → rUnitₖ (suc (suc n)) ∣ south ∣ (~ k)
-                                                  ; (j = i0) → rUnitₖ (suc (suc n)) ∣ merid a i ∣ (~ k)
-                                                  ; (j = i1) → pp a i k})
-                                       ∣ merid a i ∣ₕ})
+              ; (merid a i) j → Kn→ΩKn+10ₖ (suc n) (~ j) i})
+            (λ { north → refl ; south → refl
+               ; (merid a i) j →
+                 hcomp (λ k →
+                    λ { (i = i0) → ∣ north ∣
+                      ; (i = i1) → rUnitₖ (suc (suc n)) ∣ south ∣ (~ k)
+                      ; (j = i0) → rUnitₖ (suc (suc n)) ∣ merid a i ∣ (~ k)
+                      ; (j = i1) → lem a i k})
+                      ∣ merid a i ∣ₕ})
             (λ { north → refl
                ; south → refl
-               ; (merid a i) j → pp2 a j i})
+               ; (merid a i) j → lem₂ a j i})
             λ x y indx indy z → leftDistr-⌣ₖ _ _ ∣ z ∣ x y
                                ∙ cong₂ _+ₖ_ (indx z) (indy z)
                                ∙ sym (glIsoInvHom _ _ _ _ _)
   decomposeG (suc i) (suc n) x =
     →∙Homogeneous≡ (isHomogeneousKn _)
       (funExt λ z → lem z
-         ∙ λ j → transportRefl ((Iso.inv (suspKn-Iso (suc n) (suc (suc (n +ℕ i))))
+         ∙ λ j →
+           transportRefl ((Iso.inv (suspKn-Iso (suc n) (suc (suc (n +ℕ i))))
                      (G (suc n) (suc i) x))) (~ j) .fst z)
     where
     lem : (z : S₊ (suc (suc n))) → _
@@ -547,8 +551,8 @@ module g-base where
   isEquiv-g : (n i : ℕ) → isEquiv (g n i)
   isEquiv-g n i =
     subst isEquiv (sym (g≡ n i))
-      (compEquiv (G n i , isEquivG n i) (compEquiv (indexSwap n i) (-ₖ^-Iso n i)) .snd)
-
+      (compEquiv (G n i , isEquivG n i)
+        (compEquiv (indexSwap n i) (-ₖ^-Iso n i)) .snd)
 
 -- We now generealise the equivalence g to also apply to arbitrary fibrations (Q : B → Type)
 -- satisfying (Q * ≃∙ Sⁿ)
@@ -557,7 +561,8 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
          (n : ℕ) (Q-is : Iso (typ (Q (pt B))) (S₊ n))
          (Q-is-ptd : Iso.fun Q-is (pt (Q (pt B))) ≡ snd (S₊∙ n))
          (c : (b : typ B) → (Q b →∙ coHomK-ptd n))
-         (c-pt : c (pt B) .fst ≡ ((λ x → genFunSpace n .fst (Iso.fun Q-is x)))) where
+         (c-pt : c (pt B) .fst ≡ ((λ x → genFunSpace n .fst (Iso.fun Q-is x))))
+         where
 
   g : (b : typ B) (i : ℕ) → coHomK i → (Q b →∙ coHomK-ptd (i +' n))
   fst (g b i x) y = x ⌣ₖ c b .fst y
@@ -565,12 +570,15 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
 
   g-hom : (b : typ B) (i : ℕ) → (x y : coHomK i)
         → g b i (x +ₖ y) ≡ ((g b i x) ++ (g b i y))
-  g-hom b i x y = →∙Homogeneous≡ (isHomogeneousKn _) (funExt λ z → rightDistr-⌣ₖ i n x y (c b .fst z))
+  g-hom b i x y =
+    →∙Homogeneous≡ (isHomogeneousKn _)
+      (funExt λ z → rightDistr-⌣ₖ i n x y (c b .fst z))
 
   gPathP' : (i : ℕ)
-    → PathP (λ j → coHomK i → (isoToPath Q-is j , ua-gluePath (isoToEquiv Q-is) (Q-is-ptd) j)
-                                 →∙ coHomK-ptd (i +' n))
-             (g (pt B) i) (g-base.g n i)
+    → PathP (λ j → coHomK i →
+                 (isoToPath Q-is j , ua-gluePath (isoToEquiv Q-is) (Q-is-ptd) j)
+              →∙ coHomK-ptd (i +' n))
+       (g (pt B) i) (g-base.g n i)
   gPathP' i =
     toPathP
       (funExt
@@ -578,8 +586,9 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
           (funExt λ y
          → (λ i → transportRefl (transportRefl x i ⌣ₖ c (pt B) .fst
                                      (Iso.inv Q-is (transportRefl y i))) i)
-                  ∙ cong (x ⌣ₖ_) (funExt⁻ c-pt (Iso.inv Q-is y)
-                                ∙ cong (genFunSpace n .fst) (Iso.rightInv Q-is y))))
+                  ∙ cong (x ⌣ₖ_)
+                         (funExt⁻ c-pt (Iso.inv Q-is y)
+                            ∙ cong (genFunSpace n .fst) (Iso.rightInv Q-is y))))
 
   g-base : (i : ℕ) → isEquiv (g (pt B) i)
   g-base i = transport (λ j → isEquiv (gPathP' i (~ j))) (g-base.isEquiv-g n i)
@@ -601,7 +610,8 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
     sRec (isProp→isOfHLevelSuc 1 isPropIsSet)
           (J (λ b _ → isSet (Q b →∙ coHomK-ptd n))
             (subst isSet (cong (_→∙ coHomK-ptd n)
-              (ua∙ (isoToEquiv (invIso Q-is)) (cong (Iso.inv Q-is) (sym Q-is-ptd) ∙ Iso.leftInv Q-is _)))
+              (ua∙ (isoToEquiv (invIso Q-is))
+                   (cong (Iso.inv Q-is) (sym Q-is-ptd) ∙ Iso.leftInv Q-is _)))
               (isOfHLevelRetractFromIso 2 (fst (πS≅ℤ n)) isSetℤ)))
           (conB (pt B) b)
 
@@ -619,7 +629,7 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
 
   -- We construct a term in c* : (b : B) → (Q b →∙ Kₙ)
   -- Which is equal to the generator of (Sⁿ →∙ Kₙ) over the base point.
-  c* : Σ[ c ∈ ((b : typ B) → (Q b →∙ coHomK-ptd n)) ] 
+  c* : Σ[ c ∈ ((b : typ B) → (Q b →∙ coHomK-ptd n)) ]
          (c (pt B) .fst ≡ ((λ x → genFunSpace n .fst (Iso.fun Q-is x))))
   fst c* b =
     sRec (is-setQ→K b)
@@ -631,20 +641,24 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
     funExt λ x → (λ i → sRec (is-setQ→K (pt B))
                   (J (λ b _ → Q b →∙ coHomK-ptd n)
                    ((λ x₁ → genFunSpace n .fst (Iso.fun Q-is x₁)) ,
-                    (λ i → genFunSpace n .fst (Q-is-ptd i)) ∙ genFunSpace n .snd))
+                    (λ i → genFunSpace n .fst (Q-is-ptd i))
+                          ∙ genFunSpace n .snd))
                   (isPropPath (conB (pt B) (pt B)) ∣ refl ∣₂ i) .fst x)
-      ∙ (λ i → transportRefl (genFunSpace n .fst (Iso.fun Q-is (transportRefl x i))) i)
+      ∙ (λ i → transportRefl (genFunSpace n .fst
+                               (Iso.fun Q-is (transportRefl x i))) i)
 
   p-help : {b : fst B} (p : pt B ≡ b)
         → (subst (fst ∘ Q) (sym p) (snd (Q b))) ≡ (snd (Q (pt B)))
   p-help {b = b} =
-    J (λ b p → subst (fst ∘ Q) (sym p) (snd (Q b)) ≡ snd (Q (pt B))) (transportRefl _)
+    J (λ b p → subst (fst ∘ Q) (sym p) (snd (Q b)) ≡ snd (Q (pt B)))
+      (transportRefl _)
 
   -- This form of c* will make things somewhat easier to work with later on.
   c≡ : (b : fst B) (p : ∥ pt B ≡ b ∥₂)
     → (c* .fst b)
       ≡ sRec (is-setQ→K b)
-             (λ pp → (λ qb → genFunSpace n .fst (Iso.fun Q-is (subst (fst ∘ Q) (sym pp) qb)))
+             (λ pp → (λ qb →
+               genFunSpace n .fst (Iso.fun Q-is (subst (fst ∘ Q) (sym pp) qb)))
              , cong (genFunSpace n .fst ∘ Iso.fun Q-is) (p-help pp)
              ∙ ((λ i → genFunSpace n .fst (Q-is-ptd i)) ∙ genFunSpace n .snd)) p
   c≡ b =
@@ -663,7 +677,8 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
           (isPropPath (conB (pt B) (pt B)) ∣ refl ∣₂ i))
           ∙ →∙Homogeneous≡ (isHomogeneousKn n)
             (transportRefl ((λ x → genFunSpace n .fst (Iso.fun Q-is x)))
-            ∙ funExt λ x → cong (genFunSpace n .fst ∘ Iso.fun Q-is) (sym (transportRefl x)))))
+            ∙ funExt λ x → cong (genFunSpace n .fst ∘ Iso.fun Q-is)
+                     (sym (transportRefl x)))))
 
 -- We are now almost ready to define the Thom isomorphism.
 -- The following module contains the types and functions occuring in it.
@@ -708,11 +723,11 @@ module preThom {ℓ ℓ'} (B : Pointed ℓ) (P : typ B → Type ℓ') where
   Iso.inv IsoFE = invFE
   Iso.rightInv IsoFE (inl x) = refl
   Iso.rightInv IsoFE (inr x) = refl
-  Iso.rightInv IsoFE (push (x , a) i₁) k = h3 k i₁
+  Iso.rightInv IsoFE (push (x , a) i₁) k = lem k i₁
     where
-    h3 : cong funFE (((push x) ∙ λ i → inr (x , merid a i)))
-      ≡ push (x , a)
-    h3 = congFunct funFE (push x) (λ i → inr (x , merid a i))
+    lem : cong funFE (((push x) ∙ λ i → inr (x , merid a i)))
+        ≡ push (x , a)
+    lem = congFunct funFE (push x) (λ i → inr (x , merid a i))
      ∙ sym (lUnit (push (x , a)))
   Iso.leftInv IsoFE (inl x) = refl
   Iso.leftInv IsoFE (inr (x , north)) = push x
@@ -721,7 +736,7 @@ module preThom {ℓ ℓ'} (B : Pointed ℓ) (P : typ B → Type ℓ') where
     compPath-filler' (push x) (λ i₁ → inr (x , merid a i₁)) (~ j) i
   Iso.leftInv IsoFE (push a i₁) k =  push a (i₁ ∧ k)
 
-  
+
   F̃→Q : ∀ {ℓ} {A : Pointed ℓ} → (F̃ , inl tt) →∙ A → (b : typ B) → Q b →∙ A
   fst (F̃→Q {A = A , a} (f , p) b) north = f (inr (b , north))
   fst (F̃→Q {A = A , a} (f , p) b) south = f (inr (b , south))
@@ -740,15 +755,17 @@ module preThom {ℓ ℓ'} (B : Pointed ℓ) (P : typ B → Type ℓ') where
              → Q→F̃ (λ b → f b ++ g b) ≡ (Q→F̃ f ++ Q→F̃ g)
   Q→F̃-hom n f g =
     →∙Homogeneous≡ (isHomogeneousKn _)
-                  (funExt λ { (inl x) → sym (rUnitₖ _ (0ₖ _))
-                             ; (inr (x , north)) → refl
-                             ; (inr (x , south)) → refl
-                             ; (inr (x , merid a i₁)) → refl
-                             ; (push a j) i → compPath-filler (cong₂ _+ₖ_ (snd (f a)) (snd (g a)))
-                                                               (rUnitₖ n (0ₖ n)) (~ i) (~ j)})
+      (funExt λ { (inl x) → sym (rUnitₖ _ (0ₖ _))
+                ; (inr (x , north)) → refl
+                ; (inr (x , south)) → refl
+                ; (inr (x , merid a i₁)) → refl
+                ; (push a j) i →
+                  compPath-filler (cong₂ _+ₖ_ (snd (f a)) (snd (g a)))
+                                  (rUnitₖ n (0ₖ n)) (~ i) (~ j)})
 
-  Q→F̃→Q : ∀ {ℓ} {A : Pointed ℓ} → (x : (b : typ B) → Q b →∙ A) (b : typ B) (q : Q b .fst)
-               → F̃→Q (Q→F̃ x) b .fst q ≡ x b .fst q
+  Q→F̃→Q : ∀ {ℓ} {A : Pointed ℓ}
+    → (x : (b : typ B) → Q b →∙ A) (b : typ B) (q : Q b .fst)
+    → F̃→Q (Q→F̃ x) b .fst q ≡ x b .fst q
   Q→F̃→Q f b north = refl
   Q→F̃→Q f b south = refl
   Q→F̃→Q f b (merid a i₁) = refl
@@ -759,7 +776,8 @@ module preThom {ℓ ℓ'} (B : Pointed ℓ) (P : typ B → Type ℓ') where
   F̃→Q→F̃ f p (inr (x , north)) = refl
   F̃→Q→F̃ f p (inr (x , south)) = refl
   F̃→Q→F̃ f p (inr (x , merid a i₁)) = refl
-  F̃→Q→F̃ f p (push a i₁) j = compPath-filler (sym (cong f (push a))) p (~ j) (~ i₁)
+  F̃→Q→F̃ f p (push a i₁) j =
+    compPath-filler (sym (cong f (push a))) p (~ j) (~ i₁)
 
   IsoF̃Q : ∀ {ℓ} {A : Pointed ℓ}
     → Iso ((F̃ , inl tt) →∙ A)
@@ -778,7 +796,7 @@ module preThom {ℓ ℓ'} (B : Pointed ℓ) (P : typ B → Type ℓ') where
                       ((Ẽ , inl tt) →∙ coHomK-ptd k)
   ι k = compIso (invIso IsoF̃Q) IsoFE-extend
     where
-    
+
     IsoFE-extend : Iso ((F̃ , inl tt) →∙ coHomK-ptd k)
              ((Ẽ , inl tt) →∙ coHomK-ptd k)
     Iso.fun IsoFE-extend G = (λ x → G .fst (Iso.inv IsoFE x))
@@ -800,37 +818,45 @@ module preThom {ℓ ℓ'} (B : Pointed ℓ) (P : typ B → Type ℓ') where
         (funExt λ x → funExt⁻ (cong fst (Q→F̃-hom _ f g)) (invFE x))
 
 -- Packing everything up gives us the Thom Isomorphism between
--- the nᵗʰ cohomology of B and the (n+i)ᵗʰ reduced cohomology of Ẽ, as defined above
-module Thom {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero) 
+-- the nᵗʰ cohomology of B and the (n+i)ᵗʰ reduced cohomology of Ẽ,
+-- as defined above
+module Thom {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
          (conB : (x y : typ B) → ∥ x ≡ y ∥)
          (n : ℕ) (Q-is : Iso (typ (preThom.Q B P (pt B))) (S₊ n))
          (Q-is-ptd : Iso.fun Q-is (pt (preThom.Q B P (pt B))) ≡ snd (S₊∙ n))
          (c : (b : typ B) → (preThom.Q B P b →∙ coHomK-ptd n))
-         (c-pt : c (pt B) .fst ≡ ((λ x → genFunSpace n .fst (Iso.fun Q-is x)))) where
+         (c-pt : c (pt B) .fst ≡ ((λ x → genFunSpace n .fst (Iso.fun Q-is x))))
+         where
 
-  ϕ : (i : ℕ) → GroupEquiv (coHomGr i (typ B)) (coHomRedGrDir (i +' n) (preThom.Ẽ B P , inl tt))
+  ϕ : (i : ℕ)
+    → GroupEquiv (coHomGr i (typ B))
+                  (coHomRedGrDir (i +' n) (preThom.Ẽ B P , inl tt))
   fst (ϕ i) =
     isoToEquiv
       (setTruncIso
         (compIso
           (codomainIsoDep
-            λ b → equivToIso ((g B (preThom.Q B P) conB n Q-is Q-is-ptd c c-pt b i)
+            λ b →
+              equivToIso ((g B (preThom.Q B P) conB n Q-is Q-is-ptd c c-pt b i)
                  , g-equiv B (preThom.Q B P) conB n Q-is Q-is-ptd c c-pt b i))
             (preThom.ι B P (i +' n))))
   snd (ϕ i) =
     makeIsGroupHom
     (sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
-      λ F G → cong ∣_∣₂ (cong (Iso.fun (preThom.ι B P (i +' n)))
-                                   (funExt (λ a → g-hom B (preThom.Q B P)
-                                                   conB n Q-is Q-is-ptd c c-pt a i (F a) (G a)))
-                                 ∙ preThom.ι-hom B P (i +' n) _ _)
-                       ∙ addAgree (i +' n) _ _)
+      λ F G →
+        cong ∣_∣₂ (cong (Iso.fun (preThom.ι B P (i +' n)))
+                       (funExt (λ a →
+                         g-hom B (preThom.Q B P)
+                               conB n Q-is Q-is-ptd c c-pt a i (F a) (G a)))
+                     ∙ preThom.ι-hom B P (i +' n) _ _)
+           ∙ addAgree (i +' n) _ _)
 
--- We finally get the Gysin sequence 
-module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero) 
+-- We finally get the Gysin sequence
+module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
          (conB : (x y : typ B) → ∥ x ≡ y ∥₂)
          (n : ℕ) (Q-is : Iso (typ (preThom.Q B P (pt B))) (S₊ n))
-         (Q-is-ptd : Iso.fun Q-is (pt (preThom.Q B P (pt B))) ≡ snd (S₊∙ n)) where
+         (Q-is-ptd : Iso.fun Q-is (pt (preThom.Q B P (pt B))) ≡ snd (S₊∙ n))
+         where
 
   0-connB : (x y : typ B) → ∥ x ≡ y ∥
   0-connB x y = sRec (isProp→isSet squash) (∥_∥.∣_∣) (conB x y)
@@ -852,8 +878,8 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   e = ∣ (λ b → c b .fst south) ∣₂
 
   -- The maps of interest are ⌣, p, E-susp and j*. In reality, we are interested
-  -- in the composition of ϕ and j* (which is just the cup product), but it's easier
-  -- to first give an exact sequence involving p, E-susp and j*
+  -- in the composition of ϕ and j* (which is just the cup product),
+  -- but it's easier to first give an exact sequence involving p, E-susp and j*
   ⌣-hom : (i : ℕ) → GroupHom (coHomGr i (typ B)) (coHomGr (i +' n) (typ B))
   fst (⌣-hom i) x = x ⌣ e
   snd (⌣-hom i) =
@@ -865,18 +891,21 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   p-hom : (i : ℕ) → GroupHom (coHomGr i (typ B)) (coHomGr i E')
   p-hom i = coHomMorph _ p
 
-  E-susp : (i : ℕ) → GroupHom (coHomGr i E') (coHomRedGrDir (suc i) (E'̃ , inl tt))
-  fst (E-susp i) = sMap λ f → (λ { (inl x) → 0ₖ _
-                                  ; (inr x) → 0ₖ _
-                                  ; (push a j) → Kn→ΩKn+1 _ (f a) j}) , refl
+  E-susp : (i : ℕ) →
+    GroupHom (coHomGr i E') (coHomRedGrDir (suc i) (E'̃ , inl tt))
+  fst (E-susp i) =
+    sMap λ f → (λ { (inl x) → 0ₖ _
+                   ; (inr x) → 0ₖ _
+                   ; (push a j) → Kn→ΩKn+1 _ (f a) j}) , refl
   snd (E-susp zero) =
     makeIsGroupHom (sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
       λ f g →
         cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousKn 1)
           (funExt λ { (inl x) → refl
                     ; (inr x) → refl
-                    ; (push a j) k → (Kn→ΩKn+1-hom zero (f a) (g a)
-                                   ∙ ∙≡+₁ (Kn→ΩKn+1 _ (f a)) (Kn→ΩKn+1 _ (g a))) k j})))
+                    ; (push a j) k →
+                      (Kn→ΩKn+1-hom zero (f a) (g a)
+                     ∙ ∙≡+₁ (Kn→ΩKn+1 _ (f a)) (Kn→ΩKn+1 _ (g a))) k j})))
   snd (E-susp (suc i)) =
     makeIsGroupHom (sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
       λ f g →
@@ -884,10 +913,12 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
           (funExt λ { (inl x) → refl
                     ; (inr x) → refl
                     ; (push a j) k → (Kn→ΩKn+1-hom _ (f a) (g a)
-                                   ∙ ∙≡+₂ _ (Kn→ΩKn+1 _ (f a)) (Kn→ΩKn+1 _ (g a))) k j})))
+                                   ∙ ∙≡+₂ _ (Kn→ΩKn+1 _ (f a))
+                                            (Kn→ΩKn+1 _ (g a))) k j})))
 
   module cofibSeq where
-    j* : (i : ℕ) → GroupHom (coHomRedGrDir i (E'̃ , (inl tt))) (coHomGr i (typ B))
+    j* : (i : ℕ) →
+      GroupHom (coHomRedGrDir i (E'̃ , (inl tt))) (coHomGr i (typ B))
     fst (j* i) = sMap λ f → λ x → fst f (inr x)
     snd (j* zero) =
       makeIsGroupHom
@@ -905,7 +936,8 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
         λ f → pRec (squash₂ _ _)
           (uncurry (sElim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
             λ g P → subst (isInKer (p-hom i)) P
-              (cong ∣_∣₂ (funExt λ x → cong (g .fst) (sym (push x)) ∙ g .snd))))
+              (cong ∣_∣₂ (funExt λ x →
+                cong (g .fst) (sym (push x)) ∙ g .snd))))
 
     Ker-p⊂Im-j : (i : ℕ) (x : _) → isInKer (p-hom i) x → isInIm (j* i) x
     Ker-p⊂Im-j i =
@@ -913,10 +945,12 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
         λ f ker → pRec squash
           (λ id → ∣ ∣ (λ { (inl x) → 0ₖ _
                          ; (inr x) → f x
-                         ; (push a i₁) → funExt⁻ id a (~ i₁)}) , refl ∣₂ , refl ∣)
+                         ; (push a i₁) → funExt⁻ id a (~ i₁)}) , refl ∣₂
+                         , refl ∣)
                    (Iso.fun PathIdTrunc₀Iso ker)
 
-  Im-p⊂Ker-Susp : (i : ℕ) (x : _) → isInIm (p-hom i) x → isInKer (E-susp i) x
+  Im-p⊂Ker-Susp : (i : ℕ) (x : _)
+                → isInIm (p-hom i) x → isInKer (E-susp i) x
   Im-p⊂Ker-Susp i =
     sElim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
       λ f → pRec (squash₂ _ _)
@@ -927,15 +961,19 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
                         ; (inr x) → sym (Kn→ΩKn+1 _ (g x))
                         ; (push a j) k → Kn→ΩKn+1 i (g (fst a)) (~ k ∧ j)})))))
 
-  Ker-Susp⊂Im-p : (i : ℕ) (x : _) → isInKer (E-susp i) x → isInIm (p-hom i) x
+  Ker-Susp⊂Im-p : (i : ℕ) (x : _)
+                → isInKer (E-susp i) x → isInIm (p-hom i) x
   Ker-Susp⊂Im-p i =
     sElim (λ _ → isSetΠ (λ _ → isProp→isSet squash))
       λ f ker → pRec squash
         (λ id → ∣ ∣ (λ x → ΩKn+1→Kn i (sym (funExt⁻ (cong fst id) (inr x)))) ∣₂
                   , cong ∣_∣₂ (funExt (λ { (a , b) →
-                         cong (ΩKn+1→Kn i) (lUnit _ ∙ cong (_∙ sym (funExt⁻ (λ i₁ → fst (id i₁)) (inr a)))
-                                            (sym (flipSquare (cong snd id))
-                       ∙∙ (PathP→compPathR (cong (funExt⁻ (cong fst id)) (push (a , b))))
+                         cong (ΩKn+1→Kn i)
+                           (lUnit _
+                          ∙ cong (_∙ sym (funExt⁻ (λ i₁ → fst (id i₁)) (inr a)))
+                           (sym (flipSquare (cong snd id))
+                       ∙∙ (PathP→compPathR
+                            (cong (funExt⁻ (cong fst id)) (push (a , b))))
                        ∙∙ assoc _ _ _
                         ∙ sym (rUnit _))
                         ∙ (sym (assoc _ _ _)
@@ -944,7 +982,8 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
                         ∙ Iso.leftInv (Iso-Kn-ΩKn+1 _) (f (a , b))})) ∣)
         (Iso.fun PathIdTrunc₀Iso ker)
 
-  Im-Susp⊂Ker-j : (i : ℕ) (x : _) → isInIm (E-susp i) x → isInKer (cofibSeq.j* (suc i)) x
+  Im-Susp⊂Ker-j : (i : ℕ) (x : _)
+               → isInIm (E-susp i) x → isInKer (cofibSeq.j* (suc i)) x
   Im-Susp⊂Ker-j i =
     sElim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
       λ g → pRec (squash₂ _ _)
@@ -954,15 +993,18 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
               (cong ∣_∣₂ refl))
             (Iso.fun PathIdTrunc₀Iso id)))
 
-  Ker-j⊂Im-Susp : (i : ℕ) (x : _) → isInKer (cofibSeq.j* (suc i)) x → isInIm (E-susp i) x
+  Ker-j⊂Im-Susp : (i : ℕ) (x : _)
+                → isInKer (cofibSeq.j* (suc i)) x → isInIm (E-susp i) x
   Ker-j⊂Im-Susp i =
     sElim (λ _ → isSetΠ (λ _ → isProp→isSet squash))
       λ f ker
        → pRec squash
-          (λ p → ∣ ∣ (λ x → ΩKn+1→Kn _ (sym (snd f) ∙∙ cong (fst f) (push x) ∙∙ funExt⁻ p (fst x))) ∣₂
+          (λ p → ∣ ∣ (λ x → ΩKn+1→Kn _ (sym (snd f)
+                                     ∙∙ cong (fst f) (push x)
+                                     ∙∙ funExt⁻ p (fst x))) ∣₂
                   , cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousKn _)
                     (funExt (λ { (inl x) → sym (snd f)
-                               ; (inr x) → sym (funExt⁻ p x) 
+                               ; (inr x) → sym (funExt⁻ p x)
                                ; (push a j) k → h3 f p a k j}))) ∣)
           (Iso.fun PathIdTrunc₀Iso ker)
           where
@@ -970,13 +1012,19 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
            → (p : (fst f ∘ inr) ≡ (λ _ → 0ₖ (suc i)))
            → (a : preThom.E B P)
            → PathP (λ i → snd f (~ i) ≡ p (~ i) (fst a))
-                   (Kn→ΩKn+1 i (ΩKn+1→Kn i (sym (snd f) ∙∙ cong (fst f) (push a) ∙∙ funExt⁻ p (fst a))))
+                   (Kn→ΩKn+1 i (ΩKn+1→Kn i (sym (snd f)
+                                          ∙∙ cong (fst f) (push a)
+                                          ∙∙ funExt⁻ p (fst a))))
                    (cong (fst f) (push a))
-          h3 f p a = Iso.rightInv (Iso-Kn-ΩKn+1 i) _
-                  ◁ λ i j → doubleCompPath-filler (sym (snd f)) (cong (fst f) (push a)) (funExt⁻ p (fst a)) (~ i) j
+          h3 f p a =
+            Iso.rightInv (Iso-Kn-ΩKn+1 i) _
+              ◁ λ i j →
+                 doubleCompPath-filler (sym (snd f)) (cong (fst f) (push a))
+                 (funExt⁻ p (fst a)) (~ i) j
 
-  -- We compose ϕ and j*. The above exact sequence will induce another one for this
-  -- composition.
+  -- We compose ϕ and j*. The above exact sequence will induce another one for
+  -- this composition. In fact, this group hom is definitionally equal to
+  -- (λ x → x ⌣ e) modulo truncation elimination and snd fields.
   ϕ∘j : (i : ℕ) → GroupHom (coHomGr i (typ B)) (coHomGr (i +' n) (typ B))
   ϕ∘j i = compGroupHom (fst (fst (ϕ i)) , snd (ϕ i)) (cofibSeq.j* (i +' n))
 
@@ -987,7 +1035,8 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
     +'-suc zero (suc n) = refl
     +'-suc (suc i₁) (suc n) = refl
 
-    Path→GroupPath : ∀ {ℓ ℓ'} {n m : ℕ} (G : ℕ → Group ℓ) (H : Group ℓ') (p : n ≡ m)
+    Path→GroupPath : ∀ {ℓ ℓ'} {n m : ℕ} (G : ℕ → Group ℓ) (H : Group ℓ')
+         (p : n ≡ m)
       → GroupEquiv (G n) H
       → GroupEquiv (G m) H
     Path→GroupPath {n = n} G H =
@@ -997,18 +1046,24 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
     h-ret : ∀ {ℓ ℓ'} {n m : ℕ} (G : ℕ → Group ℓ) (H : Group ℓ')
       → (e : GroupEquiv (G n) H)
       → (p : n ≡ m)
-      → (x : G m .fst) → invEq (fst e) (fst (fst (Path→GroupPath G H p e)) x) ≡ subst (λ x → G x .fst) (sym p) x
+      → (x : G m .fst)
+      → invEq (fst e) (fst (fst (Path→GroupPath G H p e)) x)
+       ≡ subst (λ x → G x .fst) (sym p) x
     h-ret G H e =
-      J (λ m p → ((x : G m .fst) → invEq (fst e) (fst (fst (Path→GroupPath G H p e)) x) ≡ subst (λ x → G x .fst) (sym p) x))
+      J (λ m p → ((x : G m .fst)
+               → invEq (fst e) (fst (fst (Path→GroupPath G H p e)) x)
+                ≡ subst (λ x → G x .fst) (sym p) x))
         λ x → cong (invEq (fst e) )
-              (λ i → transportRefl (transportRefl (fst (fst e) (transportRefl (transportRefl x i) i)) i) i)
+              (λ i → transportRefl (transportRefl (fst (fst e)
+                     (transportRefl (transportRefl x i) i)) i) i)
            ∙∙ retEq (fst e) x
            ∙∙ sym (transportRefl _)
 
   thomIso' : (i : ℕ) → GroupEquiv (coHomRedGrDir (suc (i +' n)) (E'̃ , inl tt))
                             (coHomGr (suc i) (typ B))
-  thomIso' i = (Path→GroupPath (λ n → coHomRedGrDir n (E'̃ , inl tt)) _ (+'-suc i n)
-                (invGroupEquiv (ϕ (suc i))))
+  thomIso' i = (Path→GroupPath
+                (λ n → coHomRedGrDir n (E'̃ , inl tt)) _ (+'-suc i n)
+                  (invGroupEquiv (ϕ (suc i))))
 
   ϕ' : (i : ℕ) → GroupHom (coHomRedGrDir (suc (i +' n)) (E'̃ , inl tt))
                             (coHomGr (suc i) (typ B))
@@ -1024,21 +1079,27 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
 
   Ker-p⊂Im-ϕ∘j : (i : ℕ) (x : _) → isInKer (p-hom _) x → isInIm (ϕ∘j i) x
   Ker-p⊂Im-ϕ∘j i x p =
-    pRec squash (uncurry (λ f p → ∣ (invEq (fst (ϕ _)) f)
-                                   , (cong (fst (cofibSeq.j* _)) (secEq (fst (ϕ _)) f) ∙ p) ∣))
-                (cofibSeq.Ker-p⊂Im-j _ x p)
+    pRec squash
+      (uncurry (λ f p →
+          ∣ (invEq (fst (ϕ _)) f)
+         , (cong (fst (cofibSeq.j* _)) (secEq (fst (ϕ _)) f) ∙ p) ∣))
+        (cofibSeq.Ker-p⊂Im-j _ x p)
 
 
-  Im-p⊂KerSusp∘ϕ : (i : ℕ) (x : _) → isInIm (p-hom _) x → isInKer (susp∘ϕ i) x
-  Im-p⊂KerSusp∘ϕ i x p = cong (fst (ϕ' _)) (Im-p⊂Ker-Susp _ x p) ∙ IsGroupHom.pres1 (snd (ϕ' _))
+  Im-p⊂KerSusp∘ϕ : (i : ℕ) (x : _)
+                 → isInIm (p-hom _) x → isInKer (susp∘ϕ i) x
+  Im-p⊂KerSusp∘ϕ i x p =
+    cong (fst (ϕ' _)) (Im-p⊂Ker-Susp _ x p) ∙ IsGroupHom.pres1 (snd (ϕ' _))
 
-  KerSusp∘ϕ⊂Im-p : (i : ℕ) (x : _) → isInKer (susp∘ϕ i) x → isInIm (p-hom _) x
+  KerSusp∘ϕ⊂Im-p : (i : ℕ) (x : _)
+    → isInKer (susp∘ϕ i) x → isInIm (p-hom _) x
   KerSusp∘ϕ⊂Im-p i x p =
     Ker-Susp⊂Im-p _ x (sym (retEq (fst (thomIso' _)) _)
-                     ∙ (cong (invEq (fst (thomIso' _))) p
-                     ∙ IsGroupHom.pres1 (snd (invGroupEquiv (thomIso' _)))))
+                    ∙ (cong (invEq (fst (thomIso' _))) p
+                    ∙ IsGroupHom.pres1 (snd (invGroupEquiv (thomIso' _)))))
 
-  Im-Susp∘ϕ⊂Ker-ϕ∘j : (i : ℕ) → (x : _) → isInIm (susp∘ϕ i) x → isInKer (ϕ∘j (suc i)) x
+  Im-Susp∘ϕ⊂Ker-ϕ∘j : (i : ℕ) → (x : _)
+                    → isInIm (susp∘ϕ i) x → isInKer (ϕ∘j (suc i)) x
   Im-Susp∘ϕ⊂Ker-ϕ∘j i x =
     pRec (squash₂ _ _)
       (uncurry λ f → J (λ x p → isInKer (ϕ∘j (suc i)) x)
@@ -1058,35 +1119,58 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
     tLem (suc i₁) zero = refl
     tLem (suc i₁) (suc n) = refl
 
-
   Ker-ϕ∘j⊂Im-Susp∘ϕ : (i : ℕ) (x : _)
     → isInKer (ϕ∘j (suc i)) x → isInIm (susp∘ϕ i) x
   Ker-ϕ∘j⊂Im-Susp∘ϕ i x p =
     pRec squash
-      (uncurry (λ f p → ∣ f , cong (fst (fst (thomIso' i))) p ∙ secEq (fst (thomIso' _)) x ∣))
+      (uncurry (λ f p → ∣ f , cong (fst (fst (thomIso' i))) p
+                        ∙ secEq (fst (thomIso' _)) x ∣))
       (Ker-j⊂Im-Susp _ (invEq (fst (thomIso' _)) x)
-        ((cong (cofibSeq.j* (suc (i +' n)) .fst ) lem2
+        ((cong (cofibSeq.j* (suc (i +' n)) .fst ) lem₁
         ∙ natTranspLem _ (λ n → cofibSeq.j* n .fst) (+'-suc i n))
         ∙∙ cong (transport (λ j → (coHomGr (+'-suc i n j) (typ B) .fst))) p
-        ∙∙ h2 i n))
+        ∙∙ lem₂ i n))
     where
-    lem2 : invEq (fst (thomIso' i)) x
-         ≡ transport (λ j → coHomRed (+'-suc i n j) (E'̃ , inl tt)) (fst (fst (ϕ _)) x)
-    lem2 = cong (transport (λ j → coHomRed (+'-suc i n j) (E'̃ , inl tt)))
+    lem₁ : invEq (fst (thomIso' i)) x
+         ≡ transport (λ j → coHomRed (+'-suc i n j)
+                     (E'̃ , inl tt)) (fst (fst (ϕ _)) x)
+    lem₁ = cong (transport (λ j → coHomRed (+'-suc i n j) (E'̃ , inl tt)))
                 (transportRefl _ ∙ cong (fst (fst (ϕ _)))
                   λ i → transportRefl (transportRefl x i) i)
 
-    h2 : (i n : ℕ) → transport (λ j → coHomGr (+'-suc i n j) (typ B) .fst)
-      (GroupStr.1g (coHomGr (suc i +' n) (typ B) .snd)) ≡ 0ₕ _
-    h2 zero zero = refl
-    h2 zero (suc n) = refl
-    h2 (suc i₁) zero = refl
-    h2 (suc i₁) (suc n) = refl
+    lem₂ : (i n : ℕ)
+         → transport (λ j → coHomGr (+'-suc i n j) (typ B) .fst)
+                      (GroupStr.1g (coHomGr (suc i +' n) (typ B) .snd)) ≡ 0ₕ _
+    lem₂ zero zero = refl
+    lem₂ zero (suc n) = refl
+    lem₂ (suc i₁) zero = refl
+    lem₂ (suc i₁) (suc n) = refl
 
-  -- Finally, we have that ϕ∘j is just the cup product, and we have arrived at an exact
-  -- sequence involving it.
+  -- Finally, we have that ϕ∘j is just the cup product, and we have arrived
+  -- at an exact sequence involving it.
   ϕ∘j≡ : (i : ℕ) → ϕ∘j i ≡ ⌣-hom i
   ϕ∘j≡ i =
     Σ≡Prop (λ _ → isPropIsGroupHom _ _)
            (funExt (sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
            λ _ → refl))
+
+  -- We can now restate the previous resluts for (λ x → x ⌣ e)
+  Im-⌣e⊂Ker-p : (i : ℕ) (x : _)
+              → isInIm (⌣-hom i) x → isInKer (p-hom _) x
+  Im-⌣e⊂Ker-p i x p =
+    Im-ϕ∘j⊂Ker-p i x (subst (λ p → isInIm p x) (sym (ϕ∘j≡ i)) p)
+
+  Ker-p⊂Im-⌣e : (i : ℕ) (x : _)
+              → isInKer (p-hom _) x → isInIm (⌣-hom i) x
+  Ker-p⊂Im-⌣e i x p =
+    subst (λ p → isInIm p x) (ϕ∘j≡ i) (Ker-p⊂Im-ϕ∘j i x p)
+
+  Im-Susp∘ϕ⊂Ker-⌣e : (i : ℕ) (x : _)
+                   → isInIm (susp∘ϕ i) x → isInKer (⌣-hom (suc i)) x
+  Im-Susp∘ϕ⊂Ker-⌣e i x p =
+    subst (λ p → isInKer p x) (ϕ∘j≡ (suc i)) (Im-Susp∘ϕ⊂Ker-ϕ∘j i x p)
+
+  Ker-⌣e⊂Im-Susp∘ϕ : (i : ℕ) (x : _)
+                   → isInKer (⌣-hom (suc i)) x → isInIm (susp∘ϕ i) x
+  Ker-⌣e⊂Im-Susp∘ϕ i x p =
+    Ker-ϕ∘j⊂Im-Susp∘ϕ i x (subst (λ p → isInKer p x) (sym (ϕ∘j≡ (suc i))) p)

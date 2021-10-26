@@ -6,7 +6,7 @@ This file contains
 3. A structure preserving equivalence Ωⁿ A ≃ (Sⁿ →∙ A)
 4. A proof that the two constructions of homotopy groups are isomorphic
 -}
-module Cubical.Homotopy.HomotopyGroup where
+module Cubical.Homotopy.Group.Base where
 
 open import Cubical.Homotopy.Loopspace
 
