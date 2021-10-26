@@ -17,7 +17,8 @@ import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
-                                      ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
+                                      ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm
+                                      ; ·-identityʳ to ·ℕ-rid)
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.FinData
@@ -77,7 +78,7 @@ module _ (R' : CommRing ℓ) where
   ⟨ V ⟩ = ⟨ V ⟩[ R' ]
 
  _∼_ : A → A → Type (ℓ-suc ℓ)
- (_ , 𝔞) ∼ (_ , 𝔟) = √i ⟨ 𝔞 ⟩ ≡ √i ⟨ 𝔟 ⟩ --replace this by ≡ᴾ := ⊆ × ⊇ to preserve universe level
+ (_ , α) ∼ (_ , β) = √i ⟨ α ⟩ ≡ √i ⟨ β ⟩ --replace this by ≡ᴾ := ⊆ × ⊇ to preserve universe level
 
  ∼EquivRel : isEquivRel (_∼_)
  reflexive ∼EquivRel _ = refl
@@ -87,26 +88,94 @@ module _ (R' : CommRing ℓ) where
  ZL : Type (ℓ-suc ℓ)
  ZL = A / _∼_
 
+ 0z : ZL
+ 0z = [ 0 , (λ ()) ]
+
+ 1z : ZL
+ 1z = [ 1 , (λ { zero → 1r }) ]
+
  _∨z_ : ZL → ZL → ZL
  _∨z_ = setQuotSymmBinOp (reflexive ∼EquivRel) (transitive ∼EquivRel)
-                          (λ (_ , 𝔞) (_ , 𝔟) → (_ , 𝔞 ++Fin 𝔟))
-   (λ (_ , 𝔞) (_ , 𝔟) → cong √i (FGIdealAddLemma _ 𝔞 𝔟 ∙∙ +iComm _ _ ∙∙ sym (FGIdealAddLemma _ 𝔟 𝔞)))
-    λ (_ , 𝔞) (_ , 𝔟) (_ , 𝔠) 𝔞∼𝔟 → --need to show 𝔞∨𝔠 ∼ 𝔟∨𝔠
-      √i ⟨ 𝔞 ++Fin 𝔠 ⟩      ≡⟨ cong √i (FGIdealAddLemma _ 𝔞 𝔠) ⟩
-      √i (⟨ 𝔞 ⟩ +i ⟨ 𝔠 ⟩)    ≡⟨ sym (√+LContr _ _) ⟩
-      √i (√i ⟨ 𝔞 ⟩ +i ⟨ 𝔠 ⟩) ≡⟨ cong (λ I → √i (I +i ⟨ 𝔠 ⟩)) 𝔞∼𝔟 ⟩
-      √i (√i ⟨ 𝔟 ⟩ +i ⟨ 𝔠 ⟩) ≡⟨ √+LContr _ _ ⟩
-      √i (⟨ 𝔟 ⟩ +i ⟨ 𝔠 ⟩)    ≡⟨ cong √i (sym (FGIdealAddLemma _ 𝔟 𝔠)) ⟩
-      √i ⟨ 𝔟 ++Fin 𝔠 ⟩ ∎
+                          (λ (_ , α) (_ , β) → (_ , α ++Fin β))
+   (λ (_ , α) (_ , β) → cong √i (FGIdealAddLemma _ α β ∙∙ +iComm _ _ ∙∙ sym (FGIdealAddLemma _ β α)))
+    λ (_ , α) (_ , β) (_ , γ) α∼β → --need to show α∨γ ∼ β∨γ
+      √i ⟨ α ++Fin γ ⟩      ≡⟨ cong √i (FGIdealAddLemma _ α γ) ⟩
+      √i (⟨ α ⟩ +i ⟨ γ ⟩)    ≡⟨ sym (√+LContr _ _) ⟩
+      √i (√i ⟨ α ⟩ +i ⟨ γ ⟩) ≡⟨ cong (λ I → √i (I +i ⟨ γ ⟩)) α∼β ⟩
+      √i (√i ⟨ β ⟩ +i ⟨ γ ⟩) ≡⟨ √+LContr _ _ ⟩
+      √i (⟨ β ⟩ +i ⟨ γ ⟩)    ≡⟨ cong √i (sym (FGIdealAddLemma _ β γ)) ⟩
+      √i ⟨ β ++Fin γ ⟩ ∎
 
  _∧z_ : ZL → ZL → ZL
  _∧z_ = setQuotSymmBinOp (reflexive ∼EquivRel) (transitive ∼EquivRel)
-                          (λ (_ , 𝔞) (_ , 𝔟) → (_ , 𝔞 ··Fin 𝔟))
-   (λ (_ , 𝔞) (_ , 𝔟) → cong √i (FGIdealMultLemma _ 𝔞 𝔟 ∙∙ ·iComm _ _ ∙∙ sym (FGIdealMultLemma _ 𝔟 𝔞)))
-    λ (_ , 𝔞) (_ , 𝔟) (_ , 𝔠) 𝔞∼𝔟 → --need to show 𝔞∧𝔠 ∼ 𝔟∧𝔠
-      √i ⟨ 𝔞 ··Fin 𝔠 ⟩      ≡⟨ cong √i (FGIdealMultLemma _ 𝔞 𝔠) ⟩
-      √i (⟨ 𝔞 ⟩ ·i ⟨ 𝔠 ⟩)    ≡⟨ sym (√·LContr _ _) ⟩
-      √i (√i ⟨ 𝔞 ⟩ ·i ⟨ 𝔠 ⟩) ≡⟨ cong (λ I → √i (I ·i ⟨ 𝔠 ⟩)) 𝔞∼𝔟 ⟩
-      √i (√i ⟨ 𝔟 ⟩ ·i ⟨ 𝔠 ⟩) ≡⟨ √·LContr _ _ ⟩
-      √i (⟨ 𝔟 ⟩ ·i ⟨ 𝔠 ⟩)    ≡⟨ cong √i (sym (FGIdealMultLemma _ 𝔟 𝔠)) ⟩
-      √i ⟨ 𝔟 ··Fin 𝔠 ⟩ ∎
+                          (λ (_ , α) (_ , β) → (_ , α ··Fin β))
+   (λ (_ , α) (_ , β) → cong √i (FGIdealMultLemma _ α β ∙∙ ·iComm _ _ ∙∙ sym (FGIdealMultLemma _ β α)))
+    λ (_ , α) (_ , β) (_ , γ) α∼β → --need to show α∧γ ∼ β∧γ
+      √i ⟨ α ··Fin γ ⟩       ≡⟨ cong √i (FGIdealMultLemma _ α γ) ⟩
+      √i (⟨ α ⟩ ·i ⟨ γ ⟩)    ≡⟨ sym (√·LContr _ _) ⟩
+      √i (√i ⟨ α ⟩ ·i ⟨ γ ⟩) ≡⟨ cong (λ I → √i (I ·i ⟨ γ ⟩)) α∼β ⟩
+      √i (√i ⟨ β ⟩ ·i ⟨ γ ⟩) ≡⟨ √·LContr _ _ ⟩
+      √i (⟨ β ⟩ ·i ⟨ γ ⟩)    ≡⟨ cong √i (sym (FGIdealMultLemma _ β γ)) ⟩
+      √i ⟨ β ··Fin γ ⟩ ∎
+
+ -- join axioms
+ ∨zAssoc : ∀ (𝔞 𝔟 𝔠 : ZL) → 𝔞 ∨z (𝔟 ∨z 𝔠) ≡ (𝔞 ∨z 𝔟) ∨z 𝔠
+ ∨zAssoc = SQ.elimProp3 (λ _ _ _ → squash/ _ _)
+          λ (_ , α) (_ , β) (_ , γ) → eq/ _ _ (cong √i (IdealAddAssoc _ _ _ _))
+
+ ∨zComm : ∀ (𝔞 𝔟 : ZL) → 𝔞 ∨z 𝔟 ≡ 𝔟 ∨z 𝔞
+ ∨zComm = SQ.elimProp2 (λ _ _ → squash/ _ _)
+        λ (_ , α) (_ , β) → eq/ _ _ (cong √i (FGIdealAddLemma _ α β ∙∙ +iComm _ _ ∙∙ sym (FGIdealAddLemma _ β α)))
+
+ ∨zLid : ∀ (𝔞 : ZL) → 0z ∨z 𝔞 ≡ 𝔞
+ ∨zLid = SQ.elimProp (λ _ → squash/ _ _) λ _ → eq/ _ _ refl
+
+ ∨zRid : ∀ (𝔞 : ZL) → 𝔞 ∨z 0z ≡ 𝔞
+ ∨zRid _ = ∨zComm _ _ ∙ ∨zLid _
+
+
+ -- -- meet axioms
+ ∧zAssoc : ∀ (𝔞 𝔟 𝔠 : ZL) → 𝔞 ∧z (𝔟 ∧z 𝔠) ≡ (𝔞 ∧z 𝔟) ∧z 𝔠
+ ∧zAssoc = SQ.elimProp3 (λ _ _ _ → squash/ _ _)
+         λ (_ , α) (_ , β) (_ , γ) → eq/ _ _
+           (√i ⟨ α ··Fin (β ··Fin γ) ⟩     ≡⟨ cong √i (FGIdealMultLemma _ _ _) ⟩
+            √i (⟨ α ⟩ ·i ⟨ β ··Fin γ ⟩)    ≡⟨ cong (λ x → √i (⟨ α ⟩ ·i x)) (FGIdealMultLemma _ _ _) ⟩
+            √i (⟨ α ⟩ ·i (⟨ β ⟩ ·i ⟨ γ ⟩)) ≡⟨ cong √i (·iAssoc _ _ _) ⟩
+            √i ((⟨ α ⟩ ·i ⟨ β ⟩) ·i ⟨ γ ⟩) ≡⟨ cong (λ x → √i (x ·i ⟨ γ ⟩)) (sym (FGIdealMultLemma _ _ _)) ⟩
+            √i (⟨ α ··Fin β ⟩ ·i ⟨ γ ⟩)    ≡⟨ cong √i (sym (FGIdealMultLemma _ _ _)) ⟩
+            √i ⟨ (α ··Fin β) ··Fin γ ⟩     ∎)
+
+ ∧zComm : ∀ (𝔞 𝔟 : ZL) → 𝔞 ∧z 𝔟 ≡ 𝔟 ∧z 𝔞
+ ∧zComm = SQ.elimProp2 (λ _ _ → squash/ _ _)
+        λ (_ , α) (_ , β) → eq/ _ _ (cong √i (FGIdealMultLemma _ α β ∙∙ ·iComm _ _ ∙∙ sym (FGIdealMultLemma _ β α)))
+
+
+ -- ∧zLid : ∀ (𝔞 : ZL) → 1z ∧z 𝔞 ≡ 𝔞
+ -- ∧zLid = SQ.elimProp (λ _ → squash/ _ _) λ (_ , α) → {!!} --eq/ _ _ {!!}
+
+
+ ∧zRid : ∀ (𝔞 : ZL) → 𝔞 ∧z 1z ≡ 𝔞
+ ∧zRid = SQ.elimProp (λ _ → squash/ _ _) λ (_ , α) → {!!} --cong [_] (ΣPathP (·ℕ-rid _ , {!!}))
+
+
+ -- absorption and distributivity
+ ∧zAbsorb∨z : ∀ (𝔞 𝔟 : ZL) → 𝔞 ∧z (𝔞 ∨z 𝔟) ≡ 𝔞
+ ∧zAbsorb∨z = SQ.elimProp2 (λ _ _ → squash/ _ _)
+            λ (_ , α) (_ , β) → eq/ _ _
+              (√i ⟨ α ··Fin (α ++Fin β) ⟩     ≡⟨ cong √i (FGIdealMultLemma _ α (α ++Fin β)) ⟩
+               √i (⟨ α ⟩ ·i ⟨ α ++Fin β ⟩)    ≡⟨ cong (λ x → √i (⟨ α ⟩ ·i x)) (FGIdealAddLemma _ α β) ⟩
+               √i (⟨ α ⟩ ·i (⟨ α ⟩ +i ⟨ β ⟩)) ≡⟨ √·Absorb+ _ _ ⟩
+               √i ⟨ α ⟩ ∎)
+
+ ∧zLDist∨z : ∀ (𝔞 𝔟 𝔠 : ZL) → 𝔞 ∧z (𝔟 ∨z 𝔠) ≡ (𝔞 ∧z 𝔟) ∨z (𝔞 ∧z 𝔠)
+ ∧zLDist∨z = SQ.elimProp3 (λ _ _ _ → squash/ _ _)
+           λ (_ , α) (_ , β) (_ , γ) → eq/ _ _
+             (√i ⟨ α ··Fin (β ++Fin γ) ⟩            ≡⟨ cong √i (FGIdealMultLemma _ _ _) ⟩
+              √i (⟨ α ⟩ ·i ⟨ β ++Fin γ ⟩)           ≡⟨ cong (λ x → √i (⟨ α ⟩ ·i x)) (FGIdealAddLemma _ _ _) ⟩
+              √i (⟨ α ⟩ ·i (⟨ β ⟩ +i ⟨ γ ⟩))        ≡⟨ cong √i (·iRdist+i _ _ _) ⟩ -- L/R-dist are swapped
+                                                                                   -- in Lattices vs Rings
+              √i (⟨ α ⟩ ·i ⟨ β ⟩ +i ⟨ α ⟩ ·i ⟨ γ ⟩) ≡⟨ cong₂ (λ x y → √i (x +i y))
+                                                             (sym (FGIdealMultLemma _ _ _))
+                                                             (sym (FGIdealMultLemma _ _ _)) ⟩
+              √i (⟨ α ··Fin β ⟩ +i ⟨ α ··Fin γ ⟩)   ≡⟨ cong √i (sym (FGIdealAddLemma _ _ _)) ⟩
+              √i ⟨ (α ··Fin β) ++Fin (α ··Fin γ) ⟩  ∎)
