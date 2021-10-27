@@ -168,6 +168,9 @@ module JoinSemilattice (L' : Semilattice ℓ) where
  IsPoset.is-antisym (PosetStr.isPoset (snd IndPoset)) =
    λ _ _ a∨b≡b b∨a≡a → sym b∨a≡a ∙∙ comm _ _ ∙∙ a∨b≡b
 
+ -- ≤-∨LPres : ∀ x y z → x ≤ y → z ∨l x ≤ z ∨l y
+ -- ≤-∨LPres x y z x≤y = {!!}
+
 
 module MeetSemilattice (L' : Semilattice ℓ) where
  private L = fst L'

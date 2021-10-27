@@ -43,6 +43,7 @@ open import Cubical.Algebra.RingSolver.ReflectionSolving
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
+open import Cubical.Algebra.DistLattice.BigOps
 open import Cubical.Algebra.Matrix
 
 open import Cubical.HITs.SetQuotients as SQ
@@ -198,20 +199,37 @@ module ZarLat (R' : CommRing ℓ) where
                                        ∧zAssoc ∧zRid ∧zComm ∧zAbsorb∨z ∧zLDist∨z
 
 
-record IsZarMap (R' : CommRing ℓ) (L' : DistLattice ℓ')
-                (d : R' .fst → L' .fst) : Type (ℓ-max ℓ ℓ') where
- constructor iszarmap
+
+module _ (R' : CommRing ℓ) (L' : DistLattice ℓ') where
 
  open CommRingStr (R' .snd)
+ open RingTheory (CommRing→Ring R')
+ open Sum (CommRing→Ring R')
+ open CommRingTheory R'
+ open Exponentiation R'
+
  open DistLatticeStr (L' .snd)
+ open Join L'
  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L'))
+ private
+  R = fst R'
+  L = fst L'
 
- field
-  pres0 : d 0r ≡ 0l
-  pres1 : d 1r ≡ 1l
-  ·≡∧ : ∀ x y → d (x · y) ≡ d x ∧l d y
-  +≤∨ : ∀ x y → d (x + y) ≤ d x ∨l d y
+ record IsZarMap (d : R → L) : Type (ℓ-max ℓ ℓ') where
+  constructor iszarmap
 
+  field
+   pres0 : d 0r ≡ 0l
+   pres1 : d 1r ≡ 1l
+   ·≡∧ : ∀ x y → d (x · y) ≡ d x ∧l d y
+   +≤∨ : ∀ x y → d (x + y) ≤ d x ∨l d y
+
+  -- ∑≤⋁ : {n : ℕ} (U : FinVec R n) → d (∑ U) ≤ ⋁ λ i → d (U i)
+  -- ∑≤⋁ {n = zero} U = ∨lRid _ ∙ pres0
+  -- ∑≤⋁ {n = suc n} U = is-trans _ _ _ (+≤∨ (U zero) (∑ (U ∘ suc))) {!!}
+  --  where
+  --  open IsPoset ⦃...⦄
+  --  instance _ = IndPoset .snd .PosetStr.isPoset
 
 
 module ZarLatUniversalProp (R' : CommRing ℓ) where
@@ -256,3 +274,49 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
   2Vec⊆3Vec : ∀ (i : Fin 2) → 2Vec i ∈ ⟨ 3Vec ⟩ .fst
   2Vec⊆3Vec zero = indInIdeal _ _ (suc zero)
   2Vec⊆3Vec (suc zero) = indInIdeal _ _ (suc (suc zero))
+
+
+ -- defintion of the universal property
+ hasZarLatUniversalProp : (L : DistLattice ℓ') (D : R → fst L)
+                        → IsZarMap R' L D
+                        → Type _
+ hasZarLatUniversalProp {ℓ' = ℓ'} L D _ = ∀ (L' : DistLattice ℓ') (d : R → fst L')
+                                       → IsZarMap R' L' d
+                                       → ∃![ χ ∈ DistLatticeHom L L' ] (fst χ) ∘ D ≡ d
+
+ isPropZarLatUniversalProp : (L : DistLattice ℓ') (D : R → fst L) (isZarMapD : IsZarMap R' L D)
+                         → isProp (hasZarLatUniversalProp L D isZarMapD)
+ isPropZarLatUniversalProp L D isZarMapD = isPropΠ3 (λ _ _ _ → isPropIsContr)
+
+ ZLHasUniversalProp : hasZarLatUniversalProp ZariskiLattice D isZarMapD
+ ZLHasUniversalProp L' d isZarMapd = (χ , funExt χcomp) , χunique
+  where
+  open DistLatticeStr (snd L') renaming (is-set to isSetL)
+  open Join L'
+  open IsLatticeHom
+  L = fst L'
+
+  χ : DistLatticeHom ZariskiLattice L'
+  fst χ = SQ.rec isSetL (λ (_ , α) → ⋁ (d ∘ α))
+        {!!} -- the big sanity check: If √⟨α⟩≡√⟨β⟩ then ⋁dα≡⋁dβ
+  pres0 (snd χ) = refl
+  pres1 (snd χ) = ∨lRid _ ∙ isZarMapd .pres1
+  pres∨l (snd χ) = elimProp2 (λ _ _ → isSetL _ _) {!!} -- this is hard
+  pres∧l (snd χ) = elimProp2 (λ _ _ → isSetL _ _) {!!} -- this is even harder
+
+  χcomp : ∀ (f : R) → χ .fst (D f) ≡ d f
+  χcomp f = ∨lRid (d f)
+
+  χunique : (y : Σ[ χ' ∈ DistLatticeHom ZariskiLattice L' ] fst χ' ∘ D ≡ d)
+          → (χ , funExt χcomp) ≡ y
+  χunique (χ' , χ'∘D≡d) = Σ≡Prop (λ _ → isSetΠ (λ _ → isSetL) _ _) (LatticeHom≡f _ _
+                                 (funExt (elimProp (λ _ → isSetL _ _) (uncurry uniqHelper))))
+   where
+   uniqHelper : (n : ℕ) (α : FinVec R n) → fst χ [ n , α ] ≡ fst χ' [ n , α ]
+   uniqHelper zero α = {!!}
+   uniqHelper (suc n) α =
+    ⋁ (d ∘ α) ≡⟨ refl ⟩
+    d (α zero) ∨l ⋁ (d ∘ α ∘ suc) ≡⟨ cong (d (α zero) ∨l_) (uniqHelper n (α ∘ suc)) ⟩
+    d (α zero) ∨l fst χ' [ n , α ∘ suc ] ≡⟨ {!!} ⟩
+    fst χ' (D (α zero) ∨z [ n , α ∘ suc ]) ≡⟨ cong (fst χ') {!refl!} ⟩
+    fst χ' [ suc n , α ] ∎

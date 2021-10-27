@@ -187,6 +187,14 @@ isPropIsLattice 0l 1l _∨l_ _∧l_ (islattice LJ LM LA) (islattice MJ MM MA) =
   isPropAbsorb : isProp ((x y : _) → (x ∨l (x ∧l y) ≡ x) × (x ∧l (x ∨l y) ≡ x))
   isPropAbsorb = isPropΠ2 λ _ _ → isProp× (isSetL _ _) (isSetL _ _)
 
+isPropIsLatticeHom : {A : Type ℓ} {B : Type ℓ'} (R : LatticeStr A) (f : A → B) (S : LatticeStr B)
+                   → isProp (IsLatticeHom R f S)
+isPropIsLatticeHom R f S = isOfHLevelRetractFromIso 1 IsLatticeHomIsoΣ
+                           (isProp×3 (isSetLattice (_ , S) _ _)
+                                     (isSetLattice (_ , S) _ _)
+                                     (isPropΠ2 λ _ _ → isSetLattice (_ , S) _ _)
+                                     (isPropΠ2 λ _ _ → isSetLattice (_ , S) _ _))
+
 
 𝒮ᴰ-Lattice : DUARel (𝒮-Univ ℓ) LatticeStr ℓ
 𝒮ᴰ-Lattice =

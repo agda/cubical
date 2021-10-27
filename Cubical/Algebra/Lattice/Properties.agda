@@ -72,3 +72,17 @@ module Order (L' : Lattice ℓ) where
 
  IndPosetPath : JoinPoset ≡ MeetPoset
  IndPosetPath = PosetPath _ _ .fst ((idEquiv _) , isposetequiv ≤Equiv )
+
+
+module _ {L M : Lattice ℓ} (φ ψ : LatticeHom L M) where
+ open LatticeStr ⦃...⦄
+ open IsLatticeHom
+ private
+   instance
+     _ = L
+     _ = M
+     _ = snd L
+     _ = snd M
+
+ LatticeHom≡f : fst φ ≡ fst ψ → φ ≡ ψ
+ LatticeHom≡f = Σ≡Prop λ f → isPropIsLatticeHom _ f _
