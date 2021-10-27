@@ -285,6 +285,10 @@ module ProdFin (R' : CommRing ℓ) where
  _··Fin_ : {n m : ℕ} → FinVec R n → FinVec R m → FinVec R (n ·ℕ m)
  V ··Fin W = flatten (toMatrix V W)
 
+ Length1··Fin : ∀ (x y : R)
+              → replicateFinVec 1 (x · y) ≡ (replicateFinVec 1 x) ··Fin (replicateFinVec 1 y)
+ Length1··Fin x y = sym (++FinRid (replicateFinVec 1 (x · y)) _)
+
  ∑Dist··Fin : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
             → (∑ U) · (∑ V) ≡ ∑ (U ··Fin V)
  ∑Dist··Fin {n = zero} U V = 0LeftAnnihilates _

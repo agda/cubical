@@ -149,6 +149,8 @@ module JoinSemilattice (L' : Semilattice ℓ) where
  _≤_ : L → L → Type ℓ
  x ≤ y = x ∨l y ≡ y
 
+ infix 4 _≤_
+
  IndPoset : Poset ℓ ℓ
  fst IndPoset = L
  PosetStr._≤_ (snd IndPoset) = _≤_
@@ -173,6 +175,8 @@ module MeetSemilattice (L' : Semilattice ℓ) where
 
  _≤_ : L → L → Type ℓ
  x ≤ y = x ∧l y ≡ x
+
+ infix 4 _≤_
 
  IndPoset : Poset ℓ ℓ
  fst IndPoset = L

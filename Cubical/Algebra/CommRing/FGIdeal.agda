@@ -112,6 +112,7 @@ FGIdealIn R = Σ[ I ∈ CommIdeal.CommIdeal R ] ∃[ n ∈ ℕ ] ∃[ V ∈ FinV
 -- The lattice laws
 module _ (R' : CommRing ℓ) where
  open CommRingStr (snd R')
+ open RingTheory (CommRing→Ring R')
  open CommIdeal R'
  open Sum (CommRing→Ring R')
  open KroneckerDelta (CommRing→Ring R')
@@ -120,13 +121,13 @@ module _ (R' : CommRing ℓ) where
   ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
   ⟨ V ⟩ = ⟨ V ⟩[ R' ]
 
- -- foo : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
- --     → (∀ i → V i ∈ I .fst) → ⟨ V ⟩ .fst ⊆ I .fst
- -- foo V I ∀i→Vi∈I x = elim (λ _ → I .fst x .snd) fooΣ
- --  where
- --  fooΣ : Σ[ α ∈ FinVec R _ ] x ≡ linearCombination R' α V → x ∈ I .fst
- --  fooΣ (α , x≡α·V) = subst-∈ (I .fst) (sym x≡α·V) (∑Closed I (λ i → α i · V i)
- --                     λ i → ·Closed (I .snd) _ (∀i→Vi∈I i))
+ inclOfFGIdeal : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
+     → (∀ i → V i ∈ I .fst) → ⟨ V ⟩ .fst ⊆ I .fst
+ inclOfFGIdeal V I ∀i→Vi∈I x = elim (λ _ → I .fst x .snd) inclOfFGIdealΣ
+  where
+  inclOfFGIdealΣ : Σ[ α ∈ FinVec R _ ] x ≡ linearCombination R' α V → x ∈ I .fst
+  inclOfFGIdealΣ (α , x≡α·V) = subst-∈ (I .fst) (sym x≡α·V) (∑Closed I (λ i → α i · V i)
+                             λ i → ·Closed (I .snd) _ (∀i→Vi∈I i))
 
  indInIdeal : ∀ {n : ℕ} (U : FinVec R n) (i : Fin n) → U i ∈ ⟨ U ⟩ .fst
  indInIdeal U i = ∣ (δ i) , sym (∑Mul1r _ U i) ∣
@@ -145,6 +146,18 @@ module _ (R' : CommRing ℓ) where
 
   incl2 : 0Ideal .fst ⊆ ⟨ V ⟩ .fst
   incl2 x x≡0 = ∣ (λ ()) , x≡0 ∣
+
+ 0FGIdeal : {n : ℕ} → ⟨ replicateFinVec n 0r ⟩ ≡ 0Ideal
+ 0FGIdeal = CommIdeal≡Char incl1 incl2
+  where
+  incl1 : ⟨ replicateFinVec _ 0r ⟩ .fst ⊆ 0Ideal .fst
+  incl1 x = elim (λ _ → is-set _ _)
+          λ (α , x≡∑α0) → subst-∈ (0Ideal .fst) (sym x≡∑α0) (∑Closed 0Ideal (λ i → α i · 0r)
+          λ i → subst-∈ (0Ideal .fst) (sym (0RightAnnihilates _)) refl)
+
+  incl2 : 0Ideal .fst ⊆ ⟨ replicateFinVec _ 0r ⟩ .fst
+  incl2 x x≡0 = subst-∈ (⟨ replicateFinVec _ 0r ⟩ .fst) (sym x≡0)
+                         (⟨ replicateFinVec _ 0r ⟩ .snd .contains0)
 
 
  -- better syntax for ∑ λ i → ... ???

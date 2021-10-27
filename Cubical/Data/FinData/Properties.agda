@@ -80,6 +80,12 @@ toFin0≡0 {ℕsuc n} (ℕsuc k , p) =
 ++FinAssoc {n = ℕsuc n} U V W i zero = U zero
 ++FinAssoc {n = ℕsuc n} U V W i (suc ind) = ++FinAssoc (U ∘ suc) V W i ind
 
+++FinRid : {n : ℕ} (U : FinVec A n) (V : FinVec A 0)
+         → PathP (λ i → FinVec A (+-zero n i)) (U ++Fin V) U
+++FinRid {n = ℕzero} U V = funExt λ i → Empty.rec (¬Fin0 i)
+++FinRid {n = ℕsuc n} U V i zero = U zero
+++FinRid {n = ℕsuc n} U V i (suc ind) = ++FinRid (U ∘ suc) V i ind
+
 ++FinElim : {P : A → Type ℓ'} {n m : ℕ} (U : FinVec A n) (V : FinVec A m)
           → (∀ i → P (U i)) → (∀ i → P (V i)) → ∀ i → P ((U ++Fin V) i)
 ++FinElim {n = ℕzero} _ _ _ PVHyp i = PVHyp i
