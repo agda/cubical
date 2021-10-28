@@ -150,11 +150,6 @@ module ZarLat (R' : CommRing ℓ) where
         λ (_ , α) (_ , β) → eq/ _ _
           (cong √i (FGIdealMultLemma _ α β ∙∙ ·iComm _ _ ∙∙ sym (FGIdealMultLemma _ β α)))
 
-
- -- ∧zLid : ∀ (𝔞 : ZL) → 1z ∧z 𝔞 ≡ 𝔞
- -- ∧zLid = SQ.elimProp (λ _ → squash/ _ _) λ (_ , α) → {!!} --eq/ _ _ {!!}
-
-
  ∧zRid : ∀ (𝔞 : ZL) → 𝔞 ∧z 1z ≡ 𝔞
  ∧zRid = SQ.elimProp (λ _ → squash/ _ _)
    λ (_ , α) → eq/ _ _ (cong √i
@@ -211,6 +206,7 @@ module _ (R' : CommRing ℓ) (L' : DistLattice ℓ') where
  open DistLatticeStr (L' .snd)
  open Join L'
  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L'))
+ open PosetReasoning IndPoset
  private
   R = fst R'
   L = fst L'
@@ -224,13 +220,21 @@ module _ (R' : CommRing ℓ) (L' : DistLattice ℓ') where
    ·≡∧ : ∀ x y → d (x · y) ≡ d x ∧l d y
    +≤∨ : ∀ x y → d (x + y) ≤ d x ∨l d y
 
-  -- ∑≤⋁ : {n : ℕ} (U : FinVec R n) → d (∑ U) ≤ ⋁ λ i → d (U i)
-  -- ∑≤⋁ {n = zero} U = ∨lRid _ ∙ pres0
-  -- ∑≤⋁ {n = suc n} U = is-trans _ _ _ (+≤∨ (U zero) (∑ (U ∘ suc))) {!!}
-  --  where
-  --  open IsPoset ⦃...⦄
-  --  instance _ = IndPoset .snd .PosetStr.isPoset
+  ∑≤⋁ : {n : ℕ} (U : FinVec R n) → d (∑ U) ≤ ⋁ λ i → d (U i)
+  ∑≤⋁ {n = zero} U = ∨lRid _ ∙ pres0
+  ∑≤⋁ {n = suc n} U = d (∑ U)                        ≤⟨ ∨lIdem _ ⟩
+                       d (U zero  + ∑ (U ∘ suc))     ≤⟨ +≤∨ _ _ ⟩
+                       d (U zero) ∨l d (∑ (U ∘ suc)) ≤⟨ ≤-∨LPres _ _ _ (∑≤⋁ (U ∘ suc)) ⟩
+                       d (U zero) ∨l ⋁ (d ∘ U ∘ suc) ≤⟨ ∨lIdem _ ⟩
+                       ⋁ (d ∘ U) ◾
 
+  ZarMapIdem : ∀ (n : ℕ) (x : R) → d (x ^ (suc n)) ≡ d x
+  ZarMapIdem zero x = ·≡∧ _ _ ∙∙ cong (d x ∧l_) pres1 ∙∙ ∧lRid _
+  ZarMapIdem (suc n) x = ·≡∧ _ _ ∙∙ cong (d x ∧l_) (ZarMapIdem n x) ∙∙ ∧lIdem _
+
+ -- where put this?
+ -- ∧≤LCancel : ∀ x y → x ∧l y ≤ y
+ -- ∧≤LCancel x y = ?
 
 module ZarLatUniversalProp (R' : CommRing ℓ) where
  open CommRingStr (snd R')
@@ -288,35 +292,35 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
                          → isProp (hasZarLatUniversalProp L D isZarMapD)
  isPropZarLatUniversalProp L D isZarMapD = isPropΠ3 (λ _ _ _ → isPropIsContr)
 
- ZLHasUniversalProp : hasZarLatUniversalProp ZariskiLattice D isZarMapD
- ZLHasUniversalProp L' d isZarMapd = (χ , funExt χcomp) , χunique
-  where
-  open DistLatticeStr (snd L') renaming (is-set to isSetL)
-  open Join L'
-  open IsLatticeHom
-  L = fst L'
+ -- ZLHasUniversalProp : hasZarLatUniversalProp ZariskiLattice D isZarMapD
+ -- ZLHasUniversalProp L' d isZarMapd = (χ , funExt χcomp) , χunique
+ --  where
+ --  open DistLatticeStr (snd L') renaming (is-set to isSetL)
+ --  open Join L'
+ --  open IsLatticeHom
+ --  L = fst L'
 
-  χ : DistLatticeHom ZariskiLattice L'
-  fst χ = SQ.rec isSetL (λ (_ , α) → ⋁ (d ∘ α))
-        {!!} -- the big sanity check: If √⟨α⟩≡√⟨β⟩ then ⋁dα≡⋁dβ
-  pres0 (snd χ) = refl
-  pres1 (snd χ) = ∨lRid _ ∙ isZarMapd .pres1
-  pres∨l (snd χ) = elimProp2 (λ _ _ → isSetL _ _) {!!} -- this is hard
-  pres∧l (snd χ) = elimProp2 (λ _ _ → isSetL _ _) {!!} -- this is even harder
+ --  χ : DistLatticeHom ZariskiLattice L'
+ --  fst χ = SQ.rec isSetL (λ (_ , α) → ⋁ (d ∘ α))
+ --        {!!} -- the big sanity check: If √⟨α⟩≡√⟨β⟩ then ⋁dα≡⋁dβ
+ --  pres0 (snd χ) = refl
+ --  pres1 (snd χ) = ∨lRid _ ∙ isZarMapd .pres1
+ --  pres∨l (snd χ) = elimProp2 (λ _ _ → isSetL _ _) {!!} -- this is hard
+ --  pres∧l (snd χ) = elimProp2 (λ _ _ → isSetL _ _) {!!} -- this is even harder
 
-  χcomp : ∀ (f : R) → χ .fst (D f) ≡ d f
-  χcomp f = ∨lRid (d f)
+ --  χcomp : ∀ (f : R) → χ .fst (D f) ≡ d f
+ --  χcomp f = ∨lRid (d f)
 
-  χunique : (y : Σ[ χ' ∈ DistLatticeHom ZariskiLattice L' ] fst χ' ∘ D ≡ d)
-          → (χ , funExt χcomp) ≡ y
-  χunique (χ' , χ'∘D≡d) = Σ≡Prop (λ _ → isSetΠ (λ _ → isSetL) _ _) (LatticeHom≡f _ _
-                                 (funExt (elimProp (λ _ → isSetL _ _) (uncurry uniqHelper))))
-   where
-   uniqHelper : (n : ℕ) (α : FinVec R n) → fst χ [ n , α ] ≡ fst χ' [ n , α ]
-   uniqHelper zero α = {!!}
-   uniqHelper (suc n) α =
-    ⋁ (d ∘ α) ≡⟨ refl ⟩
-    d (α zero) ∨l ⋁ (d ∘ α ∘ suc) ≡⟨ cong (d (α zero) ∨l_) (uniqHelper n (α ∘ suc)) ⟩
-    d (α zero) ∨l fst χ' [ n , α ∘ suc ] ≡⟨ {!!} ⟩
-    fst χ' (D (α zero) ∨z [ n , α ∘ suc ]) ≡⟨ cong (fst χ') {!refl!} ⟩
-    fst χ' [ suc n , α ] ∎
+ --  χunique : (y : Σ[ χ' ∈ DistLatticeHom ZariskiLattice L' ] fst χ' ∘ D ≡ d)
+ --          → (χ , funExt χcomp) ≡ y
+ --  χunique (χ' , χ'∘D≡d) = Σ≡Prop (λ _ → isSetΠ (λ _ → isSetL) _ _) (LatticeHom≡f _ _
+ --                                 (funExt (elimProp (λ _ → isSetL _ _) (uncurry uniqHelper))))
+ --   where
+ --   uniqHelper : (n : ℕ) (α : FinVec R n) → fst χ [ n , α ] ≡ fst χ' [ n , α ]
+ --   uniqHelper zero α = {!!}
+ --   uniqHelper (suc n) α =
+ --    ⋁ (d ∘ α) ≡⟨ refl ⟩
+ --    d (α zero) ∨l ⋁ (d ∘ α ∘ suc) ≡⟨ cong (d (α zero) ∨l_) (uniqHelper n (α ∘ suc)) ⟩
+ --    d (α zero) ∨l fst χ' [ n , α ∘ suc ] ≡⟨ {!!} ⟩
+ --    fst χ' (D (α zero) ∨z [ n , α ∘ suc ]) ≡⟨ cong (fst χ') {!refl!} ⟩
+ --    fst χ' [ suc n , α ] ∎

@@ -103,6 +103,9 @@ Semilattice→Monoid : Semilattice ℓ → Monoid ℓ
 Semilattice→Monoid (_ , semilatticestr _ _ H) =
                     _ , monoidstr _ _ (H .IsSemilattice.isCommMonoid .IsCommMonoid.isMonoid)
 
+Semilattice→CommMonoid : Semilattice ℓ → CommMonoid ℓ
+Semilattice→CommMonoid (_ , semilatticestr _ _ H) =
+                        _ , commmonoidstr _ _ (H .IsSemilattice.isCommMonoid)
 
 SemilatticeHom : (L : Semilattice ℓ) (M : Semilattice ℓ') → Type (ℓ-max ℓ ℓ')
 SemilatticeHom L M = MonoidHom (Semilattice→Monoid L) (Semilattice→Monoid M)
@@ -145,6 +148,8 @@ SemilatticePath = ∫ 𝒮ᴰ-Semilattice .UARel.ua
 module JoinSemilattice (L' : Semilattice ℓ) where
  private L = fst L'
  open SemilatticeStr (snd L') renaming (_·_ to _∨l_ ; ε to 1l)
+ open CommMonoidTheory (Semilattice→CommMonoid L')
+
 
  _≤_ : L → L → Type ℓ
  x ≤ y = x ∨l y ≡ y
@@ -168,13 +173,22 @@ module JoinSemilattice (L' : Semilattice ℓ) where
  IsPoset.is-antisym (PosetStr.isPoset (snd IndPoset)) =
    λ _ _ a∨b≡b b∨a≡a → sym b∨a≡a ∙∙ comm _ _ ∙∙ a∨b≡b
 
- -- ≤-∨LPres : ∀ x y z → x ≤ y → z ∨l x ≤ z ∨l y
- -- ≤-∨LPres x y z x≤y = {!!}
+ ∨lIsMax : ∀ x y z → x ≤ z → y ≤ z → x ∨l y ≤ z
+ ∨lIsMax x y z x≤z y≤z = cong ((x ∨l y) ∨l_) (sym (idem z)) ∙ commAssocSwap x y z z
+                                                            ∙ cong₂ (_∨l_) x≤z y≤z
+                                                            ∙ idem z
+
+ ≤-∨Pres : ∀ x y u w → x ≤ y → u ≤ w → x ∨l u ≤ y ∨l w
+ ≤-∨Pres x y u w x≤y u≤w = commAssocSwap x u y w ∙ cong₂ (_∨l_) x≤y u≤w
+
+ ≤-∨LPres : ∀ x y z → x ≤ y → z ∨l x ≤ z ∨l y
+ ≤-∨LPres x y z x≤y = ≤-∨Pres _ _ _ _ (idem z) x≤y
 
 
 module MeetSemilattice (L' : Semilattice ℓ) where
  private L = fst L'
  open SemilatticeStr (snd L') renaming (_·_ to _∧l_ ; ε to 0l)
+ open CommMonoidTheory (Semilattice→CommMonoid L')
 
  _≤_ : L → L → Type ℓ
  x ≤ y = x ∧l y ≡ x
@@ -197,3 +211,6 @@ module MeetSemilattice (L' : Semilattice ℓ) where
                             a ∎
  IsPoset.is-antisym (PosetStr.isPoset (snd IndPoset)) =
    λ _ _ a∧b≡a b∧a≡b → sym a∧b≡a ∙∙ comm _ _ ∙∙ b∧a≡b
+
+ ≤-∧LPres : ∀ x y z → x ≤ y → z ∧l x ≤ z ∧l y
+ ≤-∧LPres x y z x≤y = commAssocSwap z x z y ∙∙ cong (_∧l (x ∧l y)) (idem z) ∙∙ cong (z ∧l_) x≤y
