@@ -11,7 +11,7 @@ infixl 6 _+ₘ_ _-ₘ_ _·ₘ_
 infix 7 -ₘ_
 
 -- Defining x mod 0 to be 0. This way all the theorems below are true
--- for n : ℕ instead of n : ℕ₊₁. I guess this is pretty useless in practice.
+-- for n : ℕ instead of n : ℕ₊₁.
 private
   +ℕind : (n : ℕ) → ℕ → ℕ
   +ℕind n = +induction n (λ _ → ℕ) (λ x _ → x) λ _ x → x
@@ -201,7 +201,7 @@ quotient x / suc n =
           · (quotient x / (suc n)) ≡ x)
     (λ x base → cong₂ _+_ (+ℕbase n x base)
                            (cong ((suc n) ·_)
-                            (+inductionBase n _ _ _ x base))
+                           (+inductionBase n _ _ _ x base))
               ∙∙ cong (x +_) (·-comm n 0)
               ∙∙ +-comm x 0)
      λ x ind → cong₂ _+_ (+ℕStep n x)
@@ -210,9 +210,7 @@ quotient x / suc n =
                   (·-suc (suc n) (+induction n _ _ _ x))
           ∙∙ cong (+ℕind n x +_)
                   (+-comm (suc n) ((suc n) · (+induction n _ _ _ x)))
-          ∙∙ +-assoc (+ℕind n x)
-                     ((suc n) · +induction n _ _ _ x)
-                     (suc n)
+          ∙∙ +-assoc (+ℕind n x) ((suc n) · +induction n _ _ _ x) (suc n)
           ∙∙ cong (_+ suc n) ind
            ∙ +-comm x (suc n)
 
