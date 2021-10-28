@@ -101,5 +101,11 @@ fiber≡ {f = f} {b = b} h h' =
 FibrationStr : (B : Type ℓb) → Type ℓ → Type (ℓ-max ℓ ℓb)
 FibrationStr B A = A → B
 
+fiberCong : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) {a₀ a₁ : A} (q : f a₀ ≡ f a₁)
+  → fiber (cong f) q ≡ Path (fiber f (f a₁)) (a₀ , q) (a₁ , refl)
+fiberCong f q =
+  cong (fiber (cong f)) (cong sym (lUnit (sym q)))
+  ∙ sym (fiber≡ (_ , q) (_ , refl))
+
 Fibration : (B : Type ℓb) → (ℓ : Level) → Type (ℓ-max ℓb (ℓ-suc ℓ))
 Fibration {ℓb = ℓb} B ℓ = Σ[ A ∈ Type ℓ ] FibrationStr B A

@@ -8,6 +8,7 @@ module Cubical.Homotopy.Freudenthal where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Nat
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp renaming (toSusp to σ)
@@ -16,6 +17,8 @@ open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
 open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.SmashProduct
+open import Cubical.Relation.Nullary
+open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 
 open import Cubical.HITs.S1 hiding (encode)
 open import Cubical.HITs.Sn
@@ -132,3 +135,76 @@ FreudenthalIso : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
                 → Iso (hLevelTrunc ((suc n) + (suc n)) (typ A))
                       (hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north))))
 FreudenthalIso n A iscon = connectedTruncIso _ (σ A) (isConnectedσ _ iscon)
+
+
+{- connectedness of congⁿ σ (called suspMapΩ here) -}
+∙∙lCancel-fill : ∀ {ℓ} {A : Type ℓ} {x y : A}
+         → (p : x ≡ y)
+         → I → I → I → A
+∙∙lCancel-fill p i j k =
+  hfill (λ k → λ { (i = i1) → p k
+                  ; (j = i0) → p k
+                  ; (j = i1) → p k})
+        (inS (p i0)) k
+
+∙∙lCancel : ∀ {ℓ} {A : Type ℓ} {x y : A}
+         → (p : x ≡ y)
+         → sym p ∙∙ refl ∙∙ p ≡ refl
+∙∙lCancel p i j = ∙∙lCancel-fill p i j i1
+
+suspMapΩ∙ : ∀ {ℓ} {A : Pointed ℓ}(n : ℕ)
+        → ((Ω^ n) A)
+        →∙ ((Ω^ (suc n)) (Susp∙ (typ A)))
+fst (suspMapΩ∙ {A = A} zero) a = merid a ∙ sym (merid (pt A))
+snd (suspMapΩ∙ {A = A} zero) = rCancel (merid (pt A))
+fst (suspMapΩ∙ {A = A} (suc n)) p = sym (snd (suspMapΩ∙ n)) ∙∙ cong (fst (suspMapΩ∙ n)) p ∙∙ snd (suspMapΩ∙ n)
+snd (suspMapΩ∙ {A = A} (suc n)) = ∙∙lCancel (snd (suspMapΩ∙ n))
+
+suspMapΩ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+         → typ ((Ω^ n) A) → typ ((Ω^ (suc n)) (Susp∙ (typ A)))
+suspMapΩ {A = A} n = suspMapΩ∙ {A = A} n .fst
+
+isConnectedCong' : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x : A} {y : B}
+     (n : ℕ) (f : A → B)
+  → isConnectedFun (suc n) f
+  → (p : f x ≡ y)
+  → isConnectedFun n
+      λ (q : x ≡ x) → sym p ∙∙ cong f q ∙∙ p
+isConnectedCong' {x = x} n f conf p =
+  transport (λ i → (isConnectedFun n
+                    λ (q : x ≡ x)
+                    → doubleCompPath-filler (sym p) (cong f q) p i))
+    (isConnectedCong n f conf)
+
+suspMapΩ-connected : ∀ {ℓ} (n : HLevel) (m : ℕ) {A : Pointed ℓ}
+     (connA : isConnected (suc (suc n)) (typ A))
+  → isConnectedFun ((suc n + suc n) ∸ m) (suspMapΩ {A = A} m)
+suspMapΩ-connected n zero {A = A} connA = isConnectedσ n connA
+suspMapΩ-connected n (suc m) {A = A} connA with ((n + suc n) ≟ m)
+... | (lt p) = subst (λ x → isConnectedFun x (suspMapΩ {A = A} (suc m)))
+                     (sym (h _ m p))
+                     λ b → tt* , (λ {tt* → refl})
+  where
+  h : (n m : ℕ) → n < m → (n ∸ m) ≡ 0
+  h zero zero p = refl
+  h (suc n) zero p = ⊥-rec (¬-<-zero p)
+  h zero (suc m) p = refl
+  h (suc n) (suc m) p = h n m (pred-≤-pred p)
+... | (eq q) = subst (λ x → isConnectedFun x (suspMapΩ {A = A} (suc m)))
+                     (sym (help m) ∙ cong (_∸ m) (sym q))
+                     λ b → tt* , (λ {tt* → refl})
+  where
+  help : (n : ℕ) → n ∸ n ≡ 0
+  help zero = refl
+  help (suc n) = help n
+... | (gt p) = isConnectedCong' (n + suc n ∸ m) (suspMapΩ {A = A} m)
+    (subst (λ x → isConnectedFun x (suspMapΩ {A = A} m))
+           (sym (help (n + suc n) m p))
+           (suspMapΩ-connected n m connA))
+    (snd (suspMapΩ∙ m))
+  where
+  help : (n m : ℕ) → m < n → suc (n ∸ m) ≡ (suc n) ∸ m
+  help zero zero p = refl
+  help zero (suc m) p = ⊥-rec (¬-<-zero p)
+  help (suc n) zero p = refl
+  help (suc n) (suc m) p = (help n m (pred-≤-pred p))
