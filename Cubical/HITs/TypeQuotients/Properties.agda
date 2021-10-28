@@ -4,7 +4,7 @@ Type quotients:
 
 -}
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.TypeQuotients.Properties where
 
 open import Cubical.HITs.TypeQuotients.Base
@@ -19,7 +19,7 @@ open import Cubical.Foundations.HLevels
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥ ; ∣_∣ ; squash)
 open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂ ; ∣_∣₂ ; squash₂
-                                                              ; setTruncIsSet)
+                                                              ; isSetSetTrunc)
 
 private
   variable

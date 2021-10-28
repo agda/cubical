@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Pointed.Base where
 
 open import Cubical.Foundations.Prelude
@@ -30,6 +30,11 @@ _→∙_∙ : ∀{ℓ ℓ'} → (A : Pointed ℓ) (B : Pointed ℓ') → Pointed
 idfun∙ : ∀ {ℓ} (A : Pointed ℓ) → A →∙ A
 idfun∙ A .fst x = x
 idfun∙ A .snd = refl
+
+ua∙ : ∀ {ℓ} {A B : Pointed ℓ} (e : fst A ≃ fst B)
+                  → fst e (snd A) ≡ snd B → A ≡ B
+fst (ua∙ e p i) = ua e i
+snd (ua∙ {A = A} e p i) = ua-gluePath e p i
 
 {- HIT allowing for pattern matching on pointed types -}
 data Pointer {ℓ} (A : Pointed ℓ) : Type ℓ where

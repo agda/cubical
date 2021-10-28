@@ -5,7 +5,7 @@ This file contains:
 - Eliminator for propositional truncation
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.PropositionalTruncation.Properties where
 
 open import Cubical.Core.Everything
@@ -51,22 +51,23 @@ elim Pprop f (squash x y i) =
   isOfHLevel→isOfHLevelDep 1 Pprop
     (elim Pprop f x) (elim Pprop f y) (squash x y) i
 
-elim2 : {P : ∥ A ∥ → ∥ A ∥ → Type ℓ}
-        (Bset : ((x y : ∥ A ∥) → isProp (P x y)))
-        (f : (a b : A) → P ∣ a ∣ ∣ b ∣)
-        (x y : ∥ A ∥) → P x y
-elim2 Pprop f = elim (λ _ → isPropΠ (λ _ → Pprop _ _))
-                     (λ a → elim (λ _ → Pprop _ _) (f a))
+elim2 : {P : ∥ A ∥ → ∥ B ∥ → Type ℓ}
+        (Pprop : (x : ∥ A ∥) (y : ∥ B ∥) → isProp (P x y))
+        (f : (a : A) (b : B) → P ∣ a ∣ ∣ b ∣)
+        (x : ∥ A ∥) (y : ∥ B ∥) → P x y
+elim2 Pprop f =
+  elim (λ _ → isPropΠ (λ _ → Pprop _ _))
+                       (λ a → elim (λ _ → Pprop _ _) (f a))
 
-elim3 : {P : ∥ A ∥ → ∥ A ∥ → ∥ A ∥ → Type ℓ}
-        (Bset : ((x y z : ∥ A ∥) → isProp (P x y z)))
-        (g : (a b c : A) → P (∣ a ∣) ∣ b ∣ ∣ c ∣)
-        (x y z : ∥ A ∥) → P x y z
+elim3 : {P : ∥ A ∥ → ∥ B ∥ → ∥ C ∥ → Type ℓ}
+        (Pprop : ((x : ∥ A ∥) (y : ∥ B ∥) (z : ∥ C ∥) → isProp (P x y z)))
+        (g : (a : A) (b : B) (c : C) → P (∣ a ∣) ∣ b ∣ ∣ c ∣)
+        (x : ∥ A ∥) (y : ∥ B ∥) (z : ∥ C ∥) → P x y z
 elim3 Pprop g = elim2 (λ _ _ → isPropΠ (λ _ → Pprop _ _ _))
                       (λ a b → elim (λ _ → Pprop _ _ _) (g a b))
 
-propTruncIsProp : isProp ∥ A ∥
-propTruncIsProp x y = squash x y
+isPropPropTrunc : isProp ∥ A ∥
+isPropPropTrunc x y = squash x y
 
 propTruncIdempotent≃ : isProp A → ∥ A ∥ ≃ A
 propTruncIdempotent≃ {A = A} hA = isoToEquiv f
@@ -75,7 +76,7 @@ propTruncIdempotent≃ {A = A} hA = isoToEquiv f
   Iso.fun f        = rec hA (idfun A)
   Iso.inv f x      = ∣ x ∣
   Iso.rightInv f _ = refl
-  Iso.leftInv f    = elim (λ _ → isProp→isSet propTruncIsProp _ _) (λ _ → refl)
+  Iso.leftInv f    = elim (λ _ → isProp→isSet isPropPropTrunc _ _) (λ _ → refl)
 
 propTruncIdempotent : isProp A → ∥ A ∥ ≡ A
 propTruncIdempotent hA = ua (propTruncIdempotent≃ hA)

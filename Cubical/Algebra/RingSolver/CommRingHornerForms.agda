@@ -1,16 +1,22 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.RingSolver.CommRingHornerForms where
 
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Int hiding (_+_ ; _·_ ; -_)
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec
-open import Cubical.Data.Bool using (Bool; true; false; if_then_else_; _and_)
+open import Cubical.Data.Bool
+
+open import Cubical.Relation.Nullary.Base using (yes; no)
+
+open import Cubical.Algebra.RingSolver.Utility
 
 open import Cubical.Algebra.RingSolver.RawRing
+open import Cubical.Algebra.RingSolver.IntAsRawRing
 open import Cubical.Algebra.RingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ₐ)
-open import Cubical.Algebra.RingSolver.AlmostRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
+open import Cubical.Algebra.RingSolver.AlgebraExpression public
 
 private
   variable
@@ -40,7 +46,14 @@ data IteratedHornerForms (A : RawAlgebra ℤAsRawRing ℓ) : ℕ → Type ℓ wh
   _·X+_ : {n : ℕ} → IteratedHornerForms A (ℕ.suc n) → IteratedHornerForms A n
                   → IteratedHornerForms A (ℕ.suc n)
 
-module _ (A : RawAlgebra ℤAsRawRing ℓ′) where
+
+{-
+  The following function returns true, if there is some
+  obvious reason that the Horner-Expression should be zero.
+  Since Equality is undecidable in a general RawAlgebra, we cannot
+  have a function that fully lives up to the name 'isZero'.
+-}
+module _ (A : RawAlgebra ℤAsRawRing ℓ) where
   open RawRing ℤAsRawRing
   isZero : {n : ℕ} → IteratedHornerForms A n
                    → Bool
@@ -48,20 +61,25 @@ module _ (A : RawAlgebra ℤAsRawRing ℓ′) where
   isZero (const (pos (ℕ.suc _))) = false
   isZero (const (negsuc _)) = false
   isZero 0H = true
-  isZero (P ·X+ P₁) = false
+  isZero (P ·X+ Q) = (isZero P) and (isZero Q)
 
-eval : {A : RawAlgebra ℤAsRawRing ℓ′}
-       (n : ℕ) (P : IteratedHornerForms A n)
-       → Vec ⟨ A ⟩ₐ n → ⟨ A ⟩ₐ
-eval {A = A} ℕ.zero (const r) [] = RawAlgebra.scalar A r
-eval {A = A} .(ℕ.suc _) 0H (_ ∷ _) = RawAlgebra.0r A
-eval {A = A} (ℕ.suc n) (P ·X+ Q) (x ∷ xs) =
-     let open RawAlgebra A
-         P' = (eval (ℕ.suc n) P (x ∷ xs))
-         Q' = eval n Q xs
-     in if (isZero A P)
-        then Q'
-        else P' · x + Q'
+  leftIsZero : {n : ℕ}
+               (P : IteratedHornerForms A (ℕ.suc n))
+               (Q : IteratedHornerForms A n)
+               → isZero (P ·X+ Q) ≡ true
+               → isZero P ≡ true
+  leftIsZero P Q isZeroSum with isZero P
+  ... | true = refl
+  ... | false = byBoolAbsurdity (fst (extractFromAnd _ _ isZeroSum))
+
+  rightIsZero : {n : ℕ}
+               (P : IteratedHornerForms A (ℕ.suc n))
+               (Q : IteratedHornerForms A n)
+               → isZero (P ·X+ Q) ≡ true
+               → isZero Q ≡ true
+  rightIsZero P Q isZeroSum with isZero Q
+  ... | true = refl
+  ... | false = byBoolAbsurdity (snd (extractFromAnd _ _ isZeroSum))
 
 module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   open RawRing ℤAsRawRing
@@ -121,7 +139,36 @@ module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
         then (Q ⋆ S)
         else (z ·X+ 0ₕ) +ₕ (Q ⋆ S)
 
-  asRawRing : (n : ℕ) → RawRing {ℓ}
+  isZeroPresLeft⋆ :
+    {n : ℕ}
+    (r : IteratedHornerForms A n)
+    (P : IteratedHornerForms A (ℕ.suc n))
+    → isZero A r ≡ true
+    → isZero A (r ⋆ P) ≡ true
+  isZeroPresLeft⋆ r 0H isZero-r = refl
+  isZeroPresLeft⋆ r (P ·X+ Q) isZero-r with isZero A r
+  ...  | true = refl
+  ...  | false = byBoolAbsurdity isZero-r
+
+  isZeroPresLeft·ₕ :
+    {n : ℕ} (P Q : IteratedHornerForms A n)
+    → isZero A P ≡ true
+    → isZero A (P ·ₕ Q) ≡ true
+  isZeroPresLeft·ₕ (const (pos ℕ.zero)) (const _) isZeroP = refl
+  isZeroPresLeft·ₕ (const (pos (ℕ.suc n))) (const _) isZeroP = byBoolAbsurdity isZeroP
+  isZeroPresLeft·ₕ (const (negsuc n)) (const _) isZeroP = byBoolAbsurdity isZeroP
+  isZeroPresLeft·ₕ 0H Q isZeroP = refl
+  isZeroPresLeft·ₕ (P ·X+ Q) S isZeroSum with isZero A (P ·ₕ S) ≟ true
+  ... | no p = byBoolAbsurdity (sym notZeroProd ∙ isZeroProd)
+               where notZeroProd = ¬true→false _ p
+                     isZeroP = extractFromAndLeft isZeroSum
+                     isZeroProd = isZeroPresLeft·ₕ P S isZeroP
+  ... | yes p with isZero A (P ·ₕ S)
+  ...        | true = isZeroPresLeft⋆ Q S isZeroQ
+                      where isZeroQ = extractFromAndRight isZeroSum
+  ...        | false = byBoolAbsurdity p
+
+  asRawRing : (n : ℕ) → RawRing ℓ
   RawRing.Carrier (asRawRing n) = IteratedHornerForms A n
   RawRing.0r (asRawRing n) = 0ₕ
   RawRing.1r (asRawRing n) = 1ₕ

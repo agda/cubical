@@ -2,7 +2,7 @@
 -- at a multiplicatively closed subset and show that it
 -- has a commutative ring structure.
 
-{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.Base where
 
 open import Cubical.Foundations.Prelude
@@ -27,9 +27,6 @@ open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
 
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.RingSolver.ReflectionSolving
@@ -46,14 +43,14 @@ private
 
 
 -- A multiplicatively closed subset is assumed to contain 1
-record isMultClosedSubset (R' : CommRing {ℓ}) (S' : ℙ (fst R')) : Type ℓ where
+record isMultClosedSubset (R' : CommRing ℓ) (S' : ℙ (fst R')) : Type ℓ where
  constructor
    multclosedsubset
  field
    containsOne : (R' .snd .CommRingStr.1r) ∈ S'
    multClosed : ∀ {s t} → s ∈ S' → t ∈ S' → ((snd R') .CommRingStr._·_ s t) ∈ S'
 
-module Loc (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClosedSubset R' S') where
+module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClosedSubset R' S') where
  open isMultClosedSubset
  private R = fst R'
  open CommRingStr (snd R')
@@ -164,14 +161,13 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMult
   +ₗ-rid[] : (a : R × S) → [ a ] +ₗ 0ₗ ≡ [ a ]
   +ₗ-rid[] (r , s , s∈S) = path
    where
-   -- possible to automate with improved ring solver?
-   eq1 : r · 1r + 0r · s ≡ r
-   eq1 = cong (r · 1r +_) (0LeftAnnihilates _) ∙∙ +Rid _ ∙∙ ·Rid _
+   eq1 : (r s : R) → r · 1r + 0r · s ≡ r
+   eq1 = solve R'
 
    path : [ r · 1r + 0r · s , s · 1r , SMultClosedSubset .multClosed s∈S
                                       (SMultClosedSubset .containsOne) ]
         ≡ [ r , s , s∈S ]
-   path = cong [_] (ΣPathP (eq1 , Σ≡Prop (λ x → ∈-isProp S' x) (·Rid _)))
+   path = cong [_] (ΣPathP (eq1 r s , Σ≡Prop (λ x → ∈-isProp S' x) (·Rid _)))
 
  -ₗ_ : S⁻¹R → S⁻¹R
  -ₗ_ = SQ.rec squash/ -ₗ[] -ₗWellDef
@@ -195,17 +191,10 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMult
  +ₗ-rinv = SQ.elimProp (λ _ → squash/ _ _) +ₗ-rinv[]
   where
   +ₗ-rinv[] : (a : R × S) → ([ a ] +ₗ (-ₗ [ a ])) ≡ 0ₗ
-  +ₗ-rinv[] (r , s , s∈S) = eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path)
+  +ₗ-rinv[] (r , s , s∈S) = eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path r s)
    where
-   -- not yet possible with ring solver
-   path : 1r · (r · s + - r · s) · 1r ≡ 1r · 0r · (s · s)
-   path = 1r · (r · s + - r · s) · 1r   ≡⟨ cong (λ x → 1r · (r · s + x) · 1r) (-DistL· _ _) ⟩
-          1r · (r · s + - (r · s)) · 1r ≡⟨ cong (λ x → 1r · x · 1r) (+Rinv _) ⟩
-          1r · 0r · 1r                  ≡⟨ ·Rid _ ⟩
-          1r · 0r                       ≡⟨ ·Lid _ ⟩
-          0r                            ≡⟨ sym (0LeftAnnihilates _) ⟩
-          0r · (s · s)                  ≡⟨ cong (_· (s · s)) (sym (·Lid _)) ⟩
-          1r · 0r · (s · s)             ∎
+   path : (r s : R) → 1r · (r · s + - r · s) · 1r ≡ 1r · 0r · (s · s)
+   path = solve R'
 
  +ₗ-comm : (x y : S⁻¹R) → x +ₗ y ≡ y +ₗ x
  +ₗ-comm = SQ.elimProp2 (λ _ _ → squash/ _ _) +ₗ-comm[]
@@ -283,7 +272,7 @@ module Loc (R' : CommRing {ℓ}) (S' : ℙ (fst R')) (SMultClosedSubset : isMult
 
 
  -- Commutative ring structure on S⁻¹R
- S⁻¹RAsCommRing : CommRing
+ S⁻¹RAsCommRing : CommRing ℓ
  S⁻¹RAsCommRing = S⁻¹R , S⁻¹RCommRingStr
   where
   open CommRingStr

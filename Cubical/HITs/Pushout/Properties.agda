@@ -10,7 +10,7 @@ This file contains:
 
 -}
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.HITs.Pushout.Properties where
 
@@ -27,6 +27,39 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.HITs.Pushout.Base
+
+private
+  variable
+    ℓ ℓ' ℓ'' ℓ''' : Level
+    A : Type ℓ
+    B : Type ℓ'
+    C : Type ℓ''
+
+{-
+  Elimination for propositions
+-}
+elimProp : {f : A → B} {g : A → C}
+  → (P : Pushout f g → Type ℓ''')
+  → ((x : Pushout f g) → isProp (P x))
+  → ((b : B) → P (inl b))
+  → ((c : C) → P (inr c))
+  → (x : Pushout f g) → P x
+elimProp P isPropP PB PC (inl x) = PB x
+elimProp P isPropP PB PC (inr x) = PC x
+elimProp {f = f} {g = g} P isPropP PB PC (push a i) =
+  isOfHLevel→isOfHLevelDep 1 isPropP (PB (f a)) (PC (g a)) (push a) i
+
+
+{-
+  Switching the span does not change the pushout
+-}
+pushoutSwitchEquiv : {f : A → B} {g : A → C}
+  → Pushout f g ≃ Pushout g f
+pushoutSwitchEquiv = isoToEquiv (iso f inv leftInv rightInv)
+  where f = λ {(inr x) → inl x; (inl x) → inr x; (push a i) → push a (~ i)}
+        inv = λ {(inr x) → inl x; (inl x) → inr x; (push a i) → push a (~ i)}
+        leftInv = λ {(inl x) → refl; (inr x) → refl; (push a i) → refl}
+        rightInv = λ {(inl x) → refl; (inr x) → refl; (push a i) → refl}
 
 {-
   Definition of pushout diagrams
@@ -316,7 +349,7 @@ record 3x3-span : Type₁ where
 
 
 
-PushoutToProp : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {f : A → B} {g : A → C}
+PushoutToProp : {f : A → B} {g : A → C}
                 {D : Pushout f g → Type ℓ'''}
               → ((x : Pushout f g) → isProp (D x))
               → ((a : B) → D (inl a))

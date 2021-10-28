@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.Bool.Base where
 
 open import Cubical.Core.Everything
@@ -9,7 +9,7 @@ open import Cubical.Data.Empty
 open import Cubical.Data.Sum.Base
 open import Cubical.Data.Unit.Base
 
-open import Cubical.Relation.Nullary
+open import Cubical.Relation.Nullary.Base
 open import Cubical.Relation.Nullary.DecidableEq
 
 -- Obtain the booleans

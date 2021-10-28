@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 
 {-
   Kan extension of a functor C → D to a functor PreShv C ℓ → PreShv D ℓ left or right adjoint to

@@ -12,7 +12,7 @@ various consequences of univalence
 - Isomorphism induction ([elimIso])
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Univalence where
 
 open import Cubical.Foundations.Prelude
@@ -249,7 +249,7 @@ ua→ {e = e} {f₀ = f₀} {f₁} h i a =
     (h (transp (λ j → ua e (~ j ∧ i)) (~ i) a) i)
   where
   lem : ∀ a₁ → e .fst (transport (sym (ua e)) a₁) ≡ a₁
-  lem a₁ = retEq e _ ∙ transportRefl _
+  lem a₁ = secEq e _ ∙ transportRefl _
 
 ua→⁻ : ∀ {ℓ ℓ'} {A₀ A₁ : Type ℓ} {e : A₀ ≃ A₁} {B : (i : I) → Type ℓ'}
   {f₀ : A₀ → B i0} {f₁ : A₁ → B i1}

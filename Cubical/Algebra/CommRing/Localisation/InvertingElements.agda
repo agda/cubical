@@ -6,7 +6,7 @@
 -- This fact has an important application in algebraic geometry where it's
 -- used to define the structure sheaf of a commutative ring.
 
-{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.InvertingElements where
 
 open import Cubical.Foundations.Prelude
@@ -51,7 +51,7 @@ private
     ℓ ℓ' : Level
     A : Type ℓ
 
-module _(R' : CommRing {ℓ}) where
+module _(R' : CommRing ℓ) where
  open isMultClosedSubset
  private R = fst R'
  open CommRingStr (snd R')
@@ -59,7 +59,7 @@ module _(R' : CommRing {ℓ}) where
 
 
  [_ⁿ|n≥0] : R → ℙ R
- [ f ⁿ|n≥0] g = (∃[ n ∈ ℕ ] g ≡ f ^ n) , propTruncIsProp
+ [ f ⁿ|n≥0] g = (∃[ n ∈ ℕ ] g ≡ f ^ n) , isPropPropTrunc
  -- Σ[ n ∈ ℕ ] (s ≡ f ^ n) × (∀ m → s ≡ f ^ m → n ≤ m) maybe better, this isProp:
  -- (n,s≡fⁿ,p) (m,s≡fᵐ,q) then n≤m by p and  m≤n by q => n≡m
 
@@ -73,7 +73,7 @@ module _(R' : CommRing {ℓ}) where
  R[1/ f ] = Loc.S⁻¹R R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
 
 
- R[1/_]AsCommRing : R → CommRing {ℓ}
+ R[1/_]AsCommRing : R → CommRing ℓ
  R[1/ f ]AsCommRing = Loc.S⁻¹RAsCommRing R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
 
  -- A useful lemma: (gⁿ/1)≡(g/1)ⁿ in R[1/f]
@@ -98,7 +98,7 @@ module _(R' : CommRing {ℓ}) where
   []-case (r , s , s∈S[f]) = PT.rec (PisProp _) Σhelper s∈S[f]
    where
    Σhelper : Σ[ n ∈ ℕ ] s ≡ f ^ n → P [ r , s , s∈S[f] ]
-   Σhelper (n , p) = subst P (cong [_] (≡-× refl (Σ≡Prop (λ _ → propTruncIsProp) (sym p)))) (base r n)
+   Σhelper (n , p) = subst P (cong [_] (≡-× refl (Σ≡Prop (λ _ → isPropPropTrunc) (sym p)))) (base r n)
 
  -- For predicates over the set of powers
  powersPropElim : {f : R} {P : R → Type ℓ'}
@@ -111,7 +111,7 @@ module _(R' : CommRing {ℓ}) where
 
 
 
-module DoubleLoc (R' : CommRing {ℓ}) (f g : (fst R')) where
+module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
  open isMultClosedSubset
  open CommRingStr (snd R')
  open CommRingTheory R'
@@ -121,6 +121,7 @@ module DoubleLoc (R' : CommRing {ℓ}) (f g : (fst R')) where
                                                          ; _+_ to _+ᶠ_ ; 0r to 0ᶠ
                                                          ; ·Lid to ·ᶠ-lid ; ·Rid to ·ᶠ-rid
                                                          ; ·Assoc to ·ᶠ-assoc ; ·-comm to ·ᶠ-comm)
+ open IsRingHom
 
  private
   R = fst R'
@@ -139,19 +140,28 @@ module DoubleLoc (R' : CommRing {ℓ}) (f g : (fst R')) where
  r /1/1 = [ [ r , 1r , PT.∣ 0 , refl ∣ ] , 1ᶠ , PT.∣ 0 , refl ∣ ]
 
  /1/1AsCommRingHom : CommRingHom R' R[1/f][1/g]AsCommRing
- RingHom.f /1/1AsCommRingHom = _/1/1
- RingHom.pres1 /1/1AsCommRingHom = refl
- RingHom.isHom+ /1/1AsCommRingHom r r' = cong [_] (≡-× (cong [_]
-                                                  (≡-×
-                         (cong₂ _+_ (sym (·Rid _) ∙ (λ i → (·Rid r (~ i)) · (·Rid 1r (~ i))))
-                         (sym (·Rid _) ∙ (λ i → (·Rid r' (~ i)) · (·Rid 1r (~ i)))))
-                                                  (Σ≡Prop (λ _ → propTruncIsProp)
-                         (sym (·Lid _) ∙ (λ i → (·Lid 1r (~ i)) · (·Lid 1r (~ i)))))))
-                                                  (Σ≡Prop (λ _ → propTruncIsProp) (sym (·ᶠ-lid 1ᶠ))))
- RingHom.isHom· /1/1AsCommRingHom r r' = cong [_] (≡-× (cong [_]
-                                                  (≡-× refl (Σ≡Prop (λ _ → propTruncIsProp)
-                                                  (sym (·Lid _)))))
-                                                  (Σ≡Prop (λ _ → propTruncIsProp) (sym (·ᶠ-lid 1ᶠ))))
+ fst /1/1AsCommRingHom = _/1/1
+ snd /1/1AsCommRingHom = makeIsRingHom refl lem+ lem·
+   where
+   lem+ : _
+   lem+ r r' =
+     cong [_]
+       (≡-×
+         (cong [_]
+           (≡-×
+             (cong₂ _+_
+               (sym (·Rid _) ∙ (λ i → (·Rid r (~ i)) · (·Rid 1r (~ i))))
+               (sym (·Rid _) ∙ (λ i → (·Rid r' (~ i)) · (·Rid 1r (~ i)))))
+             (Σ≡Prop (λ _ → isPropPropTrunc)
+               (sym (·Lid _) ∙ (λ i → (·Lid 1r (~ i)) · (·Lid 1r (~ i)))))))
+         (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·ᶠ-lid 1ᶠ))))
+
+   lem· : _
+   lem· r r' =
+     cong [_]
+       (≡-×
+         (cong [_] (≡-× refl (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Lid _)))))
+         (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·ᶠ-lid 1ᶠ))))
 
  -- this will give us a map R[1/fg] → R[1/f][1/g] by the universal property of localisation
  fⁿgⁿ/1/1∈R[1/f][1/g]ˣ : (s : R) → s ∈ ([_ⁿ|n≥0] R' (f · g)) → s /1/1 ∈ R[1/f][1/g]ˣ
@@ -214,9 +224,9 @@ module DoubleLoc (R' : CommRing {ℓ}) (f g : (fst R')) where
    ∥r/1,1/1≈0/1,1/1∥ = Iso.fun (SQ.isEquivRel→TruncIso (Loc.locIsEquivRel _ _ _) _ _) p
 
    helperR[1/f] : ∃[ n ∈ ℕ ] [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ] ≡ 0ᶠ
-   helperR[1/f] = PT.rec propTruncIsProp
+   helperR[1/f] = PT.rec isPropPropTrunc
                   (uncurry (uncurry (powersPropElim R[1/f]AsCommRing
-                                    (λ _ → isPropΠ (λ _ → propTruncIsProp)) baseCase)))
+                                    (λ _ → isPropΠ (λ _ → isPropPropTrunc)) baseCase)))
                   ∥r/1,1/1≈0/1,1/1∥
     where
     baseCase : ∀ n → g/1 ^ᶠ n ·ᶠ r/1 ·ᶠ 1ᶠ ≡ g/1 ^ᶠ n ·ᶠ 0ᶠ ·ᶠ 1ᶠ
@@ -226,7 +236,7 @@ module DoubleLoc (R' : CommRing {ℓ}) (f g : (fst R')) where
      path : [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ] ≡ 0ᶠ
      path = [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ]
 
-          ≡⟨ cong [_] (≡-× refl (Σ≡Prop (λ _ → propTruncIsProp) (sym (·Rid _)))) ⟩
+          ≡⟨ cong [_] (≡-× refl (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Rid _)))) ⟩
 
             [ g ^ n , 1r , PT.∣ 0 , refl ∣ ] ·ᶠ r/1
 
@@ -249,7 +259,7 @@ module DoubleLoc (R' : CommRing {ℓ}) (f g : (fst R')) where
 
    toGoal : ∃[ n ∈ ℕ ] [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ] ≡ 0ᶠ
           → ∃[ u ∈ S[fg] ] fst u · r ≡ 0r
-   toGoal = PT.rec propTruncIsProp Σhelper
+   toGoal = PT.rec isPropPropTrunc Σhelper
     where
     Σhelper : Σ[ n ∈ ℕ ] [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ] ≡ 0ᶠ
             → ∃[ u ∈ S[fg] ] fst u · r ≡ 0r
@@ -260,9 +270,9 @@ module DoubleLoc (R' : CommRing {ℓ}) (f g : (fst R')) where
      ∥gⁿr≈0∥ = Iso.fun (SQ.isEquivRel→TruncIso (Loc.locIsEquivRel _ _ _) _ _) q
 
      helperR : ∃[ m ∈ ℕ ] f ^ m · g ^ n · r ≡ 0r
-     helperR = PT.rec propTruncIsProp
+     helperR = PT.rec isPropPropTrunc
                (uncurry (uncurry (powersPropElim R'
-                                 (λ _ → isPropΠ (λ _ → propTruncIsProp)) baseCase)))
+                                 (λ _ → isPropΠ (λ _ → isPropPropTrunc)) baseCase)))
                ∥gⁿr≈0∥
       where
       baseCase : (m : ℕ) → f ^ m · (g ^ n · r) · 1r ≡ f ^ m · 0r · 1r
@@ -313,7 +323,7 @@ module DoubleLoc (R' : CommRing {ℓ}) (f g : (fst R')) where
              0r ∎
 
 
-  surχ pathtoR[1/fg] = InvElPropElim _ (λ _ → propTruncIsProp) toGoal
+  surχ pathtoR[1/fg] = InvElPropElim _ (λ _ → isPropPropTrunc) toGoal
    where
    open Exponentiation R[1/f]AsCommRing renaming (_^_ to _^ᶠ_)
                                                hiding (·-of-^-is-^-of-+ ; ^-ldist-·)
@@ -392,11 +402,11 @@ module DoubleLoc (R' : CommRing {ℓ}) (f g : (fst R')) where
          , g/1 ^ᶠ n , PT.∣ n , refl ∣ ] ·R[1/f][1/g] (x .snd .fst /1/1)
    base-^ᶠ-helper r m n = subst (λ y →  ∃[ x ∈ R × S[fg] ] (x .fst /1/1)
                           ≡ [ [ r , f ^ m , PT.∣ m , refl ∣ ] , y ] ·R[1/f][1/g] (x .snd .fst /1/1))
-                     (Σ≡Prop (λ _ → propTruncIsProp) (^-respects-/1 _ n)) (baseCase r m n)
+                     (Σ≡Prop (λ _ → isPropPropTrunc) (^-respects-/1 _ n)) (baseCase r m n)
 
    indStep : (r : R[1/_] R' f) (n : ℕ) → ∃[ x ∈ R × S[fg] ]
          (x .fst /1/1) ≡ [ r , g/1 ^ᶠ n , PT.∣ n , refl ∣ ] ·R[1/f][1/g] (x .snd .fst /1/1)
-   indStep = InvElPropElim _ (λ _ → isPropΠ λ _ → propTruncIsProp) base-^ᶠ-helper
+   indStep = InvElPropElim _ (λ _ → isPropΠ λ _ → isPropPropTrunc) base-^ᶠ-helper
 
    toGoal : (r : R[1/_] R' f) (n : ℕ) → ∃[ x ∈ R × S[fg] ]
             (x .fst /1/1) ·R[1/f][1/g]
@@ -570,8 +580,7 @@ module DoubleLoc (R' : CommRing {ℓ}) (f g : (fst R')) where
    -- the map induced by the universal property
    open S⁻¹RUniversalProp R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g))
    χ : R[1/fg] → R[1/f][1/g]
-   χ = RingHom.f ( S⁻¹RHasUniversalProp R[1/f][1/g]AsCommRing
-                   /1/1AsCommRingHom fⁿgⁿ/1/1∈R[1/f][1/g]ˣ .fst .fst)
+   χ = S⁻¹RHasUniversalProp R[1/f][1/g]AsCommRing /1/1AsCommRingHom fⁿgⁿ/1/1∈R[1/f][1/g]ˣ .fst .fst .fst
 
    -- the sanity check:
    -- both maps send a fraction r/(fg)ⁿ to a double fraction,

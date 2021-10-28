@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Homotopy.WedgeConnectivity where
 
 open import Cubical.Foundations.Everything
@@ -47,4 +47,13 @@ module WedgeConnectivity {ℓ ℓ' ℓ''} (n m : ℕ)
   right : ∀ b → extension (pt A) b ≡ g b
   right = funExt⁻ (cong fst (funExt⁻ (main .fst .snd) _))
 
-    -- TODO: left (pt A) ⁻¹ ∙ right (pt B) ≡ p
+  hom : left (pt A) ⁻¹ ∙ right (pt B) ≡ p
+  hom i j = hcomp (λ k → λ { (i = i1) → p j
+                           ; (j = i0) → (cong snd (funExt⁻ (main .fst .snd) tt)) i (~ j)
+                           ; (j = i1) → right (pt B) (i ∨ k)})
+                  (cong snd (funExt⁻ (main .fst .snd) tt) i (~ j))
+
+  hom' : left (pt A) ≡ right (pt B) ∙ sym p
+  hom' = (lUnit (left _) ∙ cong (_∙ left (pt A)) (sym (rCancel (right (pt B)))))
+       ∙∙ sym (assoc _ _ _)
+       ∙∙ cong (right (pt B) ∙_) (sym (symDistr (left (pt A) ⁻¹) (right (pt B))) ∙ (cong sym hom))

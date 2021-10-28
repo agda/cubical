@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Rationals.SigmaQ.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -7,7 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 
-open import Cubical.HITs.Ints.QuoInt
+open import Cubical.Data.Int.MoreInts.QuoInt
 import Cubical.HITs.SetQuotients as SetQuotient
 
 open import Cubical.Data.Nat as ℕ hiding (_·_)

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Homotopy.Connected where
 
 open import Cubical.Core.Everything
@@ -177,6 +177,14 @@ isConnectedPathP : ∀ {ℓ} (n : HLevel) {A : I → Type ℓ}
 isConnectedPathP n con a₀ a₁ =
   subst (isConnected n) (sym (PathP≡Path _ _ _))
         (isConnectedPath n con _ _)
+
+isConnectedCong : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B)
+  → isConnectedFun (suc n) f
+  → ∀ {a₀ a₁} → isConnectedFun n {A = a₀ ≡ a₁} (cong f)
+isConnectedCong n f cf {a₀} {a₁} q =
+  subst (isConnected n)
+    (sym (fiberCong f q))
+    (isConnectedPath n (cf (f a₁)) (a₀ , q) (a₁ , refl))
 
 isConnectedRetract : ∀ {ℓ ℓ'} (n : HLevel)
   {A : Type ℓ} {B : Type ℓ'}

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 
 module Cubical.Categories.Category.Base where
@@ -84,6 +84,11 @@ record isUnivalent (C : Precategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   -- package up the univalence equivalence
   univEquiv : ∀ (x y : C .ob) → (x ≡ y) ≃ (CatIso x y)
   univEquiv x y = (pathToIso {C = C} x y) , (univ x y)
+
+  -- The function extracting paths from category-theoretic isomorphisms.
+  CatIsoToPath : {x y : C .ob} (p : CatIso x y) → x ≡ y
+  CatIsoToPath {x = x} {y = y} p =
+    equivFun (invEquiv (univEquiv x y)) p
 
 open isUnivalent public
 

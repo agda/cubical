@@ -20,7 +20,7 @@ This file proves a variety of basic results about paths:
 - Export universe lifting
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Prelude where
 
 open import Cubical.Core.Primitives public
@@ -238,6 +238,10 @@ subst2 B p q b = transport (λ i → B (p i) (q i)) b
 
 substRefl : (px : B x) → subst B refl px ≡ px
 substRefl px = transportRefl px
+
+subst-filler : (B : A → Type ℓ') (p : x ≡ y) (b : B x)
+  → PathP (λ i → B (p i)) b (subst B p b)
+subst-filler B p = transport-filler (cong B p)
 
 funExt : {B : A → I → Type ℓ'}
   {f : (x : A) → B x i0} {g : (x : A) → B x i1}
@@ -503,3 +507,13 @@ compPathR→PathP {p = p} {q = q} {r = r} {s = s} P j i =
                   ; (j = i0) → r i
                   ; (j = i1) → doubleCompPath-filler∙  p s (sym q) k i})
         (P j i)
+
+compPathR→PathP∙∙ : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+                → r ≡ p ∙∙ s ∙∙ sym q
+                → PathP (λ i → p i ≡ q i) r s
+compPathR→PathP∙∙ {p = p} {q = q} {r = r} {s = s} P j i =
+    hcomp (λ k → λ { (i = i0) → p (k ∧ j)
+                    ; (i = i1) → q (k ∧ j)
+                    ; (j = i0) → r i
+                    ; (j = i1) → doubleCompPath-filler  p s (sym q) (~ k) i})
+          (P j i)

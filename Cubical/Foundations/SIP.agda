@@ -6,7 +6,7 @@ structure identity principle:
 https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html#sns
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.SIP where
 
 open import Cubical.Foundations.Prelude
@@ -102,7 +102,7 @@ invTransportStr : {S : Type ℓ → Type ℓ₂} (α : EquivAction S) (τ : Tran
 invTransportStr {S = S} α τ e t =
   sym (transport⁻Transport (cong S (ua e)) (invEq (α e) t))
   ∙∙ sym (cong (subst⁻ S (ua e)) (τ e (invEq (α e) t)))
-  ∙∙ cong (subst⁻ S (ua e)) (retEq (α e) t)
+  ∙∙ cong (subst⁻ S (ua e)) (secEq (α e) t)
 
 
 --- We can now define an invertible function

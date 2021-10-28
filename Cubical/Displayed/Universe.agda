@@ -4,7 +4,7 @@
   - SubstRel and DUARel for the element family over the universe
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Displayed.Universe where
 
 open import Cubical.Foundations.Prelude

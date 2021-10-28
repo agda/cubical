@@ -6,11 +6,13 @@ characterizations of the field types using reflection.
 See end of file for an example.
 
 -}
-{-# OPTIONS --cubical --no-exact-split --no-import-sorts --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Displayed.Record where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Data.Sigma
 open import Cubical.Data.List as List
@@ -103,16 +105,17 @@ module _ {ℓA ℓ≅A} {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
   open DUARel 𝒮ᴰ-S
 
   𝒮ᴰ-Fields :
-    (e : ∀ a → S a ≃ R a)
-    (e≅ : ∀ a a' (r : R a) p (r' : R a') → r ≅R⟨ p ⟩ r' ≃ (invEq (e a) r ≅ᴰ⟨ p ⟩ invEq (e a') r'))
+    (e : ∀ a → Iso (R a) (S a))
+    (e≅ : ∀ a a' (r : R a) p (r' : R a') → Iso (r ≅R⟨ p ⟩ r') ((e a .Iso.fun r ≅ᴰ⟨ p ⟩ e a' .Iso.fun r')))
     → DUARel 𝒮-A R ℓ≅R
   DUARel._≅ᴰ⟨_⟩_ (𝒮ᴰ-Fields e e≅) r p r' = r ≅R⟨ p ⟩ r'
   DUARel.uaᴰ (𝒮ᴰ-Fields e e≅) r p r' =
-    compEquiv
-      (e≅ _ _ r p r')
-      (compEquiv
-        (uaᴰ (invEq (e _) r) p (invEq (e _) r'))
-        (invEquiv (congPathEquiv λ i → invEquiv (e _))))
+    isoToEquiv
+      (compIso
+        (e≅ _ _ r p r')
+        (compIso
+          (equivToIso (uaᴰ (e _ .Iso.fun r) p (e _ .Iso.fun r')))
+          (invIso (congPathIso λ i → isoToEquiv (e _)))))
 
 module DisplayedRecordMacro where
 
@@ -127,7 +130,7 @@ module DisplayedRecordMacro where
     go : R.Term → Maybe (R.TC R.Name)
     go (R.meta x _) = just (R.blockOnMeta x)
     go (R.def name _) = just (R.returnTC name)
-    go (R.lam R.hidden (R.abs _ t)) = go t
+    go (R.lam _ (R.abs _ t)) = go t
     go t = nothing
 
   -- ℓA ℓ≅A ℓR ℓ≅R A 𝒮-A R _≅R⟨_⟩_
@@ -155,16 +158,13 @@ module DisplayedRecordMacro where
   parseFields t = R.typeError (R.strErr "Malformed specification: " ∷ R.termErr t ∷ [])
 
   {-
-    Given a list of record field names (in reverse order), generates an association (in the sense of
-    Cubical.Reflection.RecordEquiv) between the record fields and the fields of a left-associated iterated
-    Σ-type
+    Given a list of record field names (in reverse order), generates a ΣFormat (in the sense of
+    Cubical.Reflection.RecordEquiv) associating the record fields with the fields of a left-associated
+    iterated Σ-type
   -}
-  List→LeftAssoc : List R.Name → RE.Assoc
-  List→LeftAssoc xs = RE.Internal.ΣFormat→Assoc (go xs)
-    where
-    go : List R.Name → RE.ΣFormat
-    go [] = RE.unit
-    go (x ∷ xs) = go xs RE., RE.leaf x
+  List→LeftAssoc : List R.Name → RE.ΣFormat
+  List→LeftAssoc [] = RE.unit
+  List→LeftAssoc (x ∷ xs) = List→LeftAssoc xs RE., RE.leaf x
 
   module _ {ℓA ℓ≅A} {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
     {ℓR ℓ≅R} {R : A → Type ℓR} (≅R : {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R)
@@ -181,30 +181,21 @@ module DisplayedRecordMacro where
     -}
     𝒮ᴰ-Record : DUAFields 𝒮-A R ≅R πS 𝒮ᴰ-S πS≅ → R.Term → R.TC Unit
     𝒮ᴰ-Record fs hole =
-      R.quoteTC (DUARel 𝒮-A R ℓ≅R) >>= λ outTy →
-      R.checkType hole outTy >>= λ hole →
+      R.quoteTC (DUARel 𝒮-A R ℓ≅R) >>= R.checkType hole >>= λ hole →
       R.quoteωTC fs >>= λ `fs` →
       parseFields `fs` >>= λ (fields , ≅fields) →
-      inFieldsContext (newMeta R.unknown) >>= λ fieldsEquiv →
-      in≅FieldsContext (newMeta R.unknown) >>= λ ≅fieldsEquiv →
-      R.quoteTC {A = {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R} ≅R >>= λ `≅R` →
+      R.freshName "fieldsIso" >>= λ fieldsIso →
+      R.freshName "≅fieldsIso" >>= λ ≅fieldsIso →
+      R.quoteTC R >>= R.normalise >>= λ `R` →
+      R.quoteTC {A = {a a' : A} → R a → UARel._≅_ 𝒮-A a a' → R a' → Type ℓ≅R} ≅R >>= R.normalise >>= λ `≅R` →
+      findName `R` >>= RE.declareRecordIsoΣ' fieldsIso (List→LeftAssoc fields) >>
+      findName `≅R` >>= RE.declareRecordIsoΣ' ≅fieldsIso (List→LeftAssoc ≅fields) >>
       R.unify hole
         (R.def (quote 𝒮ᴰ-Fields)
           (`≅R` v∷ `fs` v∷
-            vlam "_" fieldsEquiv v∷
-            vlam "a" (vlam "a'" (vlam "r" (vlam "p" (vlam "r'" ≅fieldsEquiv)))) v∷
-            [])) >>
-      inFieldsContext (I.equivMacro (List→LeftAssoc fields) fieldsEquiv) >>
-      in≅FieldsContext (I.equivMacro (I.flipAssoc (List→LeftAssoc ≅fields)) ≅fieldsEquiv)
-      where
-      module I = RE.Internal
-
-      inFieldsContext : ∀ {A : Type} → R.TC A → R.TC A
-      inFieldsContext = R.extendContext (varg R.unknown)
-
-      in≅FieldsContext : ∀ {A : Type} → R.TC A → R.TC A
-      in≅FieldsContext =
-        extend*Context (R.unknown v∷ R.unknown v∷ R.unknown v∷ R.unknown v∷ R.unknown v∷ [])
+            vlam "_" (R.def fieldsIso []) v∷
+            vlam "a" (vlam "a'" (vlam "r" (vlam "p" (vlam "r'" (R.def ≅fieldsIso []))))) v∷
+            []))
 
 macro
   𝒮ᴰ-Record = DisplayedRecordMacro.𝒮ᴰ-Record
@@ -215,20 +206,26 @@ private
   module Example where
 
     record Example (A : Type) : Type where
+      no-eta-equality -- works with or without eta equality
       field
-        dog : A
-        cat : A
+        dog : A → A → A
+        cat : A → A → A
         mouse : Unit
 
-    record ExampleEquiv {A B : Type} (x : Example A) (e : A ≃ B) (x' : Example B) : Type where
+    open Example
+
+    record ExampleEquiv {A B : Type} (x : Example A) (e : A ≃ B) (y : Example B) : Type where
+      no-eta-equality -- works with or without eta equality
       field
-        dogEq : e .fst (Example.dog x) ≡ Example.dog x'
-        catEq : e .fst (Example.cat x) ≡ Example.cat x'
+        dogEq : ∀ a a' → e .fst (x .dog a a') ≡ y .dog (e .fst a) (e .fst a')
+        catEq : ∀ a a' → e .fst (x .cat a a') ≡ y .cat (e .fst a) (e .fst a')
+
+    open ExampleEquiv
 
     example : DUARel (𝒮-Univ ℓ-zero) Example ℓ-zero
     example =
       𝒮ᴰ-Record (𝒮-Univ ℓ-zero) ExampleEquiv
         (fields:
-          data[ Example.dog ∣ autoDUARel _ _ ∣ ExampleEquiv.dogEq ]
-          data[ Example.cat ∣ autoDUARel _ _ ∣ ExampleEquiv.catEq ]
-          prop[ Example.mouse ∣ (λ _ _ → isPropUnit) ])
+          data[ dog ∣ autoDUARel _ _ ∣ dogEq ]
+          data[ cat ∣ autoDUARel _ _ ∣ catEq ]
+          prop[ mouse ∣ (λ _ _ → isPropUnit) ])

@@ -1,14 +1,16 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.RingSolver.CommRingExamples where
 
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.FinData
 open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Int.Base hiding (_+_ ; _·_ ; -_ ; _-_)
 open import Cubical.Data.Vec.Base
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.RingSolver.NatAsAlmostRing
+open import Cubical.Algebra.RingSolver.AlgebraExpression
 open import Cubical.Algebra.RingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.RingSolver.CommRingSolver
 
@@ -16,7 +18,7 @@ private
   variable
     ℓ : Level
 
-module MultivariateSolving (R : CommRing {ℓ}) where
+module MultivariateSolving (R : CommRing ℓ) where
   -- In scope for debuggin:
 
   -- In scope for solver use:

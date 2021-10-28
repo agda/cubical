@@ -10,7 +10,7 @@ Carlo Angiuli, Evan Cavallo, Anders Mörtberg, Max Zeuner
 Preprint: https://arxiv.org/abs/2009.05547
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Papers.RepresentationIndependence where
 
 
@@ -31,7 +31,7 @@ import Cubical.HITs.Rationals.SigmaQ           as SigmaQ
 -- 3.1
 import Cubical.Foundations.SIP                 as SIP
 import Cubical.Structures.Axioms               as Axioms
-import Cubical.Algebra.Monoid.Base             as Monoid
+import Cubical.Algebra.Semigroup.Base          as Semigroup
 open import Cubical.Data.Sigma.Base
 -- 3.2
 import Cubical.Structures.Pointed              as PointedStr
@@ -127,9 +127,19 @@ open Axioms using ( AxiomsStructure ; AxiomsEquivStr
                   ; axiomsUnivalentStr ; transferAxioms) public
 
 -- Monoids are defined using records and Σ-types in the library
-open Monoid.MonoidΣTheory using (RawMonoidStructure ; MonoidAxioms
-                                                    ; MonoidStructure) public
-open Monoid.MonoidΣTheory renaming (MonoidΣ to Monoid) public
+
+RawMonoidStructure : Type → Type
+RawMonoidStructure X = X × (X → X → X)
+
+MonoidAxioms : (M : Type) → RawMonoidStructure M → Type
+MonoidAxioms M (e , _·_) = Semigroup.IsSemigroup _·_
+                         × ((x : M) → (x · e ≡ x) × (e · x ≡ x))
+
+MonoidStructure : Type → Type
+MonoidStructure = AxiomsStructure RawMonoidStructure MonoidAxioms
+
+Monoid : Type₁
+Monoid = TypeWithStr ℓ-zero MonoidStructure
 
 MonoidEquiv : (M N : Monoid) → fst M ≃ fst N → Type
 MonoidEquiv (_ , (εᴹ , _·_) , _) (_ , (εᴺ , _∗_) , _) (φ , _) =
@@ -161,8 +171,46 @@ open Structure using (EquivAction→StrEquiv) public
 open FunctionStr using (FunctionEquivStr+) public
 
 -- Monoids Revisited
-open Monoid.MonoidΣTheory using (MonoidΣPath ; InducedMonoid
-                                             ; InducedMonoidPath) public
+
+RawMonoid : Type₁
+RawMonoid = TypeWithStr _ RawMonoidStructure
+
+Monoid→RawMonoid : Monoid → RawMonoid
+Monoid→RawMonoid (A , r , _) = (A , r)
+
+RawMonoidEquivStr = Auto.AutoEquivStr RawMonoidStructure
+
+rawMonoidUnivalentStr : UnivalentStr _ RawMonoidEquivStr
+rawMonoidUnivalentStr = Auto.autoUnivalentStr RawMonoidStructure
+
+isPropMonoidAxioms : (M : Type) (s : RawMonoidStructure M) → isProp (MonoidAxioms M s)
+isPropMonoidAxioms M (e , _·_) =
+  HLevels.isPropΣ
+    (Semigroup.isPropIsSemigroup _·_)
+    (λ α → isPropΠ λ _ →
+      HLevels.isProp×
+        (Semigroup.IsSemigroup.is-set α _ _)
+        (Semigroup.IsSemigroup.is-set α _ _))
+
+MonoidEquivStr : StrEquiv MonoidStructure ℓ-zero
+MonoidEquivStr = AxiomsEquivStr RawMonoidEquivStr MonoidAxioms
+
+monoidUnivalentStr : UnivalentStr MonoidStructure MonoidEquivStr
+monoidUnivalentStr = axiomsUnivalentStr _ isPropMonoidAxioms rawMonoidUnivalentStr
+
+MonoidΣPath : (M N : Monoid) → (M ≃[ MonoidEquivStr ] N) ≃ (M ≡ N)
+MonoidΣPath = SIP monoidUnivalentStr
+
+InducedMonoid : (M : Monoid) (N : RawMonoid) (e : M .fst ≃ N .fst)
+                → RawMonoidEquivStr (Monoid→RawMonoid M) N e → Monoid
+InducedMonoid M N e r =
+  Axioms.inducedStructure rawMonoidUnivalentStr M N (e , r)
+
+InducedMonoidPath : (M : Monoid) (N : RawMonoid) (e : M .fst ≃ N .fst)
+                    (E : RawMonoidEquivStr (Monoid→RawMonoid M) N e)
+                    → M ≡ InducedMonoid M N e E
+InducedMonoidPath M N e E =
+  MonoidΣPath M (InducedMonoid M N e E) .fst (e , E)
 
 -- Automation
 open Auto using (Transp[_] ; AutoEquivStr ; autoUnivalentStr) public
@@ -187,15 +235,15 @@ open Matrices using (VecMatrix ; FinMatrix ; FinMatrix≡VecMatrix
 open Matrices.FinMatrixAbGroup using (addFinMatrix ; addFinMatrixComm) public
 
 -- example (not in the library)
-open import Cubical.Data.Int renaming (Int to ℤ ; isSetInt to isSetℤ) hiding (-_)
+open import Cubical.Data.Int hiding (-_)
 
-ℤ-AbGroup : AbGroup
-ℤ-AbGroup = makeAbGroup {G = ℤ} 0 _+_ -_ isSetℤ +-assoc (λ x _ → x) rem +-comm
+ℤ-AbGroup : AbGroup ℓ-zero
+ℤ-AbGroup = makeAbGroup {G = ℤ} 0 _+_ -_ isSetℤ +Assoc (λ x _ → x) rem +Comm
     where
     -_ : ℤ → ℤ
     - x = 0 - x
     rem : (x : ℤ) → x + (- x) ≡ 0
-    rem x =  +-comm x (pos 0 - x) Prelude.∙ minusPlus x 0
+    rem x =  +Comm x (pos 0 - x) Prelude.∙ minusPlus x 0
 
 module experiment where
   open Prelude
@@ -208,7 +256,7 @@ module experiment where
 
   replaceGoal : {A B : Type} {x y : A} → (e : A ≃ B)
                 (h : invEq e (equivFun e x) ≡ invEq e (equivFun e y)) → x ≡ y
-  replaceGoal e h = sym (secEq e _) ∙∙ h ∙∙ secEq e _
+  replaceGoal e h = sym (retEq e _) ∙∙ h ∙∙ retEq e _
 
   _ : addFinMatrix ℤ-AbGroup M N ≡ (λ _ _ → 1)
   _ = replaceGoal (FinMatrix≃VecMatrix) refl

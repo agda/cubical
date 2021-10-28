@@ -1,6 +1,6 @@
 -- Two fun examples of generic programming using univalence
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Experiments.Generic where
 
 open import Agda.Builtin.String
@@ -86,35 +86,35 @@ data Company (A : Type₀) : Type₀ where
 
 -- A small example
 
-anders : Employee Int
+anders : Employee ℤ
 anders = E (P "Anders" "Pittsburgh") (S (pos 2500))
 
-andrea : Employee Int
+andrea : Employee ℤ
 andrea = E (P "Andrea" "Copenhagen") (S (pos 2000))
 
-andreas : Employee Int
+andreas : Employee ℤ
 andreas = E (P "Andreas" "Gothenburg") (S (pos 3000))
 
 -- For now we have a small company
-genCom : Company Int
+genCom : Company ℤ
 genCom =
   C ( D "Research" andreas (PU anders ∷ PU andrea ∷ [])
     ∷ [])
 
 -- Increase the salary for everyone by 1
-incSalary : Company Int → Company Int
-incSalary c = transport (λ i → Company (sucPathInt i)) c
+incSalary : Company ℤ → Company ℤ
+incSalary c = transport (λ i → Company (sucPathℤ i)) c
 
-genCom1 : Company Int
+genCom1 : Company ℤ
 genCom1 = incSalary genCom
 
 
 -- Increase the salary more
-incSalaryℕ : ℕ → Company Int → Company Int
+incSalaryℕ : ℕ → Company ℤ → Company ℤ
 incSalaryℕ n c = transport (λ i → Company (addEq n i)) c
 
-genCom2 : Company Int
+genCom2 : Company ℤ
 genCom2 = incSalaryℕ 2 genCom
 
-genCom10 : Company Int
+genCom10 : Company ℤ
 genCom10 = incSalaryℕ 10 genCom

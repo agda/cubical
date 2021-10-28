@@ -5,7 +5,7 @@ This file contains:
 - Properties of groupoid truncations
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.GroupoidTruncation.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -51,8 +51,8 @@ elim3 : {B : (x y z : ∥ A ∥₃) → Type ℓ}
 elim3 gB g = elim2 (λ _ _ → isGroupoidΠ (λ _ → gB _ _ _))
                    (λ a b → elim (λ _ → gB _ _ _) (g a b))
 
-groupoidTruncIsGroupoid : isGroupoid ∥ A ∥₃
-groupoidTruncIsGroupoid a b p q r s = squash₃ a b p q r s
+isGroupoidGroupoidTrunc : isGroupoid ∥ A ∥₃
+isGroupoidGroupoidTrunc a b p q r s = squash₃ a b p q r s
 
 groupoidTruncIdempotent≃ : isGroupoid A → ∥ A ∥₃ ≃ A
 groupoidTruncIdempotent≃ {A = A} hA = isoToEquiv f
@@ -61,7 +61,7 @@ groupoidTruncIdempotent≃ {A = A} hA = isoToEquiv f
   Iso.fun f = rec hA (idfun A)
   Iso.inv f x = ∣ x ∣₃
   Iso.rightInv f _ = refl
-  Iso.leftInv f = elim (λ _ → isGroupoid→is2Groupoid groupoidTruncIsGroupoid _ _) (λ _ → refl)
+  Iso.leftInv f = elim (λ _ → isGroupoid→is2Groupoid isGroupoidGroupoidTrunc _ _) (λ _ → refl)
 
 groupoidTruncIdempotent : isGroupoid A → ∥ A ∥₃ ≡ A
 groupoidTruncIdempotent hA = ua (groupoidTruncIdempotent≃ hA)

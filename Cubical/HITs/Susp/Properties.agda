@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Susp.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -6,10 +6,18 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.GroupoidLaws
+
+open import Cubical.Homotopy.Loopspace
 
 open import Cubical.Data.Bool
 open import Cubical.HITs.Join
 open import Cubical.HITs.Susp.Base
+
+private
+  variable
+    ℓ : Level
 
 open Iso
 
@@ -117,3 +125,9 @@ Iso.rightInv funSpaceSuspIso f = funExt λ {north → refl
                                              ; south → refl
                                              ; (merid a i) → refl}
 Iso.leftInv funSpaceSuspIso _ = refl
+
+toSusp : (A : Pointed ℓ) → typ A → typ (Ω (Susp∙ (typ A)))
+toSusp A a = merid a ∙ merid (pt A) ⁻¹
+
+toSuspPointed : (A : Pointed ℓ) → A →∙ Ω (Susp∙ (typ A))
+toSuspPointed A = (λ a → merid a ∙ merid (pt A) ⁻¹) , rCancel (merid (pt A))

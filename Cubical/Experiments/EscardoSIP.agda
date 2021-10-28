@@ -5,7 +5,7 @@ https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html#s
 All the needed preliminary results from the lecture notes are stated and proven in this file.
 It would be interesting to compare the proves with the one in Cubical.Foundations.SIP
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Experiments.EscardoSIP where
 
 open import Cubical.Core.Everything
@@ -55,10 +55,10 @@ NatΣ τ (x , a) = (x , τ x a)
   g x = equivFun (invEquiv (φ x))
 
   η : (x : X) → (a : A x) → (g x) ((f x) a) ≡ a
-  η x = retEq (invEquiv (φ x))
+  η x = secEq (invEquiv (φ x))
 
   ε : (x : X) → (b : B x) → f x (g x b) ≡ b
-  ε x = secEq  (invEquiv (φ x))
+  ε x = retEq  (invEquiv (φ x))
 
   NatΣ-η : (w : Σ X A) → NatΣ g (NatΣ f w) ≡ w
   NatΣ-η (x , a)  = (x , g x (f x a)) ≡⟨ Σ-to-PathP (η x a)  ⟩

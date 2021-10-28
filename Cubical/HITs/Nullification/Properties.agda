@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Nullification.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -86,7 +86,7 @@ module _ {ℓ ℓ' ℓ''} {S : Type ℓ} {A : Type ℓ'} {B : Null S A → Type 
 
 NullModality : ∀ {ℓ} (S : Type ℓ) → Modality ℓ
 isModal       (NullModality S) = isNull S
-isModalIsProp (NullModality S) = isPropIsPathSplitEquiv _
+isPropIsModal (NullModality S) = isPropIsPathSplitEquiv _
 ◯             (NullModality S) = Null S
 ◯-isModal     (NullModality S) = isNull-Null
 η             (NullModality S) = ∣_∣

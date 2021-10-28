@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --no-import-sorts #-}
+{-# OPTIONS --safe #-}
 {-
 Implements the monadic interface of propositional truncation, for reasoning in do-syntax.
 -}
@@ -27,7 +27,7 @@ exact_ : ∥ P ∥ → ∥ P ∥
 exact p = p
 
 _>>=_ : ∥ P ∥ → (P → ∥ Q ∥) → ∥ Q ∥
-p >>= f = rec propTruncIsProp f p
+p >>= f = rec isPropPropTrunc f p
 
 _>>_ : ∥ P ∥ → ∥ Q ∥ → ∥ Q ∥
 _ >> q = q
