@@ -122,7 +122,11 @@ open Sn using (S₊∙)
 open Loop using (Ω^_)
 
 -- Eckmann-Hilton argument
-open Loop using (Eckmann-Hilton)
+Eckmann-Hilton : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ ((Ω^ (suc n)) A)
+Eckmann-Hilton n α β =
+  transport (λ i → cong (λ x → rUnit x (~ i)) α ∙ cong (λ x → lUnit x (~ i)) β
+                 ≡ cong (λ x → lUnit x (~ i)) β ∙ cong (λ x → rUnit x (~ i)) α)
+        (λ i → (λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j))
 
 -- n-types Note that we start indexing from 0 in the Cubical Library
 -- (so (-2)-types as referred to as 0-types, (-1) as 1-types, and so
