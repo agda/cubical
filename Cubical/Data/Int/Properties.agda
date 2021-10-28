@@ -358,6 +358,7 @@ pos- (suc m) (suc n) =
    -  neg (suc n +ℕ suc m)     ≡⟨ pos+ (suc n) (suc m) ⟩
   (-  negsuc n) + (- negsuc m) ∎
 
+
 -- multiplication
 
 pos·negsuc : (n m : ℕ) → pos n · negsuc m ≡ - (pos n · pos (suc m))
