@@ -85,7 +85,7 @@ The idea is to fill the following diagram
 Ωⁿ A -------------------> Ωⁿ⁺¹ (Susp A)
  |                           |
  |                           |
- | ≃ lMap                    | ≃ eq₂
+ | ≃ eq₁                     | ≃ eq₂
  |                           |
  v           suspMap         v
  (Sⁿ →∙ A) -------------- > (Sⁿ⁺¹ →∙ Susp A)
@@ -495,14 +495,19 @@ filler▿ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (x : (S₊∙ n →∙ A))
 filler▿ zero (f , p) =
   ΣPathP ((funExt (λ { base → refl ; (loop i) → refl})) , refl)
 filler▿ (suc n) (f , p) =
-  ΣPathP ((funExt (λ { north → refl ; south → refl ; (merid a i) → refl})) , refl)
+  ΣPathP ((funExt (λ { north → refl
+                     ; south → refl
+                     ; (merid a i) → refl}))
+          , refl)
 
-
-IsoΩSphereMap : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → Iso (typ ((Ω^ n) A)) ((S₊∙ n →∙ A))
+IsoΩSphereMap : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+  → Iso (typ ((Ω^ n) A)) ((S₊∙ n →∙ A))
 fun (IsoΩSphereMap zero) = lMap zero
 inv (IsoΩSphereMap zero) f = fst f false
-rightInv (IsoΩSphereMap zero) f = ΣPathP ((funExt (λ { false → refl ; true → sym (snd f)}))
-                                , λ i j → snd f (~ i ∨ j))
+rightInv (IsoΩSphereMap zero) f =
+  ΣPathP ((funExt (λ { false → refl
+                     ; true → sym (snd f)}))
+         , λ i j → snd f (~ i ∨ j))
 leftInv (IsoΩSphereMap zero) p = refl
 IsoΩSphereMap (suc n) = equivToIso (_ , isEquiv-lMap n)
 
@@ -1223,95 +1228,3 @@ isSurjectiveSuspMap n =
   lem (suc m) (suc n) = fst (lem (suc m) n) , (cong (_∸ (suc n)) (+-comm m (3 + n))
                      ∙∙ cong (_∸ n) (+-comm (suc (suc n)) m)
                      ∙∙ snd (lem (suc m) n))
-
-
--- open import Cubical.Data.Nat.Order
--- open import Cubical.Data.Empty renaming (rec to ⊥-rec)
-
--- n∸n : (n : ℕ) → n ∸ n ≡ 0
--- n∸n zero = refl
--- n∸n (suc n) = n∸n n
-
--- ∸≤ : (n m : ℕ) → n < m → n ∸ m ≡ 0
--- ∸≤ n zero p = ⊥-rec (¬-<-zero p)
--- ∸≤ zero (suc m) p = refl
--- ∸≤ (suc n) (suc m) p = ∸≤ n m (pred-≤-pred p)
-
--- suc∸ : (n m : ℕ) → m < n → suc (n ∸ m) ≡ (suc n) ∸ m
--- suc∸ n zero p = refl
--- suc∸ zero (suc m) p = ⊥-rec (¬-<-zero p)
--- suc∸ (suc n) (suc m) p = suc∸ n m (pred-≤-pred p)
-
--- isConnectedΩ : ∀ {ℓ} {A : Pointed ℓ} (n m : ℕ)
---              → isConnected n (typ A)
---              → isConnected (n ∸ m) (typ ((Ω^ m) A))
--- isConnectedΩ {A = A} n zero conA = conA
--- isConnectedΩ {A = A} n (suc m) conA with (n ≟ (suc m))
--- ... | (lt p) = subst (λ x → isConnected x (typ ((Ω^ (suc m)) A)))
---                      (sym (∸≤ n (suc m) p))
---                      (tt* , (λ{tt* → refl}))
--- ... | (eq p) = subst (λ x → isConnected x (typ ((Ω^ (suc m)) A)))
---                       (sym (n∸n n) ∙ (cong (n ∸_) p))
---                       (tt* , (λ{tt* → refl}))
--- ... | (gt p) = subst (λ x → isConnected x (typ ((Ω^ (suc m)) A)))
---                      (sym (cong predℕ (snd (lem₂ n m p))) ∙ sym (lem₁ n m p))
---                      conΩ
---   where
---   lem₁ : (n m : ℕ) → suc m < n → n ∸ (suc m) ≡ predℕ (n ∸ m)
---   lem₁ zero m p = ⊥-rec (¬-<-zero p)
---   lem₁ (suc n) zero p = refl
---   lem₁ (suc n) (suc m) p = lem₁ n m (pred-≤-pred p)
-
---   lem₂ : (n m : ℕ) → suc m < n → Σ[ x ∈ ℕ ] (n ∸ m ≡ suc x)
---   lem₂ n m = uncurry λ x
---     → J (λ n p → Σ[ x ∈ ℕ ] (n ∸ m ≡ suc x))
---          (help m x)
---     where
---     help : (m x : ℕ) → Σ[ y ∈ ℕ ] (((x + suc (suc m)) ∸ m) ≡ suc y)
---     help zero zero = 1 , refl
---     help (suc m) zero = help m zero
---     help m (suc x) = _ , sym (suc∸ (x + (suc (suc m))) m (lem m x))
---       where
---       lem : (m x : ℕ) → m < x + suc (suc m)
---       lem m zero = suc zero , refl
---       lem m (suc x) = <-trans (lem m x) (zero , refl)
-
---   x = fst (lem₂ n m p)
-
---   conΩ : isConnected x ((typ ((Ω^ (suc m)) A)))
---   conΩ = isConnectedPath x (subst (λ x → isConnected x (typ ((Ω^ m) A)))
---                                   (snd (lem₂ n m p))
---                                   (isConnectedΩ n m conA)) _ _
-
-
--- isConnectedΩ-S : (n m : ℕ) → isConnected (suc (m ∸ n)) (typ ((Ω^ n) (S₊∙ m)))
--- isConnectedΩ-S n m with (m ≟ n)
--- ... | (lt p) = subst (λ x → isConnected x (typ ((Ω^ n) (S₊∙ m))))
---                      (cong suc (sym (∸≤ m n p)))
---                      (∣ pt ((Ω^ n) (S₊∙ m)) ∣ , (isOfHLevelTrunc 1 _))
--- ... | (eq p) = subst (λ x → isConnected x (typ ((Ω^ n) (S₊∙ m))))
---                      (cong suc (sym (n∸n m) ∙ (λ i → m ∸ p i)))
---                      (∣ pt ((Ω^ n) (S₊∙ m)) ∣ , (isOfHLevelTrunc 1 _))
--- ... | (gt p) = subst (λ x → isConnected x ((typ ((Ω^ n) (S₊∙ m)))))
---                      (sym (suc∸ m n p))
---                      (isConnectedΩ (suc m) n (sphereConnected m))
-
--- open import Cubical.Homotopy.WedgeConnectivity
--- isConnectedΩ'-S : (n m : ℕ) → isConnected (suc (m ∸ n)) (S₊∙ n →∙ S₊∙ m)
--- isConnectedΩ'-S n m =
---   subst (isConnected (suc (m ∸ n))) (Ω≡SphereMap n) (isConnectedΩ-S n m)
-
--- suspMap-preComp' : ∀ {ℓ} {A : Pointed ℓ} (n m : ℕ)
---         (f g : S₊∙ (suc n) →∙ S₊∙ m)
---       → ∥ suspMap n (∙Π f g) ≡ ∙Π (suspMap n f) (suspMap n g) ∥
--- suspMap-preComp' n m f g  = {!WC!}
---   where
---   lem1 : (n m : ℕ) → 1 ≤ (m ∸ suc n + (m ∸ suc n))
---   lem1 n m = {!!}
-
---   module WC = WedgeConnectivity 1 1
---          (S₊∙ (suc n) →∙ S₊∙ m ∙) {!!}
---          (S₊∙ (suc n) →∙ S₊∙ m ∙) {!!}
---          {!!}
---          {!!}
---          {!!}
