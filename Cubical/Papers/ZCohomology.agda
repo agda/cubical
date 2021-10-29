@@ -478,7 +478,7 @@ open HⁿℂP² using (g)
 brunerie2 : ℤ
 brunerie2 = g 1
 
--- Additional material (from the appendix of the preprint) 
+-- Additional material (from the appendix of the preprint)
 ----- A. Proofs -----
 
 -- A.2 Proofs for Section 4
