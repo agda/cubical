@@ -203,10 +203,13 @@ module _ (R' : CommRing ℓ) (L' : DistLattice ℓ') where
  open CommRingTheory R'
  open Exponentiation R'
 
- open DistLatticeStr (L' .snd)
+ open DistLatticeStr (L' .snd) renaming (is-set to isSetL)
  open Join L'
+ open LatticeTheory (DistLattice→Lattice L')
+ open Order (DistLattice→Lattice L')
  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L'))
  open PosetReasoning IndPoset
+ open PosetStr (IndPoset .snd) hiding (_≤_)
  private
   R = fst R'
   L = fst L'
@@ -228,13 +231,41 @@ module _ (R' : CommRing ℓ) (L' : DistLattice ℓ') where
                        d (U zero) ∨l ⋁ (d ∘ U ∘ suc) ≤⟨ ∨lIdem _ ⟩
                        ⋁ (d ∘ U) ◾
 
+  d·LCancel : ∀ x y → d (x · y) ≤ d y
+  d·LCancel x y = subst (λ a → a ≤ d y) (sym (·≡∧ x y)) (∧≤LCancelJoin _ _)
+
+  linearCombination≤LCancel : {n : ℕ} (α β : FinVec R n)
+                            → d (linearCombination R' α β) ≤ ⋁ (d ∘ β)
+  linearCombination≤LCancel α β = _ ≤⟨ ∑≤⋁ (λ i → α i · β i) ⟩
+                                       ≤-⋁Ext _ _ λ i → d·LCancel (α i) (β i)
+
   ZarMapIdem : ∀ (n : ℕ) (x : R) → d (x ^ (suc n)) ≡ d x
   ZarMapIdem zero x = ·≡∧ _ _ ∙∙ cong (d x ∧l_) pres1 ∙∙ ∧lRid _
   ZarMapIdem (suc n) x = ·≡∧ _ _ ∙∙ cong (d x ∧l_) (ZarMapIdem n x) ∙∙ ∧lIdem _
 
- -- where put this?
- -- ∧≤LCancel : ∀ x y → x ∧l y ≤ y
- -- ∧≤LCancel x y = ?
+  ZarMapExpIneq : ∀ (n : ℕ) (x : R) → d x ≤ d (x ^ n)
+  ZarMapExpIneq zero x = cong (d x ∨l_) pres1 ∙∙ 1lRightAnnihilates∨l _ ∙∙ sym pres1
+  ZarMapExpIneq (suc n) x = subst (λ y → d x ≤ y) (sym (ZarMapIdem _ x)) (∨lIdem _)
+
+  -- the crucial lemma about "Zariski maps"
+  open CommIdeal R'
+  open RadicalIdeal R'
+  open isCommIdeal
+  private
+   ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
+   ⟨ V ⟩ = ⟨ V ⟩[ R' ]
+
+  ZarMapRadicalIneq : ∀ {n : ℕ} (α : FinVec R n) (x : R)
+                    → x ∈ √ (⟨ α ⟩ .fst) → d x ≤ ⋁ (d ∘ α)
+  ZarMapRadicalIneq α x = PT.elim (λ _ → isSetL _ _)
+         (uncurry (λ n → (PT.elim (λ _ → isSetL _ _) (uncurry (curriedHelper n)))))
+   where
+   curriedHelper : (n : ℕ) (β : FinVec R _)
+                 → x ^ n ≡ linearCombination R' β α → d x ≤ ⋁ (d ∘ α)
+   curriedHelper n β xⁿ≡∑βα = d x ≤⟨ ZarMapExpIneq n x ⟩
+                              d (x ^ n)
+     ≤⟨ subst (λ y → y ≤ ⋁ (d ∘ α)) (sym (cong d xⁿ≡∑βα)) (linearCombination≤LCancel β α) ⟩
+                              ⋁ (d ∘ α) ◾
 
 module ZarLatUniversalProp (R' : CommRing ℓ) where
  open CommRingStr (snd R')
@@ -292,35 +323,100 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
                          → isProp (hasZarLatUniversalProp L D isZarMapD)
  isPropZarLatUniversalProp L D isZarMapD = isPropΠ3 (λ _ _ _ → isPropIsContr)
 
- -- ZLHasUniversalProp : hasZarLatUniversalProp ZariskiLattice D isZarMapD
- -- ZLHasUniversalProp L' d isZarMapd = (χ , funExt χcomp) , χunique
- --  where
- --  open DistLatticeStr (snd L') renaming (is-set to isSetL)
- --  open Join L'
- --  open IsLatticeHom
- --  L = fst L'
+ ZLHasUniversalProp : hasZarLatUniversalProp ZariskiLattice D isZarMapD
+ ZLHasUniversalProp L' d isZarMapd = (χ , funExt χcomp) , χunique
+  where
+  open DistLatticeStr (snd L') renaming (is-set to isSetL)
+  open LatticeTheory (DistLattice→Lattice L')
+  open Join L'
+  open IsLatticeHom
+  L = fst L'
 
- --  χ : DistLatticeHom ZariskiLattice L'
- --  fst χ = SQ.rec isSetL (λ (_ , α) → ⋁ (d ∘ α))
- --        {!!} -- the big sanity check: If √⟨α⟩≡√⟨β⟩ then ⋁dα≡⋁dβ
- --  pres0 (snd χ) = refl
- --  pres1 (snd χ) = ∨lRid _ ∙ isZarMapd .pres1
- --  pres∨l (snd χ) = elimProp2 (λ _ _ → isSetL _ _) {!!} -- this is hard
- --  pres∧l (snd χ) = elimProp2 (λ _ _ → isSetL _ _) {!!} -- this is even harder
+  χ : DistLatticeHom ZariskiLattice L'
+  fst χ = SQ.rec isSetL (λ (_ , α) → ⋁ (d ∘ α))
+        {!!} -- the big sanity check: If √⟨α⟩≡√⟨β⟩ then ⋁dα≡⋁dβ
+   --where
 
- --  χcomp : ∀ (f : R) → χ .fst (D f) ≡ d f
- --  χcomp f = ∨lRid (d f)
+  pres0 (snd χ) = refl
+  pres1 (snd χ) = ∨lRid _ ∙ isZarMapd .pres1
+  pres∨l (snd χ) = elimProp2 (λ _ _ → isSetL _ _) (uncurry (λ n α → uncurry (curriedHelper n α)))
+   where
+   curriedHelper : (n : ℕ) (α : FinVec R n) (m : ℕ) (β : FinVec R m)
+                 → ⋁ (d ∘ (α ++Fin β)) ≡ ⋁ (d ∘ α) ∨l ⋁ (d ∘ β)
+   curriedHelper zero α _ β = sym (∨lLid _)
+   curriedHelper (suc n) α _ β =
+                   ⋁ (d ∘ (α ++Fin β)) ≡⟨ refl ⟩
+                   d (α zero) ∨l ⋁ (d ∘ ((α ∘ suc) ++Fin β))
 
- --  χunique : (y : Σ[ χ' ∈ DistLatticeHom ZariskiLattice L' ] fst χ' ∘ D ≡ d)
- --          → (χ , funExt χcomp) ≡ y
- --  χunique (χ' , χ'∘D≡d) = Σ≡Prop (λ _ → isSetΠ (λ _ → isSetL) _ _) (LatticeHom≡f _ _
- --                                 (funExt (elimProp (λ _ → isSetL _ _) (uncurry uniqHelper))))
- --   where
- --   uniqHelper : (n : ℕ) (α : FinVec R n) → fst χ [ n , α ] ≡ fst χ' [ n , α ]
- --   uniqHelper zero α = {!!}
- --   uniqHelper (suc n) α =
- --    ⋁ (d ∘ α) ≡⟨ refl ⟩
- --    d (α zero) ∨l ⋁ (d ∘ α ∘ suc) ≡⟨ cong (d (α zero) ∨l_) (uniqHelper n (α ∘ suc)) ⟩
- --    d (α zero) ∨l fst χ' [ n , α ∘ suc ] ≡⟨ {!!} ⟩
- --    fst χ' (D (α zero) ∨z [ n , α ∘ suc ]) ≡⟨ cong (fst χ') {!refl!} ⟩
- --    fst χ' [ suc n , α ] ∎
+                  ≡⟨ cong (d (α zero) ∨l_) (curriedHelper _ (α ∘ suc) _ β) ⟩
+
+                   d (α zero) ∨l (⋁ (d ∘ α ∘ suc) ∨l ⋁ (d ∘ β))
+                  ≡⟨ ∨lAssoc _ _ _ ⟩
+
+                   ⋁ (d ∘ α) ∨l ⋁ (d ∘ β) ∎
+
+  pres∧l (snd χ) = elimProp2 (λ _ _ → isSetL _ _) (uncurry (λ n α → uncurry (curriedHelper n α)))
+   where
+   -- have to repeat this one here so the termination checker won't complain
+   oldHelper : (n : ℕ) (α : FinVec R n) (m : ℕ) (β : FinVec R m)
+             → ⋁ (d ∘ (α ++Fin β)) ≡ ⋁ (d ∘ α) ∨l ⋁ (d ∘ β)
+   oldHelper zero α _ β = sym (∨lLid _)
+   oldHelper (suc n) α _ β = cong (d (α zero) ∨l_) (oldHelper _ (α ∘ suc) _ β) ∙ ∨lAssoc _ _ _
+
+   curriedHelper : (n : ℕ) (α : FinVec R n) (m : ℕ) (β : FinVec R m)
+                 → ⋁ (d ∘ (α ··Fin β)) ≡ ⋁ (d ∘ α) ∧l ⋁ (d ∘ β)
+   curriedHelper zero α _ β = sym (0lLeftAnnihilates∧l _)
+   curriedHelper (suc n) α _ β =
+      ⋁ (d ∘ (α ··Fin β)) ≡⟨ refl ⟩
+      ⋁ (d ∘ ((λ j → α zero · β j) ++Fin ((α ∘ suc) ··Fin β)))
+
+     ≡⟨ oldHelper _ (λ j → α zero · β j) _ ((α ∘ suc) ··Fin β) ⟩
+
+      ⋁ (d ∘ (λ j → α zero · β j)) ∨l ⋁ (d ∘ ((α ∘ suc) ··Fin β))
+
+     ≡⟨ cong (_∨l ⋁ (d ∘ ((α ∘ suc) ··Fin β))) (⋁Ext (λ j → isZarMapd .·≡∧ (α zero) (β j))) ⟩
+
+      ⋁ (λ j → d (α zero) ∧l d (β j)) ∨l ⋁ (d ∘ ((α ∘ suc) ··Fin β))
+
+     ≡⟨ cong (_∨l ⋁ (d ∘ ((α ∘ suc) ··Fin β))) (sym (⋁Meetrdist _ _)) ⟩
+
+      (d (α zero) ∧l ⋁ (d ∘ β)) ∨l ⋁ (d ∘ ((α ∘ suc) ··Fin β))
+
+     ≡⟨ cong ((d (α zero) ∧l ⋁ (d ∘ β)) ∨l_) (curriedHelper _ (α ∘ suc) _ β) ⟩
+
+      (d (α zero) ∧l ⋁ (d ∘ β)) ∨l (⋁ (d ∘ α ∘ suc) ∧l ⋁ (d ∘ β))
+
+     ≡⟨ sym (∧lRdist∨l _ _ _) ⟩
+
+      ⋁ (d ∘ α) ∧l ⋁ (d ∘ β) ∎
+
+
+  χcomp : ∀ (f : R) → χ .fst (D f) ≡ d f
+  χcomp f = ∨lRid (d f)
+
+  χunique : (y : Σ[ χ' ∈ DistLatticeHom ZariskiLattice L' ] fst χ' ∘ D ≡ d)
+          → (χ , funExt χcomp) ≡ y
+  χunique (χ' , χ'∘D≡d) = Σ≡Prop (λ _ → isSetΠ (λ _ → isSetL) _ _) (LatticeHom≡f _ _
+                                 (funExt (elimProp (λ _ → isSetL _ _) (uncurry uniqHelper))))
+   where
+   uniqHelper : (n : ℕ) (α : FinVec R n) → fst χ [ n , α ] ≡ fst χ' [ n , α ]
+   uniqHelper zero _ = sym (cong (λ α → fst χ' [ 0 , α ]) (funExt (λ ())) ∙ χ' .snd .pres0)
+   uniqHelper (suc n) α =
+       ⋁ (d ∘ α) ≡⟨ refl ⟩
+       d (α zero) ∨l ⋁ (d ∘ α ∘ suc)
+
+      ≡⟨ cong (d (α zero) ∨l_) (uniqHelper n (α ∘ suc)) ⟩ -- the inductive step
+
+       d (α zero) ∨l fst χ' [ n , α ∘ suc ]
+
+      ≡⟨ cong (_∨l fst χ' [ n , α ∘ suc ]) (sym (funExt⁻ χ'∘D≡d (α zero))) ⟩
+
+       fst χ' (D (α zero)) ∨l fst χ' [ n , α ∘ suc ]
+
+      ≡⟨ sym (χ' .snd .pres∨l _ _) ⟩
+
+       fst χ' (D (α zero) ∨z [ n , α ∘ suc ])
+
+      ≡⟨ cong (λ β → fst χ' [ suc n , β ]) (funExt (λ { zero → refl ; (suc i) → refl })) ⟩
+
+       fst χ' [ suc n , α ] ∎

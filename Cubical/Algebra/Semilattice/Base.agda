@@ -214,3 +214,14 @@ module MeetSemilattice (L' : Semilattice ℓ) where
 
  ≤-∧LPres : ∀ x y z → x ≤ y → z ∧l x ≤ z ∧l y
  ≤-∧LPres x y z x≤y = commAssocSwap z x z y ∙∙ cong (_∧l (x ∧l y)) (idem z) ∙∙ cong (z ∧l_) x≤y
+
+ ∧≤LCancel : ∀ x y → x ∧l y ≤ y
+ ∧≤LCancel x y = sym (assoc _ _ _) ∙ cong (x ∧l_) (idem y)
+
+ ∧≤RCancel : ∀ x y → x ∧l y ≤ x
+ ∧≤RCancel x y = commAssocr x y x ∙ cong (_∧l y) (idem x)
+
+ ∧lIsMin : ∀ x y z → z ≤ x → z ≤ y → z ≤ x ∧l y
+ ∧lIsMin x y z z≤x z≤y = cong (_∧l (x ∧l y)) (sym (idem z)) ∙ commAssocSwap z z x y
+                                                            ∙ cong₂ (_∧l_) z≤x z≤y
+                                                            ∙ idem z
