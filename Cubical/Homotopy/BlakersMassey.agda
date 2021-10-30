@@ -139,7 +139,6 @@ module _
 
 {- Definitions of fiber← -}
 
-{- (x₁ , q₁₁) = (x₀ , q₀₁) -} 
 module _ 
   {x₀ : X}{y₁ : Y}(q₀₁ : Q x₀ y₁) where 
 
@@ -208,6 +207,128 @@ module _
 
 
 
+module _ 
+  {x₁ : X}{y₀ : Y}(q₁₀ : Q x₁ y₀) where 
+
+  {- (x₀ , q₀₀) = (x₁ , q₁₀) -}
+  module _ 
+    {y₁ : Y}(q₁₁ : Q x₁ y₁) 
+    (r : inl x₁ ≡ inr y₁) 
+    (p : fiberSquarePush q₁₀ q₁₀ q₁₁ r) where 
+
+    fiber→←[q₀₀=q₁₀]-filler : (i j k l : I) → Pushout 
+    fiber→←[q₀₀=q₁₀]-filler i j k l' = 
+      let p' = fiber→[q₀₀=q₁₀] q₁₀ q₁₁ r p .snd in 
+      hfill (λ l → λ { (i = i0) → fiber←[q₁₁=q₀₁]-filler q₁₁ q₁₀ r p' j k l 
+                     ; (i = i1) → fiber→[q₀₀=q₁₀]-filler q₁₀ q₁₁ r p l k j 
+                     ; (j = i0) → push q₁₀ (~ k ∧ l)
+                     ; (j = i1) → p' l k  
+                     ; (k = i0) → push q₁₀ (~ j ∧ l)
+                     ; (k = i1) → push q₁₁ j }) 
+            (inS (push q₁₁ (j ∧ k))) l' 
+
+    fiber→←[q₀₀=q₁₀] : fiber←[q₁₁=q₀₁] q₁₁ q₁₀ r (fiber→[q₀₀=q₁₀] q₁₀ q₁₁ r p .snd) .snd ≡ p 
+    fiber→←[q₀₀=q₁₀] i j k = fiber→←[q₀₀=q₁₀]-filler i j k i1 
+
+  {- (y₁ , q₁₁) = (y₀ , q₁₀) -}
+  module _ 
+    {x₀ : X}(q₀₀ : Q x₀ y₀) 
+    (r : inl x₀ ≡ inr y₀) 
+    (p : fiberSquarePush q₀₀ q₁₀ q₁₀ r) where 
+
+    fiber→←[q₁₁=q₁₀]-filler : (i j k l : I) → Pushout 
+    fiber→←[q₁₁=q₁₀]-filler i j k l' = 
+      let p' = fiber→[q₁₁=q₁₀] q₁₀ q₀₀ r p .snd in 
+      hfill (λ l → λ { (i = i0) → fiber←[q₀₀=q₀₁]-filler q₀₀ q₁₀ r p' j k l 
+                     ; (i = i1) → fiber→[q₁₁=q₁₀]-filler q₁₀ q₀₀ r p l k j 
+                     ; (j = i0) → push q₁₀ (~ k ∨ ~ l) 
+                     ; (j = i1) → p' l k  
+                     ; (k = i0) → push q₀₀ (~ j) 
+                     ; (k = i1) → push q₁₀ (j ∨ ~ l) }) 
+            (inS (push q₀₀ (~ j ∨ k))) l'
+
+    fiber→←[q₁₁=q₁₀] : fiber←[q₀₀=q₀₁] q₀₀ q₁₀ r (fiber→[q₁₁=q₁₀] q₁₀ q₀₀ r p .snd) .snd ≡ p 
+    fiber→←[q₁₁=q₁₀] i j k = fiber→←[q₁₁=q₁₀]-filler i j k i1 
+
+  {- q₀₀ = q₁₀ = q₁₁ -}
+  fiber→←hypercube : 
+      (r : inl x₁ ≡ inr y₀) 
+    → (p : fiberSquarePush q₁₀ q₁₀ q₁₀ r) 
+    → PathP (λ i → fiber←[q₀₀=q₀₁=q₁₁] q₁₀ i r (fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p .snd) .snd ≡ p) 
+            (fiber→←[q₀₀=q₁₀] q₁₀ r p) (fiber→←[q₁₁=q₁₀] q₁₀ r p) 
+  fiber→←hypercube r p i j u v = 
+    hcomp (λ l → λ { (i = i0) → fiber→←[q₀₀=q₁₀]-filler q₁₀ r p j u v l 
+                   ; (i = i1) → fiber→←[q₁₁=q₁₀]-filler q₁₀ r p j u v l 
+                   ; (j = i0) → fiber←[q₀₀=q₀₁=q₁₁]-filler q₁₀ r (fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p .snd) i u v l 
+                   ; (j = i1) → fiber→[q₀₀=q₁₀=q₁₁]-filler q₁₀ r p i l v u 
+                   ; (u = i0) → push q₁₀ ((i ∨ (~ v ∧ l)) ∧ (~ v ∨ (i ∧ ~ l)))
+                   ; (u = i1) → fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p .snd l v     
+                   ; (v = i0) → push q₁₀ ((i ∨ l) ∧ ~ u)
+                   ; (v = i1) → push q₁₀ ((i ∧ ~ l) ∨ u) }) 
+          (push q₁₀ ((i ∨ (v ∧ u)) ∧ (v ∨ (i ∧ ~ u)))) 
+
+
+
+module _ 
+  {x₀ : X}{y₁ : Y}(q₀₁ : Q x₀ y₁) where 
+
+  {- (x₁ , q₁₁) = (x₀ , q₀₁) -} 
+  module _ 
+    {y₀ : Y}(q₀₀ : Q x₀ y₀) 
+    (r : inl x₀ ≡ inr y₁) 
+    (p : push q₀₁ ≡ r) where 
+
+    fiber←→[q₁₁=q₀₁]-filler : (i j k l : I) → Pushout 
+    fiber←→[q₁₁=q₀₁]-filler i j k l' = 
+      let p' = fiber←[q₁₁=q₀₁] q₀₁ q₀₀ r p .snd in 
+      hfill (λ l → λ { (i = i0) → fiber→[q₀₀=q₁₀]-filler q₀₀ q₀₁ r p' j k l 
+                     ; (i = i1) → fiber←[q₁₁=q₀₁]-filler q₀₁ q₀₀ r p l k j 
+                     ; (j = i0) → push q₀₁ (k ∧ l)
+                     ; (j = i1) → p' l k  
+                     ; (k = i0) → push q₀₀ (j ∧ ~ l)
+                     ; (k = i1) → push q₀₁ l }) 
+            (inS (push q₀₀ (j ∧ ~ k))) l' 
+
+    fiber←→[q₁₁=q₀₁] : fiber→[q₀₀=q₁₀] q₀₀ q₀₁ r (fiber←[q₁₁=q₀₁] q₀₁ q₀₀ r p .snd) .snd ≡ p 
+    fiber←→[q₁₁=q₀₁] i j k = fiber←→[q₁₁=q₀₁]-filler i j k i1 
+
+  {- (y₀ , q₀₀) = (y₁ , q₀₁) -} 
+  module _ 
+    {x₁ : X}(q₁₁ : Q x₁ y₁) 
+    (r : inl x₀ ≡ inr y₁) 
+    (p : push q₀₁ ≡ r) where 
+
+    fiber←→[q₀₀=q₀₁]-filler : (i j k l : I) → Pushout 
+    fiber←→[q₀₀=q₀₁]-filler i j k l' = 
+      let p' = fiber←[q₀₀=q₀₁] q₀₁ q₁₁ r p .snd in 
+      hfill (λ l → λ { (i = i0) → fiber→[q₁₁=q₁₀]-filler q₁₁ q₀₁ r p' j k l 
+                     ; (i = i1) → fiber←[q₀₀=q₀₁]-filler q₀₁ q₁₁ r p l k j 
+                     ; (j = i0) → push q₀₁ (k ∨ ~ l) 
+                     ; (j = i1) → p' l k  
+                     ; (k = i0) → push q₀₁ (~ l) 
+                     ; (k = i1) → push q₁₁ (~ j ∨ l) }) 
+            (inS (push q₁₁ (~ j ∨ ~ k))) l'
+
+    fiber←→[q₀₀=q₀₁] : fiber→[q₁₁=q₁₀] q₁₁ q₀₁ r (fiber←[q₀₀=q₀₁] q₀₁ q₁₁ r p .snd) .snd ≡ p 
+    fiber←→[q₀₀=q₀₁] i j k = fiber←→[q₀₀=q₀₁]-filler i j k i1 
+
+  {- q₀₀ = q₀₁ = q₁₁ -}
+  fiber←→hypercube : 
+      (r : inl x₀ ≡ inr y₁) 
+    → (p : push q₀₁ ≡ r)
+    → PathP (λ i → fiber→[q₀₀=q₁₀=q₁₁] q₀₁ i r (fiber←[q₀₀=q₀₁=q₁₁] q₀₁ i r p .snd) .snd ≡ p) 
+            (fiber←→[q₁₁=q₀₁] q₀₁ r p) (fiber←→[q₀₀=q₀₁] q₀₁ r p)
+  fiber←→hypercube r p i j u v = 
+    hcomp (λ l → λ { (i = i0) → fiber←→[q₁₁=q₀₁]-filler q₀₁ r p j u v l 
+                   ; (i = i1) → fiber←→[q₀₀=q₀₁]-filler q₀₁ r p j u v l 
+                   ; (j = i0) → fiber→[q₀₀=q₁₀=q₁₁]-filler q₀₁ r (fiber←[q₀₀=q₀₁=q₁₁] q₀₁ i r p .snd) i u v l 
+                   ; (j = i1) → fiber←[q₀₀=q₀₁=q₁₁]-filler q₀₁ r p i l v u 
+                   ; (u = i0) → push q₀₁ ((i ∨ (v ∧ l)) ∧ (v ∨ (i ∧ ~ l)))
+                   ; (u = i1) → fiber←[q₀₀=q₀₁=q₁₁] q₀₁ i r p .snd l v     
+                   ; (v = i0) → push q₀₁ ((i ∨ u) ∧ ~ l)
+                   ; (v = i1) → push q₀₁ ((i ∧ ~ u) ∨ l) }) 
+          (push q₀₁ ((i ∨ (~ v ∧ u)) ∧ (~ v ∨ (i ∧ ~ u))))  
+          
 
 open import Cubical.Homotopy.WedgeConnectivity 
 
@@ -269,64 +390,6 @@ right→leftCodeExtended q₀₀ q₁₁ r =
   rec (isOfHLevelTrunc _) (λ (q₀₁ , p) → fiber← q₀₁ q₀₀ q₁₁ r p) 
 
 
-module _ 
-  {x₁ : X}{y₀ : Y}(q₁₀ : Q x₁ y₀) where 
-
-  {- (x₀ , q₀₀) = (x₁ , q₁₀) -}
-  module _ 
-    {y₁ : Y}(q₁₁ : Q x₁ y₁) 
-    (r : inl x₁ ≡ inr y₁) 
-    (p : fiberSquarePush q₁₀ q₁₀ q₁₁ r) where 
-
-    fiber→←[q₀₀=q₁₀]-filler : (i j k l : I) → Pushout 
-    fiber→←[q₀₀=q₁₀]-filler i j k l' = 
-      let p' = fiber→[q₀₀=q₁₀] q₁₀ q₁₁ r p .snd in 
-      hfill (λ l → λ { (i = i0) → fiber←[q₁₁=q₀₁]-filler q₁₁ q₁₀ r p' j k l 
-                     ; (i = i1) → fiber→[q₀₀=q₁₀]-filler q₁₀ q₁₁ r p l k j 
-                     ; (j = i0) → push q₁₀ (~ k ∧ l)
-                     ; (j = i1) → p' l k  
-                     ; (k = i0) → push q₁₀ (~ j ∧ l)
-                     ; (k = i1) → push q₁₁ j }) 
-            (inS (push q₁₁ (j ∧ k))) l' 
-
-    fiber→←[q₀₀=q₁₀] : fiber←[q₁₁=q₀₁] q₁₁ q₁₀ r (fiber→[q₀₀=q₁₀] q₁₀ q₁₁ r p .snd) .snd ≡ p 
-    fiber→←[q₀₀=q₁₀] i j k = fiber→←[q₀₀=q₁₀]-filler i j k i1 
-
-  {- (y₁ , q₁₁) = (y₀ , q₁₀) -}
-  module _ 
-    {x₀ : X}(q₀₀ : Q x₀ y₀) 
-    (r : inl x₀ ≡ inr y₀) 
-    (p : fiberSquarePush q₀₀ q₁₀ q₁₀ r) where 
-
-    fiber→←[q₁₁=q₁₀]-filler : (i j k l : I) → Pushout 
-    fiber→←[q₁₁=q₁₀]-filler i j k l' = 
-      let p' = fiber→[q₁₁=q₁₀] q₁₀ q₀₀ r p .snd in 
-      hfill (λ l → λ { (i = i0) → fiber←[q₀₀=q₀₁]-filler q₀₀ q₁₀ r p' j k l 
-                     ; (i = i1) → fiber→[q₁₁=q₁₀]-filler q₁₀ q₀₀ r p l k j 
-                     ; (j = i0) → push q₁₀ (~ k ∨ ~ l) 
-                     ; (j = i1) → p' l k  
-                     ; (k = i0) → push q₀₀ (~ j) 
-                     ; (k = i1) → push q₁₀ (j ∨ ~ l) }) 
-            (inS (push q₀₀ (~ j ∨ k))) l'
-
-    fiber→←[q₁₁=q₁₀] : fiber←[q₀₀=q₀₁] q₀₀ q₁₀ r (fiber→[q₁₁=q₁₀] q₁₀ q₀₀ r p .snd) .snd ≡ p 
-    fiber→←[q₁₁=q₁₀] i j k = fiber→←[q₁₁=q₁₀]-filler i j k i1 
-
-  fiber→←Hypercube : 
-      (r : inl x₁ ≡ inr y₀) 
-    → (p : fiberSquarePush q₁₀ q₁₀ q₁₀ r) 
-    → PathP (λ i → fiber←[q₀₀=q₀₁=q₁₁] q₁₀ i r (fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p .snd) .snd ≡ p) 
-            (fiber→←[q₀₀=q₁₀] q₁₀ r p) (fiber→←[q₁₁=q₁₀] q₁₀ r p) 
-  fiber→←Hypercube r p i j u v = 
-    hcomp (λ l → λ { (i = i0) → fiber→←[q₀₀=q₁₀]-filler q₁₀ r p j u v l 
-                   ; (i = i1) → fiber→←[q₁₁=q₁₀]-filler q₁₀ r p j u v l 
-                   ; (j = i0) → fiber←[q₀₀=q₀₁=q₁₁]-filler q₁₀ r (fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p .snd) i u v l 
-                   ; (j = i1) → fiber→[q₀₀=q₁₀=q₁₁]-filler q₁₀ r p i l v u 
-                   ; (u = i0) → push q₁₀ ((i ∨ (~ v ∧ l)) ∧ (~ v ∨ (i ∧ ~ l)))
-                   ; (u = i1) → fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p .snd l v     
-                   ; (v = i0) → push q₁₀ ((i ∨ l) ∧ ~ u)
-                   ; (v = i1) → push q₁₀ ((i ∧ ~ l) ∨ u) }) 
-          (push q₁₀ ((i ∨ (v ∧ u)) ∧ (v ∨ (i ∧ ~ u)))) 
 
 
 module fiber→←Square'  
@@ -456,7 +519,7 @@ module ∣fiber→[q₀₀=q₁₀=q₁₁]∣
       PathP (λ i → ∣ fiber←[q₀₀=q₀₁=q₁₁] q₁₀ i r (fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p .snd) ∣ₕ ≡ ∣_∣ₕ {n = m + n} (q₁₀ , p)) 
             (∣fiber→←[q₀₀=q₁₀]∣.path5 q₁₀ q₁₀ r p) (∣fiber→←[q₁₁=q₁₀]∣.path5 q₁₀ q₁₀ r p)
     path5Square i j = 
-      ∣ (q₁₀ , fiber→←Hypercube q₁₀ r p i j) ∣ₕ 
+      ∣ (q₁₀ , fiber→←hypercube q₁₀ r p i j) ∣ₕ 
 
     pathSquare = path1Square ∙₂ path2Square ∙₂ path3Square ∙₂ path4Square ∙₂ path5Square 
 
