@@ -535,47 +535,38 @@ module _ (x₀ : X)(y₀ : Y)(q₀₀ : Q x₀ y₀) where
   leftCode' x r' = leftCodeExtended q₀₀ x r' 
 
   leftCode : (x : X) → inl x₀ ≡ inl x → Type ℓ 
-  leftCode x = leftCode' x refl 
-
-  transpLeftCode : 
-      {x : X}{p : Pushout} → (r' : inl x ≡ p) 
-    → transport (λ i → inl x₀ ≡ r' i → Type ℓ) (leftCode x) ≡ leftCode' x r' 
-  transpLeftCode = 
-    J (λ p r → transport (λ i → inl x₀ ≡ r i → Type ℓ) (leftCode _) ≡ leftCode' _ r) 
-      (transportRefl (leftCode _))   
+  leftCode x = leftCode' x refl  
 
   fiberPath : {x : X}{y : Y} → (q : Q x y) → leftCode' x (push q) ≡ rightCode y 
   fiberPath q i r = ua (left≃rightCodeExtended q₀₀ q r) i 
 
-  pushCode : {x : X}{y : Y} → (q : Q x y) 
-           → PathP (λ i → inl x₀ ≡ push q i → Type ℓ) (leftCode x) (rightCode y) 
-  pushCode {x = x} q i = 
-    hcomp (λ j → λ { (i = i0) → leftCode x 
-                   ; (i = i1) → (transpLeftCode (push q) ∙ fiberPath q) j }) 
-          (transport-filler (λ i → inl x₀ ≡ push q i → Type ℓ) (leftCode x) i)
+  pushCode : 
+      {x : X}{y : Y} → (q : Q x y) 
+    → PathP (λ i → inl x₀ ≡ push q i → Type ℓ) (leftCode x) (rightCode y) 
+  pushCode q i = 
+    hcomp (λ j → λ { (i = i0) → leftCode _ 
+                   ; (i = i1) → fiberPath q j }) 
+          (leftCode' _ (λ j → push q (i ∧ j)))
 
   Code : (p : Pushout) → inl x₀ ≡ p → Type ℓ 
   Code (inl x) = leftCode  x 
-  Code (inr x) = rightCode x 
+  Code (inr y) = rightCode y 
   Code (push q i) = pushCode q i 
 
   {- The contractibility of Code -}
 
   centerCode : {p : Pushout} → (r : inl x₀ ≡ p) → Code p r 
-  centerCode = 
-    let q = push q₀₀ in 
-    J (λ p r → Code p r) ∣ q₀₀ , (λ i j → push q₀₀ (~ i ∧ ~ j)) ∣ₕ 
+  centerCode r = 
+   transport (λ i → Code _ (λ j → r (i ∧ j))) ∣ q₀₀ , (λ i j → push q₀₀ (~ i ∧ ~ j)) ∣ₕ 
 
-  --contractionCode : isContr (Code (inr y₀) (push q₀₀)) 
-  --contractionCode = {!!} 
-
-  contractionCode : (y : Y) → (r : inl x₀ ≡ inr y) → (c : Code _ r) → c ≡ centerCode r 
-  contractionCode = {!!} 
-
-  contractionCode' : (y : Y) → (r : inl x₀ ≡ inr y) 
-                    → (c : fiber push r) → ∣ c ∣ₕ ≡ centerCode r 
-  contractionCode' y r (q , refl) = {!!} 
-
-  contractionCodeRefl : (y : Y) → (q : Q x₀ y) → ∣ q , refl ∣ₕ ≡ centerCode (push q)
+  contractionCodeRefl : (y : Y) → (q : Q x₀ y) →  centerCode (push q) ≡ ∣ q , refl ∣ₕ 
   contractionCodeRefl y r = {!!} 
 
+  contractionCode' : (y : Y) → (r : inl x₀ ≡ inr y) → (a : fiber push r) → centerCode r ≡ ∣ a ∣ₕ 
+  contractionCode' _ r' (q , p') = J (λ r p → centerCode r ≡ ∣ q , p ∣ₕ) (contractionCodeRefl _ q) p'  
+
+  contractionCode : (y : Y) → (r : inl x₀ ≡ inr y) → (a : Code _ r) → centerCode r ≡ a 
+  contractionCode _ r = elim (λ _ → isOfHLevelTruncPath) (contractionCode' _ r)
+
+  isContrCode : (y : Y) → (r : inl x₀ ≡ inr y) → isContr (Code _ r) 
+  isContrCode _ r = centerCode r , contractionCode _ r
