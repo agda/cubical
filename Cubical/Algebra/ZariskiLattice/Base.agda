@@ -236,8 +236,8 @@ module _ (R' : CommRing ℓ) (L' : DistLattice ℓ') where
 
   linearCombination≤LCancel : {n : ℕ} (α β : FinVec R n)
                             → d (linearCombination R' α β) ≤ ⋁ (d ∘ β)
-  linearCombination≤LCancel α β = _ ≤⟨ ∑≤⋁ (λ i → α i · β i) ⟩
-                                       ≤-⋁Ext _ _ λ i → d·LCancel (α i) (β i)
+  linearCombination≤LCancel α β = is-trans _ _ _ (∑≤⋁ (λ i → α i · β i))
+                                                 (≤-⋁Ext _ _ λ i → d·LCancel (α i) (β i))
 
   ZarMapIdem : ∀ (n : ℕ) (x : R) → d (x ^ (suc n)) ≡ d x
   ZarMapIdem zero x = ·≡∧ _ _ ∙∙ cong (d x ∧l_) pres1 ∙∙ ∧lRid _
@@ -334,8 +334,31 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
 
   χ : DistLatticeHom ZariskiLattice L'
   fst χ = SQ.rec isSetL (λ (_ , α) → ⋁ (d ∘ α))
-        {!!} -- the big sanity check: If √⟨α⟩≡√⟨β⟩ then ⋁dα≡⋁dβ
-   --where
+                         λ (_ , α) (_ , β) → curriedHelper α β
+   where
+   curriedHelper : {n m : ℕ} (α : FinVec R n) (β : FinVec R m)
+                 → √i ⟨ α ⟩ ≡ √i ⟨ β ⟩ → ⋁ (d ∘ α) ≡ ⋁ (d ∘ β)
+   curriedHelper α β √⟨α⟩≡√⟨β⟩ = is-antisym _ _ ineq1 ineq2
+    where
+    open Order (DistLattice→Lattice L')
+    open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L'))
+    open PosetReasoning IndPoset
+    open PosetStr (IndPoset .snd) hiding (_≤_)
+
+    incl1 : √ (⟨ α ⟩ .fst) ⊆ √ (⟨ β ⟩ .fst)
+    incl1 = ⊆-refl-consequence _ _ (cong fst √⟨α⟩≡√⟨β⟩) .fst
+
+    ineq1 : ⋁ (d ∘ α) ≤ ⋁ (d ∘ β)
+    ineq1 = ⋁IsMax (d ∘ α) (⋁ (d ∘ β))
+            λ i → ZarMapRadicalIneq isZarMapd β (α i) (equivFun (√FGIdealChar α ⟨ β ⟩) incl1 i)
+
+    incl2 : √ (⟨ β ⟩ .fst) ⊆ √ (⟨ α ⟩ .fst)
+    incl2 = ⊆-refl-consequence _ _ (cong fst √⟨α⟩≡√⟨β⟩) .snd
+
+    ineq2 : ⋁ (d ∘ β) ≤ ⋁ (d ∘ α)
+    ineq2 = ⋁IsMax (d ∘ β) (⋁ (d ∘ α))
+            λ i → ZarMapRadicalIneq isZarMapd α (β i) (equivFun (√FGIdealChar β ⟨ α ⟩) incl2 i)
+
 
   pres0 (snd χ) = refl
   pres1 (snd χ) = ∨lRid _ ∙ isZarMapd .pres1
