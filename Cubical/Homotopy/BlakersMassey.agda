@@ -5,6 +5,7 @@ open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude 
 open import Cubical.Foundations.GroupoidLaws 
 open import Cubical.Foundations.HLevels 
+open import Cubical.Foundations.Transport 
 
 open import Cubical.Foundations.Equiv 
 open import Cubical.Foundations.Isomorphism 
@@ -13,8 +14,10 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sigma 
 
-open import Cubical.Homotopy.Connected 
+open import Cubical.HITs.Truncation renaming (hLevelTrunc to Trunc)
 
+open import Cubical.Homotopy.Connected 
+open import Cubical.Homotopy.WedgeConnectivity 
 
 module Cubical.Homotopy.BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
   (X : Type ℓ₁)(Y : Type ℓ₂)(Q : X → Y → Type ℓ₃) 
@@ -31,7 +34,6 @@ leftFiber x  = Σ[ y ∈ Y ] Q x y
 rightFiber : Y → Type (ℓ-max ℓ₁ ℓ₃)
 rightFiber y = Σ[ x ∈ X ] Q x y 
 
-
 {- An alternative formulation of pushout with fewer parameters -}
 
 data Pushout : Type ℓ 
@@ -40,9 +42,7 @@ data Pushout : Type ℓ
     inr : Y → Pushout
     push : {x : X}{y : Y} → Q x y → inl x ≡ inr y 
 
-
-open import Cubical.HITs.Truncation renaming (hLevelTrunc to Trunc)
-
+{- Some preliminary definitions for convenience -}
 
 fiberSquare : {x₀ x₁ : X}{y₀ : Y}{p : Pushout}(q₀₀ : Q x₀ y₀)(q₁₀ : Q x₁ y₀) 
             → inl x₁ ≡ p → inl x₀ ≡ p → Type ℓ 
@@ -131,6 +131,8 @@ module _
 
   ∣fiber→[q₀₀=q₁₀=q₁₁]∣ : ∣fiber→[q₀₀=q₁₀]∣ q₁₀ ≡ ∣fiber→[q₁₁=q₁₀]∣ q₁₀ 
   ∣fiber→[q₀₀=q₁₀=q₁₁]∣ i r p = ∣ fiber→[q₀₀=q₁₀=q₁₁] i r p ∣ₕ 
+
+{- Bunch of coherence data that will be used in the definition of Code -}
 
 {- Definitions of fiber← -}
 
@@ -323,9 +325,6 @@ module _
                    ; (v = i0) → push q₀₁ ((i ∨ u) ∧ ~ l)
                    ; (v = i1) → push q₀₁ ((i ∧ ~ u) ∨ l) }) 
           (push q₀₁ ((i ∨ (~ v ∧ u)) ∧ (~ v ∨ (i ∧ ~ u))))  
-          
-
-open import Cubical.Homotopy.WedgeConnectivity 
 
 module Fiber→ 
   {x₁ : X}{y₀ : Y}(q₁₀ : Q x₁ y₀) = 
@@ -345,7 +344,6 @@ fiber→ :
   → (r : inl x₀ ≡ inr y₁) 
   → fiberSquarePush q₀₀ q₁₀ q₁₁ r → rightCode _ r 
 fiber→ q₁₀ q₀₀ q₁₁ = Fiber→.extension q₁₀ (_ , q₁₁) (_ , q₀₀) 
-
 
 module Fiber← 
   {x₀ : X}{y₁ : Y}(q₀₁ : Q x₀ y₁) = 
@@ -390,12 +388,12 @@ module _
     (r : inl x₁ ≡ inr y₁) 
     (p : fiberSquarePush q₁₀ q₁₀ q₁₁ r) where 
 
-    ∣fiber→←[q₀₀=q₁₀]∣ : right→leftCodeExtended q₁₀ q₁₁ r (fiber→ q₁₀ q₁₀ q₁₁ r p) ≡ ∣ (q₁₀ , p) ∣ₕ 
+    ∣fiber→←[q₀₀=q₁₀]∣ : right→leftCodeExtended q₁₀ q₁₁ r (fiber→ q₁₀ q₁₀ q₁₁ r p) ≡ ∣ q₁₀ , p ∣ₕ 
     ∣fiber→←[q₀₀=q₁₀]∣ = 
         (λ i → right→leftCodeExtended q₁₀ q₁₁ r (Fiber→.left q₁₀ (_ , q₁₁) i r p)) 
       ∙ recUniq {n = m + n} _ _ _ 
       ∙ (λ i → Fiber←.left q₁₁ (_ , q₁₀) i r (fiber→[q₀₀=q₁₀] q₁₀ q₁₁ r p .snd)) 
-      ∙ (λ i → ∣ (q₁₀ , fiber→←[q₀₀=q₁₀] q₁₀ q₁₁ r p i) ∣ₕ)
+      ∙ (λ i → ∣ q₁₀ , fiber→←[q₀₀=q₁₀] q₁₀ q₁₁ r p i ∣ₕ)
 
   {- (y₁ , q₁₁) = (y₀ , q₁₀) -} 
   module _   
@@ -403,12 +401,12 @@ module _
     (r : inl x₀ ≡ inr y₀) 
     (p : fiberSquarePush q₀₀ q₁₀ q₁₀ r) where 
 
-    ∣fiber→←[q₁₁=q₁₀]∣ : right→leftCodeExtended q₀₀ q₁₀ r (fiber→ q₁₀ q₀₀ q₁₀ r p) ≡ ∣ (q₁₀ , p) ∣ₕ 
+    ∣fiber→←[q₁₁=q₁₀]∣ : right→leftCodeExtended q₀₀ q₁₀ r (fiber→ q₁₀ q₀₀ q₁₀ r p) ≡ ∣ q₁₀ , p ∣ₕ 
     ∣fiber→←[q₁₁=q₁₀]∣ = 
         (λ i → right→leftCodeExtended q₀₀ q₁₀ r (Fiber→.right q₁₀ (_ , q₀₀) i r p)) 
       ∙ recUniq {n = m + n} _ _ _ 
       ∙ (λ i → Fiber←.right q₀₀ (_ , q₁₀) i r (fiber→[q₁₁=q₁₀] q₁₀ q₀₀ r p .snd)) 
-      ∙ (λ i → ∣ (q₁₀ , fiber→←[q₁₁=q₁₀] q₁₀ q₀₀ r p i) ∣ₕ) 
+      ∙ (λ i → ∣ q₁₀ , fiber→←[q₁₁=q₁₀] q₁₀ q₀₀ r p i ∣ₕ) 
 
   {- q₀₀ = q₁₁ = q₁₀ -} 
   module _ 
@@ -429,13 +427,13 @@ fiber→← :
   → {x₀ : X}(q₀₀ : Q x₀ y₀) → {y₁ : Y}(q₁₁ : Q x₁ y₁) 
   → (r : inl x₀ ≡ inr y₁) 
   → (p : fiberSquarePush q₀₀ q₁₀ q₁₁ r)
-  → right→leftCodeExtended q₀₀ q₁₁ r (fiber→ q₁₀ q₀₀ q₁₁ r p) ≡ ∣ (q₁₀ , p) ∣ₕ 
+  → right→leftCodeExtended q₀₀ q₁₁ r (fiber→ q₁₀ q₀₀ q₁₁ r p) ≡ ∣ q₁₀ , p ∣ₕ 
 fiber→← {x₁ = x₁} {y₀ = y₀} q₁₀ q₀₀' q₁₁' = 
   WedgeConnectivity.extension m n 
     (leftFiber  x₁ , (y₀ , q₁₀)) (leftConn  x₁)
     (rightFiber y₀ , (x₁ , q₁₀)) (rightConn y₀)
     (λ (y₁ , q₁₁) (x₀ , q₀₀) → 
-      (((r : inl x₀ ≡ inr y₁) → (p : fiberSquarePush q₀₀ q₁₀ q₁₁ r) → right→leftCodeExtended q₀₀ q₁₁ r (fiber→ q₁₀ q₀₀ q₁₁ r p) ≡ ∣ (q₁₀ , p) ∣ₕ ) 
+      (((r : inl x₀ ≡ inr y₁) → (p : fiberSquarePush q₀₀ q₁₀ q₁₁ r) → right→leftCodeExtended q₀₀ q₁₁ r (fiber→ q₁₀ q₀₀ q₁₁ r p) ≡ ∣ q₁₀ , p ∣ₕ ) 
       , isOfHLevelΠ₂ _ (λ x y → isOfHLevelTruncPath)))
     (λ (y₁ , q₁₁) → ∣fiber→←[q₀₀=q₁₀]∣ q₁₀ q₁₁)
     (λ (x₀ , q₀₀) → ∣fiber→←[q₁₁=q₁₀]∣ q₁₀ q₀₀)
@@ -453,12 +451,12 @@ module _
     (r : inl x₀ ≡ inr y₁) 
     (p : push q₀₁ ≡ r) where 
   
-    ∣fiber←→[q₁₁=q₀₁]∣ : left→rightCodeExtended q₀₀ q₀₁ r (fiber← q₀₁ q₀₀ q₀₁ r p) ≡ ∣ (q₀₁ , p) ∣ₕ 
+    ∣fiber←→[q₁₁=q₀₁]∣ : left→rightCodeExtended q₀₀ q₀₁ r (fiber← q₀₁ q₀₀ q₀₁ r p) ≡ ∣ q₀₁ , p ∣ₕ 
     ∣fiber←→[q₁₁=q₀₁]∣ = 
         (λ i → left→rightCodeExtended q₀₀ q₀₁ r (Fiber←.left q₀₁ (_ , q₀₀) i r p)) 
       ∙ recUniq {n = m + n} _ _ _ 
       ∙ (λ i → Fiber→.left q₀₀ (_ , q₀₁) i r (fiber←[q₁₁=q₀₁] q₀₁ q₀₀ r p .snd)) 
-      ∙ (λ i → ∣ (q₀₁ , fiber←→[q₁₁=q₀₁] q₀₁ q₀₀ r p i) ∣ₕ)
+      ∙ (λ i → ∣ q₀₁ , fiber←→[q₁₁=q₀₁] q₀₁ q₀₀ r p i ∣ₕ)
 
   {- (y₀ , q₀₀) = (y₁ , q₀₁) -} 
   module _ 
@@ -466,12 +464,12 @@ module _
     (r : inl x₀ ≡ inr y₁) 
     (p : push q₀₁ ≡ r) where 
 
-    ∣fiber←→[q₀₀=q₀₁]∣ : left→rightCodeExtended q₀₁ q₁₁ r (fiber← q₀₁ q₀₁ q₁₁ r p) ≡ ∣ (q₀₁ , p) ∣ₕ 
+    ∣fiber←→[q₀₀=q₀₁]∣ : left→rightCodeExtended q₀₁ q₁₁ r (fiber← q₀₁ q₀₁ q₁₁ r p) ≡ ∣ q₀₁ , p ∣ₕ 
     ∣fiber←→[q₀₀=q₀₁]∣  = 
         (λ i → left→rightCodeExtended q₀₁ q₁₁ r (Fiber←.right q₀₁ (_ , q₁₁) i r p)) 
       ∙ recUniq {n = m + n} _ _ _ 
       ∙ (λ i → Fiber→.right q₁₁ (_ , q₀₁) i r (fiber←[q₀₀=q₀₁] q₀₁ q₁₁ r p .snd)) 
-      ∙ (λ i → ∣ (q₀₁ , fiber←→[q₀₀=q₀₁] q₀₁ q₁₁ r p i) ∣ₕ) 
+      ∙ (λ i → ∣ q₀₁ , fiber←→[q₀₀=q₀₁] q₀₁ q₁₁ r p i ∣ₕ) 
 
   {- q₀₀ = q₀₁ = q₁₁ -}
   module _ 
@@ -482,7 +480,7 @@ module _
          (λ i j → left→rightCodeExtended q₀₁ q₀₁ r (Fiber←.homSquare q₀₁ i j r p)) 
       ∙₂ (λ i → recUniq {n = m + n} _ _ _) 
       ∙₂ (λ i j → Fiber→.homSquare q₀₁ i j r (fiber←[q₀₀=q₀₁=q₁₁] q₀₁ i r p .snd)) 
-      ∙₂ (λ i j → ∣ (q₀₁ , fiber←→hypercube q₀₁ r p i j) ∣ₕ)   
+      ∙₂ (λ i j → ∣ q₀₁ , fiber←→hypercube q₀₁ r p i j ∣ₕ)   
 
   ∣fiber←→[q₀₀=q₀₁=q₁₁]∣ : ∣fiber←→[q₁₁=q₀₁]∣ q₀₁ ≡ ∣fiber←→[q₀₀=q₀₁]∣ q₀₁ 
   ∣fiber←→[q₀₀=q₀₁=q₁₁]∣ i r p = path←→Square r p i 
@@ -492,13 +490,13 @@ fiber←→ :
   → {y₀ : Y}(q₀₀ : Q x₀ y₀) → {x₁ : X}(q₁₁ : Q x₁ y₁) 
   → (r : inl x₀ ≡ inr y₁) 
   → (p : push q₀₁ ≡ r)
-  → left→rightCodeExtended q₀₀ q₁₁ r (fiber← q₀₁ q₀₀ q₁₁ r p) ≡ ∣ (q₀₁ , p) ∣ₕ 
+  → left→rightCodeExtended q₀₀ q₁₁ r (fiber← q₀₁ q₀₀ q₁₁ r p) ≡ ∣ q₀₁ , p ∣ₕ 
 fiber←→ {x₀ = x₀} {y₁ = y₁} q₀₁ q₀₀' q₁₁' = 
   WedgeConnectivity.extension m n 
     (leftFiber  x₀ , (y₁ , q₀₁)) (leftConn  x₀)
     (rightFiber y₁ , (x₀ , q₀₁)) (rightConn y₁)
     (λ (y₀ , q₀₀) (x₁ , q₁₁) → 
-      (((r : inl x₀ ≡ inr y₁) → (p : push q₀₁ ≡ r) → left→rightCodeExtended q₀₀ q₁₁ r (fiber← q₀₁ q₀₀ q₁₁ r p) ≡ ∣ (q₀₁ , p) ∣ₕ ) 
+      (((r : inl x₀ ≡ inr y₁) → (p : push q₀₁ ≡ r) → left→rightCodeExtended q₀₀ q₁₁ r (fiber← q₀₁ q₀₀ q₁₁ r p) ≡ ∣ q₀₁ , p ∣ₕ ) 
       , isOfHLevelΠ₂ _ (λ x y → isOfHLevelTruncPath)))
     (λ (y₀ , q₀₀) → ∣fiber←→[q₁₁=q₀₁]∣ q₀₁ q₀₀)
     (λ (x₁ , q₁₁) → ∣fiber←→[q₀₀=q₀₁]∣ q₀₁ q₁₁)
@@ -529,75 +527,25 @@ module _
     isoToEquiv (iso (left→rightCodeExtended _ _ _) (right→leftCodeExtended _ _ _) 
                      right→left→rightCodeExtended left→right→leftCodeExtended) 
 
+{- Definition of Code -}
 
+module _ (x₀ : X)(y₀ : Y)(q₀₀ : Q x₀ y₀) where
 
-fiberEquiv₀ : {x₀ : X}{y₁ : Y} → (q₀₁ : Q x₀ y₁) 
-            → {y₀ : Y}(q₀₀ : Q x₀ y₀) 
-            → leftCodeExtended q₀₀ x₀ (push q₀₁) (push q₀₁) ≃ rightCode y₁ (push q₀₁) 
-fiberEquiv₀ q₀₁ q₀₀ = left≃rightCodeExtended q₀₀ q₀₁ (push q₀₁)
+  leftCode' : (x : X){p : Pushout} → inl x ≡ p → inl x₀ ≡ p → Type ℓ 
+  leftCode' x r' = leftCodeExtended q₀₀ x r' 
 
-leftCode : {x₀ : X}{y₀ : Y}(q₀₀ : Q x₀ y₀)(x₁ : X) → inl x₀ ≡ inl x₁ → Type ℓ 
-leftCode q₀₀ x₁ = leftCodeExtended q₀₀ x₁ refl 
+  leftCode : (x : X) → inl x₀ ≡ inl x → Type ℓ 
+  leftCode x = leftCode' x refl 
 
-{-
-pushCode : {x : X}{y : Y} → (q : Q x y) 
-           → PathP (λ i → inl x₀ ≡ push q i → Type ℓ) (leftCode x) (rightCode y) 
-  pushCode {x = x} q i = 
-    hcomp (λ j → λ { (i = i0) → leftCode x 
-                   ; (i = i1) → (transpLeftCode (push q) ∙ fiberPath q) j }) 
-          (transport-filler (λ i → inl x₀ ≡ push q i → Type ℓ) (leftCode x) i) -}
-
-{-
-fiberEquiv : {x₀ : X}{y₁ : Y} → (r : inl x₀ ≡ inr y₁) 
-           → {y₀ : Y}(q₀₀ : Q x₀ y₀) → {x₁ : X}(q₁₁ : Q x₁ y₁) 
-           → leftCodeExtended q₀₀ x₁ (push q₁₁) r ≃ rightCode y₁ r 
-fiberEquiv q = {!!} -}
-
-
-{-
-module _ (x₀ : X) (y₀ : Y) (q₀₀ : Q x₀ y₀) where
-
-
-  leftCodeExtended : (x : X){p : Pushout} → inl x ≡ p → inl x₀ ≡ p → Type ℓ 
-  leftCodeExtended x r' r = 
-    Trunc (2 + m + n) (fiber (λ q₁₀ → push q₀₀ ∙∙ sym (push q₁₀) ∙∙ r') r) 
-
-  leftCode  : (x : X) → inl x₀ ≡ inl x → Type ℓ 
-  leftCode  x = 
-    leftCodeExtended x refl 
-
-  rightCode : (y : Y) → inl x₀ ≡ inr y → Type ℓ 
-  rightCode y r = 
-    Trunc (2 + m + n) (fiber push r) 
-
-
-  open import Cubical.Foundations.Function 
-  open import Cubical.Foundations.Transport 
-
-
-  transpLeftCode : {x : X}{p : Pushout} → (r' : inl x ≡ p) 
-                 → transport (λ i → inl x₀ ≡ r' i → Type ℓ) (leftCode x) ≡ leftCodeExtended x r' 
+  transpLeftCode : 
+      {x : X}{p : Pushout} → (r' : inl x ≡ p) 
+    → transport (λ i → inl x₀ ≡ r' i → Type ℓ) (leftCode x) ≡ leftCode' x r' 
   transpLeftCode = 
-    J (λ p r → transport (λ i → inl x₀ ≡ r i → Type ℓ) (leftCode _) ≡ leftCodeExtended _ r) 
+    J (λ p r → transport (λ i → inl x₀ ≡ r i → Type ℓ) (leftCode _) ≡ leftCode' _ r) 
       (transportRefl (leftCode _))   
 
-
-  open import Cubical.Homotopy.WedgeConnectivity 
-
-  --wedgeConn : 
-
-
-  --MainEquiv : {x0 x1 : X}{y0 y1 : Y} → (q00 : Q x0 y0)(q11 : Q x1 y1) → (q10 : Q x1 y0) → Q x0 y1 
-  --MainEquiv 
-
-  fiberEquiv : {x : X}{y : Y} → (q : Q x y) 
-             → (r : inl x₀ ≡ inr y) → leftCodeExtended x (push q) r ≃ rightCode y r 
-  fiberEquiv q = {!!}
-
-
-  fiberPath : {x : X}{y : Y} → (q : Q x y) → leftCodeExtended x (push q) ≡ rightCode y 
-  fiberPath q i r = ua (fiberEquiv q r) i 
-
+  fiberPath : {x : X}{y : Y} → (q : Q x y) → leftCode' x (push q) ≡ rightCode y 
+  fiberPath q i r = ua (left≃rightCodeExtended q₀₀ q r) i 
 
   pushCode : {x : X}{y : Y} → (q : Q x y) 
            → PathP (λ i → inl x₀ ≡ push q i → Type ℓ) (leftCode x) (rightCode y) 
@@ -606,17 +554,17 @@ module _ (x₀ : X) (y₀ : Y) (q₀₀ : Q x₀ y₀) where
                    ; (i = i1) → (transpLeftCode (push q) ∙ fiberPath q) j }) 
           (transport-filler (λ i → inl x₀ ≡ push q i → Type ℓ) (leftCode x) i)
 
-
-
   Code : (p : Pushout) → inl x₀ ≡ p → Type ℓ 
   Code (inl x) = leftCode  x 
   Code (inr x) = rightCode x 
   Code (push q i) = pushCode q i 
 
+  {- The contractibility of Code -}
+
   centerCode : {p : Pushout} → (r : inl x₀ ≡ p) → Code p r 
   centerCode = 
-    let q' = push q₀₀ 
-    in  J (λ p r → Code p r) ∣(q₀₀ , sym (compPath≡compPath' q' (sym q')) ∙ rCancel q')∣ 
+    let q = push q₀₀ in 
+    J (λ p r → Code p r) ∣ q₀₀ , (λ i j → push q₀₀ (~ i ∧ ~ j)) ∣ₕ 
 
   --contractionCode : isContr (Code (inr y₀) (push q₀₀)) 
   --contractionCode = {!!} 
@@ -625,12 +573,9 @@ module _ (x₀ : X) (y₀ : Y) (q₀₀ : Q x₀ y₀) where
   contractionCode = {!!} 
 
   contractionCode' : (y : Y) → (r : inl x₀ ≡ inr y) 
-                    → (c : fiber push r) → ∣ c ∣ ≡ centerCode r 
+                    → (c : fiber push r) → ∣ c ∣ₕ ≡ centerCode r 
   contractionCode' y r (q , refl) = {!!} 
 
-  contractionCodeRefl : (y : Y) → (q : Q x₀ y) → ∣(q , refl)∣ ≡ centerCode (push q)
+  contractionCodeRefl : (y : Y) → (q : Q x₀ y) → ∣ q , refl ∣ₕ ≡ centerCode (push q)
   contractionCodeRefl y r = {!!} 
 
-  --pushCodeExtended : 
-
-  -}
