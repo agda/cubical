@@ -26,6 +26,7 @@ module Cubical.Foundations.Prelude where
 open import Cubical.Core.Primitives public
 
 infixr 30 _∙_
+infixr 30 _∙₂_
 infix  3 _∎
 infixr 2 _≡⟨_⟩_
 infixr 2.5 _≡⟨_⟩≡⟨_⟩_
