@@ -40,47 +40,8 @@ data Pushout : Type ℓ
     inr : Y → Pushout
     push : {x : X}{y : Y} → Q x y → inl x ≡ inr y 
 
-{- 
-_∙sq_ : {ℓ' : Level}{A : Type ℓ'}
-      → (n : HLevel) → ((x : A) → (y : B x) → isOfHLevel n (C x y))
-      → isOfHLevel n ((x : A) → (y : B x) → C x y) 
-isOfHLevelΠ₂ n f = isOfHLevelΠ n (λ x → isOfHLevelΠ n (f x)) -} 
-
-isOfHLevelΠ₂ : {ℓ' ℓ'' ℓ''' : Level}{A : Type ℓ'}{B : A → Type ℓ''}{C : (x : A) → B x → Type ℓ'''}
-             → (n : HLevel) → ((x : A) → (y : B x) → isOfHLevel n (C x y))
-             → isOfHLevel n ((x : A) → (y : B x) → C x y) 
-isOfHLevelΠ₂ n f = isOfHLevelΠ n (λ x → isOfHLevelΠ n (f x))
-
 
 open import Cubical.HITs.Truncation renaming (hLevelTrunc to Trunc)
-open import Cubical.Foundations.Function 
-
-recUniq : {ℓ' ℓ'' : Level}{n : HLevel}{A : Type ℓ'}{B : Type ℓ''}
-        → (h : isOfHLevel n B) 
-        → (g : A → B) 
-        → (x : A)
-        → rec h g ∣ x ∣ₕ ≡ g x 
-recUniq {n = zero} h g x = h .snd (g x)
-recUniq {n = suc n} _ _ _ = refl 
-
-∘rec : {ℓ' ℓ'' ℓ''' : Level}{n : HLevel}{A : Type ℓ'}{B : Type ℓ''}{C : Type ℓ'''}
-     → (h : isOfHLevel n B) 
-     → (h' : isOfHLevel n C) 
-     → (g : A → B) 
-     → (f : B → C) 
-     → (x : Trunc n A)
-     → rec h' (f ∘ g) x ≡ f (rec h g x)
-∘rec {n = zero} h h' g f x = h' .snd (f (rec h g x))
-∘rec {n = suc n} h h' g f = elim (λ _ → isOfHLevelPath _ h' _ _) (λ _ → refl)
-
-recId : {ℓ' : Level}{n : HLevel}{A : Type ℓ'} 
-      → (f : A → Trunc n A) 
-      → ((x : A) → f x ≡ ∣ x ∣ₕ) 
-      → rec (isOfHLevelTrunc _) f ≡ idfun _
-recId {n = n} f h i x = 
-  elim {B = λ a → rec (isOfHLevelTrunc _) f a ≡ a} 
-       (λ _ → isOfHLevelTruncPath) (λ a → recUniq {n = n} (isOfHLevelTrunc _) f a ∙ h a) x i 
-
 
 fiberSquare : {x₀ x₁ : X}{y₀ : Y}{p : Pushout}(q₀₀ : Q x₀ y₀)(q₁₀ : Q x₁ y₀) 
             → inl x₁ ≡ p → inl x₀ ≡ p → Type ℓ 
@@ -426,11 +387,11 @@ module ∣fiber→←[q₀₀=q₁₀]∣
   path5 : ∣ fiber←[q₁₁=q₀₁] q₁₁ q₁₀ r (fiber→[q₀₀=q₁₀] q₁₀ q₁₁ r p .snd) ∣ₕ ≡ ∣_∣ₕ {n = m + n} (q₁₀ , p)
   path5 i = ∣ (q₁₀ , fiber→←[q₀₀=q₁₀] q₁₀ q₁₁ r p i) ∣ₕ 
 
-  path' : right→leftCodeExtended q₁₀ q₁₁ r (fiber→ q₁₀ q₁₀ q₁₁ r p) ≡ ∣ (q₁₀ , p) ∣ₕ 
-  path' = path1 ∙ path2 ∙ path3 ∙ path4 ∙ path5 
-
   path : right→leftCodeExtended q₁₀ q₁₁ r (fiber→ q₁₀ q₁₀ q₁₁ r p) ≡ ∣ (q₁₀ , p) ∣ₕ 
-  path = 
+  path = path1 ∙ path2 ∙ path3 ∙ path4 ∙ path5 
+
+  path' : right→leftCodeExtended q₁₀ q₁₁ r (fiber→ q₁₀ q₁₀ q₁₁ r p) ≡ ∣ (q₁₀ , p) ∣ₕ 
+  path' = 
       (λ i → right→leftCodeExtended q₁₀ q₁₁ r (Fiber→.left q₁₀ (_ , q₁₁) i r p)) 
     ∙ recUniq {n = m + n} _ _ _ 
     ∙ (λ i → Fiber←.left q₁₁ (_ , q₁₀) i r (fiber→[q₀₀=q₁₀] q₁₀ q₁₁ r p .snd)) 
@@ -465,10 +426,42 @@ module ∣fiber→←[q₁₁=q₁₀]∣
 module ∣fiber→[q₀₀=q₁₀=q₁₁]∣ 
   {x₁ : X}{y₀ : Y}(q₁₀ : Q x₁ y₀) where 
 
+  module _ 
+    (r : inl x₁ ≡ inr y₀) 
+    (p : fiberSquarePush q₁₀ q₁₀ q₁₀ r) where 
+
+    path1Square : 
+      PathP (λ i → right→leftCodeExtended q₁₀ q₁₀ r (fiber→ q₁₀ q₁₀ q₁₀ r p) ≡ right→leftCodeExtended q₁₀ q₁₀ r (∣fiber→[q₀₀=q₁₀=q₁₁]∣ q₁₀ i r p)) 
+            (∣fiber→←[q₀₀=q₁₀]∣.path1 q₁₀ q₁₀ r p) (∣fiber→←[q₁₁=q₁₀]∣.path1 q₁₀ q₁₀ r p)
+    path1Square i j = 
+      right→leftCodeExtended q₁₀ q₁₀ r (Fiber→.homSquare q₁₀ i j r p)
+
+    path2Square : 
+      PathP (λ i → right→leftCodeExtended q₁₀ q₁₀ r (∣fiber→[q₀₀=q₁₀=q₁₁]∣ q₁₀ i r p) ≡ right→leftCodeExtended q₁₀ q₁₀ r ∣ fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p ∣ₕ) 
+            (∣fiber→←[q₀₀=q₁₀]∣.path2 q₁₀ q₁₀ r p) (∣fiber→←[q₁₁=q₁₀]∣.path2 q₁₀ q₁₀ r p)
+    path2Square i = refl 
+
+    path3Square : 
+      PathP (λ i → right→leftCodeExtended q₁₀ q₁₀ r ∣ fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p ∣ₕ ≡ fiber← q₁₀ q₁₀ q₁₀ r (fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p .snd)) 
+            (∣fiber→←[q₀₀=q₁₀]∣.path3 q₁₀ q₁₀ r p) (∣fiber→←[q₁₁=q₁₀]∣.path3 q₁₀ q₁₀ r p)
+    path3Square i = recUniq {n = m + n} _ _ _  
+
+    path4Square : 
+      PathP (λ i → fiber← q₁₀ q₁₀ q₁₀ r (fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p .snd) ≡ ∣ fiber←[q₀₀=q₀₁=q₁₁] q₁₀ i r (fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p .snd) ∣ₕ) 
+            (∣fiber→←[q₀₀=q₁₀]∣.path4 q₁₀ q₁₀ r p) (∣fiber→←[q₁₁=q₁₀]∣.path4 q₁₀ q₁₀ r p)
+    path4Square i j = 
+      Fiber←.homSquare q₁₀ i j r (fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p .snd) 
+
+    path5Square : 
+      PathP (λ i → ∣ fiber←[q₀₀=q₀₁=q₁₁] q₁₀ i r (fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p .snd) ∣ₕ ≡ ∣_∣ₕ {n = m + n} (q₁₀ , p)) 
+            (∣fiber→←[q₀₀=q₁₀]∣.path5 q₁₀ q₁₀ r p) (∣fiber→←[q₁₁=q₁₀]∣.path5 q₁₀ q₁₀ r p)
+    path5Square i j = 
+      ∣ (q₁₀ , fiber→←Hypercube q₁₀ r p i j) ∣ₕ 
+
+    pathSquare = path1Square ∙₂ path2Square ∙₂ path3Square ∙₂ path4Square ∙₂ path5Square 
+
   path : ∣fiber→←[q₀₀=q₁₀]∣.path q₁₀ q₁₀ ≡ ∣fiber→←[q₁₁=q₁₀]∣.path q₁₀ q₁₀ 
-  path = {!!} 
-
-
+  path i r p = pathSquare r p i 
 
 
 fiber→← : 
