@@ -642,3 +642,12 @@ module _ (x₀ : X)(y₀ : Y)(q₀₀ : Q x₀ y₀) where
 
     isContrCode : isContr (Code _ r) 
     isContrCode = centerCode r , contractionCode 
+
+excision-helper : 
+    (x : X) → Trunc (1 + m) (Σ[ y₀ ∈ Y ] Q x y₀) 
+  → (y : Y) → (r : inl x ≡ inr y) → isContr (Trunc (m + n) (fiber push r)) 
+excision-helper x y' y r = rec (isProp→isOfHLevelSuc m isPropIsContr) (λ (y₀ , q₀₀) → isContrCode x y₀ q₀₀ y r ) y' 
+
+{- The Main Result : Blakers-Massey Homotopy Excision Theorem -}
+Excision : (x : X)(y : Y) → isConnectedFun (m + n) (push {x = x} {y = y}) 
+Excision x y = excision-helper x (leftConn x .fst) y 
