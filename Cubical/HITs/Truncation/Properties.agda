@@ -556,3 +556,11 @@ Iso.rightInv (truncOfΣIso (suc n)) =
          λ b → refl)
 Iso.leftInv (truncOfΣIso (suc n)) =
   elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) λ {(a , b) → refl}
+
+{- transport along family of truncations -} 
+
+transportTrunc : {n : HLevel}{p : A ≡ B} 
+               → (a : A)
+               → transport (λ i → hLevelTrunc n (p i)) ∣ a ∣ₕ ≡ ∣ transport (λ i → p i) a ∣ₕ  
+transportTrunc {n = zero} a = refl  
+transportTrunc {n = suc n} a = refl 
