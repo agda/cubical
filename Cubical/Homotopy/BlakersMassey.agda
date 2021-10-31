@@ -64,6 +64,8 @@ leftCodeExtended {y₀ = y₀} q₀₀ x₁ r' r = Trunc (m + n) (fiber' q₀₀
 rightCode : {x₀ : X}(y : Y) → inl x₀ ≡ inr y → Type ℓ 
 rightCode y r = Trunc (m + n) (fiber push r) 
 
+{- Bunch of coherence data that will be used to construct Code -}
+
 {- Definitions of fiber→ -}
 
 module _ 
@@ -131,8 +133,6 @@ module _
 
   ∣fiber→[q₀₀=q₁₀=q₁₁]∣ : ∣fiber→[q₀₀=q₁₀]∣ q₁₀ ≡ ∣fiber→[q₁₁=q₁₀]∣ q₁₀ 
   ∣fiber→[q₀₀=q₁₀=q₁₁]∣ i r p = ∣ fiber→[q₀₀=q₁₀=q₁₁] i r p ∣ₕ 
-
-{- Bunch of coherence data that will be used in the definition of Code -}
 
 {- Definitions of fiber← -}
 
@@ -527,7 +527,7 @@ module _
     isoToEquiv (iso (left→rightCodeExtended _ _ _) (right→leftCodeExtended _ _ _) 
                      right→left→rightCodeExtended left→right→leftCodeExtended) 
 
-{- Definition of Code -}
+{- Definition and properties of Code -}
 
 module _ (x₀ : X)(y₀ : Y)(q₀₀ : Q x₀ y₀) where
 
@@ -553,7 +553,7 @@ module _ (x₀ : X)(y₀ : Y)(q₀₀ : Q x₀ y₀) where
   Code (inr y) = rightCode y 
   Code (push q i) = pushCode q i 
 
-  {- A transportation rule of pushCode -}
+  {- Transportation rule of pushCode -}
 
   transpLeftCode : (y : Y) → (q : Q x₀ y) → (q' : leftCodeExtended q₀₀ _ refl refl) → leftCode' _ (push q) (push q)
   transpLeftCode y q q' = 
@@ -607,9 +607,29 @@ module _ (x₀ : X)(y₀ : Y)(q₀₀ : Q x₀ y₀) where
   centerCode : {p : Pushout} → (r : inl x₀ ≡ p) → Code p r 
   centerCode r = 
    transport (λ i → Code _ (λ j → r (i ∧ j))) ∣ q₀₀ , (λ i j → push q₀₀ (~ i ∧ ~ j)) ∣ₕ 
-   
-  contractionCodeRefl : (y : Y) → (q : Q x₀ y) → centerCode (push q) ≡ ∣ q , refl ∣ₕ 
-  contractionCodeRefl y r = {!!} 
+
+  module _ 
+    (y : Y)(q : Q x₀ y) where 
+
+    transp-filler : (i j k : I) → Pushout 
+    transp-filler = transpLeftCode-filler (push q) (λ i' j' → push q₀₀ (~ i' ∧ ~ j')) 
+
+    transp-square : fiberSquare q₀₀ q₀₀ (push q) (push q) 
+    transp-square i j = transp-filler i j i1 
+
+    contractionCodeRefl' : 
+      fiber→[q₀₀=q₁₀] q₀₀ q (push q) transp-square .snd ≡ refl 
+    contractionCodeRefl' i j k = 
+      hcomp (λ l → λ { (i = i0) → fiber→[q₀₀=q₁₀]-filler q₀₀ q (push q) transp-square j k l
+                     ; (i = i1) → transp-square (~ j ∨ l) k 
+                     ; (j = i0) → push q (k ∧ (i ∨ l))
+                     ; (j = i1) → transp-square l k 
+                     ; (k = i0) → push q₀₀ (j ∧ ~ l) 
+                     ; (k = i1) → push q ((i ∧ ~ j) ∨ l) })
+            (transp-filler (~ j) k i)
+
+    contractionCodeRefl : centerCode (push q) ≡ ∣ q , refl ∣ₕ 
+    contractionCodeRefl = transpPushCodeβ _ _ _ ∙ (λ i → ∣ q , contractionCodeRefl' i ∣ₕ)   
   
   module _ 
     (y : Y)(r : inl x₀ ≡ inr y) where 
