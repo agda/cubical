@@ -58,9 +58,9 @@ module WedgeConnectivity {ℓ ℓ' ℓ''} (n m : ℕ)
        ∙∙ sym (assoc _ _ _)
        ∙∙ cong (right (pt B) ∙_) (sym (symDistr (left (pt A) ⁻¹) (right (pt B))) ∙ (cong sym hom))
 
-  homSquare : PathP (λ i → extension (pt A) (pt B) ≡ p i) (left (pt A)) (right (pt B)) 
-  homSquare i j = hcomp (λ k → λ { (i = i0) → left (pt A) j 
-                                 ; (i = i1) → compPath-filler (right (pt B)) (sym p) (~ k) j  
-                                 ; (j = i0) → extension (pt A) (pt B)  
+  homSquare : PathP (λ i → extension (pt A) (pt B) ≡ p i) (left (pt A)) (right (pt B))
+  homSquare i j = hcomp (λ k → λ { (i = i0) → left (pt A) j
+                                 ; (i = i1) → compPath-filler (right (pt B)) (sym p) (~ k) j
+                                 ; (j = i0) → extension (pt A) (pt B)
                                  ; (j = i1) → p (i ∧ k) })
-                        (hom' i j) 
+                        (hom' i j)

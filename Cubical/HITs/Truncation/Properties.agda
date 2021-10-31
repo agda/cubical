@@ -258,33 +258,33 @@ Iso.rightInv (univTrunc (suc n) {B , lev}) b = refl
 Iso.leftInv (univTrunc (suc n) {B , lev}) b = funExt (elim (λ x → isOfHLevelPath _ lev _ _)
                                                             λ a → refl)
 
--- some useful properties of recursor 
+-- some useful properties of recursor
 
 recUniq : {n : HLevel}
-        → (h : isOfHLevel n B) 
-        → (g : A → B) 
+        → (h : isOfHLevel n B)
+        → (g : A → B)
         → (x : A)
-        → rec h g ∣ x ∣ₕ ≡ g x 
+        → rec h g ∣ x ∣ₕ ≡ g x
 recUniq {n = zero} h g x = h .snd (g x)
-recUniq {n = suc n} _ _ _ = refl 
+recUniq {n = suc n} _ _ _ = refl
 
 ∘rec : ∀{ℓ''} {n : HLevel}{C : Type ℓ''}
-     → (h : isOfHLevel n B) 
-     → (h' : isOfHLevel n C) 
-     → (g : A → B) 
-     → (f : B → C) 
+     → (h : isOfHLevel n B)
+     → (h' : isOfHLevel n C)
+     → (g : A → B)
+     → (f : B → C)
      → (x : hLevelTrunc n A)
      → rec h' (f ∘ g) x ≡ f (rec h g x)
 ∘rec {n = zero} h h' g f x = h' .snd (f (rec h g x))
 ∘rec {n = suc n} h h' g f = elim (λ _ → isOfHLevelPath _ h' _ _) (λ _ → refl)
 
 recId : {n : HLevel}
-      → (f : A → hLevelTrunc n A) 
-      → ((x : A) → f x ≡ ∣ x ∣ₕ) 
+      → (f : A → hLevelTrunc n A)
+      → ((x : A) → f x ≡ ∣ x ∣ₕ)
       → rec (isOfHLevelTrunc _) f ≡ idfun _
-recId {n = n} f h i x = 
-  elim {B = λ a → rec (isOfHLevelTrunc _) f a ≡ a} 
-       (λ _ → isOfHLevelTruncPath) (λ a → recUniq {n = n} (isOfHLevelTrunc _) f a ∙ h a) x i 
+recId {n = n} f h i x =
+  elim {B = λ a → rec (isOfHLevelTrunc _) f a ≡ a}
+       (λ _ → isOfHLevelTruncPath) (λ a → recUniq {n = n} (isOfHLevelTrunc _) f a ∙ h a) x i
 
 -- functorial action
 
@@ -557,10 +557,10 @@ Iso.rightInv (truncOfΣIso (suc n)) =
 Iso.leftInv (truncOfΣIso (suc n)) =
   elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) λ {(a , b) → refl}
 
-{- transport along family of truncations -} 
+{- transport along family of truncations -}
 
-transportTrunc : {n : HLevel}{p : A ≡ B} 
+transportTrunc : {n : HLevel}{p : A ≡ B}
                → (a : A)
-               → transport (λ i → hLevelTrunc n (p i)) ∣ a ∣ₕ ≡ ∣ transport (λ i → p i) a ∣ₕ  
-transportTrunc {n = zero} a = refl  
-transportTrunc {n = suc n} a = refl 
+               → transport (λ i → hLevelTrunc n (p i)) ∣ a ∣ₕ ≡ ∣ transport (λ i → p i) a ∣ₕ
+transportTrunc {n = zero} a = refl
+transportTrunc {n = suc n} a = refl
