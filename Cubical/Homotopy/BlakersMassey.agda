@@ -546,27 +546,79 @@ module _ (x₀ : X)(y₀ : Y)(q₀₀ : Q x₀ y₀) where
   pushCode q i = 
     hcomp (λ j → λ { (i = i0) → leftCode _ 
                    ; (i = i1) → fiberPath q j }) 
-          (leftCode' _ (λ j → push q (i ∧ j)))
+          (leftCode' _ (λ j → push q (i ∧ j))) 
 
   Code : (p : Pushout) → inl x₀ ≡ p → Type ℓ 
   Code (inl x) = leftCode  x 
   Code (inr y) = rightCode y 
   Code (push q i) = pushCode q i 
 
+  {- A transportation rule of pushCode -}
+
+  transpLeftCode : (y : Y) → (q : Q x₀ y) → (q' : leftCodeExtended q₀₀ _ refl refl) → leftCode' _ (push q) (push q)
+  transpLeftCode y q q' = 
+    transport (λ i → leftCode' _ (λ j → push q (i ∧ j)) (λ j → push q (i ∧ j))) q' 
+    
+  transpPushCodeβ' : 
+      (y : Y) → (q : Q x₀ y) → (q' : leftCodeExtended q₀₀ _ refl refl)  
+    → transport (λ i → pushCode q i (λ j → push q (i ∧ j))) q' ≡ left→rightCodeExtended _ _ _ (transpLeftCode y q q')  
+  transpPushCodeβ' y q q' i = transportRefl (left→rightCodeExtended _ _ _ (transpLeftCode y q (transportRefl q' i))) i
+
+  module _ 
+    {p : Pushout}(r : inl x₀ ≡ p) where 
+
+    fiber-filler : I → Type ℓ 
+    fiber-filler i = fiber' q₀₀ (λ j → r (i ∧ j)) (λ j → r (i ∧ j)) 
+
+    module _ 
+      (q : fiberSquare q₀₀ q₀₀ refl refl) where 
+
+      transpLeftCode-filler : (i j k : I) → Pushout
+      transpLeftCode-filler i j k' = 
+        hfill (λ k → λ { (i = i0) → push q₀₀ (~ j) 
+                       ; (i = i1) → r (j ∧ k)    
+                       ; (j = i0) → push q₀₀ (~ i) 
+                       ; (j = i1) → r (i ∧ k) }) 
+              (inS (q i j)) k' 
+
+  transpLeftCodeβ' : 
+      {p : Pushout} → (r : inl x₀ ≡ p) → (q : fiberSquare q₀₀ q₀₀ refl refl)
+    → transport (λ i → fiber-filler r i) (q₀₀ , q) ≡ (q₀₀ , λ i j → transpLeftCode-filler r q i j i1) 
+  transpLeftCodeβ' r q = 
+    J (λ p r → transport (λ i → fiber-filler r i) (q₀₀ , q) ≡ (q₀₀ , λ i j → transpLeftCode-filler r q i j i1)) 
+      (transportRefl _ ∙ (λ k → (q₀₀ , λ i j → transpLeftCode-filler refl q i j k))) r 
+
+  transpLeftCodeβ : 
+      (y : Y) → (q : Q x₀ y) → (q' : fiberSquare q₀₀ q₀₀ refl refl) 
+    → transpLeftCode y q ∣ q₀₀ , q' ∣ₕ ≡ ∣ q₀₀ , (λ i j → transpLeftCode-filler (push q) q' i j i1) ∣ₕ 
+  transpLeftCodeβ y q q' = transportTrunc _ ∙ (λ i → ∣ transpLeftCodeβ' _ q' i ∣ₕ) 
+
+  transpPushCodeβ : 
+      (y : Y) → (q : Q x₀ y) → (q' : fiberSquare q₀₀ q₀₀ refl refl)
+    → transport (λ i → pushCode q i (λ j → push q (i ∧ j))) ∣ q₀₀ , q' ∣ₕ ≡ ∣fiber→[q₀₀=q₁₀]∣ q₀₀ q (push q) (λ i j → transpLeftCode-filler (push q) q' i j i1)  
+  transpPushCodeβ y q q' = 
+      transpPushCodeβ' _ _ _ 
+    ∙ (λ i → left→rightCodeExtended _ _ _ (transpLeftCodeβ _ _ q' i)) 
+    ∙ recUniq {n = m + n} _ _ _ 
+    ∙ (λ i' → Fiber→.left q₀₀ (_ , q) i' (push q) (λ i j → transpLeftCode-filler (push q) q' i j i1)) 
+
   {- The contractibility of Code -}
 
   centerCode : {p : Pushout} → (r : inl x₀ ≡ p) → Code p r 
   centerCode r = 
    transport (λ i → Code _ (λ j → r (i ∧ j))) ∣ q₀₀ , (λ i j → push q₀₀ (~ i ∧ ~ j)) ∣ₕ 
-
-  contractionCodeRefl : (y : Y) → (q : Q x₀ y) →  centerCode (push q) ≡ ∣ q , refl ∣ₕ 
+   
+  contractionCodeRefl : (y : Y) → (q : Q x₀ y) → centerCode (push q) ≡ ∣ q , refl ∣ₕ 
   contractionCodeRefl y r = {!!} 
+  
+  module _ 
+    (y : Y)(r : inl x₀ ≡ inr y) where 
+  
+    contractionCode' : (a : fiber push r) → centerCode r ≡ ∣ a ∣ₕ 
+    contractionCode' (q , p') = J (λ r' p → centerCode r' ≡ ∣ q , p ∣ₕ) (contractionCodeRefl _ q) p'  
 
-  contractionCode' : (y : Y) → (r : inl x₀ ≡ inr y) → (a : fiber push r) → centerCode r ≡ ∣ a ∣ₕ 
-  contractionCode' _ r' (q , p') = J (λ r p → centerCode r ≡ ∣ q , p ∣ₕ) (contractionCodeRefl _ q) p'  
+    contractionCode : (a : Code _ r) → centerCode r ≡ a 
+    contractionCode = elim (λ _ → isOfHLevelTruncPath) contractionCode'
 
-  contractionCode : (y : Y) → (r : inl x₀ ≡ inr y) → (a : Code _ r) → centerCode r ≡ a 
-  contractionCode _ r = elim (λ _ → isOfHLevelTruncPath) (contractionCode' _ r)
-
-  isContrCode : (y : Y) → (r : inl x₀ ≡ inr y) → isContr (Code _ r) 
-  isContrCode _ r = centerCode r , contractionCode _ r
+    isContrCode : isContr (Code _ r) 
+    isContrCode = centerCode r , contractionCode 
