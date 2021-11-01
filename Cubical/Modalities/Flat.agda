@@ -3,6 +3,8 @@ module Cubical.Modalities.Flat where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Fiberwise
+open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 
@@ -10,7 +12,7 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Nat
 open import Cubical.Data.Int
 open import Cubical.Data.Sigma
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
 {-
   In Mike Shulman's real cohesive homotopty type theory
@@ -26,7 +28,7 @@ open import Cubical.HITs.PropositionalTruncation
 private
   variable
     @♭ ♭ℓ : Level
-    ℓ : Level
+    ℓ ℓ' : Level
 
 data ♭ (@♭ A : Type ♭ℓ) : Type ♭ℓ where
     _^♭ : (@♭ a : A) → ♭ A
@@ -58,6 +60,10 @@ crisp♭-Induction C N (a ^♭) = N a
         → (x : ♭ A) → counit (♭map f x) ≡ f (counit x)
 ♭nat f (x ^♭) = refl
 
+♭congCounit : {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ}
+        → (@♭ x y : A) → (p : ♭ (x ≡ y)) → x ^♭ ≡ y ^♭
+♭congCounit x y (q ^♭) i = {!(q i) ^♭!}
+
 isCrisplyDiscrete : {@♭ ♭ℓ : Level}
                     → (@♭ A : Type ♭ℓ) → Type ♭ℓ
 isCrisplyDiscrete A = isEquiv (counit {A = A})
@@ -68,6 +74,47 @@ isDiscreteUnit = snd (isoToEquiv (iso counit inv linv rinv))
     inv = λ {tt → tt ^♭}
     linv = λ {tt → refl}
     rinv = λ {(tt ^♭) → refl}
+
+module ♭Sigma {@♭ ♭ℓ ♭ℓ' : Level} {@♭ A : Type ♭ℓ} (@♭ C : A → Type ♭ℓ') where
+  ♭C : ♭ A → Type ♭ℓ'
+  ♭C (u ^♭) = ♭ (C u)
+
+  Σ♭→♭Σ : (Σ[ x ∈ ♭ A ] ♭C x) → ♭ (Σ[ x ∈ A ] C x)
+  Σ♭→♭Σ ((u ^♭) , (v ^♭)) = (u , v) ^♭
+
+  ♭Σ→Σ♭ : ♭ (Σ[ x ∈ A ] C x) → (Σ[ x ∈ ♭ A ] ♭C x)
+  ♭Σ→Σ♭ ((u , v) ^♭) = (u ^♭) , (v ^♭)
+
+  Σ♭≃♭Σ : (Σ[ x ∈ ♭ A ] ♭C x) ≃ ♭ (Σ[ x ∈ A ] C x)
+  Σ♭≃♭Σ = isoToEquiv (iso Σ♭→♭Σ ♭Σ→Σ♭
+          (λ { ((u , v) ^♭) → refl}) λ { ((u ^♭) , (v ^♭)) → refl})
+
+module ♭Equalities {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ}  where
+  {-
+    Theorem 6.1 (Shulman's real cohesion)
+    (done in a different way, avoiding (non-crisp) interval variables)
+  -}
+  Eq♭ : ♭ A → ♭ A → Type ♭ℓ
+  Eq♭ (u ^♭) (v ^♭) = ♭ (u ^♭ ≡ v ^♭)
+
+  Eq♭'' : (@♭ u : A) → (@♭ v : A) → Type ♭ℓ
+  Eq♭'' u v = u ≡ v
+
+  Eq♭' : ♭ A → ♭ A → Type ♭ℓ
+  Eq♭' (u ^♭) (v ^♭) = ♭ (u ≡ v)
+
+  reflEq♭ : (x : ♭ A) → Eq♭ x x
+  reflEq♭ (u ^♭) = refl ^♭
+
+  ΣEq≃♭Σ≡ : (@♭ u : A) → (Σ[ y ∈ ♭ A ] Eq♭' (u ^♭) y) ≃ ♭ (Σ[ y ∈ A ] u ≡ y)
+  ΣEq≃♭Σ≡ u = let open ♭Sigma in {!Σ♭≃♭Σ (Eq♭'' u) !}
+
+  Eq♭SigmaContr : (x : ♭ A) → isContr (Σ[ y ∈ ♭ A ] Eq♭ x y)
+  Eq♭SigmaContr (u ^♭) = {!!}
+
+
+
+
 private
   counitInvℕ : ℕ → ♭ ℕ
   counitInvℕ zero = zero ^♭
@@ -104,3 +151,23 @@ isDiscreteℤ = snd (isoToEquiv (iso counit inv linv rinv))
                  negsuc n ∎}
     rinv = λ { (pos n ^♭) → cong (♭map pos) (rinvℕ (n ^♭)) ;
                (negsuc n ^♭) → cong (♭map negsuc) (rinvℕ (n ^♭))}
+
+{-
+  From the article
+  https://arxiv.org/pdf/1908.08034.pdf
+  by david Jaz Myers
+-}
+
+BAut : {ℓ : Level}
+       → (X : Type ℓ) → X → Type ℓ
+BAut X x = Σ[ y ∈ X ] ∥ y ≡ x ∥
+
+♭BAut→BAut♭ : {@♭ ♭ℓ : Level}
+            →  (@♭ X : Type ♭ℓ) (@♭ x : X)
+            → ♭ (BAut X x) → BAut (♭ X) (x ^♭)
+♭BAut→BAut♭ X x ((y , p) ^♭) = (y ^♭) ,
+              PropTrunc.rec PropTrunc.isPropPropTrunc (λ p → ∣ {!cong _^♭ p!} ∣ ) p
+
+BAutEquiv : {@♭ ♭ℓ : Level} (@♭ X : Type ♭ℓ)
+            → _
+BAutEquiv = {!!}
