@@ -209,9 +209,12 @@ private
     lem zero zero = 1 , refl
     lem zero (suc y) = (suc (suc y)) , +Comm (negsuc zero) (negsuc (suc y))
     lem (suc x) zero = (suc (suc x)) , refl
-    lem (suc x) (suc y) = (lem (suc (suc x)) y .fst) , (predℤ+negsuc y (negsuc (suc x)) ∙ snd ((lem (suc (suc x))) y))
+    lem (suc x) (suc y) =
+       (lem (suc (suc x)) y .fst)
+     , (predℤ+negsuc y (negsuc (suc x)) ∙ snd ((lem (suc (suc x))) y))
 
-  intLem₂ : (n x : ℕ) → Σ[ a ∈ ℕ ] ((pos (suc x)) * pos (suc (suc n)) ≡ pos (suc (suc a)))
+  intLem₂ : (n x : ℕ)
+    → Σ[ a ∈ ℕ ] ((pos (suc x)) * pos (suc (suc n)) ≡ pos (suc (suc a)))
   intLem₂ n zero = n , refl
   intLem₂ n (suc x) = h3 _ _ (intLem₂ n x)
     where
@@ -239,7 +242,8 @@ GroupEquivℤ-pres1 e (pos (suc (suc n))) p =
   where
   h3 : pos 1 ≡ _
   h3 = sym (retEq (fst e) 1)
-    ∙∙ (cong (fst (fst (invGroupEquiv e))) (p ∙ ·Comm 1 (pos (suc (suc n)))))
+    ∙∙ cong (fst (fst (invGroupEquiv e)))
+            (p ∙ ·Comm 1 (pos (suc (suc n))))
     ∙∙ GroupHomℤ→ℤPres· (_ , snd (invGroupEquiv e)) (pos (suc (suc n))) 1
 GroupEquivℤ-pres1 e (negsuc zero) p = cong abs p
 GroupEquivℤ-pres1 e (negsuc (suc n)) p = ⊥-rec (¬1=x·suc-suc _ _ lem₂)
@@ -267,8 +271,10 @@ groupEquivPresGen : ∀ {ℓ} (G : Group ℓ) (ϕ : GroupEquiv G ℤGroup) (x : 
               → (ψ : GroupEquiv G ℤGroup)
               → (fst (fst ψ) x ≡ 1) ⊎ (fst (fst ψ) x ≡ - 1)
 groupEquivPresGen G (ϕeq , ϕhom) x (inl r) (ψeq , ψhom) =
-     abs→⊎ _ _ (cong abs (cong (fst ψeq) (sym (retEq ϕeq x) ∙ cong (invEq ϕeq) r))
-   ∙ GroupEquivℤ-pres1 (compGroupEquiv (invGroupEquiv (ϕeq , ϕhom)) (ψeq , ψhom)) _ refl)
+     abs→⊎ _ _ (cong abs (cong (fst ψeq) (sym (retEq ϕeq x)
+               ∙ cong (invEq ϕeq) r))
+   ∙ GroupEquivℤ-pres1 (compGroupEquiv
+                         (invGroupEquiv (ϕeq , ϕhom)) (ψeq , ψhom)) _ refl)
 groupEquivPresGen G (ϕeq , ϕhom) x (inr r) (ψeq , ψhom) =
   abs→⊎ _ _
     (cong abs (cong (fst ψeq) (sym (retEq ϕeq x) ∙ cong (invEq ϕeq) r))
