@@ -542,14 +542,14 @@ CP2≡CP²' =
         → abs (fst (fst 3rdEq) (h₁ ⌣ h₁)) ≡ 1
   help g h (ϕ , idg) (ψ , idh) ⌣eq ξ =
     ⊎→abs _ _
-      (allisoPresGen _
+      (groupEquivPresGen _
         (compGroupEquiv main (compGroupEquiv (invGroupEquiv main) ψ))
         h (abs→⊎ _ _ (cong abs (cong (fst (fst ψ)) (retEq (fst main) h))
                      ∙ idh)) (compGroupEquiv main ξ))
     where
     lem₁ : ((fst (fst ψ) h) ≡ 1) ⊎ (fst (fst ψ) h ≡ -1)
       → abs (fst (fst ϕ) h) ≡ 1
-    lem₁ p = ⊎→abs _ _ (allisoPresGen _ ψ h p ϕ)
+    lem₁ p = ⊎→abs _ _ (groupEquivPresGen _ ψ h p ϕ)
 
     lem₂ : ((fst (fst ϕ) h) ≡ 1) ⊎ (fst (fst ϕ) h ≡ -1)
           → ((fst (fst ϕ) g) ≡ 1) ⊎ (fst (fst ϕ) g ≡ -1)

@@ -135,10 +135,11 @@ JGroupEquiv : {G : Group ℓ} (P : (H : Group ℓ) → GroupEquiv G H → Type �
 JGroupEquiv {G = G} P p {H} e =
   transport (λ i → P (GroupPath G H .fst e i)
     (transp (λ j → GroupEquiv G (GroupPath G H .fst e (i ∨ ~ j))) i e))
-      (subst (P G) (sym l) p)
+      (subst (P G) (sym lem) p)
   where
-  l : (transp (λ j → GroupEquiv G (GroupPath G H .fst e (~ j))) i0 e) ≡ idGroupEquiv
-  l = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+  lem : transport (λ j → GroupEquiv G (GroupPath G H .fst e (~ j))) e
+       ≡ idGroupEquiv
+  lem = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
        (Σ≡Prop (λ _ → isPropIsEquiv _)
          (funExt λ x → (λ i → fst (fst (fst e .snd .equiv-proof
                           (transportRefl (fst (fst e) (transportRefl x i)) i))))
