@@ -12,10 +12,10 @@ open import Cubical.Data.Nat.Order
 modInd : (n : ℕ) → ℕ → ℕ
 modInd n = +induction n (λ _ → ℕ) (λ x _ → x) λ _ x → x
 
-modIndBase : (n m : ℕ) → _
+modIndBase : (n m : ℕ) → m < suc n → modInd n m ≡ m
 modIndBase n = +inductionBase n (λ _ → ℕ) (λ x _ → x) (λ _ x → x)
 
-modIndStep : (n m : ℕ) → _
+modIndStep : (n m : ℕ) → modInd n (suc n + m) ≡ modInd n m
 modIndStep n = +inductionStep n (λ _ → ℕ) (λ x _ → x) (λ _ x → x)
 -------------------------------------
 
