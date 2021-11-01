@@ -1085,7 +1085,6 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
          , (cong (fst (cofibSeq.j* _)) (secEq (fst (ϕ _)) f) ∙ p) ∣))
         (cofibSeq.Ker-p⊂Im-j _ x p)
 
-
   Im-p⊂KerSusp∘ϕ : (i : ℕ) (x : _)
                  → isInIm (p-hom _) x → isInKer (susp∘ϕ i) x
   Im-p⊂KerSusp∘ϕ i x p =

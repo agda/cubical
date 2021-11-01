@@ -16,6 +16,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.Foundations.Equiv
 open Iso
 
 {- loop space of a pointed type -}
@@ -28,8 +30,20 @@ open Iso
 (Ω^ (suc n)) p = Ω ((Ω^ n) p)
 
 {- loop space map -}
-Ω→ : ∀ {ℓA ℓB} {A : Pointed ℓA} {B : Pointed ℓB} (f : A →∙ B) → (Ω A →∙ Ω B)
-Ω→ (f , f∙) = (λ p → (sym f∙ ∙ cong f p) ∙ f∙) , cong (λ q → q ∙ f∙) (sym (rUnit (sym f∙))) ∙ lCancel f∙
+Ω→ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+      → (A →∙ B) → (Ω A →∙ Ω B)
+fst (Ω→ {A = A} {B = B} (f , p)) q = sym p ∙∙ cong f q ∙∙ p
+snd (Ω→ {A = A} {B = B} (f , p)) = ∙∙lCancel p
+
+isEquivΩ→ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+           → (f : (A →∙ B))
+           → isEquiv (fst f) → isEquiv (Ω→ f .fst)
+isEquivΩ→ {B = (B , b)} =
+  uncurry λ f →
+    J (λ b y → isEquiv f
+             → isEquiv (λ q → (λ i → y (~ i)) ∙∙ (λ i → f (q i)) ∙∙ y))
+      λ eqf → subst isEquiv (funExt (rUnit ∘ cong f))
+                     (isoToIsEquiv (congIso (equivToIso (f , eqf))))
 
 ΩfunExtIso : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') → Iso (typ (Ω (A →∙ B ∙))) (A →∙ Ω B)
 fst (fun (ΩfunExtIso A B) p) x = funExt⁻ (cong fst p) x

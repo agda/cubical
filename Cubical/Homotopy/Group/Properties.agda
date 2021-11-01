@@ -1,9 +1,26 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
+{-
+This file contians:
+1. A proof that the equivalence Ωⁿ A ≃ (Sⁿ →∙ A)
+is structure preserving
+
+2. Using the above, the complete group structure on (Sⁿ →∙ A),
+the alternative definition of homotopy groups
+
+4. A proof that the dependent path in Homotopy.Group.SuspensionMapPathP
+is structure preserving.
+
+5. A group isomorphism of the different definitions of homotopy groups
+
+6. Connectivity of the suspension map
+
+7. Surjectivity of the suspension map π₂₊ₙ(S¹⁺ⁿ) → π₃₊ₙ(S²⁺ⁿ)
+-}
 module Cubical.Homotopy.Group.Properties where
 
 open import Cubical.Homotopy.Group.Base
-open import Cubical.Homotopy.Group.S3
-open import Cubical.Homotopy.Group.S3
+open import Cubical.Homotopy.Group.SuspensionMapPathP
+open import Cubical.Homotopy.Group.SuspensionMapPathP
   using (IsoΩSphereMap) public
 open import Cubical.Homotopy.Loopspace
 
@@ -82,7 +99,7 @@ isHom-lMap (suc n) {A = A} p q =
   where
   doubleComp-lem : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) (q r : y ≡ y)
                  → (p ∙∙ q ∙∙ sym p) ∙ (p ∙∙ r ∙∙ sym p)
-                  ≡ (p ∙∙ (q ∙ r) ∙∙ sym p) 
+                  ≡ (p ∙∙ (q ∙ r) ∙∙ sym p)
   doubleComp-lem p q r i j =
     hcomp (λ k → λ { (i = i0) → (doubleCompPath-filler p q (sym p) k
                                 ∙ doubleCompPath-filler p r (sym p) k) j
@@ -506,7 +523,7 @@ private
     → botᵣ⁻ {A = A} n (∙Π f g)
      ≡ invComp {A = A} n (botᵣ⁻ {A = A} n f) (botᵣ⁻ {A = A} n g)
 
--- We ge that 
+-- We ge that
 hom-botᵣ⁻ zero f g =
   ΣPathP ((funExt (λ { false → sym (rUnit _)
                      ; true → (rUnit _)}))

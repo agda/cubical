@@ -3,6 +3,7 @@ module Cubical.Homotopy.HopfInvariant.Base where
 
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Group.Base
+open import Cubical.Homotopy.Group.Properties
 
 open import Cubical.Relation.Nullary
 
@@ -339,8 +340,9 @@ HopfInvariant : (n : ℕ)
              → (f : S₊∙ (3 +ℕ (n +ℕ n)) →∙ S₊∙ (2 +ℕ n))
              → ℤ
 HopfInvariant n f = Iso.fun (fst (Hopfβ-Iso n f))
-  ((subst (λ x → coHom x (HopfInvariantPush n (fst f)))
-                   (λ i → suc (suc (suc (+-suc n n i))))) (⌣-α n f))
+  (subst (λ x → coHom x (HopfInvariantPush n (fst f)))
+         (λ i → suc (suc (suc (+-suc n n i))))
+         (⌣-α n f))
 
 HopfInvariant-π' : (n : ℕ) → π' (3 +ℕ (n +ℕ n)) (S₊∙ (2 +ℕ n)) → ℤ
 HopfInvariant-π' n = sRec isSetℤ (HopfInvariant n)

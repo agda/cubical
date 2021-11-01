@@ -138,20 +138,6 @@ FreudenthalIso n A iscon = connectedTruncIso _ (σ A) (isConnectedσ _ iscon)
 
 
 {- connectedness of congⁿ σ (called suspMapΩ here) -}
-∙∙lCancel-fill : ∀ {ℓ} {A : Type ℓ} {x y : A}
-         → (p : x ≡ y)
-         → I → I → I → A
-∙∙lCancel-fill p i j k =
-  hfill (λ k → λ { (i = i1) → p k
-                  ; (j = i0) → p k
-                  ; (j = i1) → p k})
-        (inS (p i0)) k
-
-∙∙lCancel : ∀ {ℓ} {A : Type ℓ} {x y : A}
-         → (p : x ≡ y)
-         → sym p ∙∙ refl ∙∙ p ≡ refl
-∙∙lCancel p i j = ∙∙lCancel-fill p i j i1
-
 suspMapΩ∙ : ∀ {ℓ} {A : Pointed ℓ}(n : ℕ)
         → ((Ω^ n) A)
         →∙ ((Ω^ (suc n)) (Susp∙ (typ A)))

@@ -1,12 +1,29 @@
 {-# OPTIONS --safe #-}
 {-
-This file contains
-1. The definition of πₙ as a truncated loop space
-2. The definition of πₙ as a truncated function space (Sⁿ →∙ A)
-3. A structure preserving equivalence Ωⁿ A ≃ (Sⁿ →∙ A)
-4. A proof that the two constructions of homotopy groups are isomorphic
+The goal of this file is to prove that the function
+suspMapΩ : Ωⁿ A → Ωⁿ⁺¹ (Susp A), induced by
+the Freudenthal function σ : A → ΩΣA, gets taken to
+the canonical suspension map
+suspMap : (Sⁿ →∙ A) → (Sⁿ⁺¹ →∙ Susp A)
+given some suitable structure preserving equivalences
+Ωⁿ A ≃ (Sⁿ →∙ A).
+
+The idea is to fill the following diagram
+
+          suspMapΩ
+Ωⁿ A -------------------> Ωⁿ⁺¹ (Susp A)
+ |                           |
+ |                           |
+ | ≃ eq₁                     | ≃ eq₂
+ |                           |
+ v           suspMap         v
+ (Sⁿ →∙ A) -------------- > (Sⁿ⁺¹ →∙ Susp A)
+
+(we choose eq₁ and eq₂ (intensionally) different for techinical reasons)
+
+Many results in this file are technical. See the end for the main results.
 -}
-module Cubical.Homotopy.Group.S3 where
+module Cubical.Homotopy.Group.SuspensionMapPathP where
 
 open import Cubical.Homotopy.Group.Base
 open import Cubical.Homotopy.Loopspace
@@ -70,30 +87,6 @@ private
   +nInd {P = P} 0c 1c indc (suc (suc n)) =
     indc n (+nInd {P = P} 0c 1c indc (suc n))
 
-{-
-The goal of this file is to prove that the function
-suspMapΩ : Ωⁿ A → Ωⁿ⁺¹ (Susp A), induced by
-the Freudenthal function σ : A → ΩΣA, gets taken to
-the canonical suspension map
-suspMap : (Sⁿ →∙ A) → (Sⁿ⁺¹ →∙ Susp A)
-given some suitable structure preserving equivalences
-Ωⁿ A ≃ (Sⁿ →∙ A).
-
-The idea is to fill the following diagram
-
-          suspMapΩ
-Ωⁿ A -------------------> Ωⁿ⁺¹ (Susp A)
- |                           |
- |                           |
- | ≃ eq₁                     | ≃ eq₂
- |                           |
- v           suspMap         v
- (Sⁿ →∙ A) -------------- > (Sⁿ⁺¹ →∙ Susp A)
-
-where lMap and eq₂ are structure preserving equivalences
-(we choose them (intensionally) different for techinical reasons)
--}
-
 suspMap : ∀ {ℓ} {A : Pointed ℓ}(n : ℕ)
         → S₊∙ (suc n) →∙ A
         → S₊∙ (suc (suc n)) →∙ Susp∙ (typ A)
@@ -155,33 +148,15 @@ lMapId2 (suc (suc n)) {A = A} =
  |                  |
  |                  |
  v                  v
- (Sⁿ⁺¹ →∙ A) ----> Sⁿ⁺² →∙ Σ A 
+ (Sⁿ⁺¹ →∙ A) ----> Sⁿ⁺² →∙ Σ A
 -}
-
--- Move to loopspace
-Ω-fun : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
-      → (A →∙ B) → (Ω A →∙ Ω B)
-fst (Ω-fun {A = A} {B = B} (f , p)) q = sym p ∙∙ cong f q ∙∙ p
-snd (Ω-fun {A = A} {B = B} (f , p)) = ∙∙lCancel p
-
--- move to loop space
-open import Cubical.Foundations.Equiv.HalfAdjoint
-isEquivΩfun : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
-           → (f : (A →∙ B))
-           → isEquiv (fst f) → isEquiv (Ω-fun f .fst)
-isEquivΩfun {B = (B , b)} =
-  uncurry λ f →
-    J (λ b y → isEquiv f → isEquiv (λ q → (λ i → y (~ i)) ∙∙ (λ i → f (q i)) ∙∙ y))
-      λ eqf → subst isEquiv (funExt (rUnit ∘ cong f))
-                     (isoToIsEquiv (congIso (equivToIso (f , eqf))))
-
 
 -- We define the following maps which will be used to
 -- show that lMap is an equivalence
 lMapSplit₁ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
            → typ ((Ω^ (suc n)) A)
            → typ (Ω (S₊∙ n →∙ A ∙))
-lMapSplit₁ n = Ω-fun (lMap n , lMapId2 n) .fst
+lMapSplit₁ n = Ω→ (lMap n , lMapId2 n) .fst
 
 ΩSphereMap : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
   → typ (Ω (S₊∙ n →∙ A ∙))
@@ -203,7 +178,8 @@ SphereMapΩ {A = A} zero (f , p) =
           , refl)
 SphereMapΩ {A = A} (suc n) (f , p) =
   ΣPathP (funExt (λ x → sym p ∙∙ cong f (merid x ∙ sym (merid (ptSn _))) ∙∙ p)
-        , flipSquare (cong (sym p ∙∙_∙∙ p) (cong (cong f) (rCancel (merid (ptSn _))))
+        , flipSquare (cong (sym p ∙∙_∙∙ p)
+                           (cong (cong f) (rCancel (merid (ptSn _))))
                    ∙ ∙∙lCancel p))
 
 SphereMapΩIso : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
@@ -398,7 +374,7 @@ isEquiv-lMap (suc n) =
   subst isEquiv (sym (funExt (lMap-split (suc n))))
     (snd (compEquiv
          ((lMapSplit₁ (suc n)) ,
-              (isEquivΩfun (lMap (suc n) , lMapId2 (suc n))
+              (isEquivΩ→ (lMap (suc n) , lMapId2 (suc n))
                            (isEquiv-lMap n)))
          (invEquiv (isoToEquiv (SphereMapΩIso (suc n))))))
 
@@ -448,7 +424,8 @@ private
 flipΩrefl : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
   → fun (flipΩIso {A = A} (suc n)) refl ≡ refl
 flipΩrefl {A = A} n j =
-  transp (λ i₁ → fst (Ω (flipΩPath {A = A} n ((i₁ ∨ j))))) j (snd (Ω (flipΩPath n j)))
+  transp (λ i₁ → fst (Ω (flipΩPath {A = A} n ((i₁ ∨ j)))))
+         j (snd (Ω (flipΩPath n j)))
 
 cong-lMap-lem : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p : _)
   → cong (lMap (suc n) {A = Ω A}) (fun (flipΩIso (suc (suc n))) p)
@@ -493,7 +470,7 @@ snd (botᵣ (suc n) (f , p)) = refl
 The goal now is to fill the following diagram.
 
                suspMap
-((Ω^ n) A) ------------>  Ω^ (1 + n) (Susp A)
+     Ωⁿ A -------------------> Ω¹⁺ⁿ (Susp A)
       |                            |
       |                            |
  lMap | ≃                        ≃ |  rMap
@@ -552,7 +529,9 @@ botᵣ⁻ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
 fst (botᵣ⁻ {A = A} n f) = botᵣ⁻' {A = A} n f
 snd (botᵣ⁻ {A = A} zero f) = refl
 snd (botᵣ⁻ {A = A} (suc n) f) =
-  cong (sym (snd f) ∙∙_∙∙ snd f) (cong (cong (fst f)) (rCancel (merid (ptSn _)))) ∙ ∙∙lCancel (snd f)
+  cong (sym (snd f) ∙∙_∙∙ snd f)
+       (cong (cong (fst f)) (rCancel (merid (ptSn _))))
+     ∙ ∙∙lCancel (snd f)
 
 isEquiv-rMap : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isEquiv (rMap n {A = A})
 isEquiv-rMap zero =
@@ -571,7 +550,8 @@ botᵣIso {A = A} n = (iso (botᵣ {A = A} n) (botᵣ⁻ {A = A} n) (h n) (retr 
   h : (n : ℕ) → section (botᵣ {A = A} n) (botᵣ⁻ {A = A} n)
   h zero (f , p) =
     ΣPathP (funExt (λ { base → sym p
-                      ; (loop i) j → doubleCompPath-filler (sym p) (cong f loop) p (~ j) i})
+                      ; (loop i) j → doubleCompPath-filler
+                                       (sym p) (cong f loop) p (~ j) i})
           , λ i j → p (~ i ∨ j))
   h (suc n) (f , p) =
     ΣPathP (funExt (λ { north → sym p
@@ -582,7 +562,8 @@ botᵣIso {A = A} n = (iso (botᵣ {A = A} n) (botᵣ⁻ {A = A} n) (h n) (retr 
                               ; (i = i1) → compPath-filler'
                                            (sym p) (cong f (merid (ptSn _))) k j
                               ; (j = i1) → f (merid a i)})
-                           (f (compPath-filler (merid a) (sym (merid (ptSn _))) (~ j) i))})
+                           (f (compPath-filler
+                              (merid a) (sym (merid (ptSn _))) (~ j) i))})
          , λ i j → p (~ i ∨ j))
 
   retr : (n : ℕ) → retract (botᵣ {A = A} n) (botᵣ⁻ {A = A} n)
@@ -829,23 +810,27 @@ filler-top□ {ℓ} =
                          (λ i → lMap (suc n) (p i) .fst a)
                          (lMapId (suc n) a)))
 
+
+-- main results
 suspMap→TranspType : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
   → (typ (Ω ((Ω^ n) A)) → typ (Ω (Ω ((Ω^ n) (Susp∙ (typ A))))))
-    ≡ ((S₊∙ (suc n) →∙ A) → (S₊∙ (suc (suc n)) →∙ Susp∙ (typ A)))
-suspMap→TranspType {A = A} n i = 
+   ≡ ((S₊∙ (suc n) →∙ A) → (S₊∙ (suc (suc n)) →∙ Susp∙ (typ A)))
+suspMap→TranspType {A = A} n i =
   Ω≡SphereMap {A = A} (suc n) i → Ω≡SphereMap' {A = A} (suc n) i
 
 suspMap→ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
          → PathP (λ i → suspMap→TranspType {A = A} n i)
-                 (suspMapΩ∙ (suc n) .fst)
-                 (suspMap n)
+                  (suspMapΩ∙ (suc n) .fst)
+                  (suspMap n)
 suspMap→ {A = A} n =
   toPathP (funExt λ f →
       (λ j → transportRefl (botᵣ {A = A} (suc n)
                                (rMap (suc n) {A = A}
                                  (suspMapΩ∙ (suc n) .fst
-                                   ((invEq (_ , isEquiv-lMap n) (transportRefl f j)))))) j)
+                                   ((invEq (_ , isEquiv-lMap n)
+                                           (transportRefl f j)))))) j)
     ∙∙ cong (botᵣ {A = A} (suc n))
             (funExt⁻ (filler-top□ (suc n)) (invEq (_ , isEquiv-lMap n) f))
-    ∙∙ sym (filler▿ (suc n) (lMap (suc n) {A = A} (invEq (lMap (suc n) , isEquiv-lMap n) f)))
+    ∙∙ sym (filler▿ (suc n) (lMap (suc n) {A = A}
+                    (invEq (lMap (suc n) , isEquiv-lMap n) f)))
      ∙ cong (suspMap n) (secEq ((lMap (suc n) , isEquiv-lMap n)) f))
