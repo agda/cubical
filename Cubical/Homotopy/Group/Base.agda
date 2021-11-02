@@ -7,18 +7,15 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.Path
-open import Cubical.Foundations.Transport
 
 open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim
-          ; elim2 to sElim2 ; elim3 to sElim3 ; map to sMap)
+  renaming (rec to sRec ; rec2 to sRec2
+          ; elim to sElim ; elim2 to sElim2 ; elim3 to sElim3
+          ; map to sMap)
 open import Cubical.HITs.Sn
-open import Cubical.Data.Bool
 open import Cubical.HITs.Susp
 open import Cubical.HITs.S1
+
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
 
@@ -26,7 +23,6 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 
-open Iso
 open IsGroup
 open IsSemigroup
 open IsMonoid
@@ -77,6 +73,7 @@ open GroupStr
         → ·π (suc n) x y ≡ ·π (suc n) y x
 π-comm n = sElim2 (λ _ _ → isSetPathImplicit) λ p q i → ∣ EH n p q i ∣₂
 
+-- πₙ₊₁
 πGr : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → Group ℓ
 fst (πGr n A) = π (suc n) A
 1g (snd (πGr n A)) = 1π (suc n)

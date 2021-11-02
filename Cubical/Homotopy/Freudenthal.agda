@@ -10,6 +10,7 @@ open import Cubical.Foundations.Everything
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sigma
+open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec ; elim to trElim)
@@ -17,14 +18,11 @@ open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
 open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.SmashProduct
-open import Cubical.Relation.Nullary
-open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 
 open import Cubical.HITs.S1 hiding (encode)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3
-open import Cubical.Foundations.Equiv.HalfAdjoint
 
 module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n)) (typ A)) where
 
@@ -143,24 +141,11 @@ suspMapΩ∙ : ∀ {ℓ} {A : Pointed ℓ}(n : ℕ)
         →∙ ((Ω^ (suc n)) (Susp∙ (typ A)))
 fst (suspMapΩ∙ {A = A} zero) a = merid a ∙ sym (merid (pt A))
 snd (suspMapΩ∙ {A = A} zero) = rCancel (merid (pt A))
-fst (suspMapΩ∙ {A = A} (suc n)) p = sym (snd (suspMapΩ∙ n)) ∙∙ cong (fst (suspMapΩ∙ n)) p ∙∙ snd (suspMapΩ∙ n)
-snd (suspMapΩ∙ {A = A} (suc n)) = ∙∙lCancel (snd (suspMapΩ∙ n))
+suspMapΩ∙ {A = A} (suc n) = Ω→ (suspMapΩ∙ {A = A} n)
 
 suspMapΩ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
          → typ ((Ω^ n) A) → typ ((Ω^ (suc n)) (Susp∙ (typ A)))
 suspMapΩ {A = A} n = suspMapΩ∙ {A = A} n .fst
-
-isConnectedCong' : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x : A} {y : B}
-     (n : ℕ) (f : A → B)
-  → isConnectedFun (suc n) f
-  → (p : f x ≡ y)
-  → isConnectedFun n
-      λ (q : x ≡ x) → sym p ∙∙ cong f q ∙∙ p
-isConnectedCong' {x = x} n f conf p =
-  transport (λ i → (isConnectedFun n
-                    λ (q : x ≡ x)
-                    → doubleCompPath-filler (sym p) (cong f q) p i))
-    (isConnectedCong n f conf)
 
 suspMapΩ-connected : ∀ {ℓ} (n : HLevel) (m : ℕ) {A : Pointed ℓ}
      (connA : isConnected (suc (suc n)) (typ A))

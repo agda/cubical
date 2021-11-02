@@ -317,17 +317,22 @@ isConnectedPathSⁿ n x y =
 
 
 -- Equivalence Sⁿ*Sᵐ≃Sⁿ⁺ᵐ⁺¹
-IsoSphereJoin : (n m : ℕ) → Iso (join (S₊ n) (S₊ m)) (S₊ (suc (n + m)))
+IsoSphereJoin : (n m : ℕ)
+  → Iso (join (S₊ n) (S₊ m)) (S₊ (suc (n + m)))
 IsoSphereJoin zero m =
   compIso join-comm
     (compIso (invIso Susp-iso-joinBool)
              (invIso (IsoSucSphereSusp m)))
 IsoSphereJoin (suc n) m =
   compIso (Iso→joinIso
-            (subst (λ x → Iso (S₊ (suc x)) (join (S₊ n) Bool)) (+-comm n 0) (invIso (IsoSphereJoin n 0)))
+            (subst (λ x → Iso (S₊ (suc x)) (join (S₊ n) Bool))
+                   (+-comm n 0) (invIso (IsoSphereJoin n 0)))
             idIso)
           (compIso (equivToIso joinAssocDirect)
-            (compIso (Iso→joinIso idIso (compIso join-comm (compIso (invIso Susp-iso-joinBool) (invIso (IsoSucSphereSusp m)))))
+            (compIso (Iso→joinIso idIso
+                      (compIso join-comm
+                       (compIso (invIso Susp-iso-joinBool)
+                                (invIso (IsoSucSphereSusp m)))))
                 (compIso
                   (IsoSphereJoin n (suc m))
                     (pathToIso λ i → S₊ (suc (+-suc n m i))))))

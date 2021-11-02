@@ -23,28 +23,31 @@ open import Cubical.Homotopy.Group.SuspensionMapPathP
 open import Cubical.Homotopy.Group.SuspensionMapPathP
   using (IsoΩSphereMap) public
 open import Cubical.Homotopy.Loopspace
+open import Cubical.Homotopy.Freudenthal
+open import Cubical.Homotopy.Connected
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Path
-open import Cubical.Foundations.Transport
-open import Cubical.Functions.Embedding
-open import Cubical.Functions.Morphism
-open import Cubical.Foundations.Pointed.Homogeneous
+open import Cubical.Foundations.Univalence
 
+open import Cubical.Functions.Morphism
+
+open import Cubical.HITs.PropositionalTruncation
+  renaming (rec to pRec ; rec2 to pRec2 ; elim to pElim)
 open import Cubical.HITs.SetTruncation
   renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim
           ; elim2 to sElim2 ; elim3 to sElim3 ; map to sMap)
-open import Cubical.HITs.PropositionalTruncation
-  renaming (rec to pRec ; rec2 to pRec2 ; elim to pElim)
-open import Cubical.HITs.Sn
-open import Cubical.Data.Bool
-open import Cubical.HITs.Susp
+open import Cubical.HITs.Truncation
+  renaming (rec to trRec)
 open import Cubical.HITs.S1
+open import Cubical.HITs.Sn
+open import Cubical.HITs.Susp
+open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
 
@@ -57,18 +60,6 @@ open IsGroup
 open IsSemigroup
 open IsMonoid
 open GroupStr
-
-open import Cubical.Homotopy.Freudenthal
-open import Cubical.Homotopy.Connected
-open import Cubical.HITs.Truncation
-  renaming (rec to trRec)
-
-
-open import Cubical.Data.Sum
-open import Cubical.Relation.Nullary
-open import Cubical.Data.Empty
-
-open import Cubical.Foundations.Equiv.HalfAdjoint
 
 -- We finally arrive at the main result
 
@@ -143,8 +134,8 @@ IsoSphereMapΩ-pres∙Π n =
   morphLemmas.isMorphInv _∙_ ∙Π (Ω→SphereMap (suc n))
     (isHom-lMap n)
     (SphereMap→Ω (suc n))
-    (Iso.rightInv (IsoΩSphereMap (suc n)))
-    (Iso.leftInv (IsoΩSphereMap (suc n)))
+    (rightInv (IsoΩSphereMap (suc n)))
+    (leftInv (IsoΩSphereMap (suc n)))
 
 -- It is useful to define the ``Group Structure'' on (S₊∙ n →∙ A)
 -- before doing it on π'. These will be the equivalents of the
@@ -296,23 +287,23 @@ snd (∙Π-lCancel {A = A} {n = suc n} f i) = refl
         → (f g h : S₊∙ (suc n) →∙ A)
         → ∙Π f (∙Π g h) ≡ ∙Π (∙Π f g) h
 ∙Π-assoc {n = n} f g h =
-     sym (Iso.leftInv (IsoSphereMapΩ (suc n)) (∙Π f (∙Π g h)))
+     sym (leftInv (IsoSphereMapΩ (suc n)) (∙Π f (∙Π g h)))
   ∙∙ cong (Ω→SphereMap (suc n)) (IsoSphereMapΩ-pres∙Π n f (∙Π g h)
                 ∙∙ cong (SphereMap→Ω (suc n) f ∙_) (IsoSphereMapΩ-pres∙Π n g h)
                 ∙∙ ∙assoc (SphereMap→Ω (suc n) f) (SphereMap→Ω (suc n) g) (SphereMap→Ω (suc n) h)
                 ∙∙ cong (_∙ SphereMap→Ω (suc n) h) (sym (IsoSphereMapΩ-pres∙Π n f g))
                 ∙∙ sym (IsoSphereMapΩ-pres∙Π n (∙Π f g) h))
-  ∙∙ Iso.leftInv (IsoSphereMapΩ (suc n)) (∙Π (∙Π f g) h)
+  ∙∙ leftInv (IsoSphereMapΩ (suc n)) (∙Π (∙Π f g) h)
 
 ∙Π-comm : ∀ {ℓ} {A : Pointed ℓ} {n : ℕ}
         → (f g : S₊∙ (suc (suc n)) →∙ A)
         → ∙Π f g ≡ ∙Π g f
 ∙Π-comm {A = A} {n = n} f g =
-     sym (Iso.leftInv (IsoSphereMapΩ (suc (suc n))) (∙Π f g))
+     sym (leftInv (IsoSphereMapΩ (suc (suc n))) (∙Π f g))
   ∙∙ cong (Ω→SphereMap (suc (suc n))) (IsoSphereMapΩ-pres∙Π (suc n) f g
   ∙∙ EH _ _ _
   ∙∙ sym (IsoSphereMapΩ-pres∙Π (suc n) g f))
-  ∙∙ Iso.leftInv (IsoSphereMapΩ (suc (suc n))) (∙Π g f)
+  ∙∙ leftInv (IsoSphereMapΩ (suc (suc n))) (∙Π g f)
 
 {- π'' as a group -}
 1π' : ∀ {ℓ} (n : ℕ) {A : Pointed ℓ} → π' n A
@@ -559,17 +550,17 @@ hom-rMap : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
 hom-rMap {A = A} n p q =
   cong (lMap (suc n) {A = Ω (Susp∙ (typ A))})
     (morphLemmas.isMorphInv _∙_ _∙_
-      (Iso.inv (flipΩIso (suc n))) (flipΩIsopres· n)
-      (Iso.fun (flipΩIso (suc n)))
-      (Iso.leftInv (flipΩIso (suc n))) (Iso.rightInv (flipΩIso (suc n)))
+      (inv (flipΩIso (suc n))) (flipΩIsopres· n)
+      (fun (flipΩIso (suc n)))
+      (leftInv (flipΩIso (suc n))) (rightInv (flipΩIso (suc n)))
       p q)
   ∙ isHom-lMap _ (fun (flipΩIso (suc n)) p) (fun (flipΩIso (suc n)) q)
 
 isHom-IsoΩSphereMap' : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
      (p q : typ (Ω ((Ω^ n) (Susp∙ (typ A)))))
-  → Iso.fun (IsoΩSphereMap' {A = A} n) (p ∙ q)
-   ≡ ∙Π {n = (suc n)} (Iso.fun (IsoΩSphereMap' {A = A} n) p)
-                      (Iso.fun (IsoΩSphereMap' {A = A} n) q)
+  → fun (IsoΩSphereMap' {A = A} n) (p ∙ q)
+   ≡ ∙Π {n = (suc n)} (fun (IsoΩSphereMap' {A = A} n) p)
+                      (fun (IsoΩSphereMap' {A = A} n) q)
 isHom-IsoΩSphereMap' {A = A} zero p q =
   (cong (botᵣ {A = A} 0)
     (cong ((lMap 0 {A = Ω (Susp∙ (typ A))}))
@@ -590,19 +581,19 @@ isHom-IsoΩSphereMap' {A = A} (suc n) p q =
      cong (botᵣ {A = A} (suc n) ∘ lMap (suc n) {A = Ω (Susp∙ (typ A))})
           (morphLemmas.isMorphInv
             _∙_ _∙_
-            (Iso.inv (flipΩIso (suc n)))
+            (inv (flipΩIso (suc n)))
             (flipΩIsopres· n)
-            (Iso.fun (flipΩIso (suc n)))
-            (Iso.leftInv (flipΩIso (suc n)))
-            (Iso.rightInv (flipΩIso (suc n))) p q)
+            (fun (flipΩIso (suc n)))
+            (leftInv (flipΩIso (suc n)))
+            (rightInv (flipΩIso (suc n))) p q)
   ∙ (cong (botᵣ {A = A} (suc n))
           (isHom-lMap _ {A = Ω (Susp∙ (typ A))}
             (fun (flipΩIso (suc n)) p) (fun (flipΩIso (suc n)) q))
    ∙ morphLemmas.isMorphInv ∙Π ∙Π (botᵣ⁻ {A = A} (suc n))
         (hom-botᵣ⁻' {A = A} n)
         (botᵣ {A = A} (suc n))
-        (Iso.leftInv (botᵣIso {A = A} (suc n)))
-        (Iso.rightInv (botᵣIso {A = A} (suc n)))
+        (leftInv (botᵣIso {A = A} (suc n)))
+        (rightInv (botᵣIso {A = A} (suc n)))
         (lMap (suc n) (fun (flipΩIso (suc n)) p))
         (lMap (suc n) (fun (flipΩIso (suc n)) q)))
 
@@ -663,7 +654,6 @@ private
                         ∙∙ ((sym (transportRefl _) ∙ (trId2 (f x) (f y)))
                          ∙ cong₂ +B2 (transportRefl (f x)) (transportRefl (f y))))
 
-open import Cubical.Foundations.Univalence
 suspMap→hom : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (f g : S₊∙ (suc n) →∙ A)
   → suspMap n (∙Π f g) ≡ ∙Π (suspMap n f) (suspMap n g)
 suspMap→hom {A = A} n =

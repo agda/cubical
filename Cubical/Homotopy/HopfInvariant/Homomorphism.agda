@@ -5,8 +5,6 @@ open import Cubical.Homotopy.HopfInvariant.Base
 open import Cubical.Homotopy.Group.Base
 open import Cubical.Homotopy.Group.Properties
 
-open import Cubical.Relation.Nullary
-
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Properties

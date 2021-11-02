@@ -8,26 +8,20 @@ module Cubical.Homotopy.HopfInvariant.HopfMap where
 open import Cubical.Homotopy.HopfInvariant.Base
 open import Cubical.Homotopy.Hopf
 open import Cubical.Homotopy.Connected
-
-open import Cubical.Relation.Nullary
+open import Cubical.Homotopy.HSpace
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.MayerVietorisUnreduced
-open import Cubical.ZCohomology.Groups.Unit
-open import Cubical.ZCohomology.Groups.Wedge
 open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.RingLaws
-open import Cubical.ZCohomology.RingStructure.GradedCommutativity
 open import Cubical.ZCohomology.Gysin
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.Isomorphism
@@ -51,11 +45,11 @@ open import Cubical.HITs.Join
 open import Cubical.HITs.S1 renaming (_·_ to _*_)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Wedge
 open import Cubical.HITs.Truncation
   renaming (rec to trRec ; elim to trElim)
 open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
+  renaming (rec to sRec ; rec2 to sRec2
+          ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation
   renaming (rec to pRec)
 
@@ -65,13 +59,13 @@ snd HopfMap = refl
 
 -- We use the Hopf fibration in order to connect it to the Gysin Sequence
 module hopfS¹ =
-  hopfBase S1-AssocHSpace (sphereElim2 _ (λ _ _ → squash) ∣ refl ∣)
+  Hopf S1-AssocHSpace (sphereElim2 _ (λ _ _ → squash) ∣ refl ∣)
 
 S¹Hopf = hopfS¹.Hopf
-E* = hopfS¹.totalSpaceMegaPush
-IsoE*join = hopfS¹.IsoJoin₁
+E* = hopfS¹.TotalSpacePush²'
+IsoE*join = hopfS¹.joinIso₂
 IsoTotalHopf' = hopfS¹.joinIso₁
-CP² = hopfS¹.megaPush
+CP² = hopfS¹.TotalSpaceHopfPush²
 fibr = hopfS¹.P
 
 TotalHopf' : Type _
@@ -88,18 +82,18 @@ conCP² x y = sRec2 squash₂ (λ p q → ∣ p ∙ sym q ∣₂) (conCP²' x) (
   conCP²' (inl x) = ∣ refl ∣₂
   conCP²' (inr x) = sphereElim 1 {A = λ x → ∥ inr x ≡ inl tt ∥₂}
                                  (λ _ → squash₂) ∣ sym (push (inl base)) ∣₂ x
-  conCP²' (push a i₁) = main a i₁
+  conCP²' (push a i) = main a i
     where
-    indLem : ∀ {ℓ} {A : hopfS¹.TotalSpaceHopf' → Type ℓ}
+    indLem : ∀ {ℓ} {A : hopfS¹.TotalSpaceHopfPush → Type ℓ}
         → ((a : _) → isProp (A a))
         → A (inl base)
-        → ((a : hopfS¹.TotalSpaceHopf') → A a)
+        → ((a : hopfS¹.TotalSpaceHopfPush) → A a)
     indLem {A = A} p b =
       PushoutToProp p
         (sphereElim 0 (λ _ → p _) b)
         (sphereElim 0 (λ _ → p _) (subst A (push (base , base)) b))
 
-    main : (a : hopfS¹.TotalSpaceHopf')
+    main : (a : hopfS¹.TotalSpaceHopfPush)
          → PathP (λ i → ∥ Path CP² (push a i) (inl tt) ∥₂)
                   (conCP²' (inl tt)) (conCP²' (inr (hopfS¹.induced a)))
     main = indLem (λ _ → isOfHLevelPathP' 1 squash₂ _ _)
@@ -139,7 +133,7 @@ joinS¹S¹→Groupoid P grp b =
         → P (transp (λ j → isoToPath (invIso (IsoSphereJoin 1 1)) (i ∨ j)) i x))
         (sphereElim _ (λ _ → grp _) b)
 
-TotalHopf→Gpd : ∀ {ℓ} (P : hopfS¹.TotalSpaceHopf' → Type ℓ)
+TotalHopf→Gpd : ∀ {ℓ} (P : hopfS¹.TotalSpaceHopfPush → Type ℓ)
             → ((x : _) → isGroupoid (P x))
             → P (inl base)
             → (x : _) → P x
@@ -153,8 +147,8 @@ TotalHopf→Gpd' : ∀ {ℓ} (P : Σ (S₊ 2) hopfS¹.Hopf → Type ℓ)
             → P (north , base)
             → (x : _) → P x
 TotalHopf→Gpd' P grp b =
-  transport (λ i → (x : ua (_ , hopfS¹.isEquivTotalSpaceHopf'→TotalSpace) i)
-          → P (transp (λ j → ua (_ , hopfS¹.isEquivTotalSpaceHopf'→TotalSpace)
+  transport (λ i → (x : ua (_ , hopfS¹.isEquivTotalSpaceHopfPush→TotalSpace) i)
+          → P (transp (λ j → ua (_ , hopfS¹.isEquivTotalSpaceHopfPush→TotalSpace)
                                   (i ∨ j)) i x))
           (TotalHopf→Gpd _ (λ _ → grp _) b)
 
@@ -168,7 +162,7 @@ CP²→Groupoid {P = P} grp b s2 pp (inl x) = b
 CP²→Groupoid {P = P} grp b s2 pp (inr x) = s2 x
 CP²→Groupoid {P = P} grp b s2 pp (push a i₁) = lem a i₁
   where
-  lem : (a : hopfS¹.TotalSpaceHopf') → PathP (λ i → P (push a i)) b (s2 _)
+  lem : (a : hopfS¹.TotalSpaceHopfPush) → PathP (λ i → P (push a i)) b (s2 _)
   lem = TotalHopf→Gpd _  (λ _ → isOfHLevelPathP' 3 (grp _) _ _) pp
 
 -- The function inducing the iso H²(S²) ≅ H²(CP²)
@@ -177,7 +171,7 @@ H²S²→H²CP²-raw f (inl x) = 0ₖ _
 H²S²→H²CP²-raw f (inr x) = f x -ₖ f north
 H²S²→H²CP²-raw f (push a i) =
     TotalHopf→Gpd (λ x → 0ₖ 2
-  ≡ f (hopfS¹.TotalSpaceHopf'→TotalSpace x .fst) -ₖ f north)
+  ≡ f (hopfS¹.TotalSpaceHopfPush→TotalSpace x .fst) -ₖ f north)
       (λ _ → isOfHLevelTrunc 4 _ _)
       (sym (rCancelₖ 2 (f north)))
       a i
@@ -355,7 +349,7 @@ private
   invLooperLem₁ a x =
        secEq (hopfS¹.μ-eq a) x
     ∙∙ cong (_* x) (lemmie a)
-    ∙∙ assocHSpace.μ-assoc S1-AssocHSpace a (invLooper a) x
+    ∙∙ AssocHSpace.μ-assoc S1-AssocHSpace a (invLooper a) x
      ∙ comm·S¹ _ _
 
   invLooperLem₂ : (a x : S¹) → invEq (hopfS¹.μ-eq a) x ≡ invLooper a * x
@@ -477,7 +471,7 @@ isGenerator≃ℤ-e =
 -- Alternative definition of the hopfMap
 HopfMap' : S₊ 3 → S₊ 2
 HopfMap' x =
-  hopfS¹.TotalSpaceHopf'→TotalSpace
+  hopfS¹.TotalSpaceHopfPush→TotalSpace
     (Iso.inv IsoTotalHopf'
       (Iso.inv (IsoSphereJoin 1 1) x)) .fst
 
@@ -491,7 +485,7 @@ hopfMap≡HopfMap' =
                    (Iso.inv (IsoSphereJoin 1 1) x)))))
          , flipSquare (sym (rUnit refl) ◁ λ _ _ → north))
   where
-  lem : (x : _) → hopfS¹.TotalSpaceHopf'→TotalSpace x .fst
+  lem : (x : _) → hopfS¹.TotalSpaceHopfPush→TotalSpace x .fst
                ≡ JoinS¹S¹→TotalHopf (Iso.fun IsoTotalHopf' x) .fst
   lem (inl x) = refl
   lem (inr x) = refl

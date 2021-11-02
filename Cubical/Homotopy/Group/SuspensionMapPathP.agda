@@ -27,28 +27,27 @@ module Cubical.Homotopy.Group.SuspensionMapPathP where
 
 open import Cubical.Homotopy.Group.Base
 open import Cubical.Homotopy.Loopspace
+open import Cubical.Homotopy.Freudenthal
+open import Cubical.Homotopy.Connected
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
-open import Cubical.Functions.Embedding
-open import Cubical.Functions.Morphism
-open import Cubical.Foundations.Pointed.Homogeneous
 
-open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim
-          ; elim2 to sElim2 ; elim3 to sElim3 ; map to sMap)
-open import Cubical.HITs.PropositionalTruncation
-  renaming (rec to pRec ; rec2 to pRec2 ; elim to pElim)
+open import Cubical.Functions.Morphism
+
 open import Cubical.HITs.Sn
-open import Cubical.Data.Bool hiding (_≟_)
 open import Cubical.HITs.Susp
 open import Cubical.HITs.S1
+
+open import Cubical.Data.Bool hiding (_≟_)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
 
@@ -61,19 +60,6 @@ open IsGroup
 open IsSemigroup
 open IsMonoid
 open GroupStr
-
-open import Cubical.Homotopy.Freudenthal
-open import Cubical.Homotopy.Connected
-open import Cubical.Foundations.Equiv
-open import Cubical.HITs.Truncation
-  renaming (rec to trRec ; elim to trElim ; map to trMap)
-
-
-open import Cubical.Data.Sum
-open import Cubical.Relation.Nullary
-open import Cubical.Data.Empty
-
-open import Cubical.Foundations.Equiv.HalfAdjoint
 
 -- Solves some termination issues
 private
@@ -396,9 +382,9 @@ flipΩIso {A = A} n = pathToIso (cong fst (flipΩPath n))
 
 flipΩIsopres· : {ℓ : Level} {A : Pointed ℓ} (n : ℕ)
                       → (f g : fst ((Ω^ (suc n)) (Ω A)))
-                      → Iso.inv (flipΩIso (suc n)) (f ∙ g)
-                      ≡ (Iso.inv (flipΩIso (suc n)) f)
-                      ∙ (Iso.inv (flipΩIso (suc n)) g)
+                      → inv (flipΩIso (suc n)) (f ∙ g)
+                      ≡ (inv (flipΩIso (suc n)) f)
+                      ∙ (inv (flipΩIso (suc n)) g)
 flipΩIsopres· {A = A} n f g i =
     transp (λ j → flipΩPath {A = A} n (~ i ∧ ~ j) .snd
                  ≡ flipΩPath n (~ i ∧ ~ j) .snd) i
@@ -410,7 +396,7 @@ flipΩIsopres· {A = A} n f g i =
 rMap : ∀ {ℓ} (n : ℕ) {A : Pointed ℓ}
     → typ ((Ω^ (suc n)) (Susp∙ (typ A)))
     → (S₊∙ n →∙ Ω (Susp∙ (typ A)))
-rMap n = lMap n ∘ Iso.fun (flipΩIso n)
+rMap n = lMap n ∘ fun (flipΩIso n)
 
 private
   rMap1 : ∀ {ℓ} {A : Pointed ℓ}
