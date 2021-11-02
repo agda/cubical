@@ -74,13 +74,6 @@ open import Cubical.Algebra.AbGroup
 
 open import Cubical.Homotopy.Loopspace
 
-open import Cubical.HITs.Join
-
-open import Cubical.Homotopy.Hopf
-
-open import Cubical.HITs.SetQuotients renaming (_/_ to _/'_)
--- open import Cubical.ZCohomology.Gysin
-
 -- There seems to be some problems with the termination checker.
 -- Spelling out integer induction with 3 base cases like this
 -- solves the issue.
@@ -266,19 +259,15 @@ module g-base where
       →∙Homogeneous≡ (isHomogeneousKn _)
         (funExt λ y → -ₖ-gen² i n _ _ (fst x y))
 
-  rCancel'' : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y)
-    → sym p ∙∙ refl ∙∙ p ≡ refl
-  rCancel'' p = (λ j → (λ i → p (~ i ∨ j)) ∙∙ refl ∙∙ λ i → p (i ∨ j))
-              ∙ sym (rUnit refl)
-
   transpPres0ₖ : ∀ {k m : ℕ} (p : k ≡ m) → subst coHomK p (0ₖ k) ≡ 0ₖ m
   transpPres0ₖ {k = k} =
     J (λ m p → subst coHomK p (0ₖ k) ≡ 0ₖ m) (transportRefl _)
 
-  -- There will be some index swapping going on. We statet this explicitly, since we will
+  -- There will be some index swapping going on. We state this explicitly, since we will
   -- need to trace the maps later
   indexSwap : (n : ℕ) (i : ℕ)
-    → (S₊∙ n →∙ coHomK-ptd (n +' i)) ≃ (S₊∙ n →∙ coHomK-ptd (i +' n))
+    → (S₊∙ n →∙ coHomK-ptd (n +' i))
+     ≃ (S₊∙ n →∙ coHomK-ptd (i +' n))
   indexSwap n i =
     isoToEquiv (iso (λ f → (λ x → subst coHomK (+'-comm n i) (fst f x)) ,
       cong (subst coHomK (+'-comm n i)) (snd f) ∙ transpPres0ₖ (+'-comm n i))
@@ -311,7 +300,7 @@ module g-base where
   suspKn-Iso-fun∙ (suc n) m (f , p) =
     cong (ΩKn+1→Kn m)
       (cong (sym p ∙∙_∙∙ p) (cong (cong f) (rCancel (merid (ptSn _)))))
-     ∙∙ cong (ΩKn+1→Kn m) (rCancel'' p)
+     ∙∙ cong (ΩKn+1→Kn m) (∙∙lCancel p)
      ∙∙ ΩKn+1→Kn-refl m
 
   suspKn-Iso-inv : (n m : ℕ) → (S₊∙ n →∙ coHomK-ptd m)
