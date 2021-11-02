@@ -22,6 +22,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.GroupoidLaws hiding (assoc)
@@ -151,8 +152,6 @@ private
            ; south → cong ∣_∣ₕ (merid (ptSn _))
            ; (merid a i) k → ∣ compPath-filler (merid a) (sym (merid (ptSn _))) (~ k) i  ∣ₕ}
 
-
-open import Cubical.Foundations.Isomorphism
 -ₖ-gen² : {k : ℕ} (n m : ℕ)
          (p : isEvenT n ⊎ isOddT n)
          (q : isEvenT m ⊎ isOddT m)
