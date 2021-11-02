@@ -68,3 +68,6 @@ import Cubical.Reflection.Everything
 
 -- Displayed univalent graphs
 import Cubical.Displayed.Everything
+
+-- Syntax typeclasses
+import Cubical.Syntax.Everything

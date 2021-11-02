@@ -180,6 +180,10 @@ isPropIsHAEquiv {f = f} ishaef = goal ishaef where
     (isPropΣ (isContr→isProp (isEquiv→isContrHasSection equivF))
              λ s → isPropΠ λ x → isProp→isSet (isContr→isProp (equivF .equiv-proof (f x))) _ _)
 
+-- loop spaces connected by a path are equivalent
+conjugatePathEquiv : {A : Type ℓ} {a b : A} (p : a ≡ b) → (a ≡ a) ≃ (b ≡ b)
+conjugatePathEquiv p = compEquiv (compPathrEquiv p) (compPathlEquiv (sym p))
+
 -- composition on the right induces an equivalence of path types
 compr≡Equiv : {A : Type ℓ} {a b c : A} (p q : a ≡ b) (r : b ≡ c) → (p ≡ q) ≃ (p ∙ r ≡ q ∙ r)
 compr≡Equiv p q r = congEquiv ((λ s → s ∙ r) , compPathr-isEquiv r)
