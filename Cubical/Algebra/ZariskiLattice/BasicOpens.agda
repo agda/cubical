@@ -188,7 +188,7 @@ module Presheaf (A' : CommRing ℓ) where
  open MeetSemilattice BasicOpens renaming (_≤_ to _≼/_ ; IndPoset to BasicOpensAsPoset)
 
  -- coincides with our ≼
- ≼/CoincidesWith≼ : ∀ (x y : A) → [ x ] ≼/ [ y ] ≡ x ≼ y
+ ≼/CoincidesWith≼ : ∀ (x y : A) → ([ x ] ≼/ [ y ]) ≡ (x ≼ y)
  ≼/CoincidesWith≼ x y = [ x ] ≼/ [ y ] -- ≡⟨ refl ⟩ [ x ·r y ] ≡ [ x ]
                       ≡⟨ isoToPath (isEquivRel→effectiveIso RpropValued RequivRel _ _) ⟩
                         R (x ·r y) x
