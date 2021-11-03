@@ -20,8 +20,8 @@ record ModalOperator : Typeω where
   isModal : Type ℓ → Type ℓ
   isModal A = isEquiv (η {A = A})
 
-  η⁻¹ : {modalWitness : isModal A} → ◯ A → A
-  η⁻¹ {modalWitness = modalWitness} = Iso.inv (equivToIso (η , modalWitness))
+  η⁻¹ : {modal : isModal A} → ◯ A → A
+  η⁻¹ {modal = modal} = Iso.inv (equivToIso (η , modal))
   
   ModalType : (ℓ : Level) → Type (ℓ-suc ℓ)
   ModalType ℓ = Σ (Type ℓ) (λ X → isModal X)
@@ -44,41 +44,31 @@ record Modality : Typeω where
   ◯-rec {A = A} {B = B} = ◯-ind {P = λ (z : ◯ A) → B}
 
   ◯-isModal : isModal (◯ A)
-  ◯-isModal {A = A} = snd (isoToEquiv φ)
-    where
-      open Iso
-
-      f = ◯-rec (idfun (◯ A))
-      H = ◯-comp (idfun (◯ A))
-      η≡⁻¹ : {B : Type ℓ} {x y : ◯ B} → ◯ (x ≡ y) → x ≡ y
-      η≡⁻¹ = η⁻¹ {modalWitness = ◯≡-isModal}
-
-      φ : Iso (◯ A) (◯ (◯ A))
-      fun φ = η {A = ◯ A}
-      inv φ = f
-      leftInv φ = H
-      rightInv φ = η≡⁻¹ ∘ (◯-ind {P = P} s)
-        where
-        P = λ (z : ◯ (◯ A)) → (η (f z) ≡ z)
-        s = λ (a : ◯ A) → η (cong η (H a))
+  ◯-isModal {A = A} = snd (isoToEquiv (iso (η {A = ◯ A}) f H K))
+      where
+        f = (◯-rec (idfun (◯ A)))
+        K : (x : ◯ A) → ◯-ind (idfun (◯ A)) (η x) ≡ x
+        K = ◯-comp (idfun (◯ A))
+        H : (x : ◯ (◯ A)) → η (◯-ind (idfun (◯ A)) x) ≡ x
+        H x = η⁻¹ {modal = ◯≡-isModal} ((◯-ind {P = P} s) x)
+          where
+          P =  λ (z : ◯ (◯ A)) → η (f z) ≡ z
+          s = λ (a : ◯ A) → η (cong η (K a))
 
   -- eliminate into modal type
-  ◯-ind' : {P : ◯ A → Type ℓ} {depModalWitness : (z : ◯ A) → isModal (P z)}
+  ◯-ind' : {P : ◯ A → Type ℓ} {depModal : (z : ◯ A) → isModal (P z)}
          → ((a : A) → P (η a))
          → ((z : ◯ A) → P z)
-  ◯-ind' {depModalWitness = W} s z = η⁻¹ {modalWitness = W z} (◯-ind (η ∘ s) z)
+  ◯-ind' {depModal = W} s z = η⁻¹ {modal = W z} (◯-ind (η ∘ s) z)
 
-  ◯-isUniquelyEliminating : {P : ◯ A → Type ℓ}
-                          → isEquiv (λ (s : (z : ◯ A) → ◯ (P z)) → s ∘ η)
-  ◯-isUniquelyEliminating {A = A} {P = P} = snd (isoToEquiv φ) where
-    open Iso
-    φ : Iso ((z : ◯ A) → ◯ (P z)) ((a : A) → ◯ (P (η a)))
-    Iso.fun φ = λ (s : (z : ◯ A) → ◯ (P z)) → s ∘ η
-    Iso.inv φ = ◯-ind
-    Iso.rightInv φ s = funExt (◯-comp s)
-    Iso.leftInv φ s = funExt H where
-      H : (x : ◯ A) → ◯-ind (λ x₁ → s (η x₁)) x ≡ s x
-      H = ◯-ind' {depModalWitness = λ z → ◯≡-isModal} (◯-comp (λ x₁ → s (η x₁)))
+  ◯-isUniqElim : {P : ◯ A → Type ℓ} → isEquiv (λ (s : (z : ◯ A) → ◯ (P z)) → s ∘ η)
+  ◯-isUniqElim {A = A} {P = P} = snd (isoToEquiv (
+    iso
+      (λ s → s ∘ η)
+      ◯-ind
+      (λ t → funExt (◯-comp t))
+      (λ s → funExt (◯-ind' {depModal = λ _ → ◯≡-isModal} (◯-comp (λ x → s (η x)))))))
+
 
 
 --record ReflectiveSubuniverse : Typeω where
