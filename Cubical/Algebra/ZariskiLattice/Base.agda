@@ -77,7 +77,7 @@ module ZarLat (R' : CommRing ℓ) where
   ⟨ V ⟩ = ⟨ V ⟩[ R' ]
 
  _∼_ : A → A → Type (ℓ-suc ℓ)
- (_ , α) ∼ (_ , β) = √i ⟨ α ⟩ ≡ √i ⟨ β ⟩ --replace this by ≡ᴾ := ⊆ × ⊇ to preserve universe level
+ (_ , α) ∼ (_ , β) = √i ⟨ α ⟩ ≡ √i ⟨ β ⟩
 
  ∼EquivRel : isEquivRel (_∼_)
  reflexive ∼EquivRel _ = refl
@@ -443,3 +443,45 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
       ≡⟨ cong (λ β → fst χ' [ suc n , β ]) (funExt (λ { zero → refl ; (suc i) → refl })) ⟩
 
        fst χ' [ suc n , α ] ∎
+
+
+
+-- An equivalent definition that doesn't bump up the unviverse level
+module SmallZarLat (R' : CommRing ℓ) where
+ open CommRingStr (snd R')
+ open CommIdeal R'
+ open RadicalIdeal R'
+ open ZarLat R'
+
+ open Iso
+
+ private
+  R = fst R'
+  A = Σ[ n ∈ ℕ ] (FinVec R n)
+  ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
+  ⟨ V ⟩ = ⟨ V ⟩[ R' ]
+  -- This is small!
+  _≼_ : A → A → Type ℓ
+  (_ , α) ≼ (_ , β) = ∀ i → α i ∈ √ (⟨ β ⟩ .fst)
+
+ _∼'_ :  A → A → Type ℓ
+ (_ , α) ∼' (_ , β) = ((_ , α) ≼ (_ , β)) × ((_ , β) ≼ (_ , α))
+
+ -- lives in the same universe as R
+ ZL' : Type ℓ
+ ZL' = A / (_∼'_)
+
+
+ IsoLarLatSmall : Iso ZL ZL'
+ IsoLarLatSmall = relBiimpl→TruncIso ~→∼' ~'→∼
+  where
+  ~→∼' : ∀ {a b : A} → a ∼ b → a ∼' b
+  ~→∼' r = equivFun (√FGIdealChar _ ⟨ _ ⟩) (λ x h → subst (λ p → x ∈ p) (cong fst r) h)
+         , equivFun (√FGIdealChar _ ⟨ _ ⟩) (λ x h → subst (λ p → x ∈ p) (cong fst (sym r)) h)
+
+  ~'→∼ : ∀ {a b : A} → a ∼' b → a ∼ b
+  ~'→∼ r = CommIdeal≡Char (equivFun (invEquiv (√FGIdealChar _ ⟨ _ ⟩)) (fst r))
+                          (equivFun (invEquiv (√FGIdealChar _ ⟨ _ ⟩)) (snd r))
+
+ ZL≃ZL' : ZL ≃ ZL'
+ ZL≃ZL' = isoToEquiv IsoLarLatSmall
