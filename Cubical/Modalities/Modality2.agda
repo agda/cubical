@@ -1,7 +1,9 @@
 {-# OPTIONS --safe #-}
 module Cubical.Modalities.Modality2 where
 
+open import Cubical.Data.Unit
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
@@ -69,6 +71,24 @@ record Modality : Typeω where
       (λ t → funExt (◯-comp t))
       (λ s → funExt (◯-ind' {depModal = λ _ → ◯≡-isModal} (◯-comp (λ x → s (η x)))))))
 
+
+  Unit*IsModal : {ℓ : Level} → isModal (Unit* {ℓ = ℓ})
+  Unit*IsModal = snd (isoToEquiv φ) where
+    open Iso
+    φ : Iso Unit* (◯ Unit*)
+    fun φ = η
+    inv φ x = tt*
+    rightInv φ = ◯-ind' {depModal = λ y → ◯≡-isModal {x = η tt*} {y = y}} λ tt* → cong η refl
+    leftInv φ = snd isContrUnit*
+
+  isModalCong≃ : {A B : Type ℓ} → A ≃ B → isModal A ≃ isModal B
+  isModalCong≃ = cong≃ isModal
+
+  isContr→≃Unit* : ∀ {ℓ} {A : Type ℓ} → isContr A → A ≃ Unit*
+  isContr→≃Unit* contr = isoToEquiv (iso (λ _ → tt*) (λ _ → fst contr) (λ _ → refl) (snd contr))
+
+  isContr→isModal : isContr A → isModal A
+  isContr→isModal contr = equivFun (isModalCong≃ (invEquiv (isContr→≃Unit* contr))) Unit*IsModal
 
 
 --record ReflectiveSubuniverse : Typeω where
