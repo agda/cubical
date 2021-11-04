@@ -55,12 +55,12 @@ module Order (L' : Lattice ℓ) where
  open JoinSemilattice (Lattice→JoinSemilattice L') renaming (_≤_ to _≤j_ ; IndPoset to JoinPoset)
  open MeetSemilattice (Lattice→MeetSemilattice L') renaming (_≤_ to _≤m_ ; IndPoset to MeetPoset)
 
- ≤j→≤m : ∀ x y → (x ≤j y) → (x ≤m y)
+ ≤j→≤m : ∀ x y → x ≤j y → x ≤m y
  ≤j→≤m x y x∨ly≡y = x ∧l y         ≡⟨ cong (x ∧l_) (sym x∨ly≡y) ⟩
                     x ∧l (x ∨l y) ≡⟨ ∧lAbsorb∨l _ _ ⟩
                     x ∎
 
- ≤m→≤j : ∀ x y → (x ≤m y) → (x ≤j y)
+ ≤m→≤j : ∀ x y → x ≤m y → x ≤j y
  ≤m→≤j x y x∧ly≡x = x ∨l y ≡⟨ ∨lComm _ _ ⟩
                     y ∨l x ≡⟨ cong (y ∨l_) (sym x∧ly≡x) ⟩
                     y ∨l (x ∧l y) ≡⟨ cong (y ∨l_) (∧lComm _ _) ⟩

@@ -95,7 +95,6 @@ module _ (Ring@(R , str) : CommRing ℓ) where
                                λ r → isLinearCombinationL· V r
 
 
---open CommIdeal
 open CommIdeal.isCommIdeal
 genIdeal : {n : ℕ} (R : CommRing ℓ) → FinVec (fst R) n → CommIdeal.CommIdeal R
 fst (genIdeal R V) x = isLinearCombination R V x , isPropPropTrunc
@@ -107,7 +106,8 @@ syntax genIdeal R V = ⟨ V ⟩[ R ]
 
 
 FGIdealIn : (R : CommRing ℓ) → Type (ℓ-suc ℓ)
-FGIdealIn R = Σ[ I ∈ CommIdeal.CommIdeal R ] ∃[ n ∈ ℕ ] ∃[ V ∈ FinVec (fst R) n ] I ≡ ⟨ V ⟩[ R ]
+FGIdealIn R = Σ[ I ∈ CommIdeal.CommIdeal R ]
+                   ∃[ nV ∈ Σ[ n ∈ ℕ ] FinVec (fst R) n ] I ≡ ⟨ nV .snd ⟩[ R ]
 
 -- The lattice laws
 module _ (R' : CommRing ℓ) where
@@ -159,8 +159,6 @@ module _ (R' : CommRing ℓ) where
   incl2 x x≡0 = subst-∈ (⟨ replicateFinVec _ 0r ⟩ .fst) (sym x≡0)
                          (⟨ replicateFinVec _ 0r ⟩ .snd .contains0)
 
-
- -- better syntax for ∑ λ i → ... ???
 
  FGIdealAddLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                  → ⟨ U ++Fin V ⟩ ≡ ⟨ U ⟩ +i ⟨ V ⟩
