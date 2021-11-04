@@ -41,7 +41,8 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
   isEquiv-μ : (x : typ A) → isEquiv (λ z → (μ e z x))
   isEquiv-μ x = pRec (isPropIsEquiv _)
                      (J (λ x _ → isEquiv (λ z → μ e z x))
-                       (subst isEquiv (funExt (λ z → sym (μᵣ e z))) (idIsEquiv (typ A))))
+                       (subst isEquiv (funExt (λ z → sym (μᵣ e z)))
+                                      (idIsEquiv (typ A))))
                      (conA (pt A) x)
 
   isEquiv-μ' : (x : typ A) → isEquiv (μ e x)
@@ -310,13 +311,13 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
                      → inr (secEq (_ , Push→TotalSpaceHopf-equiv x) y k)})
       (push (x , invEq (_ , Push→TotalSpaceHopf-equiv x) y) i)
 
-  zz : Iso TotalSpacePush²'
+  IsoTotalSpacePush²'ΣPush : Iso TotalSpacePush²'
            (Pushout {A = typ A × Σ (Susp (typ A)) Hopf} fst snd)
-  fun zz = F
-  inv zz = G
-  rightInv zz (inl x) = refl
-  rightInv zz (inr x) = refl
-  rightInv zz (push (x , y) i) j =
+  fun IsoTotalSpacePush²'ΣPush = F
+  inv IsoTotalSpacePush²'ΣPush = G
+  rightInv IsoTotalSpacePush²'ΣPush (inl x) = refl
+  rightInv IsoTotalSpacePush²'ΣPush (inr x) = refl
+  rightInv IsoTotalSpacePush²'ΣPush (push (x , y) i) j =
     hcomp (λ k → λ { (i = i0) → inl x
                     ; (i = i1)
                      → inr (secEq (_ , Push→TotalSpaceHopf-equiv x) y k)
@@ -334,9 +335,9 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
                            , (secEq (_
                             , Push→TotalSpaceHopf-equiv x) y k)) i})
           (push (x , (secEq (_ , Push→TotalSpaceHopf-equiv x) y i0)) i)
-  leftInv zz (inl x) = refl
-  leftInv zz (inr x) = refl
-  leftInv zz (push (x , y) i) j =
+  leftInv IsoTotalSpacePush²'ΣPush (inl x) = refl
+  leftInv IsoTotalSpacePush²'ΣPush (inr x) = refl
+  leftInv IsoTotalSpacePush²'ΣPush (push (x , y) i) j =
     hcomp (λ k → λ { (i = i0) → inl x
                     ; (i = i1) → inr (secEq (Push→TotalSpaceHopf x
                                            , Push→TotalSpaceHopf-equiv x)
@@ -358,5 +359,7 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
   joinIso₂ : Iso TotalSpacePush² (join (typ A) (join (typ A) (typ A)))
   joinIso₂ =
     compIso IsoTotalSpacePush²TotalSpacePush²'
-              (compIso zz (compIso (equivToIso (joinPushout≃join _ _))
-              (pathToIso (cong (join (typ A)) (isoToPath IsoTotalSpaceJoin)))))
+              (compIso IsoTotalSpacePush²'ΣPush
+                (compIso (equivToIso (joinPushout≃join _ _))
+                  (pathToIso (cong (join (typ A))
+                             (isoToPath IsoTotalSpaceJoin)))))

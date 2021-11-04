@@ -14,11 +14,6 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Sum
 
-open import Cubical.Displayed.Base
-open import Cubical.Displayed.Auto
-open import Cubical.Displayed.Record
-open import Cubical.Displayed.Universe
-
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
@@ -216,11 +211,11 @@ private
   intLem₂ : (n x : ℕ)
     → Σ[ a ∈ ℕ ] ((pos (suc x)) * pos (suc (suc n)) ≡ pos (suc (suc a)))
   intLem₂ n zero = n , refl
-  intLem₂ n (suc x) = h3 _ _ (intLem₂ n x)
+  intLem₂ n (suc x) = lem _ _ (intLem₂ n x)
     where
-    h3 : (x : ℤ) (n : ℕ) → Σ[ a ∈ ℕ ] (x ≡ pos (suc (suc a)))
+    lem : (x : ℤ) (n : ℕ) → Σ[ a ∈ ℕ ] (x ≡ pos (suc (suc a)))
                   → Σ[ a ∈ ℕ ] pos n +ℤ x ≡ pos (suc (suc a))
-    h3 x n (a , p) = n +ℕ a
+    lem x n (a , p) = n +ℕ a
       , cong (pos n +ℤ_) p ∙ cong sucℤ (sucℤ+pos a (pos n))
          ∙ sucℤ+pos a (pos (suc n)) ∙ (sym (pos+ (suc (suc n)) a))
 
