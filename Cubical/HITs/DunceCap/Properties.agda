@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.HITs.DunceCap.Properties where
 
@@ -61,4 +61,4 @@ snd isContr-Dunce = sym ∘ contrDunce
 
 
 Dunce≡DunceCone : Dunce ≡ DunceCone
-Dunce≡DunceCone = ua (Contr→Equiv isContr-Dunce isContr-DunceCone)
+Dunce≡DunceCone = ua (isContr→Equiv isContr-Dunce isContr-DunceCone)

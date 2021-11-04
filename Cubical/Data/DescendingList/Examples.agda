@@ -9,13 +9,13 @@
 -- 2. "sorting" finite multisets by converting into sorted lists.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Data.DescendingList.Examples where
 
 open import Cubical.Foundations.Everything
 
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
 
 open import Cubical.Relation.Nullary
@@ -31,11 +31,11 @@ open import Cubical.HITs.FiniteMultiset
 
 infix 4 _≤_ _≥_
 
-data _≤_ : ℕ → ℕ → Set where
+data _≤_ : ℕ → ℕ → Type where
  z≤n : ∀ {n}                 → zero  ≤ n
  s≤s : ∀ {m n} (m≤n : m ≤ n) → suc m ≤ suc n
 
-_≥_ : ℕ → ℕ → Set
+_≥_ : ℕ → ℕ → Type
 m ≥ n = n ≤ m
 
 ≤pred : {n m : ℕ} → suc n ≤ suc m → n ≤ m
@@ -55,7 +55,7 @@ m ≥ n = n ≤ m
 
 ≰→≥ : {x y : ℕ} → ¬ (x ≥ y) → y ≥ x
 ≰→≥ {zero} {y} f = z≤n
-≰→≥ {suc x} {zero} f = ⊥-elim (f z≤n)
+≰→≥ {suc x} {zero} f = ⊥.rec (f z≤n)
 ≰→≥ {suc x} {suc y} f = s≤s (≰→≥ λ g → f (s≤s g))
 
 ≥trans : {x y z : ℕ} → x ≥ y → y ≥ z → x ≥ z
@@ -91,13 +91,14 @@ ValueOfl3 = refl
 l3=l2++l1 : l3 ≡ l2 ++ᴰᴸ l1
 l3=l2++l1 = refl
 
-LongerExample :   l1 ++ᴰᴸ l2 ++ᴰᴸ l1 ++ᴰᴸ l1 ++ᴰᴸ l2
-                ≡ l2 ++ᴰᴸ l1 ++ᴰᴸ l2 ++ᴰᴸ l1 ++ᴰᴸ l1
-LongerExample = refl
+-- Commented as it was the slowest definition in the whole library :-)
+-- LongerExample :   l1 ++ᴰᴸ l2 ++ᴰᴸ l1 ++ᴰᴸ l1 ++ᴰᴸ l2
+--                 ≡ l2 ++ᴰᴸ l1 ++ᴰᴸ l2 ++ᴰᴸ l1 ++ᴰᴸ l1
+-- LongerExample = refl
 
 
-------------------------------------------------------------------------
--- A simple example of sorting finite multisets
+-- ------------------------------------------------------------------------
+-- -- A simple example of sorting finite multisets
 
 m1 : FMSet ℕ
 m1 = 13 ∷ 9 ∷ 78 ∷ 31 ∷ 86 ∷ 3 ∷ 0 ∷ 99 ∷ []

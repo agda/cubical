@@ -1,4 +1,5 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --guardedness #-}
+
 module Cubical.README where
 
 ------------------------------------------------------------------------
@@ -21,11 +22,11 @@ import Cubical.Core.Everything
 import Cubical.Foundations.Prelude
 import Cubical.Foundations.Everything
 
+-- Kinds and properties of functions
+import Cubical.Functions.Everything
+
 -- Data types and properties
 import Cubical.Data.Everything
-
--- Properties and proofs about relations
-import Cubical.Relation.Everything
 
 -- Higher-inductive types
 import Cubical.HITs.Everything
@@ -33,5 +34,40 @@ import Cubical.HITs.Everything
 -- Coinductive data types and properties
 import Cubical.Codata.Everything
 
+-- Papers
+import Cubical.Papers.Everything
+
+-- Properties and proofs about relations
+import Cubical.Relation.Everything
+
+-- Category theory
+import Cubical.Categories.Everything
+
+-- Homotopy theory
+import Cubical.Homotopy.Everything
+
+-- Properties and kinds of Modalities
+import Cubical.Modalities.Everything
+
 -- Various experiments using Cubical Agda
 import Cubical.Experiments.Everything
+
+-- Other modules (TODO: add descriptions)
+import Cubical.Induction.Everything
+import Cubical.Structures.Everything
+import Cubical.ZCohomology.Everything
+
+-- Algebra library (in development)
+import Cubical.Algebra.Everything
+
+-- Various talks
+import Cubical.Talks.Everything
+
+-- Reflection
+import Cubical.Reflection.Everything
+
+-- Displayed univalent graphs
+import Cubical.Displayed.Everything
+
+-- Syntax typeclasses
+import Cubical.Syntax.Everything

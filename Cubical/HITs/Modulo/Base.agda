@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.HITs.Modulo.Base where
 
@@ -7,9 +7,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Data.Empty
-open import Cubical.Data.Fin
-open import Cubical.Data.Nat
+open import Cubical.Data.Empty using (⊥)
+open import Cubical.Data.Nat using (ℕ; zero; suc; _+_)
 open import Cubical.Data.Unit renaming (Unit to ⊤)
 
 open import Cubical.Relation.Nullary

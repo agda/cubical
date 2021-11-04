@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 
 {-
 
@@ -25,6 +25,8 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
   hiding (section)
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Univalence
+open import Cubical.Reflection.StrictEquiv
 
 open import Cubical.Data.Nat.Base
 
@@ -69,7 +71,7 @@ isNatInductive N ℓ = (S : NatFiber N ℓ) → NatSection S
 module AlgebraPropositionality {N : NatAlgebra ℓ'} where
   open NatAlgebra N
   isPropIsNatHInitial : isProp (isNatHInitial N ℓ)
-  isPropIsNatHInitial = propPi (λ _ → isPropIsContr)
+  isPropIsNatHInitial = isPropΠ (λ _ → isPropIsContr)
 
   -- under the assumption that some shape is nat-inductive, the type of sections over any fiber
   -- is propositional
@@ -112,8 +114,11 @@ module AlgebraHInd→HInit {N : NatAlgebra ℓ'} (ind : isNatInductive N ℓ) (M
   section→morph : NatSection ConstFiberM → NatMorphism N M
   section→morph x = record { morph = section ; comm-zero = sec-comm-zero ; comm-suc = λ n i → sec-comm-suc i n }
     where open NatSection x
+
   Morph≡Section : NatSection ConstFiberM ≡ NatMorphism N M
-  Morph≡Section = isoToPath (iso section→morph morph→section (λ _ → refl) (λ _ → refl))
+  Morph≡Section = ua e
+    where
+    unquoteDecl e = declStrictEquiv e section→morph morph→section
 
   isContrMorph : isContr (NatMorphism N M)
   isContrMorph = subst isContr Morph≡Section (inhProp→isContr (ind ConstFiberM) (AlgebraPropositionality.SectionProp.S≡T ind))
@@ -181,7 +186,7 @@ module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (�
   Q-zero : α (N .alg-zero) ≡ N .alg-zero
   Q-zero = ζ
   Q-suc : ∀ n → α (N .alg-suc n) ≡ N .alg-suc n
-  Q-suc n = σ n □ cong (N .alg-suc) (P n)
+  Q-suc n = σ n ∙ cong (N .alg-suc) (P n)
 
   -- but P and Q are the same up to homotopy
   P-zero : P (N .alg-zero) ≡ Q-zero
@@ -194,7 +199,7 @@ module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (�
   P-suc : ∀ n → P (N .alg-suc n) ≡ Q-suc n
   P-suc n i j = hcomp (λ k → λ where
       (i = i0) → lower (fst∘μ≡id j .comm-suc (~ k) n)
-      (i = i1) → compPath'-filler (σ n) (cong (N .alg-suc) (P n)) k j
+      (i = i1) → compPath-filler' (σ n) (cong (N .alg-suc) (P n)) k j
       (j = i0) → σ n (~ k)
       (j = i1) → N .alg-suc n
     ) (N .alg-suc (P n j))
@@ -212,7 +217,7 @@ module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (�
     P (N .alg-suc n) ! α-h (N .alg-suc n)
       ≡[ i ]⟨ P-suc n i ! α-h _ ⟩
     Q-suc n ! α-h (N .alg-suc n)
-      ≡⟨ substComposite-□ (F .Fiber) (σ n) (cong (N .alg-suc) (P n)) _ ⟩
+      ≡⟨ substComposite (F .Fiber) (σ n) (cong (N .alg-suc) (P n)) _ ⟩
     cong (N .alg-suc) (P n) ! (σ n ! α-h (N .alg-suc n))
       ≡[ i ]⟨ cong (N .alg-suc) (P n) ! fromPathP (σ-h n) i ⟩
     cong (N .alg-suc) (P n) ! (F .fib-suc (α-h n))
@@ -222,9 +227,7 @@ module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (�
 
 isNatInductive≡isNatHInitial : {N : NatAlgebra ℓ'} (ℓ : Level)
                              → isNatInductive N (ℓ-max ℓ' ℓ) ≡ isNatHInitial N (ℓ-max ℓ' ℓ)
-isNatInductive≡isNatHInitial {ℓ'} {N} ℓ =
-  isoToPath (equivToIso (PropEquiv→Equiv isPropIsNatInductive isPropIsNatHInitial ind→init init→ind)) where
-  open import Cubical.Foundations.Equiv
+isNatInductive≡isNatHInitial {_} {N} ℓ = hPropExt isPropIsNatInductive isPropIsNatHInitial ind→init init→ind where
   open AlgebraPropositionality
   open AlgebraHInit→Ind N ℓ renaming (Fsection to init→ind)
   open AlgebraHInd→HInit renaming (isContrMorph to ind→init)

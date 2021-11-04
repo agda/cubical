@@ -10,7 +10,7 @@ This file contains:
 
 -}
 
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.HITs.Join.Properties where
 
@@ -19,7 +19,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 
-open import Cubical.Data.Prod
+open import Cubical.Data.Sigma renaming (fst to proj₁; snd to proj₂)
 
 open import Cubical.HITs.Join.Base
 open import Cubical.HITs.Pushout
@@ -39,7 +39,7 @@ joinPushout-iso-join A B = iso joinPushout→join join→joinPushout join→join
     joinPushout→join : joinPushout A B → join A B
     joinPushout→join (inl x) = inl x
     joinPushout→join (inr x) = inr x
-    joinPushout→join (push y i) = push (proj₁ y) (proj₂ y) i
+    joinPushout→join (push x i) = push (proj₁ x) (proj₂ x) i
 
     join→joinPushout : join A B → joinPushout A B
     join→joinPushout (inl x) = inl x
@@ -179,12 +179,12 @@ join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
         H1 : (x : 3x3-span.A□2 span) → proj₁ (A□2→A×join x) ≡ A□0→A (3x3-span.f□1 span x)
         H1 (inl (a , b)) = refl
         H1 (inr (a , c)) = refl
-        H1 (push (a , (b , c)) i) j = A□0→A (doubleCompPath-filler refl (λ i → push (a , c) i) refl i j)
+        H1 (push (a , (b , c)) i) j = A□0→A (doubleCompPath-filler refl (λ i → push (a , c) i) refl j i)
 
         H2 : (x : 3x3-span.A□2 span) → proj₂ (A□2→A×join x) ≡ fst (joinPushout≃join _ _) (3x3-span.f□3 span x)
         H2 (inl (a , b)) = refl
         H2 (inr (a , c)) = refl
-        H2 (push (a , (b , c)) i) j = fst (joinPushout≃join _ _) (doubleCompPath-filler refl (λ i → push (b , c) i) refl i j)
+        H2 (push (a , (b , c)) i) j = fst (joinPushout≃join _ _) (doubleCompPath-filler refl (λ i → push (b , c) i) refl j i)
 
     -- the second span appearing in 3x3 lemma
     sp3 : 3-span
@@ -261,12 +261,12 @@ join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
         H3 : (x : 3x3-span.A2□ span) → proj₂ (A2□→join×C x) ≡ A4□→C (3x3-span.f3□ span x)
         H3 (inl (a , c)) = refl
         H3 (inr (b , c)) = refl
-        H3 (push (a , (b , c)) i) j = A4□→C (doubleCompPath-filler refl (λ i → push (a , c) i) refl i j)
+        H3 (push (a , (b , c)) i) j = A4□→C (doubleCompPath-filler refl (λ i → push (a , c) i) refl j i)
 
         H4 : (x : 3x3-span.A2□ span) → proj₁ (A2□→join×C x) ≡ fst (joinPushout≃join _ _) (3x3-span.f1□ span x)
         H4 (inl (a , c)) = refl
         H4 (inr (b , c)) = refl
-        H4 (push (a , (b , c)) i) j = fst (joinPushout≃join _ _) (doubleCompPath-filler refl (λ i → push (a , b) i) refl i j)
+        H4 (push (a , (b , c)) i) j = fst (joinPushout≃join _ _) (doubleCompPath-filler refl (λ i → push (a , b) i) refl j i)
 
 {-
   Direct proof of an associativity-related property. Combined with
@@ -274,17 +274,17 @@ join-assoc A B C = (joinPushout≡join (join A B) C) ⁻¹
 -}
 joinSwitch : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
   → join (join A B) C ≃ join (join C B) A
-joinSwitch = isoToEquiv (iso map map invol invol)
+joinSwitch = isoToEquiv (iso switch switch invol invol)
   where
-  map : ∀ {ℓ ℓ' ℓ''}  {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+  switch : ∀ {ℓ ℓ' ℓ''}  {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
     → join (join A B) C → join (join C B) A
-  map (inl (inl a)) = inr a
-  map (inl (inr b)) = inl (inr b)
-  map (inl (push a b i)) = push (inr b) a (~ i)
-  map (inr c) = inl (inl c)
-  map (push (inl a) c j) = push (inl c) a (~ j)
-  map (push (inr b) c j) = inl (push c b (~ j))
-  map (push (push a b i) c j) =
+  switch (inl (inl a)) = inr a
+  switch (inl (inr b)) = inl (inr b)
+  switch (inl (push a b i)) = push (inr b) a (~ i)
+  switch (inr c) = inl (inl c)
+  switch (push (inl a) c j) = push (inl c) a (~ j)
+  switch (push (inr b) c j) = inl (push c b (~ j))
+  switch (push (push a b i) c j) =
     hcomp
       (λ k → λ
         { (i = i0) → push (inl c) a (~ j ∨ ~ k)
@@ -295,7 +295,7 @@ joinSwitch = isoToEquiv (iso map map invol invol)
       (push (push c b (~ j)) a (~ i))
 
   invol : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
-    (u : join (join A B) C) → map (map u) ≡ u
+    (u : join (join A B) C) → switch (switch u) ≡ u
   invol (inl (inl a)) = refl
   invol (inl (inr b)) = refl
   invol (inl (push a b i)) = refl

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.Empty where
 
 open import Cubical.Data.Empty.Base public

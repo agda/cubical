@@ -1,14 +1,25 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Nullification.Properties where
 
-open import Cubical.Foundations.Everything
-open isPathSplitEquiv
-open import Cubical.Modalities.Everything
-open Modality
-open import Cubical.HITs.Localization
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.PathSplit
+open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Foundations.Univalence
+
+open import Cubical.Modalities.Modality
+
+open import Cubical.Functions.FunExtEquiv
+open import Cubical.HITs.Localization renaming (rec to Localize-rec)
 open import Cubical.Data.Unit
 
 open import Cubical.HITs.Nullification.Base
+
+open Modality
+open isPathSplitEquiv
 
 rec : ∀ {ℓ ℓ' ℓ''} {S : Type ℓ} {A : Type ℓ'} {B : Type ℓ''}
       → (nB : isNull S B) → (A → B) → Null S A → B
@@ -34,52 +45,52 @@ module _ {ℓ ℓ' ℓ''} {S : Type ℓ} {A : Type ℓ'} {B : Null S A → Type 
                   → (∀ (bx : B x) (by : B y) → hasSection (cong₂ (λ x (b : B x) (_ : S) → b) p))
     secCongDep' nB p = secCongDep (λ _ → const) p (λ a → secCong (nB a))
 
-  ind : (nB : (x : Null S A) → isNull S (B x)) → ((a : A) → B ∣ a ∣) → (x : Null S A) → B x
-  ind nB g ∣ x ∣ = g x
-  ind nB g (hub f)
+  elim : (nB : (x : Null S A) → isNull S (B x)) → ((a : A) → B ∣ a ∣) → (x : Null S A) → B x
+  elim nB g ∣ x ∣ = g x
+  elim nB g (hub f)
     = fst (sec (nB (hub f)))
-          (λ s → transport (λ i → B (spoke f s (~ i))) (ind nB g (f s)))
+          (λ s → transport (λ i → B (spoke f s (~ i))) (elim nB g (f s)))
 
-  ind nB g (spoke f s i)
+  elim nB g (spoke f s i)
     = toPathP⁻ (λ i → B (spoke f s i))
                (funExt⁻ ( snd (sec (nB (hub f)))
-                              (λ s → transport (λ i → B (spoke f s (~ i))) (ind nB g (f s))) ) s) i
+                              (λ s → transport (λ i → B (spoke f s (~ i))) (elim nB g (f s))) ) s) i
 
-  ind nB g (≡hub {x} {y} p i)
-    = hcomp (λ k → λ { (i = i0) → transportRefl (ind nB g x) k
-                     ; (i = i1) → transportRefl (ind nB g y) k })
-            (fst (secCongDep' nB (≡hub p) (transport refl (ind nB g x)) (transport refl (ind nB g y)))
-                 (λ i s → transport (λ j → B (≡spoke p s (~ j) i)) (ind nB g (p s i))) i)
+  elim nB g (≡hub {x} {y} p i)
+    = hcomp (λ k → λ { (i = i0) → transportRefl (elim nB g x) k
+                     ; (i = i1) → transportRefl (elim nB g y) k })
+            (fst (secCongDep' nB (≡hub p) (transport refl (elim nB g x)) (transport refl (elim nB g y)))
+                 (λ i s → transport (λ j → B (≡spoke p s (~ j) i)) (elim nB g (p s i))) i)
 
-  ind nB g (≡spoke {x} {y} p s j i)
-    = hcomp (λ k → λ { (i = i0) → toPathP⁻-sq (ind nB g x) k j
-                     ; (i = i1) → toPathP⁻-sq (ind nB g y) k j
-                     ; (j = i1) → ind nB g (p s i) })
+  elim nB g (≡spoke {x} {y} p s j i)
+    = hcomp (λ k → λ { (i = i0) → toPathP⁻-sq (elim nB g x) k j
+                     ; (i = i1) → toPathP⁻-sq (elim nB g y) k j
+                     ; (j = i1) → elim nB g (p s i) })
             (q₂ j i)
 
-    where q₁ : Path (PathP (λ i → B (≡hub p i)) (transport refl (ind nB g x)) (transport refl (ind nB g y)))
-                    (fst (secCongDep' nB (≡hub p) (transport refl (ind nB g x)) (transport refl (ind nB g y)))
-                         (λ i s → transport (λ j → B (≡spoke p s (~ j) i)) (ind nB g (p s i))))
-                    (λ i → transport (λ j → B (≡spoke p s (~ j) i)) (ind nB g (p s i)))
-          q₁ j i = snd (secCongDep' nB (≡hub p) (transport refl (ind nB g x)) (transport refl (ind nB g y)))
-                       (λ i s → transport (λ j → B (≡spoke p s (~ j) i)) (ind nB g (p s i))) j i s
+    where q₁ : Path (PathP (λ i → B (≡hub p i)) (transport refl (elim nB g x)) (transport refl (elim nB g y)))
+                    (fst (secCongDep' nB (≡hub p) (transport refl (elim nB g x)) (transport refl (elim nB g y)))
+                         (λ i s → transport (λ j → B (≡spoke p s (~ j) i)) (elim nB g (p s i))))
+                    (λ i → transport (λ j → B (≡spoke p s (~ j) i)) (elim nB g (p s i)))
+          q₁ j i = snd (secCongDep' nB (≡hub p) (transport refl (elim nB g x)) (transport refl (elim nB g y)))
+                       (λ i s → transport (λ j → B (≡spoke p s (~ j) i)) (elim nB g (p s i))) j i s
 
-          q₂ : PathP (λ j → PathP (λ i → B (≡spoke p s j i)) (toPathP⁻ (λ _ → B x) (λ _ → transport refl (ind nB g x)) j)
-                                                             (toPathP⁻ (λ _ → B y) (λ _ → transport refl (ind nB g y)) j))
-                     (fst (secCongDep' nB (≡hub p) (transport refl (ind nB g x)) (transport refl (ind nB g y)))
-                        (λ i s → transport (λ j → B (≡spoke p s (~ j) i)) (ind nB g (p s i))))
-                     (λ i → ind nB g (p s i))
+          q₂ : PathP (λ j → PathP (λ i → B (≡spoke p s j i)) (toPathP⁻ (λ _ → B x) (λ _ → transport refl (elim nB g x)) j)
+                                                             (toPathP⁻ (λ _ → B y) (λ _ → transport refl (elim nB g y)) j))
+                     (fst (secCongDep' nB (≡hub p) (transport refl (elim nB g x)) (transport refl (elim nB g y)))
+                        (λ i s → transport (λ j → B (≡spoke p s (~ j) i)) (elim nB g (p s i))))
+                     (λ i → elim nB g (p s i))
           q₂ j i = toPathP⁻ (λ j → B (≡spoke p s j i)) (λ j → q₁ j i) j
 
 -- nullification is a modality
 
 NullModality : ∀ {ℓ} (S : Type ℓ) → Modality ℓ
 isModal       (NullModality S) = isNull S
-isModalIsProp (NullModality S) = isPropIsPathSplitEquiv _
+isPropIsModal (NullModality S) = isPropIsPathSplitEquiv _
 ◯             (NullModality S) = Null S
 ◯-isModal     (NullModality S) = isNull-Null
 η             (NullModality S) = ∣_∣
-◯-elim        (NullModality S) = ind
+◯-elim        (NullModality S) = elim
 ◯-elim-β      (NullModality S) = λ _ _ _ → refl
 ◯-=-isModal   (NullModality S) x y = fromIsEquiv _ e
   where e : isEquiv (λ (p : x ≡ y) → const {B = S} p)

@@ -1,11 +1,11 @@
 -- This file derives some of the Cartesian Kan operations using transp
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.CartesianKanOps where
 
 open import Cubical.Foundations.Prelude
 
 coe0→1 : ∀ {ℓ} (A : I → Type ℓ) → A i0 → A i1
-coe0→1 A a = transp A i0 a
+coe0→1 A a = transp (\ i → A i) i0 a
 
 -- "coe filler"
 coe0→i : ∀ {ℓ} (A : I → Type ℓ) (i : I) → A i0 → A i
@@ -48,7 +48,7 @@ coei1→0 A a = refl
 -- unlike in cartesian cubes, we don't get coei→i = id definitionally
 coei→j : ∀ {ℓ} (A : I → Type ℓ) (i j : I) → A i → A j
 coei→j A i j a =
-  fill A
+  fill (\ i → A i)
     (λ j → λ { (i = i0) → coe0→i A j a
              ; (i = i1) → coe1→i A j a
              })
@@ -118,9 +118,9 @@ filli→j : ∀ {ℓ} (A : ∀ i → Type ℓ)
        ---------------------------
        (j : I) → A j
 filli→j A {φ = φ} u i ui j =
-  fill A
+  fill (\ i → A i)
     (λ j → λ { (φ = i1) → u j 1=1
-             ; (i = i0) → fill A u ui j
+             ; (i = i0) → fill (\ i → A i) (\ i → u i) ui j
              ; (i = i1) → fill1→i A u ui j
              })
     (inS (filli→0 A u i ui))

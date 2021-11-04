@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Data.Nat.Order where
 
 open import Cubical.Foundations.Prelude
@@ -6,9 +6,9 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
 
-open import Cubical.Data.Empty
-open import Cubical.Data.Prod
-open import Cubical.Data.Sum
+open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Sigma
+open import Cubical.Data.Sum as ⊎
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Nat.Properties
@@ -40,7 +40,7 @@ private
 
 m≤n-isProp : isProp (m ≤ n)
 m≤n-isProp {m} {n} (k , p) (l , q)
-  = ΣProp≡ witness-prop lemma
+  = Σ≡Prop witness-prop lemma
   where
   lemma : k ≡ l
   lemma = inj-+m (p ∙ (sym q))
@@ -70,6 +70,10 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
 ≤-suc : m ≤ n → m ≤ suc n
 ≤-suc (k , p) = suc k , cong suc p
 
+≤-predℕ : predℕ n ≤ n
+≤-predℕ {zero} = ≤-refl
+≤-predℕ {suc n} = ≤-suc ≤-refl
+
 ≤-trans : k ≤ m → m ≤ n → k ≤ n
 ≤-trans {k} {m} {n} (i , p) (j , q) = i + j , l2 ∙ (l1 ∙ q)
   where
@@ -86,7 +90,7 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
   l2 : j + i ≡ 0
   l2 = m+n≡n→m≡0 l1
   l3 : 0 ≡ i
-  l3 = sym (proj₂ (m+n≡0→m≡0×n≡0 l2))
+  l3 = sym (snd (m+n≡0→m≡0×n≡0 l2))
 
 ≤-k+-cancel : k + m ≤ k + n → m ≤ n
 ≤-k+-cancel {k} {m} (l , p) = l , inj-m+ (sub k m ∙ p)
@@ -100,6 +104,13 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
  cancelled : l + m ≡ n
  cancelled = inj-+m (sym (+-assoc l m k) ∙ p)
 
+≤-·k : m ≤ n → m · k ≤ n · k
+≤-·k {m} {n} {k} (d , r) = d · k , reason where
+  reason : d · k + m · k ≡ n · k
+  reason = d · k + m · k ≡⟨ ·-distribʳ d m k ⟩
+           (d + m) · k   ≡⟨ cong (_· k) r ⟩
+           n · k         ∎
+
 <-k+-cancel : k + m < k + n → m < n
 <-k+-cancel {k} {m} {n} = ≤-k+-cancel ∘ subst (_≤ k + n) (sym (+-suc k m))
 
@@ -109,6 +120,16 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
 ¬m<m : ¬ m < m
 ¬m<m {m} = ¬-<-zero ∘ ≤-+k-cancel {k = m}
 
+≤0→≡0 : n ≤ 0 → n ≡ 0
+≤0→≡0 {zero} ineq = refl
+≤0→≡0 {suc n} ineq = ⊥.rec (¬-<-zero ineq)
+
+predℕ-≤-predℕ : m ≤ n → (predℕ m) ≤ (predℕ n)
+predℕ-≤-predℕ {zero} {zero}   ineq = ≤-refl
+predℕ-≤-predℕ {zero} {suc n}  ineq = zero-≤
+predℕ-≤-predℕ {suc m} {zero}  ineq = ⊥.rec (¬-<-zero ineq)
+predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
+
 ¬m+n<m : ¬ m + n < m
 ¬m+n<m {m} {n} = ¬-<-zero ∘ <-k+-cancel ∘ subst (m + n <_) (sym (+-zero m))
 
@@ -116,29 +137,64 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
 <-weaken (k , p) = suc k , sym (+-suc k _) ∙ p
 
 ≤<-trans : l ≤ m → m < n → l < n
-≤<-trans {l} {m} {n} (i , p) (j , q) = (j + i) , reason
-  where
-  reason : j + i + suc l ≡ n
-  reason = j + i + suc l ≡⟨ sym (+-assoc j i (suc l)) ⟩
-           j + (i + suc l) ≡⟨ cong (j +_) (+-suc i l) ⟩
-           j + (suc (i + l)) ≡⟨ cong (_+_ j ∘ suc) p ⟩
-           j + suc m ≡⟨ q ⟩
-           n ∎
+≤<-trans p = ≤-trans (suc-≤-suc p)
 
 <≤-trans : l < m → m ≤ n → l < n
-<≤-trans {l} {m} {n} (i , p) (j , q) = j + i , reason
-  where
-  reason : j + i + suc l ≡ n
-  reason = j + i + suc l ≡⟨ sym (+-assoc j i (suc l)) ⟩
-           j + (i + suc l) ≡⟨ cong (j +_) p ⟩
-           j + m ≡⟨ q ⟩
-           n ∎
+<≤-trans = ≤-trans
 
 <-trans : l < m → m < n → l < n
 <-trans p = ≤<-trans (<-weaken p)
 
 <-asym : m < n → ¬ n ≤ m
 <-asym m<n = ¬m<m ∘ <≤-trans m<n
+
+<-+k : m < n → m + k < n + k
+<-+k p = ≤-+k p
+
+<-k+ : m < n → k + m < k + n
+<-k+ {m} {n} {k} p = subst (λ km → km ≤ k + n) (+-suc k m) (≤-k+ p)
+
++-<-+ : m < n → k < l → m + k < n + l
++-<-+  m<n k<l = <-trans (<-+k m<n) (<-k+ k<l)
+
+<-·sk : m < n → m · suc k < n · suc k
+<-·sk {m} {n} {k} (d , r) = (d · suc k + k) , reason where
+  reason : (d · suc k + k) + suc (m · suc k) ≡ n · suc k
+  reason = (d · suc k + k) + suc (m · suc k) ≡⟨ sym (+-assoc (d · suc k) k _) ⟩
+           d · suc k + (k + suc (m · suc k)) ≡[ i ]⟨ d · suc k + +-suc k (m · suc k) i ⟩
+           d · suc k + suc m · suc k         ≡⟨ ·-distribʳ d (suc m) (suc k) ⟩
+           (d + suc m) · suc k               ≡⟨ cong (_· suc k) r ⟩
+           n · suc k                         ∎
+
+≤-∸-+-cancel : m ≤ n → (n ∸ m) + m ≡ n
+≤-∸-+-cancel {zero} {n} _ = +-zero _
+≤-∸-+-cancel {suc m} {zero} m≤n = ⊥.rec (¬-<-zero m≤n)
+≤-∸-+-cancel {suc m} {suc n} m+1≤n+1 = +-suc _ _ ∙ cong suc (≤-∸-+-cancel (pred-≤-pred m+1≤n+1))
+
+≤-∸-suc : m ≤ n → suc (n ∸ m) ≡ suc n ∸ m
+≤-∸-suc {zero} {n} m≤n = refl
+≤-∸-suc {suc m} {zero} m≤n = ⊥.rec (¬-<-zero m≤n)
+≤-∸-suc {suc m} {suc n} m+1≤n+1 = ≤-∸-suc (pred-≤-pred m+1≤n+1)
+
+left-≤-max : m ≤ max m n
+left-≤-max {zero} {n} = zero-≤
+left-≤-max {suc m} {zero} = ≤-refl
+left-≤-max {suc m} {suc n} = suc-≤-suc left-≤-max
+
+right-≤-max : n ≤ max m n
+right-≤-max {zero} {m} = zero-≤
+right-≤-max {suc n} {zero} = ≤-refl
+right-≤-max {suc n} {suc m} = suc-≤-suc right-≤-max
+
+min-≤-left : min m n ≤ m
+min-≤-left {zero} {n} = ≤-refl
+min-≤-left {suc m} {zero} = zero-≤
+min-≤-left {suc m} {suc n} = suc-≤-suc min-≤-left
+
+min-≤-right : min m n ≤ n
+min-≤-right {zero} {n} = zero-≤
+min-≤-right {suc m} {zero} = ≤-refl
+min-≤-right {suc m} {suc n} = suc-≤-suc min-≤-right
 
 Trichotomy-suc : Trichotomy m n → Trichotomy (suc m) (suc n)
 Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)
@@ -152,9 +208,20 @@ suc m ≟ zero = gt (m , +-comm m 1)
 suc m ≟ suc n = Trichotomy-suc (m ≟ n)
 
 <-split : m < suc n → (m < n) ⊎ (m ≡ n)
-<-split {n = zero} = inr ∘ proj₂ ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred
+<-split {n = zero} = inr ∘ snd ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred
 <-split {zero} {suc n} = λ _ → inl (suc-≤-suc zero-≤)
-<-split {suc m} {suc n} = map-⊎ suc-≤-suc (cong suc) ∘ <-split ∘ pred-≤-pred
+<-split {suc m} {suc n} = ⊎.map suc-≤-suc (cong suc) ∘ <-split ∘ pred-≤-pred
+
+≤-+-split : ∀ n m k → k ≤ n + m → (n ≤ k) ⊎ (m ≤ (n + m) ∸ k)
+≤-+-split n m k k≤n+m with n ≟ k
+... | eq p = inl (0 , p)
+... | lt n<k = inl (<-weaken n<k)
+... | gt k<n with m ≟ ((n + m) ∸ k)
+... | eq p = inr (0 , p)
+... | lt m<n+m∸k = inr (<-weaken m<n+m∸k)
+... | gt n+m∸k<m =
+      ⊥.rec (¬m<m (transport (λ i → ≤-∸-+-cancel k≤n+m i < +-comm m n i) (+-<-+ n+m∸k<m k<n)))
+
 
 private
   acc-suc : Acc _<_ n → Acc _<_ (suc n)
@@ -166,8 +233,11 @@ private
     }
 
 <-wellfounded : WellFounded _<_
-<-wellfounded zero = acc λ _ → ⊥-elim ∘ ¬-<-zero
+<-wellfounded zero = acc λ _ → ⊥.rec ∘ ¬-<-zero
 <-wellfounded (suc n) = acc-suc (<-wellfounded n)
+
+<→≢ : n < m → ¬ n ≡ m
+<→≢ {n} {m} p q = ¬m<m (subst (_< m) q p)
 
 module _
     (b₀ : ℕ)
@@ -190,15 +260,15 @@ module _
     dichotomy<≡ b n n<b
       = case dichotomy b n return (λ d → d ≡ inl n<b) of λ
       { (inl x) → cong inl (m≤n-isProp x n<b)
-      ; (inr (m , p)) → ⊥-elim (<-asym n<b (m , sym (p ∙ +-comm b m)))
+      ; (inr (m , p)) → ⊥.rec (<-asym n<b (m , sym (p ∙ +-comm b m)))
       }
 
     dichotomy+≡ : ∀ b m n → (p : n ≡ b + m) → dichotomy b n ≡ inr (m , p)
     dichotomy+≡ b m n p
       = case dichotomy b n return (λ d → d ≡ inr (m , p)) of λ
-      { (inl n<b) → ⊥-elim (<-asym n<b (m , +-comm m b ∙ sym p))
+      { (inl n<b) → ⊥.rec (<-asym n<b (m , +-comm m b ∙ sym p))
       ; (inr (m' , q))
-      → cong inr (ΣProp≡ (λ x → isSetℕ n (b + x)) (inj-m+ {m = b} (sym q ∙ p)))
+      → cong inr (Σ≡Prop (λ x → isSetℕ n (b + x)) (inj-m+ {m = b} (sym q ∙ p)))
       }
 
     b = suc b₀
@@ -230,3 +300,30 @@ module _
 
   +inductionStep : ∀ n → +induction (b + n) ≡ step n (+induction n)
   +inductionStep n = induction-compute wfStep (b + n) ∙ wfStepLemma₁ n _
+
+module <-Reasoning where
+  -- TODO: would it be better to mirror the way it is done in the agda-stdlib?
+  infixr 2 _<⟨_⟩_ _≤<⟨_⟩_ _≤⟨_⟩_ _<≤⟨_⟩_ _≡<⟨_⟩_ _≡≤⟨_⟩_ _<≡⟨_⟩_ _≤≡⟨_⟩_
+  _<⟨_⟩_ : ∀ k → k < n → n < m → k < m
+  _ <⟨ p ⟩ q = <-trans p q
+
+  _≤<⟨_⟩_ : ∀ k → k ≤ n → n < m → k < m
+  _ ≤<⟨ p ⟩ q = ≤<-trans p q
+
+  _≤⟨_⟩_ : ∀ k → k ≤ n → n ≤ m → k ≤ m
+  _ ≤⟨ p ⟩ q = ≤-trans p q
+
+  _<≤⟨_⟩_ : ∀ k → k < n → n ≤ m → k < m
+  _ <≤⟨ p ⟩ q = <≤-trans p q
+
+  _≡≤⟨_⟩_ : ∀ k → k ≡ l → l ≤ m → k ≤ m
+  _ ≡≤⟨ p ⟩ q = subst (λ k → k ≤ _) (sym p) q
+
+  _≡<⟨_⟩_ : ∀ k → k ≡ l → l < m → k < m
+  _ ≡<⟨ p ⟩ q = _ ≡≤⟨ cong suc p ⟩ q
+
+  _≤≡⟨_⟩_ : ∀ k → k ≤ l → l ≡ m → k ≤ m
+  _ ≤≡⟨ p ⟩ q = subst (λ l → _ ≤ l) q p
+
+  _<≡⟨_⟩_ : ∀ k → k < l → l ≡ m → k < m
+  _ <≡⟨ p ⟩ q = _ ≤≡⟨ p ⟩ q

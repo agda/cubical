@@ -1,48 +1,63 @@
 {-
   Definitions for functions
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Function where
 
 open import Cubical.Foundations.Prelude
 
+private
+  variable
+    ℓ ℓ' ℓ'' : Level
+    A : Type ℓ
+    B : A → Type ℓ
+    C : (a : A) → B a → Type ℓ
+    D : (a : A) (b : B a) → C a b → Type ℓ
+
 -- The identity function
-idfun : ∀ {ℓ} → (A : Type ℓ) → A → A
+idfun : (A : Type ℓ) → A → A
 idfun _ x = x
 
 infixr 9 _∘_
 
-_∘_ : ∀ {ℓ ℓ′ ℓ″} {A : Type ℓ} {B : A → Type ℓ′} {C : (a : A) → B a → Type ℓ″}
-        (g : {a : A} → (b : B a) → C a b) → (f : (a : A) → B a) → (a : A) → C a (f a)
+_∘_ : (g : {a : A} → (b : B a) → C a b) → (f : (a : A) → B a) → (a : A) → C a (f a)
 g ∘ f = λ x → g (f x)
+{-# INLINE _∘_ #-}
 
-∘-assoc : ∀ {ℓ ℓ′ ℓ″ ℓ‴} {A : Type ℓ} {B : A → Type ℓ′} {C : (a : A) → B a → Type ℓ″} {D : (a : A) (b : B a) → C a b → Type ℓ‴}
-            (h : {a : A} {b : B a} → (c : C a b) → D a b c) (g : {a : A} → (b : B a) → C a b) (f : (a : A) → B a)
-          → (h ∘ g) ∘ f ≡ h ∘ (g ∘ f)
+∘-assoc : (h : {a : A} {b : B a} → (c : C a b) → D a b c)
+          (g : {a : A} → (b : B a) → C a b)
+          (f : (a : A) → B a)
+        → (h ∘ g) ∘ f ≡ h ∘ (g ∘ f)
 ∘-assoc h g f i x = h (g (f x))
 
-∘-idˡ : ∀ {ℓ ℓ′} {A : Type ℓ} {B : A → Type ℓ′} (f : (a : A) → B a) → f ∘ idfun A ≡ f
+∘-idˡ : (f : (a : A) → B a) → f ∘ idfun A ≡ f
 ∘-idˡ f i x = f x
 
-∘-idʳ : ∀ {ℓ ℓ′} {A : Type ℓ} {B : A → Type ℓ′} (f : (a : A) → B a) → (λ {a} → idfun (B a)) ∘ f ≡ f
+∘-idʳ : (f : (a : A) → B a) → (λ {a} → idfun (B a)) ∘ f ≡ f
 ∘-idʳ f i x = f x
 
+flip : {B : Type ℓ'} {C : A → B → Type ℓ''} →
+       ((x : A) (y : B) → C x y) → ((y : B) (x : A) → C x y)
+flip f y x = f x y
+{-# INLINE flip #-}
 
-const : ∀ {ℓ ℓ′} {A : Type ℓ} {B : Type ℓ′} → A → B → A
+const : {B : Type ℓ} → A → B → A
 const x = λ _ → x
-
+{-# INLINE const #-}
 
 case_of_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} → (x : A) → (∀ x → B x) → B x
 case x of f = f x
+{-# INLINE case_of_ #-}
 
 case_return_of_ : ∀ {ℓ ℓ'} {A : Type ℓ} (x : A) (B : A → Type ℓ') → (∀ x → B x) → B x
 case x return P of f = f x
+{-# INLINE case_return_of_ #-}
 
-uncurry
-  : ∀{ℓ ℓ′ ℓ″} {A : Type ℓ} {B : A → Type ℓ′} {C : (a : A) → B a → Type ℓ″}
-  → ((x : A) → (y : B x) → C x y)
-  → (p : Σ A B) → C (fst p) (snd p)
+uncurry : ((x : A) → (y : B x) → C x y) → (p : Σ A B) → C (fst p) (snd p)
 uncurry f (x , y) = f x y
+
+curry : ((p : Σ A B) → C (fst p) (snd p)) → (x : A) → (y : B x) → C x y
+curry f x y = f (x , y)
 
 module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
   -- Notions of 'coherently constant' functions for low dimensions.
@@ -102,3 +117,21 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
               ; (j = i1) → link y x (i ∧ ~ k)
               })
           (downleft x y i j)
+
+homotopyNatural : {B : Type ℓ'} {f g : A → B} (H : ∀ a → f a ≡ g a) {x y : A} (p : x ≡ y) →
+                  H x ∙ cong g p ≡ cong f p ∙ H y
+homotopyNatural {f = f} {g = g} H {x} {y} p i j =
+    hcomp (λ k → λ { (i = i0) → compPath-filler (H x) (cong g p) k j
+                   ; (i = i1) → compPath-filler' (cong f p) (H y) k j
+                   ; (j = i0) → cong f p (i ∧ ~ k)
+                   ; (j = i1) → cong g p (i ∨ k) })
+          (H (p i) j)
+
+homotopySymInv : {f : A → A} (H : ∀ a → f a ≡ a) (a : A)
+               → Path (f a ≡ f a) (λ i → H (H a (~ i)) i) refl
+homotopySymInv {f = f} H a j i =
+  hcomp (λ k → λ { (i = i0) → f a
+                 ; (i = i1) → H a (j ∧ ~ k)
+                 ; (j = i0) → H (H a (~ i)) i
+                 ; (j = i1) → H a (i ∧ ~ k)})
+        (H (H a (~ i ∨ j)) i)

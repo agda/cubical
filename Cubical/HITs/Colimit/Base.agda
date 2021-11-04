@@ -3,7 +3,7 @@
   Homotopy colimits of graphs
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Colimit.Base where
 
 open import Cubical.Foundations.Prelude
@@ -13,7 +13,6 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Graph
-
 
 -- Cones under a diagram
 
@@ -58,11 +57,11 @@ module _ {ℓ ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} {X : Type 
   isUniversalAt : ∀ ℓq → Cocone ℓ F X → Type (ℓ-max ℓ (ℓ-suc (ℓ-max ℓq (ℓ-max (ℓ-max ℓv ℓe) (ℓ-suc ℓd)))))
   isUniversalAt ℓq C = ∀ (Y : Type ℓq) → isEquiv {A = (X → Y)} {B = Cocone ℓq F Y} (postcomp C)
                   -- (unfolding isEquiv, this ^ is equivalent to what one might expect:)
-                  -- ∀ (Y : Type ℓ) (D : Cocone ℓ F Y) → isContr (Σ[ h ∈ (X → Y) ] (h *) C ≡ D)
+                  -- ∀ (Y : Type ℓ) (D : Cocone ℓ F Y) → ∃![ h ∈ (X → Y) ] (h *) C ≡ D
                   --                                  (≡ isContr (CoconeMor (X , C) (Y , D)))
 
   isPropIsUniversalAt : ∀ ℓq (C : Cocone ℓ F X) → isProp (isUniversalAt ℓq C)
-  isPropIsUniversalAt ℓq C = propPi (λ Y → isPropIsEquiv (postcomp C))
+  isPropIsUniversalAt ℓq C = isPropΠ (λ Y → isPropIsEquiv (postcomp C))
 
   isUniversal : Cocone ℓ F X → Typeω
   isUniversal C = ∀ ℓq → isUniversalAt ℓq C
@@ -82,7 +81,7 @@ module _ {ℓ ℓ' ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} {X : 
   postcomp⁻¹ cl = invEq (_ , univ cl _ Y)
 
   postcomp⁻¹-inv : (cl : isColimit F X) (D : Cocone ℓ' F Y) → (postcomp (cone cl) (postcomp⁻¹ cl D)) ≡ D
-  postcomp⁻¹-inv cl D = retEq (_ , univ cl _ Y) D
+  postcomp⁻¹-inv cl D = secEq (_ , univ cl _ Y) D
 
   postcomp⁻¹-mor : (cl : isColimit F X) (D : Cocone ℓ' F Y) → CoconeMor (X , cone cl) (Y , D)
   postcomp⁻¹-mor cl D = (postcomp⁻¹ cl D) , (postcomp⁻¹-inv cl D)
@@ -117,18 +116,17 @@ module _ {ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} where
   leg colimCone = colim-leg
   com colimCone = colim-com
 
-  colim-rec : ∀ {ℓ} {X : Type ℓ} → Cocone ℓ F X → (colim F → X)
-  colim-rec C (colim-leg j A)   = leg C j A
-  colim-rec C (colim-com f i A) = com C f i A
+  rec : ∀ {ℓ} {X : Type ℓ} → Cocone ℓ F X → (colim F → X)
+  rec C (colim-leg j A)   = leg C j A
+  rec C (colim-com f i A) = com C f i A
 
   colimIsColimit : isColimit F (colim F)
   cone colimIsColimit = colimCone
   univ colimIsColimit ℓq Y
     = isoToIsEquiv record { fun = postcomp colimCone
-                          ; inv = colim-rec
+                          ; inv = rec
                           ; rightInv = λ C → refl
                           ; leftInv  = λ h → funExt (eq h) }
-    where eq : ∀ h (x : colim _) → colim-rec (postcomp colimCone h) x ≡ h x
+    where eq : ∀ h (x : colim _) → rec (postcomp colimCone h) x ≡ h x
           eq h (colim-leg j A)   = refl
           eq h (colim-com f i A) = refl
-
