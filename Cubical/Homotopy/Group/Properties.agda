@@ -85,7 +85,7 @@ isHom-lMap zero p q =
 isHom-lMap (suc n) {A = A} p q =
   ΣPathP ((funExt (λ { north → refl
                      ; south → refl
-                     ; (merid a i) j → h a j i}))
+                     ; (merid a i) j → main a j i}))
           , refl)
   where
   doubleComp-lem : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y) (q r : y ≡ y)
@@ -99,9 +99,9 @@ isHom-lMap (suc n) {A = A} p q =
                     ; (j = i1) → p (~ k)})
           ((q ∙ r) j)
 
-  help2 : (p : typ ((Ω^ (suc (suc n))) A))
-        → cong (fst (lMap (suc (suc n)) p)) (merid (ptSn _)) ≡ refl
-  help2 p =
+  lem : (p : typ ((Ω^ (suc (suc n))) A))
+      → cong (fst (lMap (suc (suc n)) p)) (merid (ptSn _)) ≡ refl
+  lem p =
     cong (sym (lMapId (suc n) (ptSn _)) ∙∙_∙∙ lMapId (suc n) (ptSn _))
               (rUnit _ ∙ (λ j → (λ i → lMap (suc n) {A = A} refl .snd (i ∧ j))
                        ∙∙ (λ i → lMap (suc n) {A = A} (p i) .snd j)
@@ -109,18 +109,18 @@ isHom-lMap (suc n) {A = A} p q =
                        ∙ ∙∙lCancel _)
               ∙ ∙∙lCancel _
 
-  h : (a : S₊ (suc n))
+  main : (a : S₊ (suc n))
     → sym (lMapId (suc n) a)
         ∙∙ funExt⁻ (cong fst (cong (lMap (suc n)) (p ∙ q))) a
         ∙∙ lMapId (suc n) a
      ≡ cong (fst (∙Π (lMap (suc (suc n)) p) (lMap (suc (suc n)) q))) (merid a)
-  h a = (cong (sym (lMapId (suc n) a) ∙∙_∙∙ (lMapId (suc n) a))
+  main a = (cong (sym (lMapId (suc n) a) ∙∙_∙∙ (lMapId (suc n) a))
               (cong-∙ (λ x → lMap (suc n) x .fst a) p q)
        ∙ sym (doubleComp-lem (sym (lMapId (suc n) a)) _ _))
      ∙∙ cong₂ _∙_ (sym (cong (cong (fst (lMap (suc (suc n)) p)) (merid a) ∙_)
-                       (cong sym (help2 p)) ∙ sym (rUnit _)))
+                       (cong sym (lem p)) ∙ sym (rUnit _)))
                   (sym (cong (cong (fst (lMap (suc (suc n)) q)) (merid a) ∙_)
-                       (cong sym (help2 q)) ∙ sym (rUnit _)))
+                       (cong sym (lem q)) ∙ sym (rUnit _)))
      ∙∙ λ i → (rUnit (cong-∙ (fst (lMap (suc (suc n)) p))
                               (merid a) (sym (merid (ptSn _))) (~ i)) i)
              ∙ (rUnit (cong-∙ (fst (lMap (suc (suc n)) q))
@@ -240,16 +240,17 @@ fst (∙Π-rCancel {A = A} {n = zero} f i) (loop j) =
 snd (∙Π-rCancel {A = A} {n = zero} f i) = refl
 fst (∙Π-rCancel {A = A} {n = suc n} f i) north = pt A
 fst (∙Π-rCancel {A = A} {n = suc n} f i) south = pt A
-fst (∙Π-rCancel {A = A} {n = suc n} f i) (merid a i₁) = sl i i₁
+fst (∙Π-rCancel {A = A} {n = suc n} f i) (merid a i₁) = lem i i₁
   where
   pl = (sym (snd f)
      ∙∙ cong (fst f) (merid a ∙ sym (merid (ptSn _)))
      ∙∙ snd f)
-  sl : pl
+
+  lem : pl
      ∙ ((sym (snd f)
       ∙∙ cong (fst (-Π f)) (merid a ∙ sym (merid (ptSn _)))
       ∙∙ snd f)) ≡ refl
-  sl = cong (pl ∙_) (cong (sym (snd f) ∙∙_∙∙ (snd f))
+  lem = cong (pl ∙_) (cong (sym (snd f) ∙∙_∙∙ (snd f))
         (cong-∙ (fst (-Π f)) (merid a) (sym (merid (ptSn _)))
         ∙∙ cong₂ _∙_ refl
                    (cong (cong (fst f)) (rCancel (merid (ptSn _))))
@@ -265,17 +266,17 @@ fst (∙Π-lCancel {A = A} {n = zero} f i) (loop j) =
   rCancel (sym (snd f) ∙∙ cong (fst f) (sym loop) ∙∙ snd f) i j
 fst (∙Π-lCancel {A = A} {n = suc n} f i) north = pt A
 fst (∙Π-lCancel {A = A} {n = suc n} f i) south = pt A
-fst (∙Π-lCancel {A = A} {n = suc n} f i) (merid a j) = sl i j
+fst (∙Π-lCancel {A = A} {n = suc n} f i) (merid a j) = lem i j
   where
   pl = (sym (snd f)
      ∙∙ cong (fst f) (merid a ∙ sym (merid (ptSn _)))
      ∙∙ snd f)
 
-  sl : (sym (snd f)
+  lem : (sym (snd f)
      ∙∙ cong (fst (-Π f)) (merid a ∙ sym (merid (ptSn _)))
      ∙∙ snd f) ∙ pl
      ≡ refl
-  sl = cong (_∙ pl) (cong (sym (snd f) ∙∙_∙∙ (snd f))
+  lem = cong (_∙ pl) (cong (sym (snd f) ∙∙_∙∙ (snd f))
         (cong-∙ (fst (-Π f)) (merid a) (sym (merid (ptSn _)))
         ∙∙ cong₂ _∙_ refl (cong (cong (fst f)) (rCancel (merid (ptSn _))))
         ∙∙ sym (rUnit _)))

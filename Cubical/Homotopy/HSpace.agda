@@ -27,7 +27,6 @@ record AssocHSpace {ℓ : Level} {A : Pointed ℓ} (e : HSpace A) : Type ℓ whe
                (μ-assoc (pt A) y z)
                refl
 
-
 -- Instances
 open HSpace
 open AssocHSpace
