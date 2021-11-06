@@ -1,6 +1,6 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 {-
-This file contians:
+This file contains:
 1. A proof that the equivalence Ωⁿ A ≃ (Sⁿ →∙ A)
 is structure preserving
 
