@@ -1,6 +1,6 @@
 -- Left ℤ-multiplication on groups and some of its properties
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.Group.ZModule where
+module Cubical.Algebra.Group.ZAction where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -19,6 +19,7 @@ open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.DirProd
 
 open import Cubical.Relation.Nullary
 
@@ -29,10 +30,6 @@ private
 open Iso
 open GroupStr
 open IsGroupHom
-
-private
-  minus≡0- : (x : ℤ) → - x ≡ (0 -ℤ x)
-  minus≡0- x = sym (lid (snd ℤGroup) (- x))
 
 _ℤ[_]·_ : ℤ → (G : Group ℓ) → fst G → fst G
 pos zero ℤ[ G' ]· g = 1g (snd G')
@@ -286,3 +283,33 @@ groupEquivPresGen G (ϕeq , ϕhom) x (inr r) (ψeq , ψhom) =
   absLem (pos (suc (suc n))) p = ⊥-rec (snotz (cong predℕ p))
   absLem (negsuc zero) p = refl
   absLem (negsuc (suc n)) p = ⊥-rec (snotz (cong predℕ p))
+
+gen₂ℤ×ℤ : gen₂-by (DirProd ℤGroup ℤGroup) (1 , 0) (0 , 1)
+fst (gen₂ℤ×ℤ (x , y)) = x , y
+snd (gen₂ℤ×ℤ (x , y)) =
+  ΣPathP ((cong₂ _+ℤ_ ((·Comm 1 x) ∙ cong fst (sym (distrLem 1 0 x)))
+                     ((·Comm 0 y) ∙ cong fst (sym (distrLem 0 1 y))))
+        , +Comm y 0
+         ∙ cong₂ _+ℤ_ (·Comm 0 x ∙ cong snd (sym (distrLem 1 0 x)))
+                     (·Comm 1 y ∙ cong snd (sym (distrLem 0 1 y))))
+  where
+  ℤ×ℤ = DirProd ℤGroup ℤGroup
+  _+''_ = GroupStr._·_ (snd ℤ×ℤ)
+
+  -lem : (x : ℤ) → - x ≡ 0 -ℤ x
+  -lem (pos zero) = refl
+  -lem (pos (suc zero)) = refl
+  -lem (pos (suc (suc n))) =
+    cong predℤ (-lem (pos (suc n)))
+  -lem (negsuc zero) = refl
+  -lem (negsuc (suc n)) = cong sucℤ (-lem (negsuc n))
+
+  distrLem : (x y : ℤ) (z : ℤ)
+         → Path (ℤ × ℤ) (z ℤ[ ℤ×ℤ ]· (x , y)) (z * x , z * y)
+  distrLem x y (pos zero) = refl
+  distrLem x y (pos (suc n)) =
+    (cong ((x , y) +''_) (distrLem x y (pos n)))
+  distrLem x y (negsuc zero) = ΣPathP (sym (-lem x) , sym (-lem y))
+  distrLem x y (negsuc (suc n)) =
+    cong₂ _+''_ (ΣPathP (sym (-lem x) , sym (-lem y)))
+                (distrLem x y (negsuc n))

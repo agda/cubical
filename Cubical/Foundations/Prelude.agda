@@ -515,8 +515,7 @@ compPathR→PathP∙∙ {p = p} {q = q} {r = r} {s = s} P j i =
                     ; (j = i1) → doubleCompPath-filler  p s (sym q) (~ k) i})
           (P j i)
 
-doubleCompPath≡compPath :
-  ∀ {ℓ} {A : Type ℓ} {x y z w : A}
+doubleCompPath≡compPath : {x y z w : A}
     (p : x ≡ y) (q : y ≡ z) (r : z ≡ w)
   → p ∙∙ q ∙∙ r ≡ p ∙ q ∙ r
 doubleCompPath≡compPath p q r i j =

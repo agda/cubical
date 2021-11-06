@@ -457,6 +457,9 @@ private
   ∙∙ cong (_+ ((negsuc n · b) · c)) (-DistL· b c)
   ∙∙ sym (·DistL+ (- b) (negsuc n · b) c)
 
+minus≡0- : (x : ℤ) → - x ≡ (0 - x)
+minus≡0- x = +Comm (- x) 0
+
 -- Absolute values
 abs→⊎ : (x : ℤ) (n : ℕ) → abs x ≡ n → (x ≡ pos n) ⊎ (x ≡ - pos n)
 abs→⊎ x n = J (λ n _ → (x ≡ pos n) ⊎ (x ≡ - pos n)) (help x)

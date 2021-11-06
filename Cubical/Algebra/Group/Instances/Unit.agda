@@ -4,6 +4,7 @@ module Cubical.Algebra.Group.Instances.Unit where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Data.Unit renaming (Unit to UnitType)
 open import Cubical.Algebra.Group.Base
@@ -11,6 +12,7 @@ open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec)
+open import Cubical.Algebra.Group.GroupPath
 
 open GroupStr
 open IsGroupHom
@@ -95,3 +97,14 @@ SES→isEquiv {R = R} {G = G} {H = H} =
            (λ s → sym (snd s) ∙ IsGroupHom.pres1 (snd lhom))
            (lexact _ inker)
     BijectionIso.surj bijIso' x = rexact x refl
+
+isContr→≡UnitGroup : {G : Group ℓ-zero} → isContr (fst G) → Unit ≡ G
+isContr→≡UnitGroup c =
+  fst (GroupPath _ _)
+    (invGroupEquiv ((isContr→≃Unit c)
+                  , (makeIsGroupHom (λ _ _ → refl))))
+
+GroupIsoUnitGroup→isContr : {G : Group ℓ-zero}
+                           → GroupIso Unit G → isContr (fst G)
+GroupIsoUnitGroup→isContr is =
+  isOfHLevelRetractFromIso 0 (invIso (fst is)) isContrUnit

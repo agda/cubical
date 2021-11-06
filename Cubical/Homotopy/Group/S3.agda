@@ -29,7 +29,7 @@ open import Cubical.HITs.SetTruncation
 
 open import Cubical.Algebra.Group
   renaming (ℤ to ℤGroup ; Bool to BoolGroup ; Unit to UnitGroup)
-open import Cubical.Algebra.Group.ZModule
+open import Cubical.Algebra.Group.ZAction
 
 
 -- Some type abbreviations (unproved results)
@@ -136,7 +136,7 @@ groupLem : {G : Group₀}
          → (fst ϕ g ≡ 1) ⊎ (fst ϕ g ≡ -1)
          → isEquiv (fst ϕ)
 groupLem {G = G} s =
-  JGroupEquiv
+  GroupEquivJ
     (λ G _ → (g : fst G)
          → gen₁-by G g
          → (ϕ : GroupHom G ℤGroup)
@@ -171,7 +171,7 @@ module π₄S³
   lem : ∀ {G : Group₀} (ϕ ψ : GroupEquiv ℤGroup G) (g : fst G)
       → abs (invEq (fst ϕ) g) ≡ abs (invEq (fst ψ) g)
   lem =
-    JGroupEquiv
+    GroupEquivJ
       (λ G ϕ → (ψ : GroupEquiv ℤGroup G) (g : fst G)
       → abs (invEq (fst ϕ) g) ≡ abs (invEq (fst ψ) g))
       λ ψ → mini-lem₂ (invGroupEquiv ψ)

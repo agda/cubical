@@ -33,7 +33,7 @@ open import Cubical.Data.Unit
 
 open import Cubical.Algebra.Group
   renaming (ℤ to ℤGroup ; Unit to UnitGroup)
-open import Cubical.Algebra.Group.ZModule
+open import Cubical.Algebra.Group.ZAction
 
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn
@@ -713,36 +713,6 @@ jᵣ-βᵣ n f g =
                     ; (inr x) → refl
                     ; (push a i₁) → refl}))
 
-gen₂ℤ×ℤ : gen₂-by (DirProd ℤGroup ℤGroup) (1 , 0) (0 , 1)
-fst (gen₂ℤ×ℤ (x , y)) = x , y
-snd (gen₂ℤ×ℤ (x , y)) =
-  ΣPathP ((cong₂ _+_ ((·Comm 1 x) ∙ cong fst (sym (distrLem 1 0 x)))
-                     ((·Comm 0 y) ∙ cong fst (sym (distrLem 0 1 y))))
-        , +Comm y 0
-         ∙ cong₂ _+_ (·Comm 0 x ∙ cong snd (sym (distrLem 1 0 x)))
-                     (·Comm 1 y ∙ cong snd (sym (distrLem 0 1 y))))
-  where
-  ℤ×ℤ = DirProd ℤGroup ℤGroup
-  _+''_ = GroupStr._·_ (snd ℤ×ℤ)
-
-  -lem : (x : ℤ) → - x ≡ 0 - x
-  -lem (pos zero) = refl
-  -lem (pos (suc zero)) = refl
-  -lem (pos (suc (suc n))) =
-    cong predℤ (-lem (pos (suc n)))
-  -lem (negsuc zero) = refl
-  -lem (negsuc (suc n)) = cong sucℤ (-lem (negsuc n))
-
-  distrLem : (x y : ℤ) (z : ℤ)
-         → Path (ℤ × ℤ) (z ℤ[ ℤ×ℤ ]· (x , y)) (z · x , z · y)
-  distrLem x y (pos zero) = refl
-  distrLem x y (pos (suc n)) =
-    (cong ((x , y) +''_) (distrLem x y (pos n)))
-  distrLem x y (negsuc zero) = ΣPathP (sym (-lem x) , sym (-lem y))
-  distrLem x y (negsuc (suc n)) =
-    cong₂ _+''_ (ΣPathP (sym (-lem x) , sym (-lem y)))
-                (distrLem x y (negsuc n))
-
 genH²ⁿC* : (n : ℕ) (f g : S₊∙ (3 +ℕ (n +ℕ n)) →∙ S₊∙ (2 +ℕ n))
          → gen₂-by (coHomGr ((2 +ℕ n) +' (2 +ℕ n)) (C* n f g))
                     (βₗ n f g)
@@ -762,6 +732,7 @@ private
   X : (n : ℕ) (f g : S₊∙ (3 +ℕ (n +ℕ n)) →∙ S₊∙ (2 +ℕ n))
       → ℤ
   X n f g = (genH²ⁿC* n f g) (α* n f g ⌣ α* n f g) .fst .fst
+
   Y : (n : ℕ) (f g : S₊∙ (3 +ℕ (n +ℕ n)) →∙ S₊∙ (2 +ℕ n))
       → ℤ
   Y n  f g = (genH²ⁿC* n f g) (α* n f g ⌣ α* n f g) .fst .snd

@@ -359,7 +359,9 @@ snd (π'Gr≅πGr n A) =
     λ p q i → ∣ IsoSphereMapΩ-pres∙Π n p q i ∣₂)
 
 {-
-In file X we gave a filler of the following square
+In the file SuspensionMapPathP we gave a filler
+of the following square:
+
           suspMapΩ
 Ωⁿ A -------------------> Ωⁿ⁺¹ (Susp A)
  |                           |
@@ -510,12 +512,10 @@ private
                          (sym (snd g) ∙∙ cong-g ∙∙ (λ j → snd g (j ∧ ~ k)))) i})
              (((cong (λ x → rUnit x j) c-f) ∙ (cong (λ x → lUnit x j) c-g)) i))))
 
-  hom-botᵣ⁻ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
-    → (f g : S₊∙ (suc n) →∙ Susp∙ (typ A))
-    → botᵣ⁻ {A = A} n (∙Π f g)
-     ≡ invComp {A = A} n (botᵣ⁻ {A = A} n f) (botᵣ⁻ {A = A} n g)
-
--- We ge that
+hom-botᵣ⁻ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+  → (f g : S₊∙ (suc n) →∙ Susp∙ (typ A))
+  → botᵣ⁻ {A = A} n (∙Π f g)
+   ≡ invComp {A = A} n (botᵣ⁻ {A = A} n f) (botᵣ⁻ {A = A} n g)
 hom-botᵣ⁻ zero f g =
   ΣPathP ((funExt (λ { false → sym (rUnit _)
                      ; true → (rUnit _)}))

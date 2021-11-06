@@ -11,7 +11,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
-open import Cubical.HITs.S1
+open import Cubical.HITs.S1 renaming (_·_ to _*_)
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Sn.Base
@@ -336,3 +336,61 @@ IsoSphereJoin (suc n) m =
                 (compIso
                   (IsoSphereJoin n (suc m))
                     (pathToIso λ i → S₊ (suc (+-suc n m i))))))
+
+-- Some lemmas on the H
+rUnitS¹ : (x : S¹) → x * base ≡ x
+rUnitS¹ base = refl
+rUnitS¹ (loop i₁) = refl
+
+commS¹ : (a x : S¹) → a * x ≡ x * a
+commS¹ = wedgeconFun _ _ (λ _ _ → isGroupoidS¹ _ _)
+         (sym ∘ rUnitS¹)
+         rUnitS¹
+         refl
+
+SuspS¹-hom : (a x : S¹)
+  → Path (Path (hLevelTrunc 4 (S₊ 2)) _ _)
+          (cong ∣_∣ₕ (merid (a * x) ∙ sym (merid base)))
+          (cong ∣_∣ₕ (merid a ∙ sym (merid base))
+        ∙ (cong ∣_∣ₕ (merid x ∙ sym (merid base))))
+SuspS¹-hom = wedgeconFun _ _ (λ _ _ → isOfHLevelTrunc 4 _ _ _ _)
+           (λ x → lUnit _
+                 ∙ cong (_∙ cong ∣_∣ₕ (merid x ∙ sym (merid base)))
+                        (cong (cong ∣_∣ₕ) (sym (rCancel (merid base)))))
+           (λ x → (λ i → cong ∣_∣ₕ (merid (rUnitS¹ x i) ∙ sym (merid base)))
+               ∙∙ rUnit _
+               ∙∙ cong (cong ∣_∣ₕ (merid x ∙ sym (merid base)) ∙_)
+                       (cong (cong ∣_∣ₕ) (sym (rCancel (merid base)))))
+           (sym (l (cong ∣_∣ₕ (merid base ∙ sym (merid base)))
+                (cong (cong ∣_∣ₕ) (sym (rCancel (merid base))))))
+  where
+  l : ∀ {ℓ} {A : Type ℓ} {x : A} (p : x ≡ x) (P : refl ≡ p)
+    → lUnit p ∙ cong (_∙ p) P ≡ rUnit p ∙ cong (p ∙_) P
+  l p = J (λ p P → lUnit p ∙ cong (_∙ p) P ≡ rUnit p ∙ cong (p ∙_) P) refl
+
+rCancelS¹ : (x : S¹) → ptSn 1 ≡ x * (invLooper x)
+rCancelS¹ base = refl
+rCancelS¹ (loop i) j =
+  hcomp (λ r → λ {(i = i0) → base ; (i = i1) → base ; (j = i0) → base})
+        base
+
+SuspS¹-inv : (x : S¹) → Path (Path (hLevelTrunc 4 (S₊ 2)) _ _)
+                         (cong ∣_∣ₕ (merid (invLooper x) ∙ sym (merid base)))
+                         (cong ∣_∣ₕ (sym (merid x ∙ sym (merid base))))
+SuspS¹-inv x = (lUnit _
+       ∙∙ cong (_∙ cong ∣_∣ₕ (merid (invLooper x) ∙ sym (merid base)))
+               (sym (lCancel (cong ∣_∣ₕ (merid x ∙ sym (merid base)))))
+                  ∙∙ sym (assoc _ _ _))
+       ∙∙ cong (sym (cong ∣_∣ₕ (merid x ∙ sym (merid base))) ∙_) lem
+       ∙∙ (assoc _ _ _
+       ∙∙ cong (_∙ (cong ∣_∣ₕ (sym (merid x ∙ sym (merid base)))))
+               (lCancel (cong ∣_∣ₕ (merid x ∙ sym (merid base))))
+       ∙∙ sym (lUnit _))
+  where
+  lem : cong ∣_∣ₕ (merid x ∙ sym (merid base))
+      ∙ cong ∣_∣ₕ (merid (invLooper x) ∙ sym (merid base))
+     ≡ cong ∣_∣ₕ (merid x ∙ sym (merid base))
+     ∙ cong ∣_∣ₕ (sym (merid x ∙ sym (merid base)))
+  lem = sym (SuspS¹-hom x (invLooper x))
+     ∙ ((λ i → cong ∣_∣ₕ (merid (rCancelS¹ x (~ i)) ∙ sym (merid base)))
+     ∙ cong (cong ∣_∣ₕ) (rCancel (merid base))) ∙ sym (rCancel _)

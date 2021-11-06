@@ -153,29 +153,13 @@ suspMapΩ-connected : ∀ {ℓ} (n : HLevel) (m : ℕ) {A : Pointed ℓ}
 suspMapΩ-connected n zero {A = A} connA = isConnectedσ n connA
 suspMapΩ-connected n (suc m) {A = A} connA with ((n + suc n) ≟ m)
 ... | (lt p) = subst (λ x → isConnectedFun x (suspMapΩ {A = A} (suc m)))
-                     (sym (help _ m p))
+                     (sym (n∸m≡0 _ m p))
                      λ b → tt* , (λ {tt* → refl})
-  where
-  help : (n m : ℕ) → n < m → (n ∸ m) ≡ 0
-  help zero zero p = refl
-  help (suc n) zero p = ⊥-rec (¬-<-zero p)
-  help zero (suc m) p = refl
-  help (suc n) (suc m) p = help n m (pred-≤-pred p)
 ... | (eq q) = subst (λ x → isConnectedFun x (suspMapΩ {A = A} (suc m)))
-                     (sym (help m) ∙ cong (_∸ m) (sym q))
+                     (sym (n∸n≡0 m) ∙ cong (_∸ m) (sym q))
                      λ b → tt* , (λ {tt* → refl})
-  where
-  help : (n : ℕ) → n ∸ n ≡ 0
-  help zero = refl
-  help (suc n) = help n
 ... | (gt p) = isConnectedCong' (n + suc n ∸ m) (suspMapΩ {A = A} m)
     (subst (λ x → isConnectedFun x (suspMapΩ {A = A} m))
-           (sym (help (n + suc n) m p))
+           (sym (suc∸-fst (n + suc n) m p))
            (suspMapΩ-connected n m connA))
     (snd (suspMapΩ∙ m))
-  where
-  help : (n m : ℕ) → m < n → suc (n ∸ m) ≡ (suc n) ∸ m
-  help zero zero p = refl
-  help zero (suc m) p = ⊥-rec (¬-<-zero p)
-  help (suc n) zero p = refl
-  help (suc n) (suc m) p = (help n m (pred-≤-pred p))

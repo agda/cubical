@@ -8,6 +8,7 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
 
+
 open GroupStr
 open IsGroup hiding (rid ; lid ; invr ; invl)
 open IsMonoid hiding (rid ; lid)

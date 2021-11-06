@@ -129,10 +129,10 @@ uaCompGroupEquiv f g = caracGroup≡ _ _ (
   cong ⟨_⟩ (uaGroup f ∙ uaGroup g) ∎)
 
 -- J-rule for GroupEquivs
-JGroupEquiv : {G : Group ℓ} (P : (H : Group ℓ) → GroupEquiv G H → Type ℓ')
+GroupEquivJ : {G : Group ℓ} (P : (H : Group ℓ) → GroupEquiv G H → Type ℓ')
             → P G idGroupEquiv
             → ∀ {H} e → P H e
-JGroupEquiv {G = G} P p {H} e =
+GroupEquivJ {G = G} P p {H} e =
   transport (λ i → P (GroupPath G H .fst e i)
     (transp (λ j → GroupEquiv G (GroupPath G H .fst e (i ∨ ~ j))) i e))
       (subst (P G) (sym lem) p)

@@ -12,8 +12,8 @@ open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.RingLaws
 open import Cubical.ZCohomology.RingStructure.GradedCommutativity
+
 open import Cubical.Relation.Nullary
-open import Cubical.Homotopy.Group.Base
 
 open import Cubical.Functions.Embedding
 
@@ -30,10 +30,6 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Pointed.Homogeneous
 
-open import Cubical.Foundations.Univalence
-
-open import Cubical.Relation.Nullary
-
 open import Cubical.Data.Sum
 open import Cubical.Data.Fin
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
@@ -45,11 +41,10 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Bool
 open import Cubical.Algebra.Group
   renaming (ℤ to ℤGroup ; Unit to UnitGroup) hiding (Bool)
-open import Cubical.Algebra.Group.ZModule
+open import Cubical.Algebra.Group.ZAction
+open import Cubical.Algebra.AbGroup
 
 open import Cubical.HITs.Pushout.Flattening
-open import Cubical.Homotopy.Connected
-open import Cubical.Homotopy.EilenbergSteenrod
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
@@ -60,19 +55,12 @@ open import Cubical.HITs.SetTruncation
   renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap ; elim3 to sElim3)
 open import Cubical.HITs.PropositionalTruncation
   renaming (rec to pRec ; elim to pElim)
-
-open import Cubical.Algebra.AbGroup
-
-open import Cubical.Homotopy.Loopspace
-
 open import Cubical.HITs.Join
 
+open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Hopf
-
-
-open import Cubical.Algebra.AbGroup
-
 open import Cubical.Homotopy.Loopspace
+open import Cubical.Homotopy.Group.Base
 
 -- There seems to be some problems with the termination checker.
 -- Spelling out integer induction with 3 base cases like this
@@ -176,17 +164,8 @@ fst (genFunSpace (suc n)) = ∣_∣
 snd (genFunSpace (suc zero)) = refl
 snd (genFunSpace (suc (suc n))) = refl
 
-π₀S→ℤ : ∀ {ℓ} {A : Pointed ℓ} → Iso ((Bool , true) →∙ A) (typ A)
-Iso.fun π₀S→ℤ f = fst f false
-fst (Iso.inv π₀S→ℤ a) false = a
-fst (Iso.inv (π₀S→ℤ {A = A}) a) true = pt A
-snd (Iso.inv π₀S→ℤ a) = refl
-Iso.rightInv π₀S→ℤ a = refl
-Iso.leftInv π₀S→ℤ (f , p) =
-  ΣPathP ((funExt (λ { false → refl ; true → sym p})) , λ i j → p (~ i ∨ j))
-
 πS≅ℤ : (n : ℕ) → GroupIso (πS n) ℤGroup
-fst (πS≅ℤ zero) = π₀S→ℤ
+fst (πS≅ℤ zero) = IsoBool→∙
 snd (πS≅ℤ zero) = makeIsGroupHom λ _ _ → refl
 πS≅ℤ (suc n) =
   compGroupIso
@@ -195,11 +174,13 @@ snd (πS≅ℤ zero) = makeIsGroupHom λ _ _ → refl
       (GroupEquiv→GroupIso (coHomGr≅coHomRedGr n (S₊∙ (suc n))))
       (Hⁿ-Sⁿ≅ℤ n))
 
-
 Iso-πS-ℤ : (n : ℕ) → Iso (S₊∙ (suc n) →∙ coHomK-ptd (suc n)) ℤ
 Iso-πS-ℤ n = compIso (invIso (setTruncIdempotentIso (isOfHLevel↑∙' 0 n)))
                (compIso (equivToIso (fst (coHomGr≅coHomRedGr n (S₊∙ (suc n)))))
                (fst (Hⁿ-Sⁿ≅ℤ n)))
+
+Iso-πS-ℤ' : (n : ℕ) → Iso (S₊∙ n →∙ coHomK-ptd n) ℤ
+Iso-πS-ℤ' n = fst (πS≅ℤ n)
 
 Iso-πS-ℤPres1 : (n : ℕ) → Iso.fun (fst (πS≅ℤ (suc n))) (∣_∣ , refl) ≡ pos 1
 Iso-πS-ℤPres1 zero = refl
@@ -217,14 +198,6 @@ Iso-πS-ℤPres1 (suc n) =
                   (sym (merid north)) i z
            ∣)))) i)
     ∙ Iso.leftInv (Iso-Kn-ΩKn+1 (suc (suc n))) ∣ x ∣)
-
-Iso-πS-ℤPres1← : (n : ℕ)
-  → Iso.inv (fst (πS≅ℤ (suc n))) (pos 1) ≡ (∣_∣ , refl)
-Iso-πS-ℤPres1← n = sym (cong (Iso.inv (fst (πS≅ℤ (suc n)))) (Iso-πS-ℤPres1 n))
-                   ∙ Iso.leftInv (fst (πS≅ℤ (suc n))) (∣_∣ , refl)
-
-IsoFunSpace : (n : ℕ) → Iso (S₊∙ n →∙ coHomK-ptd n) ℤ
-IsoFunSpace n = fst (πS≅ℤ n)
 
 -- The first step of the Gysin sequence is to formulate
 -- an equivalence g : Kᵢ ≃ (Sⁿ →∙ Kᵢ₊ₙ)
@@ -424,10 +397,10 @@ module g-base where
     +'-suc (suc n) (suc m) = refl
 
   decomposeG : (i n : ℕ) (x : coHomK i)
-    → Path _ (G (suc n) i x)
-                 (subst (λ x → S₊∙ (suc n) →∙ coHomK-ptd x)
-                 (sym (+'-suc n i))
-                 ((Iso.inv (suspKn-Iso n _)) (G n i x)))
+    → G (suc n) i x
+     ≡ subst (λ x → S₊∙ (suc n) →∙ coHomK-ptd x)
+              (sym (+'-suc n i))
+              (Iso.inv (suspKn-Iso n _) (G n i x))
   decomposeG zero zero x =
     →∙Homogeneous≡ (isHomogeneousKn _)
       (funExt λ z → (λ i → x ·₀ ∣ z ∣) ∙ h3 x z ∙ sym (transportRefl _))

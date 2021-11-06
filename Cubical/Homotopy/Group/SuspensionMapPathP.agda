@@ -123,19 +123,6 @@ lMapId2 (suc (suc n)) {A = A} =
                      ; (merid a i) j
                       → ∙∙lCancel (lMapId (suc n) {A = A} a) j i}))
           , refl)
-{-
-Ω (Ωⁿ A) -----------> Ω (Ωⁿ⁺¹ ΣA)
- |                  |
- |                  |
- |                  |
- v                  v
- Ω (Sⁿ →∙ A) ----> Ω (Sⁿ⁺¹ →∙ ΣA)
- |                  |
- |                  |
- |                  |
- v                  v
- (Sⁿ⁺¹ →∙ A) ----> Sⁿ⁺² →∙ Σ A
--}
 
 -- We define the following maps which will be used to
 -- show that lMap is an equivalence
@@ -227,7 +214,7 @@ snd (rightInv (SphereMapΩIso {A = A} (suc n)) p k i) j =
        ; (j = i1) → pt A
        ; (k = i0) → help Ωp (merid (ptSn (suc n))) r j i
        ; (k = i1) → snd (p i) j})
-      (cool2 p-refl (sym (flipSquare (cong snd p))) k j i)))
+      (lem p-refl (sym (flipSquare (cong snd p))) k j i)))
   where
   Ωp = (fst (ΩSphereMap {A = A} (suc n) p))
   wrap-refl : ∀ {ℓ} {A : Type ℓ} {x : A} {r s : x ≡ x} (p : r ≡ s) → _
@@ -242,10 +229,10 @@ snd (rightInv (SphereMapΩIso {A = A} (suc n)) p k i) j =
                     ; (i = i1) → f (r k) })
           (inS (f (q i))) k
 
-  cool2 : ∀ {ℓ} {A : Pointed ℓ} (p : Path (typ A) (pt A) (pt A)) (q : refl ≡ p)
+  lem : ∀ {ℓ} {A : Pointed ℓ} (p : Path (typ A) (pt A) (pt A)) (q : refl ≡ p)
     → PathP (λ i → (cong (p ∙_) (cong sym (sym q)) ∙ sym (rUnit p)) i ≡ refl)
              (rCancel p) (sym q)
-  cool2 {A = A} p =
+  lem {A = A} p =
     J (λ p q →
          PathP (λ i → (cong (p ∙_) (cong sym (sym q)) ∙ sym (rUnit p)) i ≡ refl)
                (rCancel p) (sym q))
@@ -455,7 +442,7 @@ snd (botᵣ (suc n) (f , p)) = refl
 {-
 The goal now is to fill the following diagram.
 
-               suspMap
+               suspMapΩ
      Ωⁿ A -------------------> Ω¹⁺ⁿ (Susp A)
       |                            |
       |                            |

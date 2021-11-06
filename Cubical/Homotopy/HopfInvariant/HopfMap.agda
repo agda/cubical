@@ -7,6 +7,7 @@ module Cubical.Homotopy.HopfInvariant.HopfMap where
 
 open import Cubical.Homotopy.HopfInvariant.Base
 open import Cubical.Homotopy.Hopf
+open S¹Hopf
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.HSpace
 
@@ -37,10 +38,9 @@ open import Cubical.Data.Unit
 
 open import Cubical.Algebra.Group
   renaming (ℤ to ℤGroup ; Unit to UnitGroup)
-open import Cubical.Algebra.Group.ZModule
+open import Cubical.Algebra.Group.ZAction
 
 open import Cubical.HITs.Pushout
-open import Cubical.HITs.Hopf
 open import Cubical.HITs.Join
 open import Cubical.HITs.S1 renaming (_·_ to _*_)
 open import Cubical.HITs.Sn
@@ -286,71 +286,13 @@ inrInjective f g = pRec (squash₂ _ _)
 
 -- A couple of basic lemma concerning the hSpace structure on S¹
 private
-  rUnit* : (x : S¹) → x * base ≡ x
-  rUnit* base = refl
-  rUnit* (loop i₁) = refl
-
-  merid*-lem : (a x : S¹)
-    → Path (Path (coHomK 2) _ _)
-            (cong ∣_∣ₕ (merid (a * x) ∙ sym (merid base)))
-            ((cong ∣_∣ₕ (merid a ∙ sym (merid base)))
-            ∙ (cong ∣_∣ₕ (merid x ∙ sym (merid base))))
-  merid*-lem = wedgeconFun _ _ (λ _ _ → isOfHLevelTrunc 4 _ _ _ _)
-             (λ x → lUnit _
-                   ∙ cong (_∙ cong ∣_∣ₕ (merid x ∙ sym (merid base)))
-                          (cong (cong ∣_∣ₕ) (sym (rCancel (merid base)))))
-             (λ x → (λ i → cong ∣_∣ₕ (merid (rUnit* x i) ∙ sym (merid base)))
-                 ∙∙ rUnit _
-                 ∙∙ cong (cong ∣_∣ₕ (merid x ∙ sym (merid base)) ∙_)
-                         (cong (cong ∣_∣ₕ) (sym (rCancel (merid base)))))
-             (sym (l (cong ∣_∣ₕ (merid base ∙ sym (merid base)))
-                  (cong (cong ∣_∣ₕ) (sym (rCancel (merid base))))))
-    where
-    l : ∀ {ℓ} {A : Type ℓ} {x : A} (p : x ≡ x) (P : refl ≡ p)
-      → lUnit p ∙ cong (_∙ p) P ≡ rUnit p ∙ cong (p ∙_) P
-    l p = J (λ p P → lUnit p ∙ cong (_∙ p) P ≡ rUnit p ∙ cong (p ∙_) P) refl
-
-  lemmie : (x : S¹) → ptSn 1 ≡ x * (invLooper x)
-  lemmie base = refl
-  lemmie (loop i) j =
-    hcomp (λ r → λ {(i = i0) → base ; (i = i1) → base ; (j = i0) → base})
-          base
-
-
-  meridInvLooperLem : (x : S¹) → Path (Path (coHomK 2) _ _)
-                           (cong ∣_∣ₕ (merid (invLooper x) ∙ sym (merid base)))
-                           (cong ∣_∣ₕ (sym (merid x ∙ sym (merid base))))
-  meridInvLooperLem x = (lUnit _
-         ∙∙ cong (_∙ cong ∣_∣ₕ (merid (invLooper x) ∙ sym (merid base)))
-                 (sym (lCancel (cong ∣_∣ₕ (merid x ∙ sym (merid base)))))
-                    ∙∙ sym (assoc _ _ _))
-         ∙∙ cong (sym (cong ∣_∣ₕ (merid x ∙ sym (merid base))) ∙_) lem
-         ∙∙ (assoc _ _ _
-         ∙∙ cong (_∙ (cong ∣_∣ₕ (sym (merid x ∙ sym (merid base)))))
-                 (lCancel (cong ∣_∣ₕ (merid x ∙ sym (merid base))))
-         ∙∙ sym (lUnit _))
-    where
-    lem : cong ∣_∣ₕ (merid x ∙ sym (merid base))
-        ∙ cong ∣_∣ₕ (merid (invLooper x) ∙ sym (merid base))
-       ≡ cong ∣_∣ₕ (merid x ∙ sym (merid base))
-       ∙ cong ∣_∣ₕ (sym (merid x ∙ sym (merid base)))
-    lem = sym (merid*-lem x (invLooper x))
-       ∙ ((λ i → cong ∣_∣ₕ (merid (lemmie x (~ i)) ∙ sym (merid base)))
-       ∙ cong (cong ∣_∣ₕ) (rCancel (merid base))) ∙ sym (rCancel _)
-
-  comm·S¹ : (a x : S¹) → a * x ≡ x * a
-  comm·S¹ = wedgeconFun _ _ (λ _ _ → isGroupoidS¹ _ _)
-           (sym ∘ rUnit*)
-           rUnit*
-           refl
-
   invLooperLem₁ : (a x : S¹)
     → (invEq (hopfS¹.μ-eq a) x) * a ≡ (invLooper a * x) * a
   invLooperLem₁ a x =
        secEq (hopfS¹.μ-eq a) x
-    ∙∙ cong (_* x) (lemmie a)
+    ∙∙ cong (_* x) (rCancelS¹ a)
     ∙∙ AssocHSpace.μ-assoc S1-AssocHSpace a (invLooper a) x
-     ∙ comm·S¹ _ _
+     ∙ commS¹ _ _
 
   invLooperLem₂ : (a x : S¹) → invEq (hopfS¹.μ-eq a) x ≡ invLooper a * x
   invLooperLem₂ a x = sym (retEq (hopfS¹.μ-eq a) (invEq (hopfS¹.μ-eq a) x))
@@ -401,14 +343,14 @@ Gysin-e≡genCP² =
       ∙∙ cong ((cong ∣_∣ₕ) (sym (merid a)) ∙_)
           (cong (cong ∣_∣ₕ) (cong sym (symDistr (merid base)
                                                (sym (merid (invLooper a * x)))))
-         ∙ cong sym (merid*-lem (invLooper a) x)
+         ∙ cong sym (SuspS¹-hom (invLooper a) x)
          ∙ symDistr ((cong ∣_∣ₕ) (merid (invLooper a) ∙ sym (merid base)))
                      ((cong ∣_∣ₕ) (merid x ∙ sym (merid base)))
          ∙ isCommΩK 2 (sym (λ i₁ → ∣ (merid x
                                    ∙ (λ i₂ → merid base (~ i₂))) i₁ ∣))
                       (sym (λ i₁ → ∣ (merid (invLooper a)
                                    ∙ (λ i₂ → merid base (~ i₂))) i₁ ∣))
-         ∙ cong₂ _∙_ (cong sym (meridInvLooperLem a)
+         ∙ cong₂ _∙_ (cong sym (SuspS¹-inv a)
                        ∙ cong-∙ ∣_∣ₕ (merid a) (sym (merid base)))
                      (cong (cong ∣_∣ₕ) (symDistr (merid x) (sym (merid base)))
                        ∙ cong-∙ ∣_∣ₕ (merid base) (sym (merid x))))
@@ -594,7 +536,7 @@ CP2≡CP²' =
 
 -- The hopf invariant is ±1 for both definitions of the hopf map
 HopfInvariant-HopfMap' :
-  abs (HopfInvariant zero (HopfMap' , λ _ → HopfMap' (snd (S₊∙ 3)))) ≡ suc zero
+  abs (HopfInvariant zero (HopfMap' , λ _ → HopfMap' (snd (S₊∙ 3)))) ≡ 1
 HopfInvariant-HopfMap' =
   cong abs (cong (Iso.fun (fst (Hopfβ-Iso zero (HopfMap' , refl))))
            (transportRefl (⌣-α 0 (HopfMap' , refl))))
@@ -611,6 +553,6 @@ HopfInvariant-HopfMap' =
           (abs (fst (fst ϕ) GysinS².e) ≡ 1)
   l p = (GroupIso→GroupEquiv (fst p)) , (snd p)
 
-HopfInvariant-HopfMap : abs (HopfInvariant zero HopfMap) ≡ suc zero
+HopfInvariant-HopfMap : abs (HopfInvariant zero HopfMap) ≡ 1
 HopfInvariant-HopfMap = cong abs (cong (HopfInvariant zero) hopfMap≡HopfMap')
                       ∙ HopfInvariant-HopfMap'

@@ -10,9 +10,11 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Pointed
 
 open import Cubical.Data.Bool.Base
 open import Cubical.Data.Empty
+open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
@@ -207,3 +209,13 @@ module BoolReflection where
 
   reflectEquiv : Bool ≃ (Bool ≡ Bool)
   reflectEquiv = isoToEquiv reflectIso
+
+IsoBool→∙ : ∀ {ℓ} {A : Pointed ℓ} → Iso ((Bool , true) →∙ A) (typ A)
+Iso.fun IsoBool→∙ f = fst f false
+fst (Iso.inv IsoBool→∙ a) false = a
+fst (Iso.inv (IsoBool→∙ {A = A}) a) true = pt A
+snd (Iso.inv IsoBool→∙ a) = refl
+Iso.rightInv IsoBool→∙ a = refl
+Iso.leftInv IsoBool→∙ (f , p) =
+  ΣPathP ((funExt (λ { false → refl ; true → sym p}))
+        , λ i j → p (~ i ∨ j))

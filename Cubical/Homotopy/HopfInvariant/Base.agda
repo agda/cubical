@@ -35,7 +35,7 @@ open import Cubical.Data.Unit
 
 open import Cubical.Algebra.Group
   renaming (ℤ to ℤGroup ; Unit to UnitGroup)
-open import Cubical.Algebra.Group.ZModule
+open import Cubical.Algebra.Group.ZAction
 
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn
@@ -47,17 +47,6 @@ open import Cubical.HITs.SetTruncation
   renaming (rec to sRec ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation
   renaming (rec to pRec)
-
-isContr→≡UnitGroup : {G : Group ℓ-zero} → isContr (fst G) → UnitGroup ≡ G
-isContr→≡UnitGroup c =
-  fst (GroupPath _ _)
-    (invGroupEquiv ((isContr→≃Unit c)
-                  , (makeIsGroupHom (λ _ _ → refl))))
-
-GroupIsoUnitGroup→isContr : {G : Group ℓ-zero}
-                           → GroupIso UnitGroup G → isContr (fst G)
-GroupIsoUnitGroup→isContr is =
-  isOfHLevelRetractFromIso 0 (invIso (fst is)) isContrUnit
 
 -- The pushout of the hopf invariant
 HopfInvariantPush : (n : ℕ)
@@ -135,22 +124,8 @@ module _ (n : ℕ) (f : S₊∙ (3 +ℕ n +ℕ n) →∙ S₊∙ (2 +ℕ n)) whe
   Hopfβ-Iso : GroupIso (coHomGr (suc (3 +ℕ n +ℕ n))
                                 (HopfInvariantPush _ (fst f)))
                        ℤGroup
-  Iso.fun (fst Hopfβ-Iso) x =
-    Iso.fun (fst ((Hⁿ-Sⁿ≅ℤ (suc (suc (n +ℕ n))))))
-      (invEq (fst SphereHopfCohomIso) x)
-  Iso.inv (fst Hopfβ-Iso) f =
-    (fst (fst SphereHopfCohomIso))
-      (Iso.inv (fst ((Hⁿ-Sⁿ≅ℤ (suc (suc (n +ℕ n)))))) f)
-  Iso.rightInv (fst Hopfβ-Iso) f =
-    cong (Iso.fun (fst ((Hⁿ-Sⁿ≅ℤ (suc (suc (n +ℕ n)))))))
-      (retEq (fst SphereHopfCohomIso)
-             (Iso.inv (fst (Hⁿ-Sⁿ≅ℤ (suc (suc (n +ℕ n))))) f))
-      ∙ Iso.rightInv (fst (Hⁿ-Sⁿ≅ℤ (suc (suc (n +ℕ n))))) f
-  Iso.leftInv (fst Hopfβ-Iso) x =
-      cong (fst (fst SphereHopfCohomIso))
-        (Iso.leftInv (fst (Hⁿ-Sⁿ≅ℤ (suc (suc (n +ℕ n)))))
-          (invEq (fst SphereHopfCohomIso) x))
-    ∙ secEq (fst SphereHopfCohomIso) x
+  fst Hopfβ-Iso = compIso (invIso (equivToIso (fst SphereHopfCohomIso)))
+                           (fst (Hⁿ-Sⁿ≅ℤ (suc (suc (n +ℕ n)))))
   snd Hopfβ-Iso = grHom
     where
       abstract
@@ -160,10 +135,9 @@ module _ (n : ℕ) (f : S₊∙ (3 +ℕ n +ℕ n) →∙ S₊∙ (2 +ℕ n)) whe
                      (λ x → Iso.fun (fst ((Hⁿ-Sⁿ≅ℤ (suc (suc (n +ℕ n))))))
                        (invEq (fst SphereHopfCohomIso) x))
                      (ℤGroup .snd)
-        grHom = makeIsGroupHom λ x y →
-          cong (Iso.fun (fst ((Hⁿ-Sⁿ≅ℤ (suc (suc (n +ℕ n)))))))
-                 (IsGroupHom.pres· (isGroupHomInv SphereHopfCohomIso) x y)
-              ∙ IsGroupHom.pres· (snd (Hⁿ-Sⁿ≅ℤ (suc (suc (n +ℕ n))))) _ _
+        grHom = snd (compGroupIso
+                  (GroupEquiv→GroupIso (invGroupEquiv (SphereHopfCohomIso)))
+                  (Hⁿ-Sⁿ≅ℤ (suc (suc (n +ℕ n)))))
 
 Hⁿ-Sⁿ≅ℤ-nice-generator : (n : ℕ) → Iso.inv (fst (Hⁿ-Sⁿ≅ℤ (suc n))) 1 ≡ ∣ ∣_∣ ∣₂
 Hⁿ-Sⁿ≅ℤ-nice-generator zero = Iso.leftInv (fst (Hⁿ-Sⁿ≅ℤ (suc zero))) _
@@ -226,8 +200,9 @@ module _ (n : ℕ) (f : S₊∙ (3 +ℕ n +ℕ n) →∙ S₊∙ (2 +ℕ n)) whe
     conCohom2+n =
       coHomK-elim _ (λ _ → isProp→isOfHLevelSuc (suc n) squash) ∣ refl ∣
 
-  HIPSphereCohomIso : Iso (coHom (2 +ℕ n) (HopfInvariantPush n (fst f)))
-          (coHom (2 +ℕ n) ((S₊ (suc (suc n)))))
+  HIPSphereCohomIso :
+    Iso (coHom (2 +ℕ n) (HopfInvariantPush n (fst f)))
+        (coHom (2 +ℕ n) (S₊ (2 +ℕ n)))
   Iso.fun HIPSphereCohomIso = H→Sphere
   Iso.inv HIPSphereCohomIso = Sphere→H
   Iso.rightInv HIPSphereCohomIso =

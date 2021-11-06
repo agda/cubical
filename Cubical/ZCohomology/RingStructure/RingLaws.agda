@@ -588,13 +588,16 @@ assoc-⌣ₖ (suc n) (suc m) (suc k) x y z =
 -- Ring laws for ⌣
 module _ {A : Type ℓ} (n m : ℕ) where
   ⌣-0ₕ : (f : coHom n A) → (f ⌣ 0ₕ m) ≡ 0ₕ _
-  ⌣-0ₕ = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _) λ f → cong ∣_∣₂ (funExt λ x → ⌣ₖ-0ₖ n m (f x))
+  ⌣-0ₕ = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+                λ f → cong ∣_∣₂ (funExt λ x → ⌣ₖ-0ₖ n m (f x))
 
   0ₕ-⌣ : (f : coHom m A) → (0ₕ n ⌣ f) ≡ 0ₕ _
-  0ₕ-⌣ = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _) λ f → cong ∣_∣₂ (funExt λ x → 0ₖ-⌣ₖ n m (f x))
+  0ₕ-⌣ = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+                λ f → cong ∣_∣₂ (funExt λ x → 0ₖ-⌣ₖ n m (f x))
 
 
-  leftDistr-⌣ : (f : coHom n A) (g h : coHom m A) → f ⌣ (g +ₕ h) ≡ f ⌣ g +ₕ f ⌣ h
+  leftDistr-⌣ : (f : coHom n A) (g h : coHom m A)
+              → f ⌣ (g +ₕ h) ≡ f ⌣ g +ₕ f ⌣ h
   leftDistr-⌣ =
     sElim (λ _ → isSetΠ2 λ _ _ → isOfHLevelPath 2 squash₂ _ _)
       λ f → sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
@@ -658,7 +661,8 @@ rUnit⌣ (suc n) =
   sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
                λ f → cong ∣_∣₂ (funExt λ x → rUnitₖ _ (f x))
 
--ₕDistᵣ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ) (x : coHom n A) (y : coHom m A) → (-ₕ (x ⌣ y)) ≡ x ⌣ (-ₕ y)
+-ₕDistᵣ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ)
+  (x : coHom n A) (y : coHom m A) → (-ₕ (x ⌣ y)) ≡ x ⌣ (-ₕ y)
 -ₕDistᵣ n m =
   sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
     λ f g → cong ∣_∣₂ (funExt λ x → -Distᵣ n m (f x) (g x))
