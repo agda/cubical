@@ -39,6 +39,7 @@ open import Cubical.Data.Unit
 open import Cubical.Algebra.Group
   renaming (ℤ to ℤGroup ; Unit to UnitGroup)
 open import Cubical.Algebra.Group.ZAction
+open import Cubical.Algebra.Group.Exact
 
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Join
