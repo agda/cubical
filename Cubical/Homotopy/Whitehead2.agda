@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Homotopy.Whitehead where
+module Cubical.Homotopy.Whitehead2 where
 
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Everything
@@ -93,13 +93,13 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
   A0□→A∨B : A0□ whitehead3x3 → A∨B
   A0□→A∨B (inl x) = inl x
   A0□→A∨B (inr x) = inr north
-  A0□→A∨B (push a i) = (push tt ∙ λ i → inr (φB a i)) i -- (~ i)
+  A0□→A∨B (push a i) = (push tt ∙ λ i → inr (φB a (~ i))) i
 
   A∨B→A0□ : A∨B → A0□ whitehead3x3
   A∨B→A0□ (inl x) = inl x
   A∨B→A0□ (inr north) = inl north
   A∨B→A0□ (inr south) = inl north
-  A∨B→A0□ (inr (merid b i)) = (push b ∙ sym (push b₀)) i -- b₀ -> b
+  A∨B→A0□ (inr (merid b i)) = (push b₀ ∙ sym (push b)) i
   A∨B→A0□ (push a i) = inl north
 
   firstRow≡Susp⋁ : Iso (A0□ whitehead3x3) A∨B
@@ -108,46 +108,35 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
   rightInv firstRow≡Susp⋁ (inl x) = refl
   rightInv firstRow≡Susp⋁ (inr north) = push tt
   rightInv firstRow≡Susp⋁ (inr south) = push tt ∙ λ i → inr (merid b₀ i)
-  rightInv firstRow≡Susp⋁ (inr (merid b i)) = flipSquare help i
+  rightInv firstRow≡Susp⋁ (inr (merid a i)) j = h j i
     where
-    lem : cong A0□→A∨B (push b) ∙ sym (cong A0□→A∨B (push b₀))
-        ≡ push tt ∙∙ (λ i → inr ((merid b ∙ sym (merid b₀)) i)) ∙∙ sym (push tt)
-    lem = (λ k → (push tt ∙ (λ i → inr ((merid b ∙ sym (merid b₀)) i)))
-        ∙ sym ((((λ k → push tt ∙ (λ i → inr (rCancel (merid b₀) k i)))
-                ∙ sym (rUnit (push tt))) k)))
-        ∙∙ sym (assoc _ _ _)
-        ∙∙ λ i j → hcomp (λ k → λ { (i = i0) → compPath-filler' (push tt) (compPath-filler (λ i₂ → inr ((merid b ∙ (λ i₃ → merid b₀ (~ i₃))) i₂)) (sym (push tt)) k) k j
-                                    ; (j = i0) → push tt (~ k)
-                                    ; (j = i1) → push tt (~ k)})
-                          (inr ((merid b ∙ (λ i₃ → merid b₀ (~ i₃))) j))
+    h : PathP (λ i → push tt i ≡ (push tt ∙ (λ i → inr (merid b₀ i))) i)
+              (cong A0□→A∨B (cong A∨B→A0□ λ i → inr (merid a i)))
+              (λ i → inr (merid a i))
+    h = (cong-∙ A0□→A∨B (push b₀) (sym (push a))
+      ∙ cong₂ _∙_ (cong (push tt ∙_)
+                  (λ j i → inr (rCancel (merid b₀) j (~ i))) ∙ sym (rUnit (push tt)))
+                  (symDistr (push tt) (λ i → inr (φB a (~ i)))))
+      ◁ λ i j → hcomp (λ k → λ { (i = i0) → compPath-filler' (push tt)
+                                                (compPath-filler (λ i → inr (φB a i)) (sym (push tt)) k) k j
+                                 ; (i = i1) → inr (merid a j)
+                                 ; (j = i0) → push tt (i ∨ ~ k)
+                                 ; (j = i1) → compPath-filler' (push tt) (λ i → inr (merid b₀ i)) k i})
+                       (inr (compPath-filler (merid a) (sym (merid b₀)) (~ i) j))
 
-    help : PathP (λ i → Path A∨B (push tt i) ((push tt ∙ λ i → inr (merid b₀ i)) i))
-                 (cong (A0□→A∨B) (cong (A∨B→A0□) λ i → inr (merid b i)))
-                 λ i → inr (merid b i)
-    help = (cong-∙ A0□→A∨B (push b) (sym (push b₀)) ∙ lem)
-         ◁ λ i j → hcomp (λ k → λ { (i = i1) → inr (merid b j)
-                                    ; (j = i0) → push tt (i ∨ ~ k)
-                                    ; (j = i1) → compPath-filler' (push tt) (λ i₂ → inr (merid b₀ i₂)) k i})
-                          (inr (compPath-filler (merid b) (sym (merid b₀)) (~ i) j))
-  rightInv firstRow≡Susp⋁ (push a i) j = push tt (j ∧ i)
+  rightInv firstRow≡Susp⋁ (push a i) j = push tt (i ∧ j)
   leftInv firstRow≡Susp⋁ (inl x) = refl
-  leftInv firstRow≡Susp⋁ (inr x) = push b₀
+  leftInv firstRow≡Susp⋁ (inr tt) = push b₀
   leftInv firstRow≡Susp⋁ (push b i) j = help j i
     where
-    lem : cong (inv firstRow≡Susp⋁) (push tt ∙ (λ i₁ → inr (φB b i₁)))
-        ≡ push b ∙ sym (push b₀)
-    lem = cong-∙ (inv firstRow≡Susp⋁) (push tt) (λ i₁ → inr (φB b i₁))
-       ∙∙ sym (lUnit _)
-       ∙∙ cong-∙ ((inv firstRow≡Susp⋁ ∘ inr)) (merid b) (sym (merid b₀))
-       ∙∙ cong ((push b ∙ sym (push b₀)) ∙_) (cong sym (rCancel (push b₀)))
-       ∙∙ sym (rUnit _)
-
-    help : PathP (λ i → Path (A0□ whitehead3x3) (inl north) (push b₀ i))
-                 (λ i → inv firstRow≡Susp⋁ (fun firstRow≡Susp⋁ (push b i)))
+    help : PathP (λ i → inl north ≡ push b₀ i)
+                 (cong A∨B→A0□ (cong A0□→A∨B (push b)))
                  (push b)
-    help =
-        lem
-      ◁ λ i j → compPath-filler (push b) (sym (push b₀)) (~ i) j
+    help = (cong-∙ A∨B→A0□ (push tt) (λ i → inr (φB b (~ i)))
+         ∙ (λ i → lUnit (sym (cong-∙ (A∨B→A0□ ∘ inr) (merid b) (sym (merid b₀)) i)) (~ i))
+         ∙ cong sym (cong ((push b₀ ∙ sym (push b)) ∙_) (cong sym (rCancel (push b₀))))
+         ∙ cong sym (sym (rUnit (push b₀ ∙ sym (push b)))))
+         ◁ λ i j → compPath-filler' (push b₀) (sym (push b)) (~ i) (~ j)
 
   2ndRow≡join : Iso (A2□ whitehead3x3) (join A B)
   fun 2ndRow≡join (inl x) = inr x
@@ -345,18 +334,6 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
     rightInv theIso = fst l-r-cancel
     leftInv theIso = snd (l-r-cancel)
 
-  Pushout-fst-fst : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
-                  → (b₀ : B)
-                  → Iso (Pushout {A = A × B} fst fst) A
-  fun (Pushout-fst-fst b₀) (inl x) = x
-  fun (Pushout-fst-fst b₀) (inr x) = x
-  fun (Pushout-fst-fst b₀) (push a i) = fst a
-  inv (Pushout-fst-fst b₀) x = inl x
-  rightInv (Pushout-fst-fst b₀) x = refl
-  leftInv (Pushout-fst-fst b₀) (inl x) = refl
-  leftInv (Pushout-fst-fst b₀) (inr x) = push (x , b₀)
-  leftInv (Pushout-fst-fst b₀) (push (a , b) i) j = {!!}
-
   PushoutPushout : Iso (Pushout {A = Susp A × B} fst fst)
                        (Susp A × Susp B)
   PushoutPushout = theIso
@@ -435,131 +412,96 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
       W-AB (λ _ → tt)
       (isoToEquiv 2ndRow≡join) (isoToEquiv firstRow≡Susp⋁)
       isContr-3rdRow'
-      (funExt {!!})
+      (funExt h)
       λ _ _ → tt
     where
-    hej : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (l : x ≡ x) (r : y ≡ y)
-        → PathP (λ i → p i ≡ p (~ i))
-                 (l ∙∙ p ∙∙ r)
-                 (sym r ∙∙ sym p ∙∙ sym l)
-    hej {x = x} =
-      J (λ y p → (l : x ≡ x) (r : y ≡ y)
-        → PathP (λ i → p i ≡ p (~ i))
-                 (l ∙∙ p ∙∙ r)
-                 (sym r ∙∙ sym p ∙∙ sym l))
-        λ l r → {!!}
-
     h : (x : A2□ whitehead3x3)
       → A0□→A∨B (f1□ whitehead3x3 x) ≡ W-AB (fun 2ndRow≡join x)
     h (inl x) = (λ i → inl (merid a₀ (~ i)))
     h (inr x) = refl
-    h (push (a , b) i) j = {!!} -- help j i
+    h (push (a , b) i) j = help j i
+      where
+      help : PathP (λ i → Path (Pushout (λ _ → north) (λ _ → north))
+                                ((inl (merid a₀ (~ i))))
+                                (inr north))
+                   (cong A0□→A∨B (cong (f1□ whitehead3x3) (push (a , b))))
+                   (cong W-AB (cong (fun 2ndRow≡join) (push (a , b))))
+      help = (cong-∙∙ A0□→A∨B (λ i → inl (merid a (~ i))) (push b) refl
+            ∙ λ j → (λ i₂ → inl (merid a (~ i₂)))
+                   ∙∙ compPath-filler (push tt) (λ i → inr (φB b (~ i))) (~ j)
+                   ∙∙ λ i → inr (φB b (~ i ∧ j)))
+           ◁ ((λ j → (λ i → inl (sym (compPath-filler (merid a) (sym (merid a₀)) j) i)) ∙∙ push tt ∙∙ λ i → inr (φB b (~ i)))
+           ▷ (λ _ → (λ i → inl (φA a (~ i))) ∙∙ push tt ∙∙ λ i → inr (φB b (~ i))))
 
---       where
---       lem : PathP (λ i → Path (Pushout (λ _ → north) (λ _ → north))
---                                 ((inl (merid a₀ (~ i))))
---                                 (inr north))
---                   ((λ i → inl (merid a (~ i))) ∙ push tt ∙ (λ i → inr (φB b i)))
---                   (((λ i → inl (φA a (~ i))) ∙∙ (push tt) ∙∙ (λ i → inr (φB b (~ i)))))
---       lem i j = {!!}
+  combineIso : Iso (Susp A × Susp B) (Pushout W-AB λ _ → tt)
+  combineIso = compIso (invIso PushoutColumn)
+                       (compIso (3x3-Iso whitehead3x3) PushoutRows₁)
 
---       help : PathP (λ i → Path (Pushout (λ _ → north) (λ _ → north))
---                                 ((inl (merid a₀ (~ i))))
---                                 (inr north))
---                    (cong A0□→A∨B (cong (f1□ whitehead3x3) (push (a , b))))
---                    (cong W-AB (cong (fun 2ndRow≡join) (push (a , b))))
---       help =
---           (cong-∙∙ A0□→A∨B (λ i → inl (merid a (~ i))) (push b) refl
---           ∙ (λ i → (λ i → inl (merid a (~ i))) ∙∙ push tt ∙ (λ i → inr (φB b i)) ∙∙ refl)
---           ∙ sym (compPath≡compPath' ((λ i → inl (merid a (~ i))))
---                                     (push tt ∙ (λ i → inr (φB b i)))))
---         ◁ lem 
+  -Susp : ∀ {ℓ} {A : Type ℓ} → Susp A → Susp A
+  -Susp north = south
+  -Susp south = north
+  -Susp (merid a i) = merid a (~ i)
 
--- --     h (inl x) = (λ i → inl (merid a₀ (~ i))) ∙ push tt
--- --     h (inr x) = sym (push tt)
--- --     h (push (a , b) i) j = help j i
--- --       where
--- --       lem : PathP (λ i → Path (Pushout (λ _ → north) (λ _ → north))
--- --                                 (((λ i → inl (merid a₀ (~ i))) ∙ push tt) i)
--- --                                 (push tt (~ i)))
--- --                   ((λ i₁ → inl (merid a (~ i₁))) ∙ push tt ∙ (λ i → inr (φB b i)))
--- --                   ((λ i → inr (φB b (~ i))) ∙∙ sym (push tt) ∙∙ (λ i → inl (φA a (~ i))))
--- --       lem i j =
--- --         hcomp (λ k → λ { (i = i0) → ((λ i₁ → inl ((compPath-filler (merid a) (sym (merid a₀))  (~ k)) (~ i₁))) ∙ push tt ∙ (λ i → inr (φB b i))) j
--- --                         ; (i = i1) → ((λ i → inr (φB b (~ i))) ∙∙ sym (push tt) ∙∙ (λ i → inl (φA a (~ i)))) j
--- --                         ; (j = i0) → compPath-filler'
--- --                                        (λ i → inl (merid a₀ (~ i)))
--- --                                        (push tt) k i
--- --                         ; (j = i1) → push tt (~ i)})
--- --               {!!}
+  -Susp² : ∀ {ℓ} {A : Type ℓ} (x : Susp A) → -Susp (-Susp x) ≡ x
+  -Susp² north = refl
+  -Susp² south = refl
+  -Susp² (merid a i) = refl
 
--- --       help : PathP (λ i → Path (Pushout (λ _ → north) (λ _ → north))
--- --                                 (((λ i → inl (merid a₀ (~ i))) ∙ push tt) i)
--- --                                 (push tt (~ i)))
--- --                    (cong A0□→A∨B (cong (f1□ whitehead3x3) (push (a , b))))
--- --                    (cong W-AB (cong (fun 2ndRow≡join) (push (a , b))))
--- --       help = (cong-∙∙ A0□→A∨B (λ i → inl (merid a (~ i))) (push b) refl
--- --            ∙∙ (λ i → (λ i₁ → inl (merid a (~ i₁)))
--- --                    ∙∙ ((push tt ∙ λ i → inr (φB b i)))
--- --                    ∙∙ refl)
--- --            ∙∙ sym (compPath≡compPath' (λ i₁ → inl (merid a (~ i₁)))
--- --                                       (push tt ∙ λ i → inr (φB b i))))
--- --            ◁ (lem
--- --            ▷ sym ((λ i → sym ((λ i → inl (φA a i))
--- --                        ∙∙ push tt
--- --                        ∙∙ λ i → inr (φB b i)))))
--- -- {-
--- -- PathP
--- --       (λ i₁ →
--- --          hcomp (doubleComp-faces (λ _ → inl south) (push tt) i₁)
--- --          (inl (merid a₀ (~ i₁)))
--- --          ≡ push tt (~ i₁))
--- --       ((λ i₁ → inl (merid a (~ i₁))) ∙ push tt ∙ (λ i₁ → inr (φB b i₁)))
--- --       (λ i₁ →
--- --          (sym (λ i₂ → inl (φA a i₂)) ∙∙ sym (push tt) ∙∙ sym (λ i₂ → inr (φB b i₂)))
--- --          i₁)
--- -- -}
+  -SuspIso : ∀ {ℓ} {A : Type ℓ} → Iso (Susp A) (Susp A)
+  fun -SuspIso = -Susp
+  inv -SuspIso = -Susp
+  rightInv -SuspIso = -Susp²
+  leftInv -SuspIso = -Susp²
 
--- --   3x3Iso-inst : Iso (A□○ whitehead3x3) (A○□ whitehead3x3)
--- --   3x3Iso-inst = 3x3-Iso whitehead3x3
+  correctIso : Iso (Susp A × Susp B) (Pushout W-AB λ _ → tt)
+  correctIso = compIso (Σ-cong-iso-snd (λ _ → -SuspIso)) combineIso
 
--- -- -- mainPush : Pushout (λ _ → tt) (W {A = A} {B = B})
--- -- --          → Susp (typ A) × Susp (typ B)
--- -- -- mainPush (inl x) = north , north
--- -- -- mainPush (inr x) = ⋁-fun x
--- -- -- mainPush {A = A} {B = B} (push a i) = help a i
--- -- --   where
--- -- --   thePP : (a : typ A) (b : typ B)
--- -- --     → PathP (λ i₁ → (north , north) ≡ ⋁-fun (W {A = A} {B = B} (push a b i₁)))
--- -- --       (λ i₁ → φ A a (~ i₁) , north) (λ i → north , φ B b i)
--- -- --   thePP a b i j =
--- -- --     ⋁-fun (doubleCompPath-filler
--- -- --             (λ i → inl (φ A a i))
--- -- --             (push tt)
--- -- --              (λ i → inr (φ B b i)) j i)
--- -- --   help : (a : join (typ A) (typ B))
--- -- --       → (north , north) ≡ ⋁-fun (W {A = A} {B = B} a)
--- -- --   help =
--- -- --     join-elim
--- -- --       (λ a i → φ A a (~ i) , north)
--- -- --       (λ b i → north , φ B b i)
--- -- --       thePP
+  correctIsoId : Path (A∨B → Susp A × Susp B)
+                      (Iso.inv correctIso ∘ inl)
+                      ⋁-fun
+  correctIsoId =
+    funExt λ { (inl x) → ΣPathP (refl , (sym (merid b₀)))
+             ; (inr north) → ΣPathP (refl , (sym (merid b₀)))
+             ; (inr south) → refl
+             ; (inr (merid a i)) j → help a j i
+             ; (push a i) j → north , (merid b₀ (~ j))}
+    where
+    lem2 : (b : B) → cong ((λ x → fun PushoutPushout
+                       (fun PushoutColumn₁ (backward-l whitehead3x3
+                         x)))) (push b)
+                         ≡ (λ i → north , φB b i)
+    lem2 b = (λ _ → cong (λ x → fun PushoutPushout
+                       (fun PushoutColumn₁ x)) (push (inl b)))
+          ∙∙ cong (cong (fun PushoutPushout)) (sym (rUnit (push (north , b)))) 
+          ∙∙ refl
 
--- -- -- ×→join : {!!}
--- -- -- ×→join = {!!}
+    help : (a : B) → PathP (λ i → (north , merid b₀ (~ i)) ≡ (north , south))
+                 ((cong (λ x → fun (Σ-cong-iso-snd (λ _ → -SuspIso)) (fun PushoutPushout
+                       (fun PushoutColumn₁ (backward-l whitehead3x3
+                         (A∨B→A0□ (inr x)))))) (merid a)))
+                 λ i → north , merid a i
+    help a = cong (cong (fun (Σ-cong-iso-snd (λ _ → -SuspIso))))
+                  ((cong-∙ ((λ x → fun PushoutPushout
+                       (fun PushoutColumn₁ (backward-l whitehead3x3
+                         x)))) (push b₀) (sym (push a))
+        ∙∙ cong₂ _∙_ (lem2 b₀ ∙ (λ j i → north , rCancel (merid b₀) j i))
+                     (cong sym (lem2 a))
+        ∙∙ sym (lUnit (λ i₁ → north , φB a (~ i₁)))))
+        ∙ (λ j i → north , cong-∙ -Susp (merid a) (sym (merid b₀)) j (~ i) )
+         ◁ λ i j → north , compPath-filler (sym (merid a)) (merid b₀) (~ i) (~ j)
 
--- -- -- ×→pushout : Susp (typ A) × Susp (typ B)
--- -- --           → Pushout (λ _ → tt) (W {A = A} {B = B})
--- -- -- ×→pushout {A = A} {B = B} (north , y) = inr (inr y)
--- -- -- ×→pushout {A = A} {B = B} (south , y) = inr (inr y)
--- -- -- ×→pushout {A = A} {B = B} (merid a i , north) = ({!merid a!} ∙∙ {!!} ∙∙ {!!}) i
--- -- -- ×→pushout {A = A} {B = B} (merid a i , south) = {!!}
--- -- -- ×→pushout {A = A} {B = B} (merid a i , merid a₁ i₁) = {!!}
-
--- -- -- PushoutIso : {!!}
--- -- -- PushoutIso = {!!}
-
--- -- -- WH : (n m : ℕ) → S₊ (suc (n + m)) → S₊∙ (suc n) ⋁ S₊∙ (suc m)
--- -- -- WH zero m p = inr p
--- -- -- WH (suc n) zero p = inl (subst (λ x → S₊ (2 + x)) (+-comm n zero) p)
--- -- -- WH (suc n) (suc m) p = {!WH n (suc m) ?!}
+[_∣_]' : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+       → (S₊∙ (suc n) →∙ X)
+       → (S₊∙ (suc m) →∙ X)
+       → S₊∙ (suc (n + m)) →∙ X
+fst ([_∣_]' {X = X} {n = n} {m = m} f g) x =
+  help {X = X} f g {!!}
+  where
+  help : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {X : Pointed ℓ''}
+       → A →∙ X
+       → B →∙ X
+       → (A ⋁ B → typ X)
+  help f g (inl x) = fst f x
+  help f g (inr x) = fst g x
+  help f g (push a i) = (snd f ∙ sym (snd g)) i
+snd ([_∣_]' {n = n} {m = m} f g) = {!joinIso!}
