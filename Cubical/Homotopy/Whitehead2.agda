@@ -495,7 +495,7 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
        → (S₊∙ (suc m) →∙ X)
        → S₊∙ (suc (n + m)) →∙ X
 fst ([_∣_]' {X = X} {n = n} {m = m} f g) x =
-  help {X = X} f g {!!}
+  help {X = X} f g {!W-AB (S₊ n) (S₊ m) (ptSn _) (ptSn _) ?!}
   where
   help : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {X : Pointed ℓ''}
        → A →∙ X

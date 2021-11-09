@@ -68,12 +68,12 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
   A40 whitehead3x3 = B
   A42 whitehead3x3 = B
   A44 whitehead3x3 = Unit
-  f10 whitehead3x3 = λ _ → south
+  f10 whitehead3x3 _ = south
   f12 whitehead3x3 = snd
-  f14 whitehead3x3 = λ _ → tt
+  f14 whitehead3x3 _ = tt
   f30 whitehead3x3 = idfun B
   f32 whitehead3x3 = snd
-  f34 whitehead3x3 = λ _ → tt
+  f34 whitehead3x3 _ = tt
   f01 whitehead3x3 _ = north
   f21 whitehead3x3 = snd
   f41 whitehead3x3 = idfun B
@@ -267,7 +267,7 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
                (f₂ : A₂ → B₂) (g₂ : A₂ → C₂)
                (id1 : (fst BIso) ∘ f₁ ≡ f₂ ∘ (fst AIso))
                (id2 : (fst CIso) ∘ g₁ ≡ g₂ ∘ (fst AIso))
-               → cType₁ AIso BIso CIso f₁ g₁ f₂ g₂ id1 id2 
+               → cType₁ AIso BIso CIso f₁ g₁ f₂ g₂ id1 id2
 
   F-G-cancel : {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
                (AIso : A₁ ≃ A₂) (BIso : B₁ ≃ B₂) (CIso : C₁ ≃ C₂)
@@ -473,7 +473,7 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
 --           ∙ (λ i → (λ i → inl (merid a (~ i))) ∙∙ push tt ∙ (λ i → inr (φB b i)) ∙∙ refl)
 --           ∙ sym (compPath≡compPath' ((λ i → inl (merid a (~ i))))
 --                                     (push tt ∙ (λ i → inr (φB b i)))))
---         ◁ lem 
+--         ◁ lem
 
 -- --     h (inl x) = (λ i → inl (merid a₀ (~ i))) ∙ push tt
 -- --     h (inr x) = sym (push tt)
