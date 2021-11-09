@@ -22,8 +22,12 @@ When preparing a PR here are some general guidelines:
   instead have informative names and put pointers to the theorems and
   lemmas in comments above the definition.
 
-- At the moment there is no global naming scheme for the library, so
-  just use your best judgment when naming things.
+- No global naming scheme for the library was enforced in the past, but new
+  contributions should only use names in camel-case. Names of types should
+  start with a capital letter and names of terms which are not types should
+  start with a lower case letter. However, for names of types that encode a
+  property (e.g. `isSet`), we prefer lowercase names. But this is not a
+  hard-and-fast rule.
 
 - Use `private variable` to quantify over universe levels at the top
   of the file. All definitions should be maximally universe
