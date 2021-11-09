@@ -7,6 +7,8 @@ open import Cubical.Foundations.Equiv.Fiberwise
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Univalence
+
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Nat
@@ -59,11 +61,11 @@ crisp♭-Induction C N (a ^♭) = N a
         → (@♭ f : A → B)
         → (x : ♭ A) → counit (♭map f x) ≡ f (counit x)
 ♭nat f (x ^♭) = refl
-
+{-
 ♭congCounit : {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ}
         → (@♭ x y : A) → (p : ♭ (x ≡ y)) → x ^♭ ≡ y ^♭
 ♭congCounit x y (q ^♭) i = {!(q i) ^♭!}
-
+-}
 isCrisplyDiscrete : {@♭ ♭ℓ : Level}
                     → (@♭ A : Type ♭ℓ) → Type ♭ℓ
 isCrisplyDiscrete A = isEquiv (counit {A = A})
@@ -92,8 +94,41 @@ module ♭Sigma {@♭ ♭ℓ ♭ℓ' : Level} {@♭ A : Type ♭ℓ} (@♭ C : A
 module ♭Equalities {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ}  where
   {-
     Theorem 6.1 (Shulman's real cohesion)
-    (done in a different way, avoiding (non-crisp) interval variables)
+    (done in a hacky way, avoiding (non-crisp) interval variables)
   -}
+
+  private
+    data _≡'_ {A : Type ℓ} : A → A → Type ℓ where
+      refl' : {x : A} → x ≡' x
+
+    ♭≡'→≡'♭ : {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ} (@♭ u v : A) → ♭ (u ≡' v) → (u ^♭) ≡' (v ^♭)
+    ♭≡'→≡'♭ u _ (refl' ^♭) = refl'
+
+    ≡'♭→♭≡' : {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ} (@♭ u v : A) → (u ^♭) ≡' (v ^♭) → ♭ (u ≡' v)
+    ≡'♭→♭≡' u _ refl' = refl' ^♭
+
+    ≡'♭≃♭≡' : {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ} (@♭ u v : A) → (u ^♭) ≡' (v ^♭) ≃ ♭ (u ≡' v)
+    ≡'♭≃♭≡' u v = isoToEquiv (iso (≡'♭→♭≡' u v) (♭≡'→≡'♭ u v) (λ {(refl' ^♭) → refl}) λ {refl' → refl})
+
+    ♭≡'→♭≡ : {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ} (@♭ u v : A) → ♭ (u ≡' v) → ♭ (u ≡ v)
+    ♭≡'→♭≡ u v (refl' ^♭) = refl ^♭
+
+    ≡'≃≡ : {A : Type ℓ} (x y : A) → (x ≡ y) ≃ (x ≡' y)
+    ≡'≃≡ = fundamentalTheoremOfId _≡'_ (λ _ → refl') (λ z → (z , refl') , λ {(_ , refl') → refl})
+
+    ♭≡' : {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ} {@♭ B : Type ♭ℓ}
+       → (@♭ p : A ≡' B) → ♭ A ≡' ♭ B
+    ♭≡' refl' = refl'
+
+    ♭≃ : {@♭ ♭ℓ : Level} {@♭ A B : Type ♭ℓ} → (@♭ e : A ≃ B) → ♭ A ≃ ♭ B
+    ♭≃ e = pathToEquiv ((fst (invEquiv (≡'≃≡ _ _))) (♭≡' ((fst (≡'≃≡ _ _)) (ua e))))
+
+    ♭≡'≃♭≡ : {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ} (@♭ u v : A) → ♭ (u ≡ v) ≃ ♭ (u ≡' v)
+    ♭≡'≃♭≡ u v = ♭≃ (≡'≃≡ u v)
+
+  ≡♭≃♭≡ : {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ} (@♭ u v : A) → (u ^♭ ≡ v ^♭) ≃ ♭ (u ≡ v)
+  ≡♭≃♭≡ u v = compEquiv (≡'≃≡ (u ^♭) (v ^♭)) (compEquiv (≡'♭≃♭≡' u v) (invEquiv (♭≡'≃♭≡ u v) ))
+
   Eq♭ : ♭ A → ♭ A → Type ♭ℓ
   Eq♭ (u ^♭) (v ^♭) = ♭ (u ^♭ ≡ v ^♭)
 
