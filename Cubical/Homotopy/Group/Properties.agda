@@ -28,6 +28,7 @@ open import Cubical.Homotopy.Connected
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
@@ -543,64 +544,34 @@ hom-botᵣ⁻' {A = A} n f g =
     hom-botᵣ⁻ {A = A} (suc n) f g
   ∙ sym (∙Π≡invComp {A = A} _ (botᵣ⁻ {A = A} _ f) (botᵣ⁻ {A = A} _ g))
 
+hom-botᵣ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+  → (f g : S₊∙ (suc n) →∙ Ω (Susp∙ (typ A)))
+  → botᵣ {A = A} (suc n) (∙Π f g)
+  ≡ ∙Π (botᵣ {A = A} (suc n) f) (botᵣ {A = A} (suc n) g)
+hom-botᵣ {A = A} n f g =
+  morphLemmas.isMorphInv ∙Π ∙Π (botᵣ⁻ {A = A} (suc n))
+    (hom-botᵣ⁻' {A = A} n)
+    (botᵣ {A = A} (suc n))
+    (leftInv (botᵣIso {A = A} (suc n)))
+    (rightInv (botᵣIso {A = A} (suc n)))
+    f g
 
-hom-rMap : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
-  → (p q : typ ((Ω^ (suc (suc n))) (Susp∙ (typ A))))
-  → rMap (suc n) {A = A} (p ∙ q)
-   ≡ ∙Π (rMap (suc n) {A = A} p) (rMap (suc n) {A = A} q)
-hom-rMap {A = A} n p q =
-  cong (lMap (suc n) {A = Ω (Susp∙ (typ A))})
-    (morphLemmas.isMorphInv _∙_ _∙_
-      (inv (flipΩIso (suc n))) (flipΩIsopres· n)
-      (fun (flipΩIso (suc n)))
-      (leftInv (flipΩIso (suc n))) (rightInv (flipΩIso (suc n)))
-      p q)
-  ∙ isHom-lMap _ (fun (flipΩIso (suc n)) p) (fun (flipΩIso (suc n)) q)
-
-isHom-IsoΩSphereMap' : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
-     (p q : typ (Ω ((Ω^ n) (Susp∙ (typ A)))))
-  → fun (IsoΩSphereMap' {A = A} n) (p ∙ q)
-   ≡ ∙Π {n = (suc n)} (fun (IsoΩSphereMap' {A = A} n) p)
-                      (fun (IsoΩSphereMap' {A = A} n) q)
-isHom-IsoΩSphereMap' {A = A} zero p q =
-  (cong (botᵣ {A = A} 0)
-    (cong ((lMap 0 {A = Ω (Susp∙ (typ A))}))
-      (transportRefl (p ∙ q))))
-  ∙ ΣPathP (funExt (λ { base → refl
-                      ; (loop i) j
-                      → lem j i})
-           , refl)
-  where
-  lem : p ∙ q ≡ (cong (fst (fun (IsoΩSphereMap' {A = A} zero) p)) loop ∙ refl)
-              ∙ (cong (fst (fun (IsoΩSphereMap' {A = A} zero) q)) loop ∙ refl)
-  lem = cong₂ _∙_
-         (sym (transportRefl p)
-         ∙ rUnit (cong (fst (fun (IsoΩSphereMap' {A = A} zero) p)) loop))
-         (sym (transportRefl q)
-         ∙ rUnit (cong (fst (fun (IsoΩSphereMap' {A = A} zero) q)) loop))
-isHom-IsoΩSphereMap' {A = A} (suc n) p q =
-     cong (botᵣ {A = A} (suc n) ∘ lMap (suc n) {A = Ω (Susp∙ (typ A))})
-          (morphLemmas.isMorphInv
-            _∙_ _∙_
-            (inv (flipΩIso (suc n)))
-            (flipΩIsopres· n)
-            (fun (flipΩIso (suc n)))
-            (leftInv (flipΩIso (suc n)))
-            (rightInv (flipΩIso (suc n))) p q)
-  ∙ (cong (botᵣ {A = A} (suc n))
-          (isHom-lMap _ {A = Ω (Susp∙ (typ A))}
-            (fun (flipΩIso (suc n)) p) (fun (flipΩIso (suc n)) q))
-   ∙ morphLemmas.isMorphInv ∙Π ∙Π (botᵣ⁻ {A = A} (suc n))
-        (hom-botᵣ⁻' {A = A} n)
-        (botᵣ {A = A} (suc n))
-        (leftInv (botᵣIso {A = A} (suc n)))
-        (rightInv (botᵣIso {A = A} (suc n)))
-        (lMap (suc n) (fun (flipΩIso (suc n)) p))
-        (lMap (suc n) (fun (flipΩIso (suc n)) q)))
+isHom-IsoΩSphereMapᵣ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+                    (p q : typ ((Ω^ (2 + n)) (Susp∙ (typ A))))
+                 → Iso.fun (IsoΩSphereMapᵣ (suc n)) (p ∙ q)
+                  ≡ ∙Π (Iso.fun (IsoΩSphereMapᵣ (suc n)) p)
+                       (Iso.fun (IsoΩSphereMapᵣ (suc n)) q)
+isHom-IsoΩSphereMapᵣ {A = A} n p q =
+     cong (botᵣ {A = A} (suc n))
+       (cong (lMap (suc n) {A = Ω (Susp∙ (typ A))})
+         (flipΩIsopres· n p q)
+     ∙ isHom-lMap n (fun (flipΩIso (suc n)) p)
+                    (fun (flipΩIso (suc n)) q))
+     ∙ hom-botᵣ n _ _
 
 suspMapΩ→hom : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p q : typ ((Ω^ (suc n)) A))
-  → suspMapΩ∙ (suc n) .fst (p ∙ q)
-   ≡ suspMapΩ∙ (suc n) .fst p ∙ suspMapΩ∙ (suc n) .fst q
+  → suspMapΩ (suc n) (p ∙ q)
+   ≡ suspMapΩ (suc n) p ∙ suspMapΩ (suc n) q
 suspMapΩ→hom {A = A} n p q =
      cong (sym (snd (suspMapΩ∙ {A = A} n)) ∙∙_∙∙ snd (suspMapΩ∙ {A = A} n))
           (cong-∙ (fst (suspMapΩ∙ {A = A} n)) p q)
@@ -617,97 +588,84 @@ suspMapΩ→hom {A = A} n p q =
              ∙ cong₂ _∙_ (rUnit q) (rUnit s)
 
 private
-  transpLemTyp : ∀ {ℓ} → {A1 A2 B1 B2 : Type ℓ}
-               (AB1 : A1 ≡ B1) (AB2 : A2 ≡ B2)
-            → (f : A1 → A2) (g : B1 → B2)
-            → PathP (λ i → AB1 i → AB2 i) f g
-            → Type ℓ
-  transpLemTyp {ℓ} {A1} {A2} {B1} {B2} AB1 AB2 f g p =
-       (+A1 : A1 → A1 → A1)
-     → (+A2 : A2 → A2 → A2)
-     → (+B1 : B1 → B1 → B1)
-     → (+B2 : B2 → B2 → B2)
-     → ((x y : A1) → transport AB1 (+A1 x y)
-                    ≡ +B1 (transport AB1 x) (transport AB1 y))
-     → ((x y : A2) → transport AB2 (+A2 x y)
-                    ≡ +B2 (transport AB2 x) (transport AB2 y))
-     → ((x y : A1) → f (+A1 x y) ≡ +A2 (f x) (f y))
-     → ((x y : B1) → g (+B1 x y) ≡ +B2 (g x) (g y))
+  transportLem : ∀ {ℓ} {A B : Type ℓ}
+                   (_+A_ : A → A → A) (_+B_ : B → B → B)
+                 → (e : Iso A B)
+                 → ((x y : A) → fun e (x +A y) ≡ fun e x +B fun e y)
+                 → PathP (λ i → isoToPath e i → isoToPath e i → isoToPath e i)
+                         _+A_ _+B_
+  transportLem _+A_ _+B_ e hom =
+    toPathP (funExt (λ p → funExt λ q →
+         (λ i → transportRefl
+                  (fun e (inv e (transportRefl p i)
+                       +A inv e (transportRefl q i))) i)
+      ∙∙ hom (inv e p) (inv e q)
+      ∙∙ cong₂ _+B_ (rightInv e p) (rightInv e q)))
 
-  transpLem : ∀ {ℓ} → {A1 A2 B1 B2 : Type ℓ} (AB1 : A1 ≡ B1) (AB2 : A2 ≡ B2)
-            → (f : A1 → A2) (g : B1 → B2)
-            → (eq : PathP (λ i → AB1 i → AB2 i) f g)
-            → transpLemTyp AB1 AB2 f g eq
-  transpLem {ℓ} {A1} {A2} {B1} {B2} =
-    J (λ B1 AB1 → (AB2 : A2 ≡ B2)
-            → (f : A1 → A2) (g : B1 → B2)
-            → (eq : PathP (λ i → AB1 i → AB2 i) f g)
-            → transpLemTyp AB1 AB2 f g eq)
-      (J (λ B2 AB2 → (f : A1 → A2) (g : A1 → B2)
-         → (eq : PathP (λ i → A1 → AB2 i) f g)
-         → transpLemTyp refl AB2 f g eq)
-      λ f g → J (λ g p → transpLemTyp refl refl f g p)
-        λ +A1 +A2 +B1 +B2 trId1 trId2 fhom1
-        → λ x y → cong f (cong₂ +B1 (sym (transportRefl x)) (sym (transportRefl y))
-                        ∙∙ sym (trId1 x y)
-                        ∙∙ transportRefl (+A1 x y))
-                        ∙∙ fhom1 x y
-                        ∙∙ ((sym (transportRefl _) ∙ (trId2 (f x) (f y)))
-                         ∙ cong₂ +B2 (transportRefl (f x)) (transportRefl (f y))))
+  pₗ : ∀ {ℓ} (A : Pointed ℓ) (n : ℕ)
+    → typ (Ω ((Ω^ n) A)) ≡ (S₊∙ (suc n) →∙ A)
+  pₗ A n = isoToPath (IsoΩSphereMap {A = A} (suc n))
 
-suspMap→hom : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (f g : S₊∙ (suc n) →∙ A)
-  → suspMap n (∙Π f g) ≡ ∙Π (suspMap n f) (suspMap n g)
-suspMap→hom {A = A} n =
-  transpLem (Ω≡SphereMap {A = A} (suc n)) (Ω≡SphereMap' {A = A} (suc n))
-   (suspMapΩ {A = A} (suc n)) (suspMap {A = A} n)
-   (suspMap→ {A = A} n)
-   _∙_ _∙_ ∙Π ∙Π
-   (λ x y → uaβ (isoToEquiv (IsoΩSphereMap {A = A} (suc n))) (x ∙ y)
-          ∙∙ isHom-lMap n x y
-          ∙∙ cong₂ ∙Π
-              (sym (uaβ (isoToEquiv (IsoΩSphereMap {A = A} (suc n))) x))
-              (sym (uaβ (isoToEquiv (IsoΩSphereMap {A = A} (suc n))) y)))
-   (λ x y → uaβ (isoToEquiv (IsoΩSphereMap' {A = A} (suc n))) (x ∙ y)
-         ∙∙ isHom-IsoΩSphereMap' {A = A} (suc n) x y
-         ∙∙ cong₂ ∙Π
-              (sym (uaβ (isoToEquiv (IsoΩSphereMap' {A = A} (suc n))) x))
-              (sym (uaβ (isoToEquiv (IsoΩSphereMap' {A = A} (suc n))) y)))
-   (suspMapΩ→hom {A = A} n)
+  pᵣ : ∀ {ℓ} (A : Pointed ℓ) (n : ℕ)
+    → typ ((Ω^ (2 + n)) (Susp∙ (typ A)))
+     ≡ (S₊∙ (suc (suc n)) →∙ Susp∙ (typ A))
+  pᵣ A n = isoToPath (IsoΩSphereMapᵣ {A = A} (suc n))
+
+∙Π→∙ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+     → PathP (λ i → pₗ A n i → pₗ A n i → pₗ A n i) _∙_ ∙Π
+∙Π→∙ {A = A} n =
+  transportLem _∙_ ∙Π (IsoΩSphereMap {A = A} (suc n)) (isHom-lMap n)
+
+∙Π→∙ᵣ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+     → PathP (λ i → pᵣ A n i → pᵣ A n i → pᵣ A n i) _∙_ ∙Π
+∙Π→∙ᵣ {A = A} n =
+  transportLem _∙_ ∙Π (IsoΩSphereMapᵣ {A = A} (suc n)) (isHom-IsoΩSphereMapᵣ n)
+
+isHom-suspMap : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (f g : S₊∙ (suc n) →∙ A)
+           → suspMap n (∙Π f g)
+           ≡ ∙Π (suspMap n f) (suspMap n g)
+isHom-suspMap {A = A} n =
+   transport (λ i → (f g : isoToPath (IsoΩSphereMap {A = A} (suc n)) i)
+                 → Ωσ→suspMap n i (∙Π→∙ n i f g)
+                 ≡ ∙Π→∙ᵣ n i (Ωσ→suspMap n i f) (Ωσ→suspMap n i g))
+             (suspMapΩ→hom n)
+
+suspMapπ' : ∀ {ℓ} (n : ℕ) {A : Pointed ℓ}
+  → π' (suc n) A
+  → π' (suc (suc n)) (Susp∙ (typ A))
+suspMapπ' n = sMap (suspMap n)
+
+suspMapπ'Hom : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+  → GroupHom (π'Gr n A) (π'Gr (suc n) (Susp∙ (typ A)))
+fst (suspMapπ'Hom {A = A} n) = suspMapπ' n
+snd (suspMapπ'Hom {A = A} n) =
+  makeIsGroupHom (sElim2 (λ _ _ → isSetPathImplicit)
+    λ f g → cong ∣_∣₂ (isHom-suspMap n f g))
+
 
 private
   isConnectedPres : ∀ {ℓ} {A : Pointed ℓ} (con n : ℕ)
                   → isConnectedFun con (suspMapΩ∙ {A = A} (suc n) .fst)
                   → isConnectedFun con (suspMap {A = A} n)
   isConnectedPres {A = A} con n hyp =
-    transport (λ i → isConnectedFun con (suspMap→ {A = A} n i)) hyp
+    transport (λ i → isConnectedFun con (Ωσ→suspMap {A = A} n i)) hyp
 
 isConnectedSuspMap : (n m : ℕ)
   → isConnectedFun ((m + suc m) ∸ n) (suspMap {A = S₊∙ (suc m)} n)
 isConnectedSuspMap n m =
   isConnectedPres _ _ (suspMapΩ-connected m (suc n) (sphereConnected (suc m)))
 
-suspMapπ' : (n m : ℕ)
-  → π' (suc n) (S₊∙ (suc m))
-  → π' (suc (suc n)) (S₊∙ (suc (suc m)))
-suspMapπ' n m = sMap (suspMap {A = S₊∙ (suc m)} n)
-
-suspMapHom : (n m : ℕ)
-  → GroupHom (π'Gr n (S₊∙ (suc m)))
-              (π'Gr (suc n) (S₊∙ (suc (suc m))))
-fst (suspMapHom n m) = suspMapπ' n m
-snd (suspMapHom n m) =
-  makeIsGroupHom (sElim2 (λ _ _ → isSetPathImplicit)
-    λ f g → cong ∣_∣₂ (suspMap→hom n f g))
-
-isSurjectiveSuspMap : (n : ℕ) → isSurjective (suspMapHom (2 + n) (suc n))
+isSurjectiveSuspMap : (n : ℕ) → isSurjective (suspMapπ'Hom {A = S₊∙ (2 + n)} (2 + n))
 isSurjectiveSuspMap n =
   sElim (λ _ → isProp→isSet squash)
-        λ f → trRec (subst (λ x → isOfHLevel x (isInIm (suspMapHom (2 + n) (suc n)) ∣ f ∣₂))
+    λ f →
+      trRec
+        ((subst (λ x → isOfHLevel x (isInIm (suspMapπ'Hom (2 + n)) ∣ f ∣₂))
                       (sym (snd (lem n n)))
-                      (isProp→isOfHLevelSuc {A = isInIm (suspMapHom (2 + n) (suc n)) ∣ f ∣₂}
-                      (fst (lem n n)) squash))
-                     (λ p → ∣ ∣ fst p ∣₂ , (cong ∣_∣₂ (snd p)) ∣)
-               (fst (isConnectedSuspMap (2 + n) (suc n) f))
+                      (isProp→isOfHLevelSuc {A = isInIm (suspMapπ'Hom (2 + n)) ∣ f ∣₂}
+                      (fst (lem n n)) squash)))
+        (λ p → ∣ ∣ fst p ∣₂ , (cong ∣_∣₂ (snd p)) ∣)
+        (fst (isConnectedSuspMap (2 + n) (suc n) f))
   where
   lem : (m n : ℕ) → Σ[ x ∈ ℕ ] ((m + suc (suc n) ∸ suc n) ≡ suc x)
   lem zero zero = 0 , refl

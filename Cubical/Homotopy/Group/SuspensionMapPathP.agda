@@ -61,6 +61,48 @@ open IsSemigroup
 open IsMonoid
 open GroupStr
 
+flipΩPath : {ℓ : Level} {A : Pointed ℓ} (n : ℕ)
+                → ((Ω^ (suc n)) A) ≡ (Ω^ n) (Ω A)
+flipΩPath {A = A} zero = refl
+flipΩPath {A = A} (suc n) = cong Ω (flipΩPath {A = A} n)
+
+flipΩIso : {ℓ : Level} {A : Pointed ℓ} (n : ℕ)
+              → Iso (fst ((Ω^ (suc n)) A)) (fst ((Ω^ n) (Ω A)))
+flipΩIso {A = A} n = pathToIso (cong fst (flipΩPath n))
+
+flipΩIso⁻pres· : {ℓ : Level} {A : Pointed ℓ} (n : ℕ)
+                      → (f g : fst ((Ω^ (suc n)) (Ω A)))
+                      → inv (flipΩIso (suc n)) (f ∙ g)
+                      ≡ (inv (flipΩIso (suc n)) f)
+                      ∙ (inv (flipΩIso (suc n)) g)
+flipΩIso⁻pres· {A = A} n f g i =
+    transp (λ j → flipΩPath {A = A} n (~ i ∧ ~ j) .snd
+                 ≡ flipΩPath n (~ i ∧ ~ j) .snd) i
+                  (transp (λ j → flipΩPath {A = A} n (~ i ∨ ~ j) .snd
+                 ≡ flipΩPath n (~ i ∨ ~ j) .snd) (~ i) f
+                 ∙ transp (λ j → flipΩPath {A = A} n (~ i ∨ ~ j) .snd
+                 ≡ flipΩPath n (~ i ∨ ~ j) .snd) (~ i) g)
+
+flipΩIsopres· : {ℓ : Level} {A : Pointed ℓ} (n : ℕ)
+                      → (f g : fst (Ω ((Ω^ (suc n)) A)))
+                      → fun (flipΩIso (suc n)) (f ∙ g)
+                      ≡ (fun (flipΩIso (suc n)) f)
+                      ∙ (fun (flipΩIso (suc n)) g)
+flipΩIsopres· n =
+  morphLemmas.isMorphInv _∙_ _∙_
+    (inv (flipΩIso (suc n)))
+    (flipΩIso⁻pres· n)
+    (fun (flipΩIso (suc n)))
+    (Iso.leftInv (flipΩIso (suc n)))
+    (Iso.rightInv (flipΩIso (suc n)))
+
+flipΩrefl : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+  → fun (flipΩIso {A = A} (suc n)) refl ≡ refl
+flipΩrefl {A = A} n j =
+  transp (λ i₁ → fst (Ω (flipΩPath {A = A} n ((i₁ ∨ j)))))
+         j (snd (Ω (flipΩPath n j)))
+
+
 -- Solves some termination issues
 private
   +nInd : ∀ {ℓ} {P : ℕ → Type ℓ}
@@ -72,6 +114,22 @@ private
   +nInd 0c 1c indc (suc zero) = 1c
   +nInd {P = P} 0c 1c indc (suc (suc n)) =
     indc n (+nInd {P = P} 0c 1c indc (suc n))
+
+-- move to loop
+Ω^→ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
+  → (A →∙ B) → ((Ω^ n) A →∙ (Ω^ n) B)
+Ω^→ zero f = f
+Ω^→ (suc n) f = Ω→ (Ω^→ n f)
+
+-- move to pointed
+post∘∙ : ∀ {ℓX ℓ ℓ'} (X : Pointed ℓX) {A : Pointed ℓ} {B : Pointed ℓ'}
+  → (A →∙ B) → ((X →∙ A ∙) →∙ (X →∙ B ∙))
+post∘∙ X f .fst g = f ∘∙ g
+post∘∙ X f .snd =
+  ΣPathP
+    ( (funExt λ _ → f .snd)
+    , (sym (lUnit (f .snd)) ◁ λ i j → f .snd (i ∨ j))
+    )
 
 suspMap : ∀ {ℓ} {A : Pointed ℓ}(n : ℕ)
         → S₊∙ (suc n) →∙ A
@@ -124,12 +182,17 @@ lMapId2 (suc (suc n)) {A = A} =
                       → ∙∙lCancel (lMapId (suc n) {A = A} a) j i}))
           , refl)
 
+lMap∙ : ∀ {ℓ} (n : ℕ) {A : Pointed ℓ}
+  → ((Ω^ n) A) →∙ (S₊∙ n →∙ A ∙)
+lMap∙ n .fst = lMap n
+lMap∙ n .snd = lMapId2 n
+
 -- We define the following maps which will be used to
 -- show that lMap is an equivalence
 lMapSplit₁ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
            → typ ((Ω^ (suc n)) A)
            → typ (Ω (S₊∙ n →∙ A ∙))
-lMapSplit₁ n = Ω→ (lMap n , lMapId2 n) .fst
+lMapSplit₁ n = Ω→ (lMap∙ n) .fst
 
 ΩSphereMap : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
   → typ (Ω (S₊∙ n →∙ A ∙))
@@ -351,86 +414,118 @@ isEquiv-lMap (suc n) =
                            (isEquiv-lMap n)))
          (invEquiv (isoToEquiv (SphereMapΩIso (suc n))))))
 
-botMap : ∀ {ℓ} (n : ℕ) {A : Pointed ℓ}
-        → (S₊∙ n →∙ A)
-        → S₊∙ n →∙ Ω (Susp∙ (typ A))
-fst (botMap n {A = A} f) x = merid (fst f x) ∙ sym (merid (pt A))
-snd (botMap n {A = A} f) = cong (_∙ merid (pt A) ⁻¹) (cong merid (snd f))
-                         ∙ rCancel (merid (pt A))
 
-flipΩPath : {ℓ : Level} {A : Pointed ℓ} (n : ℕ)
-                → ((Ω^ (suc n)) A) ≡ (Ω^ n) (Ω A)
-flipΩPath {A = A} zero = refl
-flipΩPath {A = A} (suc n) = cong Ω (flipΩPath {A = A} n)
+-- The homogeneity assumption is not necessary but simplifying
+module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') (homogB : isHomogeneous B) (f : A →∙ B)
+  where
 
-flipΩIso : {ℓ : Level} {A : Pointed ℓ} (n : ℕ)
-              → Iso (fst ((Ω^ (suc n)) A)) (fst ((Ω^ n) (Ω A)))
-flipΩIso {A = A} n = pathToIso (cong fst (flipΩPath n))
+  isNaturalΩSphereMap : (n : ℕ)
+    → ∀ g → f ∘∙ ΩSphereMap n g ≡ ΩSphereMap n (Ω→ (post∘∙ (S₊∙ n) f) .fst g)
+  isNaturalΩSphereMap 0 g =
+    →∙Homogeneous≡ homogB (funExt lem)
+    where
+    lem : ∀ x → f .fst (ΩSphereMap 0 g .fst x) ≡ ΩSphereMap 0 (Ω→ (post∘∙ (S₊∙ 0) f) .fst g) .fst x
+    lem base = f .snd
+    lem (loop i) j =
+      hfill
+        (λ j → λ
+          { (i = i0) → post∘∙ _ f .snd j
+          ; (i = i1) → post∘∙ _ f .snd j
+          })
+        (inS (f ∘∙ g i))
+        j .fst false
+  isNaturalΩSphereMap (n@(suc _)) g =
+    →∙Homogeneous≡ homogB (funExt lem)
+    where
+    lem : ∀ x → f .fst (ΩSphereMap n g .fst x) ≡ ΩSphereMap n (Ω→ (post∘∙ (S₊∙ n) f) .fst g) .fst x
+    lem north = f .snd
+    lem south = f .snd
+    lem (merid a i) j =
+      hfill
+        (λ j → λ
+          { (i = i0) → post∘∙ _ f .snd j
+          ; (i = i1) → post∘∙ _ f .snd j
+          })
+        (inS (f ∘∙ g i))
+        j .fst a
 
-flipΩIsopres· : {ℓ : Level} {A : Pointed ℓ} (n : ℕ)
-                      → (f g : fst ((Ω^ (suc n)) (Ω A)))
-                      → inv (flipΩIso (suc n)) (f ∙ g)
-                      ≡ (inv (flipΩIso (suc n)) f)
-                      ∙ (inv (flipΩIso (suc n)) g)
-flipΩIsopres· {A = A} n f g i =
-    transp (λ j → flipΩPath {A = A} n (~ i ∧ ~ j) .snd
-                 ≡ flipΩPath n (~ i ∧ ~ j) .snd) i
-                  (transp (λ j → flipΩPath {A = A} n (~ i ∨ ~ j) .snd
-                 ≡ flipΩPath n (~ i ∨ ~ j) .snd) (~ i) f
-                 ∙ transp (λ j → flipΩPath {A = A} n (~ i ∨ ~ j) .snd
-                 ≡ flipΩPath n (~ i ∨ ~ j) .snd) (~ i) g)
+  mutual
+    isNatural-lMap : ∀ n p → f ∘∙ lMap n p ≡ lMap n (Ω^→ n f .fst p)
+    isNatural-lMap 0 p =
+      →∙Homogeneous≡ homogB (funExt λ {true → f .snd; false → refl})
+    isNatural-lMap (n@(suc n')) p =
+      cong (f ∘∙_) (lMap-split n' p)
+      ∙ isNaturalΩSphereMap n' (lMapSplit₁ n' p)
+      ∙ cong (ΩSphereMap n') inner
+      ∙ sym (lMap-split n' (Ω^→ n f .fst p))
+      where
+      inner : Ω→ (post∘∙ (S₊∙ n') f) .fst (Ω→ (lMap∙ n') .fst p) ≡ Ω→ (lMap∙ n') .fst (Ω^→ (suc n') f .fst p)
+      inner =
+        sym (Ω→∘ (post∘∙ (S₊∙ n') f) (lMap∙ n') p)
+        ∙ cong (λ g∙ → Ω→ g∙ .fst p) (isNatural-lMap∙ n')
+        ∙ Ω→∘ (lMap∙ n') (Ω^→ n' f) p
 
-rMap : ∀ {ℓ} (n : ℕ) {A : Pointed ℓ}
-    → typ ((Ω^ (suc n)) (Susp∙ (typ A)))
-    → (S₊∙ n →∙ Ω (Susp∙ (typ A)))
-rMap n = lMap n ∘ fun (flipΩIso n)
+    isNatural-lMap∙ : ∀ n → post∘∙ (S₊∙ n) f ∘∙ (lMap∙ n) ≡ (lMap∙ n {A = B} ∘∙ Ω^→ n f)
+    isNatural-lMap∙ n = →∙Homogeneous≡ (isHomogeneous→∙ homogB) (funExt (isNatural-lMap n))
 
-private
-  rMap1 : ∀ {ℓ} {A : Pointed ℓ}
-    → typ ((Ω^ (suc 1)) (Susp∙ (typ A)))
-    → (S₊∙ 1 →∙ Ω (Susp∙ (typ A)))
-  rMap1 = lMap 1
 
-  rMap≡rMap1 : ∀ {ℓ} {A : Pointed ℓ} → rMap 1 {A = A} ≡ rMap1 {A = A}
-  rMap≡rMap1 = funExt λ x → cong (lMap 1) (transportRefl x)
+σ : ∀ {ℓ} (A : Pointed ℓ) (a : typ A) → Path (Susp (typ A)) north north
+σ A a = merid a ∙ sym (merid (pt A))
 
-flipΩrefl : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
-  → fun (flipΩIso {A = A} (suc n)) refl ≡ refl
-flipΩrefl {A = A} n j =
-  transp (λ i₁ → fst (Ω (flipΩPath {A = A} n ((i₁ ∨ j)))))
-         j (snd (Ω (flipΩPath n j)))
+σ∙ : ∀ {ℓ} (A : Pointed ℓ) → A →∙ Ω (Susp∙ (typ A))
+fst (σ∙ A) = σ A
+snd (σ∙ A) = rCancel _
 
-cong-lMap-lem : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p : _)
-  → cong (lMap (suc n) {A = Ω A}) (fun (flipΩIso (suc (suc n))) p)
-   ≡ (cong (lMap (suc n)) (sym (flipΩrefl n))
-        ∙∙ cong (lMap (suc n) ∘ fun (flipΩIso (suc n))) p
-      ∙∙ cong (lMap (suc n)) (flipΩrefl n))
-cong-lMap-lem {A = A} n p =
-    (λ i → cong (lMap (suc n) {A = Ω A})
-                 (fun (flipΩIso (suc (suc n))) (rUnit p i)))
-  ∙∙ (λ i j → lMap (suc n) {A = Ω A}
-      (transp (λ k → fst (flipΩPath {A = A} (suc (suc n)) (k ∨ i))) i
-        (((λ j → transp (λ k → fst (Ω (flipΩPath {A = A} n ((k ∨ ~ j) ∧ i))))
-                         (~ i ∨ ~ j)
-                         (snd (Ω (flipΩPath n (~ j ∧ i)))))
-        ∙∙ (λ j → transp (λ k → fst (flipΩPath {A = A} (suc n)
-                          (k ∧ i))) (~ i) (p j))
-        ∙∙ λ j → transp (λ k → fst (Ω (flipΩPath {A = A} n ((k ∨ j) ∧ i))))
-                         (~ i ∨ j) (snd (Ω (flipΩPath n (j ∧ i)))))) j))
-  ∙∙ cong-∙∙ (lMap (suc n))
-             (sym (flipΩrefl n))
-             (cong (fun (flipΩIso (suc n))) p)
-             (flipΩrefl n)
 
-botₗ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
-  → (S₊∙ n →∙ A) → S₊∙ (suc n) →∙ (Susp∙ (typ A))
-fst (botₗ zero f) base = north
-fst (botₗ {A = A} zero f) (loop i) = (merid (fst f false) ∙ sym (merid (pt A))) i
-snd (botₗ zero f) = refl
-botₗ (suc n) f = suspMap n f
+top□ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+      → Ω^→ (suc n) (σ∙ A)
+      ≡ (((Iso.fun (flipΩIso (suc n))) , flipΩrefl n)
+        ∘∙ suspMapΩ∙ (suc n))
+top□ {A = A} zero =
+  →∙Homogeneous≡ (isHomogeneousPath _ _)
+    (funExt λ p → sym (transportRefl _))
+top□ {A = A} (suc n) =
+    cong Ω→ (top□ {A = A} n)
+  ∙ →∙Homogeneous≡
+    (isHomogeneousPath _ _)
+    (funExt λ x
+      → Ω→∘ (fun (flipΩIso (suc n)) , flipΩrefl n) (suspMapΩ∙ (suc n)) x)
+
+{-          suspMapΩ
+ Ωⁿ A  --------------------> Ω¹⁺ⁿ (Susp A)
+ |                           |
+ | =                         | ≃ flipΩ
+ |          Ωⁿ→ σ           v
+Ωⁿ A -------------------> Ωⁿ (Ω (Susp A))
+ |                           |
+ |                           |
+ | ≃ lMap                    | ≃ lMap
+ |                           |
+ v           post∘∙ . σ      v
+ (Sⁿ →∙ A) -------------- > (Sⁿ →∙ Ω (Susp A))
+ |                           |
+ | =                         | ≃ botᵣ
+ |                           |
+ v            suspMap        v
+ (Sⁿ →∙ A) -------------- > (Sⁿ⁺¹→∙ Susp A)
+ -}
+
+
+mid□ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+         → (p : typ ((Ω^ (suc n)) A))
+        → fst (post∘∙ (S₊∙ (suc n)) (σ∙ A)) (lMap (suc n) p)
+        ≡ lMap (suc n) (fst (Ω^→ (suc n) (σ∙ A)) p)
+mid□ {A = A} n p =
+  funExt⁻
+    (cong fst
+      (isNatural-lMap∙
+        A (Ω (Susp∙ (typ A)))
+        (isHomogeneousPath _ _)
+        (σ∙ A) (suc n))) p
 
 botᵣ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
-  → (S₊∙ n →∙ Ω (Susp∙ (typ A))) → S₊∙ (suc n) →∙ Susp∙ (typ A)
+  → (S₊∙ n →∙ Ω (Susp∙ (typ A)))
+  → S₊∙ (suc n) →∙ Susp∙ (typ A)
 fst (botᵣ zero (f , p)) base = north
 fst (botᵣ zero (f , p)) (loop i) = f false i
 snd (botᵣ zero (f , p)) = refl
@@ -439,52 +534,6 @@ fst (botᵣ (suc n) (f , p)) south = north
 fst (botᵣ (suc n) (f , p)) (merid a i) = f a i
 snd (botᵣ (suc n) (f , p)) = refl
 
-{-
-The goal now is to fill the following diagram.
-
-               suspMapΩ
-     Ωⁿ A -------------------> Ω¹⁺ⁿ (Susp A)
-      |                            |
-      |                            |
- lMap | ≃                        ≃ |  rMap
-      v                            v
-(S₊∙ n →∙ A) ---------->  (S₊∙ n →∙ Ω (Susp A))
-      \          botMap          /
-        \                      /
-          \                  /
-     botₗ   \               / botᵣ
-   (suspMap) \           /
-               \       /
-                 \   /
-                   v
-            (Sⁿ⁺¹ →∙ Susp A)
-
--}
-
--- The bottom part is trival▿
-filler▿ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (x : (S₊∙ n →∙ A))
-       → botₗ n x ≡ botᵣ {A = A} n (botMap n x)
-filler▿ zero (f , p) =
-  ΣPathP ((funExt (λ { base → refl ; (loop i) → refl})) , refl)
-filler▿ (suc n) (f , p) =
-  ΣPathP ((funExt (λ { north → refl
-                     ; south → refl
-                     ; (merid a i) → refl}))
-          , refl)
-
-IsoΩSphereMap : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
-  → Iso (typ ((Ω^ n) A)) ((S₊∙ n →∙ A))
-fun (IsoΩSphereMap zero) = lMap zero
-inv (IsoΩSphereMap zero) f = fst f false
-rightInv (IsoΩSphereMap zero) f =
-  ΣPathP ((funExt (λ { false → refl
-                     ; true → sym (snd f)}))
-         , λ i j → snd f (~ i ∨ j))
-leftInv (IsoΩSphereMap zero) p = refl
-IsoΩSphereMap (suc n) = equivToIso (_ , isEquiv-lMap n)
-
-Ω≡SphereMap : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → (typ ((Ω^ n) A)) ≡ ((S₊∙ n →∙ A))
-Ω≡SphereMap n = isoToPath (IsoΩSphereMap n)
 
 botᵣ⁻' : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
          → S₊∙ (suc n) →∙ Susp∙ (typ A) → (S₊ n → typ (Ω (Susp∙ (typ A))))
@@ -505,14 +554,6 @@ snd (botᵣ⁻ {A = A} (suc n) f) =
   cong (sym (snd f) ∙∙_∙∙ snd f)
        (cong (cong (fst f)) (rCancel (merid (ptSn _))))
      ∙ ∙∙lCancel (snd f)
-
-isEquiv-rMap : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isEquiv (rMap n {A = A})
-isEquiv-rMap zero =
-  compEquiv (isoToEquiv (flipΩIso zero))
-            (isoToEquiv (IsoΩSphereMap zero)) .snd
-isEquiv-rMap (suc n) =
-  compEquiv (isoToEquiv (flipΩIso (suc n)))
-            (isoToEquiv (IsoΩSphereMap (suc n))) .snd
 
 -- botᵣ is an Iso
 botᵣIso : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
@@ -552,258 +593,56 @@ botᵣIso {A = A} n = (iso (botᵣ {A = A} n) (botᵣ⁻ {A = A} n) (h n) (retr 
                    ∙∙ (λ i → f x ∙ sym (p i) )
                    ∙∙ sym (rUnit (f x)))
 
-IsoΩSphereMap' : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
-  → Iso (typ ((Ω^ (suc n)) (Susp∙ (typ A))))
-         (S₊∙ (suc n) →∙ Susp∙ (typ A))
-IsoΩSphereMap' {A = A} n =
-  compIso (equivToIso (_ , isEquiv-rMap {A = A} n))
-    (botᵣIso {A = A} n)
 
-Ω≡SphereMap' : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
-            → (typ ((Ω^ (suc n)) (Susp∙ (typ A))))
-             ≡ (S₊∙ (suc n) →∙ Susp∙ (typ A))
-Ω≡SphereMap' {A = A} n = isoToPath (IsoΩSphereMap' {A = A} n)
-
-filler-top□ : ∀ {ℓ} (n : ℕ) {A : Pointed ℓ}
-         →  rMap n {A = A} ∘ (suspMapΩ {A = A} n)
-          ≡ botMap n ∘ lMap n {A = A}
-filler-top□ {ℓ} =
-  +nInd (λ {A} → funExt λ p → →∙Homogeneous≡ (isHomogeneousPath _ _)
-                   (funExt λ { false → transportRefl _
-                             ; true → sym (rCancel _)}))
-        (λ {A} → funExt λ p → →∙Homogeneous≡ (isHomogeneousPath _ _)
-                   (funExt λ x
-                     → (λ i → ((rMap≡rMap1 {A = A} i) ∘ suspMapΩ 1) p .fst x)
-                      ∙ sym (lem₁ p x)))
-                 cool*
-  where
-  lem₁ : ∀ {ℓ} {A : Pointed ℓ} (p : _) (x : S¹)
-       → (botMap 1 ∘ lMap 1) p .fst x
-        ≡ (rMap1 {A = A} ∘ (suspMapΩ {A = A} 1)) p .fst x
-  lem₁ {A = A} p base = rCancel (merid (pt A))
-  lem₁ {A = A} p (loop i) j =
-    doubleCompPath-filler
-      (sym (rCancel (merid (pt A))))
-      (cong (λ x → merid x ∙ sym (merid (pt A))) p)
-      (rCancel (merid (pt A))) j i
-
-  cool* : (n : ℕ) →
-      ({A : Pointed ℓ} →
-       rMap (suc n) {A = A} ∘ suspMapΩ (suc n) ≡
-       botMap (suc n) ∘ lMap (suc n)) →
-      {A : Pointed ℓ} →
-      rMap (suc (suc n)) {A = A} ∘ suspMapΩ (suc (suc n)) ≡
-      botMap (suc (suc n)) ∘ lMap (suc (suc n))
-  cool* n ind {A} =
-    funExt λ p → →∙Homogeneous≡ (isHomogeneousPath (Susp (typ A)) refl)
-      (funExt
-        λ { north → sym (rCancel (merid (pt A)))
-          ; south → sym (rCancel (merid (pt A)))
-          ; (merid a i) j
-          → hcomp (λ k
-            → λ {( i = i0) → rCancel (merid (pt A)) (~ j)
-                 ; (i = i1) → rCancel (merid (pt A)) (~ j)
-                 ; (j = i0) → main p a (~ k) i
-                 ; (j = i1) → (botMap (suc (suc n)) ∘ lMap (suc (suc n))) p .fst
-                                (merid a i)})
-              (doubleCompPath-filler
-                (sym (rCancel (merid (pt A))))
-                (cong ((botMap (suc (suc n)) ∘ lMap (suc (suc n))) p .fst)
-                      (merid a))
-                (rCancel (merid (pt A))) (~ j) i)})
-    where
-    module _ (p : typ (Ω _)) (a : S₊ (suc n)) where
-      abstract
-        indHyp : Path ((a₁ : fst (Ω ((Ω^ n) A))) →
-          Σ (fst (S₊∙ (suc n)) → fst (Ω (Susp∙ (typ A))))
-          (λ f → f (snd (S₊∙ (suc n))) ≡ snd (Ω (Susp∙ (typ A)))))
-                ((rMap (suc n) {A = A} ∘ (suspMapΩ {A = A} (suc n))))
-                (botMap (suc n) ∘ lMap (suc n) {A = A})
-        indHyp =
-          funExt λ a → →∙Homogeneous≡ (isHomogeneousPath _ _)
-            (funExt (λ x → funExt⁻ (cong fst (funExt⁻ (ind {A = A}) a)) x))
-
-      pathLem₁ : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ z)
-               → p ∙ (q ∙ r ∙ sym q) ∙ sym p ≡ (p ∙ q) ∙ r ∙ sym (p ∙ q)
-      pathLem₁ p q r =
-          ∙assoc p (q ∙ r ∙ sym q) (sym p)
-        ∙ cong (_∙ sym p) (∙assoc p q (r ∙ sym q))
-        ∙ sym (∙assoc (p ∙ q) (r ∙ sym q) (sym p))
-        ∙ cong ((p ∙ q) ∙_) (sym (∙assoc r (sym q) (sym p))
-                          ∙ cong (r ∙_) (sym (symDistr p q)))
-
-      pathLem₂ : ∀ {ℓ} {A : Type ℓ} {x y : A} (coh : x ≡ y) (p : x ≡ x)
-        → p ≡ coh ∙ (sym coh ∙∙ p ∙∙ coh) ∙ sym coh
-      pathLem₂ {x = x} =
-        J (λ y coh → (p : x ≡ x) → p ≡ coh ∙ (sym coh ∙∙ p ∙∙ coh) ∙ sym coh)
-           λ p → lUnit _ ∙ cong (refl ∙_) (rUnit _ ∙ cong (_∙ refl) (rUnit p))
-
-      pathLem₃ : ∀ {ℓ} {A : Type ℓ} {x₀ x y z w : A}
-                (p : x₀ ≡ x) (q : x ≡ y) (r : y ≡ z) (s : z ≡ w) (mid : w ≡ w)
-                (coh : x₀ ≡ w)
-              → isComm∙ (A , x₀)
-              → (p ∙∙ q ∙∙ r
-               ∙∙ s ∙∙ mid ∙∙ sym s
-               ∙∙ sym r ∙∙ sym q ∙∙ sym p)
-              ≡ (coh ∙∙ mid ∙∙ sym coh)
-      pathLem₃ p q r s mid coh comm =
-        doubleCompPath≡compPath p _ (sym p)
-       ∙∙ cong (λ x → p ∙ x ∙ (sym p))
-               (doubleCompPath≡compPath q _ (sym q)
-               ∙ cong (λ x → q ∙ x ∙ (sym q))
-                      (doubleCompPath≡compPath r _ (sym r)
-                      ∙ cong (λ x → r ∙ x ∙ (sym r))
-                        (doubleCompPath≡compPath s _ (sym s)
-                         ∙ cong (λ x → s ∙ x ∙ sym s) (pathLem₂ (sym coh) mid)
-                         ∙ pathLem₁ s (sym coh) (coh ∙∙ mid ∙∙ sym coh))
-                         ∙ pathLem₁ r (s ∙ sym coh) (coh ∙∙ mid ∙∙ sym coh))
-                         ∙ pathLem₁ q (r ∙ s ∙ sym coh) (coh ∙∙ mid ∙∙ sym coh))
-       ∙∙ pathLem₁ p (q ∙ r ∙ s ∙ sym coh) (coh ∙∙ mid ∙∙ sym coh)
-       ∙∙ cong ((p ∙ q ∙ r ∙ s ∙ sym coh) ∙_)
-               (comm (coh ∙∙ mid ∙∙ sym coh) (sym (p ∙ q ∙ r ∙ s ∙ sym coh)))
-       ∙∙ ∙assoc _ _ _
-       ∙∙ cong (_∙ (coh ∙∙ mid ∙∙ sym coh)) (rCancel _)
-       ∙∙ sym (lUnit _)
-
-      pathLem₄ : ∀ {ℓ} {A : Type ℓ} {x y z : A}
-                 (p : z ≡ x) (q : y ≡ z) (r : y ≡ y)
-              → (sym (q ∙ p) ∙∙ r ∙∙ (q ∙ p))
-              ≡ (sym p ∙∙ sym q ∙∙ r ∙∙ q ∙∙ p)
-      pathLem₄ p q r =
-           cong (λ x → x ∙∙ r ∙∙ (q ∙ p)) (symDistr q p)
-        ∙∙ doubleCompPath≡compPath (sym p ∙ sym q) r (q ∙ p)
-        ∙∙ (sym (∙assoc (sym p) (sym q) (r ∙ q ∙ p))
-        ∙∙ cong (sym p ∙_) (∙assoc (sym q) r (q ∙ p)
-                          ∙ ∙assoc (sym q ∙ r) q p)
-        ∙∙ sym (doubleCompPath≡compPath (sym p) ((sym q ∙ r) ∙ q) p)
-         ∙ cong (sym p ∙∙_∙∙ p)
-            (sym (∙assoc (sym q) r q)
-            ∙ sym (doubleCompPath≡compPath (sym q) r q)))
-
-      cong-lMap : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (x : _)
-                   (p : refl ≡ x) (q : _ ≡ _) (a : S₊ (suc n))
-                → (cong (lMap (suc n) {A = Ω A})
-                         (fun (flipΩIso (suc (suc n))) (p ∙∙ q ∙∙ sym p)))
-                ≡ (cong (lMap (suc n)) (sym (flipΩrefl n))
-                  ∙∙ cong (lMap (suc n) ∘ fun (flipΩIso (suc n))) p
-                  ∙∙ cong (lMap (suc n) ∘ fun (flipΩIso (suc n))) q
-                  ∙∙ sym (cong (lMap (suc n) ∘ fun (flipΩIso (suc n))) p)
-                  ∙∙ cong (lMap (suc n)) (flipΩrefl n))
-      cong-lMap n x =
-        J (λ x p → (q : x ≡ x)
-        → S₊ (suc n)
-        → cong (lMap (suc n))
-        (fun (flipΩIso (suc (suc n))) (p ∙∙ q ∙∙ sym p))
-        ≡
-        (cong (lMap (suc n)) (sym (flipΩrefl n)) ∙∙
-         cong (lMap (suc n) ∘ fun (flipΩIso (suc n))) p ∙∙
-         cong (lMap (suc n) ∘ fun (flipΩIso (suc n))) q ∙∙
-         sym (cong (lMap (suc n) ∘ fun (flipΩIso (suc n))) p)
-         ∙∙ cong (lMap (suc n)) (flipΩrefl n)))
-          λ q a → (λ j i → lMap (suc n)
-                      (fun (flipΩIso (suc (suc n))) (rUnit q (~ j)) i))
-                 ∙∙ cong-lMap-lem n q
-                 ∙∙ cong (cong (lMap (suc n)) (sym (flipΩrefl n))
-                         ∙∙_∙∙
-                          cong (lMap (suc n)) (flipΩrefl n))
-                     (rUnit (cong (lMap (suc n) ∘ fun (flipΩIso (suc n))) q))
-
-      main : cong ((rMap (suc (suc n)) {A = A}
-                   ∘ suspMapΩ (suc (suc n))) p .fst) (merid a)
-              ≡ (sym (rCancel (merid (pt A)))
-             ∙∙ (λ i → (botMap (suc (suc n)) ∘ lMap (suc (suc n)) {A = A})
-                         p .fst (merid a i))
-              ∙∙ rCancel _)
-      main =  cong (sym (lMapId (suc n) a) ∙∙_∙∙ (lMapId (suc n) a))
-                   (cong (cong (λ x → fst x a))
-                     (cong-lMap _ _
-                       (sym (∙∙lCancel (snd (suspMapΩ∙ n))))
-                       (cong (suspMapΩ (suc n)) p) a))
-           ∙∙ cong (sym (lMapId (suc n) a) ∙∙_∙∙ (lMapId (suc n) a))
-                   ((cong-∙∙ (λ x → fst x a)
-                     (cong (lMap (suc n)) (sym (flipΩrefl n)))
-                         (cong (lMap (suc n) ∘ fun (flipΩIso (suc n)))
-                               (sym (∙∙lCancel (snd (suspMapΩ∙ n))))
-                       ∙∙ cong (lMap (suc n) ∘ fun (flipΩIso (suc n)))
-                               (cong ((suspMapΩ∙ (suc n)) .fst) p)
-                       ∙∙ cong (lMap (suc n) ∘ fun (flipΩIso (suc n)))
-                               (∙∙lCancel (snd (suspMapΩ∙ n))))
-                     (cong (lMap (suc n)) (flipΩrefl n))))
-           ∙∙ cong (sym (lMapId (suc n) a) ∙∙_∙∙ (lMapId (suc n) a))
-                    (cong (cong (λ x → fst x a)
-                                (cong (lMap (suc n)) (sym (flipΩrefl n)))
-                          ∙∙_∙∙
-                          cong (λ x → fst x a)
-                               (cong (lMap (suc n)) (flipΩrefl n)))
-                          (cong-∙∙ (λ x → fst x a)
-                           (cong (lMap (suc n) ∘ fun (flipΩIso (suc n)))
-                                 (sym (∙∙lCancel (snd (suspMapΩ∙ n)))))
-                           (cong (lMap (suc n) ∘ fun (flipΩIso (suc n)))
-                                 (cong ((suspMapΩ∙ (suc n)) .fst) p))
-                           (cong (lMap (suc n) ∘ fun (flipΩIso (suc n)))
-                                 (∙∙lCancel (snd (suspMapΩ∙ n))))))
-           ∙∙ cong (sym (lMapId (suc n) a) ∙∙_∙∙ (lMapId (suc n) a))
-               (cong (cong (λ x → fst x a)
-                           (cong (lMap (suc n)) (sym (flipΩrefl n)))
-                     ∙∙_∙∙
-                     cong (λ x → fst x a)
-                          (cong (lMap (suc n)) (flipΩrefl n)))
-                     (cong (cong (λ x → fst x a)
-                            (cong (lMap (suc n) ∘ fun (flipΩIso (suc n)))
-                             (sym (∙∙lCancel (snd (suspMapΩ∙ n)))))
-                              ∙∙_∙∙
-                            cong (λ x → fst x a)
-                             (cong (lMap (suc n) ∘ fun (flipΩIso (suc n)))
-                              (∙∙lCancel (snd (suspMapΩ∙ n)))))
-                            ((λ i j → rMap (suc n) {A = A}
-                                        (suspMapΩ∙ (suc n) .fst (p j)) .fst a)
-                             ∙ rUnit _
-                             ∙ λ i → (λ j → indHyp (i ∧ j)
-                                             (snd (Ω ((Ω^ n) A))) .fst a)
-                                   ∙∙ (λ j → indHyp i (p j) .fst a)
-                                   ∙∙ λ j → indHyp (i ∧ ~ j)
-                                             (snd (Ω ((Ω^ n) A))) .fst a)))
-           ∙∙ pathLem₃
-                (sym (lMapId (suc n) a))
-                (λ i₁ → fst (lMap (suc n) (flipΩrefl n (~ i₁))) a)
-                (λ i₁ → fst (lMap (suc n) (fun (flipΩIso (suc n))
-                             (∙∙lCancel (snd (suspMapΩ∙ {A = A} n)) (~ i₁)))) a)
-                (λ j₁ → indHyp j₁ (snd (Ω ((Ω^ n) A))) .fst a)
-                (λ j₁ → (botMap (suc n) ∘ lMap (suc n)) (p j₁) .fst a)
-                (sym (cong (_∙ sym (merid (pt A)))
-                      (cong merid (lMapId (suc n) a)) ∙ rCancel _))
-                (EH 0)
-           ∙∙ pathLem₄ (rCancel (merid (pt A)))
-                      (cong (_∙ sym (merid (pt A)))
-                       (cong merid (lMapId (suc n) a)))
-                      (λ j₁ → (botMap (suc n) ∘ lMap (suc n)) (p j₁) .fst a)
-           ∙∙ cong (sym (rCancel (merid (pt A))) ∙∙_∙∙ rCancel (merid (pt A)))
-                   (sym (cong-∙∙ (λ x → merid x ∙ sym (merid (pt A)))
-                         (sym (lMapId (suc n) a))
-                         (λ i → lMap (suc n) (p i) .fst a)
-                         (lMapId (suc n) a)))
+bot□ : ∀ {ℓ} {A : Pointed ℓ}  (n : ℕ) (f : (S₊∙ (suc n) →∙ A))
+      → suspMap n f ≡ botᵣ {A = A} (suc n) (post∘∙ (S₊∙ (suc n)) (σ∙ A) .fst f)
+bot□ {A = A} n f =
+  ΣPathP ((funExt (λ { north → refl
+                     ; south → refl
+                     ; (merid a i) → refl}))
+         , refl)
 
 
--- main results
-suspMap→TranspType : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
-  → (typ (Ω ((Ω^ n) A)) → typ (Ω (Ω ((Ω^ n) (Susp∙ (typ A))))))
-   ≡ ((S₊∙ (suc n) →∙ A) → (S₊∙ (suc (suc n)) →∙ Susp∙ (typ A)))
-suspMap→TranspType {A = A} n i =
-  Ω≡SphereMap {A = A} (suc n) i → Ω≡SphereMap' {A = A} (suc n) i
+IsoΩSphereMap : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+  → Iso (typ ((Ω^ n) A)) ((S₊∙ n →∙ A))
+fun (IsoΩSphereMap zero) = lMap zero
+inv (IsoΩSphereMap zero) f = fst f false
+rightInv (IsoΩSphereMap zero) f =
+  ΣPathP ((funExt (λ { false → refl
+                     ; true → sym (snd f)}))
+         , λ i j → snd f (~ i ∨ j))
+leftInv (IsoΩSphereMap zero) p = refl
+IsoΩSphereMap (suc n) = equivToIso (_ , isEquiv-lMap n)
 
-suspMap→ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
-         → PathP (λ i → suspMap→TranspType {A = A} n i)
-                  (suspMapΩ∙ (suc n) .fst)
-                  (suspMap n)
-suspMap→ {A = A} n =
-  toPathP (funExt λ f →
-      (λ j → transportRefl (botᵣ {A = A} (suc n)
-                               (rMap (suc n) {A = A}
-                                 (suspMapΩ∙ (suc n) .fst
-                                   ((invEq (_ , isEquiv-lMap n)
-                                           (transportRefl f j)))))) j)
+IsoΩSphereMapᵣ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+  → Iso (typ ((Ω^ (suc n)) (Susp∙ (typ A)))) ((S₊∙ (suc n) →∙ Susp∙ (typ A)))
+IsoΩSphereMapᵣ {A = A} n =
+  compIso (flipΩIso n)
+    (compIso (IsoΩSphereMap n) (botᵣIso {A = A} n))
+
+suspMapPathP : ∀ {ℓ} (A : Pointed ℓ) (n : ℕ)
+               → (typ ((Ω^ (suc n)) A) → (typ ((Ω^ (suc (suc n))) (Susp∙ (typ A)))))
+                ≡ ((S₊∙ (suc n) →∙ A) → S₊∙ (suc (suc n)) →∙ (Susp∙ (typ A)))
+suspMapPathP A n i =
+    isoToPath (IsoΩSphereMap {A = A} (suc n)) i
+  → isoToPath (IsoΩSphereMapᵣ {A = A} (suc n)) i
+
+Ωσ→suspMap : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+           → PathP (λ i → suspMapPathP A n i)
+                    (suspMapΩ (suc n))
+                    (suspMap n)
+Ωσ→suspMap {A = A} n =
+  toPathP (funExt (λ p →
+       (λ i → transportRefl
+                (Iso.fun (IsoΩSphereMapᵣ {A = A} (suc n))
+                  (suspMapΩ {A = A} (suc n)
+                    (Iso.inv (IsoΩSphereMap {A = A} (suc n))
+                      (transportRefl p i)))) i)
     ∙∙ cong (botᵣ {A = A} (suc n))
-            (funExt⁻ (filler-top□ (suc n)) (invEq (_ , isEquiv-lMap n) f))
-    ∙∙ sym (filler▿ (suc n) (lMap (suc n) {A = A}
-                    (invEq (lMap (suc n) , isEquiv-lMap n) f)))
-     ∙ cong (suspMap n) (secEq ((lMap (suc n) , isEquiv-lMap n)) f))
+            (cong (lMap (suc n) {A = Ω (Susp∙ (typ A)) })
+                  ((sym (funExt⁻ (cong fst (top□ {A = A} n))
+                     (invEq (lMap (suc n) , isEquiv-lMap n) p))))
+           ∙ (sym (mid□ n (invEq (lMap (suc n) , isEquiv-lMap n) p))
+             ∙ cong (σ∙ (fst A , snd A) ∘∙_)
+                    (secEq (lMap (suc n) , isEquiv-lMap n) p)))
+    ∙∙ sym (bot□ n p)))

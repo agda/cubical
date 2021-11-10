@@ -35,6 +35,20 @@ open Iso
 fst (Ω→ {A = A} {B = B} (f , p)) q = sym p ∙∙ cong f q ∙∙ p
 snd (Ω→ {A = A} {B = B} (f , p)) = ∙∙lCancel p
 
+{- loop space map functoriality (missing pointedness proof) -}
+Ω→∘ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
+  (g : B →∙ C) (f : A →∙ B)
+  → ∀ p → Ω→ (g ∘∙ f) .fst p ≡ (Ω→ g ∘∙ Ω→ f) .fst p
+Ω→∘ g f p k i =
+  hcomp
+    (λ j → λ
+      { (k = i0) → doubleCompPath-filler (sym (snd (g ∘∙ f))) (cong (fst (g ∘∙ f)) p) (snd (g ∘∙ f)) j i
+      ; (k = i1) → doubleCompPath-filler (sym (snd g)) (cong (fst g) (fst (Ω→ f) p)) (snd g) j i
+      ; (i = i0) → compPath-filler' (cong (g .fst) (f .snd)) (g .snd) (~ k) j
+      ; (i = i1) → compPath-filler' (cong (g .fst) (f .snd)) (g .snd) (~ k) j
+      })
+    (g .fst (doubleCompPath-filler (sym (f .snd)) (cong (f .fst) p) (f .snd) k i))
+
 isEquivΩ→ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
            → (f : (A →∙ B))
            → isEquiv (fst f) → isEquiv (Ω→ f .fst)
