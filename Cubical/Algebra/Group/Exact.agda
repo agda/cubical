@@ -11,10 +11,6 @@ open import Cubical.Algebra.Group.GroupPath
 
 open import Cubical.Algebra.Group.Instances.Unit
 
-private
-  variable
-    ℓ : Level
-
 -- TODO : Define exact sequences
 -- (perhaps short, finite, ℕ-indexed and ℤ-indexed)
 

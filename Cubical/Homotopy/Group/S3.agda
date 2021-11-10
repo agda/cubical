@@ -17,7 +17,6 @@ open import Cubical.Data.Int
   renaming (_·_ to _·ℤ_ ; _+_ to _+ℤ_)
 
 open import Cubical.Homotopy.Group.Base
-open import Cubical.Homotopy.Group.Properties
 open import Cubical.Homotopy.HopfInvariant.Base
 open import Cubical.Homotopy.HopfInvariant.Homomorphism
 open import Cubical.Homotopy.HopfInvariant.HopfMap

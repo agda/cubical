@@ -3,7 +3,7 @@ module Cubical.Homotopy.HopfInvariant.Base where
 
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Group.Base
-open import Cubical.Homotopy.Group.Properties
+open import Cubical.Homotopy.Group.SuspensionMap
 
 open import Cubical.Relation.Nullary
 

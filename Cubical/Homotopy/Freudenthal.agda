@@ -133,33 +133,3 @@ FreudenthalIso : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
                 → Iso (hLevelTrunc ((suc n) + (suc n)) (typ A))
                       (hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north))))
 FreudenthalIso n A iscon = connectedTruncIso _ (σ A) (isConnectedσ _ iscon)
-
-
-{- connectedness of congⁿ σ (called suspMapΩ here) -}
-suspMapΩ∙ : ∀ {ℓ} {A : Pointed ℓ}(n : ℕ)
-        → ((Ω^ n) A)
-        →∙ ((Ω^ (suc n)) (Susp∙ (typ A)))
-fst (suspMapΩ∙ {A = A} zero) a = merid a ∙ sym (merid (pt A))
-snd (suspMapΩ∙ {A = A} zero) = rCancel (merid (pt A))
-suspMapΩ∙ {A = A} (suc n) = Ω→ (suspMapΩ∙ {A = A} n)
-
-suspMapΩ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
-         → typ ((Ω^ n) A) → typ ((Ω^ (suc n)) (Susp∙ (typ A)))
-suspMapΩ {A = A} n = suspMapΩ∙ {A = A} n .fst
-
-suspMapΩ-connected : ∀ {ℓ} (n : HLevel) (m : ℕ) {A : Pointed ℓ}
-     (connA : isConnected (suc (suc n)) (typ A))
-  → isConnectedFun ((suc n + suc n) ∸ m) (suspMapΩ {A = A} m)
-suspMapΩ-connected n zero {A = A} connA = isConnectedσ n connA
-suspMapΩ-connected n (suc m) {A = A} connA with ((n + suc n) ≟ m)
-... | (lt p) = subst (λ x → isConnectedFun x (suspMapΩ {A = A} (suc m)))
-                     (sym (n∸m≡0 _ m p))
-                     λ b → tt* , (λ {tt* → refl})
-... | (eq q) = subst (λ x → isConnectedFun x (suspMapΩ {A = A} (suc m)))
-                     (sym (n∸n≡0 m) ∙ cong (_∸ m) (sym q))
-                     λ b → tt* , (λ {tt* → refl})
-... | (gt p) = isConnectedCong' (n + suc n ∸ m) (suspMapΩ {A = A} m)
-    (subst (λ x → isConnectedFun x (suspMapΩ {A = A} m))
-           (sym (suc∸-fst (n + suc n) m p))
-           (suspMapΩ-connected n m connA))
-    (snd (suspMapΩ∙ m))
