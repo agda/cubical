@@ -21,7 +21,6 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Equiv
 open import Cubical.Functions.Morphism
 open import Cubical.Data.Sigma
--- open import Cubical.HITs.Sn
 open Iso
 
 {- loop space of a pointed type -}

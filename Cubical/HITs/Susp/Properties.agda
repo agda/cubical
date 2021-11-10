@@ -154,15 +154,16 @@ module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} where
   fun ΩSuspAdjointIso = toΩ→fromSusp
   inv ΩSuspAdjointIso = fromSusp→toΩ
   rightInv ΩSuspAdjointIso f =
-    ΣPathP (funExt (λ { north → sym (snd f)
-                      ; south → sym (snd f) ∙ cong (fst f) (merid (pt A))
-                      ; (merid a i) j →
-                        hcomp (λ k → λ { (i = i0) → snd f (~ j ∧ k)
-                                        ; (i = i1) → compPath-filler'
-                                                       (sym (snd f))
-                                                       (cong (fst f) (merid (pt A))) k j
-                                        ; (j = i1) → fst f (merid a i)})
-                              (fst f (compPath-filler (merid a) (sym (merid (pt A))) (~ j) i))})
+    ΣPathP (funExt
+      (λ { north → sym (snd f)
+         ; south → sym (snd f) ∙ cong (fst f) (merid (pt A))
+         ; (merid a i) j →
+           hcomp (λ k → λ { (i = i0) → snd f (~ j ∧ k)
+                           ; (i = i1) → compPath-filler'
+                                          (sym (snd f))
+                                          (cong (fst f) (merid (pt A))) k j
+                           ; (j = i1) → fst f (merid a i)})
+                 (fst f (compPath-filler (merid a) (sym (merid (pt A))) (~ j) i))})
          , λ i j → snd f (~ i ∨ j))
   leftInv ΩSuspAdjointIso f =
     →∙Homogeneous≡ (isHomogeneousPath _ _)
