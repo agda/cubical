@@ -26,6 +26,7 @@ module Cubical.Foundations.Prelude where
 open import Cubical.Core.Primitives public
 
 infixr 30 _∙_
+infixr 30 _∙₂_
 infix  3 _∎
 infixr 2 _≡⟨_⟩_
 infixr 2.5 _≡⟨_⟩≡⟨_⟩_
@@ -352,6 +353,18 @@ Square :
   (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
   → Type _
 Square a₀₋ a₁₋ a₋₀ a₋₁ = PathP (λ i → a₋₀ i ≡ a₋₁ i) a₀₋ a₁₋
+
+-- vertical composition of squares
+_∙₂_ :
+  {a₀₀ a₀₁ a₀₂ : A} {a₀₋ : a₀₀ ≡ a₀₁} {b₀₋ : a₀₁ ≡ a₀₂}
+  {a₁₀ a₁₁ a₁₂ : A} {a₁₋ : a₁₀ ≡ a₁₁} {b₁₋ : a₁₁ ≡ a₁₂}
+  {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁} {a₋₂ : a₀₂ ≡ a₁₂}
+  (p : Square a₀₋ a₁₋ a₋₀ a₋₁) (q : Square b₀₋ b₁₋ a₋₁ a₋₂)
+  → Square (a₀₋ ∙ b₀₋) (a₁₋ ∙ b₁₋) a₋₀ a₋₂
+_∙₂_ {a₋₀ = a₋₀} p q i j =
+  hcomp (λ k → λ { (j = i0) → a₋₀ i
+                 ; (j = i1) → q i k })
+        (p i j)
 
 isSet' : Type ℓ → Type ℓ
 isSet' A =
