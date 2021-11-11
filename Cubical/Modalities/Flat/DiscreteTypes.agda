@@ -71,11 +71,17 @@ BAut : {ℓ : Level}
        → (X : Type ℓ) → X → Type ℓ
 BAut X x = Σ[ y ∈ X ] ∥ y ≡ x ∥
 
+crispPropRec : {@♭ ♭ℓ : Level} {@♭ P : Type ♭ℓ} {@♭ A : Type ♭ℓ} → isProp P → ((@♭ y : A) → P) → (@♭ x : ∥ A ∥) → P
+crispPropRec Pprop f ∣ x ∣ = f x
+crispPropRec Pprop f (squash x y i) = Pprop (crispPropRec Pprop f x) (crispPropRec Pprop f y) i
+
 ♭BAut→BAut♭ : {@♭ ♭ℓ : Level}
             →  (@♭ X : Type ♭ℓ) (@♭ x : X)
             → ♭ (BAut X x) → BAut (♭ X) (x ^♭)
 ♭BAut→BAut♭ X x ((y , p) ^♭) = (y ^♭) ,
-              PropTrunc.rec PropTrunc.isPropPropTrunc (λ p → ∣ {!cong _^♭ p!} ∣ ) p
+              crispPropRec PropTrunc.isPropPropTrunc f p
+              where f : (@♭ p : _) → _
+                    f p = ∣ fst (invEquiv (♭≡Comm y x)) (p ^♭) ∣
 
 BAutEquiv : {@♭ ♭ℓ : Level} (@♭ X : Type ♭ℓ)
             → _
