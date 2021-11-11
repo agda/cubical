@@ -263,16 +263,17 @@ PathΣ→ΣPathTransport a b = Iso.inv (IsoΣPathTransportPathΣ a b)
 ΣPathTransport≡PathΣ : (a b : Σ A B) → ΣPathTransport a b ≡ (a ≡ b)
 ΣPathTransport≡PathΣ a b = ua (ΣPathTransport≃PathΣ a b)
 
+Σ-contractFstIso : (c : isContr A) → Iso (Σ A B) (B (c .fst))
+fun (Σ-contractFstIso {B = B} c) p = subst B (sym (c .snd (fst p))) (snd p)
+inv (Σ-contractFstIso {B = B} c) b = _ , b
+rightInv (Σ-contractFstIso {B = B} c) b =
+  cong (λ p → subst B p b) (isProp→isSet (isContr→isProp c) _ _ _ _) ∙ transportRefl _
+fst (leftInv (Σ-contractFstIso {B = B} c) p j) = c .snd (fst p) j
+snd (leftInv (Σ-contractFstIso {B = B} c) p j) =
+  transp (λ i → B (c .snd (fst p) (~ i ∨ j))) j (snd p)
+
 Σ-contractFst : (c : isContr A) → Σ A B ≃ B (c .fst)
-Σ-contractFst {B = B} c = isoToEquiv isom
-  where
-  isom : Iso _ _
-  isom .fun (a , b) = subst B (sym (c .snd a)) b
-  isom .inv b = (c .fst , b)
-  isom .rightInv b =
-    cong (λ p → subst B p b) (isProp→isSet (isContr→isProp c) _ _ _ _) ∙ transportRefl _
-  isom .leftInv (a , b) =
-    ΣPathTransport≃PathΣ _ _ .fst (c .snd a , transportTransport⁻ (cong B (c .snd a)) _)
+Σ-contractFst {B = B} c = isoToEquiv (Σ-contractFstIso c)
 
 -- a special case of the above
 module _ (A : Unit → Type ℓ) where
