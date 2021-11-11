@@ -351,7 +351,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
       (rightFiber y₀ , (x₁ , q₁₀)) (rightConn y₀)
       (λ (y₁ , q₁₁) (x₀ , q₀₀) →
         (((r : inl x₀ ≡ inr y₁) → fiberSquarePush q₀₀ q₁₀ q₁₁ r → rightCode _ r)
-        , isOfHLevelΠ₂ _ (λ x y → isOfHLevelTrunc _)))
+        , isOfHLevelΠ2 _ (λ x y → isOfHLevelTrunc _)))
       (λ (y₁ , q₁₁) → ∣fiber→[q₀₀=q₁₀]∣ q₁₀ q₁₁)
       (λ (x₀ , q₀₀) → ∣fiber→[q₁₁=q₁₀]∣ q₁₀ q₀₀)
       (∣fiber→[q₀₀=q₁₀=q₁₁]∣ q₁₀)
@@ -370,7 +370,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
       (rightFiber y₁ , (x₀ , q₀₁)) (rightConn y₁)
       (λ (y₀ , q₀₀) (x₁ , q₁₁) →
         (((r : inl x₀ ≡ inr y₁) → push q₀₁ ≡ r → leftCodeExtended q₀₀ _ (push q₁₁) r)
-        , isOfHLevelΠ₂ _ (λ x y → isOfHLevelTrunc _)))
+        , isOfHLevelΠ2 _ (λ x y → isOfHLevelTrunc _)))
       (λ (y₀ , q₀₀) → ∣fiber←[q₁₁=q₀₁]∣ q₀₁ q₀₀)
       (λ (x₁ , q₁₁) → ∣fiber←[q₀₀=q₀₁]∣ q₀₁ q₁₁)
       (∣fiber←[q₀₀=q₀₁=q₁₁]∣ q₀₁)
@@ -453,7 +453,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
       (λ (y₁ , q₁₁) (x₀ , q₀₀) →
         ((  (r : inl x₀ ≡ inr y₁) → (p : fiberSquarePush q₀₀ q₁₀ q₁₁ r)
           → right→leftCodeExtended q₀₀ q₁₁ r (fiber→ q₁₀ q₀₀ q₁₁ r p) ≡ ∣ q₁₀ , p ∣ₕ )
-        , isOfHLevelΠ₂ _ (λ x y → isOfHLevelTruncPath)))
+        , isOfHLevelΠ2 _ (λ x y → isOfHLevelTruncPath)))
       (λ (y₁ , q₁₁) → ∣fiber→←[q₀₀=q₁₀]∣ q₁₀ q₁₁)
       (λ (x₀ , q₀₀) → ∣fiber→←[q₁₁=q₁₀]∣ q₁₀ q₀₀)
       (∣fiber→←[q₀₀=q₁₀=q₁₁]∣ q₁₀)
@@ -517,7 +517,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
       (λ (y₀ , q₀₀) (x₁ , q₁₁) →
         ((  (r : inl x₀ ≡ inr y₁) → (p : push q₀₁ ≡ r)
           → left→rightCodeExtended q₀₀ q₁₁ r (fiber← q₀₁ q₀₀ q₁₁ r p) ≡ ∣ q₀₁ , p ∣ₕ )
-        , isOfHLevelΠ₂ _ (λ x y → isOfHLevelTruncPath)))
+        , isOfHLevelΠ2 _ (λ x y → isOfHLevelTruncPath)))
       (λ (y₀ , q₀₀) → ∣fiber←→[q₁₁=q₀₁]∣ q₀₁ q₀₀)
       (λ (x₁ , q₁₁) → ∣fiber←→[q₀₀=q₀₁]∣ q₀₁ q₁₁)
       (∣fiber←→[q₀₀=q₀₁=q₁₁]∣ q₀₁)
