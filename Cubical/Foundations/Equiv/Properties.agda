@@ -191,3 +191,10 @@ compr≡Equiv p q r = congEquiv ((λ s → s ∙ r) , compPathr-isEquiv r)
 -- composition on the left induces an equivalence of path types
 compl≡Equiv : {A : Type ℓ} {a b c : A} (p : a ≡ b) (q r : b ≡ c) → (q ≡ r) ≃ (p ∙ q ≡ p ∙ r)
 compl≡Equiv p q r = congEquiv ((λ s → p ∙ s) , (compPathl-isEquiv p))
+
+isEquivFromIsContr : {A : Type ℓ} {B : Type ℓ′}
+                   → (f : A → B) → isContr A → isContr B
+                   → isEquiv f
+isEquivFromIsContr f isContrA isContrB =
+  subst isEquiv (λ i x → isContr→isProp isContrB (fst B≃A x) (f x) i) (snd B≃A)
+  where B≃A = isContr→Equiv isContrA isContrB
