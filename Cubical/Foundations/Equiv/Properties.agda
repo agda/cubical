@@ -195,9 +195,10 @@ compl≡Equiv p q r = congEquiv ((λ s → p ∙ s) , (compPathl-isEquiv p))
 isEquivFromIsContr : {A : Type ℓ} {B : Type ℓ′}
                    → (f : A → B) → isContr A → isContr B
                    → isEquiv f
-isEquivFromIsContr f isContrA isContrB =
-  isoToIsEquiv
-    (iso f
-         (λ _ → fst isContrA)
-         (λ x → isContr→isProp isContrB (f (fst isContrA)) x)
-         λ y → isContr→isProp isContrA (fst isContrA) y)
+equiv-proof (isEquivFromIsContr f isContrA isContrB) y = center , contraction
+  where q = isContr→isProp isContrB (f (fst isContrA)) y
+        center = (fst isContrA) , q
+        contraction = λ {(x , p) i → (snd isContrA x i) ,
+                      isOfHLevel→isOfHLevelDep 1
+                        (λ x' → isOfHLevelPlus 2 isContrB (f x') y)
+                        q p (λ i → snd isContrA x i) i}
