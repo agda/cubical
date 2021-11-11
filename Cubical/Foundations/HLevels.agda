@@ -409,9 +409,9 @@ isOfHLevelΠ (suc (suc (suc (suc (suc n))))) h f g p q P Q R S =
                   (cong funExt⁻ P) (cong funExt⁻ Q)
                   (cong (cong funExt⁻) R) (cong (cong funExt⁻) S))
 
-isOfHLevelΠ₂ : (n : HLevel) → ((x : A) → (y : B x) → isOfHLevel n (C x y))
+isOfHLevelΠ2 : (n : HLevel) → ((x : A) → (y : B x) → isOfHLevel n (C x y))
              → isOfHLevel n ((x : A) → (y : B x) → C x y)
-isOfHLevelΠ₂ n f = isOfHLevelΠ n (λ x → isOfHLevelΠ n (f x))
+isOfHLevelΠ2 n f = isOfHLevelΠ n (λ x → isOfHLevelΠ n (f x))
 
 isContrΠ : (h : (x : A) → isContr (B x)) → isContr ((x : A) → B x)
 isContrΠ = isOfHLevelΠ 0

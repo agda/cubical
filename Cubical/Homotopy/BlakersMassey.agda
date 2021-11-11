@@ -16,8 +16,6 @@ Using cubes explicitly as much as possible.
 {-# OPTIONS  --safe #-}
 module Cubical.Homotopy.BlakersMassey where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Transport
@@ -76,7 +74,9 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
   fiber'Push : {x₀ x₁ : X}{y₀ y₁ : Y}(q₀₀ : Q x₀ y₀)(q₁₁ : Q x₁ y₁) → inl x₀ ≡ inr y₁ → Type ℓ
   fiber'Push q₀₀ q₁₁ = fiber' q₀₀ (push q₁₁)
 
-  leftCodeExtended : {x₀ : X}{y₀ : Y}(q₀₀ : Q x₀ y₀)(x₁ : X){p : Pushout} → inl x₁ ≡ p → inl x₀ ≡ p → Type ℓ
+  leftCodeExtended :
+      {x₀ : X}{y₀ : Y}(q₀₀ : Q x₀ y₀)
+    → (x₁ : X){p : Pushout} → inl x₁ ≡ p → inl x₀ ≡ p → Type ℓ
   leftCodeExtended {y₀ = y₀} q₀₀ x₁ r' r = Trunc (m + n) (fiber' q₀₀ r' r)
 
   rightCode : {x₀ : X}(y : Y) → inl x₀ ≡ inr y → Type ℓ
@@ -451,7 +451,8 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
       (leftFiber  x₁ , (y₀ , q₁₀)) (leftConn  x₁)
       (rightFiber y₀ , (x₁ , q₁₀)) (rightConn y₀)
       (λ (y₁ , q₁₁) (x₀ , q₀₀) →
-        (((r : inl x₀ ≡ inr y₁) → (p : fiberSquarePush q₀₀ q₁₀ q₁₁ r) → right→leftCodeExtended q₀₀ q₁₁ r (fiber→ q₁₀ q₀₀ q₁₁ r p) ≡ ∣ q₁₀ , p ∣ₕ )
+        ((  (r : inl x₀ ≡ inr y₁) → (p : fiberSquarePush q₀₀ q₁₀ q₁₁ r)
+          → right→leftCodeExtended q₀₀ q₁₁ r (fiber→ q₁₀ q₀₀ q₁₁ r p) ≡ ∣ q₁₀ , p ∣ₕ )
         , isOfHLevelΠ₂ _ (λ x y → isOfHLevelTruncPath)))
       (λ (y₁ , q₁₁) → ∣fiber→←[q₀₀=q₁₀]∣ q₁₀ q₁₁)
       (λ (x₀ , q₀₀) → ∣fiber→←[q₁₁=q₁₀]∣ q₁₀ q₀₀)
@@ -514,7 +515,8 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
       (leftFiber  x₀ , (y₁ , q₀₁)) (leftConn  x₀)
       (rightFiber y₁ , (x₀ , q₀₁)) (rightConn y₁)
       (λ (y₀ , q₀₀) (x₁ , q₁₁) →
-        (((r : inl x₀ ≡ inr y₁) → (p : push q₀₁ ≡ r) → left→rightCodeExtended q₀₀ q₁₁ r (fiber← q₀₁ q₀₀ q₁₁ r p) ≡ ∣ q₀₁ , p ∣ₕ )
+        ((  (r : inl x₀ ≡ inr y₁) → (p : push q₀₁ ≡ r)
+          → left→rightCodeExtended q₀₀ q₁₁ r (fiber← q₀₁ q₀₀ q₁₁ r p) ≡ ∣ q₀₁ , p ∣ₕ )
         , isOfHLevelΠ₂ _ (λ x y → isOfHLevelTruncPath)))
       (λ (y₀ , q₀₀) → ∣fiber←→[q₁₁=q₀₁]∣ q₀₁ q₀₀)
       (λ (x₁ , q₁₁) → ∣fiber←→[q₀₀=q₀₁]∣ q₀₁ q₁₁)
@@ -613,7 +615,8 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
 
     transpPushCodeβ :
         (y : Y) → (q : Q x₀ y) → (q' : fiberSquare q₀₀ q₀₀ refl refl)
-      → transport (λ i → pushCode q i (λ j → push q (i ∧ j))) ∣ q₀₀ , q' ∣ₕ ≡ ∣fiber→[q₀₀=q₁₀]∣ q₀₀ q (push q) (λ i j → transpLeftCode-filler (push q) q' i j i1)
+      →   transport (λ i → pushCode q i (λ j → push q (i ∧ j))) ∣ q₀₀ , q' ∣ₕ
+        ≡ ∣fiber→[q₀₀=q₁₀]∣ q₀₀ q (push q) (λ i j → transpLeftCode-filler (push q) q' i j i1)
     transpPushCodeβ y q q' =
         transpPushCodeβ' _ _ _
       ∙ (λ i → left→rightCodeExtended _ _ _ (transpLeftCodeβ _ _ q' i))
