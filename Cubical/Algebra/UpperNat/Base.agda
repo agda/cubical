@@ -36,7 +36,7 @@ private
    The interpretation is that an upper natural is a natural ``defined by its upper bounds'', in the
    sense that for the proposition N holding of a natural n means that n is an upper bound of N.
    The important bit about upper naturals is that they satisfy the well-ordering principle,
-   constructively.
+   constructively (no proof of that is given here).
 
    Example Application:
    The degree of a (constructive!) polynomial may be defined as an upper natural:
@@ -99,30 +99,37 @@ module Construction where
                             (≤-trans (isLMonotone {z = a} a'+b'≤b) a·b≤n)) ∣ })
                    y+zb}
       ⇐ : (n : ℕ) → _
-      ⇐ n = propTruncRec
+      ⇐ n =
+        propTruncRec
+          isPropPropTrunc
+          λ {((a , b) , x·ya , (x·zb , a+b≤n))
+          → propTruncRec
               isPropPropTrunc
-              λ {((a , b) , x·ya , (x·zb , a+b≤n))
-                → propTruncRec
-                    isPropPropTrunc
-                    (λ {((a' , b') , a'x , (b'y , a'·b'≤a))
-                    → propTruncRec
-                        isPropPropTrunc
-                        (λ {((a″ , b″) , a″x , (zb″ , a″·b″≤b))
-                          → ∣ ≤CaseInduction {n = a'} {m = a″}
-                                (λ a'≤a″ → (a' , (b' +ℕ b″)) , a'x ,
-                                           (∣ (b' , b″) , (b'y , (zb″ , ≤-refl)) ∣ ,
-                                            (a' · (b' +ℕ b″)       ≤⟨ subst (_≤ (a' · b') +ℕ (a' · b″)) (·-distribˡ a' b' b″) ≤-refl ⟩
-                                            (a' · b') +ℕ (a' · b″) ≤⟨ +isRMonotone a'·b'≤a ⟩
-                                             a +ℕ (a' · b″)        ≤⟨ +isLMonotone (≤-trans (isRMonotone a'≤a″) a″·b″≤b) ⟩
-                                             a+b≤n ))
-                                )
-                                (λ a″≤a' → (a″ , (b' +ℕ b″)) , (a″x ,
-                                           (∣ (b' , b″) , (b'y , (zb″ , ≤-refl)) ∣ ,
-                                             ((a″ · (b' +ℕ b″))      ≤⟨ subst (_≤ (a″ · b') +ℕ (a″ · b″)) (·-distribˡ a″ b' b″) ≤-refl ⟩
-                                              (a″ · b') +ℕ (a″ · b″) ≤⟨ +isRMonotone ((a″ · b') ≤⟨ isRMonotone a″≤a' ⟩ a'·b'≤a) ⟩
-                                              a +ℕ (a″ · b″)         ≤⟨ +isLMonotone a″·b″≤b  ⟩
-                                              a+b≤n)))
-                                )
-                            ∣})
-                        x·zb})
-                    x·ya}
+              (λ {((a' , b') , a'x , (b'y , a'·b'≤a))
+              → propTruncRec
+                  isPropPropTrunc
+                  (λ {((a″ , b″) , a″x , (zb″ , a″·b″≤b))
+                  → ∣ ≤CaseInduction {n = a'} {m = a″}
+                        (λ a'≤a″ →
+                          (a' , (b' +ℕ b″)) , a'x ,
+
+                          (∣ (b' , b″) , (b'y , (zb″ , ≤-refl)) ∣ ,
+                           (a' · (b' +ℕ b″)       ≤⟨ subst (_≤ (a' · b') +ℕ (a' · b″))
+                                                           (·-distribˡ a' b' b″) ≤-refl ⟩
+                           (a' · b') +ℕ (a' · b″) ≤⟨ +isRMonotone a'·b'≤a ⟩
+                            a +ℕ (a' · b″)        ≤⟨ +isLMonotone (≤-trans (isRMonotone a'≤a″) a″·b″≤b) ⟩
+                            a+b≤n ))
+                        )
+                        (λ a″≤a' →
+                         (a″ , (b' +ℕ b″)) , (a″x ,
+                         (∣ (b' , b″) , (b'y , (zb″ , ≤-refl)) ∣ ,
+                           ((a″ · (b' +ℕ b″))      ≤⟨ subst (_≤ (a″ · b') +ℕ (a″ · b″))
+                                                            (·-distribˡ a″ b' b″) ≤-refl ⟩
+                            (a″ · b') +ℕ (a″ · b″) ≤⟨ +isRMonotone
+                                                         ((a″ · b') ≤⟨ isRMonotone a″≤a' ⟩ a'·b'≤a) ⟩
+                            a +ℕ (a″ · b″)         ≤⟨ +isLMonotone a″·b″≤b  ⟩
+                            a+b≤n)))
+                        )
+                    ∣})
+                  x·zb})
+              x·ya}
